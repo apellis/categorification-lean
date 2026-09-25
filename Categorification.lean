@@ -5,7 +5,9 @@ import Categorification.Algebra.Graded.G0
 import Categorification.Algebra.Graded.Idempotent
 import Categorification.Algebra.Graded.K0
 import Categorification.Algebra.Graded.Module
+import Categorification.Algebra.IdempotentEquiv
 import Categorification.Algebra.NilHecke
+import Categorification.Algebra.NilHeckeIdempotent
 import Categorification.Algebra.ParabolicSymmetricFree
 import Categorification.Algebra.PermExpansion
 import Categorification.Algebra.SymmetricFree
@@ -14,6 +16,7 @@ import Categorification.KLR.BasisTheorem
 import Categorification.KLR.Center
 import Categorification.KLR.CenterFree
 import Categorification.KLR.Concat
+import Categorification.KLR.DividedPowerIdempotents
 import Categorification.KLR.Examples.Idempotents
 import Categorification.KLR.Examples.NilHecke
 import Categorification.KLR.Examples.NonInteracting
@@ -29,6 +32,7 @@ import Categorification.KLR.PolNu
 import Categorification.KLR.PolyRep.Defs
 import Categorification.KLR.PolyRep.Independence
 import Categorification.KLR.PolyRep.Sound
+import Categorification.KLR.Prop213
 import Categorification.KLR.Restriction
 import Categorification.KLR.Spanning
 import Categorification.KLR.Symmetries

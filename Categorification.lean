@@ -28,6 +28,8 @@ import Categorification.KLR.Grading
 import Categorification.KLR.InductionFree
 import Categorification.KLR.KL1
 import Categorification.KLR.KL1Basis
+import Categorification.KLR.Mackey
+import Categorification.KLR.MackeyRes
 import Categorification.KLR.PolNu
 import Categorification.KLR.PolyRep.Defs
 import Categorification.KLR.PolyRep.Independence
@@ -52,6 +54,7 @@ import Categorification.QuantumGroup.Serre
 import Categorification.QuantumGroup.SerreDivided
 import Categorification.QuantumGroup.TwistedMonoidAlgebra
 import Categorification.TypeA.Basic
+import Categorification.TypeA.DoubleCoset
 import Categorification.TypeA.Inversions
 import Categorification.TypeA.Length
 import Categorification.TypeA.Matsumoto

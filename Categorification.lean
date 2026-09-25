@@ -17,6 +17,15 @@ import Categorification.KLR.PolyRep.Independence
 import Categorification.KLR.PolyRep.Sound
 import Categorification.KLR.Spanning
 import Categorification.KLR.Symmetries
+import Categorification.QuantumGroup.Cartan
+import Categorification.QuantumGroup.DividedPowers
+import Categorification.QuantumGroup.Form
+import Categorification.QuantumGroup.Grading
+import Categorification.QuantumGroup.KLSpecialization
+import Categorification.QuantumGroup.PreF
+import Categorification.QuantumGroup.Radical
+import Categorification.QuantumGroup.Serre
+import Categorification.QuantumGroup.TwistedMonoidAlgebra
 import Categorification.TypeA.Basic
 import Categorification.TypeA.Inversions
 import Categorification.TypeA.Length

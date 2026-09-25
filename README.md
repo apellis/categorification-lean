@@ -30,6 +30,10 @@ The simply-laced rings of KL I, for a simple graph `Γ`, are `KLR.R1 k Γ ν` (`
 | KL I Cor. 2.11 (1) | `R(ν)` is left and right Noetherian (over a Noetherian domain) | `KLR.KL1.isNoetherianRing`, `KLR.KL1.isNoetherianRing_mulOpposite` |
 | KL I Cor. 2.11 (2) | `R(ν)` is indecomposable | `KLR.KL1.eq_zero_or_one_of_mem_center` |
 
+| KL I §2.6 | concatenation `ι_{ν,ν'} : R(ν) ⊗ R(ν') → R(ν+ν')` (injective) | `KLR.KLRAlgebra.concat`, `KLR.KLRAlgebra.concat_mul`, `KLR.KLRAlgebra.concat_e_tmul_e`, `KLR.KLRAlgebra.concat_injective` |
+| KL I Prop. 2.16 | `1_{ν,ν'} R(ν+ν')` is a free left `R(ν) ⊗ R(ν')`-module with basis indexed by minimal coset representatives (shuffles) | `KLR.KLRAlgebra.freeBasis`, `KLR.KLRAlgebra.free_oneConcat`, `KLR.KLRAlgebra.inductionBasis` |
+| KL I Cor. 2.17 | restriction takes projective modules to projective modules | `KLR.KLRAlgebra.res_projective` |
+
 The basis theorem is proved over any integral domain (the paper works over `ℤ`). Spanning holds
 over any commutative ring (`KLR.KLRAlgebra.span_eq_top'`). Linear independence is proved by
 expanding the action on the polynomial representation over the fraction field in terms of the
@@ -57,7 +61,9 @@ list of generators of the ideal in KL I §3.1, `θ_iθ_j − θ_iθ_j` should re
 
 Words in adjacent transpositions of `Fin m`: Coxeter length and inversions
 (`TypeA.length_eq_invCount`), a normal form (`TypeA.braidEquiv_canWord_or_hasRepeat`), and
-Matsumoto's theorem for `S_m` (`TypeA.braidEquiv_of_isReduced`).
+Matsumoto's theorem for `S_m` (`TypeA.braidEquiv_of_isReduced`), and factorisation through
+minimal coset representatives of `S_n × S_{n'}` with additivity of length
+(`TypeA.parabolicEquiv`, `TypeA.length_blockPerm_mul`).
 
 ### Symmetric polynomials
 

@@ -8,6 +8,7 @@ import Categorification.KLR.Basic
 import Categorification.KLR.BasisTheorem
 import Categorification.KLR.Center
 import Categorification.KLR.CenterFree
+import Categorification.KLR.Concat
 import Categorification.KLR.Examples.Idempotents
 import Categorification.KLR.Examples.NilHecke
 import Categorification.KLR.Examples.NonInteracting
@@ -15,12 +16,14 @@ import Categorification.KLR.Examples.Small
 import Categorification.KLR.Examples.TwoStrands
 import Categorification.KLR.Filtration
 import Categorification.KLR.Grading
+import Categorification.KLR.InductionFree
 import Categorification.KLR.KL1
 import Categorification.KLR.KL1Basis
 import Categorification.KLR.PolNu
 import Categorification.KLR.PolyRep.Defs
 import Categorification.KLR.PolyRep.Independence
 import Categorification.KLR.PolyRep.Sound
+import Categorification.KLR.Restriction
 import Categorification.KLR.Spanning
 import Categorification.KLR.Symmetries
 import Categorification.QuantumGroup.Cartan
@@ -37,6 +40,7 @@ import Categorification.TypeA.Inversions
 import Categorification.TypeA.Length
 import Categorification.TypeA.Matsumoto
 import Categorification.TypeA.NormalForm
+import Categorification.TypeA.Parabolic
 /-!
 # Categorification
 

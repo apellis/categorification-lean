@@ -1,10 +1,12 @@
 import Categorification.Algebra.CoactionGrading
 import Categorification.Algebra.DividedDifference
+import Categorification.Algebra.ParabolicSymmetricFree
 import Categorification.Algebra.PermExpansion
 import Categorification.Algebra.SymmetricFree
 import Categorification.KLR.Basic
 import Categorification.KLR.BasisTheorem
 import Categorification.KLR.Center
+import Categorification.KLR.CenterFree
 import Categorification.KLR.Filtration
 import Categorification.KLR.Grading
 import Categorification.KLR.KL1

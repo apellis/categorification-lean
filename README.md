@@ -21,6 +21,8 @@ The simply-laced rings of KL I, for a simple graph `Γ`, are `KLR.R1 k Γ ν` (`
 | KL I Cor. 2.6 | the polynomial representation is faithful | `KLR.KL1.polyRepKL1_injective`; general form `KLR.polyRep_injective` |
 | KL I Prop. 2.7 | `R(ν)` is free of rank `m!` over `Pol(ν)`, for both the right and the left action | `KLR.KL1.rightBasis`, `KLR.KL1.leftBasis`, `KLR.KL1.finrank_polMod` |
 | KL I Thm. 2.9 | the center of `R(ν)` is `Sym(ν) = Pol(ν)^{S_m}` | `KLR.KL1.center_eq`, `KLR.KL1.symNuEquivCenter`, `KLR.symNu` |
+| KL I Cor. 2.10 (1) | `R(ν)` is free of rank `(m!)²` over its center | `KLR.KL1.center_free`, `KLR.KL1.finrank_center`, `KLR.KL1.exists_centerBasis` |
+| KL I Cor. 2.11 (1) | `R(ν)` is left and right Noetherian (over a Noetherian domain) | `KLR.KL1.isNoetherianRing`, `KLR.KL1.isNoetherianRing_mulOpposite` |
 | KL I Cor. 2.11 (2) | `R(ν)` is indecomposable | `KLR.KL1.eq_zero_or_one_of_mem_center` |
 
 The basis theorem is proved over any integral domain (the paper works over `ℤ`). Spanning holds
@@ -39,7 +41,8 @@ Matsumoto's theorem for `S_m` (`TypeA.braidEquiv_of_isReduced`).
 
 `Categorification.symmetricBasis`: over any commutative ring, `k[x_0, …, x_{n-1}]` is a free
 module of rank `n!` over the symmetric polynomials, with basis the monomials `x^u`,
-`u_a ≤ a` (`finrank_symmetric`).
+`u_a ≤ a` (`finrank_symmetric`); more generally, free of rank `|G|` over the invariants of a
+label-preserving group `G` (`Categorification.finrank_labelInvariants`).
 
 ### Divided differences
 

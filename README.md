@@ -19,6 +19,9 @@ The simply-laced rings of KL I, for a simple graph `Γ`, are `KLR.R1 k Γ ν` (`
 | KL I Prop. 2.3 | polynomial representation, for every orientation of `Γ` (and for any factorisation `Q_ij(u,v) = P_ji(u,v) P_ij(v,u)`) | `KLR.polyRepKL1`, `KLR.PolyRep.polyRep` |
 | KL I Thm. 2.5 | for any choice of reduced expressions, `_jR(ν)_i` is free with basis `ψ_ŵ x^u e_i` (`w • i = j`) | `KLR.KL1.cornerBasis`, `KLR.KL1.cornerBasis_apply`, `KLR.KL1.basis`; general form `KLR.KLRAlgebra.cornerBasis` |
 | KL I Cor. 2.6 | the polynomial representation is faithful | `KLR.KL1.polyRepKL1_injective`; general form `KLR.polyRep_injective` |
+| KL I Prop. 2.7 | `R(ν)` is free of rank `m!` over `Pol(ν)`, for both the right and the left action | `KLR.KL1.rightBasis`, `KLR.KL1.leftBasis`, `KLR.KL1.finrank_polMod` |
+| KL I Thm. 2.9 | the center of `R(ν)` is `Sym(ν) = Pol(ν)^{S_m}` | `KLR.KL1.center_eq`, `KLR.KL1.symNuEquivCenter`, `KLR.symNu` |
+| KL I Cor. 2.11 (2) | `R(ν)` is indecomposable | `KLR.KL1.eq_zero_or_one_of_mem_center` |
 
 The basis theorem is proved over any integral domain (the paper works over `ℤ`). Spanning holds
 over any commutative ring (`KLR.KLRAlgebra.span_eq_top'`). Linear independence is proved by
@@ -31,6 +34,12 @@ induction on sequences.
 Words in adjacent transpositions of `Fin m`: Coxeter length and inversions
 (`TypeA.length_eq_invCount`), a normal form (`TypeA.braidEquiv_canWord_or_hasRepeat`), and
 Matsumoto's theorem for `S_m` (`TypeA.braidEquiv_of_isReduced`).
+
+### Symmetric polynomials
+
+`Categorification.symmetricBasis`: over any commutative ring, `k[x_0, …, x_{n-1}]` is a free
+module of rank `n!` over the symmetric polynomials, with basis the monomials `x^u`,
+`u_a ≤ a` (`finrank_symmetric`).
 
 ### Divided differences
 

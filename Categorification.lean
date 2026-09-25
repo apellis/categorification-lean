@@ -1,5 +1,10 @@
 import Categorification.Algebra.CoactionGrading
 import Categorification.Algebra.DividedDifference
+import Categorification.Algebra.Graded.Dimension
+import Categorification.Algebra.Graded.G0
+import Categorification.Algebra.Graded.Idempotent
+import Categorification.Algebra.Graded.K0
+import Categorification.Algebra.Graded.Module
 import Categorification.Algebra.NilHecke
 import Categorification.Algebra.ParabolicSymmetricFree
 import Categorification.Algebra.PermExpansion
@@ -15,6 +20,7 @@ import Categorification.KLR.Examples.NonInteracting
 import Categorification.KLR.Examples.Small
 import Categorification.KLR.Examples.TwoStrands
 import Categorification.KLR.Filtration
+import Categorification.KLR.GradedModules
 import Categorification.KLR.Grading
 import Categorification.KLR.InductionFree
 import Categorification.KLR.KL1

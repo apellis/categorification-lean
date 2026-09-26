@@ -1,8 +1,10 @@
 import Categorification.Algebra.AugmentationQuotient
+import Categorification.Algebra.BalancedTensor
 import Categorification.Algebra.CoactionGrading
 import Categorification.Algebra.Coinvariant
 import Categorification.Algebra.CoinvariantGraded
 import Categorification.Algebra.DividedDifference
+import Categorification.Algebra.ExternalTensor
 import Categorification.Algebra.Graded.Dimension
 import Categorification.Algebra.Graded.G0
 import Categorification.Algebra.Graded.GeomSeries
@@ -15,6 +17,7 @@ import Categorification.Algebra.Graded.K0
 import Categorification.Algebra.Graded.Module
 import Categorification.Algebra.Graded.Quotient
 import Categorification.Algebra.Graded.Simple
+import Categorification.Algebra.Graded.Tensor
 import Categorification.Algebra.IdempotentEquiv
 import Categorification.Algebra.NilHecke
 import Categorification.Algebra.NilHeckeIdempotent
@@ -28,6 +31,7 @@ import Categorification.KLR.BasisTheorem
 import Categorification.KLR.Center
 import Categorification.KLR.CenterFree
 import Categorification.KLR.Concat
+import Categorification.KLR.ConcatAssoc
 import Categorification.KLR.Cor215
 import Categorification.KLR.DividedPowerCharacters
 import Categorification.KLR.DividedPowerDecomposition
@@ -44,7 +48,10 @@ import Categorification.KLR.GradedFree
 import Categorification.KLR.GradedModules
 import Categorification.KLR.Grading
 import Categorification.KLR.GradingFlip
+import Categorification.KLR.Induction
+import Categorification.KLR.InductionAlgebra
 import Categorification.KLR.InductionFree
+import Categorification.KLR.K0Algebra
 import Categorification.KLR.KL1
 import Categorification.KLR.KL1Basis
 import Categorification.KLR.KL2.Datum

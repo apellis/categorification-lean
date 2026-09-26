@@ -36,8 +36,9 @@ phrasing it for the tensor product, by its universal property.
   E_{εi}^{(N-n)}) E_b 1_λ` of orientation `ε`, given the Serre relation in `K₀` for this
   orientation (`SerreK0 RD k ε`). For `ε = +` this is `serreK0_up`, from Proposition 3.24
   (upward) and the divided-power decompositions in `K₀` (`eC_serre`); for `ε = -` it is
-  **assumed** (`DownSerreK0`, the `K₀`-shadow of the second display of KL III
-  Proposition 3.24, which is not formalized: it needs `ϕ_{-ν,λ}` or the symmetry `ω̃`).
+  taken as a hypothesis here (`DownSerreK0`, the `K₀`-shadow of the second display of KL III
+  Proposition 3.24); it is proved in `Categorification.Diagrams.KL3.DownwardDecomp`
+  (`downSerreK0`, via the symmetry `ω̃`), which also gives the unconditional `gammaQ'`.
 * `Lrel_le_ker`: hence `γ` kills all defining relations of `U̇ 1_λ` (given `DownSerreK0`).
 * `gammaQ φ hF : U̇ 1_λ →ₗ[ℚ(q)] V`: **KL III Proposition 3.27 over `ℚ(q)`, block form**, with
   `gammaQ_mk_ew : γ(E_w 1_λ) = φ([E_w 1_λ])`.
@@ -45,16 +46,13 @@ phrasing it for the tensor product, by its universal property.
   product `K0U.mul` of `K₀(U̇)` induced by composition (KL III (3.68)); `K0U.mul` is
   `ℤ[q, q⁻¹]`-bilinear (`K0U.mul_shift_left`, `K0U.mul_shift_right`).
 
-## What is not formalized
+## Later developments
 
-* The `F`-Serre relation in `K₀` (`DownSerreK0`), see above.
-* The restriction to the integral form `_A U̇`: showing that `γ_{ℚ(q)}(_A U̇)` lies in the image of
-  `K₀(U̇)` needs the divided-power decompositions of both `E_i^{(a)}` (available,
-  `eC_pow`) and `F_i^{(a)}` (downward, not available), and descending to `K₀(U̇)` itself needs
-  `K₀(U̇) → K₀(U̇) ⊗ ℚ(q)` to be injective, i.e. `K₀(U̇)` torsion free over `ℤ[q, q⁻¹]`; KL III
-  deduce this from the Krull–Schmidt property of `U̇(λ, μ)` (finite-dimensional graded Hom
-  spaces, from the spanning sets of §3.2).
-* The associativity of `K0U.mul` (associators of `U̇`), so the ring structure of `K₀(U̇)`.
+* The `F`-Serre relation in `K₀` is `downSerreK0` (`Categorification.Diagrams.KL3.DownwardDecomp`).
+* The integral form: `Categorification.Diagrams.KL3.GammaIntegral` and `GammaAUD` (the relations
+  of `_A U̇` hold in `K₀(U̇)` up to `ℤ[q, q⁻¹]`-torsion; exactly if `K₀(U̇)` is torsion free,
+  which KL III deduce from the Krull–Schmidt property of `U̇(λ, μ)` — not formalized).
+* Associativity of `K0U.mul`: `Categorification.Diagrams.KL3.KaroubiAssoc`.
 -/
 
 noncomputable section
@@ -293,7 +291,8 @@ downward), in every context: for `i ≠ j`, `N = d_ij + 1` and signed sequences 
 classes `Y_n` with `[E_{a (εi)^n (εj) (εi)^{N-n} b} 1_λ] = [n]_i! [N-n]_i! Y_n` and
 `∑_{n even} Y_n = ∑_{n odd} Y_n`. For `ε = true` this is `serreK0_up` (KL III Proposition 3.24,
 first display, and the divided-power decompositions); for `ε = false` it is the corresponding
-consequence of the second display of Proposition 3.24, which is not formalized. -/
+consequence of the second display of Proposition 3.24 (proved as `downSerreK0` in
+`Categorification.Diagrams.KL3.DownwardDecomp`). -/
 def SerreK0 (ε : Bool) : Prop :=
   ∀ (i j : I), i ≠ j → ∀ (lam ρ : X) (a b : List (Letter I))
     (hρ : ∀ n, n ≤ C.dij i j + 1 →

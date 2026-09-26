@@ -28,7 +28,7 @@ presented bicategory, we equip the Hom category `U̇(l, m) = UDotHom P deg l m`
 
 Here "the product" is taken in the library's order of composition (a 1-morphism `l ⟶ m` followed
 by `m ⟶ n`), which for KL III's `U` is the order of the words `E_s E_t` read from left to right.
-The associativity of `K0U.mul` (which would need the associators of `U̇`) is not formalized.
+The associativity of `K0U.mul` is in `Categorification.Diagrams.KL3.KaroubiAssoc`.
 
 ## Generic tool
 

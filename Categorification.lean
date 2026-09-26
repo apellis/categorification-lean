@@ -49,6 +49,8 @@ import Categorification.Diagrams.KL3.DividedPowers
 import Categorification.Diagrams.KL3.DownwardDecomp
 import Categorification.Diagrams.KL3.EndOne
 import Categorification.Diagrams.KL3.EndOneGraded
+import Categorification.Diagrams.KL3.GammaAUD
+import Categorification.Diagrams.KL3.GammaIntegral
 import Categorification.Diagrams.KL3.GammaU
 import Categorification.Diagrams.KL3.Grading
 import Categorification.Diagrams.KL3.Grassmannian
@@ -57,6 +59,7 @@ import Categorification.Diagrams.KL3.K0Serre
 import Categorification.Diagrams.KL3.K0Sorting
 import Categorification.Diagrams.KL3.K0UDot
 import Categorification.Diagrams.KL3.Karoubi
+import Categorification.Diagrams.KL3.KaroubiAssoc
 import Categorification.Diagrams.KL3.KaroubiHcomp
 import Categorification.Diagrams.KL3.KaroubiKLR
 import Categorification.Diagrams.KL3.Markov
@@ -68,6 +71,8 @@ import Categorification.Diagrams.KL3.MoreBubbleSlides
 import Categorification.Diagrams.KL3.NestedCups
 import Categorification.Diagrams.KL3.Pitchfork
 import Categorification.Diagrams.KL3.Presentation
+import Categorification.Diagrams.KL3.Prop328
+import Categorification.Diagrams.KL3.Prop328Omega
 import Categorification.Diagrams.KL3.Reduction
 import Categorification.Diagrams.KL3.Relations
 import Categorification.Diagrams.KL3.Rewriting

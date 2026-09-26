@@ -178,6 +178,7 @@ import Categorification.KLR.Crystal.IndNilpotent
 import Categorification.KLR.Crystal.Kleshchev
 import Categorification.KLR.Crystal.Lemma313
 import Categorification.KLR.Crystal.Lemma314
+import Categorification.KLR.Crystal.Lemma314Graded
 import Categorification.KLR.Crystal.Lemma39
 import Categorification.KLR.Crystal.SimpleTensor
 import Categorification.KLR.Crystal.Socle
@@ -197,6 +198,8 @@ import Categorification.KLR.ExtTensorK0
 import Categorification.KLR.ExtTensorK0Equiv
 import Categorification.KLR.Filtration
 import Categorification.KLR.Frobenius
+import Categorification.KLR.G0Ind
+import Categorification.KLR.G0Res
 import Categorification.KLR.Gamma
 import Categorification.KLR.GradedBasis
 import Categorification.KLR.GradedFree
@@ -234,6 +237,7 @@ import Categorification.KLR.MackeyIso
 import Categorification.KLR.MackeyMap
 import Categorification.KLR.MackeyRes
 import Categorification.KLR.MackeyResRight
+import Categorification.KLR.MackeyResRightGraded
 import Categorification.KLR.MackeySubquot
 import Categorification.KLR.NilHeckeBlockSplitting
 import Categorification.KLR.Pairing
@@ -243,6 +247,7 @@ import Categorification.KLR.PolyRep.Independence
 import Categorification.KLR.PolyRep.Sound
 import Categorification.KLR.Prop213
 import Categorification.KLR.Prop318
+import Categorification.KLR.Prop31G0
 import Categorification.KLR.Prop32
 import Categorification.KLR.Prop320
 import Categorification.KLR.Prop32Mult

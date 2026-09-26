@@ -122,7 +122,9 @@ For an arbitrary symmetric Cartan datum and a field `𝕜`, `γ : _A f → K_0(R
 `ℤ[q, q⁻¹]`-linear, sending divided-power monomials (divided powers in `v_i = v^{i·i/2}`) to the classes
 of the corresponding projectives: `KLR.KL2Gamma.theorem_8`, `KLR.KL2Gamma.gammaInt2Equiv`,
 `KLR.KL2Gamma.gammaInt2Equiv_dpowMono`; over `ℚ(v)`, `KLR.KL2Gamma.gammaF2Equiv`. Again the quantum
-Gabber–Kac theorem is an explicit hypothesis. The compatibility with coproducts is not yet formalized.
+Gabber–Kac theorem is an explicit hypothesis. The coproduct `Δ = [Res]` is multiplicative for the
+twisted multiplication and coassociative, and `γ` intertwines Lusztig's `r` with `Δ`, so `γ` is an
+isomorphism of `ℕ[I]`-graded twisted bialgebras (`KLR.KL2Gamma.theorem_8_bialgebra`).
 
 ### KLR algebras for arbitrary Cartan data (Khovanov–Lauda II, arXiv:0804.2080v1)
 

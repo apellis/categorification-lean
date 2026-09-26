@@ -123,6 +123,7 @@ import Categorification.KLR.K0Algebra
 import Categorification.KLR.K0Free
 import Categorification.KLR.KL1
 import Categorification.KLR.KL1Basis
+import Categorification.KLR.KL2.Bialgebra2
 import Categorification.KLR.KL2.Datum
 import Categorification.KLR.KL2.Gamma2
 import Categorification.KLR.KL2.K0Free2

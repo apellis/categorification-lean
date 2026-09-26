@@ -119,6 +119,7 @@ import Categorification.Diagrams.KL3.SortedSpanWords
 import Categorification.Diagrams.KL3.SortedSplit
 import Categorification.Diagrams.KL3.Spanning
 import Categorification.Diagrams.KL3.SpanningBasic
+import Categorification.Diagrams.KL3.SpanningBend
 import Categorification.Diagrams.KL3.SpanningPhi
 import Categorification.Diagrams.KL3.SpanningPositive
 import Categorification.Diagrams.KL3.SpanningSetBlock

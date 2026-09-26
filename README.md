@@ -22,6 +22,10 @@ The simply-laced rings of KL I, for a simple graph `Γ`, are `KLR.R1 k Γ ν` (`
 | KL I §2.2 (7) | `R(i + j)`, `i · j = -1`: 2×2 matrices over `k[x_1, x_2]` with lower-left entry divisible by `x_1 + x_2` | `KLR.TwoStrand.KL1.adjEquiv` |
 | KL I §2.2, Remark | the two orthogonal idempotents in `1_{iji}` | `KLR.KL1.Remark.idemL_add_idemR`, `KLR.KL1.Remark.idemL_mul_idemR` |
 | KL I §2.2 (3) | the nilHecke idempotents `e_m = x^δ ∂_{w_0}` and `ψ(e_m)`; divided-power idempotents `1_i` in `R(ν)` (degree 0) | `NilHecke.isIdempotentElem_idemNH`, `KLR.KLRAlgebra.isIdempotentElem_divIdemOf`, `KLR.KLRAlgebra.divIdemOf_mem_grade` |
+| KL I §2.1, §2.4 | the basis elements are homogeneous; the crossing degree of `ψ_ŵ e_i` depends only on `w`; graded pieces are finite-dimensional and vanish below `-∑_i ν_i(ν_i - 1)`; `gdim(1_j R(ν) 1_i) = ∑_{w•i=j} q^{deg(ψ_w 1_i)} (1-q^2)^{-m}` | `KLR.GradingDatum.degW_eq_sum_invSet`, `KLR.KL1.grade_eq_bot_of_lt`, `KLR.KL1.gdim_cornerGrade`, `KLR.KL1.hasGdim_of_finite` |
+| KL I §2.5 | `(ν)_q = gdim Sym(ν) = ∏_i ∏_{a=1}^{ν_i} (1-q^{2a})^{-1}` | `KLR.KL1.gdim_symGrade`, `KLR.GradingDatum.gdim_center` |
+| KL I §2.5 | the form on `K_0`: `([P_j],[P_i]) = gdim(_jR(ν)_i)`, `([P_j],[M]) = ch(M, j)` | `KLR.KL1.homForm_projP`, `KLR.GradingDatum.homForm_projP_left`, `Graded.K0.homForm` |
+| KL I Cor. 2.10 (2) | `R(ν)` has a homogeneous basis over its center | `KLR.GradingDatum.exists_homogeneous_centerBasis` |
 | KL I Prop. 2.3 | polynomial representation, for every orientation of `Γ` (and for any factorisation `Q_ij(u,v) = P_ji(u,v) P_ij(v,u)`) | `KLR.polyRepKL1`, `KLR.PolyRep.polyRep` |
 | KL I Thm. 2.5 | for any choice of reduced expressions, `_jR(ν)_i` is free with basis `ψ_ŵ x^u e_i` (`w • i = j`) | `KLR.KL1.cornerBasis`, `KLR.KL1.cornerBasis_apply`, `KLR.KL1.basis`; general form `KLR.KLRAlgebra.cornerBasis` |
 | KL I Cor. 2.6 | the polynomial representation is faithful | `KLR.KL1.polyRepKL1_injective`; general form `KLR.polyRep_injective` |
@@ -78,7 +82,10 @@ projective modules as a `ℤ[q,q⁻¹]`-module (with `[A e] = q^{-d}[A e']` for 
 equivalent via elements of degrees `d`, `-d`, and additivity on orthogonal idempotents), and
 `G0` of finite-dimensional graded modules. For `R(ν)`: `P_i = R(ν) 1_i` and characters
 `ch(M)` (`KLR.GradingDatum.projP`, `KLR.GradingDatum.ch`). "Graded projective" is taken to mean
-projective as a module and graded.
+projective as a module and graded. The form on `K_0` is defined as `gdim HOM(P, Q)`
+(`Graded.K0.homForm`); the paper's `gdim(P^ψ ⊗_{R(ν)} Q)` agrees with it on the classes
+`[P_i]`, which is where the paper evaluates it, but the identification on all of `K_0` (which
+involves the bar involution) is not formalized.
 
 ### Symmetric group combinatorics
 

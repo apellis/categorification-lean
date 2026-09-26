@@ -2,6 +2,9 @@ import Categorification.Algebra.CoactionGrading
 import Categorification.Algebra.DividedDifference
 import Categorification.Algebra.Graded.Dimension
 import Categorification.Algebra.Graded.G0
+import Categorification.Algebra.Graded.GeomSeries
+import Categorification.Algebra.Graded.HomForm
+import Categorification.Algebra.Graded.HomogeneousBasis
 import Categorification.Algebra.Graded.Idempotent
 import Categorification.Algebra.Graded.K0
 import Categorification.Algebra.Graded.Module
@@ -23,6 +26,8 @@ import Categorification.KLR.Examples.NonInteracting
 import Categorification.KLR.Examples.Small
 import Categorification.KLR.Examples.TwoStrands
 import Categorification.KLR.Filtration
+import Categorification.KLR.GradedBasis
+import Categorification.KLR.GradedFree
 import Categorification.KLR.GradedModules
 import Categorification.KLR.Grading
 import Categorification.KLR.InductionFree
@@ -30,6 +35,7 @@ import Categorification.KLR.KL1
 import Categorification.KLR.KL1Basis
 import Categorification.KLR.Mackey
 import Categorification.KLR.MackeyRes
+import Categorification.KLR.Pairing
 import Categorification.KLR.PolNu
 import Categorification.KLR.PolyRep.Defs
 import Categorification.KLR.PolyRep.Independence
@@ -37,6 +43,7 @@ import Categorification.KLR.PolyRep.Sound
 import Categorification.KLR.Prop213
 import Categorification.KLR.Restriction
 import Categorification.KLR.Spanning
+import Categorification.KLR.SymGdim
 import Categorification.KLR.Symmetries
 import Categorification.QuantumGroup.Bar
 import Categorification.QuantumGroup.Cartan

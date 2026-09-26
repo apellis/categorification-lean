@@ -53,6 +53,7 @@ import Categorification.Diagrams.KL3.EndOneGraded
 import Categorification.Diagrams.KL3.FinDimHom
 import Categorification.Diagrams.KL3.FinDimHomUp
 import Categorification.Diagrams.KL3.GammaAUD
+import Categorification.Diagrams.KL3.GammaFlagSigned
 import Categorification.Diagrams.KL3.GammaIntegral
 import Categorification.Diagrams.KL3.GammaU
 import Categorification.Diagrams.KL3.Grading
@@ -113,7 +114,9 @@ import Categorification.Diagrams.NilHecke.Dots
 import Categorification.Diagrams.NilHecke.LongestElement
 import Categorification.Diagrams.NilHecke.PolyRep
 import Categorification.Diagrams.NilHecke.Relations
+import Categorification.Flag.AdjacentCrossing
 import Categorification.Flag.Adjunction
+import Categorification.Flag.BimodRing
 import Categorification.Flag.Bimodule
 import Categorification.Flag.Borel
 import Categorification.Flag.Bubbles
@@ -124,6 +127,11 @@ import Categorification.Flag.CupsMirror
 import Categorification.Flag.Erratum
 import Categorification.Flag.Esymm
 import Categorification.Flag.Free
+import Categorification.Flag.GammaCups
+import Categorification.Flag.GammaLocal
+import Categorification.Flag.GammaWhisker
+import Categorification.Flag.GammaWord
+import Categorification.Flag.Relabel
 import Categorification.Flag.SlRootDatum
 import Categorification.Flag.YoungInvariants
 import Categorification.KLR.BarDivided

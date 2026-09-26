@@ -102,8 +102,15 @@ basis powers of `ξ` (`Flag.eBasisRight`, `Flag.eBasisLeft`) and the Frobenius t
 (ii), (iv) and both maps of Cor. 5.5; the caps (6.4)–(6.5) of Definition 6.1 as bimodule maps and
 all four zigzag identities (`Flag.snake_E_FE`, …); dotted bubbles as Chern classes, the bubble
 relations (3.4) and the Grassmannian relation for real bubbles (`Flag.grassmannian`); the
-divided-difference crossings (6.8) with the nilHecke relations, and distant crossings. The
-2-category `Flag_N` and `Γ_N` as a 2-functor are not yet constructed. Lemma 5.4 (iii) as printed
+divided-difference crossings (6.8) with the nilHecke relations, and distant crossings. On the
+word model of Def. 5.6 / (6.1) (iterated tensor products of the step bimodules,
+`Flag.gammaP`): all upward crossings (same, distant and adjacent colours, the latter via a
+push-forward from the non-flag product), their dot slides and double crossings at every position,
+matching the signed relation (4.11) of `U→(sl_n)` (`KL3.Diagram.Signed.gammaCross_sq`); the
+cups and caps of Def. 6.1 with all four zigzags on arbitrary 1-morphisms (`Flag.zigzag_E`, …),
+cyclicity of dots (`Flag.cycDot_F`) and dotted bubbles (`Flag.bubbleFEW_eq`). The triple
+relations (4.13)–(4.14), downward and sideways crossings, curls and the `EF`/`FE` decompositions
+on the word model, and hence `Γ_N` as a 2-functor, are not yet constructed. Lemma 5.4 (iii) as printed
 in (5.45), with `x(k)_{i+1,·}`, is false as we read it (a counterexample with `N = 2`:
 `Flag.Erratum545.lemma_5_4_iii_printed_false`); the version with `x(k)_{i,·}`, which is the one
 used in the proof and in Cor. 5.5, holds (`Flag.lemma_5_4_iii`).

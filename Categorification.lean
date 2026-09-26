@@ -325,9 +325,12 @@ import Categorification.TwoRep.AdjointInduction
 import Categorification.TwoRep.AdjointInductionNeg
 import Categorification.TwoRep.Basic
 import Categorification.TwoRep.Biadjoint
+import Categorification.TwoRep.DividedPower
 import Categorification.TwoRep.EndE
 import Categorification.TwoRep.KrullSchmidt
 import Categorification.TwoRep.QStrong
+import Categorification.TwoRep.QStrongRestrict
+import Categorification.TwoRep.Rank
 import Categorification.TwoRep.Sl2
 import Categorification.TypeA.Basic
 import Categorification.TypeA.DoubleCoset

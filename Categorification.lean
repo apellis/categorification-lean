@@ -37,11 +37,13 @@ import Categorification.Algebra.ParabolicSymmetricFree
 import Categorification.Algebra.PermExpansion
 import Categorification.Algebra.SplitK0
 import Categorification.Algebra.SymmetricFree
+import Categorification.Diagrams.CL.DownKLR
 import Categorification.Diagrams.CL.Homogeneous
 import Categorification.Diagrams.CL.Presentation
 import Categorification.Diagrams.CL.Rescale
 import Categorification.Diagrams.CL.RescaleBasic
 import Categorification.Diagrams.CL.RescaleR
+import Categorification.Diagrams.CL.Rotate
 import Categorification.Diagrams.CL.Scalars
 import Categorification.Diagrams.CL.Sigma
 import Categorification.Diagrams.CL.Specialize

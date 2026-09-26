@@ -50,7 +50,8 @@ places where the scalars enter:
   `eq_almost_cyclic`): the `F`'s carry an action of the KLR algebra for the dual scalars `Q'`. CL
   state that this is ensured by `Q`-cyclicity; we therefore do not include these relations in
   `presCL` (whose relation index is `Rel RD`), but record them as `relationDown` and provide the
-  presentation `presCLDown` with them added. We do not prove that they are consequences.
+  presentation `presCLDown` with them added. That they are consequences is proved in
+  `Categorification.Diagrams.CL.DownKLR` (`CL.lin_relationDown`, `CL.presCLDownEquiv`).
 * **Mixed relations** (`sec:mixedrels`, p. 8, `i ≠ j`): `crossl i j ≫ crossr i j = t_{ji} · 1`
   on `E_i F_j` and `crossr j i ≫ crossl j i = t_{ij} · 1` on `F_i E_j` (indices `downupEF`,
   `downupFE`; KL III's (3.13) with the scalars `t_{ji}`, `t_{ij}`).
@@ -295,7 +296,7 @@ variable (RD)
 
 /-- `presCL` with the KLR relations for `Q'` on downward strands added (CL Definition 1.1 (2),
 second half). By CL's claim after `eq_almost_cyclic`, it presents the same 2-category as
-`presCL`; we do not prove this. -/
+`presCL`, which is proved in `Categorification.Diagrams.CL.DownKLR` (`CL.presCLDownEquiv`). -/
 def presCLDown (S : CLScalars C k) : Presentation.{w, max u v} (psig RD) k :=
   (presCL RD k S).addRels (RelDown RD) RelDown.dom RelDown.cod (relationDown k S)
 

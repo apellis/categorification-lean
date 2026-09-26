@@ -184,8 +184,11 @@ throughout (without them the isomorphisms of Prop. 3.24 are not of degree 0).
 | CL §3.2–3.6 (partial) | the adjoint induction from the highest weight (`n ≥ 0`) and from the lowest weight (`n ≤ 0`); Lemma 3.1 (`E1_m` has no negative-degree endomorphisms and is a brick, with the nonvanishing hypotheses made explicit), Cor. 3.2, Cor. 3.3, Lemma 3.4, Cor. 3.10, Lemma 3.12, and the dimension formula (3.15) of Lemma 3.14; the divided power `E^{(2)}` with `EE1_n ≅ E^{(2)}⟨1⟩ ⊕ E^{(2)}⟨-1⟩`, additivity of rank, and the restriction of a `Q`-strong 2-representation to an `sl_2` string (`d_i = 1`); Lemma 3.6, Prop. 3.9 (biadjointness is automatic) and their consequences are not yet formalized | `TwoRep.StrongSl2.adjoint_induction`, `TwoRep.StrongSl2.lem1_neg`, `TwoRep.StrongSl2.lem1_zero`, `TwoRep.StrongSl2.cor_EFidhoms`, `TwoRep.StrongSl2.lemHoms_EF_FE_eq_one`, `TwoRep.StrongSl2.lemMain_finrank`, `TwoRep.StrongSl2.exists_E2`, `TwoRep.rk0_biprod_map`, `TwoRep.QStrong.toStrongSl2` |
 
 In CL §2.1.1, "`s_{ij}^{pq} = 0` when … `d_{ij} ≥ p` or `d_{ji} ≥ q`" should read "`p ≥ d_{ij}` or
-`q ≥ d_{ji}`". The downward KLR relations for `Q'` (stated by CL to follow from `Q`-cyclicity)
-and the main theorem (CL Theorem 1.1) are not yet formalized.
+`q ≥ d_{ji}`". The downward KLR relations for the dual scalars `Q'` follow from `Q`-cyclicity,
+as CL state, by rotating the upward relations (a rotation calculus that needs only the zigzag
+relations, not cyclicity): adding them gives an isomorphic presentation
+(`KL3.Diagram.CL.lin_relationDown`, `KL3.Diagram.CL.presCLDownEquiv`). The main theorem (CL
+Theorem 1.1) is not yet formalized.
 
 ### KL I §3.3–3.4: relations between induction functors, tight monomials
 

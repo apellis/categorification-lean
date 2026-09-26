@@ -56,6 +56,7 @@ import Categorification.Diagrams.KL3.GammaAUD
 import Categorification.Diagrams.KL3.GammaFlagBraid
 import Categorification.Diagrams.KL3.GammaFlagBubble
 import Categorification.Diagrams.KL3.GammaFlagDecomp
+import Categorification.Diagrams.KL3.GammaFlagDegenerate
 import Categorification.Diagrams.KL3.GammaFlagSigned
 import Categorification.Diagrams.KL3.GammaIntegral
 import Categorification.Diagrams.KL3.GammaU

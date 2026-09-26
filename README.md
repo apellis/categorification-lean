@@ -132,9 +132,10 @@ signs `(j - i)`, `(i - j)` are also those of the mixed relations of Cautis–Lau
 relations force. Cyclicity for equal colours (`Flag.rotCrossRW_same_eq`,
 `Flag.rotCrossLW_same_eq`) and the `EF`/`FE` decompositions of Prop. 6.3
 (`KL3.Diagram.Signed.decompEF_W`, `decompFE_W`, with the degenerate regions) hold on the word
-model, so every relation of the revised Definition 4.1 (with the corrected (3.13) signs) is
-verified on `Γ_N` except the braid relations in degenerate regions; `Γ_N` as a 2-functor is not
-yet assembled. Lemma 5.4 (iii) as printed
+model, as do the `R(ν)`-relations in the degenerate regions where an intermediate 1-morphism is
+zero (`KL3.Diagram.Signed.braid_cases`, `braidL_degenerate`, `braidR_degenerate`,
+`degen_cross_sq`). So every relation of the revised Definition 4.1 (with the corrected (3.13)
+signs) is verified on `Γ_N`; `Γ_N` as a 2-functor is not yet assembled. Lemma 5.4 (iii) as printed
 in (5.45), with `x(k)_{i+1,·}`, is false as we read it (a counterexample with `N = 2`:
 `Flag.Erratum545.lemma_5_4_iii_printed_false`); the version with `x(k)_{i,·}`, which is the one
 used in the proof and in Cor. 5.5, holds (`Flag.lemma_5_4_iii`).

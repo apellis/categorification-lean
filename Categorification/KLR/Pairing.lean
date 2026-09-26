@@ -32,9 +32,10 @@ prove the values stated in the paper:
 
 ## Scope
 
-We do not construct graded tensor products `P^ψ ⊗_{R(ν)} Q` or the bar involution on `K₀`;
-the identification of the paper's form with `homForm (x̄) y` on all of `K₀` is therefore not
-formalized. The values `([P_j], [P_i])` and `([P_j], [M])` agree with the paper's.
+The bar involution on `K₀` and the bilinear symmetric form `pform x y = homForm (x̄) y` are in
+`Categorification.Algebra.Graded.Duality` and `Categorification.KLR.BarK0`. The graded tensor
+product description `P^ψ ⊗_{R(ν)} Q ≅ HOM(P̄, Q)` of the paper's form is not formalized. The
+values `([P_j], [P_i])` and `([P_j], [M])` agree with the paper's.
 -/
 
 noncomputable section

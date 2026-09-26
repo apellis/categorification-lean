@@ -6,6 +6,7 @@ import Categorification.Algebra.CoinvariantGraded
 import Categorification.Algebra.DividedDifference
 import Categorification.Algebra.ExternalTensor
 import Categorification.Algebra.Graded.Dimension
+import Categorification.Algebra.Graded.Duality
 import Categorification.Algebra.Graded.G0
 import Categorification.Algebra.Graded.G0Basis
 import Categorification.Algebra.Graded.GeomSeries
@@ -52,6 +53,9 @@ import Categorification.Diagrams.NilHecke.Dots
 import Categorification.Diagrams.NilHecke.LongestElement
 import Categorification.Diagrams.NilHecke.PolyRep
 import Categorification.Diagrams.NilHecke.Relations
+import Categorification.KLR.BarDivided
+import Categorification.KLR.BarGamma
+import Categorification.KLR.BarK0
 import Categorification.KLR.Basic
 import Categorification.KLR.BasisTheorem
 import Categorification.KLR.Center
@@ -59,6 +63,13 @@ import Categorification.KLR.CenterFree
 import Categorification.KLR.Concat
 import Categorification.KLR.ConcatAssoc
 import Categorification.KLR.Cor215
+import Categorification.KLR.Crystal.Cor312
+import Categorification.KLR.Crystal.Delta
+import Categorification.KLR.Crystal.GradedBridge
+import Categorification.KLR.Crystal.IndDecomp
+import Categorification.KLR.Crystal.Kleshchev
+import Categorification.KLR.Crystal.SimpleTensor
+import Categorification.KLR.Crystal.Socle
 import Categorification.KLR.DividedPowerCharacters
 import Categorification.KLR.DividedPowerDecomposition
 import Categorification.KLR.DividedPowerIdempotents
@@ -104,6 +115,7 @@ import Categorification.KLR.PolyRep.Defs
 import Categorification.KLR.PolyRep.Independence
 import Categorification.KLR.PolyRep.Sound
 import Categorification.KLR.Prop213
+import Categorification.KLR.Prop32
 import Categorification.KLR.Prop33
 import Categorification.KLR.Prop34
 import Categorification.KLR.ResK0

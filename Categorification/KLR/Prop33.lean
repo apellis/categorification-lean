@@ -45,8 +45,9 @@ forms `homForm` on the weight spaces `K₀(R(ν))` of `K₀(R) = GradingDatum.K0
 
 ## Not formalized here
 
-* Statement (3) for `homForm` (induction in the second slot; for the sesquilinear `homForm` it
-  needs the symmetry of the paper's form, i.e. the bar involution on `K₀`).
+* Statement (3) for `homForm` (induction in the second slot). For the paper's bilinear
+  symmetric form `pform` it is `GradingDatum.pform_indK0_right` in `Categorification.KLR.BarK0`
+  (for the image of `γ`, i.e. spans of idempotent classes).
 * The identification `K₀(R(ν) ⊗ R(ν')) ≅ K₀(R(ν)) ⊗_{ℤ[q, q⁻¹]} K₀(R(ν'))`, needed to view
   `[Res]` as a coproduct `K₀(R) → K₀(R) ⊗ K₀(R)` and to state (3), (4) on all of `K₀(R)`; and the
   graded version of Proposition 2.19 (`Res P_s ≅ ⊕ (P_i ⊠ P_j){…}`), which would supply the

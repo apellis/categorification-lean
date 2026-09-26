@@ -37,8 +37,9 @@ KL I defines `([P], [Q]) = gdim (P^ψ ⊗_{R(ν)} Q)` (equation `eq_bil_pair2`),
 HOM(P̄, Q)` with `P̄ = HOM(P, R(ν))^ψ`, so the paper's form is `(x, y) ↦ homForm (x̄) y`. On the
 modules `P_i = R(ν) 1_i` (which satisfy `P̄_i ≅ P_i`, KL I §2.5), both give
 `([P_i], [Q]) = gdim (1_i Q)`; in particular `([P_j], [P_i]) = gdim (1_j R(ν) 1_i)` (see
-`Categorification.KLR.Pairing`). We do not formalize tensor products of graded modules or the bar
-involution here.
+`Categorification.KLR.Pairing`). The bar involution and `pform` are in
+`Categorification.Algebra.Graded.Duality`; the tensor-product description of the form is not
+formalized.
 -/
 
 universe u v

@@ -108,9 +108,12 @@ word model of Def. 5.6 / (6.1) (iterated tensor products of the step bimodules,
 push-forward from the non-flag product), their dot slides and double crossings at every position,
 matching the signed relation (4.11) of `U→(sl_n)` (`KL3.Diagram.Signed.gammaCross_sq`); the
 cups and caps of Def. 6.1 with all four zigzags on arbitrary 1-morphisms (`Flag.zigzag_E`, …),
-cyclicity of dots (`Flag.cycDot_F`) and dotted bubbles (`Flag.bubbleFEW_eq`). The triple
-relations (4.13)–(4.14), downward and sideways crossings, curls and the `EF`/`FE` decompositions
-on the word model, and hence `Γ_N` as a 2-functor, are not yet constructed. Lemma 5.4 (iii) as printed
+cyclicity of dots (`Flag.cycDot_F`) and dotted bubbles (`Flag.bubbleFEW_eq`); the braid
+relations (4.13) and (4.14) with the signed polynomials on three strands of any word whose
+intermediate regions are compositions (`Flag.braid_three`, `KL3.Diagram.Signed.braidQ_signed`);
+the downward crossings (6.9) (`Flag.crossDn_eval`). Sideways crossings, crossing cyclicity, curls
+and the `EF`/`FE` decompositions on the word model, and hence `Γ_N` as a 2-functor, are not yet
+constructed. Lemma 5.4 (iii) as printed
 in (5.45), with `x(k)_{i+1,·}`, is false as we read it (a counterexample with `N = 2`:
 `Flag.Erratum545.lemma_5_4_iii_printed_false`); the version with `x(k)_{i,·}`, which is the one
 used in the proof and in Cor. 5.5, holds (`Flag.lemma_5_4_iii`).

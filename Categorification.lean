@@ -53,6 +53,7 @@ import Categorification.Diagrams.KL3.EndOneGraded
 import Categorification.Diagrams.KL3.FinDimHom
 import Categorification.Diagrams.KL3.FinDimHomUp
 import Categorification.Diagrams.KL3.GammaAUD
+import Categorification.Diagrams.KL3.GammaFlagBraid
 import Categorification.Diagrams.KL3.GammaFlagSigned
 import Categorification.Diagrams.KL3.GammaIntegral
 import Categorification.Diagrams.KL3.GammaU
@@ -127,8 +128,12 @@ import Categorification.Flag.CupsMirror
 import Categorification.Flag.Erratum
 import Categorification.Flag.Esymm
 import Categorification.Flag.Free
+import Categorification.Flag.GammaCross
 import Categorification.Flag.GammaCups
+import Categorification.Flag.GammaDown
 import Categorification.Flag.GammaLocal
+import Categorification.Flag.GammaPoly
+import Categorification.Flag.GammaThree
 import Categorification.Flag.GammaWhisker
 import Categorification.Flag.GammaWord
 import Categorification.Flag.Relabel

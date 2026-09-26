@@ -126,9 +126,15 @@ from the v1 definition `KL3.Diagram.Signed.presSigned` only in the adjacent-colo
 `Γ_N`, the revised cyclicity relation holds as printed (`Flag.rotCrossRW_add_rotCrossLW`), but the
 revised relations (3.13) hold with the opposite sign, `crossl_{ij} ∘ crossr_{ij} = (j - i)` for
 `i · j = -1` (`Flag.downupEF_W_consistent`, `Flag.downupFE_W_consistent`), as the erratum's own
-revised Lemma 6.4 implies; we also formalize this variant (`KL3.Diagram.Signed.presSignedQT'`). Cyclicity
-for equal colours, the `EF`/`FE` decompositions on the word model, and hence `Γ_N` as a 2-functor,
-are not yet constructed. Lemma 5.4 (iii) as printed
+revised Lemma 6.4 implies; we also formalize this variant (`KL3.Diagram.Signed.presSignedQT'`). The
+signs `(j - i)`, `(i - j)` are also those of the mixed relations of Cautis–Lauda
+(arXiv:1111.1431, (2.16), Prop. 6.3) for the scalars `t_{ij} = i - j` that the signed `R(ν)`
+relations force. Cyclicity for equal colours (`Flag.rotCrossRW_same_eq`,
+`Flag.rotCrossLW_same_eq`) and the `EF`/`FE` decompositions of Prop. 6.3
+(`KL3.Diagram.Signed.decompEF_W`, `decompFE_W`, with the degenerate regions) hold on the word
+model, so every relation of the revised Definition 4.1 (with the corrected (3.13) signs) is
+verified on `Γ_N` except the braid relations in degenerate regions; `Γ_N` as a 2-functor is not
+yet assembled. Lemma 5.4 (iii) as printed
 in (5.45), with `x(k)_{i+1,·}`, is false as we read it (a counterexample with `N = 2`:
 `Flag.Erratum545.lemma_5_4_iii_printed_false`); the version with `x(k)_{i,·}`, which is the one
 used in the proof and in Cor. 5.5, holds (`Flag.lemma_5_4_iii`).

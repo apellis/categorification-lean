@@ -55,6 +55,7 @@ import Categorification.Diagrams.KL3.FinDimHomUp
 import Categorification.Diagrams.KL3.GammaAUD
 import Categorification.Diagrams.KL3.GammaFlagBraid
 import Categorification.Diagrams.KL3.GammaFlagBubble
+import Categorification.Diagrams.KL3.GammaFlagDecomp
 import Categorification.Diagrams.KL3.GammaFlagSigned
 import Categorification.Diagrams.KL3.GammaIntegral
 import Categorification.Diagrams.KL3.GammaU
@@ -146,6 +147,8 @@ import Categorification.Flag.GammaCupCap
 import Categorification.Flag.GammaCups
 import Categorification.Flag.GammaCurl
 import Categorification.Flag.GammaCyclic
+import Categorification.Flag.GammaCyclicSame
+import Categorification.Flag.GammaCyclicSameL
 import Categorification.Flag.GammaDown
 import Categorification.Flag.GammaErratumCheck
 import Categorification.Flag.GammaLocal

@@ -71,6 +71,7 @@ import Categorification.KLR.CenterFree
 import Categorification.KLR.Concat
 import Categorification.KLR.ConcatAssoc
 import Categorification.KLR.Cor215
+import Categorification.KLR.Cor319
 import Categorification.KLR.Crystal.Cor312
 import Categorification.KLR.Crystal.CrystalOps
 import Categorification.KLR.Crystal.Delta
@@ -129,7 +130,9 @@ import Categorification.KLR.PolyRep.Defs
 import Categorification.KLR.PolyRep.Independence
 import Categorification.KLR.PolyRep.Sound
 import Categorification.KLR.Prop213
+import Categorification.KLR.Prop318
 import Categorification.KLR.Prop32
+import Categorification.KLR.Prop320
 import Categorification.KLR.Prop32Mult
 import Categorification.KLR.Prop33
 import Categorification.KLR.Prop34
@@ -141,6 +144,7 @@ import Categorification.KLR.SimpleNilHecke
 import Categorification.KLR.Spanning
 import Categorification.KLR.SymGdim
 import Categorification.KLR.Symmetries
+import Categorification.KLR.Theorem11
 import Categorification.QuantumGroup.Bar
 import Categorification.QuantumGroup.Cartan
 import Categorification.QuantumGroup.Coproduct

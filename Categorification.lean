@@ -18,6 +18,7 @@ import Categorification.Algebra.Graded.Module
 import Categorification.Algebra.Graded.Quotient
 import Categorification.Algebra.Graded.Simple
 import Categorification.Algebra.Graded.Tensor
+import Categorification.Algebra.Graded.TensorGdim
 import Categorification.Algebra.IdempotentEquiv
 import Categorification.Algebra.NilHecke
 import Categorification.Algebra.NilHeckeIdempotent
@@ -56,7 +57,9 @@ import Categorification.KLR.Examples.NilHecke
 import Categorification.KLR.Examples.NonInteracting
 import Categorification.KLR.Examples.Small
 import Categorification.KLR.Examples.TwoStrands
+import Categorification.KLR.ExtTensorK0
 import Categorification.KLR.Filtration
+import Categorification.KLR.Frobenius
 import Categorification.KLR.Gamma
 import Categorification.KLR.GradedBasis
 import Categorification.KLR.GradedFree
@@ -85,6 +88,9 @@ import Categorification.KLR.PolyRep.Defs
 import Categorification.KLR.PolyRep.Independence
 import Categorification.KLR.PolyRep.Sound
 import Categorification.KLR.Prop213
+import Categorification.KLR.Prop33
+import Categorification.KLR.ResK0
+import Categorification.KLR.ResProjGraded
 import Categorification.KLR.Restriction
 import Categorification.KLR.Simple
 import Categorification.KLR.SimpleNilHecke

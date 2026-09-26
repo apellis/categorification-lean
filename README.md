@@ -20,6 +20,14 @@ Prop. 3.20 in a form that does not need `Γ` finite (`KLR.KLGamma.prop_3_20`), a
 Cor. 3.19 as `End(S) = 𝕜` for every simple `R(ν)`-module (`KLR.KLRAlgebra.exists_eq_smul_of_isSimpleModule`),
 so the bases of `K_0` and `G_0` are exactly dual (`KLR.GradingDatum.pairing_k0Basis_g0Basis_eq`).
 
+**Twisted bialgebra structure.** `K_0(R(ν) ⊗ R(ν')) ≅ K_0(R(ν)) ⊗ K_0(R(ν'))`
+(`KLR.GradingDatum.k0TensorEquiv`, from `S_b ⊠ S_{b'}` simple and `P_b ⊠ P_{b'}` indecomposable), so
+`[Res]` is a coproduct `Δ` on `K_0(R)`; `Δ` is multiplicative for the twisted multiplication (3.1)
+(KL I Prop. 3.2, `KLR.KLGamma.coprod_mul`) and coassociative (`KLR.KLGamma.coassoc`), and `γ`
+intertwines Lusztig's `r` with `Δ` (`KLR.KLGamma.coprod_gammaZ`, `KLR.KLGamma.map_gammaF_rbar`). All
+of this is bundled in `KLR.KLGamma.theorem_1_1_bialgebra`: `γ` is an isomorphism of `ℕ[I]`-graded
+twisted bialgebras (with Lusztig's `r̄` on `f` compared after base change to `ℚ(v)`).
+
 
 ### KLR algebras (Khovanov–Lauda I, arXiv:0803.4121v2; Khovanov–Lauda II, arXiv:0804.2080v1)
 

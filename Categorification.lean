@@ -24,6 +24,7 @@ import Categorification.Algebra.Graded.Quotient
 import Categorification.Algebra.Graded.Simple
 import Categorification.Algebra.Graded.Tensor
 import Categorification.Algebra.Graded.TensorGdim
+import Categorification.Algebra.Graded.TensorSimple
 import Categorification.Algebra.IdempotentEquiv
 import Categorification.Algebra.NilHecke
 import Categorification.Algebra.NilHeckeIdempotent
@@ -70,6 +71,7 @@ import Categorification.KLR.BarGamma
 import Categorification.KLR.BarK0
 import Categorification.KLR.Basic
 import Categorification.KLR.BasisTheorem
+import Categorification.KLR.Bialgebra
 import Categorification.KLR.Center
 import Categorification.KLR.CenterFree
 import Categorification.KLR.Concat
@@ -99,6 +101,7 @@ import Categorification.KLR.Examples.NonInteracting
 import Categorification.KLR.Examples.Small
 import Categorification.KLR.Examples.TwoStrands
 import Categorification.KLR.ExtTensorK0
+import Categorification.KLR.ExtTensorK0Equiv
 import Categorification.KLR.Filtration
 import Categorification.KLR.Frobenius
 import Categorification.KLR.Gamma
@@ -151,6 +154,7 @@ import Categorification.KLR.SimpleNilHecke
 import Categorification.KLR.Spanning
 import Categorification.KLR.SymGdim
 import Categorification.KLR.Symmetries
+import Categorification.KLR.TensorKLRK0
 import Categorification.KLR.Theorem11
 import Categorification.KLR.Theorem321
 import Categorification.KLR.Theorem321Functor

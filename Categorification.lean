@@ -158,6 +158,8 @@ import Categorification.KLR.Crystal.GradedBridge
 import Categorification.KLR.Crystal.IndDecomp
 import Categorification.KLR.Crystal.IndNilpotent
 import Categorification.KLR.Crystal.Kleshchev
+import Categorification.KLR.Crystal.Lemma313
+import Categorification.KLR.Crystal.Lemma314
 import Categorification.KLR.Crystal.Lemma39
 import Categorification.KLR.Crystal.SimpleTensor
 import Categorification.KLR.Crystal.Socle
@@ -206,7 +208,15 @@ import Categorification.KLR.KL2.SerreMaps
 import Categorification.KLR.KL2.SerreSeq
 import Categorification.KLR.KL2.Theorem8
 import Categorification.KLR.Mackey
+import Categorification.KLR.MackeyFactor
+import Categorification.KLR.MackeyGraded
+import Categorification.KLR.MackeyInj
+import Categorification.KLR.MackeyIntertwine
+import Categorification.KLR.MackeyIso
+import Categorification.KLR.MackeyMap
 import Categorification.KLR.MackeyRes
+import Categorification.KLR.MackeyResRight
+import Categorification.KLR.MackeySubquot
 import Categorification.KLR.NilHeckeBlockSplitting
 import Categorification.KLR.Pairing
 import Categorification.KLR.PolNu

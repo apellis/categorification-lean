@@ -158,6 +158,7 @@ used in the proof and in Cor. 5.5, holds (`Flag.lemma_5_4_iii`).
 | KL III §3.3 | the symmetry 2-functors `ψ̃` (reflection in the x-axis, `U → U^co`, fixing all bubbles) and `σ̃` (reflection in the y-axis with `λ ↦ -λ` and a sign on `ii`-crossings, `U → U^op`, exchanging clockwise and counterclockwise bubbles); `ψ̃² = 1`, `σ̃² = 1`, `σ̃ψ̃ = ψ̃σ̃`; both preserve degrees. `ω̃` (orientation reversal, `λ ↦ -λ`; on diagrams `ω̃ = ψ̃ ∘ τ ∘ σ̃`, via a rotation calculus), involutive, commuting with `ψ̃` and `σ̃` (in (3.45), `ω̃σ̃ = ω̃σ̃` should read `ω̃σ̃ = σ̃ω̃`), exchanging clockwise and counterclockwise bubbles; `τ̃` on each Hom category (3.46); the downward KLR relations | `KL3.Diagram.psiU`, `KL3.Diagram.sigU`, `KL3.Diagram.omegaU`, `KL3.Diagram.tauU`, `KL3.Diagram.omegaU_omegaU`, `KL3.Diagram.omegaU_sigU`, `KL3.Diagram.psiU_sigU`, `KL3.Diagram.downFunctor` |
 | KL III §3.6 (partial), Prop. 3.27 over `ℚ(q)` | the split Grothendieck group `K_0(U̇(λ, μ))` (`q` = shift), the product induced by composition; in `K_0`: the `EF`/`FE` relations with quantum integers, `[E_i F_j] = [F_j E_i]` (`i ≠ j`), `[E_i^m] = [m]_i! [E_{i^{(m)}}]`, the upward Serre relation, and a sorting lemma (K_0 form of Lemma 3.38); the map `γ : U̇1_λ → ℚ(q) ⊗ K_0(U̇)` on each block (Prop. 3.27 over `ℚ(q)`) | `SplitK0`, `GradedBicat.K0U.mul`, `KL3.Diagram.eC_EF`, `KL3.Diagram.eC_pow`, `KL3.Diagram.eC_serre`, `KL3.Diagram.downSerreK0`, `KL3.Diagram.gammaQ'` |
 | KL III §3.6, Props. 3.27, 3.28 (integral, partial) | associativity and units of the product on `K_0(U̇)` (an idempotented `ℤ[q,q⁻¹]`-algebra); divided-power classes `[E_d 1_λ]` with `[E_{i^a}] = [a]_i! [E_{i^{(a)}}]`; the defining relations of `_A U̇` hold in `K_0(U̇)` up to `ℤ[q,q⁻¹]`-torsion, and `γ : _A U̇ → K_0(U̇)` on each block assuming `K_0` torsion free (Krull–Schmidt in `U̇` is not formalized); `γ` intertwines `ω` with `[ω̃]` (exactly), and `ψ`, `σ`, `τ` with `[ψ̃]`, `[σ̃]`, `[τ̃]` (over `ℚ(q)`; on divided-power classes up to torsion); the algebraic `σ`, `ρ`, `τ` on `U̇` | `GradedBicat.K0U.mul_assoc`, `KL3.Diagram.dpC_relation`, `KL3.Diagram.gammaUA`, `KL3.Diagram.omegaK0_dpC_exact`, `KL3.Diagram.gammaQ'_omega`, `KL3.Diagram.gammaQ'_psi`, `KL3.Diagram.gammaUD_sigma`, `KL3.Diagram.gammaUD_tau`, `QuantumGroup.UDot.sigmaUD`, `QuantumGroup.UDot.tauUD` |
+| KL III §3.2.3 (Prop. 3.12, (3.68), Cor. 3.13) | the elements of the proposed spanning sets `B_{𝐢,𝐣,λ}` (pairing, dots per strand, bubble monomial) in each degree are counted by `π⟨E_𝐢1_λ, E_𝐣1_λ⟩` (Prop. 3.12); a spanning family is a basis iff the dimension count holds (3.68); Cor. 3.13 and the equivalence of KL's basis definition of nondegeneracy with the dimension form assume Prop. 3.11 (spanning, not yet proved for general sequences) | `KL3.Diagram.prop_3_12`, `KL3.Diagram.finrank_eq_iff_linearIndependent`, `KL3.Diagram.cor_3_13`, `KL3.Diagram.calculusNondeg_iff` |
 | KL III §3.2 (Cor. 3.14, finiteness), §3.7–3.8 (partial) | all graded Hom spaces of `U` are finite-dimensional and bounded below; Krull–Schmidt for Hom-finite idempotent-complete linear categories, applied to `U̇(λ, ρ)`: local endomorphism rings, unique decompositions, `K_0(U̇(λ, ρ))` free with basis the indecomposables up to shift (hence torsion free, so the integral `γ` on `_A U̇` and the `ψ`/`ω` squares are exact); every indecomposable is a summand of a sorted `E_{+a}E_{-b}1_λ{n}` (Lemma 3.38). Towards Theorem 1.1 (surjectivity of `γ : _A U̇ → K_0(U̇)`, simply-laced data, §3.8): idempotent lifting, the transfer `K_0(R(ν) ⊗ R(ν')) → K_0(U̇)` with image in the image of `γ` (via KL II Theorem 8), the spanning statement of §3.8.4 (endomorphisms of a sorted word are spanned by split diagrams times bubbles modulo maps factoring through shorter words, proved by rewriting: caps pushed down, then Matsumoto), and hence surjectivity of `γ` (Theorem 1.1, simply-laced) | `KL3.Diagram.hasGdim_homD`, `KL3.Diagram.indecBasisU`, `KL3.Diagram.K0Kar_torsionFree`, `KL3.Diagram.gammaUA'`, `KL3.Diagram.exists_retract_sorted`, `KL3.Diagram.transferK0_mem_gammaImg`, `KL3.Diagram.sortedSpan_of_simplyLaced`, `KL3.Diagram.gammaUA'_surjective` |
 
 The transcription of Def. 3.1 is cross-checked by homogeneity of every relation and by cyclicity
@@ -222,8 +223,22 @@ theorem KL3.Diagram.gammaUA'_surjective [Field k] [DecidableEq I] [Finite I]
     (hSL : SimplyLaced C) (lam ρ : X) : Function.Surjective (gammaUA' hSL lam ρ)
 ```
 
-KL III state Theorem 1.1 for any root datum; the non-simply-laced case is not formalized. The
-injectivity statements (Theorems 1.2, 1.3) are not yet formalized.
+KL III state Theorem 1.1 for any root datum; the non-simply-laced case is not formalized.
+
+**Theorem 1.2** (simply-laced): if the graphical calculus is nondegenerate, `γ` is injective,
+hence (with Theorem 1.1) an isomorphism of `ℤ[q, q⁻¹]`-modules on every block. Nondegeneracy is
+stated as equality in Cor. 3.13, `dim HOM_U(E_𝐢1_λ, E_𝐣1_λ)_t = [q^t] π⟨E_𝐢1_λ, E_𝐣1_λ⟩`
+(`CalculusNondeg`), and it suffices to check it for positive sequences (the remark after KL's
+definition). The proof also uses Prop. 2.5 (`FormNondeg`, proved below under Gabber–Kac):
+
+```lean
+theorem KL3.Diagram.gammaUA'_bijective [Field k] [DecidableEq I] [Finite I] (hSL : SimplyLaced C) :
+    CalculusNondeg RD k → UDot.KL3.FormNondeg RD → ∀ lam ρ, Function.Bijective (gammaUA' hSL lam ρ)
+theorem KL3.Diagram.gammaUA'_bijective_of_positive … (hSL : SimplyLaced C) :
+    PositiveNondeg RD k → UDot.KL3.FormNondeg RD → ∀ lam ρ, Function.Bijective (gammaUA' hSL lam ρ)
+```
+
+Nondegeneracy for `sl_n` (Theorem 1.3) is not yet formalized.
 
 ### KLR algebras for arbitrary Cartan data (Khovanov–Lauda II, arXiv:0804.2080v1)
 
@@ -308,7 +323,10 @@ under the Gabber–Kac inclusion of the radical of the form on `'f` into the Ser
 hypothesis is also necessary (`QuantumGroup.UDot.B_posF_radical`). In rank one it holds, so
 Prop. 2.5 for `sl_2` is unconditional (`QuantumGroup.UDot.KL3.prop_2_5_sl2`). The proof
 identifies the bilinear form with a tensor-product form on a model of `U̇1_λ` in `'f ⊗ 'f`
-(`QuantumGroup.UDot.B_eq_ndP`), avoiding canonical bases.
+(`QuantumGroup.UDot.B_eq_ndP`), avoiding canonical bases. Theorem 2.7: the forms `(E_𝐢1_λ, E_𝐣1_μ) = ⟨E_𝐢1_λ, E_𝐣1_μ⟩` are the sum over
+`(𝐢, 𝐣)`-pairings of `q` to the degree of a minimal diagram times the bubble contributions
+(`QuantumGroup.UDot.KL3.thm_2_7`, any Cartan datum). In the example following Theorem 2.7, the
+value printed as `1/(1-q_i)^2 · 1/(1-q_j)` should be `1/(1-q_i^2)^2 · 1/(1-q_j^2)`.
 
 ### Krull–Schmidt, projective covers, and the Grothendieck groups (KL I §2.5)
 

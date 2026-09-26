@@ -70,9 +70,11 @@ import Categorification.Diagrams.KL3.GammaFlagDegenerate
 import Categorification.Diagrams.KL3.GammaFlagSigned
 import Categorification.Diagrams.KL3.GammaIntegral
 import Categorification.Diagrams.KL3.GammaU
+import Categorification.Diagrams.KL3.GdimBound
 import Categorification.Diagrams.KL3.Grading
 import Categorification.Diagrams.KL3.Grassmannian
 import Categorification.Diagrams.KL3.IdempotentLift
+import Categorification.Diagrams.KL3.Injectivity
 import Categorification.Diagrams.KL3.K0Relations
 import Categorification.Diagrams.KL3.K0Serre
 import Categorification.Diagrams.KL3.K0Sorting
@@ -95,6 +97,7 @@ import Categorification.Diagrams.KL3.MixedR3
 import Categorification.Diagrams.KL3.MixedR3Sl2
 import Categorification.Diagrams.KL3.MoreBubbleSlides
 import Categorification.Diagrams.KL3.NestedCups
+import Categorification.Diagrams.KL3.NondegPositive
 import Categorification.Diagrams.KL3.Pitchfork
 import Categorification.Diagrams.KL3.Presentation
 import Categorification.Diagrams.KL3.Prop328
@@ -312,9 +315,11 @@ import Categorification.QuantumGroup.TwistedMonoidAlgebra
 import Categorification.QuantumGroup.UDotAlgebra
 import Categorification.QuantumGroup.UDotBlock
 import Categorification.QuantumGroup.UDotForm
+import Categorification.QuantumGroup.UDotFormFormula
 import Categorification.QuantumGroup.UDotFormNondeg
 import Categorification.QuantumGroup.UDotIntegral
 import Categorification.QuantumGroup.UDotKL3
+import Categorification.QuantumGroup.UDotMatchings
 import Categorification.QuantumGroup.UDotModel
 import Categorification.QuantumGroup.UDotNondeg
 import Categorification.QuantumGroup.UDotNondegForm

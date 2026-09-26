@@ -152,6 +152,9 @@ import Categorification.KLR.Spanning
 import Categorification.KLR.SymGdim
 import Categorification.KLR.Symmetries
 import Categorification.KLR.Theorem11
+import Categorification.KLR.Theorem321
+import Categorification.KLR.Theorem321Functor
+import Categorification.KLR.TightMonomials
 import Categorification.QuantumGroup.Bar
 import Categorification.QuantumGroup.Cartan
 import Categorification.QuantumGroup.Coproduct

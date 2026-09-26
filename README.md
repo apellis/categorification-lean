@@ -94,6 +94,17 @@ In KL III (3.23) the second sum should run over `g_1 + ⋯ + g_4 = −⟨i,λ⟩
 `⟨i,λ⟩ > −2`), not `⟨i,λ⟩ − 2` as printed: this is forced by the grading and agrees with the
 corresponding relation in Lauda, arXiv:0803.3652v3.
 
+### KL I §3.3–3.4: relations between induction functors, tight monomials
+
+`𝓕_i^{(a)} M = Ind(P_{i^{(a)}} ⊠ M)`; for any relation `∑ u_k θ(k) = ∑ v_ℓ θ'(ℓ)` in `_A f` with
+`u_k, v_ℓ ∈ ℕ[q, q⁻¹]` there are isomorphisms `⊕_k 𝓕_{θ(k)}^{⊕u_k} ≅ ⊕_ℓ 𝓕_{θ'(ℓ)}^{⊕v_ℓ}` on graded
+projectives and on all graded modules (KL I Thm. 3.21: `KLR.KLGamma.theorem_3_21`,
+`KLR.KLGamma.theorem_3_21_gmod`, `KLR.KLGamma.theorem_3_21_natIso`), and conversely. Prop. 3.22 without the
+canonical basis: if `(θ, θ) ∈ 1 + qℤ[[q]]` then `END(P_θ)` is one-dimensional in degree `0`, vanishes in
+negative degrees, and `P_θ` is indecomposable (`KLR.KLGamma.prop_3_22`); in particular `P_{i^{(m)}}` is
+indecomposable (`KLR.KLGamma.prop_3_22_single`). (The criterion for tightness is printed as
+`(θ, θ) − 1 ∈ qℕ[q]`; since e.g. `(θ_i, θ_i) = (1 − q²)⁻¹`, power series are meant.)
+
 ### Headline: Khovanov–Lauda II, Theorem 8 (isomorphism)
 
 For an arbitrary symmetric Cartan datum and a field `𝕜`, `γ : _A f → K_0(R)` is a ring isomorphism,

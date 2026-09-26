@@ -1,6 +1,7 @@
 # categorification-lean
 
-Lean 4 formalizations of results in categorification.
+Lean 4 formalizations of results in categorification. Depends on Mathlib and
+[string-diagrams-lean](https://github.com/apellis/string-diagrams-lean).
 
 ## Contents
 
@@ -53,6 +54,13 @@ over any commutative ring (`KLR.KLRAlgebra.span_eq_top'`). Linear independence i
 expanding the action on the polynomial representation over the fraction field in terms of the
 automorphisms `w ∈ S_m` (`Categorification.PermExpansion`), rather than by the paper's
 induction on sequences.
+
+### Diagrammatic presentations (via [string-diagrams-lean](https://github.com/apellis/string-diagrams-lean))
+
+| Source | Result | Declarations |
+|---|---|---|
+| KL I §2.2 (3) | the diagrammatic nilHecke category (one colour, dot and crossing, all relations at symbolic width); `End(n strands) ≅ NH_n` (over a domain), hence faithfulness of the diagrammatic polynomial representation and a basis; the idempotent `x^δ ψ_{w_0}` | `NilHecke.Diagram.endEquiv`, `NilHecke.Diagram.realize_injective`, `NilHecke.Diagram.basis`, `NilHecke.Diagram.isIdempotentElem_klIdempotent` |
+| KL I §2.1 | the diagrammatic presentation of KLR algebras (colours `I`, dots and crossings, the KLR relations for arbitrary `Q`); `R(ν) ≅ ⊕_{i,j} Hom(i, j)` (any commutative ring); the basis theorem on the diagrammatic side; KL I relations (2.3)–(2.8) | `KLR.Diagram.diagREquiv`, `KLR.Diagram.diagBasis`, `KLR.Diagram.kl1Equiv`, `KLR.Diagram.kl1_braid_adj` |
 
 ### KLR algebras for arbitrary Cartan data (Khovanov–Lauda II, arXiv:0804.2080v1)
 

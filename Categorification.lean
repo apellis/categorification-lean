@@ -67,6 +67,7 @@ import Categorification.Diagrams.KL3.Presentation
 import Categorification.Diagrams.KL3.Relations
 import Categorification.Diagrams.KL3.Rewriting
 import Categorification.Diagrams.KL3.SerreKaroubi
+import Categorification.Diagrams.KL3.SignedSln
 import Categorification.Diagrams.KL3.SlideCalculus
 import Categorification.Diagrams.KL3.Spanning
 import Categorification.Diagrams.KL3.SpanningBasic
@@ -87,6 +88,13 @@ import Categorification.Diagrams.NilHecke.Dots
 import Categorification.Diagrams.NilHecke.LongestElement
 import Categorification.Diagrams.NilHecke.PolyRep
 import Categorification.Diagrams.NilHecke.Relations
+import Categorification.Flag.Bimodule
+import Categorification.Flag.Borel
+import Categorification.Flag.Cohomology
+import Categorification.Flag.Cups
+import Categorification.Flag.Esymm
+import Categorification.Flag.SlRootDatum
+import Categorification.Flag.YoungInvariants
 import Categorification.KLR.BarDivided
 import Categorification.KLR.BarGamma
 import Categorification.KLR.BarK0

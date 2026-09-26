@@ -86,6 +86,17 @@ expanding the action on the polynomial representation over the fraction field in
 automorphisms `w ∈ S_m` (`Categorification.PermExpansion`), rather than by the paper's
 induction on sequences.
 
+### Iterated flag varieties (Khovanov–Lauda III, §4–5, first part)
+
+The cohomology rings of partial flag varieties in their presentation by the elementary symmetric
+functions of the blocks with total Chern class `1` (KL III (5.2)–(5.3), `Flag.H`), identified with
+the Borel model `k[x]^{S_{d_0}×⋯×S_{d_{n-1}}}/(Sym⁺)` (`Flag.hEquiv`), of dimension the multinomial
+coefficient (`Flag.finrank_H`); the fundamental theorem for Young subgroups (`Flag.youngEquiv`);
+the maps between flag varieties of §5.1–5.2 with (5.7), (5.15)–(5.16), (5.25), (5.28)–(5.29),
+Prop. 5.3, Lemma 5.4 (i), (iii), and the first map of Cor. 5.5. The `sl_n` root datum, weights of
+compositions (5.18), and the 2-category `U→` of Definition 4.1 with the signed KLR polynomials
+(4.10)–(4.14) (`KL3.Diagram.Signed.USigned`).
+
 ### Diagrammatic presentations (via [string-diagrams-lean](https://github.com/apellis/string-diagrams-lean))
 
 | Source | Result | Declarations |

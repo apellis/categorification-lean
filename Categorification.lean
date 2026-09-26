@@ -7,6 +7,7 @@ import Categorification.Algebra.DividedDifference
 import Categorification.Algebra.ExternalTensor
 import Categorification.Algebra.Graded.Dimension
 import Categorification.Algebra.Graded.G0
+import Categorification.Algebra.Graded.G0Basis
 import Categorification.Algebra.Graded.GeomSeries
 import Categorification.Algebra.Graded.HomForm
 import Categorification.Algebra.Graded.HomogeneousBasis
@@ -14,7 +15,9 @@ import Categorification.Algebra.Graded.Idempotent
 import Categorification.Algebra.Graded.IdempotentSplitting
 import Categorification.Algebra.Graded.IdempotentSplittingK0
 import Categorification.Algebra.Graded.K0
+import Categorification.Algebra.Graded.KrullSchmidt
 import Categorification.Algebra.Graded.Module
+import Categorification.Algebra.Graded.ProjectiveCover
 import Categorification.Algebra.Graded.Quotient
 import Categorification.Algebra.Graded.Simple
 import Categorification.Algebra.Graded.Tensor
@@ -70,6 +73,7 @@ import Categorification.KLR.Induction
 import Categorification.KLR.InductionAlgebra
 import Categorification.KLR.InductionFree
 import Categorification.KLR.K0Algebra
+import Categorification.KLR.K0Free
 import Categorification.KLR.KL1
 import Categorification.KLR.KL1Basis
 import Categorification.KLR.KL2.Datum

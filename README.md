@@ -122,8 +122,8 @@ For the simply-laced datum of a graph (`KLR.KLGamma`): the classes `[P_{i_1^{(a_
 `γ : f → ℚ(v) ⊗ K_0(R)` (with `q ↦ v⁻¹`) sending divided-power monomials to the corresponding
 `[P_{i_1^{(a_1)}⋯}]` (`KLR.KLGamma.gammaF`, `gammaF_dpowMono`), and the integral version on `_A f`
 (`gammaInt`). Descending from `'f/(Serre)` to `f` uses the Gabber–Kac theorem, which is taken as an
-explicit hypothesis `QuantumGroup.PreF.GabberKac`; the integral map into `K_0(R)` also assumes that
-`K_0(R) → ℚ(v) ⊗ K_0(R)` is injective.
+explicit hypothesis `QuantumGroup.PreF.GabberKac`; the integral map into `K_0(R)` uses that
+`K_0(R) → ℚ(v) ⊗ K_0(R)` is injective, which holds because `K_0(R)` is free (see below).
 
 **KL I Prop. 3.4** (injectivity): Lusztig's form on words is
 `(θ_{a_1}⋯θ_{a_m}, θ_{b_1}⋯θ_{b_m}) = ∏_x c_{a_x} · ∑_{w : b∘w = a} v^{∑_{(x,y) ∈ inv(w)} a_y·a_x}`
@@ -140,6 +140,20 @@ blocks `U̇1_λ` (`QuantumGroup.UDot.UD`), its integral form, the involutions `�
 bilinear pairing of KL III Prop. 2.2 (existence and uniqueness, `QuantumGroup.UDot.prop_2_2`,
 `QuantumGroup.UDot.KL3.prop_2_2`) and the semilinear form with the properties of Prop. 2.4
 (`QuantumGroup.UDot.KL3.prop_2_4`). Nondegeneracy (Prop. 2.5) is not proved.
+
+### Krull–Schmidt, projective covers, and the Grothendieck groups (KL I §2.5)
+
+Over a field, for a `ℤ`-graded algebra with finite-dimensional graded pieces vanishing in
+sufficiently negative degrees (`Categorification.Graded`): graded projectivity of projective graded
+modules, Fitting's lemma, indecomposable graded projectives have local degree-0 endomorphism rings and
+unique tops, every graded simple has a unique projective cover, `K_0` is a free `ℤ[q,q⁻¹]`-module
+with basis the indecomposables up to shift (`Graded.K0.indecBasis`), `G_0` is free with basis the
+graded simples (`Graded.G0.topBasis`), and the pairing `([P],[M]) = gdim HOM(P, M)` pairs the two
+bases diagonally (`Graded.pairing_indecBasis_topBasis`). For `R(ν)`: `KLR.GradingDatum.k0Basis`,
+`KLR.GradingDatum.g0Basis`, finitely many indecomposables (at most `(m!)²`), and consequently
+`K_0(R) → ℚ(v) ⊗ K_0(R)` is injective (`KLR.KLGamma.toK0Q_injective`), so the integral `γ` needs only
+the Gabber–Kac hypothesis (`KLR.KLGamma.gammaInt'`). Uniqueness of decompositions at the level of
+modules (as opposed to classes) is not formalized.
 
 ### Symmetric group combinatorics
 

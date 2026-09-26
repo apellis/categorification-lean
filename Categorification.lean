@@ -89,6 +89,7 @@ import Categorification.KLR.PolyRep.Independence
 import Categorification.KLR.PolyRep.Sound
 import Categorification.KLR.Prop213
 import Categorification.KLR.Prop33
+import Categorification.KLR.Prop34
 import Categorification.KLR.ResK0
 import Categorification.KLR.ResProjGraded
 import Categorification.KLR.Restriction
@@ -104,6 +105,7 @@ import Categorification.QuantumGroup.CoproductF
 import Categorification.QuantumGroup.DividedPowers
 import Categorification.QuantumGroup.Form
 import Categorification.QuantumGroup.FormDivided
+import Categorification.QuantumGroup.FormWords
 import Categorification.QuantumGroup.Grading
 import Categorification.QuantumGroup.KLSpecialization
 import Categorification.QuantumGroup.PreF

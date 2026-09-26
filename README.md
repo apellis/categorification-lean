@@ -123,8 +123,15 @@ For the simply-laced datum of a graph (`KLR.KLGamma`): the classes `[P_{i_1^{(a_
 `[P_{i_1^{(a_1)}⋯}]` (`KLR.KLGamma.gammaF`, `gammaF_dpowMono`), and the integral version on `_A f`
 (`gammaInt`). Descending from `'f/(Serre)` to `f` uses the Gabber–Kac theorem, which is taken as an
 explicit hypothesis `QuantumGroup.PreF.GabberKac`; the integral map into `K_0(R)` also assumes that
-`K_0(R) → ℚ(v) ⊗ K_0(R)` is injective. Injectivity of `γ` is reduced to the compatibility of forms
-(`gammaF_injective_of_isometry`).
+`K_0(R) → ℚ(v) ⊗ K_0(R)` is injective.
+
+**KL I Prop. 3.4** (injectivity): Lusztig's form on words is
+`(θ_{a_1}⋯θ_{a_m}, θ_{b_1}⋯θ_{b_m}) = ∏_x c_{a_x} · ∑_{w : b∘w = a} v^{∑_{(x,y) ∈ inv(w)} a_y·a_x}`
+(`QuantumGroup.PreF.form_wordFn`), which matches `gdim(1_j R(ν) 1_i)` under `q ↦ v⁻¹`
+(`KLR.KLGamma.lsCast_homForm_projP`); hence the kernel of `'f → ℚ(v) ⊗ K_0(R)` is the radical of the
+form, unconditionally (`KLR.KLGamma.ker_gammaQ_le_radical`), and `γ` is injective on `f` and on
+`_A f` (`KLR.KLGamma.gammaF_injective`, `gammaA_injective`, `gammaInt_injective`, under the
+hypotheses above). That `γ` intertwines `r` with `[Res]` is not yet formalized.
 
 ### Modified quantum groups (Khovanov–Lauda III, arXiv:0807.3250v1, §2.1)
 

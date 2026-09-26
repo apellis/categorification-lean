@@ -75,6 +75,8 @@ import Categorification.Diagrams.KL3.Pitchfork
 import Categorification.Diagrams.KL3.Presentation
 import Categorification.Diagrams.KL3.Prop328
 import Categorification.Diagrams.KL3.Prop328Omega
+import Categorification.Diagrams.KL3.Prop328Sigma
+import Categorification.Diagrams.KL3.Prop328Tau
 import Categorification.Diagrams.KL3.Reduction
 import Categorification.Diagrams.KL3.Relations
 import Categorification.Diagrams.KL3.Rewriting
@@ -241,6 +243,7 @@ import Categorification.QuantumGroup.UDotPairing
 import Categorification.QuantumGroup.UDotSemilinear
 import Categorification.QuantumGroup.UDotSerre
 import Categorification.QuantumGroup.UDotSerreF
+import Categorification.QuantumGroup.UDotSigmaTau
 import Categorification.QuantumGroup.UDotSymm
 import Categorification.QuantumGroup.UDotWords
 import Categorification.TypeA.Basic

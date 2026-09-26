@@ -17,8 +17,9 @@ Grothendieck group, etc. Proof: The proof follows from definitions and our const
 
 Of the four (anti)automorphisms, the algebraic `ψ` (`UDot.psi`, the `ℚ(q)`-antilinear bar
 involution fixing every `E_w 1_λ`) and `ω` (`UDot.omega`, the Chevalley involution
-`E_w 1_λ ↦ E_{w*} 1_{-λ}`) of `U̇` are available in the library; `σ` and `τ` on `U̇` are not
-(`UDot.Utau` is only left multiplication by `τ(E_{±i})`), so their squares are not stated here.
+`E_w 1_λ ↦ E_{w*} 1_{-λ}`) of `U̇` are available in the library; the squares for `σ` and `τ` are
+in `Categorification.Diagrams.KL3.Prop328Sigma` and `Categorification.Diagrams.KL3.Prop328Tau`
+(with `σ`, `τ` on `U̇` in `Categorification.QuantumGroup.UDotSigmaTau`).
 
 ## `[ψ̃]` on `K₀(U̇)`
 

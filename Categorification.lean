@@ -32,6 +32,14 @@ import Categorification.Algebra.NilHeckeSplitting
 import Categorification.Algebra.ParabolicSymmetricFree
 import Categorification.Algebra.PermExpansion
 import Categorification.Algebra.SymmetricFree
+import Categorification.Diagrams.KL3.Basic
+import Categorification.Diagrams.KL3.Bubbles
+import Categorification.Diagrams.KL3.Cyclic
+import Categorification.Diagrams.KL3.Grading
+import Categorification.Diagrams.KL3.NestedCups
+import Categorification.Diagrams.KL3.Presentation
+import Categorification.Diagrams.KL3.Relations
+import Categorification.Diagrams.KL3.Upward
 import Categorification.Diagrams.KLR.Basic
 import Categorification.Diagrams.KLR.Comparison
 import Categorification.Diagrams.KLR.DiagR

@@ -46,6 +46,7 @@ import Categorification.Diagrams.KL3.Bubbles
 import Categorification.Diagrams.KL3.Cyclic
 import Categorification.Diagrams.KL3.Decompositions
 import Categorification.Diagrams.KL3.DividedPowers
+import Categorification.Diagrams.KL3.DownwardDecomp
 import Categorification.Diagrams.KL3.EndOne
 import Categorification.Diagrams.KL3.EndOneGraded
 import Categorification.Diagrams.KL3.GammaU
@@ -58,6 +59,7 @@ import Categorification.Diagrams.KL3.K0UDot
 import Categorification.Diagrams.KL3.Karoubi
 import Categorification.Diagrams.KL3.KaroubiHcomp
 import Categorification.Diagrams.KL3.KaroubiKLR
+import Categorification.Diagrams.KL3.MateCalculus
 import Categorification.Diagrams.KL3.MixedR3
 import Categorification.Diagrams.KL3.MixedR3Sl2
 import Categorification.Diagrams.KL3.MoreBubbleSlides
@@ -66,6 +68,7 @@ import Categorification.Diagrams.KL3.Pitchfork
 import Categorification.Diagrams.KL3.Presentation
 import Categorification.Diagrams.KL3.Relations
 import Categorification.Diagrams.KL3.Rewriting
+import Categorification.Diagrams.KL3.Rotation
 import Categorification.Diagrams.KL3.SerreKaroubi
 import Categorification.Diagrams.KL3.SignedSln
 import Categorification.Diagrams.KL3.SlideCalculus
@@ -73,8 +76,10 @@ import Categorification.Diagrams.KL3.Spanning
 import Categorification.Diagrams.KL3.SpanningBasic
 import Categorification.Diagrams.KL3.SpanningPhi
 import Categorification.Diagrams.KL3.Symmetries
+import Categorification.Diagrams.KL3.SymmetryOmega
 import Categorification.Diagrams.KL3.SymmetryPsi
 import Categorification.Diagrams.KL3.SymmetrySigma
+import Categorification.Diagrams.KL3.SymmetryTau
 import Categorification.Diagrams.KL3.Upward
 import Categorification.Diagrams.KLR.Basic
 import Categorification.Diagrams.KLR.Comparison

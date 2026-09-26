@@ -54,6 +54,7 @@ import Categorification.Diagrams.KL3.FinDimHom
 import Categorification.Diagrams.KL3.FinDimHomUp
 import Categorification.Diagrams.KL3.GammaAUD
 import Categorification.Diagrams.KL3.GammaFlagBraid
+import Categorification.Diagrams.KL3.GammaFlagBubble
 import Categorification.Diagrams.KL3.GammaFlagSigned
 import Categorification.Diagrams.KL3.GammaIntegral
 import Categorification.Diagrams.KL3.GammaU
@@ -140,10 +141,14 @@ import Categorification.Flag.Erratum
 import Categorification.Flag.Esymm
 import Categorification.Flag.Free
 import Categorification.Flag.GammaCross
+import Categorification.Flag.GammaCupCap
 import Categorification.Flag.GammaCups
+import Categorification.Flag.GammaCurl
+import Categorification.Flag.GammaCyclic
 import Categorification.Flag.GammaDown
 import Categorification.Flag.GammaLocal
 import Categorification.Flag.GammaPoly
+import Categorification.Flag.GammaSideways
 import Categorification.Flag.GammaThree
 import Categorification.Flag.GammaWhisker
 import Categorification.Flag.GammaWord

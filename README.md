@@ -112,9 +112,18 @@ cups and caps of Def. 6.1 with all four zigzags on arbitrary 1-morphisms (`Flag.
 cyclicity of dots (`Flag.cycDot_F`) and dotted bubbles (`Flag.bubbleFEW_eq`); the braid
 relations (4.13) and (4.14) with the signed polynomials on three strands of any word whose
 intermediate regions are compositions (`Flag.braid_three`, `KL3.Diagram.Signed.braidQ_signed`);
-the downward crossings (6.9) (`Flag.crossDn_eval`). Sideways crossings, crossing cyclicity, curls
-and the `EF`/`FE` decompositions on the word model, and hence `Γ_N` as a 2-functor, are not yet
-constructed. Lemma 5.4 (iii) as printed
+the downward crossings (6.9) (`Flag.crossDn_eval`); the curl relations with KL's indices and the
+fake bubbles (`KL3.Diagram.Signed.curlRW_eq_curlRHS`, `Flag.curlLW_eq`); the sideways crossings
+of distinct colours (Lemma 6.4) and cyclicity of distinct-colour crossings. For adjacent colours
+the latter two differ from the arXiv v1 text by a sign: the sideways crossing
+`F_j E_i → E_i F_j` is minus the swap when `i = j + 1` (`Flag.crossrW_one`), so the relations
+`eq_downup_ij-gen` hold only up to sign (`Flag.downupEF_W`, `Flag.downupFE_W`), and the two
+rotations of an adjacent-colour crossing differ by `-1` (`Flag.rotCrossRW_eq_neg_rotCrossLW`).
+This agrees with Khovanov–Lauda's *Erratum to "A categorification of quantum sl(n)"*, Quantum
+Topol. 2 (2011), 97–99, which revises Lemma 6.4 and Definition 4.1 accordingly; the revised
+Definition 4.1 is not yet formalized (`KL3.Diagram.Signed.USigned` is the v1 definition). Cyclicity
+for equal colours, the `EF`/`FE` decompositions on the word model, and hence `Γ_N` as a 2-functor,
+are not yet constructed. Lemma 5.4 (iii) as printed
 in (5.45), with `x(k)_{i+1,·}`, is false as we read it (a counterexample with `N = 2`:
 `Flag.Erratum545.lemma_5_4_iii_printed_false`); the version with `x(k)_{i,·}`, which is the one
 used in the proof and in Cor. 5.5, holds (`Flag.lemma_5_4_iii`).

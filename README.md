@@ -120,8 +120,13 @@ the latter two differ from the arXiv v1 text by a sign: the sideways crossing
 `eq_downup_ij-gen` hold only up to sign (`Flag.downupEF_W`, `Flag.downupFE_W`), and the two
 rotations of an adjacent-colour crossing differ by `-1` (`Flag.rotCrossRW_eq_neg_rotCrossLW`).
 This agrees with Khovanov–Lauda's *Erratum to "A categorification of quantum sl(n)"*, Quantum
-Topol. 2 (2011), 97–99, which revises Lemma 6.4 and Definition 4.1 accordingly; the revised
-Definition 4.1 is not yet formalized (`KL3.Diagram.Signed.USigned` is the v1 definition). Cyclicity
+Topol. 2 (2011), 97–99, which revises Lemma 6.4 and Definition 4.1 accordingly. The revised
+Definition 4.1 is formalized literally (`KL3.Diagram.Signed.presSignedQT`, homogeneous, differing
+from the v1 definition `KL3.Diagram.Signed.presSigned` only in the adjacent-colour relations). On
+`Γ_N`, the revised cyclicity relation holds as printed (`Flag.rotCrossRW_add_rotCrossLW`), but the
+revised relations (3.13) hold with the opposite sign, `crossl_{ij} ∘ crossr_{ij} = (j - i)` for
+`i · j = -1` (`Flag.downupEF_W_consistent`, `Flag.downupFE_W_consistent`), as the erratum's own
+revised Lemma 6.4 implies; we also formalize this variant (`KL3.Diagram.Signed.presSignedQT'`). Cyclicity
 for equal colours, the `EF`/`FE` decompositions on the word model, and hence `Γ_N` as a 2-functor,
 are not yet constructed. Lemma 5.4 (iii) as printed
 in (5.45), with `x(k)_{i+1,·}`, is false as we read it (a counterexample with `N = 2`:

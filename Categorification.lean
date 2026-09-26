@@ -95,6 +95,7 @@ import Categorification.Diagrams.KL3.Rewriting
 import Categorification.Diagrams.KL3.Rotation
 import Categorification.Diagrams.KL3.SerreKaroubi
 import Categorification.Diagrams.KL3.SignedSln
+import Categorification.Diagrams.KL3.SignedSlnErratum
 import Categorification.Diagrams.KL3.SlideCalculus
 import Categorification.Diagrams.KL3.SortDecomp
 import Categorification.Diagrams.KL3.SortedAction
@@ -146,6 +147,7 @@ import Categorification.Flag.GammaCups
 import Categorification.Flag.GammaCurl
 import Categorification.Flag.GammaCyclic
 import Categorification.Flag.GammaDown
+import Categorification.Flag.GammaErratumCheck
 import Categorification.Flag.GammaLocal
 import Categorification.Flag.GammaPoly
 import Categorification.Flag.GammaSideways

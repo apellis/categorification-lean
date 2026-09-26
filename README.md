@@ -299,7 +299,13 @@ For a root datum over a field with `q` not a root of unity: Lusztig's `U̇` as t
 blocks `U̇1_λ` (`QuantumGroup.UDot.UD`), its integral form, the involutions `ψ` and `ω`, the
 bilinear pairing of KL III Prop. 2.2 (existence and uniqueness, `QuantumGroup.UDot.prop_2_2`,
 `QuantumGroup.UDot.KL3.prop_2_2`) and the semilinear form with the properties of Prop. 2.4
-(`QuantumGroup.UDot.KL3.prop_2_4`). Nondegeneracy (Prop. 2.5) is not proved.
+(`QuantumGroup.UDot.KL3.prop_2_4`). Nondegeneracy of both forms (Prop. 2.5) for any Cartan datum,
+under the Gabber–Kac inclusion of the radical of the form on `'f` into the Serre ideal
+(`QuantumGroup.UDot.KL3.prop_2_5`); since `U̇` is defined by the Serre presentation, this
+hypothesis is also necessary (`QuantumGroup.UDot.B_posF_radical`). In rank one it holds, so
+Prop. 2.5 for `sl_2` is unconditional (`QuantumGroup.UDot.KL3.prop_2_5_sl2`). The proof
+identifies the bilinear form with a tensor-product form on a model of `U̇1_λ` in `'f ⊗ 'f`
+(`QuantumGroup.UDot.B_eq_ndP`), avoiding canonical bases.
 
 ### Krull–Schmidt, projective covers, and the Grothendieck groups (KL I §2.5)
 

@@ -310,9 +310,14 @@ import Categorification.QuantumGroup.TwistedMonoidAlgebra
 import Categorification.QuantumGroup.UDotAlgebra
 import Categorification.QuantumGroup.UDotBlock
 import Categorification.QuantumGroup.UDotForm
+import Categorification.QuantumGroup.UDotFormNondeg
 import Categorification.QuantumGroup.UDotIntegral
 import Categorification.QuantumGroup.UDotKL3
 import Categorification.QuantumGroup.UDotModel
+import Categorification.QuantumGroup.UDotNondeg
+import Categorification.QuantumGroup.UDotNondegForm
+import Categorification.QuantumGroup.UDotNondegModel
+import Categorification.QuantumGroup.UDotNondegRankOne
 import Categorification.QuantumGroup.UDotOmega
 import Categorification.QuantumGroup.UDotPairing
 import Categorification.QuantumGroup.UDotSemilinear

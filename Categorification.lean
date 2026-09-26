@@ -26,6 +26,7 @@ import Categorification.Algebra.Graded.Tensor
 import Categorification.Algebra.Graded.TensorGdim
 import Categorification.Algebra.Graded.TensorSimple
 import Categorification.Algebra.IdempotentEquiv
+import Categorification.Algebra.K0FinDim
 import Categorification.Algebra.NilHecke
 import Categorification.Algebra.NilHeckeIdempotent
 import Categorification.Algebra.NilHeckeKato
@@ -34,6 +35,7 @@ import Categorification.Algebra.NilHeckeSimple
 import Categorification.Algebra.NilHeckeSplitting
 import Categorification.Algebra.ParabolicSymmetricFree
 import Categorification.Algebra.PermExpansion
+import Categorification.Algebra.SplitK0
 import Categorification.Algebra.SymmetricFree
 import Categorification.Diagrams.KL3.Basic
 import Categorification.Diagrams.KL3.BubbleSlides
@@ -46,8 +48,13 @@ import Categorification.Diagrams.KL3.Decompositions
 import Categorification.Diagrams.KL3.DividedPowers
 import Categorification.Diagrams.KL3.EndOne
 import Categorification.Diagrams.KL3.EndOneGraded
+import Categorification.Diagrams.KL3.GammaU
 import Categorification.Diagrams.KL3.Grading
 import Categorification.Diagrams.KL3.Grassmannian
+import Categorification.Diagrams.KL3.K0Relations
+import Categorification.Diagrams.KL3.K0Serre
+import Categorification.Diagrams.KL3.K0Sorting
+import Categorification.Diagrams.KL3.K0UDot
 import Categorification.Diagrams.KL3.Karoubi
 import Categorification.Diagrams.KL3.KaroubiHcomp
 import Categorification.Diagrams.KL3.KaroubiKLR

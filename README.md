@@ -28,6 +28,7 @@ The simply-laced rings of KL I, for a simple graph `Γ`, are `KLR.R1 k Γ ν` (`
 | KL I §2.5 | the form on `K_0`: `([P_j],[P_i]) = gdim(_jR(ν)_i)`, `([P_j],[M]) = ch(M, j)` | `KLR.KL1.homForm_projP`, `KLR.GradingDatum.homForm_projP_left`, `Graded.K0.homForm` |
 | KL I Cor. 2.10 (2) | `R(ν)` has a homogeneous basis over its center | `KLR.GradingDatum.exists_homogeneous_centerBasis` |
 | KL I Lemma 2.1 | `L_m = k[x]/(Sym⁺)` has dimension `m!`, is a simple `NH_m`-module, its common kernel of the `x_a` is the line through `x^δ`, and all Jordan blocks of `x_m` have size `m`; `L(i^m)` is the unique graded simple `R(m·i)`-module up to shift | `NilHecke.isSimpleModule_coinv`, `NilHecke.coinvSocle_eq_span_xDelta`, `coinvMul_last_pow_eq_zero`, `ker_coinvMul_last`, `KLR.KL1.exists_gradedEquiv_klrRep` |
+| KL I Prop. 3.11 (2), (3) | for a composition `μ` of `n`, the socle of `Res_μ L_n` over the parabolic nilHecke algebra is simple and isomorphic to the Young coinvariant module `L_μ`, and every simple subquotient is isomorphic to `L_μ`; the socle of `Res^n_{n-1} L_n` is simple | `NilHecke.parNH_socle`, `NilHecke.nonempty_linearEquiv_youngRep_subquotient`, `NilHecke.resNH_socle` |
 | KL I Prop. 2.3 | polynomial representation, for every orientation of `Γ` (and for any factorisation `Q_ij(u,v) = P_ji(u,v) P_ij(v,u)`) | `KLR.polyRepKL1`, `KLR.PolyRep.polyRep` |
 | KL I Thm. 2.5 | for any choice of reduced expressions, `_jR(ν)_i` is free with basis `ψ_ŵ x^u e_i` (`w • i = j`) | `KLR.KL1.cornerBasis`, `KLR.KL1.cornerBasis_apply`, `KLR.KL1.basis`; general form `KLR.KLRAlgebra.cornerBasis` |
 | KL I Cor. 2.6 | the polynomial representation is faithful | `KLR.KL1.polyRepKL1_injective`; general form `KLR.polyRep_injective` |
@@ -111,6 +112,26 @@ projective as a module and graded. The form on `K_0` is defined as `gdim HOM(P, 
 (`Graded.K0.homForm`); the paper's `gdim(P^ψ ⊗_{R(ν)} Q)` agrees with it on the classes
 `[P_i]`, which is where the paper evaluates it, but the identification on all of `K_0` (which
 involves the bar involution) is not formalized.
+
+### The map `γ` (KL I §1, §3.1)
+
+For the simply-laced datum of a graph (`KLR.KLGamma`): the classes `[P_{i_1^{(a_1)}⋯}]` in
+`K_0(R)` with `[P_i][P_j] = [P_{ij}]`, `[P_î] = i![P_i]` and the Serre relations; the algebra map
+`'f → K_0(R)`, `θ_i ↦ [P_i]` (over `ℤ[q,q⁻¹]`), which kills the Serre relations; its base change
+`γ : f → ℚ(v) ⊗ K_0(R)` (with `q ↦ v⁻¹`) sending divided-power monomials to the corresponding
+`[P_{i_1^{(a_1)}⋯}]` (`KLR.KLGamma.gammaF`, `gammaF_dpowMono`), and the integral version on `_A f`
+(`gammaInt`). Descending from `'f/(Serre)` to `f` uses the Gabber–Kac theorem, which is taken as an
+explicit hypothesis `QuantumGroup.PreF.GabberKac`; the integral map into `K_0(R)` also assumes that
+`K_0(R) → ℚ(v) ⊗ K_0(R)` is injective. Injectivity of `γ` is reduced to the compatibility of forms
+(`gammaF_injective_of_isometry`).
+
+### Modified quantum groups (Khovanov–Lauda III, arXiv:0807.3250v1, §2.1)
+
+For a root datum over a field with `q` not a root of unity: Lusztig's `U̇` as the direct sum of its
+blocks `U̇1_λ` (`QuantumGroup.UDot.UD`), its integral form, the involutions `ψ` and `ω`, the
+bilinear pairing of KL III Prop. 2.2 (existence and uniqueness, `QuantumGroup.UDot.prop_2_2`,
+`QuantumGroup.UDot.KL3.prop_2_2`) and the semilinear form with the properties of Prop. 2.4
+(`QuantumGroup.UDot.KL3.prop_2_4`). Nondegeneracy (Prop. 2.5) is not proved.
 
 ### Symmetric group combinatorics
 

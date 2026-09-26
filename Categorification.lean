@@ -21,6 +21,8 @@ import Categorification.Algebra.Graded.Tensor
 import Categorification.Algebra.IdempotentEquiv
 import Categorification.Algebra.NilHecke
 import Categorification.Algebra.NilHeckeIdempotent
+import Categorification.Algebra.NilHeckeKato
+import Categorification.Algebra.NilHeckeParabolic
 import Categorification.Algebra.NilHeckeSimple
 import Categorification.Algebra.NilHeckeSplitting
 import Categorification.Algebra.ParabolicSymmetricFree
@@ -55,6 +57,7 @@ import Categorification.KLR.Examples.NonInteracting
 import Categorification.KLR.Examples.Small
 import Categorification.KLR.Examples.TwoStrands
 import Categorification.KLR.Filtration
+import Categorification.KLR.Gamma
 import Categorification.KLR.GradedBasis
 import Categorification.KLR.GradedFree
 import Categorification.KLR.GradedModules
@@ -103,6 +106,19 @@ import Categorification.QuantumGroup.Radical
 import Categorification.QuantumGroup.Serre
 import Categorification.QuantumGroup.SerreDivided
 import Categorification.QuantumGroup.TwistedMonoidAlgebra
+import Categorification.QuantumGroup.UDotAlgebra
+import Categorification.QuantumGroup.UDotBlock
+import Categorification.QuantumGroup.UDotForm
+import Categorification.QuantumGroup.UDotIntegral
+import Categorification.QuantumGroup.UDotKL3
+import Categorification.QuantumGroup.UDotModel
+import Categorification.QuantumGroup.UDotOmega
+import Categorification.QuantumGroup.UDotPairing
+import Categorification.QuantumGroup.UDotSemilinear
+import Categorification.QuantumGroup.UDotSerre
+import Categorification.QuantumGroup.UDotSerreF
+import Categorification.QuantumGroup.UDotSymm
+import Categorification.QuantumGroup.UDotWords
 import Categorification.TypeA.Basic
 import Categorification.TypeA.DoubleCoset
 import Categorification.TypeA.Inversions

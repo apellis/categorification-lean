@@ -44,6 +44,8 @@ import Categorification.Diagrams.KL3.Bubbles
 import Categorification.Diagrams.KL3.Cyclic
 import Categorification.Diagrams.KL3.Decompositions
 import Categorification.Diagrams.KL3.DividedPowers
+import Categorification.Diagrams.KL3.EndOne
+import Categorification.Diagrams.KL3.EndOneGraded
 import Categorification.Diagrams.KL3.Grading
 import Categorification.Diagrams.KL3.Grassmannian
 import Categorification.Diagrams.KL3.Karoubi
@@ -59,6 +61,9 @@ import Categorification.Diagrams.KL3.Relations
 import Categorification.Diagrams.KL3.Rewriting
 import Categorification.Diagrams.KL3.SerreKaroubi
 import Categorification.Diagrams.KL3.SlideCalculus
+import Categorification.Diagrams.KL3.Spanning
+import Categorification.Diagrams.KL3.SpanningBasic
+import Categorification.Diagrams.KL3.SpanningPhi
 import Categorification.Diagrams.KL3.Upward
 import Categorification.Diagrams.KLR.Basic
 import Categorification.Diagrams.KLR.Comparison

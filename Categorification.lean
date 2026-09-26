@@ -42,8 +42,13 @@ import Categorification.Diagrams.KL3.BubbleSlidesEq
 import Categorification.Diagrams.KL3.BubbleSlidesProp
 import Categorification.Diagrams.KL3.Bubbles
 import Categorification.Diagrams.KL3.Cyclic
+import Categorification.Diagrams.KL3.Decompositions
+import Categorification.Diagrams.KL3.DividedPowers
 import Categorification.Diagrams.KL3.Grading
 import Categorification.Diagrams.KL3.Grassmannian
+import Categorification.Diagrams.KL3.Karoubi
+import Categorification.Diagrams.KL3.KaroubiHcomp
+import Categorification.Diagrams.KL3.KaroubiKLR
 import Categorification.Diagrams.KL3.MixedR3
 import Categorification.Diagrams.KL3.MixedR3Sl2
 import Categorification.Diagrams.KL3.MoreBubbleSlides
@@ -52,6 +57,7 @@ import Categorification.Diagrams.KL3.Pitchfork
 import Categorification.Diagrams.KL3.Presentation
 import Categorification.Diagrams.KL3.Relations
 import Categorification.Diagrams.KL3.Rewriting
+import Categorification.Diagrams.KL3.SerreKaroubi
 import Categorification.Diagrams.KL3.SlideCalculus
 import Categorification.Diagrams.KL3.Upward
 import Categorification.Diagrams.KLR.Basic

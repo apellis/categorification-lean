@@ -95,12 +95,15 @@ induction on sequences.
 | KL III Def. 3.1 | the 2-category `U` for a root datum: signature with regions the weights, upward/downward dots and crossings, cups and caps (the pivotal extension), and all relations of Def. 3.1 (biadjointness, cyclicity, bubble relations, fake bubbles via the infinite Grassmannian recursion, the `EF`/`FE` decompositions, KLR relations on upward strands); biadjunctions `E_i 1_λ ⊣⊢ F_i 1_{λ+i}`; every 2-morphism is cyclic (pivotal structure); every relation is homogeneous and the Hom spaces are graded; `R(ν) → END_U(E_ν 1_λ)` | `KL3.Diagram.pres`, `KL3.Diagram.U`, `KL3.Diagram.biadjEF`, `KL3.Diagram.isCyclic`, `KL3.Diagram.pivotal`, `KL3.Diagram.pres_isHomogeneous`, `KL3.Diagram.toUEnd` |
 | KL III Props. 3.3, 3.4; Lauda Props. 5.5, 5.6 | the infinite Grassmannian relation in all degrees (real and fake bubbles); bubble slides (Prop. 3.3, all cases, all `α`) and more bubble slides (Prop. 3.4), proved as rewriting chains in `U` | `KL3.Diagram.grassmannian`, `KL3.Diagram.grassmannian_all`, `KL3.Diagram.prop33_ccw_same_all`, `KL3.Diagram.prop33_cw_adj_all`, `KL3.Diagram.prop34_cw_same_all` |
 | KL III Prop. 3.5 | pitchfork moves, `E_iF_j ≅ F_jE_i` for `i ≠ j`, the mixed Reidemeister III relation (3.22) unless `i = j = k`, and (3.23) for `i = j = k` (with the corrected range of the second sum, see below) | `KL3.Diagram.crossIso`, `KL3.Diagram.prop35_a`, `KL3.Diagram.prop35_b` |
+| KL III §3.4–3.5, Props. 3.24–3.26 | the Hom categories `U(λ, λ')` with grading shifts and direct sums, and `U̇(λ, λ')` = their Karoubi envelopes (additive, `k`-linear, idempotent complete), with composition; the sl₂ decompositions `E_iF_i1_λ ≅ F_iE_i1_λ ⊕ 1_λ^{⊕[⟨i,λ⟩]}` and mirror (3.25); `E_iF_j1_λ ≅ F_jE_i1_λ` for `i ≠ j` (3.26); `E_i^m1_λ ≅ (E_{i^{(m)}}1_λ)^{⊕[m]_i!}`; the categorified Serre relation (3.24), upward | `GradedBicat.UDotHom`, `GradedBicat.hcompDot`, `KL3.Diagram.prop325EF`, `KL3.Diagram.prop325FE`, `KL3.Diagram.prop326`, `KL3.Diagram.Epow_decomp`, `KL3.Diagram.prop324` |
 
 The transcription of Def. 3.1 is cross-checked by homogeneity of every relation and by cyclicity
 of the generators with respect to the biadjunctions; no faithful 2-representation is formalized yet.
 In KL III (3.23) the second sum should run over `g_1 + ⋯ + g_4 = −⟨i,λ⟩ − 2` (zero when
 `⟨i,λ⟩ > −2`), not `⟨i,λ⟩ − 2` as printed: this is forced by the grading and agrees with the
-corresponding relation in Lauda, arXiv:0803.3652v3.
+corresponding relation in Lauda, arXiv:0803.3652v3. The definition `E_𝐢1_λ := (E_{𝐢̂}1_λ, e_𝐢)` for
+divided-power sequences (after (3.55)) should carry the grading shifts of (3.54); we use them
+throughout (without them the isomorphisms of Prop. 3.24 are not of degree 0).
 
 ### KL I §3.3–3.4: relations between induction functors, tight monomials
 

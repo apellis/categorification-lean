@@ -17,6 +17,7 @@ import Categorification.Algebra.Graded.IdempotentSplitting
 import Categorification.Algebra.Graded.IdempotentSplittingK0
 import Categorification.Algebra.Graded.K0
 import Categorification.Algebra.Graded.KrullSchmidt
+import Categorification.Algebra.Graded.KrullSchmidtUnique
 import Categorification.Algebra.Graded.Module
 import Categorification.Algebra.Graded.ProjectiveCover
 import Categorification.Algebra.Graded.Quotient

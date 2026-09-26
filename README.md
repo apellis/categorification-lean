@@ -161,8 +161,10 @@ graded simples (`Graded.G0.topBasis`), and the pairing `([P],[M]) = gdim HOM(P, 
 bases diagonally (`Graded.pairing_indecBasis_topBasis`). For `R(ν)`: `KLR.GradingDatum.k0Basis`,
 `KLR.GradingDatum.g0Basis`, finitely many indecomposables (at most `(m!)²`), and consequently
 `K_0(R) → ℚ(v) ⊗ K_0(R)` is injective (`KLR.KLGamma.toK0Q_injective`), so the integral `γ` needs only
-the Gabber–Kac hypothesis (`KLR.KLGamma.gammaInt'`). Uniqueness of decompositions at the level of
-modules (as opposed to classes) is not formalized.
+the Gabber–Kac hypothesis (`KLR.KLGamma.gammaInt'`). Krull–Schmidt also holds at the level of
+modules: every graded f.g. projective is a finite sum of shifted indecomposables, uniquely up to
+permutation, and `[P] = [P']` iff `P ≅ P'` (`Graded.GProj.exists_iso_sumList`,
+`Graded.GProj.perm_of_iso_of_iso`, `Graded.K0.of_eq_of_iff`).
 
 ### Symmetric group combinatorics
 

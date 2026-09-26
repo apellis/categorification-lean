@@ -97,6 +97,17 @@ Prop. 5.3, Lemma 5.4 (i), (iii), and the first map of Cor. 5.5. The `sl_n` root 
 compositions (5.18), and the 2-category `U→` of Definition 4.1 with the signed KLR polynomials
 (4.10)–(4.14) (`KL3.Diagram.Signed.USigned`).
 
+Towards the 2-representation `Γ_N` (§5–6): the extension of flag cohomology rings is free with
+basis powers of `ξ` (`Flag.eBasisRight`, `Flag.eBasisLeft`) and the Frobenius traces; Lemma 5.4
+(ii), (iv) and both maps of Cor. 5.5; the caps (6.4)–(6.5) of Definition 6.1 as bimodule maps and
+all four zigzag identities (`Flag.snake_E_FE`, …); dotted bubbles as Chern classes, the bubble
+relations (3.4) and the Grassmannian relation for real bubbles (`Flag.grassmannian`); the
+divided-difference crossings (6.8) with the nilHecke relations, and distant crossings. The
+2-category `Flag_N` and `Γ_N` as a 2-functor are not yet constructed. Lemma 5.4 (iii) as printed
+in (5.45), with `x(k)_{i+1,·}`, is false as we read it (a counterexample with `N = 2`:
+`Flag.Erratum545.lemma_5_4_iii_printed_false`); the version with `x(k)_{i,·}`, which is the one
+used in the proof and in Cor. 5.5, holds (`Flag.lemma_5_4_iii`).
+
 ### Diagrammatic presentations (via [string-diagrams-lean](https://github.com/apellis/string-diagrams-lean))
 
 | Source | Result | Declarations |

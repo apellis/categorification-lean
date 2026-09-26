@@ -97,11 +97,17 @@ import Categorification.Diagrams.NilHecke.Dots
 import Categorification.Diagrams.NilHecke.LongestElement
 import Categorification.Diagrams.NilHecke.PolyRep
 import Categorification.Diagrams.NilHecke.Relations
+import Categorification.Flag.Adjunction
 import Categorification.Flag.Bimodule
 import Categorification.Flag.Borel
+import Categorification.Flag.Bubbles
 import Categorification.Flag.Cohomology
+import Categorification.Flag.Crossing
 import Categorification.Flag.Cups
+import Categorification.Flag.CupsMirror
+import Categorification.Flag.Erratum
 import Categorification.Flag.Esymm
+import Categorification.Flag.Free
 import Categorification.Flag.SlRootDatum
 import Categorification.Flag.YoungInvariants
 import Categorification.KLR.BarDivided

@@ -166,9 +166,15 @@ import Categorification.Flag.GammaCyclicSame
 import Categorification.Flag.GammaCyclicSameL
 import Categorification.Flag.GammaDown
 import Categorification.Flag.GammaErratumCheck
+import Categorification.Flag.GammaEval
+import Categorification.Flag.GammaInterchange
+import Categorification.Flag.GammaLiftBasic
+import Categorification.Flag.GammaLiftDots
 import Categorification.Flag.GammaLocal
+import Categorification.Flag.GammaObjects
 import Categorification.Flag.GammaPoly
 import Categorification.Flag.GammaSideways
+import Categorification.Flag.GammaTarget
 import Categorification.Flag.GammaThree
 import Categorification.Flag.GammaWhisker
 import Categorification.Flag.GammaWord

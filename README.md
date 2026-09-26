@@ -135,7 +135,11 @@ relations force. Cyclicity for equal colours (`Flag.rotCrossRW_same_eq`,
 model, as do the `R(ν)`-relations in the degenerate regions where an intermediate 1-morphism is
 zero (`KL3.Diagram.Signed.braid_cases`, `braidL_degenerate`, `braidR_degenerate`,
 `degen_cross_sq`). So every relation of the revised Definition 4.1 (with the corrected (3.13)
-signs) is verified on `Γ_N`; `Γ_N` as a 2-functor is not yet assembled. Lemma 5.4 (iii) as printed
+signs) is verified on `Γ_N`. For the assembly as a 2-functor: the target (path bimodules on
+realized compositions, zero objects otherwise; `Flag.gammaFunctor`), the interchange law, and a
+lifting theorem reducing the construction of `Γ_N : P ⥤ ModuleCat` for any presentation `P` on
+the `sl_n` signature to the vanishing of each relation on the word model (`Flag.gamma_respects`,
+`Flag.gammaLift`); of the relations of `U_Q(sl_n)`, dot cyclicity is done so far. Lemma 5.4 (iii) as printed
 in (5.45), with `x(k)_{i+1,·}`, is false as we read it (a counterexample with `N = 2`:
 `Flag.Erratum545.lemma_5_4_iii_printed_false`); the version with `x(k)_{i,·}`, which is the one
 used in the proof and in Cor. 5.5, holds (`Flag.lemma_5_4_iii`).

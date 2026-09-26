@@ -1,4 +1,7 @@
+import Categorification.Algebra.AugmentationQuotient
 import Categorification.Algebra.CoactionGrading
+import Categorification.Algebra.Coinvariant
+import Categorification.Algebra.CoinvariantGraded
 import Categorification.Algebra.DividedDifference
 import Categorification.Algebra.Graded.Dimension
 import Categorification.Algebra.Graded.G0
@@ -10,9 +13,12 @@ import Categorification.Algebra.Graded.IdempotentSplitting
 import Categorification.Algebra.Graded.IdempotentSplittingK0
 import Categorification.Algebra.Graded.K0
 import Categorification.Algebra.Graded.Module
+import Categorification.Algebra.Graded.Quotient
+import Categorification.Algebra.Graded.Simple
 import Categorification.Algebra.IdempotentEquiv
 import Categorification.Algebra.NilHecke
 import Categorification.Algebra.NilHeckeIdempotent
+import Categorification.Algebra.NilHeckeSimple
 import Categorification.Algebra.NilHeckeSplitting
 import Categorification.Algebra.ParabolicSymmetricFree
 import Categorification.Algebra.PermExpansion
@@ -51,6 +57,8 @@ import Categorification.KLR.PolyRep.Independence
 import Categorification.KLR.PolyRep.Sound
 import Categorification.KLR.Prop213
 import Categorification.KLR.Restriction
+import Categorification.KLR.Simple
+import Categorification.KLR.SimpleNilHecke
 import Categorification.KLR.Spanning
 import Categorification.KLR.SymGdim
 import Categorification.KLR.Symmetries

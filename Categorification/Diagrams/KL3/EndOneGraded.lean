@@ -31,7 +31,8 @@ product `piTrunc C N` of truncated geometric series `∑_{e ≤ N} q^{e α (i·i
   `d` elements are spanned by the images of the monomials of degree `d`).
 * `piTrunc_coeff`: "the graded dimension of `Π_λ` is `π`" (the coefficient of `q^d` in `π` is
   the number of monomials of degree `d`).
-* **Corollary 3.7**, assuming Proposition 3.6 (`Prop36`; proved for crossingless diagrams in
+* **Corollary 3.7**, assuming Proposition 3.6 (`Prop36`, proved for simply-laced data in
+  `Categorification.Diagrams.KL3.Lemma39`, where the unconditional forms `cor37_*_of_simplyLaced` are; proved for crossingless diagrams in
   `Categorification.Diagrams.KL3.Spanning`): `cor37_finrank_le` (`dim_k HOM_U(1_λ,1_λ)_d ≤
   #{monomials of degree d}`) and `cor37_gdim_le_pi` (`≤` the coefficient of `q^d` in `π`), i.e.
   `gdim ≤ π`, for a field `k` (or any commutative ring with the strong rank condition) and

@@ -27,9 +27,8 @@ collection of bubbles representing a monomial in `Π_λ` ... induces a grading-p
 * `phi μ ν : R(ν) ⊗ Π_μ →ₐ END_U(E_ν 1_μ)` is `ϕ_{ν,μ}` of eq. (3.30), the tensor product of
   `toUEnd` (upward diagrams, `Categorification.Diagrams.KL3.Upward`) and `bubDiag ∘ bubMap`.
 
-`Prop310` is the statement of Proposition 3.10 (surjectivity of `phi`); it is not proved here
-(its proof in KL III needs the reduction of crossings, cups and caps of arbitrary diagrams, see
-`Categorification.Diagrams.KL3.Spanning`). What is proved is the step "Bubble sliding rules
+`Prop310` is the statement of Proposition 3.10 (surjectivity of `phi`); it is proved for
+simply-laced data in `Categorification.Diagrams.KL3.Lemma39` (`prop310_of_simplyLaced`). What is proved is the step "Bubble sliding rules
 allow moving bubbles to the far right of the diagram" of KL III's proof of Lemma 3.9:
 `slideOutUp` (an element of the image of `Π` inserted in any region of an upward diagram is a
 linear combination of upward diagrams followed by bubble monomials on the far right).

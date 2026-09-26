@@ -38,6 +38,7 @@ import Categorification.Algebra.PermExpansion
 import Categorification.Algebra.SplitK0
 import Categorification.Algebra.SymmetricFree
 import Categorification.Diagrams.KL3.Basic
+import Categorification.Diagrams.KL3.Bending
 import Categorification.Diagrams.KL3.BubbleSlides
 import Categorification.Diagrams.KL3.BubbleSlidesAll
 import Categorification.Diagrams.KL3.BubbleSlidesEq
@@ -62,6 +63,7 @@ import Categorification.Diagrams.KL3.Karoubi
 import Categorification.Diagrams.KL3.KaroubiAssoc
 import Categorification.Diagrams.KL3.KaroubiHcomp
 import Categorification.Diagrams.KL3.KaroubiKLR
+import Categorification.Diagrams.KL3.Lemma39
 import Categorification.Diagrams.KL3.Markov
 import Categorification.Diagrams.KL3.MarkovLeft
 import Categorification.Diagrams.KL3.MateCalculus
@@ -80,9 +82,11 @@ import Categorification.Diagrams.KL3.Rotation
 import Categorification.Diagrams.KL3.SerreKaroubi
 import Categorification.Diagrams.KL3.SignedSln
 import Categorification.Diagrams.KL3.SlideCalculus
+import Categorification.Diagrams.KL3.SortDecomp
 import Categorification.Diagrams.KL3.Spanning
 import Categorification.Diagrams.KL3.SpanningBasic
 import Categorification.Diagrams.KL3.SpanningPhi
+import Categorification.Diagrams.KL3.Straighten
 import Categorification.Diagrams.KL3.Symmetries
 import Categorification.Diagrams.KL3.SymmetryOmega
 import Categorification.Diagrams.KL3.SymmetryPsi

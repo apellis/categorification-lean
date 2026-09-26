@@ -48,7 +48,9 @@ bubble monomials (`closeRight_bubLU`, `closeLeft_bubRU` of
   Proposition 3.6**.
 
 The remaining input, `UpSpanDiag` (equivalently KL III's reduction of crossings, cups and caps in
-diagrams between upward sequences), is not proved here.
+diagrams between upward sequences), is proved for simply-laced data in
+`Categorification.Diagrams.KL3.Lemma39` (`upSpanDiag_of_simplyLaced`, `prop36_of_simplyLaced`,
+`prop310_of_simplyLaced`).
 -/
 
 noncomputable section

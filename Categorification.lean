@@ -64,6 +64,9 @@ import Categorification.Diagrams.KL3.SlideCalculus
 import Categorification.Diagrams.KL3.Spanning
 import Categorification.Diagrams.KL3.SpanningBasic
 import Categorification.Diagrams.KL3.SpanningPhi
+import Categorification.Diagrams.KL3.Symmetries
+import Categorification.Diagrams.KL3.SymmetryPsi
+import Categorification.Diagrams.KL3.SymmetrySigma
 import Categorification.Diagrams.KL3.Upward
 import Categorification.Diagrams.KLR.Basic
 import Categorification.Diagrams.KLR.Comparison

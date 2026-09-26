@@ -74,6 +74,7 @@ For a symmetric Cartan datum (`QuantumGroup.CartanDatum`), `KLR.R2 k C ν` is `R
 | KL II §3 | the defining relations; polynomial representation; basis theorem and faithfulness | `KLR.KL2.ψ_sq_of_dot_ne_zero`, `KLR.KL2.braid_hard`, `KLR.polyRepKL2`, `KLR.KL2.basis`, `KLR.KL2.cornerBasis`, `KLR.KL2.polyRepKL2_injective` |
 | KL II Lemma 5, (10)–(13) | nilHecke computations, on blocks of equally labelled strands | `KLR.KL2.lemma5`, `KLR.KL2.blockElt_mul_x_pow_mul_chainL` |
 | KL II Prop. 6, Cor. 7 | `⊕_a {}_{…i^{(2a)} j i^{(d+1−2a)}…}P ≅ ⊕_a {}_{…i^{(2a+1)} j i^{(d−2a)}…}P` (right and left projectives, and `1_{…}M`), via the maps `α′`, `α″`, homogeneous of the degrees matching the shifts | `KLR.KL2.prop6`, `KLR.KL2.prop6_rIdealEquiv`, `KLR.KL2.cor7_lIdealEquiv`, `KLR.KL2.prop6_fixSubEquiv` |
+| KL II Thm. 8 (injectivity), §3 | in `K_0`: `[P_î] = i!_{v_i} [P_i]` and the Serre relation `∑_n (-1)^n [P_{…i^{(n)} j i^{(N-n)}…}] = 0`; `γ : 'f → ℚ(v) ⊗ K_0(R)` killing the Serre ideal, its descent to `f` (Gabber–Kac hypothesis), and injectivity on `f` and `_A f`; `K_0(R)` is free | `KLR.KL2Gamma.clsDiv2_serre`, `KLR.KL2Gamma.gammaF2`, `KLR.KL2Gamma.gammaF2_injective`, `KLR.KL2Gamma.gammaInt2'_injective`, `KLR.KL2Gamma.K0R_free2` |
 
 ### Lusztig's algebra `f` (Lusztig, *Introduction to quantum groups*, Ch. 1; KL I §3.1)
 

@@ -90,6 +90,14 @@ induction on sequences.
 The transcription of Def. 3.1 is cross-checked by homogeneity of every relation and by cyclicity
 of the generators with respect to the biadjunctions; no faithful 2-representation is formalized yet.
 
+### Headline: Khovanov–Lauda II, Theorem 8 (isomorphism)
+
+For an arbitrary symmetric Cartan datum and a field `𝕜`, `γ : _A f → K_0(R)` is a ring isomorphism,
+`ℤ[q, q⁻¹]`-linear, sending divided-power monomials (divided powers in `v_i = v^{i·i/2}`) to the classes
+of the corresponding projectives: `KLR.KL2Gamma.theorem_8`, `KLR.KL2Gamma.gammaInt2Equiv`,
+`KLR.KL2Gamma.gammaInt2Equiv_dpowMono`; over `ℚ(v)`, `KLR.KL2Gamma.gammaF2Equiv`. Again the quantum
+Gabber–Kac theorem is an explicit hypothesis. The compatibility with coproducts is not yet formalized.
+
 ### KLR algebras for arbitrary Cartan data (Khovanov–Lauda II, arXiv:0804.2080v1)
 
 For a symmetric Cartan datum (`QuantumGroup.CartanDatum`), `KLR.R2 k C ν` is `R(ν)` with

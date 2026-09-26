@@ -117,10 +117,13 @@ import Categorification.KLR.KL2.K0Relations
 import Categorification.KLR.KL2.NilHeckeBlocks
 import Categorification.KLR.KL2.NilHeckeFamily
 import Categorification.KLR.KL2.OrthSum
+import Categorification.KLR.KL2.Prop318KL2
+import Categorification.KLR.KL2.Prop320KL2
 import Categorification.KLR.KL2.Prop34KL2
 import Categorification.KLR.KL2.Serre
 import Categorification.KLR.KL2.SerreMaps
 import Categorification.KLR.KL2.SerreSeq
+import Categorification.KLR.KL2.Theorem8
 import Categorification.KLR.Mackey
 import Categorification.KLR.MackeyRes
 import Categorification.KLR.NilHeckeBlockSplitting

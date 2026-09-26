@@ -50,6 +50,8 @@ import Categorification.Diagrams.KL3.DividedPowers
 import Categorification.Diagrams.KL3.DownwardDecomp
 import Categorification.Diagrams.KL3.EndOne
 import Categorification.Diagrams.KL3.EndOneGraded
+import Categorification.Diagrams.KL3.FinDimHom
+import Categorification.Diagrams.KL3.FinDimHomUp
 import Categorification.Diagrams.KL3.GammaAUD
 import Categorification.Diagrams.KL3.GammaIntegral
 import Categorification.Diagrams.KL3.GammaU
@@ -63,6 +65,8 @@ import Categorification.Diagrams.KL3.Karoubi
 import Categorification.Diagrams.KL3.KaroubiAssoc
 import Categorification.Diagrams.KL3.KaroubiHcomp
 import Categorification.Diagrams.KL3.KaroubiKLR
+import Categorification.Diagrams.KL3.KrullSchmidtCat
+import Categorification.Diagrams.KL3.KrullSchmidtU
 import Categorification.Diagrams.KL3.Lemma39
 import Categorification.Diagrams.KL3.Markov
 import Categorification.Diagrams.KL3.MarkovLeft
@@ -89,6 +93,7 @@ import Categorification.Diagrams.KL3.Spanning
 import Categorification.Diagrams.KL3.SpanningBasic
 import Categorification.Diagrams.KL3.SpanningPhi
 import Categorification.Diagrams.KL3.Straighten
+import Categorification.Diagrams.KL3.Surjectivity
 import Categorification.Diagrams.KL3.Symmetries
 import Categorification.Diagrams.KL3.SymmetryOmega
 import Categorification.Diagrams.KL3.SymmetryPsi

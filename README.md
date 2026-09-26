@@ -164,6 +164,19 @@ corresponding relation in Lauda, arXiv:0803.3652v3. The definition `E_𝐢1_λ :
 divided-power sequences (after (3.55)) should carry the grading shifts of (3.54); we use them
 throughout (without them the isomorphisms of Prop. 3.24 are not of degree 0).
 
+### Categorified quantum groups for general scalars (Cautis–Lauda, arXiv:1111.1431v3)
+
+| Source | Result | Declarations |
+|---|---|---|
+| CL §2.1.1 | choices of scalars `Q = (t_{ij}, s_{ij}^{pq}, r_i)`, the KLR polynomials `Q_{ij}(u, v) = t_{ij} u^{d_{ij}} + t_{ji} v^{d_{ji}} + Σ s_{ij}^{pq} u^p v^q` (with `Q_{ij}(u, v) = Q_{ji}(v, u)`, weighted homogeneous), the dual scalars `Q'`; `Q̄_{ij}` is the right-hand side of the braid relation (2.14) | `KL3.Diagram.CL.CLScalars`, `KL3.Diagram.CL.qCL`, `KL3.Diagram.CL.CLScalars.dual`, `KL3.Diagram.CL.qbar_qCL` |
+| CL Def. 1.1, §2.2–2.6 | the 2-category `U_Q(𝔤)` for any root datum and scalars: `Q`-cyclic biadjointness, KLR relations with `r_i`, mixed relations with `t_{ji}`, `t_{ij}`, bubble relations and the extended `sl_2` relations; homogeneous for all `Q` | `KL3.Diagram.CL.presCL`, `KL3.Diagram.CL.presCL_isHomogeneous` |
+| CL p. 2 | for `t = 1`, `s = 0`, `r = 1`, `U_Q(𝔤)` is the 2-category `U` of KL III Def. 3.1 | `KL3.Diagram.CL.presCL_kl` |
+| KL III Def. 4.1 and erratum | for `sl_n` with `t_{ij} = i - j` for adjacent `i, j` (the scalars forced by the signed `R(ν)` relations), the relations of `U_Q(sl_n)` agree with those of the revised Definition 4.1 with the corrected signs in (3.13), and differ from the printed (3.13) by `2(j - i)`; the erratum's adjacent-colour cyclicity relation is a consequence of CL's, which in addition fix the downward crossing | `KL3.Diagram.CL.Sln.relationCL_sln_eq_relationQT'`, `KL3.Diagram.CL.Sln.relationCL_sln_downupEF_adj`, `KL3.Diagram.CL.Sln.relationQT_sub_relationCL_sln_downupEF_adj`, `KL3.Diagram.CL.Sln.erratum_cyc_eq` |
+
+In CL §2.1.1, "`s_{ij}^{pq} = 0` when … `d_{ij} ≥ p` or `d_{ji} ≥ q`" should read "`p ≥ d_{ij}` or
+`q ≥ d_{ji}`". The downward KLR relations for `Q'` (stated by CL to follow from `Q`-cyclicity)
+and the main theorem (CL Theorem 1.1) are not yet formalized.
+
 ### KL I §3.3–3.4: relations between induction functors, tight monomials
 
 `𝓕_i^{(a)} M = Ind(P_{i^{(a)}} ⊠ M)`; for any relation `∑ u_k θ(k) = ∑ v_ℓ θ'(ℓ)` in `_A f` with

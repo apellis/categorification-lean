@@ -37,6 +37,10 @@ import Categorification.Algebra.ParabolicSymmetricFree
 import Categorification.Algebra.PermExpansion
 import Categorification.Algebra.SplitK0
 import Categorification.Algebra.SymmetricFree
+import Categorification.Diagrams.CL.Homogeneous
+import Categorification.Diagrams.CL.Presentation
+import Categorification.Diagrams.CL.Scalars
+import Categorification.Diagrams.CL.Specialize
 import Categorification.Diagrams.KL3.Basic
 import Categorification.Diagrams.KL3.Bending
 import Categorification.Diagrams.KL3.BubbleSlides

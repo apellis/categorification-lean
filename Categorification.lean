@@ -105,10 +105,16 @@ import Categorification.Diagrams.KL3.SignedSlnErratum
 import Categorification.Diagrams.KL3.SlideCalculus
 import Categorification.Diagrams.KL3.SortDecomp
 import Categorification.Diagrams.KL3.SortedAction
+import Categorification.Diagrams.KL3.SortedSpanProof
+import Categorification.Diagrams.KL3.SortedSpanWords
 import Categorification.Diagrams.KL3.SortedSplit
 import Categorification.Diagrams.KL3.Spanning
 import Categorification.Diagrams.KL3.SpanningBasic
 import Categorification.Diagrams.KL3.SpanningPhi
+import Categorification.Diagrams.KL3.SpanningSetBlock
+import Categorification.Diagrams.KL3.SpanningSetCaps
+import Categorification.Diagrams.KL3.SpanningSetElim
+import Categorification.Diagrams.KL3.SpanningSetLocal
 import Categorification.Diagrams.KL3.Straighten
 import Categorification.Diagrams.KL3.Surjectivity
 import Categorification.Diagrams.KL3.SurjectivityK0

@@ -47,6 +47,13 @@ import Categorification.KLR.GradingFlip
 import Categorification.KLR.InductionFree
 import Categorification.KLR.KL1
 import Categorification.KLR.KL1Basis
+import Categorification.KLR.KL2.Datum
+import Categorification.KLR.KL2.NilHeckeBlocks
+import Categorification.KLR.KL2.NilHeckeFamily
+import Categorification.KLR.KL2.OrthSum
+import Categorification.KLR.KL2.Serre
+import Categorification.KLR.KL2.SerreMaps
+import Categorification.KLR.KL2.SerreSeq
 import Categorification.KLR.Mackey
 import Categorification.KLR.MackeyRes
 import Categorification.KLR.NilHeckeBlockSplitting

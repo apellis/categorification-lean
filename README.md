@@ -53,6 +53,17 @@ expanding the action on the polynomial representation over the fraction field in
 automorphisms `w ∈ S_m` (`Categorification.PermExpansion`), rather than by the paper's
 induction on sequences.
 
+### KLR algebras for arbitrary Cartan data (Khovanov–Lauda II, arXiv:0804.2080v1)
+
+For a symmetric Cartan datum (`QuantumGroup.CartanDatum`), `KLR.R2 k C ν` is `R(ν)` with
+`Q_ij = u^{d_ij} + v^{d_ji}` (`i·j ≠ 0`), `d_ij = −2 i·j / i·i`, graded by `deg x = i·i`.
+
+| Source | Result | Declarations |
+|---|---|---|
+| KL II §3 | the defining relations; polynomial representation; basis theorem and faithfulness | `KLR.KL2.ψ_sq_of_dot_ne_zero`, `KLR.KL2.braid_hard`, `KLR.polyRepKL2`, `KLR.KL2.basis`, `KLR.KL2.cornerBasis`, `KLR.KL2.polyRepKL2_injective` |
+| KL II Lemma 5, (10)–(13) | nilHecke computations, on blocks of equally labelled strands | `KLR.KL2.lemma5`, `KLR.KL2.blockElt_mul_x_pow_mul_chainL` |
+| KL II Prop. 6, Cor. 7 | `⊕_a {}_{…i^{(2a)} j i^{(d+1−2a)}…}P ≅ ⊕_a {}_{…i^{(2a+1)} j i^{(d−2a)}…}P` (right and left projectives, and `1_{…}M`), via the maps `α′`, `α″`, homogeneous of the degrees matching the shifts | `KLR.KL2.prop6`, `KLR.KL2.prop6_rIdealEquiv`, `KLR.KL2.cor7_lIdealEquiv`, `KLR.KL2.prop6_fixSubEquiv` |
+
 ### Lusztig's algebra `f` (Lusztig, *Introduction to quantum groups*, Ch. 1; KL I §3.1)
 
 For a symmetric Cartan datum (`QuantumGroup.CartanDatum`, including the simply-laced datum of a

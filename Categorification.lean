@@ -120,6 +120,7 @@ import Categorification.Diagrams.KL3.SortedSplit
 import Categorification.Diagrams.KL3.Spanning
 import Categorification.Diagrams.KL3.SpanningBasic
 import Categorification.Diagrams.KL3.SpanningPhi
+import Categorification.Diagrams.KL3.SpanningPositive
 import Categorification.Diagrams.KL3.SpanningSetBlock
 import Categorification.Diagrams.KL3.SpanningSetCaps
 import Categorification.Diagrams.KL3.SpanningSetElim

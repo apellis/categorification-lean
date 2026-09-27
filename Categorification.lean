@@ -54,6 +54,7 @@ import Categorification.Diagrams.KL3.BubbleSlidesAll
 import Categorification.Diagrams.KL3.BubbleSlidesEq
 import Categorification.Diagrams.KL3.BubbleSlidesProp
 import Categorification.Diagrams.KL3.Bubbles
+import Categorification.Diagrams.KL3.ChordMoves
 import Categorification.Diagrams.KL3.Cyclic
 import Categorification.Diagrams.KL3.Decompositions
 import Categorification.Diagrams.KL3.DividedPowers

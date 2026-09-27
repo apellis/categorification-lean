@@ -146,7 +146,10 @@ signs) is verified on `Γ_N`. For the assembly as a 2-functor: the target (path 
 realized compositions, zero objects otherwise; `Flag.gammaFunctor`), the interchange law, and a
 lifting theorem reducing the construction of `Γ_N : P ⥤ ModuleCat` for any presentation `P` on
 the `sl_n` signature to the vanishing of each relation on the word model (`Flag.gamma_respects`,
-`Flag.gammaLift`); of the relations of `U_Q(sl_n)`, dot cyclicity is done so far. Lemma 5.4 (iii) as printed
+`Flag.gammaLift`). Every relation of Cautis–Lauda's `U_Q(sl_n)` with `t_{ij} = i - j` holds on the
+word model (`Flag.gammaN_hP`), so `Γ_N` is a 2-functor `U_Q(sl_n) → ModuleCat` (`Flag.GammaN`) and,
+composed with `Σ`, out of KL III's `U(sl_n)` (`Flag.GammaN_KL3`); with CL's normalization the
+downward crossing of adjacent colours `j, i` goes to `t_{ji}⁻¹` times KL's (6.9). Lemma 5.4 (iii) as printed
 in (5.45), with `x(k)_{i+1,·}`, is false as we read it (a counterexample with `N = 2`:
 `Flag.Erratum545.lemma_5_4_iii_printed_false`); the version with `x(k)_{i,·}`, which is the one
 used in the proof and in Cor. 5.5, holds (`Flag.lemma_5_4_iii`).

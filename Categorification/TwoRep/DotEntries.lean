@@ -28,8 +28,8 @@ Fix `n = wt (r + 1) ≥ 0`, so `E F 1_n = F r ≫ E r` and `F E 1_n = E (r + 1) 
   `entry e i (i + 1)`, `i = 0, …, n - 2`, are nonzero (isomorphisms). CL state Lemma 3.6 as
   "`rk_{1_n}(dot) = n - 1`"; by the degree analysis above (see the module docstring of
   `StepLemmas.lean` for the gap in CL's proof) the total `1_n`-rank of the dot is exactly the
-  number of nonzero subdiagonal scalars, so this is CL's statement. **It is not proved here**
-  (the rank argument through `E^{(2)} F 1_{n-2}` is not formalized); everything below takes it as a
+  number of nonzero subdiagonal scalars, so this is CL's statement. It is proved from (3.2) at `n`
+  in `Categorification.TwoRep.LemXind` (`lemXind_of_adjHyp`); everything below takes it as a
   hypothesis.
 * `bubble e : 1_n⟨n-1⟩ → 1_n⟨-n+1⟩⟨2(n-1)⟩`, CL's degree-zero bubble with `n - 1` dots
   (`cup`, then `n - 1` dots, then `cap`), and **Corollary 3.7**

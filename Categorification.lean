@@ -350,12 +350,16 @@ import Categorification.TwoRep.DividedPowerDot
 import Categorification.TwoRep.DotEntries
 import Categorification.TwoRep.EndE
 import Categorification.TwoRep.KrullSchmidt
+import Categorification.TwoRep.LemAprime
+import Categorification.TwoRep.LemXind
+import Categorification.TwoRep.MultShift
 import Categorification.TwoRep.QStrong
 import Categorification.TwoRep.QStrongRestrict
 import Categorification.TwoRep.Rank
 import Categorification.TwoRep.ShiftInterchange
 import Categorification.TwoRep.Sl2
 import Categorification.TwoRep.StepLemmas
+import Categorification.TwoRep.UpDownCrossing
 import Categorification.TypeA.Basic
 import Categorification.TypeA.DoubleCoset
 import Categorification.TypeA.Inversions

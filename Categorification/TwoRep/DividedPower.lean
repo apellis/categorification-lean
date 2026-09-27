@@ -30,13 +30,10 @@ These are the identities showing that `τ` and `-r⁻¹ h` are mutually inverse 
 morphisms give an isomorphism `X ≅ Y⟨d⟩`). For a strong `sl₂` 2-representation,
 `StrongSl2.exists_E2` gives `E^{(2)} 1_n := P⟨-1⟩` with `E E 1_n ≅ E^{(2)} 1_n ⟨1⟩ ⊕ E^{(2)} 1_n ⟨-1⟩`.
 
-**Not yet available.** CL's proof of Lemma 3.6 also uses that the dot on the left strand induces an
-isomorphism on the common summand `E^{(2)}⟨1⟩`. In `NH₂` this is the component `e xL (1 - e)`,
-which equals `-h = r · (-r⁻¹ h)` *provided the two dots commute*, `xL xR = xR xL`. For
-`xL = E ◁ x`, `xR = x ▷ E` this is the interchange law for *shifted* 2-morphisms, which needs a
-compatibility between the shift-commutation isomorphisms of left and right whiskering; that
-compatibility is not part of `GradedBicategory` (see the design notes in `Basic.lean`) and will
-have to be added as a new mixin.
+CL's proof of Lemma 3.6 also uses that the dot on the left strand induces an isomorphism on the
+common summand `E^{(2)}⟨1⟩`. This needs no commutation of the two dots: see
+`Categorification.TwoRep.DividedPowerDot` (`NH2.e_comp_xL_comp_one_sub_e`,
+`NH2.exists_decomp_dot`).
 -/
 
 noncomputable section

@@ -345,12 +345,15 @@ import Categorification.TwoRep.AdjointInductionNegCor
 import Categorification.TwoRep.BSum
 import Categorification.TwoRep.Basic
 import Categorification.TwoRep.Biadjoint
+import Categorification.TwoRep.CisBub
 import Categorification.TwoRep.DividedPower
 import Categorification.TwoRep.DividedPowerDot
 import Categorification.TwoRep.DotEntries
 import Categorification.TwoRep.EndE
 import Categorification.TwoRep.KrullSchmidt
 import Categorification.TwoRep.LemAprime
+import Categorification.TwoRep.LemAprimeScalar
+import Categorification.TwoRep.LemMain
 import Categorification.TwoRep.LemXind
 import Categorification.TwoRep.MultShift
 import Categorification.TwoRep.QStrong

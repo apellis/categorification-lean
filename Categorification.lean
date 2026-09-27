@@ -62,6 +62,7 @@ import Categorification.Diagrams.KL3.EndOne
 import Categorification.Diagrams.KL3.EndOneGraded
 import Categorification.Diagrams.KL3.FinDimHom
 import Categorification.Diagrams.KL3.FinDimHomUp
+import Categorification.Diagrams.KL3.GabberKacWrappers
 import Categorification.Diagrams.KL3.GammaAUD
 import Categorification.Diagrams.KL3.GammaFlagBraid
 import Categorification.Diagrams.KL3.GammaFlagBubble
@@ -231,6 +232,7 @@ import Categorification.KLR.Filtration
 import Categorification.KLR.Frobenius
 import Categorification.KLR.G0Ind
 import Categorification.KLR.G0Res
+import Categorification.KLR.GabberKacConsumers
 import Categorification.KLR.Gamma
 import Categorification.KLR.GradedBasis
 import Categorification.KLR.GradedFree
@@ -306,6 +308,7 @@ import Categorification.QuantumGroup.DividedPowers
 import Categorification.QuantumGroup.Form
 import Categorification.QuantumGroup.FormDivided
 import Categorification.QuantumGroup.FormWords
+import Categorification.QuantumGroup.GabberKacStatement
 import Categorification.QuantumGroup.Grading
 import Categorification.QuantumGroup.KLSpecialization
 import Categorification.QuantumGroup.PreF

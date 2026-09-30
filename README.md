@@ -255,7 +255,13 @@ theorem KL3.Diagram.gammaUA'_bijective_of_positive … (hSL : SimplyLaced C) :
     PositiveNondeg RD k → UDot.KL3.FormNondeg RD → ∀ lam ρ, Function.Bijective (gammaUA' hSL lam ρ)
 ```
 
-Nondegeneracy for `sl_n` (Theorem 1.3) is not yet formalized.
+Theorem 1.3 (nondegeneracy for `sl_n` over any field) and hence Proposition 1.4 (`γ` is an
+isomorphism for `sl_n` over any field) are proved: `KL3.Diagram.theorem_1_3`,
+`KL3.Diagram.prop_1_4_sl`. Instead of KL III's equivariant `Γ^G_N`, the spanning family
+`B_{+i,+j,λ}` is separated by `Γ_N` of `sl_{n+1}` composed with the 2-functor
+`U(sl_n) → U(sl_{n+1})` (`KL3.Diagram.SlnEmbed.embedU`, `Flag.Indep.linearIndependent_vB_sln`);
+the extra block is needed because the non-equivariant `Γ_N` of `sl_n` does not separate the
+bubbles when `char k` divides `n`.
 
 ### KLR algebras for arbitrary Cartan data (Khovanov–Lauda II, arXiv:0804.2080v1)
 

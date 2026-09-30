@@ -143,6 +143,7 @@ import Categorification.Diagrams.KL3.SymmetryOmega
 import Categorification.Diagrams.KL3.SymmetryPsi
 import Categorification.Diagrams.KL3.SymmetrySigma
 import Categorification.Diagrams.KL3.SymmetryTau
+import Categorification.Diagrams.KL3.Theorem13
 import Categorification.Diagrams.KL3.TopSummand
 import Categorification.Diagrams.KL3.Traces
 import Categorification.Diagrams.KL3.Upward

@@ -191,6 +191,7 @@ import Categorification.Flag.GammaIndepFunctor
 import Categorification.Flag.GammaIndepMat
 import Categorification.Flag.GammaIndepPath
 import Categorification.Flag.GammaIndepShadow
+import Categorification.Flag.GammaIndepSln
 import Categorification.Flag.GammaIndepTrunc
 import Categorification.Flag.GammaInterchange
 import Categorification.Flag.GammaLiftBasic

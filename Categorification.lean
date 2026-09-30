@@ -54,6 +54,7 @@ import Categorification.Diagrams.KL3.BubbleSlidesAll
 import Categorification.Diagrams.KL3.BubbleSlidesEq
 import Categorification.Diagrams.KL3.BubbleSlidesProp
 import Categorification.Diagrams.KL3.Bubbles
+import Categorification.Diagrams.KL3.CanonDeg
 import Categorification.Diagrams.KL3.ChordLettered
 import Categorification.Diagrams.KL3.ChordU
 import Categorification.Diagrams.KL3.Cyclic

@@ -54,7 +54,8 @@ import Categorification.Diagrams.KL3.BubbleSlidesAll
 import Categorification.Diagrams.KL3.BubbleSlidesEq
 import Categorification.Diagrams.KL3.BubbleSlidesProp
 import Categorification.Diagrams.KL3.Bubbles
-import Categorification.Diagrams.KL3.ChordMoves
+import Categorification.Diagrams.KL3.ChordLettered
+import Categorification.Diagrams.KL3.ChordU
 import Categorification.Diagrams.KL3.Cyclic
 import Categorification.Diagrams.KL3.Decompositions
 import Categorification.Diagrams.KL3.DividedPowers
@@ -114,6 +115,7 @@ import Categorification.Diagrams.KL3.SerreKaroubi
 import Categorification.Diagrams.KL3.SignedSln
 import Categorification.Diagrams.KL3.SignedSlnErratum
 import Categorification.Diagrams.KL3.SlideCalculus
+import Categorification.Diagrams.KL3.SlnEmbed
 import Categorification.Diagrams.KL3.SortDecomp
 import Categorification.Diagrams.KL3.SortedAction
 import Categorification.Diagrams.KL3.SortedSpanProof
@@ -378,6 +380,7 @@ import Categorification.TwoRep.LemAprimeScalar
 import Categorification.TwoRep.LemMain
 import Categorification.TwoRep.LemMainNeg
 import Categorification.TwoRep.LemXind
+import Categorification.TwoRep.MateSh
 import Categorification.TwoRep.MultShift
 import Categorification.TwoRep.QStrong
 import Categorification.TwoRep.QStrongRestrict

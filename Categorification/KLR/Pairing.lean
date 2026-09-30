@@ -42,7 +42,7 @@ noncomputable section
 
 namespace Categorification.KLR
 
-open Equiv MvPolynomial TypeA Graded KLRAlgebra
+open Equiv MvPolynomial TypeA Categorification.Graded KLRAlgebra
 
 variable {I : Type*} [DecidableEq I] {k : Type*} [Field k] {Q : I → I → MvPolynomial (Fin 2) k}
   {P : I → I → MvPolynomial (Fin 2) k}
@@ -106,7 +106,7 @@ theorem sum_invSet_inv (w : Perm (Fin (Multiset.card ν))) (i : Seq ν) :
   · intro p _; simp
   · intro p _; simp
   · intro p _
-    simp only [Seq.lbl, Seq.smul_apply, ← Perm.inv_def, inv_inv]
+    simp only [Seq.lbl, Seq.smul_apply, ← Perm.inv_def]
     exact cartan_symm Γ _ _
 
 /-- **The form is symmetric on the `P_i`** (KL I, §2.5): `([P_j], [P_i]) = ([P_i], [P_j])`. -/

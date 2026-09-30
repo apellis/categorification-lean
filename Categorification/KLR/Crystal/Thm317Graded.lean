@@ -64,17 +64,17 @@ abbrev evalOne : LaurentPolynomial ℤ →+* ℤ := LaurentPolynomial.eval₂ (R
 theorem evalOne_T (n : ℤ) : evalOne (T n) = 1 := by
   rw [eval₂_T, one_zpow, Units.val_one]
 
-theorem evalOne_single (n c : ℤ) : evalOne (Finsupp.single n c) = c := by
+theorem evalOne_single (n c : ℤ) : evalOne (AddMonoidAlgebra.single n c) = c := by
   rw [LaurentPolynomial.single_eq_C_mul_T, map_mul, LaurentPolynomial.eval₂_C, evalOne_T, mul_one,
     RingHom.id_apply]
 
-theorem evalOne_eq_sum (p : LaurentPolynomial ℤ) : evalOne p = p.sum fun _ c => c := by
-  induction p using Finsupp.induction_linear with
-  | zero => rw [map_zero, Finsupp.sum_zero_index]
+theorem evalOne_eq_sum (p : LaurentPolynomial ℤ) : evalOne p = p.coeff.sum fun _ c => c := by
+  induction p using AddMonoidAlgebra.induction_linear with
+  | zero => rw [map_zero, AddMonoidAlgebra.coeff_zero, Finsupp.sum_zero_index]
   | add p q hp hq =>
-    rw [map_add, hp, hq, Finsupp.sum_add_index' (fun _ => rfl) (fun _ _ _ => rfl)]
+    rw [map_add, AddMonoidAlgebra.coeff_add, hp, hq, Finsupp.sum_add_index' (fun _ => rfl) (fun _ _ _ => rfl)]
   | single n c =>
-    rw [evalOne_single, Finsupp.sum_single_index rfl]
+    rw [evalOne_single, AddMonoidAlgebra.coeff_single, Finsupp.sum_single_index rfl]
 
 theorem T_one_sub_one_ne_zero : (T 1 - 1 : LaurentPolynomial ℤ) ≠ 0 := by
   have : (T 1 - 1 : LaurentPolynomial ℤ) = toLaurent (Polynomial.X - Polynomial.C 1) := by
@@ -185,7 +185,7 @@ theorem finrank_eq_sum_finrank (ℳ : ℤ → Submodule K M) [Decomposition ℳ]
   have hsurj : Function.Surjective φ := by
     intro f
     refine ⟨∑ d : S, (f d : M), funext fun d => Subtype.ext ?_⟩
-    rw [hφ, decompose_sum, DFinsupp.finset_sum_apply, Submodule.coe_sum,
+    rw [hφ, decompose_sum, DFinsupp.finsetSum_apply, Submodule.coe_sum,
       Finset.sum_eq_single d]
     · exact decompose_of_mem_same ℳ (f d).2
     · intro d' _ hd'
@@ -197,10 +197,10 @@ theorem finrank_eq_sum_finrank (ℳ : ℤ → Submodule K M) [Decomposition ℳ]
 /-- **`gdim M` at `q = 1` is `dim M`**. -/
 theorem evalOne_gdimPoly (ℳ : ℤ → Submodule K M) [Decomposition ℳ] [FiniteDimensional K M] :
     evalOne (gdimPoly ℳ) = Module.finrank K M := by
-  rw [evalOne_eq_sum, Finsupp.sum, finrank_eq_sum_finrank ℳ (gdimPoly ℳ).support (fun d hd => ?_),
+  rw [evalOne_eq_sum, Finsupp.sum, finrank_eq_sum_finrank ℳ (gdimPoly ℳ).coeff.support (fun d hd => ?_),
     Nat.cast_sum]
   · exact Finset.sum_congr rfl fun d _ => gdimPoly_apply ℳ d
-  · rw [Finsupp.not_mem_support_iff, gdimPoly_apply, Nat.cast_eq_zero,
+  · rw [Finsupp.notMem_support_iff, gdimPoly_apply, Nat.cast_eq_zero,
       Submodule.finrank_eq_zero] at hd
     exact hd
 
@@ -214,7 +214,7 @@ namespace KLR
 
 namespace KLRAlgebra
 
-open Graded DirectSum
+open Categorification.Graded DirectSum
 
 variable {I : Type*} [DecidableEq I] {K : Type*} [Field K] {Q : I → I → MvPolynomial (Fin 2) K}
   {P : I → I → MvPolynomial (Fin 2) K}
@@ -232,7 +232,7 @@ include G in
 /-- The graded character `gdim (1_s M)` specializes at `q = 1` to `dim 1_s M`. -/
 theorem evalOne_gdimPoly_idem [IsScalarTower K (KLRAlgebra K Q ν) M] (s : Seq ν) :
     evalOne (gdimPoly (idem ℳ (e s : KLRAlgebra K Q ν))) = dimCh Q ν M s := by
-  letI := idemDecomposition ℳ (G.e_mem_grade s)
+  let := idemDecomposition ℳ (G.e_mem_grade s)
   rw [evalOne_gdimPoly]
   rfl
 
@@ -256,11 +256,11 @@ theorem thm_3_17 {ν : Multiset I} {T : Type v} (S : T → Type u) [∀ t, AddCo
       (fun t => fun s : Seq ν => gdimPoly (idem (𝒮 t) (e s : KLRAlgebra K Q ν))) := by
   classical
   have hyp := fun t => crystal_hypotheses_of_isGradedSimple G hG (𝒮 t) hPQ hP (hS t)
-  haveI : ∀ t, FiniteDimensional K (S t) := fun t => (hyp t).1
-  haveI : ∀ t, IsSimpleModule (KLRAlgebra K Q ν) (S t) := fun t => (hyp t).2.1
+  have : ∀ t, FiniteDimensional K (S t) := fun t => (hyp t).1
+  have : ∀ t, IsSimpleModule (KLRAlgebra K Q ν) (S t) := fun t => (hyp t).2.1
   have hL' : ∀ t t', Nonempty (S t ≃ₗ[KLRAlgebra K Q ν] S t') → t = t' := by
     rintro t t' ⟨φ⟩
-    haveI := IsSimpleModule.nontrivial (KLRAlgebra K Q ν) (S t)
+    have := IsSimpleModule.nontrivial (KLRAlgebra K Q ν) (S t)
     have hφ : φ.toLinearMap ≠ 0 := by
       intro h0
       obtain ⟨v, hv⟩ := exists_ne (0 : S t)
@@ -317,10 +317,10 @@ theorem chG0_hses (s : Seq ν) {M N P : GFin (G.grade ν)} (S : GFin.ShortExact 
     gdimPoly (idem N.grading (e s : KLRAlgebra K Q ν)) =
       gdimPoly (idem M.grading (e s : KLRAlgebra K Q ν)) +
         gdimPoly (idem P.grading (e s : KLRAlgebra K Q ν)) := by
-  letI := idemDecomposition M.grading (G.e_mem_grade s)
-  letI := idemDecomposition N.grading (G.e_mem_grade s)
-  letI := idemDecomposition P.grading (G.e_mem_grade s)
-  haveI := HasGdim.of_finiteDimensional N.grading
+  let := idemDecomposition M.grading (G.e_mem_grade s)
+  let := idemDecomposition N.grading (G.e_mem_grade s)
+  let := idemDecomposition P.grading (G.e_mem_grade s)
+  have := HasGdim.of_finiteDimensional N.grading
   apply toLaurentSeries_injective
   rw [map_add, toLaurentSeries_gdimPoly, toLaurentSeries_gdimPoly, toLaurentSeries_gdimPoly]
   exact gdim_idem_eq_add_of_exact (e_mul_self s) (G.e_mem_grade s) S.preservesGrading_f
@@ -344,17 +344,17 @@ theorem chG0_T_smul (s : Seq ν) (a : ℤ) (x : G0 (G.grade ν)) :
       (AddMonoidHom.mulLeft (LaurentPolynomial.T a : LaurentPolynomial ℤ)).comp (chG0 G s) :=
     Categorification.Graded.G0.hom_ext fun M => by
       simp only [AddMonoidHom.comp_apply, Categorification.Graded.G0.shiftHom_of, chG0_of, AddMonoidHom.coe_mulLeft]
-      letI := idemDecomposition M.grading (G.e_mem_grade s)
+      let := idemDecomposition M.grading (G.e_mem_grade s)
       exact gdimPoly_shift (idem M.grading (e s : KLRAlgebra K Q ν)) a
   exact DFunLike.congr_fun this x
 
 theorem chG0_smul (s : Seq ν) (p : LaurentPolynomial ℤ) (x : G0 (G.grade ν)) :
     chG0 G s (p • x) = p * chG0 G s x := by
-  induction p using Finsupp.induction_linear with
+  induction p using AddMonoidAlgebra.induction_linear with
   | zero => rw [zero_smul, map_zero, zero_mul]
   | add p q hp hq => rw [add_smul, map_add, hp, hq, add_mul]
   | single a c =>
-    have h : (Finsupp.single a c : LaurentPolynomial ℤ) = c • LaurentPolynomial.T a := by
+    have h : (AddMonoidAlgebra.single a c : LaurentPolynomial ℤ) = c • LaurentPolynomial.T a := by
       rw [LaurentPolynomial.single_eq_C_mul_T, LaurentPolynomial.smul_eq_C_mul]
     rw [h, smul_assoc, map_zsmul, chG0_T_smul, smul_mul_assoc]
 
@@ -371,7 +371,7 @@ include hPQ hP hG in
 degree). -/
 theorem thm_3_17_G0 : Function.Injective (chMap G (ν := ν)) := by
   classical
-  haveI := G.hasGdim_grade' (ν := ν) hPQ hP hG
+  have := G.hasGdim_grade' (ν := ν) hPQ hP hG
   let B := Categorification.Graded.G0.topBasis (G.finiteDimensional_top hPQ hP hG ν)
   have hB : ∀ b, chMap G (B b) =
       fun s => gdimPoly (idem b.top.grading (e s : KLRAlgebra K Q ν)) := by

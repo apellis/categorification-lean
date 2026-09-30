@@ -175,17 +175,17 @@ theorem sum_cw_ccw (e : ℤ) (T : ℕ) (hT : e ≤ T) :
   by_cases he : 0 ≤ e
   · obtain ⟨d, rfl⟩ := Int.eq_ofNat_of_zero_le he
     have hsub : Finset.range (d + 1) ⊆ Finset.range (T + 1) :=
-      Finset.range_subset.2 (by omega)
+      Finset.range_subset_range.2 (by omega)
     rw [← Finset.sum_subset hsub]
     · have := grassmannian_all RD k ρ i d
-      simp only [Nat.cast_inj, Nat.cast_eq_zero]
+      simp only [Nat.cast_eq_zero]
       rw [← this]
       refine Finset.sum_congr rfl fun g _ => ?_
       rw [endEmpty_comm]
     · intro g _ hg
       rw [Finset.mem_range] at hg
       rw [cwU_eq_zero RD k ρ i _ (by omega), Limits.zero_comp]
-  · rw [if_neg (by omega)]
+  · rw [ite_eq_right (by omega)]
     refine Finset.sum_eq_zero fun g _ => ?_
     rw [cwU_eq_zero RD k ρ i _ (by omega), Limits.zero_comp]
 
@@ -197,10 +197,10 @@ theorem sum_ccw_cw (e : ℤ) (T : ℕ) (hT : e ≤ T) :
   by_cases he : 0 ≤ e
   · obtain ⟨d, rfl⟩ := Int.eq_ofNat_of_zero_le he
     have hsub : Finset.range (d + 1) ⊆ Finset.range (T + 1) :=
-      Finset.range_subset.2 (by omega)
+      Finset.range_subset_range.2 (by omega)
     rw [← Finset.sum_subset hsub]
     · have := grassmannian_all RD k ρ i d
-      simp only [Nat.cast_inj, Nat.cast_eq_zero]
+      simp only [Nat.cast_eq_zero]
       rw [← this, ← Finset.sum_range_reflect]
       refine Finset.sum_congr rfl fun g hg => ?_
       rw [Finset.mem_range] at hg
@@ -210,7 +210,7 @@ theorem sum_ccw_cw (e : ℤ) (T : ℕ) (hT : e ≤ T) :
     · intro g _ hg
       rw [Finset.mem_range] at hg
       rw [ccwU_eq_zero RD k ρ i _ (by omega), Limits.zero_comp]
-  · rw [if_neg (by omega)]
+  · rw [ite_eq_right (by omega)]
     refine Finset.sum_eq_zero fun g _ => ?_
     rw [ccwU_eq_zero RD k ρ i _ (by omega), Limits.zero_comp]
 
@@ -331,7 +331,7 @@ theorem ba_EF (s t : ℕ) (hs : s < (ip RD i lam).toNat) (ht : t < (ip RD i lam)
   rw [Finset.sum_congr rfl hterm, sum_cw_ccw lam i _ t (by omega)]
   by_cases hst : s = t
   · subst hst; simp
-  · rw [if_neg (by omega), if_neg hst]
+  · rw [ite_eq_right (by omega), ite_eq_right hst]
 
 /-! ### The relations, case `⟨i, λ⟩ ≤ 0` -/
 
@@ -383,7 +383,7 @@ theorem ba_FE (s t : ℕ) (hs : s < (-ip RD i lam).toNat) (ht : t < (-ip RD i la
   rw [Finset.sum_congr rfl hterm, sum_ccw_cw lam i _ t (by omega)]
   by_cases hst : s = t
   · subst hst; simp
-  · rw [if_neg (by omega), if_neg hst]
+  · rw [ite_eq_right (by omega), ite_eq_right hst]
 
 end Components
 
@@ -433,11 +433,11 @@ def sumDecompEF (hn : 0 ≤ ip RD i lam) :
   b_a_self s := by
     rw [homOf_comp]
     refine homOf_eq_id ?_ _
-    rw [ba_EF i lam s s s.2 s.2, if_pos rfl]
+    rw [ba_EF i lam s s s.2 s.2, ite_eq_left rfl]
   b_a_ne s t hst := by
     rw [homOf_comp]
     refine homOf_eq_zero ?_ _
-    rw [ba_EF i lam s t s.2 t.2, if_neg (fun h => hst (Fin.ext h))]
+    rw [ba_EF i lam s t s.2 t.2, ite_eq_right (fun h => hst (Fin.ext h))]
 
 /-- The decomposition data of KL III Proposition 3.25 for `⟨i, λ⟩ ≤ 0`. -/
 def sumDecompFE (hn : ip RD i lam ≤ 0) :
@@ -465,11 +465,11 @@ def sumDecompFE (hn : ip RD i lam ≤ 0) :
   b_a_self s := by
     rw [homOf_comp]
     refine homOf_eq_id ?_ _
-    rw [ba_FE i lam s s s.2 s.2, if_pos rfl]
+    rw [ba_FE i lam s s s.2 s.2, ite_eq_left rfl]
   b_a_ne s t hst := by
     rw [homOf_comp]
     refine homOf_eq_zero ?_ _
-    rw [ba_FE i lam s t s.2 t.2, if_neg (fun h => hst (Fin.ext h))]
+    rw [ba_FE i lam s t s.2 t.2, ite_eq_right (fun h => hst (Fin.ext h))]
 
 /-- **KL III Proposition 3.25, first case** (`⟨i, λ⟩ ≥ 0`, empty contexts `i'`, `i''`): in `U̇`,
 `E_{+i-i} 1_λ ≅ E_{-i+i} 1_λ ⊕ ⨁_{s=0}^{⟨i,λ⟩-1} 1_λ {d_i (⟨i,λ⟩ - 1 - 2s)}`, i.e.

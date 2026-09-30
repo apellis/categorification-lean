@@ -38,6 +38,8 @@ noncomputable section
 
 namespace Categorification.TwoRep.StrongSl2
 
+set_option backward.isDefEq.respectTransparency false
+
 open CategoryTheory CategoryTheory.Limits CategoryTheory.Bicategory Module
 open KrullSchmidtCat (HomFinite)
 
@@ -187,7 +189,7 @@ theorem lemMainNeg_surjective_of_dotNondeg (hn : S.wt (r + 1) ≤ 0)
     intro i hi'
     have h := hcoef i
     rw [Finset.sum_eq_single i] at h
-    · haveI : IsIso (CijN e i i : S.oneShiftNeg r 0 ⟶ (S.oneShiftNeg r i)⟦((i : ℕ) : ℤ) * 2⟧) := by
+    · have : IsIso (CijN e i i : S.oneShiftNeg r 0 ⟶ (S.oneShiftNeg r i)⟦((i : ℕ) : ℤ) * 2⟧) := by
         rw [CijN_eq]
         exact (bubbleN_aux e hn hyp hd i i.2).2
       have h' : cisBubR (S.oneShiftNeg r 0) (f i) ≫
@@ -202,7 +204,6 @@ theorem lemMainNeg_surjective_of_dotNondeg (hn : S.wt (r + 1) ≤ 0)
     · intro i' _ hne
       rcases lt_or_gt_of_ne hne with hlt | hgt
       · have hz : CijN e i' i = 0 := by
-          change (CijN e i' i : S.oneShiftNeg r 0 ⟶ _) = 0
           rw [CijN_eq]
           exact (bubbleN_aux e hn hyp hd i' i'.2).1 i (Fin.lt_def.1 hlt)
         rw [hz, ShiftedHom.comp_zero]

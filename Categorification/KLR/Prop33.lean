@@ -60,7 +60,7 @@ noncomputable section
 
 namespace Categorification.KLR
 
-open Graded KLRAlgebra TypeA Equiv MvPolynomial
+open Categorification.Graded KLRAlgebra TypeA Equiv MvPolynomial
 open scoped TensorProduct
 
 variable {I : Type*} [DecidableEq I] {k : Type*} [Field k] {Q : I → I → MvPolynomial (Fin 2) k}
@@ -88,7 +88,7 @@ theorem K0RForm_of_of_ne {ν μ : Multiset I} (h : ν ≠ μ) (x : K0 (G.grade �
     (y : K0 (G.grade μ)) :
     G.K0RForm (DirectSum.of G.K0fam ν x) (DirectSum.of G.K0fam μ y) = 0 := by
   rw [K0RForm, DirectSum.toAddMonoid_of, AddMonoidHom.compl₂_apply, LinearMap.toAddMonoidHom_coe,
-    ← DirectSum.apply_eq_component, DirectSum.of_eq_of_ne _ _ _ (Ne.symm h), map_zero]
+    ← DirectSum.apply_eq_component, DirectSum.of_eq_of_ne _ _ _ h, map_zero]
 
 end GradingDatum
 
@@ -99,7 +99,7 @@ namespace KL1
 variable {Γ : SimpleGraph I} [DecidableRel Γ.Adj]
 
 theorem invSet_one (m : ℕ) : invSet m 1 = ∅ :=
-  Finset.eq_empty_of_forall_not_mem fun p hp => by
+  Finset.eq_empty_of_forall_notMem fun p hp => by
     rw [mem_invSet] at hp
     simp only [Perm.one_apply] at hp
     exact absurd hp.1 (not_lt.2 hp.2.le)
@@ -109,7 +109,7 @@ theorem homForm_projP_self_of_card_le_one {ν : Multiset I} (hν : Multiset.card
     (s : Seq ν) :
     K0.homForm ((klGradingDatum k Γ).grade ν) (K0.of ((klGradingDatum k Γ).projP s))
       (K0.of ((klGradingDatum k Γ).projP s)) = geomSeries 2 ^ Multiset.card ν := by
-  haveI : Subsingleton (Fin (Multiset.card ν)) := Fin.subsingleton_iff_le_one.2 hν
+  have : Subsingleton (Fin (Multiset.card ν)) := Fin.subsingleton_iff_le_one.2 hν
   have h1 : ∀ w : Perm (Fin (Multiset.card ν)), w = 1 :=
     fun w => Equiv.ext fun a => Subsingleton.elim _ _
   rw [homForm_projP, Finset.sum_eq_single (1 : Perm (Fin (Multiset.card ν)))

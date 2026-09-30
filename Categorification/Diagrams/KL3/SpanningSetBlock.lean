@@ -101,7 +101,7 @@ theorem capBlk_dotS (ν : X) (S₁ S₂ : List (Letter I)) (s l : Letter I) (d :
       (sChain_ichgR (sChain_capBlk S₁ l d) ⟨rfl, rfl⟩) (sChain_ichgL (sChain_capBlk S₁ l d) ⟨rfl, rfl⟩)
       (by simp) (by simp [capBlk]) (by simp only [capBlk_eq]; wnf) rfl) ?_
   refine leL_sub_of_eq ?_
-  simp only [capBlk_eq, hS]
+  simp only [capBlk_eq]
   wnf
 
 
@@ -141,7 +141,7 @@ theorem capBlk_crossS (ν : X) (S₁ S₂ : List (Letter I)) (l₁ l₂ l : Lett
       (sChain_ichgL (sChain_capBlk S₁ l d) (sChain_xLay l₁ l₂))
       (by simp [xLay_ne_nil]) (by simp [capBlk]) (by simp only [capBlk_eq, r3R]; wnf) rfl) ?_
   refine leL_sub_of_eq ?_
-  simp only [capBlk_eq, lmLc_pair, r3R]
+  simp only [capBlk_eq]
   wnf
 
 omit [DecidableEq I] in
@@ -149,7 +149,7 @@ omit [DecidableEq I] in
 theorem capBlk_enterR (S : List (Letter I)) (e l : Letter I) (d : ℕ) :
     (xLay e l).map (whL ([l.dual] ++ S) []) ++ (capBlk S l d).map (whL [] [e]) =
       capBlk (S ++ [e]) l d := by
-  simp only [capBlk_eq, lmLc_snoc, List.map_append, List.map_replicate]
+  simp only [capBlk_eq, lmLc_snoc, List.map_append]
   wnf
 
 /-- A strand entering the block from the left joins it (modulo lower terms). -/
@@ -198,7 +198,7 @@ theorem capBlk_sA (ν : X) (s : Letter I) (S : List (Letter I)) (l : Letter I) (
     dg RD k ν ([s, l.dual] ++ S ++ [l]) (s :: S)
         ((xLay s l.dual).map (whL [] (S ++ [l])) ++ capBlk (s :: S) l d) ∈
       LeL RD k ν ([s, l.dual] ++ S ++ [l]) (s :: S) (S.length + 1) := by
-  simp only [capBlk_eq, lmLc, List.map_append, List.map_replicate]
+  simp only [capBlk_eq, lmLc, List.map_append]
   -- step 1: the crossing passes `lmLc S`
   refine mem_of_eq_left (dg_step_free []
       ((xLay s l).map (whL [l.dual] S) ++ List.replicate d ([], .dot l.dual, l :: s :: S) ++
@@ -246,7 +246,7 @@ theorem capBlk_sB (ν : X) (S : List (Letter I)) (s l : Letter I) (d : ℕ) :
     dg RD k ν ([l.dual] ++ S ++ [l, s]) (S ++ [s])
         ((xLay l s).map (whL ([l.dual] ++ S) []) ++ capBlk (S ++ [s]) l d) ∈
       LeL RD k ν ([l.dual] ++ S ++ [l, s]) (S ++ [s]) (S.length + 1) := by
-  simp only [capBlk_eq, lmLc_snoc, List.map_append, List.map_replicate]
+  simp only [capBlk_eq, lmLc_snoc, List.map_append]
   refine dg_mem_free [] ((lmLc S l).map (whL [l.dual] [s]) ++
       List.replicate d ([], .dot l.dual, l :: (S ++ [s])) ++ [([], .cap l, S ++ [s])])
       (l.dual :: S) [] (r2 (RD := RD) (k := k) _ l s)
@@ -295,12 +295,14 @@ theorem isBub_capBlk_nil (ν : X) (l : Letter I) (d : ℕ) :
     have e' : Letter.dual ((false, i) : Letter I) = up i := rfl
     rw [e']
     convert dg_cwLs_isBub (RD := RD) (k := k) (lam := ν) i d using 1
+    exact e
   · have e := dg_step RD k ν [] [([], .cap (up i), [])] [] [] (dg_dots_cupDn RD k i ν d).symm
       rfl ⟨rfl, rfl⟩ (L := [([], .cup (dn i), [])] ++ (List.replicate d ([], .dot (dn i), [up i]) ++
         [([], .cap (up i), [])])) (L' := ccwLs i d) (by simp) (by simp [ccwLs])
     have e' : Letter.dual ((true, i) : Letter I) = dn i := rfl
     rw [e']
     convert dg_ccwLs_isBub (RD := RD) (k := k) (lam := ν) i d using 1
+    exact e
 
 omit [DecidableEq I] in
 /-- A dot on `B` below the cap (no strands in the block) is a dot on `A` (exact). -/
@@ -329,7 +331,7 @@ theorem dotsCupL (ν : X) (l : Letter I) (d : ℕ) :
 theorem capBlk_cupAs (ν : X) (S : List (Letter I)) (l : Letter I) (d : ℕ) :
     dg RD k ν (S ++ [l]) (l :: S) ([([], .cup l.dual, S ++ [l])] ++ capBlk (l :: S) l d) ∈
       LeL RD k ν (S ++ [l]) (l :: S) S.length := by
-  simp only [capBlk_eq, lmLc, List.map_append, List.map_replicate]
+  simp only [capBlk_eq, lmLc, List.map_append]
   have hcup : SChain [] [([], .cup l.dual, [])] [l.dual, l] := ⟨rfl, by simp⟩
   -- step 1: the cup passes `lmLc S`
   refine mem_of_eq_left (dg_step_free []
@@ -383,7 +385,7 @@ theorem capBlk_cupAs (ν : X) (S : List (Letter I)) (l : Letter I) (d : ℕ) :
   simp only [Letter.dual_dual] at h
   refine dg_mem_free (lmLc S l) ([([l], .cap l, S)] ++ List.replicate d ([], .dot l, S)) []
     (l :: S) h (hcup.append (by simpa using sChain_xLay l.dual l)) (by simp) (by wnf) ?_
-  simp [ccnt_append, ccnt_cons, ccnt_lmLc, ccnt_replicate_dot, Shape.isCross]
+  simp [ccnt_cons, ccnt_lmLc, ccnt_replicate_dot, Shape.isCross]
 
 omit [DecidableEq I] in
 /-- A cup creating the last strand of the block and `B` is a curl: lower terms. -/
@@ -391,7 +393,7 @@ theorem capBlk_cupsB (ν : X) (S : List (Letter I)) (l : Letter I) (d : ℕ) :
     dg RD k ν ([l.dual] ++ S) (S ++ [l.dual])
         ([([l.dual] ++ S, .cup l.dual, [])] ++ capBlk (S ++ [l.dual]) l d) ∈
       LeL RD k ν ([l.dual] ++ S) (S ++ [l.dual]) S.length := by
-  simp only [capBlk_eq, lmLc_snoc, List.map_append, List.map_replicate]
+  simp only [capBlk_eq, lmLc_snoc, List.map_append]
   have h := cupCurl (RD := RD) (k := k) (wt RD ν []) l.dual
   simp only [Letter.dual_dual] at h
   refine dg_mem_free [] ((lmLc S l).map (whL [l.dual] [l.dual]) ++
@@ -421,7 +423,7 @@ theorem capBlk_cupSS (ν : X) (S₁ S₂ : List (Letter I)) (x l : Letter I) (d 
         ([([l.dual] ++ S₁, .cup x, S₂ ++ [l])] ++ capBlk (S₁ ++ [x, x.dual] ++ S₂) l d) ∈
       LeL RD k ν ([l.dual] ++ (S₁ ++ S₂) ++ [l]) (S₁ ++ [x, x.dual] ++ S₂)
         ((S₁ ++ S₂).length + 1) := by
-  simp only [capBlk_eq, lmLc_pair, List.map_append, List.map_replicate]
+  simp only [capBlk_eq, lmLc_pair, List.map_append]
   refine mem_of_eq_left (dg_step_free []
       ((xLay x.dual l).map (whL (l.dual :: (S₁ ++ [x])) S₂) ++
       (xLay x l).map (whL (l.dual :: S₁) (x.dual :: S₂)) ++
@@ -505,7 +507,7 @@ theorem capBlk_cupBright (ν : X) (S : List (Letter I)) (l : Letter I) (d : ℕ)
   · have h1 := ccnt_replicate_dot d [] (l :: S ++ [l.dual]) l.dual
     have h2 := ccnt_single_cap [] (S ++ [l.dual]) l
     simp only [whL] at h1 h2 ⊢
-    simp only [List.nil_append, List.append_assoc, List.cons_append] at h1 h2 ⊢
+    simp only [List.nil_append, List.cons_append] at h1 h2 ⊢
     rw [ccnt_append, h1, h2]; simp
   -- step 2: the strand moving right passes the dots and the cap
   have hDC : SChain [l.dual, l] (List.replicate d ([], .dot l.dual, [l]) ++ [([], .cap l, [])]) [] :=

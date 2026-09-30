@@ -142,22 +142,22 @@ theorem quadPerm_smul (q : MackeyQuad ν ν' ν'' ν''') (i₁ : Seq q.α) (i₂
   have hp := p.2
   simp only [Multiset.card_add] at hp
   by_cases h1 : p.val < Multiset.card q.α
-  · rw [if_pos h1] at hv
+  · rw [ite_eq_left h1] at hv
     rw [lbl4_1 _ _ _ _ _ _ _ (by simpa using h1), lbl4_1 _ _ _ _ _ _ _ (by omega)]
     exact i₁.apply_congr (by simp [hv])
-  rw [if_neg h1] at hv
+  rw [ite_eq_right h1] at hv
   by_cases h2 : p.val < Multiset.card ν''
-  · rw [if_pos h2] at hv
+  · rw [ite_eq_left h2] at hv
     rw [lbl4_2 _ _ _ _ _ _ _ (by simp; omega) (by simpa using h2),
       lbl4_3 _ _ _ _ _ _ _ (by omega) (by omega)]
     exact i₃.apply_congr (by simp [hv]; omega)
-  rw [if_neg h2] at hv
+  rw [ite_eq_right h2] at hv
   by_cases h3 : p.val < Multiset.card ν'' + Multiset.card q.β
-  · rw [if_pos h3] at hv
+  · rw [ite_eq_left h3] at hv
     rw [lbl4_3 _ _ _ _ _ _ _ (by simp; omega) (by simp; omega),
       lbl4_2 _ _ _ _ _ _ _ (by omega) (by omega)]
     exact i₂.apply_congr (by simp [hv]; omega)
-  · rw [if_neg h3] at hv
+  · rw [ite_eq_right h3] at hv
     rw [lbl4_4 _ _ _ _ _ _ _ (by simp; omega), lbl4_4 _ _ _ _ _ _ _ (by omega)]
     exact i₄.apply_congr (by simp [hv]; omega)
 
@@ -310,7 +310,7 @@ theorem dShift_quadPerm {j : ℕ} (hj : j < Multiset.card (ν + ν')) :
       else if j < Multiset.card ν'' then j + Multiset.card q.β
       else if j < Multiset.card ν'' + Multiset.card q.β then j + Multiset.card q.α - Multiset.card ν''
       else j := by
-  rw [dShift, dif_pos hj, quadPerm_val]
+  rw [dShift, dite_eq_left hj, quadPerm_val]
 
 theorem quadDefect_ψw {α₁ α₂ α₃ α₄ : List ℕ} (h₁ : ValidWord (Multiset.card q.α) α₁)
     (h₂ : ValidWord (Multiset.card q.β) α₂) (h₃ : ValidWord (Multiset.card q.γ) α₃)
@@ -353,23 +353,23 @@ theorem quadDefect_ψw {α₁ α₂ α₃ α₄ : List ℕ} (h₁ : ValidWord (M
     · conv_lhs => rw [← List.map_id α₁]
       refine List.map_congr_left fun j hj => ?_
       have := h₁ j hj
-      rw [id, dShift_quadPerm h q (by omega), if_pos (by omega)]
+      rw [id, dShift_quadPerm h q (by omega), ite_eq_left (by omega)]
     congr 1
     · refine List.map_congr_left fun j hj => ?_
       have := h₂ j hj
       simp only [Function.comp_apply]
-      rw [dShift_quadPerm h q (by omega), if_neg (by omega), if_neg (by omega), if_pos (by omega)]
+      rw [dShift_quadPerm h q (by omega), ite_eq_right (by omega), ite_eq_right (by omega), ite_eq_left (by omega)]
       omega
     congr 1
     · refine List.map_congr_left fun j hj => ?_
       have := h₃ j hj
       simp only [Function.comp_apply]
-      rw [dShift_quadPerm h q (by omega), if_neg (by omega), if_pos (by omega)]
+      rw [dShift_quadPerm h q (by omega), ite_eq_right (by omega), ite_eq_left (by omega)]
       omega
     · refine List.map_congr_left fun j hj => ?_
       have := h₄ j hj
       simp only [Function.comp_apply]
-      rw [dShift_quadPerm h q (by omega), if_neg (by omega), if_neg (by omega), if_neg (by omega)]
+      rw [dShift_quadPerm h q (by omega), ite_eq_right (by omega), ite_eq_right (by omega), ite_eq_right (by omega)]
       omega
   rw [htop, hbot, ← hc]
   refine ψw_map_mul_ψD_sub_mem hd fun j hj => ?_
@@ -440,29 +440,37 @@ theorem quadDefect_pol (p₁ : MvPolynomial (Fin (Multiset.card q.α)) k)
       Multiset.card h)) (rename (Seq.posL ν''') (rename (Fin.cast (congrArg Multiset.card q.h₃))
       (rename (Seq.posL q.γ) p₁)))) := by
     simp only [rename_rename]; refine rename_congr' (fun x => ?_) _; apply Fin.ext
-    simp only [Function.comp_apply, hval, Seq.posL_val, Seq.posR_val, Fin.coe_cast]
-    have := x.2; split_ifs; omega
+    simp only [Function.comp_apply]
+    rw [hval]
+    have := x.2
+    split_ifs <;> simp only [Seq.posL_val, Fin.val_cast] at * <;> omega
   have r2 : rename (Seq.posL ν') (rename (Fin.cast (congrArg Multiset.card q.h₁))
       (rename (Seq.posR q.α) p₂)) = rename (quadPerm h q) (rename (Fin.cast (congrArg
       Multiset.card h)) (rename (Seq.posR ν'') (rename (Fin.cast (congrArg Multiset.card q.h₄))
       (rename (Seq.posL q.δ) p₂)))) := by
     simp only [rename_rename]; refine rename_congr' (fun x => ?_) _; apply Fin.ext
-    simp only [Function.comp_apply, hval, Seq.posL_val, Seq.posR_val, Fin.coe_cast]
-    have := x.2; split_ifs <;> omega
+    simp only [Function.comp_apply]
+    rw [hval]
+    have := x.2
+    split_ifs <;> simp only [Seq.posL_val, Seq.posR_val, Fin.val_cast] at * <;> omega
   have r3 : rename (Seq.posR ν) (rename (Fin.cast (congrArg Multiset.card q.h₂))
       (rename (Seq.posL q.δ) p₃)) = rename (quadPerm h q) (rename (Fin.cast (congrArg
       Multiset.card h)) (rename (Seq.posL ν''') (rename (Fin.cast (congrArg Multiset.card q.h₃))
       (rename (Seq.posR q.α) p₃)))) := by
     simp only [rename_rename]; refine rename_congr' (fun x => ?_) _; apply Fin.ext
-    simp only [Function.comp_apply, hval, Seq.posL_val, Seq.posR_val, Fin.coe_cast]
-    have := x.2; split_ifs <;> omega
+    simp only [Function.comp_apply]
+    rw [hval]
+    have := x.2
+    split_ifs <;> simp only [Seq.posL_val, Seq.posR_val, Fin.val_cast] at * <;> omega
   have r4 : rename (Seq.posR ν) (rename (Fin.cast (congrArg Multiset.card q.h₂))
       (rename (Seq.posR q.γ) p₄)) = rename (quadPerm h q) (rename (Fin.cast (congrArg
       Multiset.card h)) (rename (Seq.posR ν'') (rename (Fin.cast (congrArg Multiset.card q.h₄))
       (rename (Seq.posR q.β) p₄)))) := by
     simp only [rename_rename]; refine rename_congr' (fun x => ?_) _; apply Fin.ext
-    simp only [Function.comp_apply, hval, Seq.posL_val, Seq.posR_val, Fin.coe_cast]
-    have := x.2; split_ifs <;> omega
+    simp only [Function.comp_apply]
+    rw [hval]
+    have := x.2
+    split_ifs <;> simp only [Seq.posR_val, Fin.val_cast] at * <;> omega
   have key : rename (Seq.posL ν') (rename (Fin.cast (congrArg Multiset.card q.h₁))
           (rename (Seq.posL q.β) p₁ * rename (Seq.posR q.α) p₂)) *
         rename (Seq.posR ν) (rename (Fin.cast (congrArg Multiset.card q.h₂))
@@ -489,8 +497,7 @@ theorem quadDefect_pol (p₁ : MvPolynomial (Fin (Multiset.card q.α)) k)
 `r ∈ R' = R(α) ⊗ R(β) ⊗ R(γ) ⊗ R(δ)`,
 `ι_{ν,ν'}(ι_T r) ψ_d ≡ ψ_d ι_{ν'',ν'''}(ι_B r)` modulo the lower step `F_{c-1}` (`c = |λ|`). -/
 theorem quad_intertwine (r : QuadAlg Q q) : quadDefect h q r ∈ L := by
-  induction r using TensorProduct.induction_on with
-  | zero => rw [map_zero]; exact zero_mem _
+  induction r using TensorProduct.inductionOn with
   | add r s hr hs => rw [map_add]; exact add_mem hr hs
   | tmul u v =>
     refine tensor_mem_of_gen ((quadDefect h q).comp ((TensorProduct.mk k _ _).flip v)) L
@@ -632,11 +639,11 @@ def mackeyBil {c : ℕ} (hc : Multiset.card q.β = c) :
     (fun t t' b => by
       rw [← subquotOf_add]; exact subquotOf_congr h (by simp [map_add, add_mul]) _ _)
     (fun a t b => by
-      rw [← subquotOf_smul]; exact subquotOf_congr h (by simp [map_smul, smul_mul_assoc]) _ _)
+      rw [← subquotOf_smul]; exact subquotOf_congr h (by simp [map_smul]) _ _)
     (fun t b b' => by
       rw [← subquotOf_add]; exact subquotOf_congr h (by simp [map_add, mul_add]) _ _)
     (fun a t b => by
-      rw [← subquotOf_smul]; exact subquotOf_congr h (by simp [map_smul, mul_smul_comm]) _ _)
+      rw [← subquotOf_smul]; exact subquotOf_congr h (by simp [map_smul]) _ _)
 
 theorem mackeyBil_apply {c : ℕ} (hc : Multiset.card q.β = c) (t : MackeyTop Q q)
     (b : MackeyBot Q q) :

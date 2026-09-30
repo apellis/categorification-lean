@@ -84,15 +84,15 @@ theorem span_stdElt : Submodule.span k (Set.range (stdElt (k := k) (Q := Q) ρ))
   rw [← span_eq_top' ρ hρ]
   congr 1
   ext r
-  simp only [Set.mem_range, Set.mem_setOf_eq, stdElt, Prod.exists]
+  simp only [Set.mem_range, Set.mem_ofPred_eq, stdElt, Prod.exists]
   constructor
   · rintro ⟨i, w, u, rfl⟩; exact ⟨w, u, i, rfl⟩
   · rintro ⟨w, u, i, rfl⟩; exact ⟨i, w, u, rfl⟩
 
 /-- **KL I, Theorem 2.5** (whole algebra): for any choice of reduced words, the elements
 `ψ_{ρ w} x^u e_i` form a basis of `R(ν)`. -/
-noncomputable def basis : Basis (Seq ν × Perm (Fin m) × (Fin m →₀ ℕ)) k (KLRAlgebra k Q ν) :=
-  Basis.mk (linearIndependent_stdElt hPQ hP ρ hρ) (span_stdElt ρ hρ).ge
+noncomputable def basis : Module.Basis (Seq ν × Perm (Fin m) × (Fin m →₀ ℕ)) k (KLRAlgebra k Q ν) :=
+  Module.Basis.mk (linearIndependent_stdElt hPQ hP ρ hρ) (span_stdElt ρ hρ).ge
 
 theorem basis_apply (b : Seq ν × Perm (Fin m) × (Fin m →₀ ℕ)) :
     basis hPQ hP ρ hρ b = ψw (ρ b.2.1) * pol (monomial b.2.2 1) * e b.1 := by
@@ -126,7 +126,7 @@ theorem cornerElt_mem (j i : Seq ν) (b : CornerIdx j i) :
     cornerElt (k := k) (Q := Q) ρ j i b ∈ corner j i := by
   rw [mem_corner_iff, cornerElt, stdElt]
   dsimp only
-  rw [mul_assoc (e j), mul_assoc _ (e i) (e i), e_mul_self, e_mul_gen, if_pos]
+  rw [mul_assoc (e j), mul_assoc _ (e i) (e i), e_mul_self, e_mul_gen, ite_eq_left]
   rw [(hρ b.1.1).2]
   obtain ⟨⟨w, hw⟩, u⟩ := b
   subst hw
@@ -155,14 +155,14 @@ theorem linearIndependent_cornerElt (j i : Seq ν) :
 
 /-- **KL I, Theorem 2.5**: for any choice of reduced words `ρ w`, the elements
 `ψ_{ρ w} x^u e_i` with `w • i = j` and `u ∈ ℕ^m` form a basis of `_jR(ν)_i`. -/
-noncomputable def cornerBasis (j i : Seq ν) : Basis (CornerIdx j i) k (corner (Q := Q) j i) :=
-  (Basis.span (linearIndependent_cornerElt hPQ hP ρ hρ j i)).map
+noncomputable def cornerBasis (j i : Seq ν) : Module.Basis (CornerIdx j i) k (corner (Q := Q) j i) :=
+  (Module.Basis.span (linearIndependent_cornerElt hPQ hP ρ hρ j i)).map
     (LinearEquiv.ofEq _ _ (span_cornerElt ρ hρ j i))
 
 theorem cornerBasis_apply (j i : Seq ν) (b : CornerIdx j i) :
     (cornerBasis hPQ hP ρ hρ j i b : KLRAlgebra k Q ν) =
       ψw (ρ b.1.1) * pol (monomial b.2 1) * e i := by
-  simp [cornerBasis, Basis.span_apply, cornerElt, stdElt]
+  simp [cornerBasis, Module.Basis.span_apply, cornerElt, stdElt]
 
 end KLRAlgebra
 

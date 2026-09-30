@@ -25,6 +25,8 @@ associator) and on the left by the strands `u` (`atPrefix`).
   - `crossAdj_sq_NF_at`, `crossAdj_sq_FN_at` (`ψ² = ±(x_left - x_right)` for `j = i + 1`).
 -/
 
+set_option backward.isDefEq.respectTransparency false
+
 noncomputable section
 
 namespace Categorification.Flag

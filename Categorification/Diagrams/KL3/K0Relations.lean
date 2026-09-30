@@ -30,6 +30,8 @@ These are exactly the images of the relations (2.4) of `U̇` (`E_iF_j 1_μ - F_j
 `Categorification.Diagrams.KL3.K0Serre`.
 -/
 
+set_option backward.isDefEq.respectTransparency false
+
 noncomputable section
 
 namespace Categorification.KL3.Diagram

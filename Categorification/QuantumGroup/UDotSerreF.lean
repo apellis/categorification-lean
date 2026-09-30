@@ -84,7 +84,7 @@ theorem serreKL_eq (i j : I) :
     serreKL C q i j = ((-1 : K) ^ C.serreN i j) • serreDiv C.dot q i j (C.serreN i j) := by
   rw [serreKL, serreDiv, smul_sum]
   refine sum_congr rfl fun p hp => ?_
-  rw [mem_antidiagonal] at hp
+  rw [Finset.HasAntidiagonal.mem_antidiagonal] at hp
   rw [smul_smul, ← hp, pow_add]
   congr 1
   rw [mul_assoc, ← pow_add, ← two_mul, pow_mul, neg_one_sq, one_pow, mul_one]
@@ -93,7 +93,7 @@ theorem serreDiv_mem_grade (i j : I) (N : ℕ) :
     serreDiv C.dot q i j N ∈ grade K (j ::ₘ Multiset.replicate N i) := by
   rw [serreDiv]
   refine Submodule.sum_mem _ fun p hp => Submodule.smul_mem _ _ ?_
-  rw [mem_antidiagonal] at hp
+  rw [Finset.HasAntidiagonal.mem_antidiagonal] at hp
   have hd : ∀ a, dpow C.dot q i a ∈ grade K (Multiset.replicate a i) := by
     intro a
     refine Submodule.smul_mem _ _ ?_
@@ -165,15 +165,15 @@ theorem D_eq_d_word (i : I) (ht : ((qi C q i : Kˣ) : K) - ((qi C q i)⁻¹ : K�
         (((qi C q i) ^ (-n) : Kˣ) : K) • d C.dot q i (word w) := by
   induction w using FreeMonoid.inductionOn' generalizing n with
   | one => simp
-  | mul_of j u ih =>
+  | of_mul j u ih =>
     rw [D_word_of_mul, d_word_of_mul, d_word_of_mul, smul_add, ← mul_smul_comm, ih (n - A C i j),
       qi_zpow_sub_A, qi_zpow_neg_sub_A]
     have hq' := qbr_mul (qi C q i) ht n
     split_ifs
     · rw [smul_smul, hq']
-      simp only [mul_sub, mul_smul_comm, smul_add, smul_smul, mul_comm]
+      simp only [mul_sub, mul_smul_comm, smul_add, smul_smul]
       module
-    · simp only [mul_sub, mul_smul_comm, smul_add, smul_smul, mul_comm, smul_zero, zero_add]
+    · simp only [mul_sub, mul_smul_comm, smul_smul, smul_zero, zero_add]
 
 /-- `(q_i - q_i⁻¹) D_i^{(n)} = q_i^n d_i^{(v = q⁻¹)} - q_i^{-n} d_i^{(v = q)}`. -/
 theorem D_eq_d (i : I) (ht : ((qi C q i : Kˣ) : K) - ((qi C q i)⁻¹ : Kˣ) ≠ 0) (n : ℤ)
@@ -208,7 +208,7 @@ theorem qfact_vi_ne_zero (hq : ∀ n : ℕ, 0 < n → q ^ n ≠ 1) (i : I) (a : 
 variable (C q) in
 theorem qi_sub_inv_ne_zero (hq : ∀ n : ℕ, 0 < n → q ^ n ≠ 1) (i : I) :
     ((qi C q i : Kˣ) : K) - ((qi C q i)⁻¹ : Kˣ) ≠ 0 := by
-  rw [sub_ne_zero, Ne, Units.eq_iff, ← mul_eq_one_iff_eq_inv, qi, ← zpow_add]
+  rw [sub_ne_zero, Ne, Units.val_inj, ← mul_eq_one_iff_eq_inv, qi, ← zpow_add]
   refine zpow_ne_one_of_hq q hq ?_
   have := di_pos C i; omega
 

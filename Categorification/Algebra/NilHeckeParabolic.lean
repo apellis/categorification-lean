@@ -89,16 +89,16 @@ theorem blockEnd_eq_of_le_of_lt {p : ℕ} {μ : List ℕ} {a b : ℕ} (hab : a �
   | cons m μ ih =>
     simp only [blockEnd] at hb ⊢
     by_cases h1 : a < p + m
-    · rw [if_pos h1] at hb ⊢
+    · rw [ite_eq_left h1] at hb ⊢
       by_cases h2 : p ≤ a
-      · rw [if_pos h2] at hb ⊢
-        rw [if_pos hb, if_pos (by omega)]
-      · rw [if_neg h2] at hb ⊢
+      · rw [ite_eq_left h2] at hb ⊢
+        rw [ite_eq_left hb, ite_eq_left (by omega)]
+      · rw [ite_eq_right h2] at hb ⊢
         have : b = a := by omega
         subst this
-        rw [if_pos h1, if_neg h2]
-    · rw [if_neg h1] at hb ⊢
-      rw [if_neg (by omega)]
+        rw [ite_eq_left h1, ite_eq_right h2]
+    · rw [ite_eq_right h1] at hb ⊢
+      rw [ite_eq_right (by omega)]
       exact ih hb
 
 /-- Two positions are in the same block iff their block ends agree; the block of `a` is
@@ -208,9 +208,11 @@ theorem nhSub_smul_def (T : NHSub k n S D) (v : Coinv k n) :
 
 instance instIsScalarTowerNHSub : IsScalarTower k (NHSub k n S D) (NHRep k n) where
   smul_assoc c T v := by
-    show nhSubAct k n S D (c • T) v = c • nhSubAct k n S D T v
+    change nhSubAct k n S D (c • T) (v : Coinv k n) =
+      c • nhSubAct k n S D T (v : Coinv k n)
     rw [show nhSubAct k n S D (c • T) = c • nhSubAct k n S D T from
-      (nhSubAct k n S D).toLinearMap.map_smul c T, LinearMap.smul_apply]
+      (nhSubAct k n S D).toLinearMap.map_smul c T]
+    rfl
 
 theorem mulX_smul {a : Fin n} (ha : a ∈ S) (v : Coinv k n) :
     (NHSub.mk (mulX_mem_nhSub (k := k) (D := D) ha)) • NHRep.of k n v =
@@ -341,7 +343,7 @@ theorem univ_hS (a b : Fin n) (_ : a ≠ b) : a ∈ (Set.univ : Set (Fin n)) ∨
 
 theorem resNH_hS (a b : Fin n) (hab : a ≠ b) :
     a ∈ {a : Fin n | (a : ℕ) + 1 < n} ∨ b ∈ {a : Fin n | (a : ℕ) + 1 < n} := by
-  simp only [Set.mem_setOf_eq]
+  simp only [Set.mem_ofPred_eq]
   have := a.2; have := b.2
   have : (a : ℕ) ≠ b := fun h => hab (Fin.ext h)
   omega
@@ -358,7 +360,7 @@ noncomputable def youngAug (μ : List ℕ) : labelInvariants k (compLab (n := n)
 
 theorem youngAug_apply {μ : List ℕ} (s : labelInvariants k (compLab (n := n) μ)) :
     youngAug k n μ s = constantCoeff (s : MvPolynomial (Fin n) k) := by
-  simp [youngAug, MvPolynomial.coe_aeval_eq_eval, MvPolynomial.eval_zero]
+  simp [youngAug]
 
 variable (k n) in
 /-- The subspace `(Sym_μ⁺) = Sym_μ⁺ · k[x]`. -/
@@ -444,11 +446,31 @@ variable (k n) in
 noncomputable def youngAct (μ : List ℕ) : ParNH k n μ →ₐ[k] Module.End k (YoungCoinv k n μ) where
   toFun T := (youngSub k n μ).mapQ (youngSub k n μ) (NHSub.val k n _ _ T)
     fun _ hp => nhSub_stable_youngSub T.2 hp
-  map_one' := by ext; simp
-  map_mul' T T' := by ext; simp
-  map_zero' := by ext; simp
-  map_add' T T' := by ext; simp
-  commutes' c := by ext; simp [Module.algebraMap_end_apply]
+  map_one' := by
+    apply LinearMap.ext
+    intro v
+    obtain ⟨p, rfl⟩ := Submodule.Quotient.mk_surjective _ v
+    rfl
+  map_mul' T T' := by
+    apply LinearMap.ext
+    intro v
+    obtain ⟨p, rfl⟩ := Submodule.Quotient.mk_surjective _ v
+    rfl
+  map_zero' := by
+    apply LinearMap.ext
+    intro v
+    obtain ⟨p, rfl⟩ := Submodule.Quotient.mk_surjective _ v
+    rfl
+  map_add' T T' := by
+    apply LinearMap.ext
+    intro v
+    obtain ⟨p, rfl⟩ := Submodule.Quotient.mk_surjective _ v
+    rfl
+  commutes' c := by
+    apply LinearMap.ext
+    intro v
+    obtain ⟨p, rfl⟩ := Submodule.Quotient.mk_surjective _ v
+    rfl
 
 @[simp] theorem youngAct_mk {μ : List ℕ} (T : ParNH k n μ) (p : MvPolynomial (Fin n) k) :
     youngAct k n μ T (Submodule.Quotient.mk p) =
@@ -467,7 +489,8 @@ instance (μ : List ℕ) : FiniteDimensional k (YoungRep k n μ) :=
 
 variable (k n) in
 /-- The identification `L_μ = YoungRep k n μ`. -/
-def YoungRep.of (μ : List ℕ) : YoungCoinv k n μ ≃ₗ[k] YoungRep k n μ := LinearEquiv.refl k _
+noncomputable def YoungRep.of (μ : List ℕ) : YoungCoinv k n μ ≃ₗ[k] YoungRep k n μ :=
+  LinearEquiv.refl k _
 
 /-- `L_μ` as a module over `NH_μ`. -/
 noncomputable instance (μ : List ℕ) : Module (ParNH k n μ) (YoungRep k n μ) :=
@@ -478,8 +501,10 @@ theorem parNH_smul_youngRep {μ : List ℕ} (T : ParNH k n μ) (v : YoungCoinv k
 
 instance (μ : List ℕ) : IsScalarTower k (ParNH k n μ) (YoungRep k n μ) where
   smul_assoc c T v := by
-    show youngAct k n μ (c • T) v = c • youngAct k n μ T v
+    change youngAct k n μ (c • T) (v : YoungCoinv k n μ) =
+      c • youngAct k n μ T (v : YoungCoinv k n μ)
     rw [show youngAct k n μ (c • T) = c • youngAct k n μ T from
-      (youngAct k n μ).toLinearMap.map_smul c T, LinearMap.smul_apply]
+      (youngAct k n μ).toLinearMap.map_smul c T]
+    rfl
 
 end Categorification.NilHecke

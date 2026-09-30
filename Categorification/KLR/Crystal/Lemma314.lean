@@ -83,18 +83,18 @@ theorem coeff_esSeriesOn (s : Finset σ) (r : ℕ) :
     (esSeriesOn (K := K) s).coeff r = esymmOn s r := by
   classical
   unfold esSeriesOn esymmOn
-  rw [Finset.prod_one_add, Polynomial.finset_sum_coeff, Finset.powersetCard_eq_filter,
+  rw [Finset.prod_one_add, Polynomial.finsetSum_coeff, Finset.powersetCard_eq_filter,
     Finset.sum_filter]
   refine Finset.sum_congr rfl fun t _ => ?_
   rw [Finset.prod_mul_distrib, Finset.prod_const, ← map_prod, Polynomial.coeff_C_mul_X_pow]
   by_cases h : t.card = r
-  · rw [if_pos h.symm, if_pos h]
-  · rw [if_neg (Ne.symm h), if_neg h]
+  · rw [ite_eq_left h.symm, ite_eq_left h]
+  · rw [ite_eq_right (Ne.symm h), ite_eq_right h]
 
 /-- `e_r(s ⊔ t) = ∑_{a + b = r} e_a(s) e_b(t)`. -/
 theorem esymmOn_union [DecidableEq σ] {s t : Finset σ} (h : Disjoint s t) (r : ℕ) :
     esymmOn (K := K) (s ∪ t) r =
-      ∑ p ∈ Finset.antidiagonal r, esymmOn s p.1 * esymmOn t p.2 := by
+      ∑ p ∈ Finset.HasAntidiagonal.antidiagonal r, esymmOn s p.1 * esymmOn t p.2 := by
   have hs : esSeriesOn (K := K) (s ∪ t) = esSeriesOn s * esSeriesOn t := Finset.prod_union h
   rw [← coeff_esSeriesOn, hs, Polynomial.coeff_mul]
   simp only [coeff_esSeriesOn]
@@ -123,7 +123,7 @@ omit [DecidableEq I] in
 e_b(x_{m'+1}, …, x_m)`, `m' = card μ`, `m = card (μ + ν')`. -/
 theorem esymm_add_split (μ ν' : Multiset I) (r : ℕ) :
     esymm (Fin (Multiset.card (μ + ν'))) K r =
-      ∑ p ∈ Finset.antidiagonal r,
+      ∑ p ∈ Finset.HasAntidiagonal.antidiagonal r,
         rename (Seq.posL ν') (esymm (Fin (Multiset.card μ)) K p.1) *
           rename (Seq.posR μ) (esymm (Fin (Multiset.card ν')) K p.2) := by
   classical
@@ -181,7 +181,7 @@ theorem smulNilpotent_of_mem_span_X (ρ : MvPolynomial (Fin m) K →ₐ[K] A)
     exact ((Commute.all y z).map ρ').isNilpotent_add hy hz
   | smul r y _ hy =>
     rw [smul_eq_mul, map_mul]
-    exact ((Commute.all r y).map ρ').isNilpotent_mul_right hy
+    exact ((Commute.all r y).map ρ').isNilpotent_mul_left hy
 
 theorem esymm_succ_mem_span_X (r : ℕ) :
     esymm (Fin m) K (r + 1) ∈ Ideal.span (Set.range (X : Fin m → MvPolynomial (Fin m) K)) := by
@@ -189,7 +189,7 @@ theorem esymm_succ_mem_span_X (r : ℕ) :
     rw [Set.image_univ], MvPolynomial.mem_ideal_span_X_image]
   intro d hd
   by_contra hcon
-  push_neg at hcon
+  push Not at hcon
   have hd0 : d = 0 := Finsupp.ext fun b => hcon b (Set.mem_univ b)
   rw [hd0, MvPolynomial.mem_support_iff, ← MvPolynomial.constantCoeff_eq,
     constantCoeff_esymm_succ] at hd
@@ -228,7 +228,7 @@ theorem resLeftSocle_le {X : Submodule (KLRAlgebra K Q μ) (ResLeft Q μ ν' M)}
 instance isSemisimpleModule_resLeftSocle :
     IsSemisimpleModule (KLRAlgebra K Q μ) (resLeftSocle Q μ ν' M) :=
   isSemisimpleModule_biSup_of_isSemisimpleModule_submodule (fun U hU => by
-    haveI : IsSimpleModule (KLRAlgebra K Q μ) U := hU
+    have : IsSimpleModule (KLRAlgebra K Q μ) U := hU
     infer_instance)
 
 /-- The socle is stable under `R(μ)`-endomorphisms. -/
@@ -238,7 +238,7 @@ theorem map_mem_resLeftSocle (φ : ResLeft Q μ ν' M →ₗ[KLRAlgebra K Q μ] 
   refine resLeftSocle_le fun U hU u hu => ?_
   let f := φ.comp U.subtype
   rcases LinearMap.injective_or_eq_zero f with hf | hf
-  · haveI : IsSimpleModule (KLRAlgebra K Q μ) (LinearMap.range f) :=
+  · have : IsSimpleModule (KLRAlgebra K Q μ) (LinearMap.range f) :=
       IsSimpleModule.congr (LinearEquiv.ofInjective f hf).symm
     rw [Submodule.mem_comap]
     exact le_resLeftSocle _ this ⟨⟨u, hu⟩, rfl⟩
@@ -253,13 +253,13 @@ theorem smul_eq_zero_of_mem_resLeftSocle {c : KLRAlgebra K Q μ} (hc : ∀ a, Co
   let Z : Submodule (KLRAlgebra K Q μ) (ResLeft Q μ ν' M) :=
     { carrier := {v | c • v = 0}
       add_mem' := fun ha hb => by
-        simp only [Set.mem_setOf_eq, smul_add] at *; rw [ha, hb, add_zero]
+        simp only [Set.mem_ofPred_eq, smul_add] at *; rw [ha, hb, add_zero]
       zero_mem' := smul_zero c
       smul_mem' := fun a v hv => by
-        simp only [Set.mem_setOf_eq] at *
+        simp only [Set.mem_ofPred_eq] at *
         rw [smul_smul, (hc a).eq, mul_smul, hv, smul_zero] }
   have h : resLeftSocle Q μ ν' M ≤ Z := resLeftSocle_le fun U hU u hu => by
-    haveI : IsSimpleModule (KLRAlgebra K Q μ) U := hU
+    have : IsSimpleModule (KLRAlgebra K Q μ) U := hU
     have hnU : SmulNilpotent c U := by
       obtain ⟨N, hN⟩ := hn
       exact ⟨N, fun w => Subtype.ext (by rw [Submodule.coe_smul, hN, ZeroMemClass.coe_zero])⟩
@@ -288,8 +288,7 @@ def resSocleT : Submodule (TensorKLR Q μ ν') (ResSub Q μ ν' M) where
   add_mem' ha hb := (resLeftSocle Q μ ν' M).add_mem ha hb
   zero_mem' := (resLeftSocle Q μ ν' M).zero_mem
   smul_mem' t v hv := by
-    induction t using TensorProduct.induction_on with
-    | zero => rw [zero_smul]; exact (resLeftSocle Q μ ν' M).zero_mem
+    induction t using TensorProduct.inductionOn with
     | tmul a b =>
       have h1 : ((a ⊗ₜ[K] b : TensorKLR Q μ ν') • v) =
           (a ⊗ₜ[K] (1 : KLRAlgebra K Q ν') : TensorKLR Q μ ν') •
@@ -344,7 +343,7 @@ theorem one_tmul_esymm_smul_eq_zero [IsSimpleModule (KLRAlgebra K Q (μ + ν')) 
     {v : ResSub Q μ ν' M} (hv : v ∈ resSocleT Q μ ν' M) :
     ((1 : KLRAlgebra K Q μ) ⊗ₜ[K] pol (esymm (Fin (Multiset.card ν')) K (r + 1)) :
       TensorKLR Q μ ν') • v = 0 := by
-  have hexp : ((∑ p ∈ Finset.antidiagonal (r + 1),
+  have hexp : ((∑ p ∈ Finset.HasAntidiagonal.antidiagonal (r + 1),
       (pol (esymm (Fin (Multiset.card μ)) K p.1) ⊗ₜ[K]
         pol (esymm (Fin (Multiset.card ν')) K p.2) : TensorKLR Q μ ν')) • v :
           ResSub Q μ ν' M) = 0 := by
@@ -357,7 +356,7 @@ theorem one_tmul_esymm_smul_eq_zero [IsSimpleModule (KLRAlgebra K Q (μ + ν')) 
   rw [Finset.sum_smul, Finset.sum_eq_single ((0 : ℕ), r + 1)] at hexp
   · rwa [esymm_zero, map_one] at hexp
   · rintro ⟨a, b⟩ hab hne
-    rw [Finset.mem_antidiagonal] at hab
+    rw [Finset.HasAntidiagonal.mem_antidiagonal] at hab
     rcases a with _ | a
     · rw [zero_add] at hab
       exact (hne (Prod.ext rfl hab)).elim
@@ -372,7 +371,7 @@ theorem one_tmul_esymm_smul_eq_zero [IsSimpleModule (KLRAlgebra K Q (μ + ν')) 
       (fun c => commute_pol_of_isSymmetric hPQ hP (esymm_isSymmetric _ _ _) c)
       (smulNilpotent_resLeft_esymm hnil a) hw
   · intro h
-    exact absurd (Finset.mem_antidiagonal.2 (zero_add _)) h
+    exact absurd (Finset.HasAntidiagonal.mem_antidiagonal.2 (zero_add _)) h
 
 include hPQ hP hnil in
 /-- **`Sym⁺` of the second factor acts by zero on the socle of `e_{i^n} M`.** -/
@@ -430,7 +429,7 @@ theorem hwSocle_mem [FiniteDimensional K M] [IsSimpleModule (KLRAlgebra K Q (μ 
     (hle : Multiset.card ν' ≤ epsI Q (μ + ν') i M)
     (S : Submodule (TensorKLR Q μ ν') (ResSub Q μ ν' M)) [IsSimpleModule (TensorKLR Q μ ν') S]
     {v : ResLeft Q μ ν' M} (hv : v ∈ hwSocle Q μ ν' M) : ResLeft.toRes v ∈ S := by
-  haveI : IsSemisimpleModule (KLRAlgebra K Q μ) (hwSocle Q μ ν' M) :=
+  have : IsSemisimpleModule (KLRAlgebra K Q μ) (hwSocle Q μ ν' M) :=
     IsSemisimpleModule.of_injective (Submodule.inclusion hwSocle_le)
       (Submodule.inclusion_injective _)
   let Pm : Submodule (KLRAlgebra K Q μ) (hwSocle Q μ ν' M) :=
@@ -441,7 +440,7 @@ theorem hwSocle_mem [FiniteDimensional K M] [IsSimpleModule (KLRAlgebra K Q (μ 
   have htop : ⊤ ≤ Pm := by
     rw [← IsSemisimpleModule.sSup_simples_eq_top (KLRAlgebra K Q μ) (hwSocle Q μ ν' M)]
     refine sSup_le fun U' hU' => ?_
-    haveI : IsSimpleModule (KLRAlgebra K Q μ) U' := hU'
+    have : IsSimpleModule (KLRAlgebra K Q μ) U' := hU'
     have hsym := one_tmul_pol_smul_resSocleT hPQ hP hnil (M := M)
     let g : ExtTensor K U' (KLRRep hν' Q) →ₗ[TensorKLR Q μ ν'] ResSub Q μ ν' M :=
       (resSocleT Q μ ν' M).subtype.comp ((hwMap hν' hsym).comp
@@ -454,15 +453,15 @@ theorem hwSocle_mem [FiniteDimensional K M] [IsSimpleModule (KLRAlgebra K Q (μ 
         LinearMap.id_apply]
       rw [hwMap_tmul_one]
       rfl
-    haveI := isSimpleModule_extTensor (K := K) (Q := Q) (μ := μ) hν' (V := U')
+    have := isSimpleModule_extTensor (K := K) (Q := Q) (μ := μ) hν' (V := U')
     have hinj : Function.Injective g := by
       refine (LinearMap.injective_or_eq_zero g).resolve_right fun h0 => ?_
-      haveI := IsSimpleModule.nontrivial (KLRAlgebra K Q μ) U'
+      have := IsSimpleModule.nontrivial (KLRAlgebra K Q μ) U'
       obtain ⟨u, hu⟩ := exists_ne (0 : U')
       have h1 := LinearMap.congr_fun h0 (ExtTensor.tmul u (lMk hν' Q 1))
       rw [hg, LinearMap.zero_apply] at h1
       exact hu (Subtype.ext (Subtype.ext h1))
-    haveI : IsSimpleModule (TensorKLR Q μ ν') (LinearMap.range g) :=
+    have : IsSimpleModule (TensorKLR Q μ ν') (LinearMap.range g) :=
       IsSimpleModule.congr (LinearEquiv.ofInjective g hinj).symm
     have hR : LinearMap.range g = S := prop_3_10_socle hν' hPQ hP hnil hle _ _
     intro h' hh'
@@ -495,7 +494,7 @@ theorem resSocleT_le [FiniteDimensional K M] [IsSimpleModule (KLRAlgebra K Q (μ
     show ((1 : KLRAlgebra K Q μ) ⊗ₜ[K] (r * s) : TensorKLR Q μ ν') • w ∈ S
     rw [← one_mul (1 : KLRAlgebra K Q μ), ← Algebra.TensorProduct.tmul_mul_tmul, mul_smul]
     exact hr _ ((resSocleT Q μ ν' M).smul_mem _ hw)
-  letI := Seq.uniqueOfForall hν'
+  let := Seq.uniqueOfForall hν'
   set t0 : Seq ν' := default
   have hconst : ∀ p n, IsConstOn t0 p n := fun _ _ a b _ _ _ _ =>
     (hν' _ (t0.mem a)).trans (hν' _ (t0.mem b)).symm
@@ -567,11 +566,11 @@ variable {V : Type*} [AddCommGroup V] [Module K V] {L : Type*} [AddCommGroup L] 
   {N : ℕ}
 
 /-- `V ⊠ L ≅ V^{⊕ N}` for a basis of `L` indexed by `Fin N` (`K`-linear). -/
-def extTensorPi (b : Basis (Fin N) K L) : ExtTensor K V L ≃ₗ[K] (Fin N → V) :=
+def extTensorPi (b : Module.Basis (Fin N) K L) : ExtTensor K V L ≃ₗ[K] (Fin N → V) :=
   ExtTensor.equivTensor ≪≫ₗ TensorProduct.equivFinsuppOfBasisRight b ≪≫ₗ
     Finsupp.linearEquivFunOnFinite K V (Fin N)
 
-theorem extTensorPi_tmul (b : Basis (Fin N) K L) (v : V) (ℓ : L) (j : Fin N) :
+theorem extTensorPi_tmul (b : Module.Basis (Fin N) K L) (v : V) (ℓ : L) (j : Fin N) :
     extTensorPi b (ExtTensor.tmul v ℓ) j = b.repr ℓ j • v := by
   simp only [extTensorPi, LinearEquiv.trans_apply, Finsupp.linearEquivFunOnFinite_apply]
   exact TensorProduct.equivFinsuppOfBasisRight_apply_tmul_apply b v ℓ j
@@ -579,7 +578,7 @@ theorem extTensorPi_tmul (b : Basis (Fin N) K L) (v : V) (ℓ : L) (j : Fin N) :
 /-- `V ⊠ L ≅ V^{⊕ N}` is `R(μ)`-linear. -/
 theorem extTensorPi_smul [Module (KLRAlgebra K Q μ) V] [IsScalarTower K (KLRAlgebra K Q μ) V]
     [Module (KLRAlgebra K Q ν') L] [IsScalarTower K (KLRAlgebra K Q ν') L]
-    (b : Basis (Fin N) K L) (a : KLRAlgebra K Q μ) (y : ExtTensor K V L) :
+    (b : Module.Basis (Fin N) K L) (a : KLRAlgebra K Q μ) (y : ExtTensor K V L) :
     extTensorPi b ((a ⊗ₜ[K] (1 : KLRAlgebra K Q ν') : TensorKLR Q μ ν') • y) =
       a • extTensorPi b y := by
   induction y using ExtTensor.induction_on with
@@ -597,7 +596,7 @@ def resLeftSubEquiv (S : Submodule (TensorKLR Q μ ν') (ResSub Q μ ν' M)) {E 
     [AddCommGroup E] [Module K E] [Module (KLRAlgebra K Q μ) E]
     [IsScalarTower K (KLRAlgebra K Q μ) E] {L : Type*} [AddCommGroup L] [Module K L]
     [Module (KLRAlgebra K Q ν') L] [IsScalarTower K (KLRAlgebra K Q ν') L] {N : ℕ}
-    (e : S ≃ₗ[TensorKLR Q μ ν'] ExtTensor K E L) (b : Basis (Fin N) K L) :
+    (e : S ≃ₗ[TensorKLR Q μ ν'] ExtTensor K E L) (b : Module.Basis (Fin N) K L) :
     resLeftSub S ≃ₗ[KLRAlgebra K Q μ] (Fin N → E) where
   toFun v := extTensorPi b (e ⟨ResLeft.toRes (v : ResLeft Q μ ν' M), v.2⟩)
   invFun f := ⟨ResLeft.ofRes ((e.symm ((extTensorPi b).symm f) : S) : ResSub Q μ ν' M),
@@ -631,7 +630,7 @@ theorem lemma_3_14 [FiniteDimensional K M] [IsSimpleModule (KLRAlgebra K Q (μ +
   obtain ⟨eHW⟩ := lemma_3_13_hw hPQ hP hν' hnil hle S
   have hfin : Module.finrank K (KLRRep hν' Q) = (Multiset.card ν').factorial := by
     rw [← (KLRRep.of hν' Q).finrank_eq, finrank_coinv]
-  haveI : Module.Finite K (KLRRep hν' Q) :=
+  have : Module.Finite K (KLRRep hν' Q) :=
     Module.finite_of_finrank_pos (by rw [hfin]; exact Nat.factorial_pos _)
   let Φ := resLeftSubEquiv S e (Module.finBasisOfFinrankEq K (KLRRep hν' Q) hfin)
   refine ⟨le_antisymm ?_ ?_, ⟨Φ⟩⟩
@@ -639,13 +638,13 @@ theorem lemma_3_14 [FiniteDimensional K M] [IsSimpleModule (KLRAlgebra K Q (μ +
     exact resSocleT_le hν' hPQ hP hnil hle S (show ResLeft.toRes v ∈ resSocleT Q μ ν' M from hv)
   · have hnilS : ∀ b, SmulNilpotent ((1 : KLRAlgebra K Q μ) ⊗ₜ[K] x b : TensorKLR Q μ ν') S :=
       fun b => smulNilpotent_submodule S (smulNilpotent_resSub b (hnil _))
-    haveI : FiniteDimensional K S := finiteDimensional_submodule' S
-    haveI : IsSimpleModule (KLRAlgebra K Q μ) (HWSpace Q μ ν' S) :=
+    have : FiniteDimensional K S := finiteDimensional_submodule' S
+    have : IsSimpleModule (KLRAlgebra K Q μ) (HWSpace Q μ ν' S) :=
       isSimpleModule_hwSpace hν' hPQ hP hnilS
-    haveI : IsSimpleModule (KLRAlgebra K Q μ) (KLRMod.eIter i μ (Multiset.card ν')
+    have : IsSimpleModule (KLRAlgebra K Q μ) (KLRMod.eIter i μ (Multiset.card ν')
         ((KLRMod.of (Q := Q) (ν := μ + ν') M).cast (add_replicate_eq hν'))).carrier :=
       IsSimpleModule.congr (R := KLRAlgebra K Q μ) (N := HWSpace Q μ ν' S) eHW.symm
-    haveI : IsSemisimpleModule (KLRAlgebra K Q μ) (resLeftSub S) := IsSemisimpleModule.congr Φ
+    have : IsSemisimpleModule (KLRAlgebra K Q μ) (resLeftSub S) := IsSemisimpleModule.congr Φ
     intro v hv
     have htop : (⟨v, hv⟩ : resLeftSub S) ∈ (⊤ : Submodule (KLRAlgebra K Q μ) (resLeftSub S)) :=
       Submodule.mem_top
@@ -653,13 +652,13 @@ theorem lemma_3_14 [FiniteDimensional K M] [IsSimpleModule (KLRAlgebra K Q (μ +
     have hle' : sSup {U' : Submodule (KLRAlgebra K Q μ) (resLeftSub S) |
         IsSimpleModule (KLRAlgebra K Q μ) U'} ≤
           (resLeftSocle Q μ ν' M).comap (resLeftSub S).subtype := sSup_le fun U' hU' => by
-      haveI : IsSimpleModule (KLRAlgebra K Q μ) U' := hU'
+      have : IsSimpleModule (KLRAlgebra K Q μ) U' := hU'
       intro u hu
       rw [Submodule.mem_comap]
       let f := (resLeftSub S).subtype.comp U'.subtype
       have hf : Function.Injective f :=
         (Submodule.injective_subtype _).comp (Submodule.injective_subtype _)
-      haveI : IsSimpleModule (KLRAlgebra K Q μ) (LinearMap.range f) :=
+      have : IsSimpleModule (KLRAlgebra K Q μ) (LinearMap.range f) :=
         IsSimpleModule.congr (LinearEquiv.ofInjective f hf).symm
       exact le_resLeftSocle _ this ⟨⟨u, hu⟩, rfl⟩
     exact hle' htop

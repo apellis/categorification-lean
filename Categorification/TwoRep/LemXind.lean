@@ -395,7 +395,7 @@ theorem pairing_eq_zero_of_entry_eq_zero (hn : 0 ≤ S.wt (r + 1))
     by_cases hj : 1 * ((((S.wt (r + 1)).toNat : ℕ) : ℤ) - 1 - 2 * (j : ℤ)) <
         1 * ((((S.wt (r + 1 + 1)).toNat : ℕ) : ℤ) - 1 - 2 * (i : ℤ))
     · rw [← Category.assoc g, hom_A_B_eq_zero hyp' hn hj (g ≫ πb e' j), zero_comp]
-    · rw [hom_B₂_A_eq_zero hyp' hn (by push_neg at hj; omega) (ιb₂ e' j ≫ h), comp_zero,
+    · rw [hom_B₂_A_eq_zero hyp' hn (by push Not at hj; omega) (ιb₂ e' j ≫ h), comp_zero,
         comp_zero, comp_zero]
   -- the `A`-terms: only `entry e i (i+1)` could contribute
   have ha : ∀ j ∈ Finset.range (S.wt (r + 1 + 1)).toNat,
@@ -579,9 +579,9 @@ theorem mult_FP_eq (e' : S.EFDecomp r) (e : S.EFDecomp (r + 1))
           1 * ((((S.wt (r + 1 + 1)).toNat : ℕ) : ℤ) - 1 - 2 * (j : ℤ)) then d else 0) = d := by
     intro i hi
     rw [Finset.sum_eq_single i]
-    · rw [if_pos rfl]
+    · rw [ite_eq_left rfl]
     · intro j _ hji
-      rw [if_neg]
+      rw [ite_eq_right]
       intro h
       exact hji (by omega)
     · intro h
@@ -590,7 +590,7 @@ theorem mult_FP_eq (e' : S.EFDecomp r) (e : S.EFDecomp (r + 1))
       (if 1 * ((((S.wt (r + 1 + 1)).toNat : ℕ) : ℤ) - 1 - 2 * ((0 : ℕ) : ℤ)) + 2 =
         1 * ((((S.wt (r + 1 + 1)).toNat : ℕ) : ℤ) - 1 - 2 * (j : ℤ)) then d else 0) = 0 := by
     refine Finset.sum_eq_zero fun j _ => ?_
-    rw [if_neg]
+    rw [ite_eq_right]
     push_cast
     omega
   have hS2 : ∀ i : ℕ, i + 2 < (S.wt (r + 1 + 1)).toNat →
@@ -599,9 +599,9 @@ theorem mult_FP_eq (e' : S.EFDecomp r) (e : S.EFDecomp (r + 1))
           1 * ((((S.wt (r + 1)).toNat : ℕ) : ℤ) - 1 - 2 * (j : ℤ)) then d else 0) = d := by
     intro i hi
     rw [Finset.sum_eq_single i]
-    · rw [if_pos (by push_cast; omega)]
+    · rw [ite_eq_left (by push_cast; omega)]
     · intro j _ hji
-      rw [if_neg]
+      rw [ite_eq_right]
       intro h
       exact hji (by push_cast at h; omega)
     · intro h
@@ -612,7 +612,7 @@ theorem mult_FP_eq (e' : S.EFDecomp r) (e : S.EFDecomp (r + 1))
         (if a = 1 * ((((S.wt (r + 1)).toNat : ℕ) : ℤ) - 1 - 2 * (j : ℤ)) then d else 0) = 0 := by
     intro a ha
     refine Finset.sum_eq_zero fun j _ => ?_
-    rw [if_neg]
+    rw [ite_eq_right]
     omega
   -- the recursion
   intro i
@@ -664,7 +664,7 @@ theorem isIso_entry_of_ne_zero (h2 : ¬ IsZero (𝟙 (S.obj (r + 1 + 1)))) {i : 
     exact hf (by rw [← Category.comp_id f, ← e₂.inv_hom_id, ← Category.assoc, ← hc, zero_comp])
   have : f = (c • 𝟙 _) ≫ e₂.hom := by rw [hc, Category.assoc, e₂.inv_hom_id, Category.comp_id]
   rw [this]
-  haveI : IsIso (c • 𝟙 (S.oneShift (r + 1) i)) :=
+  have : IsIso (c • 𝟙 (S.oneShift (r + 1) i)) :=
     ⟨⟨c⁻¹ • 𝟙 _, by simp [smul_smul, hc0], by simp [smul_smul, hc0]⟩⟩
   infer_instance
 

@@ -152,9 +152,11 @@ holds everywhere. -/
 theorem induction_on {motive : BalancedTensor k B A M N → Prop} (x : BalancedTensor k B A M N)
     (zero : motive 0) (tmul : ∀ m n, motive (tmul m n))
     (add : ∀ x y, motive x → motive y → motive (x + y)) : motive x := by
+  by_cases hx : x = 0
+  · simpa [hx] using zero
+  clear hx
   obtain ⟨t, rfl⟩ := mk_surjective x
-  induction t using TensorProduct.induction_on with
-  | zero => rw [map_zero]; exact zero
+  induction t using TensorProduct.inductionOn with
   | tmul m n => exact tmul m n
   | add s t hs ht => rw [map_add]; exact add _ _ hs ht
 
@@ -292,7 +294,7 @@ theorem mapRight_comp (g : N →ₗ[A] N') (g' : N' →ₗ[A] N'') :
 
 /-- `M ⊗_A -` applied to an isomorphism. -/
 def congrRight (e : N ≃ₗ[A] N') : BalancedTensor k B A M N ≃ₗ[B] BalancedTensor k B A M N' :=
-  LinearEquiv.ofLinear (mapRight e.toLinearMap) (mapRight e.symm.toLinearMap)
+  LinearEquiv.ofLinearMap (mapRight e.toLinearMap) (mapRight e.symm.toLinearMap)
     (by rw [← mapRight_comp]; simp) (by rw [← mapRight_comp]; simp)
 
 @[simp] theorem congrRight_tmul (e : N ≃ₗ[A] N') (m : M) (n : N) :
@@ -318,7 +320,7 @@ variable (k B A M N N') in
 def prodRight :
     BalancedTensor k B A M (N × N') ≃ₗ[B]
       BalancedTensor k B A M N × BalancedTensor k B A M N' :=
-  LinearEquiv.ofLinear
+  LinearEquiv.ofLinearMap
     (LinearMap.prod (mapRight (LinearMap.fst A N N')) (mapRight (LinearMap.snd A N N')))
     (LinearMap.coprod (mapRight (LinearMap.inl A N N')) (mapRight (LinearMap.inr A N N')))
     (by
@@ -326,8 +328,8 @@ def prodRight :
         simp [mapRight_tmul])
     (extB fun m n => by
       obtain ⟨n, n'⟩ := n
-      simp only [LinearMap.coe_comp, Function.comp_apply, LinearMap.prod_apply, Pi.prod,
-        mapRight_tmul, LinearMap.fst_apply, LinearMap.snd_apply, LinearMap.coprod_apply,
+      simp only [LinearMap.coe_comp, Function.comp_apply, LinearMap.prod_apply,
+        Function.prod_apply, mapRight_tmul, LinearMap.fst_apply, LinearMap.snd_apply, LinearMap.coprod_apply,
         LinearMap.inl_apply, LinearMap.inr_apply, LinearMap.id_coe, id_eq]
       rw [← tmul_add, Prod.mk_add_mk, add_zero, zero_add])
 
@@ -351,16 +353,15 @@ def rsmul : M →ₗ[k] A →ₗ[k] M :=
 variable (k B A M) in
 /-- `M ⊗_A A ≃ M`, `m ⊗ a ↦ m a`. -/
 def rid : BalancedTensor k B A M A ≃ₗ[B] M :=
-  LinearEquiv.ofLinear
+  LinearEquiv.ofLinearMap
     (liftB (rsmul k A M) (fun m a a' => by simp [op_mul, mul_smul])
       (fun b m a => by simp [smul_comm b (op a) m]))
     { toFun := fun m => tmul m 1
       map_add' := fun m m' => add_tmul m m' 1
       map_smul' := fun b m => (smul_tmul' b m 1).symm }
-    (by ext m; simp)
+    (by ext m; change op (1 : A) • m = m; rw [op_one, one_smul])
     (extB fun m a => by
-      simp only [LinearMap.coe_comp, Function.comp_apply, liftB_tmul, rsmul_apply,
-        LinearMap.coe_mk, AddHom.coe_mk, LinearMap.id_coe, id_eq]
+      change tmul (op a • m) (1 : A) = tmul m a
       rw [op_smul_tmul, smul_eq_mul, mul_one])
 
 @[simp] theorem rid_tmul (m : M) (a : A) : rid k B A M (tmul m a) = op a • m := rfl
@@ -381,7 +382,7 @@ def finsuppBil (X : Type*) : M →ₗ[k] (X →₀ A) →ₗ[k] (X →₀ M) :=
 variable (k B A M) in
 /-- `M ⊗_A (X →₀ A) ≃ (X →₀ M)`, `m ⊗ f ↦ (x ↦ m f(x))`. -/
 def finsuppRight (X : Type*) : BalancedTensor k B A M (X →₀ A) ≃ₗ[B] (X →₀ M) :=
-  LinearEquiv.ofLinear
+  LinearEquiv.ofLinearMap
     (liftB (finsuppBil k A M X)
       (fun m a f => by ext x; simp [op_mul, mul_smul])
       (fun b m f => by ext x; simp [smul_comm b]))
@@ -397,7 +398,7 @@ def finsuppRight (X : Type*) : BalancedTensor k B A M (X →₀ A) ≃ₗ[B] (X 
         AddHom.coe_mk, liftB_tmul, finsuppBil_apply, LinearMap.id_coe, id_eq]
       by_cases h : x = y
       · subst h; simp
-      · simp [Finsupp.single_apply, h])
+      · simp [h])
     (extB fun m f => by
       induction f using Finsupp.induction_linear with
       | zero => simp
@@ -408,7 +409,7 @@ def finsuppRight (X : Type*) : BalancedTensor k B A M (X →₀ A) ≃ₗ[B] (X 
         have : finsuppBil k A M X m (Finsupp.single x a) = Finsupp.single x (op a • m) := by
           ext y; by_cases h : x = y
           · subst h; simp
-          · simp [Finsupp.single_apply, h]
+          · simp [h]
         simp only [LinearMap.coe_comp, Function.comp_apply, liftB_tmul, this, Finsupp.lsum_single,
           LinearMap.coe_mk, AddHom.coe_mk, LinearMap.id_coe, id_eq]
         rw [op_smul_tmul, Finsupp.smul_single, smul_eq_mul, mul_one])
@@ -426,9 +427,9 @@ variable [Algebra k A] [IsScalarTower k Aᵐᵒᵖ M] [IsScalarTower k A N] [SMu
 theorem projective [Module.Projective B M] [Module.Projective A N] :
     Module.Projective B (BalancedTensor k B A M N) := by
   obtain ⟨s, hs⟩ := Module.projective_def'.1 ‹Module.Projective A N›
-  haveI : Module.Projective B (N →₀ M) := by
+  have : Module.Projective B (N →₀ M) := by
     classical exact Module.Projective.of_equiv (finsuppLequivDFinsupp B).symm
-  haveI : Module.Projective B (BalancedTensor k B A M (N →₀ A)) :=
+  have : Module.Projective B (BalancedTensor k B A M (N →₀ A)) :=
     Module.Projective.of_equiv (finsuppRight k B A M N).symm
   refine Module.Projective.of_split (mapRight s)
     (mapRight (Finsupp.linearCombination A id)) ?_
@@ -441,7 +442,7 @@ theorem finite [Module.Finite B M] [Module.Finite A N] :
   obtain ⟨S, hS⟩ := Module.Finite.fg_top (R := A) (M := N)
   have hsurj : Function.Surjective (Finsupp.linearCombination A (Subtype.val : S → N)) := by
     rw [← LinearMap.range_eq_top, Finsupp.range_linearCombination, Subtype.range_coe_subtype,
-      Finset.setOf_mem, hS]
+      Finset.setOfPred_mem, hS]
   exact Module.Finite.of_surjective
     ((mapRight (Finsupp.linearCombination A (Subtype.val : S → N))).comp
       (finsuppRight k B A M S).symm.toLinearMap)

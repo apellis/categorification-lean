@@ -63,7 +63,7 @@ theorem inv_append_le (a b : List (Bool × I)) (i j : I) :
     simp only [List.cons_append, inv, negMS_append, negMS_cons_true, negMS_cons_false]
     cases x
     · simpa using ih
-    · simp only [if_true, Multiset.card_add, Multiset.card_cons]
+    · simp only [ite_true, Multiset.card_add, Multiset.card_cons]
       omega
 
 theorem normal_or_inversion (w : List (Bool × I)) :

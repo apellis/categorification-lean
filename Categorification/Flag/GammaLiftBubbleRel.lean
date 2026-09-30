@@ -20,6 +20,9 @@ right by `cwRealH`, `ccwRealH` (KL III Proposition 6.3); these vanish in negativ
 are `1` in degree zero.
 -/
 
+-- Preserve elaboration of semireducible diagram transports.
+set_option backward.isDefEq.respectTransparency false
+
 noncomputable section
 
 namespace Categorification.Flag
@@ -52,7 +55,7 @@ theorem evalB_presCL_cwNeg (dnScal : Fin m → Fin m → K) (i : Fin m) (lam : W
   have hn := ip_eq_nH ha.realized i
   show evalB K N dnScal s v ha hb (LinDiagram.of (cwReal RD s i α)) = 0
   erw [evalB_cwReal dnScal s i α v ha hb]
-  rw [cwRealH, if_neg (by rw [hn] at h; simp only [nH] at h; omega), map_zero,
+  rw [cwRealH, ite_eq_right (by rw [hn] at h; simp only [nH] at h; omega), map_zero,
     BHom.mulB_zero']
 
 /-- **`Γ_N` respects `ccwNeg`** (KL III (3.4)): a counterclockwise bubble with `α < -n - 1` dots
@@ -67,7 +70,7 @@ theorem evalB_presCL_ccwNeg (dnScal : Fin m → Fin m → K) (i : Fin m) (lam : 
   have hn := ip_eq_nH ha.realized i
   show evalB K N dnScal s v ha hb (LinDiagram.of (ccwReal RD s i α)) = 0
   erw [evalB_ccwReal dnScal s i α v ha hb]
-  rw [ccwRealH, if_neg (by rw [hn] at h; simp only [nH] at h; omega), map_zero,
+  rw [ccwRealH, ite_eq_right (by rw [hn] at h; simp only [nH] at h; omega), map_zero,
     BHom.mulB_zero']
 
 /-- **`Γ_N` respects `cwOne`**: for `n ≥ 1`, the clockwise bubble of degree zero (with `n - 1`
@@ -87,7 +90,7 @@ theorem evalB_presCL_cwOne (dnScal : Fin m → Fin m → K) (i : Fin m) (lam : W
   rw [cwRealH, hn]
   rw [hn] at h
   simp only [nH] at h
-  rw [if_pos (by simp only [nH]; omega),
+  rw [ite_eq_left (by simp only [nH]; omega),
     show (nH (compOf N s) i - 1).toNat + (compOf N s) i.succ + 1 -
     (compOf N s) i.castSucc = 0 by simp only [nH]; omega, PsiH_zero, map_one, BHom.mulB_one]
   exact sub_self _
@@ -109,7 +112,7 @@ theorem evalB_presCL_ccwOne (dnScal : Fin m → Fin m → K) (i : Fin m) (lam : 
   rw [ccwRealH, hn]
   rw [hn] at h
   simp only [nH] at h
-  rw [if_pos (by simp only [nH]; omega),
+  rw [ite_eq_left (by simp only [nH]; omega),
     show (-nH (compOf N s) i - 1).toNat + (compOf N s) i.castSucc + 1 -
     (compOf N s) i.succ = 0 by simp only [nH]; omega, PhiH_zero, map_one, BHom.mulB_one]
   exact sub_self _

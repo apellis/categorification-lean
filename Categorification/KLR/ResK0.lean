@@ -41,7 +41,7 @@ noncomputable section
 
 namespace Categorification.KLR
 
-open Graded MvPolynomial TypeA
+open Categorification.Graded MvPolynomial TypeA
 open scoped TensorProduct
 
 variable {I : Type*} [DecidableEq I] {k : Type*} [Field k] {Q : I → I → MvPolynomial (Fin 2) k}
@@ -113,7 +113,7 @@ def resIdemMap (f : N →ₗ[KLRAlgebra k Q (ν + ν')] N') :
 /-- The restriction of an isomorphism. -/
 def resIdemCongr (f : N ≃ₗ[KLRAlgebra k Q (ν + ν')] N') :
     ResIdem Q ν ν' N ≃ₗ[TensorKLR Q ν ν'] ResIdem Q ν ν' N' :=
-  LinearEquiv.ofLinear (resIdemMap f.toLinearMap) (resIdemMap f.symm.toLinearMap)
+  LinearEquiv.ofLinearMap (resIdemMap f.toLinearMap) (resIdemMap f.symm.toLinearMap)
     (LinearMap.ext fun n => Subtype.ext (f.apply_symm_apply (n : N')))
     (LinearMap.ext fun n => Subtype.ext (f.symm_apply_apply (n : N)))
 
@@ -157,8 +157,8 @@ theorem res_finite (N : Type*) [AddCommGroup N] [Module (KLRAlgebra k Q (ν + ν
   let f := Finsupp.linearCombination (KLRAlgebra k Q (ν + ν')) s
   have hf : Function.Surjective f := by
     rw [← LinearMap.range_eq_top, Finsupp.range_linearCombination, hs]
-  haveI := finite_oneConcatSub (ν := ν) (ν' := ν') hPQ hP
-  haveI : Module.Finite (TensorKLR Q ν ν') (Res Q ν ν' (Fin n →₀ KLRAlgebra k Q (ν + ν'))) :=
+  have := finite_oneConcatSub (ν := ν) (ν' := ν') hPQ hP
+  have : Module.Finite (TensorKLR Q ν ν') (Res Q ν ν' (Fin n →₀ KLRAlgebra k Q (ν + ν'))) :=
     Module.Finite.equiv (resFinsuppEquiv (Fin n)).symm
   refine Module.Finite.of_surjective (resMap f) fun y => ?_
   obtain ⟨x, hx⟩ := hf (y : N)
@@ -204,8 +204,8 @@ variable (ν ν') in
 projective `R(ν + ν')`-module, as a finitely generated graded projective
 `R(ν) ⊗ R(ν')`-module (KL I, Corollary 2.17, graded). -/
 def resGProj (X : GProj (G.grade (ν + ν'))) : GProj (tensorGrading (G.grade ν) (G.grade ν')) :=
-  haveI := res_finite (ν := ν) (ν' := ν') hPQ hP X.carrier
-  haveI := res_projective (ν := ν) (ν' := ν') hPQ hP X.carrier
+  have := res_finite (ν := ν) (ν' := ν') hPQ hP X.carrier
+  have := res_projective (ν := ν) (ν' := ν') hPQ hP X.carrier
   { carrier := ResIdem Q ν ν' X.carrier
     grading := idem X.grading (oneConcat Q ν ν')
     decomposition := idemDecomposition X.grading G.oneConcat_mem_grade
@@ -251,7 +251,7 @@ def resK0Add : K0 (G.grade (ν + ν')) →+ K0 (tensorGrading (G.grade ν) (G.gr
   K0.lift (fun X => K0.of (G.resGProj ν ν' hPQ hP X))
     (fun _ _ e => K0.of_eq_of_iso (G.resGProjCongr hPQ hP e))
     (fun X X' => by
-      beta_reduce; rw [K0.of_eq_of_iso (G.resGProjProd hPQ hP X X'), K0.of_prod])
+      rw [K0.of_eq_of_iso (G.resGProjProd hPQ hP X X'), K0.of_prod])
 
 @[simp] theorem resK0Add_of (X : GProj (G.grade (ν + ν'))) :
     G.resK0Add ν ν' hPQ hP (K0.of X) = K0.of (G.resGProj ν ν' hPQ hP X) :=

@@ -65,6 +65,8 @@ outer variables, `KLR.qbar_rename_rev`). Objects are compared with normal forms 
 `σ̃² = 1` and `σ̃ ψ̃ = ψ̃ σ̃` are in `Categorification.Diagrams.KL3.Symmetries`.
 -/
 
+set_option backward.isDefEq.respectTransparency false
+
 noncomputable section
 
 namespace Categorification.KL3.Diagram
@@ -533,7 +535,7 @@ theorem sChain_sls {s t : List (Letter I)} {ls : List (LayerData I)} (h : SChain
     obtain ⟨rfl, h⟩ := h
     refine ⟨by simp [ld, shape_dom], ?_⟩
     have := ih h
-    simpa [ld, shape_cod] using this
+    simpa [ld, shape_cod, sls] using this
 
 /-- The sign of a shape. -/
 def sgnSh [DecidableEq I] : Shape I → ℤ
@@ -705,7 +707,7 @@ theorem ip_neg (i : I) (lam : X) : ip RD i (-lam) = -ip RD i lam := map_neg _ _
 macro "sls_nf" : tactic => `(tactic| simp only [sls, ld, List.map_cons, List.map_nil,
   List.reverse_cons, List.reverse_nil, List.nil_append, List.cons_append, List.singleton_append,
   shape_dot, shape_cross, shape_cup, shape_cap, Letter.dual_up, Letter.dual_dn, sgnS, sgnSh,
-  List.prod_cons, List.prod_nil, mul_one, one_mul, Int.cast_one, one_smul, if_pos, if_true,
+  List.prod_cons, List.prod_nil, mul_one, one_mul, Int.cast_one, one_smul, ite_eq_left, ite_true,
   ite_true, Int.cast_neg, neg_smul, List.append_nil, eq_self_iff_true, ↓reduceIte])
 
 theorem sigL_cycDotR (i : I) (μ : X) : sigL RD k (relation k (.cycDotR i μ : Rel RD)) = 0 := by
@@ -749,7 +751,7 @@ theorem sigL_downupEF (i j : I) (h : i ≠ j) (μ : X) :
     sigL_of_mkD μ _ [dn j, up i] [up i, dn j] _ _ rfl rfl rfl,
     sigL_of_mkD μ _ [up i, dn j] [dn j, up i] _ _ e rfl rfl]
   sls_nf
-  simp only [if_neg (Ne.symm h), if_neg h, Int.cast_one, one_smul]
+  simp only [ite_eq_right (Ne.symm h), ite_eq_right h, Int.cast_one, one_smul]
   rw [TR_comp, dg_comp (by schain) (by schain)]
   erw [H, dg_nil, TR_id]
   rw [show (LinDiagram.of (𝟙 (ob RD μ [up i, dn j])) : LinDiagram k _ _) = 𝟙 (Free.of k _) from rfl,
@@ -765,7 +767,7 @@ theorem sigL_downupFE (i j : I) (h : i ≠ j) (μ : X) :
     sigL_of_mkD μ _ [up j, dn i] [dn i, up j] _ _ rfl rfl rfl,
     sigL_of_mkD μ _ [dn i, up j] [up j, dn i] _ _ e rfl rfl]
   sls_nf
-  simp only [if_neg (Ne.symm h), if_neg h, Int.cast_one, one_smul]
+  simp only [ite_eq_right (Ne.symm h), ite_eq_right h, Int.cast_one, one_smul]
   rw [TR_comp, dg_comp (by schain) (by schain)]
   erw [H, dg_nil, TR_id]
   rw [show (LinDiagram.of (𝟙 (ob RD μ [dn i, up j])) : LinDiagram k _ _) = 𝟙 (Free.of k _) from rfl,
@@ -834,7 +836,7 @@ bubble with label `m` in the region `-λ`**, real or fake. -/
 theorem sigL_cwL (lam : X) (i : I) (m : ℤ) :
     sigL RD k (cwL RD k lam i m) = ccwU RD k (-lam) i m := by
   unfold ccwU cwL ccwL
-  simp only [ip_neg, ← sub_eq_add_neg, neg_neg]
+  simp only [ip_neg, ← sub_eq_add_neg]
   split_ifs
   · rw [sigL_cwReal, lin_ccwReal]
   · show sigEnd RD k lam _ = linEnd RD k (-lam) _
@@ -850,7 +852,7 @@ bubble with label `m` in the region `-λ`**, real or fake. -/
 theorem sigL_ccwL (lam : X) (i : I) (m : ℤ) :
     sigL RD k (ccwL RD k lam i m) = cwU RD k (-lam) i m := by
   unfold cwU cwL ccwL
-  simp only [ip_neg, ← sub_eq_add_neg, neg_neg, sub_neg_eq_add]
+  simp only [ip_neg, neg_neg, sub_neg_eq_add]
   split_ifs
   · rw [sigL_ccwReal, lin_cwReal]
   · show sigEnd RD k lam _ = linEnd RD k (-lam) _
@@ -1177,13 +1179,14 @@ end Relations
 
 /-! ## The reflection of KLR diagrams across the `y`-axis -/
 
+open scoped IsMulCommutative in
 /-- Reordering commuting variables: `ncEval (y ∘ f) p = ncEval y (rename f p)` for a family `y`
 of pairwise commuting elements. -/
 theorem ncEval_rename_of_commute {A : Type*} [Ring A] [Algebra k A] {n m : ℕ} (y : Fin n → A)
     (hc : ∀ a b, Commute (y a) (y b)) (f : Fin m → Fin n) (p : MvPolynomial (Fin m) k) :
     KLR.ncEval (fun a => y (f a)) p = KLR.ncEval y (MvPolynomial.rename f p) := by
-  letI : CommRing (Algebra.adjoin k (Set.range y)) :=
-    Algebra.adjoinCommRingOfComm k (by rintro _ ⟨a, rfl⟩ _ ⟨b, rfl⟩; exact hc a b)
+  let : IsMulCommutative (Algebra.adjoin k (Set.range y)) :=
+    Algebra.isMulCommutative_adjoin k (by rintro _ ⟨a, rfl⟩ _ ⟨b, rfl⟩ _; exact hc a b)
   let y' : Fin n → Algebra.adjoin k (Set.range y) := fun a => ⟨y a, Algebra.subset_adjoin ⟨a, rfl⟩⟩
   let φ : MvPolynomial (Fin n) k →ₐ[k] A :=
     (Algebra.adjoin k (Set.range y)).val.comp (MvPolynomial.aeval y')
@@ -1314,7 +1317,7 @@ theorem ksL_relation (r : KLR.Diagram.Rel I) :
     show ksL _ (LinDiagram.of (X2 c c ≫ X2 c c)) = 0
     rw [ksL_of, show ksD (X2 c c ≫ X2 c c) = X2 c c ≫ X2 c c from Diagram.ext rfl]
     simp only [ksgn, ksg, Diagram.layers_comp, KLR.Diagram.layers_dl, KLR.Diagram.lay_gen, List.map_cons, List.map_nil,
-      List.cons_append, List.nil_append, List.prod_cons, List.prod_nil, if_pos rfl]
+      List.cons_append, List.nil_append, List.prod_cons, List.prod_nil]
     norm_num
     rw [← Presentation.diag_comp]
     exact H
@@ -1328,8 +1331,8 @@ theorem ksL_relation (r : KLR.Diagram.Rel I) :
     rw [ksL_sub, ksL_of, ksL_lpoly,
       show ksD (X2 c d ≫ X2 d c) = X2 d c ≫ X2 c d from Diagram.ext rfl]
     simp only [ksgn, ksg, Diagram.layers_comp, KLR.Diagram.layers_dl, KLR.Diagram.lay_gen, List.map_cons, List.map_nil,
-      List.cons_append, List.nil_append, List.prod_cons, List.prod_nil, if_neg h,
-      if_neg (Ne.symm h), mul_one, Int.cast_one, one_smul]
+      List.cons_append, List.nil_append, List.prod_cons, List.prod_nil, ite_eq_right h,
+      ite_eq_right (Ne.symm h), mul_one, Int.cast_one, one_smul]
     rw [sub_eq_zero] at H ⊢
     rw [H]
     have e : (fun a => ksL (KLR.klQ2 k C) (LinDiagram.of ((![D0 c d, D1 c d] : Fin 2 → _) a))) =
@@ -1347,10 +1350,10 @@ theorem ksL_relation (r : KLR.Diagram.Rel I) :
     simp only [KLR.Diagram.linAlg_apply, Presentation.lin_of]
     unfold KLR.klQ2
     by_cases hcd : C.dot c d = 0
-    · rw [if_pos hcd, if_pos (by rw [C.symm]; exact hcd), ncEval_one_aux, ncEval_one_aux]
-    · rw [if_neg hcd, if_neg (by rw [C.symm]; exact hcd), ncEval_X_pow_add_X_pow,
+    · rw [ite_eq_left hcd, ite_eq_left (by rw [C.symm]; exact hcd), ncEval_one_aux, ncEval_one_aux]
+    · rw [ite_eq_right hcd, ite_eq_right (by rw [C.symm]; exact hcd), ncEval_X_pow_add_X_pow,
         ncEval_X_pow_add_X_pow]
-      simp only [Matrix.cons_val_zero, Matrix.cons_val_one, Matrix.head_cons]
+      simp only [Matrix.cons_val_zero, Matrix.cons_val_one]
       exact add_comm _ _
   | slideLEq c =>
     have H : (KLR.Diagram.pres k (KLR.klQ2 k C)).lin (LinDiagram.of (D0 c c ≫ X2 c c) -
@@ -1382,8 +1385,8 @@ theorem ksL_relation (r : KLR.Diagram.Rel I) :
       show ksD (X2 c d ≫ D0 d c) = X2 d c ≫ D1 c d from Diagram.ext rfl,
       show ksD (D1 c d ≫ X2 c d) = D0 d c ≫ X2 d c from Diagram.ext rfl]
     simp only [ksgn, ksg, Diagram.layers_comp, KLR.Diagram.layers_dl, KLR.Diagram.lay_gen, List.map_cons, List.map_nil,
-      List.cons_append, List.nil_append, List.prod_cons, List.prod_nil, if_neg h, mul_one,
-      one_mul, Int.cast_one, one_smul]
+      List.cons_append, List.nil_append, List.prod_cons, List.prod_nil, ite_eq_right h, mul_one,
+      Int.cast_one, one_smul]
     rw [← neg_eq_zero, neg_sub]
     exact H
   | slideREq c =>
@@ -1416,8 +1419,8 @@ theorem ksL_relation (r : KLR.Diagram.Rel I) :
       show ksD (D0 c d ≫ X2 c d) = D1 d c ≫ X2 d c from Diagram.ext rfl,
       show ksD (X2 c d ≫ D1 d c) = X2 d c ≫ D0 c d from Diagram.ext rfl]
     simp only [ksgn, ksg, Diagram.layers_comp, KLR.Diagram.layers_dl, KLR.Diagram.lay_gen, List.map_cons, List.map_nil,
-      List.cons_append, List.nil_append, List.prod_cons, List.prod_nil, if_neg h, mul_one,
-      one_mul, Int.cast_one, one_smul]
+      List.cons_append, List.nil_append, List.prod_cons, List.prod_nil, ite_eq_right h, mul_one,
+      Int.cast_one, one_smul]
     rw [← neg_eq_zero, neg_sub]
     exact H
   | braid c d e h =>
@@ -1449,13 +1452,13 @@ theorem ksL_relation (r : KLR.Diagram.Rel I) :
       show ksD (braidR c d c) = braidL c d c from Diagram.ext rfl]
     have hs₁ : ksgn (Diagram.layers (braidL c d c)) = -1 := by
       simp only [ksgn, ksg, Diagram.layers_comp, KLR.Diagram.layers_dl, KLR.Diagram.lay_gen, List.map_cons,
-        List.map_nil, List.cons_append, List.nil_append, List.prod_cons, List.prod_nil, if_neg h,
-        if_neg (Ne.symm h), if_pos rfl]
+        List.map_nil, List.cons_append, List.nil_append, List.prod_cons, List.prod_nil, ite_eq_right h,
+        ite_eq_right (Ne.symm h)]
       norm_num
     have hs₂ : ksgn (Diagram.layers (braidR c d c)) = -1 := by
       simp only [ksgn, ksg, Diagram.layers_comp, KLR.Diagram.layers_dl, KLR.Diagram.lay_gen, List.map_cons,
-        List.map_nil, List.cons_append, List.nil_append, List.prod_cons, List.prod_nil, if_neg h,
-        if_neg (Ne.symm h), if_pos rfl]
+        List.map_nil, List.cons_append, List.nil_append, List.prod_cons, List.prod_nil, ite_eq_right h,
+        ite_eq_right (Ne.symm h)]
       norm_num
     have e : (fun a => ksL (KLR.klQ2 k C)
         (LinDiagram.of ((![E0 c d c, E1 c d c, E2 c d c] : Fin 3 → _) a))) =
@@ -1590,7 +1593,7 @@ theorem sigL_zigL (c : Col I X) :
     ((zigzags RD k) _).2
   simp only [layers_reflD, Pivotal.zigL, Pivotal.zigR, Diagram.layers_leftZigzag,
     Diagram.layers_rightZigzag, Pivotal.cupD, Pivotal.capD, Diagram.layers_layer, List.map_cons,
-    List.map_nil, List.cons_append, List.nil_append, Layer.wl, Layer.wr, List.append_nil]
+    List.map_nil, List.cons_append, List.nil_append, Layer.wl, Layer.wr]
   refine List.cons_eq_cons.2 ⟨Layer.ext rfl hw rfl rfl,
     List.cons_eq_cons.2 ⟨Layer.ext rfl rfl rfl hw, rfl⟩⟩
 
@@ -1606,7 +1609,7 @@ theorem sigL_zigR (c : Col I X) :
     ((zigzags RD k) _).1
   simp only [layers_reflD, Pivotal.zigL, Pivotal.zigR, Diagram.layers_leftZigzag,
     Diagram.layers_rightZigzag, Pivotal.cupD, Pivotal.capD, Diagram.layers_layer, List.map_cons,
-    List.map_nil, List.cons_append, List.nil_append, Layer.wl, Layer.wr, List.append_nil]
+    List.map_nil, List.cons_append, List.nil_append, Layer.wl, Layer.wr]
   refine List.cons_eq_cons.2 ⟨Layer.ext (region_dual c) rfl rfl hw,
     List.cons_eq_cons.2 ⟨Layer.ext (region_dual c) hw rfl rfl, rfl⟩⟩
 

@@ -191,15 +191,12 @@ theorem ndE_ndF_sub (hq : ∀ n : ℕ, 0 < n → q ^ n ≠ 1) (ℓ : I → ℤ) 
       ndF C q ℓ j (ndE C q ℓ i v) =
       if j = i then qbr (qi C q i) (ℓ i + msA C i P - msA C i N) • v else 0) hv (by simp)
     (fun x y hx hy => by
-      beta_reduce at hx hy ⊢
       rw [map_add, map_add, map_add, map_add, add_sub_add_comm, hx, hy]
       split_ifs <;> simp [smul_add])
     (fun r x hx => by
-      beta_reduce at hx ⊢
       rw [map_smul, map_smul, map_smul, map_smul, ← smul_sub, hx]
       split_ifs <;> simp [smul_comm r])
     fun u w h => ?_
-  beta_reduce
   have hwt : msA C i (wt w) - msA C i (wt u) = msA C i P - msA C i N := by
     have := congrArg (msA C i) h
     simp only [msA_add] at this
@@ -212,12 +209,12 @@ theorem ndE_ndF_sub (hq : ∀ n : ℕ, 0 < n → q ^ n ≠ 1) (ℓ : I → ℤ) 
   have hdw : ∀ k, ∀ w' ∈ {w' : FreeMonoid I | j ::ₘ wt w' = wt w},
       msA C k (wt w') = msA C k (wt w) - A C k j := by
     intro k w' hw'
-    simp only [Set.mem_setOf_eq] at hw'
+    simp only [Set.mem_ofPred_eq] at hw'
     rw [← hw', msA_cons]; ring
   have hdu : ∀ k, ∀ u' ∈ {u' : FreeMonoid I | i ::ₘ wt u' = wt u},
       msA C k (wt u') = msA C k (wt u) - A C k i := by
     intro k u' hu'
-    simp only [Set.mem_setOf_eq] at hu'
+    simp only [Set.mem_ofPred_eq] at hu'
     rw [← hu', msA_cons]; ring
   have T1 : ndE C q ℓ i (tm (θ j * word u) (word w)) =
       tm (θ j * word u) (θ i * word w) +
@@ -261,7 +258,7 @@ theorem ndE_ndF_sub (hq : ∀ n : ℕ, 0 < n → q ^ n ≠ 1) (ℓ : I → ℤ) 
       _ = ndG C q i * qp q c' * (ndG C q j * qp q d') := by rw [qp_add]; ring
   by_cases hji : j = i
   · subst hji
-    simp only [if_true, A_self] at s1 s2 s3 ⊢
+    simp only [ite_true, A_self] at s1 s2 s3 ⊢
     have e5 : ℓ j + msA C j P - msA C j N = ℓ j + msA C j (wt w) - msA C j (wt u) := by
       linarith
     have s4 : ndG C q j * qp q (-(di C j * (ℓ j + msA C j (wt w) - (2 + msA C j (wt u))))) -
@@ -274,8 +271,7 @@ theorem ndE_ndF_sub (hq : ∀ n : ℕ, 0 < n → q ^ n ≠ 1) (ℓ : I → ℤ) 
       s2 • tm (word u) (θ j * PreF.d C.dot q⁻¹ j (word w)) +
       s3 • tm (PreF.d C.dot q⁻¹ j (word u)) (PreF.d C.dot q⁻¹ j (word w)) +
       s4 • tm (word u) (word w)
-  · simp only [if_neg hji, if_neg (Ne.symm hji), map_zero, LinearMap.zero_apply, zero_add,
-      add_zero, smul_zero]
+  · simp only [ite_eq_right hji, ite_eq_right (Ne.symm hji), map_zero, LinearMap.zero_apply, zero_add]
     linear_combination (norm := module)
       s1 • tm (θ j * PreF.d C.dot q⁻¹ i (word u)) (word w) -
       s2 • tm (word u) (θ i * PreF.d C.dot q⁻¹ j (word w)) +
@@ -292,7 +288,7 @@ def ndGen (ℓ : I → ℤ) : Bool × I → Module.End K (M K I)
 variable (C q) in
 /-- The action of the free algebra `'U 1_λ` on the model. -/
 def ndAct (ℓ : I → ℤ) : Free K I →ₐ[K] Module.End K (M K I) :=
-  MonoidAlgebra.lift K (FreeMonoid (Bool × I)) (Module.End K (M K I))
+  MonoidAlgebra.lift K (Module.End K (M K I)) (FreeMonoid (Bool × I))
     (FreeMonoid.lift (ndGen C q ℓ))
 
 theorem ndAct_ew (ℓ : I → ℤ) (w : List (Bool × I)) :
@@ -348,10 +344,9 @@ theorem tm_mem_Msupp_of_word {P N : Multiset I} {w : FreeMonoid I} {S : Set (Fre
 theorem ndF_mem_Msupp (ℓ : I → ℤ) (j : I) {P N : Multiset I} {v : M K I} (hv : v ∈ Msupp P N) :
     ndF C q ℓ j v ∈ Msupp P (j ::ₘ N) := by
   refine Msupp_induction (motive := fun v => ndF C q ℓ j v ∈ Msupp P (j ::ₘ N)) hv (by simp)
-    (fun x y hx hy => by beta_reduce at hx hy ⊢; rw [map_add]; exact add_mem hx hy)
-    (fun r x hx => by beta_reduce at hx ⊢; rw [map_smul]; exact Submodule.smul_mem _ _ hx)
+    (fun x y hx hy => by rw [map_add]; exact add_mem hx hy)
+    (fun r x hx => by rw [map_smul]; exact Submodule.smul_mem _ _ hx)
     fun u w h => ?_
-  beta_reduce
   rw [ndF_tm_word]
   refine add_mem ?_ (Submodule.smul_mem _ _ ?_)
   · rw [θ, ← word_mul]
@@ -359,16 +354,15 @@ theorem ndF_mem_Msupp (ℓ : I → ℤ) (j : I) {P N : Multiset I} {v : M K I} (
     rw [wt_mul, wt_of, ← Multiset.singleton_add, add_left_comm, h]
     abel
   · refine tm_word_mem_Msupp_of (fun w' hw' => ?_) (d_word_mem_supp (dot := C.dot) (v := q⁻¹) j w)
-    simp only [Set.mem_setOf_eq] at hw'
+    simp only [Set.mem_ofPred_eq] at hw'
     rw [← h, ← hw', Multiset.cons_add, Multiset.add_cons]
 
 theorem ndE_mem_Msupp (ℓ : I → ℤ) (i : I) {P N : Multiset I} {v : M K I} (hv : v ∈ Msupp P N) :
     ndE C q ℓ i v ∈ Msupp (i ::ₘ P) N := by
   refine Msupp_induction (motive := fun v => ndE C q ℓ i v ∈ Msupp (i ::ₘ P) N) hv (by simp)
-    (fun x y hx hy => by beta_reduce at hx hy ⊢; rw [map_add]; exact add_mem hx hy)
-    (fun r x hx => by beta_reduce at hx ⊢; rw [map_smul]; exact Submodule.smul_mem _ _ hx)
+    (fun x y hx hy => by rw [map_add]; exact add_mem hx hy)
+    (fun r x hx => by rw [map_smul]; exact Submodule.smul_mem _ _ hx)
     fun u w h => ?_
-  beta_reduce
   rw [ndE_tm_word]
   refine add_mem ?_ (Submodule.smul_mem _ _ ?_)
   · rw [θ, ← word_mul]
@@ -376,7 +370,7 @@ theorem ndE_mem_Msupp (ℓ : I → ℤ) (i : I) {P N : Multiset I} {v : M K I} (
     rw [wt_mul, wt_of, ← Multiset.singleton_add, add_assoc, h]
     abel
   · refine tm_mem_Msupp_of_word (fun u' hu' => ?_) (d_word_mem_supp (dot := C.dot) (v := q⁻¹) i u)
-    simp only [Set.mem_setOf_eq] at hu'
+    simp only [Set.mem_ofPred_eq] at hu'
     rw [h, ← hu', Multiset.cons_add, Multiset.add_cons]
 
 /-- `ndNF (E_w)` lies in the weight space of `w`. -/
@@ -390,8 +384,8 @@ theorem ndNF_mem_Msupp (ℓ : I → ℤ) (w : List (Bool × I)) :
     obtain ⟨b, i⟩ := l
     rw [ndNF_ew_cons]
     cases b
-    · simpa using ndF_mem_Msupp ℓ i ih
-    · simpa using ndE_mem_Msupp ℓ i ih
+    · simpa [ndGen] using ndF_mem_Msupp ℓ i ih
+    · simpa [ndGen] using ndE_mem_Msupp ℓ i ih
 
 /-- **`ndNF` kills the commutation relators** (KL III eq. (2.4)). -/
 theorem ndNF_comm (hq : ∀ n : ℕ, 0 < n → q ^ n ≠ 1) (ℓ : I → ℤ) (a b : List (Bool × I))
@@ -460,10 +454,9 @@ theorem ndF_mem_Mlow (ℓ : I → ℤ) (j : I) {k : ℕ} {v : M K I}
     (hv : v ∈ (Mlow k : Submodule K (M K I))) : ndF C q ℓ j v ∈ (Mlow (k + 1) : Submodule K (M K I)) := by
   refine Mlow_induction (motive := fun v => ndF C q ℓ j v ∈ (Mlow (k + 1) : Submodule K (M K I)))
     hv (by simp)
-    (fun x y hx hy => by beta_reduce at hx hy ⊢; rw [map_add]; exact add_mem hx hy)
-    (fun r x hx => by beta_reduce at hx ⊢; rw [map_smul]; exact Submodule.smul_mem _ _ hx)
+    (fun x y hx hy => by rw [map_add]; exact add_mem hx hy)
+    (fun r x hx => by rw [map_smul]; exact Submodule.smul_mem _ _ hx)
     fun u w h => ?_
-  beta_reduce
   rw [ndF_tm_word, θ, ← word_mul]
   refine add_mem (tm_mem_Mlow ?_ _) (Submodule.smul_mem _ _ (tm_mem_Mlow (by omega) _))
   simp only [wt_mul, wt_of, Multiset.card_add, Multiset.card_singleton]

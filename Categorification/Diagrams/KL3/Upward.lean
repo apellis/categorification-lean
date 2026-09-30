@@ -28,6 +28,8 @@ is a homomorphism `R(ν) → END_U(E_ν 1_λ)` (KL III uses it, e.g. in §3.2 an
   and the crossings on upward strands.
 -/
 
+set_option backward.isDefEq.respectTransparency false
+
 noncomputable section
 
 namespace Categorification.KL3.Diagram
@@ -115,7 +117,7 @@ theorem upLay_whisker (μ : X) (L : Layer (KLR.Diagram.sig I)) (a u : Obj (KLR.D
     upLay RD μ (L.whisker u v) =
       (upLay RD (wt RD μ (ups v)) L).whisker (wU μ a u v) (wd RD μ (ups v)) := by
   have hL' : wsum RD L.left + (wsum RD L.gen.dom + wsum RD L.right) = wsum RD a.word := by
-    rw [← hL]; simp [wsum_append, add_assoc]
+    rw [← hL]; simp [wsum_append]
   have e : wt RD (wt RD (wt RD μ (ups v)) (ups L.right)) (ups L.left ++ (upShape L.gen).dom) =
       wt RD (wt RD μ (ups v)) (ups a.word) := by
     rw [upShape_dom, ← ups_append]
@@ -216,17 +218,17 @@ theorem upDiag_interchange (ν : X) (x : InterchangeData (KLR.Diagram.sig I)) (h
     rw [hLd, hMd]
     refine Obj.ext ?_ ?_
     · simp only [InterchangeData.dom, ob_start, Obj.tensor_start, g', h', upShape_dom, ν',
-        KLR.Diagram.sig_dom, ups_append, List.append_assoc, wt_append]
+        ups_append, List.append_assoc, wt_append]
     · simp only [InterchangeData.dom, ob_word, Obj.tensor_word, g', h', upShape_dom, ν',
-        KLR.Diagram.sig_dom, ups_append, List.append_assoc, wt_append, wd_append]
+        ups_append, List.append_assoc, wt_append, wd_append]
   have hb : ob RD ν (ups x.cod.word) = L.cod.tensor M.cod := by
     rw [hLc, hMc]
     have e : ν' = wt RD ν (ups x.mid ++ h'.cod) := hwt
     refine Obj.ext ?_ ?_
     · simp only [InterchangeData.cod, ob_start, Obj.tensor_start, e, g', h', upShape_cod,
-        KLR.Diagram.sig_cod, ups_append, List.append_assoc, wt_append]
+        ups_append, List.append_assoc, wt_append]
     · simp only [InterchangeData.cod, ob_word, Obj.tensor_word, e, g', h', upShape_cod,
-        KLR.Diagram.sig_cod, ups_append, List.append_assoc, wt_append, wd_append]
+        ups_append, List.append_assoc, wt_append, wd_append]
   rw [(pres RD k).diag_eq_of_layers_eq' (upDiag RD ν (InterchangeData.ghDiagram hx))
       (Diagram.rwhisker (Diagram.ofLayer L hLv) M.dom h ≫
         Diagram.lwhisker L.cod (Diagram.ofLayer M hMv) h₁) ha hb ?e1,
@@ -241,12 +243,12 @@ theorem upDiag_interchange (ν : X) (x : InterchangeData (KLR.Diagram.sig I)) (h
     refine List.cons_eq_cons.2 ⟨?_, List.cons_eq_cons.2 ⟨?_, rfl⟩⟩
     · refine Layer.ext ?_ ?_ ?_ ?_ <;>
         simp only [upLay, InterchangeData.gh₁, lay, Layer.wr, L, ν', g', h', ups_append,
-          upShape_dom, KLR.Diagram.sig_dom, List.append_assoc, List.nil_append, List.append_nil,
+          upShape_dom, List.nil_append, List.append_nil,
           List.map_nil, wt_append, wd_append, wd_nil, wt_nil, ob_word]
     · refine Layer.ext ?_ ?_ ?_ ?_ <;>
-        simp only [upLay, InterchangeData.gh₂, lay, Layer.wl, M, L, ν', g', h', ups_append,
-          upShape_dom, upShape_cod, KLR.Diagram.sig_cod, KLR.Diagram.sig_dom, List.append_assoc,
-          List.nil_append, List.append_nil, List.map_nil, wt_append, wd_append, wd_nil, wt_nil,
+        simp only [upLay, InterchangeData.gh₂, lay, Layer.wl, M, ν', g', h', ups_append,
+          upShape_dom, upShape_cod,List.append_assoc,
+          List.append_nil, List.map_nil, wt_append, wd_append, wd_nil, wt_nil,
           ob_word, ob_start]
   case e2 =>
     simp only [layers_upDiag, InterchangeData.hgDiagram, Diagram.layers_mk, List.map_cons,
@@ -257,15 +259,15 @@ theorem upDiag_interchange (ν : X) (x : InterchangeData (KLR.Diagram.sig I)) (h
       rw [← upShape_dom, ← upShape_cod]; exact Shape.wt_dom_eq_wt_cod _ _
     refine List.cons_eq_cons.2 ⟨?_, List.cons_eq_cons.2 ⟨?_, rfl⟩⟩
     · refine Layer.ext ?_ ?_ ?_ ?_ <;>
-        simp only [upLay, InterchangeData.hg₁, lay, Layer.wl, M, L, ν', g', h', ehc, ups_append,
-          upShape_dom, upShape_cod, KLR.Diagram.sig_cod, KLR.Diagram.sig_dom, List.append_assoc,
-          List.nil_append, List.append_nil, List.map_nil, wt_append, wd_append, wd_nil, wt_nil,
+        simp only [upLay, InterchangeData.hg₁, lay, Layer.wl, M, ν', g', h', ehc, ups_append,
+          upShape_dom, List.append_assoc,
+          List.append_nil, List.map_nil, wt_append, wd_append, wd_nil, wt_nil,
           ob_word, ob_start]
     · refine Layer.ext ?_ ?_ ?_ ?_ <;>
         simp only [upLay, InterchangeData.hg₂, lay, Layer.wr, L, ν', g', h', ehc, ups_append,
-          upShape_dom, upShape_cod, KLR.Diagram.sig_cod, KLR.Diagram.sig_dom, List.append_assoc,
+          upShape_dom, upShape_cod,
           List.nil_append, List.append_nil, List.map_nil, wt_append, wd_append, wd_nil, wt_nil,
-          ob_word, ob_start]
+          ob_word]
 
 /-! ## The functor on the presented category -/
 
@@ -296,8 +298,8 @@ theorem upFree_respects (μ : X) :
     exact (pres RD k).lin_rel_cast (.inr (.klr (wt RD μ (ups v)) r)) _ _ _ _ _
   interchange x hx u v hw := by
     have hab : wsum RD x.cod.word = wsum RD x.dom.word := by
-      simp only [InterchangeData.cod, InterchangeData.dom, KLR.Diagram.sig_dom,
-        KLR.Diagram.sig_cod, wsum_append, wsum_gen_cod]
+      simp only [InterchangeData.cod, InterchangeData.dom,
+        wsum_append, wsum_gen_cod]
     rw [freeLift_upFree, upLin_whisker RD k μ _ u v hw hab, lin_cast, ← LinDiagram.whisk_of_ok,
       ← whisk_lin, InterchangeData.rel, upLin_sub, upLin_smul, upLin_of, upLin_of, lin_sub,
       lin_smul, lin_of, lin_of, upDiag_interchange]
@@ -348,7 +350,7 @@ def matEndMap (F : 𝒞 ⥤ 𝒟) [F.Additive] [F.Linear k] (Z : ι → 𝒞) :
   map_add' f g := by ext; simp
   commutes' r := by
     ext i j
-    simp only [Algebra.algebraMap_eq_smul_one, smul_apply, Functor.map_smul]
+    simp only [Algebra.algebraMap_eq_smul_one, MatEnd.smul_apply]
     by_cases h : i = j
     · subst h; simp
     · simp [one_apply_of_ne h]
@@ -358,7 +360,7 @@ theorem matEndMap_single (F : 𝒞 ⥤ 𝒟) [F.Additive] [F.Linear k] (Z : ι �
   ext i' j'
   change F.map (single (X := Z) i j f i' j') = single (X := fun i => F.obj (Z i)) i j (F.map f) i' j'
   by_cases h : i' = i ∧ j' = j
-  · obtain ⟨rfl, rfl⟩ := h; simp [single_apply]
+  · obtain ⟨rfl, rfl⟩ := h; simp
   · rw [single_apply_of_ne _ h, single_apply_of_ne _ h, F.map_zero]
 
 end MatEnd

@@ -121,7 +121,7 @@ theorem of_isZero {X : C} (h : IsZero X) : of X = 0 := by
 /-- Additive maps out of `K₀` are determined by their values on classes. -/
 theorem hom_ext {G : Type*} [AddCommGroup G] {f g : SplitK0 C →+ G}
     (h : ∀ X : C, f (of X) = g (of X)) : f = g := by
-  refine QuotientAddGroup.addMonoidHom_ext _ (FreeAbelianGroup.lift.ext _ _ fun c => ?_)
+  refine QuotientAddGroup.addMonoidHom_ext _ (FreeAbelianGroup.lift_ext _ _ fun c => ?_)
   obtain ⟨X, rfl⟩ := isoClass_surjective c
   exact h X
 
@@ -132,12 +132,12 @@ theorem induction_on {motive : SplitK0 C → Prop} (x : SplitK0 C) (of : ∀ X, 
     (neg : ∀ x, motive x → motive (-x)) : motive x := by
   obtain ⟨y, rfl⟩ := mk_surjective x
   induction y using FreeAbelianGroup.induction_on with
-  | C0 => simpa using zero
-  | C1 c =>
+  | zero => simpa using zero
+  | of c =>
     obtain ⟨X, rfl⟩ := isoClass_surjective c
     exact of X
-  | Cn c h => simpa using neg _ h
-  | Cp y z hy hz => simpa using add _ _ hy hz
+  | neg c h => simpa using neg _ h
+  | add y z hy hz => simpa using add _ _ hy hz
 
 section Lift
 
@@ -150,14 +150,17 @@ def lift (f : C → G) (hf : ∀ X Y : C, (X ≅ Y) → f X = f Y)
   QuotientAddGroup.lift _ (FreeAbelianGroup.lift (Quotient.lift f fun _ _ ⟨e⟩ => hf _ _ e)) <| by
     rw [relSubgroup, AddSubgroup.closure_le]
     rintro _ ⟨X, Y, rfl⟩
-    simp only [SetLike.mem_coe, AddMonoidHom.mem_ker, map_sub, FreeAbelianGroup.lift.of]
+    simp only [SetLike.mem_coe, AddMonoidHom.mem_ker, map_sub]
+    erw [FreeAbelianGroup.lift_apply_of, FreeAbelianGroup.lift_apply_of,
+      FreeAbelianGroup.lift_apply_of]
     change f (X ⊞ Y) - f X - f Y = 0
     rw [hadd, sub_sub, sub_self]
 
 @[simp] theorem lift_of (f : C → G) (hf : ∀ X Y : C, (X ≅ Y) → f X = f Y)
     (hadd : ∀ X Y : C, f (X ⊞ Y) = f X + f Y) (X : C) : lift f hf hadd (of X) = f X := by
   change QuotientAddGroup.lift _ _ _ (QuotientAddGroup.mk _) = _
-  rw [QuotientAddGroup.lift_mk, FreeAbelianGroup.lift.of]
+  rw [QuotientAddGroup.lift_mk]
+  erw [FreeAbelianGroup.lift_apply_of]
   rfl
 
 end Lift
@@ -196,7 +199,7 @@ variable {D : Type u'} [Category.{v'} D] [Preadditive D] [HasBinaryBiproducts D]
 def map (F : C ⥤ D) [F.Additive] : SplitK0 C →+ SplitK0 D :=
   lift (fun X => of (F.obj X)) (fun _ _ e => of_iso (F.mapIso e))
     (fun X Y => by
-      haveI : PreservesBinaryBiproducts F := preservesBinaryBiproducts_of_preservesBiproducts F
+      have : PreservesBinaryBiproducts F := preservesBinaryBiproducts_of_preservesBiproducts F
       exact (of_iso (F.mapBiprod X Y)).trans (of_biprod _ _))
 
 @[simp] theorem map_of (F : C ⥤ D) [F.Additive] (X : C) : map F (of X) = of (F.obj X) := by
@@ -252,7 +255,7 @@ theorem of_biproduct_aux : ∀ (n : ℕ) (ι : Type) [Fintype ι] (f : ι → C)
   induction n with
   | zero =>
     intro ι _ f hn
-    haveI : IsEmpty ι := Fintype.card_eq_zero_iff.1 hn
+    have : IsEmpty ι := Fintype.card_eq_zero_iff.1 hn
     rw [Finset.univ_eq_empty, Finset.sum_empty]
     refine of_isZero ?_
     rw [IsZero.iff_id_eq_zero, ← biproduct.total]
@@ -326,10 +329,10 @@ def qPow : Multiplicative ℤ →* Module.End ℤ (SplitK0 C) where
 
 /-- **`K₀(C)` is a `ℤ[q, q⁻¹]`-module**, `q` acting by the grading shift `{1}` (KL III (3.65)). -/
 instance module : Module (LaurentPolynomial ℤ) (SplitK0 C) :=
-  Module.compHom (SplitK0 C) (AddMonoidAlgebra.lift ℤ ℤ (Module.End ℤ (SplitK0 C)) qPow).toRingHom
+  Module.compHom (SplitK0 C) (AddMonoidAlgebra.lift ℤ (Module.End ℤ (SplitK0 C)) ℤ qPow).toRingHom
 
 theorem smul_def (p : LaurentPolynomial ℤ) (x : SplitK0 C) :
-    p • x = AddMonoidAlgebra.lift ℤ ℤ (Module.End ℤ (SplitK0 C)) qPow p x := rfl
+    p • x = AddMonoidAlgebra.lift ℤ (Module.End ℤ (SplitK0 C)) ℤ qPow p x := rfl
 
 /-- `q^n • x = x{n}`. -/
 theorem T_smul (n : ℤ) (x : SplitK0 C) :

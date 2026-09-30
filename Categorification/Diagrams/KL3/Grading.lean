@@ -26,6 +26,8 @@ The homogeneity of the relations involving fake bubbles checks that the infinite
 recursion (`grassInv`) produces bubbles of the degrees predicted by KL III.
 -/
 
+set_option backward.isDefEq.respectTransparency false
+
 noncomputable section
 
 namespace Categorification.KL3.Diagram
@@ -71,12 +73,12 @@ def cpm (ε : Bool) (i : I) (lam : X) : ℤ := di C i * (1 + sgn ε * RD.pair (R
 /-- KL III Definition 3.1 ii): the cup `1_λ → F E 1_λ` has degree `c_{+i,λ}`. -/
 theorem deg_cup_FE (i : I) (lam : X) :
     deg RD (.cup ⟨dn i, sh RD (up i) + lam⟩) = cpm RD true i lam := by
-  simp only [deg, cpm, pair_sh, A_self, sgn_true, sgn_false, Letter.dual_mk]; ring
+  simp only [deg, cpm, pair_sh, A_self, sgn_true, sgn_false]; ring
 
 /-- KL III Definition 3.1 ii): the cup `1_λ → E F 1_λ` has degree `c_{-i,λ}`. -/
 theorem deg_cup_EF (i : I) (lam : X) :
     deg RD (.cup ⟨up i, sh RD (dn i) + lam⟩) = cpm RD false i lam := by
-  simp only [deg, cpm, pair_sh, A_self, sgn_true, sgn_false, Letter.dual_mk]; ring
+  simp only [deg, cpm, pair_sh, A_self, sgn_true, sgn_false]; ring
 
 /-- KL III Definition 3.1 ii): the cap `F E 1_λ → 1_λ` has degree `c_{+i,λ}`. -/
 theorem deg_cap_FE (i : I) (lam : X) : deg RD (.cap ⟨up i, lam⟩) = cpm RD true i lam := rfl
@@ -92,7 +94,7 @@ theorem cartan_facts (i j : I) :
 /-- Unfold the degree of a normal-form diagram into integer arithmetic. -/
 macro "degree_tac" : tactic => `(tactic| (
   simp only [degree_mkD, List.map_cons, List.map_nil, List.sum_cons, List.sum_nil, sdeg, wt_cons,
-    wt_nil, pair_sh, Letter.dual_mk, sgn_true, sgn_false, List.map_append, List.sum_append,
+    wt_nil, pair_sh, sgn_true, sgn_false, List.map_append, List.sum_append,
     List.map_replicate, List.sum_replicate, smul_eq_mul, nsmul_eq_mul, A_self, ip]))
 
 variable {RD}
@@ -202,9 +204,10 @@ theorem grassInv_mem {a : Obj (psig RD)} (c : ℕ → End (Free.of k a)) (e : �
       refine Submodule.neg_mem _ (Submodule.sum_mem _ fun t _ => ?_)
       have h := end_mul_mem (hc (t.1 + 1)) (ih (n - t.1) (by omega))
       have ht : t.1 ≤ n := Nat.lt_succ_iff.mp t.2
-      convert h using 2
-      push_cast [Nat.cast_sub ht]
-      ring
+      have he : e * ↑(t.1 + 1) + e * ↑(n - t.1) = e * ↑(n + 1) := by
+        push_cast [Nat.cast_sub ht]
+        ring
+      exact he ▸ h
 
 theorem cwR_mem (lam : X) (i : I) (m : ℤ) :
     cwR RD k lam i m ∈ HD _ _ (2 * di C i * (m + 1 - ip RD i lam)) := by
@@ -367,9 +370,10 @@ theorem ncEval_mem_homDeg {a : Obj S} {n : ℕ} (y : Fin n → End (Free.of k a)
   refine Submodule.smul_mem _ _ ?_
   have := prod_ofFn_mem' deg' (fun t => y t ^ s t) (fun t => s t * w t)
     (fun t => pow_mem' deg' (hy t) (s t))
-  convert this using 1
-  rw [← hw, Finsupp.weight_apply, Finsupp.sum_fintype _ _ (by simp)]
-  simp [smul_eq_mul]
+  have he : (∑ i, (s i : ℤ) * w i) = e := by
+    rw [← hw, Finsupp.weight_apply, Finsupp.sum_fintype _ _ (by simp)]
+    simp
+  exact he ▸ this
 
 /-- The KLR degree: `x` on a strand `i` has degree `i·i`, a crossing of `i`, `j` degree
 `-i·j`. -/
@@ -416,7 +420,7 @@ theorem qbar_klQ2_isWeightedHomogeneous {c d : I} (h : c ≠ d) :
       ((isWeightedHomogeneous_X k ![C.dot c c, C.dot d d, C.dot c c] 2).pow (C.dij c d - 1 - t))
       using 1
     simp only [Matrix.cons_val_zero, Matrix.cons_val_two, Matrix.tail_cons, Matrix.head_cons,
-      smul_eq_mul, nsmul_eq_mul]
+      nsmul_eq_mul]
     push_cast [Nat.cast_sub (show t ≤ C.dij c d - 1 by omega),
       Nat.cast_sub (show 1 ≤ C.dij c d by omega)]
     linear_combination -h₁
@@ -481,7 +485,7 @@ theorem upLin_mem (μ : X) {a b : Obj (KLR.Diagram.sig I)} {f : LinDiagram k a b
 
 theorem deg_cup_add_deg_cap (c : Col I X) : deg RD (.cup c) + deg RD (.cap c) = 0 := by
   obtain ⟨⟨s, i⟩, r⟩ := c
-  simp only [deg, pair_sh, RD.pair_iY_iX_eq_A, A_self]
+  simp only [deg, pair_sh, A_self]
   cases s <;> simp <;> ring
 
 /-- **The relations of `U` are homogeneous** for the degrees of Definition 3.1. -/

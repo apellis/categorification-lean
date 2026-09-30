@@ -153,16 +153,14 @@ theorem tensorHflip_tmul (a : KLRAlgebra k Q ν) (b : KLRAlgebra k Q ν') :
 
 theorem tensorHflip_tensorHflip (t : TensorKLR Q ν ν') :
     tensorHflip ν ν' (tensorHflip ν ν' t) = t := by
-  induction t using TensorProduct.induction_on with
-  | zero => simp
+  induction t using TensorProduct.inductionOn with
   | tmul a b => rw [tensorHflip_tmul, tensorHflip_tmul, hflip_hflip, hflip_hflip]
   | add s t hs ht => rw [map_add, map_add, hs, ht]
 
 /-- **The horizontal flip commutes with `ι_{ν,ν'}`.** -/
 theorem hflip_concat (t : TensorKLR Q ν ν') :
     hflip (concat Q ν ν' t) = concat Q ν ν' (tensorHflip ν ν' t) := by
-  induction t using TensorProduct.induction_on with
-  | zero => simp
+  induction t using TensorProduct.inductionOn with
   | tmul a b =>
     have hab : (a ⊗ₜ[k] b : TensorKLR Q ν ν') = (a ⊗ₜ 1) * (1 ⊗ₜ b) := by
       rw [Algebra.TensorProduct.tmul_mul_tmul, mul_one, one_mul]
@@ -330,7 +328,7 @@ theorem rightFreeEquiv_symm_op_smul (r : IndBimod Q ν ν') (t : TensorKLR Q ν 
   apply (rightFreeEquiv ν ν' hPQ hP).injective
   rw [LinearEquiv.apply_symm_apply]
   apply Subtype.ext
-  rw [coe_rightFreeEquiv, rightFreeMap_mapRange_mul, ← coe_rightFreeEquiv,
+  rw [coe_rightFreeEquiv, rightFreeMap_mapRange_mul, ← coe_rightFreeEquiv (hPQ := hPQ) (hP := hP),
     LinearEquiv.apply_symm_apply, coe_op_smul, unop_op]
 
 end Bijective
@@ -361,7 +359,7 @@ theorem concatIdem_of_not_mem {t : Seq (ν + ν')} (ht : t ∉ concatSet ν ν')
     (concatIdem t : TensorKLR Q ν ν') = 0 := by
   have : Finset.univ.filter (fun p : Seq ν × Seq ν' => p.1.append p.2 = t) = ∅ := by
     ext p
-    simp only [Finset.mem_filter, Finset.mem_univ, true_and, Finset.not_mem_empty, iff_false]
+    simp only [Finset.mem_filter, Finset.mem_univ, true_and, Finset.notMem_empty, iff_false]
     intro h
     exact ht (mem_concatSet.2 ⟨p.1, p.2, h⟩)
   rw [concatIdem, this, Finset.sum_empty]
@@ -427,7 +425,7 @@ theorem indDecompInv_apply (g : Shuffle (Seq.card_add' ν ν') → N) :
 
 /-- **The decomposition `Ind N ≅ ⊕_u N`** (as vector spaces), `ŵ_u^* ⊗ n ↦ (n at u)`. -/
 def indDecomp : Ind Q ν ν' N ≃ₗ[k] (Shuffle (Seq.card_add' ν ν') → N) :=
-  LinearEquiv.ofLinear (BalancedTensor.lift (indDecompBil hPQ hP N)
+  LinearEquiv.ofLinearMap (BalancedTensor.lift (indDecompBil hPQ hP N)
       (indDecompBil_balanced hPQ hP N)) (indDecompInv N)
     (by
       apply LinearMap.ext; intro g; funext u'
@@ -437,7 +435,7 @@ def indDecomp : Ind Q ν ν' N ≃ₗ[k] (Shuffle (Seq.card_add' ν ν') → N) 
           LinearEquiv.symm_apply_apply, Finsupp.single_eq_same, one_smul, LinearMap.id_apply]
       · intro u _ hu
         rw [BalancedTensor.lift_tmul, indDecompBil_apply, ← rightFreeEquiv_single_one hPQ hP,
-          LinearEquiv.symm_apply_apply, Finsupp.single_eq_of_ne hu, zero_smul]
+          LinearEquiv.symm_apply_apply, Finsupp.single_eq_of_ne hu.symm, zero_smul]
       · simp)
     (by
       apply BalancedTensor.ext
@@ -478,7 +476,7 @@ theorem indDecomp_tmul_hatWRevSub (u : Shuffle (Seq.card_add' ν ν')) (n : N) :
     Finsupp.single_apply, Pi.single_apply]
   by_cases h : u' = u
   · subst h; simp
-  · rw [if_neg (Ne.symm h), if_neg h, zero_smul]
+  · rw [ite_eq_right (Ne.symm h), ite_eq_right h, zero_smul]
 
 /-- The element `1_{ν,ν'} ∈ R(ν + ν') 1_{ν,ν'}`. -/
 def oneConcatSubBimod : IndBimod Q ν ν' := ⟨oneConcat Q ν ν', oneConcat_idem.eq⟩
@@ -563,7 +561,7 @@ theorem exists_shuffle_of_fixSub_ind_ne_bot {s : Seq (ν + ν')}
       u.1 • s = i.append j ∧
         fixSub k N (e i ⊗ₜ[k] e j : TensorKLR Q ν ν') ≠ ⊥ := by
   by_contra hcon
-  push_neg at hcon
+  push Not at hcon
   apply hs
   rw [eq_bot_iff]
   intro y hy
@@ -642,8 +640,7 @@ theorem finrank_fixSub_extTensor {a : A} {b : B} (ha : IsIdempotentElem a)
     apply le_antisymm
     · rintro _ ⟨w, rfl⟩
       rw [mem_fixSub]
-      induction w using TensorProduct.induction_on with
-      | zero => simp
+      induction w using TensorProduct.inductionOn with
       | tmul p q =>
         show (a ⊗ₜ[K] b) • ExtTensor.tmul (p : M₁) (q : M₂) = ExtTensor.tmul (p : M₁) (q : M₂)
         rw [ExtTensor.smul_tmul, mem_fixSub.1 p.2, mem_fixSub.1 q.2]
@@ -684,7 +681,7 @@ theorem shuffle_lemma_finrank (s : Seq (ν + ν')) :
       ∑ u : ShuffleOf ν ν' s, Module.finrank K (fixSub K N₁ (e u.split.1 : KLRAlgebra K Q ν)) *
         Module.finrank K (fixSub K N₂ (e u.split.2 : KLRAlgebra K Q ν')) := by
   classical
-  haveI : FiniteDimensional K (ExtTensor K N₁ N₂) :=
+  have : FiniteDimensional K (ExtTensor K N₁ N₂) :=
     inferInstanceAs (FiniteDimensional K (N₁ ⊗[K] N₂))
   rw [finrank_fixSub_ind hPQ hP,
     ← Fintype.sum_subtype_add_sum_subtype (fun u : Shuffle (Seq.card_add' ν ν') =>

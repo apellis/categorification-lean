@@ -34,7 +34,8 @@ noncomputable section
 
 namespace Categorification.GradedBicat
 
-open CategoryTheory CategoryTheory.Limits StringDiagrams Presentation KLR.Diagram Graded
+open CategoryTheory CategoryTheory.Limits StringDiagrams Presentation KLR.Diagram
+open Categorification.Graded
 open LaurentPolynomial
 
 universe w v u₀ u₁ u₂
@@ -88,7 +89,7 @@ theorem transferK0_smul (c : LaurentPolynomial ℤ) (y : K0 𝒜) :
 theorem transferK0_basis (b : GProj.IndecClass 𝒜) (s : ℤ) :
     transferK0 D ((T s : LaurentPolynomial ℤ) • K0.of b.rep) =
       (T (-s) : LaurentPolynomial ℤ) • transferVal D b := by
-  rw [transferK0_smul, ← K0.indecBasis_apply, transferK0_apply, Basis.repr_self,
+  rw [transferK0_smul, ← K0.indecBasis_apply, transferK0_apply, Module.Basis.repr_self,
     Finsupp.sum_single_index (by simp), map_one, one_smul, invert_T]
 
 omit [HasGdim 𝒜] in
@@ -97,7 +98,7 @@ theorem ofIdempotent_congr {f f' : A} (h : f = f') (hf : IsIdempotentElem f) (hf
     K0.of (GProj.ofIdempotent f hf hf0) = K0.of (GProj.ofIdempotent f' hf' hf0') := by
   subst h; rfl
 
-variable [HasFiniteBiproducts (UDotHom P deg l m)] [SetLike.GradedMonoid 𝒜]
+variable [HasFiniteBiproducts (UDotHom P deg l m)]
 
 omit [HasFiniteBiproducts (UDotHom P deg l m)] in
 /-- **`Φ[A f] = [(x_i {0}, α(f))]` for an indecomposable `A f`.** -/
@@ -108,7 +109,7 @@ theorem transferK0_ofIdempotent_indec {i : ι} (G : TCorner 𝒜 eι i)
   classical
   obtain ⟨b, s, ⟨φ⟩⟩ := GProj.IndecClass.exists_iso_rep_shift hind
   have hne : Nonempty (RepData (𝒜 := 𝒜) (eι := eι) b) := ⟨⟨i, G, s, ⟨φ⟩⟩⟩
-  rw [K0.of_eq_of_iso φ, ← K0.T_smul_of, transferK0_basis, transferVal, dif_pos hne]
+  rw [K0.of_eq_of_iso φ, ← K0.T_smul_of, transferK0_basis, transferVal, dite_eq_left hne]
   set R := hne.some
   obtain ⟨φ'⟩ := R.iso
   -- `A G.f ≅ (A R.F.f){s - R.s}`

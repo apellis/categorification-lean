@@ -378,8 +378,11 @@ ring, with the nilHecke relations (`ddiff_spec`, `ddiff_ddiff`, `ddiff_mul`, `dd
 ## Building
 
 Requires [elan](https://github.com/leanprover/elan). Toolchain
-`leanprover/lean4:v4.19.0` and Mathlib `c44e0c8ee63ca166450922a373c7409c5d26b00b` are
-pinned.
+`leanprover/lean4:v4.34.1` and Mathlib `v4.34.1` are pinned.
+The default branch is `master`. The only project dependency is
+`string-diagrams-lean`, pinned to a Git revision in `lakefile.lean` and
+`lake-manifest.json`. Warnings are errors; the default build covers every
+`Categorification` submodule.
 
 ```sh
 lake exe cache get

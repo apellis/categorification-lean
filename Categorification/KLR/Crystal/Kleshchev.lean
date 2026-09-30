@@ -153,7 +153,7 @@ theorem shuffle_eq_one (u : Shuffle (Seq.card_add' μ ν')) {s : Seq (μ + ν')}
   have hgy : ∀ y : Fin (Multiset.card ν'), Multiset.card μ ≤ (u.1⁻¹ (Seq.posR μ y)).val := by
     intro y
     by_contra hcon
-    push_neg at hcon
+    push Not at hcon
     have hx : u.1⁻¹ (Seq.posL ν' ⟨(u.1⁻¹ (Seq.posR μ y)).val, hcon⟩) = u.1⁻¹ (Seq.posR μ y) :=
       Fin.ext (by rw [hfx])
     have h' := congrArg Fin.val (u.1⁻¹.injective hx)
@@ -176,7 +176,7 @@ theorem shuffle_eq_one (u : Shuffle (Seq.card_add' μ ν')) {s : Seq (μ + ν')}
     obtain ⟨c, rfl⟩ := (blockEquiv (Seq.card_add' μ ν')).surjective a
     cases c with
     | inl x => exact hfx x
-    | inr y => simpa using hgy' y
+    | inr y => simpa only [Seq.posR, Perm.one_apply, blockEquiv_inr_val, Fin.val_mk] using hgy' y
   rw [← inv_inv u.1, hinv, inv_one]
 
 end Combinatorics
@@ -344,7 +344,7 @@ omit [FiniteDimensional K N] in
 include hPQ hP hN in
 theorem isSimpleModule_resSub_ind :
     IsSimpleModule (TensorKLR Q μ ν') (ResSub Q μ ν' (Ind Q μ ν' (ExtTensor K N (KLRRep hν' Q)))) := by
-  haveI := isSimpleModule_extTensor hν' (Q := Q) (μ := μ) (V := N)
+  have := isSimpleModule_extTensor hν' (Q := Q) (μ := μ) (V := N)
   exact IsSimpleModule.congr (indUnitEquiv hν' hPQ hP hN).symm
 
 omit [FiniteDimensional K N] in
@@ -355,7 +355,7 @@ theorem oneConcat_smul_eq_zero_of_ne_top
     {P' : Submodule (KLRAlgebra K Q (μ + ν')) (Ind Q μ ν' (ExtTensor K N (KLRRep hν' Q)))}
     (hP' : P' ≠ ⊤) {v : Ind Q μ ν' (ExtTensor K N (KLRRep hν' Q))} (hv : v ∈ P') :
     oneConcat Q μ ν' • v = 0 := by
-  haveI := isSimpleModule_resSub_ind hν' hPQ hP hN
+  have := isSimpleModule_resSub_ind hν' hPQ hP hN
   let PΔ := LinearMap.range (resSubMap (μ := μ) (ν' := ν') P'.subtype)
   rcases IsSimpleOrder.eq_bot_or_eq_top PΔ with h | h
   · have hmem : (⟨oneConcat Q μ ν' • v, smul_mem_fixSub oneConcat_idem v⟩ :
@@ -384,13 +384,13 @@ theorem lemma_3_7_head :
       IsCoatom P' ∧ (∀ P'' : Submodule (KLRAlgebra K Q (μ + ν')) _, IsCoatom P'' → P'' = P') ∧
         epsI Q (μ + ν') i (Ind Q μ ν' (ExtTensor K N (KLRRep hν' Q)) ⧸ P') = Multiset.card ν' := by
   classical
-  haveI := isSimpleModule_resSub_ind hν' hPQ hP hN
-  haveI := IsSimpleModule.nontrivial (TensorKLR Q μ ν') (ResSub Q μ ν' (Ind Q μ ν' (ExtTensor K N (KLRRep hν' Q))))
+  have := isSimpleModule_resSub_ind hν' hPQ hP hN
+  have := IsSimpleModule.nontrivial (TensorKLR Q μ ν') (ResSub Q μ ν' (Ind Q μ ν' (ExtTensor K N (KLRRep hν' Q))))
   obtain ⟨z, hz⟩ := exists_ne (0 : ResSub Q μ ν' (Ind Q μ ν' (ExtTensor K N (KLRRep hν' Q))))
   have hz' : (z : (Ind Q μ ν' (ExtTensor K N (KLRRep hν' Q)))) ≠ 0 := fun h => hz (Subtype.ext h)
-  haveI : Nontrivial (Ind Q μ ν' (ExtTensor K N (KLRRep hν' Q))) := ⟨⟨_, 0, hz'⟩⟩
-  haveI : FiniteDimensional K (Ind Q μ ν' (ExtTensor K N (KLRRep hν' Q))) := finiteDimensional_ind hPQ hP _
-  haveI : Module.Finite (KLRAlgebra K Q (μ + ν')) (Ind Q μ ν' (ExtTensor K N (KLRRep hν' Q))) :=
+  have : Nontrivial (Ind Q μ ν' (ExtTensor K N (KLRRep hν' Q))) := ⟨⟨_, 0, hz'⟩⟩
+  have : FiniteDimensional K (Ind Q μ ν' (ExtTensor K N (KLRRep hν' Q))) := finiteDimensional_ind hPQ hP _
+  have : Module.Finite (KLRAlgebra K Q (μ + ν')) (Ind Q μ ν' (ExtTensor K N (KLRRep hν' Q))) :=
     Module.Finite.of_restrictScalars_finite K _ _
   obtain ⟨P', hP', -⟩ := (eq_top_or_exists_le_coatom (⊥ : Submodule (KLRAlgebra K Q (μ + ν')) (Ind Q μ ν' (ExtTensor K N (KLRRep hν' Q))))).resolve_left bot_ne_top
   have hzP : ∀ {P'' : Submodule (KLRAlgebra K Q (μ + ν')) (Ind Q μ ν' (ExtTensor K N (KLRRep hν' Q)))}, P'' ≠ ⊤ → (z : (Ind Q μ ν' (ExtTensor K N (KLRRep hν' Q)))) ∉ P'' := by
@@ -409,7 +409,7 @@ theorem lemma_3_7_head :
     rw [← mem_fixSub.1 z.2, ← hab, smul_add,
       oneConcat_smul_eq_zero_of_ne_top hν' hPQ hP hN hP''.1 ha,
       oneConcat_smul_eq_zero_of_ne_top hν' hPQ hP hN hP'.1 hb, add_zero]
-  · haveI : Nontrivial ((Ind Q μ ν' (ExtTensor K N (KLRRep hν' Q))) ⧸ P') := Submodule.Quotient.nontrivial_of_lt_top _ hP'.1.lt_top
+  · have : Nontrivial ((Ind Q μ ν' (ExtTensor K N (KLRRep hν' Q))) ⧸ P') := Submodule.Quotient.nontrivial_iff.mpr hP'.1
     apply le_antisymm
     · have h1 := epsI_le_of_surjective (i := i) (P'.mkQ_surjective)
       have h2 := epsI_ind_le (i := i) (μ := μ) hν' hPQ hP (N := N)
@@ -433,8 +433,8 @@ theorem lemma_3_7_other
     (h₁ : P₁ ≤ P') (P₂ : Submodule (KLRAlgebra K Q (μ + ν')) P₁) [Nontrivial (P₁ ⧸ P₂)] :
     epsI Q (μ + ν') i (P₁ ⧸ P₂) < Multiset.card ν' := by
   by_contra hcon
-  push_neg at hcon
-  haveI := (nontrivial_resSub_iff hν' (M := P₁ ⧸ P₂)).2 hcon
+  push Not at hcon
+  have := (nontrivial_resSub_iff hν' (M := P₁ ⧸ P₂)).2 hcon
   obtain ⟨z, hz⟩ := exists_ne (0 : ResSub Q μ ν' (P₁ ⧸ P₂))
   apply hz
   apply Subtype.ext
@@ -505,22 +505,22 @@ include hν' hPQ hP hnil in
 /-- The main step of Lemma 3.8: `Δ_{i^n} M` is irreducible if `M` is and `ε_i(M) = n`. -/
 theorem isSimpleModule_resSub_of_epsI_eq (hε : epsI Q (μ + ν') i M = Multiset.card ν') :
     IsSimpleModule (TensorKLR Q μ ν') (ResSub Q μ ν' M) := by
-  haveI := IsSimpleModule.nontrivial (KLRAlgebra K Q (μ + ν')) M
+  have := IsSimpleModule.nontrivial (KLRAlgebra K Q (μ + ν')) M
   have hnilΔ : ∀ b, SmulNilpotent ((1 : KLRAlgebra K Q μ) ⊗ₜ[K] x b : TensorKLR Q μ ν')
       (ResSub Q μ ν' M) := fun b => smulNilpotent_resSub b (hnil _)
-  haveI : Nontrivial (ResSub Q μ ν' M) := (nontrivial_resSub_iff hν').2 hε.ge
-  haveI : IsArtinian (TensorKLR Q μ ν') (ResSub Q μ ν' M) := isArtinian_of_tower K inferInstance
-  haveI : IsAtomic (Submodule (TensorKLR Q μ ν') (ResSub Q μ ν' M)) :=
-    isAtomic_of_orderBot_wellFounded_lt wellFounded_lt
+  have : Nontrivial (ResSub Q μ ν' M) := (nontrivial_resSub_iff hν').2 hε.ge
+  have : IsArtinian (TensorKLR Q μ ν') (ResSub Q μ ν' M) := isArtinian_of_tower K inferInstance
+  have : IsAtomic (Submodule (TensorKLR Q μ ν') (ResSub Q μ ν' M)) :=
+    inferInstance
   obtain ⟨S, hSa, -⟩ := (eq_bot_or_exists_atom_le
     (⊤ : Submodule (TensorKLR Q μ ν') (ResSub Q μ ν' M))).resolve_left top_ne_bot
-  haveI : IsSimpleModule (TensorKLR Q μ ν') S := isSimpleModule_iff_isAtom.2 hSa
-  haveI : FiniteDimensional K S :=
+  have : IsSimpleModule (TensorKLR Q μ ν') S := isSimpleModule_iff_isAtom.2 hSa
+  have : FiniteDimensional K S :=
     Module.Finite.of_injective (S.subtype.restrictScalars K) Subtype.val_injective
   have hnilS := fun b => smulNilpotent_submodule S (hnilΔ b)
-  haveI := isSimpleModule_hwSpace hν' hPQ hP hnilS
-  haveI : Nontrivial (HWSpace Q μ ν' S) := IsSimpleModule.nontrivial (KLRAlgebra K Q μ) _
-  haveI : Nontrivial S := IsSimpleModule.nontrivial (TensorKLR Q μ ν') S
+  have := isSimpleModule_hwSpace hν' hPQ hP hnilS
+  have : Nontrivial (HWSpace Q μ ν' S) := IsSimpleModule.nontrivial (KLRAlgebra K Q μ) _
+  have : Nontrivial S := IsSimpleModule.nontrivial (TensorKLR Q μ ν') S
   let f := S.subtype ∘ₗ (hwEquiv hν' hPQ hP hnilS).toLinearMap
   have hf : Function.Injective f :=
     Subtype.val_injective.comp (hwEquiv hν' hPQ hP hnilS).injective
@@ -546,9 +546,9 @@ theorem lemma_3_8 (hε : epsI Q (μ + ν') i M = Multiset.card ν') :
         epsI Q μ i (HWSpace Q μ ν' (ResSub Q μ ν' M)) = 0 := by
   have hnilΔ : ∀ b, SmulNilpotent ((1 : KLRAlgebra K Q μ) ⊗ₜ[K] x b : TensorKLR Q μ ν')
       (ResSub Q μ ν' M) := fun b => smulNilpotent_resSub b (hnil _)
-  haveI hΔ := isSimpleModule_resSub_of_epsI_eq hν' hPQ hP hnil hε
-  haveI := isSimpleModule_hwSpace hν' hPQ hP hnilΔ
-  haveI : Nontrivial (HWSpace Q μ ν' (ResSub Q μ ν' M)) :=
+  have hΔ := isSimpleModule_resSub_of_epsI_eq hν' hPQ hP hnil hε
+  have := isSimpleModule_hwSpace hν' hPQ hP hnilΔ
+  have : Nontrivial (HWSpace Q μ ν' (ResSub Q μ ν' M)) :=
     IsSimpleModule.nontrivial (KLRAlgebra K Q μ) _
   exact ⟨hΔ, inferInstance, epsI_eq_zero_of_embedding hν' hPQ hP hε
     (hwEquiv hν' hPQ hP hnilΔ).toLinearMap (hwEquiv hν' hPQ hP hnilΔ).injective⟩

@@ -48,13 +48,14 @@ noncomputable section
 namespace Categorification.Flag
 
 open MvPolynomial TensorProduct
-open Finset (univ range antidiagonal)
+open Finset (univ range)
+open Finset.HasAntidiagonal
 
 variable (k : Type*) [Field k] {V : Type*} [Fintype V] [DecidableEq V] {J : Type*}
   [DecidableEq J] (lab : V → J) (v₀ : V) (j' : J)
 
 /-- `H_{k^{+i}}` as an `H_{+_i k}`-algebra via `p_2^*`. -/
-def midAlgebra : Algebra (BorelRing k (moveLab lab v₀ j')) (BorelRing k (splitLab lab v₀)) :=
+@[instance_reducible] def midAlgebra : Algebra (BorelRing k (moveLab lab v₀ j')) (BorelRing k (splitLab lab v₀)) :=
   (pL k lab v₀ j').toRingHom.toAlgebra
 
 attribute [local instance] midAlgebra
@@ -79,6 +80,7 @@ theorem pL_tmul_one (r : BorelRing k (moveLab lab v₀ j')) :
 
 /-! ### `(-ξ)^f` in terms of generators of the two outer regions -/
 
+omit [DecidableEq J] in
 theorem labSet_split_ne_none :
     labSet (splitLab lab v₀) (· ≠ none) = univ.erase v₀ := by
   ext v
@@ -90,7 +92,7 @@ theorem labSet_split_some_union_move_ne :
   ext v
   by_cases hv : v = v₀
   · subst hv; simp [moveLab]
-  · simp [hv, splitLab_of_ne hv, moveLab, Function.update_of_ne hv, em]
+  · simp [hv, splitLab_of_ne hv, moveLab, em]
 
 theorem labSet_split_some_disjoint_move_ne :
     Disjoint (labSet (splitLab lab v₀) (· = some j')) (labSet (moveLab lab v₀ j') (· ≠ j')) := by
@@ -98,17 +100,17 @@ theorem labSet_split_some_disjoint_move_ne :
   intro v h1 h2
   by_cases hv : v = v₀
   · subst hv; simp at h1
-  · simp [hv, splitLab_of_ne hv, moveLab, Function.update_of_ne hv] at h1 h2
+  · simp [hv, splitLab_of_ne hv, moveLab] at h1 h2
     exact h2 h1
 
 omit [DecidableEq V] [DecidableEq J] in
 theorem mkB_esymmElt (lab : V → J) (r : ℕ) :
     mkB k lab (esymmElt k lab r) = if r = 0 then 1 else 0 := by
   rcases r with _ | r
-  · rw [if_pos rfl, ← map_one (mkB k lab)]
+  · rw [ite_eq_left rfl, ← map_one (mkB k lab)]
     congr 1
     exact Subtype.ext (esymm_zero _ _)
-  · rw [if_neg (Nat.succ_ne_zero r), mkB_eq_zero_iff]
+  · rw [ite_eq_right (Nat.succ_ne_zero r), mkB_eq_zero_iff]
     exact esymmElt_succ_mem lab r
 
 /-- **`(-ξ)^f = ∑_{a + b = f} x(k)_{i,a} · p_2^* x̄(+_i k)_{i,b}`** in `H_{k^{+i}}` (the algebraic
@@ -131,7 +133,7 @@ theorem neg_xi_pow (f : ℕ) :
         ∑ h ∈ range (f + 1), (-(⟨X v₀, X_mem_split k lab v₀⟩ :
           labelInvariants k (splitLab lab v₀))) ^ h * esymmElt k _ (f - h) := by
       apply Subtype.ext
-      simp only [AddSubmonoidClass.coe_finset_sum, MulMemClass.coe_mul, SubmonoidClass.coe_pow,
+      simp only [AddSubmonoidClass.coe_finsetSum, MulMemClass.coe_mul, SubmonoidClass.coe_pow,
         NegMemClass.coe_neg, esymmElt]
       rw [hs]
       rfl
@@ -155,7 +157,7 @@ theorem neg_xi_pow (f : ℕ) :
     have : (⟨setEsymm W f, hW⟩ : labelInvariants k (splitLab lab v₀)) =
         ∑ p ∈ antidiagonal f, blockElt k (splitLab lab v₀) (some j') p.1 * ⟨_, hD p.2⟩ := by
       apply Subtype.ext
-      simp only [AddSubmonoidClass.coe_finset_sum, MulMemClass.coe_mul, blockElt]
+      simp only [AddSubmonoidClass.coe_finsetSum, MulMemClass.coe_mul, blockElt]
       change setEsymm (labSet (splitLab lab v₀) (· ≠ none)) f = _
       rw [← labSet_split_some_union_move_ne, setEsymm_union labSet_split_some_disjoint_move_ne]
     rw [this, map_sum]
@@ -171,17 +173,18 @@ def ser {R : Type*} [CommRing R] (n : ℕ) (u : ℕ → R) : Polynomial R :=
 
 theorem coeff_ser {R : Type*} [CommRing R] (n : ℕ) (u : ℕ → R) (β : ℕ) :
     (ser n u).coeff β = if β ≤ n then u β else 0 := by
-  rw [ser, Polynomial.finset_sum_coeff]
+  rw [ser, Polynomial.finsetSum_coeff]
   simp only [Polynomial.coeff_C_mul_X_pow]
   rw [Finset.sum_ite_eq]
-  simp [Nat.lt_succ_iff]
+  simp
 
 theorem coeff_ser_mul {R : Type*} [CommRing R] {n f : ℕ} (hf : f ≤ n) (u w : ℕ → R) :
     (ser n u * ser n w).coeff f = ∑ p ∈ antidiagonal f, u p.1 * w p.2 := by
   rw [Polynomial.coeff_mul]
   refine Finset.sum_congr rfl fun p hp => ?_
-  rw [coeff_ser, coeff_ser, if_pos ((Finset.antidiagonal.fst_le hp).trans hf),
-    if_pos ((Finset.antidiagonal.snd_le hp).trans hf)]
+  have hp' := Finset.HasAntidiagonal.mem_antidiagonal.mp hp
+  rw [coeff_ser, coeff_ser, ite_eq_left (show p.1 ≤ n by omega),
+    ite_eq_left (show p.2 ≤ n by omega)]
 
 variable (j') in
 /-- `x_β = x(k)_{i,β}` in `H_{k^{+i}}`. -/
@@ -219,8 +222,8 @@ theorem lemma_5_4_i (α : ℕ) :
         xs (k := k) (lab := lab) (v₀ := v₀) j' p.2)
       = ∑ p ∈ antidiagonal α, (ser α u * ser α w).coeff p.1 * (ser α u').coeff p.2 := by
         refine Finset.sum_congr rfl fun p hp => ?_
-        rw [hPQ p.1 (Finset.antidiagonal.fst_le hp), coeff_ser,
-          if_pos (Finset.antidiagonal.snd_le hp)]
+        have hp' := Finset.HasAntidiagonal.mem_antidiagonal.mp hp
+        rw [hPQ p.1 (by omega), coeff_ser, ite_eq_left (show p.2 ≤ α by omega)]
         show _ = (((-xi k lab v₀) ^ p.1) ⊗ₜ 1) * (1 ⊗ₜ xs j' p.2)
         rw [Algebra.TensorProduct.tmul_mul_tmul, mul_one, one_mul]
     _ = (ser α u * ser α w * ser α u').coeff α := (Polynomial.coeff_mul _ _ _).symm
@@ -229,8 +232,8 @@ theorem lemma_5_4_i (α : ℕ) :
         Polynomial.coeff_mul _ _ _
     _ = _ := by
         refine Finset.sum_congr rfl fun p hp => ?_
-        rw [hQP p.2 (Finset.antidiagonal.snd_le hp), coeff_ser,
-          if_pos (Finset.antidiagonal.fst_le hp)]
+        have hp' := Finset.HasAntidiagonal.mem_antidiagonal.mp hp
+        rw [hQP p.2 (by omega), coeff_ser, ite_eq_left (show p.1 ≤ α by omega)]
         show (xs j' p.1 ⊗ₜ 1) * (1 ⊗ₜ ((-xi k lab v₀) ^ p.2)) = _
         rw [Algebra.TensorProduct.tmul_mul_tmul, mul_one, one_mul]
 
@@ -339,7 +342,7 @@ variable (k lab v₀ j') in
 def slideSub : Subalgebra k (BorelRing k (splitLab lab v₀)) where
   carrier := {m | (m ⊗ₜ 1) * cupElt k lab v₀ j' = (1 ⊗ₜ m) * cupElt k lab v₀ j'}
   mul_mem' {a b} ha hb := by
-    simp only [Set.mem_setOf_eq] at ha hb ⊢
+    simp only [Set.mem_ofPred_eq] at ha hb ⊢
     have h1 : (a * b) ⊗ₜ[BorelRing k (moveLab lab v₀ j')] (1 : BorelRing k (splitLab lab v₀)) =
         (a ⊗ₜ 1) * (b ⊗ₜ 1) := by rw [Algebra.TensorProduct.tmul_mul_tmul, one_mul]
     have h2 : (1 : BorelRing k (splitLab lab v₀)) ⊗ₜ[BorelRing k (moveLab lab v₀ j')] (a * b) =
@@ -352,10 +355,10 @@ def slideSub : Subalgebra k (BorelRing k (splitLab lab v₀)) where
       _ = (1 ⊗ₜ b) * ((1 ⊗ₜ a) * cupElt k lab v₀ j') := by rw [ha]
       _ = _ := by rw [h2]; ring
   add_mem' {a b} ha hb := by
-    simp only [Set.mem_setOf_eq] at ha hb ⊢
+    simp only [Set.mem_ofPred_eq] at ha hb ⊢
     rw [add_tmul, tmul_add, add_mul, add_mul, ha, hb]
   algebraMap_mem' r := by
-    simp only [Set.mem_setOf_eq]
+    simp only [Set.mem_ofPred_eq]
     rw [← (pL k lab v₀ j').commutes r, pL_tmul_one]
 
 theorem pL_mem_slideSub (r : BorelRing k (moveLab lab v₀ j')) :
@@ -372,7 +375,7 @@ theorem xB_split_eq_sum_move (β : ℕ) :
       ∑ f ∈ range (β + 1), (-xi k lab v₀) ^ f * pL k lab v₀ j' (xB k (moveLab lab v₀ j') j' (β - f)) := by
   have hs := setEsymm_eq_sum_insert (k := k) (v₀_not_mem_split (lab := lab) (v₀ := v₀) j') β
   have hset : insert v₀ (labSet (splitLab lab v₀) (· = some j')) = labSet (moveLab lab v₀ j') (· = j') :=
-    ((labSet_move_eq (lab := lab) (v₀ := v₀) (j' := j') j').trans (if_pos rfl)).symm
+    ((labSet_move_eq (lab := lab) (v₀ := v₀) (j' := j') j').trans (ite_eq_left rfl)).symm
   rw [hset] at hs
   have : ∀ f, pL k lab v₀ j' (xB k (moveLab lab v₀ j') j' (β - f)) =
       mkB k _ ⟨setEsymm (labSet (moveLab lab v₀ j') (· = j')) (β - f),
@@ -383,7 +386,7 @@ theorem xB_split_eq_sum_move (β : ℕ) :
   rw [xB]
   congr 1
   apply Subtype.ext
-  simp only [blockElt, AddSubmonoidClass.coe_finset_sum, MulMemClass.coe_mul,
+  simp only [blockElt, AddSubmonoidClass.coe_finsetSum, MulMemClass.coe_mul,
     SubmonoidClass.coe_pow, NegMemClass.coe_neg]
   exact hs
 
@@ -394,7 +397,7 @@ theorem pR_xB_mem_slideSub (hj : j' ≠ lab v₀) (j : J) (β : ℕ) :
   · subst h1
     rcases β with _ | β
     · rw [xB_zero, map_one]; exact Subalgebra.one_mem _
-    · rw [pR_xB_succ, if_pos rfl, ← pL_xB k _ (Ne.symm hj), ← pL_xB k _ (Ne.symm hj)]
+    · rw [pR_xB_succ, ite_eq_left rfl, ← pL_xB k _ (Ne.symm hj), ← pL_xB k _ (Ne.symm hj)]
       exact Subalgebra.add_mem _ (pL_mem_slideSub _)
         (Subalgebra.mul_mem _ xi_mem_slideSub (pL_mem_slideSub _))
   · rw [pR_xB k j h1]
@@ -438,7 +441,7 @@ theorem cupEltKL_bimodule (i : Fin m) (d : Fin (m + 1) → ℕ) (h : 0 < d i.suc
       (1 ⊗ₜ eRight K i d h z) *
         cupEltKL K (Sigma.fst : Gen d → Fin (m + 1)) (movedVar i d h) i.castSucc := by
   have hj : i.castSucc ≠ (Sigma.fst : Gen d → Fin (m + 1)) (movedVar i d h) :=
-    (Fin.castSucc_lt_succ i).ne
+    (Fin.castSucc_lt_succ (i := i)).ne
   have hz : eRight K i d h z ∈ (slideSub K (Sigma.fst : Gen d → Fin (m + 1)) (movedVar i d h)
       i.castSucc : Subalgebra K (ERing K i d h)) := by
     have hle : Algebra.adjoin K (Set.range fun p : Fin (m + 1) × ℕ => x K d p.1 p.2) ≤
@@ -446,7 +449,7 @@ theorem cupEltKL_bimodule (i : Fin m) (d : Fin (m + 1) → ℕ) (h : 0 < d i.suc
           (eRight K i d h) := by
       rw [Algebra.adjoin_le_iff]
       rintro _ ⟨p, rfl⟩
-      rw [SetLike.mem_coe, Subalgebra.mem_comap, eRight, AlgHom.comp_apply, AlgEquiv.toAlgHom_eq_coe, AlgHom.coe_coe, hEquiv_x]
+      rw [SetLike.mem_coe, Subalgebra.mem_comap, eRight, AlgHom.comp_apply, AlgEquiv.coe_toAlgHom, hEquiv_x]
       exact pR_xB_mem_slideSub hj p.1 p.2
     rw [adjoin_x] at hle
     exact hle Algebra.mem_top

@@ -130,7 +130,7 @@ theorem word_of_mul (i : I) (w : FreeMonoid I) :
 
 theorem single_eq_smul_word (w : FreeMonoid I) (r : K) :
     (MonoidAlgebra.single w r : PreF K I) = r • word w := by
-  simp [word, MonoidAlgebra.smul_single']
+  simp [word]
 
 theorem equivFreeAlgebra_ι (i : I) : equivFreeAlgebra (FreeAlgebra.ι K i) = (θ i : PreF K I) := by
   simp [equivFreeAlgebra, FreeAlgebra.equivMonoidAlgebraFreeMonoid, θ, word]
@@ -140,21 +140,23 @@ theorem equivFreeAlgebra_ι (i : I) : equivFreeAlgebra (FreeAlgebra.ι K i) = (�
 theorem induction_linear {motive : PreF K I → Prop} (x : PreF K I) (zero : motive 0)
     (add : ∀ x y, motive x → motive y → motive (x + y))
     (smul_word : ∀ w (r : K), motive (r • word w)) : motive x :=
-  Finsupp.induction_linear (motive := motive) x zero add fun w r => by
+  MonoidAlgebra.induction_linear (motive := motive) x zero add fun w r => by
     have := smul_word w r
     rwa [← single_eq_smul_word] at this
 
 /-- Two linear maps out of `'f` agreeing on words are equal. -/
 theorem lhom_ext {N : Type*} [AddCommMonoid N] [Module K N] ⦃φ ψ : PreF K I →ₗ[K] N⦄
     (h : ∀ w, φ (word w) = ψ (word w)) : φ = ψ :=
-  Finsupp.lhom_ext (φ := φ) (ψ := ψ) fun w r => by
-    change φ (MonoidAlgebra.single w r) = ψ (MonoidAlgebra.single w r)
-    rw [single_eq_smul_word, map_smul, map_smul, h]
+  LinearMap.ext fun x => by
+    induction x using induction_linear with
+    | zero => simp
+    | add x y hx hy => rw [map_add, map_add, hx, hy]
+    | smul_word w r => rw [map_smul, map_smul, h]
 
 /-- The linear map out of `'f` sending the word `w` to `f w`. -/
 def linLift {N : Type*} [AddCommMonoid N] [Module K N] (f : FreeMonoid I → N) :
     PreF K I →ₗ[K] N :=
-  Finsupp.linearCombination K f
+  Finsupp.linearCombination K f ∘ₗ (MonoidAlgebra.coeffLinearEquiv K).toLinearMap
 
 @[simp] theorem linLift_word {N : Type*} [AddCommMonoid N] [Module K N]
     (f : FreeMonoid I → N) (w : FreeMonoid I) : linLift (K := K) f (word w) = f w :=
@@ -167,7 +169,7 @@ def counit : PreF K I →ₗ[K] K := linLift fun w => if w = 1 then 1 else 0
     counit (word w : PreF K I) = if w = 1 then 1 else 0 := linLift_word _ _
 
 @[simp] theorem counit_one : counit (1 : PreF K I) = 1 := by
-  rw [← word_one, counit_word, if_pos rfl]
+  rw [← word_one, counit_word, ite_eq_left rfl]
 
 theorem counit_θ_mul (i : I) (x : PreF K I) : counit (θ i * x) = 0 := by
   induction x using induction_linear with
@@ -175,24 +177,25 @@ theorem counit_θ_mul (i : I) (x : PreF K I) : counit (θ i * x) = 0 := by
   | add x y hx hy => rw [mul_add, map_add, hx, hy, add_zero]
   | smul_word w r =>
     rw [mul_smul_comm, map_smul, ← word_of_mul, counit_word,
-      if_neg (by simp [← FreeMonoid.length_eq_zero, FreeMonoid.length_mul]), smul_zero]
+      ite_eq_right (by simp [← FreeMonoid.length_eq_zero]), smul_zero]
 
 /-! ### Supported submodules -/
 
 /-- The submodule of `'f` spanned by the words in `S`. -/
-def supp (S : Set (FreeMonoid I)) : Submodule K (PreF K I) := Finsupp.supported K K S
+def supp (S : Set (FreeMonoid I)) : Submodule K (PreF K I) := MonoidAlgebra.supported K K S
 
 theorem supp_eq_span (S : Set (FreeMonoid I)) :
     (supp S : Submodule K (PreF K I)) = Submodule.span K (word '' S) :=
-  Finsupp.supported_eq_span_single K S
+  MonoidAlgebra.supported_eq_span_single K S
 
 theorem word_mem_supp {S : Set (FreeMonoid I)} {w : FreeMonoid I} (h : w ∈ S) :
-    (word w : PreF K I) ∈ supp S :=
-  Finsupp.single_mem_supported K 1 h
+    (word w : PreF K I) ∈ supp S := by
+  rw [supp_eq_span]
+  exact Submodule.subset_span ⟨w, h, rfl⟩
 
 theorem supp_mono {S T : Set (FreeMonoid I)} (h : S ⊆ T) :
     (supp S : Submodule K (PreF K I)) ≤ supp T :=
-  Finsupp.supported_mono h
+  MonoidAlgebra.supported_mono h
 
 /-- Two linear maps out of `'f` agreeing on the words of `S` agree on `supp S`. -/
 theorem eqOn_supp {N : Type*} [AddCommMonoid N] [Module K N] (φ ψ : PreF K I →ₗ[K] N)
@@ -254,7 +257,7 @@ variable (dot v)
 
 /-- The algebra embedding `x ↦ x ⊗ 1`. -/
 def inl : PreF K I →ₐ[K] TwSq K I dot v :=
-  MonoidAlgebra.lift K (FreeMonoid I) (TwSq K I dot v)
+  MonoidAlgebra.lift K (TwSq K I dot v) (FreeMonoid I)
     { toFun := fun w => single (w, 1) 1
       map_one' := rfl
       map_mul' := fun u w => by
@@ -263,7 +266,7 @@ def inl : PreF K I →ₐ[K] TwSq K I dot v :=
 
 /-- The algebra embedding `x ↦ 1 ⊗ x`. -/
 def inr : PreF K I →ₐ[K] TwSq K I dot v :=
-  MonoidAlgebra.lift K (FreeMonoid I) (TwSq K I dot v)
+  MonoidAlgebra.lift K (TwSq K I dot v) (FreeMonoid I)
     { toFun := fun w => single (1, w) 1
       map_one' := rfl
       map_mul' := fun u w => by
@@ -317,7 +320,8 @@ theorem tw_mul_inr (x y a : PreF K I) :
 
 /-- The twisted tensor square is `TensorProduct K 'f 'f` as a module: `x ⊗ₜ y ↦ tw x y`. -/
 def tensorEquiv : TensorProduct K (PreF K I) (PreF K I) ≃ₗ[K] TwSq K I dot v :=
-  finsuppTensorFinsupp' K (FreeMonoid I) (FreeMonoid I)
+  (TensorProduct.congr (MonoidAlgebra.coeffLinearEquiv K) (MonoidAlgebra.coeffLinearEquiv K)).trans
+    (finsuppTensorFinsupp' K (FreeMonoid I) (FreeMonoid I))
 
 theorem tensorEquiv_tmul (x y : PreF K I) :
     tensorEquiv (x ⊗ₜ[K] y) = tw dot v x y := by
@@ -333,7 +337,7 @@ theorem tensorEquiv_tmul (x y : PreF K I) :
         smul_smul]
       simp only [tensorEquiv, word]
       erw [finsuppTensorFinsupp'_single_tmul_single]
-      simp [TwistedMonoidAlgebra.smul_single, single, mul_comm]
+      simp [single]
 
 variable (dot v)
 
@@ -341,7 +345,7 @@ variable (dot v)
 homomorphism, for the twisted multiplication on `'f ⊗ 'f`, with
 `r (θ i) = θ i ⊗ 1 + 1 ⊗ θ i`. -/
 def r : PreF K I →ₐ[K] TwSq K I dot v :=
-  MonoidAlgebra.lift K (FreeMonoid I) (TwSq K I dot v)
+  MonoidAlgebra.lift K (TwSq K I dot v) (FreeMonoid I)
     (FreeMonoid.lift fun i => inl dot v (θ i) + inr dot v (θ i))
 
 variable {dot v}
@@ -406,7 +410,7 @@ theorem d_word_mul (i : I) (u : FreeMonoid I) (y : PreF K I) :
       d dot v i (word u) * y + ((v ^ wdot dot (wt u) {i} : Kˣ) : K) • (word u * d dot v i y) := by
   induction u using FreeMonoid.inductionOn' with
   | one => simp
-  | mul_of j u ih =>
+  | of_mul j u ih =>
     rw [word_of_mul, mul_assoc, d_θ_mul, ih, d_θ_mul, wt_of_mul, wdot_cons_left, wdot_singleton,
       zpow_add, Units.val_mul]
     simp only [mul_add, smul_add, add_mul, mul_smul_comm, smul_mul_assoc, smul_smul, mul_assoc]
@@ -417,17 +421,17 @@ theorem d_word_mem_supp (i : I) (c : FreeMonoid I) :
     d dot v i (word c : PreF K I) ∈ (supp {w | i ::ₘ wt w = wt c} : Submodule K (PreF K I)) := by
   induction c using FreeMonoid.inductionOn' with
   | one => simp
-  | mul_of j c ih =>
+  | of_mul j c ih =>
     rw [d_word_of_mul]
     refine Submodule.add_mem _ ?_ (Submodule.smul_mem _ _ ?_)
     · split_ifs with h
-      · exact word_mem_supp (by simp [wt_of_mul, h])
+      · exact word_mem_supp (by simp [h])
       · exact Submodule.zero_mem _
     · refine map_supp_le (LinearMap.mulLeft K (θ j)) ?_ _ ih
       intro w hw
       simp only [LinearMap.mulLeft_apply, ← word_of_mul]
       refine word_mem_supp ?_
-      simp only [Set.mem_setOf_eq, wt_of_mul] at hw ⊢
+      simp only [Set.mem_ofPred_eq, wt_of_mul] at hw ⊢
       rw [Multiset.cons_swap, hw]
 
 /-! ### Formulas in the twisted tensor square -/
@@ -455,7 +459,7 @@ theorem inr_θ_mul_inl (j : I) (n : ℤ) (x : PreF K I)
     (((v ^ n : Kˣ) : K) • ((LinearMap.mulRight K (inr dot v (θ j))) ∘ₗ (inl dot v).toLinearMap))
     ?_ x hx
   intro w hw
-  simp only [Set.mem_setOf_eq] at hw
+  simp only [Set.mem_ofPred_eq] at hw
   simp only [LinearMap.coe_comp, Function.comp_apply, LinearMap.mulLeft_apply,
     AlgHom.toLinearMap_apply, LinearMap.smul_apply, LinearMap.mulRight_apply, inl_word, θ,
     inr_word, twSq_single_mul_single]
@@ -515,7 +519,7 @@ theorem dL_inr_θ_mul (i j : I) (Y : TwSq K I dot v) :
       rw [mul_right_comm (((v ^ dot j i : Kˣ) : K)), ← Units.val_mul, ← zpow_add, add_sub_cancel]
     · refine supp_mono ?_ (d_word_mem_supp i c)
       intro w hw
-      simp only [Set.mem_setOf_eq] at hw ⊢
+      simp only [Set.mem_ofPred_eq] at hw ⊢
       rw [← hw, wdot_cons_right, wdot_singleton]
       ring
 
@@ -532,7 +536,7 @@ theorem r_d (i : I) (y : PreF K I) :
     | one =>
       rw [word_one, d_one, map_zero, map_one, TwistedMonoidAlgebra.one_def, dL_single, Prod.fst_one,
         word_one, d_one, tw_zero_left, smul_zero]
-    | mul_of j w ih =>
+    | of_mul j w ih =>
       rw [d_word_of_mul, r_word_of_mul, add_mul, map_add (dL dot v i), dL_inl_θ_mul,
         dL_inr_θ_mul, map_add (r dot v), map_smul, map_mul, r_θ, ← ih, add_mul, smul_add]
       split_ifs <;> simp [add_assoc]
@@ -574,10 +578,10 @@ theorem E1_gen_mul (j : I) (Y : TwSq K I dot v) :
   | single p s =>
     obtain ⟨c, e⟩ := p
     rw [add_mul, map_add, inl_θ_mul_single, inr_θ_mul_single, E1_single, E1_single,
-      E1_single, if_neg (of_mul_ne_one j c), smul_zero, zero_add]
+      E1_single, ite_eq_right (of_mul_ne_one j c), smul_zero, zero_add]
     by_cases hc : c = 1
     · subst hc
-      simp [← word_of_mul, mul_smul_comm]
+      simp [← word_of_mul]
     · simp [hc]
 
 theorem E1_r (y : PreF K I) : E1 dot v (r dot v y) = y := by
@@ -590,8 +594,8 @@ theorem E1_r (y : PreF K I) : E1 dot v (r dot v y) = y := by
     induction w using FreeMonoid.inductionOn' with
     | one =>
       rw [word_one, map_one, TwistedMonoidAlgebra.one_def, E1_single, Prod.fst_one, Prod.snd_one,
-        if_pos rfl, one_smul, word_one]
-    | mul_of j w ih => rw [r_word_of_mul, E1_gen_mul, ih, word_of_mul]
+        ite_eq_left rfl, one_smul, word_one]
+    | of_mul j w ih => rw [r_word_of_mul, E1_gen_mul, ih, word_of_mul]
 
 end PreF
 

@@ -58,6 +58,8 @@ takes `1`; Cautis–Lauda's normalization of `U_Q(sl_n)` with `t_{ij} = i - j` r
   `gammaFunctor : Obj (psig (slRootDatum m)) ⥤ ModuleCat K`.
 -/
 
+set_option backward.isDefEq.respectTransparency false
+
 noncomputable section
 
 namespace Categorification.Flag
@@ -182,10 +184,10 @@ def gammaIdx (a : Obj (psig RD)) : Option (VObj N m) :=
   if h : WOK N a.start a.word then some ⟨a, h⟩ else none
 
 theorem gammaIdx_of_wok {a : Obj (psig RD)} (h : WOK N a.start a.word) :
-    gammaIdx N a = some ⟨a, h⟩ := dif_pos h
+    gammaIdx N a = some ⟨a, h⟩ := dite_eq_left h
 
 theorem gammaIdx_of_not_wok {a : Obj (psig RD)} (h : ¬ WOK N a.start a.word) :
-    gammaIdx N a = none := dif_neg h
+    gammaIdx N a = none := dite_eq_right h
 
 /-- The module of an index. -/
 def gammaMod : Option (VObj N m) → Type u
@@ -197,7 +199,9 @@ instance gammaMod.instACG : ∀ i : Option (VObj N m), AddCommGroup (gammaMod K 
   | some a => inferInstanceAs (AddCommGroup (RT (gammaR K N a.1.start a.1.word a.2)))
 
 instance gammaMod.instModule : ∀ i : Option (VObj N m), Module K (gammaMod K N i)
-  | none => inferInstanceAs (Module K PUnit)
+  | none => by
+    change Module K PUnit.{u + 1}
+    infer_instance
   | some a => inferInstanceAs (Module K (RT (gammaR K N a.1.start a.1.word a.2)))
 
 /-- The scalar of a generator: `dnScal i j` for the downward crossing `F_i F_j → F_j F_i`, `1`
@@ -242,10 +246,10 @@ def gammaLI (dnScal : Fin m → Fin m → K) :
       have e : ∀ (i : Option (VObj N m)) (v : gammaMod K N i),
           (LinearMap.proj (R := K) (φ := gammaMod K N) i) (Pi.single i v) = v := fun i v => by
         rw [LinearMap.proj_apply, Pi.single_eq_same]
-      simp only [gammaOp, dif_pos h, LinearMap.comp_apply, LinearMap.coe_single]
+      simp only [gammaOp, dite_eq_left h, LinearMap.comp_apply, LinearMap.coe_single]
       erw [e]
       rfl
-    · simp only [gammaOp, dif_neg h, LinearMap.zero_comp, LinearMap.comp_zero]
+    · simp only [gammaOp, dite_eq_right h, LinearMap.zero_comp, LinearMap.comp_zero]
 
 /-- **`Γ_N` on the free 2-category**: the functor to `K`-modules. -/
 def gammaFunctor (dnScal : Fin m → Fin m → K) : Obj (psig RD) ⥤ ModuleCat.{u} K :=

@@ -55,7 +55,7 @@ variable {k : Type*} [Field k] {P : Type*} [CommRing P] [Algebra k P]
 /-- For `P` free over a subalgebra `A` with basis `b`, `y ∈ J P` iff all coordinates of `y` lie
 in `J`. -/
 theorem mem_map_val_iff (A : Subalgebra k P) {ι : Type*} [Fintype ι] [DecidableEq ι]
-    (b : Basis ι A P) (J : Ideal A) (y : P) :
+    (b : Module.Basis ι A P) (J : Ideal A) (y : P) :
     y ∈ J.map A.val ↔ ∀ i, b.equivFun y i ∈ J := by
   constructor
   · intro hy
@@ -86,7 +86,7 @@ theorem mem_map_val_iff (A : Subalgebra k P) {ι : Type*} [Fintype ι] [Decidabl
 
 /-- For `P` free over a subalgebra `A` with basis indexed by `ι`, `P / J P ≅ (A / J)^ι`. -/
 noncomputable def quotLinearEquiv (A : Subalgebra k P) {ι : Type*} [Fintype ι] [DecidableEq ι]
-    (b : Basis ι A P) (J : Ideal A) :
+    (b : Module.Basis ι A P) (J : Ideal A) :
     (P ⧸ (J.map A.val).restrictScalars k) ≃ₗ[k] (ι → A ⧸ J.restrictScalars k) := by
   let e : P ≃ₗ[k] (ι → A) := b.equivFun.restrictScalars k
   have hN : ((J.map A.val).restrictScalars k).map e.toLinearMap =
@@ -101,7 +101,7 @@ noncomputable def quotLinearEquiv (A : Subalgebra k P) {ι : Type*} [Fintype ι]
 /-- Variant of `quotLinearEquiv` with `A / J` replaced by any `B` with a surjection `A → B` of
 kernel `J`. -/
 noncomputable def quotLinearEquiv' (A : Subalgebra k P) {ι : Type*} [Fintype ι] [DecidableEq ι]
-    (b : Basis ι A P) (J : Ideal A) {B : Type*} [CommRing B] [Algebra k B] (q : A →ₐ[k] B)
+    (b : Module.Basis ι A P) (J : Ideal A) {B : Type*} [CommRing B] [Algebra k B] (q : A →ₐ[k] B)
     (hq : Function.Surjective q) (hker : RingHom.ker q = J) :
     (P ⧸ (J.map A.val).restrictScalars k) ≃ₗ[k] (ι → B) := by
   have hker' : J.restrictScalars k = LinearMap.ker q.toLinearMap := by
@@ -173,7 +173,7 @@ def borelIdeal (lab : V → J) : Ideal (labelInvariants k lab) :=
 /-- **The Borel ring** `k[V]^{G_lab} / (Sym⁺)`. -/
 def BorelRing (lab : V → J) : Type _ := labelInvariants k lab ⧸ borelIdeal k lab
 
-instance (lab : V → J) : CommRing (BorelRing k lab) := Ideal.Quotient.commRing _
+instance (lab : V → J) : CommRing (BorelRing k lab) := fast_instance% Ideal.Quotient.commRing _
 
 instance (lab : V → J) : Algebra k (BorelRing k lab) := Ideal.Quotient.algebra _
 
@@ -269,15 +269,15 @@ theorem sum_xB_mul_xbarB [DecidableEq V] (j : J) (α : ℕ) :
   have key : ∑ f ∈ Finset.range (α + 1), blockElt k lab j f * dualElt k lab j (α - f) =
       esymmElt k lab α := by
     apply Subtype.ext
-    simp only [AddSubmonoidClass.coe_finset_sum, MulMemClass.coe_mul, blockElt, dualElt, esymmElt]
+    simp only [AddSubmonoidClass.coe_finsetSum, MulMemClass.coe_mul, blockElt, dualElt, esymmElt]
     rw [← setEsymm_univ, ← labSet_union (lab := lab) j, setEsymm_union (labSet_disjoint j),
       Finset.Nat.sum_antidiagonal_eq_sum_range_succ_mk]
   simp only [xB, xbarB, ← map_mul, ← map_sum, key]
   rcases α with _ | r
-  · rw [if_pos rfl, ← map_one (mkB k lab)]
+  · rw [ite_eq_left rfl, ← map_one (mkB k lab)]
     congr 1
     exact Subtype.ext (esymm_zero _ _)
-  · rw [if_neg (Nat.succ_ne_zero r), mkB_eq_zero_iff]
+  · rw [ite_eq_right (Nat.succ_ne_zero r), mkB_eq_zero_iff]
     exact esymmElt_succ_mem lab r
 
 end Generators
@@ -350,6 +350,7 @@ theorem rename_mem_symPlus (e : V ≃ V') {s : MvPolynomial V k} (hs : s ∈ sym
 
 variable (k)
 
+set_option backward.isDefEq.respectTransparency false in
 /-- The Young invariants of `lab` and `lab'` are isomorphic via renaming along `e`, if `e`
 preserves labels. -/
 noncomputable def invCongr (e : V ≃ V') (h : ∀ v, lab' (e v) = lab v) :
@@ -501,12 +502,14 @@ theorem exists_quot_equiv_pi (lab : V → J) :
   exact Fintype.card_pos_iff.2 ⟨⟨1, rfl⟩⟩
 
 set_option synthInstance.maxHeartbeats 200000 in
+set_option backward.isDefEq.respectTransparency false in
 instance (lab : V → J) : FiniteDimensional k (BorelRing k lab) := by
   obtain ⟨ι, _, ⟨i₀⟩, -, ⟨e⟩⟩ := exists_quot_equiv_pi k lab
-  haveI : FiniteDimensional k (ι → BorelRing k lab) := LinearEquiv.finiteDimensional e
+  have : FiniteDimensional k (ι → BorelRing k lab) := LinearEquiv.finiteDimensional e
   exact Module.Finite.of_surjective (LinearMap.proj i₀) fun x => ⟨fun _ => x, rfl⟩
 
 set_option synthInstance.maxHeartbeats 200000 in
+set_option backward.isDefEq.respectTransparency false in
 /-- **The dimension of the Borel ring**: `dim_k BorelRing k lab · ∏_j N_j! = N!`, where
 `N_j = |lab⁻¹(j)|` and `N = |V|`. -/
 theorem finrank_borelRing (lab : V → J) :

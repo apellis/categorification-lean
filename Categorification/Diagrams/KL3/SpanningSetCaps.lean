@@ -281,10 +281,10 @@ theorem lmLc_append (b : Letter I) : ∀ S₁ S₂ : List (Letter I),
     simp only [List.cons_append, lmLc, lmLc_append b S₁ S₂, List.map_append, List.map_map,
       List.append_assoc]
     congr 1
-    · congr 1; funext x; simp [whL, Function.comp_def]
+    · congr 1; funext x; simp [whL]
     · congr 1
-      · congr 1; funext x; simp [whL, Function.comp_def]
-      · congr 1; funext x; simp [whL, Function.comp_def]
+      · congr 1; funext x; simp [whL]
+      · congr 1; funext x; simp [whL]
 
 theorem lmLc_snoc (S : List (Letter I)) (e b : Letter I) :
     lmLc (S ++ [e]) b = (xLay e b).map (whL S []) ++ (lmLc S b).map (whL [] [e]) := by

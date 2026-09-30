@@ -47,6 +47,8 @@ its right (left) (interchange law); `wnf`: normalization of lists of layers keep
 `map (whL u v)` folded.
 -/
 
+set_option backward.isDefEq.respectTransparency false
+
 noncomputable section
 
 namespace Categorification.KL3.Diagram
@@ -120,7 +122,7 @@ theorem layer_eq_lay (μ : X) (s : List (Letter I)) (L : Layer (psig RD)) (hv : 
       have hle := hv.left_end
       simp only [Signature.pivotal_endR] at hle
       have hsθ : st = wt RD μ (u ++ v) := by rw [hs]; simp [shapeOf]
-      have e1 : lf = wd RD (wt RD μ v) u := by simpa using h1
+      have e1 : lf = wd RD (wt RD μ v) u := by simpa [shapeOf] using h1
       have hL : (psig RD).endR st lf = wt RD μ v := by
         rw [e1, hsθ, wt_append]; exact endR_wd RD _ u
       have hleft : (psig RD).left (PivotalGen.cup c : (psig RD).Gen) = sh RD c.l + c.r := rfl

@@ -142,7 +142,8 @@ theorem bend_facts (μ : X) (s t : List (Letter I)) :
     fun x => ?_, fun y => ?_⟩
   · have keyGF : (bendG RD k μ s t).comp (bendF RD k μ s t) = LinearMap.id := by
       refine hom_ext_dg RD k μ _ _ (fun A hA => ?_)
-      simp only [LinearMap.comp_apply, LinearMap.id_apply, bendF, bendG]
+      change bendG RD k μ s t (bendF RD k μ s t (dg RD k μ s t A)) = dg RD k μ s t A
+      dsimp only [bendF, bendG]
       erw [ctxL_dg_nil RD k μ hpre hpostF, ctxL_dg_nil RD k μ hpreG hpostG]
       have e := dg_unbend_flat (RD := RD) (k := k) (rd s) [] [] t (M := A) (by simpa using hA) μ
       rw [rd_rd, rd_nil] at e
@@ -152,7 +153,9 @@ theorem bend_facts (μ : X) (s t : List (Letter I)) :
     exact LinearMap.congr_fun keyGF x
   · have keyFG : (bendF RD k μ s t).comp (bendG RD k μ s t) = LinearMap.id := by
       refine hom_ext_dg RD k μ _ _ (fun M hM => ?_)
-      simp only [LinearMap.comp_apply, LinearMap.id_apply, bendF, bendG]
+      change bendF RD k μ s t (bendG RD k μ s t (dg RD k μ [] (rd s ++ t) M)) =
+        dg RD k μ [] (rd s ++ t) M
+      dsimp only [bendF, bendG]
       erw [ctxL_dg_nil RD k μ hpreG hpostG, ctxL_dg_nil RD k μ hpre hpostF]
       have e := dg_unbend_sharp (RD := RD) (k := k) (rd s) [] [] t (M := M) (by simpa using hM) μ
       refine Eq.trans (dg_list_eq ?_) e
@@ -210,7 +213,6 @@ theorem isSpanFamily_bendG (μ : X) (s t : List (Letter I))
   have hx := hb.1 (oneIdx x)
   have hcc := shift_add_eq_zero (isInternal_homDeg (RD := RD) (k := k) _ _) _ _ _ _ hF hG hFG hx hx0
   have hw := wt_eq_of_rd_append (wt_eq_of_homD_ne hx hx0)
-  beta_reduce
   rw [spanDeg_bend, wl_ellOf_eq', ← hw, ← neg_neg (rcx C _ s), ← sdegSum_cupA_rd]
   have : sdegSum RD μ ([] : List (LayerData I)) = 0 := rfl
   omega
@@ -232,7 +234,6 @@ theorem isSpanFamily_bendF (μ : X) (s t : List (Letter I))
   simp only [oneIdx] at h1
   rw [wl_ellOf_eq', ← hw, ← neg_neg (rcx C _ s), ← sdegSum_cupA_rd] at h1
   have h2 : sdegSum RD μ ([] : List (LayerData I)) = 0 := rfl
-  beta_reduce
   omega
 
 omit [DecidableEq I] [Finite I] in

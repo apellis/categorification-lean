@@ -40,6 +40,10 @@ variable {I : Type*} [DecidableEq I] {k : Type*} [CommRing k]
 local notation "m" => Multiset.card ν
 local notation "A" => KLRAlgebra k Q ν
 
+-- Supply the corner ring without asking unification to reconstruct its ambient semigroup.
+noncomputable local instance (i : Seq ν) : Ring (IsIdempotentElem.Corner (e_mul_self (k := k) (Q := Q) i)) :=
+  _root_.instRingCorner _ _
+
 /-! ### Transport from the nilHecke ring to a block -/
 
 section transport
@@ -151,7 +155,8 @@ theorem blockVal_ddw (ρ : List ℕ) (hρ : ∀ j ∈ ρ, j + 1 < n + 1) :
     rw [this, blockVal_mul, ih fun l hl => hρ l (List.mem_cons_of_mem _ hl)]
     have hj := hρ j List.mem_cons_self
     have h1 : blockVal k Q hpn hc ⟨dd ℤ (n + 1) j, dd_mem j⟩ = ψ (p + j) * e i := by
-      rw [blockVal, KLR.NilHecke.lift_dd, idemCornerVal_toCorner, cψ_val_of_lt hpn hc hj]
+      rw [blockVal, KLR.NilHecke.lift_dd]
+      exact congrArg (· * e i) (cψ_val_of_lt (k := k) (Q := Q) hpn hc hj)
     rw [h1, List.map_cons, ψw_cons, mul_assoc, ← mul_assoc (e i),
       ← ψw_mul_e_of_forall (fun l hl hlm => ?_), mul_assoc, e_mul_self, mul_assoc]
     obtain ⟨l', hl', rfl⟩ := List.mem_map.1 hl
@@ -192,14 +197,14 @@ theorem blockPoly_xDelta {l : ℕ} (hl : l ≤ n + 1) :
   have h1 : (blockPoly hpn (xDelta l) : MvPolynomial (Fin m) k) = ∏ a ∈ Finset.range (n + 1), f a := by
     rw [blockPoly, xDelta, map_prod, map_prod, ← Fin.prod_univ_eq_prod_range]
     refine Finset.prod_congr rfl fun a _ => ?_
-    simp only [f, map_pow, rename_X, map_X, dif_pos (show p + (a : ℕ) < m by omega)]
+    simp only [f, map_pow, rename_X, map_X, dite_eq_left (show p + (a : ℕ) < m by omega)]
     rfl
   have h2 : (blockDelta p l : MvPolynomial (Fin m) k) = ∏ a ∈ Finset.range l, f a := by
     rw [blockDelta, ← Fin.prod_univ_eq_prod_range]
   rw [h1, h2, ← Finset.prod_range_mul_prod_Ico _ hl, Finset.prod_eq_one (s := Finset.Ico _ _)
     (fun a ha => by
       rw [Finset.mem_Ico] at ha
-      simp only [f, dif_pos (show p + a < m by omega), show l - 1 - a = 0 by omega, pow_zero]),
+      simp only [f, dite_eq_left (show p + a < m by omega), show l - 1 - a = 0 by omega, pow_zero]),
     mul_one]
 
 private theorem mul_e_mul_mul_e {y z : A} {t : Seq ν} (hz : e t * z = z * e t) :
@@ -268,7 +273,7 @@ theorem sum_blockA_mul_blockB :
     (show ∑ j : Fin (n + 1), (⟨nhA ℤ n j, nhA_mem j⟩ : nilHecke ℤ (n + 1)) *
       ⟨nhB ℤ n j, nhB_mem j⟩ = ⟨nhE' ℤ n, nhE'_mem⟩ from by
         apply Subtype.ext
-        rw [AddSubmonoidClass.coe_finset_sum]
+        rw [AddSubmonoidClass.coe_finsetSum]
         exact sum_nhA_mul_nhB)
   rw [blockVal_sum, blockVal_nhE'] at h
   rw [← h]
@@ -302,7 +307,7 @@ theorem pol_blockPoly_mul_e_mem_grade {P : MvPolynomial (Fin (n + 1)) ℤ} {d : 
       (fun a => G.dx (blockEmb hpn a) i) (d * G.degX c) :=
     (hP.map _).isWeightedHomogeneous_of_const fun a => by
       show G.degX (i.lbl (blockEmb hpn a)) = _
-      rw [hcl _ (by simp [blockEmb]) (by simp [blockEmb])]
+      rw [hcl _ (by simp [blockEmb]) (by dsimp [blockEmb]; omega)]
   have h := G.mk_mem_grade_of_homAt (G.homAt_ncEval (l := i) (blockEmb hpn) _ hw (G.homAt_fe i))
   rw [map_mul, mk_ncEval, add_zero] at h
   change ncEval (fun a => (x (blockEmb hpn a) : A)) _ * e i ∈ _ at h
@@ -340,6 +345,7 @@ theorem blockA_mem_grade (hc : IsConstOn i p (n + 1)) (j : ℕ) :
   have h := mul_mem_grade_e
     (pol_blockPoly_mul_e_mem_grade G hpn hcl (isHomogeneous_xDelta.mul (isHomogeneous_X_pow (Fin.last n) j)))
     (blockWord_mul_e_mem_grade G hpn hcl le_rfl) (blockψ_mul_e hc).symm
+  change pol (blockPoly hpn (xDelta n * X (Fin.last n) ^ j)) * ψw (blockWord p (n + 1)) * e i ∈ _
   convert h using 2
   rw [choose_two_succ]
   push_cast
@@ -357,6 +363,7 @@ theorem blockB_mem_grade (hc : IsConstOn i p (n + 1)) {j : ℕ} (hj : j ≤ n) :
     (e_commute_pol i _).eq
   have h3 := mul_mem_grade_e h2 (blockWord_mul_e_mem_grade G hpn hcl (Nat.le_succ n))
     (blockψ_mul_e (hc.mono (Nat.le_succ n))).symm
+  change pol (blockPoly hpn (xDelta (n + 1))) * ψw (blockWord p (n + 1)) * pol (blockPoly hpn (nhDual ℤ n j * xDelta n)) * ψw (blockWord p n) * e i ∈ _
   convert h3 using 2
   rw [Nat.cast_add, Nat.cast_sub hj]
   ring

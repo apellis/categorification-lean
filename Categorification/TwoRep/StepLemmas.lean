@@ -71,6 +71,7 @@ theorem exists_eq_whiskerLeft_comp_counit {c d e : B} {l : c ⟶ d} {r : d ⟶ c
   have e2 := congrArg (fun φ => φ ≫ (ρ_ h).hom) hβ
   simp only [Category.assoc, Iso.inv_hom_id, Category.comp_id] at e2
   rw [← e2]
+  simp only [Bicategory.Adjunction.homEquiv₁_apply, Bicategory.Adjunction.homEquiv₂_apply]
   dsimp only [Bicategory.Adjunction.id]
   bicategory
 
@@ -98,7 +99,7 @@ omit [∀ a b : B, HasShift (a ⟶ b) ℤ] [GradedBicategory B] [GradedBicategor
 /-- A morphism into a Hom space of dimension zero is zero. -/
 theorem eq_zero_of_finrank_eq_zero {a b : B} {X Y : a ⟶ b} (h : finrank k (X ⟶ Y) = 0)
     (f : X ⟶ Y) : f = 0 := by
-  haveI := Module.finrank_zero_iff.1 h
+  have := Module.finrank_zero_iff.1 h
   exact Subsingleton.elim _ _
 
 variable [GradedBicategory.ShiftInterchange B]
@@ -188,7 +189,8 @@ theorem not_retract_one_FE_step {r : ℤ} (hn : 0 ≤ S.wt (r + 1))
     have : α = (α ≫ e₁.hom) ≫ e₁.inv := by simp
     rw [this, comp_whiskerRight, hf, zero_comp]
   have hq0 : q ▷ S.E (r + 1) = 0 := by
-    rw [hα, comp_whiskerRight, whiskerLeft_whiskerRight_eq_zero _ _ _ hα0, zero_comp]
+    rw [hα]
+    erw [comp_whiskerRight, whiskerLeft_whiskerRight_eq_zero _ _ _ hα0, zero_comp]
   -- hence `1_n ⟨l⟩ E 1_n = 0`, so `E 1_n = 0`
   have hz : IsZero (((𝟙 (S.obj (r + 1)))⟦l⟧)⟦s⟧ ≫ S.E (r + 1)) := by
     rw [IsZero.iff_id_eq_zero, ← Bicategory.id_whiskerRight, ← hiq, comp_whiskerRight, hq0, comp_zero]
@@ -269,7 +271,7 @@ have multiplicity `≥ 2` in `E E 1_{n-2} ≅ D⟨1⟩ ⊕ D⟨-1⟩`, `D = E^{(
 theorem not_iso_biprod_self {r : ℤ} (hn : 0 ≤ S.wt (r + 1)) (hyp : ∀ r', r + 1 < r' → S.AdjHyp r')
     {X : S.obj r ⟶ S.obj (r + 1)} (hX : ¬ IsZero (X ≫ S.E (r + 1)))
     (Y : S.obj r ⟶ S.obj (r + 1)) (e : S.E r ≅ X ⊞ (X ⊞ Y)) : False := by
-  letI := k0ShiftOfHasShift (S.obj r ⟶ S.obj (r + 1 + 1))
+  let := k0ShiftOfHasShift (S.obj r ⟶ S.obj (r + 1 + 1))
   have eEE : S.E r ≫ S.E (r + 1) ≅ (X ≫ S.E (r + 1)) ⊞ ((X ≫ S.E (r + 1)) ⊞ Y ≫ S.E (r + 1)) :=
     whiskerRightIso e _ ≪≫ whiskerRightBiprodIso _ _ _ ≪≫
       biprod.mapIso (Iso.refl _) (whiskerRightBiprodIso _ _ _)

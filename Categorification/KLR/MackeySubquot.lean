@@ -111,11 +111,9 @@ theorem tensorMap_mul {A B C D : Type*} [Ring A] [Algebra k A] [Ring B] [Algebra
     (hf : ∀ a a', f (a * a') = f a * f a') (hg : ∀ b b', g (b * b') = g b * g b')
     (x y : A ⊗[k] B) : TensorProduct.map f g (x * y) =
       TensorProduct.map f g x * TensorProduct.map f g y := by
-  induction x using TensorProduct.induction_on with
-  | zero => simp
+  induction x using TensorProduct.inductionOn with
   | tmul a b =>
-    induction y using TensorProduct.induction_on with
-    | zero => simp
+    induction y using TensorProduct.inductionOn with
     | tmul a' b' =>
       simp only [Algebra.TensorProduct.tmul_mul_tmul, TensorProduct.map_tmul, hf, hg]
     | add y y' h1 h2 => rw [mul_add, map_add, h1, h2, map_add, mul_add]
@@ -211,7 +209,7 @@ noncomputable def quadTop : QuadAlg Q q →ₗ[k] TensorKLR Q ν ν' :=
 noncomputable def quadBot : QuadAlg Q q →ₗ[k] TensorKLR Q ν'' ν''' :=
   TensorProduct.map ((castAlg Q q.h₃).toLinearMap ∘ₗ concat Q q.α q.γ)
       ((castAlg Q q.h₄).toLinearMap ∘ₗ concat Q q.β q.δ) ∘ₗ
-    (Algebra.TensorProduct.tensorTensorTensorComm k k (KLRAlgebra k Q q.α) (KLRAlgebra k Q q.β)
+    (Algebra.TensorProduct.tensorTensorTensorComm k k k k (KLRAlgebra k Q q.α) (KLRAlgebra k Q q.β)
       (KLRAlgebra k Q q.γ) (KLRAlgebra k Q q.δ)).toLinearMap
 
 theorem quadTop_tmul (a : KLRAlgebra k Q q.α) (b : KLRAlgebra k Q q.β)
@@ -295,7 +293,7 @@ def quadBotSub : Submodule k (TensorKLR Q ν'' ν''') where
   carrier := {x | quadBot q 1 * x = x}
   add_mem' {a b} ha hb := by simp_all [mul_add]
   zero_mem' := mul_zero _
-  smul_mem' c a ha := by simp_all [mul_smul_comm]
+  smul_mem' c a ha := by simp_all
 
 variable (Q q) in
 /-- The `(R', R(ν'') ⊗ R(ν'''))`-bimodule `(1_{α,γ} ⊗ 1_{β,δ}) (R(ν'') ⊗ R(ν'''))`, i.e.

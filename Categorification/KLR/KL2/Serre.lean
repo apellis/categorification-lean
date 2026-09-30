@@ -207,9 +207,9 @@ include hpN ht₀ ht in
 theorem isBlocks_etop {n : ℕ} (hn : n ≤ N) :
     IsBlocks (S n) [(p, n), (p + n + 1, N - n)] := by
   refine ⟨fun b hb => ?_, fun b hb => ?_, ?_⟩
-  · simp only [List.mem_cons, List.mem_singleton, List.not_mem_nil, or_false] at hb
+  · simp only [List.mem_cons, List.not_mem_nil, or_false] at hb
     rcases hb with rfl | rfl <;> simp only <;> omega
-  · simp only [List.mem_cons, List.mem_singleton, List.not_mem_nil, or_false] at hb
+  · simp only [List.mem_cons, List.not_mem_nil, or_false] at hb
     rcases hb with rfl | rfl
     · exact isConstOn_serreSeq_left hpN ht₀ ht hn le_rfl le_rfl
     · exact isConstOn_serreSeq_right hpN ht₀ ht hn (by omega) (by omega)
@@ -256,7 +256,6 @@ theorem serreIdem_mul_serreIdem {n n' : ℕ} (hn : n ≤ N) (hn' : n' ≤ N) (hi
     have hne : S n ≠ S n' := by
       intro h
       have := congrArg (fun s : Seq ν => s.lbl ⟨p + n, by omega⟩) h
-      simp only at this
       rw [serreSeq_lbl_eq_j hpN ht₀ ht hn _ rfl,
         serreSeq_lbl_eq_i hpN ht₀ ht hn' _ (by simp) (by simp only; omega)
           (by simp only; omega)] at this
@@ -267,7 +266,7 @@ theorem serreIdem_mul_serreIdem {n n' : ℕ} (hn : n ≤ N) (hn' : n' ≤ N) (hi
     have hF := commute_blocksElt_e (k := k) (C := C) hpN ht₀ ht hb hbs hn
     rw [serreIdem, serreIdem, h', etop]
     simp only [mul_assoc]
-    rw [hF.symm.left_comm, ← mul_assoc (e (S n)) (e (S n')), e_mul_e, if_neg hne]
+    rw [hF.symm.left_comm, ← mul_assoc (e (S n)) (e (S n')), e_mul_e, ite_eq_right hne]
     simp
 
 include hpN ht₀ ht hb hbs in
@@ -377,16 +376,16 @@ theorem serreIdem_mul_serreAm (n : ℕ) :
   · rw [mul_zero]
 
 theorem serreAm_of_not {n : ℕ} (h : ¬ (1 ≤ n ∧ n ≤ N)) : (serreAm t p N bs n : A) = 0 := by
-  rw [serreAm, if_neg h]
+  rw [serreAm, ite_eq_right h]
 
 theorem serreAp_of_not {n : ℕ} (h : ¬ n + 1 ≤ N) : (serreAp t p N bs n : A) = 0 := by
-  rw [serreAp, if_neg h]
+  rw [serreAp, ite_eq_right h]
 
 include hpN ht₀ ht hb hbs in
 theorem serreAm_mul_serreAp {n : ℕ} (hn : n + 1 ≤ N) :
     (serreAm t p N bs (n + 1) * serreAp t p N bs n : A) =
       blocksElt bs * (aminus t p N (n + 1) * aplus t p N n * etop t p N n) := by
-  rw [serreAm, if_pos ⟨by omega, hn⟩, serreAp, if_pos hn]
+  rw [serreAm, ite_eq_left ⟨by omega, hn⟩, serreAp, ite_eq_left hn]
   exact compose_maps hpN ht₀ ht hb hbs hn (by omega)
     (commute_blocksElt_aminus hpN ht₀ ht hb hbs (by omega) hn)
     (commute_blocksElt_aplus hpN ht₀ ht hb hbs hn) (etop_mul_aplus hpN ht₀ ht hn)
@@ -395,7 +394,7 @@ include hpN ht₀ ht hb hbs in
 theorem serreAp_mul_serreAm {n : ℕ} (hn1 : 1 ≤ n) (hn : n ≤ N) :
     (serreAp t p N bs (n - 1) * serreAm t p N bs n : A) =
       blocksElt bs * (aplus t p N (n - 1) * aminus t p N n * etop t p N n) := by
-  rw [serreAm, if_pos ⟨hn1, hn⟩, serreAp, if_pos (by omega)]
+  rw [serreAm, ite_eq_left ⟨hn1, hn⟩, serreAp, ite_eq_left (by omega)]
   exact compose_maps hpN ht₀ ht hb hbs (by omega) hn
     (commute_blocksElt_aplus hpN ht₀ ht hb hbs (by omega))
     (commute_blocksElt_aminus hpN ht₀ ht hb hbs hn1 hn) (etop_mul_aminus hpN ht₀ ht hn1 hn)
@@ -411,7 +410,7 @@ theorem serre_rel (hij : i ≠ j) (hN : N = C.dij i j + 1) {n : ℕ} (hn : n ≤
   have hc : ∀ y : A, Commute ((-1 : A) ^ n) y := fun y => (Commute.neg_one_left y).pow_left n
   rcases Nat.eq_zero_or_pos n with rfl | hn0
   · rw [serreAm_mul_serreAp hpN ht₀ ht hb hbs (by omega), show serreAm t p N bs 0 = (0 : A) by
-      rw [serreAm, if_neg (by omega)], mul_zero, sub_zero, zero_add,
+      rw [serreAm, ite_eq_right (by omega)], mul_zero, sub_zero, zero_add,
       serre_B hpN ht₀ ht hij hN, hE, pow_zero, one_mul, serreIdem]
   have hP : (-1 : A) ^ n = -(-1) ^ (n - 1) := by
     obtain ⟨n', rfl⟩ : ∃ n', n = n' + 1 := ⟨n - 1, by omega⟩
@@ -434,19 +433,19 @@ include hpN ht₀ ht hb hbs in
 theorem serreAp_succ_mul_serreAp (hij : i ≠ j) (n : ℕ) :
     (serreAp t p N bs (n + 1) * serreAp t p N bs n : A) = 0 := by
   by_cases hn : n + 2 ≤ N
-  · rw [serreAp, if_pos (by omega), serreAp, if_pos (by omega),
+  · rw [serreAp, ite_eq_left (by omega), serreAp, ite_eq_left (by omega),
       compose_maps hpN ht₀ ht hb hbs (by omega) (by omega)
         (commute_blocksElt_aplus hpN ht₀ ht hb hbs (by omega))
         (commute_blocksElt_aplus hpN ht₀ ht hb hbs (by omega))
         (etop_mul_aplus hpN ht₀ ht (by omega)),
       serre_Dplus hpN ht₀ ht hij hn, zero_mul, mul_zero]
-  · rw [serreAp, if_neg (by omega), zero_mul]
+  · rw [serreAp, ite_eq_right (by omega), zero_mul]
 
 include hpN ht₀ ht hb hbs in
 theorem serreAm_pred_mul_serreAm (hij : i ≠ j) (n : ℕ) :
     (serreAm t p N bs (n - 1) * serreAm t p N bs n : A) = 0 := by
   by_cases hn : 2 ≤ n ∧ n ≤ N
-  · rw [serreAm, if_pos (by omega), serreAm, if_pos (by omega),
+  · rw [serreAm, ite_eq_left (by omega), serreAm, ite_eq_left (by omega),
       compose_maps hpN ht₀ ht hb hbs (by omega) (by omega)
         (commute_blocksElt_aminus hpN ht₀ ht hb hbs (by omega) (by omega))
         (commute_blocksElt_aminus hpN ht₀ ht hb hbs (by omega) (by omega))
@@ -506,14 +505,14 @@ theorem alpha'_mul_serreEven (hij : i ≠ j) :
     (serreAlpha' t p N bs * serreEven t p N bs : A) = serreAlpha' t p N bs := by
   rw [serreEven, Finset.mul_sum]
   refine Finset.sum_congr rfl fun n hn => ?_
-  rw [alpha'_mul_serreIdem hpN ht₀ ht hb hbs hij (mem_serreEvens.1 hn).1, if_pos hn]
+  rw [alpha'_mul_serreIdem hpN ht₀ ht hb hbs hij (mem_serreEvens.1 hn).1, ite_eq_left hn]
 
 include hpN ht₀ ht hb hbs in
 theorem alpha''_mul_serreOdd (hij : i ≠ j) :
     (serreAlpha'' t p N bs * serreOdd t p N bs : A) = serreAlpha'' t p N bs := by
   rw [serreOdd, Finset.mul_sum]
   refine Finset.sum_congr rfl fun n hn => ?_
-  rw [alpha''_mul_serreIdem hpN ht₀ ht hb hbs hij (mem_serreOdds.1 hn).1, if_pos hn]
+  rw [alpha''_mul_serreIdem hpN ht₀ ht hb hbs hij (mem_serreOdds.1 hn).1, ite_eq_left hn]
 
 include hpN ht₀ ht hb hbs in
 /-- `serreEven α'' = α''`: the target of `α''` is `⊕_{n even} ₍…₎P`. -/
@@ -559,13 +558,13 @@ theorem alpha''_mul_alpha' (hij : i ≠ j) (hN : N = C.dij i j + 1) :
   rw [← alpha'_mul_serreEven hpN ht₀ ht hb hbs hij, ← mul_assoc, serreEven, Finset.mul_sum]
   refine Finset.sum_congr rfl fun a ha => ?_
   have ha' := mem_serreEvens.1 ha
-  rw [mul_assoc, alpha'_mul_serreIdem hpN ht₀ ht hb hbs hij ha'.1, if_pos ha, mul_add]
+  rw [mul_assoc, alpha'_mul_serreIdem hpN ht₀ ht hb hbs hij ha'.1, ite_eq_left ha, mul_add]
   have e1 : (serreAlpha'' t p N bs * serreAp t p N bs a : A) =
       serreAm t p N bs (a + 1) * serreAp t p N bs a := by
     by_cases ha1 : a + 1 ≤ N
     · rw [← serreIdem_mul_serreAp hpN ht₀ ht hb hbs a, ← mul_assoc,
         alpha''_mul_serreIdem hpN ht₀ ht hb hbs hij ha1,
-        if_pos (mem_serreOdds.2 ⟨ha1, by omega⟩), sub_mul,
+        ite_eq_left (mem_serreOdds.2 ⟨ha1, by omega⟩), sub_mul,
         serreAp_succ_mul_serreAp hpN ht₀ ht hb hbs hij, sub_zero, serreIdem_mul_serreAp hpN ht₀ ht
         hb hbs]
     · rw [serreAp_of_not ha1, mul_zero, mul_zero]
@@ -574,7 +573,7 @@ theorem alpha''_mul_alpha' (hij : i ≠ j) (hN : N = C.dij i j + 1) :
     by_cases ha1 : 1 ≤ a
     · rw [← serreIdem_mul_serreAm hpN ht₀ ht hb hbs a, ← mul_assoc,
         alpha''_mul_serreIdem hpN ht₀ ht hb hbs hij (by omega),
-        if_pos (mem_serreOdds.2 ⟨by omega, by omega⟩), sub_mul,
+        ite_eq_left (mem_serreOdds.2 ⟨by omega, by omega⟩), sub_mul,
         serreAm_pred_mul_serreAm hpN ht₀ ht hb hbs hij, zero_sub, serreIdem_mul_serreAm hpN ht₀ ht
         hb hbs]
     · rw [serreAm_of_not (by omega), mul_zero, mul_zero, neg_zero]
@@ -587,12 +586,12 @@ theorem alpha'_mul_alpha'' (hij : i ≠ j) (hN : N = C.dij i j + 1) :
   rw [← alpha''_mul_serreOdd hpN ht₀ ht hb hbs hij, ← mul_assoc, serreOdd, Finset.mul_sum]
   refine Finset.sum_congr rfl fun b hb' => ?_
   have hb'' := mem_serreOdds.1 hb'
-  rw [mul_assoc, alpha''_mul_serreIdem hpN ht₀ ht hb hbs hij hb''.1, if_pos hb', mul_sub]
+  rw [mul_assoc, alpha''_mul_serreIdem hpN ht₀ ht hb hbs hij hb''.1, ite_eq_left hb', mul_sub]
   have e1 : (serreAlpha' t p N bs * serreAm t p N bs b : A) =
       serreAp t p N bs (b - 1) * serreAm t p N bs b := by
     rw [← serreIdem_mul_serreAm hpN ht₀ ht hb hbs b, ← mul_assoc,
       alpha'_mul_serreIdem hpN ht₀ ht hb hbs hij (by omega),
-      if_pos (mem_serreEvens.2 ⟨by omega, by omega⟩), add_mul,
+      ite_eq_left (mem_serreEvens.2 ⟨by omega, by omega⟩), add_mul,
       serreAm_pred_mul_serreAm hpN ht₀ ht hb hbs hij, add_zero,
       serreIdem_mul_serreAm hpN ht₀ ht hb hbs]
   have e2 : (serreAlpha' t p N bs * serreAp t p N bs b : A) =
@@ -600,7 +599,7 @@ theorem alpha'_mul_alpha'' (hij : i ≠ j) (hN : N = C.dij i j + 1) :
     by_cases hb1 : b + 1 ≤ N
     · rw [← serreIdem_mul_serreAp hpN ht₀ ht hb hbs b, ← mul_assoc,
         alpha'_mul_serreIdem hpN ht₀ ht hb hbs hij hb1,
-        if_pos (mem_serreEvens.2 ⟨hb1, by omega⟩), add_mul,
+        ite_eq_left (mem_serreEvens.2 ⟨hb1, by omega⟩), add_mul,
         serreAp_succ_mul_serreAp hpN ht₀ ht hb hbs hij, zero_add,
         serreIdem_mul_serreAp hpN ht₀ ht hb hbs]
     · rw [serreAp_of_not hb1, mul_zero, mul_zero]
@@ -721,7 +720,7 @@ theorem serreAp_mem_grade {n : ℕ} (hn : n + 1 ≤ N) :
     have key : (ψ (p + n) * (e (S n) * (chainL (p + n + 1) (N - n - 1) * (e (S n) *
         etop t p N n))) : A) = ψ (p + n) * (chainL (p + n + 1) (N - n - 1) * etop t p N n) := by
       rw [e_mul_etop hpN ht₀ ht (by omega), hL'.symm.left_comm, e_mul_etop hpN ht₀ ht (by omega)]
-    rw [serreAp, if_pos hn, aplus_eq hpN ht₀ ht hn, chainL_eq_ψ_mul (by omega)]
+    rw [serreAp, ite_eq_left hn, aplus_eq hpN ht₀ ht hn, chainL_eq_ψ_mul (by omega)]
     simp only [serreIdem, mul_assoc]
     rw [key]
   rw [heq, show -((N - n - 1 : ℕ) : ℤ) * C.dot i i - C.dot i j =
@@ -754,7 +753,7 @@ theorem serreAm_mem_grade {n : ℕ} (hn1 : 1 ≤ n) (hn : n ≤ N) :
     have key : (ψ (p + n - 1) * (e (S n) * (chainR p (n - 1) * (e (S n) *
         etop t p N n))) : A) = ψ (p + n - 1) * (chainR p (n - 1) * etop t p N n) := by
       rw [e_mul_etop hpN ht₀ ht hn, hR'.symm.left_comm, e_mul_etop hpN ht₀ ht hn]
-    rw [serreAm, if_pos ⟨hn1, hn⟩, aminus_eq hpN ht₀ ht hn1 hn, chainR_eq_ψ_mul hn1]
+    rw [serreAm, ite_eq_left ⟨hn1, hn⟩, aminus_eq hpN ht₀ ht hn1 hn, chainR_eq_ψ_mul hn1]
     simp only [serreIdem, mul_assoc]
     rw [key]
   rw [heq, show -((n - 1 : ℕ) : ℤ) * C.dot i i - C.dot i j =

@@ -97,7 +97,7 @@ theorem antiF_mul (hF : AntiMul RD q F) (lam μ : X) (x : Free K I) {y : Free K 
   refine eqOn_supp ((antiF RD q F lam).comp (LinearMap.mulLeft K x))
     ((LinearMap.mulRight K (antiF RD q F (lam + μ) x)).comp (antiF RD q F lam)) ?_ y hy
   intro w hw
-  simp only [Set.mem_setOf_eq] at hw
+  simp only [Set.mem_ofPred_eq] at hw
   simp only [LinearMap.comp_apply, LinearMap.mulLeft_apply, LinearMap.mulRight_apply]
   rw [word_eq_ew]
   induction x using Free.induction with
@@ -122,8 +122,7 @@ theorem commRel_mem_FX (ℓ : I → ℤ) (b : List (Bool × I)) (i j : I) :
     · subst h
       refine Submodule.smul_mem _ _ ?_
       have := ew_mem_FX (K := K) RD []
-      convert this using 2
-      simp
+      convert this using 2 <;> simp [ew_nil]
     · simp
 
 theorem posF_serreKL_mem_FX (i j : I) : ∃ μ, (posF (serreKL C q i j) : Free K I) ∈ FX K RD μ :=
@@ -295,14 +294,14 @@ def sigF (lam : X) (t : List (Bool × I)) : UD RD q := E1 RD q t.reverse (-(lam 
 theorem sigF_antiMul : AntiMul RD q (sigF RD q) := by
   intro lam s t
   simp only [sigF, E1_mul_E1, wX_reverse, RD.wX_append, List.reverse_append]
-  rw [if_pos (by abel)]
+  rw [ite_eq_left (by abel)]
   congr 1
   abel
 
 theorem sigF_orth (lam mu : X) (s t : List (Bool × I)) (h : lam + RD.wX t ≠ mu) :
     sigF RD q lam t * sigF RD q mu s = 0 := by
   simp only [sigF, E1_mul_E1, wX_reverse]
-  rw [if_neg]
+  rw [ite_eq_right]
   intro h'
   refine h (neg_inj.1 ?_)
   rw [← h']
@@ -315,7 +314,7 @@ theorem antiF_sigF_of_mem_FX (lam κ : X) {z : Free K I} (hz : z ∈ FX K RD κ)
   refine eqOn_supp (antiF RD q (sigF RD q) lam)
     ((ofB RD q (-(lam + κ))).comp ((mk RD q _).comp PreF.rev)) ?_ z hz
   intro w hw
-  simp only [Set.mem_setOf_eq] at hw
+  simp only [Set.mem_ofPred_eq] at hw
   rw [word_eq_ew, antiF_ew, LinearMap.comp_apply, LinearMap.comp_apply, rev_ew, sigF, hw]
   rfl
 
@@ -476,14 +475,14 @@ theorem rhoF_antiMul : AntiMul RD q (rhoF RD q) := by
   intro lam s t
   simp only [rhoF, smul_mul_smul_comm, E1_mul_E1, wX_ρW, RD.wX_append, ρW_append, rexp_append,
     qp_add]
-  rw [if_pos (by abel)]
+  rw [ite_eq_left (by abel)]
   congr 2
   abel
 
 theorem rhoF_orth (lam mu : X) (s t : List (Bool × I)) (h : lam + RD.wX t ≠ mu) :
     rhoF RD q lam t * rhoF RD q mu s = 0 := by
   simp only [rhoF, smul_mul_smul_comm, E1_mul_E1, wX_ρW]
-  rw [if_neg, smul_zero]
+  rw [ite_eq_right, smul_zero]
   intro h'
   refine h ?_
   rw [← h']
@@ -502,7 +501,7 @@ theorem antiF_rhoF_posF (lam : X) (P : Multiset I) {z : PreF K I} (hz : z ∈ gr
     (qp q (rexp RD lam (posW P.toList)) • (ofB RD q (lam + RD.wX (posW P.toList))).comp
       ((mk RD q _).comp (negF.toLinearMap.comp PreF.rev))) ?_ z hz
   intro u hu
-  simp only [Set.mem_setOf_eq] at hu
+  simp only [Set.mem_ofPred_eq] at hu
   have hp : (posW u.toList).Perm (posW P.toList) := (perm_of_wt hu).map _
   simp only [LinearMap.comp_apply, AlgHom.toLinearMap_apply, LinearMap.smul_apply, posF_word,
     antiF_ew, rhoF, PreF.rev_word, negF_word, rexp_perm RD lam hp, wX_perm RD hp, ρW_posW]
@@ -516,7 +515,7 @@ theorem antiF_rhoF_negF (lam : X) (P : Multiset I) {z : PreF K I} (hz : z ∈ gr
     (qp q (rexp RD lam (negW P.toList)) • (ofB RD q (lam + RD.wX (negW P.toList))).comp
       ((mk RD q _).comp (posF.toLinearMap.comp PreF.rev))) ?_ z hz
   intro u hu
-  simp only [Set.mem_setOf_eq] at hu
+  simp only [Set.mem_ofPred_eq] at hu
   have hp : (negW u.toList).Perm (negW P.toList) := (perm_of_wt hu).map _
   simp only [LinearMap.comp_apply, AlgHom.toLinearMap_apply, LinearMap.smul_apply, negF_word,
     antiF_ew, rhoF, PreF.rev_word, posF_word, rexp_perm RD lam hp, wX_perm RD hp, ρW_negW]
@@ -567,7 +566,7 @@ theorem rhobarUD_E1 (t : List (Bool × I)) (lam : X) :
 /-- `ρ̄(1_λ) = 1_λ`. -/
 theorem rhobarUD_one (lam : X) : rhobarUD RD q (one RD q lam) = one RD q lam := by
   rw [one_eq_E1, rhobarUD_E1]
-  simp [one_eq_E1]
+  simp
 
 /-- **`ρ̄` is an anti-homomorphism**. -/
 theorem rhobarUD_mul (x y : UD RD q) :
@@ -821,7 +820,7 @@ theorem dpW_eq_smul_ew (d : List (Bool × I × ℕ)) :
   | cons x d ih =>
     have h1 : dpW C q (x :: d) = dpE C q x * dpW C q d := by simp [dpW]
     rw [h1, ih, dpE, smul_mul_smul_comm, ← ew_append]
-    simp [dpFacK, dpSeq, mul_inv, mul_comm]
+    simp [dpFacK, dpSeq, mul_comm]
 
 theorem dpSeq_rhod (d : List (Bool × I × ℕ)) : dpSeq (rhod d) = ρW (dpSeq d) := by
   induction d with

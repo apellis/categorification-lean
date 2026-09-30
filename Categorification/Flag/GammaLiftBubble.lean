@@ -33,6 +33,9 @@ layers), `trW_head` (a change of the region to the right of one strand is `trS`)
 `chainBD_eq_zero_of_first`.
 -/
 
+-- Preserve elaboration of semireducible diagram transports.
+set_option backward.isDefEq.respectTransparency false
+
 noncomputable section
 
 namespace Categorification.Flag
@@ -133,7 +136,7 @@ theorem chainBD_dots_append (dnScal : Fin m → Fin m → K) (s : Wt m) (L R : L
   | n + 1, ls, w', h, h', hb => by
     have ih := chainBD_dots_append dnScal s L R c hW x hx n ls w' h.2 h' hb
     simp only [List.replicate_succ, List.cons_append, chainBD]
-    rw [dif_pos (show WOK N s (L ++ gcod (.gen (.dot c)) ++ R) from hW)]
+    rw [dite_eq_left (show WOK N s (L ++ gcod (.gen (.dot c)) ++ R) from hW)]
     erw [ih]
     rw [show genScal K dnScal (PivotalGen.gen (Gen0.dot c) : (psig RD).Gen) = 1 from rfl,
       BHom.csmul_one, trW_self]
@@ -550,14 +553,13 @@ theorem sum_raise_eq (i : Fin m) (d : Comp m) (h : 0 < d i.succ) :
   have key : raise i d + (Pi.single i.succ 1 : Comp m) = d + Pi.single i.castSucc 1 := by
     funext j
     simp only [Pi.add_apply, Pi.single_apply, raise]
-    have hne : i.castSucc ≠ i.succ := (Fin.castSucc_lt_succ i).ne
+    have hne : i.castSucc ≠ i.succ := (Fin.castSucc_lt_succ (i := i)).ne
     by_cases h1 : j = i.castSucc
     · subst h1; simp [hne]
     · by_cases h2 : j = i.succ
       · subst h2; simp [hne.symm]; omega
       · simp [h1, h2]
   have := congrArg (fun d : Comp m => ∑ j, d j) key
-  simp only at this
   rw [sum_add_single, sum_add_single] at this
   omega
 
@@ -580,7 +582,7 @@ theorem realized_dn_of_pos {lam : Wt m} (h : Realized N lam) (i : Fin m)
   obtain ⟨h1, h2⟩ := compOf_spec h
   set k := compOf N lam
   let d : Comp m := fun j => if j = i.castSucc then k j - 1 else if j = i.succ then k j + 1 else k j
-  have hne : i.castSucc ≠ i.succ := (Fin.castSucc_lt_succ i).ne
+  have hne : i.castSucc ≠ i.succ := (Fin.castSucc_lt_succ (i := i)).ne
   have hd : 0 < d i.succ := by simp [d, hne.symm]
   have hr : raise i d = k := by
     funext j
@@ -640,7 +642,7 @@ theorem chainBD_three (dnScal : Fin m → Fin m → K) (s : Wt m) (w w' : List (
         ((BHom.csmul (genScal K dnScal d₂.2.1) (layerMap K N s d₂.1 d₂.2.1 d₂.2.2 hd₂ hc₂)).comp
         ((trW s h.2.1 hc₁ hd₂).comp ((BHom.csmul (genScal K dnScal d₁.2.1)
           (layerMap K N s d₁.1 d₁.2.1 d₁.2.2 hd₁ hc₁)).comp (trW s h.1 ha hd₁)))))) := by
-  simp only [chainBD, dif_pos hc₁, dif_pos hc₂, dif_pos hc₃]
+  simp only [chainBD, dite_eq_left hc₁, dite_eq_left hc₂, dite_eq_left hc₃]
   rfl
 
 /-! ### Real bubbles -/
@@ -653,7 +655,7 @@ theorem chainBD_eq_zero_of_first (dnScal : Fin m → Fin m → K) (s : Wt m) (w 
     chainBD K N dnScal s w ls w' h ha hb = 0 := by
   subst el
   simp only [chainBD]
-  rw [dif_neg hn]
+  rw [dite_eq_right hn]
 
 theorem of_cwReal_eq (lam : Wt m) (i : Fin m) (α : ℕ) :
     (LinDiagram.of (cwReal RD lam i α) : LinDiagram K _ _) =

@@ -85,21 +85,21 @@ section LaurentMul
 variable {R : Type*} [CommRing R]
 
 theorem toLaurentSeries_single (a : ℤ) (c : R) :
-    toLaurentSeries (Finsupp.single a c : LaurentPolynomial R) = HahnSeries.single a c := by
+    toLaurentSeries (AddMonoidAlgebra.single a c : LaurentPolynomial R) = HahnSeries.single a c := by
   ext n
-  rw [coeff_toLaurentSeries, HahnSeries.coeff_single, Finsupp.single_apply]
+  rw [coeff_toLaurentSeries, HahnSeries.coeff_single, AddMonoidAlgebra.coeff_single, Finsupp.single_apply]
   by_cases h : n = a
-  · subst h; rw [if_pos rfl, if_pos rfl]
-  · rw [if_neg (Ne.symm h), if_neg h]
+  · subst h; rw [ite_eq_left rfl, ite_eq_left rfl]
+  · rw [ite_eq_right (Ne.symm h), ite_eq_right h]
 
 /-- `R[q, q⁻¹] → R((q))` is multiplicative. -/
 theorem toLaurentSeries_mul (p p' : LaurentPolynomial R) :
     toLaurentSeries (p * p') = toLaurentSeries p * toLaurentSeries p' := by
-  induction p using Finsupp.induction_linear with
+  induction p using AddMonoidAlgebra.induction_linear with
   | zero => rw [zero_mul, map_zero, zero_mul]
   | add p₁ p₂ h₁ h₂ => rw [add_mul, map_add, h₁, h₂, map_add, add_mul]
   | single a c =>
-    induction p' using Finsupp.induction_linear with
+    induction p' using AddMonoidAlgebra.induction_linear with
     | zero => rw [mul_zero, map_zero, mul_zero]
     | add p₁ p₂ h₁ h₂ => rw [mul_add, map_add, h₁, h₂, map_add, mul_add]
     | single b d =>
@@ -132,10 +132,10 @@ variable {k : Type*} [Field k] {A : Type*} [Ring A] [Algebra k A] {𝒜 : ℤ �
 theorem gdimPoly_idem_hses (he : IsIdempotentElem e) (he0 : e ∈ 𝒜 0) {M N P : GFin 𝒜}
     (S : GFin.ShortExact M N P) :
     gdimPoly (idem N.grading e) = gdimPoly (idem M.grading e) + gdimPoly (idem P.grading e) := by
-  letI := idemDecomposition M.grading he0
-  letI := idemDecomposition N.grading he0
-  letI := idemDecomposition P.grading he0
-  haveI := HasGdim.of_finiteDimensional N.grading
+  let := idemDecomposition M.grading he0
+  let := idemDecomposition N.grading he0
+  let := idemDecomposition P.grading he0
+  have := HasGdim.of_finiteDimensional N.grading
   apply toLaurentSeries_injective
   rw [map_add, toLaurentSeries_gdimPoly, toLaurentSeries_gdimPoly, toLaurentSeries_gdimPoly]
   exact gdim_idem_eq_add_of_exact he he0 S.preservesGrading_f S.preservesGrading_g S.injective
@@ -162,7 +162,7 @@ theorem G0.idemChAdd_shift (he : IsIdempotentElem e) (he0 : e ∈ 𝒜 0) (a : �
   induction x using G0.induction_on with
   | of M =>
     rw [G0.shiftHom_of, G0.idemChAdd_of, G0.idemChAdd_of, smul_eq_mul]
-    letI := idemDecomposition M.grading he0
+    let := idemDecomposition M.grading he0
     exact gdimPoly_shift (idem M.grading e) a
   | zero => simp
   | add x y hx hy => rw [map_add, map_add, hx, hy, map_add, smul_add]
@@ -211,10 +211,10 @@ theorem gdimPoly_idem_extTensor (M : GFin 𝒜) (M' : GFin ℬ) {e : A} {e' : B}
     (he : IsIdempotentElem e) (he' : IsIdempotentElem e') (he0 : e ∈ 𝒜 0) (he0' : e' ∈ ℬ 0) :
     gdimPoly (idem (M.extTensor M').grading (e ⊗ₜ[k] e')) =
       gdimPoly (idem M.grading e) * gdimPoly (idem M'.grading e') := by
-  letI := idemDecomposition M.grading he0
-  letI := idemDecomposition M'.grading he0'
-  haveI := HasGdim.of_finiteDimensional (idem M.grading e)
-  haveI := HasGdim.of_finiteDimensional (idem M'.grading e')
+  let := idemDecomposition M.grading he0
+  let := idemDecomposition M'.grading he0'
+  have := HasGdim.of_finiteDimensional (idem M.grading e)
+  have := HasGdim.of_finiteDimensional (idem M'.grading e')
   refine (gdimPoly_eq_of_finrank_eq (𝒩 := tensorGrading (idem M.grading e) (idem M'.grading e'))
     (finrank_idem_extTensor he he' he0 he0')).trans ?_
   apply toLaurentSeries_injective
@@ -252,7 +252,7 @@ end InjTensor
 
 namespace KLR
 
-open Graded KLRAlgebra
+open Categorification.Graded KLRAlgebra
 
 variable {I : Type*} [DecidableEq I] {k : Type*} [Field k] {Q : I → I → MvPolynomial (Fin 2) k}
   {P : I → I → MvPolynomial (Fin 2) k}
@@ -286,7 +286,7 @@ theorem G0proj_lof_self (μ : Multiset I) (y : G.G0fam hPQ hP hG μ) :
 
 theorem G0proj_lof_of_ne {μ ν : Multiset I} (h : ν ≠ μ) (y : G.G0fam hPQ hP hG ν) :
     G.G0proj hPQ hP hG μ (DirectSum.lof LP (Multiset I) (G.G0fam hPQ hP hG) ν y) = 0 := by
-  rw [G0proj, LinearMap.comp_apply, DirectSum.component.of, dif_neg h, LinearEquiv.coe_coe,
+  rw [G0proj, LinearMap.comp_apply, DirectSum.component.of, dite_eq_right h, LinearEquiv.coe_coe,
     LinearEquiv.map_zero]
 
 theorem G0proj_incl_self (μ : Multiset I) (y : G0 (G.grade μ)) :
@@ -313,8 +313,7 @@ def G0inclTT (ν ν' : Multiset I) :
 
 theorem G0compTT_inclTT_self (ν ν' : Multiset I) (z : G0 (G.grade ν) ⊗[LP] G0 (G.grade ν')) :
     G.G0compTT hPQ hP hG ν ν' (G.G0inclTT hPQ hP hG ν ν' z) = z := by
-  induction z using TensorProduct.induction_on with
-  | zero => rw [map_zero, map_zero]
+  induction z using TensorProduct.inductionOn with
   | tmul a b =>
     rw [G0inclTT, TensorProduct.map_tmul, G0compTT, TensorProduct.map_tmul, G0proj_incl_self,
       G0proj_incl_self]
@@ -323,8 +322,7 @@ theorem G0compTT_inclTT_self (ν ν' : Multiset I) (z : G0 (G.grade ν) ⊗[LP] 
 theorem G0compTT_inclTT_of_ne {ν ν' μ μ' : Multiset I} (h : (ν, ν') ≠ (μ, μ'))
     (z : G0 (G.grade ν) ⊗[LP] G0 (G.grade ν')) :
     G.G0compTT hPQ hP hG μ μ' (G.G0inclTT hPQ hP hG ν ν' z) = 0 := by
-  induction z using TensorProduct.induction_on with
-  | zero => rw [map_zero, map_zero]
+  induction z using TensorProduct.inductionOn with
   | tmul a b =>
     rw [G0inclTT, TensorProduct.map_tmul, G0compTT, TensorProduct.map_tmul]
     by_cases h1 : ν = μ
@@ -453,13 +451,13 @@ theorem chFin_apply (μ : Multiset I) (y : G0 (G.grade μ)) (a : AllSeq I) :
   obtain ⟨ν, s⟩ := a
   by_cases h : ν = μ
   · subst h
-    rw [dif_pos rfl, chFin, LinearMap.comp_apply, LinearMap.comp_apply, Finsupp.lmapDomain_apply,
-      Finsupp.mapDomain_apply sigma_mk_injective, Seq.cast_rfl]
+    rw [dite_eq_left rfl, chFin, LinearMap.comp_apply, LinearMap.comp_apply, Finsupp.lmapDomain_apply,
+      Finsupp.mapDomain_apply_of_injective sigma_mk_injective, Seq.cast_rfl]
     rw [LinearEquiv.coe_coe]
     exact congrFun ((Finsupp.linearEquivFunOnFinite LP LP (Seq ν)).apply_symm_apply
       (chMap G y)) s
-  · rw [dif_neg h, chFin, LinearMap.comp_apply, LinearMap.comp_apply, Finsupp.lmapDomain_apply,
-      Finsupp.mapDomain_notin_range]
+  · rw [dite_eq_right h, chFin, LinearMap.comp_apply, LinearMap.comp_apply, Finsupp.lmapDomain_apply,
+      Finsupp.mapDomain_of_notMem_range]
     rintro ⟨s', hs'⟩
     exact h (congrArg Sigma.fst hs').symm
 
@@ -473,9 +471,9 @@ theorem chW_apply (x : G.G0R hPQ hP hG) (μ : Multiset I) (s : Seq μ) :
     rw [chW, ← DirectSum.lof_eq_of LP, DirectSum.toModule_lof, LinearMap.comp_apply, chFin_apply]
     by_cases h : μ = ν
     · subst h
-      rw [dif_pos rfl, G0proj_lof_self, Seq.cast_rfl]
+      rw [dite_eq_left rfl, G0proj_lof_self, Seq.cast_rfl]
       rfl
-    · rw [dif_neg h, G.G0proj_lof_of_ne hPQ hP hG (Ne.symm h), LinearMap.map_zero]
+    · rw [dite_eq_right h, G.G0proj_lof_of_ne hPQ hP hG (Ne.symm h), LinearMap.map_zero]
       rfl
 
 include hPQ hP hG in
@@ -528,8 +526,7 @@ def chT {ν ν' : Multiset I} (i : Seq ν) (j : Seq ν') :
 theorem chW2_apply (Z : G.G0R hPQ hP hG ⊗[LP] G.G0R hPQ hP hG) {ν ν' : Multiset I} (i : Seq ν)
     (j : Seq ν') :
     G.chW2 hPQ hP hG Z (⟨ν, i⟩, ⟨ν', j⟩) = G.chT i j (G.G0compTT hPQ hP hG ν ν' Z) := by
-  induction Z using TensorProduct.induction_on with
-  | zero => simp
+  induction Z using TensorProduct.inductionOn with
   | tmul x y =>
     rw [chW2, charTensor_tmul, chW_apply, chW_apply, G0compTT, TensorProduct.map_tmul, chT_tmul]
   | add Z Z' hZ hZ' => rw [map_add, Finsupp.add_apply, hZ, hZ', map_add, map_add]
@@ -550,8 +547,7 @@ def chTen {ν ν' : Multiset I} (i : Seq ν) (j : Seq ν') :
 theorem chT_eq_chTen {ν ν' : Multiset I} (i : Seq ν) (j : Seq ν')
     (z : G0 (G.grade ν) ⊗[LP] G0 (G.grade ν')) :
     G.chT i j z = G.chTen i j (G.g0TensorEquiv hPQ hP hG ν ν' z) := by
-  induction z using TensorProduct.induction_on with
-  | zero => simp
+  induction z using TensorProduct.inductionOn with
   | add z z' hz hz' => rw [map_add, hz, hz', map_add, map_add]
   | tmul x y =>
     rw [chT_tmul, g0TensorEquiv_tmul]
@@ -584,14 +580,16 @@ def resIdemIdemEquiv {ν ν' : Multiset I} (M : GFin (G.grade (ν + ν'))) (i : 
       ≃ₗ[k] idem M.grading (e (i.append j) : KLRAlgebra k Q (ν + ν')) d where
   toFun z := ⟨⟨z.1.1.1, by
     have h := congrArg Subtype.val z.1.2
-    rw [coe_resIdem_smul, concat_e_tmul_e] at h
+    change concat Q ν ν' ((e i : KLRAlgebra k Q ν) ⊗ₜ[k] (e j : KLRAlgebra k Q ν')) • z.1.1.1 = z.1.1.1 at h
+    rw [concat_e_tmul_e] at h
     exact h⟩, z.2⟩
   invFun w := ⟨⟨⟨w.1.1, by
     show oneConcat Q ν ν' • w.1.1 = w.1.1
     have hw : (e (i.append j) : KLRAlgebra k Q (ν + ν')) • w.1.1 = w.1.1 := w.1.2
     rw [← hw, smul_smul, oneConcat_mul_e_append]⟩, by
     apply Subtype.ext
-    rw [coe_resIdem_smul, concat_e_tmul_e]
+    change concat Q ν ν' ((e i : KLRAlgebra k Q ν) ⊗ₜ[k] (e j : KLRAlgebra k Q ν')) • w.1.1 = w.1.1
+    rw [concat_e_tmul_e]
     exact w.1.2⟩, w.2⟩
   map_add' _ _ := rfl
   map_smul' _ _ := rfl
@@ -619,7 +617,7 @@ theorem chW2_coprodG0 (x : G.G0R hPQ hP hG) (a b : AllSeq I) :
   rw [chW2_apply]
   have h := G.coprodG0_spec hPQ hP hG ν ν' x
   rw [← LinearEquiv.eq_symm_apply] at h
-  rw [h, chT_eq_chTen, LinearEquiv.apply_symm_apply, G0resComp, LinearMap.comp_apply,
+  rw [h, chT_eq_chTen hPQ hP G hG, LinearEquiv.apply_symm_apply, G0resComp, LinearMap.comp_apply,
     chTen_resG0]
   show _ = G.chW hPQ hP hG x ⟨ν + ν', i.append j⟩
   rw [chW_apply]
@@ -658,8 +656,7 @@ set_option synthInstance.maxHeartbeats 200000
 theorem chW3_rTensor (Z : G.G0R hPQ hP hG ⊗[LP] G.G0R hPQ hP hG) (a b c : AllSeq I) :
     G.chW3 hPQ hP hG ((G.coprodG0 hPQ hP hG).rTensor (G.G0R hPQ hP hG) Z) ((a, b), c) =
       G.chW2 hPQ hP hG Z (a.append b, c) := by
-  induction Z using TensorProduct.induction_on with
-  | zero => simp only [LinearMap.map_zero, Finsupp.zero_apply]
+  induction Z using TensorProduct.inductionOn with
   | tmul x z =>
     rw [LinearMap.rTensor_tmul, chW3, charTensor_tmul, chW2_coprodG0, chW2, charTensor_tmul]
   | add Z Z' hZ hZ' =>
@@ -671,9 +668,7 @@ theorem chW3_assoc_symm_tmul (x : G.G0R hPQ hP hG) (Y : G.G0R hPQ hP hG ⊗[LP] 
     G.chW3 hPQ hP hG ((TensorProduct.assoc LP (G.G0R hPQ hP hG) (G.G0R hPQ hP hG)
         (G.G0R hPQ hP hG)).symm (x ⊗ₜ Y)) ((a, b), c) =
       G.chW hPQ hP hG x a * G.chW2 hPQ hP hG Y (b, c) := by
-  induction Y using TensorProduct.induction_on with
-  | zero => simp only [TensorProduct.tmul_zero, LinearEquiv.map_zero, LinearMap.map_zero,
-      Finsupp.zero_apply, mul_zero]
+  induction Y using TensorProduct.inductionOn with
   | tmul y z =>
     rw [TensorProduct.assoc_symm_tmul, chW3, charTensor_tmul, chW2, charTensor_tmul,
       charTensor_tmul, mul_assoc]
@@ -686,8 +681,7 @@ theorem chW3_lTensor (Z : G.G0R hPQ hP hG ⊗[LP] G.G0R hPQ hP hG) (a b c : AllS
         (G.G0R hPQ hP hG)).symm ((G.coprodG0 hPQ hP hG).lTensor (G.G0R hPQ hP hG) Z))
         ((a, b), c) =
       G.chW2 hPQ hP hG Z (a, b.append c) := by
-  induction Z using TensorProduct.induction_on with
-  | zero => simp only [LinearMap.map_zero, LinearEquiv.map_zero, Finsupp.zero_apply]
+  induction Z using TensorProduct.inductionOn with
   | tmul x y =>
     rw [LinearMap.lTensor_tmul, chW3_assoc_symm_tmul, chW2_coprodG0, chW2, charTensor_tmul]
   | add Z Z' hZ hZ' =>
@@ -708,8 +702,7 @@ theorem chW_lid_rTensor (Z : G.G0R hPQ hP hG ⊗[LP] G.G0R hPQ hP hG) (b : AllSe
     G.chW hPQ hP hG (TensorProduct.lid LP (G.G0R hPQ hP hG)
         ((G.counitG0 hPQ hP hG).rTensor (G.G0R hPQ hP hG) Z)) b =
       G.chW2 hPQ hP hG Z (AllSeq.nil, b) := by
-  induction Z using TensorProduct.induction_on with
-  | zero => simp only [LinearMap.map_zero, LinearEquiv.map_zero, Finsupp.zero_apply]
+  induction Z using TensorProduct.inductionOn with
   | tmul x y =>
     rw [LinearMap.rTensor_tmul, TensorProduct.lid_tmul, LinearMap.map_smul, Finsupp.smul_apply,
       smul_eq_mul, chW2, charTensor_tmul, chW_nil]
@@ -721,8 +714,7 @@ theorem chW_rid_lTensor (Z : G.G0R hPQ hP hG ⊗[LP] G.G0R hPQ hP hG) (a : AllSe
     G.chW hPQ hP hG (TensorProduct.rid LP (G.G0R hPQ hP hG)
         ((G.counitG0 hPQ hP hG).lTensor (G.G0R hPQ hP hG) Z)) a =
       G.chW2 hPQ hP hG Z (a, AllSeq.nil) := by
-  induction Z using TensorProduct.induction_on with
-  | zero => simp only [LinearMap.map_zero, LinearEquiv.map_zero, Finsupp.zero_apply]
+  induction Z using TensorProduct.inductionOn with
   | tmul x y =>
     rw [LinearMap.lTensor_tmul, TensorProduct.rid_tmul, LinearMap.map_smul, Finsupp.smul_apply,
       smul_eq_mul, chW2, charTensor_tmul, chW_nil, mul_comm]

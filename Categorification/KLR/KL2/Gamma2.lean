@@ -55,7 +55,7 @@ noncomputable section
 
 namespace Categorification.KLR.KL2Gamma
 
-open Graded KLRAlgebra LaurentPolynomial QuantumGroup KL2 KLGamma Finset
+open Categorification.Graded KLRAlgebra LaurentPolynomial QuantumGroup KL2 KLGamma Finset
 
 /-! ### List lemmas -/
 
@@ -86,9 +86,9 @@ theorem getElem_midL {α : Type*} (i j : α) (n M r : ℕ)
   · simp only [List.length_replicate] at h1; omega
   · simp
   · simp only [List.length_replicate] at h1 ⊢
-    rw [List.getElem_cons, dif_pos (by omega)]
+    rw [List.getElem_cons, dite_eq_left (by omega)]
   · simp only [List.length_replicate] at h1 ⊢
-    rw [List.getElem_cons, dif_neg (by omega)]
+    rw [List.getElem_cons, dite_eq_right (by omega)]
     simp
 
 end Lists
@@ -172,7 +172,7 @@ omit [DecidableEq I] in
 theorem expandDiv_serre (d' d'' : List (I × ℕ)) (i j : I) (n M : ℕ) :
     expandDiv (d' ++ [(i, n), (j, 1), (i, M)] ++ d'') =
       expandDiv d' ++ (List.replicate n i ++ j :: List.replicate M i) ++ expandDiv d'' := by
-  simp [expandDiv_append, expandDiv]
+  simp [expandDiv]
 
 variable (C) in
 omit [DecidableEq I] in
@@ -230,11 +230,11 @@ theorem clsDiv2_serre (d' d'' : List (I × ℕ)) {i j : I} (hij : i ≠ j) :
   have hlbl0 := hlbl 0 (Nat.zero_le _) t rfl
   have ht₀ : ∀ r : Fin (Multiset.card ν), (r : ℕ) = p → t.lbl r = j := fun r hr => by
     rw [hlbl0, getElem_append_mid _ _ _ (by omega) (by rw [hmidlen 0 (by omega)]; omega),
-      getElem_midL, if_pos (by omega)]
+      getElem_midL, ite_eq_left (by omega)]
   have ht : ∀ r : Fin (Multiset.card ν), p < r → (r : ℕ) ≤ p + N → t.lbl r = i :=
     fun r h1 h2 => by
       rw [hlbl0, getElem_append_mid _ _ _ (by omega) (by rw [hmidlen 0 (by omega)]; omega),
-        getElem_midL, if_neg (by omega)]
+        getElem_midL, ite_eq_right (by omega)]
   have hb : IsBlocks t bs := by
     have h := isBlocks_ctxBlocks d' [(i, 0), (j, 1), (i, N - 0)] d'' (ν := ν) rfl
     have hl : (expandDiv [(i, 0), (j, 1), (i, N - 0)]).length = N + 1 := by
@@ -253,9 +253,9 @@ theorem clsDiv2_serre (d' d'' : List (I × ℕ)) {i j : I} (hij : i ≠ j) :
     rw [lbl_serreSeq hpN ht₀ ht hn r, hlbl n hn _ rfl r]
     split_ifs with h1 h2
     · rw [getElem_append_mid _ _ _ (by omega) (by rw [hmidlen n hn]; omega), getElem_midL,
-        if_pos (by omega)]
+        ite_eq_left (by omega)]
     · rw [getElem_append_mid _ _ _ (by omega) (by rw [hmidlen n hn]; omega), getElem_midL,
-        if_neg (by omega)]
+        ite_eq_right (by omega)]
     · rw [hlbl0]
       exact getElem_append_mid_congr _ _ _ _ (by rw [hmidlen 0 (by omega), hmidlen n hn])
         (by rw [hmidlen 0 (by omega)]; omega) _ _
@@ -271,7 +271,7 @@ theorem clsDiv2_serre (d' d'' : List (I × ℕ)) {i j : I} (hij : i ≠ j) :
     congr 1
     simp [bigBlocks, blocksDiv, hbs_def, ctxBlocks, List.filter_append, List.filter_filter, hp,
       hL1, List.filter_cons]
-    by_cases h1 : 2 ≤ n <;> by_cases h2 : 2 ≤ N - n <;> simp [h1, h2, List.filter_cons]
+    by_cases h1 : 2 ≤ n <;> by_cases h2 : 2 ≤ N - n <;> simp [h1, h2]
   -- the shifts
   set sh : ℕ → ℤ := fun n => divAngle2 C (d' ++ [(i, n), (j, 1), (i, N - n)] ++ d'') with hsh_def
   have hsh : ∀ n, n < N → sh (n + 1) = sh n + (-((N - n - 1 : ℕ) : ℤ) * C.dot i i - C.dot i j) := by
@@ -297,7 +297,7 @@ theorem clsDiv2_serre (d' d'' : List (I × ℕ)) {i j : I} (hij : i ≠ j) :
       (hflip_serreIdem_mem_grade hpN ht₀ ht hb hbs hn)) else 0
   have hP : ∀ n (hn : n ≤ N), P n = K0.of (GProj.ofIdempotent (hflip (serreIdem t p N bs n :
       R2 k C ν)) (isIdempotentElem_hflip_serreIdem hpN ht₀ ht hb hbs hij hn)
-      (hflip_serreIdem_mem_grade hpN ht₀ ht hb hbs hn)) := fun n hn => dif_pos hn
+      (hflip_serreIdem_mem_grade hpN ht₀ ht hb hbs hn)) := fun n hn => dite_eq_left hn
   have key : ∀ n ∈ range (N + 1), ((-1 : LaurentPolynomial ℤ) ^ n) •
       clsDiv2 k C (d' ++ [(i, n), (j, 1), (i, N - n)] ++ d'') =
         DirectSum.of (G2).K0fam ν (((-1 : LaurentPolynomial ℤ) ^ n * T (-sh n)) • P n) := by
@@ -442,7 +442,7 @@ def clsSeqHom2 : FreeMonoid I →* (G2).K0R where
 
 /-- **`'f → K₀(R)_{ℚ(q)}`, `θ_i ↦ [P_i]`** (KL II §3, as in KL I §3.1). -/
 def gammaQ2 : PreF (RatFunc ℚ) I →ₐ[RatFunc ℚ] K0Q2 k C :=
-  MonoidAlgebra.lift (RatFunc ℚ) (FreeMonoid I) (K0Q2 k C)
+  MonoidAlgebra.lift (RatFunc ℚ) (K0Q2 k C) (FreeMonoid I)
     ((toK0Q2 k C).toMonoidHom.comp (clsSeqHom2 k C))
 
 /-- `γ(θ_{i_1} ⋯ θ_{i_k}) = [P_{i_1 ⋯ i_k}]`. -/
@@ -578,12 +578,12 @@ section GammaA
 omit [DecidableEq I] in
 theorem algebraMap_qToV_mem_Af2 (p : LaurentPolynomial ℤ) :
     algebraMap (RatFunc ℚ) C.F (qToV p) ∈ C.Af := by
-  induction p using Finsupp.induction_linear with
+  induction p using AddMonoidAlgebra.induction_linear with
   | zero => simp only [map_zero]; exact Subring.zero_mem _
   | add p q hp hq => rw [map_add, map_add]; exact Subring.add_mem _ hp hq
   | single n m =>
-    have : (Finsupp.single n m : LaurentPolynomial ℤ) = m • T n := by
-      rw [T, Finsupp.smul_single, smul_eq_mul, mul_one]
+    have : (AddMonoidAlgebra.single n m : LaurentPolynomial ℤ) = m • T n := by
+      rw [LaurentPolynomial.single_eq_C_mul_T, LaurentPolynomial.smul_eq_C_mul]
     rw [this, map_zsmul, map_zsmul, qToV_T]
     exact Subring.zsmul_mem _ (PreF.algebraMap_zpow_mem_Af (-n)) m
 

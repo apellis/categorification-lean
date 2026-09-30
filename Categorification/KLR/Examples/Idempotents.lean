@@ -41,11 +41,11 @@ variable (i j : I)
 abbrev ν₃ : Multiset I := {i, j, i}
 
 /-- The sequence `iji`. -/
-def iji : Seq (ν₃ i j) := ⟨![i, j, i], by rw [Fin.univ_val_map]; rfl⟩
+def iji : Seq (ν₃ i j) := ⟨![i, j, i], (Fin.univ_val_map _).trans rfl⟩
 
 /-- The sequence `jii`. -/
 def jii : Seq (ν₃ i j) :=
-  ⟨![j, i, i], by rw [Fin.univ_val_map]; exact Multiset.coe_eq_coe.2 (List.Perm.swap i j [i])⟩
+  ⟨![j, i, i], (Fin.univ_val_map _).trans (Multiset.coe_eq_coe.2 (List.Perm.swap i j [i]))⟩
 
 variable {i j}
 

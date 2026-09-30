@@ -71,12 +71,11 @@ def tmulRightA (m : M) : S →ₗ[A] S ⊗[k] M where
 
 variable (A) in
 /-- The `i`-th coordinate `S ⊗_k M → S` for a basis `b` of `M`; it is `A`-linear. -/
-def coordA {ι : Type*} [DecidableEq ι] (b : Basis ι k M) (i : ι) : S ⊗[k] M →ₗ[A] S where
+def coordA {ι : Type*} [DecidableEq ι] (b : Module.Basis ι k M) (i : ι) : S ⊗[k] M →ₗ[A] S where
   toFun x := TensorProduct.equivFinsuppOfBasisRight b x i
   map_add' x y := by rw [map_add, Finsupp.add_apply]
   map_smul' a x := by
-    induction x using TensorProduct.induction_on with
-    | zero => simp
+    induction x using TensorProduct.inductionOn with
     | tmul s m =>
       rw [TensorProduct.smul_tmul', RingHom.id_apply,
         TensorProduct.equivFinsuppOfBasisRight_apply_tmul_apply,
@@ -84,19 +83,18 @@ def coordA {ι : Type*} [DecidableEq ι] (b : Basis ι k M) (i : ι) : S ⊗[k] 
     | add x y hx hy => rw [smul_add, map_add, Finsupp.add_apply, hx, hy, map_add,
         Finsupp.add_apply, smul_add]
 
-theorem coordA_apply {ι : Type*} [DecidableEq ι] (b : Basis ι k M) (i : ι) (x : S ⊗[k] M) :
+theorem coordA_apply {ι : Type*} [DecidableEq ι] (b : Module.Basis ι k M) (i : ι) (x : S ⊗[k] M) :
     coordA A b i x = TensorProduct.equivFinsuppOfBasisRight b x i := rfl
 
 theorem isSemisimpleModule_tensor [IsSimpleModule A S] :
     IsSemisimpleModule A (S ⊗[k] M) := by
-  haveI : IsSemisimpleModule A S := inferInstance
+  have : IsSemisimpleModule A S := inferInstance
   refine isSemisimpleModule_of_isSemisimpleModule_submodule'
     (p := fun m : M => LinearMap.range (tmulRightA k S (A := A) m))
     (fun m => IsSemisimpleModule.range _) ?_
   rw [eq_top_iff]
   rintro x -
-  induction x using TensorProduct.induction_on with
-  | zero => exact zero_mem _
+  induction x using TensorProduct.inductionOn with
   | tmul s m => exact Submodule.mem_iSup_of_mem m ⟨s, rfl⟩
   | add x y hx hy => exact add_mem hx hy
 
@@ -107,9 +105,9 @@ include hS
 theorem exists_eq_range_tmulRightA [IsSimpleModule A S] (N : Submodule A (S ⊗[k] M))
     [hN : IsSimpleModule A N] : ∃ m : M, N = LinearMap.range (tmulRightA k S (A := A) m) := by
   classical
-  let b := Basis.ofVectorSpace k M
+  let b := Module.Basis.ofVectorSpace k M
   let E := TensorProduct.equivFinsuppOfBasisRight (M := S) b
-  haveI := IsSimpleModule.nontrivial A N
+  have := IsSimpleModule.nontrivial A N
   obtain ⟨x, hx0⟩ := exists_ne (0 : N)
   have hEx : E (x : S ⊗[k] M) ≠ 0 := fun h => hx0 (Subtype.ext (by
     rw [ZeroMemClass.coe_zero]; exact E.injective (h.trans (map_zero E).symm)))
@@ -122,7 +120,7 @@ theorem exists_eq_range_tmulRightA [IsSimpleModule A S] (N : Submodule A (S ⊗[
   let g : S →ₗ[A] S ⊗[k] M := N.subtype.comp φ.symm.toLinearMap
   have hc : ∀ j, ∃ c : k, (coordA A b j).comp g = c • LinearMap.id := fun j => hS _
   choose c hc using hc
-  haveI := IsSimpleModule.nontrivial A S
+  have := IsSimpleModule.nontrivial A S
   obtain ⟨s₀, hs₀⟩ := exists_ne (0 : S)
   have hgc : ∀ j s, E (g s) j = c j • s := fun j s => by
     have := LinearMap.congr_fun (hc j) s
@@ -135,7 +133,7 @@ theorem exists_eq_range_tmulRightA [IsSimpleModule A S] (N : Submodule A (S ⊗[
   have hg : g = tmulRightA k S (A := A) (∑ j ∈ F, c j • b j) := by
     refine LinearMap.ext fun s => E.injective (Finsupp.ext fun j => ?_)
     rw [hgc, tmulRightA_apply, TensorProduct.equivFinsuppOfBasisRight_apply_tmul_apply, map_sum]
-    simp only [map_smul, Basis.repr_self, Finsupp.coe_finset_sum, Finset.sum_apply,
+    simp only [map_smul, Module.Basis.repr_self, Finsupp.coe_finsetSum, Finset.sum_apply,
       Finsupp.smul_apply, Finsupp.single_apply, smul_eq_mul, mul_ite, mul_one, mul_zero,
       Finset.sum_ite_eq']
     split_ifs with hj
@@ -172,15 +170,14 @@ theorem mem_core {W : Submodule A (S ⊗[k] M)} {m : M} :
 theorem mem_range_map_core [IsSimpleModule A S] (W : Submodule A (S ⊗[k] M)) {x : S ⊗[k] M}
     (hx : x ∈ W) :
     x ∈ LinearMap.range (TensorProduct.map (LinearMap.id : S →ₗ[k] S) (core k A W).subtype) := by
-  haveI : IsSemisimpleModule A (S ⊗[k] M) := isSemisimpleModule_tensor
+  have : IsSemisimpleModule A (S ⊗[k] M) := isSemisimpleModule_tensor
   let R : Submodule A (S ⊗[k] M) :=
     { carrier := LinearMap.range (TensorProduct.map (LinearMap.id : S →ₗ[k] S) (core k A W).subtype)
       add_mem' := add_mem
       zero_mem' := zero_mem _
       smul_mem' := by
         rintro a _ ⟨y, rfl⟩
-        induction y using TensorProduct.induction_on with
-        | zero => rw [map_zero, smul_zero]; exact zero_mem _
+        induction y using TensorProduct.inductionOn with
         | tmul s m =>
           refine ⟨(a • s) ⊗ₜ m, ?_⟩
           simp [TensorProduct.smul_tmul']
@@ -203,8 +200,7 @@ theorem mem_span_core [IsSimpleModule A S] (W : Submodule A (S ⊗[k] M)) {x : S
     x ∈ Submodule.span k {y | ∃ (s : S) (m : M), m ∈ core k A W ∧ y = s ⊗ₜ[k] m} := by
   obtain ⟨y, rfl⟩ := mem_range_map_core hS W hx
   clear hx
-  induction y using TensorProduct.induction_on with
-  | zero => rw [map_zero]; exact zero_mem _
+  induction y using TensorProduct.inductionOn with
   | tmul s m => exact Submodule.subset_span ⟨s, m, m.2, rfl⟩
   | add y z hy hz => rw [map_add]; exact add_mem hy hz
 
@@ -234,13 +230,13 @@ variable (k A B) in
 /-- An `A ⊗ B`-submodule of `S ⊠ M`, viewed as an `A`-submodule of `S ⊗_k M`. -/
 def toA (K : Submodule (A ⊗[k] B) (ExtTensor k S M)) : Submodule A (S ⊗[k] M) where
   carrier := {x | ExtTensor.equivTensor.symm x ∈ K}
-  add_mem' ha hb := by simp only [Set.mem_setOf_eq, map_add]; exact add_mem ha hb
+  add_mem' ha hb := by simp only [Set.mem_ofPred_eq, map_add]; exact add_mem ha hb
   zero_mem' := by simp
   smul_mem' a x hx := by
     show ExtTensor.equivTensor.symm (a • x) ∈ K
-    have := K.smul_mem (a ⊗ₜ[k] (1 : B)) hx
-    rw [tmul_one_smul] at this
-    exact this
+    have h := tmul_one_smul (k := k) (A := A) (B := B) (S := S) (M := M) a
+      (ExtTensor.equivTensor.symm x)
+    exact h ▸ K.smul_mem (a ⊗ₜ[k] (1 : B)) hx
 
 theorem mem_toA {K : Submodule (A ⊗[k] B) (ExtTensor k S M)} {x : S ⊗[k] M} :
     x ∈ toA k A B K ↔ ExtTensor.equivTensor.symm x ∈ K := Iff.rfl
@@ -250,7 +246,7 @@ omit [IsScalarTower k A S] [IsScalarTower k B M] in
 theorem tmul_ne_zero {s : S} {m : M} (hs : s ≠ 0) (hm : m ≠ 0) :
     (ExtTensor.tmul s m : ExtTensor k S M) ≠ 0 := by
   classical
-  let b := Basis.ofVectorSpace k S
+  let b := Module.Basis.ofVectorSpace k S
   intro h
   have h' := congrArg (TensorProduct.equivFinsuppOfBasisLeft b) (show s ⊗ₜ[k] m = 0 from h)
   rw [TensorProduct.equivFinsuppOfBasisLeft_apply_tmul, map_zero] at h'
@@ -265,13 +261,13 @@ simple `B`-module, the external tensor product `S ⊠ S'` is a simple `A ⊗ B`-
 theorem isSimpleModule_extTensor [IsSimpleModule A S] [IsSimpleModule B M]
     (hS : ∀ f : S →ₗ[A] S, ∃ c : k, f = c • LinearMap.id) :
     IsSimpleModule (A ⊗[k] B) (ExtTensor k S M) := by
-  haveI := IsSimpleModule.nontrivial A S
-  haveI := IsSimpleModule.nontrivial B M
+  have := IsSimpleModule.nontrivial A S
+  have := IsSimpleModule.nontrivial B M
   obtain ⟨s₀, hs₀⟩ := exists_ne (0 : S)
   obtain ⟨m₀, hm₀⟩ := exists_ne (0 : M)
   have hne : (ExtTensor.tmul s₀ m₀ : ExtTensor k S M) ≠ 0 := tmul_ne_zero hs₀ hm₀
-  haveI : Nontrivial (ExtTensor k S M) := ⟨⟨_, 0, hne⟩⟩
-  refine ⟨fun W => ?_⟩
+  have : Nontrivial (ExtTensor k S M) := ⟨⟨_, 0, hne⟩⟩
+  refine { eq_bot_or_eq_top := fun W => ?_ }
   by_cases hW : W = ⊥
   · exact Or.inl hW
   right
@@ -300,8 +296,7 @@ theorem isSimpleModule_extTensor [IsSimpleModule A S] [IsSimpleModule B M]
     have hzero : ∀ y : S ⊗[k] core k A W',
         TensorProduct.map LinearMap.id (core k A W').subtype y = 0 := by
       intro y
-      induction y using TensorProduct.induction_on with
-      | zero => exact map_zero _
+      induction y using TensorProduct.inductionOn with
       | tmul s m =>
         rw [TensorProduct.map_tmul, Submodule.subtype_apply, hcore m m.2, TensorProduct.tmul_zero]
       | add y z hy hz => rw [map_add, hy, hz, add_zero]
@@ -320,7 +315,7 @@ end ExtAction
 
 section Graded
 
-open Graded DirectSum GProj Module
+open Categorification.Graded DirectSum GProj Module
 
 variable {k : Type v} [Field k] {A B : Type u} [Ring A] [Algebra k A] [Ring B] [Algebra k B]
   {𝒜 : ℤ → Submodule k A} {ℬ : ℤ → Submodule k B} [GradedAlgebra 𝒜] [GradedAlgebra ℬ]
@@ -347,9 +342,9 @@ abbrev moduleA : Module A U :=
 
 omit [GradedAlgebra 𝒜] [GradedAlgebra ℬ] [Decomposition 𝒰] in
 theorem isScalarTower_moduleA :
-    letI := moduleA (k := k) (A := A) (U := U) B
+    let := moduleA (k := k) (A := A) (U := U) B
     IsScalarTower k A U := by
-  letI := moduleA (k := k) (A := A) (U := U) B
+  let := moduleA (k := k) (A := A) (U := U) B
   exact ⟨fun c a u => by
     show ((c • a) ⊗ₜ[k] (1 : B)) • u = c • ((a ⊗ₜ[k] (1 : B)) • u)
     rw [← TensorProduct.smul_tmul', smul_assoc]⟩
@@ -357,9 +352,9 @@ theorem isScalarTower_moduleA :
 omit [GradedAlgebra 𝒜] [Decomposition 𝒰] [IsScalarTower k (A ⊗[k] B) U] in
 include ℬ in
 theorem gradedSMul_moduleA :
-    letI := moduleA (k := k) (A := A) (U := U) B
+    let := moduleA (k := k) (A := A) (U := U) B
     SetLike.GradedSMul 𝒜 𝒰 := by
-  letI := moduleA (k := k) (A := A) (U := U) B
+  let := moduleA (k := k) (A := A) (U := U) B
   exact ⟨fun {i j} a u ha hu => by
     have h1 : a ⊗ₜ[k] (1 : B) ∈ tensorGrading 𝒜 ℬ (i + 0) :=
       tmul_mem_tensorGrading ha SetLike.GradedOne.one_mem
@@ -378,9 +373,9 @@ theorem exists_top_embedding [FiniteDimensional k U] [Nontrivial U] :
       (∀ (x : A) (s : b.top), ι (x • s) = (x ⊗ₜ[k] (1 : B)) • ι s) ∧
       ∀ ⦃j : ℤ⦄ ⦃s : b.top⦄, s ∈ b.top.grading j → ι s ∈ 𝒰 (j + a) := by
   classical
-  letI := moduleA (k := k) (A := A) (U := U) B
-  haveI := isScalarTower_moduleA (k := k) (A := A) (U := U) (B := B)
-  haveI := gradedSMul_moduleA (k := k) (A := A) (U := U) (𝒜 := 𝒜) (ℬ := ℬ) (𝒰 := 𝒰)
+  let := moduleA (k := k) (A := A) (U := U) B
+  have := isScalarTower_moduleA (k := k) (A := A) (U := U) (B := B)
+  have := gradedSMul_moduleA (k := k) (A := A) (U := U) (𝒜 := 𝒜) (ℬ := ℬ) (𝒰 := 𝒰)
   -- a nonzero homogeneous `A`-submodule of minimal dimension
   let P : ℕ → Prop := fun n => ∃ p : Submodule A U, p.IsHomogeneous 𝒰 ∧ p ≠ ⊥ ∧
     finrank k (p.restrictScalars k) = n
@@ -392,7 +387,7 @@ theorem exists_top_embedding [FiniteDimensional k U] [Nontrivial U] :
     have h5 : p'.restrictScalars k = p.restrictScalars k :=
       Submodule.eq_of_le_of_finrank_le h3 (by rw [hpn]; exact h4)
     exact Submodule.restrictScalars_injective k A U h5
-  letI : Decomposition (Graded.submodule 𝒰 p) := submoduleDecomposition 𝒰 hphom
+  let : Decomposition (Graded.submodule 𝒰 p) := submoduleDecomposition 𝒰 hphom
   have hsimple : IsGradedSimple 𝒜 (Graded.submodule 𝒰 p) := by
     refine ⟨Submodule.nontrivial_iff_ne_bot.2 hp0, fun p' hp' => ?_⟩
     by_cases h : p' = ⊥
@@ -443,10 +438,10 @@ def extMap {S : Type*} [AddCommGroup S] [Module k S] [Module A S] [IsScalarTower
     (ι : S →ₗ[k] U) (hι : ∀ (x : A) (s : S), ι (x • s) = (x ⊗ₜ[k] (1 : B)) • ι s) :
     ExtTensor k S B →ₗ[A ⊗[k] B] U where
   toFun := ExtTensor.lift (LinearMap.mk₂ k (fun s q => ((1 : A) ⊗ₜ[k] q) • ι s)
-    (fun s s' q => by beta_reduce; rw [map_add, smul_add])
-    (fun c s q => by beta_reduce; rw [map_smul, smul_comm])
-    (fun s q q' => by beta_reduce; rw [TensorProduct.tmul_add, add_smul])
-    (fun c s q => by beta_reduce; rw [TensorProduct.tmul_smul, smul_assoc]))
+    (fun s s' q => by rw [map_add, smul_add])
+    (fun c s q => by rw [map_smul, smul_comm])
+    (fun s q q' => by rw [TensorProduct.tmul_add, add_smul])
+    (fun c s q => by rw [TensorProduct.tmul_smul, smul_assoc]))
   map_add' := map_add _
   map_smul' t x := ExtTensor.smul_eq_induction (map_add _) (map_zero _)
     (fun a y s q => by
@@ -472,11 +467,11 @@ theorem exists_gradedEquiv_extTensor_top
       Nonempty (𝒰 ≃ᵍ[A ⊗[k] B]
         Graded.shift (ExtTensor.grading b.top.grading b'.top.grading) a) := by
   classical
-  haveI := hU.nontrivial
+  have := hU.nontrivial
   obtain ⟨b, a₀, ι, hιinj, hιA, hιdeg⟩ := exists_top_embedding (𝒜 := 𝒜) (ℬ := ℬ) (𝒰 := 𝒰)
-  haveI : FiniteDimensional k b.top := FiniteDimensional.of_injective ι hιinj
-  haveI : IsSimpleModule A b.top := (IndecClass.isGradedSimple_top b).isSimpleModule
-  haveI := (IndecClass.isGradedSimple_top b).nontrivial
+  have : FiniteDimensional k b.top := FiniteDimensional.of_injective ι hιinj
+  have : IsSimpleModule A b.top := (IndecClass.isGradedSimple_top b).isSimpleModule
+  have := (IndecClass.isGradedSimple_top b).nontrivial
   obtain ⟨s₀, hs₀⟩ := exists_ne (0 : b.top)
   set Φ := extMap (B := B) ι hιA with hΦdef
   set G := ExtTensor.grading b.top.grading ℬ with hGdef
@@ -604,8 +599,8 @@ theorem exists_gradedEquiv_extTensor_top
       obtain ⟨φ, hφ⟩ : ∃ φ : Module.Dual k b.top, φ s₀ ≠ 0 :=
         not_forall.1 fun h => hs₀ ((Module.forall_dual_apply_eq_zero_iff k s₀).1 h)
       let ε : ExtTensor k b.top B →ₗ[k] B := ExtTensor.lift (LinearMap.mk₂ k (fun s q => φ s • q)
-        (fun s s' q => by beta_reduce; rw [map_add, add_smul])
-        (fun c s q => by beta_reduce; rw [map_smul, smul_eq_mul, mul_smul])
+        (fun s s' q => by rw [map_add, add_smul])
+        (fun c s q => by rw [map_smul, smul_eq_mul, mul_smul])
         (fun s q q' => smul_add _ _ _) (fun c s q => smul_comm _ _ _))
       have hεRC : ∀ x ∈ RC, ε x ∈ N' := by
         rintro _ ⟨y, rfl⟩
@@ -621,7 +616,7 @@ theorem exists_gradedEquiv_extTensor_top
           inv_mul_cancel₀ hφ, one_smul] at this
       exact (Submodule.eq_top_iff'.2 fun q => by simpa using N'.smul_mem q h1N)
   -- the graded simple quotient `B / B₀ ≅ S_{b'}{a₁}`
-  letI := quotDecompositionA ℬ B₀ hB₀hom
+  let := quotDecompositionA ℬ B₀ hB₀hom
   have hQ : IsGradedSimple ℬ (quotGradingA ℬ B₀) := isGradedSimple_quot ℬ ℬ B₀ hB₀hom hB₀top hmax
   obtain ⟨b', a₁, ⟨e'⟩⟩ := IndecClass.exists_gradedEquiv_top_shift (𝒜 := ℬ) hQ
   let ψ : B →ₗ[B] b'.top := e'.toLinearEquiv.toLinearMap ∘ₗ B₀.mkQ

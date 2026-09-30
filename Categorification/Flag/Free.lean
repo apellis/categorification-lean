@@ -47,7 +47,7 @@ noncomputable section
 
 namespace Categorification.Flag
 
-open MvPolynomial
+open MvPolynomial Module
 open Finset (univ range antidiagonal)
 
 /-! ### Generation of the Borel ring by the `x_{j,α}` -/
@@ -173,9 +173,10 @@ theorem card_split_some (lab : V → J) (v₀ : V) (j : J) :
   split_ifs with h
   · subst h
     exact Finset.card_erase_of_mem (mem_block lab v₀)
-  · rw [Finset.erase_eq_of_not_mem (by simp [Ne.symm h]), Nat.sub_zero]
+  · rw [Finset.erase_eq_of_notMem (by simp [Ne.symm h]), Nat.sub_zero]
 
 omit [Fintype J] in
+omit [DecidableEq J] in
 theorem labSet_split_none (lab : V → J) (v₀ : V) :
     labSet (splitLab lab v₀) (· = none) = {v₀} := by
   ext v
@@ -189,11 +190,11 @@ theorem prod_factorial_split (lab : V → J) (v₀ : V) :
   simp only [card_fibre_eq_card_labSet, labSet_split_none, Finset.card_singleton,
     Nat.factorial_one, one_mul, card_split_some]
   rw [← Finset.mul_prod_erase univ _ (Finset.mem_univ (lab v₀)),
-    ← Finset.mul_prod_erase univ _ (Finset.mem_univ (lab v₀)), if_pos rfl, ← mul_assoc,
+    ← Finset.mul_prod_erase univ _ (Finset.mem_univ (lab v₀)), ite_eq_left rfl, ← mul_assoc,
     Nat.mul_factorial_pred (blockCard_pos lab v₀).ne']
   congr 1
   refine Finset.prod_congr rfl fun j hj => ?_
-  rw [if_neg (Finset.ne_of_mem_erase hj), Nat.sub_zero]
+  rw [ite_eq_right (Finset.ne_of_mem_erase hj), Nat.sub_zero]
 
 set_option synthInstance.maxHeartbeats 200000 in
 /-- **`dim_k H_{k^{+i}} = b · dim_k H_k`**, `b` the size of the block of `v₀`. -/
@@ -246,9 +247,9 @@ theorem trace_pow {b : ℕ} (hb : 0 < b) (B : Basis (Fin b) R M) (ξ : M)
     rw [show ξ ^ a = B ⟨a, ha⟩ from (hB ⟨a, ha⟩).symm, Basis.coord_apply, Basis.repr_self,
       Finsupp.single_apply]
     by_cases h : a = b - 1
-    · rw [if_pos (Fin.ext h), if_pos (by omega), show a + 1 - b = 0 by omega, pow_zero,
+    · rw [ite_eq_left (Fin.ext h), ite_eq_left (by omega), show a + 1 - b = 0 by omega, pow_zero,
         one_mul, hxbar0]
-    · rw [if_neg (fun h' => h (congrArg Fin.val h')), if_neg (by omega)]
+    · rw [ite_eq_right (fun h' => h (congrArg Fin.val h')), ite_eq_right (by omega)]
   -- the recursion satisfied by `τ`
   have hrecτ : ∀ n, ∑ f ∈ range (b + 1), (-1) ^ f * x (b - f) * τ (f + n) = 0 := by
     intro n
@@ -273,25 +274,25 @@ theorem trace_pow {b : ℕ} (hb : 0 < b) (B : Basis (Fin b) R M) (ξ : M)
       simp only [hT, Nat.add_sub_cancel]
       rw [show b - (b - g) = g by omega]
       by_cases h : g ≤ n + 1
-      · rw [if_pos (by omega), if_pos h, show b - g + n + 1 - b = n + 1 - g by omega]
+      · rw [ite_eq_left (by omega), ite_eq_left h, show b - g + n + 1 - b = n + 1 - g by omega]
         have := neg_one_pow_mul_neg_one_pow' (A := R) hg' h
         linear_combination (x g * xbar (n + 1 - g)) * this
-      · rw [if_neg (by omega), if_neg h, mul_zero, mul_zero]
+      · rw [ite_eq_right (by omega), ite_eq_right h, mul_zero, mul_zero]
     rw [Finset.sum_congr rfl hterm, ← Finset.mul_sum]
     set G : ℕ → R := fun g => if g ≤ n + 1 then x g * xbar (n + 1 - g) else 0 with hG
     have hsum1 : ∑ g ∈ range (b + 1), G g = ∑ g ∈ range (b + n + 2), G g :=
-      Finset.sum_subset (Finset.range_subset.2 (by omega)) fun g _ hg => by
+      Finset.sum_subset (Finset.range_subset_range.2 (by omega)) fun g _ hg => by
         simp only [Finset.mem_range, not_lt] at hg
         simp only [hG, hxz g (by omega), zero_mul, ite_self]
     have hsum2 : ∑ g ∈ range (n + 1 + 1), x g * xbar (n + 1 - g) =
         ∑ g ∈ range (b + n + 2), G g := by
-      rw [← Finset.sum_subset (Finset.range_subset.2 (show n + 1 + 1 ≤ b + n + 2 by omega))
+      rw [← Finset.sum_subset (Finset.range_subset_range.2 (show n + 1 + 1 ≤ b + n + 2 by omega))
         fun g _ hg => by
           simp only [Finset.mem_range, not_lt] at hg
-          simp only [hG, if_neg (show ¬ g ≤ n + 1 by omega)]]
+          simp only [hG, ite_eq_right (show ¬ g ≤ n + 1 by omega)]]
       exact Finset.sum_congr rfl fun g hg => by
-        simp only [hG, if_pos (Nat.lt_succ_iff.1 (Finset.mem_range.1 hg))]
-    rw [hsum1, ← hsum2, hinv (n + 1), if_neg (Nat.succ_ne_zero n), mul_zero]
+        simp only [hG, ite_eq_left (Nat.lt_succ_iff.1 (Finset.mem_range.1 hg))]
+    rw [hsum1, ← hsum2, hinv (n + 1), ite_eq_right (Nat.succ_ne_zero n), mul_zero]
   have key : ∀ a, τ a = T a := by
     intro a
     induction a using Nat.strong_induction_on with
@@ -371,14 +372,14 @@ theorem split_monic (lab : V → J) (v₀ : V) :
       pR k lab v₀ (xB k lab (lab v₀) (blockCard lab v₀ - f)) = 0 := by
   rw [← xB_split_eq_sum]
   apply xB_eq_zero
-  rw [card_split_some, if_pos rfl]
+  rw [card_split_some, ite_eq_left rfl]
   have := blockCard_pos lab v₀
   simp only [blockCard] at this ⊢
   omega
 
 variable (k) in
 /-- `H_{k^{+i}}` as an `H_k`-algebra via `p_1^*`. -/
-def rightAlgebra (lab : V → J) (v₀ : V) :
+@[instance_reducible] def rightAlgebra (lab : V → J) (v₀ : V) :
     Algebra (BorelRing k lab) (BorelRing k (splitLab lab v₀)) :=
   (pR k lab v₀).toRingHom.toAlgebra
 
@@ -519,14 +520,13 @@ the block of `v₀` (KL III: `k_{i+1} - k_i`). -/
 def basisR (lab : V → J) (v₀ : V) :
     @Basis (Fin (blockCard lab v₀)) (BorelRing k lab) (BorelRing k (splitLab lab v₀)) _ _
       (rightAlgebra k lab v₀).toModule :=
-  letI := rightAlgebra k lab v₀
+  let := rightAlgebra k lab v₀
   basisOfElem (fun a : Fin (blockCard lab v₀) => xi k lab v₀ ^ (a : ℕ))
     (split_indep lab v₀) (split_span lab v₀)
 
 theorem basisR_apply (lab : V → J) (v₀ : V) (a : Fin (blockCard lab v₀)) :
-    basisR k lab v₀ a = xi k lab v₀ ^ (a : ℕ) :=
-  letI := rightAlgebra k lab v₀
-  basisOfElem_apply _ _ _ a
+    basisR k lab v₀ a = xi k lab v₀ ^ (a : ℕ) := by
+  simp only [basisR, basisOfElem_apply]
 
 /-! ### Freeness of `H_{k^{+i}}` over `H_{+_i k}` -/
 
@@ -582,14 +582,13 @@ size of block `j'` after moving `v₀` into it (KL III: `k_i - k_{i-1} + 1`). -/
 def basisL (lab : V → J) (v₀ : V) (j' : J) :
     @Basis (Fin (blockCardL lab v₀ j')) (BorelRing k (moveLab lab v₀ j'))
       (BorelRing k (splitLab lab v₀)) _ _ (midAlgebra k lab v₀ j').toModule :=
-  letI := midAlgebra k lab v₀ j'
+  let := midAlgebra k lab v₀ j'
   basisOfElem (fun a : Fin (blockCardL lab v₀ j') => xi k lab v₀ ^ (a : ℕ))
     (free_coreL lab v₀ j').1 (free_coreL lab v₀ j').2.1
 
 theorem basisL_apply (lab : V → J) (v₀ : V) (j' : J) (a : Fin (blockCardL lab v₀ j')) :
-    basisL k lab v₀ j' a = xi k lab v₀ ^ (a : ℕ) :=
-  letI := midAlgebra k lab v₀ j'
-  basisOfElem_apply _ _ _ a
+    basisL k lab v₀ j' a = xi k lab v₀ ^ (a : ℕ) := by
+  simp only [basisL, basisOfElem_apply]
 
 end Free
 
@@ -604,7 +603,7 @@ variable (k : Type*) [Field k] {V : Type*} [Fintype V] [DecidableEq V] {J : Type
 `basisR` (`b` the size of the block of `v₀`; `ξ^{b-1}` is the class of a point in the fibre
 `ℙ^{b-1}`). -/
 def trR (lab : V → J) (v₀ : V) : BorelRing k (splitLab lab v₀) →+ BorelRing k lab :=
-  letI := rightAlgebra k lab v₀
+  let := rightAlgebra k lab v₀
   ((basisR k lab v₀).coord ⟨blockCard lab v₀ - 1, by
     have := blockCard_pos lab v₀; omega⟩).toAddMonoidHom
 
@@ -612,7 +611,7 @@ def trR (lab : V → J) (v₀ : V) : BorelRing k (splitLab lab v₀) →+ BorelR
 basis `basisL`. -/
 def trL (lab : V → J) (v₀ : V) (j' : J) :
     BorelRing k (splitLab lab v₀) →+ BorelRing k (moveLab lab v₀ j') :=
-  letI := midAlgebra k lab v₀ j'
+  let := midAlgebra k lab v₀ j'
   ((basisL k lab v₀ j').coord ⟨blockCardL lab v₀ j' - 1, by
     have : 0 < blockCardL lab v₀ j' := by
       rw [blockCardL_eq]; exact blockCard_pos _ _
@@ -623,7 +622,7 @@ variable {k}
 /-- `tr` is `H_k`-linear. -/
 theorem trR_pR_mul (lab : V → J) (v₀ : V) (r : BorelRing k lab)
     (m : BorelRing k (splitLab lab v₀)) : trR k lab v₀ (pR k lab v₀ r * m) = r * trR k lab v₀ m := by
-  letI := rightAlgebra k lab v₀
+  let := rightAlgebra k lab v₀
   change Basis.coord _ _ _ = r * Basis.coord _ _ _
   rw [← smul_right, LinearMap.map_smul, smul_eq_mul]
 
@@ -631,7 +630,7 @@ theorem trR_pR_mul (lab : V → J) (v₀ : V) (r : BorelRing k lab)
 theorem trL_pL_mul (lab : V → J) (v₀ : V) (j' : J) (r : BorelRing k (moveLab lab v₀ j'))
     (m : BorelRing k (splitLab lab v₀)) :
     trL k lab v₀ j' (pL k lab v₀ j' r * m) = r * trL k lab v₀ j' m := by
-  letI := midAlgebra k lab v₀ j'
+  let := midAlgebra k lab v₀ j'
   change Basis.coord _ _ _ = r * Basis.coord _ _ _
   rw [← algebraMap_mid, ← Algebra.smul_def, LinearMap.map_smul, smul_eq_mul]
 
@@ -642,7 +641,7 @@ theorem trR_xi_pow (lab : V → J) (v₀ : V) (a : ℕ) :
     trR k lab v₀ (xi k lab v₀ ^ a) = if blockCard lab v₀ ≤ a + 1 then
       (-1) ^ (a + 1 - blockCard lab v₀) * xbarB k lab (lab v₀) (a + 1 - blockCard lab v₀)
       else 0 := by
-  letI := rightAlgebra k lab v₀
+  let := rightAlgebra k lab v₀
   exact trace_pow (blockCard_pos lab v₀) (basisR k lab v₀) (xi k lab v₀) (basisR_apply lab v₀)
     (xB k lab (lab v₀)) (xbarB k lab (lab v₀)) (xB_zero _) (fun _ hr => xB_eq_zero hr)
     (sum_xB_mul_xbarB _) (split_monic lab v₀) a
@@ -656,7 +655,7 @@ theorem trL_xi_pow (lab : V → J) (v₀ : V) (j' : J) (a : ℕ) :
       (-1) ^ (a + 1 - blockCardL lab v₀ j') *
         xbarB k (moveLab lab v₀ j') j' (a + 1 - blockCardL lab v₀ j')
       else 0 := by
-  letI := midAlgebra k lab v₀ j'
+  let := midAlgebra k lab v₀ j'
   have hb : 0 < blockCardL lab v₀ j' := by rw [blockCardL_eq]; exact blockCard_pos _ _
   exact trace_pow hb (basisL k lab v₀ j') (xi k lab v₀) (basisL_apply lab v₀ j')
     (xB k (moveLab lab v₀ j') j') (xbarB k (moveLab lab v₀ j') j') (xB_zero _)
@@ -677,17 +676,17 @@ theorem blockCard_movedVar (i : Fin m) (d : Fin (m + 1) → ℕ) (h : 0 < d i.su
 theorem blockCardL_movedVar (i : Fin m) (d : Fin (m + 1) → ℕ) (h : 0 < d i.succ) :
     blockCardL (Sigma.fst : Gen d → Fin (m + 1)) (movedVar i d h) i.castSucc =
       d i.castSucc + 1 := by
-  rw [blockCardL, ← card_fibre_eq_card_labSet, card_moveLab, raise, if_pos rfl]
+  rw [blockCardL, ← card_fibre_eq_card_labSet, card_moveLab, raise, ite_eq_left rfl]
 
 variable (K) in
 /-- `H_{k^{+i}}` as an `H_k`-algebra via `p_1^*` (`eRight`). -/
-def eRightAlgebra (i : Fin m) (d : Fin (m + 1) → ℕ) (h : 0 < d i.succ) :
+@[instance_reducible] def eRightAlgebra (i : Fin m) (d : Fin (m + 1) → ℕ) (h : 0 < d i.succ) :
     Algebra (H K d) (ERing K i d h) :=
   (eRight K i d h).toRingHom.toAlgebra
 
 variable (K) in
 /-- `H_{k^{+i}}` as an `H_{+_i k}`-algebra via `p_2^*` (`eLeft`). -/
-def eLeftAlgebra (i : Fin m) (d : Fin (m + 1) → ℕ) (h : 0 < d i.succ) :
+@[instance_reducible] def eLeftAlgebra (i : Fin m) (d : Fin (m + 1) → ℕ) (h : 0 < d i.succ) :
     Algebra (H K (raise i d)) (ERing K i d h) :=
   (eLeft K i d h).toRingHom.toAlgebra
 
@@ -696,7 +695,7 @@ variable (K) in
 (`d_{i+1} = k_{i+1} - k_i`), `H_k` acting through `p_1^*`. -/
 def eBasisRight (i : Fin m) (d : Fin (m + 1) → ℕ) (h : 0 < d i.succ) :
     @Basis (Fin (d i.succ)) (H K d) (ERing K i d h) _ _ (eRightAlgebra K i d h).toModule :=
-  letI := eRightAlgebra K i d h
+  let := eRightAlgebra K i d h
   (basisOfElem (fun a : Fin (blockCard (Sigma.fst : Gen d → Fin (m + 1)) (movedVar i d h)) =>
       eXi K i d h ^ (a : ℕ))
     (fun c hc => by
@@ -714,7 +713,7 @@ def eBasisRight (i : Fin m) (d : Fin (m + 1) → ℕ) (h : 0 < d i.succ) :
 
 theorem eBasisRight_apply (i : Fin m) (d : Fin (m + 1) → ℕ) (h : 0 < d i.succ)
     (a : Fin (d i.succ)) : eBasisRight K i d h a = eXi K i d h ^ (a : ℕ) := by
-  letI := eRightAlgebra K i d h
+  let := eRightAlgebra K i d h
   rw [eBasisRight, Basis.reindex_apply, basisOfElem_apply]
   rfl
 
@@ -725,7 +724,7 @@ variable (K) in
 def eBasisLeft (i : Fin m) (d : Fin (m + 1) → ℕ) (h : 0 < d i.succ) :
     @Basis (Fin (d i.castSucc + 1)) (H K (raise i d)) (ERing K i d h) _ _
       (eLeftAlgebra K i d h).toModule :=
-  letI := eLeftAlgebra K i d h
+  let := eLeftAlgebra K i d h
   (basisOfElem (fun a : Fin (blockCardL (Sigma.fst : Gen d → Fin (m + 1)) (movedVar i d h)
       i.castSucc) => eXi K i d h ^ (a : ℕ))
     (fun c hc => by
@@ -746,7 +745,7 @@ def eBasisLeft (i : Fin m) (d : Fin (m + 1) → ℕ) (h : 0 < d i.succ) :
 
 theorem eBasisLeft_apply (i : Fin m) (d : Fin (m + 1) → ℕ) (h : 0 < d i.succ)
     (a : Fin (d i.castSucc + 1)) : eBasisLeft K i d h a = eXi K i d h ^ (a : ℕ) := by
-  letI := eLeftAlgebra K i d h
+  let := eLeftAlgebra K i d h
   rw [eBasisLeft, Basis.reindex_apply, basisOfElem_apply]
   rfl
 

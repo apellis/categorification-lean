@@ -62,8 +62,8 @@ namespace GProj
 /-- **The external tensor product `P ⊠ P'`** of finitely generated graded projective modules,
 a finitely generated graded projective `A ⊗ B`-module for the tensor product gradings. -/
 def extTensor (P : GProj 𝒜) (P' : GProj ℬ) : GProj (tensorGrading 𝒜 ℬ) :=
-  haveI := ExtTensor.finite (k := k) (A := A) (B := B) (P := P.carrier) (Q := P'.carrier)
-  haveI := ExtTensor.projective (k := k) (A := A) (B := B) (P := P.carrier) (Q := P'.carrier)
+  have := ExtTensor.finite (k := k) (A := A) (B := B) (P := P.carrier) (Q := P'.carrier)
+  have := ExtTensor.projective (k := k) (A := A) (B := B) (P := P.carrier) (Q := P'.carrier)
   { carrier := ExtTensor k P.carrier P'.carrier
     grading := ExtTensor.grading P.grading P'.grading
     decomposition := inferInstance
@@ -134,9 +134,9 @@ def extTensorAdd : K0 𝒜 →+ K0 ℬ →+ K0 (tensorGrading 𝒜 ℬ) :=
     (fun _ _ _ e => of_eq_of_iso (extTensorCongr e (GradedEquiv.refl _)))
     (fun _ _ _ e => of_eq_of_iso (extTensorCongr (GradedEquiv.refl _) e))
     (fun P₁ P₂ P' => by
-      beta_reduce; rw [of_eq_of_iso (extTensorProdLeft P₁ P₂ P'), of_prod])
+      rw [of_eq_of_iso (extTensorProdLeft P₁ P₂ P'), of_prod])
     (fun P P₁ P₂ => by
-      beta_reduce; rw [of_eq_of_iso (extTensorProdRight P P₁ P₂), of_prod])
+      rw [of_eq_of_iso (extTensorProdRight P P₁ P₂), of_prod])
 
 @[simp] theorem extTensorAdd_of (P : GProj 𝒜) (P' : GProj ℬ) :
     extTensorAdd 𝒜 ℬ (of P) (of P') = of (P.extTensor P') :=
@@ -333,8 +333,8 @@ variable (S S') in
 def idemTensorProj {e : A} {e' : B} (he : IsIdempotentElem e) (he' : IsIdempotentElem e') :
     ExtTensor k S S' →ₗ[k] idemSubspace k S e ⊗[k] idemSubspace k S' e' :=
   TensorProduct.map
-    (LinearMap.codRestrict _ (DistribMulAction.toLinearMap k S e) (smul_mem_idemSubspace he))
-    (LinearMap.codRestrict _ (DistribMulAction.toLinearMap k S' e') (smul_mem_idemSubspace he'))
+    (LinearMap.codRestrict _ (Module.toModuleEnd k S e) (smul_mem_idemSubspace he))
+    (LinearMap.codRestrict _ (Module.toModuleEnd k S' e') (smul_mem_idemSubspace he'))
 
 theorem idemTensorIncl_proj {e : A} {e' : B} (he : IsIdempotentElem e)
     (he' : IsIdempotentElem e') (x : ExtTensor k S S') :
@@ -351,8 +351,7 @@ theorem range_idemTensorIncl {e : A} {e' : B} (he : IsIdempotentElem e)
   apply le_antisymm
   · rintro _ ⟨y, rfl⟩
     rw [mem_idemSubspace]
-    induction y using TensorProduct.induction_on with
-    | zero => simp
+    induction y using TensorProduct.inductionOn with
     | tmul a b =>
       rw [idemTensorIncl_tmul, ExtTensor.smul_tmul]
       rw [show e • (a : S) = a from a.2, show e' • (b : S') = b from b.2]
@@ -377,8 +376,8 @@ omit [GradedAlgebra 𝒜] [GradedAlgebra ℬ] in
 theorem tensorGrading_idem_eq_comap {e : A} {e' : B} (he0 : e ∈ 𝒜 0) (he0' : e' ∈ ℬ 0) :
     tensorGrading (idem 𝒮 e) (idem 𝒮' e') =
       comap (ExtTensor.grading 𝒮 𝒮') (idemTensorIncl S S' e e') := by
-  letI := idemDecomposition 𝒮 he0
-  letI := idemDecomposition 𝒮' he0'
+  let := idemDecomposition 𝒮 he0
+  let := idemDecomposition 𝒮' he0'
   funext d
   apply le_antisymm
   · intro y hy
@@ -411,8 +410,8 @@ omit [GradedAlgebra 𝒜] [GradedAlgebra ℬ] in
 theorem gdim_idem_extTensor [HasGdim 𝒮] [HasGdim 𝒮'] {e : A} {e' : B} (he : IsIdempotentElem e)
     (he' : IsIdempotentElem e') (he0 : e ∈ 𝒜 0) (he0' : e' ∈ ℬ 0) :
     gdim (idem (ExtTensor.grading 𝒮 𝒮') (e ⊗ₜ[k] e')) = gdim (idem 𝒮 e) * gdim (idem 𝒮' e') := by
-  letI := idemDecomposition 𝒮 he0
-  letI := idemDecomposition 𝒮' he0'
+  let := idemDecomposition 𝒮 he0
+  let := idemDecomposition 𝒮' he0'
   rw [← gdim_tensorGrading]
   exact gdim_eq_of_finrank_eq (finrank_idem_extTensor he he' he0 he0')
 

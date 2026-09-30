@@ -248,10 +248,10 @@ variable (k : Type*) [CommRing k] [Algebra k A] (M : Type*) [AddCommGroup M] [Mo
 of `f`). -/
 def fixSub (f : A) : Submodule k M where
   carrier := {m | f • m = m}
-  add_mem' {x y} hx hy := by simp only [Set.mem_setOf_eq, smul_add] at *; rw [hx, hy]
+  add_mem' {x y} hx hy := by simp only [Set.mem_ofPred_eq, smul_add] at *; rw [hx, hy]
   zero_mem' := smul_zero f
   smul_mem' c x hx := by
-    simp only [Set.mem_setOf_eq] at *
+    simp only [Set.mem_ofPred_eq] at *
     rw [smul_comm, hx]
 
 variable {k M}
@@ -315,10 +315,10 @@ open MulOpposite
 /-- The left ideal `A f = {y | y f = y}` (for `f` idempotent), a left `A`-module. -/
 def lIdeal (f : A) : Submodule A A where
   carrier := {y | y * f = y}
-  add_mem' {x y} hx hy := by simp only [Set.mem_setOf_eq, add_mul] at *; rw [hx, hy]
+  add_mem' {x y} hx hy := by simp only [Set.mem_ofPred_eq, add_mul] at *; rw [hx, hy]
   zero_mem' := zero_mul f
   smul_mem' c x hx := by
-    simp only [Set.mem_setOf_eq, smul_eq_mul] at *
+    simp only [Set.mem_ofPred_eq, smul_eq_mul] at *
     rw [mul_assoc, hx]
 
 theorem mem_lIdeal {f y : A} : y ∈ lIdeal f ↔ y * f = y := Iff.rfl
@@ -327,10 +327,10 @@ theorem mem_lIdeal {f y : A} : y ∈ lIdeal f ↔ y * f = y := Iff.rfl
 `Aᵐᵒᵖ`-module. -/
 def rIdeal (f : A) : Submodule Aᵐᵒᵖ A where
   carrier := {y | f * y = y}
-  add_mem' {x y} hx hy := by simp only [Set.mem_setOf_eq, mul_add] at *; rw [hx, hy]
+  add_mem' {x y} hx hy := by simp only [Set.mem_ofPred_eq, mul_add] at *; rw [hx, hy]
   zero_mem' := mul_zero f
   smul_mem' c x hx := by
-    simp only [Set.mem_setOf_eq, op_smul_eq_mul, smul_eq_mul_unop] at *
+    simp only [Set.mem_ofPred_eq, smul_eq_mul_unop] at *
     rw [← mul_assoc, hx]
 
 theorem mem_rIdeal {f y : A} : y ∈ rIdeal f ↔ f * y = y := Iff.rfl

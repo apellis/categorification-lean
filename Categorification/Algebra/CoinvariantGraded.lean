@@ -23,7 +23,7 @@ differences `∂_j` have degree `-c`:
 
 namespace Categorification
 
-open MvPolynomial Equiv DirectSum Graded
+open MvPolynomial Equiv DirectSum Categorification.Graded
 
 variable {k : Type*} [Field k] {m : ℕ}
 
@@ -36,7 +36,7 @@ variable {σ : Type*} [DecidableEq σ] {a b : σ}
 private theorem degree_erase_erase' (hab : a ≠ b) (s : σ →₀ ℕ) :
     ((s.erase a).erase b).degree + s a + s b = s.degree := by
   conv_rhs => rw [← erase_add_single hab s]
-  rw [Finsupp.degree_add, Finsupp.degree_add, Finsupp.degree_single, Finsupp.degree_single]
+  rw [map_add, map_add, Finsupp.degree_single, Finsupp.degree_single]
 
 omit [DecidableEq σ] in
 private theorem isHomogeneous_ddiffMonomial_aux' (r : MvPolynomial σ k) {e : ℕ}
@@ -85,7 +85,7 @@ theorem mem_constGrade {c d : ℤ} {p : MvPolynomial (Fin m) k} :
 
 theorem weight_const (c : ℤ) (s : Fin m →₀ ℕ) :
     Finsupp.weight (fun _ : Fin m => c) s = c * (s.degree : ℤ) := by
-  rw [Finsupp.weight_apply, Finsupp.sum, Finsupp.degree, Nat.cast_sum, Finset.mul_sum]
+  rw [Finsupp.weight_apply, Finsupp.sum, Finsupp.degree_apply, Nat.cast_sum, Finset.mul_sum]
   refine Finset.sum_congr rfl fun a _ => ?_
   rw [nsmul_eq_mul, mul_comm]
 
@@ -126,7 +126,7 @@ theorem ddiff_mem_constGrade {c e : ℤ} {a b : Fin m} (hab : a ≠ b) {p : MvPo
   refine Submodule.sum_mem _ fun s hs => ?_
   have hw : Finsupp.weight (fun _ => c) s = e := (mem_constGrade.1 hp) (mem_support_iff.1 hs)
   rw [weight_const] at hw
-  have hc : (monomial s (coeff s p) : MvPolynomial (Fin m) k) = coeff s p • monomial s 1 := by
+  have hc : (monomial s (p.coeff s) : MvPolynomial (Fin m) k) = p.coeff s • monomial s 1 := by
     rw [smul_monomial, smul_eq_mul, mul_one]
   rw [hc, map_smul]
   refine Submodule.smul_mem _ _ ?_

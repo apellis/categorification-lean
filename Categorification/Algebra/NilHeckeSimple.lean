@@ -83,11 +83,31 @@ variable (k m) in
 noncomputable def nhAct : nilHecke k m →ₐ[k] Module.End k (Coinv k m) where
   toFun T := (coinvSub k m).mapQ (coinvSub k m) (T : Module.End k (MvPolynomial (Fin m) k))
     fun _ hp => nilHecke_stable T.2 hp
-  map_one' := by ext; simp
-  map_mul' T T' := by ext; simp
-  map_zero' := by ext; simp
-  map_add' T T' := by ext; simp
-  commutes' c := by ext; simp [Module.algebraMap_end_apply]
+  map_one' := by
+    apply LinearMap.ext
+    intro v
+    obtain ⟨p, rfl⟩ := Submodule.Quotient.mk_surjective _ v
+    rfl
+  map_mul' T T' := by
+    apply LinearMap.ext
+    intro v
+    obtain ⟨p, rfl⟩ := Submodule.Quotient.mk_surjective _ v
+    rfl
+  map_zero' := by
+    apply LinearMap.ext
+    intro v
+    obtain ⟨p, rfl⟩ := Submodule.Quotient.mk_surjective _ v
+    rfl
+  map_add' T T' := by
+    apply LinearMap.ext
+    intro v
+    obtain ⟨p, rfl⟩ := Submodule.Quotient.mk_surjective _ v
+    rfl
+  commutes' c := by
+    apply LinearMap.ext
+    intro v
+    obtain ⟨p, rfl⟩ := Submodule.Quotient.mk_surjective _ v
+    rfl
 
 @[simp] theorem nhAct_mk (T : nilHecke k m) (p : MvPolynomial (Fin m) k) :
     nhAct k m T (Submodule.Quotient.mk p) =
@@ -110,7 +130,7 @@ instance : FiniteDimensional k (NHRep k m) := inferInstanceAs (FiniteDimensional
 
 variable (k m) in
 /-- The identification `L_m = NHRep k m`. -/
-def NHRep.of : Coinv k m ≃ₗ[k] NHRep k m := LinearEquiv.refl k _
+noncomputable def NHRep.of : Coinv k m ≃ₗ[k] NHRep k m := LinearEquiv.refl k _
 
 /-- `L_m` as a module over `NH_m`. -/
 noncomputable instance : Module (nilHecke k m) (NHRep k m) :=
@@ -121,9 +141,9 @@ theorem nilHecke_smul_def (T : nilHecke k m) (v : Coinv k m) :
 
 instance : IsScalarTower k (nilHecke k m) (NHRep k m) where
   smul_assoc c T v := by
-    show nhAct k m (c • T) v = c • nhAct k m T v
-    rw [show nhAct k m (c • T) = c • nhAct k m T from (nhAct k m).toLinearMap.map_smul c T,
-      LinearMap.smul_apply]
+    change nhAct k m (c • T) (v : Coinv k m) = c • nhAct k m T (v : Coinv k m)
+    rw [show nhAct k m (c • T) = c • nhAct k m T from (nhAct k m).toLinearMap.map_smul c T]
+    rfl
 
 /-! ### Words in commuting nilpotent operators -/
 
@@ -145,7 +165,7 @@ theorem exists_ne_zero_forall_eq_zero {R V ι : Type*} [Semiring R] [AddCommMono
     rcases h : Nat.find hQ with _ | n
     · exact ⟨[], rfl, by simpa using hne⟩
     · have := Nat.find_min hQ (show n < Nat.find hQ by omega)
-      push_neg at this
+      push Not at this
       obtain ⟨ρ, hρ, hne'⟩ := this
       exact ⟨ρ, hρ, hne'⟩
   refine ⟨_, hPρ ρ, hρ, fun i => ?_⟩
@@ -245,7 +265,7 @@ instance : Nontrivial (Coinv k m) :=
 nonzero common null vector of the `x_a`, which is a multiple of `[x^δ]`, and
 `∂_{w_0} [x^δ] = [1]` generates `L_m`. -/
 theorem isSimpleModule_coinv : IsSimpleModule (nilHecke k m) (NHRep k m) := by
-  haveI : Nontrivial (NHRep k m) := inferInstanceAs (Nontrivial (Coinv k m))
+  have : Nontrivial (NHRep k m) := inferInstanceAs (Nontrivial (Coinv k m))
   refine { eq_bot_or_eq_top := fun N => ?_ }
   by_cases hN : N = ⊥
   · exact Or.inl hN

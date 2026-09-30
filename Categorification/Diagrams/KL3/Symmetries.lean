@@ -38,6 +38,8 @@ degree computation behind the almost biadjoints of §3.3.1:
   `σ̃` are then automatic.
 -/
 
+set_option backward.isDefEq.respectTransparency false
+
 noncomputable section
 
 namespace Categorification.KL3.Diagram

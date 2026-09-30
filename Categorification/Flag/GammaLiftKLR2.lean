@@ -30,6 +30,9 @@ The scalars `r_i` enter only through `r_i = 1` (the `sl_n` scalars `CL.Sln.slnSc
 polynomial `Q_{cd}` of `sqNe` only through `Q_{cd} = Q^τ_{cd}` (`CL.Sln.qCL_sln_of_ne`).
 -/
 
+-- Preserve elaboration of semireducible diagram transports.
+set_option backward.isDefEq.respectTransparency false
+
 noncomputable section
 
 namespace Categorification.Flag
@@ -54,19 +57,19 @@ theorem crossEEP2_sq (i : Fin m) {t r₁ r₂ : Comp m} (h₁ : StepR (true, i) 
 theorem crossU_self_sq (i : Fin m) {t r₁ r₂ : Comp m} (h₁ : StepR (true, i) r₁ t)
     (h₂ : StepR (true, i) r₂ r₁) :
     (crossU K i i h₁ h₂ h₁ h₂).comp (crossU K i i h₁ h₂ h₁ h₂) = 0 := by
-  simp only [crossU, dif_pos rfl]
+  simp only [crossU]
   exact crossEEP2_sq i h₁ h₂
 
 theorem tauU_of_ne {c d : Fin m} (hcd : c ≠ d) {t r₁ r₂ r₁' : Comp m} (h₁ : StepR (true, c) r₁ t)
     (h₂ : StepR (true, d) r₂ r₁) (h₁' : StepR (true, d) r₁' t) (h₂' : StepR (true, c) r₂ r₁') :
     tauU K c d h₁ h₂ h₁' h₂' = 0 := by
-  simp only [tauU, dif_neg hcd]
+  simp only [tauU, dite_eq_right hcd]
 
 theorem crossU_eq_gammaCross {c d : Fin m} (hcd : c ≠ d) {t r₁ r₂ r₁' : Comp m}
     (h₁ : StepR (true, c) r₁ t) (h₂ : StepR (true, d) r₂ r₁) (h₁' : StepR (true, d) r₁' t)
     (h₂' : StepR (true, c) r₂ r₁') :
     crossU K c d h₁ h₂ h₁' h₂' = Signed.gammaCross K c d hcd h₁ h₂ h₁' h₂' := by
-  simp only [crossU, dif_neg hcd]
+  simp only [crossU, dite_eq_right hcd]
   rfl
 
 theorem BHom.mulB_zero'' {A B : Type u} [CommRing A] [CommRing B] (M : BRing A B) :

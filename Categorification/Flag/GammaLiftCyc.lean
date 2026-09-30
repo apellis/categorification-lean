@@ -29,6 +29,9 @@ the canonical data differ from the normal-form data of the relation only by rela
 two boundary objects, which are absorbed by the downward crossing (`crossDn_relabel`).
 -/
 
+-- Preserve elaboration of semireducible diagram transports.
+set_option backward.isDefEq.respectTransparency false
+
 noncomputable section
 
 namespace Categorification.Flag

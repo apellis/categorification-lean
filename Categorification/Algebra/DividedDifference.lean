@@ -50,7 +50,7 @@ noncomputable def ddiff (a b : σ) : MvPolynomial σ k →ₗ[k] MvPolynomial σ
 theorem ddiff_monomial_one (a b : σ) (s : σ →₀ ℕ) :
     ddiff a b (monomial s (1 : k)) = ddiffMonomial a b s := by
   have : (monomial s (1 : k)) = basisMonomials σ k s := rfl
-  rw [ddiff, this, Basis.constr_basis]
+  rw [ddiff, this, Module.Basis.constr_basis]
 
 variable [DecidableEq σ] {a b : σ}
 
@@ -63,12 +63,12 @@ theorem erase_add_single (hab : a ≠ b) (s : σ →₀ ℕ) :
   by_cases hca : c = a
   · subst hca; simp [hab, Ne.symm hab]
   · by_cases hcb : c = b
-    · subst hcb; simp [hca, Ne.symm hca]
+    · subst hcb; simp [Ne.symm hca]
     · simp [hca, hcb, Ne.symm hca, Ne.symm hcb]
 
 theorem monomial_one_eq_erase_mul (hab : a ≠ b) (s : σ →₀ ℕ) :
     monomial s (1 : k) = monomial ((s.erase a).erase b) 1 * X a ^ s a * X b ^ s b := by
-  rw [X_pow_eq_monomial, X_pow_eq_monomial, monomial_mul, monomial_mul, one_mul, one_mul,
+  rw [X_pow_eq_monomial, X_pow_eq_monomial, monomial_mul_monomial, monomial_mul_monomial, one_mul, one_mul,
     erase_add_single hab]
 
 theorem rename_swap_monomial_erase (s : σ →₀ ℕ) :
@@ -76,7 +76,7 @@ theorem rename_swap_monomial_erase (s : σ →₀ ℕ) :
       monomial ((s.erase a).erase b) 1 := by
   have : Finsupp.mapDomain (swap a b) ((s.erase a).erase b) = (s.erase a).erase b := by
     ext c
-    rw [← swap_apply_self a b c, Finsupp.mapDomain_apply (swap a b).injective, swap_apply_self]
+    rw [← swap_apply_self a b c, Finsupp.mapDomain_apply_of_injective (swap a b).injective, swap_apply_self]
     simp only [Finsupp.erase_apply]
     by_cases hca : c = a
     · subst hca; by_cases h : c = b <;> simp [h, swap_apply_left]

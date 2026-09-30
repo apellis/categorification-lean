@@ -123,9 +123,9 @@ theorem crossOp_dot_left (hpq : p ≠ q) (a b : I) (g : MvPolynomial (Fin n) k) 
   by_cases hab : a = b
   · subst hab
     rw [crossOp_self, crossOp_self, ddiff_mul hpq, ddiff_X_right hpq, rename_X,
-      swap_apply_right, if_pos rfl]
+      swap_apply_right, ite_eq_left rfl]
     ring
-  · rw [crossOp_of_ne P hab, crossOp_of_ne P hab, if_neg hab, map_mul, rename_X,
+  · rw [crossOp_of_ne P hab, crossOp_of_ne P hab, ite_eq_right hab, map_mul, rename_X,
       swap_apply_right]
     ring
 
@@ -135,9 +135,9 @@ theorem crossOp_dot_right (hpq : p ≠ q) (a b : I) (g : MvPolynomial (Fin n) k)
   by_cases hab : a = b
   · subst hab
     rw [crossOp_self, crossOp_self, ddiff_mul hpq, ddiff_X_left hpq, rename_X,
-      swap_apply_left, if_pos rfl]
+      swap_apply_left, ite_eq_left rfl]
     ring
-  · rw [crossOp_of_ne P hab, crossOp_of_ne P hab, if_neg hab, map_mul, rename_X,
+  · rw [crossOp_of_ne P hab, crossOp_of_ne P hab, ite_eq_right hab, map_mul, rename_X,
       swap_apply_left]
     ring
 
@@ -149,8 +149,8 @@ theorem crossOp_sq {Q : I → I → MvPolynomial (Fin 2) k}
       if a = b then 0 else rename ![p, q] (Q a b) * g := by
   by_cases hab : a = b
   · subst hab
-    rw [crossOp_self, crossOp_self, ddiff_ddiff hpq, if_pos rfl]
-  · rw [crossOp_of_ne P hab, crossOp_of_ne P (Ne.symm hab), if_neg hab, hPQ a b hab, map_mul,
+    rw [crossOp_self, crossOp_self, ddiff_ddiff hpq, ite_eq_left rfl]
+  · rw [crossOp_of_ne P hab, crossOp_of_ne P (Ne.symm hab), ite_eq_right hab, hPQ a b hab, map_mul,
       map_mul, rename_swap_rename_swap, rename_rename_vec2, swap_apply_left, swap_apply_right,
       rename_vec2_rename_swap]
     ring
@@ -221,12 +221,12 @@ theorem crossOp_braid {Q : I → I → MvPolynomial (Fin 2) k}
   · subst hab
     by_cases hac : a = c
     · subst hac
-      simp only [crossOp_self, ne_eq, not_true_eq_false, and_false, if_false]
+      simp only [crossOp_self, ne_eq, not_true_eq_false, and_false, ite_false]
       rw [ddiff_braid h01 h12 h02, sub_self]
-    · rw [if_neg (by tauto)]
+    · rw [ite_eq_right (by tauto)]
       simp only [crossOp_self, crossOp_of_ne P hac, map_mul, rename_rename_vec2,
         swap_apply_left, swap_apply_right, swap_apply_of_ne_of_ne, rename_swap_ddiff_conj, h01, h02,
-        h12, h10, h20, h21, ne_eq, not_false_eq_true]
+        h20, h21, ne_eq, not_false_eq_true]
       have hsym : rename (swap p₁ p₂) (rename ![p₀, p₁] (P a c) * rename ![p₀, p₂] (P a c)) =
           rename ![p₀, p₁] (P a c) * rename ![p₀, p₂] (P a c) := by
         rw [map_mul, rename_rename_vec2, rename_rename_vec2, swap_apply_left, swap_apply_right,
@@ -235,10 +235,10 @@ theorem crossOp_braid {Q : I → I → MvPolynomial (Fin 2) k}
       ring
   · by_cases hbc : b = c
     · subst hbc
-      rw [if_neg (by tauto)]
+      rw [ite_eq_right (by tauto)]
       simp only [crossOp_self, crossOp_of_ne P hab, map_mul, rename_rename_vec2,
         swap_apply_left, swap_apply_right, swap_apply_of_ne_of_ne, rename_swap_ddiff_conj, h01, h02,
-        h12, h10, h20, h21, ne_eq, not_false_eq_true]
+        h12, h20, h21, ne_eq, not_false_eq_true]
       have hsym : rename (swap p₀ p₁) (rename ![p₁, p₂] (P a b) * rename ![p₀, p₂] (P a b)) =
           rename ![p₁, p₂] (P a b) * rename ![p₀, p₂] (P a b) := by
         rw [map_mul, rename_rename_vec2, rename_rename_vec2, swap_apply_left, swap_apply_right,
@@ -247,18 +247,18 @@ theorem crossOp_braid {Q : I → I → MvPolynomial (Fin 2) k}
       ring
     · by_cases hac : a = c
       · subst hac
-        rw [if_pos ⟨rfl, hab⟩]
+        rw [ite_eq_left ⟨rfl, hab⟩]
         simp only [crossOp_self, crossOp_of_ne P hab, crossOp_of_ne P (Ne.symm hab), map_mul,
           rename_rename_vec2, swap_apply_left, swap_apply_right, swap_apply_of_ne_of_ne,
-          rename_swap_ddiff_conj, rename_swap_rename_swap, h01, h02, h12, h10, h20, h21, ne_eq,
+          rename_swap_ddiff_conj, rename_swap_rename_swap, h01, h02, h12, h20, h21, ne_eq,
           not_false_eq_true]
         rw [ddiff_mul h02, ddiff_mul h02, rename_qbar P hPQ hab h02 h12 h01, rename_rename_vec2,
           rename_rename_vec2, swap_apply_left, swap_apply_right, swap_apply_of_ne_of_ne h10 h12]
         ring
-      · rw [if_neg (by tauto)]
+      · rw [ite_eq_right (by tauto)]
         simp only [crossOp_of_ne P hab, crossOp_of_ne P hbc, crossOp_of_ne P hac, map_mul,
           rename_rename_vec2, swap_apply_left, swap_apply_right, swap_apply_of_ne_of_ne, h01, h02,
-          h12, h10, h20, h21, ne_eq, not_false_eq_true]
+          h20, h21, ne_eq, not_false_eq_true]
         rw [rename_swap_braid h01 h12 h02]
         ring
 
@@ -293,7 +293,7 @@ theorem swap_smul_eq_self {p q : Fin m} {t : Seq ν} (h : t.1 p = t.1 q) : swap 
   · rfl
 
 omit [DecidableEq I] in
-theorem sadj_eq {j : ℕ} (h : j + 1 < m) : sadj m j = swap ⟨j, by omega⟩ ⟨j + 1, h⟩ := dif_pos h
+theorem sadj_eq {j : ℕ} (h : j + 1 < m) : sadj m j = swap ⟨j, by omega⟩ ⟨j + 1, h⟩ := dite_eq_left h
 
 theorem crossComp_eq (P : I → I → MvPolynomial (Fin 2) k) (j : ℕ) (h : j + 1 < m) (t : Seq ν) :
     crossComp P j h t =
@@ -347,7 +347,7 @@ theorem opE_mul_opE (i j : Seq ν) :
 
 theorem sum_opE : (∑ i, opE i : Module.End k (Pol k ν)) = 1 := by
   apply LinearMap.ext; intro f; funext t
-  simp [LinearMap.coeFn_sum, Finset.sum_apply, opE_apply]
+  simp [LinearMap.coe_sum, Finset.sum_apply, opE_apply]
 
 theorem opX_mul_opE (a : Fin m) (i : Seq ν) :
     (opX a * opE i : Module.End k (Pol k ν)) = opE i * opX a := by
@@ -364,7 +364,7 @@ theorem opΨ_mul_opE (P : I → I → MvPolynomial (Fin 2) k) (j : ℕ) (i : Seq
     simp only [Module.End.mul_apply, opE_apply, opΨ_apply_of_eq P hp hq, sadj_eq_swap hp hq]
     by_cases ht : t = swap p q • i
     · subst ht; simp
-    · rw [if_neg ht, if_neg, map_zero]
+    · rw [ite_eq_right ht, ite_eq_right, map_zero]
       rintro rfl; exact ht (swap_smul_swap_smul _ _ _).symm
   · rw [opΨ_eq_zero P (j := j) (by omega), zero_mul, mul_zero]
 
@@ -418,14 +418,14 @@ theorem opX_opΨ_sub (P : I → I → MvPolynomial (Fin 2) k) {j : ℕ} {p q : F
     opE_apply, Pi.sub_apply]
   by_cases hst : swap p q • t = i
   · obtain rfl : t = swap p q • i := by rw [← hst, swap_smul_swap_smul]
-    simp only [swap_smul_swap_smul, if_true, swap_smul_apply, swap_apply_left, swap_apply_right]
+    simp only [swap_smul_swap_smul, ite_true, swap_smul_apply, swap_apply_left, swap_apply_right]
     rw [crossOp_dot_left P hpq]
     split_ifs with he
-    · rw [opE_apply, swap_smul_eq_self he, if_pos rfl]
+    · rw [opE_apply, swap_smul_eq_self he, ite_eq_left rfl]
     · rfl
-  · rw [if_neg hst, mul_zero, map_zero, mul_zero, sub_self]
+  · rw [ite_eq_right hst, mul_zero, map_zero, mul_zero, sub_self]
     split_ifs with he
-    · rw [opE_apply, if_neg]
+    · rw [opE_apply, ite_eq_right]
       rintro rfl; exact hst (swap_smul_eq_self he)
     · rfl
 
@@ -440,14 +440,14 @@ theorem opΨ_opX_sub (P : I → I → MvPolynomial (Fin 2) k) {j : ℕ} {p q : F
     opE_apply, Pi.sub_apply]
   by_cases hst : swap p q • t = i
   · obtain rfl : t = swap p q • i := by rw [← hst, swap_smul_swap_smul]
-    simp only [swap_smul_swap_smul, if_true, swap_smul_apply, swap_apply_left, swap_apply_right]
+    simp only [swap_smul_swap_smul, ite_true, swap_smul_apply, swap_apply_left, swap_apply_right]
     rw [crossOp_dot_right P hpq]
     split_ifs with he
-    · rw [opE_apply, swap_smul_eq_self he, if_pos rfl]
+    · rw [opE_apply, swap_smul_eq_self he, ite_eq_left rfl]
     · rfl
-  · rw [if_neg hst, mul_zero, map_zero, mul_zero, sub_self]
+  · rw [ite_eq_right hst, mul_zero, map_zero, mul_zero, sub_self]
     split_ifs with he
-    · rw [opE_apply, if_neg]
+    · rw [opE_apply, ite_eq_right]
       rintro rfl; exact hst (swap_smul_eq_self he)
     · rfl
 
@@ -464,9 +464,9 @@ theorem opΨ_sq (P : I → I → MvPolynomial (Fin 2) k) {Q : I → I → MvPoly
     swap_apply_left, swap_apply_right, swap_smul_swap_smul]
   by_cases ht : t = i
   · subst ht
-    rw [if_pos rfl, crossOp_sq P hPQ hpq]
+    rw [ite_eq_left rfl, crossOp_sq P hPQ hpq]
     split_ifs <;> simp
-  · rw [if_neg ht, map_zero, map_zero]
+  · rw [ite_eq_right ht, map_zero, map_zero]
     split_ifs <;> simp [ht]
 
 omit [DecidableEq I] in
@@ -506,15 +506,15 @@ theorem opΨ_braid (P : I → I → MvPolynomial (Fin 2) k) {Q : I → I → MvP
   by_cases hw : swap p₀ p₁ • swap p₁ p₂ • swap p₀ p₁ • t = i
   · obtain rfl : t = swap p₀ p₁ • swap p₁ p₂ • swap p₀ p₁ • i := by
       rw [← hw]; simp only [swap_smul_swap_smul]
-    simp only [swap_smul_swap_smul, if_true, swap_smul_apply, swap_apply_left, swap_apply_right,
+    simp only [swap_smul_swap_smul, ite_true, swap_smul_apply, swap_apply_left, swap_apply_right,
       swap_apply_of_ne_of_ne (Ne.symm h02) (Ne.symm h12), swap_apply_of_ne_of_ne h01 h02]
     split_ifs with hc
     · rw [Module.End.mul_apply, opMul_apply, opE_apply, swap_smul_braid_eq_self h02 h12 hc.1,
-        if_pos rfl]
+        ite_eq_left rfl]
     · rfl
-  · rw [if_neg hw, mul_zero, ite_self]
+  · rw [ite_eq_right hw, mul_zero, ite_self]
     split_ifs with hc
-    · rw [Module.End.mul_apply, opMul_apply, opE_apply, if_neg, mul_zero]
+    · rw [Module.End.mul_apply, opMul_apply, opE_apply, ite_eq_right, mul_zero]
       rintro rfl; exact hw (swap_smul_braid_eq_self h02 h12 hc.1)
     · rfl
 
@@ -541,7 +541,6 @@ theorem ncEval_algHom_X {n' : ℕ} (φ : MvPolynomial (Fin n') k →ₐ[k] B) (v
     (fun _ => pow_zero _) (fun _ _ _ => pow_add _ _ _), Finsupp.prod_fintype _ _
     (fun _ => pow_zero _), ← List.prod_ofFn, map_mul, algHom_C, map_list_prod, List.map_ofFn]
   simp only [Function.comp_def, map_pow]
-  rfl
 
 end Rep
 

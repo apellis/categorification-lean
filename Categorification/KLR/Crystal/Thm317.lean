@@ -155,7 +155,7 @@ theorem dimCh_append_const (j : Seq μ) :
       dimCh Q μ (HWSpace Q μ ν' (ResSub Q μ ν' L)) j * Module.finrank K (KLRRep hν' Q) := by
   have hnilΔ : ∀ b, SmulNilpotent ((1 : KLRAlgebra K Q μ) ⊗ₜ[K] x b : TensorKLR Q μ ν')
       (ResSub Q μ ν' L) := fun b => smulNilpotent_resSub b (hnil _)
-  haveI := (lemma_3_8 hν' hPQ hP hnil hε).1
+  have := (lemma_3_8 hν' hPQ hP hnil hε).1
   rw [dimCh, ← finrank_fixSub_resSub hν' j,
     ← finrank_fixSub_congr (hwEquiv hν' hPQ hP hnilΔ),
     finrank_fixSub_extTensor (K := K) (e_mul_self j) IsIdempotentElem.one, fixSub_one, finrank_top]
@@ -185,7 +185,7 @@ theorem nonempty_equiv_of_hwSpace_equiv
   obtain ⟨h1, h2, h3⟩ := lemma_3_8 hν' hPQ hP hnil hε
   obtain ⟨h1', h2', h3'⟩ := lemma_3_8 hν' hPQ hP hnil' hε'
   set N := HWSpace Q μ ν' (ResSub Q μ ν' L')
-  haveI : Nontrivial N := IsSimpleModule.nontrivial (KLRAlgebra K Q μ) N
+  have : Nontrivial N := IsSimpleModule.nontrivial (KLRAlgebra K Q μ) N
   obtain ⟨P', -, huniq, -⟩ := lemma_3_7_head hν' hPQ hP (N := N) h3'
   let Φ := hwEquiv hν' hPQ hP hnilΔ
   let Φ' := hwEquiv hν' hPQ hP hnilΔ'
@@ -208,10 +208,10 @@ theorem nonempty_equiv_of_hwSpace_equiv
   have hπ := indAdjBwd_surjective hg0
   have hπ' := indAdjBwd_surjective hg0'
   have hc : IsCoatom (LinearMap.ker (indAdjBwd g)) := by
-    haveI := IsSimpleModule.congr ((indAdjBwd g).quotKerEquivOfSurjective hπ)
+    have := IsSimpleModule.congr ((indAdjBwd g).quotKerEquivOfSurjective hπ)
     exact isSimpleModule_iff_isCoatom.1 inferInstance
   have hc' : IsCoatom (LinearMap.ker (indAdjBwd g')) := by
-    haveI := IsSimpleModule.congr ((indAdjBwd g').quotKerEquivOfSurjective hπ')
+    have := IsSimpleModule.congr ((indAdjBwd g').quotKerEquivOfSurjective hπ')
     exact isSimpleModule_iff_isCoatom.1 inferInstance
   have hker : LinearMap.ker (indAdjBwd g) = LinearMap.ker (indAdjBwd g') :=
     (huniq _ hc).trans (huniq _ hc').symm
@@ -235,7 +235,7 @@ theorem exists_eq_algebraMap_of_card_eq_zero (h : Multiset.card ν = 0) (r : KLR
     ∃ c : K, r = algebraMap K (KLRAlgebra K Q ν) c := by
   have hr : r ∈ Algebra.adjoin K (Set.range (e (k := K) (Q := Q) (ν := ν)) ∪ Set.range x ∪
       Set.range ψ) := by rw [adjoin_gens]; trivial
-  haveI := subsingleton_seq_of_card_eq_zero h
+  have := subsingleton_seq_of_card_eq_zero h
   induction hr using Algebra.adjoin_induction with
   | mem y hy =>
     rcases hy with (⟨s, rfl⟩ | ⟨a, rfl⟩) | ⟨j, rfl⟩
@@ -266,7 +266,7 @@ theorem mem_span_of_card_eq_zero (h : Multiset.card ν = 0) (v : L) (r : KLRAlge
 include Q in
 /-- A simple `R(ν)`-module is one-dimensional if `|ν| = 0`. -/
 theorem finrank_eq_one_of_card_eq_zero (h : Multiset.card ν = 0) : Module.finrank K L = 1 := by
-  haveI := IsSimpleModule.nontrivial (KLRAlgebra K Q ν) L
+  have := IsSimpleModule.nontrivial (KLRAlgebra K Q ν) L
   obtain ⟨v, hv⟩ := exists_ne (0 : L)
   let S : Submodule (KLRAlgebra K Q ν) L :=
     { carrier := Submodule.span K {v}
@@ -296,8 +296,8 @@ theorem nonempty_equiv_of_card_eq_zero (h : Multiset.card ν = 0)
     Nonempty (L ≃ₗ[KLRAlgebra K Q ν] L') := by
   have h1 := finrank_eq_one_of_card_eq_zero (Q := Q) (L := L) h
   have h2 := finrank_eq_one_of_card_eq_zero (Q := Q) (L := L') h
-  haveI : FiniteDimensional K L := Module.finite_of_finrank_eq_succ h1
-  haveI : FiniteDimensional K L' := Module.finite_of_finrank_eq_succ h2
+  have : FiniteDimensional K L := Module.finite_of_finrank_eq_succ h1
+  have : FiniteDimensional K L' := Module.finite_of_finrank_eq_succ h2
   let f : L ≃ₗ[K] L' := LinearEquiv.ofFinrankEq L L' (h1.trans h2.symm)
   exact ⟨{ f with
     map_smul' := fun r v => by
@@ -334,12 +334,12 @@ theorem thm_3_17_aux (n : ℕ) : ∀ (ν : Multiset I), Multiset.card ν = n →
   by_contra hc0
   obtain ⟨t₀, ht₀⟩ := Function.ne_iff.1 hc0
   simp only [Pi.zero_apply] at ht₀
-  haveI : ∀ t, Nontrivial (L t) := fun t => IsSimpleModule.nontrivial (KLRAlgebra K Q ν) (L t)
+  have : ∀ t, Nontrivial (L t) := fun t => IsSimpleModule.nontrivial (KLRAlgebra K Q ν) (L t)
   obtain ⟨s₀, hs₀⟩ := seqSupp_nonempty (Q := Q) (ν := ν) (M := L t₀)
   rcases Nat.eq_zero_or_pos n with hn | hn
   · -- `|ν| = 0`: all simple modules are isomorphic
     subst hn
-    haveI : Subsingleton T := ⟨fun t t' => hL t t' (nonempty_equiv_of_card_eq_zero hν)⟩
+    have : Subsingleton T := ⟨fun t t' => hL t t' (nonempty_equiv_of_card_eq_zero hν)⟩
     have h := hc s₀
     rw [Fintype.sum_subsingleton _ t₀] at h
     have hpos : 0 < dimCh Q ν (L t₀) s₀ := by
@@ -377,7 +377,7 @@ theorem thm_3_17_aux (n : ℕ) : ∀ (ν : Multiset I), Multiset.card ν = n →
   -- the modules `N_t = HW(Δ_{i^ε} L_t)` for `ε_i(L_t) = ε`
   let T' := {t : T // epsI Q (μ + ν') i (L t) = Multiset.card ν'}
   let N : T' → Type u := fun t => HWSpace Q μ ν' (ResSub Q μ ν' (L t.1))
-  haveI hNs : ∀ t : T', IsSimpleModule (KLRAlgebra K Q μ) (N t) := fun t =>
+  have hNs : ∀ t : T', IsSimpleModule (KLRAlgebra K Q μ) (N t) := fun t =>
     (lemma_3_8 hν' hPQ hP (hnil t.1) t.2).2.1
   have hNnil : ∀ (t : T') (a : Fin (Multiset.card μ)),
       SmulNilpotent (x a : KLRAlgebra K Q μ) (N t) := fun t a =>

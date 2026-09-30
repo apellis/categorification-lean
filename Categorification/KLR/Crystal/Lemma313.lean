@@ -160,8 +160,8 @@ structure Good (M : KLRMod Q ν) : Prop where
 def cast (h : ν₁ = ν₂) (M : KLRMod Q ν₂) : KLRMod Q ν₁ := of (CastMod h M.carrier)
 
 theorem Good.cast {M : KLRMod Q ν₂} (hM : M.Good) (h : ν₁ = ν₂) : (M.cast h).Good := by
-  haveI := hM.simple
-  haveI := hM.fd
+  have := hM.simple
+  have := hM.fd
   refine ⟨isSimpleModule_castMod h M.carrier, inferInstanceAs (FiniteDimensional K M.carrier),
     fun a => ?_⟩
   exact smulNilpotent_castMod (M := M.carrier) (by rw [castKLR_x]; exact hM.nil _)
@@ -218,7 +218,8 @@ theorem IsTop.cast {μ' : Multiset I} {L : KLRMod Q ν₂} {T : KLRMod Q μ'}
     (hL : L.IsTop i T) (h : ν₁ = ν₂) : (L.cast h).IsTop i T := by
   obtain ⟨ν'', hν'', hd, hc, ⟨φ⟩⟩ := hL
   exact ⟨ν'', hν'', hd.trans h.symm, by rw [epsI_cast]; exact hc,
-    ⟨(hwResSubEquiv (castModTrans (hd.trans h.symm) h L.carrier)).trans φ⟩⟩
+    ⟨(hwResSubEquiv (K := K) (Q := Q) (μ := μ') (ν' := ν'')
+      (castModTrans (hd.trans h.symm) h L.carrier)).trans φ⟩⟩
 
 theorem IsTop.of_equiv {μ' : Multiset I} {L L' : KLRMod Q ν} {T : KLRMod Q μ'}
     (hL : L.IsTop i T) (e : L ≃ₗ[KLRAlgebra K Q ν] L') : L'.IsTop i T := by
@@ -235,8 +236,8 @@ theorem exists_isTop {L : KLRMod Q ν} (hL : L.Good) :
     ∃ (μ' : Multiset I) (hd : μ' + Multiset.replicate (epsI Q ν i L.carrier) i = ν),
       L.IsTop i (of (Q := Q) (ν := μ') (HWSpace Q μ' (Multiset.replicate (epsI Q ν i L.carrier) i)
         (ResSub Q μ' (Multiset.replicate (epsI Q ν i L.carrier) i) (CastMod hd L.carrier)))) := by
-  haveI := hL.simple
-  haveI := IsSimpleModule.nontrivial (KLRAlgebra K Q ν) L
+  have := hL.simple
+  have := IsSimpleModule.nontrivial (KLRAlgebra K Q ν) L
   obtain ⟨s, -, hst⟩ := exists_tailLen_eq_epsI (Q := Q) (ν := ν) (i := i) (M := L.carrier)
   have hle := replicate_le_of_hasTail (Seq.hasTail_iff.2 hst.ge)
   obtain ⟨μ', hμ'⟩ := Multiset.le_iff_exists_add.1 hle
@@ -293,12 +294,12 @@ theorem nonempty_equiv_of_isTop {ν μ' : Multiset I} {L L' : KLRMod Q ν} (hL :
   have h12 : ν₁ = ν₂ := by
     rw [Multiset.eq_replicate_card.2 hν₁, Multiset.eq_replicate_card.2 hν₂, hc₁, hc₂, heps]
   subst h12
-  haveI := hL.simple
-  haveI := hL'.simple
-  haveI := hL.fd
-  haveI := hL'.fd
-  haveI := isSimpleModule_castMod (Q := Q) h₁ L.carrier
-  haveI := isSimpleModule_castMod (Q := Q) h₂ L'.carrier
+  have := hL.simple
+  have := hL'.simple
+  have := hL.fd
+  have := hL'.fd
+  have := isSimpleModule_castMod (Q := Q) h₁ L.carrier
+  have := isSimpleModule_castMod (Q := Q) h₂ L'.carrier
   have hnil₁ : ∀ a, SmulNilpotent (x a : KLRAlgebra K Q (μ' + ν₁)) (CastMod h₁ L.carrier) :=
     fun a => smulNilpotent_castMod (M := L.carrier) (by rw [castKLR_x]; exact hL.nil _)
   have hnil₂ : ∀ a, SmulNilpotent (x a : KLRAlgebra K Q (μ' + ν₁)) (CastMod h₂ L'.carrier) :=
@@ -319,8 +320,8 @@ theorem Good.eOne {μ : Multiset I} {M : KLRMod Q (μ + {i})} (hM : M.Good)
     (hpos : 0 < epsI Q (μ + {i}) i M.carrier) :
     (KLRMod.eOne i M).Good ∧
       epsI Q μ i (KLRMod.eOne i M).carrier + 1 = epsI Q (μ + {i}) i M.carrier := by
-  haveI := hM.simple
-  haveI := hM.fd
+  have := hM.simple
+  have := hM.fd
   refine ⟨⟨isSimpleModule_crystalE (mem_singleton_eq i) (Multiset.card_singleton i) hPQ hP
     hM.nil hpos, finiteDimensional_submodule' _, smulNilpotent_crystalE hM.nil⟩, ?_⟩
   exact epsI_crystalE (mem_singleton_eq i) (Multiset.card_singleton i) hPQ hP hM.nil hpos
@@ -328,9 +329,9 @@ theorem Good.eOne {μ : Multiset I} {M : KLRMod Q (μ + {i})} (hM : M.Good)
 /-- `ẽ_i M = 0` if `ε_i(M) = 0`. -/
 theorem Good.eOne_subsingleton {μ : Multiset I} {M : KLRMod Q (μ + {i})} (hM : M.Good)
     (h0 : epsI Q (μ + {i}) i M.carrier = 0) : Subsingleton (KLRMod.eOne i M).carrier := by
-  haveI := hM.simple
-  haveI := hM.fd
-  haveI := IsSimpleModule.nontrivial (KLRAlgebra K Q (μ + {i})) M.carrier
+  have := hM.simple
+  have := hM.fd
+  have := IsSimpleModule.nontrivial (KLRAlgebra K Q (μ + {i})) M.carrier
   have := crystalESub_eq_bot (Q := Q) (μ := μ) (M := M.carrier) (mem_singleton_eq i)
     (by rw [Multiset.card_singleton, h0]; exact Nat.one_pos)
   show Subsingleton (crystalESub Q μ {i} M.carrier)
@@ -343,8 +344,8 @@ theorem Good.crystalF {μ ν' : Multiset I} (hν' : ∀ a ∈ ν', a = i) {N : K
     (hN : N.Good) : (of (Q := Q) (ν := μ + ν') (CrystalF Q μ hν' N.carrier)).Good ∧
       epsI Q (μ + ν') i (CrystalF Q μ hν' N.carrier) =
         epsI Q μ i N.carrier + Multiset.card ν' := by
-  haveI := hN.simple
-  haveI := hN.fd
+  have := hN.simple
+  have := hN.fd
   exact ⟨⟨isSimpleModule_crystalF hν' hPQ hP hN.nil, instFiniteDimensionalCrystalF hν' hPQ hP,
     smulNilpotent_crystalF hν' hPQ hP hN.nil⟩, epsI_crystalF hν' hPQ hP hN.nil⟩
 
@@ -365,8 +366,8 @@ include hPQ hP in
 theorem IsTop.eOne {μ₀ μ' : Multiset I} {M : KLRMod Q (μ₀ + {i})} (hM : M.Good)
     (hpos : 0 < epsI Q (μ₀ + {i}) i M.carrier) {T : KLRMod Q μ'} (hT : M.IsTop i T) :
     (KLRMod.eOne i M).IsTop i T := by
-  haveI := hM.simple
-  haveI := hM.fd
+  have := hM.simple
+  have := hM.fd
   obtain ⟨ν'', hν'', hd, hc, ⟨φ⟩⟩ := hT
   generalize he : epsI Q (μ₀ + {i}) i M.carrier = e at hpos hc
   have hν''eq : ν'' = Multiset.replicate (e - 1) i + {i} := by
@@ -384,7 +385,10 @@ theorem IsTop.eOne {μ₀ μ' : Multiset I} {M : KLRMod Q (μ₀ + {i})} (hM : M
   obtain ⟨hεE, ⟨ψ⟩⟩ := top_crystalE (forall_mem_replicate (e - 1)) (mem_singleton_eq i)
     (Multiset.card_singleton i) hPQ hP hM.nil hε
   exact ⟨_, forall_mem_replicate (e - 1), rfl, hεE.symm,
-    ⟨(hwResSubEquiv (castModRflEquiv _)).trans (ψ.trans φ)⟩⟩
+    ⟨(hwResSubEquiv (K := K) (Q := Q) (μ := μ')
+      (ν' := Multiset.replicate (e - 1) i) (castModRflEquiv (K := K) (Q := Q)
+        (CrystalE Q (μ' + Multiset.replicate (e - 1) i) {i} M.carrier))).trans
+        (ψ.trans φ)⟩⟩
 
 set_option maxHeartbeats 800000 in
 set_option synthInstance.maxHeartbeats 200000 in
@@ -393,8 +397,8 @@ include hPQ hP in
 theorem IsTop.crystalF {μ₀ μ' ν' : Multiset I} (hν' : ∀ a ∈ ν', a = i) {N : KLRMod Q μ₀}
     (hN : N.Good) {T : KLRMod Q μ'} (hT : N.IsTop i T) :
     (of (Q := Q) (ν := μ₀ + ν') (CrystalF Q μ₀ hν' N.carrier)).IsTop i T := by
-  haveI := hN.simple
-  haveI := hN.fd
+  have := hN.simple
+  have := hN.fd
   obtain ⟨ν'', hν'', hd, hc, ⟨φ⟩⟩ := hT
   subst hd
   obtain ⟨ψ⟩ := top_crystalF hν'' hν' hPQ hP hN.nil hc.symm
@@ -418,8 +422,8 @@ theorem isTop_socle {μ₀ ν' μ' : Multiset I} (hν' : ∀ a ∈ ν', a = i) {
     (of (Q := Q) (ν := μ₀) (HWSpace Q μ₀ ν' S)).Good ∧
       epsI Q μ₀ i (HWSpace Q μ₀ ν' S) + Multiset.card ν' = epsI Q (μ₀ + ν') i M.carrier ∧
       (of (Q := Q) (ν := μ₀) (HWSpace Q μ₀ ν' S)).IsTop i T := by
-  haveI := hM.simple
-  haveI := hM.fd
+  have := hM.simple
+  have := hM.fd
   obtain ⟨ν'', hν'', hd, hc, ⟨φ⟩⟩ := hT
   generalize he : epsI Q (μ₀ + ν') i M.carrier = e at hle hc ⊢
   have hν''eq : ν'' = Multiset.replicate (e - Multiset.card ν') i + ν' := by
@@ -437,9 +441,9 @@ theorem isTop_socle {μ₀ ν' μ' : Multiset I} (hν' : ∀ a ∈ ν', a = i) {
   set μ₁ := μ' + Multiset.replicate (e - Multiset.card ν') i
   have hnilS : ∀ b, SmulNilpotent ((1 : KLRAlgebra K Q μ₁) ⊗ₜ[K] x b : TensorKLR Q μ₁ ν') S :=
     fun b => smulNilpotent_submodule S (smulNilpotent_resSub b (hM.nil _))
-  haveI : FiniteDimensional K S := finiteDimensional_submodule' S
-  haveI := isSimpleModule_hwSpace hν' hPQ hP hnilS
-  haveI : FiniteDimensional K (HWSpace Q μ₁ ν' S) := finiteDimensional_submodule' _
+  have : FiniteDimensional K S := finiteDimensional_submodule' S
+  have := isSimpleModule_hwSpace hν' hPQ hP hnilS
+  have : FiniteDimensional K (HWSpace Q μ₁ ν' S) := finiteDimensional_submodule' _
   have hnilN : ∀ a, SmulNilpotent (x a : KLRAlgebra K Q μ₁) (HWSpace Q μ₁ ν' S) := fun a =>
     smulNilpotent_hwSpace_of (smulNilpotent_submodule S (smulNilpotent_resSub_left a (hM.nil _)))
   have hform := (socle_resSub_form hν' hPQ hP hM.nil hε S).2
@@ -535,10 +539,10 @@ theorem nontrivial_eIter_iff {μ : Multiset I} {n : ℕ} {M : KLRMod Q (μ + Mul
   constructor
   · intro hnt
     by_contra hlt
-    haveI := eIter_subsingleton hPQ hP μ n M hM (by omega)
+    have := eIter_subsingleton hPQ hP μ n M hM (by omega)
     exact not_nontrivial _ hnt
   · intro hle
-    haveI := (eIter_spec hPQ hP μ n M hM hle).1.simple
+    have := (eIter_spec hPQ hP μ n M hM hle).1.simple
     exact IsSimpleModule.nontrivial (KLRAlgebra K Q μ) _
 
 include hPQ hP in
@@ -621,7 +625,7 @@ theorem lemma_3_13_soc {μ ν' : Multiset I} (hν' : ∀ a ∈ ν', a = i) {M : 
   obtain ⟨e⟩ := lemma_3_13_hw hPQ hP hν' hnil hle S
   have hnilS : ∀ b, SmulNilpotent ((1 : KLRAlgebra K Q μ) ⊗ₜ[K] x b : TensorKLR Q μ ν') S :=
     fun b => smulNilpotent_submodule S (smulNilpotent_resSub b (hnil _))
-  haveI : FiniteDimensional K S := finiteDimensional_submodule' S
+  have : FiniteDimensional K S := finiteDimensional_submodule' S
   exact ⟨(hwEquiv hν' hPQ hP hnilS).symm.trans (ExtTensor.congr e (LinearEquiv.refl _ _))⟩
 
 set_option maxHeartbeats 800000 in

@@ -97,7 +97,7 @@ theorem exists_indec_retract {X : 𝒞} (hX : ¬ IsZero X) :
     · exact ⟨X, 𝟙 X, 𝟙 X, hi, Category.comp_id _⟩
     obtain ⟨e, he, he0, he1⟩ : ∃ e : X ⟶ X, e ≫ e = e ∧ e ≠ 0 ∧ e ≠ 𝟙 X := by
       by_contra hne
-      push_neg at hne
+      push Not at hne
       exact hi ⟨hX, fun e he => by
         by_cases h' : e = 0
         · exact Or.inl h'
@@ -124,7 +124,7 @@ theorem exists_retract_of_mult_pos {Z X : 𝒞} (hZ : IsIndec Z) (h : 0 < mult k
   have hne : rad k hZ X ≠ ⊤ := fun ht => by rw [ht, finrank_top] at h; exact lt_irrefl _ h
   obtain ⟨f, -, hf⟩ := SetLike.exists_of_lt (lt_top_iff_ne_top.2 hne : rad k hZ X < ⊤)
   rw [mem_rad] at hf
-  push_neg at hf
+  push Not at hf
   obtain ⟨g, u, hu⟩ := hf
   refine ⟨f, g ≫ (↑u⁻¹ : End Z), ?_⟩
   have := u.inv_mul
@@ -189,7 +189,7 @@ omit [Linear k 𝒞] [HomFinite k 𝒞] [IsIdempotentComplete 𝒞] in
 variable (𝒞) in
 /-- The shift data on `K₀(𝒞)` of a grading shift `⟨1⟩` (a `HasShift 𝒞 ℤ` with additive shift
 functors), making `K₀(𝒞)` a `ℤ[q, q⁻¹]`-module. -/
-def k0ShiftOfHasShift : SplitK0.K0Shift 𝒞 where
+@[instance_reducible] def k0ShiftOfHasShift : SplitK0.K0Shift 𝒞 where
   sh n X := X⟦n⟧
   sh_iso n _ _ e := ⟨(shiftFunctor 𝒞 n).mapIso e⟩
   sh_biprod n X Y := ⟨mapBiprodIso (shiftFunctor 𝒞 n) X Y⟩
@@ -225,10 +225,11 @@ variable [HasZeroObject 𝒞]
 
 omit [Linear k 𝒞] [HomFinite k 𝒞] [IsIdempotentComplete 𝒞] in
 theorem of_lsum_shift (A : 𝒞) (L : List ℤ) :
-    letI := k0ShiftOfHasShift 𝒞
+    let := k0ShiftOfHasShift 𝒞
     SplitK0.of (lsum (L.map fun d => A⟦d⟧)) =
       (L.map fun d => (LaurentPolynomial.T d : LaurentPolynomial ℤ)).sum • SplitK0.of A := by
-  letI := k0ShiftOfHasShift 𝒞
+  let := k0ShiftOfHasShift 𝒞
+  dsimp only
   induction L with
   | nil => simp [SplitK0.of_isZero (isZero_zero 𝒞)]
   | cons d L ih =>
@@ -244,7 +245,7 @@ docstring). -/
 theorem cancel_shiftSum (hrig : ∀ (n : ℤ) (X : 𝒞), IsIndec X → Nonempty (X⟦n⟧ ≅ X) → n = 0)
     {L : List ℤ} (hL : L ≠ []) {A B : 𝒞}
     (e : lsum (L.map fun d => A⟦d⟧) ≅ lsum (L.map fun d => B⟦d⟧)) : Nonempty (A ≅ B) := by
-  letI := k0ShiftOfHasShift 𝒞
+  let := k0ShiftOfHasShift 𝒞
   refine nonempty_iso_of_of_eq k ?_
   have h := SplitK0.of_iso e
   rw [of_lsum_shift, of_lsum_shift, ← sub_eq_zero, ← smul_sub] at h
@@ -264,7 +265,7 @@ variable {k} in
 def IsBrick (k : Type*) [Field k] [Linear k 𝒞] (A : 𝒞) : Prop :=
   IsIndec A ∧ finrank k (A ⟶ A) = 1
 
-omit [HasBinaryBiproducts 𝒞] [IsIdempotentComplete 𝒞] in
+omit [HomFinite k 𝒞] [HasBinaryBiproducts 𝒞] [IsIdempotentComplete 𝒞] in
 /-- An object is a brick iff its endomorphism algebra is one-dimensional. -/
 theorem isBrick_iff {A : 𝒞} : IsBrick k A ↔ finrank k (A ⟶ A) = 1 := by
   refine ⟨And.right, fun h => ?_⟩

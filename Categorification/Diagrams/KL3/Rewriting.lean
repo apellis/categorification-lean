@@ -28,6 +28,8 @@ layers are computed with `List.take` and `List.drop`:
   the left strands and a diagram on the right strands can be exchanged), in any context.
 -/
 
+set_option backward.isDefEq.respectTransparency false
+
 noncomputable section
 
 namespace Categorification.KL3.Diagram

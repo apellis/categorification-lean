@@ -171,7 +171,7 @@ length `< m` is a retract of some `E_u 1_λ {n'}` with `|u| < m`.** -/
 theorem isLow_of_mem_thruIdeal {m : ℕ} {Q : UKar RD k ρ lam} (hQ : IsIndec Q)
     (f : Q ⟶ nfObj RD k ρ lam w hw n) (g : nfObj RD k ρ lam w hw n ⟶ Q) (hfg : f ≫ g = 𝟙 Q)
     (hT : g ≫ f ∈ thruIdeal RD k w hw n m) : IsLow RD k m Q := by
-  haveI := homFinite_UDot (RD := RD) (k := k) hSL ρ lam
+  have := homFinite_UDot (RD := RD) (k := k) hSL ρ lam
   rw [mem_thruIdeal] at hT
   obtain ⟨N, c, x, hx⟩ := Submodule.mem_span_set'.1 hT
   have hgen : ∀ i, (x i).1 ∈ thruGen RD k lam w {u | u.length < m} := fun i => (x i).2
@@ -481,7 +481,7 @@ theorem exists_aent_add_bubFil (hspan : SortedSpan RD k)
   have hf0 : f = Presentation.homogeneousComponent hP 0 f :=
     (Presentation.homogeneousComponent_of_mem hP hf).symm
   rw [hf0, ← hsum, map_add, ← hyn]
-  convert h2 using 1
+  convert h2 using 1 <;> try rfl
   change _ = Presentation.homogeneousComponent hP 0 g₂
   simp only [aentL, LinearMap.coe_mk, AddHom.coe_mk]
   have key : ∀ {M : Type _} [AddCommGroup M] (a b c : M), a + b + c - a - b = c := by
@@ -504,20 +504,23 @@ def idemIncl : (idemObj x t e he hee : UKar RD k ρ lam) ⟶ objOf x t where
   f := (Mat_.embedding (GrObj (pres RD k) (deg RD) (wtObj RD k ρ) (wtObj RD k lam))).map
     (X := ⟨x, t⟩) (Y := ⟨x, t⟩) ⟨e, mem_homDeg_of_eq he (sub_self t).symm⟩
   comm := by
-    show _ = (Mat_.embedding _).map _ ≫ (Mat_.embedding _).map _ ≫ 𝟙 _
+    show (Mat_.embedding (GrObj (pres RD k) (deg RD) (wtObj RD k ρ) (wtObj RD k lam))).map _ ≫
+      (Mat_.embedding _).map _ ≫ 𝟙 _ = _
     rw [Category.comp_id, ← Functor.map_comp]
     congr 1
-    exact Subtype.ext hee.symm
+    exact Subtype.ext hee
 
 /-- The projection of `x{t}` onto the image `(x{t}, e)`. -/
 def idemProj : (objOf x t : UKar RD k ρ lam) ⟶ idemObj x t e he hee where
   f := (Mat_.embedding (GrObj (pres RD k) (deg RD) (wtObj RD k ρ) (wtObj RD k lam))).map
     (X := ⟨x, t⟩) (Y := ⟨x, t⟩) ⟨e, mem_homDeg_of_eq he (sub_self t).symm⟩
   comm := by
-    show _ = 𝟙 _ ≫ (Mat_.embedding _).map _ ≫ (Mat_.embedding _).map _
+    show 𝟙 _ ≫
+      (Mat_.embedding (GrObj (pres RD k) (deg RD) (wtObj RD k ρ) (wtObj RD k lam))).map _ ≫
+      (Mat_.embedding _).map _ = _
     rw [Category.id_comp, ← Functor.map_comp]
     congr 1
-    exact Subtype.ext hee.symm
+    exact Subtype.ext hee
 
 theorem idemIncl_idemProj : idemIncl (t := t) he hee ≫ idemProj he hee = 𝟙 _ := by
   apply Karoubi.hom_ext
@@ -763,7 +766,7 @@ theorem top_of_seq (hspan : SortedSpan RD k) (htobj : TobjHyp RD k) {ρ lam : X}
     (g : nfObj RD k ρ lam (ups (word s₀) ++ dns (word t₀)) hw n ⟶ Z) (hfg : f ≫ g = 𝟙 Z)
     (hlow : ¬ IsLow RD k ((word s₀).length + (word t₀).length) Z) :
     K0U.cl Z ∈ gammaImg RD k lam ρ ⊔ lowSpanU RD k ρ lam ((word s₀).length + (word t₀).length) := by
-  haveI := homFinite_UDot (RD := RD) (k := k) hSL ρ lam
+  have := homFinite_UDot (RD := RD) (k := k) hSL ρ lam
   set m := (word s₀).length + (word t₀).length
   have hρ : rhoS RD lam ν ν' = ρ := (wt_ZS RD lam ν ν' (s₀, t₀)).symm.trans hw
   set D := alphaDataR RD k lam ν ν' ρ hρ

@@ -34,6 +34,8 @@ allow moving bubbles to the far right of the diagram" of KL III's proof of Lemma
 linear combination of upward diagrams followed by bubble monomials on the far right).
 -/
 
+set_option backward.isDefEq.respectTransparency false
+
 noncomputable section
 
 namespace Categorification.KL3.Diagram
@@ -61,7 +63,7 @@ theorem bubAt_dg (s : List (Letter I)) (B : List (LayerData I)) :
     bubAt RD k μ s (dg RD k μ [] [] B) = dg RD k μ s s (B.map (whL s [])) := by
   have := ctxL_dg RD k μ (s₀ := s) (t₀ := s) (pre := []) (u := s) (v := []) (post := [])
     (s := []) (t := []) (show s = s ++ [] ++ [] by simp) (show s ++ [] ++ [] = s by simp) B
-  simpa using this
+  convert this using 1 <;> first | rfl | simp
 
 theorem bubAt_comm_dg {s t : List (Letter I)} (β : End ((pres RD k).obj (ob RD μ [])))
     (A : List (LayerData I)) (hA : SChain s A t) :

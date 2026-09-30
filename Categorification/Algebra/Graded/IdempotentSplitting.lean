@@ -51,10 +51,10 @@ namespace IsSplitting
 variable {ι : Type*} [Fintype ι] [DecidableEq ι] {E' : A} {E a b : ι → A}
 
 theorem mul_self (h : IsSplitting E' E a b) (j : ι) : b j * a j = E j := by
-  rw [h.mul_eq, if_pos rfl]
+  rw [h.mul_eq, ite_eq_left rfl]
 
 theorem mul_ne (h : IsSplitting E' E a b) {i j : ι} (hij : i ≠ j) : b i * a j = 0 := by
-  rw [h.mul_eq, if_neg hij]
+  rw [h.mul_eq, ite_eq_right hij]
 
 theorem left_mul_a (h : IsSplitting E' E a b) (j : ι) : E' * a j = a j * E j := by
   rw [← h.sum_eq, Finset.sum_mul]
@@ -156,17 +156,17 @@ theorem isSplitting_of_isOrthDecomp {e f₁ f₂ E₁ E₂ a₁ b₁ a₂ b₂ :
     fin_cases i <;> fin_cases j
     · simp [h₁.1]
     · simp only [Fin.zero_eta, Fin.isValue, Fin.mk_one, Matrix.cons_val_zero,
-        Matrix.cons_val_one, Matrix.head_cons, zero_ne_one, ↓reduceIte]
+        Matrix.cons_val_one, zero_ne_one, ↓reduceIte]
       rw [← h₁.mul_right, ← h₂.left_mul', mul_assoc, ← mul_assoc f₁, h.2.2.1, zero_mul,
         mul_zero]
-    · simp only [Fin.mk_one, Fin.isValue, Fin.zero_eta, Matrix.cons_val_one, Matrix.head_cons,
+    · simp only [Fin.mk_one, Fin.isValue, Fin.zero_eta, Matrix.cons_val_one,
         Matrix.cons_val_zero, one_ne_zero, ↓reduceIte]
       rw [← h₂.mul_right, ← h₁.left_mul', mul_assoc, ← mul_assoc f₂, h.2.2.2.1, zero_mul,
         mul_zero]
     · simp [h₂.1]
   sum_eq := by
     simp only [Fin.sum_univ_two, Fin.isValue, Matrix.cons_val_zero, Matrix.cons_val_one,
-      Matrix.head_cons]
+      ]
     rw [h₁.2.1, h₂.2.1, h.2.2.2.2]
 
 variable [HasGdim ℳ]
@@ -192,7 +192,8 @@ theorem gdim_idem_of_isOrthDecomp {e f₁ f₂ E₁ E₂ a₁ b₁ a₂ b₂ : A
     (isSplitting_of_isOrthDecomp h h₁ h₂)
     (fun j => by fin_cases j <;> simpa)
     (fun j => by fin_cases j <;> simpa)
-  simpa [Fin.sum_univ_two] using this
+  rw [Fin.sum_univ_two] at this
+  exact this
 
 end Pairs
 

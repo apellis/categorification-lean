@@ -139,8 +139,7 @@ theorem thru_le {μ : X} {w : List (Letter I)} {S S' : Set (List (Letter I))}
   have e : L (𝟙 _) = a ≫ b := by
     change a ≫ (𝟙 _ ≫ b) = _
     rw [Category.id_comp]
-  convert this using 1
-  exact e.symm
+  simpa only [e, SetLike.mem_coe] using this
 
 theorem plcL_mem (μ : X) (u v s t : List (Letter I)) {d : ℤ}
     {f : (pres RD k).obj (ob RD (wt RD μ v) s) ⟶ (pres RD k).obj (ob RD (wt RD μ v) t)}
@@ -248,12 +247,14 @@ theorem one_mem_thru_sorted (μ : X) :
       rcases hs' with rfl | rfl
       · dsimp only
         have e : u ++ [up i, dn i] ++ v = u ++ up i :: dn i :: v := by simp
-        rw [e]
+        apply (congrArg (fun w' => 𝟙 _ ∈ thru RD k μ w'
+          (SortedLe (u ++ dn i :: up i :: v))) e).mpr
         refine thru_mono (sortedLe_mono hlen₁.le (by rw [hlen₁])) ?_
         exact one_mem_thru_sorted μ n (u ++ up i :: dn i :: v) (by have := invR_swap i i v u; omega)
       · dsimp only
         have e : u ++ [] ++ v = u ++ v := by simp
-        rw [e]
+        apply (congrArg (fun w' => 𝟙 _ ∈ thru RD k μ w'
+          (SortedLe (u ++ dn i :: up i :: v))) e).mpr
         refine thru_mono (sortedLe_mono (w' := u ++ v) (by omega) (by omega)) ?_
         exact one_mem_thru_sorted μ n (u ++ v) (by have := invR_del i i v u; omega)
     · have h1 := one_mem_thru_whisker (RD := RD) (k := k) (μ := μ) u v [dn j, up i]
@@ -263,7 +264,8 @@ theorem one_mem_thru_sorted (μ : X) :
       obtain ⟨s', rfl, rfl⟩ := hw'
       dsimp only
       have e : u ++ [up i, dn j] ++ v = u ++ up i :: dn j :: v := by simp
-      rw [e]
+      apply (congrArg (fun w' => 𝟙 _ ∈ thru RD k μ w'
+        (SortedLe (u ++ dn j :: up i :: v))) e).mpr
       refine thru_mono (sortedLe_mono hlen₁.le (by rw [hlen₁])) ?_
       exact one_mem_thru_sorted μ n (u ++ up i :: dn j :: v) (by have := invR_swap i j v u; omega)
 
@@ -284,7 +286,7 @@ theorem exists_retract_of_thru {ρ lam : X} {w : List (Letter I)} {h : wt RD lam
     (hfg : f ≫ g = 𝟙 Z) :
     ∃ u ∈ S, ∃ (hu : wt RD lam u = ρ) (n' : ℤ) (f' : Z ⟶ nfObj RD k ρ lam u hu n')
       (g' : nfObj RD k ρ lam u hu n' ⟶ Z), f' ≫ g' = 𝟙 Z := by
-  haveI := homFinite_UDot (RD := RD) (k := k) hSL ρ lam
+  have := homFinite_UDot (RD := RD) (k := k) hSL ρ lam
   obtain ⟨N, c, x, hx⟩ := Submodule.mem_span_set'.1 hS
   have hgen : ∀ i, (x i).1 ∈ thruGen RD k lam w S := fun i => (x i).2
   choose u hu hw α a b ha hb he using hgen
@@ -319,7 +321,7 @@ theorem exists_eq_nfHom {ρ lam : X} (x : Bicat.Hom (wtObj RD k ρ) (wtObj RD k 
 theorem exists_retract_nfObj {ρ lam : X} {Z : UKar RD k ρ lam} (hZ : IsIndec Z) :
     ∃ (w : List (Letter I)) (h : wt RD lam w = ρ) (n : ℤ) (f : Z ⟶ nfObj RD k ρ lam w h n)
       (g : nfObj RD k ρ lam w h n ⟶ Z), f ≫ g = 𝟙 Z := by
-  haveI := homFinite_UDot (RD := RD) (k := k) hSL ρ lam
+  have := homFinite_UDot (RD := RD) (k := k) hSL ρ lam
   obtain ⟨M, p, hp⟩ := Z
   let f₀ : (⟨M, p, hp⟩ : UKar RD k ρ lam) ⟶ (toKaroubi _).obj M :=
     ⟨p, by simp [hp]⟩

@@ -61,6 +61,8 @@ formulas. (Only the products `t_{cd} t_{dc}` enter, so the downward relations do
   vanishes in `presCLDown`.
 -/
 
+set_option backward.isDefEq.respectTransparency false
+
 noncomputable section
 
 namespace Categorification.KL3.Diagram.CL

@@ -96,7 +96,7 @@ theorem card_add_eq {α β : Type*} (f : α → ℕ) (g : β → ℕ) (n : ℕ)
 def geomPS (w : ℕ) : PowerSeries ℚ := PowerSeries.mk fun n => if w ∣ n then 1 else 0
 
 theorem card_mul_eq (w n : ℕ) (hw : 0 < w) :
-    (Nat.card {a : ℕ // a * w = n} : ℚ) = PowerSeries.coeff ℚ n (geomPS w) := by
+    (Nat.card {a : ℕ // a * w = n} : ℚ) = PowerSeries.coeff (R := ℚ) n (geomPS w) := by
   rw [geomPS, PowerSeries.coeff_mk]
   split_ifs with h
   · obtain ⟨c, rfl⟩ := h
@@ -123,13 +123,13 @@ theorem finite_dots {A : Type*} [Fintype A] (w : A → ℕ) (hw : ∀ x, 0 < w x
 degree `n` is the coefficient of `q^n` in `∏_x Σ_a q^{a w x}`. -/
 theorem card_dots (A : Type*) [Fintype A] (w : A → ℕ) (hw : ∀ x, 0 < w x) (n : ℕ) :
     (Nat.card {a : A → ℕ // ∑ x, a x * w x = n} : ℚ) =
-      PowerSeries.coeff ℚ n (∏ x, geomPS (w x)) := by
+      PowerSeries.coeff (R := ℚ) n (∏ x, geomPS (w x)) := by
   revert w n
   refine (Fintype.induction_empty_option (P := fun A _ => ∀ (w : A → ℕ), (∀ x, 0 < w x) → ∀ n,
     (Nat.card {a : A → ℕ // ∑ x, a x * w x = n} : ℚ) =
-      PowerSeries.coeff ℚ n (∏ x, geomPS (w x))) ?_ ?_ ?_) A
+      PowerSeries.coeff (R := ℚ) n (∏ x, geomPS (w x))) ?_ ?_ ?_) A
   · intro α β _ e ih w hw n
-    letI : Fintype α := Fintype.ofEquiv β e.symm
+    let : Fintype α := Fintype.ofEquiv β e.symm
     have h := ih (w ∘ e) (fun x => hw _) n
     have e2 : {a : β → ℕ // ∑ x, a x * w x = n} ≃ {a : α → ℕ // ∑ x, a x * (w ∘ e) x = n} :=
       (e.arrowCongr (Equiv.refl ℕ)).symm.subtypeEquiv fun a => by
@@ -153,10 +153,10 @@ theorem card_dots (A : Type*) [Fintype A] (w : A → ℕ) (hw : ∀ x, 0 < w x) 
         {p : ℕ × (α → ℕ) // p.1 * w none + ∑ x, p.2 x * w (some x) = n} :=
       (Equiv.piOptionEquivProd (β := fun _ => ℕ)).subtypeEquiv fun a => by
         simp [Fintype.sum_option]
-    haveI : ∀ i, Finite {a0 : ℕ // a0 * w none = i} := fun i =>
+    have : ∀ i, Finite {a0 : ℕ // a0 * w none = i} := fun i =>
       @Finite.of_subsingleton _ ⟨fun ⟨a, ha⟩ ⟨b, hb⟩ =>
         Subtype.ext (Nat.eq_of_mul_eq_mul_right (hw none) (ha.trans hb.symm))⟩
-    haveI : ∀ j, Finite {a : α → ℕ // ∑ x, a x * w (some x) = j} := fun j =>
+    have : ∀ j, Finite {a : α → ℕ // ∑ x, a x * w (some x) = j} := fun j =>
       finite_dots (fun x => w (some x)) (fun x => hw _) j
     rw [Nat.card_congr e, card_add_eq (fun a0 => a0 * w none)
       (fun a : α → ℕ => ∑ x, a x * w (some x)) n, Fintype.prod_option, PowerSeries.coeff_mul]
@@ -172,12 +172,12 @@ section Series
 
 theorem coeff_ofPS (F : PowerSeries ℚ) (e : ℤ) :
     (HahnSeries.ofPowerSeries ℤ ℚ F).coeff e =
-      if 0 ≤ e then PowerSeries.coeff ℚ e.toNat F else 0 := by
+      if 0 ≤ e then PowerSeries.coeff (R := ℚ) e.toNat F else 0 := by
   split_ifs with h
   · conv_lhs => rw [← Int.toNat_of_nonneg h]
     exact HahnSeries.ofPowerSeries_apply_coeff F e.toNat
   · rw [HahnSeries.ofPowerSeries_apply]
-    refine HahnSeries.embDomain_notin_range ?_
+    refine HahnSeries.embDomain_of_notMem_range ?_
     rintro ⟨m, hm⟩
     exact h (by rw [← hm]; exact Int.natCast_nonneg m)
 
@@ -188,17 +188,17 @@ theorem one_sub_X_pow_mul_geomPS (w : ℕ) (hw : 0 < w) :
     PowerSeries.coeff_mk]
   rcases Nat.eq_zero_or_pos n with rfl | hn
   · simp [Nat.not_le.2 hw]
-  · rw [if_neg hn.ne']
+  · rw [ite_eq_right hn.ne']
     by_cases hwn : w ≤ n
     · have e : n = (n - w) + w := (Nat.sub_add_cancel hwn).symm
       have hiff : w ∣ n ↔ w ∣ n - w := by
         conv_lhs => rw [e]
         exact Nat.dvd_add_self_right
-      rw [if_pos hwn]
+      rw [ite_eq_left hwn]
       by_cases hd : w ∣ n
-      · rw [if_pos hd, PowerSeries.coeff_mk, if_pos (hiff.1 hd), sub_self]
-      · rw [if_neg hd, PowerSeries.coeff_mk, if_neg (fun h => hd (hiff.2 h)), sub_self]
-    · rw [if_neg hwn, if_neg (Nat.not_dvd_of_pos_of_lt hn (lt_of_not_le hwn)), sub_self]
+      · rw [ite_eq_left hd, PowerSeries.coeff_mk, ite_eq_left (hiff.1 hd), sub_self]
+      · rw [ite_eq_right hd, PowerSeries.coeff_mk, ite_eq_right (fun h => hd (hiff.2 h)), sub_self]
+    · rw [ite_eq_right hwn, ite_eq_right (Nat.not_dvd_of_pos_of_lt hn (Nat.lt_of_not_ge hwn)), sub_self]
 
 variable {I : Type u} {C : CartanDatum I}
 
@@ -268,15 +268,15 @@ theorem weight_toNat (m : (I × ℕ) →₀ ℕ) :
 theorem card_monomials (j : ℕ) :
     Finite {m : (I × ℕ) →₀ ℕ // (Finsupp.weight (wPi C) m).toNat = j} ∧
     (Nat.card {m : (I × ℕ) →₀ ℕ // (Finsupp.weight (wPi C) m).toNat = j} : ℚ) =
-      PowerSeries.coeff ℚ j (piPS C) := by
+      PowerSeries.coeff (R := ℚ) j (piPS C) := by
   have e : {m : (I × ℕ) →₀ ℕ // (Finsupp.weight (wPi C) m).toNat = j} ≃ monDeg C (j : ℤ) :=
     Equiv.subtypeEquivRight fun m => by
-      simp only [monDeg, Set.mem_setOf_eq]
+      simp only [monDeg, Set.mem_ofPred_eq]
       rw [← weight_toNat (C := C) m]
       omega
-  haveI : Finite (monDeg C (j : ℤ)) := (monDeg_finite (C := C) (j : ℤ)).to_subtype
+  have : Finite (monDeg C (j : ℤ)) := (monDeg_finite (C := C) (j : ℤ)).to_subtype
   refine ⟨Finite.of_equiv _ e.symm, ?_⟩
-  rw [Nat.card_congr e, Set.Nat.card_coe_set_eq, piPS, PowerSeries.coeff_mk]
+  rw [Nat.card_congr e, Nat.card_coe_set_eq, piPS, PowerSeries.coeff_mk]
 
 variable {s t : List (Bool × I)}
 
@@ -303,14 +303,14 @@ theorem card_inner (σ : Equiv.Perm (Fin (ρW s ++ t).length)) (e : ℤ) :
         have h1 := weight_toNat (C := C) p.2
         have h2 := Int.toNat_of_nonneg he
         omega
-    haveI hf : ∀ i, Finite {a : Arc s t σ → ℕ // ∑ x, a x * dotW (C := C) x = i} := fun i =>
+    have hf : ∀ i, Finite {a : Arc s t σ → ℕ // ∑ x, a x * dotW (C := C) x = i} := fun i =>
       finite_dots _ (fun x => dot_self_toNat_pos _) i
-    haveI hg : ∀ j, Finite {m : (I × ℕ) →₀ ℕ // (Finsupp.weight (wPi C) m).toNat = j} :=
+    have hg : ∀ j, Finite {m : (I × ℕ) →₀ ℕ // (Finsupp.weight (wPi C) m).toNat = j} :=
       fun j => (card_monomials j).1
     have hcount := card_add_eq (fun a : Arc s t σ → ℕ => ∑ x, a x * dotW (C := C) x)
       (fun m : (I × ℕ) →₀ ℕ => (Finsupp.weight (wPi C) m).toNat) e.toNat
     refine ⟨?_, ?_⟩
-    · haveI := finite_add_eq (fun a : Arc s t σ → ℕ => ∑ x, a x * dotW (C := C) x)
+    · have := finite_add_eq (fun a : Arc s t σ → ℕ => ∑ x, a x * dotW (C := C) x)
         (fun m : (I × ℕ) →₀ ℕ => (Finsupp.weight (wPi C) m).toNat) e.toNat
       exact Finite.of_equiv _ e1.symm
     · rw [Nat.card_congr e1, hcount, PowerSeries.coeff_mul]
@@ -354,13 +354,13 @@ theorem prop_3_12 (lam : X) (d : ℤ) :
     Finite {b : SpanIdx s t // spanDeg C (RD.ellOf lam) b = d} ∧
     (Nat.card {b : SpanIdx s t // spanDeg C (RD.ellOf lam) b = d} : ℚ) =
       (piLS C * toLS (UDot.KL3.form RD (E1 RD vQ s lam) (E1 RD vQ t lam))).coeff d := by
-  haveI : ∀ σ : {σ // σ ∈ pairings s t}, Finite {p : (Arc s t σ.1 → ℕ) × ((I × ℕ) →₀ ℕ) //
+  have : ∀ σ : {σ // σ ∈ pairings s t}, Finite {p : (Arc s t σ.1 → ℕ) × ((I × ℕ) →₀ ℕ) //
       (∑ x, (p.1 x : ℤ) * C.dot (arcCol x) (arcCol x)) + Finsupp.weight (wPi C) p.2 =
         d - pdeg C (RD.ellOf lam) s t σ.1} := fun σ => (card_inner σ.1 _).1
   refine ⟨Finite.of_equiv _ (spanFiberEquiv (RD.ellOf lam) d).symm, ?_⟩
   rw [Nat.card_congr (spanFiberEquiv (RD.ellOf lam) d), Nat.card_sigma, Nat.cast_sum]
   simp only [fun σ : {σ // σ ∈ pairings s t} => (card_inner (C := C) σ.1 (d - pdeg C (RD.ellOf lam) s t σ.1)).2]
-  rw [(UDot.KL3.thm_2_7 C RD s t lam lam).2, if_pos rfl, map_sum, Finset.mul_sum,
+  rw [(UDot.KL3.thm_2_7 C RD s t lam lam).2, ite_eq_left rfl, map_sum, Finset.mul_sum,
     HahnSeries.coeff_sum, ← Finset.sum_coe_sort (pairings s t)]
   refine Finset.sum_congr rfl fun σ _ => ?_
   have hq : toLS (qp KL3.qK (pdeg C (RD.ellOf lam) s t σ.1)) = HahnSeries.single (pdeg C (RD.ellOf lam) s t σ.1) 1 :=
@@ -441,8 +441,8 @@ theorem finrank_eq_iff_linearIndependent (lam : X) (s t : List (Letter I))
     ((finrank k (HomD RD k lam s t d) : ℤ) : ℚ) =
         (piLS C * toLS (UDot.KL3.sform RD (E1 RD vQ s lam) (E1 RD vQ t lam))).coeff d ↔
       LinearIndependent k fun x : {x : SpanIdx s t // spanDeg C (RD.ellOf lam) x = d} => b x.1 := by
-  haveI := (prop_3_12 (s := s) (t := t) RD lam d).1
-  haveI := Fintype.ofFinite {x : SpanIdx s t // spanDeg C (RD.ellOf lam) x = d}
+  have := (prop_3_12 (s := s) (t := t) RD lam d).1
+  have := Fintype.ofFinite {x : SpanIdx s t // spanDeg C (RD.ellOf lam) x = d}
   rw [← card_fiber_eq lam s t d, ← (finrank_le_and_iff _ _ (hb.2 d)).2]
   push_cast
   exact ⟨fun h => by exact_mod_cast h, fun h => by exact_mod_cast h⟩
@@ -453,8 +453,8 @@ theorem cor_3_13 (h311 : Prop311 RD k) (lam : X) (s t : List (Letter I)) (d : �
     ((finrank k (HomD RD k lam s t d) : ℤ) : ℚ) ≤
       (piLS C * toLS (UDot.KL3.sform RD (E1 RD vQ s lam) (E1 RD vQ t lam))).coeff d := by
   obtain ⟨b, hb⟩ := h311 lam s t
-  haveI := (prop_3_12 (s := s) (t := t) RD lam d).1
-  haveI := Fintype.ofFinite {x : SpanIdx s t // spanDeg C (RD.ellOf lam) x = d}
+  have := (prop_3_12 (s := s) (t := t) RD lam d).1
+  have := Fintype.ofFinite {x : SpanIdx s t // spanDeg C (RD.ellOf lam) x = d}
   rw [← card_fiber_eq lam s t d]
   exact_mod_cast (finrank_le_and_iff _ _ (hb.2 d)).1
 

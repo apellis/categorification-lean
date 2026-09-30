@@ -122,7 +122,7 @@ theorem concat_mul_resElt (s : Seq (ν + ν')) (u : ShuffleOf ν ν' s)
     concat Q ν ν' t * resElt σ s u.1 = concat Q ν ν' t * hatW σ u.1 := by
   rw [mem_projPP] at ht
   rw [← ht, concat_mul, concat_e_tmul_e, u.split_spec, resElt_eq σ hσ, hatW, mul_assoc,
-    mul_assoc, ← mul_assoc (e _) (oneConcat Q ν ν'), oneConcat, e_mul_eSum, if_pos u.2,
+    mul_assoc, ← mul_assoc (e _) (oneConcat Q ν ν'), oneConcat, e_mul_eSum, ite_eq_left u.2,
     ← mul_assoc (e _) (e _), e_mul_self]
 
 /-- The map `(t_u)_u ↦ ∑_u ι(t_u) ψ_{σ(u)} 1_s`. -/
@@ -181,9 +181,9 @@ private theorem sum_subtype_dite {α M : Type*} [Fintype α] [AddCommMonoid M] (
     (∑ a, if h : p a then g ⟨a, h⟩ else 0) = ∑ a : {a // p a}, g a := by
   rw [← Finset.sum_filter_add_sum_filter_not Finset.univ p]
   rw [Finset.sum_eq_zero (s := Finset.univ.filter fun a => ¬ p a)
-    (fun a ha => dif_neg (Finset.mem_filter.1 ha).2), add_zero]
+    (fun a ha => dite_eq_right (Finset.mem_filter.1 ha).2), add_zero]
   rw [Finset.sum_subtype (Finset.univ.filter p) (p := p) (by simp)]
-  exact Finset.sum_congr rfl fun a _ => dif_pos a.2
+  exact Finset.sum_congr rfl fun a _ => dite_eq_left a.2
 
 omit [IsDomain k] in
 theorem coe_freeMap (f : Shuffle (Seq.card_add' ν ν') →₀ KLRAlgebra k Q ν ⊗[k] KLRAlgebra k Q ν') :
@@ -219,7 +219,7 @@ theorem resProjMap_bijective (s : Seq (ν + ν')) :
             KLRAlgebra k Q (ν + ν')) := by
       intro g
       rw [coe_freeMap, resSum]
-      simp only [Finsupp.equivFunOnFinite_symm_apply_toFun]
+      simp only [Finsupp.coe_equivFunOnFinite_symm]
       rw [← sum_subtype_dite (fun u : Shuffle (Seq.card_add' ν ν') => u.1 • s ∈ concatSet ν ν')]
       refine Finset.sum_congr rfl fun u _ => ?_
       split_ifs with h
@@ -229,7 +229,7 @@ theorem resProjMap_bijective (s : Seq (ν + ν')) :
     have := hbij.1 (Subtype.ext h0)
     funext u
     have hu := congrArg (fun F => F u.1) (Finsupp.equivFunOnFinite.symm.injective this)
-    simp only [dif_pos u.2] at hu
+    simp only [dite_eq_left u.2] at hu
     exact Subtype.ext hu
   · rintro ⟨⟨r, hr⟩, hr'⟩
     rw [mem_resSubgroup] at hr'

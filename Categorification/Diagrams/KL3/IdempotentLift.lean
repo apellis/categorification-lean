@@ -180,6 +180,7 @@ theorem isNilpotent_or_isUnit_corner {f : A} {he : IsIdempotentElem f} {hf0 : f 
       | zero => simp [F]
       | succ m ih =>
         rw [pow_succ', Module.End.mul_apply, rmul_apply, ih, pow_succ, mul_assoc]
+    change (R : Module.End A (leftIdeal f)) ^ n = 0 at hn
     have hn1 : R ^ (n + 1) = 0 := by rw [pow_succ, hn, zero_mul]
     have h0 := hpow (n + 1)
     rw [hn1] at h0
@@ -233,7 +234,7 @@ theorem exists_indec_decomp : ∀ (n : ℕ) (f : A), IsIdempotentElem f → f �
     obtain ⟨φ, hφ, hφi, hφ0, hφ1⟩ : ∃ φ ∈ endZero A (GProj.ofIdempotent f he hf0).grading,
         IsIdempotentElem φ ∧ φ ≠ 0 ∧ φ ≠ 1 := by
       by_contra hne
-      push_neg at hne
+      push Not at hne
       exact hind ⟨hnt, fun φ hφ hφi => by
         by_cases h0 : φ = 0
         · exact Or.inl h0
@@ -283,7 +284,7 @@ theorem exists_indec_decomp : ∀ (n : ℕ) (f : A), IsIdempotentElem f → f �
         have := hmem.2
         rw [hgf, hg.eq] at this
         exact this
-      haveI : FiniteDimensional k (cornerZero (𝒜 := 𝒜) f) :=
+      have : FiniteDimensional k (cornerZero (𝒜 := 𝒜) f) :=
         FiniteDimensional.of_injective (V₂ := 𝒜 0)
           ({ toFun := fun a => ⟨a.1, a.2.1⟩, map_add' := fun _ _ => rfl,
              map_smul' := fun _ _ => rfl } : cornerZero (𝒜 := 𝒜) f →ₗ[k] 𝒜 0)

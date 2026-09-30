@@ -38,6 +38,8 @@ The values at `1` (`rotCrossRW_one`, `rotCrossLW_one`) use the transport of `x_{
 lowest nonzero degree (`capFEP_one_xi_pow`, `capEFP_xi_pow_one`).
 -/
 
+set_option backward.isDefEq.respectTransparency false
+
 noncomputable section
 
 open scoped TensorProduct
@@ -59,7 +61,7 @@ theorem xbar_zero' {n : ℕ} (d : Fin n → ℕ) (j : Fin n) : xbar K d j 0 = 1 
 
 theorem xbar_one {n : ℕ} (d : Fin n → ℕ) (j : Fin n) : xbar K d j 1 = -x K d j 1 := by
   have h := sum_x_mul_xbar (k := K) (d := d) j 1
-  simp only [Finset.sum_range_succ, Finset.sum_range_zero, zero_add, if_neg one_ne_zero,
+  simp only [Finset.sum_range_succ, Finset.sum_range_zero, zero_add, ite_eq_right one_ne_zero,
     Nat.sub_zero, Nat.sub_self, x_zero, one_mul] at h
   rw [xbar_zero', mul_one] at h
   exact eq_neg_of_add_eq_zero_left h
@@ -75,7 +77,7 @@ theorem Fx_castSucc :
       eRight K c s h.2 (x K s c.castSucc 1) := rfl
   have e2 : ((stepB K (false, c) r s h).right (x K r c.castSucc 1) : ERing K c s h.2) =
       eLeft K c s h.2 (hCast K h.1.symm (x K r c.castSucc 1)) := rfl
-  rw [e1, e2, hCast_x, eRight_x, eLeft_x, if_neg (castSucc_ne_succ' c), if_pos rfl, xB_zero,
+  rw [e1, e2, hCast_x, eRight_x, eLeft_x, ite_eq_right (castSucc_ne_succ' c), ite_eq_left rfl, xB_zero,
     mul_one, add_zero]
   exact (add_sub_cancel_right _ _).symm
 
@@ -87,7 +89,7 @@ theorem Fx_succ :
       eRight K c s h.2 (x K s c.succ 1) := rfl
   have e2 : ((stepB K (false, c) r s h).right (x K r c.succ 1) : ERing K c s h.2) =
       eLeft K c s h.2 (hCast K h.1.symm (x K r c.succ 1)) := rfl
-  rw [e1, e2, hCast_x, eRight_x, eLeft_x, if_pos rfl, if_neg (castSucc_ne_succ' c).symm, xB_zero,
+  rw [e1, e2, hCast_x, eRight_x, eLeft_x, ite_eq_left rfl, ite_eq_right (castSucc_ne_succ' c).symm, xB_zero,
     mul_one, add_zero]
   rfl
 
@@ -256,8 +258,8 @@ theorem rotCrossRW_term (hij : i ≠ j) (n g : ℕ) (y : Y.T) :
   rw [e, crossrW_dotE_pow j i hFi _ _ hFi' _ (Ne.symm hij), crossrW_one j i hFi _ _ hFi' _
     (Ne.symm hij)]
   split_ifs
-  · simp only [mul_neg, BRing.tmul_neg, BHom.map_neg, BRing.tmul_mul_tmul, mul_one, one_mul,
-      capFEW_tmul, BRing.tensor_left, neg_one_mul]
+  · simp only [mul_neg, BRing.tmul_mul_tmul, mul_one, one_mul,
+      neg_one_mul]
     rw [BRing.tmul_neg, BHom.map_neg, capFEW_tmul, BRing.tensor_left, BRing.tmul_mul_tmul,
       one_mul, mul_one]
   · simp only [BRing.tmul_mul_tmul, mul_one, one_mul, capFEW_tmul]
@@ -283,9 +285,9 @@ theorem rotCrossRW_one (hij : i ≠ j) (y : Y.T) :
   have hw : w j.succ = t j.succ + (if i.castSucc = j.succ then 1 else 0) := by
     rw [← hFi'.1, raise]
     by_cases h1 : j.succ = i.castSucc
-    · rw [if_pos h1, if_pos h1.symm]
+    · rw [ite_eq_left h1, ite_eq_left h1.symm]
     · have h3 : j.succ ≠ i.succ := fun h => hij (Fin.succ_injective _ h).symm
-      rw [if_neg h1, if_neg h3, if_neg (fun h => h1 h.symm), add_zero]
+      rw [ite_eq_right h1, ite_eq_right h3, ite_eq_right (fun h => h1 h.symm), add_zero]
   have ht := hFj.2
   set d := dEF j (hFj' : StepR (true, j) w r₂) with hd'
   by_cases hadj : i.castSucc = j.succ
@@ -293,17 +295,17 @@ theorem rotCrossRW_one (hij : i ≠ j) (y : Y.T) :
       intro h
       have h1 := congrArg Fin.val hadj
       have h2 := congrArg Fin.val h
-      simp only [Fin.coe_castSucc, Fin.val_succ] at h1 h2
+      simp only [Fin.val_castSucc, Fin.val_succ] at h1 h2
       omega
-    rw [if_pos hadj] at hw
-    rw [if_pos hadj]
-    simp only [if_neg hadj', one_mul]
+    rw [ite_eq_left hadj] at hw
+    rw [ite_eq_left hadj]
+    simp only [ite_eq_right hadj', one_mul]
     obtain ⟨b, hb⟩ : ∃ b, t j.succ = b + 1 := ⟨t j.succ - 1, by omega⟩
     have hdb : d = b + 1 := by omega
     rw [hdb, Finset.sum_range_succ, Finset.sum_range_succ, Finset.sum_eq_zero (fun g hg => by
-      rw [if_neg (by rw [hb]; have := Finset.mem_range.1 hg; omega), map_zero, BRing.zero_tmul,
+      rw [ite_eq_right (by rw [hb]; have := Finset.mem_range.1 hg; omega), map_zero, BRing.zero_tmul,
         mul_zero])]
-    rw [if_pos (by omega), if_pos (by omega), zero_add,
+    rw [ite_eq_left (by omega), ite_eq_left (by omega), zero_add,
       show b + 1 - b = 1 by omega, show b + 1 - (b + 1) = 0 by omega,
       show b + 1 - t j.succ = 0 by omega, show b + 1 + 1 - t j.succ = 1 by omega,
       pow_zero, pow_one, pow_zero, pow_one, one_mul, one_mul, xbar_zero', map_one, x_zero, map_one,
@@ -322,13 +324,13 @@ theorem rotCrossRW_one (hij : i ≠ j) (y : Y.T) :
     have hx2 : xiStep K (false, i) w t hFi' = eXi K i t hFi'.2 := rfl
     rw [BRing.tmul_add, neg_one_mul, hx1, hx2]
     abel
-  · rw [if_neg hadj, add_zero] at hw
-    rw [if_neg hadj]
+  · rw [ite_eq_right hadj, add_zero] at hw
+    rw [ite_eq_right hadj]
     have hdb : d = t j.succ - 1 := by omega
     rw [Finset.sum_eq_single d (fun g hg hgd => by
-      rw [if_neg (show ¬ t j.succ ≤ g + 1 by have := Finset.mem_range.1 hg; omega), map_zero,
+      rw [ite_eq_right (show ¬ t j.succ ≤ g + 1 by have := Finset.mem_range.1 hg; omega), map_zero,
         BRing.zero_tmul, mul_zero, mul_zero]) (fun h => absurd (Finset.mem_range.2 (Nat.lt_succ_self d)) h)]
-    rw [if_pos (show t j.succ ≤ d + 1 by omega), show d + 1 - t j.succ = 0 by omega, Nat.sub_self, pow_zero, pow_zero,
+    rw [ite_eq_left (show t j.succ ≤ d + 1 by omega), show d + 1 - t j.succ = 0 by omega, Nat.sub_self, pow_zero, pow_zero,
       one_mul, one_mul, xbar_zero', map_one, x_zero, map_one, one_mul]
     split_ifs
     · rw [neg_one_mul]
@@ -347,7 +349,7 @@ theorem locTwo_crossDn_one (hij : i ≠ j) (y : Y.T) :
         BRing.tmul (stepB K (false, i) w t hFi') ((stepB K (false, j) r₂ w hFj').tensor Y) 1
           (BRing.tmul (stepB K (false, j) r₂ w hFj') Y (eXi K j w hFj'.2) y)
       else BRing.tmul _ _ 1 (BRing.tmul _ _ 1 y) := by
-  rw [locTwo_tmul, ← BRing.one_eq, crossDn_one, if_neg hij]
+  rw [locTwo_tmul, ← BRing.one_eq, crossDn_one, ite_eq_right hij]
   split_ifs
   · rw [BRing.sub_tmul, BHom.map_sub, BRing.assoc_hom_tmul, BRing.assoc_hom_tmul]
   · rw [BRing.one_eq, BRing.assoc_hom_tmul]
@@ -402,13 +404,13 @@ theorem rotCrossRW_eq_crossDn (hij : i ≠ j) :
     · rw [locTwo_crossDn_dotR i j hFj hFi hFi' hFj' Y hij]
   · rw [BHom.toAddHom_apply, BHom.toAddHom_apply, rotCrossRW_one i j hFj hFi hFi' hFj' Y hij]
     by_cases h1 : i.castSucc = j.succ
-    · rw [if_pos h1, if_pos (Or.inl h1), BHom.neg_apply,
-        locTwo_crossDn_one i j hFj hFi hFi' hFj' Y hij, if_pos h1, neg_sub]
+    · rw [ite_eq_left h1, ite_eq_left (Or.inl h1), BHom.neg_apply,
+        locTwo_crossDn_one i j hFj hFi hFi' hFj' Y hij, ite_eq_left h1, neg_sub]
     · by_cases h2 : j.castSucc = i.succ
-      · rw [if_neg h1, if_pos h2, if_pos (Or.inr h2), BHom.neg_apply,
-          locTwo_crossDn_one i j hFj hFi hFi' hFj' Y hij, if_neg h1]
-      · rw [if_neg h1, if_neg h2, if_neg (not_or.2 ⟨h1, h2⟩),
-          locTwo_crossDn_one i j hFj hFi hFi' hFj' Y hij, if_neg h1]
+      · rw [ite_eq_right h1, ite_eq_left h2, ite_eq_left (Or.inr h2), BHom.neg_apply,
+          locTwo_crossDn_one i j hFj hFi hFi' hFj' Y hij, ite_eq_right h1]
+      · rw [ite_eq_right h1, ite_eq_right h2, ite_eq_right (not_or.2 ⟨h1, h2⟩),
+          locTwo_crossDn_one i j hFj hFi hFi' hFj' Y hij, ite_eq_right h1]
 
 end RotR
 
@@ -543,19 +545,19 @@ theorem rotCrossLW_one (hij : i ≠ j) (y : Y.T) :
     by_cases h1 : i.castSucc = j.castSucc
     · exact absurd (Fin.castSucc_injective _ h1) hij
     · by_cases h2 : i.castSucc = j.succ
-      · rw [if_neg h1, if_pos h2, if_pos h2]
+      · rw [ite_eq_right h1, ite_eq_left h2, ite_eq_left h2]
         have := hFj.2; rw [← h2] at this; omega
-      · rw [if_neg h1, if_neg h2, if_neg h2, add_zero]
+      · rw [ite_eq_right h1, ite_eq_right h2, ite_eq_right h2, add_zero]
   set d := dFE i (hFi' : StepR (true, i) t w) with hd'
   by_cases hadj : i.castSucc = j.succ
-  · rw [if_pos hadj] at hr
-    rw [if_pos hadj]
+  · rw [ite_eq_left hadj] at hr
+    rw [ite_eq_left hadj]
     obtain ⟨b, hb⟩ : ∃ b, r₁ i.castSucc = b := ⟨_, rfl⟩
     have hdb : d = b + 1 := by omega
     rw [hdb, Finset.sum_range_succ, Finset.sum_range_succ, Finset.sum_eq_zero (fun g hg => by
-      rw [if_neg (show ¬ r₁ i.castSucc + 1 ≤ g + 1 by have := Finset.mem_range.1 hg; omega),
+      rw [ite_eq_right (show ¬ r₁ i.castSucc + 1 ≤ g + 1 by have := Finset.mem_range.1 hg; omega),
         map_zero, zero_mul, BRing.tmul_zero, BRing.tmul_zero])]
-    rw [if_pos (by omega), if_pos (by omega), zero_add, hb,
+    rw [ite_eq_left (by omega), ite_eq_left (by omega), zero_add, hb,
       show b + 1 - (b + 1) = 0 by omega, show b + 1 + 1 - (b + 1) = 1 by omega,
       show b + 1 - b = 1 by omega]
     simp only [pow_zero, pow_one, one_mul]
@@ -575,13 +577,13 @@ theorem rotCrossLW_one (hij : i ≠ j) (y : Y.T) :
     have hx2 : xiStep K (false, i) w t hFi' = eXi K i t hFi'.2 := rfl
     rw [hx1, hx2]
     abel
-  · rw [if_neg hadj, add_zero] at hr
-    rw [if_neg hadj]
+  · rw [ite_eq_right hadj, add_zero] at hr
+    rw [ite_eq_right hadj]
     rw [Finset.sum_eq_single d (fun g hg hgd => by
-      rw [if_neg (show ¬ r₁ i.castSucc + 1 ≤ g + 1 by have := Finset.mem_range.1 hg; omega),
+      rw [ite_eq_right (show ¬ r₁ i.castSucc + 1 ≤ g + 1 by have := Finset.mem_range.1 hg; omega),
         map_zero, zero_mul, BRing.tmul_zero, BRing.tmul_zero])
       (fun h => absurd (Finset.mem_range.2 (Nat.lt_succ_self d)) h)]
-    rw [if_pos (by omega), show d + 1 - (r₁ i.castSucc + 1) = 0 by omega, Nat.sub_self, pow_zero,
+    rw [ite_eq_left (by omega), show d + 1 - (r₁ i.castSucc + 1) = 0 by omega, Nat.sub_self, pow_zero,
       pow_zero, one_mul, one_mul, xbar_zero', map_one, one_mul, xsFE_eq, x_zero, map_one]
 
 /-- **Cyclicity of crossings of distinct colours, left rotation** (KL III `eq_cyclic_cross-gen`,
@@ -608,7 +610,7 @@ theorem rotCrossLW_eq_crossDn (hij : i ≠ j) :
 independently of the normalization of the downward crossing. -/
 theorem rotCrossRW_eq_neg_rotCrossLW (hij : i ≠ j) (hadj : i.castSucc = j.succ ∨ j.castSucc = i.succ) :
     rotCrossRW K i j hFj hFi hFi' hFj' Y = -rotCrossLW K i j hFj hFi hFi' hFj' Y := by
-  rw [rotCrossRW_eq_crossDn i j hFj hFi hFi' hFj' Y hij, if_pos hadj,
+  rw [rotCrossRW_eq_crossDn i j hFj hFi hFi' hFj' Y hij, ite_eq_left hadj,
     rotCrossLW_eq_crossDn i j hFj hFi hFi' hFj' Y hij]
 
 end RotL

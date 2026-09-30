@@ -79,10 +79,10 @@ theorem omegaF_commRel (lam : X) (b : List (Bool × I)) (i j : I) :
     rw [RD.wl_ellOf, RD.wl_ellOf, wX_map_flipL, ← neg_add, map_neg]
   by_cases h : j = i
   · subst h
-    rw [if_pos rfl, if_pos rfl, hw, qbr_neg]
-    simp only [neg_smul, sub_neg_eq_add, neg_sub]
+    rw [ite_eq_left rfl, ite_eq_left rfl, hw, qbr_neg]
+    simp only [neg_smul, sub_neg_eq_add]
     abel
-  · rw [if_neg h, if_neg (Ne.symm h)]
+  · rw [ite_eq_right h, ite_eq_right (Ne.symm h)]
     simp only [zero_smul, sub_zero, neg_sub]
 
 theorem omegaF_Lrel (lam : X) : Lrel C q (RD.ellOf lam) ≤
@@ -135,8 +135,8 @@ theorem Uomega_mul (x y : UD RD q) : Uomega RD q (x * y) = Uomega RD q x * Uomeg
     simp only [LinearMap.compr₂_apply, LinearMap.compl₁₂_apply, ← mul_def, Uomega_E1, E1_mul_E1]
     rw [wX_map_flipL]
     by_cases h : lam + RD.wX t = mu
-    · rw [if_pos h, if_pos (by rw [← h]; abel), Uomega_E1, List.map_append]
-    · rw [if_neg h, if_neg (fun h' => h (by rw [← neg_inj, ← h']; abel)), map_zero]
+    · rw [ite_eq_left h, ite_eq_left (by rw [← h]; abel), Uomega_E1, List.map_append]
+    · rw [ite_eq_right h, ite_eq_right (fun h' => h (by rw [← neg_inj, ← h']; abel)), map_zero]
   exact LinearMap.congr_fun (LinearMap.congr_fun this x) y
 
 /-- `ω² = 1`. -/

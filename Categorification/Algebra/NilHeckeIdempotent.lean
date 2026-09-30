@@ -82,7 +82,8 @@ theorem invCount_le_choose (m : ℕ) (w : Perm (Fin m)) : invCount m w ≤ m.cho
   refine Finset.card_le_card_of_injOn (fun p => s(p.1, p.2)) ?_ ?_
   · intro p hp
     simp only [Finset.mem_coe, mem_invSet] at hp
-    simp only [Finset.mem_filter, Finset.mem_univ, true_and, Sym2.mk_isDiag_iff]
+    simp only [Finset.coe_filter, Finset.mem_univ, true_and, Set.mem_ofPred_eq,
+      Sym2.mk_isDiag_iff]
     exact ne_of_lt hp.1
   · intro p hp q hq hpq
     simp only [Finset.mem_coe, mem_invSet] at hp hq
@@ -193,8 +194,8 @@ theorem xPre_zero : xPre (k := k) (m := m) 0 = 1 := by
 theorem xPre_succ {n : ℕ} (h : n < m) :
     xPre (k := k) (m := m) (n + 1) = xPre n * X ⟨n, h⟩ := by
   rw [xPre, xPre, ← Finset.mul_prod_erase _ _ (Finset.mem_univ (⟨n, h⟩ : Fin m)),
-    ← Finset.mul_prod_erase _ _ (Finset.mem_univ (⟨n, h⟩ : Fin m)), if_pos (by simp),
-    if_neg (by simp), pow_one, pow_zero, one_mul, mul_comm]
+    ← Finset.mul_prod_erase _ _ (Finset.mem_univ (⟨n, h⟩ : Fin m)), ite_eq_left (by simp),
+    ite_eq_right (by simp), pow_one, pow_zero, one_mul, mul_comm]
   congr 1
   refine Finset.prod_congr rfl fun a ha => ?_
   have : (a : ℕ) ≠ n := fun e => (Finset.mem_erase.1 ha).1 (Fin.ext e)

@@ -103,9 +103,9 @@ theorem getElem?_swapAt (s : List β) {p : ℕ} (hp : p + 1 < s.length) (i : ℕ
     (swapAt s p)[i]? = s[tau p i]? := by
   have hp' : p < s.length := by omega
   rcases (show i = p ∨ i = p + 1 ∨ (i ≠ p ∧ i ≠ p + 1) by omega) with rfl | rfl | ⟨h1, h2⟩
-  · simp [swapAt, hp, tau, List.getElem?_set, hp']
-  · simp [swapAt, hp, tau, List.getElem?_set, hp']
-  · simp [swapAt, hp, tau, List.getElem?_set, h1, h2, Ne.symm h1, Ne.symm h2]
+  · simp [swapAt, hp, tau, hp']
+  · simp [swapAt, hp, tau, hp']
+  · simp [swapAt, hp, tau, h1, h2, Ne.symm h1, Ne.symm h2]
 
 theorem getElem?_rmAt (s : List β) {r : ℕ} (hr : r + 2 ≤ s.length) (i : ℕ) :
     (rmAt s r)[i]? = s[rmIdx r i]? := by
@@ -598,7 +598,7 @@ theorem canon_adj {s : List (ℕ × α)} (hv : Valid s) {r : ℕ} (hr : Same s r
   have h : ∃ r, Same s r (r + 1) := ⟨r, hr⟩
   have e : Nat.find h = r := le_antisymm (Nat.find_min' h hr)
     (not_lt.1 fun hl => hmin _ hl (Nat.find_spec h))
-  rw [canon, dif_pos hv, dif_pos h]
+  rw [canon, dite_eq_left hv, dite_eq_left h]
   subst e
   rfl
 
@@ -624,13 +624,13 @@ theorem canon_cross {s : List (ℕ × α)} (hv : Valid s) (hno : ∀ r, ¬ Same 
     exact Nat.find_min hex (show Nat.find hex - 1 < Nat.find hex by omega) ⟨j, hj', hj⟩
   refine ⟨Nat.find h', (Nat.find_spec h').1, (Nat.find_spec h').2, ?_,
     fun q' hq' => Nat.find_min h' hq'⟩
-  rw [canon, dif_pos hv, dif_neg h, dif_pos h']
+  rw [canon, dite_eq_left hv, dite_eq_right h, dite_eq_left h']
 
 theorem canon_nil : canon ([] : List (ℕ × α)) = [] := by
   classical
   have hv : Valid ([] : List (ℕ × α)) := fun i hi => by simp at hi
-  rw [canon, dif_pos hv, dif_neg (fun ⟨r, hr⟩ => by have := hr.lt_left; simp at this),
-    dif_neg (fun ⟨q, ⟨j, _, hj⟩, _⟩ => by have := hj.lt_left; simp at this)]
+  rw [canon, dite_eq_left hv, dite_eq_right (fun ⟨r, hr⟩ => by have := hr.lt_left; simp at this),
+    dite_eq_right (fun ⟨q, ⟨j, _, hj⟩, _⟩ => by have := hj.lt_left; simp at this)]
 
 end Moves
 
@@ -674,16 +674,16 @@ theorem canon_cup {s : List (ℕ × α)} (hv : Valid s) {r : ℕ} (hr : Same s r
   have hl : m + 4 ≤ s.length := hr.lt_right
   have hr' : Same (rmAt s r₀) m (m + 1) := by
     rw [same_rmAt (by omega)]; simp only [rmIdx]
-    rw [if_neg (by omega), if_neg (by omega)]; exact hr
+    rw [ite_eq_right (by omega), ite_eq_right (by omega)]; exact hr
   have hr₀' : Same (rmAt s (m + 2)) r₀ (r₀ + 1) := by
     rw [same_rmAt (by omega)]; simp only [rmIdx]
-    rw [if_pos (by omega), if_pos (by omega)]; exact hr₀
+    rw [ite_eq_left (by omega), ite_eq_left (by omega)]; exact hr₀
   have ih1 := ih _ (by rw [← hn, length_rmAt s (by omega)]; omega) (hv.rmAt hr₀) hr' rfl
   have ih2 := ih _ (by rw [← hn, length_rmAt s (by omega)]; omega) (hv.rmAt hr) hr₀' rfl
   have ea' : (rmAt s r₀)[m]? = s[m + 2]? := by
-    rw [getElem?_rmAt s (by omega)]; simp only [rmIdx]; rw [if_neg (by omega)]
+    rw [getElem?_rmAt s (by omega)]; simp only [rmIdx]; rw [ite_eq_right (by omega)]
   have eb' : (rmAt s (m + 2))[r₀]? = s[r₀]? := by
-    rw [getElem?_rmAt s (by omega)]; simp only [rmIdx]; rw [if_pos (by omega)]
+    rw [getElem?_rmAt s (by omega)]; simp only [rmIdx]; rw [ite_eq_left (by omega)]
   have ea : ((rmAt s r₀)[m]'hr'.lt_left).2 = (s[m + 2]'hr.lt_left).2 := by
     rw [getElem_eq_of_getElem? hr'.lt_left hr.lt_left ea']
   have eb : ((rmAt s (m + 2))[r₀]'hr₀'.lt_left).2 = (s[r₀]'hr₀.lt_left).2 := by
@@ -719,9 +719,9 @@ theorem swapAt_comm {β : Type*} (s : List β) {p p' : ℕ} (h : p + 2 ≤ p') (
 theorem tau_braid (p i : ℕ) : tau p (tau (p + 1) (tau p i)) = tau (p + 1) (tau p (tau (p + 1) i)) := by
   rcases (show i = p ∨ i = p + 1 ∨ i = p + 1 + 1 ∨ (i ≠ p ∧ i ≠ p + 1 ∧ i ≠ p + 1 + 1) by omega) with
     rfl | rfl | rfl | ⟨h1, h2, h3⟩
+  · simp (disch := omega) only [tau_left, tau_of_ne]
   · simp (disch := omega) only [tau_left, tau_right, tau_of_ne]
-  · simp (disch := omega) only [tau_left, tau_right, tau_of_ne]
-  · simp (disch := omega) only [tau_left, tau_right, tau_of_ne]
+  · simp (disch := omega) only [tau_right, tau_of_ne]
   · simp (disch := omega) only [tau_of_ne]
 
 theorem swapAt_braid {β : Type*} (s : List β) {p : ℕ} (hl : p + 2 < s.length) :
@@ -1009,7 +1009,7 @@ theorem ex_right {t : List (ℕ × α)} (hv : Valid t) {q₀ : ℕ} (h : Ilv t (
     have s3 := Equiv.step_mid (Step.braid (α := α) q₀) (canon (swapAt u₁ (q₀ + 1))) []
     have s4 := e4.symm.append_right [Move.cross q₀, Move.cross (q₀ + 1)]
     have s5 := e3.symm.append_right [Move.cross (q₀ + 1)]
-    simp only [List.append_assoc, List.singleton_append, List.cons_append, List.nil_append,
+    simp only [List.append_assoc, List.cons_append, List.nil_append,
       List.append_nil] at s1 s2 s3 s4 s5 ⊢
     exact s1.trans (s2.trans (s3.trans (s4.trans s5)))
 
@@ -1128,7 +1128,7 @@ theorem ex_left {t : List (ℕ × α)} (hv : Valid t) {P : ℕ} (h : Ilv t P)
     have s3 := (Equiv.step_mid (Step.braid (α := α) P) (canon (swapAt u₁ P)) []).symm
     have s4 := e4.symm.append_right [Move.cross (P + 1), Move.cross P]
     have s5 := e3.symm.append_right [Move.cross P]
-    simp only [List.append_assoc, List.singleton_append, List.cons_append, List.nil_append,
+    simp only [List.append_assoc, List.cons_append, List.nil_append,
       List.append_nil] at s1 s2 s3 s4 s5 ⊢
     exact s1.trans (s2.trans (s3.trans (s4.trans s5)))
 
@@ -1380,7 +1380,7 @@ theorem canon_congr : ∀ (n : ℕ) {s s' : List (ℕ × α)}, s.length + cr s <
     by_cases hv : Valid s
     swap
     · have hv' : ¬ Valid s' := fun hv' => hv (h.symm.valid hv')
-      rw [canon, dif_neg hv, canon, dif_neg hv']
+      rw [canon, dite_eq_right hv, canon, dite_eq_right hv']
     have hv' := h.valid hv
     by_cases hadj : ∃ r, Same s r (r + 1)
     · classical
@@ -1469,7 +1469,7 @@ theorem insAt_insAt {β : Type*} (l : List β) {g g' : ℕ} (h : g' ≤ g) (hg :
     getElem?_insAt l (show g' ≤ l.length by omega)]
   rcases (show i < g' ∨ i = g' ∨ i = g' + 1 ∨ (g' + 1 < i ∧ i < g + 2) ∨ i = g + 2 ∨ i = g + 3 ∨
     g + 3 < i by omega) with hi | hi | hi | hi | hi | hi | hi <;>
-  · simp (disch := omega) only [if_pos, if_neg]
+  · simp (disch := omega) only [ite_eq_left, ite_eq_right]
 
 theorem insAt_swapAt_lt {β : Type*} (l : List β) {p g : ℕ} (h : p + 2 ≤ g) (hg : g ≤ l.length)
     (x y : β) : insAt (swapAt l p) g x y = swapAt (insAt l g x y) p := by
@@ -1481,7 +1481,7 @@ theorem insAt_swapAt_lt {β : Type*} (l : List β) {p g : ℕ} (h : p + 2 ≤ g)
     getElem?_swapAt l hp]
   rcases (show i < p ∨ i = p ∨ i = p + 1 ∨ (p + 1 < i ∧ i < g) ∨ i = g ∨ i = g + 1 ∨ g + 1 < i
     by omega) with hi | rfl | rfl | hi | rfl | rfl | hi <;>
-  · simp (disch := omega) only [if_pos, if_neg, tau_left, tau_right, tau_of_ne, ↓reduceIte]
+  · simp (disch := omega) only [ite_eq_left, ite_eq_right, tau_left, tau_right, tau_of_ne, ↓reduceIte]
 
 theorem insAt_swapAt_ge {β : Type*} (l : List β) {p g : ℕ} (h : g ≤ p) (hp : p + 1 < l.length)
     (x y : β) : insAt (swapAt l p) g x y = swapAt (insAt l g x y) (p + 2) := by
@@ -1493,7 +1493,7 @@ theorem insAt_swapAt_ge {β : Type*} (l : List β) {p g : ℕ} (h : g ≤ p) (hp
     getElem?_swapAt l hp]
   rcases (show i < g ∨ i = g ∨ i = g + 1 ∨ (g + 1 < i ∧ i < p + 2) ∨ i = p + 2 ∨ i = p + 2 + 1 ∨
     p + 2 + 1 < i by omega) with hi | rfl | rfl | hi | rfl | rfl | hi <;>
-  · simp (disch := omega) only [if_pos, if_neg, tau_left, tau_right, tau_of_ne, ↓reduceIte]
+  · simp (disch := omega) only [ite_eq_left, ite_eq_right, tau_left, tau_right, tau_of_ne, ↓reduceIte]
     try (congr 1; unfold tau; split_ifs <;> omega)
 
 theorem insAt_pitch {β : Type*} (l : List β) {g : ℕ} (hg : g < l.length) (x y : β) :
@@ -1505,7 +1505,7 @@ theorem insAt_pitch {β : Type*} (l : List β) {g : ℕ} (hg : g < l.length) (x 
     getElem?_insAt l (show g + 1 ≤ l.length by omega)]
   rcases (show i < g ∨ i = g ∨ i = g + 1 ∨ i = g + 1 + 1 ∨ g + 1 + 1 < i by omega) with
     hi | rfl | rfl | rfl | hi <;>
-  · simp (disch := omega) only [if_pos, if_neg, tau_left, tau_right, tau_of_ne, ↓reduceIte,
+  · simp (disch := omega) only [ite_eq_left, ite_eq_right, tau_left, tau_right, tau_of_ne, ↓reduceIte,
       show ∀ n : ℕ, n + 1 + 1 - 2 = n from fun n => by omega]
 
 /-- Each generating move preserves whether a diagram fits and the letters it produces. -/

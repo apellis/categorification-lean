@@ -178,8 +178,8 @@ theorem exists_decomp_dot : ∃ (P : H) (i : P ⟶ W) (p : W ⟶ P) (i' : P⟦(-
       (i ≫ N.xL ≫ p'⟦(2 : ℤ)⟧') ≫ σ.hom⟦(2 : ℤ)⟧' := by
     simp only [Functor.map_comp, Category.assoc]
   rw [hsplit, hcomp]
-  haveI : IsIso (b : P ⟶ P'⟦(2 : ℤ)⟧) := (shIsoOfInv b a _ _ hba hab).isIso_hom
-  haveI : IsIso ((N.r : k) • (b : P ⟶ P'⟦(2 : ℤ)⟧)) := by
+  have : IsIso (b : P ⟶ P'⟦(2 : ℤ)⟧) := (shIsoOfInv b a _ _ hba hab).isIso_hom
+  have : IsIso ((N.r : k) • (b : P ⟶ P'⟦(2 : ℤ)⟧)) := by
     refine ⟨⟨((N.r⁻¹ : kˣ) : k) • inv (b : P ⟶ P'⟦(2 : ℤ)⟧), ?_, ?_⟩⟩
     · rw [Linear.smul_comp, Linear.comp_smul, IsIso.hom_inv_id, smul_smul, Units.mul_inv, one_smul]
     · rw [Linear.smul_comp, Linear.comp_smul, IsIso.inv_hom_id, smul_smul, Units.inv_mul, one_smul]

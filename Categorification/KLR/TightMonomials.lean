@@ -123,7 +123,7 @@ end Categorification.Graded.GProj
 
 namespace Categorification.KLR.KLGamma
 
-open Graded KLRAlgebra LaurentPolynomial QuantumGroup Finset
+open Categorification.Graded KLRAlgebra LaurentPolynomial QuantumGroup Finset
 
 /-! ### Bar-invariance of the quantum factorials in `ℤ[q, q⁻¹]` -/
 
@@ -157,26 +157,26 @@ variable {k : Type*} [Field k] {A : Type*} [Ring A] [Algebra k A] {𝒜 : ℤ �
 /-- `(x, p y) = p (x, y)` in `ℚ((q))`, for `p ∈ ℤ[q, q⁻¹] ⊆ ℚ((q))`. -/
 theorem lsCast_homForm_smul_right (p : LaurentPolynomial ℤ) (x y : K0 𝒜) :
     lsCast (K0.homForm 𝒜 x (p • y)) = vToLS (qToV p) * lsCast (K0.homForm 𝒜 x y) := by
-  induction p using Finsupp.induction_linear with
+  induction p using AddMonoidAlgebra.induction_linear with
   | zero => simp
   | add p p' hp hp' => rw [add_smul, map_add, map_add, hp, hp', map_add, map_add, add_mul]
   | single n m =>
-    have hT : (Finsupp.single n m : LaurentPolynomial ℤ) = m • T n := by
-      rw [T, Finsupp.smul_single, smul_eq_mul, mul_one]
+    have hT : (AddMonoidAlgebra.single n m : LaurentPolynomial ℤ) = m • T n := by
+      rw [LaurentPolynomial.single_eq_C_mul_T, LaurentPolynomial.smul_eq_C_mul]
     rw [hT, smul_assoc, map_zsmul, map_zsmul, K0.homForm_T_smul_right, map_zsmul, map_zsmul,
       vToLS_qToV_T, map_mul, lsCast_single, Int.cast_one, smul_mul_assoc]
 
 /-- `(p x, y) = \bar p (x, y)` in `ℚ((q))`, for `p ∈ ℤ[q, q⁻¹] ⊆ ℚ((q))`. -/
 theorem lsCast_homForm_smul_left (p : LaurentPolynomial ℤ) (x y : K0 𝒜) :
     lsCast (K0.homForm 𝒜 (p • x) y) = vToLS (qToV (invert p)) * lsCast (K0.homForm 𝒜 x y) := by
-  induction p using Finsupp.induction_linear with
+  induction p using AddMonoidAlgebra.induction_linear with
   | zero => simp
   | add p p' hp hp' =>
     rw [add_smul, map_add, AddMonoidHom.add_apply, map_add, hp, hp', map_add, map_add, map_add,
       add_mul]
   | single n m =>
-    have hT : (Finsupp.single n m : LaurentPolynomial ℤ) = m • T n := by
-      rw [T, Finsupp.smul_single, smul_eq_mul, mul_one]
+    have hT : (AddMonoidAlgebra.single n m : LaurentPolynomial ℤ) = m • T n := by
+      rw [LaurentPolynomial.single_eq_C_mul_T, LaurentPolynomial.smul_eq_C_mul]
     rw [hT, smul_assoc, map_zsmul (K0.homForm 𝒜)]
     show lsCast (m • K0.homForm 𝒜 (T n • x) y) = _
     rw [K0.homForm_T_smul_left, map_zsmul lsCast, map_zsmul invert, invert_T, map_zsmul qToV,
@@ -282,9 +282,9 @@ theorem prop_3_22 {ν : Multiset I} (d : List (I × ℕ)) (h : (expandDiv d : Mu
     have e := finrank_homGrade_projDiv k Γ d h n
     rw [ht n hn] at e
     split_ifs at e ⊢ <;> exact_mod_cast e
-  refine ⟨fun n hn => by rw [hc n hn.le, if_neg hn.ne], by rw [hc 0 le_rfl, if_pos rfl], ?_⟩
+  refine ⟨fun n hn => by rw [hc n hn.le, ite_eq_right hn.ne], by rw [hc 0 le_rfl, ite_eq_left rfl], ?_⟩
   refine GProj.isIndec_of_coeff_homGdim_zero _ ?_
-  rw [GProj.homGdim, coeff_gdim, hc 0 le_rfl, if_pos rfl, Nat.cast_one]
+  rw [GProj.homGdim, coeff_gdim, hc 0 le_rfl, ite_eq_left rfl, Nat.cast_one]
 
 /-- **KL I, Proposition 3.22, minimal hypothesis**: if the `q⁰`-coefficient of `(θ, θ)` is `1`,
 then `P_θ` is indecomposable. -/
@@ -328,22 +328,22 @@ theorem vToLS_form_dpowMono_single (i : I) (m : ℕ) :
 theorem isFormTight_single (i : I) (m : ℕ) : IsFormTight Γ [(i, m)] := by
   intro n hn
   rw [vToLS_form_dpowMono_single, lsCast_coeff,
-    coeff_prod_geomSeries (fun a : Fin m => 2 * ((a : ℤ) + 1)) (fun a => by dsimp only; omega)]
+    coeff_prod_geomSeries (fun a : Fin m => 2 * ((a : ℤ) + 1)) (fun a => by omega)]
   rcases hn.lt_or_eq with hlt | rfl
-  · rw [if_neg hlt.ne]
+  · rw [ite_eq_right hlt.ne]
     have : {u : Fin m →₀ ℕ | Finsupp.weight (fun a : Fin m => 2 * ((a : ℤ) + 1)) u = n} = ∅ :=
-      Set.eq_empty_iff_forall_not_mem.2 fun u hu => by
-        have := weight_nonneg (w := fun a : Fin m => 2 * ((a : ℤ) + 1)) (fun a => by dsimp only; omega) u
-        rw [Set.mem_setOf_eq] at hu
+      Set.eq_empty_iff_forall_notMem.2 fun u hu => by
+        have := weight_nonneg (w := fun a : Fin m => 2 * ((a : ℤ) + 1)) (fun a => by omega) u
+        rw [Set.mem_ofPred_eq] at hu
         omega
     rw [this]; simp
-  · rw [if_pos rfl]
+  · rw [ite_eq_left rfl]
     have : {u : Fin m →₀ ℕ | Finsupp.weight (fun a : Fin m => 2 * ((a : ℤ) + 1)) u = 0} =
         {0} := by
       ext u
-      simp only [Set.mem_setOf_eq, Set.mem_singleton_iff]
+      simp only [Set.mem_ofPred_eq, Set.mem_singleton_iff]
       refine ⟨fun hu => Finsupp.ext fun a => ?_, fun hu => by rw [hu, map_zero]⟩
-      have := le_weight (w := fun a : Fin m => 2 * ((a : ℤ) + 1)) (fun a => by dsimp only; omega) u a
+      have := le_weight (w := fun a : Fin m => 2 * ((a : ℤ) + 1)) (fun a => by omega) u a
       rw [hu] at this
       simp only [Finsupp.coe_zero, Pi.zero_apply]
       omega

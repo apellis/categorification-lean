@@ -74,7 +74,7 @@ theorem of_mem_closure_indec_retract (X : 𝒞) :
     · exact AddSubmonoid.subset_closure ⟨X, hi, IsRetract.refl X, rfl⟩
     obtain ⟨e, he, he0, he1⟩ : ∃ e : X ⟶ X, e ≫ e = e ∧ e ≠ 0 ∧ e ≠ 𝟙 X := by
       by_contra hne
-      push_neg at hne
+      push Not at hne
       exact hi ⟨h0, fun e he => by
         by_cases h' : e = 0
         · exact Or.inl h'

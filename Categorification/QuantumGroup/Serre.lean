@@ -54,7 +54,7 @@ theorem d_mul_of_mem_grade (i : I) {μ : Multiset I} {x : PreF K I} (hx : x ∈ 
     (LinearMap.mulRight K y ∘ₗ d dot v i +
       ((v ^ wdot dot μ {i} : Kˣ) : K) • LinearMap.mulRight K (d dot v i y)) ?_ x hx
   intro w hw
-  simp only [Set.mem_setOf_eq] at hw
+  simp only [Set.mem_ofPred_eq] at hw
   simp only [LinearMap.coe_comp, Function.comp_apply, LinearMap.mulRight_apply,
     LinearMap.add_apply, LinearMap.smul_apply, d_word_mul, hw]
 
@@ -106,10 +106,10 @@ theorem counit_serreSeq (i j : I) (m : ℕ) : counit (serreSeq dot v i j m : Pre
 theorem d_serreSeq_of_ne (i j k : I) (hi : i ≠ k) (hj : j ≠ k) (m : ℕ) :
     d dot v k (serreSeq dot v i j m : PreF K I) = 0 := by
   induction m with
-  | zero => rw [serreSeq_zero, d_θ, if_neg hj]
+  | zero => rw [serreSeq_zero, d_θ, ite_eq_right hj]
   | succ m ih =>
-    rw [serreSeq_succ, map_sub, map_smul, d_θ_mul, if_neg hi, ih,
-      d_mul_of_mem_grade k (serreSeq_mem_grade i j m), ih, d_θ, if_neg hi]
+    rw [serreSeq_succ, map_sub, map_smul, d_θ_mul, ite_eq_right hi, ih,
+      d_mul_of_mem_grade k (serreSeq_mem_grade i j m), ih, d_θ, ite_eq_right hi]
     simp
 
 theorem d_serreSeq_right (hdot : ∀ i j, dot i j = dot j i) (i j : I) (hij : i ≠ j) (m : ℕ) :
@@ -117,11 +117,11 @@ theorem d_serreSeq_right (hdot : ∀ i j, dot i j = dot j i) (i j : I) (hij : i 
   induction m with
   | zero =>
     rw [serreSeq_succ, serreSeq_zero, map_sub, map_smul, d_θ_mul, d_θ_mul, d_θ, d_θ,
-      if_neg hij, if_pos rfl, hdot i j]
+      ite_eq_right hij, ite_eq_left rfl, hdot i j]
     simp [hij]
   | succ m ih =>
-    rw [serreSeq_succ (m := m + 1), map_sub, map_smul, d_θ_mul, if_neg hij, ih,
-      d_mul_of_mem_grade j (serreSeq_mem_grade i j (m + 1)), ih, d_θ, if_neg hij]
+    rw [serreSeq_succ (m := m + 1), map_sub, map_smul, d_θ_mul, ite_eq_right hij, ih,
+      d_mul_of_mem_grade j (serreSeq_mem_grade i j (m + 1)), ih, d_θ, ite_eq_right hij]
     simp
 
 variable (dot v) in
@@ -139,13 +139,13 @@ theorem d_serreSeq_left (i j : I) (hij : i ≠ j) (m : ℕ) :
     intro m; rw [wdot_cons_left, wdot_singleton, wdot_replicate]
   induction m with
   | zero =>
-    simp only [serreSeq_succ, serreSeq_zero, map_sub, map_smul, d_θ_mul, d_θ, if_true,
-      if_neg (Ne.symm hij), smul_zero, add_zero, mul_zero, mul_one, serreβ, Nat.cast_zero,
+    simp only [serreSeq_succ, serreSeq_zero, map_sub, map_smul, d_θ_mul, d_θ, ite_true,
+      ite_eq_right (Ne.symm hij), smul_zero, add_zero, mul_zero, mul_one, serreβ, Nat.cast_zero,
       zero_mul]
     module
   | succ m ih =>
-    rw [serreSeq_succ (m := m + 1), map_sub, map_smul, d_θ_mul, if_pos rfl, ih,
-      d_mul_of_mem_grade i (serreSeq_mem_grade i j (m + 1)), ih, d_θ, if_pos rfl, hw, mul_one]
+    rw [serreSeq_succ (m := m + 1), map_sub, map_smul, d_θ_mul, ite_eq_left rfl, ih,
+      d_mul_of_mem_grade i (serreSeq_mem_grade i j (m + 1)), ih, d_θ, ite_eq_left rfl, hw, mul_one]
     have hc : ((v ^ (dot j i + ((m + 1 : ℕ) : ℤ) * dot i i) : Kˣ) : K) =
         ((v ^ dot i i : Kˣ) : K) * ((v ^ (dot j i + (m : ℤ) * dot i i) : Kˣ) : K) := by
       rw [← Units.val_mul, ← zpow_add]; congr 2; push_cast; ring

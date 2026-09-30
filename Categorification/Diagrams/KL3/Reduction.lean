@@ -53,6 +53,9 @@ diagrams between upward sequences), is proved for simply-laced data in
 `prop310_of_simplyLaced`).
 -/
 
+-- Elaborate the diagram functor transports through semireducible definitions.
+set_option backward.isDefEq.respectTransparency false
+
 noncomputable section
 
 namespace Categorification.KL3.Diagram
@@ -330,12 +333,11 @@ theorem upFunctor_map_mem_upSpan {a b : Obj (KLR.Diagram.sig I)}
 /-- The entries of the image of `ϕ_{ν,μ}` lie in `upSpan`. -/
 theorem phi_apply_mem_upSpan (x : KLR.R2 k C ν ⊗[k] PiLam I k) (s t : KLR.Seq ν) :
     phi RD k μ ν x s t ∈ upSpan RD k μ (ups (word s)) (ups (word t)) := by
-  induction x using TensorProduct.induction_on with
-  | zero => rw [map_zero]; exact Submodule.zero_mem _
+  induction x using TensorProduct.inductionOn with
   | add x y hx hy => rw [map_add]; exact Submodule.add_mem _ hx hy
   | tmul r p =>
     rw [phi_tmul, mul_apply, Finset.sum_eq_single s]
-    · rw [bubDiag_apply, sum_apply, Finset.sum_eq_single s]
+    · rw [bubDiag_apply, MatEnd.sum_apply, Finset.sum_eq_single s]
       · rw [single_apply_self, bubAt_comm]
         have hF : (toUEnd RD k μ ν r) s t ∈ upSpan RD k μ (ups (word s)) (ups (word t)) :=
           upFunctor_map_mem_upSpan RD k μ ((diagREquiv k (KLR.klQ2 k C) ν r) s t)
@@ -352,7 +354,7 @@ theorem phi_apply_mem_upSpan (x : KLR.R2 k C ν ⊗[k] PiLam I k) (s t : KLR.Seq
         rw [single_apply_of_ne _ (fun h => hj h.1.symm)]
       · simp
     · intro j _ hj
-      rw [bubDiag_apply, sum_apply, Finset.sum_eq_single j]
+      rw [bubDiag_apply, MatEnd.sum_apply, Finset.sum_eq_single j]
       · rw [single_apply_of_ne _ (fun h => hj h.1.symm), Limits.zero_comp]
       · intro m _ hm
         rw [single_apply_of_ne _ (fun h => hm h.2.symm)]

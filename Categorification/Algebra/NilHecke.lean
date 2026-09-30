@@ -76,9 +76,9 @@ variable {k m}
 theorem mulPoly_X (a : Fin m) : mulPoly k m (X a) = mulX k m a := rfl
 
 theorem dd_of_lt {j : ℕ} (h : j + 1 < m) :
-    dd k m j = ddiff ⟨j, by omega⟩ ⟨j + 1, h⟩ := dif_pos h
+    dd k m j = ddiff ⟨j, by omega⟩ ⟨j + 1, h⟩ := dite_eq_left h
 
-theorem dd_eq_zero {j : ℕ} (h : m ≤ j + 1) : dd k m j = 0 := dif_neg (by omega)
+theorem dd_eq_zero {j : ℕ} (h : m ≤ j + 1) : dd k m j = 0 := dite_eq_right (by omega)
 
 /-! ### Membership in `NH_m` -/
 

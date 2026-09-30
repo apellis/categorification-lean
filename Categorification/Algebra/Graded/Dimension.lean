@@ -59,24 +59,26 @@ variable {R : Type*} [CommRing R]
 /-- The embedding `R[q, q⁻¹] → R((q))` of Laurent polynomials into Laurent series (same
 coefficients). -/
 def toLaurentSeries : LaurentPolynomial R →+ LaurentSeries R where
-  toFun p := ⟨p, p.finite_support.isPWO⟩
+  toFun p := ⟨p.coeff, p.coeff.hasFiniteSupport.isPWO⟩
   map_zero' := rfl
   map_add' _ _ := rfl
 
 @[simp] theorem coeff_toLaurentSeries (p : LaurentPolynomial R) (d : ℤ) :
-    (toLaurentSeries p).coeff d = p d := rfl
+    (toLaurentSeries p).coeff d = p.coeff d := rfl
 
 /-- `q^a · p ↦ q^a · p`. -/
 theorem toLaurentSeries_T_mul (a : ℤ) (p : LaurentPolynomial R) :
     toLaurentSeries (LaurentPolynomial.T a * p) = HahnSeries.single a 1 * toLaurentSeries p := by
   ext d
   rw [← sub_add_cancel d a, HahnSeries.coeff_single_mul_add, one_mul, coeff_toLaurentSeries,
-    coeff_toLaurentSeries, LaurentPolynomial.T,
-    AddMonoidAlgebra.single_mul_apply_aux _ _ _ _ (d - a) fun b _ => by
-      constructor <;> intro h <;> omega, one_mul]
+    coeff_toLaurentSeries]
+  change (AddMonoidAlgebra.single a 1 * p).coeff _ = _
+  rw [AddMonoidAlgebra.coeff_single_mul_apply, one_mul]
+  congr 1
+  abel
 
 theorem toLaurentSeries_injective : Injective (toLaurentSeries (R := R)) := fun p p' h =>
-  Finsupp.ext fun d => by rw [← coeff_toLaurentSeries, h, coeff_toLaurentSeries]
+  AddMonoidAlgebra.ext <| Finsupp.ext fun d => by rw [← coeff_toLaurentSeries, h, coeff_toLaurentSeries]
 
 end LaurentSeries
 
@@ -198,7 +200,7 @@ instance (ℳ : ℤ → Submodule k M) (𝒩 : ℤ → Submodule k N) [HasGdim �
     obtain ⟨b, hb⟩ := HasGdim.bddBelow (ℳ := 𝒩)
     refine ⟨min a b, fun d hd => ?_⟩
     by_contra hlt
-    push_neg at hlt
+    push Not at hlt
     have h1 : ℳ d = ⊥ := by
       by_contra h; have := ha h; omega
     have h2 : 𝒩 d = ⊥ := by
@@ -287,7 +289,7 @@ open scoped Classical in
 finitely many nonzero dimensions (e.g. a finite-dimensional graded vector space); `0` by
 convention otherwise. -/
 noncomputable def gdimPoly (ℳ : ℤ → Submodule k M) : LaurentPolynomial ℤ :=
-  if h : (support fun d => (finrank k (ℳ d) : ℤ)).Finite then Finsupp.ofSupportFinite _ h else 0
+  if h : (support fun d => (finrank k (ℳ d) : ℤ)).Finite then .ofCoeff (Finsupp.ofSupportFinite _ h) else 0
 
 theorem finite_support_finrank (ℳ : ℤ → Submodule k M) [Decomposition ℳ]
     [FiniteDimensional k M] : (support fun d => (finrank k (ℳ d) : ℤ)).Finite :=
@@ -295,13 +297,13 @@ theorem finite_support_finrank (ℳ : ℤ → Submodule k M) [Decomposition ℳ]
     (Decomposition.isInternal ℳ).submodule_iSupIndep).subset (support_finrank_subset ℳ)
 
 theorem gdimPoly_apply (ℳ : ℤ → Submodule k M) [Decomposition ℳ]
-    [FiniteDimensional k M] (d : ℤ) : gdimPoly ℳ d = finrank k (ℳ d) := by
+    [FiniteDimensional k M] (d : ℤ) : (gdimPoly ℳ).coeff d = finrank k (ℳ d) := by
   simp [gdimPoly, finite_support_finrank ℳ, Finsupp.ofSupportFinite_coe]
 
 /-- For a finite-dimensional graded vector space, `gdimPoly` and `gdim` agree. -/
 theorem toLaurentSeries_gdimPoly (ℳ : ℤ → Submodule k M) [Decomposition ℳ]
     [FiniteDimensional k M] : toLaurentSeries (gdimPoly ℳ) = gdim ℳ := by
-  haveI := HasGdim.of_finiteDimensional ℳ
+  have := HasGdim.of_finiteDimensional ℳ
   ext d
   rw [coeff_toLaurentSeries, gdimPoly_apply, coeff_gdim]
 
@@ -314,8 +316,8 @@ theorem gdimPoly_shift (ℳ : ℤ → Submodule k M) [Decomposition ℳ] [Finite
 theorem gdimPoly_prod (ℳ : ℤ → Submodule k M) (𝒩 : ℤ → Submodule k N) [Decomposition ℳ]
     [Decomposition 𝒩] [FiniteDimensional k M] [FiniteDimensional k N] :
     gdimPoly (prod ℳ 𝒩) = gdimPoly ℳ + gdimPoly 𝒩 := by
-  haveI := HasGdim.of_finiteDimensional ℳ
-  haveI := HasGdim.of_finiteDimensional 𝒩
+  have := HasGdim.of_finiteDimensional ℳ
+  have := HasGdim.of_finiteDimensional 𝒩
   apply toLaurentSeries_injective
   rw [toLaurentSeries_gdimPoly, map_add, toLaurentSeries_gdimPoly, toLaurentSeries_gdimPoly,
     gdim_prod]
@@ -325,9 +327,9 @@ theorem gdimPoly_eq_add_of_exact_of_preservesGrading {ℳ : ℤ → Submodule k 
     [Decomposition 𝒬] [FiniteDimensional k N] {f : M →ₗ[k] N} {g : N →ₗ[k] P}
     (hfgr : PreservesGrading ℳ 𝒩 f) (hggr : PreservesGrading 𝒩 𝒬 g) (hf : Injective f)
     (hg : Surjective g) (hfg : Exact f g) : gdimPoly 𝒩 = gdimPoly ℳ + gdimPoly 𝒬 := by
-  haveI := HasGdim.of_finiteDimensional 𝒩
-  haveI : FiniteDimensional k M := FiniteDimensional.of_injective f hf
-  haveI : FiniteDimensional k P := Module.Finite.of_surjective g hg
+  have := HasGdim.of_finiteDimensional 𝒩
+  have : FiniteDimensional k M := FiniteDimensional.of_injective f hf
+  have : FiniteDimensional k P := Module.Finite.of_surjective g hg
   apply toLaurentSeries_injective
   rw [map_add, toLaurentSeries_gdimPoly, toLaurentSeries_gdimPoly, toLaurentSeries_gdimPoly,
     gdim_eq_add_of_exact_of_preservesGrading hfgr hggr hf hg hfg]
@@ -400,9 +402,9 @@ theorem gdim_idem_eq_add_of_exact {𝒜 : ℤ → Submodule k A} [SetLike.Graded
     {f : M →ₗ[A] N} {g : N →ₗ[A] P} (hfgr : PreservesGrading ℳ 𝒩 f)
     (hggr : PreservesGrading 𝒩 𝒬 g) (hf : Injective f) (hg : Surjective g) (hfg : Exact f g) :
     gdim (idem 𝒩 e) = gdim (idem ℳ e) + gdim (idem 𝒬 e) := by
-  letI := idemDecomposition ℳ he
-  letI := idemDecomposition 𝒩 he
-  letI := idemDecomposition 𝒬 he
+  let := idemDecomposition ℳ he
+  let := idemDecomposition 𝒩 he
+  let := idemDecomposition 𝒬 he
   refine gdim_eq_add_of_exact_of_preservesGrading hfgr.idemMap hggr.idemMap
     (fun x y h => Subtype.ext (hf (congrArg Subtype.val h))) (fun z => ?_) (fun y => ?_)
   · obtain ⟨y, hy⟩ := hg z

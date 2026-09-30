@@ -158,14 +158,14 @@ def qCL {C : CartanDatum I} {k : Type*} [CommRing k] (S : CLScalars C k) (i j : 
 variable {C k}
 
 theorem qCL_of_dot_eq_zero (S : CLScalars C k) {i j : I} (h : C.dot i j = 0) :
-    qCL S i j = MvPolynomial.C (S.t i j : k) := if_pos h
+    qCL S i j = MvPolynomial.C (S.t i j : k) := ite_eq_left h
 
 theorem qCL_of_dot_ne_zero (S : CLScalars C k) {i j : I} (h : C.dot i j ≠ 0) :
     qCL S i j = MvPolynomial.C (S.t i j : k) * X 0 ^ C.dij i j +
       MvPolynomial.C (S.t j i : k) * X 1 ^ C.dij j i +
       ∑ p ∈ Finset.range (C.dij i j), ∑ q ∈ Finset.range (C.dij j i),
         if C.dot i i * p + C.dot j j * q = -2 * C.dot i j then
-          MvPolynomial.C (S.s i j p q) * X 0 ^ p * X 1 ^ q else 0 := if_neg h
+          MvPolynomial.C (S.s i j p q) * X 0 ^ p * X 1 ^ q else 0 := ite_eq_right h
 
 /-- **`Q_{ij}(u, v) = Q_{ji}(v, u)`**: the symmetry required of the polynomials of a KLR
 algebra. It uses `s_{ij}^{pq} = s_{ji}^{qp}` and, for `i · j = 0`, `t_{ij} = t_{ji}`. -/
@@ -176,13 +176,13 @@ theorem rename_swap_qCL (S : CLScalars C k) (i j : I) :
   split_ifs with h
   · rw [rename_C, S.t_symm i j h]
   · simp only [map_add, map_mul, map_pow, rename_C, rename_X, map_sum, Matrix.cons_val_zero,
-      Matrix.cons_val_one, Matrix.head_cons]
+      Matrix.cons_val_one]
     rw [Finset.sum_comm, add_comm (MvPolynomial.C _ * _)]
     congr 1
     refine Finset.sum_congr rfl fun q _ => Finset.sum_congr rfl fun p _ => ?_
     rw [apply_ite (rename ![(1 : Fin 2), 0]), map_zero, map_mul, map_mul, map_pow, map_pow,
       rename_C, rename_X, rename_X, add_comm (C.dot j j * (p : ℤ))]
-    simp only [Matrix.cons_val_zero, Matrix.cons_val_one, Matrix.head_cons]
+    simp only [Matrix.cons_val_zero, Matrix.cons_val_one]
     split_ifs with hpq
     · rw [S.s_symm j i p q]; ring
     · rfl
@@ -238,7 +238,7 @@ theorem qCL_isWeightedHomogeneous (S : CLScalars C k) {i j : I} (h : i ≠ j) :
       · convert ((isWeightedHomogeneous_C ![C.dot i i, C.dot j j] (S.s i j p q)).mul
           ((isWeightedHomogeneous_X k ![C.dot i i, C.dot j j] 0).pow p)).mul
           ((isWeightedHomogeneous_X k ![C.dot i i, C.dot j j] 1).pow q) using 1
-        simp only [Matrix.cons_val_zero, Matrix.cons_val_one, Matrix.head_cons, smul_eq_mul,
+        simp only [Matrix.cons_val_zero, Matrix.cons_val_one,
           nsmul_eq_mul, zero_add]
         linear_combination -hpq
       · exact isWeightedHomogeneous_zero _ _ _
@@ -254,7 +254,7 @@ theorem qbar_isWeightedHomogeneous {Q : MvPolynomial (Fin 2) k} {w₀ w₁ e : �
   refine IsWeightedHomogeneous.sum _ _ _ fun s hs => ?_
   have hw : Finsupp.weight ![w₀, w₁] s = e := hQ (MvPolynomial.mem_support_iff.mp hs)
   rw [Finsupp.weight_apply, Finsupp.sum_fintype _ _ (by simp), Fin.sum_univ_two] at hw
-  simp only [Matrix.cons_val_zero, Matrix.cons_val_one, Matrix.head_cons, smul_eq_mul] at hw
+  simp only [Matrix.cons_val_zero, Matrix.cons_val_one] at hw
   rcases Nat.eq_zero_or_pos (s 0) with h0 | hpos
   · rw [h0, Finset.range_zero, Finset.sum_empty, mul_zero]
     exact isWeightedHomogeneous_zero _ _ _
@@ -265,12 +265,12 @@ theorem qbar_isWeightedHomogeneous {Q : MvPolynomial (Fin 2) k} {w₀ w₁ e : �
       convert ((isWeightedHomogeneous_X k ![w₀, w₁, w₀] 0).pow t).mul
         ((isWeightedHomogeneous_X k ![w₀, w₁, w₀] 2).pow (s 0 - 1 - t)) using 1
       simp only [Matrix.cons_val_zero, Matrix.cons_val_two, Matrix.tail_cons, Matrix.head_cons,
-        smul_eq_mul, nsmul_eq_mul]
+        nsmul_eq_mul]
       push_cast [Nat.cast_sub (show t ≤ s 0 - 1 by omega), Nat.cast_sub (show 1 ≤ s 0 by omega)]
       ring
     convert ((isWeightedHomogeneous_C ![w₀, w₁, w₀] (Q.coeff s)).mul
       ((isWeightedHomogeneous_X k ![w₀, w₁, w₀] 1).pow (s 1))).mul hsum using 1
-    simp only [Matrix.cons_val_one, Matrix.head_cons, smul_eq_mul, nsmul_eq_mul, zero_add]
+    simp only [Matrix.cons_val_one, nsmul_eq_mul, zero_add]
     push_cast [Nat.cast_sub (show 1 ≤ s 0 by omega)]
     linear_combination -hw
 
@@ -299,7 +299,7 @@ theorem qbar_C_mul_X_pow_mul_X_pow (c : k) (p q : ℕ) :
       MvPolynomial.C c * X 1 ^ q * ∑ t ∈ Finset.range p, X 0 ^ t * X 2 ^ (p - 1 - t) := by
   have : (MvPolynomial.C c * X 0 ^ p * X 1 ^ q : MvPolynomial (Fin 2) k) =
       monomial (Finsupp.single 0 p + Finsupp.single 1 q) c := by
-    rw [X_pow_eq_monomial, X_pow_eq_monomial, mul_assoc, monomial_mul, C_mul_monomial, mul_one,
+    rw [X_pow_eq_monomial, X_pow_eq_monomial, mul_assoc, monomial_mul_monomial, C_mul_monomial, mul_one,
       mul_one]
   rw [this, KLR.qbar_monomial]
   simp
@@ -314,11 +314,11 @@ truncated subtraction `p - 1`; this is harmless because the terms with `p = 0` n
 theorem qbar_qCL (S : CLScalars C k) {i j : I} (hij : i ≠ j) (h : C.dot i j ≠ 0) :
     KLR.qbar (qCL S i j) =
       MvPolynomial.C (S.t i j : k) *
-          ∑ l ∈ Finset.antidiagonal (C.dij i j - 1), X 0 ^ l.1 * X 2 ^ l.2 +
+          ∑ l ∈ Finset.HasAntidiagonal.antidiagonal (C.dij i j - 1), X 0 ^ l.1 * X 2 ^ l.2 +
         ∑ p ∈ Finset.range (C.dij i j), ∑ q ∈ Finset.range (C.dij j i),
           if C.dot i i * p + C.dot j j * q = -2 * C.dot i j then
             MvPolynomial.C (S.s i j p q) * X 1 ^ q *
-              ∑ l ∈ Finset.antidiagonal (p - 1), X 0 ^ l.1 * X 2 ^ l.2
+              ∑ l ∈ Finset.HasAntidiagonal.antidiagonal (p - 1), X 0 ^ l.1 * X 2 ^ l.2
           else 0 := by
   have hd : 0 < C.dij i j := C.dij_pos hij h
   rw [qCL_of_dot_ne_zero S h, KLR.qbar_add, KLR.qbar_add, qbar_sum]

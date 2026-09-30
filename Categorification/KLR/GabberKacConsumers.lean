@@ -38,7 +38,7 @@ end Categorification.QuantumGroup.KL
 
 namespace Categorification.KLR.KLGamma
 
-open Graded QuantumGroup
+open Categorification.Graded QuantumGroup
 
 variable {I : Type*} [DecidableEq I] (k : Type*) [Field k] (Γ : SimpleGraph I)
   [DecidableRel Γ.Adj]

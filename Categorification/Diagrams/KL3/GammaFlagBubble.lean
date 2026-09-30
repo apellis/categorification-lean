@@ -32,6 +32,9 @@ In the 2-category `U` the fake bubbles are *defined* by the infinite Grassmannia
   term with KL III's indices.
 -/
 
+-- Preserve elaboration of semireducible diagram and bimodule transports.
+set_option backward.isDefEq.respectTransparency false
+
 noncomputable section
 
 namespace Categorification.KL3.Diagram.Signed
@@ -63,17 +66,17 @@ theorem grassInv_congr (c c' : ℕ → A) (h : ∀ a, c (a + 1) = c' (a + 1)) :
 /-- **The Grassmannian recursion computes the inverse series**: if `c₀ = 1` and
 `∑_{a+b=N} c_a ψ_b = δ_{N,0}`, then `grassInv c = ψ`. -/
 theorem grassInv_eq (c ψ : ℕ → A) (hc : c 0 = 1)
-    (h : ∀ N, ∑ p ∈ Finset.antidiagonal N, c p.1 * ψ p.2 = if N = 0 then 1 else 0) :
+    (h : ∀ N, ∑ p ∈ Finset.HasAntidiagonal.antidiagonal N, c p.1 * ψ p.2 = if N = 0 then 1 else 0) :
     ∀ k, grassInv c k = ψ k := by
   intro k
   induction k using Nat.strong_induction_on with
   | _ k ih =>
     rcases k with _ | k
     · have h0 := h 0
-      simp only [Finset.antidiagonal_zero, Finset.sum_singleton, hc, one_mul] at h0
-      rw [grassInv_zero, h0, if_pos trivial]
+      simp only [Finset.Nat.antidiagonal_zero, Finset.sum_singleton, hc, one_mul] at h0
+      rw [grassInv_zero, h0, ite_eq_left trivial]
     · have hk := h (k + 1)
-      rw [Finset.Nat.sum_antidiagonal_succ, hc, one_mul, if_neg (Nat.succ_ne_zero k)] at hk
+      rw [Finset.Nat.sum_antidiagonal_succ, hc, one_mul, ite_eq_right (Nat.succ_ne_zero k)] at hk
       dsimp only at hk
       rw [grassInv_succ, eq_neg_of_add_eq_zero_left hk, neg_inj,
         Finset.Nat.sum_antidiagonal_eq_sum_range_succ_mk, ← Fin.sum_univ_eq_sum_range
@@ -144,22 +147,22 @@ theorem cwLH_eq (mm : ℤ) :
   have hn : nH lam i = (lam i.castSucc : ℤ) - lam i.succ := rfl
   unfold cwLH
   by_cases h0 : 0 ≤ mm
-  · rw [if_pos h0, cwRealH]
+  · rw [ite_eq_left h0, cwRealH]
     by_cases h1 : lam i.castSucc ≤ mm.toNat + lam i.succ + 1
-    · rw [if_pos h1, if_pos (by omega)]
+    · rw [ite_eq_left h1, ite_eq_left (by omega)]
       congr 1
       omega
-    · rw [if_neg h1, if_neg (by omega)]
-  · rw [if_neg h0]
+    · rw [ite_eq_right h1, ite_eq_right (by omega)]
+  · rw [ite_eq_right h0]
     by_cases h1 : 0 ≤ mm + 1 - nH lam i
-    · rw [if_pos h1, if_pos h1]
+    · rw [ite_eq_left h1, ite_eq_left h1]
       rw [grassInv_congr _ (PhiH lam i) (fun a => by
-        rw [ccwRH, if_pos (by omega), ccwRealH, if_pos (by omega)]
+        rw [ccwRH, ite_eq_left (by omega), ccwRealH, ite_eq_left (by omega)]
         congr 1
         omega)]
       exact grassInv_eq _ _ (PhiH_zero lam i)
         (grassmannianH (K := K) lam i.castSucc i.succ) _
-    · rw [if_neg h1, if_neg h1]
+    · rw [ite_eq_right h1, ite_eq_right h1]
 
 /-- **Fake counterclockwise bubbles**: for every label `m`, `Γ_N(ccwL m) = Φ_{m+1+n}` (and `0` if
 `m + 1 + n < 0`). -/
@@ -169,22 +172,22 @@ theorem ccwLH_eq (mm : ℤ) :
   have hn : nH lam i = (lam i.castSucc : ℤ) - lam i.succ := rfl
   unfold ccwLH
   by_cases h0 : 0 ≤ mm
-  · rw [if_pos h0, ccwRealH]
+  · rw [ite_eq_left h0, ccwRealH]
     by_cases h1 : lam i.succ ≤ mm.toNat + lam i.castSucc + 1
-    · rw [if_pos h1, if_pos (by omega)]
+    · rw [ite_eq_left h1, ite_eq_left (by omega)]
       congr 1
       omega
-    · rw [if_neg h1, if_neg (by omega)]
-  · rw [if_neg h0]
+    · rw [ite_eq_right h1, ite_eq_right (by omega)]
+  · rw [ite_eq_right h0]
     by_cases h1 : 0 ≤ mm + 1 + nH lam i
-    · rw [if_pos h1, if_pos h1]
+    · rw [ite_eq_left h1, ite_eq_left h1]
       rw [grassInv_congr _ (PsiH lam i) (fun a => by
-        rw [cwRH, if_pos (by omega), cwRealH, if_pos (by omega)]
+        rw [cwRH, ite_eq_left (by omega), cwRealH, ite_eq_left (by omega)]
         congr 1
         omega)]
       exact grassInv_eq _ _ (PsiH_zero lam i)
         (grassmannianH (K := K) lam i.succ i.castSucc) _
-    · rw [if_neg h1, if_neg h1]
+    · rw [ite_eq_right h1, ite_eq_right h1]
 
 end Bubbles
 
@@ -214,7 +217,7 @@ theorem curlRW_eq_curlRHS {q r s : Comp m} (h : StepR (true, i) r s) (hq : StepR
   · rw [show (-nH r i + 1).toNat = r i.succ - r i.castSucc + 1 by omega]
     congr 2
     refine Finset.sum_congr rfl fun f _ => ?_
-    rw [cwLH_eq, if_pos (by omega), show (-nH r i - f).toNat = r i.succ - r i.castSucc - f by omega,
+    rw [cwLH_eq, ite_eq_left (by omega), show (-nH r i - f).toNat = r i.succ - r i.castSucc - f by omega,
       show (nH r i - 1 + f + 1 - nH r i).toNat = f by omega]
   · rw [show (-nH r i + 1).toNat = 0 by omega, Finset.sum_range_zero, neg_zero, BHom.mulB_zero']
 
@@ -235,7 +238,7 @@ theorem curlLW_eq_curlLHS {r s s' : Comp m} (h : StepR (true, i) r s) (hs : Step
   · rw [show (nH s i + 1).toNat = s i.castSucc - s i.succ + 1 by omega]
     congr 1
     refine Finset.sum_congr rfl fun g _ => ?_
-    rw [ccwLH_eq, if_pos (by omega), show (nH s i - g).toNat = s i.castSucc - s i.succ - g by omega,
+    rw [ccwLH_eq, ite_eq_left (by omega), show (nH s i - g).toNat = s i.castSucc - s i.succ - g by omega,
       show (-nH s i - 1 + g + 1 + nH s i).toNat = g by omega]
   · rw [show (nH s i + 1).toNat = 0 by omega, Finset.sum_range_zero, BHom.mulB_zero']
 

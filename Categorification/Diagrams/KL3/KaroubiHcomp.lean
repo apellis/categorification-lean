@@ -96,6 +96,7 @@ section MatBi
 variable {C : Type u₀} {D : Type u₁} {E : Type u₂} [Category.{v} C] [Category.{v} D]
   [Category.{v} E] [Preadditive C] [Preadditive D] [Preadditive E]
 
+set_option backward.isDefEq.respectTransparency false in
 /-- A functor `C × D ⥤ E` additive in each variable, extended to formal direct sums:
 `(⊕_a X_a, ⊕_b Y_b) ↦ ⊕_{(a, b)} H(X_a, Y_b)`, with the tensor product of matrices. -/
 def matBi (H : C × D ⥤ E) (hH : IsBiadditive H) : Mat_ C × Mat_ D ⥤ Mat_ E where
@@ -110,7 +111,7 @@ def matBi (H : C × D ⥤ E) (hH : IsBiadditive H) : Mat_ C × Mat_ D ⥤ Mat_ E
     · subst ha
       by_cases hb : b = b'
       · subst hb
-        rw [Mat_.id_apply_self, Mat_.id_apply_self, Mat_.id_apply_self, ← prod_id]
+        rw [Mat_.id_apply_self, Mat_.id_apply_self, Mat_.id_apply_self, ← prod_id']
         exact H.map_id _
       · rw [Mat_.id_apply_of_ne _ _ _ hb, hH.map_zero_right,
           Mat_.id_apply_of_ne _ _ _ (fun h => hb (congrArg Prod.snd h))]
@@ -141,8 +142,8 @@ def karProd (H : A × B ⥤ E) : Karoubi A × Karoubi B ⥤ Karoubi E where
   obj p := ⟨H.obj (p.1.X, p.2.X), H.map (X := (p.1.X, p.2.X)) (Y := (p.1.X, p.2.X)) (p.1.p, p.2.p),
     by rw [← H.map_comp, prod_comp, p.1.idem, p.2.idem]⟩
   map {p p'} φ := ⟨H.map (X := (p.1.X, p.2.X)) (Y := (p'.1.X, p'.2.X)) (φ.1.f, φ.2.f), by
-    show _ = H.map _ ≫ H.map _ ≫ H.map _
-    rw [← H.map_comp, ← H.map_comp, prod_comp, prod_comp, ← φ.1.comm, ← φ.2.comm]⟩
+    show H.map _ ≫ H.map _ ≫ H.map _ = _
+    rw [← H.map_comp, ← H.map_comp, prod_comp, prod_comp, φ.1.comm, φ.2.comm]⟩
   map_id _ := Karoubi.hom_ext _ _ rfl
   map_comp φ ψ := Karoubi.hom_ext _ _ (by
     show H.map _ = H.map _ ≫ H.map _
@@ -193,14 +194,15 @@ envelope. -/
 def hcompDot : UDotHom P deg l m × UDotHom P deg m n ⥤ UDotHom P deg l n :=
   karProd (matBi (hcompGr deg) (hcompGr_isBiadditive deg))
 
+set_option backward.isDefEq.respectTransparency false in
 /-- On shifted 1-morphisms `x{t}`, `y{s}` (objects with trivial idempotent), `hcompDot` gives the
 object with trivial idempotent on the one-entry matrix `H(x{t}, y{s}) = (x y){t + s}`. -/
 theorem hcompDot_objOf_p (x : Bicat.Hom l m) (y : Bicat.Hom m n) (t s : ℤ) :
     ((hcompDot deg).obj ((objOf x t : UDotHom P deg l m), (objOf y s : UDotHom P deg m n))).p =
       𝟙 _ := by
   ext ⟨⟨⟩, ⟨⟩⟩ ⟨⟨⟩, ⟨⟩⟩
-  simp only [hcompDot, karProd, matBi, hcompGr, Mat_.id_apply_self, GrObj.id_val, objOf,
-    Functor.comp_obj, toKaroubi_obj_X, toKaroubi_obj_p, Mat_.embedding_obj_X]
+  simp only [hcompDot, karProd, matBi, hcompGr, Mat_.id_apply_self, GrObj.id_val,
+    Functor.comp_obj, toKaroubi_obj_X, toKaroubi_obj_p]
   exact P.hcomp_id (x.composable y) x.start_eq
 
 end GradedBicat

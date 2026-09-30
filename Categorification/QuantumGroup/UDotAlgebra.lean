@@ -129,7 +129,7 @@ theorem projF_mul_projF (nu mu lam : X) (y z : Free K I) :
       simp only [map_smul, mul_smul_comm, projF_ew]
       congr 1
       by_cases h : lam + RD.wX t = mu
-      · simp only [if_pos h]
+      · simp only [ite_eq_left h]
         rw [← ew_append, projF_ew, RD.wX_append, ← h]
         have e : (lam + (RD.wX s + RD.wX t) = nu) ↔ (lam + RD.wX t + RD.wX s = nu) := by
           constructor <;> intro h' <;> rw [← h'] <;> abel
@@ -188,7 +188,7 @@ theorem mul_assoc' (x y z : UD RD q) : x * y * z = x * (y * z) := by
     | ofB mu y =>
       induction z using UD_induction with
       | zero => simp [mul_def]
-      | add z z' hz hz' => simp only [mul_def, map_add, LinearMap.add_apply] at hz hz' ⊢; rw [hz, hz']
+      | add z z' hz hz' => simp only [mul_def, map_add] at hz hz' ⊢; rw [hz, hz']
       | ofB lam z => rw [ofB_mul_ofB, ofB_mul_ofB, ofB_mul_ofB, ofB_mul_ofB, mulU_assoc]
 
 /-- `U̇` is a non-unital associative ring. -/
@@ -247,7 +247,7 @@ theorem E1_mul_one (t : List (Bool × I)) (lam lam' : X) :
 /-- `E_s E_t 1_λ = (E_s 1_{λ + t_X})(E_t 1_λ)`. -/
 theorem E1_append (s t : List (Bool × I)) (lam : X) :
     E1 RD q (s ++ t) lam = E1 RD q s (lam + RD.wX t) * E1 RD q t lam := by
-  rw [E1_mul_E1, if_pos rfl]
+  rw [E1_mul_E1, ite_eq_left rfl]
 
 /-- The elements `E_t 1_λ` span `U̇`. -/
 theorem E1_induction {motive : UD RD q → Prop} (x : UD RD q) (zero : motive 0)
@@ -275,7 +275,7 @@ theorem compB_ofB_self (lam : X) (z : U1 RD q lam) : compB RD q lam (ofB RD q la
 
 theorem compB_ofB_ne {lam lam' : X} (h : lam' ≠ lam) (z : U1 RD q lam') :
     compB RD q lam (ofB RD q lam' z) = 0 := by
-  rw [compB, ofB, DirectSum.component.of, dif_neg h]
+  rw [compB, ofB, DirectSum.component.of, dite_eq_right h]
 
 theorem idem_E1 (lam1 lam2 : X) (t : List (Bool × I)) (lam : X) :
     idem RD q lam1 lam2 (E1 RD q t lam) =
@@ -286,7 +286,7 @@ theorem idem_E1 (lam1 lam2 : X) (t : List (Bool × I)) (lam : X) :
     rw [compB_ofB_self, oneL_mk_ew]
     simp only [true_and]
     split_ifs <;> simp
-  · rw [compB_ofB_ne RD q h, map_zero, map_zero, if_neg (fun h' => h h'.1)]
+  · rw [compB_ofB_ne RD q h, map_zero, map_zero, ite_eq_right (fun h' => h h'.1)]
 
 /-- **`1_{λ₁} x 1_{λ₂}` via the algebra structure** equals `idem λ₁ λ₂ x`. -/
 theorem idem_eq (lam1 lam2 : X) (x : UD RD q) :
@@ -297,9 +297,9 @@ theorem idem_eq (lam1 lam2 : X) (x : UD RD q) :
   | smul_E1 r t lam =>
     rw [map_smul, idem_E1, mul_smul_comm, smul_mul_assoc, one_mul_E1]
     split_ifs with h1 h2 h2
-    · rw [E1_mul_one, if_pos h1.1.symm, h1.1]
+    · rw [E1_mul_one, ite_eq_left h1.1.symm, h1.1]
     · exact absurd h1.2 h2
-    · rw [E1_mul_one, if_neg (fun h => h1 ⟨h.symm, h2⟩)]
+    · rw [E1_mul_one, ite_eq_right (fun h => h1 ⟨h.symm, h2⟩)]
     · simp
 
 end UDot

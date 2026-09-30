@@ -51,8 +51,8 @@ include hnd in
 theorem seq_injective (t : Seq ν) : Function.Injective t.1 := by
   have h : (Finset.univ.val.map t.1).Nodup := by rw [t.2]; exact hnd
   intro a b hab
-  exact (Multiset.nodup_map_iff_inj_on Finset.univ.nodup).1 h a (Finset.mem_univ _) b
-    (Finset.mem_univ _) hab
+  exact (Multiset.nodup_map_iff_inj_on Finset.univ.nodup).1 h a (Finset.mem_univ_val _) b
+    (Finset.mem_univ_val _) hab
 
 omit [DecidableEq I] in
 include hnd in
@@ -191,7 +191,7 @@ omit [DecidableEq I] in
 theorem ncEval_one {A : Type*} [Ring A] [Algebra k A] {n : ℕ} (y : Fin n → A) :
     ncEval y (1 : MvPolynomial (Fin n) k) = 1 := by
   unfold ncEval
-  rw [show (1 : MvPolynomial (Fin n) k) = Finsupp.single 0 1 from rfl,
+  rw [show (1 : MvPolynomial (Fin n) k).coeff = Finsupp.single 0 1 from rfl,
     Finsupp.sum_single_index (by simp)]
   simp
 
@@ -231,7 +231,7 @@ theorem genOp'_rel ⦃a b : FreeAlgebra k (Gen ν)⦄ (h : Rel k Q ν a b) :
       simp only [Module.End.mul_apply, opE'_apply, opΨ'_apply h]
       by_cases hu : u = sadj m l • t
       · subst hu; simp [sadj_smul_sadj_smul]
-      · rw [if_neg hu, if_neg]
+      · rw [ite_eq_right hu, ite_eq_right]
         rintro rfl; exact hu (sadj_smul_sadj_smul l u).symm
     · simp [opΨ'_eq_zero h]
   | cross_zero l h =>
@@ -257,14 +257,14 @@ theorem genOp'_rel ⦃a b : FreeAlgebra k (Gen ν)⦄ (h : Rel k Q ν a b) :
       rw [var_sadj_smul hnd t₀ u l a h₁ h₂]
     · simp [opΨ'_eq_zero h]
   | dot_cross_left l h t =>
-    rw [if_neg (hl t _ _ (by simp [Fin.ext_iff])), map_zero]
+    rw [ite_eq_right (hl t _ _ (by simp [Fin.ext_iff])), map_zero]
     simp only [fe, fx, fψ, map_mul, map_sub, FreeAlgebra.lift_ι_apply, genOp']
     refine LinearMap.ext fun f => funext fun u => ?_
     simp only [LinearMap.sub_apply, Module.End.mul_apply, opΨ'_apply h, opX'_apply,
       LinearMap.zero_apply, Pi.zero_apply, Pi.sub_apply]
     rw [var_sadj_smul_right hnd t₀ u h, sub_self]
   | dot_cross_right l h t =>
-    rw [if_neg (hl t _ _ (by simp [Fin.ext_iff])), map_zero]
+    rw [ite_eq_right (hl t _ _ (by simp [Fin.ext_iff])), map_zero]
     simp only [fe, fx, fψ, map_mul, map_sub, FreeAlgebra.lift_ι_apply, genOp']
     refine LinearMap.ext fun f => funext fun u => ?_
     simp only [LinearMap.sub_apply, Module.End.mul_apply, opΨ'_apply h, opX'_apply,
@@ -272,13 +272,13 @@ theorem genOp'_rel ⦃a b : FreeAlgebra k (Gen ν)⦄ (h : Rel k Q ν a b) :
     rw [var_sadj_smul_left hnd t₀ u h, sub_self]
   | cross_sq l h t =>
     have hne := hl t ⟨l, by omega⟩ ⟨l + 1, h⟩ (by simp [Fin.ext_iff])
-    rw [if_neg hne, hQ _ (t.mem _) _ (t.mem _) hne]
-    simp only [fe, fψ, map_mul, FreeAlgebra.lift_ι_apply, genOp', PolyRep.algHom_ncEval,
+    rw [ite_eq_right hne, hQ _ (t.mem _) _ (t.mem _) hne]
+    simp only [fe, fψ, map_mul, FreeAlgebra.lift_ι_apply, genOp',
       ncEval_one, one_mul]
     refine LinearMap.ext fun f => funext fun u => ?_
     simp only [Module.End.mul_apply, opΨ'_apply h, sadj_smul_sadj_smul]
   | braid l h t =>
-    rw [if_neg (fun c => hl t _ _ (by simp [Fin.ext_iff]) c.1), map_zero]
+    rw [ite_eq_right (fun c => hl t _ _ (by simp [Fin.ext_iff]) c.1), map_zero]
     simp only [fe, fψ, map_mul, map_sub, FreeAlgebra.lift_ι_apply, genOp']
     refine LinearMap.ext fun f => funext fun u => ?_
     simp only [LinearMap.sub_apply, Module.End.mul_apply, opΨ'_apply (show l + 1 < m by omega),
@@ -348,26 +348,28 @@ noncomputable def toMat : KLRAlgebra k Q ν →ₐ[k] Matrix (Seq ν) (Seq ν) R
     (toEnd hnd t₀ Q hQ)
 
 theorem toMat_apply (r : KLRAlgebra k Q ν) (s t : Seq ν) :
-    toMat hnd t₀ Q hQ r s t = toEnd hnd t₀ Q hQ r (fun j => if j = t then 1 else 0) s :=
-  LinearMap.toMatrixAlgEquiv'_apply _ _ _
+    toMat hnd t₀ Q hQ r s t = toEnd hnd t₀ Q hQ r (fun j => if j = t then 1 else 0) s := by
+  rw [show (fun j => if j = t then (1 : Rm) else 0) = Pi.single t 1 from
+    funext fun j => (Pi.single_apply t 1 j).symm]
+  exact LinearMap.toMatrixAlgEquiv'_apply _ _ _
 
 /-- The image of `ψ_ρ p(x) 1_t` is the elementary matrix `E_{w t, t}` (`w = wordProd ρ`) with
 entry `p` renamed according to the labels of `t`. -/
 theorem toMat_ψw_pol_e {ρ : List ℕ} (hρ : ValidWord m ρ) (p : Rm) (t : Seq ν) :
     toMat hnd t₀ Q hQ (ψw ρ * pol p * e t) =
-      Matrix.stdBasisMatrix (wordProd m ρ • t) t (rename (var hnd t₀ t) p) := by
+      Matrix.single (wordProd m ρ • t) t (rename (var hnd t₀ t) p) := by
   refine Matrix.ext fun s t' => ?_
-  rw [toMat_apply, toEnd_ψw_pol_e_apply hnd t₀ hQ hρ, Matrix.stdBasisMatrix, Matrix.of_apply]
+  rw [toMat_apply, toEnd_ψw_pol_e_apply hnd t₀ hQ hρ, Matrix.single, Matrix.of_apply]
   have : (wordProd m ρ)⁻¹ • s = t ↔ wordProd m ρ • t = s := by
     constructor
     · rintro rfl; exact smul_inv_smul _ _
     · rintro rfl; exact inv_smul_smul _ _
   by_cases h1 : wordProd m ρ • t = s
-  · rw [if_pos (this.2 h1)]
+  · rw [ite_eq_left (this.2 h1)]
     by_cases h2 : t = t'
-    · rw [if_pos h2, if_pos ⟨h1, h2⟩, mul_one]
-    · rw [if_neg h2, mul_zero, if_neg (fun c => h2 c.2)]
-  · rw [if_neg (fun c => h1 (this.1 c)), if_neg (fun c => h1 c.1)]
+    · rw [ite_eq_left h2, ite_eq_left ⟨h1, h2⟩, mul_one]
+    · rw [ite_eq_right h2, mul_zero, ite_eq_right (fun c => h2 c.2)]
+  · rw [ite_eq_right (fun c => h1 (this.1 c)), ite_eq_right (fun c => h1 c.1)]
 
 omit [DecidableEq I] in
 theorem rename_var_injective (t : Seq ν) :
@@ -401,7 +403,7 @@ theorem toMat_injective : Function.Injective (toMat hnd t₀ Q hQ) := by
       rw [map_mul, map_mul, hr, mul_zero, zero_mul]
     rw [← hp, toMat_ψw_pol_e hnd t₀ hQ (hc w₀).1.1, (hc w₀).2, hw₀] at h0
     have h1 := congrFun (congrFun h0 s) t
-    rw [Matrix.StdBasisMatrix.apply_same, Matrix.zero_apply] at h1
+    rw [Matrix.single_apply_same, Matrix.zero_apply] at h1
     have hp0 : p = 0 := rename_var_injective hnd t₀ t (by rw [h1, map_zero])
     rw [← hp, hp0, map_zero, mul_zero, zero_mul]
   have hsum : r = ∑ s, ∑ t, e s * r * e t := by
@@ -413,7 +415,7 @@ theorem toMat_surjective : Function.Surjective (toMat hnd t₀ Q hQ) := by
   intro M
   have hc : ∀ w, IsReduced m (canWord m w) ∧ wordProd m (canWord m w) = w :=
     fun w => ⟨isReduced_canWord m w, wordProd_canWord m w⟩
-  have hunit : ∀ s t q, ∃ r, toMat hnd t₀ Q hQ r = Matrix.stdBasisMatrix s t q := by
+  have hunit : ∀ s t q, ∃ r, toMat hnd t₀ Q hQ r = Matrix.single s t q := by
     intro s t q
     obtain ⟨w, hw⟩ := exists_smul_eq hnd s t
     refine ⟨ψw (canWord m w) * pol (rename (var hnd t₀ t).symm q) * e t, ?_⟩
@@ -425,7 +427,7 @@ theorem toMat_surjective : Function.Surjective (toMat hnd t₀ Q hQ) := by
   refine ⟨∑ s, ∑ t, g s t (M s t), ?_⟩
   rw [map_sum]
   simp only [map_sum, hg]
-  exact (Matrix.matrix_eq_sum_stdBasisMatrix M).symm
+  exact (Matrix.matrix_eq_sum_single M).symm
 
 /-- **KL I §2.2, Example 5** (general data): if the labels of `ν` are pairwise distinct and
 `Q a b = 1` for all distinct `a, b ∈ ν`, then `R(ν)` is isomorphic to the ring of
@@ -437,7 +439,7 @@ theorem equiv_apply (r : KLRAlgebra k Q ν) : equiv hnd t₀ hQ r = toMat hnd t�
 
 /-- In particular `ψ_w 1_t` goes to the elementary matrix `E_{w t, t}`. -/
 theorem equiv_ψw_e {ρ : List ℕ} (hρ : ValidWord m ρ) (t : Seq ν) :
-    equiv hnd t₀ hQ (ψw ρ * e t) = Matrix.stdBasisMatrix (wordProd m ρ • t) t 1 := by
+    equiv hnd t₀ hQ (ψw ρ * e t) = Matrix.single (wordProd m ρ • t) t 1 := by
   have := toMat_ψw_pol_e hnd t₀ hQ hρ 1 t
   rwa [map_one, mul_one, map_one] at this
 

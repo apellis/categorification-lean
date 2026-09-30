@@ -231,13 +231,13 @@ theorem not_retract_one_FE {r₀ : ℤ} (hn : 0 ≤ S.wt r₀) (hyp : ∀ r', r�
   · have h0 := S.finrank_one_FE r l
     rw [S.lem1_neg hn hyp r hr _ (by omega)] at h0
     have : i = 0 := by
-      haveI := Module.finrank_zero_iff.1 h0
+      have := Module.finrank_zero_iff.1 h0
       exact Subsingleton.elim _ _
     exact hne ((IsZero.iff_id_eq_zero _).2 (by rw [← hip, this, zero_comp]))
   · have h0 := S.finrank_FE_one hr' l
     rw [S.lem1_neg hn hyp r hr _ (by omega)] at h0
     have : p = 0 := by
-      haveI := Module.finrank_zero_iff.1 h0
+      have := Module.finrank_zero_iff.1 h0
       exact Subsingleton.elim _ _
     exact hne ((IsZero.iff_id_eq_zero _).2 (by rw [← hip, this, comp_zero]))
 

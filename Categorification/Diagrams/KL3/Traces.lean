@@ -36,6 +36,9 @@ Proposition 3.6 for all closed diagrams that are right closures of upward diagra
   bubble monomials.
 -/
 
+-- Preserve elaboration of semireducible diagram transports.
+set_option backward.isDefEq.respectTransparency false
+
 noncomputable section
 
 namespace Categorification.KL3.Diagram
@@ -80,8 +83,7 @@ theorem ptrLast_bubAt_eq_ctxL {s t : List (Letter I)} (A : List (LayerData I))
   rw [bubAt_dg, dg_comp hA hB', ptrLast_dg, ctxL_dg RD k μ (by simpa using hpre) hpost]
   unfold closeLs
   wnf
-  simp only [List.replicate_zero, List.nil_append, List.append_nil, List.map_map,
-    Function.comp_def]
+  simp only [List.replicate_zero, List.nil_append]
 
 /-- A bubble monomial in the outer region, after the cap, is a bubble monomial on the far
 right. -/
@@ -247,8 +249,8 @@ theorem upSpan_nil_isBub {f : End ((pres RD k).obj (ob RD μ []))}
         have hg : g.isUp = true := hup _ List.mem_cons_self
         have := congrArg List.length h.1
         cases g with
-        | dot l => simp at this; omega
-        | cross ε c d => simp at this; omega
+        | dot l => simp at this
+        | cross ε c d => simp at this
         | cup l => simp [Shape.isUp] at hg
         | cap l => simp [Shape.isUp] at hg
     subst hA

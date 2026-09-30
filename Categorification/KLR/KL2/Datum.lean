@@ -110,7 +110,7 @@ theorem qbar_X_pow_add_X_pow (d d' : ℕ) :
   apply X_sub_X_mul_left_cancel (show (0 : Fin 3) ≠ 2 by decide)
   rw [qbar_spec]
   simp only [map_add, map_pow, rename_X, Matrix.cons_val_zero, Matrix.cons_val_one,
-    Matrix.head_cons]
+    ]
   have := geom_sum₂_mul (X 0 : MvPolynomial (Fin 3) k) (X 2) d
   rw [mul_comm] at this
   rw [this]; ring
@@ -126,14 +126,14 @@ local notation "m" => Multiset.card ν
 /-- KL II `new_eq_UUzero`, case `i = j`: `ψ² 1_{ii} = 0`. -/
 theorem ψ_sq_of_eq (j : ℕ) (h : j + 1 < m) (i : Seq ν)
     (hi : i.lbl ⟨j, by omega⟩ = i.lbl ⟨j + 1, h⟩) : (ψ j * ψ j * e i : R2 k C ν) = 0 := by
-  rw [KLRAlgebra.ψ_sq, if_pos hi]
+  rw [KLRAlgebra.ψ_sq j h, ite_eq_left hi]
 
 /-- KL II `new_eq_UUzero`, case `i · j = 0`: `ψ² 1_{ij} = 1_{ij}`. -/
 theorem ψ_sq_of_dot_eq_zero (j : ℕ) (h : j + 1 < m) (i : Seq ν)
     (hi : i.lbl ⟨j, by omega⟩ ≠ i.lbl ⟨j + 1, h⟩)
     (hd : C.dot (i.lbl ⟨j, by omega⟩) (i.lbl ⟨j + 1, h⟩) = 0) :
     (ψ j * ψ j * e i : R2 k C ν) = e i := by
-  rw [KLRAlgebra.ψ_sq, if_neg hi, ncEval_x_two, klQ2, if_pos hd, map_one, map_one, one_mul]
+  rw [KLRAlgebra.ψ_sq j h, ite_eq_right hi, ncEval_x_two, klQ2, ite_eq_left hd, map_one, map_one, one_mul]
 
 /-- KL II `new_eq_UUzero`, case `i · j ≠ 0`: `ψ² 1_{ij} = (x_1^{d_ij} + x_2^{d_ji}) 1_{ij}`. -/
 theorem ψ_sq_of_dot_ne_zero (j : ℕ) (h : j + 1 < m) (i : Seq ν)
@@ -142,7 +142,7 @@ theorem ψ_sq_of_dot_ne_zero (j : ℕ) (h : j + 1 < m) (i : Seq ν)
     (ψ j * ψ j * e i : R2 k C ν) =
       (x ⟨j, by omega⟩ ^ C.dij (i.lbl ⟨j, by omega⟩) (i.lbl ⟨j + 1, h⟩) +
         x ⟨j + 1, h⟩ ^ C.dij (i.lbl ⟨j + 1, h⟩) (i.lbl ⟨j, by omega⟩)) * e i := by
-  rw [KLRAlgebra.ψ_sq, if_neg hi, ncEval_x_two, klQ2, if_neg hd]
+  rw [KLRAlgebra.ψ_sq j h, ite_eq_right hi, ncEval_x_two, klQ2, ite_eq_right hd]
   simp
 
 /-- KL II `new_eq_ijslide`, left: `x_k δ_{k,i} = δ_{k,i} x_{k+1}` for `i_k ≠ i_{k+1}`. -/
@@ -150,7 +150,7 @@ theorem x_ψ_of_ne (j : ℕ) (h : j + 1 < m) (i : Seq ν)
     (hi : i.lbl ⟨j, by omega⟩ ≠ i.lbl ⟨j + 1, h⟩) :
     (x ⟨j, by omega⟩ * ψ j * e i : R2 k C ν) = ψ j * x ⟨j + 1, h⟩ * e i := by
   have := KLRAlgebra.dot_cross_left (Q := klQ2 k C) j h i
-  rw [if_neg hi, sub_mul, sub_eq_zero] at this
+  rw [ite_eq_right hi, sub_mul, sub_eq_zero] at this
   exact this
 
 /-- KL II `new_eq_ijslide`, right: `δ_{k,i} x_k = x_{k+1} δ_{k,i}` for `i_k ≠ i_{k+1}`. -/
@@ -158,20 +158,20 @@ theorem ψ_x_of_ne (j : ℕ) (h : j + 1 < m) (i : Seq ν)
     (hi : i.lbl ⟨j, by omega⟩ ≠ i.lbl ⟨j + 1, h⟩) :
     (ψ j * x ⟨j, by omega⟩ * e i : R2 k C ν) = x ⟨j + 1, h⟩ * ψ j * e i := by
   have := KLRAlgebra.dot_cross_right (Q := klQ2 k C) j h i
-  rw [if_neg hi, sub_mul, sub_eq_zero] at this
+  rw [ite_eq_right hi, sub_mul, sub_eq_zero] at this
   exact this
 
 /-- KL II `new_eq_iislide1`: `x_k δ_{k,i} - δ_{k,i} x_{k+1} = 1_i` for `i_k = i_{k+1}`. -/
 theorem x_ψ_sub_of_eq (j : ℕ) (h : j + 1 < m) (i : Seq ν)
     (hi : i.lbl ⟨j, by omega⟩ = i.lbl ⟨j + 1, h⟩) :
     (x ⟨j, by omega⟩ * ψ j * e i - ψ j * x ⟨j + 1, h⟩ * e i : R2 k C ν) = e i := by
-  rw [← sub_mul, KLRAlgebra.dot_cross_left, if_pos hi]
+  rw [← sub_mul, KLRAlgebra.dot_cross_left, ite_eq_left hi]
 
 /-- KL II `eq_iislide2`: `δ_{k,i} x_k - x_{k+1} δ_{k,i} = 1_i` for `i_k = i_{k+1}`. -/
 theorem ψ_x_sub_of_eq (j : ℕ) (h : j + 1 < m) (i : Seq ν)
     (hi : i.lbl ⟨j, by omega⟩ = i.lbl ⟨j + 1, h⟩) :
     (ψ j * x ⟨j, by omega⟩ * e i - x ⟨j + 1, h⟩ * ψ j * e i : R2 k C ν) = e i := by
-  rw [← sub_mul, KLRAlgebra.dot_cross_right, if_pos hi]
+  rw [← sub_mul, KLRAlgebra.dot_cross_right, ite_eq_left hi]
 
 /-- KL II `new_eq_r3_easy`: the triple-crossing relation holds on `1_i` unless `i_k = i_{k+2}`,
 `i_k ≠ i_{k+1}` and `i_k · i_{k+1} ≠ 0`. -/
@@ -183,7 +183,7 @@ theorem braid_easy (j : ℕ) (h : j + 2 < m) (i : Seq ν)
   have := KLRAlgebra.braid (Q := klQ2 k C) j h i
   rw [← sub_eq_zero, ← sub_mul, this]
   split_ifs with h1
-  · rw [ncEval_x_three, klQ2, if_pos, qbar_one, map_zero, map_zero, zero_mul]
+  · rw [ncEval_x_three, klQ2, ite_eq_left, qbar_one, map_zero, map_zero, zero_mul]
     by_contra hd
     exact hi ⟨h1.1, h1.2, hd⟩
   · rfl
@@ -199,7 +199,7 @@ theorem braid_hard (j : ℕ) (h : j + 2 < m) (i : Seq ν)
       (∑ t ∈ Finset.range (C.dij (i.lbl ⟨j, by omega⟩) (i.lbl ⟨j + 1, by omega⟩)),
         x ⟨j, by omega⟩ ^ t * x ⟨j + 2, h⟩ ^
           (C.dij (i.lbl ⟨j, by omega⟩) (i.lbl ⟨j + 1, by omega⟩) - 1 - t)) * e i := by
-  rw [← sub_mul, KLRAlgebra.braid, if_pos ⟨h₁, h₂⟩, ncEval_x_three, klQ2, if_neg hd,
+  rw [← sub_mul, KLRAlgebra.braid j h, ite_eq_left ⟨h₁, h₂⟩, ncEval_x_three, klQ2, ite_eq_right hd,
     qbar_X_pow_add_X_pow]
   simp [map_sum]
 
@@ -266,8 +266,9 @@ theorem klP2_ne_zero [Nontrivial k] (a b : I) (hab : a ≠ b) :
   split_ifs with h
   · intro h0
     have hpos := C.dij_pos (Ne.symm hab) (by rw [C.symm]; exact h.1)
-    have := congrArg (MvPolynomial.coeff (Finsupp.single 0 (C.dij b a))) h0
-    rw [coeff_add, coeff_X_pow, coeff_X_pow, if_pos rfl, if_neg, coeff_zero, add_zero] at this
+    have := congrArg (fun p : MvPolynomial (Fin 2) k => p.coeff (Finsupp.single 0 (C.dij b a))) h0
+    rw [AddMonoidAlgebra.coeff_add, Finsupp.add_apply, coeff_X_pow, coeff_X_pow, ite_eq_left rfl, ite_eq_right,
+      AddMonoidAlgebra.coeff_zero, Finsupp.coe_zero, Pi.zero_apply, add_zero] at this
     · exact one_ne_zero this
     · rw [Finsupp.single_eq_single_iff]
       rintro (⟨h1, -⟩ | ⟨-, h2⟩)
@@ -312,7 +313,7 @@ theorem stdOrient_spec : ∀ a b : I, a ≠ b → C.dot a b ≠ 0 →
   constructor
   · intro h h'; exact asymm (r := WellOrderingRel) h h'
   · intro h
-    rcases (WellOrderingRel.isWellOrder (α := I)).trichotomous a b with h1 | h1 | h1
+    rcases trichotomous_of (WellOrderingRel (α := I)) a b with h1 | h1 | h1
     · exact h1
     · exact absurd h1 hne
     · exact absurd h1 h
@@ -324,7 +325,7 @@ variable (ρ : Perm (Fin (Multiset.card ν)) → List ℕ)
 minimal presentations of permutations, `_jR(ν)_i` is a free `k`-module with basis
 `ψ_{ρ w} x^u e_i` (`w • i = j`, `u ∈ ℕ^m`), over any integral domain `k`. -/
 noncomputable def cornerBasis (j i : Seq ν) :
-    Basis (CornerIdx j i) k (corner (Q := klQ2 k C) j i) :=
+    Module.Basis (CornerIdx j i) k (corner (Q := klQ2 k C) j i) :=
   KLRAlgebra.cornerBasis (klQ2_eq_klP2 (o := KL1.stdOrient) stdOrient_spec)
     (fun a b hab => klP2_ne_zero a b hab) ρ hρ j i
 
@@ -335,7 +336,7 @@ theorem cornerBasis_apply (j i : Seq ν) (b : CornerIdx j i) :
 
 /-- **KL II §3** (KL I, Theorem 2.5): `R(ν)` has basis `ψ_{ρ w} x^u e_i` (all `i, w, u`). -/
 noncomputable def basis :
-    Basis (Seq ν × Perm (Fin (Multiset.card ν)) × (Fin (Multiset.card ν) →₀ ℕ)) k
+    Module.Basis (Seq ν × Perm (Fin (Multiset.card ν)) × (Fin (Multiset.card ν) →₀ ℕ)) k
       (R2 k C ν) :=
   KLRAlgebra.basis (klQ2_eq_klP2 (o := KL1.stdOrient) stdOrient_spec)
     (fun a b hab => klP2_ne_zero a b hab) ρ hρ

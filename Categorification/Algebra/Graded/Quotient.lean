@@ -42,7 +42,7 @@ theorem decompose_eq_zero_of_mem_iSup_ne {d : ι} {z : M} (hz : z ∈ ⨆ (j) (_
     exact decompose_of_mem_ne ℳ hz j.2
   · simp
   · intro x y hx hy
-    rw [decompose_add, add_apply, Submodule.coe_add, hx, hy, add_zero]
+    rw [decompose_add, DirectSum.add_apply, Submodule.coe_add, hx, hy, add_zero]
 
 /-- **The quotient of a graded module by a homogeneous subspace is graded.** -/
 theorem isInternal_quotGrading (hW : ∀ d, ∀ x ∈ W, (decompose ℳ x d : M) ∈ W) :
@@ -55,14 +55,13 @@ theorem isInternal_quotGrading (hW : ∀ d, ∀ x ∈ W, (decompose ℳ x d : M)
     intro x hx hx'
     obtain ⟨y, hy, rfl⟩ := hx
     have hx'' : W.mkQ y ∈ (⨆ (j) (_ : j ≠ d), ℳ j).map W.mkQ := by
-      rw [Submodule.map_iSup]
-      simpa only [Submodule.map_iSup] using hx'
+      simpa only [Submodule.map_iSup, quotGrading] using hx'
     obtain ⟨z, hz, hzy⟩ := hx''
     have hyz : y - z ∈ W := by
       rw [← Submodule.Quotient.eq]
       exact hzy.symm
     have := hW d _ hyz
-    rw [decompose_sub, sub_apply, Submodule.coe_sub, decompose_of_mem_same ℳ hy,
+    rw [decompose_sub, DirectSum.sub_apply, Submodule.coe_sub, decompose_of_mem_same ℳ hy,
       decompose_eq_zero_of_mem_iSup_ne ℳ hz, sub_zero] at this
     exact (Submodule.Quotient.mk_eq_zero W).2 this
   · show ⨆ d, (ℳ d).map W.mkQ = ⊤
@@ -70,7 +69,7 @@ theorem isInternal_quotGrading (hW : ∀ d, ∀ x ∈ W, (decompose ℳ x d : M)
       Submodule.range_mkQ]
 
 /-- The graded structure of `M / W` for a homogeneous `W`. -/
-noncomputable def quotDecomposition (hW : ∀ d, ∀ x ∈ W, (decompose ℳ x d : M) ∈ W) :
+@[instance_reducible] noncomputable def quotDecomposition (hW : ∀ d, ∀ x ∈ W, (decompose ℳ x d : M) ∈ W) :
     Decomposition (quotGrading ℳ W) :=
   (isInternal_quotGrading ℳ W hW).chooseDecomposition
 

@@ -58,6 +58,8 @@ noncomputable section
 
 namespace Categorification.TwoRep.StrongSl2
 
+set_option backward.isDefEq.respectTransparency false
+
 open CategoryTheory CategoryTheory.Limits CategoryTheory.Bicategory Module
 open KrullSchmidtCat (HomFinite)
 
@@ -152,7 +154,7 @@ theorem hom_oneShiftNeg_eq_zero (i j : ℕ) {d : ℤ} (hd : d + 2 * (i : ℤ) - 
     rw [finrank_hom_congr_right k _ s1, oneShiftNeg,
       finrank_hom_shift_shift k _ _ (c := d + 2 * (i : ℤ) - 2 * (j : ℤ)) (by ring)]
     exact S.hom_neg _ _ hd
-  haveI := Module.finrank_zero_iff.1 h0
+  have := Module.finrank_zero_iff.1 h0
   exact Subsingleton.elim _ _
 
 /-- The entries above the subdiagonal vanish. -/
@@ -186,7 +188,7 @@ theorem cupDotsN_zero_comp (j : ℕ) :
   have := (shiftFunctorZero' _ (((0 : ℕ) : ℤ) * 2) (by simp)).inv.naturality (πN e j)
   simp only [Functor.id_map] at this
   rw [← this]
-  try rfl
+  rfl
 
 omit [GradedBicategory.IsLinear B k] [∀ a b : B, HomFinite k (a ⟶ b)] in
 theorem cupDotsN_succ_comp (m j : ℕ) :
@@ -229,7 +231,7 @@ theorem cupDotsN_comp_πEF (hn : S.wt (r + 1) ≤ 0) (hyp : ∀ r', r' < r + 1 �
     refine S.lem1Neg_neg (r₁ := r + 1) hn hyp r (by omega) _ ?_
     push_cast
     omega
-  haveI := Module.finrank_zero_iff.1 h0
+  have := Module.finrank_zero_iff.1 h0
   exact Subsingleton.elim _ _
 
 /-- The induction behind Corollary 3.7 (bottom half). -/
@@ -266,7 +268,7 @@ theorem bubbleN_aux (hn : S.wt (r + 1) ≤ 0) (hyp : ∀ r', r' < r + 1 → S.Ad
       · rw [iha j' hj', zero_comp]
       · rw [entryN_eq_zero e (by omega), Functor.map_zero, comp_zero]
     · rw [key, Finset.sum_eq_single m]
-      · haveI := hd m hm
+      · have := hd m hm
         infer_instance
       · intro j' _ hj'
         rcases lt_or_gt_of_ne hj' with h | h
@@ -333,17 +335,17 @@ theorem isIso_zetaNeg_of_dotNondeg (hn : S.wt (r + 1) ≤ 0)
     rw [← Category.assoc (bsumι _ _ j), bsumι_desc _ _ _ _ hj]
     rfl
   have h1e : biprod.inl ≫ (zetaNeg e ≫ e.hom) ≫ biprod.fst = 𝟙 _ := by simp [zetaNeg, ιEF]
-  haveI h1 : IsIso (biprod.inl ≫ (zetaNeg e ≫ e.hom) ≫ biprod.fst) := by rw [h1e]; infer_instance
-  haveI h2 : IsIso (biprod.inr ≫ (zetaNeg e ≫ e.hom) ≫ biprod.snd) := by
+  have h1 : IsIso (biprod.inl ≫ (zetaNeg e ≫ e.hom) ≫ biprod.fst) := by rw [h1e]; infer_instance
+  have h2 : IsIso (biprod.inr ≫ (zetaNeg e ≫ e.hom) ≫ biprod.snd) := by
     refine isIso_bsum_of_triangular _ _ _ _ ?_ ?_
     · intro j j' hjj' hj'
       rw [hent j j' (by omega), cupKN_comp, (bubbleN_aux e hn hyp hd j (by omega)).1 j' hjj',
         Functor.map_zero, zero_comp, comp_zero]
     · intro j hj
       rw [hent j j hj, cupKN_comp]
-      haveI := (bubbleN_aux e hn hyp hd j hj).2
+      have := (bubbleN_aux e hn hyp hd j hj).2
       infer_instance
-  haveI : IsIso (zetaNeg e ≫ e.hom) := by
+  have : IsIso (zetaNeg e ≫ e.hom) := by
     refine isIso_biprod_of_blocks _ ?_
     apply bsum_hom_ext
     intro j hj

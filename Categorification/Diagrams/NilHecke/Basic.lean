@@ -55,7 +55,7 @@ def Gen.arity : Gen → ℕ
   | .cross => 2
 
 /-- The nilHecke signature: one region, one colour, a dot and a crossing (both even). -/
-def sig : Signature where
+@[reducible] def sig : Signature where
   Region := Unit
   Colour := Unit
   colourSrc _ := ()
@@ -87,12 +87,16 @@ theorem list_unit_ext {l₁ l₂ : List Unit} (h : l₁.length = l₂.length) : 
 @[simp] theorem word_eq_iff {l₁ l₂ : List sig.Colour} : l₁ = l₂ ↔ l₁.length = l₂.length :=
   ⟨congrArg List.length, list_unit_ext⟩
 
+/-- `word_eq_iff` stated for `List Unit` (the form `simp` sees after unfolding `sig.Colour`). -/
+@[simp] theorem list_unit_eq_iff {l₁ l₂ : List Unit} : l₁ = l₂ ↔ l₁.length = l₂.length :=
+  word_eq_iff
+
 theorem obj_ext {a b : Obj sig} (h : a.word.length = b.word.length) : a = b :=
   Obj.ext (Subsingleton.elim (α := Unit) _ _) (list_unit_ext h)
 
 /-- Every object is `strands` of its width. -/
 theorem eq_strands (a : Obj sig) : a = strands a.word.length :=
-  obj_ext (by simp)
+  obj_ext (by simp [strands])
 
 theorem layer_ext {L₁ L₂ : Layer sig} (hl : L₁.left.length = L₂.left.length)
     (hg : L₁.gen = L₂.gen) (hr : L₁.right.length = L₂.right.length) : L₁ = L₂ :=
@@ -188,14 +192,14 @@ def x (n i : ℕ) : End ((pres k).obj (strands n)) :=
 def ψ (n i : ℕ) : End ((pres k).obj (strands n)) :=
   if h : i + 1 < n then (pres k).diag (dlay (g := .cross) h) else 0
 
-theorem x_def {n i : ℕ} (h : i < n) : x k n i = (pres k).diag (dlay (g := .dot) h) := dif_pos h
+theorem x_def {n i : ℕ} (h : i < n) : x k n i = (pres k).diag (dlay (g := .dot) h) := dite_eq_left h
 
 theorem ψ_def {n i : ℕ} (h : i + 1 < n) : ψ k n i = (pres k).diag (dlay (g := .cross) h) :=
-  dif_pos h
+  dite_eq_left h
 
-theorem x_of_le {n i : ℕ} (h : n ≤ i) : x k n i = 0 := dif_neg (by omega)
+theorem x_of_le {n i : ℕ} (h : n ≤ i) : x k n i = 0 := dite_eq_right (by omega)
 
-theorem ψ_of_le {n i : ℕ} (h : n ≤ i + 1) : ψ k n i = 0 := dif_neg (by omega)
+theorem ψ_of_le {n i : ℕ} (h : n ≤ i + 1) : ψ k n i = 0 := dite_eq_right (by omega)
 
 end Categorification.NilHecke.Diagram
 

@@ -45,10 +45,10 @@ theorem blockPerm_val (a : Perm (Fin n)) (b : Perm (Fin n')) (p : Fin m) :
   obtain ⟨s, rfl⟩ := (blockEquiv h).surjective p
   cases s with
   | inl x =>
-    rw [blockPerm_inl, blockEquiv_inl_val, dif_pos (by simp)]
+    rw [blockPerm_inl, blockEquiv_inl_val, dite_eq_left (by simp)]
     rfl
   | inr y =>
-    rw [blockPerm_inr, blockEquiv_inr_val, dif_neg (by simp)]
+    rw [blockPerm_inr, blockEquiv_inr_val, dite_eq_right (by simp)]
     congr 3
     ext; simp
 
@@ -83,7 +83,7 @@ theorem IsDoubleShuffle.apply_α (y : Fin a) :
       blockEquiv hJ (Sum.inl (blockEquiv hA (Sum.inl y))) := by
   have := y.2
   ext; rw [hd.val_eq_blocks hA hG hAG hc]
-  simp only [blockEquiv_inl_val, blockEquiv_inr_val]; split_ifs; omega
+  split_ifs <;> simp only [blockEquiv_inl_val] at * <;> omega
 
 include hd hA hG hAG hc in
 theorem IsDoubleShuffle.apply_γ (y : Fin g) :
@@ -91,7 +91,7 @@ theorem IsDoubleShuffle.apply_γ (y : Fin g) :
       blockEquiv hJ (Sum.inr (blockEquiv hG (Sum.inl y))) := by
   have := y.2
   ext; rw [hd.val_eq_blocks hA hG hAG hc]
-  simp only [blockEquiv_inl_val, blockEquiv_inr_val]; split_ifs <;> omega
+  split_ifs <;> simp only [blockEquiv_inl_val, blockEquiv_inr_val] at * <;> omega
 
 include hd hA hG hAG hCE hc in
 theorem IsDoubleShuffle.apply_β (y : Fin c) :
@@ -99,7 +99,7 @@ theorem IsDoubleShuffle.apply_β (y : Fin c) :
       blockEquiv hJ (Sum.inl (blockEquiv hA (Sum.inr y))) := by
   have := y.2
   ext; rw [hd.val_eq_blocks hA hG hAG hc]
-  simp only [blockEquiv_inl_val, blockEquiv_inr_val]; split_ifs <;> omega
+  split_ifs <;> simp only [blockEquiv_inl_val, blockEquiv_inr_val] at * <;> omega
 
 include hd hA hG hAG hCE hc in
 theorem IsDoubleShuffle.apply_δ (y : Fin e) :
@@ -107,7 +107,7 @@ theorem IsDoubleShuffle.apply_δ (y : Fin e) :
       blockEquiv hJ (Sum.inr (blockEquiv hG (Sum.inr y))) := by
   have := y.2
   ext; rw [hd.val_eq_blocks hA hG hAG hc]
-  simp only [blockEquiv_inl_val, blockEquiv_inr_val]; split_ifs <;> omega
+  split_ifs <;> simp only [blockEquiv_inr_val] at * <;> omega
 
 include hd hA hG hAG hCE hc in
 /-- **Block permutations slide through `d`**:

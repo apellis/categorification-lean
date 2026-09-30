@@ -20,6 +20,8 @@ slide identity for the inverse family (`transfer_left`, `transfer_right`). In ea
 two families consists of real bubbles in all positive degrees.
 -/
 
+set_option backward.isDefEq.respectTransparency false
+
 noncomputable section
 
 namespace Categorification.KL3.Diagram
@@ -39,9 +41,9 @@ series). -/
 def sconv (u w : ℕ → A) (d : ℕ) : A := ∑ a ∈ Finset.range (d + 1), u a * w (d - a)
 
 theorem sconv_eq_coeff (u w : ℕ → A) (d : ℕ) :
-    sconv u w d = PowerSeries.coeff A d (PowerSeries.mk u * PowerSeries.mk w) := by
+    sconv u w d = PowerSeries.coeff (R := A) d (PowerSeries.mk u * PowerSeries.mk w) := by
   rw [PowerSeries.coeff_mul, Finset.Nat.sum_antidiagonal_eq_sum_range_succ
-    (fun a b => PowerSeries.coeff A a (PowerSeries.mk u) * PowerSeries.coeff A b (PowerSeries.mk w))]
+    (fun a b => PowerSeries.coeff (R := A) a (PowerSeries.mk u) * PowerSeries.coeff (R := A) b (PowerSeries.mk w))]
   simp [sconv]
 
 theorem mk_sconv (u w : ℕ → A) :
@@ -104,27 +106,27 @@ theorem transfer_right (u w u' w' τ : ℕ → A) (hG : ∀ d, sconv u w d = if 
 theorem sconv_two_right (u : ℕ → A) (t₀ t₁ : A) (α : ℕ) :
     sconv u (fun e => if e = 0 then t₀ else if e = 1 then t₁ else 0) α =
       u α * t₀ + (if α = 0 then 0 else u (α - 1) * t₁) := by
-  rw [sconv, Finset.sum_range_succ, Nat.sub_self, if_pos rfl, add_comm]
+  rw [sconv, Finset.sum_range_succ, Nat.sub_self, ite_eq_left rfl, add_comm]
   congr 1
   rcases α with _ | α
   · simp
-  · rw [Finset.sum_range_succ, show α + 1 - α = 1 by omega, if_neg (by omega), if_pos rfl,
-      if_neg (by omega), Nat.add_sub_cancel]
+  · rw [Finset.sum_range_succ, show α + 1 - α = 1 by omega, ite_eq_right (by omega), ite_eq_left rfl,
+      ite_eq_right (by omega), Nat.add_sub_cancel]
     rw [Finset.sum_eq_zero fun a ha => ?_, zero_add]
     have := Finset.mem_range.1 ha
-    rw [if_neg (by omega), if_neg (by omega), mul_zero]
+    rw [ite_eq_right (by omega), ite_eq_right (by omega), mul_zero]
 
 theorem sconv_two_left (w : ℕ → A) (t₀ t₁ : A) (β : ℕ) :
     sconv (fun e => if e = 0 then t₀ else if e = 1 then t₁ else 0) w β =
       t₀ * w β + (if β = 0 then 0 else t₁ * w (β - 1)) := by
-  rw [sconv, Finset.sum_range_succ', if_pos rfl, Nat.sub_zero, add_comm]
+  rw [sconv, Finset.sum_range_succ', ite_eq_left rfl, Nat.sub_zero, add_comm]
   congr 1
   rcases β with _ | β
   · simp
-  · rw [Finset.sum_range_succ', if_neg (by omega), if_pos rfl, if_neg (by omega),
+  · rw [Finset.sum_range_succ', ite_eq_right (by omega), ite_eq_left rfl, ite_eq_right (by omega),
       show β + 1 - (0 + 1) = β by omega]
     rw [Finset.sum_eq_zero fun a ha => ?_, zero_add]
-    rw [if_neg (by omega), if_neg (by omega), zero_mul]
+    rw [ite_eq_right (by omega), ite_eq_right (by omega), zero_mul]
 
 end Conv
 
@@ -143,7 +145,7 @@ theorem ccwU_deg0 (ρ : X) (i : I) : ccwU RD k ρ i (-ip RD i ρ - 1) = 𝟙 _ :
   by_cases h : ip RD i ρ ≤ -1
   · have e : -ip RD i ρ - 1 = (((-ip RD i ρ - 1).toNat : ℕ) : ℤ) := by omega
     rw [e, ccwU_of_nonneg, dg_ccwOne RD k ρ i h, dg_nil]
-  · rw [ccwU, ccwL, if_neg (by omega), if_pos (by omega),
+  · rw [ccwU, ccwL, ite_eq_right (by omega), ite_eq_left (by omega),
       show (-ip RD i ρ - 1 + 1 + ip RD i ρ).toNat = 0 by omega, grassInv_zero]
     exact (pres RD k).lin_id _
 
@@ -151,7 +153,7 @@ theorem cwU_deg0 (ρ : X) (i : I) : cwU RD k ρ i (ip RD i ρ - 1) = 𝟙 _ := b
   by_cases h : 1 ≤ ip RD i ρ
   · have e : ip RD i ρ - 1 = (((ip RD i ρ - 1).toNat : ℕ) : ℤ) := by omega
     rw [e, cwU_of_nonneg, dg_cwOne RD k ρ i h, dg_nil]
-  · rw [cwU, cwL, if_neg (by omega), if_pos (by omega),
+  · rw [cwU, cwL, ite_eq_right (by omega), ite_eq_left (by omega),
       show (ip RD i ρ - 1 + 1 - ip RD i ρ).toNat = 0 by omega, grassInv_zero]
     exact (pres RD k).lin_id _
 
@@ -161,9 +163,9 @@ theorem grassmannian_all (ρ : X) (i : I) (d : ℕ) :
       ccwU RD k ρ i (-ip RD i ρ - 1 + j) ≫ cwU RD k ρ i (ip RD i ρ - 1 + ((d : ℤ) - j)) =
       if d = 0 then 𝟙 _ else 0 := by
   rcases d with _ | d
-  · simp only [zero_add, Finset.sum_range_one, Nat.cast_zero, add_zero, sub_self, if_true]
+  · simp only [zero_add, Finset.sum_range_one, Nat.cast_zero, add_zero, sub_self, ite_true]
     rw [ccwU_deg0, cwU_deg0, Category.comp_id]
-  · rw [if_neg (by omega)]
+  · rw [ite_eq_right (by omega)]
     exact grassmannian RD k ρ i (d + 1) (by omega)
 
 /-! ## Placed bubbles as ring elements -/

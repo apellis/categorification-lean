@@ -74,6 +74,8 @@ The opposite of a `k`-linear category is `k`-linear (`CategoryTheory.linearOppos
 pinned Mathlib).
 -/
 
+set_option backward.isDefEq.respectTransparency false
+
 noncomputable section
 
 namespace CategoryTheory
@@ -1086,7 +1088,7 @@ theorem diag_reflD_zigL (c : Col I X) :
   simp only [layers_reflD, rrev, Pivotal.zigL, Pivotal.zigR, Diagram.layers_leftZigzag,
     Diagram.layers_rightZigzag, Pivotal.cupD, Pivotal.capD, Diagram.layers_layer, List.map_cons,
     List.map_nil, List.cons_append, List.nil_append, List.reverse_cons, List.reverse_nil,
-    Layer.wl, Layer.wr, rlay, Psi.gen, List.append_nil, inv_dual_dual]
+    Layer.wl, Layer.wr, rlay, Psi.gen, inv_dual_dual]
   rfl
 
 /-- The reflection of the right zigzag of `c` is the left zigzag of `c*`. -/
@@ -1097,7 +1099,7 @@ theorem diag_reflD_zigR (c : Col I X) :
   simp only [layers_reflD, rrev, Pivotal.zigL, Pivotal.zigR, Diagram.layers_leftZigzag,
     Diagram.layers_rightZigzag, Pivotal.cupD, Pivotal.capD, Diagram.layers_layer, List.map_cons,
     List.map_nil, List.cons_append, List.nil_append, List.reverse_cons, List.reverse_nil,
-    Layer.wl, Layer.wr, rlay, Psi.gen, List.append_nil]
+    Layer.wl, Layer.wr, rlay, Psi.gen]
   rw [(inv RD).src_dual c]
 
 /-- The reflection of the interchange law is the interchange law. -/
@@ -1231,7 +1233,7 @@ theorem psiU_psiU {a b : Obj (psig RD)} (f : (pres RD k).obj a ⟶ (pres RD k).o
 theorem psiU_comp_leftOp : psiU RD k ⋙ (psiU RD k).leftOp = 𝟭 _ := by
   refine CategoryTheory.Functor.ext (fun _ => rfl) (fun X Y f => ?_)
   simp only [Functor.comp_map, Functor.leftOp_map, Functor.id_map, eqToHom_refl,
-    Category.id_comp, Category.comp_id, Quiver.Hom.op_unop]
+    Category.id_comp, Category.comp_id]
   exact psiU_psiU (a := X.as) (b := Y.as) f
 
 /-- **`ψ̃` preserves degrees** (KL III (3.44): `1_μ E_s 1_λ {t} ↦ 1_μ E_s 1_λ {-t}`; a

@@ -143,7 +143,7 @@ theorem ε_tm_of_mem_grade (ℓ : I → ℤ) {ν : Multiset I} {x : PreF K I} (h
   refine eqOn_supp ((ε C q c ℓ) ∘ₗ tm.flip (word w))
     ((qp q (Kx C ℓ ν)) • (fF C q c (word w))) ?_ x hx
   intro u hu
-  simp only [Set.mem_setOf_eq] at hu
+  simp only [Set.mem_ofPred_eq] at hu
   simp only [LinearMap.coe_comp, Function.comp_apply, LinearMap.flip_apply, LinearMap.smul_apply,
     smul_eq_mul, ε_tm_word, hu]
 
@@ -160,9 +160,8 @@ theorem φ_eq_zero (ℓ : I → ℤ) {w : List (Bool × I)} (hw : posMS w ≠ ne
     φ C q c ℓ (ew w) = 0 := by
   rw [φ_apply]
   refine Msupp_induction (motive := fun v => ε C q c ℓ v = 0) (NF_mem_Msupp ℓ w) (by simp)
-    (fun x y hx hy => by beta_reduce at hx hy ⊢; rw [map_add, hx, hy, add_zero])
-    (fun r x hx => by beta_reduce at hx ⊢; rw [map_smul, hx, smul_zero]) fun u w' h => ?_
-  beta_reduce
+    (fun x y hx hy => by rw [map_add, hx, hy, add_zero])
+    (fun r x hx => by rw [map_smul, hx, smul_zero]) fun u w' h => ?_
   rw [ε_tm_word, fF, form_eq_zero_of_wt_ne, mul_zero]
   intro h'
   rw [h'] at h

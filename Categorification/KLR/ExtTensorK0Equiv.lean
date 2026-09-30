@@ -72,9 +72,9 @@ summand of `A{j}`, cut out by right multiplication by an idempotent of `A_0`. -/
 theorem GProj.IsIndec.exists_iso_ofIdempotent {P : GProj 𝒜} (hP : P.IsIndec A) :
     ∃ (e : A) (he : IsIdempotentElem e) (he0 : e ∈ 𝒜 0) (j : ℤ),
       Nonempty (P.Iso ((GProj.ofIdempotent e he he0).shift j)) := by
-  haveI := hP.nontrivial
+  have := hP.nontrivial
   obtain ⟨S, t, hS, ht, ht0, -⟩ := P.exists_isGradedSimple_quotient
-  haveI := hS.nontrivial
+  have := hS.nontrivial
   obtain ⟨j, v, hv, hv0⟩ := exists_mem_ne_zero S.grading
   let σ : A →ₗ[A] S := LinearMap.toSpanSingleton A S v
   have hσ : PreservesGrading (Graded.shift 𝒜 j) S.grading σ := fun d r hr => by
@@ -171,8 +171,8 @@ theorem pairingRight_extTensor_ofIdempotent (M : GFin 𝒜) (M' : GFin ℬ) {e :
         (K0.of (ofIdempotent e' he' he0'))) =
       pairingRight M (K0.of (ofIdempotent e he he0)) *
         pairingRight M' (K0.of (ofIdempotent e' he' he0')) := by
-  haveI := HasGdim.of_finiteDimensional M.grading
-  haveI := HasGdim.of_finiteDimensional M'.grading
+  have := HasGdim.of_finiteDimensional M.grading
+  have := HasGdim.of_finiteDimensional M'.grading
   rw [K0.extTensor_of, pairingRight_of, pairingRight_of, pairingRight_of, pairingGdim,
     pairingGdim, pairingGdim]
   change gdim (homGrade (A ⊗[k] B) (ExtTensor.grading (Graded.submodule 𝒜 (leftIdeal e))
@@ -251,7 +251,7 @@ variable [GradedAlgebra 𝒜]
 omit [GradedAlgebra 𝒜] in
 /-- Indecomposability is invariant under isomorphism. -/
 theorem GProj.IsIndec.of_iso {P Q : GProj 𝒜} (φ : P.Iso Q) (hQ : Q.IsIndec A) : P.IsIndec A := by
-  haveI := hQ.nontrivial
+  have := hQ.nontrivial
   refine ⟨φ.toLinearEquiv.toEquiv.nontrivial, fun e he hidem => ?_⟩
   let f : Module.End A Q.carrier :=
     φ.toLinearEquiv.toLinearMap ∘ₗ e ∘ₗ φ.symm.toLinearEquiv.toLinearMap
@@ -296,13 +296,13 @@ theorem finrank_endZero_eq_one_of_forall {M : GMod 𝒜} [Nontrivial M]
   rw [hbot, Subalgebra.finrank_bot]
 
 instance GFin.hasGdim_toGMod_shift (M : GFin 𝒜) (s : ℤ) : HasGdim (M.toGMod.shift s).grading :=
-  haveI := HasGdim.of_finiteDimensional M.grading
+  have := HasGdim.of_finiteDimensional M.grading
   inferInstanceAs (HasGdim (Graded.shift M.grading s))
 
 omit [GradedAlgebra 𝒜] [HasGdim 𝒜] in
 theorem homRank_shift_eq_coeff (M : GFin 𝒜) (s : ℤ) (P : GProj 𝒜) :
     (K0.homRank (M.toGMod.shift s) (K0.of P) : ℤ) = (pairingRight M (K0.of P)).coeff (-s) := by
-  haveI := HasGdim.of_finiteDimensional M.grading
+  have := HasGdim.of_finiteDimensional M.grading
   rw [K0.homRank_of, pairingRight_of, pairingGdim, coeff_gdim]
   change (finrank k (homGrade A P.grading (Graded.shift M.grading s) 0) : ℤ) = _
   rw [homGrade_shift_right, zero_sub]
@@ -342,12 +342,12 @@ include H
 
 omit [GradedAlgebra 𝒜] [HasGdim 𝒜] [GradedAlgebra ℬ] [HasGdim ℬ] in
 theorem finrank_endZero_topA (b : IndecClass 𝒜) : finrank k (endZero A b.top.grading) = 1 :=
-  haveI := (IndecClass.isGradedSimple_top b).nontrivial
+  have := (IndecClass.isGradedSimple_top b).nontrivial
   finrank_endZero_eq_one_of_forall (H.endA b)
 
 omit [GradedAlgebra 𝒜] [HasGdim 𝒜] [GradedAlgebra ℬ] [HasGdim ℬ] in
 theorem finrank_endZero_topB (b : IndecClass ℬ) : finrank k (endZero B b.top.grading) = 1 :=
-  haveI := (IndecClass.isGradedSimple_top b).nontrivial
+  have := (IndecClass.isGradedSimple_top b).nontrivial
   finrank_endZero_eq_one_of_forall (H.endB b)
 
 omit [GradedAlgebra ℬ] [HasGdim ℬ] in
@@ -383,7 +383,7 @@ theorem homRank_topT_shift (b d : IndecClass 𝒜) (b' d' : IndecClass ℬ) (s :
     H.pairingRight_topA, H.pairingRight_topB]
   by_cases hb : b = d
   · by_cases hb' : b' = d'
-    · simp only [hb, hb', if_true, true_and, mul_one, HahnSeries.coeff_one, neg_eq_zero]
+    · simp only [hb, hb', ite_true, true_and, mul_one, HahnSeries.coeff_one, neg_eq_zero]
     · simp [hb']
   · simp [hb]
 
@@ -392,7 +392,7 @@ theorem exists_top_iso (c : IndecClass (tensorGrading 𝒜 ℬ)) :
     ∃ (b : IndecClass 𝒜) (b' : IndecClass ℬ) (a : ℤ),
       Nonempty (c.top.grading ≃ᵍ[A ⊗[k] B]
         Graded.shift (ExtTensor.grading b.top.grading b'.top.grading) a) := by
-  haveI := H.fdC c
+  have := H.fdC c
   exact TensorSimple.exists_gradedEquiv_extTensor_top H.endA (IndecClass.isGradedSimple_top c)
 
 omit H in
@@ -433,7 +433,7 @@ theorem finrank_endZero_topC (c : IndecClass (tensorGrading 𝒜 ℬ)) :
     finrank k (endZero (A ⊗[k] B) c.top.grading) = 1 := by
   classical
   have h := H.mult_mul_finrank (H.fst c) (H.snd c) c (-H.shift c)
-  rw [if_pos ⟨rfl, rfl, by ring⟩] at h
+  rw [ite_eq_left ⟨rfl, rfl, by ring⟩] at h
   have hpos := K0.finrank_endZero_top_pos c
   have hnn := K0.mult_of_nonneg ((H.fst c).rep.extTensor (H.snd c).rep) c (-H.shift c)
   have hpos' : (1 : ℤ) ≤ (finrank k (endZero (A ⊗[k] B) c.top.grading) : ℤ) := by
@@ -486,9 +486,9 @@ theorem fst_snd_surjective :
     Function.Surjective fun c : IndecClass (tensorGrading 𝒜 ℬ) => (H.fst c, H.snd c) := by
   classical
   rintro ⟨b, b'⟩
-  haveI := (IndecClass.isIndec_rep b).nontrivial
-  haveI := (IndecClass.isIndec_rep b').nontrivial
-  haveI := nontrivial_extTensor (P := b.rep) (P' := b'.rep)
+  have := (IndecClass.isIndec_rep b).nontrivial
+  have := (IndecClass.isIndec_rep b').nontrivial
+  have := nontrivial_extTensor (P := b.rep) (P' := b'.rep)
   have hZ : K0.of (b.rep.extTensor b'.rep) ≠ 0 := by
     intro h
     rw [← K0.of_eq_zero_of_subsingleton (zeroObj (tensorGrading 𝒜 ℬ)), K0.of_eq_of_iff] at h
@@ -498,9 +498,12 @@ theorem fst_snd_surjective :
   obtain ⟨c, hc⟩ : ∃ c, (K0.indecBasis (tensorGrading 𝒜 ℬ)).repr
       (K0.of (b.rep.extTensor b'.rep)) c ≠ 0 := by
     by_contra hcon
-    push_neg at hcon
+    push Not at hcon
     exact hZ ((K0.indecBasis _).repr.injective (by ext c : 1; rw [hcon c, map_zero]; rfl))
-  obtain ⟨a, ha⟩ := Finsupp.ne_iff.1 hc
+  obtain ⟨a, ha⟩ : ∃ a, (((K0.indecBasis _).repr (K0.of (b.rep.extTensor b'.rep))) c).coeff a ≠ 0 := by
+    by_contra h
+    push Not at h
+    exact hc (LaurentPolynomial.ext fun a => by simpa using h a)
   have hm : K0.mult (K0.of (b.rep.extTensor b'.rep)) c a ≠ 0 := ha
   rw [H.mult_extTensor_rep] at hm
   split_ifs at hm with hcond
@@ -526,7 +529,7 @@ theorem of_extTensor_rep (b : IndecClass 𝒜) (b' : IndecClass ℬ) :
   set c := H.indecClassEquiv.symm (b, b') with hc
   have hcb : H.indecClassEquiv c = (b, b') := by rw [hc, Equiv.apply_symm_apply]
   rw [indecClassEquiv_apply, Prod.mk.injEq] at hcb
-  refine (K0.indecBasis _).repr.injective (Finsupp.ext fun c' => Finsupp.ext fun a => ?_)
+  refine (K0.indecBasis _).repr.injective (Finsupp.ext fun c' => LaurentPolynomial.ext fun a => ?_)
   change K0.mult _ c' a = K0.mult _ c' a
   rw [H.mult_extTensor_rep, K0.mult_T_smul_of_rep]
   by_cases hc' : c' = c
@@ -540,7 +543,7 @@ theorem of_extTensor_rep (b : IndecClass 𝒜) (b' : IndecClass ℬ) :
       · rintro ⟨-, h⟩
         exact ⟨hcb.1.symm, hcb.2.symm, by omega⟩
     exact if_congr e1 rfl rfl
-  · rw [if_neg, if_neg]
+  · rw [ite_eq_right, ite_eq_right]
     · rintro h
       exact hc' (Prod.ext_iff.1 h).1.symm
     · rintro ⟨h1, h2, -⟩
@@ -572,11 +575,11 @@ omit [HasGdim 𝒜] [HasGdim ℬ] in
 /-- **`S_b ⊠ S_{b'}` is graded simple** (indeed simple): KL I, absolute irreducibility. -/
 theorem isGradedSimple_extTensor_top (b : IndecClass 𝒜) (b' : IndecClass ℬ) :
     IsGradedSimple (tensorGrading 𝒜 ℬ) (ExtTensor.grading b.top.grading b'.top.grading) := by
-  haveI := H.fdA b
-  haveI := H.fdB b'
-  haveI : IsSimpleModule A b.top := (IndecClass.isGradedSimple_top b).isSimpleModule
-  haveI : IsSimpleModule B b'.top := (IndecClass.isGradedSimple_top b').isSimpleModule
-  haveI := TensorSimple.isSimpleModule_extTensor (B := B) (M := b'.top.carrier) (H.endA b)
+  have := H.fdA b
+  have := H.fdB b'
+  have : IsSimpleModule A b.top := (IndecClass.isGradedSimple_top b).isSimpleModule
+  have : IsSimpleModule B b'.top := (IndecClass.isGradedSimple_top b').isSimpleModule
+  have := TensorSimple.isSimpleModule_extTensor (B := B) (M := b'.top.carrier) (H.endA b)
   exact ⟨IsSimpleModule.nontrivial (A ⊗[k] B) _, fun p _ => IsSimpleOrder.eq_bot_or_eq_top p⟩
 
 omit H [GradedAlgebra 𝒜] [GradedAlgebra ℬ] [HasGdim 𝒜] [HasGdim ℬ] in
@@ -590,8 +593,8 @@ theorem extTensor_topMap_preservesGrading (b : IndecClass 𝒜) (b' : IndecClass
 omit H [GradedAlgebra 𝒜] [GradedAlgebra ℬ] [HasGdim 𝒜] [HasGdim ℬ] in
 theorem extTensor_topMap_ne_zero (b : IndecClass 𝒜) (b' : IndecClass ℬ) :
     ExtTensor.map (k := k) b.topMap b'.topMap ≠ 0 := by
-  haveI := (IndecClass.isGradedSimple_top b).nontrivial
-  haveI := (IndecClass.isGradedSimple_top b').nontrivial
+  have := (IndecClass.isGradedSimple_top b).nontrivial
+  have := (IndecClass.isGradedSimple_top b').nontrivial
   have hs := ExtTensor.map_surjective (k := k)
     (surjective_of_isGradedSimple (IndecClass.isGradedSimple_top b)
       (IndecClass.preservesGrading_topMap b) (IndecClass.topMap_ne_zero b))
@@ -631,8 +634,8 @@ theorem extTensorEquiv_toLinearMap :
     H.extTensorEquiv.toLinearMap = TensorProduct.lift (K0.extTensor 𝒜 ℬ) := by
   refine ((K0.indecBasis 𝒜).tensorProduct (K0.indecBasis ℬ)).ext fun i => ?_
   obtain ⟨b, b'⟩ := i
-  rw [LinearEquiv.coe_coe, extTensorEquiv, Basis.equiv_apply, Basis.unitsSMul_apply,
-    Basis.tensorProduct_apply, TensorProduct.lift.tmul, K0.indecBasis_apply, K0.indecBasis_apply,
+  rw [LinearEquiv.coe_coe, extTensorEquiv, Module.Basis.equiv_apply, Module.Basis.unitsSMul_apply,
+    Module.Basis.tensorProduct_apply, TensorProduct.lift.tmul, K0.indecBasis_apply, K0.indecBasis_apply,
     K0.indecBasis_apply, K0.extTensor_of, H.of_extTensor_rep, Units.smul_def]
   rfl
 

@@ -17,6 +17,9 @@ absorbed by the cup (`trS_trans'`), the cap (`trS_capMap_false`) and the crossin
 (`trS_crossU_out`).
 -/
 
+-- Preserve elaboration of semireducible diagram transports.
+set_option backward.isDefEq.respectTransparency false
+
 noncomputable section
 
 namespace Categorification.Flag
@@ -81,7 +84,7 @@ theorem evalB_crossl_aux (dnScal : Fin m → Fin m → K) (i j : Fin m) (μ : Wt
           v)] := by
     simp only [crossl, layers_mkD, layList, List.map_cons, List.map_nil, dataV, lay, wd, wt,
       Shape.gen, Shape.dom, List.nil_append, List.append_nil, List.cons_append,
-      List.singleton_append, Letter.dual_mk, Bool.not_true, Bool.not_false]
+      Letter.dual_mk, Bool.not_false]
     rw [sh_swap_cancel, sh_up_dn]
   have h₂ : ChainW ([⟨up i, sh RD (dn j) + μ⟩, ⟨dn j, μ⟩] ++ v)
       [([], .cup ⟨dn j, sh RD (up i) + μ⟩, [⟨up i, sh RD (dn j) + μ⟩, ⟨dn j, μ⟩] ++ v),
@@ -127,7 +130,13 @@ theorem evalB_crossl_aux (dnScal : Fin m → Fin m → K) (i j : Fin m) (μ : Wt
   simp only [BHom.comp_assoc]
   have hdμ : WOK N μ (⟨up j, sh RD (dn j) + μ⟩ :: ⟨dn j, μ⟩ :: v) :=
     ⟨hb.2.2.2.2.realized, sh_up_dn j μ, ha.2.2.1, rfl, hb.2.2.2.2⟩
-  rw [trS_trans', trS_self'', BHom.comp_id'', ← BHom.comp_assoc,
+  dsimp only [Letter.dual, dn, up, bnot_false_rfl, wt_cons, wt_nil,
+    list_nil_append_rfl, list_cons_append_rfl, gcod_cap_rfl]
+  erw [trS_trans' (K := K) (N := N) (up j) (sh RD (up i) + μ)
+    (sh RD (up i) + (sh RD (dn j) + μ)) (sh RD (dn j) + (sh RD (up i) + μ))
+    (sh RD (up i) + (sh RD (dn j) + μ)) _ _
+    (⟨up i, sh RD (dn j) + μ⟩ :: ⟨dn j, μ⟩ :: v)]
+  rw [trS_self'', BHom.comp_id'', ← BHom.comp_assoc,
     trS_capMap_false (hd' := hdμ), BHom.comp_assoc, trS_crossU_out, capMap_false_self,
     crosslW, BHom.whiskerLeft_comp, BHom.comp_assoc]
   rfl

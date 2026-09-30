@@ -67,7 +67,7 @@ theorem matBlockMapₗ_one (T : BlockTransport (k := k) e X Z) (φ : ∀ t, A �
     split_ifs with h
     · subst h; rw [one_apply_self, T.map_id]
     · rw [one_apply_of_ne h, map_zero, single_zero]
-  simp only [h1, Finset.sum_ite_eq, Finset.mem_univ, if_true]
+  simp only [h1, Finset.sum_ite_eq, Finset.mem_univ, ite_true]
   rw [← Fintype.sum_prod_type', ← e.sum_comp]
 
 theorem matBlockMapₗ_mul (T : BlockTransport (k := k) e X Z) (φ : ∀ t, A →ₐ[k] MatEnd (X t))
@@ -110,22 +110,22 @@ theorem matBlockMap_apply (T : BlockTransport (k := k) e X Z) (φ : ∀ t, A →
 /-- The entries of `matBlockMap`: within a block they are the transported entries. -/
 theorem matBlockMap_apply_block (T : BlockTransport (k := k) e X Z) (φ : ∀ t, A →ₐ[k] MatEnd (X t))
     (r : A) (t : κ) (i j : ι) : matBlockMap e T φ r (e (t, i)) (e (t, j)) = T.F t i j (φ t r i j) := by
-  rw [matBlockMap_apply, sum_apply, Finset.sum_eq_single t]
-  · rw [sum_apply, Finset.sum_eq_single i]
-    · rw [sum_apply, Finset.sum_eq_single j]
+  rw [matBlockMap_apply, MatEnd.sum_apply, Finset.sum_eq_single t]
+  · rw [MatEnd.sum_apply, Finset.sum_eq_single i]
+    · rw [MatEnd.sum_apply, Finset.sum_eq_single j]
       · exact single_apply_self _ _ _
       · intro j' _ hj'
         exact single_apply_of_ne _ (fun h => hj' (Prod.ext_iff.1 (e.injective h.2.symm)).2)
       · simp
     · intro i' _ hi'
-      rw [sum_apply]
+      rw [MatEnd.sum_apply]
       exact Finset.sum_eq_zero fun j' _ =>
         single_apply_of_ne _ (fun h => hi' (Prod.ext_iff.1 (e.injective h.1.symm)).2)
     · simp
   · intro t' _ ht'
-    rw [sum_apply]
+    rw [MatEnd.sum_apply]
     refine Finset.sum_eq_zero fun i' _ => ?_
-    rw [sum_apply]
+    rw [MatEnd.sum_apply]
     exact Finset.sum_eq_zero fun j' _ =>
       single_apply_of_ne _ (fun h => ht' (Prod.ext_iff.1 (e.injective h.1.symm)).1)
   · simp
@@ -133,11 +133,11 @@ theorem matBlockMap_apply_block (T : BlockTransport (k := k) e X Z) (φ : ∀ t,
 /-- The entries of `matBlockMap` between different blocks vanish. -/
 theorem matBlockMap_apply_ne (T : BlockTransport (k := k) e X Z) (φ : ∀ t, A →ₐ[k] MatEnd (X t))
     (r : A) {t t' : κ} (i j : ι) (h : t ≠ t') : matBlockMap e T φ r (e (t, i)) (e (t', j)) = 0 := by
-  rw [matBlockMap_apply, sum_apply]
+  rw [matBlockMap_apply, MatEnd.sum_apply]
   refine Finset.sum_eq_zero fun t'' _ => ?_
-  rw [sum_apply]
+  rw [MatEnd.sum_apply]
   refine Finset.sum_eq_zero fun i' _ => ?_
-  rw [sum_apply]
+  rw [MatEnd.sum_apply]
   refine Finset.sum_eq_zero fun j' _ => single_apply_of_ne _ fun hh => h ?_
   have h1 := (Prod.ext_iff.1 (e.injective hh.1)).1
   have h2 := (Prod.ext_iff.1 (e.injective hh.2)).1

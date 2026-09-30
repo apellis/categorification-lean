@@ -53,6 +53,8 @@ theorem assumes `SimplyLaced C`.
   equivalence with the statement that every closed normal-form diagram lies in the image.
 -/
 
+set_option backward.isDefEq.respectTransparency false
+
 noncomputable section
 
 namespace Categorification.KL3.Diagram
@@ -136,7 +138,7 @@ the left, on `y`, on `z`, or to the right. -/
 theorem pos_dot_cases {α : Type*} {a b u v : List α} {x y z : α} (h : a ++ [x] ++ b = u ++ [y, z] ++ v) :
     (∃ c, u = a ++ x :: c ∧ b = c ++ y :: z :: v) ∨ (a = u ∧ x = y ∧ b = z :: v) ∨
       (a = u ++ [y] ∧ x = z ∧ b = v) ∨ (∃ c, a = u ++ y :: z :: c ∧ v = c ++ x :: b) := by
-  simp only [List.append_assoc, List.singleton_append, List.cons_append] at h
+  simp only [List.append_assoc, List.cons_append] at h
   rcases List.append_eq_append_iff.1 h with ⟨as, hu, hb⟩ | ⟨bs, ha, hv⟩
   · rcases as with _ | ⟨x', c⟩
     · simp only [List.append_nil, List.nil_append, List.cons.injEq] at hu hb
@@ -415,7 +417,7 @@ theorem sink (K : ℕ)
   | nil =>
     intro m u v l post _ _ _ _ hpre _
     have := congrArg List.length (hpre : ([] : List (Letter I)) = u ++ [l.dual, l] ++ v)
-    simp at this; omega
+    simp at this
   | append_singleton pre' y ih =>
     intro m u v l post hcap hcr hcpost hn hpre hpost
     obtain ⟨w, hpre', hy⟩ := SChain.split hpre
@@ -433,7 +435,7 @@ theorem sink (K : ℕ)
     | cap l' => simp [Shape.isCap] at hgcap
     | dot l' =>
       simp only [Shape.cod_dot] at hW'
-      simp only [Shape.isCupCap, if_false, add_zero] at hn'
+      simp only [Shape.isCupCap] at hn'
       rcases pos_dot_cases hW' with ⟨c, rfl, rfl⟩ | ⟨ha, hx, hb⟩ | ⟨ha, hx, hb⟩ | ⟨c, rfl, rfl⟩
       · -- the dot is to the left of the cap
         have hB : SChain (c ++ l.dual :: l :: v)
@@ -447,21 +449,21 @@ theorem sink (K : ℕ)
             rcases List.mem_cons.1 hx with rfl | hx
             · rfl
             · exact hcpost x hx)
-          (by simpa using hn') (by simpa using hpre') (by
+          (by simpa [Shape.isCupCap] using hn') (by simpa using hpre') (by
             refine ⟨by simp, ?_⟩
             simpa using hpost)
         lnorm at e h ⊢
         rw [e]; exact h
       · -- the dot is on the left strand of the cap: it joins the block
         subst u l' b
-        have h := ih (m + 1) a v l post hcap' hcr' hcpost (by simpa using hn')
+        have h := ih (m + 1) a v l post hcap' hcr' hcpost (by simpa [Shape.isCupCap] using hn')
           (by simpa using hpre') hpost
         rw [List.replicate_succ] at h
         lnorm at h ⊢
         exact h
       · -- the dot is on the right strand of the cap: it moves to the left strand
         subst a l' v
-        have h := ih (m + 1) u b l post hcap' hcr' hcpost (by simpa using hn')
+        have h := ih (m + 1) u b l post hcap' hcr' hcpost (by simpa [Shape.isCupCap] using hn')
           (by simpa using hpre') hpost
         have e := dg_step RD k lam (s₀ := []) (t₀ := []) pre' post u b
           (dg_dotR_cap RD k (wt RD lam b) l m) (by simpa using hpre')
@@ -483,14 +485,14 @@ theorem sink (K : ℕ)
             rcases List.mem_cons.1 hx with rfl | hx
             · rfl
             · exact hcpost x hx)
-          (by simpa using hn') (by simpa using hpre') (by
+          (by simpa [Shape.isCupCap] using hn') (by simpa using hpre') (by
             refine ⟨by simp, ?_⟩
             simpa using hpost)
         lnorm at e h ⊢
         rw [← e]; exact h
     | cup l' =>
       simp only [Shape.cod_cup] at hW'
-      simp only [Shape.isCupCap, if_true] at hn'
+      simp only [Shape.isCupCap, ite_true] at hn'
       rcases pos_cup_cases hW' with ⟨c, rfl, rfl⟩ | ⟨hu, hl, hb⟩ | ⟨ha, hx, hl, hb⟩ |
           ⟨ha, hx, hv⟩ | ⟨c, rfl, rfl⟩
       · -- the cup is to the left of the cap
@@ -607,7 +609,7 @@ theorem capFree_closed_nil {ls : List (LayerData I)} (hcap : CapFree ls) (hcr : 
     have hx2 : g.isCross = false := hcr _ List.mem_cons_self
     rw [ncc_cons] at hl
     cases g with
-    | dot l' => have := congrArg List.length hx; simp at this; omega
+    | dot l' => have := congrArg List.length hx; simp at this
     | cross ε i j => simp [Shape.isCross] at hx2
     | cup l' => simp [Shape.isCupCap] at hl
     | cap l' => simp [Shape.isCap] at hx1
@@ -657,7 +659,7 @@ theorem crossFree_isBub (ls : List (LayerData I)) (hc : CrossFree ls) :
         have := sink RD k hSL lam (n + 1) (fun ls' hls' hcls' hch' => ihn (ncc ls') (by omega) ls' hcls' rfl)
           pre 0 u v l post hpre hcpre hcpost (by omega) (by simpa using h₁) (by simpa using h₃)
         simpa using this
-      · push_neg at hcap
+      · push Not at hcap
         have : ls = [] := capFree_closed_nil (fun x hx => by simpa using hcap x hx) hc hch
         subst this
         rw [dg_nil]; exact IsBub.id

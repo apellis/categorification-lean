@@ -88,7 +88,7 @@ theorem top_of_socle
     epsI Q (μ' + ν'') i N = Multiset.card ν'' ∧
       Nonempty (HWSpace Q μ' ν'' (ResSub Q μ' ν'' N) ≃ₗ[KLRAlgebra K Q μ']
         HWSpace Q μ' (ν'' + ν') (ResSub Q μ' (ν'' + ν') (MAssoc μ' ν'' ν' M))) := by
-  haveI := IsSimpleModule.nontrivial (KLRAlgebra K Q (μ' + ν'')) N
+  have := IsSimpleModule.nontrivial (KLRAlgebra K Q (μ' + ν'')) N
   let f := S.subtype ∘ₗ φ.toLinearMap
   have hf : Function.Injective f := Subtype.val_injective.comp φ.injective
   have hεN : epsI Q (μ' + ν'') i N = Multiset.card ν'' := by
@@ -106,9 +106,9 @@ theorem top_crystalF (hεN : epsI Q (μ' + ν'') i N = Multiset.card ν'') :
     Nonempty (HWSpace Q μ' ν'' (ResSub Q μ' ν'' N) ≃ₗ[KLRAlgebra K Q μ']
       HWSpace Q μ' (ν'' + ν') (ResSub Q μ' (ν'' + ν')
         (MAssoc μ' ν'' ν' (CrystalF Q (μ' + ν'') hν' N)))) := by
-  haveI := isSimpleModule_crystalF hν' hPQ hP hnilN
-  haveI := instFiniteDimensionalCrystalF hν' hPQ hP (μ := μ' + ν'') (N := N)
-  haveI := isSimpleModule_extTensor hν' (Q := Q) (μ := μ' + ν'') (V := N)
+  have := isSimpleModule_crystalF hν' hPQ hP hnilN
+  have := instFiniteDimensionalCrystalF hν' hPQ hP (μ := μ' + ν'') (N := N)
+  have := isSimpleModule_extTensor hν' (Q := Q) (μ := μ' + ν'') (V := N)
   have hnilF := smulNilpotent_crystalF hν' hPQ hP hnilN
   have hεF : epsI Q ((μ' + ν'') + ν') i (CrystalF Q (μ' + ν'') hν' N) =
       Multiset.card ν'' + Multiset.card ν' := by
@@ -151,15 +151,15 @@ include hν' hν'1 hPQ hP hnilN in
 theorem exists_injective_crystalE_extTensor (hpos : 0 < epsI Q (μ + ν') i N) :
     ∃ f : ExtTensor K (CrystalE Q μ ν' N) (KLRRep hν' Q) →ₗ[TensorKLR Q μ ν'] ResSub Q μ ν' N,
       Function.Injective f := by
-  haveI := IsSimpleModule.nontrivial (KLRAlgebra K Q (μ + ν')) N
-  haveI : Nontrivial (ResSub Q μ ν' N) := (nontrivial_resSub_iff hν').2 (by rw [hν'1]; exact hpos)
-  haveI : IsArtinian (TensorKLR Q μ ν') (ResSub Q μ ν' N) := isArtinian_of_tower K inferInstance
-  haveI : IsAtomic (Submodule (TensorKLR Q μ ν') (ResSub Q μ ν' N)) :=
-    isAtomic_of_orderBot_wellFounded_lt wellFounded_lt
+  have := IsSimpleModule.nontrivial (KLRAlgebra K Q (μ + ν')) N
+  have : Nontrivial (ResSub Q μ ν' N) := (nontrivial_resSub_iff hν').2 (by rw [hν'1]; exact hpos)
+  have : IsArtinian (TensorKLR Q μ ν') (ResSub Q μ ν' N) := isArtinian_of_tower K inferInstance
+  have : IsAtomic (Submodule (TensorKLR Q μ ν') (ResSub Q μ ν' N)) :=
+    inferInstance
   obtain ⟨S₀, hS₀, -⟩ := (eq_bot_or_exists_atom_le
     (⊤ : Submodule (TensorKLR Q μ ν') (ResSub Q μ ν' N))).resolve_left top_ne_bot
-  haveI : IsSimpleModule (TensorKLR Q μ ν') S₀ := isSimpleModule_iff_isAtom.2 hS₀
-  haveI : FiniteDimensional K S₀ := finiteDimensional_submodule' S₀
+  have : IsSimpleModule (TensorKLR Q μ ν') S₀ := isSimpleModule_iff_isAtom.2 hS₀
+  have : FiniteDimensional K S₀ := finiteDimensional_submodule' S₀
   have hnilS₀ := fun b => smulNilpotent_submodule S₀ (smulNilpotent_resSub (μ := μ) b (hnilN _))
   have hHW : IsSimpleModule (KLRAlgebra K Q μ) (HWSpace Q μ ν' S₀) :=
     isSimpleModule_hwSpace hν' hPQ hP (S := S₀) hnilS₀
@@ -171,7 +171,7 @@ theorem exists_injective_crystalE_extTensor (hpos : 0 < epsI Q (μ + ν') i N) :
   have hθ : Function.Injective θ := fun w w' h =>
     Subtype.ext (Subtype.ext (resLeft_toRes_injective h))
   let e₁ := LinearEquiv.ofInjective θ hθ
-  haveI : IsSimpleModule (KLRAlgebra K Q μ) (LinearMap.range θ) :=
+  have : IsSimpleModule (KLRAlgebra K Q μ) (LinearMap.range θ) :=
     @IsSimpleModule.congr _ _ _ _ _ _ _ _ e₁.symm hHW
   have hat : IsAtom (LinearMap.range θ) := isSimpleModule_iff_isAtom.1 inferInstance
   have heq := crystalESub_eq_of_isAtom hν' hν'1 hPQ hP hnilN hat
@@ -211,8 +211,8 @@ theorem top_crystalE
       Nonempty (HWSpace Q μ' ν'' (ResSub Q μ' ν'' (CrystalE Q (μ' + ν'') ν' M)) ≃ₗ[KLRAlgebra K Q μ']
         HWSpace Q μ' (ν'' + ν') (ResSub Q μ' (ν'' + ν') (MAssoc μ' ν'' ν' M))) := by
   have hpos : 0 < epsI Q ((μ' + ν'') + ν') i M := by rw [hε, hν'1]; omega
-  haveI := isSimpleModule_crystalE hν' hν'1 hPQ hP hnil hpos
-  haveI : FiniteDimensional K (CrystalE Q (μ' + ν'') ν' M) := finiteDimensional_submodule' _
+  have := isSimpleModule_crystalE hν' hν'1 hPQ hP hnil hpos
+  have : FiniteDimensional K (CrystalE Q (μ' + ν'') ν' M) := finiteDimensional_submodule' _
   have hnilE := smulNilpotent_crystalE hnil
   have hεE : epsI Q (μ' + ν'') i (CrystalE Q (μ' + ν'') ν' M) = Multiset.card ν'' := by
     have := epsI_crystalE hν' hν'1 hPQ hP hnil hpos

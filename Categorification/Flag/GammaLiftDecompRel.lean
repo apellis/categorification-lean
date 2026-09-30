@@ -27,6 +27,9 @@ factors is zero in the path model, the double crossing is `0` and `decompEF_W_to
 `decompFE_W_top` apply.
 -/
 
+-- Preserve elaboration of semireducible diagram transports.
+set_option backward.isDefEq.respectTransparency false
+
 noncomputable section
 
 namespace Categorification.Flag

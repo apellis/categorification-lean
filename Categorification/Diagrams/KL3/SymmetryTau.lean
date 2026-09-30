@@ -42,6 +42,9 @@ Remark 3.19 (`τ̃ ψ̃ ω̃ σ̃` fixes all diagrams and only affects the gradi
 diagrams.
 -/
 
+-- Preserve elaboration of semireducible diagram and bimodule transports.
+set_option backward.isDefEq.respectTransparency false
+
 noncomputable section
 
 namespace Categorification.KL3.Diagram

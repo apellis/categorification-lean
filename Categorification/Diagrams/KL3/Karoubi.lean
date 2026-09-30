@@ -88,7 +88,7 @@ instance matLinear : Linear k (Mat_ C) where
 
 /-- Scalar multiplication of morphisms of the Karoubi envelope. -/
 instance karoubiHomSMul {P Q : Karoubi C} : SMul k (P ⟶ Q) where
-  smul r f := ⟨r • f.f, by rw [Linear.smul_comp, Linear.comp_smul, ← f.comm]⟩
+  smul r f := ⟨r • f.f, by rw [Linear.smul_comp, Linear.comp_smul, f.comm]⟩
 
 @[simp] theorem karoubi_smul_f {P Q : Karoubi C} (r : k) (f : P ⟶ Q) : (r • f).f = r • f.f :=
   rfl
@@ -114,8 +114,8 @@ variable {k} {D : Type*} [Category D]
 def mapKaroubi (F : C ⥤ D) : Karoubi C ⥤ Karoubi D where
   obj P := ⟨F.obj P.X, F.map P.p, by rw [← F.map_comp, P.idem]⟩
   map {P Q} f := ⟨F.map f.f, by
-    show F.map f.f = F.map P.p ≫ F.map f.f ≫ F.map Q.p
-    rw [← F.map_comp, ← F.map_comp, ← f.comm]⟩
+    show F.map P.p ≫ F.map f.f ≫ F.map Q.p = F.map f.f
+    rw [← F.map_comp, ← F.map_comp, f.comm]⟩
   map_id _ := Karoubi.hom_ext _ _ rfl
   map_comp _ _ := Karoubi.hom_ext _ _ (F.map_comp _ _)
 
@@ -131,17 +131,18 @@ variable {D : Type*} [Category D] [Preadditive D] [Linear k D]
 
 instance mapMat_additive {C : Type u₁} [Category.{v} C] [Preadditive C] {D : Type u₂}
     [Category.{v} D] [Preadditive D] (F : C ⥤ D) [F.Additive] : F.mapMat_.Additive where
-  map_add := by
-    intros
-    ext
-    simp
+  map_add {X Y f g} := by
+    ext (i : X.ι) (j : Y.ι)
+    change F.map ((f + g) i j) = F.map (f i j) + F.map (g i j)
+    rw [Mat_.add_apply, F.map_add]
 
 instance mapMat_linear {C : Type u₁} [Category.{v} C] [Preadditive C] [Linear k C] {D : Type u₂}
     [Category.{v} D] [Preadditive D] [Linear k D] (F : C ⥤ D) [F.Additive] [F.Linear k] :
     F.mapMat_.Linear k where
-  map_smul _ _ := by
-    ext
-    simp
+  map_smul {X Y} f r := by
+    ext (i : X.ι) (j : Y.ι)
+    change F.map ((r • f) i j) = r • F.map (f i j)
+    rw [mat_smul_apply, F.map_smul]
 
 end LinearEnvelopes
 
@@ -187,7 +188,7 @@ theorem b0_a (D : SumDecomp A B Cs) (t : ι) : D.b0 ≫ D.a t = 0 := by
     split_ifs with hst
     · subst hst; rw [D.b_a_self, Category.comp_id]
     · rw [D.b_a_ne s t hst, Limits.comp_zero, Limits.comp_zero]
-  rw [Finset.sum_congr rfl hs, Finset.sum_ite_eq' Finset.univ t, if_pos (Finset.mem_univ _),
+  rw [Finset.sum_congr rfl hs, Finset.sum_ite_eq' Finset.univ t, ite_eq_left (Finset.mem_univ _),
     ← Category.assoc D.b0 D.a0, D.b0_a0, Category.id_comp] at h
   have h2 : D.b0 ≫ D.a t + D.b0 ≫ D.a t - D.b0 ≫ D.a t = 0 := by rw [h, sub_self]
   rwa [add_sub_cancel_right] at h2
@@ -346,7 +347,7 @@ theorem wRAt_mem_homDeg {r : S.Region} {a a' : Obj S} {f : P.obj a ⟶ P.obj a'}
 variable (P deg)
 
 /-- The morphisms `x{t} ⟶ y{t'}`: the 2-morphisms `x ⟶ y` of degree `t - t'`. -/
-def GrObj.Hom {l m : P.Bicat} (X Y : GrObj P deg l m) : Type _ :=
+abbrev GrObj.Hom {l m : P.Bicat} (X Y : GrObj P deg l m) : Type _ :=
   P.homDeg deg X.x.obj Y.x.obj (X.t - Y.t)
 
 instance grCategory (l m : P.Bicat) : Category (GrObj P deg l m) where
@@ -540,10 +541,10 @@ def idemHom (f : P.obj x.obj ⟶ P.obj y.obj) (hf : f ∈ P.homDeg deg x.obj y.o
     (hc : f = e ≫ f ≫ e') : idemObj x t e he hee ⟶ idemObj y t' e' he' hee' where
   f := (Mat_.embedding (GrObj P deg l m)).map (X := ⟨x, t⟩) (Y := ⟨y, t'⟩) ⟨f, hf⟩
   comm := by
-    show _ = (Mat_.embedding _).map _ ≫ (Mat_.embedding _).map _ ≫ (Mat_.embedding _).map _
+    show (Mat_.embedding _).map _ ≫ (Mat_.embedding _).map _ ≫ (Mat_.embedding _).map _ = _
     rw [← Functor.map_comp, ← Functor.map_comp]
     congr 1
-    exact Subtype.ext hc
+    exact Subtype.ext hc.symm
 
 theorem idemHom_comp (f : P.obj x.obj ⟶ P.obj y.obj) (g : P.obj y.obj ⟶ P.obj z.obj)
     (hf : f ∈ P.homDeg deg x.obj y.obj (t - t')) (hg : g ∈ P.homDeg deg y.obj z.obj (t' - t''))

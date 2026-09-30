@@ -130,38 +130,38 @@ theorem mem_invSet_shuffle {u : Perm (Fin m)} (hu : IsShuffle h u) (a c : Fin m)
   simp only [shuffleMask, decide_eq_true_eq, decide_eq_false_iff_not, not_le]
   constructor
   · rintro ⟨hac, hlt⟩
-    have hlt' := Fin.lt_iff_val_lt_val.1 hlt
+    have hlt' := Fin.lt_def.1 hlt
     refine ⟨hac, ?_, ?_⟩
     · by_contra hna
-      push_neg at hna
+      push Not at hna
       obtain ⟨x, hx⟩ := exists_inl_of_lt h hna
       obtain ⟨x', hx'⟩ := exists_inl_of_lt h (lt_trans hlt' hna)
       have hxx : x' < x := by
         have := hlt; rw [hx, hx'] at this; exact (blockEquiv_inl_lt_inl h).1 this
       have := hu.1 hxx
-      simp only [← hx, ← hx', Perm.inv_apply_self] at this
+      simp only [← hx, ← hx', Perm.coe_inv, Equiv.symm_apply_apply] at this
       exact absurd (hac.trans this) (lt_irrefl _)
     · by_contra hnc
-      push_neg at hnc
+      push Not at hnc
       obtain ⟨y, hy⟩ := exists_inr_of_le h (hnc.trans hlt'.le)
       obtain ⟨y', hy'⟩ := exists_inr_of_le h hnc
       have hyy : y' < y := by
         have := hlt; rw [hy, hy'] at this; exact (blockEquiv_inr_lt_inr h).1 this
       have := hu.2 hyy
-      simp only [← hy, ← hy', Perm.inv_apply_self] at this
+      simp only [← hy, ← hy', Perm.coe_inv, Equiv.symm_apply_apply] at this
       exact absurd (hac.trans this) (lt_irrefl _)
   · rintro ⟨hac, hna, hnc⟩
-    exact ⟨hac, Fin.lt_iff_val_lt_val.2 (by omega)⟩
+    exact ⟨hac, Fin.lt_def.2 (by omega)⟩
 
 /-- For a shuffle `u`, the positions `u⁻¹(0) < ⋯ < u⁻¹(n - 1)` sent to the first block are the
 positions with mask `false`, in increasing order. -/
 theorem ofFn_inv_inl {u : Perm (Fin m)} (hu : IsShuffle h u) :
     List.ofFn (fun x : Fin n => u⁻¹ (blockEquiv h (Sum.inl x))) =
       (List.finRange m).filter fun a => shuffleMask h u a == false := by
-  have hs₁ := List.sorted_lt_ofFn_iff.2 hu.1
-  have hs₂ : ((List.finRange m).filter fun a => shuffleMask h u a == false).Sorted (· < ·) :=
+  have hs₁ := List.pairwise_ofFn.2 hu.1
+  have hs₂ : ((List.finRange m).filter fun a => shuffleMask h u a == false).Pairwise (· < ·) :=
     (List.pairwise_lt_finRange m).filter _
-  refine List.eq_of_perm_of_sorted ?_ hs₁ hs₂
+  refine List.Perm.eq_of_pairwise' hs₁ hs₂ ?_
   rw [List.perm_ext_iff_of_nodup hs₁.nodup hs₂.nodup]
   intro a
   simp only [List.mem_ofFn, List.mem_filter, List.mem_finRange, true_and, beq_iff_eq,
@@ -175,10 +175,10 @@ theorem ofFn_inv_inl {u : Perm (Fin m)} (hu : IsShuffle h u) :
 theorem ofFn_inv_inr {u : Perm (Fin m)} (hu : IsShuffle h u) :
     List.ofFn (fun y : Fin n' => u⁻¹ (blockEquiv h (Sum.inr y))) =
       (List.finRange m).filter fun a => shuffleMask h u a == true := by
-  have hs₁ := List.sorted_lt_ofFn_iff.2 hu.2
-  have hs₂ : ((List.finRange m).filter fun a => shuffleMask h u a == true).Sorted (· < ·) :=
+  have hs₁ := List.pairwise_ofFn.2 hu.2
+  have hs₂ : ((List.finRange m).filter fun a => shuffleMask h u a == true).Pairwise (· < ·) :=
     (List.pairwise_lt_finRange m).filter _
-  refine List.eq_of_perm_of_sorted ?_ hs₁ hs₂
+  refine List.Perm.eq_of_pairwise' hs₁ hs₂ ?_
   rw [List.perm_ext_iff_of_nodup hs₁.nodup hs₂.nodup]
   intro a
   simp only [List.mem_ofFn, List.mem_filter, List.mem_finRange, true_and, beq_iff_eq,
@@ -215,14 +215,14 @@ theorem exists_shuffle_of_card (b : Fin m → Bool)
   by_cases hba : b a = false
   · have hg : g a = Sum.inl (Fintype.equivFinOfCardEq hcF ⟨a, hba⟩) := by
       change Sum.map _ _ ((Equiv.sumCompl fun a => b a = false).symm a) = _
-      rw [sumCompl_apply_symm_of_pos (fun a => b a = false) a hba]
+      rw [sumCompl_symm_apply_of_pos (p := fun a => b a = false) hba]
       rfl
     rw [hba]
     refine shuffleMask_of_inl h (x := a₁⁻¹ (Fintype.equivFinOfCardEq hcF ⟨a, hba⟩)) ?_
     rw [hu', blockPerm_inv, Perm.mul_apply, Equiv.trans_apply, hg, blockPerm_inl]
   · have hg : g a = Sum.inr (Fintype.equivFinOfCardEq hcT ⟨a, hba⟩) := by
       change Sum.map _ _ ((Equiv.sumCompl fun a => b a = false).symm a) = _
-      rw [sumCompl_apply_symm_of_neg (fun a => b a = false) a hba]
+      rw [sumCompl_symm_apply_of_neg (p := fun a => b a = false) hba]
       rfl
     rw [show b a = true by simpa using hba]
     refine shuffleMask_of_inr h (y := b₁⁻¹ (Fintype.equivFinOfCardEq hcT ⟨a, hba⟩)) ?_
@@ -234,7 +234,7 @@ end TypeA
 
 namespace KLR
 
-open TypeA QuantumGroup QuantumGroup.PreF Graded KLRAlgebra LaurentPolynomial MvPolynomial
+open TypeA QuantumGroup QuantumGroup.PreF Categorification.Graded KLRAlgebra LaurentPolynomial MvPolynomial
 
 variable {I : Type*} [DecidableEq I] {ν ν' : Multiset I}
 
@@ -347,13 +347,11 @@ theorem ShuffleOf.exists_mask_eq {s : Seq (ν + ν')} (b : Fin (Multiset.card (�
     obtain ⟨t, rfl⟩ := (blockEquiv (Seq.card_add' ν ν')).surjective z
     cases t with
     | inl x =>
-      rw [show blockEquiv (Seq.card_add' ν ν') (Sum.inl x) = Seq.posL ν' x from rfl,
+      erw [show blockEquiv (Seq.card_add' ν ν') (Sum.inl x) = Seq.posL ν' x from rfl,
         Seq.append_posL, Seq.smul_apply, ← Perm.inv_def]
-      rfl
     | inr y =>
-      rw [show blockEquiv (Seq.card_add' ν ν') (Sum.inr y) = Seq.posR ν y from rfl,
+      erw [show blockEquiv (Seq.card_add' ν ν') (Sum.inr y) = Seq.posR ν y from rfl,
         Seq.append_posR, Seq.smul_apply, ← Perm.inv_def]
-      rfl
 
 /-- **Shuffles of `s` are masks of `s`**: `u ↦ b_u` identifies `ShuffleOf ν ν' s` with the masks
 of `s` splitting it into subwords of weights `ν` and `ν'`; then `(i_u, j_u)` are the two subwords
@@ -415,12 +413,12 @@ theorem resK0_projP_eq_sum_mask (s : Seq (ν + ν')) :
   refine Fintype.sum_of_injective (fun u : ShuffleOf ν ν' s => u.mask)
     (ShuffleOf.mask_injective s) _ _ ?_ ?_
   · intro b hb
-    rw [extWords, dif_neg, smul_zero]
+    rw [extWords, dite_eq_right, smul_zero]
     rintro ⟨h₁, h₂⟩
     obtain ⟨u, hu⟩ := ShuffleOf.exists_mask_eq b h₁ h₂
     exact hb ⟨u, hu⟩
   · intro u
-    rw [G.degW_shuffleWord, extWords, dif_pos ⟨u.wt_mask_false, u.wt_mask_true⟩,
+    erw [G.degW_shuffleWord, extWords, dite_eq_left ⟨u.wt_mask_false, u.wt_mask_true⟩,
       Seq.ofList_eq_of_eq _ u.ofFn_split_fst.symm, Seq.ofList_eq_of_eq _ u.ofFn_split_snd.symm]
 
 variable (ν ν') in
@@ -481,7 +479,7 @@ def clsWHom : FreeMonoid I →* G.K0R where
 /-- **`γ : 'f_{ℤ[q,q⁻¹]} → K₀(R)`**, `θ_i ↦ [P_i]`, for a general grading datum (for the KL I
 grading this is `KLGamma.gammaZ`, see `gammaG_klGradingDatum`). -/
 def gammaG : PreF (LaurentPolynomial ℤ) I →ₐ[LaurentPolynomial ℤ] G.K0R :=
-  MonoidAlgebra.lift (LaurentPolynomial ℤ) (FreeMonoid I) G.K0R G.clsWHom
+  MonoidAlgebra.lift (LaurentPolynomial ℤ) G.K0R (FreeMonoid I) G.clsWHom
 
 theorem gammaG_word (w : FreeMonoid I) :
     G.gammaG (word w) = G.clsW (FreeMonoid.toList w) := by
@@ -494,10 +492,10 @@ theorem component_clsW (μ : Multiset I) (l : List I) :
       if h : (l : Multiset I) = μ then K0.of (G.projP (Seq.ofList l h)) else 0 := by
   by_cases h : (l : Multiset I) = μ
   · subst h
-    rw [dif_pos rfl, clsW, ← DirectSum.lof_eq_of (LaurentPolynomial ℤ),
+    rw [dite_eq_left rfl, clsW, ← DirectSum.lof_eq_of (LaurentPolynomial ℤ),
       DirectSum.component.lof_self]
-  · rw [dif_neg h, clsW, ← DirectSum.lof_eq_of (LaurentPolynomial ℤ),
-      DirectSum.component.of, dif_neg h]
+  · rw [dite_eq_right h, clsW, ← DirectSum.lof_eq_of (LaurentPolynomial ℤ),
+      DirectSum.component.of, dite_eq_right h]
 
 variable (ν ν') in
 /-- The `(ν, ν')`-component `K₀(R) → K₀(R(ν) ⊗ R(ν'))` of `[Res]` (KL I §3.1): the projection to
@@ -527,10 +525,10 @@ theorem resComp_gammaG (x : PreF (LaurentPolynomial ℤ) I) :
     simp only [LinearMap.coe_comp, Function.comp_apply, AlgHom.toLinearMap_apply]
     rw [gammaG_word, FreeMonoid.toList_ofList, resComp, LinearMap.comp_apply, component_clsW]
     by_cases h : ((List.ofFn f : List I) : Multiset I) = ν + ν'
-    · rw [dif_pos h, G.resK0_projP_eq_realize hPQ hP, Seq.ofFn_ofList]
-    · rw [dif_neg h, map_zero, r_ofFn, map_sum]
+    · rw [dite_eq_left h, G.resK0_projP_eq_realize hPQ hP, Seq.ofFn_ofList]
+    · rw [dite_eq_right h, map_zero, r_ofFn, map_sum]
       refine (Finset.sum_eq_zero fun b _ => ?_).symm
-      rw [realize_single, extWords, dif_neg, smul_zero]
+      rw [realize_single, extWords, dite_eq_right, smul_zero]
       rintro ⟨h₁, h₂⟩
       exact h (by rw [← wt_maskWord_add f b, h₁, h₂])
   exact LinearMap.congr_fun key x
@@ -570,7 +568,7 @@ theorem resComp_clsW_mul_clsW {m m' : ℕ} (f : Fin m → I) (f' : Fin m' → I)
   refine Finset.sum_congr rfl fun b' _ => ?_
   rw [twSq_single_mul_single, realize_single]
   congr 1
-  simp only [← Units.val_mul, ← zpow_add, val_qUnitLP_zpow, ← T_add]
+  simp only [val_qUnitLP_zpow, ← T_add]
   congr 1
   ring
 
@@ -616,9 +614,9 @@ theorem realize_tw {dot : I → I → ℤ} {v : (LaurentPolynomial ℤ)ˣ}
       rw [extWords]
       by_cases hu : ((FreeMonoid.toList u : List I) : Multiset I) = ν
       · by_cases hw : ((FreeMonoid.toList w : List I) : Multiset I) = ν'
-        · rw [dif_pos ⟨hu, hw⟩, dif_pos hu, dif_pos hw]
-        · rw [dif_neg (fun h => hw h.2), dif_neg hw, map_zero, smul_zero, smul_zero]
-      · rw [dif_neg (fun h => hu h.1), dif_neg hu, map_zero, LinearMap.zero_apply, smul_zero,
+        · rw [dite_eq_left ⟨hu, hw⟩, dite_eq_left hu, dite_eq_left hw]
+        · rw [dite_eq_right (fun h => hw h.2), dite_eq_right hw, map_zero, smul_zero, smul_zero]
+      · rw [dite_eq_right (fun h => hu h.1), dite_eq_right hu, map_zero, LinearMap.zero_apply, smul_zero,
           smul_zero]
 
 /-- The realisation map does not see the twisting cocycle. -/
@@ -637,11 +635,13 @@ variable (k : Type*) [Field k] (Γ : SimpleGraph I) [DecidableRel Γ.Adj]
 local notation "Gkl" => klGradingDatum k Γ
 
 /-- For the KL I grading, `γ` of a general grading datum is `KLGamma.gammaZ`. -/
-theorem gammaG_klGradingDatum : (Gkl).gammaG = gammaZ k Γ :=
-  MonoidAlgebra.algHom_ext fun w => by
+theorem gammaG_klGradingDatum : (Gkl).gammaG = gammaZ k Γ := by
+  apply MonoidAlgebra.algHom_ext
+  · intro w
     change (Gkl).gammaG (PreF.word w) = gammaZ k Γ (PreF.word w)
     rw [GradingDatum.gammaG_word, gammaZ_word]
     rfl
+  · exact Subsingleton.elim _ _
 
 theorem degΨ_klGradingDatum : (Gkl).degΨ = fun a c => -(KL.C Γ).dot a c := rfl
 

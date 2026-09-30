@@ -41,7 +41,7 @@ noncomputable section
 
 namespace Categorification.KLR
 
-open Graded MvPolynomial
+open Categorification.Graded MvPolynomial
 
 variable {I : Type*} [DecidableEq I] {k : Type*} [Field k]
 
@@ -59,13 +59,13 @@ include hPQ hP hG
 /-- **KL I, §2.5**: a `ℤ[q, q⁻¹]`-basis of `K₀(R(ν))`, indexed by the indecomposable finitely
 generated graded projective `R(ν)`-modules up to isomorphism and grading shift. -/
 def k0Basis :
-    Basis (GProj.IndecClass (G.grade ν)) (LaurentPolynomial ℤ) (K0 (G.grade ν)) :=
-  haveI := G.hasGdim_grade' (ν := ν) hPQ hP hG
+    Module.Basis (GProj.IndecClass (G.grade ν)) (LaurentPolynomial ℤ) (K0 (G.grade ν)) :=
+  have := G.hasGdim_grade' (ν := ν) hPQ hP hG
   K0.indecBasis (G.grade ν)
 
 theorem k0Basis_apply (b : GProj.IndecClass (G.grade ν)) :
     G.k0Basis hPQ hP hG ν b = K0.of b.rep := by
-  haveI := G.hasGdim_grade' (ν := ν) hPQ hP hG
+  have := G.hasGdim_grade' (ν := ν) hPQ hP hG
   exact K0.indecBasis_apply b
 
 /-- **KL I, §2.5: `K₀(R(ν))` is a free `ℤ[q, q⁻¹]`-module.** -/
@@ -74,7 +74,7 @@ theorem k0_free : Module.Free (LaurentPolynomial ℤ) (K0 (G.grade ν)) :=
 
 /-- `K₀(R) = ⨁_ν K₀(R(ν))` is a free `ℤ[q, q⁻¹]`-module. -/
 theorem K0R_free : Module.Free (LaurentPolynomial ℤ) G.K0R := by
-  haveI : ∀ ν, Module.Free (LaurentPolynomial ℤ) (G.K0fam ν) := fun ν => G.k0_free hPQ hP hG ν
+  have : ∀ ν, Module.Free (LaurentPolynomial ℤ) (G.K0fam ν) := fun ν => G.k0_free hPQ hP hG ν
   infer_instance
 
 omit hPQ hP hG in
@@ -83,7 +83,7 @@ theorem exists_top (b : GProj.IndecClass (G.grade ν)) :
     ∃ (S : GMod (G.grade ν)) (f : b.rep.carrier →ₗ[KLRAlgebra k Q ν] S),
       IsGradedSimple (G.grade ν) S.grading ∧ PreservesGrading b.rep.grading S.grading f ∧
         f ≠ 0 := by
-  haveI := (GProj.IndecClass.isIndec_rep b).nontrivial
+  have := (GProj.IndecClass.isIndec_rep b).nontrivial
   obtain ⟨S, f, hS, hf, hf0, -⟩ := b.rep.exists_isGradedSimple_quotient
   exact ⟨S, f, hS, hf, hf0⟩
 
@@ -95,7 +95,7 @@ projective `R(ν)`-modules: their graded simple tops are pairwise non-isomorphic
 theorem finite_and_card_indecClass_le :
     Finite (GProj.IndecClass (G.grade ν)) ∧
       Nat.card (GProj.IndecClass (G.grade ν)) ≤ (Multiset.card ν).factorial ^ 2 := by
-  haveI := G.hasGdim_grade' (ν := ν) hPQ hP hG
+  have := G.hasGdim_grade' (ν := ν) hPQ hP hG
   choose S f hS hf hf0 using G.exists_top ν
   refine KLRAlgebra.card_le_of_isGradedSimple hPQ hP G hG (fun b => (S b).carrier)
     (fun b => (S b).grading) hS fun b b' c ⟨e⟩ => ?_
@@ -123,8 +123,8 @@ theorem finiteDimensional_top (b : GProj.IndecClass (G.grade ν)) : FiniteDimens
 /-- **KL I, §2.5**: a `ℤ[q, q⁻¹]`-basis `[S_b]` of `G₀(R(ν))`, indexed by the same set as
 `k0Basis` (`S_b` is the graded simple top of `P_b`). -/
 def g0Basis :
-    Basis (GProj.IndecClass (G.grade ν)) (LaurentPolynomial ℤ) (G0 (G.grade ν)) :=
-  haveI := G.hasGdim_grade' (ν := ν) hPQ hP hG
+    Module.Basis (GProj.IndecClass (G.grade ν)) (LaurentPolynomial ℤ) (G0 (G.grade ν)) :=
+  have := G.hasGdim_grade' (ν := ν) hPQ hP hG
   G0.topBasis (G.finiteDimensional_top hPQ hP hG ν)
 
 /-- **KL I, §2.5: `G₀(R(ν))` is a free `ℤ[q, q⁻¹]`-module.** -/
@@ -139,7 +139,7 @@ theorem pairing_k0Basis_g0Basis (b b' : GProj.IndecClass (G.grade ν)) :
     pairing (G.k0Basis hPQ hP hG ν b) (G.g0Basis hPQ hP hG ν b') =
       if b = b' then HahnSeries.single 0 (Module.finrank k (endZero (KLRAlgebra k Q ν)
         b.top.grading) : ℤ) else 0 := by
-  haveI := G.hasGdim_grade' (ν := ν) hPQ hP hG
+  have := G.hasGdim_grade' (ν := ν) hPQ hP hG
   exact pairing_indecBasis_topBasis _ b b'
 
 end GradingDatum
@@ -172,7 +172,7 @@ theorem transcendental_vQ_inv : Transcendental ℤ ((vQ⁻¹ : (RatFunc ℚ)ˣ) 
       (Polynomial.transcendental_X ℚ)
   have hXinv : Transcendental ℚ (RatFunc.X⁻¹ : RatFunc ℚ) := fun h =>
     hX (IsAlgebraic.inv_iff.1 h)
-  haveI : @IsScalarTower ℤ ℚ (RatFunc ℚ) Algebra.toSMul Algebra.toSMul Algebra.toSMul :=
+  have : @IsScalarTower ℤ ℚ (RatFunc ℚ) Algebra.toSMul Algebra.toSMul Algebra.toSMul :=
     IsScalarTower.of_algebraMap_eq fun n => by
       rw [eq_intCast (algebraMap ℤ ℚ) n, map_intCast, eq_intCast (algebraMap ℤ (RatFunc ℚ)) n]
   exact hXinv.restrictScalars (algebraMap ℤ ℚ).injective_int
@@ -206,7 +206,7 @@ attribute [local instance] qToVAlgebra in
 KL I over a field `k` (`K₀(R)` is free, hence flat, over `ℤ[q, q⁻¹]`, and `q ↦ v⁻¹` is
 injective). This is the hypothesis `hinj` of `KLGamma.gammaInt`. -/
 theorem toK0Q_injective : Function.Injective (toK0Q k Γ) := by
-  haveI := K0R_free k Γ
+  have := K0R_free k Γ
   exact Algebra.TensorProduct.includeRight_injective (A := RatFunc ℚ) (qToV_injective)
 
 /-- The integral homomorphism `γ : _𝒜 f → K₀(R)` of KL I, Theorem 1.1, over a field `k`,

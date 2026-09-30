@@ -61,10 +61,10 @@ namespace BRing
 variable {A B C D : Type u} [CommRing A] [CommRing B] [CommRing C] [CommRing D]
 
 /-- `M.T` as a `B`-algebra through the right action. -/
-def algR (M : BRing A B) : Algebra B M.T := M.right.toAlgebra
+@[instance_reducible] def algR (M : BRing A B) : Algebra B M.T := M.right.toAlgebra
 
 /-- `M.T` as an `A`-algebra through the left action. -/
-def algL (M : BRing A B) : Algebra A M.T := M.left.toAlgebra
+@[instance_reducible] def algL (M : BRing A B) : Algebra A M.T := M.left.toAlgebra
 
 /-- The identity bimodule `A`. -/
 abbrev idB (A : Type u) [CommRing A] : BRing A A := ⟨A, RingHom.id A, RingHom.id A⟩
@@ -76,21 +76,21 @@ section Tensor
 variable (M : BRing A B) (N : BRing B C)
 
 /-- The ring `M.T ⊗_B N.T`. -/
-def TT : Type u := letI := M.algR; letI := N.algL; M.T ⊗[B] N.T
+def TT : Type u := let := M.algR; let := N.algL; M.T ⊗[B] N.T
 
 instance instCommRingTT : CommRing (TT M N) :=
-  letI := M.algR; letI := N.algL; Algebra.TensorProduct.instCommRing
+  let := M.algR; let := N.algL; Algebra.TensorProduct.instCommRing
 
 /-- The pure tensor `m ⊗ n`. -/
-def tmul (m : M.T) (n : N.T) : TT M N := letI := M.algR; letI := N.algL; m ⊗ₜ[B] n
+def tmul (m : M.T) (n : N.T) : TT M N := let := M.algR; let := N.algL; m ⊗ₜ[B] n
 
 /-- The inclusion `m ↦ m ⊗ 1`, a ring map. -/
 def inclL : M.T →+* TT M N :=
-  letI := M.algR; letI := N.algL; Algebra.TensorProduct.includeLeftRingHom
+  let := M.algR; let := N.algL; Algebra.TensorProduct.includeLeftRingHom
 
 /-- The inclusion `n ↦ 1 ⊗ n`, a ring map. -/
 def inclR : N.T →+* TT M N :=
-  letI := M.algR; letI := N.algL; (Algebra.TensorProduct.includeRight).toRingHom
+  let := M.algR; let := N.algL; (Algebra.TensorProduct.includeRight).toRingHom
 
 /-- **The tensor product of bimodules** `M ⊗_B N`. -/
 abbrev tensor : BRing A C where
@@ -112,33 +112,33 @@ theorem tensor_right (c : C) : (tensor M N).right c = tmul M N 1 (N.right c) := 
 
 theorem tmul_mul_tmul (m m' : M.T) (n n' : N.T) :
     tmul M N m n * tmul M N m' n' = tmul M N (m * m') (n * n') :=
-  letI := M.algR; letI := N.algL; Algebra.TensorProduct.tmul_mul_tmul m m' n n'
+  let := M.algR; let := N.algL; Algebra.TensorProduct.tmul_mul_tmul m m' n n'
 
 theorem one_eq : (1 : TT M N) = tmul M N 1 1 := rfl
 
 theorem tmul_add (m : M.T) (n n' : N.T) : tmul M N m (n + n') = tmul M N m n + tmul M N m n' :=
-  letI := M.algR; letI := N.algL; TensorProduct.tmul_add m n n'
+  let := M.algR; let := N.algL; TensorProduct.tmul_add m n n'
 
 theorem add_tmul (m m' : M.T) (n : N.T) : tmul M N (m + m') n = tmul M N m n + tmul M N m' n :=
-  letI := M.algR; letI := N.algL; TensorProduct.add_tmul m m' n
+  let := M.algR; let := N.algL; TensorProduct.add_tmul m m' n
 
 @[simp] theorem tmul_zero (m : M.T) : tmul M N m 0 = 0 :=
-  letI := M.algR; letI := N.algL; TensorProduct.tmul_zero N.T m
+  let := M.algR; let := N.algL; TensorProduct.tmul_zero N.T m
 
 @[simp] theorem zero_tmul (n : N.T) : tmul M N 0 n = 0 :=
-  letI := M.algR; letI := N.algL; TensorProduct.zero_tmul M.T n
+  let := M.algR; let := N.algL; TensorProduct.zero_tmul M.T n
 
 theorem tmul_neg (m : M.T) (n : N.T) : tmul M N m (-n) = -tmul M N m n :=
-  letI := M.algR; letI := N.algL; TensorProduct.tmul_neg m n
+  let := M.algR; let := N.algL; TensorProduct.tmul_neg m n
 
 theorem neg_tmul (m : M.T) (n : N.T) : tmul M N (-m) n = -tmul M N m n :=
-  letI := M.algR; letI := N.algL; TensorProduct.neg_tmul m n
+  let := M.algR; let := N.algL; TensorProduct.neg_tmul m n
 
 theorem tmul_sub (m : M.T) (n n' : N.T) : tmul M N m (n - n') = tmul M N m n - tmul M N m n' :=
-  letI := M.algR; letI := N.algL; TensorProduct.tmul_sub m n n'
+  let := M.algR; let := N.algL; TensorProduct.tmul_sub m n n'
 
 theorem sub_tmul (m m' : M.T) (n : N.T) : tmul M N (m - m') n = tmul M N m n - tmul M N m' n :=
-  letI := M.algR; letI := N.algL; TensorProduct.sub_tmul m m' n
+  let := M.algR; let := N.algL; TensorProduct.sub_tmul m m' n
 
 theorem sum_tmul {ι : Type*} (S : Finset ι) (f : ι → M.T) (n : N.T) :
     tmul M N (∑ i ∈ S, f i) n = ∑ i ∈ S, tmul M N (f i) n := by
@@ -157,7 +157,7 @@ theorem tmul_sum {ι : Type*} (S : Finset ι) (m : M.T) (f : ι → N.T) :
 /-- **The balancing relation** `(m b) ⊗ n = m ⊗ (b n)`. -/
 theorem tmul_balance (m : M.T) (b : B) (n : N.T) :
     tmul M N (M.right b * m) n = tmul M N m (N.left b * n) := by
-  letI := M.algR; letI := N.algL
+  let := M.algR; let := N.algL
   change (b • m) ⊗ₜ[B] n = m ⊗ₜ[B] (b • n)
   exact TensorProduct.smul_tmul b m n
 
@@ -169,13 +169,15 @@ theorem tmul_eq_mul (m : M.T) (n : N.T) : tmul M N m n = tmul M N m 1 * tmul M N
   rw [tmul_mul_tmul, mul_one, one_mul]
 
 theorem tmul_pow (m : M.T) (n : N.T) (e : ℕ) : tmul M N m n ^ e = tmul M N (m ^ e) (n ^ e) :=
-  letI := M.algR; letI := N.algL; Algebra.TensorProduct.tmul_pow m n e
+  let := M.algR; let := N.algL; Algebra.TensorProduct.tmul_pow m n e
 
 /-- Induction on the tensor product: pure tensors and sums. -/
 theorem induction_on {P : TT M N → Prop} (t : TT M N) (h0 : P 0)
     (htmul : ∀ m n, P (tmul M N m n)) (hadd : ∀ x y, P x → P y → P (x + y)) : P t := by
-  letI := M.algR; letI := N.algL
-  exact TensorProduct.induction_on t h0 htmul hadd
+  let := M.algR; let := N.algL
+  by_cases ht : t = 0
+  · simpa [ht] using h0
+  exact TensorProduct.inductionOn t htmul hadd
 
 /-- Two additive maps out of `M ⊗ N` agreeing on pure tensors agree. -/
 theorem addHom_ext {X : Type*} [AddCommGroup X] {f g : TT M N →+ X}
@@ -190,8 +192,7 @@ theorem fun_ext {X : Type*} [AddCommGroup X] {f g : TT M N → X}
     (hf : ∀ x y, f (x + y) = f x + f y) (hg : ∀ x y, g (x + y) = g x + g y)
     (h : ∀ m n, f (tmul M N m n) = g (tmul M N m n)) (t : TT M N) : f t = g t := by
   refine induction_on (P := fun t => f t = g t) t ?_ h fun x y hx hy => by
-    beta_reduce at hx hy ⊢; rw [hf, hg, hx, hy]
-  beta_reduce
+    rw [hf, hg, hx, hy]
   have h1 := hf 0 0; have h2 := hg 0 0
   rw [add_zero] at h1 h2
   rw [left_eq_add.1 h1, left_eq_add.1 h2]
@@ -206,8 +207,8 @@ theorem ringHom_ext {X : Type*} [CommRing X] {f g : TT M N →+* X}
 /-- **Ring maps out of `M ⊗ N`**: `m ⊗ n ↦ f m * g n`, for ring maps `f`, `g` agreeing on `B`. -/
 def liftRingHom {X : Type u} [CommRing X] (f : M.T →+* X) (g : N.T →+* X)
     (h : ∀ b, f (M.right b) = g (N.left b)) : TT M N →+* X :=
-  letI := M.algR; letI := N.algL
-  letI : Algebra B X := (f.comp M.right).toAlgebra
+  let := M.algR; let := N.algL
+  let : Algebra B X := (f.comp M.right).toAlgebra
   (Algebra.TensorProduct.productMap
     { f with commutes' := fun _ => rfl }
     { g with commutes' := fun b => (h b).symm }).toRingHom
@@ -219,14 +220,14 @@ theorem liftRingHom_tmul {X : Type u} [CommRing X] (f : M.T →+* X) (g : N.T �
 /-- **Additive maps out of `M ⊗ N`** from balanced biadditive maps. -/
 def liftAdd {X : Type*} [AddCommGroup X] (φ : M.T →+ N.T →+ X)
     (h : ∀ m b n, φ (M.right b * m) n = φ m (N.left b * n)) : TT M N →+ X :=
-  letI := M.algR; letI := N.algL
+  let := M.algR; let := N.algL
   TensorProduct.liftAddHom φ fun b m n => h m b n
 
 theorem liftAdd_tmul {X : Type*} [AddCommGroup X] (φ : M.T →+ N.T →+ X)
     (h : ∀ m b n, φ (M.right b * m) n = φ m (N.left b * n)) (m : M.T) (n : N.T) :
     liftAdd φ h (tmul M N m n) = φ m n := by
-  letI := M.algR; letI := N.algL
-  exact TensorProduct.liftAddHom_tmul φ _ m n
+  let := M.algR; let := N.algL
+  exact TensorProduct.liftAddHom_tmul φ (fun b m n => h m b n) m n
 
 /-- The tensor product of two additive maps, `f` right `B`-linear and `g` left `B`-linear. -/
 def mapAdd {M' : BRing A B} {N' : BRing B C} (f : M.T →+ M'.T) (g : N.T →+ N'.T)
@@ -363,6 +364,7 @@ theorem mulB_one : mulB (1 : M.T) = BHom.id M := by ext x; simp
 
 variable {D : Type u} [CommRing D]
 
+set_option backward.isDefEq.respectTransparency false in
 /-- **Right whiskering** `φ ⊗ 1_N : M ⊗ N → M' ⊗ N`. -/
 def whiskerRight {M M' : BRing A B} (φ : BHom M M') (N : BRing B C) :
     BHom (M.tensor N) (M'.tensor N) where
@@ -373,8 +375,7 @@ def whiskerRight {M M' : BRing A B} (φ : BHom M M') (N : BRing B C) :
       φ.map_right (fun _ _ => rfl) ((M.tensor N).left a * x) = (M'.tensor N).left a *
       BRing.mapAdd φ.toAddHom (AddMonoidHom.id N.T) φ.map_right (fun _ _ => rfl) x) x (by simp)
       (fun m n => ?_) (fun x y hx hy => ?_)
-    · beta_reduce
-      rw [BRing.tensor_left, BRing.tmul_mul_tmul, one_mul, BRing.mapAdd_tmul, BRing.mapAdd_tmul,
+    · rw [BRing.tensor_left, BRing.tmul_mul_tmul, one_mul, BRing.mapAdd_tmul, BRing.mapAdd_tmul,
         BRing.tensor_left, BRing.tmul_mul_tmul, one_mul]
       simp only [toAddHom_apply, AddMonoidHom.id_apply, φ.map_left]
     · beta_reduce at hx hy ⊢
@@ -384,8 +385,7 @@ def whiskerRight {M M' : BRing A B} (φ : BHom M M') (N : BRing B C) :
       φ.map_right (fun _ _ => rfl) ((M.tensor N).right c * x) = (M'.tensor N).right c *
       BRing.mapAdd φ.toAddHom (AddMonoidHom.id N.T) φ.map_right (fun _ _ => rfl) x) x (by simp)
       (fun m n => ?_) (fun x y hx hy => ?_)
-    · beta_reduce
-      rw [BRing.tensor_right, BRing.tmul_mul_tmul, one_mul, BRing.mapAdd_tmul, BRing.mapAdd_tmul,
+    · rw [BRing.tensor_right, BRing.tmul_mul_tmul, one_mul, BRing.mapAdd_tmul, BRing.mapAdd_tmul,
         BRing.tensor_right, BRing.tmul_mul_tmul, one_mul]
       rfl
     · beta_reduce at hx hy ⊢
@@ -396,6 +396,7 @@ theorem whiskerRight_tmul {M M' : BRing A B} (φ : BHom M M') (N : BRing B C) (m
   BRing.mapAdd_tmul (M := M) (N := N) (M' := M') (N' := N) φ.toAddHom (AddMonoidHom.id N.T)
     φ.map_right (fun _ _ => rfl) m n
 
+set_option backward.isDefEq.respectTransparency false in
 /-- **Left whiskering** `1_M ⊗ ψ : M ⊗ N → M ⊗ N'`. -/
 def whiskerLeft (M : BRing A B) {N N' : BRing B C} (ψ : BHom N N') :
     BHom (M.tensor N) (M.tensor N') where
@@ -406,8 +407,7 @@ def whiskerLeft (M : BRing A B) {N N' : BRing B C} (ψ : BHom N N') :
       (fun _ _ => rfl) ψ.map_left ((M.tensor N).left a * x) = (M.tensor N').left a *
       BRing.mapAdd (AddMonoidHom.id M.T) ψ.toAddHom (fun _ _ => rfl) ψ.map_left x) x (by simp)
       (fun m n => ?_) (fun x y hx hy => ?_)
-    · beta_reduce
-      rw [BRing.tensor_left, BRing.tmul_mul_tmul, one_mul, BRing.mapAdd_tmul, BRing.mapAdd_tmul,
+    · rw [BRing.tensor_left, BRing.tmul_mul_tmul, one_mul, BRing.mapAdd_tmul, BRing.mapAdd_tmul,
         BRing.tensor_left, BRing.tmul_mul_tmul, one_mul]
       rfl
     · beta_reduce at hx hy ⊢
@@ -417,8 +417,7 @@ def whiskerLeft (M : BRing A B) {N N' : BRing B C} (ψ : BHom N N') :
       (fun _ _ => rfl) ψ.map_left ((M.tensor N).right c * x) = (M.tensor N').right c *
       BRing.mapAdd (AddMonoidHom.id M.T) ψ.toAddHom (fun _ _ => rfl) ψ.map_left x) x (by simp)
       (fun m n => ?_) (fun x y hx hy => ?_)
-    · beta_reduce
-      rw [BRing.tensor_right, BRing.tmul_mul_tmul, one_mul, BRing.mapAdd_tmul, BRing.mapAdd_tmul,
+    · rw [BRing.tensor_right, BRing.tmul_mul_tmul, one_mul, BRing.mapAdd_tmul, BRing.mapAdd_tmul,
         BRing.tensor_right, BRing.tmul_mul_tmul, one_mul]
       simp only [toAddHom_apply, AddMonoidHom.id_apply, ψ.map_right]
     · beta_reduce at hx hy ⊢
@@ -624,8 +623,8 @@ theorem assocHom_assocInv : (assocHom M N P).comp (assocInv M N P) = RingHom.id 
 
 /-- **The associator** `(M ⊗ N) ⊗ P ≅ M ⊗ (N ⊗ P)`. -/
 def assoc : BIso ((M.tensor N).tensor P) (M.tensor (N.tensor P)) :=
-  BIso.ofRingEquiv (RingEquiv.ofHomInv (assocHom M N P) (assocInv M N P) (assocInv_assocHom M N P)
-      (assocHom_assocInv M N P))
+  BIso.ofRingEquiv (RingEquiv.ofRingHom (assocHom M N P) (assocInv M N P) (assocHom_assocInv M N P)
+      (assocInv_assocHom M N P))
     (fun a => by
       show assocHom M N P (tmul _ _ (tmul M N (M.left a) 1) 1) = tmul M _ (M.left a) 1
       rw [assocHom_tmul]; rfl)
@@ -680,8 +679,8 @@ theorem lidHom_comp_inclR : (lidHom M).comp (inclR (idB A) M) = RingHom.id _ :=
 
 /-- **The right unitor** `M ⊗_B B ≅ M`: `m ⊗ b ↦ m b`. -/
 def ridIso : BIso (M.tensor (idB B)) M :=
-  BIso.ofRingEquiv (RingEquiv.ofHomInv (ridHom M) (inclL M (idB B)) (inclL_comp_ridHom M)
-      (ridHom_comp_inclL M))
+  BIso.ofRingEquiv (RingEquiv.ofRingHom (ridHom M) (inclL M (idB B)) (ridHom_comp_inclL M)
+      (inclL_comp_ridHom M))
     (fun a => by
       show ridHom M (tmul M (idB B) (M.left a) 1) = _
       rw [ridHom_tmul, map_one, mul_one])
@@ -691,8 +690,8 @@ def ridIso : BIso (M.tensor (idB B)) M :=
 
 /-- **The left unitor** `A ⊗_A M ≅ M`: `a ⊗ m ↦ a m`. -/
 def lidIso : BIso ((idB A).tensor M) M :=
-  BIso.ofRingEquiv (RingEquiv.ofHomInv (lidHom M) (inclR (idB A) M) (inclR_comp_lidHom M)
-      (lidHom_comp_inclR M))
+  BIso.ofRingEquiv (RingEquiv.ofRingHom (lidHom M) (inclR (idB A) M) (lidHom_comp_inclR M)
+      (inclR_comp_lidHom M))
     (fun a => by
       show lidHom M (tmul (idB A) M a 1) = _
       rw [lidHom_tmul, mul_one])

@@ -158,7 +158,7 @@ theorem sum_tm_mem_Wof {ι : Type*} (s : Finset ι) (X Y : ι → PreF K I)
       rw [e2, e1, hρs, smul_add]; abel
     rw [e]
     exact sub_mem (h a) (Submodule.smul_mem _ _ hρ)
-  · push_neg at hdep
+  · push Not at hdep
     refine Submodule.sum_mem _ fun i hi => tm_mem_Wof_left ?_ _
     rw [mem_radK]
     intro a
@@ -390,7 +390,7 @@ theorem ndP_eq_zero_of_supported {k : ℕ} {v : M K I}
   · beta_reduce at *
     rw [map_smul, LinearMap.smul_apply, hx, smul_zero]
   · beta_reduce at *
-    simp only [Set.mem_setOf_eq] at h
+    simp only [Set.mem_ofPred_eq] at h
     rw [ndP_tm, fF_word_eq_zero (fun he => ha (by rw [← he, h])), zero_mul]
 
 /-- **The model normal form is onto.** -/
@@ -447,7 +447,7 @@ theorem mem_Wof_of_ndT (hGK : radK C q c ≤ Jf C q) (ℓ : I → ℤ) :
     intro m hm hT
     set mt := m.filter fun p => Multiset.card (wt p.1) = k
     set mr := m.filter fun p => ¬ Multiset.card (wt p.1) = k
-    have hsplit : mt + mr = m := Finsupp.filter_pos_add_filter_neg _ _
+    have hsplit : mt + mr = m := Finsupp.filter_add_filter_not _ _
     have hmt : mt ∈ Finsupp.supported K K
         {p : FreeMonoid I × FreeMonoid I | Multiset.card (wt p.1) = k} := by
       rw [Finsupp.mem_supported, Finsupp.support_filter]
@@ -462,15 +462,14 @@ theorem mem_Wof_of_ndT (hGK : radK C q c ≤ Jf C q) (ℓ : I → ℤ) :
       intro p hp
       obtain ⟨hp1, hp2⟩ := Finset.mem_filter.1 hp
       have := (Finsupp.mem_supported K m).1 hm hp1
-      simp only [Set.mem_setOf_eq] at this ⊢
+      simp only [Set.mem_ofPred_eq] at this ⊢
       omega
     -- the top part lies in the radical of `ndP`
     have htop : ∀ v, ndP C q c mt v = 0 := by
       intro v
       refine M_induction (motive := fun v => ndP C q c mt v = 0) v (by simp)
-        (fun x y hx hy => by beta_reduce at *; rw [map_add, hx, hy, add_zero])
-        (fun r x hx => by beta_reduce at *; rw [map_smul, hx, smul_zero]) fun a b => ?_
-      beta_reduce
+        (fun x y hx hy => by rw [map_add, hx, hy, add_zero])
+        (fun r x hx => by rw [map_smul, hx, smul_zero]) fun a b => ?_
       by_cases ha : Multiset.card (wt a) = k
       · have h0 := hT (tm (word a) (word b))
         have e : ndT C q ℓ m = mt + (ndT C q ℓ mt - mt) + ndT C q ℓ mr := by
@@ -494,7 +493,7 @@ theorem mem_Mlow_sup (m : M K I) :
     m ∈ (Mlow (m.support.sup (fun p => Multiset.card (wt p.1)) + 1) : Submodule K (M K I)) := by
   rw [Mlow, Finsupp.mem_supported]
   intro p hp
-  simp only [Set.mem_setOf_eq]
+  simp only [Set.mem_ofPred_eq]
   exact Nat.lt_succ_of_le (Finset.le_sup (f := fun p : FreeMonoid I × FreeMonoid I =>
     Multiset.card (wt p.1)) hp)
 
@@ -526,9 +525,8 @@ theorem B_posF_radical (ℓ : I → ℤ) {x : PreF K I} (hx : x ∈ radK C q c) 
     B C q c ℓ (posF x) w = 0 := by
   rw [B_eq_ndP hc hq, ndNF_posF]
   refine M_induction (motive := fun v => ndP C q c (tm (1 : PreF K I) x) v = 0) _ (by simp)
-    (fun a b ha hb => by beta_reduce at *; rw [map_add, ha, hb, add_zero])
-    (fun r a ha => by beta_reduce at *; rw [map_smul, ha, smul_zero]) fun a b => ?_
-  beta_reduce
+    (fun a b ha hb => by rw [map_add, ha, hb, add_zero])
+    (fun r a ha => by rw [map_smul, ha, smul_zero]) fun a b => ?_
   rw [ndP_tm, (mem_radK.1 hx) (word b), mul_zero]
 
 /-! ### KL III Proposition 2.5 -/

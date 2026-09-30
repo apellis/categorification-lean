@@ -86,7 +86,7 @@ theorem exists_validWord (m : ℕ) (w : Perm (Fin m)) :
     obtain ⟨i, rfl⟩ := hy
     refine ⟨[i.val], by simp [ValidWord], ?_⟩
     simp only [wordProd, List.map_cons, List.map_nil, List.prod_cons, List.prod_nil, mul_one,
-      sadj, dif_pos (show i.val + 1 < n + 1 by omega)]
+      sadj, dite_eq_left (show i.val + 1 < n + 1 by omega)]
     rfl
   | one => exact ⟨[], by simp [ValidWord], rfl⟩
   | mul y z _ _ hy hz =>
@@ -123,7 +123,7 @@ theorem sadj_of_not_lt {m k : ℕ} (h : ¬ k + 1 < m) : sadj m k = 1 := by
 theorem sadj_val_of_lt {m k : ℕ} (h : k + 1 < m) (i : Fin m) :
     (sadj m k i : ℕ) = swapNat k i := by
   unfold sadj swapNat
-  simp only [dif_pos h, swap_apply_def, Fin.ext_iff]
+  simp only [dite_eq_left h, swap_apply_def, Fin.ext_iff]
   split_ifs <;> simp_all
 
 /-- The value of `sadj m k` at `i`, as a natural number. -/
@@ -205,7 +205,7 @@ theorem sadj_braid {m a : ℕ} (h : a + 2 < m) :
   omega
 
 theorem sign_sadj {m k : ℕ} (h : k + 1 < m) : Perm.sign (sadj m k) = -1 := by
-  rw [sadj, dif_pos h, Perm.sign_swap]
+  rw [sadj, dite_eq_left h, Perm.sign_swap]
   simp [Fin.ext_iff]
 
 /-! ## Words -/

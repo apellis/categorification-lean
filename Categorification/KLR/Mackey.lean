@@ -262,7 +262,7 @@ noncomputable def stdSpan (X : Set (Perm (Fin m))) : Submodule k (KLRAlgebra k Q
 
 theorem stdSpan_mono {X Y : Set (Perm (Fin m))} (h : X ⊆ Y) :
     stdSpan Q ρ X ≤ stdSpan Q ρ Y :=
-  Submodule.span_mono (Set.image_subset _ fun _ hb => h hb)
+  Submodule.span_mono (Set.image_mono fun _ hb => h hb)
 
 theorem std_mem_stdSpan {X : Set (Perm (Fin m))} {w : Perm (Fin m)} (hw : w ∈ X)
     (p : MvPolynomial (Fin m) k) (i : Seq μ) :
@@ -591,8 +591,7 @@ theorem tensor_mem_of_gen {M : Type*} [AddCommGroup M] [Module k M]
     (hg : ∀ α p i α' p' i', ValidWord (Multiset.card ν) α → ValidWord (Multiset.card ν') α' →
       Φ ((ψw α * pol p * e i) ⊗ₜ (ψw α' * pol p' * e i')) ∈ F)
     (t : KLRAlgebra k Q ν ⊗[k] KLRAlgebra k Q ν') : Φ t ∈ F := by
-  induction t using TensorProduct.induction_on with
-  | zero => rw [map_zero]; exact zero_mem _
+  induction t using TensorProduct.inductionOn with
   | add s t hs ht => rw [map_add]; exact add_mem hs ht
   | tmul a b =>
     induction mem_span_gen (Q := Q) a using Submodule.span_induction with
@@ -619,7 +618,7 @@ theorem concat_ψw_pol_e {α α' : List ℕ} (hα : ValidWord (Multiset.card ν)
   rw [← Algebra.TensorProduct.tmul_mul_tmul, ← Algebra.TensorProduct.tmul_mul_tmul, concat_mul,
     concat_mul, concat_ψw_tmul_ψw hα hα', concat_pol_tmul_pol, concat_e_tmul_e, oneConcat]
   have h1 : (eSum Q (concatSet ν ν') * e (i.append i') : KLRAlgebra k Q (ν + ν')) =
-      e (i.append i') := by rw [eSum_mul_e, if_pos (append_mem_concatSet i i')]
+      e (i.append i') := by rw [eSum_mul_e, ite_eq_left (append_mem_concatSet i i')]
   simp only [mul_assoc]
   rw [h1, ← mul_assoc (eSum Q _), ← pol_mul_eSum, mul_assoc, h1]
 
@@ -813,10 +812,10 @@ variable {ι E : Type*} [AddCommGroup E] [Module k E]
 noncomputable def quotBasis {b : ι → E} (hli : LinearIndependent k b) {s t : Set ι}
     (hst : s ⊆ t) (V W : Submodule k E) (hV : V = Submodule.span k (b '' t))
     (hW : W = Submodule.span k (b '' s)) :
-    Basis ↥(t \ s) k (↥V ⧸ W.comap V.subtype) := by
+    Module.Basis ↥(t \ s) k (↥V ⧸ W.comap V.subtype) := by
   subst hV hW
   have hqV : Submodule.span k (b '' (t \ s)) ≤ Submodule.span k (b '' t) :=
-    Submodule.span_mono (Set.image_subset _ Set.diff_subset)
+    Submodule.span_mono (Set.image_mono Set.sdiff_subset)
   have hc : IsCompl ((Submodule.span k (b '' s)).comap (Submodule.span k (b '' t)).subtype)
       ((Submodule.span k (b '' (t \ s))).comap (Submodule.span k (b '' t)).subtype) := by
     constructor
@@ -828,16 +827,16 @@ noncomputable def quotBasis {b : ι → E} (hli : LinearIndependent k b) {s t : 
     · rw [codisjoint_iff, eq_top_iff]
       rintro ⟨x, hx⟩ -
       have hx' : x ∈ Submodule.span k (b '' s) ⊔ Submodule.span k (b '' (t \ s)) := by
-        rwa [← Submodule.span_union, ← Set.image_union, Set.union_diff_cancel hst]
+        rwa [← Submodule.span_union, ← Set.image_union, Set.union_sdiff_cancel hst]
       obtain ⟨y, hy, z, hz, rfl⟩ := Submodule.mem_sup.1 hx'
       have hyV : y ∈ Submodule.span k (b '' t) :=
-        Submodule.span_mono (Set.image_subset _ hst) hy
+        Submodule.span_mono (Set.image_mono hst) hy
       have hzV : z ∈ Submodule.span k (b '' t) := hqV hz
       have : (⟨y + z, hx⟩ : Submodule.span k (b '' t)) = ⟨y, hyV⟩ + ⟨z, hzV⟩ := rfl
       rw [this]
       exact Submodule.add_mem_sup hy hz
   have hli' : LinearIndependent k (fun x : ↥(t \ s) => b x) := hli.comp _ Subtype.val_injective
-  exact ((Basis.span hli').map
+  exact ((Module.Basis.span hli').map
     (LinearEquiv.ofEq _ _ (congrArg (Submodule.span k) (Set.image_eq_range _ _).symm))).map
     ((Submodule.comapSubtypeEquivOfLe hqV).symm.trans
       (Submodule.quotientEquivOfIsCompl _ _ hc).symm)
@@ -846,11 +845,11 @@ theorem quotBasis_apply {b : ι → E} (hli : LinearIndependent k b) {s t : Set 
     (hst : s ⊆ t) (x : ↥(t \ s)) :
     quotBasis hli hst _ _ rfl rfl x =
       Submodule.Quotient.mk ⟨b x, Submodule.subset_span ⟨x, x.2.1, rfl⟩⟩ := by
-  simp only [quotBasis, Basis.map_apply, LinearEquiv.trans_apply,
+  simp only [quotBasis, Module.Basis.map_apply, LinearEquiv.trans_apply,
     Submodule.quotientEquivOfIsCompl_symm_apply]
   congr 1
   ext
-  simp [Basis.span_apply]
+  simp [Module.Basis.span_apply]
 
 theorem quotBasis_apply' {b : ι → E} (hli : LinearIndependent k b) {s t : Set ι}
     (hst : s ⊆ t) (V W : Submodule k E) (hV : V = Submodule.span k (b '' t))
@@ -884,7 +883,7 @@ theorem mackeyIdx_mono {c c' : ℕ} (hc : c ≤ c') : mackeyIdx h c ⊆ mackeyId
 theorem mem_mackeyIdx_diff {c : ℕ} {b : StdIdx (ν + ν')} :
     b ∈ mackeyIdx h (c + 1) \ mackeyIdx h c ↔ b.1 ∈ botSet h ∧ b.2.1 • b.1 ∈ concatSet ν ν' ∧
       crossCount (Multiset.card ν) (Multiset.card ν'') b.2.1 = c + 1 := by
-  simp only [mackeyIdx, Set.mem_diff, Set.mem_setOf_eq]
+  simp only [mackeyIdx, Set.mem_sdiff, Set.mem_ofPred_eq]
   constructor
   · rintro ⟨⟨h1, h2, h3⟩, h4⟩
     exact ⟨h1, h2, le_antisymm h3 (Nat.succ_le_of_lt (not_le.1 fun h => h4 ⟨h1, h2, h⟩))⟩
@@ -897,7 +896,7 @@ theorem eSum_mul_stdElt (T : Finset (Seq μ)) (b : StdIdx μ) :
     eSum Q T * stdElt ρ b =
       if wordProd (Multiset.card μ) (ρ b.2.1) • b.1 ∈ T then stdElt ρ b else 0 := by
   have hb : stdElt (Q := Q) ρ b = e (wordProd (Multiset.card μ) (ρ b.2.1) • b.1) * stdElt ρ b := by
-    rw [stdElt, e_mul_gen, if_pos (inv_smul_smul _ _)]
+    rw [stdElt, e_mul_gen, ite_eq_left (inv_smul_smul _ _)]
   conv_lhs => rw [hb, ← mul_assoc, eSum_mul_e]
   split_ifs
   · exact hb.symm
@@ -951,8 +950,8 @@ theorem mackeyBimodFilt_eq_span (c : ℕ) :
   · refine Submodule.span_le.2 ?_
     rintro _ ⟨b, ⟨h1, h2, h3⟩, rfl⟩
     refine ⟨(mem_bimod h).2 ?_, ?_⟩
-    · rw [botOne, mul_assoc, stdElt_mul_eSum, if_pos h1, oneConcat, eSum_mul_stdElt,
-        (hρ b.2.1).2, if_pos h2]
+    · rw [botOne, mul_assoc, stdElt_mul_eSum, ite_eq_left h1, oneConcat, eSum_mul_stdElt,
+        (hρ b.2.1).2, ite_eq_left h2]
     · rw [hF]
       exact Submodule.subset_span ⟨b, h3, rfl⟩
 
@@ -962,21 +961,21 @@ variable [IsDomain k] {P : I → I → MvPolynomial (Fin 2) k}
 
 /-- **KL I, Proposition 2.18 (basis of the filtration steps).** A `k`-basis of the `c`-th step
 of the Mackey filtration of `_{ν,ν'}R_{ν'',ν'''}`, by standard elements `ψ_{ρ w} x^u 1_s`. -/
-noncomputable def mackeyBasis (c : ℕ) : Basis (mackeyIdx h c) k (mackeyBimodFilt Q h c) :=
-  (Basis.span ((linearIndependent_stdElt hPQ hP ρ hρ).comp _ Subtype.val_injective)).map
+noncomputable def mackeyBasis (c : ℕ) : Module.Basis (mackeyIdx h c) k (mackeyBimodFilt Q h c) :=
+  (Module.Basis.span ((linearIndependent_stdElt hPQ hP ρ hρ).comp _ Subtype.val_injective)).map
     (LinearEquiv.ofEq _ _ ((congrArg (Submodule.span k) (Set.image_eq_range _ _).symm).trans
       (mackeyBimodFilt_eq_span h ρ hρ c).symm))
 
 theorem mackeyBasis_apply (c : ℕ) (b : mackeyIdx h c) :
     (mackeyBasis h ρ hρ hPQ hP c b : KLRAlgebra k Q (ν + ν')) = stdElt ρ b.1 := by
-  simp [mackeyBasis, Basis.span_apply]
+  simp [mackeyBasis, Module.Basis.span_apply]
 
 /-- **KL I, Proposition 2.18 (subquotients).** The subquotient
 `F_{c+1} / F_c` of the Mackey filtration of `_{ν,ν'}R_{ν'',ν'''}` has a `k`-basis given by the
 classes of the standard elements `ψ_{ρ w} x^u 1_s` of `_{ν,ν'}R_{ν'',ν'''}` with exactly
 `|λ| = c + 1` strands from the `ν'''`-block to the `ν`-block (`mem_mackeyIdx_diff`). -/
 noncomputable def mackeySubquotBasis (c : ℕ) :
-    Basis ↥(mackeyIdx h (c + 1) \ mackeyIdx h c) k
+    Module.Basis ↥(mackeyIdx h (c + 1) \ mackeyIdx h c) k
       (↥(mackeyBimodFilt Q h (c + 1)) ⧸
         (mackeyBimodFilt Q h c).comap (mackeyBimodFilt Q h (c + 1)).subtype) :=
   quotBasis (linearIndependent_stdElt hPQ hP ρ hρ) (mackeyIdx_mono h (Nat.le_succ c)) _ _
@@ -1141,7 +1140,7 @@ theorem stdElt_mackeyWord (b : StdIdx (ν + ν')) (hb1 : b.1 ∈ botSet h)
   have hmid := e_mul_gen (Q := Q) ((a⁻¹ • i₀).append (b'⁻¹ • j₀))
     (σ d ++ (ρ₃ y ++ shiftWord (Multiset.card ν'') (ρ₄ y'))) (monomial u 1)
     (seqCast h (s₁.append s₂))
-  rw [if_pos (by rw [hwd, ht, inv_smul_smul])] at hmid
+  rw [ite_eq_left (by rw [hwd, ht, inv_smul_smul])] at hmid
   simp only [ψw_append, mul_assoc] at hmid ⊢
   rw [hmid]
 
@@ -1226,7 +1225,7 @@ integral domain): the subquotient `F_{c+1} / F_c` of the Mackey filtration of
 `_{ν,ν'}R_{ν'',ν'''}` has the basis of classes of the standard elements `ψ_{ρ w} x^u 1_s` of
 `_{ν,ν'}R_{ν'',ν'''}` with `|λ| = c + 1`. -/
 noncomputable def mackeySubquotBasis (c : ℕ) :
-    Basis ↥(mackeyIdx h (c + 1) \ mackeyIdx h c) k
+    Module.Basis ↥(mackeyIdx h (c + 1) \ mackeyIdx h c) k
       (↥(mackeyBimodFilt (klQ (k := k) Γ) h (c + 1)) ⧸
         (mackeyBimodFilt (klQ (k := k) Γ) h c).comap
           (mackeyBimodFilt (klQ (k := k) Γ) h (c + 1)).subtype) :=
@@ -1235,7 +1234,7 @@ noncomputable def mackeySubquotBasis (c : ℕ) :
 
 /-- **KL I, Proposition 2.18** (the filtration steps) for the rings `R(ν)` of a simple graph. -/
 noncomputable def mackeyBasis (c : ℕ) :
-    Basis (mackeyIdx h c) k (mackeyBimodFilt (klQ (k := k) Γ) h c) :=
+    Module.Basis (mackeyIdx h c) k (mackeyBimodFilt (klQ (k := k) Γ) h c) :=
   KLRAlgebra.mackeyBasis h ρ hρ (klQ_eq_klP (Γ := Γ) stdOrient_spec)
     (fun a b _ => klP_ne_zero _ a b) c
 

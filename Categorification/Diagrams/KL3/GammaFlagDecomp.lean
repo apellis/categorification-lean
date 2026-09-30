@@ -37,6 +37,9 @@ because the dot is a root of the total Chern class of its block (`Eleft_charpoly
 `Eright_charpoly`).
 -/
 
+-- Preserve elaboration of semireducible bimodule transports.
+set_option backward.isDefEq.respectTransparency false
+
 noncomputable section
 
 open scoped TensorProduct
@@ -84,8 +87,7 @@ theorem capFEW_natural {C : Type u} [CommRing C] {X X' : BRing (H K s) C} (φ : 
         (BHom.whiskerLeft (Est (K := K) c hE) φ) (BRing.tmul (Fst (K := K) c hF) ((Est (K := K) c hE).tensor X) a w)) =
         φ (capFEW K c hE hF X (BRing.tmul (Fst (K := K) c hF) ((Est (K := K) c hE).tensor X) a w))) w
       (by simp only [BRing.tmul_zero, BHom.map_zero]) (fun b x => ?_) (fun w w' hw hw' => ?_)
-    · beta_reduce
-      rw [BHom.whiskerLeft_tmul, BHom.whiskerLeft_tmul, capFEW_tmul, capFEW_tmul, φ.map_left]
+    · rw [BHom.whiskerLeft_tmul, BHom.whiskerLeft_tmul, capFEW_tmul, capFEW_tmul, φ.map_left]
     · beta_reduce at hw hw' ⊢
       rw [BRing.tmul_add, BHom.map_add, BHom.map_add, hw, hw', BHom.map_add, BHom.map_add]
   · beta_reduce at hv hv' ⊢
@@ -102,8 +104,7 @@ theorem capEFW_natural {C : Type u} [CommRing C] {X X' : BRing (H K s') C} (φ :
         (BHom.whiskerLeft (Fst (K := K) c hF) φ) (BRing.tmul (Est (K := K) c hE) ((Fst (K := K) c hF).tensor X) a w)) =
         φ (capEFW K c hE hF X (BRing.tmul (Est (K := K) c hE) ((Fst (K := K) c hF).tensor X) a w))) w
       (by simp only [BRing.tmul_zero, BHom.map_zero]) (fun b x => ?_) (fun w w' hw hw' => ?_)
-    · beta_reduce
-      rw [BHom.whiskerLeft_tmul, BHom.whiskerLeft_tmul, capEFW_tmul, capEFW_tmul, φ.map_left]
+    · rw [BHom.whiskerLeft_tmul, BHom.whiskerLeft_tmul, capEFW_tmul, capEFW_tmul, φ.map_left]
     · beta_reduce at hw hw' ⊢
       rw [BRing.tmul_add, BHom.map_add, BHom.map_add, hw, hw', BHom.map_add, BHom.map_add]
   · beta_reduce at hv hv' ⊢
@@ -115,7 +116,7 @@ end Natural
 theorem tauU_self (c : Fin m) {t r₁ r₂ : Comp m} (h₁ : StepR (true, c) r₁ t)
     (h₂ : StepR (true, c) r₂ r₁) : tauU K c c h₁ h₂ h₁ h₂ = BHom.id _ := by
   unfold tauU
-  rw [dif_pos rfl]
+  rw [dite_eq_left rfl]
   refine BHom.ext fun y => ?_
   apply (eeEquiv K c c h₁ h₂ (eeVar c h₁ h₂) (eeVar_hv c h₁ h₂)).injective
   rw [tauEE_apply]
@@ -142,7 +143,6 @@ theorem sum_tele {A : Type*} [AddCommGroup A] (N : ℕ) (D : ℕ → ℕ → ℕ
   have hg' : g < N := (Finset.mem_Ico.1 hg).2
   rw [Finset.sum_Ico_eq_sum_range]
   have := Finset.sum_range_sub (fun k => D g (N - (g + k)) (g + k - g)) (N - g)
-  simp only at this
   convert this using 1
   · refine Finset.sum_congr rfl fun k hk => ?_
     have hk' := Finset.mem_range.1 hk
@@ -163,7 +163,7 @@ theorem eRight_x_castSucc (α : ℕ) :
       xB K (splitLab _ (movedVar c t h.2)) (some c.castSucc) α := by
   rcases α with _ | α
   · rw [x_zero, map_one, xB_zero]
-  · rw [eRight_x, if_neg (castSucc_ne_succ' c), add_zero]
+  · rw [eRight_x, ite_eq_right (castSucc_ne_succ' c), add_zero]
 
 /-- Across `E_c` (from `t` to `r = +_c t`): `x(r)_{c,α+1} = x(t)_{c,α+1} + ξ x(t)_{c,α}`
 (KL III eq. (5.16)). -/
@@ -175,7 +175,7 @@ theorem Eleft_x_succ (α : ℕ) :
       eLeft K c t h.2 (hCast K h.1.symm (x K r c.castSucc (α + 1))) := rfl
   have e2 : ∀ β, ((stepB K (true, c) t r h).right (x K t c.castSucc β) : ERing K c t h.2) =
       eRight K c t h.2 (x K t c.castSucc β) := fun β => rfl
-  rw [e1, e2, e2, hCast_x, eLeft_x, if_pos rfl, eRight_x_castSucc c h, eRight_x_castSucc c h]
+  rw [e1, e2, e2, hCast_x, eLeft_x, ite_eq_left rfl, eRight_x_castSucc c h, eRight_x_castSucc c h]
   rfl
 
 /-- **The dot of `E_c` is a root of the total Chern class of block `c` of the left region**:
@@ -222,11 +222,11 @@ theorem xbar_of_zero {n : ℕ} (d : Fin n → ℕ) (j : Fin n) (hd : d j = 0) (�
 theorem PhiH_of_succ_zero (lam : Comp m) (i : Fin m) (h0 : lam i.succ = 0) (g : ℕ) :
     PhiH (K := K) lam i g = (-1) ^ g * x K lam i.castSucc g := by
   rw [PhiH, bubbleSeq, Finset.sum_eq_single (g, 0)]
-  · rw [xbar_of_zero _ _ h0, if_pos rfl, mul_one]
+  · rw [xbar_of_zero _ _ h0, ite_eq_left rfl, mul_one]
   · intro p hp hpg
-    rw [Finset.mem_antidiagonal] at hp
-    rw [xbar_of_zero _ _ h0, if_neg (fun h => hpg (Prod.ext (by omega) h)), mul_zero]
-  · intro h; exact absurd (Finset.mem_antidiagonal.2 (add_zero g)) h
+    rw [Finset.HasAntidiagonal.mem_antidiagonal] at hp
+    rw [xbar_of_zero _ _ h0, ite_eq_right (fun h => hpg (Prod.ext (by omega) h)), mul_zero]
+  · intro h; exact absurd (Finset.HasAntidiagonal.mem_antidiagonal.2 (add_zero g)) h
 
 section RootsR
 
@@ -237,7 +237,7 @@ theorem eLeft_x_succ_block (α : ℕ) :
       xB K (splitLab _ (movedVar c s h.2)) (some c.succ) α := by
   rcases α with _ | α
   · rw [x_zero, map_one, xB_zero]
-  · rw [eLeft_x, if_neg (castSucc_ne_succ' c).symm, add_zero]
+  · rw [eLeft_x, ite_eq_right (castSucc_ne_succ' c).symm, add_zero]
 
 /-- Across `E_c` (from `s` to `r = +_c s`): `x(s)_{c+1,α+1} = x(r)_{c+1,α+1} + ξ x(r)_{c+1,α}`
 (KL III eq. (5.15)). -/
@@ -249,7 +249,7 @@ theorem Eright_x_succ (α : ℕ) :
       eRight K c s h.2 (x K s c.succ (α + 1)) := rfl
   have e2 : ∀ β, ((stepB K (true, c) s r h).left (x K r c.succ β) : ERing K c s h.2) =
       eLeft K c s h.2 (hCast K h.1.symm (x K r c.succ β)) := fun β => rfl
-  rw [e1, e2, e2, hCast_x, hCast_x, eRight_x, if_pos rfl, eLeft_x_succ_block c h,
+  rw [e1, e2, e2, hCast_x, hCast_x, eRight_x, ite_eq_left rfl, eLeft_x_succ_block c h,
     eLeft_x_succ_block c h]
   rfl
 
@@ -291,11 +291,11 @@ end RootsR
 theorem PsiH_of_castSucc_zero (lam : Comp m) (i : Fin m) (h0 : lam i.castSucc = 0) (g : ℕ) :
     PsiH (K := K) lam i g = (-1) ^ g * x K lam i.succ g := by
   rw [PsiH, bubbleSeq, Finset.sum_eq_single (g, 0)]
-  · rw [xbar_of_zero _ _ h0, if_pos rfl, mul_one]
+  · rw [xbar_of_zero _ _ h0, ite_eq_left rfl, mul_one]
   · intro p hp hpg
-    rw [Finset.mem_antidiagonal] at hp
-    rw [xbar_of_zero _ _ h0, if_neg (fun h => hpg (Prod.ext (by omega) h)), mul_zero]
-  · intro h; exact absurd (Finset.mem_antidiagonal.2 (add_zero g)) h
+    rw [Finset.HasAntidiagonal.mem_antidiagonal] at hp
+    rw [xbar_of_zero _ _ h0, ite_eq_right (fun h => hpg (Prod.ext (by omega) h)), mul_zero]
+  · intro h; exact absurd (Finset.HasAntidiagonal.mem_antidiagonal.2 (add_zero g)) h
 
 /-! ### The sideways crossings of equal colours -/
 
@@ -526,18 +526,18 @@ theorem crosslW_same_one (y : Y.T) :
     simp only [crosslCap_tmul i i hF hE' Y]
     split_ifs with hgd
     · rw [Finset.sum_eq_single (q i.castSucc)]
-      · rw [capEFP_xi_pow i _ _ _ (le_refl _), if_pos rfl, map_one, one_mul, hgd, Nat.sub_self,
+      · rw [capEFP_xi_pow i _ _ _ (le_refl _), ite_eq_left rfl, map_one, one_mul, hgd, Nat.sub_self,
           pow_zero, one_mul, xsFE_eq, x_zero, map_one, show dFE i (hE' : StepR (true, i) r q') - 1 -
             q i.castSucc = 0 by omega, pow_zero]
       · intro f hf hfq
         have hf' := Finset.mem_range.1 hf
-        rw [capEFP_xi_pow i _ _ _ (by omega), if_neg hfq, map_zero, zero_mul, BRing.tmul_zero]
+        rw [capEFP_xi_pow i _ _ _ (by omega), ite_eq_right hfq, map_zero, zero_mul, BRing.tmul_zero]
       · intro h; exact absurd (Finset.mem_range.2 (by omega)) h
     · rw [Finset.sum_eq_zero fun f hf => ?_, BRing.tmul_zero]
       have hf' := Finset.mem_range.1 hf
-      rw [capEFP_xi_pow i _ _ _ (by omega), if_neg (by omega), map_zero, zero_mul, BRing.tmul_zero]
+      rw [capEFP_xi_pow i _ _ _ (by omega), ite_eq_right (by omega), map_zero, zero_mul, BRing.tmul_zero]
   rw [Finset.sum_congr rfl hterm, Finset.sum_ite_eq' (Finset.range (dFE i (hE' : StepR (true, i) r q') + 1)) (dFE i (hE' : StepR (true, i) r q')),
-    if_pos (Finset.mem_range.2 (Nat.lt_succ_self _))]
+    ite_eq_left (Finset.mem_range.2 (Nat.lt_succ_self _))]
 
 /-- **`crossr` of equal colours at `1`**: `crossr(1 ⊗ 1 ⊗ y) = -(1 ⊗ 1 ⊗ y)`. -/
 theorem crossrW_same_one (y : Y.T) :
@@ -564,19 +564,19 @@ theorem crossrW_same_one (y : Y.T) :
     simp only [crossrCap_tmul i i hE' hF hF Y]
     split_ifs with hgd
     · rw [Finset.sum_eq_single 0]
-      · rw [capFEP_xi_pow i (hE' : StepR (true, i) r q') hE' (g - 1 - 0) (by omega), if_pos (by omega), map_one, one_mul, pow_zero,
+      · rw [capFEP_xi_pow i (hE' : StepR (true, i) r q') hE' (g - 1 - 0) (by omega), ite_eq_left (by omega), map_one, one_mul, pow_zero,
           hgd, Nat.sub_self, pow_zero, one_mul, x_zero, map_one, one_mul]
       · intro f hf hf0
         have hf' := Finset.mem_range.1 hf
-        rw [capFEP_xi_pow i (hE' : StepR (true, i) r q') hE' (g - 1 - f) (by omega), if_neg (by omega),
+        rw [capFEP_xi_pow i (hE' : StepR (true, i) r q') hE' (g - 1 - f) (by omega), ite_eq_right (by omega),
           map_zero, zero_mul, BRing.zero_tmul]
       · intro h; exact absurd (Finset.mem_range.2 (by omega)) h
     · rw [Finset.sum_eq_zero fun f hf => ?_, neg_zero, mul_zero]
       have hf' := Finset.mem_range.1 hf
-      rw [capFEP_xi_pow i (hE' : StepR (true, i) r q') hE' (g - 1 - f) (by omega), if_neg (by omega),
+      rw [capFEP_xi_pow i (hE' : StepR (true, i) r q') hE' (g - 1 - f) (by omega), ite_eq_right (by omega),
         map_zero, zero_mul, BRing.zero_tmul]
   rw [Finset.sum_congr rfl hterm, Finset.sum_ite_eq' (Finset.range (dEF i (hF : StepR (true, i) q r) + 1)) (dEF i (hF : StepR (true, i) q r)),
-    if_pos (Finset.mem_range.2 (Nat.lt_succ_self _))]
+    ite_eq_left (Finset.mem_range.2 (Nat.lt_succ_self _))]
 
 /-- The double sum of `eq_ident_decomp` on `E_i F_i Y`, pointwise. -/
 theorem sumEF_dot (u : ((stepB K (true, i) q r hF).tensor ((stepB K (false, i) r q hF).tensor Y)).T)
@@ -605,7 +605,7 @@ theorem dcV_one (a c : ℕ) (b : H K r) (hc : c < q i.castSucc) (y : Y.T) :
     dcV K i hF Y (a) (c) (b) (BRing.tmul (stepB K (true, i) q r hF) ((stepB K (false, i) r q hF).tensor Y) 1 (BRing.tmul (stepB K (false, i) r q hF) Y 1 y)) = 0 := by
   simp only [dcV]
   rw [BRing.tmul_mul_tmul, mul_one, one_mul, capEFW_tmul,
-    capEFP_xi_pow i _ _ _ hc.le, if_neg hc.ne, map_zero, zero_mul, mul_zero, BHom.map_zero,
+    capEFP_xi_pow i _ _ _ hc.le, ite_eq_right hc.ne, map_zero, zero_mul, mul_zero, BHom.map_zero,
     mul_zero]
 
 variable (K) in
@@ -638,8 +638,7 @@ theorem decompEF_W (z : ((stepB K (true, i) q r hF).tensor ((stepB K (false, i) 
       (dcW K i hF Y ((nH r i).toNat - 1 - f) (f - g) (ccwLH r i (-nH r i - 1 + g))).toAddHom
   have hΦ : ∀ z, Φ z = -crossrW K i i hE' hE' hF hF Y (crosslW K i i hF hF hE' hE' Y z) + ∑ f ∈ Finset.range (nH r i).toNat, ∑ g ∈ Finset.range (f + 1),
       dcV K i hF Y ((nH r i).toNat - 1 - f) (f - g) (ccwLH r i (-nH r i - 1 + g)) z := fun z => by
-    simp only [Φ, AddMonoidHom.add_apply, AddMonoidHom.neg_apply, AddMonoidHom.finset_sum_apply,
-      BHom.toAddHom_apply, BHom.comp_apply, dcW_apply]
+    simp only [Φ, AddMonoidHom.add_apply, AddMonoidHom.neg_apply, AddMonoidHom.finsetSum_apply]
     rfl
   have key := ext_two (Y := Y) (eXi K i q hF.2) (eXi K i q hF.2) (stepE_spanned i (hF : StepR (true, i) q r))
     (stepF_spanned i hF) Φ (AddMonoidHom.id _) (BRing.tmul (stepB K (true, i) q r hF) ((stepB K (false, i) r q hF).tensor Y) (eXi K i q hF.2) 1) (BRing.tmul (stepB K (true, i) q r hF) ((stepB K (false, i) r q hF).tensor Y) 1 (BRing.tmul (stepB K (false, i) r q hF) Y (eXi K i q hF.2) 1))
@@ -688,7 +687,7 @@ theorem ell_zero (h0 : r i.succ = 0) :
   rw [← hc]
   refine Finset.sum_congr rfl fun g hg => ?_
   have hg' := Finset.mem_range.1 hg
-  rw [ccwLH_eq, if_pos (by omega), show (-nH r i - 1 + (g : ℤ) + 1 + nH r i).toNat = g by omega,
+  rw [ccwLH_eq, ite_eq_left (by omega), show (-nH r i - 1 + (g : ℤ) + 1 + nH r i).toNat = g by omega,
     PhiH_of_succ_zero _ _ h0, map_mul, map_pow, map_neg, map_one, mul_assoc,
     show (nH r i - (g : ℤ)).toNat = r i.castSucc - g by omega]
 
@@ -704,7 +703,7 @@ theorem dcV_one_top (a : ℕ) (b : H K r) (y : Y.T) :
     dcV K i hF Y (a) (q i.castSucc) (b) (BRing.tmul (stepB K (true, i) q r hF) ((stepB K (false, i) r q hF).tensor Y) 1 (BRing.tmul (stepB K (false, i) r q hF) Y 1 y)) = BRing.tmul (stepB K (true, i) q r hF) ((stepB K (false, i) r q hF).tensor Y) 1 (BRing.tmul (stepB K (false, i) r q hF) Y (eXi K i q hF.2 ^ a) 1) * cupEFW K i (hF : StepR (true, i) q r) hF Y (Y.left b * y) := by
   simp only [dcV]
   rw [BRing.tmul_mul_tmul, mul_one, one_mul, capEFW_tmul, capEFP_xi_pow i _ _ _ le_rfl,
-    if_pos rfl, map_one, one_mul]
+    ite_eq_left rfl, map_one, one_mul]
 
 /-- **`eq_ident_decomp` on `E_i F_i` when `F_i E_i 1_λ = 0`** (`r_{i+1} = 0`, so `n = r_i`):
 `1 = ∑_{f=0}^{n-1} ∑_{g=0}^{f}` (cup with `n - 1 - f` dots on `F_i`) `∘ Γ(ccwL (-n - 1 + g)) ∘`
@@ -721,7 +720,7 @@ theorem decompEF_W_top (h0 : r i.succ = 0) (z : ((stepB K (true, i) q r hF).tens
   let Φ : ((stepB K (true, i) q r hF).tensor ((stepB K (false, i) r q hF).tensor Y)).T →+ ((stepB K (true, i) q r hF).tensor ((stepB K (false, i) r q hF).tensor Y)).T := ∑ f ∈ Finset.range (nH r i).toNat, ∑ g ∈ Finset.range (f + 1),
       (dcW K i hF Y ((nH r i).toNat - 1 - f) (f - g) (ccwLH r i (-nH r i - 1 + g))).toAddHom
   have hΦ : ∀ z, Φ z = ∑ f ∈ Finset.range (nH r i).toNat, ∑ g ∈ Finset.range (f + 1), dcV K i hF Y ((nH r i).toNat - 1 - f) (f - g) ((ccwLH r i (-nH r i - 1 + g))) (z) := fun z => by
-    simp only [Φ, AddMonoidHom.finset_sum_apply, BHom.toAddHom_apply, dcW_apply]
+    simp only [Φ, AddMonoidHom.finsetSum_apply]
     rfl
   have key := ext_two (Y := Y) (eXi K i q hF.2) (eXi K i q hF.2) (stepE_spanned i (hF : StepR (true, i) q r))
     (stepF_spanned i hF) Φ (AddMonoidHom.id _) (BRing.tmul (stepB K (true, i) q r hF) ((stepB K (false, i) r q hF).tensor Y) (eXi K i q hF.2) 1) (BRing.tmul (stepB K (true, i) q r hF) ((stepB K (false, i) r q hF).tensor Y) 1 (BRing.tmul (stepB K (false, i) r q hF) Y (eXi K i q hF.2) 1))
@@ -736,7 +735,7 @@ theorem decompEF_W_top (h0 : r i.succ = 0) (z : ((stepB K (true, i) q r hF).tens
     · rw [Finset.sum_eq_single 0]
       · rw [Nat.sub_zero, show q i.castSucc + 1 - 1 - q i.castSucc = 0 by omega, dcV_one_top,
           pow_zero, tmul_one_one_one, one_mul, Nat.cast_zero, add_zero,
-          show -nH r i - 1 = -nH r i - 1 + 0 by ring, ccwLH_eq, if_pos (by omega),
+          show -nH r i - 1 = -nH r i - 1 + 0 by ring, ccwLH_eq, ite_eq_left (by omega),
           show (-nH r i - 1 + 0 + 1 + nH r i).toNat = 0 by omega, PhiH_zero, map_one, one_mul,
           cupEFW_apply'', show dEF i (hF : StepR (true, i) q r) = 0 by rw [dEF_eq]; omega,
           Finset.sum_range_one, pow_zero, pow_zero, one_mul, x_zero, map_one, one_mul]
@@ -863,7 +862,7 @@ theorem dcVFE_one (a c : ℕ) (b : H K r) (hc : c + 1 < r i.succ) (y : Y.T) :
     dcVFE K i hE' Y (a) (c) (b) (BRing.tmul (stepB K (false, i) q' r hE') ((stepB K (true, i) r q' hE').tensor Y) 1 (BRing.tmul (stepB K (true, i) r q' hE') Y 1 y)) = 0 := by
   simp only [dcVFE]
   rw [← capFEW_slide, BRing.tmul_mul_tmul, one_mul, BRing.tmul_mul_tmul, mul_one, one_mul,
-    capFEW_tmul, capFEP_xi_pow i _ _ _ hc.le, if_neg hc.ne, map_zero, zero_mul, mul_zero,
+    capFEW_tmul, capFEP_xi_pow i _ _ _ hc.le, ite_eq_right hc.ne, map_zero, zero_mul, mul_zero,
     BHom.map_zero, mul_zero]
 
 variable (K) in
@@ -891,8 +890,7 @@ theorem decompFE_W (w : ((stepB K (false, i) q' r hE').tensor ((stepB K (true, i
     ∑ f ∈ Finset.range (-nH r i).toNat, ∑ g ∈ Finset.range (f + 1),
       (dcWFE K i hE' Y ((-nH r i).toNat - 1 - f) (f - g) (cwLH r i (nH r i - 1 + g))).toAddHom
   have hΦ : ∀ w, Φ w = -crosslW K i i hF hF hE' hE' Y (crossrW K i i hE' hE' hF hF Y w) + ∑ f ∈ Finset.range (-nH r i).toNat, ∑ g ∈ Finset.range (f + 1), dcVFE K i hE' Y ((-nH r i).toNat - 1 - f) (f - g) ((cwLH r i (nH r i - 1 + g))) (w) := fun w => by
-    simp only [Φ, AddMonoidHom.add_apply, AddMonoidHom.neg_apply, AddMonoidHom.finset_sum_apply,
-      BHom.toAddHom_apply, BHom.comp_apply, dcWFE_apply]
+    simp only [Φ, AddMonoidHom.add_apply, AddMonoidHom.neg_apply, AddMonoidHom.finsetSum_apply]
     rfl
   have key := ext_two (Y := Y) (eXi K i r hE'.2) (eXi K i r hE'.2) (stepF_spanned i (hE' : StepR (false, i) q' r))
     (stepE_spanned i hE') Φ (AddMonoidHom.id _) (BRing.tmul (stepB K (false, i) q' r hE') ((stepB K (true, i) r q' hE').tensor Y) (eXi K i r hE'.2) 1) (BRing.tmul (stepB K (false, i) q' r hE') ((stepB K (true, i) r q' hE').tensor Y) 1 (BRing.tmul (stepB K (true, i) r q' hE') Y (eXi K i r hE'.2) 1))
@@ -933,7 +931,7 @@ theorem ellR_zero (h0 : r i.castSucc = 0) :
           xiStep K (true, i) r q' hE' ^ (r i.succ - f))) 1 := by
     intro f hf
     have hf' := Finset.mem_range.1 hf
-    rw [← mul_one (Y.left _), ← BRing.tmul_balance, cwLH_eq, if_pos (by omega),
+    rw [← mul_one (Y.left _), ← BRing.tmul_balance, cwLH_eq, ite_eq_left (by omega),
       show (nH r i - 1 + (f : ℤ) + 1 - nH r i).toNat = f by omega, PsiH_of_castSucc_zero _ _ h0,
       map_mul, map_pow, map_neg, map_one, mul_assoc,
       show (-nH r i - (f : ℤ)).toNat = r i.succ - f by omega]
@@ -954,7 +952,7 @@ theorem dcVFE_one_top (a : ℕ) (b : H K r) (y : Y.T) :
   have hr := hE'.2
   simp only [dcVFE]
   rw [← capFEW_slide, BRing.tmul_mul_tmul, one_mul, BRing.tmul_mul_tmul, mul_one, one_mul,
-    capFEW_tmul, capFEP_xi_pow i _ _ _ (by omega), if_pos (by omega), map_one, one_mul]
+    capFEW_tmul, capFEP_xi_pow i _ _ _ (by omega), ite_eq_left (by omega), map_one, one_mul]
 
 /-- **`eq_ident_decomp` on `F_i E_i` when `E_i F_i 1_λ = 0`** (`r_i = 0`, so `n = -r_{i+1}`):
 `1 = ∑_{f=0}^{-n-1} ∑_{g=0}^{f}` (cup with `-n - 1 - f` dots on `E_i`) `∘ Γ(cwL (n - 1 + g)) ∘`
@@ -968,7 +966,7 @@ theorem decompFE_W_top (h0 : r i.castSucc = 0) (w : ((stepB K (false, i) q' r hE
   let Φ : ((stepB K (false, i) q' r hE').tensor ((stepB K (true, i) r q' hE').tensor Y)).T →+ ((stepB K (false, i) q' r hE').tensor ((stepB K (true, i) r q' hE').tensor Y)).T := ∑ f ∈ Finset.range (-nH r i).toNat, ∑ g ∈ Finset.range (f + 1),
       (dcWFE K i hE' Y ((-nH r i).toNat - 1 - f) (f - g) (cwLH r i (nH r i - 1 + g))).toAddHom
   have hΦ : ∀ w, Φ w = ∑ f ∈ Finset.range (-nH r i).toNat, ∑ g ∈ Finset.range (f + 1), dcVFE K i hE' Y ((-nH r i).toNat - 1 - f) (f - g) ((cwLH r i (nH r i - 1 + g))) (w) := fun w => by
-    simp only [Φ, AddMonoidHom.finset_sum_apply, BHom.toAddHom_apply, dcWFE_apply]
+    simp only [Φ, AddMonoidHom.finsetSum_apply]
     rfl
   have key := ext_two (Y := Y) (eXi K i r hE'.2) (eXi K i r hE'.2) (stepF_spanned i (hE' : StepR (false, i) q' r))
     (stepE_spanned i hE') Φ (AddMonoidHom.id _) (BRing.tmul (stepB K (false, i) q' r hE') ((stepB K (true, i) r q' hE').tensor Y) (eXi K i r hE'.2) 1) (BRing.tmul (stepB K (false, i) q' r hE') ((stepB K (true, i) r q' hE').tensor Y) 1 (BRing.tmul (stepB K (true, i) r q' hE') Y (eXi K i r hE'.2) 1))
@@ -983,7 +981,7 @@ theorem decompFE_W_top (h0 : r i.castSucc = 0) (w : ((stepB K (false, i) q' r hE
     · rw [Finset.sum_eq_single 0]
       · rw [Nat.sub_zero, show r i.succ - 1 + 1 - 1 - (r i.succ - 1) = 0 by omega, dcVFE_one_top,
           pow_zero, ← BRing.one_eq, ← BRing.one_eq, one_mul, Nat.cast_zero, add_zero, cwLH_eq,
-          if_pos (by omega), show (nH r i - 1 + 1 - nH r i).toNat = 0 by omega, PsiH_zero,
+          ite_eq_left (by omega), show (nH r i - 1 + 1 - nH r i).toNat = 0 by omega, PsiH_zero,
           map_one, one_mul, cupFEW_apply',
           show dFE i (hE' : StepR (true, i) r q') = 0 by rw [dFE_eq]; omega,
           Finset.sum_range_one, pow_zero, pow_zero, one_mul, xsFE_eq, x_zero, map_one]

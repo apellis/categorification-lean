@@ -21,6 +21,8 @@ the relation checks of the assembly of `Γ_N`:
   multiplications by commuting elements.
 -/
 
+set_option backward.isDefEq.respectTransparency false
+
 noncomputable section
 
 namespace Categorification.Flag
@@ -92,10 +94,10 @@ theorem chainBD_append (dnScal : Fin m → Fin m → K) (s : Wt m) :
     by_cases hL : WOK N s (d.1 ++ gcod d.2.1 ++ d.2.2)
     · have ih := chainBD_append dnScal s _ ls w' ls₂ w'' h₁.2 h₂ h.2 hL hm hb
       show (if hL : _ then _ else 0) = BHom.comp _ (if hL : _ then _ else 0)
-      rw [dif_pos hL, dif_pos hL]
+      rw [dite_eq_left hL, dite_eq_left hL]
       exact (congrArg (fun φ => BHom.comp φ _) ih).trans (BHom.comp_assoc _ _ _)
     · show (if hL : _ then _ else 0) = BHom.comp _ (if hL : _ then _ else 0)
-      rw [dif_neg hL, dif_neg hL, BHom.comp_zero']
+      rw [dite_eq_right hL, dite_eq_right hL, BHom.comp_zero']
 
 /-! ### Composites of linear combinations -/
 
@@ -155,12 +157,12 @@ theorem chainBD_append_zero (dnScal : Fin m → Fin m → K) (s : Wt m) :
   | _, d :: ls, w', ls₂, w'', h₁, hm, h, _, hb => by
     by_cases hL : WOK N s (d.1 ++ gcod d.2.1 ++ d.2.2)
     · show (if hL : WOK N s (d.1 ++ gcod d.2.1 ++ d.2.2) then _ else 0) = 0
-      rw [dif_pos hL]
+      rw [dite_eq_left hL]
       exact (congrArg (fun φ => BHom.comp φ _)
         (chainBD_append_zero dnScal s _ ls w' ls₂ w'' h₁.2 hm h.2 hL hb)).trans
         (BHom.zero_comp' _)
     · show (if hL : WOK N s (d.1 ++ gcod d.2.1 ++ d.2.2) then _ else 0) = 0
-      rw [dif_neg hL]
+      rw [dite_eq_right hL]
 
 theorem chainBD_comp_zero (dnScal : Fin m → Fin m → K) {a b c : Obj (psig RD)} (s : Wt m)
     (v : List (psig RD).Colour) (ha : WOK N s (a.word ++ v)) (hm : ¬ WOK N s (b.word ++ v))

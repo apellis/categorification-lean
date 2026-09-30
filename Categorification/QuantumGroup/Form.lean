@@ -86,7 +86,7 @@ theorem pair_single_tw (a b : FreeMonoid I) (s : K) (y₁ y₂ : PreF K I) :
     | add y y' hy hy' => rw [tw_add_right, map_add, hy, hy', map_add (B (word b))]; ring
     | smul_word w' c' =>
       rw [tw_smul_left, tw_smul_right, tw_word, map_smul, map_smul, pair_single_single]
-      simp only [map_smul, LinearMap.smul_apply, smul_eq_mul]
+      simp only [map_smul, smul_eq_mul]
       ring
 
 theorem pair_tw_tw (x₁ x₂ y₁ y₂ : PreF K I) :
@@ -183,17 +183,17 @@ theorem form_word_apply_eq_zero (a : FreeMonoid I) :
   | one =>
     refine eqOn_supp (form dot v c (word 1)) 0 ?_
     intro w hw
-    simp only [Set.mem_setOf_eq, wt_one] at hw
-    rw [word_one, form_one, counit_word, if_neg (by rintro rfl; exact hw rfl),
+    simp only [Set.mem_ofPred_eq, wt_one] at hw
+    rw [word_one, form_one, counit_word, ite_eq_right (by rintro rfl; exact hw rfl),
       LinearMap.zero_apply]
-  | mul_of i a ih =>
+  | of_mul i a ih =>
     intro x hx
     rw [word_of_mul, form_θ_mul, ih, mul_zero]
     refine map_supp_le (d dot v i) ?_ x hx
     intro w hw
     refine supp_mono ?_ (d_word_mem_supp i w)
     intro w' hw'
-    simp only [Set.mem_setOf_eq, wt_of_mul] at hw hw' ⊢
+    simp only [Set.mem_ofPred_eq, wt_of_mul] at hw hw' ⊢
     rintro h
     exact hw (by rw [← hw', h])
 
@@ -238,7 +238,7 @@ theorem form_mul_left (x' x'' y : PreF K I) :
     congr 1
     induction u using FreeMonoid.inductionOn' generalizing x'' y with
     | one => rw [word_one, one_mul, pair_tw_one_left, E1_r]
-    | mul_of i u ih =>
+    | of_mul i u ih =>
       rw [word_of_mul, mul_assoc, form_θ_mul, ih, r_d, pair_tw_θ_mul_left]
 
 /-! ### Property (b): `(x, y' y'') = (r x, y' ⊗ y'')` -/
@@ -300,7 +300,7 @@ theorem form_mul_right (hdot : ∀ i j, dot i j = dot j i) (x y' y'' : PreF K I)
     induction u using FreeMonoid.inductionOn' generalizing y' y'' with
     | one =>
       rw [word_one, form_one, map_one, one_eq_tw, pair_tw_tw, form_one, form_one, counit_mul]
-    | mul_of i u ih =>
+    | of_mul i u ih =>
       induction y' using induction_linear with
       | zero => simp
       | add y y' hy hy' => rw [add_mul, map_add, hy, hy', tw_add_left, map_add]
@@ -338,7 +338,7 @@ theorem unique_one (h1 : B 1 1 = 1)
     congr 1
     induction w using FreeMonoid.inductionOn' with
     | one => rw [word_one, h1, counit_one]
-    | mul_of j w _ =>
+    | of_mul j w _ =>
       rw [word_of_mul, h4, map_one, one_eq_tw, pair_tw_tw, unique_one_θ h1 h3 j, zero_mul,
         counit_θ_mul]
 
@@ -358,7 +358,7 @@ theorem unique_θ (h1 : B 1 1 = 1) (h2 : ∀ i j, B (θ i) (θ j) = if i = j the
     congr 1
     induction w using FreeMonoid.inductionOn' with
     | one => rw [word_one, hθ1, d_one, map_zero, mul_zero]
-    | mul_of j w _ =>
+    | of_mul j w _ =>
       rw [word_of_mul, h4, r_θ', map_add, LinearMap.add_apply, pair_tw_tw, pair_tw_tw, h2,
         unique_one h1 h3 h4, unique_one_θ h1 h3 j, d_θ_mul, map_add, map_smul, counit_θ_mul,
         smul_zero, add_zero]
@@ -376,7 +376,7 @@ theorem form_unique (h1 : B 1 1 = 1) (h2 : ∀ i j, B (θ i) (θ j) = if i = j t
   refine LinearMap.ext fun y => ?_
   induction u using FreeMonoid.inductionOn' generalizing y with
   | one => rw [word_one, unique_one h1 h3 h4, form_one]
-  | mul_of i u ih =>
+  | of_mul i u ih =>
     rw [word_of_mul, h3, form_mul_left]
     congr 1
     refine TwistedMonoidAlgebra.lhom_ext fun p => ?_

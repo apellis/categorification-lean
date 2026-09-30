@@ -46,7 +46,7 @@ noncomputable section
 
 namespace Categorification.KLR
 
-open Graded MvPolynomial
+open Categorification.Graded MvPolynomial
 
 variable {I : Type*} [DecidableEq I]
 
@@ -110,7 +110,7 @@ theorem end_scalar_aux (n : ℕ) : ∀ (ν : Multiset I), Multiset.card ν = n �
   induction n using Nat.strong_induction_on with
   | _ n ih =>
   intro ν hν L _ _ _ _ _ _ hnil φ
-  haveI : Nontrivial L := IsSimpleModule.nontrivial (KLRAlgebra K Q ν) L
+  have : Nontrivial L := IsSimpleModule.nontrivial (KLRAlgebra K Q ν) L
   rcases Nat.eq_zero_or_pos n with hn | hn
   · subst hn
     exact exists_eq_smul_of_finrank_eq_one (finrank_eq_one_of_card_eq_zero (Q := Q) hν) φ
@@ -138,8 +138,8 @@ theorem end_scalar_aux (n : ℕ) : ∀ (ν : Multiset I), Multiset.card ν = n �
   have hε : epsI Q (μ + ν') i L = Multiset.card ν' := by rw [hcard, hεdef]
   -- `N = HW(Δ_{i^ε} L)`
   set N := HWSpace Q μ ν' (ResSub Q μ ν' L)
-  haveI hNs : IsSimpleModule (KLRAlgebra K Q μ) N := (lemma_3_8 hν' hPQ hP hnil hε).2.1
-  haveI : Nontrivial N := IsSimpleModule.nontrivial (KLRAlgebra K Q μ) N
+  have hNs : IsSimpleModule (KLRAlgebra K Q μ) N := (lemma_3_8 hν' hPQ hP hnil hε).2.1
+  have : Nontrivial N := IsSimpleModule.nontrivial (KLRAlgebra K Q μ) N
   have hNnil : ∀ a : Fin (Multiset.card μ), SmulNilpotent (x a : KLRAlgebra K Q μ) N :=
     fun a => smulNilpotent_hwSpace a (hnil _)
   have hμcard : Multiset.card μ < n := by
@@ -211,7 +211,7 @@ theorem finrank_endZero_eq_one {ν : Multiset I} {M : Type*} [AddCommGroup M] [M
     (hS : IsGradedSimple (G.grade ν) ℳ) :
     Module.finrank K (endZero (KLRAlgebra K Q ν) ℳ) = 1 := by
   obtain ⟨hfd, hsimple, hnil⟩ := crystal_hypotheses_of_isGradedSimple G hG ℳ hPQ hP hS
-  haveI : Nontrivial M := IsSimpleModule.nontrivial (KLRAlgebra K Q ν) M
+  have : Nontrivial M := IsSimpleModule.nontrivial (KLRAlgebra K Q ν) M
   rw [endZero_eq_bot hPQ hP G hG ℳ hS, Subalgebra.finrank_bot]
 
 end Cor319

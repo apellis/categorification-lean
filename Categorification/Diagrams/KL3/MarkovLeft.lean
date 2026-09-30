@@ -29,6 +29,9 @@ dotted counterclockwise bubble. The bubbles produced on the left slide to the fa
 * `ptrFirst_upward_mem_upSpan`, `ptrFirst_mem_upSpan`: **the left Markov lemma**.
 -/
 
+-- Preserve elaboration of semireducible diagram transports.
+set_option backward.isDefEq.respectTransparency false
+
 noncomputable section
 
 namespace Categorification.KL3.Diagram
@@ -353,7 +356,7 @@ theorem curlL_mem_slideSetL (ν : X) (e : ℕ) :
     rw [key, map_add, ctxL_dg_nil RD k ν (by schain) (by schain),
       ctxL_dg_nil RD k ν (by schain) (by schain)]
     simp only [whL, List.map_cons, List.map_nil, List.cons_append, List.nil_append,
-      List.singleton_append, List.append_assoc, List.append_nil]
+      List.append_nil]
     refine add_mem ?_ ?_
     · have e2 : dg RD k ν [up j] [up j] (([], .cup (dn j), [up j]) ::
           ([dn j, up j], .dot (up j), []) :: ([dn j], .cross true j j, []) ::
@@ -500,7 +503,7 @@ theorem closeLsL_dots_mem {s t : List (Letter I)} (N : List (LayerData I))
       rw [List.cons_append, dg_closeLsL_rotate RD k μ j _ (hDc'.append hN)]
       exact ih hD' hDc' (e + 1)
     · -- a dot on another strand: it leaves the closure
-      simp only [List.singleton_append, List.cons_append, List.cons.injEq] at h₀
+      simp only [List.cons_append, List.cons.injEq] at h₀
       obtain ⟨rfl, hs⟩ := h₀
       have hd : SChain s [(u, Shape.dot l, v)] s := ⟨hs, hs.symm⟩
       have hform : ((up j :: u, Shape.dot l, v) :: Dl) ++ N =
@@ -540,7 +543,7 @@ theorem ptrFirst_upward_mem_upSpan (a b : List I) {A : List (LayerData I)} (hA :
   let i' := seqOfEq ν ([j] ++ b) (Multiset.coe_eq_coe.2 hperm.symm)
   have hi : KLR.Diagram.word i = [j] ++ a := word_seqOfEq _ _ _
   have hi' : KLR.Diagram.word i' = [j] ++ b := word_seqOfEq _ _ _
-  have hm : Multiset.card ν = a.length + 1 := by simp [ν, add_comm]
+  have hm : Multiset.card ν = a.length + 1 := by simp [ν]
   have hmem := upward_mem_span_nf' RD k (wt RD μ []) (canWordL (Multiset.card ν))
     (fun w => ⟨isReduced_canWordL _ w, wordProd_canWordL _ w⟩) i i'
     (S := [up j] ++ ups a) (T := [up j] ++ ups b) (by rw [hi]; simp [ups])
@@ -600,7 +603,7 @@ theorem ptrFirst_upward_mem_upSpan (a b : List I) {A : List (LayerData I)} (hA :
       exact closeLsL_nil_mem μ j hSL (ups a) (positive_ups a) e
     · -- a run followed by a left curl
       rw [hxz] at hsplit
-      simp only [List.singleton_append, List.cons_append, List.cons.injEq] at hsplit
+      simp only [List.cons_append, List.cons.injEq] at hsplit
       obtain ⟨hj, ha⟩ := hsplit
       subst hj
       have ha' : a = x' ++ [j] ++ y := by simpa using ha
@@ -663,7 +666,7 @@ theorem ptrFirst_bubAt {s t : List (Letter I)} (A : List (LayerData I))
     hB (A := [([], .cap (up j), t)]) ⟨by simp, by simp⟩
   unfold closeLsL
   wnf at e ⊢
-  simp only [List.replicate_zero, List.nil_append, List.append_nil] at e ⊢
+  simp only [List.replicate_zero, List.nil_append] at e ⊢
   exact e.symm
 
 /-- **The left partial trace preserves `upSpan`.** -/

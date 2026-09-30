@@ -140,10 +140,10 @@ theorem balDatum_mapScalars [LinearOrder I] (S : CLScalars C k) (a : I → kˣ)
     presCL RD k ((balDatum (RD := RD) S a).mapScalars S) = presCL RD k CLScalars.kl := by
   refine presCL_congr (fun i j h => ?_) (fun i j p q h => ?_) (funext fun i => ?_)
   · rw [mapScalars_t_of_ne _ _ h, CLScalars.kl_t]
-    simp only [balDatum, if_neg h, if_neg (Ne.symm h)]
+    simp only [balDatum, ite_eq_right h, ite_eq_right (Ne.symm h)]
     rcases lt_or_gt_of_ne h with hij | hij
-    · rw [if_pos hij, if_neg (not_lt.2 hij.le), mul_one, mul_inv_cancel]
-    · rw [if_neg (not_lt.2 hij.le), if_pos hij, one_mul, ha i j h, mul_inv_cancel]
+    · rw [ite_eq_left hij, ite_eq_right (not_lt.2 hij.le), mul_one, mul_inv_cancel]
+    · rw [ite_eq_right (not_lt.2 hij.le), ite_eq_left hij, one_mul, ha i j h, mul_inv_cancel]
   · rw [mapScalars_s, hs i j p q h, CLScalars.kl_s, zero_mul, zero_mul, zero_mul]
   · simp [balDatum, mapScalars_r]
 

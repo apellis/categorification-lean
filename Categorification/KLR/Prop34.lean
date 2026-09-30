@@ -61,7 +61,7 @@ noncomputable section
 
 namespace Categorification.KLR.KLGamma
 
-open Graded KLRAlgebra LaurentPolynomial QuantumGroup TypeA Equiv
+open Categorification.Graded KLRAlgebra LaurentPolynomial QuantumGroup TypeA Equiv
 
 /-! ### Scalars: `ℤ((q)) → ℚ((q)) ← ℚ(v)` -/
 
@@ -85,14 +85,16 @@ theorem lsCast_single (n : ℤ) (r : ℤ) :
   rw [HahnSeries.coeff_single, HahnSeries.coeff_single]
   split_ifs <;> simp
 
+open scoped RatFunc
+
 /-- The injective ring map `Ψ : ℚ(v) → ℚ((q))`, `v ↦ q⁻¹` (KL I §3.1: "our `q` is Lusztig's
 `v⁻¹`"): the bar involution `v ↦ v⁻¹` followed by the Laurent expansion `v ↦ q`. -/
 def vToLS : RatFunc ℚ →+* LaurentSeries ℚ :=
-  (RatFunc.coeAlgHom ℚ).toRingHom.comp barQ
+  (algebraMap (RatFunc ℚ) (LaurentSeries ℚ)).comp barQ
 
 theorem vToLS_injective : Function.Injective vToLS := by
   intro a b h
-  have h' : barQ a = barQ b := RatFunc.coe_injective h
+  have h' : barQ a = barQ b := (algebraMap (RatFunc ℚ) (LaurentSeries ℚ)).injective h
   rw [← barQ_barQ a, h', barQ_barQ]
 
 theorem single_neg_one_zpow (n : ℤ) :
@@ -104,11 +106,11 @@ theorem single_neg_one_zpow (n : ℤ) :
   have hne : (HahnSeries.single (-1 : ℤ) (1 : ℚ) : LaurentSeries ℚ) ≠ 0 := by
     simp
   induction n using Int.induction_on with
-  | hz => simp [HahnSeries.single_zero_one]
-  | hp n ih =>
+  | zero => simp [HahnSeries.single_zero_one]
+  | succ n ih =>
     rw [zpow_add_one₀ hne, ih, HahnSeries.single_mul_single, mul_one]
     exact congrArg (fun t => HahnSeries.single t (1 : ℚ)) (by ring)
-  | hn n ih =>
+  | pred n ih =>
     rw [zpow_sub_one₀ hne, ih, hinv, inv_inv, HahnSeries.single_mul_single, mul_one]
     exact congrArg (fun t => HahnSeries.single t (1 : ℚ)) (by ring)
 
@@ -168,18 +170,18 @@ theorem homFormP_of {ν : Multiset I} (j : Seq ν) (x : K0 ((Gkl).grade ν)) :
 theorem homFormP_of_ne {ν μ : Multiset I} (j : Seq ν) (x : K0 ((Gkl).grade μ)) (h : μ ≠ ν) :
     homFormP k Γ j (DirectSum.of (Gkl).K0fam μ x) = 0 := by
   rw [homFormP, AddMonoidHom.comp_apply, LinearMap.toAddMonoidHom_coe,
-    ← DirectSum.lof_eq_of (LaurentPolynomial ℤ), DirectSum.component.of, dif_neg h, map_zero]
+    ← DirectSum.lof_eq_of (LaurentPolynomial ℤ), DirectSum.component.of, dite_eq_right h, map_zero]
 
 /-- `([P_j], (p z)_ν) = p ([P_j], z_ν)`, read in `ℚ((q))` through `Ψ ∘ qToV`. -/
 theorem lsCast_homFormP_smul {ν : Multiset I} (j : Seq ν) (p : LaurentPolynomial ℤ)
     (z : (Gkl).K0R) :
     lsCast (homFormP k Γ j (p • z)) = vToLS (qToV p) * lsCast (homFormP k Γ j z) := by
-  induction p using Finsupp.induction_linear with
+  induction p using AddMonoidAlgebra.induction_linear with
   | zero => simp
   | add p p' hp hp' => rw [add_smul, map_add, map_add, hp, hp', map_add, map_add, add_mul]
   | single n m =>
-    have hT : (Finsupp.single n m : LaurentPolynomial ℤ) = m • T n := by
-      rw [T, Finsupp.smul_single, smul_eq_mul, mul_one]
+    have hT : (AddMonoidAlgebra.single n m : LaurentPolynomial ℤ) = m • T n := by
+      rw [LaurentPolynomial.single_eq_C_mul_T, LaurentPolynomial.smul_eq_C_mul]
     have hTz : homFormP k Γ j ((T n : LaurentPolynomial ℤ) • z) =
         HahnSeries.single n 1 * homFormP k Γ j z := by
       simp only [homFormP, AddMonoidHom.comp_apply, LinearMap.toAddMonoidHom_coe]
@@ -215,17 +217,18 @@ theorem pairP_toK0Q {ν : Multiset I} (j : Seq ν) (z : (Gkl).K0R) :
 /-- `pairP j` is `Ψ`-semilinear over `ℚ(v)`. -/
 theorem pairP_smul {ν : Multiset I} (j : Seq ν) (b : RatFunc ℚ) (t : K0Q k Γ) :
     pairP k Γ j (b • t) = vToLS b * pairP k Γ j t := by
-  refine TensorProduct.induction_on (motive := fun t : TensorProduct (LaurentPolynomial ℤ)
+  refine TensorProduct.inductionOn (motive := fun t : TensorProduct (LaurentPolynomial ℤ)
     (RatFunc ℚ) (Gkl).K0R => pairP k Γ j (b • (t : K0Q k Γ)) = vToLS b * pairP k Γ j t) t
-    ?_ ?_ ?_
-  · show pairP k Γ j (b • (0 : K0Q k Γ)) = _
-    rw [smul_zero, map_zero, mul_zero]
+    ?_ ?_
   · intro a z
-    change pairP k Γ j (b • a ⊗ₜ[LaurentPolynomial ℤ] z) = _
     rw [TensorProduct.smul_tmul', pairP_tmul, pairP_tmul, smul_eq_mul, map_mul, mul_assoc]
   · intro x y hx hy
-    change pairP k Γ j (b • ((x : K0Q k Γ) + y)) = _
-    rw [smul_add, map_add, hx, hy, map_add, mul_add]
+    rw [smul_add]
+    change pairP k Γ j ((b • (x : K0Q k Γ)) + b • (y : K0Q k Γ)) = _
+    exact (map_add (pairP k Γ j) (b • (x : K0Q k Γ)) (b • (y : K0Q k Γ))).trans
+      ((congrArg₂ (· + ·) hx hy).trans
+        ((mul_add _ _ _).symm.trans
+          (congrArg (vToLS b * ·) (map_add (pairP k Γ j) (x : K0Q k Γ) (y : K0Q k Γ)).symm)))
 
 end Pairing
 
@@ -240,7 +243,7 @@ theorem wordFn_ofList_lbl {ν : Multiset I} (l : List I) (h : (l : Multiset I) =
   have hl : Multiset.card ν = l.length := by rw [← h, Multiset.coe_card]
   rw [PreF.wordFn, List.ofFn_congr hl]
   congr 2
-  conv_rhs => rw [← List.ofFn_getElem l]
+  conv_rhs => rw [← List.ofFn_getElem (xs := l)]
   rfl
 
 omit [DecidableEq I] in
@@ -272,9 +275,9 @@ theorem lsCast_homForm_projP {ν : Multiset I} (i j : Seq ν) :
       ∑ p ∈ invSet (Multiset.card ν) σ, cartan Γ (i.lbl p.1) (i.lbl p.2) :=
     Finset.sum_congr rfl fun p _ => cartan_symm Γ _ _
   by_cases h : σ • i = j
-  · rw [if_pos h, if_pos ((smul_eq_iff σ i j).1 h), map_mul, map_pow, lsCast_single, vToLS_zpow,
+  · rw [ite_eq_left h, ite_eq_left ((smul_eq_iff σ i j).1 h), map_mul, map_pow, lsCast_single, vToLS_zpow,
       hE, Int.cast_one, mul_comm]
-  · rw [if_neg h, if_neg (mt (smul_eq_iff σ i j).2 h), map_zero, mul_zero]
+  · rw [ite_eq_right h, ite_eq_right (mt (smul_eq_iff σ i j).2 h), map_zero, mul_zero]
 
 /-- `pairP_y (γ(θ_w)) = ([P_y], [P_w]) = Ψ((θ_w, θ_y))` for words `w`, `y`. -/
 theorem pairP_gammaQ_word (w y : FreeMonoid I) :

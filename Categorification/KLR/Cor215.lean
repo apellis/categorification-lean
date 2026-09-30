@@ -39,7 +39,7 @@ noncomputable section
 
 namespace Categorification.KLR
 
-open Graded HahnSeries KLRAlgebra TypeA
+open Categorification.Graded HahnSeries KLRAlgebra TypeA
 
 /-! ### Lists -/
 
@@ -468,7 +468,7 @@ theorem cor215_zero (M : GMod ((klGradingDatum k Γ).grade ν)) [HasGdim M.gradi
     chDiv Γ M (d' ++ [(i, 1), (j, 1)] ++ d'') h₁ = chDiv Γ M (d' ++ [(j, 1), (i, 1)] ++ d'') h₂ := by
   rw [chDiv, chDiv, gdim_divIdemOf_zero M d' d'' hne hadj h₁ h₂]
   congr 3
-  simp [divAngle_append, divAngle]
+  simp [divAngle]
 
 /-- **KL I, Corollary 2.15, second equality**:
 `ch(M, …iji…) = ch(M, …i^{(2)}j…) + ch(M, …ji^{(2)}…)` if `i · j = -1`. -/
@@ -482,11 +482,11 @@ theorem cor215_neg_one (M : GMod ((klGradingDatum k Γ).grade ν)) [HasGdim M.gr
         chDiv Γ M (d' ++ [(j, 1), (i, 2)] ++ d'') h₃ := by
   rw [chDiv, chDiv, chDiv, gdim_divIdemOf_neg_one M d' d'' hadj h₁ h₂ h₃]
   have e₁ : divAngle (d' ++ [(i, 1), (j, 1), (i, 1)] ++ d'') = divAngle d' + divAngle d'' := by
-    simp [divAngle_append, divAngle]
+    simp [divAngle]
   have e₂ : divAngle (d' ++ [(i, 2), (j, 1)] ++ d'') = divAngle d' + divAngle d'' + 1 := by
-    simp [divAngle_append, divAngle]; omega
+    simp [divAngle]; omega
   have e₃ : divAngle (d' ++ [(j, 1), (i, 2)] ++ d'') = divAngle d' + divAngle d'' + 1 := by
-    simp [divAngle_append, divAngle]; omega
+    simp [divAngle]; omega
   rw [e₁, e₂, e₃, mul_add, ← mul_assoc, ← mul_assoc, single_mul_single, one_mul]
   congr 3 <;> push_cast <;> ring_nf
 

@@ -35,8 +35,8 @@ theorem klP_ne_zero [Nontrivial k] (o : I → I → Prop) [DecidableRel o] (a b 
   unfold klP
   split_ifs
   · intro h
-    have := congrArg (MvPolynomial.coeff (Finsupp.single 0 1)) h
-    simp [MvPolynomial.coeff_X', Finsupp.single_eq_single_iff] at this
+    have := congrArg (fun p : MvPolynomial (Fin 2) k => p.coeff (Finsupp.single 0 1)) h
+    simp [MvPolynomial.coeff_X, Finsupp.single_eq_single_iff] at this
   · exact one_ne_zero
 
 /-- A canonical orientation of `Γ`: orient each edge along an (arbitrary) well-order of `I`. -/
@@ -51,7 +51,7 @@ theorem stdOrient_spec : ∀ a b, Γ.Adj a b → (stdOrient a b ↔ ¬ stdOrient
   constructor
   · intro h h'; exact asymm (r := WellOrderingRel) h h'
   · intro h
-    rcases (WellOrderingRel.isWellOrder (α := I)).trichotomous a b with h1 | h1 | h1
+    rcases trichotomous_of (WellOrderingRel (α := I)) a b with h1 | h1 | h1
     · exact h1
     · exact absurd h1 hne
     · exact absurd h1 h
@@ -63,7 +63,7 @@ variable (ρ : Perm (Fin (Multiset.card ν)) → List ℕ)
 `_jR(ν)_i` is a free module with basis `ψ_{ρ w} x^u e_i` (`w • i = j`, `u ∈ ℕ^m`). Over `ℤ`
 this is the statement of the paper; it holds over any integral domain. -/
 noncomputable def cornerBasis (j i : Seq ν) :
-    Basis (CornerIdx j i) k (corner (Q := klQ (k := k) Γ) j i) :=
+    Module.Basis (CornerIdx j i) k (corner (Q := klQ (k := k) Γ) j i) :=
   KLRAlgebra.cornerBasis (klQ_eq_klP (Γ := Γ) stdOrient_spec) (fun a b _ => klP_ne_zero _ a b)
     ρ hρ j i
 
@@ -74,7 +74,7 @@ theorem cornerBasis_apply (j i : Seq ν) (b : CornerIdx j i) :
 
 /-- The whole ring `R(ν)` has basis `ψ_{ρ w} x^u e_i` (all `i, w, u`). -/
 noncomputable def basis :
-    Basis (Seq ν × Perm (Fin (Multiset.card ν)) × (Fin (Multiset.card ν) →₀ ℕ)) k (R1 k Γ ν) :=
+    Module.Basis (Seq ν × Perm (Fin (Multiset.card ν)) × (Fin (Multiset.card ν) →₀ ℕ)) k (R1 k Γ ν) :=
   KLRAlgebra.basis (klQ_eq_klP (Γ := Γ) stdOrient_spec) (fun a b _ => klP_ne_zero _ a b) ρ hρ
 
 /-- **KL I, Corollary 2.6.** For every orientation of `Γ`, `Pol_ν` is a faithful

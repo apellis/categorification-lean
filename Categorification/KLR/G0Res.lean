@@ -202,8 +202,8 @@ theorem g0ExtTensorEquiv_toLinearMap :
     H.g0ExtTensorEquiv.toLinearMap = TensorProduct.lift (G0.extTensor 𝒜 ℬ) := by
   refine ((G0.topBasis H.fdA).tensorProduct (G0.topBasis H.fdB)).ext fun i => ?_
   obtain ⟨b, b'⟩ := i
-  rw [LinearEquiv.coe_coe, g0ExtTensorEquiv, Basis.equiv_apply, Basis.unitsSMul_apply,
-    Basis.tensorProduct_apply, TensorProduct.lift.tmul, G0.topBasis_apply, G0.topBasis_apply,
+  rw [LinearEquiv.coe_coe, g0ExtTensorEquiv, Module.Basis.equiv_apply, Module.Basis.unitsSMul_apply,
+    Module.Basis.tensorProduct_apply, TensorProduct.lift.tmul, G0.topBasis_apply, G0.topBasis_apply,
     G0.topBasis_apply, G0.extTensor_of, Units.smul_def, coe_unitT]
   exact (H.g0_of_topT b b').symm
 
@@ -223,7 +223,7 @@ end Graded
 
 namespace KLR
 
-open Graded KLRAlgebra
+open Categorification.Graded KLRAlgebra
 
 variable {I : Type*} [DecidableEq I] {k : Type*} [Field k] {Q : I → I → MvPolynomial (Fin 2) k}
   {ν ν' : Multiset I}
@@ -366,14 +366,14 @@ variable {P : I → I → MvPolynomial (Fin 2) k}
 def g0TensorEquiv (ν ν' : Multiset I) :
     G0 (G.grade ν) ⊗[LaurentPolynomial ℤ] G0 (G.grade ν') ≃ₗ[LaurentPolynomial ℤ]
       G0 (tensorGrading (G.grade ν) (G.grade ν')) :=
-  haveI := G.hasGdim_grade' (ν := ν) hPQ hP hG
-  haveI := G.hasGdim_grade' (ν := ν') hPQ hP hG
+  have := G.hasGdim_grade' (ν := ν) hPQ hP hG
+  have := G.hasGdim_grade' (ν := ν') hPQ hP hG
   (G.tensorK0Hyp hPQ hP hG ν ν').g0ExtTensorEquiv
 
 @[simp] theorem g0TensorEquiv_tmul (x : G0 (G.grade ν)) (y : G0 (G.grade ν')) :
     G.g0TensorEquiv hPQ hP hG ν ν' (x ⊗ₜ y) = G0.extTensor (G.grade ν) (G.grade ν') x y := by
-  haveI := G.hasGdim_grade' (ν := ν) hPQ hP hG
-  haveI := G.hasGdim_grade' (ν := ν') hPQ hP hG
+  have := G.hasGdim_grade' (ν := ν) hPQ hP hG
+  have := G.hasGdim_grade' (ν := ν') hPQ hP hG
   exact (G.tensorK0Hyp hPQ hP hG ν ν').g0ExtTensorEquiv_tmul x y
 
 theorem g0TensorEquiv_symm_of (M : GFin (G.grade ν)) (M' : GFin (G.grade ν')) :

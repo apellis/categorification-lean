@@ -26,6 +26,8 @@ Consequently (with `n = ⟨i, λ⟩`) the relations of eq. (3.4) and the degree-
 * `leftTrace_downdots_eq_one`: `tr(x^{n-1}) = 1` for `n ≥ 1`.
 -/
 
+set_option backward.isDefEq.respectTransparency false
+
 noncomputable section
 
 namespace Categorification.KL3.Diagram
@@ -70,11 +72,11 @@ theorem ccwReal_eq_leftTrace (lam : X) (i : I) (m : ℕ) :
   rw [leftTrace, hD]
   refine (pres RD k).diag_eq_of_layers_eq (f := ccwReal RD lam i m) (g := D) ?_
   rw [hL]
-  simp only [ccwReal, layers_mkD, layList_append, layList_cons, layList_nil, List.map_append,
-    List.map_cons, List.map_nil, List.cons_append, List.nil_append, List.singleton_append,
+  simp only [ccwReal, layers_mkD, List.map_append,
+    List.map_cons, List.map_nil, List.cons_append, List.nil_append,
     layList, List.map_replicate, Layer.wl, lay, strandF_obj]
   simp only [wt_cons, wt_nil, wd_cons, wd_nil, Shape.dom_cup, Shape.dom_cap, Shape.dom_dot,
-    List.nil_append, List.append_nil, List.cons_append, Shape.gen, Letter.dual_mk, Bool.not_true,
+    List.append_nil, Shape.gen, Letter.dual_mk, Bool.not_true,
     Bool.not_false]
   congr 1
   · region_tac
@@ -97,13 +99,13 @@ theorem cwReal_eq_leftTrace (lam : X) (i : I) (m : ℕ) :
   rw [leftTrace, hD]
   refine (pres RD k).diag_eq_of_layers_eq (f := cwReal RD lam i m) (g := D) ?_
   rw [hL]
-  simp only [cwReal, layers_mkD, layList_append, layList_cons, layList_nil, List.map_append,
-    List.map_cons, List.map_nil, List.cons_append, List.nil_append, List.singleton_append,
+  simp only [cwReal, layers_mkD, List.map_append,
+    List.map_cons, List.map_nil, List.cons_append, List.nil_append,
     layList, List.map_replicate, Layer.wl, lay, dualHom_obj,
-    Signature.ColourDuality.dualWord_cons, Signature.ColourDuality.dualWord_nil,
-    Signature.ColourDuality.pivotal_dual, inv_dual]
+
+    ]
   simp only [wt_cons, wt_nil, wd_cons, wd_nil, Shape.dom_cup, Shape.dom_cap, Shape.dom_dot,
-    List.nil_append, List.append_nil, List.cons_append, Shape.gen, Letter.dual_mk, Bool.not_true,
+    List.append_nil, Shape.gen, Letter.dual_mk, Bool.not_true,
     Bool.not_false]
   congr 1
   · region_tac

@@ -53,7 +53,7 @@ variable {k : Type v} [Field k] {A : Type u} [Ring A] [Algebra k A] {𝒜 : ℤ 
 
 /-- The finite product `Π_t M_t` of graded projective modules, graded by `Graded.piGrading`. -/
 abbrev pi {ι : Type} [Fintype ι] [DecidableEq ι] (Ms : ι → GProj 𝒜) : GProj 𝒜 :=
-  haveI : Module.Projective A (⨁ t, (Ms t).carrier) :=
+  have : Module.Projective A (⨁ t, (Ms t).carrier) :=
     inferInstanceAs (Module.Projective A (Π₀ t, (Ms t).carrier))
   { carrier := ∀ t, (Ms t).carrier
     grading := piGrading fun t => (Ms t).grading
@@ -88,8 +88,8 @@ def piOption {α : Type} [Fintype α] [DecidableEq α] (Ms : Option α → GProj
 /-- A product over an empty index type is isomorphic to its square. -/
 def piEmptyProdSelf {α : Type} [Fintype α] [DecidableEq α] [IsEmpty α] (Ms : α → GProj 𝒜) :
     (pi Ms).Iso ((pi Ms).prod (pi Ms)) :=
-  haveI : Subsingleton (pi Ms).carrier := inferInstanceAs (Subsingleton (∀ t, (Ms t).carrier))
-  haveI : Subsingleton ((pi Ms).prod (pi Ms)).carrier :=
+  have : Subsingleton (pi Ms).carrier := inferInstanceAs (Subsingleton (∀ t, (Ms t).carrier))
+  have : Subsingleton ((pi Ms).prod (pi Ms)).carrier :=
     inferInstanceAs (Subsingleton ((pi Ms).carrier × (pi Ms).carrier))
   { toLinearEquiv := LinearEquiv.ofSubsingleton _ _
     map_mem' := fun d x _ => by
@@ -116,7 +116,7 @@ theorem of_pi {ι : Type} [Fintype ι] [DecidableEq ι] (Ms : ι → GProj 𝒜)
     ?_ ?_ ?_ ι
   · intro α β _ e h _ Ms
     classical
-    letI := Fintype.ofEquiv β e.symm
+    let := Fintype.ofEquiv β e.symm
     rw [← of_eq_of_iso (piReindex Ms e), h]
     exact Fintype.sum_equiv e _ _ fun _ => rfl
   · intro _ Ms
@@ -142,7 +142,7 @@ end Graded
 
 namespace KLR
 
-open Graded KLRAlgebra TypeA MvPolynomial LaurentPolynomial
+open Categorification.Graded KLRAlgebra TypeA MvPolynomial LaurentPolynomial
 
 variable {I : Type*} [DecidableEq I] {k : Type*} [Field k] {Q : I → I → MvPolynomial (Fin 2) k}
   {ν ν' : Multiset I}

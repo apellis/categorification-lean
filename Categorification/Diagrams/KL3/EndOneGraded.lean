@@ -47,6 +47,8 @@ Proposition 3.6 (it needs a nonzero representation of `U`) and is not proved her
 `cor37_isUnit` is the part of "local graded" that follows from Proposition 3.6.
 -/
 
+set_option backward.isDefEq.respectTransparency false
+
 noncomputable section
 
 namespace Categorification.KL3.Diagram
@@ -94,12 +96,10 @@ theorem bubGen_mem_HDe (i : I) (α : ℕ) :
   split_ifs
   · have := Presentation.lin_mem_homDeg (P := pres RD k)
       (cwL_mem (RD := RD) (k := k) lam i (ip RD i lam - 1 + α))
-    convert this using 1
-    rw [← two_mul_di C i]; ring_nf
+    convert this using 1 <;> first | rfl | (rw [← two_mul_di C i]; ring_nf)
   · have := Presentation.lin_mem_homDeg (P := pres RD k)
       (ccwL_mem (RD := RD) (k := k) lam i (-ip RD i lam - 1 + α))
-    convert this using 1
-    rw [← two_mul_di C i]; ring_nf
+    convert this using 1 <;> first | rfl | (rw [← two_mul_di C i]; ring_nf)
 
 theorem bubMap_X_mem (x : I × ℕ) : bubMap RD k lam (MvPolynomial.X x) ∈ HDo RD k lam (wPi C x) := by
   simp only [bubMap, MvPolynomial.aeval_X, mem_HDo, EndOne.val_of, wPi]
@@ -206,7 +206,7 @@ theorem isBub_HDe_zero {x : End ((pres RD k).obj (ob RD lam []))} (hx : IsBub RD
     · rw [h]
     · by_contra hs
       exact h (weight_wPi_eq_zero (hp hs)).symm
-  rw [this, MvPolynomial.algHom_C, EndOne.val_algebraMap, MvPolynomial.coeff_C, if_pos rfl]
+  rw [this, MvPolynomial.algHom_C, EndOne.val_algebraMap, MvPolynomial.coeff_C, ite_eq_left rfl]
 
 /-- The monomials of `Π_λ` of weighted degree `d` (KL III's "bubble monomials" of degree `d`);
 for finite `I` their number is the coefficient of `q^d` in `π` (eq. (3.26)). -/
@@ -270,7 +270,7 @@ theorem monDeg_finite [Finite I] (d : ℤ) : (monDeg C d).Finite := by
   · rw [Finset.mem_range]
     by_cases hx : x ∈ s.support
     · have := (monDeg_bound hs x hx).2; omega
-    · rw [Finsupp.not_mem_support_iff.1 hx]; omega
+    · rw [Finsupp.notMem_support_iff.1 hx]; omega
 
 /-! ## The series `π` (eq. (3.26)) -/
 
@@ -293,7 +293,6 @@ def toFinsuppN {N : ℕ} (f : I × Fin N → ℕ) : (I × ℕ) →₀ ℕ :=
   Finsupp.onFinset (Finset.univ.image fun x : I × Fin N => (x.1, x.2.val))
     (fun y => if h : y.2 < N then f (y.1, ⟨y.2, h⟩) else 0) (by
       intro y hy
-      dsimp only at hy
       split_ifs at hy with h
       · exact Finset.mem_image.2 ⟨(y.1, ⟨y.2, h⟩), Finset.mem_univ _, rfl⟩
       · exact absurd rfl hy)
@@ -309,7 +308,7 @@ theorem weight_toFinsuppN {N : ℕ} (f : I × Fin N → ℕ) :
       exact Prod.ext h.1 (Fin.ext h.2))]
   push_cast
   refine Finset.sum_congr rfl fun x _ => ?_
-  rw [dif_pos x.2.isLt, wN, wPi, nsmul_eq_mul]
+  rw [dite_eq_left x.2.isLt, wN, wPi, nsmul_eq_mul]
   push_cast
   rw [Int.toNat_of_nonneg (C.dot_self_pos x.1).le]
 
@@ -321,25 +320,25 @@ theorem piTrunc_coeff (N d : ℕ) (hd : d ≤ N) :
   classical
   rw [piTrunc, Finset.prod_univ_sum]
   simp_rw [Finset.prod_pow_eq_pow_sum]
-  rw [Polynomial.finset_sum_coeff]
+  rw [Polynomial.finsetSum_coeff]
   simp_rw [Polynomial.coeff_X_pow]
   rw [Finset.sum_boole, Set.ncard_eq_toFinset_card _ (monDeg_finite (d : ℤ))]
   norm_cast
   refine Finset.card_nbij' toFinsuppN (fun s x => s (x.1, x.2.val)) ?_ ?_ ?_ ?_
   · intro f hf
-    rw [Finset.mem_filter] at hf
-    rw [Set.Finite.mem_toFinset]
+    simp only [Finset.mem_coe, Finset.mem_filter] at hf
+    simp only [Finset.mem_coe, Set.Finite.mem_toFinset]
     show Finsupp.weight (wPi C) (toFinsuppN f) = (d : ℤ)
     rw [weight_toFinsuppN, ← hf.2]
   · intro s hs
-    rw [Set.Finite.mem_toFinset] at hs
-    rw [Finset.mem_filter, Fintype.mem_piFinset]
+    simp only [Finset.mem_coe, Set.Finite.mem_toFinset] at hs
+    simp only [Finset.mem_coe, Finset.mem_filter, Fintype.mem_piFinset]
     refine ⟨fun x => ?_, ?_⟩
     · show s (x.1, x.2.val) ∈ Finset.range (N + 1)
       rw [Finset.mem_range]
       by_cases hx : (x.1, x.2.val) ∈ s.support
       · have := (monDeg_bound hs _ hx).2; omega
-      · rw [Finsupp.not_mem_support_iff.1 hx]; omega
+      · rw [Finsupp.notMem_support_iff.1 hx]; omega
     · have hs' : Finsupp.weight (wPi C) s = d := hs
       have e : s = toFinsuppN (fun x : I × Fin N => s (x.1, x.2.val)) := by
         ext y
@@ -353,7 +352,7 @@ theorem piTrunc_coeff (N d : ℕ) (hd : d ≤ N) :
     funext x
     simp [toFinsuppN, Finsupp.onFinset_apply, x.2.isLt]
   · intro s hs
-    rw [Set.Finite.mem_toFinset] at hs
+    simp only [Finset.mem_coe, Set.Finite.mem_toFinset] at hs
     ext y
     simp only [toFinsuppN, Finsupp.onFinset_apply]
     split_ifs with h

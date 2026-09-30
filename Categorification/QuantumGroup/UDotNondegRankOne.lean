@@ -84,18 +84,18 @@ theorem fF_word_self_ne_zero [Subsingleton I] (hq : ∀ n : ℕ, 0 < n → q ^ n
 theorem radK_eq_bot [Subsingleton I] (hq : ∀ n : ℕ, 0 < n → q ^ n ≠ 1) (hc0 : ∀ i, c i ≠ 0)
     {x : PreF K I} (hx : x ∈ radK C q c) : x = 0 := by
   ext w
-  have hsum : x = ∑ u ∈ x.support, x u • (word u : PreF K I) := by
-    conv_lhs => rw [← Finsupp.sum_single x]
+  have hsum : x = ∑ u ∈ x.coeff.support, x.coeff u • (word u : PreF K I) := by
+    conv_lhs => rw [← MonoidAlgebra.sum_coeff_single x]
     refine Finset.sum_congr rfl fun u _ => ?_
-    exact single_eq_smul_word u (x u)
-  have key : fF C q c x (word w) = x w * fF C q c (word w) (word w) := by
-    have e : fF C q c x (word w) = ∑ u ∈ x.support, x u * fF C q c (word u) (word w) := by
+    exact single_eq_smul_word u (x.coeff u)
+  have key : fF C q c x (word w) = x.coeff w * fF C q c (word w) (word w) := by
+    have e : fF C q c x (word w) = ∑ u ∈ x.coeff.support, x.coeff u * fF C q c (word u) (word w) := by
       conv_lhs => rw [hsum]
       rw [map_sum, LinearMap.sum_apply]
       simp only [map_smul, LinearMap.smul_apply, smul_eq_mul]
     rw [e, Finset.sum_eq_single w (fun u _ huw => by
       rw [fF_word_eq_zero (fun h => huw (eq_of_wt_eq_of_subsingleton h)), mul_zero])
-      (fun h => by rw [Finsupp.not_mem_support_iff.1 h, zero_mul])]
+      (fun h => by rw [Finsupp.notMem_support_iff.1 h, zero_mul])]
   have h0 : fF C q c x (word w) = 0 := (mem_radK.1 hx) _
   rw [key] at h0
   exact (mul_eq_zero.1 h0).resolve_right (fF_word_self_ne_zero hq hc0 w)

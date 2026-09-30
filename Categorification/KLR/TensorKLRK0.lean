@@ -35,7 +35,7 @@ noncomputable section
 
 namespace Categorification
 
-open Graded GProj DirectSum MvPolynomial
+open Categorification.Graded GProj DirectSum MvPolynomial
 open scoped TensorProduct
 
 namespace Graded
@@ -75,16 +75,15 @@ theorem polNu_tmul_one_smul_eq_zero
     (hU : IsGradedSimple (tensorGrading (G.grade ν) (G.grade ν')) 𝒰) {f : symNu k ν}
     (hf : f ∈ symNuPlus k ν) (u : U) :
     ((polNu (f : Pol k ν) : KLRAlgebra k Q ν) ⊗ₜ[k] (1 : KLRAlgebra k Q ν')) • u = 0 := by
-  haveI := G.hasGdim_grade' (ν := ν) hPQ hP hG
-  haveI := G.hasGdim_grade' (ν := ν') hPQ hP hG
+  have := G.hasGdim_grade' (ν := ν) hPQ hP hG
+  have := G.hasGdim_grade' (ν := ν') hPQ hP hG
   obtain ⟨N, hN⟩ := exists_grade_eq_bot_of_hasGdim (tensorGrading (G.grade ν) (G.grade ν'))
   set z : KLRAlgebra k Q ν := polNu (f : Pol k ν)
   have hz : ∀ a : KLRAlgebra k Q ν, Commute z a := fun a =>
     ((Subalgebra.mem_center_iff.1 (KLRAlgebra.polNu_mem_center hPQ hP f.2)) a).symm
   have hc : ∀ t : KLRAlgebra k Q ν ⊗[k] KLRAlgebra k Q ν', Commute (z ⊗ₜ[k] 1) t := by
     intro t
-    induction t using TensorProduct.induction_on with
-    | zero => exact Commute.zero_right _
+    induction t using TensorProduct.inductionOn with
     | tmul a b =>
       show (z ⊗ₜ[k] (1 : KLRAlgebra k Q ν')) * (a ⊗ₜ[k] b) = (a ⊗ₜ[k] b) * (z ⊗ₜ[k] 1)
       rw [Algebra.TensorProduct.tmul_mul_tmul, Algebra.TensorProduct.tmul_mul_tmul, one_mul,
@@ -111,16 +110,15 @@ theorem one_tmul_polNu_smul_eq_zero
     (hU : IsGradedSimple (tensorGrading (G.grade ν) (G.grade ν')) 𝒰) {f : symNu k ν'}
     (hf : f ∈ symNuPlus k ν') (u : U) :
     ((1 : KLRAlgebra k Q ν) ⊗ₜ[k] (polNu (f : Pol k ν') : KLRAlgebra k Q ν')) • u = 0 := by
-  haveI := G.hasGdim_grade' (ν := ν) hPQ hP hG
-  haveI := G.hasGdim_grade' (ν := ν') hPQ hP hG
+  have := G.hasGdim_grade' (ν := ν) hPQ hP hG
+  have := G.hasGdim_grade' (ν := ν') hPQ hP hG
   obtain ⟨N, hN⟩ := exists_grade_eq_bot_of_hasGdim (tensorGrading (G.grade ν) (G.grade ν'))
   set z : KLRAlgebra k Q ν' := polNu (f : Pol k ν')
   have hz : ∀ a : KLRAlgebra k Q ν', Commute z a := fun a =>
     ((Subalgebra.mem_center_iff.1 (KLRAlgebra.polNu_mem_center hPQ hP f.2)) a).symm
   have hc : ∀ t : KLRAlgebra k Q ν ⊗[k] KLRAlgebra k Q ν', Commute (1 ⊗ₜ[k] z) t := by
     intro t
-    induction t using TensorProduct.induction_on with
-    | zero => exact Commute.zero_right _
+    induction t using TensorProduct.inductionOn with
     | tmul a b =>
       show ((1 : KLRAlgebra k Q ν) ⊗ₜ[k] z) * (a ⊗ₜ[k] b) = (a ⊗ₜ[k] b) * (1 ⊗ₜ[k] z)
       rw [Algebra.TensorProduct.tmul_mul_tmul, Algebra.TensorProduct.tmul_mul_tmul, one_mul,
@@ -145,13 +143,13 @@ include hPQ hP hG in
 `Sym⁺(ν) ⊗ R(ν') + R(ν) ⊗ Sym⁺(ν')`, hence are quotients of `R'(ν) ⊗ R'(ν')`. -/
 theorem finiteDimensional_of_isGradedSimple_tensor
     (hU : IsGradedSimple (tensorGrading (G.grade ν) (G.grade ν')) 𝒰) : FiniteDimensional k U := by
-  haveI := hU.nontrivial
+  have := hU.nontrivial
   obtain ⟨j, v, hv, hv0⟩ := exists_mem_ne_zero 𝒰
   set I₁ := (KLRAlgebra.symPlusIdeal k Q ν).restrictScalars k
   set I₂ := (KLRAlgebra.symPlusIdeal k Q ν').restrictScalars k
-  haveI : FiniteDimensional k (KLRAlgebra k Q ν ⧸ I₁) :=
+  have : FiniteDimensional k (KLRAlgebra k Q ν ⧸ I₁) :=
     KLRAlgebra.finiteDimensional_quotient_symPlusIdeal_restrictScalars hPQ hP
-  haveI : FiniteDimensional k (KLRAlgebra k Q ν' ⧸ I₂) :=
+  have : FiniteDimensional k (KLRAlgebra k Q ν' ⧸ I₂) :=
     KLRAlgebra.finiteDimensional_quotient_symPlusIdeal_restrictScalars hPQ hP
   have hL : ∀ a ∈ KLRAlgebra.symPlusIdeal k Q ν, ∀ b : KLRAlgebra k Q ν',
       (a ⊗ₜ[k] b) • v = 0 := by
@@ -190,10 +188,10 @@ theorem finiteDimensional_of_isGradedSimple_tensor
   -- the map `R'(ν) ⊗ R'(ν') → U`, `ā ⊗ b̄ ↦ (a ⊗ b) v`
   let β : KLRAlgebra k Q ν →ₗ[k] KLRAlgebra k Q ν' →ₗ[k] U :=
     LinearMap.mk₂ k (fun a b => (a ⊗ₜ[k] b) • v)
-      (fun a a' b => by beta_reduce; rw [TensorProduct.add_tmul, add_smul])
-      (fun c a b => by beta_reduce; rw [← TensorProduct.smul_tmul', smul_assoc])
-      (fun a b b' => by beta_reduce; rw [TensorProduct.tmul_add, add_smul])
-      (fun c a b => by beta_reduce; rw [TensorProduct.tmul_smul, smul_assoc])
+      (fun a a' b => by rw [TensorProduct.add_tmul, add_smul])
+      (fun c a b => by rw [← TensorProduct.smul_tmul', smul_assoc])
+      (fun a b b' => by rw [TensorProduct.tmul_add, add_smul])
+      (fun c a b => by rw [TensorProduct.tmul_smul, smul_assoc])
   have hβ : ∀ a, I₂ ≤ LinearMap.ker (β a) := fun a b hb => hR b hb a
   let β' : KLRAlgebra k Q ν →ₗ[k] (KLRAlgebra k Q ν' ⧸ I₂) →ₗ[k] U :=
     { toFun := fun a => I₂.liftQ (β a) (hβ a)
@@ -218,8 +216,7 @@ theorem finiteDimensional_of_isGradedSimple_tensor
     rw [hU.span_singleton_eq_top hv hv0]; trivial
   obtain ⟨t, rfl⟩ := Submodule.mem_span_singleton.1 hu
   clear hu
-  induction t using TensorProduct.induction_on with
-  | zero => exact ⟨0, by rw [map_zero, zero_smul]⟩
+  induction t using TensorProduct.inductionOn with
   | tmul a b => exact ⟨_, hΨ a b⟩
   | add s t hs ht =>
     obtain ⟨x, hx⟩ := hs
@@ -239,16 +236,16 @@ theorem tensorK0Hyp : TensorK0Hyp (G.grade ν) (G.grade ν') where
   endA b f := by
     obtain ⟨-, -, hnil⟩ := KLRAlgebra.crystal_hypotheses_of_isGradedSimple G hG b.top.grading
       hPQ hP (IndecClass.isGradedSimple_top b)
-    haveI := G.finiteDimensional_top hPQ hP hG ν b
-    haveI := KLRAlgebra.isSimpleModule_of_isGradedSimple hPQ hP G hG b.top.grading
+    have := G.finiteDimensional_top hPQ hP hG ν b
+    have := KLRAlgebra.isSimpleModule_of_isGradedSimple hPQ hP G hG b.top.grading
       (IndecClass.isGradedSimple_top b)
     obtain ⟨c, hc⟩ := KLRAlgebra.exists_eq_smul_of_isSimpleModule hPQ hP hnil f
     exact ⟨c, LinearMap.ext hc⟩
   endB b f := by
     obtain ⟨-, -, hnil⟩ := KLRAlgebra.crystal_hypotheses_of_isGradedSimple G hG b.top.grading
       hPQ hP (IndecClass.isGradedSimple_top b)
-    haveI := G.finiteDimensional_top hPQ hP hG ν' b
-    haveI := KLRAlgebra.isSimpleModule_of_isGradedSimple hPQ hP G hG b.top.grading
+    have := G.finiteDimensional_top hPQ hP hG ν' b
+    have := KLRAlgebra.isSimpleModule_of_isGradedSimple hPQ hP G hG b.top.grading
       (IndecClass.isGradedSimple_top b)
     obtain ⟨c, hc⟩ := KLRAlgebra.exists_eq_smul_of_isSimpleModule hPQ hP hnil f
     exact ⟨c, LinearMap.ext hc⟩
@@ -258,14 +255,14 @@ theorem tensorK0Hyp : TensorK0Hyp (G.grade ν) (G.grade ν') where
 def k0TensorEquiv :
     K0 (G.grade ν) ⊗[LaurentPolynomial ℤ] K0 (G.grade ν') ≃ₗ[LaurentPolynomial ℤ]
       K0 (tensorGrading (G.grade ν) (G.grade ν')) :=
-  haveI := G.hasGdim_grade' (ν := ν) hPQ hP hG
-  haveI := G.hasGdim_grade' (ν := ν') hPQ hP hG
+  have := G.hasGdim_grade' (ν := ν) hPQ hP hG
+  have := G.hasGdim_grade' (ν := ν') hPQ hP hG
   (G.tensorK0Hyp hPQ hP hG ν ν').extTensorEquiv
 
 @[simp] theorem k0TensorEquiv_tmul (x : K0 (G.grade ν)) (y : K0 (G.grade ν')) :
     G.k0TensorEquiv hPQ hP hG ν ν' (x ⊗ₜ y) = K0.extTensor (G.grade ν) (G.grade ν') x y := by
-  haveI := G.hasGdim_grade' (ν := ν) hPQ hP hG
-  haveI := G.hasGdim_grade' (ν := ν') hPQ hP hG
+  have := G.hasGdim_grade' (ν := ν) hPQ hP hG
+  have := G.hasGdim_grade' (ν := ν') hPQ hP hG
   exact (G.tensorK0Hyp hPQ hP hG ν ν').extTensorEquiv_tmul x y
 
 theorem k0TensorEquiv_symm_extTensor (x : K0 (G.grade ν)) (y : K0 (G.grade ν')) :
@@ -279,8 +276,8 @@ theorem nonempty_iso_extTensor_rep
     (c : IndecClass (tensorGrading (G.grade ν) (G.grade ν'))) :
     ∃ (b : IndecClass (G.grade ν)) (b' : IndecClass (G.grade ν')) (a : ℤ),
       Nonempty (c.rep.Iso ((b.rep.extTensor b'.rep).shift a)) := by
-  haveI := G.hasGdim_grade' (ν := ν) hPQ hP hG
-  haveI := G.hasGdim_grade' (ν := ν') hPQ hP hG
+  have := G.hasGdim_grade' (ν := ν) hPQ hP hG
+  have := G.hasGdim_grade' (ν := ν') hPQ hP hG
   set H := G.tensorK0Hyp hPQ hP hG ν ν'
   exact ⟨H.fst c, H.snd c, H.shift c, H.nonempty_iso_rep c⟩
 
@@ -289,8 +286,8 @@ include hPQ hP hG in
 of `R(ν)`, `R(ν')` (absolute indecomposability). -/
 theorem isIndec_extTensor_rep (b : IndecClass (G.grade ν)) (b' : IndecClass (G.grade ν')) :
     (b.rep.extTensor b'.rep).IsIndec (KLRAlgebra k Q ν ⊗[k] KLRAlgebra k Q ν') := by
-  haveI := G.hasGdim_grade' (ν := ν) hPQ hP hG
-  haveI := G.hasGdim_grade' (ν := ν') hPQ hP hG
+  have := G.hasGdim_grade' (ν := ν) hPQ hP hG
+  have := G.hasGdim_grade' (ν := ν') hPQ hP hG
   exact (G.tensorK0Hyp hPQ hP hG ν ν').isIndec_extTensor_rep b b'
 
 end GradingDatum

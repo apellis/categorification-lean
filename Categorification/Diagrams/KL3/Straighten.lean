@@ -188,7 +188,7 @@ theorem Sep.dg_eq {j : I} {L R : List (Letter I)} {B : List (LayerData I)}
       simp only [List.append_assoc, List.singleton_append] at e ei ⊢
       rw [e]
       simp only [whL, List.map_cons, List.map_nil, List.append_nil, List.cons_append,
-        List.nil_append, List.singleton_append, List.append_assoc] at ei ⊢
+        List.nil_append, List.append_assoc] at ei ⊢
       rw [← ei]
 
 /-! ## Locating a strand in a layer -/
@@ -498,7 +498,7 @@ theorem elimRL : ∀ (n : ℕ) (ls : List (LayerData I)) {s t : List (Letter I)}
     have hn' : ncc (A₀ ++ BL.map (whL [] w₂) ++ BR.map (whL L₁ []) ++ C) < n := by
       have e1 := ncc_eq_of_perm hp
       simp only [ncc_append, ncc_map_whL] at e1 ⊢
-      simp only [ncc_append, ncc_cons, Shape.isCupCap, if_true] at hn
+      simp only [ncc_append, ncc_cons, Shape.isCupCap, ite_true] at hn
       omega
     have h1 : SChain (w₁ ++ w₂) (BL.map (whL [] w₂)) (L₁ ++ up j :: w₂) := by
       simpa using hBL.whisk [] w₂
@@ -565,7 +565,7 @@ theorem elimLR : ∀ (n : ℕ) (ls : List (LayerData I)) {s t : List (Letter I)}
     have hn' : ncc (A₀ ++ BR.map (whL w₁ []) ++ BL.map (whL [] R₁) ++ C) < n := by
       have e1 := ncc_eq_of_perm hp
       simp only [ncc_append, ncc_map_whL] at e1 ⊢
-      simp only [ncc_append, ncc_cons, Shape.isCupCap, if_true] at hn
+      simp only [ncc_append, ncc_cons, Shape.isCupCap, ite_true] at hn
       omega
     have h1 : SChain (w₁ ++ w₂) (BR.map (whL w₁ [])) (w₁ ++ up j :: R₁) := by
       simpa using hBR.whisk w₁ []

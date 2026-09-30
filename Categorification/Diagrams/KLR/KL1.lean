@@ -82,14 +82,14 @@ theorem kl1_sq_eq (c : I) : (P).diag (X2 c c ≫ X2 c c) = 0 :=
 theorem kl1_sq_nonadj {c d : I} (hne : c ≠ d) (h : ¬ Γ.Adj c d) :
     (P).diag (X2 c d ≫ X2 d c) = 𝟙 _ := by
   rw [sqNe_at (klQ Γ) (u := []) (v := []) hne _ (D0 c d) (D1 c d) rfl rfl rfl]
-  simp only [klQ, if_neg h]
+  simp only [klQ, ite_eq_right h]
   exact ncEval_one' (A := End ((P).obj (ob [c, d]))) _
 
 /-- KL I (2.3), `i · j = -1`: a double crossing of joined colours is `x₀ + x₁`. -/
 theorem kl1_sq_adj {c d : I} (h : Γ.Adj c d) :
     (P).diag (X2 c d ≫ X2 d c) = (P).diag (D0 c d) + (P).diag (D1 c d) := by
   rw [sqNe_at (klQ Γ) (u := []) (v := []) (Γ.ne_of_adj h) _ (D0 c d) (D1 c d) rfl rfl rfl]
-  simp only [klQ, if_pos h]
+  simp only [klQ, ite_eq_left h]
   exact ncEval_X_add_X (A := End ((P).obj (ob [c, d]))) _
 
 /-- KL I (2.4), left: for `i ≠ j`, `ψ ≫ x₀ = x₁ ≫ ψ` on `[i, j]`. -/
@@ -120,7 +120,7 @@ theorem kl1_braid {c d e : I} (h : ¬ (c = e ∧ Γ.Adj c d)) :
     have hadj : ¬ Γ.Adj c d := fun ha => h ⟨rfl, ha⟩
     have := braidQ_at (klQ (k := k) Γ) (u := []) (v := []) hne (braidL c d c) (braidR c d c)
       (E0 c d c) (E1 c d c) (E2 c d c) rfl rfl rfl rfl rfl
-    rw [klQ, if_neg hadj, qbar_one (k := k), ncEval_zero', sub_eq_zero] at this
+    rw [klQ, ite_eq_right hadj, qbar_one (k := k), ncEval_zero', sub_eq_zero] at this
     exact this
   · exact braid_at (klQ Γ) (u := []) (v := []) h' _ _ rfl rfl
 
@@ -128,7 +128,7 @@ theorem kl1_braid {c d e : I} (h : ¬ (c = e ∧ Γ.Adj c d)) :
 theorem kl1_braid_adj {c d : I} (h : Γ.Adj c d) :
     (P).diag (braidL c d c) - (P).diag (braidR c d c) = 𝟙 _ := by
   rw [braidQ_at (klQ Γ) (u := []) (v := []) (Γ.ne_of_adj h) _ _ (E0 c d c) (E1 c d c)
-    (E2 c d c) rfl rfl rfl rfl rfl, klQ, if_pos h, qbar_X_add_X]
+    (E2 c d c) rfl rfl rfl rfl rfl, klQ, ite_eq_left h, qbar_X_add_X]
   exact ncEval_one' (A := End ((P).obj (ob [c, d, c]))) _
 
 variable (k Γ) in

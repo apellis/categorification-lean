@@ -77,7 +77,7 @@ variable {N}
 
 theorem compOf_spec {lam : Wt m} (h : Realized N lam) :
     ∑ j, compOf N lam j = N ∧ compWeight (compOf N lam) = lam := by
-  rw [compOf, dif_pos h]
+  rw [compOf, dite_eq_left h]
   exact h.choose_spec
 
 theorem compOf_eq {lam : Wt m} {d : Comp m} (hd : ∑ j, d j = N) (hw : compWeight d = lam) :
@@ -96,7 +96,7 @@ theorem compWeight_single_castSucc_sub (i : Fin m) :
       compWeight (Pi.single i.succ 1 : Comp m) + (slRootDatum m).iX i := by
   funext a
   simp only [compWeight, Pi.add_apply, slRootDatum_iX_apply, slCartan_dot, Pi.single_apply,
-    Fin.ext_iff, Fin.coe_castSucc, Fin.val_succ]
+    Fin.ext_iff, Fin.val_castSucc, Fin.val_succ]
   split_ifs <;> omega
 
 theorem sum_add_single (d : Comp m) (j : Fin (m + 1)) :
@@ -115,7 +115,7 @@ theorem step_of_weights (i : Fin m) {d d' : Comp m}
     · rw [compWeight_add, compWeight_add, hw, compWeight_single_castSucc_sub]
       abel
     · rw [sum_add_single, sum_add_single, hs]
-  have hi : i.castSucc ≠ i.succ := (Fin.castSucc_lt_succ i).ne
+  have hi : i.castSucc ≠ i.succ := Fin.castSucc_lt_succ.ne
   have e1 : d i.succ = d' i.succ + 1 := by
     have := congrFun key i.succ
     simpa [Pi.single_apply, hi.symm] using this
@@ -124,14 +124,14 @@ theorem step_of_weights (i : Fin m) {d d' : Comp m}
   simp only [Pi.add_apply, Pi.single_apply] at e2
   rw [raise]
   by_cases h1 : j = i.castSucc
-  · rw [if_pos h1] at e2 ⊢
-    rw [if_neg (by rw [h1]; exact hi)] at e2
+  · rw [ite_eq_left h1] at e2 ⊢
+    rw [ite_eq_right (by rw [h1]; exact hi)] at e2
     omega
-  · rw [if_neg h1] at e2 ⊢
+  · rw [ite_eq_right h1] at e2 ⊢
     by_cases h2 : j = i.succ
-    · rw [if_pos h2] at e2 ⊢
+    · rw [ite_eq_left h2] at e2 ⊢
       omega
-    · rw [if_neg h2] at e2 ⊢
+    · rw [ite_eq_right h2] at e2 ⊢
       omega
 
 /-- **The step condition of `Flag_N` holds between realized regions of a strand.** -/
@@ -184,7 +184,7 @@ theorem wok_iff (s : Wt m) (w : List (WCol m)) :
   induction w generalizing s with
   | nil => exact ⟨fun h => ⟨trivial, h, by simp⟩, fun h => h.2.1⟩
   | cons c w ih =>
-    simp only [WOK, ih, Signature.ok_cons, psig_colourSrc, psig_colourTgt, List.mem_cons,
+    simp only [WOK, ih, List.mem_cons,
       forall_eq_or_imp]
     constructor
     · rintro ⟨hs, hsrc, hok, hr, hall⟩
@@ -196,10 +196,10 @@ theorem wok_append {s : Wt m} {w w' : List (WCol m)} :
     WOK N s (w ++ w') ↔ WOK N s w ∧ WOK N ((psig (slRootDatum m)).endR s w) w' := by
   induction w generalizing s with
   | nil =>
-    simp only [List.nil_append, Signature.endR_nil]
+    simp only [List.nil_append]
     exact ⟨fun h => ⟨h.realized, h⟩, fun h => h.2⟩
   | cons c w ih =>
-    simp only [List.cons_append, WOK, ih, Signature.endR_cons, psig_colourTgt]
+    simp only [List.cons_append, WOK, ih]
     exact ⟨fun ⟨a, b, c, d⟩ => ⟨⟨a, b, c⟩, d⟩, fun ⟨⟨a, b, c⟩, d⟩ => ⟨a, b, c, d⟩⟩
 
 /-! ### Path bimodules -/

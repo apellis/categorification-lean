@@ -28,6 +28,8 @@ For a colour `c`, `s' = +_c s`, the strands `E = Est c hE` (from `s` to `s'`) an
 * block sizes: `dFE_eq` (`d = s_c`), `dEF_eq` (`s_{c+1} - 1`).
 -/
 
+set_option backward.isDefEq.respectTransparency false
+
 noncomputable section
 
 open scoped TensorProduct
@@ -44,7 +46,7 @@ section CupCap
 
 variable (c : Fin m) {s s' : Comp m} (hE : StepR (true, c) s s') (hF : StepR (false, c) s' s)
 
-theorem castSucc_ne_succ' (c : Fin m) : c.castSucc ≠ c.succ := (Fin.castSucc_lt_succ c).ne
+theorem castSucc_ne_succ' (c : Fin m) : c.castSucc ≠ c.succ := Fin.castSucc_lt_succ.ne
 
 /-- The size `d` of block `c` of `s` in the cup `1_s → F E`. -/
 theorem dFE_eq : dFE c hE = s c.castSucc := by
@@ -55,20 +57,20 @@ theorem dFE_eq : dFE c hE = s c.castSucc := by
 theorem dEF_eq : dEF c hE = s c.succ - 1 := by
   rw [dEF, dBlockR]
   have h1 := card_split_some (Sigma.fst : Gen s → Fin (m + 1)) (movedVar c s hE.2) c.succ
-  rw [if_pos (show c.succ = (movedVar c s hE.2).fst from rfl), card_labSet_sigma] at h1
+  rw [ite_eq_left (show c.succ = (movedVar c s hE.2).fst from rfl), card_labSet_sigma] at h1
   exact h1
 
 /-- The cup coefficient `x(s)_{c,β}` is `x_{c,β} ∈ H_s` acting on `F` from the left. -/
 theorem xsFE_eq (β : ℕ) : xsFE c hE β = eRight K c s hE.2 (x K s c.castSucc β) := by
   rcases β with _ | β
   · rw [x_zero, map_one]; exact xB_zero _
-  · rw [eRight_x, if_neg (castSucc_ne_succ' c), add_zero]
+  · rw [eRight_x, ite_eq_right (castSucc_ne_succ' c), add_zero]
 
 /-- The cup coefficient `x(s')_{c+1,β}` is `x_{c+1,β} ∈ H_{s'}` acting on `F` from the right. -/
 theorem xsEF_eq (β : ℕ) : xsEF c hE β = eLeft K c s hE.2 (x K (raise c s) c.succ β) := by
   rcases β with _ | β
   · rw [x_zero, map_one]; exact xB_zero _
-  · rw [eLeft_x, if_neg (castSucc_ne_succ' c).symm, add_zero]
+  · rw [eLeft_x, ite_eq_right (castSucc_ne_succ' c).symm, add_zero]
     rfl
 
 /-- **Lemma 5.4 (i) on the path model**: the cup element of `F E 1_s` with its polynomial part on
@@ -226,13 +228,13 @@ theorem capEFW_slide {C : Type u} [CommRing C] (Y : BRing (H K s') C) (w : ERing
         capEFW K c hE hF Y (u₂ * BRing.tmul (Est (K := K) c hE) ((Fst (K := K) c hF).tensor Y) a (BRing.tmul (Fst (K := K) c hF) Y b y)) := by
     intro a b y
     simp only [u₁, u₂]
-    simp only [BRing.tmul_mul_tmul, one_mul, mul_one]
+    simp only [BRing.tmul_mul_tmul, one_mul]
     rw [capEFW_tmul, capEFW_tmul, ← capEFP_mul_left]
   refine BRing.induction_on (P := fun v => capEFW K c hE hF Y (u₁ * v) = capEFW K c hE hF Y (u₂ * v))
-    v (by beta_reduce; rw [mul_zero, mul_zero]) (fun a n => ?_) (fun x x' hx hx' => ?_)
+    v (by rw [mul_zero, mul_zero]) (fun a n => ?_) (fun x x' hx hx' => ?_)
   · refine BRing.induction_on (P := fun n => capEFW K c hE hF Y (u₁ * BRing.tmul (Est (K := K) c hE) ((Fst (K := K) c hF).tensor Y) a n) =
       capEFW K c hE hF Y (u₂ * BRing.tmul (Est (K := K) c hE) ((Fst (K := K) c hF).tensor Y) a n)) n
-      (by beta_reduce; rw [BRing.tmul_zero, mul_zero, mul_zero]) (fun b y => key a b y)
+      (by rw [BRing.tmul_zero, mul_zero, mul_zero]) (fun b y => key a b y)
       (fun x x' hx hx' => ?_)
     beta_reduce at hx hx' ⊢
     rw [BRing.tmul_add, mul_add, mul_add, BHom.map_add, BHom.map_add, hx, hx']
@@ -253,13 +255,13 @@ theorem capFEW_slide {C : Type u} [CommRing C] (Y : BRing (H K s) C) (w : ERing 
         capFEW K c hE hF Y (u₂ * BRing.tmul (Fst (K := K) c hF) ((Est (K := K) c hE).tensor Y) a (BRing.tmul (Est (K := K) c hE) Y b y)) := by
     intro a b y
     simp only [u₁, u₂]
-    simp only [BRing.tmul_mul_tmul, one_mul, mul_one]
+    simp only [BRing.tmul_mul_tmul, one_mul]
     rw [capFEW_tmul, capFEW_tmul, ← capFEP_mul_left]
   refine BRing.induction_on (P := fun v => capFEW K c hE hF Y (u₁ * v) = capFEW K c hE hF Y (u₂ * v))
-    v (by beta_reduce; rw [mul_zero, mul_zero]) (fun a n => ?_) (fun x x' hx hx' => ?_)
+    v (by rw [mul_zero, mul_zero]) (fun a n => ?_) (fun x x' hx hx' => ?_)
   · refine BRing.induction_on (P := fun n => capFEW K c hE hF Y (u₁ * BRing.tmul (Fst (K := K) c hF) ((Est (K := K) c hE).tensor Y) a n) =
       capFEW K c hE hF Y (u₂ * BRing.tmul (Fst (K := K) c hF) ((Est (K := K) c hE).tensor Y) a n)) n
-      (by beta_reduce; rw [BRing.tmul_zero, mul_zero, mul_zero]) (fun b y => key a b y)
+      (by rw [BRing.tmul_zero, mul_zero, mul_zero]) (fun b y => key a b y)
       (fun x x' hx hx' => ?_)
     beta_reduce at hx hx' ⊢
     rw [BRing.tmul_add, mul_add, mul_add, BHom.map_add, BHom.map_add, hx, hx']
@@ -288,15 +290,14 @@ theorem capFEW_mul {C : Type u} [CommRing C] (Y : BRing (H K s) C) (w : Y.T)
   set u := BRing.tmul (Fst (K := K) c hF) ((Est (K := K) c hE).tensor Y) 1
     (BRing.tmul (Est (K := K) c hE) Y 1 w)
   refine BRing.induction_on (P := fun v => capFEW K c hE hF Y (u * v) = w * capFEW K c hE hF Y v)
-    v (by beta_reduce; rw [mul_zero, BHom.map_zero, mul_zero]) (fun a n => ?_)
+    v (by rw [mul_zero, BHom.map_zero, mul_zero]) (fun a n => ?_)
     (fun x x' hx hx' => ?_)
   · refine BRing.induction_on (P := fun n => capFEW K c hE hF Y (u * BRing.tmul
       (Fst (K := K) c hF) ((Est (K := K) c hE).tensor Y) a n) =
       w * capFEW K c hE hF Y (BRing.tmul (Fst (K := K) c hF) ((Est (K := K) c hE).tensor Y) a n)) n
-      (by beta_reduce; rw [BRing.tmul_zero, mul_zero, BHom.map_zero, mul_zero]) (fun b y => ?_)
+      (by rw [BRing.tmul_zero, mul_zero, BHom.map_zero, mul_zero]) (fun b y => ?_)
       (fun x x' hx hx' => ?_)
-    · beta_reduce
-      simp only [u]
+    · simp only [u]
       simp only [BRing.tmul_mul_tmul, one_mul]
       rw [capFEW_tmul, capFEW_tmul, mul_left_comm]
     · beta_reduce at hx hx' ⊢
@@ -312,15 +313,14 @@ theorem capEFW_mul {C : Type u} [CommRing C] (Y : BRing (H K s') C) (w : Y.T)
   set u := BRing.tmul (Est (K := K) c hE) ((Fst (K := K) c hF).tensor Y) 1
     (BRing.tmul (Fst (K := K) c hF) Y 1 w)
   refine BRing.induction_on (P := fun v => capEFW K c hE hF Y (u * v) = w * capEFW K c hE hF Y v)
-    v (by beta_reduce; rw [mul_zero, BHom.map_zero, mul_zero]) (fun a n => ?_)
+    v (by rw [mul_zero, BHom.map_zero, mul_zero]) (fun a n => ?_)
     (fun x x' hx hx' => ?_)
   · refine BRing.induction_on (P := fun n => capEFW K c hE hF Y (u * BRing.tmul
       (Est (K := K) c hE) ((Fst (K := K) c hF).tensor Y) a n) =
       w * capEFW K c hE hF Y (BRing.tmul (Est (K := K) c hE) ((Fst (K := K) c hF).tensor Y) a n)) n
-      (by beta_reduce; rw [BRing.tmul_zero, mul_zero, BHom.map_zero, mul_zero]) (fun b y => ?_)
+      (by rw [BRing.tmul_zero, mul_zero, BHom.map_zero, mul_zero]) (fun b y => ?_)
       (fun x x' hx hx' => ?_)
-    · beta_reduce
-      simp only [u]
+    · simp only [u]
       simp only [BRing.tmul_mul_tmul, one_mul]
       rw [capEFW_tmul, capEFW_tmul, mul_left_comm]
     · beta_reduce at hx hx' ⊢

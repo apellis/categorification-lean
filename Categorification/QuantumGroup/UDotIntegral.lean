@@ -54,7 +54,7 @@ def wdp (d : List (Bool × I × ℕ)) : X := (d.map fun x => (sgn x.1 * x.2.2) �
 theorem FX_mul {μ ν : X} {x y : Free K I} (hx : x ∈ FX K RD μ) (hy : y ∈ FX K RD ν) :
     x * y ∈ FX K RD (μ + ν) := by
   refine supp_mul_mem (fun u hu w hw => ?_) hx hy
-  simp only [Set.mem_setOf_eq, FreeMonoid.toList_mul, RD.wX_append] at hu hw ⊢
+  simp only [Set.mem_ofPred_eq, FreeMonoid.toList_mul, RD.wX_append] at hu hw ⊢
   rw [hu, hw]
 
 theorem wX_replicate (b : Bool) (i : I) (a : ℕ) :
@@ -78,7 +78,7 @@ theorem dpW_mem_FX (d : List (Bool × I × ℕ)) : dpW C q d ∈ FX K RD (wdp RD
   | cons x d ih =>
     rw [dpW, List.map_cons, List.prod_cons]
     have := FX_mul RD (dpE_mem_FX RD q x) ih
-    simpa [wdp] using this
+    simpa [wdp, dpW] using this
 
 theorem dpW_append (d d' : List (Bool × I × ℕ)) :
     dpW C q (d ++ d') = dpW C q d * dpW C q d' := by

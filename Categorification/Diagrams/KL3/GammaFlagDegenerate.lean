@@ -44,6 +44,9 @@ target are the two 1-morphisms of the relation) this covers every instance of th
 two and three strands of any path.
 -/
 
+-- Preserve elaboration of semireducible diagram transports.
+set_option backward.isDefEq.respectTransparency false
+
 noncomputable section
 
 namespace Categorification.KL3.Diagram.Signed
@@ -70,13 +73,13 @@ theorem raise_val_elim (i : Fin m) (d : Fin (m + 1) → ℕ) (k : Fin (m + 1)) {
       (k ≠ i.castSucc ∧ k ≠ i.succ ∧ P (d k)) := by
   rw [raise_val] at h
   by_cases hA : k = i.castSucc
-  · rw [if_pos hA] at h
+  · rw [ite_eq_left hA] at h
     exact Or.inl ⟨hA, h⟩
-  · rw [if_neg hA] at h
+  · rw [ite_eq_right hA] at h
     by_cases hB : k = i.succ
-    · rw [if_pos hB] at h
+    · rw [ite_eq_left hB] at h
       exact Or.inr (Or.inl ⟨hA, hB, h⟩)
-    · rw [if_neg hB] at h
+    · rw [ite_eq_right hB] at h
       exact Or.inr (Or.inr ⟨hA, hB, h⟩)
 
 /-- Two raises commute, provided no block becomes negative in between. -/
@@ -96,21 +99,21 @@ theorem raise_comm (i j : Fin m) (d : Fin (m + 1) → ℕ) (hij : i.succ = j.cas
     · by_cases h4 : i.castSucc = j.succ
       · have := hji h4.symm
         rw [← h4] at this
-        simp only [raise_val, if_true, if_neg hi, if_neg h3, if_pos h4]
+        simp only [raise_val, ite_true, ite_eq_right hi, ite_eq_right h3, ite_eq_left h4]
         omega
-      · simp only [raise_val, if_true, if_neg hi, if_neg h3, if_neg h4]
+      · simp only [raise_val, ite_true, ite_eq_right hi, ite_eq_right h3, ite_eq_right h4]
   · by_cases h2 : k = i.succ
     · subst h2
       by_cases h3 : i.succ = j.castSucc
       · have := hij h3
-        simp only [raise_val, if_neg h1, if_true, if_pos h3]
+        simp only [raise_val, ite_eq_right h1, ite_true, ite_eq_left h3]
         omega
       · by_cases h4 : i.succ = j.succ
         · have := Fin.succ_injective _ h4
           subst this
           rfl
-        · simp only [raise_val, if_neg h1, if_true, if_neg h3, if_neg h4]
-    · simp only [raise_val, if_neg h1, if_neg h2]
+        · simp only [raise_val, ite_eq_right h1, ite_true, ite_eq_right h3, ite_eq_right h4]
+    · simp only [raise_val, ite_eq_right h1, ite_eq_right h2]
 
 /-- **Two strands.** If `E_i E_j 1_{r₂}` is nonzero, then either `E_j E_i 1_{r₂}` is nonzero, or
 `j = i + 1` and block `i + 1` of `r₂` is empty. -/
@@ -133,16 +136,16 @@ theorem swap_cases (i j : Fin m) {t r₁ r₂ : Comp m} (h₁ : StepR (true, i) 
     · rw [raise_comm j i r₂ (fun _ => h₂.2) (fun _ => Nat.pos_of_ne_zero hz), h₂.1, h₁.1]
     · rw [raise_val]
       by_cases hA : j.succ = i.castSucc
-      · rw [if_pos hA]; omega
-      · rw [if_neg hA]
+      · rw [ite_eq_left hA]; omega
+      · rw [ite_eq_right hA]
         by_cases hB : j.succ = i.succ
-        · rw [if_pos hB]
+        · rw [ite_eq_left hB]
           have := Fin.succ_injective _ hB
           subst this
           have := h₁.2
-          rw [← h₂.1, raise_val, if_neg hi', if_pos rfl] at this
+          rw [← h₂.1, raise_val, ite_eq_right hi', ite_eq_left rfl] at this
           exact this
-        · rw [if_neg hB]
+        · rw [ite_eq_right hB]
           exact h₂.2
 
 /-- **Three strands.** If `E_c E_d E_e 1_{r₃}` and `E_e E_d E_c 1_{r₃}` are nonzero, then either
@@ -187,7 +190,7 @@ theorem braid_cases (c d e : Fin m) {s r₁ r₂ r₃ f₁ f₂ : Comp m} (h₁ 
           · have := Fin.succ_injective _ hB
             subst this
             have h2 := hd₂.2
-            rw [← hc₃.1, raise_val, if_neg hc', if_pos rfl] at h2
+            rw [← hc₃.1, raise_val, ite_eq_right hc', ite_eq_left rfl] at h2
             omega
           · omega
       · -- braidR's first intermediate is missing: `e = d + 1`, `r₃ d.succ = 0`
@@ -273,10 +276,10 @@ theorem degen_qSigned_eq_zero (hadj : d.castSucc = c.succ) (hdeg : r₂ c.succ =
   have hcd : c ≠ d := fun h => by subst h; exact castSucc_ne_succ' c hadj
   have hval := castSucc_eq_succ_iff.1 hadj
   have hdot : (slCartan m).dot c d = -1 := by
-    rw [slCartan_dot, if_neg hcd, if_pos (Or.inl hval.symm)]
+    rw [slCartan_dot, ite_eq_right hcd, ite_eq_left (Or.inl hval.symm)]
   rw [qSigned_of_adj hdot, show ((c : ℕ) : ℤ) - ((d : ℕ) : ℤ) = -1 by omega, neg_one_zsmul,
     eval₂_neg, eval₂_sub, eval₂_X, eval₂_X]
-  simp only [Matrix.cons_val_zero, Matrix.cons_val_one, Matrix.head_cons]
+  simp only [Matrix.cons_val_zero, Matrix.cons_val_one]
   rw [degen_xi_eq h₁ h₂ hadj hdeg, sub_self, neg_zero]
 
 /-- The double-crossing relation in the degenerate region, as an equation of maps: both sides
@@ -297,25 +300,25 @@ section Braid
 theorem qbar_X1_sub_X0 : KLR.qbar (X 1 - X 0 : MvPolynomial (Fin 2) K) = -1 := by
   apply X_sub_X_mul_left_cancel (show (0 : Fin 3) ≠ 2 by decide)
   rw [KLR.qbar_spec, map_sub, map_sub, rename_X, rename_X, rename_X, rename_X]
-  simp only [Matrix.cons_val_zero, Matrix.cons_val_one, Matrix.head_cons]
+  simp only [Matrix.cons_val_zero, Matrix.cons_val_one]
   ring
 
 theorem qbar_X0_sub_X1 : KLR.qbar (X 0 - X 1 : MvPolynomial (Fin 2) K) = 1 := by
   apply X_sub_X_mul_left_cancel (show (0 : Fin 3) ≠ 2 by decide)
   rw [KLR.qbar_spec, map_sub, map_sub, rename_X, rename_X, rename_X, rename_X]
-  simp only [Matrix.cons_val_zero, Matrix.cons_val_one, Matrix.head_cons]
+  simp only [Matrix.cons_val_zero, Matrix.cons_val_one]
   ring
 
 variable (c d : Fin m)
 
 theorem Qf_of_castSucc_eq_succ (hadj : d.castSucc = c.succ) : Qf K c d = X 1 - X 0 := by
   have hadj' : ¬ c.castSucc = d.succ := by rw [castSucc_eq_succ_iff] at hadj ⊢; omega
-  rw [Qf, Fc, Fc, if_pos hadj, if_neg hadj', map_one, mul_one]
+  rw [Qf, Fc, Fc, ite_eq_left hadj, ite_eq_right hadj', map_one, mul_one]
 
 theorem Qf_of_succ_eq_castSucc (hadj : c.castSucc = d.succ) : Qf K c d = X 0 - X 1 := by
   have hadj' : ¬ d.castSucc = c.succ := by rw [castSucc_eq_succ_iff] at hadj ⊢; omega
-  rw [Qf, Fc, Fc, if_neg hadj', if_pos hadj, one_mul, map_sub, rename_X, rename_X]
-  simp only [Matrix.cons_val_zero, Matrix.cons_val_one, Matrix.head_cons]
+  rw [Qf, Fc, Fc, ite_eq_right hadj', ite_eq_left hadj, one_mul, map_sub, rename_X, rename_X]
+  simp only [Matrix.cons_val_zero, Matrix.cons_val_one]
 
 variable {s r₁ r₂ r₃ a₁ b₂ : Comp m} {E : Type u} [CommRing E]
   (h₁ : StepR (true, c) r₁ s) (h₂ : StepR (true, d) r₂ r₁) (h₃ : StepR (true, c) r₃ r₂)
@@ -332,12 +335,12 @@ theorem braidR_degenerate (hadj : d.castSucc = c.succ) (hdeg : r₃ c.succ = 1)
   have hzero : ∀ q, ev3 K (stepB K _ _ _ h₁) (stepB K _ _ _ h₂) (stepB K _ _ _ h₃) Y
       (eXi K c r₁ h₁.2) (eXi K d r₂ h₂.2) (eXi K c r₃ h₃.2) (op0 d c q) = 0 := by
     intro q
-    rw [op0, if_neg (Ne.symm hcd), mS0, Fc, if_pos hadj, map_mul, ev3_at01_sub,
+    rw [op0, ite_eq_right (Ne.symm hcd), mS0, Fc, ite_eq_left hadj, map_mul, ev3_at01_sub,
       degen_xi_eq h₁ h₂ hadj hr₂, sub_self, BRing.zero_tmul, BHom.map_zero, zero_mul]
   refine ext3 (K := K) _ _ _ Y (eXi K c r₁ h₁.2) (eXi K d r₂ h₂.2) (eXi K c r₃ h₃.2)
     (stepE_spanned c h₁) (stepE_spanned d h₂) (stepE_spanned c h₃) _ _ fun p x => ?_
   have hp := braid_poly c d c p
-  rw [if_pos ⟨rfl, hcd⟩, Qf_of_castSucc_eq_succ c d hadj, qbar_X1_sub_X0, neg_one_mul] at hp
+  rw [ite_eq_left ⟨rfl, hcd⟩, Qf_of_castSucc_eq_succ c d hadj, qbar_X1_sub_X0, neg_one_mul] at hp
   have hB : op1 c d (op0 c c (op1 d c p)) = op0 d c (op1 c c (op0 c d p)) + p := by
     linear_combination (-1 : MvPolynomial (Fin 3) K) * hp
   rw [braidR_eval, BHom.id_apply, hB, map_add, hzero, zero_add]
@@ -352,13 +355,13 @@ theorem braidL_degenerate (hadj : c.castSucc = d.succ) (hdeg : r₃ d.succ = 0)
   have hzero : ∀ q, ev3 K (stepB K _ _ _ h₁) (stepB K _ _ _ h₂) (stepB K _ _ _ h₃) Y
       (eXi K c r₁ h₁.2) (eXi K d r₂ h₂.2) (eXi K c r₃ h₃.2) (op1 c d q) = 0 := by
     intro q
-    rw [op1, if_neg hcd, mS1, Fc, if_pos hadj, map_mul, ev3_at12_sub,
+    rw [op1, ite_eq_right hcd, mS1, Fc, ite_eq_left hadj, map_mul, ev3_at12_sub,
       degen_xi_eq h₂ h₃ hadj hdeg, sub_self, BRing.zero_tmul, BHom.map_zero, BRing.tmul_zero,
       zero_mul]
   refine ext3 (K := K) _ _ _ Y (eXi K c r₁ h₁.2) (eXi K d r₂ h₂.2) (eXi K c r₃ h₃.2)
     (stepE_spanned c h₁) (stepE_spanned d h₂) (stepE_spanned c h₃) _ _ fun p x => ?_
   have hp := braid_poly c d c p
-  rw [if_pos ⟨rfl, hcd⟩, Qf_of_succ_eq_castSucc c d hadj, qbar_X0_sub_X1, one_mul] at hp
+  rw [ite_eq_left ⟨rfl, hcd⟩, Qf_of_succ_eq_castSucc c d hadj, qbar_X0_sub_X1, one_mul] at hp
   have hA : op0 d c (op1 c c (op0 c d p)) = op1 c d (op0 c c (op1 d c p)) + p := by
     linear_combination hp
   rw [braidL_eval, BHom.id_apply, hA, map_add, hzero, zero_add]

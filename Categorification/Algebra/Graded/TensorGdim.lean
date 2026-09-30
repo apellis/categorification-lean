@@ -99,7 +99,7 @@ theorem coeff_mul_eq_sum_Icc (x y : LaurentSeries ℤ) {a b : ℤ} (hx : ∀ i, 
   rw [← Finset.sum_image (f := fun p : ℤ × ℤ => x.coeff p.1 * y.coeff p.2) hinj]
   refine Finset.sum_subset ?_ ?_
   · intro p hp
-    rw [Finset.mem_addAntidiagonal] at hp
+    rw [Finset.mem_antidiagonal] at hp
     obtain ⟨h1, h2, h3⟩ := hp
     have ha := hx _ h1
     have hb := hy _ h2
@@ -108,7 +108,7 @@ theorem coeff_mul_eq_sum_Icc (x y : LaurentSeries ℤ) {a b : ℤ} (hx : ∀ i, 
   · intro p _ hp
     by_contra h
     apply hp
-    rw [Finset.mem_addAntidiagonal]
+    rw [Finset.mem_antidiagonal]
     obtain ⟨i, _, rfl⟩ := Finset.mem_image.1 ‹p ∈ _›
     refine ⟨left_ne_zero_of_mul h, right_ne_zero_of_mul h, by simp⟩
 

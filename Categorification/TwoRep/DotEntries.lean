@@ -142,7 +142,7 @@ theorem hom_oneShift_eq_zero (i j : ℕ) {d : ℤ} (hd : d + 2 * (i : ℤ) - 2 *
     rw [finrank_hom_congr_right k _ s1, oneShift,
       finrank_hom_shift_shift k _ _ (c := d + 2 * (i : ℤ) - 2 * (j : ℤ)) (by ring)]
     exact S.hom_neg _ _ hd
-  haveI := Module.finrank_zero_iff.1 h0
+  have := Module.finrank_zero_iff.1 h0
   exact Subsingleton.elim _ _
 
 /-- The entries of the dot above the subdiagonal vanish: `entry e i j = 0` for `j > i + 1`. -/
@@ -171,12 +171,11 @@ omit [GradedBicategory.IsLinear B k] in
 omit [∀ a b : B, HomFinite k (a ⟶ b)] in
 theorem cupDots_zero_comp (j : ℕ) :
     cupDots e 0 ≫ (π e j)⟦((0 : ℕ) : ℤ) * 2⟧' =
-      (ι e 0 ≫ π e j) ≫ (shiftFunctorZero' _ (((0 : ℕ) : ℤ) * 2) (by simp)).inv.app _ := by
+      (ι e 0 ≫ π e j) ≫ (shiftFunctorZero' _ (((0 : ℕ) : ℤ) * 2) (by simp)).inv.app (S.oneShift r j) := by
   simp only [cupDots, shPow, ShiftedHom.mk₀, Category.id_comp, Category.assoc]
   have := (shiftFunctorZero' _ (((0 : ℕ) : ℤ) * 2) (by simp)).inv.naturality (π e j)
   simp only [Functor.id_map] at this
   rw [← this]
-  try rfl
 
 omit [GradedBicategory.IsLinear B k] in
 omit [∀ a b : B, HomFinite k (a ⟶ b)] in
@@ -217,7 +216,7 @@ theorem cupDots_comp_πFE (hn : 0 ≤ S.wt (r + 1)) (hyp : ∀ r', r + 1 < r' �
       S.finrank_one_FE, S.lem1_neg (r₀ := r + 1) hn hyp (r + 1) le_rfl]
     push_cast
     omega
-  haveI := Module.finrank_zero_iff.1 h0
+  have := Module.finrank_zero_iff.1 h0
   exact Subsingleton.elim _ _
 
 /-- The induction behind Corollary 3.7: for `m < n`, `cup ≫ dot^m` has zero component in the
@@ -256,7 +255,7 @@ theorem bubble_aux (hn : 0 ≤ S.wt (r + 1)) (hyp : ∀ r', r + 1 < r' → S.Adj
       · rw [iha j' hj', zero_comp]
       · rw [entry_eq_zero e (by omega), Functor.map_zero, comp_zero]
     · rw [key, Finset.sum_eq_single m]
-      · haveI := hd m hm
+      · have := hd m hm
         infer_instance
       · intro j' _ hj'
         rcases lt_or_gt_of_ne hj' with h | h

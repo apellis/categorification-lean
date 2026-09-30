@@ -54,7 +54,9 @@ noncomputable section
 namespace Categorification.Flag
 
 open MvPolynomial TensorProduct
-open Finset (univ range antidiagonal)
+open Module
+open Finset (univ range)
+open Finset.HasAntidiagonal (antidiagonal)
 
 /-! ### Abstract Frobenius algebra lemmas -/
 
@@ -73,12 +75,12 @@ theorem dual_basis_symm {ι : Type*} [Fintype ι] [DecidableEq ι] (B : Basis ι
   have hGY : G * Y.transpose = 1 := by
     ext g h
     have := congrArg (fun m => B.repr m h) (hZ (B g))
-    simp only [map_sum, LinearEquiv.map_smul, Finsupp.coe_finset_sum, Finset.sum_apply,
+    simp only [map_sum, LinearEquiv.map_smul, Finsupp.coe_finsetSum, Finset.sum_apply,
       Finsupp.smul_apply, smul_eq_mul, Basis.repr_self] at this
     rw [Finsupp.single_apply] at this
     rw [Matrix.mul_apply, Matrix.one_apply, ← this]
     rfl
-  have hYG : Y.transpose * G = 1 := Matrix.mul_eq_one_comm.1 hGY
+  have hYG : Y.transpose * G = 1 := mul_eq_one_comm.1 hGY
   -- the identity on the basis
   have hbasis : ∀ g, ∑ i, tr (v i * B g) • B i = B g := by
     intro g
@@ -92,7 +94,7 @@ theorem dual_basis_symm {ι : Type*} [Fintype ι] [DecidableEq ι] (B : Basis ι
       rw [smul_mul_assoc, LinearMap.map_smul, smul_eq_mul]
       rfl
     simp only [hcoef, ite_smul, one_smul, zero_smul, Finset.sum_ite_eq', Finset.mem_univ,
-      if_true]
+      ite_true]
   -- extend by linearity
   let F : M →ₗ[R] M := ∑ i, (tr ∘ₗ LinearMap.mulLeft R (v i)).smulRight (B i)
   have hF : ∀ m, F m = ∑ i, tr (v i * m) • B i := fun m => by
@@ -127,26 +129,26 @@ theorem zigzag_of_trace {d : ℕ} (B : Basis (Fin (d + 1)) R M) (ξ : M)
       have hu' : u ≤ d := Nat.lt_succ_iff.1 (Finset.mem_range.1 hu)
       rw [Nat.add_sub_cancel, show d - (d - u) = u by omega, ← pow_add, htr]
       by_cases h : u ≤ a
-      · rw [if_pos (by omega), if_pos h, show a + (d - u) + 1 - (d + 1) = a - u by omega,
+      · rw [ite_eq_left (by omega), ite_eq_left h, show a + (d - u) + 1 - (d + 1) = a - u by omega,
           map_mul, map_pow, map_neg, map_one]
         have := neg_one_pow_mul_neg_one_pow'' (A := M) h
         linear_combination (x u * algebraMap R M (y (a - u))) * this
-      · rw [if_neg (by omega), if_neg h, map_zero, mul_zero, zero_mul, mul_zero]
+      · rw [ite_eq_right (by omega), ite_eq_right h, map_zero, mul_zero, zero_mul, mul_zero]
     rw [Finset.sum_congr rfl hterm, ← Finset.mul_sum]
     set G : ℕ → M := fun u => if u ≤ a then x u * algebraMap R M (y (a - u)) else 0 with hG
     have h1 : ∑ u ∈ range (d + 1), G u = ∑ u ∈ range (a + d + 1), G u :=
-      Finset.sum_subset (Finset.range_subset.2 (by omega)) fun u _ hu => by
+      Finset.sum_subset (Finset.range_subset_range.2 (by omega)) fun u _ hu => by
         simp only [Finset.mem_range, not_lt] at hu
         simp only [hG, hx u (by omega), zero_mul, ite_self]
     have h2 : ∑ p ∈ antidiagonal a, x p.1 * algebraMap R M (y p.2) =
         ∑ u ∈ range (a + d + 1), G u := by
       rw [Finset.Nat.sum_antidiagonal_eq_sum_range_succ_mk,
-        ← Finset.sum_subset (Finset.range_subset.2 (show a + 1 ≤ a + d + 1 by omega))
+        ← Finset.sum_subset (Finset.range_subset_range.2 (show a + 1 ≤ a + d + 1 by omega))
           fun u _ hu => by
             simp only [Finset.mem_range, not_lt] at hu
-            simp only [hG, if_neg (show ¬ u ≤ a by omega)]]
+            simp only [hG, ite_eq_right (show ¬ u ≤ a by omega)]]
       exact Finset.sum_congr rfl fun u hu => by
-        simp only [hG, if_pos (Nat.lt_succ_iff.1 (Finset.mem_range.1 hu))]
+        simp only [hG, ite_eq_left (Nat.lt_succ_iff.1 (Finset.mem_range.1 hu))]
     rw [h1, ← h2, ← hneg, ← mul_pow]
     simp
   -- extend by linearity
@@ -154,7 +156,7 @@ theorem zigzag_of_trace {d : ℕ} (B : Basis (Fin (d + 1)) R M) (ξ : M)
     (tr ∘ₗ LinearMap.mulRight R (ξ ^ f)).smulRight ((-1) ^ (d - f) * x (d - f))
   have hF : ∀ m, F m = ∑ f ∈ range (d + 1), (-1) ^ (d - f) * algebraMap R M (tr (m * ξ ^ f)) *
       x (d - f) := fun m => by
-    simp only [F, LinearMap.coeFn_sum, Finset.sum_apply, LinearMap.smulRight_apply,
+    simp only [F, LinearMap.sum_apply, LinearMap.smulRight_apply,
       LinearMap.comp_apply, LinearMap.mulRight_apply, Algebra.smul_def]
     exact Finset.sum_congr rfl fun f _ => by ring
   have : F = LinearMap.id := B.ext fun a => by rw [hF, hB, hpow, LinearMap.id_apply]
@@ -318,14 +320,14 @@ attribute [local instance] midAlgebra rightAlgebra
 omit [Fintype J] in
 theorem blockCardL_eq_dBlock (lab : V → J) (v₀ : V) (j' : J) :
     blockCardL lab v₀ j' = dBlock lab v₀ j' + 1 := by
-  rw [blockCardL, labSet_move_eq, if_pos rfl, Finset.card_insert_of_not_mem (v₀_not_mem_split j')]
+  rw [blockCardL, labSet_move_eq, ite_eq_left rfl, Finset.card_insert_of_notMem (v₀_not_mem_split j')]
 
 omit [Fintype J] in
 theorem blockCard_eq_dBlockR (lab : V → J) (v₀ : V) :
     blockCard lab v₀ = dBlockR lab v₀ + 1 := by
   have h1 := card_split_some lab v₀ (lab v₀)
   have h2 := blockCard_pos lab v₀
-  rw [if_pos rfl] at h1
+  rw [ite_eq_left rfl] at h1
   simp only [dBlockR, blockCard] at h1 h2 ⊢
   omega
 

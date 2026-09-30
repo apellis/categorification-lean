@@ -261,7 +261,7 @@ theorem ddiffB_xi_pow (α₁ α₂ : ℕ) :
   congr 1
   apply Subtype.ext
   simp only [ddiffInv, MulMemClass.coe_mul, SubmonoidClass.coe_pow, AddSubgroupClass.coe_sub,
-    AddSubmonoidClass.coe_finset_sum]
+    AddSubmonoidClass.coe_finsetSum]
   exact ddiff_X_pow_mul_X_pow hne α₁ α₂
 
 omit [DecidableEq J] in
@@ -375,14 +375,14 @@ theorem joint_singleton_right (hne : v₁ ≠ v₂) :
   have hw1 : w ≠ v₁ := by
     rintro rfl
     rw [splitLab_self] at h
-    exact Option.noConfusion h
+    cases h
   rw [splitLab_of_ne hw1] at h
   exact (splitLab_singleton lab v₂) w (Option.some_injective _ h)
 
 variable (k)
 
 /-- The middle ring `H_{+_{i₂} k}` acting on the joint Borel ring. -/
-def jointAlgebra :
+@[instance_reducible] def jointAlgebra :
     Algebra (BorelRing k (moveLab lab v₂ j₂)) (BorelRing k (jointLab lab v₁ v₂)) :=
   (refineHom k (refines_trans (refines_splitLab (moveLab lab v₂ j₂) v₁)
     (refines_joint_left lab v₁ v₂ j₂))).toRingHom.toAlgebra
@@ -391,30 +391,30 @@ attribute [local instance] rightAlgebra midAlgebra
 
 /-- The left factor `H_{(+_{i₂} k)^{+i₁}} → joint`. -/
 def jointLeft :
-    letI := jointAlgebra k lab v₁ v₂ j₂
+    let := jointAlgebra k lab v₁ v₂ j₂
     BorelRing k (splitLab (moveLab lab v₂ j₂) v₁) →ₐ[BorelRing k (moveLab lab v₂ j₂)]
       BorelRing k (jointLab lab v₁ v₂) :=
-  letI := jointAlgebra k lab v₁ v₂ j₂
+  let := jointAlgebra k lab v₁ v₂ j₂
   { refineHom k (refines_joint_left lab v₁ v₂ j₂) with
     commutes' := fun r => refineHom_comp_apply _ _ r }
 
 /-- The right factor `H_{k^{+i₂}} → joint`. -/
 def jointRight :
-    letI := jointAlgebra k lab v₁ v₂ j₂
+    let := jointAlgebra k lab v₁ v₂ j₂
     BorelRing k (splitLab lab v₂) →ₐ[BorelRing k (moveLab lab v₂ j₂)]
       BorelRing k (jointLab lab v₁ v₂) :=
-  letI := jointAlgebra k lab v₁ v₂ j₂
+  let := jointAlgebra k lab v₁ v₂ j₂
   { pR k (splitLab lab v₂) v₁ with
     commutes' := fun r => refineHom_comp_apply _ _ r }
 
 /-- The multiplication map
 `H_{(+_{i₂} k)^{+i₁}} ⊗_{H_{+_{i₂} k}} H_{k^{+i₂}} → BorelRing (joint)`, `m₁ ⊗ m₂ ↦ m₁ m₂`. -/
 def jointMap :
-    letI := jointAlgebra k lab v₁ v₂ j₂
+    let := jointAlgebra k lab v₁ v₂ j₂
     BorelRing k (splitLab (moveLab lab v₂ j₂) v₁) ⊗[BorelRing k (moveLab lab v₂ j₂)]
       BorelRing k (splitLab lab v₂) →ₐ[BorelRing k (moveLab lab v₂ j₂)]
       BorelRing k (jointLab lab v₁ v₂) :=
-  letI := jointAlgebra k lab v₁ v₂ j₂
+  let := jointAlgebra k lab v₁ v₂ j₂
   Algebra.TensorProduct.productMap (jointLeft k lab v₁ v₂ j₂) (jointRight k lab v₁ v₂ j₂)
 
 variable {k}
@@ -436,7 +436,7 @@ omit [Fintype J] in
 theorem blockCard_joint (hne : v₁ ≠ v₂) (hj : lab v₁ ≠ j₂) :
     blockCard (moveLab lab v₂ j₂) v₁ = blockCard (splitLab lab v₂) v₁ := by
   rw [blockCard, blockCard, moveLab, Function.update_of_ne hne, ← moveLab, labSet_move_eq,
-    if_neg hj, splitLab_of_ne hne]
+    ite_eq_right hj, splitLab_of_ne hne]
 
 /-- Every element of the tensor product is `∑_a ξ₁^a ⊗ c_a`. -/
 theorem tensor_span
@@ -445,8 +445,7 @@ theorem tensor_span
     ∃ c : Fin (blockCard (moveLab lab v₂ j₂) v₁) → BorelRing k (splitLab lab v₂),
       t = ∑ a : Fin (blockCard (moveLab lab v₂ j₂) v₁),
         (xi k (moveLab lab v₂ j₂) v₁ ^ (a : ℕ)) ⊗ₜ c a := by
-  induction t using TensorProduct.induction_on with
-  | zero => exact ⟨0, by simp⟩
+  induction t using TensorProduct.inductionOn with
   | tmul m₁ m₂ =>
     obtain ⟨r, hr⟩ := split_span (moveLab lab v₂ j₂) v₁ m₁
     refine ⟨fun a => pL k lab v₂ j₂ (r a) * m₂, ?_⟩
@@ -499,11 +498,11 @@ variable (k) in
 /-- **KL III eq. (5.37), two strands**: `H_{(+_{i₂} k)^{+i₁}} ⊗_{H_{+_{i₂} k}} H_{k^{+i₂}}` is
 isomorphic, as an algebra over the middle ring, to the Borel ring of the joint labelling. -/
 def tensorEquiv (hne : v₁ ≠ v₂) (hj : lab v₁ ≠ j₂) :
-    letI := jointAlgebra k lab v₁ v₂ j₂
+    let := jointAlgebra k lab v₁ v₂ j₂
     (BorelRing k (splitLab (moveLab lab v₂ j₂) v₁) ⊗[BorelRing k (moveLab lab v₂ j₂)]
       BorelRing k (splitLab lab v₂)) ≃ₐ[BorelRing k (moveLab lab v₂ j₂)]
       BorelRing k (jointLab lab v₁ v₂) :=
-  letI := jointAlgebra k lab v₁ v₂ j₂
+  let := jointAlgebra k lab v₁ v₂ j₂
   AlgEquiv.ofBijective (jointMap k lab v₁ v₂ j₂) (jointMap_bijective lab v₁ v₂ j₂ hne hj)
 
 theorem tensorEquiv_xi (hne : v₁ ≠ v₂) (hj : lab v₁ ≠ j₂) (α₁ α₂ : ℕ) :

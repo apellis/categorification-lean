@@ -39,7 +39,7 @@ theorem mem_invSet {w : Perm (Fin m)} {p : Fin m × Fin m} :
   simp [invSet]
 
 @[simp] theorem invCount_one (m : ℕ) : invCount m 1 = 0 := by
-  simp only [invCount, Finset.card_eq_zero, Finset.eq_empty_iff_forall_not_mem, mem_invSet,
+  simp only [invCount, Finset.card_eq_zero, Finset.eq_empty_iff_forall_notMem, mem_invSet,
     Perm.one_apply]
   exact fun p h => lt_asymm h.1 h.2
 
@@ -47,7 +47,7 @@ theorem mem_invSet {w : Perm (Fin m)} {p : Fin m × Fin m} :
 private theorem lt_iff_sadj_lt {k : ℕ} (hk : k + 1 < m) {a b : Fin m}
     (h₁ : ¬ ((a : ℕ) = k ∧ (b : ℕ) = k + 1)) (h₂ : ¬ ((a : ℕ) = k + 1 ∧ (b : ℕ) = k)) :
     a < b ↔ sadj m k a < sadj m k b := by
-  rw [Fin.lt_iff_val_lt_val, Fin.lt_iff_val_lt_val, sadj_val_of_lt hk, sadj_val_of_lt hk]
+  rw [Fin.lt_def, Fin.lt_def, sadj_val_of_lt hk, sadj_val_of_lt hk]
   have := swapNat_cases k a
   have := swapNat_cases k b
   generalize swapNat k a = x at *
@@ -66,7 +66,7 @@ theorem invCount_mul_sadj_of_lt {k : ℕ} (hk : k + 1 < m) {w : Perm (Fin m)}
   have hP : P ∉ (invSet m w).map φ.toEmbedding := by
     rw [Finset.mem_map_equiv, hφ, mem_invSet]
     simp only [φ, P, Equiv.prodCongr_apply, Prod.map, sadj_apply_left hk, sadj_apply_right hk]
-    exact fun h => absurd h.1 (by simp [Fin.lt_iff_val_lt_val])
+    exact fun h => absurd h.1 (by simp [Fin.lt_def])
   have hset : invSet m (w * sadj m k) = insert P ((invSet m w).map φ.toEmbedding) := by
     ext ⟨a, b⟩
     rw [Finset.mem_insert, Finset.mem_map_equiv, hφ, mem_invSet, mem_invSet]
@@ -75,20 +75,20 @@ theorem invCount_mul_sadj_of_lt {k : ℕ} (hk : k + 1 < m) {w : Perm (Fin m)}
     · obtain rfl : a = ⟨k, hk0⟩ := Fin.ext h₁.1
       obtain rfl : b = ⟨k + 1, hk⟩ := Fin.ext h₁.2
       simp only [sadj_apply_left hk, sadj_apply_right hk, and_self, true_or, iff_true]
-      exact ⟨by simp [Fin.lt_iff_val_lt_val], hlt⟩
+      exact ⟨by simp [Fin.lt_def], hlt⟩
     by_cases h₂ : (a : ℕ) = k + 1 ∧ (b : ℕ) = k
     · obtain rfl : a = ⟨k + 1, hk⟩ := Fin.ext h₂.1
       obtain rfl : b = ⟨k, hk0⟩ := Fin.ext h₂.2
       simp only [sadj_apply_left hk, sadj_apply_right hk]
-      simp only [Fin.lt_iff_val_lt_val, Fin.ext_iff]
+      simp only [Fin.lt_def, Fin.ext_iff]
       constructor
       · rintro ⟨h, -⟩; omega
       · rintro (⟨h, -⟩ | ⟨-, h⟩)
         · omega
-        · exact absurd (Fin.lt_iff_val_lt_val.2 h) (lt_asymm hlt)
+        · exact absurd (Fin.lt_def.2 h) (lt_asymm hlt)
     have hne : ¬ (a = ⟨k, hk0⟩ ∧ b = ⟨k + 1, hk⟩) := fun h => h₁ ⟨by rw [h.1], by rw [h.2]⟩
     simp only [hne, false_or, lt_iff_sadj_lt hk h₁ h₂]
-  rw [invCount, hset, Finset.card_insert_of_not_mem hP, Finset.card_map, invCount]
+  rw [invCount, hset, Finset.card_insert_of_notMem hP, Finset.card_map, invCount]
 
 /-- Right multiplication by an adjacent transposition changes the inversion count by one,
 according to whether `k` is an ascent or a descent of `w`. -/
@@ -130,9 +130,9 @@ theorem exists_descent {w : Perm (Fin m)} (hw : w ≠ 1) :
   have hmono : StrictMono w := by
     rw [Fin.strictMono_iff_lt_succ]
     intro i
-    exact lt_of_le_of_ne (H i (by omega)) (w.injective.ne (Fin.castSucc_lt_succ i).ne)
+    exact lt_of_le_of_ne (H i (by omega)) (w.injective.ne (Fin.castSucc_lt_succ (i := i)).ne)
   have hid : (w : Fin (n + 1) → Fin (n + 1)) = id :=
-    (hmono.range_inj strictMono_id).1 (by rw [EquivLike.range_eq_univ, Set.range_id])
+    (hmono.range_inj_of_wellFoundedLT strictMono_id).1 (by rw [EquivLike.range_eq_univ, Set.range_id])
   ext i
   rw [Perm.one_apply, show w i = i from congrFun hid i]
 

@@ -238,12 +238,13 @@ theorem cx_val (hpn : p + n ≤ m) (a : Fin n) :
 
 theorem cψ_val_of_lt (hpn : p + n ≤ m) (hc : IsConstOn i p n) {j : ℕ} (h : j + 1 < n) :
     (cψ (k := k) (Q := Q) i hpn hc j).1 = ψ (p + j) := by
-  rw [cψ, dif_pos h]
+  rw [cψ, dite_eq_left h]
 
 theorem cψ_of_not_lt (hpn : p + n ≤ m) (hc : IsConstOn i p n) {j : ℕ} (h : ¬ j + 1 < n) :
     cψ (k := k) (Q := Q) i hpn hc j = 0 := by
-  rw [cψ, dif_neg h]
+  rw [cψ, dite_eq_right h]
 
+set_option backward.isDefEq.respectTransparency false in
 /-- The dots and crossings of a block, multiplied by `1_i`, satisfy the nilHecke relations in
 the corner ring `1_i R(ν) 1_i`. -/
 theorem isNilHeckeFamily_block (hpn : p + n ≤ m) (hc : IsConstOn i p n) :
@@ -269,7 +270,7 @@ theorem isNilHeckeFamily_block (hpn : p + n ≤ m) (hc : IsConstOn i p n) :
     rw [← map_mul, ← map_zero (toCorner (e_mul_self i)), toCorner_eq_iff]
     by_cases h : j + 1 < n
     · change (cψ i hpn hc j).1 * (cψ i hpn hc j).1 * e i = 0 * e i
-      rw [cψ_val_of_lt hpn hc h, ψ_sq _ (by omega), if_pos (hc.lbl_succ (by omega) (by omega) _),
+      rw [cψ_val_of_lt hpn hc h, ψ_sq _ (by omega), ite_eq_left (hc.lbl_succ (by omega) (by omega) _),
         zero_mul]
     · rw [cψ_of_not_lt hpn hc h, zero_mul]
   braid j := by
@@ -278,7 +279,7 @@ theorem isNilHeckeFamily_block (hpn : p + n ≤ m) (hc : IsConstOn i p n) :
     · change (cψ i hpn hc j).1 * (cψ i hpn hc (j + 1)).1 * (cψ i hpn hc j).1 * e i =
         (cψ i hpn hc (j + 1)).1 * (cψ i hpn hc j).1 * (cψ i hpn hc (j + 1)).1 * e i
       rw [cψ_val_of_lt hpn hc (by omega), cψ_val_of_lt hpn hc h, ← sub_eq_zero, ← sub_mul,
-        show p + (j + 1) = p + j + 1 by omega, braid _ (by omega), if_neg]
+        show p + (j + 1) = p + j + 1 by omega, braid _ (by omega), ite_eq_right]
       rintro ⟨-, hne⟩
       exact hne (hc.lbl_succ (by omega) (by omega) _)
     · rw [cψ_of_not_lt hpn hc (show ¬ j + 1 + 1 < n by omega)]
@@ -289,14 +290,14 @@ theorem isNilHeckeFamily_block (hpn : p + n ≤ m) (hc : IsConstOn i p n) :
       (cψ i hpn hc j).1 * (cx i hpn ⟨j + 1, h⟩).1) * e i = 1 * e i
     rw [cψ_val_of_lt hpn hc h, cx_val, cx_val, one_mul]
     exact (dot_cross_left (p + j) (by omega) i).trans
-      (if_pos (hc.lbl_succ (by omega) (by omega) _))
+      (ite_eq_left (hc.lbl_succ (by omega) (by omega) _))
   d_x_sub j h := by
     rw [← map_mul, ← map_mul, ← map_sub, ← map_one (toCorner (e_mul_self i)), toCorner_eq_iff]
     change ((cψ i hpn hc j).1 * (cx i hpn ⟨j, by omega⟩).1 -
       (cx i hpn ⟨j + 1, h⟩).1 * (cψ i hpn hc j).1) * e i = 1 * e i
     rw [cψ_val_of_lt hpn hc h, cx_val, cx_val, one_mul]
     exact (dot_cross_right (p + j) (by omega) i).trans
-      (if_pos (hc.lbl_succ (by omega) (by omega) _))
+      (ite_eq_left (hc.lbl_succ (by omega) (by omega) _))
   d_zero j h := by
     rw [cψ_of_not_lt hpn hc (by omega), map_zero]
 
@@ -314,7 +315,7 @@ theorem val_prod_cx (hpn : p + n ≤ m) :
     map_list_prod, List.map_ofFn]
   congr 2
   funext a
-  simp only [Function.comp_apply, map_pow, Subring.coe_subtype, dif_pos
+  simp only [Function.comp_apply, map_pow, Subring.coe_subtype, dite_eq_left
     (show p + (a : ℕ) < m by omega), pol_X]
   rfl
 
@@ -332,6 +333,7 @@ theorem isIdempotentElem_of_key {R : Type*} [Ring R] {u v E : R} (hE : IsIdempot
         noncomm_ring
     _ = u * v * E := by rw [hk, mul_assoc, mul_assoc, hE.eq, mul_assoc]
 
+set_option backward.isDefEq.respectTransparency false in
 /-- **KL I §2.2, Example 3 and §2.5.** The nilHecke idempotent
 `e_{i_p, n} = x_p^{n-1} ⋯ x_{p+n-2} ψ_{w_0} 1_i` on a block `[p, p + n)` of strands with
 constant labels is an idempotent of `R(ν)`. -/
@@ -370,7 +372,7 @@ theorem toNH_blockIdem {c : I} (hν : ∀ a ∈ ν, a = c) (t : Seq ν) :
   rw [blockIdem, blockElt, map_mul, map_mul, toNH_e, mul_one, toNH_pol, toNH_ψw, idemNH]
   congr 2
   · refine Finset.prod_congr rfl fun a _ => ?_
-    rw [dif_pos (by omega)]
+    rw [dite_eq_left (by omega)]
     congr 2
     exact Fin.ext (zero_add _)
   · simp [blockWord]
@@ -390,9 +392,9 @@ theorem blockElt_one (p : ℕ) : (blockElt p 1 : A) = 1 := by
 /-- The divided power `i^{(2)}` on the strands `p, p + 1`: `e_{i,2} = x_p ψ_p`. -/
 theorem blockElt_two {p : ℕ} (h : p + 1 < m) : (blockElt p 2 : A) = x ⟨p, by omega⟩ * ψ p := by
   simp only [blockElt, blockDelta, Fin.prod_univ_two, Fin.val_zero, Fin.val_one, add_zero,
-    dif_pos (show p < m by omega), dif_pos h, pow_zero, mul_one, blockWord, w0Word,
-    List.range_zero, List.nil_append, List.range_succ, List.map_cons, List.map_nil, ψw_cons,
-    ψw_nil]
+    dite_eq_left (show p < m by omega), dite_eq_left h, blockWord, w0Word,
+    List.range_zero, List.nil_append, List.range_succ,
+    ]
   simp
 
 /-! ### Degree zero -/

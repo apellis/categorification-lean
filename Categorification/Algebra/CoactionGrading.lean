@@ -48,10 +48,10 @@ def grade (d : ι) : Submodule k A where
   carrier := {a | Δ a = single d a}
   zero_mem' := by simp
   add_mem' {a b} ha hb := by
-    simp only [Set.mem_setOf_eq] at *
+    simp only [Set.mem_ofPred_eq] at *
     rw [map_add, ha, hb, single_add]
   smul_mem' c a ha := by
-    simp only [Set.mem_setOf_eq] at *
+    simp only [Set.mem_ofPred_eq] at *
     rw [map_smul, ha, smul_single]
 
 theorem mem_grade {d : ι} {a : A} : a ∈ grade Δ d ↔ Δ a = single d a := Iff.rfl
@@ -69,27 +69,28 @@ instance gradedMonoid : SetLike.GradedMonoid (grade Δ) where
   mul_mem _ _ _ _ ha hb := mul_mem_grade Δ ha hb
 
 /-- `Δ` is counital: the sum of the coefficients of `Δ a` is `a`. -/
-def Counit : Prop := ∀ a : A, (Δ a).sum (fun _ b => b) = a
+def Counit : Prop := ∀ a : A, (Δ a).coeff.sum (fun _ b => b) = a
 
 /-- `Δ` is coassociative: every coefficient `(Δ a) d` is homogeneous of degree `d`. -/
-def Coassoc : Prop := ∀ (a : A) (d : ι), Δ (Δ a d) = single d (Δ a d)
+def Coassoc : Prop := ∀ (a : A) (d : ι), Δ ((Δ a).coeff d) = single d ((Δ a).coeff d)
 
 variable [DecidableEq ι]
 
 theorem apply_of_mem_grade {d e : ι} {a : A} (ha : a ∈ grade Δ d) :
-    Δ a e = if d = e then a else 0 := by
-  rw [ha, single_apply]
+    (Δ a).coeff e = if d = e then a else 0 := by
+  rw [ha, coeff_single, Finsupp.single_apply]
 
 /-- `Δ` recovers the components of an element of the external direct sum. -/
 theorem apply_coe (f : ⨁ d, grade Δ d) (d : ι) :
-    Δ (DirectSum.coeAddMonoidHom (grade Δ) f) d = f d := by
+    (Δ (DirectSum.coeAddMonoidHom (grade Δ) f)).coeff d = f d := by
   induction f using DirectSum.induction_on with
   | zero => simp
   | of e x =>
     rw [DirectSum.coeAddMonoidHom_of, apply_of_mem_grade Δ x.2, DirectSum.coe_of_apply]
     split_ifs <;> rfl
   | add f g hf hg =>
-    rw [map_add, map_add, Finsupp.add_apply, hf, hg, DirectSum.add_apply, Submodule.coe_add]
+    rw [map_add, map_add, coeff_add, Finsupp.add_apply, hf, hg, DirectSum.add_apply,
+      Submodule.coe_add]
 
 theorem coe_injective :
     Function.Injective (DirectSum.coeAddMonoidHom (grade Δ)) := by
@@ -100,9 +101,10 @@ theorem coe_injective :
 variable {Δ}
 
 /-- The decomposition `a ↦ ∑_d (Δ a)_d` attached to a counital coassociative coaction. -/
-noncomputable def decomposition (hε : Counit Δ) (hco : Coassoc Δ) :
+@[instance_reducible] noncomputable def decomposition (hε : Counit Δ) (hco : Coassoc Δ) :
     DirectSum.Decomposition (grade Δ) where
-  decompose' a := ∑ d ∈ (Δ a).support, DirectSum.of (fun d => grade Δ d) d ⟨Δ a d, hco a d⟩
+  decompose' a :=
+    ∑ d ∈ (Δ a).coeff.support, DirectSum.of (fun d => grade Δ d) d ⟨(Δ a).coeff d, hco a d⟩
   left_inv a := by
     simp only [map_sum, DirectSum.coeAddMonoidHom_of]
     exact hε a
@@ -112,14 +114,14 @@ noncomputable def decomposition (hε : Counit Δ) (hco : Coassoc Δ) :
     exact hε _
 
 /-- The graded algebra structure defined by a counital coassociative coaction. -/
-noncomputable def gradedAlgebra (hε : Counit Δ) (hco : Coassoc Δ) : GradedAlgebra (grade Δ) :=
+@[instance_reducible] noncomputable def gradedAlgebra (hε : Counit Δ) (hco : Coassoc Δ) : GradedAlgebra (grade Δ) :=
   { gradedMonoid Δ, decomposition hε hco with }
 
 /-- The degree `d` component of `a` is the coefficient `(Δ a) d`. -/
 theorem decompose_apply (hε : Counit Δ) (hco : Coassoc Δ) (a : A) (d : ι) :
-    letI := gradedAlgebra hε hco
-    (DirectSum.decompose (grade Δ) a d : A) = Δ a d := by
-  letI := gradedAlgebra hε hco
+    let := gradedAlgebra hε hco
+    (DirectSum.decompose (grade Δ) a d : A) = (Δ a).coeff d := by
+  let := gradedAlgebra hε hco
   have h := apply_coe Δ (DirectSum.decompose (grade Δ) a) d
   rw [show DirectSum.coeAddMonoidHom (grade Δ) (DirectSum.decompose (grade Δ) a) = a from
     (DirectSum.decompose (grade Δ)).symm_apply_apply a] at h
@@ -165,10 +167,10 @@ theorem counit_of_forall_mem (h : ∀ a, a ∈ homogeneousSubalgebra Δ) : Couni
   intro a
   have ha : a ∈ ⨆ d, grade Δ d := h a
   induction ha using Submodule.iSup_induction' with
-  | mem d a ha => rw [ha, Finsupp.sum_single_index rfl]
+  | mem d a ha => rw [ha, coeff_single, Finsupp.sum_single_index rfl]
   | zero => simp
   | add a b _ _ ha hb =>
-    rw [map_add, Finsupp.sum_add_index' (fun _ => rfl) (fun _ _ _ => rfl), ha, hb]
+    rw [map_add, coeff_add, Finsupp.sum_add_index' (fun _ => rfl) (fun _ _ _ => rfl), ha, hb]
 
 /-- If every element is a sum of homogeneous elements, `Δ` is coassociative. -/
 theorem coassoc_of_forall_mem (h : ∀ a, a ∈ homogeneousSubalgebra Δ) : Coassoc Δ := by
@@ -184,7 +186,7 @@ theorem coassoc_of_forall_mem (h : ∀ a, a ∈ homogeneousSubalgebra Δ) : Coas
   | zero => simp
   | add a b _ _ ha hb =>
     intro d
-    rw [map_add, Finsupp.add_apply, map_add, ha, hb, single_add]
+    rw [map_add, coeff_add, Finsupp.add_apply, map_add, ha, hb, single_add]
 
 omit [DecidableEq ι] in
 /-- A counital coassociative coaction has every element a sum of homogeneous elements. -/

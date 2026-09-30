@@ -47,6 +47,8 @@ For KLR diagrams:
   strands is `rotKLin τ` of it on downward strands**.
 -/
 
+set_option backward.isDefEq.respectTransparency false
+
 noncomputable section
 
 namespace Categorification.KL3.Diagram.CL
@@ -159,10 +161,10 @@ def dgC (μ : X) (s t : List (Letter I)) (ls : List (LayerData I)) :
 variable {P}
 
 theorem dgC_of {μ : X} {s t : List (Letter I)} {ls : List (LayerData I)} (h : SChain s ls t) :
-    dgC P μ s t ls = P.diag (mkD RD μ ls h) := dif_pos h
+    dgC P μ s t ls = P.diag (mkD RD μ ls h) := dite_eq_left h
 
 theorem dgC_of_not {μ : X} {s t : List (Letter I)} {ls : List (LayerData I)}
-    (h : ¬ SChain s ls t) : dgC P μ s t ls = 0 := dif_neg h
+    (h : ¬ SChain s ls t) : dgC P μ s t ls = 0 := dite_eq_right h
 
 theorem dgC_nil (μ : X) (s : List (Letter I)) : dgC P μ s s [] = 𝟙 _ := by
   rw [dgC_of (show SChain s [] s from rfl)]
@@ -434,7 +436,7 @@ theorem rotC_dg_single (μ ν : X) (x : LayerData I) (hx : IsUpSh x.2.1)
     (rotC_e₁ P μ ν _ _ hs rfl).symm
   have H' := isDgC_dg (P := P) ν (sChain_rotLs
     (show SChain (u ++ g.dom ++ v) [(u, g, v)] (u ++ g.cod ++ v) from ⟨rfl, rfl⟩))
-  simpa using H.eq_eqToHom H' rfl rfl
+  simpa [rotLs] using H.eq_eqToHom H' rfl rfl
 
 include hDot hCross in
 /-- **The rotation of an upward normal-form diagram is the diagram of the rotated layers in
@@ -684,7 +686,7 @@ theorem ncEval_antihom {A B : Type*} [Ring A] [Algebra k A] [Ring B] [Algebra k 
     refine congrArg List.ofFn (funext fun a => ?_)
     simp only [Function.comp_apply, hpow]
     congr 1
-    have := Finsupp.mapDomain_apply Fin.rev_injective s (Fin.rev a)
+    have := Finsupp.mapDomain_apply_of_injective Fin.rev_injective s (Fin.rev a)
     rw [Fin.rev_rev] at this
     rw [this]
 

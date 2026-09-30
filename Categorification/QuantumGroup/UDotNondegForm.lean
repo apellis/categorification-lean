@@ -117,7 +117,7 @@ theorem fF_eq_zero_of_supp {S : Set (FreeMonoid I)} {x : PreF K I}
 theorem fF_d_word_eq_zero (i : I) {u u' : FreeMonoid I} (h : i ::ₘ wt u' ≠ wt u) :
     fF C q c (PreF.d C.dot q⁻¹ i (word u)) (word u') = 0 :=
   fF_eq_zero_of_supp (d_word_mem_supp i u) fun v hv hvu => h (by
-    simp only [Set.mem_setOf_eq] at hv; rw [← hv, hvu])
+    simp only [Set.mem_ofPred_eq] at hv; rw [← hv, hvu])
 
 theorem fF_θ_mul (i : I) (x y : PreF K I) :
     fF C q c (θ i * x) y = c i * fF C q c x (PreF.d C.dot q⁻¹ i y) := form_θ_mul i x y
@@ -210,9 +210,9 @@ theorem ndP_ndE (ℓ : I → ℤ) (i : I) {P N : Multiset I} {m' : M K I} (hm' :
   refine Msupp_induction (motive := fun m' => ∀ m, ndP C q c (ndE C q ℓ i m) m' =
       qp q (di C i * (1 - (ℓ i + msA C i P - msA C i N))) * ndP C q c m (ndF C q ℓ i m'))
     hm' (by simp) (fun x y hx hy m => by
-      simp only [map_add, LinearMap.add_apply, hx m, hy m]; ring)
+      simp only [map_add, hx m, hy m]; ring)
     (fun r x hx m => by
-      simp only [map_smul, LinearMap.smul_apply, smul_eq_mul, hx m]; ring)
+      simp only [map_smul, smul_eq_mul, hx m]; ring)
     (fun u' w' h m => ?_) m
   have hn : ndWn C ℓ i u' w' = ℓ i + msA C i P - msA C i N := by
     have := congrArg (msA C i) h
@@ -232,9 +232,9 @@ theorem ndP_ndF (ℓ : I → ℤ) (i : I) {P N : Multiset I} {m' : M K I} (hm' :
   refine Msupp_induction (motive := fun m' => ∀ m, ndP C q c (ndF C q ℓ i m) m' =
       qp q (di C i * (1 + (ℓ i + msA C i P - msA C i N))) * ndP C q c m (ndE C q ℓ i m'))
     hm' (by simp) (fun x y hx hy m => by
-      simp only [map_add, LinearMap.add_apply, hx m, hy m]; ring)
+      simp only [map_add, hx m, hy m]; ring)
     (fun r x hx m => by
-      simp only [map_smul, LinearMap.smul_apply, smul_eq_mul, hx m]; ring)
+      simp only [map_smul, smul_eq_mul, hx m]; ring)
     (fun u' w' h m => ?_) m
   have hn : ndWn C ℓ i u' w' = ℓ i + msA C i P - msA C i N := by
     have := congrArg (msA C i) h
@@ -263,7 +263,7 @@ theorem ndB_rhoE (ℓ : I → ℤ) (l : Bool × I) (s : List (Bool × I)) (y : F
   | zero => simp
   | add x y hx hy => rw [map_add, hx, hy, map_add, map_add]
   | smul_ew t r =>
-    simp only [map_smul, rhoE_ew, smul_eq_mul, LinearMap.smul_apply]
+    simp only [map_smul, rhoE_ew, smul_eq_mul]
     congr 1
     rw [ndB_apply, ndB_apply, ndNF_ew_cons, ndNF_ew_cons]
     obtain ⟨b, i⟩ := l
@@ -341,7 +341,7 @@ theorem B_eq_ndP (hq : ∀ n : ℕ, 0 < n → q ^ n ≠ 1) (ℓ : I → ℤ) (z 
   | zero => simp
   | add x y hx hy => rw [map_add, LinearMap.add_apply, hx, hy, map_add, LinearMap.add_apply]
   | smul_ew s r =>
-    rw [map_smul, map_smul, LinearMap.smul_apply, LinearMap.smul_apply]
+    rw [map_smul, map_smul, LinearMap.smul_apply]
     congr 1
     have h1 := B_append (C := C) (q := q) (c := c) ℓ s [] w
     have h2 := ndB_append hc ℓ s [] w

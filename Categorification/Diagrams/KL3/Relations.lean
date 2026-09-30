@@ -235,7 +235,10 @@ theorem whiskerOK_right (lam : X) (t : List (Letter I)) :
 
 theorem whisker_right_eq (lam : X) (t : List (Letter I)) :
     (ob RD lam []).whisker (ob RD lam t) [] = ob RD lam t :=
-  Obj.ext rfl (by simp [Obj.whisker])
+  Obj.ext rfl (by
+    change List.append (List.append (wd RD lam t) ([] : List (Col I X)))
+      ([] : List (Col I X)) = wd RD lam t
+    exact (List.append_nil _).trans (List.append_nil _))
 
 theorem whiskerOK_left (μ : X) (t : List (Letter I)) :
     (ob RD (wt RD μ t) []).WhiskerOK (ob RD (wt RD μ t) []) (wd RD μ t) :=
@@ -243,7 +246,10 @@ theorem whiskerOK_left (μ : X) (t : List (Letter I)) :
 
 theorem whisker_left_eq (μ : X) (t : List (Letter I)) :
     (ob RD (wt RD μ t) []).whisker (ob RD (wt RD μ t) []) (wd RD μ t) = ob RD μ t :=
-  Obj.ext rfl (by simp [Obj.whisker])
+  Obj.ext rfl (by
+    change List.append (List.append ([] : List (Col I X)) ([] : List (Col I X)))
+      (wd RD μ t) = wd RD μ t
+    rfl)
 
 /-- An endomorphism of `1_λ` placed to the right of the strands `t` (rightmost region `λ`). -/
 def bubR (lam : X) (t : List (Letter I)) (b : LEnd RD k (ob RD lam [])) : LEnd RD k (ob RD lam t) :=

@@ -63,6 +63,9 @@ data; accordingly the results assume `SimplyLaced C`.
   `Categorification.Diagrams.KL3.EndOneGraded`.
 -/
 
+-- Preserve elaboration of semireducible diagram transports.
+set_option backward.isDefEq.respectTransparency false
+
 noncomputable section
 
 namespace Categorification.KL3.Diagram
@@ -529,8 +532,8 @@ theorem goodR_nil_le (μ : X) (s : List (Letter I)) (a : List I) :
   refine Submodule.span_le.mpr ?_
   rintro _ ⟨δ, x, hδ, hx, rfl⟩
   refine upSpan_bub hδ ?_
-  exact upSpan_ctxL (fun y hy => by simp [cupA] at hy) (fun y hy => by simp at hy)
-    (by simp [cupA]) (by simp) hx
+  exact upSpan_ctxL (fun y hy => by simp at hy) (fun y hy => by simp at hy)
+    (by simp) (by simp) hx
 
 /-! ## One layer at a time -/
 

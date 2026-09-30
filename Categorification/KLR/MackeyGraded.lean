@@ -42,7 +42,7 @@ set_option synthInstance.maxHeartbeats 400000
 
 namespace Categorification.KLR
 
-open Equiv MvPolynomial TypeA MulOpposite Graded
+open Equiv MvPolynomial TypeA MulOpposite Categorification.Graded
 open scoped TensorProduct
 
 variable {I : Type*} {k : Type*} [CommRing k] [DecidableEq I]
@@ -96,8 +96,8 @@ theorem invSet_quadPerm :
     have := y.2
     simp only
     refine ⟨by omega, by omega, ?_, ?_⟩
-    · rw [if_neg (by omega), if_neg (by omega), if_pos (by omega)]; omega
-    · rw [if_neg (by omega), if_pos (by omega)]; omega
+    · rw [ite_eq_right (by omega), ite_eq_right (by omega), ite_eq_left (by omega)]; omega
+    · rw [ite_eq_right (by omega), ite_eq_left (by omega)]; omega
 
 /-- `ψ_d 1_s` for a bottom sequence `s = (i_α i_γ)(i_β i_δ)` has degree `mackeyShift G q`. -/
 theorem ψD_mul_e_mem_grade (i₁ : Seq q.α) (i₂ : Seq q.β) (i₃ : Seq q.γ) (i₄ : Seq q.δ) :
@@ -118,8 +118,8 @@ theorem ψD_mul_e_mem_grade (i₁ : Seq q.α) (i₂ : Seq q.β) (i₃ : Seq q.γ
     have := y.2
     simp only [Seq.lbl]
     rw [seqCast_apply, seqCast_apply,
-      lbl4_2 _ _ _ _ _ _ _ (by simp only [Fin.coe_cast]; omega) (by simp only [Fin.coe_cast]; omega),
-      lbl4_3 _ _ _ _ _ _ _ (by simp only [Fin.coe_cast]; omega) (by simp only [Fin.coe_cast]; omega)]
+      lbl4_2 _ _ _ _ _ _ _ (by simp only [Fin.val_cast]; omega) (by simp only [Fin.val_cast]; omega),
+      lbl4_3 _ _ _ _ _ _ _ (by simp only [Fin.val_cast]; omega) (by simp only [Fin.val_cast]; omega)]
     exact congrArg₂ G.degΨ (i₃.apply_congr (by simp)) (i₂.apply_congr (by simp))
   · rintro ⟨x, y⟩ - ⟨x', y'⟩ - hxy
     dsimp only at hxy

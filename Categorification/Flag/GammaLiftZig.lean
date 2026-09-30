@@ -22,6 +22,9 @@ For `c = E_i` (resp. `F_i`) the left zigzag is `Γ_N`'s identity (3.2) on `E` (r
   on the right by any word, vanish.
 -/
 
+-- Preserve elaboration of semireducible diagram and bimodule transports.
+set_option backward.isDefEq.respectTransparency false
+
 noncomputable section
 
 namespace Categorification.Flag
@@ -54,13 +57,13 @@ theorem canon_zigL (dnScal : Fin m → Fin m → K) (b : Bool) (i : Fin m) (r : 
   · simp only [trW_self, BHom.id_comp', BHom.comp_id', genScal, BHom.csmul_one]
     cases b
     · simp only [layerMap, genMap, capMap, cupMap, trS_self', BHom.whiskerLeft_id,
-        BHom.id_comp', BHom.comp_id']
+        BHom.id_comp']
       erw [BHom.whiskerLeft_id, BHom.comp_id']
       exact zigzag_F (K := K) i (s := compOf N (sh RD (false, i) + r)) (s' := compOf N r)
         (ha.step : StepR (true, i) (compOf N (sh RD (false, i) + r)) (compOf N r)) ha.step
         (gammaR K N r v ha.2.2)
     · simp only [layerMap, genMap, capMap, cupMap, trS_self', BHom.whiskerLeft_id,
-        BHom.id_comp', BHom.comp_id']
+        BHom.id_comp']
       erw [BHom.whiskerLeft_id, BHom.comp_id']
       exact zigzag_E' (K := K) i (s := compOf N r) (s' := compOf N (sh RD (true, i) + r))
         ha.step (ha.step : StepR (false, i) (compOf N (sh RD (true, i) + r)) (compOf N r))
@@ -87,14 +90,14 @@ theorem canon_zigR (dnScal : Fin m → Fin m → K) (b : Bool) (i : Fin m) (r : 
   · simp only [trW_self, BHom.id_comp', BHom.comp_id', genScal, BHom.csmul_one]
     cases b
     · simp only [layerMap, genMap, capMap, cupMap, trS_self', BHom.whiskerLeft_id,
-        BHom.id_comp', BHom.comp_id']
+        BHom.id_comp']
       erw [BHom.whiskerLeft_id, BHom.comp_id']
       exact zigzag_E (K := K) i (s := compOf N (sh RD (false, i) + r)) (s' := compOf N r)
         (ha.step : StepR (true, i) (compOf N (sh RD (false, i) + r)) (compOf N r))
         (h1.2.2.step : StepR (false, i) (compOf N r) (compOf N (sh RD (false, i) + r)))
         (gammaR K N (sh RD (false, i) + r) v ha.2.2)
     · simp only [layerMap, genMap, capMap, cupMap, trS_self', BHom.whiskerLeft_id,
-        BHom.id_comp', BHom.comp_id']
+        BHom.id_comp']
       erw [BHom.whiskerLeft_id, BHom.comp_id']
       exact zigzag_F' (K := K) i (s := compOf N r) (s' := compOf N (sh RD (true, i) + r))
         (h1.2.2.step : StepR (true, i) (compOf N r) (compOf N (sh RD (true, i) + r)))
@@ -126,7 +129,7 @@ theorem evalB_zigL (dnScal : Fin m → Fin m → K) (c : (psig RD).Colour) (s : 
       ([([], .cup ⟨(b, i), r⟩, ⟨(b, i), r⟩ :: v), ([⟨(b, i), r⟩], .cap ⟨(b, i), r⟩, v)] : List (LData m)) := by
     simp only [Pivotal.zigL, Diagram.layers_leftZigzag, Pivotal.cupD, Pivotal.capD,
       Diagram.layers_layer, List.map_cons, List.map_nil, dataV, Layer.wr, Layer.wl,
-      List.nil_append, List.cons_append, List.append_nil, List.singleton_append]
+      List.nil_append, List.cons_append]
   rw [chainBD_congr dnScal _ rfl rfl el _ (by exact ⟨rfl, rfl, rfl⟩) ha ha hb hb,
     trW_self, BHom.id_comp', BHom.comp_id']
   exact canon_zigL dnScal b i r v _ ha
@@ -148,7 +151,7 @@ theorem evalB_zigR (dnScal : Fin m → Fin m → K) (c : (psig RD).Colour) (s : 
       ([], .cap ⟨(b, i), r⟩, ⟨(!b, i), sh RD (b, i) + r⟩ :: v)] : List (LData m)) := by
     simp only [Pivotal.zigR, Diagram.layers_rightZigzag, Pivotal.cupD, Pivotal.capD,
       Diagram.layers_layer, List.map_cons, List.map_nil, dataV, Layer.wr, Layer.wl,
-      List.nil_append, List.cons_append, List.append_nil, List.singleton_append]
+      List.nil_append, List.cons_append]
     rfl
   rw [chainBD_congr dnScal _ rfl rfl el _ (by exact ⟨rfl, rfl, rfl⟩) ha ha hb hb,
     trW_self, BHom.id_comp', BHom.comp_id']

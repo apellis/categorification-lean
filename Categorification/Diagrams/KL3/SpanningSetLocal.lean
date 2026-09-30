@@ -36,6 +36,9 @@ exactly one crossing layer.
 * `cupCurl`, `capCurl`, `capPF`, `cupPF`: curls and pitchforks, modulo lower terms.
 -/
 
+-- Preserve elaboration of semireducible diagram transports.
+set_option backward.isDefEq.respectTransparency false
+
 noncomputable section
 
 namespace Categorification.KL3.Diagram
@@ -334,7 +337,7 @@ theorem dsUp0 (ν : X) (i j : I) :
     dg RD k ν [up i, up j] [up j, up i] (xLay (up i) (up j) ++ [([], .dot (up j), [up i])]) -
       dg RD k ν [up i, up j] [up j, up i] ([([up i], .dot (up j), [])] ++ xLay (up i) (up j)) ∈
         LeL RD k ν [up i, up j] [up j, up i] 0 := by
-  simp only [xLay, List.singleton_append, List.cons_append, List.nil_append]
+  simp only [xLay, List.cons_append, List.nil_append]
   by_cases h : i = j
   · subst h
     rw [dg_slideLEq, add_sub_cancel_left]; exact dg_mem_leL le_rfl
@@ -345,7 +348,7 @@ theorem dsUp1 (ν : X) (i j : I) :
     dg RD k ν [up i, up j] [up j, up i] (xLay (up i) (up j) ++ [([up j], .dot (up i), [])]) -
       dg RD k ν [up i, up j] [up j, up i] ([([], .dot (up i), [up j])] ++ xLay (up i) (up j)) ∈
         LeL RD k ν [up i, up j] [up j, up i] 0 := by
-  simp only [xLay, List.singleton_append, List.cons_append, List.nil_append]
+  simp only [xLay, List.cons_append, List.nil_append]
   by_cases h : i = j
   · subst h
     rw [dg_slideREq, sub_add_cancel_left, ← neg_one_smul k]
@@ -594,7 +597,7 @@ theorem r2UpDn (ν : X) (i j : I) :
     refine leL_mono (Nat.zero_le 1) (leL_comp0 (dg_mem_leL ?_)
       (leL_comp0 (isBub_mem_leL (ccwU_isBub _ _)) (dg_mem_leL ?_)))
     · simp [dotCapEFLs, ccnt_cons, ccnt_append, ccnt_replicate_dot, Shape.isCross]
-    · simp [cupDotEFLs, ccnt_cons, ccnt_append, ccnt_replicate_dot, Shape.isCross]
+    · simp [cupDotEFLs, ccnt_cons, ccnt_replicate_dot, Shape.isCross]
   · rw [dg_downupEF RD k i j h]; exact dg_mem_leL (by simp)
 
 theorem r2DnUp (ν : X) (i j : I) :
@@ -611,7 +614,7 @@ theorem r2DnUp (ν : X) (i j : I) :
     refine leL_mono (Nat.zero_le 1) (leL_comp0 (dg_mem_leL ?_)
       (leL_comp0 (isBub_mem_leL (cwU_isBub _ _)) (dg_mem_leL ?_)))
     · simp [dotCapFELs, ccnt_cons, ccnt_append, ccnt_replicate_dot, Shape.isCross]
-    · simp [cupDotFELs, ccnt_cons, ccnt_append, ccnt_replicate_dot, Shape.isCross]
+    · simp [cupDotFELs, ccnt_cons, ccnt_replicate_dot, Shape.isCross]
   · rw [dg_downupFE RD k j i (Ne.symm h)]; exact dg_mem_leL (by simp)
 
 /-! ## Reidemeister 3 modulo lower terms -/

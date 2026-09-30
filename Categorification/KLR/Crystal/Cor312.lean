@@ -144,22 +144,22 @@ def resLeftExtMap (S : Submodule (KLRAlgebra K Q μ) (ResLeft Q μ ν' M)) :
   toFun y := TensorProduct.lift (LinearMap.mk₂ K
       (fun (s : S) (b : KLRAlgebra K Q ν') =>
         ((1 : KLRAlgebra K Q μ) ⊗ₜ[K] b : TensorKLR Q μ ν') • ResLeft.toRes (s : ResLeft Q μ ν' M))
-      (fun s s' b => by dsimp only; rw [Submodule.coe_add, resLeft_toRes_add, smul_add])
+      (fun s s' b => by rw [Submodule.coe_add, resLeft_toRes_add, smul_add])
       (fun c s b => by
-        dsimp only; rw [Submodule.coe_smul_of_tower, resLeft_toRes_kSmul, smul_comm])
-      (fun s b b' => by dsimp only; rw [TensorProduct.tmul_add, add_smul])
-      (fun c s b => by dsimp only; rw [TensorProduct.tmul_smul, smul_assoc]))
+        rw [Submodule.coe_smul_of_tower, resLeft_toRes_kSmul, smul_comm])
+      (fun s b b' => by rw [TensorProduct.tmul_add, add_smul])
+      (fun c s b => by rw [TensorProduct.tmul_smul, smul_assoc]))
     (ExtTensor.equivTensor y)
   map_add' y y' := by rw [map_add, map_add]
   map_smul' t y := by
     refine ExtTensor.smul_eq_induction (F := fun y => TensorProduct.lift (LinearMap.mk₂ K
       (fun (s : S) (b : KLRAlgebra K Q ν') =>
         ((1 : KLRAlgebra K Q μ) ⊗ₜ[K] b : TensorKLR Q μ ν') • ResLeft.toRes (s : ResLeft Q μ ν' M))
-      (fun s s' b => by dsimp only; rw [Submodule.coe_add, resLeft_toRes_add, smul_add])
+      (fun s s' b => by rw [Submodule.coe_add, resLeft_toRes_add, smul_add])
       (fun c s b => by
-        dsimp only; rw [Submodule.coe_smul_of_tower, resLeft_toRes_kSmul, smul_comm])
-      (fun s b b' => by dsimp only; rw [TensorProduct.tmul_add, add_smul])
-      (fun c s b => by dsimp only; rw [TensorProduct.tmul_smul, smul_assoc])) (ExtTensor.equivTensor y))
+        rw [Submodule.coe_smul_of_tower, resLeft_toRes_kSmul, smul_comm])
+      (fun s b b' => by rw [TensorProduct.tmul_add, add_smul])
+      (fun c s b => by rw [TensorProduct.tmul_smul, smul_assoc])) (ExtTensor.equivTensor y))
       (fun y y' => by simp only [map_add]) (by simp only [map_zero]) ?_ t y
     intro a b s b'
     rw [ExtTensor.smul_tmul]
@@ -222,7 +222,7 @@ theorem epsI_submodule_resLeft {i : I} (hν' : ∀ a ∈ ν', a = i)
     [IsSimpleModule (KLRAlgebra K Q (μ + ν')) M]
     (S : Submodule (KLRAlgebra K Q μ) (ResLeft Q μ ν' M)) (hS : S ≠ ⊥) :
     epsI Q μ i S + Multiset.card ν' = epsI Q (μ + ν') i M := by
-  haveI : Nontrivial S := Submodule.nontrivial_iff_ne_bot.2 hS
+  have : Nontrivial S := Submodule.nontrivial_iff_ne_bot.2 hS
   exact le_antisymm (epsI_submodule_resLeft_le hν' S)
     (epsI_le_of_submodule_resLeft hPQ hP S hS)
 
@@ -325,7 +325,7 @@ theorem exists_mem_eq_socVec_resLeft
   have hP0 : P ≠ ⊥ := by
     -- a nonzero vector of `S` fixed by `1_{μ',ν''}`
     have hSε := epsI_submodule_resLeft hPQ hP hν' S hS
-    haveI : Nontrivial S := Submodule.nontrivial_iff_ne_bot.2 hS
+    have : Nontrivial S := Submodule.nontrivial_iff_ne_bot.2 hS
     obtain ⟨j, hj, hjt⟩ := exists_tailLen_eq_epsI (Q := Q) (ν := μ' + ν'') (i := i) (M := S)
     have hjc : j ∈ concatSet μ' ν'' :=
       (mem_concatSet_iff_hasTail hν'').2 (Seq.hasTail_iff.2 (by omega))
@@ -370,7 +370,7 @@ theorem exists_mem_eq_socVec_resLeft
       rw [smul_smul, hc, ← smul_smul, hEv]
     · have hpos : Seq.posL ν' a' =
           Fin.cast (congrArg Multiset.card (add_assoc μ' ν'' ν').symm) (Seq.posR μ' b) :=
-        Fin.ext (by simp only [a', Seq.posL_val, Seq.posR_val, Fin.coe_cast])
+        Fin.ext (by simp only [a', Seq.posL_val, Seq.posR_val, Fin.val_cast])
       have e1 : ((ResLeft.toRes ((x a' : KLRAlgebra K Q (μ' + ν'')) • v) :
           ResSub Q (μ' + ν'') ν' M) : M) =
           (x (Seq.posL ν' a') : KLRAlgebra K Q ((μ' + ν'') + ν')) •
@@ -399,11 +399,11 @@ theorem socle_resLeft_unique
     [IsSimpleModule (KLRAlgebra K Q (μ' + ν'')) S₁]
     [IsSimpleModule (KLRAlgebra K Q (μ' + ν'')) S₂] : S₁ = S₂ := by
   have hνε := forall_add_of_forall hν'' hν'
-  haveI := isSimpleModule_castMod (Q := Q) (add_assoc μ' ν'' ν').symm M
+  have := isSimpleModule_castMod (Q := Q) (add_assoc μ' ν'' ν').symm M
   have hε' : epsI Q (μ' + (ν'' + ν')) i (MAssoc μ' ν'' ν' M) = Multiset.card (ν'' + ν') := by
     rw [epsI_castMod, hε, Multiset.card_add]
   obtain ⟨h1, h2, -⟩ := lemma_3_8 hνε hPQ hP (smulNilpotent_mAssoc hnil) hε'
-  haveI := IsSimpleModule.nontrivial (KLRAlgebra K Q μ')
+  have := IsSimpleModule.nontrivial (KLRAlgebra K Q μ')
     (HWSpace Q μ' (ν'' + ν') (ResSub Q μ' (ν'' + ν') (MAssoc μ' ν'' ν' M)))
   obtain ⟨w₀, hw₀⟩ := exists_ne
     (0 : HWSpace Q μ' (ν'' + ν') (ResSub Q μ' (ν'' + ν') (MAssoc μ' ν'' ν' M)))
@@ -444,7 +444,7 @@ theorem cor_3_12_socle (hle : 0 < epsI Q (μ + ν') i M)
     (S₁ S₂ : Submodule (KLRAlgebra K Q μ) (ResLeft Q μ ν' M))
     [IsSimpleModule (KLRAlgebra K Q μ) S₁] [IsSimpleModule (KLRAlgebra K Q μ) S₂] :
     S₁ = S₂ := by
-  haveI := IsSimpleModule.nontrivial (KLRAlgebra K Q (μ + ν')) M
+  have := IsSimpleModule.nontrivial (KLRAlgebra K Q (μ + ν')) M
   obtain ⟨μ', hμ'⟩ := exists_eq_add_replicate (Q := Q) (μ := μ) hν' (M := M) (by rw [hν'1]; omega)
   set d := epsI Q (μ + ν') i M - Multiset.card ν' with hd
   have hε : epsI Q (μ + ν') i M = Multiset.card (Multiset.replicate d i) + Multiset.card ν' := by

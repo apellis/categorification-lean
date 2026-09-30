@@ -26,7 +26,7 @@ noncomputable section
 
 namespace Categorification.KLR
 
-open Graded DirectSum MvPolynomial
+open Categorification.Graded DirectSum MvPolynomial
 
 variable {I : Type*} [DecidableEq I]
 
@@ -85,7 +85,7 @@ and the dots act nilpotently. -/
 theorem crystal_hypotheses_of_isGradedSimple (hS : IsGradedSimple (G.grade ν) ℳ) :
     FiniteDimensional K M ∧ IsSimpleModule (KLRAlgebra K Q ν) M ∧
       ∀ a, SmulNilpotent (x a : KLRAlgebra K Q ν) M := by
-  haveI := finiteDimensional_of_isGradedSimple hPQ hP G hG ℳ hS
+  have := finiteDimensional_of_isGradedSimple hPQ hP G hG ℳ hS
   exact ⟨this, isSimpleModule_of_isGradedSimple hPQ hP G hG ℳ hS,
     fun a => smulNilpotent_x_of_graded G hG ℳ a⟩
 

@@ -15,6 +15,9 @@ by the downward crossing (`crossDn_relabel`); on the path model the rotation is 
 (`rotCrossRW_eq_crossDn`, `rotCrossRW_same_eq`), and `t_{ij}^{-1} (±1) = t_{ji}^{-1}`.
 -/
 
+-- Preserve elaboration of semireducible diagram transports.
+set_option backward.isDefEq.respectTransparency false
+
 noncomputable section
 
 namespace Categorification.Flag
@@ -69,11 +72,10 @@ theorem evalB_cycCrossR (j i : Fin m) (μ s : Wt m) (hs : s = (ob RD μ [dn j, d
        ([], .cap ⟨up j, s⟩,
          ⟨dn i, sh RD (up i) + s⟩ :: ⟨dn j, sh RD (up j) + (sh RD (up i) + s)⟩ :: v)] : List (LData m)) := by
     simp only [rotCrossR, layers_mkD, layList, List.map_cons, List.map_nil, dataV, lay, wd, wt,
-      Shape.gen, Shape.dom, Shape.cod, List.nil_append, List.cons_append, List.append_nil,
-      List.singleton_append, Letter.dual_mk]
-    simp only [Bool.not_true, Bool.not_false, sh_dn']
+      Shape.gen, Shape.dom, List.nil_append, List.cons_append, List.append_nil,
+      Letter.dual_mk]
+    simp only [Bool.not_true, sh_dn']
     abel_nf
-    simp only [neg_one_zsmul, neg_add_cancel_left]
   have hch : ChainW (⟨dn j, sh RD (up j) + s⟩ :: ⟨dn i, sh RD (up j) + (sh RD (up i) + s)⟩ :: v)
       ([([⟨dn j, sh RD (up j) + s⟩, ⟨dn i, sh RD (up j) + (sh RD (up i) + s)⟩],
          .cup ⟨up j, sh RD (up i) + s⟩, v),

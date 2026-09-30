@@ -26,6 +26,9 @@ of the images along the two sides of the braid relation are the maps `braidL`, `
 `Categorification.Flag.GammaThree` (`imBraidL`, `imBraidR`, `trW_absorb_braidR`).
 -/
 
+-- Preserve elaboration of semireducible diagram transports.
+set_option backward.isDefEq.respectTransparency false
+
 noncomputable section
 
 namespace Categorification.Flag
@@ -199,7 +202,7 @@ theorem evalB_XR (c d e : Fin m) (μ s : Wt m) (v : List (psig RD).Colour)
   rw [upLin_of, evalB_of]
   simp only [layers_upDiag, KLR.Diagram.layers_dl, List.map_cons, List.map_nil, chainBD]
   split_ifs with h
-  · simp only [trW_self, BHom.id_comp', BHom.comp_id']
+  · simp only [trW_self, BHom.comp_id']
     rw [show genScal K dnScal (dataV v (upLay RD μ (KLR.Diagram.lay [c] (.cross d e) []))).2.1 = 1
       from rfl, BHom.csmul_one]
     rfl
@@ -214,7 +217,7 @@ theorem evalB_E0 (c d e : Fin m) (μ s : Wt m) (v : List (psig RD).Colour)
   simp only [chainBD]
   split_ifs with h
   · simp only [trW_self, BHom.id_comp', BHom.comp_id', genScal, BHom.csmul_one]
-    simp only [layerMap, genMap, dotMap, locOne, BHom.whiskerRight_mulB, BHom.whiskerLeft_mulB]
+    simp only [layerMap, genMap, dotMap, locOne, BHom.whiskerRight_mulB]
     rfl
   · exact absurd ha h
 

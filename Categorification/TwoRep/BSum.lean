@@ -56,11 +56,15 @@ theorem bsumι_π_self (f : ℕ → C) : ∀ (n j : ℕ), j < n → bsumι f n j
     by_cases hj : j = n
     · subst hj
       simp [bsumι, bsumπ]
-    · simp only [bsumι, bsumπ, dif_neg hj, Category.assoc, biprod.inr_snd_assoc]
+    · simp only [bsumι, bsumπ, dite_eq_right hj]
+      change (bsumι f n j ≫ biprod.inr) ≫ biprod.snd ≫ bsumπ f n j = 𝟙 (f j)
+      rw [Category.assoc, biprod.inr_snd_assoc]
       exact bsumι_π_self f n j (by omega)
 
 theorem bsumι_π_ne (f : ℕ → C) : ∀ (n j j' : ℕ), j ≠ j' → bsumι f n j ≫ bsumπ f n j' = 0
-  | 0, _, _, _ => by simp [bsumι]
+  | 0, _, _, _ => by
+    change (0 : _ ⟶ (0 : C)) ≫ 0 = 0
+    exact zero_comp
   | n + 1, j, j', h => by
     by_cases hj : j = n
     · subst hj
@@ -69,20 +73,26 @@ theorem bsumι_π_ne (f : ℕ → C) : ∀ (n j j' : ℕ), j ≠ j' → bsumι f
     · by_cases hj' : j' = n
       · subst hj'
         simp [bsumι, bsumπ, hj]
-      · simp only [bsumι, bsumπ, dif_neg hj, dif_neg hj', Category.assoc, biprod.inr_snd_assoc]
+      · simp only [bsumι, bsumπ, dite_eq_right hj, dite_eq_right hj']
+        change (bsumι f n j ≫ biprod.inr) ≫ biprod.snd ≫ bsumπ f n j' = 0
+        rw [Category.assoc, biprod.inr_snd_assoc]
         exact bsumι_π_ne f n j j' h
 
 theorem bsumπ_of_le (f : ℕ → C) : ∀ (n j : ℕ), n ≤ j → bsumπ f n j = 0
-  | 0, _, _ => by simp [bsumπ]
+  | 0, _, _ => rfl
   | n + 1, j, h => by
     have hj : ¬ j = n := by omega
-    simp only [bsumπ, dif_neg hj, bsumπ_of_le f n j (by omega), comp_zero]
+    simp only [bsumπ, dite_eq_right hj, bsumπ_of_le f n j (by omega)]
+    change biprod.snd ≫ (0 : bsum f n ⟶ f j) = 0
+    exact comp_zero
 
 theorem bsumι_of_le (f : ℕ → C) : ∀ (n j : ℕ), n ≤ j → bsumι f n j = 0
-  | 0, _, _ => by simp [bsumι]
+  | 0, _, _ => rfl
   | n + 1, j, h => by
     have hj : ¬ j = n := by omega
-    simp only [bsumι, dif_neg hj, bsumι_of_le f n j (by omega), zero_comp]
+    simp only [bsumι, dite_eq_right hj, bsumι_of_le f n j (by omega)]
+    change (0 : f j ⟶ bsum f n) ≫ biprod.inr = 0
+    exact zero_comp
 
 theorem bsum_total (f : ℕ → C) :
     ∀ n : ℕ, ∑ j ∈ Finset.range n, bsumπ f n j ≫ bsumι f n j = 𝟙 (bsum f n)
@@ -95,15 +105,20 @@ theorem bsum_total (f : ℕ → C) :
       rw [Finset.mem_range] at hj
       have hj' : ¬ j = n := by omega
       simp [bsumι, bsumπ, hj']
-    rw [Finset.sum_congr rfl h1, ← Preadditive.comp_sum, ← Preadditive.sum_comp, bsum_total f n,
-      Category.id_comp]
     have h2 : bsumπ f (n + 1) n ≫ bsumι f (n + 1) n = biprod.fst ≫ biprod.inl := by
       simp [bsumι, bsumπ]
-    rw [h2]
+    rw [Finset.sum_congr rfl h1, h2]
+    change (∑ j ∈ Finset.range n,
+      biprod.snd ≫ (bsumπ f n j ≫ bsumι f n j) ≫ biprod.inr) +
+        biprod.fst ≫ biprod.inl = 𝟙 (f n ⊞ bsum f n)
+    rw [← Preadditive.comp_sum, ← Preadditive.sum_comp, bsum_total f n,
+      Category.id_comp]
     exact (add_comm _ _).trans biprod.total
 
 /-- `lsum [X] ≅ X`. -/
-def lsumSingletonIso (X : C) : lsum [X] ≅ X where
+def lsumSingletonIso (X : C) : lsum [X] ≅ X := by
+  change X ⊞ (0 : C) ≅ X
+  exact {
   hom := biprod.fst
   inv := biprod.lift (𝟙 X) 0
   hom_inv_id := by
@@ -111,12 +126,14 @@ def lsumSingletonIso (X : C) : lsum [X] ≅ X where
     · simp
     · simp only [Category.assoc, biprod.lift_snd, comp_zero, Category.id_comp]
       exact (isZero_zero C).eq_of_tgt _ _
-  inv_hom_id := by simp
+  inv_hom_id := by simp }
 
 /-- `lsum (L ++ L') ≅ lsum L ⊞ lsum L'`. -/
 def lsumAppendIso : ∀ (L L' : List C), lsum (L ++ L') ≅ lsum L ⊞ lsum L'
-  | [], L' =>
-    { hom := biprod.lift 0 (𝟙 _)
+  | [], L' => by
+    change lsum L' ≅ (0 : C) ⊞ lsum L'
+    exact {
+      hom := biprod.lift 0 (𝟙 _)
       inv := biprod.snd
       hom_inv_id := by simp
       inv_hom_id := by

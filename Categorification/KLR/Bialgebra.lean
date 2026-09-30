@@ -65,7 +65,7 @@ noncomputable section
 
 namespace Categorification.KLR
 
-open Graded GProj QuantumGroup PreF LaurentPolynomial
+open Categorification.Graded GProj QuantumGroup PreF LaurentPolynomial
 open scoped TensorProduct
 
 variable {I : Type*} [DecidableEq I] {k : Type*} [Field k] {Q : I → I → MvPolynomial (Fin 2) k}
@@ -99,22 +99,20 @@ theorem compTT_tmul (ν ν' : Multiset I) (x y : G.K0R) :
 
 theorem compTT_inclTT_self (ν ν' : Multiset I) (z : K0 (G.grade ν) ⊗[LP] K0 (G.grade ν')) :
     G.compTT ν ν' (G.inclTT ν ν' z) = z := by
-  induction z using TensorProduct.induction_on with
-  | zero => simp
+  induction z using TensorProduct.inductionOn with
   | tmul a b =>
     simp [compTT, inclTT, DirectSum.component.lof_self]
   | add z z' hz hz' => rw [map_add, map_add, hz, hz']
 
 theorem compTT_inclTT_of_ne {ν ν' μ μ' : Multiset I} (h : (ν, ν') ≠ (μ, μ'))
     (z : K0 (G.grade ν) ⊗[LP] K0 (G.grade ν')) : G.compTT μ μ' (G.inclTT ν ν' z) = 0 := by
-  induction z using TensorProduct.induction_on with
-  | zero => simp
+  induction z using TensorProduct.inductionOn with
   | tmul a b =>
     simp only [compTT, inclTT, TensorProduct.map_tmul, DirectSum.component.of]
     by_cases h1 : ν = μ
     · have h2 : ν' ≠ μ' := fun h2 => h (by rw [h1, h2])
-      rw [dif_neg h2, TensorProduct.tmul_zero]
-    · rw [dif_neg h1, TensorProduct.zero_tmul]
+      rw [dite_eq_right h2, TensorProduct.tmul_zero]
+    · rw [dite_eq_right h1, TensorProduct.zero_tmul]
   | add z z' hz hz' => rw [map_add, map_add, hz, hz', add_zero]
 
 theorem inclTT_of_tmul_of (i j : Multiset I) (a : K0 (G.grade i)) (b : K0 (G.grade j)) :
@@ -149,8 +147,7 @@ theorem exists_finset_eq_sum (Z : G.K0R ⊗[LP] G.K0R) :
     · refine G.compTT_inclTT_of_ne (fun h => hp ?_) _
       rw [Finset.mem_singleton, h]
     · rw [Finset.sum_singleton, compTT_inclTT_self]
-  induction Z using TensorProduct.induction_on with
-  | zero => exact h0
+  induction Z using TensorProduct.inductionOn with
   | add Z Z' hZ hZ' => exact hadd Z Z' hZ hZ'
   | tmul x y =>
     induction x using DirectSum.induction_on with
@@ -208,7 +205,7 @@ theorem coprod_spec (ν ν' : Multiset I) (x : G.K0R) :
       · intro h
         exact absurd (Multiset.mem_toFinset.2 (Multiset.mem_antidiagonal.2 hμ)) h
     · have h0 : G.resComp ν ν' hPQ hP (DirectSum.lof LP (Multiset I) G.K0fam μ y) = 0 := by
-        rw [resComp, LinearMap.comp_apply, DirectSum.component.of, dif_neg (Ne.symm hμ),
+        rw [resComp, LinearMap.comp_apply, DirectSum.component.of, dite_eq_right (Ne.symm hμ),
           map_zero]
       rw [h0, map_zero]
       refine Finset.sum_eq_zero fun p hp => ?_
@@ -252,7 +249,7 @@ theorem twistOp_of (l μ : Multiset I) (y : K0 (G.grade μ)) :
 /-- The bilinear map behind `twMul`: `x₁ ↦ x₂ ↦ (y₁ ⊗ y₂ ↦ x₁ τ_{|x₂|}(y₁) ⊗ x₂ y₂)`. -/
 def twMulAux : G.K0R →ₗ[LP] G.K0R →ₗ[LP] Module.End LP (G.K0R ⊗[LP] G.K0R) :=
   (DirectSum.toModule LP (Multiset I) _ fun μ₂ =>
-    ((TensorProduct.mapBilinear LP G.K0R G.K0R G.K0R G.K0R ∘ₗ
+    ((TensorProduct.mapBilinear (RingHom.id LP) G.K0R G.K0R G.K0R G.K0R ∘ₗ
         LinearMap.lcomp LP G.K0R (G.twistOp μ₂) ∘ₗ LinearMap.mul LP G.K0R).compl₂
       (LinearMap.mul LP G.K0R ∘ₗ DirectSum.lof LP (Multiset I) G.K0fam μ₂)).flip).flip
 
@@ -282,8 +279,7 @@ theorem induction_homog {motive : G.K0R ⊗[LP] G.K0R → Prop} (Z : G.K0R ⊗[L
     (zero : motive 0) (add : ∀ Z Z', motive Z → motive Z' → motive (Z + Z'))
     (of : ∀ (μ μ' : Multiset I) (a : K0 (G.grade μ)) (b : K0 (G.grade μ')),
       motive (DirectSum.of G.K0fam μ a ⊗ₜ DirectSum.of G.K0fam μ' b)) : motive Z := by
-  induction Z using TensorProduct.induction_on with
-  | zero => exact zero
+  induction Z using TensorProduct.inductionOn with
   | add Z Z' hZ hZ' => exact add Z Z' hZ hZ'
   | tmul x y =>
     induction x using DirectSum.induction_on with
@@ -306,8 +302,7 @@ theorem twistOp_one (l : Multiset I) : G.twistOp l 1 = 1 := by
 set_option synthInstance.maxHeartbeats 400000 in
 /-- `1 ⊗ 1` is a left unit for the twisted multiplication. -/
 theorem twMul_one_left (X : G.K0R ⊗[LP] G.K0R) : G.twMul (1 ⊗ₜ 1) X = X := by
-  induction X using TensorProduct.induction_on with
-  | zero => rw [LinearMap.map_zero]
+  induction X using TensorProduct.inductionOn with
   | add X X' hX hX' => rw [LinearMap.map_add, hX, hX']
   | tmul y₁ y₂ =>
     rw [show (1 : G.K0R) ⊗ₜ[LP] (1 : G.K0R) =
@@ -335,8 +330,8 @@ theorem twMul_assoc (X Y Z : G.K0R ⊗[LP] G.K0R) :
     | add Y Y' hY hY' => simp only [LinearMap.map_add, LinearMap.add_apply, hY, hY']
     | of μ₃ μ₄ a₃ a₄ =>
       induction Z using G.induction_homog with
-      | zero => simp only [LinearMap.map_zero, LinearMap.zero_apply]
-      | add Z Z' hZ hZ' => simp only [LinearMap.map_add, LinearMap.add_apply, hZ, hZ']
+      | zero => simp only [LinearMap.map_zero]
+      | add Z Z' hZ hZ' => simp only [LinearMap.map_add, hZ, hZ']
       | of μ₅ μ₆ a₅ a₆ =>
         rw [twMul_tmul, K0R_of_mul_of G a₂ a₄, LinearMap.map_smul, LinearMap.smul_apply,
           twMul_tmul, twMul_tmul, K0R_of_mul_of G a₃ a₅, LinearMap.map_smul, twMul_tmul,
@@ -404,7 +399,8 @@ theorem gammaTT_mul (Z Z' : TwSq LP I G.degΨ qUnitLP) :
         map_smul, LinearMap.smul_apply, gammaG_word_eq_of G w, gammaG_word_eq_of G u',
         twMul_tmul, ← gammaG_word_eq_of G w, ← gammaG_word_eq_of G u', ← map_mul, ← map_mul,
         Prod.fst_mul, Prod.snd_mul, word_mul, word_mul, val_qUnitLP_zpow, smul_smul, smul_smul]
-      congr 1
+      apply congrArg (fun c : LP => c •
+        (G.gammaG (word u * word u') ⊗ₜ[LP] G.gammaG (word w * word w')))
       ring
 
 /-- **KL I, Proposition 3.2 on the image of `γ`**: `Δ(γ(x) γ(y)) = Δ(γ x) Δ(γ y)` for the
@@ -526,6 +522,8 @@ end GradingDatum
 
 namespace KLGamma
 
+set_option backward.isDefEq.respectTransparency false
+
 open KLRAlgebra
 
 variable (k) (Γ : SimpleGraph I) [DecidableRel Γ.Adj]
@@ -578,9 +576,9 @@ theorem exists_smul_mem_range_gammaZ (x : (Gkl).K0R) :
     induction z using DirectSum.induction_on with
     | zero => exact S.zero_mem
     | of ν x =>
-      haveI := ((Gkl).finite_and_card_indecClass_le (klQ_eq_klP (Γ := Γ) KL1.stdOrient_spec)
+      have := ((Gkl).finite_and_card_indecClass_le (klQ_eq_klP (Γ := Γ) KL1.stdOrient_spec)
         (fun a b _ => KL1.klP_ne_zero _ a b) KL1.klGradingDatum_degX_pos ν).1
-      haveI := Fintype.ofFinite (GProj.IndecClass ((Gkl).grade ν))
+      have := Fintype.ofFinite (GProj.IndecClass ((Gkl).grade ν))
       rw [← (k0B k Γ ν).sum_repr x, map_sum]
       refine S.sum_mem fun b _ => ?_
       rw [K0R_of_smul]
@@ -590,13 +588,13 @@ theorem exists_smul_mem_range_gammaZ (x : (Gkl).K0R) :
 
 set_option synthInstance.maxHeartbeats 400000 in
 instance : NoZeroSMulDivisors LP ((Gkl).K0R ⊗[LP] (Gkl).K0R) := by
-  haveI := K0R_free k Γ
-  infer_instance
+  have := K0R_free k Γ
+  exact ⟨fun h => smul_eq_zero.mp h⟩
 
 set_option synthInstance.maxHeartbeats 400000 in
 instance : NoZeroSMulDivisors LP (((Gkl).K0R ⊗[LP] (Gkl).K0R) ⊗[LP] (Gkl).K0R) := by
-  haveI := K0R_free k Γ
-  infer_instance
+  have := K0R_free k Γ
+  exact ⟨fun h => smul_eq_zero.mp h⟩
 
 set_option synthInstance.maxHeartbeats 400000 in
 /-- **KL I, Proposition 3.2**: `[Res]` is an algebra homomorphism for the twisted multiplication
@@ -683,8 +681,7 @@ theorem toK0QTT_tmul (x y : (Gkl).K0R) :
 set_option synthInstance.maxHeartbeats 400000 in
 theorem toK0QTT_smul (p : LP) (Z : (Gkl).K0R ⊗[LP] (Gkl).K0R) :
     toK0QTT k Γ (p • Z) = qToV p • toK0QTT k Γ Z := by
-  induction Z using TensorProduct.induction_on with
-  | zero => rw [smul_zero, map_zero, smul_zero]
+  induction Z using TensorProduct.inductionOn with
   | tmul x y =>
     rw [TensorProduct.smul_tmul', toK0QTT_tmul, toK0QTT_tmul, toK0Q_smul,
       TensorProduct.smul_tmul']
@@ -701,18 +698,10 @@ set_option synthInstance.maxHeartbeats 400000 in
 theorem distribBaseChange_one_tmul (Z : (Gkl).K0R ⊗[LP] (Gkl).K0R) :
     TensorProduct.AlgebraTensorModule.distribBaseChange LP (RatFunc ℚ) (Gkl).K0R (Gkl).K0R
       ((1 : RatFunc ℚ) ⊗ₜ Z) = toK0QTT k Γ Z := by
-  induction Z using TensorProduct.induction_on with
-  | zero => rw [TensorProduct.tmul_zero, LinearEquiv.map_zero, AddMonoidHom.map_zero]
+  induction Z using TensorProduct.inductionOn with
   | tmul x y =>
-    rw [toK0QTT_tmul]
-    rw [TensorProduct.AlgebraTensorModule.distribBaseChange, LinearEquiv.symm_apply_eq,
-      LinearEquiv.trans_apply]
-    change _ = TensorProduct.AlgebraTensorModule.assoc LP LP (RatFunc ℚ) (RatFunc ℚ) (Gkl).K0R
-      (Gkl).K0R (TensorProduct.AlgebraTensorModule.cancelBaseChange LP (RatFunc ℚ) (RatFunc ℚ)
-        (RatFunc ℚ ⊗[LP] (Gkl).K0R) (Gkl).K0R
-        (((1 : RatFunc ℚ) ⊗ₜ[LP] x) ⊗ₜ[RatFunc ℚ] ((1 : RatFunc ℚ) ⊗ₜ[LP] y)))
-    rw [TensorProduct.AlgebraTensorModule.cancelBaseChange_tmul, one_smul,
-      TensorProduct.AlgebraTensorModule.assoc_tmul]
+    rw [toK0QTT_tmul, TensorProduct.AlgebraTensorModule.distribBaseChange_tmul]
+    rfl
   | add Z Z' hZ hZ' =>
     rw [TensorProduct.tmul_add, LinearEquiv.map_add, hZ, hZ', AddMonoidHom.map_add]
 
@@ -782,7 +771,7 @@ set_option synthInstance.maxHeartbeats 400000 in
 /-- `K₀(R) ⊗ K₀(R) → K₀(R)_{ℚ(v)} ⊗ K₀(R)_{ℚ(v)}` is injective (`K₀(R) ⊗ K₀(R)` is free over
 `ℤ[q, q⁻¹]`, and `q ↦ v⁻¹` is injective); so `r̄` determines `Δ` on `_𝒜 f`. -/
 theorem toK0QTT_injective : Function.Injective (toK0QTT k Γ) := by
-  haveI := K0R_free k Γ
+  have := K0R_free k Γ
   have h1 : Function.Injective fun Z : (Gkl).K0R ⊗[LP] (Gkl).K0R =>
       ((1 : RatFunc ℚ) ⊗ₜ[LP] Z : RatFunc ℚ ⊗[LP] ((Gkl).K0R ⊗[LP] (Gkl).K0R)) :=
     Algebra.TensorProduct.includeRight_injective (A := RatFunc ℚ) (qToV_injective)

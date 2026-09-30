@@ -24,6 +24,8 @@ bimodule evaluation `evalB` of the relation. The method, used for every relation
 3. identify that composite with the path-model theorem (`cycDot_F'`, `cycDot_F`).
 -/
 
+set_option backward.isDefEq.respectTransparency false
+
 noncomputable section
 
 namespace Categorification.Flag
@@ -61,8 +63,8 @@ theorem canon_rotDotR (dnScal : Fin m → Fin m → K) (i : Fin m) (s : Wt m)
   split_ifs with h1 h2 h3 h4
   · simp only [trW_self, BHom.id_comp', BHom.comp_id', genScal, BHom.csmul_one]
     simp only [layerMap, genMap, capMap, cupMap, dotMap, trS_self', BHom.whiskerLeft_id,
-      BHom.id_comp', BHom.comp_id']
-    simp only [BHom.whiskerLeft_id, BHom.comp_id', locOne, BHom.whiskerRight_mulB,
+      BHom.id_comp']
+    simp only [locOne, BHom.whiskerRight_mulB,
       BHom.whiskerLeft_mulB, BHom.comp_assoc]
     erw [BHom.whiskerLeft_id, BHom.id_comp']
     exact cycDot_F' (K := K) i (s := compOf N s) (s' := compOf N (sh RD (up i) + s))
@@ -95,11 +97,11 @@ theorem evalB_cycDotR (dnScal : Fin m → Fin m → K) (i : Fin m) (μ : Wt m) (
     (by exact ⟨rfl, rfl⟩) ha ha₂ hb ha₂
     (canon_rotDotR dnScal i s v _ _ ha₂)
   · simp only [rotDotR, layers_mkD, layList, List.map_cons, List.map_nil, dataV, lay, wd, wt,
-      Shape.gen, List.nil_append, List.cons_append, List.append_nil, List.singleton_append]
+      Shape.gen, List.nil_append, List.cons_append, List.append_nil]
     rw [e2, ← e1, hs]
     rfl
   · simp only [downDot, layers_mkD, layList, List.map_cons, List.map_nil, dataV, lay, wd, wt,
-      Shape.gen, List.nil_append, List.cons_append, List.append_nil]
+      Shape.gen, List.nil_append, List.append_nil]
     rw [← e1]
 
 set_option maxHeartbeats 1000000 in
@@ -121,8 +123,8 @@ theorem canon_rotDotL (dnScal : Fin m → Fin m → K) (i : Fin m) (t : Wt m)
   split_ifs with h1 h2 h3 h4
   · simp only [trW_self, BHom.id_comp', BHom.comp_id', genScal, BHom.csmul_one]
     simp only [layerMap, genMap, capMap, cupMap, dotMap, trS_self', BHom.whiskerLeft_id,
-      BHom.id_comp', BHom.comp_id']
-    simp only [BHom.whiskerLeft_id, BHom.comp_id', locOne, BHom.whiskerRight_mulB,
+      BHom.id_comp']
+    simp only [locOne, BHom.whiskerRight_mulB,
       BHom.whiskerLeft_mulB, BHom.comp_assoc]
     erw [BHom.whiskerLeft_id, BHom.comp_id']
     exact cycDot_F (K := K) i (s := compOf N (sh RD (dn i) + t)) (s' := compOf N t)
@@ -145,12 +147,12 @@ theorem evalB_cycDotL (dnScal : Fin m → Fin m → K) (i : Fin m) (μ : Wt m) (
   refine chainBD_eq_of_congr dnScal _ rfl rfl ?_ ?_ _ (by exact ⟨rfl, rfl, rfl, rfl⟩) _
     (by exact ⟨rfl, rfl⟩) ha ha hb hb (canon_rotDotL dnScal i μ v _ _ ha)
   · simp only [rotDotL, layers_mkD, layList, List.map_cons, List.map_nil, dataV, lay, wd, wt,
-      Shape.gen, List.nil_append, List.cons_append, List.append_nil, List.singleton_append]
+      Shape.gen, List.nil_append, List.cons_append, List.append_nil]
     rw [show sh RD (dn i).dual + (sh RD (dn i) + μ) = μ from e2,
       show wt RD μ ((Shape.dot (up i)).dom ++ [dn i]) = μ from e2,
       show wt RD μ (Shape.cap (dn i)).dom = μ from e2]
   · simp only [downDot, layers_mkD, layList, List.map_cons, List.map_nil, dataV, lay, wd, wt,
-      Shape.gen, List.nil_append, List.cons_append, List.append_nil]
+      Shape.gen, List.nil_append, List.append_nil]
 
 end Categorification.Flag
 

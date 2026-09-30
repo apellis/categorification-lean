@@ -61,9 +61,11 @@ noncomputable section
 namespace Categorification.KLR
 
 open scoped TensorProduct
-open KLRAlgebra MulOpposite Graded
+open KLRAlgebra MulOpposite Categorification.Graded
 
 namespace GradingDatum
+
+set_option backward.isDefEq.respectTransparency false
 
 variable {I : Type*} [DecidableEq I] {k : Type*} [CommRing k] {Q : I → I → MvPolynomial (Fin 2) k}
   (G : GradingDatum Q)
@@ -289,6 +291,8 @@ def _root_.Categorification.Graded.GMod.isoOfSubsingleton {k : Type*} [CommRing 
 
 namespace KLGamma
 
+set_option backward.isDefEq.respectTransparency false
+
 open LaurentPolynomial QuantumGroup GradingDatum
 
 variable {I : Type*} [DecidableEq I] (k : Type*) [Field k] (Γ : SimpleGraph I)
@@ -383,19 +387,19 @@ def sumFM (μ : Multiset I) {ν : Multiset I} (M : GMod ((Gkl).grade ν)) :
 def indSumPIso (μ : Multiset I) {ν : Multiset I} (M : GMod ((Gkl).grade ν)) :
     (L : List (ℤ × List (I × ℕ))) → ((Gkl).indGMod (sumP k Γ μ L).toGMod M).Iso (sumFM k Γ μ M L)
   | [] => by
-    haveI : Subsingleton (sumP k Γ μ []).toGMod.carrier :=
+    have : Subsingleton (sumP k Γ μ []).toGMod.carrier :=
       inferInstanceAs (Subsingleton (GProj.zeroObj ((Gkl).grade μ)).carrier)
-    haveI : Subsingleton (sumFM k Γ μ M []).carrier :=
+    have : Subsingleton (sumFM k Γ μ M []).carrier :=
       inferInstanceAs (Subsingleton (GProj.zeroObj ((Gkl).grade (μ + ν))).carrier)
     exact GMod.isoOfSubsingleton _ _
   | x :: L =>
     if h : wtDiv x.2 = μ then by
-      rw [sumP, sumFM, dif_pos h, dif_pos h]
+      rw [sumP, sumFM, dite_eq_left h, dite_eq_left h]
       exact ((Gkl).indGModProdLeft _ _ M).trans (GradedEquiv.prodCongr
         (((Gkl).indGModShiftLeft _ M x.1).trans ((indProjDivIso' k Γ x.2 h M).shift x.1))
         (indSumPIso μ M L))
     else by
-      rw [sumP, sumFM, dif_neg h, dif_neg h]
+      rw [sumP, sumFM, dite_eq_right h, dite_eq_right h]
       exact indSumPIso μ M L
 
 /-- **KL I, Theorem 3.21 (isomorphism of functors)**: for a relation

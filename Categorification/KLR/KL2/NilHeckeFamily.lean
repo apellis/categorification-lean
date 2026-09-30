@@ -370,15 +370,15 @@ theorem isNilHeckeFamily_res (s n' : ℕ) (h : s + n' ≤ n) :
     split_ifs <;> first | (rw [show s + (j + 1) = s + j + 1 by omega]; exact hF.braid _) | simp
   x_d_sub j hj := by
     unfold resD resX
-    rw [if_pos hj]
+    rw [ite_eq_left hj]
     have := hF.x_d_sub (s + j) (by omega)
     convert this using 4
   d_x_sub j hj := by
     unfold resD resX
-    rw [if_pos hj]
+    rw [ite_eq_left hj]
     have := hF.d_x_sub (s + j) (by omega)
     convert this using 4
-  d_zero j hj := by unfold resD; rw [if_neg (by omega)]
+  d_zero j hj := by unfold resD; rw [ite_eq_right (by omega)]
 
 /-- The mirror image of the dots: `x_a ↦ x_{n-1-a}`. -/
 def mirX (X : Fin n → B) : Fin n → B := fun a => X a.rev
@@ -415,17 +415,17 @@ theorem isNilHeckeFamily_mir : IsNilHeckeFamily n (mirX X) (mirD n D) where
     all_goals simp
   x_d_sub j hj := by
     unfold mirD mirX
-    rw [if_pos hj]
+    rw [ite_eq_left hj]
     have := hF.d_x_sub (n - 2 - j) (by omega)
     rw [mul_neg, neg_mul, sub_neg_eq_add, add_comm, ← sub_eq_add_neg]
     convert this using 3 <;> (apply congrArg; ext; simp only [Fin.val_rev]; omega)
   d_x_sub j hj := by
     unfold mirD mirX
-    rw [if_pos hj]
+    rw [ite_eq_left hj]
     have := hF.x_d_sub (n - 2 - j) (by omega)
     rw [mul_neg, neg_mul, sub_neg_eq_add, add_comm, ← sub_eq_add_neg]
     convert this using 3 <;> (apply congrArg; ext; simp only [Fin.val_rev]; omega)
-  d_zero j hj := by unfold mirD; rw [if_neg (by omega)]
+  d_zero j hj := by unfold mirD; rw [ite_eq_right (by omega)]
 
 end families
 
@@ -489,10 +489,10 @@ theorem wb_mul_Δb_mul_wb {s n : ℕ} (h : s + n ≤ N) :
     rw [Wb, wp, List.map_map]
     congr 1
     refine List.map_congr_left fun j hj => ?_
-    simp only [resD, Function.comp_apply, if_pos (lt_of_mem_w0Word hj)]
+    simp only [resD, Function.comp_apply, ite_eq_left (lt_of_mem_w0Word hj)]
   have hΔ : (List.ofFn fun a : Fin n => resX X s n h a ^ (n - 1 - a)).prod = Δb X s n := by
     rw [Δb]; congr 2; funext a
-    simp only [resX, xN, dif_pos (show s + (a : ℕ) < N by omega)]
+    simp only [resX, xN, dite_eq_left (show s + (a : ℕ) < N by omega)]
   rwa [hW, hΔ] at key
 
 theorem wb_mul_Δb_mul_wb_mul {s n : ℕ} (h : s + n ≤ N) (r : B) :
@@ -556,7 +556,7 @@ theorem eb_mul_x_pow_mul_chL {s n a : ℕ} (h : s + n + 1 ≤ N) (ha : a ≤ n) 
     simp
   | succ n ih =>
     rcases Nat.lt_or_ge a (n + 1) with ha' | ha'
-    · rw [if_neg (by omega), ← eb_mul_eb_left hF h, chL_succ']
+    · rw [ite_eq_right (by omega), ← eb_mul_eb_left hF h, chL_succ']
       calc Eb X D s (n + 1 + 1) * Eb X D s (n + 1) * xN X s ^ a * (chL D s n * D (s + n))
           = Eb X D s (n + 1 + 1) * (Eb X D s (n + 1) * xN X s ^ a * chL D s n) * D (s + n) := by
             simp only [mul_assoc]
@@ -566,7 +566,7 @@ theorem eb_mul_x_pow_mul_chL {s n a : ℕ} (h : s + n + 1 ≤ N) (ha : a ≤ n) 
             · rw [eb_mul_eb_left hF h, eb_mul_d hF (by omega) (by omega)]
             · simp
     · obtain rfl : a = n + 1 := by omega
-      rw [if_pos rfl]
+      rw [ite_eq_left rfl]
       calc Eb X D s (n + 1 + 1) * xN X s ^ (n + 1) * chL D s (n + 1)
           = Eb X D s (n + 1 + 1) * Eb X D (s + 1) (n + 1) * xN X s ^ (n + 1) *
               chL D s (n + 1) := by rw [eb_mul_eb_right hF h]
@@ -605,10 +605,10 @@ theorem eb_mul_x_pow_mul_chR {s n a : ℕ} (h : s + n + 1 ≤ N) (ha : a ≤ n) 
   set DM := mirD (n + 1) (resD D s (n + 1))
   have hDM : ∀ j, j + 1 < n + 1 → DM j = -D (s + n - 1 - j) := by
     intro j hj
-    simp only [DM, mirD, resD, if_pos hj, if_pos (show n + 1 - 2 - j + 1 < n + 1 by omega)]
+    simp only [DM, mirD, resD, ite_eq_left hj, ite_eq_left (show n + 1 - 2 - j + 1 < n + 1 by omega)]
     congr 2; omega
   have m1 : xN XM 0 = xN X (s + n) := by
-    simp only [xN, dif_pos (show 0 < n + 1 by omega), dif_pos (show s + n < N by omega), XM,
+    simp only [xN, dite_eq_left (show 0 < n + 1 by omega), dite_eq_left (show s + n < N by omega), XM,
       mirX, resX]
     congr 2
   have m2 : chL DM 0 n = (-1) ^ n * chR D s n := by
@@ -678,7 +678,7 @@ theorem xN_map (a : ℕ) : xN (f ∘ X) a = f (xN X a) := by
   unfold xN; split_ifs <;> simp
 
 theorem Δb_map (s n : ℕ) : Δb (f ∘ X) s n = f (Δb X s n) := by
-  simp only [Δb, xN_map, map_list_prod, List.map_ofFn, Function.comp_def, map_pow]
+  simp only [Δb, map_list_prod, List.map_ofFn, Function.comp_def, map_pow]
   congr 2; funext a; rw [← xN_map]; rfl
 
 theorem eb_map (s n : ℕ) : Eb (f ∘ X) (f ∘ D) s n = f (Eb X D s n) := by

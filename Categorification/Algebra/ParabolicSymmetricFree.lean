@@ -191,10 +191,10 @@ noncomputable def fibreSplit : V ≃ Fin (Fintype.card {v // p v}) ⊕ {v // ¬ 
 
 theorem fibreSplit_of_pos {v : V} (h : p v) :
     fibreSplit p v = Sum.inl (Fintype.equivFin _ ⟨v, h⟩) := by
-  simp [fibreSplit, sumCompl_apply_symm_of_pos p v h]
+  simp [fibreSplit, sumCompl_symm_apply_of_pos h]
 
 theorem fibreSplit_of_neg {v : V} (h : ¬ p v) : fibreSplit p v = Sum.inr ⟨v, h⟩ := by
-  simp [fibreSplit, sumCompl_apply_symm_of_neg p v h]
+  simp [fibreSplit, sumCompl_symm_apply_of_neg h]
 
 theorem fibreSplit_symm_inl (a : Fin (Fintype.card {v // p v})) :
     (fibreSplit p).symm (Sum.inl a) = ((Fintype.equivFin {v // p v}).symm a : V) := by
@@ -220,7 +220,7 @@ theorem fibreExt_mem (σ : Perm (Fin (Fintype.card {v // p v}))) :
 
 theorem exists_fibreExt_eq {g : Perm V} (hg : g ∈ fibreGroup p) :
     ∃ σ, fibreExt p σ = g := by
-  refine ⟨(Fintype.equivFin {v // p v}).permCongr (g.subtypePerm fun v => (fibreGroup_iff hg v).symm), ?_⟩
+  refine ⟨(Fintype.equivFin {v // p v}).permCongr (g.subtypePerm fun v => fibreGroup_iff hg v), ?_⟩
   ext v
   by_cases hv : p v
   · simp [fibreExt, fibreSplit_of_pos hv, fibreSplit_symm_inl, Equiv.permCongr_apply]
@@ -228,11 +228,11 @@ theorem exists_fibreExt_eq {g : Perm V} (hg : g ∈ fibreGroup p) :
 
 theorem sumAlgEquiv_X_inl {S W : Type*} (a : S) :
     sumAlgEquiv k S W (X (Sum.inl a)) = X a :=
-  sumToIter_Xl _ _ _ _
+  MvPolynomial.sumAlgEquiv_X_inl k S W a
 
 theorem sumAlgEquiv_X_inr {S W : Type*} (b : W) :
     sumAlgEquiv k S W (X (Sum.inr b)) = C (X b) :=
-  sumToIter_Xr _ _ _ _
+  MvPolynomial.sumAlgEquiv_X_inr k S W b
 
 theorem sumAlgEquiv_rename_sumCongr {S W : Type*} (σ : Perm S) (q : MvPolynomial (S ⊕ W) k) :
     sumAlgEquiv k S W (rename (sumCongr σ (Equiv.refl W)) q) = rename σ (sumAlgEquiv k S W q) := by
@@ -240,8 +240,8 @@ theorem sumAlgEquiv_rename_sumCongr {S W : Type*} (σ : Perm S) (q : MvPolynomia
       ((rename σ).restrictScalars k).comp (sumAlgEquiv k S W).toAlgHom := by
     apply MvPolynomial.algHom_ext
     rintro (a | b)
-    · simp [sumAlgEquiv_X_inl]
-    · simp [sumAlgEquiv_X_inr]
+    · simp []
+    · simp []
   exact congrArg (fun φ : MvPolynomial (S ⊕ W) k →ₐ[k] _ => φ q) this
 
 theorem fibreEquiv_rename_fibreExt (σ : Perm (Fin (Fintype.card {v // p v})))
@@ -262,7 +262,7 @@ theorem fibreEquiv_stair (u : Fin (Fintype.card {v // p v}) → ℕ) :
   refine Finset.prod_congr rfl fun a _ => ?_
   have h := ((Fintype.equivFin {v // p v}).symm a).2
   rw [fibreSplit_of_pos h]
-  simp [sumAlgEquiv_X_inl]
+  simp []
 
 theorem isInvariant_fibreGroup_iff {f : MvPolynomial V k} :
     IsInvariant (fibreGroup p) f ↔ (fibreEquiv k p f).IsSymmetric := by
@@ -325,7 +325,7 @@ def fibresGroup (T : Finset J) : Set (Perm V) := {g | ∃ c ∈ T, g ∈ fibreGr
 theorem fibresGroup_insert (c : J) (T : Finset J) :
     fibresGroup lab (insert c T) = fibresGroup lab T ∪ fibreGroup (lab · = c) := by
   ext g
-  simp only [fibresGroup, Finset.mem_insert, Set.mem_setOf_eq, Set.mem_union]
+  simp only [fibresGroup, Finset.mem_insert, Set.mem_ofPred_eq, Set.mem_union]
   constructor
   · rintro ⟨c', hc' | hc', hg⟩
     · subst hc'; exact Or.inr hg
@@ -369,10 +369,17 @@ theorem exists_isInvBasis_fibres (T : Finset J) :
       ?_, ?_⟩
     · rw [Fintype.card_prod, hcard, card_staircase, Finset.prod_insert hcT, mul_comm]
     · rw [fibresGroup_insert]
-      refine IsInvBasis.mul hb (isInvBasis_fibre k (lab · = c)) (fun u => ?_) ?_
-      · exact isInvariant_prod_fibre lab hcT _ (fun a => ((Fintype.equivFin _).symm a).2) _
-      · rintro g ⟨c', hc', hg⟩ g' hg'
+      have hf := isInvBasis_fibre k (lab · = c)
+      have h1 : ∀ u : {u : Fin (Fintype.card {v // lab v = c}) → ℕ // ∀ a, u a ≤ a},
+          IsInvariant (fibresGroup lab T)
+            (∏ a, X ((Fintype.equivFin {v // lab v = c}).symm a : V) ^ u.1 a : MvPolynomial V k) :=
+        fun u => isInvariant_prod_fibre lab hcT _ (fun a => ((Fintype.equivFin _).symm a).2) _
+      have h2 : ∀ g₁ ∈ fibresGroup lab T, ∀ g₂ ∈ fibreGroup (lab · = c), g₁ * g₂ = g₂ * g₁ := by
+        rintro g ⟨c', hc', hg⟩ g' hg'
         exact fibreGroup_commute lab (fun h : c' = c => hcT (h ▸ hc')) hg hg'
+      -- elaborating `IsInvBasis.mul` against the goal times out; elaborate it first
+      have hm := IsInvBasis.mul hb hf h1 h2
+      exact hm
 
 /-! ### Decomposing label-preserving permutations -/
 
@@ -388,7 +395,7 @@ def labelPiece {g : Perm V} (hg : lab ∘ g = lab) (T : Finset J) : Perm V where
     · simp [hv, h1]
     · simp [hv]
   right_inv v := by
-    have h1 : ∀ w, lab (g⁻¹ w) = lab w := fun w => by
+    have h1 : ∀ w, lab (g.symm w) = lab w := fun w => by
       conv_rhs => rw [← g.apply_symm_apply w]
       exact (congrFun hg _).symm
     by_cases hv : lab v ∈ T
@@ -410,7 +417,7 @@ theorem labelPiece_insert {g : Perm V} (hg : lab ∘ g = lab) {c : J} {T : Finse
   · have : lab v ≠ c := fun h => hcT (h ▸ hv)
     simp [hv, h1, this]
   · by_cases hvc : lab v = c
-    · subst hvc; simp [hv, h1]
+    · subst hvc; simp [hv]
     · simp [hv, hvc]
 
 omit [Fintype V] in
@@ -498,9 +505,9 @@ theorem exists_isInvBasis_label :
 theorem exists_labelBasis :
     ∃ (ι : Type) (_ : Fintype ι),
       Fintype.card ι = Fintype.card {g : Perm V // lab ∘ g = lab} ∧
-      Nonempty (Basis ι (labelInvariants k lab) (MvPolynomial V k)) := by
+      Nonempty (Module.Basis ι (labelInvariants k lab) (MvPolynomial V k)) := by
   obtain ⟨ι, _, b, hcard, hind, hspan⟩ := exists_isInvBasis_label k lab
-  refine ⟨ι, inferInstance, hcard, ⟨Basis.mk (v := b) ?_ ?_⟩⟩
+  refine ⟨ι, inferInstance, hcard, ⟨Module.Basis.mk (v := b) ?_ ?_⟩⟩
   · exact Fintype.linearIndependent_iff.2 fun c hc i => Subtype.ext <|
       hind (fun i => c i) (fun i => (c i).2) (by simpa [Subalgebra.smul_def] using hc) i
   · intro p _

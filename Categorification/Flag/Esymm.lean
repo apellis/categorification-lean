@@ -43,12 +43,12 @@ theorem coeff_esSeries (s : Finset V) (r : ℕ) :
     (esSeries (k := k) s).coeff r = setEsymm s r := by
   classical
   unfold esSeries setEsymm
-  rw [Finset.prod_one_add, Polynomial.finset_sum_coeff, powersetCard_eq_filter, sum_filter]
+  rw [Finset.prod_one_add, Polynomial.finsetSum_coeff, powersetCard_eq_filter, sum_filter]
   refine sum_congr rfl fun t _ => ?_
   rw [prod_mul_distrib, prod_const, ← map_prod, Polynomial.coeff_C_mul_X_pow]
   by_cases h : t.card = r
-  · rw [if_pos h.symm, if_pos h]
-  · rw [if_neg (Ne.symm h), if_neg h]
+  · rw [ite_eq_left h.symm, ite_eq_left h]
+  · rw [ite_eq_right (Ne.symm h), ite_eq_right h]
 
 theorem setEsymm_univ [Fintype V] (r : ℕ) : setEsymm (univ : Finset V) r = esymm V k r := rfl
 

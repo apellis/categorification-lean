@@ -102,7 +102,7 @@ def serreCorner (n : ℕ) (hn : n ≤ N) : CornerIdem C k (serreSeq t p n) where
   deg0 := serreIdem_mem_grade hpN ht₀ ht hb hbs hn
   idem := by
     have := serreIdem_mul_serreIdem (k := k) (C := C) hpN ht₀ ht hb hbs hn hn hij
-    rwa [if_pos rfl] at this
+    rwa [ite_eq_left rfl] at this
   left := by
     rw [serreIdem, ← mul_assoc, ← (commute_blocksElt_e hpN ht₀ ht hb hbs hn).eq, mul_assoc,
       e_mul_etop hpN ht₀ ht hn]
@@ -115,7 +115,7 @@ theorem serreIdem_mul_serreAp' {n' m : ℕ} (hn' : n' ≤ N) (hij : i ≠ j) :
   · subst h; exact serreIdem_mul_serreAp hpN ht₀ ht hb hbs m
   · by_cases hm : m + 1 ≤ N
     · rw [← serreIdem_mul_serreAp hpN ht₀ ht hb hbs m, ← mul_assoc,
-        serreIdem_mul_serreIdem hpN ht₀ ht hb hbs hn' hm hij, if_neg h, zero_mul]
+        serreIdem_mul_serreIdem hpN ht₀ ht hb hbs hn' hm hij, ite_eq_right h, zero_mul]
     · rw [serreAp_of_not hm, mul_zero]
 
 omit hij in
@@ -126,7 +126,7 @@ theorem serreIdem_mul_serreAm' {n' m : ℕ} (hn' : n' ≤ N) (hij : i ≠ j) :
   · subst h; exact serreIdem_mul_serreAm hpN ht₀ ht hb hbs m
   · by_cases hm : 1 ≤ m ∧ m ≤ N
     · rw [← serreIdem_mul_serreAm hpN ht₀ ht hb hbs m, ← mul_assoc,
-        serreIdem_mul_serreIdem hpN ht₀ ht hb hbs hn' (by omega) hij, if_neg h, zero_mul]
+        serreIdem_mul_serreIdem hpN ht₀ ht hb hbs hn' (by omega) hij, ite_eq_right h, zero_mul]
     · rw [serreAm_of_not hm, mul_zero]
 
 omit [DecidableEq I] hpN ht₀ ht hb hbs hij in
@@ -181,11 +181,11 @@ def prop324 (hN : N = C.dij i j + 1) (μ : X) (c : ℤ) :
     (fun m m' h => by
       show serreIdem t p N bs m.1 * serreIdem t p N bs m'.1 = 0
       rw [serreIdem_mul_serreIdem hpN ht₀ ht hb hbs (mem_serreEvens.1 m.2).1
-        (mem_serreEvens.1 m'.2).1 hij, if_neg (fun h' => h (Subtype.ext h'))])
+        (mem_serreEvens.1 m'.2).1 hij, ite_eq_right (fun h' => h (Subtype.ext h'))])
     (fun n n' h => by
       show serreIdem t p N bs n.1 * serreIdem t p N bs n'.1 = 0
       rw [serreIdem_mul_serreIdem hpN ht₀ ht hb hbs (mem_serreOdds.1 n.2).1
-        (mem_serreOdds.1 n'.2).1 hij, if_neg (fun h' => h (Subtype.ext h'))])
+        (mem_serreOdds.1 n'.2).1 hij, ite_eq_right (fun h' => h (Subtype.ext h'))])
     (by
       have h6 := prop6 (k := k) hpN ht₀ ht hb hbs hij hN
       rw [serreEven, serreOdd, ← Finset.sum_coe_sort (serreEvens N),
@@ -195,7 +195,7 @@ def prop324 (hN : N = C.dij i j + 1) (μ : X) (c : ℤ) :
       show serreIdem t p N bs n.1 * serreAlpha' t p N bs * serreIdem t p N bs m.1 ∈ _
       have hm := mem_serreEvens.1 m.2
       have hn := mem_serreOdds.1 n.2
-      rw [mul_assoc, alpha'_mul_serreIdem hpN ht₀ ht hb hbs hij hm.1, if_pos m.2, mul_add,
+      rw [mul_assoc, alpha'_mul_serreIdem hpN ht₀ ht hb hbs hij hm.1, ite_eq_left m.2, mul_add,
         serreIdem_mul_serreAp' (k := k) hpN ht₀ ht hb hbs hn.1 hij,
         serreIdem_mul_serreAm' (k := k) hpN ht₀ ht hb hbs hn.1 hij]
       refine Submodule.add_mem _ ?_ ?_
@@ -215,7 +215,7 @@ def prop324 (hN : N = C.dij i j + 1) (μ : X) (c : ℤ) :
       show serreIdem t p N bs m.1 * serreAlpha'' t p N bs * serreIdem t p N bs n.1 ∈ _
       have hm := mem_serreEvens.1 m.2
       have hn := mem_serreOdds.1 n.2
-      rw [mul_assoc, alpha''_mul_serreIdem hpN ht₀ ht hb hbs hij hn.1, if_pos n.2, mul_sub,
+      rw [mul_assoc, alpha''_mul_serreIdem hpN ht₀ ht hb hbs hij hn.1, ite_eq_left n.2, mul_sub,
         serreIdem_mul_serreAp' (k := k) hpN ht₀ ht hb hbs hm.1 hij,
         serreIdem_mul_serreAm' (k := k) hpN ht₀ ht hb hbs hm.1 hij]
       refine Submodule.sub_mem _ ?_ ?_

@@ -75,7 +75,7 @@ noncomputable section
 
 namespace Categorification.KLR.KLGamma
 
-open Graded LaurentPolynomial QuantumGroup KLRAlgebra
+open Categorification.Graded LaurentPolynomial QuantumGroup KLRAlgebra
 
 variable {I : Type*} [DecidableEq I] (k : Type*) [Field k] (Γ : SimpleGraph I)
   [DecidableRel Γ.Adj]
@@ -213,7 +213,7 @@ theorem projK0R_clsDiv_of_eq {μ : Multiset I} (d : List (I × ℕ)) (h : wtDiv 
 theorem projK0R_clsDiv_of_ne {μ : Multiset I} (d : List (I × ℕ)) (h : ¬ wtDiv d = μ) :
     projK0R k Γ μ (clsDiv k Γ d) = 0 := by
   rw [clsDiv, projK0R, LinearMap.comp_apply, ← DirectSum.lof_eq_of (LaurentPolynomial ℤ),
-    DirectSum.component.of, dif_neg h, map_zero]
+    DirectSum.component.of, dite_eq_right h, map_zero]
 
 /-- **`⊕_{(n, d) ∈ L, |d| = μ} P_d{n}`**, the weight-`μ` part of `⊕_k P_{θ(k)}^{⊕ u_k}`, an
 object of `R(μ)-pmod`. -/
@@ -244,9 +244,9 @@ theorem of_sumP (μ : Multiset I) (L : List (ℤ × List (I × ℕ))) :
   | cons x L ih =>
     rw [clsSum_cons, map_add, map_smul, sumP]
     by_cases h : wtDiv x.2 = μ
-    · rw [dif_pos h, K0.of_prod, map_add, ih, ← K0.T_smul_of, K0R_of_smul,
+    · rw [dite_eq_left h, K0.of_prod, map_add, ih, ← K0.T_smul_of, K0R_of_smul,
         projK0R_clsDiv_of_eq k Γ x.2 h]
-    · rw [dif_neg h, ih, projK0R_clsDiv_of_ne k Γ x.2 h, smul_zero, zero_add]
+    · rw [dite_eq_right h, ih, projK0R_clsDiv_of_ne k Γ x.2 h, smul_zero, zero_add]
 
 /-- `[sumF μ P L]` is (the weight-`μ` component of `∑ q^n [P_d]`) times `[P]`. -/
 theorem of_sumF (μ : Multiset I) {ν : Multiset I} (P : GProj ((Gkl).grade ν))
@@ -258,9 +258,9 @@ theorem of_sumF (μ : Multiset I) {ν : Multiset I} (P : GProj ((Gkl).grade ν))
   | cons x L ih =>
     rw [clsSum_cons, map_add, map_smul, add_mul, sumF]
     by_cases h : wtDiv x.2 = μ
-    · rw [dif_pos h, K0.of_prod, map_add, ih, ← K0.T_smul_of, K0R_of_smul, of_castProj,
+    · rw [dite_eq_left h, K0.of_prod, map_add, ih, ← K0.T_smul_of, K0R_of_smul, of_castProj,
         of_funTheta, projK0R_clsDiv_of_eq k Γ x.2 h, ← clsDiv_eq k Γ x.2 h, smul_mul_assoc]
-    · rw [dif_neg h, ih, projK0R_clsDiv_of_ne k Γ x.2 h, smul_zero, zero_mul, zero_add]
+    · rw [dite_eq_right h, ih, projK0R_clsDiv_of_ne k Γ x.2 h, smul_zero, zero_mul, zero_add]
 
 /-! ### Theorem 3.21 -/
 

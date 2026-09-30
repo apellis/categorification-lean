@@ -55,6 +55,9 @@ The anti-multiplicativity of `[τ̃]` on all of `K₀(U̇)` (which needs the com
 with horizontal composition in `U̇`) is not formalized.
 -/
 
+-- Preserve elaboration of semireducible diagram transports.
+set_option backward.isDefEq.respectTransparency false
+
 noncomputable section
 
 namespace Categorification.KL3.Diagram
@@ -88,7 +91,7 @@ theorem wX_pair_dual (l : Letter I) : RD.wX [l, l.dual] = 0 := by
 remove a pair `l l*` or `l* l`. -/
 theorem rexp_layer (μ : X) (u v : List (Letter I)) (g : Shape I) :
     rexp RD μ (u ++ g.dom ++ v) = rexp RD μ (u ++ g.cod ++ v) := by
-  simp only [rexp_append, RD.wX_append]
+  simp only [rexp_append]
   cases g with
   | dot l => rfl
   | cross ε i j =>
@@ -138,7 +141,7 @@ theorem degLs_nCups (μ : X) (s : List (Letter I)) :
     have e2 : wt RD (wt RD μ ((ε, i) :: a)) [Letter.dual (ε, i)] = wt RD μ a := by
       rw [wt_cons, wt_nil, wt_cons, ← add_assoc, sh_dual_add_sh, zero_add]
     rw [e, e2, ih, rexp_cons]
-    simp only [sdeg, wt_cons, sh, wt_eq_add_wX, RD.wX_cons, map_add, map_zsmul, smul_eq_mul,
+    simp only [sdeg, wt_eq_add_wX, RD.wX_cons, map_add, map_zsmul, smul_eq_mul,
       RD.pair_iY_iX_self]
     linear_combination (-(2 * di C i)) * sgn_mul_self ε
 
@@ -290,7 +293,7 @@ def tauDotObjOf (x : (wtObj RD k ρ : U RD k) ⟶ wtObj RD k lam) (t : ℤ) :
   udIso _ _ (Equiv.refl _) (fun _ => rfl) (fun _ => rfl)
     (fun i j => by
       cases i; cases j
-      simp [Mat_.id_apply_self, karContra, matContra, tauGr]
+      simp [tauDot, Mat_.id_apply_self, karContra, matContra, tauGr]
       exact (mateL_id RD k x).symm)
 
 end Dot
@@ -455,7 +458,7 @@ theorem tauK0_dpC_of_torsionFree (d : List (Bool × I × ℕ)) (lam ρ : X)
       p • x = 0 → x = 0) :
     tauK0 (dpC RD k d lam ρ h) =
       (T (rexp RD lam (dpWord d)) : LaurentPolynomial ℤ) • dpC RD k (rhod d) ρ lam h' :=
-  sub_eq_zero.1 (htf _ (dpFac_mem d) _ (by rw [smul_sub, tauK0_dpC, sub_self]))
+  sub_eq_zero.1 (htf _ (dpFac_mem d) _ (by rw [smul_sub, tauK0_dpC d lam ρ h h', sub_self]))
 
 end Dpss
 

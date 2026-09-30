@@ -17,6 +17,8 @@ arXiv:0803.3652v3, Proposition 5.5: the figure-eight diagram (the crossing of `E
 both strands closed) is reduced in two ways, with the left and with the right curl relations.
 -/
 
+set_option backward.isDefEq.respectTransparency false
+
 noncomputable section
 
 namespace Categorification.KL3.Diagram
@@ -38,7 +40,7 @@ theorem plcL_diag (μ : X) (u v s t : List (Letter I))
         (ob_whisker RD μ u v s t (Diagram.chain d).start_eq)) := by
   have hst : wt RD (wt RD μ v) t = wt RD (wt RD μ v) s := (Diagram.chain d).start_eq
   simp only [plcL]
-  rw [dif_pos hst]
+  rw [dite_eq_left hst]
   simp only [plc, LinearMap.coe_mk, AddHom.coe_mk]
   rw [Presentation.whisk_diag _ _ _ _ (whiskerOK_ob RD μ u v s), Presentation.diag_cast]
 
@@ -257,7 +259,7 @@ theorem cupDn_plcL (γ : End ((pres RD k).obj (ob RD ρ []))) :
     · simp only [Diagram.layers_comp, Diagram.layers_cast, Diagram.layers_whisker,
         Diagram.layers_rwhisker, Diagram.layers_lwhisker, layers_mkD, List.map_congr_left e₁]
       rfl
-    · simp only [Diagram.layers_comp, Diagram.layers_cast, Diagram.layers_rwhisker,
+    · simp only [Diagram.layers_comp, Diagram.layers_rwhisker,
         Diagram.layers_lwhisker, layers_mkD, List.map_congr_left e₂, List.map_id']
       rfl
 
@@ -379,13 +381,13 @@ theorem ccwU_eq_zero (ν : X) (i : I) (m : ℤ) (h : m + 1 + ip RD i ν < 0) : c
   by_cases hm : 0 ≤ m
   · obtain ⟨m', rfl⟩ := Int.eq_ofNat_of_zero_le hm
     rw [ccwU_of_nonneg, dg_ccwNeg RD k ν i m' (by omega)]
-  · rw [ccwU, ccwL, if_neg hm, if_neg (by omega), Presentation.lin_zero]
+  · rw [ccwU, ccwL, ite_eq_right hm, ite_eq_right (by omega), Presentation.lin_zero]
 
 theorem cwU_eq_zero (ν : X) (i : I) (m : ℤ) (h : m + 1 - ip RD i ν < 0) : cwU RD k ν i m = 0 := by
   by_cases hm : 0 ≤ m
   · obtain ⟨m', rfl⟩ := Int.eq_ofNat_of_zero_le hm
     rw [cwU_of_nonneg, dg_cwNeg RD k ν i m' (by omega)]
-  · rw [cwU, cwL, if_neg hm, if_neg (by omega), Presentation.lin_zero]
+  · rw [cwU, cwL, ite_eq_right hm, ite_eq_right (by omega), Presentation.lin_zero]
 
 /-! ## A reindexing identity -/
 
@@ -416,9 +418,9 @@ theorem sum_split_reflect {M : Type*} [AddCommMonoid M] (G : ℤ → M) (d : ℕ
   have hconst : ∀ c : ℤ, S c = S 0 := by
     intro c
     induction c using Int.induction_on with
-    | hz => rfl
-    | hp n ih => rw [step, ih]
-    | hn n ih => rw [← ih, ← step]; ring_nf
+    | zero => rfl
+    | succ n ih => rw [step, ih]
+    | pred n ih => rw [← ih, ← step]; ring_nf
   show S c = _
   rw [hconst c]
   simp only [hS, Int.toNat_zero, Finset.range_zero, Finset.sum_empty, zero_add, sub_zero]
@@ -476,7 +478,6 @@ theorem grassmannian (ρ : X) (i : I) (d : ℕ) (hd : 1 ≤ d) :
       push_cast; omega, key] at this
     exact this.symm
   · intro j hj
-    dsimp only
     rcases hj with hj | hj
     · rw [ccwU_eq_zero RD k ρ i _ (by omega), Limits.zero_comp]
     · rw [cwU_eq_zero RD k ρ i _ (by push_cast at hj ⊢; omega), Limits.comp_zero]

@@ -84,7 +84,7 @@ variable (dot v c) in
 /-- Lusztig's algebra `f = 'f / ℐ` (Lusztig 1.2.5; KL I §3.1). -/
 def F : Type _ := PreF K I ⧸ radical dot v c
 
-instance instRingF : Ring (F dot v c) := Ideal.Quotient.ring _
+instance instRingF : Ring (F dot v c) := fast_instance% Ideal.Quotient.ring _
 
 instance instAlgebraF : Algebra K (F dot v c) := Ideal.Quotient.algebra K
 
@@ -146,7 +146,7 @@ theorem mem_radical_of_d (hdot : ∀ i j, dot i j = dot j i) {x : PreF K I}
   rw [LinearMap.flip_apply, LinearMap.zero_apply]
   induction u using FreeMonoid.inductionOn' with
   | one => rw [word_one, form_one, h0]
-  | mul_of k u _ =>
+  | of_mul k u _ =>
     rw [word_of_mul, form_θ_mul, form_symm hdot, hd k, mul_zero]
 
 /-! ### The quantum Serre relations (simply-laced case) -/
@@ -179,7 +179,7 @@ theorem serreComm_mem_radical (hdot : ∀ i j, dot i j = dot j i) {i j : I} (hij
   · have : d dot v k (serreComm i j : PreF K I) = 0 := by
       rw [serreComm, map_sub, d_θ_mul_θ, d_θ_mul_θ]
       by_cases hki : i = k
-      · subst hki; simp [hij, Ne.symm hij, hdot j i, h0]
+      · subst hki; simp [Ne.symm hij, hdot j i, h0]
       · by_cases hkj : j = k
         · subst hkj; simp [hki, h0]
         · simp [hki, hkj]
@@ -198,16 +198,16 @@ theorem serreCubic_mem_radical (hdot : ∀ i j, dot i j = dot j i) {i j : I} (hi
       simp only [serreCubic, map_add, map_sub, map_smul, d_θ_mul, d_θ]
       by_cases hki : i = k
       · subst hki
-        simp only [hii, h1', if_true, if_neg (Ne.symm hij), smul_zero, add_zero, zero_add,
-          mul_zero, mul_one, zpow_neg, zpow_one, zpow_ofNat, Units.val_pow_eq_pow_val, pow_one,
+        simp only [hii, h1', ite_true, ite_eq_right (Ne.symm hij), smul_zero, add_zero, zero_add,
+          mul_zero, mul_one, zpow_neg, zpow_ofNat, Units.val_pow_eq_pow_val, pow_one,
           mul_smul_comm, mul_add, smul_add]
         linear_combination (norm := module)
           (-(((v : K) * ((v⁻¹ : Kˣ) : K)) + 1) - (v : K) ^ 2) • hvv • (θ i * θ j : PreF K I) +
             (v : K) • hvv • (θ j * θ i : PreF K I)
       · by_cases hkj : j = k
         · subst hkj
-          simp only [hki, h1, if_true, if_false, smul_zero, add_zero, zero_add, mul_zero,
-            mul_one, zpow_neg, zpow_one, hii, zpow_ofNat, if_neg hij, Units.val_pow_eq_pow_val,
+          simp only [hki, h1, ite_true, ite_false, smul_zero, add_zero, zero_add, mul_zero,
+            mul_one, zpow_neg, zpow_ofNat,
             pow_one, mul_smul_comm]
           linear_combination (norm := module) (-1 : K) • hvv • (θ i * θ i : PreF K I)
         · simp [hki, hkj]

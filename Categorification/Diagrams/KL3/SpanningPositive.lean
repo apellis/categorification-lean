@@ -69,7 +69,7 @@ variable {I : Type*} (C : CartanDatum I)
 
 theorem permCongr_finCongr_refl {N : ℕ} (σ : Perm (Fin N)) :
     (finCongr (rfl : N = N)).permCongr σ = σ := by
-  ext z; simp [Equiv.permCongr_apply]
+  ext z; simp
 
 theorem isMatching_permCongr {N M : ℕ} (h : N = M) {L : Fin N → Bool × I} {B : Fin M → Bool × I}
     (hLB : ∀ z, L (Fin.cast h.symm z) = B z) (σ : Perm (Fin N)) :
@@ -112,10 +112,10 @@ theorem invWt_inv {m : ℕ} (a : Fin m → I) (w : Perm (Fin m)) :
   refine Finset.sum_nbij' (fun p => (w⁻¹ p.2, w⁻¹ p.1)) (fun p => (w p.2, w p.1))
     (fun p hp => ?_) (fun p hp => ?_) (fun p _ => by simp) (fun p _ => by simp) (fun p _ => rfl)
   · rw [TypeA.mem_invSet] at hp ⊢
-    simp only [Perm.apply_inv_self]
+    simp only [Perm.inv_def, Equiv.apply_symm_apply]
     exact ⟨hp.2, hp.1⟩
   · rw [TypeA.mem_invSet] at hp ⊢
-    simp only [Perm.inv_apply_self, inv_inv]
+    simp only [Perm.inv_def, Equiv.symm_apply_apply]
     exact ⟨hp.2, hp.1⟩
 
 end Categorification.QuantumGroup.UDot
@@ -145,19 +145,19 @@ theorem bw_get (z : Fin (Multiset.card ν + Multiset.card ν)) :
   have hi : (ρW (posW (word i))).length = Multiset.card ν := by simp [ρW, posW, word]
   refine Fin.addCases (fun k => ?_) (fun x => ?_) z
   · rw [blockWord_left]
-    simp only [List.get_eq_getElem, Fin.coe_cast, Fin.coe_castAdd]
+    simp only [List.get_eq_getElem, Fin.val_cast, Fin.val_castAdd]
     rw [List.getElem_append_left (by rw [hi]; exact k.isLt)]
     simp only [ρW_posW, negW, word, List.getElem_map, List.getElem_reverse, List.getElem_ofFn]
     refine Prod.ext rfl ?_
     show i.1 _ = i.1 _
     exact congrArg i.1 (Fin.ext (by simp [Fin.rev]; omega))
   · rw [blockWord_right]
-    simp only [List.get_eq_getElem, Fin.coe_cast, Fin.coe_natAdd]
+    simp only [List.get_eq_getElem, Fin.val_cast, Fin.val_natAdd]
     rw [List.getElem_append_right (by rw [hi]; omega)]
-    simp only [posW, word, List.getElem_map, List.getElem_ofFn, hi]
+    simp only [posW, word, List.getElem_map, List.getElem_ofFn]
     refine Prod.ext rfl ?_
     show j.1 _ = j.1 _
-    exact congrArg j.1 (Fin.ext (by simp [ρW, posW]))
+    exact congrArg j.1 (Fin.ext (by simp [ρW]))
 
 variable {i j}
 
@@ -190,7 +190,7 @@ theorem blockPerm_posPerm (σ : PosPairing i j) : blockPerm (posPerm σ)⁻¹ = 
 theorem posPerm_smul (σ : PosPairing i j) : posPerm σ • i = j := by
   apply Subtype.ext; funext x
   have := (Classical.choose_spec (exists_perm_of_pairing σ)).1 x
-  simp only [KLR.Seq.smul_apply, posPerm, inv_inv]
+  simp only [KLR.Seq.smul_apply, posPerm]
   exact this
 
 theorem bwE_apply (σ : Perm (Fin (bw i j).length)) (z : Fin (Multiset.card ν + Multiset.card ν)) :
@@ -202,15 +202,15 @@ endpoint is at position `n - 1 - a`). -/
 def posArc (σ : PosPairing i j) (a : Fin (Multiset.card ν)) :
     Arc (posW (word i)) (posW (word j)) σ.1 :=
   ⟨Fin.cast (bw_length i j).symm (Fin.castAdd _ a.rev), by
-    rw [bwE_apply, ← blockPerm_posPerm, blockPerm_left, Fin.lt_iff_val_lt_val, Fin.coe_cast,
-      Fin.coe_cast, Fin.coe_castAdd, Fin.coe_natAdd]
+    rw [bwE_apply, ← blockPerm_posPerm, blockPerm_left, Fin.lt_def, Fin.val_cast,
+      Fin.val_cast, Fin.val_castAdd, Fin.val_natAdd]
     omega⟩
 
 theorem posArc_bijective (σ : PosPairing i j) : Function.Bijective (posArc σ) := by
   constructor
   · intro a b h
     have := congrArg (fun x : Arc (posW (word i)) (posW (word j)) σ.1 => x.1.val) h
-    simp only [posArc, Fin.coe_cast, Fin.coe_castAdd] at this
+    simp only [posArc, Fin.val_cast, Fin.val_castAdd] at this
     exact Fin.rev_injective (Fin.ext this)
   · rintro ⟨p, hp⟩
     obtain ⟨z, rfl⟩ : ∃ z, p = Fin.cast (bw_length i j).symm z :=
@@ -221,8 +221,8 @@ theorem posArc_bijective (σ : PosPairing i j) : Function.Bijective (posArc σ) 
       refine Fin.addCases (fun k => ?_) (fun x => ?_) z
       · intro _; exact ⟨k, rfl⟩
       · intro hp
-        rw [blockPerm_right, Fin.lt_iff_val_lt_val, Fin.coe_cast, Fin.coe_cast, Fin.coe_castAdd,
-          Fin.coe_natAdd] at hp
+        rw [blockPerm_right, Fin.lt_def, Fin.val_cast, Fin.val_cast, Fin.val_castAdd,
+          Fin.val_natAdd] at hp
         omega
     obtain ⟨k, rfl⟩ := key
     exact ⟨k.rev, Subtype.ext (by simp [posArc, Fin.rev_rev])⟩
@@ -311,7 +311,7 @@ omit [DecidableEq I] in
 theorem weight_eq_sum (u : Fin (Multiset.card ν) →₀ ℕ) (f : Fin (Multiset.card ν) → ℤ) :
     Finsupp.weight f u = ∑ a, (u a : ℤ) * f a := by
   rw [Finsupp.weight_apply, Finsupp.sum_fintype _ _ (fun a => by simp)]
-  simp [nsmul_eq_mul]
+  simp
 
 omit [DecidableEq I] in
 variable (k) in
@@ -325,7 +325,7 @@ theorem spanDeg_eq (ℓ : I → ℤ) (x : SpanIdx (posW (word i)) (posW (word j)
   congr 2
   rw [← Equiv.sum_comp (posArcEquiv x.1)]
   refine Finset.sum_congr rfl fun a _ => ?_
-  simp only [posArcEquiv, Equiv.ofBijective_apply, posDots, Finsupp.equivFunOnFinite_symm_apply_toFun,
+  simp only [posArcEquiv, Equiv.ofBijective_apply, posDots, Finsupp.coe_equivFunOnFinite_symm,
     arcCol_posArc]
   rfl
 
@@ -435,7 +435,7 @@ theorem exists_spanIdx (w : Perm (Fin (Multiset.card ν))) (hw : w • i = j)
     rw [Equiv.apply_symm_apply])
   refine ⟨⟨σ, fun a => u ((posArcEquiv σ).symm a), m⟩, hσ, ?_, rfl⟩
   ext a
-  simp only [posDots, Finsupp.equivFunOnFinite_symm_apply_toFun]
+  simp only [posDots, Finsupp.coe_equivFunOnFinite_symm]
   have : posArc σ a = posArcEquiv σ a := rfl
   rw [this, Equiv.symm_apply_apply]
 
@@ -453,13 +453,11 @@ theorem mem_span_vB [Finite I] (hSL : SimplyLaced C) (μ : X) (i j : KLR.Seq ν)
     { toFun := fun M => M i j, map_add' := fun _ _ => rfl, map_smul' := fun _ _ => rfl }
   let L := ev ∘ₗ (phi RD k μ ν).toLinearMap
   have hv : ∀ p, vB RD k μ i j p = L (bT p) := fun p => by
-    simp only [L, bT, ev, LinearMap.coe_comp, Function.comp_apply, AlgHom.toLinearMap_apply,
-      LinearMap.coe_mk, AddHom.coe_mk]
+    change vB RD k μ i j p = phi RD k μ ν (bT p) i j
     rw [Basis.tensorProduct_apply, MvPolynomial.coe_basisMonomials]
   obtain ⟨t, ht⟩ := prop310_of_simplyLaced (k := k) (RD := RD) hSL μ ν (single i j f)
   have hf : f = L t := by
-    simp only [L, ev, LinearMap.coe_comp, Function.comp_apply, AlgHom.toLinearMap_apply,
-      LinearMap.coe_mk, AddHom.coe_mk]
+    change f = phi RD k μ ν t i j
     rw [ht, single_apply_self]
   have hL : L t ∈ LinearMap.range L := ⟨t, rfl⟩
   rw [LinearMap.range_eq_map, ← bT.span_eq, Submodule.map_span, ← Set.range_comp] at hL
@@ -495,6 +493,7 @@ theorem prop_3_11_positive [Finite I] (hSL : SimplyLaced C) (μ : X) (i j : KLR.
       refine Set.mem_insert_of_mem _ ⟨⟨x, ?_⟩, ?_⟩
       · rw [spanDeg_eq k (RD.ellOf μ) x, hx1, hx2, hx3]; exact hp
       · simp only [posB, hx1, hx2, hx3]
+        rfl
     · rw [vB_eq_zero (RD := RD) (k := k) μ i j p h]
       exact Set.mem_insert _ _
 
@@ -525,8 +524,8 @@ theorem finrank_le_of_isSpanFamily {μ : X} {s t : List (Letter I)}
     (hb : IsSpanFamily RD k μ s t b) (d : ℤ) :
     ((finrank k (HomD RD k μ s t d) : ℤ) : ℚ) ≤
       (piLS C * toLS (UDot.KL3.sform RD (E1 RD vQ s μ) (E1 RD vQ t μ))).coeff d := by
-  haveI := (prop_3_12 (s := s) (t := t) RD μ d).1
-  haveI := Fintype.ofFinite {x : SpanIdx s t // spanDeg C (RD.ellOf μ) x = d}
+  have := (prop_3_12 (s := s) (t := t) RD μ d).1
+  have := Fintype.ofFinite {x : SpanIdx s t // spanDeg C (RD.ellOf μ) x = d}
   rw [← card_fiber_eq μ s t d]
   exact_mod_cast (finrank_le_and_iff _ _ (hb.2 d)).1
 
@@ -557,7 +556,7 @@ omit [DecidableEq I] [Finite I] in
 /-- `⟨E_{+c} 1_λ, E_{+b} 1_λ⟩ = 0` if `c` and `b` do not have the same letters. -/
 theorem sform_posW_eq_zero (μ : X) {c b : List I} (h : (c : Multiset I) ≠ b) :
     UDot.KL3.sform RD (E1 RD vQ (posW c) μ) (E1 RD vQ (posW b) μ) = 0 := by
-  rw [← (UDot.KL3.thm_2_7 C RD _ _ μ μ).1, UDot.KL3.form, formUD_E1_E1, if_pos rfl]
+  rw [← (UDot.KL3.thm_2_7 C RD _ _ μ μ).1, UDot.KL3.form, formUD_E1_E1, ite_eq_left rfl]
   have e : ∀ l : List I, (ew (posW l) : UDot.Free (RatFunc ℚ) I) =
       posF (PreF.word (FreeMonoid.ofList l)) := fun l => by rw [posF_word]; rfl
   rw [e, e, B_posF_posF, fF, PreF.form_eq_zero_of_wt_ne]

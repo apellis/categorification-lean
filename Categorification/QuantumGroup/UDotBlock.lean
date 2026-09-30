@@ -157,7 +157,7 @@ theorem Fg_le_FX (P N : Multiset I) :
     Fg I K P N ≤ FX K RD ((P.map RD.iX).sum - (N.map RD.iX).sum) := by
   intro x hx
   refine supp_mono (fun w hw => ?_) hx
-  simp only [Set.mem_setOf_eq] at hw ⊢
+  simp only [Set.mem_ofPred_eq] at hw ⊢
   rw [RD.wX_eq, hw.1, hw.2]
 
 /-- The diagonal operator `E_w ↦ g(w_X) E_w`. -/
@@ -171,7 +171,7 @@ theorem diagX_ew (g : X → K) (t : List (Bool × I)) :
 theorem diagX_of_mem_FX (g : X → K) {μ : X} {x : Free K I} (hx : x ∈ FX K RD μ) :
     diagX RD g x = g μ • x := by
   refine eqOn_supp (diagX RD g) (g μ • LinearMap.id) (fun w hw => ?_) x hx
-  simp only [Set.mem_setOf_eq] at hw
+  simp only [Set.mem_ofPred_eq] at hw
   rw [word_eq_ew, diagX_ew, hw]; rfl
 
 variable (c : I → K)

@@ -155,7 +155,7 @@ theorem exists_iso_sumList (P : GProj 𝒜) :
     · by_cases hind : ∀ e ∈ endZero A P.grading, IsIdempotentElem e → e = 0 ∨ e = 1
       · obtain ⟨b, a, ⟨e⟩⟩ := IndecClass.exists_iso_rep_shift (P := P) ⟨hP, hind⟩
         exact ⟨[(b, a)], ⟨e.trans (prodSubsingletonIso _ (zeroObj 𝒜)).symm⟩⟩
-      · push_neg at hind
+      · push Not at hind
         obtain ⟨e, hpe, he, he0, he1⟩ := hind
         have h1 := P.nontrivial_summand he hpe he0
         have h2 := P.nontrivial_summand he.one_sub (preservesGrading_one_sub hpe)
@@ -193,11 +193,12 @@ theorem of_sumList (l : List (IndecClass 𝒜 × ℤ)) :
 
 /-- The multiplicity of `q^a [P_b]` in `x ∈ K₀(A)`: the coefficient of `q^a` in the `b`-th
 coordinate of `x` in the basis `K0.indecBasis`. -/
-def mult (x : K0 𝒜) (b : IndecClass 𝒜) (a : ℤ) : ℤ := (indecBasis 𝒜).repr x b a
+def mult (x : K0 𝒜) (b : IndecClass 𝒜) (a : ℤ) : ℤ := ((indecBasis 𝒜).repr x b).coeff a
 
 theorem mult_add (x y : K0 𝒜) (b : IndecClass 𝒜) (a : ℤ) :
     mult (x + y) b a = mult x b a + mult y b a := by
-  rw [mult, mult, mult, map_add, Finsupp.add_apply, Finsupp.add_apply]
+  rw [mult, mult, mult, map_add, Finsupp.add_apply, AddMonoidAlgebra.coeff_add,
+    Finsupp.add_apply]
 
 theorem mult_zero (b : IndecClass 𝒜) (a : ℤ) : mult (0 : K0 𝒜) b a = 0 := by
   simp [mult]
@@ -210,11 +211,12 @@ theorem mult_T_smul_of_rep (c : IndecClass 𝒜) (d : ℤ) (b : IndecClass 𝒜)
     Finsupp.single_apply]
   by_cases hc : c = b
   · subst hc
-    rw [if_pos rfl, smul_eq_mul, mul_one, LaurentPolynomial.T, Finsupp.single_apply]
+    rw [ite_eq_left rfl, smul_eq_mul, mul_one, LaurentPolynomial.T,
+      AddMonoidAlgebra.coeff_single, Finsupp.single_apply]
     by_cases hd : d = a
     · simp [hd]
     · simp [hd]
-  · rw [if_neg hc, smul_zero, if_neg (fun h => hc (Prod.ext_iff.1 h).1)]
+  · rw [ite_eq_right hc, smul_zero, ite_eq_right (fun h => hc (Prod.ext_iff.1 h).1)]
     rfl
 
 /-- The multiplicity of `P_b{a}` in `sumList l` is the number of occurrences of `(b, a)` in
@@ -252,7 +254,7 @@ theorem perm_of_of_sumList_eq {l l' : List (IndecClass 𝒜 × ℤ)}
   rintro ⟨b, a⟩
   have := congrArg (fun x => K0.mult x b a) h
   simp only [K0.mult_of_sumList] at this
-  exact_mod_cast this
+  simpa only [List.count_eq_countP, Bool.beq_eq_decide_eq] using (Int.natCast_inj.mp this)
 
 /-- **Uniqueness of Krull–Schmidt decompositions**: `sumList l ≅ sumList l'` iff `l` and `l'`
 agree up to permutation. -/
@@ -332,8 +334,8 @@ theorem exists_of_eq_of_mem_closure {x : K0 𝒜}
   | mem _ h =>
     obtain ⟨y, rfl⟩ := h
     exact ⟨_, rfl⟩
-  | one => exact ⟨zeroObj 𝒜, of_eq_zero_of_subsingleton _⟩
-  | mul _ _ _ _ h₁ h₂ =>
+  | zero => exact ⟨zeroObj 𝒜, of_eq_zero_of_subsingleton _⟩
+  | add _ _ _ _ h₁ h₂ =>
     obtain ⟨P, rfl⟩ := h₁
     obtain ⟨Q, rfl⟩ := h₂
     exact ⟨P.prod Q, of_prod P Q⟩
@@ -347,11 +349,12 @@ theorem exists_of_eq_iff (x : K0 𝒜) :
     (Set.range fun y : IndecClass 𝒜 × ℤ => of (y.1.rep.shift y.2))
   rw [← (indecBasis 𝒜).linearCombination_repr x, Finsupp.linearCombination_apply, Finsupp.sum]
   refine AddSubmonoid.sum_mem _ fun b _ => ?_
-  rw [← Finsupp.sum_single ((indecBasis 𝒜).repr x b), Finsupp.sum, Finset.sum_smul]
+  rw [← AddMonoidAlgebra.sum_coeff_single ((indecBasis 𝒜).repr x b), Finsupp.sum,
+    Finset.sum_smul]
   refine AddSubmonoid.sum_mem _ fun a _ => ?_
   rw [LaurentPolynomial.single_eq_C_mul_T, ← LaurentPolynomial.smul_eq_C_mul, smul_assoc,
     indecBasis_apply, T_smul_of]
-  have ha : 0 ≤ (indecBasis 𝒜).repr x b a := h b a
+  have ha : 0 ≤ ((indecBasis 𝒜).repr x b).coeff a := h b a
   rw [← Int.toNat_of_nonneg ha, natCast_zsmul]
   exact nsmul_mem (AddSubmonoid.subset_closure
     (Set.mem_range_self (f := fun y : IndecClass 𝒜 × ℤ => of (y.1.rep.shift y.2)) (b, a))) _
@@ -382,11 +385,11 @@ instance hasGdim_top_shift (b : IndecClass 𝒜) (a : ℤ) : HasGdim (b.top.shif
 
 theorem finrank_endZero_top_pos (b : IndecClass 𝒜) :
     0 < finrank k (endZero A b.top.grading) := by
-  haveI := (isGradedSimple_top b).nontrivial
-  haveI : FiniteDimensional k (endZero A b.top.grading) := by
-    haveI := Graded.hasGdim_homGrade (A := A) b.rep.grading b.top.grading
+  have := (isGradedSimple_top b).nontrivial
+  have : FiniteDimensional k (endZero A b.top.grading) := by
+    have := Graded.hasGdim_homGrade (A := A) b.rep.grading b.top.grading
     have h := finrank_homGrade_rep_top b b 0
-    rw [if_pos ⟨rfl, rfl⟩] at h
+    rw [ite_eq_left ⟨rfl, rfl⟩] at h
     exact FiniteDimensional.of_finrank_pos (by
       rw [← h]
       exact Module.finrank_pos_iff_exists_ne_zero.2
@@ -404,7 +407,7 @@ theorem homRank_top_shift_rep_shift (b : IndecClass 𝒜) (a : ℤ) :
     show homGrade A (Graded.shift b.rep.grading a) (Graded.shift b.top.grading a) 0 = _
     rw [homGrade_shift_left, homGrade_shift_right, add_zero, sub_self]
   have h2 := finrank_homGrade_rep_top b b 0
-  rw [if_pos ⟨rfl, rfl⟩] at h2
+  rw [ite_eq_left ⟨rfl, rfl⟩] at h2
   rw [h]
   exact congrArg Nat.cast h2
 
@@ -423,7 +426,7 @@ theorem homRank_top_shift (x : K0 𝒜) (b : IndecClass 𝒜) (a : ℤ) :
   rw [Finsupp.sum, Finset.sum_ite_eq']
   split_ifs with hmem
   · rfl
-  · simp [mult, Finsupp.not_mem_support_iff.1 hmem]
+  · simp [mult, Finsupp.notMem_support_iff.1 hmem]
 
 /-- `mult [P] b a = dim_k HOM(P, S_b{a})_0 / dim_k END(S_b)_0`. -/
 theorem mult_eq_div (P : GProj 𝒜) (b : IndecClass 𝒜) (a : ℤ) :

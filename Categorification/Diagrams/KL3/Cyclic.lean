@@ -30,6 +30,8 @@ diagrams `rotDotR`, `rotDotL`, `rotCrossR`, `rotCrossL` have exactly the layers 
 computed from the library's biadjunctions.
 -/
 
+set_option backward.isDefEq.respectTransparency false
+
 noncomputable section
 
 namespace Categorification.KL3.Diagram
@@ -96,10 +98,10 @@ theorem updot_isCyclic (i : I) (ν : X) (hg : (psig RD).GenValid (.gen (.dot ⟨
     exact ((pres RD k).diag_eq_of_rel (.inr (.cycDotR i _)) rfl).trans
       ((pres RD k).diag_eq_of_rel (.inr (.cycDotL i _)) rfl).symm
   · simp [rotDotL, genDiag, layList, lay, Layer.wl, Layer.wr, Pivotal.cupD, Pivotal.capD,
-      pivotalCupsCaps, genDom, genCod, inv_dual, Shape.gen, Signature.pivotal, sig0,
+      pivotalCupsCaps, genDom, genCod, inv_dual, Shape.gen, psig, Signature.pivotal, sig0,
       Signature.ColourDuality.dualWord, Letter.dual]
   · simp [rotDotR, genDiag, layList, lay, Layer.wl, Layer.wr, Pivotal.cupD, Pivotal.capD,
-      pivotalCupsCaps, genDom, genCod, inv_dual, Shape.gen, Signature.pivotal, sig0,
+      pivotalCupsCaps, genDom, genCod, inv_dual, Shape.gen, psig, Signature.pivotal, sig0,
       Signature.ColourDuality.dualWord, Letter.dual]
 
 /-- The downward dot on the strand `⟨F_i, μ⟩` is a valid generator. -/
@@ -128,7 +130,7 @@ theorem downdot_isCyclic (i : I) (μ : X) (hg : (psig RD).GenValid (.gen (.dot �
         (downDot RD i (sh RD (up i) + ν)) ha ha rfl] at hβ
   swap
   · simp [rotDotR, genDiag, layList, lay, Layer.wl, Layer.wr, Pivotal.cupD, Pivotal.capD,
-      pivotalCupsCaps, genDom, genCod, inv_dual, Shape.gen, Signature.pivotal, sig0,
+      pivotalCupsCaps, genDom, genCod, inv_dual, Shape.gen, psig, Signature.pivotal, sig0,
       Signature.ColourDuality.dualWord, Letter.dual]
   rw [isCyclic_diag_iff _ _ _ rfl _ rfl _ rfl _ rfl] at hβ
   rw [isCyclic_biadj_iff_single (biadjColour RD k) (c := ⟨dn i, sh RD (up i) + ν⟩)
@@ -204,23 +206,23 @@ theorem upcross_isCyclic (j i : I) (ν : X) (hg : (psig RD).GenValid (.gen (.cro
   refine diag_eq_transfer _ _ _ (rotCrossR RD j i _) (rotCrossL RD j i _) e e' ?_ ?_ ?_
   · rw [layers_rightRotateD, hcupL, hcapL, h₁, h₂, h₃, h₄]
     simp only [genDiag, cupLayers, capLayers, Diagram.layers_layer, List.map_cons, List.map_nil,
-      List.cons_append, List.nil_append, List.map_append, List.append_nil, Layer.wl, Layer.wr,
+      List.cons_append, List.nil_append, List.append_nil, Layer.wl, Layer.wr,
       rotCrossR, layers_mkD, layList, lay]
     simp only [wt_cons, wt_nil, wd_cons, wd_nil, Shape.dom_cup, Shape.dom_cap, Shape.dom_cross,
-      List.cons_append, List.nil_append, Letter.dual_mk, Bool.not_true, Bool.not_false,
+      List.cons_append, List.nil_append, Letter.dual_mk, Bool.not_true,
       Shape.gen, inv_dual, Signature.ColourDuality.dualWord_cons,
       Signature.ColourDuality.dualWord_nil, Signature.ColourDuality.pivotal_dual,
-      psig_right_cross, psig_left_cross]
+      psig_right_cross]
     region_tac
   · rw [layers_leftRotateD, hcupRL, hcapRL, h₁, h₂, h₃, h₄]
     simp only [genDiag, cupRLayers, capRLayers, Diagram.layers_layer, List.map_cons, List.map_nil,
-      List.cons_append, List.nil_append, List.map_append, List.append_nil, Layer.wl, Layer.wr,
+      List.cons_append, List.nil_append, List.append_nil, Layer.wl, Layer.wr,
       rotCrossL, layers_mkD, layList, lay]
     simp only [wt_cons, wt_nil, wd_cons, wd_nil, Shape.dom_cup, Shape.dom_cap, Shape.dom_cross,
-      List.cons_append, List.nil_append, Letter.dual_mk, Bool.not_true, Bool.not_false,
+      List.cons_append, List.nil_append, Letter.dual_mk, Bool.not_true,Bool.not_false,
       Shape.gen, inv_dual, Signature.ColourDuality.dualWord_cons,
       Signature.ColourDuality.dualWord_nil, Signature.ColourDuality.pivotal_dual,
-      psig_right_cross, psig_left_cross]
+      psig_right_cross]
     region_tac
   · exact ((pres RD k).diag_eq_of_rel (.inr (.cycCrossR j i _)) rfl).trans
       ((pres RD k).diag_eq_of_rel (.inr (.cycCrossL j i _)) rfl).symm
@@ -270,12 +272,12 @@ theorem downcross_isCyclic (j i : I) (μ : X)
   have hb : ((pres RD k).genDom _ hg).obj = ((pres RD k).dualHom (inv RD).toColourDuality.pivotal
       ((pres RD k).genCod _ hu)).obj := by
     rw [u₃]; show (⟨_, _⟩ : Obj (psig RD)) = _
-    simp only [wd_cons, wd_nil, wt_cons, wt_nil, psig_left_cross, psig_dom_cross, psig_cod_cross]
+    simp only [wd_cons, wd_nil, wt_cons, wt_nil, psig_left_cross, psig_dom_cross]
     region_tac
   have hb' : ((pres RD k).genCod _ hg).obj = ((pres RD k).dualHom (inv RD).toColourDuality.pivotal
       ((pres RD k).genDom _ hu)).obj := by
     rw [u₄]; show (⟨_, _⟩ : Obj (psig RD)) = _
-    simp only [wd_cons, wd_nil, wt_cons, wt_nil, psig_left_cross, psig_dom_cross, psig_cod_cross]
+    simp only [wd_cons, wd_nil, wt_cons, wt_nil, psig_left_cross, psig_cod_cross]
     region_tac
   rw [(pres RD k).diag_eq_of_layers_eq' _ (rotCrossR RD j i _) e e' ?_,
     (pres RD k).diag_eq_of_rel (.inr (.cycCrossR j i _)) rfl,
@@ -284,13 +286,13 @@ theorem downcross_isCyclic (j i : I) (μ : X)
   swap
   · rw [layers_rightRotateD, hcupL, hcapL, u₁, u₂, u₃, u₄]
     simp only [genDiag, cupLayers, capLayers, Diagram.layers_layer, List.map_cons, List.map_nil,
-      List.cons_append, List.nil_append, List.map_append, List.append_nil, Layer.wl, Layer.wr,
+      List.cons_append, List.nil_append, List.append_nil, Layer.wl, Layer.wr,
       rotCrossR, layers_mkD, layList, lay]
     simp only [wt_cons, wt_nil, wd_cons, wd_nil, Shape.dom_cup, Shape.dom_cap, Shape.dom_cross,
-      List.cons_append, List.nil_append, Letter.dual_mk, Bool.not_true, Bool.not_false,
+      List.cons_append, List.nil_append, Letter.dual_mk, Bool.not_true,
       Shape.gen, inv_dual, Signature.ColourDuality.dualWord_cons,
       Signature.ColourDuality.dualWord_nil, Signature.ColourDuality.pivotal_dual,
-      psig_right_cross, psig_left_cross]
+      psig_right_cross]
     region_tac
   obtain ⟨cupR', hcupR', hcupRL'⟩ :=
     biadjW_right_unit_isDiag (zigzags RD k) _ ((pres RD k).genCod _ hu) rfl
@@ -321,7 +323,7 @@ theorem downcross_isCyclic (j i : I) (μ : X)
       ((pres RD k).genCod _ hg)).obj = ((pres RD k).genDom _ hu).obj := by
     show (⟨_, _⟩ : Obj (psig RD)) = ⟨_, _⟩
     rw [d₂]
-    simp only [psig_right_cross, psig_left_cross, psig_cod_cross, psig_dom_cross, wd_cons, wd_nil,
+    simp only [psig_right_cross, psig_left_cross, psig_dom_cross, wd_cons, wd_nil,
       wt_cons, wt_nil, Signature.ColourDuality.dualWord_cons, Signature.ColourDuality.dualWord_nil,
       Signature.ColourDuality.pivotal_dual, inv_dual, List.nil_append, List.cons_append,
       Letter.dual_mk, Bool.not_false]
@@ -330,7 +332,7 @@ theorem downcross_isCyclic (j i : I) (μ : X)
       ((pres RD k).genDom _ hg)).obj = ((pres RD k).genCod _ hu).obj := by
     show (⟨_, _⟩ : Obj (psig RD)) = ⟨_, _⟩
     rw [d₁]
-    simp only [psig_right_cross, psig_left_cross, psig_cod_cross, psig_dom_cross, wd_cons, wd_nil,
+    simp only [psig_right_cross, psig_left_cross, psig_cod_cross, wd_cons, wd_nil,
       wt_cons, wt_nil, Signature.ColourDuality.dualWord_cons, Signature.ColourDuality.dualWord_nil,
       Signature.ColourDuality.pivotal_dual, inv_dual, List.nil_append, List.cons_append,
       Letter.dual_mk, Bool.not_false]
@@ -340,7 +342,7 @@ theorem downcross_isCyclic (j i : I) (μ : X)
     simp only [layers_rightRotateD, layers_leftRotateD, hdcupL, hdcapL, hcupRL', hcapRL, hdcupRL,
       hdcapRL, hcupL'', hcapL'', d₁, d₂, u₁, u₂, d₃, d₄]
     simp only [genDiag, cupLayers, capLayers, cupRLayers, capRLayers, Diagram.layers_layer,
-      List.map_cons, List.map_nil, List.cons_append, List.nil_append, List.map_append,
+      List.map_cons, List.map_nil, List.cons_append, List.nil_append,
       List.append_nil, Layer.wl, Layer.wr, Diagram.layers_cast, genDom, genCod]
     simp only [wt_cons, wt_nil, wd_cons, wd_nil, List.cons_append, List.nil_append,
       Letter.dual_mk, Bool.not_true, Bool.not_false, inv_dual,

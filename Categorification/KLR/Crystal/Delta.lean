@@ -204,7 +204,7 @@ omit [Module k M] [IsScalarTower k (KLRAlgebra k Q ν) M] in
 theorem exists_e_smul_ne_zero {v : M} (hv : v ≠ 0) :
     ∃ s : Seq ν, (e s : KLRAlgebra k Q ν) • v ≠ 0 := by
   by_contra h
-  push_neg at h
+  push Not at h
   apply hv
   rw [← one_smul (KLRAlgebra k Q ν) v, ← sum_e, Finset.sum_smul]
   exact Finset.sum_eq_zero fun s _ => h s
@@ -341,11 +341,11 @@ theorem resSubMap_exact {f : M →ₗ[KLRAlgebra k Q (μ + ν')] M'}
 
 theorem oneConcat_mul_e {s : Seq (μ + ν')} (hs : s ∈ concatSet μ ν') :
     (oneConcat Q μ ν' * e s : KLRAlgebra k Q (μ + ν')) = e s := by
-  rw [oneConcat, eSum_mul_e, if_pos hs]
+  rw [oneConcat, eSum_mul_e, ite_eq_left hs]
 
 theorem e_mul_oneConcat {s : Seq (μ + ν')} (hs : s ∈ concatSet μ ν') :
     (e s * oneConcat Q μ ν' : KLRAlgebra k Q (μ + ν')) = e s := by
-  rw [oneConcat, e_mul_eSum, if_pos hs]
+  rw [oneConcat, e_mul_eSum, ite_eq_left hs]
 
 /-- `Δ M ≠ 0` iff `1_s M ≠ 0` for some concatenation `s ∈ Seq(μ) Seq(ν')`. -/
 theorem nontrivial_resSub_iff_exists :
@@ -360,7 +360,7 @@ theorem nontrivial_resSub_iff_exists :
         _ = eSum Q (concatSet μ ν') • (v : M) := rfl
         _ = _ := by rw [eSum, Finset.sum_smul]
     by_contra hcon
-    push_neg at hcon
+    push Not at hcon
     apply hv'
     rw [hsum]
     refine Finset.sum_eq_zero fun s hs => ?_
@@ -403,7 +403,7 @@ theorem nontrivial_resSub_iff [Nontrivial M] :
 include hν' in
 theorem concat_e_tmul_one_const (j : Seq μ) :
     concat Q μ ν' (e j ⊗ₜ 1) = e (j.append (Seq.constSeq hν')) := by
-  letI := Seq.uniqueOfForall hν'
+  let := Seq.uniqueOfForall hν'
   rw [concat_e_tmul_one, Fintype.sum_unique]
   rfl
 

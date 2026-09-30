@@ -135,7 +135,7 @@ theorem serreSeq_eq_qfact_smul_serreDiv (hdot : ∀ i j, dot i j = dot j i) (i j
   rw [serreSeq_eq_sum, serreDiv, smul_sum]
   refine sum_congr rfl fun p hp => ?_
   obtain ⟨a, b⟩ := p
-  rw [mem_antidiagonal] at hp
+  rw [HasAntidiagonal.mem_antidiagonal] at hp
   subst hp
   simp only
   rw [serreCoef_eq i j hev', he]
@@ -151,7 +151,6 @@ theorem serreSeq_eq_qfact_smul_serreDiv (hdot : ∀ i j, dot i j = dot j i) (i j
   simp only [dpow, smul_mul_assoc, mul_smul_comm, smul_smul]
   congr 1
   field_simp
-  ring
 
 /-- **Lusztig, Proposition 1.4.3** (divided-power form): if `i ≠ j`, `i · i` is even,
 `N ≥ 1`, `2 (i·j) = (i·i)(1 - N)` and `[N]_{v_i}^! ≠ 0`, then
@@ -182,7 +181,7 @@ theorem serreDiv_eq_zero {i j : I} (hij : i ≠ j) :
 /-- **Lusztig 1.4.3 in `f`**: `Σ_{p + p' = N} (-1)^{p'} θ_i^{(p)} θ_j θ_i^{(p')} = 0` for
 `i ≠ j`, `N = 1 - 2(i·j)/(i·i)`, with the divided powers taken in `f`. -/
 theorem serre_divided {i j : I} (hij : i ≠ j) :
-    ∑ p ∈ Finset.antidiagonal (C.serreN i j), ((-1 : RatFunc ℚ) ^ p.2) •
+    ∑ p ∈ Finset.HasAntidiagonal.antidiagonal (C.serreN i j), ((-1 : RatFunc ℚ) ^ p.2) •
       (PreF.dpowF C.dot vQ C.c i p.1 * PreF.π C.dot vQ C.c (PreF.θ j) *
         PreF.dpowF C.dot vQ C.c i p.2) = 0 := by
   have h := C.serreDiv_eq_zero hij
@@ -219,7 +218,7 @@ theorem serre_divided {i j : I} (h : Γ.Adj i j) :
   simp only [sum_range_succ, sum_range_zero, zero_add] at hs
   norm_num [PreF.dpowF] at hs
   rw [← sub_eq_zero, ← neg_eq_zero, ← hs]
-  simp only [PreF.dpowF]
+  simp only [PreF.dpowF, π]
   abel
 
 end KL

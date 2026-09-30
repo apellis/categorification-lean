@@ -24,6 +24,8 @@ left (`layerMap_append`); and the intermediate objects of the two orders are val
 source and the target are (`wok_mid`).
 -/
 
+set_option backward.isDefEq.respectTransparency false
+
 noncomputable section
 
 namespace Categorification.Flag
@@ -52,8 +54,7 @@ theorem whiskerLeft_assoc_hom {L : BRing A B} {L' : BRing B C} {X X' : BRing C E
       (BRing.assoc L L' X').hom (BRing.tmul (L.tensor L') X' z (θ x))) z ?_ (fun a b => ?_)
     (fun z z' hz hz' => ?_)
   · simp only [BRing.zero_tmul, BHom.map_zero]
-  · beta_reduce
-    rw [BRing.assoc_hom_tmul, BRing.assoc_hom_tmul, BHom.whiskerLeft_tmul, BHom.whiskerLeft_tmul]
+  · rw [BRing.assoc_hom_tmul, BRing.assoc_hom_tmul, BHom.whiskerLeft_tmul, BHom.whiskerLeft_tmul]
   · beta_reduce at hz hz' ⊢
     rw [BRing.add_tmul, BHom.map_add, BHom.map_add, hz, hz', BRing.add_tmul, BHom.map_add]
 
@@ -72,8 +73,7 @@ theorem locTwo_natural {L : BRing A B} {L' : BRing B C} {R : BRing A D} {R' : BR
         (BHom.whiskerLeft R (BHom.whiskerLeft R' θ)).comp (locTwo φ X)
           (BRing.tmul L (L'.tensor X) a n)) n
       (by simp only [BRing.tmul_zero, BHom.map_zero]) (fun b x => ?_) (fun n n' hn hn' => ?_)
-    · beta_reduce
-      rw [BHom.comp_apply, BHom.comp_apply, BHom.whiskerLeft_tmul, BHom.whiskerLeft_tmul,
+    · rw [BHom.comp_apply, BHom.comp_apply, BHom.whiskerLeft_tmul, BHom.whiskerLeft_tmul,
         locTwo_tmul, locTwo_tmul, whiskerLeft_assoc_hom]
     · beta_reduce at hn hn' ⊢
       rw [BRing.tmul_add, BHom.map_add, BHom.map_add, hn, hn']
@@ -119,8 +119,7 @@ theorem capFEW_nat {C : Type u} [CommRing C] {X X' : BRing (H K s) C} (φ : BHom
         φ.comp (capFEW K c hE hF X)
           (BRing.tmul (Fst (K := K) c hF) ((Est (K := K) c hE).tensor X) a w)) w
       (by simp only [BRing.tmul_zero, BHom.map_zero]) (fun b x => ?_) (fun w w' hw hw' => ?_)
-    · beta_reduce
-      rw [BHom.comp_apply, BHom.comp_apply, BHom.whiskerLeft_tmul, BHom.whiskerLeft_tmul,
+    · rw [BHom.comp_apply, BHom.comp_apply, BHom.whiskerLeft_tmul, BHom.whiskerLeft_tmul,
         capFEW_tmul, capFEW_tmul, φ.map_left]
     · beta_reduce at hw hw' ⊢
       rw [BRing.tmul_add, BHom.map_add, BHom.map_add, hw, hw']
@@ -142,8 +141,7 @@ theorem capEFW_nat {C : Type u} [CommRing C] {X X' : BRing (H K s') C} (φ : BHo
         φ.comp (capEFW K c hE hF X)
           (BRing.tmul (Est (K := K) c hE) ((Fst (K := K) c hF).tensor X) a w)) w
       (by simp only [BRing.tmul_zero, BHom.map_zero]) (fun b x => ?_) (fun w w' hw hw' => ?_)
-    · beta_reduce
-      rw [BHom.comp_apply, BHom.comp_apply, BHom.whiskerLeft_tmul, BHom.whiskerLeft_tmul,
+    · rw [BHom.comp_apply, BHom.comp_apply, BHom.whiskerLeft_tmul, BHom.whiskerLeft_tmul,
         capEFW_tmul, capEFW_tmul, φ.map_left]
     · beta_reduce at hw hw' ⊢
       rw [BRing.tmul_add, BHom.map_add, BHom.map_add, hw, hw']
@@ -326,14 +324,14 @@ theorem evalB_interchange (dnScal : Fin m → Fin m → K) (x : InterchangeData 
   show chainBD K N dnScal x.start _ [dataV v x.gh₁, dataV v x.gh₂] _ _ ha hb =
     chainBD K N dnScal x.start _ [dataV v x.hg₁, dataV v x.hg₂] _ _ ha hb
   simp only [chainBD]
-  rw [dif_pos (show WOK N x.start ((dataV v x.gh₁).1 ++ gcod (dataV v x.gh₁).2.1 ++
+  rw [dite_eq_left (show WOK N x.start ((dataV v x.gh₁).1 ++ gcod (dataV v x.gh₁).2.1 ++
       (dataV v x.gh₁).2.2) from hM1),
-    dif_pos (show WOK N x.start ((dataV v x.gh₂).1 ++ gcod (dataV v x.gh₂).2.1 ++
+    dite_eq_left (show WOK N x.start ((dataV v x.gh₂).1 ++ gcod (dataV v x.gh₂).2.1 ++
       (dataV v x.gh₂).2.2) from hb),
-    dif_pos (show WOK N x.start ((dataV v x.hg₁).1 ++ gcod (dataV v x.hg₁).2.1 ++
+    dite_eq_left (show WOK N x.start ((dataV v x.hg₁).1 ++ gcod (dataV v x.hg₁).2.1 ++
       (dataV v x.hg₁).2.2) by
         simpa only [dataV, InterchangeData.hg₁, List.append_assoc, List.nil_append] using hM1'),
-    dif_pos (show WOK N x.start ((dataV v x.hg₂).1 ++ gcod (dataV v x.hg₂).2.1 ++
+    dite_eq_left (show WOK N x.start ((dataV v x.hg₂).1 ++ gcod (dataV v x.hg₂).2.1 ++
       (dataV v x.hg₂).2.2) from hb')]
   simp only [dataV, InterchangeData.gh₁, InterchangeData.gh₂, InterchangeData.hg₁,
     InterchangeData.hg₂]

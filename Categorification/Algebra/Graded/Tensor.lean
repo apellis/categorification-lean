@@ -73,7 +73,7 @@ theorem mapDirectSum_apply (y : ⨁ d, 𝒳 d) (e : ι) :
     rw [mapDirectSum_of]
     by_cases h : d = e
     · subst h; rw [DirectSum.of_eq_same, DirectSum.of_eq_same]
-    · rw [DirectSum.of_eq_of_ne _ _ _ h, DirectSum.of_eq_of_ne _ _ _ h, map_zero]
+    · rw [DirectSum.of_eq_of_ne _ _ _ (Ne.symm h), DirectSum.of_eq_of_ne _ _ _ (Ne.symm h), map_zero]
   | add y z hy hz => rw [map_add, DirectSum.add_apply, hy, hz, DirectSum.add_apply, map_add]
 
 omit [DecidableEq ι] in
@@ -129,7 +129,7 @@ theorem mapDecompose_apply (hπ : Function.Surjective π)
 
 /-- **The grading of `Y` pushed forward along a surjection `π : X → Y` with homogeneous
 kernel.** -/
-def mapDecomposition (hπ : Function.Surjective π)
+@[instance_reducible] def mapDecomposition (hπ : Function.Surjective π)
     (hker : ∀ x, π x = 0 → ∀ d, π (decompose 𝒳 x d : X) = 0) : Decomposition (map 𝒳 π) where
   decompose' := mapDecompose hπ hker
   left_inv y := by
@@ -270,8 +270,8 @@ variable [DecidableEq ι] [Decomposition ℳ] [Decomposition 𝒩]
 def tensorPairingAux (i j : ι) : ℳ i →ₗ[k] 𝒩 j →ₗ[k] tensorGrading ℳ 𝒩 (i + j) where
   toFun m := LinearMap.codRestrict _ ((TensorProduct.mk k M N (m : M)).comp (𝒩 j).subtype)
     (fun n => tmul_mem_tensorGrading m.2 n.2)
-  map_add' m m' := by ext n; simp [TensorProduct.add_tmul]
-  map_smul' c m := by ext n; simp [TensorProduct.smul_tmul']
+  map_add' m m' := by ext n; simp []; rfl
+  map_smul' c m := by ext n; simp [TensorProduct.smul_tmul']; rfl
 
 /-- The bilinear map `M_i × N_j → ⨁ d, (M ⊗ N)_d`, `(m, n) ↦ m ⊗ n` in degree `i + j`. -/
 def tensorPairing (i j : ι) : ℳ i →ₗ[k] 𝒩 j →ₗ[k] ⨁ d, tensorGrading ℳ 𝒩 d :=
@@ -303,8 +303,7 @@ set_option synthInstance.maxHeartbeats 200000 in
 instance tensorDecomposition : Decomposition (tensorGrading ℳ 𝒩) where
   decompose' := tensorDecompose ℳ 𝒩
   left_inv x := by
-    induction x using TensorProduct.induction_on with
-    | zero => simp
+    induction x using TensorProduct.inductionOn with
     | tmul m n =>
       induction m using Decomposition.inductionOn ℳ with
       | zero => simp
@@ -449,6 +448,7 @@ omit [AddCommMonoid ι] [IsScalarTower k Aᵐᵒᵖ M] [IsScalarTower k A N] [Se
 theorem relSet_subset_span_relHom :
     relSet k A M N ⊆ Submodule.span k (relHom ℳ 𝒩 𝒜) := by
   rintro _ ⟨m, a, n, rfl⟩
+  rw [SetLike.mem_coe]
   induction m using Decomposition.inductionOn ℳ with
   | zero => simp
   | @homogeneous i m =>
@@ -470,7 +470,7 @@ theorem relSet_subset_span_relHom :
 
 /-- The balanced tensor product grading is a grading, provided the right action of `A` on `M`
 is graded. -/
-def balancedDecomposition
+@[instance_reducible] def balancedDecomposition
     (hM : ∀ ⦃i l : ι⦄ ⦃m : M⦄ ⦃a : A⦄, m ∈ ℳ i → a ∈ 𝒜 l → op a • m ∈ ℳ (i + l)) :
     Decomposition (balancedGrading B A ℳ 𝒩) := by
   refine mapDecomposition (BalancedTensor.mk_surjective (k := k) (B := B)) ?_

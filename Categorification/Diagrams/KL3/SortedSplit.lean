@@ -128,6 +128,7 @@ theorem sgnS_mul_self (ls : List (LayerData I)) [DecidableEq I] :
             (List.map (fun x => Sig.sgnSh x.2.1) ls).prod) := by ring
       _ = 1 := by rw [hx, ih, one_mul]
 
+set_option backward.isDefEq.respectTransparency false in
 /-- **Downward diagrams are KLR diagrams on downward strands**, up to the sign of KL III (3.31). -/
 theorem dg_downward_eq (μ : X) {w₁ w₂ : List I} {A : List (LayerData I)}
     (h : SChain (dns w₁) A (dns w₂)) (hA : Downward A) :
@@ -177,6 +178,7 @@ theorem alpha_tmul_apply (r : KLR.R2 k C ν) (r' : KLR.R2 k C ν') (s s' : KLR.S
     · rw [alphaDn_apply_ne RD k μ ν ν' r' _ _ (Ne.symm ha), Limits.zero_comp]
   · simp
 
+set_option backward.isDefEq.respectTransparency false in
 /-- **Split diagrams are entries of `α`.** -/
 theorem exists_alpha_eq_split (s s' : KLR.Seq ν) (t t' : KLR.Seq ν')
     {f : (pres RD k).obj (ob RD μ (ups (word s) ++ dns (word t))) ⟶

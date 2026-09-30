@@ -64,10 +64,10 @@ variable (k ν) in
 noncomputable def symNu : Subalgebra k (Pol k ν) where
   carrier := {f | ∀ (w : Perm (Fin m)) (i : Seq ν), f (w • i) = rename w (f i)}
   mul_mem' {f g} hf hg w i := by
-    simp only [Set.mem_setOf_eq, Pi.mul_apply] at hf hg ⊢
+    simp only [Set.mem_ofPred_eq, Pi.mul_apply] at hf hg ⊢
     rw [hf w i, hg w i, map_mul]
   add_mem' {f g} hf hg w i := by
-    simp only [Set.mem_setOf_eq, Pi.add_apply] at hf hg ⊢
+    simp only [Set.mem_ofPred_eq, Pi.add_apply] at hf hg ⊢
     rw [hf w i, hg w i, map_add]
   algebraMap_mem' c w i := by
     simp only [Pi.algebraMap_apply, AlgHom.commutes]
@@ -204,7 +204,7 @@ theorem polyRep_single_eq_mul {z : KLRAlgebra k Q ν} (hx : ∀ a, Commute (x a)
     intro v hv
     obtain ⟨a, ha⟩ : ∃ a, v a ≠ a := by
       by_contra hc
-      push_neg at hc
+      push Not at hc
       exact hv (Equiv.ext hc)
     have h1 := hG.comp_mul (X a)
     have h2 := hG.mulLeft (X a)
@@ -240,7 +240,7 @@ theorem polyRep_single_eq_zero {z : KLRAlgebra k Q ν} (he : ∀ i, Commute (e i
     · subst hs; simp
     · simp [hs]
   have := congrArg (fun r => polyRep hPQ r (Pi.single i g) t) (he i).eq
-  simp only [map_mul, polyRep_e, Module.End.mul_apply, h1, opE_apply, if_neg hit] at this
+  simp only [map_mul, polyRep_e, Module.End.mul_apply, h1, opE_apply, ite_eq_right hit] at this
   exact this.symm
 
 include hP in
@@ -341,7 +341,7 @@ theorem eq_zero_or_one_of_mem_center {z : KLRAlgebra k Q ν}
       obtain ⟨w, rfl⟩ := Seq.exists_smul_eq i j
       rw [hf w i, hi0, map_zero, Pi.zero_apply]
     rw [this, map_zero]
-  · push_neg at h0
+  · push Not at h0
     right
     have : f = 1 := funext fun j => (hi j).resolve_left (h0 j)
     rw [this, map_one]

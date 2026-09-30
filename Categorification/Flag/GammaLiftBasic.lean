@@ -16,6 +16,8 @@ realizability of the weights of its regions (`wok_ob_iff`); the top boundary of 
 as soon as the corresponding normal-form object is (`wok_dataV_cod`).
 -/
 
+set_option backward.isDefEq.respectTransparency false
+
 noncomputable section
 
 namespace Categorification.Flag

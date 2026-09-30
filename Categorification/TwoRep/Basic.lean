@@ -103,11 +103,11 @@ theorem finrank_hom_congr_right (X : C) {Y Y' : C} (f : Y ≅ Y') :
   finrank_hom_congr k (Iso.refl X) f
 
 theorem finrank_hom_of_isZero_left {X : C} (h : IsZero X) (Y : C) : finrank k (X ⟶ Y) = 0 := by
-  haveI : Subsingleton (X ⟶ Y) := ⟨fun f g => h.eq_of_src f g⟩
+  have : Subsingleton (X ⟶ Y) := ⟨fun f g => h.eq_of_src f g⟩
   exact finrank_zero_of_subsingleton
 
 theorem finrank_hom_of_isZero_right (X : C) {Y : C} (h : IsZero Y) : finrank k (X ⟶ Y) = 0 := by
-  haveI : Subsingleton (X ⟶ Y) := ⟨fun f g => h.eq_of_tgt f g⟩
+  have : Subsingleton (X ⟶ Y) := ⟨fun f g => h.eq_of_tgt f g⟩
   exact finrank_zero_of_subsingleton
 
 section Biprod
@@ -351,6 +351,9 @@ class GradedBicategory where
   precomp_commShift {a b : B} (c : B) (f : a ⟶ b) : (precomp c f).CommShift ℤ
   postcomp_commShift (a : B) {b c : B} (g : b ⟶ c) : (postcomp a g).CommShift ℤ
 
+attribute [instance_reducible] GradedBicategory.precomp_commShift
+  GradedBicategory.postcomp_commShift
+
 attribute [instance] GradedBicategory.precomp_additive GradedBicategory.postcomp_additive
   GradedBicategory.shift_additive GradedBicategory.precomp_commShift
   GradedBicategory.postcomp_commShift
@@ -498,10 +501,12 @@ def mateLinearEquiv {c d e f : B} {g : c ⟶ e} {h : d ⟶ f} {l₁ : c ⟶ d} {
     (g ≫ l₂ ⟶ l₁ ≫ h) ≃ₗ[k] (r₁ ≫ g ⟶ h ≫ r₂) :=
   { mateEquiv adj₁ adj₂ with
     map_add' := fun α β => by
-      simp only [Equiv.toFun_as_coe, Bicategory.mateEquiv_apply, bicategoricalComp, whiskerLeft_add,
+      simp only [Equiv.toFun_as_coe, Bicategory.mateEquiv_apply,
+        Adjunction.homEquiv₁_apply, Adjunction.homEquiv₂_apply, whiskerLeft_add,
         add_whiskerRight, Preadditive.add_comp, Preadditive.comp_add]
     map_smul' := fun r α => by
-      simp only [Equiv.toFun_as_coe, Bicategory.mateEquiv_apply, bicategoricalComp, whiskerLeft_smul,
+      simp only [Equiv.toFun_as_coe, Bicategory.mateEquiv_apply,
+        Adjunction.homEquiv₁_apply, Adjunction.homEquiv₂_apply, whiskerLeft_smul,
         smul_whiskerRight, Linear.smul_comp, Linear.comp_smul, RingHom.id_apply] }
 
 /-- The adjunction isomorphism `Hom(u x, y) ≅ Hom(x, u_R y)` of CL §3.2 (`u ⊣ v`, Mathlib order:

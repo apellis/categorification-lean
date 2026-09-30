@@ -138,7 +138,7 @@ def homComponent (d : ℤ) : (M →ₗ[A] N) →ₗ[k] (M →ₗ[A] N) where
     apply linearMap_ext_homogeneous ℳ
     intro e x hx
     simp only [LinearMap.restrictScalars_apply, LinearMap.coe_mk, AddHom.coe_mk,
-      LinearMap.add_apply, homComponentK_apply_of_mem ℳ 𝒩 hx, decompose_add, add_apply,
+      LinearMap.add_apply, homComponentK_apply_of_mem ℳ 𝒩 hx, decompose_add, DirectSum.add_apply,
       Submodule.coe_add]
   map_smul' c f := by
     apply LinearMap.restrictScalars_injective k
@@ -180,7 +180,7 @@ theorem exists_eq_sum_homComponent [Module.Finite A M] (f : M →ₗ[A] N) :
   refine LinearMap.ext_on_range hspan fun p => ?_
   obtain ⟨⟨e, m⟩, hp⟩ := p
   have hm : m ∈ ℳ e := hg _ hp
-  simp only [LinearMap.coeFn_sum, Finset.sum_apply]
+  simp only [LinearMap.sum_apply]
   rw [Finset.sum_congr rfl fun d _ => homComponent_apply_of_mem 𝒜 ℳ 𝒩 hm (d := d) f]
   set S := g.biUnion fun p => (decompose 𝒩 (f p.2)).support.image fun n => n - p.1
   have hinj : Set.InjOn (fun d => e + d) S := fun a _ b _ h => by simpa using h
@@ -200,14 +200,14 @@ theorem isInternal_homGrade [Module.Finite A M] : IsInternal (homGrade A ℳ �
     intro d
     rw [Submodule.disjoint_def]
     intro f hf hf'
-    have h1 : homComponent 𝒜 ℳ 𝒩 d f = f := by rw [homComponent_of_mem 𝒜 ℳ 𝒩 hf, if_pos rfl]
+    have h1 : homComponent 𝒜 ℳ 𝒩 d f = f := by rw [homComponent_of_mem 𝒜 ℳ 𝒩 hf, ite_eq_left rfl]
     have h2 : homComponent 𝒜 ℳ 𝒩 d f = 0 := by
       refine Submodule.iSup_induction _ (motive := fun f => homComponent 𝒜 ℳ 𝒩 d f = 0) hf'
         (fun j g hg => ?_) (map_zero _) (fun g g' hg hg' => by simp only [map_add, hg, hg', add_zero])
       refine Submodule.iSup_induction _ (motive := fun g => homComponent 𝒜 ℳ 𝒩 d g = 0) hg
         (fun hj g hg => ?_) (map_zero _) (fun g g' hg hg' => by simp only [map_add, hg, hg', add_zero])
       show homComponent 𝒜 ℳ 𝒩 d g = 0
-      rw [homComponent_of_mem 𝒜 ℳ 𝒩 hg, if_neg hj]
+      rw [homComponent_of_mem 𝒜 ℳ 𝒩 hg, ite_eq_right hj]
     rw [← h1, h2]
   · rw [eq_top_iff]
     intro f _
@@ -346,7 +346,8 @@ variable {ψ} in
 instance [GradedAlgebra 𝒜] (ℳ : ℤ → Submodule k M) :
     SetLike.GradedSMul 𝒜 (dualGrading ψ ℳ) where
   smul_mem i j a f ha hf e x hx := by
-    rw [Dual.smul_apply, vadd_eq_add, ← add_assoc, add_right_comm]
+    change f x * ψ a ∈ 𝒜 (e + (i +ᵥ j))
+    rw [vadd_eq_add, ← add_assoc, add_right_comm]
     exact SetLike.GradedMul.mul_mem (hf hx) (ψ.mem_grade ha)
 
 instance [GradedAlgebra 𝒜] (ℳ : ℤ → Submodule k M) [Decomposition ℳ]
@@ -481,7 +482,7 @@ theorem dualMap_preservesGrading [Module k M] [Module k N] {ℳ : ℤ → Submod
 
 end Dual
 
-open Dual
+open Categorification.Graded.Dual
 
 namespace GProj
 
@@ -522,9 +523,11 @@ def dualProd (P Q : GProj 𝒜) : ((P.prod Q).dual ψ).Iso ((P.dual ψ).prod (Q.
       map_smul' := fun a fg => ext fun m => by
         change (a • fg.1) m.1 + (a • fg.2) m.2 = (fg.1 m.1 + fg.2 m.2) * ψ a
         simp only [Dual.smul_apply, add_mul] }
-    (fun f => ext fun m => by
+    (fun f => ext (ψ := ψ) fun m => by
       obtain ⟨m₁, m₂⟩ := m
-      change f (m₁, 0) + f (0, m₂) = f (m₁, m₂)
+      change (toHom (ψ := ψ) f : P.carrier × Q.carrier →ₗ[A] A) (m₁, 0) +
+        (toHom (ψ := ψ) f : P.carrier × Q.carrier →ₗ[A] A) (0, m₂) =
+        (toHom (ψ := ψ) f : P.carrier × Q.carrier →ₗ[A] A) (m₁, m₂)
       rw [← map_add, Prod.mk_add_mk, add_zero, zero_add])
     (fun fg => Prod.ext
       (ext fun m => by
@@ -538,8 +541,7 @@ def dualProd (P Q : GProj 𝒜) : ((P.prod Q).dual ψ).Iso ((P.dual ψ).prod (Q.
       dualMap_preservesGrading ψ (ℳ := Q.grading) (𝒩 := (P.prod Q).grading)
         (fun _ _ hx => ⟨zero_mem _, hx⟩) hf⟩)
     (fun d fg hfg e x hx => by
-      simp only [LinearMap.coe_mk, AddHom.coe_mk, ofHom_apply, LinearMap.coprod_apply,
-        toHom_apply]
+      change fg.1 x.1 + fg.2 x.2 ∈ 𝒜 (e + d)
       exact add_mem (hfg.1 hx.1) (hfg.2 hx.2))
 
 /-- `\overline{P{a}} ≅ P̄{-a}`. -/
@@ -548,12 +550,10 @@ def dualShift (P : GProj 𝒜) (a : ℤ) : ((P.shift a).dual ψ).Iso ((P.dual ψ
   map_mem' d f hf e x hx := by
     have h := hf (e := e + a) (x := x)
       (show x ∈ P.grading (e + a - a) by rwa [add_sub_cancel_right])
-    convert h using 2
-    ring
+    convert h using 2 <;> first | rfl | ring
   symm_map_mem' d f hf e x hx := by
     have h := hf (e := e - a) (x := x) hx
-    convert h using 2
-    ring
+    convert h using 2 <;> first | rfl | ring
 
 /-- **`P̄̄ ≅ P`** (via `m ↦ (f ↦ ψ(f(m)))`). -/
 def dualDual (P : GProj 𝒜) : P.Iso ((P.dual ψ).dual ψ) :=
@@ -589,11 +589,14 @@ def dualOfIdempotent {e : A} (he : IsIdempotentElem e) (he0 : e ∈ 𝒜 0) :
         exact Subtype.ext he.eq⟩
       map_add' := fun f f' => Subtype.ext (by simp only [Dual.add_apply, ψ.map_add]; rfl)
       map_smul' := fun a f => Subtype.ext (by
-        simp only [Dual.smul_apply, ψ.map_mul, ψ.invol, RingHom.id_apply]; rfl) }
+        change ψ (f ε * ψ a) = a * ψ (f ε)
+        rw [ψ.map_mul, ψ.invol]) }
     { toFun := fun b => ofHom ψ ((LinearMap.toSpanSingleton A A (ψ (b : A))).comp
         (leftIdeal e).subtype)
       map_add' := fun b b' => ext fun x => by simp [mul_add]
-      map_smul' := fun a b => ext fun x => by simp [smul_eq_mul, mul_assoc] }
+      map_smul' := fun a b => ext fun x => by
+        change (x : A) * ψ (a * (b : A)) = ((x : A) * ψ (b : A)) * ψ a
+        rw [ψ.map_mul, mul_assoc] }
     (fun f => ext fun x => by
       change (x : A) * ψ (ψ (f ε)) = f x
       rw [ψ.invol, ← smul_eq_mul, ← map_smul]
@@ -661,13 +664,13 @@ theorem bar_T_smul (a : ℤ) (x : K0 𝒜) :
 /-- `\overline{p x} = p̄ x̄`, where `p̄(q) = p(q⁻¹)` (`LaurentPolynomial.invert`). -/
 theorem bar_smul (p : LaurentPolynomial ℤ) (x : K0 𝒜) :
     bar ψ (p • x) = LaurentPolynomial.invert p • bar ψ x := by
-  induction p using Finsupp.induction_linear with
+  induction p using AddMonoidAlgebra.induction_linear with
   | zero => simp
   | add p p' hp hp' => rw [add_smul, map_add, hp, hp', map_add, add_smul]
   | single n m =>
-    have hT : ∀ n : ℤ, (Finsupp.single n m : LaurentPolynomial ℤ) =
+    have hT : ∀ n : ℤ, (AddMonoidAlgebra.single n m : LaurentPolynomial ℤ) =
         m • (LaurentPolynomial.T n : LaurentPolynomial ℤ) := fun n => by
-      rw [LaurentPolynomial.T, Finsupp.smul_single, smul_eq_mul, mul_one]
+      rw [LaurentPolynomial.T, AddMonoidAlgebra.smul_single, smul_eq_mul, mul_one]
     rw [hT, smul_assoc, map_zsmul, bar_T_smul, map_zsmul, LaurentPolynomial.invert_T,
       smul_assoc]
 
@@ -710,7 +713,7 @@ section Transpose
 variable {k : Type v} [Field k] {A : Type u} [Ring A] [Algebra k A] {𝒜 : ℤ → Submodule k A}
   [GradedAlgebra 𝒜] {ψ : GradedAntiInvolution 𝒜}
 
-open Dual
+open Categorification.Graded.Dual
 
 namespace GProj
 
@@ -766,7 +769,7 @@ theorem dualTranspose_dualTranspose (P Q : GProj 𝒜) (d : ℤ)
 def dualTransposeEquiv (P Q : GProj 𝒜) (d : ℤ) :
     homGrade A (P.dual ψ).grading Q.grading d ≃ₗ[k]
       homGrade A (Q.dual ψ).grading P.grading d :=
-  LinearEquiv.ofLinear (dualTranspose P Q d) (dualTranspose Q P d)
+  LinearEquiv.ofLinearMap (dualTranspose P Q d) (dualTranspose Q P d)
     (LinearMap.ext fun φ => dualTranspose_dualTranspose Q P d φ)
     (LinearMap.ext fun φ => dualTranspose_dualTranspose P Q d φ)
 
@@ -841,7 +844,7 @@ theorem toLaurentSeries_T (a : ℤ) :
   rwa [mul_one, show toLaurentSeries (1 : LaurentPolynomial ℤ) = 1 by
     ext d
     rw [coeff_toLaurentSeries, HahnSeries.coeff_one, ← LaurentPolynomial.T_zero,
-      LaurentPolynomial.T, Finsupp.single_apply]
+      LaurentPolynomial.T, AddMonoidAlgebra.coeff_single, Finsupp.single_apply]
     split_ifs <;> first | rfl | omega, mul_one] at this
 
 omit [Algebra k A] [GradedAlgebra 𝒜] [HasGdim 𝒜] in
@@ -851,13 +854,13 @@ theorem map_smul_of_T {M : Type*} [AddCommGroup M] [Module (LaurentPolynomial �
     (hF : ∀ (a : ℤ) (x : M),
       F ((LaurentPolynomial.T a : LaurentPolynomial ℤ) • x) = HahnSeries.single a 1 * F x)
     (p : LaurentPolynomial ℤ) (x : M) : F (p • x) = toLaurentSeries p * F x := by
-  induction p using Finsupp.induction_linear with
+  induction p using AddMonoidAlgebra.induction_linear with
   | zero => simp
   | add p p' hp hp' => rw [add_smul, map_add, hp, hp', map_add, add_mul]
   | single n m =>
-    have hT : (Finsupp.single n m : LaurentPolynomial ℤ) =
+    have hT : (AddMonoidAlgebra.single n m : LaurentPolynomial ℤ) =
         m • (LaurentPolynomial.T n : LaurentPolynomial ℤ) := by
-      rw [LaurentPolynomial.T, Finsupp.smul_single, smul_eq_mul, mul_one]
+      rw [LaurentPolynomial.T, AddMonoidAlgebra.smul_single, smul_eq_mul, mul_one]
     rw [hT, smul_assoc, map_zsmul, hF, map_zsmul, toLaurentSeries_T, smul_mul_assoc]
 
 /-- **`ℤ[q, q⁻¹]`-linearity in the first variable**: `(p x, y) = p (x, y)`. -/

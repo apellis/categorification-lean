@@ -62,7 +62,7 @@ noncomputable section
 
 namespace Categorification.KLR
 
-open Graded KLRAlgebra TypeA Equiv MvPolynomial DirectSum
+open Categorification.Graded KLRAlgebra TypeA Equiv MvPolynomial DirectSum
 open scoped TensorProduct
 
 variable {I : Type*} [DecidableEq I] {k : Type*} [Field k] {Q : I → I → MvPolynomial (Fin 2) k}

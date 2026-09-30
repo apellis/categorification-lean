@@ -26,7 +26,7 @@ This file computes the rotation of normal-form diagrams:
 * `rotU_dg`: **the rotation of a normal-form diagram is the diagram of rotated layers**, in
   reversed order: a layer `(u, g, v)` becomes `(v*, g^rot, u*)` (`rotLD`), where on generators
   (`rotSh`) the dot on `l` becomes the dot on `l*`, the crossing
-  `(ε,i)(ε,j) ⟶ (ε,j)(ε,i)` becomes `(-ε,i)(-ε,j) ⟶ (-ε,j)(-ε,i)`, the cup `1 ⟶ l l*` becomes
+  `(eps,i)(eps,j) ⟶ (eps,j)(eps,i)` becomes `(-eps,i)(-eps,j) ⟶ (-eps,j)(-eps,i)`, the cup `1 ⟶ l l*` becomes
   the cap `l l* ⟶ 1` (of `l*`) and the cap `l* l ⟶ 1` the cup `1 ⟶ l* l` (of `l*`).
 
 The proof of `rotU_dg` reduces, by functoriality of mates and the whiskering lemmas
@@ -37,6 +37,8 @@ the rotated downward dot and crossing are then the upward ones because rotating 
 identity (`rightMate_rightMate`, using cyclicity); the rotated cups and caps are caps and cups by
 the zigzag relations (3.1), (3.2).
 -/
+
+set_option backward.isDefEq.respectTransparency false
 
 noncomputable section
 
@@ -198,20 +200,20 @@ theorem rotU_id (μ ν : X) (s : List (Letter I)) (hs : wt RD μ s = ν) :
 /-- The rotation of the shape of a generator by `180°`. -/
 def rotSh : Shape I → Shape I
   | .dot l => .dot l.dual
-  | .cross ε i j => .cross (!ε) i j
+  | .cross eps i j => .cross (!eps) i j
   | .cup l => .cap l.dual
   | .cap l => .cup l.dual
 
 @[simp] theorem rotSh_dot (l : Letter I) : rotSh (.dot l) = .dot l.dual := rfl
-@[simp] theorem rotSh_cross (ε : Bool) (i j : I) : rotSh (.cross ε i j) = .cross (!ε) i j := rfl
+@[simp] theorem rotSh_cross (eps : Bool) (i j : I) : rotSh (.cross eps i j) = .cross (!eps) i j := rfl
 @[simp] theorem rotSh_cup (l : Letter I) : rotSh (.cup l) = .cap l.dual := rfl
 @[simp] theorem rotSh_cap (l : Letter I) : rotSh (.cap l) = .cup l.dual := rfl
 
 theorem rotSh_dom (g : Shape I) : (rotSh g).dom = rd g.cod := by
-  cases g <;> simp [rd_singleton]
+  cases g <;> simp
 
 theorem rotSh_cod (g : Shape I) : (rotSh g).cod = rd g.dom := by
-  cases g <;> simp [rd_singleton]
+  cases g <;> simp
 
 theorem rotSh_rotSh (g : Shape I) : rotSh (rotSh g) = g := by
   cases g <;> simp
@@ -375,7 +377,7 @@ theorem cupLayers_wd (ν : X) : ∀ a : List (Letter I),
   | l :: a => by
     have ih := cupLayers_wd ν a
     have hm := (sChain_nCups a).wt_mem RD (wt RD ν a)
-    simp only [wd_cons, cupLayers, nCups, layList_cons, ih]
+    simp only [wd_cons, cupLayers, nCups, layList_cons]
     congr 1
     · refine Layer.ext rfl rfl ?_ rfl
       simp [lay, Shape.gen]
@@ -405,7 +407,7 @@ theorem capLayers_wd (ν : X) : ∀ b : List (Letter I),
     · simp [lay, Layer.wl, Layer.wr, wt_append]
     · simp only [lay, Layer.wl, Layer.wr, List.append_nil, dualWord_wd]
       congr 1
-      simp [wt_append]
+      simp
     · simp [lay, Layer.wl, Layer.wr]
 
 /-- The mate of a normal-form diagram `ls : a ⟶ b`, in normal form, before straightening:
@@ -573,8 +575,8 @@ theorem isDg_mateL_gen (ν μ : X) (g : Shape I) (h₁ : wt RD ν g.dom = μ) (h
     obtain ⟨_ | _, i⟩ := l
     · exact isDg_mateL_downdot ν μ i h₁
     · exact isDg_mateL_updot ν μ i h₁
-  | cross ε i j =>
-    cases ε
+  | cross eps i j =>
+    cases eps
     · exact isDg_mateL_downcross ν μ i j h₁ h₂
     · exact isDg_mateL_upcross ν μ i j h₁ h₂
   | cup l => exact isDg_mateL_of ν μ _ _ h₁ h₂ ⟨rfl, rfl⟩ ⟨rfl, rfl⟩ (dg_rotRaw_cup μ l)
@@ -673,7 +675,7 @@ theorem rotU_dg_single (μ ν : X) (x : LayerData I) (hs : wt RD μ (x.1 ++ x.2.
   have H' := isDg_dg (RD := RD) (k := k) ν (sChain_rotLs
     (show SChain (u ++ g.dom ++ v) [(u, g, v)] (u ++ g.cod ++ v) from ⟨rfl, rfl⟩))
   rw [rotU_apply]
-  simpa using H.eq_eqToHom H' rfl rfl
+  simpa [rotLs] using H.eq_eqToHom H' rfl rfl
 
 /-- **The rotation of a normal-form diagram is the diagram of the rotated layers in reversed
 order** (KL III §3.3.2, "Rotation by 180°": `ζ ↦ ζ*`, computed with the cyclicity relations

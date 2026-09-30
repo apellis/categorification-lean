@@ -64,20 +64,18 @@ theorem Wsub_induction {motive : M K I → Prop} {v : M K I} (hv : v ∈ Wsub C 
 
 theorem Fop_mem_Wsub (j : I) {v : M K I} (hv : v ∈ Wsub C q) : Fop j v ∈ Wsub C q := by
   refine Wsub_induction (motive := fun v => Fop j v ∈ Wsub C q) hv (by simp)
-    (fun x y hx hy => by beta_reduce at hx hy ⊢; rw [map_add]; exact add_mem hx hy)
-    (fun r x hx => by beta_reduce at hx ⊢; rw [map_smul]; exact Submodule.smul_mem _ _ hx)
+    (fun x y hx hy => by rw [map_add]; exact add_mem hx hy)
+    (fun r x hx => by rw [map_smul]; exact Submodule.smul_mem _ _ hx)
     fun x hx b => ?_
-  beta_reduce
   rw [Fop_tm]
   exact tm_mem_Wsub (Jf_mul_right hx _) _
 
 theorem Eop_mem_Wsub (hq : ∀ n : ℕ, 0 < n → q ^ n ≠ 1) (ℓ : I → ℤ) (i : I) {v : M K I}
     (hv : v ∈ Wsub C q) : Eop C q ℓ i v ∈ Wsub C q := by
   refine Wsub_induction (motive := fun v => Eop C q ℓ i v ∈ Wsub C q) hv (by simp)
-    (fun x y hx hy => by beta_reduce at hx hy ⊢; rw [map_add]; exact add_mem hx hy)
-    (fun r x hx => by beta_reduce at hx ⊢; rw [map_smul]; exact Submodule.smul_mem _ _ hx)
+    (fun x y hx hy => by rw [map_add]; exact add_mem hx hy)
+    (fun r x hx => by rw [map_smul]; exact Submodule.smul_mem _ _ hx)
     fun x hx b => ?_
-  beta_reduce
   rw [Eop_tm_word]
   exact add_mem (tm_mem_Wsub hx _) (tm_mem_Wsub (D_mem_Jf hq i _ hx) _)
 
@@ -103,9 +101,8 @@ theorem act_mem_Wsub (hq : ∀ n : ℕ, 0 < n → q ^ n ≠ 1) (ℓ : I → ℤ)
 theorem ε_eq_zero_of_mem_Wsub (hq : ∀ n : ℕ, 0 < n → q ^ n ≠ 1) (ℓ : I → ℤ) {v : M K I}
     (hv : v ∈ Wsub C q) : ε C q c ℓ v = 0 := by
   refine Wsub_induction (motive := fun v => ε C q c ℓ v = 0) hv (by simp)
-    (fun x y hx hy => by beta_reduce at hx hy ⊢; rw [map_add, hx, hy, add_zero])
-    (fun r x hx => by beta_reduce at hx ⊢; rw [map_smul, hx, smul_zero]) fun x hx b => ?_
-  beta_reduce
+    (fun x y hx hy => by rw [map_add, hx, hy, add_zero])
+    (fun r x hx => by rw [map_smul, hx, smul_zero]) fun x hx b => ?_
   induction hx using Submodule.span_induction with
   | mem z hz =>
     obtain ⟨a, a', i, j, hij, rfl⟩ := hz
@@ -172,7 +169,7 @@ theorem supp_mul_mem {S T U : Set (FreeMonoid (Bool × I))}
 theorem Fg_mul {P N P' N' : Multiset I} {x y : Free K I} (hx : x ∈ Fg I K P N)
     (hy : y ∈ Fg I K P' N') : x * y ∈ Fg I K (P + P') (N + N') := by
   refine supp_mul_mem (fun u hu w hw => ?_) hx hy
-  simp only [Set.mem_setOf_eq, FreeMonoid.toList_mul, posMS_append, negMS_append] at hu hw ⊢
+  simp only [Set.mem_ofPred_eq, FreeMonoid.toList_mul, posMS_append, negMS_append] at hu hw ⊢
   rw [hu.1, hu.2, hw.1, hw.2]; exact ⟨rfl, rfl⟩
 
 /-- A linear map out of `'f` sending the words of `S` into a submodule `T` sends `supp S` into
@@ -190,7 +187,7 @@ theorem map_supp_le' {N : Type*} [AddCommGroup N] [Module K N] (φ : PreF K I �
 theorem negF_mem_Fg {ν : Multiset I} {x : PreF K I} (hx : x ∈ grade K ν) :
     negF x ∈ Fg I K 0 ν := by
   refine map_supp_le' negF.toLinearMap (fun u hu => ?_) x hx
-  simp only [Set.mem_setOf_eq] at hu
+  simp only [Set.mem_ofPred_eq] at hu
   rw [AlgHom.toLinearMap_apply, negF_word]
   refine word_mem_supp ?_
   simp [← hu, wt]
@@ -198,7 +195,7 @@ theorem negF_mem_Fg {ν : Multiset I} {x : PreF K I} (hx : x ∈ grade K ν) :
 theorem posF_mem_Fg {ν : Multiset I} {x : PreF K I} (hx : x ∈ grade K ν) :
     posF x ∈ Fg I K ν 0 := by
   refine map_supp_le' posF.toLinearMap (fun u hu => ?_) x hx
-  simp only [Set.mem_setOf_eq] at hu
+  simp only [Set.mem_ofPred_eq] at hu
   rw [AlgHom.toLinearMap_apply, posF_word]
   refine word_mem_supp ?_
   simp [← hu, wt]
@@ -212,7 +209,7 @@ theorem rhoE_of_mem_Fg (ℓ : I → ℤ) (b : Bool) (i : I) {P N : Multiset I} {
   refine eqOn_supp (rhoE C q ℓ (b, i))
     (qp q (di C i * (1 - sgn b * (ℓ i + msA C i P - msA C i N))) •
       LinearMap.mulLeft K (ew [(!b, i)])) (fun w hw => ?_) y hy
-  simp only [Set.mem_setOf_eq] at hw
+  simp only [Set.mem_ofPred_eq] at hw
   rw [word_eq_ew, rhoE_ew, LinearMap.smul_apply, LinearMap.mulLeft_apply, ← ew_cons, wl, aS_eq,
     hw.1, hw.2, add_sub_assoc]
 
@@ -230,7 +227,7 @@ theorem R_of_mem_Fg (ℓ : I → ℤ) (s : List (Bool × I)) {P N : Multiset I} 
     congr 3
     congr 1
     funext k
-    cases b <;> simp [msA_singleton] <;> ring
+    cases b <;> simp <;> ring
 
 theorem B_eq_φ_R (ℓ : I → ℤ) (s : List (Bool × I)) (y : Free K I) :
     B C q c ℓ (ew s) y = φ C q c ℓ (R C q ℓ s y) := by
@@ -296,7 +293,7 @@ theorem B_posF_left (hq : ∀ n : ℕ, 0 < n → q ^ n ≠ 1) (ℓ : I → ℤ) 
           posF.toLinearMap)
         (qp q (rcxP C (wl C ℓ t) ν) • (B C q c ℓ (ew b) ∘ₗ LinearMap.mulRight K (ew t) ∘ₗ
           negF.toLinearMap ∘ₗ rev)) (fun u hu => ?_) T' hT'
-      simp only [Set.mem_setOf_eq] at hu
+      simp only [Set.mem_ofPred_eq] at hu
       simp only [LinearMap.coe_comp, Function.comp_apply, LinearMap.flip_apply,
         LinearMap.mulRight_apply, AlgHom.toLinearMap_apply, LinearMap.smul_apply, smul_eq_mul]
       rw [posF_word, ← ew_append, B_append, R_posW_ew, map_smul, smul_eq_mul, hu]

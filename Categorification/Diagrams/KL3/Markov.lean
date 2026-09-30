@@ -33,6 +33,9 @@ followed by the crossings of a reduced word (`upward_mem_span_nf`).
   reduced words `ρ`.
 -/
 
+-- Preserve elaboration of semireducible diagram transports.
+set_option backward.isDefEq.respectTransparency false
+
 noncomputable section
 
 namespace Categorification.KL3.Diagram
@@ -198,7 +201,7 @@ theorem upward_runLs (x : List I) (c : I) (y : List I) : Upward (runLs x c y) :=
 theorem runLs_append_single (x : List I) (c : I) (y : List I) (d : I) :
     runLs x c (y ++ [d]) = (runLs x c y).map (whL [] [up d]) ++ [(ups (x ++ y), .cross true c d, [])] := by
   induction y generalizing x with
-  | nil => simp [runLs, whL]
+  | nil => simp [runLs]
   | cons e y ih => simp [runLs, ih, whL, ups]
 
 /-- The crossings at the positions `|x|, |x| + 1, …` move the strand `c` to the end. -/
@@ -334,7 +337,7 @@ theorem curl_mem_slideSetR (e : ℕ) :
     rw [key, map_sub, ctxL_dg RD k μ (by schain) (by schain),
       ctxL_dg RD k μ (by schain) (by schain)]
     simp only [whL, List.map_cons, List.map_nil, List.cons_append, List.nil_append,
-      List.singleton_append, List.append_assoc, List.append_nil]
+      List.append_nil]
     refine sub_mem ?_ ?_
     · have e2 : dg RD k μ [up j] [up j] (([up j], .cup (up j), []) ::
           ([], .dot (up j), [up j, dn j]) :: ([], .cross true j j, [dn j]) ::
@@ -400,7 +403,7 @@ theorem plcL_slideSetR_mem_upSpan (μ : X) (u : List (Letter I)) (c : I)
       rw [show u ++ [up c] ++ [] = u ++ [up c] from List.append_nil _] at hrep' ⊢
       rw [dg_comp hrep' hB'']
       simp only [whL, List.map_map, Function.comp_def, List.map_replicate, List.append_nil,
-        List.nil_append, List.map_append]
+        List.map_append]
       congr 2
       refine List.map_congr_left fun x _ => ?_
       obtain ⟨a', g, b'⟩ := x
@@ -415,7 +418,7 @@ section SeqOfList
 
 theorem ofFn_getElem_cast (w : List I) (n : ℕ) (h : n = w.length) :
     List.ofFn (fun t : Fin n => w[(t : ℕ)]'(h ▸ t.2)) = w := by
-  subst h; exact List.ofFn_getElem w
+  subst h; exact List.ofFn_getElem
 
 /-- The sequence of weight `ν` with colours `w` (if `w` has weight `ν`). -/
 def seqOfEq (ν : Multiset I) (w : List I) (h : (w : Multiset I) = ν) : KLR.Seq ν :=
@@ -684,7 +687,7 @@ theorem toUEnd_ψ_apply (t : ℕ) (h : t + 1 < Multiset.card ν) (j j' : KLR.Seq
     toUEnd RD k μ ν (KLR.KLRAlgebra.ψ t) j j' =
       if j' = TypeA.sadj (Multiset.card ν) t • j then
         dg RD k μ (ups (word j)) (ups (word j')) (crossAt (word j) t) else 0 := by
-  rw [toUEnd_ψ, sum_apply, Finset.sum_eq_single j]
+  rw [toUEnd_ψ, MatEnd.sum_apply, Finset.sum_eq_single j]
   · rw [single_apply]
     split_ifs with h₁ h₂ h₂
     · obtain ⟨-, rfl⟩ := h₁
@@ -716,7 +719,7 @@ theorem toUEnd_ψw_apply (σ : List ℕ) (hσ : TypeA.ValidWord (Multiset.card �
     have hσ' : TypeA.ValidWord (Multiset.card ν) σ := fun x hx => hσ x (List.mem_cons_of_mem _ hx)
     rw [KLR.KLRAlgebra.ψw_cons, map_mul, mul_apply,
       Finset.sum_eq_single (TypeA.wordProd (Multiset.card ν) σ • i)]
-    · rw [ih hσ', if_pos rfl, toUEnd_ψ_apply RD k μ t ht, TypeA.wordProd_cons, mul_smul]
+    · rw [ih hσ', ite_eq_left rfl, toUEnd_ψ_apply RD k μ t ht, TypeA.wordProd_cons, mul_smul]
       split_ifs with h₁
       · subst h₁
         have hw := word_wordProd_smul σ i
@@ -727,7 +730,7 @@ theorem toUEnd_ψw_apply (σ : List ℕ) (hσ : TypeA.ValidWord (Multiset.card �
         simp
       · simp
     · intro l _ hl
-      rw [ih hσ', if_neg hl, Limits.zero_comp]
+      rw [ih hσ', ite_eq_right hl, Limits.zero_comp]
     · simp
 
 theorem toUEnd_pol_mul_e (p : MvPolynomial (Fin (Multiset.card ν)) k) (i : KLR.Seq ν) :
@@ -819,7 +822,7 @@ theorem upward_mem_span_nf (ρ : Equiv.Perm (Fin (Multiset.card ν)) → List �
   show toUEnd RD k μ ν (KLR.KLRAlgebra.ψw (ρ w) * KLR.KLRAlgebra.pol (MvPolynomial.monomial u 1) *
     KLR.KLRAlgebra.e i) i j = _
   rw [mul_assoc, map_mul, eD, mul_apply, Finset.sum_eq_single i, single_apply_self,
-    toUEnd_ψw_apply RD k μ _ (hρ w).1.1, (hρ w).2, if_pos hw.symm]
+    toUEnd_ψw_apply RD k μ _ (hρ w).1.1, (hρ w).2, ite_eq_left hw.symm]
   · intro l _ hl
     rw [single_apply_of_ne _ (fun h' => hl h'.2), Limits.zero_comp]
   · simp

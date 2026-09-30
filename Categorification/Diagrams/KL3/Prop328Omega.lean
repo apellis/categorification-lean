@@ -26,6 +26,9 @@ The 2-functor `ω̃ : U → U` (`omegaU`) commutes with horizontal composition (
   by `∏ [a_r]_{i_r}!`).
 -/
 
+-- Preserve elaboration of semireducible diagram transports.
+set_option backward.isDefEq.respectTransparency false
+
 noncomputable section
 
 namespace Categorification.KL3.Diagram

@@ -221,7 +221,7 @@ theorem isBub_cw_ccw (i : I) :
       · rw [cwU_eq_zero RD k lam i m h1]; exact IsBub.zero
       · have := isBub_bubGen (RD := RD) (k := k) (lam := lam) i (m + 1 - ip RD i lam).toNat
         unfold bubGen at this
-        rw [if_pos h0, show ip RD i lam - 1 + (((m + 1 - ip RD i lam).toNat : ℕ) : ℤ) = m by omega] at this
+        rw [ite_eq_left h0, show ip RD i lam - 1 + (((m + 1 - ip RD i lam).toNat : ℕ) : ℤ) = m by omega] at this
         exact this
     refine ⟨hcw, fun m => ?_⟩
     by_cases h1 : m + 1 + ip RD i lam < 0
@@ -233,7 +233,7 @@ theorem isBub_cw_ccw (i : I) :
         rcases a with _ | a
         · rw [Nat.cast_zero, add_zero, ccwU_deg0]; exact IsBub.id
         · have Ga := G (a + 1)
-          rw [if_neg (by omega), Finset.sum_range_succ, sub_self, add_zero, cwU_deg0,
+          rw [ite_eq_right (by omega), Finset.sum_range_succ, sub_self, add_zero, cwU_deg0,
             Category.comp_id] at Ga
           rw [eq_neg_of_add_eq_zero_right Ga]
           refine IsBub.neg (IsBub.sum _ fun j hj => ?_)
@@ -246,7 +246,7 @@ theorem isBub_cw_ccw (i : I) :
       · rw [ccwU_eq_zero RD k lam i m h1]; exact IsBub.zero
       · have := isBub_bubGen (RD := RD) (k := k) (lam := lam) i (m + 1 + ip RD i lam).toNat
         unfold bubGen at this
-        rw [if_neg h0, show -ip RD i lam - 1 + (((m + 1 + ip RD i lam).toNat : ℕ) : ℤ) = m by omega] at this
+        rw [ite_eq_right h0, show -ip RD i lam - 1 + (((m + 1 + ip RD i lam).toNat : ℕ) : ℤ) = m by omega] at this
         exact this
     refine ⟨fun m => ?_, hccw⟩
     by_cases h1 : m + 1 - ip RD i lam < 0
@@ -258,7 +258,7 @@ theorem isBub_cw_ccw (i : I) :
         rcases b with _ | b
         · rw [Nat.cast_zero, add_zero, cwU_deg0]; exact IsBub.id
         · have Gb := G (b + 1)
-          rw [if_neg (by omega), Finset.sum_range_succ', Nat.cast_zero, add_zero, ccwU_deg0,
+          rw [ite_eq_right (by omega), Finset.sum_range_succ', Nat.cast_zero, add_zero, ccwU_deg0,
             Category.id_comp, sub_zero] at Gb
           rw [eq_neg_of_add_eq_zero_right Gb]
           refine IsBub.neg (IsBub.sum _ fun j hj => ?_)

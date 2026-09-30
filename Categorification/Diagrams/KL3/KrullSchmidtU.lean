@@ -62,6 +62,8 @@ letters `t`. -/
 theorem obj_eq_ob_endR (μ : X) (o : Obj (psig RD)) (hwf : o.WF) (h : o.endR = μ) :
     o = ob RD μ (o.word.map Col.l) := by
   obtain ⟨st, w⟩ := o
+  change X at st
+  change List (Col I X) at w
   induction w generalizing st with
   | nil =>
     change st = μ at h
@@ -69,11 +71,13 @@ theorem obj_eq_ob_endR (μ : X) (o : Obj (psig RD)) (hwf : o.WF) (h : o.endR = �
   | cons c w ih =>
     obtain ⟨h₁, h₂⟩ := hwf
     have e := ih c.r h₂ h
-    simp only [ob, Obj.mk.injEq] at e ⊢
-    obtain ⟨hr, hw⟩ := e
-    refine ⟨?_, ?_⟩
-    · rw [List.map_cons, wt_cons, ← hr]; exact h₁.symm
-    · rw [List.map_cons, wd_cons, ← hr, ← hw]; rfl
+    have hr : c.r = wt RD μ (w.map Col.l) := congrArg Obj.start e
+    have hw : w = wd RD μ (w.map Col.l) := congrArg Obj.word e
+    refine Obj.ext ?_ ?_
+    · change st = wt RD μ ((c :: w).map Col.l)
+      rw [List.map_cons, wt_cons, ← hr]; exact h₁.symm
+    · change c :: w = wd RD μ ((c :: w).map Col.l)
+      rw [List.map_cons, wd_cons, ← hr, ← hw]
 
 section Finite
 
@@ -105,10 +109,10 @@ theorem homFinite_UDot (hSL : SimplyLaced C) (ρ lam : X) :
     HomFinite k (UDotHom (pres RD k) (deg RD) (wtObj RD k ρ) (wtObj RD k lam)) := by
   constructor
   intro A B
-  haveI hG : ∀ Xg Yg : GrObj (pres RD k) (deg RD) (wtObj RD k ρ) (wtObj RD k lam),
+  have hG : ∀ Xg Yg : GrObj (pres RD k) (deg RD) (wtObj RD k ρ) (wtObj RD k lam),
       FiniteDimensional k (Xg ⟶ Yg) :=
     fun Xg Yg => (hasGdim_obj (k := k) hSL Xg.x Yg.x).finiteDimensional _
-  haveI : ∀ M N : Mat_ (GrObj (pres RD k) (deg RD) (wtObj RD k ρ) (wtObj RD k lam)),
+  have : ∀ M N : Mat_ (GrObj (pres RD k) (deg RD) (wtObj RD k ρ) (wtObj RD k lam)),
       FiniteDimensional k (M ⟶ N) :=
     fun M N => by
       change FiniteDimensional k (∀ i j, M.X i ⟶ N.X j)
@@ -155,7 +159,7 @@ theorem rigid_UDot (hSL : SimplyLaced C) {ρ lam : X} :
     ∀ (n : ℤ) (A : UDotHom (pres RD k) (deg RD) (wtObj RD k ρ) (wtObj RD k lam)), IsIndec A →
       Nonempty (SplitK0.K0Shift.sh n A ≅ A) →
       n = 0 := by
-  haveI := homFinite_UDot (RD := RD) (k := k) hSL ρ lam
+  have := homFinite_UDot (RD := RD) (k := k) hSL ρ lam
   intro n A hA hn
   by_contra hne
   obtain ⟨p, hp, hpA⟩ : ∃ p : ℤ, 0 < p ∧ Nonempty (SplitK0.K0Shift.sh p A ≅ A) := by
@@ -193,14 +197,14 @@ theorem rigid_UDot (hSL : SimplyLaced C) {ρ lam : X} :
 (KL III §3.6; simply-laced, `I` finite, `k` a field). -/
 theorem isLocalRing_end_UDot (hSL : SimplyLaced C) {ρ lam : X} {Z : UKar RD k ρ lam}
     (hZ : IsIndec Z) : IsLocalRing (End Z) :=
-  haveI := homFinite_UDot (RD := RD) (k := k) hSL ρ lam
+  have := homFinite_UDot (RD := RD) (k := k) hSL ρ lam
   hZ.isLocalRing k
 
 /-- **Existence of Krull–Schmidt decompositions in `U̇(λ, ρ)`**: the class of every object is a
 sum of classes of indecomposable objects. -/
 theorem cl_mem_closure_indec (hSL : SimplyLaced C) {ρ lam : X} (A : UKar RD k ρ lam) :
     K0U.cl A ∈ AddSubmonoid.closure {x | ∃ Z : UKar RD k ρ lam, IsIndec Z ∧ x = K0U.cl Z} :=
-  haveI := homFinite_UDot (RD := RD) (k := k) hSL ρ lam
+  have := homFinite_UDot (RD := RD) (k := k) hSL ρ lam
   of_mem_closure_indec k A
 
 open Classical in
@@ -212,7 +216,7 @@ theorem countP_iso_eq_UDot (hSL : SimplyLaced C) {ρ lam : X} {Z : UKar RD k ρ 
     (hZ : IsIndec Z) {L L' : List (UKar RD k ρ lam)} (hL : ∀ Y ∈ L, IsIndec Y)
     (hL' : ∀ Y ∈ L', IsIndec Y) (h : (L.map K0U.cl).sum = (L'.map K0U.cl).sum) :
     (L.countP fun Y => Nonempty (Y ≅ Z)) = L'.countP fun Y => Nonempty (Y ≅ Z) :=
-  haveI := homFinite_UDot (RD := RD) (k := k) hSL ρ lam
+  have := homFinite_UDot (RD := RD) (k := k) hSL ρ lam
   countP_iso_eq_of_sum_eq k hZ hL hL' h
 
 /-! ## `K₀(U̇(λ, μ))` is free -/
@@ -221,15 +225,15 @@ theorem countP_iso_eq_UDot (hSL : SimplyLaced C) {ρ lam : X} {Z : UKar RD k ρ 
 indecomposable objects up to isomorphism and grading shift** (simply-laced, `I` finite, `k` a
 field). -/
 def indecBasisU (hSL : SimplyLaced C) (ρ lam : X) :
-    Basis (IndecClass (UDotHom (pres RD k) (deg RD) (wtObj RD k ρ) (wtObj RD k lam)))
+    Module.Basis (IndecClass (UDotHom (pres RD k) (deg RD) (wtObj RD k ρ) (wtObj RD k lam)))
       (LaurentPolynomial ℤ) (K0Kar RD k ρ lam) :=
-  haveI := homFinite_UDot (RD := RD) (k := k) hSL ρ lam
+  have := homFinite_UDot (RD := RD) (k := k) hSL ρ lam
   indecBasis k (rigid_UDot hSL)
 
 theorem indecBasisU_apply (hSL : SimplyLaced C) (ρ lam : X)
     (b : IndecClass (UDotHom (pres RD k) (deg RD) (wtObj RD k ρ) (wtObj RD k lam))) :
     indecBasisU hSL ρ lam b = K0U.cl b.rep := by
-  haveI := homFinite_UDot (RD := RD) (k := k) hSL ρ lam
+  have := homFinite_UDot (RD := RD) (k := k) hSL ρ lam
   exact indecBasis_apply k (rigid_UDot hSL) b
 
 /-- **`K₀(U̇(λ, ρ))` is a free `ℤ[q, q⁻¹]`-module** (KL III §3.6). -/
@@ -241,7 +245,7 @@ theorem K0Kar_free (hSL : SimplyLaced C) (ρ lam : X) :
 `Categorification.Diagrams.KL3.GammaIntegral`). -/
 theorem K0Kar_torsionFree (hSL : SimplyLaced C) (ρ lam : X) :
     ∀ p ∈ nonZeroDivisors (LaurentPolynomial ℤ), ∀ x : K0Kar RD k ρ lam, p • x = 0 → x = 0 := by
-  haveI := homFinite_UDot (RD := RD) (k := k) hSL ρ lam
+  have := homFinite_UDot (RD := RD) (k := k) hSL ρ lam
   exact fun p hp x h => eq_zero_of_smul_eq_zero k (rigid_UDot hSL) hp h
 
 end Finite

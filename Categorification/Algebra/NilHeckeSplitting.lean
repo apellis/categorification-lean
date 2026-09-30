@@ -64,7 +64,7 @@ variable [DecidableEq σ] {a b : σ}
 private theorem degree_erase_erase (hab : a ≠ b) (s : σ →₀ ℕ) :
     ((s.erase a).erase b).degree + s a + s b = s.degree := by
   conv_rhs => rw [← erase_add_single hab s]
-  rw [Finsupp.degree_add, Finsupp.degree_add, Finsupp.degree_single, Finsupp.degree_single]
+  rw [map_add, map_add, Finsupp.degree_single, Finsupp.degree_single]
 
 omit [DecidableEq σ] in
 private theorem isHomogeneous_ddiffMonomial_aux (r : MvPolynomial σ k) {e : ℕ}
@@ -100,10 +100,10 @@ theorem ddiff_isHomogeneous (hab : a ≠ b) {f : MvPolynomial σ k} {d : ℕ}
     (hf : f.IsHomogeneous (d + 1)) : (ddiff a b f).IsHomogeneous d := by
   rw [f.as_sum, map_sum]
   refine IsHomogeneous.sum _ _ _ fun s hs => ?_
-  have hc : (monomial s (coeff s f) : MvPolynomial σ k) = coeff s f • monomial s 1 := by
+  have hc : (monomial s (f.coeff s) : MvPolynomial σ k) = f.coeff s • monomial s 1 := by
     rw [smul_monomial, smul_eq_mul, mul_one]
   rw [hc, map_smul, ddiff_monomial_one, smul_eq_C_mul]
-  have := (isHomogeneous_C σ (coeff s f)).mul
+  have := (isHomogeneous_C σ (f.coeff s)).mul
     (isHomogeneous_ddiffMonomial (k := k) (d := d) hab s (by
       rw [Finsupp.degree_eq_weight_one]; exact hf (mem_support_iff.1 hs)))
   rwa [zero_add] at this
@@ -262,10 +262,10 @@ theorem exists_sum_mul_pow_last_of_mem {n : ℕ} {g : MvPolynomial (Fin (n + 1))
   let S : Submonoid (Perm (Fin n)) :=
     { carrier := {σ | rename (extendLastPerm σ) g = g}
       mul_mem' := fun {σ τ} hσ hτ => by
-        simp only [Set.mem_setOf_eq] at *
+        simp only [Set.mem_ofPred_eq] at *
         rw [extendLastPerm_mul, Perm.coe_mul, ← rename_rename, hτ, hσ]
       one_mem' := by
-        simp only [Set.mem_setOf_eq]
+        simp only [Set.mem_ofPred_eq]
         have : extendLastPerm (1 : Perm (Fin n)) = 1 := by
           ext x
           induction x using Fin.lastCases with
@@ -282,6 +282,7 @@ theorem exists_sum_mul_pow_last_of_mem {n : ℕ} {g : MvPolynomial (Fin (n + 1))
         rw [extendLastPerm_swap]
         have := hg i (by omega) (by omega)
         convert this using 3
+        congr 1
       rw [Perm.mclosure_swap_castSucc_succ] at hle
       exact hle (Submonoid.mem_top σ)
   exact hS
@@ -322,7 +323,7 @@ theorem choose_two_succ (n : ℕ) : (n + 1).choose 2 = n.choose 2 + n := by
 theorem isHomogeneous_xDelta : (xDelta (k := k) (m := n + 1) n).IsHomogeneous (n.choose 2) := by
   have : ∑ a : Fin (n + 1), (n - 1 - (a : ℕ)) = n.choose 2 := by
     rw [Fin.sum_univ_castSucc]
-    simp only [Fin.coe_castSucc, Fin.val_last]
+    simp only [Fin.val_castSucc, Fin.val_last]
     rw [show n - 1 - n = 0 by omega, add_zero,
       Fin.sum_univ_eq_sum_range (fun a => n - 1 - a) n, Finset.sum_range_reflect (fun j => j) n,
       Finset.sum_range_id, Nat.choose_two_right]
@@ -365,17 +366,17 @@ theorem exists_nhPair_pow_eq_C :
     ∃ u : kˣ, nhPair k n ((X (Fin.last n)) ^ n) = C (u : k) := by
   have h0 := nhPair_pow_isHomogeneous (k := k) (n := n) 0
   rw [add_zero, ← totalDegree_zero_iff_isHomogeneous, totalDegree_eq_zero_iff_eq_C] at h0
-  set u0 := coeff 0 (nhPair k n ((X (Fin.last n)) ^ n))
+  set u0 := (nhPair k n ((X (Fin.last n)) ^ n)).coeff 0
   obtain ⟨s, hs, hsum⟩ := exists_sum_mul_pow_last_of_mem (xPre_mem_adjInv (k := k) (n := n))
   have h1 := nhPair_xPre (k := k) (n := n)
   rw [← hsum, map_sum, Fin.sum_univ_castSucc] at h1
-  simp only [Fin.coe_castSucc, Fin.val_last] at h1
+  simp only [Fin.val_castSucc, Fin.val_last] at h1
   rw [Finset.sum_eq_zero (fun j _ => by
     rw [nhPair_mul_of_mem (mem_adjInv_of_isSymmetric (hs _)), nhPair_pow_of_lt j.2, mul_zero]),
     zero_add, nhPair_mul_of_mem (mem_adjInv_of_isSymmetric (hs _)), h0] at h1
-  have h2 := congrArg (coeff 0) h1
-  rw [mul_comm, coeff_C_mul, coeff_one, if_pos rfl] at h2
-  refine ⟨(isUnit_of_mul_eq_one _ _ h2).unit, ?_⟩
+  have h2 := congrArg (fun p : MvPolynomial (Fin (n + 1)) k => p.coeff 0) h1
+  rw [mul_comm, coeff_C_mul, coeff_one, ite_eq_left rfl] at h2
+  refine ⟨(IsUnit.of_mul_eq_one _ h2).unit, ?_⟩
   rw [IsUnit.unit_spec]
   exact h0
 
@@ -400,7 +401,7 @@ noncomputable def nhSerInv : PowerSeries (MvPolynomial (Fin (n + 1)) k) :=
 `∑_s d_s t^s = (∑_r ∂_{w_0}(x^{δ'} y^{n+r}) t^r)⁻¹`; see `nhPair_nhDual_mul_pow`. -/
 noncomputable def nhDual (i : ℕ) : MvPolynomial (Fin (n + 1)) k :=
   ∑ s ∈ Finset.range (n - i + 1),
-    PowerSeries.coeff _ s (nhSerInv k n) * (X (Fin.last n)) ^ (n - i - s)
+    PowerSeries.coeff s (nhSerInv k n) * (X (Fin.last n)) ^ (n - i - s)
 
 variable {k n}
 
@@ -410,15 +411,15 @@ theorem nhSerInv_mul_nhSer : nhSerInv k n * nhSer k n = 1 :=
       nhPair_pow_self]; rfl)
 
 theorem coeff_nhSerInv (s : ℕ) :
-    PowerSeries.coeff _ s (nhSerInv k n) = if s = 0 then C (((nhUnit k n)⁻¹ : kˣ) : k) else
-      -C (((nhUnit k n)⁻¹ : kˣ) : k) * ∑ x ∈ Finset.antidiagonal s, if x.2 < s then
-        PowerSeries.coeff _ x.1 (nhSer k n) * PowerSeries.coeff _ x.2 (nhSerInv k n) else 0 := by
+    PowerSeries.coeff s (nhSerInv k n) = if s = 0 then C (((nhUnit k n)⁻¹ : kˣ) : k) else
+      -C (((nhUnit k n)⁻¹ : kˣ) : k) * ∑ x ∈ Finset.HasAntidiagonal.antidiagonal s, if x.2 < s then
+        PowerSeries.coeff x.1 (nhSer k n) * PowerSeries.coeff x.2 (nhSerInv k n) else 0 := by
   rw [nhSerInv, PowerSeries.coeff_invOfUnit, Units.coe_map_inv]
   rfl
 
 theorem coeff_nhSerInv_mem (s : ℕ) :
-    PowerSeries.coeff _ s (nhSerInv k n) ∈ adjInv k (n + 1) (n + 1) ∧
-      (PowerSeries.coeff _ s (nhSerInv k n)).IsHomogeneous s := by
+    PowerSeries.coeff s (nhSerInv k n) ∈ adjInv k (n + 1) (n + 1) ∧
+      (PowerSeries.coeff s (nhSerInv k n)).IsHomogeneous s := by
   induction s using Nat.strong_induction_on with
   | _ s ih =>
     rw [coeff_nhSerInv]
@@ -431,13 +432,12 @@ theorem coeff_nhSerInv_mem (s : ℕ) :
           rw [nhSer, PowerSeries.coeff_mk]; exact nhPair_mem_adjInv _ _
         · exact Subalgebra.zero_mem _
       · have := ((isHomogeneous_C (σ := Fin (n + 1)) (-((nhUnit k n)⁻¹ : kˣ) : k))).mul
-          (IsHomogeneous.sum (Finset.antidiagonal s) (fun x => if x.2 < s then
-            PowerSeries.coeff _ x.1 (nhSer k n) * PowerSeries.coeff _ x.2 (nhSerInv k n) else 0)
+          (IsHomogeneous.sum (Finset.HasAntidiagonal.antidiagonal s) (fun x => if x.2 < s then
+            PowerSeries.coeff x.1 (nhSer k n) * PowerSeries.coeff x.2 (nhSerInv k n) else 0)
             s fun x hx => by
-            dsimp only
             split_ifs with h2
             · have h3 := (nhPair_pow_isHomogeneous (k := k) (n := n) x.1).mul (ih x.2 h2).2
-              rw [Finset.mem_antidiagonal] at hx
+              rw [Finset.HasAntidiagonal.mem_antidiagonal] at hx
               rw [hx] at h3
               rw [nhSer, PowerSeries.coeff_mk]; exact h3
             · exact isHomogeneous_zero _ _ _)
@@ -445,7 +445,7 @@ theorem coeff_nhSerInv_mem (s : ℕ) :
         exact this
 
 theorem coeff_nhSerInv_mem_adjInv (s : ℕ) :
-    PowerSeries.coeff _ s (nhSerInv k n) ∈ adjInv k (n + 1) (n + 1) :=
+    PowerSeries.coeff s (nhSerInv k n) ∈ adjInv k (n + 1) (n + 1) :=
   (coeff_nhSerInv_mem s).1
 
 theorem isHomogeneous_nhDual {i : ℕ} (hi : i ≤ n) : (nhDual k n i).IsHomogeneous (n - i) := by
@@ -461,7 +461,7 @@ theorem nhDual_mem_adjInv (i : ℕ) : nhDual k n i ∈ adjInv k (n + 1) n :=
 
 /-- `∂_{w_0}(x^{δ'} y^{n + r})` in terms of the series. -/
 theorem nhPair_pow_eq_coeff (r : ℕ) :
-    nhPair k n ((X (Fin.last n)) ^ (n + r)) = PowerSeries.coeff _ r (nhSer k n) := by
+    nhPair k n ((X (Fin.last n)) ^ (n + r)) = PowerSeries.coeff r (nhSer k n) := by
   rw [nhSer, PowerSeries.coeff_mk]
 
 /-- **Duality**: `∂_{w_0}(x^{δ'} Q_i y^j) = δ_{ij}` for `i, j ≤ n`. -/
@@ -469,10 +469,10 @@ theorem nhPair_nhDual_mul_pow {i j : ℕ} (hi : i ≤ n) (hj : j ≤ n) :
     nhPair k n (nhDual k n i * (X (Fin.last n)) ^ j) = if i = j then 1 else 0 := by
   rw [nhDual, Finset.sum_mul, map_sum]
   have hterm : ∀ s ∈ Finset.range (n - i + 1),
-      nhPair k n (PowerSeries.coeff _ s (nhSerInv k n) * (X (Fin.last n)) ^ (n - i - s) *
+      nhPair k n (PowerSeries.coeff s (nhSerInv k n) * (X (Fin.last n)) ^ (n - i - s) *
         (X (Fin.last n)) ^ j) =
-      if i + s ≤ j then PowerSeries.coeff _ s (nhSerInv k n) *
-        PowerSeries.coeff _ (j - i - s) (nhSer k n) else 0 := by
+      if i + s ≤ j then PowerSeries.coeff s (nhSerInv k n) *
+        PowerSeries.coeff (j - i - s) (nhSer k n) else 0 := by
     intro s hs
     rw [Finset.mem_range] at hs
     rw [mul_assoc, nhPair_mul_of_mem (coeff_nhSerInv_mem_adjInv s), ← pow_add]
@@ -482,23 +482,23 @@ theorem nhPair_nhDual_mul_pow {i j : ℕ} (hi : i ≤ n) (hj : j ≤ n) :
   rw [Finset.sum_congr rfl hterm]
   by_cases hij : i ≤ j
   · have h1 : ∑ s ∈ Finset.range (n - i + 1), (if i + s ≤ j then
-        PowerSeries.coeff _ s (nhSerInv k n) * PowerSeries.coeff _ (j - i - s) (nhSer k n)
+        PowerSeries.coeff s (nhSerInv k n) * PowerSeries.coeff (j - i - s) (nhSer k n)
         else 0) = ∑ s ∈ Finset.range (j - i + 1),
-        PowerSeries.coeff _ s (nhSerInv k n) * PowerSeries.coeff _ (j - i - s) (nhSer k n) := by
+        PowerSeries.coeff s (nhSerInv k n) * PowerSeries.coeff (j - i - s) (nhSer k n) := by
       rw [← Finset.sum_range_add_sum_Ico _ (show j - i + 1 ≤ n - i + 1 by omega)]
       rw [Finset.sum_eq_zero (s := Finset.Ico (j - i + 1) (n - i + 1)) (fun s hs => by
-        rw [Finset.mem_Ico] at hs; exact if_neg (by omega)), add_zero]
+        rw [Finset.mem_Ico] at hs; exact ite_eq_right (by omega)), add_zero]
       refine Finset.sum_congr rfl fun s hs => ?_
       rw [Finset.mem_range] at hs
-      exact if_pos (by omega)
+      exact ite_eq_left (by omega)
     rw [h1, ← Finset.Nat.sum_antidiagonal_eq_sum_range_succ (fun s t =>
-      PowerSeries.coeff _ s (nhSerInv k n) * PowerSeries.coeff _ t (nhSer k n)),
+      PowerSeries.coeff s (nhSerInv k n) * PowerSeries.coeff t (nhSer k n)),
       ← PowerSeries.coeff_mul, nhSerInv_mul_nhSer, PowerSeries.coeff_one]
     by_cases h : i = j
-    · rw [if_pos (by omega), if_pos h]
-    · rw [if_neg (by omega), if_neg h]
-  · rw [if_neg (by omega)]
-    exact Finset.sum_eq_zero fun s _ => if_neg (by omega)
+    · rw [ite_eq_left (by omega), ite_eq_left h]
+    · rw [ite_eq_right (by omega), ite_eq_right h]
+  · rw [ite_eq_right (by omega)]
+    exact Finset.sum_eq_zero fun s _ => ite_eq_right (by omega)
 
 /-- **Reconstruction**: `g = ∑_{j ≤ n} y^j ∂_{w_0}(x^{δ'} Q_j g)` for `g` symmetric in
 `x_0, …, x_{n-1}`. -/
@@ -510,10 +510,10 @@ theorem sum_pow_mul_nhPair {g : MvPolynomial (Fin (n + 1)) k} (hg : g ∈ adjInv
     rw [← hsum, Finset.mul_sum, map_sum]
     rw [Finset.sum_eq_single j (fun l _ hlj => by
       rw [mul_left_comm, nhPair_mul_of_mem (mem_adjInv_of_isSymmetric (hs l)),
-        nhPair_nhDual_mul_pow (by omega) (by omega), if_neg (fun h => hlj (Fin.ext h.symm)),
+        nhPair_nhDual_mul_pow (by omega) (by omega), ite_eq_right (fun h => hlj (Fin.ext h.symm)),
         mul_zero]) (fun h => absurd (Finset.mem_univ j) h)]
     rw [mul_left_comm, nhPair_mul_of_mem (mem_adjInv_of_isSymmetric (hs j)),
-      nhPair_nhDual_mul_pow (by omega) (by omega), if_pos rfl, mul_one]
+      nhPair_nhDual_mul_pow (by omega) (by omega), ite_eq_left rfl, mul_one]
   simp_rw [hc]
   rw [← hsum]
   exact Finset.sum_congr rfl fun j _ => mul_comm _ _

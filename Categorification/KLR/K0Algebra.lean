@@ -30,7 +30,7 @@ noncomputable section
 namespace Categorification.KLR
 
 open scoped TensorProduct
-open KLRAlgebra MulOpposite Graded
+open KLRAlgebra MulOpposite Categorification.Graded
 
 variable {I : Type*} [DecidableEq I] {k : Type*} [CommRing k] {Q : I → I → MvPolynomial (Fin 2) k}
 
@@ -333,21 +333,21 @@ instance gAlgebraK0 : DirectSum.GAlgebra (LaurentPolynomial ℤ) G.K0fam where
     show GradedMonoid.mk (A := G.K0fam) 0 ((r * s) • G.K0one) = GradedMonoid.mk (0 + 0)
       (G.indK0 0 0 (r • G.K0one) (s • G.K0one))
     rw [G.mk_K0cast (zero_add (0 : Multiset I))]
-    simp only [LinearMap.map_smul₂, LinearMap.map_smul, LinearMap.smul_apply, K0cast_smul]
+    simp only [LinearMap.map_smul, LinearMap.smul_apply, K0cast_smul]
     rw [K0one, indK0_one_left, mul_smul]
   commutes r x := by
     obtain ⟨ν, x⟩ := x
     show GradedMonoid.mk (A := G.K0fam) (0 + ν) (G.indK0 0 ν (r • G.K0one) x) =
       GradedMonoid.mk (ν + 0) (G.indK0 ν 0 x (r • G.K0one))
     rw [G.mk_K0cast (zero_add ν), G.mk_K0cast (add_zero ν)]
-    simp only [LinearMap.map_smul₂, LinearMap.map_smul, LinearMap.smul_apply, K0cast_smul]
+    simp only [LinearMap.map_smul, LinearMap.smul_apply, K0cast_smul]
     rw [K0one, indK0_one_left, indK0_one_right]
   smul_def r x := by
     obtain ⟨ν, x⟩ := x
     show GradedMonoid.mk (A := G.K0fam) ν (r • x) =
       GradedMonoid.mk (0 + ν) (G.indK0 0 ν (r • G.K0one) x)
     rw [G.mk_K0cast (zero_add ν)]
-    simp only [LinearMap.map_smul₂, LinearMap.smul_apply, K0cast_smul]
+    simp only [LinearMap.map_smul₂, K0cast_smul]
     rw [K0one, indK0_one_left]
 
 /-- **The Grothendieck algebra** `K₀(R) = ⨁_{ν ∈ ℕ[I]} K₀(R(ν))` (KL I, §3.1): an associative

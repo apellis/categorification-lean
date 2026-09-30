@@ -250,8 +250,8 @@ algebra with a graded dimension. -/
 theorem finiteDimensional_endZero (𝒜 : ℤ → Submodule k A) [GradedAlgebra 𝒜] [HasGdim 𝒜]
     (ℳ : ℤ → Submodule k M) [Decomposition ℳ] [SetLike.GradedSMul 𝒜 ℳ] [Module.Finite A M] :
     FiniteDimensional k (endZero A ℳ) := by
-  haveI := hasGdim_of_finite 𝒜 ℳ
-  haveI := hasGdim_homGrade (A := A) ℳ ℳ
+  have := hasGdim_of_finite 𝒜 ℳ
+  have := hasGdim_homGrade (A := A) ℳ ℳ
   exact FiniteDimensional.of_injective _ (endZeroToHomGrade_injective ℳ)
 
 end EndZero
@@ -289,13 +289,13 @@ theorem isInternal_quotGradingA (hN : N.IsHomogeneous ℳ) : IsInternal (quotGra
     obtain ⟨y, hy, rfl⟩ := hx
     have hx'' : N.mkQ y ∈ (⨆ (j) (_ : j ≠ d), ℳ j).map (N.mkQ.restrictScalars k) := by
       rw [Submodule.map_iSup]
-      simpa only [Submodule.map_iSup] using hx'
+      simpa only [Submodule.map_iSup, quotGradingA, LinearMap.restrictScalars_apply] using hx'
     obtain ⟨z, hz, hzy⟩ := hx''
     have hyz : y - z ∈ N := by
       rw [← Submodule.Quotient.eq]
       exact hzy.symm
     have := hN d hyz
-    rw [decompose_sub, sub_apply, Submodule.coe_sub, decompose_of_mem_same ℳ hy,
+    rw [decompose_sub, DirectSum.sub_apply, Submodule.coe_sub, decompose_of_mem_same ℳ hy,
       decompose_eq_zero_of_mem_iSup_ne ℳ hz, sub_zero] at this
     exact (Submodule.Quotient.mk_eq_zero N).2 this
   · show ⨆ d, (ℳ d).map (N.mkQ.restrictScalars k) = ⊤
@@ -303,7 +303,8 @@ theorem isInternal_quotGradingA (hN : N.IsHomogeneous ℳ) : IsInternal (quotGra
       LinearMap.range_restrictScalars, Submodule.range_mkQ, Submodule.restrictScalars_top]
 
 /-- The graded structure of `M ⧸ N` for a homogeneous `N`. -/
-def quotDecompositionA (hN : N.IsHomogeneous ℳ) : Decomposition (quotGradingA ℳ N) :=
+@[instance_reducible] def quotDecompositionA (hN : N.IsHomogeneous ℳ) :
+    Decomposition (quotGradingA ℳ N) :=
   (isInternal_quotGradingA ℳ N hN).chooseDecomposition
 
 omit [Algebra k A] [IsScalarTower k A M] in
@@ -329,10 +330,10 @@ theorem exists_isHomogeneous_maximal [Module.Finite A M] [Nontrivial M] :
       obtain ⟨N, hNc, hmN⟩ := (Submodule.mem_sSup_of_directed hne hdir).1 hm
       exact le_sSup hNc ((hc hNc).1 i hmN)
     · intro htop
-      have hcpt : CompleteLattice.IsCompactElement (⊤ : Submodule A M) :=
+      have hcpt : IsCompactElement (⊤ : Submodule A M) :=
         (Submodule.fg_iff_compact _).1 Module.Finite.fg_top
       obtain ⟨N, hNc, hN⟩ :=
-        (CompleteLattice.isCompactElement_iff_le_of_directed_sSup_le _ _).1 hcpt c hne hdir htop.ge
+        (isCompactElement_iff_le_of_directed_sSup_le _).1 hcpt c hne hdir htop.ge
       exact (hc hNc).2 (top_le_iff.1 hN)
   obtain ⟨N, -, hN, hmax⟩ := zorn_le_nonempty₀
     {N : Submodule A M | N.IsHomogeneous ℳ ∧ N ≠ ⊤} ih ⊥ ⟨isHomogeneous_bot ℳ, bot_ne_top⟩
@@ -344,10 +345,10 @@ theorem exists_isHomogeneous_maximal [Module.Finite A M] [Nontrivial M] :
 /-- The quotient by a maximal proper homogeneous submodule is graded simple. -/
 theorem isGradedSimple_quot (hN : N.IsHomogeneous ℳ) (hNtop : N ≠ ⊤)
     (hmax : ∀ N' : Submodule A M, N'.IsHomogeneous ℳ → N ≤ N' → N' = N ∨ N' = ⊤) :
-    letI := quotDecompositionA ℳ N hN
+    let := quotDecompositionA ℳ N hN
     IsGradedSimple 𝒜 (quotGradingA ℳ N) := by
-  letI := quotDecompositionA ℳ N hN
-  refine ⟨Submodule.Quotient.nontrivial_of_lt_top N hNtop.lt_top, fun W hW => ?_⟩
+  let := quotDecompositionA ℳ N hN
+  refine ⟨Submodule.Quotient.nontrivial_iff.2 hNtop, fun W hW => ?_⟩
   have hcomap : (W.comap N.mkQ).IsHomogeneous ℳ := fun i x hx => by
     show N.mkQ _ ∈ W
     rw [← decompose_map (preservesGrading_mkQ ℳ N)]
@@ -387,7 +388,7 @@ theorem eq_zero_of_gradedEquiv_shift_of_hasGdim (ℳ : ℤ → Submodule k M) [D
   have hex : ∃ d, ℳ d ≠ ⊥ := by
     obtain ⟨m, hm⟩ := exists_ne (0 : M)
     by_contra h
-    push_neg at h
+    push Not at h
     apply hm
     rw [← sum_support_decompose ℳ m]
     refine Finset.sum_eq_zero fun j _ => ?_
@@ -508,7 +509,7 @@ theorem exists_isGradedSimple_quotient (Q : GProj 𝒜) [Nontrivial Q.carrier] :
     ∃ (S : GMod 𝒜) (f : Q.carrier →ₗ[A] S), IsGradedSimple 𝒜 S.grading ∧
       PreservesGrading Q.grading S.grading f ∧ f ≠ 0 ∧ Module.Finite A S := by
   obtain ⟨N, hN, hNtop, hmax⟩ := exists_isHomogeneous_maximal (A := A) Q.grading
-  letI := quotDecompositionA Q.grading N hN
+  let := quotDecompositionA Q.grading N hN
   refine ⟨GMod.of (Q.carrier ⧸ N) (quotGradingA Q.grading N), N.mkQ,
     isGradedSimple_quot 𝒜 Q.grading N hN hNtop hmax, preservesGrading_mkQ Q.grading N, ?_,
     inferInstanceAs (Module.Finite A (Q.carrier ⧸ N))⟩
@@ -551,7 +552,7 @@ theorem IsIndec.ker_le_ker {Q : GProj 𝒜} (hQ : Q.IsIndec A)
       rw [h, Submodule.mem_bot] at this
       exact this
     · exact h
-  letI := submoduleDecomposition Q.grading hK
+  let := submoduleDecomposition Q.grading hK
   have hι : PreservesGrading (Graded.submodule Q.grading K) 𝒮' (f' ∘ₗ K.subtype) :=
     fun _ _ hx => hf' hx
   have hιs : Surjective (f' ∘ₗ K.subtype) := by

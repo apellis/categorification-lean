@@ -24,6 +24,9 @@ right-hand side, since the dot of `E_i` is a root of the total Chern class of th
 block (`curlR_rhs_degenerate`, `curlL_rhs_degenerate`).
 -/
 
+-- Preserve elaboration of semireducible diagram transports.
+set_option backward.isDefEq.respectTransparency false
+
 noncomputable section
 
 namespace Categorification.Flag

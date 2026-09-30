@@ -43,9 +43,9 @@ variable (Q) in
 /-- The additive subgroup `1_{ν,ν'} N = {n | 1_{ν,ν'} n = n}`. -/
 def resSubgroup : AddSubgroup N where
   carrier := {n | oneConcat Q ν ν' • n = n}
-  add_mem' ha hb := by simp only [Set.mem_setOf_eq, smul_add] at *; rw [ha, hb]
+  add_mem' ha hb := by simp only [Set.mem_ofPred_eq, smul_add] at *; rw [ha, hb]
   zero_mem' := smul_zero _
-  neg_mem' ha := by simp only [Set.mem_setOf_eq, smul_neg] at *; rw [ha]
+  neg_mem' ha := by simp only [Set.mem_ofPred_eq, smul_neg] at *; rw [ha]
 
 variable (Q) in
 /-- The restriction `Res_{ν,ν'} N = 1_{ν,ν'} N`. -/
@@ -149,8 +149,8 @@ theorem res_projective (N : Type*) [AddCommGroup N] [Module (KLRAlgebra k Q (ν 
     [Module.Projective (KLRAlgebra k Q (ν + ν')) N] :
     Module.Projective (KLRAlgebra k Q ν ⊗[k] KLRAlgebra k Q ν') (Res Q ν ν' N) := by
   obtain ⟨s, hs⟩ := Module.projective_def'.1 ‹Module.Projective (KLRAlgebra k Q (ν + ν')) N›
-  haveI := free_oneConcat (ν := ν) (ν' := ν') hPQ hP
-  haveI : Module.Projective (KLRAlgebra k Q ν ⊗[k] KLRAlgebra k Q ν')
+  have := free_oneConcat (ν := ν) (ν' := ν') hPQ hP
+  have : Module.Projective (KLRAlgebra k Q ν ⊗[k] KLRAlgebra k Q ν')
       (Res Q ν ν' (N →₀ KLRAlgebra k Q (ν + ν'))) :=
     Module.Projective.of_equiv (resFinsuppEquiv N).symm
   refine Module.Projective.of_split (resMap s)

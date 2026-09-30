@@ -191,7 +191,7 @@ theorem pairSum_comm (ℓ : I → ℤ) (L : Fin (m + 2) → Bool × I) (i j : I)
     have hemb : (L ∘ τ) ∘ rmEmb p = L ∘ rmEmb p := funext fun x => by
       exact congrArg L (swap_emb hp x)
     rw [hemb] at G'
-    rw [G, G', if_pos rfl]
+    rw [G, G', ite_eq_left rfl]
     have hcup : cupDeg C ℓ L P0 P1 = di C j * (1 - wR C ℓ L P1 j) := by
       simp [cupDeg, hL0]
     have hcup' : cupDeg C ℓ (L ∘ τ) P0 P1 = di C j * (1 + wR C ℓ L P1 j) := by
@@ -220,7 +220,7 @@ theorem pairSum_comm (ℓ : I → ℤ) (L : Fin (m + 2) → Bool × I) (i j : I)
       Finset.filter_eq_empty_iff.2 fun σ hσ e => hji (by
         have := (mem_matchings.1 hσ).col P0
         rw [e] at this; simp [hτ0, hτ1, hL0, hL1] at this; exact this.symm)
-    rw [e0, e1, if_neg hji, Finset.sum_empty, Finset.sum_empty]
+    rw [e0, e1, ite_eq_right hji, Finset.sum_empty, Finset.sum_empty]
     ring
 
 end Comm
@@ -249,7 +249,7 @@ theorem block_exponent (ℓ : I → ℤ) (cc bb : Fin m → I) (w : Perm (Fin m)
     simp only [Function.comp_apply, Multiset.map_coe, Multiset.sum_coe, List.map_ofFn,
       List.sum_ofFn]
     rw [← Equiv.sum_comp e]
-    simp only [Function.comp_apply, he]
+    simp only [he]
   have hInv : invWt C.dot bb w = ∑ x, ∑ y, if x < y ∧ w y < w x then C.dot (bb x) (bb y) else 0 := by
     rw [invWt, TypeA.invSet, Finset.sum_filter, ← Finset.univ_product_univ, Finset.sum_product]
     refine Finset.sum_congr rfl fun x _ => Finset.sum_congr rfl fun y _ => ?_
@@ -280,7 +280,7 @@ theorem block_exponent (ℓ : I → ℤ) (cc bb : Fin m → I) (w : Perm (Fin m)
     have hdiag : ∑ x, ∑ y, (if x = y then C.dot (bb x) (bb y) else 0) = 2 * ∑ x, di C (bb x) := by
       rw [Finset.mul_sum]
       refine Finset.sum_congr rfl fun x _ => ?_
-      rw [Finset.sum_ite_eq, if_pos (Finset.mem_univ _), two_mul_di]
+      rw [Finset.sum_ite_eq, ite_eq_left (Finset.mem_univ _), two_mul_di]
     rw [hdiag]
     ring
   have h2 := two_mul_hsq C (List.ofFn cc : Multiset I)
@@ -299,7 +299,7 @@ theorem pairSum_block (ℓ : I → ℤ) (cc bb : Fin m → I) :
   rw [← Finset.sum_filter_add_sum_filter_not univ (fun w : Perm (Fin m) =>
     ∀ x, cc (Fin.rev (w x)) = bb x)]
   rw [Finset.sum_eq_zero (s := univ.filter fun w : Perm (Fin m) => ¬ ∀ x, cc (Fin.rev (w x)) = bb x)
-    (fun w hw => by rw [if_neg (Finset.mem_filter.1 hw).2, mul_zero, mul_zero]), add_zero]
+    (fun w hw => by rw [ite_eq_right (Finset.mem_filter.1 hw).2, mul_zero, mul_zero]), add_zero]
   symm
   refine Finset.sum_nbij (fun w => blockPerm w) (fun w hw => ?_) (fun w _ w' _ h => ?_)
     (fun σ hσ => ?_) (fun w hw => ?_)
@@ -308,7 +308,7 @@ theorem pairSum_block (ℓ : I → ℤ) (cc bb : Fin m → I) :
   · obtain ⟨w, hw, rfl⟩ := exists_blockPerm (mem_matchings.1 hσ)
     exact ⟨w, Finset.mem_filter.2 ⟨Finset.mem_univ _, hw⟩, rfl⟩
   · have hw' := (Finset.mem_filter.1 hw).2
-    rw [if_pos hw', mdeg_blockPerm C hw' ℓ, arcProd_blockPerm c hw',
+    rw [ite_eq_left hw', mdeg_blockPerm C hw' ℓ, arcProd_blockPerm c hw',
       block_exponent C ℓ cc bb w hw', sub_eq_add_neg, qp_add]
     have : ((q⁻¹ ^ invWt C.dot bb w : Kˣ) : K) = qp q (-invWt C.dot bb w) := by
       rw [qp, inv_zpow', zpow_neg]
@@ -321,7 +321,7 @@ theorem pairSum_block' (ℓ : I → ℤ) {m₁ m₂ : ℕ} (cc : Fin m₁ → I)
         fF C q c (wordFn bb) (wordFn fun y => cc (Fin.rev y)) := by
   by_cases h : m₁ = m₂
   · subst h; exact pairSum_block C q c ℓ cc bb
-  · have h0 : matchings (blockWord cc bb) = ∅ := Finset.eq_empty_of_forall_not_mem fun σ hσ =>
+  · have h0 : matchings (blockWord cc bb) = ∅ := Finset.eq_empty_of_forall_notMem fun σ hσ =>
       h (card_eq_of_isMatching (mem_matchings.1 hσ))
     rw [pairSum, h0, Finset.sum_empty, fF, wordFn, wordFn, form_eq_zero_of_wt_ne, mul_zero]
     intro e
@@ -350,11 +350,11 @@ theorem pairSumL_block (ℓ : I → ℤ) (c' b : List I) :
     funext z
     refine Fin.addCases (fun k => ?_) (fun x => ?_) z
     · rw [blockWord_left]
-      simp only [List.get_eq_getElem, Fin.coe_cast, Fin.coe_castAdd]
+      simp only [List.get_eq_getElem, Fin.val_cast, Fin.val_castAdd]
       rw [List.getElem_append_left (by simp [negW])]
       simp [negW]
     · rw [blockWord_right]
-      simp only [List.get_eq_getElem, Fin.coe_cast, Fin.coe_natAdd]
+      simp only [List.get_eq_getElem, Fin.val_cast, Fin.val_natAdd]
       rw [List.getElem_append_right (by simp [negW])]
       simp [negW, posW]
   rw [pairSumL, ← pairSum_cast C q c ℓ hlen.symm, hL, pairSum_block']
@@ -412,14 +412,14 @@ theorem pairSumL_comm (ℓ : I → ℤ) (a b : List (Bool × I)) (i j : I) :
   have v0 : (rmP0 a.length hp).val = a.length := rfl
   have v1 : (rmP1 a.length hp).val = a.length + 1 := rfl
   have hL0 : L (rmP0 a.length hp) = (true, i) := by
-    simp only [hLdef, List.get_eq_getElem, Fin.coe_cast, v0, u]; exact getElem_mid_x _ _ _ _ _
+    simp only [hLdef, List.get_eq_getElem, Fin.val_cast, v0, u]; exact getElem_mid_x _ _ _ _ _
   have hL1 : L (rmP1 a.length hp) = (false, j) := by
-    simp only [hLdef, List.get_eq_getElem, Fin.coe_cast, v1, u]; exact getElem_mid_y _ _ _ _ _
+    simp only [hLdef, List.get_eq_getElem, Fin.val_cast, v1, u]; exact getElem_mid_y _ _ _ _ _
   rw [pairSum_comm C q c hp hc hq2 ℓ L i j hL0 hL1]
   have e1 : L ∘ swap (rmP0 a.length hp) (rmP1 a.length hp) =
       fun z => (a ++ (false, j) :: (true, i) :: b).get (Fin.cast hu' z) := by
     funext z
-    simp only [Function.comp_apply, hLdef, List.get_eq_getElem, Fin.coe_cast, u]
+    simp only [Function.comp_apply, hLdef, List.get_eq_getElem, Fin.val_cast, u]
     by_cases h0 : z = rmP0 a.length hp
     · rw [h0, swap_apply_left]; simp only [v0, v1]; rw [getElem_mid_y, getElem_mid_x]
     by_cases h1 : z = rmP1 a.length hp
@@ -432,7 +432,7 @@ theorem pairSumL_comm (ℓ : I → ℤ) (a b : List (Bool × I)) (i j : I) :
     · rw [getElem_mid_right _ _ _ _ (by omega), getElem_mid_right _ _ _ _ (by omega)]
   have e2 : L ∘ rmEmb a.length = fun z => (a ++ b).get (Fin.cast hab z) := by
     funext z
-    simp only [Function.comp_apply, hLdef, List.get_eq_getElem, Fin.coe_cast, u, rmEmb_val]
+    simp only [Function.comp_apply, hLdef, List.get_eq_getElem, Fin.val_cast, u, rmEmb_val]
     split_ifs with hz
     · rw [getElem_mid_left _ _ _ _ hz, List.getElem_append_left hz]
     · rw [getElem_mid_right _ _ _ _ (by omega), List.getElem_append_right (by omega)]
@@ -441,16 +441,16 @@ theorem pairSumL_comm (ℓ : I → ℤ) (a b : List (Bool × I)) (i j : I) :
     rw [wR, wl, aS, ← Fin.sum_univ_fun_getElem b (fun l => sgn l.1 * A C i l.2)]
     congr 1
     refine Finset.sum_bij' (fun r hr => ⟨r.val - (a.length + 2), by
-        have := (Finset.mem_filter.1 hr).2; rw [Fin.lt_iff_val_lt_val, v1] at this
+        have := (Finset.mem_filter.1 hr).2; rw [Fin.lt_def, v1] at this
         have := r.isLt; omega⟩)
       (fun k _ => ⟨k.val + (a.length + 2), by have := k.isLt; omega⟩) (fun _ _ => mem_univ _)
       (fun k _ => ?_) (fun r hr => ?_) (fun k _ => ?_) (fun r hr => ?_)
-    · simp only [Finset.mem_filter, mem_univ, true_and, Fin.lt_iff_val_lt_val, v1]; omega
-    · have := (Finset.mem_filter.1 hr).2; rw [Fin.lt_iff_val_lt_val, v1] at this
+    · simp only [Finset.mem_filter, mem_univ, true_and, Fin.lt_def, v1]; omega
+    · have := (Finset.mem_filter.1 hr).2; rw [Fin.lt_def, v1] at this
       ext; simp only; omega
     · ext; simp
-    · have h' := (Finset.mem_filter.1 hr).2; rw [Fin.lt_iff_val_lt_val, v1] at h'
-      simp only [hLdef, List.get_eq_getElem, Fin.coe_cast, u]
+    · have h' := (Finset.mem_filter.1 hr).2; rw [Fin.lt_def, v1] at h'
+      simp only [hLdef, List.get_eq_getElem, Fin.val_cast, u]
       rw [getElem_mid_right _ _ _ _ (by omega)]
   rw [e1, e2, e3]
 
@@ -469,17 +469,17 @@ theorem sum_gt_get {α : Type*} (u : List α) (r : Fin u.length) (f : α → ℤ
     ∑ r' ∈ univ.filter (r < ·), f (u.get r') = ((u.drop (r.val + 1)).map f).sum := by
   rw [← Fin.sum_univ_fun_getElem (u.drop (r.val + 1)) f]
   refine Finset.sum_bij' (fun r' hr => ⟨r'.val - (r.val + 1), by
-      have := (Finset.mem_filter.1 hr).2; rw [Fin.lt_iff_val_lt_val] at this
+      have := (Finset.mem_filter.1 hr).2; rw [Fin.lt_def] at this
       have := r'.isLt; rw [List.length_drop]; omega⟩)
     (fun k _ => ⟨k.val + (r.val + 1), by
       have := k.isLt; have h2 : (u.drop (r.val + 1)).length = u.length - (r.val + 1) :=
         List.length_drop; omega⟩)
     (fun _ _ => mem_univ _) (fun k _ => ?_) (fun r' hr => ?_) (fun k _ => ?_) (fun r' hr => ?_)
-  · simp only [Finset.mem_filter, mem_univ, true_and, Fin.lt_iff_val_lt_val]; omega
-  · have := (Finset.mem_filter.1 hr).2; rw [Fin.lt_iff_val_lt_val] at this
+  · simp only [Finset.mem_filter, mem_univ, true_and, Fin.lt_def]; omega
+  · have := (Finset.mem_filter.1 hr).2; rw [Fin.lt_def] at this
     ext; simp only; omega
   · ext; simp
-  · have := (Finset.mem_filter.1 hr).2; rw [Fin.lt_iff_val_lt_val] at this
+  · have := (Finset.mem_filter.1 hr).2; rw [Fin.lt_def] at this
     have e : r.val + 1 + (r'.val - (r.val + 1)) = r'.val := by omega
     simp only [List.get_eq_getElem, List.getElem_drop, e]
 
@@ -515,7 +515,7 @@ theorem bendDeg_eq_rcx (ℓ : I → ℤ) (s t : List (Bool × I)) :
       rw [List.getElem_append_right (by omega)]; simp [hlen]
     have hdrop : u.drop (s.length + 1) = t := by
       simp only [u]
-      rw [List.drop_append_eq_append_drop]
+      rw [List.drop_append]
       simp [hlen]
     have hsplit : bendDeg C ℓ (fun p : Fin u.length => u.get p) (s.length + 1) =
         bendDeg C ℓ (fun p : Fin u.length => u.get p) s.length +
@@ -524,7 +524,7 @@ theorem bendDeg_eq_rcx (ℓ : I → ℤ) (s t : List (Bool × I)) :
         ← Finset.sum_erase_add _ _ (mem_univ r0)]
       have e0 : (r0.val < s.length + 1) := by simp [r0]
       have e1 : ¬ (r0.val < s.length) := by simp [r0]
-      rw [if_pos e0, if_neg e1, add_zero]
+      rw [ite_eq_left e0, ite_eq_right e1, add_zero]
       have hsum : ∑ x ∈ univ.erase r0, (if x.val < s.length + 1 then di C (u.get x).2 *
           (1 + sgn (u.get x).1 * wR C ℓ (fun p : Fin u.length => u.get p) x (u.get x).2) else 0) =
           ∑ x ∈ univ.erase r0, (if x.val < s.length then di C (u.get x).2 *
@@ -532,8 +532,8 @@ theorem bendDeg_eq_rcx (ℓ : I → ℤ) (s t : List (Bool × I)) :
         refine Finset.sum_congr rfl fun r hr => ?_
         have hne : r.val ≠ s.length := fun e => (Finset.mem_erase.1 hr).1 (Fin.ext e)
         by_cases h : r.val < s.length
-        · rw [if_pos h, if_pos (by omega)]
-        · rw [if_neg h, if_neg (by omega)]
+        · rw [ite_eq_left h, ite_eq_left (by omega)]
+        · rw [ite_eq_right h, ite_eq_right (by omega)]
       rw [hsum]
       congr 1
       rw [wR_get, hu0]

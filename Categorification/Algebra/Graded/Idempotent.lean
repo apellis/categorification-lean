@@ -234,7 +234,7 @@ theorem of_ofIdempotent_sum {ι : Type*} {e : ι → A} (he : OrthogonalIdempote
     simpa using hX
   | insert j s hj ih =>
     conv_rhs => rw [Finset.sum_insert hj]
-    have hjs : e j * ∑ i ∈ s, e i = 0 := he.mul_sum_of_not_mem hj
+    have hjs : e j * ∑ i ∈ s, e i = 0 := he.mul_sum_of_notMem hj
     have hsj : (∑ i ∈ s, e i) * e j = 0 := by
       rw [Finset.sum_mul]
       exact Finset.sum_eq_zero fun i hi => he.ortho (fun h => hj (h ▸ hi))

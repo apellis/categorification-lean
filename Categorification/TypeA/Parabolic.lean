@@ -55,12 +55,12 @@ theorem blockEquiv_inl_lt_inl {x x' : Fin n} :
 
 theorem blockEquiv_inr_lt_inr {y y' : Fin n'} :
     blockEquiv h (Sum.inr y) < blockEquiv h (Sum.inr y') ↔ y < y' := by
-  rw [Fin.lt_iff_val_lt_val, Fin.lt_iff_val_lt_val, blockEquiv_inr_val, blockEquiv_inr_val]
+  rw [Fin.lt_def, Fin.lt_def, blockEquiv_inr_val, blockEquiv_inr_val]
   omega
 
 theorem blockEquiv_inl_lt_inr (x : Fin n) (y : Fin n') :
     blockEquiv h (Sum.inl x) < blockEquiv h (Sum.inr y) := by
-  simp only [Fin.lt_iff_val_lt_val, blockEquiv_inl_val, blockEquiv_inr_val]; omega
+  simp only [Fin.lt_def, blockEquiv_inl_val, blockEquiv_inr_val]; omega
 
 theorem not_blockEquiv_inr_lt_inl (x : Fin n) (y : Fin n') :
     ¬ blockEquiv h (Sum.inr y) < blockEquiv h (Sum.inl x) :=
@@ -195,8 +195,8 @@ private theorem invCount_mul_blockPerm_aux (g : Perm (Fin m)) (a : Perm (Fin n))
   rw [invCount_eq_sum, ← (blockEquiv h).sum_comp, Fintype.sum_sum_type]
   simp only [← (blockEquiv h).sum_comp, Fintype.sum_sum_type, Perm.mul_apply, blockPerm_inl,
     blockPerm_inr, blockEquiv_inl_lt_inl, blockEquiv_inr_lt_inr, hg₁.lt_iff_lt, hg₂.lt_iff_lt,
-    not_blockEquiv_inr_lt_inl, blockEquiv_inl_lt_inr, true_and, false_and, if_false,
-    Finset.sum_const_zero, add_zero]
+    not_blockEquiv_inr_lt_inl, blockEquiv_inl_lt_inr, true_and, false_and, ite_false,
+    Finset.sum_const_zero]
   rw [invCount_eq_sum, invCount_eq_sum]
   have hcross : (∑ x : Fin n, ∑ y : Fin n',
       if g (blockEquiv h (Sum.inr (b y))) < g (blockEquiv h (Sum.inl (a x))) then 1 else 0) =

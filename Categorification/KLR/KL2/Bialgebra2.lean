@@ -69,7 +69,7 @@ noncomputable section
 
 namespace Categorification.KLR
 
-open Graded GProj QuantumGroup PreF LaurentPolynomial KLRAlgebra
+open Categorification.Graded GProj QuantumGroup PreF LaurentPolynomial KLRAlgebra
 open scoped TensorProduct
 
 local notation "LP" => LaurentPolynomial ℤ
@@ -137,8 +137,8 @@ theorem exists_smul_mem_range_gammaG_of_div (x : G.K0R) :
     induction z using DirectSum.induction_on with
     | zero => exact S.zero_mem
     | of ν x =>
-      haveI := (G.finite_and_card_indecClass_le hPQ hP hG ν).1
-      haveI := Fintype.ofFinite (GProj.IndecClass (G.grade ν))
+      have := (G.finite_and_card_indecClass_le hPQ hP hG ν).1
+      have := Fintype.ofFinite (GProj.IndecClass (G.grade ν))
       rw [← (G.k0Basis hPQ hP hG ν).sum_repr x, map_sum]
       refine S.sum_mem fun b _ => ?_
       rw [of_smul_K0R]
@@ -152,16 +152,16 @@ set_option synthInstance.maxHeartbeats 400000 in
 include hPQ hP hG in
 /-- `K₀(R) ⊗ K₀(R)` is torsion-free over `ℤ[q, q⁻¹]` (`K₀(R)` is free, `GradingDatum.K0R_free`). -/
 theorem noZeroSMulDivisors_tensor : NoZeroSMulDivisors LP (G.K0R ⊗[LP] G.K0R) := by
-  haveI := G.K0R_free hPQ hP hG
-  infer_instance
+  have := G.K0R_free hPQ hP hG
+  exact ⟨fun h => smul_eq_zero.mp h⟩
 
 set_option synthInstance.maxHeartbeats 400000 in
 include hPQ hP hG in
 /-- `(K₀(R) ⊗ K₀(R)) ⊗ K₀(R)` is torsion-free over `ℤ[q, q⁻¹]`. -/
 theorem noZeroSMulDivisors_tensor₃ :
     NoZeroSMulDivisors LP ((G.K0R ⊗[LP] G.K0R) ⊗[LP] G.K0R) := by
-  haveI := G.K0R_free hPQ hP hG
-  infer_instance
+  have := G.K0R_free hPQ hP hG
+  exact ⟨fun h => smul_eq_zero.mp h⟩
 
 set_option synthInstance.maxHeartbeats 400000 in
 /-- **KL I, Proposition 3.2 on all of `K₀(R)`, for any grading datum** in which every class has
@@ -170,7 +170,7 @@ a nonzero multiple in the image of `γ`: `Δ(xy) = Δ(x) Δ(y)` for the twisted 
 theorem coprod_mul_of_exists
     (hex : ∀ x : G.K0R, ∃ p : LP, p ≠ 0 ∧ ∃ y : PreF LP I, G.gammaG y = p • x) (x y : G.K0R) :
     G.coprod hPQ hP hG (x * y) = G.twMul (G.coprod hPQ hP hG x) (G.coprod hPQ hP hG y) := by
-  haveI := G.noZeroSMulDivisors_tensor hPQ hP hG
+  have := G.noZeroSMulDivisors_tensor hPQ hP hG
   obtain ⟨p, hp, a, ha⟩ := hex x
   obtain ⟨p', hp', b, hb⟩ := hex y
   have key := G.coprod_mul_gammaG hPQ hP hG a b
@@ -186,7 +186,7 @@ theorem coassoc_of_exists
     (G.coprod hPQ hP hG).rTensor G.K0R (G.coprod hPQ hP hG x) =
       (TensorProduct.assoc LP G.K0R G.K0R G.K0R).symm
         ((G.coprod hPQ hP hG).lTensor G.K0R (G.coprod hPQ hP hG x)) := by
-  haveI := G.noZeroSMulDivisors_tensor₃ hPQ hP hG
+  have := G.K0R_free hPQ hP hG
   obtain ⟨p, hp, a, ha⟩ := hex x
   have key := G.coassoc_gammaG hPQ hP hG a
   rw [ha, map_smul, map_smul, map_smul, map_smul] at key
@@ -211,6 +211,8 @@ end GradingDatum
 /-! ### KL II -/
 
 namespace KL2Gamma
+
+set_option backward.isDefEq.respectTransparency false
 
 open KL2 KLGamma
 
@@ -384,8 +386,7 @@ theorem toK0QTT2_tmul (x y : (G2).K0R) :
 set_option synthInstance.maxHeartbeats 400000 in
 theorem toK0QTT2_smul (p : LP) (Z : (G2).K0R ⊗[LP] (G2).K0R) :
     toK0QTT2 k C (p • Z) = qToV p • toK0QTT2 k C Z := by
-  induction Z using TensorProduct.induction_on with
-  | zero => rw [smul_zero, map_zero, smul_zero]
+  induction Z using TensorProduct.inductionOn with
   | tmul x y =>
     rw [TensorProduct.smul_tmul', toK0QTT2_tmul, toK0QTT2_tmul, toK0Q2_smul,
       TensorProduct.smul_tmul']
@@ -402,18 +403,10 @@ set_option synthInstance.maxHeartbeats 400000 in
 theorem distribBaseChange_one_tmul2 (Z : (G2).K0R ⊗[LP] (G2).K0R) :
     TensorProduct.AlgebraTensorModule.distribBaseChange LP (RatFunc ℚ) (G2).K0R (G2).K0R
       ((1 : RatFunc ℚ) ⊗ₜ Z) = toK0QTT2 k C Z := by
-  induction Z using TensorProduct.induction_on with
-  | zero => rw [TensorProduct.tmul_zero, LinearEquiv.map_zero, AddMonoidHom.map_zero]
+  induction Z using TensorProduct.inductionOn with
   | tmul x y =>
-    rw [toK0QTT2_tmul]
-    rw [TensorProduct.AlgebraTensorModule.distribBaseChange, LinearEquiv.symm_apply_eq,
-      LinearEquiv.trans_apply]
-    change _ = TensorProduct.AlgebraTensorModule.assoc LP LP (RatFunc ℚ) (RatFunc ℚ) (G2).K0R
-      (G2).K0R (TensorProduct.AlgebraTensorModule.cancelBaseChange LP (RatFunc ℚ) (RatFunc ℚ)
-        (RatFunc ℚ ⊗[LP] (G2).K0R) (G2).K0R
-        (((1 : RatFunc ℚ) ⊗ₜ[LP] x) ⊗ₜ[RatFunc ℚ] ((1 : RatFunc ℚ) ⊗ₜ[LP] y)))
-    rw [TensorProduct.AlgebraTensorModule.cancelBaseChange_tmul, one_smul,
-      TensorProduct.AlgebraTensorModule.assoc_tmul]
+    rw [toK0QTT2_tmul, TensorProduct.AlgebraTensorModule.distribBaseChange_tmul]
+    rfl
   | add Z Z' hZ hZ' =>
     rw [TensorProduct.tmul_add, LinearEquiv.map_add, hZ, hZ', AddMonoidHom.map_add]
 
@@ -479,7 +472,7 @@ set_option synthInstance.maxHeartbeats 400000 in
 (`K₀(R) ⊗ K₀(R)` is free over `ℤ[q, q⁻¹]`, and `q ↦ v⁻¹` is injective); so `r̄` determines `Δ`
 on `_𝒜 f`. -/
 theorem toK0QTT2_injective : Function.Injective (toK0QTT2 k C) := by
-  haveI := K0R_free2 k C
+  have := K0R_free2 k C
   have h1 : Function.Injective fun Z : (G2).K0R ⊗[LP] (G2).K0R =>
       ((1 : RatFunc ℚ) ⊗ₜ[LP] Z : RatFunc ℚ ⊗[LP] ((G2).K0R ⊗[LP] (G2).K0R)) :=
     Algebra.TensorProduct.includeRight_injective (A := RatFunc ℚ) (qToV_injective)

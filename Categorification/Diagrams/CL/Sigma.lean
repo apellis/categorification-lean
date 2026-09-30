@@ -77,7 +77,7 @@ noncomputable section
 
 namespace Categorification.KL3.Diagram.CL.Sln
 
-open CategoryTheory StringDiagrams QuantumGroup UDot Presentation Flag Signed Rescale RescaleDatum
+open CategoryTheory StringDiagrams QuantumGroup UDot Presentation Categorification.Flag Signed Rescale RescaleDatum
 
 universe w
 
@@ -104,10 +104,10 @@ theorem sigmaSign_succ {i j : Fin m} (h : (j : ℕ) = (i : ℕ) + 1) :
 theorem zpow_of_mul_self_eq_one {G : Type*} [Group G] (ε : G) (hε : ε * ε = 1) (z : ℤ) :
     ε ^ z = if z % 2 = 0 then 1 else ε := by
   have h2 : ε ^ (2 : ℤ) = 1 := by rw [zpow_two, hε]
-  conv_lhs => rw [← Int.emod_add_ediv z 2, zpow_add, zpow_mul, h2, one_zpow, mul_one]
+  conv_lhs => rw [← Int.emod_add_mul_ediv z 2, zpow_add, zpow_mul, h2, one_zpow, mul_one]
   rcases Int.emod_two_eq_zero_or_one z with h | h
-  · rw [h, zpow_zero, if_pos rfl]
-  · rw [h, zpow_one, if_neg (by omega)]
+  · rw [h, zpow_zero, ite_eq_left rfl]
+  · rw [h, zpow_one, ite_eq_right (by omega)]
 
 variable (k m)
 
@@ -173,16 +173,16 @@ theorem sigmaDatum_mapScalars :
     · rw [dij_of_adj hadj, pow_one]
       have h1 : (j : ℕ) = (i : ℕ) + 1 ∨ (i : ℕ) = (j : ℕ) + 1 := by
         have hh := hadj
-        rw [slCartan_dot, if_neg h] at hh
+        rw [slCartan_dot, ite_eq_right h] at hh
         split_ifs at hh with h1; omega
       rcases h1 with h1 | h1
-      · rw [if_pos (Or.inr h1), if_neg (by rintro (e | e); exacts [hji e, by omega]),
+      · rw [ite_eq_left (Or.inr h1), ite_eq_right (by rintro (e | e); exacts [hji e, by omega]),
           sigmaSign_succ h1, mul_one, inv_neg, sigmaSign_inv, mul_neg, sigmaSign_mul_self]
         refine Units.ext ?_
         rw [slnT_of_adj k hadj, Units.val_neg, Units.val_one]
         push_cast [h1]
         ring
-      · rw [if_neg (by rintro (e | e); exacts [h e, by omega]), if_pos (Or.inr h1),
+      · rw [ite_eq_right (by rintro (e | e); exacts [h e, by omega]), ite_eq_left (Or.inr h1),
           sigmaSign_succ h1, one_mul, inv_neg, sigmaSign_inv, mul_neg, neg_mul,
           sigmaSign_mul_self, neg_neg]
         refine Units.ext ?_
@@ -190,14 +190,14 @@ theorem sigmaDatum_mapScalars :
         push_cast [h1]
         ring
     · have hn : ¬((i : ℕ) + 1 = (j : ℕ) ∨ (j : ℕ) + 1 = (i : ℕ)) := fun e =>
-        hadj (by rw [slCartan_dot, if_neg h, if_pos e])
-      have h0 : (slCartan m).dot i j = 0 := by rw [slCartan_dot, if_neg h, if_neg hn]
+        hadj (by rw [slCartan_dot, ite_eq_right h, ite_eq_left e])
+      have h0 : (slCartan m).dot i j = 0 := by rw [slCartan_dot, ite_eq_right h, ite_eq_right hn]
       rw [slnT_of_not_adj k hadj, (CartanDatum.dij_eq_zero_iff _ h).2 h0, pow_zero,
-        if_neg (by rintro (e | e); exacts [h e, by omega]),
-        if_neg (by rintro (e | e); exacts [hji e, by omega]), one_mul, one_mul, inv_one]
+        ite_eq_right (by rintro (e | e); exacts [h e, by omega]),
+        ite_eq_right (by rintro (e | e); exacts [hji e, by omega]), one_mul, one_mul, inv_one]
   · simp
   · simp only [mapScalars_r, CLScalars.kl_r, one_mul, sigmaDatum_dot, sigmaDatum_cross,
-      true_or, if_true, slnScalars_r, sigmaSign_mul_self, inv_one]
+      true_or, ite_true, slnScalars_r, sigmaSign_mul_self, inv_one]
 
 variable (k m)
 
@@ -234,7 +234,7 @@ theorem slnScalars_balanced (i j : Fin m) (h : i ≠ j) :
     rw [slnScalars_t, slnScalars_t, dij_of_adj hadj, dij_of_adj hadj', pow_one, pow_one]
     have h1 : (j : ℕ) = (i : ℕ) + 1 ∨ (i : ℕ) = (j : ℕ) + 1 := by
       have hh := hadj
-      rw [slCartan_dot, if_neg h] at hh
+      rw [slCartan_dot, ite_eq_right h] at hh
       split_ifs at hh with h1; omega
     refine Units.ext ?_
     simp only [Units.val_mul]
@@ -243,8 +243,8 @@ theorem slnScalars_balanced (i j : Fin m) (h : i ≠ j) :
     · rw [sigmaSign_succ h1, Units.val_neg]; push_cast [h1]; ring
     · rw [sigmaSign_succ h1, Units.val_neg]; push_cast [h1]; ring
   · have hn : ¬((i : ℕ) + 1 = (j : ℕ) ∨ (j : ℕ) + 1 = (i : ℕ)) := fun e =>
-      hadj (by rw [slCartan_dot, if_neg h, if_pos e])
-    have h0 : (slCartan m).dot i j = 0 := by rw [slCartan_dot, if_neg h, if_neg hn]
+      hadj (by rw [slCartan_dot, ite_eq_right h, ite_eq_left e])
+    have h0 : (slCartan m).dot i j = 0 := by rw [slCartan_dot, ite_eq_right h, ite_eq_right hn]
     have h0' : (slCartan m).dot j i = 0 := by rwa [(slCartan m).symm]
     rw [slnScalars_t, slnScalars_t, slnT_of_not_adj k hadj,
       slnT_of_not_adj k (not_adj_of_dot_eq_zero h0'), (CartanDatum.dij_eq_zero_iff _ h).2 h0,

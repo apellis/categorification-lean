@@ -160,12 +160,13 @@ def InImage (n : ℕ) {a b : Obj sig} (g : (pres k).obj a ⟶ (pres k).obj b) : 
       eqToHom (congrArg (pres k).obj ha.symm) ≫ g ≫ eqToHom (congrArg (pres k).obj hb) ∈
         (fromNH k n).range
 
+set_option backward.isDefEq.respectTransparency false in
 theorem inImage_layer (n : ℕ) (L : Layer sig) (hv : L.Valid) :
     InImage k n ((pres k).diag (Diagram.ofLayer L hv)) := by
   refine ⟨fun hne => absurd (layer_cod_length L).symm hne, fun ha hb => ?_⟩
   have hlen : L.left.length + L.gen.arity + L.right.length = n := by
     have := congrArg (fun o : Obj sig => o.word.length) ha
-    simpa [Layer.dom, Nat.add_assoc] using this
+    simpa [Layer.dom, Nat.add_assoc, strands] using this
   rw [← diag_cast _ _ ha hb]
   rcases hg : L.gen with _ | _
   · rw [hg] at hlen
@@ -203,7 +204,7 @@ theorem inImage (n : ℕ) {a b : Obj sig} (g : (pres k).obj a ⟶ (pres k).obj b
       · rw [hg.1 (fun h => hne (hab.trans h)), Limits.comp_zero]
       · rw [hf.1 hab, Limits.zero_comp]
     · by_cases hb : b.word.length = n
-      · have hb' : b = strands n := obj_ext (by simpa using hb)
+      · have hb' : b = strands n := obj_ext (by simpa [strands] using hb)
         have e : eqToHom (congrArg (pres k).obj ha.symm) ≫ (f ≫ g) ≫
             eqToHom (congrArg (pres k).obj hc) =
             (eqToHom (congrArg (pres k).obj ha.symm) ≫ f ≫ eqToHom (congrArg (pres k).obj hb')) ≫
@@ -212,7 +213,7 @@ theorem inImage (n : ℕ) {a b : Obj sig} (g : (pres k).obj a ⟶ (pres k).obj b
           simp
         rw [e]
         exact (fromNH k n).range.mul_mem (hg.2 hb' hc) (hf.2 ha hb')
-      · have hf0 : f = 0 := hf.1 (by rw [ha]; simpa using Ne.symm hb)
+      · have hf0 : f = 0 := hf.1 (by rw [ha]; simpa [strands] using Ne.symm hb)
         simp only [hf0, Limits.zero_comp, Limits.comp_zero]
         exact (fromNH k n).range.zero_mem
   | zero =>
@@ -310,7 +311,7 @@ theorem endEquiv_ψw (n : ℕ) (ρ : List ℕ) : endEquiv k n (ψw n ρ) = ⟨dd
 ring of `n` strands in the diagrammatic nilHecke category. -/
 def basis (n : ℕ) (ρ : Perm (Fin n) → List ℕ)
     (hρ : ∀ w, IsReduced n (ρ w) ∧ wordProd n (ρ w) = w) :
-    Basis (Perm (Fin n) × (Fin n →₀ ℕ)) k (End ((pres k).obj (strands n))) :=
+    Module.Basis (Perm (Fin n) × (Fin n →₀ ℕ)) k (End ((pres k).obj (strands n))) :=
   (KLR.NilHecke.basis n ρ hρ).map (endEquiv k n).symm.toLinearEquiv
 
 theorem basis_apply (n : ℕ) (ρ : Perm (Fin n) → List ℕ)
@@ -319,7 +320,7 @@ theorem basis_apply (n : ℕ) (ρ : Perm (Fin n) → List ℕ)
   have e : KLR.NilHecke.basis (k := k) n ρ hρ b =
       ⟨ddw (ρ b.1), ddw_mem _⟩ * ⟨mulPoly k n (monomial b.2 1), mulPoly_mem _⟩ :=
     Subtype.ext (KLR.NilHecke.basis_apply n ρ hρ b)
-  rw [basis, Basis.map_apply, AlgEquiv.toLinearEquiv_apply, e, map_mul, endEquiv_symm_apply,
+  rw [basis, Module.Basis.map_apply, AlgEquiv.toLinearEquiv_apply, e, map_mul, endEquiv_symm_apply,
     endEquiv_symm_apply, fromNH_ddw, fromNH_mulPoly]
 
 end Categorification.NilHecke.Diagram

@@ -94,12 +94,12 @@ variable {K : Type*} [CommRing K]
 
 /-- Evaluation `ℤ[T, T⁻¹] → K`, `T ↦ v`; its image is the subring `ℤ[v, v⁻¹] ⊆ K`. -/
 def laurentEval (v : Kˣ) : LaurentPolynomial ℤ →+* K :=
-  (AddMonoidAlgebra.lift ℤ ℤ K ((Units.coeHom K).comp (zpowersHom Kˣ v))).toRingHom
+  (AddMonoidAlgebra.lift ℤ K ℤ ((Units.coeHom K).comp (zpowersHom Kˣ v))).toRingHom
 
 theorem laurentEval_T (v : Kˣ) (n : ℤ) :
     laurentEval v (LaurentPolynomial.T n) = ((v ^ n : Kˣ) : K) := by
-  change AddMonoidAlgebra.lift ℤ ℤ K ((Units.coeHom K).comp (zpowersHom Kˣ v))
-    (Finsupp.single n 1) = _
+  change AddMonoidAlgebra.lift ℤ K ℤ ((Units.coeHom K).comp (zpowersHom Kˣ v))
+    (AddMonoidAlgebra.single n 1) = _
   rw [AddMonoidAlgebra.lift_single, one_smul]
   rfl
 
@@ -154,23 +154,24 @@ theorem algebraMap_zpow_mem_Af (n : ℤ) :
   have hv' : algebraMap K (F dot v c) ((v⁻¹ : Kˣ) : K) ∈ Af dot v c :=
     Subring.subset_closure (Or.inr (Or.inr rfl))
   induction n using Int.induction_on with
-  | hz => simp only [zpow_zero, Units.val_one, map_one]; exact Subring.one_mem _
-  | hp n ih =>
+  | zero => simp only [zpow_zero, Units.val_one, map_one]; exact Subring.one_mem _
+  | succ n ih =>
     rw [zpow_add_one, Units.val_mul, map_mul]
     exact Subring.mul_mem _ ih hv
-  | hn n ih =>
+  | pred n ih =>
     rw [sub_eq_add_neg, zpow_add, zpow_neg_one, Units.val_mul, map_mul]
     exact Subring.mul_mem _ ih hv'
 
 /-- `ℤ[v, v⁻¹] · 1 ⊆ _𝒜 f`. -/
 theorem laurentEval_mem_Af (p : LaurentPolynomial ℤ) :
     algebraMap K (F dot v c) (laurentEval v p) ∈ Af dot v c := by
-  induction p using Finsupp.induction_linear with
+  induction p using AddMonoidAlgebra.induction_linear with
   | zero => simp only [map_zero]; exact Subring.zero_mem _
   | add p q hp hq => rw [map_add, map_add]; exact Subring.add_mem _ hp hq
   | single n m =>
-    have : (Finsupp.single n m : LaurentPolynomial ℤ) = m • LaurentPolynomial.T n := by
-      rw [LaurentPolynomial.T, Finsupp.smul_single, smul_eq_mul, mul_one]
+    have : (AddMonoidAlgebra.single n m : LaurentPolynomial ℤ) =
+        m • LaurentPolynomial.T n := by
+      rw [LaurentPolynomial.T, AddMonoidAlgebra.smul_single, smul_eq_mul, mul_one]
     rw [this, map_zsmul, map_zsmul, laurentEval_T]
     exact Subring.zsmul_mem _ (algebraMap_zpow_mem_Af n) m
 

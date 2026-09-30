@@ -81,22 +81,26 @@ def summand (P : GProj 𝒜) {e : Module.End A P.carrier} (he : IsIdempotentElem
 /-- `P ≅ e P ⊕ (1 - e) P` for a degree-preserving idempotent `e`. -/
 def summandIso (P : GProj 𝒜) {e : Module.End A P.carrier} (he : IsIdempotentElem e)
     (hpe : PreservesGrading P.grading P.grading e) :
-    P.Iso ((P.summand he hpe).prod (P.summand he.one_sub (preservesGrading_one_sub hpe))) :=
-  GradedEquiv.ofLinearMaps (M := P.carrier) (N := LinearMap.range e × LinearMap.range (1 - e))
+    P.Iso ((P.summand he hpe).prod (P.summand he.one_sub (preservesGrading_one_sub hpe))) := by
+  change P.grading ≃ᵍ[A] Graded.prod
+    (Graded.submodule P.grading (LinearMap.range e))
+    (Graded.submodule P.grading (LinearMap.range (1 - e)))
+  exact GradedEquiv.ofLinearMaps (M := P.carrier) (N := LinearMap.range e × LinearMap.range (1 - e))
     (LinearMap.prod e.rangeRestrict (1 - e).rangeRestrict)
     (LinearMap.coprod (LinearMap.range e).subtype (LinearMap.range (1 - e)).subtype)
-    (fun x => by simp)
+    (fun x => by
+      change e x + (1 - e) x = x
+      simp)
     (fun ⟨⟨y, hy⟩, ⟨z, hz⟩⟩ => by
       obtain ⟨a, rfl⟩ := hy
       obtain ⟨b, rfl⟩ := hz
       have h1 : e (e a) = e a := by rw [← Module.End.mul_apply, he.eq]
       have h2 : e ((1 - e) b) = 0 := by
         rw [← Module.End.mul_apply, mul_sub, mul_one, he.eq, sub_self, LinearMap.zero_apply]
-      have h3 : e (e b) = e b := by rw [← Module.End.mul_apply, he.eq]
       refine Prod.ext (Subtype.ext ?_) (Subtype.ext ?_)
-      · simp [h1, h2, h3]
-      · simp only [LinearMap.prod_apply, Pi.prod, LinearMap.coprod_apply,
-          Submodule.coe_subtype, LinearMap.codRestrict_apply, LinearMap.rangeRestrict]
+      · change e (e a + (1 - e) b) = e a
+        rw [map_add, h1, h2, add_zero]
+      · change (1 - e) (e a + (1 - e) b) = (1 - e) b
         rw [map_add, LinearMap.sub_apply, Module.End.one_apply, h1, sub_self, zero_add,
           ← Module.End.mul_apply, he.one_sub.eq])
     (fun _ _ hx => ⟨hpe hx, preservesGrading_one_sub hpe hx⟩)
@@ -107,7 +111,7 @@ theorem nontrivial_summand (P : GProj 𝒜) {e : Module.End A P.carrier} (he : I
     Nontrivial (P.summand he hpe).carrier := by
   obtain ⟨x, hx⟩ : ∃ x, e x ≠ 0 := by
     by_contra h
-    push_neg at h
+    push Not at h
     exact he0 (LinearMap.ext h)
   exact ⟨⟨⟨e x, x, rfl⟩, 0, fun h => hx (congrArg Subtype.val h)⟩⟩
 
@@ -130,7 +134,7 @@ def endZeroProdMap {P P₁ P₂ : GProj 𝒜} (φ : P.Iso (P₁.prod P₂)) :
       ⟨fg.1.2 (φ.map_mem hx).1, fg.2.2 (φ.map_mem hx).2⟩)⟩
   map_add' fg fg' := Subtype.ext (LinearMap.ext fun x => by
     simp only [Prod.fst_add, Prod.snd_add, Subalgebra.coe_add, LinearMap.coe_comp,
-      LinearEquiv.coe_coe, comp_apply, LinearMap.prodMap_apply, LinearMap.add_apply]
+      LinearEquiv.coe_coe, comp_apply, LinearMap.add_apply]
     rw [← map_add]
     rfl)
   map_smul' c fg := Subtype.ext (LinearMap.ext fun x => by
@@ -148,9 +152,9 @@ theorem endZeroProdMap_injective {P P₁ P₂ : GProj 𝒜} (φ : P.Iso (P₁.pr
       ((f : Module.End A P₁.carrier) y.1, (g : Module.End A P₂.carrier) y.2) = 0 := by
     intro y
     have := LinearMap.congr_fun (congrArg Subtype.val h) (φ.symm y)
-    simp only [endZeroProdMap, LinearMap.coe_mk, AddHom.coe_mk, LinearMap.coe_comp,
-      LinearEquiv.coe_coe, comp_apply, LinearMap.prodMap_apply, ZeroMemClass.coe_zero,
-      LinearMap.zero_apply] at this
+    change φ.symm.toLinearEquiv
+      ((f : Module.End A P₁.carrier) (φ.toLinearEquiv (φ.symm y)).1,
+        (g : Module.End A P₂.carrier) (φ.toLinearEquiv (φ.symm y)).2) = 0 at this
     have h2 : φ.toLinearEquiv (φ.symm y) = y := φ.toLinearEquiv.apply_symm_apply y
     erw [h2] at this
     exact φ.symm.toLinearEquiv.injective (this.trans (map_zero _).symm)
@@ -205,7 +209,7 @@ theorem of_mem_closure_indec (P : GProj 𝒜) :
     by_cases hP : Nontrivial P.carrier
     · by_cases hind : ∀ e ∈ endZero A P.grading, IsIdempotentElem e → e = 0 ∨ e = 1
       · exact AddSubmonoid.subset_closure ⟨P, ⟨hP, hind⟩, rfl⟩
-      · push_neg at hind
+      · push Not at hind
         obtain ⟨e, hpe, he, he0, he1⟩ := hind
         have h1 := P.nontrivial_summand he hpe he0
         have h2 := P.nontrivial_summand he.one_sub (preservesGrading_one_sub hpe)
@@ -257,12 +261,12 @@ def homRank : K0 𝒜 →+ ℤ :=
     (by
       rw [relSubgroup, AddSubgroup.closure_le]
       rintro _ ⟨P, P', rfl⟩
-      simp only [SetLike.mem_coe, AddMonoidHom.mem_ker, map_sub, FreeAbelianGroup.lift.of]
+      simp only [SetLike.mem_coe, AddMonoidHom.mem_ker, map_sub, FreeAbelianGroup.lift_apply_of]
       show (finrank k (homGrade A (P.prod P').grading S.grading 0) : ℤ) -
         finrank k (homGrade A P.grading S.grading 0) -
         finrank k (homGrade A P'.grading S.grading 0) = 0
-      haveI := hasGdim_homGrade (A := A) P.grading S.grading
-      haveI := hasGdim_homGrade (A := A) P'.grading S.grading
+      have := hasGdim_homGrade (A := A) P.grading S.grading
+      have := hasGdim_homGrade (A := A) P'.grading S.grading
       have h : finrank k (homGrade A (P.prod P').grading S.grading 0) =
           finrank k (homGrade A P.grading S.grading 0) +
             finrank k (homGrade A P'.grading S.grading 0) :=
@@ -277,7 +281,7 @@ omit [GradedAlgebra 𝒜] [HasGdim 𝒜] in
 theorem homRank_of (P : GProj 𝒜) :
     homRank S (of P) = finrank k (homGrade A P.grading S.grading 0) := by
   show QuotientAddGroup.lift _ _ _ (QuotientAddGroup.mk' _ _) = _
-  rw [QuotientAddGroup.mk'_apply, QuotientAddGroup.lift_mk, FreeAbelianGroup.lift.of]
+  rw [QuotientAddGroup.mk'_apply, QuotientAddGroup.lift_mk, FreeAbelianGroup.lift_apply_of]
   rfl
 
 omit [GradedAlgebra 𝒜] [HasGdim 𝒜] in
@@ -285,7 +289,7 @@ omit [GradedAlgebra 𝒜] [HasGdim 𝒜] in
 theorem homRank_of_ne_zero_iff (P : GProj 𝒜) :
     homRank S (of P) ≠ 0 ↔
       ∃ f : P.carrier →ₗ[A] S, PreservesGrading P.grading S.grading f ∧ f ≠ 0 := by
-  haveI := hasGdim_homGrade (A := A) P.grading S.grading
+  have := hasGdim_homGrade (A := A) P.grading S.grading
   rw [homRank_of, Nat.cast_ne_zero, ← Nat.pos_iff_ne_zero,
     Module.finrank_pos_iff_exists_ne_zero]
   constructor
@@ -359,7 +363,7 @@ theorem IndecClass.eq_of_iso_rep_shift {b b' : IndecClass 𝒜} {a a' : ℤ}
     (e : (b.rep.shift a).Iso (b'.rep.shift a')) : b = b' ∧ a = a' := by
   have e' := isoShiftSub e
   obtain rfl := IndecClass.eq_of_iso_rep e'
-  haveI := (IndecClass.isIndec_rep b).nontrivial
+  have := (IndecClass.isIndec_rep b).nontrivial
   have := eq_zero_of_gradedEquiv_shift_of_hasGdim (A := A) b.rep.grading e'
   exact ⟨rfl, by omega⟩
 
@@ -391,7 +395,7 @@ theorem exists_isIndec_ne_zero {S : Type*} [AddCommGroup S] [Module A S] [Module
         LinearMap.zero_apply])
     by_cases hind : ∀ e ∈ endZero A P.grading, IsIdempotentElem e → e = 0 ∨ e = 1
     · exact ⟨P, ⟨hP, hind⟩, f, hf, hf0⟩
-    · push_neg at hind
+    · push Not at hind
       obtain ⟨e, hpe, he, he0, he1⟩ := hind
       have h1 := P.nontrivial_summand he hpe he0
       have h2 := P.nontrivial_summand he.one_sub (preservesGrading_one_sub hpe)
@@ -429,7 +433,7 @@ theorem IndecClass.exists_cover {S : Type*} [AddCommGroup S] [Module A S] [Modul
     (hS : IsGradedSimple 𝒜 𝒮) :
     ∃ (b : IndecClass 𝒜) (a : ℤ) (f : (b.rep.shift a).carrier →ₗ[A] S),
       PreservesGrading (b.rep.shift a).grading 𝒮 f ∧ f ≠ 0 := by
-  haveI := hS.nontrivial
+  have := hS.nontrivial
   obtain ⟨j, v, hv, hv0⟩ := exists_mem_ne_zero 𝒮
   have hf' : PreservesGrading (Graded.shift 𝒜 j) 𝒮 (LinearMap.toSpanSingleton A S v) :=
     fun d r hr => by
@@ -467,7 +471,7 @@ omit [GradedAlgebra 𝒜] [HasGdim 𝒜] in
 theorem IndecClass.exists_top (b : IndecClass 𝒜) :
     ∃ (S : GMod 𝒜) (f : b.rep.carrier →ₗ[A] S), IsGradedSimple 𝒜 S.grading ∧
       PreservesGrading b.rep.grading S.grading f ∧ f ≠ 0 ∧ Module.Finite A S := by
-  haveI := (IndecClass.isIndec_rep b).nontrivial
+  have := (IndecClass.isIndec_rep b).nontrivial
   exact b.rep.exists_isGradedSimple_quotient
 
 /-- The graded simple top `S_b` of the chosen indecomposable `P_b = rep b` (a graded simple
@@ -574,7 +578,7 @@ theorem homRank_smul_of_rep {b₀ : IndecClass 𝒜} {S : GMod 𝒜} [HasGdim S.
     (hf : PreservesGrading b₀.rep.grading S.grading f) (hf0 : f ≠ 0) (d : ℤ)
     [HasGdim (S.shift d).grading] (b : IndecClass 𝒜) (p : LaurentPolynomial ℤ) :
     homRank (S.shift d) (p • of b.rep) =
-      if b = b₀ then p d * homRank (S.shift d) (of (b₀.rep.shift d)) else 0 := by
+      if b = b₀ then p.coeff d * homRank (S.shift d) (of (b₀.rep.shift d)) else 0 := by
   have hvanish : ∀ a : ℤ, homRank (S.shift d) (of (b.rep.shift a)) ≠ 0 → b = b₀ ∧ a = d := by
     intro a ha
     obtain ⟨g, hg, hg0⟩ := (homRank_of_ne_zero_iff _).1 ha
@@ -592,7 +596,7 @@ theorem homRank_smul_of_rep {b₀ : IndecClass 𝒜} {S : GMod 𝒜} [HasGdim S.
     · rw [add_zero]
   | C_mul_T a n =>
     rw [map_C_mul_T_smul, T_smul_of, ← LaurentPolynomial.single_eq_C_mul_T,
-      Finsupp.single_apply]
+      AddMonoidAlgebra.coeff_single, Finsupp.single_apply]
     by_cases hb : b = b₀
     · subst hb
       by_cases ha : a = d
@@ -615,10 +619,10 @@ theorem linearIndependent_indec :
   rw [linearIndependent_iff]
   intro l hl
   ext b₀ d
-  haveI := (IndecClass.isIndec_rep b₀).nontrivial
+  have := (IndecClass.isIndec_rep b₀).nontrivial
   obtain ⟨S, f, hS, hf, hf0, hfin⟩ := b₀.rep.exists_isGradedSimple_quotient
-  haveI : HasGdim S.grading := hasGdim_of_finite 𝒜 S.grading
-  haveI : HasGdim (S.shift d).grading := inferInstanceAs (HasGdim (Graded.shift S.grading d))
+  have : HasGdim S.grading := hasGdim_of_finite 𝒜 S.grading
+  have : HasGdim (S.shift d).grading := inferInstanceAs (HasGdim (Graded.shift S.grading d))
   have hc₀ : homRank (S.shift d) (of (b₀.rep.shift d)) ≠ 0 :=
     (homRank_of_ne_zero_iff _).2 ⟨f, fun j x hx => hf (d := j - d) hx, hf0⟩
   have h := congrArg (homRank (S.shift d)) hl
@@ -627,7 +631,7 @@ theorem linearIndependent_indec :
   rw [Finsupp.sum, Finset.sum_ite_eq'] at h
   split_ifs at h with hmem
   · simpa [hc₀] using h
-  · simp [Finsupp.not_mem_support_iff.1 hmem]
+  · simp [Finsupp.notMem_support_iff.1 hmem]
 
 variable (𝒜) in
 /-- **KL I, §2.5: `K₀(A)` is a free `ℤ[q, q⁻¹]`-module**, with basis the classes `[P]` of the

@@ -45,6 +45,8 @@ noncomputable section
 
 namespace Categorification.TwoRep.StrongSl2
 
+set_option backward.isDefEq.respectTransparency false
+
 open CategoryTheory CategoryTheory.Limits CategoryTheory.Bicategory Module
 open KrullSchmidtCat (HomFinite)
 
@@ -223,7 +225,7 @@ theorem lemMain_surjective [∀ a b : B, IsIdempotentComplete (a ⟶ b)] (hr : -
     intro i hi'
     have h := hcoef i
     rw [Finset.sum_eq_single i] at h
-    · haveI := isIso_Cij_self e (by omega) hyp' hd i.2
+    · have := isIso_Cij_self e (by omega) hyp' hd i.2
       have h' : cisBub (S.oneShift (r + 1) 0) (f i) ≫
           ((Cij e i i : S.oneShift (r + 1) 0 ⟶ _)⟦m - 2 * ((i : ℕ) : ℤ)⟧' ≫
             (shiftFunctorAdd' _ (((i : ℕ) : ℤ) * 2) (m - 2 * ((i : ℕ) : ℤ)) m

@@ -154,14 +154,14 @@ theorem mul_single (f : Pol k ν) (j : Seq ν) (p : MvPolynomial (Fin m) k) :
   funext t
   by_cases h : t = j
   · subst h; simp
-  · simp [Pi.single_apply, h]
+  · simp [h]
 
 theorem single_sum {κ : Type*} [Fintype κ] (j : Seq ν) (x : κ → MvPolynomial (Fin m) k) :
     (Pi.single j (∑ β, x β) : Pol k ν) = ∑ β, Pi.single j (x β) := by
   funext t
   by_cases h : t = j
   · subst h; simp
-  · simp [Pi.single_apply, h]
+  · simp [h]
 
 theorem exists_polElt_expansion
     (hspan : ∀ p : MvPolynomial (Fin m) k, ∃ g : ι → MvPolynomial (Fin m) k,
@@ -186,7 +186,7 @@ theorem eq_zero_of_sum_polElt
   obtain ⟨t, β⟩ := q
   have ht := congrFun h t
   simp only [polElt, mul_single, Finset.sum_apply, Pi.zero_apply, Fintype.sum_prod_type] at ht
-  rw [Finset.sum_eq_single t (fun j _ hj => by simp [Pi.single_apply, Ne.symm hj])
+  rw [Finset.sum_eq_single t (fun j _ hj => by simp [Ne.symm hj])
     (by simp)] at ht
   simp only [Pi.single_eq_same] at ht
   have h2 : ∀ β, f (t, β) t = rename (Seq.toPerm i t) (f (t, β) i) := fun β => by
@@ -204,8 +204,8 @@ noncomputable def polBasisOfInv
       ∑ β, g β * b β = 0 → ∀ β, g β = 0)
     (hspan : ∀ p : MvPolynomial (Fin m) k, ∃ g : ι → MvPolynomial (Fin m) k,
       (∀ β, g β ∈ labelInvariants k i.1) ∧ ∑ β, g β * b β = p) :
-    Basis (Seq ν × ι) (symNu k ν) (Pol k ν) :=
-  Basis.mk (v := polElt i b)
+    Module.Basis (Seq ν × ι) (symNu k ν) (Pol k ν) :=
+  Module.Basis.mk (v := polElt i b)
     (Fintype.linearIndependent_iff.2 fun c hc q => Subtype.ext <|
       eq_zero_of_sum_polElt i b hind (fun q => c q) (fun q => (c q).2)
         (by simpa [Subalgebra.smul_def] using hc) q)
@@ -234,7 +234,7 @@ theorem card_seq_mul_card_stab (i : Seq ν) :
 /-- `Pol(ν)` is a free `Sym(ν)`-module with a basis of `m!` elements (any commutative ring). -/
 theorem exists_symNuBasis :
     ∃ (ι : Type uI) (_ : Fintype ι), Fintype.card ι = (Multiset.card ν).factorial ∧
-      Nonempty (Basis ι (symNu k ν) (Pol k ν)) := by
+      Nonempty (Module.Basis ι (symNu k ν) (Pol k ν)) := by
   let i : Seq ν := Classical.arbitrary _
   obtain ⟨ι, _, b, hcard, hind, hspan⟩ := exists_isInvBasis_label k i.1
   refine ⟨Seq ν × ι, inferInstance, ?_, ⟨polBasisOfInv i b hind hspan⟩⟩
@@ -284,9 +284,9 @@ noncomputable def centerBasisOfInv
       ∑ β, g β * b β = 0 → ∀ β, g β = 0)
     (hspan : ∀ p : MvPolynomial (Fin m) k, ∃ g : ι → MvPolynomial (Fin m) k,
       (∀ β, g β ∈ labelInvariants k i.1) ∧ ∑ β, g β * b β = p) :
-    Basis (Perm (Fin m) × (Seq ν × ι)) (Subalgebra.center k (KLRAlgebra k Q ν))
+    Module.Basis (Perm (Fin m) × (Seq ν × ι)) (Subalgebra.center k (KLRAlgebra k Q ν))
       (KLRAlgebra k Q ν) :=
-  Basis.mk (v := centerElt ρ i b)
+  Module.Basis.mk (v := centerElt ρ i b)
     (Fintype.linearIndependent_iff.2 fun c hc q => by
       choose f hf hfc using fun q => (mem_center_iff hPQ hP).1 (c q).2
       have key : ∀ q, c q • centerElt (Q := Q) ρ i b q =
@@ -323,7 +323,7 @@ include hPQ hP in
 `(m!)²` elements. -/
 theorem exists_centerBasis :
     ∃ (ι : Type uI) (_ : Fintype ι), Fintype.card ι = (Multiset.card ν).factorial ^ 2 ∧
-      Nonempty (Basis ι (Subalgebra.center k (KLRAlgebra k Q ν)) (KLRAlgebra k Q ν)) := by
+      Nonempty (Module.Basis ι (Subalgebra.center k (KLRAlgebra k Q ν)) (KLRAlgebra k Q ν)) := by
   let i : Seq ν := Classical.arbitrary _
   obtain ⟨ι, _, b, hcard, hind, hspan⟩ := exists_isInvBasis_label k i.1
   refine ⟨Perm (Fin m) × (Seq ν × ι), inferInstance, ?_,
@@ -355,7 +355,7 @@ theorem finrank_center :
     Module.finrank (Subalgebra.center k (KLRAlgebra k Q ν)) (KLRAlgebra k Q ν) =
       (Multiset.card ν).factorial ^ 2 := by
   obtain ⟨ι, _, hcard, ⟨b⟩⟩ := exists_centerBasis (ν := ν) hPQ hP
-  haveI : Nontrivial (KLRAlgebra k Q ν) := (polNu_injective (ν := ν) hPQ).nontrivial
+  have : Nontrivial (KLRAlgebra k Q ν) := (polNu_injective (ν := ν) hPQ).nontrivial
   rw [Module.finrank_eq_card_basis b, hcard]
 
 end Center
@@ -431,9 +431,9 @@ include hPQ hP in
 Noetherian (Hilbert basis theorem). -/
 theorem isNoetherian_diagSym [IsNoetherianRing k] :
     IsNoetherian (diagSym k ν Q) (KLRAlgebra k Q ν) := by
-  haveI : IsNoetherianRing (diagSym k ν Q) :=
+  have : IsNoetherianRing (diagSym k ν Q) :=
     isNoetherianRing_of_ringEquiv _ (diagSymEquiv Q hPQ).toRingEquiv
-  haveI := diagSym_finite (ν := ν) Q hPQ hP
+  have := diagSym_finite (ν := ν) Q hPQ hP
   infer_instance
 
 include hPQ hP in
@@ -447,7 +447,7 @@ include hPQ hP in
 Noetherian (its opposite ring is left Noetherian). -/
 theorem isNoetherianRing_mulOpposite [IsNoetherianRing k] :
     IsNoetherianRing (KLRAlgebra k Q ν)ᵐᵒᵖ := by
-  haveI : IsScalarTower (diagSym k ν Q) (KLRAlgebra k Q ν)ᵐᵒᵖ (KLRAlgebra k Q ν)ᵐᵒᵖ :=
+  have : IsScalarTower (diagSym k ν Q) (KLRAlgebra k Q ν)ᵐᵒᵖ (KLRAlgebra k Q ν)ᵐᵒᵖ :=
     ⟨fun a x y => by
       show (a • x) * y = a • (x * y)
       apply MulOpposite.unop_injective
@@ -455,7 +455,7 @@ theorem isNoetherianRing_mulOpposite [IsNoetherianRing k] :
         MulOpposite.unop_mul, Subalgebra.smul_def, Subalgebra.smul_def, smul_eq_mul,
         smul_eq_mul, ← mul_assoc, ← mul_assoc,
         Subalgebra.mem_center_iff.1 (diagSym_le_center (ν := ν) Q hPQ hP a.2)]⟩
-  haveI := isNoetherian_diagSym (ν := ν) Q hPQ hP
+  have := isNoetherian_diagSym (ν := ν) Q hPQ hP
   exact isNoetherian_of_tower (diagSym k ν Q)
     (isNoetherian_of_linearEquiv (MulOpposite.opLinearEquiv (diagSym k ν Q)))
 
@@ -475,7 +475,7 @@ variable {Γ : SimpleGraph I} [DecidableRel Γ.Adj] [IsDomain k]
 domain): `R(ν)` is a free module over its center with a basis of `(m!)²` elements. -/
 theorem exists_centerBasis :
     ∃ (ι : Type uI) (_ : Fintype ι), Fintype.card ι = (Multiset.card ν).factorial ^ 2 ∧
-      Nonempty (Basis ι (Subalgebra.center k (R1 k Γ ν)) (R1 k Γ ν)) :=
+      Nonempty (Module.Basis ι (Subalgebra.center k (R1 k Γ ν)) (R1 k Γ ν)) :=
   KLRAlgebra.exists_centerBasis (klQ_eq_klP (Γ := Γ) stdOrient_spec)
     (fun a b _ => klP_ne_zero _ a b)
 

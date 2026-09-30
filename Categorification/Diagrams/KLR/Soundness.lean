@@ -52,10 +52,10 @@ theorem ε_mul_e (a : Obj (sig I)) (s : Seq ν) :
   split_ifs with h
   · rw [Finset.sum_eq_single s]
     · exact e_mul_self s
-    · intro t _ ht; rw [e_mul_e, if_neg ht]
+    · intro t _ ht; rw [e_mul_e, ite_eq_right ht]
     · intro hs; exact absurd (Finset.mem_filter.2 ⟨Finset.mem_univ s, h⟩) hs
   · refine Finset.sum_eq_zero fun t ht => ?_
-    rw [e_mul_e, if_neg]
+    rw [e_mul_e, ite_eq_right]
     rintro rfl; exact h (Finset.mem_filter.1 ht).2
 
 theorem e_mul_ε (a : Obj (sig I)) (s : Seq ν) :
@@ -64,17 +64,18 @@ theorem e_mul_ε (a : Obj (sig I)) (s : Seq ν) :
   split_ifs with h
   · rw [Finset.sum_eq_single s]
     · exact e_mul_self s
-    · intro t _ ht; rw [e_mul_e, if_neg (Ne.symm ht)]
+    · intro t _ ht; rw [e_mul_e, ite_eq_right (Ne.symm ht)]
     · intro hs; exact absurd (Finset.mem_filter.2 ⟨Finset.mem_univ s, h⟩) hs
   · refine Finset.sum_eq_zero fun t ht => ?_
-    rw [e_mul_e, if_neg]
+    rw [e_mul_e, ite_eq_right]
     rintro rfl; exact h (Finset.mem_filter.1 ht).2
 
 theorem ε_mul_ε (a : Obj (sig I)) : ε k Q ν a * ε k Q ν a = ε k Q ν a := by
   rw [ε_eq, Finset.sum_mul]
   refine Finset.sum_congr rfl fun s hs => ?_
-  rw [← ε_eq, e_mul_ε, if_pos (Finset.mem_filter.1 hs).2]
+  rw [← ε_eq, e_mul_ε, ite_eq_left (Finset.mem_filter.1 hs).2]
 
+set_option backward.isDefEq.respectTransparency false in
 theorem ε_ob (i : Seq ν) : ε k Q ν (ob (word i)) = e i := by
   rw [ε, Finset.sum_eq_single i]
   · intro t ht hti; exact absurd (word_injective (Finset.mem_filter.1 ht).2) hti
@@ -91,7 +92,7 @@ variable (k Q ν) in
 /-- The dot on strand `p` (zero if `p ≥ m`). -/
 def xN (p : ℕ) : KLRAlgebra k Q ν := if h : p < m then x ⟨p, h⟩ else 0
 
-theorem xN_of_lt {p : ℕ} (h : p < m) : xN k Q ν p = x ⟨p, h⟩ := dif_pos h
+theorem xN_of_lt {p : ℕ} (h : p < m) : xN k Q ν p = x ⟨p, h⟩ := dite_eq_left h
 
 theorem xN_mul_e (p : ℕ) (s : Seq ν) : xN k Q ν p * e s = e s * xN k Q ν p := by
   unfold xN; split_ifs <;> simp [x_mul_e]
@@ -177,7 +178,7 @@ theorem genL_mul_ε (L : Layer (sig I)) :
   | dot c =>
     have hw' : word s = (Layer.cod ⟨(), l, .dot c, r⟩ : Obj (sig I)).word := hw
     simp only [genL, genAt_dot]
-    rw [mul_assoc, xN_mul_e, ← mul_assoc, ε_mul_e, if_pos hw']
+    rw [mul_assoc, xN_mul_e, ← mul_assoc, ε_mul_e, ite_eq_left hw']
   | cross c d =>
     simp only [genL, genAt_cross]
     rw [mul_assoc]
@@ -188,10 +189,10 @@ theorem genL_mul_ε (L : Layer (sig I)) :
     have h1 := apply_eq_of_word hw 1 (by simp) (by omega)
     simp only [Nat.add_zero, Gen.dom_cross, List.getElem_cons_zero,
       List.getElem_cons_succ] at h0 h1
-    rw [ψ_mul_e, ← mul_assoc, ε_mul_e, if_pos]
+    rw [ψ_mul_e, ← mul_assoc, ε_mul_e, ite_eq_left]
     show word _ = l ++ [d, c] ++ r
     rw [word_sadj s hp, hw]
-    simp [h0, h1, List.take_left', List.drop_left']
+    simp [h0, h1, List.take_left']
 
 /-! ## The target category -/
 
@@ -208,10 +209,10 @@ variable (k Q ν) in
 def homSub (a b : Obj (sig I)) : Submodule k (KLRAlgebra k Q ν) where
   carrier := {r | ε k Q ν b * r * ε k Q ν a = r}
   add_mem' {r s} hr hs := by
-    simp only [Set.mem_setOf_eq] at *; rw [mul_add, add_mul, hr, hs]
+    simp only [Set.mem_ofPred_eq] at *; rw [mul_add, add_mul, hr, hs]
   zero_mem' := by simp
   smul_mem' c r hr := by
-    simp only [Set.mem_setOf_eq] at *; rw [mul_smul_comm, smul_mul_assoc, hr]
+    simp only [Set.mem_ofPred_eq] at *; rw [mul_smul_comm, smul_mul_assoc, hr]
 
 theorem homSub_left {a b : Obj (sig I)} {r : KLRAlgebra k Q ν} (hr : r ∈ homSub k Q ν a b) :
     ε k Q ν b * r = r := by
@@ -223,6 +224,7 @@ theorem homSub_right {a b : Obj (sig I)} {r : KLRAlgebra k Q ν} (hr : r ∈ hom
   have h : ε k Q ν b * r * ε k Q ν a = r := hr
   rw [← h, mul_assoc, ε_mul_ε]
 
+set_option backward.isDefEq.respectTransparency false in
 instance : Category (Tgt k Q ν) where
   Hom a b := homSub k Q ν a b
   id a := ⟨ε k Q ν a, show _ * _ * _ = _ by rw [ε_mul_ε, ε_mul_ε]⟩
@@ -287,6 +289,7 @@ def evalL : List (Layer (sig I)) → KLRAlgebra k Q ν
 @[simp] theorem evalL_cons (L : Layer (sig I)) (ls : List (Layer (sig I))) :
     evalL k Q ν (L :: ls) = evalL k Q ν ls * genL k Q ν L := rfl
 
+set_option backward.isDefEq.respectTransparency false in
 theorem interp_map_val {a b : Obj (sig I)} (f : a ⟶ b) :
     ((interp k Q ν).functor.map f).1 = evalL k Q ν (Diagram.layers f) * ε k Q ν a := by
   obtain ⟨ls, h⟩ := f
@@ -374,6 +377,7 @@ theorem seq_three {s : Seq ν} {u v : List I} {c d e : I} (hs : word s = u ++ [c
 
 /-! ## Soundness -/
 
+set_option backward.isDefEq.respectTransparency false in
 theorem respects_rel (r : Rel I) (u : Obj (sig I)) (v : List I)
     (hw : (Rel.dom r).WhiskerOK u v) :
     ((freeLift k (interp k Q ν).functor).map
@@ -406,11 +410,11 @@ theorem respects_rel (r : Rel I) (u : Obj (sig I)) (v : List I)
     obtain ⟨hm, h0, h1⟩ := seq_two (s := s) (u := u.word) (v := v) (c := c) (d := c)
       (by simpa [Rel.dom] using hs)
     have key := KLRAlgebra.dot_cross_left (k := k) (Q := Q) _ hm s
-    rw [if_pos (h0.trans h1.symm), sub_mul] at key
+    rw [ite_eq_left (h0.trans h1.symm), sub_mul] at key
     simp only [List.map_cons, List.map_nil, evalL_cons, evalL_nil, genL_whisker, one_mul,
       sub_mul, layers_dl, Diagram.layers_comp, layers_id', Rel.dom, Rel.cod, List.cons_append,
       List.nil_append, lay_gen, lay_left, genAt_dot, genAt_cross, List.length_nil,
-      List.length_cons, List.length_singleton, add_zero, Nat.add_zero, zero_add]
+      List.length_cons, add_zero, zero_add]
     rw [xN_of_lt (by omega), xN_of_lt hm, key, sub_self]
   | slideLNe c d hcd =>
     simp only [relation, LinDiagram.whisker_sub, Functor.map_sub, Tgt.sub_val, whisker_of_val,
@@ -419,11 +423,11 @@ theorem respects_rel (r : Rel I) (u : Obj (sig I)) (v : List I)
     obtain ⟨hm, h0, h1⟩ := seq_two (s := s) (u := u.word) (v := v) (c := c) (d := d)
       (by simpa [Rel.dom] using hs)
     have key := KLRAlgebra.dot_cross_left (k := k) (Q := Q) _ hm s
-    rw [if_neg (by simpa [Seq.lbl, h0, h1] using hcd), sub_mul] at key
+    rw [ite_eq_right (by simpa [Seq.lbl, h0, h1] using hcd), sub_mul] at key
     simp only [List.map_cons, List.map_nil, evalL_cons, evalL_nil, genL_whisker, one_mul,
-      sub_mul, layers_dl, Diagram.layers_comp, layers_id', Rel.dom, Rel.cod, List.cons_append,
+      sub_mul, layers_dl, Diagram.layers_comp, Rel.dom, Rel.cod, List.cons_append,
       List.nil_append, lay_gen, lay_left, genAt_dot, genAt_cross, List.length_nil,
-      List.length_cons, List.length_singleton, add_zero, Nat.add_zero, zero_add]
+      List.length_cons, add_zero, zero_add]
     rw [xN_of_lt (by omega), xN_of_lt hm, key]
   | slideREq c =>
     simp only [relation, LinDiagram.whisker_sub, Functor.map_sub, Tgt.sub_val, whisker_of_val,
@@ -432,11 +436,11 @@ theorem respects_rel (r : Rel I) (u : Obj (sig I)) (v : List I)
     obtain ⟨hm, h0, h1⟩ := seq_two (s := s) (u := u.word) (v := v) (c := c) (d := c)
       (by simpa [Rel.dom] using hs)
     have key := KLRAlgebra.dot_cross_right (k := k) (Q := Q) _ hm s
-    rw [if_pos (h0.trans h1.symm), sub_mul] at key
+    rw [ite_eq_left (h0.trans h1.symm), sub_mul] at key
     simp only [List.map_cons, List.map_nil, evalL_cons, evalL_nil, genL_whisker, one_mul,
       sub_mul, layers_dl, Diagram.layers_comp, layers_id', Rel.dom, Rel.cod, List.cons_append,
       List.nil_append, lay_gen, lay_left, genAt_dot, genAt_cross, List.length_nil,
-      List.length_cons, List.length_singleton, add_zero, Nat.add_zero, zero_add]
+      List.length_cons, add_zero, zero_add]
     rw [xN_of_lt (by omega), xN_of_lt hm, key, sub_self]
   | slideRNe c d hcd =>
     simp only [relation, LinDiagram.whisker_sub, Functor.map_sub, Tgt.sub_val, whisker_of_val,
@@ -445,11 +449,11 @@ theorem respects_rel (r : Rel I) (u : Obj (sig I)) (v : List I)
     obtain ⟨hm, h0, h1⟩ := seq_two (s := s) (u := u.word) (v := v) (c := c) (d := d)
       (by simpa [Rel.dom] using hs)
     have key := KLRAlgebra.dot_cross_right (k := k) (Q := Q) _ hm s
-    rw [if_neg (by simpa [Seq.lbl, h0, h1] using hcd), sub_mul] at key
+    rw [ite_eq_right (by simpa [Seq.lbl, h0, h1] using hcd), sub_mul] at key
     simp only [List.map_cons, List.map_nil, evalL_cons, evalL_nil, genL_whisker, one_mul,
-      sub_mul, layers_dl, Diagram.layers_comp, layers_id', Rel.dom, Rel.cod, List.cons_append,
+      sub_mul, layers_dl, Diagram.layers_comp, Rel.dom, Rel.cod, List.cons_append,
       List.nil_append, lay_gen, lay_left, genAt_dot, genAt_cross, List.length_nil,
-      List.length_cons, List.length_singleton, add_zero, Nat.add_zero, zero_add]
+      List.length_cons, add_zero, zero_add]
     rw [xN_of_lt (by omega), xN_of_lt hm, key]
   | braid c d e h =>
     simp only [relation, LinDiagram.whisker_sub, Functor.map_sub, Tgt.sub_val, whisker_of_val,
@@ -458,11 +462,11 @@ theorem respects_rel (r : Rel I) (u : Obj (sig I)) (v : List I)
     obtain ⟨hm, h0, h1, h2⟩ := seq_three (s := s) (u := u.word) (v := v) (c := c) (d := d)
       (e := e) (by simpa [Rel.dom] using hs)
     have key := KLRAlgebra.braid (k := k) (Q := Q) _ hm s
-    rw [if_neg (by simpa [Seq.lbl, h0, h1, h2] using h), sub_mul] at key
+    rw [ite_eq_right (by simpa [Seq.lbl, h0, h1, h2] using h), sub_mul] at key
     simp only [List.map_cons, List.map_nil, evalL_cons, evalL_nil, genL_whisker, one_mul,
-      sub_mul, layers_dl, Diagram.layers_comp, layers_id', Rel.dom, Rel.cod, List.cons_append,
-      List.nil_append, lay_gen, lay_left, genAt_dot, genAt_cross, List.length_nil,
-      List.length_cons, List.length_singleton, add_zero, Nat.add_zero, zero_add]
+      sub_mul, layers_dl, Diagram.layers_comp, Rel.dom, Rel.cod, List.cons_append,
+      List.nil_append, lay_gen, lay_left, genAt_cross, List.length_nil,
+      List.length_cons, add_zero, zero_add]
     simpa only [mul_assoc] using key
   | braidQ c d hcd =>
     simp only [relation, LinDiagram.whisker_sub, Functor.map_sub, Tgt.sub_val, whisker_of_val]
@@ -474,16 +478,16 @@ theorem respects_rel (r : Rel I) (u : Obj (sig I)) (v : List I)
     obtain ⟨hm, h0, h1, h2⟩ := seq_three (s := s) (u := u.word) (v := v) (c := c) (d := d)
       (e := c) (by simpa [Rel.dom] using hs)
     have key := KLRAlgebra.braid (k := k) (Q := Q) _ hm s
-    rw [if_pos (by simpa [Seq.lbl, h0, h1, h2] using hcd), sub_mul] at key
+    rw [ite_eq_left (by simpa [Seq.lbl, h0, h1, h2] using hcd), sub_mul] at key
     have e₁ : (![xN k Q ν u.word.length, xN k Q ν (u.word.length + 1),
         xN k Q ν (u.word.length + 2)] : Fin 3 → _) =
         ![x ⟨u.word.length, by omega⟩, x ⟨u.word.length + 1, by omega⟩,
           x ⟨u.word.length + 2, hm⟩] := by
       rw [xN_of_lt (by omega), xN_of_lt (by omega), xN_of_lt hm]
     simp only [List.map_cons, List.map_nil, evalL_cons, evalL_nil, genL_whisker, one_mul,
-      sub_mul, layers_dl, Diagram.layers_comp, layers_id', Rel.dom, Rel.cod, List.cons_append,
-      List.nil_append, lay_gen, lay_left, genAt_dot, genAt_cross, List.length_nil,
-      List.length_cons, List.length_singleton, add_zero, Nat.add_zero, zero_add]
+      sub_mul, layers_dl, Diagram.layers_comp, Rel.dom, Rel.cod, List.cons_append,
+      List.nil_append, lay_gen, lay_left, genAt_cross, List.length_nil,
+      List.length_cons, add_zero, zero_add]
     rw [e₁]
     simp only [Seq.lbl, h0, h1] at key
     rw [key, sub_self]
@@ -500,7 +504,7 @@ theorem respects_interchange (x : InterchangeData (sig I)) (hx : x.Valid) (u : O
   simp only [InterchangeData.ghDiagram, InterchangeData.hgDiagram, InterchangeData.gh₁,
     InterchangeData.gh₂, InterchangeData.hg₁, InterchangeData.hg₂, Diagram.layers_mk,
     List.map_cons, List.map_nil, evalL_cons, evalL_nil, genL_whisker, one_mul,
-    List.length_nil, List.length_append, sig_dom, sig_cod, Gen.dom_length, Gen.cod_length,
+    List.length_nil, List.length_append, Gen.dom_length, Gen.cod_length,
     add_zero]
   rw [genAt_comm g h (by omega), sub_self, zero_mul]
 

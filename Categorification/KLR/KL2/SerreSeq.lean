@@ -155,17 +155,17 @@ theorem lbl_serreSeq {a : ℕ} (ha : a ≤ N) (r : Fin m) :
 include hpN ht₀ ht in
 theorem serreSeq_lbl_eq_i {a : ℕ} (ha : a ≤ N) (r : Fin m) (h₁ : p ≤ r) (h₂ : (r : ℕ) ≤ p + N)
     (h₃ : (r : ℕ) ≠ p + a) : (serreSeq t p a).lbl r = i := by
-  rw [lbl_serreSeq hpN ht₀ ht ha, if_neg h₃, if_pos ⟨h₁, h₂⟩]
+  rw [lbl_serreSeq hpN ht₀ ht ha, ite_eq_right h₃, ite_eq_left ⟨h₁, h₂⟩]
 
 include hpN ht₀ ht in
 theorem serreSeq_lbl_eq_j {a : ℕ} (ha : a ≤ N) (r : Fin m) (h : (r : ℕ) = p + a) :
     (serreSeq t p a).lbl r = j := by
-  rw [lbl_serreSeq hpN ht₀ ht ha, if_pos h]
+  rw [lbl_serreSeq hpN ht₀ ht ha, ite_eq_left h]
 
 include hpN ht₀ ht in
 theorem serreSeq_lbl_of_lt {a : ℕ} (ha : a ≤ N) (r : Fin m) (h : (r : ℕ) < p ∨ p + N < r) :
     (serreSeq t p a).lbl r = t.lbl r := by
-  rw [lbl_serreSeq hpN ht₀ ht ha, if_neg (by omega), if_neg (by omega)]
+  rw [lbl_serreSeq hpN ht₀ ht ha, ite_eq_right (by omega), ite_eq_right (by omega)]
 
 include hpN ht₀ ht in
 /-- The block `[p, p + a)` of `…i^a j i^{N-a}…` is constant (labels `i`). -/

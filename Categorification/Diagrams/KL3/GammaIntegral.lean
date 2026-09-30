@@ -70,6 +70,9 @@ A divided powers signed sequence (dpss) is a list `d = ((ε₁, i₁, a₁), …
   formalized here.
 -/
 
+-- Elaborate the scalar restriction through the block module abbreviations.
+set_option backward.isDefEq.respectTransparency false
+
 noncomputable section
 
 namespace Categorification.KL3.Diagram
@@ -391,7 +394,7 @@ omit [DecidableEq I] in
 theorem univTarget_eq_zero_iff (ρ : X) (x : K0Kar RD k ρ lam) :
     (univTarget RD k lam).φ ρ x = 0 ↔
       ∃ p ∈ nonZeroDivisors (LaurentPolynomial ℤ), p • x = 0 := by
-  haveI := KLR.KLGamma.isFractionRing_vAlgebra
+  have := KLR.KLGamma.isFractionRing_vAlgebra
   have hL : IsLocalizedModule (nonZeroDivisors (LaurentPolynomial ℤ))
       (TensorProduct.mk (LaurentPolynomial ℤ) (RatFunc ℚ) (K0Blk RD k lam) 1) :=
     (isLocalizedModule_iff_isBaseChange (nonZeroDivisors (LaurentPolynomial ℤ)) (RatFunc ℚ)
@@ -535,7 +538,7 @@ theorem mulU_dpW (d d' : List (Bool × I × ℕ)) (μ : X) (h : wt RD lam (dpWor
   have hw : lam + RD.wX (dpWord d') = μ := by rw [add_comm, ← wt_eq_add_wX, h]
   rw [dpW_eq_smul d, dpW_eq_smul d', dpW_eq_smul (d ++ d'), map_smul (UDot.mk RD vQ μ),
     map_smul (UDot.mk RD vQ lam), map_smul (UDot.mk RD vQ lam), map_smul (mulU RD vQ μ lam),
-    LinearMap.smul_apply, map_smul, mulU_mk_ew, if_pos hw, dpWord_append, dpFac_append,
+    LinearMap.smul_apply, map_smul, mulU_mk_ew, ite_eq_left hw, dpWord_append, dpFac_append,
     map_mul, mul_inv, smul_smul]
 
 variable {lam ρ} {μ : X}
@@ -560,7 +563,7 @@ theorem dpCComb_dpMul (f : DpIdx (RD := RD) μ ρ →₀ LaurentPolynomial ℤ)
         K0U.mul (f d • dpC RD k d.1 μ ρ d.2) (g d' • dpC RD k d'.1 lam μ d'.2) := by
     rw [dpCComb, dpCComb, Finsupp.linearCombination_apply, Finsupp.linearCombination_apply,
       Finsupp.sum, Finsupp.sum]
-    simp only [map_sum, AddMonoidHom.finset_sum_apply]
+    simp only [map_sum, AddMonoidHom.finsetSum_apply]
     first | rfl | exact Finset.sum_comm
   rw [hR, dpMul, Finsupp.sum, map_sum]
   refine Finset.sum_congr rfl fun d _ => ?_
@@ -587,7 +590,7 @@ theorem dpComb_dpMul (f : DpIdx (RD := RD) μ ρ →₀ LaurentPolynomial ℤ)
     rw [dpComb_apply]
     by_cases hc : c = 0
     · subst hc; simp
-    · rw [Finsupp.support_single_ne_zero _ hc, Finset.sum_singleton, Finsupp.single_eq_same]
+    · rw [Finsupp.support_single _ hc, Finset.sum_singleton, Finsupp.single_eq_same]
   have hf : ∀ (ν ν' : X) (f : DpIdx (RD := RD) ν ν' →₀ LaurentPolynomial ℤ),
       RestrictScalars.addEquiv (LaurentPolynomial ℤ) (RatFunc ℚ) (U1 RD vQ ν) (dpComb ν ν' f) =
         ∑ x ∈ f.support, lpToQ (f x) • UDot.mk RD vQ ν (dpW C vQ x.1) := fun ν ν' f =>
@@ -600,7 +603,7 @@ theorem dpComb_dpMul (f : DpIdx (RD := RD) μ ρ →₀ LaurentPolynomial ℤ)
         (lpToQ (f d) • UDot.mk RD vQ μ (dpW C vQ d.1))
         (lpToQ (g d') • UDot.mk RD vQ lam (dpW C vQ d'.1)) := by
     rw [hf μ ρ f, hf lam μ g]
-    simp only [map_sum, LinearMap.coeFn_sum, Finset.sum_apply]
+    simp only [map_sum, LinearMap.sum_apply]
     first | rfl | exact Finset.sum_comm
   rw [hR, dpMul, Finsupp.sum, map_sum, map_sum]
   refine Finset.sum_congr rfl fun d _ => ?_

@@ -149,7 +149,7 @@ theorem evalV_mul_evalV_of_ne {i j j' l : Seq ν}
     (f : (pres k Q).obj (ob (word j)) ⟶ (pres k Q).obj (ob (word l)))
     (g : (pres k Q).obj (ob (word i)) ⟶ (pres k Q).obj (ob (word j'))) (h : j ≠ j') :
     evalV f * evalV g = 0 := by
-  rw [← evalV_mul_e f, ← e_mul_evalV g, mul_assoc, ← mul_assoc (e j), e_mul_e, if_neg h,
+  rw [← evalV_mul_e f, ← e_mul_evalV g, mul_assoc, ← mul_assoc (e j), e_mul_e, ite_eq_right h,
     zero_mul, mul_zero]
 
 theorem evalV_comp {i j l : Seq ν}
@@ -239,8 +239,8 @@ theorem ofDiagR_comp_toDiagR : (ofDiagR k Q ν).comp (toDiagR k Q ν) = AlgHom.i
   apply RingQuot.ringQuot_ext'
   apply FreeAlgebra.hom_ext
   funext g
-  simp only [Function.comp_apply, AlgHom.comp_toLinearMap, LinearMap.coe_comp,
-    AlgHom.toLinearMap_apply, AlgHom.id_comp]
+  simp only [Function.comp_apply,
+    ]
   change ofDiagR k Q ν (toDiagR k Q ν (mk k Q ν (FreeAlgebra.ι k g))) = mk k Q ν (FreeAlgebra.ι k g)
   cases g with
   | idem i => exact (congrArg _ (toDiagR_e i)).trans (ofDiagR_E i)
@@ -275,6 +275,7 @@ theorem single_crossE_mem (i : Seq ν) (j : ℕ) :
   (AlgHom.mem_range _).2
     ⟨ψ j * e i, by rw [map_mul, toDiagR_ψ, toDiagR_e, E_eq, Ψ_mul_single, Category.id_comp]⟩
 
+set_option backward.isDefEq.respectTransparency false in
 theorem inImage_layer (L : Layer (sig I)) (hv : L.Valid) :
     InImage k Q ν ((pres k Q).diag (Diagram.ofLayer L hv)) := by
   have key : ∀ i : Seq ν, L.dom = ob (word i) →
@@ -302,6 +303,7 @@ theorem inImage_layer (L : Layer (sig I)) (hv : L.Valid) :
       rw [← diag_cast (Q := Q), show (pres k Q).diag (Diagram.cast (Diagram.ofLayer _ hv) ha' hb) =
         dotE k Q i ⟨l.length, hp⟩ from (pres k Q).diag_eq_of_layers_eq (by simp [hL])]
       exact single_dotE_mem i _
+      all_goals assumption
     | cross c d =>
       have hlen := length_eq_of_word hw
       simp only [Gen.dom_cross, List.length_cons, List.length_nil] at hlen
@@ -323,6 +325,7 @@ theorem inImage_layer (L : Layer (sig I)) (hv : L.Valid) :
         crossE k Q i l.length from by
           rw [crossE_def _ hp]; exact (pres k Q).diag_eq_of_layers_eq (by simp [hL])]
       exact single_crossE_mem i _
+      all_goals assumption
   refine ⟨fun i ha hne => ?_, fun i j ha hb => ?_⟩
   · obtain ⟨j, hj, -⟩ := key i ha
     exact absurd hj (hne j)
@@ -440,7 +443,8 @@ variable [IsDomain k] {P : I → I → MvPolynomial (Fin 2) k}
 
 /-- **KL I, Theorem 2.5, diagrammatically.** The diagrams `ψ_{ρ w} x^u 1_i` form a `k`-basis
 of the diagrammatic KLR algebra. -/
-noncomputable def diagBasis : Basis (Seq ν × Perm (Fin m) × (Fin m →₀ ℕ)) k (DiagR k Q ν) :=
+noncomputable def diagBasis :
+    Module.Basis (Seq ν × Perm (Fin m) × (Fin m →₀ ℕ)) k (DiagR k Q ν) :=
   (KLRAlgebra.basis hPQ hP ρ hρ).map (diagREquiv k Q ν).toLinearEquiv
 
 theorem diagBasis_apply (b : Seq ν × Perm (Fin m) × (Fin m →₀ ℕ)) :

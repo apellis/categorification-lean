@@ -31,6 +31,9 @@ identification `tauDn` of the two orders of `F_i F_i` (`rotTauRW_eq`).
 * `rotCrossLW_same_eq` : the same for the left rotation.
 -/
 
+-- Preserve elaboration of semireducible diagram and bimodule transports.
+set_option backward.isDefEq.respectTransparency false
+
 noncomputable section
 
 open scoped TensorProduct
@@ -56,10 +59,9 @@ theorem whiskerLeft_mul_add (M : BRing A B) {N N' : BRing B C} (F G : BHom N N')
       BHom.whiskerLeft M G y + BRing.tmul M N' 1 w' * BHom.whiskerLeft M F y := by
   refine BRing.induction_on (P := fun y => BHom.whiskerLeft M F (BRing.tmul M N 1 w * y) =
     BHom.whiskerLeft M G y + BRing.tmul M N' 1 w' * BHom.whiskerLeft M F y) y
-    (by beta_reduce; simp only [mul_zero, BHom.map_zero, add_zero])
+    (by simp only [mul_zero, BHom.map_zero, add_zero])
     (fun a b => ?_) (fun y y' hy hy' => ?_)
-  · beta_reduce
-    rw [BRing.tmul_mul_tmul, one_mul, BHom.whiskerLeft_tmul, BHom.whiskerLeft_tmul,
+  · rw [BRing.tmul_mul_tmul, one_mul, BHom.whiskerLeft_tmul, BHom.whiskerLeft_tmul,
       BHom.whiskerLeft_tmul, BRing.tmul_mul_tmul, one_mul, hF, BRing.tmul_add]
   · beta_reduce at hy hy' ⊢
     rw [mul_add, BHom.map_add, hy, hy', BHom.map_add, BHom.map_add, mul_add]
@@ -85,7 +87,7 @@ theorem Eleft_xbar_succ (k : ℕ) :
           c.succ α) := by
     intro α
     show eLeft K c t h.2 (hCast K h.1.symm (xbar K r c.succ α)) = _
-    rw [hCast_xbar, eLeft, AlgHom.comp_apply, AlgEquiv.toAlgHom_eq_coe, AlgHom.coe_coe]
+    rw [hCast_xbar, eLeft, AlgHom.comp_apply, AlgEquiv.coe_toAlgHom]
     congr 1
     rw [AlgEquiv.symm_apply_eq, borelEquivH'_xbarB]
   have e2 : ∀ α, ((stepB K (true, c) t r h).right (xbar K t c.succ α) : ERing K c t h.2) =
@@ -93,7 +95,7 @@ theorem Eleft_xbar_succ (k : ℕ) :
         (xbarB K (Sigma.fst : Gen t → Fin (m + 1)) c.succ α) := by
     intro α
     show eRight K c t h.2 (xbar K t c.succ α) = _
-    rw [eRight, AlgHom.comp_apply, AlgEquiv.toAlgHom_eq_coe, AlgHom.coe_coe, hEquiv_xbar]
+    rw [eRight, AlgHom.comp_apply, AlgEquiv.coe_toAlgHom, hEquiv_xbar]
   rw [e1, e2, e2]
   exact pL_xbarB_of_eq (k := K) (lab := (Sigma.fst : Gen t → Fin (m + 1)))
     (v₀ := movedVar c t h.2) (j' := c.castSucc) (castSucc_ne_succ' c).symm k
@@ -110,7 +112,7 @@ theorem Eright_xbar_succ {s r : Comp m} (h : StepR (true, c) s r) (k : ℕ) :
           c.castSucc α) := by
     intro α
     show eLeft K c s h.2 (hCast K h.1.symm (xbar K r c.castSucc α)) = _
-    rw [hCast_xbar, eLeft, AlgHom.comp_apply, AlgEquiv.toAlgHom_eq_coe, AlgHom.coe_coe]
+    rw [hCast_xbar, eLeft, AlgHom.comp_apply, AlgEquiv.coe_toAlgHom]
     congr 1
     rw [AlgEquiv.symm_apply_eq, borelEquivH'_xbarB]
   have e2 : ∀ α, ((stepB K (true, c) s r h).right (xbar K s c.castSucc α) : ERing K c s h.2) =
@@ -118,7 +120,7 @@ theorem Eright_xbar_succ {s r : Comp m} (h : StepR (true, c) s r) (k : ℕ) :
         (xbarB K (Sigma.fst : Gen s → Fin (m + 1)) c.castSucc α) := by
     intro α
     show eRight K c s h.2 (xbar K s c.castSucc α) = _
-    rw [eRight, AlgHom.comp_apply, AlgEquiv.toAlgHom_eq_coe, AlgHom.coe_coe, hEquiv_xbar]
+    rw [eRight, AlgHom.comp_apply, AlgEquiv.coe_toAlgHom, hEquiv_xbar]
   rw [e2, e1, e1]
   exact pR_xbarB_of_move (k := K) (lab := (Sigma.fst : Gen s → Fin (m + 1)))
     (v₀ := movedVar c s h.2) (j' := c.castSucc) (castSucc_ne_succ' c) k
@@ -141,7 +143,7 @@ theorem crossU_same_tmul_pow (g h : ℕ) :
           (eXi K c r₁' h₁'.2 ^ (g + h - 1 - f)) (eXi K c r₂ h₂'.2 ^ f) := by
   have := (crossU_rules (K := K) c c h₁ h₂ h₁' h₂').eval2
     (MvPolynomial.X 0 ^ g * MvPolynomial.X 1 ^ h : MvPolynomial (Fin 2) K) 1
-  rw [tauU_one, if_pos rfl, crossU_one, if_pos rfl, mul_zero, add_zero, mul_one,
+  rw [tauU_one, ite_eq_left rfl, crossU_one, ite_eq_left rfl, mul_zero, add_zero, mul_one,
     ddiff_X_pow_mul_X_pow (k := K) (show (0 : Fin 2) ≠ 1 by decide)] at this
   have hev : ∀ {A B C : Type u} [CommRing A] [Algebra K A] [CommRing B] [CommRing C]
       (L : BRing A B) (L' : BRing B C) (a : L.T) (b : L'.T) (p q : ℕ),
@@ -196,7 +198,7 @@ theorem tauU_same_tmul_pow (g h : ℕ) :
       (eXi K c r₁ h₁.2 ^ g) (eXi K c r₂ h₂.2 ^ h) =
       BRing.tmul _ _ (eXi K c r₁ h₁.2 ^ g) 1 * (BRing.tmul _ _ 1 (eXi K c r₂ h₂.2 ^ h) * 1) := by
     rw [mul_one, BRing.tmul_mul_tmul, mul_one, one_mul]
-  rw [e, hL, hR, tauU_one, if_pos rfl, mul_one, BRing.tmul_mul_tmul, mul_one, one_mul]
+  rw [e, hL, hR, tauU_one, ite_eq_left rfl, mul_one, BRing.tmul_mul_tmul, mul_one, one_mul]
 
 end CrossMonomial
 
@@ -395,7 +397,7 @@ theorem rotCap_vanish (e₁ e₂ : ℕ) (he : e₁ + e₂ + 2 < r₁ i.succ + t 
         ((-1) ^ k) := by rw [map_pow, map_neg, map_one]
     rw [hsign, mul_assoc]
     rcases k with _ | k
-    · rw [xbar_zero', map_one, one_mul, hcapR, capFEP_one_xi_pow, if_neg (by omega), mul_zero,
+    · rw [xbar_zero', map_one, one_mul, hcapR, capFEP_one_xi_pow, ite_eq_right (by omega), mul_zero,
         map_zero, zero_mul]
     · have hxi : xiStep K (true, i) t r₁ hFj = eXi K i t hFj.2 := rfl
       rw [Eleft_xbar_succ, ← hxi, add_mul, mul_add, BRing.tmul_add, capFEP_add]
@@ -415,7 +417,7 @@ theorem rotCap_vanish (e₁ e₂ : ℕ) (he : e₁ + e₂ + 2 < r₁ i.succ + t 
           ((-1) ^ (k + 1) * xbar K t i.succ (k + 1)) * capFEP K i (hFj : StepR (true, i) t r₁) hFj
             (BRing.tmul _ _ 1 (xiStep K (true, i) t r₁ hFj ^ e₂)) := by
         rw [← hcapR, map_mul, mul_assoc]
-      rw [t1, t2, hxi, capFEP_one_xi_pow, capFEP_one_xi_pow, if_neg (by omega), if_neg (by omega),
+      rw [t1, t2, hxi, capFEP_one_xi_pow, capFEP_one_xi_pow, ite_eq_right (by omega), ite_eq_right (by omega),
         mul_zero, mul_zero, add_zero, map_zero, zero_mul]
   · rw [map_zero, zero_mul, BRing.tmul_zero, BHom.map_zero]
 
@@ -537,11 +539,11 @@ theorem rotCap_top (g h : ℕ) (hg : g + 1 ≤ r₁ i.succ) (hh : h + 1 ≤ t i.
       if g + 1 = r₁ i.succ ∧ h + 1 = t i.succ then W else 0 := by
   rw [BHom.whiskerLeft_tmul, capFEW_tmul, capFEP_xi_pow i _ _ _ hg]
   by_cases h1 : g + 1 = r₁ i.succ
-  · rw [if_pos h1, map_one, one_mul, capFEW_tmul, capFEP_xi_pow i _ _ _ hh]
+  · rw [ite_eq_left h1, map_one, one_mul, capFEW_tmul, capFEP_xi_pow i _ _ _ hh]
     by_cases h2 : h + 1 = t i.succ
-    · rw [if_pos h2, if_pos ⟨h1, h2⟩, map_one, one_mul]
-    · rw [if_neg h2, if_neg (fun h => h2 h.2), map_zero, zero_mul]
-  · rw [if_neg h1, if_neg (fun h => h1 h.1), map_zero, zero_mul, BRing.tmul_zero, BHom.map_zero]
+    · rw [ite_eq_left h2, ite_eq_left ⟨h1, h2⟩, map_one, one_mul]
+    · rw [ite_eq_right h2, ite_eq_right (fun h => h2 h.2), map_zero, zero_mul]
+  · rw [ite_eq_right h1, ite_eq_right (fun h => h1 h.1), map_zero, zero_mul, BRing.tmul_zero, BHom.map_zero]
 
 variable (K) in
 /-- The crossing `τ` (the identity for equal colours) followed by the two caps, additively. -/
@@ -583,14 +585,14 @@ theorem rotTau_one (y : Y.T) :
     · rw [Nat.sub_self, pow_zero, one_mul, x_zero, map_one, one_mul, x_zero, map_one, one_mul]
       show capFEW K i (hFj : StepR (true, i) t r₁) hFj _ _ = _
       rw [locTwo_tmul, tauU_same_tmul_pow, BRing.assoc_hom_tmul, rotCap_top i hFj hFi hFi' hFj' Y
-        _ _ (by omega) (by omega), if_pos ⟨by omega, by omega⟩]
+        _ _ (by omega) (by omega), ite_eq_left ⟨by omega, by omega⟩]
     · intro h hh hhd
       have hh' := Finset.mem_range.1 hh
       rw [tmul_neg_one_pow_mul]
       refine addHom_neg_one_pow_mul _ _ _ ?_
       show capFEW K i (hFj : StepR (true, i) t r₁) hFj _ _ = 0
       rw [locTwo_tmul, tauU_same_tmul_pow, BRing.assoc_hom_tmul, rotCap_top i hFj hFi hFi' hFj' Y
-        _ _ (by omega) (by omega), if_neg (by omega)]
+        _ _ (by omega) (by omega), ite_eq_right (by omega)]
     · intro h; exact absurd (Finset.mem_range.2 (Nat.lt_succ_self _)) h
   · intro g hg hgd
     have hg' := Finset.mem_range.1 hg
@@ -604,7 +606,7 @@ theorem rotTau_one (y : Y.T) :
     refine addHom_neg_one_pow_mul _ _ _ ?_
     show capFEW K i (hFj : StepR (true, i) t r₁) hFj _ _ = 0
     rw [locTwo_tmul, tauU_same_tmul_pow, BRing.assoc_hom_tmul, rotCap_top i hFj hFi hFi' hFj' Y
-      _ _ (by omega) (by omega), if_neg (by omega)]
+      _ _ (by omega) (by omega), ite_eq_right (by omega)]
   · intro h; exact absurd (Finset.mem_range.2 (Nat.lt_succ_self _)) h
 
 /-! #### Dot slides of the crossing, whiskered by the two downward strands -/
@@ -742,7 +744,7 @@ theorem rotTau_eq : rotGen K i i hFj hFi hFi' hFj' Y (tauU K i i (hFj' : StepR (
   · rw [BHom.toAddHom_apply, BHom.toAddHom_apply, rotTau_dotR]
   · rw [BHom.toAddHom_apply, BHom.toAddHom_apply, locTauDn_dotR]
   · rw [BHom.toAddHom_apply, BHom.toAddHom_apply, rotTau_one, locTwo_tmul, ← BRing.one_eq,
-      tauDn_one, if_pos rfl, BRing.one_eq (M := stepB K (false, i) w t hFi')
+      tauDn_one, ite_eq_left rfl, BRing.one_eq (M := stepB K (false, i) w t hFi')
         (N := stepB K (false, i) r₂ w hFj'), BRing.assoc_hom_tmul]
 
 /-- **Cyclicity of the crossing of equal colours, right rotation** (KL III `eq_cyclic_cross-gen`
@@ -767,7 +769,7 @@ theorem rotCrossRW_same_eq : rotCrossRW K i i hFj hFi hFi' hFj' Y = locTwo (cros
       locCrossDn_dotR, rotTau_eq, mul_sub]
     abel
   · rw [AddMonoidHom.sub_apply, BHom.toAddHom_apply, BHom.toAddHom_apply, AddMonoidHom.zero_apply,
-      rotCrossRW_same_one, locTwo_tmul, ← BRing.one_eq, crossDn_one, if_pos rfl, BRing.zero_tmul,
+      rotCrossRW_same_one, locTwo_tmul, ← BRing.one_eq, crossDn_one, ite_eq_left rfl, BRing.zero_tmul,
       BHom.map_zero, sub_zero]
 
 end RotSame

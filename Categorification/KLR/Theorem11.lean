@@ -52,7 +52,7 @@ noncomputable section
 
 namespace Categorification.KLR.KLGamma
 
-open Graded LaurentPolynomial QuantumGroup KLRAlgebra
+open Categorification.Graded LaurentPolynomial QuantumGroup KLRAlgebra
 
 variable {I : Type*} [DecidableEq I] (k : Type*) [Field k] (Γ : SimpleGraph I)
   [DecidableRel Γ.Adj]
@@ -101,9 +101,9 @@ theorem gammaInt_surjective (hGK : PreF.GabberKac (KL.C Γ).dot vQ (KL.C Γ).c)
     induction z using DirectSum.induction_on with
     | zero => exact S.zero_mem
     | of ν x =>
-      haveI := ((Gkl).finite_and_card_indecClass_le (klQ_eq_klP (Γ := Γ) KL1.stdOrient_spec)
+      have := ((Gkl).finite_and_card_indecClass_le (klQ_eq_klP (Γ := Γ) KL1.stdOrient_spec)
         (fun a b _ => KL1.klP_ne_zero _ a b) KL1.klGradingDatum_degX_pos ν).1
-      haveI := Fintype.ofFinite (GProj.IndecClass ((Gkl).grade ν))
+      have := Fintype.ofFinite (GProj.IndecClass ((Gkl).grade ν))
       rw [← (k0B k Γ ν).sum_repr x, map_sum]
       refine S.sum_mem fun b _ => ?_
       rw [K0R_of_smul]

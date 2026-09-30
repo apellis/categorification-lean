@@ -122,7 +122,8 @@ def twistF (χ : Multiset I → ℤ) : F dot v c →ₗ[K] F dot v c :=
 
 theorem twistF_π_word (χ : Multiset I → ℤ) (u : FreeMonoid I) :
     twistF dot v c χ (π dot v c (word u)) = ((v ^ χ (wt u) : Kˣ) : K) • π dot v c (word u) := by
-  rw [twistF, liftF_π, LinearMap.comp_apply, twistBy_word, AlgHom.toLinearMap_apply, map_smul]
+  exact (liftF_π (g := (π dot v c).toLinearMap ∘ₗ twistBy v χ) _ (word u)).trans (by
+    simp only [LinearMap.comp_apply, twistBy_word, AlgHom.toLinearMap_apply, map_smul])
 
 /-! ### The map `'f ⊗ 'f → f ⊗ f` and its kernel -/
 
@@ -161,7 +162,7 @@ theorem toTensorF_single_mul (a b : FreeMonoid I) (X : TwSq K I dot v) :
     refine twSq_lhom_ext fun u w => ?_
     simp only [LinearMap.comp_apply, LinearMap.mulLeft_apply, twSq_single_mul_single,
       toTensorF_single, map_smul, TensorProduct.map_tmul, twistF_π_word, Prod.mk_mul_mk,
-      word_mul, map_mul, mul_smul_comm, TensorProduct.smul_tmul', one_smul, mul_one]
+      word_mul, map_mul, TensorProduct.smul_tmul', one_smul, mul_one]
   exact LinearMap.congr_fun this X
 
 theorem toTensorF_mul_single (X : TwSq K I dot v) (a b : FreeMonoid I) :
@@ -176,7 +177,7 @@ theorem toTensorF_mul_single (X : TwSq K I dot v) (a b : FreeMonoid I) :
     refine twSq_lhom_ext fun u w => ?_
     simp only [LinearMap.comp_apply, LinearMap.mulRight_apply, twSq_single_mul_single,
       toTensorF_single, map_smul, TensorProduct.map_tmul, twistF_π_word, Prod.mk_mul_mk,
-      word_mul, map_mul, smul_mul_assoc, TensorProduct.tmul_smul, one_smul, mul_one]
+      word_mul, map_mul, TensorProduct.tmul_smul, one_smul, mul_one]
   exact LinearMap.congr_fun this X
 
 variable (dot v c) in
@@ -185,11 +186,11 @@ variable (dot v c) in
 def kerIdeal : Ideal (TwSq K I dot v) where
   carrier := {X | toTensorF dot v c X = 0}
   add_mem' {X Y} hX hY := by
-    simp only [Set.mem_setOf_eq] at hX hY ⊢
+    simp only [Set.mem_ofPred_eq] at hX hY ⊢
     rw [map_add, hX, hY, add_zero]
   zero_mem' := map_zero _
   smul_mem' Z X hX := by
-    simp only [Set.mem_setOf_eq, smul_eq_mul] at hX ⊢
+    simp only [Set.mem_ofPred_eq, smul_eq_mul] at hX ⊢
     induction Z using TwistedMonoidAlgebra.induction_linear with
     | zero => simp
     | add Z Z' h h' => rw [add_mul, map_add, h, h', add_zero]
@@ -298,16 +299,16 @@ theorem contractF_toTensorF (a : PreF K I) (X : TwSq K I dot v) :
     obtain ⟨u, w⟩ := p
     rw [toTensorF_single, map_smul, contractL, TwistedMonoidAlgebra.lift_single, map_smul,
       map_smul]
-    simp [contractF, formAt, liftF_π]
+    change s • ((liftF dot v c ((form dot v c).flip a) _) ((π dot v c) (word u))) • (π dot v c) (word w) = _
+    exact congrArg (fun z : K => s • z • (π dot v c) (word w)) (liftF_π _ _ _)
 
-theorem repr_contractF {κ : Type*} [DecidableEq κ] (b : Basis κ K (F dot v c)) (a : PreF K I)
+theorem repr_contractF {κ : Type*} [DecidableEq κ] (b : Module.Basis κ K (F dot v c)) (a : PreF K I)
     (Ξ : F dot v c ⊗[K] F dot v c) (k : κ) :
     b.repr (contractF dot v c a Ξ) k =
       formAt dot v c a (TensorProduct.equivFinsuppOfBasisRight b Ξ k) := by
-  induction Ξ using TensorProduct.induction_on with
-  | zero => simp
+  induction Ξ using TensorProduct.inductionOn with
   | tmul x y =>
-    simp [contractF, TensorProduct.equivFinsuppOfBasisRight_apply_tmul_apply, mul_comm]
+    simp [contractF, mul_comm]
   | add Ξ Ξ' h h' => simp only [map_add, Finsupp.add_apply, h, h']
 
 /-- **Lusztig 1.2.5**: `r` maps the radical `ℐ` into the kernel `ℐ ⊗ 'f + 'f ⊗ ℐ` of
@@ -315,17 +316,17 @@ theorem repr_contractF {κ : Type*} [DecidableEq κ] (b : Basis κ K (F dot v c)
 theorem toTensorF_r_eq_zero (hdot : ∀ i j, dot i j = dot j i) {x : PreF K I}
     (hx : x ∈ radical dot v c) : toTensorF dot v c (r dot v x) = 0 := by
   refine (LinearEquiv.map_eq_zero_iff (TensorProduct.equivFinsuppOfBasisRight (M := F dot v c)
-    (Basis.ofVectorSpace K (F dot v c)))).1 ?_
+    (Module.Basis.ofVectorSpace K (F dot v c)))).1 ?_
   ext k
   rw [Finsupp.zero_apply]
   refine formF_nondegenerate hdot fun z => ?_
   obtain ⟨a, rfl⟩ := π_surjective (dot := dot) (v := v) (c := c) z
-  have h1 := repr_contractF (Basis.ofVectorSpace K (F dot v c)) a
+  have h1 := repr_contractF (Module.Basis.ofVectorSpace K (F dot v c)) a
     (toTensorF dot v c (r dot v x)) k
   rw [contractF_toTensorF, π_eq_zero_iff.2 (contractL_r_mem_radical hdot a hx), map_zero,
     Finsupp.zero_apply] at h1
   obtain ⟨m, hm⟩ := π_surjective (dot := dot) (v := v) (c := c)
-    (TensorProduct.equivFinsuppOfBasisRight (M := F dot v c) (Basis.ofVectorSpace K (F dot v c))
+    (TensorProduct.equivFinsuppOfBasisRight (M := F dot v c) (Module.Basis.ofVectorSpace K (F dot v c))
       (toTensorF dot v c (r dot v x)) k)
   rw [← hm] at h1 ⊢
   rw [formF_π]

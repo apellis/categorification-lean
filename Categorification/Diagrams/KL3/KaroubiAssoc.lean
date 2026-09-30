@@ -79,6 +79,7 @@ theorem hcomp_assoc (f : P.obj x.obj ⟶ P.obj x'.obj) (g : P.obj y.obj ⟶ P.ob
     P.wL_tensor (x'.composable y') (y'.composable z), P.wL_comp]
   simp only [Category.assoc, eqToHom_trans_assoc, eqToHom_refl, Category.id_comp]
 
+set_option backward.isDefEq.respectTransparency false in
 /-- `𝟙 ∘ g = g` up to `1 x = x`. -/
 theorem hcomp_id_left (g : P.obj y.obj ⟶ P.obj y'.obj) :
     P.hcomp m.region (𝟙 (P.obj (Bicat.Hom.id m).obj)) g rfl rfl =
@@ -104,6 +105,7 @@ section Iso
 
 variable [S.IsEven] (deg)
 
+set_option backward.isDefEq.respectTransparency false in
 /-- **The associativity isomorphism `(A B) C ≅ A (B C)`** in `U̇(l, o)`, for the composition
 functor `hcompDot` of KL III Definition 3.21. -/
 def hcompDotAssoc (A : UDotHom P deg l m) (B : UDotHom P deg m n) (C : UDotHom P deg n o) :
@@ -126,6 +128,7 @@ def hcompDotAssoc (A : UDotHom P deg l m) (B : UDotHom P deg m n) (C : UDotHom P
 `U̇(l, l)`. -/
 abbrev oneDot (l : P.Bicat) : UDotHom P deg l l := objOf (Bicat.Hom.id l) 0
 
+set_option backward.isDefEq.respectTransparency false in
 /-- **The left unit isomorphism `1_l A ≅ A`** in `U̇(l, m)`. -/
 def hcompDotIdLeft (A : UDotHom P deg l m) : (hcompDot deg).obj (oneDot deg l, A) ≅ A :=
   udIso _ _ (Equiv.punitProd _)
@@ -143,6 +146,7 @@ def hcompDotIdLeft (A : UDotHom P deg l m) : (hcompDot deg).obj (oneDot deg l, A
       erw [hcomp_id_left]
       simp)
 
+set_option backward.isDefEq.respectTransparency false in
 /-- **The right unit isomorphism `A 1_m ≅ A`** in `U̇(l, m)`. -/
 def hcompDotIdRight (A : UDotHom P deg l m) : (hcompDot deg).obj (A, oneDot deg m) ≅ A :=
   udIso _ _ (Equiv.prodPUnit _)

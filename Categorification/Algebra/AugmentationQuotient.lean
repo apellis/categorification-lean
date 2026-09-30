@@ -45,7 +45,7 @@ theorem augSubmodule_induction {ε : R →ₐ[k] k} {p : M → Prop} {x : M}
   rw [mem_augSubmodule] at hx
   exact Submodule.smul_induction_on hx (fun r hr m _ => smul r (RingHom.mem_ker.1 hr) m) add
 
-variable (b : Basis ι R M) (ε : R →ₐ[k] k)
+variable (b : Module.Basis ι R M) (ε : R →ₐ[k] k)
 
 /-- The `k`-linear functional `m ↦ ε (b.coord i m)`. -/
 noncomputable def augCoord (i : ι) : M →ₗ[k] k :=
@@ -68,17 +68,17 @@ variable [Fintype ι] [DecidableEq ι]
 
 /-- **The augmentation quotient of a free module**: the classes of a basis `b` of `M` over `R`
 form a `k`-basis of `M / (ker ε) M`. -/
-noncomputable def augQuotBasis : Basis ι k (M ⧸ augSubmodule M ε) :=
-  Basis.mk (v := fun i => Submodule.Quotient.mk (b i))
+noncomputable def augQuotBasis : Module.Basis ι k (M ⧸ augSubmodule M ε) :=
+  Module.Basis.mk (v := fun i => Submodule.Quotient.mk (b i))
     (by
       rw [Fintype.linearIndependent_iff]
       intro c hc j
       have h := congrArg ((augSubmodule M ε).liftQ (augCoord b ε j)
         (augSubmodule_le_ker_augCoord b ε j)) hc
-      simp only [map_sum, map_smul, Submodule.liftQ_apply, augCoord_apply, Basis.repr_self,
+      simp only [map_sum, map_smul, Submodule.liftQ_apply, augCoord_apply, Module.Basis.repr_self,
         map_zero] at h
       rw [Finset.sum_eq_single j (fun i _ hij => by
-        rw [Finsupp.single_eq_of_ne hij, map_zero, smul_zero])
+        rw [Finsupp.single_eq_of_ne' hij, map_zero, smul_zero])
         (by simp)] at h
       simpa using h)
     (by

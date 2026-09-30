@@ -264,7 +264,7 @@ theorem ups_dns_inj {a b a' b' : List I} (h : ups a' ++ dns b' = ups a ++ dns b)
     a' = a ∧ b' = b := by
   have hc : ∀ (a b : List I), (ups a ++ dns b).countP (fun l => l.1) = a.length := by
     intro a b
-    simp [List.countP_append, ups, dns, List.countP_map, Function.comp_def, up, dn]
+    simp [List.countP_append, ups, dns, List.countP_map, Function.comp_def]
   have hl : a'.length = a.length := by rw [← hc a' b', h, hc]
   obtain ⟨h1, h2⟩ := List.append_inj h (by simp [hl])
   refine ⟨List.map_injective_iff.2 (fun x y hxy => ?_) h1, List.map_injective_iff.2
@@ -280,7 +280,7 @@ theorem fst_getElem?_updn (a b : List I) {j : ℕ} (hj : j < a.length + b.length
     simp [ups, up, h]
   · rw [List.getElem?_append_right (by simp; omega)]
     have : j - (ups a).length < b.length := by simp; omega
-    simp [dns, dn, h]
+    simp [dns, h]
     exact ⟨_, List.getElem?_eq_getElem (by simp at this; omega)⟩
 
 omit [AddCommGroup X] [AddCommGroup Y] in
@@ -465,7 +465,7 @@ theorem lo_comp_bubAt_mem {μ : X} {s : List (Letter I)} {n : ℕ} {f}
   have hb : bubAt RD k μ s β ∈ LeL RD k μ s s 0 := by
     have := ctxL_leL (RD := RD) (k := k) (μ := μ) (s₀ := s) (t₀ := s) (pre := []) (post := [])
       (u := s) (v := []) (s := []) (t := []) (isBub_mem_leL hβ)
-    simpa using this
+    convert this using 1 <;> rfl
   induction hf using Submodule.span_induction with
   | mem f hf =>
     obtain ⟨L, hL, rfl⟩ := hf

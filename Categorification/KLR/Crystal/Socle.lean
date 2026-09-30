@@ -104,9 +104,9 @@ omit [Module K M] [IsScalarTower K (KLRAlgebra K Q ν₂) M] in
 variable (h M) in
 theorem isSimpleModule_castMod [IsSimpleModule (KLRAlgebra K Q ν₂) M] :
     IsSimpleModule (KLRAlgebra K Q ν₁) (CastMod h M) := by
-  haveI := IsSimpleModule.nontrivial (KLRAlgebra K Q ν₂) M
-  haveI : Nontrivial (CastMod h M) := inferInstanceAs (Nontrivial M)
-  refine ⟨fun P => ?_⟩
+  have := IsSimpleModule.nontrivial (KLRAlgebra K Q ν₂) M
+  have : Nontrivial (CastMod h M) := inferInstanceAs (Nontrivial M)
+  refine { eq_bot_or_eq_top := fun P => ?_ }
   let P' : Submodule (KLRAlgebra K Q ν₂) M :=
     { carrier := {m | CastMod.of (h := h) m ∈ P}
       add_mem' := fun ha hb => P.add_mem ha hb
@@ -156,7 +156,7 @@ theorem oneConcat_eq_one_of_forall :
   have huniv : concatSet ν'' ν' = Finset.univ := by
     apply Finset.eq_univ_of_forall
     intro s
-    letI := Seq.uniqueOfForall (forall_add_of_forall hν'' hν')
+    let := Seq.uniqueOfForall (forall_add_of_forall hν'' hν')
     exact mem_concatSet.2 ⟨Seq.constSeq hν'', Seq.constSeq hν', Subsingleton.elim _ _⟩
   rw [oneConcat, eSum, huniv, sum_e]
 
@@ -314,10 +314,10 @@ theorem epsI_hwSpace_of_simple
     [IsSimpleModule (TensorKLR Q (μ' + ν'') ν') S] :
     epsI Q (μ' + ν'') i (HWSpace Q (μ' + ν'') ν' S) = Multiset.card ν'' := by
   have hnilS := fun b => smulNilpotent_submodule S (smulNilpotent_resSub b (hnil _))
-  haveI : FiniteDimensional K S :=
+  have : FiniteDimensional K S :=
     Module.Finite.of_injective (S.subtype.restrictScalars K) Subtype.val_injective
-  haveI := isSimpleModule_hwSpace hν' hPQ hP hnilS
-  haveI : Nontrivial (HWSpace Q (μ' + ν'') ν' S) := IsSimpleModule.nontrivial (KLRAlgebra K Q (μ' + ν'')) _
+  have := isSimpleModule_hwSpace hν' hPQ hP hnilS
+  have : Nontrivial (HWSpace Q (μ' + ν'') ν' S) := IsSimpleModule.nontrivial (KLRAlgebra K Q (μ' + ν'')) _
   exact epsI_eq_of_embedding' hν' hPQ hP hε (S.subtype ∘ₗ (hwEquiv hν' hPQ hP hnilS).toLinearMap)
     (Subtype.val_injective.comp (hwEquiv hν' hPQ hP hnilS).injective)
 
@@ -329,10 +329,10 @@ theorem exists_mem_ne_zero_fixed
     ∃ v ∈ S, v ≠ 0 ∧
       (oneConcat Q μ' ν'' ⊗ₜ[K] (1 : KLRAlgebra K Q ν') : TensorKLR Q (μ' + ν'') ν') • v = v := by
   have hnilS := fun b => smulNilpotent_submodule S (smulNilpotent_resSub b (hnil _))
-  haveI : FiniteDimensional K S :=
+  have : FiniteDimensional K S :=
     Module.Finite.of_injective (S.subtype.restrictScalars K) Subtype.val_injective
-  haveI := isSimpleModule_hwSpace hν' hPQ hP hnilS
-  haveI : Nontrivial (HWSpace Q (μ' + ν'') ν' S) := IsSimpleModule.nontrivial (KLRAlgebra K Q (μ' + ν'')) _
+  have := isSimpleModule_hwSpace hν' hPQ hP hnilS
+  have : Nontrivial (HWSpace Q (μ' + ν'') ν' S) := IsSimpleModule.nontrivial (KLRAlgebra K Q (μ' + ν'')) _
   have hN := epsI_hwSpace_of_simple hν' hPQ hP hnil hε S
   obtain ⟨j, hj, hjt⟩ := exists_tailLen_eq_epsI (Q := Q) (ν := μ' + ν'') (i := i)
     (M := HWSpace Q (μ' + ν'') ν' S)
@@ -454,7 +454,7 @@ theorem socle_eq_of_inst
     (S₁ S₂ : Submodule (TensorKLR Q (μ' + ν'') ν') (ResSub Q (μ' + ν'') ν' M))
     [IsSimpleModule (TensorKLR Q (μ' + ν'') ν') S₁]
     [IsSimpleModule (TensorKLR Q (μ' + ν'') ν') S₂] : S₁ = S₂ := by
-  haveI := IsSimpleModule.nontrivial (KLRAlgebra K Q μ')
+  have := IsSimpleModule.nontrivial (KLRAlgebra K Q μ')
     (HWSpace Q μ' (ν'' + ν') (ResSub Q μ' (ν'' + ν') (MAssoc μ' ν'' ν' M)))
   obtain ⟨w₀, hw₀⟩ := exists_ne
     (0 : HWSpace Q μ' (ν'' + ν') (ResSub Q μ' (ν'' + ν') (MAssoc μ' ν'' ν' M)))
@@ -485,7 +485,7 @@ theorem socle_resSub_unique
     [IsSimpleModule (TensorKLR Q (μ' + ν'') ν') S₁]
     [IsSimpleModule (TensorKLR Q (μ' + ν'') ν') S₂] : S₁ = S₂ := by
   have hνε := forall_add_of_forall hν'' hν'
-  haveI := isSimpleModule_castMod (Q := Q) (add_assoc μ' ν'' ν').symm M
+  have := isSimpleModule_castMod (Q := Q) (add_assoc μ' ν'' ν').symm M
   have hε' : epsI Q (μ' + (ν'' + ν')) i (MAssoc μ' ν'' ν' M) = Multiset.card (ν'' + ν') := by
     rw [epsI_castMod, hε, Multiset.card_add]
   obtain ⟨h1, h2, -⟩ := lemma_3_8 hνε hPQ hP (smulNilpotent_mAssoc hnil) hε'
@@ -495,7 +495,7 @@ omit [FiniteDimensional K M] in
 include hν' hε in
 /-- `Δ_{i^n} M ≠ 0` (as `n ≤ ε_i(M)`), so it has a (unique) simple submodule. -/
 theorem nontrivial_resSub_of_prop_3_10 : Nontrivial (ResSub Q (μ' + ν'') ν' M) := by
-  haveI := IsSimpleModule.nontrivial (KLRAlgebra K Q ((μ' + ν'') + ν')) M
+  have := IsSimpleModule.nontrivial (KLRAlgebra K Q ((μ' + ν'') + ν')) M
   exact (nontrivial_resSub_iff hν').2 (by omega)
 
 include hν' hPQ hP hnil hε in
@@ -508,7 +508,7 @@ theorem socle_resSub_form
       epsI Q (μ' + ν'') i (HWSpace Q (μ' + ν'') ν' S) + Multiset.card ν' =
         epsI Q ((μ' + ν'') + ν') i M := by
   have hnilS := fun b => smulNilpotent_submodule S (smulNilpotent_resSub b (hnil _))
-  haveI : FiniteDimensional K S :=
+  have : FiniteDimensional K S :=
     Module.Finite.of_injective (S.subtype.restrictScalars K) Subtype.val_injective
   refine ⟨isSimpleModule_hwSpace hν' hPQ hP hnilS, ?_⟩
   rw [epsI_hwSpace_of_simple hν' hPQ hP hnil hε S, hε]
@@ -531,8 +531,8 @@ theorem replicate_le_of_hasTail [DecidableEq I] {μ : Multiset I} {i : I} {d : �
       refine Finset.card_le_card_of_injOn
         (fun b : Fin d => (⟨Multiset.card μ - d + b.val, by omega⟩ : Fin (Multiset.card μ)))
         (fun b _ => ?_) (fun b _ b' _ hbb => ?_)
-      · simp only [Finset.mem_filter, Finset.mem_univ, true_and]
-        exact (hj.2 _ (by simp only; omega)).symm
+      · apply Finset.mem_filter.mpr
+        exact ⟨Finset.mem_univ _, (hj.2 ⟨Multiset.card μ - d + b.val, by omega⟩ (by dsimp; omega)).symm⟩
       · have := congrArg Fin.val hbb
         simp only at this
         exact Fin.ext (by omega)
@@ -577,7 +577,7 @@ theorem prop_3_10_socle (hle : Multiset.card ν' ≤ epsI Q (μ + ν') i M)
     (S₁ S₂ : Submodule (TensorKLR Q μ ν') (ResSub Q μ ν' M))
     [IsSimpleModule (TensorKLR Q μ ν') S₁] [IsSimpleModule (TensorKLR Q μ ν') S₂] :
     S₁ = S₂ := by
-  haveI := IsSimpleModule.nontrivial (KLRAlgebra K Q (μ + ν')) M
+  have := IsSimpleModule.nontrivial (KLRAlgebra K Q (μ + ν')) M
   obtain ⟨μ', hμ'⟩ := exists_eq_add_replicate hν' hle
   set d := epsI Q (μ + ν') i M - Multiset.card ν' with hd
   have hε : epsI Q (μ + ν') i M = Multiset.card (Multiset.replicate d i) + Multiset.card ν' := by

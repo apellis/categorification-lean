@@ -44,7 +44,7 @@ noncomputable section
 
 namespace Categorification.KLR
 
-open Graded HahnSeries QuantumGroup KLRAlgebra Finset
+open Categorification.Graded HahnSeries QuantumGroup KLRAlgebra Finset
 
 /-! ### Quantum integers in `ℤ((q))` -/
 
@@ -60,7 +60,7 @@ set_option synthInstance.maxHeartbeats 100000 in
 theorem val_qUnitLS_zpow (z : ℤ) :
     ((qUnitLS ^ z : (LaurentSeries ℤ)ˣ) : LaurentSeries ℤ) = single z 1 := by
   rcases z with n | n
-  · rw [Int.ofNat_eq_coe, zpow_natCast, Units.val_pow_eq_pow_val]
+  · rw [Int.ofNat_eq_natCast, zpow_natCast, Units.val_pow_eq_pow_val]
     show (single (1 : ℤ) (1 : ℤ)) ^ n = _
     rw [single_pow, one_pow, nsmul_one]
   · rw [zpow_negSucc, ← inv_pow, Units.val_pow_eq_pow_val]
@@ -80,7 +80,7 @@ theorem qint_qUnitLS_ne_zero {n : ℕ} (hn : 0 < n) : qint qUnitLS n ≠ 0 := by
   have h := congrArg (fun x : LaurentSeries ℤ => x.coeff ((n : ℤ) - 1)) h0
   simp only [qint_qUnitLS, HahnSeries.coeff_sum, HahnSeries.coeff_zero] at h
   rw [sum_eq_single 0 (fun j _ hj => by
-    rw [HahnSeries.coeff_single, if_neg (by omega)]) (fun h' => absurd (mem_range.2 hn) h')] at h
+    rw [HahnSeries.coeff_single, ite_eq_right (by omega)]) (fun h' => absurd (mem_range.2 hn) h')] at h
   simp at h
 
 theorem qfact_qUnitLS_ne_zero (n : ℕ) : qfact qUnitLS n ≠ 0 :=

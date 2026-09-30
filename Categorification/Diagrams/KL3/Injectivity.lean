@@ -74,7 +74,7 @@ def piLS : LaurentSeries ℚ := HahnSeries.ofPowerSeries ℤ ℚ (piPS C)
 
 theorem monDeg_zero : monDeg C 0 = {0} := by
   ext s
-  simp only [monDeg, Set.mem_setOf_eq, Set.mem_singleton_iff]
+  simp only [monDeg, Set.mem_ofPred_eq, Set.mem_singleton_iff]
   exact ⟨weight_wPi_eq_zero, fun h => by rw [h]; simp⟩
 
 theorem piLS_ne_zero : piLS C ≠ 0 := by
@@ -87,15 +87,17 @@ theorem piLS_ne_zero : piLS C ≠ 0 := by
 
 /-! ## Laurent expansions -/
 
+open scoped RatFunc
+
 /-- The expansion `ℚ(q) → ℚ((q))`. -/
-abbrev toLS : RatFunc ℚ →+* LaurentSeries ℚ := (RatFunc.coeAlgHom ℚ).toRingHom
+abbrev toLS : RatFunc ℚ →+* LaurentSeries ℚ := algebraMap (RatFunc ℚ) (LaurentSeries ℚ)
 
 theorem toLS_injective : Function.Injective toLS := (toLS).injective
 
 theorem single_one_zpow (n : ℤ) :
     (HahnSeries.single (1 : ℤ) (1 : ℚ)) ^ n = HahnSeries.single n (1 : ℚ) := by
   rcases n with m | m
-  · rw [Int.ofNat_eq_coe, zpow_natCast, HahnSeries.single_pow, one_pow, nsmul_eq_mul, mul_one]
+  · rw [Int.ofNat_eq_natCast, zpow_natCast, HahnSeries.single_pow, one_pow, nsmul_eq_mul, mul_one]
   · rw [zpow_negSucc, HahnSeries.single_pow, one_pow, nsmul_eq_mul, mul_one]
     refine inv_eq_of_mul_eq_one_right ?_
     rw [HahnSeries.single_mul_single, one_mul, Int.negSucc_eq]
@@ -172,7 +174,7 @@ include hSL in
 /-- **The additive functional `[B] ↦ dim_𝕜 U̇(A, B)` on `K₀(U̇(λ, ρ))`** (for a fixed object `A`;
 the coefficients of KL III's form `⟨[A], [B]⟩_π = Σ_t q^t dim U̇(A{t}, B)`). -/
 def homDim {ρ lam : X} (A : UKar RD k ρ lam) : K0Kar RD k ρ lam →+ ℤ :=
-  haveI := homFinite_UDot (RD := RD) (k := k) hSL ρ lam
+  have := homFinite_UDot (RD := RD) (k := k) hSL ρ lam
   SplitK0.lift (fun B => (finrank k (A ⟶ B) : ℤ))
     (fun B B' e => by
       show (finrank k (A ⟶ B) : ℤ) = finrank k (A ⟶ B')
@@ -200,29 +202,31 @@ coefficient of `q^t` in `h · gdim HOM(E_𝐣 1_λ, E_𝐢 1_λ)`. -/
 theorem homDim_smul_eC {ρ lam : X} (w s : List (Letter I)) (hw : wt RD lam w = ρ)
     (hs : wt RD lam s = ρ) (t : ℤ) (h : LaurentPolynomial ℤ) :
     homDim hSL (nfObj RD k ρ lam w hw t) (h • eC RD k ρ lam s hs) =
-      h.sum (fun n a => a * (finrank k (HomD RD k lam w s (t - n)) : ℤ)) := by
+      h.coeff.sum (fun n a => a * (finrank k (HomD RD k lam w s (t - n)) : ℤ)) := by
   induction h using LaurentPolynomial.induction_on' with
   | add p p' hp hp' =>
-    rw [add_smul, map_add, hp, hp', Finsupp.sum_add_index']
+    rw [add_smul, map_add, hp, hp', AddMonoidAlgebra.coeff_add, Finsupp.sum_add_index']
     · intro n; ring
     · intro n a b; ring
   | C_mul_T n a =>
     rw [SplitK0.C_mul_T_smul, map_zsmul, ← SplitK0.T_smul, homDim_T_eC,
-      ← LaurentPolynomial.single_eq_C_mul_T, Finsupp.sum_single_index (by ring), smul_eq_mul]
+      ← LaurentPolynomial.single_eq_C_mul_T, AddMonoidAlgebra.coeff_single,
+      Finsupp.sum_single_index (by ring), smul_eq_mul]
 
 end HomDim
 
 /-- The coefficients of `h(q) · S` for a Laurent polynomial `h`. -/
 theorem coeff_toLS_lpToQ_mul (h : LaurentPolynomial ℤ) (S : LaurentSeries ℚ) (t : ℤ) :
-    (toLS (lpToQ h) * S).coeff t = h.sum fun n a => (a : ℚ) * S.coeff (t - n) := by
+    (toLS (lpToQ h) * S).coeff t = h.coeff.sum fun n a => (a : ℚ) * S.coeff (t - n) := by
   induction h using LaurentPolynomial.induction_on' with
   | add p p' hp hp' =>
-    rw [map_add, map_add, add_mul, HahnSeries.coeff_add, hp, hp', Finsupp.sum_add_index']
+    rw [map_add, map_add, add_mul, HahnSeries.coeff_add, hp, hp',
+      AddMonoidAlgebra.coeff_add, Finsupp.sum_add_index']
     · intro n; simp
     · intro n a b; push_cast; ring
   | C_mul_T n a =>
     rw [toLS_lpToQ_C_mul_T, ← LaurentPolynomial.single_eq_C_mul_T,
-      Finsupp.sum_single_index (by simp)]
+      AddMonoidAlgebra.coeff_single, Finsupp.sum_single_index (by simp)]
     have := HahnSeries.coeff_single_mul_add (r := (a : ℚ)) (x := S) (a := t - n) (b := n)
     rw [sub_add_cancel] at this
     exact this
@@ -256,9 +260,9 @@ theorem calculusNondeg_cond_of_wt_ne {lam : X} {s w : List (Letter I)}
       (piLS C * toLS (UDot.KL3.sform RD (E1 RD vQ s lam) (E1 RD vQ w lam))).coeff t := by
   rw [homD_eq_bot_of_wt_ne h, finrank_bot, ← (UDot.KL3.thm_2_7 C RD s w lam lam).1]
   have e1 : E1 RD vQ s lam = idem RD vQ (lam + RD.wX s) lam (E1 RD vQ s lam) := by
-    rw [idem_E1, if_pos ⟨rfl, rfl⟩]
+    rw [idem_E1, ite_eq_left ⟨rfl, rfl⟩]
   have e2 : E1 RD vQ w lam = idem RD vQ (lam + RD.wX w) lam (E1 RD vQ w lam) := by
-    rw [idem_E1, if_pos ⟨rfl, rfl⟩]
+    rw [idem_E1, ite_eq_left ⟨rfl, rfl⟩]
   have hne : ¬ (lam + RD.wX s = lam + RD.wX w ∧ lam = lam) := fun e => h (by
     rw [wt_eq_add_wX, wt_eq_add_wX, add_comm, e.1, add_comm])
   rw [e1, e2, UDot.KL3.form, formUD_weight _ _ _ _ _ _ _ _ _ _ hne]
@@ -318,15 +322,15 @@ theorem sum_eq_zero_of_relation (hnd : CalculusNondeg RD k) (h25 : UDot.KL3.Form
       · exact form_eq_zero_of_relation hSL hnd S h s hs hrel w hw
       · refine Finset.sum_eq_zero fun j _ => ?_
         have e1 : E1 RD vQ w μ = idem RD vQ (μ + RD.wX w) μ (E1 RD vQ w μ) := by
-          rw [idem_E1, if_pos ⟨rfl, rfl⟩]
+          rw [idem_E1, ite_eq_left ⟨rfl, rfl⟩]
         have e2 : E1 RD vQ (s j) μ = idem RD vQ (μ + RD.wX (s j)) μ (E1 RD vQ (s j) μ) := by
-          rw [idem_E1, if_pos ⟨rfl, rfl⟩]
+          rw [idem_E1, ite_eq_left ⟨rfl, rfl⟩]
         have hne : ¬ (μ + RD.wX w = μ + RD.wX (s j) ∧ μ = μ) := fun e => by
           apply hw
           rw [wt_eq_add_wX, add_comm, e.1, ← hs j, wt_eq_add_wX, add_comm]
         rw [e1, e2, UDot.KL3.form, formUD_weight _ _ _ _ _ _ _ _ _ _ hne, mul_zero]
     · refine Finset.sum_eq_zero fun j _ => ?_
-      rw [UDot.KL3.form, formUD_E1_E1, if_neg hμ, mul_zero]
+      rw [UDot.KL3.form, formUD_E1_E1, ite_eq_right hμ, mul_zero]
   have hall : ∀ u, UDot.KL3.form RD u z = 0 := by
     intro u
     induction u using E1_induction with
@@ -335,6 +339,7 @@ theorem sum_eq_zero_of_relation (hnd : CalculusNondeg RD k) (h25 : UDot.KL3.Form
     | smul_E1 r t μ => rw [map_smul, LinearMap.smul_apply, hform, smul_zero]
   exact h25 z fun u => by rw [UDot.KL3.form, formUD_symm]; exact hall u
 
+set_option backward.isDefEq.respectTransparency false in
 /-- **Khovanov–Lauda III, Theorem 1.2** (`thm-injective`, proof in §3.9): if the graphical
 calculus is nondegenerate (`CalculusNondeg RD k`), then `γ : 1_ρ (_𝒜 U̇) 1_λ → K₀(U̇(λ, ρ))` is
 injective — given KL III Proposition 2.5 (`UDot.KL3.FormNondeg RD`, taken as a hypothesis;
@@ -381,7 +386,6 @@ theorem gammaUA'_injective (hnd : CalculusNondeg RD k) (h25 : UDot.KL3.FormNonde
   have hd := lpToQ_dpFac_ne_zero (C := C) j.1
   congr 1
   field_simp
-  ring
 
 include hSL in
 /-- **KL III Proposition 1.4-type consequence**: if the calculus is nondegenerate and

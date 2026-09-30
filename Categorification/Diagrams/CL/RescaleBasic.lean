@@ -39,6 +39,8 @@ recursion `grassInv` defining fake bubbles is compatible with rescaling the `a`-
 (`grassInv_smul`).
 -/
 
+set_option backward.isDefEq.respectTransparency false
+
 noncomputable section
 
 namespace Categorification.KL3.Diagram.CL.Rescale

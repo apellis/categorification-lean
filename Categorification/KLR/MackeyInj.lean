@@ -126,7 +126,7 @@ def mackeyD (c : ℕ) : Perm (Fin (Multiset.card (ν + ν'))) :=
 theorem mackeyD_spec {c : ℕ} (hc : MackeyAdm ν ν'' ν''' c) :
     IsDoubleShuffle (Seq.card_add' ν ν') (card_add_bot h) (mackeyD h c) ∧
       crossCount (Multiset.card ν) (Multiset.card ν'') (mackeyD h c) = c := by
-  rw [mackeyD, dif_pos hc]
+  rw [mackeyD, dite_eq_left hc]
   exact Classical.choose_spec ((exists_isDoubleShuffle_iff (Seq.card_add' ν ν')
     (card_add_bot h) c).2 hc)
 
@@ -171,7 +171,7 @@ theorem mackeyFac_spec {c : ℕ} (hc : MackeyAdm ν ν'' ν''' c)
         (length _ (mackeyFac h c w).2.2.1 + length _ (mackeyFac h c w).2.2.2) := by
   have hw' : MackeyAdm ν ν'' ν''' c ∧
       crossCount (Multiset.card ν) (Multiset.card ν'') w = c := ⟨hc, hw⟩
-  rw [mackeyFac, dif_pos hw']
+  rw [mackeyFac, dite_eq_left hw']
   exact Classical.choose_spec (exists_mackeyFac h hw'.1 hw'.2)
 
 theorem mackeyFac_eq {c : ℕ} (hc : MackeyAdm ν ν'' ν''' c) {u₁ : Perm (Fin (Multiset.card ν))}
@@ -251,7 +251,7 @@ theorem mackeyRho_facPerm {c : ℕ} (hc : MackeyAdm ν ν'' ν''' c) {u₁ : Per
       mackeyD h c * blockPerm (card_add_bot h) Y Y') = c := by
     rw [crossCount_mul_blockPerm, crossCount_blockPerm_mul, (mackeyD_spec h hc).2]
   unfold mackeyRho
-  rw [if_pos ⟨hc, hw⟩, mackeyFac_eq h hc hu₁ hu₂]
+  rw [ite_eq_left ⟨hc, hw⟩, mackeyFac_eq h hc hu₁ hu₂]
 
 end Rho
 
@@ -282,7 +282,7 @@ theorem mem_mackeyIdx_diff_lower {c : ℕ} {b : StdIdx (ν + ν')} :
       crossCount (Multiset.card ν) (Multiset.card ν'') b.2.1 = c := by
   cases c with
   | zero =>
-    simp only [lowerIdx, Set.diff_empty, mackeyIdx, Set.mem_setOf_eq, Nat.le_zero]
+    simp only [lowerIdx, Set.sdiff_empty, mackeyIdx, Set.mem_ofPred_eq, Nat.le_zero]
   | succ c => exact mem_mackeyIdx_diff h
 
 theorem mem_botSet_iff {s : Seq (ν + ν')} :
@@ -305,7 +305,7 @@ variable (Q) in
 /-- **The Mackey-adapted basis of `F_c / F_{c-1}`**: the classes of the standard elements
 `ψ_{ρ(w)} x^u 1_s` of `_{ν,ν'}R_{ν'',ν'''}` with exactly `c` crossing strands, for the
 Mackey-adapted reduced words `ρ = mackeyRho h c`. -/
-def subquotBasis (c : ℕ) : Basis ↥(mackeyIdx h c \ lowerIdx h c) k (MackeySubquot Q h c) :=
+def subquotBasis (c : ℕ) : Module.Basis ↥(mackeyIdx h c \ lowerIdx h c) k (MackeySubquot Q h c) :=
   quotBasis (linearIndependent_stdElt hPQ hP (mackeyRho h c) (mackeyRho_spec h c))
     (lowerIdx_subset h c) _ _ (mackeyBimodFilt_eq_span h _ (mackeyRho_spec h c) c)
     (mackeyLowerBimod_eq_span h _ (mackeyRho_spec h c) c)
@@ -406,7 +406,7 @@ theorem botElt_mem {s₃ : Seq ν''} {s₄ : Seq ν'''} {Y : Perm (Fin (Multiset
   rw [mem_quadBotSub, quadBot_one_eq, Algebra.TensorProduct.tmul_mul_tmul, eSum_mul_stdElt,
     eSum_mul_stdElt]
   simp only [wordProd_canWord]
-  rw [if_pos hb.1, if_pos hb.2]
+  rw [ite_eq_left hb.1, ite_eq_left hb.2]
 
 variable (Q) in
 /-- **The generators of `MackeyX`**: `(ψ_{u₁} ⊗ ψ_{u₂}) ⊗ (ψ_Y x^{v₃} 1_{s₃} ⊗ ψ_{Y'} x^{v₄} 1_{s₄})`
@@ -432,7 +432,6 @@ theorem quadCond_unique {q q' : MackeyQuad ν ν' ν'' ν'''} {s₃ : Seq ν''} 
   refine MackeyQuad.ext_of_β (seq_weight_eq i₂ i₂' hqq fun t => ?_)
   have := congrArg (fun s : Seq ν''' => s.1 ⟨t.val, by
     have := t.2; obtain ⟨-, -, -, e4⟩ := card_eqs q; omega⟩) he
-  simp only at this
   rw [seqCast_append_apply_lt _ _ _ _ (by simp), seqCast_append_apply_lt _ _ _ _ (by
     simp; omega)] at this
   exact this.trans (i₂'.apply_congr (by simp))
@@ -495,7 +494,7 @@ theorem mackeyPsi_basis {c : ℕ} (hc : MackeyAdm ν ν'' ν''' c) {s₃ : Seq �
         blockPerm (card_add_bot h) x.2.2.1 x.2.2.2, uncastExp h (expEquiv ν'' ν''' (v₃, v₄))) :
         StdIdx (ν + ν')) ∈ mackeyIdx h c \ lowerIdx h c) :
     mackeyPsi Q h q hPQ hP c (subquotBasis Q h hPQ hP c ⟨_, hmem⟩) = gen Q q s₃ s₄ x v₃ v₄ := by
-  rw [mackeyPsi, Basis.constr_basis, psiVal]
+  rw [mackeyPsi, Module.Basis.constr_basis, psiVal]
   dsimp only
   obtain ⟨u₁, u₂, Y, Y'⟩ := x
   rw [botSplit_eq, mackeyFac_eq h hc hx₁ hx₂, expSplit_uncastExp]
@@ -547,7 +546,7 @@ theorem mackeyMap_gen {c : ℕ} (hc : MackeyAdm ν ν'' ν''' c) (hq : Multiset.
     (v₄ : Fin (Multiset.card ν''') →₀ ℕ) :
     mackeyMap h q hq (gen Q q s₃ s₄ x v₃ v₄) = subquotBasis Q h hPQ hP c
       ⟨_, mem_idx_of_quadCond h q hq hb (uncastExp h (expEquiv ν'' ν''' (v₃, v₄)))⟩ := by
-  rw [gen, dif_pos hb, mackeyMap_tmul, subquotBasis_apply]
+  rw [gen, dite_eq_left hb, mackeyMap_tmul, subquotBasis_apply]
   exact subquotOf_congr h (mackeyRep_gen h q hc hq hb hx₁ hx₂ v₃ v₄) _ _
 
 theorem mackeyPsi_mackeyMap_gen {c : ℕ} (hc : MackeyAdm ν ν'' ν''' c) (hq : Multiset.card q.β = c)
@@ -566,7 +565,7 @@ theorem mackeyPsi_mackeyMap_gen_ne {c : ℕ} (hc : MackeyAdm ν ν'' ν''' c)
     (v₄ : Fin (Multiset.card ν''') →₀ ℕ) :
     mackeyPsi Q h q hPQ hP c (mackeyMap h q' hq' (gen Q q' s₃ s₄ x v₃ v₄)) = 0 := by
   rw [mackeyMap_gen h q' hPQ hP hc hq' hb hx₁ hx₂, mackeyPsi_basis h q hPQ hP hc hx₁ hx₂, gen,
-    dif_neg]
+    dite_eq_right]
   intro hb'
   exact hne (quadCond_unique hb' hb (hq.trans hq'.symm))
 
@@ -599,8 +598,7 @@ theorem tensor_mem_of_std {M : Type*} [AddCommGroup M] [Module k M]
     (hρ' : ∀ w, IsReduced (Multiset.card μ₂) (ρ' w) ∧ wordProd (Multiset.card μ₂) (ρ' w) = w)
     (hg : ∀ b b', Φ (stdElt ρ b ⊗ₜ stdElt ρ' b') ∈ F)
     (t : KLRAlgebra k Q μ₁ ⊗[k] KLRAlgebra k Q μ₂) : Φ t ∈ F := by
-  induction t using TensorProduct.induction_on with
-  | zero => rw [map_zero]; exact zero_mem _
+  induction t using TensorProduct.inductionOn with
   | add s t hs ht => rw [map_add]; exact add_mem hs ht
   | tmul a b =>
     induction mem_span_std (Q := Q) ρ hρ a using Submodule.span_induction with
@@ -647,10 +645,10 @@ theorem quadBot_one_mul_mem_span (z : TensorKLR Q ν'' ν''') :
   simp only [wordProd_canWord]
   by_cases h₃ : Y • s₃ ∈ quadSet₃ q
   · by_cases h₄ : Y' • s₄ ∈ quadSet₄ q
-    · rw [if_pos h₃, if_pos h₄]
+    · rw [ite_eq_left h₃, ite_eq_left h₄]
       exact Submodule.subset_span ⟨s₃, s₄, Y, Y', v₃, v₄, ⟨h₃, h₄⟩, rfl⟩
-    · rw [if_neg h₄, TensorProduct.tmul_zero]; exact zero_mem _
-  · rw [if_neg h₃, TensorProduct.zero_tmul]; exact zero_mem _
+    · rw [ite_eq_right h₄, TensorProduct.tmul_zero]; exact zero_mem _
+  · rw [ite_eq_right h₃, TensorProduct.zero_tmul]; exact zero_mem _
 
 theorem mem_span_botGens (b : MackeyBot Q q) :
     (b : TensorKLR Q ν'' ν''') ∈ Submodule.span k (botGens Q q) := by
@@ -670,7 +668,7 @@ def castExp {μ₁ μ₂ : Multiset I} (hμ : μ₁ = μ₂) (E : Fin (Multiset.
 omit [DecidableEq I] in
 @[simp] theorem castExp_rfl {μ₁ : Multiset I} (E : Fin (Multiset.card μ₁) →₀ ℕ) :
     castExp rfl E = E := by
-  ext x; simp [castExp, Finsupp.equivMapDomain_apply]
+  ext x; simp [castExp]
 
 omit [DecidableEq I] in
 theorem castExp_castExp_symm {μ₁ μ₂ : Multiset I} (hμ : μ₁ = μ₂) (E : Fin (Multiset.card μ₂) →₀ ℕ) :
@@ -779,7 +777,7 @@ theorem span_genSet {c : ℕ} (hc : MackeyAdm ν ν'' ν''' c) (hq : Multiset.ca
         obtain ⟨s₃, s₄, Y, Y', v₃, v₄, hb, rfl⟩ := hz
         intro hz'
         refine Submodule.subset_span ⟨s₃, s₄, (u₁, u₂, Y, Y'), v₃, v₄, hb, hu₁, hu₂, ?_⟩
-        rw [gen, dif_pos hb]
+        rw [gen, dite_eq_left hb]
       | zero =>
         intro hz'
         rw [show (⟨0, hz'⟩ : MackeyBot Q q) = 0 from rfl, BalancedTensor.tmul_zero]

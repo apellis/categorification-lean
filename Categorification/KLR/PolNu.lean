@@ -152,7 +152,7 @@ variable {P : I → I → MvPolynomial (Fin 2) k}
 theorem polyRep_polNu_apply (f : Pol k ν) (g : Pol k ν) (t : Seq ν) :
     polyRep hPQ (polNu f : KLRAlgebra k Q ν) g t = f t * g t := by
   rw [polNu_apply, map_sum]
-  simp only [map_mul, polyRep_pol, polyRep_e, LinearMap.coeFn_sum, Finset.sum_apply,
+  simp only [map_mul, polyRep_pol, polyRep_e, LinearMap.coe_sum, Finset.sum_apply,
     Module.End.mul_apply, opMul_apply, opE_apply]
   simp
 
@@ -179,7 +179,7 @@ noncomputable instance : AddCommGroup (RightPolMod k Q ν) :=
   inferInstanceAs (AddCommGroup (KLRAlgebra k Q ν))
 
 /-- The identification of `R(ν)` with `RightPolMod k Q ν`. -/
-def of : KLRAlgebra k Q ν ≃+ RightPolMod k Q ν := AddEquiv.refl _
+noncomputable def of : KLRAlgebra k Q ν ≃+ RightPolMod k Q ν := AddEquiv.refl _
 
 noncomputable instance : Module (Pol k ν) (RightPolMod k Q ν) where
   smul p r := of (of.symm r * polNu p)
@@ -223,7 +223,7 @@ noncomputable instance : AddCommGroup (LeftPolMod k Q ν) :=
   inferInstanceAs (AddCommGroup (KLRAlgebra k Q ν))
 
 /-- The identification of `R(ν)` with `LeftPolMod k Q ν`. -/
-def of : KLRAlgebra k Q ν ≃+ LeftPolMod k Q ν := AddEquiv.refl _
+noncomputable def of : KLRAlgebra k Q ν ≃+ LeftPolMod k Q ν := AddEquiv.refl _
 
 noncomputable instance : Module (Pol k ν) (LeftPolMod k Q ν) where
   smul p r := of (polNu p * of.symm r)
@@ -258,19 +258,19 @@ end LeftPolMod
 
 theorem mul_pol_mul_e_eq_sum (r : KLRAlgebra k Q ν) (p : MvPolynomial (Fin m) k) (i : Seq ν)
     (U : Finset (Fin m →₀ ℕ)) (hU : p.support ⊆ U) :
-    r * pol p * e i = ∑ u ∈ U, coeff u p • (r * pol (monomial u 1) * e i) := by
+    r * pol p * e i = ∑ u ∈ U, p.coeff u • (r * pol (monomial u 1) * e i) := by
   conv_lhs => rw [p.as_sum, Finset.sum_subset hU (fun u _ hu => by
-    rw [not_mem_support_iff.1 hu, monomial_zero])]
+    rw [notMem_support_iff.1 hu, monomial_zero])]
   simp only [map_sum, Finset.mul_sum, Finset.sum_mul]
   refine Finset.sum_congr rfl fun u _ => ?_
-  have : (monomial u (coeff u p) : MvPolynomial (Fin m) k) = coeff u p • monomial u 1 := by
+  have : (monomial u (p.coeff u) : MvPolynomial (Fin m) k) = p.coeff u • monomial u 1 := by
     rw [smul_monomial, smul_eq_mul, mul_one]
   rw [this, map_smul, mul_smul_comm, smul_mul_assoc]
 
 theorem sum_ψw_mul_polNu_eq (ρ : Perm (Fin m) → List ℕ) (c : Perm (Fin m) → Pol k ν)
     (U : Finset (Fin m →₀ ℕ)) (hU : ∀ w i, (c w i).support ⊆ U) :
     (∑ w, ψw (ρ w) * polNu (c w) : KLRAlgebra k Q ν) =
-      ∑ x ∈ Finset.univ ×ˢ Finset.univ ×ˢ U, coeff x.2.2 (c x.2.1 x.1) • stdElt ρ x := by
+      ∑ x ∈ Finset.univ ×ˢ Finset.univ ×ˢ U, (c x.2.1 x.1).coeff x.2.2 • stdElt ρ x := by
   simp only [Finset.sum_product]
   rw [Finset.sum_comm]
   refine Finset.sum_congr rfl fun w _ => ?_
@@ -312,7 +312,7 @@ theorem exists_sum_ψw_mul_polNu (r : KLRAlgebra k Q ν) :
     exact ⟨c + c', by simp [mul_add, Finset.sum_add_distrib]⟩
   | smul a x _ hx =>
     obtain ⟨c, rfl⟩ := hx
-    exact ⟨a • c, by simp [Finset.smul_sum, mul_smul_comm]⟩
+    exact ⟨a • c, by simp [Finset.smul_sum]⟩
 
 variable [IsDomain k]
 
@@ -331,14 +331,14 @@ theorem eq_zero_of_sum_ψw_mul_polNu_eq_zero (c : Perm (Fin m) → Pol k ν)
   ext u
   by_cases hu : u ∈ U
   · simpa using this (i, w, u) (by simp [hu])
-  · simp only [Pi.zero_apply, coeff_zero]
-    exact not_mem_support_iff.1 fun h' => hu (hU w i h')
+  · simp only [Pi.zero_apply, AddMonoidAlgebra.coeff_zero, Finsupp.coe_zero]
+    exact notMem_support_iff.1 fun h' => hu (hU w i h')
 
 /-- **KL I, Proposition 2.7** (right action). For an integral domain `k`, data `Q` as in the
 basis theorem and any choice `ρ` of reduced words, `R(ν)` is a free right `Pol(ν)`-module
 with basis `ŵ = ψ_{ρ w}` (`w ∈ S_m`); in particular it has rank `m!`. -/
-noncomputable def rightBasis : Basis (Perm (Fin m)) (Pol k ν) (RightPolMod k Q ν) :=
-  Basis.mk (v := fun w => RightPolMod.of (ψw (ρ w)))
+noncomputable def rightBasis : Module.Basis (Perm (Fin m)) (Pol k ν) (RightPolMod k Q ν) :=
+  Module.Basis.mk (v := fun w => RightPolMod.of (ψw (ρ w)))
     (Fintype.linearIndependent_iff.2 fun g hg w => by
       simp only [RightPolMod.smul_of, ← map_sum] at hg
       have := eq_zero_of_sum_ψw_mul_polNu_eq_zero hPQ hP ρ hρ g
@@ -416,13 +416,13 @@ theorem reverse_inv_reduced : ∀ w, IsReduced m ((ρ w⁻¹).reverse) ∧ wordP
 /-- **KL I, Proposition 2.7** (left action). For an integral domain `k`, data `Q` as in the
 basis theorem and any choice `ρ` of reduced words, `R(ν)` is a free left `Pol(ν)`-module
 with basis `ŵ = ψ_{ρ w}` (`w ∈ S_m`). Deduced from the right action with `hflip`. -/
-noncomputable def leftBasis : Basis (Perm (Fin m)) (Pol k ν) (LeftPolMod k Q ν) :=
+noncomputable def leftBasis : Module.Basis (Perm (Fin m)) (Pol k ν) (LeftPolMod k Q ν) :=
   ((rightBasis hPQ hP (fun w => (ρ w⁻¹).reverse) (reverse_inv_reduced ρ hρ)).map
     (flipPolMod k Q ν).symm).reindex (Equiv.inv _)
 
 theorem leftBasis_apply (w : Perm (Fin m)) :
     leftBasis hPQ hP ρ hρ w = LeftPolMod.of (ψw (ρ w) : KLRAlgebra k Q ν) := by
-  simp only [leftBasis, Basis.reindex_apply, Basis.map_apply, rightBasis_apply]
+  simp only [leftBasis, Module.Basis.reindex_apply, Module.Basis.map_apply, rightBasis_apply]
   show LeftPolMod.of (hflip (ψw (ρ ((Equiv.inv _).symm w)⁻¹).reverse)) = _
   rw [hflip_ψw, List.reverse_reverse]
   simp
@@ -474,7 +474,7 @@ variable [IsDomain k] (ρ : Perm (Fin (Multiset.card ν)) → List ℕ)
 /-- **KL I, Proposition 2.7** (right action) for the rings `R(ν)` of KL I (over `ℤ`, or any
 integral domain): `R(ν)` is a free right `Pol(ν)`-module with basis `ψ_{ρ w}`, `w ∈ S_m`. -/
 noncomputable def rightBasis :
-    Basis (Perm (Fin (Multiset.card ν))) (Pol k ν) (RightPolMod k (klQ (k := k) Γ) ν) :=
+    Module.Basis (Perm (Fin (Multiset.card ν))) (Pol k ν) (RightPolMod k (klQ (k := k) Γ) ν) :=
   KLRAlgebra.rightBasis (klQ_eq_klP (Γ := Γ) stdOrient_spec) (fun a b _ => klP_ne_zero _ a b)
     ρ hρ
 
@@ -485,7 +485,7 @@ theorem rightBasis_apply (w : Perm (Fin m)) :
 /-- **KL I, Proposition 2.7** (left action) for the rings `R(ν)` of KL I: `R(ν)` is a free
 left `Pol(ν)`-module with basis `ψ_{ρ w}`, `w ∈ S_m`. -/
 noncomputable def leftBasis :
-    Basis (Perm (Fin (Multiset.card ν))) (Pol k ν) (LeftPolMod k (klQ (k := k) Γ) ν) :=
+    Module.Basis (Perm (Fin (Multiset.card ν))) (Pol k ν) (LeftPolMod k (klQ (k := k) Γ) ν) :=
   KLRAlgebra.leftBasis (klQ_eq_klP (Γ := Γ) stdOrient_spec) (fun a b _ => klP_ne_zero _ a b)
     ρ hρ
 

@@ -41,29 +41,31 @@ noncomputable section
 namespace Categorification
 
 open scoped TensorProduct
-open MulOpposite Graded
+open MulOpposite Categorification.Graded
 
 /-! ### Mapping coefficients of `AddMonoidAlgebra`s -/
 
 /-- Applying a non-unital ring homomorphism to the coefficients of an `AddMonoidAlgebra`. -/
 def AddMonoidAlgebra.mapCoeff {R S ι : Type*} [Semiring R] [Semiring S] (f : R →ₙ+* S) :
     AddMonoidAlgebra R ι →+ AddMonoidAlgebra S ι :=
-  Finsupp.mapRange.addMonoidHom f.toAddMonoidHom
+  { toFun := _root_.AddMonoidAlgebra.map f.toAddMonoidHom
+    map_zero' := _root_.AddMonoidAlgebra.map_zero _
+    map_add' := _root_.AddMonoidAlgebra.map_add _ }
 
 theorem AddMonoidAlgebra.mapCoeff_single {R S ι : Type*} [Semiring R] [Semiring S]
     (f : R →ₙ+* S) (a : ι) (r : R) :
     AddMonoidAlgebra.mapCoeff f (AddMonoidAlgebra.single a r) = AddMonoidAlgebra.single a (f r) :=
-  Finsupp.mapRange_single (hf := map_zero _)
+  _root_.AddMonoidAlgebra.map_single f.toAddMonoidHom r a
 
 theorem AddMonoidAlgebra.mapCoeff_mul {R S ι : Type*} [Semiring R] [Semiring S] [AddMonoid ι]
     (f : R →ₙ+* S) (p q : AddMonoidAlgebra R ι) :
     AddMonoidAlgebra.mapCoeff f (p * q) =
       AddMonoidAlgebra.mapCoeff f p * AddMonoidAlgebra.mapCoeff f q := by
-  induction p using Finsupp.induction_linear with
+  induction p using _root_.AddMonoidAlgebra.induction_linear with
   | zero => simp
   | add p p' hp hp' => rw [add_mul, map_add, map_add, add_mul, hp, hp']
   | single a r =>
-    induction q using Finsupp.induction_linear with
+    induction q using _root_.AddMonoidAlgebra.induction_linear with
     | zero => simp
     | add q q' hq hq' => rw [mul_add, map_add, map_add, mul_add, hq, hq']
     | single b s =>
@@ -109,10 +111,11 @@ direct sums, induces an additive map on `K₀`. -/
 def lift (f : GProj 𝒜 → G) (hiso : ∀ P Q : GProj 𝒜, P.Iso Q → f P = f Q)
     (hadd : ∀ P Q : GProj 𝒜, f (P.prod Q) = f P + f Q) : K0 𝒜 →+ G :=
   QuotientAddGroup.lift (relSubgroup 𝒜)
-    (FreeAbelianGroup.lift (Quotient.lift f fun P Q ⟨e⟩ => hiso P Q e)) (by
+    (FreeAbelianGroup.lift (fun x : GProj.IsoClass 𝒜 =>
+      Quotient.lift (s := GProj.isoSetoid 𝒜) f (fun P Q ⟨e⟩ => hiso P Q e) x)) (by
       rw [relSubgroup, AddSubgroup.closure_le]
       rintro _ ⟨P, Q, rfl⟩
-      simp only [SetLike.mem_coe, AddMonoidHom.mem_ker, map_sub, FreeAbelianGroup.lift.of]
+      simp only [SetLike.mem_coe, AddMonoidHom.mem_ker, map_sub, FreeAbelianGroup.lift_apply_of]
       show f (P.prod Q) - f P - f Q = 0
       rw [hadd]; abel)
 
@@ -120,7 +123,7 @@ def lift (f : GProj 𝒜 → G) (hiso : ∀ P Q : GProj 𝒜, P.Iso Q → f P = 
     (hadd : ∀ P Q : GProj 𝒜, f (P.prod Q) = f P + f Q) (P : GProj 𝒜) :
     lift f hiso hadd (of P) = f P := by
   show FreeAbelianGroup.lift _ (FreeAbelianGroup.of _) = _
-  rw [FreeAbelianGroup.lift.of]
+  rw [FreeAbelianGroup.lift_apply_of]
   rfl
 
 /-- A biadditive map `K₀(A) × K₀(A') → G` from a function on pairs of objects which is
@@ -166,7 +169,7 @@ namespace KLR
 
 variable {I : Type*} [DecidableEq I] {k : Type*} [CommRing k] {Q : I → I → MvPolynomial (Fin 2) k}
 
-open KLRAlgebra AddMonoidAlgebra
+open KLRAlgebra _root_.AddMonoidAlgebra
 
 /-! ### The block embeddings are degree-preserving -/
 
@@ -398,9 +401,9 @@ abbrev indGrading {N : Type*} [AddCommGroup N] [Module k N] [Module (TensorKLR Q
 /-- **`Ind_{ν,ν'} (P ⊠ P')`** for finitely generated graded projective modules `P`, `P'`: a
 finitely generated graded projective `R(ν + ν')`-module. -/
 def indProj (P : GProj (G.grade ν)) (P' : GProj (G.grade ν')) : GProj (G.grade (ν + ν')) :=
-  haveI := ExtTensor.finite (k := k) (A := KLRAlgebra k Q ν) (B := KLRAlgebra k Q ν')
+  have := ExtTensor.finite (k := k) (A := KLRAlgebra k Q ν) (B := KLRAlgebra k Q ν')
     (P := P.carrier) (Q := P'.carrier)
-  haveI := ExtTensor.projective (k := k) (A := KLRAlgebra k Q ν) (B := KLRAlgebra k Q ν')
+  have := ExtTensor.projective (k := k) (A := KLRAlgebra k Q ν) (B := KLRAlgebra k Q ν')
     (P := P.carrier) (Q := P'.carrier)
   { carrier := Ind Q ν ν' (ExtTensor k P.carrier P'.carrier)
     grading := G.indGrading ν ν' (ExtTensor.grading P.grading P'.grading)
@@ -429,7 +432,8 @@ def indProjCongr {P₁ P₂ : GProj (G.grade ν)} {P₁' P₂' : GProj (G.grade 
 /-- `Ind ((P₁ ⊕ P₂) ⊠ P') ≅ Ind (P₁ ⊠ P') ⊕ Ind (P₂ ⊠ P')`. -/
 def indProjProdLeft (P₁ P₂ : GProj (G.grade ν)) (P' : GProj (G.grade ν')) :
     (G.indProj (P₁.prod P₂) P').Iso ((G.indProj P₁ P').prod (G.indProj P₂ P')) :=
-  let e := (BalancedTensor.congrRight (ExtTensor.prodLeft (k := k)
+  let e := (BalancedTensor.congrRight (k := k) (B := KLRAlgebra k Q (ν + ν'))
+    (M := IndBimod Q ν ν') (ExtTensor.prodLeft (k := k)
     (P := P₁.carrier) (P' := P₂.carrier) (Q := P'.carrier) (A := KLRAlgebra k Q ν)
     (B := KLRAlgebra k Q ν'))).trans
       (BalancedTensor.prodRight _ _ _ _ _ _)
@@ -450,7 +454,8 @@ def indProjProdLeft (P₁ P₂ : GProj (G.grade ν)) (P' : GProj (G.grade ν')) 
 /-- `Ind (P ⊠ (P₁' ⊕ P₂')) ≅ Ind (P ⊠ P₁') ⊕ Ind (P ⊠ P₂')`. -/
 def indProjProdRight (P : GProj (G.grade ν)) (P₁' P₂' : GProj (G.grade ν')) :
     (G.indProj P (P₁'.prod P₂')).Iso ((G.indProj P P₁').prod (G.indProj P P₂')) :=
-  let e := (BalancedTensor.congrRight (ExtTensor.prodRight (k := k)
+  let e := (BalancedTensor.congrRight (k := k) (B := KLRAlgebra k Q (ν + ν'))
+    (M := IndBimod Q ν ν') (ExtTensor.prodRight (k := k)
     (P := P.carrier) (Q := P₁'.carrier) (Q' := P₂'.carrier) (A := KLRAlgebra k Q ν)
     (B := KLRAlgebra k Q ν'))).trans
       (BalancedTensor.prodRight _ _ _ _ _ _)
@@ -504,9 +509,9 @@ def indK0Add : K0 (G.grade ν) →+ K0 (G.grade ν') →+ K0 (G.grade (ν + ν')
     (fun _ _ _ e => K0.of_eq_of_iso (G.indProjCongr e (GradedEquiv.refl _)))
     (fun _ _ _ e => K0.of_eq_of_iso (G.indProjCongr (GradedEquiv.refl _) e))
     (fun P₁ P₂ P' => by
-      beta_reduce; rw [K0.of_eq_of_iso (G.indProjProdLeft P₁ P₂ P'), K0.of_prod])
+      rw [K0.of_eq_of_iso (G.indProjProdLeft P₁ P₂ P'), K0.of_prod])
     (fun P P₁ P₂ => by
-      beta_reduce; rw [K0.of_eq_of_iso (G.indProjProdRight P P₁ P₂), K0.of_prod])
+      rw [K0.of_eq_of_iso (G.indProjProdRight P P₁ P₂), K0.of_prod])
 
 @[simp] theorem indK0Add_of (P : GProj (G.grade ν)) (P' : GProj (G.grade ν')) :
     G.indK0Add ν ν' (K0.of P) (K0.of P') = K0.of (G.indProj P P') :=
@@ -641,7 +646,7 @@ variable (e e') in
 def indIdemEquiv (he : IsIdempotentElem e) (he' : IsIdempotentElem e') :
     Ind Q ν ν' (ExtTensor k (Graded.leftIdeal e) (Graded.leftIdeal e')) ≃ₗ[KLRAlgebra k Q (ν + ν')]
       Graded.leftIdeal (concat Q ν ν' (e ⊗ₜ e')) :=
-  LinearEquiv.ofLinear
+  LinearEquiv.ofLinearMap
     (BalancedTensor.liftB (indIdemBil e e')
       (fun m t n => Subtype.ext (by
         show (m : KLRAlgebra k Q (ν + ν')) * concat Q ν ν' t * concat Q ν ν' (idemIncl e e' n) =

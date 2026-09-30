@@ -52,6 +52,8 @@ For the root datum of `sl_n` (`Flag.slRootDatum m`, `n = m + 1`, vertices `Fin m
   2-representation uses a different sign for the downward crossing is not examined here.)
 -/
 
+set_option backward.isDefEq.respectTransparency false
+
 noncomputable section
 
 namespace Categorification.KL3.Diagram.CL
@@ -73,17 +75,18 @@ theorem relationCL_kl : relationCL RD k CLScalars.kl = relation (RD := RD) k := 
   funext r
   cases r with
   | klr μ r =>
-    simp only [relationCL, qCL_kl, CLScalars.kl_r, Units.val_one]
+    dsimp only [relationCL]
+    simp only [qCL_kl, CLScalars.kl_r, Units.val_one]
     rw [relationR_one]
     rfl
-  | curlR i lam => simp [relationCL, relation]
-  | curlL i μ => simp [relationCL, relation]
-  | decompEF i lam => simp [relationCL, relation]
-  | decompFE i lam => simp [relationCL, relation]
-  | cycCrossR j i μ => simp [relationCL, relation]
-  | cycCrossL j i μ => simp [relationCL, relation]
-  | downupEF i j h μ => simp [relationCL, relation]
-  | downupFE i j h μ => simp [relationCL, relation]
+  | curlR i lam => dsimp only [relationCL, relation]; simp
+  | curlL i μ => dsimp only [relationCL, relation]; simp
+  | decompEF i lam => dsimp only [relationCL, relation]; simp
+  | decompFE i lam => dsimp only [relationCL, relation]; simp
+  | cycCrossR j i μ => dsimp only [relationCL, relation]; simp
+  | cycCrossL j i μ => dsimp only [relationCL, relation]; simp
+  | downupEF i j h μ => dsimp only [relationCL, relation]; simp
+  | downupFE i j h μ => dsimp only [relationCL, relation]; simp
   | _ => rfl
 
 /-- **`U_Q(g)` for the KL scalars is the `U` of KL III** (CL §1.1, after Definition 1.1):
@@ -98,7 +101,7 @@ end KL
 
 namespace Sln
 
-open Flag Signed LinDiagram
+open Categorification.Flag Signed LinDiagram
 
 variable (k : Type w) [CommRing k] (m : ℕ)
 
@@ -117,10 +120,10 @@ variable {m}
 
 theorem slnT_of_adj {i j : Fin m} (h : (slCartan m).dot i j = -1) :
     (slnT k m i j : k) = ((((i : ℕ) : ℤ) - ((j : ℕ) : ℤ) : ℤ) : k) := by
-  rw [slnT, dif_pos h]
+  rw [slnT, dite_eq_left h]
 
 theorem slnT_of_not_adj {i j : Fin m} (h : ¬ (slCartan m).dot i j = -1) : slnT k m i j = 1 := by
-  rw [slnT, dif_neg h]
+  rw [slnT, dite_eq_right h]
 
 /-- `t_{ij}` is its own inverse. -/
 theorem slnT_inv (i j : Fin m) : (slnT k m i j)⁻¹ = slnT k m i j := by
@@ -174,7 +177,7 @@ theorem qCL_sln_of_ne {i j : Fin m} (hij : i ≠ j) :
       pow_one]
     rw [zsmul_eq_mul, ← map_intCast (MvPolynomial.C : k →+* MvPolynomial (Fin 2) k)]
     push_cast
-    simp only [map_sub, map_add, map_neg]
+    simp only [map_sub]
     ring
 
 /-- The adjacent-colour crossing-cyclicity relations `cycCrossR j i`, `cycCrossL j i` with
@@ -194,26 +197,30 @@ theorem relationCL_sln_eq_relationQT' (r : Rel SRD) (h : ¬ IsCycCrossAdj r) :
     show upLin _ _ _ _ = upLin _ _ _ _
     rw [relationR_congr k (fun c d hcd => qCL_sln_of_ne k hcd)
       (show (fun c => ((slnScalars k m).r c : k)) = fun _ => 1 by simp), relationR_one]
-  | curlR i lam => simp [relationCL, relationQT', relationQT, relationQ, relation]
-  | curlL i μ => simp [relationCL, relationQT', relationQT, relationQ, relation]
-  | decompEF i lam => simp [relationCL, relationQT', relationQT, relationQ, relation]
-  | decompFE i lam => simp [relationCL, relationQT', relationQT, relationQ, relation]
+  | curlR i lam => dsimp only [relationCL, relationQT', relationQT, relationQ, relation]; simp
+  | curlL i μ => dsimp only [relationCL, relationQT', relationQT, relationQ, relation]; simp
+  | decompEF i lam => dsimp only [relationCL, relationQT', relationQT, relationQ, relation]; simp
+  | decompFE i lam => dsimp only [relationCL, relationQT', relationQT, relationQ, relation]; simp
   | cycCrossR j i μ =>
     have h' : ¬ (slCartan m).dot j i = -1 := h
     have h'' : ¬ (slCartan m).dot i j = -1 := by rwa [(slCartan m).symm]
-    simp only [relationCL, relationQT', relationQT, if_neg h', relation, slnScalars_t,
+    dsimp only [relationCL]
+    simp only [relationQT', relationQT, ite_eq_right h', relation, slnScalars_t,
       slnT_of_not_adj k h'', inv_one, Units.val_one, one_smul]
   | cycCrossL j i μ =>
     have h' : ¬ (slCartan m).dot j i = -1 := h
-    simp only [relationCL, relationQT', relationQT, if_neg h', relation, slnScalars_t,
+    dsimp only [relationCL]
+    simp only [relationQT', relationQT, ite_eq_right h', relation, slnScalars_t,
       slnT_of_not_adj k h', inv_one, Units.val_one, one_smul]
   | downupEF i j hij μ =>
-    simp only [relationCL, relationQT', slnScalars_t]
+    dsimp only [relationCL]
+    simp only [relationQT', slnScalars_t]
     split_ifs with hadj
     · rw [slnT_of_adj k (by rwa [(slCartan m).symm])]
     · rw [slnT_of_not_adj k (by rwa [(slCartan m).symm]), Units.val_one, one_smul]; rfl
   | downupFE i j hij μ =>
-    simp only [relationCL, relationQT', slnScalars_t]
+    dsimp only [relationCL]
+    simp only [relationQT', slnScalars_t]
     split_ifs with hadj
     · rw [slnT_of_adj k hadj]
     · rw [slnT_of_not_adj k hadj, Units.val_one, one_smul]; rfl
@@ -227,7 +234,8 @@ theorem relationCL_sln_downupEF_adj {i j : Fin m} (hij : i ≠ j) (μ : Fin m �
     relationCL SRD k (slnScalars k m) (.downupEF i j hij μ) =
       of (crossl SRD i j μ ≫ crossr SRD i j μ) -
         (((((j : ℕ) : ℤ) - ((i : ℕ) : ℤ) : ℤ) : k) • of (𝟙 _)) := by
-  simp only [relationCL, slnScalars_t]
+  dsimp only [relationCL]
+  simp only [slnScalars_t]
   rw [slnT_of_adj k (by rwa [(slCartan m).symm])]
 
 /-- **CL's mixed relation on `F_i E_j`** for adjacent `i, j`:
@@ -238,7 +246,8 @@ theorem relationCL_sln_downupFE_adj {i j : Fin m} (hij : i ≠ j) (μ : Fin m �
     relationCL SRD k (slnScalars k m) (.downupFE i j hij μ) =
       of (crossr SRD j i μ ≫ crossl SRD j i μ) -
         (((((i : ℕ) : ℤ) - ((j : ℕ) : ℤ) : ℤ) : k) • of (𝟙 _)) := by
-  simp only [relationCL, slnScalars_t]
+  dsimp only [relationCL]
+  simp only [slnScalars_t]
   rw [slnT_of_adj k h]
 
 /-- The literal erratum relation `presSignedQT` on `E_i F_j` (`i, j` adjacent) differs from
@@ -272,7 +281,8 @@ theorem relationCL_sln_cycCrossR_adj (i j : Fin m) (μ : Fin m → ℤ)
     relationCL SRD k (slnScalars k m) (.cycCrossR j i μ) =
       (((((i : ℕ) : ℤ) - ((j : ℕ) : ℤ) : ℤ) : k) • of (rotCrossR SRD j i μ)) -
         of (downCross SRD j i μ) := by
-  simp only [relationCL, slnScalars_t, slnT_inv]
+  dsimp only [relationCL]
+  simp only [slnScalars_t, slnT_inv]
   rw [slnT_of_adj k (by rwa [(slCartan m).symm])]
 
 /-- **CL's `Q`-cyclicity, left rotation**, for adjacent `j, i`:
@@ -282,7 +292,8 @@ theorem relationCL_sln_cycCrossL_adj (i j : Fin m) (μ : Fin m → ℤ)
     relationCL SRD k (slnScalars k m) (.cycCrossL j i μ) =
       (((((j : ℕ) : ℤ) - ((i : ℕ) : ℤ) : ℤ) : k) • of (rotCrossL SRD j i μ)) -
         of (downCross SRD j i μ) := by
-  simp only [relationCL, slnScalars_t, slnT_inv]
+  dsimp only [relationCL]
+  simp only [slnScalars_t, slnT_inv]
   rw [slnT_of_adj k h]
 
 /-- **The erratum's adjacent cyclicity relation `rotCrossR j i + rotCrossL j i = 0`**

@@ -13,6 +13,8 @@ Proposition 3.3 (`prop_bubble_slide1`), case `i = j`. KL III refer to A. Lauda,
 "the reduction to bubbles and the identity decomposition". We give that argument in full.
 -/
 
+set_option backward.isDefEq.respectTransparency false
+
 noncomputable section
 
 namespace Categorification.KL3.Diagram
@@ -406,17 +408,18 @@ theorem ctxL_decompTerm (m p q : ℕ) (β : End ((pres RD k).obj (ob RD (wt RD l
     dg RD k lam ([] ++ [up i, dn i] ++ [up i]) [up i] _ = _
   rw [← plcL_comp RD k lam [] [up i] hw.symm hw, ← plcL_comp RD k lam [] [up i] rfl hw,
     plcL_dg, plcL_dg]
-  have E1 : dg RD k lam [up i] ([] ++ [] ++ [up i])
+  have E1 : dg RD k lam [up i] [up i]
       ([([up i], .cup (dn i), [])] ++ List.replicate m ([up i, dn i], .dot (up i), []) ++
         (dotCapEFLs i p).map (whL [] [up i])) = dotsU RD k lam (up i) (p + m) :=
     dg_bubble_dotCap RD k lam i m p
-  have E2 : dg RD k lam ([] ++ [] ++ [up i]) [up i]
+  have E2 : dg RD k lam [up i] [up i]
       ((cupDotEFLs i q).map (whL [] [up i]) ++ [([up i], .cap (up i), [])]) =
       dotsU RD k lam (up i) q := dg_cupDot_bubble RD k lam i q
   simp only [Category.assoc]
   rw [← Category.assoc (dg RD k lam [up i] _ _), dg_comp (by schain) (by schain),
-    dg_comp (by schain) (by schain), E1, E2,
-    ← Category.assoc, ← bubLU_comm, Category.assoc, dotsU_add]
+    dg_comp (by schain) (by schain)]
+  erw [E1, E2]
+  rw [← Category.assoc, ← bubLU_comm, Category.assoc, dotsU_add]
 
 end DecompTerms
 
@@ -672,17 +675,18 @@ theorem ctxL_decompTermFE (m p q : ℕ) (β : End ((pres RD k).obj (ob RD lam []
     dg RD k lam ([up i] ++ [dn i, up i] ++ []) [up i] _ = _
   rw [← plcL_comp RD k lam [up i] [] hw.symm hw, ← plcL_comp RD k lam [up i] [] rfl hw,
     plcL_dg_nil, plcL_dg_nil]
-  have E1 : dg RD k lam [up i] ([up i] ++ [] ++ [])
+  have E1 : dg RD k lam [up i] [up i]
       ([([], .cup (up i), [up i])] ++ List.replicate m ([], .dot (up i), [dn i, up i]) ++
         (dotCapFELs i p).map (whL [up i] [])) = dotsU RD k lam (up i) (p + m) :=
     dg_bubble_dotCapFE RD k lam i m p
-  have E2 : dg RD k lam ([up i] ++ [] ++ []) [up i]
+  have E2 : dg RD k lam [up i] [up i]
       ((cupDotFELs i q).map (whL [up i] []) ++ [([], .cap (dn i), [up i])]) =
       dotsU RD k lam (up i) q := dg_cupDotFE_bubble RD k lam i q
   simp only [Category.assoc]
   rw [← Category.assoc (dg RD k lam [up i] _ _), dg_comp (by schain) (by schain),
-    dg_comp (by schain) (by schain), E1, E2,
-    ← Category.assoc, ← bubRU_comm, Category.assoc, dotsU_add]
+    dg_comp (by schain) (by schain)]
+  erw [E1, E2]
+  rw [← Category.assoc, ← bubRU_comm, Category.assoc, dotsU_add]
 
 end ClosureR
 

@@ -181,7 +181,7 @@ theorem rk_eq_rk_succ_add (w : Perm (Fin m)) (i : ℕ) {j : ℕ} (hj : j < m) :
     rk w i j = rk w i (j + 1) + if (w⁻¹ ⟨j, hj⟩).val < i then 1 else 0 := by
   rw [rk_eq_sum, rk_eq_sum, ← sum_ite_eq_inv w ⟨j, hj⟩ i, ← Finset.sum_add_distrib]
   refine Finset.sum_congr rfl fun p _ => ?_
-  simp only [Fin.val_mk] at *
+  simp only [] at *
   split_ifs <;> omega
 
 theorem le_sadj_val_iff_of_ne {a j : ℕ} (hj : j ≠ a + 1) (x : Fin m) :
@@ -210,7 +210,6 @@ theorem rk_sadj_mul_succ (v : Perm (Fin m)) (i : ℕ) {a : ℕ} (ha : a + 1 < m)
   rw [rk_eq_sum, rk_eq_sum, ← sum_ite_eq_inv v ⟨a, by omega⟩ i, ← Finset.sum_add_distrib]
   refine Finset.sum_congr rfl fun p _ => ?_
   simp only [Perm.mul_apply, succ_le_sadj_val_iff ha]
-  simp only [Fin.val_mk] at *
   split_ifs <;> omega
 
 /-- If `s_a w > w` then `rk w ≤ rk (s_a w)`. -/
@@ -220,7 +219,7 @@ theorem rk_le_rk_sadj_mul {a : ℕ} (ha : a + 1 < m) {w : Perm (Fin m)}
   by_cases hj : j = a + 1
   · subst hj
     rw [rk_sadj_mul_succ w i ha, rk_eq_rk_succ_add w i ha, show a + 1 + 1 = a + 2 from rfl]
-    rw [Fin.lt_iff_val_lt_val] at hw
+    rw [Fin.lt_def] at hw
     split_ifs <;> omega
   · rw [rk_sadj_mul_of_ne w i hj]
 
@@ -236,7 +235,7 @@ theorem rk_sadj_mul_le {a : ℕ} (ha : a + 1 < m) {v w : Perm (Fin m)}
     rw [rk_eq_rk_succ_add v i (j := a) (by omega), rk_eq_rk_succ_add v i ha,
       rk_eq_rk_succ_add w i (j := a) (by omega), rk_eq_rk_succ_add w i ha,
       show a + 1 + 1 = a + 2 from rfl] at h2
-    rw [Fin.lt_iff_val_lt_val] at hw
+    rw [Fin.lt_def] at hw
     split_ifs at h2 ⊢ <;> omega
   · rw [rk_sadj_mul_of_ne v i hj, rk_sadj_mul_of_ne w i hj]
     exact hvw i j
@@ -294,8 +293,8 @@ private theorem sum_val_lt {N : ℕ} (hN : N ≤ m) :
     (∑ p : Fin m, if p.val < N then 1 else 0 : ℕ) = N := by
   rw [Fin.sum_univ_eq_sum_range (fun i => if i < N then 1 else 0 : ℕ → ℕ),
     show m = N + (m - N) by omega, Finset.sum_range_add]
-  rw [Finset.sum_congr rfl (g := fun _ => (1 : ℕ)) (fun i hi => if_pos (Finset.mem_range.1 hi)),
-    Finset.sum_congr rfl (g := fun _ => (0 : ℕ)) (fun i _ => if_neg (by omega))]
+  rw [Finset.sum_congr rfl (g := fun _ => (1 : ℕ)) (fun i hi => ite_eq_left (Finset.mem_range.1 hi)),
+    Finset.sum_congr rfl (g := fun _ => (0 : ℕ)) (fun i _ => ite_eq_right (by omega))]
   simp
 
 /-- `crossCount` in terms of the rank function: `|λ| + n'' = rk w n'' n + n`. -/
@@ -351,6 +350,7 @@ theorem crossCount_mul_right {n n'' : ℕ} (w g : Perm (Fin m))
     ← Equiv.sum_comp g (fun q : Fin m => if n'' ≤ q.val ∧ (w q).val < n then 1 else 0)]
   refine Finset.sum_congr rfl fun p _ => ?_
   simp only [Perm.mul_apply, hg]
+  exact if_congr Iff.rfl rfl rfl
 
 /-- An adjacent transposition inside the blocks `[0, n)`, `[n, m)` preserves `[0, n)`. -/
 theorem sadj_val_lt_iff {n j : ℕ} (hj : j + 1 < n ∨ n ≤ j) (x : Fin m) :
@@ -429,10 +429,10 @@ theorem isShuffle_iff_forall (hJ : n + n' = m) {u : Perm (Fin m)} :
   · rintro ⟨h1, h2⟩ j hj hb
     rcases hb with hb | hb
     · have := h1 (show (⟨j, by omega⟩ : Fin n) < ⟨j + 1, hb⟩ by
-        simp [Fin.lt_iff_val_lt_val])
+        simp [Fin.lt_def])
       exact this
     · have := h2 (show (⟨j - n, by omega⟩ : Fin n') < ⟨j - n + 1, by omega⟩ by
-        simp [Fin.lt_iff_val_lt_val])
+        simp [Fin.lt_def])
       have e1 : blockEquiv hJ (Sum.inr ⟨j - n, by omega⟩) = ⟨j, by omega⟩ := by
         ext; simp only [blockEquiv_inr_val]; omega
       have e2 : blockEquiv hJ (Sum.inr ⟨j - n + 1, by omega⟩) = ⟨j + 1, hj⟩ := by
@@ -516,7 +516,7 @@ private theorem card_Ico {a b : ℕ} (hab : a ≤ b) (hb : b ≤ m) :
 private theorem val_eq_card (d : Perm (Fin m)) (p : Fin m) :
     (d p).val = (Finset.univ.filter fun q : Fin m => d q < d p).card := by
   rw [Finset.card_filter, Equiv.sum_comp d (fun x : Fin m => if x < d p then 1 else 0)]
-  simp only [Fin.lt_iff_val_lt_val]
+  simp only [Fin.lt_def]
   exact (sum_val_lt (d p).2.le).symm
 
 /-- A shuffle preserves the relative order inside each top block. -/
@@ -589,31 +589,31 @@ theorem IsDoubleShuffle.val_eq (hd : IsDoubleShuffle hJ hK d) (p : Fin m) :
         ∑ q : Fin m, if q.val < p.val then 1 else 0 := by
       refine Finset.sum_congr rfl fun q _ => ?_
       by_cases hq : q.val < n''
-      · have := hbt q (by omega); simp only [hq, true_and, this, Fin.lt_iff_val_lt_val]
-      · simp only [hq, false_and, if_false]; rw [if_neg (by omega)]
+      · have := hbt q (by omega); simp only [hq, true_and, this, Fin.lt_def]
+      · simp only [hq, false_and, ite_false]; rw [ite_eq_right (by omega)]
     have h2 : (∑ q : Fin m, if n'' ≤ q.val ∧ d q < d p then 1 else 0 : ℕ) = 0 := by
-      refine Finset.sum_eq_zero fun q _ => if_neg ?_
+      refine Finset.sum_eq_zero fun q _ => ite_eq_right ?_
       rintro ⟨hq, hdq⟩
-      have := (hlt q (by rw [Fin.lt_iff_val_lt_val] at hdq; omega)).2 hdq
-      rw [Fin.lt_iff_val_lt_val] at this; omega
+      have := (hlt q (by rw [Fin.lt_def] at hdq; omega)).2 hdq
+      rw [Fin.lt_def] at this; omega
     rw [hsplit, h1, h2, sum_val_lt (by omega)]; rfl
   · -- `p < n''`, `n ≤ d p`
     have h1 : (∑ q : Fin m, if q.val < n'' ∧ d q < d p then 1 else 0 : ℕ) =
         ∑ q : Fin m, if q.val < p.val then 1 else 0 := by
       refine Finset.sum_congr rfl fun q _ => ?_
       by_cases hq : q.val < n''
-      · have := hbt q (by omega); simp only [hq, true_and, this, Fin.lt_iff_val_lt_val]
-      · simp only [hq, false_and, if_false]; rw [if_neg (by omega)]
+      · have := hbt q (by omega); simp only [hq, true_and, this, Fin.lt_def]
+      · simp only [hq, false_and, ite_false]; rw [ite_eq_right (by omega)]
     have h2 : (∑ q : Fin m, if n'' ≤ q.val ∧ d q < d p then 1 else 0 : ℕ) =
         crossCount n n'' d := by
       rw [hcc]
       refine Finset.sum_congr rfl fun q _ => ?_
       by_cases hq : n'' ≤ q.val
       · by_cases hdq : (d q).val < n
-        · rw [if_pos ⟨hq, by rw [Fin.lt_iff_val_lt_val]; omega⟩, if_pos ⟨hq, hdq⟩]
-        · rw [if_neg (fun h => ?_), if_neg (fun h => hdq h.2)]
+        · rw [ite_eq_left ⟨hq, by rw [Fin.lt_def]; omega⟩, ite_eq_left ⟨hq, hdq⟩]
+        · rw [ite_eq_right (fun h => ?_), ite_eq_right (fun h => hdq h.2)]
           have := (hlt q (by omega)).2 h.2
-          rw [Fin.lt_iff_val_lt_val] at this; omega
+          rw [Fin.lt_def] at this; omega
       · simp [hq]
     rw [hsplit, h1, h2, sum_val_lt (by omega)]
   · -- `n'' ≤ p`, `n ≤ d p`
@@ -622,9 +622,9 @@ theorem IsDoubleShuffle.val_eq (hd : IsDoubleShuffle hJ hK d) (p : Fin m) :
       by_cases hq : q.val < n''
       · have hlt' : d q < d p := by
           by_cases hdq : (d q).val < n
-          · rw [Fin.lt_iff_val_lt_val]; omega
-          · exact (hlt q (by omega)).1 (by rw [Fin.lt_iff_val_lt_val]; omega)
-        rw [if_pos ⟨hq, hlt'⟩, if_pos hq]
+          · rw [Fin.lt_def]; omega
+          · exact (hlt q (by omega)).1 (by rw [Fin.lt_def]; omega)
+        rw [ite_eq_left ⟨hq, hlt'⟩, ite_eq_left hq]
       · simp [hq]
     have h2 : (∑ q : Fin m, if n'' ≤ q.val ∧ d q < d p then 1 else 0 : ℕ) = p.val - n'' := by
       rw [← Finset.card_filter, ← card_Ico hp p.2.le]
@@ -632,9 +632,9 @@ theorem IsDoubleShuffle.val_eq (hd : IsDoubleShuffle hJ hK d) (p : Fin m) :
       simp only [Finset.mem_filter, Finset.mem_univ, true_and]
       constructor
       · rintro ⟨hq, hdq⟩
-        exact ⟨hq, by have := (hbt q (by omega)).1 hdq; rwa [Fin.lt_iff_val_lt_val] at this⟩
+        exact ⟨hq, by have := (hbt q (by omega)).1 hdq; rwa [Fin.lt_def] at this⟩
       · rintro ⟨hq, hqp⟩
-        exact ⟨hq, (hbt q (by omega)).2 (by rw [Fin.lt_iff_val_lt_val]; exact hqp)⟩
+        exact ⟨hq, (hbt q (by omega)).2 (by rw [Fin.lt_def]; exact hqp)⟩
     rw [hsplit, h1, h2]; omega
   · -- `n'' ≤ p`, `d p < n`
     have h1 : (∑ q : Fin m, if q.val < n'' ∧ d q < d p then 1 else 0 : ℕ) =
@@ -642,10 +642,10 @@ theorem IsDoubleShuffle.val_eq (hd : IsDoubleShuffle hJ hK d) (p : Fin m) :
       refine Finset.sum_congr rfl fun q _ => ?_
       by_cases hq : q.val < n''
       · by_cases hdq : (d q).val < n
-        · rw [if_pos ⟨hq, (hlt q (by omega)).1 (by rw [Fin.lt_iff_val_lt_val]; omega)⟩,
-            if_pos ⟨hq, hdq⟩]
-        · rw [if_neg (fun h => ?_), if_neg (fun h => hdq h.2)]
-          rw [Fin.lt_iff_val_lt_val] at h; exact hdq (by omega)
+        · rw [ite_eq_left ⟨hq, (hlt q (by omega)).1 (by rw [Fin.lt_def]; omega)⟩,
+            ite_eq_left ⟨hq, hdq⟩]
+        · rw [ite_eq_right (fun h => ?_), ite_eq_right (fun h => hdq h.2)]
+          rw [Fin.lt_def] at h; exact hdq (by omega)
       · simp [hq]
     have h2 : (∑ q : Fin m, if n'' ≤ q.val ∧ d q < d p then 1 else 0 : ℕ) = p.val - n'' := by
       rw [← Finset.card_filter, ← card_Ico hp p.2.le]
@@ -653,9 +653,9 @@ theorem IsDoubleShuffle.val_eq (hd : IsDoubleShuffle hJ hK d) (p : Fin m) :
       simp only [Finset.mem_filter, Finset.mem_univ, true_and]
       constructor
       · rintro ⟨hq, hdq⟩
-        exact ⟨hq, by have := (hbt q (by omega)).1 hdq; rwa [Fin.lt_iff_val_lt_val] at this⟩
+        exact ⟨hq, by have := (hbt q (by omega)).1 hdq; rwa [Fin.lt_def] at this⟩
       · rintro ⟨hq, hqp⟩
-        exact ⟨hq, (hbt q (by omega)).2 (by rw [Fin.lt_iff_val_lt_val]; exact hqp)⟩
+        exact ⟨hq, (hbt q (by omega)).2 (by rw [Fin.lt_def]; exact hqp)⟩
     rw [hsplit, h1, h2]; omega
 
 /-- Which strands of a minimal double coset representative end in the first top block. -/
@@ -676,8 +676,8 @@ theorem IsDoubleShuffle.val_lt_iff (hd : IsDoubleShuffle hJ hK d) (p : Fin m) :
         simp only [Finset.mem_filter, Finset.mem_univ, true_and] at hq ⊢
         refine ⟨by omega, ?_⟩
         rcases Nat.lt_or_ge q.val p.val with h | h
-        · have := (hbt p q (by omega)).2 (by rw [Fin.lt_iff_val_lt_val]; exact h)
-          rw [Fin.lt_iff_val_lt_val] at this; omega
+        · have := (hbt p q (by omega)).2 (by rw [Fin.lt_def]; exact h)
+          rw [Fin.lt_def] at this; omega
         · rw [show q = p from Fin.ext (by omega)]; exact hdp
       have := Finset.card_le_card hsub
       rw [card_val_lt (by omega)] at this
@@ -690,8 +690,8 @@ theorem IsDoubleShuffle.val_lt_iff (hd : IsDoubleShuffle hJ hK d) (p : Fin m) :
         simp only [Finset.mem_filter, Finset.mem_univ, true_and] at hq ⊢
         by_contra hqp
         rcases Nat.lt_or_ge p.val q.val with h | h
-        · have := (hbt q p (by omega)).2 (by rw [Fin.lt_iff_val_lt_val]; exact h)
-          rw [Fin.lt_iff_val_lt_val] at this; omega
+        · have := (hbt q p (by omega)).2 (by rw [Fin.lt_def]; exact h)
+          rw [Fin.lt_def] at this; omega
         · rw [show q = p from Fin.ext (by omega)] at hq; exact hdp hq.2
       have := Finset.card_le_card hsub
       rw [card_val_lt (by omega)] at this
@@ -704,8 +704,8 @@ theorem IsDoubleShuffle.val_lt_iff (hd : IsDoubleShuffle hJ hK d) (p : Fin m) :
         simp only [Finset.mem_filter, Finset.mem_univ, true_and] at hq ⊢
         refine ⟨hq.1, ?_⟩
         rcases Nat.lt_or_ge q.val p.val with h | h
-        · have := (hbt p q (by omega)).2 (by rw [Fin.lt_iff_val_lt_val]; exact h)
-          rw [Fin.lt_iff_val_lt_val] at this; omega
+        · have := (hbt p q (by omega)).2 (by rw [Fin.lt_def]; exact h)
+          rw [Fin.lt_def] at this; omega
         · rw [show q = p from Fin.ext (by omega)]; exact hdp
       have := Finset.card_le_card hsub
       rw [card_Ico (by omega) (by omega)] at this
@@ -720,8 +720,8 @@ theorem IsDoubleShuffle.val_lt_iff (hd : IsDoubleShuffle hJ hK d) (p : Fin m) :
         refine ⟨hq.1, ?_⟩
         by_contra hqp
         rcases Nat.lt_or_ge p.val q.val with h | h
-        · have := (hbt q p (by omega)).2 (by rw [Fin.lt_iff_val_lt_val]; exact h)
-          rw [Fin.lt_iff_val_lt_val] at this; omega
+        · have := (hbt q p (by omega)).2 (by rw [Fin.lt_def]; exact h)
+          rw [Fin.lt_def] at this; omega
         · rw [show q = p from Fin.ext (by omega)] at hq; exact hdp hq.2
       have := Finset.card_le_card hsub
       rw [card_Ico (by omega) (by omega)] at this
@@ -739,11 +739,11 @@ theorem IsDoubleShuffle.eq_of_crossCount_eq {d d' : Perm (Fin m)} (hd : IsDouble
   have l' := hd'.val_lt_iff hJ hK p
   rw [← hc] at e' l'
   by_cases hp : p.val < n''
-  · simp only [hp, if_true] at l l'
+  · simp only [hp, ite_true] at l l'
     by_cases h' : p.val + crossCount n n'' d < n
     · rw [e.1 hp (l.2 h'), e'.1 hp (l'.2 h')]
     · rw [e.2.1 hp (not_lt.1 fun h => h' (l.1 h)), e'.2.1 hp (not_lt.1 fun h => h' (l'.1 h))]
-  · simp only [hp, if_false] at l l'
+  · simp only [hp, ite_false] at l l'
     by_cases h' : p.val < n'' + crossCount n n'' d
     · have := e.2.2.2 (not_lt.1 hp) (l.2 h')
       have := e'.2.2.2 (not_lt.1 hp) (l'.2 h')
@@ -858,7 +858,7 @@ theorem IsDoubleShuffle.mem_invSet_iff {d : Perm (Fin m)} (hd : IsDoubleShuffle 
   obtain ⟨p, q⟩ := x
   have hbt := lt_iff_of_bot hK hd.2 (p := p) (q := q)
   have htp := lt_iff_of_top hJ hd.1 (p := p) (q := q)
-  simp only [Fin.lt_iff_val_lt_val] at hbt htp ⊢
+  simp only [Fin.lt_def] at hbt htp ⊢
   constructor
   · rintro ⟨hpq, hdq⟩
     by_cases hq : q.val < n''

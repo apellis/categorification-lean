@@ -220,10 +220,8 @@ theorem cor0_step {r : ℤ} (hr : -2 ≤ S.wt r) (h2 : S.AdjHyp (r + 1 + 1)) (l 
             (s := l - 2 * S.wt r - 6) (S.E (r + 1)) (S.E (r + 1 + 1)) (by rw [hw2]; ring))]
       refine congrArg₂ (· + ·) (congrArg₂ (· + ·) rfl ?_) ?_
       · refine Finset.sum_congr rfl fun j _ => finrank_hom_shift_shift k _ _ ?_
-        change _ + 1 * (((S.wt (r + 1 + 1)).toNat : ℤ) - 1 - 2 * (j : ℤ)) = _
         rw [hM2]; ring
       · refine Finset.sum_congr rfl fun j _ => finrank_hom_shift_shift k _ _ ?_
-        change _ + 1 * (((S.wt (r + 1)).toNat : ℤ) - 1 - 2 * (j : ℤ)) = _
         rw [hM1]; ring
 
 /-- **Corollary 3.2** (CL `cor:0`), degrees `< -2`: assuming `eq:ind_hyp` for all weights

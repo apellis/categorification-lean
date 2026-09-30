@@ -92,11 +92,11 @@ theorem D_word_mul (i : I) (n : ℤ) (u : FreeMonoid I) (y : PreF K I) :
     D C q i n (word u * y) = D C q i n (word u) * y + word u * D C q i (n - msA C i (wt u)) y := by
   induction u using FreeMonoid.inductionOn' generalizing n with
   | one => simp
-  | mul_of j u ih =>
+  | of_mul j u ih =>
     rw [word_of_mul, mul_assoc, D_θ_mul, ih, D_θ_mul, wt_of_mul, msA_cons, ← sub_sub]
     split_ifs
     · simp only [mul_add, add_mul, smul_mul_assoc, mul_assoc, add_assoc]
-    · simp only [zero_add, mul_add, add_mul, mul_assoc]
+    · simp only [zero_add, mul_add, mul_assoc]
 
 /-- The Leibniz rule with a homogeneous left factor. -/
 theorem D_mul_of_mem_grade (i : I) (n : ℤ) {ν : Multiset I} {x : PreF K I} (hx : x ∈ grade K ν)
@@ -106,7 +106,7 @@ theorem D_mul_of_mem_grade (i : I) (n : ℤ) {ν : Multiset I} {x : PreF K I} (h
     (LinearMap.mulRight K y ∘ₗ D C q i n + LinearMap.mulRight K (D C q i (n - msA C i ν) y))
       ?_ x hx
   intro w hw
-  simp only [Set.mem_setOf_eq] at hw
+  simp only [Set.mem_ofPred_eq] at hw
   simp only [LinearMap.coe_comp, Function.comp_apply, LinearMap.mulRight_apply,
     LinearMap.add_apply, D_word_mul, hw]
 
@@ -121,17 +121,17 @@ theorem D_word_mem_supp (i : I) (n : ℤ) (c : FreeMonoid I) :
     D C q i n (word c : PreF K I) ∈ (supp {w | i ::ₘ wt w = wt c} : Submodule K (PreF K I)) := by
   induction c using FreeMonoid.inductionOn' generalizing n with
   | one => simp
-  | mul_of j c ih =>
+  | of_mul j c ih =>
     rw [D_word_of_mul]
     refine Submodule.add_mem _ ?_ ?_
     · split_ifs with h
-      · exact Submodule.smul_mem _ _ (word_mem_supp (by simp [wt_of_mul, h]))
+      · exact Submodule.smul_mem _ _ (word_mem_supp (by simp [h]))
       · exact Submodule.zero_mem _
     · refine map_supp_le (LinearMap.mulLeft K (θ j)) ?_ _ (ih (n - A C i j))
       intro w hw
       simp only [LinearMap.mulLeft_apply, ← word_of_mul]
       refine word_mem_supp ?_
-      simp only [Set.mem_setOf_eq, wt_of_mul] at hw ⊢
+      simp only [Set.mem_ofPred_eq, wt_of_mul] at hw ⊢
       rw [Multiset.cons_swap, hw]
 
 /-! ### The space `M = 'f ⊗ 'f` -/
@@ -203,7 +203,7 @@ theorem Eop_tm_word (ℓ : I → ℤ) (i : I) (x : PreF K I) (w : FreeMonoid I) 
   | add x x' hx hx' => rw [map_add, LinearMap.add_apply, map_add, hx, hx', map_add, map_add,
       LinearMap.add_apply, LinearMap.add_apply]; abel
   | smul_word u r =>
-    simp only [map_smul, LinearMap.smul_apply, tm_word_word, Eop, smul_add]
+    simp only [map_smul, LinearMap.smul_apply, tm_word_word, Eop]
     rw [Finsupp.linearCombination_single]
     simp
 
@@ -216,7 +216,7 @@ def gen (ℓ : I → ℤ) : Bool × I → Module.End K (M K I)
 variable (C q) in
 /-- The action of the free algebra `Free = 'U 1_λ` on `M`. -/
 def act (ℓ : I → ℤ) : Free K I →ₐ[K] Module.End K (M K I) :=
-  MonoidAlgebra.lift K (FreeMonoid (Bool × I)) (Module.End K (M K I)) (FreeMonoid.lift (gen C q ℓ))
+  MonoidAlgebra.lift K (Module.End K (M K I)) (FreeMonoid (Bool × I)) (FreeMonoid.lift (gen C q ℓ))
 
 theorem act_ew (ℓ : I → ℤ) (w : List (Bool × I)) :
     act C q ℓ (ew w) = (w.map (gen C q ℓ)).prod := by
@@ -311,10 +311,9 @@ theorem tm_mem_Msupp {P N : Multiset I} {u w : FreeMonoid I} (h : wt w + N = wt 
 
 theorem Fop_mem_Msupp (j : I) {P N : Multiset I} {v : M K I} (hv : v ∈ Msupp P N) :
     Fop j v ∈ Msupp P (j ::ₘ N) := by
-  refine Msupp_induction (motive := fun v => Fop j v ∈ Msupp P (j ::ₘ N)) hv (by simp) (fun x y hx hy => by beta_reduce at hx hy ⊢; rw [map_add]; exact add_mem hx hy)
-    (fun r x hx => by beta_reduce at hx ⊢; rw [map_smul]; exact Submodule.smul_mem _ _ hx)
+  refine Msupp_induction (motive := fun v => Fop j v ∈ Msupp P (j ::ₘ N)) hv (by simp) (fun x y hx hy => by rw [map_add]; exact add_mem hx hy)
+    (fun r x hx => by rw [map_smul]; exact Submodule.smul_mem _ _ hx)
     fun u w h => ?_
-  beta_reduce
   rw [Fop_tm, θ, ← word_mul]
   refine tm_mem_Msupp ?_
   rw [wt_mul, wt_of, ← Multiset.singleton_add, add_left_comm, h]
@@ -322,10 +321,9 @@ theorem Fop_mem_Msupp (j : I) {P N : Multiset I} {v : M K I} (hv : v ∈ Msupp P
 
 theorem Eop_mem_Msupp (ℓ : I → ℤ) (i : I) {P N : Multiset I} {v : M K I} (hv : v ∈ Msupp P N) :
     Eop C q ℓ i v ∈ Msupp (i ::ₘ P) N := by
-  refine Msupp_induction (motive := fun v => Eop C q ℓ i v ∈ Msupp (i ::ₘ P) N) hv (by simp) (fun x y hx hy => by beta_reduce at hx hy ⊢; rw [map_add]; exact add_mem hx hy)
-    (fun r x hx => by beta_reduce at hx ⊢; rw [map_smul]; exact Submodule.smul_mem _ _ hx)
+  refine Msupp_induction (motive := fun v => Eop C q ℓ i v ∈ Msupp (i ::ₘ P) N) hv (by simp) (fun x y hx hy => by rw [map_add]; exact add_mem hx hy)
+    (fun r x hx => by rw [map_smul]; exact Submodule.smul_mem _ _ hx)
     fun u w h => ?_
-  beta_reduce
   rw [Eop_tm_word]
   refine add_mem ?_ ?_
   · rw [θ, ← word_mul]
@@ -335,7 +333,7 @@ theorem Eop_mem_Msupp (ℓ : I → ℤ) (i : I) {P N : Multiset I} {v : M K I} (
   · have h1 := tm_mem_supported (D_word_mem_supp (C := C) (q := q) i (ℓ i + msA C i (wt w)) u) w
     refine Finsupp.supported_mono ?_ h1
     rintro ⟨u', w'⟩ ⟨hu', rfl⟩
-    simp only [Set.mem_setOf_eq] at hu' ⊢
+    simp only [Set.mem_ofPred_eq] at hu' ⊢
     rw [h, ← hu', Multiset.cons_add, Multiset.add_cons]
 
 /-- `NF(E_w 1_λ)` lies in the weight space of `w`. -/
@@ -349,8 +347,8 @@ theorem NF_mem_Msupp (ℓ : I → ℤ) (w : List (Bool × I)) :
     obtain ⟨b, i⟩ := l
     rw [NF_ew_cons]
     cases b
-    · simpa using Fop_mem_Msupp i ih
-    · simpa using Eop_mem_Msupp ℓ i ih
+    · simpa [gen] using Fop_mem_Msupp i ih
+    · simpa [gen] using Eop_mem_Msupp ℓ i ih
 
 /-- On the weight space of signed weight `P - N`, `E_iF_j - F_jE_i` acts by
 `δ_{ij} [⟨i, λ + P - N⟩]_i`. -/
@@ -360,15 +358,12 @@ theorem Eop_Fop_sub (ℓ : I → ℤ) (i j : I) {P N : Multiset I} {v : M K I} (
   refine Msupp_induction (motive := fun v => Eop C q ℓ i (Fop j v) - Fop j (Eop C q ℓ i v) =
       if j = i then qbr (qi C q i) (ℓ i + msA C i P - msA C i N) • v else 0) hv (by simp)
     (fun x y hx hy => by
-      beta_reduce at hx hy ⊢
       rw [map_add, map_add, map_add, map_add, add_sub_add_comm, hx, hy]
       split_ifs <;> simp [smul_add])
     (fun r x hx => by
-      beta_reduce at hx ⊢
       rw [map_smul, map_smul, map_smul, map_smul, ← smul_sub, hx]
       split_ifs <;> simp [smul_comm r])
     fun u w h => ?_
-  beta_reduce
   rw [Fop_tm, Eop_tm_word, Eop_tm_word, map_add, Fop_tm, Fop_tm, D_word_mul_θ, map_add,
     LinearMap.add_apply]
   have hw : msA C i (wt w) - msA C i (wt u) = msA C i P - msA C i N := by

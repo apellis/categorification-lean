@@ -60,6 +60,9 @@ sums (transposing matrices) and to Karoubi envelopes; `contra_biprod`: a contrav
 functor sends binary biproducts to binary biproducts.
 -/
 
+-- Preserve elaboration of semireducible diagram transports.
+set_option backward.isDefEq.respectTransparency false
+
 noncomputable section
 
 namespace Categorification
@@ -107,8 +110,8 @@ instance matContra_additive (F : 𝒞 ⥤ 𝒟ᵒᵖ) [F.Additive] : (matContra 
 def karContra (G : 𝒞 ⥤ 𝒟ᵒᵖ) : Karoubi 𝒞 ⥤ (Karoubi 𝒟)ᵒᵖ where
   obj P := op ⟨(G.obj P.X).unop, (G.map P.p).unop, by rw [← unop_comp, ← G.map_comp, P.idem]⟩
   map {P Q} f := Quiver.Hom.op ⟨(G.map f.f).unop, by
-    nth_rewrite 1 [f.comm]
-    simp only [G.map_comp, unop_comp, Category.assoc]⟩
+    change (G.map Q.p).unop ≫ (G.map f.f).unop ≫ (G.map P.p).unop = (G.map f.f).unop
+    rw [← unop_comp, ← unop_comp, ← G.map_comp, ← G.map_comp, Category.assoc, f.comm]⟩
   map_id P := Quiver.Hom.unop_inj (Karoubi.hom_ext _ _ rfl)
   map_comp {P Q R} f g := Quiver.Hom.unop_inj (Karoubi.hom_ext _ _ (by
     show (G.map (f.f ≫ g.f)).unop = (G.map g.f).unop ≫ (G.map f.f).unop
@@ -250,7 +253,7 @@ theorem omegaK0_dpC_of_torsionFree (d : List (Bool × I × ℕ)) (lam ρ : X)
       p • x = 0 → x = 0) :
     omegaK0 (RD := RD) (k := k) (lam := ρ) (μ := lam) rfl rfl (dpC RD k d lam ρ h) =
       dpC RD k (flipd d) (-lam) (-ρ) h' :=
-  sub_eq_zero.1 (htf _ (dpFac_mem d) _ (by rw [smul_sub, omegaK0_dpC, sub_self]))
+  sub_eq_zero.1 (htf _ (dpFac_mem d) _ (by rw [smul_sub, omegaK0_dpC d lam ρ h h', sub_self]))
 
 variable {lam : X} {V : Type*} [AddCommGroup V] [Module (RatFunc ℚ) V]
 
@@ -339,7 +342,7 @@ def psiDotObjOf (x : Bicat.Hom (wtObj RD k ρ) (wtObj RD k lam)) (t : ℤ) :
   udIso _ _ (Equiv.refl _) (fun _ => rfl) (fun _ => rfl)
     (fun i j => by
       cases i; cases j
-      simp [Mat_.id_apply_self, karContra, matContra, psiGr])
+      simp [psiDot, Mat_.id_apply_self, karContra, matContra, psiGr])
 
 /-- **`[ψ̃]` on `K₀(U̇(λ, ρ))`**: `[A] ↦ [ψ̃(A)]` (additive, `ℤ[q, q⁻¹]`-antilinear). -/
 def psiK0 : K0Kar RD k ρ lam →+ K0Kar RD k ρ lam :=

@@ -59,8 +59,11 @@ def tmul (p : P) (q : Q) : ExtTensor k P Q := p ⊗ₜ[k] q
 @[elab_as_elim]
 theorem induction_on {motive : ExtTensor k P Q → Prop} (x : ExtTensor k P Q) (zero : motive 0)
     (tmul : ∀ p q, motive (tmul p q)) (add : ∀ x y, motive x → motive y → motive (x + y)) :
-    motive x :=
-  TensorProduct.induction_on (motive := motive) x zero tmul add
+    motive x := by
+  classical
+  by_cases hx : x = 0
+  · exact hx ▸ zero
+  · exact TensorProduct.inductionOn (motive := motive) x tmul add
 
 theorem tmul_add (p : P) (q q' : Q) : (tmul p (q + q') : ExtTensor k P Q) = tmul p q + tmul p q' :=
   TensorProduct.tmul_add _ _ _
@@ -103,7 +106,7 @@ variable {A B : Type*} [Ring A] [Algebra k A] [Ring B] [Algebra k B]
 variable (k P Q) in
 /-- The action of `A` on the left factor. -/
 def actL : A →ₐ[k] Module.End k (P ⊗[k] Q) where
-  toFun a := TensorProduct.map (DistribMulAction.toLinearMap k P a) LinearMap.id
+  toFun a := TensorProduct.map (DistribSMul.toLinearMap k P a) LinearMap.id
   map_one' := by ext; simp
   map_mul' a a' := by ext; simp [mul_smul]
   map_zero' := by ext; simp
@@ -113,7 +116,7 @@ def actL : A →ₐ[k] Module.End k (P ⊗[k] Q) where
 variable (k P Q) in
 /-- The action of `B` on the right factor. -/
 def actR : B →ₐ[k] Module.End k (P ⊗[k] Q) where
-  toFun b := TensorProduct.map LinearMap.id (DistribMulAction.toLinearMap k Q b)
+  toFun b := TensorProduct.map LinearMap.id (DistribSMul.toLinearMap k Q b)
   map_one' := by ext; simp
   map_mul' b b' := by ext; simp [mul_smul]
   map_zero' := by ext; simp
@@ -158,8 +161,7 @@ theorem smul_eq_induction {Z : Type*} [AddCommGroup Z] [Module (A ⊗[k] B) Z]
     (htmul : ∀ (a : A) (b : B) (p : P) (q : Q),
       F ((a ⊗ₜ[k] b) • tmul p q) = (a ⊗ₜ[k] b) • F (tmul p q))
     (t : A ⊗[k] B) (x : ExtTensor k P Q) : F (t • x) = t • F x := by
-  induction t using TensorProduct.induction_on with
-  | zero => rw [zero_smul, zero_smul, h0]
+  induction t using TensorProduct.inductionOn with
   | tmul a b =>
     induction x using induction_on with
     | zero => rw [smul_zero, h0, smul_zero]
@@ -202,7 +204,7 @@ theorem map_comp (f : P →ₗ[A] P') (g : Q →ₗ[B] Q') (f' : P' →ₗ[A] P'
 /-- `f ⊠ g` for isomorphisms. -/
 def congr (f : P ≃ₗ[A] P') (g : Q ≃ₗ[B] Q') :
     ExtTensor k P Q ≃ₗ[A ⊗[k] B] ExtTensor k P' Q' :=
-  LinearEquiv.ofLinear (map f.toLinearMap g.toLinearMap) (map f.symm.toLinearMap g.symm.toLinearMap)
+  LinearEquiv.ofLinearMap (map f.toLinearMap g.toLinearMap) (map f.symm.toLinearMap g.symm.toLinearMap)
     (by rw [← map_comp]; simp [map_id]) (by rw [← map_comp]; simp [map_id])
 
 @[simp] theorem congr_tmul (f : P ≃ₗ[A] P') (g : Q ≃ₗ[B] Q') (p : P) (q : Q) :
@@ -226,7 +228,7 @@ variable (k P P' Q A B) in
 /-- `(P × P') ⊠ Q ≃ (P ⊠ Q) × (P' ⊠ Q)`. -/
 def prodLeft :
     ExtTensor k (P × P') Q ≃ₗ[A ⊗[k] B] ExtTensor k P Q × ExtTensor k P' Q :=
-  LinearEquiv.ofLinear
+  LinearEquiv.ofLinearMap
     (LinearMap.prod (map (LinearMap.fst A P P') LinearMap.id)
       (map (LinearMap.snd A P P') LinearMap.id))
     (LinearMap.coprod (map (LinearMap.inl A P P') LinearMap.id)
@@ -237,9 +239,9 @@ def prodLeft :
       | zero => simp
       | tmul p q =>
         simp only [LinearMap.coe_comp, Function.comp_apply, LinearMap.inl_apply,
-          LinearMap.inr_apply, LinearMap.coprod_apply, LinearMap.prod_apply, Pi.prod, map_tmul,
+          LinearMap.inr_apply, LinearMap.coprod_apply, LinearMap.prod_apply, Function.prod_apply, map_tmul,
           LinearMap.fst_apply, LinearMap.snd_apply, LinearMap.id_coe, id_eq, zero_tmul, map_zero,
-          add_zero, zero_add, map_add]
+          add_zero, zero_add]
       | add x y hx hy => rw [map_add, map_add, hx, hy])
     (by
       apply LinearMap.ext
@@ -248,7 +250,7 @@ def prodLeft :
       | zero => simp
       | tmul p q =>
         obtain ⟨p, p'⟩ := p
-        simp only [LinearMap.coe_comp, Function.comp_apply, LinearMap.prod_apply, Pi.prod,
+        simp only [LinearMap.coe_comp, Function.comp_apply, LinearMap.prod_apply, Function.prod_apply,
           map_tmul, LinearMap.coprod_apply, LinearMap.fst_apply, LinearMap.snd_apply,
           LinearMap.inl_apply, LinearMap.inr_apply, LinearMap.id_coe, id_eq]
         rw [← add_tmul, Prod.mk_add_mk, add_zero, zero_add]
@@ -262,7 +264,7 @@ variable (k P Q Q' A B) in
 /-- `P ⊠ (Q × Q') ≃ (P ⊠ Q) × (P ⊠ Q')`. -/
 def prodRight :
     ExtTensor k P (Q × Q') ≃ₗ[A ⊗[k] B] ExtTensor k P Q × ExtTensor k P Q' :=
-  LinearEquiv.ofLinear
+  LinearEquiv.ofLinearMap
     (LinearMap.prod (map LinearMap.id (LinearMap.fst B Q Q'))
       (map LinearMap.id (LinearMap.snd B Q Q')))
     (LinearMap.coprod (map LinearMap.id (LinearMap.inl B Q Q'))
@@ -273,9 +275,9 @@ def prodRight :
       | zero => simp
       | tmul p q =>
         simp only [LinearMap.coe_comp, Function.comp_apply, LinearMap.inl_apply,
-          LinearMap.inr_apply, LinearMap.coprod_apply, LinearMap.prod_apply, Pi.prod, map_tmul,
+          LinearMap.inr_apply, LinearMap.coprod_apply, LinearMap.prod_apply, Function.prod_apply, map_tmul,
           LinearMap.fst_apply, LinearMap.snd_apply, LinearMap.id_coe, id_eq, tmul_zero, map_zero,
-          add_zero, zero_add, map_add]
+          add_zero, zero_add]
       | add x y hx hy => rw [map_add, map_add, hx, hy])
     (by
       apply LinearMap.ext
@@ -284,7 +286,7 @@ def prodRight :
       | zero => simp
       | tmul p q =>
         obtain ⟨q, q'⟩ := q
-        simp only [LinearMap.coe_comp, Function.comp_apply, LinearMap.prod_apply, Pi.prod,
+        simp only [LinearMap.coe_comp, Function.comp_apply, LinearMap.prod_apply, Function.prod_apply,
           map_tmul, LinearMap.coprod_apply, LinearMap.fst_apply, LinearMap.snd_apply,
           LinearMap.inl_apply, LinearMap.inr_apply, LinearMap.id_coe, id_eq]
         rw [← tmul_add, Prod.mk_add_mk, add_zero, zero_add]
@@ -332,8 +334,8 @@ theorem projective [Module.Projective A P] [Module.Projective B Q] :
     Module.Projective (A ⊗[k] B) (ExtTensor k P Q) := by
   obtain ⟨s, hs⟩ := Module.projective_def'.1 ‹Module.Projective A P›
   obtain ⟨t, ht⟩ := Module.projective_def'.1 ‹Module.Projective B Q›
-  haveI : Module.Projective (A ⊗[k] B) (P × Q →₀ A ⊗[k] B) := inferInstance
-  haveI : Module.Projective (A ⊗[k] B) (ExtTensor k (P →₀ A) (Q →₀ B)) :=
+  have : Module.Projective (A ⊗[k] B) (P × Q →₀ A ⊗[k] B) := inferInstance
+  have : Module.Projective (A ⊗[k] B) (ExtTensor k (P →₀ A) (Q →₀ B)) :=
     Module.Projective.of_equiv (finsuppEquiv k A B P Q).symm
   refine Module.Projective.of_split (map s t)
     (map (Finsupp.linearCombination A id) (Finsupp.linearCombination B id)) ?_
@@ -346,10 +348,10 @@ theorem finite [Module.Finite A P] [Module.Finite B Q] :
   obtain ⟨T, hT⟩ := Module.Finite.fg_top (R := B) (M := Q)
   have hsurjS : Function.Surjective (Finsupp.linearCombination A (Subtype.val : S → P)) := by
     rw [← LinearMap.range_eq_top, Finsupp.range_linearCombination, Subtype.range_coe_subtype,
-      Finset.setOf_mem, hS]
+      Finset.setOfPred_mem, hS]
   have hsurjT : Function.Surjective (Finsupp.linearCombination B (Subtype.val : T → Q)) := by
     rw [← LinearMap.range_eq_top, Finsupp.range_linearCombination, Subtype.range_coe_subtype,
-      Finset.setOf_mem, hT]
+      Finset.setOfPred_mem, hT]
   exact Module.Finite.of_surjective
     ((map (Finsupp.linearCombination A (Subtype.val : S → P))
       (Finsupp.linearCombination B (Subtype.val : T → Q))).comp
@@ -362,7 +364,7 @@ end Action
 
 section Grading
 
-open Graded DirectSum
+open Categorification.Graded DirectSum
 
 variable {ι : Type*} [AddCommMonoid ι] (𝒰 : ι → Submodule k P) (𝒱 : ι → Submodule k Q)
 
@@ -418,9 +420,18 @@ instance gradedSMul [SetLike.GradedSMul 𝒜 𝒰] [SetLike.GradedSMul ℬ 𝒱]
         show (a ⊗ₜ[k] b) • tmul p q ∈ _
         rw [smul_tmul]
         exact h
-      | zero => rw [smul_zero]; exact zero_mem _
-      | add x y _ _ hx hy => rw [smul_add]; exact add_mem hx hy
-      | smul c x _ hx => rw [smul_comm _ c x]; exact Submodule.smul_mem _ c hx
+      | zero =>
+        change (a ⊗ₜ[k] b) • (0 : ExtTensor k P Q) ∈ _
+        rw [smul_zero]
+        exact zero_mem _
+      | add x y _ _ hx hy =>
+        change (a ⊗ₜ[k] b) • (x + y : ExtTensor k P Q) ∈ _
+        rw [smul_add]
+        exact add_mem hx hy
+      | smul c x _ hx =>
+        change action k P Q A B (a ⊗ₜ[k] b) (c • equivTensor x) ∈ _
+        rw [map_smul]
+        exact Submodule.smul_mem _ c hx
     | zero => rw [zero_smul]; exact zero_mem _
     | add s t _ _ hs ht => rw [add_smul]; exact add_mem hs ht
     | smul c t _ ht => rw [smul_assoc]; exact Submodule.smul_mem _ c ht

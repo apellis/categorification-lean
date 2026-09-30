@@ -363,6 +363,7 @@ theorem diag_whisker_id (a u : Obj (sig I)) (v : List I) (hw : a.WhiskerOK u v) 
     (P).diag (Diagram.whisker (𝟙 a) u v hw) = 𝟙 _ := by
   rw [Diagram.whisker_id]; exact (P).diag_id _
 
+set_option backward.isDefEq.respectTransparency false in
 /-- `ψ ≫ ψ = 0` on `[c, c]`, at any position. -/
 theorem sqEq_at {u v : List I} {c : I} {a b : Obj (sig I)} (f : a ⟶ b)
     (hf : Diagram.layers f = [lay u (.cross c c) v, lay u (.cross c c) v]) :
@@ -376,6 +377,7 @@ theorem sqEq_at {u v : List I} {c : I} {a b : Obj (sig I)} (f : a ⟶ b)
   rw [← key]
   exact (P).diag_eq_of_layers_eq (by simp [hf])
 
+set_option backward.isDefEq.respectTransparency false in
 /-- `ψ ≫ ψ = Q_{cd}(x₀, x₁)` on `[c, d]` for `c ≠ d`, at any position. -/
 theorem sqNe_at {u v : List I} {c d : I} (hcd : c ≠ d) {a : Obj (sig I)} (f y₀ y₁ : a ⟶ a)
     (hf : Diagram.layers f = [lay u (.cross c d) v, lay u (.cross d c) v])
@@ -397,9 +399,10 @@ theorem sqNe_at {u v : List I} {c d : I} (hcd : c ≠ d) {a : Obj (sig I)} (f y�
   · congr 1; funext t; fin_cases t <;>
       simp only [linAlg_apply, whiskerAlg_apply, LinDiagram.whisker_of, Presentation.lin_of,
         Fin.zero_eta, Fin.mk_one, Matrix.cons_val_zero, Matrix.cons_val_one,
-        Matrix.head_cons] <;>
+        ] <;>
       exact (P).diag_eq_of_layers_eq (by simp [h₀, h₁])
 
+set_option backward.isDefEq.respectTransparency false in
 /-- `ψ ≫ x₀ - x₁ ≫ ψ = 1` on `[c, c]`, at any position. -/
 theorem slideLEq_at {u v : List I} {c : I} {a : Obj (sig I)} (f g : a ⟶ a)
     (hf : Diagram.layers f = [lay u (.cross c c) v, lay u (.dot c) (c :: v)])
@@ -409,10 +412,11 @@ theorem slideLEq_at {u v : List I} {c : I} {a : Obj (sig I)} (f g : a ⟶ a)
     (dom_eq_of_layers f hf).trans (obj_ext (by simp [lay]))
   have key := rel_at Q (.slideLEq c) u v
   simp only [relation, LinDiagram.whisker_sub, LinDiagram.whisker_of, Presentation.lin_sub,
-    Presentation.lin_of, diag_whisker_id, sub_eq_zero] at key
+    Presentation.lin_of, sub_eq_zero] at key
   refine Eq.trans ?_ key
   congr 1 <;> exact (P).diag_eq_of_layers_eq (by simp [hf, hg])
 
+set_option backward.isDefEq.respectTransparency false in
 /-- `ψ ≫ x₀ = x₁ ≫ ψ` on `[c, d]` for `c ≠ d`, at any position. -/
 theorem slideLNe_at {u v : List I} {c d : I} (hcd : c ≠ d) {a b : Obj (sig I)} (f g : a ⟶ b)
     (hf : Diagram.layers f = [lay u (.cross c d) v, lay u (.dot d) (c :: v)])
@@ -427,6 +431,7 @@ theorem slideLNe_at {u v : List I} {c d : I} (hcd : c ≠ d) {a b : Obj (sig I)}
     Presentation.lin_of, sub_eq_zero] at key
   refine Eq.trans ?_ (key.trans ?_) <;> exact (P).diag_eq_of_layers_eq (by simp [hf, hg])
 
+set_option backward.isDefEq.respectTransparency false in
 /-- `x₀ ≫ ψ - ψ ≫ x₁ = 1` on `[c, c]`, at any position. -/
 theorem slideREq_at {u v : List I} {c : I} {a : Obj (sig I)} (f g : a ⟶ a)
     (hf : Diagram.layers f = [lay u (.dot c) (c :: v), lay u (.cross c c) v])
@@ -436,10 +441,11 @@ theorem slideREq_at {u v : List I} {c : I} {a : Obj (sig I)} (f g : a ⟶ a)
     (dom_eq_of_layers f hf).trans (obj_ext (by simp [lay]))
   have key := rel_at Q (.slideREq c) u v
   simp only [relation, LinDiagram.whisker_sub, LinDiagram.whisker_of, Presentation.lin_sub,
-    Presentation.lin_of, diag_whisker_id, sub_eq_zero] at key
+    Presentation.lin_of, sub_eq_zero] at key
   refine Eq.trans ?_ key
   congr 1 <;> exact (P).diag_eq_of_layers_eq (by simp [hf, hg])
 
+set_option backward.isDefEq.respectTransparency false in
 /-- `x₀ ≫ ψ = ψ ≫ x₁` on `[c, d]` for `c ≠ d`, at any position. -/
 theorem slideRNe_at {u v : List I} {c d : I} (hcd : c ≠ d) {a b : Obj (sig I)} (f g : a ⟶ b)
     (hf : Diagram.layers f = [lay u (.dot c) (d :: v), lay u (.cross c d) v])
@@ -454,6 +460,7 @@ theorem slideRNe_at {u v : List I} {c d : I} (hcd : c ≠ d) {a b : Obj (sig I)}
     Presentation.lin_of, sub_eq_zero] at key
   refine Eq.trans ?_ (key.trans ?_) <;> exact (P).diag_eq_of_layers_eq (by simp [hf, hg])
 
+set_option backward.isDefEq.respectTransparency false in
 /-- The braid relation on `[c, d, e]` unless `c = e ≠ d`, at any position. -/
 theorem braid_at {u v : List I} {c d e : I} (h : ¬ (c = e ∧ c ≠ d)) {a b : Obj (sig I)}
     (f g : a ⟶ b)
@@ -472,6 +479,7 @@ theorem braid_at {u v : List I} {c d e : I} (h : ¬ (c = e ∧ c ≠ d)) {a b : 
     Presentation.lin_of, sub_eq_zero] at key
   refine Eq.trans ?_ (key.trans ?_) <;> exact (P).diag_eq_of_layers_eq (by simp [hf, hg])
 
+set_option backward.isDefEq.respectTransparency false in
 /-- The braid relation with correction `Q̄_{cd}(x₀, x₁, x₂)` on `[c, d, c]` for `c ≠ d`, at
 any position. -/
 theorem braidQ_at {u v : List I} {c d : I} (hcd : c ≠ d) {a : Obj (sig I)}
@@ -519,7 +527,7 @@ theorem interchange_at (l m r : List I) (g h : Gen I) {a b : Obj (sig I)} (f₁ 
     ((cod_eq_of_layers f₁ (ls := [lay l g (m ++ h.dom ++ r)]) h₁).trans
       (obj_ext (by simp [x, InterchangeData.cod, lay]))).symm
   have key := (P).diag_interchange x hx (ob l) r (Obj.whiskerOK_of_subsingleton _ _ _) ha hb
-  have hs : ((x.sign : ℤ) : k) = 1 := by simp [x, InterchangeData.sign]
+  have hs : ((x.sign : ℤ) : k) = 1 := by simp [InterchangeData.sign]
   rw [hs, one_smul] at key
   refine Eq.trans ?_ (key.trans ?_) <;> refine (P).diag_eq_of_layers_eq ?_
   · simp [h₁, x, InterchangeData.ghDiagram, InterchangeData.gh₁, InterchangeData.gh₂, lay,
@@ -744,6 +752,7 @@ theorem braidQ_pos {c d : I} (hcd : c ≠ d) {p : ℕ} {a : Obj (sig I)}
     (by simpa using k₂) l₂
   exact braidQ_at Q hcd f g y₀ y₁ y₂ hf hg hy₀ hy₁ hy₂
 
+set_option backward.isDefEq.respectTransparency false in
 /-- The interchange law in positional form: a generator `g` at position `p` and a generator
 `h` at position `q ≥ p + arity g` can be applied in either order. -/
 theorem interchange_pos {g h : Gen I} {p q : ℕ} (hpq : p + g.arity ≤ q) {a b : Obj (sig I)}
@@ -766,10 +775,10 @@ theorem interchange_pos {g h : Gen I} {p q : ℕ} (hpq : p + g.arity ≤ q) {a b
   obtain ⟨mid, hu₃, hv⟩ : ∃ mid, u₃ = u ++ g.dom ++ mid ∧ v = mid ++ h.dom ++ v₃ := by
     refine ⟨v.take n, ?_, ?_⟩
     · have := congrArg (List.take u₃.length) hw
-      rw [List.append_assoc u₃, List.take_left, hn, List.take_append] at this
+      rw [List.append_assoc u₃, List.take_left, hn, List.take_length_add_append] at this
       exact this
     · have := congrArg (List.drop u₃.length) hw
-      rw [List.append_assoc u₃, List.drop_left, hn, List.drop_append] at this
+      rw [List.append_assoc u₃, List.drop_left, hn, List.drop_length_add_append] at this
       conv_lhs => rw [← List.take_append_drop n v]
       rw [← this, List.append_assoc]
   subst hu₃ hv

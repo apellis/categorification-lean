@@ -50,11 +50,13 @@ variable (k : Type*) [CommRing k]
 abbrev dotAlg (n : ℕ) : Subalgebra k (End ((pres k).obj (strands n))) :=
   Algebra.adjoin k (Set.range (x k n))
 
+open scoped IsMulCommutative in
 /-- The dots commute, so they generate a commutative subalgebra. -/
 instance dotAlg.instCommRing (n : ℕ) : CommRing (dotAlg k n) :=
-  Algebra.adjoinCommRingOfComm k (by
-    rintro _ ⟨i, rfl⟩ _ ⟨j, rfl⟩
+  have := Algebra.isMulCommutative_adjoin k (s := Set.range (x k n)) (by
+    rintro _ ⟨i, rfl⟩ _ ⟨j, rfl⟩ _
     exact x_mul_x_comm k n i j)
+  inferInstance
 
 /-- Polynomials in the dots: `X i` is sent to the dot `x k n i` on strand `i`. -/
 def dots (n : ℕ) : MvPolynomial ℕ k →ₐ[k] End ((pres k).obj (strands n)) :=

@@ -32,8 +32,8 @@ open QuantumGroup UDot
 /-- The Dynkin graph of type `A_m`: `i — j` iff `|i - j| = 1`. -/
 def slGraph (m : ℕ) : SimpleGraph (Fin m) where
   Adj i j := i.val + 1 = j.val ∨ j.val + 1 = i.val
-  symm _ _ h := h.symm
-  loopless i h := by omega
+  symm := ⟨fun _ _ h => h.symm⟩
+  loopless := ⟨fun i h => by omega⟩
 
 instance (m : ℕ) : DecidableRel (slGraph m).Adj := fun i j =>
   inferInstanceAs (Decidable (i.val + 1 = j.val ∨ j.val + 1 = i.val))
@@ -119,14 +119,14 @@ def compWeight (d : Fin (m + 1) → ℕ) : Fin m → ℤ := fun i => d i.castSuc
 
 theorem raise_cast (i : Fin m) (d : Fin (m + 1) → ℕ) (h : 0 < d i.succ) (j : Fin (m + 1)) :
     (raise i d j : ℤ) = d j + (if j = i.castSucc then 1 else 0) - (if j = i.succ then 1 else 0) := by
-  have hne : i.castSucc ≠ i.succ := (Fin.castSucc_lt_succ i).ne
+  have hne : i.castSucc ≠ i.succ := (Fin.castSucc_lt_succ (i := i)).ne
   unfold raise
   by_cases h1 : j = i.castSucc
   · subst h1
     simp [hne]
   · by_cases h2 : j = i.succ
     · subst h2
-      simp only [if_neg h1, if_true, add_zero]
+      simp only [ite_eq_right h1, ite_true, add_zero]
       rw [Nat.cast_sub h]
       push_cast
       ring
@@ -137,7 +137,7 @@ theorem compWeight_raise (i : Fin m) (d : Fin (m + 1) → ℕ) (h : 0 < d i.succ
     compWeight (raise i d) = compWeight d + (slRootDatum m).iX i := by
   funext a
   simp only [compWeight, raise_cast i d h, Pi.add_apply, slRootDatum_iX_apply, slCartan_dot,
-    Fin.ext_iff, Fin.coe_castSucc, Fin.val_succ]
+    Fin.ext_iff, Fin.val_castSucc, Fin.val_succ]
   split_ifs <;> omega
 
 /-- **The weight determines the composition of `N`.** -/

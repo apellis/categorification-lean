@@ -43,7 +43,7 @@ universe u
 variable {K : Type u} [Field K] {m : ℕ}
 
 theorem castSucc_eq_succ_iff {i j : Fin m} : j.castSucc = i.succ ↔ (j : ℕ) = i + 1 := by
-  rw [Fin.ext_iff, Fin.coe_castSucc, Fin.val_succ]
+  rw [Fin.ext_iff, Fin.val_castSucc, Fin.val_succ]
 
 variable (K) in
 /-- **`Γ_N` of the upward crossing `E_i E_j 1 → E_j E_i 1`** for `i ≠ j` (KL III (6.8)), on the
@@ -74,32 +74,32 @@ theorem gammaCross_sq (i j : Fin m) (hij : i ≠ j) {t r₁ r₂ r₁' : Comp m}
     have hadj' : ¬ i.castSucc = j.succ := by
       rw [castSucc_eq_succ_iff] at hadj ⊢; omega
     have hdot : (slCartan m).dot i j = -1 := by
-      rw [slCartan_dot, if_neg hij, if_pos (Or.inl (castSucc_eq_succ_iff.1 hadj).symm)]
+      rw [slCartan_dot, ite_eq_right hij, ite_eq_left (Or.inl (castSucc_eq_succ_iff.1 hadj).symm)]
     have hij' : (((i : ℕ) : ℤ) - ((j : ℕ) : ℤ)) = -1 := by
       have := castSucc_eq_succ_iff.1 hadj; omega
     unfold gammaCross
-    rw [dif_pos hadj, dif_neg hadj', dif_pos hadj, crossAdj_sq_NF, qSigned_of_adj hdot, hij',
+    rw [dite_eq_left hadj, dite_eq_right hadj', dite_eq_left hadj, crossAdj_sq_NF, qSigned_of_adj hdot, hij',
       neg_one_zsmul, eval₂_neg, eval₂_sub, eval₂_X, eval₂_X]
-    simp only [Matrix.cons_val_zero, Matrix.cons_val_one, Matrix.head_cons, neg_sub]
+    simp only [Matrix.cons_val_zero, Matrix.cons_val_one, neg_sub]
   · by_cases hadj' : i.castSucc = j.succ
     · -- `i = j + 1`
       have hdot : (slCartan m).dot i j = -1 := by
-        rw [slCartan_dot, if_neg hij, if_pos (Or.inr (castSucc_eq_succ_iff.1 hadj').symm)]
+        rw [slCartan_dot, ite_eq_right hij, ite_eq_left (Or.inr (castSucc_eq_succ_iff.1 hadj').symm)]
       have hij' : (((i : ℕ) : ℤ) - ((j : ℕ) : ℤ)) = 1 := by
         have := castSucc_eq_succ_iff.1 hadj'; omega
       unfold gammaCross
-      rw [dif_neg hadj, dif_pos hadj', dif_pos hadj', crossAdj_sq_FN, qSigned_of_adj hdot, hij',
+      rw [dite_eq_right hadj, dite_eq_left hadj', dite_eq_left hadj', crossAdj_sq_FN, qSigned_of_adj hdot, hij',
         one_zsmul, eval₂_sub, eval₂_X, eval₂_X]
-      simp only [Matrix.cons_val_zero, Matrix.cons_val_one, Matrix.head_cons]
+      simp only [Matrix.cons_val_zero, Matrix.cons_val_one]
     · -- `i · j = 0`
       have hdot : (slCartan m).dot i j = 0 := by
-        rw [slCartan_dot, if_neg hij, if_neg]
+        rw [slCartan_dot, ite_eq_right hij, ite_eq_right]
         rw [castSucc_eq_succ_iff] at hadj hadj'
         omega
       have hadj₂ : ¬ i.castSucc = j.succ := hadj'
       have hadj₃ : ¬ j.castSucc = i.succ := hadj
       unfold gammaCross
-      rw [dif_neg hadj, dif_neg hadj', dif_neg hadj₂, dif_neg hadj₃, crossFarP_sq,
+      rw [dite_eq_right hadj, dite_eq_right hadj', dite_eq_right hadj₂, dite_eq_right hadj₃, crossFarP_sq,
         qSigned_of_dot_eq_zero hdot, eval₂_one, BHom.mulB_one]
 
 end Categorification.KL3.Diagram.Signed

@@ -44,6 +44,8 @@ namespace Categorification.KLR
 
 open MvPolynomial Equiv TypeA KLRAlgebra
 
+set_option backward.isDefEq.respectTransparency false
+
 variable {I : Type*} [DecidableEq I] {k : Type*} [CommRing k]
 
 namespace TwoStrand
@@ -55,11 +57,11 @@ section seq
 variable (i j : I)
 
 /-- The sequence `ij ∈ Seq(i + j)`. -/
-def sij : Seq ({i, j} : Multiset I) := ⟨![i, j], by rw [Fin.univ_val_map]; rfl⟩
+def sij : Seq ({i, j} : Multiset I) := ⟨![i, j], (Fin.univ_val_map _).trans rfl⟩
 
 /-- The sequence `ji ∈ Seq(i + j)`. -/
 def sji : Seq ({i, j} : Multiset I) :=
-  ⟨![j, i], by rw [Fin.univ_val_map]; exact Multiset.pair_comm j i⟩
+  ⟨![j, i], (Fin.univ_val_map _).trans (Multiset.pair_comm j i)⟩
 
 variable {i j}
 
@@ -67,7 +69,7 @@ omit [DecidableEq I] in
 theorem seq_cases (t : Seq ({i, j} : Multiset I)) : t = sij i j ∨ t = sji i j := by
   obtain ⟨t, ht⟩ := t
   change Fin 2 → I at t
-  rw [Fin.univ_val_map] at ht
+  replace ht := (Fin.univ_val_map t).symm.trans ht
   change t 0 ::ₘ t 1 ::ₘ 0 = i ::ₘ j ::ₘ 0 at ht
   rcases Multiset.cons_eq_cons.1 ht with ⟨h0, h1⟩ | ⟨_, cs, h1, h2⟩
   · left
@@ -94,12 +96,12 @@ theorem sij_ne_sji (hij : i ≠ j) : sij i j ≠ sji i j := fun h =>
 omit [DecidableEq I] in
 theorem sadj_smul_sij : sadj (Multiset.card ({i, j} : Multiset I)) 0 • sij i j = sji i j := by
   apply Subtype.ext; funext a; change Fin 2 at a
-  fin_cases a <;> simp [sadj, sij, sji, Seq.smul_apply, swap_apply_def]
+  fin_cases a <;> simp [sadj, sij, sji, Seq.smul_apply]
 
 omit [DecidableEq I] in
 theorem sadj_smul_sji : sadj (Multiset.card ({i, j} : Multiset I)) 0 • sji i j = sij i j := by
   apply Subtype.ext; funext a; change Fin 2 at a
-  fin_cases a <;> simp [sadj, sij, sji, Seq.smul_apply, swap_apply_def]
+  fin_cases a <;> simp [sadj, sij, sji, Seq.smul_apply]
 
 theorem sum_seq {M : Type*} [AddCommMonoid M] (hij : i ≠ j) (f : Seq ({i, j} : Multiset I) → M) :
     ∑ t, f t = f (sij i j) + f (sji i j) := by
@@ -177,7 +179,7 @@ theorem ncEval_xMat (p : MvPolynomial (Fin 2) k) :
     rw [this, aeval_X_left_apply]
   have h1 : aeval (fun a => d a 1) p = rename ![1, 0] p := by
     have : (fun a => d a 1) = X ∘ ![1, 0] := by funext a; rfl
-    rw [this]; rfl
+    rw [this, rename_eq_aeval]
   have hv : aeval d p = ![p, rename ![1, 0] p] := by
     funext c; rw [hc]; fin_cases c
     exacts [h0, h1]
@@ -222,11 +224,11 @@ theorem ψMat_mul_eMat (t : Seq ({i, j} : Multiset I)) :
 
 omit [DecidableEq I] in
 theorem xMat_ψMat_sub : xMat (k := k) 0 * ψMat A B 0 - ψMat A B 0 * xMat 1 = 0 := by
-  apply mat_eq <;> simp [xMat, ψMat, Matrix.mul_apply, Fin.sum_univ_two, mul_comm]
+  apply mat_eq <;> simp [xMat, ψMat, mul_comm]
 
 omit [DecidableEq I] in
 theorem ψMat_xMat_sub : ψMat A B 0 * xMat (k := k) 0 - xMat 1 * ψMat A B 0 = 0 := by
-  apply mat_eq <;> simp [xMat, ψMat, Matrix.mul_apply, Fin.sum_univ_two, mul_comm]
+  apply mat_eq <;> simp [xMat, ψMat, mul_comm]
 
 include hij hQ₁ hQ₂ in
 theorem genMat_rel ⦃a b : FreeAlgebra k (Gen ({i, j} : Multiset I))⦄
@@ -275,19 +277,19 @@ theorem genMat_rel ⦃a b : FreeAlgebra k (Gen ({i, j} : Multiset I))⦄
   | dot_cross_left l h t =>
     change l + 1 < 2 at h
     obtain rfl : l = 0 := by omega
-    rw [if_neg (hlbl t), map_zero]
+    rw [ite_eq_right (hlbl t), map_zero]
     simp only [fe, fx, fψ, map_mul, map_sub, FreeAlgebra.lift_ι_apply, genMat]
     rw [xMat_ψMat_sub, zero_mul]
   | dot_cross_right l h t =>
     change l + 1 < 2 at h
     obtain rfl : l = 0 := by omega
-    rw [if_neg (hlbl t), map_zero]
+    rw [ite_eq_right (hlbl t), map_zero]
     simp only [fe, fx, fψ, map_mul, map_sub, FreeAlgebra.lift_ι_apply, genMat]
     rw [ψMat_xMat_sub, zero_mul]
   | cross_sq l h t =>
     change l + 1 < 2 at h
     obtain rfl : l = 0 := by omega
-    rw [if_neg (hlbl t)]
+    rw [ite_eq_right (hlbl t)]
     simp only [fe, fψ, map_mul, FreeAlgebra.lift_ι_apply, genMat, PolyRep.algHom_ncEval]
     have hv : (fun c => FreeAlgebra.lift k (genMat i j A B)
         (![fx k ({i, j} : Multiset I) ⟨0, Nat.zero_lt_two⟩, fx k _ ⟨1, h⟩] c)) =
@@ -338,23 +340,23 @@ theorem toMat_pol (p : MvPolynomial (Fin 2) k) :
 theorem toMat_pol_e_sij (p : MvPolynomial (Fin 2) k) :
     toMat hij A B Q hQ₁ hQ₂ (pol p * e (sij i j)) = !![p, 0; 0, 0] := by
   rw [map_mul, toMat_pol, toMat_e]
-  simp [eMat, Matrix.mul_fin_two]
+  simp [eMat]
 
 theorem toMat_pol_e_sji (p : MvPolynomial (Fin 2) k) :
     toMat hij A B Q hQ₁ hQ₂ (pol p * e (sji i j)) = !![0, 0; 0, rename ![1, 0] p] := by
   rw [map_mul, toMat_pol, toMat_e]
-  simp [eMat, (sij_ne_sji hij).symm, Matrix.mul_fin_two]
+  simp [eMat, (sij_ne_sji hij).symm]
 
 theorem toMat_ψ_pol_e_sij (p : MvPolynomial (Fin 2) k) :
     toMat hij A B Q hQ₁ hQ₂ (ψ 0 * pol p * e (sij i j)) = !![0, 0; A * p, 0] := by
   rw [map_mul, map_mul, toMat_pol, toMat_e, toMat_ψ]
-  simp [eMat, ψMat, Matrix.mul_fin_two]
+  simp [eMat, ψMat]
 
 theorem toMat_ψ_pol_e_sji (p : MvPolynomial (Fin 2) k) :
     toMat hij A B Q hQ₁ hQ₂ (ψ 0 * pol p * e (sji i j)) =
       !![0, B * rename ![1, 0] p; 0, 0] := by
   rw [map_mul, map_mul, toMat_pol, toMat_e, toMat_ψ]
-  simp [eMat, ψMat, (sij_ne_sji hij).symm, Matrix.mul_fin_two]
+  simp [eMat, ψMat, (sij_ne_sji hij).symm]
 
 /-- KL I §2.2, Examples 4 and 7: the dots on `1_{ij}` go to `x_1 E_{00}` and `x_2 E_{00}`. -/
 theorem toMat_x_mul_e_sij (a : Fin 2) :
@@ -385,7 +387,7 @@ def sub : Subalgebra k (Mat k) where
   carrier := {M | A ∣ M 1 0 ∧ B ∣ M 0 1}
   mul_mem' := by
     rintro M N ⟨h₁, h₂⟩ ⟨h₃, h₄⟩
-    simp only [Set.mem_setOf_eq, Matrix.mul_apply, Fin.sum_univ_two]
+    simp only [Set.mem_ofPred_eq, Matrix.mul_apply, Fin.sum_univ_two]
     exact ⟨dvd_add (dvd_mul_of_dvd_left h₁ _) (dvd_mul_of_dvd_right h₃ _),
       dvd_add (dvd_mul_of_dvd_right h₄ _) (dvd_mul_of_dvd_left h₂ _)⟩
   add_mem' := by
@@ -412,7 +414,7 @@ theorem toMat_mem (r : KLRAlgebra k Q ({i, j} : Multiset I)) :
 private def ρ₂ (w : Perm (Fin 2)) : List ℕ := if w = 1 then [] else [0]
 
 private theorem sadj_two : sadj 2 0 = swap 0 1 := by
-  rw [sadj, dif_pos (by norm_num)]; rfl
+  rw [sadj, dite_eq_left (by norm_num)]; rfl
 
 private theorem sadj_two_ne_one : sadj 2 0 ≠ 1 := by rw [sadj_two]; decide
 
@@ -421,10 +423,10 @@ private theorem perm_two (w : Perm (Fin 2)) : w = 1 ∨ w = sadj 2 0 := by
 
 private theorem hρ₂ (w : Perm (Fin 2)) : IsReduced 2 (ρ₂ w) ∧ wordProd 2 (ρ₂ w) = w := by
   rcases perm_two w with rfl | rfl
-  · have : ρ₂ 1 = [] := if_pos rfl
+  · have : ρ₂ 1 = [] := ite_eq_left rfl
     rw [this]
-    exact ⟨⟨by simp [ValidWord], by simp [wordProd, length_eq_zero_iff]⟩, rfl⟩
-  · have : ρ₂ (sadj 2 0) = [0] := if_neg sadj_two_ne_one
+    exact ⟨⟨by simp [ValidWord], by simp [wordProd]⟩, rfl⟩
+  · have : ρ₂ (sadj 2 0) = [0] := ite_eq_right sadj_two_ne_one
     rw [this, wordProd_singleton]
     refine ⟨⟨by simp [ValidWord], ?_⟩, rfl⟩
     rw [wordProd_singleton, length_sadj (by norm_num)]
@@ -464,12 +466,12 @@ theorem corner_eq (s t : Seq ({i, j} : Multiset I)) (r : KLRAlgebra k Q ({i, j} 
     rcases perm_two w with h1 | h1
     · have hw' : w • t = t := by rw [h1, one_smul]
       have hst : s = t := hw.symm.trans hw'
-      have : ρ₂ w = [] := if_pos h1
+      have : ρ₂ w = [] := ite_eq_left h1
       simp [c, this, hst]
     · have hw' : w • t ≠ t := by
         rw [h1]; exact sadj_smul_ne hij t
       have hst : s ≠ t := hw ▸ hw'
-      have : ρ₂ w = [0] := by rw [h1]; exact if_neg sadj_two_ne_one
+      have : ρ₂ w = [0] := by rw [h1]; exact ite_eq_right sadj_two_ne_one
       simp [c, this, hst, ψw]
   obtain ⟨p, hp⟩ := hle hmem
   exact ⟨p, hp.symm⟩
@@ -490,24 +492,24 @@ theorem toMat_injective (hA : A ≠ 0) (hB : B ≠ 0) :
     rw [hp] at h0 ⊢
     suffices p = 0 by rw [this, map_zero, mul_zero, zero_mul]
     rcases seq_cases s with rfl | rfl <;> rcases seq_cases t with rfl | rfl
-    · rw [if_pos rfl, one_mul, toMat_pol_e_sij] at h0
+    · rw [ite_eq_left rfl, one_mul, toMat_pol_e_sij] at h0
       simpa using congrFun (congrFun h0 0) 0
-    · rw [if_neg hne, toMat_ψ_pol_e_sji] at h0
+    · rw [ite_eq_right hne, toMat_ψ_pol_e_sji] at h0
       have := congrFun (congrFun h0 0) 1
       simp only [Matrix.of_apply, Matrix.cons_val', Matrix.cons_val_zero, Matrix.cons_val_one,
-        Matrix.head_cons, Matrix.empty_val', Matrix.cons_val_fin_one, Matrix.zero_apply,
+        Matrix.empty_val', Matrix.cons_val_fin_one, Matrix.zero_apply,
         mul_eq_zero, hB, false_or] at this
       exact rename_swap_injective (by rw [this, map_zero])
-    · rw [if_neg hne.symm, toMat_ψ_pol_e_sij] at h0
+    · rw [ite_eq_right hne.symm, toMat_ψ_pol_e_sij] at h0
       have := congrFun (congrFun h0 1) 0
       simp only [Matrix.of_apply, Matrix.cons_val', Matrix.cons_val_zero, Matrix.cons_val_one,
-        Matrix.head_cons, Matrix.empty_val', Matrix.cons_val_fin_one, Matrix.zero_apply,
+        Matrix.empty_val', Matrix.cons_val_fin_one, Matrix.zero_apply,
         mul_eq_zero, hA, false_or] at this
       exact this
-    · rw [if_pos rfl, one_mul, toMat_pol_e_sji] at h0
+    · rw [ite_eq_left rfl, one_mul, toMat_pol_e_sji] at h0
       have := congrFun (congrFun h0 1) 1
-      simp only [Matrix.of_apply, Matrix.cons_val', Matrix.cons_val_zero, Matrix.cons_val_one,
-        Matrix.head_cons, Matrix.empty_val', Matrix.cons_val_fin_one, Matrix.zero_apply] at this
+      simp only [Matrix.of_apply, Matrix.cons_val', Matrix.cons_val_one,
+        Matrix.empty_val', Matrix.cons_val_fin_one, Matrix.zero_apply] at this
       exact rename_swap_injective (by rw [this, map_zero])
   have hsum : r = ∑ s, ∑ t, e s * r * e t := by
     simp only [← Finset.mul_sum, ← Finset.sum_mul, sum_e, one_mul, mul_one]
@@ -561,7 +563,7 @@ omit [DecidableEq I] [IsDomain k] in
 theorem klQ_nonAdj₂ (hadj : ¬ Γ.Adj i j) :
     rename (![1, 0] : Fin 2 → Fin 2) (klQ Γ j i : MvPolynomial (Fin 2) k) = 1 * 1 := by
   simp only [klQ]
-  rw [if_neg (fun h : Γ.Adj j i => hadj h.symm)]
+  rw [ite_eq_right (fun h : Γ.Adj j i => hadj h.symm)]
   simp
 
 omit [DecidableEq I] [IsDomain k] in
@@ -592,8 +594,8 @@ theorem nonAdjEquiv_apply (hij : i ≠ j) (hadj : ¬ Γ.Adj i j)
 omit [IsDomain k] in
 theorem X_add_X_ne_zero [Nontrivial k] : (X 0 + X 1 : MvPolynomial (Fin 2) k) ≠ 0 := by
   intro h
-  have := congrArg (coeff (Finsupp.single 0 1)) h
-  simp [coeff_X', Finsupp.single_eq_single_iff] at this
+  have := congrArg (fun p : MvPolynomial (Fin 2) k => p.coeff (Finsupp.single 0 1)) h
+  simp [coeff_X, Finsupp.single_eq_single_iff] at this
 
 /-- The subalgebra of `2 × 2` matrices over `k[x_1, x_2]` whose bottom-left entry is divisible by
 `x_1 + x_2`. -/

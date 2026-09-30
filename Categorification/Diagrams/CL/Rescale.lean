@@ -77,6 +77,8 @@ bubble, real or fake, with label `m` in the region `λ` is scaled by `a_i^{m + 1
   and on `r`.
 -/
 
+set_option backward.isDefEq.respectTransparency false
+
 noncomputable section
 
 namespace Categorification.KL3.Diagram.CL
@@ -136,7 +138,7 @@ def inv : RescaleDatum RD k where
   dot i := (D.dot i)⁻¹
   cross i j := (D.cross i j)⁻¹
   cup c := (D.cup c)⁻¹
-  cup_up i x := by rw [D.cup_up, mul_inv, inv_zpow']; simp only [inv_zpow', neg_neg, zpow_neg]
+  cup_up i x := by rw [D.cup_up, mul_inv, inv_zpow']; simp only [zpow_neg]
 
 @[simp] theorem inv_dot (i : I) : D.inv.dot i = (D.dot i)⁻¹ := rfl
 @[simp] theorem inv_cross (i j : I) : D.inv.cross i j = (D.cross i j)⁻¹ := rfl
@@ -168,11 +170,11 @@ def mapScalars [DecidableEq I] (S : CLScalars C k) : CLScalars C k where
   s i j p q := S.s i j p q * (D.dot i : k) ^ p * (D.dot j : k) ^ q *
     (((D.cross i j * D.cross j i)⁻¹ : kˣ) : k)
   r i := S.r i * (D.dot i * D.cross i i)⁻¹
-  t_self i := if_pos rfl
+  t_self i := ite_eq_left rfl
   t_symm i j h := by
     by_cases hij : i = j
     · subst hij; rfl
-    · rw [if_neg hij, if_neg (Ne.symm hij), (C.dij_eq_zero_iff hij).2 h,
+    · rw [ite_eq_right hij, ite_eq_right (Ne.symm hij), (C.dij_eq_zero_iff hij).2 h,
         (C.dij_eq_zero_iff (Ne.symm hij)).2 (by rw [C.symm]; exact h), pow_zero, pow_zero,
         S.t_symm i j h, mul_comm (D.cross i j)]
   s_symm i j p q := by
@@ -183,7 +185,7 @@ variable [DecidableEq I]
 
 theorem mapScalars_t_of_ne (S : CLScalars C k) {i j : I} (h : i ≠ j) :
     (D.mapScalars S).t i j = S.t i j * D.dot i ^ C.dij i j * (D.cross i j * D.cross j i)⁻¹ :=
-  if_neg h
+  ite_eq_right h
 
 @[simp] theorem mapScalars_s (S : CLScalars C k) (i j : I) (p q : ℕ) :
     (D.mapScalars S).s i j p q = S.s i j p q * (D.dot i : k) ^ p * (D.dot j : k) ^ q *
@@ -201,8 +203,8 @@ theorem mapScalars_inv (S : CLScalars C k) : D.inv.mapScalars (D.mapScalars S) =
     · rw [mapScalars_t_of_ne _ _ h, mapScalars_t_of_ne _ _ h]
       simp only [inv_dot, inv_cross, inv_pow, mul_inv_rev, inv_inv]
       unit_tac
-  · simp only [mapScalars_s, inv_dot, inv_cross, Units.val_inv_eq_inv_val, mul_inv_rev, inv_inv]
-    simp only [← Units.val_inv_eq_inv_val, ← Units.val_mul, ← Units.val_pow_eq_pow_val, mul_assoc]
+  · simp only [mapScalars_s, inv_dot, inv_cross, mul_inv_rev, inv_inv]
+    simp only [← Units.val_mul, ← Units.val_pow_eq_pow_val, mul_assoc]
     rw [← mul_one (S.s i j p q)]
     simp only [mul_assoc]
     congr 1
@@ -433,7 +435,7 @@ theorem weight_rotCrossL (j i : I) (μ : X) :
     weight D.chi (Diagram.layers (rotCrossL RD j i μ)) = D.cross j i * D.gaugeFF j i μ := by
   unfold rotCrossL
   weight_tac
-  simp only [region₁, region₂, shUp_shDn_add]
+  simp only [region₁, shUp_shDn_add]
   unit_tac
 
 /-- The right rotation of the upward crossing `E_j E_i ⟶ E_i E_j` is scaled by
@@ -443,8 +445,8 @@ theorem weight_rotCrossR (j i : I) (μ : X) :
       D.cross j i * D.dot j ^ (-A C j i) * D.dot i ^ A C i j * D.gaugeFF j i μ := by
   unfold rotCrossR
   weight_tac
-  simp only [region₃, region₄, shUp_shDn_add]
-  simp only [ip, pair_sh, sgn_true, sgn_false, A_self]
+  simp only [region₄, shUp_shDn_add]
+  simp only [ip, pair_sh, sgn_false, A_self]
   unit_tac
 
 theorem weight_rotDotR (i : I) (μ : X) :
@@ -610,33 +612,33 @@ theorem A_eq_neg_dij' {i j : I} (h : i ≠ j) : A C i j = -(C.dij i j : ℤ) := 
 theorem scL_rel_cycDotR (i : I) (μ : X) :
     scL D.chi (relationCL RD k S (.cycDotR i μ)) =
       ((D.dot i : kˣ) : k) • relationCL RD k (D.mapScalars S) (.cycDotR i μ) := by
-  simp only [relationCL, relation]
+  dsimp only [relationCL, relation]
   rw [scL_sub, scL_of, scL_of, weight_rotDotR, weight_downDot, smul_sub]
 
 theorem scL_rel_cycDotL (i : I) (μ : X) :
     scL D.chi (relationCL RD k S (.cycDotL i μ)) =
       ((D.dot i : kˣ) : k) • relationCL RD k (D.mapScalars S) (.cycDotL i μ) := by
-  simp only [relationCL, relation]
+  dsimp only [relationCL, relation]
   rw [scL_sub, scL_of, scL_of, weight_rotDotL, weight_downDot, smul_sub]
 
 theorem scL_rel_cwNeg (i : I) (lam : X) (α : ℕ) (h : (α : ℤ) < ip RD i lam - 1) :
     scL D.chi (relationCL RD k S (.cwNeg i lam α h)) =
       ((D.dot i ^ ((α : ℤ) + 1 - ip RD i lam) : kˣ) : k) •
         relationCL RD k (D.mapScalars S) (.cwNeg i lam α h) := by
-  simp only [relationCL, relation]
+  dsimp only [relationCL, relation]
   rw [scL_of, weight_cwReal]
 
 theorem scL_rel_ccwNeg (i : I) (lam : X) (α : ℕ) (h : (α : ℤ) < -ip RD i lam - 1) :
     scL D.chi (relationCL RD k S (.ccwNeg i lam α h)) =
       ((D.dot i ^ ((α : ℤ) + 1 + ip RD i lam) : kˣ) : k) •
         relationCL RD k (D.mapScalars S) (.ccwNeg i lam α h) := by
-  simp only [relationCL, relation]
+  dsimp only [relationCL, relation]
   rw [scL_of, weight_ccwReal]
 
 theorem scL_rel_cwOne (i : I) (lam : X) (h : 1 ≤ ip RD i lam) :
     scL D.chi (relationCL RD k S (.cwOne i lam h)) =
       relationCL RD k (D.mapScalars S) (.cwOne i lam h) := by
-  simp only [relationCL, relation]
+  dsimp only [relationCL, relation]
   rw [scL_sub, scL_of, weight_cwReal, Int.toNat_of_nonneg (by omega)]
   erw [scL_of_id]
   simp
@@ -645,7 +647,7 @@ theorem scL_rel_cwOne (i : I) (lam : X) (h : 1 ≤ ip RD i lam) :
 theorem scL_rel_ccwOne (i : I) (lam : X) (h : ip RD i lam ≤ -1) :
     scL D.chi (relationCL RD k S (.ccwOne i lam h)) =
       relationCL RD k (D.mapScalars S) (.ccwOne i lam h) := by
-  simp only [relationCL, relation]
+  dsimp only [relationCL, relation]
   rw [scL_sub, scL_of, weight_ccwReal, Int.toNat_of_nonneg (by omega)]
   erw [scL_of_id]
   simp
@@ -655,7 +657,7 @@ theorem scL_rel_curlR (i : I) (lam : X) :
     scL D.chi (relationCL RD k S (.curlR i lam)) =
       ((D.cross i i * D.dot i ^ (1 - ip RD i lam) : kˣ) : k) •
         relationCL RD k (D.mapScalars S) (.curlR i lam) := by
-  simp only [relationCL]
+  dsimp only [relationCL]
   rw [scL_sub, scL_of, weight_curlR, scL_smul, scL_curlRHS, smul_smul, ← Units.val_mul]
   refine rel_two_sub _ _ _ _ _ ?_
   simp only [mapScalars_r]
@@ -665,7 +667,7 @@ theorem scL_rel_curlL (i : I) (μ : X) :
     scL D.chi (relationCL RD k S (.curlL i μ)) =
       ((D.cross i i * D.dot i ^ (1 + ip RD i (wt RD μ [up i])) : kˣ) : k) •
         relationCL RD k (D.mapScalars S) (.curlL i μ) := by
-  simp only [relationCL]
+  dsimp only [relationCL]
   rw [scL_sub, scL_of, weight_curlL, scL_smul, scL_curlLHS, smul_smul, ← Units.val_mul]
   refine rel_two_sub _ _ _ _ _ ?_
   simp only [mapScalars_r]
@@ -674,7 +676,7 @@ theorem scL_rel_curlL (i : I) (μ : X) :
 theorem scL_rel_decompEF (i : I) (lam : X) :
     scL D.chi (relationCL RD k S (.decompEF i lam)) =
       relationCL RD k (D.mapScalars S) (.decompEF i lam) := by
-  simp only [relationCL]
+  dsimp only [relationCL]
   rw [scL_sub, scL_add, scL_smul, scL_of (crossl RD i i lam ≫ crossr RD i i lam),
     weight_crossl_crossr, scL_decompEFSum, smul_smul]
   erw [scL_of_id]
@@ -686,7 +688,7 @@ theorem scL_rel_decompEF (i : I) (lam : X) :
 theorem scL_rel_decompFE (i : I) (lam : X) :
     scL D.chi (relationCL RD k S (.decompFE i lam)) =
       relationCL RD k (D.mapScalars S) (.decompFE i lam) := by
-  simp only [relationCL]
+  dsimp only [relationCL]
   rw [scL_sub, scL_add, scL_smul, scL_of (crossr RD i i lam ≫ crossl RD i i lam),
     weight_crossr_crossl, scL_decompFESum, smul_smul]
   erw [scL_of_id]
@@ -699,7 +701,7 @@ theorem scL_rel_downupEF (i j : I) (h : i ≠ j) (μ : X) :
     scL D.chi (relationCL RD k S (.downupEF i j h μ)) =
       ((D.cross j i * D.cross i j * D.dot j ^ A C j i : kˣ) : k) •
         relationCL RD k (D.mapScalars S) (.downupEF i j h μ) := by
-  simp only [relationCL]
+  dsimp only [relationCL]
   rw [scL_sub, scL_smul, scL_of (crossl RD i j μ ≫ crossr RD i j μ), weight_crossl_crossr]
   erw [scL_of_id]
   refine rel_two_sub _ _ _ _ _ ?_
@@ -710,7 +712,7 @@ theorem scL_rel_downupFE (i j : I) (h : i ≠ j) (μ : X) :
     scL D.chi (relationCL RD k S (.downupFE i j h μ)) =
       ((D.cross j i * D.cross i j * D.dot i ^ A C i j : kˣ) : k) •
         relationCL RD k (D.mapScalars S) (.downupFE i j h μ) := by
-  simp only [relationCL]
+  dsimp only [relationCL]
   rw [scL_sub, scL_smul, scL_of (crossr RD j i μ ≫ crossl RD j i μ), weight_crossr_crossl]
   erw [scL_of_id]
   refine rel_two_sub _ _ _ _ _ ?_
@@ -720,30 +722,30 @@ theorem scL_rel_downupFE (i j : I) (h : i ≠ j) (μ : X) :
 theorem scL_rel_cycCrossR (j i : I) (μ : X) :
     scL D.chi (relationCL RD k S (.cycCrossR j i μ)) =
       ((D.dnCross j i μ : kˣ) : k) • relationCL RD k (D.mapScalars S) (.cycCrossR j i μ) := by
-  simp only [relationCL]
+  dsimp only [relationCL]
   rw [scL_sub, scL_smul, scL_of, scL_of, weight_rotCrossR, weight_downCross, smul_smul,
     ← Units.val_mul]
   refine rel_sub_two _ _ _ _ _ ?_
   by_cases h : i = j
   · subst h
-    rw [(D.mapScalars S).t_self, S.t_self, dnCross, if_pos rfl, A_self]
+    rw [(D.mapScalars S).t_self, S.t_self, dnCross, ite_eq_left rfl, A_self]
     unit_tac
-  · rw [mapScalars_t_of_ne _ _ h, dnCross, if_neg (Ne.symm h), A_eq_neg_dij' h,
+  · rw [mapScalars_t_of_ne _ _ h, dnCross, ite_eq_right (Ne.symm h), A_eq_neg_dij' h,
       A_eq_neg_dij' (Ne.symm h)]
     unit_tac
 
 theorem scL_rel_cycCrossL (j i : I) (μ : X) :
     scL D.chi (relationCL RD k S (.cycCrossL j i μ)) =
       ((D.dnCross j i μ : kˣ) : k) • relationCL RD k (D.mapScalars S) (.cycCrossL j i μ) := by
-  simp only [relationCL]
+  dsimp only [relationCL]
   rw [scL_sub, scL_smul, scL_of, scL_of, weight_rotCrossL, weight_downCross, smul_smul,
     ← Units.val_mul]
   refine rel_sub_two _ _ _ _ _ ?_
   by_cases h : j = i
   · subst h
-    rw [(D.mapScalars S).t_self, S.t_self, dnCross, if_pos rfl]
+    rw [(D.mapScalars S).t_self, S.t_self, dnCross, ite_eq_left rfl]
     unit_tac
-  · rw [mapScalars_t_of_ne _ _ h, dnCross, if_neg h]
+  · rw [mapScalars_t_of_ne _ _ h, dnCross, ite_eq_right h]
     unit_tac
 
 end Relations
@@ -822,11 +824,11 @@ theorem scaleP_qCL {c d : I} (h : c ≠ d) :
   · rw [qCL_of_dot_ne_zero _ h0, qCL_of_dot_ne_zero _ h0, mapScalars_t_of_ne _ _ h,
       mapScalars_t_of_ne _ _ (Ne.symm h)]
     simp only [map_add, map_mul, map_pow, map_sum, scaleP_C, scaleP_X, Matrix.cons_val_zero,
-      Matrix.cons_val_one, Matrix.head_cons, mul_add, Finset.mul_sum, Units.val_mul,
+      Matrix.cons_val_one, mul_add, Finset.mul_sum, Units.val_mul,
       Units.val_pow_eq_pow_val, apply_ite (scaleP _), map_zero, mul_ite, mul_zero,
       mapScalars_s]
-    congr 1
-    · congr 1
+    apply congrArg₂ (· + ·)
+    · apply congrArg₂ (· + ·)
       · linear_combination (-(MvPolynomial.C (S.t c d : k) * MvPolynomial.C (D.dot c : k) ^ C.dij c d * MvPolynomial.X 0 ^ C.dij c d :
           MvPolynomial (Fin 2) k)) * hκ
       · linear_combination (-(MvPolynomial.C (S.t d c : k) * MvPolynomial.C (D.dot d : k) ^ C.dij d c * MvPolynomial.X 1 ^ C.dij d c :
@@ -872,7 +874,7 @@ theorem scL_relationR (x : KLR.Diagram.Rel I) :
     refine ⟨D.cross c c * D.cross c c, ?_⟩
     simp only [relationR, KLR.Diagram.relation]
     rw [scL_ofK]
-    simp [weight, chiK, smul_smul]
+    simp [weight, chiK]
   | sqNe c d h =>
     refine ⟨D.cross c d * D.cross d c, ?_⟩
     simp only [relationR, KLR.Diagram.relation]
@@ -883,7 +885,7 @@ theorem scL_relationR (x : KLR.Diagram.Rel I) :
     simp [weight, chiK]
   | slideLEq c =>
     refine ⟨D.cross c c * D.dot c, ?_⟩
-    simp only [relationR, KLR.Diagram.relation]
+    simp only [relationR]
     rw [scL_sub, scL_sub, scL_smul, scL_ofK, scL_ofK]
     erw [scL_of_id]
     rw [smul_sub, smul_sub, smul_smul, ← Units.val_mul,
@@ -898,7 +900,7 @@ theorem scL_relationR (x : KLR.Diagram.Rel I) :
     simp [weight, chiK, mul_comm]
   | slideREq c =>
     refine ⟨D.dot c * D.cross c c, ?_⟩
-    simp only [relationR, KLR.Diagram.relation]
+    simp only [relationR]
     rw [scL_sub, scL_sub, scL_smul, scL_ofK, scL_ofK]
     erw [scL_of_id]
     rw [smul_sub, smul_sub, smul_smul, ← Units.val_mul,
@@ -978,9 +980,9 @@ theorem relationCL_congr {S S' : CLScalars C k} (ht : ∀ i j, i ≠ j → S.t i
   funext r
   cases r with
   | klr μ x =>
-    simp only [relationCL]
+    dsimp only [relationCL]
     rw [relationR_congr k (fun c d h => qCL_congr ht hs h) (by rw [hr])]
-  | _ => simp only [relationCL, ht', hr]
+  | _ => dsimp only [relationCL] <;> simp only [ht', hr]
 
 theorem presCL_congr {S S' : CLScalars C k} (ht : ∀ i j, i ≠ j → S.t i j = S'.t i j)
     (hs : ∀ i j p q, i ≠ j → S.s i j p q = S'.s i j p q) (hr : S.r = S'.r) :

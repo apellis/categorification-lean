@@ -26,6 +26,8 @@ Hence the library's grading theory applies (`Presentation.isInternal_homDeg`).
 * `presCL_isHomogeneous`, `presCLDown_isHomogeneous`.
 -/
 
+set_option backward.isDefEq.respectTransparency false
+
 noncomputable section
 
 namespace Categorification.KL3.Diagram.CL

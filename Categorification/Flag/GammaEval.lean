@@ -28,6 +28,8 @@ whiskered by `u` on the left is the whiskering by the path of `u` of the image o
 whiskered on the right only.
 -/
 
+set_option backward.isDefEq.respectTransparency false
+
 noncomputable section
 
 namespace Categorification.Flag
@@ -115,17 +117,17 @@ theorem opList_chain (dnScal : Fin m → Fin m → K) (s : Wt m) :
             BHom.toLin (BHom.csmul (genScal K dnScal d.2.1) (layerMap K N s d.1 d.2.1 d.2.2 hd hL)) ∘ₗ
             LinearMap.proj (R := K) (φ := gammaMod K N)
               (some (⟨⟨s, d.1 ++ gdom d.2.1 ++ d.2.2⟩, hd⟩ : VObj N m)) :=
-        dif_pos (⟨hd, hL⟩ : WOK N s (d.1 ++ gdom d.2.1 ++ d.2.2) ∧
+        dite_eq_left (⟨hd, hL⟩ : WOK N s (d.1 ++ gdom d.2.1 ++ d.2.2) ∧
           WOK N s (d.1 ++ gcod d.2.1 ++ d.2.2))
       have ih := opList_chain dnScal s _ ls w' h.2 hL hb
       have hps := proj_single (K := K) s h.1 ha hd
-      simp only [chainBD, dif_pos hL, BHom.toLin_comp]
+      simp only [chainBD, dite_eq_left hL, BHom.toLin_comp]
       rw [hop, ← ih, ← hps]
       rfl
     · have hop : (gammaLI K N dnScal).op (LData.toLayer s d) = 0 :=
-        dif_neg (fun hh => hL hh.2)
+        dite_eq_right (fun hh => hL hh.2)
       rw [hop, LinearMap.comp_zero, LinearMap.zero_comp, LinearMap.comp_zero]
-      simp only [chainBD, dif_neg hL]
+      simp only [chainBD, dite_eq_right hL]
       rfl
 
 /-! ### Whiskering on the left -/
@@ -160,16 +162,16 @@ theorem chainBD_cons_prefix (dnScal : Fin m → Fin m → K) (s : Wt m) (c : WCo
     simp only [List.map_cons, chainBD]
     by_cases hL : WOK N c.r (d.1 ++ gcod d.2.1 ++ d.2.2)
     · have hL' : WOK N s (c :: (d.1 ++ gcod d.2.1 ++ d.2.2)) := (wok_cons_iff ha).2 hL
-      rw [dif_pos (show WOK N s ((LData.pre [c] d).1 ++ gcod (LData.pre [c] d).2.1 ++
-        (LData.pre [c] d).2.2) from hL'), dif_pos hL, BHom.whiskerLeft_comp, BHom.whiskerLeft_comp,
+      rw [dite_eq_left (show WOK N s ((LData.pre [c] d).1 ++ gcod (LData.pre [c] d).2.1 ++
+        (LData.pre [c] d).2.2) from hL'), dite_eq_left hL, BHom.whiskerLeft_comp, BHom.whiskerLeft_comp,
         ← chainBD_cons_prefix dnScal s c _ ls w' h.2 h'.2 hL' hb, BHom.whiskerLeft_csmul]
       obtain ⟨e, _⟩ := h
       subst e
       rw [trW_self, trW_self, BHom.whiskerLeft_id]
       rfl
     · have hL' : ¬ WOK N s (c :: (d.1 ++ gcod d.2.1 ++ d.2.2)) := fun hh => hL hh.tail
-      rw [dif_neg (show ¬ WOK N s ((LData.pre [c] d).1 ++ gcod (LData.pre [c] d).2.1 ++
-        (LData.pre [c] d).2.2) from hL'), dif_neg hL]
+      rw [dite_eq_right (show ¬ WOK N s ((LData.pre [c] d).1 ++ gcod (LData.pre [c] d).2.1 ++
+        (LData.pre [c] d).2.2) from hL'), dite_eq_right hL]
       exact (BHom.whiskerLeft_zero _).symm
 
 variable (K N) in

@@ -37,7 +37,7 @@ noncomputable section
 
 namespace Categorification.KLR
 
-open Graded KLRAlgebra LaurentPolynomial QuantumGroup Finset
+open Categorification.Graded KLRAlgebra LaurentPolynomial QuantumGroup Finset
 
 /-! ### Quantum integers in `ℤ[q, q⁻¹]` -/
 
@@ -51,7 +51,7 @@ def qUnitLP : (LaurentPolynomial ℤ)ˣ where
 theorem val_qUnitLP_zpow (z : ℤ) :
     ((qUnitLP ^ z : (LaurentPolynomial ℤ)ˣ) : LaurentPolynomial ℤ) = T z := by
   rcases z with n | n
-  · rw [Int.ofNat_eq_coe, zpow_natCast, Units.val_pow_eq_pow_val]
+  · rw [Int.ofNat_eq_natCast, zpow_natCast, Units.val_pow_eq_pow_val]
     show (T 1 : LaurentPolynomial ℤ) ^ n = _
     rw [T_pow, mul_one]
   · rw [zpow_negSucc, ← inv_pow, Units.val_pow_eq_pow_val]
@@ -116,7 +116,7 @@ theorem _root_.Categorification.Graded.IsSplitting.map_anti {A : Type*} [Ring A]
     rw [← hφ, h.mul_eq]
     by_cases hij : j = i
     · subst hij; simp
-    · rw [if_neg hij, if_neg (Ne.symm hij), map_zero]
+    · rw [ite_eq_right hij, ite_eq_right (Ne.symm hij), map_zero]
   sum_eq := by simp_rw [← hφ, ← map_sum, h.sum_eq]
 
 /-! ### The modules `P_i` -/
@@ -138,7 +138,7 @@ variable (k Γ) in
 /-- The graded projective module `P_t = R(ν) 1_t` of a sequence `t` (as `GradingDatum.projP`,
 over any commutative ring `k`). -/
 def projSeq (t : Seq ν) : GProj ((klGradingDatum k Γ).grade ν) :=
-  GProj.ofIdempotent (e t : A) (e_mul_self t) ((klGradingDatum k Γ).e_mem_grade t)
+  GProj.ofIdempotent (e t : A) (isIdempotentElem_iff.mpr (e_mul_self t)) ((klGradingDatum k Γ).e_mem_grade t)
 
 variable (k Γ) in
 /-- The graded projective module `R(ν) ψ(1_t^{bs})` for a sequence `t` with divided-power blocks
@@ -172,7 +172,11 @@ theorem K0_projFlip_succ {i : Seq ν} {p n : ℕ} {bs : List (ℕ × ℕ)}
   have S := (isSplitting_divIdem_succ (k := k) (Q := klQ Γ) h).map_anti hflipAddKL hflip_mul
   simp only [hflipAddKL_apply] at S
   rw [projFlip, projFlip, K0.of_ofIdempotent_eq_sum_of_isSplitting (dg := fun j : Fin (n + 1) =>
-    2 * ((n : ℤ) - j)) S (fun j => ?_) (fun j => ?_) _ (fun _ => _) _ (fun _ => _),
+    2 * ((n : ℤ) - j)) S (fun j => ?_) (fun j => ?_)
+      (isIdempotentElem_hflip_divIdem (h.cons_mono (Nat.le_succ n)))
+      (fun _ => isIdempotentElem_hflip_divIdem h)
+      (KL1.hflip_mem_grade (divIdem_mem_grade _ (h.cons_mono (Nat.le_succ n))))
+      (fun _ => KL1.hflip_mem_grade (divIdem_mem_grade _ h)),
     ← sum_T_two_mul_sub, sum_smul]
   · refine sum_congr rfl fun j _ => ?_
     congr 2
@@ -246,11 +250,11 @@ theorem K0_projDiv_neg_one (d' d'' : List (I × ℕ)) {i j : I} (hadj : Γ.Adj i
                  · exact KL1.hflip_mem_grade (divIdemOf_mem_grade _ _ h₃))
   rw [Fin.sum_univ_two] at key
   have e₁ : divAngle (d' ++ [(i, 1), (j, 1), (i, 1)] ++ d'') = divAngle d' + divAngle d'' := by
-    simp [divAngle_append, divAngle]
+    simp [divAngle]
   have e₂ : divAngle (d' ++ [(i, 2), (j, 1)] ++ d'') = divAngle d' + divAngle d'' + 1 := by
-    simp [divAngle_append, divAngle]; omega
+    simp [divAngle]; omega
   have e₃ : divAngle (d' ++ [(j, 1), (i, 2)] ++ d'') = divAngle d' + divAngle d'' + 1 := by
-    simp [divAngle_append, divAngle]; omega
+    simp [divAngle]; omega
   have key' : K0.of (projFlip k Γ _ _ (isBlocks_ofList _ h₁)) =
       (T (-1) : LaurentPolynomial ℤ) • K0.of (projFlip k Γ _ _ (isBlocks_ofList _ h₂)) +
         (T (-1) : LaurentPolynomial ℤ) • K0.of (projFlip k Γ _ _ (isBlocks_ofList _ h₃)) := key
@@ -274,7 +278,7 @@ theorem K0_projDiv_zero (d' d'' : List (I × ℕ)) {i j : I} (hne : i ≠ j) (ha
     (fun _ => KL1.hflip_mem_grade (divIdemOf_mem_grade _ _ h₂))
   rw [Fintype.sum_unique, neg_zero, T_zero, one_smul] at key
   have e : divAngle (d' ++ [(i, 1), (j, 1)] ++ d'') = divAngle (d' ++ [(j, 1), (i, 1)] ++ d'') := by
-    simp [divAngle_append, divAngle]
+    simp [divAngle]
   rw [projDiv, projDiv, ← K0.T_smul_of, ← K0.T_smul_of, e]
   exact congrArg _ key
 

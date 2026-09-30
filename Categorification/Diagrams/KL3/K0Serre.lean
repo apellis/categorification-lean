@@ -93,7 +93,7 @@ theorem exists_split_block : ∀ N : ℕ, IsBlocks t ((p, N) :: bs) →
     have hE := isIdempotentElem_divIdem (k := k) (Q := klQ2 k C) hB.tail
     refine ⟨Unit, inferInstance, inferInstance, fun _ => divIdem t bs, fun _ => divIdem t bs,
       fun _ => 0, ⟨fun _ _ => ?_, ?_⟩, fun _ => ?_, fun _ => ?_, ?_⟩
-    · rw [if_pos rfl, h0, hE.eq]
+    · rw [ite_eq_left rfl, h0, hE.eq]
     · simp [hE.eq]
     · exact divIdem_mem_grade G2 hB.tail
     · simpa using divIdem_mem_grade G2 hB.tail
@@ -318,7 +318,7 @@ theorem eC_serre (hN : N = C.dij i j + 1) {ρ μ lam : X} (a b : List (Letter I)
     have e2 := kobj_ofE (RD := RD) (k := k) (μ := μ) (serreSeq t p n) 0
     show K0U.cl _ = _
     rw [← e1, ← hctx, ← e2, cl_serre_split hpN ht₀ ht hij μ hn, map_smul, mul_smul]
-    simp only [Yc, dif_pos hn]
+    simp only [Yc, dite_eq_left hn]
   · have iso := prop324 RD k hpN ht₀ ht isBlocks_nil_seq hbs_nil hij hN μ 0
     have h := congrArg ctxK (SplitK0.of_iso iso)
     rw [SplitK0.of_biproduct, SplitK0.of_biproduct, map_sum, map_sum] at h
@@ -327,7 +327,7 @@ theorem eC_serre (hN : N = C.dij i j + 1) {ρ μ lam : X} (a b : List (Letter I)
         isBlocks_nil_seq hbs_nil hij n hn) (0 - (((n.choose 2 : ℕ) : ℤ) +
           (((N - n).choose 2 : ℕ) : ℤ)) * di C i))) = Yc n := fun n hn => by
       rw [kobj_shift, map_smul, zero_sub]
-      simp only [Yc, dif_pos hn]
+      simp only [Yc, dite_eq_left hn]
     convert h using 1
     · exact Finset.sum_congr rfl fun n _ => (hY n.1 (mem_serreEvens.1 n.2).1).symm
     · exact Finset.sum_congr rfl fun n _ => (hY n.1 (mem_serreOdds.1 n.2).1).symm

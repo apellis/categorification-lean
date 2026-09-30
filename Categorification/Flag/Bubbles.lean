@@ -52,7 +52,9 @@ noncomputable section
 namespace Categorification.Flag
 
 open MvPolynomial TensorProduct
-open Finset (univ range antidiagonal)
+open Module
+open Finset (univ range)
+open Finset.HasAntidiagonal (antidiagonal)
 
 /-! ### A convolution identity -/
 
@@ -70,7 +72,7 @@ theorem conv_trace_sum (x y : ℕ → A) (b d α : ℕ) (hx : ∀ β, d < β →
         (-1) ^ (α + d + 1 - b) * ∑ p ∈ antidiagonal (α + d + 1 - b), x p.1 * y p.2
       else 0 := by
   by_cases hb : b ≤ α + d + 1
-  · rw [if_pos hb]
+  · rw [ite_eq_left hb]
     set n := α + d + 1 - b with hn
     rw [← Finset.sum_range_reflect]
     have hterm : ∀ β ∈ range (d + 1), (-1) ^ (d - (d + 1 - 1 - β)) * x (d - (d + 1 - 1 - β)) *
@@ -81,30 +83,30 @@ theorem conv_trace_sum (x y : ℕ → A) (b d α : ℕ) (hx : ∀ β, d < β →
       have hβ' : β ≤ d := Nat.lt_succ_iff.1 (Finset.mem_range.1 hβ)
       rw [Nat.add_sub_cancel, show d - (d - β) = β by omega]
       by_cases h : β ≤ n
-      · rw [if_pos (by omega), if_pos h, show α + (d - β) + 1 - b = n - β by omega]
+      · rw [ite_eq_left (by omega), ite_eq_left h, show α + (d - β) + 1 - b = n - β by omega]
         have := neg_one_pow_mul_neg_one_pow'' (A := A) h
         linear_combination (x β * y (n - β)) * this
-      · rw [if_neg (by omega), if_neg h, mul_zero, mul_zero]
+      · rw [ite_eq_right (by omega), ite_eq_right h, mul_zero, mul_zero]
     rw [Finset.sum_congr rfl hterm, ← Finset.mul_sum]
     congr 1
     set G : ℕ → A := fun β => if β ≤ n then x β * y (n - β) else 0 with hG
     have h1 : ∑ β ∈ range (d + 1), G β = ∑ β ∈ range (n + d + 1), G β :=
-      Finset.sum_subset (Finset.range_subset.2 (by omega)) fun β _ hβ => by
+      Finset.sum_subset (Finset.range_subset_range.2 (by omega)) fun β _ hβ => by
         simp only [Finset.mem_range, not_lt] at hβ
         simp only [hG, hx β (by omega), zero_mul, ite_self]
     have h2 : ∑ p ∈ antidiagonal n, x p.1 * y p.2 = ∑ β ∈ range (n + d + 1), G β := by
       rw [Finset.Nat.sum_antidiagonal_eq_sum_range_succ_mk,
-        ← Finset.sum_subset (Finset.range_subset.2 (show n + 1 ≤ n + d + 1 by omega))
+        ← Finset.sum_subset (Finset.range_subset_range.2 (show n + 1 ≤ n + d + 1 by omega))
           fun β _ hβ => by
             simp only [Finset.mem_range, not_lt] at hβ
-            simp only [hG, if_neg (show ¬ β ≤ n by omega)]]
+            simp only [hG, ite_eq_right (show ¬ β ≤ n by omega)]]
       exact Finset.sum_congr rfl fun β hβ => by
-        simp only [hG, if_pos (Nat.lt_succ_iff.1 (Finset.mem_range.1 hβ))]
+        simp only [hG, ite_eq_left (Nat.lt_succ_iff.1 (Finset.mem_range.1 hβ))]
     rw [h1, h2]
-  · rw [if_neg hb]
+  · rw [ite_eq_right hb]
     refine Finset.sum_eq_zero fun f hf => ?_
     have : f ≤ d := Nat.lt_succ_iff.1 (Finset.mem_range.1 hf)
-    rw [if_neg (by omega), mul_zero]
+    rw [ite_eq_right (by omega), mul_zero]
 
 end Conv
 
@@ -131,7 +133,7 @@ theorem bubbleSeq_mul (x xb x' xb' : ℕ → A)
     simp only [PowerSeries.coeff_mk]
     exact huv α
   have hΦ : ∀ (u v : ℕ → A) a, bubbleSeq u v a =
-      PowerSeries.coeff A a (PowerSeries.rescale (-1) (PowerSeries.mk u * PowerSeries.mk v)) :=
+      PowerSeries.coeff (R := A) a (PowerSeries.rescale (-1) (PowerSeries.mk u * PowerSeries.mk v)) :=
     fun u v a => by
       rw [PowerSeries.coeff_rescale, PowerSeries.coeff_mul]
       simp only [PowerSeries.coeff_mk, bubbleSeq]
@@ -184,7 +186,7 @@ def bubbleFE (lab : V → J) (v₀ : V) (j' : J) (α : ℕ) : BorelRing k lab :=
 omit [Fintype J] in
 theorem dBlock_eq (lab : V → J) (v₀ : V) (j' : J) (hj : j' ≠ lab v₀) :
     dBlock lab v₀ j' = (labSet lab (· = j')).card := by
-  rw [dBlock, card_split_some, if_neg hj, Nat.sub_zero]
+  rw [dBlock, card_split_some, ite_eq_right hj, Nat.sub_zero]
 
 /-- **The FE-bubble in closed form**: `bubbleFE α = (-1)^n ∑_{a + b = n} x(k)_{i,a} x̄(k)_{i+1,b}`,
 `n = α + d + 1 - b` (`d` the size of block `i` = `j'`, `b` the size of block `i + 1` = the block of
@@ -229,7 +231,7 @@ def bubbleEF (lab : V → J) (v₀ : V) (j' : J) (α : ℕ) : BorelRing k (moveL
 omit [Fintype J] in
 theorem dBlockR_eq (lab : V → J) (v₀ : V) (j' : J) (hj : j' ≠ lab v₀) :
     dBlockR lab v₀ = (labSet (moveLab lab v₀ j') (· = lab v₀)).card := by
-  rw [dBlockR, labSet_move_eq, if_neg (Ne.symm hj)]
+  rw [dBlockR, labSet_move_eq, ite_eq_right (Ne.symm hj)]
 
 /-- **The EF-bubble in closed form**: `bubbleEF α = (-1)^n ∑_{a + b = n} x_{i+1,a} x̄_{i,b}` in
 `H_{+_i k'}`, `n = α + d + 1 - b'` (`d` the size of block `i + 1` of `+_i k'`, `b'` the size of
@@ -267,23 +269,23 @@ end EF
 /-- **Bubbles of negative degree vanish** (FE-bubbles: `α + λ_i + 1 < 0`). -/
 theorem bubbleFE_neg (lab : V → J) (v₀ : V) (j' : J) (hj : j' ≠ lab v₀) (α : ℕ)
     (h : α + dBlock lab v₀ j' + 1 < blockCard lab v₀) : bubbleFE k lab v₀ j' α = 0 := by
-  rw [bubbleFE_eq lab v₀ j' hj, if_neg (by omega)]
+  rw [bubbleFE_eq lab v₀ j' hj, ite_eq_right (by omega)]
 
 /-- **Bubbles of degree zero are `1`** (FE-bubbles: `α + λ_i + 1 = 0`). -/
 theorem bubbleFE_zero (lab : V → J) (v₀ : V) (j' : J) (hj : j' ≠ lab v₀) (α : ℕ)
     (h : α + dBlock lab v₀ j' + 1 = blockCard lab v₀) : bubbleFE k lab v₀ j' α = 1 := by
-  rw [bubbleFE_eq lab v₀ j' hj, if_pos h.ge, h, Nat.sub_self, bubbleSeries]
+  rw [bubbleFE_eq lab v₀ j' hj, ite_eq_left h.ge, h, Nat.sub_self, bubbleSeries]
   simp
 
 /-- **Bubbles of negative degree vanish** (EF-bubbles: `α - λ_i + 1 < 0`). -/
 theorem bubbleEF_neg (lab : V → J) (v₀ : V) (j' : J) (hj : j' ≠ lab v₀) (α : ℕ)
     (h : α + dBlockR lab v₀ + 1 < blockCardL lab v₀ j') : bubbleEF k lab v₀ j' α = 0 := by
-  rw [bubbleEF_eq lab v₀ j' hj, if_neg (by omega)]
+  rw [bubbleEF_eq lab v₀ j' hj, ite_eq_right (by omega)]
 
 /-- **Bubbles of degree zero are `1`** (EF-bubbles: `α - λ_i + 1 = 0`). -/
 theorem bubbleEF_zero (lab : V → J) (v₀ : V) (j' : J) (hj : j' ≠ lab v₀) (α : ℕ)
     (h : α + dBlockR lab v₀ + 1 = blockCardL lab v₀ j') : bubbleEF k lab v₀ j' α = 1 := by
-  rw [bubbleEF_eq lab v₀ j' hj, if_pos h.ge, h, Nat.sub_self, bubbleSeries]
+  rw [bubbleEF_eq lab v₀ j' hj, ite_eq_left h.ge, h, Nat.sub_self, bubbleSeries]
   simp
 
 end Bubbles
@@ -326,7 +328,7 @@ theorem bubbleFEH_eq (i : Fin m) (d : Fin (m + 1) → ℕ) (h : 0 < d i.succ) (�
     bubbleFEH (K := K) i d h α = if d i.succ ≤ α + d i.castSucc + 1 then
       bubbleSeq (x K d i.castSucc) (xbar K d i.succ) (α + d i.castSucc + 1 - d i.succ) else 0 := by
   have hj : i.castSucc ≠ (Sigma.fst : Gen d → Fin (m + 1)) (movedVar i d h) :=
-    (Fin.castSucc_lt_succ i).ne
+    (Fin.castSucc_lt_succ (i := i)).ne
   have hdB : dBlock (Sigma.fst : Gen d → Fin (m + 1)) (movedVar i d h) i.castSucc =
       d i.castSucc := by
     rw [dBlock_eq _ _ _ hj, card_labSet_sigma]
@@ -343,11 +345,11 @@ theorem bubbleFEH_eq (i : Fin m) (d : Fin (m + 1) → ℕ) (h : 0 < d i.succ) (�
   · exact map_zero _
 
 theorem raise_succ (i : Fin m) (d : Fin (m + 1) → ℕ) : raise i d i.succ = d i.succ - 1 := by
-  rw [raise, if_neg (Fin.castSucc_lt_succ i).ne', if_pos rfl]
+  rw [raise, ite_eq_right (Fin.castSucc_lt_succ (i := i)).ne', ite_eq_left rfl]
 
 theorem raise_castSucc (i : Fin m) (d : Fin (m + 1) → ℕ) :
     raise i d i.castSucc = d i.castSucc + 1 := by
-  rw [raise, if_pos rfl]
+  rw [raise, ite_eq_left rfl]
 
 /-- The EF-bubble with `α` dots in the region of weight `λ(+_i k)`, as an element of
 `H_{+_i k}` (presentation (5.2)). -/
@@ -364,9 +366,9 @@ theorem bubbleEFH_eq (i : Fin m) (d : Fin (m + 1) → ℕ) (h : 0 < d i.succ) (�
         bubbleSeq (x K (raise i d) i.succ) (xbar K (raise i d) i.castSucc)
           (α + raise i d i.succ + 1 - raise i d i.castSucc) else 0 := by
   have hj : i.castSucc ≠ (Sigma.fst : Gen d → Fin (m + 1)) (movedVar i d h) :=
-    (Fin.castSucc_lt_succ i).ne
+    (Fin.castSucc_lt_succ (i := i)).ne
   have hdB : dBlockR (Sigma.fst : Gen d → Fin (m + 1)) (movedVar i d h) = raise i d i.succ := by
-    rw [raise_succ, dBlockR, card_split_some, if_pos rfl, card_labSet_sigma]
+    rw [raise_succ, dBlockR, card_split_some, ite_eq_left rfl, card_labSet_sigma]
     rfl
   have hbL : blockCardL (Sigma.fst : Gen d → Fin (m + 1)) (movedVar i d h) i.castSucc =
       raise i d i.castSucc := by

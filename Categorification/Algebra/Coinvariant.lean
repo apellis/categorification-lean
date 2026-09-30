@@ -117,8 +117,8 @@ theorem coinvIdeal_eq_span_esymm (m : ℕ) :
       have := congrArg constantCoeff hsplit
       rw [hs0, map_add, constantCoeff_C, hJ _ hmem, add_zero] at this
       exact this.symm
-    convert hmem using 1
-    rw [hsplit, hc, C_0, zero_add]
+    rw [SetLike.mem_coe, hsplit, hc, C_0, zero_add]
+    simpa [hc] using hmem
   · rintro _ ⟨r, rfl⟩
     exact esymm_succ_mem_coinvIdeal m r
 
@@ -145,7 +145,7 @@ noncomputable def symAug (m : ℕ) : symmetricSubalgebra (Fin m) k →ₐ[k] k :
 
 theorem symAug_apply {m : ℕ} (s : symmetricSubalgebra (Fin m) k) :
     symAug k m s = constantCoeff (s : MvPolynomial (Fin m) k) := by
-  simp [symAug, MvPolynomial.coe_aeval_eq_eval, MvPolynomial.eval_zero]
+  simp [symAug]
 
 theorem coinvSub_eq_augSubmodule (m : ℕ) :
     coinvSub k m = augSubmodule (MvPolynomial (Fin m) k) (symAug k m) := by
@@ -188,7 +188,7 @@ abbrev Staircase (m : ℕ) : Type := {u : Fin m → ℕ // ∀ a : Fin m, u a �
 variable (k) in
 /-- **The staircase basis of `L_m`**: the classes of `∏_a x_a ^ u_a`, `u_a ≤ a`, form a basis of
 `k[x_1, …, x_m] / (Sym⁺)` (Artin's theorem). -/
-noncomputable def coinvBasis (m : ℕ) : Basis (Staircase m) k (Coinv k m) :=
+noncomputable def coinvBasis (m : ℕ) : Module.Basis (Staircase m) k (Coinv k m) :=
   (augQuotBasis (symmetricBasis k m) (symAug k m)).map
     (Submodule.quotEquivOfEq _ _ (coinvSub_eq_augSubmodule m).symm)
 
@@ -231,17 +231,17 @@ theorem mem_coinvIdeal_of_isHomogeneous {m d : ℕ} {p : MvPolynomial (Fin m) k}
   have h := homogeneousComponent_mem_coinvIdeal d hmem
   rw [map_sub, map_sum] at h
   simp only [map_smul] at h
-  rw [homogeneousComponent_of_mem ((mem_homogeneousSubmodule _ _).2 hp), if_pos rfl] at h
+  rw [homogeneousComponent_of_mem ((mem_homogeneousSubmodule _ _).2 hp), ite_eq_left rfl] at h
   rwa [Finset.sum_eq_zero fun u _ => by
     rw [homogeneousComponent_of_mem ((mem_homogeneousSubmodule _ _).2 (isHomogeneous_stair m u.1)),
-      if_neg (by have := staircase_sum_le m u; omega), smul_zero], sub_zero] at h
+      ite_eq_right (by have := staircase_sum_le m u; omega), smul_zero], sub_zero] at h
 
 /-- **`x_a ^ m ∈ (Sym⁺)`**: each `x_a` is a root of `∏_b (t - x_b) = ∑_r (-1)^r e_r t^{m - r}`. -/
 theorem X_pow_mem_coinvIdeal {m : ℕ} (a : Fin m) : (X a : MvPolynomial (Fin m) k) ^ m ∈ coinvIdeal k m := by
   set y : MvPolynomial (Fin m) k := X a
   have hv := congrArg (Polynomial.eval (-y)) (prod_C_add_X_eq_sum_esymm k (Fin m))
   simp only [Polynomial.eval_prod, Polynomial.eval_add, Polynomial.eval_X, Polynomial.eval_C,
-    Polynomial.eval_finset_sum, Polynomial.eval_mul, Polynomial.eval_pow, Fintype.card_fin] at hv
+    Polynomial.eval_finsetSum, Polynomial.eval_mul, Polynomial.eval_pow, Fintype.card_fin] at hv
   rw [Finset.prod_eq_zero (Finset.mem_univ a) (by simp [y]), Finset.sum_range_succ', esymm_zero,
     one_mul, Nat.sub_zero] at hv
   have hmem : (-y) ^ m ∈ coinvIdeal k m := by
@@ -394,7 +394,7 @@ theorem span_le_range :
   rw [Submodule.span_le]
   rintro _ ⟨⟨v, j⟩, rfl⟩
   refine ⟨coinvBasis k (n + 1) (staircaseSnoc v j.castSucc), ?_⟩
-  have := coinvMul_last_pow_basis (k := k) n v j.castSucc 1 (by simp; omega)
+  have := coinvMul_last_pow_basis (k := k) n v j.castSucc 1 (by simp)
   rw [pow_one] at this
   rw [this]
   congr 2

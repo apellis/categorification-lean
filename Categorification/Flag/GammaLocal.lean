@@ -48,6 +48,8 @@ presentation, on upward strands) in `Flag_N`; see `Categorification.Diagrams.KL3
 for the comparison with the signed polynomials `Q^τ`.
 -/
 
+set_option backward.isDefEq.respectTransparency false
+
 noncomputable section
 
 open scoped TensorProduct
@@ -92,7 +94,7 @@ theorem eN_symm_algebraMap (r : R) : eN.symm (algebraMap R Q r) = N.left (eB.sym
 
 /-- The inverse map of `tensorRingEquiv`. -/
 def tensorBwd : P ⊗[R] Q →+* TT M N :=
-  letI : Algebra R (TT M N) := ((inclL M N).comp (M.right.comp eB.symm.toRingHom)).toAlgebra
+  let : Algebra R (TT M N) := ((inclL M N).comp (M.right.comp eB.symm.toRingHom)).toAlgebra
   (Algebra.TensorProduct.productMap
     { (inclL M N).comp eM.symm.toRingHom with
       commutes' := fun r => by
@@ -117,8 +119,7 @@ theorem tensorBwd_comp_tensorFwd :
 theorem tensorFwd_comp_tensorBwd :
     (tensorFwd M N eB eM eN hM hN).comp (tensorBwd M N eB eM eN hM hN) = RingHom.id _ :=
   RingHom.ext fun t => by
-    induction t using TensorProduct.induction_on with
-    | zero => simp
+    induction t using TensorProduct.inductionOn with
     | tmul p q =>
       rw [RingHom.comp_apply, tensorBwd_tmul, tensorFwd_tmul, RingEquiv.apply_symm_apply,
         RingEquiv.apply_symm_apply, RingHom.id_apply]
@@ -127,8 +128,8 @@ theorem tensorFwd_comp_tensorBwd :
 /-- **Transport of a tensor product** of bimodules along ring isomorphisms `M.T ≅ P`, `N.T ≅ Q`,
 `B ≅ R` compatible with the actions of the middle ring: `M ⊗_B N ≅ P ⊗_R Q`. -/
 def tensorRingEquiv : TT M N ≃+* P ⊗[R] Q :=
-  RingEquiv.ofHomInv (tensorFwd M N eB eM eN hM hN) (tensorBwd M N eB eM eN hM hN)
-    (tensorBwd_comp_tensorFwd M N eB eM eN hM hN) (tensorFwd_comp_tensorBwd M N eB eM eN hM hN)
+  RingEquiv.ofRingHom (tensorFwd M N eB eM eN hM hN) (tensorBwd M N eB eM eN hM hN)
+    (tensorFwd_comp_tensorBwd M N eB eM eN hM hN) (tensorBwd_comp_tensorFwd M N eB eM eN hM hN)
 
 theorem tensorRingEquiv_tmul (m : M.T) (n : N.T) :
     tensorRingEquiv M N eB eM eN hM hN (tmul M N m n) = eM m ⊗ₜ[R] eN n :=
@@ -195,10 +196,10 @@ theorem eeM_right (b : H K r₁) :
     have : ((borelCongr K (eeRel i j h₁ h₂ v₁ hv₁) (eeRel_lab i j h₁ h₂ v₁ hv₁)).toAlgHom.comp
         (hEquiv K r₁).toAlgHom) = (eeB K j h₂).toAlgHom :=
       algHom_H_ext fun j' α => by
-        simp only [AlgHom.comp_apply, AlgEquiv.toAlgHom_eq_coe, AlgHom.coe_coe, hEquiv_x,
+        simp only [AlgHom.comp_apply, AlgEquiv.coe_toAlgHom, hEquiv_x,
           borelCongr_xB, eeB_x]
     exact congrArg (fun φ : H K r₁ →ₐ[K] _ => φ b) this
-  rw [eRight, AlgHom.comp_apply, eeM, AlgEquiv.toAlgHom_eq_coe, AlgHom.coe_coe, pR,
+  rw [eRight, AlgHom.comp_apply, eeM, AlgEquiv.coe_toAlgHom, pR,
     borelCongr_refineHom K _ _ (eeRel_lab i j h₁ h₂ v₁ hv₁) _ (refines_splitLab _ _), hb]
   rfl
 
@@ -224,10 +225,10 @@ theorem eeM_left (a : H K t) :
         ((borelEquivH' K _ (raise i r₁) (card_moveLab i r₁ h₁.2)).symm.toAlgHom.comp
           (hCast K h₁.1.symm).toAlgHom)) = (eeA K i j h₁ h₂ v₁ hv₁).toAlgHom :=
       algHom_H_ext fun j' α => by
-        simp only [AlgHom.comp_apply, AlgEquiv.toAlgHom_eq_coe, AlgHom.coe_coe, hCast_x,
+        simp only [AlgHom.comp_apply, AlgEquiv.coe_toAlgHom, hCast_x,
           borelEquivH'_symm_x, borelCongr_xB, eeA]
     exact congrArg (fun φ : H K t →ₐ[K] _ => φ a) this
-  rw [eLeft, AlgHom.comp_apply, eeM, AlgEquiv.toAlgHom_eq_coe, AlgHom.coe_coe, pL,
+  rw [eLeft, AlgHom.comp_apply, eeM, AlgEquiv.coe_toAlgHom, pL,
     borelCongr_refineHom K _ _ (eeRel_move i j h₁ h₂ v₁ hv₁) _ (refines_splitLab_move _ _ _), ha]
   rfl
 
@@ -303,7 +304,7 @@ include hv₁ in
 theorem ee_ne : v₁ ≠ movedVar i r₂ h₂.2 := by
   rintro rfl
   rw [labJ, moveLab_self] at hv₁
-  exact (Fin.castSucc_lt_succ i).ne hv₁
+  exact (Fin.castSucc_lt_succ (i := i)).ne hv₁
 
 include hv₁ in
 theorem ee_lab : v₁.1 = i.succ := by
@@ -313,7 +314,7 @@ theorem ee_lab : v₁.1 = i.succ := by
 
 include hv₁ in
 theorem ee_hj : (Sigma.fst : Gen r₂ → Fin (m + 1)) v₁ ≠ i.castSucc := by
-  rw [ee_lab i h₂ v₁ hv₁]; exact (Fin.castSucc_lt_succ i).ne'
+  rw [ee_lab i h₂ v₁ hv₁]; exact (Fin.castSucc_lt_succ (i := i)).ne'
 
 /-- The two-strand bimodule `Γ(E_i E_i 1)` of the path model. -/
 abbrev EEP : BRing (H K t) (H K r₂) := (stepB K (true, i) r₁ t h₁).tensor (stepB K (true, i) r₂ r₁ h₂)
@@ -493,7 +494,7 @@ theorem eeA_refine (i j : Fin m) {t r₁ r₂ : Comp m} (h₁ : StepR (true, i) 
   have : (refineHom K (refines_of_eq heq.symm)).comp (eeA K i j h₁ h₂ v₁ hv₁).toAlgHom =
       (eeA K j i h₁' h₂' v₁' hv₁').toAlgHom :=
     algHom_H_ext fun j' α => by
-      simp only [AlgHom.comp_apply, AlgEquiv.toAlgHom_eq_coe, AlgHom.coe_coe, eeA,
+      simp only [AlgHom.comp_apply, AlgEquiv.coe_toAlgHom, eeA,
         borelEquivH'_symm_x, refineHom_xB_of_eq heq]
   exact congrArg (fun φ : H K t →ₐ[K] _ => φ a) this
 
@@ -728,16 +729,16 @@ attribute [local instance] rightAlgebra midAlgebra jointAlgebra
 
 theorem adj_ne {i j : Fin m} (hadj : j.castSucc = i.succ) : i ≠ j := by
   rintro rfl
-  exact (Fin.castSucc_lt_succ i).ne hadj
+  exact (Fin.castSucc_lt_succ (i := i)).ne hadj
 
 theorem adj_hα {i j : Fin m} (hadj : j.castSucc = i.succ) : j.succ ≠ i.castSucc := by
   intro h
   have h1 := congrArg Fin.val hadj
   have h2 := congrArg Fin.val h
-  simp only [Fin.coe_castSucc, Fin.val_succ] at h1 h2
+  simp only [Fin.val_castSucc, Fin.val_succ] at h1 h2
   omega
 
-theorem adj_hw (j : Fin m) : j.succ ≠ j.castSucc := (Fin.castSucc_lt_succ j).ne'
+theorem adj_hw (j : Fin m) : j.succ ≠ j.castSucc := (Fin.castSucc_lt_succ (i := j)).ne'
 
 variable (K) in
 /-- **`Γ` of the upward crossing `E_i E_{i+1} → E_{i+1} E_i`** (KL III (6.8), case `i → j`:
@@ -769,13 +770,11 @@ def crossAdjFN (i j : Fin m) (hadj : j.castSucc = i.succ) {t r₁ r₂ r₁' : C
     (eeEquiv K i j h₁ h₂ (movedVar i r₂ h₂'.2) (far_hv i j (adj_ne hadj) h₂ h₂'))
     (fun s => -crossFNβ (Sigma.fst : Gen r₂ → Fin (m + 1)) (movedVar i r₂ h₂'.2)
       (movedVar j r₂ h₂.2) i.castSucc j.castSucc hadj.symm (adj_hw j) (adj_hα hadj) s)
-    (fun a b => by beta_reduce; rw [crossFNβ_add, neg_add])
+    (fun a b => by rw [crossFNβ_add, neg_add])
     (fun a y => by
-      beta_reduce
       rw [eeEquiv_left, eeEquiv_left, ← eeA_refine i j h₁ h₂ _ _ h₁' h₂' _ _
         (far_heq i j (adj_ne hadj) h₂ h₂') a, crossFNβ_left, mul_neg])
     (fun c y => by
-      beta_reduce
       rw [eeEquiv_right, crossFNβ_right, eeEquiv_right, mul_neg])
 
 variable (i j : Fin m) (hadj : j.castSucc = i.succ) {t r₁ r₂ r₁' : Comp m}

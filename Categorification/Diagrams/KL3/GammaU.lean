@@ -55,6 +55,8 @@ phrasing it for the tensor product, by its universal property.
 * Associativity of `K0U.mul`: `Categorification.Diagrams.KL3.KaroubiAssoc`.
 -/
 
+set_option backward.isDefEq.respectTransparency false
+
 noncomputable section
 
 namespace Categorification.KL3.Diagram
@@ -128,7 +130,6 @@ theorem qbr_eq_qint {K : Type*} [Field K] (t : Kˣ) (ht : (t : K) - ((t⁻¹ : K
     rw [show (1 - (n : ℤ)) = -(n : ℤ) + 1 by ring, zpow_add, zpow_one, Units.val_mul]
     rw [Units.val_inv_eq_inv_val]
     field_simp
-    ring
   calc ((t ^ (n : ℤ) : Kˣ) : K) - ((t ^ (-(n : ℤ)) : Kˣ) : K)
       = ((t ^ (-(n : ℤ)) : Kˣ) : K) * ((t : K) ^ 2) ^ n - ((t ^ (-(n : ℤ)) : Kˣ) : K) := by
         congr 1
@@ -212,7 +213,7 @@ theorem gammaFree_commRel (a b : List (Letter I)) (i j : I) :
   rw [ew_mul_commRel_mul, map_sub, map_sub, map_smul, gammaFree_ew, gammaFree_ew, gammaFree_ew]
   by_cases hji : j = i
   · subst hji
-    rw [if_pos rfl, wl_ellOf_eq]
+    rw [ite_eq_left rfl, wl_ellOf_eq]
     set μ := wt RD lam b
     set ρ := wt RD lam (a ++ b)
     have hμ : wt RD lam b = μ := rfl
@@ -232,9 +233,9 @@ theorem gammaFree_commRel (a b : List (Letter I)) (i j : I) :
       abel
     · rw [eC_FE a b ha hμ j (by omega) h1 h2 h3, map_add, Φ.map_smul, lpToQ_qn,
         ← qbr_eq_qint _ hq, Int.toNat_of_nonneg (by omega), qbr_neg]
-      simp only [qi, neg_neg, neg_smul]
+      simp only [qi, neg_smul]
       abel
-  · rw [if_neg hji, zero_smul, sub_zero]
+  · rw [ite_eq_right hji, zero_smul, sub_zero]
     have ha : wt RD (wt RD (wt RD lam b) [up i, dn j]) a = wt RD lam (a ++ [up i, dn j] ++ b) := by
       rw [wt_append, wt_append]
     have h2 : wt RD lam (a ++ [dn j, up i] ++ b) = wt RD lam (a ++ [up i, dn j] ++ b) := by
@@ -274,7 +275,7 @@ theorem wt_serreW (ε : Bool) (i j : I) {N n : ℕ} (hn : n ≤ N) (lam : X)
       wt RD lam (a ++ (serreW i j N 0).map (fun l => (ε, l)) ++ b) := by
   simp only [wt_eq_add_wX, RootDatum.wX, List.map_append, List.sum_append, serreW,
     List.map_cons, List.sum_cons, List.map_replicate, List.sum_replicate, Nat.sub_zero,
-    List.replicate_zero, List.nil_append, List.map_nil, List.sum_nil, zero_smul, zero_add]
+    List.replicate_zero, List.nil_append]
   have : n • (sgn ε • RD.iX i) + (N - n) • (sgn ε • RD.iX i) = N • (sgn ε • RD.iX i) := by
     rw [← add_nsmul, Nat.add_sub_cancel' hn]
   rw [← this]
@@ -329,10 +330,10 @@ theorem word_serreSeq_base (i j : I) {N n : ℕ} (hn : n ≤ N) :
   have hpN : 0 + N < Multiset.card ((j :: List.replicate N i : List I) : Multiset I) := by
     rw [card_serreBase]; omega
   have ht₀ : ∀ r : Fin (Multiset.card ((j :: List.replicate N i : List I) : Multiset I)),
-      (r : ℕ) = 0 → (serreBase i j N).lbl r = j := fun r h => by rw [serreBase_lbl, if_pos h]
+      (r : ℕ) = 0 → (serreBase i j N).lbl r = j := fun r h => by rw [serreBase_lbl, ite_eq_left h]
   have ht : ∀ r : Fin (Multiset.card ((j :: List.replicate N i : List I) : Multiset I)),
       0 < (r : ℕ) → (r : ℕ) ≤ 0 + N → (serreBase i j N).lbl r = i := fun r h _ => by
-    rw [serreBase_lbl, if_neg (by omega)]
+    rw [serreBase_lbl, ite_eq_right (by omega)]
   apply List.ext_getElem
   · rw [length_word, card_serreBase, length_serreW i j hn]
   · intro r h₁ h₂
@@ -345,13 +346,13 @@ theorem word_serreSeq_base (i j : I) {N n : ℕ} (hn : n ≤ N) :
     have hlen : r < N + 1 := by rw [length_serreW i j hn] at h₂; exact h₂
     rw [List.getElem_append]
     by_cases hrn : r < n
-    · rw [dif_pos (by simpa using hrn), if_neg (by omega),
-        if_pos ⟨by omega, by omega⟩, List.getElem_replicate]
-    · rw [dif_neg (by simpa using hrn), List.getElem_cons]
+    · rw [dite_eq_left (by simpa using hrn), ite_eq_right (by omega),
+        ite_eq_left ⟨by omega, by omega⟩, List.getElem_replicate]
+    · rw [dite_eq_right (by simpa using hrn), List.getElem_cons]
       by_cases hr : r = n
-      · rw [if_pos (by omega), dif_pos (by simp; omega)]
-      · rw [if_neg (by omega), dif_neg (by simp; omega), List.getElem_replicate,
-          if_pos ⟨by omega, by omega⟩]
+      · rw [ite_eq_left (by omega), dite_eq_left (by simp; omega)]
+      · rw [ite_eq_right (by omega), dite_eq_right (by simp; omega), List.getElem_replicate,
+          ite_eq_left ⟨by omega, by omega⟩]
 
 omit [DecidableEq I] in
 theorem eC_congr {ρ lam : X} {w w' : List (Letter I)} (hw : w = w') (h : wt RD lam w = ρ)
@@ -366,10 +367,10 @@ theorem serreK0_up : SerreK0 RD k true := by
   have hpN : 0 + N < Multiset.card ((j :: List.replicate N i : List I) : Multiset I) := by
     rw [card_serreBase]; omega
   have ht₀ : ∀ r : Fin (Multiset.card ((j :: List.replicate N i : List I) : Multiset I)),
-      (r : ℕ) = 0 → (serreBase i j N).lbl r = j := fun r h => by rw [serreBase_lbl, if_pos h]
+      (r : ℕ) = 0 → (serreBase i j N).lbl r = j := fun r h => by rw [serreBase_lbl, ite_eq_left h]
   have ht : ∀ r : Fin (Multiset.card ((j :: List.replicate N i : List I) : Multiset I)),
       0 < (r : ℕ) → (r : ℕ) ≤ 0 + N → (serreBase i j N).lbl r = i := fun r h _ => by
-    rw [serreBase_lbl, if_neg (by omega)]
+    rw [serreBase_lbl, ite_eq_right (by omega)]
   have hw : ∀ n, n ≤ N → ups (word (serreSeq (serreBase i j N) 0 n)) =
       (serreW i j N n).map (fun l => (true, l)) := fun n hn => by
     rw [word_serreSeq_base i j hn]

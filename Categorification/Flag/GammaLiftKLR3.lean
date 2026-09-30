@@ -27,6 +27,9 @@ those of `Signed.braid_cases`:
   `Γ(ψ₀ψ₁ψ₀) = 1 = Q̄` (`Signed.braidL_degenerate`).
 -/
 
+-- Preserve elaboration of semireducible diagram transports.
+set_option backward.isDefEq.respectTransparency false
+
 noncomputable section
 
 namespace Categorification.Flag

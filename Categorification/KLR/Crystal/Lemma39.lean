@@ -72,7 +72,7 @@ variable {A B : Type*} [Ring A] [Algebra K A] [Ring B] [Algebra K B]
 
 omit [DecidableEq I] in
 /-- The `b`-th coordinate `V ⊠ W → V` for a basis of `W`. -/
-theorem exists_coord_extTensor {ι : Type*} (𝒷 : Basis ι K W) :
+theorem exists_coord_extTensor {ι : Type*} (𝒷 : Module.Basis ι K W) :
     ∃ π : ι → (ExtTensor K V W →ₗ[K] V),
       (∀ b (a : A) y, π b (((a ⊗ₜ[K] (1 : B)) : A ⊗[K] B) • y) = a • π b y) ∧
       ∀ y, (∀ b, π b y = 0) → y = 0 := by
@@ -110,7 +110,7 @@ theorem shuffle_posR_ge (u : Shuffle (Seq.card_add' μ ν')) {s : Seq (μ + ν')
     A ≤ (u.1⁻¹ (Seq.posR μ y)).val := by
   classical
   by_contra hy
-  push_neg at hy
+  push Not at hy
   have hA1 : 1 ≤ A := by omega
   set ℓ : Fin (Multiset.card μ) → Fin (Multiset.card (μ + ν')) :=
     fun x => u.1⁻¹ (Seq.posL ν' x) with hℓ
@@ -122,7 +122,7 @@ theorem shuffle_posR_ge (u : Shuffle (Seq.card_add' μ ν')) {s : Seq (μ + ν')
   -- `ℓ (A - 1) ≥ A` by pigeonhole
   have hlast : A ≤ (ℓ ⟨A - 1, by omega⟩).val := by
     by_contra hlt
-    push_neg at hlt
+    push Not at hlt
     have hall : ∀ x : Fin (Multiset.card μ), x.val ≤ A - 1 → (ℓ x).val < A := fun x hx =>
       lt_of_le_of_lt (hℓm.monotone (Fin.mk_le_mk.2 hx)) hlt
     let g : Fin (A + 1) → Fin A := fun x =>
@@ -132,12 +132,12 @@ theorem shuffle_posR_ge (u : Shuffle (Seq.card_add' μ ν')) {s : Seq (μ + ν')
       intro x x' hxx
       simp only [g] at hxx
       by_cases hx : x.val < A <;> by_cases hx' : x'.val < A
-      · rw [dif_pos hx, dif_pos hx'] at hxx
+      · rw [dite_eq_left hx, dite_eq_left hx'] at hxx
         have := hℓm.injective (Fin.ext (Fin.mk.inj_iff.1 hxx))
         exact Fin.ext (Fin.mk.inj_iff.1 this)
-      · rw [dif_pos hx, dif_neg hx'] at hxx
+      · rw [dite_eq_left hx, dite_eq_right hx'] at hxx
         exact absurd (Fin.ext (Fin.mk.inj_iff.1 hxx)) (hℓρ _)
-      · rw [dif_neg hx, dif_pos hx'] at hxx
+      · rw [dite_eq_right hx, dite_eq_left hx'] at hxx
         exact absurd (Fin.ext (Fin.mk.inj_iff.1 hxx)).symm (hℓρ _)
       · exact Fin.ext (by omega)
     have := Fintype.card_le_of_injective g hg
@@ -194,7 +194,7 @@ theorem card_shuffle_posR_ge_le (A : ℕ) :
   simp only [F] at himg
   -- equal right positions
   have hR : (fun y => u.1.1⁻¹ (Seq.posR μ y)) = fun y => u'.1.1⁻¹ (Seq.posR μ y) := by
-    rw [← StrictMono.range_inj (shuffle_inv_posR_mono u.1) (shuffle_inv_posR_mono u'.1)]
+    rw [← StrictMono.range_inj_of_wellFoundedLT (shuffle_inv_posR_mono u.1) (shuffle_inv_posR_mono u'.1)]
     have key : ∀ (v v' : {u : Shuffle (Seq.card_add' μ ν') //
         ∀ y, A ≤ (u.1⁻¹ (Seq.posR μ y)).val}),
         (Finset.univ.image fun y => (⟨(v.1.1⁻¹ (Seq.posR μ y)).val - A, by
@@ -221,7 +221,7 @@ theorem card_shuffle_posR_ge_le (A : ℕ) :
       omega
     exact Set.Subset.antisymm (key u u' himg) (key u' u himg.symm)
   have hL : (fun x => u.1.1⁻¹ (Seq.posL ν' x)) = fun x => u'.1.1⁻¹ (Seq.posL ν' x) := by
-    rw [← StrictMono.range_inj (shuffle_inv_posL_mono u.1) (shuffle_inv_posL_mono u'.1),
+    rw [← StrictMono.range_inj_of_wellFoundedLT (shuffle_inv_posL_mono u.1) (shuffle_inv_posL_mono u'.1),
       range_inv_posL_eq_compl, range_inv_posL_eq_compl, hR]
   have hinv : u.1.1⁻¹ = u'.1.1⁻¹ := by
     ext q
@@ -297,7 +297,7 @@ theorem isOrthFamily_append (c : Seq ν') :
   rw [e_mul_e]
   by_cases h : a = b
   · subst h; simp
-  · rw [if_neg (fun h' => h (Seq.append_inj.1 h').1), if_neg h]
+  · rw [ite_eq_right (fun h' => h (Seq.append_inj.1 h').1), ite_eq_right h]
 
 variable {N : Type*} [AddCommGroup N] [Module K N] [Module (KLRAlgebra K Q (μ' + ν'')) N]
   [IsScalarTower K (KLRAlgebra K Q (μ' + ν'')) N] [FiniteDimensional K N]
@@ -342,7 +342,7 @@ theorem finrank_fixSub_concatIdem_le (hεN : epsI Q (μ' + ν'') i N ≤ Multise
         (fun p hp => ?_) (by omega)
       exact Seq.apply_eq_of_le_tailLen (by omega)
     have hj2 : j2 = c' := Seq.eq_constSeq hν' j2
-    rw [if_pos hPu]
+    rw [ite_eq_left hPu]
     calc Module.finrank K (fixSub K N (e j1 : KLRAlgebra K Q (μ' + ν''))) *
           Module.finrank K (fixSub K (KLRRep hν' Q) (e j2 : KLRAlgebra K Q ν'))
         ≤ Module.finrank K (fixSub K N (e j1 : KLRAlgebra K Q (μ' + ν''))) *
@@ -351,7 +351,7 @@ theorem finrank_fixSub_concatIdem_le (hεN : epsI Q (μ' + ν'') i N ≤ Multise
       _ = if u.1 • t.append c' = j1.append c' then
             (Multiset.card ν').factorial *
               Module.finrank K (fixSub K N (e j1 : KLRAlgebra K Q (μ' + ν''))) else 0 := by
-          rw [if_pos (by rw [← hj, hj2]), mul_comm]
+          rw [ite_eq_left (by rw [← hj, hj2]), mul_comm]
       _ ≤ _ := Finset.single_le_sum (f := fun j => if u.1 • t.append c' = j.append c' then
             (Multiset.card ν').factorial *
               Module.finrank K (fixSub K N (e j : KLRAlgebra K Q (μ' + ν''))) else 0)
@@ -374,13 +374,13 @@ theorem finrank_fixSub_topIdem_ind_le (hεN : epsI Q (μ' + ν'') i N ≤ Multis
   have hD : D = ∑ j ∈ concatSet μ' ν'',
       Module.finrank K (fixSub K N (e j : KLRAlgebra K Q (μ' + ν''))) :=
     finrank_fixSub_eSum N _
-  haveI : FiniteDimensional K (Ind Q (μ' + ν'') ν' (ExtTensor K N (KLRRep hν' Q))) :=
+  have : FiniteDimensional K (Ind Q (μ' + ν'') ν' (ExtTensor K N (KLRRep hν' Q))) :=
     finiteDimensional_ind hPQ hP _
-  haveI : ∀ t : concatSet μ' ν'', Module.Free K (fixSub K
+  have : ∀ t : concatSet μ' ν'', Module.Free K (fixSub K
       (Ind Q (μ' + ν'') ν' (ExtTensor K N (KLRRep hν' Q)))
       (e ((t : Seq (μ' + ν'')).append c') : KLRAlgebra K Q ((μ' + ν'') + ν'))) :=
     fun _ => Module.Free.of_divisionRing K _
-  haveI : ∀ t : concatSet μ' ν'', Module.Finite K (fixSub K
+  have : ∀ t : concatSet μ' ν'', Module.Finite K (fixSub K
       (Ind Q (μ' + ν'') ν' (ExtTensor K N (KLRRep hν' Q)))
       (e ((t : Seq (μ' + ν'')).append c') : KLRAlgebra K Q ((μ' + ν'') + ν'))) :=
     fun _ => inferInstance
@@ -504,7 +504,7 @@ theorem nonempty_hwSpace_equiv_of_embedding [FiniteDimensional K L]
     Nonempty (HWSpace Q μ' ν'' (ResSub Q μ' ν'' N) ≃ₗ[KLRAlgebra K Q μ']
       HWSpace Q μ' (ν'' + ν') (ResSub Q μ' (ν'' + ν') (MAssoc μ' ν'' ν' L))) := by
   have hνε := forall_add_of_forall hν'' hν'
-  haveI := isSimpleModule_castMod (Q := Q) (add_assoc μ' ν'' ν').symm L
+  have := isSimpleModule_castMod (Q := Q) (add_assoc μ' ν'' ν').symm L
   have hε' : epsI Q (μ' + (ν'' + ν')) i (MAssoc μ' ν'' ν' L) = Multiset.card (ν'' + ν') := by
     rw [epsI_castMod, hεL, Multiset.card_add]
   have hnilM := smulNilpotent_mAssoc (Q := Q) (μ' := μ') (ν'' := ν'') (ν' := ν') hnilL
@@ -518,7 +518,7 @@ theorem nonempty_hwSpace_equiv_of_embedding [FiniteDimensional K L]
     (V := HWSpace Q μ' (ν'' + ν') (ResSub Q μ' (ν'' + ν') (MAssoc μ' ν'' ν' L)))
     (A := KLRAlgebra K Q μ') (B := KLRAlgebra K Q (ν'' + ν'))
     (Module.finBasis K (KLRRep hνε Q))
-  haveI : Nontrivial (HWSpace Q μ' ν'' (ResSub Q μ' ν'' N)) :=
+  have : Nontrivial (HWSpace Q μ' ν'' (ResSub Q μ' ν'' N)) :=
     IsSimpleModule.nontrivial (KLRAlgebra K Q μ') _
   obtain ⟨w₀, hw₀⟩ := exists_ne (0 : HWSpace Q μ' ν'' (ResSub Q μ' ν'' N))
   have hθ0 : Φ.symm (topMap hν'' hν' f w₀) ≠ 0 := by
@@ -535,7 +535,7 @@ theorem nonempty_hwSpace_equiv_of_embedding [FiniteDimensional K L]
     exact fun h => hw₀ (Subtype.ext (Subtype.ext h))
   obtain ⟨b, hb⟩ : ∃ b, π b (Φ.symm (topMap hν'' hν' f w₀)) ≠ 0 := by
     by_contra h
-    push_neg at h
+    push Not at h
     exact hθ0 (hπ0 _ h)
   let g : HWSpace Q μ' ν'' (ResSub Q μ' ν'' N) →ₗ[KLRAlgebra K Q μ']
       HWSpace Q μ' (ν'' + ν') (ResSub Q μ' (ν'' + ν') (MAssoc μ' ν'' ν' L)) :=
@@ -601,7 +601,7 @@ theorem fixSub_topIdem_ne_bot_iff [IsScalarTower K (KLRAlgebra K Q ((μ' + ν'')
     [Nontrivial X] :
     fixSub K X (topIdem Q μ' ν'' ν') ≠ ⊥ ↔
       Multiset.card ν'' + Multiset.card ν' ≤ epsI Q ((μ' + ν'') + ν') i X := by
-  haveI : Nontrivial (MAssoc μ' ν'' ν' X) := inferInstanceAs (Nontrivial X)
+  have : Nontrivial (MAssoc μ' ν'' ν' X) := inferInstanceAs (Nontrivial X)
   rw [← Submodule.nontrivial_iff_ne_bot, (fixSubTopIdemEquiv hν'' hν').nontrivial_congr,
     nontrivial_resSub_iff (forall_add_of_forall hν'' hν'), epsI_castMod, Multiset.card_add]
 
@@ -657,7 +657,7 @@ theorem fixSub_eq_bot_of_finrank_le [FiniteDimensional K X] (hE : IsIdempotentEl
   rw [LinearMap.range_eq_top.2 hg, finrank_top] at h1
   have h2 := Submodule.finrank_mono hrk
   rw [LinearMap.finrank_range_of_inj hι] at h2
-  haveI : FiniteDimensional K P :=
+  have : FiniteDimensional K P :=
     Module.Finite.of_injective (P.subtype.restrictScalars K) Subtype.val_injective
   rw [← Submodule.finrank_eq_zero]
   omega
@@ -743,17 +743,17 @@ theorem quot_facts (P' : Submodule (KLRAlgebra K Q ((μ' + ν'') + ν'))
           (topIdem Q μ' ν'' ν')) =
         Module.finrank K (HWSpace Q μ' ν'' (ResSub Q μ' ν'' N)) *
           (Multiset.card ν'' + Multiset.card ν').factorial := by
-  haveI : FiniteDimensional K (Ind Q (μ' + ν'') ν' (ExtTensor K N (KLRRep hν' Q))) :=
+  have : FiniteDimensional K (Ind Q (μ' + ν'') ν' (ExtTensor K N (KLRRep hν' Q))) :=
     finiteDimensional_ind hPQ hP _
   have hnilM : ∀ a, SmulNilpotent (x a : KLRAlgebra K Q ((μ' + ν'') + ν'))
       (Ind Q (μ' + ν'') ν' (ExtTensor K N (KLRRep hν' Q))) :=
     smulNilpotent_ind_extTensor hPQ hP hnilN (smulNilpotent_klrRep hν')
-  haveI : Nontrivial N := IsSimpleModule.nontrivial (KLRAlgebra K Q (μ' + ν'')) N
-  haveI : IsSimpleModule (KLRAlgebra K Q ((μ' + ν'') + ν'))
+  have : Nontrivial N := IsSimpleModule.nontrivial (KLRAlgebra K Q (μ' + ν'')) N
+  have : IsSimpleModule (KLRAlgebra K Q ((μ' + ν'') + ν'))
       (Ind Q (μ' + ν'') ν' (ExtTensor K N (KLRRep hν' Q)) ⧸ P') :=
     isSimpleModule_iff_isCoatom.2 hP'
   have hnilQ := fun a => smulNilpotent_quotient P' (hnilM a)
-  haveI := isSimpleModule_extTensor hν' (Q := Q) (μ := μ' + ν'') (V := N)
+  have := isSimpleModule_extTensor hν' (Q := Q) (μ := μ' + ν'') (V := N)
   let f : ExtTensor K N (KLRRep hν' Q) →ₗ[TensorKLR Q (μ' + ν'') ν']
       ResSub Q (μ' + ν'') ν' (Ind Q (μ' + ν'') ν' (ExtTensor K N (KLRRep hν' Q)) ⧸ P') :=
     indAdjFwd P'.mkQ
@@ -777,7 +777,7 @@ theorem quot_facts (P' : Submodule (KLRAlgebra K Q ((μ' + ν'') + ν'))
   obtain ⟨φ⟩ := nonempty_hwSpace_equiv_of_embedding hν'' hν' hPQ hP f hnilQ hεL hnilN hεN hf
   refine ⟨hεL, ?_⟩
   have hνε := forall_add_of_forall hν'' hν'
-  haveI := isSimpleModule_castMod (Q := Q) (add_assoc μ' ν'' ν').symm
+  have := isSimpleModule_castMod (Q := Q) (add_assoc μ' ν'' ν').symm
     (Ind Q (μ' + ν'') ν' (ExtTensor K N (KLRRep hν' Q)) ⧸ P')
   have hε' : epsI Q (μ' + (ν'' + ν')) i
       (MAssoc μ' ν'' ν' (Ind Q (μ' + ν'') ν' (ExtTensor K N (KLRRep hν' Q)) ⧸ P')) =
@@ -789,10 +789,10 @@ theorem quot_facts (P' : Submodule (KLRAlgebra K Q ((μ' + ν'') + ν'))
       TensorKLR Q μ' (ν'' + ν')) (ResSub Q μ' (ν'' + ν')
         (MAssoc μ' ν'' ν' (Ind Q (μ' + ν'') ν' (ExtTensor K N (KLRRep hν' Q)) ⧸ P'))) :=
     fun b => smulNilpotent_resSub b (hnilMA _)
-  haveI : Module.Free K (HWSpace Q μ' (ν'' + ν') (ResSub Q μ' (ν'' + ν')
+  have : Module.Free K (HWSpace Q μ' (ν'' + ν') (ResSub Q μ' (ν'' + ν')
       (MAssoc μ' ν'' ν' (Ind Q (μ' + ν'') ν' (ExtTensor K N (KLRRep hν' Q)) ⧸ P')))) :=
     Module.Free.of_divisionRing K _
-  haveI : FiniteDimensional K (HWSpace Q μ' (ν'' + ν') (ResSub Q μ' (ν'' + ν')
+  have : FiniteDimensional K (HWSpace Q μ' (ν'' + ν') (ResSub Q μ' (ν'' + ν')
       (MAssoc μ' ν'' ν' (Ind Q (μ' + ν'') ν' (ExtTensor K N (KLRRep hν' Q)) ⧸ P')))) :=
     inferInstance
   rw [(fixSubTopIdemEquiv hν'' hν').finrank_eq,
@@ -805,7 +805,7 @@ include hν'' hν' hPQ hP hnilN hεN in
 theorem fixSub_coatom_eq_bot (P' : Submodule (KLRAlgebra K Q ((μ' + ν'') + ν'))
       (Ind Q (μ' + ν'') ν' (ExtTensor K N (KLRRep hν' Q)))) (hP' : IsCoatom P') :
     fixSub K P' (topIdem Q μ' ν'' ν') = ⊥ := by
-  haveI : FiniteDimensional K (Ind Q (μ' + ν'') ν' (ExtTensor K N (KLRRep hν' Q))) :=
+  have : FiniteDimensional K (Ind Q (μ' + ν'') ν' (ExtTensor K N (KLRRep hν' Q))) :=
     finiteDimensional_ind hPQ hP _
   refine fixSub_eq_bot_of_finrank_le topIdem_idem P' ?_
   rw [(quot_facts hν'' hν' hPQ hP hnilN hεN P' hP').2]
@@ -824,11 +824,11 @@ theorem lemma_3_9_core :
           (Ind Q (μ' + ν'') ν' (ExtTensor K N (KLRRep hν' Q)))) (_ : P₁ ≤ P')
         (P₂ : Submodule (KLRAlgebra K Q ((μ' + ν'') + ν')) P₁) [Nontrivial (P₁ ⧸ P₂)],
         epsI Q ((μ' + ν'') + ν') i (P₁ ⧸ P₂) < Multiset.card ν'' + Multiset.card ν' := by
-  haveI : FiniteDimensional K (Ind Q (μ' + ν'') ν' (ExtTensor K N (KLRRep hν' Q))) :=
+  have : FiniteDimensional K (Ind Q (μ' + ν'') ν' (ExtTensor K N (KLRRep hν' Q))) :=
     finiteDimensional_ind hPQ hP _
-  haveI : Nontrivial N := IsSimpleModule.nontrivial (KLRAlgebra K Q (μ' + ν'')) N
+  have : Nontrivial N := IsSimpleModule.nontrivial (KLRAlgebra K Q (μ' + ν'')) N
   -- `M ≠ 0`, so it has a maximal submodule
-  haveI : Nontrivial (Ind Q (μ' + ν'') ν' (ExtTensor K N (KLRRep hν' Q))) := by
+  have : Nontrivial (Ind Q (μ' + ν'') ν' (ExtTensor K N (KLRRep hν' Q))) := by
     obtain ⟨w, hw⟩ := exists_ne (0 : N)
     have hy0 : ExtTensor.tmul w (lMk hν' Q 1) ≠ 0 :=
       extTensor_tmul_ne_zero (K := K) (A := KLRAlgebra K Q (μ' + ν''))
@@ -839,7 +839,7 @@ theorem lemma_3_9_core :
       (ExtTensor K N (KLRRep hν' Q))) h0
     rw [indDecomp_tmul_oneConcat, LinearEquiv.map_zero] at this
     exact hy0 (by simpa using congrFun this shufOne)
-  haveI : Module.Finite (KLRAlgebra K Q ((μ' + ν'') + ν'))
+  have : Module.Finite (KLRAlgebra K Q ((μ' + ν'') + ν'))
       (Ind Q (μ' + ν'') ν' (ExtTensor K N (KLRRep hν' Q))) :=
     Module.Finite.of_restrictScalars_finite K _ _
   obtain ⟨P', hP', -⟩ := (eq_top_or_exists_le_coatom (⊥ : Submodule
@@ -847,15 +847,15 @@ theorem lemma_3_9_core :
     bot_ne_top
   have hq := quot_facts hν'' hν' hPQ hP hnilN hεN P' hP'
   refine ⟨P', hP', fun P'' hP'' => ?_, hq.1, fun P₁ h₁ P₂ _ => ?_⟩
-  · haveI : Nontrivial (Ind Q (μ' + ν'') ν' (ExtTensor K N (KLRRep hν' Q)) ⧸ P'') :=
-      Submodule.Quotient.nontrivial_of_lt_top _ hP''.1.lt_top
+  · have : Nontrivial (Ind Q (μ' + ν'') ν' (ExtTensor K N (KLRRep hν' Q)) ⧸ P'') :=
+      Submodule.Quotient.nontrivial_iff.mpr hP''.1
     exact eq_of_isCoatom_of_fixSub_eq_bot topIdem_idem hP'' hP'
       (fixSub_coatom_eq_bot hν'' hν' hPQ hP hnilN hεN P'' hP'')
       (fixSub_coatom_eq_bot hν'' hν' hPQ hP hnilN hεN P' hP')
       ((fixSub_topIdem_ne_bot_iff hν'' hν').2
         (quot_facts hν'' hν' hPQ hP hnilN hεN P'' hP'').1.ge)
   · by_contra hcon
-    push_neg at hcon
+    push Not at hcon
     exact (fixSub_topIdem_ne_bot_iff hν'' hν').2 hcon (fixSub_subquot_eq_bot topIdem_idem
       (fixSub_coatom_eq_bot hν'' hν' hPQ hP hnilN hεN P' hP') P₁ h₁ P₂)
 
@@ -886,7 +886,7 @@ theorem lemma_3_9 :
       ∀ (P₁ : Submodule (KLRAlgebra K Q (μ + ν')) (Ind Q μ ν' (ExtTensor K N (KLRRep hν' Q))))
         (_ : P₁ ≤ P') (P₂ : Submodule (KLRAlgebra K Q (μ + ν')) P₁) [Nontrivial (P₁ ⧸ P₂)],
         epsI Q (μ + ν') i (P₁ ⧸ P₂) < epsI Q μ i N + Multiset.card ν' := by
-  haveI : Nontrivial N := IsSimpleModule.nontrivial (KLRAlgebra K Q μ) N
+  have : Nontrivial N := IsSimpleModule.nontrivial (KLRAlgebra K Q μ) N
   obtain ⟨s, -, hst⟩ := exists_tailLen_eq_epsI (Q := Q) (ν := μ) (i := i) (M := N)
   have hrep : Multiset.replicate (epsI Q μ i N) i ≤ μ :=
     replicate_le_of_hasTail (Seq.hasTail_iff.2 hst.ge)

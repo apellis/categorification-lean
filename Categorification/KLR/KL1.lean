@@ -102,28 +102,28 @@ theorem ψ_sq (j : ℕ) (h : j + 1 < m) (i : Seq ν) :
       else if Γ.Adj (i.lbl ⟨j, by omega⟩) (i.lbl ⟨j + 1, h⟩) then
         (x ⟨j, by omega⟩ + x ⟨j + 1, h⟩) * e i
       else e i := by
-  rw [KLRAlgebra.ψ_sq]
+  rw [KLRAlgebra.ψ_sq j h]
   by_cases h₁ : i.lbl ⟨j, by omega⟩ = i.lbl ⟨j + 1, h⟩
-  · rw [if_pos h₁, if_pos h₁]
-  · rw [if_neg h₁, if_neg h₁, ncEval_x_two]
+  · rw [ite_eq_left h₁, ite_eq_left h₁]
+  · rw [ite_eq_right h₁, ite_eq_right h₁, ncEval_x_two]
     by_cases h₂ : Γ.Adj (i.lbl ⟨j, by omega⟩) (i.lbl ⟨j + 1, h⟩)
-    · rw [if_pos h₂]; simp [klQ, h₂]
-    · rw [if_neg h₂]; simp [klQ, h₂]
+    · rw [ite_eq_left h₂]; simp [klQ, h₂]
+    · rw [ite_eq_right h₂]; simp [klQ, h₂]
 
 theorem ψ_sq_of_eq (j : ℕ) (h : j + 1 < m) (i : Seq ν)
     (hi : i.lbl ⟨j, by omega⟩ = i.lbl ⟨j + 1, h⟩) : (ψ j * ψ j * e i : R1 k Γ ν) = 0 := by
-  rw [ψ_sq, if_pos hi]
+  rw [ψ_sq j h, ite_eq_left hi]
 
 theorem ψ_sq_of_not_adj (j : ℕ) (h : j + 1 < m) (i : Seq ν)
     (hi : i.lbl ⟨j, by omega⟩ ≠ i.lbl ⟨j + 1, h⟩)
     (hadj : ¬ Γ.Adj (i.lbl ⟨j, by omega⟩) (i.lbl ⟨j + 1, h⟩)) :
     (ψ j * ψ j * e i : R1 k Γ ν) = e i := by
-  rw [ψ_sq, if_neg hi, if_neg hadj]
+  rw [ψ_sq j h, ite_eq_right hi, ite_eq_right hadj]
 
 theorem ψ_sq_of_adj (j : ℕ) (h : j + 1 < m) (i : Seq ν)
     (hadj : Γ.Adj (i.lbl ⟨j, by omega⟩) (i.lbl ⟨j + 1, h⟩)) :
     (ψ j * ψ j * e i : R1 k Γ ν) = (x ⟨j, by omega⟩ + x ⟨j + 1, h⟩) * e i := by
-  rw [ψ_sq, if_neg (Γ.ne_of_adj hadj), if_pos hadj]
+  rw [ψ_sq j h, ite_eq_right (Γ.ne_of_adj hadj), ite_eq_left hadj]
 
 /-- KL I (2.4) (`eq_ijslide`), left: for `i_k ≠ i_{k+1}` a dot slides from the top left to the
 bottom right of a crossing, `x_k δ_{k,i} = δ_{k,i} x_{k+1,i}`. -/
@@ -131,7 +131,7 @@ theorem x_ψ_of_ne (j : ℕ) (h : j + 1 < m) (i : Seq ν)
     (hi : i.lbl ⟨j, by omega⟩ ≠ i.lbl ⟨j + 1, h⟩) :
     (x ⟨j, by omega⟩ * ψ j * e i : R1 k Γ ν) = ψ j * x ⟨j + 1, h⟩ * e i := by
   have := KLRAlgebra.dot_cross_left (Q := klQ (k := k) Γ) j h i
-  rw [if_neg hi, sub_mul, sub_eq_zero] at this
+  rw [ite_eq_right hi, sub_mul, sub_eq_zero] at this
   exact this
 
 /-- KL I (2.4) (`eq_ijslide`), right: for `i_k ≠ i_{k+1}` a dot slides from the bottom left to
@@ -140,7 +140,7 @@ theorem ψ_x_of_ne (j : ℕ) (h : j + 1 < m) (i : Seq ν)
     (hi : i.lbl ⟨j, by omega⟩ ≠ i.lbl ⟨j + 1, h⟩) :
     (ψ j * x ⟨j, by omega⟩ * e i : R1 k Γ ν) = x ⟨j + 1, h⟩ * ψ j * e i := by
   have := KLRAlgebra.dot_cross_right (Q := klQ (k := k) Γ) j h i
-  rw [if_neg hi, sub_mul, sub_eq_zero] at this
+  rw [ite_eq_right hi, sub_mul, sub_eq_zero] at this
   exact this
 
 /-- KL I (2.5) (`eq_iislide1`): for `i_k = i_{k+1}`,
@@ -148,14 +148,14 @@ theorem ψ_x_of_ne (j : ℕ) (h : j + 1 < m) (i : Seq ν)
 theorem x_ψ_sub_of_eq (j : ℕ) (h : j + 1 < m) (i : Seq ν)
     (hi : i.lbl ⟨j, by omega⟩ = i.lbl ⟨j + 1, h⟩) :
     (x ⟨j, by omega⟩ * ψ j * e i - ψ j * x ⟨j + 1, h⟩ * e i : R1 k Γ ν) = e i := by
-  rw [← sub_mul, KLRAlgebra.dot_cross_left, if_pos hi]
+  rw [← sub_mul, KLRAlgebra.dot_cross_left, ite_eq_left hi]
 
 /-- KL I (2.6) (`eq_iislide2`): for `i_k = i_{k+1}`,
 `δ_{k,i} x_{k,i} - x_{k+1} δ_{k,i} = 1_i`. -/
 theorem ψ_x_sub_of_eq (j : ℕ) (h : j + 1 < m) (i : Seq ν)
     (hi : i.lbl ⟨j, by omega⟩ = i.lbl ⟨j + 1, h⟩) :
     (ψ j * x ⟨j, by omega⟩ * e i - x ⟨j + 1, h⟩ * ψ j * e i : R1 k Γ ν) = e i := by
-  rw [← sub_mul, KLRAlgebra.dot_cross_right, if_pos hi]
+  rw [← sub_mul, KLRAlgebra.dot_cross_right, ite_eq_left hi]
 
 /-- KL I (2.7)–(2.8) combined: `(δ_k δ_{k+1} δ_k - δ_{k+1} δ_k δ_{k+1}) 1_i` is `1_i` if
 `i_k = i_{k+2}` and `i_k · i_{k+1} = -1`, and `0` otherwise. -/
@@ -164,16 +164,16 @@ theorem braid (j : ℕ) (h : j + 2 < m) (i : Seq ν) :
       if i.lbl ⟨j, by omega⟩ = i.lbl ⟨j + 2, h⟩ ∧
           Γ.Adj (i.lbl ⟨j, by omega⟩) (i.lbl ⟨j + 1, by omega⟩) then e i
       else 0 := by
-  rw [KLRAlgebra.braid, ncEval_x_three]
+  rw [KLRAlgebra.braid j h, ncEval_x_three]
   by_cases h₁ : i.lbl ⟨j, by omega⟩ = i.lbl ⟨j + 2, h⟩
   · by_cases hadj : Γ.Adj (i.lbl ⟨j, by omega⟩) (i.lbl ⟨j + 1, by omega⟩)
-    · rw [if_pos ⟨h₁, Γ.ne_of_adj hadj⟩, if_pos ⟨h₁, hadj⟩]
+    · rw [ite_eq_left ⟨h₁, Γ.ne_of_adj hadj⟩, ite_eq_left ⟨h₁, hadj⟩]
       simp [klQ, hadj, qbar_X_add_X]
-    · rw [if_neg (show ¬ (_ ∧ Γ.Adj _ _) from fun hc => hadj hc.2)]
+    · rw [ite_eq_right (show ¬ (_ ∧ Γ.Adj _ _) from fun hc => hadj hc.2)]
       split_ifs
       · simp [klQ, hadj, qbar_one]
       · rfl
-  · rw [if_neg (fun hc => h₁ hc.1), if_neg (fun hc => h₁ hc.1)]
+  · rw [ite_eq_right (fun hc => h₁ hc.1), ite_eq_right (fun hc => h₁ hc.1)]
 
 /-- KL I (2.7) (`eq_r3_easy`): the triple crossing relation holds on `1_i` unless
 `i_k = i_{k+2}` and `i_k · i_{k+1} = -1`. -/
@@ -182,7 +182,7 @@ theorem braid_easy (j : ℕ) (h : j + 2 < m) (i : Seq ν)
       Γ.Adj (i.lbl ⟨j, by omega⟩) (i.lbl ⟨j + 1, by omega⟩))) :
     (ψ j * ψ (j + 1) * ψ j * e i : R1 k Γ ν) = ψ (j + 1) * ψ j * ψ (j + 1) * e i := by
   have := braid (k := k) (Γ := Γ) j h i
-  rw [if_neg hi, sub_mul, sub_eq_zero] at this
+  rw [ite_eq_right hi, sub_mul, sub_eq_zero] at this
   exact this
 
 /-- KL I (2.8) (`eq_r3_hard`): if `i_k = i_{k+2}` and `i_k · i_{k+1} = -1`, then
@@ -191,7 +191,7 @@ theorem braid_hard (j : ℕ) (h : j + 2 < m) (i : Seq ν)
     (h₁ : i.lbl ⟨j, by omega⟩ = i.lbl ⟨j + 2, h⟩)
     (hadj : Γ.Adj (i.lbl ⟨j, by omega⟩) (i.lbl ⟨j + 1, by omega⟩)) :
     (ψ j * ψ (j + 1) * ψ j * e i - ψ (j + 1) * ψ j * ψ (j + 1) * e i : R1 k Γ ν) = e i := by
-  rw [← sub_mul, braid, if_pos ⟨h₁, hadj⟩]
+  rw [← sub_mul, braid j h, ite_eq_left ⟨h₁, hadj⟩]
 
 end KL1
 

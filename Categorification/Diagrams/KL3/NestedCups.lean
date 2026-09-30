@@ -139,6 +139,7 @@ def cupLayers : S.Region → List S.Colour → List (Layer (S.pivotal E.toColour
   | r, c :: w => ⟨S.colourSrc c, [], .cup c, []⟩ ::
       (cupLayers (S.colourTgt c) w).map fun L => (L.wr [E.dual c]).wl ⟨r, [c]⟩
 
+set_option backward.isDefEq.respectTransparency false in
 theorem biadjW_left_unit_isDiag : ∀ (w : List S.Colour) {l m : Q.Bicat} (x : l ⟶ m)
     (hx : x.obj.word = w),
     IsDiag Q (biadjW (pivotalBiadj E Q hz) w x hx).left.unit (cupLayers (E := E) l.region w)
@@ -164,6 +165,7 @@ def capLayers (r : S.Region) : List S.Colour → List (Layer (S.pivotal E.toColo
   | c :: w => ((⟨S.colourTgt c, [], .cap c, []⟩ : Layer (S.pivotal E.toColourDuality)).wr w).wl
       ⟨r, E.toColourDuality.pivotal.dualWord w⟩ :: capLayers r w
 
+set_option backward.isDefEq.respectTransparency false in
 theorem biadjW_left_counit_isDiag : ∀ (w : List S.Colour) {l m : Q.Bicat} (x : l ⟶ m)
     (hx : x.obj.word = w),
     IsDiag Q (biadjW (pivotalBiadj E Q hz) w x hx).left.counit (capLayers (E := E) m.region w)
@@ -245,7 +247,7 @@ theorem biadjW_right_counit_isDiag : ∀ (w : List S.Colour) {l m : Q.Bicat} (x 
       (IsDiag.comp (ls := []) ?_ h₀))))) ?_
     · isdiag_triv
     · isdiag_triv
-    · simp only [capRLayers, List.map_cons, List.map_nil, List.nil_append, List.append_nil,
+    · simp only [capRLayers, List.nil_append,
         List.map_map]
       rfl
 

@@ -107,7 +107,7 @@ def dψ (j : ℕ) (i : Seq ν) : ℤ :=
   if h : j + 1 < m then G.degΨ (i.lbl ⟨j, by omega⟩) (i.lbl ⟨j + 1, h⟩) else 0
 
 theorem dψ_of_lt {j : ℕ} (h : j + 1 < m) (i : Seq ν) :
-    G.dψ j i = G.degΨ (i.lbl ⟨j, by omega⟩) (i.lbl ⟨j + 1, h⟩) := dif_pos h
+    G.dψ j i = G.degΨ (i.lbl ⟨j, by omega⟩) (i.lbl ⟨j + 1, h⟩) := dite_eq_left h
 
 /-- The degree of `ψ_ρ e_i = ψ_{ρ₀} ψ_{ρ₁} ⋯ e_i`, computed along the word. -/
 def degW : List ℕ → Seq ν → ℤ
@@ -173,7 +173,7 @@ theorem sum_single_mul (f : Seq ν → ℤ) (y : KLRAlgebra k Q ν) (l : Seq ν)
   rw [Finset.sum_mul, Finset.sum_eq_single l]
   · rw [single_mul_single, mul_assoc y, ← mul_assoc (e l), e_mul_self, mul_assoc]
   · intro i _ hi
-    rw [single_mul_single, mul_assoc y, ← mul_assoc (e i), e_mul_e, if_neg hi]
+    rw [single_mul_single, mul_assoc y, ← mul_assoc (e i), e_mul_e, ite_eq_right hi]
     simp
   · simp
 
@@ -191,7 +191,7 @@ theorem homAt_fe_mul (i : Seq ν) {u : FreeAlgebra k (Gen ν)} {l : Seq ν} {d :
     rw [e_mul_e, e_mul_e]
     by_cases h : i = l
     · subst h; rfl
-    · rw [if_neg (Ne.symm h), if_neg h]
+    · rw [ite_eq_right (Ne.symm h), ite_eq_right h]
 
 theorem homAt_fx_mul (a : Fin m) {u : FreeAlgebra k (Gen ν)} {l : Seq ν} {d : ℤ}
     (hu : u ∈ G.homAt l d) : fx k ν a * u ∈ G.homAt l (G.dx a l + d) := by
@@ -249,7 +249,7 @@ theorem homAt_ncEval {n : ℕ} (f : Fin n → Fin m) (p : MvPolynomial (Fin n) k
 theorem sum_single_e :
     (∑ l, single (0 : ℤ) (e l) : AddMonoidAlgebra (KLRAlgebra k Q ν) ℤ) = 1 := by
   have : (∑ l, single (0 : ℤ) (e l) : AddMonoidAlgebra (KLRAlgebra k Q ν) ℤ) =
-      single 0 (∑ l, e l) := (Finsupp.single_finset_sum _ _ _).symm
+      single 0 (∑ l, e l) := (map_sum (AddMonoidAlgebra.singleAddHom (0 : ℤ)) _ _).symm
   rw [this, sum_e, AddMonoidAlgebra.one_def]
 
 theorem liftF_eq_sum (u : FreeAlgebra k (Gen ν)) :
@@ -266,7 +266,7 @@ theorem liftF_sub_of_homAt {A B : FreeAlgebra k (Gen ν)} {l l' : Seq ν} {d : �
     (hA : A ∈ G.homAt l d) (hB : B ∈ G.homAt l' d) :
     G.liftF (A - B) = single d (mkF (A - B)) := by
   rw [map_sub, map_sub, (G.mem_homAt.1 hA).1, (G.mem_homAt.1 hB).1]
-  exact (Finsupp.single_sub _ _ _).symm
+  exact (AddMonoidAlgebra.single_sub _ _ _).symm
 
 theorem liftF_eq_of_forall {L R : FreeAlgebra k (Gen ν)}
     (h : ∀ l, ∃ l₁ l₂ d, L * fe k ν l ∈ G.homAt l₁ d ∧ R * fe k ν l ∈ G.homAt l₂ d)
@@ -285,7 +285,7 @@ theorem liftF_rel {a b : FreeAlgebra k (Gen ν)} (h : Rel k Q ν a b) : G.liftF 
     · subst hij; rw [liftF_fe, e_mul_self]
     · rw [map_zero]
       change single 0 (e i * e j) = 0
-      rw [e_mul_e, if_neg hij, single_zero]
+      rw [e_mul_e, ite_eq_right hij, single_zero]
   | idem_sum =>
     rw [map_sum, map_one]
     simp only [liftF_fe]
@@ -380,7 +380,7 @@ theorem liftF_rel {a b : FreeAlgebra k (Gen ν)} (h : Rel k Q ν a b) : G.liftF 
       rw [← hv] at hR
       rw [(G.mem_homAt.1 hR).1]
       congr 1
-      simp only [dx, G.dψ_of_lt hj, lbl_sadj_smul, sadj_apply_left hj, sadj_apply_right hj]
+      simp only [G.dψ_of_lt hj, lbl_sadj_smul, sadj_apply_left hj, sadj_apply_right hj]
       ring
   | braid j hj i =>
     have h1 : j + 1 < m := by omega
@@ -404,8 +404,8 @@ theorem liftF_rel {a b : FreeAlgebra k (Gen ν)} (h : Rel k Q ν a b) : G.liftF 
       refine G.liftF_sub_of_homAt
         (G.homAt_of_eq (G.homAt_fψ_mul _ (G.homAt_fψ_mul _ (G.homAt_fψ_mul _ (G.homAt_fe i)))) ?_)
         (G.homAt_of_eq (G.homAt_fψ_mul _ (G.homAt_fψ_mul _ (G.homAt_fψ_mul _ (G.homAt_fe i)))) ?_)
-      · simp only [G.dψ_of_lt h1, G.dψ_of_lt h2, lbl_sadj_smul, e1, e2, e3, e4, e5, e6]; ring
-      · simp only [G.dψ_of_lt h1, G.dψ_of_lt h2, lbl_sadj_smul, e1, e2, e3, e4, e5, e6]; ring
+      · simp only [G.dψ_of_lt h1, G.dψ_of_lt h2, lbl_sadj_smul, e1, e2, e3, e4, e6]; ring
+      · simp only [G.dψ_of_lt h1, G.dψ_of_lt h2, lbl_sadj_smul, e2, e3, e4, e5, e6]; ring
     rw [hL, hmk]
     split_ifs with hc
     · have hv : ![fx k ν ⟨j, by omega⟩, fx k ν ⟨j + 1, h1⟩, fx k ν ⟨j + 2, hj⟩] =
@@ -562,7 +562,7 @@ noncomputable instance gradedAlgebra : GradedAlgebra (G.grade ν) :=
 
 /-- The degree `d` component of `a` is the coefficient of `single d` in `coaction a`. -/
 theorem decompose_apply (a : KLRAlgebra k Q ν) (d : ℤ) :
-    (DirectSum.decompose (G.grade ν) a d : KLRAlgebra k Q ν) = G.coaction a d :=
+    (DirectSum.decompose (G.grade ν) a d : KLRAlgebra k Q ν) = (G.coaction a).coeff d :=
   CoactionGrading.decompose_apply G.counit G.coassoc a d
 
 end GradingDatum
@@ -577,13 +577,13 @@ variable [DecidableEq I] (Γ : SimpleGraph I) [DecidableRel Γ.Adj]
 are joined by an edge, and `a · b = 0` otherwise. -/
 def cartan (a b : I) : ℤ := if a = b then 2 else if Γ.Adj a b then -1 else 0
 
-theorem cartan_self (a : I) : cartan Γ a a = 2 := if_pos rfl
+theorem cartan_self (a : I) : cartan Γ a a = 2 := ite_eq_left rfl
 
 theorem cartan_symm (a b : I) : cartan Γ a b = cartan Γ b a := by
   unfold cartan
   by_cases h : a = b
   · subst h; rfl
-  · simp only [if_neg h, if_neg (Ne.symm h), Γ.adj_comm]
+  · simp only [ite_eq_right h, ite_eq_right (Ne.symm h), Γ.adj_comm]
 
 variable (k)
 
@@ -593,7 +593,7 @@ noncomputable def klGradingDatum : GradingDatum (klQ (k := k) Γ) where
   degΨ a b := -cartan Γ a b
   degΨ_self a := by rw [cartan_self]
   isWeightedHomogeneous a b hab := by
-    simp only [klQ, cartan, if_neg hab, if_neg (Ne.symm hab), Γ.adj_comm b a]
+    simp only [klQ, cartan, ite_eq_right hab, ite_eq_right (Ne.symm hab), Γ.adj_comm b a]
     split_ifs
     · have h0 : (X 0 : MvPolynomial (Fin 2) k).IsWeightedHomogeneous ![(2 : ℤ), 2] 2 :=
         isWeightedHomogeneous_X k _ 0

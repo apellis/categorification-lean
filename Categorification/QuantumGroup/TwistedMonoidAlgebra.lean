@@ -144,8 +144,8 @@ instance instRing : Ring (TwistedMonoidAlgebra σ) where
       | add y y' hy hy' => simp only [map_add, LinearMap.add_apply, hy, hy']
       | single b s =>
         induction z using induction_linear with
-        | zero => simp only [map_zero, LinearMap.zero_apply]
-        | add z z' hz hz' => simp only [map_add, LinearMap.add_apply, hz, hz']
+        | zero => simp only [map_zero]
+        | add z z' hz hz' => simp only [map_add, hz, hz']
         | single c t =>
           simp only [mulL_single, mul_assoc]
           congr 1

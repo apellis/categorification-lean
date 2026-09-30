@@ -133,45 +133,45 @@ theorem invL_pos : ∀ w : List (Letter I), invL w ≠ 0 →
 
 theorem invR_swap (i j : I) (v : List (Letter I)) :
     ∀ u : List (Letter I), invR (u ++ up i :: dn j :: v) < invR (u ++ dn j :: up i :: v)
-  | [] => by simp [invR, List.countP_cons]
+  | [] => by simp [invR]
   | l :: u => by
     have := invR_swap i j v u
     have e : (u ++ up i :: dn j :: v).countP (fun m : Letter I => m.1) =
         (u ++ dn j :: up i :: v).countP (fun m : Letter I => m.1) := by
-      simp [List.countP_append, List.countP_cons]
+      simp [List.countP_append]
     simp only [List.cons_append, invR, e]
     omega
 
 theorem invR_del (i j : I) (v : List (Letter I)) :
     ∀ u : List (Letter I), invR (u ++ v) < invR (u ++ dn j :: up i :: v)
-  | [] => by simp [invR, List.countP_cons]
+  | [] => by simp [invR]
   | l :: u => by
     have := invR_del i j v u
     have e : (u ++ v).countP (fun m : Letter I => m.1) ≤
         (u ++ dn j :: up i :: v).countP (fun m : Letter I => m.1) := by
-      simp [List.countP_append, List.countP_cons]
+      simp [List.countP_append]
     simp only [List.cons_append, invR]
     split_ifs <;> omega
 
 theorem invL_swap (i j : I) (v : List (Letter I)) :
     ∀ u : List (Letter I), invL (u ++ dn j :: up i :: v) < invL (u ++ up i :: dn j :: v)
-  | [] => by simp [invL, List.countP_cons]
+  | [] => by simp [invL]
   | l :: u => by
     have := invL_swap i j v u
     have e : (u ++ dn j :: up i :: v).countP (fun m : Letter I => !m.1) =
         (u ++ up i :: dn j :: v).countP (fun m : Letter I => !m.1) := by
-      simp [List.countP_append, List.countP_cons]
+      simp [List.countP_append]
     simp only [List.cons_append, invL, e]
     omega
 
 theorem invL_del (i j : I) (v : List (Letter I)) :
     ∀ u : List (Letter I), invL (u ++ v) < invL (u ++ up i :: dn j :: v)
-  | [] => by simp [invL, List.countP_cons]
+  | [] => by simp [invL]
   | l :: u => by
     have := invL_del i j v u
     have e : (u ++ v).countP (fun m : Letter I => !m.1) ≤
         (u ++ up i :: dn j :: v).countP (fun m : Letter I => !m.1) := by
-      simp [List.countP_append, List.countP_cons]
+      simp [List.countP_append]
     simp only [List.cons_append, invL]
     split_ifs <;> omega
 

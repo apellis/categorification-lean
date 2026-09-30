@@ -53,7 +53,7 @@ theorem IsMonicMonomial.mul {f g : MvPolynomial V k} (hf : IsMonicMonomial f)
     (hg : IsMonicMonomial g) : IsMonicMonomial (f * g) := by
   obtain ⟨s, rfl⟩ := hf
   obtain ⟨t, rfl⟩ := hg
-  exact ⟨s + t, by rw [monomial_mul, one_mul]⟩
+  exact ⟨s + t, by rw [monomial_mul_monomial, one_mul]⟩
 
 theorem IsMonicMonomial.X_pow (v : V) (n : ℕ) : IsMonicMonomial (X v ^ n : MvPolynomial V k) :=
   ⟨Finsupp.single v n, X_pow_eq_monomial⟩
@@ -92,10 +92,17 @@ theorem exists_monomial_isInvBasis_fibres (T : Finset J) :
       ?_, ?_, fun q => (hmono q.1).mul (IsMonicMonomial.prod _ fun a => IsMonicMonomial.X_pow _ _)⟩
     · rw [Fintype.card_prod, hcard, card_staircase, Finset.prod_insert hcT, mul_comm]
     · rw [fibresGroup_insert]
-      refine IsInvBasis.mul hb (isInvBasis_fibre k (lab · = c)) (fun u => ?_) ?_
-      · exact isInvariant_prod_fibre lab hcT _ (fun a => ((Fintype.equivFin _).symm a).2) _
-      · rintro g ⟨c', hc', hg⟩ g' hg'
+      have hf := isInvBasis_fibre k (lab · = c)
+      have h1 : ∀ u : {u : Fin (Fintype.card {v // lab v = c}) → ℕ // ∀ a, u a ≤ a},
+          IsInvariant (fibresGroup lab T)
+            (∏ a, X ((Fintype.equivFin {v // lab v = c}).symm a : V) ^ u.1 a : MvPolynomial V k) :=
+        fun u => isInvariant_prod_fibre lab hcT _ (fun a => ((Fintype.equivFin _).symm a).2) _
+      have h2 : ∀ g₁ ∈ fibresGroup lab T, ∀ g₂ ∈ fibreGroup (lab · = c), g₁ * g₂ = g₂ * g₁ := by
+        rintro g ⟨c', hc', hg⟩ g' hg'
         exact fibreGroup_commute lab (fun h : c' = c => hcT (h ▸ hc')) hg hg'
+      -- elaborating `IsInvBasis.mul` against the goal times out; elaborate it first
+      have hm := IsInvBasis.mul hb hf h1 h2
+      exact hm
 
 variable (k) [DecidableEq V]
 
@@ -123,7 +130,7 @@ end MonomialArtin
 
 namespace KLR
 
-open TypeA Graded KLRAlgebra PolyRep
+open TypeA Categorification.Graded KLRAlgebra PolyRep
 
 universe uI
 
@@ -185,27 +192,27 @@ the polynomials `(f_w)_i`. -/
 theorem basis_repr_sum_ψw_mul_polNu (c : Perm (Fin (Multiset.card ν)) → Pol k ν)
     (b : Seq ν × Perm (Fin (Multiset.card ν)) × (Fin (Multiset.card ν) →₀ ℕ)) :
     (KLRAlgebra.basis hPQ hP ρ hρ).repr (∑ w, ψw (ρ w) * polNu (c w)) b =
-      coeff b.2.2 (c b.2.1 b.1) := by
+      (c b.2.1 b.1).coeff b.2.2 := by
   classical
   set B := KLRAlgebra.basis hPQ hP ρ hρ
   have key : ∀ (w : Perm (Fin (Multiset.card ν))) (i : Seq ν) (p : MvPolynomial _ k),
       (ψw (ρ w) * pol p * e i : KLRAlgebra k Q ν) =
-        ∑ u ∈ p.support, coeff u p • B (i, w, u) := by
+        ∑ u ∈ p.support, p.coeff u • B (i, w, u) := by
     intro w i p
     conv_lhs => rw [p.as_sum]
     simp only [map_sum, Finset.mul_sum, Finset.sum_mul, B, basis_apply]
     refine Finset.sum_congr rfl fun u _ => ?_
-    rw [show (monomial u (coeff u p) : MvPolynomial _ k) = coeff u p • monomial u 1 by
+    rw [show (monomial u (p.coeff u) : MvPolynomial _ k) = p.coeff u • monomial u 1 by
       rw [smul_monomial, smul_eq_mul, mul_one], map_smul, mul_smul_comm, smul_mul_assoc]
   have hr : (∑ w, ψw (ρ w) * polNu (c w) : KLRAlgebra k Q ν) =
-      ∑ w, ∑ i, ∑ u ∈ (c w i).support, coeff u (c w i) • B (i, w, u) := by
+      ∑ w, ∑ i, ∑ u ∈ (c w i).support, (c w i).coeff u • B (i, w, u) := by
     refine Finset.sum_congr rfl fun w _ => ?_
     rw [polNu_apply, Finset.mul_sum]
     refine Finset.sum_congr rfl fun i _ => ?_
     rw [← mul_assoc, key]
   obtain ⟨i₀, w₀, u₀⟩ := b
   rw [hr]
-  simp only [map_sum, map_smul, Basis.repr_self, Finsupp.coe_finset_sum, Finset.sum_apply,
+  simp only [map_sum, map_smul, Module.Basis.repr_self, Finsupp.coe_finsetSum, Finset.sum_apply,
     Finsupp.smul_apply, Finsupp.single_apply, Prod.mk.injEq, smul_eq_mul, mul_ite, mul_one,
     mul_zero]
   rw [Finset.sum_eq_single w₀ (fun w _ hw => by simp [hw]) (by simp)]
@@ -214,7 +221,7 @@ theorem basis_repr_sum_ψw_mul_polNu (c : Perm (Fin (Multiset.card ν)) → Pol 
   rw [Finset.sum_ite_eq']
   split_ifs with h
   · rfl
-  · exact (not_mem_support_iff.1 h).symm
+  · exact (notMem_support_iff.1 h).symm
 
 include hPQ hP hρ in
 /-- **KL I, Proposition 2.7, graded (right action)**: if `r ∈ R(ν)_d` is written as
@@ -227,7 +234,7 @@ theorem rightExpansion_isWeightedHomogeneous {r : KLRAlgebra k Q ν} {d : ℤ}
     (hc : ∑ w, ψw (ρ w) * polNu (c w) = r) (w : Perm (Fin (Multiset.card ν))) (i : Seq ν) :
     (c w i).IsWeightedHomogeneous (fun a => G.degX (i.lbl a)) (d - G.degW (ρ w) i) := by
   intro u hu
-  rw [G.grade_eq_span hPQ hP ρ hρ d, Basis.mem_span_image] at hr
+  rw [G.grade_eq_span hPQ hP ρ hρ d, Module.Basis.mem_span_image] at hr
   have h1 : (i, w, u) ∈ ((KLRAlgebra.basis hPQ hP ρ hρ).repr r).support := by
     rw [Finsupp.mem_support_iff, ← hc, basis_repr_sum_ψw_mul_polNu]
     exact hu
@@ -251,7 +258,7 @@ elements. (The basis elements are `ψ_{ρ w} x^s 1_j`, standard basis elements, 
 monomial basis of `k[x]` over the invariants of the stabiliser of a sequence.) -/
 theorem exists_homogeneous_centerBasis :
     ∃ (ι : Type uI) (_ : Fintype ι)
-      (B : Basis ι (Subalgebra.center k (KLRAlgebra k Q ν)) (KLRAlgebra k Q ν)) (deg : ι → ℤ),
+      (B : Module.Basis ι (Subalgebra.center k (KLRAlgebra k Q ν)) (KLRAlgebra k Q ν)) (deg : ι → ℤ),
       Fintype.card ι = (Multiset.card ν).factorial ^ 2 ∧ ∀ q, B q ∈ G.grade ν (deg q) := by
   classical
   let i : Seq ν := Classical.arbitrary _

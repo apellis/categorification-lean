@@ -46,7 +46,7 @@ open Equiv MvPolynomial
 
 namespace Categorification
 
-open Graded DirectSum Module
+open Categorification.Graded DirectSum Module
 
 /-! ### Laurent series identities -/
 
@@ -110,7 +110,7 @@ noncomputable def invGrade (d : ℤ) : Submodule k (MvPolynomial (Fin n) k) :=
 variable {k lab wt}
 
 theorem coe_decompose_polGrade (p : MvPolynomial (Fin n) k) (d : ℤ) :
-    letI := weightedGradedAlgebra k (fun v => wt (lab v))
+    let := weightedGradedAlgebra k (fun v => wt (lab v))
     (decompose (polGrade k lab wt) p d : MvPolynomial (Fin n) k) =
       weightedHomogeneousComponent (fun v => wt (lab v)) d p :=
   weightedDecomposition.decompose'_apply k _ p d
@@ -134,7 +134,7 @@ theorem weightedHomogeneousComponent_rename {g : Perm (Fin n)} (hg : lab ∘ g =
     (p : MvPolynomial (Fin n) k) (d : ℤ) :
     weightedHomogeneousComponent (fun v => wt (lab v)) d (rename g p) =
       rename g (weightedHomogeneousComponent (fun v => wt (lab v)) d p) := by
-  letI := weightedGradedAlgebra k (fun v => wt (lab v))
+  let := weightedGradedAlgebra k (fun v => wt (lab v))
   have := decompose_map (ℳ := polGrade k lab wt) (𝒩 := polGrade k lab wt)
     (f := (rename g : MvPolynomial (Fin n) k →ₐ[k] _).toLinearMap)
     (fun _ _ hx => rename_mem_polGrade (wt := wt) hg hx) p d
@@ -159,13 +159,13 @@ theorem invGrade_le (d : ℤ) : invGrade k lab wt d ≤ polGrade k lab wt d := i
 
 theorem span_basisMonomials_univ :
     Submodule.span k ((MvPolynomial.basisMonomials (Fin n) k) '' Set.univ) = ⊤ := by
-  rw [Set.image_univ, Basis.span_eq]
+  rw [Set.image_univ, Module.Basis.span_eq]
 
 variable (hwt : ∀ c, 0 < wt c)
 include hwt
 
 theorem hasGdim_polGrade : HasGdim (polGrade k lab wt) := by
-  letI := weightedGradedAlgebra k (fun v => wt (lab v))
+  let := weightedGradedAlgebra k (fun v => wt (lab v))
   have h := hasGdim_inf_span (polGrade k lab wt) (Finsupp.weight (fun v => wt (lab v)))
     monomial_mem_polGrade Set.univ
     (fun d => by simpa using finite_weight_eq (fun v => hwt (lab v)) d)
@@ -176,7 +176,7 @@ theorem hasGdim_polGrade : HasGdim (polGrade k lab wt) := by
 /-- **The graded dimension of the weighted polynomial ring**:
 `gdim k[x] = ∏_v (1 - q^{wt(lab v)})⁻¹`. -/
 theorem gdim_polGrade : gdim (polGrade k lab wt) = ∏ v, geomSeries (wt (lab v)) := by
-  letI := weightedGradedAlgebra k (fun v => wt (lab v))
+  let := weightedGradedAlgebra k (fun v => wt (lab v))
   have h := fun d => coeff_gdim_inf_span (polGrade k lab wt)
     (Finsupp.weight (fun v => wt (lab v))) (MvPolynomial.basisMonomials (Fin n) k).linearIndependent
     monomial_mem_polGrade Set.univ
@@ -187,7 +187,7 @@ theorem gdim_polGrade : gdim (polGrade k lab wt) = ∏ v, geomSeries (wt (lab v)
   rw [h d, coeff_prod_geomSeries _ (fun v => hwt (lab v))]
 
 theorem hasGdim_invGrade : HasGdim (invGrade k lab wt) := by
-  haveI := hasGdim_polGrade (k := k) (lab := lab) hwt
+  have := hasGdim_polGrade (k := k) (lab := lab) hwt
   exact {
     finiteDimensional := fun d => Submodule.finiteDimensional_of_le (invGrade_le d)
     bddBelow := BddBelow.mono (t := {d | polGrade k lab wt d ≠ ⊥})
@@ -226,10 +226,16 @@ theorem exists_graded_monomial_isInvBasis_fibres (T : Finset J) :
       fun q => b q.1 * ∏ a, X (e a) ^ q.2.1 a,
       fun q => δ q.1 + ∑ a, ((q.2.1 a : ℕ) : ℤ) * wt c, ?_, fun q => ?_, ?_⟩
     · rw [fibresGroup_insert]
-      refine IsInvBasis.mul hb (isInvBasis_fibre k (lab · = c)) (fun u => ?_) ?_
-      · exact isInvariant_prod_fibre lab hcT _ he _
-      · rintro g ⟨c', hc', hg⟩ g' hg'
+      have hf := isInvBasis_fibre k (lab · = c)
+      have h1 : ∀ u : {u : Fin (Fintype.card {v // lab v = c}) → ℕ // ∀ a, u a ≤ a},
+          IsInvariant (fibresGroup lab T) (∏ a, X (e a) ^ u.1 a : MvPolynomial (Fin n) k) :=
+        fun u => isInvariant_prod_fibre lab hcT _ he _
+      have h2 : ∀ g₁ ∈ fibresGroup lab T, ∀ g₂ ∈ fibreGroup (lab · = c), g₁ * g₂ = g₂ * g₁ := by
+        rintro g ⟨c', hc', hg⟩ g' hg'
         exact fibreGroup_commute lab (fun h : c' = c => hcT (h ▸ hc')) hg hg'
+      -- elaborating `IsInvBasis.mul` against the goal times out; elaborate it first
+      have hm := IsInvBasis.mul hb hf h1 h2
+      exact hm
     · have h1 : IsWeightedHomogeneous (fun v => wt (lab v)) (∏ a, X (e a) ^ q.2.1 a : MvPolynomial
           (Fin n) k) (∑ a, ((q.2.1 a : ℕ) : ℤ) * wt c) := by
         have := IsWeightedHomogeneous.prod (R := k) Finset.univ (fun a => X (e a) ^ q.2.1 a)
@@ -263,8 +269,8 @@ include hwt hind hspan hb
 /-- **`k[x]` is graded free over the invariants**: `k[x]_D ≅ ⨁_β (k[x]^{G_lab})_{D - δ β}`. -/
 theorem finrank_polGrade_eq_sum (D : ℤ) :
     finrank k (polGrade k lab wt D) = ∑ β, finrank k (invGrade k lab wt (D - δ β)) := by
-  letI := weightedGradedAlgebra k (fun v => wt (lab v))
-  haveI := hasGdim_invGrade (k := k) (lab := lab) hwt
+  let := weightedGradedAlgebra k (fun v => wt (lab v))
+  have := hasGdim_invGrade (k := k) (lab := lab) hwt
   let Φ : ((β : ι) → invGrade k lab wt (D - δ β)) →ₗ[k] polGrade k lab wt D :=
     { toFun := fun g => ⟨∑ β, (g β : MvPolynomial (Fin n) k) * b β, Submodule.sum_mem _
           fun β _ => by
@@ -289,7 +295,7 @@ theorem finrank_polGrade_eq_sum (D : ℤ) :
       weightedHomogeneousComponent_mem_labelInvariants (hg β) _⟩, Subtype.ext ?_⟩
     show ∑ β, weightedHomogeneousComponent (fun v => wt (lab v)) (D - δ β) (g β) * b β = p
     rw [← decompose_of_mem_same (polGrade k lab wt) p.2, ← hgp, decompose_sum,
-      DFinsupp.finset_sum_apply, Submodule.coe_sum]
+      DFinsupp.finsetSum_apply, Submodule.coe_sum]
     refine Finset.sum_congr rfl fun β _ => ?_
     have := coe_decompose_mul_add_of_right_mem (polGrade k lab wt) (a := g β) (i := D - δ β)
       (hb β)
@@ -301,8 +307,8 @@ theorem finrank_polGrade_eq_sum (D : ℤ) :
 theorem gdim_polGrade_eq_mul :
     gdim (polGrade k lab wt) =
       gdim (invGrade k lab wt) * ∑ β, (HahnSeries.single (R := ℤ) (δ β) 1 : LaurentSeries ℤ) := by
-  haveI := hasGdim_polGrade (k := k) (lab := lab) hwt
-  haveI := hasGdim_invGrade (k := k) (lab := lab) hwt
+  have := hasGdim_polGrade (k := k) (lab := lab) hwt
+  have := hasGdim_invGrade (k := k) (lab := lab) hwt
   ext D
   rw [coeff_gdim, finrank_polGrade_eq_sum hwt hind hspan hb, Finset.mul_sum, HahnSeries.coeff_sum,
     Nat.cast_sum]
@@ -432,9 +438,9 @@ theorem apply_mem_polGrade_of_polNu {f : Pol k ν} (i : Seq ν) {d : ℤ}
   let c : Perm (Fin (Multiset.card ν)) → Pol k ν := fun w => if w = 1 then Pi.single i (f i) else 0
   have hc : ∑ w, ψw (ρ w) * polNu (c w) = (pol (f i) * e i : KLRAlgebra k Q ν) := by
     rw [Finset.sum_eq_single 1 (fun w _ hw => by simp [c, hw]) (by simp)]
-    simp only [c, if_pos rfl, ρ, canWord_one, ψw_nil, one_mul, polNu_single]
+    simp only [c, ite_eq_left rfl, ρ, canWord_one, ψw_nil, one_mul, polNu_single]
   have := G.rightExpansion_isWeightedHomogeneous hPQ hP ρ hρ h1 hc 1 i
-  simp only [c, if_pos rfl, Pi.single_eq_same, ρ, canWord_one, degW, sub_zero] at this
+  simp only [c, ite_eq_left rfl, Pi.single_eq_same, ρ, canWord_one, degW, sub_zero] at this
   exact this
 
 /-- The subspace of `Sym(ν)` of elements whose `i`-component has degree `d`. -/

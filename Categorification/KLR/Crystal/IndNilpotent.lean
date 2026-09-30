@@ -143,7 +143,7 @@ theorem exists_pol_smul_tmul_oneConcat (g : MvPolynomial (Fin (Multiset.card (μ
       fun y => ?_, ?_⟩
     · rw [map_mul, pol_X, mul_smul, x_smul_tmul_oneConcat, hTy]; rfl
     · rw [map_mul, constantCoeff_X, mul_zero, map_zero, sub_zero]
-      exact (indDotAlg_commute hT hD).isNilpotent_mul_right (hnil c)
+      exact (indDotAlg_commute hT hD).isNilpotent_mul_left (hnil c)
 
 variable {P : I → I → MvPolynomial (Fin 2) K}
   (hPQ : ∀ a b, a ≠ b → Q a b = P b a * rename ![1, 0] (P a b))
@@ -190,7 +190,7 @@ theorem smulNilpotent_ind (a : Fin (Multiset.card (μ + ν'))) :
       esymm (Fin (Multiset.card (μ + ν'))) K j * (-(X a : MvPolynomial (Fin (Multiset.card (μ + ν'))) K)) ^ (Multiset.card (μ + ν') - j) = 0 := by
     have h := congrArg (Polynomial.eval (-(X a : MvPolynomial (Fin (Multiset.card (μ + ν'))) K)))
       (MvPolynomial.prod_C_add_X_eq_sum_esymm K (Fin (Multiset.card (μ + ν'))))
-    rw [Polynomial.eval_prod, Polynomial.eval_finset_sum, Fintype.card_fin] at h
+    rw [Polynomial.eval_prod, Polynomial.eval_finsetSum, Fintype.card_fin] at h
     simp only [Polynomial.eval_mul, Polynomial.eval_C, Polynomial.eval_pow, Polynomial.eval_X,
       Polynomial.eval_add] at h
     rw [← h]
@@ -207,7 +207,7 @@ theorem smulNilpotent_ind (a : Fin (Multiset.card (μ + ν'))) :
     refine (Commute.isNilpotent_sum (fun j _ => ?_) (fun j j' _ _ =>
       (Commute.all _ _).map ρ)).neg
     rw [map_mul]
-    refine ((Commute.all _ _).map ρ).isNilpotent_mul_left ?_
+    refine ((Commute.all _ _).map ρ).isNilpotent_mul_right ?_
     rw [hρ]
     exact isNilpotent_pol_ind hnil hPQ hP (esymm_isSymmetric _ _ _)
       (constantCoeff_esymm_succ _ j)

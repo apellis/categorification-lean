@@ -18,6 +18,9 @@ On the path model (`Categorification.Flag.downupEF_W`, `downupFE_W`) both compos
 `E_j F_i 1_μ` is nonzero as soon as the source is (`wok_mid_EF`, `wok_mid_FE`).
 -/
 
+-- Preserve elaboration of semireducible diagram transports.
+set_option backward.isDefEq.respectTransparency false
+
 noncomputable section
 
 namespace Categorification.Flag
@@ -63,23 +66,23 @@ theorem wok_mid_FE {i j : Fin m} (hij : i ≠ j) {μ s : Wt m} {v : List (psig R
   have hμ : Realized N μ := ha.2.2.2.2.realized
   set r := compOf N μ with hrdef
   have hne : i.castSucc ≠ j.castSucc := fun h => hij (Fin.castSucc_injective _ h)
-  have hii : i.castSucc ≠ i.succ := (Fin.castSucc_lt_succ i).ne
+  have hii : i.castSucc ≠ i.succ := (Fin.castSucc_lt_succ (i := i)).ne
   have hpos : 1 ≤ r i.castSucc := by
     have h1 := congrFun hE1 i.castSucc
     have h2 := congrFun hF1 i.castSucc
-    rw [Signed.raise_val, if_neg hne] at h1
-    rw [Signed.raise_val, if_pos rfl] at h2
+    rw [Signed.raise_val, ite_eq_right hne] at h1
+    rw [Signed.raise_val, ite_eq_left rfl] at h2
     split_ifs at h1 with h3 <;> omega
   let d : Comp m := fun k => if k = i.castSucc then r k - 1 else if k = i.succ then r k + 1 else r k
   have hd : StepR (true, i) d r := by
     refine ⟨funext fun k => ?_, ?_⟩
     · simp only [Signed.raise_val, d]
       by_cases h1 : k = i.castSucc
-      · subst h1; simp only [if_true]; omega
+      · subst h1; simp only [ite_true]; omega
       · by_cases h2 : k = i.succ
-        · subst h2; simp only [if_neg hii.symm, if_true]; omega
-        · simp only [if_neg h1, if_neg h2]
-    · simp only [d, if_neg hii.symm, if_true]; omega
+        · subst h2; simp only [ite_eq_right hii.symm, ite_true]; omega
+        · simp only [ite_eq_right h1, ite_eq_right h2]
+    · simp only [d, ite_eq_right hii.symm, ite_true]; omega
   have hr : Realized N (wt RD μ [dn i]) :=
     (realized_of_stepR_up' hμ i hd (wt RD μ [dn i]) (sh_up_dn_cancel i μ)).1
   refine ⟨ha.1, ?_, hr, rfl, ha.2.2.2.2⟩
@@ -101,14 +104,14 @@ theorem slnT_eq_sign (i j : Fin m) :
         intro h
         have := Signed.castSucc_eq_succ_iff.1 h
         omega
-      rw [if_neg hn, e]
+      rw [ite_eq_right hn, e]
       push_cast
       ring
     · have e := Signed.castSucc_eq_succ_iff.1 h'
-      rw [if_pos h', e]
+      rw [ite_eq_left h', e]
       push_cast
       ring
-  · rw [CL.Sln.slnT_of_not_adj K hadj, Units.val_one, if_neg]
+  · rw [CL.Sln.slnT_of_not_adj K hadj, Units.val_one, ite_eq_right]
     intro h
     exact hadj ((slCartan_dot_eq_neg_one_iff j i).2 (Or.inr h))
 

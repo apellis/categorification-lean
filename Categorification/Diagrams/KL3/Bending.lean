@@ -32,6 +32,9 @@ by `flatL`; unbending a bent diagram gives it back (`dg_unbend_sharp`, `dg_unben
 `dg_unbendR_bendR`). These identities use only the interchange law and the zigzag relations.
 -/
 
+-- Preserve elaboration of semireducible diagram transports.
+set_option backward.isDefEq.respectTransparency false
+
 noncomputable section
 
 namespace Categorification.KL3.Diagram
@@ -317,7 +320,7 @@ theorem ptrLL_cons (μ : X) (j : I) (d : List I) (s₀ t₀ : List (Letter I))
   erw [ptrLL_dg μ d (s₀ := up j :: s₀) (t₀ := up j :: t₀) rfl rfl]
   erw [ptrFirst_dg]
   refine dg_list_eq ?_
-  simp only [dns, List.map_cons, rd_cons, capA_append_single, rd_rd, cupA, closeLsL]
+  simp only [dns, List.map_cons, rd_cons, capA_append_single, cupA, closeLsL]
   laysimp
 
 theorem ptrLast_mem_upSpan'' (hSL : SimplyLaced C) [DecidableEq I] (ν : X) (j : I)
@@ -405,14 +408,14 @@ theorem unbendR_dg (μ : X) (b : List I) (s a : List (Letter I)) (A : List (Laye
       dg RD k μ s (a ++ dns b) ((cupA (rd (dns b))).map (whL s []) ++ A.map (whL [] (dns b))) := by
   have := ctxL_dg RD k μ (sChain_cupA_R b s _ rfl) (show SChain ([] ++ a ++ dns b) [] (a ++ dns b)
     by simp) A
-  simpa using this
+  simpa [unbendR] using this
 
 theorem unbendL_dg (μ : X) (d : List I) (s c : List (Letter I)) (B : List (LayerData I)) :
     unbendL RD k μ d s c (dg RD k (wt RD μ []) (rd (dns d) ++ s) c B) =
       dg RD k μ s (dns d ++ c) ((cupA (dns d)).map (whL [] s) ++ B.map (whL (dns d) [])) := by
   have := ctxL_dg RD k μ (sChain_cupA_L d s _ rfl) (show SChain (dns d ++ c ++ []) [] (dns d ++ c)
     by simp) B
-  simpa using this
+  simpa [unbendL] using this
 
 /-! ## Bending and unbending on both sides -/
 

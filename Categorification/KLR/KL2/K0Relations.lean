@@ -110,20 +110,20 @@ theorem sum_neg_one_pow_smul_of_zigzag {N : ℕ} {E Gp Gm : ℕ → A} {dg sh : 
   let Qm : ℕ → K0 𝒜 := fun n =>
     if h : n ≤ N then of (GProj.ofIdempotent (Gm n) (hmI n h) (hm0 n h)) else 0
   have hPQ : ∀ n, n ≤ N → P n = Qp n + Qm n := fun n hn => by
-    simp only [Qp, Qm, dif_pos hn]
+    simp only [Qp, Qm, dite_eq_left hn]
     rw [hP n hn]
     exact of_ofIdempotent_add (hsum n hn) _ _ (hpm n hn) (hmp n hn) _ _ _ _
   have hQ : ∀ n, n < N → Qp n = T (-dg n) • Qm (n + 1) := fun n hn => by
     obtain ⟨x, y, hx, hy, h1, h2⟩ := hxy n hn
-    simp only [Qp, Qm, dif_pos hn.le, dif_pos (show n + 1 ≤ N by omega)]
+    simp only [Qp, Qm, dite_eq_left hn.le, dite_eq_left (show n + 1 ≤ N by omega)]
     exact of_ofIdempotent_eq_T_smul hx hy h1 h2 _ _ _ _
   have hQm0 : Qm 0 = 0 := by
-    simp only [Qm, dif_pos (Nat.zero_le N)]
-    rw [of_ofIdempotent_congr hGm _ (by simp [IsIdempotentElem]) _ (zero_mem _),
+    simp only [Qm, dite_eq_left (Nat.zero_le N)]
+    rw [of_ofIdempotent_congr hGm _ IsIdempotentElem.zero _ (zero_mem _),
       of_ofIdempotent_zero]
   have hQpN : Qp N = 0 := by
-    simp only [Qp, dif_pos le_rfl]
-    rw [of_ofIdempotent_congr hGp _ (by simp [IsIdempotentElem]) _ (zero_mem _),
+    simp only [Qp, dite_eq_left le_rfl]
+    rw [of_ofIdempotent_congr hGp _ IsIdempotentElem.zero _ (zero_mem _),
       of_ofIdempotent_zero]
   set c : ℕ → LaurentPolynomial ℤ := fun n => (-1 : LaurentPolynomial ℤ) ^ n * T (-sh n)
   have hc : ∀ n, n < N → c n * T (-dg n) = -c (n + 1) := fun n hn => by
@@ -224,7 +224,7 @@ theorem hflip_neg' (a : A) : hflip (-a) = -hflip a :=
 variable (k C) in
 /-- The graded projective module `P_t = R(ν) 1_t` of a sequence `t` (KL II grading). -/
 def projSeq2 (t : Seq ν) : GProj ((klGradingDatum2 k C).grade ν) :=
-  GProj.ofIdempotent (e t : A) (e_mul_self t) ((klGradingDatum2 k C).e_mem_grade t)
+  GProj.ofIdempotent (e t : A) (isIdempotentElem_iff.mpr (e_mul_self t)) ((klGradingDatum2 k C).e_mem_grade t)
 
 variable (k C) in
 /-- The graded projective module `R(ν) ψ(1_t^{bs})` for a sequence `t` with divided-power blocks
@@ -385,7 +385,7 @@ theorem K0_projSeq2_expandDiv (d : List (I × ℕ)) (h : (expandDiv d : Multiset
     have hc := (isBlocks_ofList d h).const b hb a ⟨b.1, hb1⟩ h1 h2 le_rfl (by simp only; omega)
     rw [hc, Seq.ofList_lbl, labHalf_of_lt _ (by rw [hm]; exact hb1)]
     obtain ⟨r, hr⟩ := C.dot_self_even ((expandDiv d)[b.1]'(by rw [hm]; exact hb1))
-    simp only [Fin.val_mk]
+    simp only []
     omega
   rw [K0_projSeq2_eq_prod_smul _ (isBlocks_ofList d h) hdeg]
   have := prod_blockFactor2_blocksDiv (C := C) d []
@@ -405,7 +405,7 @@ include hpN ht₀ ht hb hbs in
 theorem isIdempotentElem_hflip_serreIdem (hij : i ≠ j) {n : ℕ} (hn : n ≤ N) :
     IsIdempotentElem (hflip (serreIdem t p N bs n : A)) := by
   have := serreIdem_mul_serreIdem (k := k) (C := C) hpN ht₀ ht hb hbs hn hn hij
-  rw [if_pos rfl] at this
+  rw [ite_eq_left rfl] at this
   unfold IsIdempotentElem
   rw [← hflip_mul, this]
 
@@ -476,12 +476,12 @@ theorem K0_serre_window (hij : i ≠ j) (hN : N = C.dij i j + 1) (sh : ℕ → �
     (dg := fun n => -((N - n - 1 : ℕ) : ℤ) * C.dot i i - C.dot i j)
     (fun n hn => isIdempotentElem_hflip_serreIdem hpN ht₀ ht hb hbs hij hn)
     (fun n hn => hflip_serreIdem_mem_grade hpN ht₀ ht hb hbs hn)
-    (fun n hn => by simp only; rw [← hflip_add, hsum n hn])
-    (fun n _ => by simp only; rw [← hflip_mul, hYX, hflip_zero])
-    (fun n _ => by simp only; rw [← hflip_mul, hXY, hflip_zero])
-    (fun n _ => by simp only; rw [← hflip_mul, hEX])
-    (fun n _ => by simp only; rw [← hflip_mul, hEY])
-    (fun n hn => ?_) (by simp only; rw [hY0, hflip_zero])
+    (fun n hn => by rw [← hflip_add, hsum n hn])
+    (fun n _ => by rw [← hflip_mul, hYX, hflip_zero])
+    (fun n _ => by rw [← hflip_mul, hXY, hflip_zero])
+    (fun n _ => by rw [← hflip_mul, hEX])
+    (fun n _ => by rw [← hflip_mul, hEY])
+    (fun n hn => ?_) (by rw [hY0, hflip_zero])
     (by simp only [hX, hAmN, zero_mul, smul_zero, hflip_zero]) hsh P hP
   refine ⟨((-1 : ℤ) ^ n) • hflip (Ap n), hflip (Am (n + 1)), zsmul_mem (hflip_mem_grade2
     (serreAp_mem_grade hpN ht₀ ht hb hbs (show n + 1 ≤ N by omega))) _, ?_, ?_, ?_⟩
@@ -492,7 +492,6 @@ theorem K0_serre_window (hij : i ≠ j) (hN : N = C.dij i j + 1) (sh : ℕ → �
     have hN' : (N : ℤ) = C.dij i j + 1 := by exact_mod_cast hN
     have e1 : ((N - n - 1 : ℕ) : ℤ) = N - n - 1 := by omega
     have e2 : ((n + 1 - 1 : ℕ) : ℤ) = n := by omega
-    simp only
     rw [e1, e2]
     linear_combination h + (C.dot i i) * hN'
   · simp only [hX]

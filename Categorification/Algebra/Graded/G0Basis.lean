@@ -54,12 +54,12 @@ theorem induction_on {motive : G0 𝒜 → Prop} (x : G0 𝒜) (of : ∀ M, moti
     (neg : ∀ x, motive x → motive (-x)) : motive x := by
   obtain ⟨y, rfl⟩ := mk_surjective x
   induction y using FreeAbelianGroup.induction_on with
-  | C0 => simpa using zero
-  | C1 c =>
+  | zero => simpa using zero
+  | of c =>
     obtain ⟨M, rfl⟩ := GFin.isoClass_surjective c
     exact of M
-  | Cn c h => simpa using neg _ h
-  | Cp y z hy hz => simpa using add _ _ hy hz
+  | neg c h => simpa using neg _ h
+  | add y z hy hz => simpa using add _ _ hy hz
 
 /-- The class of a zero module vanishes. -/
 theorem of_eq_zero_of_subsingleton (M : GFin 𝒜) [Subsingleton M.carrier] : of M = 0 := by
@@ -92,8 +92,8 @@ theorem finrank_homGrade_eq_add_of_shortExact (P : GProj 𝒜) {M N M'' : GFin �
     finrank k (homGrade A P.grading N.grading d) =
       finrank k (homGrade A P.grading M.grading d) +
         finrank k (homGrade A P.grading M''.grading d) := by
-  haveI := HasGdim.of_finiteDimensional N.grading
-  haveI := hasGdim_homGrade (A := A) P.grading N.grading
+  have := HasGdim.of_finiteDimensional N.grading
+  have := hasGdim_homGrade (A := A) P.grading N.grading
   -- composition with `f` and `g`
   let α : homGrade A P.grading M.grading d →ₗ[k] homGrade A P.grading N.grading d :=
     { toFun := fun φ => ⟨S.f ∘ₗ (φ : P.carrier →ₗ[A] M.carrier),
@@ -169,8 +169,8 @@ theorem homRankG_of (P : GProj 𝒜) (M : GFin 𝒜) :
 theorem homRankG_of_ne_zero_iff (P : GProj 𝒜) (M : GFin 𝒜) :
     homRankG P (of M) ≠ 0 ↔
       ∃ f : P.carrier →ₗ[A] M.carrier, PreservesGrading P.grading M.grading f ∧ f ≠ 0 := by
-  haveI := HasGdim.of_finiteDimensional M.grading
-  haveI := hasGdim_homGrade (A := A) P.grading M.grading
+  have := HasGdim.of_finiteDimensional M.grading
+  have := hasGdim_homGrade (A := A) P.grading M.grading
   rw [homRankG_of, Nat.cast_ne_zero, ← Nat.pos_iff_ne_zero,
     Module.finrank_pos_iff_exists_ne_zero]
   constructor
@@ -207,7 +207,7 @@ part for `b = b'` is `END(S_b)_0`. -/
 theorem finrank_homGrade_rep_top (b b' : IndecClass 𝒜) (d : ℤ) :
     finrank k (homGrade A b.rep.grading b'.top.grading d) =
       if b = b' ∧ d = 0 then finrank k (endZero A b.top.grading) else 0 := by
-  haveI := Graded.hasGdim_homGrade (A := A) b.rep.grading b'.top.grading
+  have := Graded.hasGdim_homGrade (A := A) b.rep.grading b'.top.grading
   split_ifs with h
   · obtain ⟨rfl, rfl⟩ := h
     -- `END(S_b)_0 ≅ HOM(P_b, S_b)_0`, `φ ↦ φ ∘ π_b`
@@ -257,7 +257,7 @@ theorem finrank_homGrade_rep_top (b b' : IndecClass 𝒜) (d : ℤ) :
       ((isGradedSimple_top b').shift (-d)) hg hg0 (f' := b'.topMap)
       (fun _ _ hx => (preservesGrading_topMap b') hx) (topMap_ne_zero b')
     obtain rfl := eq_of_iso_rep e
-    haveI := (isIndec_rep b).nontrivial
+    have := (isIndec_rep b).nontrivial
     have := eq_zero_of_gradedEquiv_shift_of_hasGdim (A := A) b.rep.grading e
     exact ⟨rfl, by omega⟩
 
@@ -282,9 +282,9 @@ theorem span_top :
     induction h : finrank k M.carrier using Nat.strong_induction_on generalizing M with
     | _ n ih =>
       by_cases hM : Nontrivial M.carrier
-      · haveI : Module.Finite A M.carrier := Module.Finite.of_restrictScalars_finite k A _
+      · have : Module.Finite A M.carrier := Module.Finite.of_restrictScalars_finite k A _
         obtain ⟨N, hN, hNtop, hmax⟩ := exists_isHomogeneous_maximal (A := A) M.grading
-        letI := quotDecompositionA M.grading N hN
+        let := quotDecompositionA M.grading N hN
         let Nfin : GFin 𝒜 :=
           { carrier := N
             grading := Graded.submodule M.grading N
@@ -339,7 +339,7 @@ open scoped Classical in
 theorem homRankG_smul_of_top (b₀ : IndecClass 𝒜) (d : ℤ) (b : IndecClass 𝒜)
     (p : LaurentPolynomial ℤ) :
     homRankG (b₀.rep.shift d) (p • of (topFin hfd b)) =
-      if b = b₀ then p d * homRankG (b₀.rep.shift d) (of ((topFin hfd b₀).shift d)) else 0 := by
+      if b = b₀ then p.coeff d * homRankG (b₀.rep.shift d) (of ((topFin hfd b₀).shift d)) else 0 := by
   have hvanish : ∀ a : ℤ, homRankG (b₀.rep.shift d) (of ((topFin hfd b).shift a)) ≠ 0 →
       b = b₀ ∧ a = d := by
     intro a ha
@@ -357,7 +357,7 @@ theorem homRankG_smul_of_top (b₀ : IndecClass 𝒜) (d : ℤ) (b : IndecClass 
     · rw [add_zero]
   | C_mul_T a n =>
     rw [map_C_mul_T_smul, T_smul_of, ← LaurentPolynomial.single_eq_C_mul_T,
-      Finsupp.single_apply]
+      AddMonoidAlgebra.coeff_single, Finsupp.single_apply]
     by_cases hb : b = b₀
     · subst hb
       by_cases ha : a = d
@@ -389,7 +389,7 @@ theorem linearIndependent_top :
   rw [Finsupp.sum, Finset.sum_ite_eq'] at h
   split_ifs at h with hmem
   · simpa [hc₀] using h
-  · simp [Finsupp.not_mem_support_iff.1 hmem]
+  · simp [Finsupp.notMem_support_iff.1 hmem]
 
 /-- **KL I, §2.5: `G₀(A)` is a free `ℤ[q, q⁻¹]`-module with basis the classes `[S_b]` of the
 graded simple modules up to shift** (assuming the graded simples are finite-dimensional). -/
@@ -419,7 +419,7 @@ def pairingGdim (P : GProj 𝒜) (M : GFin 𝒜) : LaurentSeries ℤ :=
   gdim (homGrade A P.grading M.grading)
 
 instance (P : GProj 𝒜) (M : GFin 𝒜) : HasGdim (homGrade A P.grading M.grading) :=
-  haveI := HasGdim.of_finiteDimensional M.grading
+  have := HasGdim.of_finiteDimensional M.grading
   hasGdim_homGrade P.grading M.grading
 
 /-- For fixed `M`, the additive map `[P] ↦ gdim HOM(P, M)` on `K₀`. -/
@@ -432,10 +432,10 @@ def pairingRight (M : GFin 𝒜) : K0 𝒜 →+ LaurentSeries ℤ :=
     (by
       rw [K0.relSubgroup, AddSubgroup.closure_le]
       rintro _ ⟨P, P', rfl⟩
-      simp only [SetLike.mem_coe, AddMonoidHom.mem_ker, map_sub, FreeAbelianGroup.lift.of]
+      simp only [SetLike.mem_coe, AddMonoidHom.mem_ker, map_sub, FreeAbelianGroup.lift_apply_of]
       show pairingGdim (P.prod P') M - pairingGdim P M - pairingGdim P' M = 0
       have : pairingGdim (P.prod P') M = pairingGdim P M + pairingGdim P' M := by
-        haveI : HasGdim (homGrade A (P.prod P').grading M.grading) := inferInstance
+        have : HasGdim (homGrade A (P.prod P').grading M.grading) := inferInstance
         exact gdim_eq_add_of_finrank_eq fun d => finrank_homGrade_prod_left d
       rw [this]
       abel)
@@ -444,7 +444,7 @@ omit [GradedAlgebra 𝒜] [HasGdim 𝒜] in
 theorem pairingRight_of (P : GProj 𝒜) (M : GFin 𝒜) :
     pairingRight M (K0.of P) = pairingGdim P M := by
   show QuotientAddGroup.lift _ _ _ (QuotientAddGroup.mk' _ _) = _
-  rw [QuotientAddGroup.mk'_apply, QuotientAddGroup.lift_mk, FreeAbelianGroup.lift.of]
+  rw [QuotientAddGroup.mk'_apply, QuotientAddGroup.lift_mk, FreeAbelianGroup.lift_apply_of]
   rfl
 
 omit [GradedAlgebra 𝒜] [HasGdim 𝒜] in

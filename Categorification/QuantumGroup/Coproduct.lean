@@ -215,7 +215,7 @@ variable (dot v) in
 /-- The iterated coproduct: the algebra homomorphism `'f → 'f ⊗ 'f ⊗ 'f` with
 `θ_i ↦ θ_i ⊗ 1 ⊗ 1 + 1 ⊗ θ_i ⊗ 1 + 1 ⊗ 1 ⊗ θ_i`. -/
 def r3 : PreF K I →ₐ[K] TwCube K I dot v :=
-  MonoidAlgebra.lift K (FreeMonoid I) (TwCube K I dot v)
+  MonoidAlgebra.lift K (TwCube K I dot v) (FreeMonoid I)
     (FreeMonoid.lift fun i => in1 dot v (θ i) + in2 dot v (θ i) + in3 dot v (θ i))
 
 theorem word_of (j : I) : (word (FreeMonoid.of j) : PreF K I) = θ j := rfl
@@ -348,7 +348,7 @@ theorem idTensorR_r_word (w : FreeMonoid I) :
       idTensorR_single]
     simp only [one_smul, word_one, map_one, Prod.fst_one, Prod.snd_one]
     exact mul_one _
-  | mul_of j w ih => rw [r_word_of_mul, idTensorR_gen_mul, ih, r3_word_of_mul]
+  | of_mul j w ih => rw [r_word_of_mul, idTensorR_gen_mul, ih, r3_word_of_mul]
 
 /-- `(r ⊗ 1)(r y)` is the iterated coproduct `r3 y`. -/
 theorem rTensorId_r (y : PreF K I) : rTensorId dot v (r dot v y) = r3 dot v y := by
@@ -401,7 +401,7 @@ theorem r_dpow (i : I) (hev : Even (dot i i)) {a : ℕ} (hq : qfact (vi dot v i)
   rw [dpow, map_smul, r_θ_pow i hk, smul_sum]
   refine sum_congr rfl fun p hp => ?_
   obtain ⟨s, s'⟩ := p
-  rw [mem_antidiagonal] at hp
+  rw [HasAntidiagonal.mem_antidiagonal] at hp
   subst hp
   simp only [dpow, tw_smul_left, tw_smul_right, smul_smul, qbinomCoef]
   congr 1
@@ -410,7 +410,6 @@ theorem r_dpow (i : I) (hev : Even (dot i i)) {a : ℕ} (hq : qfact (vi dot v i)
   have ha := qfact_ne_zero_of_add_left _ hq
   have hb := qfact_ne_zero_of_add_right _ hq
   field_simp
-  exact Or.inl (mul_comm _ _)
 
 end PreF
 

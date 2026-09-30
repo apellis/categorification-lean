@@ -172,7 +172,7 @@ theorem of_prod (M N : GFin 𝒜) : of (M.prod N) = of M + of N :=
 /-- Additive maps out of `G₀` are determined by their values on classes `[M]`. -/
 theorem hom_ext {G : Type*} [AddCommGroup G] {f g : G0 𝒜 →+ G}
     (h : ∀ M : GFin 𝒜, f (of M) = g (of M)) : f = g := by
-  refine QuotientAddGroup.addMonoidHom_ext _ (FreeAbelianGroup.lift.ext _ _ fun c => ?_)
+  refine QuotientAddGroup.addMonoidHom_ext _ (FreeAbelianGroup.lift_ext _ _ fun c => ?_)
   obtain ⟨M, rfl⟩ := isoClass_surjective c
   exact h M
 
@@ -185,7 +185,9 @@ def lift {G : Type*} [AddCommGroup G] (φ : GFin 𝒜 → G)
     (FreeAbelianGroup.lift (Quotient.lift (s := isoSetoid 𝒜) φ fun _ _ ⟨e⟩ => hiso e)) <| by
       rw [relSubgroup, AddSubgroup.closure_le]
       rintro _ ⟨M, N, P, S, rfl⟩
-      simp only [SetLike.mem_coe, AddMonoidHom.mem_ker, map_sub, FreeAbelianGroup.lift.of]
+      simp only [SetLike.mem_coe, AddMonoidHom.mem_ker, map_sub]
+      erw [FreeAbelianGroup.lift_apply_of, FreeAbelianGroup.lift_apply_of,
+        FreeAbelianGroup.lift_apply_of]
       change φ N - φ M - φ P = 0
       rw [hses S]; abel
 
@@ -193,7 +195,7 @@ def lift {G : Type*} [AddCommGroup G] (φ : GFin 𝒜 → G)
     (hiso : ∀ {M N : GFin 𝒜}, M.Iso N → φ M = φ N)
     (hses : ∀ {M N P : GFin 𝒜}, ShortExact M N P → φ N = φ M + φ P) (M : GFin 𝒜) :
     lift φ hiso hses (of M) = φ M :=
-  FreeAbelianGroup.lift.of _ _
+  FreeAbelianGroup.lift_apply_of _ _
 
 /-! ### The grading shift and the `ℤ[q, q⁻¹]`-module structure -/
 
@@ -231,12 +233,12 @@ def qPow : Multiplicative ℤ →* Module.End ℤ (G0 𝒜) where
 
 /-- `G₀(A)` is a `ℤ[q, q⁻¹]`-module, `q` acting by the grading shift `{1}`. -/
 instance : Module (LaurentPolynomial ℤ) (G0 𝒜) :=
-  Module.compHom (G0 𝒜) (AddMonoidAlgebra.lift ℤ ℤ (Module.End ℤ (G0 𝒜)) qPow).toRingHom
+  Module.compHom (G0 𝒜) (AddMonoidAlgebra.lift ℤ (Module.End ℤ (G0 𝒜)) ℤ qPow).toRingHom
 
 /-- `q^a • x = x{a}`. -/
 theorem T_smul (a : ℤ) (x : G0 𝒜) : (LaurentPolynomial.T a : LaurentPolynomial ℤ) • x =
     shiftHom a x := by
-  change AddMonoidAlgebra.lift ℤ ℤ (Module.End ℤ (G0 𝒜)) qPow (LaurentPolynomial.T a) x = _
+  change AddMonoidAlgebra.lift ℤ (Module.End ℤ (G0 𝒜)) ℤ qPow (LaurentPolynomial.T a) x = _
   rw [LaurentPolynomial.T, AddMonoidAlgebra.lift_single, one_smul]
   rfl
 
@@ -255,7 +257,7 @@ def gdim : G0 𝒜 →+ LaurentPolynomial ℤ :=
       S.surjective S.exact
 
 @[simp] theorem gdim_of (M : GFin 𝒜) : gdim (of M) = gdimPoly M.grading :=
-  FreeAbelianGroup.lift.of _ _
+  FreeAbelianGroup.lift_apply_of _ _
 
 /-- `gdim` is `ℤ[q, q⁻¹]`-linear: `gdim (q^a x) = q^a gdim x`. -/
 theorem gdim_T_smul (a : ℤ) (x : G0 𝒜) :

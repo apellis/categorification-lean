@@ -45,7 +45,7 @@ noncomputable section
 namespace Categorification.KL3.Diagram
 
 open CategoryTheory CategoryTheory.Limits StringDiagrams QuantumGroup UDot Presentation
-  GradedBicat KrullSchmidtCat KLR Graded LaurentPolynomial
+  GradedBicat KrullSchmidtCat KLR Categorification.Graded LaurentPolynomial
 open scoped TensorProduct
 
 universe w u v
@@ -191,10 +191,10 @@ theorem transferK0_mem_gammaImg (y : K0 (TG C k ν ν')) :
   let S : Submodule (LaurentPolynomial ℤ) (K0 (TG C k ν ν')) :=
     { carrier := {y | transferK0 D y ∈ gammaImg RD k lam ρ}
       add_mem' := fun {a b} ha hb => by
-        simp only [Set.mem_setOf_eq, map_add] at *; exact add_mem ha hb
-      zero_mem' := by simp only [Set.mem_setOf_eq, map_zero]; exact zero_mem _
+        simp only [Set.mem_ofPred_eq, map_add] at *; exact add_mem ha hb
+      zero_mem' := by simp only [Set.mem_ofPred_eq, map_zero]; exact zero_mem _
       smul_mem' := fun c a ha => by
-        simp only [Set.mem_setOf_eq, transferK0_smul] at *; exact Submodule.smul_mem _ _ ha }
+        simp only [Set.mem_ofPred_eq, transferK0_smul] at *; exact Submodule.smul_mem _ _ ha }
   have hS : ∀ y, y ∈ S ↔ transferK0 D y ∈ gammaImg RD k lam ρ := fun y => Iff.rfl
   have hspan : ∀ μ : Multiset I, Submodule.span (LaurentPolynomial ℤ)
       {z | ∃ (d : List (I × ℕ)) (h : (KLR.KLRAlgebra.expandDiv d : Multiset I) = μ),
@@ -228,8 +228,7 @@ theorem transferK0_mem_gammaImg (y : K0 (TG C k ν ν')) :
   obtain ⟨z, rfl⟩ := ((klGradingDatum2 k C).k0TensorEquiv
     (klQ2_eq_klP2 (o := KL1.stdOrient) KL2.stdOrient_spec) (fun a b hab => klP2_ne_zero a b hab)
     (KLR.KL2Gamma.klGradingDatum2_degX_pos k C) ν ν').surjective y
-  induction z using TensorProduct.induction_on with
-  | zero => rw [map_zero]; exact S.zero_mem
+  induction z using TensorProduct.inductionOn with
   | tmul x x' => rw [GradingDatum.k0TensorEquiv_tmul]; exact hext x x'
   | add a b ha hb => rw [map_add]; exact S.add_mem ha hb
 

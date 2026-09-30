@@ -79,7 +79,7 @@ theorem monoX_single {c : ℕ} (hc : c < n) :
     (monoX (fun a : Fin n => if (a : ℕ) = c then 1 else 0) : MvPolynomial (Fin n) k) =
       X ⟨c, hc⟩ := by
   rw [monoX, Finset.prod_eq_single (⟨c, hc⟩ : Fin n)
-    (fun b _ hb => by rw [if_neg (fun h => hb (Fin.ext h)), pow_zero]) (by simp)]
+    (fun b _ hb => by rw [ite_eq_right (fun h => hb (Fin.ext h)), pow_zero]) (by simp)]
   simp
 
 theorem rename_swap_monoX {j : ℕ} (h : j + 1 < n) {e : Fin n → ℕ}
@@ -126,7 +126,7 @@ theorem parPre_succ {p m : ℕ} (h : p + m < n) :
 theorem rename_swap_parPre {p m j : ℕ} (h : j + 1 < n) (hj : (p ≤ j ∧ j + 1 < p + m) ∨ p + m ≤ j) :
     rename (swap (⟨j, by omega⟩ : Fin n) ⟨j + 1, h⟩) (parPre p m : MvPolynomial (Fin n) k) =
       parPre p m :=
-  rename_swap_monoX h (by (try simp only [Fin.val_mk]); split_ifs <;> omega)
+  rename_swap_monoX h (by (try simp only []); split_ifs <;> omega)
 
 theorem ddw_range_parPre {p m : ℕ} (h : p + m < n) :
     ddw (k := k) (m := n) ((List.range m).map (p + ·)) (parPre p m) = 1 := by
@@ -176,7 +176,7 @@ theorem mem_parWord {p : ℕ} {μ : List ℕ} {j : ℕ} (h : j ∈ parWord p μ)
     · obtain ⟨h1, h2, h3⟩ := ih h
       refine ⟨by omega, by simp only [List.sum_cons]; omega, ?_⟩
       simp only [blockEnd]
-      rw [if_neg (by omega), if_neg (by omega)]
+      rw [ite_eq_right (by omega), ite_eq_right (by omega)]
       exact h3
 
 /-- The product of the `x^δ`'s of the blocks of `μ` (starting at position `p`). -/
@@ -201,7 +201,7 @@ theorem ddw_parWord_parDelta {p : ℕ} {μ : List ℕ} (h : p + μ.sum ≤ n) :
       ddw_mul_of_forall (g := parDeltaOff p m) (fun j hj h' => rename_swap_monoX
         (e := fun a : Fin n => if p ≤ (a : ℕ) then p + m - 1 - a else 0) h' (by
         have := (mem_parWord hj).1
-        (try simp only [Fin.val_mk]); split_ifs <;> omega)),
+        (try simp only []); split_ifs <;> omega)),
       ih (by omega), mul_one, ddw_parW0_parDeltaOff (by omega)]
 
 /-! ### The polynomial `g_μ` -/
@@ -217,7 +217,7 @@ theorem parDelta_mul_parG {μ : List ℕ} (hn : μ.sum = n) :
   refine monoX_congr fun a => ?_
   have h1 := lt_blockEnd 0 μ a
   have h2 := blockEnd_le (p := 0) (μ := μ) (a := a) (by omega)
-  simp only [zero_le, if_true]
+  simp only [zero_le, ite_true]
   omega
 
 theorem parG_mem_labelInvariants (μ : List ℕ) :
@@ -293,7 +293,7 @@ theorem mul_xDelta_mem_coinvIdeal {s : MvPolynomial (Fin n) k} (hs0 : constantCo
   have hmem : s ∈ Ideal.span (X '' (Set.univ : Set (Fin n))) := by
     refine mem_ideal_span_X_image.2 fun m hm => ?_
     by_contra hcon
-    push_neg at hcon
+    push Not at hcon
     have : m = 0 := Finsupp.ext fun i => hcon i trivial
     subst this
     rw [mem_support_iff, ← constantCoeff_eq] at hm
@@ -313,7 +313,7 @@ theorem mul_xDelta_mem_coinvIdeal {s : MvPolynomial (Fin n) k} (hs0 : constantCo
 theorem parPoly_smul_eq_zero_of_mem_nhSocle {μ : List ℕ} {s : MvPolynomial (Fin n) k}
     (hs : s ∈ labelInvariants k (compLab (n := n) μ)) (hs0 : constantCoeff s = 0)
     {v : NHRep k n} (hv : v ∈ nhSocle k n Set.univ (compD μ)) : parPoly k μ s • v = 0 := by
-  haveI := isSimpleModule_nhSocle (k := k) (n := n) (D := compD μ) univ_hS
+  have := isSimpleModule_nhSocle (k := k) (n := n) (D := compD μ) univ_hS
   let f : nhSocle k n Set.univ (compD μ) →ₗ[ParNH k n μ] nhSocle k n Set.univ (compD μ) :=
     { toFun := fun w => ⟨parPoly k μ s • (w : NHRep k n), Submodule.smul_mem _ _ w.2⟩
       map_add' := fun w w' => Subtype.ext (smul_add _ _ _)
@@ -435,7 +435,7 @@ theorem prod_card_filter_lt_add_one {α : Type*} [LinearOrder α] (s : Finset α
       · exact absurd (hm a ha) (not_lt.2 h.le)
       · exact ⟨hb, h⟩
     · rintro ⟨hb, h⟩; exact ⟨Or.inr hb, h⟩
-  rw [Finset.prod_insert hms, Finset.card_insert_of_not_mem hms, Nat.factorial_succ, h1,
+  rw [Finset.prod_insert hms, Finset.card_insert_of_notMem hms, Nat.factorial_succ, h1,
     Finset.prod_congr rfl fun a ha => by rw [h2 a ha], ih]
 
 /-- `∏_a (#{b > a | lab b = lab a} + 1) = ∏_c |lab⁻¹(c)|!`. -/
@@ -460,13 +460,14 @@ theorem card_filter_lt_blockEnd {μ : List ℕ} (hn : μ.sum = n) (a : Fin n) :
   have : (Finset.univ.filter fun b : Fin n => a < b ∧ compLab μ b = compLab μ a).map
       Fin.valEmbedding = Finset.Ioo (a : ℕ) (blockEnd 0 μ a) := by
     ext x
-    simp only [Finset.mem_map, Finset.mem_filter, Finset.mem_univ, true_and, Fin.valEmbedding_apply,
-      Finset.mem_Ioo, compLab]
+    rw [Finset.mem_map, Finset.mem_Ioo]
     constructor
-    · rintro ⟨b, ⟨hab, hb⟩, rfl⟩
+    · rintro ⟨b, hb, rfl⟩
+      obtain ⟨_, hab, hb⟩ := Finset.mem_filter.mp hb
       exact ⟨hab, (blockEnd_eq_iff_lt hab).1 hb⟩
     · rintro ⟨h1, h2⟩
-      refine ⟨⟨x, by omega⟩, ⟨h1, (blockEnd_eq_iff_lt (b := x) h1).2 h2⟩, rfl⟩
+      refine ⟨⟨x, by omega⟩, Finset.mem_filter.mpr ⟨Finset.mem_univ _, ?_⟩, rfl⟩
+      exact ⟨h1, (blockEnd_eq_iff_lt (b := x) h1).2 h2⟩
   rw [← Finset.card_map, this, Nat.card_Ioo]
   omega
 
@@ -489,13 +490,13 @@ theorem youngToCoinv_injective {μ : List ℕ} (hn : μ.sum = n) :
       simp only [Function.comp_apply, G, youngToCoinv_mk, parG, monoX_mul]
     rw [this]
     refine linearIndependent_decStair (fun v w h => funext fun a => Fin.ext ?_) fun v a => ?_
-    · have := congrFun h a; simp only at this; omega
+    · have := congrFun h a; omega
     · have h1 := lt_blockEnd 0 μ a
       have h2 := blockEnd_le (p := 0) (μ := μ) (a := a) (by omega)
       have := (v a).2
       omega
   have hG := hF.of_comp
-  haveI : Nonempty ι := ⟨fun _ => 0⟩
+  have : Nonempty ι := ⟨fun _ => 0⟩
   let b := basisOfLinearIndependentOfCardEqFinrank hG (card_parStair hn)
   rw [← LinearMap.ker_eq_bot, eq_bot_iff]
   intro v hv
@@ -534,7 +535,7 @@ variable (k) in
 as `NH_μ`-modules, via `[p] ↦ [p g_μ]` (a grading shift by `deg g_μ`). -/
 noncomputable def youngSocleEquiv {μ : List ℕ} (hn : μ.sum = n) :
     YoungRep k n μ ≃ₗ[ParNH k n μ] nhSocle k n Set.univ (compD μ) := by
-  haveI := isSimpleModule_nhSocle (k := k) (n := n) (D := compD μ) univ_hS
+  have := isSimpleModule_nhSocle (k := k) (n := n) (D := compD μ) univ_hS
   let f := LinearMap.codRestrict _ (youngHom k hn) (youngHom_mem_nhSocle hn)
   refine LinearEquiv.ofBijective f ⟨fun v w h => youngToCoinv_injective hn
     (congrArg Subtype.val h), ?_⟩
@@ -556,7 +557,7 @@ theorem youngSocleEquiv_mk {μ : List ℕ} (hn : μ.sum = n) (p : MvPolynomial (
 /-- **`L_μ = L(i^{μ_1}) ⊗ ⋯ ⊗ L(i^{μ_r})` is a simple `NH_μ`-module.** -/
 theorem isSimpleModule_youngRep {μ : List ℕ} (hn : μ.sum = n) :
     IsSimpleModule (ParNH k n μ) (YoungRep k n μ) := by
-  haveI := isSimpleModule_nhSocle (k := k) (n := n) (D := compD μ) univ_hS
+  have := isSimpleModule_nhSocle (k := k) (n := n) (D := compD μ) univ_hS
   exact IsSimpleModule.congr (youngSocleEquiv k hn)
 
 /-- **KL I Proposition 3.11 (2), socle part**: `soc(Res^n_μ L_n)` (the sum of all simple
@@ -589,7 +590,7 @@ theorem mem_span_X_of_constantCoeff_eq_zero {s : MvPolynomial (Fin n) k}
     (hs0 : constantCoeff s = 0) : s ∈ Ideal.span (X '' (Set.univ : Set (Fin n))) := by
   refine mem_ideal_span_X_image.2 fun m hm => ?_
   by_contra hcon
-  push_neg at hcon
+  push Not at hcon
   have : m = 0 := Finsupp.ext fun i => hcon i trivial
   subst this
   rw [mem_support_iff, ← constantCoeff_eq] at hm
@@ -605,17 +606,17 @@ theorem dd_mul_parPoly {μ : List ℕ} {j : ℕ} (hj : j ∈ compD μ) (p : MvPo
   rw [map_mul, map_add, map_mul, NHSub.val_mk, val_parPoly, val_parPoly]
   refine LinearMap.ext fun f => ?_
   by_cases h : j + 1 < n
-  · rw [dif_pos h, val_parPoly]
+  · rw [dite_eq_left h, val_parPoly]
     simp only [Module.End.mul_apply, mulPoly_apply, LinearMap.add_apply]
     rw [dd_of_lt h]
     exact ddiff_mul (by simp [Fin.ext_iff]) p f
-  · rw [dif_neg h, map_zero, zero_mul, dd_eq_zero (by omega)]
+  · rw [dite_eq_right h, map_zero, zero_mul, dd_eq_zero (by omega)]
     simp
 
 /-- `NH_μ` acting on a module, as `k`-linear endomorphisms. -/
 noncomputable def parSmulEnd {μ : List ℕ} {M : Type*} [AddCommGroup M] [Module (ParNH k n μ) M]
     [Module k M] [IsScalarTower k (ParNH k n μ) M] (T : ParNH k n μ) : Module.End k M :=
-  DistribMulAction.toLinearMap k M T
+  DistribSMul.toLinearMap k M T
 
 theorem prod_map_parSmulEnd {μ : List ℕ} {M : Type*} [AddCommGroup M] [Module (ParNH k n μ) M]
     [Module k M] [IsScalarTower k (ParNH k n μ) M] {ι : Type*} (f : ι → ParNH k n μ)
@@ -637,8 +638,8 @@ theorem nonempty_linearEquiv_youngRep {μ : List ℕ} (hn : μ.sum = n) {M : Typ
     (hx : ∃ C : ℕ, ∀ ρ : List (Fin n), C < ρ.length → ∀ v : M,
       parPoly k μ (ρ.map fun a => (X a : MvPolynomial (Fin n) k)).prod • v = 0) :
     Nonempty (YoungRep k n μ ≃ₗ[ParNH k n μ] M) := by
-  haveI := isSimpleModule_youngRep (k := k) hn
-  haveI : Nontrivial M := IsSimpleModule.nontrivial (ParNH k n μ) M
+  have := isSimpleModule_youngRep (k := k) hn
+  have : Nontrivial M := IsSimpleModule.nontrivial (ParNH k n μ) M
   obtain ⟨C, hC⟩ := hx
   obtain ⟨v₀, hv₀⟩ := exists_ne (0 : M)
   -- a nonzero vector killed by the `∂_j`
@@ -722,7 +723,9 @@ theorem nonempty_linearEquiv_youngRep {μ : List ℕ} (hn : μ.sum = n) {M : Typ
       · rw [← mul_smul]
         congr 1
         apply NHSub.val_injective
-        rw [map_mul, val_parPoly, val_parPoly, NHSub.val_mk, mulX_apply, map_mul, mulPoly_X]
+        rw [map_mul, val_parPoly, val_parPoly]
+        change mulPoly k n (mulX k n a p) = mulX k n a * mulPoly k n p
+        rw [mulX_apply, map_mul, mulPoly_X]
       · rw [← mul_smul, dd_mul_parPoly hj, add_smul, mul_smul]
         have : NHSub.mk (dd_mem_nhSub (k := k) (n := n) (S := Set.univ) hj) • u = 0 := hu ⟨j, hj⟩
         rw [this, smul_zero, add_zero]
@@ -799,28 +802,48 @@ theorem coinvMul_X_eq_neg_sum (c : Fin n) (v : Coinv k n) :
 
 theorem resD_subset_compD : {j : ℕ | j + 2 < n} ⊆ compD [n - 1, 1] := by
   intro j hj
-  simp only [Set.mem_setOf_eq] at hj
-  simp only [compD, Set.mem_setOf_eq, blockEnd]
+  simp only [Set.mem_ofPred_eq] at hj
+  simp only [compD, Set.mem_ofPred_eq, blockEnd]
   split_ifs <;> omega
 
 theorem compD_subset_resD {j : ℕ} (hj : j ∈ compD [n - 1, 1]) (h : j + 1 < n) : j + 2 < n := by
-  simp only [compD, Set.mem_setOf_eq, blockEnd] at hj
+  simp only [compD, Set.mem_ofPred_eq, blockEnd] at hj
   split_ifs at hj <;> omega
 
 theorem resNH_le_compD {S : Set (Fin n)} :
     nhSub k n S {j | j + 2 < n} ≤ nhSub k n S (compD [n - 1, 1]) :=
-  Algebra.adjoin_mono (Set.union_subset_union le_rfl (Set.image_subset _ resD_subset_compD))
+  Algebra.adjoin_mono (Set.union_subset_union le_rfl (Set.image_mono resD_subset_compD))
 
 variable (k n) in
 /-- The action of `NH_{n-1}` on `L_{(n-1,1)}`. -/
 noncomputable def youngResAct : ResNH k n →ₐ[k] Module.End k (YoungCoinv k n [n - 1, 1]) where
   toFun T := (youngSub k n [n - 1, 1]).mapQ (youngSub k n [n - 1, 1]) (NHSub.val k n _ _ T)
     fun _ hp => nhSub_stable_youngSub (resNH_le_compD T.2) hp
-  map_one' := by ext; simp
-  map_mul' T T' := by ext; simp
-  map_zero' := by ext; simp
-  map_add' T T' := by ext; simp
-  commutes' c := by ext; simp [Module.algebraMap_end_apply]
+  map_one' := by
+    apply LinearMap.ext
+    intro v
+    obtain ⟨p, rfl⟩ := Submodule.Quotient.mk_surjective _ v
+    rfl
+  map_mul' T T' := by
+    apply LinearMap.ext
+    intro v
+    obtain ⟨p, rfl⟩ := Submodule.Quotient.mk_surjective _ v
+    rfl
+  map_zero' := by
+    apply LinearMap.ext
+    intro v
+    obtain ⟨p, rfl⟩ := Submodule.Quotient.mk_surjective _ v
+    rfl
+  map_add' T T' := by
+    apply LinearMap.ext
+    intro v
+    obtain ⟨p, rfl⟩ := Submodule.Quotient.mk_surjective _ v
+    rfl
+  commutes' c := by
+    apply LinearMap.ext
+    intro v
+    obtain ⟨p, rfl⟩ := Submodule.Quotient.mk_surjective _ v
+    rfl
 
 /-- `L_{(n-1,1)}` restricted to `NH_{n-1}`. -/
 noncomputable instance : Module (ResNH k n) (YoungRep k n [n - 1, 1]) :=
@@ -864,10 +887,12 @@ theorem parNH_smul_mem_resSocle (T : ParNH k n [n - 1, 1]) {w : NHRep k n}
           have := R.smul_mem (NHSub.mk (dd_mem_nhSub (k := k) (n := n)
             (S := {a : Fin n | (a : ℕ) + 1 < n}) (show j ∈ {j | j + 2 < n} from h'))) hw
           rw [nhSub_smul_def, nhSubAct_mk, NHSub.val_mk] at this
-          rw [nhSub_smul_def, nhSubAct_mk, NHSub.val_mk]
+          rw [nhSub_smul_def, nhSubAct_mk]
           exact this
         · have : (NHSub.mk (Algebra.subset_adjoin (Or.inr ⟨j, hj, rfl⟩)) : ParNH k n [n - 1, 1]) =
-              0 := NHSub.val_injective (by rw [NHSub.val_mk, map_zero, dd_eq_zero (by omega)])
+              0 := NHSub.val_injective (by
+                change dd k n j = 0
+                exact dd_eq_zero (by omega))
           rw [this, zero_smul]
           exact zero_mem _
     | algebraMap c =>
@@ -880,13 +905,13 @@ theorem parNH_smul_mem_resSocle (T : ParNH k n [n - 1, 1]) {w : NHRep k n}
     | add U V hU hV ihU ihV =>
       intro w hw
       have : (NHSub.mk (add_mem hU hV) : ParNH k n [n - 1, 1]) = NHSub.mk hU + NHSub.mk hV :=
-        NHSub.val_injective (by rw [map_add, NHSub.val_mk, NHSub.val_mk, NHSub.val_mk])
+        NHSub.val_injective (by rfl)
       rw [this, add_smul]
       exact R.add_mem (ihU w hw) (ihV w hw)
     | mul U V hU hV ihU ihV =>
       intro w hw
       have : (NHSub.mk (mul_mem hU hV) : ParNH k n [n - 1, 1]) = NHSub.mk hU * NHSub.mk hV :=
-        NHSub.val_injective (by rw [map_mul, NHSub.val_mk, NHSub.val_mk, NHSub.val_mk])
+        NHSub.val_injective (by rfl)
       rw [this, mul_smul]
       exact ihU _ (ihV w hw)
   exact key _ (NHSub.val_mem T) w hw
@@ -911,7 +936,7 @@ variable (k) in
 noncomputable def resSocleEquiv (hn : 1 ≤ n) :
     YoungRep k n [n - 1, 1] ≃ₗ[ResNH k n]
       nhSocle k n {a : Fin n | (a : ℕ) + 1 < n} {j | j + 2 < n} := by
-  haveI := isSimpleModule_nhSocle (k := k) (n := n) (D := {j | j + 2 < n}) resNH_hS
+  have := isSimpleModule_nhSocle (k := k) (n := n) (D := {j | j + 2 < n}) resNH_hS
   let f : YoungRep k n [n - 1, 1] →ₗ[ResNH k n]
       nhSocle k n {a : Fin n | (a : ℕ) + 1 < n} {j | j + 2 < n} :=
     { toFun := fun v => ⟨youngHom k (sum_pred_one hn) v,

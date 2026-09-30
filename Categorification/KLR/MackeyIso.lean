@@ -146,7 +146,7 @@ theorem exists_quad_of_smul {d : Perm (Fin (Multiset.card (ν + ν')))}
     have hx := x.2
     have := key ⟨x.val, by omega⟩
     have hdp : d ⟨x.val, by omega⟩ = ⟨x.val, by omega⟩ := by
-      ext; rw [hv, if_pos (by simp; omega)]
+      ext; rw [hv, ite_eq_left (by simp; omega)]
     rw [hdp, lbl4_1 _ _ _ _ _ _ _ (by simp), lbl4_1 _ _ _ _ _ _ _ (by simp; omega)] at this
     exact this.trans (i₁.apply_congr (by simp))
   have hβ : β' = β := by
@@ -154,7 +154,7 @@ theorem exists_quad_of_smul {d : Perm (Fin (Multiset.card (ν + ν')))}
     have hx := x.2
     have := key ⟨Multiset.card ν'' + x.val, by omega⟩
     have hdp : d ⟨Multiset.card ν'' + x.val, by omega⟩ = ⟨a + x.val, by omega⟩ := by
-      ext; rw [hv, if_neg (by simp; omega), if_neg (by simp), if_pos (by simp; omega)]
+      ext; rw [hv, ite_eq_right (by simp; omega), ite_eq_right (by simp), ite_eq_left (by simp; omega)]
       simp; omega
     rw [hdp, lbl4_2 _ _ _ _ _ _ _ (by simp; omega) (by simp; omega),
       lbl4_3 _ _ _ _ _ _ _ (by simp) (by simp; omega)] at this
@@ -165,7 +165,7 @@ theorem exists_quad_of_smul {d : Perm (Fin (Multiset.card (ν + ν')))}
     have hx := x.2
     have := key ⟨a + x.val, by omega⟩
     have hdp : d ⟨a + x.val, by omega⟩ = ⟨Multiset.card ν + x.val, by omega⟩ := by
-      ext; rw [hv, if_neg (by simp; omega), if_pos (by simp; omega)]
+      ext; rw [hv, ite_eq_right (by simp; omega), ite_eq_left (by simp; omega)]
       simp; omega
     rw [hdp, lbl4_3 _ _ _ _ _ _ _ (by simp) (by simp),
       lbl4_2 _ _ _ _ _ _ _ (by simp; omega) (by simp; omega)] at this
@@ -177,7 +177,7 @@ theorem exists_quad_of_smul {d : Perm (Fin (Multiset.card (ν + ν')))}
     have := key ⟨Multiset.card ν'' + c + x.val, by omega⟩
     have hdp : d ⟨Multiset.card ν'' + c + x.val, by omega⟩ =
         ⟨Multiset.card ν'' + c + x.val, by omega⟩ := by
-      ext; rw [hv, if_neg (by simp; omega), if_neg (by simp; omega), if_neg (by simp; omega)]
+      ext; rw [hv, ite_eq_right (by simp; omega), ite_eq_right (by simp; omega), ite_eq_right (by simp; omega)]
     rw [hdp, lbl4_4 _ _ _ _ _ _ _ (by simp; omega), lbl4_4 _ _ _ _ _ _ _ (by simp; omega)] at this
     refine (i₄'.apply_congr (by simp; omega)).trans (this.trans (i₄.apply_congr ?_))
     simp; omega
@@ -191,7 +191,7 @@ section Surj
 theorem castAlg_oneConcat_mul_e {α γ μ : Multiset I} (h₃ : α + γ = μ) (i₁ : Seq α) (i₃ : Seq γ) :
     castAlg Q h₃ (oneConcat Q α γ) * e (seqCast h₃ (i₁.append i₃)) =
       e (seqCast h₃ (i₁.append i₃)) := by
-  rw [oneConcat, castAlg_eSum, eSum_mul_e, if_pos (Finset.mem_image_of_mem _
+  rw [oneConcat, castAlg_eSum, eSum_mul_e, ite_eq_left (Finset.mem_image_of_mem _
     (append_mem_concatSet i₁ i₃))]
 
 theorem quadBot_one_mul_e (q : MackeyQuad ν ν' ν'' ν''') (i₁ : Seq q.α) (i₂ : Seq q.β)
@@ -224,14 +224,14 @@ def surjSub (c : ℕ) : Submodule k (KLRAlgebra k Q (ν + ν')) where
     subquotOf h r hr ∈ mackeyImage Q h c}
   add_mem' := by
     rintro r s ⟨hr, hr'⟩ ⟨hs, hs'⟩
-    exact ⟨add_mem hr hs, by rw [subquotOf_add]; exact add_mem hr' hs'⟩
+    exact ⟨add_mem hr hs, by rw [subquotOf_add h hr hs]; exact add_mem hr' hs'⟩
   zero_mem' := ⟨zero_mem _, by
     rw [show subquotOf h (0 : KLRAlgebra k Q (ν + ν')) (zero_mem _) = 0 from
       Submodule.Quotient.mk_zero _]
     exact zero_mem _⟩
   smul_mem' := by
     rintro a r ⟨hr, hr'⟩
-    exact ⟨Submodule.smul_mem _ a hr, by rw [subquotOf_smul]; exact Submodule.smul_mem _ a hr'⟩
+    exact ⟨Submodule.smul_mem _ a hr, by rw [subquotOf_smul h a hr]; exact Submodule.smul_mem _ a hr'⟩
 
 /-- **KL I, Proposition 2.18 (surjectivity)**: `F_c / F_{c-1}` is spanned by the images of the
 balanced tensor products `(_ν R_{ν-λ,λ} ⊗ _{ν'} R_{…}) ⊗_{R'} (…)` with `|λ| = c`. -/
@@ -308,7 +308,7 @@ theorem mackeyImage_eq_top (c : ℕ) : mackeyImage Q h c = ⊤ := by
       have h0 : concat Q ν ν' t * ψw (canWord _ d) *
           botConcat Q h (((e s₁ : KLRAlgebra k Q ν'') ⊗ₜ (e s₂ : KLRAlgebra k Q ν''')) * t') =
           0 := by
-        rw [hsplit, oneConcat, eSum_mul_e, if_neg hin, mul_zero, zero_mul, zero_mul]
+        rw [hsplit, oneConcat, eSum_mul_e, ite_eq_right hin, mul_zero, zero_mul, zero_mul]
       rw [subquotOf_congr h h0 hmem (zero_mem _),
         show subquotOf h (0 : KLRAlgebra k Q (ν + ν')) (zero_mem _) = 0 from
           Submodule.Quotient.mk_zero _]

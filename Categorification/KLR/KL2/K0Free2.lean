@@ -17,7 +17,7 @@ the integral map `γ` (`KL2Gamma.gammaInt2`).
 
 namespace Categorification.KLR
 
-open Graded QuantumGroup KLGamma
+open Categorification.Graded QuantumGroup KLGamma
 
 variable {I : Type*} [DecidableEq I] (k : Type*) [Field k] (C : CartanDatum I)
 
@@ -35,7 +35,7 @@ theorem K0R_free2 : Module.Free (LaurentPolynomial ℤ) (klGradingDatum2 k C).K0
 attribute [local instance] qToVAlgebra in
 /-- **`K₀(R) → ℚ(v) ⊗_{ℤ[q, q⁻¹]} K₀(R)` is injective** for the KL II rings over a field. -/
 theorem toK0Q2_injective : Function.Injective (toK0Q2 k C) := by
-  haveI := K0R_free2 k C
+  have := K0R_free2 k C
   exact Algebra.TensorProduct.includeRight_injective (A := RatFunc ℚ) qToV_injective
 
 /-- The integral `γ : _𝒜 f → K₀(R)` for an arbitrary symmetric Cartan datum over a field,

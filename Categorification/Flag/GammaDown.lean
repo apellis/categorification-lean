@@ -37,6 +37,8 @@ identifications (`crossDn`):
   otherwise), which together with `crossDn_rules` give (6.9) on all `ξ_i^{α₁} ⊗ ξ_j^{α₂}`.
 -/
 
+set_option backward.isDefEq.respectTransparency false
+
 noncomputable section
 
 namespace Categorification.Flag
@@ -92,8 +94,8 @@ theorem swapHom_swapInv : (swapHom N M).comp (swapInv N M) = RingHom.id _ :=
 
 /-- **`M^op ⊗ N^op ≅ (N ⊗ M)^op`**, `m ⊗ n ↦ n ⊗ m`. -/
 def swapIso : BIso ((opB M).tensor (opB N)) (opB (N.tensor M)) :=
-  BIso.ofRingEquiv (RingEquiv.ofHomInv (swapHom N M) (swapInv N M) (swapInv_swapHom N M)
-      (swapHom_swapInv N M))
+  BIso.ofRingEquiv (RingEquiv.ofRingHom (swapHom N M) (swapInv N M) (swapHom_swapInv N M)
+      (swapInv_swapHom N M))
     (fun c => by
       show swapHom N M (tmul (opB M) (opB N) (M.right c) 1) = tmul N M 1 (M.right c)
       rw [swapHom_tmul])
@@ -303,11 +305,11 @@ theorem crossDn_rules : DotRules (crossDn K i j h₁ h₂ h₁' h₂') (-tauDn K
     exact this.trans (add_comm _ _)
   · ext y
     have := BHom.congr_apply tR y
-    simp only [BHom.comp_apply, BHom.neg_apply, BHom.mulB_apply, BHom.map_neg, mul_neg] at this ⊢
+    simp only [BHom.comp_apply, BHom.neg_apply, BHom.mulB_apply, mul_neg] at this ⊢
     exact congrArg Neg.neg this
   · ext y
     have := BHom.congr_apply tL y
-    simp only [BHom.comp_apply, BHom.neg_apply, BHom.mulB_apply, BHom.map_neg, mul_neg] at this ⊢
+    simp only [BHom.comp_apply, BHom.neg_apply, BHom.mulB_apply, mul_neg] at this ⊢
     exact congrArg Neg.neg this
 
 /-- **The value of the downward crossing at `1`** (KL III (6.9) at `α₁ = α₂ = 0`): `0` if
@@ -344,7 +346,7 @@ theorem crossDn_eval (q : MvPolynomial (Fin 2) K) :
   rw [mul_one, BHom.neg_apply, tauDn_one] at this
   rw [this]
   split_ifs with h
-  · rw [crossDn_one, if_pos h, mul_zero, add_zero, mul_neg, mul_one]
+  · rw [crossDn_one, ite_eq_left h, mul_zero, add_zero, mul_neg, mul_one]
   · rw [neg_zero, mul_zero, zero_add]
 
 end Down

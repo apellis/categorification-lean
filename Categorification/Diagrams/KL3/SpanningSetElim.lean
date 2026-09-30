@@ -128,7 +128,7 @@ theorem MvChain.wh (P Q : List (Letter I)) : ∀ {s t : List (Letter I)} {ms : L
     · rw [Mv.src_eq, Mv.src_eq]; simp
     · have := MvChain.wh P Q h
       rw [Mv.tgt_eq] at this ⊢
-      simpa using this
+      simpa [mvWh] using this
 
 theorem MvChain.append : ∀ {s m t : List (Letter I)} {ms ns : List (Mv I)},
     MvChain s ms m → MvChain m ns t → MvChain s (ms ++ ns) t
@@ -206,7 +206,7 @@ theorem exists_mv_of_dots : ∀ (D : List (LayerData I)) {s t : List (Letter I)}
     | dot l =>
       refine ⟨Mv.dot a l b :: ns, by simp [mvLay, h₁.symm, Mv.lay], ⟨?_, h₂⟩, ?_⟩
       · simpa [Mv.src] using h.1
-      · simpa [mvLay, ccnt_append, Mv.lay] using h₃
+      · simpa [mvLay, ccnt_cons, Shape.isCross, Mv.lay] using h₃
     | _ => exact absurd (hD _ List.mem_cons_self) (by simp [Shape.isDot])
 
 /-! ## Positions of a move relative to the block -/
@@ -353,7 +353,7 @@ theorem pushHyp_nil (c : ℕ) : PushHyp RD k μ w₀ c [] := by
   subst h'
   refine Submodule.mem_sup_right ?_
   have := dg_mem_thruShort (RD := RD) (k := k) (μ := μ) (w₀ := P ++ [l.dual] ++ S ++ [l] ++ Q)
-    (v := P ++ S ++ Q) (u := P ++ S ++ Q) ((capBlk S l d).map (whL P Q)) [] (by simp; omega)
+    (v := P ++ S ++ Q) (u := P ++ S ++ Q) ((capBlk S l d).map (whL P Q)) [] (by simp)
   rw [dg_nil, Category.comp_id] at this
   simpa using this
 
@@ -497,7 +497,7 @@ theorem push_dot {c : ℕ} (hF : LowHyp RD k μ w₀ c) {ms : List (Mv I)}
   rw [hcm] at hc ⊢
   rcases posDot (u := u) (x := x) (v := v) htgt with
     ⟨R, hP, hv⟩ | ⟨hu, hx, hv⟩ | ⟨S₁, S₂, hS, hu, hv⟩ | ⟨hu, hx, hv⟩ | ⟨R, hQ, hu⟩
-  · exact push_disjL hIH hms d R hP hv (by simpa using hc)
+  · exact push_disjL hIH hms d R hP hv (by simpa [hcm] using hc)
   · -- a dot on `A`
     subst u x v
     rw [List.append_assoc (mvLay ms)]
@@ -547,9 +547,9 @@ theorem push_dot {c : ℕ} (hF : LowHyp RD k μ w₀ c) {ms : List (Mv I)}
     · refine push_of_sub hF hIH (P := P) (S := s :: S) (Q := Q) (l := l) (d := d + 1)
         (c' := ccnt (mvLay ms) + (s :: S).length - 1) ?hms22 [] rfl ?E22 ?h122 ?h222 ?h322 ?h422
       case hms22 => simpa [Mv.src] using hms
-      case h122 => simp only [List.length_append, List.length_cons, List.length_nil] at hc ⊢; omega
-      case h222 => simp only [List.length_append, List.length_cons, List.length_nil] at hc ⊢; omega
-      case h322 => simp only [List.length_append, List.length_cons, List.length_nil] at hc ⊢; omega
+      case h122 => simp only [List.length_cons] at hc ⊢; omega
+      case h222 => simp only [List.length_cons] at hc ⊢; omega
+      case h322 => simp only [List.length_cons] at hc ⊢; omega
       case h422 => simp
       refine dg_mod_free (mvLay ms) [] P Q (capBlk_dotB (RD := RD) (k := k) _ (s :: S) l d) ?_ ?_
         (by simp) (by simp [capBlk]) ?_ ?_ (by simp)
@@ -558,7 +558,7 @@ theorem push_dot {c : ℕ} (hF : LowHyp RD k μ w₀ c) {ms : List (Mv I)}
       · exact sChain_capBlk _ l (d + 1)
       · simp only [Mv.lay]; wnf
       · simp
-  · exact push_disjR hIH hms d R hQ hu (by simpa using hc)
+  · exact push_disjR hIH hms d R hQ hu (by simpa [hcm] using hc)
 
 /-- **The cap push through a crossing.** -/
 theorem push_cross {c : ℕ} (hF : LowHyp RD k μ w₀ c) {ms : List (Mv I)}
@@ -739,7 +739,7 @@ theorem push_cup {c : ℕ} (hF : LowHyp RD k μ w₀ c) {ms : List (Mv I)}
     rw [hcm] at hc ⊢
     rw [List.append_assoc (mvLay ms)]
     refine capT_of_leL hF (c' := ccnt (mvLay ms) + ((S₁ ++ S₂).length + 1))
-      (by simp at hc ⊢; omega) (by simp; omega) ?_
+      (by simp at hc ⊢; omega) (by simp) ?_
     refine dg_mem_free (mvLay ms) [] P Q (capBlk_cupSS (RD := RD) (k := k) _ S₁ S₂ l' l d) ?_
       (by simp) ?_ (by simp)
     · exact (show SChain _ [([l.dual] ++ S₁, .cup l', S₂ ++ [l])] _ from ⟨by simp, by simp⟩).append

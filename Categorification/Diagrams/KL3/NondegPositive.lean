@@ -84,6 +84,7 @@ section Bend
 variable {I : Type u} {C : CartanDatum I} {X Y : Type v} [AddCommGroup X] [AddCommGroup Y]
   {RD : RootDatum C X Y} {k : Type w} [Field k]
 
+set_option backward.isDefEq.respectTransparency false in
 /-- **Bending the source up on the left** (biadjointness): `HOM_U(E_s 1_μ, E_t 1_μ)_d ≅
 HOM_U(1_μ, E_{s* t} 1_μ)_{d + c}` with `c` the degree of the nested cups `1 → s* s`. -/
 theorem finrank_homD_bend (μ : X) (s t : List (Letter I)) (d : ℤ) :
@@ -98,7 +99,7 @@ theorem finrank_homD_bend (μ : X) (s t : List (Letter I)) (d : ℤ) :
   let G := ctxL RD k μ s t [] s [] ((capA (rd s)).map (whL [] t)) [] (rd s ++ t)
   have keyGF : G.comp F = LinearMap.id := by
     refine hom_ext_dg RD k μ _ _ (fun A hA => ?_)
-    simp only [LinearMap.comp_apply, LinearMap.id_apply, F, G]
+    dsimp only [LinearMap.comp_apply, LinearMap.id_apply, F, G]
     erw [ctxL_dg_nil RD k μ hpre hpostF, ctxL_dg_nil RD k μ hpreG hpostG]
     have e := dg_unbend_flat (RD := RD) (k := k) (rd s) [] [] t (M := A) (by simpa using hA) μ
     rw [rd_rd, rd_nil] at e
@@ -107,7 +108,7 @@ theorem finrank_homD_bend (μ : X) (s t : List (Letter I)) (d : ℤ) :
     simp [flatL]
   have keyFG : F.comp G = LinearMap.id := by
     refine hom_ext_dg RD k μ _ _ (fun M hM => ?_)
-    simp only [LinearMap.comp_apply, LinearMap.id_apply, F, G]
+    dsimp only [LinearMap.comp_apply, LinearMap.id_apply, F, G]
     erw [ctxL_dg_nil RD k μ hpreG hpostG, ctxL_dg_nil RD k μ hpre hpostF]
     have e := dg_unbend_sharp (RD := RD) (k := k) (rd s) [] [] t (M := M) (by simpa using hM) μ
     refine Eq.trans (dg_list_eq ?_) e
@@ -125,7 +126,7 @@ theorem sdegSum_cupA_rd (μ : X) (s : List (Letter I)) :
   induction s using List.reverseRecOn generalizing μ with
   | nil => simp [sdegSum, rcx]
   | append_singleton s' x ih =>
-    have hrd : rd (s' ++ [x]) = x.dual :: rd s' := by simp [rd_singleton]
+    have hrd : rd (s' ++ [x]) = x.dual :: rd s' := by simp
     rw [hrd, cupA, sdegSum, List.map_cons, List.sum_cons, ← sdegSum, sdegSum_map_whL,
       Letter.dual_dual, ih, rcx_append]
     have hm : (fun k => ip RD k (wt RD μ (s' ++ [x])) - aS C k s') =
@@ -186,7 +187,7 @@ def OneSidedEq (u : List (Letter I)) : Prop :=
 theorem homDim_smul_eq {μ : X} (u : List (Letter I)) (hu : wt RD μ u = μ) (t : ℤ)
     (h : LaurentPolynomial ℤ) :
     homDim hSL (nfObj RD k μ μ [] rfl t) (h • eC RD k μ μ u hu) =
-      h.sum fun n c => c * (finrank k (HomD RD k μ [] u (t - n)) : ℤ) :=
+      h.coeff.sum fun n c => c * (finrank k (HomD RD k μ [] u (t - n)) : ℤ) :=
   homDim_smul_eC hSL [] u rfl hu t h
 
 include hSL in
@@ -219,7 +220,7 @@ theorem oneSidedEq_comm (a b : List (Letter I)) (i j : I)
     have ha' : wt RD ν a = μ := by
       rw [← wt_up_dn RD j ν, ← hsplit]; exact hw1
     have hw3 : wt RD μ (a ++ [] ++ b) = μ := by rw [hsplit]; exact ha'
-    rw [if_pos rfl]
+    rw [ite_eq_left rfl]
     have hq : ((qi C KL3.qK j : (RatFunc ℚ)ˣ) : RatFunc ℚ) - (((qi C KL3.qK j)⁻¹ : (RatFunc ℚ)ˣ) :
         RatFunc ℚ) ≠ 0 := vQ_zpow_sub_inv_ne_zero (di_pos C j).ne'
     have hwl : wl C (RD.ellOf μ) b j = ip RD j ν := by rw [wl_ellOf_eq']
@@ -257,7 +258,7 @@ theorem oneSidedEq_comm (a b : List (Letter I)) (i j : I)
       congr 1
       refine Finset.sum_congr rfl fun n _ => ?_
       rw [hB]; push_cast; ring
-  · rw [if_neg hji, add_zero]
+  · rw [ite_eq_right hji, add_zero]
     have hK := eC_ij (k := k) a b i j (Ne.symm hji) (by rw [← hsplit]; exact hw1) rfl rfl hw1 hw2
     rw [hK, ← fr _ hw2]
     exact h1 μ hw2 t
@@ -270,7 +271,7 @@ theorem coeff_sform_eq (μ : X) (s w : List (Letter I)) (t : ℤ) :
     (piLS C * toLS (UDot.KL3.sform RD (E1 RD vQ s μ) (E1 RD vQ w μ))).coeff t =
       (piLS C * toLS (φ C KL3.qK (KL3.cK C) (RD.ellOf μ) (ew (rd s ++ w)))).coeff
         (t - rcx C (wl C (RD.ellOf μ) w) s) := by
-  rw [← (UDot.KL3.thm_2_7 C RD s w μ μ).1, UDot.KL3.form, formUD_E1_E1, if_pos rfl, B_ew_ew,
+  rw [← (UDot.KL3.thm_2_7 C RD s w μ μ).1, UDot.KL3.form, formUD_E1_E1, ite_eq_left rfl, B_ew_ew,
     map_mul, qp, toLS_vQ_zpow, mul_left_comm, ← rd_eq_ρW]
   have := HahnSeries.coeff_single_mul_add (r := (1 : ℚ))
     (x := piLS C * toLS (φ C KL3.qK (KL3.cK C) (RD.ellOf μ) (ew (rd s ++ w))))

@@ -71,9 +71,9 @@ def moveLab : V → J := Function.update lab v₀ j'
 
 variable {lab v₀ j'}
 
-@[simp] theorem splitLab_self : splitLab lab v₀ v₀ = none := if_pos rfl
+@[simp] theorem splitLab_self : splitLab lab v₀ v₀ = none := ite_eq_left rfl
 
-theorem splitLab_of_ne {v : V} (h : v ≠ v₀) : splitLab lab v₀ v = some (lab v) := if_neg h
+theorem splitLab_of_ne {v : V} (h : v ≠ v₀) : splitLab lab v₀ v = some (lab v) := ite_eq_right h
 
 theorem splitLab_eq_none {v : V} : splitLab lab v₀ v = none ↔ v = v₀ := by
   by_cases h : v = v₀
@@ -144,7 +144,7 @@ theorem labSet_lab_eq (j : J) :
   split_ifs with h
   · rw [Finset.insert_erase]
     simp [h]
-  · rw [Finset.erase_eq_of_not_mem]
+  · rw [Finset.erase_eq_self.mpr]
     simp [Ne.symm h]
 
 theorem labSet_move_eq (j : J) :
@@ -155,7 +155,7 @@ theorem labSet_move_eq (j : J) :
   by_cases hv : v = v₀
   · subst hv
     split_ifs with h <;> simp [moveLab, h, Ne.symm]
-  · split_ifs with h <;> simp [moveLab, hv, splitLab_of_ne hv, Function.update_of_ne hv]
+  · split_ifs with h <;> simp [moveLab, hv, splitLab_of_ne hv]
 
 theorem labSet_split_ne (j : J) :
     labSet (splitLab lab v₀) (· ≠ some j) = insert v₀ ((labSet lab (· ≠ j)).erase v₀) := by
@@ -185,7 +185,7 @@ theorem labSet_move_ne (j : J) :
   by_cases hv : v = v₀
   · subst hv
     split_ifs with h <;> simp [moveLab, h, Ne.symm]
-  · split_ifs with h <;> simp [moveLab, hv, splitLab_of_ne hv, Function.update_of_ne hv]
+  · split_ifs with h <;> simp [moveLab, hv, splitLab_of_ne hv]
 
 /-! #### Generators -/
 
@@ -209,7 +209,7 @@ theorem pR_xB_succ (j : J) (α : ℕ) :
   · have hs : setEsymm (k := k) (labSet lab (· = j)) (α + 1) =
         setEsymm (labSet (splitLab lab v₀) (· = some j)) (α + 1) +
           X v₀ * setEsymm (labSet (splitLab lab v₀) (· = some j)) α := by
-      rw [labSet_lab_eq, if_pos h, setEsymm_insert (v₀_not_mem_split j)]
+      rw [labSet_lab_eq, ite_eq_left h, setEsymm_insert (v₀_not_mem_split j)]
     rw [xB, pR_mk k (blockElt k lab j (α + 1))
       (blockElt k (splitLab lab v₀) (some j) (α + 1) +
         (⟨X v₀, X_mem_split k lab v₀⟩ : labelInvariants k (splitLab lab v₀)) *
@@ -219,14 +219,14 @@ theorem pR_xB_succ (j : J) (α : ℕ) :
       (blockElt k (splitLab lab v₀) (some j) (α + 1))]
     · rfl
     change setEsymm _ _ = setEsymm _ _
-    rw [labSet_lab_eq, if_neg h]
+    rw [labSet_lab_eq, ite_eq_right h]
 
 theorem pR_xB (j : J) (hj : j ≠ lab v₀) (α : ℕ) :
     pR k lab v₀ (xB k lab j α) = xB k (splitLab lab v₀) (some j) α := by
   rw [xB, pR_mk k (blockElt k lab j α) (blockElt k (splitLab lab v₀) (some j) α)]
   · rfl
   change setEsymm _ _ = setEsymm _ _
-  rw [labSet_lab_eq, if_neg hj]
+  rw [labSet_lab_eq, ite_eq_right hj]
 
 /-- **KL III eq. (5.16)** (and (5.27)): `p_2^* x(+_i k)_{j,α+1} = x(k^{+i})_{j,α+1} + ξ x(k^{+i})_{j,α}`
 for the block `j = j'` receiving `v₀`, and `p_2^* x(+_i k)_{j,α} = x(k^{+i})_{j,α}` otherwise. -/
@@ -238,7 +238,7 @@ theorem pL_xB_succ (j : J) (α : ℕ) :
   · have hs : setEsymm (k := k) (labSet (moveLab lab v₀ j') (· = j)) (α + 1) =
         setEsymm (labSet (splitLab lab v₀) (· = some j)) (α + 1) +
           X v₀ * setEsymm (labSet (splitLab lab v₀) (· = some j)) α := by
-      rw [labSet_move_eq, if_pos h, setEsymm_insert (v₀_not_mem_split j)]
+      rw [labSet_move_eq, ite_eq_left h, setEsymm_insert (v₀_not_mem_split j)]
     rw [xB, pL_mk k (blockElt k (moveLab lab v₀ j') j (α + 1))
       (blockElt k (splitLab lab v₀) (some j) (α + 1) +
         (⟨X v₀, X_mem_split k lab v₀⟩ : labelInvariants k (splitLab lab v₀)) *
@@ -248,14 +248,14 @@ theorem pL_xB_succ (j : J) (α : ℕ) :
       (blockElt k (splitLab lab v₀) (some j) (α + 1))]
     · rfl
     change setEsymm _ _ = setEsymm _ _
-    rw [labSet_move_eq, if_neg h]
+    rw [labSet_move_eq, ite_eq_right h]
 
 theorem pL_xB (j : J) (hj : j ≠ j') (α : ℕ) :
     pL k lab v₀ j' (xB k (moveLab lab v₀ j') j α) = xB k (splitLab lab v₀) (some j) α := by
   rw [xB, pL_mk k (blockElt k (moveLab lab v₀ j') j α) (blockElt k (splitLab lab v₀) (some j) α)]
   · rfl
   change setEsymm _ _ = setEsymm _ _
-  rw [labSet_move_eq, if_neg hj]
+  rw [labSet_move_eq, ite_eq_right hj]
 
 /-- **KL III eq. (5.25)**: for `j` different from both blocks involved, the bubble `x_{j,α}` slides
 through the line. -/
@@ -271,7 +271,7 @@ theorem xB_split_eq_sum (α : ℕ) :
       ∑ f ∈ range (α + 1), (-xi k lab v₀) ^ f * pR k lab v₀ (xB k lab (lab v₀) (α - f)) := by
   have hs := setEsymm_eq_sum_insert (k := k) (v₀_not_mem_split (lab := lab) (v₀ := v₀) (lab v₀)) α
   have hset : insert v₀ (labSet (splitLab lab v₀) (· = some (lab v₀))) = labSet lab (· = lab v₀) :=
-    ((labSet_lab_eq (lab := lab) (v₀ := v₀) (lab v₀)).trans (if_pos rfl)).symm
+    ((labSet_lab_eq (lab := lab) (v₀ := v₀) (lab v₀)).trans (ite_eq_left rfl)).symm
   rw [hset] at hs
   have : ∀ f, pR k lab v₀ (xB k lab (lab v₀) (α - f)) =
       mkB k _ ⟨setEsymm (labSet lab (· = lab v₀)) (α - f),
@@ -281,7 +281,7 @@ theorem xB_split_eq_sum (α : ℕ) :
   rw [xB]
   congr 1
   apply Subtype.ext
-  simp only [blockElt, AddSubmonoidClass.coe_finset_sum, MulMemClass.coe_mul,
+  simp only [blockElt, AddSubmonoidClass.coe_finsetSum, MulMemClass.coe_mul,
     SubmonoidClass.coe_pow, NegMemClass.coe_neg]
   exact hs
 
@@ -292,14 +292,14 @@ theorem pR_xbarB (j : J) (hj : j ≠ lab v₀) (α : ℕ) :
   rw [xbarB, pR_mk k (dualElt k lab j α) (dualElt k (splitLab lab v₀) (some j) α)]
   · rfl
   change setEsymm _ _ = setEsymm _ _
-  rw [labSet_lab_ne, if_neg hj]
+  rw [labSet_lab_ne, ite_eq_right hj]
 
 theorem pL_xbarB (j : J) (hj : j ≠ j') (α : ℕ) :
     pL k lab v₀ j' (xbarB k (moveLab lab v₀ j') j α) = xbarB k (splitLab lab v₀) (some j) α := by
   rw [xbarB, pL_mk k (dualElt k (moveLab lab v₀ j') j α) (dualElt k (splitLab lab v₀) (some j) α)]
   · rfl
   change setEsymm _ _ = setEsymm _ _
-  rw [labSet_move_ne, if_neg hj]
+  rw [labSet_move_ne, ite_eq_right hj]
 
 /-- `x̄(k^{+i})_{j,α+1} = p_1^* x̄(k)_{j,α+1} + ξ p_1^* x̄(k)_{j,α}` for the block `j` of `v₀`. -/
 theorem xbarB_split_succ_of_eq (α : ℕ) :
@@ -309,7 +309,7 @@ theorem xbarB_split_succ_of_eq (α : ℕ) :
   have hmem : v₀ ∉ labSet lab (· ≠ lab v₀) := by simp
   have hs : setEsymm (k := k) (labSet (splitLab lab v₀) (· ≠ some (lab v₀))) (α + 1) =
       setEsymm (labSet lab (· ≠ lab v₀)) (α + 1) + X v₀ * setEsymm (labSet lab (· ≠ lab v₀)) α := by
-    rw [labSet_split_ne, Finset.erase_eq_of_not_mem hmem, setEsymm_insert hmem]
+    rw [labSet_split_ne, Finset.erase_eq_self.mpr hmem, setEsymm_insert hmem]
   have h1 : ∀ β, pR k lab v₀ (xbarB k lab (lab v₀) β) =
       mkB k _ ⟨setEsymm (labSet lab (· ≠ lab v₀)) β,
         labelInvariants_mono k (refines_splitLab lab v₀) (dualElt k lab (lab v₀) β).2⟩ :=
@@ -328,7 +328,7 @@ theorem xbarB_split_succ_of_move (α : ℕ) :
   have hs : setEsymm (k := k) (labSet (splitLab lab v₀) (· ≠ some j')) (α + 1) =
       setEsymm (labSet (moveLab lab v₀ j') (· ≠ j')) (α + 1) +
         X v₀ * setEsymm (labSet (moveLab lab v₀ j') (· ≠ j')) α := by
-    rw [← setEsymm_insert hmem, labSet_move_ne, if_pos rfl, Finset.insert_erase]
+    rw [← setEsymm_insert hmem, labSet_move_ne, ite_eq_left rfl, Finset.insert_erase]
     simp
   have h1 : ∀ β, pL k lab v₀ j' (xbarB k (moveLab lab v₀ j') j' β) =
       mkB k _ ⟨setEsymm (labSet (moveLab lab v₀ j') (· ≠ j')) β,
@@ -387,17 +387,17 @@ theorem card_moveLab (i : Fin m) (d : Fin (m + 1) → ℕ) (h : 0 < d i.succ) (j
   rw [Fintype.card_subtype]
   change (labSet (moveLab (Sigma.fst : Gen d → Fin (m + 1)) (movedVar i d h) i.castSucc)
     (· = j)).card = _
-  have hne : i.castSucc ≠ i.succ := Fin.castSucc_lt_succ i |>.ne
+  have hne : i.castSucc ≠ i.succ := Fin.castSucc_lt_succ (i := i) |>.ne
   rw [labSet_move_eq, labSet_split_some, raise]
   have hv : movedVar i d h ∈ labSet (Sigma.fst : Gen d → Fin (m + 1)) (· = i.succ) := by
     simp [movedVar]
   split_ifs with h1 h2
   · subst h1
-    rw [Finset.card_insert_of_not_mem (by simp), Finset.erase_eq_of_not_mem (by
+    rw [Finset.card_insert_of_notMem (by simp), Finset.erase_eq_self.mpr (by
       simp [movedVar, Ne.symm hne]), card_labSet_sigma]
   · subst h2
     rw [Finset.card_erase_of_mem hv, card_labSet_sigma]
-  · rw [Finset.erase_eq_of_not_mem (by simp [movedVar, Ne.symm h2]), card_labSet_sigma]
+  · rw [Finset.erase_eq_self.mpr (by simp [movedVar, Ne.symm h2]), card_labSet_sigma]
 
 /-- `BorelRing lab ≃ H d` for a labelling with block sizes `d`. -/
 def borelEquivH' {V : Type*} [Fintype V] {n : ℕ} (lab : V → Fin n) (d : Fin n → ℕ)
@@ -437,7 +437,7 @@ theorem eRight_x (i : Fin m) (d : Fin (m + 1) → ℕ) (h : 0 < d i.succ) (j : F
       xB K (splitLab _ (movedVar i d h)) (some j) (α + 1) +
         if j = i.succ then eXi K i d h * xB K (splitLab _ (movedVar i d h)) (some j) α
         else 0 := by
-  rw [eRight, AlgHom.comp_apply, AlgEquiv.toAlgHom_eq_coe, AlgHom.coe_coe, hEquiv_x, pR_xB_succ]
+  rw [eRight, AlgHom.comp_apply, AlgEquiv.coe_toAlgHom, hEquiv_x, pR_xB_succ]
   rfl
 
 /-- **KL III eq. (5.16)** for a composition: `x(+_i k)_{j,α+1} ↦ x(k^{+i})_{j,α+1} +
@@ -448,7 +448,7 @@ theorem eLeft_x (i : Fin m) (d : Fin (m + 1) → ℕ) (h : 0 < d i.succ) (j : Fi
       xB K (splitLab _ (movedVar i d h)) (some j) (α + 1) +
         if j = i.castSucc then eXi K i d h * xB K (splitLab _ (movedVar i d h)) (some j) α
         else 0 := by
-  rw [eLeft, AlgHom.comp_apply, AlgEquiv.toAlgHom_eq_coe, AlgHom.coe_coe,
+  rw [eLeft, AlgHom.comp_apply, AlgEquiv.coe_toAlgHom,
     (AlgEquiv.symm_apply_eq _).2 (borelEquivH'_xB K _ _ (card_moveLab i d h) j (α + 1)).symm,
     pL_xB_succ]
   rfl

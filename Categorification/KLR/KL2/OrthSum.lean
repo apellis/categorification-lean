@@ -32,14 +32,14 @@ variable {s : Finset ι} {e : ι → A} (h : IsOrthFamily s e)
 include h
 
 theorem idem {a : ι} (ha : a ∈ s) : IsIdempotentElem (e a) := by
-  have := h a ha a ha; rwa [if_pos rfl] at this
+  have := h a ha a ha; rwa [ite_eq_left rfl] at this
 
 theorem mul_sum {a : ι} (ha : a ∈ s) : e a * ∑ b ∈ s, e b = e a := by
-  rw [Finset.mul_sum, Finset.sum_eq_single a (fun b hb hba => by rw [h a ha b hb, if_neg
+  rw [Finset.mul_sum, Finset.sum_eq_single a (fun b hb hba => by rw [h a ha b hb, ite_eq_right
     (Ne.symm hba)]) (fun h' => absurd ha h'), (h.idem ha).eq]
 
 theorem sum_mul {a : ι} (ha : a ∈ s) : (∑ b ∈ s, e b) * e a = e a := by
-  rw [Finset.sum_mul, Finset.sum_eq_single a (fun b hb hba => by rw [h b hb a ha, if_neg hba])
+  rw [Finset.sum_mul, Finset.sum_eq_single a (fun b hb hba => by rw [h b hb a ha, ite_eq_right hba])
     (fun h' => absurd ha h'), (h.idem ha).eq]
 
 theorem sum_idem : IsIdempotentElem (∑ b ∈ s, e b) := by
@@ -69,7 +69,7 @@ def rIdealSumEquiv : rIdeal (∑ a ∈ s, e a) ≃ₗ[Aᵐᵒᵖ] ((a : s) → r
     apply Subtype.ext
     change e a * ∑ b : s, (z b : A) = z a
     rw [Finset.mul_sum, Finset.sum_eq_single a (fun b _ hba => by
-      rw [← (z b).2, ← mul_assoc, h a a.2 b b.2, if_neg (fun h' => hba (Subtype.ext h').symm),
+      rw [← (z b).2, ← mul_assoc, h a a.2 b b.2, ite_eq_right (fun h' => hba (Subtype.ext h').symm),
         zero_mul]) (fun h' => absurd (Finset.mem_univ a) h'), (z a).2]
 
 /-- `A (∑_{a ∈ s} e_a) ≅ ⊕_{a ∈ s} A e_a` (left `A`-modules), `y ↦ (y e_a)_a`. -/
@@ -89,7 +89,7 @@ def lIdealSumEquiv : lIdeal (∑ a ∈ s, e a) ≃ₗ[A] ((a : s) → lIdeal (e 
     apply Subtype.ext
     change (∑ b : s, (z b : A)) * e a = z a
     rw [Finset.sum_mul, Finset.sum_eq_single a (fun b _ hba => by
-      rw [← (z b).2, mul_assoc, h b b.2 a a.2, if_neg (fun h' => hba (Subtype.ext h')),
+      rw [← (z b).2, mul_assoc, h b b.2 a a.2, ite_eq_right (fun h' => hba (Subtype.ext h')),
         mul_zero]) (fun h' => absurd (Finset.mem_univ a) h'), (z a).2]
 
 variable (k : Type*) [CommRing k] [Algebra k A] (M : Type*) [AddCommGroup M] [Module A M]
@@ -112,7 +112,7 @@ def fixSubSumEquiv : fixSub k M (∑ a ∈ s, e a) ≃ₗ[k] ((a : s) → fixSub
     apply Subtype.ext
     change e a • ∑ b : s, (z b : M) = z a
     rw [Finset.smul_sum, Finset.sum_eq_single a (fun b _ hba => by
-      rw [← (z b).2, smul_smul, h a a.2 b b.2, if_neg (fun h' => hba (Subtype.ext h').symm),
+      rw [← (z b).2, smul_smul, h a a.2 b b.2, ite_eq_right (fun h' => hba (Subtype.ext h').symm),
         zero_smul]) (fun h' => absurd (Finset.mem_univ a) h'), (z a).2]
 
 end ideals
@@ -125,7 +125,7 @@ theorem IsOrthFamily.map_anti {s : Finset ι} {e : ι → A} (h : IsOrthFamily s
   rw [← hφ, h b hb a ha]
   by_cases hab : a = b
   · subst hab; simp
-  · rw [if_neg (Ne.symm hab), if_neg hab]
+  · rw [ite_eq_right (Ne.symm hab), ite_eq_right hab]
     have := hadd 0 0
     rw [add_zero] at this
     exact left_eq_add.1 this

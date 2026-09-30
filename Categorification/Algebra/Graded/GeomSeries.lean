@@ -40,11 +40,11 @@ theorem one_sub_X_pow_mul_mk {n : ℕ} (hn : 0 < n) :
   by_cases hk : k = 0
   · subst hk
     simp [show ¬ n ≤ 0 by omega]
-  · rw [if_neg hk]
+  · rw [ite_eq_right hk]
     by_cases hle : n ≤ k
     · have h : n ∣ k ↔ n ∣ k - n := by
         rw [← Nat.dvd_add_self_right (m := n) (n := k - n), Nat.sub_add_cancel hle]
-      simp only [if_pos hle, h, sub_self]
+      simp only [ite_eq_left hle, h, sub_self]
     · have h : ¬ n ∣ k := fun h => hk (Nat.eq_zero_of_dvd_of_lt h (by omega))
       simp [h, hle]
 
@@ -60,9 +60,9 @@ theorem one_sub_mul_geomSeries {d : ℤ} (hd : 0 < d) :
 theorem coeff_ofPowerSeries_of_neg (F : PowerSeries ℤ) {e : ℤ} (he : e < 0) :
     (HahnSeries.ofPowerSeries ℤ ℤ F).coeff e = 0 := by
   rw [HahnSeries.ofPowerSeries_apply]
-  exact HahnSeries.embDomain_notin_range (by
+  exact HahnSeries.embDomain_of_notMem_range (by
     rintro ⟨n, hn⟩
-    simp only [RelEmbedding.coe_mk, Function.Embedding.coeFn_mk] at hn
+    simp only [Nat.castOrderEmbedding_apply] at hn
     omega)
 
 /-- The weighted degree `∑_a u_a w_a` of a monomial `x^u` is at least each `u_a` when all
@@ -78,7 +78,7 @@ theorem le_weight {n : ℕ} {w : Fin n → ℤ} (hw : ∀ a, 0 < w a) (u : Fin n
 theorem weight_eq_sum {n : ℕ} (w : Fin n → ℤ) (u : Fin n →₀ ℕ) :
     Finsupp.weight w u = ∑ a, (u a : ℤ) * w a := by
   rw [Finsupp.weight_apply, Finsupp.sum_fintype _ _ (by simp)]
-  simp [nsmul_eq_mul]
+  simp []
 
 theorem weight_nonneg {n : ℕ} {w : Fin n → ℤ} (hw : ∀ a, 0 ≤ w a) (u : Fin n →₀ ℕ) :
     0 ≤ Finsupp.weight w u := by
@@ -93,7 +93,7 @@ theorem finite_weight_eq {n : ℕ} {w : Fin n → ℤ} (hw : ∀ a, 0 < w a) (e 
   intro u hu
   refine ⟨u, fun a _ => ?_, by simp⟩
   have := le_weight hw u a
-  rw [Set.mem_setOf_eq] at hu
+  rw [Set.mem_ofPred_eq] at hu
   rw [hu] at this
   simp only [Set.mem_Iic]
   omega
@@ -104,12 +104,12 @@ theorem coeff_prod_geomSeries {n : ℕ} (w : Fin n → ℤ) (hw : ∀ a, 0 < w a
     (∏ a, geomSeries (w a)).coeff e = Nat.card {u : Fin n →₀ ℕ | Finsupp.weight w u = e} := by
   simp only [geomSeries]
   rw [← map_prod]
-  rcases lt_or_le e 0 with he | he
+  rcases lt_or_ge e 0 with he | he
   · rw [coeff_ofPowerSeries_of_neg _ he]
     have : {u : Fin n →₀ ℕ | Finsupp.weight w u = e} = ∅ :=
-      Set.eq_empty_iff_forall_not_mem.2 fun u hu => by
+      Set.eq_empty_iff_forall_notMem.2 fun u hu => by
         have := weight_nonneg (fun a => (hw a).le) u
-        rw [Set.mem_setOf_eq] at hu
+        rw [Set.mem_ofPred_eq] at hu
         omega
     rw [this]; simp
   obtain ⟨N, rfl⟩ : ∃ N : ℕ, e = N := ⟨e.toNat, by omega⟩
@@ -137,13 +137,13 @@ theorem coeff_prod_geomSeries {n : ℕ} (w : Fin n → ℤ) (hw : ∀ a, 0 < w a
     toFun := fun l => ⟨Finsupp.equivFunOnFinite.symm fun a => (l : Fin n →₀ ℕ) a / w' a, by
       have hl := Finset.mem_filter.1 l.2
       have hsum := (Finset.mem_finsuppAntidiag.1 hl.1).1
-      rw [Set.mem_setOf_eq, hweight]
+      rw [Set.mem_ofPred_eq, hweight]
       have : (∑ a, (Finsupp.equivFunOnFinite.symm fun a => (l : Fin n →₀ ℕ) a / w' a) a * w' a)
           = univ.sum ⇑(l : Fin n →₀ ℕ) := by
         refine Finset.sum_congr rfl fun a _ => ?_
         have hdvd : w' a ∣ (l : Fin n →₀ ℕ) a := by
           have := hl.2 a (Finset.mem_univ a); rw [hw'] at this; exact_mod_cast this
-        simp only [Finsupp.equivFunOnFinite_symm_apply_toFun]
+        simp only [Finsupp.coe_equivFunOnFinite_symm]
         exact Nat.div_mul_cancel hdvd
       rw [this, hsum]⟩
     invFun := fun u => ⟨Finsupp.equivFunOnFinite.symm fun a => (u : Fin n →₀ ℕ) a * w' a, by
@@ -152,7 +152,7 @@ theorem coeff_prod_geomSeries {n : ℕ} (w : Fin n → ℤ) (hw : ∀ a, 0 < w a
       rw [Finset.mem_filter, Finset.mem_finsuppAntidiag]
       refine ⟨⟨?_, by simp⟩, fun a _ => ?_⟩
       · exact_mod_cast hu
-      · simp only [Finsupp.equivFunOnFinite_symm_apply_toFun, hw']
+      · simp only [Finsupp.coe_equivFunOnFinite_symm, hw']
         exact_mod_cast Dvd.intro_left _ rfl⟩
     left_inv := fun l => by
       have hl := Finset.mem_filter.1 l.2

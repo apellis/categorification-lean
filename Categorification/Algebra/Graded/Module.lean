@@ -146,7 +146,7 @@ theorem decompose_shift (ℳ : ι → Submodule k M) [Decomposition ℳ] (a : ι
   induction x using Decomposition.inductionOn ℳ with
   | zero => rw [decompose_zero, decompose_zero]; rfl
   | add x y hx hy =>
-    rw [decompose_add, decompose_add, add_apply, add_apply, Submodule.coe_add,
+    rw [decompose_add, decompose_add, DirectSum.add_apply, DirectSum.add_apply, Submodule.coe_add,
       Submodule.coe_add, hx, hy]
   | @homogeneous j x =>
     have hx' : (x : M) ∈ shift ℳ a (j + a) := by simp
@@ -306,7 +306,7 @@ def ofEq {ℳ ℳ' : ι → Submodule k M} (h : ℳ = ℳ') : ℳ ≃ᵍ[A] ℳ'
 def ofLinearMaps (f : M →ₗ[A] N) (g : N →ₗ[A] M) (hgf : ∀ x, g (f x) = x)
     (hfg : ∀ y, f (g y) = y) (hf : PreservesGrading ℳ 𝒩 f) (hg : PreservesGrading 𝒩 ℳ g) :
     ℳ ≃ᵍ[A] 𝒩 where
-  toLinearEquiv := LinearEquiv.ofLinear f g (LinearMap.ext hfg) (LinearMap.ext hgf)
+  toLinearEquiv := LinearEquiv.ofLinearMap f g (LinearMap.ext hfg) (LinearMap.ext hgf)
   map_mem' := hf
   symm_map_mem' := hg
 
@@ -412,7 +412,7 @@ theorem isInternal_submodule {p : Submodule A M} (hp : p.IsHomogeneous ℳ) :
   isInternal_comap ℳ _ Subtype.val_injective fun x d => ⟨⟨_, hp d x.2⟩, rfl⟩
 
 /-- The graded structure of a homogeneous submodule. -/
-noncomputable def submoduleDecomposition {p : Submodule A M} (hp : p.IsHomogeneous ℳ) :
+@[instance_reducible] noncomputable def submoduleDecomposition {p : Submodule A M} (hp : p.IsHomogeneous ℳ) :
     Decomposition (submodule ℳ p) :=
   (isInternal_submodule ℳ hp).chooseDecomposition
 
@@ -440,7 +440,7 @@ theorem isInternal_idem {e : A} (he : e ∈ 𝒜 0) : IsInternal (idem ℳ e) :=
       rw [← decompose_smul_of_mem_zero ℳ he, x.2]⟩, rfl⟩
 
 /-- The graded structure of `e M` for `e` of degree zero. -/
-noncomputable def idemDecomposition {e : A} (he : e ∈ 𝒜 0) : Decomposition (idem ℳ e) :=
+@[instance_reducible] noncomputable def idemDecomposition {e : A} (he : e ∈ 𝒜 0) : Decomposition (idem ℳ e) :=
   (isInternal_idem ℳ he).chooseDecomposition
 
 end Sub

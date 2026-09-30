@@ -26,6 +26,8 @@ and `τ` (`tauU`) the identification of source and target if `c = d` (zero other
   `tauU_one`.
 -/
 
+set_option backward.isDefEq.respectTransparency false
+
 noncomputable section
 
 namespace Categorification.Flag
@@ -235,16 +237,16 @@ theorem crossU_xiL :
         (crossU K c d h₁ h₂ h₁' h₂') := by
   by_cases hcd : c = d
   · subst hcd
-    simp only [crossU, tauU, dif_pos rfl]
+    simp only [crossU, tauU]
     exact crossEEP2_xiL (K := K) c h₁ h₂ h₁' h₂'
-  · simp only [crossU, tauU, dif_neg hcd]
+  · simp only [crossU, tauU, dite_eq_right hcd]
     rw [BHom.zero_add']
     by_cases hadj : d.castSucc = c.succ
-    · rw [dif_pos hadj]; exact crossAdjNF_xiL (K := K) c d hadj h₁ h₂ h₁' h₂'
-    · rw [dif_neg hadj]
+    · rw [dite_eq_left hadj]; exact crossAdjNF_xiL (K := K) c d hadj h₁ h₂ h₁' h₂'
+    · rw [dite_eq_right hadj]
       by_cases hadj' : c.castSucc = d.succ
-      · rw [dif_pos hadj']; exact crossAdjFN_xiL (K := K) d c hadj' h₁' h₂' h₁ h₂
-      · rw [dif_neg hadj']; exact crossFarP_xiL (K := K) c d hcd _ _ h₁ h₂ h₁' h₂'
+      · rw [dite_eq_left hadj']; exact crossAdjFN_xiL (K := K) d c hadj' h₁' h₂' h₁ h₂
+      · rw [dite_eq_right hadj']; exact crossFarP_xiL (K := K) c d hcd _ _ h₁ h₂ h₁' h₂'
 
 /-- **Dot slide, right strand**: `ψ ∘ ξ_R = ξ'_L ∘ ψ − τ`. -/
 theorem crossU_xiR :
@@ -253,25 +255,25 @@ theorem crossU_xiR :
         tauU K c d h₁ h₂ h₁' h₂' := by
   by_cases hcd : c = d
   · subst hcd
-    simp only [crossU, tauU, dif_pos rfl]
+    simp only [crossU, tauU]
     exact crossEEP2_xiR (K := K) c h₁ h₂ h₁' h₂'
-  · simp only [crossU, tauU, dif_neg hcd]
+  · simp only [crossU, tauU, dite_eq_right hcd]
     rw [BHom.sub_zero']
     by_cases hadj : d.castSucc = c.succ
-    · rw [dif_pos hadj]; exact crossAdjNF_xiR (K := K) c d hadj h₁ h₂ h₁' h₂'
-    · rw [dif_neg hadj]
+    · rw [dite_eq_left hadj]; exact crossAdjNF_xiR (K := K) c d hadj h₁ h₂ h₁' h₂'
+    · rw [dite_eq_right hadj]
       by_cases hadj' : c.castSucc = d.succ
-      · rw [dif_pos hadj']; exact crossAdjFN_xiR (K := K) d c hadj' h₁' h₂' h₁ h₂
-      · rw [dif_neg hadj']; exact crossFarP_xiR (K := K) c d hcd _ _ h₁ h₂ h₁' h₂'
+      · rw [dite_eq_left hadj']; exact crossAdjFN_xiR (K := K) d c hadj' h₁' h₂' h₁ h₂
+      · rw [dite_eq_right hadj']; exact crossFarP_xiR (K := K) c d hcd _ _ h₁ h₂ h₁' h₂'
 
 theorem tauU_xiL :
     (tauU K c d h₁ h₂ h₁' h₂').comp (BHom.mulB (BRing.tmul _ _ (eXi K c r₁ h₁.2) 1)) =
       (BHom.mulB (BRing.tmul _ _ (eXi K d r₁' h₁'.2) 1)).comp (tauU K c d h₁ h₂ h₁' h₂') := by
   by_cases hcd : c = d
   · subst hcd
-    simp only [tauU, dif_pos rfl]
+    simp only [tauU]
     exact tauEE_xiL (K := K) c h₁ h₂ h₁' h₂'
-  · simp only [tauU, dif_neg hcd]
+  · simp only [tauU, dite_eq_right hcd]
     ext y; simp
 
 theorem tauU_xiR :
@@ -279,17 +281,17 @@ theorem tauU_xiR :
       (BHom.mulB (BRing.tmul _ _ 1 (eXi K c r₂ h₂'.2))).comp (tauU K c d h₁ h₂ h₁' h₂') := by
   by_cases hcd : c = d
   · subst hcd
-    simp only [tauU, dif_pos rfl]
+    simp only [tauU]
     exact tauEE_xiR (K := K) c h₁ h₂ h₁' h₂'
-  · simp only [tauU, dif_neg hcd]
+  · simp only [tauU, dite_eq_right hcd]
     ext y; simp
 
 theorem tauU_one : tauU K c d h₁ h₂ h₁' h₂' 1 = if c = d then 1 else 0 := by
   by_cases hcd : c = d
   · subst hcd
-    simp only [tauU, dif_pos rfl, if_true]
+    simp only [tauU, ite_true]
     exact tauEE_one (K := K) c h₁ h₂ h₁' h₂'
-  · simp only [tauU, dif_neg hcd, if_neg hcd]; rfl
+  · simp only [tauU, dite_eq_right hcd, ite_eq_right hcd]; rfl
 
 /-- **The value at `1`**: `0` if `c = d`, `ξ'_R − ξ'_L` if `c = d + 1`, `1` otherwise. -/
 theorem crossU_one :
@@ -297,23 +299,23 @@ theorem crossU_one :
       BRing.tmul _ _ 1 (eXi K c r₂ h₂'.2) - BRing.tmul _ _ (eXi K d r₁' h₁'.2) 1 else 1 := by
   by_cases hcd : c = d
   · subst hcd
-    simp only [crossU, dif_pos rfl, if_true]
+    simp only [crossU, ite_true]
     exact crossEEP2_one (K := K) c h₁ h₂ h₁' h₂'
-  · simp only [crossU, dif_neg hcd, if_neg hcd]
+  · simp only [crossU, dite_eq_right hcd, ite_eq_right hcd]
     by_cases hadj : d.castSucc = c.succ
     · have hadj' : ¬ c.castSucc = d.succ := by
         intro h
         have h1 := congrArg Fin.val hadj
         have h2 := congrArg Fin.val h
-        simp only [Fin.coe_castSucc, Fin.val_succ] at h1 h2
+        simp only [Fin.val_castSucc, Fin.val_succ] at h1 h2
         omega
-      rw [dif_pos hadj, if_neg hadj']
+      rw [dite_eq_left hadj, ite_eq_right hadj']
       exact crossAdjNF_one (K := K) c d hadj h₁ h₂ h₁' h₂'
-    · rw [dif_neg hadj]
+    · rw [dite_eq_right hadj]
       by_cases hadj' : c.castSucc = d.succ
-      · rw [dif_pos hadj', if_pos hadj']
+      · rw [dite_eq_left hadj', ite_eq_left hadj']
         exact crossAdjFN_one (K := K) d c hadj' h₁' h₂' h₁ h₂
-      · rw [dif_neg hadj', if_neg hadj']
+      · rw [dite_eq_right hadj', ite_eq_right hadj']
         exact crossFarP_one (K := K) c d hcd _ _ h₁ h₂ h₁' h₂'
 
 end Uniform

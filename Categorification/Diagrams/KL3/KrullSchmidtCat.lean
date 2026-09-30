@@ -109,7 +109,7 @@ theorem IsIndec.isZero_or_isZero {X Y Z : 𝒞} (hX : IsIndec X) (φ : X ≅ Y �
   · right
     rw [IsZero.iff_id_eq_zero]
     have : biprod.inr ≫ φ.inv ≫ (𝟙 X - e) ≫ φ.hom ≫ biprod.snd = 𝟙 Z := by
-      simp [e, Preadditive.sub_comp, Preadditive.comp_sub]
+      simp [e, Preadditive.sub_comp]
     rw [← this, h, sub_self]; simp
 
 /-- **Indecomposability via biproducts** (idempotent complete categories). -/
@@ -151,9 +151,9 @@ theorem finrank_end_lt {X Y Z : 𝒞} (i : Y ⟶ X) (p : X ⟶ Y) (i' : Z ⟶ X)
     rw [hΦ', hΦ'] at hab
     have e₁ := congrArg (fun g => i ≫ g ≫ p) hab
     have e₂ := congrArg (fun g => i' ≫ g ≫ p') hab
-    simp only [Preadditive.comp_add, Preadditive.add_comp,
-      Category.assoc, reassoc_of% h₁, reassoc_of% h₂, reassoc_of% h₃, reassoc_of% h₄, h₁, h₂, h₃,
-      h₄, Limits.zero_comp, Limits.comp_zero, add_zero, zero_add, Category.comp_id] at e₁ e₂
+    simp only [Preadditive.add_comp,
+      Category.assoc, reassoc_of% h₁, reassoc_of% h₂, h₁, h₂, h₃,
+      h₄, Limits.comp_zero, add_zero, zero_add, Category.comp_id] at e₁ e₂
     exact Prod.ext e₁ e₂
   have := LinearMap.finrank_le_finrank_of_injective hΦ
   rw [Module.finrank_prod] at this
@@ -173,7 +173,7 @@ theorem of_mem_closure_indec (X : 𝒞) :
     · exact AddSubmonoid.subset_closure ⟨X, hi, rfl⟩
     obtain ⟨e, he, he0, he1⟩ : ∃ e : X ⟶ X, e ≫ e = e ∧ e ≠ 0 ∧ e ≠ 𝟙 X := by
       by_contra hne
-      push_neg at hne
+      push Not at hne
       exact hi ⟨h0, fun e he => by
         by_cases h' : e = 0
         · exact Or.inl h'
@@ -201,7 +201,7 @@ include k in
 /-- **Fitting's lemma**: an endomorphism of an indecomposable object is nilpotent or invertible. -/
 theorem IsIndec.isNilpotent_or_isUnit {X : 𝒞} (hX : IsIndec X) (f : End X) :
     IsNilpotent f ∨ IsUnit f := by
-  haveI : FiniteDimensional k (End X) := HomFinite.finiteDimensional X X
+  have : FiniteDimensional k (End X) := HomFinite.finiteDimensional X X
   refine Graded.isNilpotent_or_isUnit_of_idempotent k (fun e he => ?_) f
   have he' : e ≫ e = e := by rw [← End.mul_def]; exact he.eq
   rcases hX.2 e he' with h | h
@@ -215,7 +215,7 @@ theorem IsIndec.nontrivial {X : 𝒞} (hX : IsIndec X) : Nontrivial (End X) :=
 include k in
 /-- **The endomorphism ring of an indecomposable object is local.** -/
 theorem IsIndec.isLocalRing {X : 𝒞} (hX : IsIndec X) : IsLocalRing (End X) :=
-  haveI := hX.nontrivial
+  have := hX.nontrivial
   IsLocalRing.of_isUnit_or_isUnit_one_sub_self fun a =>
     (hX.isNilpotent_or_isUnit k a).elim (fun h => Or.inr h.isUnit_one_sub) Or.inl
 
@@ -233,11 +233,11 @@ theorem nonunits_add' {R : Type*} [Ring R] [IsLocalRing R] {a b : R} (ha : ¬ Is
 def rad {Z : 𝒞} (hZ : IsIndec Z) (X : 𝒞) : Submodule k (Z ⟶ X) where
   carrier := {f | ∀ g : X ⟶ Z, ¬ IsUnit (M := End Z) (f ≫ g)}
   zero_mem' g h := by
-    haveI := hZ.nontrivial
+    have := hZ.nontrivial
     rw [Limits.zero_comp] at h
     exact not_isUnit_zero h
   add_mem' {f f'} hf hf' g := by
-    haveI := hZ.isLocalRing k
+    have := hZ.isLocalRing k
     rw [Preadditive.add_comp]
     exact nonunits_add' (R := End Z) (hf g) (hf' g)
   smul_mem' c f hf g h := by
@@ -317,7 +317,7 @@ theorem rad_map_biprodEquiv {Z : 𝒞} (hZ : IsIndec Z) (X Y : 𝒞) :
     exact ⟨fun g => by simpa using hf (biprod.fst ≫ g), fun g => by simpa using hf (biprod.snd ≫ g)⟩
   · rintro ⟨ha, hb⟩
     refine ⟨biprod.lift a b, fun g => ?_, by simp, by simp⟩
-    haveI := hZ.isLocalRing k
+    have := hZ.isLocalRing k
     rw [biprod.lift_eq, Preadditive.add_comp, Category.assoc, Category.assoc]
     exact nonunits_add' (R := End Z) (ha _) (hb _)
 
@@ -383,7 +383,7 @@ theorem isZero_of_iso_biprod_self {A : 𝒞} (e : A ≅ A ⊞ A) : IsZero A := b
   rw [(biprodEquiv k A A A).finrank_eq, Module.finrank_prod] at h
   have h0 : finrank k (A ⟶ A) = 0 := by omega
   rw [IsZero.iff_id_eq_zero]
-  haveI := Module.finrank_zero_iff.1 h0
+  have := Module.finrank_zero_iff.1 h0
   exact Subsingleton.elim _ _
 
 omit [IsIdempotentComplete 𝒞] in
@@ -480,13 +480,14 @@ theorem eq_of_sh_iso_sh {X : 𝒞} (hX : IsIndec X) {m n : ℤ} (e : sh m X ≅ 
 
 omit hrig [IsIdempotentComplete 𝒞] [HomFinite k 𝒞] [Linear k 𝒞] in
 theorem addHom_smul (ψ : SplitK0 𝒞 →+ ℤ) (p : LaurentPolynomial ℤ) (x : SplitK0 𝒞) :
-    ψ (p • x) = Finsupp.sum p fun n a => a * ψ (shiftHom n x) := by
+    ψ (p • x) = Finsupp.sum p.coeff fun n a => a * ψ (shiftHom n x) := by
   induction p using LaurentPolynomial.induction_on' with
   | add p q hp hq =>
-    rw [add_smul, map_add, hp, hq, Finsupp.sum_add_index' (by simp) (by intros; ring)]
+    rw [add_smul, map_add, hp, hq, AddMonoidAlgebra.coeff_add,
+      Finsupp.sum_add_index' (by simp) (by intros; ring)]
   | C_mul_T n a =>
     rw [C_mul_T_smul, map_zsmul, ← LaurentPolynomial.single_eq_C_mul_T,
-      Finsupp.sum_single_index (by simp), smul_eq_mul]
+      AddMonoidAlgebra.coeff_single, Finsupp.sum_single_index (by simp), smul_eq_mul]
 
 include k
 
@@ -524,14 +525,14 @@ theorem linearIndependent_indec :
   simp only [hval] at key
   rw [Finset.sum_eq_single b₀] at key
   · rw [Finsupp.sum, Finset.sum_eq_single n] at key
-    · simp only [and_self, if_true, and_true] at key
+    · simp only [and_self, ite_true] at key
       rcases mul_eq_zero.1 key with h | h
       · exact h
       · omega
     · intro m _ hm
       simp [hm]
     · intro hn
-      simp [Finsupp.not_mem_support_iff.1 hn]
+      simp [Finsupp.notMem_support_iff.1 hn]
   · intro b _ hb
     simp [hb]
   · intro h; exact absurd hb₀ h
@@ -575,7 +576,7 @@ theorem eq_zero_of_smul_eq_zero {p : LaurentPolynomial ℤ}
   have := congrArg (fun y => (indecBasis k hrig).repr y b) h
   simp only [map_smul, Finsupp.smul_apply, smul_eq_mul, map_zero, Finsupp.zero_apply] at this
   rw [map_zero, Finsupp.zero_apply]
-  exact (mem_nonZeroDivisors_iff.1 hp) _ (by rw [mul_comm]; exact this)
+  exact (mem_nonZeroDivisors_iff.1 hp).1 _ this
 
 end Shift
 
@@ -609,7 +610,7 @@ theorem IsIndec.exists_retract_of_sum {Z W : 𝒞} (hZ : IsIndec Z) (f : Z ⟶ W
     (hfg : f ≫ g = 𝟙 Z) {ι : Type*} (s : Finset ι) (V : ι → 𝒞) (a : ∀ i, W ⟶ V i)
     (b : ∀ i, V i ⟶ W) (htot : ∑ i ∈ s, a i ≫ b i = 𝟙 W) :
     ∃ i ∈ s, ∃ (f' : Z ⟶ V i) (g' : V i ⟶ Z), f' ≫ g' = 𝟙 Z := by
-  haveI := hZ.isLocalRing k
+  have := hZ.isLocalRing k
   let x : ι → End Z := fun i => (f ≫ a i) ≫ (b i ≫ g)
   have hsum : ∑ i ∈ s, x i = (1 : End Z) := by
     show ∑ i ∈ s, (f ≫ a i) ≫ (b i ≫ g) = 𝟙 Z
@@ -645,9 +646,9 @@ theorem multK_sum_indec {Z : 𝒞} (hZ : IsIndec Z) :
     by_cases hY : Nonempty (Y ≅ Z)
     · obtain ⟨e⟩ := hY
       have hd : decide (Nonempty (Y ≅ Z)) = true := decide_eq_true ⟨e⟩
-      rw [SplitK0.of_iso e, if_pos hd]; push_cast; ring
+      rw [SplitK0.of_iso e, ite_eq_left hd]; push_cast; ring
     · have hd : decide (Nonempty (Y ≅ Z)) = false := decide_eq_false hY
-      rw [multK_of_not_iso k hZ (hL Y List.mem_cons_self) fun ⟨e⟩ => hY ⟨e.symm⟩, if_neg (by
+      rw [multK_of_not_iso k hZ (hL Y List.mem_cons_self) fun ⟨e⟩ => hY ⟨e.symm⟩, ite_eq_right (by
         rw [hd]; exact Bool.false_ne_true)]
       simp
 

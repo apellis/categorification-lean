@@ -80,7 +80,7 @@ def relIdeal : Ideal (MvPolynomial (Gen d) k) :=
 /-- **The ring `H_k` of KL III eq. (5.2)**, for block sizes `d_j = k_j - k_{j-1}`. -/
 def H : Type u := MvPolynomial (Gen d) k ⧸ relIdeal k d
 
-instance : CommRing (H k d) := Ideal.Quotient.commRing _
+instance : CommRing (H k d) := fast_instance% Ideal.Quotient.commRing _
 
 instance : Algebra k (H k d) := Ideal.Quotient.algebra _
 
@@ -105,14 +105,14 @@ variable {k d}
 @[simp] theorem xgen_zero (j : Fin n) : xgen k d j 0 = 1 := by simp [xgen]
 
 theorem xgen_eq_zero {j : Fin n} {α : ℕ} (h : d j < α) : xgen k d j α = 0 := by
-  rw [xgen, if_neg (by omega), dif_neg (by omega)]
+  rw [xgen, ite_eq_right (by omega), dite_eq_right (by omega)]
 
 theorem xgen_succ {j : Fin n} {a : ℕ} (h : a < d j) : xgen k d j (a + 1) = X ⟨j, ⟨a, h⟩⟩ := by
-  rw [xgen, if_neg (Nat.succ_ne_zero a), dif_pos (by omega)]
+  rw [xgen, ite_eq_right (Nat.succ_ne_zero a), dite_eq_left (by omega)]
   rfl
 
 theorem coeff_blockSeries (j : Fin n) (α : ℕ) : (blockSeries k d j).coeff α = xgen k d j α := by
-  rw [blockSeries, Polynomial.finset_sum_coeff]
+  rw [blockSeries, Polynomial.finsetSum_coeff]
   simp only [Polynomial.coeff_C_mul_X_pow]
   rw [Finset.sum_ite_eq]
   split_ifs with h
@@ -137,7 +137,7 @@ theorem map_totalSeries_mkH : (totalSeries k d).map (mkH k d).toRingHom = 1 := b
   rcases r with _ | r
   · rw [totalSeries, Polynomial.coeff_zero_prod]
     simp [coeff_zero_blockSeries]
-  · rw [if_neg (Nat.succ_ne_zero r)]
+  · rw [ite_eq_right (Nat.succ_ne_zero r)]
     exact Ideal.Quotient.eq_zero_iff_mem.2 (relPoly_mem r)
 
 theorem blockSeries_mul_dualSeries (j : Fin n) :
@@ -169,7 +169,7 @@ theorem GradedSeries.mul {p q : Polynomial (MvPolynomial (Gen d) k)} (hp : Grade
   intro r
   rw [Polynomial.coeff_mul]
   refine IsWeightedHomogeneous.sum _ _ _ fun ab hab => ?_
-  rw [← Finset.mem_antidiagonal.1 hab]
+  rw [← Finset.HasAntidiagonal.mem_antidiagonal.1 hab]
   exact (hp ab.1).mul (hq ab.2)
 
 theorem gradedSeries_one : GradedSeries (1 : Polynomial (MvPolynomial (Gen d) k)) := by
@@ -323,6 +323,12 @@ theorem hEquiv_mkH (F : MvPolynomial (Gen d) K) :
   apply Subtype.ext
   rw [youngEquiv_apply_coe, youngHom_coeff_dualSeries]
   rfl
+
+local instance : @Module K (H K d) _ (inferInstance : AddCommGroup (H K d)).toAddCommMonoid :=
+  Algebra.toModule
+local instance : @Module K (BorelRing K (Sigma.fst : Gen d → Fin n)) _
+    (inferInstance : AddCommGroup (BorelRing K (Sigma.fst : Gen d → Fin n))).toAddCommMonoid :=
+  Algebra.toModule
 
 instance : FiniteDimensional K (H K d) :=
   LinearEquiv.finiteDimensional (hEquiv K d).toLinearEquiv.symm

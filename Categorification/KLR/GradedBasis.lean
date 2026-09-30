@@ -55,7 +55,7 @@ variable {m : ℕ}
 theorem lt_iff_sadj_lt_of_not_adj {k : ℕ} (hk : k + 1 < m) {a b : Fin m}
     (h₁ : ¬ ((a : ℕ) = k ∧ (b : ℕ) = k + 1)) (h₂ : ¬ ((a : ℕ) = k + 1 ∧ (b : ℕ) = k)) :
     a < b ↔ sadj m k a < sadj m k b := by
-  rw [Fin.lt_iff_val_lt_val, Fin.lt_iff_val_lt_val, sadj_val_of_lt hk, sadj_val_of_lt hk]
+  rw [Fin.lt_def, Fin.lt_def, sadj_val_of_lt hk, sadj_val_of_lt hk]
   have := swapNat_cases k a
   have := swapNat_cases k b
   generalize swapNat k a = x at *
@@ -77,7 +77,7 @@ theorem invSet_sadj_mul_eq_insert {k : ℕ} (hk : k + 1 < m) {w : Perm (Fin m)}
     have hwb : w b = ⟨k + 1, hk⟩ := Fin.ext h₁.2
     rw [hwa, hwb, sadj_apply_left hk, sadj_apply_right hk]
     simp only [ha, hb, and_self, true_or, iff_true]
-    exact ⟨hlt, by simp [Fin.lt_iff_val_lt_val]⟩
+    exact ⟨hlt, by simp [Fin.lt_def]⟩
   by_cases h₂ : (w a : ℕ) = k + 1 ∧ (w b : ℕ) = k
   · have ha : a = w⁻¹ ⟨k + 1, hk⟩ := by rw [Perm.eq_inv_iff_eq]; exact Fin.ext h₂.1
     have hb : b = w⁻¹ ⟨k, by omega⟩ := by rw [Perm.eq_inv_iff_eq]; exact Fin.ext h₂.2
@@ -85,6 +85,7 @@ theorem invSet_sadj_mul_eq_insert {k : ℕ} (hk : k + 1 < m) {w : Perm (Fin m)}
     have hn : ¬ w⁻¹ ⟨k + 1, hk⟩ < w⁻¹ ⟨k, by omega⟩ := lt_asymm hlt
     have hn2 : w⁻¹ ⟨k + 1, hk⟩ ≠ w⁻¹ ⟨k, by omega⟩ := fun h => by
       simpa [Fin.ext_iff] using w⁻¹.injective h
+    simp only [Perm.coe_inv] at hn hn2
     simp [hn, hn2]
   have hne : ¬ (a = w⁻¹ ⟨k, by omega⟩ ∧ b = w⁻¹ ⟨k + 1, hk⟩) := fun h => h₁ <| by
     rw [h.1, h.2]; simp
@@ -114,7 +115,7 @@ end Categorification.TypeA
 
 namespace Categorification.KLR
 
-open TypeA Graded KLRAlgebra
+open TypeA Categorification.Graded KLRAlgebra
 
 variable {I : Type*} {k : Type*} [CommRing k] {Q : I → I → MvPolynomial (Fin 2) k}
 
@@ -137,8 +138,8 @@ theorem degW_eq_sum_invSet {ρ : List ℕ} (hρ : IsReduced (Multiset.card ν) �
     rw [degW, ih hρ', wordProd_cons, invSet_sadj_mul_eq_insert hj hlt,
       Finset.sum_insert (fun h => by
         have := (mem_invSet.1 h).2
-        rw [Perm.apply_inv_self, Perm.apply_inv_self] at this
-        exact absurd this (by simp [Fin.lt_iff_val_lt_val])),
+        simp only [Perm.coe_inv, Equiv.apply_symm_apply] at this
+        exact absurd this (by simp [Fin.lt_def])),
       G.dψ_of_lt hj]
     simp only [Seq.lbl, Seq.smul_apply, Perm.inv_def]
 
@@ -182,8 +183,8 @@ theorem finite_stdDeg_eq (hX : ∀ a, 0 < G.degX a) (d : ℤ) :
       ⋃ (i : Seq ν) (w : Perm (Fin (Multiset.card ν))),
         {u | Finsupp.weight (fun a => G.degX (i.lbl a)) u = d - G.degW (ρ w) i}) := by
     rintro ⟨i, w, u⟩ hb
-    simp only [Set.mem_setOf_eq, stdDeg] at hb
-    simp only [Set.mem_prod, Set.mem_univ, Set.mem_iUnion, Set.mem_setOf_eq, true_and]
+    simp only [Set.mem_ofPred_eq, stdDeg] at hb
+    simp only [Set.mem_prod, Set.mem_univ, Set.mem_iUnion, Set.mem_ofPred_eq, true_and]
     exact ⟨i, w, by omega⟩
   exact (Set.finite_univ.prod (Set.finite_univ.prod (Set.finite_iUnion fun i =>
     Set.finite_iUnion fun w => finite_weight_eq (fun a => hX _) _))).subset h
@@ -220,7 +221,7 @@ theorem natCard_stdDeg_eq (hX : ∀ a, 0 < G.degX a)
       Nat.card {u : Fin (Multiset.card ν) →₀ ℕ |
         Finsupp.weight (fun a => G.degX (p.1.lbl a)) u = d - G.degW (ρ p.2) p.1} := by
   classical
-  haveI : ∀ p : F, Finite {u : Fin (Multiset.card ν) →₀ ℕ | Finsupp.weight
+  have : ∀ p : F, Finite {u : Fin (Multiset.card ν) →₀ ℕ | Finsupp.weight
       (fun a => G.degX ((p : Seq ν × Perm (Fin (Multiset.card ν))).1.lbl a)) u =
       d - G.degW (ρ (p : Seq ν × Perm (Fin (Multiset.card ν))).2)
         (p : Seq ν × Perm (Fin (Multiset.card ν))).1} :=
@@ -235,7 +236,7 @@ theorem natCard_stdDeg_eq (hX : ∀ a, 0 < G.degX a)
         omega⟩⟩
     invFun := fun x => ⟨(x.1.1.1, x.1.1.2, x.2.1), x.1.2, by
       have h := x.2.2
-      simp only [Set.mem_setOf_eq] at h
+      simp only [Set.mem_ofPred_eq] at h
       show _ + _ = _
       dsimp only at h ⊢
       omega⟩
@@ -243,7 +244,7 @@ theorem natCard_stdDeg_eq (hX : ∀ a, 0 < G.degX a)
     right_inv := fun x => rfl }
 
 /-- The graded pieces `(1_j R(ν) 1_i)_d = R(ν)_d ∩ 1_j R(ν) 1_i` of the corner. -/
-def cornerGrade (j i : Seq ν) : ℤ → Submodule k (KLRAlgebra k Q ν) :=
+noncomputable def cornerGrade (j i : Seq ν) : ℤ → Submodule k (KLRAlgebra k Q ν) :=
   fun d => G.grade ν d ⊓ corner j i
 
 end GradingDatum
@@ -275,7 +276,7 @@ theorem basis_mem_grade
 
 theorem span_basis_univ :
     Submodule.span k (KLRAlgebra.basis hPQ hP ρ hρ '' Set.univ) = ⊤ := by
-  rw [Set.image_univ, Basis.span_eq]
+  rw [Set.image_univ, Module.Basis.span_eq]
 
 /-- **`R(ν)_d` is spanned by the basis elements of degree `d`.** -/
 theorem grade_eq_span (d : ℤ) :
@@ -313,10 +314,10 @@ theorem grade_eq_bot_of_lt (hX : ∀ a, 0 ≤ G.degX a) {d : ℤ}
     (hd : ∀ (i : Seq ν) (w : Perm (Fin (Multiset.card ν))), d < G.degW (ρ w) i) :
     G.grade ν d = ⊥ := by
   rw [G.grade_eq_span hPQ hP ρ hρ d]
-  have : {b | G.stdDeg ρ b = d} = ∅ := Set.eq_empty_iff_forall_not_mem.2 fun b hb => by
+  have : {b | G.stdDeg ρ b = d} = ∅ := Set.eq_empty_iff_forall_notMem.2 fun b hb => by
     have h1 := G.degW_le_stdDeg ρ hX b
     have h2 := hd b.1 b.2.1
-    rw [Set.mem_setOf_eq] at hb
+    rw [Set.mem_ofPred_eq] at hb
     omega
   rw [this, Set.image_empty, Submodule.span_empty]
 
@@ -376,7 +377,7 @@ theorem spanF_corner (j i : Seq ν) :
   rw [spanF, ← span_cornerElt ρ hρ j i]
   congr 1
   ext r
-  simp only [Set.mem_image, Set.mem_setOf_eq, Finset.mem_product, Finset.mem_singleton,
+  simp only [Set.mem_image, Set.mem_ofPred_eq, Finset.mem_product, Finset.mem_singleton,
     Finset.mem_filter, Finset.mem_univ, true_and, Set.mem_range]
   constructor
   · rintro ⟨⟨i', w, u⟩, ⟨rfl, hw⟩, rfl⟩
@@ -420,7 +421,7 @@ theorem spanF_leftIdeal (i : Seq ν) :
   apply le_antisymm
   · rw [spanF, Submodule.span_le]
     rintro _ ⟨⟨i', w, u⟩, hb, rfl⟩
-    simp only [Set.mem_setOf_eq, Finset.mem_product, Finset.mem_singleton, Finset.mem_univ,
+    simp only [Set.mem_ofPred_eq, Finset.mem_product, Finset.mem_singleton, Finset.mem_univ,
       and_true] at hb
     subst hb
     show _ * _ = _
@@ -430,7 +431,7 @@ theorem spanF_leftIdeal (i : Seq ν) :
     rw [← hr']
     clear hr hr'
     have hr2 : r ∈ Submodule.span k (Set.range (KLRAlgebra.basis hPQ hP ρ hρ)) := by
-      rw [Basis.span_eq]; trivial
+      rw [Module.Basis.span_eq]; trivial
     induction hr2 using Submodule.span_induction with
     | mem x hx =>
       obtain ⟨⟨i', w, u⟩, rfl⟩ := hx
@@ -487,7 +488,7 @@ theorem two_mul_card_eqPairs [DecidableEq I] (i : Seq ν) :
     p.1 ≠ p.2 ∧ i.lbl p.1 = i.lbl p.2 with hD
   -- `D` consists of the equal-label pairs and their swaps
   have h1 : D.card = 2 * (eqPairs i).card := by
-    rw [← Finset.filter_card_add_filter_neg_card_eq_card (fun p => p.1 < p.2), two_mul]
+    rw [← Finset.card_filter_add_card_filter_not (fun p => p.1 < p.2), two_mul]
     congr 1
     · congr 1
       ext p
@@ -548,7 +549,7 @@ theorem neg_two_mul_card_le_degW {ρ : List ℕ} (hρ : IsReduced (Multiset.card
     have hne := (Finset.mem_filter.1 hp).2
     show 0 ≤ -cartan Γ _ _
     unfold cartan
-    rw [if_neg hne]
+    rw [ite_eq_right hne]
     split_ifs <;> norm_num
   have hC : (s.filter (fun p => i.lbl p.1 = i.lbl p.2)).card ≤ (eqPairs i).card := by
     refine Finset.card_le_card fun p hp => ?_
@@ -597,7 +598,7 @@ of positive degree): their graded pieces are finite-dimensional and vanish in su
 negative degrees. -/
 theorem hasGdim_of_finite (hX : ∀ a, 0 < G.degX a) (M : GMod (G.grade ν))
     [Module.Finite (KLRAlgebra k Q ν) M] : HasGdim M.grading :=
-  haveI := G.hasGdim_grade' (ν := ν) hPQ hP hX
+  have := G.hasGdim_grade' (ν := ν) hPQ hP hX
   Graded.hasGdim_of_finite (G.grade ν) M.grading
 
 include hPQ hP in

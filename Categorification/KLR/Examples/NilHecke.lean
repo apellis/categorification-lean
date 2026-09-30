@@ -73,14 +73,14 @@ private noncomputable def liftQ : KLRAlgebra k Q ν →ₐ[k] KLRAlgebra k Q' ν
     | cross_sq j h t =>
       have hl := Seq.lbl_eq_of_forall hν t ⟨j, by omega⟩ ⟨j + 1, h⟩
       have := rel (Q := Q') (Rel.cross_sq j h t)
-      rw [if_pos hl] at this ⊢
+      rw [ite_eq_left hl] at this ⊢
       exact this
     | braid j h t =>
       have hl : ¬ (t.lbl ⟨j, by omega⟩ = t.lbl ⟨j + 2, h⟩ ∧
           t.lbl ⟨j, by omega⟩ ≠ t.lbl ⟨j + 1, by omega⟩) :=
         fun c => c.2 (Seq.lbl_eq_of_forall hν t _ _)
       have := rel (Q := Q') (Rel.braid j h t)
-      rw [if_neg hl] at this ⊢
+      rw [ite_eq_right hl] at this ⊢
       exact this⟩
 
 private theorem liftQ_mk (a : FreeAlgebra k (Gen ν)) :
@@ -120,7 +120,6 @@ private theorem hPQ_one : ∀ a b : I, a ≠ b →
     (one₂ : I → I → MvPolynomial (Fin 2) k) a b = one₂ b a * rename ![1, 0] (one₂ a b) := by
   intro a b _; simp
 
-attribute [local instance] Seq.uniqueOfForall in
 /-- The identification `Pol_ν = k[x_1, …, x_n]` (`Seq ν` is a singleton). -/
 private noncomputable def polEquiv : Pol k ν ≃ₗ[k] MvPolynomial (Fin n) k :=
   @LinearEquiv.funUnique (Seq ν) k _ (Seq.uniqueOfForall hν) _ _ _
@@ -130,7 +129,7 @@ variable (Q : I → I → MvPolynomial (Fin 2) k)
 /-- The action of `R(ν)` on `k[x_1, …, x_n]` (all labels equal): the polynomial
 representation for the data `P = Q = 1`, transported along `equivOfForall`. -/
 noncomputable def toNH : KLRAlgebra k Q ν →ₐ[k] Module.End k (MvPolynomial (Fin n) k) :=
-  ((polEquiv hν).algConj k).toAlgHom.comp
+  ((polEquiv hν).conjAlgEquiv k).toAlgHom.comp
     ((polyRep (hPQ_one (k := k))).comp (equivOfForall hν Q one₂).toAlgHom)
 
 private theorem toNH_apply (r : KLRAlgebra k Q ν) (f : MvPolynomial (Fin n) k) :
@@ -140,7 +139,7 @@ private theorem toNH_apply (r : KLRAlgebra k Q ν) (f : MvPolynomial (Fin n) k) 
 @[simp] theorem toNH_e (t : Seq ν) : toNH hν Q (e t) = 1 := by
   refine LinearMap.ext fun f => ?_
   rw [toNH_apply, equivOfForall_e, polyRep_e, opE_apply,
-    if_pos (@Subsingleton.elim _ (Seq.uniqueOfForall hν).instSubsingleton _ _)]
+    ite_eq_left (@Subsingleton.elim _ (Seq.uniqueOfForall hν).instSubsingleton _ _)]
   rfl
 
 @[simp] theorem toNH_x (a : Fin n) : toNH hν Q (x a) = mulX k n a := by
@@ -151,7 +150,7 @@ private theorem toNH_apply (r : KLRAlgebra k Q ν) (f : MvPolynomial (Fin n) k) 
   refine LinearMap.ext fun f => ?_
   rw [toNH_apply, equivOfForall_ψ, polyRep_ψ]
   by_cases h : j + 1 < n
-  · rw [opΨ_apply _ j h, dd_of_lt h, crossComp, if_pos (Seq.lbl_eq_of_forall hν _ _ _)]
+  · rw [opΨ_apply _ j h, dd_of_lt h, crossComp, ite_eq_left (Seq.lbl_eq_of_forall hν _ _ _)]
   · rw [opΨ_eq_zero _ (by omega), dd_eq_zero (by omega)]; rfl
 
 @[simp] theorem toNH_pol (p : MvPolynomial (Fin n) k) : toNH hν Q (pol p) = mulPoly k n p := by
@@ -167,7 +166,7 @@ private theorem toNH_apply (r : KLRAlgebra k Q ν) (f : MvPolynomial (Fin n) k) 
   | cons j ρ ih => rw [ψw_cons, map_mul, ih, toNH_ψ, ddw_cons]
 
 theorem toNH_injective [IsDomain k] : Function.Injective (toNH hν Q) :=
-  ((polEquiv hν).algConj k).injective.comp
+  ((polEquiv hν).conjAlgEquiv k).injective.comp
     ((polyRep_injective _ fun _ _ _ => one_ne_zero).comp (equivOfForall hν Q one₂).injective)
 
 theorem range_toNH : (toNH hν Q).range = nilHecke k n := by
@@ -261,7 +260,7 @@ private theorem stdElt_basis_aux (ν : Multiset Unit)
     LinearIndependent k (stdElt (k := k) (Multiset.card ν) ρ) ∧
       Submodule.span k (Set.range (stdElt (k := k) (Multiset.card ν) ρ)) = ⊤ := by
   have hν : ∀ a ∈ ν, a = () := fun _ _ => rfl
-  letI : Unique (Seq ν) := Seq.uniqueOfForall hν
+  let : Unique (Seq ν) := Seq.uniqueOfForall hν
   let Q₀ : Unit → Unit → MvPolynomial (Fin 2) k := fun _ _ => 1
   have hPQ : ∀ a b : Unit, a ≠ b → Q₀ a b = Q₀ b a * rename ![1, 0] (Q₀ a b) :=
     fun a b h => absurd (Subsingleton.elim a b) h
@@ -270,7 +269,7 @@ private theorem stdElt_basis_aux (ν : Multiset Unit)
   have hB : ⇑B = stdElt (k := k) (Multiset.card ν) ρ := by
     funext b
     apply Subtype.ext
-    rw [Basis.reindex_apply, Basis.map_apply, AlgEquiv.toLinearEquiv_apply,
+    rw [Module.Basis.reindex_apply, Module.Basis.map_apply, AlgEquiv.toLinearEquiv_apply,
       KLRAlgebra.basis_apply, coe_nilHeckeEquivOfForall, map_mul, map_mul, toNH_ψw, toNH_pol,
       toNH_e, mul_one]
     rfl
@@ -297,8 +296,8 @@ theorem span_stdElt (m : ℕ) (ρ : Perm (Fin m) → List ℕ)
 (`w ∈ S_m`, `u ∈ ℕ^m`) is a `k`-basis of the nilHecke ring `NH_m`. -/
 noncomputable def basis (m : ℕ) (ρ : Perm (Fin m) → List ℕ)
     (hρ : ∀ w, IsReduced m (ρ w) ∧ wordProd m (ρ w) = w) :
-    Basis (Perm (Fin m) × (Fin m →₀ ℕ)) k (nilHecke k m) :=
-  Basis.mk (linearIndependent_stdElt m ρ hρ) (span_stdElt m ρ hρ).ge
+    Module.Basis (Perm (Fin m) × (Fin m →₀ ℕ)) k (nilHecke k m) :=
+  Module.Basis.mk (linearIndependent_stdElt m ρ hρ) (span_stdElt m ρ hρ).ge
 
 theorem basis_apply (m : ℕ) (ρ : Perm (Fin m) → List ℕ)
     (hρ : ∀ w, IsReduced m (ρ w) ∧ wordProd m (ρ w) = w) (b : Perm (Fin m) × (Fin m →₀ ℕ)) :
@@ -308,7 +307,7 @@ theorem basis_apply (m : ℕ) (ρ : Perm (Fin m) → List ℕ)
 
 /-- The basis `{∂_w x^u}` of `NH_m`, with `∂_w = ddPerm k m w` (independent of the reduced
 word, `ddw_eq_ddPerm`). -/
-noncomputable def basisPerm (m : ℕ) : Basis (Perm (Fin m) × (Fin m →₀ ℕ)) k (nilHecke k m) :=
+noncomputable def basisPerm (m : ℕ) : Module.Basis (Perm (Fin m) × (Fin m →₀ ℕ)) k (nilHecke k m) :=
   basis m (canWord m) fun w => ⟨isReduced_canWord m w, wordProd_canWord m w⟩
 
 theorem basisPerm_apply (m : ℕ) (b : Perm (Fin m) × (Fin m →₀ ℕ)) :
@@ -365,12 +364,12 @@ omit [IsDomain k] in
 include hF in
 private theorem genB_rel ⦃a b : FreeAlgebra k (Gen (νm m))⦄ (h : Rel k Q₁ (νm m) a b) :
     FreeAlgebra.lift k (genB X' D) a = FreeAlgebra.lift k (genB X' D) b := by
-  haveI : Unique (Seq (νm m)) := Seq.uniqueOfForall (i := ()) fun _ _ => rfl
+  have : Unique (Seq (νm m)) := Seq.uniqueOfForall (i := ()) fun _ _ => rfl
   have hl : ∀ (t : Seq (νm m)) (a b : Fin (Multiset.card (νm m))), t.lbl a = t.lbl b :=
     fun _ _ _ => rfl
   cases h with
   | idem_mul s t =>
-    rw [if_pos (Subsingleton.elim s t)]; simp [fe, genB]
+    rw [ite_eq_left (Subsingleton.elim s t)]; simp [fe, genB]
   | idem_sum => simp [fe, genB]
   | dot_idem a t => simp [fe, fx, genB]
   | cross_idem j t => simp [fe, fψ, genB]
@@ -384,19 +383,19 @@ private theorem genB_rel ⦃a b : FreeAlgebra k (Gen (νm m))⦄ (h : Rel k Q₁
     simp only [fx, fψ, map_mul, FreeAlgebra.lift_ι_apply, genB]
     exact (hF.d_x_comm j _ h₁ h₂).symm
   | dot_cross_left j h t =>
-    rw [if_pos (hl t _ _)]
+    rw [ite_eq_left (hl t _ _)]
     simp only [fx, fψ, fe, map_mul, map_sub, FreeAlgebra.lift_ι_apply, genB, mul_one]
     exact hF.x_d_sub j (by rw [card_νm] at h; exact h)
   | dot_cross_right j h t =>
-    rw [if_pos (hl t _ _)]
+    rw [ite_eq_left (hl t _ _)]
     simp only [fx, fψ, fe, map_mul, map_sub, FreeAlgebra.lift_ι_apply, genB, mul_one]
     exact hF.d_x_sub j (by rw [card_νm] at h; exact h)
   | cross_sq j h t =>
-    rw [if_pos (hl t _ _)]
+    rw [ite_eq_left (hl t _ _)]
     simp only [fψ, fe, map_mul, FreeAlgebra.lift_ι_apply, genB, mul_one, map_zero]
     exact hF.d_sq j
   | braid j h t =>
-    rw [if_neg (fun c => c.2 (hl t _ _))]
+    rw [ite_eq_right (fun c => c.2 (hl t _ _))]
     simp only [fψ, fe, map_mul, map_sub, FreeAlgebra.lift_ι_apply, genB, mul_one, map_zero]
     exact sub_eq_zero.2 (hF.braid j)
 
@@ -420,14 +419,14 @@ noncomputable def lift : nilHecke k m →ₐ[k] B :=
   have : (KLRAlgebra.nilHeckeEquiv Q₁ () m).symm ⟨mulX k m a, mulX_mem a⟩ =
       x (Fin.cast (card_νm m).symm a) := by
     rw [AlgEquiv.symm_apply_eq, nilHeckeEquiv_x]; rfl
-  rw [lift, AlgHom.comp_apply, AlgEquiv.toAlgHom_eq_coe, AlgHom.coe_coe, this, x, liftR_mk,
+  rw [lift, AlgHom.comp_apply, AlgEquiv.toAlgHom_apply, this, x, liftR_mk,
     FreeAlgebra.lift_ι_apply]
   rfl
 
 @[simp] theorem lift_dd (j : ℕ) : lift hF ⟨dd k m j, dd_mem j⟩ = D j := by
   have : (KLRAlgebra.nilHeckeEquiv Q₁ () m).symm ⟨dd k m j, dd_mem j⟩ = ψ j := by
     rw [AlgEquiv.symm_apply_eq, nilHeckeEquiv_ψ]
-  rw [lift, AlgHom.comp_apply, AlgEquiv.toAlgHom_eq_coe, AlgHom.coe_coe, this, ψ, liftR_mk,
+  rw [lift, AlgHom.comp_apply, AlgEquiv.toAlgHom_apply, this, ψ, liftR_mk,
     FreeAlgebra.lift_ι_apply]
   rfl
 
@@ -439,9 +438,9 @@ theorem algHom_ext {f g : nilHecke k m →ₐ[k] B}
   have : f.comp E.toAlgHom = g.comp E.toAlgHom := by
     refine KLRAlgebra.algHom_ext (fun t => ?_) (fun a => ?_) (fun j => ?_)
     · simp [E]
-    · simp only [AlgHom.comp_apply, AlgEquiv.toAlgHom_eq_coe, AlgHom.coe_coe, E,
+    · simp only [AlgHom.comp_apply, AlgEquiv.toAlgHom_apply, E,
         nilHeckeEquiv_x, hx]
-    · simp only [AlgHom.comp_apply, AlgEquiv.toAlgHom_eq_coe, AlgHom.coe_coe, E,
+    · simp only [AlgHom.comp_apply, AlgEquiv.toAlgHom_apply, E,
         nilHeckeEquiv_ψ, hd]
   ext z
   obtain ⟨r, rfl⟩ := E.surjective z

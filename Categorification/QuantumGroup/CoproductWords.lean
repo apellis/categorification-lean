@@ -85,8 +85,8 @@ private theorem sum_map_filter {α : Type*} (L : List α) (p : α → Bool) (f :
   | nil => simp
   | cons a L ih =>
     by_cases h : p a
-    · simp [List.filter_cons, h, ih]
-    · simp [List.filter_cons, h, ih]
+    · simp [h, ih]
+    · simp [h, ih]
 
 /-- Sums over the letters of a subword. -/
 theorem sum_map_wt_maskWord (w : Fin m → I) (b : Fin m → Bool) (β : Bool) (f : I → ℤ) :
@@ -142,7 +142,7 @@ theorem maskInv_cons (dot : I → I → ℤ) (w : Fin (m + 1) → I) (β : Bool)
   rw [Fin.sum_univ_succ]
   congr 1
   · rw [Fin.sum_univ_succ]
-    simp only [lt_self_iff_false, false_and, if_false, zero_add, Fin.cons_zero, Fin.cons_succ,
+    simp only [lt_self_iff_false, false_and, ite_false, zero_add, Fin.cons_zero, Fin.cons_succ,
       Fin.succ_pos, true_and]
     by_cases hβ : β = true
     · simp [hβ]
@@ -150,7 +150,7 @@ theorem maskInv_cons (dot : I → I → ℤ) (w : Fin (m + 1) → I) (β : Bool)
   · refine Finset.sum_congr rfl fun a _ => ?_
     rw [Fin.sum_univ_succ]
     simp only [Fin.cons_zero, Fin.cons_succ, Fin.succ_lt_succ_iff]
-    simp [Fin.not_lt_zero]
+    simp []
 
 /-- Subwords of a concatenation. -/
 theorem maskWord_append (w : Fin m → I) (w' : Fin m' → I) (b : Fin m → Bool)
@@ -196,14 +196,14 @@ theorem maskInv_append (dot : I → I → ℤ) (w : Fin m → I) (w' : Fin m' �
   rw [Fin.sum_univ_add]
   simp only [Fin.sum_univ_add, Fin.append_left, Fin.append_right, Finset.sum_add_distrib]
   have h1 : ∀ (a : Fin m) (c : Fin m'), Fin.castAdd m' a < Fin.natAdd m c := fun a c => by
-    simp only [Fin.lt_iff_val_lt_val, Fin.coe_castAdd, Fin.coe_natAdd]; omega
+    simp only [Fin.lt_def, Fin.val_castAdd, Fin.val_natAdd]; omega
   have h2 : ∀ (a : Fin m') (c : Fin m), ¬ Fin.natAdd m a < Fin.castAdd m' c := fun a c => by
-    simp only [Fin.lt_iff_val_lt_val, Fin.coe_castAdd, Fin.coe_natAdd]; omega
+    simp only [Fin.lt_def, Fin.val_castAdd, Fin.val_natAdd]; omega
   have h3 : ∀ (a c : Fin m), Fin.castAdd m' a < Fin.castAdd m' c ↔ a < c := fun a c => by
-    simp only [Fin.lt_iff_val_lt_val, Fin.coe_castAdd]
+    simp only [Fin.lt_def, Fin.val_castAdd]
   have h4 : ∀ (a c : Fin m'), Fin.natAdd m a < Fin.natAdd m c ↔ a < c := fun a c => by
-    simp only [Fin.lt_iff_val_lt_val, Fin.coe_natAdd]; omega
-  simp only [h1, h2, h3, h4, true_and, false_and, if_false, Finset.sum_const_zero, add_zero]
+    simp only [Fin.lt_def, Fin.val_natAdd]; omega
+  simp only [h1, h2, h3, h4, true_and, false_and, ite_false, Finset.sum_const_zero]
   ring
 
 end Mask

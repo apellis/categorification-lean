@@ -371,14 +371,18 @@ theorem lay_dom (μ : X) (u : List (Letter I)) (g : Shape I) (v : List (Letter I
   refine Obj.ext rfl ?_
   have h := Shape.dom_gen (RD := RD) (wt RD μ v) g
   simp only [Layer.dom_word, lay, ob_word]
-  rw [h, List.append_assoc, List.append_assoc, wd_append RD μ u, wd_append RD μ g.dom]
+  rw [h]
+  change (wd RD (wt RD μ (g.dom ++ v)) u ++ wd RD (wt RD μ v) g.dom) ++ wd RD μ v = wd RD μ ((u ++ g.dom) ++ v)
+  rw [List.append_assoc, List.append_assoc, wd_append RD μ u, wd_append RD μ g.dom]
 
 theorem lay_cod (μ : X) (u : List (Letter I)) (g : Shape I) (v : List (Letter I)) :
     (lay RD μ u g v).cod = ob RD μ (u ++ g.cod ++ v) := by
   refine Obj.ext (wt_lay_dom RD μ u g v) ?_
   have h := Shape.cod_gen (RD := RD) (wt RD μ v) g
   simp only [Layer.cod_word, lay, ob_word]
-  rw [h, List.append_assoc, List.append_assoc, wd_append RD μ u, wd_append RD μ g.cod,
+  rw [h]
+  change (wd RD (wt RD μ (g.dom ++ v)) u ++ wd RD (wt RD μ v) g.cod) ++ wd RD μ v = wd RD μ ((u ++ g.cod) ++ v)
+  rw [List.append_assoc, List.append_assoc, wd_append RD μ u, wd_append RD μ g.cod,
     wt_append, wt_append, Shape.wt_dom_eq_wt_cod]
 
 /-! ## Diagrams in normal form -/

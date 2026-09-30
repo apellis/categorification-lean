@@ -286,7 +286,7 @@ theorem dotThruX (ν : X) (u v : List (Letter I)) (l₁ l₂ : Letter I) (x : La
         ((sChain_xLay l₁ l₂).append ⟨rfl, rfl⟩)
         (SChain.append (⟨rfl, rfl⟩ : SChain [l₁, l₂] [([l₁], .dot l₂, [])] [l₁, l₂]) (sChain_xLay l₁ l₂))
         (by simp) (by simp) (by wnf) (by wnf) (by simp)
-    · have := congrArg List.length hS; simp at this; omega
+    · have := congrArg List.length hS; simp at this
     · subst a l b
       refine ⟨(u, .dot l₁, [l₂] ++ v), rfl, ⟨by simp, by simp⟩, ?_⟩
       exact dg_mod_free [] [] u v (ds1 (RD := RD) (k := k) _ l₁ l₂)
@@ -357,10 +357,10 @@ theorem dotsThruX (ν : X) (u v : List (Letter I)) (l₁ l₂ : Letter I) :
       have := hD y (List.mem_cons_of_mem _ hy)
       obtain ⟨a, g, b⟩ := y; cases g <;> simp_all [Shape.isDot, Shape.isCross]
     have hx'0 : ccnt [x'] = 0 := by
-      obtain ⟨a, g, b⟩ := x'; cases g <;> simp_all [Shape.isDot, Shape.isCross]
+      obtain ⟨a, g, b⟩ := x'; cases g <;> simp_all [Shape.isDot]
     rw [hxD] at h1; rw [hx'0] at h2
     have := Submodule.add_mem _ h1 h2
-    simp only [List.append_assoc, List.singleton_append, List.cons_append] at this
+    simp only [List.append_assoc, List.cons_append] at this
     rw [sub_add_sub_cancel] at this
     simpa using this
 
@@ -583,7 +583,7 @@ theorem xWord_braidEquiv (ν : X) {ρ σ : List ℕ} (h : TypeA.BraidEquiv ρ σ
       simp only [TypeA.validWord_append, TypeA.validWord_cons] at hv'
       have hb : b + 1 < (lapply s α).length := by rw [length_lapply]; exact hv'.1.2.2.1
       obtain ⟨e, happ⟩ := xWord_comm (RD := RD) (k := k) ν (t := lapply (lapply s α) [a, b]) hab hb
-      refine leL_le_lo (c := α.length + 0 + β.length) (by simp; omega) ?_
+      refine leL_le_lo (c := α.length + 0 + β.length) (by simp) ?_
       exact xWord_ctx ν α [a, b] [b, a] β hv ((TypeA.BraidStep.comm α β hab).validWord_iff.1 hv)
         (by rw [e, sub_self]; exact Submodule.zero_mem _) happ
     | braid α β a =>

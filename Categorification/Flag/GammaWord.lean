@@ -170,6 +170,7 @@ theorem atPrefix_comp {w w' w'' : List (SLetter m × Comp m)} {e : Comp m}
   | s, y :: u, h, h', h'' => by
     simp only [atPrefix]
     rw [atPrefix_comp φ ψ χ hχ y.2 u h.2 h'.2 h''.2, BHom.whiskerLeft_comp]
+    rfl
 
 theorem atPrefix_congr {w w' : List (SLetter m × Comp m)} {e : Comp m}
     (φ ψ : ∀ t (h : PValid t w e) (h' : PValid t w' e),
@@ -203,6 +204,7 @@ theorem atPrefix_add {w w' : List (SLetter m × Comp m)} {e : Comp m}
   | s, y :: u, h, h' => by
     simp only [atPrefix]
     rw [atPrefix_add φ ψ y.2 u h.2 h'.2, BHom.whiskerLeft_add]
+    rfl
 
 theorem atPrefix_sub {w w' : List (SLetter m × Comp m)} {e : Comp m}
     (φ ψ : ∀ t (h : PValid t w e) (h' : PValid t w' e),
@@ -214,6 +216,7 @@ theorem atPrefix_sub {w w' : List (SLetter m × Comp m)} {e : Comp m}
   | s, y :: u, h, h' => by
     simp only [atPrefix]
     rw [atPrefix_sub φ ψ y.2 u h.2 h'.2, BHom.whiskerLeft_sub]
+    rfl
 
 theorem atPrefix_neg {w w' : List (SLetter m × Comp m)} {e : Comp m}
     (φ : ∀ t (h : PValid t w e) (h' : PValid t w' e), BHom (gammaP K t w e h) (gammaP K t w' e h')) :
@@ -224,6 +227,7 @@ theorem atPrefix_neg {w w' : List (SLetter m × Comp m)} {e : Comp m}
   | s, y :: u, h, h' => by
     simp only [atPrefix]
     rw [atPrefix_neg φ y.2 u h.2 h'.2, BHom.whiskerLeft_neg]
+    rfl
 
 theorem atPrefix_zero {w w' : List (SLetter m × Comp m)} {e : Comp m} :
     ∀ (s : Comp m) (u : List (SLetter m × Comp m)) (h : PValid s (u ++ w) e)
@@ -308,8 +312,7 @@ theorem locTwo_mulB {L : BRing A B} {L' : BRing B C} (a : L.T) (b : L'.T) {E : T
       BRing.tmul L (L'.tensor X) a (BRing.tmul L' X b 1) *
         (BRing.assoc L L' X).hom (BRing.tmul (L.tensor L') X y z)) y
       (by simp) (fun p q => ?_) (fun y y' hy hy' => ?_)
-    · beta_reduce
-      rw [BRing.tmul_mul_tmul, BRing.tmul_mul_tmul, one_mul]
+    · rw [BRing.tmul_mul_tmul, BRing.tmul_mul_tmul, one_mul]
       erw [BRing.assoc_hom_tmul, BRing.assoc_hom_tmul]
       rw [BRing.tmul_mul_tmul, BRing.tmul_mul_tmul, one_mul]
     · beta_reduce at hy hy' ⊢

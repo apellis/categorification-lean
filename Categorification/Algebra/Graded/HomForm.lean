@@ -196,7 +196,7 @@ theorem hasGdim_homGrade_of_generators [HasGdim 𝒩] {ι : Type*} [Fintype ι] 
     obtain ⟨D, hD⟩ := (Set.finite_range deg).bddAbove
     refine ⟨B - D, fun d (hd : homGrade A ℳ 𝒩 d ≠ ⊥) => ?_⟩
     by_contra hlt
-    push_neg at hlt
+    push Not at hlt
     apply hd
     rw [eq_bot_iff]
     intro φ hφ
@@ -207,7 +207,6 @@ theorem hasGdim_homGrade_of_generators [HasGdim 𝒩] {ι : Type*} [Fintype ι] 
         by_contra h
         have := hB h
         have := hD ⟨t, rfl⟩
-        simp only [Set.mem_setOf_eq] at *
         omega
       exact Subtype.ext (by
         have := (homGradeEval (A := A) m deg hm d ⟨φ, hφ⟩ t).2
@@ -329,12 +328,12 @@ theorem homGdim_congr_right {P Q Q' : GProj 𝒜} (g : Q.Iso Q') :
 
 theorem homGdim_prod_left (P P' Q : GProj 𝒜) :
     homGdim (P.prod P') Q = homGdim P Q + homGdim P' Q := by
-  haveI : HasGdim (homGrade A (P.prod P').grading Q.grading) := hasGdim_homGrade (P.prod P') Q
+  have : HasGdim (homGrade A (P.prod P').grading Q.grading) := hasGdim_homGrade (P.prod P') Q
   exact gdim_eq_add_of_finrank_eq fun d => finrank_homGrade_prod_left d
 
 theorem homGdim_prod_right (P Q Q' : GProj 𝒜) :
     homGdim P (Q.prod Q') = homGdim P Q + homGdim P Q' := by
-  haveI : HasGdim (homGrade A P.grading (Q.prod Q').grading) := hasGdim_homGrade P (Q.prod Q')
+  have : HasGdim (homGrade A P.grading (Q.prod Q').grading) := hasGdim_homGrade P (Q.prod Q')
   exact gdim_eq_add_of_finrank_eq fun d => finrank_homGrade_prod_right d
 
 /-- `gdim` of a reindexed family `d ↦ ℳ (a + d)` is `q^{-a} gdim ℳ`. -/
@@ -382,7 +381,7 @@ def homFormRight (Q : GProj 𝒜) : K0 𝒜 →+ LaurentSeries ℤ :=
     (by
       rw [relSubgroup, AddSubgroup.closure_le]
       rintro _ ⟨P, P', rfl⟩
-      simp only [SetLike.mem_coe, AddMonoidHom.mem_ker, map_sub, FreeAbelianGroup.lift.of]
+      simp only [SetLike.mem_coe, AddMonoidHom.mem_ker, map_sub, FreeAbelianGroup.lift_apply_of]
       show homGdim (P.prod P') Q - homGdim P Q - homGdim P' Q = 0
       rw [homGdim_prod_left]
       abel)
@@ -391,7 +390,7 @@ variable {𝒜}
 
 @[simp] theorem homFormRight_of (P Q : GProj 𝒜) : homFormRight 𝒜 Q (of P) = homGdim P Q := by
   show QuotientAddGroup.lift _ _ _ (QuotientAddGroup.mk' _ _) = _
-  rw [QuotientAddGroup.mk'_apply, QuotientAddGroup.lift_mk, FreeAbelianGroup.lift.of]
+  rw [QuotientAddGroup.mk'_apply, QuotientAddGroup.lift_mk, FreeAbelianGroup.lift_apply_of]
   rfl
 
 variable (𝒜) in
@@ -406,7 +405,7 @@ def homFormAux : K0 𝒜 →+ K0 𝒜 →+ LaurentSeries ℤ :=
     (by
       rw [relSubgroup, AddSubgroup.closure_le]
       rintro _ ⟨Q, Q', rfl⟩
-      simp only [SetLike.mem_coe, AddMonoidHom.mem_ker, map_sub, FreeAbelianGroup.lift.of]
+      simp only [SetLike.mem_coe, AddMonoidHom.mem_ker, map_sub, FreeAbelianGroup.lift_apply_of]
       show homFormRight 𝒜 (Q.prod Q') - homFormRight 𝒜 Q - homFormRight 𝒜 Q' = 0
       refine hom_ext fun P => ?_
       simp only [AddMonoidHom.sub_apply, homFormRight_of, homGdim_prod_right,
@@ -415,7 +414,7 @@ def homFormAux : K0 𝒜 →+ K0 𝒜 →+ LaurentSeries ℤ :=
 
 theorem homFormAux_of (Q : GProj 𝒜) : homFormAux 𝒜 (of Q) = homFormRight 𝒜 Q := by
   show QuotientAddGroup.lift _ _ _ (QuotientAddGroup.mk' _ _) = _
-  rw [QuotientAddGroup.mk'_apply, QuotientAddGroup.lift_mk, FreeAbelianGroup.lift.of]
+  rw [QuotientAddGroup.mk'_apply, QuotientAddGroup.lift_mk, FreeAbelianGroup.lift_apply_of]
   rfl
 
 variable (𝒜) in

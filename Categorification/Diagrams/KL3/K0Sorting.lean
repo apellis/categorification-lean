@@ -61,14 +61,14 @@ theorem nUp_append (a b : List (Letter I)) : nUp (a ++ b) = nUp a + nUp b := by
 
 theorem nUp_cons (l : Letter I) (w : List (Letter I)) :
     nUp (l :: w) = (if l.1 then 1 else 0) + nUp w := by
-  cases h : l.1 <;> simp [nUp, List.filter_cons, h, add_comm]
+  cases h : l.1 <;> simp [nUp, h, add_comm]
 
 /-- The number of `-` letters of a signed sequence. -/
 def nDn (w : List (Letter I)) : ℕ := (w.filter fun l => !l.1).length
 
 theorem nDn_cons (l : Letter I) (w : List (Letter I)) :
     nDn (l :: w) = (if l.1 then 0 else 1) + nDn w := by
-  cases h : l.1 <;> simp [nDn, List.filter_cons, h, add_comm]
+  cases h : l.1 <;> simp [nDn, h, add_comm]
 
 theorem nInv_append (a w : List (Letter I)) :
     nInv (a ++ w) = nInv a + nInv w + nDn a * nUp w := by
@@ -82,13 +82,13 @@ theorem nInv_append (a w : List (Letter I)) :
 theorem nInv_swap (a b : List (Letter I)) (i j : I) :
     nInv (a ++ (false, j) :: (true, i) :: b) = nInv (a ++ (true, i) :: (false, j) :: b) + 1 := by
   rw [nInv_append, nInv_append]
-  simp only [nInv, nUp_cons, if_true, Bool.false_eq_true, if_false]
+  simp only [nInv, nUp_cons, ite_true, Bool.false_eq_true, ite_false]
   ring
 
 theorem nInv_le_of_remove (a b : List (Letter I)) (i j : I) :
     nInv (a ++ b) ≤ nInv (a ++ (true, i) :: (false, j) :: b) := by
   rw [nInv_append, nInv_append]
-  simp only [nInv, nUp_cons, if_true, Bool.false_eq_true, if_false]
+  simp only [nInv, nUp_cons, ite_true, Bool.false_eq_true, ite_false]
   have := Nat.mul_le_mul_left (nDn a) (show nUp b ≤ 1 + (0 + nUp b) by omega)
   omega
 

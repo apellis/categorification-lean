@@ -47,6 +47,8 @@ the cup `1 → E F` and the cap `F E → 1` in `crossr` is fixed by the zigzag a
 normalizations only up to a weight-dependent factor, which is where a repair would have to act.
 -/
 
+set_option backward.isDefEq.respectTransparency false
+
 noncomputable section
 
 open scoped TensorProduct
@@ -105,9 +107,8 @@ theorem whiskerLeft_mul_congr (M : BRing A B) {N N' : BRing B C} (ψ : BHom N N'
     BHom.whiskerLeft M ψ (BRing.tmul M N 1 w * y) = BHom.whiskerLeft M ψ (BRing.tmul M N 1 w' * y) := by
   refine BRing.induction_on (P := fun y => BHom.whiskerLeft M ψ (BRing.tmul M N 1 w * y) =
     BHom.whiskerLeft M ψ (BRing.tmul M N 1 w' * y)) y
-    (by beta_reduce; rw [mul_zero, mul_zero]) (fun a b => ?_) (fun y y' hy hy' => ?_)
-  · beta_reduce
-    rw [BRing.tmul_mul_tmul, BRing.tmul_mul_tmul, BHom.whiskerLeft_tmul, BHom.whiskerLeft_tmul, hψ]
+    (by rw [mul_zero, mul_zero]) (fun a b => ?_) (fun y y' hy hy' => ?_)
+  · rw [BRing.tmul_mul_tmul, BRing.tmul_mul_tmul, BHom.whiskerLeft_tmul, BHom.whiskerLeft_tmul, hψ]
   · beta_reduce at hy hy' ⊢
     rw [mul_add, mul_add, BHom.map_add, BHom.map_add, hy, hy']
 
@@ -148,9 +149,8 @@ theorem whiskerLeft_mul_image (M : BRing A B) {N N' : BRing B C} (ψ : BHom N N'
     BRing.tmul M N' 1 u * BHom.whiskerLeft M ψ y = BRing.tmul M N' 1 u' * BHom.whiskerLeft M ψ y := by
   refine BRing.induction_on (P := fun y => BRing.tmul M N' 1 u * BHom.whiskerLeft M ψ y =
     BRing.tmul M N' 1 u' * BHom.whiskerLeft M ψ y) y
-    (by beta_reduce; rw [BHom.map_zero, mul_zero, mul_zero]) (fun a b => ?_) (fun y y' hy hy' => ?_)
-  · beta_reduce
-    rw [BHom.whiskerLeft_tmul, BRing.tmul_mul_tmul, BRing.tmul_mul_tmul, hψ]
+    (by rw [BHom.map_zero, mul_zero, mul_zero]) (fun a b => ?_) (fun y y' hy hy' => ?_)
+  · rw [BHom.whiskerLeft_tmul, BRing.tmul_mul_tmul, BRing.tmul_mul_tmul, hψ]
   · beta_reduce at hy hy' ⊢
     rw [BHom.map_add, mul_add, mul_add, hy, hy']
 
@@ -164,7 +164,7 @@ variable {K : Type u} [Field K] {m : ℕ}
 theorem stepF_spanned (c : Fin m) {r s : Comp m} (h : StepR (false, c) r s) :
     SpannedBy (stepB K (false, c) r s h) (eXi K c s h.2) := by
   intro x
-  letI := eLeftAlgebra K c s h.2
+  let := eLeftAlgebra K c s h.2
   refine ⟨_, fun a => hCast K h.1 ((eBasisLeft K c s h.2).repr x a), ?_⟩
   conv_lhs => rw [← (eBasisLeft K c s h.2).sum_repr x]
   refine Finset.sum_congr rfl fun a _ => ?_
@@ -183,7 +183,7 @@ variable (c d : Fin m) (hcd : c ≠ d) {t r₁ r₂ r₁' : Comp m} (h₁ : Step
 include hcd
 
 theorem tauU_ne : tauU K c d h₁ h₂ h₁' h₂' = 0 := by
-  unfold tauU; rw [dif_neg hcd]
+  unfold tauU; rw [dite_eq_right hcd]
 
 /-- For `c ≠ d` the dots slide freely through the upward crossing, whiskered by `X`: the dot of
 the left input strand becomes the dot of the right output strand. -/
@@ -291,7 +291,7 @@ theorem crosslW_one (hij : i ≠ j) (y : Y.T) :
     intro g
     rw [locTwo_tmul, crossU_xiL_pow j i hji]
   simp only [BHom.whiskerLeft_tmul, hψ]
-  rw [crossU_one, if_neg hji]
+  rw [crossU_one, ite_eq_right hji]
   have hq : p j.castSucc + (if j.castSucc = i.succ then 1 else 0) = q j.castSucc := by
     rw [← hEi.1, raise]
     split_ifs with h1 h2 h2
@@ -303,26 +303,26 @@ theorem crosslW_one (hij : i ≠ j) (y : Y.T) :
   rw [Finset.sum_eq_single (dFE j (hFj' : StepR (true, j) p q'))]
   · rw [Nat.sub_self, pow_zero, one_mul, xsFE_eq, x_zero, map_one]
     split_ifs with hadj
-    · rw [if_pos hadj] at hq
+    · rw [ite_eq_left hadj] at hq
       rw [mul_sub, BRing.tmul_mul_tmul, BRing.tmul_mul_tmul, one_mul, one_mul, mul_one,
         BRing.sub_tmul, BHom.map_sub, BHom.map_sub, crosslCap_tmul, crosslCap_tmul,
         ← pow_succ, capEFP_xi_pow j _ _ _ (by omega), capEFP_xi_pow j _ _ _ (by omega),
-        if_pos (by omega), if_neg (by omega), map_one, map_zero, one_mul, zero_mul]
+        ite_eq_left (by omega), ite_eq_right (by omega), map_one, map_zero, one_mul, zero_mul]
       simp only [BRing.tmul_zero, sub_zero]
-    · rw [if_neg hadj, add_zero] at hq
-      rw [mul_one, crosslCap_tmul, capEFP_xi_pow j _ _ _ (by omega), if_pos (by omega),
+    · rw [ite_eq_right hadj, add_zero] at hq
+      rw [mul_one, crosslCap_tmul, capEFP_xi_pow j _ _ _ (by omega), ite_eq_left (by omega),
         map_one, one_mul]
   · intro g hg hgd
     have hg' : g ≤ dFE j (hFj' : StepR (true, j) p q') := Nat.lt_succ_iff.1 (Finset.mem_range.1 hg)
     split_ifs with hadj
-    · rw [if_pos hadj] at hq
+    · rw [ite_eq_left hadj] at hq
       rw [mul_sub, BRing.tmul_mul_tmul, BRing.tmul_mul_tmul, one_mul, one_mul, mul_one,
         BRing.sub_tmul, BHom.map_sub, BHom.map_sub, crosslCap_tmul, crosslCap_tmul,
         ← pow_succ, capEFP_xi_pow j _ _ _ (by omega), capEFP_xi_pow j _ _ _ (by omega),
-        if_neg (by omega), if_neg (by omega), map_zero, zero_mul]
+        ite_eq_right (by omega), ite_eq_right (by omega), map_zero, zero_mul]
       simp only [BRing.tmul_zero, sub_zero]
-    · rw [if_neg hadj, add_zero] at hq
-      rw [mul_one, crosslCap_tmul, capEFP_xi_pow j _ _ _ (by omega), if_neg (by omega),
+    · rw [ite_eq_right hadj, add_zero] at hq
+      rw [mul_one, crosslCap_tmul, capEFP_xi_pow j _ _ _ (by omega), ite_eq_right (by omega),
         map_zero, zero_mul]
       simp only [BRing.tmul_zero]
   · intro h; exact absurd (Finset.mem_range.2 (Nat.lt_succ_self _)) h
@@ -446,9 +446,9 @@ theorem crossrW_one (hij : i ≠ j) (y : Y.T) :
   have hp : p j.succ = q' j.succ + (if i.castSucc = j.succ then 1 else 0) := by
     rw [← hEi'.1, raise]
     by_cases h1 : j.succ = i.castSucc
-    · rw [if_pos h1, if_pos h1.symm]
+    · rw [ite_eq_left h1, ite_eq_left h1.symm]
     · have h3 : j.succ ≠ i.succ := fun h => hij (Fin.succ_injective _ h).symm
-      rw [if_neg h1, if_neg h3, if_neg (fun h => h1 h.symm), add_zero]
+      rw [ite_eq_right h1, ite_eq_right h3, ite_eq_right (fun h => h1 h.symm), add_zero]
   have hq' := hFj'.2
   have hd : dEF j (hFj' : StepR (true, j) q' r) = q' j.succ - 1 := dEF_eq j _
   set d := dEF j (hFj' : StepR (true, j) q' r) with hd'
@@ -469,33 +469,33 @@ theorem crossrW_one (hij : i ≠ j) (y : Y.T) :
     rw [← Fst_right_x j (hFj' : StepR (true, j) q' r) hFj', ← mul_one
       ((stepB K (false, j) r q' hFj').right (x K r j.succ (d - g))), BRing.tmul_balance,
       locTwo_tmul, tmul_neg_one_pow_mul, BHom.map_neg_one_pow_mul,
-      crossU_xiR_pow i j hij, crossU_one, if_neg hij', neg_one_pow_mul_tmul,
+      crossU_xiR_pow i j hij, crossU_one, ite_eq_right hij', neg_one_pow_mul_tmul,
       BHom.map_neg_one_pow_mul, tmul_neg_one_pow_mul, BHom.map_neg_one_pow_mul]
     split_ifs with hadj hgd hgd
     · subst hgd
-      rw [if_pos hadj] at hp
+      rw [ite_eq_left hadj] at hp
       rw [mul_sub, BRing.tmul_mul_tmul, BRing.tmul_mul_tmul, one_mul, mul_one, one_mul,
         ← pow_succ, BRing.sub_tmul, BHom.map_sub, BRing.tmul_sub, BHom.map_sub, crossrCap_tmul,
         crossrCap_tmul,
-        capFEP_xi_pow j _ _ _ (by omega), capFEP_xi_pow j _ _ _ (by omega), if_neg (by omega),
-        if_pos (by omega), map_zero, map_one, zero_mul, one_mul, Nat.sub_self, pow_zero, one_mul,
+        capFEP_xi_pow j _ _ _ (by omega), capFEP_xi_pow j _ _ _ (by omega), ite_eq_right (by omega),
+        ite_eq_left (by omega), map_zero, map_one, zero_mul, one_mul, Nat.sub_self, pow_zero, one_mul,
         x_zero, map_one, one_mul, BRing.zero_tmul, zero_sub]
-    · rw [if_pos hadj] at hp
+    · rw [ite_eq_left hadj] at hp
       rw [mul_sub, BRing.tmul_mul_tmul, BRing.tmul_mul_tmul, one_mul, mul_one, one_mul,
         ← pow_succ, BRing.sub_tmul, BHom.map_sub, BRing.tmul_sub, BHom.map_sub, crossrCap_tmul,
         crossrCap_tmul,
-        capFEP_xi_pow j _ _ _ (by omega), capFEP_xi_pow j _ _ _ (by omega), if_neg (by omega),
-        if_neg (by omega), map_zero]
+        capFEP_xi_pow j _ _ _ (by omega), capFEP_xi_pow j _ _ _ (by omega), ite_eq_right (by omega),
+        ite_eq_right (by omega), map_zero]
       simp only [zero_mul, BRing.zero_tmul, sub_zero, mul_zero]
     · subst hgd
-      rw [if_neg hadj, add_zero] at hp
-      rw [mul_one, crossrCap_tmul, capFEP_xi_pow j _ _ _ (by omega), if_pos (by omega), map_one,
+      rw [ite_eq_right hadj, add_zero] at hp
+      rw [mul_one, crossrCap_tmul, capFEP_xi_pow j _ _ _ (by omega), ite_eq_left (by omega), map_one,
         one_mul, Nat.sub_self, pow_zero, one_mul, x_zero, map_one, one_mul]
-    · rw [if_neg hadj, add_zero] at hp
-      rw [mul_one, crossrCap_tmul, capFEP_xi_pow j _ _ _ (by omega), if_neg (by omega), map_zero]
+    · rw [ite_eq_right hadj, add_zero] at hp
+      rw [mul_one, crossrCap_tmul, capFEP_xi_pow j _ _ _ (by omega), ite_eq_right (by omega), map_zero]
       simp only [zero_mul, BRing.zero_tmul, mul_zero]
   rw [Finset.sum_congr rfl hterm, Finset.sum_ite_eq' (Finset.range (d + 1)) d,
-    if_pos (Finset.mem_range.2 (Nat.lt_succ_self d))]
+    ite_eq_left (Finset.mem_range.2 (Nat.lt_succ_self d))]
 
 /-- **Lemma 6.4 for `crossr`, the dot of `E_i`**: `crossr` commutes with the dot on the upward
 strand. -/

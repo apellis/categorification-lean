@@ -54,7 +54,7 @@ noncomputable section
 
 namespace Categorification
 
-open LaurentPolynomial Graded
+open LaurentPolynomial Categorification.Graded
 
 section PairingShift
 
@@ -84,13 +84,13 @@ theorem Graded.pairing_T_smul_left (a : ℤ) (x : K0 𝒜) (y : G0 𝒜) :
 theorem Graded.pairing_smul_left_of_eq {x : K0 𝒜} {y : G0 𝒜} {r : LaurentPolynomial ℤ}
     (h : pairing x y = toLaurentSeries r) (p : LaurentPolynomial ℤ) :
     pairing (p • x) y = toLaurentSeries (invert p * r) := by
-  induction p using Finsupp.induction_linear with
+  induction p using AddMonoidAlgebra.induction_linear with
   | zero => simp
   | add p p' hp hp' =>
     rw [add_smul, map_add, AddMonoidHom.add_apply, hp, hp', map_add, add_mul, map_add]
   | single n m =>
-    have hT : (Finsupp.single n m : LaurentPolynomial ℤ) = m • T n := by
-      rw [T, Finsupp.smul_single, smul_eq_mul, mul_one]
+    have hT : (AddMonoidAlgebra.single n m : LaurentPolynomial ℤ) = m • T n := by
+      rw [LaurentPolynomial.single_eq_C_mul_T, LaurentPolynomial.smul_eq_C_mul]
     rw [hT, smul_assoc, map_zsmul]
     change m • pairing ((T n : LaurentPolynomial ℤ) • x) y = _
     rw [pairing_T_smul_left, h, ← toLaurentSeries_T_mul, map_zsmul, invert_T, smul_mul_assoc,
@@ -163,8 +163,8 @@ theorem GradingDatum.pairing_projP (G : GradingDatum Q) {ν : Multiset I} (s : S
     pairing (K0.of (G.projP s)) y = toLaurentSeries (chG0 G s y) := by
   have : pairing (K0.of (G.projP s)) = toLaurentSeries.comp (chG0 G s) := G0.hom_ext fun M => by
     rw [pairing_of_of, AddMonoidHom.comp_apply, chG0_of]
-    letI := idemDecomposition M.grading (G.e_mem_grade s)
-    haveI := M.finiteDimensional
+    let := idemDecomposition M.grading (G.e_mem_grade s)
+    have := M.finiteDimensional
     rw [toLaurentSeries_gdimPoly]
     exact gdim_homGrade_ofIdempotent (e_mul_self s) (G.e_mem_grade s)
   exact DFunLike.congr_fun this y
@@ -215,16 +215,16 @@ theorem laurentEval_vQ_toLaurent (g : ℤ[X]) :
 theorem exists_laurentEval_eq_mul (p : ℚ[X]) :
     ∃ (x : LaurentPolynomial ℤ) (N : ℤ), N ≠ 0 ∧
       algebraMap ℚ[X] (RatFunc ℚ) p * N = laurentEval vQ x := by
-  obtain ⟨b, hb⟩ := IsLocalization.integerNormalization_map_to_map (nonZeroDivisors ℤ) p
+  obtain ⟨b, hb0, hb⟩ := IsLocalization.integerNormalization_spec (nonZeroDivisors ℤ) p
   refine ⟨toLaurent (IsLocalization.integerNormalization (nonZeroDivisors ℤ) p), b,
-    nonZeroDivisors.coe_ne_zero b, ?_⟩
+    (mem_nonZeroDivisors_iff_ne_zero.mp hb0), ?_⟩
   rw [laurentEval_vQ_toLaurent, hb, map_zsmul, zsmul_eq_mul, mul_comm]
 
 /-- **`ℚ(v)` is the fraction field of `ℤ[v, v⁻¹]`** (`q ↦ v`): every element is a quotient of
 Laurent polynomials in `v` with integer coefficients. -/
 theorem exists_eq_laurentEval_div (z : RatFunc ℚ) :
     ∃ x y : LaurentPolynomial ℤ, z = laurentEval vQ x / laurentEval vQ y := by
-  haveI : CharZero (RatFunc ℚ) :=
+  have : CharZero (RatFunc ℚ) :=
     charZero_of_injective_algebraMap (algebraMap ℚ (RatFunc ℚ)).injective
   obtain ⟨xn, Nn, hNn, hn⟩ := exists_laurentEval_eq_mul (RatFunc.num z)
   obtain ⟨xd, Nd, hNd, hd⟩ := exists_laurentEval_eq_mul (RatFunc.denom z)
@@ -239,7 +239,6 @@ theorem exists_eq_laurentEval_div (z : RatFunc ℚ) :
   generalize algebraMap ℚ[X] (RatFunc ℚ) (RatFunc.denom z) = d at hz hden ⊢
   subst hz
   field_simp
-  ring
 
 /-- The `ℤ[q, q⁻¹]`-algebra structure on `ℚ(v)` with `q ↦ v` (not a global instance). -/
 @[reducible] def vAlgebra : Algebra (LaurentPolynomial ℤ) (RatFunc ℚ) :=
@@ -247,9 +246,9 @@ theorem exists_eq_laurentEval_div (z : RatFunc ℚ) :
 
 theorem isFractionRing_vAlgebra :
     @IsFractionRing (LaurentPolynomial ℤ) _ (RatFunc ℚ) _ vAlgebra := by
-  letI := vAlgebra
-  letI : SMul (LaurentPolynomial ℤ) (RatFunc ℚ) := Algebra.toSMul
-  haveI : FaithfulSMul (LaurentPolynomial ℤ) (RatFunc ℚ) :=
+  let := vAlgebra
+  let : SMul (LaurentPolynomial ℤ) (RatFunc ℚ) := Algebra.toSMul
+  have : FaithfulSMul (LaurentPolynomial ℤ) (RatFunc ℚ) :=
     (faithfulSMul_iff_algebraMap_injective _ _).2 laurentEval_vQ_injective
   exact IsFractionRing.of_field _ _ exists_eq_laurentEval_div
 
@@ -286,7 +285,7 @@ theorem toLaurentSeries_C (c : ℤ) :
     toLaurentSeries (LaurentPolynomial.C c) = HahnSeries.single (0 : ℤ) c := by
   ext d
   rw [coeff_toLaurentSeries, LaurentPolynomial.C_apply, HahnSeries.coeff_single]
-  by_cases h : d = 0 <;> simp [h, eq_comm]
+  by_cases h : d = 0 <;> simp [h]
 
 /-- **The characters of the simples in terms of the coordinates of the `[P_j]`**:
 `ch(S_b)_j = \overline{a_{j b}} · dim END(S_b)_0`, where `[P_j] = ∑_b a_{j b} [P_b]`. -/
@@ -294,13 +293,13 @@ theorem chG0_g0B {ν : Multiset I} (j : Seq ν) (b : GProj.IndecClass ((Gkl).gra
     chG0 (Gkl) j (g0B k Γ ν b) =
       invert ((k0B k Γ ν).repr (K0.of ((Gkl).projP j)) b) * LaurentPolynomial.C (endDim k Γ b : ℤ) := by
   classical
-  haveI := ((Gkl).finite_and_card_indecClass_le (klQ_eq_klP (Γ := Γ) KL1.stdOrient_spec)
+  have := ((Gkl).finite_and_card_indecClass_le (klQ_eq_klP (Γ := Γ) KL1.stdOrient_spec)
     (fun a b _ => KL1.klP_ne_zero _ a b) KL1.klGradingDatum_degX_pos ν).1
-  haveI := Fintype.ofFinite (GProj.IndecClass ((Gkl).grade ν))
+  have := Fintype.ofFinite (GProj.IndecClass ((Gkl).grade ν))
   apply toLaurentSeries_injective
   rw [← GradingDatum.pairing_projP]
   conv_lhs => rw [← (k0B k Γ ν).sum_repr (K0.of ((Gkl).projP j))]
-  rw [map_sum, AddMonoidHom.finset_sum_apply]
+  rw [map_sum, AddMonoidHom.finsetSum_apply]
   have hterm : ∀ b', pairing ((k0B k Γ ν).repr (K0.of ((Gkl).projP j)) b' • k0B k Γ ν b')
       (g0B k Γ ν b) = toLaurentSeries (invert ((k0B k Γ ν).repr (K0.of ((Gkl).projP j)) b') *
         LaurentPolynomial.C (if b' = b then (endDim k Γ b' : ℤ) else 0)) := fun b' => by
@@ -308,8 +307,8 @@ theorem chG0_g0B {ν : Multiset I} (j : Seq ν) (b : GProj.IndecClass ((Gkl).gra
     rw [GradingDatum.pairing_k0Basis_g0Basis, toLaurentSeries_C]
     split_ifs <;> simp
   simp only [hterm]
-  rw [Finset.sum_eq_single b (fun b' _ hb' => by rw [if_neg hb', map_zero, mul_zero, map_zero])
-    (fun h => absurd (Finset.mem_univ b) h), if_pos rfl]
+  rw [Finset.sum_eq_single b (fun b' _ hb' => by rw [ite_eq_right hb', map_zero, mul_zero, map_zero])
+    (fun h => absurd (Finset.mem_univ b) h), ite_eq_left rfl]
 
 /-- **KL I, Theorem 3.17 in the form used for Proposition 3.18**: the characters of the simples
 `[S_b]` are linearly independent over `ℤ[q, q⁻¹]`. -/
@@ -334,9 +333,9 @@ theorem exists_toK0Q_k0B_eq_sum {ν : Multiset I} (b : GProj.IndecClass ((Gkl).g
     ∃ c : Seq ν → RatFunc ℚ, toK0Q k Γ (DirectSum.of (Gkl).K0fam ν (k0B k Γ ν b)) =
       ∑ j, c j • toK0Q k Γ (DirectSum.of (Gkl).K0fam ν (K0.of ((Gkl).projP j))) := by
   classical
-  haveI := ((Gkl).finite_and_card_indecClass_le (klQ_eq_klP (Γ := Γ) KL1.stdOrient_spec)
+  have := ((Gkl).finite_and_card_indecClass_le (klQ_eq_klP (Γ := Γ) KL1.stdOrient_spec)
     (fun a b _ => KL1.klP_ne_zero _ a b) KL1.klGradingDatum_degX_pos ν).1
-  haveI := Fintype.ofFinite (GProj.IndecClass ((Gkl).grade ν))
+  have := Fintype.ofFinite (GProj.IndecClass ((Gkl).grade ν))
   set A : Seq ν → GProj.IndecClass ((Gkl).grade ν) → LaurentPolynomial ℤ :=
     fun j b => (k0B k Γ ν).repr (K0.of ((Gkl).projP j)) b with hA
   have hK := linearIndependent_laurentEval _ (linearIndependent_chMap_g0B k Γ ν)
@@ -346,14 +345,14 @@ theorem exists_toK0Q_k0B_eq_sum {ν : Multiset I} (b : GProj.IndecClass ((Gkl).g
     rw [chG0_g0B, map_mul, laurentEval_vQ_invert, laurentEval_C, mul_comm]
   have hd : ∀ b : GProj.IndecClass ((Gkl).grade ν), ((endDim k Γ b : ℤ) : RatFunc ℚ) ≠ 0 :=
     fun b => by
-      haveI : CharZero (RatFunc ℚ) :=
+      have : CharZero (RatFunc ℚ) :=
         charZero_of_injective_algebraMap (algebraMap ℚ (RatFunc ℚ)).injective
       exact_mod_cast endDim_ne_zero k Γ b
   have hK' : LinearIndependent (RatFunc ℚ) (fun b j => qToV (A j b)) := by
     have := hK.units_smul (fun b => (Units.mk0 _ (hd b))⁻¹)
     convert this using 1
     funext b j
-    simp only [Pi.smul_apply', hval, Units.smul_def, smul_eq_mul, Units.val_inv_eq_inv_val,
+    simp only [Pi.smul_apply', hval, Units.smul_def, Units.val_inv_eq_inv_val,
       Units.val_mk0]
     show qToV (A j b) = ((endDim k Γ b : ℤ) : RatFunc ℚ)⁻¹ *
       (((endDim k Γ b : ℤ) : RatFunc ℚ) * qToV (A j b))
@@ -369,7 +368,7 @@ theorem exists_toK0Q_k0B_eq_sum {ν : Multiset I} (b : GProj.IndecClass ((Gkl).g
   simp only [hPj, Finset.smul_sum, smul_smul]
   rw [Finset.sum_comm]
   simp only [← Finset.sum_smul, hc, ite_smul, one_smul, zero_smul, Finset.sum_ite_eq',
-    Finset.mem_univ, if_true]
+    Finset.mem_univ, ite_true]
 
 omit [DecidableEq I] in
 theorem seq_ofList_ofFn {ν : Multiset I} (j : Seq ν) :
@@ -402,9 +401,9 @@ theorem word_ofFn_mem_grade {ν : Multiset I} (j : Seq ν) :
 theorem K0Qgrade_le_map_gammaQ (ν : Multiset I) :
     K0Qgrade k Γ ν ≤ (PreF.grade (RatFunc ℚ) ν).map (gammaQ k Γ).toLinearMap := by
   classical
-  haveI := ((Gkl).finite_and_card_indecClass_le (klQ_eq_klP (Γ := Γ) KL1.stdOrient_spec)
+  have := ((Gkl).finite_and_card_indecClass_le (klQ_eq_klP (Γ := Γ) KL1.stdOrient_spec)
     (fun a b _ => KL1.klP_ne_zero _ a b) KL1.klGradingDatum_degX_pos ν).1
-  haveI := Fintype.ofFinite (GProj.IndecClass ((Gkl).grade ν))
+  have := Fintype.ofFinite (GProj.IndecClass ((Gkl).grade ν))
   have hP : ∀ j : Seq ν, toK0Q k Γ (DirectSum.of (Gkl).K0fam ν (K0.of ((Gkl).projP j))) ∈
       (PreF.grade (RatFunc ℚ) ν).map (gammaQ k Γ).toLinearMap := fun j =>
     ⟨_, word_ofFn_mem_grade j, (toK0Q_projP_eq_gammaQ k Γ j).symm⟩

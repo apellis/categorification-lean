@@ -17,6 +17,9 @@ the downward crossing (`rotCrossLW_same_eq`). The proof mirrors the right rotati
 (`rotTauL_eq`), and the vanishing of the rotated crossing at `1` (`rotCrossLW_same_one`).
 -/
 
+-- Preserve elaboration of semireducible bimodule transports.
+set_option backward.isDefEq.respectTransparency false
+
 noncomputable section
 
 open scoped TensorProduct
@@ -193,10 +196,10 @@ theorem capEFP_right_xbar_vanish {s s' : Comp m} (hE : StepR (true, i) s s') (k 
         xiStep K (true, i) s s' hE ^ e) 1) = 0 := by
   have hxi : xiStep K (true, i) s s' hE = eXi K i s hE.2 := rfl
   rcases k with _ | k
-  · rw [xbar_zero', map_one, one_mul, hxi, capEFP_xi_pow_one, if_neg (by omega)]
+  · rw [xbar_zero', map_one, one_mul, hxi, capEFP_xi_pow_one, ite_eq_right (by omega)]
   · rw [Eright_xbar_succ, add_mul, BRing.add_tmul, capEFP_add, mul_comm (xiStep K (true, i) s s' hE),
       mul_assoc, capEFP_left_mul, capEFP_left_mul, ← pow_succ', hxi, capEFP_xi_pow_one, capEFP_xi_pow_one,
-      if_neg (by omega), if_neg (by omega), mul_zero, mul_zero, add_zero]
+      ite_eq_right (by omega), ite_eq_right (by omega), mul_zero, mul_zero, add_zero]
 
 /-- **The two caps of the left rotation vanish below the top degree.** -/
 theorem lCap_vanish (e₁ e₂ : ℕ) (he : e₁ + e₂ < t i.castSucc + r₁ i.castSucc) (y : Y.T) :
@@ -216,13 +219,13 @@ theorem lCap_top (e₁ e₂ : ℕ) (h₁ : e₁ ≤ r₁ i.castSucc) (h₂ : e�
     capEFW K i (hFi : StepR (true, i) r₁ r₂) hFi Y (BHom.whiskerLeft (stepB K (true, i) r₁ r₂ hFi) (capEFW K i (hFj : StepR (true, i) t r₁) hFj ((stepB K (false, i) r₂ r₁ hFi).tensor Y)) (BRing.tmul (stepB K (true, i) r₁ r₂ hFi) ((stepB K (true, i) t r₁ hFj).tensor ((stepB K (false, i) r₁ t hFj).tensor ((stepB K (false, i) r₂ r₁ hFi).tensor Y))) (eXi K i r₁ hFi.2 ^ e₁) (BRing.tmul (stepB K (true, i) t r₁ hFj) ((stepB K (false, i) r₁ t hFj).tensor ((stepB K (false, i) r₂ r₁ hFi).tensor Y)) (eXi K i t hFj.2 ^ e₂) (BRing.tmul (stepB K (false, i) r₁ t hFj) ((stepB K (false, i) r₂ r₁ hFi).tensor Y) 1 (BRing.tmul (stepB K (false, i) r₂ r₁ hFi) Y 1 y))))) = if e₁ = r₁ i.castSucc ∧ e₂ = t i.castSucc then y else 0 := by
   rw [BHom.whiskerLeft_tmul, capEFW_tmul, capEFP_xi_pow_one, ← BRing.tmul_balance]
   by_cases he₂ : e₂ = t i.castSucc
-  · rw [if_pos (by omega), show e₂ + 1 - (t i.castSucc + 1) = 0 by omega, pow_zero, xbar_zero',
+  · rw [ite_eq_left (by omega), show e₂ + 1 - (t i.castSucc + 1) = 0 by omega, pow_zero, xbar_zero',
       mul_one, map_one, one_mul, capEFW_tmul, capEFP_xi_pow_one]
     by_cases he₁ : e₁ = r₁ i.castSucc
-    · rw [if_pos (by omega), show e₁ + 1 - (r₁ i.castSucc + 1) = 0 by omega, pow_zero, xbar_zero',
-        mul_one, map_one, one_mul, if_pos ⟨he₁, he₂⟩]
-    · rw [if_neg (by omega), if_neg (fun h => he₁ h.1), map_zero, zero_mul]
-  · rw [if_neg (by omega), if_neg (fun h => he₂ h.2), map_zero, zero_mul, BRing.zero_tmul,
+    · rw [ite_eq_left (by omega), show e₁ + 1 - (r₁ i.castSucc + 1) = 0 by omega, pow_zero, xbar_zero',
+        mul_one, map_one, one_mul, ite_eq_left ⟨he₁, he₂⟩]
+    · rw [ite_eq_right (by omega), ite_eq_right (fun h => he₁ h.1), map_zero, zero_mul]
+  · rw [ite_eq_right (by omega), ite_eq_right (fun h => he₂ h.2), map_zero, zero_mul, BRing.zero_tmul,
       BHom.map_zero]
 
 variable (K) in
@@ -231,7 +234,6 @@ def rotQL (W : ((stepB K (false, i) r₁ t hFj).tensor ((stepB K (false, i) r₂
     BRing.TT (stepB K (true, i) r₁ r₂ hFi) (stepB K (true, i) t r₁ hFj) →+ Y.T :=
   AddMonoidHom.mk' (fun u => capEFW K i (hFi : StepR (true, i) r₁ r₂) hFi Y (BHom.whiskerLeft (stepB K (true, i) r₁ r₂ hFi) (capEFW K i (hFj : StepR (true, i) t r₁) hFj ((stepB K (false, i) r₂ r₁ hFi).tensor Y)) ((BRing.assoc (stepB K (true, i) r₁ r₂ hFi) (stepB K (true, i) t r₁ hFj) ((stepB K (false, i) r₁ t hFj).tensor ((stepB K (false, i) r₂ r₁ hFi).tensor Y))).hom (BRing.tmul _ _ u W))))
     (fun u v => by
-      simp only
       rw [BRing.add_tmul, BHom.map_add, BHom.map_add, BHom.map_add])
 
 theorem rotQL_apply (W : ((stepB K (false, i) r₁ t hFj).tensor ((stepB K (false, i) r₂ r₁ hFi).tensor Y)).T) (u) :
@@ -288,12 +290,12 @@ theorem rotTauL_one (y : Y.T) :
     repeat rw [BHom.map_sum]
     rw [Finset.sum_eq_single (dFE i (hFj' : StepR (true, i) w r₂))]
     · simp only [BHom.whiskerLeft_tmul]
-      rw [rotTauL_top i hFj hFi hFi' hFj' Y _ _ (by omega) (by omega), if_pos ⟨by omega, by omega⟩]
+      rw [rotTauL_top i hFj hFi hFi' hFj' Y _ _ (by omega) (by omega), ite_eq_left ⟨by omega, by omega⟩]
       simp only [Nat.sub_self, pow_zero, one_mul, xsFE_eq, x_zero, map_one]
     · intro h hh hhd
       have hh' := Finset.mem_range.1 hh
       simp only [BHom.whiskerLeft_tmul]
-      rw [rotTauL_top i hFj hFi hFi' hFj' Y _ _ (by omega) (by omega), if_neg (by omega),
+      rw [rotTauL_top i hFj hFi hFi' hFj' Y _ _ (by omega) (by omega), ite_eq_right (by omega),
         BRing.tmul_zero, BRing.tmul_zero]
     · intro h; exact absurd (Finset.mem_range.2 (Nat.lt_succ_self _)) h
   · intro g hg hgd
@@ -303,7 +305,7 @@ theorem rotTauL_one (y : Y.T) :
     refine Finset.sum_eq_zero fun h hh => ?_
     have hh' := Finset.mem_range.1 hh
     simp only [BHom.whiskerLeft_tmul]
-    rw [rotTauL_top i hFj hFi hFi' hFj' Y _ _ (by omega) (by omega), if_neg (by omega),
+    rw [rotTauL_top i hFj hFi hFi' hFj' Y _ _ (by omega) (by omega), ite_eq_right (by omega),
       BRing.tmul_zero, BRing.tmul_zero]
   · intro h; exact absurd (Finset.mem_range.2 (Nat.lt_succ_self _)) h
 
@@ -319,7 +321,7 @@ theorem rotTauL_eq : rotGenL K i i hFj hFi hFi' hFj' Y (tauU K i i (hFj' : StepR
   · rw [BHom.toAddHom_apply, BHom.toAddHom_apply, rotTauL_dotR]
   · rw [BHom.toAddHom_apply, BHom.toAddHom_apply, locTauDn_dotR]
   · rw [BHom.toAddHom_apply, BHom.toAddHom_apply, rotTauL_one, locTwo_tmul, ← BRing.one_eq,
-      tauDn_one, if_pos rfl, BRing.one_eq (M := stepB K (false, i) w t hFi')
+      tauDn_one, ite_eq_left rfl, BRing.one_eq (M := stepB K (false, i) w t hFi')
         (N := stepB K (false, i) r₂ w hFj'), BRing.assoc_hom_tmul]
 
 /-- **Cyclicity of the crossing of equal colours, left rotation** (KL III `eq_cyclic_cross-gen`
@@ -344,7 +346,7 @@ theorem rotCrossLW_same_eq : rotCrossLW K i i hFj hFi hFi' hFj' Y = locTwo (cros
       locCrossDn_dotR, rotTauL_eq, mul_sub]
     abel
   · rw [AddMonoidHom.sub_apply, BHom.toAddHom_apply, BHom.toAddHom_apply, AddMonoidHom.zero_apply,
-      rotCrossLW_same_one, locTwo_tmul, ← BRing.one_eq, crossDn_one, if_pos rfl, BRing.zero_tmul,
+      rotCrossLW_same_one, locTwo_tmul, ← BRing.one_eq, crossDn_one, ite_eq_left rfl, BRing.zero_tmul,
       BHom.map_zero, sub_zero]
 
 end LValues

@@ -103,12 +103,12 @@ variable {k}
 @[simp]
 theorem lastVarEquiv_X_last (n : ℕ) :
     lastVarEquiv k n (X (Fin.last n)) = C Polynomial.X := by
-  simp [lastVarEquiv, finSuccEquiv'_at, optionEquivRight_X_none]
+  simp [lastVarEquiv, finSuccEquiv'_at]
 
 @[simp]
 theorem lastVarEquiv_X_castSucc {n : ℕ} (a : Fin n) :
     lastVarEquiv k n (X a.castSucc) = X a := by
-  simp [lastVarEquiv, finSuccEquiv'_below (Fin.castSucc_lt_last a), optionEquivRight_X_some]
+  simp [lastVarEquiv, finSuccEquiv'_below (Fin.castSucc_lt_last a)]
 
 theorem lastVarEquiv_rename_castSucc {n : ℕ} (p : MvPolynomial (Fin n) k) :
     lastVarEquiv k n (rename Fin.castSucc p) = map Polynomial.C p := by
@@ -125,9 +125,10 @@ theorem lastVarEquiv_symm_C {n : ℕ} (c : Polynomial k) :
       IsScalarTower.toAlgHom k (Polynomial k) (MvPolynomial (Fin n) (Polynomial k)) :=
     Polynomial.algHom_ext (by simp)
   have := congrArg (fun f => f c) h
-  simp only [AlgHom.comp_apply, AlgEquiv.toAlgHom_eq_coe, AlgHom.coe_coe,
+  simp only [AlgHom.comp_apply,
     IsScalarTower.coe_toAlgHom', algebraMap_eq] at this
-  rw [← this, AlgEquiv.symm_apply_apply]
+  rw [← this]
+  exact (lastVarEquiv k n).symm_apply_apply _
 
 /-- A permutation of `Fin n`, extended to `Fin (n + 1)` by fixing the last element. -/
 def extendLastPerm {n : ℕ} (σ : Equiv.Perm (Fin n)) : Equiv.Perm (Fin (n + 1)) :=
@@ -146,8 +147,8 @@ theorem lastVarEquiv_rename_extendLastPerm {n : ℕ} (σ : Equiv.Perm (Fin n))
     simp only [lastVarEquiv, extendLastPerm, AlgEquiv.trans_apply, renameEquiv_apply, rename_X,
       Equiv.trans_apply, Equiv.apply_symm_apply]
     cases finSuccEquiv' (Fin.last n) i with
-    | none => simp [optionEquivRight_X_none]
-    | some a => simp [optionEquivRight_X_some]
+    | none => simp []
+    | some a => simp []
 
 theorem isSymmetric_lastVarEquiv {n : ℕ} {q : MvPolynomial (Fin (n + 1)) k} (hq : q.IsSymmetric) :
     (lastVarEquiv k n q).IsSymmetric := fun σ => by
@@ -185,7 +186,7 @@ theorem last_pow_succ_mem_lastPowSpan (n : ℕ) :
   set y : MvPolynomial (Fin (n + 1)) k := X (Fin.last n)
   have hv := congrArg (Polynomial.eval (-y)) (prod_C_add_X_eq_sum_esymm k (Fin (n + 1)))
   simp only [Polynomial.eval_prod, Polynomial.eval_add, Polynomial.eval_X, Polynomial.eval_C,
-    Polynomial.eval_finset_sum, Polynomial.eval_mul, Polynomial.eval_pow, Fintype.card_fin] at hv
+    Polynomial.eval_finsetSum, Polynomial.eval_mul, Polynomial.eval_pow, Fintype.card_fin] at hv
   rw [Finset.prod_eq_zero (Finset.mem_univ (Fin.last n)) (by simp [y]),
     Finset.sum_range_succ', esymm_zero, one_mul, Nat.sub_zero] at hv
   have hmem : (-1) ^ (n + 1) * y ^ (n + 1) ∈ lastPowSpan n := by
@@ -316,7 +317,7 @@ theorem eq_zero_of_sum_mul_pow_last {n : ℕ} (s : Fin (n + 1) → MvPolynomial 
     rw [← this]
     exact Finset.sum_congr rfl fun j _ => mul_comm _ _
   have hdet : V.det • s = 0 := by
-    rw [← Matrix.one_mulVec s, ← Matrix.smul_mulVec_assoc, ← Matrix.adjugate_mul,
+    rw [← Matrix.one_mulVec s, ← Matrix.smul_mulVec, ← Matrix.adjugate_mul,
       ← Matrix.mulVec_mulVec, hV, Matrix.mulVec_zero]
   have hreg : IsRegular V.det := by
     rw [Matrix.det_vandermonde]
@@ -400,7 +401,7 @@ theorem stairMonomial_snoc {n : ℕ} (v : {u : Fin n → ℕ // ∀ a : Fin n, u
 theorem lastVarEquiv_stairMonomial {n : ℕ} (v : Fin n → ℕ) :
     lastVarEquiv k n (rename Fin.castSucc (stairMonomial k v)) =
       stairMonomial (Polynomial k) v := by
-  simp [lastVarEquiv_rename_castSucc, stairMonomial, map_prod]
+  simp [stairMonomial, map_prod]
 
 end Staircase
 
@@ -478,9 +479,9 @@ theorem staircase_indep_and_span (n : ℕ) : ∀ (k : Type u) [CommRing k],
 /-- **Artin's theorem.** Over any commutative ring `k`, `k[x_0, …, x_{n-1}]` is a free module over
 the symmetric polynomials, with basis the staircase monomials `∏ a, x_a ^ u a`, `u a ≤ a`. -/
 noncomputable def symmetricBasis (n : ℕ) :
-    Basis {u : Fin n → ℕ // ∀ a : Fin n, u a ≤ a} (symmetricSubalgebra (Fin n) k)
+    Module.Basis {u : Fin n → ℕ // ∀ a : Fin n, u a ≤ a} (symmetricSubalgebra (Fin n) k)
       (MvPolynomial (Fin n) k) :=
-  Basis.mk (v := fun u => stairMonomial k u.1)
+  Module.Basis.mk (v := fun u => stairMonomial k u.1)
     (Fintype.linearIndependent_iff.2 fun c hc u =>
       Subtype.ext <| (staircase_indep_and_span n k).1 (fun u => c u)
         (fun u => (mem_symmetricSubalgebra _).1 (c u).2)

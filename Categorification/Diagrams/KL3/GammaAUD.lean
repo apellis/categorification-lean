@@ -27,6 +27,9 @@ The integral `γ` of `Categorification.Diagrams.KL3.GammaIntegral` (`gammaUA`) i
   `dpComb λ ρ`**, i.e. `1_ρ (_𝒜 U̇) 1_λ = range (dpComb λ ρ)`, the domain of `gammaUA λ ρ`.
 -/
 
+-- Preserve elaboration of semireducible diagram transports.
+set_option backward.isDefEq.respectTransparency false
+
 noncomputable section
 
 namespace Categorification.KL3.Diagram
@@ -59,12 +62,12 @@ theorem spanGen_mul {x y : UD RD vQ} (hx : x ∈ spanGen RD) (hy : y ∈ spanGen
   | mem x hx =>
     induction hy using AddSubgroup.closure_induction with
     | mem y hy => exact gen_mul_gen hx hy
-    | one => rw [mul_zero]; exact zero_mem _
-    | mul y y' _ _ h h' => rw [mul_add]; exact add_mem h h'
-    | inv y _ h => rw [mul_neg]; exact neg_mem h
-  | one => rw [zero_mul]; exact zero_mem _
-  | mul x x' _ _ h h' => rw [add_mul]; exact add_mem h h'
-  | inv x _ h => rw [neg_mul]; exact neg_mem h
+    | zero => rw [mul_zero]; exact zero_mem _
+    | add y y' _ _ h h' => rw [mul_add]; exact add_mem h h'
+    | neg y _ h => rw [mul_neg]; exact neg_mem h
+  | zero => rw [zero_mul]; exact zero_mem _
+  | add x x' _ _ h h' => rw [add_mul]; exact add_mem h h'
+  | neg x _ h => rw [neg_mul]; exact neg_mem h
 
 /-- `_𝒜 U̇` is contained in the additive span of the `q^n E_d 1_λ`. -/
 theorem AUD_le_spanGen {x : UD RD vQ} (hx : x ∈ AUD RD vQ) : x ∈ spanGen RD := by
@@ -89,7 +92,7 @@ theorem dpComb_single (x : DpIdx (RD := RD) lam ρ) (c : LaurentPolynomial ℤ) 
   rw [dpComb_apply]
   by_cases hc : c = 0
   · subst hc; simp
-  · rw [Finsupp.support_single_ne_zero _ hc, Finset.sum_singleton, Finsupp.single_eq_same]
+  · rw [Finsupp.support_single _ hc, Finset.sum_singleton, Finsupp.single_eq_same]
 
 open scoped Classical in
 theorem oneL_mk_dpW (d : List (Bool × I × ℕ)) :
@@ -117,12 +120,12 @@ theorem block_mem_range {x : UD RD vQ} (hx : x ∈ spanGen RD) :
       · exact ⟨0, by rw [map_zero, map_zero, smul_zero]⟩
     · refine ⟨0, ?_⟩
       rw [map_smul, E1dp, compB_ofB_ne RD vQ hl, smul_zero, map_zero, map_zero, map_zero]
-  | one => exact ⟨0, by rw [map_zero, map_zero, map_zero, map_zero]⟩
-  | mul x y _ _ hx hy =>
+  | zero => exact ⟨0, by rw [map_zero, map_zero, map_zero, map_zero]⟩
+  | add x y _ _ hx hy =>
     obtain ⟨f, hf⟩ := hx
     obtain ⟨g, hg⟩ := hy
     exact ⟨f + g, by rw [map_add, map_add, hf, hg, map_add, map_add]⟩
-  | inv x _ hx =>
+  | neg x _ hx =>
     obtain ⟨f, hf⟩ := hx
     exact ⟨-f, by rw [map_neg, map_neg, hf, map_neg, map_neg]⟩
 

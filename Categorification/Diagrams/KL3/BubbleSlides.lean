@@ -33,6 +33,8 @@ computations), `lin_bubR_ccwReal` etc. (the bubbles `bubR`, `bubL` of `Relations
 form).
 -/
 
+set_option backward.isDefEq.respectTransparency false
+
 noncomputable section
 
 namespace Categorification.KL3.Diagram
@@ -116,7 +118,7 @@ theorem dg_dot_cap_dn (ν : X) (i : I) :
     (dg_swap' RD k ν [] [] [dn i] (.cap (dn i)) (.dot (up i))).symm
   dstep [] [([], .dot (up i), [dn i]), ([], .cap (dn i), [])] [] [dn i]
     (dg_zigR' RD k (wt RD ν [dn i]) (dn i))
-  simp [whL]
+  simp
 
 /-- `m` downward dots on the right strand of the cap `E_i F_i ⟶ 1` equal `m` upward dots on its
 left strand. -/
@@ -130,7 +132,7 @@ theorem dg_dots_cap_dn (ν : X) (i : I) (m : ℕ) :
     dstep [] [([], .cap (dn i), [])] [] []
       (dg_swap_rep' RD k ν [] [] [] (.dot (dn i)) (.dot (up i)) rfl m).symm
     simp only [whL, List.map_append, List.map_replicate, List.map_cons, List.map_nil,
-      List.nil_append, List.append_nil, List.singleton_append]
+      List.nil_append, List.append_nil]
     dstep (List.replicate m ([], .dot (up i), [dn i])) [] [] [] (dg_dot_cap_dn RD k ν i)
     simp [whL, List.replicate_succ']
 
@@ -182,7 +184,7 @@ theorem dg_cross_dots_cross (ν : X) (i j : I) (h : i ≠ j) (m : ℕ) :
     (dg_sqNe RD k ν i j h) (by schain) (by schain) (by simp [whL])).trans ?_
   split_ifs
   · rw [ctxL_dg_nil RD k ν (by schain) (by schain)]
-    simp [whL]
+    simp
   · rw [map_add, ctxL_dg_nil RD k ν (by schain) (by schain),
       ctxL_dg_nil RD k ν (by schain) (by schain)]
     simp only [whL, List.map_replicate, List.nil_append, List.append_nil, List.replicate_add]
@@ -225,7 +227,7 @@ theorem dg_cross_dots_cross' (ν : X) (i j : I) (h : i ≠ j) (m : ℕ) :
   rw [C.symm j i]
   split_ifs
   · rw [ctxL_dg_nil RD k ν (by schain) (by schain)]
-    simp [whL]
+    simp
   · rw [map_add, ctxL_dg_nil RD k ν (by schain) (by schain),
       ctxL_dg_nil RD k ν (by schain) (by schain), add_comm]
     simp only [whL, List.map_replicate, List.nil_append, List.append_nil, List.replicate_add]

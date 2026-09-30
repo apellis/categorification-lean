@@ -273,7 +273,7 @@ theorem mk₀_ebar : ShiftedHom.mk₀ (0 : ℤ) rfl N.ebar = N.e :=
 theorem ebar_idem : N.ebar ≫ N.ebar = N.ebar := by
   apply (ShiftedHom.homEquiv (X := W) (Y := W) (0 : ℤ) rfl).injective
   simp only [ShiftedHom.homEquiv_apply]
-  rw [← ShiftedHom.mk₀_comp_mk₀ _ _ (by norm_num : (0 : ℤ) + 0 = 0), mk₀_ebar, e_idem]
+  rw [← ShiftedHom.mk₀_comp_mk₀ N.ebar N.ebar (by norm_num : (0 : ℤ) + 0 = 0) rfl rfl, mk₀_ebar, e_idem]
 
 omit [∀ n : ℤ, (shiftFunctor H n).Additive] [∀ n : ℤ, (shiftFunctor H n).Linear k] in
 theorem mk₀_one_sub_ebar : ShiftedHom.mk₀ (0 : ℤ) rfl (𝟙 W - N.ebar) = one - N.e := by

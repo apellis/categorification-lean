@@ -74,7 +74,7 @@ theorem sum_filter_lt_succ {M : Type*} [AddCommMonoid M] {m : ℕ} (f : Fin (m +
 theorem sum_filter_lt_zero {M : Type*} [AddCommMonoid M] {m : ℕ} (f : Fin (m + 1) → M) :
     ∑ r ∈ univ.filter (· < (0 : Fin (m + 1))), f r = 0 := by
   rw [sum_filter]
-  simp [Fin.not_lt_zero]
+  simp []
 
 variable (dot : I → I → ℤ) (v : Kˣ)
 
@@ -165,7 +165,7 @@ theorem invWt_consPerm {m : ℕ} (a : Fin (m + 1) → I) (p : Fin (m + 1)) (τ :
       (∑ y ∈ univ.filter (fun y => (τ y).castSucc < p), dot (a y.succ) (a 0)) +
         invWt dot (fun x => a x.succ) τ := by
   simp only [invWt, invSet, sum_filter, Fintype.sum_prod_type, Fin.sum_univ_succ, consPerm_zero,
-    consPerm_succ, lt_self_iff_false, false_and, if_false, Fin.not_lt_zero, Fin.succ_pos,
+    consPerm_succ, false_and, ite_false, Fin.not_lt_zero, Fin.succ_pos,
     true_and, Fin.succAbove_lt_iff_castSucc_lt, Fin.succ_lt_succ_iff,
     Fin.succAbove_lt_succAbove_iff, zero_add]
 
@@ -187,7 +187,7 @@ theorem sum_filter_castSucc_lt {m : ℕ} (a b : Fin (m + 1) → I) (p : Fin (m +
     Equiv.sum_comp τ (fun s => if s.castSucc < p then dot (b s.castSucc) (a 0) else 0),
     Fin.sum_univ_castSucc]
   have hl : ¬ Fin.last m < p := fun hl => absurd (Fin.le_last p) (not_le.2 hl)
-  rw [if_neg hl, add_zero]
+  rw [ite_eq_right hl, add_zero]
 
 /-- **The recursion for the permutation sum**, peeling off the first letter of `a`:
 `permSum a b = ∑_{p : b_p = a_0} v^{∑_{r < p} b_r · a_0} permSum (a ∘ succ) (b ∘ p.succAbove)`. -/
@@ -206,14 +206,14 @@ theorem permSum_succ {m : ℕ} (a b : Fin (m + 1) → I) :
     rw [Fin.forall_fin_succ]
     simp only [consPerm_zero, consPerm_succ]
   by_cases hp : b p = a 0
-  · rw [if_pos hp, permSum, Finset.mul_sum]
+  · rw [ite_eq_left hp, permSum, Finset.mul_sum]
     refine Finset.sum_congr rfl fun τ _ => ?_
     by_cases hτ : ∀ x, b (p.succAbove (τ x)) = a x.succ
-    · rw [if_pos ((hcond τ).2 ⟨hp, hτ⟩), if_pos hτ, invWt_consPerm,
+    · rw [ite_eq_left ((hcond τ).2 ⟨hp, hτ⟩), ite_eq_left hτ, invWt_consPerm,
         sum_filter_castSucc_lt dot a b p τ hτ, zpow_add, Units.val_mul]
-    · rw [if_neg (fun h => hτ ((hcond τ).1 h).2), if_neg hτ, mul_zero]
-  · rw [if_neg hp]
-    exact Finset.sum_eq_zero fun τ _ => if_neg (fun h => hp ((hcond τ).1 h).1)
+    · rw [ite_eq_right (fun h => hτ ((hcond τ).1 h).2), ite_eq_right hτ, mul_zero]
+  · rw [ite_eq_right hp]
+    exact Finset.sum_eq_zero fun τ _ => ite_eq_right (fun h => hp ((hcond τ).1 h).1)
 
 theorem permSum_zero (a b : Fin 0 → I) : permSum dot v a b = (1 : K) := by
   rw [permSum, Fintype.sum_unique]

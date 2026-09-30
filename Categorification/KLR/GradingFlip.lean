@@ -36,20 +36,22 @@ namespace GradingDatum
 def hflipAddHom : A →+ A := AddMonoidHom.mk' hflip hflip_add
 
 /-- The coefficientwise flip `∑ single d a_d ↦ ∑ single d (ψ a_d)` of `R(ν)[ℤ]`. -/
-def flipCoeff : AddMonoidAlgebra A ℤ →+ AddMonoidAlgebra A ℤ :=
-  Finsupp.mapRange.addMonoidHom hflipAddHom
+def flipCoeff : AddMonoidAlgebra A ℤ →+ AddMonoidAlgebra A ℤ where
+  toFun := AddMonoidAlgebra.map hflipAddHom
+  map_zero' := AddMonoidAlgebra.map_zero _
+  map_add' := AddMonoidAlgebra.map_add _
 
 theorem flipCoeff_single (d : ℤ) (a : A) : flipCoeff (single d a) = single d (hflip a) :=
-  Finsupp.mapRange_single (hf := map_zero hflipAddHom)
+  AddMonoidAlgebra.map_single _ _ _
 
 /-- The coefficientwise flip is an antihomomorphism (`ℤ` is commutative). -/
 theorem flipCoeff_mul (X Y : AddMonoidAlgebra A ℤ) :
     flipCoeff (X * Y) = flipCoeff Y * flipCoeff X := by
-  induction X using Finsupp.induction_linear with
+  induction X using AddMonoidAlgebra.induction_linear with
   | zero => simp
   | add X X' hX hX' => rw [add_mul, map_add, hX, hX', map_add, mul_add]
   | single d a =>
-    induction Y using Finsupp.induction_linear with
+    induction Y using AddMonoidAlgebra.induction_linear with
     | zero => simp
     | add Y Y' hY hY' => rw [mul_add, map_add, hY, hY', map_add, add_mul]
     | single e b =>
@@ -91,7 +93,7 @@ theorem coaction_hflip (hsymm : ∀ a b, G.degΨ a b = G.degΨ b a) (u : A) :
       simp only [flipCoeff_single, hflip_mul, hflip_ψ, hflip_e, e_mul_ψ]
       refine (Fintype.sum_equiv (MulAction.toPerm (sadj (Multiset.card ν) j)) _ _
         fun i => ?_).symm
-      simp only [MulAction.toPerm_apply, sadj_smul_smul, G.dψ_sadj_smul hsymm]
+      simp only [MulAction.toPerm_apply, G.dψ_sadj_smul hsymm]
   | mul u v hu hv =>
     rw [map_mul, hflip_mul, map_mul, hu, hv, map_mul, flipCoeff_mul]
   | add u v hu hv =>

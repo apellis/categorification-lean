@@ -68,6 +68,8 @@ crossing is the rotation of the upward one (`eq_cyclic_cross-gen`), and it is wh
 agree with `ψ̃ τ σ̃` (whose sign comes from `σ̃` alone).
 -/
 
+set_option backward.isDefEq.respectTransparency false
+
 noncomputable section
 
 namespace Categorification.KL3.Diagram
@@ -371,7 +373,7 @@ theorem sChain_wls {s t : List (Letter I)} {ls : List (LayerData I)} (h : SChain
     obtain ⟨rfl, h⟩ := h
     refine ⟨by simp [ld, shape_dom], ?_⟩
     have := ih h
-    simpa [ld, shape_cod] using this
+    simpa [wls, ld, shape_cod] using this
 
 omit [DecidableEq I] in
 theorem rlay_lay (μ : X) (u : List (Letter I)) (g : Shape I) (v : List (Letter I)) :
@@ -919,6 +921,7 @@ theorem omegaL_cwReal (lam : X) (i : I) (m : ℕ) :
   rw [cwReal, omegaL_of_mkD, sgnS_bubble, Int.cast_one, one_smul]
   refine (TR_self _ _ _).trans ?_
   simp [wls, Omega.ld, Omega.shape, ccwLs, List.map_replicate]
+  rfl
 
 /-- `ω̃` sends the counterclockwise bubble with `m` dots in the region `λ` to the clockwise
 bubble with `m` dots in the region `-λ`. -/
@@ -927,6 +930,7 @@ theorem omegaL_ccwReal (lam : X) (i : I) (m : ℕ) :
   rw [ccwReal, omegaL_of_mkD, sgnS_bubble, Int.cast_one, one_smul]
   refine (TR_self _ _ _).trans ?_
   simp [wls, Omega.ld, Omega.shape, cwLs, List.map_replicate]
+  rfl
 
 variable (RD k) in
 /-- `ω̃` on `END(1_λ)`: a ring homomorphism to `END(1_{-λ})`. -/
@@ -955,7 +959,7 @@ bubble with label `m` in the region `-λ`**, real or fake. -/
 theorem omegaL_cwL (lam : X) (i : I) (m : ℤ) :
     omegaL RD k (cwL RD k lam i m) = ccwU RD k (-lam) i m := by
   unfold ccwU cwL ccwL
-  simp only [ip_neg, ← sub_eq_add_neg, neg_neg]
+  simp only [ip_neg, ← sub_eq_add_neg]
   split_ifs
   · rw [omegaL_cwReal, lin_ccwReal]
   · show omegaEnd RD k lam _ = linEnd RD k (-lam) _
@@ -971,7 +975,7 @@ bubble with label `m` in the region `-λ`**, real or fake. -/
 theorem omegaL_ccwL (lam : X) (i : I) (m : ℤ) :
     omegaL RD k (ccwL RD k lam i m) = cwU RD k (-lam) i m := by
   unfold cwU cwL ccwL
-  simp only [ip_neg, ← sub_eq_add_neg, neg_neg, sub_neg_eq_add]
+  simp only [ip_neg, neg_neg, sub_neg_eq_add]
   split_ifs
   · rw [omegaL_ccwReal, lin_cwReal]
   · show omegaEnd RD k lam _ = linEnd RD k (-lam) _
@@ -1023,7 +1027,7 @@ theorem wls_map_upLD (ls : List (Layer (KLR.Diagram.sig I))) :
   simp only [wls, List.map_map]
   refine List.map_congr_left fun L _ => ?_
   obtain ⟨_, l, g, r⟩ := L
-  cases g <;> simp [Omega.ld, upLD, dnLD, upShape, dnShape, Omega.shape, map_dual_ups]
+  cases g <;> simp [Omega.ld, upLD, dnLD, upShape, dnShape, Omega.shape]
 
 omit [DecidableEq I] in
 /-- `ω̃(E_{+w} 1_{-μ}) = E_{-w} 1_μ`. -/
@@ -1073,6 +1077,7 @@ theorem downFunctor_dot (μ : X) (c : I) :
         (dg RD k μ [dn c] [dn c] [([], .dot (dn c), [])]) := by
   rw [downFunctor_diag]
   simp [Sig.sgnS, Sig.sgnSh, upLD, upShape, dnLD, dnShape, KLR.Diagram.lay]
+  rfl
 
 /-- The downward crossing, with the sign `-1` if the labels agree. -/
 theorem downFunctor_cross (μ : X) (c d : I) :
@@ -1082,6 +1087,7 @@ theorem downFunctor_cross (μ : X) (c d : I) :
           (dg RD k μ [dn c, dn d] [dn d, dn c] [([], .cross false c d, [])]) := by
   rw [downFunctor_diag]
   simp [Sig.sgnS, Sig.sgnSh, upLD, upShape, dnLD, dnShape, KLR.Diagram.lay]
+  rfl
 
 end Downward
 
@@ -1110,6 +1116,7 @@ theorem omegaU_dotsU (lam : X) (l : Letter I) (n : ℕ) :
       = 1 := by simp [Sig.sgnS, Sig.sgnSh, List.map_replicate, List.prod_replicate]
   rw [hs, Int.cast_one, one_smul]
   simp [wls, Omega.ld, Omega.shape, List.map_replicate]
+  rfl
 
 /-- `ω̃` on endomorphisms of `1_λ` placed to the right of a strand `l`. -/
 theorem omegaU_bubRU (lam : X) (l : Letter I) (β : End ((pres RD k).obj (ob RD lam []))) :
@@ -1168,7 +1175,7 @@ theorem dg_curlR_down (i : I) (lam : X) :
   · simp [wls, Omega.ld, Omega.shape]
     rfl
   · refine Finset.sum_congr rfl fun f _ => ?_
-    simp only [ip_neg', Letter.dual_up]
+    simp only [Letter.dual_up]
 
 end DownCurl
 

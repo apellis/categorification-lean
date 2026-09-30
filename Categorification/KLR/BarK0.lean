@@ -73,11 +73,9 @@ def tensor (ψ : GradedAntiInvolution 𝒜) (ψ' : GradedAntiInvolution ℬ) :
     GradedAntiInvolution (tensorGrading 𝒜 ℬ) where
   toLinearMap := TensorProduct.map ψ.toLinearMap ψ'.toLinearMap
   map_mul' s t := by
-    induction s using TensorProduct.induction_on with
-    | zero => simp
+    induction s using TensorProduct.inductionOn with
     | tmul a b =>
-      induction t using TensorProduct.induction_on with
-      | zero => simp
+      induction t using TensorProduct.inductionOn with
       | tmul c d =>
         simp only [Algebra.TensorProduct.tmul_mul_tmul, TensorProduct.map_tmul]
         exact congrArg₂ (· ⊗ₜ[k] ·) (ψ.map_mul' a c) (ψ'.map_mul' b d)
@@ -87,8 +85,7 @@ def tensor (ψ : GradedAntiInvolution 𝒜) (ψ' : GradedAntiInvolution ℬ) :
     rw [Algebra.TensorProduct.one_def, TensorProduct.map_tmul]
     exact congrArg₂ (· ⊗ₜ[k] ·) ψ.map_one' ψ'.map_one'
   invol' t := by
-    induction t using TensorProduct.induction_on with
-    | zero => simp
+    induction t using TensorProduct.inductionOn with
     | tmul a b =>
       simp only [TensorProduct.map_tmul]
       exact congrArg₂ (· ⊗ₜ[k] ·) (ψ.invol' a) (ψ'.invol' b)
@@ -206,7 +203,7 @@ end Graded
 
 namespace KLR
 
-open Graded KLRAlgebra TypeA MvPolynomial MulOpposite
+open Categorification.Graded KLRAlgebra TypeA MvPolynomial MulOpposite
 
 /-! ### `ψ` commutes with concatenation -/
 

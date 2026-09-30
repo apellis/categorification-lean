@@ -113,6 +113,7 @@ section Pow
 
 variable {a b c : B} (F : a ⟶ b)
 
+set_option backward.isDefEq.respectTransparency false in
 /-- Shifted left whiskering fixes the identity in degree `0`. -/
 theorem shWhiskerLeft_mk₀_id {g : b ⟶ c} (m₀ : ℤ) (h : m₀ = 0) :
     shWhiskerLeft F (ShiftedHom.mk₀ m₀ h (𝟙 g)) = ShiftedHom.mk₀ m₀ h (𝟙 (F ≫ g)) := by
@@ -121,9 +122,10 @@ theorem shWhiskerLeft_mk₀_id {g : b ⟶ c} (m₀ : ℤ) (h : m₀ = 0) :
     ShiftedHom.mk₀ (0 : ℤ) rfl (𝟙 (F ≫ g))
   rw [Functor.commShiftIso_zero, Functor.CommShift.isoZero_hom_app]
   simp only [ShiftedHom.mk₀, shiftFunctorZero', eqToIso_refl, Iso.refl_trans, Category.id_comp,
-    Category.assoc, precomp_obj, precomp_map]
+    precomp_map]
   rw [← Bicategory.whiskerLeft_comp_assoc, Iso.inv_hom_id_app]
   simp
+  rfl
 
 /-- Shifted left whiskering commutes with powers. -/
 theorem shWhiskerLeft_shPow {g : b ⟶ c} {d : ℤ} (θ : ShiftedHom g g d) :

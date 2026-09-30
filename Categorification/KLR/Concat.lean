@@ -343,8 +343,8 @@ theorem ψ_mul_eSum (l : ℕ) (T T' : Finset (Seq ν)) (h : ∀ s, s ∈ T' ↔ 
   rw [eSum, eSum, Finset.mul_sum, Finset.sum_mul]
   simp_rw [ψ_mul_e]
   refine Finset.sum_nbij' (sadj m l • ·) (sadj m l • ·) ?_ ?_ ?_ ?_ ?_
-  · intro s hs; simp only [Finset.mem_coe] at hs ⊢; rw [h, sadj_smul_smul]; exact hs
-  · intro s hs; simp only [Finset.mem_coe] at hs ⊢; exact (h s).1 hs
+  · intro s hs; rw [h, sadj_smul_smul]; exact hs
+  · intro s hs; exact (h s).1 hs
   · intro s _; exact sadj_smul_smul l s
   · intro s _; exact sadj_smul_smul l s
   · intro s _; rfl
@@ -454,7 +454,7 @@ noncomputable def gψ (j : ℕ) : (eSum_idem (Q := Q) T).Corner :=
 @[simp] theorem val_gE (i : Seq μ) : (B.gE Q i).val = B.eF Q i := rfl
 
 theorem val_gψ {j : ℕ} (h : j + 1 < n₀) : (B.gψ Q j).val = ψ (B.o + j) * eSum Q T := by
-  rw [gψ, dif_pos h]; rfl
+  rw [gψ, dite_eq_left h]; rfl
 
 variable (Q) in
 /-- The images of the generators. -/
@@ -490,7 +490,7 @@ theorem pol_X_pos (a : Fin n₀) :
   exact congrArg x (Fin.ext (B.pos_val a))
 
 theorem gψ_of_not_lt {j : ℕ} (h : ¬ j + 1 < n₀) : B.gψ Q j = 0 := by
-  rw [gψ, dif_neg h]
+  rw [gψ, dite_eq_right h]
 
 omit [DecidableEq I] in
 theorem pos_mk (j : ℕ) (h : j < n₀) :
@@ -1123,7 +1123,7 @@ theorem concat_pol_ψw_e (p : MvPolynomial (Fin (Multiset.card ν)) k)
   rw [← Algebra.TensorProduct.tmul_mul_tmul, ← Algebra.TensorProduct.tmul_mul_tmul, concat_mul,
     concat_mul, concat_e_tmul_e, concat_pol_tmul_pol, concat_ψw_tmul_ψw hα hα', oneConcat,
     mul_E_mul_mul_E (eSum_idem _) _ (oneConcat_mul_ψw hα hα'), mul_assoc _ (eSum Q _),
-    eSum_mul_e, if_pos (append_mem_concatSet i j)]
+    eSum_mul_e, ite_eq_left (append_mem_concatSet i j)]
 
 end Concat
 

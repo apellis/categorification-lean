@@ -196,7 +196,7 @@ theorem hasExp_ddiffLike [IsDomain k] {a b : Fin n} (hab : a ≠ b) {D : R → R
   have key : algebraMap R K (D f) = (algebraMap R K (X a - X b))⁻¹ *
       (algebraMap R K f - algebraMap R K (rename (swap a b) f)) := by
     rw [← this, ← mul_assoc, inv_mul_cancel₀ hne, one_mul]
-  simp only [Pi.add_apply, add_mul, Finset.sum_add_distrib, sum_single_mul, act_one,
+  simp only [Pi.add_apply, add_mul, Finset.sum_add_distrib, sum_single_mul,
     act_algebraMap, Perm.coe_one, rename_id_apply]
   rw [key]
   ring

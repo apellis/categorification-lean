@@ -143,6 +143,7 @@ theorem cupLayers_start : ∀ (r : S.Region) (w : List S.Colour), S.ok r w →
     · rfl
 
 omit [S.IsEven] in
+set_option backward.isDefEq.respectTransparency false in
 theorem cupLayers_append : ∀ (r : S.Region) (w w' : List S.Colour), S.ok r (w ++ w') →
     cupLayers (E := E) r (w ++ w') = cupLayers (E := E) r w ++
       ((cupLayers (E := E) (S.endR r w) w').map
@@ -166,6 +167,7 @@ theorem cupLayers_append : ∀ (r : S.Region) (w w' : List S.Colour), S.ok r (w 
     simp [Layer.wr, Layer.wl, List.append_assoc]
 
 omit [S.IsEven] in
+set_option backward.isDefEq.respectTransparency false in
 theorem capLayers_append (r r' : S.Region) : ∀ (w w' : List S.Colour),
     capLayers (E := E) r (w ++ w') =
       ((capLayers (E := E) r' w).map (·.wr w')).map
@@ -176,7 +178,7 @@ theorem capLayers_append (r r' : S.Region) : ∀ (w w' : List S.Colour),
     have ih := capLayers_append r r' w w'
     simp only [List.cons_append, capLayers, ih, List.map_cons, List.cons_append, List.map_map]
     congr 1
-    simp [Layer.wr, Layer.wl, List.append_assoc]
+    simp [Layer.wr, Layer.wl]
 
 end Nested
 
@@ -209,6 +211,7 @@ theorem isDiag_biadj_right_counit (x : l ⟶ m) :
     IsDiag Q (BB x).right.counit (capRLayers (E := E) l.region x.obj.word) :=
   biadjW_right_counit_isDiag hz x.obj.word x rfl
 
+set_option backward.isDefEq.respectTransparency false in
 theorem isDiag_biadj_comp_left_unit (x : l ⟶ m) (y : m ⟶ n) :
     IsDiag Q ((BB x).comp (BB y)).left.unit (cupLayers (E := E) l.region (x ≫ y).obj.word) := by
   refine (IsDiag.comp_left_unit _ _ (isDiag_biadj_left_unit hz x)
@@ -228,6 +231,7 @@ theorem isDiag_biadj_comp_left_unit (x : l ⟶ m) (y : m ⟶ n) :
   rw [hx]
   rfl
 
+set_option backward.isDefEq.respectTransparency false in
 theorem isDiag_biadj_comp_left_counit (x : l ⟶ m) (y : m ⟶ n) :
     IsDiag Q ((BB x).comp (BB y)).left.counit
       (capLayers (E := E) n.region (x ≫ y).obj.word) := by
@@ -283,12 +287,14 @@ section Double
 variable {E : S.ColourInvolution}
 
 omit [CommRing R] in
+set_option backward.isDefEq.respectTransparency false in
 theorem dualWord_dualWord (w : List S.Colour) :
     E.toColourDuality.pivotal.dualWord (E.toColourDuality.pivotal.dualWord w) = w := by
   simp [Signature.ColourDuality.dualWord_eq, List.map_reverse, List.map_map, Function.comp_def,
     E.dual_dual]
 
 omit [CommRing R] in
+set_option backward.isDefEq.respectTransparency false in
 theorem capLayers_dualWord : ∀ (r : S.Region) (w : List S.Colour), S.ok r w →
     capLayers (E := E) r (E.toColourDuality.pivotal.dualWord w) = capRLayers (E := E) r w
   | _, [], _ => rfl
@@ -317,6 +323,7 @@ theorem dualHom_dualHom (x : l ⟶ m) :
     Q.dualHom E.toColourDuality.pivotal (Q.dualHom E.toColourDuality.pivotal x) = x :=
   Bicat.Hom.ext (Obj.ext x.start_eq.symm (dualWord_dualWord (E := E) _))
 
+set_option backward.isDefEq.respectTransparency false in
 theorem isDiag_biadj_dual_left_counit (x : l ⟶ m) :
     IsDiag Q (BB (Q.dualHom E.toColourDuality.pivotal x)).left.counit
       (capRLayers (E := E) l.region x.obj.word) := by

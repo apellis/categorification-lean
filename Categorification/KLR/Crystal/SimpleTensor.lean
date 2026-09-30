@@ -64,10 +64,10 @@ theorem smul_eq_zero_of_smulNilpotent [IsSimpleModule A M] {z : A} (hz : ∀ a, 
   let P : Submodule A M :=
     { carrier := {v | z • v = 0}
       add_mem' := fun ha hb => by
-        simp only [Set.mem_setOf_eq, smul_add] at *; rw [ha, hb, add_zero]
+        simp only [Set.mem_ofPred_eq, smul_add] at *; rw [ha, hb, add_zero]
       zero_mem' := smul_zero z
       smul_mem' := fun a v hv => by
-        simp only [Set.mem_setOf_eq] at *
+        simp only [Set.mem_ofPred_eq] at *
         rw [smul_smul, (hz a).eq, mul_smul, hv, smul_zero] }
   rcases IsSimpleOrder.eq_bot_or_eq_top P with hP | hP
   · exfalso
@@ -81,7 +81,7 @@ theorem smul_eq_zero_of_smulNilpotent [IsSimpleModule A M] {z : A} (hz : ∀ a, 
       induction m with
       | zero => intro w hw; rwa [pow_zero, one_smul] at hw
       | succ m ih => intro w hw; rw [pow_succ, mul_smul] at hw; exact hz0 w (ih _ hw)
-    haveI := IsSimpleModule.nontrivial A M
+    have := IsSimpleModule.nontrivial A M
     obtain ⟨w, hw⟩ := exists_ne (0 : M)
     exact hw (hinj N w (hN w))
   · have : v ∈ P := hP ▸ Submodule.mem_top
@@ -210,7 +210,7 @@ theorem extTensor_tmul_ne_zero {A B : Type*} [Ring A] [Algebra K A] [Ring B] [Al
     {W : Type*} [AddCommGroup W] [Module K W] {v : V} {w : W} (hv : v ≠ 0) (hw : w ≠ 0) :
     (ExtTensor.tmul v w : ExtTensor K V W) ≠ 0 := by
   classical
-  let B := Basis.ofVectorSpace K V
+  let B := Module.Basis.ofVectorSpace K V
   intro h
   have h' := congrArg (TensorProduct.equivFinsuppOfBasisLeft B) (show v ⊗ₜ[K] w = 0 from h)
   rw [TensorProduct.equivFinsuppOfBasisLeft_apply_tmul, map_zero] at h'
@@ -220,7 +220,7 @@ theorem extTensor_tmul_ne_zero {A B : Type*} [Ring A] [Algebra K A] [Ring B] [Al
   simp only [Finsupp.mapRange_apply, Finsupp.coe_zero, Pi.zero_apply] at this hc
   exact hw ((smul_eq_zero.1 this).resolve_left hc)
 
-theorem equivFinsupp_one_tmul_smul {ι : Type*} [DecidableEq ι] (B : Basis ι K V) (b : KLRAlgebra K Q ν')
+theorem equivFinsupp_one_tmul_smul {ι : Type*} [DecidableEq ι] (B : Module.Basis ι K V) (b : KLRAlgebra K Q ν')
     (y : ExtTensor K V (KLRRep hν' Q)) :
     TensorProduct.equivFinsuppOfBasisLeft B
         (ExtTensor.equivTensor (((1 : KLRAlgebra K Q μ) ⊗ₜ[K] b : TensorKLR Q μ ν') • y)) =
@@ -245,7 +245,7 @@ theorem exists_eq_tmul_xDelta {y : ExtTensor K V (KLRRep hν' Q)}
     ∃ w : V, y = ExtTensor.tmul w (lMk hν' Q (xDelta (Multiset.card ν'))) := by
   classical
   set u := lMk hν' Q (xDelta (Multiset.card ν'))
-  let B := Basis.ofVectorSpace K V
+  let B := Module.Basis.ofVectorSpace K V
   let F : ExtTensor K V (KLRRep hν' Q) ≃ₗ[K] _ :=
     ExtTensor.equivTensor.trans (TensorProduct.equivFinsuppOfBasisLeft B)
   have hF : ∀ z, F z = TensorProduct.equivFinsuppOfBasisLeft B (ExtTensor.equivTensor z) :=
@@ -312,12 +312,12 @@ theorem exists_tmul_one_mem {P : Submodule (TensorKLR Q μ ν') (ExtTensor K V (
 /-- **`N ⊠ L(i^n)` is simple if `N` is.** -/
 theorem isSimpleModule_extTensor [IsSimpleModule (KLRAlgebra K Q μ) V] :
     IsSimpleModule (TensorKLR Q μ ν') (ExtTensor K V (KLRRep hν' Q)) := by
-  haveI := IsSimpleModule.nontrivial (KLRAlgebra K Q μ) V
+  have := IsSimpleModule.nontrivial (KLRAlgebra K Q μ) V
   obtain ⟨v₀, hv₀⟩ := exists_ne (0 : V)
-  haveI : Nontrivial (ExtTensor K V (KLRRep hν' Q)) :=
+  have : Nontrivial (ExtTensor K V (KLRRep hν' Q)) :=
     ⟨⟨_, 0, extTensor_tmul_ne_zero (A := KLRAlgebra K Q μ) (B := KLRAlgebra K Q ν') hv₀
       (lMk_one_ne_zero hν')⟩⟩
-  refine ⟨fun P => ?_⟩
+  refine { eq_bot_or_eq_top := fun P => ?_ }
   by_cases hP : P = ⊥
   · exact Or.inl hP
   right
@@ -537,14 +537,13 @@ theorem one_tmul_pol_smul_eq_zero_of_simple [IsSimpleModule (TensorKLR Q μ ν')
       exact ((Commute.all y z).map ρ).isNilpotent_add hy hz
     | smul r y _ hy =>
       rw [smul_eq_mul, map_mul]
-      exact ((Commute.all r y).map ρ).isNilpotent_mul_right hy
+      exact ((Commute.all r y).map ρ).isNilpotent_mul_left hy
   -- the generators `s ∈ Sym⁺` act by zero
   have hgen : ∀ s ∈ symPlusSet K (Multiset.card ν'), ∀ v : S,
       ((1 : KLRAlgebra K Q μ) ⊗ₜ[K] pol s : TensorKLR Q μ ν') • v = 0 := by
     intro s hs v
     refine smul_eq_zero_of_smulNilpotent (fun t => ?_) ?_ v
-    · induction t using TensorProduct.induction_on with
-      | zero => exact Commute.zero_right _
+    · induction t using TensorProduct.inductionOn with
       | tmul a b =>
         rw [Commute, SemiconjBy, Algebra.TensorProduct.tmul_mul_tmul,
           Algebra.TensorProduct.tmul_mul_tmul, one_mul, mul_one,
@@ -556,7 +555,7 @@ theorem one_tmul_pol_smul_eq_zero_of_simple [IsSimpleModule (TensorKLR Q μ ν')
         rw [Set.image_univ], MvPolynomial.mem_ideal_span_X_image]
       intro m hm
       by_contra hcon
-      push_neg at hcon
+      push Not at hcon
       have hm0 : m = 0 := Finsupp.ext fun b => hcon b (Set.mem_univ b)
       rw [hm0, MvPolynomial.mem_support_iff, ← MvPolynomial.constantCoeff_eq, hs.2] at hm
       exact hm rfl
@@ -596,7 +595,7 @@ include hPQ hP hnil in
 theorem hwMap_bijective :
     Function.Bijective (hwMap hν' (one_tmul_pol_smul_eq_zero_of_simple hPQ hP hnil)) := by
   set hsym := one_tmul_pol_smul_eq_zero_of_simple hPQ hP hnil
-  haveI := IsSimpleModule.nontrivial (TensorKLR Q μ ν') S
+  have := IsSimpleModule.nontrivial (TensorKLR Q μ ν') S
   constructor
   · rw [← LinearMap.ker_eq_bot]
     by_contra hker
@@ -625,11 +624,11 @@ include hν' hPQ hP hnil in
 dots on the second factor). -/
 theorem isSimpleModule_hwSpace [FiniteDimensional K S] :
     IsSimpleModule (KLRAlgebra K Q μ) (HWSpace Q μ ν' S) := by
-  haveI := IsSimpleModule.nontrivial (TensorKLR Q μ ν') S
-  haveI : Nontrivial (HWSpace Q μ ν' S) := by
+  have := IsSimpleModule.nontrivial (TensorKLR Q μ ν') S
+  have : Nontrivial (HWSpace Q μ ν' S) := by
     obtain ⟨w, hw, hw0⟩ := Submodule.exists_mem_ne_zero_of_ne_bot (hwSub_ne_bot hν' (Q := Q) (μ := μ) (S := S))
     exact ⟨⟨⟨w, hw⟩, 0, fun h => hw0 (congrArg Subtype.val h)⟩⟩
-  refine ⟨fun W => ?_⟩
+  refine { eq_bot_or_eq_top := fun W => ?_ }
   by_cases hW : W = ⊥
   · exact Or.inl hW
   right
@@ -649,10 +648,10 @@ theorem isSimpleModule_hwSpace [FiniteDimensional K S] :
   have hgsurj : Function.Surjective g := fun y => by
     obtain ⟨z, hz⟩ := hsurj (Φ y)
     exact ⟨z, Φ.injective hz⟩
-  haveI : FiniteDimensional K (HWSpace Q μ ν' S) := inferInstance
-  haveI : FiniteDimensional K W :=
+  have : FiniteDimensional K (HWSpace Q μ ν' S) := inferInstance
+  have : FiniteDimensional K W :=
     Module.Finite.of_injective (W.subtype.restrictScalars K) Subtype.val_injective
-  haveI : FiniteDimensional K (ExtTensor K W (KLRRep hν' Q)) :=
+  have : FiniteDimensional K (ExtTensor K W (KLRRep hν' Q)) :=
     inferInstanceAs (FiniteDimensional K (↥W ⊗[K] KLRRep hν' Q))
   have hfin : Module.finrank K (ExtTensor K (HWSpace Q μ ν' S) (KLRRep hν' Q)) ≤
       Module.finrank K (ExtTensor K W (KLRRep hν' Q)) := by

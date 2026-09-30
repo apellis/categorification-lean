@@ -49,7 +49,7 @@ noncomputable section
 
 namespace Categorification.KLR
 
-open Graded LaurentPolynomial QuantumGroup KLRAlgebra KLGamma
+open Categorification.Graded LaurentPolynomial QuantumGroup KLRAlgebra KLGamma
 
 variable {I : Type*} [DecidableEq I]
 
@@ -75,10 +75,10 @@ theorem pairing_g0Basis_eq_invert {ν : Multiset I} (z : K0 (G.grade ν))
     pairing z (G.g0Basis hPQ hP hG ν c) =
       toLaurentSeries (invert ((G.k0Basis hPQ hP hG ν).repr z c)) := by
   classical
-  haveI := G.finite_indecClass hPQ hP hG ν
-  haveI := Fintype.ofFinite (GProj.IndecClass (G.grade ν))
+  have := G.finite_indecClass hPQ hP hG ν
+  have := Fintype.ofFinite (GProj.IndecClass (G.grade ν))
   conv_lhs => rw [← (G.k0Basis hPQ hP hG ν).sum_repr z]
-  rw [map_sum, AddMonoidHom.finset_sum_apply]
+  rw [map_sum, AddMonoidHom.finsetSum_apply]
   have hterm : ∀ b', pairing ((G.k0Basis hPQ hP hG ν).repr z b' • G.k0Basis hPQ hP hG ν b')
       (G.g0Basis hPQ hP hG ν c) = toLaurentSeries (invert ((G.k0Basis hPQ hP hG ν).repr z b') *
         LaurentPolynomial.C (if b' = c then 1 else 0)) := fun b' => by
@@ -86,8 +86,8 @@ theorem pairing_g0Basis_eq_invert {ν : Multiset I} (z : K0 (G.grade ν))
     rw [G.pairing_k0Basis_g0Basis_eq hPQ hP hG, toLaurentSeries_C]
     split_ifs <;> simp [HahnSeries.single_zero_one]
   simp only [hterm]
-  rw [Finset.sum_eq_single c (fun b' _ hb' => by rw [if_neg hb', map_zero, mul_zero, map_zero])
-    (fun h => absurd (Finset.mem_univ c) h), if_pos rfl, map_one, mul_one]
+  rw [Finset.sum_eq_single c (fun b' _ hb' => by rw [ite_eq_right hb', map_zero, mul_zero, map_zero])
+    (fun h => absurd (Finset.mem_univ c) h), ite_eq_left rfl, map_one, mul_one]
 
 /-- **The characters of the simples in terms of the coordinates of the `[P_j]`**:
 `ch(S_c)_j = \overline{a_{jc}}` where `[P_j] = ∑_c a_{jc} [P_c]` (KL I, proof of
@@ -102,7 +102,7 @@ theorem chG0_g0Basis_eq_gdimPoly {ν : Multiset I} (j : Seq ν)
     (c : GProj.IndecClass (G.grade ν)) :
     chG0 G j (G.g0Basis hPQ hP hG ν c) =
       gdimPoly (idem c.top.grading (e j : KLRAlgebra K Q ν)) := by
-  haveI := G.hasGdim_grade' (ν := ν) hPQ hP hG
+  have := G.hasGdim_grade' (ν := ν) hPQ hP hG
   rw [GradingDatum.g0Basis, G0.topBasis_apply, chG0_of]
   rfl
 
@@ -122,8 +122,8 @@ theorem exists_rowComb_projP {ν : Multiset I} (b : GProj.IndecClass (G.grade ν
       ∑ j, c j * qToV ((G.k0Basis hPQ hP hG ν).repr (K0.of (G.projP j)) b') =
         if b' = b then 1 else 0 := by
   classical
-  haveI := G.finite_indecClass hPQ hP hG ν
-  haveI := Fintype.ofFinite (GProj.IndecClass (G.grade ν))
+  have := G.finite_indecClass hPQ hP hG ν
+  have := Fintype.ofFinite (GProj.IndecClass (G.grade ν))
   have hK := linearIndependent_laurentEval _ (G.linearIndependent_chMap_g0Basis hPQ hP hG ν)
   have hK' : LinearIndependent (RatFunc ℚ)
       (fun b j => qToV ((G.k0Basis hPQ hP hG ν).repr (K0.of (G.projP j)) b)) := by
@@ -204,8 +204,8 @@ theorem exists_toK0Q2_k0B2_eq_sum {ν : Multiset I} (b : GProj.IndecClass ((G2).
     ∃ c : Seq ν → RatFunc ℚ, toK0Q2 k C (DirectSum.of (G2).K0fam ν (k0B2 k C ν b)) =
       ∑ j, c j • toK0Q2 k C (DirectSum.of (G2).K0fam ν (K0.of ((G2).projP j))) := by
   classical
-  haveI := finite_indecClass2 k C ν
-  haveI := Fintype.ofFinite (GProj.IndecClass ((G2).grade ν))
+  have := finite_indecClass2 k C ν
+  have := Fintype.ofFinite (GProj.IndecClass ((G2).grade ν))
   obtain ⟨c, hc⟩ := (G2).exists_rowComb_projP
     (klQ2_eq_klP2 (o := KL1.stdOrient) KL2.stdOrient_spec)
     (fun a b hab => klP2_ne_zero a b hab) (klGradingDatum2_degX_pos k C) b
@@ -220,7 +220,7 @@ theorem exists_toK0Q2_k0B2_eq_sum {ν : Multiset I} (b : GProj.IndecClass ((G2).
   simp only [hPj, Finset.smul_sum, smul_smul]
   rw [Finset.sum_comm]
   simp only [← Finset.sum_smul, hc, ite_smul, one_smul, zero_smul, Finset.sum_ite_eq',
-    Finset.mem_univ, if_true]
+    Finset.mem_univ, ite_true]
 
 /-- `[P_j] = γ_{ℚ(q)}(θ_{j_1} ⋯ θ_{j_m})` (KL II). -/
 theorem toK0Q2_projP_eq_gammaQ2 {ν : Multiset I} (j : Seq ν) :
@@ -237,12 +237,11 @@ def K0Q2grade (ν : Multiset I) : Submodule (RatFunc ℚ) (K0Q2 k C) :=
 /-- `K₀(R)_{ℚ(v)}` is spanned over `ℚ(v)` by the image of `K₀(R)` (KL II). -/
 theorem toK0Q2_span_eq_top :
     Submodule.span (RatFunc ℚ) (Set.range (toK0Q2 k C)) = ⊤ := by
-  letI := qToVAlgebra
+  let := qToVAlgebra
   refine eq_top_iff.2 fun z _ => ?_
-  refine TensorProduct.induction_on (motive := fun z : TensorProduct (LaurentPolynomial ℤ)
+  refine TensorProduct.inductionOn (motive := fun z : TensorProduct (LaurentPolynomial ℤ)
     (RatFunc ℚ) (G2).K0R => (z : K0Q2 k C) ∈ Submodule.span (RatFunc ℚ) (Set.range (toK0Q2 k C)))
-    z ?_ ?_ ?_
-  · exact Submodule.zero_mem _
+    z ?_ ?_
   · intro a x
     have : (a ⊗ₜ[LaurentPolynomial ℤ] x : TensorProduct (LaurentPolynomial ℤ) (RatFunc ℚ)
         (G2).K0R) = (a • toK0Q2 k C x : K0Q2 k C) := by
@@ -250,7 +249,8 @@ theorem toK0Q2_span_eq_top :
       rw [TensorProduct.smul_tmul', smul_eq_mul, mul_one]
     change (a ⊗ₜ[LaurentPolynomial ℤ] x : K0Q2 k C) ∈ _
     rw [this]
-    exact Submodule.smul_mem _ _ (Submodule.subset_span ⟨x, rfl⟩)
+    exact Submodule.smul_mem (Submodule.span (RatFunc ℚ) (Set.range (toK0Q2 k C))) a
+      (Submodule.subset_span ⟨x, rfl⟩)
   · intro x y hx hy
     exact Submodule.add_mem _ hx hy
 
@@ -259,8 +259,8 @@ element of `K₀(R(ν))_{ℚ(q)}` is `γ_{ℚ(q)}(x)` for some `x ∈ 'f_ν`. -/
 theorem K0Q2grade_le_map_gammaQ2 (ν : Multiset I) :
     K0Q2grade k C ν ≤ (PreF.grade (RatFunc ℚ) ν).map (gammaQ2 k C).toLinearMap := by
   classical
-  haveI := finite_indecClass2 k C ν
-  haveI := Fintype.ofFinite (GProj.IndecClass ((G2).grade ν))
+  have := finite_indecClass2 k C ν
+  have := Fintype.ofFinite (GProj.IndecClass ((G2).grade ν))
   have hP : ∀ j : Seq ν, toK0Q2 k C (DirectSum.of (G2).K0fam ν (K0.of ((G2).projP j))) ∈
       (PreF.grade (RatFunc ℚ) ν).map (gammaQ2 k C).toLinearMap := fun j =>
     ⟨_, word_ofFn_mem_grade j, (toK0Q2_projP_eq_gammaQ2 k C j).symm⟩

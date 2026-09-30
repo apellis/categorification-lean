@@ -90,14 +90,14 @@ theorem isHomogeneous_span {S : Set M} (hS : ∀ s ∈ S, ∃ j, s ∈ ℳ j) :
   | zero => intro d; simp
   | add x y _ _ hx hy =>
     intro d
-    rw [decompose_add, add_apply, Submodule.coe_add]
+    rw [decompose_add, DirectSum.add_apply, Submodule.coe_add]
     exact add_mem (hx d) (hy d)
   | smul a x _ hx =>
     intro d
     have hsum : (decompose ℳ (a • x) d : M) = ∑ e ∈ (decompose ℳ x).support,
         (decompose ℳ (a • (decompose ℳ x e : M)) d : M) := by
       conv_lhs => rw [← sum_support_decompose ℳ x]
-      rw [Finset.smul_sum, decompose_sum, DFinsupp.finset_sum_apply, Submodule.coe_sum]
+      rw [Finset.smul_sum, decompose_sum, DFinsupp.finsetSum_apply, Submodule.coe_sum]
     rw [hsum]
     refine Submodule.sum_mem _ fun e _ => ?_
     rw [decompose_smul_of_mem 𝒜 ℳ a (decompose ℳ x e).2 d]
@@ -108,7 +108,7 @@ theorem exists_mem_ne_zero [Nontrivial M] : ∃ j, ∃ v ∈ ℳ j, v ≠ 0 := b
   classical
   obtain ⟨m, hm⟩ := exists_ne (0 : M)
   by_contra h
-  push_neg at h
+  push Not at h
   apply hm
   rw [← sum_support_decompose ℳ m]
   exact Finset.sum_eq_zero fun j _ => h j _ (decompose ℳ m j).2
@@ -166,7 +166,7 @@ theorem smul_eq_zero_of_commute_of_mem (hM : IsGradedSimple 𝒜 ℳ) {N : ℤ}
   rcases hM.eq_bot_or_eq_top _ hhom with h | h
   · exact (LinearMap.range_eq_bot.1 h ▸ rfl : f m = 0)
   · exfalso
-    haveI := hM.nontrivial
+    have := hM.nontrivial
     obtain ⟨j, v, hv, hv0⟩ := exists_mem_ne_zero ℳ
     have key : ∀ i, ∀ u ∈ ℳ i, ∃ u' ∈ ℳ (i - d), u = z • u' := by
       intro i u hu
@@ -227,7 +227,7 @@ finite-dimensional (it is a quotient of `A / J`). -/
 theorem finiteDimensional (hM : IsGradedSimple 𝒜 ℳ) (J : Submodule k A)
     (hJ : ∀ a ∈ J, ∀ m : M, a • m = 0) [FiniteDimensional k (A ⧸ J)] :
     FiniteDimensional k M := by
-  haveI := hM.nontrivial
+  have := hM.nontrivial
   obtain ⟨j, v, hv, hv0⟩ := exists_mem_ne_zero ℳ
   let f : A →ₗ[k] M := smulRightK v
   have hJf : J ≤ LinearMap.ker f := fun a ha => hJ a ha v
@@ -266,7 +266,7 @@ theorem isHomogeneous_ker {f : M →ₗ[A] N} (hf : PreservesGrading ℳ 𝒩 f)
     (LinearMap.ker f).IsHomogeneous ℳ := by
   intro d x hx
   rw [LinearMap.mem_ker] at hx ⊢
-  rw [← decompose_map hf, hx, decompose_zero, zero_apply, ZeroMemClass.coe_zero]
+  rw [← decompose_map hf, hx, decompose_zero, DirectSum.zero_apply, ZeroMemClass.coe_zero]
 
 omit [Algebra k A] [IsScalarTower k A M] [IsScalarTower k A N] [GradedAlgebra 𝒜]
   [SetLike.GradedSMul 𝒜 ℳ] [SetLike.GradedSMul 𝒜 𝒩] in
@@ -320,7 +320,7 @@ omit [IsScalarTower k A M] [GradedAlgebra 𝒜] [SetLike.GradedSMul 𝒜 ℳ] in
 /-- The degrees of a finite-dimensional graded module form a finite set. -/
 theorem _root_.Categorification.Graded.finite_setOf_ne_bot [FiniteDimensional k M] :
     {d : ℤ | ℳ d ≠ ⊥}.Finite := by
-  haveI := (Decomposition.isInternal ℳ).submodule_iSupIndep.fintypeNeBotOfFiniteDimensional
+  have := (Decomposition.isInternal ℳ).submodule_iSupIndep.fintypeNeBotOfFiniteDimensional
   show Finite {d // ℳ d ≠ ⊥}
   infer_instance
 
@@ -347,7 +347,7 @@ theorem eq_zero_of_preservesGrading_shift [FiniteDimensional k M] (hM : IsGraded
     rcases hM.eq_bot_or_eq_top _ (isHomogeneous_ker hf) with h | h
     · exact LinearMap.ker_eq_bot.1 h
     · exact absurd (LinearMap.ker_eq_top.1 h) hf0
-  haveI := hM.nontrivial
+  have := hM.nontrivial
   obtain ⟨j, v, hv, hv0⟩ := exists_mem_ne_zero ℳ
   have hiter : ∀ n : ℕ, f^[n] v ∈ ℳ (j - n * a) ∧ f^[n] v ≠ 0 := by
     intro n
@@ -376,7 +376,7 @@ elements of `P` span a nonzero homogeneous submodule, hence everything; an induc
 degree then shows `P = M`. -/
 theorem isSimpleModule [FiniteDimensional k M] (hM : IsGradedSimple 𝒜 ℳ) : IsSimpleModule A M := by
   classical
-  haveI := hM.nontrivial
+  have := hM.nontrivial
   obtain ⟨L, U, hLU⟩ := exists_bounds (ℳ := ℳ)
   have hcomp : ∀ (x : M) d, (d < L ∨ U < d) → (decompose ℳ x d : M) = 0 := fun x d hd =>
     (Submodule.mem_bot k).1 (by rw [← hLU d hd]; exact (decompose ℳ x d).2)
@@ -417,9 +417,9 @@ theorem isSimpleModule [FiniteDimensional k M] (hM : IsGradedSimple 𝒜 ℳ) : 
       by_cases h : e = d
       · subst h; rw [decompose_of_mem_same _ (hTmem _ _ hy)]; exact hy
       · rw [decompose_of_mem_ne _ (hTmem _ _ hy) h]; exact zero_mem _
-    · simp only [decompose_zero, zero_apply, ZeroMemClass.coe_zero]; exact zero_mem _
+    · simp only [decompose_zero, DirectSum.zero_apply, ZeroMemClass.coe_zero]; exact zero_mem _
     · intro x y hx hy
-      simp only [decompose_add, add_apply, Submodule.coe_add]; exact add_mem hx hy
+      simp only [decompose_add, DirectSum.add_apply, Submodule.coe_add]; exact add_mem hx hy
   have hWA : ∀ a : A, ∀ w ∈ W, a • w ∈ W := by
     intro a w hw
     refine Submodule.iSup_induction T (motive := fun w => a • w ∈ W) hw ?_ ?_ ?_
@@ -453,7 +453,7 @@ theorem isSimpleModule [FiniteDimensional k M] (hM : IsGradedSimple 𝒜 ℳ) : 
     have hT : (decompose ℳ n D : M) ∈ T D := ⟨n, hn, fun e he => by
       have : e ∉ (decompose ℳ n).support := fun h' =>
         absurd ((decompose ℳ n).support.le_max' e h') (not_le.2 he)
-      rw [DFinsupp.not_mem_support_iff] at this
+      rw [DFinsupp.notMem_support_iff] at this
       rw [this, ZeroMemClass.coe_zero], rfl⟩
     intro h
     have : (decompose ℳ n D : M) ∈ W' := Submodule.mem_iSup_of_mem D hT
@@ -467,7 +467,7 @@ theorem isSimpleModule [FiniteDimensional k M] (hM : IsGradedSimple 𝒜 ℳ) : 
     rwa [decompose_of_mem_same _ hy] at this
   have hind : ∀ D, L - 1 ≤ D → ∀ x : M, (∀ e, D < e → (decompose ℳ x e : M) = 0) → x ∈ P := by
     intro D hD
-    refine Int.le_induction (P := fun D => ∀ x : M, (∀ e, D < e → (decompose ℳ x e : M) = 0) →
+    refine Int.leInduction (motive := fun D _ => ∀ x : M, (∀ e, D < e → (decompose ℳ x e : M) = 0) →
       x ∈ P) ?_ ?_ D hD
     · intro x hx
       rw [← sum_support_decompose ℳ x]
@@ -478,7 +478,7 @@ theorem isSimpleModule [FiniteDimensional k M] (hM : IsGradedSimple 𝒜 ℳ) : 
     · intro D _ ih x hx
       obtain ⟨n, hn, hn1, hny⟩ := hTall (D + 1) _ (decompose ℳ x (D + 1)).2
       have hxn : x - n ∈ P := ih _ fun e he => by
-        rw [decompose_sub, sub_apply, Submodule.coe_sub]
+        rw [decompose_sub, DirectSum.sub_apply, Submodule.coe_sub]
         rcases eq_or_lt_of_le (show D + 1 ≤ e by omega) with h | h
         · subst h; rw [hny, sub_self]
         · rw [hx e h, hn1 e h, sub_self]
@@ -495,7 +495,7 @@ theorem exists_gradedEquiv_shift_of_ne_zero (hM : IsGradedSimple 𝒜 ℳ)
     (hN : IsGradedSimple 𝒜 𝒩) {f : M →ₗ[A] N} (hf : f ≠ 0) :
     ∃ c : ℤ, Nonempty (ℳ ≃ᵍ[A] Graded.shift 𝒩 c) := by
   classical
-  haveI := hM.nontrivial
+  have := hM.nontrivial
   obtain ⟨j, v, hv, hv0⟩ := exists_mem_ne_zero ℳ
   have hspan := hM.span_singleton_eq_top hv hv0
   have hmem : ∀ m : M, ∃ a : A, a • v = m := fun m => by
@@ -509,7 +509,7 @@ theorem exists_gradedEquiv_shift_of_ne_zero (hM : IsGradedSimple 𝒜 ℳ)
     rw [map_smul, h, smul_zero, LinearMap.zero_apply]
   obtain ⟨e, he⟩ : ∃ e, (decompose 𝒩 (f v) e : N) ≠ 0 := by
     by_contra h
-    push_neg at h
+    push Not at h
     apply hfv
     rw [← sum_support_decompose 𝒩 (f v)]
     exact Finset.sum_eq_zero fun e _ => h e
@@ -521,10 +521,10 @@ theorem exists_gradedEquiv_shift_of_ne_zero (hM : IsGradedSimple 𝒜 ℳ)
     refine Finset.sum_eq_zero fun i _ => ?_
     have h1 : (decompose 𝒜 a i : A) • v = 0 := by
       have := decompose_smul_of_mem 𝒜 ℳ a hv (i + j)
-      rw [ha, decompose_zero, zero_apply, ZeroMemClass.coe_zero, add_sub_cancel_right] at this
+      rw [ha, decompose_zero, DirectSum.zero_apply, ZeroMemClass.coe_zero, add_sub_cancel_right] at this
       exact this.symm
     have h2 := decompose_smul_of_mem_left 𝒜 𝒩 (decompose 𝒜 a i).2 (f v) (i + e)
-    rw [← map_smul, h1, map_zero, decompose_zero, zero_apply, ZeroMemClass.coe_zero,
+    rw [← map_smul, h1, map_zero, decompose_zero, DirectSum.zero_apply, ZeroMemClass.coe_zero,
       add_sub_cancel_left] at h2
     exact h2.symm
   let φ : A →ₗ[A] M := LinearMap.toSpanSingleton A M v
@@ -560,7 +560,7 @@ isomorphism class: `M ≅ M{a}` only for `a = 0`. -/
 theorem eq_zero_of_gradedEquiv_shift [FiniteDimensional k M] (hM : IsGradedSimple 𝒜 ℳ) {a : ℤ}
     (e : ℳ ≃ᵍ[A] Graded.shift ℳ a) : a = 0 := by
   by_contra ha
-  haveI := hM.nontrivial
+  have := hM.nontrivial
   have h0 := hM.eq_zero_of_preservesGrading_shift ha e.preservesGrading
   obtain ⟨m, hm⟩ := exists_ne (0 : M)
   apply hm
@@ -621,7 +621,7 @@ theorem card_le_finrank_of_isSimpleModule [FiniteDimensional k X] {ι : Type*} (
             simp only [g, LinearMap.comp_apply, LinearEquiv.coe_coe, this, Submodule.liftQ_apply]
           have hg0 : g ≠ 0 := by
             intro h0
-            haveI := IsSimpleModule.nontrivial A (T b)
+            have := IsSimpleModule.nontrivial A (T b)
             obtain ⟨t, ht⟩ := exists_ne (0 : T b)
             obtain ⟨p, rfl⟩ := hsb t
             apply ht
@@ -631,7 +631,7 @@ theorem card_le_finrank_of_isSimpleModule [FiniteDimensional k X] {ι : Type*} (
         · exact LinearMap.range_eq_top.1 h
       have hlt : K.restrictScalars k < P.restrictScalars k := by
         refine lt_of_le_of_ne hKP fun h => ?_
-        haveI := IsSimpleModule.nontrivial A (T b₀)
+        have := IsSimpleModule.nontrivial A (T b₀)
         obtain ⟨t, ht⟩ := exists_ne (0 : T b₀)
         obtain ⟨p, rfl⟩ := hs₀ t
         apply ht
@@ -644,7 +644,7 @@ theorem card_le_finrank_of_isSimpleModule [FiniteDimensional k X] {ι : Type*} (
         exact hp'
       have h1 := ih K hKs
       have h2 := Submodule.finrank_lt_finrank_of_lt hlt
-      rw [Finset.card_insert_of_not_mem hb₀]
+      rw [Finset.card_insert_of_notMem hb₀]
       omega
   have htop : Module.finrank k ((⊤ : Submodule A X).restrictScalars k) = Module.finrank k X := by
     rw [Submodule.restrictScalars_top, finrank_top]
@@ -661,7 +661,7 @@ theorem card_le_finrank_of_isSimpleModule [FiniteDimensional k X] {ι : Type*} (
     have := hall s
     omega
   refine ⟨hfin, ?_⟩
-  haveI := Fintype.ofFinite ι
+  have := Fintype.ofFinite ι
   rw [Nat.card_eq_fintype_card, ← Finset.card_univ]
   exact hall _
 

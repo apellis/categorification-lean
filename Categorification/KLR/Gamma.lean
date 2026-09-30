@@ -85,7 +85,7 @@ noncomputable section
 
 namespace Categorification.KLR.KLGamma
 
-open Graded KLRAlgebra LaurentPolynomial QuantumGroup
+open Categorification.Graded KLRAlgebra LaurentPolynomial QuantumGroup
 
 variable {I : Type*} [DecidableEq I] (k : Type*) [CommRing k] (Γ : SimpleGraph I)
   [DecidableRel Γ.Adj]
@@ -111,7 +111,7 @@ theorem seq_ofList_append (l l' : List I)
     rw [Seq.append_posL, Seq.ofList_lbl]
     change _ = (Seq.ofList l rfl).lbl x
     rw [Seq.ofList_lbl]
-    have hx : (x : ℕ) < l.length := by simp
+    have hx : (x : ℕ) < l.length := x.isLt
     simp only [TypeA.blockEquiv_inl_val]
     rw [List.getElem_append_left hx]
   · change (Seq.ofList (l ++ l') h).lbl _ =
@@ -186,22 +186,22 @@ theorem divQFactLP_append (d d' : List (I × ℕ)) :
 
 theorem clsSeq_pair (i j : I) : clsSeq k Γ [i, j] = clsDiv k Γ [(i, 1), (j, 1)] := by
   have := clsSeq_expandDiv k Γ [(i, 1), (j, 1)]
-  simpa [divQFactLP] using this
+  simpa [divQFactLP, expandDiv] using this
 
 theorem clsSeq_triple (i j l : I) :
     clsSeq k Γ [i, j, l] = clsDiv k Γ [(i, 1), (j, 1), (l, 1)] := by
   have := clsSeq_expandDiv k Γ [(i, 1), (j, 1), (l, 1)]
-  simpa [divQFactLP] using this
+  simpa [divQFactLP, expandDiv] using this
 
 theorem clsSeq_iij (i j : I) :
     clsSeq k Γ [i, i, j] = qint qUnitLP 2 • clsDiv k Γ [(i, 2), (j, 1)] := by
   have := clsSeq_expandDiv k Γ [(i, 2), (j, 1)]
-  simpa [divQFactLP, qfact_succ] using this
+  simpa [divQFactLP, qfact_succ, expandDiv] using this
 
 theorem clsSeq_jii (i j : I) :
     clsSeq k Γ [j, i, i] = qint qUnitLP 2 • clsDiv k Γ [(j, 1), (i, 2)] := by
   have := clsSeq_expandDiv k Γ [(j, 1), (i, 2)]
-  simpa [divQFactLP, qfact_succ] using this
+  simpa [divQFactLP, qfact_succ, expandDiv] using this
 
 /-- **KL I §3.1, first relation**: `[P_{ij}] = [P_{ji}]` in `K₀(R)` if `i ≠ j` are not joined
 by an edge (`i · j = 0`). -/
@@ -244,7 +244,7 @@ def clsSeqHom : FreeMonoid I →* (Gkl).K0R where
 /-- **`γ` on `'f` over `ℤ[q, q⁻¹]`**: the `ℤ[q, q⁻¹]`-algebra map from the free algebra
 `'f_{ℤ[q,q⁻¹]}` on the `θ_i` to `K₀(R)` with `θ_i ↦ [P_i]`. -/
 def gammaZ : PreF (LaurentPolynomial ℤ) I →ₐ[LaurentPolynomial ℤ] (Gkl).K0R :=
-  MonoidAlgebra.lift (LaurentPolynomial ℤ) (FreeMonoid I) (Gkl).K0R (clsSeqHom k Γ)
+  MonoidAlgebra.lift (LaurentPolynomial ℤ) (Gkl).K0R (FreeMonoid I) (clsSeqHom k Γ)
 
 /-- `γ(θ_{i_1} ⋯ θ_{i_k}) = [P_{i_1 ⋯ i_k}]`. -/
 theorem gammaZ_word (w : FreeMonoid I) :
@@ -368,10 +368,9 @@ theorem toK0Q_smul (p : LaurentPolynomial ℤ) (x : (Gkl).K0R) :
 theorem toK0Q_span_eq_top :
     Submodule.span (RatFunc ℚ) (Set.range (toK0Q k Γ)) = ⊤ := by
   refine eq_top_iff.2 fun z _ => ?_
-  refine TensorProduct.induction_on (motive := fun z : TensorProduct (LaurentPolynomial ℤ)
+  refine TensorProduct.inductionOn (motive := fun z : TensorProduct (LaurentPolynomial ℤ)
     (RatFunc ℚ) (Gkl).K0R => (z : K0Q k Γ) ∈ Submodule.span (RatFunc ℚ) (Set.range (toK0Q k Γ)))
-    z ?_ ?_ ?_
-  · exact Submodule.zero_mem _
+    z ?_ ?_
   · intro a x
     have : (a ⊗ₜ[LaurentPolynomial ℤ] x : TensorProduct (LaurentPolynomial ℤ) (RatFunc ℚ)
         (Gkl).K0R) = (a • toK0Q k Γ x : K0Q k Γ) := by
@@ -379,7 +378,8 @@ theorem toK0Q_span_eq_top :
       rw [TensorProduct.smul_tmul', smul_eq_mul, mul_one]
     change (a ⊗ₜ[LaurentPolynomial ℤ] x : K0Q k Γ) ∈ _
     rw [this]
-    exact Submodule.smul_mem _ _ (Submodule.subset_span ⟨x, rfl⟩)
+    exact Submodule.smul_mem (Submodule.span (RatFunc ℚ) (Set.range (toK0Q k Γ)))
+      a (Submodule.subset_span ⟨x, rfl⟩)
   · intro x y hx hy
     exact Submodule.add_mem _ hx hy
 
@@ -460,7 +460,7 @@ section GammaQ
 /-- **`'f → K₀(R)_{ℚ(q)}`, `θ_i ↦ [P_i]`** (KL I §3.1, proof of Prop. 3.4): the
 `ℚ(v)`-algebra map out of the free algebra `'f` on the `θ_i`. -/
 def gammaQ : PreF (RatFunc ℚ) I →ₐ[RatFunc ℚ] K0Q k Γ :=
-  MonoidAlgebra.lift (RatFunc ℚ) (FreeMonoid I) (K0Q k Γ)
+  MonoidAlgebra.lift (RatFunc ℚ) (K0Q k Γ) (FreeMonoid I)
     ((toK0Q k Γ).toMonoidHom.comp (clsSeqHom k Γ))
 
 /-- `γ_{ℚ(q)}(θ_{i_1} ⋯ θ_{i_k}) = [P_{i_1 ⋯ i_k}]`. -/
@@ -634,13 +634,12 @@ section GammaA
 
 theorem algebraMap_qToV_mem_Af (p : LaurentPolynomial ℤ) :
     algebraMap (RatFunc ℚ) (KL.F Γ) (qToV p) ∈ KL.Af Γ := by
-  induction p using Finsupp.induction_linear with
-  | zero => simp only [map_zero]; exact Subring.zero_mem _
+  induction p using LaurentPolynomial.induction_on' with
   | add p q hp hq => rw [map_add, map_add]; exact Subring.add_mem _ hp hq
-  | single n m =>
-    have : (Finsupp.single n m : LaurentPolynomial ℤ) = m • T n := by
-      rw [T, Finsupp.smul_single, smul_eq_mul, mul_one]
-    rw [this, map_zsmul, map_zsmul, qToV_T]
+  | C_mul_T n m =>
+    have hmono : (C m * T n : LaurentPolynomial ℤ) = m • T n := by
+      rw [show C m = (m : LaurentPolynomial ℤ) from map_intCast C m, zsmul_eq_mul]
+    rw [hmono, map_zsmul, map_zsmul, qToV_T]
     exact Subring.zsmul_mem _ (PreF.algebraMap_zpow_mem_Af (-n)) m
 
 /-- The divided-power monomials lie in `_𝒜 f`. -/

@@ -42,7 +42,7 @@ universe u
 
 namespace Categorification.KLR
 
-open Graded LaurentPolynomial QuantumGroup KLRAlgebra KLGamma
+open Categorification.Graded LaurentPolynomial QuantumGroup KLRAlgebra KLGamma
 
 variable {I : Type u} [DecidableEq I]
 
@@ -93,9 +93,9 @@ theorem prop_3_20_of_div :
       ∀ b, ∃ n : ℤ, pairing (K0.of (D (θ b) (hθ b))) (G.g0Basis hPQ hP hG ν b) =
         HahnSeries.single n 1 := by
   classical
-  haveI := G.finite_indecClass hPQ hP hG ν
-  haveI := Fintype.ofFinite (GProj.IndecClass (G.grade ν))
-  haveI := G.hasGdim_grade' (ν := ν) hPQ hP hG
+  have := G.finite_indecClass hPQ hP hG ν
+  have := Fintype.ofFinite (GProj.IndecClass (G.grade ν))
+  have := G.hasGdim_grade' (ν := ν) hPQ hP hG
   let rk : I → Cardinal := embeddingToCardinal
   have hrk : Function.Injective rk := embeddingToCardinal.injective
   have hyp := fun c : GProj.IndecClass (G.grade ν) =>
@@ -103,8 +103,8 @@ theorem prop_3_20_of_div :
       (GProj.IndecClass.isGradedSimple_top c)
   have hex : ∀ c : GProj.IndecClass (G.grade ν), ∃ s, IsKeyMax (K := K) Q rk ν c.top s :=
     fun c => by
-      haveI := (hyp c).2.1
-      haveI := IsSimpleModule.nontrivial (KLRAlgebra K Q ν) c.top
+      have := (hyp c).2.1
+      have := IsSimpleModule.nontrivial (KLRAlgebra K Q ν) c.top
       exact exists_isKeyMax rk
   choose s hs using hex
   have hθ : ∀ c, (expandDiv (runs (List.ofFn (s c).1)) : Multiset I) = ν := fun c => by
@@ -120,23 +120,23 @@ theorem prop_3_20_of_div :
     intro b c
     rw [G.chG0_g0Basis_eq hPQ hP hG, hPx, map_smul, Finsupp.smul_apply, smul_eq_mul]
   have hnonneg : ∀ (j : Seq ν) (c : GProj.IndecClass (G.grade ν)) (n : ℤ),
-      0 ≤ chG0 G j (G.g0Basis hPQ hP hG ν c) n := by
+      0 ≤ (chG0 G j (G.g0Basis hPQ hP hG ν c)).coeff n := by
     intro j c n
-    haveI := (hyp c).1
-    letI := idemDecomposition c.top.grading (G.e_mem_grade j)
+    have := (hyp c).1
+    let := idemDecomposition c.top.grading (G.e_mem_grade j)
     rw [G.chG0_g0Basis_eq_gdimPoly hPQ hP hG, gdimPoly_apply]
     exact Nat.cast_nonneg _
   have hevch : ∀ (j : Seq ν) (c : GProj.IndecClass (G.grade ν)),
       evalOne (chG0 G j (G.g0Basis hPQ hP hG ν c)) = dimCh (K := K) Q ν c.top j := by
     intro j c
-    haveI := (hyp c).1
+    have := (hyp c).1
     rw [G.chG0_g0Basis_eq_gdimPoly hPQ hP hG]
     exact evalOne_gdimPoly_idem G c.top.grading j
   -- the key of `b`
   let key : GProj.IndecClass (G.grade ν) → List (Cardinal ×ₗ ℕ) := fun c => seqKey rk (s c)
   have htri : ∀ b c, (G.k0Basis hPQ hP hG ν).repr (x b) c ≠ 0 → key b ≤ key c := by
     intro b c hm
-    haveI := (hyp c).1
+    have := (hyp c).1
     refine (hs c).2 (s b) (mem_seqSupp_iff_dimCh.2 fun h0 => hm ?_)
     have hzero : chG0 G (s b) (G.g0Basis hPQ hP hG ν c) = 0 :=
       eq_zero_of_evalOne_eq_zero (hnonneg _ c) (by rw [hevch, h0]; rfl)
@@ -145,11 +145,11 @@ theorem prop_3_20_of_div :
     exact (mul_eq_zero.1 this).resolve_left (ne_zero_of_evalOne_eq f hf _)
   have hdiag : ∀ b, ∃ n, (G.k0Basis hPQ hP hG ν).repr (x b) b = T n := by
     intro b
-    haveI := (hyp b).1
-    haveI := (hyp b).2.1
+    have := (hyp b).1
+    have := (hyp b).2.1
     set m := (G.k0Basis hPQ hP hG ν).repr (x b) b
     -- `m` has nonnegative coefficients: `(x_b, [S_b]) = \bar m = gdim HOM(D_{θ_b}, S_b)`
-    have hm0 : ∀ n, 0 ≤ m n := by
+    have hm0 : ∀ n, 0 ≤ m.coeff n := by
       intro n
       have h1 := G.pairing_g0Basis_eq_invert hPQ hP hG (x b) b
       rw [GradingDatum.g0Basis, G0.topBasis_apply, hxdef, pairing_of_of] at h1
@@ -174,14 +174,14 @@ theorem prop_3_20_of_div :
   have hkey : Function.Injective key := by
     intro b c h
     have hsc : s b = s c := seqKey_injective rk hrk h
-    haveI := (hyp b).1
-    haveI := (hyp b).2.1
-    haveI := (hyp c).1
-    haveI := (hyp c).2.1
+    have := (hyp b).1
+    have := (hyp b).2.1
+    have := (hyp c).1
+    have := (hyp c).2.1
     have hsc' : IsKeyMax (K := K) Q rk ν c.top (s b) := hsc ▸ hs c
     obtain ⟨φ⟩ := (isKeyMax_aux hPQ hP rk _ ν rfl b.top (hyp b).2.2 (s b) (hs b)).2
       c.top (hyp c).2.2 hsc'
-    haveI := IsSimpleModule.nontrivial (KLRAlgebra K Q ν) b.top
+    have := IsSimpleModule.nontrivial (KLRAlgebra K Q ν) b.top
     have hφ : φ.toLinearMap ≠ 0 := by
       intro h0
       obtain ⟨v, hv⟩ := exists_ne (0 : b.top)
@@ -209,8 +209,8 @@ theorem k0Basis_mem_span_of_div (b : GProj.IndecClass (G.grade ν)) :
     G.k0Basis hPQ hP hG ν b ∈ Submodule.span (LaurentPolynomial ℤ)
       {z | ∃ (d : List (I × ℕ)) (h : (expandDiv d : Multiset I) = ν), z = K0.of (D d h)} := by
   classical
-  haveI := G.finite_indecClass hPQ hP hG ν
-  haveI := Fintype.ofFinite (GProj.IndecClass (G.grade ν))
+  have := G.finite_indecClass hPQ hP hG ν
+  have := Fintype.ofFinite (GProj.IndecClass (G.grade ν))
   obtain ⟨θ, hθ, key, hkey, htri, hdiag⟩ := G.prop_3_20_of_div hPQ hP hG ν D f hD hf
   set x := fun c => K0.of (D (θ c) (hθ c)) with hx
   have htri' : ∀ b c, (G.k0Basis hPQ hP hG ν).repr (x b) c ≠ 0 → key b ≤ key c := fun b c hm =>
@@ -245,7 +245,7 @@ theorem evalOne_qfact_tUnit (h : ℤ) (n : ℕ) : evalOne (qfact (tUnit h) n) = 
   | zero => simp [qfact]
   | succ n ih =>
     rw [qfact_succ, map_mul, ih, qint_tUnit, map_sum]
-    simp [evalOne_T, Nat.factorial_succ]
+    simp [Nat.factorial_succ]
     ring
 
 omit [DecidableEq I] in

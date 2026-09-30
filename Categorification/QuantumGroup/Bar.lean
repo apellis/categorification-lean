@@ -118,14 +118,14 @@ theorem d_mul_θ (i k : I) (n : ℤ) {y : PreF K I}
     (hy : y ∈ (supp {w | wdot dot (wt w) {k} = n} : Submodule K (PreF K I))) :
     d dot v k (y * θ i) = d dot v k y * θ i + (if i = k then ((v ^ n : Kˣ) : K) • y else 0) := by
   by_cases hik : i = k
-  · rw [if_pos hik]
+  · rw [ite_eq_left hik]
     have := eqOn_supp ((d dot v k) ∘ₗ LinearMap.mulRight K (θ i))
       (LinearMap.mulRight K (θ i) ∘ₗ d dot v k + ((v ^ n : Kˣ) : K) • LinearMap.id) ?_ y hy
     · simpa using this
     · intro w hw
-      simp only [Set.mem_setOf_eq] at hw
+      simp only [Set.mem_ofPred_eq] at hw
       simp [d_word_mul, hw, d_θ, hik]
-  · rw [if_neg hik, add_zero]
+  · rw [ite_eq_right hik, add_zero]
     have := eqOn_supp ((d dot v k) ∘ₗ LinearMap.mulRight K (θ i))
       (LinearMap.mulRight K (θ i) ∘ₗ d dot v k) ?_ y hy
     · simpa using this
@@ -144,11 +144,11 @@ theorem counit_d_word (k : I) (w : FreeMonoid I) :
     counit (d dot v k (word w : PreF K I)) = if w = FreeMonoid.of k then 1 else 0 := by
   induction w using FreeMonoid.inductionOn' with
   | one =>
-    rw [word_one, d_one, map_zero, if_neg]
+    rw [word_one, d_one, map_zero, ite_eq_right]
     intro h
     have := congrArg FreeMonoid.length h
     simp at this
-  | mul_of j w _ =>
+  | of_mul j w _ =>
     rw [d_word_of_mul, map_add, map_smul, counit_θ_mul, smul_zero, add_zero]
     have e : (FreeMonoid.of j * w = FreeMonoid.of k) ↔ (j = k ∧ w = 1) := by
       constructor
@@ -159,11 +159,11 @@ theorem counit_d_word (k : I) (w : FreeMonoid I) :
       · rintro ⟨rfl, rfl⟩; rfl
     by_cases hj : j = k
     · subst hj
-      rw [if_pos rfl, counit_word]
+      rw [ite_eq_left rfl, counit_word]
       by_cases hw : w = 1
-      · rw [if_pos hw, if_pos (e.2 ⟨rfl, hw⟩)]
-      · rw [if_neg hw, if_neg (fun h => hw (e.1 h).2)]
-    · rw [if_neg hj, map_zero, if_neg (fun h => hj (e.1 h).1)]
+      · rw [ite_eq_left hw, ite_eq_left (e.2 ⟨rfl, hw⟩)]
+      · rw [ite_eq_right hw, ite_eq_right (fun h => hw (e.1 h).2)]
+    · rw [ite_eq_right hj, map_zero, ite_eq_right (fun h => hj (e.1 h).1)]
 
 theorem counit_dR (k : I) (y : PreF K I) :
     counit (dR dot v k y) = counit (d dot v k y) := by
@@ -182,7 +182,7 @@ theorem d_word_mem_supp_wdot (j k : I) (w : FreeMonoid I) :
       wdot dot (wt w) {k} - dot j k} : Submodule K (PreF K I)) := by
   refine supp_mono ?_ (d_word_mem_supp j w)
   intro w' hw'
-  simp only [Set.mem_setOf_eq] at hw' ⊢
+  simp only [Set.mem_ofPred_eq] at hw' ⊢
   rw [← hw', wdot_cons_left, wdot_singleton]
   ring
 
@@ -194,7 +194,7 @@ theorem d_dR_comm (hdot : ∀ i j, dot i j = dot j i) (j k : I) (x : PreF K I) :
     simp only [LinearMap.comp_apply]
     induction w using FreeMonoid.inductionOn' with
     | one => simp
-    | mul_of i w ih =>
+    | of_mul i w ih =>
       have hw : (word w : PreF K I) ∈ (supp {w' | wdot dot (wt w') {k} = wdot dot (wt w) {k}} :
           Submodule K (PreF K I)) := word_mem_supp rfl
       rw [word_of_mul, dR_θ_mul i k _ hw, map_add, d_θ_mul, ih, d_θ_mul, map_add, map_smul,
@@ -203,9 +203,9 @@ theorem d_dR_comm (hdot : ∀ i j, dot i j = dot j i) (j k : I) (x : PreF K I) :
       · have e : ((v ^ dot k j : Kˣ) : K) * ((v ^ (wdot dot (wt w) {k} - dot j k) : Kˣ) : K) =
             ((v ^ wdot dot (wt w) {k} : Kˣ) : K) := by
           rw [← Units.val_mul, ← zpow_add, hdot k j]; congr 2; ring
-        simp only [hik, if_true, map_smul, smul_add, smul_smul, e]
+        simp only [hik, ite_true, map_smul, smul_add, smul_smul, e]
         split_ifs <;> simp only [map_zero, zero_add, add_assoc]
-      · simp only [hik, if_false, map_zero, add_zero, smul_zero]
+      · simp only [hik, ite_false, map_zero, add_zero]
         split_ifs <;> simp
   exact LinearMap.congr_fun this x
 
@@ -223,7 +223,7 @@ theorem form_mul_θ (hdot : ∀ i j, dot i j = dot j i) (c : I → K) (k : I) (z
     congr 1
     induction u using FreeMonoid.inductionOn' generalizing y with
     | one => rw [word_one, one_mul, form_θ, form_one, counit_dR]
-    | mul_of j u ih =>
+    | of_mul j u ih =>
       rw [word_of_mul, mul_assoc, form_θ_mul, ih, form_θ_mul, d_dR_comm hdot]
       ring
 
@@ -255,22 +255,22 @@ theorem d_mem_lenLt (k : I) (n : ℕ) {x : PreF K I}
     d dot v k x ∈ (supp (lenLt n) : Submodule K (PreF K I)) := by
   refine map_supp_le (d dot v k) (fun w hw => supp_mono ?_ (d_word_mem_supp k w)) x hx
   intro w' hw'
-  simp only [lenLt, Set.mem_setOf_eq] at hw hw' ⊢
+  simp only [lenLt, Set.mem_ofPred_eq] at hw hw' ⊢
   have := congrArg Multiset.card hw'
   rw [Multiset.card_cons, ← length_eq_card_wt, ← length_eq_card_wt] at this
   omega
 
 theorem exists_mem_lenLt (x : PreF K I) :
     ∃ n, x ∈ (supp (lenLt n) : Submodule K (PreF K I)) := by
-  refine ⟨x.support.sup FreeMonoid.length + 1, ?_⟩
-  rw [supp, Finsupp.mem_supported]
+  refine ⟨x.coeff.support.sup FreeMonoid.length + 1, ?_⟩
+  rw [supp, MonoidAlgebra.mem_supported]
   intro w hw
-  simp only [lenLt, Set.mem_setOf_eq]
+  simp only [lenLt, Set.mem_ofPred_eq]
   exact Nat.lt_succ_of_le (Finset.le_sup (f := FreeMonoid.length) hw)
 
 theorem supp_lenLt_zero : (supp (lenLt 0) : Submodule K (PreF K I)) = ⊥ := by
   rw [supp, lenLt]
-  simp
+  simp [MonoidAlgebra.supported_eq_map, Finsupp.supported_empty]
 
 /-! ### The bar map -/
 
@@ -357,7 +357,7 @@ theorem bar_d (hσ : σ (v : K) = ((v⁻¹ : Kˣ) : K)) (k : I) (x : PreF K I) :
     congr 1
     induction w using FreeMonoid.inductionOn' with
     | one => simp
-    | mul_of j w ih =>
+    | of_mul j w ih =>
       have hw : (word w : PreF K I) ∈ (supp {w' | wdot dot (wt w') {k} = wdot dot (wt w) {k}} :
           Submodule K (PreF K I)) := word_mem_supp rfl
       rw [d_word_of_mul, word_of_mul, dR_θ_mul j k _ hw, map_add, map_add, bar_smul, map_mul,

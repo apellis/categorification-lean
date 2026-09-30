@@ -29,7 +29,7 @@ noncomputable section
 
 namespace Categorification.KLR
 
-open Graded KLRAlgebra
+open Categorification.Graded KLRAlgebra
 
 variable {I : Type*} [DecidableEq I] {k : Type*} [Field k] {Q : I → I → MvPolynomial (Fin 2) k}
 
@@ -37,7 +37,7 @@ variable {I : Type*} [DecidableEq I] {k : Type*} [Field k] {Q : I → I → MvPo
 theorem completeOrthogonalIdempotents_e (ν : Multiset I) :
     CompleteOrthogonalIdempotents (fun i : Seq ν => (e i : KLRAlgebra k Q ν)) where
   idem i := e_mul_self i
-  ortho i j h := by simp only [e_mul_e, if_neg h]
+  ortho i j h := by simp only [e_mul_e, ite_eq_right h]
   complete := sum_e
 
 namespace GradingDatum
@@ -62,8 +62,8 @@ theorem ch_shift (M : GMod (G.grade ν)) (a : ℤ) (i : Seq ν) :
     G.ch (M.shift a) i = HahnSeries.single a 1 * G.ch M i := by
   have h : idem (M.shift a).grading (e i : KLRAlgebra k Q ν) =
       Graded.shift (idem M.grading (e i : KLRAlgebra k Q ν)) a := rfl
-  rw [ch, h, gdim_shift]
-  rfl
+  rw [ch, h]
+  exact gdim_shift _ _
 
 /-- Characters are additive on short exact sequences of graded modules with degree-preserving
 maps. -/
@@ -78,7 +78,7 @@ theorem ch_eq_add_of_exact {M N P : GMod (G.grade ν)} [HasGdim N.grading]
 /-- `ch(M ⊕ N) = ch(M) + ch(N)`. -/
 theorem ch_prod (M N : GMod (G.grade ν)) [HasGdim M.grading] [HasGdim N.grading] (i : Seq ν) :
     G.ch (M.prod N) i = G.ch M i + G.ch N i := by
-  haveI : HasGdim (M.prod N).grading :=
+  have : HasGdim (M.prod N).grading :=
     inferInstanceAs (HasGdim (Graded.prod M.grading N.grading))
   exact G.ch_eq_add_of_exact (M := M) (N := M.prod N) (P := N)
     (f := LinearMap.inl _ M N) (g := LinearMap.snd _ M N)

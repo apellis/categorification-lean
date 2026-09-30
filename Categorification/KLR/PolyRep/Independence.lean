@@ -166,7 +166,7 @@ theorem opΨw_single (P : I → I → MvPolynomial (Fin 2) k) (ρ : List ℕ) (i
   | cons j ρ ih =>
     rw [opΨw_cons, Module.End.mul_apply, ih, wordProd_cons', mul_smul]
     by_cases h : j + 1 < m
-    · simp only [wordComp, dif_pos h, LinearMap.comp_apply]
+    · simp only [wordComp, dite_eq_left h, LinearMap.comp_apply]
       funext t
       rw [opΨ_apply P j h]
       by_cases ht : t = sadj m j • wordProd m ρ • i
@@ -175,8 +175,8 @@ theorem opΨw_single (P : I → I → MvPolynomial (Fin 2) k) (ρ : List ℕ) (i
         simp
       · have : sadj m j • t ≠ wordProd m ρ • i := fun h' =>
           ht (by rw [← h', smul_smul, sadj_sq, one_smul])
-        simp [Pi.single_apply, ht, this]
-    · simp [wordComp, dif_neg h, opΨ, h]
+        simp [ht, this]
+    · simp [wordComp, opΨ, h]
 
 /-! ### Expansions -/
 
@@ -210,10 +210,10 @@ theorem hasExp_crossComp (P : I → I → MvPolynomial (Fin 2) k) (j : ℕ) (h :
 theorem crossExp_support (P : I → I → MvPolynomial (Fin 2) k) (j : ℕ) (h : j + 1 < m)
     (t : Seq ν) (v : Perm (Fin m)) (hv : crossExp P j h t v ≠ 0) : v = 1 ∨ v = sadj m j := by
   by_contra hc
-  push_neg at hc
+  push Not at hc
   apply hv
   unfold crossExp
-  split_ifs <;> simp [Pi.single_apply, hc.1, hc.2]
+  split_ifs <;> simp [hc.1, hc.2]
 
 theorem crossExp_sadj_ne_zero {P : I → I → MvPolynomial (Fin 2) k}
     (hP : ∀ a b, a ≠ b → P a b ≠ 0) (j : ℕ) (h : j + 1 < m) (t : Seq ν) :
@@ -222,7 +222,7 @@ theorem crossExp_sadj_ne_zero {P : I → I → MvPolynomial (Fin 2) k}
   have hne : (⟨j, by omega⟩ : Fin m) ≠ ⟨j + 1, h⟩ := by simp [Fin.ext_iff]
   unfold crossExp
   split_ifs with hl
-  · simp only [Pi.add_apply, Pi.single_apply, if_neg hs, if_true, zero_add, ne_eq,
+  · simp only [Pi.add_apply, Pi.single_apply, ite_eq_right hs, ite_true, zero_add, ne_eq,
       neg_eq_zero, inv_eq_zero]
     exact algebraMap_ne_zero (k := k) (sub_ne_zero.mpr fun e => hne (X_injective e))
   · simp only [Pi.single_eq_same]
@@ -245,9 +245,9 @@ theorem hasExp_wordComp (P : I → I → MvPolynomial (Fin 2) k) (ρ : List ℕ)
   | nil => exact hasExp_id.congr fun f => rfl
   | cons j ρ ih =>
     by_cases h : j + 1 < m
-    · simp only [wordComp, wordExp, dif_pos h]
+    · simp only [wordComp, wordExp, dite_eq_left h]
       exact ((hasExp_crossComp P j h _).comp ih).congr fun f => rfl
-    · simp only [wordComp, wordExp, dif_neg h]
+    · simp only [wordComp, wordExp, dite_eq_right h]
       exact HasExp.zero.congr fun f => rfl
 
 /-- Triangularity: the expansion of `wordComp P ρ i` is supported on `wordProd ρ` and
@@ -260,10 +260,10 @@ theorem wordExp_support (P : I → I → MvPolynomial (Fin 2) k) (ρ : List ℕ)
     left
     by_contra hc
     simp only [wordProd, List.map_nil, List.prod_nil] at hc
-    exact hv (by simp [wordExp, Pi.single_apply, hc])
+    exact hv (by simp [wordExp, hc])
   | cons j ρ ih =>
     by_cases h : j + 1 < m
-    · simp only [wordExp, dif_pos h] at hv
+    · simp only [wordExp, dite_eq_left h] at hv
       obtain ⟨u, v', hu, hv', rfl⟩ := conv_ne_zero hv
       have hlen := length_wordProd_le m ρ
       rw [wordProd_cons', List.length_cons]
@@ -272,7 +272,7 @@ theorem wordExp_support (P : I → I → MvPolynomial (Fin 2) k) (ρ : List ℕ)
       · right; rw [one_mul]; omega
       · left; rfl
       · right; have := length_sadj_mul_le m j v'; omega
-    · simp [wordExp, dif_neg h] at hv
+    · simp [wordExp, dite_eq_right h] at hv
 
 /-- For a reduced word `ρ`, the coefficient of `wordProd ρ` in the expansion of
 `wordComp P ρ i` is nonzero. -/
@@ -285,7 +285,7 @@ theorem wordExp_top_ne_zero {P : I → I → MvPolynomial (Fin 2) k}
     obtain ⟨hρ', hlen⟩ := isReduced_tail hρ
     have h : j + 1 < m := hρ.1 j List.mem_cons_self
     rw [wordProd_cons']
-    simp only [wordExp, dif_pos h]
+    simp only [wordExp, dite_eq_left h]
     have hz : wordExp P ρ i (sadj m j * wordProd m ρ) = 0 := by
       by_contra hne
       rcases wordExp_support P ρ i hne with h1 | h1
@@ -321,8 +321,8 @@ theorem hasExp_family (P : I → I → MvPolynomial (Fin 2) k) (ρ : List ℕ) (
       simp [h1, hi]
   split_ifs with hc
   · exact ((hasExp_wordComp P ρ i₀).comp_mul (monomial u 1)).congr fun f => by
-      rw [e1, if_pos hc]
-  · exact HasExp.zero.congr fun f => by rw [e1, if_neg hc]
+      rw [e1, ite_eq_left hc]
+  · exact HasExp.zero.congr fun f => by rw [e1, ite_eq_right hc]
 
 /-- **Linear independence, coefficient form.** If a finite `k`-linear combination of the
 operators `ψ_{ρ w} ∘ x^u ∘ 1_i` vanishes on `Pol_ν`, then all its coefficients vanish. -/
@@ -335,7 +335,7 @@ theorem opΨw_family_coeff_eq_zero {P : I → I → MvPolynomial (Fin 2) k}
     ∀ x ∈ s, g x = 0 := by
   classical
   by_contra hne
-  push_neg at hne
+  push Not at hne
   obtain ⟨⟨i₀, w₁, u₁⟩, hx₁s, hx₁⟩ := hne
   set S := s.filter (fun x => x.1 = i₀ ∧ g x ≠ 0) with hS
   obtain ⟨⟨i', w₀, u₀⟩, hx₀S, hmax⟩ :=
@@ -355,7 +355,7 @@ theorem opΨw_family_coeff_eq_zero {P : I → I → MvPolynomial (Fin 2) k}
       (hasExp_family P (ρ x.2.1) x.1 i' (w₀ • i') x.2.2).smul (g x)
   have hzero := congrFun (hexp.eq_zero_of_forall fun f => by
     have := congrArg (fun T : Module.End k (Pol k ν) => T (Pi.single i' f) (w₀ • i')) hsum
-    simpa only [LinearMap.coeFn_sum, Finset.sum_apply, LinearMap.smul_apply, Pi.smul_apply,
+    simpa only [LinearMap.coe_sum, Finset.sum_apply, LinearMap.smul_apply, Pi.smul_apply,
       LinearMap.zero_apply, Pi.zero_apply] using this) w₀
   -- only the terms with `x = (i', w₀, _)` contribute at `w₀`
   have hterm : ∀ x ∈ s, algebraMap R K (C (g x)) * Φ x w₀ =
@@ -367,9 +367,9 @@ theorem opΨw_family_coeff_eq_zero {P : I → I → MvPolynomial (Fin 2) k}
     · simp [hg0]
     by_cases hx' : i = i' ∧ w = w₀
     · obtain ⟨rfl, rfl⟩ := hx'
-      simp only [Φ, (hρ w).2, and_self, if_true, map_mul, act_algebraMap, rename_C]
+      simp only [Φ, (hρ w).2, and_self, ite_true, map_mul, act_algebraMap, rename_C]
       ring
-    · rw [if_neg hx']
+    · rw [ite_eq_right hx']
       by_cases hi : i = i'
       · subst hi
         have hw : w ≠ w₀ := fun e => hx' ⟨rfl, e⟩
@@ -383,7 +383,7 @@ theorem opΨw_family_coeff_eq_zero {P : I → I → MvPolynomial (Fin 2) k}
         simp only [Φ]
         split_ifs <;> simp [hE]
       · simp [Φ, hi]
-  simp only [Finset.sum_apply, Pi.zero_apply] at hzero
+  simp only [Pi.zero_apply] at hzero
   rw [Finset.sum_congr rfl hterm, ← Finset.sum_filter, ← Finset.mul_sum,
     ← act_sum, ← map_sum (algebraMap R K)] at hzero
   have hp : ∑ x ∈ s.filter (fun x => x.1 = i' ∧ x.2.1 = w₀), C (g x) * monomial x.2.2 1 = 0 := by
@@ -393,7 +393,7 @@ theorem opΨw_family_coeff_eq_zero {P : I → I → MvPolynomial (Fin 2) k}
       exact absurd h ht
     · have := act_eq_zero h
       exact (map_eq_zero_iff _ (IsFractionRing.injective R K)).mp this
-  have hc := congrArg (coeff u₀) hp
+  have hc := congrArg (fun p : MvPolynomial (Fin m) k => p.coeff u₀) hp
   rw [coeff_sum, Finset.sum_eq_single_of_mem (i', w₀, u₀) (by simp [hx₀s])] at hc
   · simp [coeff_C_mul] at hc
     exact hx₀g hc

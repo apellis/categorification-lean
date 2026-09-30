@@ -96,7 +96,7 @@ theorem decompose_mem_span (hdeg : ∀ x, b x ∈ ℳ (deg x)) (S : Set ι) {y :
       exact zero_mem _
   | zero => simp
   | add y z _ _ hy hz =>
-    rw [decompose_add, add_apply, Submodule.coe_add]
+    rw [decompose_add, DirectSum.add_apply, Submodule.coe_add]
     exact add_mem hy hz
   | smul c y _ hy =>
     rw [decompose_smul, DFinsupp.smul_apply, Submodule.coe_smul]
@@ -122,7 +122,7 @@ theorem finrank_inf_span (hb : LinearIndependent k b) (hdeg : ∀ x, b x ∈ ℳ
     finrank k ↥(ℳ d ⊓ Submodule.span k (b '' S) : Submodule k M) =
       Nat.card {x | x ∈ S ∧ deg x = d} := by
   rw [inf_span_eq ℳ deg hdeg S d]
-  haveI := hfin.fintype
+  have := hfin.fintype
   rw [Set.image_eq_range]
   exact (finrank_span_eq_card (hb.comp _ Subtype.val_injective)).trans
     Nat.card_eq_fintype_card.symm
@@ -135,14 +135,14 @@ theorem hasGdim_inf_span (hdeg : ∀ x, b x ∈ ℳ (deg x)) (S : Set ι)
     HasGdim fun d => (ℳ d ⊓ Submodule.span k (b '' S) : Submodule k M) where
   finiteDimensional d := by
     have h := inf_span_eq ℳ deg hdeg S d
-    haveI := FiniteDimensional.span_of_finite k ((hfin d).image b)
+    have := FiniteDimensional.span_of_finite k ((hfin d).image b)
     exact Submodule.finiteDimensional_of_le h.le
   bddBelow := hbdd.mono fun d (hd : ℳ d ⊓ _ ≠ ⊥) => by
     by_contra h
     apply hd
     rw [inf_span_eq ℳ deg hdeg S d]
     have : {x | x ∈ S ∧ deg x = d} = ∅ :=
-      Set.eq_empty_iff_forall_not_mem.2 fun x hx => h ⟨x, hx.1, hx.2⟩
+      Set.eq_empty_iff_forall_notMem.2 fun x hx => h ⟨x, hx.1, hx.2⟩
     rw [this, Set.image_empty, Submodule.span_empty]
 
 /-- The coefficients of the graded dimension of the span of a homogeneous linearly independent
@@ -152,7 +152,7 @@ theorem coeff_gdim_inf_span (hb : LinearIndependent k b) (hdeg : ∀ x, b x ∈ 
     (d : ℤ) :
     (gdim fun d => (ℳ d ⊓ Submodule.span k (b '' S) : Submodule k M)).coeff d =
       Nat.card {x | x ∈ S ∧ deg x = d} := by
-  haveI := hasGdim_inf_span ℳ deg hdeg S hfin hbdd
+  have := hasGdim_inf_span ℳ deg hdeg S hfin hbdd
   rw [coeff_gdim, finrank_inf_span ℳ deg hb hdeg S d (hfin d)]
 
 end Basis
@@ -175,8 +175,8 @@ theorem decompose_smul_of_mem (a : A) {m : M} {j : ℤ} (hm : m ∈ ℳ j) (d : 
   induction a using Decomposition.inductionOn 𝒜 with
   | zero => simp
   | add a a' ha ha' =>
-    rw [add_smul, decompose_add, add_apply, Submodule.coe_add, ha, ha', decompose_add, add_apply,
-      Submodule.coe_add, add_smul]
+    rw [add_smul, decompose_add, DirectSum.add_apply, Submodule.coe_add, ha, ha', decompose_add,
+      DirectSum.add_apply, Submodule.coe_add, add_smul]
   | @homogeneous i a =>
     have ham : (a : A) • m ∈ ℳ (i + j) := by
       simpa [vadd_eq_add] using SetLike.GradedSMul.smul_mem (A := 𝒜) (B := ℳ) a.2 hm
@@ -201,7 +201,7 @@ theorem grade_le_iSup {ι : Type*} [Fintype ι] (m : ι → M) (deg : ι → ℤ
   intro y hy
   have hy' : y ∈ Submodule.span A (Set.range m) := hspan ▸ Submodule.mem_top
   obtain ⟨c, rfl⟩ := (Submodule.mem_span_range_iff_exists_fun A).1 hy'
-  rw [← decompose_of_mem_same ℳ hy, decompose_sum, DFinsupp.finset_sum_apply,
+  rw [← decompose_of_mem_same ℳ hy, decompose_sum, DFinsupp.finsetSum_apply,
     Submodule.coe_sum]
   refine Submodule.sum_mem _ fun t _ => Submodule.mem_iSup_of_mem t ?_
   rw [decompose_smul_of_mem 𝒜 ℳ (c t) (hm t)]
@@ -217,7 +217,7 @@ theorem hasGdim_of_generators [HasGdim 𝒜] {ι : Type*} [Fintype ι] (m : ι �
     obtain ⟨D, hD⟩ := (Set.finite_range deg).bddBelow
     refine ⟨B + D, fun d (hd : ℳ d ≠ ⊥) => ?_⟩
     by_contra hlt
-    push_neg at hlt
+    push Not at hlt
     apply hd
     rw [eq_bot_iff]
     refine (grade_le_iSup 𝒜 ℳ m deg hm hspan d).trans (iSup_le fun t => ?_)
@@ -225,7 +225,6 @@ theorem hasGdim_of_generators [HasGdim 𝒜] {ι : Type*} [Fintype ι] (m : ι �
       by_contra h
       have := hB h
       have := hD ⟨t, rfl⟩
-      simp only [Set.mem_setOf_eq] at *
       omega
     rw [h1, Submodule.map_bot]
 

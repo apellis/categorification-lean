@@ -231,9 +231,9 @@ theorem eq_formUD_of_isKLPairing {F : UD RD q →ₗ[K] UD RD q →ₗ[K] K} (hF
     simp only [LinearMap.compl₁₂_apply] at this
     rw [E1, E1, this, formUD_ofB_ofB]
   · have e1 : E1 RD q s lam = idem RD q (lam + RD.wX s) lam (E1 RD q s lam) := by
-      rw [idem_E1, if_pos ⟨rfl, rfl⟩]
+      rw [idem_E1, ite_eq_left ⟨rfl, rfl⟩]
     have e2 : E1 RD q t lam' = idem RD q (lam' + RD.wX t) lam' (E1 RD q t lam') := by
-      rw [idem_E1, if_pos ⟨rfl, rfl⟩]
+      rw [idem_E1, ite_eq_left ⟨rfl, rfl⟩]
     rw [e1, e2, hF.weight _ _ _ _ _ _ (fun h' => h h'.2),
       formUD_weight RD q c hq _ _ _ _ _ _ (fun h' => h h'.2)]
 

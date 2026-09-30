@@ -222,20 +222,20 @@ theorem braid_poly (c d e : Fin m) (f : MvPolynomial (Fin 3) k) :
   · subst hcd
     by_cases hce : c = e
     · subst hce
-      simp only [op0, op1, if_true]
-      rw [ddiff_braid (by decide) (by decide) (by decide), sub_self, if_neg (by simp)]
-    · simp only [op0, op1, if_true, if_neg hce]
-      rw [dds, sub_self, if_neg (by simp)]
+      simp only [op0, op1, ite_true]
+      rw [ddiff_braid (by decide) (by decide) (by decide), sub_self, ite_eq_right (by simp)]
+    · simp only [op0, op1, ite_true, ite_eq_right hce]
+      rw [dds, sub_self, ite_eq_right (by simp)]
   · by_cases hce : c = e
     · subst hce
-      simp only [op0, op1, if_true, if_neg hcd, if_neg (Ne.symm hcd)]
-      rw [sds, Qf, if_pos (by simpa using hcd)]
-    · rw [if_neg (fun h => hce h.1)]
+      simp only [op0, op1, ite_true, ite_eq_right hcd, ite_eq_right (Ne.symm hcd)]
+      rw [sds, Qf, ite_eq_left (by simpa using hcd)]
+    · rw [ite_eq_right (fun h => hce h.1)]
       by_cases hde : d = e
       · subst hde
-        simp only [op0, op1, if_true, if_neg hcd]
+        simp only [op0, op1, ite_true, ite_eq_right hcd]
         rw [sdd, sub_self]
-      · simp only [op0, op1, if_neg hcd, if_neg hce, if_neg hde]
+      · simp only [op0, op1, ite_eq_right hcd, ite_eq_right hce, ite_eq_right hde]
         rw [sss, sub_self]
 
 end Colours

@@ -44,7 +44,7 @@ theorem d_θ_pow (i : I) (a : ℕ) :
   induction a with
   | zero => simp [d_θ]
   | succ a ih =>
-    rw [pow_succ' _ (a + 1), d_θ_mul, if_pos rfl, ih, mul_smul_comm, ← pow_succ', smul_smul,
+    rw [pow_succ' _ (a + 1), d_θ_mul, ite_eq_left rfl, ih, mul_smul_comm, ← pow_succ', smul_smul,
       sum_range_succ' _ (a + 1)]
     have e : ∑ k ∈ range (a + 1), ((v ^ (dot i i * ((k + 1 : ℕ) : ℤ)) : Kˣ) : K) =
         ((v ^ dot i i : Kˣ) : K) * ∑ k ∈ range (a + 1), ((v ^ (dot i i * k) : Kˣ) : K) := by

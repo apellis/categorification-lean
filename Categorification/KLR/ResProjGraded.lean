@@ -103,7 +103,7 @@ theorem isInternal_piGrading (ℳ : ∀ t, ℤ → Submodule k (M t)) [∀ t, De
     rintro _ ⟨x, hx, rfl⟩ t'
     by_cases h : t' = t
     · subst h; simpa using hx
-    · simp [Pi.single_apply, h]
+    · simp [h]
 
 noncomputable instance (ℳ : ∀ t, ℤ → Submodule k (M t)) [∀ t, Decomposition (ℳ t)] :
     Decomposition (piGrading ℳ) :=
@@ -189,7 +189,8 @@ def extIdemEquivLeftIdeal {e : A} {e' : B} (he : IsIdempotentElem e)
     (LinearMap.codRestrict _ (extIdemIncl e e') fun n => extIdemIncl_mul n)
     ⟨fun x y h => extIdemIncl_injective e e' (congrArg Subtype.val h), fun r => by
       refine ⟨(r : A ⊗[k] B) • extIdemUnit k he he', Subtype.ext ?_⟩
-      rw [LinearMap.codRestrict_apply, map_smul, extIdemUnit, extIdemIncl_tmul, smul_eq_mul]
+      change extIdemIncl e e' ((r : A ⊗[k] B) • extIdemUnit k he he') = _
+      rw [map_smul, extIdemUnit, extIdemIncl_tmul, smul_eq_mul]
       exact mem_leftIdeal.1 r.2⟩
 
 @[simp] theorem coe_extIdemEquivLeftIdeal {e : A} {e' : B} (he : IsIdempotentElem e)
@@ -203,7 +204,7 @@ end Graded
 
 namespace KLR
 
-open Graded KLRAlgebra TypeA Equiv MvPolynomial
+open Categorification.Graded KLRAlgebra TypeA Equiv MvPolynomial
 
 variable {I : Type*} [DecidableEq I] {k : Type*} [Field k] {Q : I → I → MvPolynomial (Fin 2) k}
   {ν ν' : Multiset I}
@@ -306,7 +307,7 @@ variable (G : GradingDatum Q) {P : I → I → MvPolynomial (Fin 2) k}
 
 variable (ν ν') in
 /-- The summand `(P_{i_u} ⊠ P_{j_u}){deg(ψ_{σ(u)} 1_s)}` of `Res P_s`. -/
-def resSummand (s : Seq (ν + ν')) (u : ShuffleOf ν ν' s) :
+abbrev resSummand (s : Seq (ν + ν')) (u : ShuffleOf ν ν' s) :
     GProj (tensorGrading (G.grade ν) (G.grade ν')) :=
   ((G.projP u.split.1).extTensor (G.projP u.split.2)).shift (G.degW (shuffleWord u.1) s)
 
@@ -331,13 +332,22 @@ theorem resProjExtEquiv_mem (s : Seq (ν + ν')) {d : ℤ} {t : ResProjDom (Q :=
 `Res_{ν,ν'} P_s ≅ ⊕_u (P_{i_u} ⊠ P_{j_u}){deg(ψ_{σ(u)} 1_s)}` as graded
 `R(ν) ⊗ R(ν')`-modules. -/
 def resProjGradedEquiv (s : Seq (ν + ν')) :
-    GradedEquiv (TensorKLR Q ν ν') (M := ∀ u, (G.resSummand ν ν' s u).carrier)
+    GradedEquiv (TensorKLR Q ν ν') (M := ResProjDom (Q := Q) ν ν' s)
       (N := (G.resGProj ν ν' hPQ hP (G.projP s)).carrier)
       (piGrading fun u => (G.resSummand ν ν' s u).grading)
-      (G.resGProj ν ν' hPQ hP (G.projP s)).grading :=
-  GradedEquiv.ofPreserves (resProjExtEquiv hPQ hP s) (by
+      (G.resGProj ν ν' hPQ hP (G.projP s)).grading := by
+  classical
+  let ℳ : ℤ → Submodule k (ResProjDom (Q := Q) ν ν' s) :=
+    piGrading fun u => (G.resSummand ν ν' s u).grading
+  let 𝒩 : ℤ → Submodule k (ResIdem Q ν ν' (leftIdeal (e s : KLRAlgebra k Q (ν + ν')))) :=
+    (G.resGProj ν ν' hPQ hP (G.projP s)).grading
+  have hp : PreservesGrading ℳ 𝒩 (resProjExtEquiv hPQ hP s).toLinearMap := by
     intro d t ht
-    exact G.resProjExtEquiv_mem hPQ hP s ht)
+    exact G.resProjExtEquiv_mem hPQ hP s ht
+  letI : Decomposition ℳ := (isInternal_piGrading
+    (fun u => (G.resSummand ν ν' s u).grading)).chooseDecomposition
+  letI : Decomposition 𝒩 := (G.resGProj ν ν' hPQ hP (G.projP s)).decomposition
+  exact GradedEquiv.ofPreserves (ℳ := ℳ) (𝒩 := 𝒩) (resProjExtEquiv hPQ hP s) hp
 
 variable [HasGdim (G.grade ν)] [HasGdim (G.grade ν')]
 

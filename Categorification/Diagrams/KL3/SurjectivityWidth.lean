@@ -56,6 +56,7 @@ of the products of divided powers `E_d 1_λ` (the range of `dpCComb`). -/
 abbrev gammaImg (lam ρ : X) : Submodule (LaurentPolynomial ℤ) (K0Kar RD k ρ lam) :=
   LinearMap.range (dpCComb (RD := RD) (k := k) lam ρ)
 
+set_option backward.isDefEq.respectTransparency false in
 theorem dpC_mem_gammaImg {lam ρ : X} (d : List (Bool × I × ℕ)) (h : wt RD lam (dpWord d) = ρ) :
     dpC RD k d lam ρ h ∈ gammaImg RD k lam ρ :=
   ⟨Finsupp.single ⟨d, h⟩ 1, by rw [dpCComb, Finsupp.linearCombination_single, one_smul]⟩

@@ -71,7 +71,8 @@ variable {V V' : Type*} [Fintype V] [Fintype V'] [DecidableEq V] [DecidableEq V'
 
 theorem card_fibre_split_none (S : V → J) (v : V) :
     Fintype.card {x // splitLab S v x = none} = 1 := by
-  rw [card_fibre_eq_card_labSet, labSet_split_none, Finset.card_singleton]
+  simpa only [labSet_split_none, Finset.card_singleton] using
+    card_fibre_eq_card_labSet (splitLab S v) none
 
 theorem card_fibre_split_some (S : V → J) (v : V) (j : J) :
     Fintype.card {x // splitLab S v x = some j} =
@@ -150,7 +151,10 @@ theorem hEquiv_eq_borelEquivH'_symm {n : ℕ} (d : Fin n → ℕ) (z : H K d) :
   have : (hEquiv K d).toAlgHom =
       (borelEquivH' K (Sigma.fst : Gen d → Fin n) d (card_fibre_sigma (d := d))).symm.toAlgHom :=
     algHom_H_ext fun j α => by
-      simp only [AlgEquiv.toAlgHom_eq_coe, AlgHom.coe_coe, hEquiv_x, borelEquivH'_symm_x]
+      change hEquiv K d (x K d j α) =
+        (borelEquivH' K (Sigma.fst : Gen d → Fin n) d (card_fibre_sigma (d := d))).symm
+          (x K d j α)
+      rw [hEquiv_x, borelEquivH'_symm_x]
   exact congrArg (fun φ : H K d →ₐ[K] _ => φ z) this
 
 end Hmaps
@@ -169,13 +173,13 @@ theorem card_moveLab_general (lab : V → J) (v₀ : V) (j' : J) (h : j' ≠ lab
   split_ifs with h1 h2 h2
   · exact absurd (h1.symm.trans h2) h
   · subst h1
-    rw [Finset.card_insert_of_not_mem (by simp), labSet_split_some, Finset.erase_eq_of_not_mem
+    rw [Finset.card_insert_of_notMem (by simp), labSet_split_some, Finset.erase_eq_of_notMem
       (by simp [Ne.symm h])]
     rfl
   · subst h2
     rw [labSet_split_some, Finset.card_erase_of_mem (by simp)]
     rfl
-  · rw [labSet_split_some, Finset.erase_eq_of_not_mem (by simp [Ne.symm h2])]
+  · rw [labSet_split_some, Finset.erase_eq_of_notMem (by simp [Ne.symm h2])]
     rfl
 
 end Card

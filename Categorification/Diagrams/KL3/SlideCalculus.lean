@@ -38,6 +38,8 @@ principle:
   `ccwL`, `cwL` in `U`; `dotsU`: dots on a strand.
 -/
 
+set_option backward.isDefEq.respectTransparency false
+
 noncomputable section
 
 namespace Categorification.KL3.Diagram
@@ -259,10 +261,10 @@ section Dg
 variable {RD k}
 
 theorem dg_of {μ : X} {s t : List (Letter I)} {ls : List (LayerData I)} (h : SChain s ls t) :
-    dg RD k μ s t ls = (pres RD k).diag (mkD RD μ ls h) := dif_pos h
+    dg RD k μ s t ls = (pres RD k).diag (mkD RD μ ls h) := dite_eq_left h
 
 theorem dg_of_not {μ : X} {s t : List (Letter I)} {ls : List (LayerData I)}
-    (h : ¬ SChain s ls t) : dg RD k μ s t ls = 0 := dif_neg h
+    (h : ¬ SChain s ls t) : dg RD k μ s t ls = 0 := dite_eq_right h
 
 theorem dg_nil (μ : X) (s : List (Letter I)) : dg RD k μ s s [] = 𝟙 _ := by
   rw [dg_of (show SChain s [] s from rfl)]
@@ -286,7 +288,7 @@ theorem plcL_dg (μ : X) (u v s t : List (Letter I)) (A : List (LayerData I)) :
     plcL RD k μ u v s t (dg RD k (wt RD μ v) s t A) =
       dg RD k μ (u ++ s ++ v) (u ++ t ++ v) (A.map (whL u v)) := by
   by_cases hA : SChain s A t
-  · rw [plcL, dif_pos (hA.wt_eq RD _), dg_of hA, plc_diag, dg_of]
+  · rw [plcL, dite_eq_left (hA.wt_eq RD _), dg_of hA, plc_diag, dg_of]
   · rw [dg_of_not hA, map_zero, dg_of_not (fun h => hA h.of_whisk)]
 
 /-- `plcL_dg` for an empty right context. -/
@@ -536,7 +538,7 @@ theorem dg_zigL (ν : X) (l : Letter I) :
       Pivotal.cupD, Pivotal.capD, Diagram.layers_layer, List.map_cons, List.map_nil,
       List.cons_append, List.nil_append]
     refine List.cons_eq_cons.2 ⟨Layer.ext ?_ ?_ ?_ ?_, List.cons_eq_cons.2 ⟨Layer.ext ?_ ?_ ?_ ?_, rfl⟩⟩
-    all_goals (try simp [lay, Layer.wr, Layer.wl, Shape.gen, c, inv_dual])
+    all_goals (try simp [lay, Layer.wr, Layer.wl, Shape.gen, c])
     all_goals rfl
 
 /-- **Zigzag relation**, second form: the cup `1 ⟶ l l*` to the right of the strand `l*`,
@@ -581,7 +583,7 @@ theorem plcL_comp (μ : X) (u v : List (Letter I)) {s r t : List (Letter I)}
     (f : (pres RD k).obj (ob RD (wt RD μ v) s) ⟶ (pres RD k).obj (ob RD (wt RD μ v) r))
     (g : (pres RD k).obj (ob RD (wt RD μ v) r) ⟶ (pres RD k).obj (ob RD (wt RD μ v) t)) :
     plcL RD k μ u v s r f ≫ plcL RD k μ u v r t g = plcL RD k μ u v s t (f ≫ g) := by
-  simp only [plcL, dif_pos hsr, dif_pos hrt, dif_pos (hrt.trans hsr), plc, LinearMap.coe_mk,
+  simp only [plcL, dite_eq_left hsr, dite_eq_left hrt, dite_eq_left (hrt.trans hsr), plc, LinearMap.coe_mk,
     AddHom.coe_mk, Presentation.whisk_comp]
   rw [whisk_congr_left RD k g (wd RD μ v) (show ob RD (wt RD (wt RD μ v) r) u =
     ob RD (wt RD (wt RD μ v) s) u by rw [hsr])]
@@ -600,7 +602,7 @@ theorem lin_bubR (lam : X) (l : Letter I) (b : LEnd RD k (ob RD lam [])) :
     (pres RD k).lin (bubR RD k lam [l] b) = plcL RD k lam [l] [] [] [] ((pres RD k).lin b) := by
   rw [bubR, lin_cast, ← LinDiagram.whisk_of_ok _ (whiskerOK_right RD lam [l]),
     ← Presentation.whisk_lin]
-  simp only [plcL, dif_pos, plc, LinearMap.coe_mk, AddHom.coe_mk]
+  simp only [plcL, dite_eq_left, plc, LinearMap.coe_mk, AddHom.coe_mk]
   rfl
 
 /-- An endomorphism of `1_{μ + l}` placed to the left of the strand `l` (`bubL`) is its
@@ -609,8 +611,8 @@ theorem lin_bubL (μ : X) (l : Letter I) (b : LEnd RD k (ob RD (wt RD μ [l]) []
     (pres RD k).lin (bubL RD k μ [l] b) = plcL RD k μ [] [l] [] [] ((pres RD k).lin b) := by
   rw [bubL, lin_cast, ← LinDiagram.whisk_of_ok _ (whiskerOK_left RD μ [l]),
     ← Presentation.whisk_lin]
-  simp only [plcL, plc, LinearMap.coe_mk, AddHom.coe_mk]
-  rw [dif_pos trivial]
+  simp only [plcL, plc]
+  rw [dite_eq_left trivial]
   rfl
 
 /-- An endomorphism of `1_{μ + l_X}` placed to the left of the strand `l` (rightmost region
@@ -633,8 +635,8 @@ theorem plcL_diag_left (μ : X) (l : Letter I) (d : ob RD (wt RD μ [l]) [] ⟶ 
       (pres RD k).diag (Diagram.cast (Diagram.whisker d (ob RD (wt RD μ [l]) []) (wd RD μ [l])
         (whiskerOK_ob RD μ [] [l] [])) (ob_whisker RD μ [] [l] [] [] rfl)
         (ob_whisker RD μ [] [l] [] [] rfl)) := by
-  simp only [bubLU, plcL, plc, LinearMap.coe_mk, AddHom.coe_mk]
-  rw [dif_pos trivial]
+  simp only [bubLU, plcL, plc]
+  rw [dite_eq_left trivial]
   simp only [LinearMap.coe_mk, AddHom.coe_mk]
   rw [Presentation.whisk_diag _ _ _ _ (whiskerOK_ob RD μ [] [l] []), Presentation.diag_cast]
   rfl
@@ -700,8 +702,8 @@ theorem plcL_diag_right (lam : X) (l : Letter I) (d : ob RD lam [] ⟶ ob RD lam
       (pres RD k).diag (Diagram.cast (Diagram.whisker d (ob RD lam [l]) []
         (whiskerOK_ob RD lam [l] [] [])) (ob_whisker RD lam [l] [] [] [] rfl)
         (ob_whisker RD lam [l] [] [] [] rfl)) := by
-  simp only [bubRU, plcL, plc, LinearMap.coe_mk, AddHom.coe_mk]
-  rw [dif_pos trivial]
+  simp only [bubRU, plcL, plc]
+  rw [dite_eq_left trivial]
   simp only [LinearMap.coe_mk, AddHom.coe_mk]
   rw [Presentation.whisk_diag _ _ _ _ (whiskerOK_ob RD lam [l] [] []), Presentation.diag_cast]
   rfl
@@ -869,7 +871,7 @@ theorem sChain_upLD {a b : Obj (KLR.Diagram.sig I)} {ls : List (Layer (KLR.Diagr
   | cons L ls ih =>
     obtain ⟨-, rfl, hc⟩ := h
     refine ⟨?_, ?_⟩
-    · simp [upLD, upShape_dom, ups_append]
+    · simp [upLD, upShape_dom]
     · have := ih hc
       simpa [upLD, upShape_cod, ups_append] using this
 
@@ -968,14 +970,14 @@ theorem dg_sqNe (μ : X) (c d : I) (h : c ≠ d) :
         dg RD k μ [up c, up d] [up c, up d] [([up c], .dot (up d), [])]] := by
     funext a; fin_cases a
     · simp only [Fin.zero_eta, Matrix.cons_val_zero, upFunctor_diag, upDiag_eq_dg]; rfl
-    · simp only [Fin.mk_one, Matrix.cons_val_one, Matrix.head_cons, Matrix.cons_val_zero,
+    · simp only [Fin.mk_one, Matrix.cons_val_one, Matrix.cons_val_zero,
         upFunctor_diag, upDiag_eq_dg]
       rfl
   rw [e₀, KLR.klQ2]
   split_ifs
   · rw [ncEval_one_aux, dg_nil]; rfl
   · rw [ncEval_X_pow_add_X_pow]
-    simp only [Matrix.cons_val_zero, Matrix.cons_val_one, Matrix.head_cons]
+    simp only [Matrix.cons_val_zero, Matrix.cons_val_one]
     exact congrArg₂ (· + ·) (dgE_pow_single RD k μ _ _ (by schain) _)
       (dgE_pow_single RD k μ _ _ (by schain) _)
 
@@ -1094,11 +1096,11 @@ abbrev cwU (ν : X) (i : I) (m : ℤ) : End ((pres RD k).obj (ob RD ν [])) :=
 
 theorem ccwU_of_nonneg (ν : X) (i : I) (m : ℕ) :
     ccwU RD k ν i m = dg RD k ν [] [] (ccwLs i m) := by
-  rw [ccwU, ccwL, if_pos (Int.natCast_nonneg m), Int.toNat_natCast, lin_ccwReal]
+  rw [ccwU, ccwL, ite_eq_left (Int.natCast_nonneg m), Int.toNat_natCast, lin_ccwReal]
 
 theorem cwU_of_nonneg (ν : X) (i : I) (m : ℕ) :
     cwU RD k ν i m = dg RD k ν [] [] (cwLs i m) := by
-  rw [cwU, cwL, if_pos (Int.natCast_nonneg m), Int.toNat_natCast, lin_cwReal]
+  rw [cwU, cwL, ite_eq_left (Int.natCast_nonneg m), Int.toNat_natCast, lin_cwReal]
 
 theorem lin_finsum {a b : Obj (psig RD)} {ι : Type*} (s : Finset ι) (f : ι → LinDiagram k a b) :
     (pres RD k).lin (∑ x ∈ s, f x) = ∑ x ∈ s, (pres RD k).lin (f x) :=

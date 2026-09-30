@@ -85,7 +85,7 @@ theorem wt_dns (μ' : X) (l : List I) : wt RD μ' (dns l) = -wsum RD l + μ' := 
   | cons i l ih =>
     simp only [dns, List.map_cons, wt_cons] at ih ⊢
     rw [ih]
-    simp [wsum, sh, dn, sgn]
+    simp [wsum, sh, sgn]
     abel
 
 omit [DecidableEq I] in
@@ -130,6 +130,7 @@ theorem dnF_apply (s : KLR.Seq ν) (t t' : KLR.Seq ν') (g : XD RD k μ ν' t �
       (plcL RD k μ (ups (word s)) [] (dns (word t)) (dns (word t'))
         (TR RD k (omega_ob_ups μ (word t)).symm (omega_ob_ups μ (word t')).symm g)) := rfl
 
+set_option backward.isDefEq.respectTransparency false in
 /-- The downward transport: identify `ω̃(E_{+j} 1_{-μ})` with `E_{-j} 1_μ` and place a 2-morphism
 `E_{-j} 1_μ ⟶ E_{-j'} 1_μ` to the right of the upward strands `E_i`. -/
 def dnTransport : BlockTransport (k := k) (Equiv.refl (KLR.Seq ν × KLR.Seq ν'))
@@ -201,7 +202,9 @@ theorem klr_hom_ext {a b : Obj (KLR.Diagram.sig I)} {M : Type*} [AddCommGroup M]
   induction F using Finsupp.induction_linear with
   | zero => simp only [Presentation.lin_zero, map_zero]
   | add F₁ F₂ h₁ h₂ => rw [Presentation.lin_add, map_add, map_add, h₁, h₂]
-  | single d r => rw [Presentation.lin_single, map_smul, map_smul, h d]
+  | single d r =>
+    change a ⟶ b at d
+    rw [Presentation.lin_single, map_smul, map_smul, h d]
 
 omit [DecidableEq I] in
 theorem upF_diag (t : KLR.Seq ν') (s s' : KLR.Seq ν)
@@ -213,6 +216,7 @@ theorem upF_diag (t : KLR.Seq ν') (s s' : KLR.Seq ν)
   rw [upFunctor_diag, upDiag_eq_dg]
   exact plcL_dg RD k μ [] (dns (word t)) (ups (word s)) (ups (word s')) _
 
+set_option backward.isDefEq.respectTransparency false in
 theorem dnF_diag (s : KLR.Seq ν) (t t' : KLR.Seq ν')
     (d : KLR.Diagram.ob (word t) ⟶ KLR.Diagram.ob (word t')) :
     dnF RD k μ ν ν' s t t' ((downFunctor RD k μ).map ((KLR.Diagram.pres k (KLR.klQ2 k C)).diag d)) =

@@ -176,7 +176,7 @@ theorem mdeg_row_eq (h : IsMatching L σ) (ℓ : I → ℤ) (a : Fin n) :
       ∑ b, if a < b ∧ b < σ a ∧ σ a < σ b then crossDeg C L a b else 0) =
       (if a < σ a then arcDeg C ℓ L a else 0) + ∑ b, pairDeg C L σ a b := by
   by_cases ha : a < σ a
-  · rw [if_pos ha, if_pos ha, cupDeg_eq]
+  · rw [ite_eq_left ha, ite_eq_left ha, cupDeg_eq]
     set c := σ a with hc
     set g : Fin n → ℤ := fun r => sgn (L a).1 * sgn (L r).1 * C.dot (L a).2 (L r).2 with hg
     have hgσ : ∀ r, g (σ r) = -g r := fun r => by
@@ -208,17 +208,17 @@ theorem mdeg_row_eq (h : IsMatching L σ) (ℓ : I → ℤ) (a : Fin n) :
       · have hn : ¬ (b < a ∧ a < c ∧ c < σ b) := fun h' => absurd (h'.1.trans hab) (lt_irrefl _)
         have hp : a < b ∧ b < c ∧ c < σ b := ⟨hab, hbc⟩
         have hba : ¬ b < a := not_lt.2 hab.le
-        simp only [hbc, hp, hn, hba, and_self, if_true, if_false, add_zero, false_and]
+        simp only [hbc, hp, hba, and_self, ite_true, ite_false, add_zero, false_and]
         cases (L a).1 <;> cases (L b).1 <;> simp
       · exfalso; rw [← hab, ← hc] at hbc; exact lt_irrefl _ hbc.2
       · have hn : ¬ (a < b ∧ b < c ∧ c < σ b) := fun h' => absurd (h'.1.trans hab) (lt_irrefl _)
         have hp : b < a ∧ a < c ∧ c < σ b := ⟨hab, ha, hbc.2⟩
         have hab' : ¬ a < b := not_lt.2 hab.le
-        simp only [hbc, hp, hn, hab', ha, and_self, if_true, if_false, zero_add, add_zero, false_and]
+        simp only [hbc, hp, hab', and_self, ite_true, ite_false, zero_add, add_zero, false_and]
     · have hn1 : ¬ (a < b ∧ b < c ∧ c < σ b) := fun h' => hbc ⟨h'.2.1, h'.2.2⟩
       have hn2 : ¬ (b < a ∧ a < c ∧ c < σ b) := fun h' => hbc ⟨h'.1.trans h'.2.1, h'.2.2⟩
-      simp only [hbc, hn1, hn2, if_false, add_zero, and_false, zero_add]
-  · rw [if_neg ha, if_neg ha]
+      simp only [hbc, hn2, ite_false, add_zero, and_false]
+  · rw [ite_eq_right ha, ite_eq_right ha]
     simp only [zero_add]
     refine Finset.sum_congr rfl fun b _ => ?_
     have hn1 : ¬ (a < b ∧ b < σ a ∧ σ a < σ b) := fun h' => ha (h'.1.trans h'.2.1)
@@ -250,7 +250,7 @@ variable {p p' : Fin n}
 
 theorem swap_lt_iff (hp' : p'.val = p.val + 1) {x y : Fin n} (h : ¬ (x = p ∧ y = p'))
     (h' : ¬ (x = p' ∧ y = p)) : swap p p' x < swap p p' y ↔ x < y := by
-  rw [Fin.lt_iff_val_lt_val, Fin.lt_iff_val_lt_val, swap_apply_def, swap_apply_def]
+  rw [Fin.lt_def, Fin.lt_def, swap_apply_def, swap_apply_def]
   by_cases hx : x = p <;> by_cases hy : y = p <;> by_cases hx' : x = p' <;> by_cases hy' : y = p' <;>
     simp_all [Fin.ext_iff] <;> omega
 
@@ -263,7 +263,7 @@ def PDn (x y x' y' : ℕ) (sa sb : Bool) (d : ℤ) : ℤ :=
 theorem pairDeg_eq_PDn (L : Fin n → Bool × I) (σ : Perm (Fin n)) (a b : Fin n) :
     pairDeg C L σ a b = PDn a.val b.val (σ a).val (σ b).val (L a).1 (L b).1
       (C.dot (L a).2 (L b).2) := by
-  simp only [pairDeg, PDn, Fin.lt_iff_val_lt_val]
+  simp only [pairDeg, PDn, Fin.lt_def]
 
 /-- The core case analysis: exchanging the adjacent endpoints `P, P + 1` of two different cups
 `{P, e}` (with `+` at `P`) and `{P + 1, f}` (with `-` at `P + 1`) preserves the symmetrised
@@ -337,7 +337,7 @@ theorem pair_swap_pt (h : IsMatching L σ) (a b : Fin n) :
     ⟨fun ⟨e1, e2⟩ => (arc x).2 ⟨e2, e1⟩, fun ⟨e1, e2⟩ => (arc x).1 ⟨e2, e1⟩⟩
   have key : ∀ x y : Fin n, ¬ (x = p ∧ y = p') → ¬ (x = p' ∧ y = p) →
       ((swap p p' x).val < (swap p p' y).val ↔ x.val < y.val) := fun x y h1 h2 => by
-    rw [← Fin.lt_iff_val_lt_val, ← Fin.lt_iff_val_lt_val]; exact swap_lt_iff hp' h1 h2
+    rw [← Fin.lt_def, ← Fin.lt_def]; exact swap_lt_iff hp' h1 h2
   have k1 := key a b (fun e => bad1 ⟨Or.inl e.1, Or.inl e.2⟩) (fun e => bad2 ⟨Or.inl e.2, Or.inl e.1⟩)
   have k2 := key b a (fun e => bad2 ⟨Or.inl e.1, Or.inl e.2⟩) (fun e => bad1 ⟨Or.inl e.2, Or.inl e.1⟩)
   have k3 := key b (σ a) (fun e => bad2 ⟨Or.inl e.1, Or.inr e.2⟩) (fun e => bad1 ⟨Or.inr e.2, Or.inl e.1⟩)
@@ -352,7 +352,7 @@ theorem pair_swap_pt (h : IsMatching L σ) (a b : Fin n) :
   have k10 := key (σ b) b (arc' b).1 (arc' b).2
   have k11 := key a (σ b) (fun e => bad1 ⟨Or.inl e.1, Or.inr e.2⟩) (fun e => bad2 ⟨Or.inr e.2, Or.inl e.1⟩)
   have k12 := key (σ b) a (fun e => bad2 ⟨Or.inr e.1, Or.inl e.2⟩) (fun e => bad1 ⟨Or.inl e.2, Or.inr e.1⟩)
-  simp only [PDn, k1, k2, k3, k4, k5, k6, k7, k8, k9, k10, k11, k12]
+  simp only [PDn, k1, k2, k3, k5, k6, k7, k9, k11]
 
 include hp' hsp hsp' hne in
 /-- **Exchanging adjacent endpoints `(+i)(-j)` not joined to each other preserves the degree**
@@ -434,7 +434,7 @@ def rmUnemb (hm : 0 < m) (y : Fin (m + 2)) : Fin m :=
 theorem rmEmb_val (x : Fin m) : (rmEmb p x).val = if x.val < p then x.val else x.val + 2 := rfl
 
 theorem rmEmb_lt_iff (x y : Fin m) : rmEmb p x < rmEmb p y ↔ x < y := by
-  simp only [Fin.lt_iff_val_lt_val, rmEmb_val]
+  simp only [Fin.lt_def, rmEmb_val]
   split_ifs <;> omega
 
 theorem rmEmb_injective : Function.Injective (rmEmb p (m := m)) := fun x y h => by
@@ -458,7 +458,7 @@ theorem rmEmb_unemb (hm : 0 < m) {y : Fin (m + 2)} (h0 : y ≠ rmP0 p hp) (h1 : 
   ext; simp only [rmUnemb, rmEmb_val]; split_ifs <;> omega
 
 theorem rmP0_lt_P1 : rmP0 p hp < rmP1 p hp := by
-  simp [Fin.lt_iff_val_lt_val, rmP0, rmP1]
+  simp [Fin.lt_def, rmP0, rmP1]
 
 theorem rmP0_ne_P1 : rmP0 p hp ≠ rmP1 p hp := (rmP0_lt_P1 p hp).ne
 
@@ -492,7 +492,7 @@ theorem sum_rm {R : Type*} [AddCommMonoid R] (f : Fin (m + 2) → R) :
 theorem prod_rm {M : Type*} [CommMonoid M] (f : Fin (m + 2) → M) :
     ∏ y, f y = f (rmP0 p hp) * f (rmP1 p hp) * ∏ x, f (rmEmb p x) := by
   have := sum_rm p hp (R := Additive M) (fun y => Additive.ofMul (f y))
-  simpa [← ofMul_prod] using this
+  exact Additive.ofMul.injective (by simpa only [← ofMul_prod, ← ofMul_mul] using this)
 
 end Remove
 
@@ -526,14 +526,14 @@ def rmExtFun (τ : Perm (Fin m)) (y : Fin (m + 2)) : Fin (m + 2) :=
 
 theorem rmExtFun_emb (τ : Perm (Fin m)) (x : Fin m) :
     rmExtFun hp τ (rmEmb p x) = rmEmb p (τ x) := by
-  rw [rmExtFun, if_neg (rmEmb_ne_P0 p hp x), if_neg (rmEmb_ne_P1 p hp x), dif_pos x.pos,
+  rw [rmExtFun, ite_eq_right (rmEmb_ne_P0 p hp x), ite_eq_right (rmEmb_ne_P1 p hp x), dite_eq_left x.pos,
     rmUnemb_emb]
 
 theorem rmExtFun_P0 (τ : Perm (Fin m)) : rmExtFun hp τ (rmP0 p hp) = rmP1 p hp := by
-  rw [rmExtFun, if_pos rfl]
+  rw [rmExtFun, ite_eq_left rfl]
 
 theorem rmExtFun_P1 (τ : Perm (Fin m)) : rmExtFun hp τ (rmP1 p hp) = rmP0 p hp := by
-  rw [rmExtFun, if_neg (rmP0_ne_P1 p hp).symm, if_pos rfl]
+  rw [rmExtFun, ite_eq_right (rmP0_ne_P1 p hp).symm, ite_eq_left rfl]
 
 /-- The value of `rmExtFun` on any endpoint, by cases. -/
 theorem rmExtFun_cases (τ : Perm (Fin m)) (y : Fin (m + 2)) :
@@ -605,7 +605,7 @@ theorem wR_rmEmb (ℓ : I → ℤ) (c : Fin m) (i : I) :
   rw [sum_rm p hp]
   congr 1
   have h01 : (rmEmb p c < rmP0 p hp ↔ rmEmb p c < rmP1 p hp) := by
-    simp only [Fin.lt_iff_val_lt_val, rmEmb_val, rmP0, rmP1]; split_ifs <;> omega
+    simp only [Fin.lt_def, rmEmb_val, rmP0, rmP1]; split_ifs <;> omega
   have hcancel : (if rmEmb p c < rmP0 p hp then sgn (L (rmP0 p hp)).1 * A C i (L (rmP0 p hp)).2
       else 0) + (if rmEmb p c < rmP1 p hp then sgn (L (rmP1 p hp)).1 * A C i (L (rmP1 p hp)).2
       else 0) = 0 := by
@@ -627,16 +627,16 @@ theorem mdeg_rmRes (ℓ : I → ℤ) (σ : Perm (Fin (m + 2))) (hσ : IsMatching
   have v1 : (rmP1 p hp).val = p + 1 := rfl
   unfold mdeg
   rw [sum_rm p hp, sum_rm p hp]
-  simp only [h01, h10, if_pos hlt, if_neg (not_lt.2 hlt.le)]
+  simp only [h01, h10, ite_eq_left hlt, ite_eq_right (not_lt.2 hlt.le)]
   -- the rows of `p` and `p + 1` in the crossing sum vanish
   have r0 : ∑ b, (if rmP0 p hp < b ∧ b < rmP1 p hp ∧ rmP1 p hp < σ b then
       crossDeg C L (rmP0 p hp) b else 0) = 0 :=
-    Finset.sum_eq_zero fun b _ => if_neg fun h => by
-      rw [Fin.lt_iff_val_lt_val, Fin.lt_iff_val_lt_val] at h; omega
+    Finset.sum_eq_zero fun b _ => ite_eq_right fun h => by
+      rw [Fin.lt_def, Fin.lt_def] at h; omega
   have r1 : ∑ b, (if rmP1 p hp < b ∧ b < rmP0 p hp ∧ rmP0 p hp < σ b then
       crossDeg C L (rmP1 p hp) b else 0) = 0 :=
-    Finset.sum_eq_zero fun b _ => if_neg fun h => by
-      rw [Fin.lt_iff_val_lt_val, Fin.lt_iff_val_lt_val] at h; omega
+    Finset.sum_eq_zero fun b _ => ite_eq_right fun h => by
+      rw [Fin.lt_def, Fin.lt_def] at h; omega
   rw [r0, r1]
   have rows : ∀ x : Fin m, (∑ b, if rmEmb p x < b ∧ b < σ (rmEmb p x) ∧ σ (rmEmb p x) < σ b then
       crossDeg C L (rmEmb p x) b else 0) =
@@ -645,11 +645,11 @@ theorem mdeg_rmRes (ℓ : I → ℤ) (σ : Perm (Fin (m + 2))) (hσ : IsMatching
     rw [sum_rm p hp, h01, h10, ← e]
     have z0 : ¬ (rmEmb p x < rmP0 p hp ∧ rmP0 p hp < rmEmb p (rmRes hp σ hσ h01 x) ∧
         rmEmb p (rmRes hp σ hσ h01 x) < rmP1 p hp) := fun h => by
-      simp only [Fin.lt_iff_val_lt_val] at h; omega
+      simp only [Fin.lt_def] at h; omega
     have z1 : ¬ (rmEmb p x < rmP1 p hp ∧ rmP1 p hp < rmEmb p (rmRes hp σ hσ h01 x) ∧
         rmEmb p (rmRes hp σ hσ h01 x) < rmP0 p hp) := fun h => by
-      simp only [Fin.lt_iff_val_lt_val] at h; omega
-    rw [if_neg z0, if_neg z1, zero_add, zero_add]
+      simp only [Fin.lt_def] at h; omega
+    rw [ite_eq_right z0, ite_eq_right z1, zero_add, zero_add]
     refine Finset.sum_congr rfl fun y _ => ?_
     simp only [← e, rmEmb_lt_iff]
     rfl
@@ -670,7 +670,7 @@ theorem arcProd_rmRes {M : Type*} [CommMonoid M] (w : I → M) (σ : Perm (Fin (
   have h10 : σ (rmP1 p hp) = rmP0 p hp := by rw [← h01, hσ.invol]
   have hlt := rmP0_lt_P1 p hp
   unfold arcProd
-  rw [prod_rm p hp, h01, h10, if_pos hlt, if_neg (not_lt.2 hlt.le), mul_one]
+  rw [prod_rm p hp, h01, h10, ite_eq_left hlt, ite_eq_right (not_lt.2 hlt.le), mul_one]
   congr 1
   refine Finset.prod_congr rfl fun x _ => ?_
   simp only [← e, rmEmb_lt_iff]; rfl
@@ -694,8 +694,7 @@ theorem sum_rm_matchings {M R : Type*} [CommMonoid M] [AddCommMonoid R] (G : ℤ
     rw [rmExt_apply, rmExtFun_P0]
   · exact rmExt_rmRes hp σ _ _ _
   · exact rmRes_rmExt hp τ _ _ _
-  · dsimp only
-    rw [mdeg_rmRes C hp hc hs, arcProd_rmRes hp]
+  · rw [mdeg_rmRes C hp hc hs, arcProd_rmRes hp]
 
 end RemoveArc
 
@@ -716,7 +715,7 @@ def blockWord (cc : Fin m₁ → I) (bb : Fin m₂ → I) : Fin (m₁ + m₂) �
     blockWord cc bb (Fin.natAdd m₁ x) = (true, bb x) := Fin.append_right _ _ _
 
 theorem castAdd_lt_natAdd (k : Fin m₁) (x : Fin m₂) : Fin.castAdd m₂ k < Fin.natAdd m₁ x := by
-  simp only [Fin.lt_iff_val_lt_val, Fin.coe_castAdd, Fin.coe_natAdd]; omega
+  simp only [Fin.lt_def, Fin.val_castAdd, Fin.val_natAdd]; omega
 
 /-- A pairing of `(-c)(+b)` joins each `-` to a `+`; so there are none unless `|c| = |b|`. -/
 theorem card_eq_of_isMatching {cc : Fin m₁ → I} {bb : Fin m₂ → I} {σ : Perm (Fin (m₁ + m₂))}
@@ -732,7 +731,7 @@ theorem card_eq_of_isMatching {cc : Fin m₁ → I} {bb : Fin m₂ → I} {σ : 
     have := h.sign (Fin.natAdd m₁ x)
     have hlt := (σ (Fin.natAdd m₁ x)).isLt
     have e : σ (Fin.natAdd m₁ x) = Fin.natAdd m₁ ⟨(σ (Fin.natAdd m₁ x)).val - m₁, by omega⟩ :=
-      Fin.ext (by simp only [Fin.coe_natAdd]; omega)
+      Fin.ext (by simp only [Fin.val_natAdd]; omega)
     rw [e, blockWord_right, blockWord_right] at this
     simp at this
   have h1 : m₁ ≤ m₂ := by
@@ -807,7 +806,7 @@ theorem exists_blockPerm {σ : Perm (Fin (m + m))} (h : IsMatching (blockWord cc
     have := h.sign (Fin.natAdd m x)
     have hlt := (σ (Fin.natAdd m x)).isLt
     have e : σ (Fin.natAdd m x) = Fin.natAdd m ⟨(σ (Fin.natAdd m x)).val - m, by omega⟩ :=
-      Fin.ext (by simp only [Fin.coe_natAdd]; omega)
+      Fin.ext (by simp only [Fin.val_natAdd]; omega)
     rw [e, blockWord_right, blockWord_right] at this
     simp at this
   have eR : ∀ x, σ (Fin.natAdd m x) = Fin.castAdd m ⟨(σ (Fin.natAdd m x)).val, right x⟩ :=
@@ -848,14 +847,14 @@ theorem mdeg_blockPerm {w : Perm (Fin m)} (hw : ∀ x, cc (Fin.rev (w x)) = bb x
   have hes : ∀ x, w.symm (Fin.rev (e x)) = x := fun x => by simp [he]
   congr 1
   · rw [Fin.sum_univ_add, ← Equiv.sum_comp e]
-    simp only [blockPerm_left, blockPerm_right, cn, nc, if_true, if_false, Finset.sum_const_zero,
+    simp only [blockPerm_left, blockPerm_right, cn, nc, ite_true, ite_false, Finset.sum_const_zero,
       add_zero, arcDeg, blockWord_left, he, hw, sgn_false]
     refine Finset.sum_congr rfl fun x _ => by ring
   · rw [Fin.sum_univ_add]
     have z2 : ∀ x : Fin m, ∑ b, pairDeg C (blockWord cc bb) (blockPerm w) (Fin.natAdd m x) b = 0 :=
       fun x => Finset.sum_eq_zero fun b _ => by
         simp only [pairDeg, blockPerm_right]
-        rw [if_neg fun h => nc x _ (h.1.trans h.2.1), if_neg fun h => nc x _ h.2.1, add_zero]
+        rw [ite_eq_right fun h => nc x _ (h.1.trans h.2.1), ite_eq_right fun h => nc x _ h.2.1, add_zero]
     simp only [z2, Finset.sum_const_zero, add_zero]
     rw [← Equiv.sum_comp e]
     refine Finset.sum_congr rfl fun x _ => ?_
@@ -863,17 +862,17 @@ theorem mdeg_blockPerm {w : Perm (Fin m)} (hw : ∀ x, cc (Fin.rev (w x)) = bb x
     have z1 : ∀ y : Fin m, pairDeg C (blockWord cc bb) (blockPerm w) (Fin.castAdd m (e x))
         (Fin.natAdd m y) = 0 := fun y => by
       simp only [pairDeg, blockPerm_left, blockPerm_right]
-      rw [if_neg fun h => nc _ _ h.2.2, if_neg fun h => nc _ _ h.1, add_zero]
+      rw [ite_eq_right fun h => nc _ _ h.2.2, ite_eq_right fun h => nc _ _ h.1, add_zero]
     simp only [z1, Finset.sum_const_zero, add_zero]
     refine Finset.sum_congr rfl fun y _ => ?_
     have hc : ∀ x, cc (e x) = bb x := fun x => by rw [he, hw]
     have h1 : Fin.castAdd m (e y) < Fin.castAdd m (e x) ↔ w x < w y := by
-      rw [he, he, Fin.lt_iff_val_lt_val, Fin.coe_castAdd, Fin.coe_castAdd, ← Fin.lt_iff_val_lt_val,
+      rw [he, he, Fin.lt_def, Fin.val_castAdd, Fin.val_castAdd, ← Fin.lt_def,
         Fin.rev_lt_rev]
     have h2 : Fin.natAdd m x < Fin.natAdd m y ↔ x < y := by
-      rw [Fin.lt_iff_val_lt_val, Fin.coe_natAdd, Fin.coe_natAdd, Fin.lt_iff_val_lt_val]; omega
+      rw [Fin.lt_def, Fin.val_natAdd, Fin.val_natAdd, Fin.lt_def]; omega
     rw [pairDeg, blockPerm_left, blockPerm_left, hes, hes, blockWord_left, blockWord_left, hc, hc]
-    simp only [h1, h2, cn, true_and, if_true, sgn_false]
+    simp only [h1, h2, cn, true_and, ite_true, sgn_false]
     split_ifs <;> first | (exfalso; tauto) | ring1
 
 theorem arcProd_blockPerm {M : Type*} [CommMonoid M] (wt : I → M) {w : Perm (Fin m)}
@@ -884,7 +883,7 @@ theorem arcProd_blockPerm {M : Type*} [CommMonoid M] (wt : I → M) {w : Perm (F
     lt_asymm h (cn k x)
   unfold arcProd
   rw [Fin.prod_univ_add, ← Equiv.prod_comp (w.trans Fin.revPerm)]
-  simp only [blockPerm_left, blockPerm_right, blockWord_left, cn, nc, if_true, if_false,
+  simp only [blockPerm_left, blockPerm_right, blockWord_left, cn, nc, ite_true, ite_false,
     Finset.prod_const_one, mul_one, Equiv.trans_apply, Fin.revPerm_apply, hw]
 
 end Block

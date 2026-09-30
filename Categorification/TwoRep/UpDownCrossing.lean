@@ -36,6 +36,8 @@ open CategoryTheory CategoryTheory.Limits
 
 section BSumDesc
 
+set_option backward.isDefEq.respectTransparency false
+
 variable {C : Type*} [Category C] [Preadditive C] [HasZeroObject C] [HasBinaryBiproducts C]
 
 /-- The map out of `bsum f n` with components `φ j : f j ⟶ Y`. -/
@@ -50,7 +52,7 @@ theorem bsumι_desc (f : ℕ → C) {Y : C} (φ : ∀ j : ℕ, f j ⟶ Y) :
     by_cases hj : j = n
     · subst hj
       simp [bsumι, bsumDesc]
-    · simp only [bsumι, bsumDesc, dif_neg hj, Category.assoc, biprod.inr_desc]
+    · simp only [bsumι, bsumDesc, dite_eq_right hj, Category.assoc, biprod.inr_desc]
       exact bsumι_desc f φ n j (by omega)
 
 /-- Maps out of `bsum f n` are determined by their restrictions to the summands. -/
@@ -79,12 +81,12 @@ theorem isIso_biprod_of_blocks {X Y Z W : C} (φ : X ⊞ Y ⟶ Z ⊞ W)
     ?_, ?_⟩⟩
   · apply biprod.hom_ext'
     · rw [← Category.assoc, hφ₁]
-      simp [Preadditive.add_comp, Preadditive.sub_comp, Preadditive.comp_sub]
+      simp [Preadditive.add_comp, Preadditive.comp_sub]
     · rw [← Category.assoc, hφ₂]
       simp
   · apply biprod.hom_ext'
     · simp only [biprod.inl_desc_assoc, Preadditive.sub_comp, Category.assoc, hφ₁, hφ₂,
-        Preadditive.comp_add, Preadditive.comp_sub, IsIso.inv_hom_id_assoc, Category.comp_id]
+        Preadditive.comp_add, IsIso.inv_hom_id_assoc, Category.comp_id]
       abel
     · simp only [biprod.inr_desc_assoc, Category.assoc, hφ₂, IsIso.inv_hom_id_assoc,
         Category.comp_id]
@@ -173,7 +175,7 @@ theorem cupK_comp_π_eq_zero (hn : 0 ≤ S.wt (r + 1)) (hyp : ∀ r', r + 1 < r'
 theorem isIso_cupK_comp_π_self (hn : 0 ≤ S.wt (r + 1)) (hyp : ∀ r', r + 1 < r' → S.AdjHyp r')
     (hd : DotNondeg e) {k : ℕ} (hk : k < (S.wt (r + 1)).toNat) : IsIso (cupK e k ≫ π e k) := by
   rw [cupK_comp]
-  haveI := (bubble_aux e hn hyp hd k hk).2
+  have := (bubble_aux e hn hyp hd k hk).2
   infer_instance
 
 /-- **CL's map `ζ`** (eq. `eq:iso1`): the up-down crossing `F E 1_n → E F 1_n` (the inclusion
@@ -202,8 +204,8 @@ theorem isIso_zeta_of_dotNondeg (hn : 0 ≤ S.wt (r + 1)) (hyp : ∀ r', r + 1 <
     rw [← Category.assoc (bsumι _ _ j), bsumι_desc _ _ _ _ hj]
     rfl
   have h1e : biprod.inl ≫ (zeta e ≫ e.hom) ≫ biprod.fst = 𝟙 _ := by simp [zeta, ιFE]
-  haveI h1 : IsIso (biprod.inl ≫ (zeta e ≫ e.hom) ≫ biprod.fst) := by rw [h1e]; infer_instance
-  haveI h2 : IsIso (biprod.inr ≫ (zeta e ≫ e.hom) ≫ biprod.snd) := by
+  have h1 : IsIso (biprod.inl ≫ (zeta e ≫ e.hom) ≫ biprod.fst) := by rw [h1e]; infer_instance
+  have h2 : IsIso (biprod.inr ≫ (zeta e ≫ e.hom) ≫ biprod.snd) := by
     refine isIso_bsum_of_triangular _ _ _ _ ?_ ?_
     · intro j j' hjj' hj'
       rw [hent j j' (by omega)]
@@ -211,7 +213,7 @@ theorem isIso_zeta_of_dotNondeg (hn : 0 ≤ S.wt (r + 1)) (hyp : ∀ r', r + 1 <
     · intro j hj
       rw [hent j j hj]
       exact isIso_cupK_comp_π_self e hn hyp hd hj
-  haveI : IsIso (zeta e ≫ e.hom) := by
+  have : IsIso (zeta e ≫ e.hom) := by
     refine isIso_biprod_of_blocks _ ?_
     apply bsum_hom_ext
     intro j hj

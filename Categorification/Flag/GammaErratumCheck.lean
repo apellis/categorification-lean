@@ -58,7 +58,7 @@ theorem slCartan_dot_eq_neg_one_iff (i j : Fin m) :
     (slCartan m).dot i j = -1 ↔ (i.castSucc = j.succ ∨ j.castSucc = i.succ) := by
   have e : (i.castSucc = j.succ ∨ j.castSucc = i.succ) ↔
       ((i : ℕ) = (j : ℕ) + 1 ∨ (j : ℕ) = (i : ℕ) + 1) := by
-    simp only [Fin.ext_iff, Fin.coe_castSucc, Fin.val_succ]
+    simp only [Fin.ext_iff, Fin.val_castSucc, Fin.val_succ]
   rw [e, slCartan_dot]
   clear e
   split_ifs with h1 h2
@@ -77,14 +77,14 @@ theorem slCartan_dot_eq_neg_one_iff (i j : Fin m) :
 theorem sub_of_adj {i j : Fin m} (hadj : (slCartan m).dot i j = -1) :
     ((j : ℕ) : ℤ) - ((i : ℕ) : ℤ) = if i.castSucc = j.succ then -1 else 1 := by
   have h := (slCartan_dot_eq_neg_one_iff i j).1 hadj
-  simp only [Fin.ext_iff, Fin.coe_castSucc, Fin.val_succ] at h
+  simp only [Fin.ext_iff, Fin.val_castSucc, Fin.val_succ] at h
   split_ifs with h1
-  · simp only [Fin.ext_iff, Fin.coe_castSucc, Fin.val_succ] at h1; clear hadj; omega
-  · simp only [Fin.ext_iff, Fin.coe_castSucc, Fin.val_succ] at h1; clear hadj; omega
+  · simp only [Fin.ext_iff, Fin.val_castSucc, Fin.val_succ] at h1; clear hadj; omega
+  · simp only [Fin.ext_iff, Fin.val_castSucc, Fin.val_succ] at h1; clear hadj; omega
 
 theorem ne_of_adj {i j : Fin m} (hadj : (slCartan m).dot i j = -1) : i ≠ j := by
   rintro rfl
-  rw [slCartan_dot, if_pos rfl] at hadj
+  rw [slCartan_dot, ite_eq_left rfl] at hadj
   exact absurd hadj (by decide)
 
 /-- Multiplication by `-1` resp. `1`. -/

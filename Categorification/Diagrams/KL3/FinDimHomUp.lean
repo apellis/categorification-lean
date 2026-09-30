@@ -39,7 +39,7 @@ noncomputable section
 
 namespace Categorification.KL3.Diagram
 
-open CategoryTheory StringDiagrams QuantumGroup UDot Presentation Graded KLR.Diagram MatEnd
+open CategoryTheory StringDiagrams QuantumGroup UDot Presentation Categorification.Graded KLR.Diagram MatEnd
 open scoped TensorProduct
 
 universe w u v
@@ -92,16 +92,15 @@ theorem hasGdim_seq (hSL : SimplyLaced C) (μ : X) (ν : Multiset I) (i j : KLR.
       rw [bubDiag_apply]
       exact Submodule.sum_mem _ fun l _ => single_mem_matDeg (bubAt_mem μ _ (bubMon_mem μ m))
     have h := mul_mem_matDeg hb hm i j
-    simp only [v, L, bT, ev, LinearMap.coe_comp, Function.comp_apply, Basis.tensorProduct_apply,
-      MvPolynomial.coe_basisMonomials, AlgHom.toLinearMap_apply, phi_tmul, LinearMap.coe_mk,
-      AddHom.coe_mk]
+    change (phi RD k μ ν (bT (b, m))) i j ∈
+      HomD RD k μ (ups (word i)) (ups (word j)) (δ (b, m))
+    simp only [bT, Module.Basis.tensorProduct_apply, MvPolynomial.coe_basisMonomials, phi_tmul]
     exact h
   have hspan : ∀ f, f ∈ Submodule.span k (Set.range v) := by
     intro f
     obtain ⟨t, ht⟩ := prop310_of_simplyLaced (k := k) (RD := RD) hSL μ ν (single i j f)
     have hf : f = L t := by
-      simp only [L, ev, LinearMap.coe_comp, Function.comp_apply, AlgHom.toLinearMap_apply,
-        LinearMap.coe_mk, AddHom.coe_mk]
+      change f = (phi RD k μ ν t) i j
       rw [ht, single_apply_self]
     have hL : L t ∈ LinearMap.range L := ⟨t, rfl⟩
     rw [LinearMap.range_eq_map, ← bT.span_eq, Submodule.map_span, ← Set.range_comp] at hL
@@ -117,14 +116,14 @@ theorem hasGdim_seq (hSL : SimplyLaced C) (μ : X) (ν : Multiset I) (i j : KLR.
       (G.finite_stdDeg_eq (ρc ν) (fun a => C.dot_self_pos a) e).prod
         (monDeg_finite (C := C) (d - e))).subset ?_
     rintro ⟨b, m⟩ hp
-    simp only [Set.mem_setOf_eq, δ] at hp
-    simp only [Set.mem_iUnion, Finset.coe_Icc, Set.mem_Icc, Set.mem_prod, Set.mem_setOf_eq]
+    simp only [Set.mem_ofPred_eq, δ] at hp
+    simp only [Set.mem_iUnion, Finset.coe_Icc, Set.mem_Icc, Set.mem_prod, Set.mem_ofPred_eq]
     have := hB' b
     have := hw m
     exact ⟨G.stdDeg (ρc ν) b, ⟨by omega, by omega⟩, rfl, show _ = _ by omega⟩
-  · refine Set.eq_empty_iff_forall_not_mem.2 fun p hp => ?_
+  · refine Set.eq_empty_iff_forall_notMem.2 fun p hp => ?_
     obtain ⟨p, hp', rfl⟩ := hp
-    simp only [Set.mem_setOf_eq, δ] at hp'
+    simp only [Set.mem_ofPred_eq, δ] at hp'
     have := hB' p.1
     have := hw p.2
     omega
@@ -211,10 +210,10 @@ theorem hasGdim_homD [DecidableEq I] [Finite I] (hSL : SimplyLaced C) (μ : X)
     intro d c
     have hpos : Positive (rd (dns d) ++ []) := by
       rw [List.append_nil]; exact positive_rd_dns d
-    haveI := hasGdim_positive (RD := RD) (k := k) hSL μ hpos (show Positive (ups c) by
+    have := hasGdim_positive (RD := RD) (k := k) hSL μ hpos (show Positive (ups c) by
       simp [Positive, ups])
     exact hasGdim_of_bendTgt μ (dns d) [] (ups c)
-  haveI := hasGdim_nil_of_sorted hSL μ hsorted (rd s ++ t)
+  have := hasGdim_nil_of_sorted hSL μ hsorted (rd s ++ t)
   exact hasGdim_of_bendSrc μ s t
 
 end Categorification.KL3.Diagram

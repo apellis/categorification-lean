@@ -41,26 +41,26 @@ theorem qf_eq_qSigned {i j : Fin m} (hij : i ≠ j) : Qf K i j = qSigned K m i j
     have hadj' : ¬ i.castSucc = j.succ := by
       rw [castSucc_eq_succ_iff] at hadj ⊢; omega
     have hdot : (slCartan m).dot i j = -1 := by
-      rw [slCartan_dot, if_neg hij, if_pos (Or.inl (castSucc_eq_succ_iff.1 hadj).symm)]
+      rw [slCartan_dot, ite_eq_right hij, ite_eq_left (Or.inl (castSucc_eq_succ_iff.1 hadj).symm)]
     have hij' : (((i : ℕ) : ℤ) - ((j : ℕ) : ℤ)) = -1 := by
       have := castSucc_eq_succ_iff.1 hadj; omega
-    rw [Qf, Fc, Fc, if_pos hadj, if_neg hadj', map_one, mul_one, qSigned_of_adj hdot, hij',
+    rw [Qf, Fc, Fc, ite_eq_left hadj, ite_eq_right hadj', map_one, mul_one, qSigned_of_adj hdot, hij',
       neg_one_zsmul, neg_sub]
   · by_cases hadj' : i.castSucc = j.succ
     · -- `i = j + 1`
       have hdot : (slCartan m).dot i j = -1 := by
-        rw [slCartan_dot, if_neg hij, if_pos (Or.inr (castSucc_eq_succ_iff.1 hadj').symm)]
+        rw [slCartan_dot, ite_eq_right hij, ite_eq_left (Or.inr (castSucc_eq_succ_iff.1 hadj').symm)]
       have hij' : (((i : ℕ) : ℤ) - ((j : ℕ) : ℤ)) = 1 := by
         have := castSucc_eq_succ_iff.1 hadj'; omega
-      rw [Qf, Fc, Fc, if_neg hadj, if_pos hadj', one_mul, qSigned_of_adj hdot, hij', one_zsmul,
+      rw [Qf, Fc, Fc, ite_eq_right hadj, ite_eq_left hadj', one_mul, qSigned_of_adj hdot, hij', one_zsmul,
         map_sub, rename_X, rename_X]
-      simp only [Matrix.cons_val_zero, Matrix.cons_val_one, Matrix.head_cons]
+      simp only [Matrix.cons_val_zero, Matrix.cons_val_one]
     · -- `i · j = 0`
       have hdot : (slCartan m).dot i j = 0 := by
-        rw [slCartan_dot, if_neg hij, if_neg]
+        rw [slCartan_dot, ite_eq_right hij, ite_eq_right]
         rw [castSucc_eq_succ_iff] at hadj hadj'
         omega
-      rw [Qf, Fc, Fc, if_neg hadj, if_neg hadj', map_one, mul_one, qSigned_of_dot_eq_zero hdot]
+      rw [Qf, Fc, Fc, ite_eq_right hadj, ite_eq_right hadj', map_one, mul_one, qSigned_of_dot_eq_zero hdot]
 
 /-- **KL III (4.14) with the signed polynomials `Q^τ` in `Flag_N`** (Proposition 6.8, (6.21)):
 for `c ≠ d`, on `E_c E_d E_c 1` followed by any suffix `X`,

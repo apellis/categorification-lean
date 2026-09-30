@@ -72,10 +72,10 @@ theorem trForm_tmul (m m' : M k) :
 theorem blockCardL_eq_two : blockCardL (lab0 : Fin 2 → Fin 2) 1 0 = 2 := by decide
 
 theorem trL_xi_pow_zero : trL k lab0 1 0 (xi k lab0 1 ^ 0) = 0 := by
-  rw [trL_xi_pow, blockCardL_eq_two, if_neg (by omega)]
+  rw [trL_xi_pow, blockCardL_eq_two, ite_eq_right (by omega)]
 
 theorem trL_xi_pow_one : trL k lab0 1 0 (xi k lab0 1 ^ 1) = 1 := by
-  rw [trL_xi_pow, blockCardL_eq_two, if_pos (by omega), xbarB_zero]
+  rw [trL_xi_pow, blockCardL_eq_two, ite_eq_left (by omega), xbarB_zero]
   simp
 
 theorem xbarB_move_one : xbarB k (moveLab lab0 1 0) 0 1 = 0 := by
@@ -85,7 +85,7 @@ theorem xbarB_move_one : xbarB k (moveLab lab0 1 0) 0 1 = 0 := by
   exact congrArg _ (Subtype.ext h)
 
 theorem trL_xi_pow_two : trL k lab0 1 0 (xi k lab0 1 ^ 2) = 0 := by
-  rw [trL_xi_pow, blockCardL_eq_two, if_pos (by omega), show 2 + 1 - 2 = 1 by rfl,
+  rw [trL_xi_pow, blockCardL_eq_two, ite_eq_left (by omega), show 2 + 1 - 2 = 1 by rfl,
     xbarB_move_one, mul_zero]
 
 theorem xB_split_one_one : xB k (splitLab lab0 1) (some 1) 1 = 0 :=
@@ -95,7 +95,7 @@ theorem xB_split_one_one : xB k (splitLab lab0 1) (some 1) 1 = 0 :=
 theorem pR_xB_one : pR k lab0 1 (xB k lab0 1 1) = xi k lab0 1 := by
   have := pR_xB_succ (k := k) (lab := lab0) (v₀ := (1 : Fin 2)) 1 0
   simp only [zero_add] at this
-  rw [if_pos (show (1 : Fin 2) = lab0 1 from rfl), xB_split_one_one, xB_zero, zero_add,
+  rw [ite_eq_left (show (1 : Fin 2) = lab0 1 from rfl), xB_split_one_one, xB_zero, zero_add,
     mul_one] at this
   exact this
 
@@ -109,7 +109,7 @@ theorem trL_xi_sq : trL k lab0 1 0 (xi k lab0 1 * xi k lab0 1) = 0 := by
   rw [← pow_two]; exact trL_xi_pow_two
 
 theorem two_ne_zero_R' (h2 : (2 : k) ≠ 0) : (2 : R' k) ≠ 0 := by
-  haveI : Nontrivial (R' k) := by
+  have : Nontrivial (R' k) := by
     apply Module.nontrivial_of_finrank_pos (R := k)
     have := finrank_borelRing k (moveLab (lab0 : Fin 2 → Fin 2) 1 0)
     rcases Nat.eq_zero_or_pos (Module.finrank k (R' k)) with h | h
@@ -137,8 +137,8 @@ theorem lemma_5_4_iii_printed_false (h2 : (2 : k) ≠ 0) :
   simp only [Finset.sum_range_succ, Finset.sum_range_zero, zero_add, Nat.sub_self,
     pow_zero, one_mul, pow_one, Nat.sub_zero, map_add] at h'
   rw [xB_zero, map_one, one_mul, pR_xB_one] at h'
-  simp only [neg_mul, one_mul, map_neg, trForm_tmul, pow_one, mul_one, pow_two,
-    show 1 + 1 = 2 from rfl, trL_one, trL_xi, trL_xi_sq, mul_zero, zero_mul] at h'
+  simp only [neg_mul, one_mul, map_neg, trForm_tmul, mul_one, pow_two,
+    show 1 + 1 = 2 from rfl, trL_one, trL_xi, trL_xi_sq, mul_zero] at h'
   apply two_ne_zero_R' h2
   linear_combination -h'
 
@@ -156,8 +156,8 @@ theorem lemma_5_4_iii_printed_false' (h2 : (2 : k) ≠ 0) :
   simp only [Finset.sum_range_succ, Finset.sum_range_zero, zero_add, Nat.sub_self,
     pow_zero, one_mul, pow_one, Nat.sub_zero, map_add] at h'
   rw [xB_zero, xB_split_one_one] at h'
-  simp only [neg_mul, one_mul, map_neg, trForm_tmul, tmul_zero, zero_mul, mul_zero, map_zero,
-    neg_zero, zero_add, pow_one, mul_one, pow_two, show 1 + 1 = 2 from rfl, trL_one, trL_xi,
+  simp only [one_mul, trForm_tmul, tmul_zero, zero_mul, mul_zero, map_zero,
+    zero_add, mul_one, pow_two, show 1 + 1 = 2 from rfl, trL_one, trL_xi,
     trL_xi_sq] at h'
   apply two_ne_zero_R' h2
   linear_combination -2 * h'

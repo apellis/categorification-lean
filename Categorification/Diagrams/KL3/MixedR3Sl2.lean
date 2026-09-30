@@ -74,6 +74,8 @@ the decompositions `eq_ident_decomp` of `1_{F E}` and `1_{E F}`, as in KL III's 
   `dg_dotsL_comm`, `dg_dotsR_comm`.
 -/
 
+set_option backward.isDefEq.respectTransparency false
+
 noncomputable section
 
 namespace Categorification.KL3.Diagram
@@ -1075,8 +1077,8 @@ compositions `f₁ + f₂ + f₃ + f₄ = m` (with `f₁ = a`, `f₂ = m - f - a
 theorem sum_reindex4 {M : Type*} [AddCommMonoid M] (F : ℕ → ℕ → ℕ → ℕ → M) (m : ℕ) :
     ∑ f ∈ Finset.range (m + 2), ∑ g ∈ Finset.range (f + 1),
         ∑ a ∈ Finset.range (m + 2 - 1 - f), F a (m + 2 - 1 - f - 1 - a) (f - g) g =
-      ∑ x ∈ Finset.antidiagonal m, ∑ z ∈ Finset.antidiagonal x.1,
-        ∑ y ∈ Finset.antidiagonal x.2, F y.1 y.2 z.2 z.1 := by
+      ∑ x ∈ Finset.HasAntidiagonal.antidiagonal m, ∑ z ∈ Finset.HasAntidiagonal.antidiagonal x.1,
+        ∑ y ∈ Finset.HasAntidiagonal.antidiagonal x.2, F y.1 y.2 z.2 z.1 := by
   rw [Finset.sum_range_succ, show m + 2 - 1 - (m + 1) = 0 by omega]
   simp only [Finset.range_zero, Finset.sum_empty, Finset.sum_const_zero, add_zero]
   rw [Finset.Nat.sum_antidiagonal_eq_sum_range_succ_mk]
@@ -1099,31 +1101,33 @@ theorem prop35_b :
     dg RD k lam [up i, dn i, up i] [up i, dn i, up i] (r3mixL i i i) -
         dg RD k lam [up i, dn i, up i] [up i, dn i, up i] (r3mixR i i i) =
       (if 0 ≤ ip RD i lam then
-        ∑ x ∈ Finset.antidiagonal (ip RD i lam).toNat, ∑ z ∈ Finset.antidiagonal x.1,
-          ∑ y ∈ Finset.antidiagonal x.2, sigma1Term RD k lam i y.1 y.2 z.2 z.1
+        ∑ x ∈ Finset.HasAntidiagonal.antidiagonal (ip RD i lam).toNat,
+          ∑ z ∈ Finset.HasAntidiagonal.antidiagonal x.1,
+          ∑ y ∈ Finset.HasAntidiagonal.antidiagonal x.2, sigma1Term RD k lam i y.1 y.2 z.2 z.1
       else 0) +
       (if ip RD i lam ≤ -2 then
-        ∑ x ∈ Finset.antidiagonal (-ip RD i lam - 2).toNat, ∑ z ∈ Finset.antidiagonal x.1,
-          ∑ y ∈ Finset.antidiagonal x.2, sigma2Term RD k lam i y.1 y.2 z.2 z.1
+        ∑ x ∈ Finset.HasAntidiagonal.antidiagonal (-ip RD i lam - 2).toNat,
+          ∑ z ∈ Finset.HasAntidiagonal.antidiagonal x.1,
+          ∑ y ∈ Finset.HasAntidiagonal.antidiagonal x.2, sigma2Term RD k lam i y.1 y.2 z.2 z.1
       else 0) := by
   by_cases h : -1 ≤ ip RD i lam
   · rw [d1 RD k lam i (decompEF_sEF RD k lam i) (decompFE_sFE RD k lam i), term1 RD k lam i h,
-      term2 RD k lam i h, add_zero, if_neg (show ¬ ip RD i lam ≤ -2 by omega), add_zero]
+      term2 RD k lam i h, add_zero, ite_eq_right (show ¬ ip RD i lam ≤ -2 by omega), add_zero]
     by_cases h0 : 0 ≤ ip RD i lam
-    · rw [if_pos h0]
+    · rw [ite_eq_left h0]
       have hN : (ip RD i (wt RD lam [up i])).toNat = (ip RD i lam).toNat + 2 := by
         rw [ip_wt_up_self]; omega
       rw [hN]
       exact sum_reindex4 _ _
-    · rw [if_neg h0]
+    · rw [ite_eq_right h0]
       have hN : (ip RD i (wt RD lam [up i])).toNat = 1 := by
         rw [ip_wt_up_self]; omega
       rw [hN]
       simp
   · rw [d2 RD k lam i (decompEF_sEF RD k lam i) (decompFE_sFE RD k lam i),
       term3 RD k lam i (by omega),
-      term4 RD k lam i (by omega), sub_zero, if_neg (show ¬ 0 ≤ ip RD i lam by omega),
-      if_pos (show ip RD i lam ≤ -2 by omega), zero_add]
+      term4 RD k lam i (by omega), sub_zero, ite_eq_right (show ¬ 0 ≤ ip RD i lam by omega),
+      ite_eq_left (show ip RD i lam ≤ -2 by omega), zero_add]
     have hN : (-ip RD i lam).toNat = (-ip RD i lam - 2).toNat + 2 := by omega
     rw [hN]
     exact sum_reindex4 _ _

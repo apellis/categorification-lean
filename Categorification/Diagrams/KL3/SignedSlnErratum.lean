@@ -96,6 +96,8 @@ model `Γ_N` sends it to the map (6.9), which equals the *left* rotation
 one.
 -/
 
+set_option backward.isDefEq.respectTransparency false
+
 noncomputable section
 
 namespace Categorification.KL3.Diagram
@@ -205,7 +207,7 @@ end Generic
 
 namespace Signed
 
-open Flag
+open Categorification.Flag
 
 variable (k : Type w) [CommRing k] (m : ℕ)
 
@@ -306,20 +308,20 @@ relations, the revised Definition 4.1 has the relations of arXiv v1 Definition 4
 theorem relationQT_of_not_revised (r : Rel SRD) (h : ¬ IsRevised r) :
     relationQT k m r = relationQ SRD k (qSigned k m) r := by
   cases r with
-  | downupEF i j hij μ => exact if_neg h
-  | downupFE i j hij μ => exact if_neg h
-  | cycCrossR j i μ => exact if_neg h
-  | cycCrossL j i μ => exact if_neg h
+  | downupEF i j hij μ => exact ite_eq_right h
+  | downupFE i j hij μ => exact ite_eq_right h
+  | cycCrossR j i μ => exact ite_eq_right h
+  | cycCrossL j i μ => exact ite_eq_right h
   | _ => rfl
 
 /-- The consistent variant also only changes the listed relations. -/
 theorem relationQT'_of_not_revised (r : Rel SRD) (h : ¬ IsRevised r) :
     relationQT' k m r = relationQ SRD k (qSigned k m) r := by
   cases r with
-  | downupEF i j hij μ => exact if_neg h
-  | downupFE i j hij μ => exact if_neg h
-  | cycCrossR j i μ => exact if_neg h
-  | cycCrossL j i μ => exact if_neg h
+  | downupEF i j hij μ => exact ite_eq_right h
+  | downupFE i j hij μ => exact ite_eq_right h
+  | cycCrossR j i μ => exact ite_eq_right h
+  | cycCrossL j i μ => exact ite_eq_right h
   | _ => rfl
 
 /-- `presSignedQT'` and `presSignedQT` agree except on the adjacent `downup` relations. -/
@@ -328,10 +330,10 @@ theorem relationQT'_eq_relationQT (r : Rel SRD) (h : ¬ IsDownupAdj r) :
   cases r with
   | downupEF i j hij μ =>
     have h' : ¬ (slCartan m).dot i j = -1 := h
-    exact (if_neg h').trans (if_neg h').symm
+    exact (ite_eq_right h').trans (ite_eq_right h').symm
   | downupFE i j hij μ =>
     have h' : ¬ (slCartan m).dot i j = -1 := h
-    exact (if_neg h').trans (if_neg h').symm
+    exact (ite_eq_right h').trans (ite_eq_right h').symm
   | _ => rfl
 
 open LinDiagram in
@@ -340,7 +342,7 @@ theorem relationQT_downupEF_adj {i j : Fin m} (hij : i ≠ j) (μ : Fin m → �
     (h : (slCartan m).dot i j = -1) :
     relationQT k m (.downupEF i j hij μ) = of (crossl SRD i j μ ≫ crossr SRD i j μ) -
       (((((i : ℕ) : ℤ) - ((j : ℕ) : ℤ) : ℤ) : k) • of (𝟙 _)) :=
-  if_pos h
+  ite_eq_left h
 
 open LinDiagram in
 /-- **[Err] p. 98, second (3.13) display**, `i · j = -1`: `crossr j i ≫ crossl j i = (j - i)` on
@@ -349,21 +351,21 @@ theorem relationQT_downupFE_adj {i j : Fin m} (hij : i ≠ j) (μ : Fin m → �
     (h : (slCartan m).dot i j = -1) :
     relationQT k m (.downupFE i j hij μ) = of (crossr SRD j i μ ≫ crossl SRD j i μ) -
       (((((j : ℕ) : ℤ) - ((i : ℕ) : ℤ) : ℤ) : k) • of (𝟙 _)) :=
-  if_pos h
+  ite_eq_left h
 
 open LinDiagram in
 /-- **[Err] p. 97, cyclicity display**, `j · i = -1`: `rotCrossR j i = -rotCrossL j i`. -/
 theorem relationQT_cycCrossR_adj (i j : Fin m) (μ : Fin m → ℤ)
     (h : (slCartan m).dot j i = -1) :
     relationQT k m (.cycCrossR j i μ) = of (rotCrossR SRD j i μ) + of (rotCrossL SRD j i μ) :=
-  if_pos h
+  ite_eq_left h
 
 /-- For `j · i = -1` the literal revised definition imposes no further relation (the index
 `cycCrossL j i μ` carries the zero relation). -/
 theorem relationQT_cycCrossL_adj (i j : Fin m) (μ : Fin m → ℤ)
     (h : (slCartan m).dot j i = -1) :
     relationQT k m (.cycCrossL j i μ) = 0 :=
-  if_pos h
+  ite_eq_left h
 
 open LinDiagram in
 /-- The consistent variant, `downupEF`, `i · j = -1`: `crossl i j ≫ crossr i j = (j - i)`. -/
@@ -371,7 +373,7 @@ theorem relationQT'_downupEF_adj {i j : Fin m} (hij : i ≠ j) (μ : Fin m → �
     (h : (slCartan m).dot i j = -1) :
     relationQT' k m (.downupEF i j hij μ) = of (crossl SRD i j μ ≫ crossr SRD i j μ) -
       (((((j : ℕ) : ℤ) - ((i : ℕ) : ℤ) : ℤ) : k) • of (𝟙 _)) :=
-  if_pos h
+  ite_eq_left h
 
 open LinDiagram in
 /-- The consistent variant, `downupFE`, `i · j = -1`: `crossr j i ≫ crossl j i = (i - j)`. -/
@@ -379,17 +381,17 @@ theorem relationQT'_downupFE_adj {i j : Fin m} (hij : i ≠ j) (μ : Fin m → �
     (h : (slCartan m).dot i j = -1) :
     relationQT' k m (.downupFE i j hij μ) = of (crossr SRD j i μ ≫ crossl SRD j i μ) -
       (((((i : ℕ) : ℤ) - ((j : ℕ) : ℤ) : ℤ) : k) • of (𝟙 _)) :=
-  if_pos h
+  ite_eq_left h
 
 /-! ### Homogeneity -/
 
 theorem dot_self (c : Fin m) : (slCartan m).dot c c = 2 := by
-  rw [slCartan_dot, if_pos rfl]
+  rw [slCartan_dot, ite_eq_left rfl]
 
 theorem dot_eq_neg_one_of_ne_zero {c d : Fin m} (h : c ≠ d) (h0 : (slCartan m).dot c d ≠ 0) :
     (slCartan m).dot c d = -1 := by
   rw [slCartan_dot] at h0 ⊢
-  rw [if_neg h] at h0 ⊢
+  rw [ite_eq_right h] at h0 ⊢
   split_ifs at h0 ⊢ with h1
   · rfl
   · exact absurd rfl h0
@@ -405,7 +407,9 @@ theorem qSigned_isWeightedHomogeneous {c d : Fin m} (h : c ≠ d) :
     rw [qSigned_of_adj hadj, hadj, dot_self, dot_self, ← mem_weightedHomogeneousSubmodule]
     refine zsmul_mem (Submodule.sub_mem _ ?_ ?_) _ <;> rw [mem_weightedHomogeneousSubmodule]
     · convert isWeightedHomogeneous_X k ![(2 : ℤ), 2] 0 using 1
+      norm_num
     · convert isWeightedHomogeneous_X k ![(2 : ℤ), 2] 1 using 1
+      norm_num
 
 /-- `Q̄^τ_{cd}` is weighted homogeneous of degree `-2 c·d - c·c`. -/
 theorem qbar_qSigned_isWeightedHomogeneous {c d : Fin m} (h : c ≠ d) :
@@ -418,6 +422,7 @@ theorem qbar_qSigned_isWeightedHomogeneous {c d : Fin m} (h : c ≠ d) :
   · have hadj := dot_eq_neg_one_of_ne_zero h h0
     rw [qbar_qSigned_of_adj hadj, hadj, dot_self]
     convert isWeightedHomogeneous_C _ _ using 1
+    norm_num
 
 variable (k m)
 

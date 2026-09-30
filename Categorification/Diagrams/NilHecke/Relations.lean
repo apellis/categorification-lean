@@ -61,15 +61,17 @@ theorem interchange_at (g h : Gen) {n i j : ℕ} (hij : i + g.arity ≤ j) (hn :
     obj_ext (by simp [d, InterchangeData.cod, shift, strands, sig]; omega)
   have key := (pres k).diag_interchange d hx (shift i) _
     (Obj.whiskerOK_of_subsingleton _ _ _) hd hc
-  have hs : ((d.sign : ℤ) : k) = 1 := by simp [d, InterchangeData.sign, sig]
+  have hs : ((d.sign : ℤ) : k) = 1 := by simp [InterchangeData.sign]
   rw [hs, one_smul] at key
   rw [← Presentation.diag_comp, ← Presentation.diag_comp]
   refine Eq.trans ?_ (key.trans ?_)
   · apply Presentation.diag_eq_of_layers_eq
+    simp only [Diagram.layers_cast, Diagram.layers_whisker, Diagram.layers_comp]
     simp [d, dlay, lay, shift, Layer.whisker, InterchangeData.ghDiagram,
       InterchangeData.gh₁, InterchangeData.gh₂, sig]
     omega
   · apply Presentation.diag_eq_of_layers_eq
+    simp only [Diagram.layers_cast, Diagram.layers_whisker, Diagram.layers_comp]
     simp [d, dlay, lay, shift, Layer.whisker, InterchangeData.hgDiagram,
       InterchangeData.hg₁, InterchangeData.hg₂, sig]
     omega
@@ -83,6 +85,7 @@ theorem ψ_mul_ψ (n i : ℕ) : ψ k n i * ψ k n i = 0 := by
       LinDiagram.cast_of, Presentation.lin_of] at key
     rw [ψ_def k h, End.mul_def, ← Presentation.diag_comp, ← key]
     apply Presentation.diag_eq_of_layers_eq
+    simp only [Diagram.layers_cast, Diagram.layers_whisker, Diagram.layers_comp]
     simp [dlay, lay, shift, Layer.whisker, Gen.arity, Rel.width]
   · rw [ψ_of_le k (by omega), mul_zero]
 
@@ -96,7 +99,8 @@ theorem ψ_braid (n i : ℕ) :
       Presentation.lin_of, sub_eq_zero] at key
     rw [ψ_def k (show i + 1 < n by omega), ψ_def k h]
     simp only [End.mul_def, ← Presentation.diag_comp]
-    convert key using 1 <;> apply Presentation.diag_eq_of_layers_eq <;>
+    refine Eq.trans ?_ (key.trans ?_) <;> apply Presentation.diag_eq_of_layers_eq <;>
+      simp only [Diagram.layers_cast, Diagram.layers_whisker, Diagram.layers_comp] <;>
       simp [dlay, lay, shift, Layer.whisker, Gen.arity, Rel.width] <;> omega
   · by_cases h' : i + 1 < n
     · rw [ψ_of_le k (n := n) (i := i + 1) (by omega)]; simp
@@ -114,6 +118,7 @@ theorem x_mul_ψ_sub_ψ_mul_x {n i : ℕ} (h : i + 1 < n) :
   simp only [End.mul_def, ← Presentation.diag_comp, End.one_def]
   refine Eq.trans ?_ (key.trans ?_)
   · congr 1 <;> apply Presentation.diag_eq_of_layers_eq <;>
+      simp only [Diagram.layers_cast, Diagram.layers_whisker, Diagram.layers_comp] <;>
       simp [dlay, lay, shift, Layer.whisker, Gen.arity, Rel.width]
     all_goals omega
   · refine Eq.trans ?_ ((pres k).diag_id _)
@@ -132,6 +137,7 @@ theorem ψ_mul_x_sub_x_mul_ψ {n i : ℕ} (h : i + 1 < n) :
   simp only [End.mul_def, ← Presentation.diag_comp, End.one_def]
   refine Eq.trans ?_ (key.trans ?_)
   · congr 1 <;> apply Presentation.diag_eq_of_layers_eq <;>
+      simp only [Diagram.layers_cast, Diagram.layers_whisker, Diagram.layers_comp] <;>
       simp [dlay, lay, shift, Layer.whisker, Gen.arity, Rel.width]
     all_goals omega
   · refine Eq.trans ?_ ((pres k).diag_id _)

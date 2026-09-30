@@ -102,11 +102,11 @@ theorem charPoly_insert (t y : T) (E : ℕ → T) (b : ℕ) (hE : E (b + 1) = 0)
     ring
   have h2 : ∑ f ∈ range (b + 2), (-t) ^ f * (if b + 1 - f = 0 then 0 else y * E (b + 1 - f - 1)) =
       y * ∑ f ∈ range (b + 1), (-t) ^ f * E (b - f) := by
-    rw [Finset.sum_range_succ, show b + 1 - (b + 1) = 0 by omega, if_pos rfl, mul_zero, add_zero,
+    rw [Finset.sum_range_succ, show b + 1 - (b + 1) = 0 by omega, ite_eq_left rfl, mul_zero, add_zero,
       Finset.mul_sum]
     refine Finset.sum_congr rfl fun f hf => ?_
     have : f < b + 1 := Finset.mem_range.1 hf
-    rw [if_neg (by omega), show b + 1 - f - 1 = b - f by omega]
+    rw [ite_eq_right (by omega), show b + 1 - f - 1 = b - f by omega]
     ring
   rw [h1, h2]
   ring
@@ -163,8 +163,8 @@ theorem bN_eq (hw : lab w ≠ lab v) :
 
 theorem blockCard_move_eq (hw : lab w ≠ lab v) :
     blockCard (moveLab lab w (lab v)) v = bN lab v w + 1 := by
-  rw [blockCard, moveLab_w_v hw, labSet_move_eq, if_pos rfl,
-    Finset.card_insert_of_not_mem (by simp), bN_eq hw]
+  rw [blockCard, moveLab_w_v hw, labSet_move_eq, ite_eq_left rfl,
+    Finset.card_insert_of_notMem (by simp), bN_eq hw]
 
 theorem restrN_tmul (m₁ : BorelRing k (splitLab (moveLab lab w (lab v)) v))
     (m₂ : BorelRing k (splitLab lab w)) :
@@ -245,7 +245,7 @@ theorem deltaN_mul_charN (hw : lab w ≠ lab v) : deltaN k lab v w * charN k lab
     intro c
     rcases c with _ | c
     · simp [eN]
-    · rw [pL_xB_succ, if_pos rfl, if_neg (Nat.succ_ne_zero c), Nat.add_sub_cancel, tmul_add,
+    · rw [pL_xB_succ, ite_eq_left rfl, ite_eq_right (Nat.succ_ne_zero c), Nat.add_sub_cancel, tmul_add,
         Algebra.TensorProduct.tmul_mul_tmul, one_mul]
   simp only [hexp] at hg
   have hE : eN k lab v w (bN lab v w + 1) = 0 := xB_eq_zero (by rw [← bN_eq hw]; omega)
@@ -288,10 +288,10 @@ theorem pushN_pR_mul (c : BorelRing k (splitLab lab w)) (b : BorelRing k (jointL
 theorem pushN_basis (a : Fin (bN lab v w)) :
     pushN k lab v w (xi k (splitLab lab w) v ^ (a : ℕ)) =
       deltaN k lab v w * xiN₁ k lab v w ^ (a : ℕ) := by
-  rw [pushN_apply, ← basisR_apply, Basis.repr_self, Finset.sum_eq_single a]
+  rw [pushN_apply, ← basisR_apply, Module.Basis.repr_self, Finset.sum_eq_single a]
   · rw [Finsupp.single_eq_same, ← Algebra.TensorProduct.one_def, one_mul]
   · intro b _ hb
-    rw [Finsupp.single_eq_of_ne hb.symm, tmul_zero, zero_mul]
+    rw [Finsupp.single_eq_of_ne hb, tmul_zero, zero_mul]
   · intro h; exact absurd (Finset.mem_univ a) h
 
 theorem one_tmul_neg_one_pow' (f : ℕ) :
@@ -637,7 +637,7 @@ attribute [local instance] rightAlgebra midAlgebra
 
 theorem labSet_split_eq_empty {S : V → J} (w : V) {β : J} (h : ∀ u, u ≠ w → S u ≠ β) :
     labSet (splitLab S w) (· = some β) = ∅ := by
-  rw [labSet_split_some, Finset.eq_empty_iff_forall_not_mem]
+  rw [labSet_split_some, Finset.eq_empty_iff_forall_notMem]
   intro u hu
   rw [Finset.mem_erase, mem_labSet] at hu
   exact h u hu.1 hu.2
@@ -654,10 +654,10 @@ theorem degenerate_xi (lab : V → J) (w : V) (β : J) (hβ : ∀ u, lab u ≠ �
   have hR : ∀ u, u ≠ w → moveLab lab w β u ≠ β := fun u hu => by
     rw [moveLab, Function.update_of_ne hu]; exact hβ u
   have h1 : pR k (moveLab lab w β) w (xB k (moveLab lab w β) β 1) = xi k (moveLab lab w β) w := by
-    rw [pR_xB_succ, if_pos (moveLab_self lab w β).symm, xB_zero, mul_one,
+    rw [pR_xB_succ, ite_eq_left (moveLab_self lab w β).symm, xB_zero, mul_one,
       xB_eq_zero (by rw [labSet_split_eq_empty w hR, Finset.card_empty]; omega), zero_add]
   have h2 : pL k lab w β (xB k (moveLab lab w β) β 1) = xi k lab w := by
-    rw [pL_xB_succ, if_pos rfl, xB_zero, mul_one,
+    rw [pL_xB_succ, ite_eq_left rfl, xB_zero, mul_one,
       xB_eq_zero (by rw [labSet_split_eq_empty w (fun u _ => hβ u), Finset.card_empty]; omega),
       zero_add]
   rw [← h1, ← h2, ← algebraMap_mid, ← algebraMap_right]

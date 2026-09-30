@@ -128,7 +128,7 @@ theorem exists_split : ∀ N : ℕ, N ≤ m →
   | 0, _ => by
     refine ⟨Unit, inferInstance, inferInstance, fun _ => e t, fun _ => e t, fun _ => 0,
       ⟨fun _ _ => ?_, ?_⟩, fun _ => (klGradingDatum2 k C).e_mem_grade t, fun _ => ?_, rfl, ?_⟩
-    · rw [if_pos rfl, divIdem_zero, e_mul_self]
+    · rw [ite_eq_left rfl, divIdem_zero, e_mul_self]
     · simp [e_mul_self]
     · simpa using (klGradingDatum2 k C).e_mem_grade t
     · simp

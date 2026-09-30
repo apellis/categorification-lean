@@ -161,7 +161,7 @@ theorem ψw_mul_mem (α : List ℕ) {n : ℕ} {y : KLRAlgebra k Q ν} (hy : y �
   | nil => simpa using hy
   | cons j α ih =>
     rw [ψw_cons, mul_assoc]
-    exact filt_mono (by simp; omega) (ψ_mul_mem j ih)
+    exact filt_mono (by simp) (ψ_mul_mem j ih)
 
 /-- A dot times a spanning element lies in the same filtration degree. -/
 theorem x_mul_gen_mem (ρ : List ℕ) (hv : ValidWord m ρ) (a : Fin m)

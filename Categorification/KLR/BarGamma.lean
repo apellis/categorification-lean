@@ -41,7 +41,7 @@ noncomputable section
 
 namespace Categorification.KLR
 
-open Graded KLRAlgebra LaurentPolynomial QuantumGroup TypeA
+open Categorification.Graded KLRAlgebra LaurentPolynomial QuantumGroup TypeA
 
 variable {I : Type*} [DecidableEq I] {k : Type*} [Field k] {Q : I → I → MvPolynomial (Fin 2) k}
 
@@ -96,7 +96,7 @@ theorem pformR_of_of_ne {ν μ : Multiset I} (h : ν ≠ μ) (x : K0 (G.grade ν
     (y : K0 (G.grade μ)) :
     G.pformR hsymm (DirectSum.of G.K0fam ν x) (DirectSum.of G.K0fam μ y) = 0 := by
   rw [pformR, DirectSum.toAddMonoid_of, AddMonoidHom.compl₂_apply, LinearMap.toAddMonoidHom_coe,
-    ← DirectSum.apply_eq_component, DirectSum.of_eq_of_ne _ _ _ (Ne.symm h), map_zero]
+    ← DirectSum.apply_eq_component, DirectSum.of_eq_of_ne _ _ _ h, map_zero]
 
 theorem pformR_of (ν : Multiset I) (x : K0 (G.grade ν)) (μ : Multiset I) (y : K0 (G.grade μ)) :
     G.pformR hsymm (DirectSum.of G.K0fam ν x) (DirectSum.of G.K0fam μ y) =
@@ -184,12 +184,12 @@ theorem barR_gammaZ (x : PreF (LaurentPolynomial ℤ) I) :
 
 /-- `\overline{q^n} = q^{-n}` specialises to `v ↦ v⁻¹`: `barQ ∘ qToV = qToV ∘ invert`. -/
 theorem barQ_qToV (p : LaurentPolynomial ℤ) : barQ (qToV p) = qToV (invert p) := by
-  induction p using Finsupp.induction_linear with
+  induction p using AddMonoidAlgebra.induction_linear with
   | zero => simp
   | add p p' hp hp' => rw [map_add, map_add, hp, hp', map_add, map_add]
   | single n m =>
-    have hT : (Finsupp.single n m : LaurentPolynomial ℤ) = m • T n := by
-      rw [T, Finsupp.smul_single, smul_eq_mul, mul_one]
+    have hT : (AddMonoidAlgebra.single n m : LaurentPolynomial ℤ) = m • T n := by
+      rw [LaurentPolynomial.single_eq_C_mul_T, LaurentPolynomial.smul_eq_C_mul]
     rw [hT, map_zsmul, map_zsmul, map_zsmul, map_zsmul, invert_T, qToV_T, qToV_T,
       Units.val_zpow_eq_zpow_val, map_zpow₀, barQ_vQ, Units.val_zpow_eq_zpow_val,
       Units.val_inv_eq_inv_val, inv_zpow', neg_neg]
@@ -197,18 +197,19 @@ theorem barQ_qToV (p : LaurentPolynomial ℤ) : barQ (qToV p) = qToV (invert p) 
 /-- `Ψ ∘ qToV` is the inclusion `ℤ[q, q⁻¹] → ℚ((q))`. -/
 theorem lsCast_toLaurentSeries (p : LaurentPolynomial ℤ) :
     lsCast (toLaurentSeries p) = vToLS (qToV p) := by
-  induction p using Finsupp.induction_linear with
+  induction p using AddMonoidAlgebra.induction_linear with
   | zero => simp
   | add p p' hp hp' => rw [map_add, map_add, hp, hp', map_add, map_add]
   | single n m =>
-    have hT : (Finsupp.single n m : LaurentPolynomial ℤ) = m • T n := by
-      rw [T, Finsupp.smul_single, smul_eq_mul, mul_one]
+    have hT : (AddMonoidAlgebra.single n m : LaurentPolynomial ℤ) = m • T n := by
+      rw [LaurentPolynomial.single_eq_C_mul_T, LaurentPolynomial.smul_eq_C_mul]
     rw [hT, map_zsmul, map_zsmul, K0.toLaurentSeries_T, map_zsmul, map_zsmul, vToLS_qToV_T,
       lsCast_single, Int.cast_one]
 
 section Constructions
 
 attribute [local instance] qToVAlgebra
+set_option backward.isDefEq.respectTransparency false
 
 theorem algebraMap_eq_qToV (p : LaurentPolynomial ℤ) :
     algebraMap (LaurentPolynomial ℤ) (RatFunc ℚ) p = qToV p := rfl
@@ -224,8 +225,16 @@ def barK0Q : K0Q k Γ →+ K0Q k Γ :=
             TensorProduct (LaurentPolynomial ℤ) (RatFunc ℚ) (Gkl).K0R)
           map_zero' := by rw [map_zero, TensorProduct.tmul_zero]
           map_add' := fun z z' => by rw [map_add, TensorProduct.tmul_add] }
-      map_zero' := by ext z; simp
-      map_add' := fun a a' => by ext z; simp [TensorProduct.add_tmul] }
+      map_zero' := by
+        apply AddMonoidHom.ext; intro z
+        change (barQ 0 ⊗ₜ[LaurentPolynomial ℤ] barR k Γ z : K0Q k Γ) = 0
+        simp
+      map_add' := fun a a' => by
+        apply AddMonoidHom.ext; intro z
+        change (barQ (a + a') ⊗ₜ[LaurentPolynomial ℤ] barR k Γ z : K0Q k Γ) =
+          barQ a ⊗ₜ[LaurentPolynomial ℤ] barR k Γ z +
+          barQ a' ⊗ₜ[LaurentPolynomial ℤ] barR k Γ z
+        simp [TensorProduct.add_tmul] }
     (fun p a z => by
       simp only [AddMonoidHom.coe_mk, ZeroHom.coe_mk]
       rw [GradingDatum.barR_smul, ← TensorProduct.smul_tmul, Algebra.smul_def, Algebra.smul_def,
@@ -244,17 +253,13 @@ theorem barK0Q_toK0Q (z : (Gkl).K0R) : barK0Q k Γ (toK0Q k Γ z) = toK0Q k Γ (
 /-- `barK0Q` is semilinear for `v ↦ v⁻¹`. -/
 theorem barK0Q_smul (b : RatFunc ℚ) (t : K0Q k Γ) :
     barK0Q k Γ (b • t) = barQ b • barK0Q k Γ t := by
-  refine TensorProduct.induction_on (motive := fun t : TensorProduct (LaurentPolynomial ℤ)
+  refine TensorProduct.inductionOn (motive := fun t : TensorProduct (LaurentPolynomial ℤ)
     (RatFunc ℚ) (Gkl).K0R => barK0Q k Γ (b • (t : K0Q k Γ)) = barQ b • barK0Q k Γ t) t
-    ?_ ?_ ?_
-  · show barK0Q k Γ (b • (0 : K0Q k Γ)) = _
-    rw [smul_zero, map_zero, smul_zero]
+    ?_ ?_
   · intro a z
-    change barK0Q k Γ (b • a ⊗ₜ[LaurentPolynomial ℤ] z) = _
     rw [TensorProduct.smul_tmul', barK0Q_tmul, barK0Q_tmul, smul_eq_mul, map_mul]
     rfl
   · intro x y hx hy
-    change barK0Q k Γ (b • ((x : K0Q k Γ) + y)) = _
     rw [smul_add, map_add, hx, hy, map_add, smul_add]
 
 /-- **`γ_{ℚ(q)}` commutes with the bar involutions** on `'f`. -/
@@ -298,9 +303,8 @@ theorem pformQAux_ext {f g : K0Q k Γ →+ LaurentSeries ℚ}
       f (a ⊗ₜ[LaurentPolynomial ℤ] z : K0Q k Γ) = g (a ⊗ₜ[LaurentPolynomial ℤ] z : K0Q k Γ)) :
     f = g := by
   refine AddMonoidHom.ext fun t => ?_
-  refine TensorProduct.induction_on (motive := fun t : TensorProduct (LaurentPolynomial ℤ)
-    (RatFunc ℚ) (Gkl).K0R => f t = g t) t ?_ h ?_
-  · exact (map_zero f).trans (map_zero g).symm
+  refine TensorProduct.inductionOn (motive := fun t : TensorProduct (LaurentPolynomial ℤ)
+    (RatFunc ℚ) (Gkl).K0R => f t = g t) t h ?_
   · intro x y hx hy
     exact (map_add f x y).trans ((congrArg₂ (· + ·) hx hy).trans (map_add g x y).symm)
 
@@ -362,50 +366,36 @@ theorem pformQ_toK0Q (w z : (Gkl).K0R) :
 /-- `pformQ` is `Ψ`-semilinear in its second variable. -/
 theorem pformQ_smul_right (b : RatFunc ℚ) (s t : K0Q k Γ) :
     pformQ k Γ s (b • t) = vToLS b * pformQ k Γ s t := by
-  refine TensorProduct.induction_on (motive := fun s : TensorProduct (LaurentPolynomial ℤ)
+  refine TensorProduct.inductionOn (motive := fun s : TensorProduct (LaurentPolynomial ℤ)
     (RatFunc ℚ) (Gkl).K0R => pformQ k Γ s (b • t) = vToLS b * pformQ k Γ s t) s
-    ?_ ?_ ?_
-  · show pformQ k Γ (0 : K0Q k Γ) (b • t) = vToLS b * pformQ k Γ (0 : K0Q k Γ) t
-    rw [map_zero, AddMonoidHom.zero_apply, AddMonoidHom.zero_apply, mul_zero]
+    ?_ ?_
   · intro a w
     rw [pformQ_tmul, pformQ_tmul]
-    refine TensorProduct.induction_on (motive := fun t : TensorProduct (LaurentPolynomial ℤ)
+    refine TensorProduct.inductionOn (motive := fun t : TensorProduct (LaurentPolynomial ℤ)
       (RatFunc ℚ) (Gkl).K0R => vToLS a * pformQAux k Γ w (b • (t : K0Q k Γ)) =
-        vToLS b * (vToLS a * pformQAux k Γ w t)) t ?_ ?_ ?_
-    · show vToLS a * pformQAux k Γ w (b • (0 : K0Q k Γ)) = _
-      simp
+        vToLS b * (vToLS a * pformQAux k Γ w t)) t ?_ ?_
     · intro c z
-      change vToLS a * pformQAux k Γ w (b • c ⊗ₜ[LaurentPolynomial ℤ] z) = _
       rw [TensorProduct.smul_tmul', pformQAux_tmul, pformQAux_tmul, smul_eq_mul, map_mul]
       ring
     · intro x y hx hy
-      change vToLS a * pformQAux k Γ w (b • ((x : K0Q k Γ) + y)) =
-        vToLS b * (vToLS a * pformQAux k Γ w ((x : K0Q k Γ) + y))
       rw [smul_add, map_add, map_add, mul_add, mul_add, hx, hy, mul_add]
   · intro x y hx hy
-    change pformQ k Γ ((x : K0Q k Γ) + y) (b • t) = vToLS b * pformQ k Γ ((x : K0Q k Γ) + y) t
     rw [map_add, AddMonoidHom.add_apply, AddMonoidHom.add_apply, hx, hy, mul_add]
 
 /-- `pformQ` is symmetric. -/
 theorem pformQ_comm (s t : K0Q k Γ) : pformQ k Γ s t = pformQ k Γ t s := by
-  refine TensorProduct.induction_on (motive := fun s : TensorProduct (LaurentPolynomial ℤ)
-    (RatFunc ℚ) (Gkl).K0R => pformQ k Γ s t = pformQ k Γ t s) s ?_ ?_ ?_
-  · show pformQ k Γ (0 : K0Q k Γ) t = pformQ k Γ t (0 : K0Q k Γ)
-    rw [map_zero, map_zero, AddMonoidHom.zero_apply]
+  refine TensorProduct.inductionOn (motive := fun s : TensorProduct (LaurentPolynomial ℤ)
+    (RatFunc ℚ) (Gkl).K0R => pformQ k Γ s t = pformQ k Γ t s) s ?_ ?_
   · intro a w
-    refine TensorProduct.induction_on (motive := fun t : TensorProduct (LaurentPolynomial ℤ)
+    refine TensorProduct.inductionOn (motive := fun t : TensorProduct (LaurentPolynomial ℤ)
       (RatFunc ℚ) (Gkl).K0R => pformQ k Γ (a ⊗ₜ[LaurentPolynomial ℤ] w : K0Q k Γ) t =
-        pformQ k Γ t (a ⊗ₜ[LaurentPolynomial ℤ] w : K0Q k Γ)) t ?_ ?_ ?_
-    · show pformQ k Γ _ (0 : K0Q k Γ) = pformQ k Γ (0 : K0Q k Γ) _
-      rw [map_zero, map_zero, AddMonoidHom.zero_apply]
+        pformQ k Γ t (a ⊗ₜ[LaurentPolynomial ℤ] w : K0Q k Γ)) t ?_ ?_
     · intro b z
       rw [pformQ_tmul_tmul, pformQ_tmul_tmul, GradingDatum.pformR_comm]
       ring
     · intro x y hx hy
-      change pformQ k Γ _ ((x : K0Q k Γ) + y) = pformQ k Γ ((x : K0Q k Γ) + y) _
       rw [map_add, map_add, AddMonoidHom.add_apply, hx, hy]
   · intro x y hx hy
-    change pformQ k Γ ((x : K0Q k Γ) + y) t = pformQ k Γ t ((x : K0Q k Γ) + y)
     rw [map_add, AddMonoidHom.add_apply, map_add, hx, hy]
 
 /-- `pformQ` is `Ψ`-semilinear in its first variable. -/

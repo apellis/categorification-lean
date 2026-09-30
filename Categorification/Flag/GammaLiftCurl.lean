@@ -22,6 +22,9 @@ curlR`, `curlL`, `curlRHS`, `curlLHS`) and Proposition 6.3.
   vanish (`Eright_charpoly`, `ell_zero`).
 -/
 
+-- Preserve elaboration of semireducible diagram transports.
+set_option backward.isDefEq.respectTransparency false
+
 noncomputable section
 
 namespace Categorification.Flag
@@ -78,7 +81,7 @@ theorem evalB_curlR_eq (dnScal : Fin m → Fin m → K) (i : Fin m) (x : Wt m)
         ([⟨up i, sh RD (up i) + x⟩], .cap ⟨dn i, sh RD (up i) + x⟩, v)] := by
     simp only [curlR, layers_mkD, layList, List.map_cons, List.map_nil, dataV, lay, wd, wt,
       Shape.gen, Shape.dom, List.nil_append, List.append_nil, List.cons_append,
-      List.singleton_append, Letter.dual_mk, Bool.not_true, Bool.not_false]
+      Letter.dual_mk, Bool.not_true, Bool.not_false]
     rw [sh_dn_up]
   have h₂ : ChainW ((ob RD (sh RD (up i) + x) [up i]).word ++ v)
       [([⟨up i, sh RD (up i) + x⟩], .cup ⟨up i, x⟩, v),
@@ -197,7 +200,7 @@ theorem evalB_curlL_eq (dnScal : Fin m → Fin m → K) (i : Fin m) (μ : Wt m)
         ([], .cap ⟨up i, sh RD (up i) + μ⟩, ⟨up i, μ⟩ :: v)] := by
     simp only [curlL, layers_mkD, layList, List.map_cons, List.map_nil, dataV, lay, wd, wt,
       Shape.gen, Shape.dom, List.nil_append, List.append_nil, List.cons_append,
-      List.singleton_append, Letter.dual_mk, Bool.not_true, Bool.not_false]
+      Letter.dual_mk, Bool.not_true, Bool.not_false]
   have h₂ : ChainW ((ob RD μ [up i]).word ++ v)
       [([], .cup ⟨dn i, sh RD (up i) + (sh RD (up i) + μ)⟩, ⟨up i, μ⟩ :: v),
         ([⟨dn i, sh RD (up i) + (sh RD (up i) + μ)⟩], .gen (.cross true i i μ), v),
@@ -261,7 +264,7 @@ theorem curlR_rhs_degenerate (i : Fin m) {k t : Comp m} (h : StepR (true, i) k t
         (x K k i.succ f) * xiStep K (true, i) k t h ^ (k i.succ - f))) 1 := by
     intro f hf
     have hf' := Finset.mem_range.1 hf
-    rw [cwLH_eq, if_pos (by omega), show (nH k i - 1 + (f : ℤ) + 1 - nH k i).toNat = f by omega,
+    rw [cwLH_eq, ite_eq_left (by omega), show (nH k i - 1 + (f : ℤ) + 1 - nH k i).toNat = f by omega,
       PsiH_of_castSucc_zero _ _ h0, show (-nH k i - f).toNat = k i.succ - f by omega,
       ← mul_one (Y.left _), ← BRing.tmul_balance, map_mul, map_pow, map_neg, map_one]
     congr 1

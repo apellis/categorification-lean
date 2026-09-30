@@ -246,19 +246,21 @@ abbrev shDot (n : ℤ) : UDotHom P deg l m ⥤ UDotHom P deg l m :=
 theorem additive_biprod_iso {𝒜 ℬ : Type*} [Category 𝒜] [Category ℬ] [Preadditive 𝒜] [Preadditive ℬ]
     [HasBinaryBiproducts 𝒜] [HasBinaryBiproducts ℬ] (F : 𝒜 ⥤ ℬ) [F.Additive] (X Y : 𝒜) :
     Nonempty (F.obj (X ⊞ Y) ≅ F.obj X ⊞ F.obj Y) := by
-  haveI : PreservesBinaryBiproducts F := preservesBinaryBiproducts_of_preservesBiproducts F
+  have : PreservesBinaryBiproducts F := preservesBinaryBiproducts_of_preservesBiproducts F
   exact ⟨F.mapBiprod X Y⟩
 
+set_option backward.isDefEq.respectTransparency false in
 /-- `X{0} ≅ X`. -/
 def shDotZero (A : UDotHom P deg l m) : (shDot deg 0).obj A ≅ A :=
-  udIso _ _ (Equiv.refl _) (fun _ => rfl) (fun _ => by simp) fun i j => by
-    simp
+  udIso _ _ (Equiv.refl _) (fun _ => rfl) (fun i => (add_zero (A.X.X i).t).symm) fun i j => by
+    simp; rfl
 
+set_option backward.isDefEq.respectTransparency false in
 /-- `X{m + n} ≅ X{m}{n}`. -/
 def shDotAdd (a b : ℤ) (A : UDotHom P deg l m) :
     (shDot deg (a + b)).obj A ≅ (shDot deg b).obj ((shDot deg a).obj A) :=
-  udIso _ _ (Equiv.refl _) (fun _ => rfl) (fun _ => by simp; ring) fun i j => by
-    simp
+  udIso _ _ (Equiv.refl _) (fun _ => rfl) (fun i => add_assoc (A.X.X i).t a b) fun i j => by
+    simp; rfl
 
 instance k0Shift : SplitK0.K0Shift (UDotHom P deg l m) where
   sh n A := (shDot deg n).obj A
@@ -284,14 +286,16 @@ theorem T_smul_of (a : ℤ) (A : UDotHom P deg l m) :
     (LaurentPolynomial.T a : LaurentPolynomial ℤ) • cl A = cl ((shDot deg a).obj A) :=
   SplitK0.T_smul_of a A
 
+set_option backward.isDefEq.respectTransparency false in
 /-- `[x{t}] = q^t [x{0}]`. -/
 theorem objOf_shift (x : Bicat.Hom l m) (t : ℤ) :
     cl (objOf (P := P) (deg := deg) x t) =
       (LaurentPolynomial.T t : LaurentPolynomial ℤ) • cl (objOf x 0) := by
   rw [T_smul_of]
-  exact of_iso (udIso _ _ (Equiv.refl _) (fun _ => rfl) (fun _ => by simp) fun i j => by
-    cases i; cases j; simp [Mat_.id_apply_self])
+  exact of_iso (udIso _ _ (Equiv.refl _) (fun _ => rfl) (fun _ => zero_add t) fun i j => by
+    cases i; cases j; simp [Mat_.id_apply_self]; rfl)
 
+set_option backward.isDefEq.respectTransparency false in
 /-- `(x{t + s}, e) ≅ (x{t}, e){s}`. -/
 def idemObjShift (x : Bicat.Hom l m) (t s : ℤ) (e : P.obj x.obj ⟶ P.obj x.obj)
     (he : e ∈ P.homDeg deg x.obj x.obj 0) (hee : e ≫ e = e) :
@@ -317,15 +321,17 @@ section Whisker
 
 variable {j n : P.Bicat}
 
+set_option backward.isDefEq.respectTransparency false in
 /-- Left composition commutes with the shift. -/
 def wLDotShift (a : Bicat.Hom j l) (s : ℤ) (A : UDotHom P deg l m) :
     (wLDot deg a).obj ((shDot deg s).obj A) ≅ (shDot deg s).obj ((wLDot deg a).obj A) :=
-  udIso _ _ (Equiv.refl _) (fun _ => rfl) (fun _ => rfl) fun i j => by simp
+  udIso _ _ (Equiv.refl _) (fun _ => rfl) (fun _ => rfl) fun i j => by simp; rfl
 
+set_option backward.isDefEq.respectTransparency false in
 /-- Right composition commutes with the shift. -/
 def wRDotShift (b : Bicat.Hom m n) (s : ℤ) (A : UDotHom P deg l m) :
     (wRDot deg b).obj ((shDot deg s).obj A) ≅ (shDot deg s).obj ((wRDot deg b).obj A) :=
-  udIso _ _ (Equiv.refl _) (fun _ => rfl) (fun _ => rfl) fun i j => by simp
+  udIso _ _ (Equiv.refl _) (fun _ => rfl) (fun _ => rfl) fun i j => by simp; rfl
 
 namespace K0U
 
@@ -364,6 +370,7 @@ theorem ctx_shift {j' n' : P.Bicat} (a : Bicat.Hom j' l) (b : Bicat.Hom m n') (s
 
 end K0U
 
+set_option backward.isDefEq.respectTransparency false in
 /-- `a · x{t} = (a x){t}`. -/
 theorem wLDot_objOf (a : Bicat.Hom j l) (x : Bicat.Hom l m) (t : ℤ) :
     (wLDot deg a).obj (objOf (P := P) x t) = objOf (a.comp x) t := by
@@ -372,6 +379,7 @@ theorem wLDot_objOf (a : Bicat.Hom j l) (x : Bicat.Hom l m) (t : ℤ) :
   · simp only [eqToHom_refl, Category.comp_id, Category.id_comp]
     exact (wLGr deg a).mapMat_.map_id _
 
+set_option backward.isDefEq.respectTransparency false in
 /-- `x{t} · b = (x b){t}`. -/
 theorem wRDot_objOf (b : Bicat.Hom m n) (x : Bicat.Hom l m) (t : ℤ) :
     (wRDot deg b).obj (objOf (P := P) x t) = objOf (x.comp b) t := by
@@ -391,18 +399,21 @@ variable [S.IsEven]
 theorem hcompDot_isBiadditive : IsBiadditive (hcompDot deg (l := l) (m := m) (n := n)) :=
   karProd_isBiadditive _ (matBi_isBiadditive _ (hcompGr_isBiadditive deg))
 
+set_option backward.isDefEq.respectTransparency false in
 /-- Composition commutes with shifts in the first variable. -/
 def hcompDotShiftLeft (s : ℤ) (A : UDotHom P deg l m) (B : UDotHom P deg m n) :
     (hcompDot deg).obj ((shDot deg s).obj A, B) ≅ (shDot deg s).obj ((hcompDot deg).obj (A, B)) :=
-  udIso _ _ (Equiv.refl _) (fun _ => rfl) (fun _ => by simp [hcompDot, karProd, matBi, hcompGr]; ring)
-    fun i j => by simp [hcompDot, karProd, matBi, hcompGr]
+  udIso _ _ (Equiv.refl _) (fun _ => rfl) (fun i => add_right_comm (A.X.X i.1).t (B.X.X i.2).t s)
+    fun i j => by simp [hcompDot, karProd, matBi, hcompGr]; rfl
 
+set_option backward.isDefEq.respectTransparency false in
 /-- Composition commutes with shifts in the second variable. -/
 def hcompDotShiftRight (s : ℤ) (A : UDotHom P deg l m) (B : UDotHom P deg m n) :
     (hcompDot deg).obj (A, (shDot deg s).obj B) ≅ (shDot deg s).obj ((hcompDot deg).obj (A, B)) :=
-  udIso _ _ (Equiv.refl _) (fun _ => rfl) (fun _ => by simp [hcompDot, karProd, matBi, hcompGr]; ring)
-    fun i j => by simp [hcompDot, karProd, matBi, hcompGr]
+  udIso _ _ (Equiv.refl _) (fun _ => rfl) (fun i => add_assoc (A.X.X i.1).t (B.X.X i.2).t s)
+    fun i j => by simp [hcompDot, karProd, matBi, hcompGr]; rfl
 
+set_option backward.isDefEq.respectTransparency false in
 /-- `x{t} y{s} ≅ (x y){t + s}` in `U̇` (KL III (3.18)). -/
 def hcompDotObjOf (x : Bicat.Hom l m) (y : Bicat.Hom m n) (t s : ℤ) :
     (hcompDot deg).obj ((objOf x t : UDotHom P deg l m), (objOf y s : UDotHom P deg m n)) ≅
@@ -424,11 +435,11 @@ def mul : K0U P deg l m →+ K0U P deg m n →+ K0U P deg l n :=
     (fun _ _ B e => of_iso ((Prod.sectL _ B ⋙ hcompDot deg).mapIso e))
     (fun A _ _ e => of_iso ((Prod.sectR A _ ⋙ hcompDot deg).mapIso e))
     (fun A A' B => by
-      haveI := (hcompDot_isBiadditive (deg := deg) (l := l) (m := m) (n := n)).additive_left B
+      have := (hcompDot_isBiadditive (deg := deg) (l := l) (m := m) (n := n)).additive_left B
       exact (of_eq_of_nonempty (additive_biprod_iso (Prod.sectL _ B ⋙ hcompDot deg) A A')).trans
         (of_biprod _ _))
     (fun A B B' => by
-      haveI := (hcompDot_isBiadditive (deg := deg) (l := l) (m := m) (n := n)).additive_right A
+      have := (hcompDot_isBiadditive (deg := deg) (l := l) (m := m) (n := n)).additive_right A
       exact (of_eq_of_nonempty (additive_biprod_iso (Prod.sectR A _ ⋙ hcompDot deg) B B')).trans
         (of_biprod _ _))
 

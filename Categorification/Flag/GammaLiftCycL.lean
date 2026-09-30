@@ -15,6 +15,9 @@ consume the relabelled strands (`trW_absorb_cross2`, `trW_absorb_capEF3`, `trW_a
 the path model the left rotation is (6.9) (`rotCrossLW_eq_crossDn`, `rotCrossLW_same_eq`).
 -/
 
+-- Preserve elaboration of semireducible diagram transports.
+set_option backward.isDefEq.respectTransparency false
+
 noncomputable section
 
 namespace Categorification.Flag
@@ -175,11 +178,10 @@ theorem evalB_cycCrossL (j i : Fin m) (μ s : Wt m) (hs : s = (ob RD μ [dn j, d
        ([⟨dn i, (sh RD (dn j) + μ)⟩, ⟨dn j, μ⟩, ⟨up i, (sh RD (up j) + (sh RD (dn i) + (sh RD (dn j) + μ)))⟩], .cap ⟨dn j, (sh RD (up j) + (sh RD (dn i) + (sh RD (dn j) + μ)))⟩, ⟨dn i, μ⟩ :: v),
        ([⟨dn i, (sh RD (dn j) + μ)⟩, ⟨dn j, μ⟩], .cap ⟨dn i, μ⟩, v)] : List (LData m)) := by
     simp only [rotCrossL, layers_mkD, layList, List.map_cons, List.map_nil, dataV, lay, wd, wt,
-      Shape.gen, Shape.dom, Shape.cod, List.nil_append, List.cons_append, List.append_nil,
-      List.singleton_append, Letter.dual_mk]
-    simp only [Bool.not_true, Bool.not_false, sh_dn', sh_up']
+      Shape.gen, Shape.dom, List.nil_append, List.cons_append, List.append_nil,
+      Letter.dual_mk]
+    simp only [Bool.not_false, sh_dn', sh_up']
     abel_nf
-    simp only [neg_one_zsmul, add_neg_cancel_left, neg_add_cancel_left]
   have hch : ChainW (⟨dn j, (sh RD (up j) + (sh RD (dn i) + (sh RD (dn j) + μ)))⟩ :: ⟨dn i, μ⟩ :: v)
       [([], .cup ⟨dn i, (sh RD (dn j) + μ)⟩, ⟨dn j, (sh RD (up j) + (sh RD (dn i) + (sh RD (dn j) + μ)))⟩ :: ⟨dn i, μ⟩ :: v),
        ([⟨dn i, (sh RD (dn j) + μ)⟩], .cup ⟨dn j, μ⟩, ⟨up i, (sh RD (dn i) + (sh RD (dn j) + μ))⟩ :: ⟨dn j, (sh RD (up j) + (sh RD (dn i) + (sh RD (dn j) + μ)))⟩ :: ⟨dn i, μ⟩ :: v),

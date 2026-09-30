@@ -60,7 +60,7 @@ end Categorification.NilHecke
 
 namespace Categorification.KLR
 
-open MvPolynomial Equiv TypeA Categorification.NilHecke Graded DirectSum PolyRep
+open MvPolynomial Equiv TypeA Categorification.NilHecke Categorification.Graded DirectSum PolyRep
 
 variable {I : Type*} [DecidableEq I] {k : Type*} [Field k]
 
@@ -96,7 +96,7 @@ theorem exists_ψ_mul_pol (j : ℕ) (p : MvPolynomial (Fin n) k) :
 
 include hν in
 theorem e_eq_one_of_forall (t : Seq ν) : (e t : KLRAlgebra k Q ν) = 1 := by
-  letI := Seq.uniqueOfForall hν
+  let := Seq.uniqueOfForall hν
   exact e_eq_one t
 
 /-! ### The module `L(i^n)` -/
@@ -122,7 +122,7 @@ noncomputable instance : Module k (KLRRep hν Q) := inferInstanceAs (Module k (C
 instance : FiniteDimensional k (KLRRep hν Q) := inferInstanceAs (FiniteDimensional k (Coinv k n))
 
 /-- The identification `L_n = KLRRep hν Q`. -/
-def KLRRep.of : Coinv k n ≃ₗ[k] KLRRep hν Q := LinearEquiv.refl k _
+noncomputable def KLRRep.of : Coinv k n ≃ₗ[k] KLRRep hν Q := LinearEquiv.refl k _
 
 noncomputable instance : Module (KLRAlgebra k Q ν) (KLRRep hν Q) :=
   Module.compHom (Coinv k n) (klrAct hν Q).toRingHom
@@ -133,12 +133,12 @@ theorem klr_smul_def (r : KLRAlgebra k Q ν) (v : Coinv k n) :
 instance : IsScalarTower k (KLRAlgebra k Q ν) (KLRRep hν Q) where
   smul_assoc c r v := by
     show klrAct hν Q (c • r) v = c • klrAct hν Q r v
-    rw [show klrAct hν Q (c • r) = c • klrAct hν Q r from (klrAct hν Q).toLinearMap.map_smul c r,
-      LinearMap.smul_apply]
+    rw [show klrAct hν Q (c • r) = c • klrAct hν Q r from (klrAct hν Q).toLinearMap.map_smul c r]
+    rfl
 
 /-- **`L(i^n)` is a simple `R(ν)`-module** (from the irreducibility of `L_n` over `NH_n`). -/
 theorem isSimpleModule_klrRep : IsSimpleModule (KLRAlgebra k Q ν) (KLRRep hν Q) := by
-  haveI : Nontrivial (KLRRep hν Q) := inferInstanceAs (Nontrivial (Coinv k n))
+  have : Nontrivial (KLRRep hν Q) := inferInstanceAs (Nontrivial (Coinv k n))
   have hNH := isSimpleModule_coinv (k := k) (m := n)
   refine { eq_bot_or_eq_top := fun N => ?_ }
   let N' : Submodule (nilHecke k n) (NHRep k n) :=
@@ -158,7 +158,7 @@ theorem isSimpleModule_klrRep : IsSimpleModule (KLRAlgebra k Q ν) (KLRRep hν Q
         show KLRRep.of hν Q ((NHRep.of k n).symm (T • v)) ∈ N
         rw [← e1]
         exact h1 }
-  rcases IsSimpleOrder.eq_bot_or_eq_top N' with h | h
+  rcases hNH.eq_bot_or_eq_top N' with h | h
   · left
     rw [eq_bot_iff]
     intro v hv
@@ -247,7 +247,7 @@ theorem mem_span_stdElt_of_mem_grade (ρ : Perm (Fin n) → List ℕ)
       exact zero_mem _
   | zero => simp
   | add x y _ _ hx hy =>
-    rw [decompose_add, add_apply, Submodule.coe_add]; exact add_mem hx hy
+    rw [decompose_add, DirectSum.add_apply, Submodule.coe_add]; exact add_mem hx hy
   | smul c x _ hx =>
     rw [decompose_smul, DirectSum.smul_apply, Submodule.coe_smul]; exact Submodule.smul_mem _ c hx
 
@@ -277,7 +277,7 @@ instance : SetLike.GradedSMul (G.grade ν) (klrGrading hν Q G) where
 
 /-- **`L(i^n)` is a simple graded `R(ν)`-module** (for any grading datum). -/
 theorem isGradedSimple_klrRep : IsGradedSimple (G.grade ν) (klrGrading hν Q G) := by
-  haveI := isSimpleModule_klrRep hν Q
+  have := isSimpleModule_klrRep hν Q
   exact ⟨inferInstanceAs (Nontrivial (Coinv k n)), fun p _ => IsSimpleOrder.eq_bot_or_eq_top p⟩
 
 end Graded
@@ -290,7 +290,7 @@ variable {P : I → I → MvPolynomial (Fin 2) k}
   (G : GradingDatum Q) (hG : ∀ a, 0 < G.degX a)
 
 /-- Left multiplication by `a ∈ R(ν)` as a `k`-linear endomorphism of an `R(ν)`-module. -/
-def smulEnd {M : Type*} [AddCommGroup M] [Module (KLRAlgebra k Q ν) M] [Module k M]
+noncomputable def smulEnd {M : Type*} [AddCommGroup M] [Module (KLRAlgebra k Q ν) M] [Module k M]
     [IsScalarTower k (KLRAlgebra k Q ν) M] (a : KLRAlgebra k Q ν) : Module.End k M where
   toFun v := a • v
   map_add' := smul_add a
@@ -307,9 +307,9 @@ theorem nonempty_linearEquiv_klrRep {M : Type*} [AddCommGroup M]
     (ℳ : ℤ → Submodule k M) [Decomposition ℳ] [SetLike.GradedSMul (G.grade ν) ℳ]
     (hS : IsGradedSimple (G.grade ν) ℳ) :
     Nonempty (KLRRep hν Q ≃ₗ[KLRAlgebra k Q ν] M) := by
-  haveI := isSimpleModule_of_isGradedSimple hPQ hP G hG ℳ hS
-  haveI := isSimpleModule_klrRep hν Q
-  haveI := hS.nontrivial
+  have := isSimpleModule_of_isGradedSimple hPQ hP G hG ℳ hS
+  have := isSimpleModule_klrRep hν Q
+  have := hS.nontrivial
   -- a nonzero vector killed by all crossings
   have hwords : ∀ ρ : List ℕ, (Multiset.card ν).choose 2 < ρ.length →
       (ρ.map fun j => smulEnd Q (M := M) (ψ j : KLRAlgebra k Q ν)).prod = 0 := by

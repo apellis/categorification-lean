@@ -44,6 +44,8 @@ All intermediate regions are assumed to be valid compositions (the path model ha
 1-morphisms); the degenerate cases, where an intermediate `Γ(E_p 1)` is zero, are not covered.
 -/
 
+set_option backward.isDefEq.respectTransparency false
+
 noncomputable section
 
 namespace Categorification.Flag
@@ -71,8 +73,7 @@ theorem whiskerRight_mul_suffix {M M' : BRing A B} (φ : BHom M M') (N : BRing B
   refine BRing.induction_on (P := fun y => BHom.whiskerRight φ N (y * BRing.tmul M N 1 z) =
     BHom.whiskerRight φ N y * BRing.tmul M' N 1 z) y (by simp) (fun a b => ?_)
     (fun y y' hy hy' => ?_)
-  · beta_reduce
-    rw [BRing.tmul_mul_tmul, mul_one, BHom.whiskerRight_tmul, BHom.whiskerRight_tmul,
+  ·    rw [BRing.tmul_mul_tmul, mul_one, BHom.whiskerRight_tmul, BHom.whiskerRight_tmul,
       BRing.tmul_mul_tmul, mul_one]
   · beta_reduce at hy hy' ⊢
     rw [add_mul, BHom.map_add, hy, hy', BHom.map_add, add_mul]
@@ -102,8 +103,7 @@ theorem whiskerLeft_mul_left (M : BRing A B) {N N' : BRing B C} (ψ : BHom N N')
   refine BRing.induction_on (P := fun y => BHom.whiskerLeft M ψ (BRing.tmul M N m 1 * y) =
     BRing.tmul M N' m 1 * BHom.whiskerLeft M ψ y) y (by simp) (fun a b => ?_)
     (fun y y' hy hy' => ?_)
-  · beta_reduce
-    rw [BRing.tmul_mul_tmul, one_mul, BHom.whiskerLeft_tmul, BHom.whiskerLeft_tmul,
+  ·    rw [BRing.tmul_mul_tmul, one_mul, BHom.whiskerLeft_tmul, BHom.whiskerLeft_tmul,
       BRing.tmul_mul_tmul, one_mul]
   · beta_reduce at hy hy' ⊢
     rw [mul_add, BHom.map_add, hy, hy', BHom.map_add, mul_add]
@@ -115,8 +115,7 @@ theorem whiskerLeft_mul_right (M : BRing A B) {N N' : BRing B C} (ψ : BHom N N'
   refine BRing.induction_on (P := fun y => BHom.whiskerLeft M ψ (BRing.tmul M N 1 w * y) =
     BRing.tmul M N' 1 w' * BHom.whiskerLeft M ψ y) y (by simp) (fun a b => ?_)
     (fun y y' hy hy' => ?_)
-  · beta_reduce
-    rw [BRing.tmul_mul_tmul, one_mul, BHom.whiskerLeft_tmul, BHom.whiskerLeft_tmul,
+  ·    rw [BRing.tmul_mul_tmul, one_mul, BHom.whiskerLeft_tmul, BHom.whiskerLeft_tmul,
       BRing.tmul_mul_tmul, one_mul, hψ]
   · beta_reduce at hy hy' ⊢
     rw [mul_add, BHom.map_add, hy, hy', BHom.map_add, mul_add]
@@ -185,10 +184,9 @@ theorem span_level {P Q R Z : Type u} [CommRing P] [CommRing Q] [CommRing R] [Co
     induction a with
     | zero => intro z hz; simpa using hz
     | succ a ih => intro z hz; rw [pow_succ', mul_assoc]; exact hS _ (ih z hz)
-  refine BRing.induction_on (P := fun t => f t ∈ S) t (by beta_reduce; rw [map_zero]; exact S.zero_mem)
+  refine BRing.induction_on (P := fun t => f t ∈ S) t (by rw [map_zero]; exact S.zero_mem)
     (fun m n => ?_)
-    (fun x y hx hy => by beta_reduce at hx hy ⊢; rw [map_add]; exact S.add_mem hx hy)
-  beta_reduce
+    (fun x y hx hy => by rw [map_add]; exact S.add_mem hx hy)
   obtain ⟨k, c, rfl⟩ := hspan m
   rw [BRing.sum_tmul, map_sum]
   refine S.sum_mem fun a _ => ?_
@@ -210,9 +208,9 @@ theorem gen3_mul (q : MvPolynomial (Fin 3) K) (z : (R3 L₁ L₂ L₃ X).T)
   | mem z hz =>
     obtain ⟨p, x, rfl⟩ := hz
     exact AddSubgroup.subset_closure ⟨q * p, x, by rw [map_mul, mul_assoc]⟩
-  | one => rw [mul_zero]; exact AddSubgroup.zero_mem _
-  | mul z z' _ _ h h' => rw [mul_add]; exact AddSubgroup.add_mem _ h h'
-  | inv z _ h => rw [mul_neg]; exact AddSubgroup.neg_mem _ h
+  | zero => rw [mul_zero]; exact AddSubgroup.zero_mem _
+  | add z z' _ _ h h' => rw [mul_add]; exact AddSubgroup.add_mem _ h h'
+  | neg z _ h => rw [mul_neg]; exact AddSubgroup.neg_mem _ h
 
 /-- **Spanning**: if every strand is spanned by the powers of its dot over its right ring, the
 elements `ev3 p · ι3 x` span the three-strand ring. -/
@@ -242,9 +240,9 @@ theorem ext3 (h₁ : SpannedBy L₁ ξ₁) (h₂ : SpannedBy L₂ ξ₂) (h₃ :
   have ht := span3 (K := K) L₁ L₂ L₃ X ξ₁ ξ₂ ξ₃ h₁ h₂ h₃ t
   induction ht using AddSubgroup.closure_induction with
   | mem z hz => obtain ⟨p, x, rfl⟩ := hz; exact h p x
-  | one => rw [BHom.map_zero, BHom.map_zero]
-  | mul z z' _ _ hz hz' => rw [BHom.map_add, BHom.map_add, hz, hz']
-  | inv z _ hz => rw [BHom.map_neg, BHom.map_neg, hz]
+  | zero => rw [BHom.map_zero, BHom.map_zero]
+  | add z z' _ _ hz hz' => rw [BHom.map_add, BHom.map_add, hz, hz']
+  | neg z _ hz => rw [BHom.map_neg, BHom.map_neg, hz]
 
 theorem assoc_hom_one {C' D' : Type u} [CommRing C'] [CommRing D'] (M : BRing A B)
     (N : BRing B C') (P : BRing C' D') :
@@ -257,7 +255,7 @@ theorem ev3_at01_sub : ev3 K L₁ L₂ L₃ X ξ₁ ξ₂ ξ₃ (at01 (MvPolynom
       (BRing.tmul _ _ (BRing.tmul L₁ L₂ 1 ξ₂ - BRing.tmul L₁ L₂ ξ₁ 1) 1) := by
   rw [BRing.sub_tmul, BHom.map_sub, BRing.assoc_hom_tmul, BRing.assoc_hom_tmul, at01, map_sub,
     rename_X, rename_X]
-  simp only [Matrix.cons_val_one, Matrix.head_cons, Matrix.cons_val_zero]
+  simp only [Matrix.cons_val_one, Matrix.cons_val_zero]
   rw [map_sub, ev3_X1, ev3_X0]
   rfl
 
@@ -267,7 +265,7 @@ theorem ev3_at12_sub : ev3 K L₁ L₂ L₃ X ξ₁ ξ₂ ξ₃ (at12 (MvPolynom
       (BRing.tmul _ _ (BRing.tmul L₂ L₃ 1 ξ₃ - BRing.tmul L₂ L₃ ξ₂ 1) 1)) := by
   rw [BRing.sub_tmul, BHom.map_sub, BRing.assoc_hom_tmul, BRing.assoc_hom_tmul, at12, map_sub,
     rename_X, rename_X]
-  simp only [Matrix.cons_val_one, Matrix.head_cons, Matrix.cons_val_zero]
+  simp only [Matrix.cons_val_one, Matrix.cons_val_zero]
   rw [map_sub, ev3_X2, ev3_X1, BRing.tmul_sub]
   rfl
 
@@ -466,7 +464,7 @@ variable {K : Type u} [Field K] {m : ℕ}
 theorem stepE_spanned (c : Fin m) {r s : Comp m} (h : StepR (true, c) r s) :
     SpannedBy (stepB K (true, c) r s h) (eXi K c r h.2) := by
   intro x
-  letI := eRightAlgebra K c r h.2
+  let := eRightAlgebra K c r h.2
   refine ⟨_, fun a => (eBasisRight K c r h.2).repr x a, ?_⟩
   conv_lhs => rw [← (eBasisRight K c r h.2).sum_repr x]
   refine Finset.sum_congr rfl fun a _ => ?_
@@ -498,17 +496,17 @@ theorem crossU_evalL (L₃ : BRing (H K r₂) D) (X : BRing D E) (ξ₃ : L₃.T
   rw [(crossU_rules c d h₁ h₂ h₁' h₂').evalL L₃ X ξ₃ p, locTwo_iota3, locTwo_iota3, tauU_one,
     crossU_one]
   by_cases hcd : c = d
-  · rw [if_pos hcd, if_pos hcd, op0, if_pos hcd, BRing.zero_tmul, BHom.map_zero, zero_mul,
+  · rw [ite_eq_left hcd, ite_eq_left hcd, op0, ite_eq_left hcd, BRing.zero_tmul, BHom.map_zero, zero_mul,
       mul_zero, add_zero, assoc_hom_one, one_mul]
   · have hF : ev3 K (stepB K _ _ _ h₁') (stepB K _ _ _ h₂') L₃ X (eXi K d r₁' h₁'.2)
         (eXi K c r₂ h₂'.2) ξ₃ (at01 (Fc K c d)) = (BRing.assoc _ _ _).hom (BRing.tmul _ _
           (if c.castSucc = d.succ then BRing.tmul _ _ 1 (eXi K c r₂ h₂'.2) -
             BRing.tmul _ _ (eXi K d r₁' h₁'.2) 1 else 1) 1) := by
       by_cases hadj : c.castSucc = d.succ
-      · rw [if_pos hadj, Fc, if_pos hadj, ev3_at01_sub]
-      · rw [if_neg hadj, Fc, if_neg hadj, at01, map_one, map_one]
+      · rw [ite_eq_left hadj, Fc, ite_eq_left hadj, ev3_at01_sub]
+      · rw [ite_eq_right hadj, Fc, ite_eq_right hadj, at01, map_one, map_one]
         exact (map_one (BRing.assocHom _ _ _)).symm
-    rw [if_neg hcd, if_neg hcd, op0, if_neg hcd, BRing.zero_tmul, BHom.map_zero, zero_mul,
+    rw [ite_eq_right hcd, ite_eq_right hcd, op0, ite_eq_right hcd, BRing.zero_tmul, BHom.map_zero, zero_mul,
       mul_zero, zero_add, mS0, map_mul, hF]
     exact (mul_left_comm _ _ _).trans (mul_assoc _ _ _).symm
 
@@ -524,17 +522,17 @@ theorem crossU_evalR {A : Type u} [CommRing A] [Algebra K A] (L₁ : BRing A (H 
   rw [(crossU_rules c d h₁ h₂ h₁' h₂').evalR X ξ₁ p, whiskerLeft_locTwo_iota3,
     whiskerLeft_locTwo_iota3, tauU_one, crossU_one]
   by_cases hcd : c = d
-  · rw [if_pos hcd, if_pos hcd, op1, if_pos hcd, BRing.zero_tmul, BHom.map_zero, BRing.tmul_zero,
+  · rw [ite_eq_left hcd, ite_eq_left hcd, op1, ite_eq_left hcd, BRing.zero_tmul, BHom.map_zero, BRing.tmul_zero,
       zero_mul, mul_zero, add_zero, assoc_hom_one, ← BRing.one_eq, one_mul]
   · have hF : ev3 K L₁ (stepB K _ _ _ h₁') (stepB K _ _ _ h₂') X ξ₁ (eXi K d r₁' h₁'.2)
         (eXi K c r₂ h₂'.2) (at12 (Fc K c d)) = BRing.tmul _ _ 1 ((BRing.assoc _ _ _).hom
           (BRing.tmul _ _ (if c.castSucc = d.succ then BRing.tmul _ _ 1 (eXi K c r₂ h₂'.2) -
             BRing.tmul _ _ (eXi K d r₁' h₁'.2) 1 else 1) 1)) := by
       by_cases hadj : c.castSucc = d.succ
-      · rw [if_pos hadj, Fc, if_pos hadj, ev3_at12_sub]
-      · rw [if_neg hadj, Fc, if_neg hadj, at12, map_one, map_one]
+      · rw [ite_eq_left hadj, Fc, ite_eq_left hadj, ev3_at12_sub]
+      · rw [ite_eq_right hadj, Fc, ite_eq_right hadj, at12, map_one, map_one]
         exact (congrArg (BRing.tmul _ _ 1) (assoc_hom_one _ _ _)).symm
-    rw [if_neg hcd, if_neg hcd, op1, if_neg hcd, BRing.zero_tmul, BHom.map_zero, BRing.tmul_zero,
+    rw [ite_eq_right hcd, ite_eq_right hcd, op1, ite_eq_right hcd, BRing.zero_tmul, BHom.map_zero, BRing.tmul_zero,
       zero_mul, mul_zero, zero_add, mS1, map_mul, hF]
     exact (mul_left_comm _ _ _).trans (mul_assoc _ _ _).symm
 
@@ -604,7 +602,7 @@ theorem braid_three (hne : ¬(c = e ∧ c ≠ d)) :
   refine ext3 (K := K) _ _ _ X (eXi K c r₁ h₁.2) (eXi K d r₂ h₂.2) (eXi K e r₃ h₃.2)
     (stepE_spanned c h₁) (stepE_spanned d h₂) (stepE_spanned e h₃) _ _ fun p x => ?_
   have hp := braid_poly c d e p
-  rw [if_neg hne, sub_eq_zero] at hp
+  rw [ite_eq_right hne, sub_eq_zero] at hp
   rw [braidL_eval, braidR_eval, hp]
 
 /-- **The deformed braid relation in `Flag_N`** (KL III (4.14), Proposition 6.8 / (6.21)): for
@@ -620,7 +618,7 @@ theorem braidQ_three (hcd : c ≠ d) (h₃ : StepR (true, c) r₃ r₂) (ha₂ :
   refine ext3 (K := K) _ _ _ X (eXi K c r₁ h₁.2) (eXi K d r₂ h₂.2) (eXi K c r₃ h₃.2)
     (stepE_spanned c h₁) (stepE_spanned d h₂) (stepE_spanned c h₃) _ _ fun p x => ?_
   have hp := braid_poly c d c p
-  rw [if_pos ⟨rfl, hcd⟩] at hp
+  rw [ite_eq_left ⟨rfl, hcd⟩] at hp
   rw [BHom.sub_apply, braidL_eval, braidR_eval, ← sub_mul, ← map_sub, hp, map_mul, mul_assoc,
     BHom.mulB_apply]
 

@@ -143,8 +143,8 @@ theorem crystalESub_eq_of_isAtom {S : Submodule (KLRAlgebra K Q μ) (ResLeft Q �
     rw [hν'1] at this
     omega
   refine le_antisymm (sSup_le fun T hT => ?_) (le_sSup hS)
-  haveI := isSimpleModule_iff_isAtom.2 hS
-  haveI := isSimpleModule_iff_isAtom.2 (show IsAtom T from hT)
+  have := isSimpleModule_iff_isAtom.2 hS
+  have := isSimpleModule_iff_isAtom.2 (show IsAtom T from hT)
   exact (cor_3_12_socle hν' hν'1 hPQ hP hnil hpos T S).le
 
 omit [IsSimpleModule (KLRAlgebra K Q (μ + ν')) M] in
@@ -159,11 +159,11 @@ theorem exists_isAtom_resLeft_iff [Nontrivial M] :
     obtain ⟨v, hv, hv0⟩ := Submodule.exists_mem_ne_zero_of_ne_bot hS.1
     exact ⟨⟨ResLeft.toRes v, 0, fun h => hv0 (resLeft_toRes_injective h)⟩⟩
   · intro h
-    haveI : Nontrivial (ResLeft Q μ ν' M) := h
-    haveI : IsArtinian (KLRAlgebra K Q μ) (ResLeft Q μ ν' M) :=
+    have : Nontrivial (ResLeft Q μ ν' M) := h
+    have : IsArtinian (KLRAlgebra K Q μ) (ResLeft Q μ ν' M) :=
       isArtinian_of_tower K inferInstance
-    haveI : IsAtomic (Submodule (KLRAlgebra K Q μ) (ResLeft Q μ ν' M)) :=
-      isAtomic_of_orderBot_wellFounded_lt wellFounded_lt
+    have : IsAtomic (Submodule (KLRAlgebra K Q μ) (ResLeft Q μ ν' M)) :=
+      inferInstance
     obtain ⟨S, hS, -⟩ := (eq_bot_or_exists_atom_le
       (⊤ : Submodule (KLRAlgebra K Q μ) (ResLeft Q μ ν' M))).resolve_left top_ne_bot
     exact ⟨S, hS⟩
@@ -172,7 +172,7 @@ include hν' hν'1 hPQ hP hnil in
 /-- **`ẽ_i M` is irreducible** if `ε_i(M) > 0` (Corollary 3.12). -/
 theorem isAtom_crystalESub (hpos : 0 < epsI Q (μ + ν') i M) :
     IsAtom (crystalESub Q μ ν' M) := by
-  haveI := IsSimpleModule.nontrivial (KLRAlgebra K Q (μ + ν')) M
+  have := IsSimpleModule.nontrivial (KLRAlgebra K Q (μ + ν')) M
   obtain ⟨S, hS⟩ := (exists_isAtom_resLeft_iff hν' (M := M)).2 (by rw [hν'1]; exact hpos)
   rw [crystalESub_eq_of_isAtom hν' hν'1 hPQ hP hnil hS]
   exact hS
@@ -194,7 +194,7 @@ include hν' hν'1 hPQ hP hnil in
 /-- **`ẽ_i M ≠ 0 ⟺ ε_i(M) > 0`**. -/
 theorem crystalESub_ne_bot_iff :
     crystalESub Q μ ν' M ≠ ⊥ ↔ 0 < epsI Q (μ + ν') i M := by
-  haveI := IsSimpleModule.nontrivial (KLRAlgebra K Q (μ + ν')) M
+  have := IsSimpleModule.nontrivial (KLRAlgebra K Q (μ + ν')) M
   constructor
   · intro h
     by_contra h0
@@ -206,7 +206,7 @@ include hν' hν'1 hPQ hP hnil in
 /-- **`ε_i(ẽ_i M) = ε_i(M) - 1`** for `ε_i(M) > 0` (Corollary 3.12). -/
 theorem epsI_crystalE (hpos : 0 < epsI Q (μ + ν') i M) :
     epsI Q μ i (CrystalE Q μ ν' M) + 1 = epsI Q (μ + ν') i M := by
-  haveI := isSimpleModule_crystalE hν' hν'1 hPQ hP hnil hpos
+  have := isSimpleModule_crystalE hν' hν'1 hPQ hP hnil hpos
   have := cor_3_12_eps hν' hPQ hP (crystalESub Q μ ν' M)
   rwa [hν'1] at this
 
@@ -249,9 +249,10 @@ theorem epsI_crystalF :
   obtain ⟨P', hP', huniq, heps, -⟩ := lemma_3_9 hν' hPQ hP hnilN
   rw [← heps, ← huniq _ (isCoatom_crystalFRad hν' hPQ hP hnilN).1]
 
+omit [IsSimpleModule (KLRAlgebra K Q μ) N] in
 include hν' hPQ hP in
-instance instFiniteDimensionalCrystalF : FiniteDimensional K (CrystalF Q μ hν' N) :=
-  haveI := finiteDimensional_ind hPQ hP (ExtTensor K N (KLRRep hν' Q)) (Q := Q) (ν := μ)
+theorem instFiniteDimensionalCrystalF : FiniteDimensional K (CrystalF Q μ hν' N) :=
+  have := finiteDimensional_ind hPQ hP (ExtTensor K N (KLRRep hν' Q)) (Q := Q) (ν := μ)
     (ν' := ν')
   inferInstance
 
@@ -273,7 +274,7 @@ theorem nonempty_crystalF_equiv_of_surjective {L : Type*} [AddCommGroup L]
     (hπ : Function.Surjective π) :
     Nonempty (CrystalF Q μ hν' N ≃ₗ[KLRAlgebra K Q (μ + ν')] L) := by
   have hc : IsCoatom (LinearMap.ker π) := by
-    haveI := IsSimpleModule.congr (π.quotKerEquivOfSurjective hπ)
+    have := IsSimpleModule.congr (π.quotKerEquivOfSurjective hπ)
     exact isSimpleModule_iff_isCoatom.1 inferInstance
   have hk := (isCoatom_crystalFRad hν' hPQ hP hnilN).2 _ hc
   exact ⟨(Submodule.quotEquivOfEq _ _ hk.symm).trans (π.quotKerEquivOfSurjective hπ)⟩
@@ -312,9 +313,9 @@ include hν' hν'1 hPQ hP hnilN in
 theorem crystalE_equiv_of_crystalF_equiv
     (ψ : CrystalF Q μ hν' M ≃ₗ[KLRAlgebra K Q (μ + ν')] N) :
     Nonempty (CrystalE Q μ ν' N ≃ₗ[KLRAlgebra K Q μ] M) := by
-  haveI := IsSimpleModule.nontrivial (KLRAlgebra K Q μ) M
-  haveI := IsSimpleModule.nontrivial (KLRAlgebra K Q (μ + ν')) N
-  haveI := isSimpleModule_extTensor hν' (Q := Q) (μ := μ) (V := M)
+  have := IsSimpleModule.nontrivial (KLRAlgebra K Q μ) M
+  have := IsSimpleModule.nontrivial (KLRAlgebra K Q (μ + ν')) N
+  have := isSimpleModule_extTensor hν' (Q := Q) (μ := μ) (V := M)
   let π : Ind Q μ ν' (ExtTensor K M (KLRRep hν' Q)) →ₗ[KLRAlgebra K Q (μ + ν')] N :=
     ψ.toLinearMap ∘ₗ (crystalFRad Q μ hν' M).mkQ
   have hπ : Function.Surjective π :=
@@ -359,7 +360,7 @@ theorem crystalE_equiv_of_crystalF_equiv
     exact extTensor_tmul_ne_zero (K := K) (A := KLRAlgebra K Q μ) (B := KLRAlgebra K Q ν') hm0
       (lMk_one_ne_zero (K := K) (Q := Q) hν') (hg h1)
   let e₁ := LinearEquiv.ofInjective θ hθ
-  haveI : IsSimpleModule (KLRAlgebra K Q μ) (LinearMap.range θ) := IsSimpleModule.congr e₁.symm
+  have : IsSimpleModule (KLRAlgebra K Q μ) (LinearMap.range θ) := IsSimpleModule.congr e₁.symm
   have hat : IsAtom (LinearMap.range θ) := isSimpleModule_iff_isAtom.1 inferInstance
   have heq := crystalESub_eq_of_isAtom hν' hν'1 hPQ hP hnilN hat
   exact ⟨(LinearEquiv.ofEq _ _ heq).trans e₁.symm⟩
@@ -371,20 +372,20 @@ include hν' hν'1 hPQ hP hnilM hnilN in
 theorem crystalF_equiv_of_crystalE_equiv
     (χ : CrystalE Q μ ν' N ≃ₗ[KLRAlgebra K Q μ] M) :
     Nonempty (CrystalF Q μ hν' M ≃ₗ[KLRAlgebra K Q (μ + ν')] N) := by
-  haveI := IsSimpleModule.nontrivial (KLRAlgebra K Q μ) M
-  haveI := IsSimpleModule.nontrivial (KLRAlgebra K Q (μ + ν')) N
-  haveI : Nontrivial (CrystalE Q μ ν' N) := χ.symm.injective.nontrivial
+  have := IsSimpleModule.nontrivial (KLRAlgebra K Q μ) M
+  have := IsSimpleModule.nontrivial (KLRAlgebra K Q (μ + ν')) N
+  have : Nontrivial (CrystalE Q μ ν' N) := χ.symm.injective.nontrivial
   have hpos : 0 < epsI Q (μ + ν') i N :=
     (crystalESub_ne_bot_iff hν' hν'1 hPQ hP hnilN).1
       (Submodule.nontrivial_iff_ne_bot.1 inferInstance)
-  haveI : Nontrivial (ResSub Q μ ν' N) := (nontrivial_resSub_iff hν').2 (by rw [hν'1]; exact hpos)
-  haveI : IsArtinian (TensorKLR Q μ ν') (ResSub Q μ ν' N) := isArtinian_of_tower K inferInstance
-  haveI : IsAtomic (Submodule (TensorKLR Q μ ν') (ResSub Q μ ν' N)) :=
-    isAtomic_of_orderBot_wellFounded_lt wellFounded_lt
+  have : Nontrivial (ResSub Q μ ν' N) := (nontrivial_resSub_iff hν').2 (by rw [hν'1]; exact hpos)
+  have : IsArtinian (TensorKLR Q μ ν') (ResSub Q μ ν' N) := isArtinian_of_tower K inferInstance
+  have : IsAtomic (Submodule (TensorKLR Q μ ν') (ResSub Q μ ν' N)) :=
+    inferInstance
   obtain ⟨S₀, hS₀, -⟩ := (eq_bot_or_exists_atom_le
     (⊤ : Submodule (TensorKLR Q μ ν') (ResSub Q μ ν' N))).resolve_left top_ne_bot
-  haveI : IsSimpleModule (TensorKLR Q μ ν') S₀ := isSimpleModule_iff_isAtom.2 hS₀
-  haveI : FiniteDimensional K S₀ := finiteDimensional_submodule' S₀
+  have : IsSimpleModule (TensorKLR Q μ ν') S₀ := isSimpleModule_iff_isAtom.2 hS₀
+  have : FiniteDimensional K S₀ := finiteDimensional_submodule' S₀
   have hnilS₀ := fun b => smulNilpotent_submodule S₀ (smulNilpotent_resSub (μ := μ) b (hnilN _))
   have hHW : IsSimpleModule (KLRAlgebra K Q μ) (HWSpace Q μ ν' S₀) :=
     isSimpleModule_hwSpace hν' hPQ hP (S := S₀) hnilS₀
@@ -396,7 +397,7 @@ theorem crystalF_equiv_of_crystalE_equiv
   have hθ : Function.Injective θ := fun w w' h =>
     Subtype.ext (Subtype.ext (resLeft_toRes_injective h))
   let e₁ := LinearEquiv.ofInjective θ hθ
-  haveI : IsSimpleModule (KLRAlgebra K Q μ) (LinearMap.range θ) :=
+  have : IsSimpleModule (KLRAlgebra K Q μ) (LinearMap.range θ) :=
     @IsSimpleModule.congr _ _ _ _ _ _ _ _ e₁.symm hHW
   have hat : IsAtom (LinearMap.range θ) := isSimpleModule_iff_isAtom.1 inferInstance
   have heq := crystalESub_eq_of_isAtom hν' hν'1 hPQ hP hnilN hat
@@ -452,8 +453,8 @@ theorem cor_3_16_f
     (hnilM' : ∀ a, SmulNilpotent (x a : KLRAlgebra K Q μ) M') :
     Nonempty (CrystalF Q μ hν' M ≃ₗ[KLRAlgebra K Q (μ + ν')] CrystalF Q μ hν' M') ↔
       Nonempty (M ≃ₗ[KLRAlgebra K Q μ] M') := by
-  haveI := isSimpleModule_crystalF hν' hPQ hP hnilM'
-  haveI := instFiniteDimensionalCrystalF hν' hPQ hP (μ := μ) (N := M')
+  have := isSimpleModule_crystalF hν' hPQ hP hnilM'
+  have := instFiniteDimensionalCrystalF hν' hPQ hP (μ := μ) (N := M')
   have hnilF := smulNilpotent_crystalF hν' hPQ hP hnilM'
   obtain ⟨χ'⟩ := crystalE_equiv_of_crystalF_equiv hν' hν'1 hPQ hP hnilF
     (LinearEquiv.refl _ _)
@@ -481,8 +482,8 @@ theorem cor_3_16_e
     (hpos' : 0 < epsI Q (μ + ν') i N') :
     Nonempty (CrystalE Q μ ν' N ≃ₗ[KLRAlgebra K Q μ] CrystalE Q μ ν' N') ↔
       Nonempty (N ≃ₗ[KLRAlgebra K Q (μ + ν')] N') := by
-  haveI := isSimpleModule_crystalE hν' hν'1 hPQ hP hnilN' hpos'
-  haveI : FiniteDimensional K (CrystalE Q μ ν' N') := finiteDimensional_submodule' _
+  have := isSimpleModule_crystalE hν' hν'1 hPQ hP hnilN' hpos'
+  have : FiniteDimensional K (CrystalE Q μ ν' N') := finiteDimensional_submodule' _
   have hnilE := smulNilpotent_crystalE hnilN'
   obtain ⟨ψ'⟩ := crystalF_equiv_of_crystalE_equiv hν' hν'1 hPQ hP hnilE hnilN'
     (LinearEquiv.refl _ _)

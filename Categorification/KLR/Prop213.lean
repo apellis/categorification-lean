@@ -125,14 +125,14 @@ theorem mul_ψ_mul_x (y : A) (j : ℕ) (a : Fin m) (h₁ : (a : ℕ) ≠ j) (h�
 
 theorem mul_ψ_mul_ψ_mul_e_of_eq (y : A) {t : Seq ν} {j : ℕ} (h : j + 1 < m)
     (ht : t.lbl ⟨j, by omega⟩ = t.lbl ⟨j + 1, h⟩) : y * ψ j * ψ j * e t = 0 := by
-  rw [mul_assoc, mul_assoc, ← mul_assoc (ψ j), ψ_sq j h, if_pos ht, mul_zero]
+  rw [mul_assoc, mul_assoc, ← mul_assoc (ψ j), ψ_sq j h, ite_eq_left ht, mul_zero]
 
 /-- `ψ_j x_j ψ_j 1_t = ψ_j 1_t` for `t_j = t_{j+1}`. -/
 theorem mul_ψ_mul_x_mul_ψ_mul_e_left (y : A) {t : Seq ν} {j : ℕ} (h : j + 1 < m)
     (ht : t.lbl ⟨j, by omega⟩ = t.lbl ⟨j + 1, h⟩) :
     y * ψ j * x ⟨j, by omega⟩ * ψ j * e t = y * ψ j * e t := by
   have h1 := dot_cross_right (Q := Q) j h t
-  rw [if_pos ht, sub_mul, sub_eq_iff_eq_add] at h1
+  rw [ite_eq_left ht, sub_mul, sub_eq_iff_eq_add] at h1
   calc y * ψ j * x ⟨j, by omega⟩ * ψ j * e t
       = y * (ψ j * x ⟨j, by omega⟩ * e t) * ψ j := by
         rw [mul_assoc (y * ψ j * x _), ← e_mul_ψ_of_eq h ht]; simp only [mul_assoc]
@@ -147,7 +147,7 @@ theorem mul_ψ_mul_x_mul_ψ_mul_e_right (y : A) {t : Seq ν} {j : ℕ} (h : j + 
     (ht : t.lbl ⟨j, by omega⟩ = t.lbl ⟨j + 1, h⟩) :
     y * ψ j * x ⟨j + 1, h⟩ * ψ j * e t = -(y * ψ j * e t) := by
   have h1 := dot_cross_left (Q := Q) j h t
-  rw [if_pos ht, sub_mul, sub_eq_iff_eq_add, ← sub_eq_iff_eq_add'] at h1
+  rw [ite_eq_left ht, sub_mul, sub_eq_iff_eq_add, ← sub_eq_iff_eq_add'] at h1
   calc y * ψ j * x ⟨j + 1, h⟩ * ψ j * e t
       = y * (ψ j * x ⟨j + 1, h⟩ * e t) * ψ j := by
         rw [mul_assoc (y * ψ j * x _), ← e_mul_ψ_of_eq h ht]; simp only [mul_assoc]
@@ -315,7 +315,7 @@ noncomputable def b1Right (h : j + 2 < m) : A := ψ j * ψ (j + 1) * idemJI2 t h
 omit [DecidableEq I] [DecidableRel Γ.Adj] in
 theorem lblU_eq (h : j + 2 < m) (ht : t.lbl ⟨j, by omega⟩ = t.lbl ⟨j + 2, h⟩) :
     (sadj m (j + 1) • t).lbl ⟨j, by omega⟩ = (sadj m (j + 1) • t).lbl ⟨j + 1, by omega⟩ := by
-  rw [lbl_sadj_of_ne t _ (by simp only [Fin.val_mk]; omega) (by simp only [Fin.val_mk]; omega),
+  rw [lbl_sadj_of_ne t _ (by simp only []; omega) (by simp only []; omega),
     lbl_sadj_left (show j + 1 + 1 < m by omega)]
   exact ht
 
@@ -332,7 +332,7 @@ omit [DecidableEq I] [DecidableRel Γ.Adj] in
 theorem lblV_eq (h : j + 2 < m) (ht : t.lbl ⟨j, by omega⟩ = t.lbl ⟨j + 2, h⟩) :
     (sadj m j • t).lbl ⟨j + 1, by omega⟩ = (sadj m j • t).lbl ⟨j + 1 + 1, by omega⟩ := by
   rw [lbl_sadj_right (show j + 1 < m by omega),
-    lbl_sadj_of_ne t _ (by simp only [Fin.val_mk]; omega) (by simp only [Fin.val_mk]; omega)]
+    lbl_sadj_of_ne t _ (by simp only []; omega) (by simp only []; omega)]
   exact ht
 
 omit [DecidableEq I] [DecidableRel Γ.Adj] in
@@ -411,10 +411,10 @@ theorem b1Left_mul_b0Top_add_b1Right_mul_b0Bot (h : j + 2 < m)
   exact KL1.braid_hard j h t ht hadj
 
 theorem b0Top_mul_e : (b0Top t h * e t : A) = b0Top t h := by
-  simp only [b0Top, idemI2J, ← mul_assoc, mul_e_mul_ψ, sadj_smul_smul, mul_e_mul_e]
+  simp only [b0Top, idemI2J, mul_e_mul_ψ, sadj_smul_smul, mul_e_mul_e]
 
 theorem b0Bot_mul_e : (b0Bot t h * e t : A) = b0Bot t h := by
-  simp only [b0Bot, idemJI2, ← mul_assoc, mul_e_mul_ψ, sadj_smul_smul, mul_e_mul_e]
+  simp only [b0Bot, idemJI2, mul_e_mul_ψ, sadj_smul_smul, mul_e_mul_e]
 
 /-- The pair `(B₀ top entry, B₁ left entry)` exhibits `1_{…i⁽²⁾j…} ~ f₁`,
 `f₁ = -ψ_{j+1} ψ_j ψ_{j+1} 1_{…iji…}`. -/
@@ -631,10 +631,10 @@ section degrees
 variable {t : Seq ν} {bs : List (ℕ × ℕ)} {j : ℕ}
 
 theorem cartan_of_adj {a b : I} (hab : Γ.Adj a b) : cartan Γ a b = -1 := by
-  rw [cartan, if_neg (Γ.ne_of_adj hab), if_pos hab]
+  rw [cartan, ite_eq_right (Γ.ne_of_adj hab), ite_eq_left hab]
 
 theorem cartan_of_not_adj {a b : I} (hne : a ≠ b) (hab : ¬ Γ.Adj a b) : cartan Γ a b = 0 := by
-  rw [cartan, if_neg hne, if_neg hab]
+  rw [cartan, ite_eq_right hne, ite_eq_right hab]
 
 theorem x_mul_e_mem_grade_two (a : Fin m) (s : Seq ν) : (x a * e s : A) ∈
     (klGradingDatum k Γ).grade ν 2 :=
@@ -696,14 +696,16 @@ theorem prop213_degrees (h : j + 2 < m) (ht : t.lbl ⟨j, by omega⟩ = t.lbl �
       (ψ_mul_e_mem_grade_of_eq (k := k) (Γ := Γ) h1 hu))
       (ψ_mul_e_mem_grade_of_adj (k := k) (Γ := Γ) h2 hta)
     convert this using 2
-    simp only [b0Top, idemI2J, ← mul_assoc, mul_e_mul_x, mul_e_mul_ψ, mul_e_mul_e, sadj_smul_smul,
+    · norm_num
+    simp only [b0Top, idemI2J, ← mul_assoc, mul_e_mul_ψ, mul_e_mul_e, sadj_smul_smul,
       hsu]
   · have := SetLike.mul_mem_graded (SetLike.mul_mem_graded
       (x_mul_e_mem_grade_two (k := k) (Γ := Γ) ⟨j + 1, by omega⟩ (sadj m j • t))
       (ψ_mul_e_mem_grade_of_eq (k := k) (Γ := Γ) h2 hv))
       (ψ_mul_e_mem_grade_of_adj (k := k) (Γ := Γ) h1 hadj)
     convert this using 2
-    simp only [b0Bot, idemJI2, ← mul_assoc, mul_e_mul_x, mul_e_mul_ψ, mul_e_mul_e, sadj_smul_smul,
+    · norm_num
+    simp only [b0Bot, idemJI2, ← mul_assoc, mul_e_mul_ψ, mul_e_mul_e, sadj_smul_smul,
       hsv]
   · have := SetLike.mul_mem_graded (SetLike.mul_mem_graded (SetLike.mul_mem_graded
       (ψ_mul_e_mem_grade_of_adj (k := k) (Γ := Γ) h2 hua)
@@ -745,14 +747,14 @@ theorem prop213_neg_one_degrees (hb : IsBlocks t bs) (h : j + 2 < m)
       rw [← hy, ← mul_assoc, ← zero_add d]
       exact SetLike.mul_mem_graded (divIdem_mem_grade _ hs) hd
   refine ⟨key hbu ?_ d1, key hbv ?_ d2, key hb ?_ d3, key hb ?_ d4⟩
-  · simp only [b0Top, idemI2J, ← mul_assoc, e_mul_x, e_mul_ψ, mul_e_mul_x, mul_e_mul_ψ,
+  · simp only [b0Top, idemI2J, ← mul_assoc, e_mul_x, mul_e_mul_ψ,
       mul_e_mul_e, sadj_smul_smul, hsu]
-  · simp only [b0Bot, idemJI2, ← mul_assoc, e_mul_x, e_mul_ψ, mul_e_mul_x, mul_e_mul_ψ,
+  · simp only [b0Bot, idemJI2, ← mul_assoc, e_mul_x, mul_e_mul_ψ,
       mul_e_mul_e, sadj_smul_smul, hsv]
-  · simp only [b1Left, idemI2J, mul_neg, ← mul_assoc, e_mul_x, e_mul_ψ, mul_e_mul_x,
-      mul_e_mul_ψ, mul_e_mul_e, sadj_smul_smul, hsu]
-  · simp only [b1Right, idemJI2, ← mul_assoc, e_mul_x, e_mul_ψ, mul_e_mul_x, mul_e_mul_ψ,
-      mul_e_mul_e, sadj_smul_smul, hsv]
+  · simp only [b1Left, idemI2J, mul_neg, ← mul_assoc, e_mul_ψ, mul_e_mul_x,
+      mul_e_mul_ψ, mul_e_mul_e, hsu]
+  · simp only [b1Right, idemJI2, ← mul_assoc, e_mul_ψ, mul_e_mul_x, mul_e_mul_ψ,
+      mul_e_mul_e, hsv]
 
 /-- In the case `i · j = 0` the crossings `F ψ_j 1_{…ji…}` and `F ψ_j 1_{…ij…}` of
 `prop213_zero` have degree `0`. -/

@@ -185,7 +185,7 @@ theorem runKey_eq_cons_of_tail (l : List I) (i : I) (y : ℕ) (hy : 1 ≤ y) (hy
   have htake : (l.take (l.length - y)).getLast? ≠ some i := by
     rcases Nat.lt_or_ge y l.length with h | h
     · rw [List.getLast?_eq_getElem?, List.length_take, Nat.min_eq_left (by omega),
-        List.getElem?_take, if_pos (by omega)]
+        List.getElem?_take, ite_eq_left (by omega)]
       rw [show l.length - y - 1 = l.length - y - 1 from rfl, List.getElem?_eq_getElem (by omega)]
       exact fun h' => hmax h (Option.some_injective _ h')
     · rw [show l.length - y = 0 by omega, List.take_zero]
@@ -279,7 +279,7 @@ theorem evalOne_invert (p : LaurentPolynomial ℤ) : evalOne (invert p) = evalOn
 
 theorem evalOne_qint (n : ℕ) : evalOne (QuantumGroup.qint qUnitLP n) = n := by
   rw [qint_qUnitLP, map_sum]
-  simp [evalOne_T]
+  simp
 
 theorem evalOne_qfact (n : ℕ) : evalOne (QuantumGroup.qfact qUnitLP n) = n.factorial := by
   induction n with
@@ -297,44 +297,44 @@ theorem evalOne_divQFactLP (d : List (I × ℕ)) :
   simp [evalOne_qfact]
 
 /-- A Laurent polynomial with nonnegative coefficients vanishing at `q = 1` is zero. -/
-theorem eq_zero_of_evalOne_eq_zero {p : LaurentPolynomial ℤ} (hp : ∀ n, 0 ≤ p n)
+theorem eq_zero_of_evalOne_eq_zero {p : LaurentPolynomial ℤ} (hp : ∀ n, 0 ≤ p.coeff n)
     (h : evalOne p = 0) : p = 0 := by
   rw [evalOne_eq_sum, Finsupp.sum] at h
   have := (Finset.sum_eq_zero_iff_of_nonneg fun n _ => hp n).1 h
   ext n
-  by_cases hn : n ∈ p.support
+  by_cases hn : n ∈ p.coeff.support
   · exact this n hn
-  · exact Finsupp.not_mem_support_iff.1 hn
+  · exact Finsupp.notMem_support_iff.1 hn
 
 /-- A Laurent polynomial with nonnegative coefficients taking the value `1` at `q = 1` is a
 monomial `q^n`. -/
-theorem exists_eq_T_of_evalOne_eq_one {p : LaurentPolynomial ℤ} (hp : ∀ n, 0 ≤ p n)
+theorem exists_eq_T_of_evalOne_eq_one {p : LaurentPolynomial ℤ} (hp : ∀ n, 0 ≤ p.coeff n)
     (h : evalOne p = 1) : ∃ n, p = T n := by
   classical
   rw [evalOne_eq_sum, Finsupp.sum] at h
-  obtain ⟨n, hn⟩ : p.support.Nonempty := by
+  obtain ⟨n, hn⟩ : p.coeff.support.Nonempty := by
     rw [Finset.nonempty_iff_ne_empty]
     intro he
     rw [he, Finset.sum_empty] at h
     exact zero_ne_one h
   rw [← Finset.add_sum_erase _ _ hn] at h
-  have hrest := Finset.sum_nonneg (s := p.support.erase n) fun m _ => hp m
-  have hpn : 1 ≤ p n := by
+  have hrest := Finset.sum_nonneg (s := p.coeff.support.erase n) fun m _ => hp m
+  have hpn : 1 ≤ p.coeff n := by
     have := Finsupp.mem_support_iff.1 hn
     have := hp n
     omega
-  have hpn1 : p n = 1 := by omega
-  have hzero := (Finset.sum_eq_zero_iff_of_nonneg (s := p.support.erase n)
+  have hpn1 : p.coeff n = 1 := by omega
+  have hzero := (Finset.sum_eq_zero_iff_of_nonneg (s := p.coeff.support.erase n)
     fun m _ => hp m).1 (by omega)
   refine ⟨n, ?_⟩
   ext m
-  rw [T, Finsupp.single_apply]
+  rw [T, AddMonoidAlgebra.coeff_single, Finsupp.single_apply]
   by_cases hm : n = m
-  · subst hm; rw [if_pos rfl, hpn1]
-  · rw [if_neg hm]
-    by_cases hms : m ∈ p.support
+  · subst hm; rw [ite_eq_left rfl, hpn1]
+  · rw [ite_eq_right hm]
+    by_cases hms : m ∈ p.coeff.support
     · exact hzero m (Finset.mem_erase.2 ⟨Ne.symm hm, hms⟩)
-    · exact Finsupp.not_mem_support_iff.1 hms
+    · exact Finsupp.notMem_support_iff.1 hms
 
 end EvalOne
 
@@ -344,7 +344,7 @@ end EvalOne
 `m_{bc} ≠ 0 ⇒ key(b) ≤ key(c)` for an injective `key` into a linear order and the diagonal
 entries are units, then every basis vector lies in the span of the `x_b`. -/
 theorem basis_mem_span_of_triangular {R M B β : Type*} [CommRing R] [AddCommGroup M]
-    [Module R M] [Fintype B] [DecidableEq B] [LinearOrder β] (e : Basis B R M) (x : B → M)
+    [Module R M] [Fintype B] [DecidableEq B] [LinearOrder β] (e : Module.Basis B R M) (x : B → M)
     (key : B → β) (hkey : Function.Injective key)
     (htri : ∀ b c, e.repr (x b) c ≠ 0 → key b ≤ key c) (hdiag : ∀ b, IsUnit (e.repr (x b) b))
     (b : B) : e b ∈ Submodule.span R (Set.range x) := by
@@ -426,7 +426,7 @@ theorem epsI_eq_tailLen_of_isKeyMax [Nontrivial M] {s : Seq ν} (hs : IsKeyMax Q
   have hle := tailLen_le_epsI (Q := Q) (ν := ν) (M := M) (i := i) (mem_seqSupp.1 hs.1)
   refine le_antisymm ?_ hle
   by_contra hlt
-  push_neg at hlt
+  push Not at hlt
   obtain ⟨t, ht, hte⟩ := exists_tailLen_eq_epsI (Q := Q) (ν := ν) (i := i) (M := M)
   obtain ⟨r, hr⟩ := seqKey_eq_cons rk s i hy
   obtain ⟨r', hr'⟩ := seqKey_eq_cons rk t i (by omega)
@@ -455,7 +455,7 @@ include hPQ hP hnil hε in
 theorem mem_seqSupp_hw_iff (j : Seq μ) :
     j ∈ seqSupp Q μ (HWSpace Q μ ν' (ResSub Q μ ν' L)) ↔
       j.append (Seq.constSeq hν') ∈ seqSupp Q (μ + ν') L := by
-  haveI : FiniteDimensional K (HWSpace Q μ ν' (ResSub Q μ ν' L)) :=
+  have : FiniteDimensional K (HWSpace Q μ ν' (ResSub Q μ ν' L)) :=
     FiniteDimensional.finiteDimensional_submodule _
   rw [mem_seqSupp_iff_dimCh, mem_seqSupp_iff_dimCh, dimCh_append_const hν' hPQ hP hnil hε j]
   have hd : Module.finrank K (KLRRep hν' Q) ≠ 0 := by
@@ -505,11 +505,11 @@ theorem isKeyMax_aux (n : ℕ) : ∀ (ν : Multiset I), Multiset.card ν = n →
   induction n using Nat.strong_induction_on with
   | _ n ih =>
   intro ν hν L _ _ _ _ _ _ hnil s hs
-  haveI : Nontrivial L := IsSimpleModule.nontrivial (KLRAlgebra K Q ν) L
+  have : Nontrivial L := IsSimpleModule.nontrivial (KLRAlgebra K Q ν) L
   rcases Nat.eq_zero_or_pos n with hn | hn
   · subst hn
     refine ⟨?_, fun L' _ _ _ _ _ _ _ _ => nonempty_equiv_of_card_eq_zero hν⟩
-    haveI := subsingleton_seq_of_card_eq_zero (ν := ν) hν
+    have := subsingleton_seq_of_card_eq_zero (ν := ν) hν
     have he : (e s : KLRAlgebra K Q ν) = 1 := by rw [← sum_e, Fintype.sum_subsingleton _ s]
     have hnil' : List.ofFn s.1 = [] := List.eq_nil_of_length_eq_zero (by simp [hν])
     rw [dimCh, he, fixSub_one, finrank_top, finrank_eq_one_of_card_eq_zero (Q := Q) hν, runsFact,
@@ -542,8 +542,8 @@ theorem isKeyMax_aux (n : ℕ) : ∀ (ν : Multiset I), Multiset.card ν = n →
   have hn1 : 1 ≤ Multiset.card ν' := by omega
   -- `N = HW(Δ_{i^ε} L)`
   set N := HWSpace Q μ ν' (ResSub Q μ ν' L)
-  haveI : IsSimpleModule (KLRAlgebra K Q μ) N := (lemma_3_8 hν' hPQ hP hnil hε).2.1
-  haveI : FiniteDimensional K N := FiniteDimensional.finiteDimensional_submodule _
+  have : IsSimpleModule (KLRAlgebra K Q μ) N := (lemma_3_8 hν' hPQ hP hnil hε).2.1
+  have : FiniteDimensional K N := FiniteDimensional.finiteDimensional_submodule _
   have hNnil : ∀ a : Fin (Multiset.card μ), SmulNilpotent (x a : KLRAlgebra K Q μ) N :=
     fun a => smulNilpotent_hwSpace a (hnil _)
   have hμcard : Multiset.card μ < n := by
@@ -561,14 +561,14 @@ theorem isKeyMax_aux (n : ℕ) : ∀ (ν : Multiset I), Multiset.card ν = n →
       runs_append_replicate hn1 (getLast?_ofFn_ne s' htail0), List.map_append, List.prod_append]
     simp
   · -- the isomorphism
-    haveI : Nontrivial L' := IsSimpleModule.nontrivial (KLRAlgebra K Q (μ + ν')) L'
+    have : Nontrivial L' := IsSimpleModule.nontrivial (KLRAlgebra K Q (μ + ν')) L'
     have hy' : Seq.tailLen i (s'.append (Seq.constSeq hν')) = Multiset.card ν' := by
       rw [hcard, hεdef]
     have hε' : epsI Q (μ + ν') i L' = Multiset.card ν' := by
       rw [epsI_eq_tailLen_of_isKeyMax rk hs' (by omega), hy']
     set N' := HWSpace Q μ ν' (ResSub Q μ ν' L')
-    haveI : IsSimpleModule (KLRAlgebra K Q μ) N' := (lemma_3_8 hν' hPQ hP hnil' hε').2.1
-    haveI : FiniteDimensional K N' := FiniteDimensional.finiteDimensional_submodule _
+    have : IsSimpleModule (KLRAlgebra K Q μ) N' := (lemma_3_8 hν' hPQ hP hnil' hε').2.1
+    have : FiniteDimensional K N' := FiniteDimensional.finiteDimensional_submodule _
     have hNnil' : ∀ a : Fin (Multiset.card μ), SmulNilpotent (x a : KLRAlgebra K Q μ) N' :=
       fun a => smulNilpotent_hwSpace a (hnil' _)
     have hsN' := isKeyMax_hw hPQ hP rk hν' hnil' hε' hn1 hs'
@@ -583,7 +583,7 @@ end KLRAlgebra
 
 namespace KLGamma
 
-open Graded LaurentPolynomial QuantumGroup
+open Categorification.Graded LaurentPolynomial QuantumGroup
 
 variable [DecidableEq I] (k : Type*) [Field k] (Γ : SimpleGraph I) [DecidableRel Γ.Adj]
 
@@ -600,11 +600,11 @@ theorem pairing_g0B {ν : Multiset I} (z : K0 ((Gkl).grade ν))
     (c : GProj.IndecClass ((Gkl).grade ν)) :
     pairing z (g0B k Γ ν c) = toLaurentSeries (invert ((k0B k Γ ν).repr z c)) := by
   classical
-  haveI := ((Gkl).finite_and_card_indecClass_le (klQ_eq_klP (Γ := Γ) KL1.stdOrient_spec)
+  have := ((Gkl).finite_and_card_indecClass_le (klQ_eq_klP (Γ := Γ) KL1.stdOrient_spec)
     (fun a b _ => KL1.klP_ne_zero _ a b) KL1.klGradingDatum_degX_pos ν).1
-  haveI := Fintype.ofFinite (GProj.IndecClass ((Gkl).grade ν))
+  have := Fintype.ofFinite (GProj.IndecClass ((Gkl).grade ν))
   conv_lhs => rw [← (k0B k Γ ν).sum_repr z]
-  rw [map_sum, AddMonoidHom.finset_sum_apply]
+  rw [map_sum, AddMonoidHom.finsetSum_apply]
   have hterm : ∀ b', pairing ((k0B k Γ ν).repr z b' • k0B k Γ ν b') (g0B k Γ ν c) =
       toLaurentSeries (invert ((k0B k Γ ν).repr z b') *
         LaurentPolynomial.C (if b' = c then 1 else 0)) := fun b' => by
@@ -612,8 +612,8 @@ theorem pairing_g0B {ν : Multiset I} (z : K0 ((Gkl).grade ν))
     rw [GradingDatum.pairing_k0Basis_g0Basis_eq, toLaurentSeries_C]
     split_ifs <;> simp [HahnSeries.single_zero_one]
   simp only [hterm]
-  rw [Finset.sum_eq_single c (fun b' _ hb' => by rw [if_neg hb', map_zero, mul_zero, map_zero])
-    (fun h => absurd (Finset.mem_univ c) h), if_pos rfl, map_one, mul_one]
+  rw [Finset.sum_eq_single c (fun b' _ hb' => by rw [ite_eq_right hb', map_zero, mul_zero, map_zero])
+    (fun h => absurd (Finset.mem_univ c) h), ite_eq_left rfl, map_one, mul_one]
 
 /-- `ch(S_c)_j = \overline{a_{j c}}` where `[P_j] = ∑_c a_{j c} [P_c]`. -/
 theorem chG0_g0B_eq {ν : Multiset I} (j : Seq ν) (c : GProj.IndecClass ((Gkl).grade ν)) :
@@ -667,9 +667,9 @@ theorem prop_3_20 (ν : Multiset I) :
       ∀ b, ∃ n : ℤ, pairing (K0.of (projDiv k Γ (θ b) (hθ b))) (g0B k Γ ν b) =
         HahnSeries.single n 1 := by
   classical
-  haveI := ((Gkl).finite_and_card_indecClass_le (klQ_eq_klP (Γ := Γ) KL1.stdOrient_spec)
+  have := ((Gkl).finite_and_card_indecClass_le (klQ_eq_klP (Γ := Γ) KL1.stdOrient_spec)
     (fun a b _ => KL1.klP_ne_zero _ a b) KL1.klGradingDatum_degX_pos ν).1
-  haveI := Fintype.ofFinite (GProj.IndecClass ((Gkl).grade ν))
+  have := Fintype.ofFinite (GProj.IndecClass ((Gkl).grade ν))
   let rk : I → Cardinal := embeddingToCardinal
   have hrk : Function.Injective rk := embeddingToCardinal.injective
   have hyp := fun c : GProj.IndecClass ((Gkl).grade ν) =>
@@ -678,8 +678,8 @@ theorem prop_3_20 (ν : Multiset I) :
       (GProj.IndecClass.isGradedSimple_top c)
   have hex : ∀ c : GProj.IndecClass ((Gkl).grade ν), ∃ s, IsKeyMax (K := k) (klQ Γ) rk ν c.top s :=
     fun c => by
-      haveI := (hyp c).2.1
-      haveI := IsSimpleModule.nontrivial (KLRAlgebra k (klQ Γ) ν) c.top
+      have := (hyp c).2.1
+      have := IsSimpleModule.nontrivial (KLRAlgebra k (klQ Γ) ν) c.top
       exact exists_isKeyMax rk
   choose s hs using hex
   have hθ : ∀ c, (expandDiv (runs (List.ofFn (s c).1)) : Multiset I) = ν := fun c => by
@@ -697,23 +697,23 @@ theorem prop_3_20 (ν : Multiset I) :
     intro b c
     rw [chG0_g0B_eq, hPx, map_smul, Finsupp.smul_apply, smul_eq_mul]
   have hnonneg : ∀ (j : Seq ν) (c : GProj.IndecClass ((Gkl).grade ν)) (n : ℤ),
-      0 ≤ chG0 (Gkl) j (g0B k Γ ν c) n := by
+      0 ≤ (chG0 (Gkl) j (g0B k Γ ν c)).coeff n := by
     intro j c n
-    haveI := (hyp c).1
-    letI := idemDecomposition c.top.grading ((Gkl).e_mem_grade j)
+    have := (hyp c).1
+    let := idemDecomposition c.top.grading ((Gkl).e_mem_grade j)
     rw [chG0_g0B_eq_gdimPoly, gdimPoly_apply]
     exact Nat.cast_nonneg _
   have hevch : ∀ (j : Seq ν) (c : GProj.IndecClass ((Gkl).grade ν)),
       evalOne (chG0 (Gkl) j (g0B k Γ ν c)) = dimCh (K := k) (klQ Γ) ν c.top j := by
     intro j c
-    haveI := (hyp c).1
+    have := (hyp c).1
     rw [chG0_g0B_eq_gdimPoly]
     exact evalOne_gdimPoly_idem (Gkl) c.top.grading j
   -- the key of `b`
   let key : GProj.IndecClass ((Gkl).grade ν) → List (Cardinal ×ₗ ℕ) := fun c => seqKey rk (s c)
   have htri : ∀ b c, (k0B k Γ ν).repr (x b) c ≠ 0 → key b ≤ key c := by
     intro b c hm
-    haveI := (hyp c).1
+    have := (hyp c).1
     refine (hs c).2 (s b) (mem_seqSupp_iff_dimCh.2 fun h0 => hm ?_)
     have hzero : chG0 (Gkl) (s b) (g0B k Γ ν c) = 0 :=
       eq_zero_of_evalOne_eq_zero (hnonneg _ c) (by rw [hevch, h0]; rfl)
@@ -722,11 +722,11 @@ theorem prop_3_20 (ν : Multiset I) :
     exact (mul_eq_zero.1 this).resolve_left (divQFactLP_ne_zero _)
   have hdiag : ∀ b, ∃ n, (k0B k Γ ν).repr (x b) b = T n := by
     intro b
-    haveI := (hyp b).1
-    haveI := (hyp b).2.1
+    have := (hyp b).1
+    have := (hyp b).2.1
     set m := (k0B k Γ ν).repr (x b) b
     -- `m` has nonnegative coefficients: `(x_b, [S_b]) = \bar m = gdim HOM(P_{θ_b}, S_b)`
-    have hm0 : ∀ n, 0 ≤ m n := by
+    have hm0 : ∀ n, 0 ≤ m.coeff n := by
       intro n
       have h1 := pairing_g0B k Γ (x b) b
       rw [g0B, GradingDatum.g0Basis, G0.topBasis_apply, hxdef, pairing_of_of] at h1
@@ -752,15 +752,15 @@ theorem prop_3_20 (ν : Multiset I) :
   have hkey : Function.Injective key := by
     intro b c h
     have hsc : s b = s c := seqKey_injective rk hrk h
-    haveI := (hyp b).1
-    haveI := (hyp b).2.1
-    haveI := (hyp c).1
-    haveI := (hyp c).2.1
+    have := (hyp b).1
+    have := (hyp b).2.1
+    have := (hyp c).1
+    have := (hyp c).2.1
     have hsc' : IsKeyMax (K := k) (klQ Γ) rk ν c.top (s b) := hsc ▸ hs c
     obtain ⟨φ⟩ := (isKeyMax_aux (klQ_eq_klP (Γ := Γ) KL1.stdOrient_spec)
       (fun a b _ => KL1.klP_ne_zero _ a b) rk _ ν rfl b.top (hyp b).2.2 (s b) (hs b)).2
       c.top (hyp c).2.2 hsc'
-    haveI := IsSimpleModule.nontrivial (KLRAlgebra k (klQ Γ) ν) b.top
+    have := IsSimpleModule.nontrivial (KLRAlgebra k (klQ Γ) ν) b.top
     have hφ : φ.toLinearMap ≠ 0 := by
       intro h0
       obtain ⟨v, hv⟩ := exists_ne (0 : b.top)
@@ -787,9 +787,9 @@ theorem k0B_mem_span_projDiv (ν : Multiset I) (b : GProj.IndecClass ((Gkl).grad
       {z | ∃ (d : List (I × ℕ)) (h : (expandDiv d : Multiset I) = ν),
         z = K0.of (projDiv k Γ d h)} := by
   classical
-  haveI := ((Gkl).finite_and_card_indecClass_le (klQ_eq_klP (Γ := Γ) KL1.stdOrient_spec)
+  have := ((Gkl).finite_and_card_indecClass_le (klQ_eq_klP (Γ := Γ) KL1.stdOrient_spec)
     (fun a b _ => KL1.klP_ne_zero _ a b) KL1.klGradingDatum_degX_pos ν).1
-  haveI := Fintype.ofFinite (GProj.IndecClass ((Gkl).grade ν))
+  have := Fintype.ofFinite (GProj.IndecClass ((Gkl).grade ν))
   obtain ⟨θ, hθ, key, hkey, htri, hdiag⟩ := prop_3_20 k Γ ν
   set x := fun c => K0.of (projDiv k Γ (θ c) (hθ c)) with hx
   have htri' : ∀ b c, (k0B k Γ ν).repr (x b) c ≠ 0 → key b ≤ key c := fun b c hm =>

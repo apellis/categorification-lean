@@ -125,12 +125,8 @@ theorem cor0Neg_step {s : ℤ} (hs : S.wt (s + 1 + 1) ≤ 0) (h : S.AdjHyp s) (l
           (h.dimAdj S).right, finrank_hom_congr_left k (whiskerLeftShiftIso _ _ _),
           finrank_hom_shift_shift k _ _ (c := l + 2 * S.wt (s + 1) + 2) (by omega)]
       · refine Finset.sum_congr rfl fun j _ => finrank_hom_shift_shift k _ _ ?_
-        change _ + -(S.wt (s + 1 + 1) + 1 + l) =
-          1 * (((-S.wt (s + 1)).toNat : ℤ) - 1 - 2 * (j : ℤ))
         rw [hM1]; omega
       · refine Finset.sum_congr rfl fun j _ => finrank_hom_shift_shift k _ _ ?_
-        change _ + -(S.wt (s + 1 + 1) + 1 + l) =
-          1 * (((-S.wt (s + 1 + 1)).toNat : ℤ) - 1 - 2 * (j : ℤ))
         rw [hM2]; omega
 
 /-- **Corollary 3.2 for `n ≤ 0`** (CL Remark 3.11), degrees `< -2`: assuming (3.2) for all weights

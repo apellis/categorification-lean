@@ -120,6 +120,7 @@ local macro "eval_relation" : tactic => `(tactic| (
 local macro "eval_apply" : tactic => `(tactic| simp only [LinearMap.sub_apply,
   LinearMap.comp_apply, LinearMap.id_apply, LinearMap.zero_apply, LinearMap.mulLeft_apply])
 
+set_option backward.isDefEq.respectTransparency false in
 theorem polyLocal_rel (r : (pres k).Rel) (u : Obj sig) (v : List sig.Colour) :
     (polyLocal k).evalW () () u v ((pres k).rel r) = 0 := by
   cases r
@@ -147,7 +148,7 @@ theorem polyLocal_interchange (d : InterchangeData sig) (hd : d.Valid) (u : Obj 
     (polyLocal k).evalW () () u v (InterchangeData.rel k hd) = 0 := by
   refine (polyLocal k).evalW_interchange_eq_zero_of_comm (fun s l m r g g' => ?_) d hd u v
   have hs : (((⟨s, g, m, g'⟩ : InterchangeData sig).sign : ℤ) : k) = 1 := by
-    simp [InterchangeData.sign, sig]
+    simp [InterchangeData.sign]
   have hc : (sig.cod g).length = (sig.dom g).length := rfl
   simp only [polyLocal, uniform_op, layerOp, List.length_append, hs, one_smul, hc]
   exact genOp_comm k g g' (by simp)
@@ -191,12 +192,14 @@ def realize (n : ℕ) :
 theorem realize_apply (n : ℕ) (f : End ((pres k).obj (strands n))) :
     realize k n f = ((polyRep k).map f).hom := rfl
 
+set_option backward.isDefEq.respectTransparency false in
 /-- A dot on strand `i` acts by multiplication by `X i`. -/
 theorem realize_x {n i : ℕ} (h : i < n) : realize k n (x k n i) = LinearMap.mulLeft k (X i) := by
   rw [realize_apply, x_def k h, polyRep_map_diag, layers_dlay]
   refine LinearMap.ext fun f => ?_
   simp [polyLocal, layerOp, lay]
 
+set_option backward.isDefEq.respectTransparency false in
 /-- The crossing of strands `i` and `i + 1` acts by the divided difference `∂_{i, i+1}`. -/
 theorem realize_ψ {n i : ℕ} (h : i + 1 < n) : realize k n (ψ k n i) = ddiff i (i + 1) := by
   rw [realize_apply, ψ_def k h, polyRep_map_diag, layers_dlay]

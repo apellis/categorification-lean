@@ -181,6 +181,7 @@ theorem splitEquiv_blockEsymm_zero (r : ℕ) :
   have : (genSplit d ∘ Sigma.mk 0) = (Sum.inl : Fin (d 0) → _) := rfl
   rw [this, sumAlgEquiv_rename_inl, map_esymm]
 
+set_option backward.isDefEq.respectTransparency false in
 theorem splitEquiv_blockEsymm_succ (j : Fin n) (r : ℕ) :
     splitEquiv k d (blockEsymm k d j.succ r) = C (blockEsymm k (Fin.tail d) j r) := by
   rw [splitEquiv_apply, blockEsymm, rename_rename]
@@ -206,7 +207,7 @@ theorem map_esymmMap {m : ℕ} {K L : Type*} [CommRing K] [CommRing L] (f : K �
     (F : MvPolynomial (Fin m) K) :
     map f (esymmMap m K F) = esymmMap m L (map f F) := by
   induction F using MvPolynomial.induction_on with
-  | C a => simp [esymmMap, aeval_C, algebraMap_eq]
+  | C a => simp [esymmMap, algebraMap_eq]
   | add p q hp hq => simp only [map_add, hp, hq]
   | mul_X p i hp => simp only [map_mul, hp, map_X, aeval_X, map_esymm]
 
@@ -216,7 +217,7 @@ theorem splitEquiv_youngHom (F : MvPolynomial (Gen d) k) :
       esymmMap (d 0) _ (map (youngHom k (Fin.tail d)).toRingHom (splitEquiv k d F)) := by
   induction F using MvPolynomial.induction_on with
   | C a =>
-    simp only [youngHom, aeval_C, algebraMap_eq, AlgEquiv.commutes, map_C]
+    simp only [youngHom, aeval_C, algebraMap_eq]
     rw [← algebraMap_eq, AlgEquiv.commutes]
     simp [esymmMap, algebraMap_eq]
   | add p q hp hq => simp only [map_add, hp, hq]
@@ -246,6 +247,7 @@ theorem splitPerm_label (σ : Perm (Fin (d 0))) (τ : Perm (Gen (Fin.tail d)))
     Equiv.sumCongr_apply, Sum.map_inr, genSplit_symm_inr]
   rw [show (τ ⟨j, a⟩).1 = j from congrFun hτ ⟨j, a⟩]
 
+set_option backward.isDefEq.respectTransparency false in
 theorem splitEquiv_rename_splitPerm (σ : Perm (Fin (d 0))) (τ : Perm (Gen (Fin.tail d)))
     (F : MvPolynomial (Gen d) k) :
     splitEquiv k d (rename (splitPerm d σ τ) F) = rename σ (map (rename τ).toRingHom (splitEquiv k d F)) := by
@@ -264,6 +266,7 @@ theorem splitEquiv_rename_splitPerm (σ : Perm (Fin (d 0))) (τ : Perm (Gen (Fin
 theorem youngHom_zero_eq_id (d : Fin 0 → ℕ) : youngHom k d = AlgHom.id k _ :=
   MvPolynomial.algHom_ext fun v => v.1.elim0
 
+set_option backward.isDefEq.respectTransparency false in
 theorem youngHom_main : ∀ (n : ℕ) (d : Fin n → ℕ), Function.Injective (youngHom k d) ∧
     ∀ f ∈ labelInvariants k (Sigma.fst : Gen d → Fin n), f ∈ (youngHom k d).range
   | 0, d => by
@@ -301,7 +304,7 @@ theorem youngHom_main : ∀ (n : ℕ) (d : Fin n → ℕ), Function.Injective (y
           rw [this] at h2
           simp only [Equiv.coe_refl, rename_id, AlgHom.id_apply] at h2
           exact h2.symm
-        have := congrArg (coeff m) hmap
+        have := congrArg (fun p => p.coeff m) hmap
         rwa [coeff_map, AlgHom.toRingHom_eq_coe, RingHom.coe_coe] at this
       choose G hG using fun m => ih_surj _ (hcoeff m)
       set G' : MvPolynomial (Fin (d 0)) (MvPolynomial (Gen (Fin.tail d)) k) :=

@@ -55,8 +55,7 @@ theorem card_filter_lt_le_choose (m : ℕ) :
   refine Finset.card_le_card_of_injOn (fun p => s(p.1, p.2)) ?_ ?_
   · intro p hp
     have hp' : p.1 < p.2 := by simpa using hp
-    simp only [Finset.mem_filter, Finset.mem_univ, true_and, Sym2.mk_isDiag_iff]
-    exact ne_of_lt hp'
+    simpa using ne_of_lt hp'
   · intro p hp q hq hpq
     have hp : p.1 < p.2 := by simpa using hp
     have hq : q.1 < q.2 := by simpa using hq
@@ -69,7 +68,7 @@ theorem lt_of_invCount_eq_choose {m : ℕ} {w : Perm (Fin m)} (h : invCount m w 
     {a b : Fin m} (hab : a < b) : w b < w a := by
   classical
   by_contra hba
-  push_neg at hba
+  push Not at hba
   set S := (Finset.univ : Finset (Fin m × Fin m)).filter fun p => p.1 < p.2
   have hmem : (a, b) ∈ S := by simp [S, hab]
   have hsub : invSet m w ⊆ S.erase (a, b) := by
@@ -120,7 +119,7 @@ end NilHecke
 
 namespace KLR
 
-open MvPolynomial Categorification.NilHecke KLRAlgebra Graded LaurentPolynomial
+open MvPolynomial Categorification.NilHecke KLRAlgebra Categorification.Graded LaurentPolynomial
 
 namespace NilHecke
 
@@ -174,6 +173,7 @@ theorem val_prod_cψ_reverse {i : Seq ν} {p n : ℕ} (hpn : p + n ≤ m) (hc : 
   refine List.map_congr_left fun j hj => ?_
   exact cψ_val_of_lt hpn hc (lt_of_mem_w0Word hj)
 
+set_option backward.isDefEq.respectTransparency false in
 /-- **`ψ_{w_0}` is unchanged by reversing its word on a block of equal labels**:
 `ψ_{w_0}^{rev} 1_i = ψ_{w_0} 1_i`. -/
 theorem ψw_blockWord_reverse_mul_e {i : Seq ν} {p n : ℕ} (hpn : p + n ≤ m)

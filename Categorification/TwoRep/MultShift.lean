@@ -36,7 +36,7 @@ theorem rad_map_homCongr {Z Z' : 𝒞} (hZ : IsIndec Z) (hZ' : IsIndec Z') (e : 
     (rad k hZ X).map (Linear.homCongr k e (Iso.refl X)).toLinearMap = rad k hZ' X := by
   ext f
   simp only [Submodule.mem_map, LinearEquiv.coe_coe, Linear.homCongr_apply, Iso.refl_hom,
-    Category.comp_id, mem_rad, Category.assoc]
+    Category.comp_id, mem_rad]
   constructor
   · rintro ⟨f₀, hf₀, rfl⟩ g hu
     refine hf₀ (g ≫ e.inv) ?_
@@ -68,7 +68,7 @@ theorem mult_eq_zero_of_finrank_eq_zero {Z X : 𝒞} (hZ : IsIndec Z) (h : finra
   have : finrank k (rad k hZ X) = 0 := by
     rw [Submodule.finrank_eq_zero, Submodule.eq_bot_iff]
     intro f _
-    haveI := Module.finrank_zero_iff.1 h
+    have := Module.finrank_zero_iff.1 h
     exact Subsingleton.elim _ _
   rw [h, this]; rfl
 
@@ -105,7 +105,7 @@ theorem rad_map_shift {Z : 𝒞} (hZ : IsIndec Z) (t : ℤ) (X : 𝒞) :
   · intro hf'
     obtain ⟨f, rfl⟩ := (shiftFunctor 𝒞 t).map_surjective f'
     refine ⟨f, fun g hu => hf' ((shiftFunctor 𝒞 t).map g) ((isUnit_iff_isIso _).2 ?_), rfl⟩
-    haveI : IsIso (f ≫ g) := (isUnit_iff_isIso _).1 hu
+    have : IsIso (f ≫ g) := (isUnit_iff_isIso _).1 hu
     change IsIso ((shiftFunctor 𝒞 t).map f ≫ (shiftFunctor 𝒞 t).map g)
     rw [← Functor.map_comp]
     infer_instance

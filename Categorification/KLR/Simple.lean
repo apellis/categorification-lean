@@ -47,7 +47,7 @@ degree (`0 < G.degX a`); the statements for the rings of KL I (graded by
 
 namespace Categorification.KLR
 
-open Equiv MvPolynomial TypeA DirectSum Graded PolyRep
+open Equiv MvPolynomial TypeA DirectSum Categorification.Graded PolyRep
 
 variable {I : Type*} [DecidableEq I] {k : Type*}
 
@@ -72,7 +72,7 @@ noncomputable def symNuAug : symNu k ν →ₐ[k] k :=
 omit [DecidableEq I] in
 theorem symNuAug_apply (f : symNu k ν) :
     symNuAug k ν f = constantCoeff ((f : Pol k ν) (Classical.arbitrary (Seq ν))) := by
-  simp [symNuAug, MvPolynomial.coe_aeval_eq_eval, MvPolynomial.eval_zero]
+  simp [symNuAug]
 
 variable (k ν) in
 /-- **`Sym⁺(ν)`** (KL I §2.5): the kernel of the augmentation `Sym(ν) → k`, spanned by the
@@ -155,7 +155,7 @@ theorem exists_grade_eq_bot (hG : ∀ a, 0 ≤ G.degX a) :
     simp only [deg]
     omega
   | zero => simp
-  | add x y _ _ hx hy => rw [decompose_add, add_apply, Submodule.coe_add, hx, hy, add_zero]
+  | add x y _ _ hx hy => rw [decompose_add, DirectSum.add_apply, Submodule.coe_add, hx, hy, add_zero]
   | smul c x _ hx => rw [decompose_smul, DirectSum.smul_apply, Submodule.coe_smul, hx, smul_zero]
 
 /-- If dots have positive degree, the homogeneous components of `polNu f` in degrees `≤ 0`
@@ -164,11 +164,11 @@ theorem decompose_polNu_eq_zero (hG : ∀ a, 0 < G.degX a) {f : Pol k ν}
     (hf : ∀ i, constantCoeff (f i) = 0) {d : ℤ} (hd : d ≤ 0) :
     (decompose (G.grade ν) (polNu f : KLRAlgebra k Q ν) d : KLRAlgebra k Q ν) = 0 := by
   classical
-  rw [polNu_apply, decompose_sum, DFinsupp.finset_sum_apply, Submodule.coe_sum]
+  rw [polNu_apply, decompose_sum, DFinsupp.finsetSum_apply, Submodule.coe_sum]
   refine Finset.sum_eq_zero fun i _ => ?_
   have h := mul_pol_mul_e_eq_sum (Q := Q) 1 (f i) i (f i).support subset_rfl
   rw [one_mul] at h
-  rw [h, decompose_sum, DFinsupp.finset_sum_apply, Submodule.coe_sum]
+  rw [h, decompose_sum, DFinsupp.finsetSum_apply, Submodule.coe_sum]
   refine Finset.sum_eq_zero fun u hu => ?_
   have hu0 : u ≠ 0 := by
     rintro rfl
@@ -315,7 +315,7 @@ include hPQ hP in
 /-- `R'(ν)` is finite-dimensional. -/
 theorem finiteDimensional_quotient_symPlusIdeal :
     FiniteDimensional k (KLRAlgebra k Q ν ⧸ symPlusIdeal k Q ν) := by
-  haveI := finiteDimensional_quotient_symPlusIdeal_restrictScalars (ν := ν) hPQ hP
+  have := finiteDimensional_quotient_symPlusIdeal_restrictScalars (ν := ν) hPQ hP
   exact Module.Finite.equiv (Submodule.Quotient.restrictScalarsEquiv k (symPlusIdeal k Q ν))
 
 /-! #### The statements of Proposition 2.12 -/
@@ -324,7 +324,7 @@ include hPQ hP hG in
 /-- **KL I, Proposition 2.12**: a simple graded `R(ν)`-module is finite-dimensional. -/
 theorem finiteDimensional_of_isGradedSimple (hS : IsGradedSimple (G.grade ν) ℳ) :
     FiniteDimensional k M := by
-  haveI := finiteDimensional_quotient_symPlusIdeal_restrictScalars (ν := ν) hPQ hP
+  have := finiteDimensional_quotient_symPlusIdeal_restrictScalars (ν := ν) hPQ hP
   exact hS.finiteDimensional ((symPlusIdeal k Q ν).restrictScalars k)
     fun a ha x => smul_eq_zero_of_mem_symPlusIdeal hPQ hP G hG ℳ hS ha x
 
@@ -333,7 +333,7 @@ include hPQ hP hG in
 has no nonzero `R(ν)`-linear map `S → S{a}` of degree zero. -/
 theorem eq_zero_of_preservesGrading_shift (hS : IsGradedSimple (G.grade ν) ℳ) {a : ℤ} (ha : a ≠ 0)
     {φ : M →ₗ[KLRAlgebra k Q ν] M} (hφ : PreservesGrading ℳ (Graded.shift ℳ a) φ) : φ = 0 := by
-  haveI := finiteDimensional_of_isGradedSimple hPQ hP G hG ℳ hS
+  have := finiteDimensional_of_isGradedSimple hPQ hP G hG ℳ hS
   exact hS.eq_zero_of_preservesGrading_shift ha hφ
 
 include hPQ hP hG in
@@ -341,7 +341,7 @@ include hPQ hP hG in
 module. -/
 theorem isSimpleModule_of_isGradedSimple (hS : IsGradedSimple (G.grade ν) ℳ) :
     IsSimpleModule (KLRAlgebra k Q ν) M := by
-  haveI := finiteDimensional_of_isGradedSimple hPQ hP G hG ℳ hS
+  have := finiteDimensional_of_isGradedSimple hPQ hP G hG ℳ hS
   exact hS.isSimpleModule
 
 include hPQ hP hG in
@@ -404,7 +404,7 @@ theorem exists_gradedEquiv_shift_of_linearEquiv
     (e : M ≃ₗ[KLRAlgebra k Q ν] N) :
     ∃ c : ℤ, Nonempty (ℳ ≃ᵍ[KLRAlgebra k Q ν] Graded.shift 𝒩 c) := by
   refine hM.exists_gradedEquiv_shift_of_ne_zero hN (f := e.toLinearMap) fun h => ?_
-  haveI := hM.nontrivial
+  have := hM.nontrivial
   obtain ⟨x, hx⟩ := exists_ne (0 : M)
   exact hx (e.injective (by rw [map_zero]; exact LinearMap.congr_fun h x))
 
@@ -420,12 +420,12 @@ theorem card_le_of_isGradedSimple {ι : Type*} (S : ι → Type*) [∀ b, AddCom
     (hne : ∀ b b' (c : ℤ), Nonempty (𝒮 b ≃ᵍ[KLRAlgebra k Q ν] Graded.shift (𝒮 b') c) → b = b') :
     Finite ι ∧ Nat.card ι ≤ (Multiset.card ν).factorial ^ 2 := by
   classical
-  haveI := finiteDimensional_quotient_symPlusIdeal (ν := ν) hPQ hP
+  have := finiteDimensional_quotient_symPlusIdeal (ν := ν) hPQ hP
   have hv : ∀ b, ∃ j, ∃ v ∈ 𝒮 b j, v ≠ 0 := fun b => by
-    haveI := (hS b).nontrivial
+    have := (hS b).nontrivial
     exact exists_mem_ne_zero (𝒮 b)
   choose j v hv hv0 using hv
-  haveI : ∀ b, IsSimpleModule (KLRAlgebra k Q ν) (S b) := fun b =>
+  have : ∀ b, IsSimpleModule (KLRAlgebra k Q ν) (S b) := fun b =>
     isSimpleModule_of_isGradedSimple hPQ hP G hG (𝒮 b) (hS b)
   have := card_le_finrank_of_isSimpleModule (k := k) S
     (fun b => quotientToSimple hPQ hP G hG (𝒮 b) (hS b) (v b))
@@ -443,7 +443,7 @@ theorem eq_zero_of_gradedEquiv_shift
     [IsScalarTower k (KLRAlgebra k Q ν) M] (ℳ : ℤ → Submodule k M) [Decomposition ℳ]
     [SetLike.GradedSMul (G.grade ν) ℳ] (hS : IsGradedSimple (G.grade ν) ℳ) {a : ℤ}
     (e : ℳ ≃ᵍ[KLRAlgebra k Q ν] Graded.shift ℳ a) : a = 0 := by
-  haveI := finiteDimensional_of_isGradedSimple hPQ hP G hG ℳ hS
+  have := finiteDimensional_of_isGradedSimple hPQ hP G hG ℳ hS
   exact hS.eq_zero_of_gradedEquiv_shift e
 
 end Finite

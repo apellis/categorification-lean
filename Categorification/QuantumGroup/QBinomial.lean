@@ -121,7 +121,6 @@ theorem qbinom_eq_div {K : Type*} [Field K] (t : Kˣ) {a b : ℕ} (h : qfact t (
   have hb : qfact t b ≠ 0 := fun h0 => h (by rw [← e, h0]; ring)
   rw [← e]
   field_simp
-  ring
 
 theorem qfact_ne_zero_of_add_left {K : Type*} [Field K] (t : Kˣ) {a b : ℕ}
     (h : qfact t (a + b) ≠ 0) : qfact t a ≠ 0 := fun h0 =>
@@ -198,7 +197,7 @@ theorem qbinomial_theorem (t : Kˣ) {X Y : A}
           (if p.2 = 0 then 0 else
             ((t ^ (2 * (p.1 : ℤ)) : Kˣ) : K) * qbinomCoef t p.1 (p.2 - 1)) := by
       rintro ⟨s, s'⟩ hp
-      rw [Finset.mem_antidiagonal] at hp
+      rw [Finset.HasAntidiagonal.mem_antidiagonal] at hp
       simp only at hp ⊢
       rcases s with _ | s
       · rcases s' with _ | s'
@@ -206,14 +205,14 @@ theorem qbinomial_theorem (t : Kˣ) {X Y : A}
         · simp
       · rcases s' with _ | s'
         · simp
-        · simp only [Nat.add_one_ne_zero, if_false, Nat.add_sub_cancel]
+        · simp only [Nat.add_one_ne_zero, ite_false, Nat.add_sub_cancel]
           rw [qbinomCoef_succ_succ]
           push_cast
           ring_nf
     rw [sum_congr rfl fun p hp => by rw [hsplit p hp]]
     simp only [add_smul, sum_add_distrib]
     rw [Finset.Nat.sum_antidiagonal_succ, Finset.Nat.sum_antidiagonal_succ']
-    simp only [if_true, zero_smul, zero_add, Nat.add_one_ne_zero, if_false, Nat.add_sub_cancel]
+    simp only [ite_true, zero_smul, zero_add, Nat.add_one_ne_zero, ite_false, Nat.add_sub_cancel]
     rw [pow_succ', ih, add_mul, Finset.mul_sum, Finset.mul_sum]
     congr 1
     · refine sum_congr rfl fun p _ => ?_

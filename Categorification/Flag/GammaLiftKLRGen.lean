@@ -26,6 +26,9 @@ multiplication by a polynomial in the two dots (`locTwo_mulB_eval₂`), and the 
 the intermediate regions produced by the steps of `Flag_N` (`realized_of_stepR_up`).
 -/
 
+-- Preserve elaboration of semireducible diagram transports.
+set_option backward.isDefEq.respectTransparency false
+
 noncomputable section
 
 namespace Categorification.Flag
@@ -74,14 +77,13 @@ theorem sum_raise' (i : Fin m) (d : Comp m) (h : 0 < d i.succ) :
   have key : raise i d + (Pi.single i.succ 1 : Comp m) = d + Pi.single i.castSucc 1 := by
     funext j
     simp only [Pi.add_apply, Pi.single_apply, raise]
-    have hne : i.castSucc ≠ i.succ := (Fin.castSucc_lt_succ i).ne
+    have hne : i.castSucc ≠ i.succ := (Fin.castSucc_lt_succ (i := i)).ne
     by_cases h1 : j = i.castSucc
     · subst h1; simp [hne]
     · by_cases h2 : j = i.succ
       · subst h2; simp [hne.symm]; omega
       · simp [h1, h2]
   have := congrArg (fun d : Comp m => ∑ j, d j) key
-  simp only at this
   rw [sum_add_single, sum_add_single] at this
   omega
 
@@ -126,7 +128,7 @@ theorem locTwo_mulB_eval₂ {L : BRing A B} {L' : BRing B C} (a : L.T) (b : L'.T
         ![BRing.tmul L (L'.tensor X) a 1, BRing.tmul L (L'.tensor X) 1 (BRing.tmul L' X b 1)] p) := by
   induction p using MvPolynomial.induction_on with
   | C c =>
-    simp only [eval₂_C, RingHom.comp_apply, BRing.tensor_left]
+    simp only [eval₂_C, RingHom.comp_apply]
     rw [BRing.inclL_apply, BRing.inclL_apply, locTwo_mulB]
     rfl
   | add p q hp hq =>

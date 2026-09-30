@@ -44,7 +44,7 @@ noncomputable section
 
 namespace Categorification.KLR
 
-open Graded KLRAlgebra MulOpposite MvPolynomial
+open Categorification.Graded KLRAlgebra MulOpposite MvPolynomial
 open scoped TensorProduct
 
 variable {I : Type*} [DecidableEq I] {k : Type*} [Field k] {Q : I → I → MvPolynomial (Fin 2) k}

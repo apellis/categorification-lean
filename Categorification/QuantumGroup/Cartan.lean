@@ -47,17 +47,17 @@ def ofGraph [DecidableEq I] (Γ : SimpleGraph I) [DecidableRel Γ.Adj] : CartanD
   symm i j := by
     by_cases h : i = j
     · subst h; rfl
-    · rw [if_neg h, if_neg (Ne.symm h)]
+    · rw [ite_eq_right h, ite_eq_right (Ne.symm h)]
       by_cases hij : Γ.Adj i j
-      · rw [if_pos hij, if_pos hij.symm]
-      · rw [if_neg hij, if_neg (fun h' => hij h'.symm)]
+      · rw [ite_eq_left hij, ite_eq_left hij.symm]
+      · rw [ite_eq_right hij, ite_eq_right (fun h' => hij h'.symm)]
   dot_self_pos i := by simp
   dot_self_even i := by simp
   dot_nonpos i j h := by
-    rw [if_neg h]
+    rw [ite_eq_right h]
     split_ifs <;> norm_num
   dvd_two_mul i j := by
-    rw [if_pos rfl]
+    rw [ite_eq_left rfl]
     exact dvd_mul_right 2 _
 
 variable [DecidableEq I] (Γ : SimpleGraph I) [DecidableRel Γ.Adj]

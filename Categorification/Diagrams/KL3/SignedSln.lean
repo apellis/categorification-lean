@@ -85,7 +85,7 @@ theorem presQ_klQ2 : presQ RD k (KLR.klQ2 k C) = pres RD k := by
 
 namespace Signed
 
-open Flag
+open Categorification.Flag
 
 variable (m : ℕ)
 
@@ -105,12 +105,12 @@ abbrev USigned := (presSigned k m).Bicat
 variable {k m}
 
 theorem qSigned_of_dot_eq_zero {i j : Fin m} (h : (slCartan m).dot i j = 0) :
-    qSigned k m i j = 1 := if_pos h
+    qSigned k m i j = 1 := ite_eq_left h
 
 /-- **KL III eq. (4.11)**, `i · j = -1`: `Q^τ_{ij}(u, v) = (i - j)(u - v)`. -/
 theorem qSigned_of_adj {i j : Fin m} (h : (slCartan m).dot i j = -1) :
     qSigned k m i j = (((i : ℕ) : ℤ) - ((j : ℕ) : ℤ)) • (MvPolynomial.X 0 - MvPolynomial.X 1) := by
-  rw [qSigned, if_neg (by omega)]
+  rw [qSigned, ite_eq_right (by omega)]
 
 /-- `Q^τ_{ij}(u, v) = Q^τ_{ji}(v, u)`, as required of the polynomials of a KLR algebra. -/
 theorem rename_swap_qSigned (i j : Fin m) :
@@ -120,7 +120,7 @@ theorem rename_swap_qSigned (i j : Fin m) :
   split_ifs
   · simp
   · rw [map_zsmul, map_sub, rename_X, rename_X]
-    simp only [Matrix.cons_val_zero, Matrix.cons_val_one, Matrix.head_cons]
+    simp only [Matrix.cons_val_zero, Matrix.cons_val_one]
     rw [← neg_sub (MvPolynomial.X 0 : MvPolynomial (Fin 2) k), smul_neg, ← neg_smul, neg_sub]
 
 /-- `Q̄^τ_{ij} = 0` for `i · j = 0`: the braid relation (4.13) holds on `i j i`. -/
@@ -138,8 +138,7 @@ theorem qbar_qSigned_of_adj {i j : Fin m} (h : (slCartan m).dot i j = -1) :
   rw [qSigned_of_adj h]
   apply X_sub_X_mul_left_cancel (show (0 : Fin 3) ≠ 2 by decide)
   rw [KLR.qbar_spec]
-  simp only [map_zsmul, map_sub, rename_X, Matrix.cons_val_zero, Matrix.cons_val_one,
-    Matrix.head_cons]
+  simp only [map_zsmul, map_sub, rename_X, Matrix.cons_val_zero, Matrix.cons_val_one]
   rw [zsmul_eq_mul, zsmul_eq_mul, ← map_intCast (MvPolynomial.C : k →+* MvPolynomial (Fin 3) k)]
   ring
 

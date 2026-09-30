@@ -99,19 +99,19 @@ theorem word_sadj (i : Seq ν) {j : ℕ} (h : j + 1 < m) :
       omega
     rw [getElem_word, sadj_smul_apply, List.getElem_append]
     rcases swapNat_cases j t with ⟨rfl, -⟩ | ⟨rfl, -⟩ | ⟨h₁', h₂', -⟩
-    · rw [dif_pos (by omega), List.getElem_append_right (by simp)]
+    · rw [dite_eq_left (by omega), List.getElem_append_right (by simp)]
       simp only [List.length_take, length_word, show min t m = t by omega, Nat.sub_self,
         List.getElem_cons_zero]
       rw [sadj_apply_left h]
-    · rw [dif_pos (by omega), List.getElem_append_right (by simp)]
+    · rw [dite_eq_left (by omega), List.getElem_append_right (by simp)]
       simp only [List.length_take, length_word, show min j m = j by omega,
         show j + 1 - j = 1 by omega, List.getElem_cons_succ, List.getElem_cons_zero]
       rw [sadj_apply_right h]
     · rw [sadj_apply_of_ne _ h₁' h₂']
       rcases Nat.lt_or_ge t j with hlt | hge
-      · rw [dif_pos (by omega), List.getElem_append_left (by len_tac)]
+      · rw [dite_eq_left (by omega), List.getElem_append_left (by len_tac)]
         simp
-      · rw [dif_neg (by rw [hl]; omega)]
+      · rw [dite_eq_right (by rw [hl]; omega)]
         simp only [List.getElem_drop, getElem_word, List.length_append, List.length_take,
           length_word, List.length_cons, List.length_nil]
         exact congrArg i.1 (Fin.ext (by simp only; omega))
@@ -195,10 +195,10 @@ def crossE (i : Seq ν) (j : ℕ) :
   if h : j + 1 < m then (pres k Q).diag (crossD i h) else 0
 
 theorem crossE_def (i : Seq ν) {j : ℕ} (h : j + 1 < m) :
-    crossE k Q i j = (pres k Q).diag (crossD i h) := dif_pos h
+    crossE k Q i j = (pres k Q).diag (crossD i h) := dite_eq_left h
 
 theorem crossE_of_le (i : Seq ν) {j : ℕ} (h : m ≤ j + 1) : crossE k Q i j = 0 :=
-  dif_neg (by omega)
+  dite_eq_right (by omega)
 
 theorem diag_eqToHom {a b : Obj (sig I)} (h : a = b) :
     (pres k Q).diag (eqToHom h) = eqToHom (congrArg (pres k Q).obj h) := by
@@ -333,8 +333,8 @@ theorem crossE_comm (i : Seq ν) {j l : ℕ} (h : j + 1 < l)
     exact interchange_pos Q (g := .cross (i.1 ⟨j, by omega⟩) (i.1 ⟨j + 1, hj⟩))
       (h := .cross (i.1 ⟨l, by omega⟩) (i.1 ⟨l + 1, hl⟩)) (p := j) (q := l)
       (by simp [Gen.arity]; omega) _ _ rfl rfl
-      (by len_tac) rfl (by len_tac) (by simp [sadj_symm, sadj_apply_of_ne, h1, h2, h3, h4])
-      (by len_tac) rfl (by len_tac) (by simp [sadj_symm, sadj_apply_of_ne, h5, h6, h7, h8])
+      (by len_tac) rfl (by len_tac) (by simp [sadj_symm, sadj_apply_of_ne, h1, h2, h3])
+      (by len_tac) rfl (by len_tac) (by simp [sadj_symm, sadj_apply_of_ne, h5, h6, h7])
   · rw [crossE_of_le _ (show m ≤ l + 1 by omega), crossE_of_le _ (show m ≤ l + 1 by omega)]
     simp
 
@@ -493,17 +493,17 @@ theorem braid {j : ℕ} (h : j + 2 < m) (i : Seq ν) :
         rfl (congrArg (fun s => ob (word s)) ht))
       (dotD i ⟨j, by omega⟩) (dotD i ⟨j + 1, h1⟩) (dotD i ⟨j + 2, h⟩)
       rfl (by len_tac) rfl (by len_tac)
-      (by simp [sadj_symm, sadj_apply_left h1, sadj_apply_left h2, sadj_apply_right h1,
-        sadj_apply_right h2, sadj_apply_of_ne, n₀, n₁, n₂, n₃, n₄, n₅, e₂, he.1])
+      (by simp [sadj_symm, sadj_apply_right h1,
+        sadj_apply_of_ne, e₂, he.1])
       (by len_tac)
-      (by simp [sadj_symm, sadj_apply_left h1, sadj_apply_left h2, sadj_apply_right h1,
-        sadj_apply_right h2, sadj_apply_of_ne, n₀, n₁, n₂, n₃, n₄, n₅, e₂, he.1])
+      (by simp [sadj_symm, sadj_apply_left h1, sadj_apply_left h2,
+        sadj_apply_of_ne, n₁, e₂, he.1])
       rfl (by len_tac) (by simp [he.1]) (by len_tac)
-      (by simp [sadj_symm, sadj_apply_left h1, sadj_apply_left h2, sadj_apply_right h1,
-        sadj_apply_right h2, sadj_apply_of_ne, n₀, n₁, n₂, n₃, n₄, n₅, e₂, he.1])
+      (by simp [sadj_symm, sadj_apply_left h2,
+        sadj_apply_of_ne, n₁, e₂, he.1])
       (by len_tac)
-      (by simp [sadj_symm, sadj_apply_left h1, sadj_apply_left h2, sadj_apply_right h1,
-        sadj_apply_right h2, sadj_apply_of_ne, n₀, n₁, n₂, n₃, n₄, n₅, e₂, he.1])
+      (by simp [sadj_symm, sadj_apply_right h1,
+        sadj_apply_right h2, sadj_apply_of_ne, n₁, e₂, he.1])
       rfl (by len_tac) rfl rfl (by len_tac) rfl rfl (by len_tac) (by simp [he.1])]
     have e₁ : (![(pres k Q).diag (dotD i ⟨j, by omega⟩), (pres k Q).diag (dotD i ⟨j + 1, h1⟩),
         (pres k Q).diag (dotD i ⟨j + 2, h⟩)] : Fin 3 → End ((pres k Q).obj (ob (word i)))) =
@@ -518,17 +518,17 @@ theorem braid {j : ℕ} (h : j + 2 < m) (i : Seq ν) :
       (Diagram.cast ((crossD i h2 ≫ crossD (sadj m (j + 1) • i) h1) ≫
         crossD (sadj m j • sadj m (j + 1) • i) h2) rfl (congrArg (fun s => ob (word s)) hb))
       rfl (by len_tac) rfl (by len_tac)
-      (by simp [sadj_symm, sadj_apply_left h1, sadj_apply_left h2, sadj_apply_right h1,
-        sadj_apply_right h2, sadj_apply_of_ne, n₀, n₁, n₂, n₃, n₄, n₅, e₂])
+      (by simp [sadj_symm, sadj_apply_right h1,
+        sadj_apply_of_ne, e₂])
       (by len_tac)
-      (by simp [sadj_symm, sadj_apply_left h1, sadj_apply_left h2, sadj_apply_right h1,
-        sadj_apply_right h2, sadj_apply_of_ne, n₀, n₁, n₂, n₃, n₄, n₅, e₂])
+      (by simp [sadj_symm, sadj_apply_left h1, sadj_apply_left h2,
+        sadj_apply_of_ne, n₁, e₂])
       rfl (by len_tac) rfl (by len_tac)
-      (by simp [sadj_symm, sadj_apply_left h1, sadj_apply_left h2, sadj_apply_right h1,
-        sadj_apply_right h2, sadj_apply_of_ne, n₀, n₁, n₂, n₃, n₄, n₅, e₂])
+      (by simp [sadj_symm, sadj_apply_left h2,
+        sadj_apply_of_ne, n₁, e₂])
       (by len_tac)
-      (by simp [sadj_symm, sadj_apply_left h1, sadj_apply_left h2, sadj_apply_right h1,
-        sadj_apply_right h2, sadj_apply_of_ne, n₀, n₁, n₂, n₃, n₄, n₅, e₂]),
+      (by simp [sadj_symm, sadj_apply_right h1,
+        sadj_apply_right h2, sadj_apply_of_ne, n₁, e₂]),
       sub_self, single_zero]
 
 end DiagR

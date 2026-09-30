@@ -45,6 +45,9 @@ equivalence of the nilHecke idempotent `e_{i,a} = x^δ ψ_{w_0}` with its reflec
 `± x^{δ^rev} ψ_{w_0}`; this is not formalized.
 -/
 
+-- Preserve elaboration of semireducible diagram transports.
+set_option backward.isDefEq.respectTransparency false
+
 noncomputable section
 
 namespace Categorification.KL3.Diagram
@@ -135,7 +138,7 @@ theorem sigDot_nfObj (w : List (Letter I)) (h : wt RD lam w = ρ)
 def sigDotShift (n : ℤ) (A : UKar RD k ρ lam) :
     (sigDot ρ lam ρ' lam' hρ hl).obj ((shDot (deg RD) n).obj A) ≅
       (shDot (deg RD) n).obj ((sigDot ρ lam ρ' lam' hρ hl).obj A) :=
-  udIso _ _ (Equiv.refl _) (fun _ => rfl) (fun _ => rfl) fun i j => by simp
+  udIso _ _ (Equiv.refl _) (fun _ => rfl) (fun _ => rfl) fun i j => by simp; rfl
 
 end Dot
 
@@ -376,7 +379,7 @@ theorem sigK0_dpC_of_torsionFree (d : List (Bool × I × ℕ)) (lam ρ : X)
       p • x = 0 → x = 0) :
     sigK0 (RD := RD) (k := k) (ρ := ρ) (lam := lam) rfl rfl (dpC RD k d lam ρ h) =
       dpC RD k d.reverse (-ρ) (-lam) h' :=
-  sub_eq_zero.1 (htf _ (dpFac_mem d) _ (by rw [smul_sub, sigK0_dpC, sub_self]))
+  sub_eq_zero.1 (htf _ (dpFac_mem d) _ (by rw [smul_sub, sigK0_dpC d lam ρ h h', sub_self]))
 
 end Dpss
 

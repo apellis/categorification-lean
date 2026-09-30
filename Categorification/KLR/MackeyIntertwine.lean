@@ -66,13 +66,13 @@ theorem IsDoubleShuffle.val_eq_ite {d : Perm (Fin m)} (hd : IsDoubleShuffle hJ h
   have hp := p.2
   have hdp := (d p).2
   split_ifs with h1 h2 h3
-  · exact e.1 (by omega) (by rw [if_pos (by omega)] at l; exact l.2 (by omega))
-  · rw [if_pos h2] at l
+  · exact e.1 (by omega) (by rw [ite_eq_left (by omega)] at l; exact l.2 (by omega))
+  · rw [ite_eq_left h2] at l
     exact e.2.1 h2 (by by_contra hc; exact absurd (l.1 (by omega)) (by omega))
-  · rw [if_neg h2] at l
+  · rw [ite_eq_right h2] at l
     have := e.2.2.2 (by omega) (l.2 h3)
     omega
-  · rw [if_neg h2] at l
+  · rw [ite_eq_right h2] at l
     exact e.2.2.1 (by omega) (by by_contra hc; exact h3 (l.1 (by omega)))
 
 /-- `j` and `j + 1` lie in the same one of the four blocks `[0, n - c)`, `[n - c, n'')`,
@@ -87,8 +87,8 @@ theorem IsDoubleShuffle.val_succ {d : Perm (Fin m)} (hd : IsDoubleShuffle hJ hK 
     (hj : j + 1 < m) (hb : SameBlock n n'' (crossCount n n'' d) j) :
     (d ⟨j + 1, hj⟩).val = (d ⟨j, by omega⟩).val + 1 := by
   rw [hd.val_eq_ite hJ hK, hd.val_eq_ite hJ hK]
+  dsimp only
   simp only [SameBlock] at hb
-  simp only [Fin.val_mk]
   have hc1 : crossCount n n'' d ≤ n := crossCount_le d (by omega)
   have hc2 : n ≤ crossCount n n'' d + n'' := le_crossCount d (by omega) (by omega)
   split_ifs <;> omega
@@ -127,7 +127,7 @@ theorem IsDoubleShuffle.length_sadj_mul {d : Perm (Fin m)} (hd : IsDoubleShuffle
   have e2 : d⁻¹ ⟨(d ⟨j, by omega⟩).val + 1, hdj⟩ = ⟨j + 1, hj⟩ := by
     rw [Perm.inv_eq_iff_eq]; exact Fin.ext hs.symm
   rw [e1, e2]
-  simp [Fin.lt_iff_val_lt_val]
+  simp [Fin.lt_def]
 
 /-- The image `d(j)` of a letter `j` of a bottom block lies in a top block together with
 `d(j) + 1`. -/
@@ -135,8 +135,8 @@ theorem IsDoubleShuffle.top_of_sameBlock {d : Perm (Fin m)} (hd : IsDoubleShuffl
     {j : ℕ} (hj : j + 1 < m) (hb : SameBlock n n'' (crossCount n n'' d) j) :
     (d ⟨j, by omega⟩).val + 1 < n ∨ n ≤ (d ⟨j, by omega⟩).val := by
   rw [hd.val_eq_ite hJ hK]
+  dsimp only
   simp only [SameBlock] at hb
-  simp only [Fin.val_mk]
   have hc1 : crossCount n n'' d ≤ n := crossCount_le d (by omega)
   have hc2 : n ≤ crossCount n n'' d + n'' := le_crossCount d (by omega) (by omega)
   split_ifs <;> omega
@@ -432,7 +432,7 @@ theorem x_mul_ψD_sub_mem (p : Fin m) : x (d p) * ψD - ψD * x p ∈ L := by
   have : x (d p) * ψD - ψD * x p = ∑ i, (x (d p) * (ψw (canWord m d) * pol 1 * e i) -
       ψw (canWord m d) * pol (X ((wordProd m (canWord m d))⁻¹ (d p)) * 1) * e i) := by
     rw [Finset.sum_sub_distrib, ← Finset.mul_sum, ← ψD_eq_sum]
-    simp only [wordProd_canWord, Perm.inv_apply_self, mul_one, pol_X]
+    simp only [wordProd_canWord, Perm.coe_inv, Equiv.symm_apply_apply, mul_one, pol_X]
     congr 1
     rw [← Finset.mul_sum, sum_e, mul_one]
   rw [this]
@@ -514,7 +514,7 @@ theorem ψw_map_mul_ψD_sub_mem {β : List ℕ} (hβ : ∀ j ∈ β, j + 1 < m �
   | cons j β ih =>
     obtain ⟨hj, hb⟩ := hβ j (by simp)
     have ih := ih fun j' hj' => hβ j' (List.mem_cons_of_mem _ hj')
-    have hdj : dShift d j = (d ⟨j, by omega⟩).val := dif_pos (by omega)
+    have hdj : dShift d j = (d ⟨j, by omega⟩).val := dite_eq_left (by omega)
     rw [List.map_cons, ψw_cons, ψw_cons, hdj]
     have h1 := mackeyLower_ψ_mul (hd.top_of_sameBlock hj hb) ih
     have h2 := mackeyLower_mul_ψw (k := k) (Q := Q) (μ := μ) (β := β)
@@ -542,7 +542,7 @@ theorem pol_rename_mul_ψD_sub_mem (f : MvPolynomial (Fin m) k) :
     rw [pol_X] at h2
     have := add_mem h1 h2
     convert this using 1
-    simp only [map_mul, pol_X, mul_assoc, mul_sub, sub_mul]
+    simp only [mul_assoc, mul_sub, sub_mul]
     abel
 
 end Intertwine

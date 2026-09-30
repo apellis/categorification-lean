@@ -62,7 +62,6 @@ theorem ncEval_X_comp {n m : ℕ} (f : Fin n → Fin m) (p : MvPolynomial (Fin n
   rw [rename_monomial, monomial_eq, Finsupp.prod_mapDomain_index
     (fun _ => pow_zero _) (fun _ _ _ => pow_add _ _ _), Finsupp.prod_fintype _ _
     (fun _ => pow_zero _), ← List.prod_ofFn, algebraMap_eq]
-  rfl
 
 theorem ncEval_algHom_X {B : Type*} [Ring B] [Algebra k B] {n m : ℕ}
     (φ : MvPolynomial (Fin m) k →ₐ[k] B) (f : Fin n → Fin m) (p : MvPolynomial (Fin n) k) :
@@ -126,14 +125,16 @@ local notation "A" => KLRAlgebra k Q ν
 /-! ### Adjacent transpositions acting on sequences -/
 
 theorem sadj_symm (n j : ℕ) : (sadj n j).symm = sadj n j := by
-  unfold sadj; split_ifs <;> simp
+  unfold sadj; split_ifs
+  exacts [Equiv.symm_swap _ _, rfl]
 
 theorem sadj_mul_self (n j : ℕ) : sadj n j * sadj n j = 1 := by
-  unfold sadj; split_ifs <;> simp
+  unfold sadj; split_ifs
+  exacts [Equiv.swap_mul_self _ _, mul_one 1]
 
 theorem sadj_apply_val {n j : ℕ} (h : j + 1 < n) (a : Fin n) :
     (sadj n j a).val = if a.val = j then j + 1 else if a.val = j + 1 then j else a.val := by
-  simp only [sadj, dif_pos h, swap_apply_def]
+  simp only [sadj, dite_eq_left h, swap_apply_def]
   split_ifs <;> simp_all [Fin.ext_iff]
 
 theorem sadj_smul_smul (j : ℕ) (i : Seq ν) : sadj m j • sadj m j • i = i := by
@@ -209,8 +210,8 @@ theorem e_mul_dot_cross_right (j : ℕ) (h : j + 1 < m) (i : Seq ν) :
       rw [sadj_smul_apply]; exact lbl_congr i (by rw [sadj_apply_val h]; simp)
     have h2 : (sadj m j • i).1 ⟨j + 1, h⟩ = i.1 ⟨j, by omega⟩ := by
       rw [sadj_smul_apply]; exact lbl_congr i (by rw [sadj_apply_val h]; simp)
-    simp only [Seq.lbl, h1, h2, hi, if_false]
-    rw [if_neg (Ne.symm hi)]
+    simp only [Seq.lbl, h1, h2, hi, ite_false]
+    rw [ite_eq_right (Ne.symm hi)]
 
 theorem e_mul_dot_cross_left (j : ℕ) (h : j + 1 < m) (i : Seq ν) :
     (e i * (x ⟨j, by omega⟩ * ψ j - ψ j * x ⟨j + 1, h⟩) : A) =
@@ -226,8 +227,8 @@ theorem e_mul_dot_cross_left (j : ℕ) (h : j + 1 < m) (i : Seq ν) :
       rw [sadj_smul_apply]; exact lbl_congr i (by rw [sadj_apply_val h]; simp)
     have h2 : (sadj m j • i).1 ⟨j + 1, h⟩ = i.1 ⟨j, by omega⟩ := by
       rw [sadj_smul_apply]; exact lbl_congr i (by rw [sadj_apply_val h]; simp)
-    simp only [Seq.lbl, h1, h2, hi, if_false]
-    rw [if_neg (Ne.symm hi)]
+    simp only [Seq.lbl, h1, h2, hi, ite_false]
+    rw [ite_eq_right (Ne.symm hi)]
 
 theorem ncEval_x2 (a b : Fin m) (p : MvPolynomial (Fin 2) k) :
     ncEval ![(x a : A), x b] p = pol (rename ![a, b] p) := by
@@ -314,9 +315,9 @@ theorem e_mul_braid (j : ℕ) (h : j + 2 < m) (i : Seq ν) :
   by_cases hi : i.1 ⟨j, by omega⟩ = i.1 ⟨j + 2, h⟩
   · rw [braid_smul_eq_self h hi]
     by_cases hb : i.1 ⟨j, by omega⟩ = i.1 ⟨j + 1, by omega⟩
-    · rw [if_neg (fun hc => hc.2 (hi ▸ hb)), if_neg (fun hc => hc.2 hb)]
-    · rw [if_pos ⟨hi.symm, hi ▸ hb⟩, if_pos ⟨hi, hb⟩, ← hi, ncEval_x3, (e_commute_pol i _).eq]
-  · rw [if_neg (fun hc => hi hc.1.symm), if_neg (fun hc => hi hc.1)]
+    · rw [ite_eq_right (fun hc => hc.2 (hi ▸ hb)), ite_eq_right (fun hc => hc.2 hb)]
+    · rw [ite_eq_left ⟨hi.symm, hi ▸ hb⟩, ite_eq_left ⟨hi, hb⟩, ← hi, ncEval_x3, (e_commute_pol i _).eq]
+  · rw [ite_eq_right (fun hc => hi hc.1.symm), ite_eq_right (fun hc => hi hc.1)]
 
 /-! ### The horizontal flip -/
 
@@ -440,8 +441,8 @@ private theorem flipFlip_eq : (flipFlip : A →ₐ[k] A) = AlgHom.id k A := by
   apply RingQuot.ringQuot_ext'
   apply FreeAlgebra.hom_ext
   funext g
-  simp only [Function.comp_apply, AlgHom.comp_toLinearMap, LinearMap.coe_comp,
-    AlgHom.toLinearMap_apply, AlgHom.id_comp]
+  simp only [Function.comp_apply,
+    ]
   change flipFlip (mk k Q ν (FreeAlgebra.ι k g)) = mk k Q ν (FreeAlgebra.ι k g)
   rw [flipFlip_apply]
   cases g with
@@ -515,7 +516,7 @@ def sgn (j : ℕ) (i : Seq ν) : k :=
   if h : j + 1 < m then (if i.1 ⟨j, by omega⟩ = i.1 ⟨j + 1, h⟩ then -1 else 1) else 1
 
 theorem sgn_of_lt {j : ℕ} (h : j + 1 < m) (i : Seq ν) :
-    sgn k j i = if i.1 ⟨j, by omega⟩ = i.1 ⟨j + 1, h⟩ then -1 else 1 := dif_pos h
+    sgn k j i = if i.1 ⟨j, by omega⟩ = i.1 ⟨j + 1, h⟩ then -1 else 1 := dite_eq_left h
 
 @[simp] theorem sgn_mul_self (j : ℕ) (i : Seq ν) : sgn k j i * sgn k j i = 1 := by
   unfold sgn; split_ifs <;> simp
@@ -536,9 +537,9 @@ theorem sgn_sadj_of_far {j l : ℕ} (hjl : j + 1 < l ∨ l + 1 < j) (i : Seq ν)
   · rw [sgn_of_lt h, sgn_of_lt h, sadj_smul_apply, sadj_smul_apply]
     by_cases hl : l + 1 < m
     · have h1 : i.1 (sadj m l ⟨j, by omega⟩) = i.1 ⟨j, by omega⟩ :=
-        lbl_congr i (by rw [sadj_apply_val hl]; simp only [Fin.val_mk]; split_ifs <;> omega)
+        lbl_congr i (by rw [sadj_apply_val hl]; simp only []; split_ifs <;> omega)
       have h2 : i.1 (sadj m l ⟨j + 1, h⟩) = i.1 ⟨j + 1, h⟩ :=
-        lbl_congr i (by rw [sadj_apply_val hl]; simp only [Fin.val_mk]; split_ifs <;> omega)
+        lbl_congr i (by rw [sadj_apply_val hl]; simp only []; split_ifs <;> omega)
       rw [h1, h2]
     · simp [sadj, hl]
   · simp [sgn, h]
@@ -547,9 +548,9 @@ theorem sgn_rev {j : ℕ} (h : j + 1 < m) (i : Seq ν) :
     sgn k (m - 2 - j) i.rev = sgn k j i := by
   rw [sgn_of_lt (by omega), sgn_of_lt h, Seq.rev_apply, Seq.rev_apply]
   have h1 : i.1 (Fin.rev ⟨m - 2 - j, by omega⟩) = i.1 ⟨j + 1, h⟩ :=
-    lbl_congr i (by simp only [Fin.val_rev, Fin.val_mk]; omega)
+    lbl_congr i (by simp only [Fin.val_rev]; omega)
   have h2 : i.1 (Fin.rev ⟨m - 2 - j + 1, by omega⟩) = i.1 ⟨j, by omega⟩ :=
-    lbl_congr i (by simp only [Fin.val_rev, Fin.val_mk]; omega)
+    lbl_congr i (by simp only [Fin.val_rev]; omega)
   rw [h1, h2]
   simp only [eq_comm]
 
@@ -561,12 +562,12 @@ noncomputable def sgnE (j : ℕ) : A := ∑ i, sgn k j i • e i.rev
 theorem sgnE_mul_e_rev (j : ℕ) (i : Seq ν) :
     (sgnE Q j * e i.rev : A) = sgn k j i • e i.rev := by
   simp only [sgnE, Finset.sum_mul, smul_mul_assoc, e_mul_e, Seq.rev_inj, smul_ite, smul_zero,
-    Finset.sum_ite_eq', Finset.mem_univ, if_true]
+    Finset.sum_ite_eq', Finset.mem_univ, ite_true]
 
 theorem e_rev_mul_sgnE (j : ℕ) (i : Seq ν) :
     (e i.rev * sgnE Q j : A) = sgn k j i • e i.rev := by
   simp only [sgnE, Finset.mul_sum, mul_smul_comm, e_mul_e, Seq.rev_inj, smul_ite, smul_zero,
-    Finset.sum_ite_eq, Finset.mem_univ, if_true]
+    Finset.sum_ite_eq, Finset.mem_univ, ite_true]
 
 theorem x_mul_sgnE (a : Fin m) (j : ℕ) : (x a * sgnE Q j : A) = sgnE Q j * x a := by
   simp only [sgnE, Finset.mul_sum, Finset.sum_mul, mul_smul_comm, smul_mul_assoc, x_mul_e]
@@ -592,9 +593,9 @@ variable (Q) in
 noncomputable def sigmaψ (j : ℕ) : A := if j + 1 < m then ψ (m - 2 - j) * sgnE Q j else 0
 
 theorem sigmaψ_of_lt {j : ℕ} (h : j + 1 < m) : (sigmaψ Q j : A) = ψ (m - 2 - j) * sgnE Q j :=
-  if_pos h
+  ite_eq_left h
 
-theorem sigmaψ_of_le {j : ℕ} (h : m ≤ j + 1) : (sigmaψ Q j : A) = 0 := if_neg (by omega)
+theorem sigmaψ_of_le {j : ℕ} (h : m ≤ j + 1) : (sigmaψ Q j : A) = 0 := ite_eq_right (by omega)
 
 theorem sigmaψ_mul_e_rev {j : ℕ} (h : j + 1 < m) (i : Seq ν) :
     (sigmaψ Q j * e i.rev : A) = sgn k j i • (ψ (m - 2 - j) * e i.rev) := by
@@ -638,21 +639,21 @@ theorem sigma_dot_cross (a : Fin m) (j : ℕ) (h₁ : a.val ≠ j) (h₂ : a.val
 omit [DecidableEq I] in
 theorem rev_lbl_left {j : ℕ} (h : j + 1 < m) (i : Seq ν) :
     i.rev.1 ⟨m - 2 - j, by omega⟩ = i.1 ⟨j + 1, h⟩ := by
-  rw [Seq.rev_apply]; exact lbl_congr i (by simp only [Fin.val_rev, Fin.val_mk]; omega)
+  rw [Seq.rev_apply]; exact lbl_congr i (by simp only [Fin.val_rev]; omega)
 
 omit [DecidableEq I] in
 theorem rev_lbl_right {j : ℕ} (h : j + 1 < m) (i : Seq ν) :
     i.rev.1 ⟨m - 2 - j + 1, by omega⟩ = i.1 ⟨j, by omega⟩ := by
-  rw [Seq.rev_apply]; exact lbl_congr i (by simp only [Fin.val_rev, Fin.val_mk]; omega)
+  rw [Seq.rev_apply]; exact lbl_congr i (by simp only [Fin.val_rev]; omega)
 
 theorem sigma_dot_cross_left (j : ℕ) (h : j + 1 < m) (i : Seq ν) :
     ((x (Fin.rev ⟨j, by omega⟩) * sigmaψ Q j - sigmaψ Q j * x (Fin.rev ⟨j + 1, h⟩)) * e i.rev
       : A) = if i.lbl ⟨j, by omega⟩ = i.lbl ⟨j + 1, h⟩ then e i.rev else 0 := by
   have h' : m - 2 - j + 1 < m := by omega
   have r0 : (Fin.rev ⟨j, by omega⟩ : Fin m) = ⟨m - 2 - j + 1, h'⟩ :=
-    Fin.ext (by simp only [Fin.val_rev, Fin.val_mk]; omega)
+    Fin.ext (by simp only [Fin.val_rev]; omega)
   have r1 : (Fin.rev ⟨j + 1, h⟩ : Fin m) = ⟨m - 2 - j, by omega⟩ :=
-    Fin.ext (by simp only [Fin.val_rev, Fin.val_mk]; omega)
+    Fin.ext (by simp only [Fin.val_rev]; omega)
   have key : ((x ⟨m - 2 - j + 1, h'⟩ * sigmaψ Q j - sigmaψ Q j * x ⟨m - 2 - j, by omega⟩) *
       e i.rev : A) = -sgn k j i • ((ψ (m - 2 - j) * x ⟨m - 2 - j, by omega⟩ -
         x ⟨m - 2 - j + 1, h'⟩ * ψ (m - 2 - j)) * e i.rev) := by
@@ -672,9 +673,9 @@ theorem sigma_dot_cross_right (j : ℕ) (h : j + 1 < m) (i : Seq ν) :
       : A) = if i.lbl ⟨j, by omega⟩ = i.lbl ⟨j + 1, h⟩ then e i.rev else 0 := by
   have h' : m - 2 - j + 1 < m := by omega
   have r0 : (Fin.rev ⟨j, by omega⟩ : Fin m) = ⟨m - 2 - j + 1, h'⟩ :=
-    Fin.ext (by simp only [Fin.val_rev, Fin.val_mk]; omega)
+    Fin.ext (by simp only [Fin.val_rev]; omega)
   have r1 : (Fin.rev ⟨j + 1, h⟩ : Fin m) = ⟨m - 2 - j, by omega⟩ :=
-    Fin.ext (by simp only [Fin.val_rev, Fin.val_mk]; omega)
+    Fin.ext (by simp only [Fin.val_rev]; omega)
   have key : ((sigmaψ Q j * x ⟨m - 2 - j + 1, h'⟩ - x ⟨m - 2 - j, by omega⟩ * sigmaψ Q j) *
       e i.rev : A) = -sgn k j i • ((x ⟨m - 2 - j, by omega⟩ * ψ (m - 2 - j) -
         ψ (m - 2 - j) * x ⟨m - 2 - j + 1, h'⟩) * e i.rev) := by
@@ -708,7 +709,7 @@ theorem sigma_cross_sq (hQ : KLRSymm Q) (j : ℕ) (h : j + 1 < m) (i : Seq ν) :
   simp only [Seq.lbl, rev_lbl_left h, rev_lbl_right h]
   by_cases hi : i.1 ⟨j, by omega⟩ = i.1 ⟨j + 1, h⟩
   · simp [hi]
-  · rw [if_neg (Ne.symm hi), if_neg hi, ncEval_x2, hQ _ _ hi, rename_rename]
+  · rw [ite_eq_right (Ne.symm hi), ite_eq_right hi, ncEval_x2, hQ _ _ hi, rename_rename]
     congr 3
     congr 1
     funext c; fin_cases c <;> exact Fin.ext (by simp; omega)
@@ -764,11 +765,11 @@ theorem sigma_braid (j : ℕ) (h : j + 2 < m) (i : Seq ν) :
   rw [show m - 2 - j = l + 1 by omega, show m - 2 - (j + 1) = l by omega]
   have hbr := braid (k := k) (Q := Q) l hl2 i.rev
   have ra : i.rev.1 ⟨l, by omega⟩ = i.1 ⟨j + 2, h⟩ := by
-    rw [Seq.rev_apply]; exact lbl_congr i (by simp only [Fin.val_rev, Fin.val_mk]; omega)
+    rw [Seq.rev_apply]; exact lbl_congr i (by simp only [Fin.val_rev]; omega)
   have rb : i.rev.1 ⟨l + 1, by omega⟩ = i.1 ⟨j + 1, h0⟩ := by
-    rw [Seq.rev_apply]; exact lbl_congr i (by simp only [Fin.val_rev, Fin.val_mk]; omega)
+    rw [Seq.rev_apply]; exact lbl_congr i (by simp only [Fin.val_rev]; omega)
   have rc : i.rev.1 ⟨l + 2, hl2⟩ = i.1 ⟨j, by omega⟩ := by
-    rw [Seq.rev_apply]; exact lbl_congr i (by simp only [Fin.val_rev, Fin.val_mk]; omega)
+    rw [Seq.rev_apply]; exact lbl_congr i (by simp only [Fin.val_rev]; omega)
   simp only [Seq.lbl, ra, rb, rc] at hbr
   rw [sub_mul, sub_eq_iff_eq_add] at hbr
   simp only [Seq.lbl]
@@ -776,7 +777,7 @@ theorem sigma_braid (j : ℕ) (h : j + 2 < m) (i : Seq ν) :
   by_cases hac : i.1 ⟨j, by omega⟩ = i.1 ⟨j + 2, h⟩
   · by_cases hab : i.1 ⟨j, by omega⟩ = i.1 ⟨j + 1, h0⟩
     · have hbc : i.1 ⟨j + 1, h0⟩ = i.1 ⟨j + 2, h⟩ := hab ▸ hac
-      simp [hab, hac, hbc]
+      simp [hab, hbc]
     · have hbc : i.1 ⟨j + 1, h0⟩ ≠ i.1 ⟨j + 2, h⟩ := fun hbc => hab (hac.trans hbc.symm)
       have hf : (fun d => (![(⟨j, by omega⟩ : Fin m), ⟨j + 1, h0⟩, ⟨j + 2, h⟩] d).rev) =
           (![(⟨l, by omega⟩ : Fin m), ⟨l + 1, by omega⟩, ⟨l + 2, hl2⟩] ∘ ![2, 1, 0]) := by
@@ -790,15 +791,15 @@ theorem sigma_braid (j : ℕ) (h : j + 2 < m) (i : Seq ν) :
         ⟨hac.symm, fun h' => hab (hac.trans h')⟩
       have hc2 : i.1 ⟨j, by omega⟩ = i.1 ⟨j + 2, h⟩ ∧ i.1 ⟨j, by omega⟩ ≠ i.1 ⟨j + 1, h0⟩ :=
         ⟨hac, hab⟩
-      rw [if_pos hc1, if_pos hc2, key]
-      rw [if_pos hac, if_neg hab, if_neg hbc]
-      simp only [mul_one, one_mul, neg_smul, one_smul, smul_add, neg_add, sub_neg_eq_add]
+      rw [ite_eq_left hc1, ite_eq_left hc2, key]
+      rw [ite_eq_left hac, ite_eq_right hab, ite_eq_right hbc]
+      simp only [mul_one, one_mul, neg_smul, one_smul, smul_add]
       abel
   · have hc1 : ¬ (i.1 ⟨j + 2, h⟩ = i.1 ⟨j, by omega⟩ ∧ i.1 ⟨j + 2, h⟩ ≠ i.1 ⟨j + 1, h0⟩) :=
       fun hc => hac hc.1.symm
     have hc2 : ¬ (i.1 ⟨j, by omega⟩ = i.1 ⟨j + 2, h⟩ ∧ i.1 ⟨j, by omega⟩ ≠ i.1 ⟨j + 1, h0⟩) :=
       fun hc => hac hc.1
-    rw [if_neg hc1, if_neg hc2, zero_add]
+    rw [ite_eq_right hc1, ite_eq_right hc2, zero_add]
     by_cases hab : i.1 ⟨j, by omega⟩ = i.1 ⟨j + 1, h0⟩ <;>
     by_cases hbc : i.1 ⟨j + 1, h0⟩ = i.1 ⟨j + 2, h⟩ <;>
     simp [hab, hac, hbc]
@@ -900,7 +901,7 @@ omit hQ in
 theorem sum_sgn_e_mul_e (j : ℕ) (i : Seq ν) :
     ((∑ i', sgn k j i' • e i') * e i : A) = sgn k j i • e i := by
   simp only [Finset.sum_mul, smul_mul_assoc, e_mul_e, smul_ite, smul_zero, Finset.sum_ite_eq',
-    Finset.mem_univ, if_true]
+    Finset.mem_univ, ite_true]
 
 omit hQ in
 theorem sum_sgn_e_mul_self (j : ℕ) :

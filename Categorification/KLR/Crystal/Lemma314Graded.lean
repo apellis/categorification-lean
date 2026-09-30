@@ -75,7 +75,7 @@ noncomputable section
 
 namespace Categorification.KLR
 
-open Graded DirectSum MvPolynomial TypeA
+open Categorification.Graded DirectSum MvPolynomial TypeA
 open scoped TensorProduct
 
 universe u
@@ -135,9 +135,9 @@ variable {A : Type*} [Ring A] [Algebra K A]
 /-- A homogeneous submodule of a homogeneous submodule is homogeneous. -/
 theorem isHomogeneous_map_subtype {T : Submodule A V} (hT : T.IsHomogeneous 𝒱)
     {p : Submodule A T}
-    (hp : letI := submoduleDecomposition 𝒱 hT; p.IsHomogeneous (submodule 𝒱 T)) :
+    (hp : let := submoduleDecomposition 𝒱 hT; p.IsHomogeneous (submodule 𝒱 T)) :
     (p.map T.subtype).IsHomogeneous 𝒱 := by
-  letI := submoduleDecomposition 𝒱 hT
+  let := submoduleDecomposition 𝒱 hT
   intro d x hx
   obtain ⟨y, hy, rfl⟩ := Submodule.mem_map.1 hx
   have h := decompose_map (R := A) (ℳ := submodule 𝒱 T) (𝒩 := 𝒱) (f := T.subtype)
@@ -156,9 +156,9 @@ theorem exists_isHomogeneous_isSimpleModule (𝒜 : ℤ → Submodule K A) [Grad
   obtain ⟨T, ⟨hT, hT0⟩, hmin⟩ :=
     (measure fun T : Submodule A V => Module.finrank K T).wf.has_min Hs hne
   refine ⟨T, hT, ?_⟩
-  letI := submoduleDecomposition 𝒱 hT
-  haveI : Nontrivial T := Submodule.nontrivial_iff_ne_bot.2 hT0
-  haveI : FiniteDimensional K T := finiteDimensional_submodule' T
+  let := submoduleDecomposition 𝒱 hT
+  have : Nontrivial T := Submodule.nontrivial_iff_ne_bot.2 hT0
+  have : FiniteDimensional K T := finiteDimensional_submodule' T
   have hgs : IsGradedSimple 𝒜 (submodule 𝒱 T) := by
     refine ⟨inferInstance, fun p hp => ?_⟩
     by_cases hp0 : p = ⊥
@@ -202,8 +202,8 @@ theorem isHomogeneous_of_isSimpleModule [FiniteDimensional K M]
     (hle : Multiset.card ν' ≤ epsI Q (μ + ν') i M)
     (S : Submodule (TensorKLR Q μ ν') (ResSub Q μ ν' M)) [IsSimpleModule (TensorKLR Q μ ν') S] :
     S.IsHomogeneous (resSubGrading ℳ G) := by
-  haveI : Nontrivial (ResSub Q μ ν' M) := by
-    haveI := IsSimpleModule.nontrivial (TensorKLR Q μ ν') S
+  have : Nontrivial (ResSub Q μ ν' M) := by
+    have := IsSimpleModule.nontrivial (TensorKLR Q μ ν') S
     obtain ⟨⟨v, hv⟩, hv0⟩ := exists_ne (0 : S)
     exact ⟨⟨v, 0, fun h => hv0 (Subtype.ext h)⟩⟩
   obtain ⟨T, hT, hTs⟩ := exists_isHomogeneous_isSimpleModule (A := TensorKLR Q μ ν')
@@ -385,7 +385,7 @@ theorem hwGrading_range (v : hwLeft S) (d : ℤ) :
     have h := decompose_smul_of_mem_left (𝒜 := tensorGrading (G.grade μ) (G.grade ν'))
       (ℳ := resSubGrading ℳ G) (one_tmul_ψ_mem_tensorGrading G hν' j) s
       (d + G.dψ j (Seq.constSeq hν'))
-    rw [add_sub_cancel_right, v.2.2 j, decompose_zero, zero_apply, ZeroMemClass.coe_zero] at h
+    rw [add_sub_cancel_right, v.2.2 j, decompose_zero, DirectSum.zero_apply, ZeroMemClass.coe_zero] at h
     exact h.symm
   exact ⟨⟨ResLeft.ofRes c, hcS, hcHW⟩, hcM⟩
 
@@ -404,23 +404,23 @@ variable {V : Type*} [AddCommGroup V] [Module K V] {L : Type*} [AddCommGroup L] 
   {ι : Type*} [Fintype ι] [DecidableEq ι]
 
 /-- `V ⊠ L ≅ V^{⊕ ι}` for a basis of `L` indexed by `ι` (`K`-linear). -/
-def extTensorPiIdx (b : Basis ι K L) : ExtTensor K V L ≃ₗ[K] (ι → V) :=
+def extTensorPiIdx (b : Module.Basis ι K L) : ExtTensor K V L ≃ₗ[K] (ι → V) :=
   ExtTensor.equivTensor ≪≫ₗ TensorProduct.equivFinsuppOfBasisRight b ≪≫ₗ
     Finsupp.linearEquivFunOnFinite K V ι
 
-theorem extTensorPiIdx_tmul (b : Basis ι K L) (v : V) (ℓ : L) (j : ι) :
+theorem extTensorPiIdx_tmul (b : Module.Basis ι K L) (v : V) (ℓ : L) (j : ι) :
     extTensorPiIdx b (ExtTensor.tmul v ℓ) j = b.repr ℓ j • v := by
   simp only [extTensorPiIdx, LinearEquiv.trans_apply, Finsupp.linearEquivFunOnFinite_apply]
   exact TensorProduct.equivFinsuppOfBasisRight_apply_tmul_apply b v ℓ j
 
-theorem extTensorPiIdx_symm_apply (b : Basis ι K L) (g : ι → V) :
+theorem extTensorPiIdx_symm_apply (b : Module.Basis ι K L) (g : ι → V) :
     (extTensorPiIdx b).symm g = ∑ u, ExtTensor.tmul (g u) (b u) := by
   rw [LinearEquiv.symm_apply_eq]
   funext j
   rw [map_sum, Finset.sum_apply, Finset.sum_eq_single j]
-  · rw [extTensorPiIdx_tmul, Basis.repr_self, Finsupp.single_eq_same, one_smul]
+  · rw [extTensorPiIdx_tmul, Module.Basis.repr_self, Finsupp.single_eq_same, one_smul]
   · intro u _ hu
-    rw [extTensorPiIdx_tmul, Basis.repr_self, Finsupp.single_eq_of_ne hu, zero_smul]
+    rw [extTensorPiIdx_tmul, Module.Basis.repr_self, Finsupp.single_eq_of_ne hu.symm, zero_smul]
   · intro h
     exact absurd (Finset.mem_univ j) h
 
@@ -458,13 +458,13 @@ theorem pol_stair_mem_grade (u : Staircase (Multiset.card ν')) :
   rwa [e_eq_one_of_forall hν', mul_one, ← Finset.sum_mul, mul_comm] at h
 
 /-- The basis `[x^u]` of `L(i^n)` (Artin's staircase basis). -/
-def stairBasis : Basis (Staircase (Multiset.card ν')) K (KLRRep hν' Q) :=
+def stairBasis : Module.Basis (Staircase (Multiset.card ν')) K (KLRRep hν' Q) :=
   (coinvBasis K (Multiset.card ν')).map (KLRRep.of hν' Q)
 
 omit [DecidableEq I] in
 theorem stairBasis_apply (u : Staircase (Multiset.card ν')) :
     stairBasis hν' (Q := Q) u = lMk hν' Q (stair u) := by
-  rw [stairBasis, Basis.map_apply, coinvBasis_apply]
+  rw [stairBasis, Module.Basis.map_apply, coinvBasis_apply]
   rfl
 
 variable {S}
@@ -549,8 +549,8 @@ def socGradedEquiv :
     piGrading (fun u : Staircase (Multiset.card ν') =>
         shift (hwGrading S ℳ) (G.degX i * ∑ a, (u.1 a : ℤ))) ≃ᵍ[KLRAlgebra K Q μ]
       socGrading S ℳ :=
-  letI : Decomposition (hwGrading S ℳ) := (isInternal_hwGrading G hν' ℳ S hS).chooseDecomposition
-  letI : Decomposition (socGrading S ℳ) := (isInternal_socGrading G ℳ S hS).chooseDecomposition
+  let : Decomposition (hwGrading S ℳ) := (isInternal_hwGrading G hν' ℳ S hS).chooseDecomposition
+  let : Decomposition (socGrading S ℳ) := (isInternal_socGrading G ℳ S hS).chooseDecomposition
   GradedEquiv.ofPreserves (socEquiv hν' hPQ hP hnil) fun D g hg => by
     show socVal S (socFun hν' hPQ hP hnil g) ∈ ℳ D
     rw [socVal_socFun]
@@ -584,7 +584,7 @@ def piGradingEquiv (𝒩 : ∀ t, ℤ → Submodule K (N t)) (d : ℤ) :
 theorem gdimPoly_piGrading [∀ t, FiniteDimensional K (N t)] (𝒩 : ∀ t, ℤ → Submodule K (N t))
     [∀ t, Decomposition (𝒩 t)] : gdimPoly (piGrading 𝒩) = ∑ t, gdimPoly (𝒩 t) := by
   ext d
-  rw [gdimPoly_apply, Finsupp.finset_sum_apply]
+  rw [gdimPoly_apply, AddMonoidAlgebra.coeff_sum, Finsupp.finsetSum_apply]
   simp only [gdimPoly_apply]
   rw [← Nat.cast_sum, (piGradingEquiv 𝒩 d).finrank_eq, Module.finrank_pi_fintype]
 
@@ -608,10 +608,10 @@ theorem gdimPoly_socle_of_equiv [FiniteDimensional K M] (hS : S.IsHomogeneous (r
         shift (hwGrading S ℳ) (G.degX i * ∑ a, (u.1 a : ℤ))) ≃ᵍ[KLRAlgebra K Q μ]
       socGrading S ℳ) :
     gdimPoly (socGrading S ℳ) = stairPoly (Multiset.card ν') (G.degX i) * gdimPoly (hwGrading S ℳ) := by
-  letI : Decomposition (hwGrading S ℳ) := (isInternal_hwGrading G hν' ℳ S hS).chooseDecomposition
-  haveI : FiniteDimensional K (ResLeft Q μ ν' M) :=
+  let : Decomposition (hwGrading S ℳ) := (isInternal_hwGrading G hν' ℳ S hS).chooseDecomposition
+  have : FiniteDimensional K (ResLeft Q μ ν' M) :=
     inferInstanceAs (FiniteDimensional K (ResSub Q μ ν' M))
-  haveI : FiniteDimensional K (hwLeft S) := finiteDimensional_submodule' (hwLeft S)
+  have : FiniteDimensional K (hwLeft S) := finiteDimensional_submodule' (hwLeft S)
   rw [← gdimPoly_congr f, gdimPoly_piGrading, stairPoly, Finset.sum_mul]
   refine Finset.sum_congr rfl fun u _ => ?_
   exact gdimPoly_shift (hwGrading S ℳ) _
@@ -639,8 +639,8 @@ theorem lemma_3_14_graded (hG : ∀ a, 0 < G.degX a) (hM : IsGradedSimple (G.gra
     gdimPoly (socGrading S ℳ) =
       stairPoly (Multiset.card ν') (G.degX i) * gdimPoly (hwGrading S ℳ) := by
   obtain ⟨hfd, hsimple, hnil⟩ := crystal_hypotheses_of_isGradedSimple G hG ℳ hPQ hP hM
-  haveI := hfd
-  haveI := hsimple
+  have := hfd
+  have := hsimple
   have hS := isHomogeneous_of_isSimpleModule G hν' hPQ hP ℳ hnil hle S
   have f := socGradedEquiv G hν' hPQ hP ℳ hnil hS (S := S)
   obtain ⟨e⟩ := lemma_3_13_hw hPQ hP hν' hnil hle S
@@ -683,15 +683,15 @@ theorem gdimPoly_socle_kl (hM : IsGradedSimple ((klGradingDatum K Γ).grade (μ 
   obtain ⟨hfd, -, hnil⟩ := crystal_hypotheses_of_isGradedSimple (klGradingDatum K Γ)
     KL1.klGradingDatum_degX_pos ℳ (klQ_eq_klP (Γ := Γ) KL1.stdOrient_spec)
     (fun a b _ => KL1.klP_ne_zero _ a b) hM
-  haveI := hfd
+  have := hfd
   have hS := (lemma_3_14_graded (klGradingDatum K Γ) hν'
     (klQ_eq_klP (Γ := Γ) KL1.stdOrient_spec) (fun a b _ => KL1.klP_ne_zero _ a b) ℳ S
     KL1.klGradingDatum_degX_pos hM hle).2.1
-  letI : Decomposition (hwGrading S ℳ) :=
+  let : Decomposition (hwGrading S ℳ) :=
     (isInternal_hwGrading (klGradingDatum K Γ) hν' ℳ S hS).chooseDecomposition
-  haveI : FiniteDimensional K (ResLeft (klQ (k := K) Γ) μ ν' M) :=
+  have : FiniteDimensional K (ResLeft (klQ (k := K) Γ) μ ν' M) :=
     inferInstanceAs (FiniteDimensional K (ResSub (klQ (k := K) Γ) μ ν' M))
-  haveI : FiniteDimensional K (hwLeft S) := finiteDimensional_submodule' (hwLeft S)
+  have : FiniteDimensional K (hwLeft S) := finiteDimensional_submodule' (hwLeft S)
   rw [h, gdimPoly_shift]
   set N : ℤ := (((Multiset.card ν').choose 2 : ℕ) : ℤ)
   have hT : (LaurentPolynomial.T (-N) : LaurentPolynomial ℤ) * LaurentPolynomial.T (2 * N) =

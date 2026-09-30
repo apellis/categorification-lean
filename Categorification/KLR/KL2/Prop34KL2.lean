@@ -48,7 +48,7 @@ noncomputable section
 
 namespace Categorification.KLR
 
-open Graded KLRAlgebra LaurentPolynomial QuantumGroup TypeA Equiv KL2 KLGamma
+open Categorification.Graded KLRAlgebra LaurentPolynomial QuantumGroup TypeA Equiv KL2 KLGamma
 
 namespace KL2
 
@@ -140,17 +140,17 @@ theorem homFormP2_of {ν : Multiset I} (j : Seq ν) (x : K0 ((G2).grade ν)) :
 theorem homFormP2_of_ne {ν μ : Multiset I} (j : Seq ν) (x : K0 ((G2).grade μ)) (h : μ ≠ ν) :
     homFormP2 k C j (DirectSum.of (G2).K0fam μ x) = 0 := by
   rw [homFormP2, AddMonoidHom.comp_apply, LinearMap.toAddMonoidHom_coe,
-    ← DirectSum.lof_eq_of (LaurentPolynomial ℤ), DirectSum.component.of, dif_neg h, map_zero]
+    ← DirectSum.lof_eq_of (LaurentPolynomial ℤ), DirectSum.component.of, dite_eq_right h, map_zero]
 
 theorem lsCast_homFormP2_smul {ν : Multiset I} (j : Seq ν) (p : LaurentPolynomial ℤ)
     (z : (G2).K0R) :
     lsCast (homFormP2 k C j (p • z)) = vToLS (qToV p) * lsCast (homFormP2 k C j z) := by
-  induction p using Finsupp.induction_linear with
+  induction p using AddMonoidAlgebra.induction_linear with
   | zero => simp
   | add p p' hp hp' => rw [add_smul, map_add, map_add, hp, hp', map_add, map_add, add_mul]
   | single n m =>
-    have hT : (Finsupp.single n m : LaurentPolynomial ℤ) = m • T n := by
-      rw [T, Finsupp.smul_single, smul_eq_mul, mul_one]
+    have hT : (AddMonoidAlgebra.single n m : LaurentPolynomial ℤ) = m • T n := by
+      rw [LaurentPolynomial.single_eq_C_mul_T, LaurentPolynomial.smul_eq_C_mul]
     have hTz : homFormP2 k C j ((T n : LaurentPolynomial ℤ) • z) =
         HahnSeries.single n 1 * homFormP2 k C j z := by
       simp only [homFormP2, AddMonoidHom.comp_apply, LinearMap.toAddMonoidHom_coe]
@@ -184,17 +184,18 @@ theorem pairP2_toK0Q2 {ν : Multiset I} (j : Seq ν) (z : (G2).K0R) :
 /-- `pairP2 j` is `Ψ`-semilinear over `ℚ(v)`. -/
 theorem pairP2_smul {ν : Multiset I} (j : Seq ν) (b : RatFunc ℚ) (t : K0Q2 k C) :
     pairP2 k C j (b • t) = vToLS b * pairP2 k C j t := by
-  refine TensorProduct.induction_on (motive := fun t : TensorProduct (LaurentPolynomial ℤ)
+  refine TensorProduct.inductionOn (motive := fun t : TensorProduct (LaurentPolynomial ℤ)
     (RatFunc ℚ) (G2).K0R => pairP2 k C j (b • (t : K0Q2 k C)) = vToLS b * pairP2 k C j t) t
-    ?_ ?_ ?_
-  · show pairP2 k C j (b • (0 : K0Q2 k C)) = _
-    rw [smul_zero, map_zero, mul_zero]
+    ?_ ?_
   · intro a z
-    change pairP2 k C j (b • a ⊗ₜ[LaurentPolynomial ℤ] z) = _
     rw [TensorProduct.smul_tmul', pairP2_tmul, pairP2_tmul, smul_eq_mul, map_mul, mul_assoc]
   · intro x y hx hy
-    change pairP2 k C j (b • ((x : K0Q2 k C) + y)) = _
-    rw [smul_add, map_add, hx, hy, map_add, mul_add]
+    rw [smul_add]
+    change pairP2 k C j ((b • (x : K0Q2 k C)) + b • (y : K0Q2 k C)) = _
+    exact (map_add (pairP2 k C j) (b • (x : K0Q2 k C)) (b • (y : K0Q2 k C))).trans
+      ((congrArg₂ (· + ·) hx hy).trans
+        ((mul_add _ _ _).symm.trans
+          (congrArg (vToLS b * ·) (map_add (pairP2 k C j) (x : K0Q2 k C) (y : K0Q2 k C)).symm)))
 
 end Pairing
 
@@ -216,9 +217,9 @@ theorem lsCast_homForm_projP2 {ν : Multiset I} (i j : Seq ν) :
       ∑ p ∈ invSet (Multiset.card ν) σ, C.dot (i.lbl p.1) (i.lbl p.2) :=
     Finset.sum_congr rfl fun p _ => C.symm _ _
   by_cases h : σ • i = j
-  · rw [if_pos h, if_pos ((smul_eq_iff σ i j).1 h), map_mul, map_prod, lsCast_single, vToLS_zpow,
+  · rw [ite_eq_left h, ite_eq_left ((smul_eq_iff σ i j).1 h), map_mul, map_prod, lsCast_single, vToLS_zpow,
       hE, Int.cast_one, mul_comm]
-  · rw [if_neg h, if_neg (mt (smul_eq_iff σ i j).2 h), map_zero, mul_zero]
+  · rw [ite_eq_right h, ite_eq_right (mt (smul_eq_iff σ i j).2 h), map_zero, mul_zero]
 
 /-- `pairP2_y (γ(θ_w)) = ([P_y], [P_w]) = Ψ((θ_w, θ_y))` for words `w`, `y`. -/
 theorem pairP2_gammaQ2_word (w y : FreeMonoid I) :

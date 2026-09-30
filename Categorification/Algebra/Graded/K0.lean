@@ -213,7 +213,7 @@ theorem of_prod (P Q : GProj 𝒜) : of (P.prod Q) = of P + of Q := by
 /-- Additive maps out of `K₀` are determined by their values on classes `[P]`. -/
 theorem hom_ext {G : Type*} [AddCommGroup G] {f g : K0 𝒜 →+ G}
     (h : ∀ P : GProj 𝒜, f (of P) = g (of P)) : f = g := by
-  refine QuotientAddGroup.addMonoidHom_ext _ (FreeAbelianGroup.lift.ext _ _ fun c => ?_)
+  refine QuotientAddGroup.addMonoidHom_ext _ (FreeAbelianGroup.lift_ext _ _ fun c => ?_)
   obtain ⟨P, rfl⟩ := isoClass_surjective c
   exact h P
 
@@ -225,12 +225,12 @@ theorem induction_on {motive : K0 𝒜 → Prop} (x : K0 𝒜) (of : ∀ P, moti
     (neg : ∀ x, motive x → motive (-x)) : motive x := by
   obtain ⟨y, rfl⟩ := mk_surjective x
   induction y using FreeAbelianGroup.induction_on with
-  | C0 => simpa using zero
-  | C1 c =>
+  | zero => simpa using zero
+  | of c =>
     obtain ⟨P, rfl⟩ := isoClass_surjective c
     exact of P
-  | Cn c h => simpa using neg _ h
-  | Cp y z hy hz => simpa using add _ _ hy hz
+  | neg c h => simpa using neg _ h
+  | add y z hy hz => simpa using add _ _ hy hz
 
 /-! ### The grading shift and the `ℤ[q, q⁻¹]`-module structure -/
 
@@ -272,10 +272,10 @@ def qPow : Multiplicative ℤ →* Module.End ℤ (K0 𝒜) where
 
 /-- `K₀(A)` is a `ℤ[q, q⁻¹]`-module, `q` acting by the grading shift `{1}`. -/
 noncomputable instance : Module (LaurentPolynomial ℤ) (K0 𝒜) :=
-  Module.compHom (K0 𝒜) (AddMonoidAlgebra.lift ℤ ℤ (Module.End ℤ (K0 𝒜)) qPow).toRingHom
+  Module.compHom (K0 𝒜) (AddMonoidAlgebra.lift ℤ (Module.End ℤ (K0 𝒜)) ℤ qPow).toRingHom
 
 theorem smul_def (p : LaurentPolynomial ℤ) (x : K0 𝒜) :
-    p • x = AddMonoidAlgebra.lift ℤ ℤ (Module.End ℤ (K0 𝒜)) qPow p x := rfl
+    p • x = AddMonoidAlgebra.lift ℤ (Module.End ℤ (K0 𝒜)) ℤ qPow p x := rfl
 
 /-- `q^a • x = x{a}`. -/
 theorem T_smul (a : ℤ) (x : K0 𝒜) : (LaurentPolynomial.T a : LaurentPolynomial ℤ) • x =

@@ -158,18 +158,20 @@ variable {k : Type*} [Field k] {A B : Type*} [Ring A] [Algebra k A] [Ring B] [Al
 theorem coe_map_id_left (f : P₁ →ₗ[A] P₂) :
     ⇑(map (k := k) f (LinearMap.id : Q₁ →ₗ[B] Q₁)) = ⇑((f.restrictScalars k).rTensor Q₁) := by
   funext x
-  induction x using TensorProduct.induction_on with
-  | zero => rw [map_zero, map_zero]
+  induction x using TensorProduct.inductionOn with
   | tmul p q => rfl
-  | add x y hx hy => rw [map_add, map_add, hx, hy]
+  | add x y hx hy =>
+    exact ((map (k := k) f LinearMap.id).map_add x y).trans
+      ((congrArg₂ (· + ·) hx hy).trans (((f.restrictScalars k).rTensor Q₁).map_add x y).symm)
 
 theorem coe_map_id_right (g : Q₁ →ₗ[B] Q₂) :
     ⇑(map (k := k) (LinearMap.id : P₁ →ₗ[A] P₁) g) = ⇑((g.restrictScalars k).lTensor P₁) := by
   funext x
-  induction x using TensorProduct.induction_on with
-  | zero => rw [map_zero, map_zero]
+  induction x using TensorProduct.inductionOn with
   | tmul p q => rfl
-  | add x y hx hy => rw [map_add, map_add, hx, hy]
+  | add x y hx hy =>
+    exact ((map (k := k) LinearMap.id g).map_add x y).trans
+      ((congrArg₂ (· + ·) hx hy).trans (((g.restrictScalars k).lTensor P₁).map_add x y).symm)
 
 theorem map_id_injective_left {f : P₁ →ₗ[A] P₂} (hf : Function.Injective f) :
     Function.Injective (map (k := k) f (LinearMap.id : Q₁ →ₗ[B] Q₁)) := by
@@ -199,7 +201,7 @@ end ExtTensor
 
 namespace KLR
 
-open Graded KLRAlgebra MulOpposite
+open Categorification.Graded KLRAlgebra MulOpposite
 
 variable {I : Type*} [DecidableEq I] {k : Type*} [Field k] {Q : I → I → MvPolynomial (Fin 2) k}
   {P : I → I → MvPolynomial (Fin 2) k}
@@ -288,7 +290,7 @@ section IndFin
 /-- **`Ind_{ν,ν'} (M ⊠ M')`** for finite-dimensional graded `M`, `M'`: a finite-dimensional
 graded `R(ν + ν')`-module. -/
 def indFin (M : GFin (G.grade ν)) (M' : GFin (G.grade ν')) : GFin (G.grade (ν + ν')) :=
-  haveI : FiniteDimensional k (ExtTensor k M.carrier M'.carrier) :=
+  have : FiniteDimensional k (ExtTensor k M.carrier M'.carrier) :=
     inferInstanceAs (FiniteDimensional k (M.carrier ⊗[k] M'.carrier))
   { toGMod :=
       { carrier := Ind Q ν ν' (ExtTensor k M.carrier M'.carrier)
@@ -525,11 +527,11 @@ theorem finiteDimensional_zero : FiniteDimensional k (KLRAlgebra k Q 0) := by
   let B := KLRAlgebra.basis hPQ hP (fun w : Equiv.Perm (Fin (Multiset.card (0 : Multiset I))) =>
       TypeA.canWord _ w)
     (fun w => ⟨TypeA.isReduced_canWord _ w, TypeA.wordProd_canWord _ w⟩)
-  haveI : Finite (Fin (Multiset.card (0 : Multiset I)) →₀ ℕ) := by
-    haveI : IsEmpty (Fin (Multiset.card (0 : Multiset I))) := by
+  have : Finite (Fin (Multiset.card (0 : Multiset I)) →₀ ℕ) := by
+    have : IsEmpty (Fin (Multiset.card (0 : Multiset I))) := by
       rw [Multiset.card_zero]; exact Fin.isEmpty'
     infer_instance
-  exact FiniteDimensional.of_fintype_basis B
+  exact Module.Finite.of_basis B
 
 /-- The unit module `R(0) = k`, graded by `G.grade 0`, as an object of `R(0)-fmod`. -/
 def unitFin : GFin (G.grade (0 : Multiset I)) :=
@@ -576,7 +578,7 @@ variable (hG : ∀ a, 0 < G.degX a)
 /-- The family `ν ↦ G₀(R(ν))`, a type synonym recording the hypotheses `hPQ`, `hP`, `hG` (so
 that the algebra and coalgebra structures of `G₀(R)` can be instances). -/
 @[nolint unusedArguments]
-def G0fam (_hPQ : ∀ a b, a ≠ b → Q a b = P b a * MvPolynomial.rename ![1, 0] (P a b))
+abbrev G0fam (_hPQ : ∀ a b, a ≠ b → Q a b = P b a * MvPolynomial.rename ![1, 0] (P a b))
     (_hP : ∀ a b, a ≠ b → P a b ≠ 0) (_hG : ∀ a, 0 < G.degX a) (ν : Multiset I) : Type _ :=
   G0 (G.grade ν)
 
@@ -657,7 +659,7 @@ instance gAlgebraG0 : DirectSum.GAlgebra (LaurentPolynomial ℤ) (G.G0fam hPQ hP
     show GradedMonoid.mk (A := G.G0fam hPQ hP hG) 0 ((r * s) • G.G0one hPQ hP) =
       GradedMonoid.mk (0 + 0) (G.indG0 hPQ hP 0 0 (r • G.G0one hPQ hP) (s • G.G0one hPQ hP))
     rw [G.G0_mk_cast hPQ hP hG (zero_add (0 : Multiset I))]
-    simp only [LinearMap.map_smul₂, LinearMap.map_smul, LinearMap.smul_apply, G0cast_smul]
+    simp only [LinearMap.map_smul, LinearMap.smul_apply, G0cast_smul]
     rw [indG0_one_left, mul_smul]
   commutes r x := by
     obtain ⟨ν, x⟩ := x
@@ -665,14 +667,14 @@ instance gAlgebraG0 : DirectSum.GAlgebra (LaurentPolynomial ℤ) (G.G0fam hPQ hP
         (G.indG0 hPQ hP 0 ν (r • G.G0one hPQ hP) x) =
       GradedMonoid.mk (ν + 0) (G.indG0 hPQ hP ν 0 x (r • G.G0one hPQ hP))
     rw [G.G0_mk_cast hPQ hP hG (zero_add ν), G.G0_mk_cast hPQ hP hG (add_zero ν)]
-    simp only [LinearMap.map_smul₂, LinearMap.map_smul, LinearMap.smul_apply, G0cast_smul]
+    simp only [LinearMap.map_smul, LinearMap.smul_apply, G0cast_smul]
     rw [indG0_one_left, indG0_one_right]
   smul_def r x := by
     obtain ⟨ν, x⟩ := x
     show GradedMonoid.mk (A := G.G0fam hPQ hP hG) ν (r • x) =
       GradedMonoid.mk (0 + ν) (G.indG0 hPQ hP 0 ν (r • G.G0one hPQ hP) x)
     rw [G.G0_mk_cast hPQ hP hG (zero_add ν)]
-    simp only [LinearMap.map_smul₂, LinearMap.smul_apply, G0cast_smul]
+    simp only [LinearMap.map_smul₂, G0cast_smul]
     rw [indG0_one_left]
 
 /-- **The Grothendieck algebra** `G₀(R) = ⨁_{ν ∈ ℕ[I]} G₀(R(ν))` (KL I, §3.1, Proposition 3.1):

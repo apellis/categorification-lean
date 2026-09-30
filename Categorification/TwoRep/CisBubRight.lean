@@ -25,6 +25,8 @@ noncomputable section
 
 namespace Categorification.TwoRep
 
+set_option backward.isDefEq.respectTransparency false
+
 open CategoryTheory CategoryTheory.Limits CategoryTheory.Bicategory Module
 
 universe w v u
@@ -47,7 +49,7 @@ theorem whiskerRightShiftIso_natural_left {a b c : B} {f f' : a ⟶ b} (η : f �
     (n : ℤ) : (η⟦n⟧' ▷ g) ≫ (whiskerRightShiftIso f' g n).hom =
       (whiskerRightShiftIso f g n).hom ≫ (η ▷ g)⟦n⟧' := by
   have := ((postcomp a g).commShiftIso n).hom.naturality η
-  simpa only [Functor.comp_map] using this
+  exact this
 
 /-- The endomorphism of `X` of degree `d` induced by `g : 𝟙 ⟶ 𝟙⟨d⟩` on the source side. -/
 def cisBubR {a b : B} (X : a ⟶ b) {d : ℤ} (g : 𝟙 a ⟶ (𝟙 a)⟦d⟧) : X ⟶ X⟦d⟧ :=
@@ -133,9 +135,10 @@ theorem shWhiskerRight_mk₀_id {f : a ⟶ b} (m₀ : ℤ) (h : m₀ = 0) :
     ShiftedHom.mk₀ (0 : ℤ) rfl (𝟙 (f ≫ Y))
   rw [Functor.commShiftIso_zero, Functor.CommShift.isoZero_hom_app]
   simp only [ShiftedHom.mk₀, shiftFunctorZero', eqToIso_refl, Iso.refl_trans, Category.id_comp,
-    Category.assoc, postcomp_obj, postcomp_map]
+    postcomp_map]
   rw [← comp_whiskerRight_assoc, Iso.inv_hom_id_app]
   simp
+  rfl
 
 /-- Shifted right whiskering commutes with powers. -/
 theorem shWhiskerRight_shPow {f : a ⟶ b} {d : ℤ} (θ : ShiftedHom f f d) :

@@ -42,7 +42,7 @@ theorem ncEval_eq_aeval {B : Type*} [CommRing B] [Algebra k B] {n : ℕ} (y : Fi
 namespace Seq
 
 /-- If all labels of `ν` equal `i`, then `Seq ν` is a singleton, `{i i ⋯ i}`. -/
-def uniqueOfForall {ν : Multiset I} {i : I} (hν : ∀ a ∈ ν, a = i) : Unique (Seq ν) where
+abbrev uniqueOfForall {ν : Multiset I} {i : I} (hν : ∀ a ∈ ν, a = i) : Unique (Seq ν) where
   default := ⟨fun _ => i, by
     rw [Multiset.map_const', Finset.card_val, Finset.card_univ, Fintype.card_fin]
     exact (Multiset.eq_replicate_card.2 hν).symm⟩
@@ -50,7 +50,7 @@ def uniqueOfForall {ν : Multiset I} {i : I} (hν : ∀ a ∈ ν, a = i) : Uniqu
 
 /-- `Seq 0` is a singleton (the empty sequence). -/
 instance uniqueZero : Unique (Seq (0 : Multiset I)) where
-  default := ⟨Fin.elim0, by simp⟩
+  default := ⟨Fin.elim0, by simp; exact Finset.eq_empty_of_forall_notMem fun a => a.elim0⟩
   uniq t := Subtype.ext (funext fun a => a.elim0)
 
 end Seq
@@ -66,8 +66,8 @@ theorem algHom_ext {B : Type*} [Semiring B] [Algebra k B] {f g : KLRAlgebra k Q 
   apply RingQuot.ringQuot_ext'
   apply FreeAlgebra.hom_ext
   funext gen
-  simp only [Function.comp_apply, AlgHom.comp_toLinearMap, LinearMap.coe_comp,
-    AlgHom.toLinearMap_apply]
+  simp only [Function.comp_apply,
+    ]
   cases gen with
   | idem i => exact he i
   | dot a => exact hx a
@@ -126,7 +126,7 @@ private noncomputable def toBase0 : KLRAlgebra k Q (0 : Multiset I) →ₐ[k] k 
   RingQuot.liftAlgHom k ⟨FreeAlgebra.lift k gen0, fun a b h => by
     cases h with
     | idem_mul i j =>
-      rw [if_pos (Subsingleton.elim i j)]; simp [fe, gen0]
+      rw [ite_eq_left (Subsingleton.elim i j)]; simp [fe, gen0]
     | idem_sum => simp [fe, gen0]
     | dot_idem a _ => exact a.elim0
     | cross_idem j i => simp [fe, fψ, gen0]
@@ -154,7 +154,7 @@ variable (k Q I) in
 (The paper: `R(0) = ℤ`.) -/
 noncomputable def zeroEquiv : KLRAlgebra k Q (0 : Multiset I) ≃ₐ[k] k :=
   AlgEquiv.ofAlgHom (toBase0 k Q) (Algebra.ofId k _)
-    (AlgHom.ext fun c => by simp; rfl)
+    (AlgHom.ext fun c => by simp)
     (algHom_ext
       (fun i => by rw [AlgHom.comp_apply, toBase0_e, map_one, AlgHom.id_apply, e_eq_one])
       (fun a => a.elim0)
@@ -186,7 +186,7 @@ private noncomputable def toPoly1 : KLRAlgebra k Q ({i} : Multiset I) →ₐ[k] 
   RingQuot.liftAlgHom k ⟨FreeAlgebra.lift k (gen1 i), fun a b h => by
     cases h with
     | idem_mul s t =>
-      rw [if_pos (Subsingleton.elim s t)]; simp [fe, gen1]
+      rw [ite_eq_left (Subsingleton.elim s t)]; simp [fe, gen1]
     | idem_sum => simp [fe, gen1]
     | dot_idem a t => simp [fe, fx, gen1]
     | cross_idem j t => simp [fe, fψ, gen1]
@@ -207,7 +207,7 @@ private theorem toPoly1_e (t : Seq ({i} : Multiset I)) : toPoly1 k Q i (e t) = 1
   rw [e, toPoly1_mk, FreeAlgebra.lift_ι_apply]; rfl
 
 private theorem toPoly1_x (a : Fin 1) : toPoly1 k Q i (x a) = Polynomial.X := by
-  rw [x, toPoly1_mk, FreeAlgebra.lift_ι_apply]; rfl
+  unfold x; rw [toPoly1_mk, FreeAlgebra.lift_ι_apply]; rfl
 
 private theorem toPoly1_ψ (j : ℕ) :
     toPoly1 k Q i (ψ j : KLRAlgebra k Q ({i} : Multiset I)) = 0 := by
@@ -219,15 +219,15 @@ corresponding to the variable. (The paper: `R(i) ≅ ℤ[x_{1,i}]`.) -/
 noncomputable def singleEquiv : KLRAlgebra k Q ({i} : Multiset I) ≃ₐ[k] Polynomial k :=
   AlgEquiv.ofAlgHom (toPoly1 k Q i) (Polynomial.aeval (x ⟨0, by simp⟩))
     (Polynomial.algHom_ext (by
-      rw [AlgHom.comp_apply, Polynomial.aeval_X, toPoly1_x, AlgHom.id_apply]))
+      rw [AlgHom.comp_apply, Polynomial.aeval_X]; erw [toPoly1_x]; rw [AlgHom.id_apply]))
     (algHom_ext
       (fun t => by rw [AlgHom.comp_apply, toPoly1_e, map_one, AlgHom.id_apply, e_eq_one])
       (fun a => by
-        rw [AlgHom.comp_apply, toPoly1_x, Polynomial.aeval_X, AlgHom.id_apply]
+        rw [AlgHom.comp_apply]; erw [toPoly1_x]; rw [Polynomial.aeval_X, AlgHom.id_apply]
         congr 1; ext
         have := a.isLt
         simp only [Multiset.card_singleton] at this
-        simp only [Fin.val_zero]; omega)
+        simp only []; omega)
       (fun j => by
         rw [AlgHom.comp_apply, toPoly1_ψ, map_zero, AlgHom.id_apply, ψ_eq_zero j (by simp)]))
 

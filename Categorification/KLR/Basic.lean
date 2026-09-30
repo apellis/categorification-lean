@@ -70,7 +70,7 @@ instance [DecidableEq I] : DecidableEq (Seq ν) :=
   inferInstanceAs (DecidableEq {f : Fin (Multiset.card ν) → I // Finset.univ.val.map f = ν})
 
 theorem mem (i : Seq ν) (a : Fin (Multiset.card ν)) : i.1 a ∈ ν := by
-  have h : i.1 a ∈ Finset.univ.val.map i.1 := Multiset.mem_map_of_mem _ (Finset.mem_univ _)
+  have h : i.1 a ∈ Finset.univ.val.map i.1 := Multiset.mem_map_of_mem _ (Finset.mem_univ_val _)
   rwa [i.2] at h
 
 instance : Finite (Seq ν) := by
@@ -111,7 +111,7 @@ variable {k : Type*} [CommRing k] {A : Type*} [Ring A] [Algebra k A]
 algebra, ordering each monomial as `x₀^{s₀} x₁^{s₁} ⋯`. This is only used to write
 down relations; for pairwise commuting arguments it agrees with `MvPolynomial.aeval`. -/
 noncomputable def ncEval {n : ℕ} (x : Fin n → A) (p : MvPolynomial (Fin n) k) : A :=
-  p.sum fun s c => algebraMap k A c * (List.ofFn fun a => x a ^ s a).prod
+  p.coeff.sum fun s c => algebraMap k A c * (List.ofFn fun a => x a ^ s a).prod
 
 end ncEval
 
@@ -124,11 +124,12 @@ variable {k : Type*} [CommRing k]
 /-- `Q̄(a, b, c) = (Q(a, b) - Q(c, b)) / (a - c)`, computed monomialwise:
 `a^p b^q ↦ (∑_{t < p} a^t c^{p-1-t}) b^q`. See `qbar_spec`. -/
 noncomputable def qbar (Q : MvPolynomial (Fin 2) k) : MvPolynomial (Fin 3) k :=
-  Q.sum fun s c => C c * X 1 ^ s 1 *
+  Q.coeff.sum fun s c => C c * X 1 ^ s 1 *
     ∑ t ∈ Finset.range (s 0), X 0 ^ t * X 2 ^ (s 0 - 1 - t)
 
 theorem qbar_add (p q : MvPolynomial (Fin 2) k) : qbar (p + q) = qbar p + qbar q := by
   unfold qbar
+  rw [AddMonoidAlgebra.coeff_add]
   exact Finsupp.sum_add_index' (fun _ => by simp) (fun _ _ _ => by simp [add_mul])
 
 theorem qbar_monomial (s : Fin 2 →₀ ℕ) (c : k) :
@@ -144,7 +145,7 @@ theorem qbar_spec (Q : MvPolynomial (Fin 2) k) :
     rw [qbar_monomial, monomial_eq, Finsupp.prod_fintype _ _ (fun _ => pow_zero _),
       Fin.prod_univ_two]
     simp only [map_mul, map_pow, rename_C, rename_X, Matrix.cons_val_zero, Matrix.cons_val_one,
-      Matrix.head_cons]
+      ]
     have := geom_sum₂_mul (X 0 : MvPolynomial (Fin 3) k) (X 2) (s 0)
     linear_combination (C c * X 1 ^ s 1) * this
   | add p q hp hq =>
@@ -263,50 +264,50 @@ theorem e_mul_e (i j : Seq ν) :
     (e i * e j : KLRAlgebra k Q ν) = if i = j then e i else 0 := by
   have := rel (Q := Q) (Rel.idem_mul i j)
   simp only [map_mul] at this
-  rw [e, e, this]; split_ifs <;> simp [e]
+  rw [e, e, this]; split_ifs <;> simp []
 
 theorem e_mul_self (i : Seq ν) : (e i * e i : KLRAlgebra k Q ν) = e i := by
   simp [e_mul_e]
 
 theorem sum_e : (∑ i, e i : KLRAlgebra k Q ν) = 1 := by
   have := rel (Q := Q) (Rel.idem_sum (k := k) (ν := ν))
-  simpa [map_sum] using this
+  simpa [map_sum, e] using this
 
 theorem x_mul_e (a : Fin m) (i : Seq ν) :
     (x a * e i : KLRAlgebra k Q ν) = e i * x a := by
-  simpa using rel (Q := Q) (Rel.dot_idem a i)
+  simpa [x, e, ψ] using rel (Q := Q) (Rel.dot_idem a i)
 
 theorem ψ_mul_e (j : ℕ) (i : Seq ν) :
     (ψ j * e i : KLRAlgebra k Q ν) = e (sadj m j • i) * ψ j := by
-  simpa using rel (Q := Q) (Rel.cross_idem j i)
+  simpa [x, e, ψ] using rel (Q := Q) (Rel.cross_idem j i)
 
 theorem ψ_eq_zero (j : ℕ) (h : m ≤ j + 1) : (ψ j : KLRAlgebra k Q ν) = 0 := by
-  simpa using rel (Q := Q) (Rel.cross_zero j h)
+  simpa [x, e, ψ] using rel (Q := Q) (Rel.cross_zero j h)
 
 theorem x_mul_x (a b : Fin m) : (x a * x b : KLRAlgebra k Q ν) = x b * x a := by
-  simpa using rel (Q := Q) (Rel.dot_dot a b)
+  simpa [x, e, ψ] using rel (Q := Q) (Rel.dot_dot a b)
 
 theorem ψ_mul_ψ (j l : ℕ) (h : j + 1 < l) :
     (ψ j * ψ l : KLRAlgebra k Q ν) = ψ l * ψ j := by
-  simpa using rel (Q := Q) (Rel.cross_cross (k := k) (ν := ν) j l h)
+  simpa [x, e, ψ] using rel (Q := Q) (Rel.cross_cross (k := k) (ν := ν) j l h)
 
 theorem x_mul_ψ (a : Fin m) (j : ℕ) (h₁ : a.val ≠ j) (h₂ : a.val ≠ j + 1) :
     (x a * ψ j : KLRAlgebra k Q ν) = ψ j * x a := by
-  simpa using rel (Q := Q) (Rel.dot_cross a j h₁ h₂)
+  simpa [x, e, ψ] using rel (Q := Q) (Rel.dot_cross a j h₁ h₂)
 
 theorem dot_cross_left (j : ℕ) (h : j + 1 < m) (i : Seq ν) :
     ((x ⟨j, by omega⟩ * ψ j - ψ j * x ⟨j + 1, h⟩) * e i : KLRAlgebra k Q ν) =
       if i.lbl ⟨j, by omega⟩ = i.lbl ⟨j + 1, h⟩ then e i else 0 := by
   have := rel (Q := Q) (Rel.dot_cross_left j h i)
   simp only [map_mul, map_sub] at this
-  rw [x, x, ψ, e, this]; split_ifs <;> simp [e]
+  rw [x, x, ψ, e, this]; split_ifs <;> simp []
 
 theorem dot_cross_right (j : ℕ) (h : j + 1 < m) (i : Seq ν) :
     ((ψ j * x ⟨j, by omega⟩ - x ⟨j + 1, h⟩ * ψ j) * e i : KLRAlgebra k Q ν) =
       if i.lbl ⟨j, by omega⟩ = i.lbl ⟨j + 1, h⟩ then e i else 0 := by
   have := rel (Q := Q) (Rel.dot_cross_right j h i)
   simp only [map_mul, map_sub] at this
-  rw [x, x, ψ, e, this]; split_ifs <;> simp [e]
+  rw [x, x, ψ, e, this]; split_ifs <;> simp []
 
 theorem mk_ncEval {n : ℕ} (y : Fin n → FreeAlgebra k (Gen ν)) (p : MvPolynomial (Fin n) k) :
     mk k Q ν (ncEval y p) = ncEval (fun a => mk k Q ν (y a)) p := by
@@ -396,7 +397,6 @@ theorem ncEval_eq_pol {n : ℕ} (f : Fin n → Fin m) (p : MvPolynomial (Fin n) 
     (fun _ => pow_zero _) (fun _ _ _ => pow_add _ _ _), Finsupp.prod_fintype _ _
     (fun _ => pow_zero _), ← List.prod_ofFn, map_mul, algHom_C, map_list_prod, List.map_ofFn]
   simp only [Function.comp_def, map_pow, pol_X]
-  rfl
 
 theorem e_commute_pol (i : Seq ν) (p : MvPolynomial (Fin m) k) :
     Commute (e i : KLRAlgebra k Q ν) (pol p) := by

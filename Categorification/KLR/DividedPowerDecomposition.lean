@@ -27,7 +27,7 @@ noncomputable section
 
 namespace Categorification
 
-open Graded
+open Categorification.Graded
 
 /-! ### Composing splittings -/
 
@@ -47,11 +47,11 @@ theorem trans {ι κ : Type*} [Fintype ι] [DecidableEq ι] [Fintype κ] [Decida
     rw [show b' p.2 * b p.1 * (a q.1 * a' q.2) = b' p.2 * (b p.1 * a q.1) * a' q.2 by
       simp only [mul_assoc], h₁.mul_eq]
     by_cases h1 : p.1 = q.1
-    · rw [if_pos h1, mul_assoc, h₂.left_mul_a, ← mul_assoc, h₂.mul_eq]
+    · rw [ite_eq_left h1, mul_assoc, h₂.left_mul_a, ← mul_assoc, h₂.mul_eq]
       by_cases h2 : p.2 = q.2
-      · rw [if_pos h2, if_pos (Prod.ext h1 h2), hE.eq]
-      · rw [if_neg h2, if_neg (fun h => h2 (congrArg Prod.snd h)), zero_mul]
-    · rw [if_neg h1, if_neg (fun h => h1 (congrArg Prod.fst h)), mul_zero, zero_mul]
+      · rw [ite_eq_left h2, ite_eq_left (Prod.ext h1 h2), hE.eq]
+      · rw [ite_eq_right h2, ite_eq_right (fun h => h2 (congrArg Prod.snd h)), zero_mul]
+    · rw [ite_eq_right h1, ite_eq_right (fun h => h1 (congrArg Prod.fst h)), mul_zero, zero_mul]
   sum_eq := by
     rw [Fintype.sum_prod_type]
     have : ∀ i, ∑ k, a i * a' k * (b' k * b i) = a i * b i * E'' := fun i => by
@@ -133,7 +133,8 @@ def refl {E : A} (hE : IsIdempotentElem E) (hE0 : E ∈ (klGradingDatum k Γ).gr
 
 theorem genFun_refl {E : A} (hE : IsIdempotentElem E) (hE0 : E ∈ (klGradingDatum k Γ).grade ν 0) :
     (refl hE hE0).genFun = 1 := by
-  simp [genFun, refl, T_zero]
+  change (∑ _ : Unit, T (0 : ℤ)) = (1 : LaurentPolynomial ℤ)
+  simp
 
 /-- Composition of graded splittings. -/
 def trans {E'' E' E : A} (S₁ : GradedSplitting k Γ E'' E') (S₂ : GradedSplitting k Γ E' E)
@@ -152,7 +153,8 @@ def trans {E'' E' E : A} (S₁ : GradedSplitting k Γ E'' E') (S₂ : GradedSpli
 theorem genFun_trans {E'' E' E : A} (S₁ : GradedSplitting k Γ E'' E')
     (S₂ : GradedSplitting k Γ E' E) (hE : IsIdempotentElem E) (hE'' : IsIdempotentElem E'') :
     (S₁.trans S₂ hE hE'').genFun = S₁.genFun * S₂.genFun := by
-  simp only [genFun, trans, Fintype.sum_prod_type, T_add, Finset.sum_mul_sum]
+  change (∑ j : S₁.ι × S₂.ι, T (S₁.dg j.1 + S₂.dg j.2)) = _
+  simp only [genFun, Fintype.sum_prod_type, T_add, Finset.sum_mul_sum]
 
 theorem card_trans {E'' E' E : A} (S₁ : GradedSplitting k Γ E'' E')
     (S₂ : GradedSplitting k Γ E' E) (hE : IsIdempotentElem E) (hE'' : IsIdempotentElem E'') :
@@ -222,13 +224,13 @@ theorem exists_gradedSplitting_e {t : Seq ν} :
           Fintype.card S.ι = (bs.map fun b => b.2.factorial).prod
   | [], h => by
     rw [divIdem_nil]
-    exact ⟨GradedSplitting.refl (e_mul_self t) ((klGradingDatum k Γ).e_mem_grade t),
+    exact ⟨GradedSplitting.refl (isIdempotentElem_iff.mpr (e_mul_self t)) ((klGradingDatum k Γ).e_mem_grade t),
       by rw [GradedSplitting.genFun_refl]; rfl, rfl⟩
   | b :: bs, h => by
     obtain ⟨S, hS, hc⟩ := exists_gradedSplitting_e h.tail
     obtain ⟨S', hS', hc'⟩ := exists_gradedSplitting_block (k := k) (Γ := Γ) (p := b.1)
       (N := b.2) h.tail h
-    refine ⟨S.trans S' (isIdempotentElem_divIdem h) (e_mul_self t), ?_, ?_⟩
+    refine ⟨S.trans S' (isIdempotentElem_divIdem h) (isIdempotentElem_iff.mpr (e_mul_self t)), ?_, ?_⟩
     · rw [GradedSplitting.genFun_trans, hS, hS', List.map_cons, List.prod_cons, mul_comm]
     · rw [GradedSplitting.card_trans, hc, hc', List.map_cons, List.prod_cons, mul_comm]
 

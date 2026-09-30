@@ -18,6 +18,9 @@ reduces to `crossrW` by substitution; `crossrW_trS_start`, `crossrW_trS_end` rec
 naturality in the regions of its boundary.
 -/
 
+-- Preserve elaboration of semireducible diagram transports.
+set_option backward.isDefEq.respectTransparency false
+
 noncomputable section
 
 namespace Categorification.Flag
@@ -81,7 +84,7 @@ theorem chainBD_crossr_canon (dnScal : Fin m → Fin m → K) (i j : Fin m) (x s
       ⟨up j, sh RD (up i) + x⟩, ⟨up i, x⟩, ⟨dn j, sh RD (up j) + x⟩] ++ v) :=
     ⟨ha.1, ha.2.1, ha.2.2.1, rfl, ha.1, rfl, hb.2.2⟩
   rw [chainBD_three dnScal _ _ _ _ _ _ h ha hb ha hL1 hL1 hL2 hL2 hb]
-  simp only [genScal, BHom.csmul_one, trW_self, BHom.id_comp', BHom.comp_id'']
+  simp only [genScal, BHom.csmul_one, trW_self, BHom.id_comp']
   simp only [layerMap, genMap, cupMap, crossMap, capMap, trS_self'', BHom.whiskerLeft_id,
     BHom.id_comp', BHom.comp_id'']
   erw [BHom.whiskerLeft_id, BHom.comp_id'']
@@ -105,7 +108,7 @@ theorem evalB_crossr_eq (dnScal : Fin m → Fin m → K) (i j : Fin m) (μ : Wt 
         ([], .cap ⟨up j, sh RD (up i) + x⟩, [⟨up i, x⟩, ⟨dn j, sh RD (up j) + x⟩] ++ v)] := by
     simp only [crossr, layers_mkD, layList, List.map_cons, List.map_nil, dataV, lay, wd, wt,
       Shape.gen, Shape.dom, List.nil_append, List.append_nil, List.cons_append,
-      List.singleton_append, Letter.dual_mk, Bool.not_true, Bool.not_false]
+      Letter.dual_mk, Bool.not_true]
     have e1 : sh RD (false, j) + (sh RD (up j) + x) = x := sh_dn_up j x
     rw [e1, add_left_comm (sh RD (up i)) (sh RD (up j)) x]
   have h₂ : ChainW ((ob RD (sh RD (up j) + x) [dn j, up i]).word ++ v)

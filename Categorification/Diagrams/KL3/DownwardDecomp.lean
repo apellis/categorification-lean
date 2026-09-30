@@ -46,6 +46,9 @@ strands, and the idempotent `e_{+i,m} = x^δ ψ_{w_0}` has `m(m-1)/2` such cross
   without hypotheses.
 -/
 
+-- Preserve elaboration of semireducible diagram and bimodule transports.
+set_option backward.isDefEq.respectTransparency false
+
 noncomputable section
 
 namespace Categorification.KL3.Diagram
@@ -152,7 +155,7 @@ theorem omegaDot_idemObj (x : (wtObj RD k lam : U RD k) ⟶ wtObj RD k μ) (t : 
 def omegaDotShift (n : ℤ) (A : UKar RD k lam μ) :
     (omegaDot lam μ lam' μ' hl hm).obj ((shDot (deg RD) n).obj A) ≅
       (shDot (deg RD) n).obj ((omegaDot lam μ lam' μ' hl hm).obj A) :=
-  udIso _ _ (Equiv.refl _) (fun _ => rfl) (fun _ => rfl) fun i j => by simp
+  udIso _ _ (Equiv.refl _) (fun _ => rfl) (fun _ => rfl) fun i j => by simp; rfl
 
 end Dot
 

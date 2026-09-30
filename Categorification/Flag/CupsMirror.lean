@@ -44,7 +44,8 @@ noncomputable section
 namespace Categorification.Flag
 
 open MvPolynomial TensorProduct
-open Finset (univ range antidiagonal)
+open Finset (univ range)
+open Finset.HasAntidiagonal (antidiagonal)
 
 /-! ### Elements sliding through a tensor -/
 
@@ -56,7 +57,7 @@ variable {R M : Type*} [CommRing R] [CommRing M] [Algebra R M]
 def slideSubring (c : M ⊗[R] M) : Subring M where
   carrier := {m | (m ⊗ₜ[R] (1 : M)) * c = ((1 : M) ⊗ₜ[R] m) * c}
   mul_mem' {a b} ha hb := by
-    simp only [Set.mem_setOf_eq] at ha hb ⊢
+    simp only [Set.mem_ofPred_eq] at ha hb ⊢
     have h1 : (a * b) ⊗ₜ[R] (1 : M) = (a ⊗ₜ 1) * (b ⊗ₜ 1) := by
       rw [Algebra.TensorProduct.tmul_mul_tmul, one_mul]
     have h2 : (1 : M) ⊗ₜ[R] (a * b) = (1 ⊗ₜ a) * (1 ⊗ₜ b) := by
@@ -68,12 +69,12 @@ def slideSubring (c : M ⊗[R] M) : Subring M where
       _ = _ := by rw [h2]; ring
   one_mem' := rfl
   add_mem' {a b} ha hb := by
-    simp only [Set.mem_setOf_eq] at ha hb ⊢
+    simp only [Set.mem_ofPred_eq] at ha hb ⊢
     rw [add_tmul, tmul_add, add_mul, add_mul, ha, hb]
   zero_mem' := by
-    simp only [Set.mem_setOf_eq, zero_tmul, tmul_zero]
+    simp only [Set.mem_ofPred_eq, zero_tmul, tmul_zero]
   neg_mem' {a} ha := by
-    simp only [Set.mem_setOf_eq] at ha ⊢
+    simp only [Set.mem_ofPred_eq] at ha ⊢
     rw [neg_tmul, tmul_neg, neg_mul, neg_mul, ha]
 
 theorem mem_slideSubring {c : M ⊗[R] M} {m : M} :
@@ -114,7 +115,7 @@ theorem neg_xi_pow_gen (A : V → J) (v₀ : V) (j' : J) (S : V → Option J) (L
 theorem lemma_5_4_i_gen (A : V → J) (v₀ : V) (j' : J) (S : V → Option J) (L : V → J)
     (hS : S = splitLab A v₀) (hL : L = moveLab A v₀ j') (h : Refines S L)
     (hv : ∀ w, S w = S v₀ → w = v₀) (α : ℕ) :
-    letI := (refineHom k h).toRingHom.toAlgebra
+    let := (refineHom k h).toRingHom.toAlgebra
     ∑ f ∈ range (α + 1), (-1 : BorelRing k S ⊗[BorelRing k L] BorelRing k S) ^ (α - f) *
       ((xiS k S v₀ hv ^ f) ⊗ₜ[BorelRing k L] xB k S (some j') (α - f)) =
     ∑ g ∈ range (α + 1), (-1 : BorelRing k S ⊗[BorelRing k L] BorelRing k S) ^ (α - g) *
@@ -126,7 +127,7 @@ theorem lemma_5_4_i_gen (A : V → J) (v₀ : V) (j' : J) (S : V → Option J) (
 theorem lemma_5_4_iii_gen (A : V → J) (v₀ : V) (j' : J) (S : V → Option J) (L : V → J)
     (hS : S = splitLab A v₀) (hL : L = moveLab A v₀ j') (h : Refines S L)
     (hv : ∀ w, S w = S v₀ → w = v₀) :
-    letI := (refineHom k h).toRingHom.toAlgebra
+    let := (refineHom k h).toRingHom.toAlgebra
     (xiS k S v₀ hv ⊗ₜ[BorelRing k L] (1 : BorelRing k S)) *
       ∑ p ∈ antidiagonal (labSet S (· = some j')).card,
         (((-xiS k S v₀ hv) ^ p.1) ⊗ₜ[BorelRing k L] xB k S (some j') p.2) =
@@ -140,7 +141,7 @@ theorem lemma_5_4_iii_gen (A : V → J) (v₀ : V) (j' : J) (S : V → Option J)
 theorem slide_gen (A : V → J) (v₀ : V) (j' : J) (S : V → Option J) (L : V → J)
     (hS : S = splitLab A v₀) (hL : L = moveLab A v₀ j') (h : Refines S L) (hA : Refines S A)
     (hv : ∀ w, S w = S v₀ → w = v₀) (hj : j' ≠ A v₀) (j : J) (β : ℕ) :
-    letI := (refineHom k h).toRingHom.toAlgebra
+    let := (refineHom k h).toRingHom.toAlgebra
     (refineHom k hA (xB k A j β) ⊗ₜ[BorelRing k L] (1 : BorelRing k S)) *
       ∑ p ∈ antidiagonal (labSet S (· = some j')).card,
         (((-xiS k S v₀ hv) ^ p.1) ⊗ₜ[BorelRing k L] xB k S (some j') p.2) =

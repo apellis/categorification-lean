@@ -53,18 +53,18 @@ noncomputable def tflip : (KLRAlgebra k Q ν ⊗[k] KLRAlgebra k Q ν') →ₗ[k
 
 @[simp] theorem tflip_tflip (t : KLRAlgebra k Q ν ⊗[k] KLRAlgebra k Q ν') :
     tflip Q ν ν' (tflip Q ν ν' t) = t := by
-  induction t using TensorProduct.induction_on with
-  | zero => simp only [map_zero]
+  induction t using TensorProduct.inductionOn with
+
   | tmul a b => rw [tflip_tmul, tflip_tmul, hflip_hflip, hflip_hflip]
   | add s t hs ht => rw [map_add, map_add, hs, ht]
 
 theorem tflip_mul (t c : KLRAlgebra k Q ν ⊗[k] KLRAlgebra k Q ν') :
     tflip Q ν ν' (t * c) = tflip Q ν ν' c * tflip Q ν ν' t := by
-  induction t using TensorProduct.induction_on with
-  | zero => simp only [zero_mul, map_zero, mul_zero]
+  induction t using TensorProduct.inductionOn with
+
   | tmul a b =>
-    induction c using TensorProduct.induction_on with
-    | zero => simp only [mul_zero, map_zero, zero_mul]
+    induction c using TensorProduct.inductionOn with
+
     | tmul a' b' =>
       rw [Algebra.TensorProduct.tmul_mul_tmul, tflip_tmul, tflip_tmul, tflip_tmul,
         Algebra.TensorProduct.tmul_mul_tmul, hflip_mul, hflip_mul]
@@ -73,8 +73,8 @@ theorem tflip_mul (t c : KLRAlgebra k Q ν ⊗[k] KLRAlgebra k Q ν') :
 
 theorem hflip_concat_eq_tflip (t : KLRAlgebra k Q ν ⊗[k] KLRAlgebra k Q ν') :
     hflip (concat Q ν ν' t) = concat Q ν ν' (tflip Q ν ν' t) := by
-  induction t using TensorProduct.induction_on with
-  | zero => rw [map_zero, map_zero, ← hflipEquiv_apply, map_zero, map_zero]
+  induction t using TensorProduct.inductionOn with
+
   | tmul a b => rw [hflip_concat_tmul_tmul, tflip_tmul]
   | add s t hs ht => rw [map_add, hflip_add, hs, ht, map_add, map_add]
 
@@ -101,9 +101,9 @@ variable (Q) in
 noncomputable def projPPR (i : Seq ν) (j : Seq ν') :
     Submodule k (KLRAlgebra k Q ν ⊗[k] KLRAlgebra k Q ν') where
   carrier := {t | (e i ⊗ₜ e j) * t = t}
-  add_mem' ha hb := by simp only [Set.mem_setOf_eq, mul_add] at *; rw [ha, hb]
+  add_mem' ha hb := by simp only [Set.mem_ofPred_eq, mul_add] at *; rw [ha, hb]
   zero_mem' := mul_zero _
-  smul_mem' c t ht := by simp only [Set.mem_setOf_eq, mul_smul_comm] at *; rw [ht]
+  smul_mem' c t ht := by simp only [Set.mem_ofPred_eq, mul_smul_comm] at *; rw [ht]
 
 theorem mem_projPPR {i : Seq ν} {j : Seq ν'} {t : KLRAlgebra k Q ν ⊗[k] KLRAlgebra k Q ν'} :
     t ∈ projPPR Q i j ↔ (e i ⊗ₜ e j) * t = t := Iff.rfl

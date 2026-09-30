@@ -46,6 +46,8 @@ These are transported from the Borel-model statements of `Categorification.Flag.
 `Categorification.Flag.Bubbles` (`snake_*`, `bubbleFE`).
 -/
 
+set_option backward.isDefEq.respectTransparency false
+
 noncomputable section
 
 open scoped TensorProduct
@@ -175,8 +177,7 @@ theorem Est_left_capEFP (y : ((Est (K := K) i hE).tensor (Fst (K := K) i hF)).T)
         (capEF K (Sigma.fst : Gen s → Fin (m + 1)) (movedVar i s hE.2) i.castSucc
           (efEquiv K i hE hF y)) := by
   show eLeft K i s hE.2 (hCast K hE.1.symm (capEFP K i hE hF y)) = _
-  rw [capEFP, hCast_trans_apply, hCast_rfl, eLeft, AlgHom.comp_apply, AlgEquiv.toAlgHom_eq_coe,
-    AlgHom.coe_coe, AlgEquiv.symm_apply_apply]
+  rw [capEFP, hCast_trans_apply, hCast_rfl, eLeft, AlgHom.comp_apply, AlgEquiv.coe_toAlgHom, AlgEquiv.symm_apply_apply]
 
 theorem Est_left_eq (a : H K s') :
     (Est (K := K) i hE).left a = pL K (Sigma.fst : Gen s → Fin (m + 1)) (movedVar i s hE.2)
@@ -245,8 +246,7 @@ def capEFW {C : Type u} [CommRing C] (Y : BRing (H K s') C) :
     refine BRing.induction_on (P := fun w => capEFAdd K i hE hF Y
       ((((Est (K := K) i hE).tensor (Fst (K := K) i hF)).tensor Y).left a * w) =
         Y.left a * capEFAdd K i hE hF Y w) _ (by simp) (fun y x => ?_) (fun w w' hw hw' => ?_)
-    · beta_reduce
-      rw [BRing.tensor_left (M := (Est (K := K) i hE).tensor (Fst (K := K) i hF)) (N := Y),
+    ·      rw [BRing.tensor_left (M := (Est (K := K) i hE).tensor (Fst (K := K) i hF)) (N := Y),
         BRing.tmul_mul_tmul, one_mul, capEFAdd_tmul, capEFAdd_tmul, capEFP_left, map_mul, mul_assoc]
     · beta_reduce at hw hw' ⊢
       rw [mul_add, map_add, hw, hw', map_add, mul_add]
@@ -255,8 +255,7 @@ def capEFW {C : Type u} [CommRing C] (Y : BRing (H K s') C) :
     refine BRing.induction_on (P := fun w => capEFAdd K i hE hF Y
       ((((Est (K := K) i hE).tensor (Fst (K := K) i hF)).tensor Y).right d * w) =
         Y.right d * capEFAdd K i hE hF Y w) _ (by simp) (fun y x => ?_) (fun w w' hw hw' => ?_)
-    · beta_reduce
-      rw [BRing.tensor_right (M := (Est (K := K) i hE).tensor (Fst (K := K) i hF)) (N := Y),
+    ·      rw [BRing.tensor_right (M := (Est (K := K) i hE).tensor (Fst (K := K) i hF)) (N := Y),
         BRing.tmul_mul_tmul, one_mul, capEFAdd_tmul, capEFAdd_tmul, mul_left_comm]
     · beta_reduce at hw hw' ⊢
       rw [mul_add, map_add, hw, hw', map_add, mul_add]
@@ -377,7 +376,7 @@ theorem cupEF_central (a : H K s') :
   rw [map_mul, map_mul, efEquiv_cupEF, BRing.tensor_left, BRing.tensor_right, efEquiv_tmul,
     efEquiv_tmul, Est_left_eq i hE, Fst_right_eq i hE hF]
   exact cupR_bimodule (Sigma.fst : Gen s → Fin (m + 1)) (movedVar i s hE.2) i.castSucc
-    (Fin.castSucc_lt_succ i).ne
+    Fin.castSucc_lt_succ.ne
     ((borelEquivH' K _ (raise i s) (card_moveLab i s hE.2)).symm (hCast K hE.1.symm a))
 
 variable (K) in
@@ -477,8 +476,7 @@ def capFEW {C : Type u} [CommRing C] (Y : BRing (H K s) C) :
     refine BRing.induction_on (P := fun w => capFEAdd K i hE hF Y
       ((((Fst (K := K) i hF).tensor (Est (K := K) i hE)).tensor Y).left a * w) =
         Y.left a * capFEAdd K i hE hF Y w) _ (by simp) (fun y x => ?_) (fun w w' hw hw' => ?_)
-    · beta_reduce
-      rw [BRing.tensor_left (M := (Fst (K := K) i hF).tensor (Est (K := K) i hE)) (N := Y),
+    ·      rw [BRing.tensor_left (M := (Fst (K := K) i hF).tensor (Est (K := K) i hE)) (N := Y),
         BRing.tmul_mul_tmul, one_mul, capFEAdd_tmul, capFEAdd_tmul, capFEP_left, map_mul, mul_assoc]
     · beta_reduce at hw hw' ⊢
       rw [mul_add, map_add, hw, hw', map_add, mul_add]
@@ -487,8 +485,7 @@ def capFEW {C : Type u} [CommRing C] (Y : BRing (H K s) C) :
     refine BRing.induction_on (P := fun w => capFEAdd K i hE hF Y
       ((((Fst (K := K) i hF).tensor (Est (K := K) i hE)).tensor Y).right d * w) =
         Y.right d * capFEAdd K i hE hF Y w) _ (by simp) (fun y x => ?_) (fun w w' hw hw' => ?_)
-    · beta_reduce
-      rw [BRing.tensor_right (M := (Fst (K := K) i hF).tensor (Est (K := K) i hE)) (N := Y),
+    ·      rw [BRing.tensor_right (M := (Fst (K := K) i hF).tensor (Est (K := K) i hE)) (N := Y),
         BRing.tmul_mul_tmul, one_mul, capFEAdd_tmul, capFEAdd_tmul, mul_left_comm]
     · beta_reduce at hw hw' ⊢
       rw [mul_add, map_add, hw, hw', map_add, mul_add]
@@ -504,7 +501,7 @@ theorem pR_capFE_eq (a b : ERing K i s hE.2) :
     eRight K i s hE.2 (capFEP K i hE hF (BRing.tmul _ _ a b)) =
       pR K (Sigma.fst : Gen s → Fin (m + 1)) (movedVar i s hE.2)
         (capFE K (Sigma.fst : Gen s → Fin (m + 1)) (movedVar i s hE.2) i.castSucc (a ⊗ₜ b)) := by
-  rw [capFEP, feEquiv_tmul, eRight, AlgHom.comp_apply, AlgEquiv.toAlgHom_eq_coe, AlgHom.coe_coe,
+  rw [capFEP, feEquiv_tmul, eRight, AlgHom.comp_apply, AlgEquiv.coe_toAlgHom,
     AlgEquiv.apply_symm_apply]
 
 /-- **The zigzag identity** `(cap_FE ∘ 1_F) ∘ (1_F ∘ cup_EF) = 1_F` (KL III (3.2),

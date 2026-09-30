@@ -34,6 +34,8 @@ upward strands, KL II algebra `R2 k C ν` with `Q_ij = u^{d_ij} + v^{d_ji}`), wi
 * `kobj_one`: `(E_s 1_μ {t}, ϕ(1_s)) = E_s 1_μ {t}`.
 -/
 
+set_option backward.isDefEq.respectTransparency false
+
 noncomputable section
 
 namespace Categorification.KL3.Diagram
@@ -203,7 +205,7 @@ theorem toUEnd_ψ_e_mem (j : ℕ) (i : Seq ν) :
       refine diag_mem_homDeg' ?_
       rw [degree_upDiag]
       simp [crossD, Diagram.degree, KLR.Diagram.layers_dl, KLR.Diagram.lay, degK, klGradingDatum2]
-    · rw [crossE, dif_neg h, Functor.map_zero]
+    · rw [crossE, dite_eq_right h, Functor.map_zero]
       exact Submodule.zero_mem _
   · rw [MatEnd.single_mul_single_of_ne _ _ (Ne.symm hti)]
     exact Submodule.zero_mem _
@@ -262,7 +264,6 @@ theorem wt_ups_word (s : Seq ν) : wt RD μ (ups (word s)) = wν RD ν + μ := b
   rw [wt_ups]
   congr 1
   have h := congrArg (fun m => (Multiset.map RD.iX m).sum) s.2
-  simp only at h
   rw [wν, ← h, Multiset.map_map]
   simp only [wsum, word, List.map_ofFn, List.sum_ofFn]
   rfl
@@ -496,10 +497,10 @@ def kFamilyIso {M N : Type} [Fintype M] [DecidableEq M] [Fintype N] [DecidableEq
               rw [hpair.2.2.1, ← hpair.1]; simp only [mul_assoc]
       split_ifs with h
       · subst h
-        rw [eqToHom_refl, khom_congr (key.trans ((hsand m m).trans (if_pos rfl))) _
+        rw [eqToHom_refl, khom_congr (key.trans ((hsand m m).trans (ite_eq_left rfl))) _
           (grade_sub_self (F m).deg0 _) _ (by rw [(F m).idem, (F m).idem])]
         exact khom_self _ _ _ _
-      · exact khom_eq_zero (key.trans ((hsand m m').trans (if_neg h))) _ _)
+      · exact khom_eq_zero (key.trans ((hsand m m').trans (ite_eq_right h))) _ _)
     (fun n n' => by
       simp only [khom_comp]
       rw [sum_khom]
@@ -516,10 +517,10 @@ def kFamilyIso {M N : Type} [Fintype M] [DecidableEq M] [Fintype N] [DecidableEq
               rw [hpair.2.2.2, ← hpair.2.1]; simp only [mul_assoc]
       split_ifs with h
       · subst h
-        rw [eqToHom_refl, khom_congr (key.trans ((hsand' n n).trans (if_pos rfl))) _
+        rw [eqToHom_refl, khom_congr (key.trans ((hsand' n n).trans (ite_eq_left rfl))) _
           (grade_sub_self (F' n).deg0 _) _ (by rw [(F' n).idem, (F' n).idem])]
         exact khom_self _ _ _ _
-      · exact khom_eq_zero (key.trans ((hsand' n n').trans (if_neg h))) _ _)
+      · exact khom_eq_zero (key.trans ((hsand' n n').trans (ite_eq_right h))) _ _)
 
 end KObj
 

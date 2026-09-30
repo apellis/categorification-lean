@@ -98,13 +98,13 @@ theorem revWord_spec (w : Perm (Fin m)) :
 /-- **KL I, Theorem 2.5, dots on top**: for any choice of reduced words `ρ w`, the elements
 `x^d ψ_{ρ w} 1_i` form a basis of `R(μ)`. -/
 noncomputable def lbasis :
-    Basis (Seq μ × Perm (Fin m) × (Fin m →₀ ℕ)) k (KLRAlgebra k Q μ) :=
+    Module.Basis (Seq μ × Perm (Fin m) × (Fin m →₀ ℕ)) k (KLRAlgebra k Q μ) :=
   ((basis hPQ hP (revWord ρ) (revWord_spec ρ hρ)).map (hflipEquiv k Q μ)).reindex flipIdx
 
 theorem lbasis_apply (b : Seq μ × Perm (Fin m) × (Fin m →₀ ℕ)) :
     lbasis hPQ hP ρ hρ b = pol (monomial b.2.2 1) * ψw (ρ b.2.1) * e b.1 := by
   obtain ⟨i, v, d⟩ := b
-  simp only [lbasis, Basis.reindex_apply, Basis.map_apply, basis_apply, hflipEquiv_apply,
+  simp only [lbasis, Module.Basis.reindex_apply, Module.Basis.map_apply, basis_apply, hflipEquiv_apply,
     hflip_mul, hflip_e, hflip_pol, hflip_ψw]
   simp only [flipIdx, Equiv.coe_fn_symm_mk, revWord, List.reverse_reverse, inv_inv]
   rw [← mul_assoc, (e_commute_pol _ _).eq, mul_assoc, e_mul_ψw, ← mul_assoc, (hρ v).2,
@@ -154,16 +154,16 @@ theorem expEquiv_apply (d : Fin (Multiset.card ν) →₀ ℕ)
   | inl a =>
     rw [Finsupp.sumFinsuppEquivProdFinsupp_symm_inl]
     rw [show blockEquiv (Seq.card_add' ν ν') (Sum.inl a) = Seq.posL ν' a from rfl,
-      Finsupp.mapDomain_apply hL,
-      Finsupp.mapDomain_notin_range]
+      Finsupp.mapDomain_apply_of_injective hL,
+      Finsupp.mapDomain_of_notMem_range]
     · simp
     · rintro ⟨b, hb⟩
       exact Sum.inl_ne_inr ((blockEquiv (Seq.card_add' ν ν')).injective hb).symm
   | inr b =>
     rw [Finsupp.sumFinsuppEquivProdFinsupp_symm_inr]
     rw [show blockEquiv (Seq.card_add' ν ν') (Sum.inr b) = Seq.posR ν b from rfl,
-      Finsupp.mapDomain_apply hR,
-      Finsupp.mapDomain_notin_range]
+      Finsupp.mapDomain_apply_of_injective hR,
+      Finsupp.mapDomain_of_notMem_range]
     · simp
     · rintro ⟨a, ha⟩
       exact Sum.inl_ne_inr ((blockEquiv (Seq.card_add' ν ν')).injective ha)
@@ -173,7 +173,7 @@ theorem monomial_expEquiv (d : Fin (Multiset.card ν) →₀ ℕ)
     (d' : Fin (Multiset.card ν') →₀ ℕ) :
     (monomial (expEquiv ν ν' (d, d')) 1 : MvPolynomial (Fin (Multiset.card (ν + ν'))) k) =
       rename (Seq.posL ν') (monomial d 1) * rename (Seq.posR ν) (monomial d' 1) := by
-  rw [rename_monomial, rename_monomial, monomial_mul, one_mul, expEquiv_apply]
+  rw [rename_monomial, rename_monomial, monomial_mul_monomial, one_mul, expEquiv_apply]
 
 variable (ρ₁ : Perm (Fin (Multiset.card ν)) → List ℕ)
   (ρ₂ : Perm (Fin (Multiset.card ν')) → List ℕ)
@@ -291,7 +291,7 @@ theorem indElt_eq (x : IndIdx ν ν') :
   simp only [indElt, lbasis_apply, indIdxMap]
   rw [concat_pol_ψw_e _ _ (hρ₁ a).1.1 (hρ₂ b).1.1, parWord_blockPerm_mul, monomial_expEquiv,
     hatW, ← mul_assoc, mul_assoc _ (e _), oneConcat, e_mul_eSum,
-    if_pos (append_mem_concatSet i j), mul_assoc _ (e _), e_mul_ψw, (hσ u).2, ← mul_assoc,
+    ite_eq_left (append_mem_concatSet i j), mul_assoc _ (e _), e_mul_ψw, (hσ u).2, ← mul_assoc,
     mul_assoc (pol _), ← ψw_append]
 
 omit [IsDomain k] in
@@ -311,7 +311,7 @@ theorem linearIndependent_indElt :
         indIdxMap :=
     funext fun x => indElt_eq hPQ hP ρ₁ ρ₂ σ hρ₁ hρ₂ hσ x
   rw [this]
-  exact (Basis.linearIndependent _).comp _ indIdxMap_injective
+  exact (Module.Basis.linearIndependent _).comp _ indIdxMap_injective
 
 include hσ in
 theorem span_indElt :
@@ -344,15 +344,15 @@ theorem span_indElt :
 in the bases `lbasis` of `R(ν)`, `R(ν')` and `u` a shuffle, form a `k`-basis of
 `1_{ν,ν'} R(ν + ν')`. -/
 noncomputable def inductionBasis :
-    Basis (IndIdx ν ν') k (oneConcatSub (ν := ν) (ν' := ν') Q) :=
-  (Basis.span (linearIndependent_indElt hPQ hP ρ₁ ρ₂ σ hρ₁ hρ₂ hσ)).map
+    Module.Basis (IndIdx ν ν') k (oneConcatSub (ν := ν) (ν' := ν') Q) :=
+  (Module.Basis.span (linearIndependent_indElt hPQ hP ρ₁ ρ₂ σ hρ₁ hρ₂ hσ)).map
     (LinearEquiv.ofEq _ _ (span_indElt hPQ hP ρ₁ ρ₂ σ hρ₁ hρ₂ hσ))
 
 theorem inductionBasis_apply (x : IndIdx ν ν') :
     (inductionBasis hPQ hP ρ₁ ρ₂ σ hρ₁ hρ₂ hσ x : KLRAlgebra k Q (ν + ν')) =
       concat Q ν ν' (lbasis hPQ hP ρ₁ hρ₁ x.1.1 ⊗ₜ lbasis hPQ hP ρ₂ hρ₂ x.1.2) *
         hatW σ x.2 := by
-  simp [inductionBasis, Basis.span_apply, indElt]
+  simp [inductionBasis, Module.Basis.span_apply, indElt]
 
 /-! #### The module structure and freeness -/
 
@@ -422,10 +422,10 @@ theorem freeMap_bijective : Function.Bijective (freeMap (Q := Q) σ) := by
   have key : (freeMap (Q := Q) σ).restrictScalars k =
       (kb.equiv B sigmaIdxEquiv).toLinearMap := by
     refine kb.ext fun ⟨u, x⟩ => ?_
-    rw [LinearEquiv.coe_coe, Basis.equiv_apply]
+    rw [LinearEquiv.coe_coe, Module.Basis.equiv_apply]
     apply Subtype.ext
     simp only [LinearMap.restrictScalars_apply, kb, Finsupp.coe_basis, freeMap,
-      Finsupp.linearCombination_single, coe_tensor_smul, tb, Basis.tensorProduct_apply']
+      Finsupp.linearCombination_single, coe_tensor_smul, tb, Module.Basis.tensorProduct_apply']
     rw [show sigmaIdxEquiv ⟨u, x⟩ = (x, u) from rfl, inductionBasis_apply]
     rfl
   have hb : Function.Bijective ((freeMap (Q := Q) σ).restrictScalars k) := by
@@ -435,15 +435,15 @@ theorem freeMap_bijective : Function.Bijective (freeMap (Q := Q) σ) := by
 /-- **KL I, Proposition 2.16.** `1_{ν,ν'} R(ν + ν')` is a free left `R(ν) ⊗ R(ν')`-module
 with basis `ŵ_u = 1_{ν,ν'} ψ_{σ(u)}`, `u` running over the minimal length representatives
 of the cosets `(S_n × S_{n'}) u`. -/
-noncomputable def freeBasis : Basis (Shuffle (Seq.card_add' ν ν'))
+noncomputable def freeBasis : Module.Basis (Shuffle (Seq.card_add' ν ν'))
     (KLRAlgebra k Q ν ⊗[k] KLRAlgebra k Q ν') (oneConcatSub (ν := ν) (ν' := ν') Q) :=
-  Basis.ofRepr
+  Module.Basis.ofRepr
     (LinearEquiv.ofBijective _ (freeMap_bijective hPQ hP ρ₁ ρ₂ σ hρ₁ hρ₂ hσ)).symm
 
 theorem freeBasis_apply (u : Shuffle (Seq.card_add' ν ν')) :
     (freeBasis hPQ hP ρ₁ ρ₂ σ hρ₁ hρ₂ hσ u : KLRAlgebra k Q (ν + ν')) =
       hatW σ u := by
-  simp only [freeBasis, Basis.coe_ofRepr, LinearEquiv.symm_symm, LinearEquiv.ofBijective_apply]
+  simp only [freeBasis, Module.Basis.coe_ofRepr, LinearEquiv.symm_symm, LinearEquiv.ofBijective_apply]
   rw [freeMap, Finsupp.linearCombination_single, one_smul]
   rfl
 

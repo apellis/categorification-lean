@@ -29,11 +29,14 @@ subspaces and killing low degrees; closed under linear combinations), `hasGdim_o
 the description of the graded pieces of `U` by normal-form diagrams (`homD_eq_span`).
 -/
 
+-- Preserve elaboration of semireducible diagram transports.
+set_option backward.isDefEq.respectTransparency false
+
 noncomputable section
 
 namespace Categorification
 
-open Graded
+open Categorification.Graded
 
 /-! ## Linear maps with finite-dimensional graded images -/
 
@@ -55,7 +58,7 @@ def gdimMaps (ℳ : ℤ → Submodule k M) : Submodule k (M →ₗ[k] N) where
   add_mem' := by
     rintro φ ψ ⟨hφ, B₁, hB₁⟩ ⟨hψ, B₂, hB₂⟩
     refine ⟨fun d => ?_, min B₁ B₂, fun d hd => ?_⟩
-    · haveI := hφ d; haveI := hψ d
+    · have := hφ d; have := hψ d
       exact Submodule.finiteDimensional_of_le (Submodule.map_add_le _ _ _)
     · refine eq_bot_iff.2 ((Submodule.map_add_le _ _ _).trans ?_)
       rw [hB₁ d (lt_of_lt_of_le hd (min_le_left _ _)), hB₂ d (lt_of_lt_of_le hd (min_le_right _ _)),
@@ -63,7 +66,7 @@ def gdimMaps (ℳ : ℤ → Submodule k M) : Submodule k (M →ₗ[k] N) where
   smul_mem' := by
     rintro c φ ⟨hφ, B, hB⟩
     refine ⟨fun d => ?_, B, fun d hd => eq_bot_iff.2 ((gdimMaps_map_smul_le _ _ _).trans ?_)⟩
-    · haveI := hφ d
+    · have := hφ d
       exact Submodule.finiteDimensional_of_le (gdimMaps_map_smul_le _ _ _)
     · rw [hB d hd]
 
@@ -82,7 +85,7 @@ theorem hasGdim_of_id_mem {ℳ : ℤ → Submodule k M} (h : LinearMap.id ∈ gd
     obtain ⟨B, hB⟩ := h.2
     refine ⟨B, fun d hd => ?_⟩
     by_contra hlt
-    exact hd (by rw [← Submodule.map_id (ℳ d)]; exact hB d (lt_of_not_le hlt))
+    exact hd (by rw [← Submodule.map_id (ℳ d)]; exact hB d (lt_of_not_ge hlt))
 
 /-- A composite `b ∘ a` in which `a` shifts the grading into a grading with a graded dimension
 lies in `gdimMaps`. -/
@@ -115,12 +118,12 @@ graded dimension. -/
 theorem hasGdim_of_le_span {ℳ : ℤ → Submodule k M} (S : ℤ → Set M) (hS : ∀ d, (S d).Finite)
     (hle : ∀ d, ℳ d ≤ Submodule.span k (S d)) (B : ℤ) (hB : ∀ d < B, S d = ∅) : HasGdim ℳ where
   finiteDimensional d := by
-    haveI := FiniteDimensional.span_of_finite k (hS d)
+    have := FiniteDimensional.span_of_finite k (hS d)
     exact Submodule.finiteDimensional_of_le (hle d)
   bddBelow := by
     refine ⟨B, fun d hd => ?_⟩
     by_contra hlt
-    exact hd (eq_bot_iff.2 ((hle d).trans (by rw [hB d (lt_of_not_le hlt), Submodule.span_empty])))
+    exact hd (eq_bot_iff.2 ((hle d).trans (by rw [hB d (lt_of_not_ge hlt), Submodule.span_empty])))
 
 end GdimMaps
 
@@ -128,7 +131,7 @@ end Categorification
 
 namespace Categorification
 
-open CategoryTheory StringDiagrams Graded
+open CategoryTheory StringDiagrams Categorification.Graded
 
 /-! ## Graded pieces of presented categories -/
 
@@ -259,7 +262,7 @@ theorem bubAt_mem (μ : X) (s : List (Letter I)) {β : End ((pres RD k).obj (ob 
   have := ctxL_mem (RD := RD) (k := k) μ (s₀ := s) (t₀ := s) (pre := []) (u := s) (v := [])
     (post := []) (s := []) (t := []) (show s = s ++ [] ++ [] by simp)
     (show s ++ [] ++ [] = s by simp) hβ
-  simpa using this
+  simpa [bubAt, CategoryTheory.End] using this
 
 /-- The bubble monomials have the degrees of eq. (3.24). -/
 theorem bubMon_mem (μ : X) (s : (I × ℕ) →₀ ℕ) :
@@ -349,7 +352,7 @@ theorem hasGdim_nil_of_sorted (hSL : SimplyLaced C) (μ : X)
     change δ ∈ (gdimMaps (HomD RD k μ [] w)).comap Ψ
     refine Submodule.span_le.2 ?_ (isBub_mem_span hδ)
     rintro _ ⟨m, rfl⟩
-    haveI := h d c
+    have := h d c
     have e : Ψ (bubMon RD k μ m) = (Linear.rightComp k _ (dg RD k μ (dns d ++ ups c) w Q)) ∘ₗ
         (Linear.rightComp k _ (bubAt RD k μ w (bubMon RD k μ m) ≫
           dg RD k μ w (dns d ++ ups c) P)) := by

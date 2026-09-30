@@ -39,6 +39,9 @@ namespace Categorification.KLR.KL2
 
 open MvPolynomial KLRAlgebra NH Categorification.NilHecke
 
+-- The corner rings `(e_mul_self t).Corner` need instance unification through `KLRAlgebra`.
+set_option backward.isDefEq.respectTransparency false
+
 variable {I : Type*} [DecidableEq I] {k : Type*} [CommRing k]
   {Q : I → I → MvPolynomial (Fin 2) k} {ν : Multiset I}
 
@@ -95,7 +98,7 @@ theorem val_wp {ρ : List ℕ} (hρ : ∀ j ∈ ρ, j + 1 < N) :
   exact cψ_val_of_lt hqN hc (hρ j hj)
 
 theorem val_xN {a : ℕ} (ha : a < N) : (xN (cx (k := k) (Q := Q) t hqN) a).1 = x ⟨q + a, by omega⟩ := by
-  rw [xN, dif_pos ha]; rfl
+  rw [xN, dite_eq_left ha]; rfl
 
 theorem val_Δb {s n : ℕ} (h : s + n ≤ N) : (Δb (cx (k := k) (Q := Q) t hqN) s n).1 = pol (blockDelta (q + s) n) := by
   have := Δb_map (Subring.centralizer ({(e t : A)} : Set A)).subtype (cx (k := k) (Q := Q) t hqN) s n
@@ -103,7 +106,7 @@ theorem val_Δb {s n : ℕ} (h : s + n ≤ N) : (Δb (cx (k := k) (Q := Q) t hqN
   rw [Subring.coe_subtype] at this
   rw [← this, pol_blockDelta_eq, Δb]
   congr 2; funext a
-  rw [xN, dif_pos (show s + (a : ℕ) < N by omega), dif_pos (show q + s + (a : ℕ) < m by omega),
+  rw [xN, dite_eq_left (show s + (a : ℕ) < N by omega), dite_eq_left (show q + s + (a : ℕ) < m by omega),
     map_pow, pol_X, Function.comp_apply, cx_val]
   congr 2
   exact Fin.ext (by simp only; omega)

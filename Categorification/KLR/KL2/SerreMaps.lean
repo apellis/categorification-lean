@@ -116,6 +116,7 @@ theorem blockElt_mul_x_pow_mul_chainR' {s : Seq ν} {q a c : ℕ} (h : q + a ≤
     (a := c) h hc (by omega)
   simp only [Nat.add_sub_cancel] at hca ⊢
   convert this using 5
+  congr 2
 
 /-- KL II (12) in the form used for `α^±`: the block `[q, q + b)`. -/
 theorem blockElt_mul_x_pow_mul_chainL' {s : Seq ν} {q b c : ℕ} (h : q + b ≤ m) (hb1 : 1 ≤ b)
@@ -377,8 +378,8 @@ theorem serre_A_term {a c c' : ℕ} (ha1 : 1 ≤ a) (ha : a + 1 ≤ N) (hcc : c 
       (isConstOn_serreSeq_right hpN ht₀ ht (by omega) (by omega) (by omega)) (by omega)
   rcases Nat.lt_or_ge (a - 1) c with hlt | hge
   · -- `c > a - 1`: the right group vanishes by (12)
-    rw [if_neg (by omega)]
-    rw [h12 (by omega), if_neg (by omega), mul_zero]
+    rw [ite_eq_right (by omega)]
+    rw [h12 (by omega), ite_eq_right (by omega), mul_zero]
   · -- `c ≤ a - 1`: evaluate the left group by (13)
     have h13 := blockElt_mul_x_pow_mul_chainR' (k := k) (C := C) (s := S a) (q := p) (a := a)
       (c := c) (by omega) ha1 (isConstOn_serreSeq_left hpN ht₀ ht (by omega) le_rfl le_rfl) hge
@@ -395,7 +396,7 @@ theorem serre_A_term {a c c' : ℕ} (ha1 : 1 ≤ a) (ha : a + 1 ≤ N) (hcc : c 
       rw [← mul_assoc, ← ((Commute.neg_one_left _).pow_left (a - 1)).eq, mul_assoc,
         ← mul_assoc _ BL, ← hBL.eq, mul_assoc]
       have h12' : (BR * X' * Lr * e (S a) : A) = BR * e (S a) := by
-        rw [h12 (by omega), if_pos (by omega)]
+        rw [h12 (by omega), ite_eq_left (by omega)]
       rw [h12', etop]
       simp only [mul_assoc]
       rfl
@@ -466,10 +467,10 @@ theorem serre_A (hij : i ≠ j) (hd : C.dot i j ≠ 0) (hN : N = C.dij i j + 1) 
   rw [h1, h2, ← sub_mul, ← mul_sub, hbr, Finset.sum_mul, Finset.mul_sum, Finset.sum_mul]
   rw [Finset.sum_eq_single (a - 1)]
   · rw [serre_A_term hpN ht₀ ht ha1 ha (c := a - 1) (c' := C.dij i j - 1 - (a - 1)) (by omega),
-      if_pos rfl]
+      ite_eq_left rfl]
   · intro c hc hca
     rw [Finset.mem_range] at hc
-    rw [serre_A_term hpN ht₀ ht ha1 ha (c := c) (c' := C.dij i j - 1 - c) (by omega), if_neg hca]
+    rw [serre_A_term hpN ht₀ ht ha1 ha (c := c) (c' := C.dij i j - 1 - c) (by omega), ite_eq_right hca]
   · intro h; exact absurd (Finset.mem_range.2 (by omega)) h
 
 /-- **KL II, §3**: `α^-_{1,d} α^+_{0,d+1} = 1_j ⊗ e_{i,d+1}` (for `i · j = 0`, `d = 0`, this is
@@ -528,7 +529,7 @@ theorem serre_B (hij : i ≠ j) (hN : N = C.dij i j + 1) :
         serreSeq_lbl_eq_i hpN ht₀ ht (by omega) _ (by simp) (by simp only; omega)
           (by simp only; omega), C.symm]; exact hd)
     rw [hsq, etop, blockElt_zero, one_mul, add_zero, Nat.sub_zero]
-    simp only [L', BR1, hN', Nat.sub_self, chainL_zero, mul_one, zero_add]
+    simp only [L', BR1, hN', Nat.sub_self, chainL_zero, mul_one]
   · -- `i · j ≠ 0`: `ψ² 1_{ji} = (x_p^{d_ji} + x_{p+1}^{d_ij}) 1_{ji}`
     have hsq := ψ_sq_of_dot_ne_zero (k := k) (C := C) p (by omega) (S 0)
       (by rw [serreSeq_lbl_eq_j hpN ht₀ ht (by omega) _ (by simp),
@@ -548,9 +549,9 @@ theorem serre_B (hij : i ≠ j) (hN : N = C.dij i j + 1) :
     have hx0' : Commute (x ⟨p, by omega⟩ : A) L' := commute_x_chainL (by simp only; omega)
     have hdpos := C.dij_pos hij hd
     have hz := h12 0 (by omega)
-    rw [pow_zero, mul_one, if_neg (by omega)] at hz
+    rw [pow_zero, mul_one, ite_eq_right (by omega)] at hz
     have hd1 := h12 (C.dij i j) (by omega)
-    rw [if_pos (by omega)] at hd1
+    rw [ite_eq_left (by omega)] at hd1
     have t1 : (BR1 * (x ⟨p, by omega⟩ ^ C.dij j i * e (S 0)) * L' : A) = 0 := by
       simp only [mul_assoc]
       rw [← hL'.eq, ← (hx0.pow_left _).left_comm]
@@ -629,9 +630,9 @@ theorem serre_C (hij : i ≠ j) (hN : N = C.dij i j + 1) :
       (s := S N) (q := p) (a := N) (c := c) (by omega) hN1
       (isConstOn_serreSeq_left hpN ht₀ ht le_rfl le_rfl (by omega)) hc
     have hz := h13 0 (by omega)
-    rw [pow_zero, mul_one, if_neg (by omega)] at hz
+    rw [pow_zero, mul_one, ite_eq_right (by omega)] at hz
     have hd1 := h13 (C.dij i j) (by omega)
-    rw [if_pos (by omega)] at hd1
+    rw [ite_eq_left (by omega)] at hd1
     have hxN : Commute (x ⟨p + N - 1 + 1, by omega⟩ : A) BLN :=
       commute_x_blockElt (by simp only; omega)
     have hxR : Commute (x ⟨p + N - 1 + 1, by omega⟩ : A) R' :=

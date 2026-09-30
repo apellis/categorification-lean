@@ -34,7 +34,7 @@ noncomputable section
 namespace Categorification.KLR
 
 open scoped TensorProduct
-open KLRAlgebra MulOpposite Graded
+open KLRAlgebra MulOpposite Categorification.Graded
 
 variable {I : Type*} [DecidableEq I] {k : Type*} [CommRing k] {Q : I → I → MvPolynomial (Fin 2) k}
 
@@ -226,18 +226,17 @@ def assocMidBil (r : IndBimod Q (ν + ν') ν'') (n₃ : N₃) :
   LinearMap.mk₂ k (fun r' n => BalancedTensor.tmul (assocBimod Q ν ν' ν'' r r')
       (assocJ Q ν' ν'' N₁ N₂ N₃ (ExtTensor.tmul n n₃)))
     (fun r'₁ r'₂ n => by
-      beta_reduce; simp only [map_add, LinearMap.add_apply, BalancedTensor.add_tmul])
+      simp only [map_add, BalancedTensor.add_tmul])
     (fun c r' n => by
-      beta_reduce; simp only [map_smul, LinearMap.smul_apply, BalancedTensor.smul_tmul])
-    (fun r' n n' => by beta_reduce; rw [ExtTensor.add_tmul, map_add, BalancedTensor.tmul_add])
-    (fun c r' n => by beta_reduce; rw [← ExtTensor.smul_tmul', map_smul, BalancedTensor.tmul_smul])
+      simp only [map_smul, BalancedTensor.smul_tmul])
+    (fun r' n n' => by rw [ExtTensor.add_tmul, map_add, BalancedTensor.tmul_add])
+    (fun c r' n => by rw [← ExtTensor.smul_tmul', map_smul, BalancedTensor.tmul_smul])
 
 theorem assocMidBil_balanced (r : IndBimod Q (ν + ν') ν'') (n₃ : N₃) (r' : IndBimod Q ν ν')
     (t : TensorKLR Q ν ν') (n : ExtTensor k N₁ N₂) :
     assocMidBil Q ν ν' ν'' N₁ N₂ N₃ r n₃ (op t • r') n =
       assocMidBil Q ν ν' ν'' N₁ N₂ N₃ r n₃ r' (t • n) := by
-  induction t using TensorProduct.induction_on with
-  | zero => rw [op_zero, zero_smul, zero_smul, map_zero, LinearMap.zero_apply, map_zero]
+  induction t using TensorProduct.inductionOn with
   | tmul a b =>
     show BalancedTensor.tmul (assocBimod Q ν ν' ν'' r (op (a ⊗ₜ[k] b) • r'))
         (assocJ Q ν' ν'' N₁ N₂ N₃ (ExtTensor.tmul n n₃)) =
@@ -268,14 +267,12 @@ def assocOuterInner (r : IndBimod Q (ν + ν') ν'') :
     (fun y y' n₃ => map_add _ y y')
     (fun c y n₃ => map_smul _ c y)
     (fun y n₃ n₃' => by
-      beta_reduce
       induction y using BalancedTensor.induction_on with
       | zero => simp only [map_zero, add_zero]
       | tmul r' n => rw [assocMid_tmul, assocMid_tmul, assocMid_tmul, ExtTensor.tmul_add,
           map_add, BalancedTensor.tmul_add]
       | add y y' hy hy' => rw [map_add, map_add, map_add, hy, hy']; abel)
     (fun c y n₃ => by
-      beta_reduce
       induction y using BalancedTensor.induction_on with
       | zero => simp only [map_zero, smul_zero]
       | tmul r' n => rw [assocMid_tmul, assocMid_tmul, ExtTensor.tmul_smul, map_smul,
@@ -358,9 +355,10 @@ theorem assocOuterBil_balanced_tmul (r : IndBimod Q (ν + ν') ν'')
     (a' : KLRAlgebra k Q (ν + ν')) (d : KLRAlgebra k Q ν'') :
     assocOuterBil Q ν ν' ν'' N₁ N₂ N₃ (op (a' ⊗ₜ[k] d) • r) =
       (assocOuterBil Q ν ν' ν'' N₁ N₂ N₃ r).comp
-        (DistribMulAction.toLinearMap k _ (a' ⊗ₜ[k] d)) := by
+        (Module.toModuleEnd k _ (a' ⊗ₜ[k] d)) := by
   refine extTensorInd_ext N₃ fun r' n n₃ => ?_
-  rw [LinearMap.comp_apply, DistribMulAction.toLinearMap_apply, ExtTensor.smul_tmul,
+  rw [LinearMap.comp_apply, Module.toModuleEnd_apply, DistribSMul.toLinearMap_apply,
+    ExtTensor.smul_tmul,
     BalancedTensor.smul_tmul', assocOuterBil_tmul, assocOuterBil_tmul,
     assocBimod_op_smul_outer, BalancedTensor.op_smul_tmul, smul_assocJ_right]
 
@@ -368,8 +366,7 @@ theorem assocOuterBil_balanced (r : IndBimod Q (ν + ν') ν'')
     (t : TensorKLR Q (ν + ν') ν'') (z : ExtTensor k (Ind Q ν ν' (ExtTensor k N₁ N₂)) N₃) :
     assocOuterBil Q ν ν' ν'' N₁ N₂ N₃ (op t • r) z =
       assocOuterBil Q ν ν' ν'' N₁ N₂ N₃ r (t • z) := by
-  induction t using TensorProduct.induction_on with
-  | zero => rw [op_zero, zero_smul, zero_smul, map_zero, LinearMap.zero_apply, map_zero]
+  induction t using TensorProduct.inductionOn with
   | tmul a' d =>
     rw [assocOuterBil_balanced_tmul]; rfl
   | add t t' ht ht' =>
@@ -554,13 +551,13 @@ def assocMidBil' (r : IndBimod Q ν (ν' + ν'')) (n₁ : N₁) :
   LinearMap.mk₂ k (fun r'' m => BalancedTensor.tmul (assocBimod' Q ν ν' ν'' r r'')
       (assocJ' Q ν ν' N₁ N₂ N₃ (ExtTensor.tmul n₁ m)))
     (fun r''₁ r''₂ m => by
-      beta_reduce; simp only [map_add, LinearMap.add_apply, BalancedTensor.add_tmul])
+      simp only [map_add, BalancedTensor.add_tmul])
     (fun c r'' m => by
-      beta_reduce; simp only [map_smul, LinearMap.smul_apply, BalancedTensor.smul_tmul])
+      simp only [map_smul, BalancedTensor.smul_tmul])
     (fun r'' m m' => by
-      beta_reduce; simp only [ExtTensor.tmul_add, map_add, BalancedTensor.tmul_add])
+      simp only [ExtTensor.tmul_add, map_add, BalancedTensor.tmul_add])
     (fun c r'' m => by
-      beta_reduce; simp only [ExtTensor.tmul_smul, map_smul, BalancedTensor.tmul_smul])
+      simp only [ExtTensor.tmul_smul, map_smul, BalancedTensor.tmul_smul])
 
 theorem assocMidBil'_apply (r : IndBimod Q ν (ν' + ν'')) (n₁ : N₁) (r'' : IndBimod Q ν' ν'')
     (m : ExtTensor k N₂ N₃) :
@@ -571,8 +568,7 @@ theorem assocMidBil'_balanced (r : IndBimod Q ν (ν' + ν'')) (n₁ : N₁) (r'
     (t : TensorKLR Q ν' ν'') (m : ExtTensor k N₂ N₃) :
     assocMidBil' Q ν ν' ν'' N₁ N₂ N₃ r n₁ (op t • r'') m =
       assocMidBil' Q ν ν' ν'' N₁ N₂ N₃ r n₁ r'' (t • m) := by
-  induction t using TensorProduct.induction_on with
-  | zero => simp only [op_zero, zero_smul, map_zero, LinearMap.zero_apply]
+  induction t using TensorProduct.inductionOn with
   | tmul b d =>
     rw [assocMidBil'_apply, assocMidBil'_apply, assocBimod'_op_smul,
       BalancedTensor.op_smul_tmul, smul_assocJ'_right]
@@ -709,8 +705,7 @@ theorem assocOuterBil'_balanced (r : IndBimod Q ν (ν' + ν''))
     (t : TensorKLR Q ν (ν' + ν'')) (z : ExtTensor k N₁ (Ind Q ν' ν'' (ExtTensor k N₂ N₃))) :
     assocOuterBil' Q ν ν' ν'' N₁ N₂ N₃ (op t • r) z =
       assocOuterBil' Q ν ν' ν'' N₁ N₂ N₃ r (t • z) := by
-  induction t using TensorProduct.induction_on with
-  | zero => simp only [op_zero, zero_smul, map_zero, LinearMap.zero_apply]
+  induction t using TensorProduct.inductionOn with
   | tmul a Y =>
     induction z using ExtTensor.induction_on with
     | zero => simp only [smul_zero, map_zero]
@@ -839,7 +834,7 @@ variable (Q ν ν' ν'') in
 `Ind_{ν+ν',ν''} (Ind_{ν,ν'} (N₁ ⊠ N₂) ⊠ N₃) ≅ Ind_{ν,ν'+ν''} (N₁ ⊠ Ind_{ν',ν''} (N₂ ⊠ N₃))`,
 a `k`-linear isomorphism which is semilinear along `castKLR` (`assocEquiv_smul`). -/
 def assocEquiv : AssocL Q ν ν' ν'' N₁ N₂ N₃ ≃ₗ[k] AssocR Q ν ν' ν'' N₁ N₂ N₃ :=
-  LinearEquiv.ofLinear (assocFwd Q ν ν' ν'' N₁ N₂ N₃) (assocBwd Q ν ν' ν'' N₁ N₂ N₃)
+  LinearEquiv.ofLinearMap (assocFwd Q ν ν' ν'' N₁ N₂ N₃) (assocBwd Q ν ν' ν'' N₁ N₂ N₃)
     (LinearMap.ext fun x => assocFwd_assocBwd N₁ N₂ N₃ x)
     (LinearMap.ext fun x => assocBwd_assocFwd N₁ N₂ N₃ x)
 
@@ -885,14 +880,13 @@ def unitLBil : IndBimod Q 0 ν →ₗ[k] ExtTensor k (KLRAlgebra k Q 0) N →ₗ
   LinearMap.mk₂ k (fun r z => ExtTensor.lift
       (LinearMap.mk₂ k (fun a n => castKLR Q (zero_add ν)
           ((r : KLRAlgebra k Q (0 + ν)) * concat Q 0 ν (a ⊗ₜ 1)) • n)
-        (fun a a' n => by beta_reduce; rw [TensorProduct.add_tmul, map_add, mul_add, map_add,
+        (fun a a' n => by rw [TensorProduct.add_tmul, map_add, mul_add, map_add,
           add_smul])
-        (fun c a n => by beta_reduce; rw [← TensorProduct.smul_tmul', map_smul, mul_smul_comm,
+        (fun c a n => by rw [← TensorProduct.smul_tmul', map_smul, mul_smul_comm,
           map_smul, smul_assoc])
-        (fun a n n' => by beta_reduce; rw [smul_add])
-        (fun c a n => by beta_reduce; rw [smul_comm])) z)
+        (fun a n n' => by rw [smul_add])
+        (fun c a n => by rw [smul_comm])) z)
     (fun r r' z => by
-      beta_reduce
       induction z using ExtTensor.induction_on with
       | zero => simp only [map_zero, add_zero]
       | tmul a n =>
@@ -900,7 +894,6 @@ def unitLBil : IndBimod Q 0 ν →ₗ[k] ExtTensor k (KLRAlgebra k Q 0) N →ₗ
           map_add, add_smul]
       | add z z' hz hz' => simp only [map_add, hz, hz']; abel)
     (fun c r z => by
-      beta_reduce
       induction z using ExtTensor.induction_on with
       | zero => simp only [map_zero, smul_zero]
       | tmul a n =>
@@ -917,8 +910,7 @@ theorem unitLBil_tmul (r : IndBimod Q 0 ν) (a : KLRAlgebra k Q 0) (n : N) :
 theorem unitLBil_balanced (r : IndBimod Q 0 ν) (t : TensorKLR Q 0 ν)
     (z : ExtTensor k (KLRAlgebra k Q 0) N) :
     unitLBil Q ν N (op t • r) z = unitLBil Q ν N r (t • z) := by
-  induction t using TensorProduct.induction_on with
-  | zero => simp only [op_zero, zero_smul, map_zero, LinearMap.zero_apply]
+  induction t using TensorProduct.inductionOn with
   | tmul a' b =>
     induction z using ExtTensor.induction_on with
     | zero => simp only [smul_zero, map_zero]
@@ -999,7 +991,7 @@ variable (Q ν) in
 /-- **Left unitality of induction**: `Ind_{0,ν} (R(0) ⊠ N) ≅ N`, semilinear along
 `castKLR : R(0 + ν) ≃ R(ν)` (`unitLEquiv_smul`). -/
 def unitLEquiv : UnitL Q ν N ≃ₗ[k] N :=
-  LinearEquiv.ofLinear (unitLFwd Q ν N) (unitLBwd Q ν N)
+  LinearEquiv.ofLinearMap (unitLFwd Q ν N) (unitLBwd Q ν N)
     (LinearMap.ext fun n => unitLFwd_unitLBwd N n)
     (LinearMap.ext fun x => unitLBwd_unitLFwd N x)
 
@@ -1013,14 +1005,13 @@ def unitRBil : IndBimod Q ν 0 →ₗ[k] ExtTensor k N (KLRAlgebra k Q 0) →ₗ
   LinearMap.mk₂ k (fun r z => ExtTensor.lift
       (LinearMap.mk₂ k (fun n a => castKLR Q (add_zero ν)
           ((r : KLRAlgebra k Q (ν + 0)) * concat Q ν 0 (1 ⊗ₜ a)) • n)
-        (fun n n' a => by beta_reduce; rw [smul_add])
-        (fun c n a => by beta_reduce; rw [smul_comm])
-        (fun n a a' => by beta_reduce; rw [TensorProduct.tmul_add, map_add, mul_add, map_add,
+        (fun n n' a => by rw [smul_add])
+        (fun c n a => by rw [smul_comm])
+        (fun n a a' => by rw [TensorProduct.tmul_add, map_add, mul_add, map_add,
           add_smul])
-        (fun c n a => by beta_reduce; rw [TensorProduct.tmul_smul, map_smul, mul_smul_comm,
+        (fun c n a => by rw [TensorProduct.tmul_smul, map_smul, mul_smul_comm,
           map_smul, smul_assoc])) z)
     (fun r r' z => by
-      beta_reduce
       induction z using ExtTensor.induction_on with
       | zero => simp only [map_zero, add_zero]
       | tmul n a =>
@@ -1028,7 +1019,6 @@ def unitRBil : IndBimod Q ν 0 →ₗ[k] ExtTensor k N (KLRAlgebra k Q 0) →ₗ
           map_add, add_smul]
       | add z z' hz hz' => simp only [map_add, hz, hz']; abel)
     (fun c r z => by
-      beta_reduce
       induction z using ExtTensor.induction_on with
       | zero => simp only [map_zero, smul_zero]
       | tmul n a =>
@@ -1045,8 +1035,7 @@ theorem unitRBil_tmul (r : IndBimod Q ν 0) (n : N) (a : KLRAlgebra k Q 0) :
 theorem unitRBil_balanced (r : IndBimod Q ν 0) (t : TensorKLR Q ν 0)
     (z : ExtTensor k N (KLRAlgebra k Q 0)) :
     unitRBil Q ν N (op t • r) z = unitRBil Q ν N r (t • z) := by
-  induction t using TensorProduct.induction_on with
-  | zero => simp only [op_zero, zero_smul, map_zero, LinearMap.zero_apply]
+  induction t using TensorProduct.inductionOn with
   | tmul b a' =>
     induction z using ExtTensor.induction_on with
     | zero => simp only [smul_zero, map_zero]
@@ -1127,7 +1116,7 @@ variable (Q ν) in
 /-- **Right unitality of induction**: `Ind_{ν,0} (N ⊠ R(0)) ≅ N`, semilinear along
 `castKLR : R(ν + 0) ≃ R(ν)` (`unitREquiv_smul`). -/
 def unitREquiv : UnitR Q ν N ≃ₗ[k] N :=
-  LinearEquiv.ofLinear (unitRFwd Q ν N) (unitRBwd Q ν N)
+  LinearEquiv.ofLinearMap (unitRFwd Q ν N) (unitRBwd Q ν N)
     (LinearMap.ext fun n => unitRFwd_unitRBwd N n)
     (LinearMap.ext fun x => unitRBwd_unitRFwd N x)
 

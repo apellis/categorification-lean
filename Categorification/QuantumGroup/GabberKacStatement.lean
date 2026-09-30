@@ -90,7 +90,7 @@ theorem d_bar_eq (σ : K →+* K) {v w : Kˣ} (hw : σ (v : K) = (w : K)) (k : I
     rw [bar_word]
     induction u using FreeMonoid.inductionOn' with
     | one => rw [word_one, d_one, d_one, map_zero]
-    | mul_of j u ih =>
+    | of_mul j u ih =>
       rw [d_word_of_mul, d_word_of_mul, map_add, bar_smul, map_mul, bar_θ, ← ih,
         val_zpow_of_map σ hw]
       split_ifs <;> simp [bar_word]
@@ -109,7 +109,7 @@ theorem form_bar_bar (σ : K →+* K) {v w : Kˣ} (hw : σ (v : K) = (w : K)) {c
     congr 1
     induction u using FreeMonoid.inductionOn' generalizing y with
     | one => rw [word_one, form_one, form_one, counit_bar]
-    | mul_of k u ih =>
+    | of_mul k u ih =>
       rw [word_of_mul, form_θ_mul, form_θ_mul, map_mul, hc, d_bar_eq σ hw, ih]
 
 /-- `bar σ` sends Lusztig's Serre elements at `v` to those at `w = σ v`. -/
@@ -134,7 +134,7 @@ theorem bar_bar_of_leftInverse (σ τ : K →+* K) (h : ∀ a, σ (τ a) = a) (x
 /-- The grading automorphism `θ_i ↦ μ_i θ_i` of `'f` (it multiplies `'f_ν` by
 `∏ μ_i^{ν_i}`). -/
 def rescale (μ : I → Kˣ) : PreF K I →ₐ[K] PreF K I :=
-  MonoidAlgebra.lift K (FreeMonoid I) (PreF K I)
+  MonoidAlgebra.lift K (PreF K I) (FreeMonoid I)
     (FreeMonoid.lift fun i => ((μ i : K) • θ i : PreF K I))
 
 theorem rescale_θ (μ : I → Kˣ) (i : I) : rescale μ (θ i : PreF K I) = (μ i : K) • θ i := by
@@ -156,7 +156,7 @@ theorem form_rescale {v : Kˣ} {c c' : I → K} (μ : I → Kˣ) (hc : ∀ i, c'
     congr 1
     induction u using FreeMonoid.inductionOn' generalizing y with
     | one => rw [word_one, map_one (rescale μ), form_one, form_one]
-    | mul_of k u ih =>
+    | of_mul k u ih =>
       rw [rescale_word_of_mul, map_smul, LinearMap.smul_apply, word_of_mul, form_θ_mul,
         form_θ_mul, ih, hc, smul_eq_mul]
       ring
@@ -171,7 +171,7 @@ theorem rescale_inv_rescale (μ : I → Kˣ) (x : PreF K I) :
     congr 1
     induction u using FreeMonoid.inductionOn' with
     | one => rw [word_one, map_one, map_one]
-    | mul_of k u ih =>
+    | of_mul k u ih =>
       rw [rescale_word_of_mul, map_smul, map_mul, rescale_θ, ih, smul_mul_assoc, smul_smul,
         word_of_mul, Pi.inv_apply, ← Units.val_mul, mul_inv_cancel, Units.val_one, one_smul]
 

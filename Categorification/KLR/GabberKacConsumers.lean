@@ -2,7 +2,7 @@
 Copyright (c) 2026 Alex Ellis. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 -/
-import Categorification.QuantumGroup.GabberKacStatement
+import Categorification.QuantumGroup.GabberKacBridge
 import Categorification.KLR.Theorem321
 import Categorification.KLR.KL2.Theorem8
 
@@ -20,6 +20,12 @@ quantum groups*, Theorem 33.1.3(a); see `Categorification.QuantumGroup.GabberKac
   Theorem 1.1 and Theorem 3.21;
 * `KLR.KL2Gamma.theorem_8_of_quantumGabberKac`, `KLR.KL2Gamma.gammaInt2Equiv_of_quantumGabberKac`
   — Khovanov–Lauda II (arXiv:0804.2080), Theorem 8.
+
+The canonical statement is proved (`CartanDatum.quantumGabberKac`,
+`Categorification.QuantumGroup.GabberKacBridge`), so these hold unconditionally:
+`QuantumGroup.KL.gabberKac`, `KLR.KLGamma.theorem_1_1_unconditional`,
+`KLR.KLGamma.gammaIntEquiv_unconditional`, `KLR.KLGamma.theorem_3_21_unconditional`,
+`KLR.KL2Gamma.theorem_8_unconditional`, `KLR.KL2Gamma.gammaInt2Equiv_unconditional`.
 -/
 
 noncomputable section
@@ -34,11 +40,15 @@ theorem gabberKac_of_quantumGabberKac (h : (KL.C Γ).QuantumGabberKac) :
     PreF.GabberKac (KL.C Γ).dot vQ (KL.C Γ).c :=
   (KLR.KLGamma.gabberKac_iff Γ).1 h
 
+/-- The Gabber–Kac theorem in the form used by KL I, for the Cartan datum of any graph `Γ`. -/
+theorem gabberKac : PreF.GabberKac (KL.C Γ).dot vQ (KL.C Γ).c :=
+  gabberKac_of_quantumGabberKac Γ (KL.C Γ).quantumGabberKac
+
 end Categorification.QuantumGroup.KL
 
 namespace Categorification.KLR.KLGamma
 
-open Categorification.Graded QuantumGroup
+open Categorification.Graded Categorification.QuantumGroup
 
 variable {I : Type*} [DecidableEq I] (k : Type*) [Field k] (Γ : SimpleGraph I)
   [DecidableRel Γ.Adj]
@@ -62,11 +72,28 @@ theorem theorem_3_21_of_quantumGabberKac (hGK : (KL.C Γ).QuantumGabberKac)
     Nonempty ((sumF k Γ μ P L).Iso (sumF k Γ μ P L')) :=
   theorem_3_21 k Γ (KL.gabberKac_of_quantumGabberKac Γ hGK) hrel μ P
 
+/-- **KL I, Theorem 1.1** (arXiv:0803.4121v2): `γ : _𝒜 f → K₀(R)` is bijective, for every graph
+`Γ` and field `k`. -/
+theorem theorem_1_1_unconditional : Function.Bijective (gammaInt' k Γ (KL.gabberKac Γ)) :=
+  theorem_1_1 k Γ _
+
+/-- **KL I, Theorem 1.1**: the ring isomorphism `γ : _𝒜 f ≅ K₀(R)`, for every graph `Γ` and
+field `k`. -/
+def gammaIntEquiv_unconditional : KL.Af Γ ≃+* (klGradingDatum k Γ).K0R :=
+  gammaIntEquiv k Γ (KL.gabberKac Γ)
+
+/-- **KL I, Theorem 3.21**, for every graph `Γ` and field `k`. -/
+theorem theorem_3_21_unconditional {L L' : List (ℤ × List (I × ℕ))}
+    (hrel : relSum Γ L = relSum Γ L') (μ : Multiset I) {ν : Multiset I}
+    (P : GProj ((klGradingDatum k Γ).grade ν)) :
+    Nonempty ((sumF k Γ μ P L).Iso (sumF k Γ μ P L')) :=
+  theorem_3_21 k Γ (KL.gabberKac Γ) hrel μ P
+
 end Categorification.KLR.KLGamma
 
 namespace Categorification.KLR.KL2Gamma
 
-open QuantumGroup KL2
+open Categorification.QuantumGroup KL2
 
 variable {I : Type*} [DecidableEq I] (k : Type*) [Field k] (C : CartanDatum I)
 
@@ -81,6 +108,16 @@ Gabber–Kac statement. -/
 def gammaInt2Equiv_of_quantumGabberKac (hGK : C.QuantumGabberKac) :
     C.Af ≃+* (klGradingDatum2 k C).K0R :=
   gammaInt2Equiv k C hGK.gabberKac
+
+/-- **KL II, Theorem 8** (arXiv:0804.2080): `γ : _𝒜 f → K₀(R)` is bijective, for every Cartan
+datum `C` and field `k`. -/
+theorem theorem_8_unconditional : Function.Bijective (gammaInt2' k C C.quantumGabberKac) :=
+  theorem_8 k C _
+
+/-- **KL II, Theorem 8**: the ring isomorphism `γ : _𝒜 f ≅ K₀(R)`, for every Cartan datum `C`
+and field `k`. -/
+def gammaInt2Equiv_unconditional : C.Af ≃+* (klGradingDatum2 k C).K0R :=
+  gammaInt2Equiv k C C.quantumGabberKac
 
 end Categorification.KLR.KL2Gamma
 

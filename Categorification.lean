@@ -328,6 +328,7 @@ import Categorification.QuantumGroup.DividedPowers
 import Categorification.QuantumGroup.Form
 import Categorification.QuantumGroup.FormDivided
 import Categorification.QuantumGroup.FormWords
+import Categorification.QuantumGroup.GabberKacBridge
 import Categorification.QuantumGroup.GabberKacStatement
 import Categorification.QuantumGroup.Grading
 import Categorification.QuantumGroup.KLSpecialization

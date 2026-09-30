@@ -37,7 +37,7 @@ noncomputable section
 namespace Categorification.Flag.Indep
 
 open Categorification.Flag Categorification.KL3.Diagram StringDiagrams CategoryTheory
-  Categorification.KL3.Diagram.SlnEmbed
+  Categorification.KL3.Diagram.SlnEmbed Categorification.KL3.Diagram.Signed
 
 universe u
 
@@ -284,6 +284,231 @@ theorem lastR_path (t : List (Letter (Fin m₀))) :
   exact (lastR_eq_endR _ _).trans ((ιO_endR _).trans (congrArg phiW (ob_endR _ μ t)))
 
 end Regions
+
+
+/-! ## Scalars in the rightmost region -/
+
+section Scalar
+
+variable {M N : ℕ}
+
+theorem iotaR_algebraMap : ∀ (s : Wt M) (ws : List (WCol M)) (h : WOK N s ws) (c : K),
+    iotaR s ws h (algebraMap K (H K (compOf N (lastR s ws))) c) = (gammaR K N s ws h).right c
+  | _, [], _, _ => rfl
+  | _, col :: ws, h, c => by
+    show BRing.inclR _ _ (iotaR col.r ws h.tail (algebraMap K _ c)) = _
+    rw [iotaR_algebraMap col.r ws h.tail c]
+    rfl
+
+theorem iotaE_algebraMap (s : Wt M) (W : List (WCol M)) (h : WOK N s W) (μ : Wt M)
+    (e : lastR s W = μ) (c : K) :
+    iotaE s W h μ e (algebraMap K (H K (compOf N μ)) c) = (gammaR K N s W h).right c := by
+  show iotaR s W h ((hCast K _) (algebraMap K _ c)) = _
+  rw [AlgEquiv.commutes, iotaR_algebraMap]
+
+universe w₀ w₁ w₂
+
+variable {S₀ : Signature.{w₀, w₁, w₂}} {P₀ : Presentation S₀ K}
+  {F : P₀.Presented ⥤ ModuleCat.{u} K} {ιF : Obj S₀ ⥤ Obj (psig (slRootDatum M))}
+  {dnScal : Fin M → Fin M → K} {χ : (psig (slRootDatum M)).Gen → Kˣ}
+
+/-- Scalars in the rightmost region act by scalar multiplication. -/
+theorem pvec_algebraMap (hF : GammaLike F ιF N dnScal χ) (a : Obj S₀)
+    (ha : WOK N (ιF.obj a).start (ιF.obj a).word) (μ : Wt M)
+    (e : lastR (ιF.obj a).start (ιF.obj a).word = μ) (q : MvPolynomial ℕ K) (c : K)
+    (z : H K (compOf N μ)) :
+    hF.pvec a ha μ e q (algebraMap K _ c * z) = c • hF.pvec a ha μ e q z := by
+  simp only [GammaLike.pvec]
+  rw [← map_smul]
+  congr 1
+  rw [map_mul, iotaE_algebraMap, RT.smul_def]
+  ring_nf
+
+end Scalar
+
+/-! ## The bubbles -/
+
+section Bubbles
+
+local notation "RD" => slRootDatum m₀
+local notation "RD'" => slRootDatum (m₀ + 1)
+
+theorem bubGen_eq (μ : Wt m₀) (c : Fin m₀) (n : ℕ) :
+    bubGen RD K μ c (n + 1) =
+      if 0 ≤ ip RD c μ then dg RD K μ [] [] (cwLs c ((ip RD c μ).toNat + n))
+      else dg RD K μ [] [] (ccwLs c ((-ip RD c μ).toNat + n)) := by
+  unfold bubGen
+  split_ifs with h
+  · rw [show ip RD c μ - 1 + ((n + 1 : ℕ) : ℤ) = (((ip RD c μ).toNat + n : ℕ) : ℤ) by
+      push_cast; omega, cwU_of_nonneg]
+  · rw [show -ip RD c μ - 1 + ((n + 1 : ℕ) : ℤ) = (((-ip RD c μ).toNat + n : ℕ) : ℤ) by
+      push_cast; omega, ccwU_of_nonneg]
+
+theorem cwLs_map (c : Fin m₀) (α : ℕ) : (cwLs c α).map ιLD = cwLs c.castSucc α := by
+  unfold cwLs
+  simp only [List.map_append, List.map_replicate, List.map_cons, List.map_nil]
+  rfl
+
+theorem ccwLs_map (c : Fin m₀) (α : ℕ) : (ccwLs c α).map ιLD = ccwLs c.castSucc α := by
+  unfold ccwLs
+  simp only [List.map_append, List.map_replicate, List.map_cons, List.map_nil]
+  rfl
+
+theorem ιLD_whL (s : List (Letter (Fin m₀))) (x : LayerData (Fin m₀)) :
+    ιLD (whL s [] x) = whL (s.map ιl) [] (ιLD x) := by
+  simp [ιLD, whL, List.map_append]
+
+/-- The relabelling of a bubble placed to the right of the strands `s` is the relabelled bubble
+placed to the right of the relabelled strands. -/
+theorem layers_ιF_bub (μ : Wt m₀) (s : List (Letter (Fin m₀))) (ls : List (LayerData (Fin m₀)))
+    (hls : SChain [] ls []) (h : SChain s (ls.map (whL s [])) s) :
+    Diagram.layers ((SlnEmbed.ιF m₀).map (mkD RD μ (ls.map (whL s [])) h)) =
+      (layList RD' (phiW μ) (ls.map ιLD)).map
+        (·.whisker ((SlnEmbed.ιF m₀).obj (ob RD μ s)) []) := by
+  show Diagram.layers (ιD (mkD RD μ (ls.map (whL s [])) h)) = _
+  rw [layers_ιD_mkD, SlnEmbed.ιF_obj, ιO_ob]
+  have := layList_whisker RD' (phiW μ) (s.map ιl) [] (sChain_ι hls)
+  refine Eq.trans ?_ this.symm
+  congr 1
+  rw [List.map_map, List.map_map]
+  exact List.map_congr_left fun x _ => ιLD_whL s x
+
+variable (μ : Wt m₀)
+
+/-- The units of `Σ` on the generators of `Π_λ`. -/
+def ωsl (p : Fin m₀ × ℕ) : K :=
+  if 0 ≤ ip RD p.1 μ then
+    ((CL.Rescale.weight (CL.Sln.sigmaDatum K (m₀ + 1)).chi
+      (Diagram.layers (cwReal RD' (phiW μ) p.1.castSucc ((ip RD p.1 μ).toNat + p.2))) : Kˣ) : K)
+  else
+    ((CL.Rescale.weight (CL.Sln.sigmaDatum K (m₀ + 1)).chi
+      (Diagram.layers (ccwReal RD' (phiW μ) p.1.castSucc ((-ip RD p.1 μ).toNat + p.2))) : Kˣ) : K)
+
+theorem ωsl_ne_zero (p : Fin m₀ × ℕ) : ωsl (K := K) μ p ≠ 0 := by
+  unfold ωsl; split_ifs <;> exact Units.ne_zero _
+
+variable (L B : ℕ)
+
+theorem nH_compOf (c : Fin m₀) :
+    nH (compOf (Nbd μ L B) (phiW μ)) c.castSucc = ip RD c μ := by
+  have hr : Realized (Nbd μ L B) (phiW μ) := (region_good μ L B [] (by simp)).1
+  have := congrFun (compOf_spec hr).2 c.castSucc
+  simp only [compWeight] at this
+  rw [nH, this]
+  show phiW μ c.castSucc = slPair m₀ (Pi.single c 1) μ
+  rw [phiW_castSucc, slPair_single_left]
+
+theorem bubVal_eq (c : Fin m₀) (n : ℕ) :
+    bubVal (K := K) (compOf (Nbd μ L B) (phiW μ)) c.castSucc n =
+      if 0 ≤ ip RD c μ then
+        cwRealH (compOf (Nbd μ L B) (phiW μ)) c.castSucc ((ip RD c μ).toNat + n)
+      else ccwRealH (compOf (Nbd μ L B) (phiW μ)) c.castSucc ((-ip RD c μ).toNat + n) := by
+  unfold bubVal
+  rw [nH_compOf μ L B]
+
+set_option maxHeartbeats 1000000 in
+/-- **The generators of `Π_λ` act on the rightmost region by their `Γ_N`-values**, up to the
+units `ωsl` of `Σ`. -/
+theorem hbub_sln {ν : Multiset (Fin m₀)}
+    (hv : ∀ s : KLR.Seq ν, WOK (Nbd μ L B) ((SlnEmbed.ιF m₀).obj
+      (ob RD μ (ups (KLR.Diagram.word s)))).start
+      ((SlnEmbed.ιF m₀).obj (ob RD μ (ups (KLR.Diagram.word s)))).word)
+    (he : ∀ s : KLR.Seq ν, lastR ((SlnEmbed.ιF m₀).obj (ob RD μ (ups (KLR.Diagram.word s)))).start
+      ((SlnEmbed.ιF m₀).obj (ob RD μ (ups (KLR.Diagram.word s)))).word = phiW μ)
+    (s : KLR.Seq ν) (p : Fin m₀ × ℕ) (q : MvPolynomial (Fin (Multiset.card ν)) K)
+    (z : H K (compOf (Nbd μ L B) (phiW μ))) :
+    ((Fsl K m₀ (Nbd μ L B)).map (bubAt RD K μ (ups (KLR.Diagram.word s))
+      (bubGen RD K μ p.1 (p.2 + 1)))).hom (pv (gammaLike_Fsl (Nbd μ L B)) μ (phiW μ) hv he s q z) =
+      pv (gammaLike_Fsl (Nbd μ L B)) μ (phiW μ) hv he s q
+        ((algebraMap K _ (ωsl μ p) * bubVal (compOf (Nbd μ L B) (phiW μ)) p.1.castSucc p.2) * z) := by
+  obtain ⟨c, n⟩ := p
+  set w := ups (KLR.Diagram.word s)
+  rw [bubGen_eq, bubVal_eq]
+  simp only [ωsl]
+  split_ifs with hc
+  · set α := (ip RD c μ).toNat + n
+    have hS : SChain w ((cwLs c α).map (whL w [])) w := by
+      simpa using (sChain_cwLs c α).whisk w []
+    rw [bubAt_dg, dg_of hS, mul_assoc, pv, pv, pvec_algebraMap]
+    refine (GammaLike.map_pvec_whisker (gammaLike_Fsl (Nbd μ L B))
+      (mkD RD μ ((cwLs c α).map (whL w [])) hS) (cwReal RD' (phiW μ) c.castSucc α)
+      (cwRealH (compOf (Nbd μ L B) (phiW μ)) c.castSucc α) ?_ ?_ ?_ (hv s) (he s) _ z)
+    · rw [layers_ιF_bub μ w _ (sChain_cwLs c α), cwLs_map]; rfl
+    · exact (ιO_endR _).trans (congrArg phiW (ob_endR _ μ w))
+    · intro s' hs ha hb
+      subst hs
+      rw [evalB_cwReal]
+      rfl
+  · set α := (-ip RD c μ).toNat + n
+    have hS : SChain w ((ccwLs c α).map (whL w [])) w := by
+      simpa using (sChain_ccwLs c α).whisk w []
+    rw [bubAt_dg, dg_of hS, mul_assoc, pv, pv, pvec_algebraMap]
+    refine (GammaLike.map_pvec_whisker (gammaLike_Fsl (Nbd μ L B))
+      (mkD RD μ ((ccwLs c α).map (whL w [])) hS) (ccwReal RD' (phiW μ) c.castSucc α)
+      (ccwRealH (compOf (Nbd μ L B) (phiW μ)) c.castSucc α) ?_ ?_ ?_ (hv s) (he s) _ z)
+    · rw [layers_ιF_bub μ w _ (sChain_ccwLs c α), ccwLs_map]; rfl
+    · exact (ιO_endR _).trans (congrArg phiW (ob_endR _ μ w))
+    · intro s' hs ha hb
+      subst hs
+      rw [evalB_ccwReal]
+      rfl
+
+end Bubbles
+
+/-! ## The data of the abstract theorem, and the independence -/
+
+section Main
+
+/-- The units `d_c` of `Σ` on the dots. -/
+def dsl (c : Fin (m₀ + 1)) : K := (CL.Sln.sigmaSign K (m₀ + 1) c : K)
+
+/-- The units `κ_{cd}` of `Σ` on the upward crossings. -/
+def κsl (c d : Fin (m₀ + 1)) : K := ((CL.Sln.sigmaDatum K (m₀ + 1)).cross c d : K)
+
+theorem dsl_mul_self (c : Fin (m₀ + 1)) : dsl (K := K) c * dsl c = 1 := by
+  rw [dsl, ← Units.val_mul, CL.Sln.sigmaSign_mul_self, Units.val_one]
+
+theorem κsl_mul_dsl (c : Fin (m₀ + 1)) : κsl (K := K) c c * dsl c = 1 := by
+  simp only [κsl, CL.Sln.sigmaDatum_cross, true_or, ↓reduceIte]
+  exact dsl_mul_self c
+
+theorem κsl_ne_zero (c d : Fin (m₀ + 1)) : κsl (K := K) c d ≠ 0 := Units.ne_zero _
+
+/-- **The `Γ_N`-like functor for the bound `B`**: `Γ_N ∘ Σ ∘ embedU` with `N = Nbd μ (card ν) B`. -/
+def repSln (μ : Wt m₀) (ν : Multiset (Fin m₀)) (B : ℕ) :
+    Rep K μ ν Fin.castSucc dsl κsl B where
+  N := Nbd μ (Multiset.card ν) B
+  F := Fsl K m₀ (Nbd μ (Multiset.card ν) B)
+  additive := inferInstance
+  linear := inferInstance
+  ιF := SlnEmbed.ιF m₀
+  dnScal := gammaDn K (m₀ + 1)
+  χ := (CL.Sln.sigmaDatum K (m₀ + 1)).chi
+  hF := gammaLike_Fsl _
+  μ' := phiW μ
+  hv s := wok_path μ _ B _ (by simp [KLR.Diagram.length_word])
+  he s := lastR_path μ _
+  hU := upCompat_sln μ ν
+  hlen s := by simp [length_wd, KLR.Diagram.length_word]
+  hχd _ _ := rfl
+  hχc _ _ _ := rfl
+  ω := ωsl μ
+  hω := ωsl_ne_zero μ
+  hbub := hbub_sln μ _ B _ _
+  big s := regionsBig_path μ _ B _ (by simp [KLR.Diagram.length_word])
+
+/-- **KL III §6.4 for `sl_{m₀+1}`, over any field**: the elements
+`ϕ_{ν,λ}(ψ_{ρ w} x^u e_i ⊗ m)_{ij}` (`w • i = j`, `m` a monomial of `Π_λ`) of
+`HOM_U(E_{+i} 1_λ, E_{+j} 1_λ)` are linearly independent. -/
+theorem linearIndependent_vB_sln (μ : Wt m₀) (ν : Multiset (Fin m₀)) (i j : KLR.Seq ν) :
+    LinearIndependent K (fun p : {p : (KLR.Seq ν × Equiv.Perm (Fin (Multiset.card ν)) ×
+        (Fin (Multiset.card ν) →₀ ℕ)) × ((Fin m₀ × ℕ) →₀ ℕ) // p.1.1 = i ∧ p.1.2.1 • i = j} =>
+      vB (slRootDatum m₀) K μ i j p.1) :=
+  linearIndependent_vB μ ν i j Fin.castSucc (Fin.castSucc_injective _)
+    (fun c => by simp only [Fin.val_castSucc]; omega) dsl κsl dsl_mul_self κsl_mul_dsl
+    κsl_ne_zero (fun B => ⟨repSln μ ν B⟩)
+
+end Main
 
 end Categorification.Flag.Indep
 

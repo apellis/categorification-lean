@@ -25,6 +25,7 @@ import Categorification.Algebra.Graded.Simple
 import Categorification.Algebra.Graded.Tensor
 import Categorification.Algebra.Graded.TensorGdim
 import Categorification.Algebra.Graded.TensorSimple
+import Categorification.Algebra.Graded.TwistTensor
 import Categorification.Algebra.IdempotentEquiv
 import Categorification.Algebra.K0FinDim
 import Categorification.Algebra.NilHecke
@@ -332,6 +333,7 @@ import Categorification.KLR.SimpleNilHecke
 import Categorification.KLR.Spanning
 import Categorification.KLR.SymGdim
 import Categorification.KLR.Symmetries
+import Categorification.KLR.TensorForm
 import Categorification.KLR.TensorKLRK0
 import Categorification.KLR.Theorem11
 import Categorification.KLR.Theorem321

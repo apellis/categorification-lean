@@ -273,4 +273,244 @@ theorem closeSum (hij : i ≠ j) (hdot : C.dot i j ≠ 0) (h1 : 1 ≤ ip RD i la
 
 end Closure
 
+/-! ## The mixed infinite Grassmannian relation in low degrees -/
+
+section Mixed
+
+variable (lam : X) (i j : I)
+
+theorem dij_pos {i j : I} (hij : i ≠ j) (hdot : C.dot i j ≠ 0) : 0 < C.dij i j := by
+  have h₁ := C.dij_mul hij
+  rcases Nat.eq_zero_or_pos (C.dij i j) with h | h
+  · rw [h] at h₁; simp at h₁; exact absurd h₁ hdot
+  · exact h
+
+theorem ip_wt_up_ne {i j : I} (hij : i ≠ j) (lam : X) :
+    ip RD i (wt RD lam [up j]) = ip RD i lam - C.dij i j := by
+  rw [ip_wt_up, A_eq_neg_dij hij]; ring
+
+/-- **The mixed Grassmannian relation in low degrees** (Brundan–Ellis, arXiv:1701.04133v2, proof
+of Proposition 7.3(iii)): for `i ≠ j`, `i · j ≠ 0`, `h = ⟨i, λ⟩ ≥ 1` and `1 ≤ n ≤ d_ij - h`,
+`∑_{a ≤ n} ccw_{a+*}(left of E_j) · cw_{n-a+*}(right of E_j) = 0`. -/
+theorem mixedGrass (hij : i ≠ j) (hdot : C.dot i j ≠ 0) (h1 : 1 ≤ ip RD i lam) (n : ℕ)
+    (hn1 : 1 ≤ n) (hn : (n : ℤ) + ip RD i lam ≤ C.dij i j) :
+    sconv (cLs RD k lam i (up j)) (wRs RD k lam i (up j)) n = 0 := by
+  have hw := ip_wt_up_ne RD hij lam
+  set d := C.dij i j with hd
+  set h := ip RD i lam with hh
+  have hS := closeSum RD k lam i j hij hdot h1 (n - 1) (by push_cast [Nat.cast_sub hn1]; omega)
+  rw [← hd] at hS
+  set m0 : ℕ := d - h.toNat - n with hm0
+  have hm0' : (m0 : ℤ) = d - h - n := by omega
+  have hsub : Finset.Ico m0 (m0 + (n + 1)) ⊆ Finset.range d := by
+    intro t ht
+    simp only [Finset.mem_Ico, Finset.mem_range] at ht ⊢
+    omega
+  have hz : ∀ t ∈ Finset.range d, t ∉ Finset.Ico m0 (m0 + (n + 1)) →
+      bubLU RD k lam (up j) (ccwU RD k (wt RD lam [up j]) i ((n - 1 + t : ℕ) : ℤ)) ≫
+        bubRU RD k lam (up j) (cwU RD k lam i ((d - 1 - t : ℕ) : ℤ)) = 0 := by
+    intro t ht hnot
+    simp only [Finset.mem_Ico, Finset.mem_range, not_and_or, not_le, not_lt] at ht hnot
+    rcases hnot with h' | h'
+    · rw [ccwU_eq_zero RD k _ i _ (by push_cast [Nat.cast_sub hn1]; omega), bubLU_zero,
+        Limits.zero_comp]
+    · have e : ((d - 1 - t : ℕ) : ℤ) = d - 1 - t := by omega
+      rw [cwU_eq_zero RD k _ i _ (by rw [e]; omega), bubRU_zero, Limits.comp_zero]
+  rw [← Finset.sum_subset hsub hz, Finset.sum_Ico_eq_sum_range, Nat.add_sub_cancel_left] at hS
+  refine Eq.trans ?_ hS
+  refine Finset.sum_congr rfl fun a ha => ?_
+  have ha' := Finset.mem_range.1 ha
+  rw [End.mul_def, cLs, wRs, bubLU_comm]
+  have e₁ : ((d - 1 - (m0 + a) : ℕ) : ℤ) = d - 1 - m0 - a := by omega
+  have e₂ : ((n - a : ℕ) : ℤ) = n - a := by omega
+  have e₃ : ((n - 1 + (m0 + a) : ℕ) : ℤ) = n - 1 + m0 + a := by omega
+  congr 3 <;> first | (rw [e₃]; omega) | (rw [e₁, e₂]; omega)
+
+end Mixed
+
+/-! ## Bubble slides in all degrees -/
+
+section Conv
+
+variable {A : Type*} [Ring A]
+
+/-- Convolution with `1 + D t^d` (`d ≥ 1`) on the right. -/
+theorem sconv_gen_right (u : ℕ → A) (d : ℕ) (hd : 0 < d) (D : A) (α : ℕ) :
+    sconv u (fun e => if e = 0 then 1 else if e = d then D else 0) α =
+      u α + (if d ≤ α then u (α - d) * D else 0) := by
+  rw [sconv, Finset.sum_range_succ, Nat.sub_self, ite_eq_left rfl, mul_one, add_comm]
+  congr 1
+  by_cases h : d ≤ α
+  · rw [ite_eq_left h, Finset.sum_eq_single (α - d)]
+    · rw [ite_eq_right (by omega), ite_eq_left (by omega)]
+    · intro b hb hb'
+      have := Finset.mem_range.1 hb
+      rw [ite_eq_right (by omega), ite_eq_right (by omega), mul_zero]
+    · intro hn; exact absurd (Finset.mem_range.2 (by omega)) hn
+  · rw [ite_eq_right h]
+    refine Finset.sum_eq_zero fun b hb => ?_
+    have := Finset.mem_range.1 hb
+    rw [ite_eq_right (by omega), ite_eq_right (by omega), mul_zero]
+
+/-- Convolution with `1 + D t^d` (`d ≥ 1`) on the left. -/
+theorem sconv_gen_left (w : ℕ → A) (d : ℕ) (hd : 0 < d) (D : A) (β : ℕ) :
+    sconv (fun e => if e = 0 then 1 else if e = d then D else 0) w β =
+      w β + (if d ≤ β then D * w (β - d) else 0) := by
+  rw [sconv, Finset.sum_range_succ', ite_eq_left rfl, one_mul, Nat.sub_zero, add_comm]
+  congr 1
+  by_cases h : d ≤ β
+  · rw [ite_eq_left h, Finset.sum_eq_single (d - 1)]
+    · rw [ite_eq_right (by omega), ite_eq_left (by omega), show β - (d - 1 + 1) = β - d by omega]
+    · intro b hb hb'
+      rw [ite_eq_right (by omega), ite_eq_right (by omega), zero_mul]
+    · intro hn; exact absurd (Finset.mem_range.2 (by omega)) hn
+  · rw [ite_eq_right h]
+    refine Finset.sum_eq_zero fun b hb => ?_
+    have := Finset.mem_range.1 hb
+    rw [ite_eq_right (by omega), ite_eq_right (by omega), zero_mul]
+
+/-- Truncated transfer: if `u w = 1`, `u' w' = 1`, `u'₀ = 1` and `u = u' τ` in degrees `≤ M`,
+then `w' = τ w` in degrees `≤ M`. -/
+theorem transfer_right_trunc (u w u' w' τ : ℕ → A)
+    (hG : ∀ d, sconv u w d = if d = 0 then 1 else 0)
+    (hG' : ∀ d, sconv u' w' d = if d = 0 then 1 else 0) (M : ℕ)
+    (hA : ∀ α ≤ M, u α = sconv u' τ α) (hu' : u' 0 = 1) : ∀ β ≤ M, w' β = sconv τ w β := by
+  intro β
+  induction β using Nat.strong_induction_on with
+  | _ β ih =>
+  intro hβ
+  have e₁ := hG' β
+  have e₂ : sconv u' (sconv τ w) β = if β = 0 then 1 else 0 := by
+    rw [← sconv_assoc, ← hG β]
+    exact Finset.sum_congr rfl fun a ha => by
+      rw [hA a (by have := Finset.mem_range.1 ha; omega)]
+  rw [sconv, Finset.sum_range_succ', hu', one_mul, Nat.sub_zero] at e₁ e₂
+  have : ∑ a ∈ Finset.range β, u' (a + 1) * w' (β - (a + 1)) =
+      ∑ a ∈ Finset.range β, u' (a + 1) * sconv τ w (β - (a + 1)) :=
+    Finset.sum_congr rfl fun a ha => by
+      rw [ih (β - (a + 1)) (by have := Finset.mem_range.1 ha; omega) (by omega)]
+  rw [this] at e₁
+  exact add_left_cancel (e₁.trans e₂.symm)
+
+end Conv
+
+section Gen
+
+variable (lam : X) (i j : I)
+
+/-- The coefficients of `τ = 1 + x_j^{d_ji} t^{d_ij}` (dots on the strand `j`). -/
+abbrev τgen (e : ℕ) : End ((pres RD k).obj (ob RD lam [up j])) :=
+  if e = 0 then 1 else if e = C.dij i j then dotsU RD k lam (up j) (C.dij j i) else 0
+
+variable {i j}
+
+theorem lin_ccwReal_eq (ν : X) (i : I) (m : ℕ) :
+    (pres RD k).lin (LinDiagram.of (ccwReal RD ν i m)) = ccwU RD k ν i (m : ℤ) := by
+  rw [lin_ccwReal, ccwU_of_nonneg]
+
+theorem lin_cwReal_eq (ν : X) (i : I) (m : ℕ) :
+    (pres RD k).lin (LinDiagram.of (cwReal RD ν i m)) = cwU RD k ν i (m : ℤ) := by
+  rw [lin_cwReal, cwU_of_nonneg]
+
+theorem slideA_gen_real (hij : i ≠ j) (hdot : C.dot i j ≠ 0) (α : ℕ)
+    (hα : 0 ≤ -ip RD i lam - 1 + α) :
+    cRs RD k lam i (up j) α = sconv (cLs RD k lam i (up j)) (τgen RD k lam i j) α := by
+  have hw := ip_wt_up_ne RD hij lam
+  have hd := dij_pos hij hdot
+  obtain ⟨m, hm⟩ : ∃ m : ℕ, (m : ℤ) = -ip RD i lam - 1 + α := ⟨_, Int.toNat_of_nonneg hα⟩
+  have h := bubble_slide_ccw_ne RD k lam i j hij m
+  rw [ite_eq_right hdot, lin_bubR_eq, lin_bubL_eq, lin_bubL_eq, lin_ccwReal_eq, lin_ccwReal_eq,
+    lin_ccwReal_eq] at h
+  rw [sconv_gen_right _ _ hd, cRs, ← hm, h, cLs]
+  congr 1
+  · congr 2; push_cast; omega
+  · split_ifs with hα'
+    · rw [End.mul_def, cLs, ← bubLU_comm]
+      congr 3
+      push_cast [Nat.cast_sub hα']; omega
+    · rw [ccwU_eq_zero RD k _ i _ (by omega), bubLU_zero, Limits.zero_comp]
+
+theorem slideB_gen_real (hij : i ≠ j) (hdot : C.dot i j ≠ 0) (β : ℕ)
+    (hβ : 0 ≤ ip RD i (wt RD lam [up j]) - 1 + β) :
+    wLs RD k lam i (up j) β = sconv (τgen RD k lam i j) (wRs RD k lam i (up j)) β := by
+  have hw := ip_wt_up_ne RD hij lam
+  have hd := dij_pos hij hdot
+  obtain ⟨m, hm⟩ : ∃ m : ℕ, (m : ℤ) = ip RD i (wt RD lam [up j]) - 1 + β :=
+    ⟨_, Int.toNat_of_nonneg hβ⟩
+  have h := bubble_slide_cw_ne RD k lam i j hij m
+  rw [ite_eq_right hdot, lin_bubR_eq, lin_bubR_eq, lin_bubL_eq, lin_cwReal_eq, lin_cwReal_eq,
+    lin_cwReal_eq] at h
+  rw [sconv_gen_left _ _ hd, wLs, ← hm, h, wRs]
+  congr 1
+  · congr 2; push_cast; omega
+  · split_ifs with hβ'
+    · rw [End.mul_def, wRs]
+      congr 3
+      push_cast [Nat.cast_sub hβ']; omega
+    · rw [cwU_eq_zero RD k _ i _ (by omega), bubRU_zero, Limits.zero_comp]
+
+/-- **Bubble slides in all degrees for `i ≠ j`, `i · j ≠ 0`** (KL III, Propositions 3.3–3.4,
+extended to an arbitrary Cartan datum and to fake bubbles): with `τ = 1 + x_j^{d_ji} t^{d_ij}`,
+the counterclockwise bubbles to the right of an upward `j`-strand are `C_L τ` and the clockwise
+bubbles to its left are `τ W_R`, as power series in the degree index. -/
+theorem slides_gen (hij : i ≠ j) (hdot : C.dot i j ≠ 0) :
+    (∀ α, cRs RD k lam i (up j) α = sconv (cLs RD k lam i (up j)) (τgen RD k lam i j) α) ∧
+      ∀ β, wLs RD k lam i (up j) β = sconv (τgen RD k lam i j) (wRs RD k lam i (up j)) β := by
+  have hw := ip_wt_up_ne RD hij lam
+  have hd := dij_pos hij hdot
+  have A0 : cRs RD k lam i (up j) 0 = sconv (cLs RD k lam i (up j)) (τgen RD k lam i j) 0 := by
+    rw [sconv_gen_right _ _ hd, ite_eq_right (by omega), add_zero, cRs_zero, cLs_zero]
+  have B0 : wLs RD k lam i (up j) 0 = sconv (τgen RD k lam i j) (wRs RD k lam i (up j)) 0 := by
+    rw [sconv_gen_left _ _ hd, ite_eq_right (by omega), add_zero, wRs_zero, wLs_zero]
+  have hG := sconv_cRs_wRs RD k lam i (up j)
+  have hG' := sconv_cLs_wLs RD k lam i (up j)
+  by_cases hA : ip RD i lam ≤ 0
+  · have hA' : ∀ α, cRs RD k lam i (up j) α =
+        sconv (cLs RD k lam i (up j)) (τgen RD k lam i j) α := by
+      intro α
+      rcases α with _ | α
+      · exact A0
+      · exact slideA_gen_real RD k lam hij hdot _ (by push_cast; omega)
+    exact ⟨hA', transfer_right _ _ _ _ _ hG hG' hA' (cLs_zero RD k lam i (up j))⟩
+  by_cases hB : (C.dij i j : ℤ) ≤ ip RD i lam
+  · have hB' : ∀ β, wLs RD k lam i (up j) β =
+        sconv (τgen RD k lam i j) (wRs RD k lam i (up j)) β := by
+      intro β
+      rcases β with _ | β
+      · exact B0
+      · exact slideB_gen_real RD k lam hij hdot _ (by push_cast; omega)
+    exact ⟨transfer_left _ _ _ _ _ hG hG' hB' (wRs_zero RD k lam i (up j)), hB'⟩
+  -- the gap `0 < ⟨i, λ⟩ < d_ij` (Brundan–Ellis, proof of Proposition 7.3(iii))
+  set M : ℕ := ((C.dij i j : ℤ) - ip RD i lam).toNat with hM
+  have claim : ∀ n ≤ M, cRs RD k lam i (up j) n =
+      sconv (cLs RD k lam i (up j)) (τgen RD k lam i j) n := by
+    intro n
+    induction n using Nat.strong_induction_on with
+    | _ n ih =>
+    intro hn
+    rcases Nat.eq_zero_or_pos n with rfl | hn1
+    · exact A0
+    rw [sconv_gen_right _ _ hd, ite_eq_right (by omega), add_zero]
+    have e₁ := hG n
+    have e₂ := mixedGrass RD k lam i j hij hdot (by omega) n hn1 (by omega)
+    rw [ite_eq_right (by omega)] at e₁
+    rw [sconv, Finset.sum_range_succ, Nat.sub_self, wRs_zero, mul_one] at e₁ e₂
+    have : ∑ a ∈ Finset.range n, cRs RD k lam i (up j) a * wRs RD k lam i (up j) (n - a) =
+        ∑ a ∈ Finset.range n, cLs RD k lam i (up j) a * wRs RD k lam i (up j) (n - a) :=
+      Finset.sum_congr rfl fun a ha => by
+        have ha' := Finset.mem_range.1 ha
+        rw [ih a ha' (by omega), sconv_gen_right _ _ hd, ite_eq_right (by omega), add_zero]
+    rw [this] at e₁
+    exact add_left_cancel (e₁.trans e₂.symm)
+  have hBlow := transfer_right_trunc _ _ _ _ _ hG hG' M claim (cLs_zero RD k lam i (up j))
+  have hB' : ∀ β, wLs RD k lam i (up j) β =
+      sconv (τgen RD k lam i j) (wRs RD k lam i (up j)) β := by
+    intro β
+    by_cases hβ : β ≤ M
+    · exact hBlow β hβ
+    · exact slideB_gen_real RD k lam hij hdot _ (by omega)
+  exact ⟨transfer_left _ _ _ _ _ hG hG' hB' (wRs_zero RD k lam i (up j)), hB'⟩
+
+end Gen
+
 end Categorification.KL3.Diagram

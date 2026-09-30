@@ -178,6 +178,17 @@ import Categorification.Flag.GammaCyclicSameL
 import Categorification.Flag.GammaDown
 import Categorification.Flag.GammaErratumCheck
 import Categorification.Flag.GammaEval
+import Categorification.Flag.GammaIndep
+import Categorification.Flag.GammaIndepAlg
+import Categorification.Flag.GammaIndepBub
+import Categorification.Flag.GammaIndepConj
+import Categorification.Flag.GammaIndepData
+import Categorification.Flag.GammaIndepERing
+import Categorification.Flag.GammaIndepFunctor
+import Categorification.Flag.GammaIndepMat
+import Categorification.Flag.GammaIndepPath
+import Categorification.Flag.GammaIndepShadow
+import Categorification.Flag.GammaIndepTrunc
 import Categorification.Flag.GammaInterchange
 import Categorification.Flag.GammaLiftBasic
 import Categorification.Flag.GammaLiftBubble

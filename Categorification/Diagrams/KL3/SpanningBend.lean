@@ -31,11 +31,13 @@ for every splitting `(s, t)` of the normally ordered boundary words `(-c)(+b)`, 
 `HOM_U(1_λ, F_{c} E_{b} 1_λ)` (`exists_isSpanFamily_negW_posW`, `exists_isSpanFamily_of_normal`).
 
 The one-sided case for boundary words which are not normally ordered (up to the splitting) is
-**not** proved here. It cannot be obtained from the normally ordered case by the direct sum
+not proved in this file. It cannot be obtained from the normally ordered case by the direct sum
 decompositions of KL III Propositions 3.25 and 3.26 alone: `E_{+i-i} 1_μ` is a direct summand of
 `E_{-i+i} 1_μ` when `⟨i, μ⟩ < 0`, and for `sl₂` the cyclic boundary word `(+)³(-)³(+)³(-)³`, with
 suitable weights, admits no decomposition in the good direction at any adjacent pair. KL III's
-proof uses isotopies of dotted diagrams modulo lower terms (A. Lauda, arXiv:0803.3652v3, §8).
+proof uses isotopies of dotted diagrams modulo lower terms (A. Lauda, arXiv:0803.3652v3, §8); it
+is formalized, for simply-laced Cartan data, in `Categorification.Diagrams.KL3.SpanningOneSided`
+(`isSpanFamily_oneB`, `prop311_of_simplyLaced`).
 -/
 
 noncomputable section

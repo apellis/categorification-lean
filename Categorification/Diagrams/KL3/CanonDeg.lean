@@ -44,7 +44,6 @@ variable {I : Type*} (C : CartanDatum I) {n : ℕ} {L : Fin n → Bool × I} {σ
 
 /-! ## Uncrossing two interleaved arcs -/
 
-set_option linter.unusedSimpArgs false in
 theorem pair_cross_pt (h : IsMatching L σ) (hp' : p'.val = p.val + 1) (h1 : p' < σ p)
     (h2 : σ p' < p) (a b : Fin n) :
     PDn a.val b.val (σ a).val (σ b).val (L a).1 (L b).1 (C.dot (L a).2 (L b).2) =
@@ -68,7 +67,6 @@ theorem pair_cross_pt (h : IsMatching L σ) (hp' : p'.val = p.val + 1) (h1 : p' 
     (fun h => by rw [h] at v3; omega)
   have t4 : swap p p' e = e := swap_apply_of_ne_of_ne (fun h => by rw [h] at v2; omega)
     (fun h => by rw [h] at v2; omega)
-  have fne : ∀ x y : Fin n, x.val ≠ y.val → x ≠ y := fun x y h e => h (e ▸ rfl)
   by_cases bad1 : (a = p ∨ a = f) ∧ (b = p' ∨ b = e)
   · obtain ⟨ha, hb⟩ := bad1
     have hno : ¬ (a = e ∧ b = p) := by
@@ -82,23 +80,21 @@ theorem pair_cross_pt (h : IsMatching L σ) (hp' : p'.val = p.val + 1) (h1 : p' 
   · obtain ⟨hb, ha⟩ := bad2
     rcases ha with rfl | rfl <;> rcases hb with rfl | rfl
     · rw [he, ite_eq_right (fun h => by have := congrArg Fin.val h.1; omega), add_zero]
-      simp only [hf, hfp, he, hep, t1, t2, t3, t4, PDn]; split_ifs <;> omega
+      simp only [hf, t1, t2, t3, t4, PDn]; split_ifs <;> omega
     · rw [he, ite_eq_right (fun h => by have := congrArg Fin.val h.1; omega), add_zero]
-      simp only [hf, hfp, he, hep, t1, t2, t3, t4, PDn]; split_ifs <;> omega
+      simp only [hfp, t1, t2, t3, t4, PDn]; split_ifs <;> omega
     · rw [he, ite_eq_left ⟨rfl, rfl⟩]
       have hs : (L a).1 = !(L p').1 := by rw [← he]; exact h.sign p'
       have hc : (L a).2 = (L p').2 := by rw [← he]; exact h.col p'
-      simp only [hf, hfp, he, hep, t1, t2, t3, t4, PDn, hs, hc, C.symm (L p').2 (L b).2]
+      simp only [hf, hep, t1, t2, t3, t4, PDn, hs, hc, C.symm (L p').2 (L b).2]
       split_ifs <;> first | omega | (cases (L p').1 <;> cases (L b).1 <;> simp_all)
     · rw [he, ite_eq_right (fun h => by have := congrArg Fin.val h.2; omega), add_zero]
-      simp only [hf, hfp, he, hep, t1, t2, t3, t4, PDn]; split_ifs <;> omega
+      simp only [hfp, hep, t1, t2, t3, t4, PDn]; split_ifs <;> omega
   -- no pair of the four endpoints is `{p, p + 1}`: the swap preserves all comparisons
   have hno : ¬ (a = σ p' ∧ b = p) := fun ⟨h1, h2⟩ => bad2 ⟨Or.inl h2, Or.inr (h1.trans he)⟩
   rw [ite_eq_right hno, add_zero]
   have arc : ∀ x, ¬ (x = p ∧ σ x = p') ∧ ¬ (x = p' ∧ σ x = p) := fun x =>
     ⟨fun ⟨e1, e2⟩ => hne (by rw [← hf, ← e1, e2]), fun ⟨e1, e2⟩ => hne (by rw [← hf, ← e2, h.invol, e1])⟩
-  have arc' : ∀ x, ¬ (σ x = p ∧ x = p') ∧ ¬ (σ x = p' ∧ x = p) := fun x =>
-    ⟨fun ⟨e1, e2⟩ => (arc x).2 ⟨e2, e1⟩, fun ⟨e1, e2⟩ => (arc x).1 ⟨e2, e1⟩⟩
   have hσf : ∀ x, σ x = p ↔ x = f := fun x => ⟨fun e => by rw [← hfp] at e; exact σ.injective e,
     fun e => by rw [e, hfp]⟩
   have hσe : ∀ x, σ x = p' ↔ x = e := fun x => ⟨fun h' => by rw [← hep] at h'; exact σ.injective h',
@@ -113,18 +109,10 @@ theorem pair_cross_pt (h : IsMatching L σ) (hp' : p'.val = p.val + 1) (h1 : p' 
   have k1 := key a b (fun e => b1 ⟨Or.inl e.1, Or.inl e.2⟩) (fun e => b2 ⟨Or.inl e.2, Or.inl e.1⟩)
   have k2 := key b a (fun e => b2 ⟨Or.inl e.1, Or.inl e.2⟩) (fun e => b1 ⟨Or.inl e.2, Or.inl e.1⟩)
   have k3 := key b (σ a) (fun e => b2 ⟨Or.inl e.1, Or.inr e.2⟩) (fun e => b1 ⟨Or.inr e.2, Or.inl e.1⟩)
-  have k4 := key (σ a) b (fun e => b1 ⟨Or.inr e.1, Or.inl e.2⟩) (fun e => b2 ⟨Or.inl e.2, Or.inr e.1⟩)
   have k5 := key (σ a) (σ b) (fun e => b1 ⟨Or.inr e.1, Or.inr e.2⟩)
     (fun e => b2 ⟨Or.inr e.2, Or.inr e.1⟩)
-  have k6 := key (σ b) (σ a) (fun e => b2 ⟨Or.inr e.1, Or.inr e.2⟩)
-    (fun e => b1 ⟨Or.inr e.2, Or.inr e.1⟩)
   have k7 := key a (σ a) (arc a).1 (arc a).2
-  have k8 := key (σ a) a (arc' a).1 (arc' a).2
-  have k9 := key b (σ b) (arc b).1 (arc b).2
-  have k10 := key (σ b) b (arc' b).1 (arc' b).2
-  have k11 := key a (σ b) (fun e => b1 ⟨Or.inl e.1, Or.inr e.2⟩) (fun e => b2 ⟨Or.inr e.2, Or.inl e.1⟩)
-  have k12 := key (σ b) a (fun e => b2 ⟨Or.inr e.1, Or.inl e.2⟩) (fun e => b1 ⟨Or.inl e.2, Or.inr e.1⟩)
-  simp only [PDn, k1, k2, k3, k5, k6, k7, k9, k11]
+  simp only [PDn, k1, k2, k3, k5, k7]
 
 /-- **Uncrossing two interleaved arcs at adjacent endpoints** (KL III §2.2): if `p` is the left end
 of an arc and `p' = p + 1` the right end of another, the two arcs interleave; exchanging `p` and

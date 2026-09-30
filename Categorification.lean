@@ -117,6 +117,7 @@ import Categorification.Diagrams.KL3.SignedSln
 import Categorification.Diagrams.KL3.SignedSlnErratum
 import Categorification.Diagrams.KL3.SlideCalculus
 import Categorification.Diagrams.KL3.SlnEmbed
+import Categorification.Diagrams.KL3.SlnEmbedU
 import Categorification.Diagrams.KL3.SortDecomp
 import Categorification.Diagrams.KL3.SortedAction
 import Categorification.Diagrams.KL3.SortedSpanProof

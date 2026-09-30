@@ -53,13 +53,12 @@ free 2-categories on the pivotal signatures.
   compatibility with whiskering (`ιL_whisker`, `ιO_whisker`, `ιD_whisker`);
 * normal forms: `ιSh`, `ιLD`, `ιO_ob`, `ιL_lay`, `ιD_mkD`.
 
-## Not yet formalized
+## The descent
 
-The descent of `ιF` through the relations of Definition 3.1 to the presented 2-categories, i.e.
-the `K`-linear functor
+The descent of `ιF` through the relations of Definition 3.1 to the presented 2-categories, the
+`K`-linear functor
 `embedU K m : (pres (slRootDatum m) K).Presented ⥤ (pres (slRootDatum (m+1)) K).Presented`
-and its value on diagrams `embedU_diag`. (The bubble relations will use `ip_phiW`; the
-`R(ν)`-relations will use `slCartan_dot_castSucc`.)
+with its value on diagrams `embedU_diag`, is in `Categorification.Diagrams.KL3.SlnEmbedU`.
 -/
 
 noncomputable section

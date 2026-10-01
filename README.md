@@ -206,7 +206,17 @@ In CL §2.1.1, "`s_{ij}^{pq} = 0` when … `d_{ij} ≥ p` or `d_{ji} ≥ q`" sho
 as CL state, by rotating the upward relations (a rotation calculus that needs only the zigzag
 relations, not cyclicity): adding them gives an isomorphic presentation
 (`KL3.Diagram.CL.lin_relationDown`, `KL3.Diagram.CL.presCLDownEquiv`). The main theorem (CL
-Theorem 1.1) is not yet formalized.
+Theorem 1.1) is not yet formalized. Its proof rests on Prop. 3.9 (biadjointness is automatic),
+whose adjoint induction has a gap at the step of Lemma 3.6: the final paragraph (decomposable
+`E1_{n-2}`) uses Lemma 3.1 at weight `n-2`, which is not available at that stage, and the `n ≤ 0`
+half (Remark 3.11) is vacuous at weight `0`. The induction therefore has no foothold at the weights
+`{0, -2}` (even highest weight) or `{1, -1, -3}` (odd), although it propagates from any foothold
+and closes unconditionally for highest weight at most `5`. Plan: Prop. 3.9 and Thm. 1.1 are being
+formalized under an explicit extra hypothesis, that the graded endomorphism algebras of direct
+summands of words in `E`, `F` are bounded below in degree (implied by biadjointness, equivalent to
+Prop. 3.9, and satisfied by bimodule 2-representations over nonnegatively graded, degreewise finite
+algebras): issue #6. Removing that hypothesis, to recover the statement as printed, is a standing
+roadmap item: issue #10.
 
 ### KL I §3.3–3.4: relations between induction functors, tight monomials
 

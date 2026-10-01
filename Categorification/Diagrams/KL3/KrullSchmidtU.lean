@@ -79,19 +79,23 @@ theorem obj_eq_ob_endR (μ : X) (o : Obj (psig RD)) (hwf : o.WF) (h : o.endR = �
     · change c :: w = wd RD μ ((c :: w).map Col.l)
       rw [List.map_cons, wd_cons, ← hr, ← hw]
 
-section Finite
+section General
 
-variable [DecidableEq I] [Finite I]
+variable (RD k) in
+/-- **Hom-finiteness of `U`** (KL III §3.2, Corollary 3.14, and §3.6: "The space of homs between
+any two objects in `U̇(λ, μ)` is a finite-dimensional `k`-vector space"): for every weight `μ` and
+all signed sequences `s`, `t`, each graded piece of `HOM_U(E_s 1_μ, E_t 1_μ)` is
+finite-dimensional, and the graded pieces vanish in sufficiently negative degrees.
 
-/-- **Finite-dimensional graded Hom-spaces between arbitrary 1-morphisms of `U`**
-(simply-laced, `I` finite, `k` a field). -/
-theorem hasGdim_obj (hSL : SimplyLaced C) {ρ lam : X}
-    (x y : Bicat.Hom (wtObj RD k ρ) (wtObj RD k lam)) :
-    Graded.HasGdim ((pres RD k).homDeg (deg RD) x.obj y.obj) := by
-  have hx : x.obj = ob RD lam (x.obj.word.map Col.l) := obj_eq_ob_endR lam x.obj x.wf x.endR_eq
-  have hy : y.obj = ob RD lam (y.obj.word.map Col.l) := obj_eq_ob_endR lam y.obj y.wf y.endR_eq
-  rw [hx, hy]
-  exact hasGdim_homD hSL lam _ _
+This is the only input of the Krull–Schmidt argument below. It is proved for simply-laced Cartan
+data with `I` finite (`homGdim_of_simplyLaced`, from Proposition 3.10); for general Cartan data
+it is stated here as a hypothesis. -/
+def HomGdim : Prop := ∀ (μ : X) (s t : List (Letter I)), Graded.HasGdim (HomD RD k μ s t)
+
+/-- Hom-finiteness of `U` for simply-laced data (`hasGdim_homD`). -/
+theorem homGdim_of_simplyLaced [DecidableEq I] [Finite I] (hSL : SimplyLaced C) :
+    HomGdim RD k :=
+  fun μ s t => hasGdim_homD hSL μ s t
 
 /-- The underlying matrix of a morphism of the Karoubi envelope, as a linear map. -/
 def karHomL {𝒞 : Type*} [Category 𝒞] [Preadditive 𝒞] [Linear k 𝒞] (A B : Karoubi 𝒞) :
@@ -104,14 +108,27 @@ theorem karHomL_injective {𝒞 : Type*} [Category 𝒞] [Preadditive 𝒞] [Lin
     (A B : Karoubi 𝒞) : Function.Injective (karHomL (k := k) A B) :=
   fun _ _ h => Karoubi.hom_ext _ _ h
 
+variable (hG : HomGdim RD k)
+include hG
+
+/-- **Finite-dimensional graded Hom-spaces between arbitrary 1-morphisms of `U`**
+(assuming `HomGdim`). -/
+theorem hasGdim_obj_of_homGdim {ρ lam : X}
+    (x y : Bicat.Hom (wtObj RD k ρ) (wtObj RD k lam)) :
+    Graded.HasGdim ((pres RD k).homDeg (deg RD) x.obj y.obj) := by
+  have hx : x.obj = ob RD lam (x.obj.word.map Col.l) := obj_eq_ob_endR lam x.obj x.wf x.endR_eq
+  have hy : y.obj = ob RD lam (y.obj.word.map Col.l) := obj_eq_ob_endR lam y.obj y.wf y.endR_eq
+  rw [hx, hy]
+  exact hG lam _ _
+
 /-- **The Hom-spaces of `U̇(λ, μ)` are finite-dimensional** (KL III §3.6). -/
-theorem homFinite_UDot (hSL : SimplyLaced C) (ρ lam : X) :
+theorem homFinite_UDot_of_homGdim (ρ lam : X) :
     HomFinite k (UDotHom (pres RD k) (deg RD) (wtObj RD k ρ) (wtObj RD k lam)) := by
   constructor
   intro A B
-  have hG : ∀ Xg Yg : GrObj (pres RD k) (deg RD) (wtObj RD k ρ) (wtObj RD k lam),
+  have hGr : ∀ Xg Yg : GrObj (pres RD k) (deg RD) (wtObj RD k ρ) (wtObj RD k lam),
       FiniteDimensional k (Xg ⟶ Yg) :=
-    fun Xg Yg => (hasGdim_obj (k := k) hSL Xg.x Yg.x).finiteDimensional _
+    fun Xg Yg => (hasGdim_obj_of_homGdim hG Xg.x Yg.x).finiteDimensional _
   have : ∀ M N : Mat_ (GrObj (pres RD k) (deg RD) (wtObj RD k ρ) (wtObj RD k lam)),
       FiniteDimensional k (M ⟶ N) :=
     fun M N => by
@@ -121,13 +138,13 @@ theorem homFinite_UDot (hSL : SimplyLaced C) (ρ lam : X) :
 
 /-- **`Hom(A, B{n}) = 0` for `n ≫ 0`** in `U̇(λ, μ)` (the Hom-spaces of `U` are bounded
 below). -/
-theorem hom_shDot_eq_zero (hSL : SimplyLaced C) {ρ lam : X}
+theorem hom_shDot_eq_zero_of_homGdim {ρ lam : X}
     (A B : UDotHom (pres RD k) (deg RD) (wtObj RD k ρ) (wtObj RD k lam)) :
     ∃ N : ℤ, ∀ n ≥ N, ∀ f : A ⟶ (shDot (deg RD) n).obj B, f = 0 := by
   have hb : ∀ i j, ∃ Nij : ℤ, ∀ d < Nij,
       (pres RD k).homDeg (deg RD) (A.X.X i).x.obj (B.X.X j).x.obj d = ⊥ := by
     intro i j
-    obtain ⟨B₀, hB₀⟩ := (hasGdim_obj (k := k) hSL (A.X.X i).x (B.X.X j).x).bddBelow
+    obtain ⟨B₀, hB₀⟩ := (hasGdim_obj_of_homGdim hG (A.X.X i).x (B.X.X j).x).bddBelow
     refine ⟨B₀, fun d hd => ?_⟩
     by_contra hne
     have := hB₀ hne
@@ -155,11 +172,11 @@ open SplitK0 SplitK0.K0Shift in
 /-- **No indecomposable object of `U̇(λ, μ)` is isomorphic to a nonzero shift of itself** (KL III
 §3.8.2, proof of Proposition 3.31: "Boundedness […] ensures that an indecomposable projective is
 not isomorphic to itself with a shifted grading"). -/
-theorem rigid_UDot (hSL : SimplyLaced C) {ρ lam : X} :
+theorem rigid_UDot_of_homGdim {ρ lam : X} :
     ∀ (n : ℤ) (A : UDotHom (pres RD k) (deg RD) (wtObj RD k ρ) (wtObj RD k lam)), IsIndec A →
       Nonempty (SplitK0.K0Shift.sh n A ≅ A) →
       n = 0 := by
-  have := homFinite_UDot (RD := RD) (k := k) hSL ρ lam
+  have := homFinite_UDot_of_homGdim hG ρ lam
   intro n A hA hn
   by_contra hne
   obtain ⟨p, hp, hpA⟩ : ∃ p : ℤ, 0 < p ∧ Nonempty (SplitK0.K0Shift.sh p A ≅ A) := by
@@ -181,7 +198,7 @@ theorem rigid_UDot (hSL : SimplyLaced C) {ρ lam : X} :
       have : ((j + 1 : ℕ) : ℤ) * p = (j : ℤ) * p + p := by push_cast; ring
       rw [this]
       exact ⟨e₁ ≪≫ e₂ ≪≫ φ⟩
-  obtain ⟨N, hN⟩ := hom_shDot_eq_zero (k := k) hSL A A
+  obtain ⟨N, hN⟩ := hom_shDot_eq_zero_of_homGdim hG A A
   obtain ⟨ψ⟩ := hk N.toNat
   have hge : (N.toNat : ℤ) * p ≥ N := by
     have h1 : (N.toNat : ℤ) ≥ N := Int.self_le_toNat N
@@ -194,17 +211,17 @@ theorem rigid_UDot (hSL : SimplyLaced C) {ρ lam : X} :
 /-! ## Krull–Schmidt in `U̇(λ, μ)` -/
 
 /-- **Indecomposable 1-morphisms of `U̇(λ, ρ)` have local (degree-zero) endomorphism rings**
-(KL III §3.6; simply-laced, `I` finite, `k` a field). -/
-theorem isLocalRing_end_UDot (hSL : SimplyLaced C) {ρ lam : X} {Z : UKar RD k ρ lam}
+(KL III §3.6; assuming `HomGdim`). -/
+theorem isLocalRing_end_UDot_of_homGdim {ρ lam : X} {Z : UKar RD k ρ lam}
     (hZ : IsIndec Z) : IsLocalRing (End Z) :=
-  have := homFinite_UDot (RD := RD) (k := k) hSL ρ lam
+  have := homFinite_UDot_of_homGdim hG ρ lam
   hZ.isLocalRing k
 
 /-- **Existence of Krull–Schmidt decompositions in `U̇(λ, ρ)`**: the class of every object is a
 sum of classes of indecomposable objects. -/
-theorem cl_mem_closure_indec (hSL : SimplyLaced C) {ρ lam : X} (A : UKar RD k ρ lam) :
+theorem cl_mem_closure_indec_of_homGdim {ρ lam : X} (A : UKar RD k ρ lam) :
     K0U.cl A ∈ AddSubmonoid.closure {x | ∃ Z : UKar RD k ρ lam, IsIndec Z ∧ x = K0U.cl Z} :=
-  have := homFinite_UDot (RD := RD) (k := k) hSL ρ lam
+  have := homFinite_UDot_of_homGdim hG ρ lam
   of_mem_closure_indec k A
 
 open Classical in
@@ -212,14 +229,94 @@ open Classical in
 `U̇(λ, μ)` has a unique presentation, up to permutation of factors and isomorphisms, as a direct
 sum of indecomposables"): two lists of indecomposables with the same class in `K₀` (e.g. with
 isomorphic direct sums) contain the same number of objects isomorphic to any given `Z`. -/
+theorem countP_iso_eq_UDot_of_homGdim {ρ lam : X} {Z : UKar RD k ρ lam}
+    (hZ : IsIndec Z) {L L' : List (UKar RD k ρ lam)} (hL : ∀ Y ∈ L, IsIndec Y)
+    (hL' : ∀ Y ∈ L', IsIndec Y) (h : (L.map K0U.cl).sum = (L'.map K0U.cl).sum) :
+    (L.countP fun Y => Nonempty (Y ≅ Z)) = L'.countP fun Y => Nonempty (Y ≅ Z) :=
+  have := homFinite_UDot_of_homGdim hG ρ lam
+  countP_iso_eq_of_sum_eq k hZ hL hL' h
+
+/-! ## `K₀(U̇(λ, μ))` is free -/
+
+/-- **KL III §3.6: `K₀(U̇(λ, μ))` is a free `ℤ[q, q⁻¹]`-module with basis the classes of the
+indecomposable objects up to isomorphism and grading shift** (assuming `HomGdim`). -/
+def indecBasisU_of_homGdim (ρ lam : X) :
+    Module.Basis (IndecClass (UDotHom (pres RD k) (deg RD) (wtObj RD k ρ) (wtObj RD k lam)))
+      (LaurentPolynomial ℤ) (K0Kar RD k ρ lam) :=
+  have := homFinite_UDot_of_homGdim hG ρ lam
+  indecBasis k (rigid_UDot_of_homGdim hG)
+
+theorem indecBasisU_apply_of_homGdim (ρ lam : X)
+    (b : IndecClass (UDotHom (pres RD k) (deg RD) (wtObj RD k ρ) (wtObj RD k lam))) :
+    indecBasisU_of_homGdim hG ρ lam b = K0U.cl b.rep := by
+  have := homFinite_UDot_of_homGdim hG ρ lam
+  exact indecBasis_apply k (rigid_UDot_of_homGdim hG) b
+
+/-- **`K₀(U̇(λ, ρ))` is a free `ℤ[q, q⁻¹]`-module** (KL III §3.6). -/
+theorem K0Kar_free_of_homGdim (ρ lam : X) :
+    Module.Free (LaurentPolynomial ℤ) (K0Kar RD k ρ lam) :=
+  Module.Free.of_basis (indecBasisU_of_homGdim hG ρ lam)
+
+/-- **`K₀(U̇(λ, ρ))` has no `ℤ[q, q⁻¹]`-torsion** (the hypothesis `htf` of
+`Categorification.Diagrams.KL3.GammaIntegral`). -/
+theorem K0Kar_torsionFree_of_homGdim (ρ lam : X) :
+    ∀ p ∈ nonZeroDivisors (LaurentPolynomial ℤ), ∀ x : K0Kar RD k ρ lam, p • x = 0 → x = 0 := by
+  have := homFinite_UDot_of_homGdim hG ρ lam
+  exact fun p hp x h => eq_zero_of_smul_eq_zero k (rigid_UDot_of_homGdim hG) hp h
+
+end General
+
+
+/-! ## The simply-laced case -/
+
+section Finite
+
+variable [DecidableEq I] [Finite I]
+
+/-- **Finite-dimensional graded Hom-spaces between arbitrary 1-morphisms of `U`**
+(simply-laced, `I` finite, `k` a field). -/
+theorem hasGdim_obj (hSL : SimplyLaced C) {ρ lam : X}
+    (x y : Bicat.Hom (wtObj RD k ρ) (wtObj RD k lam)) :
+    Graded.HasGdim ((pres RD k).homDeg (deg RD) x.obj y.obj) :=
+  hasGdim_obj_of_homGdim (homGdim_of_simplyLaced hSL) x y
+
+/-- **The Hom-spaces of `U̇(λ, μ)` are finite-dimensional** (KL III §3.6; simply-laced). -/
+theorem homFinite_UDot (hSL : SimplyLaced C) (ρ lam : X) :
+    HomFinite k (UDotHom (pres RD k) (deg RD) (wtObj RD k ρ) (wtObj RD k lam)) :=
+  homFinite_UDot_of_homGdim (homGdim_of_simplyLaced hSL) ρ lam
+
+/-- `Hom(A, B{n}) = 0` for `n ≫ 0` in `U̇(λ, μ)` (simply-laced). -/
+theorem hom_shDot_eq_zero (hSL : SimplyLaced C) {ρ lam : X}
+    (A B : UDotHom (pres RD k) (deg RD) (wtObj RD k ρ) (wtObj RD k lam)) :
+    ∃ N : ℤ, ∀ n ≥ N, ∀ f : A ⟶ (shDot (deg RD) n).obj B, f = 0 :=
+  hom_shDot_eq_zero_of_homGdim (homGdim_of_simplyLaced hSL) A B
+
+/-- No indecomposable object of `U̇(λ, μ)` is isomorphic to a nonzero shift of itself
+(simply-laced). -/
+theorem rigid_UDot (hSL : SimplyLaced C) {ρ lam : X} :
+    ∀ (n : ℤ) (A : UDotHom (pres RD k) (deg RD) (wtObj RD k ρ) (wtObj RD k lam)), IsIndec A →
+      Nonempty (SplitK0.K0Shift.sh n A ≅ A) →
+      n = 0 :=
+  rigid_UDot_of_homGdim (homGdim_of_simplyLaced hSL)
+
+/-- **Indecomposable 1-morphisms of `U̇(λ, ρ)` have local (degree-zero) endomorphism rings**
+(KL III §3.6; simply-laced, `I` finite, `k` a field). -/
+theorem isLocalRing_end_UDot (hSL : SimplyLaced C) {ρ lam : X} {Z : UKar RD k ρ lam}
+    (hZ : IsIndec Z) : IsLocalRing (End Z) :=
+  isLocalRing_end_UDot_of_homGdim (homGdim_of_simplyLaced hSL) hZ
+
+/-- **Existence of Krull–Schmidt decompositions in `U̇(λ, ρ)`** (simply-laced). -/
+theorem cl_mem_closure_indec (hSL : SimplyLaced C) {ρ lam : X} (A : UKar RD k ρ lam) :
+    K0U.cl A ∈ AddSubmonoid.closure {x | ∃ Z : UKar RD k ρ lam, IsIndec Z ∧ x = K0U.cl Z} :=
+  cl_mem_closure_indec_of_homGdim (homGdim_of_simplyLaced hSL) A
+
+open Classical in
+/-- **Uniqueness of Krull–Schmidt decompositions in `U̇(λ, ρ)`** (simply-laced). -/
 theorem countP_iso_eq_UDot (hSL : SimplyLaced C) {ρ lam : X} {Z : UKar RD k ρ lam}
     (hZ : IsIndec Z) {L L' : List (UKar RD k ρ lam)} (hL : ∀ Y ∈ L, IsIndec Y)
     (hL' : ∀ Y ∈ L', IsIndec Y) (h : (L.map K0U.cl).sum = (L'.map K0U.cl).sum) :
     (L.countP fun Y => Nonempty (Y ≅ Z)) = L'.countP fun Y => Nonempty (Y ≅ Z) :=
-  have := homFinite_UDot (RD := RD) (k := k) hSL ρ lam
-  countP_iso_eq_of_sum_eq k hZ hL hL' h
-
-/-! ## `K₀(U̇(λ, μ))` is free -/
+  countP_iso_eq_UDot_of_homGdim (homGdim_of_simplyLaced hSL) hZ hL hL' h
 
 /-- **KL III §3.6: `K₀(U̇(λ, μ))` is a free `ℤ[q, q⁻¹]`-module with basis the classes of the
 indecomposable objects up to isomorphism and grading shift** (simply-laced, `I` finite, `k` a
@@ -227,26 +324,23 @@ field). -/
 def indecBasisU (hSL : SimplyLaced C) (ρ lam : X) :
     Module.Basis (IndecClass (UDotHom (pres RD k) (deg RD) (wtObj RD k ρ) (wtObj RD k lam)))
       (LaurentPolynomial ℤ) (K0Kar RD k ρ lam) :=
-  have := homFinite_UDot (RD := RD) (k := k) hSL ρ lam
-  indecBasis k (rigid_UDot hSL)
+  indecBasisU_of_homGdim (homGdim_of_simplyLaced hSL) ρ lam
 
 theorem indecBasisU_apply (hSL : SimplyLaced C) (ρ lam : X)
     (b : IndecClass (UDotHom (pres RD k) (deg RD) (wtObj RD k ρ) (wtObj RD k lam))) :
-    indecBasisU hSL ρ lam b = K0U.cl b.rep := by
-  have := homFinite_UDot (RD := RD) (k := k) hSL ρ lam
-  exact indecBasis_apply k (rigid_UDot hSL) b
+    indecBasisU hSL ρ lam b = K0U.cl b.rep :=
+  indecBasisU_apply_of_homGdim (homGdim_of_simplyLaced hSL) ρ lam b
 
-/-- **`K₀(U̇(λ, ρ))` is a free `ℤ[q, q⁻¹]`-module** (KL III §3.6). -/
+/-- **`K₀(U̇(λ, ρ))` is a free `ℤ[q, q⁻¹]`-module** (KL III §3.6; simply-laced). -/
 theorem K0Kar_free (hSL : SimplyLaced C) (ρ lam : X) :
     Module.Free (LaurentPolynomial ℤ) (K0Kar RD k ρ lam) :=
-  Module.Free.of_basis (indecBasisU hSL ρ lam)
+  K0Kar_free_of_homGdim (homGdim_of_simplyLaced hSL) ρ lam
 
-/-- **`K₀(U̇(λ, ρ))` has no `ℤ[q, q⁻¹]`-torsion** (the hypothesis `htf` of
+/-- **`K₀(U̇(λ, ρ))` has no `ℤ[q, q⁻¹]`-torsion** (simply-laced; the hypothesis `htf` of
 `Categorification.Diagrams.KL3.GammaIntegral`). -/
 theorem K0Kar_torsionFree (hSL : SimplyLaced C) (ρ lam : X) :
-    ∀ p ∈ nonZeroDivisors (LaurentPolynomial ℤ), ∀ x : K0Kar RD k ρ lam, p • x = 0 → x = 0 := by
-  have := homFinite_UDot (RD := RD) (k := k) hSL ρ lam
-  exact fun p hp x h => eq_zero_of_smul_eq_zero k (rigid_UDot hSL) hp h
+    ∀ p ∈ nonZeroDivisors (LaurentPolynomial ℤ), ∀ x : K0Kar RD k ρ lam, p • x = 0 → x = 0 :=
+  K0Kar_torsionFree_of_homGdim (homGdim_of_simplyLaced hSL) ρ lam
 
 end Finite
 

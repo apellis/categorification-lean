@@ -38,8 +38,8 @@ HOM(P̄, Q)` with `P̄ = HOM(P, R(ν))^ψ`, so the paper's form is `(x, y) ↦ h
 modules `P_i = R(ν) 1_i` (which satisfy `P̄_i ≅ P_i`, KL I §2.5), both give
 `([P_i], [Q]) = gdim (1_i Q)`; in particular `([P_j], [P_i]) = gdim (1_j R(ν) 1_i)` (see
 `Categorification.KLR.Pairing`). The bar involution and `pform` are in
-`Categorification.Algebra.Graded.Duality`; the tensor-product description of the form is not
-formalized.
+`Categorification.Algebra.Graded.Duality`; the tensor-product description
+`P^ψ ⊗_A Q ≅ HOM(P̄, Q)` of the form is in `Categorification.Algebra.Graded.TwistTensor`.
 -/
 
 universe u v

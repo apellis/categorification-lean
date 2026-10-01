@@ -324,7 +324,7 @@ theorem calculusNondeg_iff_of_simplyLaced (hSL : SimplyLaced C) :
 (`BasisNondeg`), then `γ : 1_ρ (_𝒜 U̇) 1_λ → K₀(U̇(λ, ρ))` is bijective. -/
 theorem gammaUA'_bijective_of_basisNondeg' [DecidableEq I] (hSL : SimplyLaced C)
     (hB : BasisNondeg RD k) (h25 : UDot.KL3.FormNondeg RD) (lam ρ : X) :
-    Function.Bijective (gammaUA' (RD := RD) (k := k) hSL lam ρ) :=
+    Function.Bijective (gammaUA' (RD := RD) (k := k) (homGdim_of_simplyLaced hSL) lam ρ) :=
   gammaUA'_bijective_of_basisNondeg hSL (prop311_of_simplyLaced hSL) hB h25 lam ρ
 
 end Prop311

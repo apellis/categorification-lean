@@ -600,7 +600,7 @@ theorem gammaUA'_bijective_of_linearIndependent
       LinearIndependent k fun x : {x : SpanIdx (posW (word i)) (posW (word j)) //
         spanDeg C (RD.ellOf μ) x = d} => posB RD k μ x.1)
     (h25 : UDot.KL3.FormNondeg RD) (lam ρ : X) :
-    Function.Bijective (gammaUA' (RD := RD) (k := k) hSL lam ρ) :=
+    Function.Bijective (gammaUA' (RD := RD) (k := k) (homGdim_of_simplyLaced hSL) lam ρ) :=
   gammaUA'_bijective_of_positive hSL ((positiveNondeg_iff hSL).2 hli) h25 lam ρ
 
 end Consequences

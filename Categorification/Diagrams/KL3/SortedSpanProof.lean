@@ -537,8 +537,8 @@ variable {k : Type w} [Field k] [DecidableEq I] [Finite I] (hSL : SimplyLaced C)
 /-- **KL III Theorem 1.1** (simply-laced Cartan data, `I` finite, `k` a field): the map
 `γ : _𝒜 U̇ → K₀(U̇)` is surjective. -/
 theorem gammaUA'_surjective (lam ρ : X) :
-    Function.Surjective (gammaUA' (RD := RD) (k := k) hSL lam ρ) :=
-  gammaUA'_surjective_of_sortedSpan' hSL (sortedSpan_of_simplyLaced hSL) lam ρ
+    Function.Surjective (gammaUA' (RD := RD) (k := k) (homGdim_of_simplyLaced hSL) lam ρ) :=
+  gammaUA'_surjective_of_sortedSpan' _ (sortedSpan_of_simplyLaced hSL) lam ρ
 
 end Surj
 

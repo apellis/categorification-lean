@@ -33,7 +33,7 @@ that `P` is a direct summand of `E_w 1_λ {t}`.
 * `K0Kar_span_sorted_summands`: `K₀(U̇(λ, ρ))` is spanned over `ℤ[q, q⁻¹]` by the classes of the
   indecomposable direct summands of the sorted `E_{+a} E_{-b} 1_λ {t}`.
 
-(simply-laced Cartan data, `I` finite, `k` a field: the Krull–Schmidt property of
+(Any root datum, `k` a field, given hom-finiteness `HomGdim RD k`: the Krull–Schmidt property of
 `Categorification.Diagrams.KL3.KrullSchmidtU` is used.)
 
 ## What remains for the surjectivity of `γ`
@@ -275,8 +275,8 @@ end Thru
 
 section Retracts
 
-variable [DecidableEq I] [Finite I] (hSL : SimplyLaced C)
-include hSL
+variable [DecidableEq I] (hG : HomGdim RD k)
+include hG
 
 /-- A factorization of the identity of `E_w 1_λ` through words `u ∈ S`: every indecomposable
 direct summand of `E_w 1_λ {n}` is a direct summand of some `E_u 1_λ {n'}`, `u ∈ S`. -/
@@ -286,7 +286,7 @@ theorem exists_retract_of_thru {ρ lam : X} {w : List (Letter I)} {h : wt RD lam
     (hfg : f ≫ g = 𝟙 Z) :
     ∃ u ∈ S, ∃ (hu : wt RD lam u = ρ) (n' : ℤ) (f' : Z ⟶ nfObj RD k ρ lam u hu n')
       (g' : nfObj RD k ρ lam u hu n' ⟶ Z), f' ≫ g' = 𝟙 Z := by
-  have := homFinite_UDot (RD := RD) (k := k) hSL ρ lam
+  have := homFinite_UDot hG ρ lam
   obtain ⟨N, c, x, hx⟩ := Submodule.mem_span_set'.1 hS
   have hgen : ∀ i, (x i).1 ∈ thruGen RD k lam w S := fun i => (x i).2
   choose u hu hw α a b ha hb he using hgen
@@ -306,7 +306,7 @@ theorem exists_retract_of_thru {ρ lam : X} {w : List (Letter I)} {h : wt RD lam
   obtain ⟨i, -, f', g', hfg'⟩ := hZ.exists_retract_of_sum k f g hfg Finset.univ V A B htot
   exact ⟨u i, hu i, hu' i, n - α i, f', g', hfg'⟩
 
-omit hSL [DecidableEq I] [Finite I] in
+omit hG [DecidableEq I] in
 /-- Every 1-morphism of `U` from `ρ` to `λ` is `E_w 1_λ` for a signed sequence `w`. -/
 theorem exists_eq_nfHom {ρ lam : X} (x : Bicat.Hom (wtObj RD k ρ) (wtObj RD k lam)) :
     ∃ (w : List (Letter I)) (h : wt RD lam w = ρ), x = nfHom RD k ρ lam w h := by
@@ -321,7 +321,7 @@ theorem exists_eq_nfHom {ρ lam : X} (x : Bicat.Hom (wtObj RD k ρ) (wtObj RD k 
 theorem exists_retract_nfObj {ρ lam : X} {Z : UKar RD k ρ lam} (hZ : IsIndec Z) :
     ∃ (w : List (Letter I)) (h : wt RD lam w = ρ) (n : ℤ) (f : Z ⟶ nfObj RD k ρ lam w h n)
       (g : nfObj RD k ρ lam w h n ⟶ Z), f ≫ g = 𝟙 Z := by
-  have := homFinite_UDot (RD := RD) (k := k) hSL ρ lam
+  have := homFinite_UDot hG ρ lam
   obtain ⟨M, p, hp⟩ := Z
   let f₀ : (⟨M, p, hp⟩ : UKar RD k ρ lam) ⟶ (toKaroubi _).obj M :=
     ⟨p, by simp [hp]⟩
@@ -368,7 +368,7 @@ theorem exists_retract_sorted_of_retract {ρ lam : X} {w : List (Letter I)}
       a.length + b.length ≤ w.length ∧ (a.length + b.length) % 2 = w.length % 2 ∧
       ∃ (f' : Z ⟶ nfObj RD k ρ lam (ups a ++ dns b) hab n')
         (g' : nfObj RD k ρ lam (ups a ++ dns b) hab n' ⟶ Z), f' ≫ g' = 𝟙 Z := by
-  obtain ⟨u, ⟨⟨a, b, rfl⟩, hl, hp⟩, hu, n', f', g', h'⟩ := exists_retract_of_thru hSL
+  obtain ⟨u, ⟨⟨a, b, rfl⟩, hl, hp⟩, hu, n', f', g', h'⟩ := exists_retract_of_thru hG
     (one_mem_thru_sorted (RD := RD) (k := k) lam (invR w + 1) w (Nat.lt_succ_self _)) hZ f g hfg
   have hlen : (ups a ++ dns b).length = a.length + b.length := by simp [ups, dns]
   exact ⟨a, b, hu, n', hlen ▸ hl, hlen ▸ hp, f', g', h'⟩
@@ -379,8 +379,8 @@ theorem exists_retract_sorted {ρ lam : X} {Z : UKar RD k ρ lam} (hZ : IsIndec 
     ∃ (a b : List I) (hab : wt RD lam (ups a ++ dns b) = ρ) (n : ℤ)
       (f : Z ⟶ nfObj RD k ρ lam (ups a ++ dns b) hab n)
       (g : nfObj RD k ρ lam (ups a ++ dns b) hab n ⟶ Z), f ≫ g = 𝟙 Z := by
-  obtain ⟨w, h, n, f, g, hfg⟩ := exists_retract_nfObj hSL hZ
-  obtain ⟨a, b, hab, n', -, -, f', g', h'⟩ := exists_retract_sorted_of_retract hSL hZ f g hfg
+  obtain ⟨w, h, n, f, g, hfg⟩ := exists_retract_nfObj hG hZ
+  obtain ⟨a, b, hab, n', -, -, f', g', h'⟩ := exists_retract_sorted_of_retract hG hZ f g hfg
   exact ⟨a, b, hab, n', f', g', h'⟩
 
 /-- **`K₀(U̇(λ, ρ))` is spanned by the classes of the indecomposable direct summands of the
@@ -390,10 +390,10 @@ theorem K0Kar_span_sorted_summands (ρ lam : X) :
       IsIndec Z ∧ (∃ (a b : List I) (hab : wt RD lam (ups a ++ dns b) = ρ) (n : ℤ)
         (f : Z ⟶ nfObj RD k ρ lam (ups a ++ dns b) hab n)
         (g : nfObj RD k ρ lam (ups a ++ dns b) hab n ⟶ Z), f ≫ g = 𝟙 Z) ∧ x = K0U.cl Z} = ⊤ := by
-  rw [eq_top_iff, ← (indecBasisU (k := k) hSL ρ lam).span_eq, Submodule.span_le]
+  rw [eq_top_iff, ← (indecBasisU hG ρ lam).span_eq, Submodule.span_le]
   rintro _ ⟨b, rfl⟩
   rw [indecBasisU_apply]
-  exact Submodule.subset_span ⟨b.rep, b.isIndec_rep, exists_retract_sorted hSL b.isIndec_rep, rfl⟩
+  exact Submodule.subset_span ⟨b.rep, b.isIndec_rep, exists_retract_sorted hG b.isIndec_rep, rfl⟩
 
 end Retracts
 

@@ -218,6 +218,12 @@ Prop. 3.9, and satisfied by bimodule 2-representations over nonnegatively graded
 algebras): issue #6. Removing that hypothesis, to recover the statement as printed, is a standing
 roadmap item: issue #10.
 
+`TwoRep/ShiftCoherence.lean` bundles the existing coherence assumptions and proves the
+degree-zero, unitor and associator identities for shifted whiskering (`shWhiskerLeft_mk₀`,
+`shWhiskerRight_mk₀`, `shWhiskerLeft_of_id`, `shWhiskerRight_of_id`,
+`shWhiskerLeft_of_comp`, `shWhiskerRight_of_comp`, `shWhisker_assoc`). This is a prerequisite
+for the graded-Hom approach, not a construction of that bicategory or a proof of Prop. 3.9.
+
 ### KL I §3.3–3.4: relations between induction functors, tight monomials
 
 `𝓕_i^{(a)} M = Ind(P_{i^{(a)}} ⊠ M)`; for any relation `∑ u_k θ(k) = ∑ v_ℓ θ'(ℓ)` in `_A f` with

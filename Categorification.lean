@@ -394,6 +394,7 @@ import Categorification.TwoRep.DividedPowerDot
 import Categorification.TwoRep.DotEntries
 import Categorification.TwoRep.DotEntriesNeg
 import Categorification.TwoRep.EndE
+import Categorification.TwoRep.GradedHomAdjunction
 import Categorification.TwoRep.KrullSchmidt
 import Categorification.TwoRep.LemAprime
 import Categorification.TwoRep.LemAprimeScalar

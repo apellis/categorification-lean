@@ -221,8 +221,14 @@ roadmap item: issue #10.
 `TwoRep/ShiftCoherence.lean` bundles the existing coherence assumptions and proves the
 degree-zero, unitor and associator identities for shifted whiskering (`shWhiskerLeft_mk₀`,
 `shWhiskerRight_mk₀`, `shWhiskerLeft_of_id`, `shWhiskerRight_of_id`,
-`shWhiskerLeft_of_comp`, `shWhiskerRight_of_comp`, `shWhisker_assoc`). This is a prerequisite
-for the graded-Hom approach, not a construction of that bicategory or a proof of Prop. 3.9.
+`shWhiskerLeft_of_comp`, `shWhiskerRight_of_comp`, `shWhisker_assoc`).
+`TwoRep/GradedHom.lean` constructs the finite-direct-sum graded-Hom category with faithful
+additive degree-zero inclusion; `GradedHomBicategory.lean` extends shifted whiskering to an
+actual bicategory using these coherence hypotheses. `GradedHomAdjunction.lean` transports a
+given adjunction and proves degree-preserving bijections (`shiftedHomEquiv`, `shiftedEndEquiv`)
+and naturality under arbitrary-degree composition (`Θsh_comp`). This constructs neither new
+adjoints for a strong 2-representation nor the low-weight footholds; Prop. 3.9 and its explicit
+graded-endomorphism boundedness condition remain separate targets.
 
 ### KL I §3.3–3.4: relations between induction functors, tight monomials
 

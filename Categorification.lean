@@ -79,6 +79,7 @@ import Categorification.Diagrams.KL3.Grading
 import Categorification.Diagrams.KL3.Grassmannian
 import Categorification.Diagrams.KL3.IdempotentLift
 import Categorification.Diagrams.KL3.Injectivity
+import Categorification.Diagrams.KL3.K0Algebra
 import Categorification.Diagrams.KL3.K0Relations
 import Categorification.Diagrams.KL3.K0Serre
 import Categorification.Diagrams.KL3.K0Sorting

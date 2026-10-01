@@ -15,7 +15,8 @@ We push a cap block (`capBlk`) down through a move diagram, one move at a time, 
 relations of `Categorification.Diagrams.KL3.SpanningSetBlock`, and deduce that every normal-form
 diagram with at most `c` crossings lies in `CapTarget c`: it is a linear combination of move
 diagrams (dots, crossings, cups; no caps) with at most `c` crossings followed by bubble monomials,
-modulo 2-morphisms factoring through sequences shorter than the source (simply-laced Cartan data).
+modulo 2-morphisms factoring through sequences shorter than the source (any Cartan datum; the
+bubbles are moved out by `slideOutAny`).
 
 ## Main results
 
@@ -676,9 +677,6 @@ theorem dotBubSpan_le_capTarget {ms : List (Mv I)} {P Q : List (Letter I)}
   · rw [mvLay_append, ccnt_append, ccnt_mvLay_mvWh, h3]; simp
   · rw [mvLay_append, mvLay_mvWh, h1, List.append_nil]
 
-variable (hSL : SimplyLaced C)
-include hSL
-
 /-- **The cap push through a cup.** -/
 theorem push_cup {c : ℕ} (hF : LowHyp RD k μ w₀ c) {ms : List (Mv I)}
     (hIH : PushHyp RD k μ w₀ c ms) (u : List (Letter I)) (l' : Letter I) (v : List (Letter I))
@@ -728,7 +726,7 @@ theorem push_cup {c : ℕ} (hF : LowHyp RD k μ w₀ c) {ms : List (Mv I)}
     have hpre' : SChain w₀ (mvLay ms) (P ++ [] ++ Q) := by simpa using hpre
     have e := ctxL_dg RD k μ (s₀ := w₀) (t₀ := P ++ Q) (pre := mvLay ms) (u := P) (v := Q)
       (post := []) (s := []) (t := []) hpre' (by simp) ([([], .cup l.dual, [])] ++ capBlk [] l d)
-    have h := slideOutAny (RD := RD) (k := k) hSL μ Q P (S := w₀) (T := P ++ Q) (mvLay ms) []
+    have h := slideOutAny (RD := RD) (k := k) μ Q P (S := w₀) (T := P ++ Q) (mvLay ms) []
       hpre rfl _ (isBub_capBlk_nil (RD := RD) (k := k) (wt RD μ Q) l d)
     rw [e] at h
     have h' := dotBubSpan_le_capTarget (RD := RD) (k := k) (by simpa [Mv.src] using hms) h
@@ -811,7 +809,7 @@ theorem capPush {c : ℕ} (hF : LowHyp RD k μ w₀ c) : ∀ ms : List (Mv I), P
     cases m with
     | dot u x v => exact push_dot hF ih u x v hms P S Q l d htgt hc
     | cross u l₁ l₂ v => exact push_cross hF ih u l₁ l₂ v hms P S Q l d htgt hc
-    | cup u l' v => exact push_cup hSL hF ih u l' v hms P S Q l d htgt hc
+    | cup u l' v => exact push_cup hF ih u l' v hms P S Q l d htgt hc
 
 /-- Composing with a cap preserves `CapTarget`. -/
 theorem capTarget_comp_cap {c c₁ : ℕ} (hF : LowHyp RD k μ w₀ c) (hc₁ : c₁ ≤ c)
@@ -829,7 +827,7 @@ theorem capTarget_comp_cap {c c₁ : ℕ} (hF : LowHyp RD k μ w₀ c) (hc₁ : 
     rw [Category.assoc, bubAt_comm, ← Category.assoc,
       dg_comp hch.sChain (show SChain (P ++ [l.dual, l] ++ Q) [(P, .cap l, Q)] (P ++ Q) from
         ⟨by simp, by simp⟩)]
-    have h := capPush hSL hF ms P [] Q l 0 (by simpa using hch) (by simp; omega)
+    have h := capPush hF ms P [] Q l 0 (by simpa using hch) (by simp; omega)
     have e : (capBlk [] l 0).map (whL P Q) = [(P, .cap l, Q)] := by simp [capBlk, lmLc]
     rw [e, show P ++ [] ++ Q = P ++ Q by simp, List.length_nil, add_zero] at h
     exact capTarget_mono hcc (capTarget_comp_bubAt h hβ)
@@ -838,7 +836,7 @@ theorem capTarget_comp_cap {c c₁ : ℕ} (hF : LowHyp RD k μ w₀ c) (hc₁ : 
   | smul r x _ hx => rw [Linear.smul_comp]; exact Submodule.smul_mem _ r hx
 
 variable (μ w₀) in
-/-- **Elimination of caps** (simply-laced): every normal-form diagram `E_{w₀} 1_μ ⟶ E_v 1_μ` with
+/-- **Elimination of caps**: every normal-form diagram `E_{w₀} 1_μ ⟶ E_v 1_μ` with
 at most `c` crossings is a linear combination of move diagrams with at most `c` crossings followed
 by bubble monomials, modulo 2-morphisms factoring through sequences shorter than `w₀`. -/
 theorem capElim : ∀ (c : ℕ) (v : List (Letter I)) (L : List (LayerData I)), ccnt L ≤ c →
@@ -879,7 +877,7 @@ theorem capElim : ∀ (c : ℕ) (v : List (Letter I)) (L : List (LayerData I)), 
         exact this
       | cup l => exact capTarget_comp_mv hL' (Mv.cup a l b) (by simp [Mv.src])
       | cap l =>
-        have := capTarget_comp_cap hSL hF (c₁ := ccnt L) (by omega) (P := a) (Q := b) (l := l) hL'
+        have := capTarget_comp_cap hF (c₁ := ccnt L) (by omega) (P := a) (Q := b) (l := l) hL'
         rw [show a ++ (Shape.cap l).cod ++ b = a ++ b by simp, ccnt_single_cap, add_zero]
         exact this
     · rw [dg_of_not h]; exact Submodule.zero_mem _

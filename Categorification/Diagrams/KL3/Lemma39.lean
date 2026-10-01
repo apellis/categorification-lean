@@ -592,7 +592,7 @@ theorem inv_step (hSL : SimplyLaced C) [DecidableEq I] {μ : X} {s : List (Lette
             simp only [Preadditive.add_comp, Preadditive.comp_add]; exact Submodule.add_mem _ h₁ h₂
           | smul r e _ h =>
             simp only [Linear.smul_comp, Linear.comp_smul]; exact Submodule.smul_mem _ r h
-        have := hΨ _ (decL (RD := RD) (k := k) hSL μ _ w' (Nat.lt_succ_self _))
+        have := hΨ _ (decL (RD := RD) (k := k) μ _ w' (Nat.lt_succ_self _))
         simpa only [Category.id_comp, Category.assoc] using this
       · -- the layer is of type `LR`: sort its source to the left
         have hΨ : ∀ e' ∈ decLSet RD k μ w, f ≫ bubAt RD k μ w δ ≫
@@ -620,14 +620,14 @@ theorem inv_step (hSL : SimplyLaced C) [DecidableEq I] {μ : X} {s : List (Lette
             simp only [Preadditive.add_comp, Preadditive.comp_add]; exact Submodule.add_mem _ h₁ h₂
           | smul r e _ h =>
             simp only [Linear.smul_comp, Linear.comp_smul]; exact Submodule.smul_mem _ r h
-        have := hΨ _ (decL (RD := RD) (k := k) hSL μ _ w (Nat.lt_succ_self _))
+        have := hΨ _ (decL (RD := RD) (k := k) μ _ w (Nat.lt_succ_self _))
         simpa only [Category.id_comp, Category.assoc] using this
     | zero => simp
     | add e₁ e₂ _ _ h₁ h₂ =>
       simp only [Preadditive.add_comp, Preadditive.comp_add]; exact Submodule.add_mem _ h₁ h₂
     | smul r e _ h =>
       simp only [Linear.smul_comp, Linear.comp_smul]; exact Submodule.smul_mem _ r h
-  have := hΦ _ (decR (RD := RD) (k := k) hSL μ _ w (Nat.lt_succ_self _))
+  have := hΦ _ (decR (RD := RD) (k := k) μ _ w (Nat.lt_succ_self _))
   simpa only [Category.id_comp, Category.assoc] using this
 
 /-! ## Main results -/

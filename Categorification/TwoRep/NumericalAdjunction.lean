@@ -2,7 +2,7 @@
 Copyright (c) 2026 Alex Ellis. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 -/
-import Categorification.TwoRep.Basic
+import Categorification.TwoRep.WordBounded
 import Categorification.TwoRep.WeightModule
 import Mathlib.LinearAlgebra.Dual.Defs
 import Mathlib.RingTheory.LaurentSeries
@@ -23,9 +23,10 @@ level of Hom-dimensions, with the opposite shift (`Sl2CatData.finrank_f_eq`):
 
 `dim Hom(f X, Z⟨d⟩) = dim Hom(X, (e Z)⟨d - (n₀ + 2t + 1)⟩)`.
 
-Applied to the Hom categories of a strong 2-representation (left and right composition with `E`,
-`F`, `WordGen.lean`) this is exactly the Lean predicate `DimAdj k ((F 1_n)⟨-n-1⟩) (E 1_n)` on
-word-generated test objects, i.e. the numerical shadow of (3.2) at *every* weight `n`.
+Applied to the Hom categories of a strong 2-representation satisfying the boundedness hypothesis
+(BB_w) (`WordBounded.lean`), with left and right composition by `E`, `F` and the word-generated
+1-morphisms as test objects (`WordNumerics.lean`), this is the numerical shadow of (3.2) at *every*
+weight `n`: the predicate `DimAdj k ((F 1_n)⟨-n-1⟩) (E 1_n)` on word-generated test objects.
 
 ## Proof
 
@@ -44,9 +45,9 @@ Everything is linearised over `K = ℚ((q))` (`LSer`), with `q` generic (`isGene
   (`Φ_E`), and `WtModule.F_comm_of_E_comm` (`WeightModule.lean`) gives that `Φ` commutes with
   `F`, which is the claim, coefficient by coefficient.
 
-This is the proof of Theorem C of the private research notes (an `E`-equivariant weight-preserving
-map between integrable `U̇(sl₂)`-modules is `F`-equivariant), with the `sl₂` lemma proved there by
-complete reducibility replaced by the elementary argument of `WeightModule.lean`.
+The representation-theoretic input is that an `E`-equivariant weight-preserving map between
+`U̇(sl₂)`-modules with bounded weights is automatically `F`-equivariant; it is proved in
+`WeightModule.lean` by an elementary induction (no complete reducibility is used).
 -/
 
 noncomputable section
@@ -131,7 +132,7 @@ structure Sl2CatData where
   P_e : ∀ t {X : C t}, P t X → P (t + 1) ((e t).obj X)
   P_f : ∀ t {X : C (t + 1)}, P (t + 1) X → P t ((f t).obj X)
   /-- **Bounded-below Hom spaces** between test objects. -/
-  bb : ∀ t {X Z : C t}, P t X → P t Z → BddBelow (Function.support fun d : ℤ => finrank k (X ⟶ Z⟦d⟧))
+  bb : ∀ t {X Z : C t}, P t X → P t Z → HomBddBelow k X Z
 
 variable {k C}
 
@@ -192,8 +193,10 @@ theorem P_castEq {t t' : ℤ} (h : t' = t) {Z : C t'} (hZ : D.P t' Z) : D.P t (c
 hypothesis. -/
 def ser {t : ℤ} {X Z : C t} (hX : D.P t X) (hZ : D.P t Z) : LSer :=
   HahnSeries.ofSuppBddBelow (fun d : ℤ => (finrank k (X ⟶ Z⟦d⟧) : ℚ)) (by
-    obtain ⟨b, hb⟩ := D.bb t hX hZ
-    exact ⟨b, fun d hd => hb (by simpa [Function.mem_support] using hd)⟩)
+    obtain ⟨N, hN⟩ := D.bb t hX hZ
+    refine ⟨N, fun d hd => ?_⟩
+    by_contra hlt
+    exact hd (by simp [hN d (not_le.1 hlt)]))
 
 theorem coeff_ser {t : ℤ} {X Z : C t} (hX : D.P t X) (hZ : D.P t Z) (d : ℤ) :
     (ser hX hZ).coeff d = (finrank k (X ⟶ Z⟦d⟧) : ℚ) := rfl
@@ -468,6 +471,236 @@ def wtModule (ε : ℤ) (hε : ε = 1 ∨ ε = -1) (c : ℤ → ℤ) : WtModule 
     have : D.wtSp ε t ≤ ⊥ := wtSp_le fun X hX => by
       rw [clsOb_of_isZero hX (hN t ht X)]; exact Submodule.zero_mem _
     simpa using this hv
+
+
+/-! ### Classes span; the pairing -/
+
+theorem iSup_wtSp (ε : ℤ) : ⨆ t, D.wtSp ε t = ⊤ := by
+  rw [eq_top_iff]
+  rintro x -
+  induction x using Submodule.Quotient.induction_on with
+  | _ x =>
+    induction x using Finsupp.induction_linear with
+    | zero => exact Submodule.zero_mem _
+    | add f g hf hg => rw [Submodule.Quotient.mk_add]; exact Submodule.add_mem _ hf hg
+    | single b c =>
+      have e : Finsupp.single b c = c • Finsupp.single b (1 : LSer) := by
+        rw [Finsupp.smul_single, smul_eq_mul, mul_one]
+      rw [e, Submodule.Quotient.mk_smul]
+      exact Submodule.smul_mem _ _
+        (Submodule.mem_iSup_of_mem b.1 (clsOb_mem_wtSp (ε := ε) b.2.2))
+
+theorem pairOb_biprod_right (b : D.Ob) {t : ℤ} {Z W : C t} (hZ : D.P t Z) (hW : D.P t W) :
+    D.pairOb b ⟨t, Z ⊞ W, D.P_biprod t hZ hW⟩ = D.pairOb b ⟨t, Z, hZ⟩ + D.pairOb b ⟨t, W, hW⟩ := by
+  obtain ⟨t₀, X, hX⟩ := b
+  by_cases h : t = t₀
+  · subst h
+    rw [pairOb_same, pairOb_same, pairOb_same, ser_biprod_right]
+  · rw [pairOb_ne _ _ h, pairOb_ne _ _ h, pairOb_ne _ _ h, add_zero]
+
+theorem pairOb_shift_right (b : D.Ob) {t : ℤ} {Z : C t} (hZ : D.P t Z) (a : ℤ) :
+    D.pairOb b ⟨t, Z⟦a⟧, D.P_shift t a hZ⟩ = qL ^ (-a) * D.pairOb b ⟨t, Z, hZ⟩ := by
+  obtain ⟨t₀, X, hX⟩ := b
+  by_cases h : t = t₀
+  · subst h
+    rw [pairOb_same, pairOb_same, ser_shift_right]
+  · rw [pairOb_ne _ _ h, pairOb_ne _ _ h, mul_zero]
+
+theorem pairOb_iso_right (b : D.Ob) {t : ℤ} {Z Z' : C t} (hZ : D.P t Z) (e : Z ≅ Z') :
+    D.pairOb b ⟨t, Z', D.P_iso t hZ e⟩ = D.pairOb b ⟨t, Z, hZ⟩ := by
+  obtain ⟨t₀, X, hX⟩ := b
+  by_cases h : t = t₀
+  · subst h
+    rw [pairOb_same, pairOb_same, ser_iso_right]
+  · rw [pairOb_ne _ _ h, pairOb_ne _ _ h]
+
+theorem pairOb_biprod_left {t : ℤ} {X Y : C t} (hX : D.P t X) (hY : D.P t Y) (b : D.Ob) :
+    D.pairOb ⟨t, X ⊞ Y, D.P_biprod t hX hY⟩ b = D.pairOb ⟨t, X, hX⟩ b + D.pairOb ⟨t, Y, hY⟩ b := by
+  obtain ⟨t₀, Z, hZ⟩ := b
+  by_cases h : t₀ = t
+  · subst h
+    rw [pairOb_same, pairOb_same, pairOb_same, ser_biprod_left]
+  · rw [pairOb_ne _ _ h, pairOb_ne _ _ h, pairOb_ne _ _ h, add_zero]
+
+theorem pairOb_shift_left {t : ℤ} {X : C t} (hX : D.P t X) (a : ℤ) (b : D.Ob) :
+    D.pairOb ⟨t, X⟦a⟧, D.P_shift t a hX⟩ b = qL ^ a * D.pairOb ⟨t, X, hX⟩ b := by
+  obtain ⟨t₀, Z, hZ⟩ := b
+  by_cases h : t₀ = t
+  · subst h
+    rw [pairOb_same, pairOb_same, ser_shift_left]
+  · rw [pairOb_ne _ _ h, pairOb_ne _ _ h, mul_zero]
+
+theorem pairOb_iso_left {t : ℤ} {X X' : C t} (hX : D.P t X) (e : X ≅ X') (b : D.Ob) :
+    D.pairOb ⟨t, X', D.P_iso t hX e⟩ b = D.pairOb ⟨t, X, hX⟩ b := by
+  obtain ⟨t₀, Z, hZ⟩ := b
+  by_cases h : t₀ = t
+  · subst h
+    rw [pairOb_same, pairOb_same, ser_iso_left]
+  · rw [pairOb_ne _ _ h, pairOb_ne _ _ h]
+
+variable (D) in
+/-- The Hom-series `⟨b, -⟩` as a linear form on `K ⊗ K_⊕` with `q ↦ ⟨-1⟩`. -/
+def pairRight (b : D.Ob) : D.KMod (-1) →ₗ[LSer] LSer :=
+  (Submodule.span LSer (D.relSet (-1))).liftQ
+    (Finsupp.linearCombination LSer fun b' : D.Ob => D.pairOb b b') (by
+      rw [Submodule.span_le]
+      rintro x ((⟨t, X, Y, hX, hY, rfl⟩ | ⟨t, X, hX, a, rfl⟩) | ⟨t, X, Y, hX, e, rfl⟩) <;>
+        simp only [SetLike.mem_coe, LinearMap.mem_ker, map_sub, map_smul,
+          Finsupp.linearCombination_single, one_smul, smul_eq_mul]
+      · rw [pairOb_biprod_right]; ring
+      · rw [pairOb_shift_right, neg_one_mul, sub_self]
+      · rw [pairOb_iso_right, sub_self])
+
+theorem pairRight_clsOb (b b' : D.Ob) : D.pairRight b (clsOb (-1) b') = D.pairOb b b' := by
+  simp only [pairRight, clsOb, Submodule.liftQ_apply, Finsupp.linearCombination_single, one_smul]
+
+variable (D) in
+/-- **The Hom-series pairing** `Φ : K ⊗ K_⊕ → (K ⊗ K_⊕)^*`, `Φ [X] [Z] = ⟨X, Z⟩`; the source has
+`q ↦ ⟨1⟩` and the target `q ↦ ⟨-1⟩` (`⟨X⟨a⟩, Z⟩ = qᵃ ⟨X, Z⟩`, `⟨X, Z⟨a⟩⟩ = q⁻ᵃ ⟨X, Z⟩`). -/
+def Φ : D.KMod 1 →ₗ[LSer] Module.Dual LSer (D.KMod (-1)) :=
+  (Submodule.span LSer (D.relSet 1)).liftQ
+    (Finsupp.linearCombination LSer fun b : D.Ob => D.pairRight b) (by
+      rw [Submodule.span_le]
+      rintro x ((⟨t, X, Y, hX, hY, rfl⟩ | ⟨t, X, hX, a, rfl⟩) | ⟨t, X, Y, hX, e, rfl⟩) <;>
+        simp only [SetLike.mem_coe, LinearMap.mem_ker, map_sub, map_smul,
+          Finsupp.linearCombination_single, one_smul] <;>
+        rw [sub_eq_zero]
+      · rw [sub_eq_iff_eq_add]
+        refine KMod.hom_ext fun b => ?_
+        rw [LinearMap.add_apply, pairRight_clsOb, pairRight_clsOb, pairRight_clsOb,
+          pairOb_biprod_left, add_comm]
+      · refine KMod.hom_ext fun b => ?_
+        rw [LinearMap.smul_apply, pairRight_clsOb, pairRight_clsOb, pairOb_shift_left, one_mul,
+          smul_eq_mul]
+      · refine KMod.hom_ext fun b => ?_
+        rw [pairRight_clsOb, pairRight_clsOb, pairOb_iso_left])
+
+theorem Φ_clsOb (b b' : D.Ob) : D.Φ (clsOb 1 b) (clsOb (-1) b') = D.pairOb b b' := by
+  simp only [Φ, clsOb, Submodule.liftQ_apply, Finsupp.linearCombination_single, one_smul]
+  exact pairRight_clsOb b b'
+
+end Sl2CatData
+
+/-! ## The dual of a weight module -/
+
+namespace WtModule
+
+variable {K : Type*} [Field K] {q : K} {V : Type*} [AddCommGroup V] [Module K V]
+  (M : WtModule K q V)
+
+/-- The linear forms supported on the weight space `Wt t`. -/
+def dualWt (t : ℤ) : Submodule K (Module.Dual K V) where
+  carrier := {φ | ∀ s : ℤ, s ≠ t → ∀ v ∈ M.Wt s, φ v = 0}
+  add_mem' := fun {φ ψ} hφ hψ s hs v hv => by
+    rw [LinearMap.add_apply, hφ s hs v hv, hψ s hs v hv, add_zero]
+  zero_mem' := fun _ _ _ _ => rfl
+  smul_mem' := fun c φ hφ s hs v hv => by rw [LinearMap.smul_apply, hφ s hs v hv, smul_zero]
+
+/-- **The dual of a weight module** which is spanned by its weight spaces: `E^† φ = φ ∘ F`,
+`F^† φ = φ ∘ E`, and the weight-`t` forms are those supported on `Wt t`. -/
+def dual (hspan : ⨆ t, M.Wt t = ⊤) : WtModule K q (Module.Dual K V) where
+  n₀ := M.n₀
+  E := M.F.dualMap
+  F := M.E.dualMap
+  Wt := M.dualWt
+  E_mem t φ hφ s hs v hv := by
+    rw [LinearMap.dualMap_apply]
+    exact hφ (s - 1) (by omega) _ (M.F_mem' hv)
+  F_mem t φ hφ s hs v hv := by
+    rw [LinearMap.dualMap_apply]
+    exact hφ (s + 1) (by omega) _ (M.E_mem s v hv)
+  rel t φ hφ := by
+    have key : ∀ v : V, v ∈ (⊤ : Submodule K V) →
+        v ∈ LinearMap.ker (M.F.dualMap (M.E.dualMap φ) - M.E.dualMap (M.F.dualMap φ) -
+          qIntZ q (M.n₀ + 2 * t) • φ) := by
+      rw [← hspan]
+      intro v hv
+      refine (iSup_le fun s => ?_ : ⨆ s, M.Wt s ≤ _) hv
+      intro w hw
+      rw [LinearMap.mem_ker, LinearMap.sub_apply, LinearMap.sub_apply, LinearMap.smul_apply,
+        LinearMap.dualMap_apply, LinearMap.dualMap_apply, LinearMap.dualMap_apply,
+        LinearMap.dualMap_apply, ← map_sub, M.rel s w hw, map_smul]
+      by_cases hs : s = t
+      · subst hs; exact sub_self _
+      · rw [hφ s hs w hw, smul_zero, smul_zero, sub_zero]
+    ext v
+    have := LinearMap.mem_ker.1 (key v Submodule.mem_top)
+    rw [LinearMap.sub_apply, LinearMap.sub_apply, sub_eq_zero] at this
+    rw [LinearMap.sub_apply, this]
+  bdd := by
+    obtain ⟨N, hN⟩ := M.bdd
+    refine ⟨N, fun t ht φ hφ => ?_⟩
+    have key : ∀ v : V, v ∈ (⊤ : Submodule K V) → v ∈ LinearMap.ker φ := by
+      rw [← hspan]
+      intro v hv
+      refine (iSup_le fun s => ?_ : ⨆ s, M.Wt s ≤ _) hv
+      intro w hw
+      rw [LinearMap.mem_ker]
+      by_cases hs : s = t
+      · subst hs; rw [hN s ht w hw, map_zero]
+      · exact hφ s hs w hw
+    ext v
+    exact LinearMap.mem_ker.1 (key v Submodule.mem_top)
+
+end WtModule
+
+/-! ## The numerical adjunction -/
+
+namespace Sl2CatData
+
+variable {D : Sl2CatData k C}
+
+/-- The rescaling of the operators on the second module: `E [Z] = q^{n₀ + 2t + 1} [e Z]`. -/
+def resc (D : Sl2CatData k C) (t : ℤ) : ℤ := D.n₀ + 2 * t + 1
+
+/-- **The numerical adjunction, as an identity of Hom-series**:
+`⟨f X, Z⟩ = q^{n₀ + 2t + 1} ⟨X, e Z⟩`. -/
+theorem ser_f_eq {t : ℤ} {X : C (t + 1)} {Z : C t} (hX : D.P (t + 1) X) (hZ : D.P t Z) :
+    ser (D.P_f t hX) hZ = qL ^ (D.n₀ + 2 * t + 1) * ser hX (D.P_e t hZ) := by
+  set M := D.wtModule 1 (Or.inl rfl) (fun _ => 0) with hM
+  set M' := (D.wtModule (-1) (Or.inr rfl) D.resc).dual (iSup_wtSp (-1)) with hM'
+  have hΦ : ∀ t, ∀ v ∈ M.Wt t, D.Φ v ∈ M'.Wt t := by
+    intro t v hv
+    refine wtSp_le (p := (M'.Wt t).comap D.Φ) (fun X hX => ?_) hv
+    rw [Submodule.mem_comap]
+    intro s hs w hw
+    refine wtSp_le (p := LinearMap.ker (D.Φ (clsOb 1 ⟨t, X, hX⟩))) (fun Z hZ => ?_) hw
+    rw [LinearMap.mem_ker, Φ_clsOb, pairOb_ne _ _ hs]
+  have hΦE : ∀ v, D.Φ (M.E v) = M'.E (D.Φ v) := by
+    intro v
+    have : D.Φ ∘ₗ M.E = M'.E ∘ₗ D.Φ := by
+      refine KMod.hom_ext fun b => ?_
+      obtain ⟨t, X, hX⟩ := b
+      refine KMod.hom_ext fun b' => ?_
+      obtain ⟨t', Z, hZ⟩ := b'
+      obtain ⟨r, rfl⟩ : ∃ r, t' = r + 1 := ⟨t' - 1, by omega⟩
+      change D.Φ (D.opE 1 (fun _ => 0) (clsOb 1 ⟨t, X, hX⟩)) (clsOb (-1) ⟨r + 1, Z, hZ⟩) =
+        D.Φ (clsOb 1 ⟨t, X, hX⟩) (D.opF (-1) D.resc (clsOb (-1) ⟨r + 1, Z, hZ⟩))
+      rw [opE_clsOb, opF_clsOb, zpow_zero, one_smul, map_smul, Φ_clsOb, Φ_clsOb, smul_eq_mul]
+      by_cases h : r = t
+      · subst h
+        rw [pairOb_same, pairOb_same, ser_adj, resc]
+      · rw [pairOb_ne _ _ h, pairOb_ne _ _ (by omega), mul_zero]
+    exact LinearMap.congr_fun this v
+  have key := WtModule.F_comm_of_E_comm (M := M) (M' := M') rfl D.Φ hΦ hΦE isGenericParam_q
+    (clsOb_mem_wtSp (ε := 1) hX)
+  have key' := LinearMap.congr_fun key (clsOb (-1) ⟨t, Z, hZ⟩)
+  change D.Φ (D.opF 1 (fun _ => 0) (clsOb 1 ⟨t + 1, X, hX⟩)) (clsOb (-1) ⟨t, Z, hZ⟩) =
+    D.Φ (clsOb 1 ⟨t + 1, X, hX⟩) (D.opE (-1) D.resc (clsOb (-1) ⟨t, Z, hZ⟩)) at key'
+  rw [opF_clsOb, opE_clsOb, neg_zero, zpow_zero, one_smul, map_smul, Φ_clsOb, Φ_clsOb, pairOb_same,
+    pairOb_same, smul_eq_mul, resc] at key'
+  exact key'
+
+/-- **The numerical adjunction**: under bounded-below Hom spaces,
+`dim Hom(f X, Z⟨d⟩) = dim Hom(X, (e Z)⟨d - (n₀ + 2t + 1)⟩)` for test objects `X` (of weight
+`n₀ + 2(t+1)`) and `Z` (of weight `n₀ + 2t`): the lowering functor is also *left* adjoint to the
+raising functor at the level of Hom-dimensions, with the opposite shift. -/
+theorem finrank_f_eq {t : ℤ} {X : C (t + 1)} {Z : C t} (hX : D.P (t + 1) X) (hZ : D.P t Z) (d : ℤ) :
+    finrank k ((D.f t).obj X ⟶ Z⟦d⟧) =
+      finrank k (X ⟶ ((D.e t).obj Z)⟦d - (D.n₀ + 2 * t + 1)⟧) := by
+  have h := congrArg (fun s : LSer => s.coeff d) (ser_f_eq hX hZ)
+  simp only [coeff_qL_zpow_mul, coeff_ser] at h
+  exact_mod_cast h
 
 end Sl2CatData
 

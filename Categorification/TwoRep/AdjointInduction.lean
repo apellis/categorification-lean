@@ -2,7 +2,7 @@
 Copyright (c) 2026 Alex Ellis. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 -/
-import Categorification.TwoRep.Sl2
+import Categorification.TwoRep.WordBounded
 
 /-!
 # Consequences of the adjoint induction hypothesis (CL §3.2)
@@ -107,7 +107,7 @@ theorem finrank_F_F_eq (r l : ℤ) :
 `(E 1_{m+2})_L ≅ 1_{m+2} F ⟨-m-3⟩`,
 `dim Hom(E 1_m, E 1_m ⟨l⟩) = dim Hom(E 1_{m+2}, E 1_{m+2} ⟨l-2m-4⟩) +
   ∑_{j=0}^{m+1} dim Hom(1_{m+2}, 1_{m+2} ⟨l-2m-2+2j⟩)`. -/
-theorem lem1_step {r : ℤ} (hr : -2 ≤ S.wt r) (h1 : S.AdjHyp (r + 1)) (l : ℤ) :
+theorem lem1_step {r : ℤ} (hr : -2 ≤ S.wt r) (h1 : S.NumAdj (r + 1)) (l : ℤ) :
     finrank k (S.E r ⟶ (S.E r)⟦l⟧) =
       finrank k (S.E (r + 1) ⟶ (S.E (r + 1))⟦l - 2 * S.wt r - 4⟧) +
         ∑ j ∈ Finset.range (S.wt (r + 1)).toNat,
@@ -117,7 +117,7 @@ theorem lem1_step {r : ℤ} (hr : -2 ≤ S.wt r) (h1 : S.AdjHyp (r + 1)) (l : �
   obtain ⟨e⟩ := S.EF r (by rw [← wt, hw]; omega)
   rw [finrank_E_E, finrank_hom_congr_left k e, finrank_hom_biprod_left, finrank_hom_qsum_left]
   congr 1
-  · rw [(h1.dimAdjF S).left, finrank_hom_congr_right k _
+  · rw [h1.left (.E _) ((WordGen.id _).shift _), finrank_hom_congr_right k _
       (idShiftCompShiftIso (p := l - (S.wt r + 1)) (q := -(S.wt (r + 1) + 1))
         (s := l - 2 * S.wt r - 4) (S.E (r + 1)) (by rw [hw]; ring))]
   · refine Finset.sum_congr rfl fun j _ => finrank_hom_shift_shift k _ _ ?_
@@ -130,7 +130,7 @@ theorem wt_le_wt {r r' : ℤ} (h : r ≤ r') : S.wt r ≤ S.wt r' := by simp onl
 /-- **Lemma 3.1** (CL `lem:1`), negative degrees: assuming the adjoint induction hypothesis
 `eq:ind_hyp` for all weights `> n = wt r₀ ≥ 0`, if `m ≥ n` then `Hom(E 1_m, E 1_m ⟨l⟩) = 0` for
 `l < 0`. (By decreasing induction on `m`.) -/
-theorem lem1_neg {r₀ : ℤ} (hn : 0 ≤ S.wt r₀) (hyp : ∀ r', r₀ < r' → S.AdjHyp r') :
+theorem lem1_neg_of_numAdj {r₀ : ℤ} (hn : 0 ≤ S.wt r₀) (hyp : ∀ r', r₀ < r' → S.NumAdj r') :
     ∀ r, r₀ ≤ r → ∀ l : ℤ, l < 0 → finrank k (S.E r ⟶ (S.E r)⟦l⟧) = 0 := by
   refine S.decreasing_induction
     (P := fun r => r₀ ≤ r → ∀ l : ℤ, l < 0 → finrank k (S.E r ⟶ (S.E r)⟦l⟧) = 0) ?_ ?_
@@ -145,16 +145,20 @@ theorem lem1_neg {r₀ : ℤ} (hn : 0 ≤ S.wt r₀) (hyp : ∀ r', r₀ < r' �
     rw [Finset.mem_range] at hj
     omega
 
+theorem lem1_neg {r₀ : ℤ} (hn : 0 ≤ S.wt r₀) (hyp : ∀ r', r₀ < r' → S.AdjHyp r') :
+    ∀ r, r₀ ≤ r → ∀ l : ℤ, l < 0 → finrank k (S.E r ⟶ (S.E r)⟦l⟧) = 0 :=
+  S.lem1_neg_of_numAdj hn fun r' h => (hyp r' h).numAdj
+
 /-- **Lemma 3.1** (CL `lem:1`), degree zero: under the same hypotheses, if `m ≥ n` and the weight
 `m + 2` is nonzero then `Hom(E 1_m, E 1_m ⟨l⟩)` is one-dimensional for `l = 0`. -/
-theorem lem1_zero' {r₀ : ℤ} (hn : 0 ≤ S.wt r₀) (hyp : ∀ r', r₀ < r' → S.AdjHyp r') {r : ℤ}
-    (hr : r₀ ≤ r) (h : ¬ IsZero (𝟙 (S.obj (r + 1)))) {l : ℤ} (hl : l = 0) :
+theorem lem1_zero_of_numAdj' {r₀ : ℤ} (hn : 0 ≤ S.wt r₀) (hyp : ∀ r', r₀ < r' → S.NumAdj r')
+    {r : ℤ} (hr : r₀ ≤ r) (h : ¬ IsZero (𝟙 (S.obj (r + 1)))) {l : ℤ} (hl : l = 0) :
     finrank k (S.E r ⟶ (S.E r)⟦l⟧) = 1 := by
   subst hl
   have hwr := S.wt_le_wt hr
   have hM := S.toNat_wt_succ (r := r) (by omega)
   rw [S.lem1_step (by omega) (hyp _ (by omega)) 0,
-    S.lem1_neg hn hyp (r + 1) (by omega) _ (by omega), zero_add,
+    S.lem1_neg_of_numAdj hn hyp (r + 1) (by omega) _ (by omega), zero_add,
     Finset.sum_eq_single ((S.wt (r + 1)).toNat - 1)]
   · rw [finrank_hom_shift_zero k _ _ (by omega)]
     exact S.hom_zero _ h
@@ -165,19 +169,29 @@ theorem lem1_zero' {r₀ : ℤ} (hn : 0 ≤ S.wt r₀) (hyp : ∀ r', r₀ < r' 
     rw [Finset.mem_range] at hj
     omega
 
+theorem lem1_zero' {r₀ : ℤ} (hn : 0 ≤ S.wt r₀) (hyp : ∀ r', r₀ < r' → S.AdjHyp r') {r : ℤ}
+    (hr : r₀ ≤ r) (h : ¬ IsZero (𝟙 (S.obj (r + 1)))) {l : ℤ} (hl : l = 0) :
+    finrank k (S.E r ⟶ (S.E r)⟦l⟧) = 1 :=
+  S.lem1_zero_of_numAdj' hn (fun r' h => (hyp r' h).numAdj) hr h hl
+
 /-- **Lemma 3.1** (CL `lem:1`): `End(E 1_m)` is one-dimensional (`E 1_m` is a brick). -/
-theorem lem1_zero {r₀ : ℤ} (hn : 0 ≤ S.wt r₀) (hyp : ∀ r', r₀ < r' → S.AdjHyp r') {r : ℤ}
-    (hr : r₀ ≤ r) (h : ¬ IsZero (𝟙 (S.obj (r + 1)))) :
+theorem lem1_zero_of_numAdj {r₀ : ℤ} (hn : 0 ≤ S.wt r₀) (hyp : ∀ r', r₀ < r' → S.NumAdj r')
+    {r : ℤ} (hr : r₀ ≤ r) (h : ¬ IsZero (𝟙 (S.obj (r + 1)))) :
     finrank k (S.E r ⟶ S.E r) = 1 := by
   rw [← finrank_hom_shift_zero k _ _ (rfl : (0 : ℤ) = 0)]
-  exact S.lem1_zero' hn hyp hr h rfl
+  exact S.lem1_zero_of_numAdj' hn hyp hr h rfl
+
+theorem lem1_zero {r₀ : ℤ} (hn : 0 ≤ S.wt r₀) (hyp : ∀ r', r₀ < r' → S.AdjHyp r') {r : ℤ}
+    (hr : r₀ ≤ r) (h : ¬ IsZero (𝟙 (S.obj (r + 1)))) :
+    finrank k (S.E r ⟶ S.E r) = 1 :=
+  S.lem1_zero_of_numAdj hn (fun r' h => (hyp r' h).numAdj) hr h
 
 /-- The dimension count in CL's proof of Corollary 3.2: for `m = wt r ≥ -2`, under
 `(E 1_{m+4})_L ≅ 1_{m+4} F ⟨-m-5⟩`,
 `dim Hom(E E 1_m, E E 1_m ⟨l⟩) = dim Hom(E E 1_{m+2}, E E 1_{m+2} ⟨l-2m-6⟩)
   + ∑_{j=0}^{m+3} dim Hom(E 1_{m+2}, E 1_{m+2} ⟨l-2m-4+2j⟩)
   + ∑_{j=0}^{m+1} dim Hom(E 1_{m+2}, E 1_{m+2} ⟨l-2m-2+2j⟩)`. -/
-theorem cor0_step {r : ℤ} (hr : -2 ≤ S.wt r) (h2 : S.AdjHyp (r + 1 + 1)) (l : ℤ) :
+theorem cor0_step {r : ℤ} (hr : -2 ≤ S.wt r) (h2 : S.NumAdj (r + 1 + 1)) (l : ℤ) :
     finrank k (S.E r ≫ S.E (r + 1) ⟶ (S.E r ≫ S.E (r + 1))⟦l⟧) =
       finrank k (S.E (r + 1) ≫ S.E (r + 1 + 1) ⟶
           (S.E (r + 1) ≫ S.E (r + 1 + 1))⟦l - 2 * S.wt r - 6⟧) +
@@ -215,7 +229,8 @@ theorem cor0_step {r : ℤ} (hr : -2 ≤ S.wt r) (h2 : S.AdjHyp (r + 1 + 1)) (l 
           biprod.mapIso i₂ (qsumCompIso _ _ _)) _
     _ = _ := by
       rw [finrank_hom_biprod_left, finrank_hom_biprod_left, finrank_hom_qsum_left,
-        finrank_hom_qsum_left, (h2.dimAdjF S).left, finrank_hom_congr_right k _
+        finrank_hom_qsum_left, h2.left ((WordGen.E _).comp (.E _)) ((WordGen.E _).shift _),
+        finrank_hom_congr_right k _
           (shiftCompShiftIso (p := l - (S.wt r + 1)) (q := -(S.wt (r + 1 + 1) + 1))
             (s := l - 2 * S.wt r - 6) (S.E (r + 1)) (S.E (r + 1 + 1)) (by rw [hw2]; ring))]
       refine congrArg₂ (· + ·) (congrArg₂ (· + ·) rfl ?_) ?_
@@ -226,7 +241,7 @@ theorem cor0_step {r : ℤ} (hr : -2 ≤ S.wt r) (h2 : S.AdjHyp (r + 1 + 1)) (l 
 
 /-- **Corollary 3.2** (CL `cor:0`), degrees `< -2`: assuming `eq:ind_hyp` for all weights
 `> n = wt r₀ ≥ 0`, if `m ≥ n - 2` then `Hom(E E 1_m, E E 1_m ⟨l⟩) = 0` for `l < -2`. -/
-theorem cor0_neg {r₀ : ℤ} (hn : 0 ≤ S.wt r₀) (hyp : ∀ r', r₀ < r' → S.AdjHyp r') :
+theorem cor0_neg_of_numAdj {r₀ : ℤ} (hn : 0 ≤ S.wt r₀) (hyp : ∀ r', r₀ < r' → S.NumAdj r') :
     ∀ r, r₀ - 1 ≤ r → ∀ l : ℤ, l < -2 →
       finrank k (S.E r ≫ S.E (r + 1) ⟶ (S.E r ≫ S.E (r + 1))⟦l⟧) = 0 := by
   refine S.decreasing_induction (P := fun r => r₀ - 1 ≤ r → ∀ l : ℤ, l < -2 →
@@ -244,15 +259,20 @@ theorem cor0_neg {r₀ : ℤ} (hn : 0 ≤ S.wt r₀) (hyp : ∀ r', r₀ < r' �
     rw [Finset.sum_eq_zero, Finset.sum_eq_zero, add_zero]
     · intro j hj
       rw [Finset.mem_range] at hj
-      exact S.lem1_neg hn hyp (r + 1) (by omega) _ (by omega)
+      exact S.lem1_neg_of_numAdj hn hyp (r + 1) (by omega) _ (by omega)
     · intro j hj
       rw [Finset.mem_range] at hj
-      exact S.lem1_neg hn hyp (r + 1) (by omega) _ (by omega)
+      exact S.lem1_neg_of_numAdj hn hyp (r + 1) (by omega) _ (by omega)
+
+theorem cor0_neg {r₀ : ℤ} (hn : 0 ≤ S.wt r₀) (hyp : ∀ r', r₀ < r' → S.AdjHyp r') :
+    ∀ r, r₀ - 1 ≤ r → ∀ l : ℤ, l < -2 →
+      finrank k (S.E r ≫ S.E (r + 1) ⟶ (S.E r ≫ S.E (r + 1))⟦l⟧) = 0 :=
+  S.cor0_neg_of_numAdj hn fun r' h => (hyp r' h).numAdj
 
 /-- **Corollary 3.2** (CL `cor:0`), degree `-2`: under the same hypotheses, if `m ≥ n - 2` and the
 top weight `m + 4` of `E E 1_m` is nonzero, then `Hom(E E 1_m, E E 1_m ⟨-2⟩)` is one-dimensional. -/
-theorem cor0_zero {r₀ : ℤ} (hn : 0 ≤ S.wt r₀) (hyp : ∀ r', r₀ < r' → S.AdjHyp r') {r : ℤ}
-    (hr : r₀ - 1 ≤ r) (h : ¬ IsZero (𝟙 (S.obj (r + 1 + 1)))) :
+theorem cor0_zero_of_numAdj {r₀ : ℤ} (hn : 0 ≤ S.wt r₀) (hyp : ∀ r', r₀ < r' → S.NumAdj r')
+    {r : ℤ} (hr : r₀ - 1 ≤ r) (h : ¬ IsZero (𝟙 (S.obj (r + 1 + 1)))) :
     finrank k (S.E r ≫ S.E (r + 1) ⟶ (S.E r ≫ S.E (r + 1))⟦-2⟧) = 1 := by
   have hwr : S.wt r₀ - 2 ≤ S.wt r := by simp only [wt]; omega
   have hM1 := S.toNat_wt_succ (r := r) (by omega)
@@ -260,19 +280,24 @@ theorem cor0_zero {r₀ : ℤ} (hn : 0 ≤ S.wt r₀) (hyp : ∀ r', r₀ < r' �
     rw [Int.toNat_of_nonneg (by rw [S.wt_add_one, S.wt_add_one]; omega), S.wt_add_one,
       S.wt_add_one]; ring
   rw [S.cor0_step (by omega) (hyp _ (by omega)) (-2),
-    S.cor0_neg hn hyp (r + 1) (by omega) _ (by omega), zero_add]
+    S.cor0_neg_of_numAdj hn hyp (r + 1) (by omega) _ (by omega), zero_add]
   rw [Finset.sum_eq_zero (s := Finset.range (S.wt (r + 1)).toNat), add_zero,
     Finset.sum_eq_single ((S.wt (r + 1 + 1)).toNat - 1)]
-  · exact S.lem1_zero' hn hyp (by omega) h (by omega)
+  · exact S.lem1_zero_of_numAdj' hn hyp (by omega) h (by omega)
   · intro j hj hne
     rw [Finset.mem_range] at hj
-    exact S.lem1_neg hn hyp (r + 1) (by omega) _ (by omega)
+    exact S.lem1_neg_of_numAdj hn hyp (r + 1) (by omega) _ (by omega)
   · intro hj
     rw [Finset.mem_range] at hj
     omega
   · intro j hj
     rw [Finset.mem_range] at hj
-    exact S.lem1_neg hn hyp (r + 1) (by omega) _ (by omega)
+    exact S.lem1_neg_of_numAdj hn hyp (r + 1) (by omega) _ (by omega)
+
+theorem cor0_zero {r₀ : ℤ} (hn : 0 ≤ S.wt r₀) (hyp : ∀ r', r₀ < r' → S.AdjHyp r') {r : ℤ}
+    (hr : r₀ - 1 ≤ r) (h : ¬ IsZero (𝟙 (S.obj (r + 1 + 1)))) :
+    finrank k (S.E r ≫ S.E (r + 1) ⟶ (S.E r ≫ S.E (r + 1))⟦-2⟧) = 1 :=
+  S.cor0_zero_of_numAdj hn (fun r' h => (hyp r' h).numAdj) hr h
 
 /-- **Corollary 3.3** (CL `cor:2`): assuming `eq:ind_hyp` for all weights `> n = wt r₀ ≥ 0`, if
 `m ≥ n` (here `m = wt (r + 1)`) and the weight `m + 2` is nonzero, then

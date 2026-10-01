@@ -61,7 +61,7 @@ The simply-laced rings of KL I, for a simple graph `Γ`, are `KLR.R1 k Γ ν` (`
 | KL I §2.2 (3) | the nilHecke idempotents `e_m = x^δ ∂_{w_0}` and `ψ(e_m)`; divided-power idempotents `1_i` in `R(ν)` (degree 0) | `NilHecke.isIdempotentElem_idemNH`, `KLR.KLRAlgebra.isIdempotentElem_divIdemOf`, `KLR.KLRAlgebra.divIdemOf_mem_grade` |
 | KL I §2.1, §2.4 | the basis elements are homogeneous; the crossing degree of `ψ_ŵ e_i` depends only on `w`; graded pieces are finite-dimensional and vanish below `-∑_i ν_i(ν_i - 1)`; `gdim(1_j R(ν) 1_i) = ∑_{w•i=j} q^{deg(ψ_w 1_i)} (1-q^2)^{-m}` | `KLR.GradingDatum.degW_eq_sum_invSet`, `KLR.KL1.grade_eq_bot_of_lt`, `KLR.KL1.gdim_cornerGrade`, `KLR.KL1.hasGdim_of_finite` |
 | KL I §2.5 | `(ν)_q = gdim Sym(ν) = ∏_i ∏_{a=1}^{ν_i} (1-q^{2a})^{-1}` | `KLR.KL1.gdim_symGrade`, `KLR.GradingDatum.gdim_center` |
-| KL I §2.5 | the form on `K_0`: `([P_j],[P_i]) = gdim(_jR(ν)_i)`, `([P_j],[M]) = ch(M, j)` | `KLR.KL1.homForm_projP`, `KLR.GradingDatum.homForm_projP_left`, `Graded.K0.homForm` |
+| KL I §2.5 | the form on `K_0`: `([P_j],[P_i]) = gdim(_jR(ν)_i)`, `([P_j],[M]) = ch(M, j)`; `P^ψ ⊗_{R(ν)} N ≅ HOM(P̄, N)` (graded, for `P` f.g. projective, any graded `N`), so the paper's `([P],[Q]) = gdim(P^ψ ⊗_{R(ν)} Q)` is `pform` (`(x, y) = homForm(x̄, y)`, `ℤ[q,q⁻¹]`-bilinear) on all of `K_0`, and the pairing `([P],[M]) = gdim(P^ψ ⊗_{R(ν)} M)` is `(x, y) ↦ pairing(x̄, y)` on `K_0 × G_0`; `gdim(_jP ⊗_{R(ν)} P_i) = gdim(_jR(ν)_i)` | `KLR.KL1.homForm_projP`, `KLR.GradingDatum.homForm_projP_left`, `Graded.K0.homForm`, `Graded.twistTensorGradedEquiv`, `Graded.K0.pform_of_eq_gdim_twistTensor`, `Graded.K0.eq_pform_of_gdim_twistTensor`, `Graded.eq_pairing_bar_of_gdim_twistTensor`, `KLR.GradingDatum.gdim_twistTensor_projP` |
 | KL I Cor. 2.10 (2) | `R(ν)` has a homogeneous basis over its center | `KLR.GradingDatum.exists_homogeneous_centerBasis` |
 | KL I Lemma 2.1 | `L_m = k[x]/(Sym⁺)` has dimension `m!`, is a simple `NH_m`-module, its common kernel of the `x_a` is the line through `x^δ`, and all Jordan blocks of `x_m` have size `m`; `L(i^m)` is the unique graded simple `R(m·i)`-module up to shift | `NilHecke.isSimpleModule_coinv`, `NilHecke.coinvSocle_eq_span_xDelta`, `coinvMul_last_pow_eq_zero`, `ker_coinvMul_last`, `KLR.KL1.exists_gradedEquiv_klrRep` |
 | KL I Prop. 3.11 (2), (3) | for a composition `μ` of `n`, the socle of `Res_μ L_n` over the parabolic nilHecke algebra is simple and isomorphic to the Young coinvariant module `L_μ`, and every simple subquotient is isomorphic to `L_μ`; the socle of `Res^n_{n-1} L_n` is simple | `NilHecke.parNH_socle`, `NilHecke.nonempty_linearEquiv_youngRep_subquotient`, `NilHecke.resNH_socle` |
@@ -88,7 +88,7 @@ The simply-laced rings of KL I, for a simple graph `Γ`, are `KLR.R1 k Γ ν` (`
 | KL I §2.6, §3.1 Prop. 3.1 | balanced tensor products over noncommutative algebras and external tensor products (graded); induction `Ind_{ν,ν'}` of graded projectives, `Ind(P_i ⊠ P_j) ≅ P_{ij}`; associativity of `ι`; `[Ind]` makes `K_0(R) = ⊕_ν K_0(R(ν))` an associative unital `ℤ[q,q⁻¹]`-algebra with unit `[R(0)]`; likewise `[Ind]` makes `G_0(R) = ⊕_ν G_0(R(ν))` an associative unital algebra and `[Res]` a coassociative counital coalgebra (`G_0(A) ⊗ G_0(B) ≅ G_0(A ⊗ B)` for the components of the coproduct; coassociativity via the characters of Thm. 3.17) | `BalancedTensor`, `KLR.KLRAlgebra.concat_assoc`, `KLR.GradingDatum.indK0`, `KLR.GradingDatum.indK0_projP`, `KLR.GradingDatum.indK0_assoc`, `KLR.GradingDatum.K0R`, `KLR.GradingDatum.K0R_one`, `KLR.GradingDatum.prop_3_1_G0`, `KLR.GradingDatum.instCoalgebraG0R`, `KLR.GradingDatum.g0TensorEquiv` |
 | KL I Prop. 2.19 (graded), §3.1 Prop. 3.3 (1), (2), (4) | graded restriction on `K_0`; Frobenius reciprocity `HOM(Ind N, X) ≅ HOM(N, Res X)` (graded); `Res P_s ≅ ⊕_u (P_{i_u} ⊠ P_{j_u}){deg(i_u, j_u, s)}`; `(1,1) = 1`, `([P_i],[P_j]) = δ_{ij}(1-q²)⁻¹`, `(x x', y) = (x ⊗ x', Res y)` | `KLR.KLRAlgebra.frobeniusEquiv`, `KLR.GradingDatum.resK0`, `KLR.GradingDatum.resProjGradedEquiv`, `KLR.KL1.K0RForm_one_one`, `KLR.KL1.K0RForm_projP_single`, `KLR.GradingDatum.homForm_indK0` |
 | KL I §2.5, §3.1 Props. 3.3 (3), (4) | duality `P̄ = HOM(P, R(ν))^ψ` on graded f.g. projectives (`\overline{P{a}} = P̄{-a}`, `P̄̄ = P`, `\overline{Ae} = Aψ(e)`), the antilinear bar involution on `K_0` with `[P_i]`, `[P_d]` bar-invariant; the bilinear symmetric form `(x, y) = gdim HOM(x̄, y)` with `([P_j],[P_i]) = gdim(1_j R 1_i)`; `(x x', y) = (x ⊗ x', Res y)` and `(x, y y') = (Res x, y ⊗ y')` on the span of the idempotent classes; `[Res][P_s]` | `Graded.K0.bar`, `Graded.K0.pform`, `Graded.K0.pform_comm`, `KLR.KL1.bar_projDiv`, `KLR.GradingDatum.pform_indK0`, `KLR.GradingDatum.pform_indK0_right`, `KLR.GradingDatum.resK0_projP` |
-| KL I §3.1 Prop. 3.2 (on the image of `γ`) | Lusztig's `r` on words is the shuffle sum with the KLR crossing degrees; `[Res] ∘ γ = (γ ⊗ γ) ∘ r`, hence `[Res]` is multiplicative for the twisted product on the image of `γ` (which contains the span of the `[P_s]`); the identification `K_0(R(ν) ⊗ R(ν')) ≅ K_0(R(ν)) ⊗ K_0(R(ν'))` is not yet formalized | `QuantumGroup.PreF.r_ofFn`, `KLR.GradingDatum.resK0_projP_eq_realize`, `KLR.KLGamma.resComp_gammaZ`, `KLR.KLGamma.resComp_gammaZ_mul` |
+| KL I §3.1 Prop. 3.2 (on the image of `γ`) | Lusztig's `r` on words is the shuffle sum with the KLR crossing degrees; `[Res] ∘ γ = (γ ⊗ γ) ∘ r`, hence `[Res]` is multiplicative for the twisted product on the image of `γ` (which contains the span of the `[P_s]`); on all of `K_0(R)`, via `K_0(R(ν) ⊗ R(ν')) ≅ K_0(R(ν)) ⊗ K_0(R(ν'))`, see the twisted bialgebra paragraph above | `QuantumGroup.PreF.r_ofFn`, `KLR.GradingDatum.resK0_projP_eq_realize`, `KLR.KLGamma.resComp_gammaZ`, `KLR.KLGamma.resComp_gammaZ_mul` |
 | KL I §3.1 (γ and forms) | `γ` commutes with the bar involutions and is an isometry: `(γx, γy) = (x, y)` for `x, y ∈ 'f` | `KLR.KLGamma.gammaF_barF`, `KLR.KLGamma.pformQ_gammaQ` |
 | KL I §3.2, Lemma 2.20, Lemmas 3.5–3.8, Prop. 3.10, Cor. 3.12 (ungraded) | the shuffle lemma (dimensions); `Δ_{i^n}`, `ε_i`, `Hom(Ind N, M) ≅ Hom(N, Δ M)`; simple `R(μ) ⊗ R(ni)`-modules are `N ⊠ L(i^n)`; Lemmas 3.6–3.8; the socle of `Δ_{i^n}M` is simple of the form `L ⊠ L(i^n)` (Prop. 3.10, proved without Kato's theorem); Cor. 3.12 (for finite-dimensional modules with nilpotent dots, which holds for graded simples) | `KLR.KLRAlgebra.shuffle_lemma_finrank`, `KLR.KLRAlgebra.indResEquiv`, `KLR.KLRAlgebra.lemma_3_6`, `KLR.KLRAlgebra.lemma_3_7_head`, `KLR.KLRAlgebra.lemma_3_8`, `KLR.KLRAlgebra.prop_3_10_socle`, `KLR.KLRAlgebra.cor_3_12_socle`, `KLR.KLRAlgebra.crystal_hypotheses_of_isGradedSimple` |
 | KL I Cor. 2.17 | restriction takes projective modules to projective modules | `KLR.KLRAlgebra.res_projective` |
@@ -206,7 +206,17 @@ In CL §2.1.1, "`s_{ij}^{pq} = 0` when … `d_{ij} ≥ p` or `d_{ji} ≥ q`" sho
 as CL state, by rotating the upward relations (a rotation calculus that needs only the zigzag
 relations, not cyclicity): adding them gives an isomorphic presentation
 (`KL3.Diagram.CL.lin_relationDown`, `KL3.Diagram.CL.presCLDownEquiv`). The main theorem (CL
-Theorem 1.1) is not yet formalized.
+Theorem 1.1) is not yet formalized. Its proof rests on Prop. 3.9 (biadjointness is automatic),
+whose adjoint induction has a gap at the step of Lemma 3.6: the final paragraph (decomposable
+`E1_{n-2}`) uses Lemma 3.1 at weight `n-2`, which is not available at that stage, and the `n ≤ 0`
+half (Remark 3.11) is vacuous at weight `0`. The induction therefore has no foothold at the weights
+`{0, -2}` (even highest weight) or `{1, -1, -3}` (odd), although it propagates from any foothold
+and closes unconditionally for highest weight at most `5`. Plan: Prop. 3.9 and Thm. 1.1 are being
+formalized under an explicit extra hypothesis, that the graded endomorphism algebras of direct
+summands of words in `E`, `F` are bounded below in degree (implied by biadjointness, equivalent to
+Prop. 3.9, and satisfied by bimodule 2-representations over nonnegatively graded, degreewise finite
+algebras): issue #6. Removing that hypothesis, to recover the statement as printed, is a standing
+roadmap item: issue #10.
 
 ### KL I §3.3–3.4: relations between induction functors, tight monomials
 
@@ -225,7 +235,8 @@ For an arbitrary symmetric Cartan datum and a field `𝕜`, `γ : _A f → K_0(R
 `ℤ[q, q⁻¹]`-linear, sending divided-power monomials (divided powers in `v_i = v^{i·i/2}`) to the classes
 of the corresponding projectives: `KLR.KL2Gamma.theorem_8`, `KLR.KL2Gamma.gammaInt2Equiv`,
 `KLR.KL2Gamma.gammaInt2Equiv_dpowMono`; over `ℚ(v)`, `KLR.KL2Gamma.gammaF2Equiv`. Again the quantum
-Gabber–Kac theorem is an explicit hypothesis. The coproduct `Δ = [Res]` is multiplicative for the
+Gabber–Kac theorem enters as an explicit argument, discharged by
+`QuantumGroup.CartanDatum.quantumGabberKac` (`KLR.KL2Gamma.theorem_8_unconditional`). The coproduct `Δ = [Res]` is multiplicative for the
 twisted multiplication and coassociative, and `γ` intertwines Lusztig's `r` with `Δ`, so `γ` is an
 isomorphism of `ℕ[I]`-graded twisted bialgebras (`KLR.KL2Gamma.theorem_8_bialgebra`).
 
@@ -246,7 +257,9 @@ KL III state Theorem 1.1 for any root datum; the non-simply-laced case is not fo
 hence (with Theorem 1.1) an isomorphism of `ℤ[q, q⁻¹]`-modules on every block. Nondegeneracy is
 stated as equality in Cor. 3.13, `dim HOM_U(E_𝐢1_λ, E_𝐣1_λ)_t = [q^t] π⟨E_𝐢1_λ, E_𝐣1_λ⟩`
 (`CalculusNondeg`), and it suffices to check it for positive sequences (the remark after KL's
-definition). The proof also uses Prop. 2.5 (`FormNondeg`, proved below under Gabber–Kac):
+definition). The proof also uses Prop. 2.5 (`FormNondeg`, proved unconditionally,
+`QuantumGroup.UDot.KL3.formNondeg_unconditional`; with it, `KL3.Diagram.gammaUA'_bijective_unconditional`
+needs only `CalculusNondeg`):
 
 ```lean
 theorem KL3.Diagram.gammaUA'_bijective [Field k] [DecidableEq I] [Finite I] (hSL : SimplyLaced C) :
@@ -310,10 +323,17 @@ projective modules as a `ℤ[q,q⁻¹]`-module (with `[A e] = q^{-d}[A e']` for 
 equivalent via elements of degrees `d`, `-d`, and additivity on orthogonal idempotents), and
 `G0` of finite-dimensional graded modules. For `R(ν)`: `P_i = R(ν) 1_i` and characters
 `ch(M)` (`KLR.GradingDatum.projP`, `KLR.GradingDatum.ch`). "Graded projective" is taken to mean
-projective as a module and graded. The form on `K_0` is defined as `gdim HOM(P, Q)`
-(`Graded.K0.homForm`); the paper's `gdim(P^ψ ⊗_{R(ν)} Q)` agrees with it on the classes
-`[P_i]`, which is where the paper evaluates it, but the identification on all of `K_0` (which
-involves the bar involution) is not formalized.
+projective as a module and graded. The forms on `K_0` are defined through `HOM` spaces:
+`Graded.K0.homForm` (`([P], [Q]) = gdim HOM(P, Q)`, antilinear in the first variable) and
+`Graded.K0.pform` (`(x, y) = homForm x̄ y` with the bar involution `[P] ↦ [P̄]`,
+`P̄ = HOM(P, A)^ψ`; bilinear and symmetric). For `P` finitely generated graded projective and any
+graded `N`, `m ⊗ n ↦ (f ↦ ψ(f(m)) n)` is a degree-preserving isomorphism
+`P^ψ ⊗_A N ≅ HOM(P̄, N)` (`Graded.twistTensorGradedEquiv`, `Graded.gdim_twistTensor`), so the
+paper's form `gdim(P^ψ ⊗_{R(ν)} Q)` is `pform` on all of `K_0`
+(`Graded.K0.pform_of_eq_gdim_twistTensor`, `Graded.K0.eq_pform_of_gdim_twistTensor`), equivalently
+`homForm x y = gdim(x̄^ψ ⊗ y)`, and the paper's pairing `gdim(P^ψ ⊗_{R(ν)} M)` with `G_0` is
+`(x, y) ↦ pairing x̄ y` (`Graded.eq_pairing_bar_of_gdim_twistTensor`). On the self-dual classes
+`[P_i]` all of these agree.
 
 ### The map `γ` (KL I §1, §3.1)
 
@@ -332,7 +352,9 @@ explicit argument `QuantumGroup.PreF.GabberKac` (discharged by `QuantumGroup.KL.
 (`KLR.KLGamma.lsCast_homForm_projP`); hence the kernel of `'f → ℚ(v) ⊗ K_0(R)` is the radical of the
 form, unconditionally (`KLR.KLGamma.ker_gammaQ_le_radical`), and `γ` is injective on `f` and on
 `_A f` (`KLR.KLGamma.gammaF_injective`, `gammaA_injective`, `gammaInt_injective`, under the
-hypotheses above). That `γ` intertwines `r` with `[Res]` is not yet formalized.
+hypotheses above). `γ` intertwines Lusztig's `r` with `[Res]` (`KLR.KLGamma.coprod_gammaZ`,
+`KLR.KLGamma.map_gammaF_rbar`; see the twisted bialgebra paragraph at the top and
+`KLR.KLGamma.theorem_1_1_bialgebra`).
 
 ### Modified quantum groups (Khovanov–Lauda III, arXiv:0807.3250v1, §2.1)
 
@@ -343,8 +365,10 @@ bilinear pairing of KL III Prop. 2.2 (existence and uniqueness, `QuantumGroup.UD
 (`QuantumGroup.UDot.KL3.prop_2_4`). Nondegeneracy of both forms (Prop. 2.5) for any Cartan datum,
 under the Gabber–Kac inclusion of the radical of the form on `'f` into the Serre ideal
 (`QuantumGroup.UDot.KL3.prop_2_5`); since `U̇` is defined by the Serre presentation, this
-hypothesis is also necessary (`QuantumGroup.UDot.B_posF_radical`). In rank one it holds, so
-Prop. 2.5 for `sl_2` is unconditional (`QuantumGroup.UDot.KL3.prop_2_5_sl2`). The proof
+hypothesis is also necessary (`QuantumGroup.UDot.B_posF_radical`). It holds for every Cartan datum
+(`QuantumGroup.CartanDatum.quantumGabberKac`), so Prop. 2.5 is unconditional
+(`QuantumGroup.UDot.KL3.prop_2_5_unconditional`; rank one directly:
+`QuantumGroup.UDot.KL3.prop_2_5_sl2`). The proof
 identifies the bilinear form with a tensor-product form on a model of `U̇1_λ` in `'f ⊗ 'f`
 (`QuantumGroup.UDot.B_eq_ndP`), avoiding canonical bases. Theorem 2.7: the forms `(E_𝐢1_λ, E_𝐣1_μ) = ⟨E_𝐢1_λ, E_𝐣1_μ⟩` are the sum over
 `(𝐢, 𝐣)`-pairings of `q` to the degree of a minimal diagram times the bubble contributions

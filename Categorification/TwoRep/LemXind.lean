@@ -17,7 +17,9 @@ decomposition `E F 1_n ≅ F E 1_n ⊕ ⊕_{j<n} 1_n⟨n-1-2j⟩` the `n - 1` su
 `E E F 1_{n-2}` (also S. Cautis, *Rigidity in higher representation theory*, arXiv:1409.0827v1,
 Lemma 13.1), made non-circular by assuming (3.2) *at* `n` (Proposition 3.9 at `n`; the theorem is
 `lemXind_of_adjHyp`), so that Lemma 3.1 at `n - 2` and the right adjoint of `F 1_{n+2}` are
-available, and organised so that no Krull–Schmidt cancellation with rigidity is needed.
+available, and organised so that no Krull–Schmidt cancellation with rigidity is needed. Only the
+numerical shadow `NumAdj` (`WordBounded.lean`) of (3.2) is used, at the weight `n` and above
+(`lemXind_of_numAdj`); under the boundedness hypothesis (BB_w) that shadow holds at every weight.
 
 Indexing: `1_n` at the object `r + 1 + 1`, `E 1_{n-2} = E (r + 1)`, `E 1_{n-4} = E r`,
 `F 1_{n-2} = F r`, `E E F 1_{n-2} = F r ≫ (E r ≫ E (r + 1))` (`FW`), `E F 1_n = F (r + 1) ≫ E (r + 1)`
@@ -101,16 +103,16 @@ variable {S r}
 
 section Vanishing
 
-variable (hyp : ∀ r', r + 1 < r' → S.AdjHyp r')
+variable (hyp : ∀ r', r + 1 < r' → S.NumAdj r')
 
 include hyp in
-/-- Lemma 3.1 at `n - 2` (under (3.2) at the weights `≥ n`): `Hom(E 1_{n-2}⟨a⟩, E 1_{n-2}⟨b⟩) = 0`
+/-- Lemma 3.1 at `n - 2` (under the numerical shadow of (3.2) at the weights `≥ n`): `Hom(E 1_{n-2}⟨a⟩, E 1_{n-2}⟨b⟩) = 0`
 for `b < a`. -/
 theorem hom_E_shift_eq_zero (hn : 0 ≤ S.wt (r + 1)) {a b : ℤ} (hab : b < a)
     (f : (S.E (r + 1))⟦a⟧ ⟶ (S.E (r + 1))⟦b⟧) : f = 0 := by
   have h0 : finrank k ((S.E (r + 1))⟦a⟧ ⟶ (S.E (r + 1))⟦b⟧) = 0 := by
     rw [finrank_hom_shift_shift k _ _ (c := b - a) (by ring)]
-    exact S.lem1_neg (r₀ := r + 1) hn hyp (r + 1) le_rfl _ (by omega)
+    exact S.lem1_neg_of_numAdj (r₀ := r + 1) hn hyp (r + 1) le_rfl _ (by omega)
   exact eq_zero_of_finrank_eq_zero h0 f
 
 variable (S r) in
@@ -175,7 +177,7 @@ theorem hom_B₂_A_eq_zero (hn : 0 ≤ S.wt (r + 1)) {i j : ℕ}
 
 /-- `Hom(E 1_{n-2}⟨a⟩, E 1_{n-2} E F 1_{n+2}) = 0` for `a > -n + 1` (Corollary 3.2 at `n - 2`). -/
 theorem finrank_E_shift_C_eq_zero (hn : 0 ≤ S.wt (r + 1 + 1))
-    (hyp : ∀ r', r + 1 + 1 < r' → S.AdjHyp r') {a : ℤ} (ha : -S.wt (r + 1 + 1) + 1 < a) :
+    (hyp : ∀ r', r + 1 + 1 < r' → S.NumAdj r') {a : ℤ} (ha : -S.wt (r + 1 + 1) + 1 < a) :
     finrank k ((S.E (r + 1))⟦a⟧ ⟶ S.Csum r) = 0 := by
   have hw : S.wt (r + 1 + 1) = S.wt (r + 1) + 2 := S.wt_add_one _
   calc finrank k ((S.E (r + 1))⟦a⟧ ⟶ S.Csum r)
@@ -191,12 +193,12 @@ theorem finrank_E_shift_C_eq_zero (hn : 0 ≤ S.wt (r + 1 + 1))
           (S.E (r + 1) ≫ S.E (r + 1 + 1))⟦-(a + (S.wt (r + 1 + 1) + 1))⟧) := by
         rw [finrank_hom_congr_left k (whiskerRightShiftIso _ _ _), finrank_hom_shift_left k _ _
           (b := -(a + (S.wt (r + 1 + 1) + 1))) (by ring)]
-    _ = 0 := S.cor0_neg (r₀ := r + 1 + 1) hn hyp (r + 1) (by omega) _ (by omega)
+    _ = 0 := S.cor0_neg_of_numAdj (r₀ := r + 1 + 1) hn hyp (r + 1) (by omega) _ (by omega)
 
 /-- `Hom(E 1_{n-2} (E F 1_{n+2})⟨2⟩, E 1_{n-2}⟨a⟩) = 0` for `a < n + 1`; this uses
-`(F 1_{n+2})_R ≅ E 1_n ⟨-n-1⟩`, i.e. (3.2) at `n`. -/
+`(F 1_{n+2})_R ≅ E 1_n ⟨-n-1⟩`, i.e. (3.2) at `n`, through its numerical shadow. -/
 theorem finrank_C₂_E_shift_eq_zero (hn : 0 ≤ S.wt (r + 1 + 1))
-    (hyp : ∀ r', r + 1 + 1 < r' → S.AdjHyp r') (hA : S.AdjHyp (r + 1 + 1)) {a : ℤ}
+    (hyp : ∀ r', r + 1 + 1 < r' → S.NumAdj r') (hA : S.NumAdj (r + 1 + 1)) {a : ℤ}
     (ha : a < S.wt (r + 1 + 1) + 1) : finrank k (S.Csum₂ r ⟶ (S.E (r + 1))⟦a⟧) = 0 := by
   calc finrank k (S.Csum₂ r ⟶ (S.E (r + 1))⟦a⟧)
       = finrank k ((S.E (r + 1) ≫ S.E (r + 1 + 1)) ≫ S.F (r + 1 + 1) ⟶
@@ -206,11 +208,11 @@ theorem finrank_C₂_E_shift_eq_zero (hn : 0 ≤ S.wt (r + 1 + 1))
           finrank_hom_congr_left k (α_ _ _ _).symm]
     _ = finrank k (S.E (r + 1) ≫ S.E (r + 1 + 1) ⟶
           (S.E (r + 1))⟦a - 2⟧ ≫ (S.E (r + 1 + 1))⟦-(S.wt (r + 1 + 1) + 1)⟧) :=
-        (hA.dimAdjF S).left _ _
+        hA.left ((WordGen.E _).comp (.E _)) ((WordGen.E _).shift _)
     _ = finrank k (S.E (r + 1) ≫ S.E (r + 1 + 1) ⟶
           (S.E (r + 1) ≫ S.E (r + 1 + 1))⟦a - 2 - (S.wt (r + 1 + 1) + 1)⟧) :=
         finrank_hom_congr_right k _ (shiftCompShiftIso _ _ (by ring))
-    _ = 0 := S.cor0_neg (r₀ := r + 1 + 1) hn hyp (r + 1) (by omega) _ (by omega)
+    _ = 0 := S.cor0_neg_of_numAdj (r₀ := r + 1 + 1) hn hyp (r + 1) (by omega) _ (by omega)
 
 end Vanishing
 
@@ -366,13 +368,13 @@ include e' in
 pairing `(g, h) ↦ g ≫ Φ₀ ≫ h` on `Hom(A_i, E E F 1_{n-2}) × Hom(FW₂, A_i)` is identically zero
 (under (3.2) at the weights `≥ n`). -/
 theorem pairing_eq_zero_of_entry_eq_zero (hn : 0 ≤ S.wt (r + 1))
-    (hyp : ∀ r', r + 1 + 1 < r' → S.AdjHyp r') (hA : S.AdjHyp (r + 1 + 1)) {i : ℕ}
+    (hyp : ∀ r', r + 1 + 1 < r' → S.NumAdj r') (hA : S.NumAdj (r + 1 + 1)) {i : ℕ}
     (hi : i + 1 < (S.wt (r + 1 + 1)).toNat) (h0 : entry e i (i + 1) = 0)
     (g : S.Asum r i ⟶ S.FW r) (h : S.FW₂ r ⟶ S.Asum r i) : g ≫ S.Φ₀ r ≫ h = 0 := by
   have hw : S.wt (r + 1 + 1) = S.wt (r + 1) + 2 := S.wt_add_one _
   have hN : (((S.wt (r + 1 + 1)).toNat : ℕ) : ℤ) = S.wt (r + 1 + 1) := Int.toNat_of_nonneg (by omega)
   have hN' : (((S.wt (r + 1)).toNat : ℕ) : ℤ) = S.wt (r + 1) := Int.toNat_of_nonneg hn
-  have hyp' : ∀ r', r + 1 < r' → S.AdjHyp r' := fun r' hr' => by
+  have hyp' : ∀ r', r + 1 < r' → S.NumAdj r' := fun r' hr' => by
     rcases lt_or_eq_of_le (show r + 1 + 1 ≤ r' by omega) with h' | h'
     · exact hyp r' h'
     · rw [← h']; exact hA
@@ -468,14 +470,14 @@ end Lower
 
 section Mult
 
-variable (hn : 0 ≤ S.wt (r + 1)) (hyp' : ∀ r', r + 1 < r' → S.AdjHyp r')
+variable (hn : 0 ≤ S.wt (r + 1)) (hyp' : ∀ r', r + 1 < r' → S.NumAdj r')
   (h2 : ¬ IsZero (𝟙 (S.obj (r + 1 + 1))))
 
 include hn hyp' h2 in
 /-- `E 1_{n-2}` is a brick, hence indecomposable (Lemma 3.1 at `n - 2`, under (3.2) at the
 weights `≥ n`). -/
 theorem isIndec_E : IsIndec (S.E (r + 1)) :=
-  ((isBrick_iff k).2 (S.lem1_zero hn hyp' le_rfl h2)).1
+  ((isBrick_iff k).2 (S.lem1_zero_of_numAdj hn hyp' le_rfl h2)).1
 
 include hn hyp' h2 in
 /-- `E 1_{n-2}⟨a⟩ ≇ E 1_{n-2}⟨b⟩` for `a ≠ b`. -/
@@ -515,7 +517,7 @@ theorem mult_FW_eq (e' : S.EFDecomp r) (e : S.EFDecomp (r + 1)) {a : ℤ}
         (if a = 1 * ((((S.wt (r + 1)).toNat : ℕ) : ℤ) - 1 - 2 * (j : ℤ)) then
           mult k (isIndec_E hn hyp' h2) (S.E (r + 1)) else 0) := by
   have hw : S.wt (r + 1 + 1) = S.wt (r + 1) + 2 := S.wt_add_one _
-  have hyp2 : ∀ r', r + 1 + 1 < r' → S.AdjHyp r' := fun r' h => hyp' r' (by omega)
+  have hyp2 : ∀ r', r + 1 + 1 < r' → S.NumAdj r' := fun r' h => hyp' r' (by omega)
   have Ψ : S.FW r ≅ (S.Csum r ⊞ bsum (S.Asum r) (S.wt (r + 1 + 1)).toNat) ⊞
       bsum (S.Bsum r) (S.wt (r + 1)).toNat :=
     (α_ _ _ _).symm ≪≫ whiskerRightIso e' _ ≪≫ whiskerRightBiprodIso _ _ _ ≪≫
@@ -668,20 +670,17 @@ theorem isIso_entry_of_ne_zero (h2 : ¬ IsZero (𝟙 (S.obj (r + 1 + 1)))) {i : 
     ⟨⟨c⁻¹ • 𝟙 _, by simp [smul_smul, hc0], by simp [smul_smul, hc0]⟩⟩
   infer_instance
 
-/-- **CL Lemma 3.6** (`lem:Xind`) given the adjoint induction hypothesis at `n` (Proposition 3.9
-at `n`): at a weight `n = wt (r + 1 + 1)` with `1_n ≠ 0`, `n - 2 ≥ 0`, assuming (3.2) for all
-weights `≥ n`, every decomposition datum `e` of `E F 1_n` has nondegenerate subdiagonal:
+/-- **CL Lemma 3.6** (`lem:Xind`) from the numerical shadow of (3.2): at a weight
+`n = wt (r + 1 + 1)` with `1_n ≠ 0`, `n - 2 ≥ 0`, assuming the numerical shadow `NumAdj` of (3.2)
+at all weights `≥ n`, every decomposition datum `e` of `E F 1_n` has nondegenerate subdiagonal:
 `DotNondeg e`, i.e. the dot on `E F 1_n` "induces an isomorphism on `n - 1` summands
-`1_n⟨k⟩`". -/
-theorem lemXind_of_adjHyp [∀ a b : B, IsIdempotentComplete (a ⟶ b)] (hn : 0 ≤ S.wt (r + 1))
-    (hyp : ∀ r', r + 1 + 1 < r' → S.AdjHyp r')
-    (hA : S.AdjHyp (r + 1 + 1)) (h2 : ¬ IsZero (𝟙 (S.obj (r + 1 + 1)))) (e : S.EFDecomp (r + 1)) :
-    DotNondeg e := by
+`1_n⟨k⟩`". The hypothesis at the weight `n` itself enters only through two dimension counts:
+Lemma 3.1 at `n - 2` (`hom_E_shift_eq_zero`, `isIndec_E`) and
+`Hom(E E F 1_{n+2}⟨2⟩, E 1_{n-2}⟨a⟩) = 0` for `a < n + 1` (`finrank_C₂_E_shift_eq_zero`). -/
+theorem lemXind_of_numAdj [∀ a b : B, IsIdempotentComplete (a ⟶ b)] (hn : 0 ≤ S.wt (r + 1))
+    (hyp' : ∀ r', r + 1 < r' → S.NumAdj r') (h2 : ¬ IsZero (𝟙 (S.obj (r + 1 + 1))))
+    (e : S.EFDecomp (r + 1)) : DotNondeg e := by
   intro i hi
-  have hyp' : ∀ r', r + 1 < r' → S.AdjHyp r' := fun r' hr' => by
-    rcases lt_or_eq_of_le (show r + 1 + 1 ≤ r' by omega) with h' | h'
-    · exact hyp r' h'
-    · rw [← h']; exact hA
   by_contra hno
   have h0 : entry e i (i + 1) = 0 := by
     by_contra hne
@@ -696,13 +695,27 @@ theorem lemXind_of_adjHyp [∀ a b : B, IsIdempotentComplete (a ⟶ b)] (hn : 0 
   obtain ⟨g, h, hgh⟩ := S.exists_pairing_eq_id iP p' hiso ((S.AsumIso r i).hom ≫ f)
     (g' ≫ (S.AsumIso r i).inv)
     (by rw [Category.assoc, ← Category.assoc f, hfg, Category.id_comp, Iso.hom_inv_id])
-  have hz := pairing_eq_zero_of_entry_eq_zero e' e hn hyp hA hi h0 g h
+  have hz := pairing_eq_zero_of_entry_eq_zero e' e hn (fun r' h => hyp' r' (by omega))
+    (hyp' _ (by omega)) hi h0 g h
   rw [hgh] at hz
   have hzA : IsZero (S.Asum r i) := (IsZero.iff_id_eq_zero _).2 hz
   exact (isIndec_E hn hyp' h2).1 (((shiftFunctor _
     (-(1 * ((((S.wt (r + 1 + 1)).toNat : ℕ) : ℤ) - 1 - 2 * (i : ℤ))))).map_isZero
       (hzA.of_iso (S.AsumIso r i).symm)).of_iso
       ((shiftFunctorCompIsoId _ _ _ (by ring)).app _).symm)
+
+/-- **CL Lemma 3.6** (`lem:Xind`) given the adjoint induction hypothesis at `n` (Proposition 3.9
+at `n`): at a weight `n = wt (r + 1 + 1)` with `1_n ≠ 0`, `n - 2 ≥ 0`, assuming (3.2) for all
+weights `≥ n`, every decomposition datum `e` of `E F 1_n` has nondegenerate subdiagonal:
+`DotNondeg e`. -/
+theorem lemXind_of_adjHyp [∀ a b : B, IsIdempotentComplete (a ⟶ b)] (hn : 0 ≤ S.wt (r + 1))
+    (hyp : ∀ r', r + 1 + 1 < r' → S.AdjHyp r')
+    (hA : S.AdjHyp (r + 1 + 1)) (h2 : ¬ IsZero (𝟙 (S.obj (r + 1 + 1)))) (e : S.EFDecomp (r + 1)) :
+    DotNondeg e :=
+  lemXind_of_numAdj hn (fun r' hr' => by
+    rcases lt_or_eq_of_le (show r + 1 + 1 ≤ r' by omega) with h' | h'
+    · exact (hyp r' h').numAdj
+    · rw [← h']; exact hA.numAdj) h2 e
 
 /-- **Corollary 3.7** (`cor:degz-bubbles`) given the adjoint induction hypothesis at `n`: at a
 weight `n = wt (r + 1 + 1) ≥ 2` with `1_n ≠ 0`, under (3.2) for all weights `≥ n`, the degree-zero

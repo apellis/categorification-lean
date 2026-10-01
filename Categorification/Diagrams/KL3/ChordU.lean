@@ -1186,10 +1186,10 @@ theorem mvSp_gen_mem (μ : X) {v : List (Letter I)} {ms : List (Mv I)} (hch : Mv
 
 variable {k : Type w} [Field k]
 
-/-- **The canonical diagrams span** `HOM_U(1_μ, E_v 1_μ)` (simply-laced): every 2-morphism
+/-- **The canonical diagrams span** `HOM_U(1_μ, E_v 1_μ)` (any Cartan datum): every 2-morphism
 `1_μ ⟶ E_v 1_μ` is a linear combination of canonical diagrams of pairings of `v`, with dots at
 the left ends of their arcs, followed by elements of the image of `Π_μ`. -/
-theorem mem_canonSpan (hSL : SimplyLaced C) (μ : X) (v : List (Letter I))
+theorem mem_canonSpan (μ : X) (v : List (Letter I))
     (f : (pres RD k).obj (ob RD μ []) ⟶ (pres RD k).obj (ob RD μ v)) :
     f ∈ CanonSpan RD k μ v := by
   have key : ∀ c (L : List (LayerData I)), ccnt L ≤ c → dg RD k μ [] v L ∈ CanonSpan RD k μ v := by
@@ -1202,7 +1202,7 @@ theorem mem_canonSpan (hSL : SimplyLaced C) (μ : X) (v : List (Letter I))
       refine Submodule.span_le.mpr ?_
       rintro _ ⟨L', hL', rfl⟩
       exact ihc (ccnt L') (by omega) L' le_rfl
-    have hcap := capElim (RD := RD) (k := k) (hSL := hSL) (μ := μ) (w₀ := []) c v L hL
+    have hcap := capElim (RD := RD) (k := k) (μ := μ) (w₀ := []) c v L hL
     rw [CapTarget, thruShort_nil, sup_bot_eq, MvSp] at hcap
     generalize dg RD k μ [] v L = x at hcap
     induction hcap using Submodule.span_induction with

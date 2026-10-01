@@ -213,7 +213,7 @@ theorem hasGdim_homD [DecidableEq I] [Finite I] (hSL : SimplyLaced C) (μ : X)
     have := hasGdim_positive (RD := RD) (k := k) hSL μ hpos (show Positive (ups c) by
       simp [Positive, ups])
     exact hasGdim_of_bendTgt μ (dns d) [] (ups c)
-  have := hasGdim_nil_of_sorted hSL μ hsorted (rd s ++ t)
+  have := hasGdim_nil_of_sorted μ hsorted (rd s ++ t)
   exact hasGdim_of_bendSrc μ s t
 
 end Categorification.KL3.Diagram

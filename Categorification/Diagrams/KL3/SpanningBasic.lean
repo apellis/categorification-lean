@@ -2,6 +2,7 @@
 Copyright (c) 2026 Alex Ellis. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 -/
+import Categorification.Diagrams.KL3.BubbleSlidesGen
 import Categorification.Diagrams.KL3.EndOne
 import Categorification.Diagrams.KL3.Pitchfork
 
@@ -30,15 +31,19 @@ bubble slides of KL III, Propositions 3.3 and 3.4 (in all degrees, `BubbleSlides
 a generator of `Π` to the left of an upward strand lies in `slideSetR` (`cw_slideR_up`,
 `ccw_slideR_up`), and one to the right of an upward strand in `slideSetL` (`cw_slideL_up`,
 `ccw_slideL_up`). As the slide sets are closed under composition (`slideSetR_comp`), every
-element of the image of `Π` slides (`bubLU_mem_of_gen`, `bubLU_up_mem`, `bubRU_up_mem`).
+element of the image of `Π` slides (`bubLU_mem_of_gen`, `bubLU_up_mem_gen`, `bubRU_up_mem_gen`).
 For a downward strand `F_j` the slides are obtained by rotation (`rotT`: the cup `1 → F E` and
 the cap `E F → 1`, zigzag relations, cyclicity of dots; `rotT_bubRU`, `rotT_dots_bubLU`):
-`bubLU_dn_mem`. Altogether `bubLU_mem_slideSetR`: every element of the image of `Π` placed to
-the left of any strand `l` lies in `slideSetR μ l`.
+`bubLU_dn_mem_gen`. Altogether `bubLU_mem_slideSetR_gen`: every element of the image of `Π`
+placed to the left of any strand `l` lies in `slideSetR μ l`.
 
 KL III state the bubble slides only for `i = j`, `i·j = -1` and `i·j = 0` (the simply-laced
-case, their main case of interest `sl(n)`); accordingly these results assume that the Cartan
-datum is simply laced (`SimplyLaced`).
+case, their main case of interest `sl(n)`). For `i ≠ j` with `i · j ≠ 0` and an arbitrary Cartan
+datum we use the bubble slides in all degrees of `Categorification.Diagrams.KL3.BubbleSlidesGen`
+(`slides_gen`, following Brundan–Ellis, arXiv:1701.04133v2, Proposition 7.3(iii)), so these
+results hold for every Cartan datum. The forms `bubLU_up_mem`, `bubRU_up_mem`, `bubLU_dn_mem`,
+`bubLU_mem_slideSetR` with a (now superfluous) hypothesis `SimplyLaced C` are kept for the
+simply-laced developments that use them.
 
 ## Other tools
 
@@ -374,11 +379,19 @@ def SimplyLaced (C : CartanDatum I) : Prop := ∀ i j, i ≠ j → C.dot i j = 0
 
 section UpSlides
 
-variable (hSL : SimplyLaced C) (μ : X)
-include hSL
+variable (μ : X)
+
+theorem dotsU_mem_slideSetR' (l : Letter I) (a : ℕ) : dotsU RD k μ l a ∈ slideSetR RD k μ l := by
+  have := mem_slideSetR (RD := RD) (k := k) (μ := μ) (l := l) (a := a) IsBub.id
+  rwa [bubRU_id, Category.comp_id] at this
+
+theorem dotsU_mem_slideSetL' (l : Letter I) (a : ℕ) : dotsU RD k μ l a ∈ slideSetL RD k μ l := by
+  have := mem_slideSetL (RD := RD) (k := k) (μ := μ) (l := l) (a := a) IsBub.id
+  rwa [bubLU_id, Category.comp_id] at this
 
 /-- A clockwise bubble moves from the left to the right of an upward strand (KL III
-Proposition 3.3, second display). -/
+Proposition 3.3, second display; for `i ≠ j`, `i · j ≠ 0` and an arbitrary Cartan datum,
+`slides_gen`). -/
 theorem cw_slideR_up (i j : I) (α : ℕ) :
     bubLU RD k μ (up j) (cwU RD k (wt RD μ [up j]) i (ip RD i (wt RD μ [up j]) - 1 + α)) ∈
       slideSetR RD k μ (up j) := by
@@ -390,19 +403,23 @@ theorem cw_slideR_up (i j : I) (α : ℕ) :
     refine Submodule.sum_mem _ fun ℓ _ => ?_
     rw [lin_bubR_eq]
     exact nsmul_mem (mem_slideSetR' (cwU_isBub _ _)) _
-  · rcases hSL i j hij with h0 | h1
+  · by_cases h0 : C.dot i j = 0
     · have h := prop33_cw_orth_all RD k μ i j h0 α
       have hn : ip RD i (wt RD μ [up j]) = ip RD i μ := by
         rw [ip_wt_up, A_of_dot_zero h0, zero_add]
       rw [lin_bubL_eq, lin_bubR_eq] at h
       rw [hn, h]; exact mem_slideSetR_bub (cwU_isBub _ _)
-    · have h := prop33_cw_adj_all RD k μ i j h1 α
-      rw [lin_bubL_eq, lin_bubR_eq, lin_bubR_eq] at h
+    · have h := (slides_gen RD k μ hij h0).2 α
+      rw [sconv_gen_left _ _ (dij_pos hij h0)] at h
+      change wLs RD k μ i (up j) α ∈ _
       rw [h]
-      exact Submodule.add_mem _ (mem_slideSetR' (cwU_isBub _ _)) (mem_slideSetR_bub (cwU_isBub _ _))
+      refine Submodule.add_mem _ (mem_slideSetR_bub (cwU_isBub _ _)) ?_
+      split_ifs
+      · rw [End.mul_def]; exact mem_slideSetR' (cwU_isBub _ _)
+      · exact Submodule.zero_mem _
 
 /-- A counterclockwise bubble moves from the left to the right of an upward strand (KL III
-Proposition 3.4, second display, and Proposition 3.3 for `i · j = 0`). -/
+Proposition 3.4, second display, and Proposition 3.3 for `i · j = 0`; `slides_gen` in general). -/
 theorem ccw_slideR_up (i j : I) (α : ℕ) :
     bubLU RD k μ (up j) (ccwU RD k (wt RD μ [up j]) i (-ip RD i (wt RD μ [up j]) - 1 + α)) ∈
       slideSetR RD k μ (up j) := by
@@ -413,21 +430,27 @@ theorem ccw_slideR_up (i j : I) (α : ℕ) :
     rw [h]
     refine Submodule.add_mem _ (Submodule.sub_mem _ (mem_slideSetR' (ccwU_isBub _ _))
       (nsmul_mem (mem_slideSetR' (ccwU_isBub _ _)) _)) (mem_slideSetR_bub (ccwU_isBub _ _))
-  · rcases hSL i j hij with h0 | h1
+  · by_cases h0 : C.dot i j = 0
     · have h := prop33_ccw_orth_all RD k μ i j h0 α
       have hn : ip RD i (wt RD μ [up j]) = ip RD i μ := by
         rw [ip_wt_up, A_of_dot_zero h0, zero_add]
       rw [lin_bubL_eq, lin_bubR_eq] at h
       rw [hn, ← h]; exact mem_slideSetR_bub (ccwU_isBub _ _)
-    · have h := prop34_ccw_adj_all RD k μ i j h1 α
-      rw [lin_bubL_eq] at h
-      rw [h]
-      refine Submodule.sum_mem _ fun f _ => ?_
-      rw [lin_bubR_eq]
-      exact zsmul_mem (mem_slideSetR' (ccwU_isBub _ _)) _
+    · change cLs RD k μ i (up j) α ∈ _
+      induction α using Nat.strong_induction_on with
+      | _ α ih =>
+      have h := (slides_gen RD k μ hij h0).1 α
+      rw [sconv_gen_right _ _ (dij_pos hij h0), ← sub_eq_iff_eq_add] at h
+      rw [← h]
+      refine Submodule.sub_mem _ (mem_slideSetR_bub (ccwU_isBub _ _)) ?_
+      split_ifs with hα
+      · rw [End.mul_def]
+        exact slideSetR_comp (dotsU_mem_slideSetR' μ _ _)
+          (ih _ (by have := dij_pos hij h0; omega))
+      · exact Submodule.zero_mem _
 
 /-- A clockwise bubble moves from the right to the left of an upward strand (KL III
-Proposition 3.4, first display, and Proposition 3.3 for `i · j = 0`). -/
+Proposition 3.4, first display, and Proposition 3.3 for `i · j = 0`; `slides_gen` in general). -/
 theorem cw_slideL_up (i j : I) (α : ℕ) :
     bubRU RD k μ (up j) (cwU RD k μ i (ip RD i μ - 1 + α)) ∈ slideSetL RD k μ (up j) := by
   by_cases hij : i = j
@@ -437,19 +460,25 @@ theorem cw_slideL_up (i j : I) (α : ℕ) :
     rw [h]
     refine Submodule.add_mem _ (Submodule.sub_mem _ (mem_slideSetL' (cwU_isBub _ _))
       (nsmul_mem (mem_slideSetL' (cwU_isBub _ _)) _)) (mem_slideSetL_bub (cwU_isBub _ _))
-  · rcases hSL i j hij with h0 | h1
+  · by_cases h0 : C.dot i j = 0
     · have h := prop33_cw_orth_all RD k μ i j h0 α
       rw [lin_bubL_eq, lin_bubR_eq] at h
       rw [← h]; exact mem_slideSetL_bub (cwU_isBub _ _)
-    · have h := prop34_cw_adj_all RD k μ i j h1 α
-      rw [lin_bubR_eq] at h
+    · change wRs RD k μ i (up j) α ∈ _
+      induction α using Nat.strong_induction_on with
+      | _ α ih =>
+      have h := (slides_gen RD k μ hij h0).2 α
+      rw [sconv_gen_left _ _ (dij_pos hij h0), eq_comm, ← eq_sub_iff_add_eq] at h
       rw [h]
-      refine Submodule.sum_mem _ fun f _ => ?_
-      rw [lin_bubL_eq]
-      exact zsmul_mem (mem_slideSetL' (cwU_isBub _ _)) _
+      refine Submodule.sub_mem _ (mem_slideSetL_bub (cwU_isBub _ _)) ?_
+      split_ifs with hα
+      · rw [End.mul_def]
+        exact slideSetL_comp (ih _ (by have := dij_pos hij h0; omega))
+          (dotsU_mem_slideSetL' μ _ _)
+      · exact Submodule.zero_mem _
 
 /-- A counterclockwise bubble moves from the right to the left of an upward strand (KL III
-Proposition 3.3, first display). -/
+Proposition 3.3, first display; `slides_gen` in general). -/
 theorem ccw_slideL_up (i j : I) (α : ℕ) :
     bubRU RD k μ (up j) (ccwU RD k μ i (-ip RD i μ - 1 + α)) ∈ slideSetL RD k μ (up j) := by
   by_cases hij : i = j
@@ -460,34 +489,38 @@ theorem ccw_slideL_up (i j : I) (α : ℕ) :
     refine Submodule.sum_mem _ fun ℓ _ => ?_
     rw [lin_bubL_eq]
     exact nsmul_mem (mem_slideSetL' (ccwU_isBub _ _)) _
-  · rcases hSL i j hij with h0 | h1
+  · by_cases h0 : C.dot i j = 0
     · have h := prop33_ccw_orth_all RD k μ i j h0 α
       rw [lin_bubL_eq, lin_bubR_eq] at h
       rw [h]; exact mem_slideSetL_bub (ccwU_isBub _ _)
-    · have h := prop33_ccw_adj_all RD k μ i j h1 α
-      rw [lin_bubR_eq, lin_bubL_eq, lin_bubL_eq] at h
+    · have h := (slides_gen RD k μ hij h0).1 α
+      rw [sconv_gen_right _ _ (dij_pos hij h0)] at h
+      change cRs RD k μ i (up j) α ∈ _
       rw [h]
-      exact Submodule.add_mem _ (mem_slideSetL_bub (ccwU_isBub _ _)) (mem_slideSetL' (ccwU_isBub _ _))
+      refine Submodule.add_mem _ (mem_slideSetL_bub (ccwU_isBub _ _)) ?_
+      split_ifs
+      · rw [End.mul_def]; exact mem_slideSetL (ccwU_isBub _ _)
+      · exact Submodule.zero_mem _
 
 /-- **Bubble slides across an upward strand, left to right**: every element of the image of
 `Π_{μ + j_X}` placed to the left of `E_j` is a linear combination of dots on `E_j` times
 elements of the image of `Π_μ` to its right. -/
-theorem bubLU_up_mem (j : I) {β : End ((pres RD k).obj (ob RD (wt RD μ [up j]) []))}
+theorem bubLU_up_mem_gen (j : I) {β : End ((pres RD k).obj (ob RD (wt RD μ [up j]) []))}
     (hβ : IsBub RD k (wt RD μ [up j]) β) : bubLU RD k μ (up j) β ∈ slideSetR RD k μ (up j) := by
   refine bubLU_mem_of_gen (fun i α => ?_) hβ
   unfold bubGen
   split_ifs
-  · exact cw_slideR_up hSL μ i j α
-  · exact ccw_slideR_up hSL μ i j α
+  · exact cw_slideR_up μ i j α
+  · exact ccw_slideR_up μ i j α
 
 /-- **Bubble slides across an upward strand, right to left.** -/
-theorem bubRU_up_mem (j : I) {β : End ((pres RD k).obj (ob RD μ []))} (hβ : IsBub RD k μ β) :
+theorem bubRU_up_mem_gen (j : I) {β : End ((pres RD k).obj (ob RD μ []))} (hβ : IsBub RD k μ β) :
     bubRU RD k μ (up j) β ∈ slideSetL RD k μ (up j) := by
   refine bubRU_mem_of_gen (fun i α => ?_) hβ
   unfold bubGen
   split_ifs
-  · exact cw_slideL_up hSL μ i j α
-  · exact ccw_slideL_up hSL μ i j α
+  · exact cw_slideL_up μ i j α
+  · exact ccw_slideL_up μ i j α
 
 end UpSlides
 
@@ -659,21 +692,39 @@ end Rotation
 slides across an upward strand by rotation): every element of the image of `Π_{μ - j_X}` placed
 to the left of `F_j` is a linear combination of dots on `F_j` times elements of the image of
 `Π_μ` to its right. -/
-theorem bubLU_dn_mem (hSL : SimplyLaced C) (μ : X) (j : I)
+theorem bubLU_dn_mem_gen (μ : X) (j : I)
     {β : End ((pres RD k).obj (ob RD (wt RD μ [dn j]) []))} (hβ : IsBub RD k (wt RD μ [dn j]) β) :
     bubLU RD k μ (dn j) β ∈ slideSetR RD k μ (dn j) := by
   rw [← rotT_bubRU]
-  exact rotT_slideSetL RD k μ j (bubRU_up_mem hSL (wt RD μ [dn j]) j hβ)
+  exact rotT_slideSetL RD k μ j (bubRU_up_mem_gen (wt RD μ [dn j]) j hβ)
 
 /-- **Bubble slides across any strand, left to right** (KL III Propositions 3.3, 3.4, and their
 rotations): every element of the image of `Π_{μ + l_X}` placed to the left of the strand `l`
 lies in `slideSetR μ l`. -/
-theorem bubLU_mem_slideSetR (hSL : SimplyLaced C) (μ : X) (l : Letter I)
+theorem bubLU_mem_slideSetR_gen (μ : X) (l : Letter I)
     {β : End ((pres RD k).obj (ob RD (wt RD μ [l]) []))} (hβ : IsBub RD k (wt RD μ [l]) β) :
     bubLU RD k μ l β ∈ slideSetR RD k μ l := by
   obtain ⟨b, j⟩ := l
   cases b
-  · exact bubLU_dn_mem hSL μ j hβ
-  · exact bubLU_up_mem hSL μ j hβ
+  · exact bubLU_dn_mem_gen μ j hβ
+  · exact bubLU_up_mem_gen μ j hβ
+
+/-! ### The simply-laced forms (special cases) -/
+
+theorem bubLU_up_mem (_hSL : SimplyLaced C) (μ : X) (j : I)
+    {β : End ((pres RD k).obj (ob RD (wt RD μ [up j]) []))} (hβ : IsBub RD k (wt RD μ [up j]) β) :
+    bubLU RD k μ (up j) β ∈ slideSetR RD k μ (up j) := bubLU_up_mem_gen μ j hβ
+
+theorem bubRU_up_mem (_hSL : SimplyLaced C) (μ : X) (j : I) {β : End ((pres RD k).obj (ob RD μ []))}
+    (hβ : IsBub RD k μ β) : bubRU RD k μ (up j) β ∈ slideSetL RD k μ (up j) :=
+  bubRU_up_mem_gen μ j hβ
+
+theorem bubLU_dn_mem (_hSL : SimplyLaced C) (μ : X) (j : I)
+    {β : End ((pres RD k).obj (ob RD (wt RD μ [dn j]) []))} (hβ : IsBub RD k (wt RD μ [dn j]) β) :
+    bubLU RD k μ (dn j) β ∈ slideSetR RD k μ (dn j) := bubLU_dn_mem_gen μ j hβ
+
+theorem bubLU_mem_slideSetR (_hSL : SimplyLaced C) (μ : X) (l : Letter I)
+    {β : End ((pres RD k).obj (ob RD (wt RD μ [l]) []))} (hβ : IsBub RD k (wt RD μ [l]) β) :
+    bubLU RD k μ l β ∈ slideSetR RD k μ l := bubLU_mem_slideSetR_gen μ l hβ
 
 end Categorification.KL3.Diagram

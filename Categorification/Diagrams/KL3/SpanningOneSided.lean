@@ -6,11 +6,11 @@ import Categorification.Diagrams.KL3.CanonDeg
 import Categorification.Diagrams.KL3.SpanningBend
 
 /-!
-# KL III Proposition 3.11 (simply-laced)
+# KL III Proposition 3.11
 
 M. Khovanov, A. Lauda, *A categorification of quantum `sl(n)`*, arXiv:0807.3250v1, §3.2.3,
 Proposition 3.11 (TeX l. 4568: "For any intermediate choices made, `B_{𝐢,𝐣,λ}` spans
-`HOM_U(E_𝐢 1_λ, E_𝐣 1_λ)`"), for simply-laced Cartan data.
+`HOM_U(E_𝐢 1_λ, E_𝐣 1_λ)`"), for every Cartan datum.
 
 ## The family `B_{∅,v,λ}`
 
@@ -26,7 +26,7 @@ dots at the left end of the strand `a`, followed by the bubble monomial `m` on t
 * `oneB_mem`: `oneB x` is homogeneous of degree `spanDeg x`: the canonical diagram has the degree
   `deg(D_σ, λ) = pdeg` of KL III §2.2 (`sdegSum_canon`), a dot on an `i`-strand has degree `i·i`,
   and the bubble monomial has degree `Σ (α + 1)(i·i)`;
-* **`isSpanFamily_oneB`** (simply-laced): the `oneB x` of degree `d` span
+* **`isSpanFamily_oneB`**: the `oneB x` of degree `d` span
   `HOM_U(1_λ, E_v 1_λ)_d`. By `mem_canonSpan` (the chord-diagram normal form of
   `Categorification.Diagrams.KL3.ChordU`), every 2-morphism is a combination of canonical
   diagrams with dots at the left ends of the arcs, followed by elements of the image of `Π_λ`;
@@ -37,16 +37,17 @@ dots at the left end of the strand `a`, followed by the bubble monomial `m` on t
 Bending the lower endpoints (`Categorification.Diagrams.KL3.SpanningBend`, `isSpanFamily_bendG`)
 gives the family `twoB` of `HOM_U(E_s 1_λ, E_t 1_λ)` indexed by `B_{s,t,λ}`:
 
-* **`isSpanFamily_twoB`**, **`prop311_of_simplyLaced`**: KL III Proposition 3.11 in the form
-  `Prop311 RD k` of `Categorification.Diagrams.KL3.GdimBound`, for simply-laced Cartan data;
-* consequences, previously conditional on `Prop311`: **`cor_3_13_of_simplyLaced`** (Corollary 3.13,
-  `gdim HOM_U(E_𝐢 1_λ, E_𝐣 1_λ) ≤ π ⟨E_𝐢 1_λ, E_𝐣 1_λ⟩`), `calculusNondeg_iff_of_simplyLaced`
+* **`isSpanFamily_twoB`**, **`prop311`**: KL III Proposition 3.11 in the form
+  `Prop311 RD k` of `Categorification.Diagrams.KL3.GdimBound`, for every Cartan datum;
+* consequences, previously conditional on `Prop311`: **`cor_3_13_unconditional`** (Corollary 3.13,
+  `gdim HOM_U(E_𝐢 1_λ, E_𝐣 1_λ) ≤ π ⟨E_𝐢 1_λ, E_𝐣 1_λ⟩`), `calculusNondeg_iff_unconditional`
   (the two definitions of nondegeneracy agree) and `gammaUA'_bijective_of_basisNondeg'` (KL III
-  Theorem 1.2 in its original form, given Proposition 2.5 and nondegeneracy).
+  Theorem 1.2 in its original form, given Proposition 2.5 and nondegeneracy; simply-laced).
 
-The simply-laced hypothesis enters only through `mem_canonSpan` (the moves of chord diagrams hold
-in `U` modulo lower terms by the Reidemeister 3 relation modulo lower terms, proved for
-simply-laced data).
+KL III state the bubble slides (Propositions 3.3, 3.4) only for simply-laced Cartan data. The
+argument uses them, for an arbitrary Cartan datum, in the form of
+`Categorification.Diagrams.KL3.BubbleSlidesGen`: through the elimination of caps (`capElim`) and
+the sorting decompositions, on which `mem_canonSpan` rests.
 -/
 
 noncomputable section
@@ -249,7 +250,7 @@ theorem exists_oneB (μ : X) {v : List (Letter I)} {s : List (ℕ × Letter I)} 
   have := dotsL_perm (RD := RD) (k := k) (t := v) hperm hb (chL [] (canon s)) [] μ [] v
   simpa using this.symm
 
-/-- **KL III Proposition 3.11 for one-sided boundary words** (simply-laced): the elements
+/-- **KL III Proposition 3.11 for one-sided boundary words**: the elements
 `oneB x` of `B_{∅,v,λ}` form a graded spanning family of `HOM_U(1_λ, E_v 1_λ)`. -/
 theorem isSpanFamily_oneB (μ : X) (v : List (Letter I)) :
     IsSpanFamily RD k μ [] v (oneB RD k μ v) := by
@@ -291,7 +292,7 @@ def twoB (μ : X) (s t : List (Letter I)) (x : SpanIdx s t) :
     (pres RD k).obj (ob RD μ s) ⟶ (pres RD k).obj (ob RD μ t) :=
   bendG RD k μ s t (oneB RD k μ (rd s ++ t) (oneIdx x))
 
-/-- **Khovanov–Lauda III, Proposition 3.11** (TeX l. 4568; simply-laced): for signed sequences
+/-- **Khovanov–Lauda III, Proposition 3.11** (TeX l. 4568; any Cartan datum): for signed sequences
 `𝐢 = s`, `𝐣 = t` and a weight `λ`, the diagrams `twoB x`, `x ∈ B_{𝐢,𝐣,λ}`, form a graded spanning
 family of `HOM_U(E_𝐢 1_λ, E_𝐣 1_λ)`: the elements of degree `d` span the degree-`d` part. -/
 theorem isSpanFamily_twoB [DecidableEq I] (μ : X) (s t : List (Letter I)) :
@@ -304,10 +305,6 @@ theorem prop311 : Prop311 RD k := by
   classical
   exact fun μ s t => ⟨_, isSpanFamily_twoB μ s t⟩
 
-/-- **Khovanov–Lauda III, Proposition 3.11** for simply-laced Cartan data (a special case of
-`prop311`). -/
-theorem prop311_of_simplyLaced (_hSL : SimplyLaced C) : Prop311 RD k := prop311 RD k
-
 variable [Finite I]
 
 /-- **Khovanov–Lauda III, Corollary 3.13** (`cor-ineq`; any Cartan datum, `I` finite):
@@ -317,23 +314,11 @@ theorem cor_3_13_unconditional (lam : X) (s t : List (Letter I)) (d : ℤ) :
       (piLS C * toLS (UDot.KL3.sform RD (E1 RD vQ s lam) (E1 RD vQ t lam))).coeff d :=
   cor_3_13 (prop311 RD k) lam s t d
 
-/-- Corollary 3.13 for simply-laced Cartan data (a special case of `cor_3_13_unconditional`). -/
-theorem cor_3_13_of_simplyLaced (_hSL : SimplyLaced C) (lam : X) (s t : List (Letter I)) (d : ℤ) :
-    ((finrank k (HomD RD k lam s t d) : ℤ) : ℚ) ≤
-      (piLS C * toLS (UDot.KL3.sform RD (E1 RD vQ s lam) (E1 RD vQ t lam))).coeff d :=
-  cor_3_13_unconditional lam s t d
-
 /-- **KL III: "a calculus is nondegenerate if the equality holds in Corollary 3.13 for all
 `𝐢, 𝐣, λ`"** (any Cartan datum, `I` finite): the equality form of nondegeneracy
 (`CalculusNondeg`) is equivalent to KL III's definition (`BasisNondeg`). -/
 theorem calculusNondeg_iff_unconditional : CalculusNondeg RD k ↔ BasisNondeg RD k :=
   calculusNondeg_iff (prop311 RD k)
-
-/-- The two nondegeneracy conditions agree for simply-laced Cartan data (a special case of
-`calculusNondeg_iff_unconditional`). -/
-theorem calculusNondeg_iff_of_simplyLaced (_hSL : SimplyLaced C) :
-    CalculusNondeg RD k ↔ BasisNondeg RD k :=
-  calculusNondeg_iff_unconditional
 
 /-- **KL III Theorem 1.2 in its original form** (simply-laced, `I` finite): given Proposition 2.5
 (`UDot.KL3.FormNondeg`), if the graphical calculus is nondegenerate in KL III's sense

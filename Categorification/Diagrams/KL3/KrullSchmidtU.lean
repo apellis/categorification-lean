@@ -91,7 +91,7 @@ theorem hasGdim_obj (hSL : SimplyLaced C) {ρ lam : X}
   have hx : x.obj = ob RD lam (x.obj.word.map Col.l) := obj_eq_ob_endR lam x.obj x.wf x.endR_eq
   have hy : y.obj = ob RD lam (y.obj.word.map Col.l) := obj_eq_ob_endR lam y.obj y.wf y.endR_eq
   rw [hx, hy]
-  exact hasGdim_homD hSL lam _ _
+  exact hasGdim_homD lam _ _
 
 /-- The underlying matrix of a morphism of the Karoubi envelope, as a linear map. -/
 def karHomL {𝒞 : Type*} [Category 𝒞] [Preadditive 𝒞] [Linear k 𝒞] (A B : Karoubi 𝒞) :

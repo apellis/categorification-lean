@@ -14,7 +14,7 @@ arbitrary diagrams modulo lower terms), §3.2.4 (the endomorphisms of `E_{ν,-ν
 ideal of 2-morphisms factoring through shorter sequences) and §3.8.4 (*Proof of Theorem 1.1*).
 
 We prove the hypothesis `SortedSpan` of `Categorification.Diagrams.KL3.SurjectivityTop`
-(`sortedSpan`, any Cartan datum): every endomorphism of a sorted `E_{+a} E_{-b} 1_μ` is a
+(`sortedSpan_holds`, any Cartan datum): every endomorphism of a sorted `E_{+a} E_{-b} 1_μ` is a
 linear combination of split diagrams followed by bubble monomials, modulo composites of
 homogeneous 2-morphisms through sequences of length `< |a| + |b|`.
 
@@ -37,8 +37,7 @@ E_{+a} E_{-b} 1_μ`:
 
 ## Main results
 
-* `sortedSpan`: **`SortedSpan RD k`** (any Cartan datum, `k` a field); `sortedSpan_of_simplyLaced`
-  is the simply-laced special case.
+* `sortedSpan_holds`: **`SortedSpan RD k`** (any Cartan datum, `k` a field).
 * `gammaUA'_surjective`: **KL III Theorem 1.1**: `γ : _𝒜 U̇ → K₀(U̇)` is surjective
   (simply-laced, `I` finite, `k` a field).
 -/
@@ -480,7 +479,7 @@ theorem lo_comp_bubAt_mem {μ : X} {s : List (Letter I)} {n : ℕ} {f}
 endomorphism of a sorted `E_{+a} E_{-b} 1_μ` is a linear combination of split diagrams followed by
 bubble monomials, modulo composites of homogeneous 2-morphisms through sequences of length
 `< |a| + |b|` (KL III §3.2.3–§3.2.4). -/
-theorem sortedSpan : SortedSpan RD k := by
+theorem sortedSpan_holds : SortedSpan RD k := by
   intro μ a b f
   set G := splitBubSpan RD k μ a b ⊔
     Submodule.span k (homGen RD k μ (ups a ++ dns b) {u | u.length < a.length + b.length})
@@ -528,9 +527,6 @@ theorem sortedSpan : SortedSpan RD k := by
   rintro _ ⟨L, -, rfl⟩
   exact key _ L le_rfl
 
-/-- `SortedSpan` for simply-laced Cartan data (a special case of `sortedSpan`). -/
-theorem sortedSpan_of_simplyLaced (_hSL : SimplyLaced C) : SortedSpan RD k := sortedSpan
-
 end Main
 
 section Surj
@@ -541,7 +537,7 @@ variable {k : Type w} [Field k] [DecidableEq I] [Finite I] (hSL : SimplyLaced C)
 `γ : _𝒜 U̇ → K₀(U̇)` is surjective. -/
 theorem gammaUA'_surjective (lam ρ : X) :
     Function.Surjective (gammaUA' (RD := RD) (k := k) hSL lam ρ) :=
-  gammaUA'_surjective_of_sortedSpan' hSL sortedSpan lam ρ
+  gammaUA'_surjective_of_sortedSpan' hSL sortedSpan_holds lam ρ
 
 end Surj
 

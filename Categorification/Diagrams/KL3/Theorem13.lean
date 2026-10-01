@@ -90,7 +90,7 @@ theorem linearIndependent_posB_sl (μ : Fin m → ℤ) (ν : Multiset (Fin m)) (
 
 /-- **Nondegeneracy for positive sequences** for `sl_{m+1}` over any field. -/
 theorem positiveNondeg_sl (K : Type u) [Field K] (m : ℕ) : PositiveNondeg (slRootDatum m) K :=
-  (positiveNondeg_iff (simplyLaced_slCartan m)).2 fun μ _ i j d =>
+  positiveNondeg_iff.2 fun μ _ i j d =>
     linearIndependent_posB_sl μ _ i j d
 
 /-- **Khovanov–Lauda III, Theorem 1.3** (label `thm-nondegenerate`): the graphical calculus is

@@ -36,8 +36,8 @@ decompositions of KL III Propositions 3.25 and 3.26 alone: `E_{+i-i} 1_μ` is a 
 `E_{-i+i} 1_μ` when `⟨i, μ⟩ < 0`, and for `sl₂` the cyclic boundary word `(+)³(-)³(+)³(-)³`, with
 suitable weights, admits no decomposition in the good direction at any adjacent pair. KL III's
 proof uses isotopies of dotted diagrams modulo lower terms (A. Lauda, arXiv:0803.3652v3, §8); it
-is formalized, for simply-laced Cartan data, in `Categorification.Diagrams.KL3.SpanningOneSided`
-(`isSpanFamily_oneB`, `prop311_of_simplyLaced`).
+is formalized in `Categorification.Diagrams.KL3.SpanningOneSided`
+(`isSpanFamily_oneB`, `prop311`).
 -/
 
 noncomputable section
@@ -181,7 +181,7 @@ theorem spanDeg_bend (ℓ : I → ℤ) {s t : List (Letter I)} (x : SpanIdx s t)
         Finsupp.weight (wPi C) (oneIdx x).2.2 := rfl
     _ = _ := by rw [hp, spanDeg]; ring
 
-variable [DecidableEq I] [Finite I] (hSL : SimplyLaced C)
+variable [DecidableEq I] [Finite I]
 
 omit [DecidableEq I] [Finite I] in
 theorem wt_eq_of_homD_ne {μ : X} {s w : List (Letter I)} {d : ℤ} {f}
@@ -249,13 +249,12 @@ theorem prop311_of_oneSided
 
 /-! ## Consequences of the positive case -/
 
-include hSL in
 /-- `B_{+c,+b,λ}` spans, for arbitrary lists `c`, `b` (if they do not have the same letters,
 `HOM` is zero and so is the family). -/
 theorem exists_isSpanFamily_positive (μ : X) (c b : List I) :
     ∃ f, IsSpanFamily RD k μ (posW c) (posW b) f := by
   by_cases hcb : (c : Multiset I) = b
-  · have h := isSpanFamily_posB (RD := RD) (k := k) hSL μ (seqOfList c) (hcb.symm ▸ seqOfList b)
+  · have h := isSpanFamily_posB (RD := RD) (k := k) μ (seqOfList c) (hcb.symm ▸ seqOfList b)
     have hj : word (hcb.symm ▸ seqOfList b : KLR.Seq (c : Multiset I)) = b :=
       (word_cast hcb.symm _).trans (word_seqOfList b)
     have h' : ∃ f, IsSpanFamily RD k μ (posW (word (seqOfList c)))
@@ -266,29 +265,27 @@ theorem exists_isSpanFamily_positive (μ : X) (c b : List I) :
       have := hp.map Prod.snd
       simpa [posW, List.map_map, Function.comp_def] using this))
     refine ⟨0, fun x => zero_mem _, fun d => ?_⟩
-    rw [homD_eq_bot_of_not_perm hSL μ (by simp [Positive, posW]) (by simp [Positive, posW]) hp d,
+    rw [homD_eq_bot_of_not_perm μ (by simp [Positive, posW]) (by simp [Positive, posW]) hp d,
       Submodule.span_eq_bot]
     rintro _ ⟨_, rfl⟩
     rfl
 
-include hSL in
 /-- **Proposition 3.11 for the normally ordered one-sided words `F_c E_b`**:
 `HOM_U(1_λ, E_{(-c)(+b)} 1_λ)` has a graded spanning family indexed by `B_{∅,(-c)(+b),λ}` (the
 bent images of `B_{+c^{rev},+b,λ}`). -/
 theorem exists_isSpanFamily_negW_posW (μ : X) (c b : List I) :
     ∃ f, IsSpanFamily RD k μ [] (negW c ++ posW b) f := by
-  obtain ⟨f, hf⟩ := exists_isSpanFamily_positive (RD := RD) (k := k) hSL μ c.reverse b
+  obtain ⟨f, hf⟩ := exists_isSpanFamily_positive (RD := RD) (k := k) μ c.reverse b
   have h : ∃ f, IsSpanFamily RD k μ [] (rd (posW c.reverse) ++ posW b) f :=
     ⟨_, isSpanFamily_bendF μ _ _ hf⟩
   rwa [rd_posW_reverse] at h
 
-include hSL in
 /-- **Proposition 3.11 (in the form `IsSpanFamily`) for every pair `(s, t)` whose one-sided
 boundary word `s* t` is normally ordered** (`s* t = (-c)(+b)`; e.g. `s` and `t` positive, or
 `s = ∅` and `t = (-c)(+b)`, or `s = (-b')(+c')` and `t` positive). -/
 theorem exists_isSpanFamily_of_normal (μ : X) {s t : List (Letter I)} {c b : List I}
     (h : rd s ++ t = negW c ++ posW b) : ∃ f, IsSpanFamily RD k μ s t f := by
-  obtain ⟨f, hf⟩ := exists_isSpanFamily_negW_posW (RD := RD) (k := k) hSL μ c b
+  obtain ⟨f, hf⟩ := exists_isSpanFamily_negW_posW (RD := RD) (k := k) μ c b
   have h' : ∃ f, IsSpanFamily RD k μ [] (rd s ++ t) f := by rw [h]; exact ⟨f, hf⟩
   obtain ⟨g, hg⟩ := h'
   exact ⟨_, isSpanFamily_bendG μ s t hg⟩

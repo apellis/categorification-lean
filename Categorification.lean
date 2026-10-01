@@ -53,6 +53,7 @@ import Categorification.Diagrams.KL3.Bending
 import Categorification.Diagrams.KL3.BubbleSlides
 import Categorification.Diagrams.KL3.BubbleSlidesAll
 import Categorification.Diagrams.KL3.BubbleSlidesEq
+import Categorification.Diagrams.KL3.BubbleSlidesGen
 import Categorification.Diagrams.KL3.BubbleSlidesProp
 import Categorification.Diagrams.KL3.Bubbles
 import Categorification.Diagrams.KL3.CanonDeg
@@ -387,6 +388,7 @@ import Categorification.TwoRep.Basic
 import Categorification.TwoRep.Biadjoint
 import Categorification.TwoRep.CisBub
 import Categorification.TwoRep.CisBubRight
+import Categorification.TwoRep.Coop
 import Categorification.TwoRep.DividedPower
 import Categorification.TwoRep.DividedPowerDot
 import Categorification.TwoRep.DotEntries
@@ -407,6 +409,7 @@ import Categorification.TwoRep.ShiftInterchange
 import Categorification.TwoRep.Sl2
 import Categorification.TwoRep.StepLemmas
 import Categorification.TwoRep.UpDownCrossing
+import Categorification.TwoRep.WeightModule
 import Categorification.TypeA.Basic
 import Categorification.TypeA.DoubleCoset
 import Categorification.TypeA.Inversions

@@ -300,9 +300,18 @@ the supplied, explicitly shift-corrected adjunction cup to its actual downward
 `fDot`. After right whiskering by `F r` and reassociation, the downward operator is
 exactly `nhF.xL`, the first-factor dot used by `exists_F2_dot`. This is a local
 cup identity, not equality of endomorphisms on all of `FE` or on arbitrary summand
-inclusions of a chosen `FEDecomp`. Pairing/decomposition transport, the negative
-multiplicity/rank argument, and full `DotNondegNeg` remain open. No `AdjHyp` is
-derived, and no automatic biadjointness or lower-Hom statement follows.
+inclusions of a chosen `FEDecomp`.
+`TwoRep/DecompositionCupTransportNeg.lean` now handles the lowest inclusion `ιN e 0`
+of every actual negative decomposition. Under `wt (r+1) < 0`, nonzero weight identity,
+Hom-finiteness and `∀ s < r+1, AdjHyp s`, the supplied adjunction and existing
+`lem1Neg_zero` prove the cup Hom space is one-dimensional. Both cups are nonzero,
+so after explicit source-shift removal the decomposition cup is a nonzero scalar
+multiple of the supplied cup. The original `dotFE`/`fDot` slide therefore holds at
+`ιN e 0`, both in the original Hom category and after `F r` whiskering/reassociation,
+where the downward operator is exactly `nhF.xL`. This induction premise includes
+`AdjHyp r`; it is not the stricter cutoff `s < r` used by `StepLemmasNeg`.
+No `AdjHyp` is derived. Higher-inclusion transport, the negative multiplicity/rank
+argument, full `DotNondegNeg`, automatic biadjointness and lower-Hom bounds remain open.
 
 ### KL I §3.3–3.4: relations between induction functors, tight monomials
 

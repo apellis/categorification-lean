@@ -394,6 +394,7 @@ import Categorification.TwoRep.DividedPowerDot
 import Categorification.TwoRep.DotEntries
 import Categorification.TwoRep.DotEntriesNeg
 import Categorification.TwoRep.DotMateBridge
+import Categorification.TwoRep.DecompositionCupTransportNeg
 import Categorification.TwoRep.EndE
 import Categorification.TwoRep.GradedHomAdjunction
 import Categorification.TwoRep.KrullSchmidt

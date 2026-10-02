@@ -288,6 +288,14 @@ finite-sum graded-Hom category. Supplied adjunction and grading-coherence hypoth
 remain explicit. This supplies downward divided-power input for the negative-weight
 route, not Lemma 3.6, automatic biadjointness, or Proposition 3.9 themselves.
 
+`TwoRep/StepLemmasNeg.lean` supplies a negative-weight induction-step vanishing
+lemma using the actual downward nilHecke operators. If `wt (r + 1) ≤ 0` and
+`AdjHyp` holds strictly below `r`, every negative-degree endomorphism of `F (r + 1)`
+vanishes after right whiskering by `F r`. A corresponding retract consequence
+applies only after that composition. Neither vanishing before whiskering nor a
+per-summand lower-Hom bound follows. The upward `dotFE`/downward-dot comparison,
+negative rank argument, and full `DotNondegNeg` remain open.
+
 ### KL I §3.3–3.4: relations between induction functors, tight monomials
 
 `𝓕_i^{(a)} M = Ind(P_{i^{(a)}} ⊠ M)`; for any relation `∑ u_k θ(k) = ∑ v_ℓ θ'(ℓ)` in `_A f` with

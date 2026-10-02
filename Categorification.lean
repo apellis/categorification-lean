@@ -422,6 +422,7 @@ import Categorification.TwoRep.Rank
 import Categorification.TwoRep.ShiftInterchange
 import Categorification.TwoRep.Sl2
 import Categorification.TwoRep.StepLemmas
+import Categorification.TwoRep.StepLemmasNeg
 import Categorification.TwoRep.UpDownCrossing
 import Categorification.TwoRep.WeightModule
 import Categorification.TypeA.Basic

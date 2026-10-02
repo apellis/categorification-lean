@@ -253,7 +253,10 @@ claimed; the supplied adjunctions and graded coherence hypotheses remain explici
 words, with dots and adjacent crossings indexed from the right and zero outside the word.
 It proves dot commutativity, crossing/nonincident-dot commutativity, and disjoint-crossing
 commutativity at arbitrary width. Its width-three crossings are the existing local braid
-generators. Propagating the remaining local square, slides and braid to every position,
+generators. `TwoRep/DownwardNilHeckeAction.lean` additionally proves square-zero for
+every crossing at every width and position, including the associator-conjugated bottom
+pair and out-of-range positions, and supplies the native endomorphism-ring relation.
+This module does not yet construct an action. Propagating slides and braid to every position,
 normalizing the crossings for the existing `KLR.NilHecke.IsNilHeckeFamily` convention,
 and constructing the algebra action remain open.
 

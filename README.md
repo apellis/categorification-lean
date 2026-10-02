@@ -278,6 +278,16 @@ The separate `fEmptyNilHeckeHom` acts on the genuine identity 1-morphism, retain
 the distinction between zero factors and `fWord 0 r` (one factor). Faithfulness,
 automatic biadjointness, and the unrestricted Cautis–Lauda theorem are not asserted.
 
+`TwoRep/DownwardDividedPower.lean` constructs `nhF` from the actual downward dots
+and crossing on `F (r + 1) ≫ F r`, retaining the original unit-valued scalar `rQ`.
+It splits the degree-zero idempotent in the original Hom category to obtain
+`exists_F2`, the decomposition `FF ≅ F^(2)⟨1⟩ ⊕ F^(2)⟨-1⟩`, and
+`exists_F2_dot`, an actual first-dot isomorphism on the common summand.
+Idempotent completeness is assumed only of the original Hom categories, not the
+finite-sum graded-Hom category. Supplied adjunction and grading-coherence hypotheses
+remain explicit. This supplies downward divided-power input for the negative-weight
+route, not Lemma 3.6, automatic biadjointness, or Proposition 3.9 themselves.
+
 ### KL I §3.3–3.4: relations between induction functors, tight monomials
 
 `𝓕_i^{(a)} M = Ind(P_{i^{(a)}} ⊠ M)`; for any relation `∑ u_k θ(k) = ∑ v_ℓ θ'(ℓ)` in `_A f` with

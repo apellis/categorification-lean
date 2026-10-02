@@ -411,6 +411,7 @@ import Categorification.TwoRep.DownwardNilHecke
 import Categorification.TwoRep.DownwardNilHeckeFarComm
 import Categorification.TwoRep.DownwardNilHeckeAction
 import Categorification.TwoRep.DownwardNilHeckeNormalization
+import Categorification.TwoRep.DownwardNilHeckeSlides
 import Categorification.TwoRep.MultShift
 import Categorification.TwoRep.QStrong
 import Categorification.TwoRep.QStrongRestrict

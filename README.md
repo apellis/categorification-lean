@@ -260,8 +260,12 @@ This module does not yet construct an action. `TwoRep/DownwardNilHeckeNormalizat
 certifies the two-strand convention `D = -rQ⁻¹ C`, with right-counted dots and reversed
 endomorphism-ring multiplication: both native mixed dot relations and square-zero hold
 for the actual operators. The original scalar is already a unit, so no new nonvanishing
-hypothesis is added. Propagating the normalized mixed relations and braid to every
-position, and constructing the algebra action, remain open.
+hypothesis is added. `TwoRep/DownwardNilHeckeSlides.lean` propagates both normalized
+mixed relations to every valid position `i < n` on the actual `n + 1`-strand word,
+including associator-conjugated bottom pairs and recursively whiskered upper positions.
+The homogeneous and native endomorphism-ring equations use the same scalar normalization
+and existing graded-linearity hypotheses. All-position braid propagation and construction
+of the full nilHecke family and algebra action remain open.
 
 ### KL I §3.3–3.4: relations between induction functors, tight monomials
 

@@ -268,9 +268,15 @@ and existing graded-linearity hypotheses. `TwoRep/DownwardNilHeckeBraid.lean` pr
 at every valid position using genuine associators and right whiskering; uniform normalization
 and zero extension give the native endomorphism-ring braid at every index.
 `fWord_isNilHeckeFamily` assembles all eight relations for the actual dots and normalized
-crossings on every nonempty downward word, including the one-strand boundary. A separately
-defined algebra action and the zero-factor case remain open, as do automatic biadjointness
-and the unrestricted Cautis–Lauda theorem.
+crossings on every nonempty downward word, including the one-strand boundary.
+`TwoRep/DownwardNilHeckeRepresentation.lean` supplies the natural componentwise linear
+structure on the existing finite-sum graded Hom categories and constructs the actual
+algebra homomorphism `fWordNilHeckeHom` from `NH_(n+1)` into the endomorphism algebra
+of `fWord n r`. Its generator evaluations are the existing right-counted dots and
+`-rQ⁻¹`-normalized crossings, and these evaluations determine the map uniquely.
+The separate `fEmptyNilHeckeHom` acts on the genuine identity 1-morphism, retaining
+the distinction between zero factors and `fWord 0 r` (one factor). Faithfulness,
+automatic biadjointness, and the unrestricted Cautis–Lauda theorem are not asserted.
 
 ### KL I §3.3–3.4: relations between induction functors, tight monomials
 

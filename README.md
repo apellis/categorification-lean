@@ -264,8 +264,13 @@ hypothesis is added. `TwoRep/DownwardNilHeckeSlides.lean` propagates both normal
 mixed relations to every valid position `i < n` on the actual `n + 1`-strand word,
 including associator-conjugated bottom pairs and recursively whiskered upper positions.
 The homogeneous and native endomorphism-ring equations use the same scalar normalization
-and existing graded-linearity hypotheses. All-position braid propagation and construction
-of the full nilHecke family and algebra action remain open.
+and existing graded-linearity hypotheses. `TwoRep/DownwardNilHeckeBraid.lean` proves braid
+at every valid position using genuine associators and right whiskering; uniform normalization
+and zero extension give the native endomorphism-ring braid at every index.
+`fWord_isNilHeckeFamily` assembles all eight relations for the actual dots and normalized
+crossings on every nonempty downward word, including the one-strand boundary. A separately
+defined algebra action and the zero-factor case remain open, as do automatic biadjointness
+and the unrestricted Cautis–Lauda theorem.
 
 ### KL I §3.3–3.4: relations between induction functors, tight monomials
 

@@ -236,8 +236,10 @@ Scalar compatibility uses explicit linear Hom/whiskering/shift hypotheses.
 `TwoRep/ShiftedMatesWhisker.lean` proves compatibility with composite adjunctions and both
 shifted whiskerings. Its `StrongSl2` consumers identify tensor-factor dots and crossings on
 the supplied weight-shifted right adjoints, and transport square-zero and both two-strand
-dot-slide relations. Removing the shifts, reconciling triple parenthesizations and transporting
-the braid relation remain necessary before claiming the full action on unshifted `FF`.
+dot-slide relations. `TwoRep/ShiftedMatesReassociate.lean` proves mate compatibility with the
+actual associator and transports the degree `-6` braid relation to the two actual local crossings
+on one parenthesized triple of shifted right adjoints (`mateCross_braid`). Removing the shifts
+and packaging the all-strand action remain necessary before claiming the full unshifted action.
 
 ### KL I §3.3–3.4: relations between induction functors, tight monomials
 

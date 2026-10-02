@@ -249,6 +249,13 @@ The resulting two dot-slide relations retain the original scalar `rQ`. Actual lo
 on the left-associated unshifted `FFF`, with the second using the actual associator, satisfy
 the degree `-6` braid (`fffCross_braid`). No all-strand action or automatic biadjointness is
 claimed; the supplied adjunctions and graded coherence hypotheses remain explicit.
+`TwoRep/DownwardNilHeckeFarComm.lean` constructs actual left-associated nonempty downward
+words, with dots and adjacent crossings indexed from the right and zero outside the word.
+It proves dot commutativity, crossing/nonincident-dot commutativity, and disjoint-crossing
+commutativity at arbitrary width. Its width-three crossings are the existing local braid
+generators. Propagating the remaining local square, slides and braid to every position,
+normalizing the crossings for the existing `KLR.NilHecke.IsNilHeckeFamily` convention,
+and constructing the algebra action remain open.
 
 ### KL I §3.3–3.4: relations between induction functors, tight monomials
 

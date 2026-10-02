@@ -408,6 +408,7 @@ import Categorification.TwoRep.ShiftedMatesWhisker
 import Categorification.TwoRep.ShiftedMatesReassociate
 import Categorification.TwoRep.ShiftedMatesUnshift
 import Categorification.TwoRep.DownwardNilHecke
+import Categorification.TwoRep.DownwardNilHeckeFarComm
 import Categorification.TwoRep.MultShift
 import Categorification.TwoRep.QStrong
 import Categorification.TwoRep.QStrongRestrict

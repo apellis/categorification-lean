@@ -256,9 +256,12 @@ commutativity at arbitrary width. Its width-three crossings are the existing loc
 generators. `TwoRep/DownwardNilHeckeAction.lean` additionally proves square-zero for
 every crossing at every width and position, including the associator-conjugated bottom
 pair and out-of-range positions, and supplies the native endomorphism-ring relation.
-This module does not yet construct an action. Propagating slides and braid to every position,
-normalizing the crossings for the existing `KLR.NilHecke.IsNilHeckeFamily` convention,
-and constructing the algebra action remain open.
+This module does not yet construct an action. `TwoRep/DownwardNilHeckeNormalization.lean`
+certifies the two-strand convention `D = -rQ⁻¹ C`, with right-counted dots and reversed
+endomorphism-ring multiplication: both native mixed dot relations and square-zero hold
+for the actual operators. The original scalar is already a unit, so no new nonvanishing
+hypothesis is added. Propagating the normalized mixed relations and braid to every
+position, and constructing the algebra action, remain open.
 
 ### KL I §3.3–3.4: relations between induction functors, tight monomials
 

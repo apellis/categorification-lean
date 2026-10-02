@@ -230,6 +230,12 @@ and naturality under arbitrary-degree composition (`Θsh_comp`). This constructs
 adjoints for a strong 2-representation nor the low-weight footholds; Prop. 3.9 and its explicit
 graded-endomorphism boundedness condition remain separate targets.
 
+`TwoRep/ShiftedMates.lean` constructs mates from an explicit adjunction, preserving degree
+while reversing composition (`mateSh_comp`), with identity, additive and injectivity laws.
+Scalar compatibility uses explicit linear Hom/whiskering/shift hypotheses. Composite-adjunction
+compatibility with shifted whiskering and identification of the tensor-factor dots and crossing
+on `FF` remain necessary before claiming the full downward nilHecke action.
+
 ### KL I §3.3–3.4: relations between induction functors, tight monomials
 
 `𝓕_i^{(a)} M = Ind(P_{i^{(a)}} ⊠ M)`; for any relation `∑ u_k θ(k) = ∑ v_ℓ θ'(ℓ)` in `_A f` with

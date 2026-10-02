@@ -39,10 +39,11 @@ identities for a given adjunction, using the actual finite-sum graded-Hom bicate
 Its `shiftedEndEquiv` specializes them to
 `ShiftedHom (v ≫ u) (𝟙 b) d ≃ ShiftedHom v v d`.
 
-Still to formalize: `εsh adj f = (v ◁ f) ≫ ε⟨d⟩`; the mate
-`mateSh adj f := Θ adj (εsh adj f)`; and its lemmas: anti-multiplicativity `mateSh_comp`,
-`mateSh_mk₀_id`, linearity (`mateSh_add`, `mateSh_sub`, `mateSh_smul`, `mateSh_zero`), and
-compatibility with composite adjunctions `mateSh_comp_shWhiskerLeft` (needs `ShiftAssoc`) and
+`ShiftedMates.lean` now constructs `εsh` and `mateSh`, identifies the latter with ordinary
+conjugate mates in the graded-Hom bicategory, and proves `mateSh_comp`, `mateSh_mk₀_id`,
+additivity, injectivity and scalar compatibility under explicit linearity hypotheses.
+Still to formalize: compatibility with composite adjunctions
+`mateSh_comp_shWhiskerLeft` (needs `ShiftAssoc`) and
 `mateSh_comp_shWhiskerRight` (needs `ShiftAssocMid`).
 
 ## E-dots versus F-dots in CL's bottom half (motivation)

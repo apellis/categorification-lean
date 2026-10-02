@@ -243,8 +243,12 @@ on one parenthesized triple of shifted right adjoints (`mateCross_braid`).
 giving `fDot` on `F` and `ffCross` on `FF`, preserving degrees and detecting zero. Square-zero
 and both original-scalar dot-slide relations hold on unshifted `FF` with transported dots
 `ffDotFirst` and `ffDotSecond`. The conjugating tensor isomorphism is proved
-(`ShiftRemoval.removeIso_tensor`), but identifying these transported dots with whiskerings
-of `fDot` is still open. Unshifted triple braid and the all-strand action are not yet claimed.
+(`ShiftRemoval.removeIso_tensor`). `TwoRep/DownwardNilHecke.lean` proves shift removal
+commutes with both tensor factors, identifying these dots with actual whiskerings of `fDot`.
+The resulting two dot-slide relations retain the original scalar `rQ`. Actual local crossings
+on the left-associated unshifted `FFF`, with the second using the actual associator, satisfy
+the degree `-6` braid (`fffCross_braid`). No all-strand action or automatic biadjointness is
+claimed; the supplied adjunctions and graded coherence hypotheses remain explicit.
 
 ### KL I §3.3–3.4: relations between induction functors, tight monomials
 

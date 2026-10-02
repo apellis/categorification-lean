@@ -404,6 +404,7 @@ import Categorification.TwoRep.LemXind
 import Categorification.TwoRep.MateSh
 import Categorification.TwoRep.ShiftCoherence
 import Categorification.TwoRep.ShiftedMates
+import Categorification.TwoRep.ShiftedMatesWhisker
 import Categorification.TwoRep.MultShift
 import Categorification.TwoRep.QStrong
 import Categorification.TwoRep.QStrongRestrict

@@ -232,9 +232,12 @@ graded-endomorphism boundedness condition remain separate targets.
 
 `TwoRep/ShiftedMates.lean` constructs mates from an explicit adjunction, preserving degree
 while reversing composition (`mateSh_comp`), with identity, additive and injectivity laws.
-Scalar compatibility uses explicit linear Hom/whiskering/shift hypotheses. Composite-adjunction
-compatibility with shifted whiskering and identification of the tensor-factor dots and crossing
-on `FF` remain necessary before claiming the full downward nilHecke action.
+Scalar compatibility uses explicit linear Hom/whiskering/shift hypotheses.
+`TwoRep/ShiftedMatesWhisker.lean` proves compatibility with composite adjunctions and both
+shifted whiskerings. Its `StrongSl2` consumers identify tensor-factor dots and crossings on
+the supplied weight-shifted right adjoints, and transport square-zero and both two-strand
+dot-slide relations. Removing the shifts, reconciling triple parenthesizations and transporting
+the braid relation remain necessary before claiming the full action on unshifted `FF`.
 
 ### KL I §3.3–3.4: relations between induction functors, tight monomials
 

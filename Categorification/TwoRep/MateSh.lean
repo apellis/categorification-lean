@@ -42,9 +42,10 @@ Its `shiftedEndEquiv` specializes them to
 `ShiftedMates.lean` now constructs `εsh` and `mateSh`, identifies the latter with ordinary
 conjugate mates in the graded-Hom bicategory, and proves `mateSh_comp`, `mateSh_mk₀_id`,
 additivity, injectivity and scalar compatibility under explicit linearity hypotheses.
-Still to formalize: compatibility with composite adjunctions
-`mateSh_comp_shWhiskerLeft` (needs `ShiftAssoc`) and
-`mateSh_comp_shWhiskerRight` (needs `ShiftAssocMid`).
+`ShiftedMatesWhisker.lean` proves `mateSh_comp_shWhiskerLeft` and
+`mateSh_comp_shWhiskerRight` by preserving actual composite adjunctions in the graded-Hom
+bicategory. Its concrete consumers retain the weight-shifted right adjoints supplied by
+`StrongSl2.adj`; shift removal and braid transport to unshifted `FF` remain open.
 
 ## E-dots versus F-dots in CL's bottom half (motivation)
 

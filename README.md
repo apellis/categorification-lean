@@ -238,8 +238,13 @@ shifted whiskerings. Its `StrongSl2` consumers identify tensor-factor dots and c
 the supplied weight-shifted right adjoints, and transport square-zero and both two-strand
 dot-slide relations. `TwoRep/ShiftedMatesReassociate.lean` proves mate compatibility with the
 actual associator and transports the degree `-6` braid relation to the two actual local crossings
-on one parenthesized triple of shifted right adjoints (`mateCross_braid`). Removing the shifts
-and packaging the all-strand action remain necessary before claiming the full unshifted action.
+on one parenthesized triple of shifted right adjoints (`mateCross_braid`).
+`TwoRep/ShiftedMatesUnshift.lean` removes object shifts by actual homogeneous isomorphisms,
+giving `fDot` on `F` and `ffCross` on `FF`, preserving degrees and detecting zero. Square-zero
+and both original-scalar dot-slide relations hold on unshifted `FF` with transported dots
+`ffDotFirst` and `ffDotSecond`. The conjugating tensor isomorphism is proved
+(`ShiftRemoval.removeIso_tensor`), but identifying these transported dots with whiskerings
+of `fDot` is still open. Unshifted triple braid and the all-strand action are not yet claimed.
 
 ### KL I §3.3–3.4: relations between induction functors, tight monomials
 

@@ -163,15 +163,15 @@ theorem thruIdeal_isIdeal (m : ℕ) : IsIdealEnd (thruIdeal RD k w hw n m) where
     rw [mem_thruIdeal, endVal_comp]
     exact mem_thru_comp (mem_homDeg_of_eq (endVal_mem x) (sub_self n)) ht
 
-variable [DecidableEq I] [Finite I] (hSL : SimplyLaced C)
-include hSL
+variable (hG : HomGdim RD k)
+include hG
 
 /-- **An indecomposable retract of `E_w 1_λ {n}` whose idempotent factors through sequences of
 length `< m` is a retract of some `E_u 1_λ {n'}` with `|u| < m`.** -/
 theorem isLow_of_mem_thruIdeal {m : ℕ} {Q : UKar RD k ρ lam} (hQ : IsIndec Q)
     (f : Q ⟶ nfObj RD k ρ lam w hw n) (g : nfObj RD k ρ lam w hw n ⟶ Q) (hfg : f ≫ g = 𝟙 Q)
     (hT : g ≫ f ∈ thruIdeal RD k w hw n m) : IsLow RD k m Q := by
-  have := homFinite_UDot (RD := RD) (k := k) hSL ρ lam
+  have := homFinite_UDot hG ρ lam
   rw [mem_thruIdeal] at hT
   obtain ⟨N, c, x, hx⟩ := Submodule.mem_span_set'.1 hT
   have hgen : ∀ i, (x i).1 ∈ thruGen RD k lam w {u | u.length < m} := fun i => (x i).2
@@ -590,7 +590,7 @@ theorem aent_mul' (x y : KLR.R2 k C ν ⊗[k] KLR.R2 k C ν') (hy : e₀ (k := k
   conv_lhs => rw [← hy]
   exact aent_mul lam s₀ t₀ x y
 
-variable [Finite I] (hSL : SimplyLaced C)
+variable [Finite I]
 
 omit [Finite I] in
 /-- **An indecomposable idempotent `g` of `R(ν) ⊗ R(ν')` acts on `E_{+i} E_{-j} 1_λ {n}` by an
@@ -755,8 +755,8 @@ variable [DecidableEq I]
 
 open KLR.Diagram (word)
 
-variable [Finite I] (hSL : SimplyLaced C)
-include hSL
+variable (hG : HomGdim RD k)
+include hG
 
 /-- **The top step, for sequences.** -/
 theorem top_of_seq (hspan : SortedSpan RD k) (htobj : TobjHyp RD k) {ρ lam : X}
@@ -766,7 +766,7 @@ theorem top_of_seq (hspan : SortedSpan RD k) (htobj : TobjHyp RD k) {ρ lam : X}
     (g : nfObj RD k ρ lam (ups (word s₀) ++ dns (word t₀)) hw n ⟶ Z) (hfg : f ≫ g = 𝟙 Z)
     (hlow : ¬ IsLow RD k ((word s₀).length + (word t₀).length) Z) :
     K0U.cl Z ∈ gammaImg RD k lam ρ ⊔ lowSpanU RD k ρ lam ((word s₀).length + (word t₀).length) := by
-  have := homFinite_UDot (RD := RD) (k := k) hSL ρ lam
+  have := homFinite_UDot hG ρ lam
   set m := (word s₀).length + (word t₀).length
   have hρ : rhoS RD lam ν ν' = ρ := (wt_ZS RD lam ν ν' (s₀, t₀)).symm.trans hw
   set D := alphaDataR RD k lam ν ν' ρ hρ
@@ -799,7 +799,7 @@ theorem top_of_seq (hspan : SortedSpan RD k) (htobj : TobjHyp RD k) {ρ lam : X}
   have hloc := localModT_alpha (RD := RD) (k := k) (lam := lam) s₀ t₀ hw n hspan (hgs j) (hind j)
   have hclos := of_sub_mem_closure_low (thruIdeal_isIdeal (RD := RD) (k := k)
       (ups (word s₀) ++ dns (word t₀)) hw n m) (IsLow RD k m)
-    (fun Q f₁ g₁ h₁ h₂ hQ => isLow_of_mem_thruIdeal (ups (word s₀) ++ dns (word t₀)) hw n hSL hQ
+    (fun Q f₁ g₁ h₁ h₂ hQ => isLow_of_mem_thruIdeal (ups (word s₀) ++ dns (word t₀)) hw n hG hQ
       f₁ g₁ h₁ h₂)
     hloc (ι j) (π j) (idemIncl_idemProj _ _) (idemProj_idemIncl _ _) hZ f' g' hfg' hlow
   have hE : K0U.cl (E j) ∈ gammaImg RD k lam ρ := htobj lam ρ ν ν' hρ (s₀, t₀) (F j) n
@@ -827,16 +827,16 @@ theorem topHyp_of_sortedSpan (hspan : SortedSpan RD k) (htobj : TobjHyp RD k) (�
     congr 1
   have hm : (word (seqOfList a)).length + (word (seqOfList b)).length = a.length + b.length := by
     rw [ha, hb]
-  have := top_of_seq hSL hspan htobj (seqOfList a) (seqOfList b) hab' n hZ
+  have := top_of_seq hG hspan htobj (seqOfList a) (seqOfList b) hab' n hZ
     (f ≫ eqToHom hobj) (eqToHom hobj.symm ≫ g) (by simp [hfg]) (by rw [hm]; exact hlow)
   rwa [hm] at this
 
 /-- **KL III Theorem 1.1 (surjectivity of `γ : _𝒜 U̇ → K₀(U̇)`), conditional on the spanning
-hypothesis `SortedSpan` and the Grothendieck group hypothesis `TobjHyp`** (simply-laced Cartan
-data, `I` finite, `k` a field). -/
+hypothesis `SortedSpan` and the Grothendieck group hypothesis `TobjHyp`** (any root datum with
+`k` a field, given hom-finiteness `HomGdim`). -/
 theorem gammaUA'_surjective_of_sortedSpan (hspan : SortedSpan RD k) (htobj : TobjHyp RD k)
-    (lam ρ : X) : Function.Surjective (gammaUA' (RD := RD) (k := k) hSL lam ρ) :=
-  gammaUA'_surjective_of_topHyp hSL (topHyp_of_sortedSpan hSL hspan htobj ρ lam)
+    (lam ρ : X) : Function.Surjective (gammaUA' hG lam ρ) :=
+  gammaUA'_surjective_of_topHyp hG (topHyp_of_sortedSpan hG hspan htobj ρ lam)
 
 end Top
 

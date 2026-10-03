@@ -51,8 +51,8 @@ all `λ, 𝐢, 𝐣` there is a family of homogeneous elements of `HOM_U(E_𝐢 
   nondegeneracy used for Theorem 1.2) holds iff every such spanning family is a basis in every
   degree, i.e. KL III's definition.
 
-For simply-laced Cartan data, `Prop311` is proved in `Categorification.Diagrams.KL3.SpanningOneSided`
-(`prop311_of_simplyLaced`, with the explicit family of diagrams of `B_{𝐢,𝐣,λ}`,
+`Prop311` is proved, for every Cartan datum, in `Categorification.Diagrams.KL3.SpanningOneSided`
+(`prop311`, with the explicit family of diagrams of `B_{𝐢,𝐣,λ}`,
 `isSpanFamily_twoB`), where the consequences above are restated unconditionally.
 -/
 
@@ -422,8 +422,8 @@ def IsSpanFamily (lam : X) (s t : List (Letter I))
 variable (RD k) in
 /-- **KL III Proposition 3.11, as a hypothesis**: for all `λ, 𝐢, 𝐣`, `HOM_U(E_𝐢 1_λ, E_𝐣 1_λ)`
 has a graded spanning family indexed by `B_{𝐢,𝐣,λ}` (KL III: the diagrams obtained from the minimal
-diagrams of the `(𝐢, 𝐣)`-pairings by adding dots and a bubble monomial). Proved for simply-laced
-Cartan data in `Categorification.Diagrams.KL3.SpanningOneSided` (`prop311_of_simplyLaced`). -/
+diagrams of the `(𝐢, 𝐣)`-pairings by adding dots and a bubble monomial). Proved for every Cartan
+datum in `Categorification.Diagrams.KL3.SpanningOneSided` (`prop311`). -/
 def Prop311 : Prop :=
   ∀ (lam : X) (s t : List (Letter I)), ∃ b, IsSpanFamily RD k lam s t b
 
@@ -463,6 +463,36 @@ theorem cor_3_13 (h311 : Prop311 RD k) (lam : X) (s t : List (Letter I)) (d : �
   rw [← card_fiber_eq lam s t d]
   exact_mod_cast (finrank_le_and_iff _ _ (hb.2 d)).1
 
+/-- **Hom-finiteness of `U` from KL III Proposition 3.11** (any root datum with `I` finite, `k` a
+field; KL III §3.6: "The space of homs between any two objects in `U̇(λ, μ)` is a finite-dimensional
+`k`-vector space"): given the spanning sets `B_{𝐢,𝐣,λ}`, every graded piece of
+`HOM_U(E_𝐢 1_λ, E_𝐣 1_λ)` is finite-dimensional (`B_{𝐢,𝐣,λ}` has finitely many elements in each
+degree, Proposition 3.12), and the graded pieces vanish below the least degree of an
+`(𝐢, 𝐣)`-pairing. This is the hypothesis `HomGdim` of the Krull–Schmidt theorem for `U̇`
+(`Categorification.Diagrams.KL3.KrullSchmidtU`). -/
+theorem homGdim_of_prop311 (h311 : Prop311 RD k) : HomGdim RD k := by
+  intro lam s t
+  obtain ⟨b, hb⟩ := h311 lam s t
+  refine ⟨fun d => ?_, ?_⟩
+  · have := (prop_3_12 (s := s) (t := t) RD lam d).1
+    rw [← hb.2 d]
+    exact FiniteDimensional.span_of_finite k (Set.finite_range _)
+  · obtain ⟨B, hB⟩ := ((pairings s t).image (pdeg C (RD.ellOf lam) s t)).bddBelow
+    refine ⟨B, fun d hd => ?_⟩
+    by_contra hlt
+    apply hd
+    have hE : IsEmpty {x : SpanIdx s t // spanDeg C (RD.ellOf lam) x = d} := by
+      refine ⟨fun x => ?_⟩
+      obtain ⟨σ, p, hp⟩ := spanFiberEquiv (RD.ellOf lam) d x
+      have h1 : B ≤ pdeg C (RD.ellOf lam) s t σ.1 :=
+        hB (Finset.mem_coe.2 (Finset.mem_image_of_mem _ σ.2))
+      have h2 : 0 ≤ d - pdeg C (RD.ellOf lam) s t σ.1 := by
+        rw [← hp]
+        exact add_nonneg (Finset.sum_nonneg fun x _ => mul_nonneg (Int.natCast_nonneg _)
+          (C.dot_self_pos _).le) (weight_wPi_nonneg _)
+      omega
+    rw [← hb.2 d, Set.range_eq_empty, Submodule.span_empty]
+
 variable (RD k) in
 /-- **KL III, definition of nondegeneracy** (§3.2.3, after Corollary 3.13): "our graphical calculus
 is nondegenerate if for all `𝐢, 𝐣, λ` the set `B_{𝐢,𝐣,λ}` is a basis of
@@ -486,10 +516,10 @@ theorem calculusNondeg_iff (h311 : Prop311 RD k) : CalculusNondeg RD k ↔ Basis
 /-- **KL III Theorem 1.2 in its original form**: given Proposition 3.11 (`Prop311`) and
 Proposition 2.5 (`UDot.KL3.FormNondeg`), if the graphical calculus is nondegenerate in KL III's
 sense (every spanning family indexed by `B_{𝐢,𝐣,λ}` is a basis, `BasisNondeg`), then
-`γ : 1_ρ (_𝒜 U̇) 1_λ → K₀(U̇(λ, ρ))` is injective, hence bijective (simply-laced, `I` finite). -/
-theorem gammaUA'_bijective_of_basisNondeg [DecidableEq I] (hSL : SimplyLaced C)
+`γ : 1_ρ (_𝒜 U̇) 1_λ → K₀(U̇(λ, ρ))` is injective, hence bijective (any Cartan datum, `I` finite). -/
+theorem gammaUA'_bijective_of_basisNondeg [DecidableEq I]
     (h311 : Prop311 RD k) (hB : BasisNondeg RD k) (h25 : UDot.KL3.FormNondeg RD) (lam ρ : X) :
-    Function.Bijective (gammaUA' (RD := RD) (k := k) hSL lam ρ) :=
-  gammaUA'_bijective hSL ((calculusNondeg_iff h311).2 hB) h25 lam ρ
+    Function.Bijective (gammaUA' (RD := RD) (k := k) homGdim lam ρ) :=
+  gammaUA'_bijective ((calculusNondeg_iff h311).2 hB) h25 lam ρ
 
 end Categorification.KL3.Diagram

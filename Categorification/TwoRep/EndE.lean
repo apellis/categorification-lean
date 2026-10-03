@@ -56,7 +56,7 @@ theorem lemMain_finrank {r : ℤ} (hr : -1 ≤ S.wt r) (hyp : ∀ r', r < r' →
         finrank k (𝟙 (S.obj (r + 1)) ⟶ (𝟙 (S.obj (r + 1)))⟦m - 2 * (j : ℤ)⟧) := by
   have hw : S.wt (r + 1) = S.wt r + 2 := S.wt_add_one r
   have hM := S.toNat_wt_succ (r := r) (by omega)
-  rw [S.lem1_step (by omega) (hyp _ (by omega)).numAdj m,
+  rw [S.lem1_step (by omega) (hyp _ (by omega)) m,
     S.lem1_neg (r₀ := r + 1) (by omega) (fun r' h => hyp r' (by omega)) (r + 1) le_rfl _
       (by omega), zero_add, ← Finset.sum_range_reflect]
   refine Finset.sum_congr rfl fun j hj => finrank_hom_shift_congr k _ _ ?_
@@ -70,7 +70,7 @@ theorem lemMain_finrank_two {r : ℤ} (hr : S.wt r = -1) (hyp : ∀ r', r < r' �
       finrank k (𝟙 (S.obj (r + 1)) ⟶ (𝟙 (S.obj (r + 1)))⟦(2 : ℤ)⟧) +
         finrank k (S.E (r + 1) ⟶ S.E (r + 1)) := by
   have hw : S.wt (r + 1) = 1 := by rw [S.wt_add_one, hr]; norm_num
-  rw [S.lem1_step (by omega) (hyp _ (by omega)).numAdj 2, hw, add_comm]
+  rw [S.lem1_step (by omega) (hyp _ (by omega)) 2, hw, add_comm]
   simp only [show (1 : ℤ).toNat = 1 from rfl, Finset.sum_range_one]
   rw [finrank_hom_shift_congr k _ _ (show 2 - 2 * S.wt r - 2 + 2 * ((0 : ℕ) : ℤ) = (2 : ℤ) by
       rw [hr]; norm_num),

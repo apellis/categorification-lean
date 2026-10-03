@@ -35,9 +35,9 @@ corner of `(i, j)`, the class of `(E_{+i} E_{-j} 1_λ {t}, α(g))` lies in the i
 ## Main results
 
 * `tobjHyp`: the hypothesis `TobjHyp` of `Categorification.Diagrams.KL3.SurjectivityTop` holds
-  (simply-laced Cartan data, `I` finite, `k` a field).
-* `gammaUA'_surjective_of_sortedSpan'`: **KL III Theorem 1.1** (`γ` is surjective) conditional
-  only on the spanning hypothesis `SortedSpan`.
+  (any root datum, `k` a field, given hom-finiteness `HomGdim`).
+* `gammaUA'_surjective_of_sortedSpan'`: **KL III Theorem 1.1** (`γ` is surjective) for any root
+  datum, conditional only on `HomGdim` and the spanning hypothesis `SortedSpan`.
 -/
 
 noncomputable section
@@ -146,10 +146,10 @@ end Corner
 
 section Transfer
 
-variable [DecidableEq I] [Finite I] (hSL : SimplyLaced C) (lam ρ : X) {ν ν' : Multiset I}
+variable [DecidableEq I] (hG : HomGdim RD k) (lam ρ : X) {ν ν' : Multiset I}
   (hρ : rhoS RD lam ν ν' = ρ)
 
-include hSL in
+include hG in
 /-- **`Φ[P_d ⊠ P_{d'}] = [E_{+d} E_{-d'} 1_λ]`**: the transfer of the external tensor product of
 the divided-power projectives `P_d = R(ν) ψ(1_{d̂}) {-⟨d⟩}` is the class of the product of
 divided powers `E^{(a_1)}_{+i_1} ⋯ E^{(b_1)}_{-j_1} ⋯ 1_λ`. -/
@@ -177,12 +177,12 @@ theorem transferK0_extTensor_projDiv2 (d d' : List (I × ℕ))
       rw [dpWord_dpPair, word_seqOfList', word_seqOfList']) _ hw 0)
   rw [KLR.KL2.K0_projSeq2_expandDiv, KLR.KL2.K0_projSeq2_expandDiv, LinearMap.map_smul₂,
     LinearMap.map_smul, smul_smul, transferK0_smul, ← dpFac_dpPair (C := C), invert_dpFac] at h1
-  refine sub_eq_zero.1 (K0Kar_torsionFree hSL ρ lam c
+  refine sub_eq_zero.1 (K0Kar_torsionFree hG ρ lam c
     (mem_nonZeroDivisors_of_ne_zero (dpFac_ne_zero _)) _ ?_)
   rw [smul_sub, sub_eq_zero]
   exact h1
 
-include hSL in
+include hG in
 /-- **Every class in `K₀(R(ν) ⊗ R(ν'))` is transferred into the image of `γ`**: `K₀(R(ν) ⊗ R(ν'))`
 is spanned by the classes `[P_d ⊠ P_{d'}]` (KL II Theorem 8 and KL I §3.1). -/
 theorem transferK0_mem_gammaImg (y : K0 (TG C k ν ν')) :
@@ -217,7 +217,7 @@ theorem transferK0_mem_gammaImg (y : K0 (TG C k ν ν')) :
         have hw := (wt_ZS RD lam ν ν' (KLR.KLRAlgebra.Seq.ofList _ h,
           KLR.KLRAlgebra.Seq.ofList _ h')).trans hρ
         rw [word_seqOfList', word_seqOfList', ← dpWord_dpPair] at hw
-        rw [hS, transferK0_extTensor_projDiv2 hSL lam ρ hρ d d' h h' hw]
+        rw [hS, transferK0_extTensor_projDiv2 hG lam ρ hρ d d' h h' hw]
         exact dpC_mem_gammaImg _ hw
       | zero => rw [map_zero]; exact S.zero_mem
       | add a b _ _ ha hb => rw [map_add]; exact S.add_mem ha hb
@@ -238,15 +238,15 @@ end Transfer
 
 section Main
 
-variable [DecidableEq I] [Finite I] (hSL : SimplyLaced C)
+variable [DecidableEq I] (hG : HomGdim RD k)
 
-include hSL in
+include hG in
 /-- **The Grothendieck group hypothesis `TobjHyp` holds** (KL III, end of the proof of
 Theorem 1.1): the class of `(E_{+i} E_{-j} 1_λ {t}, α(g))` lies in the image of `γ` for every
 degree-zero idempotent `g` of `R(ν) ⊗ R(ν')` in the corner of `(i, j)`. -/
 theorem tobjHyp : TobjHyp RD k := by
   intro lam ρ ν ν' hρ p F t
-  have h1 := transferK0_mem_gammaImg hSL lam ρ hρ
+  have h1 := transferK0_mem_gammaImg hG lam ρ hρ
     (K0.of (GProj.ofIdempotent F.f (show IsIdempotentElem F.f from F.idem) F.deg0))
   rw [transferK0_ofIdempotent] at h1
   show K0U.cl (idemObj _ t _ _ _) ∈ _
@@ -254,10 +254,12 @@ theorem tobjHyp : TobjHyp RD k := by
   exact Submodule.smul_mem _ _ h1
 
 /-- **KL III Theorem 1.1 (surjectivity of `γ : _𝒜 U̇ → K₀(U̇)`), conditional only on the spanning
-hypothesis `SortedSpan`** (simply-laced Cartan data, `I` finite, `k` a field). -/
+hypothesis `SortedSpan`** (any root datum, `k` a field, given hom-finiteness
+`HomGdim`; both hypotheses are consequences of the spanning sets of KL III Proposition 3.11 and its
+proof, and are proved for every finite Cartan datum). -/
 theorem gammaUA'_surjective_of_sortedSpan' (hspan : SortedSpan RD k) (lam ρ : X) :
-    Function.Surjective (gammaUA' (RD := RD) (k := k) hSL lam ρ) :=
-  gammaUA'_surjective_of_sortedSpan hSL hspan (tobjHyp hSL) lam ρ
+    Function.Surjective (gammaUA' hG lam ρ) :=
+  gammaUA'_surjective_of_sortedSpan hG hspan (tobjHyp hG) lam ρ
 
 end Main
 

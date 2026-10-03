@@ -31,7 +31,7 @@ degrees (the library's `Graded.HasGdim`) — but not the explicit bound by the p
   there are finitely many in each degree and none below a fixed degree.
 * `hasGdim_homD`: **for all signed sequences `s`, `t` and weights `μ`, the graded pieces of
   `HOM_U(E_s 1_μ, E_t 1_μ)` are finite-dimensional and vanish in sufficiently negative
-  degrees** (simply-laced Cartan data, `I` finite, `k` a field), by the reductions of
+  degrees** (any Cartan datum, `I` finite, `k` a field), by the reductions of
   `Categorification.Diagrams.KL3.FinDimHom` (biadjointness and the sorting decomposition `decL`).
 -/
 
@@ -65,12 +65,12 @@ theorem hρc (ν : Multiset I) : ∀ w, TypeA.IsReduced (Multiset.card ν) (ρc 
 variable [Finite I]
 
 /-- **Finite-dimensional graded pieces of `HOM_U(E_i 1_μ, E_j 1_μ)`** for sequences
-`i, j ∈ Seq ν` (simply-laced, `I` finite): by Proposition 3.10 every 2-morphism is the
+`i, j ∈ Seq ν` (`I` finite): by Proposition 3.10 every 2-morphism is the
 `(i, j)`-entry of the image of an element of `R(ν) ⊗ Π_μ`, hence a linear combination of the
 images of `b ⊗ m` (`b` in the homogeneous basis of `R(ν)`, `m` a bubble monomial), which are
 homogeneous of degree `deg b + deg m`; there are finitely many such pairs in each degree and
 none below a fixed degree. -/
-theorem hasGdim_seq (hSL : SimplyLaced C) (μ : X) (ν : Multiset I) (i j : KLR.Seq ν) :
+theorem hasGdim_seq (μ : X) (ν : Multiset I) (i j : KLR.Seq ν) :
     HasGdim (HomD RD k μ (ups (word i)) (ups (word j))) := by
   classical
   let G := KLR.klGradingDatum2 k C
@@ -98,7 +98,7 @@ theorem hasGdim_seq (hSL : SimplyLaced C) (μ : X) (ν : Multiset I) (i j : KLR.
     exact h
   have hspan : ∀ f, f ∈ Submodule.span k (Set.range v) := by
     intro f
-    obtain ⟨t, ht⟩ := prop310_of_simplyLaced (k := k) (RD := RD) hSL μ ν (single i j f)
+    obtain ⟨t, ht⟩ := prop310 (k := k) (RD := RD) μ ν (single i j f)
     have hf : f = L t := by
       change f = (phi RD k μ ν t) i j
       rw [ht, single_apply_self]
@@ -149,7 +149,7 @@ theorem sChain_upward_perm : ∀ {s t : List (Letter I)} {A : List (LayerData I)
 omit [Finite I] in
 /-- Between positive sequences which are not permutations of each other there are no
 2-morphisms (Lemma 3.9: all 2-morphisms are upward diagrams times bubbles). -/
-theorem homD_eq_bot_of_not_perm (hSL : SimplyLaced C) (μ : X) {s t : List (Letter I)}
+theorem homD_eq_bot_of_not_perm (μ : X) {s t : List (Letter I)}
     (hs : Positive s) (ht : Positive t) (hp : ¬ s.Perm t) (d : ℤ) : HomD RD k μ s t d = ⊥ := by
   have hbot : upSpan RD k μ s t = ⊥ := by
     rw [eq_bot_iff, upSpan, Submodule.span_le]
@@ -157,7 +157,7 @@ theorem homD_eq_bot_of_not_perm (hSL : SimplyLaced C) (μ : X) {s t : List (Lett
     exact absurd (sChain_upward_perm hc hA) hp
   rw [eq_bot_iff, homD_eq_span, Submodule.span_le]
   rintro _ ⟨ls, hls, -, rfl⟩
-  have := upSpanDiag_of_simplyLaced (RD := RD) (k := k) hSL μ s t ls hs ht hls
+  have := upSpanDiag (RD := RD) (k := k) μ s t ls hs ht hls
   rwa [hbot] at this
 
 omit [DecidableEq I] in
@@ -177,22 +177,22 @@ theorem word_cast {ν ν' : Multiset I} (h : ν = ν') (q : KLR.Seq ν) : word (
   subst h; rfl
 
 /-- **Finite-dimensional graded pieces of `HOM_U(E_s 1_μ, E_t 1_μ)` for upward sequences**
-(simply-laced, `I` finite). -/
-theorem hasGdim_positive (hSL : SimplyLaced C) (μ : X) {s t : List (Letter I)} (hs : Positive s)
+(`I` finite). -/
+theorem hasGdim_positive (μ : X) {s t : List (Letter I)} (hs : Positive s)
     (ht : Positive t) : HasGdim (HomD RD k μ s t) := by
   by_cases hp : s.Perm t
   · have ha : ups (s.map Prod.snd) = s := ups_map_snd hs
     have hb : ups (t.map Prod.snd) = t := ups_map_snd ht
     have hν : ((t.map Prod.snd : List I) : Multiset I) = (s.map Prod.snd : List I) :=
       Multiset.coe_eq_coe.2 (hp.map Prod.snd).symm
-    have h := hasGdim_seq (RD := RD) (k := k) hSL μ ((s.map Prod.snd : List I) : Multiset I)
+    have h := hasGdim_seq (RD := RD) (k := k) μ ((s.map Prod.snd : List I) : Multiset I)
       (seqOfList (s.map Prod.snd)) (hν ▸ seqOfList (t.map Prod.snd))
     have e : word (hν ▸ seqOfList (t.map Prod.snd)) = t.map Prod.snd :=
       (word_cast hν _).trans (word_seqOfList _)
     rw [word_seqOfList, e, ha, hb] at h
     exact h
   · exact hasGdim_of_le_span (fun _ => ∅) (fun _ => Set.finite_empty)
-      (fun d => by rw [homD_eq_bot_of_not_perm hSL μ hs ht hp d]; exact bot_le) 0
+      (fun d => by rw [homD_eq_bot_of_not_perm μ hs ht hp d]; exact bot_le) 0
       (fun _ _ => rfl)
 
 end Upward
@@ -200,20 +200,20 @@ end Upward
 /-! ## All signed sequences -/
 
 /-- **KL III, finite-dimensional graded Hom-spaces** (the Corollary 3.14-type statement of
-§3.2, input of the Krull–Schmidt property of §3.4/§3.8; simply-laced Cartan data, `I` finite,
+§3.2, input of the Krull–Schmidt property of §3.4/§3.8; any Cartan datum, `I` finite,
 `k` a field): for all signed sequences `s`, `t` and every weight `μ`, each graded piece of
 `HOM_U(E_s 1_μ, E_t 1_μ)` is finite-dimensional, and the graded pieces vanish in sufficiently
 negative degrees. -/
-theorem hasGdim_homD [DecidableEq I] [Finite I] (hSL : SimplyLaced C) (μ : X)
+theorem hasGdim_homD [DecidableEq I] [Finite I] (μ : X)
     (s t : List (Letter I)) : HasGdim (HomD RD k μ s t) := by
   have hsorted : ∀ d c : List I, HasGdim (HomD RD k μ [] (dns d ++ ups c)) := by
     intro d c
     have hpos : Positive (rd (dns d) ++ []) := by
       rw [List.append_nil]; exact positive_rd_dns d
-    have := hasGdim_positive (RD := RD) (k := k) hSL μ hpos (show Positive (ups c) by
+    have := hasGdim_positive (RD := RD) (k := k) μ hpos (show Positive (ups c) by
       simp [Positive, ups])
     exact hasGdim_of_bendTgt μ (dns d) [] (ups c)
-  have := hasGdim_nil_of_sorted hSL μ hsorted (rd s ++ t)
+  have := hasGdim_nil_of_sorted μ hsorted (rd s ++ t)
   exact hasGdim_of_bendSrc μ s t
 
 end Categorification.KL3.Diagram

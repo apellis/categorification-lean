@@ -103,11 +103,11 @@ theorem finrank_F_F_eq (r l : ℤ) :
     finrank k (S.F r ⟶ (S.F r)⟦l⟧) = finrank k (S.E r ⟶ (S.E r)⟦l⟧) := by
   rw [finrank_E_E, finrank_F_F]
 
-/-- The dimension count in CL's proof of Lemma 3.1: for `m = wt r ≥ -2`, under the hypothesis
-`(E 1_{m+2})_L ≅ 1_{m+2} F ⟨-m-3⟩`,
+/-- The dimension count in CL's proof of Lemma 3.1: for `m = wt r ≥ -2`, under the numerical
+shadow of `(E 1_{m+2})_L ≅ 1_{m+2} F ⟨-m-3⟩`,
 `dim Hom(E 1_m, E 1_m ⟨l⟩) = dim Hom(E 1_{m+2}, E 1_{m+2} ⟨l-2m-4⟩) +
   ∑_{j=0}^{m+1} dim Hom(1_{m+2}, 1_{m+2} ⟨l-2m-2+2j⟩)`. -/
-theorem lem1_step {r : ℤ} (hr : -2 ≤ S.wt r) (h1 : S.NumAdj (r + 1)) (l : ℤ) :
+theorem lem1_step_of_numAdj {r : ℤ} (hr : -2 ≤ S.wt r) (h1 : S.NumAdj (r + 1)) (l : ℤ) :
     finrank k (S.E r ⟶ (S.E r)⟦l⟧) =
       finrank k (S.E (r + 1) ⟶ (S.E (r + 1))⟦l - 2 * S.wt r - 4⟧) +
         ∑ j ∈ Finset.range (S.wt (r + 1)).toNat,
@@ -124,10 +124,18 @@ theorem lem1_step {r : ℤ} (hr : -2 ≤ S.wt r) (h1 : S.NumAdj (r + 1)) (l : �
     change _ + 1 * (((S.wt (r + 1)).toNat : ℤ) - 1 - 2 * (j : ℤ)) = _
     rw [hM]; ring
 
+/-- The dimension step under the original adjunction hypothesis. -/
+theorem lem1_step {r : ℤ} (hr : -2 ≤ S.wt r) (h1 : S.AdjHyp (r + 1)) (l : ℤ) :
+    finrank k (S.E r ⟶ (S.E r)⟦l⟧) =
+      finrank k (S.E (r + 1) ⟶ (S.E (r + 1))⟦l - 2 * S.wt r - 4⟧) +
+        ∑ j ∈ Finset.range (S.wt (r + 1)).toNat,
+          finrank k (𝟙 (S.obj (r + 1)) ⟶ (𝟙 (S.obj (r + 1)))⟦l - 2 * S.wt r - 2 + 2 * (j : ℤ)⟧) :=
+  S.lem1_step_of_numAdj hr h1.numAdj l
+
 omit [GradedBicategory.IsLinear B k] [∀ a b : B, HomFinite k (a ⟶ b)] in
 theorem wt_le_wt {r r' : ℤ} (h : r ≤ r') : S.wt r ≤ S.wt r' := by simp only [wt]; omega
 
-/-- **Lemma 3.1** (CL `lem:1`), negative degrees: assuming the adjoint induction hypothesis
+/-- **Lemma 3.1** (CL `lem:1`), negative degrees: assuming the numerical shadow of
 `eq:ind_hyp` for all weights `> n = wt r₀ ≥ 0`, if `m ≥ n` then `Hom(E 1_m, E 1_m ⟨l⟩) = 0` for
 `l < 0`. (By decreasing induction on `m`.) -/
 theorem lem1_neg_of_numAdj {r₀ : ℤ} (hn : 0 ≤ S.wt r₀) (hyp : ∀ r', r₀ < r' → S.NumAdj r') :
@@ -138,7 +146,7 @@ theorem lem1_neg_of_numAdj {r₀ : ℤ} (hn : 0 ≤ S.wt r₀) (hyp : ∀ r', r�
     exact finrank_hom_of_isZero_left k (S.isZero_E_of_left h) _
   · intro r ih hr l hl
     have hwr := S.wt_le_wt hr
-    rw [S.lem1_step (by omega) (hyp _ (by omega)) l, ih (r + 1) (by omega) (by omega) _ (by omega),
+    rw [S.lem1_step_of_numAdj (by omega) (hyp _ (by omega)) l, ih (r + 1) (by omega) (by omega) _ (by omega),
       zero_add]
     refine Finset.sum_eq_zero fun j hj => S.hom_neg _ _ ?_
     have := S.toNat_wt_succ (r := r) (by omega)
@@ -157,7 +165,7 @@ theorem lem1_zero_of_numAdj' {r₀ : ℤ} (hn : 0 ≤ S.wt r₀) (hyp : ∀ r', 
   subst hl
   have hwr := S.wt_le_wt hr
   have hM := S.toNat_wt_succ (r := r) (by omega)
-  rw [S.lem1_step (by omega) (hyp _ (by omega)) 0,
+  rw [S.lem1_step_of_numAdj (by omega) (hyp _ (by omega)) 0,
     S.lem1_neg_of_numAdj hn hyp (r + 1) (by omega) _ (by omega), zero_add,
     Finset.sum_eq_single ((S.wt (r + 1)).toNat - 1)]
   · rw [finrank_hom_shift_zero k _ _ (by omega)]
@@ -186,12 +194,12 @@ theorem lem1_zero {r₀ : ℤ} (hn : 0 ≤ S.wt r₀) (hyp : ∀ r', r₀ < r' �
     finrank k (S.E r ⟶ S.E r) = 1 :=
   S.lem1_zero_of_numAdj hn (fun r' h => (hyp r' h).numAdj) hr h
 
-/-- The dimension count in CL's proof of Corollary 3.2: for `m = wt r ≥ -2`, under
-`(E 1_{m+4})_L ≅ 1_{m+4} F ⟨-m-5⟩`,
+/-- The dimension count in CL's proof of Corollary 3.2: for `m = wt r ≥ -2`, under the numerical
+shadow of `(E 1_{m+4})_L ≅ 1_{m+4} F ⟨-m-5⟩`,
 `dim Hom(E E 1_m, E E 1_m ⟨l⟩) = dim Hom(E E 1_{m+2}, E E 1_{m+2} ⟨l-2m-6⟩)
   + ∑_{j=0}^{m+3} dim Hom(E 1_{m+2}, E 1_{m+2} ⟨l-2m-4+2j⟩)
   + ∑_{j=0}^{m+1} dim Hom(E 1_{m+2}, E 1_{m+2} ⟨l-2m-2+2j⟩)`. -/
-theorem cor0_step {r : ℤ} (hr : -2 ≤ S.wt r) (h2 : S.NumAdj (r + 1 + 1)) (l : ℤ) :
+theorem cor0_step_of_numAdj {r : ℤ} (hr : -2 ≤ S.wt r) (h2 : S.NumAdj (r + 1 + 1)) (l : ℤ) :
     finrank k (S.E r ≫ S.E (r + 1) ⟶ (S.E r ≫ S.E (r + 1))⟦l⟧) =
       finrank k (S.E (r + 1) ≫ S.E (r + 1 + 1) ⟶
           (S.E (r + 1) ≫ S.E (r + 1 + 1))⟦l - 2 * S.wt r - 6⟧) +
@@ -239,7 +247,19 @@ theorem cor0_step {r : ℤ} (hr : -2 ≤ S.wt r) (h2 : S.NumAdj (r + 1 + 1)) (l 
       · refine Finset.sum_congr rfl fun j _ => finrank_hom_shift_shift k _ _ ?_
         rw [hM1]; ring
 
-/-- **Corollary 3.2** (CL `cor:0`), degrees `< -2`: assuming `eq:ind_hyp` for all weights
+/-- The dimension step under the original adjunction hypothesis. -/
+theorem cor0_step {r : ℤ} (hr : -2 ≤ S.wt r) (h2 : S.AdjHyp (r + 1 + 1)) (l : ℤ) :
+    finrank k (S.E r ≫ S.E (r + 1) ⟶ (S.E r ≫ S.E (r + 1))⟦l⟧) =
+      finrank k (S.E (r + 1) ≫ S.E (r + 1 + 1) ⟶
+          (S.E (r + 1) ≫ S.E (r + 1 + 1))⟦l - 2 * S.wt r - 6⟧) +
+        ∑ j ∈ Finset.range (S.wt (r + 1 + 1)).toNat,
+          finrank k (S.E (r + 1) ⟶ (S.E (r + 1))⟦l - 2 * S.wt r - 4 + 2 * (j : ℤ)⟧) +
+        ∑ j ∈ Finset.range (S.wt (r + 1)).toNat,
+          finrank k (S.E (r + 1) ⟶ (S.E (r + 1))⟦l - 2 * S.wt r - 2 + 2 * (j : ℤ)⟧) :=
+  S.cor0_step_of_numAdj hr h2.numAdj l
+
+/-- **Corollary 3.2** (CL `cor:0`), degrees `< -2`: assuming the numerical shadow of `eq:ind_hyp`
+for all weights
 `> n = wt r₀ ≥ 0`, if `m ≥ n - 2` then `Hom(E E 1_m, E E 1_m ⟨l⟩) = 0` for `l < -2`. -/
 theorem cor0_neg_of_numAdj {r₀ : ℤ} (hn : 0 ≤ S.wt r₀) (hyp : ∀ r', r₀ < r' → S.NumAdj r') :
     ∀ r, r₀ - 1 ≤ r → ∀ l : ℤ, l < -2 →
@@ -254,7 +274,7 @@ theorem cor0_neg_of_numAdj {r₀ : ℤ} (hn : 0 ≤ S.wt r₀) (hyp : ∀ r', r�
     have hM2 : ((S.wt (r + 1 + 1)).toNat : ℤ) = S.wt r + 4 := by
       rw [Int.toNat_of_nonneg (by rw [S.wt_add_one, S.wt_add_one]; omega), S.wt_add_one,
         S.wt_add_one]; ring
-    rw [S.cor0_step (by omega) (hyp _ (by omega)) l, ih (r + 1) (by omega) (by omega) _ (by omega),
+    rw [S.cor0_step_of_numAdj (by omega) (hyp _ (by omega)) l, ih (r + 1) (by omega) (by omega) _ (by omega),
       zero_add]
     rw [Finset.sum_eq_zero, Finset.sum_eq_zero, add_zero]
     · intro j hj
@@ -279,7 +299,7 @@ theorem cor0_zero_of_numAdj {r₀ : ℤ} (hn : 0 ≤ S.wt r₀) (hyp : ∀ r', r
   have hM2 : ((S.wt (r + 1 + 1)).toNat : ℤ) = S.wt r + 4 := by
     rw [Int.toNat_of_nonneg (by rw [S.wt_add_one, S.wt_add_one]; omega), S.wt_add_one,
       S.wt_add_one]; ring
-  rw [S.cor0_step (by omega) (hyp _ (by omega)) (-2),
+  rw [S.cor0_step_of_numAdj (by omega) (hyp _ (by omega)) (-2),
     S.cor0_neg_of_numAdj hn hyp (r + 1) (by omega) _ (by omega), zero_add]
   rw [Finset.sum_eq_zero (s := Finset.range (S.wt (r + 1)).toNat), add_zero,
     Finset.sum_eq_single ((S.wt (r + 1 + 1)).toNat - 1)]

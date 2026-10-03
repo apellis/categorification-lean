@@ -40,8 +40,10 @@ it meets the cup that created one of its strands. Then either
 * the cup and the cap form a zigzag (`dg_zig₁`, `dg_zig₂`), which is removed.
 In both cases the number of cups and caps drops by two.
 
-The bubble slides of KL III are stated for simply-laced Cartan data; accordingly the main
-theorem assumes `SimplyLaced C`.
+The bubble slides of KL III are stated for simply-laced Cartan data; for an arbitrary Cartan
+datum we use the bubble slides in all degrees of
+`Categorification.Diagrams.KL3.BubbleSlidesGen` (through `bubLU_mem_slideSetR_gen`), so the
+results hold for every Cartan datum.
 
 ## Main results
 
@@ -325,10 +327,10 @@ theorem ctxL_dots_bubRU {S T : List (Letter I)} {pre post : List (LayerData I)}
     ctxL_dg RD k lam (by simpa using hpre.append hrep') (by simpa using hpost)]
   wnf
 
-variable (hSL : SimplyLaced C) (M : ℕ)
+variable (M : ℕ)
   (IH : ∀ ls : List (LayerData I), ncc ls ≤ M → CrossFree ls → SChain [] ls [] →
     IsBub RD k lam (dg RD k lam [] [] ls))
-include hSL IH
+include IH
 
 /-- **A bubble monomial placed anywhere in a closed crossingless diagram can be moved to the
 outer region** (bubble slides across each strand to its right), leaving dots on these strands:
@@ -360,7 +362,7 @@ theorem slideOut : ∀ (v u : List (Letter I)) (pre post : List (LayerData I)),
   | cons l v' ih =>
     intro u pre post hpre hpost hcpre hcpost hn β hβ
     rw [ctxL_cons RD k lam hpre hpost]
-    have hmem := bubLU_mem_slideSetR hSL (wt RD lam v') l (β := β) hβ
+    have hmem := bubLU_mem_slideSetR_gen (wt RD lam v') l (β := β) hβ
     generalize bubLU RD k (wt RD lam v') l β = f at hmem ⊢
     induction hmem using Submodule.span_induction with
     | mem f hf =>
@@ -386,8 +388,7 @@ theorem sChain_block {u v : List (Letter I)} {l : Letter I} (m : ℕ) :
 
 section Sink
 
-variable (hSL : SimplyLaced C) (lam : X)
-include hSL
+variable (lam : X)
 
 /-- Normalization of lists of layers in the sinking argument. -/
 syntax "lnorm" (ppSpace Lean.Parser.Tactic.location)? : tactic
@@ -535,7 +536,7 @@ theorem sink (K : ℕ)
         have e := ctxL_dg RD k lam (s₀ := []) (t₀ := []) (pre := pre') (post := post) (u := a)
           (v := b) (s := []) (t := []) (by simpa using hpre') (by simpa using hpost)
           ([([], .cup l.dual, [])] ++ List.replicate m ([], .dot l.dual, [l]) ++ [([], .cap l, [])])
-        have h := slideOut RD k lam hSL (ncc pre' + ncc post) (fun ls hls hcls hch =>
+        have h := slideOut RD k lam (ncc pre' + ncc post) (fun ls hls hcls hch =>
           IH ls (by omega) hcls hch) b a pre' post (by simpa using hpre') (by simpa using hpost)
           hcr' hcpost le_rfl _ hbub
         rw [e] at h
@@ -633,11 +634,10 @@ theorem exists_first_cap {ls : List (LayerData I)} (h : ∃ x ∈ ls, x.2.1.isCa
 theorem Shape.eq_cap_of_isCap {g : Shape I} (h : g.isCap = true) : ∃ l, g = .cap l := by
   cases g <;> simp_all [Shape.isCap]
 
-variable (hSL : SimplyLaced C) (lam : X)
-include hSL
+variable (lam : X)
 
-/-- **KL III Proposition 3.6 for crossingless diagrams** (steps 2 and 3 of KL III's proof): for a
-simply-laced Cartan datum, every closed normal-form diagram of `U` with outer region `λ` whose
+/-- **KL III Proposition 3.6 for crossingless diagrams** (steps 2 and 3 of KL III's proof): for
+every Cartan datum, every closed normal-form diagram of `U` with outer region `λ` whose
 layers are dots, cups and caps is a linear combination of bubble monomials, i.e. lies in the
 image of `Π_λ → END_U(1_λ)`. -/
 theorem crossFree_isBub (ls : List (LayerData I)) (hc : CrossFree ls) :
@@ -656,7 +656,7 @@ theorem crossFree_isBub (ls : List (LayerData I)) (hc : CrossFree ls) :
           hc y (List.mem_append_right _ (List.mem_cons_of_mem _ hy))
         have hnn : ncc pre + ncc post + 1 = n := by
           rw [← hn]; simp [Shape.isCupCap]; omega
-        have := sink RD k hSL lam (n + 1) (fun ls' hls' hcls' hch' => ihn (ncc ls') (by omega) ls' hcls' rfl)
+        have := sink RD k lam (n + 1) (fun ls' hls' hcls' hch' => ihn (ncc ls') (by omega) ls' hcls' rfl)
           pre 0 u v l post hpre hcpre hcpost (by omega) (by simpa using h₁) (by simpa using h₃)
         simpa using this
       · push Not at hcap
@@ -667,13 +667,13 @@ theorem crossFree_isBub (ls : List (LayerData I)) (hc : CrossFree ls) :
 
 /-- **KL III Proposition 3.6 for crossingless diagrams**, for arbitrary diagrams of the presented
 2-category: every closed diagram of `U` with outer region `λ` none of whose generators is a
-crossing lies in the image of `Π_λ` (simply-laced Cartan data). -/
+crossing lies in the image of `Π_λ` (any Cartan datum). -/
 theorem crossFree_diag_isBub (d : ob RD lam [] ⟶ ob RD lam [])
     (hd : ∀ L ∈ Diagram.layers d, ∀ ε i j ν, L.gen ≠ .gen (.cross ε i j ν)) :
     IsBub RD k lam ((pres RD k).diag d) := by
   obtain ⟨ls, h, rfl⟩ := exists_mkD RD lam d
   rw [← dg_of h]
-  refine crossFree_isBub RD k hSL lam ls fun x hx => ?_
+  refine crossFree_isBub RD k lam ls fun x hx => ?_
   obtain ⟨a, g, b⟩ := x
   cases g with
   | cross ε i j =>
@@ -709,7 +709,7 @@ theorem prop36_iff_dg (lam : X) :
 /-- Proposition 3.6 holds iff every closed diagram lies in the image of `Π_λ`; by
 `crossFree_isBub` it suffices to reduce closed diagrams with crossings to closed crossingless
 diagrams modulo the image of `Π_λ` (step 1 of KL III's proof). -/
-theorem prop36_of_reduction (hSL : SimplyLaced C) (lam : X)
+theorem prop36_of_reduction (lam : X)
     (hred : ∀ ls, SChain [] ls [] → dg RD k lam [] [] ls ∈
       Submodule.span k {x | ∃ ls', CrossFree ls' ∧ x = dg RD k lam [] [] ls'}) :
     Prop36 RD k lam := by
@@ -718,6 +718,6 @@ theorem prop36_of_reduction (hSL : SimplyLaced C) (lam : X)
   rw [isBub_iff_mem_bubSubmodule]
   refine Submodule.span_le.mpr ?_ (hred ls hls)
   rintro _ ⟨ls', hls', rfl⟩
-  exact crossFree_isBub RD k hSL lam ls' hls'
+  exact crossFree_isBub RD k lam ls' hls'
 
 end Categorification.KL3.Diagram

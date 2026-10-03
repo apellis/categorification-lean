@@ -26,7 +26,9 @@ level of Hom-dimensions, with the opposite shift (`Sl2CatData.finrank_f_eq`):
 Applied to the Hom categories of a strong 2-representation satisfying the boundedness hypothesis
 (BB_w) (`WordBounded.lean`), with left and right composition by `E`, `F` and the word-generated
 1-morphisms as test objects (`WordNumerics.lean`), this is the numerical shadow of (3.2) at *every*
-weight `n`: the predicate `DimAdj k ((F 1_n)⟨-n-1⟩) (E 1_n)` on word-generated test objects.
+weight `n`, expressed by `StrongSl2.NumAdj` on word-generated test objects. This is
+not the full adjunction of Proposition 3.9: no unit, counit or triangle identities are
+constructed by this numerical argument.
 
 ## Proof
 
@@ -51,8 +53,6 @@ The representation-theoretic input is that an `E`-equivariant weight-preserving 
 -/
 
 noncomputable section
-
-set_option linter.unusedSectionVars false
 
 namespace Categorification.TwoRep
 
@@ -91,8 +91,7 @@ universe u v
 
 variable (k : Type*) [Field k] (C : ℤ → Type u) [∀ t, Category.{v} (C t)]
   [∀ t, Preadditive (C t)] [∀ t, Linear k (C t)] [∀ t, HasShift (C t) ℤ]
-  [∀ t (n : ℤ), (shiftFunctor (C t) n).Additive] [∀ t (n : ℤ), (shiftFunctor (C t) n).Linear k]
-  [∀ t, HasZeroObject (C t)] [∀ t, HasBinaryBiproducts (C t)] [∀ t, HomFinite k (C t)]
+  [∀ t, HasZeroObject (C t)] [∀ t, HasBinaryBiproducts (C t)]
 
 /-- **Categorified `sl₂`-weight data**: graded `k`-linear categories `C t` of weight `n₀ + 2t`,
 functors `e t : C t ⥤ C (t + 1)` and `f t : C (t + 1) ⥤ C t` commuting with sums and shifts,
@@ -206,11 +205,13 @@ theorem ser_ext {t : ℤ} {X Z X' Z' : C t} {hX : D.P t X} {hZ : D.P t Z} {hX' :
     ser hX hZ = ser hX' hZ' := by
   ext d; rw [coeff_ser, coeff_ser, h]
 
-theorem ser_biprod_left {t : ℤ} {X Y Z : C t} (hX : D.P t X) (hY : D.P t Y) (hZ : D.P t Z) :
+theorem ser_biprod_left [∀ t, HomFinite k (C t)]
+    {t : ℤ} {X Y Z : C t} (hX : D.P t X) (hY : D.P t Y) (hZ : D.P t Z) :
     ser (D.P_biprod t hX hY) hZ = ser hX hZ + ser hY hZ := by
   ext d; simp only [coeff_ser, HahnSeries.coeff_add, finrank_hom_biprod_left]; push_cast; rfl
 
-theorem ser_biprod_right {t : ℤ} {X Z W : C t} (hX : D.P t X) (hZ : D.P t Z) (hW : D.P t W) :
+theorem ser_biprod_right [∀ t, HomFinite k (C t)] [∀ t (n : ℤ), (shiftFunctor (C t) n).Additive]
+    {t : ℤ} {X Z W : C t} (hX : D.P t X) (hZ : D.P t Z) (hW : D.P t W) :
     ser hX (D.P_biprod t hZ hW) = ser hX hZ + ser hX hW := by
   ext d
   simp only [coeff_ser, HahnSeries.coeff_add]
@@ -226,7 +227,8 @@ theorem ser_iso_right {t : ℤ} {X Z Z' : C t} (hX : D.P t X) (hZ : D.P t Z) (e 
     ser hX (D.P_iso t hZ e) = ser hX hZ :=
   ser_ext fun d => (finrank_hom_congr_right k X ((shiftFunctor _ d).mapIso e)).symm
 
-theorem ser_shift_left {t : ℤ} {X Z : C t} (hX : D.P t X) (hZ : D.P t Z) (a : ℤ) :
+theorem ser_shift_left [∀ t (n : ℤ), (shiftFunctor (C t) n).Additive] [∀ t (n : ℤ), (shiftFunctor (C t) n).Linear k]
+    {t : ℤ} {X Z : C t} (hX : D.P t X) (hZ : D.P t Z) (a : ℤ) :
     ser (D.P_shift t a hX) hZ = qL ^ a * ser hX hZ := by
   ext d
   rw [coeff_qL_zpow_mul, coeff_ser, coeff_ser, finrank_hom_shift_shift k _ _ (c := d - a) (by ring)]
@@ -453,12 +455,12 @@ def wtModule (ε : ℤ) (hε : ε = 1 ∨ ε = -1) (c : ℤ → ℤ) : WtModule 
       rcases le_total 0 (D.n₀ + 2 * (r + 1)) with hm | hm
       · obtain ⟨i⟩ := D.EF r X hm
         rw [clsOb_iso' _ (D.P_biprod (r + 1) (D.P_f (r + 1) (D.P_e (r + 1) hX)) (P_qsum hX 1 _)) i,
-          clsOb_biprod (D.P_f (r + 1) (D.P_e (r + 1) hX)) (P_qsum hX 1 _), clsOb_qsum hε,
+          clsOb_biprod (D.P_f (r + 1) (D.P_e (r + 1) hX)) (P_qsum hX 1 _), clsOb_qsum hε hX,
           Int.toNat_of_nonneg hm]
         abel
       · obtain ⟨i⟩ := D.FE r X hm
         rw [clsOb_iso' _ (D.P_biprod (r + 1) (D.P_e r (D.P_f r hX)) (P_qsum hX 1 _)) i,
-          clsOb_biprod (D.P_e r (D.P_f r hX)) (P_qsum hX 1 _), clsOb_qsum hε,
+          clsOb_biprod (D.P_e r (D.P_f r hX)) (P_qsum hX 1 _), clsOb_qsum hε hX,
           Int.toNat_of_nonneg (by omega), qIntZ_neg, neg_smul]
         abel
     have := LinearMap.mem_ker.1 h
@@ -490,7 +492,8 @@ theorem iSup_wtSp (ε : ℤ) : ⨆ t, D.wtSp ε t = ⊤ := by
       exact Submodule.smul_mem _ _
         (Submodule.mem_iSup_of_mem b.1 (clsOb_mem_wtSp (ε := ε) b.2.2))
 
-theorem pairOb_biprod_right (b : D.Ob) {t : ℤ} {Z W : C t} (hZ : D.P t Z) (hW : D.P t W) :
+theorem pairOb_biprod_right [∀ t, HomFinite k (C t)] [∀ t (n : ℤ), (shiftFunctor (C t) n).Additive]
+    (b : D.Ob) {t : ℤ} {Z W : C t} (hZ : D.P t Z) (hW : D.P t W) :
     D.pairOb b ⟨t, Z ⊞ W, D.P_biprod t hZ hW⟩ = D.pairOb b ⟨t, Z, hZ⟩ + D.pairOb b ⟨t, W, hW⟩ := by
   obtain ⟨t₀, X, hX⟩ := b
   by_cases h : t = t₀
@@ -511,10 +514,11 @@ theorem pairOb_iso_right (b : D.Ob) {t : ℤ} {Z Z' : C t} (hZ : D.P t Z) (e : Z
   obtain ⟨t₀, X, hX⟩ := b
   by_cases h : t = t₀
   · subst h
-    rw [pairOb_same, pairOb_same, ser_iso_right]
+    rw [pairOb_same, pairOb_same, ser_iso_right hX hZ e]
   · rw [pairOb_ne _ _ h, pairOb_ne _ _ h]
 
-theorem pairOb_biprod_left {t : ℤ} {X Y : C t} (hX : D.P t X) (hY : D.P t Y) (b : D.Ob) :
+theorem pairOb_biprod_left [∀ t, HomFinite k (C t)]
+    {t : ℤ} {X Y : C t} (hX : D.P t X) (hY : D.P t Y) (b : D.Ob) :
     D.pairOb ⟨t, X ⊞ Y, D.P_biprod t hX hY⟩ b = D.pairOb ⟨t, X, hX⟩ b + D.pairOb ⟨t, Y, hY⟩ b := by
   obtain ⟨t₀, Z, hZ⟩ := b
   by_cases h : t₀ = t
@@ -522,7 +526,8 @@ theorem pairOb_biprod_left {t : ℤ} {X Y : C t} (hX : D.P t X) (hY : D.P t Y) (
     rw [pairOb_same, pairOb_same, pairOb_same, ser_biprod_left]
   · rw [pairOb_ne _ _ h, pairOb_ne _ _ h, pairOb_ne _ _ h, add_zero]
 
-theorem pairOb_shift_left {t : ℤ} {X : C t} (hX : D.P t X) (a : ℤ) (b : D.Ob) :
+theorem pairOb_shift_left [∀ t (n : ℤ), (shiftFunctor (C t) n).Additive] [∀ t (n : ℤ), (shiftFunctor (C t) n).Linear k]
+    {t : ℤ} {X : C t} (hX : D.P t X) (a : ℤ) (b : D.Ob) :
     D.pairOb ⟨t, X⟦a⟧, D.P_shift t a hX⟩ b = qL ^ a * D.pairOb ⟨t, X, hX⟩ b := by
   obtain ⟨t₀, Z, hZ⟩ := b
   by_cases h : t₀ = t
@@ -535,29 +540,32 @@ theorem pairOb_iso_left {t : ℤ} {X X' : C t} (hX : D.P t X) (e : X ≅ X') (b 
   obtain ⟨t₀, Z, hZ⟩ := b
   by_cases h : t₀ = t
   · subst h
-    rw [pairOb_same, pairOb_same, ser_iso_left]
+    rw [pairOb_same, pairOb_same, ser_iso_left hX e hZ]
   · rw [pairOb_ne _ _ h, pairOb_ne _ _ h]
 
 variable (D) in
 /-- The Hom-series `⟨b, -⟩` as a linear form on `K ⊗ K_⊕` with `q ↦ ⟨-1⟩`. -/
-def pairRight (b : D.Ob) : D.KMod (-1) →ₗ[LSer] LSer :=
+def pairRight [∀ t, HomFinite k (C t)] [∀ t (n : ℤ), (shiftFunctor (C t) n).Additive]
+    (b : D.Ob) : D.KMod (-1) →ₗ[LSer] LSer :=
   (Submodule.span LSer (D.relSet (-1))).liftQ
     (Finsupp.linearCombination LSer fun b' : D.Ob => D.pairOb b b') (by
       rw [Submodule.span_le]
       rintro x ((⟨t, X, Y, hX, hY, rfl⟩ | ⟨t, X, hX, a, rfl⟩) | ⟨t, X, Y, hX, e, rfl⟩) <;>
         simp only [SetLike.mem_coe, LinearMap.mem_ker, map_sub, map_smul,
-          Finsupp.linearCombination_single, one_smul, smul_eq_mul]
-      · rw [pairOb_biprod_right]; ring
-      · rw [pairOb_shift_right, neg_one_mul, sub_self]
-      · rw [pairOb_iso_right, sub_self])
+          Finsupp.linearCombination_single, smul_eq_mul, one_mul]
+      · rw [pairOb_biprod_right b hX hY]; ring
+      · rw [pairOb_shift_right b hX a, neg_one_mul, sub_self]
+      · rw [pairOb_iso_right b hX e, sub_self])
 
-theorem pairRight_clsOb (b b' : D.Ob) : D.pairRight b (clsOb (-1) b') = D.pairOb b b' := by
+theorem pairRight_clsOb [∀ t, HomFinite k (C t)] [∀ t (n : ℤ), (shiftFunctor (C t) n).Additive]
+    (b b' : D.Ob) : D.pairRight b (clsOb (-1) b') = D.pairOb b b' := by
   simp only [pairRight, clsOb, Submodule.liftQ_apply, Finsupp.linearCombination_single, one_smul]
 
 variable (D) in
 /-- **The Hom-series pairing** `Φ : K ⊗ K_⊕ → (K ⊗ K_⊕)^*`, `Φ [X] [Z] = ⟨X, Z⟩`; the source has
 `q ↦ ⟨1⟩` and the target `q ↦ ⟨-1⟩` (`⟨X⟨a⟩, Z⟩ = qᵃ ⟨X, Z⟩`, `⟨X, Z⟨a⟩⟩ = q⁻ᵃ ⟨X, Z⟩`). -/
-def Φ : D.KMod 1 →ₗ[LSer] Module.Dual LSer (D.KMod (-1)) :=
+def Φ [∀ t, HomFinite k (C t)] [∀ t (n : ℤ), (shiftFunctor (C t) n).Additive] [∀ t (n : ℤ), (shiftFunctor (C t) n).Linear k]
+    : D.KMod 1 →ₗ[LSer] Module.Dual LSer (D.KMod (-1)) :=
   (Submodule.span LSer (D.relSet 1)).liftQ
     (Finsupp.linearCombination LSer fun b : D.Ob => D.pairRight b) (by
       rw [Submodule.span_le]
@@ -573,9 +581,10 @@ def Φ : D.KMod 1 →ₗ[LSer] Module.Dual LSer (D.KMod (-1)) :=
         rw [LinearMap.smul_apply, pairRight_clsOb, pairRight_clsOb, pairOb_shift_left, one_mul,
           smul_eq_mul]
       · refine KMod.hom_ext fun b => ?_
-        rw [pairRight_clsOb, pairRight_clsOb, pairOb_iso_left])
+        rw [pairRight_clsOb, pairRight_clsOb, pairOb_iso_left hX e b])
 
-theorem Φ_clsOb (b b' : D.Ob) : D.Φ (clsOb 1 b) (clsOb (-1) b') = D.pairOb b b' := by
+theorem Φ_clsOb [∀ t, HomFinite k (C t)] [∀ t (n : ℤ), (shiftFunctor (C t) n).Additive] [∀ t (n : ℤ), (shiftFunctor (C t) n).Linear k]
+    (b b' : D.Ob) : D.Φ (clsOb 1 b) (clsOb (-1) b') = D.pairOb b b' := by
   simp only [Φ, clsOb, Submodule.liftQ_apply, Finsupp.linearCombination_single, one_smul]
   exact pairRight_clsOb b b'
 
@@ -655,7 +664,8 @@ def resc (D : Sl2CatData k C) (t : ℤ) : ℤ := D.n₀ + 2 * t + 1
 
 /-- **The numerical adjunction, as an identity of Hom-series**:
 `⟨f X, Z⟩ = q^{n₀ + 2t + 1} ⟨X, e Z⟩`. -/
-theorem ser_f_eq {t : ℤ} {X : C (t + 1)} {Z : C t} (hX : D.P (t + 1) X) (hZ : D.P t Z) :
+theorem ser_f_eq [∀ t, HomFinite k (C t)] [∀ t (n : ℤ), (shiftFunctor (C t) n).Additive] [∀ t (n : ℤ), (shiftFunctor (C t) n).Linear k]
+    {t : ℤ} {X : C (t + 1)} {Z : C t} (hX : D.P (t + 1) X) (hZ : D.P t Z) :
     ser (D.P_f t hX) hZ = qL ^ (D.n₀ + 2 * t + 1) * ser hX (D.P_e t hZ) := by
   set M := D.wtModule 1 (Or.inl rfl) (fun _ => 0) with hM
   set M' := (D.wtModule (-1) (Or.inr rfl) D.resc).dual (iSup_wtSp (-1)) with hM'
@@ -695,7 +705,8 @@ theorem ser_f_eq {t : ℤ} {X : C (t + 1)} {Z : C t} (hX : D.P (t + 1) X) (hZ : 
 `dim Hom(f X, Z⟨d⟩) = dim Hom(X, (e Z)⟨d - (n₀ + 2t + 1)⟩)` for test objects `X` (of weight
 `n₀ + 2(t+1)`) and `Z` (of weight `n₀ + 2t`): the lowering functor is also *left* adjoint to the
 raising functor at the level of Hom-dimensions, with the opposite shift. -/
-theorem finrank_f_eq {t : ℤ} {X : C (t + 1)} {Z : C t} (hX : D.P (t + 1) X) (hZ : D.P t Z) (d : ℤ) :
+theorem finrank_f_eq [∀ t, HomFinite k (C t)] [∀ t (n : ℤ), (shiftFunctor (C t) n).Additive] [∀ t (n : ℤ), (shiftFunctor (C t) n).Linear k]
+    {t : ℤ} {X : C (t + 1)} {Z : C t} (hX : D.P (t + 1) X) (hZ : D.P t Z) (d : ℤ) :
     finrank k ((D.f t).obj X ⟶ Z⟦d⟧) =
       finrank k (X ⟶ ((D.e t).obj Z)⟦d - (D.n₀ + 2 * t + 1)⟧) := by
   have h := congrArg (fun s : LSer => s.coeff d) (ser_f_eq hX hZ)

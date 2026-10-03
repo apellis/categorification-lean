@@ -14,19 +14,21 @@ arXiv:1111.1431v3, §3. In Definition 1.2 (`def_Qstrong`) the spaces of 2-morphi
 so this is finiteness in each degree. Nothing in Definition 1.2 bounds the degrees `l` in which
 `Hom^l(X, Y)` is nonzero.
 
-This file states the additional hypothesis under which CL Proposition 3.9 (`prop:lradj`) and
-Theorem 1.1 are formalized in this library:
+This file states the additional hypothesis used for the word-generated numerical
+adjunction results motivated by CL Proposition 3.9 (`prop:lradj`). It does not prove the
+full proposition or Theorem 1.1:
 
 **(BB_w)** for all words `X`, `Z` in the 1-morphisms `E 1_n`, `1_n F` (composites, with the same
-source and target), `Hom(X, Z⟨d⟩) = 0` for `d ≪ 0`.
+source and target), `finrank k Hom(X, Z⟨d⟩) = 0` for `d ≪ 0`, with a separate bound
+for each pair. Under `HomFinite`, this is equivalent to vanishing of the Hom spaces.
 
-It holds whenever `E` and `F` are biadjoint up to shift (so it is implied by the conclusion of
-CL Proposition 3.9), and in every 2-representation by graded bimodules over nonnegatively graded,
-degreewise finite-dimensional algebras.
+The hypothesis is imposed separately; no implication from biadjointness or general
+graded-bimodule realizations is proved here.
 
 ## Main declarations
 
-* `HomBddBelow k X Z`: the graded Hom space `⊕_d Hom(X, Z⟨d⟩)` is bounded below in degree; closure
+* `HomBddBelow k X Z`: eventual vanishing of finranks in negative degrees (actual
+  Hom-space vanishing under `HomFinite`); closure
   properties (isomorphisms, shifts, direct sums, retracts).
 * `StrongSl2.Word S r s X`: the 1-morphism `X : obj r ⟶ obj s` is a word in `E`, `F` (identities
   and arbitrary bracketings allowed).
@@ -57,8 +59,9 @@ section HomBddBelow
 variable (k : Type*) [Field k] {C : Type*} [Category C] [Preadditive C] [Linear k C]
   [HasShift C ℤ]
 
-/-- **The graded Hom space `⊕_d Hom(X, Z⟨d⟩)` is bounded below**: `Hom(X, Z⟨d⟩) = 0` for
-`d ≪ 0`. -/
+/-- The finranks of `Hom(X, Z⟨d⟩)` vanish for `d ≪ 0`. Under `HomFinite k C`, this
+means that the graded Hom space is bounded below. Without finite dimensionality,
+vanishing finrank alone does not imply that the Hom space is zero. -/
 def HomBddBelow (X Z : C) : Prop := ∃ N : ℤ, ∀ d : ℤ, d < N → finrank k (X ⟶ Z⟦d⟧) = 0
 
 variable {k}
@@ -75,6 +78,8 @@ theorem HomBddBelow.of_isZero_left {X : C} (h : IsZero X) (Z : C) : HomBddBelow 
 theorem HomBddBelow.of_isZero_right (X : C) {Z : C} (h : IsZero Z) : HomBddBelow k X Z :=
   ⟨0, fun d _ => finrank_hom_of_isZero_right k X ((shiftFunctor C d).map_isZero h)⟩
 
+section Shifts
+
 variable [∀ n : ℤ, (shiftFunctor C n).Additive] [∀ n : ℤ, (shiftFunctor C n).Linear k]
 
 theorem HomBddBelow.shift_left {X Z : C} (h : HomBddBelow k X Z) (a : ℤ) :
@@ -84,12 +89,14 @@ theorem HomBddBelow.shift_left {X Z : C} (h : HomBddBelow k X Z) (a : ℤ) :
   rw [finrank_hom_shift_shift k X Z (c := d - a) (by ring)]
   exact hN _ (by omega)
 
+end Shifts
+
 theorem HomBddBelow.shift_right {X Z : C} (h : HomBddBelow k X Z) (a : ℤ) :
     HomBddBelow k X (Z⟦a⟧) := by
   obtain ⟨N, hN⟩ := h
   refine ⟨N - a, fun d hd => ?_⟩
-  rw [finrank_hom_congr_right k X ((shiftFunctorAdd' C a d (a + d) rfl).app Z).symm]
-  exact hN _ (by omega)
+  exact (finrank_hom_congr_right k X
+    ((shiftFunctorAdd' C a d (a + d) rfl).app Z).symm).trans (hN _ (by omega))
 
 section Finite
 
@@ -128,6 +135,8 @@ theorem HomBddBelow.biprod_left {X Y Z : C} (hX : HomBddBelow k X Z) (hY : HomBd
   rw [finrank_hom_biprod_left, hN d (lt_of_lt_of_le hd (min_le_left _ _)),
     hM d (lt_of_lt_of_le hd (min_le_right _ _))]
 
+variable [∀ n : ℤ, (shiftFunctor C n).Additive]
+
 theorem HomBddBelow.biprod_right {X Z W : C} (hZ : HomBddBelow k X Z) (hW : HomBddBelow k X W) :
     HomBddBelow k X (Z ⊞ W) := by
   obtain ⟨N, hN⟩ := hZ
@@ -159,12 +168,12 @@ inductive Word (S : StrongSl2 k B) : ∀ r s : ℤ, (S.obj r ⟶ S.obj s) → Pr
       Word S r s X → Word S s t Y → Word S r t (X ≫ Y)
 
 /-- **The hypothesis (BB_w)**: the graded Hom spaces between words in `E`, `F` (with the same
-source and target) are bounded below in degree, `Hom(X, Z⟨d⟩) = 0` for `d ≪ 0`. Equivalently
-(`BBw.homBddBelow`), the graded endomorphism algebras of direct summands of finite direct sums of
-shifts of words are bounded below.
+source and target) have finrank zero for `d ≪ 0`, with a bound for each pair. Under
+`HomFinite`, this is actual Hom-space vanishing; `BBw.homBddBelow` extends it to
+word-generated pairs.
 
-This is not part of CL Definition 1.2, whose finiteness condition is degreewise. It is implied
-by the conclusion of CL Proposition 3.9. -/
+This is an additional hypothesis, not part of CL Definition 1.2, whose finiteness condition
+is degreewise. -/
 def BBw (S : StrongSl2 k B) : Prop :=
   ∀ ⦃r s : ℤ⦄ ⦃X Z : S.obj r ⟶ S.obj s⦄, S.Word r s X → S.Word r s Z → HomBddBelow k X Z
 
@@ -234,12 +243,12 @@ theorem shift {r s : ℤ} {X : S.obj r ⟶ S.obj s} (h : S.WordNF r s X) (b : �
     S.WordNF r s (X⟦b⟧) := by
   induction h with
   | shiftWord a hW => exact (WordNF.shiftWord (a + b) hW).of_iso ((shiftFunctorAdd _ a b).app _)
-  | zero r s =>
+  | zero =>
     exact (WordNF.zero r s).of_iso
       (((shiftFunctor _ b).map_isZero (isZero_zero _)).iso (isZero_zero _)).symm
   | biprod _ _ ihX ihY => exact (WordNF.biprod ihX ihY).of_iso (mapBiprodIso _ _ _).symm
   | retract i p hip _ ih =>
-    exact .retract (i⟦b⟧') (p⟦b⟧') (by rw [← Functor.map_comp, hip, Functor.map_id]) ih
+    exact .retract (i⟦b⟧') (p⟦b⟧') (by rw [← Functor.map_comp, hip, CategoryTheory.Functor.map_id]) ih
 
 /-- A shifted word composed with a normal form is a normal form. -/
 theorem shiftWord_comp {r s t : ℤ} {W : S.obj r ⟶ S.obj s} (hW : S.Word r s W) (a : ℤ)
@@ -247,25 +256,29 @@ theorem shiftWord_comp {r s t : ℤ} {W : S.obj r ⟶ S.obj s} (hW : S.Word r s 
   induction hY with
   | shiftWord b hV =>
     exact (WordNF.shiftWord (b + a) (hW.comp hV)).of_iso (shiftCompShiftIso _ _ rfl).symm
-  | zero s t => exact (WordNF.zero r t).of_iso
+  | zero =>
+    exact (WordNF.zero r t).of_iso
       ((isZero_comp_right _ (isZero_zero _)).iso (isZero_zero _)).symm
-  | biprod _ _ ihX ihY => exact (WordNF.biprod (ihX hW) (ihY hW)).of_iso
+  | biprod _ _ ihX ihY =>
+    exact (WordNF.biprod ihX ihY).of_iso
       (whiskerLeftBiprodIso _ _ _).symm
   | retract i p hip _ ih =>
     exact .retract (_ ◁ i) (_ ◁ p)
-      (by rw [← Bicategory.whiskerLeft_comp, hip, Bicategory.whiskerLeft_id]) (ih hW)
+      (by rw [← Bicategory.whiskerLeft_comp, hip, Bicategory.whiskerLeft_id]) ih
 
 theorem comp {r s t : ℤ} {X : S.obj r ⟶ S.obj s} (hX : S.WordNF r s X) {Y : S.obj s ⟶ S.obj t}
     (hY : S.WordNF s t Y) : S.WordNF r t (X ≫ Y) := by
   induction hX with
   | shiftWord a hW => exact shiftWord_comp hW a hY
-  | zero r s => exact (WordNF.zero r t).of_iso
+  | zero =>
+    exact (WordNF.zero r t).of_iso
       ((isZero_comp_left (isZero_zero _) _).iso (isZero_zero _)).symm
-  | biprod _ _ ihX ihY => exact (WordNF.biprod (ihX hY) (ihY hY)).of_iso
+  | biprod _ _ ihX ihY =>
+    exact (WordNF.biprod ihX ihY).of_iso
       (whiskerRightBiprodIso _ _ _).symm
   | retract i p hip _ ih =>
     exact .retract (i ▷ _) (p ▷ _)
-      (by rw [← Bicategory.comp_whiskerRight, hip, Bicategory.id_whiskerRight]) (ih hY)
+      (by rw [← Bicategory.comp_whiskerRight, hip, Bicategory.id_whiskerRight]) ih
 
 end WordNF
 
@@ -284,7 +297,7 @@ theorem WordNF.wordGen {r s : ℤ} {X : S.obj r ⟶ S.obj s} (h : S.WordNF r s X
     S.WordGen r s X := by
   induction h with
   | shiftWord a hW => exact .shift a (.word hW)
-  | zero r s => exact .zero r s
+  | zero => exact .zero r s
   | biprod _ _ ihX ihY => exact .biprod ihX ihY
   | retract i p hip _ ih => exact .retract i p hip ih
 
@@ -322,16 +335,17 @@ theorem BBw.homBddBelow (hS : S.BBw) {r s : ℤ} {X Z : S.obj r ⟶ S.obj s} (hX
     intro W a hW Z hZ
     induction hZ with
     | shiftWord b hV => exact ((hS hW hV).shift_right b).shift_left a
-    | zero r s => exact .of_isZero_right _ (isZero_zero _)
-    | biprod _ _ ihX ihY => exact (ihX hW).biprod_right (ihY hW)
-    | retract i p hip _ ih => exact (ih hW).of_retract_right i p hip
+    | zero => exact .of_isZero_right _ (isZero_zero _)
+    | biprod _ _ ihX ihY => exact ihX.biprod_right ihY
+    | retract i p hip _ ih => exact ih.of_retract_right i p hip
   have hZ' := hZ.wordNF
   have hX' := hX.wordNF
+  clear hX hZ
   induction hX' with
   | shiftWord a hW => exact key a hW hZ'
-  | zero r s => exact .of_isZero_left (isZero_zero _) _
-  | biprod hX₁ hX₂ ihX ihY => exact (ihX hX₁.wordGen hZ hZ').biprod_left (ihY hX₂.wordGen hZ hZ')
-  | retract i p hip hY ih => exact (ih hY.wordGen hZ hZ').of_retract_left i p hip
+  | zero => exact .of_isZero_left (isZero_zero _) _
+  | biprod _ _ ihX ihY => exact ihX.biprod_left ihY
+  | retract i p hip _ ih => exact ih.of_retract_left i p hip
 
 end StrongSl2
 

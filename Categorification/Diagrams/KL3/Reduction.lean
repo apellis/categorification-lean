@@ -40,17 +40,16 @@ bubble monomials (`closeRight_bubLU`, `closeLeft_bubRU` of
 ## Main results
 
 * `prop36_of_endUpSpan`: **Proposition 3.6 follows from the one-strand case of Lemma 3.9**:
-  if `EndUpSpan RD k μ i` holds for all `μ` and `i`, then `Prop36 RD k λ` holds for all `λ`
-  (simply-laced Cartan data, as for the bubble slides).
+  if `EndUpSpan RD k μ i` holds for all `μ` and `i`, then `Prop36 RD k λ` holds for all `λ`.
 * `endUpSpan_of_upSpanDiag`, `prop310_of_upSpanDiag`, `prop36_of_upSpanDiag`: `UpSpanDiag`
   implies its one-strand case, Proposition 3.10 (`Prop310`, for every `ν`) and Proposition 3.6.
 * `endUpSpan_of_prop310`, `prop36_of_prop310`: **Proposition 3.10 for one-vertex `ν` implies
   Proposition 3.6**.
 
 The remaining input, `UpSpanDiag` (equivalently KL III's reduction of crossings, cups and caps in
-diagrams between upward sequences), is proved for simply-laced data in
-`Categorification.Diagrams.KL3.Lemma39` (`upSpanDiag_of_simplyLaced`, `prop36_of_simplyLaced`,
-`prop310_of_simplyLaced`).
+diagrams between upward sequences), is proved for every Cartan datum in
+`Categorification.Diagrams.KL3.Lemma39` (`upSpanDiag`, `prop36`,
+`prop310`).
 -/
 
 -- Elaborate the diagram functor transports through semireducible definitions.
@@ -150,24 +149,23 @@ variable {RD k}
 
 /-- For an upward strand, dots times bubble monomials on the right are also dots times bubble
 monomials on the left (bubble slides, KL III Propositions 3.3 and 3.4). -/
-theorem slideSetR_le_slideSetL_up (hSL : SimplyLaced C) (μ : X) (j : I) :
+theorem slideSetR_le_slideSetL_up (μ : X) (j : I) :
     slideSetR RD k μ (up j) ≤ slideSetL RD k μ (up j) := by
   refine Submodule.span_le.mpr ?_
   rintro _ ⟨a, γ, hγ, rfl⟩
   have hd : dotsU RD k μ (up j) a ∈ slideSetL RD k μ (up j) := by
     have := mem_slideSetL (RD := RD) (k := k) (μ := μ) (l := up j) (a := a) (IsBub.id)
     rwa [bubLU_id, Category.comp_id] at this
-  exact slideSetL_comp hd (bubRU_up_mem hSL μ j hγ)
+  exact slideSetL_comp hd (bubRU_up_mem_gen μ j hγ)
 
-variable (hSL : SimplyLaced C) (lam : X) (i : I)
-include hSL
+variable (lam : X) (i : I)
 
 /-- The right closure of dots times bubble monomials is a bubble monomial times a dotted
 clockwise bubble. -/
 theorem isBub_closeRight {g : End ((pres RD k).obj (ob RD (wt RD lam [dn i]) [up i]))}
     (hg : g ∈ slideSetR RD k (wt RD lam [dn i]) (up i)) :
     IsBub RD k lam (closeRight RD k lam i g) := by
-  have hg' := slideSetR_le_slideSetL_up hSL (wt RD lam [dn i]) i hg
+  have hg' := slideSetR_le_slideSetL_up (wt RD lam [dn i]) i hg
   clear hg
   induction hg' using Submodule.span_induction with
   | mem f hf =>
@@ -178,7 +176,6 @@ theorem isBub_closeRight {g : End ((pres RD k).obj (ob RD (wt RD lam [dn i]) [up
   | add x y _ _ hx hy => rw [map_add]; exact IsBub.add hx hy
   | smul r x _ hx => rw [map_smul]; exact IsBub.smul r hx
 
-omit hSL in
 /-- The left closure of dots times bubble monomials is a bubble monomial times a dotted
 counterclockwise bubble. -/
 theorem isBub_closeLeft {g : End ((pres RD k).obj (ob RD lam [up i]))}
@@ -204,12 +201,12 @@ theorem Shape.eq_cup_of_dom_nil {g : Shape I} (h : g.dom = []) : ∃ l, g = .cup
   | cross ε a b => simp at h
   | cap l => simp at h
 
-/-- **KL III Proposition 3.6 from the one-strand case of Lemma 3.9** (simply-laced Cartan data):
+/-- **KL III Proposition 3.6 from the one-strand case of Lemma 3.9**:
 if every endomorphism of every upward strand `E_i 1_μ` is a linear combination of dots times
 bubble monomials, then `Π_λ → END_U(1_λ)` is surjective for every `λ`. A closed diagram is the
 closure of an endomorphism of an upward strand along its lowest cup (`dg_cupUp_eq_closeRight`,
 `dg_cupDn_eq_closeLeft`), and closures of dots times bubble monomials are bubble monomials. -/
-theorem prop36_of_endUpSpan (hSL : SimplyLaced C) (H : ∀ (μ : X) (i : I), EndUpSpan RD k μ i)
+theorem prop36_of_endUpSpan (H : ∀ (μ : X) (i : I), EndUpSpan RD k μ i)
     (lam : X) : Prop36 RD k lam := by
   rw [prop36_iff_dg]
   intro ls hls
@@ -228,7 +225,7 @@ theorem prop36_of_endUpSpan (hSL : SimplyLaced C) (H : ∀ (μ : X) (i : I), End
     cases ε with
     | true =>
       rw [dg_cupUp_eq_closeRight RD k lam i rest h]
-      exact isBub_closeRight hSL lam i (H _ i _)
+      exact isBub_closeRight lam i (H _ i _)
     | false =>
       rw [dg_cupDn_eq_closeLeft RD k lam i rest h]
       exact isBub_closeLeft lam i (H _ i _)
@@ -297,9 +294,9 @@ theorem endUpSpan_of_upSpanDiag {μ : X} (H : UpSpanDiag RD k μ) (i : I) : EndU
   exact H _ _ ls (positive_ups [i]) (positive_ups [i]) hls
 
 /-- **Proposition 3.6 from Lemma 3.9 in diagrammatic form.** -/
-theorem prop36_of_upSpanDiag (hSL : SimplyLaced C) (H : ∀ μ : X, UpSpanDiag RD k μ) (lam : X) :
+theorem prop36_of_upSpanDiag (H : ∀ μ : X, UpSpanDiag RD k μ) (lam : X) :
     Prop36 RD k lam :=
-  prop36_of_endUpSpan RD k hSL (fun μ i => endUpSpan_of_upSpanDiag RD k (H μ) i) lam
+  prop36_of_endUpSpan RD k (fun μ i => endUpSpan_of_upSpanDiag RD k (H μ) i) lam
 
 end UpSpan
 
@@ -401,12 +398,12 @@ theorem endUpSpan_of_prop310 (i : I) (h : Prop310 RD k μ {i}) : EndUpSpan RD k 
   intro f
   exact (prop310_iff_upSpan RD k μ {i}).1 h s s f
 
-/-- **KL III Proposition 3.6 from Proposition 3.10** (for one-vertex `ν`; simply-laced Cartan
-data): if `ϕ_{{i},μ} : R(i) ⊗ Π_μ → END_U(E_i 1_μ)` is surjective for all `i` and `μ`, then
+/-- **KL III Proposition 3.6 from Proposition 3.10** (for one-vertex `ν`):
+if `ϕ_{{i},μ} : R(i) ⊗ Π_μ → END_U(E_i 1_μ)` is surjective for all `i` and `μ`, then
 `Π_λ → END_U(1_λ)` is surjective for all `λ`. -/
-theorem prop36_of_prop310 (hSL : SimplyLaced C) (h : ∀ (μ : X) (i : I), Prop310 RD k μ {i})
+theorem prop36_of_prop310 (h : ∀ (μ : X) (i : I), Prop310 RD k μ {i})
     (lam : X) : Prop36 RD k lam :=
-  prop36_of_endUpSpan RD k hSL (fun μ i => endUpSpan_of_prop310 RD k μ i (h μ i)) lam
+  prop36_of_endUpSpan RD k (fun μ i => endUpSpan_of_prop310 RD k μ i (h μ i)) lam
 
 end Prop310
 

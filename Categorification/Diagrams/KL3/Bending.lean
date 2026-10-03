@@ -323,23 +323,23 @@ theorem ptrLL_cons (μ : X) (j : I) (d : List I) (s₀ t₀ : List (Letter I))
   simp only [dns, List.map_cons, rd_cons, capA_append_single, cupA, closeLsL]
   laysimp
 
-theorem ptrLast_mem_upSpan'' (hSL : SimplyLaced C) [DecidableEq I] (ν : X) (j : I)
+theorem ptrLast_mem_upSpan'' [DecidableEq I] (ν : X) (j : I)
     {s t : List (Letter I)} (hs : Positive s) (ht : Positive t) {f}
     (hf : f ∈ upSpan RD k (wt RD ν [dn j]) (s ++ [up j]) (t ++ [up j])) :
     ptrLast RD k ν s t j f ∈ upSpan RD k ν s t :=
-  ptrLast_mem_upSpan' RD k hSL ν j hs ht hf
+  ptrLast_mem_upSpan' RD k ν j hs ht hf
 
-theorem ptrFirst_mem_upSpan' (hSL : SimplyLaced C) [DecidableEq I] (μ : X) (j : I)
+theorem ptrFirst_mem_upSpan' [DecidableEq I] (μ : X) (j : I)
     {s t : List (Letter I)} (hs : Positive s) (ht : Positive t) {f}
     (hf : f ∈ upSpan RD k (wt RD μ []) ([up j] ++ s) ([up j] ++ t)) :
     ptrFirst RD k μ s t j f ∈ upSpan RD k μ s t := by
   obtain ⟨a, rfl⟩ : ∃ a, ups a = s := ⟨_, ups_map_snd hs⟩
   obtain ⟨b, rfl⟩ : ∃ b, ups b = t := ⟨_, ups_map_snd ht⟩
-  exact ptrFirst_mem_upSpan μ j hSL a b hf
+  exact ptrFirst_mem_upSpan μ j a b hf
 
 /-- **The Markov lemma for blocks of strands, on the right**: the right partial trace over a
-block of strands preserves `upSpan` (simply-laced Cartan data). -/
-theorem ptrRL_mem_upSpan (hSL : SimplyLaced C) [DecidableEq I] :
+block of strands preserves `upSpan`. -/
+theorem ptrRL_mem_upSpan [DecidableEq I] :
     ∀ (b : List I) (μ : X) {s₀ t₀ : List (Letter I)}, Positive s₀ → Positive t₀ →
       ∀ {S T : List (Letter I)}, S = s₀ ++ rd (dns b) → T = t₀ ++ rd (dns b) →
         ∀ {h}, h ∈ upSpan RD k (wt RD μ (dns b)) S T →
@@ -355,13 +355,13 @@ theorem ptrRL_mem_upSpan (hSL : SimplyLaced C) [DecidableEq I] :
     obtain rfl : S = (s₀ ++ rd (dns b)) ++ [up j] := by rw [hS]; simp
     obtain rfl : T = (t₀ ++ rd (dns b)) ++ [up j] := by rw [hT]; simp
     rw [ptrRL_cons]
-    refine ptrRL_mem_upSpan hSL b μ hs ht rfl rfl ?_
-    exact ptrLast_mem_upSpan'' hSL _ j (positive_append.2 ⟨hs, positive_rd_dns b⟩)
+    refine ptrRL_mem_upSpan b μ hs ht rfl rfl ?_
+    exact ptrLast_mem_upSpan'' _ j (positive_append.2 ⟨hs, positive_rd_dns b⟩)
       (positive_append.2 ⟨ht, positive_rd_dns b⟩) hh
 
 /-- **The Markov lemma for blocks of strands, on the left**: the left partial trace over a block
-of strands preserves `upSpan` (simply-laced Cartan data). -/
-theorem ptrLL_mem_upSpan (hSL : SimplyLaced C) [DecidableEq I] :
+of strands preserves `upSpan`. -/
+theorem ptrLL_mem_upSpan [DecidableEq I] :
     ∀ (d : List I) (μ : X) {s₀ t₀ : List (Letter I)}, Positive s₀ → Positive t₀ →
       ∀ {S T : List (Letter I)}, S = rd (dns d) ++ s₀ → T = rd (dns d) ++ t₀ →
         ∀ {h}, h ∈ upSpan RD k (wt RD μ []) S T →
@@ -377,8 +377,8 @@ theorem ptrLL_mem_upSpan (hSL : SimplyLaced C) [DecidableEq I] :
     obtain rfl : S = rd (dns d) ++ up j :: s₀ := by rw [hS]; simp
     obtain rfl : T = rd (dns d) ++ up j :: t₀ := by rw [hT]; simp
     rw [ptrLL_cons]
-    refine ptrFirst_mem_upSpan' hSL μ j hs ht ?_
-    exact ptrLL_mem_upSpan hSL d μ (positive_cons.2 ⟨rfl, hs⟩) (positive_cons.2 ⟨rfl, ht⟩)
+    refine ptrFirst_mem_upSpan' μ j hs ht ?_
+    exact ptrLL_mem_upSpan d μ (positive_cons.2 ⟨rfl, hs⟩) (positive_cons.2 ⟨rfl, ht⟩)
       rfl rfl hh
 
 /-! ## Unbending -/

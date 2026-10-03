@@ -26,8 +26,10 @@ In both cases condition (3) of CL Definition 1.2 gives the commutation relation,
 adjunction `E 1_n ⊣ 1_n F ⟨n+1⟩` gives the adjunction of Hom-dimensions in one direction, the test
 objects are the word-generated 1-morphisms, and (BB_w) is the boundedness of their Hom spaces.
 
-Consequently CL Lemma 3.6 (`DotNondeg`) holds at every weight `n ≥ 2` given only (BB_w)
-(`BBw.dotNondeg`).
+Consequently CL Lemma 3.6 (`DotNondeg`) follows with (BB_w) replacing the adjoint induction
+hypothesis, retaining the ambient graded linear, Hom-finite and idempotent-complete hypotheses,
+the range `n ≥ 2`, and the nonzero top identity (`BBw.dotNondeg`). This is a numerical route to
+dot nondegeneracy, not a construction of an actual adjunction or full Proposition 3.9.
 -/
 
 noncomputable section
@@ -67,18 +69,18 @@ def leftData (hS : S.BBw) (c : ℤ) : Sl2CatData k (fun t : ℤ => (S.obj c ⟶ 
     change finrank k (X ≫ S.E t ⟶ Z⟦d⟧) = finrank k (X ⟶ (Z ≫ S.F t)⟦d + (S.n₀ + 2 * t + 1)⟧)
     rw [(S.dimAdj t).left, finrank_hom_congr_right k X
       (shiftCompShiftIso Z (S.F t) (p := d) (q := S.wt t + 1) (s := d + (S.n₀ + 2 * t + 1))
-        (by simp only [wt]; ring))]
+        (by dsimp [wt]; ring))]
   bdd := by
     obtain ⟨N, hN⟩ := S.integrable
     exact ⟨N, fun t ht X => isZero_of_isZero_id_tgt (hN t ht) X⟩
   P t X := S.WordGen c t X
   P_zero t := .zero _ _
-  P_biprod t hX hY := .biprod hX hY
-  P_shift t a hX := .shift a hX
-  P_iso t hX e := hX.of_iso e
-  P_e t hX := hX.comp (.E t)
-  P_f t hX := hX.comp (.F t)
-  bb t hX hZ := hS.homBddBelow hX hZ
+  P_biprod t _ _ hX hY := .biprod hX hY
+  P_shift t _ a hX := .shift a hX
+  P_iso t _ _ hX e := hX.of_iso e
+  P_e t _ hX := hX.comp (.E t)
+  P_f t _ hX := hX.comp (.F t)
+  bb t _ _ hX hZ := hS.homBddBelow hX hZ
 
 /-- The categories `Hom(obj t, obj c)`, `t ∈ ℤ`, with the functors `F ≫ -`, `E ≫ -` and the
 word-generated 1-morphisms as test objects. -/
@@ -102,18 +104,18 @@ def rightData (hS : S.BBw) (c : ℤ) : Sl2CatData k (fun t : ℤ => (S.obj t ⟶
     change finrank k (S.F t ≫ X ⟶ Z⟦d⟧) = finrank k (X ⟶ (S.E t ≫ Z)⟦d + (S.n₀ + 2 * t + 1)⟧)
     rw [finrank_hom_congr_right k X (whiskerLeftShiftIso (S.E t) Z _).symm, (S.dimAdj t).right,
       finrank_hom_congr_left k (whiskerRightShiftIso (S.F t) X _),
-      finrank_hom_shift_shift k _ _ (c := d) (by simp only [wt]; ring)]
+      finrank_hom_shift_shift k _ _ (c := d) (by rfl)]
   bdd := by
     obtain ⟨N, hN⟩ := S.integrable
     exact ⟨N, fun t ht X => isZero_of_isZero_id_src (hN t ht) X⟩
   P t X := S.WordGen t c X
   P_zero t := .zero _ _
-  P_biprod t hX hY := .biprod hX hY
-  P_shift t a hX := .shift a hX
-  P_iso t hX e := hX.of_iso e
-  P_e t hX := (WordGen.F t).comp hX
-  P_f t hX := (WordGen.E t).comp hX
-  bb t hX hZ := hS.homBddBelow hX hZ
+  P_biprod t _ _ hX hY := .biprod hX hY
+  P_shift t _ a hX := .shift a hX
+  P_iso t _ _ hX e := hX.of_iso e
+  P_e t _ hX := (WordGen.F t).comp hX
+  P_f t _ hX := (WordGen.E t).comp hX
+  bb t _ _ hX hZ := hS.homBddBelow hX hZ
 
 /-- **The numerical shadow of (3.2) holds at every weight under (BB_w)**: for word-generated
 test 1-morphisms `x`, `y`, `dim Hom(x ≫ F, y) = dim Hom(x, y ≫ E⟨-n-1⟩)` and
@@ -125,12 +127,12 @@ theorem BBw.numAdj (hS : S.BBw) (r : ℤ) : S.NumAdj r where
       finrank k (x ⟶ (y ≫ S.E r)⟦0 - (S.n₀ + 2 * r + 1)⟧) at h
     rw [finrank_hom_shift_zero k _ _ rfl] at h
     rw [h, finrank_hom_congr_right k x (whiskerLeftShiftIso y (S.E r) _)]
-    exact finrank_hom_shift_congr k _ _ (by simp only [wt]; ring)
+    exact finrank_hom_shift_congr k _ _ (by dsimp [wt]; ring)
   right c x y hx hy := by
     have h := (rightData hS c).finrank_f_eq (t := r) (X := x) (Z := y) hx hy (S.wt r + 1)
     change finrank k (S.E r ≫ x ⟶ y⟦S.wt r + 1⟧) =
       finrank k (x ⟶ (S.F r ≫ y)⟦S.wt r + 1 - (S.n₀ + 2 * r + 1)⟧) at h
-    rw [finrank_hom_shift_zero k _ _ (by simp only [wt]; ring)] at h
+    rw [finrank_hom_shift_zero k x (S.F r ≫ y) (by dsimp [wt]; ring)] at h
     rw [← h, finrank_hom_congr_left k (whiskerRightShiftIso (S.E r) x _),
       finrank_hom_shift_left k _ _ (b := S.wt r + 1) (by ring)]
 

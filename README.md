@@ -229,6 +229,18 @@ or automatic validity for general bimodule realizations is asserted here.
 | Boundedness extends to word-generated tests | `(BB_w)`; CL §3 numerical argument | `BBw.homBddBelow` | Strong `sl₂` data; `(BB_w)`; graded linearity; Hom-finite | Proved for shifts, sums, composites and retracts of words |
 | Numerical adjunction at every weight | Numerical counterpart of CL (3.2) | `BBw.numAdj` | Same | Proved as both Hom-dimension equalities; not an actual adjunction |
 | Subdiagonal dot nondegeneracy | CL Lemma 3.6 under `(BB_w)` | `BBw.dotNondeg` | Same; idempotent-complete Hom categories; `wt(r+1) ≥ 0`; nonzero identity at `r+2`; supplied EF decomposition | Proved; unit/counit and triangle identities for Prop. 3.9 remain open |
+| Duality `K ↦ Kᶜᵒᵒᵖ` | CL Def. 1.2 is invariant under reversing 1- and 2-morphisms and inverting the grading shift; weights negated, crossing negated | `dual`, `dual_wt`, `isZero_dual_id_iff`, `finrank_dual_id_shift` | Strong `sl₂` data; graded linearity | Constructed |
+| (3.2) under the duality | CL (3.2) at weight `μ` of `D(K)` is (3.2) at weight `-μ-2` of `K` | `dual_adjHyp_iff`, `dual_adjHyp_neg_iff`, `adjHyp_of_dual_gt` | Same | Proved |
+| `(BB_w)` under the duality | Words of `D(K)` are words of `K` read backwards; `Hom'^d(X, Z) = Hom^d(Z, X)` | `word_of_dual_word`, `BBw.dual` | Same | Proved |
+
+`TwoRep/Coop.lean` constructs the bidual `Coop B` of a bicategory (1- and 2-morphisms reversed;
+the Hom categories are opposite categories with the inverted grading shift, so degrees are
+preserved: `Coop.finrank_hom_shift`), transfers the graded structure and adjunctions
+(`Coop.gradedBicategory`, `Coop.isLinear`, `Coop.adjunction`, `Coop.adjunctionUnop`), and
+identifies shifted 2-morphisms of the bidual with those of `B` (`Coop.shOp`, reversing
+composition and exchanging left and right whiskering). `TwoRep/CoopCoherence.lean` proves that
+shift coherence passes to the bidual (`Coop.shiftCoherence`). `TwoRep/Duality.lean` builds the dual
+strong 2-representation on the bidual (`StrongSl2.dual`).
 
 `TwoRep/ShiftCoherence.lean` bundles the existing coherence assumptions and proves the
 degree-zero, unitor and associator identities for shifted whiskering (`shWhiskerLeft_mk₀`,

@@ -14,7 +14,7 @@ arbitrary diagrams modulo lower terms), §3.2.4 (the endomorphisms of `E_{ν,-ν
 ideal of 2-morphisms factoring through shorter sequences) and §3.8.4 (*Proof of Theorem 1.1*).
 
 We prove the hypothesis `SortedSpan` of `Categorification.Diagrams.KL3.SurjectivityTop`
-(`sortedSpan_of_simplyLaced`, simply-laced Cartan data): every endomorphism of a sorted `E_{+a} E_{-b} 1_μ` is a
+(`sortedSpan_holds`, any Cartan datum): every endomorphism of a sorted `E_{+a} E_{-b} 1_μ` is a
 linear combination of split diagrams followed by bubble monomials, modulo composites of
 homogeneous 2-morphisms through sequences of length `< |a| + |b|`.
 
@@ -37,9 +37,9 @@ E_{+a} E_{-b} 1_μ`:
 
 ## Main results
 
-* `sortedSpan_of_simplyLaced`: **`SortedSpan RD k`** (simply-laced, `k` a field).
+* `sortedSpan_holds`: **`SortedSpan RD k`** (any Cartan datum, `k` a field).
 * `gammaUA'_surjective`: **KL III Theorem 1.1**: `γ : _𝒜 U̇ → K₀(U̇)` is surjective
-  (simply-laced, `I` finite, `k` a field).
+  (any Cartan datum, `I` finite, `k` a field).
 -/
 
 noncomputable section
@@ -456,7 +456,7 @@ end Thru
 
 section Main
 
-variable {k : Type w} [Field k] [DecidableEq I] (hSL : SimplyLaced C)
+variable {k : Type w} [Field k] [DecidableEq I]
 
 omit [DecidableEq I] in
 theorem lo_comp_bubAt_mem {μ : X} {s : List (Letter I)} {n : ℕ} {f}
@@ -475,12 +475,11 @@ theorem lo_comp_bubAt_mem {μ : X} {s : List (Letter I)} {n : ℕ} {f}
   | add x y _ _ hx hy => rw [Preadditive.add_comp]; exact Submodule.add_mem _ hx hy
   | smul r x _ hx => rw [Linear.smul_comp]; exact Submodule.smul_mem _ r hx
 
-include hSL in
-/-- **The spanning hypothesis `SortedSpan` holds** (simply-laced Cartan data): every
+/-- **The spanning hypothesis `SortedSpan` holds** (for every Cartan datum): every
 endomorphism of a sorted `E_{+a} E_{-b} 1_μ` is a linear combination of split diagrams followed by
 bubble monomials, modulo composites of homogeneous 2-morphisms through sequences of length
 `< |a| + |b|` (KL III §3.2.3–§3.2.4). -/
-theorem sortedSpan_of_simplyLaced : SortedSpan RD k := by
+theorem sortedSpan_holds : SortedSpan RD k := by
   intro μ a b f
   set G := splitBubSpan RD k μ a b ⊔
     Submodule.span k (homGen RD k μ (ups a ++ dns b) {u | u.length < a.length + b.length})
@@ -500,7 +499,7 @@ theorem sortedSpan_of_simplyLaced : SortedSpan RD k := by
       refine Submodule.span_le.mpr ?_
       rintro _ ⟨L', hL', rfl⟩
       exact ihc (ccnt L') (by omega) L' le_rfl
-    have hcap := capElim (RD := RD) (k := k) (hSL := hSL) (μ := μ) (w₀ := ups a ++ dns b) c
+    have hcap := capElim (RD := RD) (k := k) (μ := μ) (w₀ := ups a ++ dns b) c
       (ups a ++ dns b) L hL
     obtain ⟨x, hx, y, hy, hxy⟩ := Submodule.mem_sup.1 hcap
     rw [← hxy]
@@ -532,13 +531,13 @@ end Main
 
 section Surj
 
-variable {k : Type w} [Field k] [DecidableEq I] [Finite I] (hSL : SimplyLaced C)
+variable {k : Type w} [Field k] [DecidableEq I] [Finite I]
 
-/-- **KL III Theorem 1.1** (simply-laced Cartan data, `I` finite, `k` a field): the map
+/-- **KL III Theorem 1.1** (arbitrary Cartan data, `I` finite, `k` a field): the map
 `γ : _𝒜 U̇ → K₀(U̇)` is surjective. -/
 theorem gammaUA'_surjective (lam ρ : X) :
-    Function.Surjective (gammaUA' (RD := RD) (k := k) (homGdim_of_simplyLaced hSL) lam ρ) :=
-  gammaUA'_surjective_of_sortedSpan' _ (sortedSpan_of_simplyLaced hSL) lam ρ
+    Function.Surjective (gammaUA' (RD := RD) (k := k) homGdim lam ρ) :=
+  gammaUA'_surjective_of_sortedSpan' homGdim sortedSpan_holds lam ρ
 
 end Surj
 

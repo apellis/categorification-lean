@@ -333,9 +333,9 @@ theorem hasGdim_of_bendTgt (μ : X) (p x y : List (Letter I))
 /-! ## Sorting -/
 
 /-- **Reduction to sorted words** (the decomposition `decL` of the identity of `E_w 1_μ` through
-words `F_d E_c 1_μ`, simply-laced): if the graded pieces of all `HOM(1_μ, F_d E_c 1_μ)` are
+words `F_d E_c 1_μ`; any Cartan datum): if the graded pieces of all `HOM(1_μ, F_d E_c 1_μ)` are
 finite-dimensional and vanish in low degrees, so do those of `HOM(1_μ, E_w 1_μ)`. -/
-theorem hasGdim_nil_of_sorted (hSL : SimplyLaced C) (μ : X)
+theorem hasGdim_nil_of_sorted (μ : X)
     (h : ∀ d c : List I, HasGdim (HomD RD k μ [] (dns d ++ ups c))) (w : List (Letter I)) :
     HasGdim (HomD RD k μ [] w) := by
   let Φ : End ((pres RD k).obj (ob RD μ w)) →ₗ[k]
@@ -369,7 +369,7 @@ theorem hasGdim_nil_of_sorted (hSL : SimplyLaced C) (μ : X)
     rw [Linear.rightComp_apply]
     exact Presentation.comp_mem_homDeg hf (Presentation.comp_mem_homDeg
       (bubAt_mem μ w (bubMon_mem μ m)) (dg_mem_homD rfl))
-  have h1 := hT (decL (RD := RD) (k := k) hSL μ (invL w + 1) w (Nat.lt_succ_self _))
+  have h1 := hT (decL (RD := RD) (k := k) μ (invL w + 1) w (Nat.lt_succ_self _))
   refine hasGdim_of_id_mem ?_
   have e : Φ (𝟙 _) = LinearMap.id := by ext f; simp [hΦ]
   rw [← e]

@@ -38,7 +38,7 @@ M. Khovanov, A. Lauda, *A categorification of quantum `sl(n)`*, arXiv:0807.3250v
 
 The root datum is arbitrary and `𝕜` is a field; `γ = gammaUA' hG` is defined given hom-finiteness
 `hG : HomGdim RD 𝕜` (`Categorification.Diagrams.KL3.KrullSchmidtU`; a consequence of Proposition 3.11,
-proved for simply-laced Cartan data with `I` finite). Note that `CalculusNondeg` is stated through
+proved for all Cartan data with `I` finite). Note that `CalculusNondeg` is stated through
 `Module.finrank`, so it does not by itself imply `HomGdim`.
 
 ## Main results
@@ -47,9 +47,9 @@ proved for simply-laced Cartan data with `I` finite). Note that `CalculusNondeg`
 * `finrank_hom_nfObj`: `dim U̇(E_𝐢 1_λ {a}, E_𝐣 1_λ {b}) = dim HOM_U(E_𝐢 1_λ, E_𝐣 1_λ)_{a - b}`;
 * **`gammaUA'_injective`** — KL III Theorem 1.2 (any root datum, given `HomGdim`);
 * **`gammaUA'_bijective_of_sortedSpan`** — with Theorem 1.1 in the form
-  `gammaUA'_surjective_of_sortedSpan'`: for any root datum with `I` finite, given `HomGdim` and
+  `gammaUA'_surjective_of_sortedSpan'`: for any root datum, given `HomGdim` and
   `SortedSpan`, `γ` is bijective under the two hypotheses;
-* **`gammaUA'_bijective`**, `gammaUA'Equiv` — the Proposition 1.4-type consequence for simply-laced
+* **`gammaUA'_bijective`**, `gammaUA'Equiv` — the Proposition 1.4-type consequence for arbitrary finite
   Cartan data: under the two hypotheses `γ : 1_ρ (_𝒜 U̇) 1_λ → K₀(U̇(λ, ρ))` is an isomorphism of
   `ℤ[q, q⁻¹]`-modules.
 -/
@@ -174,7 +174,7 @@ variable {RD k}
 
 section HomDim
 
-variable [DecidableEq I] (hG : HomGdim RD k)
+variable (hG : HomGdim RD k)
 
 include hG in
 /-- **The additive functional `[B] ↦ dim_𝕜 U̇(A, B)` on `K₀(U̇(λ, ρ))`** (for a fixed object `A`;
@@ -278,7 +278,7 @@ section Main
 
 attribute [local instance] KLR.KLGamma.vAlgebra
 
-variable [DecidableEq I] (hG : HomGdim RD k)
+variable (hG : HomGdim RD k)
 
 include hG in
 /-- **The key step of KL III §3.9**: a `ℤ[q, q⁻¹]`-linear relation `Σ_j h_j [E_{s_j} 1_λ] = 0`
@@ -345,6 +345,8 @@ theorem sum_eq_zero_of_relation (hnd : CalculusNondeg RD k) (h25 : UDot.KL3.Form
     | smul_E1 r t μ => rw [map_smul, LinearMap.smul_apply, hform, smul_zero]
   exact h25 z fun u => by rw [UDot.KL3.form, formUD_symm]; exact hall u
 
+variable [DecidableEq I]
+
 set_option backward.isDefEq.respectTransparency false in
 /-- **Khovanov–Lauda III, Theorem 1.2** (`thm-injective`, proof in §3.9): if the graphical
 calculus is nondegenerate (`CalculusNondeg RD k`), then `γ : 1_ρ (_𝒜 U̇) 1_λ → K₀(U̇(λ, ρ))` is
@@ -395,31 +397,29 @@ theorem gammaUA'_injective (hnd : CalculusNondeg RD k) (h25 : UDot.KL3.FormNonde
   field_simp
 
 include hG in
-/-- **KL III Theorems 1.1 and 1.2 for an arbitrary root datum** (`I` finite, `𝕜` a field), given
+/-- **KL III Theorems 1.1 and 1.2 for an arbitrary root datum** (`𝕜` a field), given
 hom-finiteness `HomGdim` and the spanning hypothesis `SortedSpan` (both consequences of
 Proposition 3.11 and its proof): if the calculus is nondegenerate and Proposition 2.5 holds,
 `γ : 1_ρ (_𝒜 U̇) 1_λ → K₀(U̇(λ, ρ))` is bijective. -/
-theorem gammaUA'_bijective_of_sortedSpan [Finite I] (hspan : SortedSpan RD k)
+theorem gammaUA'_bijective_of_sortedSpan (hspan : SortedSpan RD k)
     (hnd : CalculusNondeg RD k) (h25 : UDot.KL3.FormNondeg RD) (lam ρ : X) :
     Function.Bijective (gammaUA' hG lam ρ) :=
   ⟨gammaUA'_injective hG hnd h25 lam ρ, gammaUA'_surjective_of_sortedSpan' hG hspan lam ρ⟩
 
-variable [Finite I] (hSL : SimplyLaced C)
+variable [Finite I]
 
-include hSL in
-/-- **KL III Proposition 1.4-type consequence** (simply-laced, `I` finite): if the calculus is
-nondegenerate and Proposition 2.5 holds, `γ : 1_ρ (_𝒜 U̇) 1_λ → K₀(U̇(λ, ρ))` is bijective
-(surjectivity is KL III Theorem 1.1, `gammaUA'_surjective`). -/
+/-- **KL III Proposition 1.4-type consequence**: if the calculus is nondegenerate and
+Proposition 2.5 holds, `γ : 1_ρ (_𝒜 U̇) 1_λ → K₀(U̇(λ, ρ))` is bijective (surjectivity is KL III
+Theorem 1.1, `gammaUA'_surjective`). -/
 theorem gammaUA'_bijective (hnd : CalculusNondeg RD k) (h25 : UDot.KL3.FormNondeg RD)
-    (lam ρ : X) :
-    Function.Bijective (gammaUA' (RD := RD) (k := k) (homGdim_of_simplyLaced hSL) lam ρ) :=
-  ⟨gammaUA'_injective _ hnd h25 lam ρ, gammaUA'_surjective hSL lam ρ⟩
+    (lam ρ : X) : Function.Bijective (gammaUA' (RD := RD) (k := k) homGdim lam ρ) :=
+  ⟨gammaUA'_injective homGdim hnd h25 lam ρ, gammaUA'_surjective lam ρ⟩
 
 /-- **`γ` as an isomorphism of `ℤ[q, q⁻¹]`-modules `1_ρ (_𝒜 U̇) 1_λ ≅ K₀(U̇(λ, ρ))`** under the
 hypotheses of `gammaUA'_bijective`. -/
 def gammaUA'Equiv (hnd : CalculusNondeg RD k) (h25 : UDot.KL3.FormNondeg RD) (lam ρ : X) :
     LinearMap.range (dpComb (RD := RD) lam ρ) ≃ₗ[LaurentPolynomial ℤ] K0Kar RD k ρ lam :=
-  LinearEquiv.ofBijective _ (gammaUA'_bijective hSL hnd h25 lam ρ)
+  LinearEquiv.ofBijective _ (gammaUA'_bijective hnd h25 lam ρ)
 
 end Main
 

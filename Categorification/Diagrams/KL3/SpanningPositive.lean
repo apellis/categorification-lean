@@ -10,7 +10,7 @@ import Categorification.Diagrams.KL3.FinDimHomUp
 
 M. Khovanov, A. Lauda, *A categorification of quantum `sl(n)`*, arXiv:0807.3250v1, §3.2.3,
 Proposition 3.11 (TeX l. 4568: "For any intermediate choices made, `B_{𝐢,𝐣,λ}` spans
-`HOM_U(E_𝐢 1_λ, E_𝐣 1_λ)`"), for **positive** sequences `𝐢`, `𝐣` (simply-laced Cartan data).
+`HOM_U(E_𝐢 1_λ, E_𝐣 1_λ)`"), for **positive** sequences `𝐢`, `𝐣` (any Cartan datum).
 
 ## The family `B_{𝐢,𝐣,λ}` for positive sequences
 
@@ -39,7 +39,7 @@ So the element of `B_{𝐢,𝐣,λ}` indexed by `x = (σ, dots, m)` is (`posB`)
   `σ` computed by KL III's rules, `QuantumGroup.UDot.pdeg`, equals `deg ψ_{ρ w} 1_i`:
   `pdeg_posW`);
 * **`prop_3_11_positive`**: for every degree `d`, the elements `posB x` with `spanDeg x = d`
-  span `HOM_U(E_i 1_λ, E_j 1_λ)_d` (by Proposition 3.10, `prop310_of_simplyLaced`, and the KL II
+  span `HOM_U(E_i 1_λ, E_j 1_λ)_d` (by Proposition 3.10, `prop310`, and the KL II
   basis theorem);
 * `isSpanFamily_posB`, **`cor_3_13_positive`** (Corollary 3.13 for positive sequences),
   **`finrank_eq_iff_linearIndependent_posB`** (eq. (3.68)): the dimension of the degree-`d` part
@@ -441,8 +441,8 @@ theorem exists_spanIdx (w : Perm (Fin (Multiset.card ν))) (hw : w • i = j)
 
 variable (RD k) in
 /-- **Proposition 3.10 on the corner**: `HOM_U(E_i 1_λ, E_j 1_λ)` is spanned by the `vB p`
-(simply-laced, `I` finite). -/
-theorem mem_span_vB [Finite I] (hSL : SimplyLaced C) (μ : X) (i j : KLR.Seq ν)
+(`I` finite). -/
+theorem mem_span_vB [Finite I] (μ : X) (i j : KLR.Seq ν)
     (f : (pres RD k).obj (ob RD μ (ups (word i))) ⟶ (pres RD k).obj (ob RD μ (ups (word j)))) :
     f ∈ Submodule.span k (Set.range (vB RD k μ i j)) := by
   classical
@@ -455,7 +455,7 @@ theorem mem_span_vB [Finite I] (hSL : SimplyLaced C) (μ : X) (i j : KLR.Seq ν)
   have hv : ∀ p, vB RD k μ i j p = L (bT p) := fun p => by
     change vB RD k μ i j p = phi RD k μ ν (bT p) i j
     rw [Basis.tensorProduct_apply, MvPolynomial.coe_basisMonomials]
-  obtain ⟨t, ht⟩ := prop310_of_simplyLaced (k := k) (RD := RD) hSL μ ν (single i j f)
+  obtain ⟨t, ht⟩ := prop310 (k := k) (RD := RD) μ ν (single i j f)
   have hf : f = L t := by
     change f = phi RD k μ ν t i j
     rw [ht, single_apply_self]
@@ -466,10 +466,10 @@ theorem mem_span_vB [Finite I] (hSL : SimplyLaced C) (μ : X) (i j : KLR.Seq ν)
   funext p
   exact hv p
 
-/-- **Khovanov–Lauda III, Proposition 3.11 for positive sequences** (TeX l. 4568; simply-laced,
+/-- **Khovanov–Lauda III, Proposition 3.11 for positive sequences** (TeX l. 4568; any Cartan datum,
 `I` finite, `𝕜` a field): for `i, j ∈ Seq(ν)`, a weight `λ` and every degree `d`, the elements
 `posB x` of `B_{+i,+j,λ}` of degree `spanDeg x = d` span `HOM_U(E_{+i} 1_λ, E_{+j} 1_λ)_d`. -/
-theorem prop_3_11_positive [Finite I] (hSL : SimplyLaced C) (μ : X) (i j : KLR.Seq ν) (d : ℤ) :
+theorem prop_3_11_positive [Finite I] (μ : X) (i j : KLR.Seq ν) (d : ℤ) :
     Submodule.span k (Set.range fun x : {x : SpanIdx (posW (word i)) (posW (word j)) //
         spanDeg C (RD.ellOf μ) x = d} => posB RD k μ x.1) =
       HomD RD k μ (posW (word i)) (posW (word j)) d := by
@@ -480,7 +480,7 @@ theorem prop_3_11_positive [Finite I] (hSL : SimplyLaced C) (μ : X) (i j : KLR.
     rw [← spanDeg_eq k (RD.ellOf μ) x, hx] at h
     exact h
   · intro f hf
-    have h1 := mem_span_vB RD k hSL μ i j f
+    have h1 := mem_span_vB RD k μ i j f
     have h2 := mem_span_image_of_homogeneous (pres_isHomogeneous (RD := RD) (k := k))
       (vB RD k μ i j) (stdDegB C (k := k)) (vB_mem μ i j) h1 hf
     rw [← Submodule.span_insert_zero]
@@ -505,14 +505,12 @@ section Consequences
 
 variable {I : Type u} {C : CartanDatum I} {X Y : Type v} [AddCommGroup X] [AddCommGroup Y]
   {RD : RootDatum C X Y} {k : Type w} [Field k] [DecidableEq I] [Finite I]
-  (hSL : SimplyLaced C)
 
-include hSL in
 /-- **`B_{+i,+j,λ}` is a graded spanning family** (`IsSpanFamily`) of
 `HOM_U(E_{+i} 1_λ, E_{+j} 1_λ)`. -/
 theorem isSpanFamily_posB {ν : Multiset I} (μ : X) (i j : KLR.Seq ν) :
     IsSpanFamily RD k μ (posW (word i)) (posW (word j)) (posB RD k μ) := by
-  refine ⟨fun x => ?_, fun d => prop_3_11_positive hSL μ i j d⟩
+  refine ⟨fun x => ?_, fun d => prop_3_11_positive μ i j d⟩
   have h := vB_mem (RD := RD) (k := k) μ i j ((i, posPerm x.1, posDots x), x.2.2)
   rw [← spanDeg_eq k (RD.ellOf μ) x] at h
   exact h
@@ -529,16 +527,14 @@ theorem finrank_le_of_isSpanFamily {μ : X} {s t : List (Letter I)}
   rw [← card_fiber_eq μ s t d]
   exact_mod_cast (finrank_le_and_iff _ _ (hb.2 d)).1
 
-include hSL in
 /-- **Khovanov–Lauda III, Corollary 3.13 for positive sequences**:
 `gdim HOM_U(E_{+i} 1_λ, E_{+j} 1_λ) ≤ π ⟨E_{+i} 1_λ, E_{+j} 1_λ⟩`, coefficientwise. -/
 theorem cor_3_13_positive {ν : Multiset I} (μ : X) (i j : KLR.Seq ν) (d : ℤ) :
     ((finrank k (HomD RD k μ (posW (word i)) (posW (word j)) d) : ℤ) : ℚ) ≤
       (piLS C * toLS (UDot.KL3.sform RD (E1 RD vQ (posW (word i)) μ)
         (E1 RD vQ (posW (word j)) μ))).coeff d :=
-  finrank_le_of_isSpanFamily (isSpanFamily_posB hSL μ i j) d
+  finrank_le_of_isSpanFamily (isSpanFamily_posB μ i j) d
 
-include hSL in
 /-- **KL III eq. (3.68) for positive sequences**: the dimension of
 `HOM_U(E_{+i} 1_λ, E_{+j} 1_λ)_d` equals the coefficient of `q^d` in
 `π ⟨E_{+i} 1_λ, E_{+j} 1_λ⟩` iff the elements `posB x` of `B_{+i,+j,λ}` of degree `d` are linearly
@@ -550,7 +546,7 @@ theorem finrank_eq_iff_linearIndependent_posB {ν : Multiset I} (μ : X) (i j : 
           (E1 RD vQ (posW (word j)) μ))).coeff d ↔
       LinearIndependent k fun x : {x : SpanIdx (posW (word i)) (posW (word j)) //
         spanDeg C (RD.ellOf μ) x = d} => posB RD k μ x.1 :=
-  finrank_eq_iff_linearIndependent μ _ _ (isSpanFamily_posB hSL μ i j) d
+  finrank_eq_iff_linearIndependent μ _ _ (isSpanFamily_posB μ i j) d
 
 omit [DecidableEq I] [Finite I] in
 /-- `⟨E_{+c} 1_λ, E_{+b} 1_λ⟩ = 0` if `c` and `b` do not have the same letters. -/
@@ -562,7 +558,6 @@ theorem sform_posW_eq_zero (μ : X) {c b : List I} (h : (c : Multiset I) ≠ b) 
   rw [e, e, B_posF_posF, fF, PreF.form_eq_zero_of_wt_ne]
   simpa [QuantumGroup.wt] using h
 
-include hSL in
 /-- **Nondegeneracy for positive sequences is the linear independence of `B`**: `PositiveNondeg`
 (the hypothesis of `gammaUA'_bijective_of_positive`, KL III Theorem 1.2 reduced to positive
 sequences) holds iff for every `λ`, all `i, j ∈ Seq(ν)` and every degree `d`, the elements of
@@ -573,24 +568,23 @@ theorem positiveNondeg_iff :
         spanDeg C (RD.ellOf μ) x = d} => posB RD k μ x.1 := by
   constructor
   · intro h μ ν i j d
-    exact (finrank_eq_iff_linearIndependent_posB hSL μ i j d).1 (h μ (word i) (word j) d)
+    exact (finrank_eq_iff_linearIndependent_posB μ i j d).1 (h μ (word i) (word j) d)
   · intro h μ c b t
     by_cases hcb : (c : Multiset I) = b
     · have hi := word_seqOfList c
       have hj : word (hcb.symm ▸ seqOfList b : KLR.Seq (c : Multiset I)) = b :=
         (word_cast hcb.symm _).trans (word_seqOfList b)
-      have := (finrank_eq_iff_linearIndependent_posB (RD := RD) (k := k) hSL μ (seqOfList c)
+      have := (finrank_eq_iff_linearIndependent_posB (RD := RD) (k := k) μ (seqOfList c)
         (hcb.symm ▸ seqOfList b) t).2 (h μ _ _ _ t)
       rw [hi, hj] at this
       exact this
     · have hp : ¬ (posW c).Perm (posW b) := fun hp => hcb (Multiset.coe_eq_coe.2 (by
         have := hp.map Prod.snd
         simpa [posW, List.map_map, Function.comp_def] using this))
-      rw [homD_eq_bot_of_not_perm hSL μ (by simp [Positive, posW]) (by simp [Positive, posW]) hp t,
+      rw [homD_eq_bot_of_not_perm μ (by simp [Positive, posW]) (by simp [Positive, posW]) hp t,
         finrank_bot, sform_posW_eq_zero μ hcb, map_zero, mul_zero, HahnSeries.coeff_zero]
       simp
 
-include hSL in
 /-- **KL III Theorem 1.2 / Proposition 1.4 from the linear independence of `B` for positive
 sequences**: if for all `λ`, `i, j ∈ Seq(ν)`, `d` the elements of `B_{+i,+j,λ}` of degree `d` are
 linearly independent, and Proposition 2.5 holds, then
@@ -600,8 +594,8 @@ theorem gammaUA'_bijective_of_linearIndependent
       LinearIndependent k fun x : {x : SpanIdx (posW (word i)) (posW (word j)) //
         spanDeg C (RD.ellOf μ) x = d} => posB RD k μ x.1)
     (h25 : UDot.KL3.FormNondeg RD) (lam ρ : X) :
-    Function.Bijective (gammaUA' (RD := RD) (k := k) (homGdim_of_simplyLaced hSL) lam ρ) :=
-  gammaUA'_bijective_of_positive hSL ((positiveNondeg_iff hSL).2 hli) h25 lam ρ
+    Function.Bijective (gammaUA' (RD := RD) (k := k) homGdim lam ρ) :=
+  gammaUA'_bijective_of_positive (positiveNondeg_iff.2 hli) h25 lam ρ
 
 end Consequences
 

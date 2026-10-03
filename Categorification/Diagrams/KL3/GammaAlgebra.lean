@@ -15,27 +15,26 @@ M. Khovanov, A. Lauda, *A categorification of quantum `sl(n)`*, arXiv:0807.3250v
 > field `k` is nondegenerate.
 
 Here `γ = gammaAlg` is the homomorphism of idempotented `ℤ[q, q⁻¹]`-algebras of
-`Categorification.Diagrams.KL3.K0Algebra` (KL III Proposition 3.27). For an arbitrary root datum
-with `I` finite and a field `k`, the two theorems are proved from two consequences of KL III
-Proposition 3.11 and its proof:
+`Categorification.Diagrams.KL3.K0Algebra` (KL III Proposition 3.27). Its source is the actual
+integral form `AUD RD vQ`, and its target is the direct sum `K0All RD k` of all weight blocks.
 
-* `hG : HomGdim RD k` (hom-finiteness of `U`; from Proposition 3.11 by `homGdim_of_prop311`), under
-  which `K₀(U̇)` is free and `γ` is defined;
-* `hspan : SortedSpan RD k` (the spanning statement of §3.2.4 used in the proof of Theorem 1.1).
-
-Both are proved for simply-laced Cartan data (`homGdim_of_simplyLaced`, `sortedSpan_of_simplyLaced`),
-so that the theorems hold there without hypotheses; Proposition 2.5 is unconditional
-(`UDot.KL3.formNondeg_unconditional`).
+The conditional core uses `hG : HomGdim RD k` and `hspan : SortedSpan RD k`. For every finite
+Cartan datum, `homGdim` proves the first using the general-Cartan graded Hom bounds;
+`sortedSpan_holds` proves the second without even a finite-rank assumption. No simply-laced
+hypothesis is used. Proposition 2.5 is supplied by `UDot.KL3.formNondeg_unconditional`.
 
 * `gammaAlg_surjective`: **Theorem 1.1** given `hG`, `hspan`;
-* `gammaAlg_injective`: **Theorem 1.2** given `hG`;
-* `gammaAlgEquiv`: `_𝒜 U̇ ≅ K₀(U̇)` for a nondegenerate calculus, given `hG`, `hspan`;
-* `gammaAlg_surjective_of_simplyLaced`, `gammaAlgEquiv_of_simplyLaced`, `gammaAlgEquiv_sl`: the
-  simply-laced case and `sl_n` over any field (Theorem 1.3, Proposition 1.4).
--/
+* `gammaAlg_injective`: **Theorem 1.2** given `hG` and `CalculusNondeg RD k`;
+* `gammaAlgEquiv`: the resulting ring equivalence given `hG`, `hspan`, `CalculusNondeg RD k`;
+* `gammaAlg_surjective_unconditional`: surjectivity for every finite Cartan datum;
+* `gammaAlgEquiv_unconditional`: equivalence for every finite Cartan datum, still requiring
+  `CalculusNondeg RD k` ("unconditional" discharges hom-finiteness and spanning, not nondegeneracy);
+* `gammaAlgEquiv_sl`: the `sl_n` case over any field, using Theorem 1.3.
 
--- Elaborate direct sums and the scalar restriction through their abbreviations.
-set_option backward.isDefEq.respectTransparency false
+The equivalences are packaged as `RingEquiv` between non-unital rings. Laurent-scalar
+compatibility is stated separately by `gammaAlg_smul`, and weight idempotents are respected
+by `gammaAlg_one`. This is not an unconditional general-Cartan nondegeneracy theorem.
+-/
 
 noncomputable section
 
@@ -57,8 +56,9 @@ open scoped Classical
 
 variable [DecidableEq I] [Finite I] (hG : HomGdim RD k)
 
-/-- **KL III Theorem 1.1, as a statement about idempotented algebras** (any root datum with `I`
-finite, `k` a field; given hom-finiteness and the spanning hypothesis, both consequences of
+omit [Finite I] in
+/-- **KL III Theorem 1.1, as a statement about idempotented algebras** (any root datum,
+`k` a field; given hom-finiteness and the spanning hypothesis, both consequences of
 Proposition 3.11 and its proof): `γ : _𝒜 U̇ → K₀(U̇)` is surjective. -/
 theorem gammaAlg_surjective (hspan : SortedSpan RD k) :
     Function.Surjective (gammaAlg k (torsionFreeK0_of_homGdim hG)) := by
@@ -107,7 +107,7 @@ theorem gammaAlg_injective (hnd : CalculusNondeg RD k) :
   exact Finset.sum_eq_zero fun a _ => hblk a
 
 /-- **`_𝒜 U̇ ≅ K₀(U̇)` as idempotented `ℤ[q, q⁻¹]`-algebras** (KL III Theorems 1.1 and 1.2; any
-root datum with `I` finite, `k` a field, nondegenerate calculus, given hom-finiteness and the
+root datum, `k` a field, nondegenerate calculus, given hom-finiteness and the
 spanning hypothesis): `γ` is a ring isomorphism (non-unital rings; `ℤ[q, q⁻¹]`-linear by
 `gammaAlg_smul`, `γ(1_λ) = [1_λ]` by `gammaAlg_one`). -/
 def gammaAlgEquiv (hspan : SortedSpan RD k) (hnd : CalculusNondeg RD k) :
@@ -115,16 +115,15 @@ def gammaAlgEquiv (hspan : SortedSpan RD k) (hnd : CalculusNondeg RD k) :
   RingEquiv.ofBijective (gammaAlg k (torsionFreeK0_of_homGdim hG))
     ⟨gammaAlg_injective hG hnd, gammaAlg_surjective hG hspan⟩
 
-/-- KL III Theorem 1.1 for simply-laced Cartan data. -/
-theorem gammaAlg_surjective_of_simplyLaced (hSL : SimplyLaced C) :
-    Function.Surjective
-      (gammaAlg (RD := RD) k (torsionFreeK0_of_homGdim (homGdim_of_simplyLaced hSL))) :=
-  gammaAlg_surjective _ (sortedSpan_of_simplyLaced hSL)
+/-- KL III Theorem 1.1 for every finite Cartan datum, without additional hypotheses. -/
+theorem gammaAlg_surjective_unconditional :
+    Function.Surjective (gammaAlg (RD := RD) k (torsionFreeK0_of_homGdim homGdim)) :=
+  gammaAlg_surjective homGdim sortedSpan_holds
 
-/-- `_𝒜 U̇ ≅ K₀(U̇)` for simply-laced Cartan data and a nondegenerate calculus. -/
-def gammaAlgEquiv_of_simplyLaced (hSL : SimplyLaced C) (hnd : CalculusNondeg RD k) :
+/-- `_𝒜 U̇ ≅ K₀(U̇)` for every finite Cartan datum with nondegenerate calculus. -/
+def gammaAlgEquiv_unconditional (hnd : CalculusNondeg RD k) :
     AUD RD vQ ≃+* K0All RD k :=
-  gammaAlgEquiv (homGdim_of_simplyLaced hSL) (sortedSpan_of_simplyLaced hSL) hnd
+  gammaAlgEquiv homGdim sortedSpan_holds hnd
 
 end Bij
 
@@ -138,7 +137,7 @@ attribute [local instance] KLR.KLGamma.vAlgebra
 any field `K` (Theorems 1.1, 1.2 with Theorem 1.3; root datum `slRootDatum m`, `I = Fin m`). -/
 def gammaAlgEquiv_sl (K : Type w) [Field K] (m : ℕ) :
     AUD (Categorification.Flag.slRootDatum m) vQ ≃+* K0All (Categorification.Flag.slRootDatum m) K :=
-  gammaAlgEquiv_of_simplyLaced (simplyLaced_slCartan m) (theorem_1_3 K m)
+  gammaAlgEquiv_unconditional (theorem_1_3 K m)
 
 end SlN
 

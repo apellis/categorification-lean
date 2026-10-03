@@ -35,7 +35,7 @@ corner of `(i, j)`, the class of `(E_{+i} E_{-j} 1_λ {t}, α(g))` lies in the i
 ## Main results
 
 * `tobjHyp`: the hypothesis `TobjHyp` of `Categorification.Diagrams.KL3.SurjectivityTop` holds
-  (any root datum with `I` finite, `k` a field, given hom-finiteness `HomGdim`).
+  (any root datum, `k` a field, given hom-finiteness `HomGdim`).
 * `gammaUA'_surjective_of_sortedSpan'`: **KL III Theorem 1.1** (`γ` is surjective) for any root
   datum, conditional only on `HomGdim` and the spanning hypothesis `SortedSpan`.
 -/
@@ -146,7 +146,7 @@ end Corner
 
 section Transfer
 
-variable [DecidableEq I] [Finite I] (hG : HomGdim RD k) (lam ρ : X) {ν ν' : Multiset I}
+variable [DecidableEq I] (hG : HomGdim RD k) (lam ρ : X) {ν ν' : Multiset I}
   (hρ : rhoS RD lam ν ν' = ρ)
 
 include hG in
@@ -238,7 +238,7 @@ end Transfer
 
 section Main
 
-variable [DecidableEq I] [Finite I] (hG : HomGdim RD k)
+variable [DecidableEq I] (hG : HomGdim RD k)
 
 include hG in
 /-- **The Grothendieck group hypothesis `TobjHyp` holds** (KL III, end of the proof of
@@ -254,9 +254,9 @@ theorem tobjHyp : TobjHyp RD k := by
   exact Submodule.smul_mem _ _ h1
 
 /-- **KL III Theorem 1.1 (surjectivity of `γ : _𝒜 U̇ → K₀(U̇)`), conditional only on the spanning
-hypothesis `SortedSpan`** (any root datum with `I` finite, `k` a field, given hom-finiteness
+hypothesis `SortedSpan`** (any root datum, `k` a field, given hom-finiteness
 `HomGdim`; both hypotheses are consequences of the spanning sets of KL III Proposition 3.11 and its
-proof, and are proved for simply-laced Cartan data). -/
+proof, and are proved for every finite Cartan datum). -/
 theorem gammaUA'_surjective_of_sortedSpan' (hspan : SortedSpan RD k) (lam ρ : X) :
     Function.Surjective (gammaUA' hG lam ρ) :=
   gammaUA'_surjective_of_sortedSpan hG hspan (tobjHyp hG) lam ρ

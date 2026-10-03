@@ -66,9 +66,6 @@ Surjectivity and injectivity of `γ` (KL III Theorems 1.1 and 1.2) are in
 `Categorification.Diagrams.KL3.GammaAlgebra`.
 -/
 
--- Elaborate direct sums and the scalar restriction through their abbreviations.
-set_option backward.isDefEq.respectTransparency false
-
 noncomputable section
 
 namespace Categorification.KL3.Diagram
@@ -285,7 +282,7 @@ variable {RD k}
 variable (RD k) in
 /-- **Every block `K₀(U̇(λ, ρ))` is torsion free over `ℤ[q, q⁻¹]`** (KL III §3.6: a consequence
 of the Krull–Schmidt property; proved in `KrullSchmidtU` under `HomGdim`, in particular for
-simply-laced data). -/
+every finite Cartan datum). -/
 def TorsionFreeK0 : Prop :=
   ∀ ρ lam : X, ∀ p ∈ nonZeroDivisors (LaurentPolynomial ℤ), ∀ x : K0Kar RD k ρ lam,
     p • x = 0 → x = 0
@@ -536,14 +533,14 @@ theorem ew_singleton_pow (l : Bool × I) (n : ℕ) :
     (ew [l] : UDot.Free (RatFunc ℚ) I) ^ n = ew (List.replicate n l) := by
   induction n with
   | zero => rfl
-  | succ n ih => rw [pow_succ', ih, List.replicate_succ, ew_cons]
+  | succ n ih => rw [pow_succ', ih, ← ew_append]; rfl
 
 /-- The image of a divided power `θ_i^{(n)}` under an embedding `θ_i ↦ E_{εi}` of `'f`. -/
 theorem map_dpow_eq_dpE (ε : Bool)
     (φ : PreF (RatFunc ℚ) I →ₐ[RatFunc ℚ] UDot.Free (RatFunc ℚ) I)
     (hφ : ∀ i, φ (PreF.θ i) = ew [(ε, i)]) (i : I) (n : ℕ) :
-    φ (dpow C.dot (vQ : (RatFunc ℚ)ˣ) i n) = dpE C vQ (ε, i, n) := by
-  rw [dpow, map_smul, map_pow, hφ, ew_singleton_pow]
+    φ (PreF.dpow C.dot (vQ : (RatFunc ℚ)ˣ) i n) = dpE C vQ (ε, i, n) := by
+  rw [PreF.dpow, map_smul, map_pow, hφ, ew_singleton_pow]
   rfl
 
 /-- The image of KL III's Serre element under an embedding `θ_i ↦ E_{εi}` of `'f`, in terms of
@@ -551,7 +548,7 @@ divided powers: `∑_{n + m = N} (-1)^n E_{εi}^{(n)} E_{εj} E_{εi}^{(m)}`. -/
 theorem map_serreKL (ε : Bool) (φ : PreF (RatFunc ℚ) I →ₐ[RatFunc ℚ] UDot.Free (RatFunc ℚ) I)
     (hφ : ∀ i, φ (PreF.θ i) = ew [(ε, i)]) (i j : I) :
     φ (serreKL C (vQ : (RatFunc ℚ)ˣ) i j) =
-      ∑ p ∈ Finset.antidiagonal (C.serreN i j),
+      ∑ p ∈ Finset.HasAntidiagonal.antidiagonal (C.serreN i j),
         ((-1 : RatFunc ℚ) ^ p.1) • dpW C vQ [(ε, i, p.1), (ε, j, 1), (ε, i, p.2)] := by
   rw [serreKL, map_sum]
   refine Finset.sum_congr rfl fun p _ => ?_
@@ -569,7 +566,7 @@ theorem negF_θ (i : I) :
 
 /-- The Serre relator between two words, for either sign. -/
 theorem serre_mem_Lrel (ε : Bool) {i j : I} (hij : i ≠ j) (a b : List (Bool × I)) (ℓ : I → ℤ) :
-    ew a * (∑ p ∈ Finset.antidiagonal (C.serreN i j),
+    ew a * (∑ p ∈ Finset.HasAntidiagonal.antidiagonal (C.serreN i j),
         ((-1 : RatFunc ℚ) ^ p.1) • dpW C vQ [(ε, i, p.1), (ε, j, 1), (ε, i, p.2)]) * ew b ∈
       Lrel C vQ ℓ := by
   cases ε with
@@ -584,7 +581,7 @@ theorem serre_mem_Lrel (ε : Bool) {i j : I} (hij : i ≠ j) (a b : List (Bool �
 relation (v), for `E` (`ε = +`) and `F` (`ε = -`)): for `i ≠ j`, `N = 1 - ⟨i, j_X⟩` and dpss
 `a`, `b`, `∑_{n + m = N} (-1)^n E_a E_{εi}^{(n)} E_{εj} E_{εi}^{(m)} E_b 1_λ = 0`. -/
 theorem mk_serre_dpW (ε : Bool) {i j : I} (hij : i ≠ j) (a b : List (Bool × I × ℕ)) (lam : X) :
-    ∑ p ∈ Finset.antidiagonal (C.serreN i j), ((-1 : RatFunc ℚ) ^ p.1) •
+    ∑ p ∈ Finset.HasAntidiagonal.antidiagonal (C.serreN i j), ((-1 : RatFunc ℚ) ^ p.1) •
       UDot.mk RD vQ lam (dpW C vQ (a ++ [(ε, i, p.1), (ε, j, 1), (ε, i, p.2)] ++ b)) = 0 := by
   have h := mk_dpW_mul_mul_eq_zero (RD := RD) a b lam
     (serre_mem_Lrel ε hij (dpWord a) (dpWord b) (RD.ellOf lam))
@@ -652,12 +649,12 @@ theorem genK_mulG (f f' : DpGen RD →₀ LaurentPolynomial ℤ) :
       rw [mulG_single_single, genK_single, genK_single, genMulHom]
       by_cases h : μ' = μ
       · subst h
-        rw [dite_eq_left rfl, of_mul_of_self, AddMonoidHom.compr₂_apply, AddMonoidHom.mul_apply,
+        rw [dite_eq_left rfl, ofK_mul_ofK_self, AddMonoidHom.compr₂_apply, AddMonoidHom.mul_apply,
           Finsupp.singleAddHom_apply, genK_single, K0U.mul_smul_left, K0U.mul_smul_right,
           smul_smul]
         exact congrArg (fun z => DirectSum.of (fun p : X × X => K0Kar RD k p.1 p.2) (ρ, lam)
           ((c * c') • z)) (dpC_append d d' lam μ' ρ hd' hd _)
-      · rw [dite_eq_right h, of_mul_of_ne (a := (ρ, μ)) (b := (μ', lam)) h]
+      · rw [dite_eq_right h, ofK_mul_ofK_ne (a := (ρ, μ)) (b := (μ', lam)) h]
         rfl
 
 /-! ### The universal `ℚ(q)`-target of `K₀(U̇)` -/
@@ -733,7 +730,7 @@ variable (k) in
 `γ : _𝒜 U̇ → K₀(U̇)`, `γ(∑ c_d E_d 1_λ) = ∑ c_d [E_d 1_λ]` (`gammaAlg_genU`, `gammaAlg_E1dp`), a
 homomorphism of non-unital rings, `ℤ[q, q⁻¹]`-linear (`gammaAlg_smul`), with `γ(1_λ) = [1_λ]`
 (`gammaAlg_one`) — given that every block of `K₀(U̇)` is torsion free (true under `HomGdim`, in
-particular for simply-laced data, `homGdim_of_simplyLaced`). -/
+particular for every finite Cartan datum, `homGdim`). -/
 def gammaAlg : AUD RD vQ →ₙ+* K0All RD k where
   toFun := gammaFun k
   map_mul' x y := by
@@ -833,7 +830,7 @@ theorem dpC_serre (ε : Bool) {i j : I} (hij : i ≠ j) (a b : List (Bool × I �
     ∑ n : Fin (C.serreN i j + 1), ((-1 : LaurentPolynomial ℤ) ^ (n : ℕ)) •
       dpC RD k (a ++ [(ε, i, (n : ℕ)), (ε, j, 1), (ε, i, C.serreN i j - n)] ++ b) lam ρ (hd n) =
         0 := by
-  refine dpC_relation_of_torsionFree (htf ρ lam) Finset.univ (fun n => (-1) ^ (n : ℕ))
+  refine dpC_relation_of_torsionFree (htf ρ lam) Finset.univ (fun n : Fin (C.serreN i j + 1) => (-1) ^ (n : ℕ))
     (fun n => a ++ [(ε, i, (n : ℕ)), (ε, j, 1), (ε, i, C.serreN i j - n)] ++ b) hd ?_
   have h := mk_serre_dpW (RD := RD) ε hij a b lam
   rw [Finset.Nat.sum_antidiagonal_eq_sum_range_succ_mk, Finset.sum_range] at h
@@ -849,7 +846,7 @@ theorem dpC_comm_ne {i j : I} (hij : i ≠ j) (a b : List (Bool × I × ℕ)) (l
     dpC RD k (a ++ [(true, i, 1), (false, j, 1)] ++ b) lam ρ h1 =
       dpC RD k (a ++ [(false, j, 1), (true, i, 1)] ++ b) lam ρ h2 := by
   have hrel := mk_comm_dpW (RD := RD) i j a b lam
-  rw [if_neg (Ne.symm hij), zero_smul, sub_zero] at hrel
+  rw [ite_eq_right (Ne.symm hij), zero_smul, sub_zero] at hrel
   have h := dpC_relation_of_torsionFree (k := k) (htf ρ lam) (Finset.univ : Finset Bool)
     (fun t => bif t then 1 else -1)
     (fun t => bif t then a ++ [(true, i, 1), (false, j, 1)] ++ b
@@ -877,7 +874,7 @@ theorem dpC_comm_self (i : I) (a b : List (Bool × I × ℕ)) (lam ρ : X)
       dpC RD k (a ++ [(false, i, 1), (true, i, 1)] ++ b) lam ρ h2 +
         qnZ (di C i) (wl C (RD.ellOf lam) (dpWord b) i) • dpC RD k (a ++ b) lam ρ h3 := by
   have hrel := mk_comm_dpW (RD := RD) i i a b lam
-  rw [if_pos rfl, ← lpToQ_qnZ] at hrel
+  rw [ite_eq_left rfl, ← lpToQ_qnZ] at hrel
   have h := dpC_relation_of_torsionFree (k := k) (htf ρ lam) (Finset.univ : Finset (Option Bool))
     (fun o => match o with
       | none => -qnZ (di C i) (wl C (RD.ellOf lam) (dpWord b) i)
@@ -898,7 +895,7 @@ theorem dpC_comm_self (i : I) (a b : List (Bool × I × ℕ)) (lam ρ : X)
 /-! ### Proposition 3.28 for `σ`, exactly -/
 
 /-- **KL III Proposition 3.28 for `σ`, exactly on the generators** (given torsion-freeness;
-e.g. under `HomGdim`, in particular for simply-laced data):
+e.g. under `HomGdim`, in particular for every finite Cartan datum):
 `[σ̃][E_d 1_λ] = [E_{d^rev} 1_{-ρ}]`. -/
 theorem sigK0_dpC' (htf : TorsionFreeK0 RD k) (d : List (Bool × I × ℕ)) (lam ρ : X)
     (h : wt RD lam (dpWord d) = ρ) (h' : wt RD (-ρ) (dpWord d.reverse) = -lam) :
@@ -956,7 +953,7 @@ theorem genK_mapDomain_sigGen (htf : TorsionFreeK0 RD k) (f : DpGen RD →₀ La
     rfl
 
 /-- **KL III Proposition 3.28 for `σ`, exactly, on all of `_𝒜 U̇`**: `γ ∘ σ = [σ̃] ∘ γ` (given
-torsion-freeness of `K₀(U̇)`; e.g. for simply-laced data). -/
+torsion-freeness of `K₀(U̇)`; e.g. for every finite Cartan datum). -/
 theorem gammaAlg_sigma (htf : TorsionFreeK0 RD k) (x : AUD RD vQ) :
     gammaAlg k htf ⟨sigmaUD RD vQ x.1, sigmaUD_mem_AUD RD vQ x.2⟩ =
       sigAll RD k (gammaAlg k htf x) := by

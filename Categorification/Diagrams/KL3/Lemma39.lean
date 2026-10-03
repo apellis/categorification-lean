@@ -45,19 +45,22 @@ element of `upSpan` by unbending on the left.
   `R → L` and one step `L → R`.
 * Every normal-form diagram between upward sequences is thus good, i.e. lies in `upSpan`.
 
-The bubble slides (KL III Propositions 3.3, 3.4) and the Markov lemmas use simply-laced Cartan
-data; accordingly the results assume `SimplyLaced C`.
+KL III state the bubble slides (Propositions 3.3, 3.4) for simply-laced Cartan data; with the
+bubble slides in all degrees for an arbitrary Cartan datum
+(`Categorification.Diagrams.KL3.BubbleSlidesGen`) the bubble slides across any strand, the Markov
+lemmas and the decompositions `decR`, `decL` hold in general, so the results below hold for every
+Cartan datum.
 
 ## Main results
 
-* `upSpanDiag_of_simplyLaced`: **KL III Lemma 3.9 in diagrammatic form** (`UpSpanDiag RD k μ`,
+* `upSpanDiag`: **KL III Lemma 3.9 in diagrammatic form** (`UpSpanDiag RD k μ`,
   for every `μ`).
-* `endUpSpan_of_simplyLaced`: its one-strand case.
-* `prop310_of_simplyLaced`: **KL III Proposition 3.10**:
+* `endUpSpan`: its one-strand case.
+* `prop310`: **KL III Proposition 3.10**:
   `ϕ_{ν,λ} : R(ν) ⊗ Π_λ → END_U(E_ν 1_λ)` is surjective.
-* `prop36_of_simplyLaced`: **KL III Proposition 3.6**: `Π_λ → END_U(1_λ)` is surjective.
-* `cor37_gdim_le_pi_of_simplyLaced`, `cor37_finrank_le_of_simplyLaced`,
-  `cor37_HDe_neg_of_simplyLaced`, `cor37_HDe_zero_of_simplyLaced`, `cor37_isUnit_of_simplyLaced`:
+* `prop36`: **KL III Proposition 3.6**: `Π_λ → END_U(1_λ)` is surjective.
+* `cor37_gdim_le_pi_unconditional`, `cor37_finrank_le_unconditional`,
+  `cor37_HDe_neg_unconditional`, `cor37_HDe_zero_unconditional`, `cor37_isUnit_unconditional`:
   **KL III Corollary 3.7** (`gdim HOM_U(1_λ, 1_λ) ≤ π`, nonnegatively graded with degree-zero part
   `k · 1`, "local graded ring"), from the conditional versions of
   `Categorification.Diagrams.KL3.EndOneGraded`.
@@ -325,8 +328,8 @@ theorem Upward.map_whL {A : List (LayerData I)} (h : Upward A) (u v : List (Lett
 /-! ## Good 2-morphisms are preserved by monotone diagrams -/
 
 /-- **R → L**: a good 2-morphism into a word sorted to the right, followed by a monotone diagram of
-type `RL` into a word sorted to the left, is good (simply-laced). -/
-theorem goodR_comp (hSL : SimplyLaced C) [DecidableEq I] {μ : X} {s : List (Letter I)}
+type `RL` into a word sorted to the left, is good. -/
+theorem goodR_comp [DecidableEq I] {μ : X} {s : List (Letter I)}
     (hs : Positive s) {a b d c : List I} {M : List (LayerData I)} (hM : AllSh Shape.isRL M)
     (hMc : SChain (ups a ++ dns b) M (dns d ++ ups c)) {f} (hf : f ∈ GoodR RD k μ s a b) :
     f ≫ dg RD k μ (ups a ++ dns b) (dns d ++ ups c) M ∈ GoodL RD k μ s d c := by
@@ -370,7 +373,7 @@ theorem goodR_comp (hSL : SimplyLaced C) [DecidableEq I] {μ : X} {s : List (Let
                 bubAt RD k (wt RD μ (dns b)) (ups c ++ rd (dns b)) γ)) at e
         rw [e]
         refine Submodule.subset_span ⟨𝟙 _, _, IsBub.id, ?_, by rw [bubAt_id, Category.id_comp]⟩
-        exact ptrRL_mem_upSpan hSL b μ (positive_append.2 ⟨positive_rd_dns d, hs⟩) (positive_ups c)
+        exact ptrRL_mem_upSpan b μ (positive_append.2 ⟨positive_rd_dns d, hs⟩) (positive_ups c)
           rfl rfl (Submodule.subset_span ⟨_, γ, (hAu.map_whL _ _).append hA'u, hA2, hγ, rfl⟩)
       change unbendR RD k μ b s (ups a) (dg RD k (wt RD μ (dns b)) (s ++ rd (dns b)) (ups a) A ≫
             bubAt RD k (wt RD μ (dns b)) (ups a) (dg RD k (wt RD μ (dns b)) [] [] B)) ≫
@@ -430,8 +433,8 @@ theorem unbendL_dg_bubAt (μ : X) (d : List I) (s c : List (Letter I)) {B : List
   exact dg_list_eq (by laysimp)
 
 /-- **L → R**: a good 2-morphism into a word sorted to the left, followed by a monotone diagram of
-type `LR` into a word sorted to the right, is good (simply-laced). -/
-theorem goodL_comp (hSL : SimplyLaced C) [DecidableEq I] {μ : X} {s : List (Letter I)}
+type `LR` into a word sorted to the right, is good. -/
+theorem goodL_comp [DecidableEq I] {μ : X} {s : List (Letter I)}
     (hs : Positive s) {d a c b : List I} {M : List (LayerData I)} (hM : AllSh Shape.isLR M)
     (hMc : SChain (dns d ++ ups a) M (ups c ++ dns b)) {g} (hg : g ∈ GoodL RD k μ s d a) :
     g ≫ dg RD k μ (dns d ++ ups a) (ups c ++ dns b) M ∈ GoodR RD k μ s c b := by
@@ -472,7 +475,7 @@ theorem goodL_comp (hSL : SimplyLaced C) [DecidableEq I] {μ : X} {s : List (Let
         exact core_LR_dg μ hBc hMc (hE (wt RD μ (dns b)))
       rw [e]
       refine Submodule.subset_span ⟨𝟙 _, _, IsBub.id, ?_, by rw [bubAt_id, Category.id_comp]⟩
-      exact ptrLL_mem_upSpan hSL d (wt RD μ (dns b))
+      exact ptrLL_mem_upSpan d (wt RD μ (dns b))
         (positive_append.2 ⟨hs, positive_rd_dns b⟩) (positive_ups c) rfl rfl
         (Submodule.subset_span ⟨_, 𝟙 _, (hBu.map_whL _ _).append hA''u, hB2, IsBub.id,
           by rw [bubAt_id, Category.comp_id]⟩)
@@ -552,8 +555,8 @@ theorem Shape.isRL_or_isLR (g : Shape I) : g.isRL = true ∨ g.isLR = true := by
   | cup l => obtain ⟨b, i⟩ := l; cases b <;> simp [Shape.isRL, Shape.isLR]
   | cap l => obtain ⟨b, i⟩ := l; cases b <;> simp [Shape.isRL, Shape.isLR]
 
-/-- **One layer**: the invariant is preserved by composing with any layer (simply-laced). -/
-theorem inv_step (hSL : SimplyLaced C) [DecidableEq I] {μ : X} {s : List (Letter I)}
+/-- **One layer**: the invariant is preserved by composing with any layer. -/
+theorem inv_step [DecidableEq I] {μ : X} {s : List (Letter I)}
     (hs : Positive s) {w w' : List (Letter I)} {f} (hf : LayerInv RD k μ s w f) {x : LayerData I}
     (hx : SChain w [x] w') : LayerInv RD k μ s w' (f ≫ dg RD k μ w w' [x]) := by
   intro a' b' P' hP' hcP'
@@ -575,10 +578,10 @@ theorem inv_step (hSL : SimplyLaced C) [DecidableEq I] {μ : X} {s : List (Lette
           induction he' using Submodule.span_induction with
           | mem e' he' =>
             obtain ⟨d, c, P'', Q'', δ', hP'', hcP'', hQ'', hcQ'', hδ', rfl⟩ := he'
-            have h1 := goodR_comp hSL hs (M := Q ++ [x] ++ P'')
+            have h1 := goodR_comp hs (M := Q ++ [x] ++ P'')
               ((hQ.append (fun y hy => by rw [List.mem_singleton.1 hy]; exact hxs)).append hP'')
               ((hcQ.append hx).append hcP'') hg
-            have h2 := goodL_comp hSL hs (M := Q'' ++ P') (hQ''.append hP') (hcQ''.append hcP') h1
+            have h2 := goodL_comp hs (M := Q'' ++ P') (hQ''.append hP') (hcQ''.append hcP') h1
             have h3 := goodR_bub hδ (goodR_bub hδ' h2)
             convert h3 using 1
             rw [← dg_comp (hcQ.append hx) hcP'', ← dg_comp hcQ hx, ← dg_comp hcQ'' hcP']
@@ -592,7 +595,7 @@ theorem inv_step (hSL : SimplyLaced C) [DecidableEq I] {μ : X} {s : List (Lette
             simp only [Preadditive.add_comp, Preadditive.comp_add]; exact Submodule.add_mem _ h₁ h₂
           | smul r e _ h =>
             simp only [Linear.smul_comp, Linear.comp_smul]; exact Submodule.smul_mem _ r h
-        have := hΨ _ (decL (RD := RD) (k := k) hSL μ _ w' (Nat.lt_succ_self _))
+        have := hΨ _ (decL (RD := RD) (k := k) μ _ w' (Nat.lt_succ_self _))
         simpa only [Category.id_comp, Category.assoc] using this
       · -- the layer is of type `LR`: sort its source to the left
         have hΨ : ∀ e' ∈ decLSet RD k μ w, f ≫ bubAt RD k μ w δ ≫
@@ -603,8 +606,8 @@ theorem inv_step (hSL : SimplyLaced C) [DecidableEq I] {μ : X} {s : List (Lette
           induction he' using Submodule.span_induction with
           | mem e' he' =>
             obtain ⟨d, c, P'', Q'', δ', hP'', hcP'', hQ'', hcQ'', hδ', rfl⟩ := he'
-            have h1 := goodR_comp hSL hs (M := Q ++ P'') (hQ.append hP'') (hcQ.append hcP'') hg
-            have h2 := goodL_comp hSL hs (M := Q'' ++ [x] ++ P')
+            have h1 := goodR_comp hs (M := Q ++ P'') (hQ.append hP'') (hcQ.append hcP'') hg
+            have h2 := goodL_comp hs (M := Q'' ++ [x] ++ P')
               ((hQ''.append (fun y hy => by rw [List.mem_singleton.1 hy]; exact hxs)).append hP')
               ((hcQ''.append hx).append hcP') h1
             have h3 := goodR_bub hδ (goodR_bub hδ' h2)
@@ -620,22 +623,22 @@ theorem inv_step (hSL : SimplyLaced C) [DecidableEq I] {μ : X} {s : List (Lette
             simp only [Preadditive.add_comp, Preadditive.comp_add]; exact Submodule.add_mem _ h₁ h₂
           | smul r e _ h =>
             simp only [Linear.smul_comp, Linear.comp_smul]; exact Submodule.smul_mem _ r h
-        have := hΨ _ (decL (RD := RD) (k := k) hSL μ _ w (Nat.lt_succ_self _))
+        have := hΨ _ (decL (RD := RD) (k := k) μ _ w (Nat.lt_succ_self _))
         simpa only [Category.id_comp, Category.assoc] using this
     | zero => simp
     | add e₁ e₂ _ _ h₁ h₂ =>
       simp only [Preadditive.add_comp, Preadditive.comp_add]; exact Submodule.add_mem _ h₁ h₂
     | smul r e _ h =>
       simp only [Linear.smul_comp, Linear.comp_smul]; exact Submodule.smul_mem _ r h
-  have := hΦ _ (decR (RD := RD) (k := k) hSL μ _ w (Nat.lt_succ_self _))
+  have := hΦ _ (decR (RD := RD) (k := k) μ _ w (Nat.lt_succ_self _))
   simpa only [Category.id_comp, Category.assoc] using this
 
 /-! ## Main results -/
 
-/-- **KL III Lemma 3.9, diagrammatic form** (simply-laced Cartan data): every normal-form diagram
+/-- **KL III Lemma 3.9, diagrammatic form** (any Cartan datum): every normal-form diagram
 of `U` from an upward sequence to an upward sequence is a linear combination of upward diagrams
 followed by bubble monomials on the far right. -/
-theorem upSpanDiag_of_simplyLaced (hSL : SimplyLaced C) [DecidableEq I] (μ : X) :
+theorem upSpanDiag [DecidableEq I] (μ : X) :
     UpSpanDiag RD k μ := by
   intro s t ls hs ht h
   have hbase : LayerInv RD k μ s s (𝟙 _) := fun a b P hP hPc => by
@@ -653,7 +656,7 @@ theorem upSpanDiag_of_simplyLaced (hSL : SimplyLaced C) [DecidableEq I] (μ : X)
     | cons x ls ih =>
       intro w₀ w f hf hc
       have hx : SChain w₀ [x] (x.1 ++ x.2.1.cod ++ x.2.2) := ⟨hc.1, rfl⟩
-      have := ih _ (inv_step hSL hs hf hx) hc.2
+      have := ih _ (inv_step hs hf hx) hc.2
       rw [Category.assoc, dg_comp hx hc.2] at this
       exact this
   have hI := hall ls (𝟙 _) hbase h
@@ -662,56 +665,56 @@ theorem upSpanDiag_of_simplyLaced (hSL : SimplyLaced C) [DecidableEq I] (μ : X)
   rw [dg_nil, Category.comp_id, Category.id_comp] at hm
   exact goodR_nil_le μ s a hm
 
-/-- **The one-strand case of KL III Lemma 3.9** (simply-laced): every endomorphism of `E_i 1_μ`
+/-- **The one-strand case of KL III Lemma 3.9**: every endomorphism of `E_i 1_μ`
 is a linear combination of dots times bubble monomials. -/
-theorem endUpSpan_of_simplyLaced (hSL : SimplyLaced C) (μ : X) (i : I) :
+theorem endUpSpan (μ : X) (i : I) :
     EndUpSpan RD k μ i := by
   classical
-  exact endUpSpan_of_upSpanDiag RD k (upSpanDiag_of_simplyLaced hSL μ) i
+  exact endUpSpan_of_upSpanDiag RD k (upSpanDiag μ) i
 
-/-- **KL III Proposition 3.10** (simply-laced): `ϕ_{ν,λ} : R(ν) ⊗ Π_λ → END_U(E_ν 1_λ)` is
+/-- **KL III Proposition 3.10** (any Cartan datum): `ϕ_{ν,λ} : R(ν) ⊗ Π_λ → END_U(E_ν 1_λ)` is
 surjective. -/
-theorem prop310_of_simplyLaced (hSL : SimplyLaced C) [DecidableEq I] (μ : X) (ν : Multiset I) :
+theorem prop310 [DecidableEq I] (μ : X) (ν : Multiset I) :
     Prop310 RD k μ ν :=
-  prop310_of_upSpanDiag RD k μ ν (upSpanDiag_of_simplyLaced hSL μ)
+  prop310_of_upSpanDiag RD k μ ν (upSpanDiag μ)
 
-/-- **KL III Proposition 3.6** (simply-laced): `Π_λ → END_U(1_λ)` is surjective. -/
-theorem prop36_of_simplyLaced (hSL : SimplyLaced C) (lam : X) : Prop36 RD k lam := by
+/-- **KL III Proposition 3.6** (any Cartan datum): `Π_λ → END_U(1_λ)` is surjective. -/
+theorem prop36 (lam : X) : Prop36 RD k lam := by
   classical
-  exact prop36_of_upSpanDiag RD k hSL (fun μ => upSpanDiag_of_simplyLaced hSL μ) lam
+  exact prop36_of_upSpanDiag RD k (fun μ => upSpanDiag μ) lam
 
 /-! ## Corollary 3.7 -/
 
-/-- **KL III Corollary 3.7**, nonnegativity of degrees (simply-laced): `HOM_U(1_λ, 1_λ)` has no
+/-- **KL III Corollary 3.7**, nonnegativity of degrees: `HOM_U(1_λ, 1_λ)` has no
 nonzero elements of negative degree. -/
-theorem cor37_HDe_neg_of_simplyLaced (hSL : SimplyLaced C) (lam : X) {d : ℤ} (hd : d < 0) :
+theorem cor37_HDe_neg_unconditional (lam : X) {d : ℤ} (hd : d < 0) :
     HDe RD k lam d = ⊥ :=
-  cor37_HDe_neg lam (prop36_of_simplyLaced hSL lam) hd
+  cor37_HDe_neg lam (prop36 lam) hd
 
-/-- **KL III Corollary 3.7**, the degree-zero part (simply-laced): the degree-zero part of
+/-- **KL III Corollary 3.7**, the degree-zero part: the degree-zero part of
 `HOM_U(1_λ, 1_λ)` is `k · 1`. -/
-theorem cor37_HDe_zero_of_simplyLaced (hSL : SimplyLaced C) (lam : X) :
+theorem cor37_HDe_zero_unconditional (lam : X) :
     HDe RD k lam 0 = Submodule.span k {𝟙 _} :=
-  cor37_HDe_zero lam (prop36_of_simplyLaced hSL lam)
+  cor37_HDe_zero lam (prop36 lam)
 
-/-- **KL III Corollary 3.7** (simply-laced, `I` finite, `k` with the strong rank condition):
+/-- **KL III Corollary 3.7** (`I` finite, `k` with the strong rank condition):
 `dim_k HOM_U(1_λ, 1_λ)_d` is at most the number of monomials of degree `d` in `Π_λ`. -/
-theorem cor37_finrank_le_of_simplyLaced [StrongRankCondition k] [Finite I] (hSL : SimplyLaced C)
+theorem cor37_finrank_le_unconditional [StrongRankCondition k] [Finite I]
     (lam : X) (d : ℤ) : Module.finrank k (HDe RD k lam d) ≤ (monDeg C d).ncard :=
-  cor37_finrank_le lam (prop36_of_simplyLaced hSL lam) d
+  cor37_finrank_le lam (prop36 lam) d
 
-/-- **KL III Corollary 3.7**, `gdim HOM_U(1_λ, 1_λ) ≤ π` (simply-laced, `I` finite, `k` with the
+/-- **KL III Corollary 3.7**, `gdim HOM_U(1_λ, 1_λ) ≤ π` (`I` finite, `k` with the
 strong rank condition): the dimension in degree `d` is at most the coefficient of `q^d` in `π`. -/
-theorem cor37_gdim_le_pi_of_simplyLaced [StrongRankCondition k] [Fintype I]
-    (hSL : SimplyLaced C) (lam : X) (N d : ℕ) (hd : d ≤ N) :
+theorem cor37_gdim_le_pi_unconditional [StrongRankCondition k] [Fintype I]
+    (lam : X) (N d : ℕ) (hd : d ≤ N) :
     (Module.finrank k (HDe RD k lam d) : ℤ) ≤ (piTrunc C N).coeff d :=
-  cor37_gdim_le_pi lam (prop36_of_simplyLaced hSL lam) N d hd
+  cor37_gdim_le_pi lam (prop36 lam) N d hd
 
-/-- **KL III Corollary 3.7**, "local graded ring" (simply-laced, `k` a field): a homogeneous element
+/-- **KL III Corollary 3.7**, "local graded ring" (`k` a field): a homogeneous element
 of `END_U(1_λ)` of degree `≤ 0` which is nonzero is a unit. -/
-theorem cor37_isUnit_of_simplyLaced {K : Type w} [Field K] {RD : RootDatum C X Y}
-    (hSL : SimplyLaced C) (lam : X) {x : EndOne RD K lam} {d : ℤ} (hx : x ∈ HDo RD K lam d)
+theorem cor37_isUnit_unconditional {K : Type w} [Field K] {RD : RootDatum C X Y}
+    (lam : X) {x : EndOne RD K lam} {d : ℤ} (hx : x ∈ HDo RD K lam d)
     (hd : d ≤ 0) (hx0 : x ≠ 0) : IsUnit x :=
-  cor37_isUnit lam (prop36_of_simplyLaced hSL lam) hx hd hx0
+  cor37_isUnit lam (prop36 lam) hx hd hx0
 
 end Categorification.KL3.Diagram

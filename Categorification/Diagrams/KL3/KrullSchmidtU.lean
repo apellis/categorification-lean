@@ -30,8 +30,8 @@ single hypothesis
 * `HomGdim RD k`: for all `μ`, `s`, `t`, the graded pieces of `HOM_U(E_s 1_μ, E_t 1_μ)` are
   finite-dimensional and vanish in sufficiently negative degrees,
 
-which holds for simply-laced Cartan data with `I` finite (`homGdim_of_simplyLaced`), and for every
-Cartan datum with `I` finite as soon as Proposition 3.11 is available (`homGdim_of_prop311` in
+which holds for every Cartan datum with `I` finite (`homGdim`), and also follows directly
+from Proposition 3.11 (`homGdim_of_prop311` in
 `Categorification.Diagrams.KL3.GdimBound`).
 
 ## Main results (given `hG : HomGdim RD k`)
@@ -106,15 +106,13 @@ all signed sequences `s`, `t`, each graded piece of `HOM_U(E_s 1_μ, E_t 1_μ)` 
 finite-dimensional, and the graded pieces vanish in sufficiently negative degrees.
 
 This is the only input of the Krull–Schmidt argument below. KL III obtain it from the spanning
-sets of Proposition 3.11. It is proved for simply-laced Cartan data with `I` finite
-(`homGdim_of_simplyLaced`), and follows from Proposition 3.11 for any Cartan datum with `I` finite
-(`homGdim_of_prop311`); here it is a hypothesis. -/
+sets of Proposition 3.11. For any finite Cartan datum it is proved by `homGdim` below;
+`homGdim_of_prop311` also exposes the original spanning-family route. -/
 def HomGdim : Prop := ∀ (μ : X) (s t : List (Letter I)), Graded.HasGdim (HomD RD k μ s t)
 
-/-- Hom-finiteness of `U` for simply-laced data (`hasGdim_homD`). -/
-theorem homGdim_of_simplyLaced [DecidableEq I] [Finite I] (hSL : SimplyLaced C) :
-    HomGdim RD k :=
-  fun μ s t => hasGdim_homD hSL μ s t
+/-- Hom-finiteness of `U` for every finite Cartan datum, with no simply-laced hypothesis. -/
+theorem homGdim [DecidableEq I] [Finite I] : HomGdim RD k :=
+  fun μ s t => hasGdim_homD μ s t
 
 /-- The underlying matrix of a morphism of the Karoubi envelope, as a linear map. -/
 def karHomL {𝒞 : Type*} [Category 𝒞] [Preadditive 𝒞] [Linear k 𝒞] (A B : Karoubi 𝒞) :

@@ -169,14 +169,20 @@ used in the proof and in Cor. 5.5, holds (`Flag.lemma_5_4_iii`).
 | KL III Props. 3.3, 3.4; Lauda Props. 5.5, 5.6 | the infinite Grassmannian relation in all degrees (real and fake bubbles); bubble slides (Prop. 3.3, all cases, all `α`) and more bubble slides (Prop. 3.4), proved as rewriting chains in `U` | `KL3.Diagram.grassmannian`, `KL3.Diagram.grassmannian_all`, `KL3.Diagram.prop33_ccw_same_all`, `KL3.Diagram.prop33_cw_adj_all`, `KL3.Diagram.prop34_cw_same_all` |
 | KL III Prop. 3.5 | pitchfork moves, `E_iF_j ≅ F_jE_i` for `i ≠ j`, the mixed Reidemeister III relation (3.22) unless `i = j = k`, and (3.23) for `i = j = k` (with the corrected range of the second sum, see below) | `KL3.Diagram.crossIso`, `KL3.Diagram.prop35_a`, `KL3.Diagram.prop35_b` |
 | KL III §3.4–3.5, Props. 3.24–3.26 | the Hom categories `U(λ, λ')` with grading shifts and direct sums, and `U̇(λ, λ')` = their Karoubi envelopes (additive, `k`-linear, idempotent complete), with composition; the sl₂ decompositions `E_iF_i1_λ ≅ F_iE_i1_λ ⊕ 1_λ^{⊕[⟨i,λ⟩]}` and mirror (3.25); `E_iF_j1_λ ≅ F_jE_i1_λ` for `i ≠ j` (3.26); `E_i^m1_λ ≅ (E_{i^{(m)}}1_λ)^{⊕[m]_i!}`; the categorified Serre relation (3.24), and their downward versions via `ω̃` | `GradedBicat.UDotHom`, `GradedBicat.hcompDot`, `KL3.Diagram.prop325EF`, `KL3.Diagram.prop325FE`, `KL3.Diagram.prop326`, `KL3.Diagram.Epow_decomp`, `KL3.Diagram.prop324`, `KL3.Diagram.Fpow_decomp`, `KL3.Diagram.prop324_down` |
-| KL III §3.2: Lemma 3.9, Props. 3.6, 3.10, Cor. 3.7 (simply-laced data) | `END_U(1_λ)` is commutative; `Π_λ → END_U(1_λ)` is surjective (Prop. 3.6), so `END_U(1_λ)` is nonnegatively graded with degree-0 part `k`, `gdim ≤ π`, and is a local graded ring (Cor. 3.7); `ϕ_{ν,λ} : R(ν) ⊗ Π_λ → END_U(E_ν 1_λ)` is surjective (Prop. 3.10); the diagrammatic Lemma 3.9 — proved by straightening monotone diagrams (zigzags and interchange only), sorting via the `EF`/`FE` decompositions, and Markov lemmas for partial traces | `KL3.Diagram.prop36_of_simplyLaced`, `KL3.Diagram.prop310_of_simplyLaced`, `KL3.Diagram.upSpanDiag_of_simplyLaced`, `KL3.Diagram.cor37_gdim_le_pi_of_simplyLaced`, `KL3.Diagram.cor37_isUnit_of_simplyLaced`, `KL3.Diagram.bubMap` |
+| KL III §3.2: Lemma 3.9, Props. 3.6, 3.10, Cor. 3.7 (any Cartan datum) | `END_U(1_λ)` is commutative; `Π_λ → END_U(1_λ)` is surjective (Prop. 3.6), so `END_U(1_λ)` is nonnegatively graded with degree-0 part `k`, `gdim ≤ π`, and is a local graded ring (Cor. 3.7); `ϕ_{ν,λ} : R(ν) ⊗ Π_λ → END_U(E_ν 1_λ)` is surjective (Prop. 3.10); the diagrammatic Lemma 3.9 — proved by straightening monotone diagrams (zigzags and interchange only), sorting via the `EF`/`FE` decompositions, and Markov lemmas for partial traces; the bubble slides needed for a Cartan datum that is not simply laced (`i ≠ j`, `i·j ≤ -2`; not stated in KL III) are proved in all degrees, fake bubbles included, following Brundan–Ellis, arXiv:1701.04133v2, Prop. 7.3(iii) | `KL3.Diagram.prop36`, `KL3.Diagram.prop310`, `KL3.Diagram.upSpanDiag`, `KL3.Diagram.cor37_gdim_le_pi_unconditional`, `KL3.Diagram.cor37_isUnit_unconditional`, `KL3.Diagram.slides_gen`, `KL3.Diagram.bubMap` |
 | KL III §3.3 | the symmetry 2-functors `ψ̃` (reflection in the x-axis, `U → U^co`, fixing all bubbles) and `σ̃` (reflection in the y-axis with `λ ↦ -λ` and a sign on `ii`-crossings, `U → U^op`, exchanging clockwise and counterclockwise bubbles); `ψ̃² = 1`, `σ̃² = 1`, `σ̃ψ̃ = ψ̃σ̃`; both preserve degrees. `ω̃` (orientation reversal, `λ ↦ -λ`; on diagrams `ω̃ = ψ̃ ∘ τ ∘ σ̃`, via a rotation calculus), involutive, commuting with `ψ̃` and `σ̃` (in (3.45), `ω̃σ̃ = ω̃σ̃` should read `ω̃σ̃ = σ̃ω̃`), exchanging clockwise and counterclockwise bubbles; `τ̃` on each Hom category (3.46); the downward KLR relations | `KL3.Diagram.psiU`, `KL3.Diagram.sigU`, `KL3.Diagram.omegaU`, `KL3.Diagram.tauU`, `KL3.Diagram.omegaU_omegaU`, `KL3.Diagram.omegaU_sigU`, `KL3.Diagram.psiU_sigU`, `KL3.Diagram.downFunctor` |
 | KL III §3.6 (partial), Prop. 3.27 over `ℚ(q)` | the split Grothendieck group `K_0(U̇(λ, μ))` (`q` = shift), the product induced by composition; in `K_0`: the `EF`/`FE` relations with quantum integers, `[E_i F_j] = [F_j E_i]` (`i ≠ j`), `[E_i^m] = [m]_i! [E_{i^{(m)}}]`, the upward Serre relation, and a sorting lemma (K_0 form of Lemma 3.38); the map `γ : U̇1_λ → ℚ(q) ⊗ K_0(U̇)` on each block (Prop. 3.27 over `ℚ(q)`) | `SplitK0`, `GradedBicat.K0U.mul`, `KL3.Diagram.eC_EF`, `KL3.Diagram.eC_pow`, `KL3.Diagram.eC_serre`, `KL3.Diagram.downSerreK0`, `KL3.Diagram.gammaQ'` |
-| KL III §3.6, Props. 3.27, 3.28 (integral, partial) | associativity and units of the product on `K_0(U̇)` (an idempotented `ℤ[q,q⁻¹]`-algebra); divided-power classes `[E_d 1_λ]` with `[E_{i^a}] = [a]_i! [E_{i^{(a)}}]`; the defining relations of `_A U̇` hold in `K_0(U̇)` up to `ℤ[q,q⁻¹]`-torsion, and `γ : _A U̇ → K_0(U̇)` on each block assuming `K_0` torsion free (Krull–Schmidt in `U̇` is not formalized); `γ` intertwines `ω` with `[ω̃]` (exactly), and `ψ`, `σ`, `τ` with `[ψ̃]`, `[σ̃]`, `[τ̃]` (over `ℚ(q)`; on divided-power classes up to torsion); the algebraic `σ`, `ρ`, `τ` on `U̇` | `GradedBicat.K0U.mul_assoc`, `KL3.Diagram.dpC_relation`, `KL3.Diagram.gammaUA`, `KL3.Diagram.omegaK0_dpC_exact`, `KL3.Diagram.gammaQ'_omega`, `KL3.Diagram.gammaQ'_psi`, `KL3.Diagram.gammaUD_sigma`, `KL3.Diagram.gammaUD_tau`, `QuantumGroup.UDot.sigmaUD`, `QuantumGroup.UDot.tauUD` |
-| KL III §3.2.3 (Prop. 3.12, (3.68), Cor. 3.13) | the elements of the proposed spanning sets `B_{𝐢,𝐣,λ}` (pairing, dots per strand, bubble monomial) in each degree are counted by `π⟨E_𝐢1_λ, E_𝐣1_λ⟩` (Prop. 3.12); a spanning family is a basis iff the dimension count holds (3.68); Cor. 3.13 and the equivalence of KL's basis definition of nondegeneracy with the dimension form are proved under a hypothesis `Prop311` which, as formalized, is equivalent to the inequality of Cor. 3.13 itself and is weaker than KL's Prop. 3.11 (spanning by the explicit sets `B_{𝐢,𝐣,λ}`); both are proved for simply-laced data (next rows) | `KL3.Diagram.prop_3_12`, `KL3.Diagram.finrank_eq_iff_linearIndependent`, `KL3.Diagram.cor_3_13`, `KL3.Diagram.calculusNondeg_iff` |
+| KL III §3.6, Props. 3.27, 3.28 (integral, blockwise) | associative composition product and units on `K_0(U̇)`; divided-power relations and symmetry compatibility; the integral block map has source `LinearMap.range dpComb`, with torsion freedom supplied by Krull–Schmidt | `GradedBicat.K0U.mul_assoc`, `KL3.Diagram.dpC_relation`, `KL3.Diagram.gammaUA'`, `KL3.Diagram.K0Kar_torsionFree`, `KL3.Diagram.omegaK0_dpC_exact`, `KL3.Diagram.gammaQ'_psi`, `KL3.Diagram.gammaUD_sigma`, `KL3.Diagram.gammaUD_tau` |
+| KL III §3.2.3 (Prop. 3.12, (3.68), Cor. 3.13) | the elements of the proposed spanning sets `B_{𝐢,𝐣,λ}` (pairing, dots per strand, bubble monomial) in each degree are counted by `π⟨E_𝐢1_λ, E_𝐣1_λ⟩` (Prop. 3.12); a spanning family is a basis iff the dimension count holds (3.68); Cor. 3.13 and the equivalence of KL's basis definition of nondegeneracy with the dimension form are proved under a hypothesis `Prop311` which, as formalized, is equivalent to the inequality of Cor. 3.13 itself and is weaker than KL's Prop. 3.11 (spanning by the explicit sets `B_{𝐢,𝐣,λ}`); both are proved for every Cartan datum (next rows) | `KL3.Diagram.prop_3_12`, `KL3.Diagram.finrank_eq_iff_linearIndependent`, `KL3.Diagram.cor_3_13`, `KL3.Diagram.calculusNondeg_iff` |
 | KL III Prop. 3.11 (positive and normally ordered sequences), Cor. 3.13 | for sequences of `E`'s, the explicit sets `B_{𝐢,𝐣,λ}` (reduced-word crossings, dots at the bottom, bubble monomials on the right) span each graded piece of `HOM_U(E_𝐢1_λ, E_𝐣1_λ)`; Cor. 3.13 for positive sequences; nondegeneracy for positive sequences is equivalent to linear independence of these sets, and then `γ` is bijective; bending by nested cups and caps transports spanning families between `HOM(E_𝐬1_λ, E_𝐭1_λ)` and `HOM(1_λ, E_{𝐬*𝐭}1_λ)`, giving spanning for all normally ordered pairs (the general case is the next row) | `KL3.Diagram.prop_3_11_positive`, `KL3.Diagram.isSpanFamily_bendG`, `KL3.Diagram.exists_isSpanFamily_of_normal`, `KL3.Diagram.cor_3_13_positive`, `KL3.Diagram.positiveNondeg_iff`, `KL3.Diagram.gammaUA'_bijective_of_linearIndependent` |
-| KL III Prop. 3.11, Cor. 3.13 (simply-laced) | for all signed sequences `𝐢, 𝐣` and weights `λ`, the explicit sets `B_{𝐢,𝐣,λ}` span each graded piece of `HOM_U(E_𝐢1_λ, E_𝐣1_λ)`: canonical minimal diagrams of the pairings (the chord-diagram normal form, `Chord.canon`, of the one-sided boundary word, bent back by nested caps), with dots at one end of each strand and a bubble monomial on the right; the canonical diagram has the degree `deg(D, λ)` of KL III §2.2 used in Thm. 2.7; hence Cor. 3.13 unconditionally, KL's basis definition of nondegeneracy agrees with the dimension form, and Thm. 1.2 holds in its original form given Prop. 2.5 and nondegeneracy | `KL3.Diagram.sdegSum_canon`, `KL3.Diagram.isSpanFamily_oneB`, `KL3.Diagram.isSpanFamily_twoB`, `KL3.Diagram.prop311_of_simplyLaced`, `KL3.Diagram.cor_3_13_of_simplyLaced`, `KL3.Diagram.calculusNondeg_iff_of_simplyLaced`, `KL3.Diagram.gammaUA'_bijective_of_basisNondeg'` |
-| KL III §3.2 (Cor. 3.14, finiteness), §3.7–3.8 (partial) | all graded Hom spaces of `U` are finite-dimensional and bounded below; Krull–Schmidt for Hom-finite idempotent-complete linear categories, applied to `U̇(λ, ρ)`: local endomorphism rings, unique decompositions, `K_0(U̇(λ, ρ))` free with basis the indecomposables up to shift (hence torsion free, so the integral `γ` on `_A U̇` and the `ψ`/`ω` squares are exact); every indecomposable is a summand of a sorted `E_{+a}E_{-b}1_λ{n}` (Lemma 3.38). Towards Theorem 1.1 (surjectivity of `γ : _A U̇ → K_0(U̇)`, simply-laced data, §3.8): idempotent lifting, the transfer `K_0(R(ν) ⊗ R(ν')) → K_0(U̇)` with image in the image of `γ` (via KL II Theorem 8), the spanning statement of §3.8.4 (endomorphisms of a sorted word are spanned by split diagrams times bubbles modulo maps factoring through shorter words, proved by rewriting: caps pushed down, then Matsumoto), and hence surjectivity of `γ` (Theorem 1.1, simply-laced) | `KL3.Diagram.hasGdim_homD`, `KL3.Diagram.indecBasisU`, `KL3.Diagram.K0Kar_torsionFree`, `KL3.Diagram.gammaUA'`, `KL3.Diagram.exists_retract_sorted`, `KL3.Diagram.transferK0_mem_gammaImg`, `KL3.Diagram.sortedSpan_of_simplyLaced`, `KL3.Diagram.gammaUA'_surjective` |
+| KL III Prop. 3.11, Cor. 3.13 (any Cartan datum) | the explicit chord-diagram families span every signed-word graded Hom space; the dimension bound and equivalence of basis/dimension nondegeneracy follow | `KL3.Diagram.capElim`, `KL3.Diagram.isSpanFamily_twoB`, `KL3.Diagram.prop311`, `KL3.Diagram.cor_3_13_unconditional`, `KL3.Diagram.calculusNondeg_iff_unconditional` |
+| KL III Cor. 3.14, §3.7–3.8 (any Cartan datum) | Hom finiteness and lower bounds; Krull–Schmidt and torsion-free `K_0`; sorted-word spanning modulo shorter factorizations; surjectivity of the integral block map | `KL3.Diagram.hasGdim_homD`, `KL3.Diagram.indecBasisU`, `KL3.Diagram.K0Kar_torsionFree`, `KL3.Diagram.sortedSpan_holds`, `KL3.Diagram.gammaUA'_surjective` |
+
+| Theorem | Source locator | Declaration (`KL3.Diagram`) | Hypotheses | Status |
+|---|---|---|---|---|
+| Explicit signed-word spanning | KL III Prop. 3.11 | `isSpanFamily_twoB` | Arbitrary Cartan/root datum; field; finite colour set | Proved, not merely a dimension inequality |
+| Integral block-map surjectivity | KL III Thm. 1.1, §3.8 | `gammaUA'_surjective` | Same; source `LinearMap.range dpComb`; core map uses proved `homGdim` | Proved without `SimplyLaced` |
+| Integral block-map bijectivity | KL III Thm. 1.2 | `gammaUA'_bijective` | Same, plus `CalculusNondeg` and `FormNondeg` | Conditional; no general-Cartan nondegeneracy claim |
 
 The transcription of Def. 3.1 is cross-checked by homogeneity of every relation and by cyclicity
 of the generators with respect to the biadjunctions; no faithful 2-representation is formalized yet.
@@ -218,6 +224,101 @@ Prop. 3.9, and satisfied by bimodule 2-representations over nonnegatively graded
 algebras): issue #6. Removing that hypothesis, to recover the statement as printed, is a standing
 roadmap item: issue #10.
 
+`TwoRep/ShiftCoherence.lean` bundles the existing coherence assumptions and proves the
+degree-zero, unitor and associator identities for shifted whiskering (`shWhiskerLeft_mk₀`,
+`shWhiskerRight_mk₀`, `shWhiskerLeft_of_id`, `shWhiskerRight_of_id`,
+`shWhiskerLeft_of_comp`, `shWhiskerRight_of_comp`, `shWhisker_assoc`).
+`TwoRep/GradedHom.lean` constructs the finite-direct-sum graded-Hom category with faithful
+additive degree-zero inclusion; `GradedHomBicategory.lean` extends shifted whiskering to an
+actual bicategory using these coherence hypotheses. `GradedHomAdjunction.lean` transports a
+given adjunction and proves degree-preserving bijections (`shiftedHomEquiv`, `shiftedEndEquiv`)
+and naturality under arbitrary-degree composition (`Θsh_comp`). This constructs neither new
+adjoints for a strong 2-representation nor the low-weight footholds; Prop. 3.9 and its explicit
+graded-endomorphism boundedness condition remain separate targets.
+
+`TwoRep/ShiftedMates.lean` constructs mates from an explicit adjunction, preserving degree
+while reversing composition (`mateSh_comp`), with identity, additive and injectivity laws.
+Scalar compatibility uses explicit linear Hom/whiskering/shift hypotheses.
+`TwoRep/ShiftedMatesWhisker.lean` proves compatibility with composite adjunctions and both
+shifted whiskerings. Its `StrongSl2` consumers identify tensor-factor dots and crossings on
+the supplied weight-shifted right adjoints, and transport square-zero and both two-strand
+dot-slide relations. `TwoRep/ShiftedMatesReassociate.lean` proves mate compatibility with the
+actual associator and transports the degree `-6` braid relation to the two actual local crossings
+on one parenthesized triple of shifted right adjoints (`mateCross_braid`).
+`TwoRep/ShiftedMatesUnshift.lean` removes object shifts by actual homogeneous isomorphisms,
+giving `fDot` on `F` and `ffCross` on `FF`, preserving degrees and detecting zero. Square-zero
+and both original-scalar dot-slide relations hold on unshifted `FF` with transported dots
+`ffDotFirst` and `ffDotSecond`. The conjugating tensor isomorphism is proved
+(`ShiftRemoval.removeIso_tensor`). `TwoRep/DownwardNilHecke.lean` proves shift removal
+commutes with both tensor factors, identifying these dots with actual whiskerings of `fDot`.
+The resulting two dot-slide relations retain the original scalar `rQ`. Actual local crossings
+on the left-associated unshifted `FFF`, with the second using the actual associator, satisfy
+the degree `-6` braid (`fffCross_braid`). No all-strand action or automatic biadjointness is
+claimed; the supplied adjunctions and graded coherence hypotheses remain explicit.
+`TwoRep/DownwardNilHeckeFarComm.lean` constructs actual left-associated nonempty downward
+words, with dots and adjacent crossings indexed from the right and zero outside the word.
+It proves dot commutativity, crossing/nonincident-dot commutativity, and disjoint-crossing
+commutativity at arbitrary width. Its width-three crossings are the existing local braid
+generators. `TwoRep/DownwardNilHeckeAction.lean` additionally proves square-zero for
+every crossing at every width and position, including the associator-conjugated bottom
+pair and out-of-range positions, and supplies the native endomorphism-ring relation.
+This module does not yet construct an action. `TwoRep/DownwardNilHeckeNormalization.lean`
+certifies the two-strand convention `D = -rQ⁻¹ C`, with right-counted dots and reversed
+endomorphism-ring multiplication: both native mixed dot relations and square-zero hold
+for the actual operators. The original scalar is already a unit, so no new nonvanishing
+hypothesis is added. `TwoRep/DownwardNilHeckeSlides.lean` propagates both normalized
+mixed relations to every valid position `i < n` on the actual `n + 1`-strand word,
+including associator-conjugated bottom pairs and recursively whiskered upper positions.
+The homogeneous and native endomorphism-ring equations use the same scalar normalization
+and existing graded-linearity hypotheses. `TwoRep/DownwardNilHeckeBraid.lean` proves braid
+at every valid position using genuine associators and right whiskering; uniform normalization
+and zero extension give the native endomorphism-ring braid at every index.
+`fWord_isNilHeckeFamily` assembles all eight relations for the actual dots and normalized
+crossings on every nonempty downward word, including the one-strand boundary.
+`TwoRep/DownwardNilHeckeRepresentation.lean` supplies the natural componentwise linear
+structure on the existing finite-sum graded Hom categories and constructs the actual
+algebra homomorphism `fWordNilHeckeHom` from `NH_(n+1)` into the endomorphism algebra
+of `fWord n r`. Its generator evaluations are the existing right-counted dots and
+`-rQ⁻¹`-normalized crossings, and these evaluations determine the map uniquely.
+The separate `fEmptyNilHeckeHom` acts on the genuine identity 1-morphism, retaining
+the distinction between zero factors and `fWord 0 r` (one factor). Faithfulness,
+automatic biadjointness, and the unrestricted Cautis–Lauda theorem are not asserted.
+
+`TwoRep/DownwardDividedPower.lean` constructs `nhF` from the actual downward dots
+and crossing on `F (r + 1) ≫ F r`, retaining the original unit-valued scalar `rQ`.
+It splits the degree-zero idempotent in the original Hom category to obtain
+`exists_F2`, the decomposition `FF ≅ F^(2)⟨1⟩ ⊕ F^(2)⟨-1⟩`, and
+`exists_F2_dot`, an actual first-dot isomorphism on the common summand.
+Idempotent completeness is assumed only of the original Hom categories, not the
+finite-sum graded-Hom category. Supplied adjunction and grading-coherence hypotheses
+remain explicit. This supplies downward divided-power input for the negative-weight
+route, not Lemma 3.6, automatic biadjointness, or Proposition 3.9 themselves.
+
+`TwoRep/StepLemmasNeg.lean` supplies a negative-weight induction-step vanishing
+lemma using the actual downward nilHecke operators. If `wt (r + 1) ≤ 0` and
+`AdjHyp` holds strictly below `r`, every negative-degree endomorphism of `F (r + 1)`
+vanishes after right whiskering by `F r`. A corresponding retract consequence
+applies only after that composition. Neither vanishing before whiskering nor a
+per-summand lower-Hom bound follows.
+
+`TwoRep/DotMateBridge.lean` proves that the original upward `dotFE` slides through
+the supplied, explicitly shift-corrected adjunction cup to its actual downward
+`fDot`. After right whiskering by `F r` and reassociation, the downward operator is
+exactly `nhF.xL`, the first-factor dot used by `exists_F2_dot`. This is a local
+cup identity, not equality of endomorphisms on all of `FE` or on arbitrary summand
+inclusions of a chosen `FEDecomp`.
+`TwoRep/DecompositionCupTransportNeg.lean` now handles the lowest inclusion `ιN e 0`
+of every actual negative decomposition. Under `wt (r+1) < 0`, nonzero weight identity,
+Hom-finiteness and `∀ s < r+1, AdjHyp s`, the supplied adjunction and existing
+`lem1Neg_zero` prove the cup Hom space is one-dimensional. Both cups are nonzero,
+so after explicit source-shift removal the decomposition cup is a nonzero scalar
+multiple of the supplied cup. The original `dotFE`/`fDot` slide therefore holds at
+`ιN e 0`, both in the original Hom category and after `F r` whiskering/reassociation,
+where the downward operator is exactly `nhF.xL`. This induction premise includes
+`AdjHyp r`; it is not the stricter cutoff `s < r` used by `StepLemmasNeg`.
+No `AdjHyp` is derived. Higher-inclusion transport, the negative multiplicity/rank
+argument, full `DotNondegNeg`, automatic biadjointness and lower-Hom bounds remain open.
+
 ### KL I §3.3–3.4: relations between induction functors, tight monomials
 
 `𝓕_i^{(a)} M = Ind(P_{i^{(a)}} ⊠ M)`; for any relation `∑ u_k θ(k) = ∑ v_ℓ θ'(ℓ)` in `_A f` with
@@ -240,33 +341,22 @@ Gabber–Kac theorem enters as an explicit argument, discharged by
 twisted multiplication and coassociative, and `γ` intertwines Lusztig's `r` with `Δ`, so `γ` is an
 isomorphism of `ℕ[I]`-graded twisted bialgebras (`KLR.KL2Gamma.theorem_8_bialgebra`).
 
-### Headline: Khovanov–Lauda III, Theorem 1.1 (simply-laced)
+### Headline: Khovanov–Lauda III, Theorems 1.1–1.2 (global integral algebra)
 
-For a simply-laced root datum and a field `k`, the map `γ : _𝒜 U̇ → K_0(U̇)` from Lusztig's
-integral modified quantum group to the split Grothendieck group of the Karoubi envelope of the
-2-category `U` (KL III Def. 3.1) is surjective, on every block `1_ρ (_𝒜 U̇) 1_λ`:
+The source is the actual integral modified quantum group `AUD RD vQ`; the target
+`K0All RD k` is the direct sum of the Karoubi-envelope Grothendieck groups over all
+weight pairs, with multiplication induced by composition.
 
-```lean
-theorem KL3.Diagram.gammaUA'_surjective [Field k] [DecidableEq I] [Finite I]
-    (hSL : SimplyLaced C) (lam ρ : X) : Function.Surjective (gammaUA' hSL lam ρ)
-```
+| Theorem | Source locator | Declaration (`KL3.Diagram`) | Hypotheses | Status |
+|---|---|---|---|---|
+| Global non-unital algebra map, respecting weight idempotents and Laurent scalars | KL III §3.6, Prop. 3.27 | `gammaAlg`, `gammaAlg_one`, `gammaAlg_smul` | Field; `TorsionFreeK0` (supplied by `HomGdim`) | Proved on `AUD → K0All` |
+| Global surjectivity | KL III Thm. 1.1 | `gammaAlg_surjective_unconditional` | Field; finite colour set; arbitrary Cartan/root datum | Proved, without `SimplyLaced` |
+| Global injectivity and equivalence | KL III Thm. 1.2 | `gammaAlg_injective`, `gammaAlgEquiv_unconditional` | Field; `HomGdim` for injectivity; finite colour set for the displayed equivalence; `CalculusNondeg` in both | Conditional ring equivalence; Laurent-scalar compatibility proved separately |
+| Type-A global equivalence | KL III Thm. 1.3, Prop. 1.4 | `gammaAlgEquiv_sl` | Field; `slRootDatum m` | Proved without a nondegeneracy assumption |
 
-KL III state Theorem 1.1 for any root datum; the non-simply-laced case is not formalized.
-
-**Theorem 1.2** (simply-laced): if the graphical calculus is nondegenerate, `γ` is injective,
-hence (with Theorem 1.1) an isomorphism of `ℤ[q, q⁻¹]`-modules on every block. Nondegeneracy is
-stated as equality in Cor. 3.13, `dim HOM_U(E_𝐢1_λ, E_𝐣1_λ)_t = [q^t] π⟨E_𝐢1_λ, E_𝐣1_λ⟩`
-(`CalculusNondeg`), and it suffices to check it for positive sequences (the remark after KL's
-definition). The proof also uses Prop. 2.5 (`FormNondeg`, proved unconditionally,
-`QuantumGroup.UDot.KL3.formNondeg_unconditional`; with it, `KL3.Diagram.gammaUA'_bijective_unconditional`
-needs only `CalculusNondeg`):
-
-```lean
-theorem KL3.Diagram.gammaUA'_bijective [Field k] [DecidableEq I] [Finite I] (hSL : SimplyLaced C) :
-    CalculusNondeg RD k → UDot.KL3.FormNondeg RD → ∀ lam ρ, Function.Bijective (gammaUA' hSL lam ρ)
-theorem KL3.Diagram.gammaUA'_bijective_of_positive … (hSL : SimplyLaced C) :
-    PositiveNondeg RD k → UDot.KL3.FormNondeg RD → ∀ lam ρ, Function.Bijective (gammaUA' hSL lam ρ)
-```
+The conditional core also supports arbitrary colour sets under explicit `HomGdim`
+and `SortedSpan`. Exact hypotheses and the scope of the `_unconditional` wrappers
+are documented in `Diagrams/KL3/GammaAlgebra.lean`.
 
 Theorem 1.3 (nondegeneracy for `sl_n` over any field) and hence Proposition 1.4 (`γ` is an
 isomorphism for `sl_n` over any field) are proved: `KL3.Diagram.theorem_1_3`,

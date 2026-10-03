@@ -27,8 +27,8 @@ collection of bubbles representing a monomial in `Π_λ` ... induces a grading-p
 * `phi μ ν : R(ν) ⊗ Π_μ →ₐ END_U(E_ν 1_μ)` is `ϕ_{ν,μ}` of eq. (3.30), the tensor product of
   `toUEnd` (upward diagrams, `Categorification.Diagrams.KL3.Upward`) and `bubDiag ∘ bubMap`.
 
-`Prop310` is the statement of Proposition 3.10 (surjectivity of `phi`); it is proved for
-simply-laced data in `Categorification.Diagrams.KL3.Lemma39` (`prop310_of_simplyLaced`). What is proved is the step "Bubble sliding rules
+`Prop310` is the statement of Proposition 3.10 (surjectivity of `phi`); it is proved, for
+every Cartan datum, in `Categorification.Diagrams.KL3.Lemma39` (`prop310`). What is proved is the step "Bubble sliding rules
 allow moving bubbles to the far right of the diagram" of KL III's proof of Lemma 3.9:
 `slideOutUp` (an element of the image of `Π` inserted in any region of an upward diagram is a
 linear combination of upward diagrams followed by bubble monomials on the far right).
@@ -147,8 +147,6 @@ def upSpan (S T : List (Letter I)) :
   Submodule.span k {f | ∃ (A : List (LayerData I)) (γ : End ((pres RD k).obj (ob RD μ []))),
     Upward A ∧ SChain S A T ∧ IsBub RD k μ γ ∧ f = dg RD k μ S T A ≫ bubAt RD k μ T γ}
 
-variable (hSL : SimplyLaced C)
-include hSL
 
 /-- **Bubbles slide to the far right of upward diagrams** (KL III, proof of Lemma 3.9: "Bubble
 sliding rules allow moving bubbles to the far right of the diagram"): an element of the image of
@@ -181,7 +179,7 @@ theorem slideOutUp : ∀ (v u : List (Letter I)) {S T : List (Letter I)}
   | cons l v' ih =>
     intro u S T pre post hpre hpost hupre hupost hv β hβ
     rw [ctxL_cons RD k μ hpre hpost]
-    have hmem := bubLU_mem_slideSetR hSL (wt RD μ v') l (β := β) hβ
+    have hmem := bubLU_mem_slideSetR_gen (wt RD μ v') l (β := β) hβ
     generalize bubLU RD k (wt RD μ v') l β = f at hmem ⊢
     induction hmem using Submodule.span_induction with
     | mem f hf =>
@@ -399,19 +397,19 @@ theorem single_upSpan_mem_range (i j : KLR.Seq ν) {x : (pres RD k).obj (ob RD �
   | add x y _ _ hx hy => rw [single_add]; exact Subalgebra.add_mem _ hx hy
   | smul r x _ hx => rw [single_smul]; exact Subalgebra.smul_mem _ hx r
 
-/-- **KL III Lemma 3.9, the bubble step** (simply-laced Cartan data): an upward diagram from
+/-- **KL III Lemma 3.9, the bubble step**: an upward diagram from
 `E_i 1_μ` to `E_j 1_μ` with an element of the image of `Π` inserted in one of its regions (in
 the region to the left of the strands `v`, between the layers `pre` and `post`) lies in the
 image of `ϕ_{i,j,μ}`. Iterating, the same holds with bubble monomials inserted in any number of
 regions. -/
-theorem lem39_bubbles (hSL : SimplyLaced C) (i j : KLR.Seq ν) {pre post : List (LayerData I)}
+theorem lem39_bubbles (i j : KLR.Seq ν) {pre post : List (LayerData I)}
     {u v : List (Letter I)} (hpre : SChain (ups (word i)) pre (u ++ v))
     (hpost : SChain (u ++ v) post (ups (word j))) (hupre : Upward pre) (hupost : Upward post)
     (hv : Positive v) {β : End ((pres RD k).obj (ob RD (wt RD μ v) []))}
     (hβ : IsBub RD k (wt RD μ v) β) :
     single i j (ctxL RD k μ _ _ pre u v post [] [] β) ∈ (phi RD k μ ν).range :=
   single_upSpan_mem_range RD k μ ν i j
-    (slideOutUp RD k μ hSL v u pre post hpre hpost hupre hupost hv β hβ)
+    (slideOutUp RD k μ v u pre post hpre hpost hupre hupost hv β hβ)
 
 /-- **KL III Proposition 3.10** (unlabelled in the TeX; `ϕ_{ν,λ}` is eq. (3.30), label
 `eq_phi_nu_lambda`; Lemma 3.9 componentwise):

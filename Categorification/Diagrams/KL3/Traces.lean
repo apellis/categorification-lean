@@ -14,7 +14,7 @@ M. Khovanov, A. Lauda, *A categorification of quantum `sl(n)`*, arXiv:0807.3250v
 The Markov lemma (`ptrLast_upward_mem_upSpan`, `Categorification.Diagrams.KL3.Markov`) closes the
 last strand of an upward diagram. Here it is extended to upward diagrams followed by bubble
 monomials (`ptrLast_mem_upSpan`: the bubbles inside the closed loop slide out across its
-downward strand, KL III Propositions 3.3 and 3.4, simply-laced case), so that the partial trace
+downward strand, KL III Propositions 3.3 and 3.4, and their extension to arbitrary Cartan data), so that the partial trace
 over the last strand preserves the span `upSpan` of upward diagrams times bubble monomials. This is
 KL III's Lemma 3.9 for all diagrams obtained by closing strands of upward diagrams on the right.
 
@@ -114,10 +114,10 @@ theorem ctxL_outer_eq {s t : List (Letter I)} (pre : List (LayerData I))
 
 variable {RD k}
 
-/-- **The partial trace over the last strand preserves `upSpan`** (simply-laced Cartan data):
+/-- **The partial trace over the last strand preserves `upSpan`**:
 closing the last strand of an upward diagram followed by bubble monomials gives a linear
 combination of upward diagrams followed by bubble monomials. -/
-theorem ptrLast_mem_upSpan (hSL : SimplyLaced C) (a b : List I) {f}
+theorem ptrLast_mem_upSpan (a b : List I) {f}
     (hf : f ∈ upSpan RD k (wt RD μ [dn j]) (ups a ++ [up j]) (ups b ++ [up j]))
     [DecidableEq I] : ptrLast RD k μ (ups a) (ups b) j f ∈ upSpan RD k μ (ups a) (ups b) := by
   induction hf using Submodule.span_induction with
@@ -129,7 +129,7 @@ theorem ptrLast_mem_upSpan (hSL : SimplyLaced C) (a b : List I) {f}
       (show SChain (ups a) [(ups a, .cup (up j), [])] (ups a ++ [up j] ++ [dn j]) from
         ⟨by simp, by simp⟩).append (by simpa using h.whisk [] [dn j])
     rw [ctxL_cons RD k μ (by simpa using hpre) (by exact ⟨by simp, by simp⟩)]
-    have hmem := bubLU_mem_slideSetR hSL (wt RD μ []) (dn j) (β := γ) hγ
+    have hmem := bubLU_mem_slideSetR_gen (wt RD μ []) (dn j) (β := γ) hγ
     generalize bubLU RD k (wt RD μ []) (dn j) γ = g at hmem ⊢
     induction hmem using Submodule.span_induction with
     | mem g hg =>
@@ -179,13 +179,13 @@ end BubblesInside
 
 /-- The partial trace over the last strand maps `upSpan` to `upSpan`, for arbitrary upward
 words. -/
-theorem ptrLast_mem_upSpan' (hSL : SimplyLaced C) [DecidableEq I] (μ : X) (j : I)
+theorem ptrLast_mem_upSpan' [DecidableEq I] (μ : X) (j : I)
     {s t : List (Letter I)} (hs : Positive s) (ht : Positive t) {f}
     (hf : f ∈ upSpan RD k (wt RD μ [dn j]) (s ++ [up j]) (t ++ [up j])) :
     ptrLast RD k μ s t j f ∈ upSpan RD k μ s t := by
   obtain ⟨a, rfl⟩ : ∃ a, ups a = s := ⟨_, ups_map_snd hs⟩
   obtain ⟨b, rfl⟩ : ∃ b, ups b = t := ⟨_, ups_map_snd ht⟩
-  exact ptrLast_mem_upSpan μ j hSL a b hf
+  exact ptrLast_mem_upSpan μ j a b hf
 
 /-! ## Right traces -/
 
@@ -270,23 +270,23 @@ theorem upSpan_nil_isBub {f : End ((pres RD k).obj (ob RD μ []))}
 variable {RD k}
 
 /-- **Right traces of upward diagrams with bubble monomials are bubble monomials** (KL III
-Proposition 3.6 for right traces; simply-laced Cartan data). -/
-theorem trR_isBub (hSL : SimplyLaced C) [DecidableEq I] (r : List I)
+Proposition 3.6 for right traces). -/
+theorem trR_isBub [DecidableEq I] (r : List I)
     {f : End ((pres RD k).obj (ob RD (innerR RD μ r) (upsR r)))}
     (hf : f ∈ upSpan RD k (innerR RD μ r) (upsR r) (upsR r)) : IsBub RD k μ (trR RD k μ r f) := by
   induction r with
   | nil => exact upSpan_nil_isBub RD k μ hf
   | cons j r ih =>
-    exact ih (ptrLast_mem_upSpan' RD k hSL (innerR RD μ r) j (positive_upsR r) (positive_upsR r) hf)
+    exact ih (ptrLast_mem_upSpan' RD k (innerR RD μ r) j (positive_upsR r) (positive_upsR r) hf)
 
 /-- **KL III Proposition 3.6 for right traces of upward diagrams**: the closed diagram obtained by
 closing all strands of an upward diagram on the right (nested cups and caps) lies in the image of
-`Π_λ → END_U(1_λ)` (simply-laced Cartan data). -/
-theorem trR_dg_isBub (hSL : SimplyLaced C) [DecidableEq I] (r : List I) {A : List (LayerData I)}
+`Π_λ → END_U(1_λ)`. -/
+theorem trR_dg_isBub [DecidableEq I] (r : List I) {A : List (LayerData I)}
     (hA : Upward A) (h : SChain (upsR r) A (upsR r)) :
     IsBub RD k μ (dg RD k μ [] [] (trLs r A)) := by
   rw [← trR_dg]
-  refine trR_isBub μ hSL r (Submodule.subset_span ⟨A, 𝟙 _, hA, h, IsBub.id, ?_⟩)
+  refine trR_isBub μ r (Submodule.subset_span ⟨A, 𝟙 _, hA, h, IsBub.id, ?_⟩)
   rw [bubAt_id, Category.comp_id]
 
 end Trace

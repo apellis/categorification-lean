@@ -163,7 +163,7 @@ theorem thruIdeal_isIdeal (m : ℕ) : IsIdealEnd (thruIdeal RD k w hw n m) where
     rw [mem_thruIdeal, endVal_comp]
     exact mem_thru_comp (mem_homDeg_of_eq (endVal_mem x) (sub_self n)) ht
 
-variable [DecidableEq I] (hG : HomGdim RD k)
+variable (hG : HomGdim RD k)
 include hG
 
 /-- **An indecomposable retract of `E_w 1_λ {n}` whose idempotent factors through sequences of
@@ -755,7 +755,7 @@ variable [DecidableEq I]
 
 open KLR.Diagram (word)
 
-variable [Finite I] (hG : HomGdim RD k)
+variable (hG : HomGdim RD k)
 include hG
 
 /-- **The top step, for sequences.** -/
@@ -833,7 +833,7 @@ theorem topHyp_of_sortedSpan (hspan : SortedSpan RD k) (htobj : TobjHyp RD k) (�
 
 /-- **KL III Theorem 1.1 (surjectivity of `γ : _𝒜 U̇ → K₀(U̇)`), conditional on the spanning
 hypothesis `SortedSpan` and the Grothendieck group hypothesis `TobjHyp`** (any root datum with
-`I` finite, `k` a field, given hom-finiteness `HomGdim`). -/
+`k` a field, given hom-finiteness `HomGdim`). -/
 theorem gammaUA'_surjective_of_sortedSpan (hspan : SortedSpan RD k) (htobj : TobjHyp RD k)
     (lam ρ : X) : Function.Surjective (gammaUA' hG lam ρ) :=
   gammaUA'_surjective_of_topHyp hG (topHyp_of_sortedSpan hG hspan htobj ρ lam)

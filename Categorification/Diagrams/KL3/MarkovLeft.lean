@@ -408,7 +408,7 @@ variable {RD k}
 
 /-- Dots on the first strand and bubble monomials to its left, placed to the left of the upward
 strands `s₁`, lie in `upSpan` (the bubbles slide to the far right, `slideOutUp`). -/
-theorem plcL_slideSetL_mem_upSpan (hSL : SimplyLaced C) (s₁ : List (Letter I))
+theorem plcL_slideSetL_mem_upSpan (s₁ : List (Letter I))
     (hs₁ : Positive s₁) (c : I) {f : End ((pres RD k).obj (ob RD (wt RD μ s₁) [up c]))}
     (hf : f ∈ slideSetL RD k (wt RD μ s₁) (up c)) :
     plcL RD k μ [] s₁ [up c] [up c] f ∈ upSpan RD k μ (up c :: s₁) (up c :: s₁) := by
@@ -423,7 +423,7 @@ theorem plcL_slideSetL_mem_upSpan (hSL : SimplyLaced C) (s₁ : List (Letter I))
     refine upSpan_comp_left (fun x hx => ?_) hrep' ?_
     · rw [List.map_replicate] at hx
       rw [List.eq_of_mem_replicate hx]; rfl
-    · refine slideOutUp RD k μ hSL (up c :: s₁) [] [] [] (by simp) (by simp)
+    · refine slideOutUp RD k μ (up c :: s₁) [] [] [] (by simp) (by simp)
         (fun x hx => by simp at hx) (fun x hx => by simp at hx) ?_ δ hδ
       intro l hl
       rcases List.mem_cons.1 hl with rfl | hl
@@ -512,8 +512,6 @@ theorem closeLsL_dots_mem {s t : List (Letter I)} (N : List (LayerData I))
       refine upSpan_comp_left (fun x hx => ?_) hd (ih hD' hDc' e)
       rw [List.mem_singleton.1 hx]; exact hl
 
-variable (hSL : SimplyLaced C)
-include hSL
 
 theorem closeLsL_nil_mem (s : List (Letter I)) (hs : Positive s) (e : ℕ) :
     dg RD k μ s s (closeLsL j s s [] e) ∈ upSpan RD k μ s s := by
@@ -524,7 +522,7 @@ theorem closeLsL_nil_mem (s : List (Letter I)) (hs : Positive s) (e : ℕ) :
     rw [dg_nil]
     erw [Category.id_comp, Category.comp_id]
   rw [hc]
-  refine slideOutUp RD k μ hSL s [] [] [] (by simp) (by simp) (fun x hx => by simp at hx)
+  refine slideOutUp RD k μ s [] [] [] (by simp) (by simp) (fun x hx => by simp at hx)
     (fun x hx => by simp at hx) hs _ ?_
   rw [← ccwU_of_nonneg]
   exact ccwU_isBub _ _
@@ -600,7 +598,7 @@ theorem ptrFirst_upward_mem_upSpan (a b : List I) {A : List (LayerData I)} (hA :
       have ha : a = y := by simpa using hsplit
       rw [List.nil_append, ← ha]
       simp only [leftRunLs]
-      exact closeLsL_nil_mem μ j hSL (ups a) (positive_ups a) e
+      exact closeLsL_nil_mem μ j (ups a) (positive_ups a) e
     · -- a run followed by a left curl
       rw [hxz] at hsplit
       simp only [List.cons_append, List.cons.injEq] at hsplit
@@ -614,7 +612,7 @@ theorem ptrFirst_upward_mem_upSpan (a b : List I) {A : List (LayerData I)} (hA :
       simp only [leftRunLs]
       rw [ha', dg_closeLsL_peel RD k μ j _ _ hL hcore]
       refine upSpan_comp_left (upward_leftRunLs x' j y) hL ?_
-      have hm := plcL_slideSetL_mem_upSpan μ hSL (ups (x' ++ y)) (positive_ups _) j
+      have hm := plcL_slideSetL_mem_upSpan μ (ups (x' ++ y)) (positive_ups _) j
         (curlL_mem_slideSetL RD k j (wt RD μ (ups (x' ++ y))) e)
       rw [← dg_closeLsL_curl] at hm
       exact dg_mem_upSpan_congr RD k μ (by simp [ups]) (by simp [ups]) hm
@@ -636,7 +634,7 @@ theorem ptrFirst_upward_mem_upSpan (a b : List I) {A : List (LayerData I)} (hA :
   | add D₁ D₂ _ _ h₁ h₂ => rw [Preadditive.add_comp, map_add]; exact Submodule.add_mem _ h₁ h₂
   | smul r D _ hD' => rw [Linear.smul_comp, map_smul]; exact Submodule.smul_mem _ r hD'
 
-omit hSL [DecidableEq I] in
+omit [DecidableEq I] in
 /-- A bubble monomial on the far right stays outside the left closure. -/
 theorem ptrFirst_bubAt {s t : List (Letter I)} (A : List (LayerData I))
     (hA : SChain ([up j] ++ s) A ([up j] ++ t)) (γ : End ((pres RD k).obj (ob RD μ []))) :
@@ -677,7 +675,7 @@ theorem ptrFirst_mem_upSpan (a b : List I) {f}
   | mem f hf =>
     obtain ⟨A, γ, hA, h, hγ, rfl⟩ := hf
     rw [ptrFirst_bubAt (RD := RD) (k := k) μ j A h γ]
-    have hM := ptrFirst_upward_mem_upSpan (RD := RD) (k := k) μ j hSL a b hA h
+    have hM := ptrFirst_upward_mem_upSpan (RD := RD) (k := k) μ j a b hA h
     generalize ptrFirst RD k μ (ups a) (ups b) j
       (dg RD k (wt RD μ []) ([up j] ++ ups a) ([up j] ++ ups b) A) = F at hM ⊢
     induction hM using Submodule.span_induction with

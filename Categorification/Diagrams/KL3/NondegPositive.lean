@@ -14,7 +14,7 @@ condition is true for all `λ ∈ X` and all pairs of positive sequences `𝐢, 
 
 We prove (`calculusNondeg_of_positive`): if
 `gdim HOM_U(E_𝐢 1_λ, E_𝐣 1_λ) = π ⟨E_𝐢 1_λ, E_𝐣 1_λ⟩` for all `λ` and all **positive** `𝐢, 𝐣`,
-then it holds for all signed sequences, i.e. `CalculusNondeg RD k` (simply-laced, `I` finite,
+then it holds for all signed sequences, i.e. `CalculusNondeg RD k` (any Cartan datum, `I` finite,
 `𝕜` a field). The proof:
 
 * **bending** (`finrank_homD_bend`, biadjointness, KL III (3.1)–(3.2)):
@@ -166,7 +166,7 @@ end Words
 section OneSided
 
 variable {I : Type u} {C : CartanDatum I} {X Y : Type v} [AddCommGroup X] [AddCommGroup Y]
-  {RD : RootDatum C X Y} {k : Type w} [Field k] [DecidableEq I] [Finite I] (hG : HomGdim RD k)
+  {RD : RootDatum C X Y} {k : Type w} [Field k] (hG : HomGdim RD k)
 
 /-- `dim HOM_U(1_μ, E_u 1_μ)_t` as the value of the functional `homDim` on `[E_u 1_μ]`. -/
 theorem finrank_eq_homDim {μ : X} (u : List (Letter I)) (hu : wt RD μ u = μ) (t : ℤ) :
@@ -265,7 +265,6 @@ theorem oneSidedEq_comm (a b : List (Letter I)) (i j : I)
 
 /-! ## Bending, numerically -/
 
-omit [DecidableEq I] [Finite I] in
 /-- `(E_s 1_μ, E_w 1_μ) = q^{rcx} (1_μ, E_{s* w} 1_μ)`, as coefficients of `π ⟨ , ⟩`. -/
 theorem coeff_sform_eq (μ : X) (s w : List (Letter I)) (t : ℤ) :
     (piLS C * toLS (UDot.KL3.sform RD (E1 RD vQ s μ) (E1 RD vQ w μ))).coeff t =
@@ -279,7 +278,6 @@ theorem coeff_sform_eq (μ : X) (s w : List (Letter I)) (t : ℤ) :
   rw [sub_add_cancel, one_mul] at this
   exact this
 
-omit [DecidableEq I] [Finite I] in
 /-- **Bending, numerically**: `dim HOM(E_s 1_μ, E_w 1_μ)_t = dim HOM(1_μ, E_{s* w} 1_μ)_{t - rcx}`
 when the left weights agree. -/
 theorem finrank_bend_rcx (μ : X) (s w : List (Letter I)) (hsw : wt RD μ s = wt RD μ w) (t : ℤ) :
@@ -290,7 +288,6 @@ theorem finrank_bend_rcx (μ : X) (s w : List (Letter I)) (hsw : wt RD μ s = wt
       t - rcx C (fun i => ip RD i (wt RD μ s)) s := by simp [sdegSum]; ring
   rw [e]
 
-omit [DecidableEq I] [Finite I] in
 theorem wt_rd_append_eq {μ : X} {s w : List (Letter I)} (hsw : wt RD μ s = wt RD μ w) :
     wt RD μ (rd s ++ w) = μ := by
   rw [wt_append, ← hsw, wt_rd]
@@ -304,7 +301,6 @@ def PositiveNondeg : Prop :=
     ((finrank k (HomD RD k μ (posW c) (posW b) t) : ℤ) : ℚ) =
       (piLS C * toLS (UDot.KL3.sform RD (E1 RD vQ (posW c) μ) (E1 RD vQ (posW b) μ))).coeff t
 
-omit [DecidableEq I] [Finite I] in
 /-- The normally ordered words `F_c E_b = (+c^{rev})* (+b)` bend to pairs of positive sequences. -/
 theorem oneSidedEq_normal (hpos : PositiveNondeg RD k) (c b : List I) :
     OneSidedEq RD k (negW c ++ posW b) := by
@@ -335,7 +331,7 @@ theorem oneSidedEq_all (hpos : PositiveNondeg RD k) (u : List (Letter I)) : OneS
 include hG in
 /-- **KL III, Remark after the definition of nondegeneracy** (TeX l. 4632): "Nondegeneracy holds
 if the above condition is true for all `λ ∈ X` and all pairs of positive sequences `𝐢, 𝐣`"
-(any root datum with `I` finite, `𝕜` a field, given hom-finiteness `HomGdim`). -/
+(any root datum, `𝕜` a field, given hom-finiteness `HomGdim`). -/
 theorem calculusNondeg_of_positive (hpos : PositiveNondeg RD k) : CalculusNondeg RD k := by
   intro μ s w t
   by_cases hsw : wt RD μ s = wt RD μ w
@@ -343,19 +339,20 @@ theorem calculusNondeg_of_positive (hpos : PositiveNondeg RD k) : CalculusNondeg
     exact oneSidedEq_all hG hpos (rd s ++ w) μ (wt_rd_append_eq hsw) _
   · exact calculusNondeg_cond_of_wt_ne hsw t
 
-omit [DecidableEq I] [Finite I] in
 /-- The converse: `CalculusNondeg` contains the positive case. -/
 theorem positive_of_calculusNondeg (h : CalculusNondeg RD k) : PositiveNondeg RD k :=
   fun μ c b t => h μ (posW c) (posW b) t
 
+variable [DecidableEq I] [Finite I]
+
 /-- **KL III Theorem 1.2 / Proposition 1.4, reduced to positive sequences**: if
 `gdim HOM_U(E_𝐢 1_λ, E_𝐣 1_λ) = π ⟨E_𝐢 1_λ, E_𝐣 1_λ⟩` for all `λ` and all positive `𝐢, 𝐣`, and
-Proposition 2.5 holds, then `γ : 1_ρ (_𝒜 U̇) 1_λ → K₀(U̇(λ, ρ))` is bijective (simply-laced,
+Proposition 2.5 holds, then `γ : 1_ρ (_𝒜 U̇) 1_λ → K₀(U̇(λ, ρ))` is bijective (any Cartan datum,
 `I` finite, `𝕜` a field). -/
-theorem gammaUA'_bijective_of_positive (hSL : SimplyLaced C) (hpos : PositiveNondeg RD k)
+theorem gammaUA'_bijective_of_positive (hpos : PositiveNondeg RD k)
     (h25 : UDot.KL3.FormNondeg RD) (lam ρ : X) :
-    Function.Bijective (gammaUA' (RD := RD) (k := k) (homGdim_of_simplyLaced hSL) lam ρ) :=
-  gammaUA'_bijective hSL (calculusNondeg_of_positive (homGdim_of_simplyLaced hSL) hpos) h25 lam ρ
+    Function.Bijective (gammaUA' (RD := RD) (k := k) homGdim lam ρ) :=
+  gammaUA'_bijective (calculusNondeg_of_positive homGdim hpos) h25 lam ρ
 
 end OneSided
 

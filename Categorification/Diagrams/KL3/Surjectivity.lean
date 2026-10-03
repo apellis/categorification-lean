@@ -275,7 +275,7 @@ end Thru
 
 section Retracts
 
-variable [DecidableEq I] (hG : HomGdim RD k)
+variable (hG : HomGdim RD k)
 include hG
 
 /-- A factorization of the identity of `E_w 1_λ` through words `u ∈ S`: every indecomposable
@@ -306,7 +306,7 @@ theorem exists_retract_of_thru {ρ lam : X} {w : List (Letter I)} {h : wt RD lam
   obtain ⟨i, -, f', g', hfg'⟩ := hZ.exists_retract_of_sum k f g hfg Finset.univ V A B htot
   exact ⟨u i, hu i, hu' i, n - α i, f', g', hfg'⟩
 
-omit hG [DecidableEq I] in
+omit hG in
 /-- Every 1-morphism of `U` from `ρ` to `λ` is `E_w 1_λ` for a signed sequence `w`. -/
 theorem exists_eq_nfHom {ρ lam : X} (x : Bicat.Hom (wtObj RD k ρ) (wtObj RD k lam)) :
     ∃ (w : List (Letter I)) (h : wt RD lam w = ρ), x = nfHom RD k ρ lam w h := by

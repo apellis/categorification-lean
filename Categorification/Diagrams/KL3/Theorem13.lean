@@ -90,28 +90,26 @@ theorem linearIndependent_posB_sl (μ : Fin m → ℤ) (ν : Multiset (Fin m)) (
 
 /-- **Nondegeneracy for positive sequences** for `sl_{m+1}` over any field. -/
 theorem positiveNondeg_sl (K : Type u) [Field K] (m : ℕ) : PositiveNondeg (slRootDatum m) K :=
-  (positiveNondeg_iff (simplyLaced_slCartan m)).2 fun μ _ i j d =>
+  positiveNondeg_iff.2 fun μ _ i j d =>
     linearIndependent_posB_sl μ _ i j d
 
 /-- **Khovanov–Lauda III, Theorem 1.3** (label `thm-nondegenerate`): the graphical calculus is
 nondegenerate for the root datum of `sl_{m+1}` and any field `K`. -/
 theorem theorem_1_3 (K : Type u) [Field K] (m : ℕ) : CalculusNondeg (slRootDatum m) K :=
-  calculusNondeg_of_positive (homGdim_of_simplyLaced (simplyLaced_slCartan m))
-    (positiveNondeg_sl K m)
+  calculusNondeg_of_positive homGdim (positiveNondeg_sl K m)
 
 /-- **Khovanov–Lauda III, Proposition 1.4** (label `prop-iso`): for the root datum of `sl_{m+1}`
 and any field `K`, `γ : 1_ρ (_𝒜 U̇) 1_λ → K₀(U̇(λ, ρ))` is bijective. -/
 theorem prop_1_4_sl (K : Type u) [Field K] (m : ℕ) (lam ρ : Fin m → ℤ) :
     Function.Bijective
-      (gammaUA' (RD := slRootDatum m) (k := K)
-        (homGdim_of_simplyLaced (simplyLaced_slCartan m)) lam ρ) :=
-  gammaUA'_bijective_unconditional (simplyLaced_slCartan m) (theorem_1_3 K m) lam ρ
+      (gammaUA' (RD := slRootDatum m) (k := K) homGdim lam ρ) :=
+  gammaUA'_bijective_unconditional (theorem_1_3 K m) lam ρ
 
 /-- `γ` as an isomorphism `1_ρ (_𝒜 U̇(sl_{m+1})) 1_λ ≅ K₀(U̇(λ, ρ))`. -/
 def gammaUA'Equiv_sl (K : Type u) [Field K] (m : ℕ) (lam ρ : Fin m → ℤ) :
     LinearMap.range (dpComb (RD := slRootDatum m) lam ρ) ≃ₗ[LaurentPolynomial ℤ]
       K0Kar (slRootDatum m) K ρ lam :=
-  gammaUA'Equiv_unconditional (simplyLaced_slCartan m) (theorem_1_3 K m) lam ρ
+  gammaUA'Equiv_unconditional (theorem_1_3 K m) lam ρ
 
 end Categorification.KL3.Diagram
 

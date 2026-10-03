@@ -49,45 +49,43 @@ theorem gammaUA'_injective_unconditional (hnd : CalculusNondeg RD k) (lam ρ : X
   gammaUA'_injective hG hnd (KL3.formNondeg_unconditional RD) lam ρ
 
 include hG in
-/-- **KL III Theorems 1.1 and 1.2 for an arbitrary root datum** (`I` finite, `k` a field), given
+/-- **KL III Theorems 1.1 and 1.2 for an arbitrary root datum** (`k` a field), given
 hom-finiteness `HomGdim RD k` and the spanning hypothesis `SortedSpan RD k` (both consequences of
-KL III Proposition 3.11 and its proof; both proved for simply-laced Cartan data): if the graphical
+KL III Proposition 3.11 and its proof; both proved for arbitrary finite Cartan data): if the graphical
 calculus is nondegenerate, `γ : 1_ρ (_𝒜 U̇) 1_λ → K₀(U̇(λ, ρ))` is bijective. -/
-theorem gammaUA'_bijective_of_sortedSpan_unconditional [Finite I] (hspan : SortedSpan RD k)
+theorem gammaUA'_bijective_of_sortedSpan_unconditional (hspan : SortedSpan RD k)
     (hnd : CalculusNondeg RD k) (lam ρ : X) : Function.Bijective (gammaUA' hG lam ρ) :=
   gammaUA'_bijective_of_sortedSpan hG hspan hnd (KL3.formNondeg_unconditional RD) lam ρ
 
 end General
 
-/-! ## Simply-laced Cartan data -/
+/-! ## Arbitrary finite Cartan data -/
 
-variable [DecidableEq I] [Finite I] (hSL : SimplyLaced C)
+variable [DecidableEq I] [Finite I]
 
-include hSL in
 /-- `γ : 1_ρ (_𝒜 U̇) 1_λ → K₀(U̇(λ, ρ))` is bijective if the calculus is nondegenerate, assuming
 the canonical quantum Gabber–Kac statement (which gives KL III Prop. 2.5). -/
 theorem gammaUA'_bijective_of_quantumGabberKac (hnd : CalculusNondeg RD k)
     (hGK : C.QuantumGabberKac) (lam ρ : X) :
-    Function.Bijective (gammaUA' (RD := RD) (k := k) (homGdim_of_simplyLaced hSL) lam ρ) :=
-  gammaUA'_bijective hSL hnd (KL3.formNondeg_of_quantumGabberKac RD hGK) lam ρ
+    Function.Bijective (gammaUA' (RD := RD) (k := k) homGdim lam ρ) :=
+  gammaUA'_bijective hnd (KL3.formNondeg_of_quantumGabberKac RD hGK) lam ρ
 
 /-- `γ` as an isomorphism `1_ρ (_𝒜 U̇) 1_λ ≅ K₀(U̇(λ, ρ))` under the hypotheses of
 `gammaUA'_bijective_of_quantumGabberKac`. -/
 def gammaUA'Equiv_of_quantumGabberKac (hnd : CalculusNondeg RD k) (hGK : C.QuantumGabberKac)
     (lam ρ : X) :
     LinearMap.range (dpComb (RD := RD) lam ρ) ≃ₗ[LaurentPolynomial ℤ] K0Kar RD k ρ lam :=
-  gammaUA'Equiv hSL hnd (KL3.formNondeg_of_quantumGabberKac RD hGK) lam ρ
+  gammaUA'Equiv hnd (KL3.formNondeg_of_quantumGabberKac RD hGK) lam ρ
 
-include hSL in
 /-- `γ : 1_ρ (_𝒜 U̇) 1_λ → K₀(U̇(λ, ρ))` is bijective if the calculus is nondegenerate. -/
 theorem gammaUA'_bijective_unconditional (hnd : CalculusNondeg RD k) (lam ρ : X) :
-    Function.Bijective (gammaUA' (RD := RD) (k := k) (homGdim_of_simplyLaced hSL) lam ρ) :=
-  gammaUA'_bijective hSL hnd (KL3.formNondeg_unconditional RD) lam ρ
+    Function.Bijective (gammaUA' (RD := RD) (k := k) homGdim lam ρ) :=
+  gammaUA'_bijective hnd (KL3.formNondeg_unconditional RD) lam ρ
 
 /-- `γ` as an isomorphism `1_ρ (_𝒜 U̇) 1_λ ≅ K₀(U̇(λ, ρ))` if the calculus is nondegenerate. -/
 def gammaUA'Equiv_unconditional (hnd : CalculusNondeg RD k) (lam ρ : X) :
     LinearMap.range (dpComb (RD := RD) lam ρ) ≃ₗ[LaurentPolynomial ℤ] K0Kar RD k ρ lam :=
-  gammaUA'Equiv hSL hnd (KL3.formNondeg_unconditional RD) lam ρ
+  gammaUA'Equiv hnd (KL3.formNondeg_unconditional RD) lam ρ
 
 end Categorification.KL3.Diagram
 

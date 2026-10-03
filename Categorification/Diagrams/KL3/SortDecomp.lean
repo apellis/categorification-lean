@@ -33,7 +33,7 @@ across strands of either orientation (`slideOutAny`), leaving dots.
 
 * `slideOutAny`: an element of the image of `Π` in any region is a linear combination of dots
   times bubble monomials on the far right.
-* `decR`, `decL`: the decompositions of identities (simply-laced Cartan data).
+* `decR`, `decL`: the decompositions of identities (any Cartan datum).
 -/
 
 noncomputable section
@@ -214,10 +214,10 @@ theorem dotBubSpan_mono (μ : X) (S T : List (Letter I)) (pre post : List (Layer
     simp [List.map_replicate, whL_def, List.map_map, Function.comp_def, List.append_assoc]
 
 /-- **Bubbles slide to the far right across strands of either orientation** (KL III Propositions
-3.3, 3.4 and their rotations; simply-laced): an element of the image of `Π` inserted in any
+3.3, 3.4 and their rotations; any Cartan datum, `bubLU_mem_slideSetR_gen`): an element of the image of `Π` inserted in any
 region is a linear combination of dots on the strands to its right times bubble monomials on the
 far right. -/
-theorem slideOutAny (hSL : SimplyLaced C) (μ : X) :
+theorem slideOutAny (μ : X) :
     ∀ (v u : List (Letter I)) {S T : List (Letter I)} (pre post : List (LayerData I)),
       SChain S pre (u ++ v) → SChain (u ++ v) post T →
       ∀ β : End ((pres RD k).obj (ob RD (wt RD μ v) [])), IsBub RD k (wt RD μ v) β →
@@ -245,7 +245,7 @@ theorem slideOutAny (hSL : SimplyLaced C) (μ : X) :
   | cons l v' ih =>
     intro u S T pre post hpre hpost β hβ
     rw [ctxL_cons RD k μ hpre hpost]
-    have hmem := bubLU_mem_slideSetR hSL (wt RD μ v') l (β := β) hβ
+    have hmem := bubLU_mem_slideSetR_gen (wt RD μ v') l (β := β) hβ
     generalize bubLU RD k (wt RD μ v') l β = f at hmem ⊢
     induction hmem using Submodule.span_induction with
     | mem f hf =>
@@ -393,10 +393,10 @@ theorem allSh_crosslL_RL (i j : I) : AllSh Shape.isRL (crosslL i j) := by
 
 theorem allSh_crossrL_RL (i j : I) : AllSh Shape.isLR (crossrL i j) := allSh_crossrL_LR i j
 
-/-- **Decomposition of identities through words sorted to the right** (simply-laced): the identity
+/-- **Decomposition of identities through words sorted to the right**: the identity
 of `E_w 1_μ` is a linear combination of composites `E_w → E_a F_b → E_w` of a monotone diagram of
 type `LR` and one of type `RL`, times a bubble monomial. -/
-theorem decR (hSL : SimplyLaced C) (μ : X) :
+theorem decR (μ : X) :
     ∀ (n : ℕ) (w : List (Letter I)), invR w < n → 𝟙 _ ∈ decRSet RD k μ w
   | 0 => fun w h => absurd h (Nat.not_lt_zero _)
   | n + 1 => fun w hw => by
@@ -413,7 +413,7 @@ theorem decR (hSL : SimplyLaced C) (μ : X) :
         (u ++ dn j :: up i :: v) := by
       simpa using (show SChain [up i, dn j] (crosslL i j) [dn j, up i] by schain).whisk u v
     have IH1 : 𝟙 _ ∈ decRSet RD k μ (u ++ up i :: dn j :: v) :=
-      decR hSL μ n _ (by have := invR_swap i j v u; omega)
+      decR μ n _ (by have := invR_swap i j v u; omega)
     have T1 : dg RD k μ (u ++ dn j :: up i :: v) (u ++ up i :: dn j :: v)
         ((crossrL i j).map (whL u v)) ≫
         dg RD k μ (u ++ up i :: dn j :: v) (u ++ dn j :: up i :: v) ((crosslL i j).map (whL u v)) ∈
@@ -424,7 +424,7 @@ theorem decR (hSL : SimplyLaced C) (μ : X) :
     by_cases hij : i = j
     · subst hij
       have IH2 : 𝟙 _ ∈ decRSet RD k μ (u ++ v) :=
-        decR hSL μ n _ (by have := invR_del i i v u; omega)
+        decR μ n _ (by have := invR_del i i v u; omega)
       have E := dg_stepL RD k μ (s₀ := u ++ dn i :: up i :: v) (t₀ := u ++ dn i :: up i :: v)
         [] [] u v (A := []) (L := []) (rfl : dg RD k (wt RD μ v) [dn i, up i] [dn i, up i] [] = _)
         (by simp) (by simp) (by simp)
@@ -446,7 +446,7 @@ theorem decR (hSL : SimplyLaced C) (μ : X) :
         simpa using (show SChain [] (cupDotFELs i ((-ip RD i (wt RD μ v)).toNat - 1 - f))
           [dn i, up i] by schain).whisk u v
       refine dotBubSpan_le_decRSet μ hpre hpost ?_ ?_ IH2
-        (slideOutAny hSL μ v u _ _ hpre hpost _ (cwU_isBub i _))
+        (slideOutAny μ v u _ _ hpre hpost _ (cwU_isBub i _))
       · refine AllSh.map_whL (fun x hx => ?_) u v
         simp only [dotCapFELs, List.mem_append, List.mem_singleton] at hx
         rcases hx with hx | rfl
@@ -464,10 +464,10 @@ theorem decR (hSL : SimplyLaced C) (μ : X) :
         ← dg_comp hcr hcl]
       exact T1
 
-/-- **Decomposition of identities through words sorted to the left** (simply-laced): the identity
+/-- **Decomposition of identities through words sorted to the left**: the identity
 of `E_w 1_μ` is a linear combination of composites `E_w → F_d E_c → E_w` of a monotone diagram of
 type `RL` and one of type `LR`, times a bubble monomial. -/
-theorem decL (hSL : SimplyLaced C) (μ : X) :
+theorem decL (μ : X) :
     ∀ (n : ℕ) (w : List (Letter I)), invL w < n → 𝟙 _ ∈ decLSet RD k μ w
   | 0 => fun w h => absurd h (Nat.not_lt_zero _)
   | n + 1 => fun w hw => by
@@ -484,7 +484,7 @@ theorem decL (hSL : SimplyLaced C) (μ : X) :
         (u ++ up i :: dn j :: v) := by
       simpa using (show SChain [dn j, up i] (crossrL i j) [up i, dn j] by schain).whisk u v
     have IH1 : 𝟙 _ ∈ decLSet RD k μ (u ++ dn j :: up i :: v) :=
-      decL hSL μ n _ (by have := invL_swap i j v u; omega)
+      decL μ n _ (by have := invL_swap i j v u; omega)
     have T1 : dg RD k μ (u ++ up i :: dn j :: v) (u ++ dn j :: up i :: v)
         ((crosslL i j).map (whL u v)) ≫
         dg RD k μ (u ++ dn j :: up i :: v) (u ++ up i :: dn j :: v) ((crossrL i j).map (whL u v)) ∈
@@ -495,7 +495,7 @@ theorem decL (hSL : SimplyLaced C) (μ : X) :
     by_cases hij : i = j
     · subst hij
       have IH2 : 𝟙 _ ∈ decLSet RD k μ (u ++ v) :=
-        decL hSL μ n _ (by have := invL_del i i v u; omega)
+        decL μ n _ (by have := invL_del i i v u; omega)
       have E := dg_stepL RD k μ (s₀ := u ++ up i :: dn i :: v) (t₀ := u ++ up i :: dn i :: v)
         [] [] u v (A := []) (L := []) (rfl : dg RD k (wt RD μ v) [up i, dn i] [up i, dn i] [] = _)
         (by simp) (by simp) (by simp)
@@ -517,7 +517,7 @@ theorem decL (hSL : SimplyLaced C) (μ : X) :
         simpa using (show SChain [] (cupDotEFLs i ((ip RD i (wt RD μ v)).toNat - 1 - f))
           [up i, dn i] by schain).whisk u v
       refine dotBubSpan_le_decLSet μ hpre hpost ?_ ?_ IH2
-        (slideOutAny hSL μ v u _ _ hpre hpost _ (ccwU_isBub i _))
+        (slideOutAny μ v u _ _ hpre hpost _ (ccwU_isBub i _))
       · refine AllSh.map_whL (fun x hx => ?_) u v
         simp only [dotCapEFLs, List.mem_append, List.mem_singleton] at hx
         rcases hx with hx | rfl

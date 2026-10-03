@@ -385,6 +385,7 @@ import Categorification.QuantumGroup.UDotWords
 import Categorification.TwoRep.AdjointInduction
 import Categorification.TwoRep.AdjointInductionNeg
 import Categorification.TwoRep.AdjointInductionNegCor
+import Categorification.TwoRep.AdjointWeightZero
 import Categorification.TwoRep.BSum
 import Categorification.TwoRep.Basic
 import Categorification.TwoRep.Biadjoint
@@ -423,6 +424,7 @@ import Categorification.TwoRep.MultShift
 import Categorification.TwoRep.QStrong
 import Categorification.TwoRep.QStrongRestrict
 import Categorification.TwoRep.Rank
+import Categorification.TwoRep.RightwardCrossing
 import Categorification.TwoRep.ShiftInterchange
 import Categorification.TwoRep.Sl2
 import Categorification.TwoRep.StepLemmas

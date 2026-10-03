@@ -14,10 +14,13 @@ pentagon and triangle, follow from the existing shifted-whiskering coherence and
 bicategory axioms; none is introduced as a new assumption.
 
 The hypotheses are exactly a preadditive graded bicategory and its explicit `ShiftCoherence`.
-There is no boundedness or automatic-biadjointness claim. `GradedHomAdjunction` uses this actual
-bicategory to construct a degree-preserving adjunction bijection. Only the construction kernel
-and degree-zero/homogeneous API of the ungated `cl-sc` lead are selected here, not its
-low-weight results, homogeneous-inverse calculus, or extra linearity API.
+There is no boundedness or automatic-biadjointness claim. `GradedHomAdjunction` uses this
+bicategory to construct a degree-preserving adjunction bijection.
+
+Besides the construction, this file provides: `of₁`, `of₂`, `incl₂` (1-morphisms, homogeneous and
+degree-`0` 2-morphisms of `B`), `shiftIso₁ f n : of₁ (f⟦n⟧) ≅ of₁ f` (homogeneous of degree `n`),
+`isIso_of₂`, homogeneity of whiskerings, associators and unitors, the `k`-linear structure on the
+Hom categories (`homLinear`), and additivity and linearity of whiskering.
 -/
 
 noncomputable section
@@ -251,6 +254,10 @@ instance bicategory : Bicategory.{w, v} (GradedHomBicat B) where
 instance homPreadditive (a b : GradedHomBicat B) : Preadditive (a ⟶ b) :=
   inferInstanceAs (Preadditive (GradedHomCat (a.as ⟶ b.as)))
 
+instance homLinear (k : Type*) [Field k] [∀ a b : B, Linear k (a ⟶ b)]
+    [GradedBicategory.IsLinear B k] (a b : GradedHomBicat B) : Linear k (a ⟶ b) :=
+  inferInstanceAs (Linear k (GradedHomCat (a.as ⟶ b.as)))
+
 /-! ### 1-morphisms and homogeneous 2-morphisms of `B` in the graded-Hom bicategory -/
 
 section API
@@ -323,6 +330,11 @@ theorem of₂_sub {f g : a ⟶ b} (n : ℤ) (η θ : ShiftedHom f g n) :
 theorem of₂_neg {f g : a ⟶ b} (n : ℤ) (η : ShiftedHom f g n) : of₂ n (-η) = -of₂ n η :=
   homOf_neg n η
 
+theorem of₂_smul {k : Type*} [Field k] [∀ a b : B, Linear k (a ⟶ b)]
+    [GradedBicategory.IsLinear B k] {f g : a ⟶ b} (n : ℤ) (r : k) (η : ShiftedHom f g n) :
+    of₂ n (r • η) = r • of₂ n η :=
+  homOf_smul n r η
+
 theorem associator_hom_eq (f : a ⟶ b) (g : b ⟶ c) (h : c ⟶ d) :
     (α_ (of₁ f) (of₁ g) (of₁ h)).hom = incl₂ (α_ f g h).hom := rfl
 
@@ -337,7 +349,119 @@ theorem rightUnitor_hom_eq (f : a ⟶ b) : (ρ_ (of₁ f)).hom = incl₂ (ρ_ f)
 
 theorem rightUnitor_inv_eq (f : a ⟶ b) : (ρ_ (of₁ f)).inv = incl₂ (ρ_ f).inv := rfl
 
+theorem isHomogeneous_of₂ {f g : a ⟶ b} (n : ℤ) (η : ShiftedHom f g n) :
+    IsHomogeneous (of₂ n η) n :=
+  isHomogeneous_homOf n η
+
+theorem isHomogeneous_incl₂ {f g : a ⟶ b} (η : f ⟶ g) : IsHomogeneous (incl₂ η) 0 :=
+  isHomogeneous_incl_map η
+
+/-- A 2-morphism of the graded-Hom bicategory which is homogeneous of degree `0` is a 2-morphism
+of `B`. -/
+theorem exists_incl₂_of_isHomogeneous {f g : a ⟶ b} {φ : of₁ f ⟶ of₁ g}
+    (h : IsHomogeneous φ 0) : ∃ η : f ⟶ g, φ = incl₂ η :=
+  h.exists_incl_map
+
+/-- `f⟦n⟧ ≅ f` in the graded-Hom bicategory, by a homogeneous isomorphism of degree `n`. -/
+def shiftIso₁ (f : a ⟶ b) (n : ℤ) : of₁ (f⟦n⟧) ≅ of₁ f := GradedHomCat.shiftIso f n
+
+theorem shiftIso₁_hom_isHomogeneous (f : a ⟶ b) (n : ℤ) :
+    IsHomogeneous (shiftIso₁ f n).hom n :=
+  shiftIso_hom_isHomogeneous f n
+
+theorem shiftIso₁_inv_isHomogeneous (f : a ⟶ b) (n : ℤ) :
+    IsHomogeneous (shiftIso₁ f n).inv (-n) :=
+  shiftIso_inv_isHomogeneous f n
+
+/-- A shifted 2-morphism which is an isomorphism `f ≅ g⟦n⟧` of `B` is an isomorphism `f ≅ g` of
+the graded-Hom bicategory. -/
+theorem isIso_of₂ {f g : a ⟶ b} (n : ℤ) (η : ShiftedHom f g n) [IsIso (η : f ⟶ g⟦n⟧)] :
+    IsIso (of₂ n η) :=
+  isIso_homOf n η
+
 end API
+
+/-! ### Whiskering is additive, linear, and preserves homogeneity -/
+
+section Additive
+
+variable {a b c : GradedHomBicat B}
+
+theorem whiskerLeft_add (f : a ⟶ b) {g h : b ⟶ c} (η θ : g ⟶ h) :
+    f ◁ (η + θ) = f ◁ η + f ◁ θ :=
+  map_add (whiskerLeftHom f.as g.as h.as) η θ
+
+theorem add_whiskerRight {f g : a ⟶ b} (η θ : f ⟶ g) (h : b ⟶ c) :
+    (η + θ) ▷ h = η ▷ h + θ ▷ h :=
+  map_add (whiskerRightHom f.as g.as h.as) η θ
+
+theorem whiskerLeft_zero (f : a ⟶ b) {g h : b ⟶ c} : f ◁ (0 : g ⟶ h) = 0 :=
+  map_zero (whiskerLeftHom f.as g.as h.as)
+
+theorem zero_whiskerRight {f g : a ⟶ b} (h : b ⟶ c) : (0 : f ⟶ g) ▷ h = 0 :=
+  map_zero (whiskerRightHom f.as g.as h.as)
+
+theorem isHomogeneous_whiskerLeft (f : a ⟶ b) {g h : b ⟶ c} {φ : g ⟶ h} {n : ℤ}
+    (hφ : IsHomogeneous φ n) : IsHomogeneous (f ◁ φ) n := by
+  obtain ⟨η, rfl⟩ := hφ
+  exact ⟨shWhiskerLeft f.as η, whiskerLeftHom_homOf f.as n η⟩
+
+theorem isHomogeneous_whiskerRight {f g : a ⟶ b} {φ : f ⟶ g} {n : ℤ}
+    (hφ : IsHomogeneous φ n) (h : b ⟶ c) : IsHomogeneous (φ ▷ h) n := by
+  obtain ⟨η, rfl⟩ := hφ
+  exact ⟨shWhiskerRight η h.as, whiskerRightHom_homOf n η h.as⟩
+
+theorem isHomogeneous_associator_hom {d : GradedHomBicat B} (f : a ⟶ b) (g : b ⟶ c)
+    (h : c ⟶ d) : IsHomogeneous (α_ f g h).hom 0 :=
+  isHomogeneous_incl_map (α_ f.as g.as h.as).hom
+
+theorem isHomogeneous_associator_inv {d : GradedHomBicat B} (f : a ⟶ b) (g : b ⟶ c)
+    (h : c ⟶ d) : IsHomogeneous (α_ f g h).inv 0 :=
+  isHomogeneous_incl_map (α_ f.as g.as h.as).inv
+
+theorem isHomogeneous_leftUnitor_hom (f : a ⟶ b) : IsHomogeneous (λ_ f).hom 0 :=
+  isHomogeneous_incl_map (λ_ f.as).hom
+
+theorem isHomogeneous_leftUnitor_inv (f : a ⟶ b) : IsHomogeneous (λ_ f).inv 0 :=
+  isHomogeneous_incl_map (λ_ f.as).inv
+
+theorem isHomogeneous_rightUnitor_hom (f : a ⟶ b) : IsHomogeneous (ρ_ f).hom 0 :=
+  isHomogeneous_incl_map (ρ_ f.as).hom
+
+theorem isHomogeneous_rightUnitor_inv (f : a ⟶ b) : IsHomogeneous (ρ_ f).inv 0 :=
+  isHomogeneous_incl_map (ρ_ f.as).inv
+
+variable {k : Type*} [Field k] [∀ a b : B, Linear k (a ⟶ b)] [GradedBicategory.IsLinear B k]
+
+theorem whiskerLeft_smul (f : a ⟶ b) {g h : b ⟶ c} (r : k) (η : g ⟶ h) :
+    f ◁ (r • η) = r • (f ◁ η) := by
+  obtain ⟨g⟩ := g
+  obtain ⟨h⟩ := h
+  induction η using hom_induction with
+  | zero => rw [smul_zero, whiskerLeft_zero, smul_zero]
+  | add φ ψ hφ hψ => rw [smul_add, whiskerLeft_add, whiskerLeft_add, hφ, hψ, smul_add]
+  | homOf n η =>
+    rw [← homOf_smul]
+    refine (whiskerLeftHom_homOf f.as n (r • η)).trans ?_
+    rw [show shWhiskerLeft f.as (r • η) = r • shWhiskerLeft f.as η from
+      ShiftedHom.map_smul r η (precomp _ f.as), homOf_smul]
+    exact congrArg (r • ·) (whiskerLeftHom_homOf f.as n η).symm
+
+theorem smul_whiskerRight {f g : a ⟶ b} (r : k) (η : f ⟶ g) (h : b ⟶ c) :
+    (r • η) ▷ h = r • (η ▷ h) := by
+  obtain ⟨f⟩ := f
+  obtain ⟨g⟩ := g
+  induction η using hom_induction with
+  | zero => rw [smul_zero, zero_whiskerRight, smul_zero]
+  | add φ ψ hφ hψ => rw [smul_add, add_whiskerRight, add_whiskerRight, hφ, hψ, smul_add]
+  | homOf n η =>
+    rw [← homOf_smul]
+    refine (whiskerRightHom_homOf n (r • η) h.as).trans ?_
+    rw [show shWhiskerRight (r • η) h.as = r • shWhiskerRight η h.as from
+      ShiftedHom.map_smul r η (postcomp _ h.as), homOf_smul]
+    exact congrArg (r • ·) (whiskerRightHom_homOf n η h.as).symm
+
+end Additive
 
 end GradedHomBicat
 

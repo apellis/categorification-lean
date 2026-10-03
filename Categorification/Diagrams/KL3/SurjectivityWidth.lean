@@ -91,8 +91,7 @@ def TopHyp (ρ lam : X) : Prop :=
     ¬ IsLow RD k (a.length + b.length) Z →
     K0U.cl Z ∈ gammaImg RD k lam ρ ⊔ lowSpanU RD k ρ lam (a.length + b.length)
 
-variable [Finite I] (hSL : SimplyLaced C)
-include hSL
+variable [Finite I]
 
 /-- **Induction on the width**: under `TopHyp`, the class of every indecomposable which is low of
 level `m` lies in the image of `γ`. -/
@@ -103,7 +102,7 @@ theorem cl_mem_gammaImg_of_isLow {ρ lam : X} (hT : TopHyp RD k ρ lam) :
   | _ m ih =>
     intro Z hZ hlow
     obtain ⟨w, hw, n, hlt, f, g, hfg⟩ := hlow
-    obtain ⟨a, b, hab, n', hle, -, f', g', h'⟩ := exists_retract_sorted_of_retract hSL hZ f g hfg
+    obtain ⟨a, b, hab, n', hle, -, f', g', h'⟩ := exists_retract_sorted_of_retract hZ f g hfg
     by_cases hl : IsLow RD k (a.length + b.length) Z
     · exact ih _ (by omega) Z hZ hl
     · have htop := hT a b hab n' Z hZ ⟨f', g', h'⟩ hl
@@ -117,20 +116,20 @@ theorem cl_mem_gammaImg_of_isLow {ρ lam : X} (hT : TopHyp RD k ρ lam) :
 of `γ`**. -/
 theorem cl_mem_gammaImg_of_topHyp {ρ lam : X} (hT : TopHyp RD k ρ lam) {Z : UKar RD k ρ lam}
     (hZ : IsIndec Z) : K0U.cl Z ∈ gammaImg RD k lam ρ := by
-  obtain ⟨w, h, n, f, g, hfg⟩ := exists_retract_nfObj hSL hZ
-  exact cl_mem_gammaImg_of_isLow hSL hT (w.length + 1) Z hZ ⟨w, h, n, by omega, f, g, hfg⟩
+  obtain ⟨w, h, n, f, g, hfg⟩ := exists_retract_nfObj hZ
+  exact cl_mem_gammaImg_of_isLow hT (w.length + 1) Z hZ ⟨w, h, n, by omega, f, g, hfg⟩
 
 /-- Under `TopHyp`, `gammaImg = ⊤`. -/
 theorem gammaImg_eq_top_of_topHyp {ρ lam : X} (hT : TopHyp RD k ρ lam) :
     gammaImg RD k lam ρ = ⊤ := by
-  rw [eq_top_iff, ← (indecBasisU (k := k) hSL ρ lam).span_eq, Submodule.span_le]
+  rw [eq_top_iff, ← (indecBasisU (k := k) ρ lam).span_eq, Submodule.span_le]
   rintro _ ⟨b, rfl⟩
   rw [indecBasisU_apply]
-  exact cl_mem_gammaImg_of_topHyp hSL hT b.isIndec_rep
+  exact cl_mem_gammaImg_of_topHyp hT b.isIndec_rep
 
 /-- `γ : 1_ρ (_𝒜 U̇) 1_λ → K₀(U̇(λ, ρ))` is surjective iff its image `gammaImg` is everything. -/
 theorem gammaUA'_surjective_iff (lam ρ : X) :
-    Function.Surjective (gammaUA' (RD := RD) (k := k) hSL lam ρ) ↔ gammaImg RD k lam ρ = ⊤ := by
+    Function.Surjective (gammaUA' (RD := RD) (k := k) lam ρ) ↔ gammaImg RD k lam ρ = ⊤ := by
   constructor
   · intro hs
     refine eq_top_iff.2 fun x _ => ?_
@@ -143,8 +142,8 @@ theorem gammaUA'_surjective_iff (lam ρ : X) :
 
 /-- **KL III Theorem 1.1 (surjectivity of `γ`), conditional on the top step `TopHyp`.** -/
 theorem gammaUA'_surjective_of_topHyp {lam ρ : X} (hT : TopHyp RD k ρ lam) :
-    Function.Surjective (gammaUA' (RD := RD) (k := k) hSL lam ρ) :=
-  (gammaUA'_surjective_iff hSL lam ρ).2 (gammaImg_eq_top_of_topHyp hSL hT)
+    Function.Surjective (gammaUA' (RD := RD) (k := k) lam ρ) :=
+  (gammaUA'_surjective_iff lam ρ).2 (gammaImg_eq_top_of_topHyp hT)
 
 end Width
 

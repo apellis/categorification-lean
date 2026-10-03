@@ -30,33 +30,31 @@ variable {I : Type u} {C : CartanDatum I} {X Y : Type v} [AddCommGroup X] [AddCo
 
 attribute [local instance] KLR.KLGamma.vAlgebra
 
-variable [DecidableEq I] [Finite I] (hSL : SimplyLaced C)
+variable [DecidableEq I] [Finite I]
 
-include hSL in
 /-- `γ : 1_ρ (_𝒜 U̇) 1_λ → K₀(U̇(λ, ρ))` is bijective if the calculus is nondegenerate, assuming
 the canonical quantum Gabber–Kac statement (which gives KL III Prop. 2.5). -/
 theorem gammaUA'_bijective_of_quantumGabberKac (hnd : CalculusNondeg RD k)
     (hGK : C.QuantumGabberKac) (lam ρ : X) :
-    Function.Bijective (gammaUA' (RD := RD) (k := k) hSL lam ρ) :=
-  gammaUA'_bijective hSL hnd (KL3.formNondeg_of_quantumGabberKac RD hGK) lam ρ
+    Function.Bijective (gammaUA' (RD := RD) (k := k) lam ρ) :=
+  gammaUA'_bijective hnd (KL3.formNondeg_of_quantumGabberKac RD hGK) lam ρ
 
 /-- `γ` as an isomorphism `1_ρ (_𝒜 U̇) 1_λ ≅ K₀(U̇(λ, ρ))` under the hypotheses of
 `gammaUA'_bijective_of_quantumGabberKac`. -/
 def gammaUA'Equiv_of_quantumGabberKac (hnd : CalculusNondeg RD k) (hGK : C.QuantumGabberKac)
     (lam ρ : X) :
     LinearMap.range (dpComb (RD := RD) lam ρ) ≃ₗ[LaurentPolynomial ℤ] K0Kar RD k ρ lam :=
-  gammaUA'Equiv hSL hnd (KL3.formNondeg_of_quantumGabberKac RD hGK) lam ρ
+  gammaUA'Equiv hnd (KL3.formNondeg_of_quantumGabberKac RD hGK) lam ρ
 
-include hSL in
 /-- `γ : 1_ρ (_𝒜 U̇) 1_λ → K₀(U̇(λ, ρ))` is bijective if the calculus is nondegenerate. -/
 theorem gammaUA'_bijective_unconditional (hnd : CalculusNondeg RD k) (lam ρ : X) :
-    Function.Bijective (gammaUA' (RD := RD) (k := k) hSL lam ρ) :=
-  gammaUA'_bijective hSL hnd (KL3.formNondeg_unconditional RD) lam ρ
+    Function.Bijective (gammaUA' (RD := RD) (k := k) lam ρ) :=
+  gammaUA'_bijective hnd (KL3.formNondeg_unconditional RD) lam ρ
 
 /-- `γ` as an isomorphism `1_ρ (_𝒜 U̇) 1_λ ≅ K₀(U̇(λ, ρ))` if the calculus is nondegenerate. -/
 def gammaUA'Equiv_unconditional (hnd : CalculusNondeg RD k) (lam ρ : X) :
     LinearMap.range (dpComb (RD := RD) lam ρ) ≃ₗ[LaurentPolynomial ℤ] K0Kar RD k ρ lam :=
-  gammaUA'Equiv hSL hnd (KL3.formNondeg_unconditional RD) lam ρ
+  gammaUA'Equiv hnd (KL3.formNondeg_unconditional RD) lam ρ
 
 end Categorification.KL3.Diagram
 

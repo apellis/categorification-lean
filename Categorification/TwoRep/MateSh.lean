@@ -32,15 +32,20 @@ adjunction `u⟨d⟩ ⊣ v⟨-d⟩` is to be constructed.
 * `Ξ₀_Θ₀`, `Θ₀_Ξ₀`: they are mutually inverse (from the triangle identities);
 * `Θ₀_comp`: naturality of `Θ₀` in `y`.
 
-## Not yet formalized
+## Further shifted constructions
 
-The shifted versions `Θ adj : (v ≫ u ⟶ 𝟙⟨d⟩) → (v ⟶ v⟨d⟩)` and
-`Ξ adj : (v ⟶ v⟨d⟩) → (v ≫ u ⟶ 𝟙⟨d⟩)` with `Ξ_Θ`, `Θ_Ξ` (via `ShiftInterchange`,
-`ShiftAssocRight`, `ShiftUnitor`); `εsh adj f = (v ◁ f) ≫ ε⟨d⟩`; the mate
-`mateSh adj f := Θ adj (εsh adj f)`; and its lemmas: anti-multiplicativity `mateSh_comp`,
-`mateSh_mk₀_id`, linearity (`mateSh_add`, `mateSh_sub`, `mateSh_smul`, `mateSh_zero`), and
-compatibility with composite adjunctions `mateSh_comp_shWhiskerLeft` (needs `ShiftAssoc`) and
-`mateSh_comp_shWhiskerRight` (needs `ShiftAssocMid`).
+`GradedHomAdjunction.lean` now proves the shifted bijections `Θsh`, `Ξsh` and their inverse
+identities for a given adjunction, using the actual finite-sum graded-Hom bicategory.
+Its `shiftedEndEquiv` specializes them to
+`ShiftedHom (v ≫ u) (𝟙 b) d ≃ ShiftedHom v v d`.
+
+`ShiftedMates.lean` now constructs `εsh` and `mateSh`, identifies the latter with ordinary
+conjugate mates in the graded-Hom bicategory, and proves `mateSh_comp`, `mateSh_mk₀_id`,
+additivity, injectivity and scalar compatibility under explicit linearity hypotheses.
+`ShiftedMatesWhisker.lean` proves `mateSh_comp_shWhiskerLeft` and
+`mateSh_comp_shWhiskerRight` by preserving actual composite adjunctions in the graded-Hom
+bicategory. Its concrete consumers retain the weight-shifted right adjoints supplied by
+`StrongSl2.adj`; shift removal and braid transport to unshifted `FF` remain open.
 
 ## E-dots versus F-dots in CL's bottom half (motivation)
 

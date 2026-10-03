@@ -14,7 +14,7 @@ condition is true for all `λ ∈ X` and all pairs of positive sequences `𝐢, 
 
 We prove (`calculusNondeg_of_positive`): if
 `gdim HOM_U(E_𝐢 1_λ, E_𝐣 1_λ) = π ⟨E_𝐢 1_λ, E_𝐣 1_λ⟩` for all `λ` and all **positive** `𝐢, 𝐣`,
-then it holds for all signed sequences, i.e. `CalculusNondeg RD k` (simply-laced, `I` finite,
+then it holds for all signed sequences, i.e. `CalculusNondeg RD k` (any Cartan datum, `I` finite,
 `𝕜` a field). The proof:
 
 * **bending** (`finrank_homD_bend`, biadjointness, KL III (3.1)–(3.2)):
@@ -166,13 +166,13 @@ end Words
 section OneSided
 
 variable {I : Type u} {C : CartanDatum I} {X Y : Type v} [AddCommGroup X] [AddCommGroup Y]
-  {RD : RootDatum C X Y} {k : Type w} [Field k] [DecidableEq I] [Finite I] (hSL : SimplyLaced C)
+  {RD : RootDatum C X Y} {k : Type w} [Field k] [DecidableEq I] [Finite I]
 
 /-- `dim HOM_U(1_μ, E_u 1_μ)_t` as the value of the functional `homDim` on `[E_u 1_μ]`. -/
 theorem finrank_eq_homDim {μ : X} (u : List (Letter I)) (hu : wt RD μ u = μ) (t : ℤ) :
     (finrank k (HomD RD k μ [] u t) : ℤ) =
-      homDim hSL (nfObj RD k μ μ [] rfl t) (eC RD k μ μ u hu) := by
-  have := homDim_T_eC (k := k) hSL [] u rfl hu t 0
+      homDim (nfObj RD k μ μ [] rfl t) (eC RD k μ μ u hu) := by
+  have := homDim_T_eC (k := k) [] u rfl hu t 0
   rw [sub_zero, LaurentPolynomial.T_zero, one_smul] at this
   exact this.symm
 
@@ -186,11 +186,10 @@ def OneSidedEq (u : List (Letter I)) : Prop :=
 /-- The values of `homDim` on `h • [E_u 1_μ]` in terms of the graded dimensions. -/
 theorem homDim_smul_eq {μ : X} (u : List (Letter I)) (hu : wt RD μ u = μ) (t : ℤ)
     (h : LaurentPolynomial ℤ) :
-    homDim hSL (nfObj RD k μ μ [] rfl t) (h • eC RD k μ μ u hu) =
+    homDim (nfObj RD k μ μ [] rfl t) (h • eC RD k μ μ u hu) =
       h.coeff.sum fun n c => c * (finrank k (HomD RD k μ [] u (t - n)) : ℤ) :=
-  homDim_smul_eC hSL [] u rfl hu t h
+  homDim_smul_eC [] u rfl hu t h
 
-include hSL in
 /-- **The commutation step**: `OneSidedEq` passes from `a (-j)(+i) b` and `a b` to
 `a (+i)(-j) b` (KL III Propositions 3.25, 3.26 in `K₀`, and the relation (2.4) for the form). -/
 theorem oneSidedEq_comm (a b : List (Letter I)) (i j : I)
@@ -212,8 +211,8 @@ theorem oneSidedEq_comm (a b : List (Letter I)) (i j : I)
     rw [hsplit, wt_dn_up_eq, ← hsplit]; exact hw1
   have fr : ∀ (u : List (Letter I)) (hu : wt RD μ u = μ) (t : ℤ),
       ((finrank k (HomD RD k μ [] u t) : ℤ) : ℚ) =
-        ((homDim hSL (nfObj RD k μ μ [] rfl t) (eC RD k μ μ u hu) : ℤ) : ℚ) :=
-    fun u hu t => by rw [finrank_eq_homDim hSL u hu t]
+        ((homDim (nfObj RD k μ μ [] rfl t) (eC RD k μ μ u hu) : ℤ) : ℚ) :=
+    fun u hu t => by rw [finrank_eq_homDim u hu t]
   rw [fr _ hw1]
   by_cases hji : j = i
   · subst hji
@@ -234,7 +233,7 @@ theorem oneSidedEq_comm (a b : List (Letter I)) (i j : I)
         rw [lpToQ_qn]
         conv_lhs => rw [← Int.toNat_of_nonneg hn]
         rw [qbr_eq_qint _ hq]; rfl
-      rw [hqn, coeff_toLS_lpToQ_mul, hK, map_add, homDim_smul_eq hSL, Finsupp.sum, Finsupp.sum]
+      rw [hqn, coeff_toLS_lpToQ_mul, hK, map_add, homDim_smul_eq, Finsupp.sum, Finsupp.sum]
       push_cast
       rw [← fr _ hw2 t, hA]
       congr 1
@@ -251,7 +250,7 @@ theorem oneSidedEq_comm (a b : List (Letter I)) (i j : I)
             qn (di C j) (-ip RD j ν).toNat • eC RD k μ μ (a ++ [] ++ b) hw3 := by
         rw [hK]; abel
       rw [hqn, map_neg, neg_mul, HahnSeries.coeff_neg, coeff_toLS_lpToQ_mul, hK',
-        map_sub, homDim_smul_eq hSL, Finsupp.sum, Finsupp.sum]
+        map_sub, homDim_smul_eq, Finsupp.sum, Finsupp.sum]
       push_cast
       rw [← fr _ hw2 t, hA, sub_eq_add_neg]
       congr 1
@@ -324,23 +323,21 @@ theorem oneSidedEq_normal (hpos : PositiveNondeg RD k) (c b : List I) :
   rw [← e1]
   exact e2
 
-include hSL in
 /-- `gdim HOM_U(1_μ, E_u 1_μ) = π (1_μ, E_u 1_μ)` for all signed sequences `u`, given the
 positive case. -/
 theorem oneSidedEq_all (hpos : PositiveNondeg RD k) (u : List (Letter I)) : OneSidedEq RD k u := by
   induction u using normal_induction with
   | hN c b => exact oneSidedEq_normal hpos c b
-  | hS a i j b h1 h2 => exact oneSidedEq_comm hSL a b i j h1 h2
+  | hS a i j b h1 h2 => exact oneSidedEq_comm a b i j h1 h2
 
-include hSL in
 /-- **KL III, Remark after the definition of nondegeneracy** (TeX l. 4632): "Nondegeneracy holds
 if the above condition is true for all `λ ∈ X` and all pairs of positive sequences `𝐢, 𝐣`"
-(simply-laced, `I` finite, `𝕜` a field). -/
+(any Cartan datum, `I` finite, `𝕜` a field). -/
 theorem calculusNondeg_of_positive (hpos : PositiveNondeg RD k) : CalculusNondeg RD k := by
   intro μ s w t
   by_cases hsw : wt RD μ s = wt RD μ w
   · rw [finrank_bend_rcx μ s w hsw t, coeff_sform_eq]
-    exact oneSidedEq_all hSL hpos (rd s ++ w) μ (wt_rd_append_eq hsw) _
+    exact oneSidedEq_all hpos (rd s ++ w) μ (wt_rd_append_eq hsw) _
   · exact calculusNondeg_cond_of_wt_ne hsw t
 
 omit [DecidableEq I] [Finite I] in
@@ -348,15 +345,14 @@ omit [DecidableEq I] [Finite I] in
 theorem positive_of_calculusNondeg (h : CalculusNondeg RD k) : PositiveNondeg RD k :=
   fun μ c b t => h μ (posW c) (posW b) t
 
-include hSL in
 /-- **KL III Theorem 1.2 / Proposition 1.4, reduced to positive sequences**: if
 `gdim HOM_U(E_𝐢 1_λ, E_𝐣 1_λ) = π ⟨E_𝐢 1_λ, E_𝐣 1_λ⟩` for all `λ` and all positive `𝐢, 𝐣`, and
-Proposition 2.5 holds, then `γ : 1_ρ (_𝒜 U̇) 1_λ → K₀(U̇(λ, ρ))` is bijective (simply-laced,
+Proposition 2.5 holds, then `γ : 1_ρ (_𝒜 U̇) 1_λ → K₀(U̇(λ, ρ))` is bijective (any Cartan datum,
 `I` finite, `𝕜` a field). -/
 theorem gammaUA'_bijective_of_positive (hpos : PositiveNondeg RD k)
     (h25 : UDot.KL3.FormNondeg RD) (lam ρ : X) :
-    Function.Bijective (gammaUA' (RD := RD) (k := k) hSL lam ρ) :=
-  gammaUA'_bijective hSL (calculusNondeg_of_positive hSL hpos) h25 lam ρ
+    Function.Bijective (gammaUA' (RD := RD) (k := k) lam ρ) :=
+  gammaUA'_bijective (calculusNondeg_of_positive hpos) h25 lam ρ
 
 end OneSided
 

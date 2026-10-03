@@ -39,7 +39,7 @@ E_{+a} E_{-b} 1_μ`:
 
 * `sortedSpan_holds`: **`SortedSpan RD k`** (any Cartan datum, `k` a field).
 * `gammaUA'_surjective`: **KL III Theorem 1.1**: `γ : _𝒜 U̇ → K₀(U̇)` is surjective
-  (simply-laced, `I` finite, `k` a field).
+  (any Cartan datum, `I` finite, `k` a field).
 -/
 
 noncomputable section
@@ -531,13 +531,13 @@ end Main
 
 section Surj
 
-variable {k : Type w} [Field k] [DecidableEq I] [Finite I] (hSL : SimplyLaced C)
+variable {k : Type w} [Field k] [DecidableEq I] [Finite I]
 
-/-- **KL III Theorem 1.1** (simply-laced Cartan data, `I` finite, `k` a field): the map
+/-- **KL III Theorem 1.1** (arbitrary Cartan data, `I` finite, `k` a field): the map
 `γ : _𝒜 U̇ → K₀(U̇)` is surjective. -/
 theorem gammaUA'_surjective (lam ρ : X) :
-    Function.Surjective (gammaUA' (RD := RD) (k := k) hSL lam ρ) :=
-  gammaUA'_surjective_of_sortedSpan' hSL sortedSpan_holds lam ρ
+    Function.Surjective (gammaUA' (RD := RD) (k := k) lam ρ) :=
+  gammaUA'_surjective_of_sortedSpan' sortedSpan_holds lam ρ
 
 end Surj
 

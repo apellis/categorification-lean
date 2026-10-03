@@ -18,7 +18,7 @@ M. Khovanov, A. Lauda, *A categorification of quantum `sl(n)`*, arXiv:0807.3250v
 > of `K₀(U̇(λ, μ))`, viewed as a free `ℤ[q, q⁻¹]`-module.
 
 and §3.8.2 (Propositions 3.31, 3.34: freeness of `K₀` of graded (idempotented) algebras with
-finite-dimensional weight spaces, bounded below). For simply-laced Cartan data, `I` finite and
+finite-dimensional weight spaces, bounded below). For arbitrary Cartan data, `I` finite and
 `k` a field:
 
 * `hasGdim_obj`: every graded Hom-space `HOM_U(x, y)` between 1-morphisms of `U` has
@@ -84,8 +84,8 @@ section Finite
 variable [DecidableEq I] [Finite I]
 
 /-- **Finite-dimensional graded Hom-spaces between arbitrary 1-morphisms of `U`**
-(simply-laced, `I` finite, `k` a field). -/
-theorem hasGdim_obj (hSL : SimplyLaced C) {ρ lam : X}
+(any Cartan datum, `I` finite, `k` a field). -/
+theorem hasGdim_obj {ρ lam : X}
     (x y : Bicat.Hom (wtObj RD k ρ) (wtObj RD k lam)) :
     Graded.HasGdim ((pres RD k).homDeg (deg RD) x.obj y.obj) := by
   have hx : x.obj = ob RD lam (x.obj.word.map Col.l) := obj_eq_ob_endR lam x.obj x.wf x.endR_eq
@@ -105,13 +105,13 @@ theorem karHomL_injective {𝒞 : Type*} [Category 𝒞] [Preadditive 𝒞] [Lin
   fun _ _ h => Karoubi.hom_ext _ _ h
 
 /-- **The Hom-spaces of `U̇(λ, μ)` are finite-dimensional** (KL III §3.6). -/
-theorem homFinite_UDot (hSL : SimplyLaced C) (ρ lam : X) :
+theorem homFinite_UDot (ρ lam : X) :
     HomFinite k (UDotHom (pres RD k) (deg RD) (wtObj RD k ρ) (wtObj RD k lam)) := by
   constructor
   intro A B
   have hG : ∀ Xg Yg : GrObj (pres RD k) (deg RD) (wtObj RD k ρ) (wtObj RD k lam),
       FiniteDimensional k (Xg ⟶ Yg) :=
-    fun Xg Yg => (hasGdim_obj (k := k) hSL Xg.x Yg.x).finiteDimensional _
+    fun Xg Yg => (hasGdim_obj (k := k) Xg.x Yg.x).finiteDimensional _
   have : ∀ M N : Mat_ (GrObj (pres RD k) (deg RD) (wtObj RD k ρ) (wtObj RD k lam)),
       FiniteDimensional k (M ⟶ N) :=
     fun M N => by
@@ -121,13 +121,13 @@ theorem homFinite_UDot (hSL : SimplyLaced C) (ρ lam : X) :
 
 /-- **`Hom(A, B{n}) = 0` for `n ≫ 0`** in `U̇(λ, μ)` (the Hom-spaces of `U` are bounded
 below). -/
-theorem hom_shDot_eq_zero (hSL : SimplyLaced C) {ρ lam : X}
+theorem hom_shDot_eq_zero {ρ lam : X}
     (A B : UDotHom (pres RD k) (deg RD) (wtObj RD k ρ) (wtObj RD k lam)) :
     ∃ N : ℤ, ∀ n ≥ N, ∀ f : A ⟶ (shDot (deg RD) n).obj B, f = 0 := by
   have hb : ∀ i j, ∃ Nij : ℤ, ∀ d < Nij,
       (pres RD k).homDeg (deg RD) (A.X.X i).x.obj (B.X.X j).x.obj d = ⊥ := by
     intro i j
-    obtain ⟨B₀, hB₀⟩ := (hasGdim_obj (k := k) hSL (A.X.X i).x (B.X.X j).x).bddBelow
+    obtain ⟨B₀, hB₀⟩ := (hasGdim_obj (k := k) (A.X.X i).x (B.X.X j).x).bddBelow
     refine ⟨B₀, fun d hd => ?_⟩
     by_contra hne
     have := hB₀ hne
@@ -155,11 +155,11 @@ open SplitK0 SplitK0.K0Shift in
 /-- **No indecomposable object of `U̇(λ, μ)` is isomorphic to a nonzero shift of itself** (KL III
 §3.8.2, proof of Proposition 3.31: "Boundedness […] ensures that an indecomposable projective is
 not isomorphic to itself with a shifted grading"). -/
-theorem rigid_UDot (hSL : SimplyLaced C) {ρ lam : X} :
+theorem rigid_UDot {ρ lam : X} :
     ∀ (n : ℤ) (A : UDotHom (pres RD k) (deg RD) (wtObj RD k ρ) (wtObj RD k lam)), IsIndec A →
       Nonempty (SplitK0.K0Shift.sh n A ≅ A) →
       n = 0 := by
-  have := homFinite_UDot (RD := RD) (k := k) hSL ρ lam
+  have := homFinite_UDot (RD := RD) (k := k) ρ lam
   intro n A hA hn
   by_contra hne
   obtain ⟨p, hp, hpA⟩ : ∃ p : ℤ, 0 < p ∧ Nonempty (SplitK0.K0Shift.sh p A ≅ A) := by
@@ -181,7 +181,7 @@ theorem rigid_UDot (hSL : SimplyLaced C) {ρ lam : X} :
       have : ((j + 1 : ℕ) : ℤ) * p = (j : ℤ) * p + p := by push_cast; ring
       rw [this]
       exact ⟨e₁ ≪≫ e₂ ≪≫ φ⟩
-  obtain ⟨N, hN⟩ := hom_shDot_eq_zero (k := k) hSL A A
+  obtain ⟨N, hN⟩ := hom_shDot_eq_zero (k := k) A A
   obtain ⟨ψ⟩ := hk N.toNat
   have hge : (N.toNat : ℤ) * p ≥ N := by
     have h1 : (N.toNat : ℤ) ≥ N := Int.self_le_toNat N
@@ -194,17 +194,17 @@ theorem rigid_UDot (hSL : SimplyLaced C) {ρ lam : X} :
 /-! ## Krull–Schmidt in `U̇(λ, μ)` -/
 
 /-- **Indecomposable 1-morphisms of `U̇(λ, ρ)` have local (degree-zero) endomorphism rings**
-(KL III §3.6; simply-laced, `I` finite, `k` a field). -/
-theorem isLocalRing_end_UDot (hSL : SimplyLaced C) {ρ lam : X} {Z : UKar RD k ρ lam}
+(KL III §3.6; any Cartan datum, `I` finite, `k` a field). -/
+theorem isLocalRing_end_UDot {ρ lam : X} {Z : UKar RD k ρ lam}
     (hZ : IsIndec Z) : IsLocalRing (End Z) :=
-  have := homFinite_UDot (RD := RD) (k := k) hSL ρ lam
+  have := homFinite_UDot (RD := RD) (k := k) ρ lam
   hZ.isLocalRing k
 
 /-- **Existence of Krull–Schmidt decompositions in `U̇(λ, ρ)`**: the class of every object is a
 sum of classes of indecomposable objects. -/
-theorem cl_mem_closure_indec (hSL : SimplyLaced C) {ρ lam : X} (A : UKar RD k ρ lam) :
+theorem cl_mem_closure_indec {ρ lam : X} (A : UKar RD k ρ lam) :
     K0U.cl A ∈ AddSubmonoid.closure {x | ∃ Z : UKar RD k ρ lam, IsIndec Z ∧ x = K0U.cl Z} :=
-  have := homFinite_UDot (RD := RD) (k := k) hSL ρ lam
+  have := homFinite_UDot (RD := RD) (k := k) ρ lam
   of_mem_closure_indec k A
 
 open Classical in
@@ -212,41 +212,41 @@ open Classical in
 `U̇(λ, μ)` has a unique presentation, up to permutation of factors and isomorphisms, as a direct
 sum of indecomposables"): two lists of indecomposables with the same class in `K₀` (e.g. with
 isomorphic direct sums) contain the same number of objects isomorphic to any given `Z`. -/
-theorem countP_iso_eq_UDot (hSL : SimplyLaced C) {ρ lam : X} {Z : UKar RD k ρ lam}
+theorem countP_iso_eq_UDot {ρ lam : X} {Z : UKar RD k ρ lam}
     (hZ : IsIndec Z) {L L' : List (UKar RD k ρ lam)} (hL : ∀ Y ∈ L, IsIndec Y)
     (hL' : ∀ Y ∈ L', IsIndec Y) (h : (L.map K0U.cl).sum = (L'.map K0U.cl).sum) :
     (L.countP fun Y => Nonempty (Y ≅ Z)) = L'.countP fun Y => Nonempty (Y ≅ Z) :=
-  have := homFinite_UDot (RD := RD) (k := k) hSL ρ lam
+  have := homFinite_UDot (RD := RD) (k := k) ρ lam
   countP_iso_eq_of_sum_eq k hZ hL hL' h
 
 /-! ## `K₀(U̇(λ, μ))` is free -/
 
 /-- **KL III §3.6: `K₀(U̇(λ, μ))` is a free `ℤ[q, q⁻¹]`-module with basis the classes of the
-indecomposable objects up to isomorphism and grading shift** (simply-laced, `I` finite, `k` a
+indecomposable objects up to isomorphism and grading shift** (any Cartan datum, `I` finite, `k` a
 field). -/
-def indecBasisU (hSL : SimplyLaced C) (ρ lam : X) :
+def indecBasisU (ρ lam : X) :
     Module.Basis (IndecClass (UDotHom (pres RD k) (deg RD) (wtObj RD k ρ) (wtObj RD k lam)))
       (LaurentPolynomial ℤ) (K0Kar RD k ρ lam) :=
-  have := homFinite_UDot (RD := RD) (k := k) hSL ρ lam
-  indecBasis k (rigid_UDot hSL)
+  have := homFinite_UDot (RD := RD) (k := k) ρ lam
+  indecBasis k rigid_UDot
 
-theorem indecBasisU_apply (hSL : SimplyLaced C) (ρ lam : X)
+theorem indecBasisU_apply (ρ lam : X)
     (b : IndecClass (UDotHom (pres RD k) (deg RD) (wtObj RD k ρ) (wtObj RD k lam))) :
-    indecBasisU hSL ρ lam b = K0U.cl b.rep := by
-  have := homFinite_UDot (RD := RD) (k := k) hSL ρ lam
-  exact indecBasis_apply k (rigid_UDot hSL) b
+    indecBasisU ρ lam b = K0U.cl b.rep := by
+  have := homFinite_UDot (RD := RD) (k := k) ρ lam
+  exact indecBasis_apply k rigid_UDot b
 
 /-- **`K₀(U̇(λ, ρ))` is a free `ℤ[q, q⁻¹]`-module** (KL III §3.6). -/
-theorem K0Kar_free (hSL : SimplyLaced C) (ρ lam : X) :
+theorem K0Kar_free (ρ lam : X) :
     Module.Free (LaurentPolynomial ℤ) (K0Kar RD k ρ lam) :=
-  Module.Free.of_basis (indecBasisU hSL ρ lam)
+  Module.Free.of_basis (indecBasisU ρ lam)
 
 /-- **`K₀(U̇(λ, ρ))` has no `ℤ[q, q⁻¹]`-torsion** (the hypothesis `htf` of
 `Categorification.Diagrams.KL3.GammaIntegral`). -/
-theorem K0Kar_torsionFree (hSL : SimplyLaced C) (ρ lam : X) :
+theorem K0Kar_torsionFree (ρ lam : X) :
     ∀ p ∈ nonZeroDivisors (LaurentPolynomial ℤ), ∀ x : K0Kar RD k ρ lam, p • x = 0 → x = 0 := by
-  have := homFinite_UDot (RD := RD) (k := k) hSL ρ lam
-  exact fun p hp x h => eq_zero_of_smul_eq_zero k (rigid_UDot hSL) hp h
+  have := homFinite_UDot (RD := RD) (k := k) ρ lam
+  exact fun p hp x h => eq_zero_of_smul_eq_zero k rigid_UDot hp h
 
 end Finite
 
@@ -256,59 +256,57 @@ section Discharge
 
 attribute [local instance] KLR.KLGamma.vAlgebra
 
-variable [DecidableEq I] [Finite I] (hSL : SimplyLaced C)
+variable [DecidableEq I] [Finite I]
 
-/-- **KL III Proposition 3.27, integral form** (simply-laced, `I` finite, `k` a field; no
+/-- **KL III Proposition 3.27, integral form** (any Cartan datum, `I` finite, `k` a field; no
 torsion-freeness hypothesis): the `ℤ[q, q⁻¹]`-linear map `γ : 1_ρ (_𝒜 U̇) 1_λ → K₀(U̇(λ, ρ))`
 (on the span of the generators `E_d 1_λ`), `γ(E_d 1_λ) = [E_d 1_λ]`. -/
-def gammaUA' (hSL : SimplyLaced C) (lam ρ : X) :
+def gammaUA' (lam ρ : X) :
     LinearMap.range (dpComb (RD := RD) lam ρ) →ₗ[LaurentPolynomial ℤ] K0Kar RD k ρ lam :=
-  gammaUA lam ρ (K0Kar_torsionFree hSL ρ lam)
+  gammaUA lam ρ (K0Kar_torsionFree ρ lam)
 
 /-- `γ(∑_d c_d E_d 1_λ) = ∑_d c_d [E_d 1_λ]`. -/
 theorem gammaUA'_apply (lam ρ : X) (f : DpIdx (RD := RD) lam ρ →₀ LaurentPolynomial ℤ) :
-    gammaUA' (k := k) hSL lam ρ ⟨dpComb lam ρ f, LinearMap.mem_range_self _ _⟩ =
+    gammaUA' (k := k) lam ρ ⟨dpComb lam ρ f, LinearMap.mem_range_self _ _⟩ =
       dpCComb lam ρ f :=
   gammaUA_apply lam ρ _ f
 
 /-- `γ(E_d 1_λ) = [E_d 1_λ]`. -/
 theorem gammaUA'_dpW (lam ρ : X) (d : DpIdx (RD := RD) lam ρ) :
-    gammaUA' (k := k) hSL lam ρ ⟨dpComb lam ρ (Finsupp.single d 1), LinearMap.mem_range_self _ _⟩ =
+    gammaUA' (k := k) lam ρ ⟨dpComb lam ρ (Finsupp.single d 1), LinearMap.mem_range_self _ _⟩ =
       dpC RD k d.1 lam ρ d.2 :=
   gammaUA_dpW lam ρ _ d
 
 /-- **`γ` is multiplicative** (KL III Proposition 3.27, integrally, unconditionally for
-simply-laced data). -/
+arbitrary Cartan data). -/
 theorem gammaUA'_mul {lam μ ρ : X} (f : DpIdx (RD := RD) μ ρ →₀ LaurentPolynomial ℤ)
     (g : DpIdx (RD := RD) lam μ →₀ LaurentPolynomial ℤ) :
-    gammaUA' (k := k) hSL lam ρ ⟨dpComb lam ρ (dpMul f g), LinearMap.mem_range_self _ _⟩ =
-      K0U.mul (gammaUA' (k := k) hSL μ ρ ⟨dpComb μ ρ f, LinearMap.mem_range_self _ _⟩)
-        (gammaUA' (k := k) hSL lam μ ⟨dpComb lam μ g, LinearMap.mem_range_self _ _⟩) :=
-  (gammaUA_mul (K0Kar_torsionFree hSL ρ μ) (K0Kar_torsionFree hSL μ lam)
-    (K0Kar_torsionFree hSL ρ lam) f g).2
-
-include hSL
+    gammaUA' (k := k) lam ρ ⟨dpComb lam ρ (dpMul f g), LinearMap.mem_range_self _ _⟩ =
+      K0U.mul (gammaUA' (k := k) μ ρ ⟨dpComb μ ρ f, LinearMap.mem_range_self _ _⟩)
+        (gammaUA' (k := k) lam μ ⟨dpComb lam μ g, LinearMap.mem_range_self _ _⟩) :=
+  (gammaUA_mul (K0Kar_torsionFree ρ μ) (K0Kar_torsionFree μ lam)
+    (K0Kar_torsionFree ρ lam) f g).2
 
 /-- **The relations of `1_ρ (_𝒜 U̇) 1_λ` among the generators `E_d 1_λ` hold exactly in
-`K₀(U̇(λ, ρ))`** (simply-laced). -/
+`K₀(U̇(λ, ρ))`** (any Cartan datum). -/
 theorem dpC_relation' {lam ρ : X} {ι : Type*} (s : Finset ι) (c : ι → LaurentPolynomial ℤ)
     (d : ι → List (Bool × I × ℕ)) (hd : ∀ j, wt RD lam (dpWord (d j)) = ρ)
     (hrel : ∑ j ∈ s, lpToQ (c j) • UDot.mk RD vQ lam (dpW C vQ (d j)) = 0) :
     ∑ j ∈ s, c j • dpC RD k (d j) lam ρ (hd j) = 0 :=
-  dpC_relation_of_torsionFree (K0Kar_torsionFree hSL ρ lam) s c d hd hrel
+  dpC_relation_of_torsionFree (K0Kar_torsionFree ρ lam) s c d hd hrel
 
-/-- **KL III Proposition 3.28 for `ψ`, exactly on the generators** (simply-laced):
+/-- **KL III Proposition 3.28 for `ψ`, exactly on the generators** (any Cartan datum):
 `[ψ̃][E_d 1_λ] = [E_d 1_λ]`. -/
 theorem psiK0_dpC' {lam ρ : X} (d : List (Bool × I × ℕ)) (h : wt RD lam (dpWord d) = ρ) :
     psiK0 (dpC RD k d lam ρ h) = dpC RD k d lam ρ h :=
-  psiK0_dpC_of_torsionFree d h (K0Kar_torsionFree hSL ρ lam)
+  psiK0_dpC_of_torsionFree d h (K0Kar_torsionFree ρ lam)
 
-/-- **KL III Proposition 3.28 for `ω`, exactly on the generators** (simply-laced). -/
+/-- **KL III Proposition 3.28 for `ω`, exactly on the generators** (any Cartan datum). -/
 theorem omegaK0_dpC' (d : List (Bool × I × ℕ)) (lam ρ : X) (h : wt RD lam (dpWord d) = ρ)
     (h' : wt RD (-lam) (dpWord (flipd d)) = -ρ) :
     omegaK0 (RD := RD) (k := k) (lam := ρ) (μ := lam) rfl rfl (dpC RD k d lam ρ h) =
       dpC RD k (flipd d) (-lam) (-ρ) h' :=
-  omegaK0_dpC_of_torsionFree d lam ρ h h' (K0Kar_torsionFree hSL (-ρ) (-lam))
+  omegaK0_dpC_of_torsionFree d lam ρ h h' (K0Kar_torsionFree (-ρ) (-lam))
 
 end Discharge
 

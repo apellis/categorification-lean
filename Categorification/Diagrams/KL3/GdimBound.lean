@@ -486,10 +486,10 @@ theorem calculusNondeg_iff (h311 : Prop311 RD k) : CalculusNondeg RD k ↔ Basis
 /-- **KL III Theorem 1.2 in its original form**: given Proposition 3.11 (`Prop311`) and
 Proposition 2.5 (`UDot.KL3.FormNondeg`), if the graphical calculus is nondegenerate in KL III's
 sense (every spanning family indexed by `B_{𝐢,𝐣,λ}` is a basis, `BasisNondeg`), then
-`γ : 1_ρ (_𝒜 U̇) 1_λ → K₀(U̇(λ, ρ))` is injective, hence bijective (simply-laced, `I` finite). -/
-theorem gammaUA'_bijective_of_basisNondeg [DecidableEq I] (hSL : SimplyLaced C)
+`γ : 1_ρ (_𝒜 U̇) 1_λ → K₀(U̇(λ, ρ))` is injective, hence bijective (any Cartan datum, `I` finite). -/
+theorem gammaUA'_bijective_of_basisNondeg [DecidableEq I]
     (h311 : Prop311 RD k) (hB : BasisNondeg RD k) (h25 : UDot.KL3.FormNondeg RD) (lam ρ : X) :
-    Function.Bijective (gammaUA' (RD := RD) (k := k) hSL lam ρ) :=
-  gammaUA'_bijective hSL ((calculusNondeg_iff h311).2 hB) h25 lam ρ
+    Function.Bijective (gammaUA' (RD := RD) (k := k) lam ρ) :=
+  gammaUA'_bijective ((calculusNondeg_iff h311).2 hB) h25 lam ρ
 
 end Categorification.KL3.Diagram

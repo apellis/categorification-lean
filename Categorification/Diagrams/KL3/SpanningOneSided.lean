@@ -42,7 +42,7 @@ gives the family `twoB` of `HOM_U(E_s 1_λ, E_t 1_λ)` indexed by `B_{s,t,λ}`:
 * consequences, previously conditional on `Prop311`: **`cor_3_13_unconditional`** (Corollary 3.13,
   `gdim HOM_U(E_𝐢 1_λ, E_𝐣 1_λ) ≤ π ⟨E_𝐢 1_λ, E_𝐣 1_λ⟩`), `calculusNondeg_iff_unconditional`
   (the two definitions of nondegeneracy agree) and `gammaUA'_bijective_of_basisNondeg'` (KL III
-  Theorem 1.2 in its original form, given Proposition 2.5 and nondegeneracy; simply-laced).
+  Theorem 1.2 in its original form, given Proposition 2.5 and nondegeneracy; any Cartan datum).
 
 KL III state the bubble slides (Propositions 3.3, 3.4) only for simply-laced Cartan data. The
 argument uses them, for an arbitrary Cartan datum, in the form of
@@ -320,13 +320,13 @@ theorem cor_3_13_unconditional (lam : X) (s t : List (Letter I)) (d : ℤ) :
 theorem calculusNondeg_iff_unconditional : CalculusNondeg RD k ↔ BasisNondeg RD k :=
   calculusNondeg_iff (prop311 RD k)
 
-/-- **KL III Theorem 1.2 in its original form** (simply-laced, `I` finite): given Proposition 2.5
+/-- **KL III Theorem 1.2 in its original form** (any Cartan datum, `I` finite): given Proposition 2.5
 (`UDot.KL3.FormNondeg`), if the graphical calculus is nondegenerate in KL III's sense
 (`BasisNondeg`), then `γ : 1_ρ (_𝒜 U̇) 1_λ → K₀(U̇(λ, ρ))` is bijective. -/
-theorem gammaUA'_bijective_of_basisNondeg' [DecidableEq I] (hSL : SimplyLaced C)
+theorem gammaUA'_bijective_of_basisNondeg' [DecidableEq I]
     (hB : BasisNondeg RD k) (h25 : UDot.KL3.FormNondeg RD) (lam ρ : X) :
-    Function.Bijective (gammaUA' (RD := RD) (k := k) hSL lam ρ) :=
-  gammaUA'_bijective_of_basisNondeg hSL (prop311 RD k) hB h25 lam ρ
+    Function.Bijective (gammaUA' (RD := RD) (k := k) lam ρ) :=
+  gammaUA'_bijective_of_basisNondeg (prop311 RD k) hB h25 lam ρ
 
 end Prop311
 

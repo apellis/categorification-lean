@@ -589,13 +589,13 @@ theorem positiveNondeg_iff :
 sequences**: if for all `λ`, `i, j ∈ Seq(ν)`, `d` the elements of `B_{+i,+j,λ}` of degree `d` are
 linearly independent, and Proposition 2.5 holds, then
 `γ : 1_ρ (_𝒜 U̇) 1_λ → K₀(U̇(λ, ρ))` is bijective. -/
-theorem gammaUA'_bijective_of_linearIndependent (hSL : SimplyLaced C)
+theorem gammaUA'_bijective_of_linearIndependent
     (hli : ∀ (μ : X) (ν : Multiset I) (i j : KLR.Seq ν) (d : ℤ),
       LinearIndependent k fun x : {x : SpanIdx (posW (word i)) (posW (word j)) //
         spanDeg C (RD.ellOf μ) x = d} => posB RD k μ x.1)
     (h25 : UDot.KL3.FormNondeg RD) (lam ρ : X) :
-    Function.Bijective (gammaUA' (RD := RD) (k := k) hSL lam ρ) :=
-  gammaUA'_bijective_of_positive hSL (positiveNondeg_iff.2 hli) h25 lam ρ
+    Function.Bijective (gammaUA' (RD := RD) (k := k) lam ρ) :=
+  gammaUA'_bijective_of_positive (positiveNondeg_iff.2 hli) h25 lam ρ
 
 end Consequences
 

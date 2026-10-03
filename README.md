@@ -247,12 +247,27 @@ degree-zero, unitor and associator identities for shifted whiskering (`shWhisker
 `shWhiskerRight_mk₀`, `shWhiskerLeft_of_id`, `shWhiskerRight_of_id`,
 `shWhiskerLeft_of_comp`, `shWhiskerRight_of_comp`, `shWhisker_assoc`).
 `TwoRep/GradedHom.lean` constructs the finite-direct-sum graded-Hom category with faithful
-additive degree-zero inclusion; `GradedHomBicategory.lean` extends shifted whiskering to an
+additive (and linear) degree-zero inclusion, homogeneous components, and homogeneity of inverses; `GradedHomBicategory.lean` extends shifted whiskering to an
 actual bicategory using these coherence hypotheses. `GradedHomAdjunction.lean` transports a
 given adjunction and proves degree-preserving bijections (`shiftedHomEquiv`, `shiftedEndEquiv`)
 and naturality under arbitrary-degree composition (`Θsh_comp`). This constructs neither new
 adjoints for a strong 2-representation nor the low-weight footholds; Prop. 3.9 and its explicit
 graded-endomorphism boundedness condition remain separate targets.
+
+`TwoRep/RightwardCrossing.lean` works in any bicategory with preadditive Hom categories and
+additive whiskering. It defines the rightward crossing `σ` from a unit, an upward crossing and a
+counit (Brundan, arXiv:1501.00350v1, (1.6)), and proves the pitchfork relations, the mixed braid
+relation (Brundan (2.4) for one colour) and the one-zigzag lemma (`adjunctionOfRightTriangle`: one
+zigzag identity and an endomorphism ring of `f` without nontrivial idempotents give `f ⊣ g`). At
+the weights `0` and `-2` it carries out Brundan's argument for Theorem 4.3 (claims (4.4), (4.5))
+without bubbles (`rightZigzag_zero`, `rightZigzag_neg_two`). `TwoRep/AdjointWeightZero.lean`
+applies this in the graded-Hom bicategory of a strong 2-representation: `StrongSl2.grSigma`
+(homogeneous of degree `-2`), and `StrongSl2.adjHyp_of_wt_eq_zero`,
+`StrongSl2.adjHyp_of_wt_eq_neg_two`, which prove (3.2) at weight `0` (resp. `-2`) **assuming**
+that `σ_0` and Rouquier's map `ρ_2 = (σ_2, ε, ε ∘ x)` (resp. `ρ_{-2} = (σ_{-2}, η, x ∘ η)`) are
+invertible and that `End(E1_n)` is one-dimensional. The invertibility of `σ_0` and `ρ_{±2}` is
+not proved here; these are conditional footholds for Prop. 3.9, not the proposition at these
+weights.
 
 `TwoRep/ShiftedMates.lean` constructs mates from an explicit adjunction, preserving degree
 while reversing composition (`mateSh_comp`), with identity, additive and injectivity laws.

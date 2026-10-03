@@ -392,11 +392,13 @@ import Categorification.TwoRep.Biadjoint
 import Categorification.TwoRep.CisBub
 import Categorification.TwoRep.CisBubRight
 import Categorification.TwoRep.Coop
+import Categorification.TwoRep.CoopCoherence
 import Categorification.TwoRep.DividedPower
 import Categorification.TwoRep.DividedPowerDot
 import Categorification.TwoRep.DotEntries
 import Categorification.TwoRep.DotEntriesNeg
 import Categorification.TwoRep.DotMateBridge
+import Categorification.TwoRep.Duality
 import Categorification.TwoRep.DecompositionCupTransportNeg
 import Categorification.TwoRep.EndE
 import Categorification.TwoRep.GradedHomAdjunction

@@ -10,7 +10,7 @@ require StringDiagrams from git
 
 require LieLean from git
   "https://github.com/apellis/lie-lean.git" @
-  "da624c7644e753c303259ace2f4f5f0ffba1c970"
+  "611a47a00a359889744f7c7f69e93da943ad4c30"
 
 require mathlib from git
   "https://github.com/leanprover-community/mathlib4.git" @

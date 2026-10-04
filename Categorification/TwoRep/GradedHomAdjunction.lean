@@ -3,6 +3,7 @@ Copyright (c) 2026 Alex Ellis. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 -/
 import Categorification.TwoRep.GradedHomBicategory
+import Categorification.TwoRep.Zigzag
 
 /-!
 # Adjunction bijections in each shifted degree
@@ -25,18 +26,6 @@ namespace Categorification.TwoRep
 open CategoryTheory CategoryTheory.Bicategory
 
 universe w v u
-
-private theorem leftZigzag_eq {D : Type*} [Bicategory D] {a b : D}
-    {f : a ⟶ b} {g : b ⟶ a} (η : 𝟙 a ⟶ f ≫ g) (ε₀ : g ≫ f ⟶ 𝟙 b) :
-    leftZigzag η ε₀ = η ▷ f ≫ (α_ f g f).hom ≫ f ◁ ε₀ := by
-  dsimp only [leftZigzag]
-  bicategory
-
-private theorem rightZigzag_eq {D : Type*} [Bicategory D] {a b : D}
-    {f : a ⟶ b} {g : b ⟶ a} (η : 𝟙 a ⟶ f ≫ g) (ε₀ : g ≫ f ⟶ 𝟙 b) :
-    rightZigzag η ε₀ = g ◁ η ≫ (α_ g f g).inv ≫ ε₀ ▷ g := by
-  dsimp only [rightZigzag]
-  bicategory
 
 variable {B : Type u} [Bicategory.{w, v} B] [∀ a b : B, Preadditive (a ⟶ b)]
   [∀ a b : B, HasShift (a ⟶ b) ℤ] [GradedBicategory B]

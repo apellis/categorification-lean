@@ -4,6 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 -/
 import Mathlib.CategoryTheory.Bicategory.Adjunction.Basic
 import Mathlib.CategoryTheory.Preadditive.Basic
+import Categorification.TwoRep.Zigzag
 
 /-!
 # The rightward crossing and the second adjunction at weights `0` and `-2`: formal part
@@ -619,16 +620,6 @@ end WeightNegTwo
 section OneZigzag
 
 variable {a b : C} {f : a ⟶ b} {g : b ⟶ a}
-
-/-- The zigzag of the left adjoint with the associator written out. -/
-theorem leftZigzag_eq (η : 𝟙 a ⟶ f ≫ g) (ε : g ≫ f ⟶ 𝟙 b) :
-    leftZigzag η ε = η ▷ f ≫ (α_ f g f).hom ≫ f ◁ ε := by
-  rw [leftZigzag]; bicategory
-
-/-- The zigzag of the right adjoint with the associator written out. -/
-theorem rightZigzag_eq (η : 𝟙 a ⟶ f ≫ g) (ε : g ≫ f ⟶ 𝟙 b) :
-    rightZigzag η ε = g ◁ η ≫ (α_ g f g).inv ≫ ε ▷ g := by
-  rw [rightZigzag]; bicategory
 
 /-- The zigzag of the right adjoint does not change when the left adjoint is replaced by an
 isomorphic 1-morphism. -/

@@ -5,6 +5,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 import Mathlib.CategoryTheory.Shift.ShiftedHomOpposite
 import Mathlib.CategoryTheory.Triangulated.Opposite.Functor
 import Categorification.TwoRep.ShiftInterchange
+import Categorification.TwoRep.Zigzag
 
 /-!
 # The bidual `Bᶜᵒᵒᵖ` of a graded bicategory
@@ -454,18 +455,6 @@ end HomInstances
 /-! ### Adjunctions in the bidual -/
 
 section Adjunction
-
-/-- The left zigzag with the coherence isomorphism made explicit. -/
-theorem _root_.Categorification.TwoRep.leftZigzag_eq {C : Type*} [Bicategory C] {a b : C}
-    {f : a ⟶ b} {g : b ⟶ a} (unit : 𝟙 a ⟶ f ≫ g) (counit : g ≫ f ⟶ 𝟙 b) :
-    leftZigzag unit counit = unit ▷ f ≫ (α_ f g f).hom ≫ f ◁ counit := by
-  simp [bicategoricalComp]
-
-/-- The right zigzag with the coherence isomorphism made explicit. -/
-theorem _root_.Categorification.TwoRep.rightZigzag_eq {C : Type*} [Bicategory C] {a b : C}
-    {f : a ⟶ b} {g : b ⟶ a} (unit : 𝟙 a ⟶ f ≫ g) (counit : g ≫ f ⟶ 𝟙 b) :
-    rightZigzag unit counit = g ◁ unit ≫ (α_ g f g).inv ≫ counit ▷ g := by
-  simp [bicategoricalComp]
 
 /-- **Adjunctions pass to the bidual**: `u ⊣ v` in `B` gives `op u ⊣ op v` in `Bᶜᵒᵒᵖ`, with unit
 the counit of `u ⊣ v` and counit its unit. -/

@@ -263,6 +263,138 @@ theorem id_ne_zero_of_not_isZero {a b : B} {f : a ⟶ b} (h : ¬ IsZero f) : �
 
 variable [∀ a b : B, HomFinite k (a ⟶ b)]
 
+/-- **The degree-zero bubble of CL Corollary 3.7 is nonzero**: at the object `q + 1 + 1` of
+weight `n ≥ 1`, given (3.2) at the weights `> n` and its numerical shadow at the weights `≥ n`,
+the inclusion of the top summand `1_n⟨n-1⟩` of `E F 1_n`, followed by `n - 1` dots on `E 1_{n-2}`
+and the counit of `E 1_{n-2} ⊣ R_{n-2}`, is a nonzero endomorphism of `1_n`. -/
+theorem topBubble_ne_zero [∀ a b : B, IsIdempotentComplete (a ⟶ b)] {q : ℤ}
+    (hn : 1 ≤ S.wt (q + 1 + 1)) (hyp : ∀ r', q + 1 + 1 < r' → S.AdjHyp r')
+    (hnum : ∀ r', q + 1 < r' → S.NumAdj r') (h2 : ¬ IsZero (𝟙 (S.obj (q + 1 + 1))))
+    (e' : S.EFDecomp (q + 1)) :
+    ((shiftIso₁ (𝟙 (S.obj (q + 1 + 1)))
+        (1 * (((S.wt (q + 1 + 1)).toNat : ℕ) - 1 - 2 * ((0 : ℕ) : ℤ))) :
+          of₁ (S.oneShift (q + 1) 0) ≅ 𝟙 (of (S.obj (q + 1 + 1)))).inv ≫
+        incl₂ (ι e' 0) ≫ (S.rhoSourceIso (q + 1)).inv) ≫
+      S.grR (q + 1) ◁ powComp (S.grDotN (q + 1)) ((S.wt (q + 1 + 1)).toNat - 1) ≫
+        S.grCounit (q + 1) ≠ 0 := by
+  have hn0 : 0 ≤ S.wt (q + 1 + 1) := by omega
+  have hN : ((S.wt (q + 1 + 1)).toNat : ℤ) = S.wt (q + 1 + 1) := Int.toNat_of_nonneg hn0
+  have ha : S.n₀ + 2 * (q + 1) + 1 = S.wt (q + 1 + 1) - 1 := by simp only [wt]; ring
+  let ψ' := S.rhoSourceIso (q + 1)
+  let tb : ℤ := 1 * (((S.wt (q + 1 + 1)).toNat : ℕ) - 1 - 2 * ((0 : ℕ) : ℤ))
+  let osb : of₁ (S.oneShift (q + 1) 0) ≅ 𝟙 (of (S.obj (q + 1 + 1))) :=
+    shiftIso₁ (𝟙 (S.obj (q + 1 + 1))) tb
+  let u₀ : 𝟙 (of (S.obj (q + 1 + 1))) ⟶ S.grR (q + 1) ≫ S.grE (q + 1) :=
+    osb.inv ≫ incl₂ (ι e' 0) ≫ ψ'.inv
+  show u₀ ≫ S.grR (q + 1) ◁ powComp (S.grDotN (q + 1)) ((S.wt (q + 1 + 1)).toNat - 1) ≫
+    S.grCounit (q + 1) ≠ 0
+  set N := (S.wt (q + 1 + 1)).toNat with hNdef
+  intro h0
+  -- `E 1_{n-2}` is nonzero, so its counit is nonzero
+  have hE₁ : ¬ IsZero (S.E (q + 1)) := by
+    intro hz
+    have hFE : IsZero (S.F (q + 1) ≫ S.E (q + 1)) := isZero_comp_right _ hz
+    have h1 : IsZero (S.oneShift (q + 1) 0) := by
+      rw [IsZero.iff_id_eq_zero, ← ι_π_self e' (j := 0) (by omega),
+        hFE.eq_of_tgt (ι e' 0) 0, zero_comp]
+    apply h2
+    exact ((shiftFunctor _ (-(1 * (((S.wt (q + 1 + 1)).toNat : ℕ) - 1 - 2 * ((0 : ℕ) : ℤ))))).map_isZero
+      h1).of_iso ((shiftFunctorCompIsoId _ _ _ (add_neg_cancel _)).app _).symm
+  have hε0 := S.grCounit_ne_zero hE₁
+  -- the decomposition of the identity of `E F 1_n`
+  have htotB := total e'
+  have htot' : ∑ j ∈ Finset.range N, incl₂ (π e' j) ≫ incl₂ (ι e' j) +
+      incl₂ (πFE e') ≫ incl₂ (ιFE e') = 𝟙 (of₁ (S.F (q + 1) ≫ S.E (q + 1))) := by
+    rw [← incl₂_id, ← htotB, GradedHomBicat.incl₂_add', GradedHomBicat.incl₂_sum']
+    simp only [incl₂_comp]
+    rfl
+  have hψi : IsHomogeneous ψ'.inv (-(S.n₀ + 2 * (q + 1) + 1)) :=
+    S.isHomogeneous_rhoSourceIso_inv (q + 1)
+  have hM : ∀ j : ℕ, j < N → j ≠ N - 1 →
+      incl₂ (ι e' j) ≫ ψ'.inv ≫ S.grCounit (q + 1) = 0 := by
+    intro j hj hjm
+    refine GradedHomBicat.eq_zero_of_isHomogeneous (k := k) (d := -(S.n₀ + 2 * (q + 1) + 1))
+      ((isHomogeneous_incl₂ _).comp (hψi.comp (isHomogeneous_incl₂ _) rfl) (by ring)) ?_
+    rw [oneShift, finrank_hom_shift_shift k _ _ (c := -(S.n₀ + 2 * (q + 1) + 1) -
+      1 * ((((S.wt (q + 1 + 1)).toNat : ℕ) : ℤ) - 1 - 2 * (j : ℤ))) (by ring)]
+    exact S.hom_neg _ _ (by omega)
+  have hMFE : incl₂ (ιFE e') ≫ ψ'.inv ≫ S.grCounit (q + 1) = 0 := by
+    refine GradedHomBicat.eq_zero_of_isHomogeneous (k := k) (d := -(S.n₀ + 2 * (q + 1) + 1))
+      ((isHomogeneous_incl₂ _).comp (hψi.comp (isHomogeneous_incl₂ _) rfl) (by ring)) ?_
+    rw [S.finrank_FE_one_of_numAdj (hnum (q + 1 + 1) (by omega))]
+    exact S.lem1_neg (r₀ := q + 1 + 1) hn0 hyp (q + 1 + 1) le_rfl _ (by omega)
+  have hsplit : ∀ {W : of (S.obj (q + 1 + 1)) ⟶ of (S.obj (q + 1 + 1))}
+      (X : W ⟶ of₁ (S.F (q + 1) ≫ S.E (q + 1))),
+      X ≫ ψ'.inv ≫ S.grCounit (q + 1) =
+        X ≫ incl₂ (π e' (N - 1)) ≫ incl₂ (ι e' (N - 1)) ≫ ψ'.inv ≫ S.grCounit (q + 1) := by
+    intro W X
+    calc X ≫ ψ'.inv ≫ S.grCounit (q + 1) = X ≫ 𝟙 _ ≫ ψ'.inv ≫ S.grCounit (q + 1) := by
+          rw [Category.id_comp]
+      _ = X ≫ (∑ j ∈ Finset.range N, incl₂ (π e' j) ≫ incl₂ (ι e' j) +
+            incl₂ (πFE e') ≫ incl₂ (ιFE e')) ≫ ψ'.inv ≫ S.grCounit (q + 1) := by
+          rw [htot']
+      _ = ∑ j ∈ Finset.range N, X ≫ incl₂ (π e' j) ≫ incl₂ (ι e' j) ≫ ψ'.inv ≫
+            S.grCounit (q + 1) +
+          X ≫ incl₂ (πFE e') ≫ incl₂ (ιFE e') ≫ ψ'.inv ≫ S.grCounit (q + 1) := by
+          simp only [Preadditive.add_comp, Preadditive.comp_add, Preadditive.sum_comp,
+            Preadditive.comp_sum, Category.assoc]
+      _ = _ := by
+          rw [hMFE, comp_zero, comp_zero, add_zero, Finset.sum_eq_single (N - 1)]
+          · intro j hj hne
+            rw [hM j (Finset.mem_range.1 hj) hne, comp_zero, comp_zero]
+          · intro h; exact absurd (Finset.mem_range.2 (by omega)) h
+  have hMm : incl₂ (ι e' (N - 1)) ≫ ψ'.inv ≫ S.grCounit (q + 1) ≠ 0 := by
+    intro h
+    apply hε0
+    have := hsplit ψ'.hom
+    rw [Iso.hom_inv_id_assoc, h, comp_zero, comp_zero] at this
+    exact this
+  -- the bubble of CL Corollary 3.7
+  have hx' : ψ'.inv ≫ S.grR (q + 1) ◁ powComp (S.grDotN (q + 1)) (N - 1) =
+      of₁ (S.F (q + 1)) ◁ powComp (S.grDotN (q + 1)) (N - 1) ≫ ψ'.inv := by
+    simp only [ψ', rhoSourceIso, whiskerRightIso_inv]
+    exact (whisker_exchange _ _).symm
+  have hpow : of₁ (S.F (q + 1)) ◁ powComp (S.grDotN (q + 1)) (N - 1) =
+      (((S.rQ⁻¹ : kˣ) : k) ^ (N - 1)) •
+        of₂ (((N - 1 : ℕ) : ℤ) * 2) (shPow (S.dotEF (q + 1)) (N - 1)) := by
+    rw [whiskerLeft_powComp, show of₁ (S.F (q + 1)) ◁ S.grDotN (q + 1) =
+        ((S.rQ⁻¹ : kˣ) : k) • of₂ 2 (S.dotEF (q + 1)) from ?_, powComp_smul,
+      ← GradedHomBicat.of₂_shPow]
+    rw [show S.grDotN (q + 1) = ((S.rQ⁻¹ : kˣ) : k) • S.grDot (q + 1) from rfl,
+      GradedHomBicat.whiskerLeft_smul, whiskerLeft_of₂]
+    rfl
+  have hbub : incl₂ (ι e' 0) ≫ of₂ (((N - 1 : ℕ) : ℤ) * 2) (shPow (S.dotEF (q + 1)) (N - 1)) ≫
+      incl₂ (π e' (N - 1)) = of₂ (((N - 1 : ℕ) : ℤ) * 2) (bubble e') := by
+    rw [incl₂_eq_of₂, incl₂_eq_of₂, of₂_comp_of₂ (shPow (S.dotEF (q + 1)) (N - 1))
+      (ShiftedHom.mk₀ (0 : ℤ) rfl (π e' (N - 1))) (zero_add _),
+      of₂_comp_of₂ _ _ (add_zero _), ShiftedHom.comp_mk₀, ShiftedHom.mk₀_comp]
+    simp only [bubble, cupDots, Category.assoc]
+    rfl
+  have hD : DotNondeg e' := by
+    by_cases hn1 : S.wt (q + 1 + 1) = 1
+    · intro i hi
+      exfalso
+      omega
+    · exact lemXind_of_numAdj (r := q) (by have := S.wt_add_one (q + 1); omega) hnum h2 e'
+  have hbI : IsIso (bubble e') := cor_degz_bubbles_of_dotNondeg e' (by omega) hyp hD
+  have hbI' : IsIso (of₂ (((N - 1 : ℕ) : ℤ) * 2) (bubble e')) := isIso_of₂ _ _
+  have hc0 : (((S.rQ⁻¹ : kˣ) : k) ^ (N - 1)) ≠ 0 := pow_ne_zero _ (Units.ne_zero _)
+  have key : u₀ ≫ S.grR (q + 1) ◁ powComp (S.grDotN (q + 1)) (N - 1) ≫ S.grCounit (q + 1) =
+      (((S.rQ⁻¹ : kˣ) : k) ^ (N - 1)) • (osb.inv ≫
+        of₂ (((N - 1 : ℕ) : ℤ) * 2) (bubble e') ≫ incl₂ (ι e' (N - 1)) ≫ ψ'.inv ≫
+          S.grCounit (q + 1)) := by
+    simp only [u₀, Category.assoc]
+    rw [reassoc_of% hx']
+    have := hsplit (incl₂ (ι e' 0) ≫ Bicategory.whiskerLeft (B := GradedHomBicat B)
+      (of₁ (S.F (q + 1)))
+      (powComp (D := of (S.obj (q + 1)) ⟶ of (S.obj (q + 1 + 1))) (S.grDotN (q + 1)) (N - 1)))
+    simp only [Category.assoc] at this
+    rw [this, hpow]
+    simp only [Linear.smul_comp, Linear.comp_smul, reassoc_of% hbub]
+  have h1 := (smul_eq_zero.1 (key.symm.trans h0)).resolve_left hc0
+  have h1' := (cancel_epi _).1 (h1.trans comp_zero.symm)
+  exact hMm ((cancel_epi _).1 (h1'.trans comp_zero.symm))
+
 /-- **(3.2) at a weight `n ≥ 1`** (CL Proposition 3.9, the induction step): at the object
 `q + 1 + 1` of weight `n ≥ 1`, given (3.2) at the weights `> n` and its numerical shadow at the
 weights `≥ n`, `(E 1_n)_L ≅ 1_n F ⟨-n-1⟩`. -/
@@ -427,112 +559,8 @@ theorem adjHyp_of_wt_pos [∀ a b : B, IsIdempotentComplete (a ⟶ b)] {q : ℤ}
       u₀ ≫ S.grR (q + 1) ◁ powComp (S.grDotN (q + 1)) j ≫ S.grCounit (q + 1) = 0 :=
     fun j hj => GradedHomBicat.eq_zero_of_isHomogeneous (hbubH j) (S.hom_neg _ _ (by omega))
   have hbub_ne : u₀ ≫ S.grR (q + 1) ◁ powComp (S.grDotN (q + 1)) (N - 1) ≫
-      S.grCounit (q + 1) ≠ 0 := by
-    intro h0
-    -- `E 1_{n-2}` is nonzero, so its counit is nonzero
-    have hE₁ : ¬ IsZero (S.E (q + 1)) := by
-      intro hz
-      have hFE : IsZero (S.F (q + 1) ≫ S.E (q + 1)) := isZero_comp_right _ hz
-      have h1 : IsZero (S.oneShift (q + 1) 0) := by
-        rw [IsZero.iff_id_eq_zero, ← ι_π_self e' (j := 0) (by omega),
-          hFE.eq_of_tgt (ι e' 0) 0, zero_comp]
-      apply h2
-      exact ((shiftFunctor _ (-(1 * (((S.wt (q + 1 + 1)).toNat : ℕ) - 1 - 2 * ((0 : ℕ) : ℤ))))).map_isZero
-        h1).of_iso ((shiftFunctorCompIsoId _ _ _ (add_neg_cancel _)).app _).symm
-    have hε0 := S.grCounit_ne_zero hE₁
-    -- the decomposition of the identity of `E F 1_n`
-    have htotB := total e'
-    have htot' : ∑ j ∈ Finset.range N, incl₂ (π e' j) ≫ incl₂ (ι e' j) +
-        incl₂ (πFE e') ≫ incl₂ (ιFE e') = 𝟙 (of₁ (S.F (q + 1) ≫ S.E (q + 1))) := by
-      rw [← incl₂_id, ← htotB, GradedHomBicat.incl₂_add', GradedHomBicat.incl₂_sum']
-      simp only [incl₂_comp]
-      rfl
-    have hψi : IsHomogeneous ψ'.inv (-(S.n₀ + 2 * (q + 1) + 1)) :=
-      S.isHomogeneous_rhoSourceIso_inv (q + 1)
-    have hM : ∀ j : ℕ, j < N → j ≠ N - 1 →
-        incl₂ (ι e' j) ≫ ψ'.inv ≫ S.grCounit (q + 1) = 0 := by
-      intro j hj hjm
-      refine GradedHomBicat.eq_zero_of_isHomogeneous (k := k) (d := -(S.n₀ + 2 * (q + 1) + 1))
-        ((isHomogeneous_incl₂ _).comp (hψi.comp (isHomogeneous_incl₂ _) rfl) (by ring)) ?_
-      rw [oneShift, finrank_hom_shift_shift k _ _ (c := -(S.n₀ + 2 * (q + 1) + 1) -
-        1 * ((((S.wt (q + 1 + 1)).toNat : ℕ) : ℤ) - 1 - 2 * (j : ℤ))) (by ring)]
-      exact S.hom_neg _ _ (by omega)
-    have hMFE : incl₂ (ιFE e') ≫ ψ'.inv ≫ S.grCounit (q + 1) = 0 := by
-      refine GradedHomBicat.eq_zero_of_isHomogeneous (k := k) (d := -(S.n₀ + 2 * (q + 1) + 1))
-        ((isHomogeneous_incl₂ _).comp (hψi.comp (isHomogeneous_incl₂ _) rfl) (by ring)) ?_
-      rw [S.finrank_FE_one_of_numAdj (hnum (q + 1 + 1) (by omega))]
-      exact S.lem1_neg (r₀ := q + 1 + 1) hn0 hyp (q + 1 + 1) le_rfl _ (by omega)
-    have hsplit : ∀ {W : of (S.obj (q + 1 + 1)) ⟶ of (S.obj (q + 1 + 1))}
-        (X : W ⟶ of₁ (S.F (q + 1) ≫ S.E (q + 1))),
-        X ≫ ψ'.inv ≫ S.grCounit (q + 1) =
-          X ≫ incl₂ (π e' (N - 1)) ≫ incl₂ (ι e' (N - 1)) ≫ ψ'.inv ≫ S.grCounit (q + 1) := by
-      intro W X
-      calc X ≫ ψ'.inv ≫ S.grCounit (q + 1) = X ≫ 𝟙 _ ≫ ψ'.inv ≫ S.grCounit (q + 1) := by
-            rw [Category.id_comp]
-        _ = X ≫ (∑ j ∈ Finset.range N, incl₂ (π e' j) ≫ incl₂ (ι e' j) +
-              incl₂ (πFE e') ≫ incl₂ (ιFE e')) ≫ ψ'.inv ≫ S.grCounit (q + 1) := by
-            rw [htot']
-        _ = ∑ j ∈ Finset.range N, X ≫ incl₂ (π e' j) ≫ incl₂ (ι e' j) ≫ ψ'.inv ≫
-              S.grCounit (q + 1) +
-            X ≫ incl₂ (πFE e') ≫ incl₂ (ιFE e') ≫ ψ'.inv ≫ S.grCounit (q + 1) := by
-            simp only [Preadditive.add_comp, Preadditive.comp_add, Preadditive.sum_comp,
-              Preadditive.comp_sum, Category.assoc]
-        _ = _ := by
-            rw [hMFE, comp_zero, comp_zero, add_zero, Finset.sum_eq_single (N - 1)]
-            · intro j hj hne
-              rw [hM j (Finset.mem_range.1 hj) hne, comp_zero, comp_zero]
-            · intro h; exact absurd (Finset.mem_range.2 (by omega)) h
-    have hMm : incl₂ (ι e' (N - 1)) ≫ ψ'.inv ≫ S.grCounit (q + 1) ≠ 0 := by
-      intro h
-      apply hε0
-      have := hsplit ψ'.hom
-      rw [Iso.hom_inv_id_assoc, h, comp_zero, comp_zero] at this
-      exact this
-    -- the bubble of CL Corollary 3.7
-    have hx' : ψ'.inv ≫ S.grR (q + 1) ◁ powComp (S.grDotN (q + 1)) (N - 1) =
-        of₁ (S.F (q + 1)) ◁ powComp (S.grDotN (q + 1)) (N - 1) ≫ ψ'.inv := by
-      simp only [ψ', rhoSourceIso, whiskerRightIso_inv]
-      exact (whisker_exchange _ _).symm
-    have hpow : of₁ (S.F (q + 1)) ◁ powComp (S.grDotN (q + 1)) (N - 1) =
-        (((S.rQ⁻¹ : kˣ) : k) ^ (N - 1)) •
-          of₂ (((N - 1 : ℕ) : ℤ) * 2) (shPow (S.dotEF (q + 1)) (N - 1)) := by
-      rw [whiskerLeft_powComp, show of₁ (S.F (q + 1)) ◁ S.grDotN (q + 1) =
-          ((S.rQ⁻¹ : kˣ) : k) • of₂ 2 (S.dotEF (q + 1)) from ?_, powComp_smul,
-        ← GradedHomBicat.of₂_shPow]
-      rw [show S.grDotN (q + 1) = ((S.rQ⁻¹ : kˣ) : k) • S.grDot (q + 1) from rfl,
-        GradedHomBicat.whiskerLeft_smul, whiskerLeft_of₂]
-      rfl
-    have hbub : incl₂ (ι e' 0) ≫ of₂ (((N - 1 : ℕ) : ℤ) * 2) (shPow (S.dotEF (q + 1)) (N - 1)) ≫
-        incl₂ (π e' (N - 1)) = of₂ (((N - 1 : ℕ) : ℤ) * 2) (bubble e') := by
-      rw [incl₂_eq_of₂, incl₂_eq_of₂, of₂_comp_of₂ (shPow (S.dotEF (q + 1)) (N - 1))
-        (ShiftedHom.mk₀ (0 : ℤ) rfl (π e' (N - 1))) (zero_add _),
-        of₂_comp_of₂ _ _ (add_zero _), ShiftedHom.comp_mk₀, ShiftedHom.mk₀_comp]
-      simp only [bubble, cupDots, Category.assoc]
-      rfl
-    have hD : DotNondeg e' := by
-      by_cases hn1 : S.wt (q + 1 + 1) = 1
-      · intro i hi
-        exfalso
-        omega
-      · exact lemXind_of_numAdj (r := q) (by have := S.wt_add_one (q + 1); omega) hnum h2 e'
-    have hbI : IsIso (bubble e') := cor_degz_bubbles_of_dotNondeg e' (by omega) hyp hD
-    have hbI' : IsIso (of₂ (((N - 1 : ℕ) : ℤ) * 2) (bubble e')) := isIso_of₂ _ _
-    have hc0 : (((S.rQ⁻¹ : kˣ) : k) ^ (N - 1)) ≠ 0 := pow_ne_zero _ (Units.ne_zero _)
-    have key : u₀ ≫ S.grR (q + 1) ◁ powComp (S.grDotN (q + 1)) (N - 1) ≫ S.grCounit (q + 1) =
-        (((S.rQ⁻¹ : kˣ) : k) ^ (N - 1)) • (osb.inv ≫
-          of₂ (((N - 1 : ℕ) : ℤ) * 2) (bubble e') ≫ incl₂ (ι e' (N - 1)) ≫ ψ'.inv ≫
-            S.grCounit (q + 1)) := by
-      simp only [u₀, Category.assoc]
-      rw [reassoc_of% hx']
-      have := hsplit (incl₂ (ι e' 0) ≫ Bicategory.whiskerLeft (B := GradedHomBicat B)
-        (of₁ (S.F (q + 1)))
-        (powComp (D := of (S.obj (q + 1)) ⟶ of (S.obj (q + 1 + 1))) (S.grDotN (q + 1)) (N - 1)))
-      simp only [Category.assoc] at this
-      rw [this, hpow]
-      simp only [Linear.smul_comp, Linear.comp_smul, reassoc_of% hbub]
-    have h1 := (smul_eq_zero.1 (key.symm.trans h0)).resolve_left hc0
-    have h1' := (cancel_epi _).1 (h1.trans comp_zero.symm)
-    exact hMm ((cancel_epi _).1 (h1'.trans comp_zero.symm))
+      S.grCounit (q + 1) ≠ 0 :=
+    S.topBubble_ne_zero hn hyp hnum h2 e'
   obtain ⟨g, hg⟩ := exists_incl₂_of_isHomogeneous ((hbubH (N - 1)).of_eq (by
     have : ((N - 1 : ℕ) : ℤ) = (N : ℤ) - 1 := by omega
     rw [this]; omega))

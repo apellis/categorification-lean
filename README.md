@@ -237,6 +237,7 @@ or automatic validity for general bimodule realizations is asserted here.
 | CL Prop. 3.9 off the weight `-1` | CL Prop. 3.9 (induction step at `n ≥ 1`: Lemma 3.8, cap (3.6), Cor. 3.7), Remark 3.11 via the duality | `adjHyp_of_wt_pos`, `BBw.adjHyp_of_nonneg`, `BBw.adjHyp_of_le_neg_two`, `BBw.adjHyp_of_wt_ne_neg_one`, `BBw.adjHyp_of_even` | Same | Proved; all weights for even strings; weight `-1` open |
 | CL Prop. 3.9 (all weights) | CL Prop. 3.9; weight `-1` by a direct argument (mates through `E 1_{-3}`, Cor. 3.2 for `n ≤ 0`) | `adjHyp_of_wt_eq_neg_one`, `BBw.adjHyp` | Same | Proved |
 | Left adjunction in the graded-Hom bicategory | CL Prop. 3.9, Cor. 3.10 (uniqueness of the left cup and cap up to scalars) | `leftAdj`, `isHomogeneous_leftAdj_unit`, `isHomogeneous_leftAdj_counit`, `exists_eq_smul_leftAdj_unit`, `exists_eq_smul_leftAdj_counit` | (3.2) at `n`; `End(E1_n) = k` | Proved (start of CL §4, issue #19) |
+| Normalized left adjunctions for `n ≥ 1` | CL §4.1, (4.1) for `n ≥ 1` (degree-zero clockwise bubble `= 1`; Cor. 3.7) | `topBubble_ne_zero`, `scaleAdj`, `cwBubble`, `exists_normalized_leftAdj`, `BBw.exists_normalized_leftAdj` | `(BB_w)` as above | Proved; the counter-clockwise normalization for `n < -1` needs the lower half of Lemma 3.6 (issue #19) |
 
 `TwoRep/Coop.lean` constructs the bidual `Coop B` of a bicategory (1- and 2-morphisms reversed;
 the Hom categories are opposite categories with the inverted grading shift, so degrees are

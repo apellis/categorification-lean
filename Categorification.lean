@@ -385,6 +385,7 @@ import Categorification.QuantumGroup.UDotWords
 import Categorification.TwoRep.AdjointInduction
 import Categorification.TwoRep.AdjointInductionNeg
 import Categorification.TwoRep.AdjointInductionNegCor
+import Categorification.TwoRep.AdjointPositive
 import Categorification.TwoRep.AdjointWeightZero
 import Categorification.TwoRep.BSum
 import Categorification.TwoRep.Basic

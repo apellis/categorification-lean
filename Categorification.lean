@@ -427,6 +427,7 @@ import Categorification.TwoRep.QStrong
 import Categorification.TwoRep.QStrongRestrict
 import Categorification.TwoRep.Rank
 import Categorification.TwoRep.RightwardCrossing
+import Categorification.TwoRep.RouquierMaps
 import Categorification.TwoRep.ShiftInterchange
 import Categorification.TwoRep.Sl2
 import Categorification.TwoRep.StepLemmas

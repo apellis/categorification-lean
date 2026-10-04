@@ -434,6 +434,7 @@ import Categorification.TwoRep.StepLemmas
 import Categorification.TwoRep.StepLemmasNeg
 import Categorification.TwoRep.UpDownCrossing
 import Categorification.TwoRep.WeightModule
+import Categorification.TwoRep.Zigzag
 import Categorification.TwoRep.WordBounded
 import Categorification.TwoRep.NumericalAdjunction
 import Categorification.TwoRep.WordNumerics

@@ -232,6 +232,8 @@ or automatic validity for general bimodule realizations is asserted here.
 | Duality `K ↦ Kᶜᵒᵒᵖ` | CL Def. 1.2 is invariant under reversing 1- and 2-morphisms and inverting the grading shift; weights negated, crossing negated | `dual`, `dual_wt`, `isZero_dual_id_iff`, `finrank_dual_id_shift` | Strong `sl₂` data; graded linearity | Constructed |
 | (3.2) under the duality | CL (3.2) at weight `μ` of `D(K)` is (3.2) at weight `-μ-2` of `K` | `dual_adjHyp_iff`, `dual_adjHyp_neg_iff`, `adjHyp_of_dual_gt` | Same | Proved |
 | `(BB_w)` under the duality | Words of `D(K)` are words of `K` read backwards; `Hom'^d(X, Z) = Hom^d(Z, X)` | `word_of_dual_word`, `BBw.dual` | Same | Proved |
+| Invertibility of Rouquier's `σ_0` and `ρ_2` | Rouquier's maps in Brundan's form (arXiv:1501.00350v1) at the weights `0`, `2` | `isIso_sigma_of_wt_eq_zero`, `isIsoToSum₃_rho_two`, `BBw.isIso_grSigma`, `BBw.isIsoToSum₃_rho_two` | Strong `sl₂` data; numerical (3.2) at the weights `> 0` (all weights under `(BB_w)`); shift coherence; graded linearity; Hom-finite; for `ρ_2` idempotent-complete Hom categories | Proved |
+| (3.2) at the weights `0` and `-2` | CL Prop. 3.9 at `n = 0, -2` | `BBw.adjHyp_of_wt_eq_zero`, `BBw.adjHyp_of_wt_eq_neg_two` | `(BB_w)`; shift coherence; graded linearity; Hom-finite; idempotent-complete Hom categories | Proved (the other weights are not yet assembled) |
 
 `TwoRep/Coop.lean` constructs the bidual `Coop B` of a bicategory (1- and 2-morphisms reversed;
 the Hom categories are opposite categories with the inverted grading shift, so degrees are
@@ -265,9 +267,20 @@ applies this in the graded-Hom bicategory of a strong 2-representation: `StrongS
 (homogeneous of degree `-2`), and `StrongSl2.adjHyp_of_wt_eq_zero`,
 `StrongSl2.adjHyp_of_wt_eq_neg_two`, which prove (3.2) at weight `0` (resp. `-2`) **assuming**
 that `σ_0` and Rouquier's map `ρ_2 = (σ_2, ε, ε ∘ x)` (resp. `ρ_{-2} = (σ_{-2}, η, x ∘ η)`) are
-invertible and that `End(E1_n)` is one-dimensional. The invertibility of `σ_0` and `ρ_{±2}` is
-not proved here; these are conditional footholds for Prop. 3.9, not the proposition at these
-weights.
+invertible and that `End(E1_n)` is one-dimensional. `TwoRep/RouquierMaps.lean` discharges these
+hypotheses from the numerical shadow of (3.2) at the weights `> 0` (`StrongSl2.NumAdj`, which holds
+at every weight under (BB_w) by `BBw.numAdj`): `σ_0` is invertible
+(`isIso_sigma_of_wt_eq_zero`: `Hom(EF1_0, FE1_0)` is one-dimensional, contains the isomorphism of
+condition (3), and `σ_0 ≠ 0` because the crossing is recovered from `σ` by a cup and a cap,
+`RightwardCrossing.cross_eq_of_sigma`), and `ρ_2` is invertible (`isIsoToSum₃_rho_two`: in a
+decomposition `EF1_2 ≅ FE1_2 ⊕ 1_2⟨1⟩ ⊕ 1_2⟨-1⟩` the matrix of `ρ_2` is lower triangular with
+invertible diagonal, the last diagonal entry being the subdiagonal dot entry of CL Lemma 3.6;
+`RightwardCrossing.isIsoToSum₃_of_triangular`). Hence, assuming (BB_w), shift coherence and
+idempotent-complete Hom-finite Hom categories, **(3.2) holds at weight `0`**
+(`StrongSl2.BBw.adjHyp_of_wt_eq_zero`) and, applying this to the dual 2-representation on the
+bidual (`TwoRep/Duality.lean`), **at weight `-2`** (`StrongSl2.BBw.adjHyp_of_wt_eq_neg_two`). The
+remaining weights of Prop. 3.9 under (BB_w) (the top-down induction for weights `≥ 1`, its dual for
+weights `≤ -3`, and weight `-1`) are not yet assembled.
 
 `TwoRep/ShiftedMates.lean` constructs mates from an explicit adjunction, preserving degree
 while reversing composition (`mateSh_comp`), with identity, additive and injectivity laws.

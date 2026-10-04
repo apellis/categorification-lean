@@ -235,6 +235,7 @@ or automatic validity for general bimodule realizations is asserted here.
 | Invertibility of Rouquier's `σ_0` and `ρ_2` | Rouquier's maps in Brundan's form (arXiv:1501.00350v1) at the weights `0`, `2` | `isIso_sigma_of_wt_eq_zero`, `isIsoToSum₃_rho_two`, `BBw.isIso_grSigma`, `BBw.isIsoToSum₃_rho_two` | Strong `sl₂` data; numerical (3.2) at the weights `> 0` (all weights under `(BB_w)`); shift coherence; graded linearity; Hom-finite; for `ρ_2` idempotent-complete Hom categories | Proved |
 | (3.2) at the weights `0` and `-2` | CL Prop. 3.9 at `n = 0, -2` | `BBw.adjHyp_of_wt_eq_zero`, `BBw.adjHyp_of_wt_eq_neg_two` | `(BB_w)`; shift coherence; graded linearity; Hom-finite; idempotent-complete Hom categories | Proved |
 | CL Prop. 3.9 off the weight `-1` | CL Prop. 3.9 (induction step at `n ≥ 1`: Lemma 3.8, cap (3.6), Cor. 3.7), Remark 3.11 via the duality | `adjHyp_of_wt_pos`, `BBw.adjHyp_of_nonneg`, `BBw.adjHyp_of_le_neg_two`, `BBw.adjHyp_of_wt_ne_neg_one`, `BBw.adjHyp_of_even` | Same | Proved; all weights for even strings; weight `-1` open |
+| CL Prop. 3.9 (all weights) | CL Prop. 3.9; weight `-1` by a direct argument (mates through `E 1_{-3}`, Cor. 3.2 for `n ≤ 0`) | `adjHyp_of_wt_eq_neg_one`, `BBw.adjHyp` | Same | Proved |
 
 `TwoRep/Coop.lean` constructs the bidual `Coop B` of a bicategory (1- and 2-morphisms reversed;
 the Hom categories are opposite categories with the inverted grading shift, so degrees are
@@ -287,8 +288,13 @@ is a nonzero multiple of the identity by CL Lemma 3.8 (`cor2`), the nilHecke rel
 (`tau_comp_powComp`), CL Lemma 3.1 and Corollary 3.7. Hence, under the same hypotheses, (3.2) holds
 at every weight `≥ 0` (`BBw.adjHyp_of_nonneg`), at every weight `≤ -2` by duality
 (`BBw.adjHyp_of_le_neg_two`), so at every weight except `-1` (`BBw.adjHyp_of_wt_ne_neg_one`), and
-at every weight for strings of even weights (`BBw.adjHyp_of_even`). Weight `-1` (odd strings) is
-still open.
+at every weight for strings of even weights (`BBw.adjHyp_of_even`). `TwoRep/AdjointWeightNegOne.lean`
+proves (3.2) at the weight `-1` from (3.2) at the weights `< -1` (`adjHyp_of_wt_eq_neg_one`). The
+zigzag of the normalized summand inclusion and projection of condition (3) at the weights `±1` is
+`1` minus a composite through `F E E 1_{-3}`. That composite vanishes because, through the two
+adjunctions of `E 1_{-3}`, it is a closed diagram on an endomorphism of `E E 1_{-3}` of degree `-4`
+(CL Corollary 3.2 for `n ≤ 0`). Hence **CL Proposition 3.9 holds at every weight under `(BB_w)`**
+(`StrongSl2.BBw.adjHyp`), assuming shift coherence and Hom-finite, idempotent-complete Hom categories.
 
 `TwoRep/ShiftedMates.lean` constructs mates from an explicit adjunction, preserving degree
 while reversing composition (`mateSh_comp`), with identity, additive and injectivity laws.

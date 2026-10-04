@@ -217,11 +217,11 @@ whose adjoint induction has a gap at the step of Lemma 3.6: the final paragraph 
 `E1_{n-2}`) uses Lemma 3.1 at weight `n-2`, which is not available at that stage, and the `n ≤ 0`
 half (Remark 3.11) is vacuous at weight `0`. The induction therefore has no foothold at the weights
 `{0, -2}` (even highest weight) or `{1, -1, -3}` (odd), although it propagates from any foothold
-and closes unconditionally for highest weight at most `5`. The current target is Prop. 3.9
-under `(BB_w)`: each pair of parallel words in `E`, `F` has its own lower bound on graded Hom
-finranks. With Hom-finiteness this is actual Hom-space vanishing. This is not a uniform bound
-or a condition on arbitrary ambient 1-morphisms. The target remains open in issue #6;
-the unrestricted statement remains issue #10. No equivalence of `(BB_w)` with biadjointness
+and closes unconditionally for highest weight at most `5`. Prop. 3.9 is proved under `(BB_w)`
+(`StrongSl2.BBw.adjHyp`, below; issue #6). In `(BB_w)`, each pair of parallel words in `E`, `F`
+has its own lower bound on graded Hom finranks. With Hom-finiteness this is actual Hom-space
+vanishing. This is not a uniform bound or a condition on arbitrary ambient 1-morphisms. Theorem
+1.1 under `(BB_w)` is in progress in issue #19. The unrestricted statement remains issue #10. No equivalence of `(BB_w)` with biadjointness
 or automatic validity for general bimodule realizations is asserted here.
 
 | Theorem | Source locator | Declaration (`TwoRep.StrongSl2`) | Hypotheses | Status |
@@ -236,6 +236,7 @@ or automatic validity for general bimodule realizations is asserted here.
 | (3.2) at the weights `0` and `-2` | CL Prop. 3.9 at `n = 0, -2` | `BBw.adjHyp_of_wt_eq_zero`, `BBw.adjHyp_of_wt_eq_neg_two` | `(BB_w)`; shift coherence; graded linearity; Hom-finite; idempotent-complete Hom categories | Proved |
 | CL Prop. 3.9 off the weight `-1` | CL Prop. 3.9 (induction step at `n ≥ 1`: Lemma 3.8, cap (3.6), Cor. 3.7), Remark 3.11 via the duality | `adjHyp_of_wt_pos`, `BBw.adjHyp_of_nonneg`, `BBw.adjHyp_of_le_neg_two`, `BBw.adjHyp_of_wt_ne_neg_one`, `BBw.adjHyp_of_even` | Same | Proved; all weights for even strings; weight `-1` open |
 | CL Prop. 3.9 (all weights) | CL Prop. 3.9; weight `-1` by a direct argument (mates through `E 1_{-3}`, Cor. 3.2 for `n ≤ 0`) | `adjHyp_of_wt_eq_neg_one`, `BBw.adjHyp` | Same | Proved |
+| Left adjunction in the graded-Hom bicategory | CL Prop. 3.9, Cor. 3.10 (uniqueness of the left cup and cap up to scalars) | `leftAdj`, `isHomogeneous_leftAdj_unit`, `isHomogeneous_leftAdj_counit`, `exists_eq_smul_leftAdj_unit`, `exists_eq_smul_leftAdj_counit` | (3.2) at `n`; `End(E1_n) = k` | Proved (start of CL §4, issue #19) |
 
 `TwoRep/Coop.lean` constructs the bidual `Coop B` of a bicategory (1- and 2-morphisms reversed;
 the Hom categories are opposite categories with the inverted grading shift, so degrees are

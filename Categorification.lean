@@ -406,6 +406,7 @@ import Categorification.TwoRep.EndE
 import Categorification.TwoRep.GradedHomAdjunction
 import Categorification.TwoRep.KrullSchmidt
 import Categorification.TwoRep.LeftAdjunction
+import Categorification.TwoRep.FixedAdjunction
 import Categorification.TwoRep.LemAprime
 import Categorification.TwoRep.LemAprimeScalar
 import Categorification.TwoRep.LemMain

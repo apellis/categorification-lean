@@ -450,6 +450,7 @@ import Categorification.TwoRep.CyclicCross
 import Categorification.TwoRep.SidewaysCrossing
 import Categorification.TwoRep.FakeBubbles
 import Categorification.TwoRep.DecompEF
+import Categorification.TwoRep.BetaCoeff
 import Categorification.TypeA.Basic
 import Categorification.TypeA.DoubleCoset
 import Categorification.TypeA.Inversions

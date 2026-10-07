@@ -442,6 +442,8 @@ import Categorification.TwoRep.Zigzag
 import Categorification.TwoRep.WordBounded
 import Categorification.TwoRep.NumericalAdjunction
 import Categorification.TwoRep.WordNumerics
+import Categorification.TwoRep.DotNondegNeg
+import Categorification.TwoRep.FixedAdjunctionNeg
 import Categorification.TypeA.Basic
 import Categorification.TypeA.DoubleCoset
 import Categorification.TypeA.Inversions

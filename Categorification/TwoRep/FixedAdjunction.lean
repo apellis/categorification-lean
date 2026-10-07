@@ -18,8 +18,7 @@ This is possible because that bubble is nonzero (`topBubble_ne_zero`, CL Corolla
 and the left cup is unique up to a scalar (`exists_eq_smul_leftAdj_unit`, CL Corollary 3.10):
 `StrongSl2.exists_normalized_leftAdj`, and under (BB_w) `StrongSl2.BBw.exists_normalized_leftAdj`.
 
-The counter-clockwise normalization at the weights `n < -1` needs CL Corollary 3.7 for `n < 0`,
-and hence the lower half of CL Lemma 3.6 (`DotNondegNeg`), which is not yet formalized.
+The counter-clockwise normalization at the weights `n < -1` is in `FixedAdjunctionNeg.lean`.
 -/
 
 noncomputable section

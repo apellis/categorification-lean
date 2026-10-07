@@ -444,6 +444,9 @@ import Categorification.TwoRep.NumericalAdjunction
 import Categorification.TwoRep.WordNumerics
 import Categorification.TwoRep.DotNondegNeg
 import Categorification.TwoRep.FixedAdjunctionNeg
+import Categorification.TwoRep.CyclicDot
+import Categorification.TwoRep.CyclicDotNegOne
+import Categorification.TwoRep.CyclicCross
 import Categorification.TypeA.Basic
 import Categorification.TypeA.DoubleCoset
 import Categorification.TypeA.Inversions

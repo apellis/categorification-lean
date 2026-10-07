@@ -151,8 +151,8 @@ theorem mem_radical_iff_equiv (x : PreF K I) :
   · rw [form_equiv]; exact h _
 
 /-- `LieLean`'s quantum integers are ours. -/
-theorem qInt_eq_qint (t : Kˣ) (n : ℕ) : QuantumGroup.qInt (t : K) n = qint t n := by
-  rw [QuantumGroup.qInt, qint_eq_sum]
+theorem qInt_eq_qint (t : Kˣ) (n : ℕ) : LieLean.QuantumGroup.qInt (t : K) n = qint t n := by
+  rw [LieLean.QuantumGroup.qInt, qint_eq_sum]
   refine Finset.sum_congr rfl fun s hs => ?_
   have hs := Finset.mem_range.1 hs
   rw [Units.val_zpow_eq_zpow_val, inv_pow, ← zpow_natCast, ← zpow_natCast, ← zpow_neg,
@@ -161,11 +161,13 @@ theorem qInt_eq_qint (t : Kˣ) (n : ℕ) : QuantumGroup.qInt (t : K) n = qint t 
   push_cast [Nat.sub_sub, Nat.cast_sub (by omega : 1 + s ≤ n)]
   ring
 
-theorem qFactorial_eq_qfact (t : Kˣ) (n : ℕ) : QuantumGroup.qFactorial (t : K) n = qfact t n := by
+theorem qFactorial_eq_qfact (t : Kˣ) (n : ℕ) :
+    LieLean.QuantumGroup.qFactorial (t : K) n = qfact t n := by
   induction n with
-  | zero => simp [QuantumGroup.qFactorial, qfact]
+  | zero => simp [LieLean.QuantumGroup.qFactorial, qfact]
   | succ n ih =>
-    rw [QuantumGroup.qFactorial, ih, qfact, qfact, Finset.prod_range_succ, qInt_eq_qint, mul_comm]
+    rw [LieLean.QuantumGroup.qFactorial, ih, qfact, qfact, Finset.prod_range_succ, qInt_eq_qint,
+      mul_comm]
 
 omit [DecidableEq I] in
 theorem val_vi (i : I) : ((vi C.dot v i : Kˣ) : K) = (v : K) ^ C.toLusztig.d i := by
@@ -177,8 +179,8 @@ theorem val_vi (i : I) : ((vi C.dot v i : Kˣ) : K) = (v : K) ^ C.toLusztig.d i 
 omit [DecidableEq I] in
 theorem qDivPow_equiv (i : I) (a : ℕ) :
     (equivFreeAlgebra : FreeAlgebra K I ≃ₐ[K] PreF K I).symm (dpow C.dot v i a) =
-      QuantumGroup.qDivPow ((v : K) ^ C.toLusztig.d i) a (LusztigF.θ K i) := by
-  rw [dpow, map_smul, map_pow, equivFreeAlgebra_symm_θ, QuantumGroup.qDivPow, ← val_vi,
+      LieLean.QuantumGroup.qDivPow ((v : K) ^ C.toLusztig.d i) a (LusztigF.θ K i) := by
+  rw [dpow, map_smul, map_pow, equivFreeAlgebra_symm_θ, LieLean.QuantumGroup.qDivPow, ← val_vi,
     qFactorial_eq_qfact]
 
 omit [DecidableEq I] in
@@ -190,7 +192,7 @@ theorem serreDiv_equiv (i j : I) :
   have hN : (1 - C.toLusztig.cartanMatrix i j).toNat = C.serreN i j := rfl
   rw [serreDiv, map_sum, ← Finset.Nat.sum_antidiagonal_swap,
     Finset.Nat.sum_antidiagonal_eq_sum_range_succ_mk, LusztigF.serreElement,
-    QuantumGroup.qSerreDiv, hN]
+    LieLean.QuantumGroup.qSerreDiv, hN]
   refine Finset.sum_congr rfl fun r _ => ?_
   simp only [Prod.swap_prod_mk, map_smul, map_mul, qDivPow_equiv, equivFreeAlgebra_symm_θ]
 

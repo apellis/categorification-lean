@@ -25,7 +25,7 @@ noncomputable section
 
 namespace Categorification.KL3.Diagram
 
-open Categorification.QuantumGroup UDot
+open QuantumGroup UDot
 
 universe w u v
 

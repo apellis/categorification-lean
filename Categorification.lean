@@ -447,6 +447,8 @@ import Categorification.TwoRep.FixedAdjunctionNeg
 import Categorification.TwoRep.CyclicDot
 import Categorification.TwoRep.CyclicDotNegOne
 import Categorification.TwoRep.CyclicCross
+import Categorification.TwoRep.SidewaysCrossing
+import Categorification.TwoRep.FakeBubbles
 import Categorification.TypeA.Basic
 import Categorification.TypeA.DoubleCoset
 import Categorification.TypeA.Inversions

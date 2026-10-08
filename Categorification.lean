@@ -461,6 +461,7 @@ import Categorification.TwoRep.ModelSl2Rel
 import Categorification.TwoRep.ModelSl2Bubbles
 import Categorification.TwoRep.ModelSl2Curls
 import Categorification.TwoRep.ModelSl2Decomp
+import Categorification.TwoRep.ModelSl2Interp
 import Categorification.TypeA.Basic
 import Categorification.TypeA.DoubleCoset
 import Categorification.TypeA.Inversions

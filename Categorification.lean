@@ -38,6 +38,7 @@ import Categorification.Algebra.ParabolicSymmetricFree
 import Categorification.Algebra.PermExpansion
 import Categorification.Algebra.SplitK0
 import Categorification.Algebra.SymmetricFree
+import Categorification.Diagrams.BicatInterp
 import Categorification.Diagrams.CL.DownKLR
 import Categorification.Diagrams.CL.Homogeneous
 import Categorification.Diagrams.CL.Presentation

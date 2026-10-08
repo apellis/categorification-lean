@@ -55,7 +55,9 @@ coherence theorem `FreeBicategory.locally_thin`).
   `C(M.obj t₀, M.obj s₀)`;
 * normal forms for checking relations: `mid_conj`, `mid_assoc`, `mid_comp`, `midK_canon`,
   `conj_key`, `exch_key` (interchange), `zig_key`, `zig_key'`, `zag_key'` (zigzags from an
-  adjunction), `rot_key`, `rotL_key` (rotations of a generator by a cup and a cap: its mates);
+  adjunction), `rot_key`, `rotL_key` (rotations of a generator by a cup and a cap: its mates),
+  `rot2_key`, `rot2L_key` (rotations of a generator on two strands by nested cups and caps: its
+  mates under the composite adjunction);
   `hom_of_congr`, `comp_of_congr`, `lift_map₂_eqToHom` for strands whose colours are only
   propositionally equal.
 
@@ -709,6 +711,213 @@ theorem rotL_key {a b : FB S} {r : a ⟶ b} {e : b ⟶ a} (adj : M.lift.map e �
     exact rotL_aux adj x
   rw [lift_map₂_eq M _ (r ◁ (ρ_ (e ≫ r)).hom),
     lift_map₂_eq M _ ((α_ r e r).inv ≫ (λ_ _).inv), reassoc_of% hmid]
+  simp only [Category.assoc, ← PrelaxFunctor.map₂_comp_assoc, ← PrelaxFunctor.map₂_comp]
+  exact lift_conj_eq M _ _ _ _ _
+
+omit M in
+/-- The left mate of an endomorphism `x` of `E₂ ≫ E₁` under the composite of `R₁ ⊣ E₁` and
+`R₂ ⊣ E₂`, read as five whiskered layers (two nested cups on the right, `x`, two nested caps on
+the left), in an arbitrary bicategory. -/
+theorem rot2_aux {a b c : C} {R₁ : a ⟶ b} {E₁ : b ⟶ a} {R₂ : b ⟶ c} {E₂ : c ⟶ b}
+    (adj₁ : R₁ ⊣ E₁) (adj₂ : R₂ ⊣ E₂) (x : E₂ ≫ E₁ ⟶ E₂ ≫ E₁) :
+    𝟙 a ◁ (adj₁.unit ▷ (R₁ ≫ R₂)) ≫
+        ((λ_ _).hom ≫ (α_ R₁ E₁ (R₁ ≫ R₂)).hom ≫ R₁ ◁ (λ_ (E₁ ≫ (R₁ ≫ R₂))).inv) ≫
+        R₁ ◁ (adj₂.unit ▷ (E₁ ≫ (R₁ ≫ R₂))) ≫
+        (R₁ ◁ (α_ R₂ E₂ (E₁ ≫ (R₁ ≫ R₂))).hom ≫ (α_ R₁ R₂ (E₂ ≫ (E₁ ≫ (R₁ ≫ R₂)))).inv ≫
+          (R₁ ≫ R₂) ◁ (α_ E₂ E₁ (R₁ ≫ R₂)).inv) ≫
+        (R₁ ≫ R₂) ◁ (x ▷ (R₁ ≫ R₂)) ≫
+        ((R₁ ≫ R₂) ◁ (α_ E₂ E₁ (R₁ ≫ R₂)).hom ≫ (α_ (R₁ ≫ R₂) E₂ (E₁ ≫ (R₁ ≫ R₂))).inv ≫
+          ((R₁ ≫ R₂) ≫ E₂) ◁ (α_ E₁ R₁ R₂).inv) ≫
+        ((R₁ ≫ R₂) ≫ E₂) ◁ (adj₁.counit ▷ R₂) ≫
+        (((R₁ ≫ R₂) ≫ E₂) ◁ (λ_ R₂).hom ≫ (α_ (R₁ ≫ R₂) E₂ R₂).hom ≫
+          (R₁ ≫ R₂) ◁ (ρ_ (E₂ ≫ R₂)).inv) ≫
+        (R₁ ≫ R₂) ◁ (adj₂.counit ▷ 𝟙 c) =
+      𝟙 a ◁ ((λ_ (R₁ ≫ R₂)).hom ≫ (ρ_ (R₁ ≫ R₂)).inv) ≫
+        𝟙 a ◁ ((Bicategory.conjugateEquiv (adj₁.comp adj₂) (adj₁.comp adj₂)).symm x ▷ 𝟙 c) ≫
+          ((λ_ _).hom ≫ (R₁ ≫ R₂) ◁ (λ_ (𝟙 c)).inv) := by
+  rw [Bicategory.conjugateEquiv_symm_apply']
+  simp only [Bicategory.Adjunction.comp_unit, Bicategory.Adjunction.comp_counit,
+    Bicategory.Adjunction.compUnit, Bicategory.Adjunction.compCounit]
+  bicategory
+
+/-- **The rotation of a generator on two strands in normal form**: two strands `r₁`, `r₂` with
+nested cups on their right (the units of `F r₁ ⊣ F e₁` and `F r₂ ⊣ F e₂`), a generator image `x`
+on the new strands `e₂ e₁`, and nested caps on their left (the counits), all conjugated by images
+of free 2-morphisms, equals the left mate of `x` under the composite adjunction. -/
+theorem rot2_key {a b c : FB S} {r₁ : a ⟶ b} {e₁ : b ⟶ a} {r₂ : b ⟶ c} {e₂ : c ⟶ b}
+    (adj₁ : M.lift.map r₁ ⊣ M.lift.map e₁) (adj₂ : M.lift.map r₂ ⊣ M.lift.map e₂)
+    (x : M.lift.map e₂ ≫ M.lift.map e₁ ⟶ M.lift.map e₂ ≫ M.lift.map e₁)
+    {p₁ d₁ c₁ : a ⟶ a} {q₁ : a ⟶ c} (σp₁ : p₁ ≅ 𝟙 a) (σq₁ : q₁ ≅ r₁ ≫ r₂) (σd₁ : d₁ ≅ 𝟙 a)
+    (σc₁ : c₁ ≅ r₁ ≫ e₁) (g₁ : M.lift.map d₁ ⟶ M.lift.map c₁)
+    (hg₁ : M.lift.map₂ σd₁.inv ≫ g₁ ≫ M.lift.map₂ σc₁.hom = adj₁.unit)
+    {p₂ : a ⟶ b} {q₂ : b ⟶ c} {d₂ c₂ : b ⟶ b} (σp₂ : p₂ ≅ r₁) (σq₂ : q₂ ≅ e₁ ≫ (r₁ ≫ r₂))
+    (σd₂ : d₂ ≅ 𝟙 b) (σc₂ : c₂ ≅ r₂ ≫ e₂) (g₂ : M.lift.map d₂ ⟶ M.lift.map c₂)
+    (hg₂ : M.lift.map₂ σd₂.inv ≫ g₂ ≫ M.lift.map₂ σc₂.hom = adj₂.unit)
+    {p₃ q₃ : a ⟶ c} {d₃ c₃ : c ⟶ a} (σp₃ : p₃ ≅ r₁ ≫ r₂) (σq₃ : q₃ ≅ r₁ ≫ r₂)
+    (σd₃ : d₃ ≅ e₂ ≫ e₁) (σc₃ : c₃ ≅ e₂ ≫ e₁) (g₃ : M.lift.map d₃ ⟶ M.lift.map c₃)
+    (hg₃ : M.lift.map₂ σd₃.inv ≫ g₃ ≫ M.lift.map₂ σc₃.hom = x)
+    {p₄ : a ⟶ b} {q₄ : b ⟶ c} {d₄ c₄ : b ⟶ b} (σp₄ : p₄ ≅ (r₁ ≫ r₂) ≫ e₂) (σq₄ : q₄ ≅ r₂)
+    (σd₄ : d₄ ≅ e₁ ≫ r₁) (σc₄ : c₄ ≅ 𝟙 b) (g₄ : M.lift.map d₄ ⟶ M.lift.map c₄)
+    (hg₄ : M.lift.map₂ σd₄.inv ≫ g₄ ≫ M.lift.map₂ σc₄.hom = adj₁.counit)
+    {p₅ : a ⟶ c} {q₅ d₅ c₅ : c ⟶ c} (σp₅ : p₅ ≅ r₁ ≫ r₂) (σq₅ : q₅ ≅ 𝟙 c)
+    (σd₅ : d₅ ≅ e₂ ≫ r₂) (σc₅ : c₅ ≅ 𝟙 c) (g₅ : M.lift.map d₅ ⟶ M.lift.map c₅)
+    (hg₅ : M.lift.map₂ σd₅.inv ≫ g₅ ≫ M.lift.map₂ σc₅.hom = adj₂.counit)
+    {p₆ : a ⟶ a} {q₆ : c ⟶ c} {d₆ c₆ : a ⟶ c} (σp₆ : p₆ ≅ 𝟙 a) (σq₆ : q₆ ≅ 𝟙 c)
+    (σd₆ : d₆ ≅ r₁ ≫ r₂) (σc₆ : c₆ ≅ r₁ ≫ r₂) (g₆ : M.lift.map d₆ ⟶ M.lift.map c₆)
+    (hg₆ : M.lift.map₂ σd₆.inv ≫ g₆ ≫ M.lift.map₂ σc₆.hom =
+      (Bicategory.conjugateEquiv (adj₁.comp adj₂) (adj₁.comp adj₂)).symm x)
+    {P P₁ Q₁ P₂ Q₂ P₃ Q₃ P₄ Q₄ P₅ Q₅ Q P₆ Q₆ : a ⟶ c}
+    (E₀ : P ⟶ P₁) (A₁ : P₁ ⟶ p₁ ≫ (d₁ ≫ q₁)) (B₁ : p₁ ≫ (c₁ ≫ q₁) ⟶ Q₁) (E₁ : Q₁ ⟶ P₂)
+    (A₂ : P₂ ⟶ p₂ ≫ (d₂ ≫ q₂)) (B₂ : p₂ ≫ (c₂ ≫ q₂) ⟶ Q₂) (E₂ : Q₂ ⟶ P₃)
+    (A₃ : P₃ ⟶ p₃ ≫ (d₃ ≫ q₃)) (B₃ : p₃ ≫ (c₃ ≫ q₃) ⟶ Q₃) (E₃ : Q₃ ⟶ P₄)
+    (A₄ : P₄ ⟶ p₄ ≫ (d₄ ≫ q₄)) (B₄ : p₄ ≫ (c₄ ≫ q₄) ⟶ Q₄) (E₄ : Q₄ ⟶ P₅)
+    (A₅ : P₅ ⟶ p₅ ≫ (d₅ ≫ q₅)) (B₅ : p₅ ≫ (c₅ ≫ q₅) ⟶ Q₅) (E₅ : Q₅ ⟶ Q)
+    (F₀ : P ⟶ P₆) (A₆ : P₆ ⟶ p₆ ≫ (d₆ ≫ q₆)) (B₆ : p₆ ≫ (c₆ ≫ q₆) ⟶ Q₆) (F₁ : Q₆ ⟶ Q) :
+    M.lift.map₂ E₀ ≫ (M.lift.map₂ A₁ ≫ midK M p₁ q₁ g₁ ≫ M.lift.map₂ B₁) ≫ M.lift.map₂ E₁ ≫
+        (M.lift.map₂ A₂ ≫ midK M p₂ q₂ g₂ ≫ M.lift.map₂ B₂) ≫ M.lift.map₂ E₂ ≫
+          (M.lift.map₂ A₃ ≫ midK M p₃ q₃ g₃ ≫ M.lift.map₂ B₃) ≫ M.lift.map₂ E₃ ≫
+            (M.lift.map₂ A₄ ≫ midK M p₄ q₄ g₄ ≫ M.lift.map₂ B₄) ≫ M.lift.map₂ E₄ ≫
+              (M.lift.map₂ A₅ ≫ midK M p₅ q₅ g₅ ≫ M.lift.map₂ B₅) ≫ M.lift.map₂ E₅ =
+      M.lift.map₂ F₀ ≫ (M.lift.map₂ A₆ ≫ midK M p₆ q₆ g₆ ≫ M.lift.map₂ B₆) ≫
+        M.lift.map₂ F₁ := by
+  rw [midK_canon M σp₁ σq₁ σd₁ σc₁ g₁, hg₁, midK_canon M σp₂ σq₂ σd₂ σc₂ g₂, hg₂,
+    midK_canon M σp₃ σq₃ σd₃ σc₃ g₃, hg₃, midK_canon M σp₄ σq₄ σd₄ σc₄ g₄, hg₄,
+    midK_canon M σp₅ σq₅ σd₅ σc₅ g₅, hg₅, midK_canon M σp₆ σq₆ σd₆ σc₆ g₆, hg₆]
+  simp only [Category.assoc, ← PrelaxFunctor.map₂_comp_assoc, ← PrelaxFunctor.map₂_comp]
+  have hmid : midK M (𝟙 a) (r₁ ≫ r₂) (x := 𝟙 a) (y := r₁ ≫ e₁) adj₁.unit ≫
+      M.lift.map₂ ((λ_ _).hom ≫ (α_ r₁ e₁ (r₁ ≫ r₂)).hom ≫ r₁ ◁ (λ_ (e₁ ≫ (r₁ ≫ r₂))).inv) ≫
+      midK M r₁ (e₁ ≫ (r₁ ≫ r₂)) (x := 𝟙 b) (y := r₂ ≫ e₂) adj₂.unit ≫
+      M.lift.map₂ (r₁ ◁ (α_ r₂ e₂ (e₁ ≫ (r₁ ≫ r₂))).hom ≫
+        (α_ r₁ r₂ (e₂ ≫ (e₁ ≫ (r₁ ≫ r₂)))).inv ≫ (r₁ ≫ r₂) ◁ (α_ e₂ e₁ (r₁ ≫ r₂)).inv) ≫
+      midK M (r₁ ≫ r₂) (r₁ ≫ r₂) (x := e₂ ≫ e₁) (y := e₂ ≫ e₁) x ≫
+      M.lift.map₂ ((r₁ ≫ r₂) ◁ (α_ e₂ e₁ (r₁ ≫ r₂)).hom ≫
+        (α_ (r₁ ≫ r₂) e₂ (e₁ ≫ (r₁ ≫ r₂))).inv ≫ ((r₁ ≫ r₂) ≫ e₂) ◁ (α_ e₁ r₁ r₂).inv) ≫
+      midK M ((r₁ ≫ r₂) ≫ e₂) r₂ (x := e₁ ≫ r₁) (y := 𝟙 b) adj₁.counit ≫
+      M.lift.map₂ (((r₁ ≫ r₂) ≫ e₂) ◁ (λ_ r₂).hom ≫ (α_ (r₁ ≫ r₂) e₂ r₂).hom ≫
+        (r₁ ≫ r₂) ◁ (ρ_ (e₂ ≫ r₂)).inv) ≫
+      midK M (r₁ ≫ r₂) (𝟙 c) (x := e₂ ≫ r₂) (y := 𝟙 c) adj₂.counit =
+      M.lift.map₂ (𝟙 a ◁ ((λ_ (r₁ ≫ r₂)).hom ≫ (ρ_ (r₁ ≫ r₂)).inv)) ≫
+        midK M (𝟙 a) (𝟙 c) (x := r₁ ≫ r₂) (y := r₁ ≫ r₂)
+          ((Bicategory.conjugateEquiv (adj₁.comp adj₂) (adj₁.comp adj₂)).symm x) ≫
+          M.lift.map₂ ((λ_ _).hom ≫ (r₁ ≫ r₂) ◁ (λ_ (𝟙 c)).inv) := by
+    simp only [midK, PrelaxFunctor.map₂_comp, lift_map₂_whiskerLeft, lift_map₂_associator_hom,
+      lift_map₂_associator_inv, lift_map₂_leftUnitor_hom, lift_map₂_leftUnitor_inv,
+      lift_map₂_rightUnitor_inv, lift_map_comp]
+    exact rot2_aux adj₁ adj₂ x
+  rw [lift_map₂_eq M _ ((λ_ _).hom ≫ (α_ r₁ e₁ (r₁ ≫ r₂)).hom ≫
+      r₁ ◁ (λ_ (e₁ ≫ (r₁ ≫ r₂))).inv),
+    lift_map₂_eq M _ (r₁ ◁ (α_ r₂ e₂ (e₁ ≫ (r₁ ≫ r₂))).hom ≫
+      (α_ r₁ r₂ (e₂ ≫ (e₁ ≫ (r₁ ≫ r₂)))).inv ≫ (r₁ ≫ r₂) ◁ (α_ e₂ e₁ (r₁ ≫ r₂)).inv),
+    lift_map₂_eq M _ ((r₁ ≫ r₂) ◁ (α_ e₂ e₁ (r₁ ≫ r₂)).hom ≫
+      (α_ (r₁ ≫ r₂) e₂ (e₁ ≫ (r₁ ≫ r₂))).inv ≫ ((r₁ ≫ r₂) ≫ e₂) ◁ (α_ e₁ r₁ r₂).inv),
+    lift_map₂_eq M _ (((r₁ ≫ r₂) ≫ e₂) ◁ (λ_ r₂).hom ≫ (α_ (r₁ ≫ r₂) e₂ r₂).hom ≫
+      (r₁ ≫ r₂) ◁ (ρ_ (e₂ ≫ r₂)).inv), reassoc_of% hmid]
+  simp only [Category.assoc, ← PrelaxFunctor.map₂_comp_assoc, ← PrelaxFunctor.map₂_comp]
+  exact lift_conj_eq M _ _ _ _ _
+
+omit M in
+/-- The right mate of an endomorphism `x` of `E₂ ≫ E₁` under the composite of `E₂ ⊣ R₂` and
+`E₁ ⊣ R₁`, read as five whiskered layers (two nested cups on the left, `x`, two nested caps on
+the right), in an arbitrary bicategory. -/
+theorem rot2L_aux {a b c : C} {R₁ : a ⟶ b} {E₁ : b ⟶ a} {R₂ : b ⟶ c} {E₂ : c ⟶ b}
+    (adj₁ : E₁ ⊣ R₁) (adj₂ : E₂ ⊣ R₂) (x : E₂ ≫ E₁ ⟶ E₂ ≫ E₁) :
+    (R₁ ≫ R₂) ◁ (adj₂.unit ▷ 𝟙 c) ≫
+        ((R₁ ≫ R₂) ◁ (ρ_ (E₂ ≫ R₂)).hom ≫ (α_ (R₁ ≫ R₂) E₂ R₂).inv ≫
+          ((R₁ ≫ R₂) ≫ E₂) ◁ (λ_ R₂).inv) ≫
+        ((R₁ ≫ R₂) ≫ E₂) ◁ (adj₁.unit ▷ R₂) ≫
+        (((R₁ ≫ R₂) ≫ E₂) ◁ (α_ E₁ R₁ R₂).hom ≫ (α_ (R₁ ≫ R₂) E₂ (E₁ ≫ (R₁ ≫ R₂))).hom ≫
+          (R₁ ≫ R₂) ◁ (α_ E₂ E₁ (R₁ ≫ R₂)).inv) ≫
+        (R₁ ≫ R₂) ◁ (x ▷ (R₁ ≫ R₂)) ≫
+        ((α_ R₁ R₂ ((E₂ ≫ E₁) ≫ (R₁ ≫ R₂))).hom ≫
+          R₁ ◁ (R₂ ◁ (α_ E₂ E₁ (R₁ ≫ R₂)).hom ≫ (α_ R₂ E₂ (E₁ ≫ (R₁ ≫ R₂))).inv ≫
+            (R₂ ≫ E₂) ◁ (α_ E₁ R₁ R₂).inv)) ≫
+        R₁ ◁ (adj₂.counit ▷ ((E₁ ≫ R₁) ≫ R₂)) ≫
+        (R₁ ◁ (λ_ _).hom ≫ R₁ ◁ (α_ E₁ R₁ R₂).hom ≫ (α_ R₁ E₁ (R₁ ≫ R₂)).inv ≫ (λ_ _).inv) ≫
+        𝟙 a ◁ (adj₁.counit ▷ (R₁ ≫ R₂)) =
+      ((R₁ ≫ R₂) ◁ (λ_ (𝟙 c)).hom ≫ (λ_ ((R₁ ≫ R₂) ≫ 𝟙 c)).inv) ≫
+        𝟙 a ◁ ((Bicategory.conjugateEquiv (adj₂.comp adj₁) (adj₂.comp adj₁)) x ▷ 𝟙 c) ≫
+          𝟙 a ◁ ((ρ_ (R₁ ≫ R₂)).hom ≫ (λ_ (R₁ ≫ R₂)).inv) := by
+  rw [Bicategory.conjugateEquiv_apply']
+  simp only [Bicategory.Adjunction.comp_unit, Bicategory.Adjunction.comp_counit,
+    Bicategory.Adjunction.compUnit, Bicategory.Adjunction.compCounit]
+  bicategory
+
+/-- **The rotation of a generator on two strands in normal form, on the other side**: two
+strands `r₁`, `r₂` with nested cups on their left (the units of `F e₂ ⊣ F r₂` and
+`F e₁ ⊣ F r₁`), a generator image `x` on the new strands `e₂ e₁`, and nested caps on their right
+(the counits), all conjugated by images of free 2-morphisms, equals the right mate of `x` under
+the composite adjunction. -/
+theorem rot2L_key {a b c : FB S} {r₁ : a ⟶ b} {e₁ : b ⟶ a} {r₂ : b ⟶ c} {e₂ : c ⟶ b}
+    (adj₁ : M.lift.map e₁ ⊣ M.lift.map r₁) (adj₂ : M.lift.map e₂ ⊣ M.lift.map r₂)
+    (x : M.lift.map e₂ ≫ M.lift.map e₁ ⟶ M.lift.map e₂ ≫ M.lift.map e₁)
+    {p₁ : a ⟶ c} {q₁ d₁ c₁ : c ⟶ c} (σp₁ : p₁ ≅ r₁ ≫ r₂) (σq₁ : q₁ ≅ 𝟙 c) (σd₁ : d₁ ≅ 𝟙 c)
+    (σc₁ : c₁ ≅ e₂ ≫ r₂) (g₁ : M.lift.map d₁ ⟶ M.lift.map c₁)
+    (hg₁ : M.lift.map₂ σd₁.inv ≫ g₁ ≫ M.lift.map₂ σc₁.hom = adj₂.unit)
+    {p₂ : a ⟶ b} {q₂ : b ⟶ c} {d₂ c₂ : b ⟶ b} (σp₂ : p₂ ≅ (r₁ ≫ r₂) ≫ e₂) (σq₂ : q₂ ≅ r₂)
+    (σd₂ : d₂ ≅ 𝟙 b) (σc₂ : c₂ ≅ e₁ ≫ r₁) (g₂ : M.lift.map d₂ ⟶ M.lift.map c₂)
+    (hg₂ : M.lift.map₂ σd₂.inv ≫ g₂ ≫ M.lift.map₂ σc₂.hom = adj₁.unit)
+    {p₃ q₃ : a ⟶ c} {d₃ c₃ : c ⟶ a} (σp₃ : p₃ ≅ r₁ ≫ r₂) (σq₃ : q₃ ≅ r₁ ≫ r₂)
+    (σd₃ : d₃ ≅ e₂ ≫ e₁) (σc₃ : c₃ ≅ e₂ ≫ e₁) (g₃ : M.lift.map d₃ ⟶ M.lift.map c₃)
+    (hg₃ : M.lift.map₂ σd₃.inv ≫ g₃ ≫ M.lift.map₂ σc₃.hom = x)
+    {p₄ : a ⟶ b} {q₄ : b ⟶ c} {d₄ c₄ : b ⟶ b} (σp₄ : p₄ ≅ r₁) (σq₄ : q₄ ≅ (e₁ ≫ r₁) ≫ r₂)
+    (σd₄ : d₄ ≅ r₂ ≫ e₂) (σc₄ : c₄ ≅ 𝟙 b) (g₄ : M.lift.map d₄ ⟶ M.lift.map c₄)
+    (hg₄ : M.lift.map₂ σd₄.inv ≫ g₄ ≫ M.lift.map₂ σc₄.hom = adj₂.counit)
+    {p₅ d₅ c₅ : a ⟶ a} {q₅ : a ⟶ c} (σp₅ : p₅ ≅ 𝟙 a) (σq₅ : q₅ ≅ r₁ ≫ r₂)
+    (σd₅ : d₅ ≅ r₁ ≫ e₁) (σc₅ : c₅ ≅ 𝟙 a) (g₅ : M.lift.map d₅ ⟶ M.lift.map c₅)
+    (hg₅ : M.lift.map₂ σd₅.inv ≫ g₅ ≫ M.lift.map₂ σc₅.hom = adj₁.counit)
+    {p₆ : a ⟶ a} {q₆ : c ⟶ c} {d₆ c₆ : a ⟶ c} (σp₆ : p₆ ≅ 𝟙 a) (σq₆ : q₆ ≅ 𝟙 c)
+    (σd₆ : d₆ ≅ r₁ ≫ r₂) (σc₆ : c₆ ≅ r₁ ≫ r₂) (g₆ : M.lift.map d₆ ⟶ M.lift.map c₆)
+    (hg₆ : M.lift.map₂ σd₆.inv ≫ g₆ ≫ M.lift.map₂ σc₆.hom =
+      Bicategory.conjugateEquiv (adj₂.comp adj₁) (adj₂.comp adj₁) x)
+    {P P₁ Q₁ P₂ Q₂ P₃ Q₃ P₄ Q₄ P₅ Q₅ Q P₆ Q₆ : a ⟶ c}
+    (E₀ : P ⟶ P₁) (A₁ : P₁ ⟶ p₁ ≫ (d₁ ≫ q₁)) (B₁ : p₁ ≫ (c₁ ≫ q₁) ⟶ Q₁) (E₁ : Q₁ ⟶ P₂)
+    (A₂ : P₂ ⟶ p₂ ≫ (d₂ ≫ q₂)) (B₂ : p₂ ≫ (c₂ ≫ q₂) ⟶ Q₂) (E₂ : Q₂ ⟶ P₃)
+    (A₃ : P₃ ⟶ p₃ ≫ (d₃ ≫ q₃)) (B₃ : p₃ ≫ (c₃ ≫ q₃) ⟶ Q₃) (E₃ : Q₃ ⟶ P₄)
+    (A₄ : P₄ ⟶ p₄ ≫ (d₄ ≫ q₄)) (B₄ : p₄ ≫ (c₄ ≫ q₄) ⟶ Q₄) (E₄ : Q₄ ⟶ P₅)
+    (A₅ : P₅ ⟶ p₅ ≫ (d₅ ≫ q₅)) (B₅ : p₅ ≫ (c₅ ≫ q₅) ⟶ Q₅) (E₅ : Q₅ ⟶ Q)
+    (F₀ : P ⟶ P₆) (A₆ : P₆ ⟶ p₆ ≫ (d₆ ≫ q₆)) (B₆ : p₆ ≫ (c₆ ≫ q₆) ⟶ Q₆) (F₁ : Q₆ ⟶ Q) :
+    M.lift.map₂ E₀ ≫ (M.lift.map₂ A₁ ≫ midK M p₁ q₁ g₁ ≫ M.lift.map₂ B₁) ≫ M.lift.map₂ E₁ ≫
+        (M.lift.map₂ A₂ ≫ midK M p₂ q₂ g₂ ≫ M.lift.map₂ B₂) ≫ M.lift.map₂ E₂ ≫
+          (M.lift.map₂ A₃ ≫ midK M p₃ q₃ g₃ ≫ M.lift.map₂ B₃) ≫ M.lift.map₂ E₃ ≫
+            (M.lift.map₂ A₄ ≫ midK M p₄ q₄ g₄ ≫ M.lift.map₂ B₄) ≫ M.lift.map₂ E₄ ≫
+              (M.lift.map₂ A₅ ≫ midK M p₅ q₅ g₅ ≫ M.lift.map₂ B₅) ≫ M.lift.map₂ E₅ =
+      M.lift.map₂ F₀ ≫ (M.lift.map₂ A₆ ≫ midK M p₆ q₆ g₆ ≫ M.lift.map₂ B₆) ≫
+        M.lift.map₂ F₁ := by
+  rw [midK_canon M σp₁ σq₁ σd₁ σc₁ g₁, hg₁, midK_canon M σp₂ σq₂ σd₂ σc₂ g₂, hg₂,
+    midK_canon M σp₃ σq₃ σd₃ σc₃ g₃, hg₃, midK_canon M σp₄ σq₄ σd₄ σc₄ g₄, hg₄,
+    midK_canon M σp₅ σq₅ σd₅ σc₅ g₅, hg₅, midK_canon M σp₆ σq₆ σd₆ σc₆ g₆, hg₆]
+  simp only [Category.assoc, ← PrelaxFunctor.map₂_comp_assoc, ← PrelaxFunctor.map₂_comp]
+  have hmid : midK M (r₁ ≫ r₂) (𝟙 c) (x := 𝟙 c) (y := e₂ ≫ r₂) adj₂.unit ≫
+      M.lift.map₂ ((r₁ ≫ r₂) ◁ (ρ_ (e₂ ≫ r₂)).hom ≫ (α_ (r₁ ≫ r₂) e₂ r₂).inv ≫
+        ((r₁ ≫ r₂) ≫ e₂) ◁ (λ_ r₂).inv) ≫
+      midK M ((r₁ ≫ r₂) ≫ e₂) r₂ (x := 𝟙 b) (y := e₁ ≫ r₁) adj₁.unit ≫
+      M.lift.map₂ (((r₁ ≫ r₂) ≫ e₂) ◁ (α_ e₁ r₁ r₂).hom ≫
+        (α_ (r₁ ≫ r₂) e₂ (e₁ ≫ (r₁ ≫ r₂))).hom ≫ (r₁ ≫ r₂) ◁ (α_ e₂ e₁ (r₁ ≫ r₂)).inv) ≫
+      midK M (r₁ ≫ r₂) (r₁ ≫ r₂) (x := e₂ ≫ e₁) (y := e₂ ≫ e₁) x ≫
+      M.lift.map₂ ((α_ r₁ r₂ ((e₂ ≫ e₁) ≫ (r₁ ≫ r₂))).hom ≫
+        r₁ ◁ (r₂ ◁ (α_ e₂ e₁ (r₁ ≫ r₂)).hom ≫ (α_ r₂ e₂ (e₁ ≫ (r₁ ≫ r₂))).inv ≫
+          (r₂ ≫ e₂) ◁ (α_ e₁ r₁ r₂).inv)) ≫
+      midK M r₁ ((e₁ ≫ r₁) ≫ r₂) (x := r₂ ≫ e₂) (y := 𝟙 b) adj₂.counit ≫
+      M.lift.map₂ (r₁ ◁ (λ_ _).hom ≫ r₁ ◁ (α_ e₁ r₁ r₂).hom ≫ (α_ r₁ e₁ (r₁ ≫ r₂)).inv ≫
+        (λ_ _).inv) ≫
+      midK M (𝟙 a) (r₁ ≫ r₂) (x := r₁ ≫ e₁) (y := 𝟙 a) adj₁.counit =
+      M.lift.map₂ ((r₁ ≫ r₂) ◁ (λ_ (𝟙 c)).hom ≫ (λ_ ((r₁ ≫ r₂) ≫ 𝟙 c)).inv) ≫
+        midK M (𝟙 a) (𝟙 c) (x := r₁ ≫ r₂) (y := r₁ ≫ r₂)
+          (Bicategory.conjugateEquiv (adj₂.comp adj₁) (adj₂.comp adj₁) x) ≫
+          M.lift.map₂ (𝟙 a ◁ ((ρ_ (r₁ ≫ r₂)).hom ≫ (λ_ (r₁ ≫ r₂)).inv)) := by
+    simp only [midK, PrelaxFunctor.map₂_comp, lift_map₂_whiskerLeft, lift_map₂_associator_hom,
+      lift_map₂_associator_inv, lift_map₂_leftUnitor_hom, lift_map₂_leftUnitor_inv,
+      lift_map₂_rightUnitor_hom, lift_map_comp]
+    exact rot2L_aux adj₁ adj₂ x
+  rw [lift_map₂_eq M _ ((r₁ ≫ r₂) ◁ (ρ_ (e₂ ≫ r₂)).hom ≫ (α_ (r₁ ≫ r₂) e₂ r₂).inv ≫
+      ((r₁ ≫ r₂) ≫ e₂) ◁ (λ_ r₂).inv),
+    lift_map₂_eq M _ (((r₁ ≫ r₂) ≫ e₂) ◁ (α_ e₁ r₁ r₂).hom ≫
+      (α_ (r₁ ≫ r₂) e₂ (e₁ ≫ (r₁ ≫ r₂))).hom ≫ (r₁ ≫ r₂) ◁ (α_ e₂ e₁ (r₁ ≫ r₂)).inv),
+    lift_map₂_eq M _ ((α_ r₁ r₂ ((e₂ ≫ e₁) ≫ (r₁ ≫ r₂))).hom ≫
+      r₁ ◁ (r₂ ◁ (α_ e₂ e₁ (r₁ ≫ r₂)).hom ≫ (α_ r₂ e₂ (e₁ ≫ (r₁ ≫ r₂))).inv ≫
+        (r₂ ≫ e₂) ◁ (α_ e₁ r₁ r₂).inv)),
+    lift_map₂_eq M _ (r₁ ◁ (λ_ _).hom ≫ r₁ ◁ (α_ e₁ r₁ r₂).hom ≫
+      (α_ r₁ e₁ (r₁ ≫ r₂)).inv ≫ (λ_ _).inv), reassoc_of% hmid]
   simp only [Category.assoc, ← PrelaxFunctor.map₂_comp_assoc, ← PrelaxFunctor.map₂_comp]
   exact lift_conj_eq M _ _ _ _ _
 

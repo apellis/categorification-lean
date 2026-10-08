@@ -6,7 +6,7 @@ package Categorification where
 
 require StringDiagrams from git
   "https://github.com/apellis/string-diagrams-lean.git" @
-  "fb96f497c0dd0a24ed941d3a2c25b4cbfe63d884"
+  "6f066162223bcc1762b2eebc1983dfa8e0f90630"
 
 require LieLean from git
   "https://github.com/apellis/lie-lean.git" @

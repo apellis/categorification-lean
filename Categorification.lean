@@ -463,6 +463,8 @@ import Categorification.TwoRep.ModelSl2Curls
 import Categorification.TwoRep.ModelSl2Decomp
 import Categorification.TwoRep.ModelSl2Interp
 import Categorification.TwoRep.ModelSl2CL
+import Categorification.TwoRep.QStrongBBw
+import Categorification.TwoRep.ModelQStrong
 import Categorification.TypeA.Basic
 import Categorification.TypeA.DoubleCoset
 import Categorification.TypeA.Inversions

@@ -279,6 +279,17 @@ theorem genImg_dot_false (i : Unit) (r a b : ℤ) (ha hb hd hde hc hce) :
   simp only [genImg]
   congr 1
 
+theorem genImg_cross_true (ν a b : ℤ) (ha hb hd hde hc hce) :
+    (genImg hS).gen (.gen (.cross true () () ν)) a b ha hb hd hde hc hce =
+      S.gCross (S.qi b) (S.qi (sh sl2RootDatum ((true, ()) : Letter Unit) + ν)) (S.qi a)
+        (by obtain rfl : ν = b := hde; exact S.qi_sh_true () ν)
+        (by
+          obtain rfl : sh sl2RootDatum ((true, ()) : Letter Unit) +
+            (sh sl2RootDatum ((true, ()) : Letter Unit) + ν) = a := hd.1
+          exact S.qi_sh_true () _) := by
+  simp only [genImg]
+  congr 1
+
 theorem genImg_cup_true (i : Unit) (r a : ℤ) (ha hb hd hc hce) :
     (genImg hS).gen (.cup ⟨(true, i), r⟩) a a ha hb hd rfl hc hce =
       (gAdjL hS (S.qi r) (S.qi a) (by

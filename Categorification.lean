@@ -454,6 +454,7 @@ import Categorification.TwoRep.BetaCoeff
 import Categorification.TwoRep.CoeffLemma
 import Categorification.TwoRep.DecompFE
 import Categorification.TwoRep.BetaCoeffNeg
+import Categorification.TwoRep.Curls
 import Categorification.TypeA.Basic
 import Categorification.TypeA.DoubleCoset
 import Categorification.TypeA.Inversions

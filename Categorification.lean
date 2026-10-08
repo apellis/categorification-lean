@@ -458,6 +458,7 @@ import Categorification.TwoRep.BetaCoeffNeg
 import Categorification.TwoRep.Curls
 import Categorification.TwoRep.ModelSl2
 import Categorification.TwoRep.ModelSl2Rel
+import Categorification.TwoRep.ModelSl2Bubbles
 import Categorification.TypeA.Basic
 import Categorification.TypeA.DoubleCoset
 import Categorification.TypeA.Inversions

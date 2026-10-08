@@ -531,6 +531,34 @@ theorem freeLift_eq_zero_of_strand_eq (obj : S.Region → C)
     simpa using hG g a b ha hb hd hde hc hce
   exact hf
 
+/-- `freeLift_eq_zero_of_strand_eq` with the generator images compared by `HEq`. -/
+theorem freeLift_eq_zero_of_strand_heq (obj : S.Region → C)
+    {st₁ st₂ : (c : S.Colour) → (x y : S.Region) → S.colourTgt c = x → S.colourSrc c = y →
+      (obj x ⟶ obj y)} (h : st₁ = st₂)
+    (G₁ : GenImg (⟨obj, st₁⟩ : Model S C)) (G₂ : GenImg (⟨obj, st₂⟩ : Model S C))
+    (hG : ∀ g a b ha hb hd hde hc hce,
+      G₁.gen g a b ha hb hd hde hc hce ≍ G₂.gen g a b ha hb hd hde hc hce)
+    (s t : S.Region) {a b : Obj S} (f : LinDiagram R a b)
+    (hf : (freeLift R (interp G₂ s t).functor).map f = 0) :
+    (freeLift R (interp G₁ s t).functor).map f = 0 := by
+  subst h
+  obtain rfl : G₁ = G₂ := by
+    cases G₁; cases G₂
+    congr
+    funext g a b ha hb hd hde hc hce
+    exact eq_of_heq (hG g a b ha hb hd hde hc hce)
+  exact hf
+
+/-- Changing the outer regions along equalities and retyping a linear combination of diagrams
+preserve its vanishing under the interpretation. -/
+theorem freeLift_cast_eq_zero {M : Model S C} (G : GenImg M) {s₀ s₀' t₀ t₀' : S.Region}
+    (hs : s₀ = s₀') (ht : t₀ = t₀') {a b a' b' : Obj S} (f : LinDiagram R a b) (ha : a = a')
+    (hb : b = b') (hf : (freeLift R (interp G s₀ t₀).functor).map f = 0) :
+    (freeLift R (interp G s₀' t₀').functor).map (LinDiagram.cast f ha hb) = 0 := by
+  subst hs ht ha hb
+  rw [LinDiagram.cast_rfl]
+  exact hf
+
 end Congr
 
 end Categorification.Diagrams.BicatInterp

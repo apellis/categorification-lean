@@ -221,13 +221,18 @@ theorem grR_toStrongSl2 (hsl : ∀ i, C.dot i i = 2) (i : I) (b : X) (r : ℤ)
 variable [∀ a b : B, IsIdempotentComplete (a ⟶ b)] [∀ a b : B, HomFinite k (a ⟶ b)]
 variable {S} (hsl : ∀ i, C.dot i i = 2) (hS : S.BBw)
 
+/-- Transport of an adjunction along an equality of left adjoints. -/
+def transportLeft {D : Type*} [Bicategory D] {a b : D} {R R' : b ⟶ a} {E : a ⟶ b} (h : R = R')
+    (adj : R ⊣ E) : R' ⊣ E :=
+  h ▸ adj
+
 include hsl hS in
 /-- The normalized left adjunction of the `α_i`-string through the base point `b`, at the index
 `r`, transported to the weights `x = b + r α_i`, `y = b + (r + 1) α_i`. -/
 def adjLAux (i : I) (b : X) (r : ℤ) {x y : X} (e : b + r • RD.iX i = x)
     (e' : b + (r + 1) • RD.iX i = y) (h : x + RD.iX i = y) : S.Rg i h ⊣ S.Eg i h := by
   subst e e'
-  exact (grR_toStrongSl2 S hsl i b r h) ▸ (hS.toStrongSl2 i (hsl i) b).leftAdjN r
+  exact transportLeft (grR_toStrongSl2 S hsl i b r h) ((hS.toStrongSl2 i (hsl i) b).leftAdjN r)
 
 theorem adjLAux_congr (i : I) {b b' : X} {r r' : ℤ} (hb : b = b') (hr : r = r') {x y : X}
     (e : b + r • RD.iX i = x) (e' : b + (r + 1) • RD.iX i = y)

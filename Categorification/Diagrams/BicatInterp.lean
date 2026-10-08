@@ -4,6 +4,8 @@ Released under Apache 2.0 license as described in the file LICENSE.
 -/
 import StringDiagrams.Interpretation
 import Mathlib.CategoryTheory.Bicategory.Coherence
+import Mathlib.CategoryTheory.Bicategory.Adjunction.Basic
+import Mathlib.Tactic.CategoryTheory.Bicategory.Basic
 
 /-!
 # Interpreting a presented 2-category in a bicategory
@@ -28,7 +30,10 @@ coherence theorem `FreeBicategory.locally_thin`).
   to the region `y` on its left;
 * `fw s w t`: a well-formed word `w` from `s` (to `t`) as a 1-morphism `t ⟶ s` of the free
   bicategory; `splitIso`: `fw (u ++ w) ≅ fw w ≫ fw u`;
-* `Model S C`, `Model.pre`, `Model.word`: a model of `S` in `C` and the images of words;
+* `Model S C` (with `Model.ofStrand`), `Model.pre`, `Model.word`: a model of `S` in `C` and the
+  images of words; a model gives the image of a strand between any two regions equal to its
+  right and left regions (`Model.strandAt`), so that no transport along equalities of regions is
+  forced on it;
   `GenImg M`: images of the generators;
 * `objI`, `layerI`, `interp G s₀ t₀`: the interpretation with outer regions `s₀`, `t₀`.
 
@@ -39,9 +44,12 @@ coherence theorem `FreeBicategory.locally_thin`).
 * `freeLift_whisker_eq_zero`: a linear combination of diagrams killed by the interpretation with
   its own outer regions has all its whiskerings killed by every interpretation;
 * `functor_map_gh_eq_hg`: the (even) **interchange law** holds;
-* `respects`: hence `P.Respects (interp G s₀ t₀).functor` as soon as every relation of `P` is
-  killed with its own outer regions (all generators even), so that `Presentation.lift` gives a
-  linear functor from `P.Presented` to `C(M.obj t₀, M.obj s₀)`.
+* `respects`: hence `P.Respects (interp G s₀ t₀).functor` as soon as every relation of `P` that
+  can occur in the hom category of `s₀`, `t₀` is killed with its own outer regions (all generators
+  even), so that `Presentation.lift` gives a linear functor from `P.Presented` to
+  `C(M.obj t₀, M.obj s₀)`;
+* normal forms for checking relations: `mid_conj`, `mid_assoc`, `mid_comp`, `conj_key`,
+  `exch_key` (interchange), `zig_key`, `zig_key'` (zigzags from an adjunction).
 
 The hom categories of `C` are assumed preadditive with zero objects (and `R`-linear, with linear
 whiskering, for the reduction of soundness); these hypotheses are only used to send objects with
@@ -120,26 +128,34 @@ def splitIso : (s : S.Region) → (u w : List S.Colour) → (m t : S.Region) →
 
 /-! ## Models -/
 
-/-- **A model of the signature `S` in a bicategory `C`**: an object for every region and a
-1-morphism for every colour, from the image of its right region to that of its left region. -/
+/-- **A model of the signature `S` in a bicategory `C`**: an object for every region and, for
+every colour, a 1-morphism from the image of its right region to that of its left region. The
+image of a colour is given between any two regions *equal* to its right and left regions
+(`strandAt`), so that a model can choose it without transport along these equalities (a model
+given by one 1-morphism per colour is `Model.ofStrand`). -/
 structure Model (S : Signature.{u₀, u₁, u₂}) (C : Type w₁) [Bicategory.{w₂, v₂} C] where
   /-- The image of a region. -/
   obj : S.Region → C
-  /-- The image of a colour. -/
-  strand : (c : S.Colour) → (obj (S.colourTgt c) ⟶ obj (S.colourSrc c))
+  /-- The image of a colour, between regions equal to its right and left regions. -/
+  strandAt : (c : S.Colour) → (x y : S.Region) → S.colourTgt c = x → S.colourSrc c = y →
+    (obj x ⟶ obj y)
+
+/-- The model given by one 1-morphism per colour (transported along equalities of regions). -/
+def Model.ofStrand {C : Type w₁} [Bicategory.{w₂, v₂} C] (obj : S.Region → C)
+    (strand : (c : S.Colour) → (obj (S.colourTgt c) ⟶ obj (S.colourSrc c))) : Model S C where
+  obj := obj
+  strandAt c _ _ hx hy := by subst hx hy; exact strand c
 
 variable {C : Type w₁} [Bicategory.{w₂, v₂} C] (M : Model S C)
 
 /-- The model as a prefunctor on the quiver of regions. -/
 def Model.pre : Prefunctor (RQ S) C where
   obj := M.obj
-  map := fun {_ _} c => by
-    obtain ⟨c, h₁, h₂⟩ := c
-    subst h₁ h₂
-    exact M.strand c
+  map := fun {x y} c => M.strandAt c.1 x y c.2.1 c.2.2
 
-theorem Model.pre_map_mk (c : S.Colour) :
-    M.pre.map (⟨c, rfl, rfl⟩ : rq (S.colourTgt c) ⟶ rq (S.colourSrc c)) = M.strand c := rfl
+theorem Model.pre_map_mk (c : S.Colour) {x y : S.Region} (hx : S.colourTgt c = x)
+    (hy : S.colourSrc c = y) :
+    M.pre.map (⟨c, hx, hy⟩ : rq x ⟶ rq y) = M.strandAt c x y hx hy := rfl
 
 /-- The pseudofunctor from the free bicategory determined by the model. -/
 abbrev Model.lift : FB S ⥤ᵖ C := FreeBicategory.lift (B := RQ S) M.pre
@@ -148,6 +164,17 @@ abbrev Model.lift : FB S ⥤ᵖ C := FreeBicategory.lift (B := RQ S) M.pre
 abbrev Model.word (s : S.Region) (w : List S.Colour) (t : S.Region) (h : S.ok s w)
     (e : S.endR s w = t) : M.lift.obj (fo t) ⟶ M.lift.obj (fo s) :=
   M.lift.map (fw s w t h e)
+
+theorem lift_map_of {x y : RQ S} (f : x ⟶ y) :
+    M.lift.map (FreeBicategory.Hom.of f) = M.pre.map f := rfl
+
+@[simp] theorem lift_map_fw_nil (s : S.Region) (h : S.ok s []) :
+    M.lift.map (fw s [] s h rfl) = 𝟙 _ := rfl
+
+theorem lift_map_fw_cons (s : S.Region) (c : S.Colour) (w : List S.Colour) (t : S.Region)
+    (h : S.ok s (c :: w)) (e : S.endR s (c :: w) = t) :
+    M.lift.map (fw s (c :: w) t h e) =
+      M.lift.map (fw (S.colourTgt c) w t h.2 e) ≫ M.strandAt c _ _ rfl h.1 := rfl
 
 /-- Free 2-morphisms between parallel 1-morphisms are equal (coherence). -/
 theorem free_eq {a b : FB S} {f g : a ⟶ b} (η θ : f ⟶ g) : η = θ :=
@@ -367,6 +394,98 @@ theorem exch_key {a₀ a₁ a₂ a₃ : FB S} {hd hc : a₀ ⟶ a₁} {m : a₁ 
     reassoc_of% (exch_lift M η γ)]
   simp only [← PrelaxFunctor.map₂_comp_assoc, ← PrelaxFunctor.map₂_comp]
   exact lift_conj_eq₂ M _ _ _ _ _ _ _ _
+
+/-- Two composites `F A ≫ K ≫ F B ≫ K' ≫ F C` with parallel free `A`, `B`, `C` agree, and a
+composite of images of free 2-morphisms is the image of a free 2-morphism. -/
+theorem lift_comp_eq {x y z : a ⟶ b} (A : x ⟶ y) (B : y ⟶ z) (D : x ⟶ z) :
+    M.lift.map₂ A ≫ M.lift.map₂ B = M.lift.map₂ D := by
+  rw [← PrelaxFunctor.map₂_comp, lift_map₂_eq M (A ≫ B) D]
+
+omit M in
+/-- The right zigzag of an adjunction, whiskered by units, in an arbitrary bicategory. -/
+theorem zig_aux {a b : C} {E : a ⟶ b} {R : b ⟶ a} (η : 𝟙 b ⟶ R ≫ E) (ε : E ≫ R ⟶ 𝟙 a)
+    (htri : E ◁ η ≫ (α_ E R E).inv ≫ ε ▷ E = (ρ_ E).hom ≫ (λ_ E).inv) :
+    E ◁ (η ▷ 𝟙 b) ≫ (E ◁ (ρ_ (R ≫ E)).hom ≫ (α_ E R E).inv ≫ (λ_ _).inv) ≫
+        𝟙 a ◁ (ε ▷ E) =
+      E ◁ (λ_ (𝟙 b)).hom ≫ (ρ_ E).hom ≫ (λ_ E).inv ≫ (λ_ (𝟙 a ≫ E)).inv := by
+  have h : E ◁ (η ▷ 𝟙 b) ≫ (E ◁ (ρ_ (R ≫ E)).hom ≫ (α_ E R E).inv ≫ (λ_ _).inv) ≫
+      𝟙 a ◁ (ε ▷ E) =
+      (E ◁ (λ_ (𝟙 b)).hom ≫ (ρ_ E).hom ≫ (ρ_ E).inv) ≫ (E ◁ η ≫ (α_ E R E).inv ≫ ε ▷ E) ≫
+        (λ_ (𝟙 a ≫ E)).inv := by
+    bicategory
+  rw [h, htri]
+  bicategory
+
+/-- **The zigzag relation in normal form**: an upward strand `e` with a cup `η` on its left and a
+cap `ε` on its right, conjugated by images of free 2-morphisms, is the image of a free
+2-morphism, as soon as `η`, `ε` (read through free isomorphisms) satisfy the triangle identity. -/
+theorem zig_key {a b : FB S} {e : a ⟶ b} {ρ : b ⟶ a} {p₁ : a ⟶ b} {q₁ d₁ c₁ : b ⟶ b}
+    {p₂ d₂ c₂ : a ⟶ a} {q₂ : a ⟶ b} (σp₁ : p₁ ≅ e) (σq₁ : q₁ ≅ 𝟙 b) (σd₁ : d₁ ≅ 𝟙 b)
+    (σc₁ : c₁ ≅ ρ ≫ e) (σp₂ : p₂ ≅ 𝟙 a) (σq₂ : q₂ ≅ e) (σd₂ : d₂ ≅ e ≫ ρ) (σc₂ : c₂ ≅ 𝟙 a)
+    (g₁ : M.lift.map d₁ ⟶ M.lift.map c₁) (g₂ : M.lift.map d₂ ⟶ M.lift.map c₂)
+    (htri : M.lift.map e ◁
+        (M.lift.map₂ σd₁.inv ≫ g₁ ≫ M.lift.map₂ σc₁.hom : 𝟙 _ ⟶ M.lift.map ρ ≫ M.lift.map e) ≫
+      (α_ _ _ _).inv ≫
+        (M.lift.map₂ σd₂.inv ≫ g₂ ≫ M.lift.map₂ σc₂.hom : M.lift.map e ≫ M.lift.map ρ ⟶ 𝟙 _) ▷
+          M.lift.map e = (ρ_ _).hom ≫ (λ_ _).inv)
+    {P P₁ Q₁ P₂ Q₂ Q : a ⟶ b}
+    (E₀ : P ⟶ P₁) (A₁ : P₁ ⟶ p₁ ≫ (d₁ ≫ q₁)) (B₁ : p₁ ≫ (c₁ ≫ q₁) ⟶ Q₁) (E₁ : Q₁ ⟶ P₂)
+    (A₂ : P₂ ⟶ p₂ ≫ (d₂ ≫ q₂)) (B₂ : p₂ ≫ (c₂ ≫ q₂) ⟶ Q₂) (E₂ : Q₂ ⟶ Q) (Z : P ⟶ Q) :
+    M.lift.map₂ E₀ ≫ (M.lift.map₂ A₁ ≫ midK M p₁ q₁ g₁ ≫ M.lift.map₂ B₁) ≫ M.lift.map₂ E₁ ≫
+        (M.lift.map₂ A₂ ≫ midK M p₂ q₂ g₂ ≫ M.lift.map₂ B₂) ≫ M.lift.map₂ E₂ =
+      M.lift.map₂ Z := by
+  obtain ⟨η, hη⟩ : ∃ η : M.lift.map (𝟙 b) ⟶ M.lift.map (ρ ≫ e),
+      η = M.lift.map₂ σd₁.inv ≫ g₁ ≫ M.lift.map₂ σc₁.hom := ⟨_, rfl⟩
+  obtain ⟨ε, hε⟩ : ∃ ε : M.lift.map (e ≫ ρ) ⟶ M.lift.map (𝟙 a),
+      ε = M.lift.map₂ σd₂.inv ≫ g₂ ≫ M.lift.map₂ σc₂.hom := ⟨_, rfl⟩
+  have htri' : M.lift.map e ◁ (η : 𝟙 _ ⟶ M.lift.map ρ ≫ M.lift.map e) ≫ (α_ _ _ _).inv ≫
+      (ε : M.lift.map e ≫ M.lift.map ρ ⟶ 𝟙 _) ▷ M.lift.map e = (ρ_ _).hom ≫ (λ_ _).inv := by
+    subst hη hε; exact htri
+  have hg₁ : g₁ = M.lift.map₂ σd₁.hom ≫ η ≫ M.lift.map₂ σc₁.inv := by
+    rw [hη]
+    simp only [Category.assoc, ← PrelaxFunctor.map₂_comp, Iso.hom_inv_id, PrelaxFunctor.map₂_id,
+      Category.comp_id]
+    rw [← PrelaxFunctor.map₂_comp_assoc, Iso.hom_inv_id, PrelaxFunctor.map₂_id, Category.id_comp]
+  have hg₂ : g₂ = M.lift.map₂ σd₂.hom ≫ ε ≫ M.lift.map₂ σc₂.inv := by
+    rw [hε]
+    simp only [Category.assoc, ← PrelaxFunctor.map₂_comp, Iso.hom_inv_id, PrelaxFunctor.map₂_id,
+      Category.comp_id]
+    rw [← PrelaxFunctor.map₂_comp_assoc, Iso.hom_inv_id, PrelaxFunctor.map₂_id, Category.id_comp]
+  have hmid : midK M e (𝟙 b) η ≫
+      M.lift.map₂ (e ◁ (ρ_ (ρ ≫ e)).hom ≫ (α_ e ρ e).inv ≫ (λ_ _).inv) ≫ midK M (𝟙 a) e ε =
+      M.lift.map₂ (e ◁ (λ_ (𝟙 b)).hom ≫ (ρ_ e).hom ≫ (λ_ e).inv ≫ (λ_ (𝟙 a ≫ e)).inv) := by
+    simp only [midK, PrelaxFunctor.map₂_comp, lift_map₂_whiskerLeft, lift_map₂_associator_inv,
+      lift_map₂_leftUnitor_hom, lift_map₂_leftUnitor_inv, lift_map₂_rightUnitor_hom, lift_map_comp]
+    exact zig_aux η ε htri'
+  rw [hg₁, hg₂, mid_comp M, mid_comp M, mid_conj M σp₁ σq₁, mid_conj M σp₂ σq₂]
+  simp only [Category.assoc, ← PrelaxFunctor.map₂_comp_assoc, ← PrelaxFunctor.map₂_comp]
+  rw [lift_map₂_eq M _ (e ◁ (ρ_ (ρ ≫ e)).hom ≫ (α_ e ρ e).inv ≫ (λ_ _).inv), reassoc_of% hmid]
+  simp only [← PrelaxFunctor.map₂_comp]
+  exact lift_map₂_eq M _ _
+
+/-- `zig_key` for generator images given by the unit and counit of an adjunction. -/
+theorem zig_key' {a b : FB S} {e : a ⟶ b} {ρ : b ⟶ a} {p₁ : a ⟶ b} {q₁ d₁ c₁ : b ⟶ b}
+    {p₂ d₂ c₂ : a ⟶ a} {q₂ : a ⟶ b} (σp₁ : p₁ ≅ e) (σq₁ : q₁ ≅ 𝟙 b) (σd₁ : d₁ ≅ 𝟙 b)
+    (σc₁ : c₁ ≅ ρ ≫ e) (σp₂ : p₂ ≅ 𝟙 a) (σq₂ : q₂ ≅ e) (σd₂ : d₂ ≅ e ≫ ρ) (σc₂ : c₂ ≅ 𝟙 a)
+    (adj : M.lift.map ρ ⊣ M.lift.map e)
+    (g₁ : M.lift.map d₁ ⟶ M.lift.map c₁) (g₂ : M.lift.map d₂ ⟶ M.lift.map c₂)
+    (hg₁ : M.lift.map₂ σd₁.inv ≫ g₁ ≫ M.lift.map₂ σc₁.hom = adj.unit)
+    (hg₂ : M.lift.map₂ σd₂.inv ≫ g₂ ≫ M.lift.map₂ σc₂.hom = adj.counit)
+    {P P₁ Q₁ P₂ Q₂ Q : a ⟶ b}
+    (E₀ : P ⟶ P₁) (A₁ : P₁ ⟶ p₁ ≫ (d₁ ≫ q₁)) (B₁ : p₁ ≫ (c₁ ≫ q₁) ⟶ Q₁) (E₁ : Q₁ ⟶ P₂)
+    (A₂ : P₂ ⟶ p₂ ≫ (d₂ ≫ q₂)) (B₂ : p₂ ≫ (c₂ ≫ q₂) ⟶ Q₂) (E₂ : Q₂ ⟶ Q) (Z : P ⟶ Q) :
+    M.lift.map₂ E₀ ≫ (M.lift.map₂ A₁ ≫ midK M p₁ q₁ g₁ ≫ M.lift.map₂ B₁) ≫ M.lift.map₂ E₁ ≫
+        (M.lift.map₂ A₂ ≫ midK M p₂ q₂ g₂ ≫ M.lift.map₂ B₂) ≫ M.lift.map₂ E₂ =
+      M.lift.map₂ Z := by
+  refine zig_key M σp₁ σq₁ σd₁ σc₁ σp₂ σq₂ σd₂ σc₂ g₁ g₂ ?_ E₀ A₁ B₁ E₁ A₂ B₂ E₂ Z
+  have h := adj.right_triangle
+  simp only [rightZigzag, bicategoricalComp] at h
+  have e₁ : (M.lift.map₂ σd₁.inv ≫ g₁ ≫ M.lift.map₂ σc₁.hom :
+      𝟙 _ ⟶ M.lift.map ρ ≫ M.lift.map e) = adj.unit := hg₁
+  have e₂ : (M.lift.map₂ σd₂.inv ≫ g₂ ≫ M.lift.map₂ σc₂.hom :
+      M.lift.map e ≫ M.lift.map ρ ⟶ 𝟙 _) = adj.counit := hg₂
+  rw [e₁, e₂, ← h]
+  bicategory
 
 end Mid
 
@@ -742,11 +861,13 @@ variable [∀ a b : C, Limits.HasZeroObject (a ⟶ b)] (G : GenImg M)
 
 set_option backward.isDefEq.respectTransparency false in
 /-- **Whiskering kills relations**: if a linear combination of diagrams `f : a ⟶ b` is killed by
-the interpretation with the outer regions of `a`, then every whiskering of `f` is killed by the
-interpretation with arbitrary outer regions. -/
-theorem freeLift_whisker_eq_zero {a b : Obj S} (f : LinDiagram R a b)
-    (hf : (freeLift R (interp G a.start a.endR).functor).map f = 0) (s₀ t₀ : S.Region)
-    (u : Obj S) (v : List S.Colour) (hw : a.WhiskerOK u v) :
+the interpretation with the outer regions of `a` (it suffices that this holds when the whiskering
+`u ⊗ a ⊗ v` is admissible for the outer regions `s₀`, `t₀`), then its whiskering `u ⊗ f ⊗ v` is
+killed by the interpretation with outer regions `s₀`, `t₀`. -/
+theorem freeLift_whisker_eq_zero {a b : Obj S} (f : LinDiagram R a b) (s₀ t₀ : S.Region)
+    (u : Obj S) (v : List S.Colour) (hw : a.WhiskerOK u v)
+    (hf : Cond s₀ t₀ (a.whisker u v) →
+      (freeLift R (interp G a.start a.endR).functor).map f = 0) :
     (freeLift R (interp G s₀ t₀).functor).map (LinDiagram.whisker f u v hw) = 0 := by
   by_cases hc : Cond s₀ t₀ (a.whisker u v)
   swap
@@ -755,6 +876,8 @@ theorem freeLift_whisker_eq_zero {a b : Obj S} (f : LinDiagram R a b)
       rw [objI, dite_eq_right hc]
       exact isZero_zero _
     exact hz.eq_of_src _ _
+  have hf₀ := hf hc
+  clear hf
   obtain ⟨hok, hend, hst⟩ := hc
   change u.start = s₀ at hst
   subst hst
@@ -817,7 +940,7 @@ theorem freeLift_whisker_eq_zero {a b : Obj S} (f : LinDiagram R a b)
         objI M u.start (S.endR a.endR v) (b.whisker u v)) :=
     { toFun := Φ, map_zero' := hΦzero, map_add' := hΦadd }
   have hf' : (f : (a ⟶ b) →₀ R).sum (fun d r => r • (interp G a.start a.endR).functor.map d) =
-      0 := hf
+      0 := hf₀
   show (Finsupp.mapDomain (fun d => Diagram.whisker d u v hw) (f : (a ⟶ b) →₀ R)).sum
       (fun d r => r • (interp G u.start (S.endR a.endR v)).functor.map d) = 0
   rw [Finsupp.sum_mapDomain_index]
@@ -843,16 +966,19 @@ theorem freeLift_interchange_eq_zero (x : InterchangeData S) (hx : x.Valid)
     freeLift_map_of, functor_map_gh_eq_hg, sub_self]
 
 /-- **Soundness of the interpretation in a bicategory**: if every relation of `P`, read with its
-own outer regions, is killed by the interpretation, and all generators are even, then the
-interpretation with arbitrary outer regions `s₀`, `t₀` respects `P`, so it descends to a linear
-functor `P.Presented ⥤ C(M.obj t₀, M.obj s₀)`. -/
-theorem respects (P : Presentation S R)
-    (hrel : ∀ i, (freeLift R (interp G (P.dom i).start (P.dom i).endR).functor).map (P.rel i) = 0)
-    (heven : ∀ g, S.odd g = false) (s₀ t₀ : S.Region) :
+own outer regions, is killed by the interpretation (it suffices: whenever some whiskering of it is
+admissible for the outer regions `s₀`, `t₀`), and all generators are even, then the
+interpretation with outer regions `s₀`, `t₀` respects `P`, so it descends to a linear functor
+`P.Presented ⥤ C(M.obj t₀, M.obj s₀)`. -/
+theorem respects (P : Presentation S R) (s₀ t₀ : S.Region)
+    (hrel : ∀ (i : P.Rel) (u : Obj S) (v : List S.Colour), (P.dom i).WhiskerOK u v →
+      Cond s₀ t₀ ((P.dom i).whisker u v) →
+      (freeLift R (interp G (P.dom i).start (P.dom i).endR).functor).map (P.rel i) = 0)
+    (heven : ∀ g, S.odd g = false) :
     P.Respects (interp G s₀ t₀).functor where
-  rel i u v hw := freeLift_whisker_eq_zero G (P.rel i) (hrel i) s₀ t₀ u v hw
-  interchange x hx u v hw := freeLift_whisker_eq_zero G _
-    (freeLift_interchange_eq_zero G x hx (by simp [InterchangeData.sign, heven]) _ _) s₀ t₀ u v hw
+  rel i u v hw := freeLift_whisker_eq_zero G (P.rel i) s₀ t₀ u v hw (hrel i u v hw)
+  interchange x hx u v hw := freeLift_whisker_eq_zero G _ s₀ t₀ u v hw fun _ =>
+    freeLift_interchange_eq_zero G x hx (by simp [InterchangeData.sign, heven]) _ _
 
 end Linear
 

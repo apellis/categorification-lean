@@ -487,6 +487,71 @@ theorem zig_key' {a b : FB S} {e : a ⟶ b} {ρ : b ⟶ a} {p₁ : a ⟶ b} {q�
   rw [e₁, e₂, ← h]
   bicategory
 
+omit M in
+/-- The left zigzag of an adjunction, whiskered by units, in an arbitrary bicategory. -/
+theorem zag_aux {a b : C} {E : a ⟶ b} {R : b ⟶ a} (η : 𝟙 b ⟶ R ≫ E) (ε : E ≫ R ⟶ 𝟙 a)
+    (htri : η ▷ R ≫ (α_ R E R).hom ≫ R ◁ ε = (λ_ R).hom ≫ (ρ_ R).inv) :
+    𝟙 b ◁ (η ▷ R) ≫ ((λ_ _).hom ≫ (α_ R E R).hom ≫ R ◁ (ρ_ (E ≫ R)).inv) ≫
+        R ◁ (ε ▷ 𝟙 a) =
+      (λ_ _).hom ≫ (λ_ R).hom ≫ (ρ_ R).inv ≫ R ◁ (λ_ (𝟙 a)).inv := by
+  have h : 𝟙 b ◁ (η ▷ R) ≫ ((λ_ _).hom ≫ (α_ R E R).hom ≫ R ◁ (ρ_ (E ≫ R)).inv) ≫
+      R ◁ (ε ▷ 𝟙 a) =
+      (λ_ _).hom ≫ (η ▷ R ≫ (α_ R E R).hom ≫ R ◁ ε) ≫ R ◁ (λ_ (𝟙 a)).inv := by
+    bicategory
+  rw [h, htri]
+  bicategory
+
+/-- **The other zigzag relation in normal form**: the dual strand `ρ` with a cup on its right and
+a cap on its left, for generator images given by the unit and counit of an adjunction
+`F ρ ⊣ F e`. -/
+theorem zag_key' {a b : FB S} {e : a ⟶ b} {ρ : b ⟶ a} {p₁ d₁ c₁ : b ⟶ b} {q₁ : b ⟶ a}
+    {p₂ : b ⟶ a} {q₂ d₂ c₂ : a ⟶ a} (σp₁ : p₁ ≅ 𝟙 b) (σq₁ : q₁ ≅ ρ) (σd₁ : d₁ ≅ 𝟙 b)
+    (σc₁ : c₁ ≅ ρ ≫ e) (σp₂ : p₂ ≅ ρ) (σq₂ : q₂ ≅ 𝟙 a) (σd₂ : d₂ ≅ e ≫ ρ) (σc₂ : c₂ ≅ 𝟙 a)
+    (adj : M.lift.map ρ ⊣ M.lift.map e)
+    (g₁ : M.lift.map d₁ ⟶ M.lift.map c₁) (g₂ : M.lift.map d₂ ⟶ M.lift.map c₂)
+    (hg₁ : M.lift.map₂ σd₁.inv ≫ g₁ ≫ M.lift.map₂ σc₁.hom = adj.unit)
+    (hg₂ : M.lift.map₂ σd₂.inv ≫ g₂ ≫ M.lift.map₂ σc₂.hom = adj.counit)
+    {P P₁ Q₁ P₂ Q₂ Q : b ⟶ a}
+    (E₀ : P ⟶ P₁) (A₁ : P₁ ⟶ p₁ ≫ (d₁ ≫ q₁)) (B₁ : p₁ ≫ (c₁ ≫ q₁) ⟶ Q₁) (E₁ : Q₁ ⟶ P₂)
+    (A₂ : P₂ ⟶ p₂ ≫ (d₂ ≫ q₂)) (B₂ : p₂ ≫ (c₂ ≫ q₂) ⟶ Q₂) (E₂ : Q₂ ⟶ Q) (Z : P ⟶ Q) :
+    M.lift.map₂ E₀ ≫ (M.lift.map₂ A₁ ≫ midK M p₁ q₁ g₁ ≫ M.lift.map₂ B₁) ≫ M.lift.map₂ E₁ ≫
+        (M.lift.map₂ A₂ ≫ midK M p₂ q₂ g₂ ≫ M.lift.map₂ B₂) ≫ M.lift.map₂ E₂ =
+      M.lift.map₂ Z := by
+  obtain ⟨η, hη⟩ : ∃ η : M.lift.map (𝟙 b) ⟶ M.lift.map (ρ ≫ e),
+      η = M.lift.map₂ σd₁.inv ≫ g₁ ≫ M.lift.map₂ σc₁.hom := ⟨_, rfl⟩
+  obtain ⟨ε, hε⟩ : ∃ ε : M.lift.map (e ≫ ρ) ⟶ M.lift.map (𝟙 a),
+      ε = M.lift.map₂ σd₂.inv ≫ g₂ ≫ M.lift.map₂ σc₂.hom := ⟨_, rfl⟩
+  have htri : (η : 𝟙 _ ⟶ M.lift.map ρ ≫ M.lift.map e) ▷ M.lift.map ρ ≫ (α_ _ _ _).hom ≫
+      M.lift.map ρ ◁ (ε : M.lift.map e ≫ M.lift.map ρ ⟶ 𝟙 _) = (λ_ _).hom ≫ (ρ_ _).inv := by
+    have h := adj.left_triangle
+    simp only [leftZigzag, bicategoricalComp] at h
+    have e₁ : (η : 𝟙 _ ⟶ M.lift.map ρ ≫ M.lift.map e) = adj.unit := hη.trans hg₁
+    have e₂ : (ε : M.lift.map e ≫ M.lift.map ρ ⟶ 𝟙 _) = adj.counit := hε.trans hg₂
+    rw [e₁, e₂, ← h]
+    bicategory
+  have hg₁' : g₁ = M.lift.map₂ σd₁.hom ≫ η ≫ M.lift.map₂ σc₁.inv := by
+    rw [hη]
+    simp only [Category.assoc, ← PrelaxFunctor.map₂_comp, Iso.hom_inv_id, PrelaxFunctor.map₂_id,
+      Category.comp_id]
+    rw [← PrelaxFunctor.map₂_comp_assoc, Iso.hom_inv_id, PrelaxFunctor.map₂_id, Category.id_comp]
+  have hg₂' : g₂ = M.lift.map₂ σd₂.hom ≫ ε ≫ M.lift.map₂ σc₂.inv := by
+    rw [hε]
+    simp only [Category.assoc, ← PrelaxFunctor.map₂_comp, Iso.hom_inv_id, PrelaxFunctor.map₂_id,
+      Category.comp_id]
+    rw [← PrelaxFunctor.map₂_comp_assoc, Iso.hom_inv_id, PrelaxFunctor.map₂_id, Category.id_comp]
+  have hmid : midK M (𝟙 b) ρ η ≫
+      M.lift.map₂ ((λ_ _).hom ≫ (α_ ρ e ρ).hom ≫ ρ ◁ (ρ_ (e ≫ ρ)).inv) ≫ midK M ρ (𝟙 a) ε =
+      M.lift.map₂ ((λ_ _).hom ≫ (λ_ ρ).hom ≫ (ρ_ ρ).inv ≫ ρ ◁ (λ_ (𝟙 a)).inv) := by
+    simp only [midK, PrelaxFunctor.map₂_comp, lift_map₂_whiskerLeft, lift_map₂_associator_hom,
+      lift_map₂_leftUnitor_hom, lift_map₂_leftUnitor_inv, lift_map₂_rightUnitor_inv,
+      lift_map_comp]
+    exact zag_aux η ε htri
+  rw [hg₁', hg₂', mid_comp M, mid_comp M, mid_conj M σp₁ σq₁, mid_conj M σp₂ σq₂]
+  simp only [Category.assoc, ← PrelaxFunctor.map₂_comp_assoc, ← PrelaxFunctor.map₂_comp]
+  rw [lift_map₂_eq M _ ((λ_ _).hom ≫ (α_ ρ e ρ).hom ≫ ρ ◁ (ρ_ (e ≫ ρ)).inv), reassoc_of% hmid]
+  simp only [← PrelaxFunctor.map₂_comp]
+  exact lift_map₂_eq M _ _
+
 end Mid
 
 /-- A transport between images of equal free 1-morphisms is the image of a free 2-morphism. -/

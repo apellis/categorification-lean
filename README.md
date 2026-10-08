@@ -224,7 +224,8 @@ and closes unconditionally for highest weight at most `5`. Prop. 3.9 is proved u
 (`StrongSl2.BBw.adjHyp`, below; issue #6). In `(BB_w)`, each pair of parallel words in `E`, `F`
 has its own lower bound on graded Hom finranks. With Hom-finiteness this is actual Hom-space
 vanishing. This is not a uniform bound or a condition on arbitrary ambient 1-morphisms. Theorem
-1.1 under `(BB_w)` is in progress in issue #19. The unrestricted statement remains issue #10. No equivalence of `(BB_w)` with biadjointness
+1.1 under `(BB_w)` is in progress in issue #19; for `g = sl₂` (dots normalized to `r_i = 1`) the
+interpretation of `U(sl₂)` on hom categories is constructed (`StrongSl2.interpU`, below). The unrestricted statement remains issue #10. No equivalence of `(BB_w)` with biadjointness
 or automatic validity for general bimodule realizations is asserted here.
 
 | Theorem | Source locator | Declaration (`TwoRep.StrongSl2`) | Hypotheses | Status |
@@ -262,6 +263,7 @@ or automatic validity for general bimodule realizations is asserted here.
 | Dotted bubbles in the `sl₂` model | KL III Def. 3.1 (`cwNeg`, `ccwNeg`, `cwOne`, `ccwOne`) / CL `eq_positivity_bubbles` for the `sl₂` model, in the regions `λ ≡ n₀ (mod 2)`: bubbles of negative degree vanish (CL (3.4)), bubbles of degree zero are `1` (CL (4.1), Lemma 5.4 `c_{-1} = 1`) | `StrongSl2.img_cwReal`, `StrongSl2.img_ccwReal`, `StrongSl2.cwReal_eq_zero`, `StrongSl2.ccwReal_eq_zero`, `StrongSl2.cwReal_deg_zero`, `StrongSl2.ccwReal_deg_zero` | `(BB_w)` | Proved |
 | Curl relations in the `sl₂` model | KL III Def. 3.1 (`curlR`, `curlL`) / CL `eq_reduction-ngeqz`, `eq_reduction-nleqz` (`r_i = 1`) for the `sl₂` model, in the regions `λ ≡ n₀ (mod 2)`, with KL III's fake bubbles: the curls of CL §5.3 (`BBw.curlG_eq`, `BBw.curlE_eq`) read through the interpretation; fake bubbles go to fake bubbles (ring homomorphism `bubHom`, compatible with the infinite Grassmannian recursion) | `StrongSl2.rel_curlR`, `StrongSl2.rel_curlL`, `StrongSl2.img_curlR`, `StrongSl2.img_curlL`, `StrongSl2.bubHom`, `StrongSl2.bubHom_cwL`, `StrongSl2.bubHom_ccwL`, `BicatInterp.curl_key`, `BicatInterp.curlL_key`, `BicatInterp.conj_freeLift_whisker` | `(BB_w)` | Proved |
 | Decompositions of `1_{EF}`, `1_{FE}` in the `sl₂` model | KL III Def. 3.1 (`decompEF`, `decompFE`) / CL `eq_ident_decomp` (`r_i = 1`) for the `sl₂` model, in the regions `λ ≡ n₀ (mod 2)`: the sideways crossings go to CL's `σ` and `σ'` ((4.16)), the dotted caps and cups and fake bubbles to CL's, and KL III's sums are CL's sums (`BBw.decompEF`, `BBw.decompFE`) after reindexing | `StrongSl2.rel_decompEF`, `StrongSl2.rel_decompFE`, `StrongSl2.img_crossl`, `StrongSl2.img_crossr`, `BicatInterp.sideR_key`, `BicatInterp.sideL_key` | `(BB_w)` | Proved |
+| CL Thm. 5.5 for `g = sl₂`, on hom categories | CL Theorem 5.5 for `sl₂` (`r_i = 1`): every relation of KL III's presentation of `U(sl₂)` (Def. 3.1) is killed by the `sl₂` model, so for outer regions `s₀ ≡ n₀ (mod 2)` the interpretation descends to a linear functor from `U(sl₂)` to the hom categories of `K^•` | `StrongSl2.relations_killed`, `StrongSl2.respects_sl2`, `StrongSl2.interpU` | `(BB_w)` | Proved |
 
 `TwoRep/Coop.lean` constructs the bidual `Coop B` of a bicategory (1- and 2-morphisms reversed;
 the Hom categories are opposite categories with the inverted grading shift, so degrees are

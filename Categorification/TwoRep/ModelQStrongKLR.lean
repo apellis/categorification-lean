@@ -444,8 +444,9 @@ theorem upDiag_braidR_g (c d e : I) (μ : X) :
   rfl
 
 set_option maxHeartbeats 10000000 in
-/-- The braid relation on three upward strands with bottom labels `c d e`, unless `c = e ≠ d`. -/
-theorem klr_braid_gen (c d e : I) (hb : ¬ (c = e ∧ c ≠ d)) (μ : X) :
+/-- The braid relation on three upward strands with bottom labels `c d e`, unless `c = e` and
+`(α_c, α_d) < 0` (the hypothesis of CL (2.13)). -/
+theorem klr_braid_gen' (c d e : I) (hb' : ¬ (c = e ∧ C.dot c d < 0)) (μ : X) :
     (interp (genImg hsl hS Sc) (KL3.Diagram.wt RD μ [up c, up d, up e] : X) μ).functor.map
         (upDiag RD μ (KLR.Diagram.braidL c d e)) -
       (interp (genImg hsl hS Sc) (KL3.Diagram.wt RD μ [up c, up d, up e] : X) μ).functor.map
@@ -574,14 +575,21 @@ theorem klr_braid_gen (c d e : I) (hb : ¬ (c = e ∧ c ≠ d)) (μ : X) :
   repeat erw [layerAt_right_assoc]
   repeat erw [layerAt_left]
   simp only [lift_map₂_eqToHom, PrelaxFunctor.map₂_id, Category.id_comp, Category.comp_id]
-  have hb' : ¬ (c = e ∧ C.dot c d < 0) := by
-    rintro ⟨rfl, hcd⟩
-    refine hb ⟨rfl, fun h' => ?_⟩
-    subst h'
-    rw [hsl] at hcd
-    omega
   exact sub_eq_zero.2 (S.crossQ_braid_cast c d e hb' _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
     (add_left_comm _ _ _) (add_left_comm _ _ _) (add_left_comm _ _ _) _ _ _)
+
+/-- The braid relation on three upward strands with bottom labels `c d e`, unless `c = e ≠ d`. -/
+theorem klr_braid_gen (c d e : I) (hb : ¬ (c = e ∧ c ≠ d)) (μ : X) :
+    (interp (genImg hsl hS Sc) (KL3.Diagram.wt RD μ [up c, up d, up e] : X) μ).functor.map
+        (upDiag RD μ (KLR.Diagram.braidL c d e)) -
+      (interp (genImg hsl hS Sc) (KL3.Diagram.wt RD μ [up c, up d, up e] : X) μ).functor.map
+        (upDiag RD μ (KLR.Diagram.braidR c d e)) = 0 := by
+  refine klr_braid_gen' hsl hS Sc c d e ?_ μ
+  rintro ⟨rfl, hcd⟩
+  refine hb ⟨rfl, fun h' => ?_⟩
+  subst h'
+  rw [hsl] at hcd
+  omega
 
 
 /-! ### The relations, read with their own outer regions -/

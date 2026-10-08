@@ -14,11 +14,18 @@ the image of the relation under the interpretation `BicatInterp.interp (genImg h
 * Biadjointness (KL III (3.1), (3.2); CL Definition 1.1 (1)): the four zigzag relations of the
   pivotal extension, from the triangle identities of `E ⊣ R` and of the normalized left
   adjunctions `R ⊣ E` (`zigL_up`, `zigL_down`, `zigR_up`, `zigR_down`; `zigL_eq`, `zigR_eq`).
+* Cyclicity of dots (KL III (3.3); CL Definition 1.1 (2)): the upward dot rotated by a cup on the
+  right and a cap on the left (`cycDotR`), or on the other side (`cycDotL`), is the downward dot.
+  The first is the definition of the downward dot as a mate; the second is CL Lemma 4.1 for the
+  normalized left adjunctions (`gDot_cyclic`), which holds under (BB_w).
 
 The computation of an image goes through `BicatInterp`'s normal forms: the image of the diagram is
 unfolded into images of layers (`layerI_pos`), the transports between words become images of free
-2-morphisms (`eqToHom_word`), and an abstract normal-form lemma (`zig_key'`, `zag_key'`) reduces the
-relation to the corresponding identity of the generator images in the graded-Hom bicategory.
+2-morphisms (`eqToHom_word`), and an abstract normal-form lemma (`zig_key'`, `zag_key'`,
+`rot_key`, `rotL_key`) reduces the relation to the corresponding identity of the generator images
+in the graded-Hom bicategory. Regions of a diagram that are equal but not definitionally so (such
+as `λ` and `λ + i_X - i_X`) are first identified by generalizing them, before the images of the
+layers are unfolded.
 -/
 
 noncomputable section
@@ -79,26 +86,26 @@ theorem zigL_up (r : ℤ) :
   set_option backward.isDefEq.respectTransparency false in
   rw [eqToHom_word ?e0 _, eqToHom_word ?e1 _, ← PrelaxFunctor.map₂_id]
   · unfold coreC core
+    dsimp only [Signature.endR_cons, Signature.endR_nil, Signature.pivotal_left_cup,
+      Signature.pivotal_right_cup, Signature.pivotal_dom_cup, Signature.pivotal_cod_cup,
+      Signature.pivotal_left_cap, Signature.pivotal_right_cap, Signature.pivotal_dom_cap,
+      Signature.pivotal_cod_cap, psig_colourSrc, psig_colourTgt, inv_dual]
     refine zig_key' S.model
       (e := FreeBicategory.Hom.of (⟨⟨(true, ()), r⟩, rfl, rfl⟩ :
         rq (S := psig sl2RootDatum) r ⟶ rq (sh sl2RootDatum ((true, ()) : Letter Unit) + r)))
       (ρ := FreeBicategory.Hom.of (⟨(inv sl2RootDatum).dual ⟨(true, ()), r⟩, rfl,
           sh_false_sh_true () r⟩ :
         rq (S := psig sl2RootDatum) (sh sl2RootDatum ((true, ()) : Letter Unit) + r) ⟶ rq r))
-      (λ_ _) (Iso.refl _) (Iso.refl _) (whiskerRightIso (λ_ _) _) (Iso.refl _) (λ_ _)
-      (whiskerRightIso (λ_ _) _) (Iso.refl _)
+      (Iso.refl _) (Iso.refl _) (Iso.refl _) (Iso.refl _) (Iso.refl _) (Iso.refl _)
+      (Iso.refl _) (Iso.refl _)
       (gAdjL hS (S.qi r) (S.qi (sh sl2RootDatum ((true, ()) : Letter Unit) + r)) (S.qi_sh_true () r))
       _ _ ?_ ?_ _ _ _ _ _ _ _ _
-    · simp only [Iso.refl_inv, PrelaxFunctor.map₂_id, whiskerRightIso_hom,
-        lift_map₂_whiskerRight, lift_map₂_leftUnitor_hom]
-      simp only [genImg]
-      erw [Category.id_comp, Category.assoc]
-      erw [← comp_whiskerRight, Iso.inv_hom_id, id_whiskerRight, Category.comp_id]
-    · simp only [Iso.refl_hom, PrelaxFunctor.map₂_id, whiskerRightIso_inv,
-        lift_map₂_whiskerRight, lift_map₂_leftUnitor_inv]
-      simp only [genImg]
-      erw [Category.comp_id, ← Category.assoc, ← comp_whiskerRight, Iso.inv_hom_id,
-        id_whiskerRight, Category.id_comp]
+    · simp only [Iso.refl_inv, Iso.refl_hom, PrelaxFunctor.map₂_id, Category.id_comp,
+        Category.comp_id]
+      rfl
+    · simp only [Iso.refl_inv, Iso.refl_hom, PrelaxFunctor.map₂_id, Category.id_comp,
+        Category.comp_id]
+      rfl
   all_goals rfl
 
 /-- **The left zigzag on a downward strand** (KL III (3.1)): the triangle identity of
@@ -136,20 +143,16 @@ theorem zigL_down (r : ℤ) :
       (ρ := FreeBicategory.Hom.of (⟨(inv sl2RootDatum).dual ⟨(false, ()), r⟩, rfl,
           sh_true_sh_false () r⟩ :
         rq (S := psig sl2RootDatum) (sh sl2RootDatum ((false, ()) : Letter Unit) + r) ⟶ rq r))
-      (λ_ _) (Iso.refl _) (Iso.refl _) (whiskerRightIso (λ_ _) _) (Iso.refl _) (λ_ _)
-      (whiskerRightIso (λ_ _) _) (Iso.refl _)
+      (Iso.refl _) (Iso.refl _) (Iso.refl _) (Iso.refl _) (Iso.refl _) (Iso.refl _)
+      (Iso.refl _) (Iso.refl _)
       (S.gAdjE (S.qi (sh sl2RootDatum ((false, ()) : Letter Unit) + r)) (S.qi r) (S.qi_sh_false () r))
       _ _ ?_ ?_ _ _ _ _ _ _ _ _
-    · simp only [Iso.refl_inv, PrelaxFunctor.map₂_id, whiskerRightIso_hom,
-        lift_map₂_whiskerRight, lift_map₂_leftUnitor_hom]
-      simp only [genImg]
-      erw [Category.id_comp, Category.assoc]
-      erw [← comp_whiskerRight, Iso.inv_hom_id, id_whiskerRight, Category.comp_id]
-    · simp only [Iso.refl_hom, PrelaxFunctor.map₂_id, whiskerRightIso_inv,
-        lift_map₂_whiskerRight, lift_map₂_leftUnitor_inv]
-      simp only [genImg]
-      erw [Category.comp_id, ← Category.assoc, ← comp_whiskerRight, Iso.inv_hom_id,
-        id_whiskerRight, Category.id_comp]
+    · simp only [Iso.refl_inv, Iso.refl_hom, PrelaxFunctor.map₂_id, Category.id_comp,
+        Category.comp_id]
+      rfl
+    · simp only [Iso.refl_inv, Iso.refl_hom, PrelaxFunctor.map₂_id, Category.id_comp,
+        Category.comp_id]
+      rfl
   all_goals rfl
 
 /-- **The right zigzag on the dual of an upward strand** (KL III (3.2)): the other triangle
@@ -187,20 +190,16 @@ theorem zigR_up (r : ℤ) :
       (ρ := FreeBicategory.Hom.of (⟨(inv sl2RootDatum).dual ⟨(true, ()), r⟩, rfl,
           sh_false_sh_true () r⟩ :
         rq (S := psig sl2RootDatum) (sh sl2RootDatum ((true, ()) : Letter Unit) + r) ⟶ rq r))
-      (Iso.refl _) (λ_ _) (Iso.refl _) (whiskerRightIso (λ_ _) _) (λ_ _) (Iso.refl _)
-      (whiskerRightIso (λ_ _) _) (Iso.refl _)
+      (Iso.refl _) (Iso.refl _) (Iso.refl _) (Iso.refl _) (Iso.refl _) (Iso.refl _)
+      (Iso.refl _) (Iso.refl _)
       (gAdjL hS (S.qi r) (S.qi (sh sl2RootDatum ((true, ()) : Letter Unit) + r)) (S.qi_sh_true () r))
       _ _ ?_ ?_ _ _ _ _ _ _ _ _
-    · simp only [Iso.refl_inv, PrelaxFunctor.map₂_id, whiskerRightIso_hom,
-        lift_map₂_whiskerRight, lift_map₂_leftUnitor_hom]
-      simp only [genImg]
-      erw [Category.id_comp, Category.assoc]
-      erw [← comp_whiskerRight, Iso.inv_hom_id, id_whiskerRight, Category.comp_id]
-    · simp only [Iso.refl_hom, PrelaxFunctor.map₂_id, whiskerRightIso_inv,
-        lift_map₂_whiskerRight, lift_map₂_leftUnitor_inv]
-      simp only [genImg]
-      erw [Category.comp_id, ← Category.assoc, ← comp_whiskerRight, Iso.inv_hom_id,
-        id_whiskerRight, Category.id_comp]
+    · simp only [Iso.refl_inv, Iso.refl_hom, PrelaxFunctor.map₂_id, Category.id_comp,
+        Category.comp_id]
+      rfl
+    · simp only [Iso.refl_inv, Iso.refl_hom, PrelaxFunctor.map₂_id, Category.id_comp,
+        Category.comp_id]
+      rfl
   all_goals rfl
 
 
@@ -240,20 +239,16 @@ theorem zigR_down (r : ℤ) :
       (ρ := FreeBicategory.Hom.of (⟨(inv sl2RootDatum).dual ⟨(false, ()), r⟩, rfl,
           sh_true_sh_false () r⟩ :
         rq (S := psig sl2RootDatum) (sh sl2RootDatum ((false, ()) : Letter Unit) + r) ⟶ rq r))
-      (Iso.refl _) (λ_ _) (Iso.refl _) (whiskerRightIso (λ_ _) _) (λ_ _) (Iso.refl _)
-      (whiskerRightIso (λ_ _) _) (Iso.refl _)
+      (Iso.refl _) (Iso.refl _) (Iso.refl _) (Iso.refl _) (Iso.refl _) (Iso.refl _)
+      (Iso.refl _) (Iso.refl _)
       (S.gAdjE (S.qi (sh sl2RootDatum ((false, ()) : Letter Unit) + r)) (S.qi r) (S.qi_sh_false () r))
       _ _ ?_ ?_ _ _ _ _ _ _ _ _
-    · simp only [Iso.refl_inv, PrelaxFunctor.map₂_id, whiskerRightIso_hom,
-        lift_map₂_whiskerRight, lift_map₂_leftUnitor_hom]
-      simp only [genImg]
-      erw [Category.id_comp, Category.assoc]
-      erw [← comp_whiskerRight, Iso.inv_hom_id, id_whiskerRight, Category.comp_id]
-    · simp only [Iso.refl_hom, PrelaxFunctor.map₂_id, whiskerRightIso_inv,
-        lift_map₂_whiskerRight, lift_map₂_leftUnitor_inv]
-      simp only [genImg]
-      erw [Category.comp_id, ← Category.assoc, ← comp_whiskerRight, Iso.inv_hom_id,
-        id_whiskerRight, Category.id_comp]
+    · simp only [Iso.refl_inv, Iso.refl_hom, PrelaxFunctor.map₂_id, Category.id_comp,
+        Category.comp_id]
+      rfl
+    · simp only [Iso.refl_inv, Iso.refl_hom, PrelaxFunctor.map₂_id, Category.id_comp,
+        Category.comp_id]
+      rfl
   all_goals rfl
 
 
@@ -276,6 +271,178 @@ theorem zigR_eq (c : Col Unit ℤ) :
   cases b
   · exact zigR_down hS r
   · exact zigR_up hS r
+
+/-! ## Cyclicity of dots -/
+
+omit [∀ a b : B, IsIdempotentComplete (a ⟶ b)] [∀ a b : B, HomFinite k (a ⟶ b)] in
+theorem sig0_colourSrc' (c : Col Unit ℤ) :
+    (sig0 sl2RootDatum).colourSrc c = sh sl2RootDatum c.l + c.r := rfl
+
+omit [∀ a b : B, IsIdempotentComplete (a ⟶ b)] [∀ a b : B, HomFinite k (a ⟶ b)] in
+theorem sig0_colourTgt' (c : Col Unit ℤ) : (sig0 sl2RootDatum).colourTgt c = c.r := rfl
+
+omit [∀ a b : B, IsIdempotentComplete (a ⟶ b)] [∀ a b : B, HomFinite k (a ⟶ b)] in
+theorem sig0_dom_dot' (c : Col Unit ℤ) : (sig0 sl2RootDatum).dom (.dot c) = [c] := rfl
+
+omit [∀ a b : B, IsIdempotentComplete (a ⟶ b)] [∀ a b : B, HomFinite k (a ⟶ b)] in
+theorem sig0_cod_dot' (c : Col Unit ℤ) : (sig0 sl2RootDatum).cod (.dot c) = [c] := rfl
+
+omit [∀ a b : B, IsIdempotentComplete (a ⟶ b)] [∀ a b : B, HomFinite k (a ⟶ b)] in
+theorem dual_up' (i : Unit) : Letter.dual (up i) = dn i := rfl
+
+omit [∀ a b : B, IsIdempotentComplete (a ⟶ b)] [∀ a b : B, HomFinite k (a ⟶ b)] in
+theorem dual_dn' (i : Unit) : Letter.dual (dn i) = up i := rfl
+
+/-- Transporting the counit of `R ⊣ E` along an equality of indices. -/
+theorem gAdjL_counit_congr (a b b' : ℤ) (h : b = b') (p : a + 1 = b) (p' : a + 1 = b')
+    (e : S.gEc a b' p' ≫ S.gRc a b' p' = S.gEc a b p ≫ S.gRc a b p) :
+    eqToHom e ≫ (gAdjL hS a b p).counit = (gAdjL hS a b' p').counit := by
+  subst h; simp
+
+set_option maxHeartbeats 2000000 in
+/-- **Cyclicity of the dot, right rotation** (KL III (3.3), left-hand picture): the upward dot
+rotated by a cup on the right and a cap on the left is the downward dot. -/
+theorem cycDotR (μ : ℤ) :
+    (interp (genImg hS) (KL3.Diagram.wt sl2RootDatum μ [dn ()] : ℤ) μ).functor.map
+      (rotDotR sl2RootDatum () μ) =
+    (interp (genImg hS) (KL3.Diagram.wt sl2RootDatum μ [dn ()] : ℤ) μ).functor.map
+      (downDot sl2RootDatum () μ) := by
+  have hc : Cond (S := psig sl2RootDatum) (KL3.Diagram.wt sl2RootDatum μ [dn ()] : ℤ) μ
+      (ob sl2RootDatum μ [dn ()]) := ⟨⟨rfl, trivial⟩, rfl, rfl⟩
+  apply (cancel_epi (eqToHom (objI_pos _ _ hc).symm)).1
+  apply (cancel_mono (eqToHom (objI_pos _ _ hc))).1
+  set_option backward.isDefEq.respectTransparency false in
+  simp only [Interpretation.functor_map, rotDotR, downDot, mkD, Diagram.layers_mk, layList_cons,
+    layList_nil, Interpretation.mapChain]
+  set_option backward.isDefEq.respectTransparency false in
+  simp only [lay, Shape.gen, wd_cons, wd_nil, wt_cons, wt_nil, List.nil_append,
+    List.cons_append, Shape.dom, dual_up']
+  generalize_proofs
+  generalize hx : sh sl2RootDatum (up ()) + (sh sl2RootDatum (dn ()) + μ) = x at *
+  have hxμ : x = μ := by rw [← hx]; exact sh_true_sh_false () μ
+  subst hxμ
+  rw [layerI_pos _ _ _ _ ?c1, layerI_pos _ _ _ _ ?c2, layerI_pos _ _ _ _ ?c3,
+    layerI_pos _ _ _ _ ?c4]
+  case c1 | c2 | c3 | c4 =>
+    refine ⟨?_, ?_, rfl⟩ <;>
+      simp [Signature.ok, Signature.endR, Layer.dom, inv_dual, sh_true_sh_false, Letter.dual,
+        sig0_colourSrc', sig0_colourTgt', sig0_dom_dot']
+  simp only [Category.assoc, eqToHom_trans_assoc, eqToHom_trans]
+  set_option backward.isDefEq.respectTransparency false in
+  rw [eqToHom_word ?w0 _]
+  set_option backward.isDefEq.respectTransparency false in
+  rw [eqToHom_word ?w1 _]
+  set_option backward.isDefEq.respectTransparency false in
+  erw [eqToHom_word ?w2 _]
+  · unfold coreC core
+    dsimp only [Signature.endR, psig_colourTgt, psig_colourSrc, Signature.pivotal_dom_cup,
+      Signature.pivotal_cod_cup, Signature.pivotal_dom_cap, Signature.pivotal_cod_cap,
+      Signature.pivotal_dom_gen, Signature.pivotal_cod_gen, Signature.pivotal_left_cup,
+      Signature.pivotal_right_cup, Signature.pivotal_left_cap, Signature.pivotal_right_cap,
+      Signature.pivotal_left_gen, Signature.pivotal_right_gen, sig0_dom_dot', inv_dual, dual_up',
+      sig0_colourTgt', sig0_colourSrc']
+    refine rot_key S.model
+      (r := FreeBicategory.Hom.of (⟨⟨dn (), x⟩, rfl, rfl⟩ :
+        rq (S := psig sl2RootDatum) x ⟶ rq (sh sl2RootDatum (dn ()) + x)))
+      (e := FreeBicategory.Hom.of (⟨⟨up (), sh sl2RootDatum (dn ()) + x⟩, rfl,
+          sh_true_sh_false () x⟩ :
+        rq (S := psig sl2RootDatum) (sh sl2RootDatum (dn ()) + x) ⟶ rq x))
+      (gAdjL hS (S.qi (sh sl2RootDatum (dn ()) + x)) (S.qi x) (S.qi_sh_false () x))
+      (S.gDot (S.qi (sh sl2RootDatum (dn ()) + x)) (S.qi x) (S.qi_sh_false () x))
+      (Iso.refl _) (Iso.refl _) (Iso.refl _) (whiskerRightIso (eqToIso (hom_of_congr ?hc1)) _)
+      _ ?hg1
+      (Iso.refl _) (Iso.refl _) (Iso.refl _) (Iso.refl _) _ ?hg2
+      (Iso.refl _) (Iso.refl _) (eqToIso (by refine comp_of_congr hx rfl ?_; exact congrArg (Col.mk (dn ())) hx)) (Iso.refl _) _ ?hg3
+      (Iso.refl _) (Iso.refl _) (Iso.refl _) (Iso.refl _) _ ?hg4
+      _ _ _ _ _ _ _ _ _ _ _ _ _ _
+    case hc1 => exact congrArg (Col.mk (dn ())) hx
+    case hg1 =>
+      simp only [Iso.refl_inv, PrelaxFunctor.map₂_id, Category.id_comp, whiskerRightIso_hom,
+        eqToIso.hom, lift_map₂_whiskerRight, lift_map₂_eqToHom]
+      erw [eqToHom_refl, id_whiskerRight, Category.comp_id]
+      rfl
+    case hg2 =>
+      simp only [Iso.refl_inv, Iso.refl_hom, PrelaxFunctor.map₂_id, Category.id_comp,
+        Category.comp_id]
+      rfl
+    case hg3 =>
+      simp only [Iso.refl_hom, PrelaxFunctor.map₂_id, Category.comp_id, eqToIso.inv,
+        lift_map₂_eqToHom]
+      exact gAdjL_counit_congr hS _ _ _ (congrArg S.qi hx) _ _ _
+    case hg4 =>
+      simp only [Iso.refl_inv, Iso.refl_hom, PrelaxFunctor.map₂_id, Category.id_comp,
+        Category.comp_id]
+      simp only [genImg, gDotR]
+      congr 1
+  all_goals simp [Layer.cod, Layer.dom, ob, inv_dual, hx, sig0_dom_dot', sig0_cod_dot']
+
+set_option maxHeartbeats 2000000 in
+/-- **Cyclicity of the dot, left rotation** (KL III (3.3), right-hand picture): the upward dot
+rotated by a cup on the left and a cap on the right is the downward dot. This is CL Lemma 4.1
+for the normalized left adjunctions, which holds under (BB_w) (`BBw.cyclic_dot_leftAdjN`). -/
+theorem cycDotL (μ : ℤ) :
+    (interp (genImg hS) (KL3.Diagram.wt sl2RootDatum μ [dn ()] : ℤ) μ).functor.map
+      (rotDotL sl2RootDatum () μ) =
+    (interp (genImg hS) (KL3.Diagram.wt sl2RootDatum μ [dn ()] : ℤ) μ).functor.map
+      (downDot sl2RootDatum () μ) := by
+  have hc : Cond (S := psig sl2RootDatum) (KL3.Diagram.wt sl2RootDatum μ [dn ()] : ℤ) μ
+      (ob sl2RootDatum μ [dn ()]) := ⟨⟨rfl, trivial⟩, rfl, rfl⟩
+  apply (cancel_epi (eqToHom (objI_pos _ _ hc).symm)).1
+  apply (cancel_mono (eqToHom (objI_pos _ _ hc))).1
+  set_option backward.isDefEq.respectTransparency false in
+  simp only [Interpretation.functor_map, rotDotL, downDot, mkD, Diagram.layers_mk, layList_cons,
+    layList_nil, Interpretation.mapChain]
+  set_option backward.isDefEq.respectTransparency false in
+  simp only [lay, Shape.gen, wd_cons, wd_nil, wt_cons, wt_nil, List.nil_append,
+    List.cons_append, Shape.dom, dual_dn']
+  generalize_proofs
+  generalize hx : sh sl2RootDatum (up ()) + (sh sl2RootDatum (dn ()) + μ) = x at *
+  have hxμ : x = μ := by rw [← hx]; exact sh_true_sh_false () μ
+  subst hxμ
+  rw [layerI_pos _ _ _ _ ?c1, layerI_pos _ _ _ _ ?c2, layerI_pos _ _ _ _ ?c3,
+    layerI_pos _ _ _ _ ?c4]
+  case c1 | c2 | c3 | c4 =>
+    refine ⟨?_, ?_, rfl⟩ <;>
+      simp [Signature.ok, Signature.endR, Layer.dom, inv_dual, sh_true_sh_false, Letter.dual,
+        sig0_colourSrc', sig0_colourTgt', sig0_dom_dot']
+  simp only [Category.assoc, eqToHom_trans_assoc, eqToHom_trans]
+  set_option backward.isDefEq.respectTransparency false in
+  rw [eqToHom_word ?w0 _]
+  set_option backward.isDefEq.respectTransparency false in
+  rw [eqToHom_word ?w1 _]
+  set_option backward.isDefEq.respectTransparency false in
+  try erw [eqToHom_word ?w2 _]
+  · unfold coreC core
+    dsimp only [Signature.endR, psig_colourTgt, psig_colourSrc, Signature.pivotal_dom_cup,
+      Signature.pivotal_cod_cup, Signature.pivotal_dom_cap, Signature.pivotal_cod_cap,
+      Signature.pivotal_dom_gen, Signature.pivotal_cod_gen, Signature.pivotal_left_cup,
+      Signature.pivotal_right_cup, Signature.pivotal_left_cap, Signature.pivotal_right_cap,
+      Signature.pivotal_left_gen, Signature.pivotal_right_gen, sig0_dom_dot', inv_dual, dual_up',
+      sig0_colourTgt', sig0_colourSrc']
+    refine rotL_key S.model
+      (r := FreeBicategory.Hom.of (⟨⟨dn (), x⟩, rfl, rfl⟩ :
+        rq (S := psig sl2RootDatum) x ⟶ rq (sh sl2RootDatum (dn ()) + x)))
+      (e := FreeBicategory.Hom.of (⟨⟨up (), sh sl2RootDatum (dn ()) + x⟩, rfl,
+          sh_true_sh_false () x⟩ :
+        rq (S := psig sl2RootDatum) (sh sl2RootDatum (dn ()) + x) ⟶ rq x))
+      (S.gAdjE (S.qi (sh sl2RootDatum (dn ()) + x)) (S.qi x) (S.qi_sh_false () x))
+      (S.gDot (S.qi (sh sl2RootDatum (dn ()) + x)) (S.qi x) (S.qi_sh_false () x))
+      (Iso.refl _) (Iso.refl _) (Iso.refl _) (Iso.refl _) _ ?hg1
+      (Iso.refl _) (Iso.refl _) (Iso.refl _) (Iso.refl _) _ ?hg2
+      (Iso.refl _) (Iso.refl _) (Iso.refl _) (Iso.refl _) _ ?hg3
+      (Iso.refl _) (Iso.refl _) (Iso.refl _) (Iso.refl _) _ ?hg4
+      _ _ _ _ _ _ _ _ _ _ _ _ _ _
+    case hg1 | hg2 | hg3 =>
+      simp only [Iso.refl_inv, Iso.refl_hom, PrelaxFunctor.map₂_id, Category.id_comp,
+        Category.comp_id]
+      rfl
+    case hg4 =>
+      simp only [Iso.refl_inv, Iso.refl_hom, PrelaxFunctor.map₂_id, Category.id_comp,
+        Category.comp_id]
+      simp only [genImg]
+      rw [← gDot_cyclic hS]
+      congr 1
+  all_goals simp [Layer.cod, Layer.dom, ob, inv_dual, sig0_dom_dot']
 
 end StrongSl2
 

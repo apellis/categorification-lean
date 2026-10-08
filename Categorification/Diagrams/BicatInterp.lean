@@ -5,6 +5,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 import StringDiagrams.Interpretation
 import Mathlib.CategoryTheory.Bicategory.Coherence
 import Mathlib.CategoryTheory.Bicategory.Adjunction.Basic
+import Mathlib.CategoryTheory.Bicategory.Adjunction.Mate
 import Mathlib.Tactic.CategoryTheory.Bicategory.Basic
 
 /-!
@@ -29,12 +30,16 @@ coherence theorem `FreeBicategory.locally_thin`).
 * `RQ S`: the quiver of regions, an arrow `x → y` being a colour from the region `x` on its right
   to the region `y` on its left;
 * `fw s w t`: a well-formed word `w` from `s` (to `t`) as a 1-morphism `t ⟶ s` of the free
-  bicategory; `splitIso`: `fw (u ++ w) ≅ fw w ≫ fw u`;
+  bicategory, through the regions named by its strands (the right region of each strand but the
+  last, which ends in `t`); `splitIso`: `fw (u ++ w) ≅ fw w ≫ fw u`;
 * `Model S C` (with `Model.ofStrand`), `Model.pre`, `Model.word`: a model of `S` in `C` and the
   images of words; a model gives the image of a strand between any two regions equal to its
   right and left regions (`Model.strandAt`), so that no transport along equalities of regions is
   forced on it;
-  `GenImg M`: images of the generators;
+  `GenImg M`: images of the generators, between any regions equal to their left and right
+  regions (a layer is split at the regions named by its strands, `coreC`, not at the regions
+  computed from its generator, so that equalities of regions such as `λ + i_X - i_X = λ` never
+  have to be decided definitionally);
 * `objI`, `layerI`, `interp G s₀ t₀`: the interpretation with outer regions `s₀`, `t₀`.
 
 ## Main results
@@ -48,8 +53,11 @@ coherence theorem `FreeBicategory.locally_thin`).
   can occur in the hom category of `s₀`, `t₀` is killed with its own outer regions (all generators
   even), so that `Presentation.lift` gives a linear functor from `P.Presented` to
   `C(M.obj t₀, M.obj s₀)`;
-* normal forms for checking relations: `mid_conj`, `mid_assoc`, `mid_comp`, `conj_key`,
-  `exch_key` (interchange), `zig_key`, `zig_key'` (zigzags from an adjunction).
+* normal forms for checking relations: `mid_conj`, `mid_assoc`, `mid_comp`, `midK_canon`,
+  `conj_key`, `exch_key` (interchange), `zig_key`, `zig_key'`, `zag_key'` (zigzags from an
+  adjunction), `rot_key`, `rotL_key` (rotations of a generator by a cup and a cap: its mates);
+  `hom_of_congr`, `comp_of_congr`, `lift_map₂_eqToHom` for strands whose colours are only
+  propositionally equal.
 
 The hom categories of `C` are assumed preadditive with zero objects (and `R`-linear, with linear
 whiskering, for the reduction of soundness); these hypotheses are only used to send objects with
@@ -83,17 +91,27 @@ abbrev FB (S : Signature.{u₀, u₁, u₂}) := FreeBicategory (RQ S)
 abbrev fo (x : S.Region) : FB S := x
 
 /-- **A well-formed word `w` read from the region `s`**, ending in the region `t`, as a
-1-morphism `t ⟶ s` of the free bicategory. -/
+1-morphism `t ⟶ s` of the free bicategory. The region between two consecutive strands is the
+right region of the left one, and the last strand is taken to end in `t` itself, so that no
+transport along an equality of regions occurs in a nonempty word. -/
 def fw : (s : S.Region) → (w : List S.Colour) → (t : S.Region) → S.ok s w → S.endR s w = t →
     (fo t ⟶ fo s)
   | _, [], _, _, rfl => 𝟙 _
-  | _, c :: w, t, h, e => fw (S.colourTgt c) w t h.2 e ≫ FreeBicategory.Hom.of ⟨c, rfl, h.1⟩
+  | s, [c], t, h, e => FreeBicategory.Hom.of (show rq t ⟶ rq s from ⟨c, e, h.1⟩)
+  | _, c :: c' :: w, t, h, e =>
+    fw (S.colourTgt c) (c' :: w) t h.2 e ≫ FreeBicategory.Hom.of ⟨c, rfl, h.1⟩
 
 theorem fw_nil (s : S.Region) (h : S.ok s []) : fw s [] s h rfl = 𝟙 (fo s) := rfl
 
-theorem fw_cons (s : S.Region) (c : S.Colour) (w : List S.Colour) (t : S.Region)
-    (h : S.ok s (c :: w)) (e : S.endR s (c :: w) = t) :
-    fw s (c :: w) t h e = fw (S.colourTgt c) w t h.2 e ≫ FreeBicategory.Hom.of ⟨c, rfl, h.1⟩ :=
+theorem fw_single (s : S.Region) (c : S.Colour) (t : S.Region) (h : S.ok s [c])
+    (e : S.endR s [c] = t) :
+    fw s [c] t h e = FreeBicategory.Hom.of (show rq t ⟶ rq s from ⟨c, e, h.1⟩) :=
+  rfl
+
+theorem fw_cons₂ (s : S.Region) (c c' : S.Colour) (w : List S.Colour) (t : S.Region)
+    (h : S.ok s (c :: c' :: w)) (e : S.endR s (c :: c' :: w) = t) :
+    fw s (c :: c' :: w) t h e =
+      fw (S.colourTgt c) (c' :: w) t h.2 e ≫ FreeBicategory.Hom.of ⟨c, rfl, h.1⟩ :=
   rfl
 
 /-- The proof irrelevance of `fw` in its region arguments: equal regions give equal words up to
@@ -116,14 +134,17 @@ theorem endR_append_of {s : S.Region} {u w : List S.Colour} {m t : S.Region}
     (hm : S.endR s u = m) (ht : S.endR m w = t) : S.endR s (u ++ w) = t := by
   rw [Signature.endR_append, hm, ht]
 
-/-- **Splitting a word**: `fw (u ++ w) ≅ fw w ≫ fw u` in the free bicategory. -/
+/-- **Splitting a word**: `fw (u ++ w) ≅ fw w ≫ fw u` in the free bicategory, for any region `m`
+equal to the end of `u`. -/
 def splitIso : (s : S.Region) → (u w : List S.Colour) → (m t : S.Region) → (hu : S.ok s u) →
     (hm : S.endR s u = m) → (hw : S.ok m w) → (ht : S.endR m w = t) →
     (fw s (u ++ w) t (ok_append_of hu hm hw) (endR_append_of hm ht) ≅
       fw m w t hw ht ≫ fw s u m hu hm)
   | _, [], _, _, _, _, rfl, _, _ => (ρ_ _).symm
-  | _, c :: u, w, m, t, hu, hm, hw, ht =>
-    whiskerRightIso (splitIso (S.colourTgt c) u w m t hu.2 hm hw ht)
+  | _, [_], [], _, _, _, _, _, rfl => (λ_ _).symm
+  | _, [_], _ :: _, _, _, _, rfl, _, _ => Iso.refl _
+  | _, c :: c' :: u, w, m, t, hu, hm, hw, ht =>
+    whiskerRightIso (splitIso (S.colourTgt c) (c' :: u) w m t hu.2 hm hw ht)
       (FreeBicategory.Hom.of ⟨c, rfl, hu.1⟩) ≪≫ α_ _ _ _
 
 /-! ## Models -/
@@ -171,10 +192,13 @@ theorem lift_map_of {x y : RQ S} (f : x ⟶ y) :
 @[simp] theorem lift_map_fw_nil (s : S.Region) (h : S.ok s []) :
     M.lift.map (fw s [] s h rfl) = 𝟙 _ := rfl
 
-theorem lift_map_fw_cons (s : S.Region) (c : S.Colour) (w : List S.Colour) (t : S.Region)
-    (h : S.ok s (c :: w)) (e : S.endR s (c :: w) = t) :
-    M.lift.map (fw s (c :: w) t h e) =
-      M.lift.map (fw (S.colourTgt c) w t h.2 e) ≫ M.strandAt c _ _ rfl h.1 := rfl
+theorem lift_map_fw_single (s : S.Region) (c : S.Colour) (t : S.Region) (h : S.ok s [c])
+    (e : S.endR s [c] = t) : M.lift.map (fw s [c] t h e) = M.strandAt c t s e h.1 := rfl
+
+theorem lift_map_fw_cons₂ (s : S.Region) (c c' : S.Colour) (w : List S.Colour) (t : S.Region)
+    (h : S.ok s (c :: c' :: w)) (e : S.endR s (c :: c' :: w) = t) :
+    M.lift.map (fw s (c :: c' :: w) t h e) =
+      M.lift.map (fw (S.colourTgt c) (c' :: w) t h.2 e) ≫ M.strandAt c _ _ rfl h.1 := rfl
 
 /-- Free 2-morphisms between parallel 1-morphisms are equal (coherence). -/
 theorem free_eq {a b : FB S} {f g : a ⟶ b} (η θ : f ⟶ g) : η = θ :=
@@ -552,6 +576,142 @@ theorem zag_key' {a b : FB S} {e : a ⟶ b} {ρ : b ⟶ a} {p₁ d₁ c₁ : b �
   simp only [← PrelaxFunctor.map₂_comp]
   exact lift_map₂_eq M _ _
 
+/-- **Canonical form of a whiskered generator image**: replacing the whiskering 1-morphisms and the
+boundary of the generator image by isomorphic ones. -/
+theorem midK_canon {a₀ a₁ a₂ a₃ : FB S} {p P : a₀ ⟶ a₁} {q Q : a₂ ⟶ a₃} {d c D Cc : a₁ ⟶ a₂}
+    (σp : p ≅ P) (σq : q ≅ Q) (σd : d ≅ D) (σc : c ≅ Cc) (g : M.lift.map d ⟶ M.lift.map c) :
+    midK M p q g =
+      M.lift.map₂ (σp.hom ▷ (d ≫ q) ≫ P ◁ d ◁ σq.hom ≫ P ◁ (σd.hom ▷ Q)) ≫
+        midK M P Q (M.lift.map₂ σd.inv ≫ g ≫ M.lift.map₂ σc.hom) ≫
+          M.lift.map₂ (P ◁ (σc.inv ▷ Q) ≫ P ◁ c ◁ σq.inv ≫ σp.inv ▷ (c ≫ q)) := by
+  rw [mid_comp M, mid_conj M σp σq]
+  simp only [Category.assoc, ← PrelaxFunctor.map₂_comp_assoc, ← PrelaxFunctor.map₂_comp]
+  have e₁ : M.lift.map₂ (σp.hom ▷ (d ≫ q) ≫ P ◁ d ◁ σq.hom ≫ P ◁ (σd.hom ▷ Q) ≫
+      P ◁ (σd.inv ▷ Q)) = M.lift.map₂ (σp.hom ▷ (d ≫ q) ≫ P ◁ d ◁ σq.hom) :=
+    lift_map₂_eq M _ _
+  have e₂ : M.lift.map₂ (P ◁ (σc.hom ▷ Q) ≫ P ◁ (σc.inv ▷ Q) ≫ P ◁ c ◁ σq.inv ≫
+      σp.inv ▷ (c ≫ q)) = M.lift.map₂ (P ◁ c ◁ σq.inv ≫ σp.inv ▷ (c ≫ q)) :=
+    lift_map₂_eq M _ _
+  rw [e₁, e₂]
+
+omit M in
+/-- The left mate of an endomorphism of `E` under `R ⊣ E`, read as the composite "cup on the
+right, `x`, cap on the left" of three whiskered layers, in an arbitrary bicategory. -/
+theorem rot_aux {a b : C} {R : a ⟶ b} {E : b ⟶ a} (adj : R ⊣ E) (x : E ⟶ E) :
+    𝟙 a ◁ (adj.unit ▷ R) ≫ ((λ_ _).hom ≫ (α_ R E R).hom) ≫ R ◁ (x ▷ R) ≫ R ◁ (ρ_ (E ≫ R)).inv ≫
+        R ◁ (adj.counit ▷ 𝟙 b) =
+      𝟙 a ◁ ((λ_ R).hom ≫ (ρ_ R).inv) ≫
+        𝟙 a ◁ ((Bicategory.conjugateEquiv adj adj).symm x ▷ 𝟙 b) ≫
+          ((λ_ _).hom ≫ R ◁ (λ_ (𝟙 b)).inv) := by
+  rw [Bicategory.conjugateEquiv_symm_apply']
+  bicategory
+
+/-- **The rotation of a generator in normal form**: a strand `r` with a cup (the unit of
+`F r ⊣ F e`) on its right, a generator image `x` on the new strand `e`, and the cap (the counit) on
+its left, all conjugated by images of free 2-morphisms, equals the left mate of `x` on `r`. -/
+theorem rot_key {a b : FB S} {r : a ⟶ b} {e : b ⟶ a} (adj : M.lift.map r ⊣ M.lift.map e)
+    (x : M.lift.map e ⟶ M.lift.map e)
+    {p₁ d₁ : a ⟶ a} {q₁ : a ⟶ b} {c₁ : a ⟶ a} (σp₁ : p₁ ≅ 𝟙 a) (σq₁ : q₁ ≅ r) (σd₁ : d₁ ≅ 𝟙 a)
+    (σc₁ : c₁ ≅ r ≫ e) (g₁ : M.lift.map d₁ ⟶ M.lift.map c₁)
+    (hg₁ : M.lift.map₂ σd₁.inv ≫ g₁ ≫ M.lift.map₂ σc₁.hom = adj.unit)
+    {p₂ q₂ : a ⟶ b} {d₂ c₂ : b ⟶ a} (σp₂ : p₂ ≅ r) (σq₂ : q₂ ≅ r) (σd₂ : d₂ ≅ e) (σc₂ : c₂ ≅ e)
+    (g₂ : M.lift.map d₂ ⟶ M.lift.map c₂)
+    (hg₂ : M.lift.map₂ σd₂.inv ≫ g₂ ≫ M.lift.map₂ σc₂.hom = x)
+    {p₃ : a ⟶ b} {q₃ d₃ c₃ : b ⟶ b} (σp₃ : p₃ ≅ r) (σq₃ : q₃ ≅ 𝟙 b) (σd₃ : d₃ ≅ e ≫ r)
+    (σc₃ : c₃ ≅ 𝟙 b) (g₃ : M.lift.map d₃ ⟶ M.lift.map c₃)
+    (hg₃ : M.lift.map₂ σd₃.inv ≫ g₃ ≫ M.lift.map₂ σc₃.hom = adj.counit)
+    {p₄ : a ⟶ a} {q₄ : b ⟶ b} {d₄ c₄ : a ⟶ b} (σp₄ : p₄ ≅ 𝟙 a) (σq₄ : q₄ ≅ 𝟙 b) (σd₄ : d₄ ≅ r)
+    (σc₄ : c₄ ≅ r) (g₄ : M.lift.map d₄ ⟶ M.lift.map c₄)
+    (hg₄ : M.lift.map₂ σd₄.inv ≫ g₄ ≫ M.lift.map₂ σc₄.hom =
+      (Bicategory.conjugateEquiv adj adj).symm x)
+    {P P₁ Q₁ P₂ Q₂ P₃ Q₃ Q P₄ Q₄ : a ⟶ b}
+    (E₀ : P ⟶ P₁) (A₁ : P₁ ⟶ p₁ ≫ (d₁ ≫ q₁)) (B₁ : p₁ ≫ (c₁ ≫ q₁) ⟶ Q₁) (E₁ : Q₁ ⟶ P₂)
+    (A₂ : P₂ ⟶ p₂ ≫ (d₂ ≫ q₂)) (B₂ : p₂ ≫ (c₂ ≫ q₂) ⟶ Q₂) (E₂ : Q₂ ⟶ P₃)
+    (A₃ : P₃ ⟶ p₃ ≫ (d₃ ≫ q₃)) (B₃ : p₃ ≫ (c₃ ≫ q₃) ⟶ Q₃) (E₃ : Q₃ ⟶ Q)
+    (F₀ : P ⟶ P₄) (A₄ : P₄ ⟶ p₄ ≫ (d₄ ≫ q₄)) (B₄ : p₄ ≫ (c₄ ≫ q₄) ⟶ Q₄) (F₁ : Q₄ ⟶ Q) :
+    M.lift.map₂ E₀ ≫ (M.lift.map₂ A₁ ≫ midK M p₁ q₁ g₁ ≫ M.lift.map₂ B₁) ≫ M.lift.map₂ E₁ ≫
+        (M.lift.map₂ A₂ ≫ midK M p₂ q₂ g₂ ≫ M.lift.map₂ B₂) ≫ M.lift.map₂ E₂ ≫
+          (M.lift.map₂ A₃ ≫ midK M p₃ q₃ g₃ ≫ M.lift.map₂ B₃) ≫ M.lift.map₂ E₃ =
+      M.lift.map₂ F₀ ≫ (M.lift.map₂ A₄ ≫ midK M p₄ q₄ g₄ ≫ M.lift.map₂ B₄) ≫
+        M.lift.map₂ F₁ := by
+  rw [midK_canon M σp₁ σq₁ σd₁ σc₁ g₁, hg₁, midK_canon M σp₂ σq₂ σd₂ σc₂ g₂, hg₂,
+    midK_canon M σp₃ σq₃ σd₃ σc₃ g₃, hg₃, midK_canon M σp₄ σq₄ σd₄ σc₄ g₄, hg₄]
+  simp only [Category.assoc, ← PrelaxFunctor.map₂_comp_assoc, ← PrelaxFunctor.map₂_comp]
+  have hmid : midK M (𝟙 a) r (x := 𝟙 a) (y := r ≫ e) adj.unit ≫
+      M.lift.map₂ ((λ_ _).hom ≫ (α_ r e r).hom) ≫
+      midK M r r x ≫ M.lift.map₂ (r ◁ (ρ_ (e ≫ r)).inv) ≫
+        midK M r (𝟙 b) (x := e ≫ r) (y := 𝟙 b) adj.counit =
+      M.lift.map₂ (𝟙 a ◁ ((λ_ r).hom ≫ (ρ_ r).inv)) ≫
+        midK M (𝟙 a) (𝟙 b) ((Bicategory.conjugateEquiv adj adj).symm x) ≫
+          M.lift.map₂ ((λ_ _).hom ≫ r ◁ (λ_ (𝟙 b)).inv) := by
+    simp only [midK, PrelaxFunctor.map₂_comp, lift_map₂_whiskerLeft, lift_map₂_associator_hom,
+      lift_map₂_leftUnitor_hom, lift_map₂_leftUnitor_inv, lift_map₂_rightUnitor_inv, lift_map_comp]
+    exact rot_aux adj x
+  rw [lift_map₂_eq M _ ((λ_ _).hom ≫ (α_ r e r).hom),
+    lift_map₂_eq M _ (r ◁ (ρ_ (e ≫ r)).inv), reassoc_of% hmid]
+  simp only [Category.assoc, ← PrelaxFunctor.map₂_comp_assoc, ← PrelaxFunctor.map₂_comp]
+  exact lift_conj_eq M _ _ _ _ _
+
+omit M in
+/-- The right mate of an endomorphism of `E` under `E ⊣ R`, read as the composite "cup on the
+left, `x`, cap on the right" of three whiskered layers, in an arbitrary bicategory. -/
+theorem rotL_aux {a b : C} {E : b ⟶ a} {R : a ⟶ b} (adj : E ⊣ R) (x : E ⟶ E) :
+    R ◁ (adj.unit ▷ 𝟙 b) ≫ R ◁ (ρ_ (E ≫ R)).hom ≫ R ◁ (x ▷ R) ≫
+        ((α_ R E R).inv ≫ (λ_ _).inv) ≫ 𝟙 a ◁ (adj.counit ▷ R) =
+      (R ◁ (λ_ (𝟙 b)).hom ≫ (λ_ (R ≫ 𝟙 b)).inv) ≫
+        𝟙 a ◁ ((Bicategory.conjugateEquiv adj adj) x ▷ 𝟙 b) ≫
+          𝟙 a ◁ ((ρ_ R).hom ≫ (λ_ R).inv) := by
+  rw [Bicategory.conjugateEquiv_apply']
+  bicategory
+
+/-- **The rotation of a generator in normal form, on the other side**: a strand `r` with a cup
+(the unit of `F e ⊣ F r`) on its left, a generator image `x` on the new strand `e`, and the cap
+(the counit) on its right, all conjugated by images of free 2-morphisms, equals the right mate of
+`x` on `r`. -/
+theorem rotL_key {a b : FB S} {r : a ⟶ b} {e : b ⟶ a} (adj : M.lift.map e ⊣ M.lift.map r)
+    (x : M.lift.map e ⟶ M.lift.map e)
+    {p₁ : a ⟶ b} {q₁ d₁ c₁ : b ⟶ b} (σp₁ : p₁ ≅ r) (σq₁ : q₁ ≅ 𝟙 b) (σd₁ : d₁ ≅ 𝟙 b)
+    (σc₁ : c₁ ≅ e ≫ r) (g₁ : M.lift.map d₁ ⟶ M.lift.map c₁)
+    (hg₁ : M.lift.map₂ σd₁.inv ≫ g₁ ≫ M.lift.map₂ σc₁.hom = adj.unit)
+    {p₂ q₂ : a ⟶ b} {d₂ c₂ : b ⟶ a} (σp₂ : p₂ ≅ r) (σq₂ : q₂ ≅ r) (σd₂ : d₂ ≅ e) (σc₂ : c₂ ≅ e)
+    (g₂ : M.lift.map d₂ ⟶ M.lift.map c₂)
+    (hg₂ : M.lift.map₂ σd₂.inv ≫ g₂ ≫ M.lift.map₂ σc₂.hom = x)
+    {p₃ d₃ c₃ : a ⟶ a} {q₃ : a ⟶ b} (σp₃ : p₃ ≅ 𝟙 a) (σq₃ : q₃ ≅ r) (σd₃ : d₃ ≅ r ≫ e)
+    (σc₃ : c₃ ≅ 𝟙 a) (g₃ : M.lift.map d₃ ⟶ M.lift.map c₃)
+    (hg₃ : M.lift.map₂ σd₃.inv ≫ g₃ ≫ M.lift.map₂ σc₃.hom = adj.counit)
+    {p₄ : a ⟶ a} {q₄ : b ⟶ b} {d₄ c₄ : a ⟶ b} (σp₄ : p₄ ≅ 𝟙 a) (σq₄ : q₄ ≅ 𝟙 b) (σd₄ : d₄ ≅ r)
+    (σc₄ : c₄ ≅ r) (g₄ : M.lift.map d₄ ⟶ M.lift.map c₄)
+    (hg₄ : M.lift.map₂ σd₄.inv ≫ g₄ ≫ M.lift.map₂ σc₄.hom =
+      Bicategory.conjugateEquiv adj adj x)
+    {P P₁ Q₁ P₂ Q₂ P₃ Q₃ Q P₄ Q₄ : a ⟶ b}
+    (E₀ : P ⟶ P₁) (A₁ : P₁ ⟶ p₁ ≫ (d₁ ≫ q₁)) (B₁ : p₁ ≫ (c₁ ≫ q₁) ⟶ Q₁) (E₁ : Q₁ ⟶ P₂)
+    (A₂ : P₂ ⟶ p₂ ≫ (d₂ ≫ q₂)) (B₂ : p₂ ≫ (c₂ ≫ q₂) ⟶ Q₂) (E₂ : Q₂ ⟶ P₃)
+    (A₃ : P₃ ⟶ p₃ ≫ (d₃ ≫ q₃)) (B₃ : p₃ ≫ (c₃ ≫ q₃) ⟶ Q₃) (E₃ : Q₃ ⟶ Q)
+    (F₀ : P ⟶ P₄) (A₄ : P₄ ⟶ p₄ ≫ (d₄ ≫ q₄)) (B₄ : p₄ ≫ (c₄ ≫ q₄) ⟶ Q₄) (F₁ : Q₄ ⟶ Q) :
+    M.lift.map₂ E₀ ≫ (M.lift.map₂ A₁ ≫ midK M p₁ q₁ g₁ ≫ M.lift.map₂ B₁) ≫ M.lift.map₂ E₁ ≫
+        (M.lift.map₂ A₂ ≫ midK M p₂ q₂ g₂ ≫ M.lift.map₂ B₂) ≫ M.lift.map₂ E₂ ≫
+          (M.lift.map₂ A₃ ≫ midK M p₃ q₃ g₃ ≫ M.lift.map₂ B₃) ≫ M.lift.map₂ E₃ =
+      M.lift.map₂ F₀ ≫ (M.lift.map₂ A₄ ≫ midK M p₄ q₄ g₄ ≫ M.lift.map₂ B₄) ≫
+        M.lift.map₂ F₁ := by
+  rw [midK_canon M σp₁ σq₁ σd₁ σc₁ g₁, hg₁, midK_canon M σp₂ σq₂ σd₂ σc₂ g₂, hg₂,
+    midK_canon M σp₃ σq₃ σd₃ σc₃ g₃, hg₃, midK_canon M σp₄ σq₄ σd₄ σc₄ g₄, hg₄]
+  simp only [Category.assoc, ← PrelaxFunctor.map₂_comp_assoc, ← PrelaxFunctor.map₂_comp]
+  have hmid : midK M r (𝟙 b) (x := 𝟙 b) (y := e ≫ r) adj.unit ≫
+      M.lift.map₂ (r ◁ (ρ_ (e ≫ r)).hom) ≫
+      midK M r r x ≫ M.lift.map₂ ((α_ r e r).inv ≫ (λ_ _).inv) ≫
+        midK M (𝟙 a) r (x := r ≫ e) (y := 𝟙 a) adj.counit =
+      M.lift.map₂ (r ◁ (λ_ (𝟙 b)).hom ≫ (λ_ (r ≫ 𝟙 b)).inv) ≫
+        midK M (𝟙 a) (𝟙 b) (Bicategory.conjugateEquiv adj adj x) ≫
+          M.lift.map₂ (𝟙 a ◁ ((ρ_ r).hom ≫ (λ_ r).inv)) := by
+    simp only [midK, PrelaxFunctor.map₂_comp, lift_map₂_whiskerLeft, lift_map₂_associator_inv,
+      lift_map₂_leftUnitor_hom, lift_map₂_leftUnitor_inv, lift_map₂_rightUnitor_hom,
+      lift_map_comp]
+    exact rotL_aux adj x
+  rw [lift_map₂_eq M _ (r ◁ (ρ_ (e ≫ r)).hom),
+    lift_map₂_eq M _ ((α_ r e r).inv ≫ (λ_ _).inv), reassoc_of% hmid]
+  simp only [Category.assoc, ← PrelaxFunctor.map₂_comp_assoc, ← PrelaxFunctor.map₂_comp]
+  exact lift_conj_eq M _ _ _ _ _
+
 end Mid
 
 /-- A transport between images of equal free 1-morphisms is the image of a free 2-morphism. -/
@@ -559,52 +719,98 @@ theorem eqToHom_lift {a b : FB S} {f g : a ⟶ b} (h : f = g)
     (e : M.lift.map f = M.lift.map g) : eqToHom e = M.lift.map₂ (eqToHom h) := by
   subst h; rw [eqToHom_refl, eqToHom_refl, PrelaxFunctor.map₂_id]
 
+/-- The image of a transport between equal free 1-morphisms. -/
+theorem lift_map₂_eqToHom {a b : FB S} {f g : a ⟶ b} (h : f = g) :
+    M.lift.map₂ (eqToHom h) = eqToHom (congrArg M.lift.map h) := by
+  subst h; rw [eqToHom_refl, eqToHom_refl, PrelaxFunctor.map₂_id]
+
+omit M in
+/-- Generators of the free bicategory given by equal colours are equal. -/
+theorem hom_of_congr {x y : RQ S} {f f' : x ⟶ y} (h : f.1 = f'.1) :
+    FreeBicategory.Hom.of f = FreeBicategory.Hom.of f' := by
+  rw [Subtype.ext h]
+
+omit M in
+/-- Composites of two generators through equal regions, with equal colours, are equal. -/
+theorem comp_of_congr {x y y' z : RQ S} (hy : y = y') {f : x ⟶ y} {g : y ⟶ z} {f' : x ⟶ y'}
+    {g' : y' ⟶ z} (hf : f.1 = f'.1) (hg : g.1 = g'.1) :
+    (FreeBicategory.Hom.of f ≫ FreeBicategory.Hom.of g : fo (S := S) x ⟶ fo z) =
+      FreeBicategory.Hom.of f' ≫ FreeBicategory.Hom.of g' := by
+  subst hy; rw [Subtype.ext hf, Subtype.ext hg]
+
 /-! ## Generator images and layers -/
 
-/-- **Images of the generators** for a model: for every generator `g` (with its boundary words
-well formed), a 2-morphism between the images of its bottom and top boundaries. -/
+/-- **Images of the generators** for a model: for every generator `g`, read between any two
+regions `a`, `b` equal to its left and right regions (with its boundary words well formed from
+`a`), a 2-morphism between the images of its bottom and top boundaries. -/
 structure GenImg where
   /-- The image of a generator. -/
-  gen : (g : S.Gen) → (hd : S.ok (S.left g) (S.dom g)) →
-    (hde : S.endR (S.left g) (S.dom g) = S.right g) → (hc : S.ok (S.left g) (S.cod g)) →
-    (hce : S.endR (S.left g) (S.cod g) = S.right g) →
-    (M.word (S.left g) (S.dom g) (S.right g) hd hde ⟶ M.word (S.left g) (S.cod g) (S.right g) hc hce)
+  gen : (g : S.Gen) → (a b : S.Region) → S.left g = a → S.right g = b →
+    (hd : S.ok a (S.dom g)) → (hde : S.endR a (S.dom g) = b) → (hc : S.ok a (S.cod g)) →
+    (hce : S.endR a (S.cod g) = b) →
+    (M.word a (S.dom g) b hd hde ⟶ M.word a (S.cod g) b hc hce)
 
 variable {M}
 
 /-- The splitting `fw (left ++ w ++ right) ≅ fw right ≫ (fw w ≫ fw left)` of a boundary word of
-a valid layer read from the region `s`, for `w` the bottom or top boundary of its generator. -/
-def layerSplit {L : Layer S} (hv : L.Valid) (s : S.Region) (hl : S.ok s L.left)
-    (hle : S.endR s L.left = S.left L.gen) (w : List S.Colour) (hwo : S.ok (S.left L.gen) w)
-    (hwe : S.endR (S.left L.gen) w = S.right L.gen) (t : S.Region)
-    (ht : S.endR (S.right L.gen) L.right = t) :
+a layer read from the region `s`, for `w` the bottom or top boundary of its generator, at regions
+`m`, `n` equal to the left and right regions of the generator. -/
+def layerSplit (L : Layer S) (s m n t : S.Region) (hl : S.ok s L.left)
+    (hm : S.endR s L.left = m) (w : List S.Colour) (hwo : S.ok m w) (hwe : S.endR m w = n)
+    (hro : S.ok n L.right) (ht : S.endR n L.right = t) :
     fw s ((L.left ++ w) ++ L.right) t
-        (ok_append_of (ok_append_of hl hle hwo) (endR_append_of hle hwe) hv.right_ok)
-        (endR_append_of (endR_append_of hle hwe) ht) ≅
-      fw (S.right L.gen) L.right t hv.right_ok ht ≫
-        (fw (S.left L.gen) w (S.right L.gen) hwo hwe ≫ fw s L.left (S.left L.gen) hl hle) :=
-  splitIso s (L.left ++ w) L.right (S.right L.gen) t
-      (ok_append_of hl hle hwo) (endR_append_of hle hwe) hv.right_ok ht ≪≫
-    whiskerLeftIso _ (splitIso s L.left w (S.left L.gen) (S.right L.gen) hl hle hwo hwe)
+        (ok_append_of (ok_append_of hl hm hwo) (endR_append_of hm hwe) hro)
+        (endR_append_of (endR_append_of hm hwe) ht) ≅
+      fw n L.right t hro ht ≫ (fw m w n hwo hwe ≫ fw s L.left m hl hm) :=
+  splitIso s (L.left ++ w) L.right n t
+      (ok_append_of hl hm hwo) (endR_append_of hm hwe) hro ht ≪≫
+    whiskerLeftIso _ (splitIso s L.left w m n hl hm hwo hwe)
 
-/-- **The image of a valid layer**, read from the region `s`, between the images of its boundary
-words (with right region `t`): the generator image whiskered by the images of the strands on
-either side, conjugated by the splittings. -/
-def core (G : GenImg M) {L : Layer S} (hv : L.Valid) (s : S.Region) (hl : S.ok s L.left)
-    (hle : S.endR s L.left = S.left L.gen) (t : S.Region)
-    (ht : S.endR (S.right L.gen) L.right = t) :
+theorem Valid.ok_dom_of {L : Layer S} (hv : L.Valid) {m : S.Region} (ha : S.left L.gen = m) :
+    S.ok m (S.dom L.gen) := ha ▸ hv.dom_ok
+
+theorem Valid.ok_cod_of {L : Layer S} (hv : L.Valid) {m : S.Region} (ha : S.left L.gen = m) :
+    S.ok m (S.cod L.gen) := ha ▸ hv.cod_ok
+
+theorem Valid.dom_end_of {L : Layer S} (hv : L.Valid) {m n : S.Region} (ha : S.left L.gen = m)
+    (hb : S.right L.gen = n) : S.endR m (S.dom L.gen) = n := ha ▸ hb ▸ hv.dom_end
+
+theorem Valid.cod_end_of {L : Layer S} (hv : L.Valid) {m n : S.Region} (ha : S.left L.gen = m)
+    (hb : S.right L.gen = n) : S.endR m (S.cod L.gen) = n := ha ▸ hb ▸ hv.cod_end
+
+theorem Valid.right_ok_of {L : Layer S} (hv : L.Valid) {n : S.Region} (hb : S.right L.gen = n) :
+    S.ok n L.right := hb ▸ hv.right_ok
+
+/-- **The image of a valid layer**, read from the region `s` and split at regions `m`, `n` equal
+to the left and right regions of its generator, between the images of its boundary words (with
+right region `t`): the generator image whiskered by the images of the strands on either side,
+conjugated by the splittings. -/
+def core (G : GenImg M) {L : Layer S} (hv : L.Valid) (s m n t : S.Region) (hl : S.ok s L.left)
+    (hm : S.endR s L.left = m) (ha : S.left L.gen = m) (hb : S.right L.gen = n)
+    (ht : S.endR n L.right = t) :
     M.lift.map (fw s ((L.left ++ S.dom L.gen) ++ L.right) t
-        (ok_append_of (ok_append_of hl hle hv.dom_ok) (endR_append_of hle hv.dom_end)
-          hv.right_ok)
-        (endR_append_of (endR_append_of hle hv.dom_end) ht)) ⟶
+        (ok_append_of (ok_append_of hl hm (Valid.ok_dom_of hv ha)) (endR_append_of hm
+          (Valid.dom_end_of hv ha hb)) (Valid.right_ok_of hv hb))
+        (endR_append_of (endR_append_of hm (Valid.dom_end_of hv ha hb)) ht)) ⟶
       M.lift.map (fw s ((L.left ++ S.cod L.gen) ++ L.right) t
-        (ok_append_of (ok_append_of hl hle hv.cod_ok) (endR_append_of hle hv.cod_end)
-          hv.right_ok)
-        (endR_append_of (endR_append_of hle hv.cod_end) ht)) :=
-  M.lift.map₂ (layerSplit hv s hl hle (S.dom L.gen) hv.dom_ok hv.dom_end t ht).hom ≫
-    midK M (fw (S.right L.gen) L.right t hv.right_ok ht) (fw s L.left (S.left L.gen) hl hle)
-      (G.gen L.gen hv.dom_ok hv.dom_end hv.cod_ok hv.cod_end) ≫
-    M.lift.map₂ (layerSplit hv s hl hle (S.cod L.gen) hv.cod_ok hv.cod_end t ht).inv
+        (ok_append_of (ok_append_of hl hm (Valid.ok_cod_of hv ha)) (endR_append_of hm
+          (Valid.cod_end_of hv ha hb)) (Valid.right_ok_of hv hb))
+        (endR_append_of (endR_append_of hm (Valid.cod_end_of hv ha hb)) ht)) :=
+  M.lift.map₂ (layerSplit L s m n t hl hm (S.dom L.gen) (Valid.ok_dom_of hv ha) (Valid.dom_end_of hv ha hb)
+      (Valid.right_ok_of hv hb) ht).hom ≫
+    midK M (fw n L.right t (Valid.right_ok_of hv hb) ht) (fw s L.left m hl hm)
+      (G.gen L.gen m n ha hb (Valid.ok_dom_of hv ha) (Valid.dom_end_of hv ha hb) (Valid.ok_cod_of hv ha)
+        (Valid.cod_end_of hv ha hb)) ≫
+    M.lift.map₂ (layerSplit L s m n t hl hm (S.cod L.gen) (Valid.ok_cod_of hv ha) (Valid.cod_end_of hv ha hb)
+      (Valid.right_ok_of hv hb) ht).inv
+
+/-- The image of a layer does not depend on the choice of the splitting regions. -/
+theorem core_regions (G : GenImg M) {L : Layer S} (hv : L.Valid) (s m n m' n' t : S.Region)
+    (hl : S.ok s L.left) (hm : S.endR s L.left = m) (ha : S.left L.gen = m)
+    (hb : S.right L.gen = n) (hm' : S.endR s L.left = m') (ha' : S.left L.gen = m')
+    (hb' : S.right L.gen = n') (ht : S.endR n L.right = t) (ht' : S.endR n' L.right = t) :
+    core G hv s m n t hl hm ha hb ht = core G hv s m' n' t hl hm' ha' hb' ht' := by
+  subst ha hb ha' hb'; rfl
 
 /-! ## Admissible objects -/
 
@@ -650,11 +856,21 @@ theorem whisker {s t : S.Region} {a u : Obj S} {v : List S.Colour} (h : Cond s t
 end Cond
 
 /-- The image of a valid layer between the images of its boundary words, for an admissible
-bottom boundary. -/
+bottom boundary. It is split at the regions reached by reading the words (`S.endR s₀ L.left`
+and the end of the bottom boundary of the generator read from there), so that images of
+generators are taken at the regions named by the strands of the layer. -/
 def coreC (G : GenImg M) {s₀ t₀ : S.Region} {L : Layer S} (hv : L.Valid)
     (h : Cond s₀ t₀ L.dom) :
     M.word s₀ L.dom.word t₀ h.1 h.2.1 ⟶ M.word s₀ L.cod.word t₀ (h.cod hv).1 (h.cod hv).2.1 :=
-  core G hv s₀ (h.left_ok hv) (h.left_end hv) t₀ (h.right_end hv)
+  core G hv s₀ (S.endR s₀ L.left) (S.endR (S.endR s₀ L.left) (S.dom L.gen)) t₀ (h.left_ok hv) rfl
+    (h.left_end hv).symm (by rw [h.left_end hv]; exact hv.dom_end.symm)
+    (by rw [h.left_end hv, hv.dom_end]; exact h.right_end hv)
+
+theorem coreC_eq (G : GenImg M) {s₀ t₀ : S.Region} {L : Layer S} (hv : L.Valid)
+    (h : Cond s₀ t₀ L.dom) :
+    coreC G hv h = core G hv s₀ (S.left L.gen) (S.right L.gen) t₀ (h.left_ok hv) (h.left_end hv)
+      rfl rfl (h.right_end hv) :=
+  core_regions G hv _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
 
 /-! ## The interpretation with fixed outer regions -/
 
@@ -721,6 +937,7 @@ theorem coreC_whisker {L : Layer S} (hv : L.Valid) (h : Cond s t L.dom)
     coreC G hvw hw' = M.lift.map₂ φ ≫
       midK M (fw t v (S.endR t v) hvv rfl) (fw u.start u.word s hu hue) (coreC G hv h) ≫
         M.lift.map₂ ψ := by
+  rw [coreC_eq, coreC_eq]
   exact conj_key M (splitIso (S.right L.gen) L.right v t (S.endR t v) hv.right_ok
     (h.right_end hv) hvv rfl) (splitIso u.start u.word L.left s (S.left L.gen) hu hue
     (h.left_ok hv) (h.left_end hv)) _ _ _ _ _ φ ψ
@@ -845,7 +1062,7 @@ theorem functor_map_gh_eq_hg (x : InterchangeData S) (hx : x.Valid) (s t : S.Reg
   have c4 : Cond s t x.hg₂.dom := by rw [hhg.2.2.2.1]; exact c3.cod hx.hg₁
   simp only [Interpretation.functor_map, InterchangeData.ghDiagram, InterchangeData.hgDiagram,
     Diagram.layers_mk, Interpretation.mapChain, layerI_pos G _ _ hx.gh₁ c1, layerI_pos G _ _ hx.gh₂ c2, layerI_pos G _ _ hx.hg₁ c3,
-    layerI_pos G _ _ hx.hg₂ c4, Category.assoc, eqToHom_trans_assoc, eqToHom_trans]
+    layerI_pos G _ _ hx.hg₂ c4, Category.assoc, eqToHom_trans_assoc, eqToHom_trans, coreC_eq]
   rw [eqToHom_word ?e0 _, eqToHom_word ?e1 _, eqToHom_word ?e2 _, eqToHom_word ?e3 _,
     eqToHom_word ?e4 _, eqToHom_word ?e5 _]
   · obtain ⟨start, g, mid, h⟩ := x
@@ -862,8 +1079,8 @@ theorem functor_map_gh_eq_hg (x : InterchangeData S) (hx : x.Valid) (s t : S.Reg
       have hde : S.endR (S.left g) (S.dom g) = S.right g := hx.gh₁.dom_end
       rw [Signature.endR_append, hde] at this
       exact this
-    exact exch_key M (G.gen h hx.hg₁.dom_ok hx.hg₁.dom_end hx.hg₁.cod_ok hx.hg₁.cod_end)
-      (G.gen g hx.gh₁.dom_ok hx.gh₁.dom_end hx.gh₁.cod_ok hx.gh₁.cod_end)
+    exact exch_key M (G.gen h (S.left h) (S.right h) rfl rfl hx.hg₁.dom_ok hx.hg₁.dom_end hx.hg₁.cod_ok hx.hg₁.cod_end)
+      (G.gen g (S.left g) (S.right g) rfl rfl hx.gh₁.dom_ok hx.gh₁.dom_end hx.gh₁.cod_ok hx.gh₁.cod_end)
       (splitIso (S.right g) mid (S.dom h) (S.left h) (S.right h) m_ok m_end hx.hg₁.dom_ok
         hx.hg₁.dom_end)
       (eqToIso (fw_nil (S.left g) trivial))

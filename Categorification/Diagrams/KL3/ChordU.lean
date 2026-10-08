@@ -4,6 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 -/
 import Categorification.Diagrams.KL3.ChordLettered
 import Categorification.Diagrams.KL3.SortedSpanProof
+import StringDiagrams.Chord.PresentedRegions
 
 /-!
 # Chord diagrams in `U`: the moves hold modulo lower terms
@@ -21,7 +22,9 @@ first `g` strands and the others, a crossing `cross p` the crossing `xLay` of th
 fewer crossings (`rw_sound`), and that reducible diagrams are themselves lower terms
 (`chL_mem_lo_of_reducible`):
 
-* moves at disjoint places: the interchange law (`dg_ichg`), exactly;
+* moves at disjoint places: exactly, by the interchange law, through the multi-region chord
+  interface `StringDiagrams.Chord.RegionChordGens` of string-diagrams-lean (`chGens`,
+  `dg_chL_congr`);
 * the braid move: Reidemeister 3 modulo lower terms (`r3`);
 * the pitchfork move: `cupPF`;
 * a double crossing: Reidemeister 2 modulo lower terms (`r2`); a curl: `cupCurl`.
@@ -29,6 +32,8 @@ fewer crossings (`rw_sound`), and that reducible diagrams are themselves lower t
 ## Main results
 
 * `chL`, `sChain_chL`, `ccnt_chL`: the diagram of a chord diagram.
+* `chLetters`, `chGens`, `layList_chL`: `U` as an instance of the multi-region chord interface;
+  the layers of `chL l D` are those of the interpretation of `D` there.
 * `rw_sound`, `equiv_sound`: equivalent chord diagrams agree in `U` modulo lower terms.
 * `chL_mem_lo_of_reducible`: reducible chord diagrams are lower terms.
 * `chL_normal_form`: every chord diagram is, modulo lower terms, `0` or the canonical diagram of
@@ -216,7 +221,141 @@ theorem fits_mid {A L B : List (Move (Letter I))} (h : Fits 0 (A ++ L ++ B)) :
   have := h.1.2
   rwa [show (0 : ℕ) = ([] : List (Letter I)).length from rfl, foldl_len_eq] at this
 
+theorem chL_ne_nil {l : List (Letter I)} {D : List (Move (Letter I))} (hf : Fits l.length D)
+    (hD : D ≠ []) : chL l D ≠ [] := by
+  obtain ⟨m, D, rfl⟩ := List.exists_cons_of_ne_nil hD
+  have hm : mvL l m ≠ [] := by
+    cases m with
+    | cup g a =>
+      obtain ⟨u, w, rfl, rfl⟩ := exists_split_cup (l := l) hf.1
+      simp
+    | cross p =>
+      obtain ⟨u, x, y, w, rfl, rfl⟩ := exists_split_cross (l := l) hf.1
+      simp [xLay_ne_nil]
+  simp [chL, hm]
+
+theorem SChain.eq_ends {s t s' t' : List (Letter I)} {A : List (LayerData I)} (hA : A ≠ [])
+    (h : SChain s A t) (h' : SChain s' A t') : s = s' ∧ t = t' := by
+  obtain ⟨x, A', rfl⟩ := List.exists_cons_of_ne_nil hA
+  obtain rfl : s = s' := h.1.trans h'.1.symm
+  exact ⟨rfl, SChain.eq_target h h'⟩
+
 end Layers
+
+/-! ## The multi-region chord interface
+
+The signed letters label the strands of the signature `psig RD` of `U`, the letter `a` with the
+region `μ` on its right being the colour `⟨a, μ⟩` (`chLetters`); the cups `1 ⟶ E_a E_{a*}` and
+the crossings `xLay` in every region are cups and crossings in the sense of
+`StringDiagrams.Chord.RegionChordGens` (`chGens`). The layers of a chord diagram are those of
+its interpretation there (`layList_chL`), so the distant commutations of moves, which hold there
+exactly by the interchange law, hold for the normal-form diagrams in any context
+(`dg_chL_congr`). -/
+
+section Regions
+
+variable (RD) in
+/-- The signed letters as letters of the signature of `U`: the letter `a` with the region `μ` on
+its right is the colour `⟨a, μ⟩`. -/
+def chLetters : Chord.Letters (psig RD) (Letter I) where
+  col a μ := ⟨a, μ⟩
+  col_tgt _ _ := rfl
+
+@[simp] theorem chLetters_lreg (μ : X) (l : List (Letter I)) :
+    (chLetters RD).lreg μ l = wt RD μ l := by
+  induction l with
+  | nil => rfl
+  | cons a l ih => exact congrArg (sh RD a + ·) ih
+
+@[simp] theorem chLetters_word (μ : X) (l : List (Letter I)) :
+    (chLetters RD).word μ l = wd RD μ l := by
+  induction l with
+  | nil => rfl
+  | cons a l ih => exact congrArg₂ List.cons (congrArg (Col.mk a) (chLetters_lreg μ l)) ih
+
+@[simp] theorem chLetters_obj (μ : X) (l : List (Letter I)) :
+    (chLetters RD).obj μ l = ob RD μ l :=
+  Obj.ext (chLetters_lreg μ l) (chLetters_word μ l)
+
+variable (RD) in
+/-- The cups `1 ⟶ E_a E_{a*}` and the crossings `xLay` of `U`, in every region, as cups and
+crossings of the multi-region chord interface. -/
+def chGens : Chord.RegionChordGens (chLetters RD) Letter.dual where
+  cup μ a := layList RD μ [([], .cup a, [])]
+  cross μ a b := layList RD μ (xLay a b)
+  chain_cup := fun (μ : X) a => by
+    rw [chLetters_obj, chLetters_obj]
+    exact SChain.chain RD μ (show SChain [] [([], Shape.cup a, [])] [a, a.dual] from
+      ⟨by simp, by simp⟩)
+  chain_cross := fun (μ : X) a b => by
+    rw [chLetters_obj, chLetters_obj]
+    exact (sChain_xLay a b).chain RD μ
+  cup_even _ _ _ _ := Signature.IsEven.odd_eq_false _
+  cross_even _ _ _ _ _ := Signature.IsEven.odd_eq_false _
+
+/-- The layers of a move are those of its interpretation in the chord interface. -/
+theorem layList_mvL (μ : X) (l : List (Letter I)) (m : Move (Letter I)) :
+    layList RD μ (mvL l m) = (chGens RD).moveLayers μ l m := by
+  cases m with
+  | cup g a =>
+    have h := layList_whisker RD μ (l.take g) (l.drop g)
+      (show SChain [] [([], Shape.cup a, [])] [a, a.dual] from ⟨by simp, by simp⟩)
+    simp only [wt_nil] at h
+    simp only [Chord.RegionChordGens.moveLayers, chGens, chLetters_obj, chLetters_lreg,
+      chLetters_word]
+    rw [h]
+    simp [mvL, whL]
+  | cross p =>
+    by_cases hp : p + 1 < l.length
+    · obtain ⟨u, x, y, w, rfl, rfl⟩ := exists_split_cross (l := l) hp
+      rw [mvL_cross, (chGens RD).moveLayers_cross μ u x y w rfl]
+      have h := layList_whisker RD μ u w (sChain_xLay x y)
+      simp only [chGens, chLetters_obj, chLetters_lreg, chLetters_word]
+      rw [← h]
+      rfl
+    · simp only [Chord.RegionChordGens.moveLayers, dite_eq_right hp]
+      rcases hd : l.drop p with _ | ⟨x, _ | ⟨y, r⟩⟩
+      · simp [mvL, hd]
+      · simp [mvL, hd]
+      · have := congrArg List.length hd
+        simp at this
+        omega
+
+/-- **The layers of a chord diagram are those of its interpretation** in the chord interface. -/
+theorem layList_chL (μ : X) (l : List (Letter I)) (D : List (Move (Letter I))) :
+    layList RD μ (chL l D) = (chGens RD).layersOf μ l D := by
+  induction D generalizing l with
+  | nil => rfl
+  | cons m D ih =>
+    simp only [chL, Chord.RegionChordGens.layersOf, layList_append, layList_mvL, ih]
+
+/-- **Chord diagrams with equal images in the presented category give equal normal-form diagrams
+in any context**: if the images of `L` and `R` under the interpretation of the chord interface
+(region `μ`) agree exactly, then so do `pre ++ chL l L ++ post` and `pre ++ chL l R ++ post`. -/
+theorem dg_chL_congr {μ : X} {s₀ t₀ l : List (Letter I)} {L R : List (Move (Letter I))}
+    (hL : Fits l.length L) (hR : Fits l.length R) (hLR : L.foldl lst l = R.foldl lst l)
+    (hL0 : L ≠ []) (hR0 : R ≠ [])
+    (h : (Chord.MoveInterp.Filtration.bot ((chGens RD).interp (pres RD k) μ)).Near 0 l L R)
+    (pre post : List (LayerData I)) :
+    dg RD k μ s₀ t₀ (pre ++ chL l L ++ post) = dg RD k μ s₀ t₀ (pre ++ chL l R ++ post) := by
+  have cL := sChain_chL (l := l) hL
+  have cR : SChain l (chL l R) (L.foldl lst l) := by rw [hLR]; exact sChain_chL hR
+  have nL := chL_ne_nil hL hL0
+  have nR := chL_ne_nil hR hR0
+  refine dg_congr_ctx (fun s t hs => ?_) (fun s t hs => ?_) (fun s t hs => ?_) s₀ t₀ pre post
+  · obtain ⟨e₁, e₂⟩ := hs.eq_ends nL cL; rw [e₁, e₂]; exact cR
+  · obtain ⟨e₁, e₂⟩ := hs.eq_ends nR cR; rw [e₁, e₂]; exact cL
+  · obtain ⟨e₁, e₂⟩ := hs.eq_ends nL cL
+    rw [e₁, e₂]
+    have key := (Chord.MoveInterp.Filtration.near_bot_iff).1 h hLR
+    rw [(chGens RD).eval_comp_eqToHom_eq (pres RD k) μ hLR
+      ⟨(chGens RD).layersOf μ l L, hLR ▸ (chGens RD).chain_layersOf μ l L⟩ rfl] at key
+    replace key := key.trans ((chGens RD).eval_interp (pres RD k) μ l R)
+    rw [dg_of cL, dg_of cR]
+    exact (pres RD k).diag_eq_of_diag_eq_of_layers _ _ _ _ (chLetters_obj μ l).symm
+      (by rw [hLR, chLetters_obj]) (by rw [layers_mkD, layList_chL]; rfl) (by rw [layers_mkD, layList_chL]; rfl) key
+
+end Regions
 
 /-! ## The moves hold modulo lower terms -/
 
@@ -234,93 +373,18 @@ theorem step_sound {L R : List (Move (Letter I))} (hs : Step L R) (l : List (Let
     (hL : Fits l.length L) (pre post : List (LayerData I)) (μ : X) (s₀ t₀ : List (Letter I)) :
     dg RD k μ s₀ t₀ (pre ++ chL l L ++ post) - dg RD k μ s₀ t₀ (pre ++ chL l R ++ post) ∈
       Lo RD k μ s₀ t₀ (ccnt pre + ncr L + ccnt post) := by
+  have hR : Fits l.length R := ((hs.fits_letters (d := Letter.dual) l).1).1 hL
+  have hLR : L.foldl lst l = R.foldl lst l := (hs.fits_letters (d := Letter.dual) l).2 hL
+  -- moves at disjoint places: exactly, by the interchange law in the chord interface
+  have sep : (Chord.MoveInterp.Filtration.bot ((chGens RD).interp (pres RD k) μ)).Near 0 l L R →
+      dg RD k μ s₀ t₀ (pre ++ chL l L ++ post) - dg RD k μ s₀ t₀ (pre ++ chL l R ++ post) ∈
+        Lo RD k μ s₀ t₀ (ccnt pre + ncr L + ccnt post) := fun h =>
+    lo_of_eq (dg_chL_congr hL hR hLR (by cases hs <;> simp) (by cases hs <;> simp) h pre post)
   cases hs with
-  | @xx p p' h =>
-    simp only [Fits, Chord.Move.Ok, Chord.Move.len] at hL
-    obtain ⟨u, x, y, w, rfl, rfl⟩ := exists_split_cross (l := l) (p := p) (by omega)
-    obtain ⟨M, w', rfl, hM⟩ := exists_split_cup (l := w) (g := p' - u.length - 2)
-      (by simp at hL; omega)
-    obtain ⟨z, z', Q, rfl⟩ := exists_cons2 (l := w') (by simp at hL; omega)
-    have e1 : chL (u ++ x :: y :: (M ++ z :: z' :: Q)) [.cross u.length, .cross p'] =
-        (xLay x y).map (whL u (M ++ z :: z' :: Q)) ++
-          (xLay z z').map (whL (u ++ y :: x :: M) Q) := by
-      rw [chL_pair, mvL_cross_eq rfl rfl, lst_cross_eq rfl rfl,
-        mvL_cross_eq (u := u ++ y :: x :: M) (x := z) (y := z') (w := Q) (by simp) (by simp; omega)]
-    have e2 : chL (u ++ x :: y :: (M ++ z :: z' :: Q)) [.cross p', .cross u.length] =
-        (xLay z z').map (whL (u ++ x :: y :: M) Q) ++
-          (xLay x y).map (whL u (M ++ z' :: z :: Q)) := by
-      rw [chL_pair, mvL_cross_eq (u := u ++ x :: y :: M) (x := z) (y := z') (w := Q) (by simp) (by simp; omega),
-        lst_cross_eq (u := u ++ x :: y :: M) (x := z) (y := z') (w := Q) (by simp) (by simp; omega),
-        mvL_cross_eq (u := u) (x := x) (y := y) (w := M ++ z' :: z :: Q) (by simp) rfl]
-    rw [e1, e2]
-    refine lo_of_eq ?_
-    have E := dg_ichg (RD := RD) (k := k) (μ := μ) (s₀ := s₀) (t₀ := t₀) pre post u Q
-      (sChain_xLay x y) ((sChain_xLay z z').whisk M [])
-    wnf at E ⊢
-    exact E
-  | @xuL p g a h =>
-    simp only [Fits, Chord.Move.Ok, Chord.Move.len] at hL
-    obtain ⟨u, x, y, w, rfl, rfl⟩ := exists_split_cross (l := l) (p := p) (by omega)
-    obtain ⟨M, Q, rfl, hM⟩ := exists_split_cup (l := w) (g := g - u.length - 2)
-      (by simp at hL; omega)
-    have e1 : chL (u ++ x :: y :: (M ++ Q)) [.cross u.length, .cup g a] =
-        (xLay x y).map (whL u (M ++ Q)) ++ [(u ++ y :: x :: M, .cup a, Q)] := by
-      rw [chL_pair, mvL_cross_eq rfl rfl, lst_cross_eq rfl rfl,
-        mvL_cup_eq (u := u ++ y :: x :: M) (w := Q) a (by simp) (by simp; omega)]
-    have e2 : chL (u ++ x :: y :: (M ++ Q)) [.cup g a, .cross u.length] =
-        [(u ++ x :: y :: M, .cup a, Q)] ++ (xLay x y).map (whL u (M ++ a :: a.dual :: Q)) := by
-      rw [chL_pair, mvL_cup_eq (u := u ++ x :: y :: M) (w := Q) a (by simp) (by simp; omega),
-        lst_cup_eq (u := u ++ x :: y :: M) (w := Q) a (by simp) (by simp; omega),
-        mvL_cross_eq (u := u) (x := x) (y := y) (w := M ++ a :: a.dual :: Q) (by simp) rfl]
-    rw [e1, e2]
-    refine lo_of_eq ?_
-    have E := dg_ichg (RD := RD) (k := k) (μ := μ) (s₀ := s₀) (t₀ := t₀) pre post u Q
-      (A := xLay x y) (B := [(M, .cup a, [])]) (t := M) (t' := M ++ [a, a.dual])
-      (sChain_xLay x y) ⟨by simp, by simp⟩
-    wnf at E ⊢
-    exact E
-  | @xuR p g a h =>
-    simp only [Fits, Chord.Move.Ok, Chord.Move.len] at hL
-    obtain ⟨u, w, rfl, rfl⟩ := exists_split_cup (l := l) (g := g) (by omega)
-    obtain ⟨M, x, y, Q, rfl, hM⟩ := exists_split_cross (l := w) (p := p - u.length)
-      (by simp at hL; omega)
-    have e1 : chL (u ++ (M ++ x :: y :: Q)) [.cross p, .cup u.length a] =
-        (xLay x y).map (whL (u ++ M) Q) ++ [(u, .cup a, M ++ y :: x :: Q)] := by
-      rw [chL_pair, mvL_cross_eq (u := u ++ M) (x := x) (y := y) (w := Q) (by simp) (by simp; omega),
-        lst_cross_eq (u := u ++ M) (x := x) (y := y) (w := Q) (by simp) (by simp; omega),
-        mvL_cup_eq (u := u) (w := M ++ y :: x :: Q) a (by simp) rfl]
-    have e2 : chL (u ++ (M ++ x :: y :: Q)) [.cup u.length a, .cross (p + 2)] =
-        [(u, .cup a, M ++ x :: y :: Q)] ++ (xLay x y).map (whL (u ++ a :: a.dual :: M) Q) := by
-      rw [chL_pair, mvL_cup_eq a rfl rfl, lst_cup_eq a rfl rfl,
-        mvL_cross_eq (u := u ++ a :: a.dual :: M) (x := x) (y := y) (w := Q) (by simp) (by simp; omega)]
-    rw [e1, e2]
-    refine lo_of_eq ?_
-    have E := dg_ichg (RD := RD) (k := k) (μ := μ) (s₀ := s₀) (t₀ := t₀) pre post u Q
-      (A := [([], .cup a, [])]) (B := (xLay x y).map (whL M [])) (s := []) (s' := [a, a.dual])
-      ⟨by simp, by simp⟩ ((sChain_xLay x y).whisk M [])
-    wnf at E ⊢
-    exact E.symm
-  | @uu g g' a b h =>
-    simp only [Fits, Chord.Move.Ok, Chord.Move.len] at hL
-    obtain ⟨u, w, rfl, rfl⟩ := exists_split_cup (l := l) (g := g') (by omega)
-    obtain ⟨M, Q, rfl, hM⟩ := exists_split_cup (l := w) (g := g - u.length)
-      (by simp at hL; omega)
-    have e1 : chL (u ++ (M ++ Q)) [.cup g a, .cup u.length b] =
-        [(u ++ M, .cup a, Q)] ++ [(u, .cup b, M ++ a :: a.dual :: Q)] := by
-      rw [chL_pair, mvL_cup_eq (u := u ++ M) (w := Q) a (by simp) (by simp; omega),
-        lst_cup_eq (u := u ++ M) (w := Q) a (by simp) (by simp; omega),
-        mvL_cup_eq (u := u) (w := M ++ a :: a.dual :: Q) b (by simp) rfl]
-    have e2 : chL (u ++ (M ++ Q)) [.cup u.length b, .cup (g + 2) a] =
-        [(u, .cup b, M ++ Q)] ++ [(u ++ b :: b.dual :: M, .cup a, Q)] := by
-      rw [chL_pair, mvL_cup_eq b rfl rfl, lst_cup_eq b rfl rfl,
-        mvL_cup_eq (u := u ++ b :: b.dual :: M) (w := Q) a (by simp) (by simp; omega)]
-    rw [e1, e2]
-    refine lo_of_eq ?_
-    have E := dg_ichg (RD := RD) (k := k) (μ := μ) (s₀ := s₀) (t₀ := t₀) pre post u Q
-      (A := [([], .cup b, [])]) (B := [(M, .cup a, [])]) (s := []) (s' := [b, b.dual])
-      (t := M) (t' := M ++ [a, a.dual]) ⟨by simp, by simp⟩ ⟨by simp, by simp⟩
-    wnf at E ⊢
-    exact E.symm
+  | xx h => exact sep ((chGens RD).near_xx (pres RD k) μ _ h hL)
+  | xuL a h => exact sep ((chGens RD).near_xuL (pres RD k) μ _ a h hL)
+  | xuR a h => exact sep ((chGens RD).near_xuR (pres RD k) μ _ a h hL)
+  | uu a b h => exact sep ((chGens RD).near_uu (pres RD k) μ _ a b h hL)
   | braid p =>
     simp only [Fits, Chord.Move.Ok, Chord.Move.len] at hL
     obtain ⟨u, x, y, w, rfl, rfl⟩ := exists_split_cross (l := l) (p := p) (by omega)

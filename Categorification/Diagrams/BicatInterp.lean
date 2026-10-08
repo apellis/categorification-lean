@@ -57,7 +57,9 @@ coherence theorem `FreeBicategory.locally_thin`).
   `conj_key`, `exch_key` (interchange), `zig_key`, `zig_key'`, `zag_key'` (zigzags from an
   adjunction), `rot_key`, `rotL_key` (rotations of a generator by a cup and a cap: its mates),
   `rot2_key`, `rot2L_key` (rotations of a generator on two strands by nested cups and caps: its
-  mates under the composite adjunction);
+  mates under the composite adjunction); `chain1_key`, `chain2_key`, `chain3_key` (and the
+  primed variants) with `layerAt` and its evaluations `layerAt_whole`, `layerAt_left`,
+  `layerAt_right`, ... for composites of layers on a fixed word;
   `hom_of_congr`, `comp_of_congr`, `lift_map₂_eqToHom` for strands whose colours are only
   propositionally equal.
 
@@ -920,6 +922,198 @@ theorem rot2L_key {a b c : FB S} {r₁ : a ⟶ b} {e₁ : b ⟶ a} {r₂ : b ⟶
       (α_ r₁ e₁ (r₁ ≫ r₂)).inv ≫ (λ_ _).inv), reassoc_of% hmid]
   simp only [Category.assoc, ← PrelaxFunctor.map₂_comp_assoc, ← PrelaxFunctor.map₂_comp]
   exact lift_conj_eq M _ _ _ _ _
+
+/-- **A layer conjugated to fixed words**: the image `midK M p q g` of a layer, conjugated by free
+isomorphisms `τ`, `τ'` of its boundary words with fixed free 1-morphisms `W`, `W'`. -/
+def layerAt {p : a ⟶ b} {q : c ⟶ d} {x y : b ⟶ c} {W W' : a ⟶ d} (τ : p ≫ (x ≫ q) ≅ W)
+    (τ' : p ≫ (y ≫ q) ≅ W') (g : M.lift.map x ⟶ M.lift.map y) : M.lift.map W ⟶ M.lift.map W' :=
+  M.lift.map₂ τ.inv ≫ midK M p q g ≫ M.lift.map₂ τ'.hom
+
+omit M in
+theorem layerAt_left_assoc_aux {a' b' c' c'' d' : C} {x₀ : a' ⟶ b'} {x₁ : b' ⟶ c'}
+    {y₀ : a' ⟶ c''} {y₁ : c'' ⟶ c'} (q : c' ⟶ d') (g : x₀ ≫ x₁ ⟶ y₀ ≫ y₁) :
+    ((α_ x₀ x₁ q).inv ≫ (λ_ ((x₀ ≫ x₁) ≫ q)).inv) ≫ 𝟙 a' ◁ (g ▷ q) ≫
+        ((λ_ ((y₀ ≫ y₁) ≫ q)).hom ≫ (α_ y₀ y₁ q).hom) =
+      (α_ x₀ x₁ q).inv ≫ g ▷ q ≫ (α_ y₀ y₁ q).hom := by
+  simp
+
+/-- A layer at the left end of the word on two strands, conjugated by associators. -/
+theorem layerAt_left_assoc {e₀ : b ⟶ c} {e₁ : c ⟶ d} {c' : FB S} {f₀ : b ⟶ c'} {f₁ : c' ⟶ d}
+    {e : FB S} (q : d ⟶ e) (g : M.lift.map (e₀ ≫ e₁) ⟶ M.lift.map (f₀ ≫ f₁)) :
+    layerAt M (p := 𝟙 b) (q := q) ((λ_ _) ≪≫ (α_ e₀ e₁ q)) ((λ_ _) ≪≫ (α_ f₀ f₁ q)) g =
+      (α_ (M.lift.map e₀) (M.lift.map e₁) (M.lift.map q)).inv ≫ g ▷ M.lift.map q ≫
+        (α_ (M.lift.map f₀) (M.lift.map f₁) (M.lift.map q)).hom := by
+  simp only [layerAt, midK, Iso.trans_inv, Iso.trans_hom, PrelaxFunctor.map₂_comp,
+    lift_map₂_leftUnitor_inv, lift_map₂_associator_inv, lift_map₂_leftUnitor_hom,
+    lift_map₂_associator_hom]
+  exact layerAt_left_assoc_aux _ g
+
+omit M in
+theorem layerAt_right_assoc_aux {a' b' c' d' c'' : C} (p : a' ⟶ b') {x₁ : b' ⟶ c'} {x₂ : c' ⟶ d'}
+    {y₁ : b' ⟶ c''} {y₂ : c'' ⟶ d'} (g : x₁ ≫ x₂ ⟶ y₁ ≫ y₂) :
+    ((α_ p x₁ x₂).hom ≫ p ◁ (ρ_ (x₁ ≫ x₂)).inv) ≫ p ◁ (g ▷ 𝟙 d') ≫
+        (p ◁ (ρ_ (y₁ ≫ y₂)).hom ≫ (α_ p y₁ y₂).inv) =
+      (α_ p x₁ x₂).hom ≫ p ◁ g ≫ (α_ p y₁ y₂).inv := by
+  simp only [Category.assoc, ← whiskerLeft_comp_assoc]
+  simp
+
+/-- A layer at the right end of the word on two strands, conjugated by associators. -/
+theorem layerAt_right_assoc (p : a ⟶ b) {e₁ : b ⟶ c} {e₂ : c ⟶ d} {c' : FB S} {f₁ : b ⟶ c'}
+    {f₂ : c' ⟶ d} (g : M.lift.map (e₁ ≫ e₂) ⟶ M.lift.map (f₁ ≫ f₂)) :
+    layerAt M (q := 𝟙 d) (whiskerLeftIso p (ρ_ (e₁ ≫ e₂)) ≪≫ (α_ p e₁ e₂).symm)
+        (whiskerLeftIso p (ρ_ (f₁ ≫ f₂)) ≪≫ (α_ p f₁ f₂).symm) g =
+      (α_ (M.lift.map p) (M.lift.map e₁) (M.lift.map e₂)).hom ≫ M.lift.map p ◁ g ≫
+        (α_ (M.lift.map p) (M.lift.map f₁) (M.lift.map f₂)).inv := by
+  simp only [layerAt, midK, Iso.trans_inv, Iso.trans_hom, Iso.symm_inv, Iso.symm_hom,
+    whiskerLeftIso_inv, whiskerLeftIso_hom, PrelaxFunctor.map₂_comp, lift_map₂_whiskerLeft,
+    lift_map₂_rightUnitor_inv, lift_map₂_rightUnitor_hom, lift_map₂_associator_hom,
+    lift_map₂_associator_inv]
+  exact layerAt_right_assoc_aux _ g
+
+omit M in
+theorem layerAt_left_aux {a' b' c' : C} {x y : a' ⟶ b'} (q : b' ⟶ c') (g : x ⟶ y) :
+    (λ_ (x ≫ q)).inv ≫ 𝟙 a' ◁ (g ▷ q) ≫ (λ_ (y ≫ q)).hom = g ▷ q := by
+  simp
+
+omit M in
+theorem layerAt_whole_aux {a' b' : C} {x y : a' ⟶ b'} (g : x ⟶ y) :
+    ((ρ_ x).inv ≫ (λ_ (x ≫ 𝟙 b')).inv) ≫ 𝟙 a' ◁ (g ▷ 𝟙 b') ≫ ((λ_ _).hom ≫ (ρ_ y).hom) = g := by
+  calc _ = (ρ_ x).inv ≫ ((λ_ (x ≫ 𝟙 b')).inv ≫ 𝟙 a' ◁ (g ▷ 𝟙 b') ≫ (λ_ _).hom) ≫
+        (ρ_ y).hom := by simp only [Category.assoc]
+    _ = g := by rw [layerAt_left_aux]; simp
+
+omit M in
+theorem layerAt_right_aux {a' b' c' : C} (p : a' ⟶ b') {x y : b' ⟶ c'} (g : x ⟶ y) :
+    p ◁ (ρ_ x).inv ≫ p ◁ (g ▷ 𝟙 c') ≫ p ◁ (ρ_ y).hom = p ◁ g := by
+  simp only [← whiskerLeft_comp]
+  simp
+
+/-- A layer occupying the whole word. -/
+theorem layerAt_whole {x y : b ⟶ c} (g : M.lift.map x ⟶ M.lift.map y) :
+    layerAt M (p := 𝟙 b) (q := 𝟙 c) ((λ_ _) ≪≫ (ρ_ x)) ((λ_ _) ≪≫ (ρ_ y)) g = g := by
+  simp only [layerAt, midK, Iso.trans_inv, Iso.trans_hom, PrelaxFunctor.map₂_comp,
+    lift_map₂_leftUnitor_inv, lift_map₂_rightUnitor_inv, lift_map₂_leftUnitor_hom,
+    lift_map₂_rightUnitor_hom]
+  exact layerAt_whole_aux g
+
+/-- A layer at the left end of the word (nothing on its left). -/
+theorem layerAt_left {x y : b ⟶ c} (q : c ⟶ d) (g : M.lift.map x ⟶ M.lift.map y) :
+    layerAt M (p := 𝟙 b) (q := q) (λ_ _) (λ_ _) g = g ▷ M.lift.map q := by
+  simp only [layerAt, midK, lift_map₂_leftUnitor_inv, lift_map₂_leftUnitor_hom]
+  exact layerAt_left_aux _ g
+
+/-- A layer at the right end of the word (nothing on its right). -/
+theorem layerAt_right (p : a ⟶ b) {x y : b ⟶ c} (g : M.lift.map x ⟶ M.lift.map y) :
+    layerAt M (q := 𝟙 c) (whiskerLeftIso p (ρ_ x)) (whiskerLeftIso p (ρ_ y)) g =
+      M.lift.map p ◁ g := by
+  simp only [layerAt, midK, whiskerLeftIso_inv, whiskerLeftIso_hom, lift_map₂_whiskerLeft,
+    lift_map₂_rightUnitor_inv, lift_map₂_rightUnitor_hom]
+  exact layerAt_right_aux _ g
+
+/-- A layer in the middle of the word. -/
+theorem layerAt_mid (p : a ⟶ b) (q : c ⟶ d) {x y : b ⟶ c} (g : M.lift.map x ⟶ M.lift.map y) :
+    layerAt M (Iso.refl (p ≫ (x ≫ q))) (Iso.refl (p ≫ (y ≫ q))) g =
+      M.lift.map p ◁ (g ▷ M.lift.map q) := by
+  simp only [layerAt, midK, Iso.refl_inv, Iso.refl_hom, PrelaxFunctor.map₂_id, Category.id_comp]
+  exact Category.comp_id _
+
+/-- **One layer in normal form**: the image of a layer conjugated by images of free 2-morphisms
+is any conjugate of the layer conjugated to a fixed word. -/
+theorem chain1_key {W W' P Q P₁ Q₁ : a ⟶ d} {p : a ⟶ b} {q : c ⟶ d} {x y : b ⟶ c}
+    (τ : p ≫ (x ≫ q) ≅ W) (τ' : p ≫ (y ≫ q) ≅ W') (g : M.lift.map x ⟶ M.lift.map y)
+    (E₀ : P ⟶ P₁) (A₁ : P₁ ⟶ p ≫ (x ≫ q)) (B₁ : p ≫ (y ≫ q) ⟶ Q₁) (E₁ : Q₁ ⟶ Q)
+    (X : P ⟶ W) (Y : W' ⟶ Q) :
+    M.lift.map₂ E₀ ≫ (M.lift.map₂ A₁ ≫ midK M p q g ≫ M.lift.map₂ B₁) ≫ M.lift.map₂ E₁ =
+      M.lift.map₂ X ≫ layerAt M τ τ' g ≫ M.lift.map₂ Y := by
+  simp only [layerAt, Category.assoc, ← PrelaxFunctor.map₂_comp_assoc, ← PrelaxFunctor.map₂_comp]
+  exact lift_conj_eq M _ _ _ _ _
+
+/-- **Two layers in normal form**. -/
+theorem chain2_key {W₀ W₁ W₂ P Q P₁ Q₁ P₂ Q₂ : a ⟶ d}
+    {p₁ : a ⟶ b} {q₁ : c ⟶ d} {x₁ y₁ : b ⟶ c} (τ₁ : p₁ ≫ (x₁ ≫ q₁) ≅ W₀)
+    (τ₁' : p₁ ≫ (y₁ ≫ q₁) ≅ W₁) (g₁ : M.lift.map x₁ ⟶ M.lift.map y₁)
+    {b₂ c₂ : FB S} {p₂ : a ⟶ b₂} {q₂ : c₂ ⟶ d} {x₂ y₂ : b₂ ⟶ c₂} (τ₂ : p₂ ≫ (x₂ ≫ q₂) ≅ W₁)
+    (τ₂' : p₂ ≫ (y₂ ≫ q₂) ≅ W₂) (g₂ : M.lift.map x₂ ⟶ M.lift.map y₂)
+    (E₀ : P ⟶ P₁) (A₁ : P₁ ⟶ p₁ ≫ (x₁ ≫ q₁)) (B₁ : p₁ ≫ (y₁ ≫ q₁) ⟶ Q₁) (E₁ : Q₁ ⟶ P₂)
+    (A₂ : P₂ ⟶ p₂ ≫ (x₂ ≫ q₂)) (B₂ : p₂ ≫ (y₂ ≫ q₂) ⟶ Q₂) (E₂ : Q₂ ⟶ Q)
+    (X : P ⟶ W₀) (Y : W₂ ⟶ Q) :
+    M.lift.map₂ E₀ ≫ (M.lift.map₂ A₁ ≫ midK M p₁ q₁ g₁ ≫ M.lift.map₂ B₁) ≫ M.lift.map₂ E₁ ≫
+        (M.lift.map₂ A₂ ≫ midK M p₂ q₂ g₂ ≫ M.lift.map₂ B₂) ≫ M.lift.map₂ E₂ =
+      M.lift.map₂ X ≫ (layerAt M τ₁ τ₁' g₁ ≫ layerAt M τ₂ τ₂' g₂) ≫ M.lift.map₂ Y := by
+  calc _ = M.lift.map₂ (E₀ ≫ A₁) ≫ midK M p₁ q₁ g₁ ≫ M.lift.map₂ (B₁ ≫ E₁ ≫ A₂) ≫
+        midK M p₂ q₂ g₂ ≫ M.lift.map₂ (B₂ ≫ E₂) := by
+          simp only [PrelaxFunctor.map₂_comp, Category.assoc]
+    _ = M.lift.map₂ (X ≫ τ₁.inv) ≫ midK M p₁ q₁ g₁ ≫ M.lift.map₂ (τ₁'.hom ≫ τ₂.inv) ≫
+        midK M p₂ q₂ g₂ ≫ M.lift.map₂ (τ₂'.hom ≫ Y) := lift_conj_eq₂ M _ _ _ _ _ _ _ _
+    _ = _ := by simp only [layerAt, PrelaxFunctor.map₂_comp, Category.assoc]
+
+/-- **Two adjacent layers in normal form** (no transports between them). -/
+theorem chain2_key' {W₀ W₁ W₂ P Q₁ Q : a ⟶ d}
+    {p₁ : a ⟶ b} {q₁ : c ⟶ d} {x₁ y₁ : b ⟶ c} (τ₁ : p₁ ≫ (x₁ ≫ q₁) ≅ W₀)
+    (τ₁' : p₁ ≫ (y₁ ≫ q₁) ≅ W₁) (g₁ : M.lift.map x₁ ⟶ M.lift.map y₁)
+    {b₂ c₂ : FB S} {p₂ : a ⟶ b₂} {q₂ : c₂ ⟶ d} {x₂ y₂ : b₂ ⟶ c₂} (τ₂ : p₂ ≫ (x₂ ≫ q₂) ≅ W₁)
+    (τ₂' : p₂ ≫ (y₂ ≫ q₂) ≅ W₂) (g₂ : M.lift.map x₂ ⟶ M.lift.map y₂)
+    (A₁ : P ⟶ p₁ ≫ (x₁ ≫ q₁)) (B₁ : p₁ ≫ (y₁ ≫ q₁) ⟶ Q₁)
+    (A₂ : Q₁ ⟶ p₂ ≫ (x₂ ≫ q₂)) (B₂ : p₂ ≫ (y₂ ≫ q₂) ⟶ Q)
+    (X : P ⟶ W₀) (Y : W₂ ⟶ Q) :
+    (M.lift.map₂ A₁ ≫ midK M p₁ q₁ g₁ ≫ M.lift.map₂ B₁) ≫
+        (M.lift.map₂ A₂ ≫ midK M p₂ q₂ g₂ ≫ M.lift.map₂ B₂) =
+      M.lift.map₂ X ≫ (layerAt M τ₁ τ₁' g₁ ≫ layerAt M τ₂ τ₂' g₂) ≫ M.lift.map₂ Y := by
+  have h := chain2_key M τ₁ τ₁' g₁ τ₂ τ₂' g₂ (𝟙 _) A₁ B₁ (𝟙 _) A₂ B₂ (𝟙 _) X Y
+  simp only [PrelaxFunctor.map₂_id, Category.id_comp, Category.comp_id, Category.assoc] at h ⊢
+  exact h
+
+/-- **Three layers in normal form**. -/
+theorem chain3_key {W₀ W₁ W₂ W₃ P Q P₁ Q₁ P₂ Q₂ P₃ Q₃ : a ⟶ d}
+    {p₁ : a ⟶ b} {q₁ : c ⟶ d} {x₁ y₁ : b ⟶ c} (τ₁ : p₁ ≫ (x₁ ≫ q₁) ≅ W₀)
+    (τ₁' : p₁ ≫ (y₁ ≫ q₁) ≅ W₁) (g₁ : M.lift.map x₁ ⟶ M.lift.map y₁)
+    {b₂ c₂ : FB S} {p₂ : a ⟶ b₂} {q₂ : c₂ ⟶ d} {x₂ y₂ : b₂ ⟶ c₂} (τ₂ : p₂ ≫ (x₂ ≫ q₂) ≅ W₁)
+    (τ₂' : p₂ ≫ (y₂ ≫ q₂) ≅ W₂) (g₂ : M.lift.map x₂ ⟶ M.lift.map y₂)
+    {b₃ c₃ : FB S} {p₃ : a ⟶ b₃} {q₃ : c₃ ⟶ d} {x₃ y₃ : b₃ ⟶ c₃} (τ₃ : p₃ ≫ (x₃ ≫ q₃) ≅ W₂)
+    (τ₃' : p₃ ≫ (y₃ ≫ q₃) ≅ W₃) (g₃ : M.lift.map x₃ ⟶ M.lift.map y₃)
+    (E₀ : P ⟶ P₁) (A₁ : P₁ ⟶ p₁ ≫ (x₁ ≫ q₁)) (B₁ : p₁ ≫ (y₁ ≫ q₁) ⟶ Q₁) (E₁ : Q₁ ⟶ P₂)
+    (A₂ : P₂ ⟶ p₂ ≫ (x₂ ≫ q₂)) (B₂ : p₂ ≫ (y₂ ≫ q₂) ⟶ Q₂) (E₂ : Q₂ ⟶ P₃)
+    (A₃ : P₃ ⟶ p₃ ≫ (x₃ ≫ q₃)) (B₃ : p₃ ≫ (y₃ ≫ q₃) ⟶ Q₃) (E₃ : Q₃ ⟶ Q)
+    (X : P ⟶ W₀) (Y : W₃ ⟶ Q) :
+    M.lift.map₂ E₀ ≫ (M.lift.map₂ A₁ ≫ midK M p₁ q₁ g₁ ≫ M.lift.map₂ B₁) ≫ M.lift.map₂ E₁ ≫
+        (M.lift.map₂ A₂ ≫ midK M p₂ q₂ g₂ ≫ M.lift.map₂ B₂) ≫ M.lift.map₂ E₂ ≫
+          (M.lift.map₂ A₃ ≫ midK M p₃ q₃ g₃ ≫ M.lift.map₂ B₃) ≫ M.lift.map₂ E₃ =
+      M.lift.map₂ X ≫ (layerAt M τ₁ τ₁' g₁ ≫ layerAt M τ₂ τ₂' g₂ ≫ layerAt M τ₃ τ₃' g₃) ≫
+        M.lift.map₂ Y := by
+  calc _ = M.lift.map₂ (E₀ ≫ A₁) ≫ midK M p₁ q₁ g₁ ≫ M.lift.map₂ (B₁ ≫ E₁ ≫ A₂) ≫
+        midK M p₂ q₂ g₂ ≫ M.lift.map₂ (B₂ ≫ E₂ ≫ A₃) ≫ midK M p₃ q₃ g₃ ≫
+          M.lift.map₂ (B₃ ≫ E₃) := by
+          simp only [PrelaxFunctor.map₂_comp, Category.assoc]
+    _ = M.lift.map₂ (X ≫ τ₁.inv) ≫ midK M p₁ q₁ g₁ ≫ M.lift.map₂ (τ₁'.hom ≫ τ₂.inv) ≫
+        midK M p₂ q₂ g₂ ≫ M.lift.map₂ (τ₂'.hom ≫ τ₃.inv) ≫ midK M p₃ q₃ g₃ ≫
+          M.lift.map₂ (τ₃'.hom ≫ Y) := by
+          rw [lift_map₂_eq M (E₀ ≫ A₁) (X ≫ τ₁.inv),
+            lift_map₂_eq M (B₁ ≫ E₁ ≫ A₂) (τ₁'.hom ≫ τ₂.inv),
+            lift_map₂_eq M (B₂ ≫ E₂ ≫ A₃) (τ₂'.hom ≫ τ₃.inv),
+            lift_map₂_eq M (B₃ ≫ E₃) (τ₃'.hom ≫ Y)]
+    _ = _ := by simp only [layerAt, PrelaxFunctor.map₂_comp, Category.assoc]
+
+/-- **Three adjacent layers in normal form** (no transports between them). -/
+theorem chain3_key' {W₀ W₁ W₂ W₃ P Q₁ Q₂ Q : a ⟶ d}
+    {p₁ : a ⟶ b} {q₁ : c ⟶ d} {x₁ y₁ : b ⟶ c} (τ₁ : p₁ ≫ (x₁ ≫ q₁) ≅ W₀)
+    (τ₁' : p₁ ≫ (y₁ ≫ q₁) ≅ W₁) (g₁ : M.lift.map x₁ ⟶ M.lift.map y₁)
+    {b₂ c₂ : FB S} {p₂ : a ⟶ b₂} {q₂ : c₂ ⟶ d} {x₂ y₂ : b₂ ⟶ c₂} (τ₂ : p₂ ≫ (x₂ ≫ q₂) ≅ W₁)
+    (τ₂' : p₂ ≫ (y₂ ≫ q₂) ≅ W₂) (g₂ : M.lift.map x₂ ⟶ M.lift.map y₂)
+    {b₃ c₃ : FB S} {p₃ : a ⟶ b₃} {q₃ : c₃ ⟶ d} {x₃ y₃ : b₃ ⟶ c₃} (τ₃ : p₃ ≫ (x₃ ≫ q₃) ≅ W₂)
+    (τ₃' : p₃ ≫ (y₃ ≫ q₃) ≅ W₃) (g₃ : M.lift.map x₃ ⟶ M.lift.map y₃)
+    (A₁ : P ⟶ p₁ ≫ (x₁ ≫ q₁)) (B₁ : p₁ ≫ (y₁ ≫ q₁) ⟶ Q₁)
+    (A₂ : Q₁ ⟶ p₂ ≫ (x₂ ≫ q₂)) (B₂ : p₂ ≫ (y₂ ≫ q₂) ⟶ Q₂)
+    (A₃ : Q₂ ⟶ p₃ ≫ (x₃ ≫ q₃)) (B₃ : p₃ ≫ (y₃ ≫ q₃) ⟶ Q)
+    (X : P ⟶ W₀) (Y : W₃ ⟶ Q) :
+    (M.lift.map₂ A₁ ≫ midK M p₁ q₁ g₁ ≫ M.lift.map₂ B₁) ≫
+        (M.lift.map₂ A₂ ≫ midK M p₂ q₂ g₂ ≫ M.lift.map₂ B₂) ≫
+          (M.lift.map₂ A₃ ≫ midK M p₃ q₃ g₃ ≫ M.lift.map₂ B₃) =
+      M.lift.map₂ X ≫ (layerAt M τ₁ τ₁' g₁ ≫ layerAt M τ₂ τ₂' g₂ ≫ layerAt M τ₃ τ₃' g₃) ≫
+        M.lift.map₂ Y := by
+  have h := chain3_key M τ₁ τ₁' g₁ τ₂ τ₂' g₂ τ₃ τ₃' g₃ (𝟙 _) A₁ B₁ (𝟙 _) A₂ B₂ (𝟙 _) A₃ B₃ (𝟙 _)
+    X Y
+  simp only [PrelaxFunctor.map₂_id, Category.id_comp, Category.comp_id, Category.assoc] at h ⊢
+  exact h
 
 end Mid
 

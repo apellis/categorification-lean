@@ -21,6 +21,10 @@ the image of the relation under the interpretation `BicatInterp.interp (genImg h
 * Cyclicity of crossings (KL III `eq_cyclic_cross-gen` for `i = j`): the upward crossing rotated
   by nested cups and caps on the right (`cycCrossR`) or on the left (`cycCrossL`) is the downward
   crossing; the second is CL Lemma 4.2 for the normalized left adjunctions (`gCross_cyclic`).
+* The nilHecke relations on upward strands (KL III Def. 3.1 relations of `R(ν)`, for `sl₂`):
+  `klr_sqEq`, `klr_slideLEq`, `klr_slideREq`, `klr_braid`, from `grCross_sq`, the dot slides and
+  `grCross_braid`. Layers occupying the same word are compared through `chain2_key'`,
+  `chain3_key'` and the evaluations `layerAt_*`.
 
 The computation of an image goes through `BicatInterp`'s normal forms: the image of the diagram is
 unfolded into images of layers (`layerI_pos`), the transports between words become images of free
@@ -672,6 +676,308 @@ theorem cycCrossL (μ : ℤ) :
       congr 1
   all_goals simp [Layer.cod, Layer.dom, ob, inv_dual, hy, sig0_dom_cross', sig0_cod_cross']
 
+
+/-! ## The nilHecke relations on upward strands -/
+
+omit [GradedBicategory.IsLinear B k] [∀ a b : B, IsIdempotentComplete (a ⟶ b)]
+  [∀ a b : B, HomFinite k (a ⟶ b)] in
+theorem gCross_sq (a b c : ℤ) (h₁ : a + 1 = b) (h₂ : b + 1 = c) :
+    S.gCross a b c h₁ h₂ ≫ S.gCross a b c h₁ h₂ = 0 := by
+  subst h₁ h₂; exact S.grCross_sq a
+
+set_option maxHeartbeats 2000000 in
+/-- `τ² = 0` on two upward strands. -/
+theorem klr_sqEq (μ : ℤ) :
+    (interp (genImg hS) (KL3.Diagram.wt sl2RootDatum μ [up (), up ()] : ℤ) μ).functor.map
+      (upDiag sl2RootDatum μ (KLR.Diagram.X2 () () ≫ KLR.Diagram.X2 () ())) = 0 := by
+  have hc : Cond (S := psig sl2RootDatum) (KL3.Diagram.wt sl2RootDatum μ [up (), up ()] : ℤ) μ
+      (ob sl2RootDatum μ (ups [(), ()])) := ⟨⟨rfl, rfl, trivial⟩, rfl, rfl⟩
+  apply (cancel_epi (eqToHom (objI_pos _ _ hc).symm)).1
+  apply (cancel_mono (eqToHom (objI_pos _ _ hc))).1
+  set_option backward.isDefEq.respectTransparency false in
+  simp only [Interpretation.functor_map, layers_upDiag, Diagram.layers_comp,
+    KLR.Diagram.layers_dl, List.map_cons, List.map_nil, List.cons_append, List.nil_append,
+    Interpretation.mapChain]
+  simp only [Limits.comp_zero, Limits.zero_comp]
+  set_option backward.isDefEq.respectTransparency false in
+  simp only [upLay, KLR.Diagram.lay, lay, upShape, Shape.gen, ups, wt_cons, wt_nil,
+    List.nil_append, List.cons_append, Shape.dom]
+  rw [layerI_pos _ _ _ _ ?c1]
+  case c1 =>
+    refine ⟨?_, ?_, rfl⟩ <;>
+      simp [Signature.ok, Signature.endR, Layer.dom, sig0_colourSrc', sig0_colourTgt',
+        sig0_dom_cross']
+  simp only [Category.assoc, eqToHom_trans_assoc, eqToHom_trans]
+  set_option backward.isDefEq.respectTransparency false in
+  rw [eqToHom_word ?w0 _]
+  set_option backward.isDefEq.respectTransparency false in
+  try rw [eqToHom_word ?w1 _]
+  set_option backward.isDefEq.respectTransparency false in
+  try erw [eqToHom_word ?w2 _]
+  · unfold coreC core
+    dsimp only [Signature.endR, psig_colourTgt, psig_colourSrc, Signature.pivotal_dom_gen,
+      Signature.pivotal_cod_gen, Signature.pivotal_left_gen, Signature.pivotal_right_gen,
+      sig0_dom_cross', sig0_cod_cross', wd_cons, wd_nil, wt_cons, wt_nil, sig0_colourTgt',
+      sig0_colourSrc', List.map_nil, List.map_cons, List.nil_append, List.append_nil,
+      List.cons_append]
+    refine (chain2_key S.model ((λ_ _) ≪≫ (ρ_ _)) ((λ_ _) ≪≫ (ρ_ _)) _
+      ((λ_ _) ≪≫ (ρ_ _)) ((λ_ _) ≪≫ (ρ_ _)) _ _ _ _ _ _ _ _ (𝟙 _) (𝟙 _)).trans ?_
+    rw [layerAt_whole, layerAt_whole]
+    simp only [PrelaxFunctor.map₂_id, Category.id_comp, Category.comp_id]
+    exact gCross_sq _ _ _ _ _
+  all_goals simp [sig0_dom_cross', Layer.dom, ob]
+
+
+omit [∀ a b : B, IsIdempotentComplete (a ⟶ b)] [∀ a b : B, HomFinite k (a ⟶ b)] in
+theorem gDot_slide_right (a b c : ℤ) (h₁ : a + 1 = b) (h₂ : b + 1 = c) :
+    S.gCross a b c h₁ h₂ ≫ S.gEc a b h₁ ◁ S.gDot b c h₂ -
+        S.gDot a b h₁ ▷ S.gEc b c h₂ ≫ S.gCross a b c h₁ h₂ = 𝟙 _ := by
+  subst h₁ h₂; exact S.grDotN_slide_right a
+
+omit [∀ a b : B, IsIdempotentComplete (a ⟶ b)] [∀ a b : B, HomFinite k (a ⟶ b)] in
+theorem upDiag_X2_D0 (μ : ℤ) :
+    upDiag sl2RootDatum μ (KLR.Diagram.X2 () () ≫ KLR.Diagram.D0 () ()) =
+      mkD sl2RootDatum μ [([], .cross true () (), []), ([], .dot (up ()), [up ()])]
+        ⟨rfl, rfl, rfl⟩ := by
+  rfl
+
+omit [∀ a b : B, IsIdempotentComplete (a ⟶ b)] [∀ a b : B, HomFinite k (a ⟶ b)] in
+theorem upDiag_D1_X2 (μ : ℤ) :
+    upDiag sl2RootDatum μ (KLR.Diagram.D1 () () ≫ KLR.Diagram.X2 () ()) =
+      mkD sl2RootDatum μ [([up ()], .dot (up ()), []), ([], .cross true () (), [])]
+        ⟨rfl, rfl, rfl⟩ := by
+  rfl
+
+omit [∀ a b : B, IsIdempotentComplete (a ⟶ b)] [∀ a b : B, HomFinite k (a ⟶ b)] in
+theorem upDiag_id2 (μ : ℤ) :
+    upDiag sl2RootDatum μ (𝟙 (KLR.Diagram.ob [(), ()])) =
+      mkD sl2RootDatum μ (t := [up (), up ()]) [] rfl := by
+  rfl
+
+set_option maxHeartbeats 2000000 in
+/-- The dot slide `τ (x on the left strand) - (x on the right strand) τ = 1`. -/
+theorem klr_slideLEq (μ : ℤ) :
+    (interp (genImg hS) (KL3.Diagram.wt sl2RootDatum μ [up (), up ()] : ℤ) μ).functor.map
+        (upDiag sl2RootDatum μ (KLR.Diagram.X2 () () ≫ KLR.Diagram.D0 () ())) -
+      (interp (genImg hS) (KL3.Diagram.wt sl2RootDatum μ [up (), up ()] : ℤ) μ).functor.map
+        (upDiag sl2RootDatum μ (KLR.Diagram.D1 () () ≫ KLR.Diagram.X2 () ())) -
+      (interp (genImg hS) (KL3.Diagram.wt sl2RootDatum μ [up (), up ()] : ℤ) μ).functor.map
+        (upDiag sl2RootDatum μ (𝟙 _)) = 0 := by
+  rw [upDiag_X2_D0, upDiag_D1_X2, upDiag_id2]
+  have hc : Cond (S := psig sl2RootDatum) (KL3.Diagram.wt sl2RootDatum μ [up (), up ()] : ℤ) μ
+      (ob sl2RootDatum μ [up (), up ()]) := ⟨⟨rfl, rfl, trivial⟩, rfl, rfl⟩
+  apply (cancel_epi (eqToHom (objI_pos _ _ hc).symm)).1
+  apply (cancel_mono (eqToHom (objI_pos _ _ hc))).1
+  set_option backward.isDefEq.respectTransparency false in
+  simp only [Limits.comp_zero, Limits.zero_comp, Preadditive.sub_comp, Preadditive.comp_sub]
+  set_option backward.isDefEq.respectTransparency false in
+  simp only [Interpretation.functor_map, mkD, Diagram.layers_mk, layList_cons, layList_nil,
+    Interpretation.mapChain]
+  set_option backward.isDefEq.respectTransparency false in
+  simp only [lay, Shape.gen, wd_cons, wd_nil, wt_cons, wt_nil, List.nil_append,
+    List.cons_append, Shape.dom]
+  rw [layerI_pos _ _ _ _ ?c1]
+  try rw [layerI_pos _ _ _ _ ?c2]
+  try rw [layerI_pos _ _ _ _ ?c3]
+  case c1 | c2 | c3 =>
+    refine ⟨?_, ?_, rfl⟩ <;>
+      simp [Signature.ok, Signature.endR, Layer.dom, sig0_colourSrc', sig0_colourTgt',
+        sig0_dom_cross', sig0_dom_dot']
+  set_option backward.isDefEq.respectTransparency false in
+  simp only [Category.assoc, eqToHom_trans_assoc, eqToHom_trans, eqToHom_refl, Category.comp_id,
+    Category.id_comp]
+  unfold coreC core
+  dsimp only [Signature.endR, psig_colourTgt, psig_colourSrc, Signature.pivotal_dom_gen,
+    Signature.pivotal_cod_gen, Signature.pivotal_left_gen, Signature.pivotal_right_gen,
+    sig0_dom_cross', sig0_cod_cross', sig0_dom_dot', sig0_cod_dot', wd_cons, wd_nil, wt_cons,
+    wt_nil, sig0_colourTgt', sig0_colourSrc']
+  rw [chain2_key' S.model ?t1 ?t1' _ ?t2 ?t2' _ _ _ _ _ (𝟙 _) (𝟙 _),
+    chain2_key' S.model ?t3 ?t3' _ ?t4 ?t4' _ _ _ _ _ (𝟙 _) (𝟙 _)]
+  case t1 => exact (λ_ _) ≪≫ (ρ_ _)
+  case t1' => exact (λ_ _) ≪≫ (ρ_ _)
+  case t2 => exact whiskerLeftIso _ (ρ_ _)
+  case t2' => exact whiskerLeftIso _ (ρ_ _)
+  case t3 => exact λ_ _
+  case t3' => exact λ_ _
+  case t4 => exact (λ_ _) ≪≫ (ρ_ _)
+  case t4' => exact (λ_ _) ≪≫ (ρ_ _)
+  erw [layerAt_whole, layerAt_right, layerAt_left]
+  set_option backward.isDefEq.respectTransparency false in
+  simp only [PrelaxFunctor.map₂_id, Category.id_comp, Category.comp_id]
+  refine sub_eq_zero.2 ((S.gDot_slide_right _ _ _ _ _).trans ?_)
+  erw [Category.id_comp, eqToHom_trans]
+  exact (eqToHom_refl _ _).symm
+
+omit [∀ a b : B, IsIdempotentComplete (a ⟶ b)] [∀ a b : B, HomFinite k (a ⟶ b)] in
+theorem gDot_slide (a b c : ℤ) (h₁ : a + 1 = b) (h₂ : b + 1 = c) :
+    S.gEc a b h₁ ◁ S.gDot b c h₂ ≫ S.gCross a b c h₁ h₂ -
+        S.gCross a b c h₁ h₂ ≫ S.gDot a b h₁ ▷ S.gEc b c h₂ = 𝟙 _ := by
+  subst h₁ h₂; exact S.grDotN_slide a
+
+omit [∀ a b : B, IsIdempotentComplete (a ⟶ b)] [∀ a b : B, HomFinite k (a ⟶ b)] in
+theorem upDiag_D0_X2 (μ : ℤ) :
+    upDiag sl2RootDatum μ (KLR.Diagram.D0 () () ≫ KLR.Diagram.X2 () ()) =
+      mkD sl2RootDatum μ [([], .dot (up ()), [up ()]), ([], .cross true () (), [])]
+        ⟨rfl, rfl, rfl⟩ := by
+  rfl
+
+omit [∀ a b : B, IsIdempotentComplete (a ⟶ b)] [∀ a b : B, HomFinite k (a ⟶ b)] in
+theorem upDiag_X2_D1 (μ : ℤ) :
+    upDiag sl2RootDatum μ (KLR.Diagram.X2 () () ≫ KLR.Diagram.D1 () ()) =
+      mkD sl2RootDatum μ [([], .cross true () (), []), ([up ()], .dot (up ()), [])]
+        ⟨rfl, rfl, rfl⟩ := by
+  rfl
+
+set_option maxHeartbeats 2000000 in
+/-- The dot slide `(x on the left strand) τ - τ (x on the right strand) = 1`. -/
+theorem klr_slideREq (μ : ℤ) :
+    (interp (genImg hS) (KL3.Diagram.wt sl2RootDatum μ [up (), up ()] : ℤ) μ).functor.map
+        (upDiag sl2RootDatum μ (KLR.Diagram.D0 () () ≫ KLR.Diagram.X2 () ())) -
+      (interp (genImg hS) (KL3.Diagram.wt sl2RootDatum μ [up (), up ()] : ℤ) μ).functor.map
+        (upDiag sl2RootDatum μ (KLR.Diagram.X2 () () ≫ KLR.Diagram.D1 () ())) -
+      (interp (genImg hS) (KL3.Diagram.wt sl2RootDatum μ [up (), up ()] : ℤ) μ).functor.map
+        (upDiag sl2RootDatum μ (𝟙 _)) = 0 := by
+  rw [upDiag_D0_X2, upDiag_X2_D1, upDiag_id2]
+  have hc : Cond (S := psig sl2RootDatum) (KL3.Diagram.wt sl2RootDatum μ [up (), up ()] : ℤ) μ
+      (ob sl2RootDatum μ [up (), up ()]) := ⟨⟨rfl, rfl, trivial⟩, rfl, rfl⟩
+  apply (cancel_epi (eqToHom (objI_pos _ _ hc).symm)).1
+  apply (cancel_mono (eqToHom (objI_pos _ _ hc))).1
+  set_option backward.isDefEq.respectTransparency false in
+  simp only [Limits.comp_zero, Limits.zero_comp, Preadditive.sub_comp, Preadditive.comp_sub]
+  set_option backward.isDefEq.respectTransparency false in
+  simp only [Interpretation.functor_map, mkD, Diagram.layers_mk, layList_cons, layList_nil,
+    Interpretation.mapChain]
+  set_option backward.isDefEq.respectTransparency false in
+  simp only [lay, Shape.gen, wd_cons, wd_nil, wt_cons, wt_nil, List.nil_append,
+    List.cons_append, Shape.dom]
+  rw [layerI_pos _ _ _ _ ?c1]
+  try rw [layerI_pos _ _ _ _ ?c2]
+  try rw [layerI_pos _ _ _ _ ?c3]
+  case c1 | c2 | c3 =>
+    refine ⟨?_, ?_, rfl⟩ <;>
+      simp [Signature.ok, Signature.endR, Layer.dom, sig0_colourSrc', sig0_colourTgt',
+        sig0_dom_cross', sig0_dom_dot']
+  set_option backward.isDefEq.respectTransparency false in
+  simp only [Category.assoc, eqToHom_trans_assoc, eqToHom_trans, eqToHom_refl, Category.comp_id,
+    Category.id_comp]
+  unfold coreC core
+  dsimp only [Signature.endR, psig_colourTgt, psig_colourSrc, Signature.pivotal_dom_gen,
+    Signature.pivotal_cod_gen, Signature.pivotal_left_gen, Signature.pivotal_right_gen,
+    sig0_dom_cross', sig0_cod_cross', sig0_dom_dot', sig0_cod_dot', wd_cons, wd_nil, wt_cons,
+    wt_nil, sig0_colourTgt', sig0_colourSrc']
+  rw [chain2_key' S.model ?t1 ?t1' _ ?t2 ?t2' _ _ _ _ _ (𝟙 _) (𝟙 _),
+    chain2_key' S.model ?t3 ?t3' _ ?t4 ?t4' _ _ _ _ _ (𝟙 _) (𝟙 _)]
+  case t1 => exact whiskerLeftIso _ (ρ_ _)
+  case t1' => exact whiskerLeftIso _ (ρ_ _)
+  case t2 => exact (λ_ _) ≪≫ (ρ_ _)
+  case t2' => exact (λ_ _) ≪≫ (ρ_ _)
+  case t3 => exact (λ_ _) ≪≫ (ρ_ _)
+  case t3' => exact (λ_ _) ≪≫ (ρ_ _)
+  case t4 => exact λ_ _
+  case t4' => exact λ_ _
+  erw [layerAt_whole, layerAt_right, layerAt_left]
+  set_option backward.isDefEq.respectTransparency false in
+  simp only [PrelaxFunctor.map₂_id, Category.id_comp, Category.comp_id]
+  refine sub_eq_zero.2 ((S.gDot_slide _ _ _ _ _).trans ?_)
+  erw [Category.id_comp, eqToHom_trans]
+  exact (eqToHom_refl _ _).symm
+
+omit [GradedBicategory.IsLinear B k] [∀ a b : B, IsIdempotentComplete (a ⟶ b)]
+  [∀ a b : B, HomFinite k (a ⟶ b)] in
+theorem gCross_braid (a b c d : ℤ) (h₁ : a + 1 = b) (h₂ : b + 1 = c) (h₃ : c + 1 = d) :
+    S.gEc a b h₁ ◁ S.gCross b c d h₂ h₃ ≫
+        ((α_ (S.gEc a b h₁) (S.gEc b c h₂) (S.gEc c d h₃)).inv ≫
+          S.gCross a b c h₁ h₂ ▷ S.gEc c d h₃ ≫
+          (α_ (S.gEc a b h₁) (S.gEc b c h₂) (S.gEc c d h₃)).hom) ≫
+        S.gEc a b h₁ ◁ S.gCross b c d h₂ h₃ =
+      ((α_ (S.gEc a b h₁) (S.gEc b c h₂) (S.gEc c d h₃)).inv ≫
+          S.gCross a b c h₁ h₂ ▷ S.gEc c d h₃ ≫
+          (α_ (S.gEc a b h₁) (S.gEc b c h₂) (S.gEc c d h₃)).hom) ≫
+        S.gEc a b h₁ ◁ S.gCross b c d h₂ h₃ ≫
+        ((α_ (S.gEc a b h₁) (S.gEc b c h₂) (S.gEc c d h₃)).inv ≫
+          S.gCross a b c h₁ h₂ ▷ S.gEc c d h₃ ≫
+          (α_ (S.gEc a b h₁) (S.gEc b c h₂) (S.gEc c d h₃)).hom) := by
+  subst h₁ h₂ h₃; exact S.grCross_braid a
+
+omit [GradedBicategory.IsLinear B k] [∀ a b : B, IsIdempotentComplete (a ⟶ b)]
+  [∀ a b : B, HomFinite k (a ⟶ b)] in
+/-- The braid relation with the bracketing `(E E) E`. -/
+theorem gCross_braid' (a b c d : ℤ) (h₁ : a + 1 = b) (h₂ : b + 1 = c) (h₃ : c + 1 = d) :
+    ((α_ (S.gEc a b h₁) (S.gEc b c h₂) (S.gEc c d h₃)).hom ≫
+        S.gEc a b h₁ ◁ S.gCross b c d h₂ h₃ ≫
+          (α_ (S.gEc a b h₁) (S.gEc b c h₂) (S.gEc c d h₃)).inv) ≫
+        S.gCross a b c h₁ h₂ ▷ S.gEc c d h₃ ≫
+        ((α_ (S.gEc a b h₁) (S.gEc b c h₂) (S.gEc c d h₃)).hom ≫
+          S.gEc a b h₁ ◁ S.gCross b c d h₂ h₃ ≫
+            (α_ (S.gEc a b h₁) (S.gEc b c h₂) (S.gEc c d h₃)).inv) =
+      S.gCross a b c h₁ h₂ ▷ S.gEc c d h₃ ≫
+        ((α_ (S.gEc a b h₁) (S.gEc b c h₂) (S.gEc c d h₃)).hom ≫
+          S.gEc a b h₁ ◁ S.gCross b c d h₂ h₃ ≫
+            (α_ (S.gEc a b h₁) (S.gEc b c h₂) (S.gEc c d h₃)).inv) ≫
+        S.gCross a b c h₁ h₂ ▷ S.gEc c d h₃ := by
+  have h := S.gCross_braid a b c d h₁ h₂ h₃
+  simp only [Category.assoc] at h ⊢
+  rw [reassoc_of% h]
+  simp
+
+omit [∀ a b : B, IsIdempotentComplete (a ⟶ b)] [∀ a b : B, HomFinite k (a ⟶ b)] in
+theorem upDiag_braidL (μ : ℤ) :
+    upDiag sl2RootDatum μ (KLR.Diagram.braidL () () ()) =
+      mkD sl2RootDatum μ [([], .cross true () (), [up ()]), ([up ()], .cross true () (), []),
+        ([], .cross true () (), [up ()])] ⟨rfl, rfl, rfl, rfl⟩ := by
+  rfl
+
+omit [∀ a b : B, IsIdempotentComplete (a ⟶ b)] [∀ a b : B, HomFinite k (a ⟶ b)] in
+theorem upDiag_braidR (μ : ℤ) :
+    upDiag sl2RootDatum μ (KLR.Diagram.braidR () () ()) =
+      mkD sl2RootDatum μ [([up ()], .cross true () (), []), ([], .cross true () (), [up ()]),
+        ([up ()], .cross true () (), [])] ⟨rfl, rfl, rfl, rfl⟩ := by
+  rfl
+
+set_option maxHeartbeats 10000000 in
+/-- The braid relation on three upward strands. -/
+theorem klr_braid (μ : ℤ) :
+    (interp (genImg hS) (KL3.Diagram.wt sl2RootDatum μ [up (), up (), up ()] : ℤ) μ).functor.map
+        (upDiag sl2RootDatum μ (KLR.Diagram.braidL () () ())) -
+      (interp (genImg hS) (KL3.Diagram.wt sl2RootDatum μ [up (), up (), up ()] : ℤ) μ).functor.map
+        (upDiag sl2RootDatum μ (KLR.Diagram.braidR () () ())) = 0 := by
+  rw [upDiag_braidL, upDiag_braidR]
+  have hc : Cond (S := psig sl2RootDatum)
+      (KL3.Diagram.wt sl2RootDatum μ [up (), up (), up ()] : ℤ) μ
+      (ob sl2RootDatum μ [up (), up (), up ()]) := ⟨⟨rfl, rfl, rfl, trivial⟩, rfl, rfl⟩
+  apply (cancel_epi (eqToHom (objI_pos _ _ hc).symm)).1
+  apply (cancel_mono (eqToHom (objI_pos _ _ hc))).1
+  set_option backward.isDefEq.respectTransparency false in
+  simp only [Limits.comp_zero, Limits.zero_comp, Preadditive.sub_comp, Preadditive.comp_sub]
+  set_option backward.isDefEq.respectTransparency false in
+  simp only [Interpretation.functor_map, mkD, Diagram.layers_mk, layList_cons, layList_nil,
+    Interpretation.mapChain]
+  set_option backward.isDefEq.respectTransparency false in
+  simp only [lay, Shape.gen, wd_cons, wd_nil, wt_cons, wt_nil, List.nil_append,
+    List.cons_append, Shape.dom]
+  rw [layerI_pos _ _ _ _ ?c1]
+  try rw [layerI_pos _ _ _ _ ?c2]
+  case c1 | c2 =>
+    refine ⟨?_, ?_, rfl⟩ <;>
+      simp [Signature.ok, Signature.endR, Layer.dom, sig0_colourSrc', sig0_colourTgt',
+        sig0_dom_cross']
+  set_option backward.isDefEq.respectTransparency false in
+  simp only [Category.assoc, eqToHom_trans_assoc, eqToHom_trans, eqToHom_refl, Category.comp_id,
+    Category.id_comp]
+  unfold coreC core
+  dsimp only [Signature.endR, psig_colourTgt, psig_colourSrc, Signature.pivotal_dom_gen,
+    Signature.pivotal_cod_gen, Signature.pivotal_left_gen, Signature.pivotal_right_gen,
+    sig0_dom_cross', sig0_cod_cross', wd_cons, wd_nil, wt_cons, wt_nil, sig0_colourTgt',
+    sig0_colourSrc']
+  rw [chain3_key' S.model ?t1 ?t1' _ ?t2 ?t2' _ ?t3 ?t3' _ _ _ _ _ _ _ (𝟙 _) (𝟙 _),
+    chain3_key' S.model ?t4 ?t4' _ ?t5 ?t5' _ ?t6 ?t6' _ _ _ _ _ _ _ (𝟙 _) (𝟙 _)]
+  case t1 | t1' | t3 | t3' | t5 | t5' =>
+    exact whiskerLeftIso _ (ρ_ _) ≪≫ (α_ _ _ _).symm
+  case t2 | t2' | t4 | t4' | t6 | t6' => exact λ_ _
+  erw [layerAt_right_assoc, layerAt_left]
+  simp only [genImg_cross_true, PrelaxFunctor.map₂_id, Category.id_comp, Category.comp_id]
+  refine sub_eq_zero.2 ?_
+  exact S.gCross_braid' _ _ _ _ _ _ _
 
 end StrongSl2
 

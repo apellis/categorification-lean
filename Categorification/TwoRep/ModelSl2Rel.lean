@@ -18,11 +18,14 @@ the image of the relation under the interpretation `BicatInterp.interp (genImg h
   right and a cap on the left (`cycDotR`), or on the other side (`cycDotL`), is the downward dot.
   The first is the definition of the downward dot as a mate; the second is CL Lemma 4.1 for the
   normalized left adjunctions (`gDot_cyclic`), which holds under (BB_w).
+* Cyclicity of crossings (KL III `eq_cyclic_cross-gen` for `i = j`): the upward crossing rotated
+  by nested cups and caps on the right (`cycCrossR`) or on the left (`cycCrossL`) is the downward
+  crossing; the second is CL Lemma 4.2 for the normalized left adjunctions (`gCross_cyclic`).
 
 The computation of an image goes through `BicatInterp`'s normal forms: the image of the diagram is
 unfolded into images of layers (`layerI_pos`), the transports between words become images of free
 2-morphisms (`eqToHom_word`), and an abstract normal-form lemma (`zig_key'`, `zag_key'`,
-`rot_key`, `rotL_key`) reduces the relation to the corresponding identity of the generator images
+`rot_key`, `rotL_key`, `rot2_key`, `rot2L_key`) reduces the relation to the corresponding identity of the generator images
 in the graded-Hom bicategory. Regions of a diagram that are equal but not definitionally so (such
 as `λ` and `λ + i_X - i_X`) are first identified by generalizing them, before the images of the
 layers are unfolded.
@@ -288,6 +291,14 @@ omit [∀ a b : B, IsIdempotentComplete (a ⟶ b)] [∀ a b : B, HomFinite k (a 
 theorem sig0_cod_dot' (c : Col Unit ℤ) : (sig0 sl2RootDatum).cod (.dot c) = [c] := rfl
 
 omit [∀ a b : B, IsIdempotentComplete (a ⟶ b)] [∀ a b : B, HomFinite k (a ⟶ b)] in
+theorem sig0_dom_cross' (e : Bool) (i j : Unit) (ν : ℤ) :
+    (sig0 sl2RootDatum).dom (.cross e i j ν) = wd sl2RootDatum ν [(e, i), (e, j)] := rfl
+
+omit [∀ a b : B, IsIdempotentComplete (a ⟶ b)] [∀ a b : B, HomFinite k (a ⟶ b)] in
+theorem sig0_cod_cross' (e : Bool) (i j : Unit) (ν : ℤ) :
+    (sig0 sl2RootDatum).cod (.cross e i j ν) = wd sl2RootDatum ν [(e, j), (e, i)] := rfl
+
+omit [∀ a b : B, IsIdempotentComplete (a ⟶ b)] [∀ a b : B, HomFinite k (a ⟶ b)] in
 theorem dual_up' (i : Unit) : Letter.dual (up i) = dn i := rfl
 
 omit [∀ a b : B, IsIdempotentComplete (a ⟶ b)] [∀ a b : B, HomFinite k (a ⟶ b)] in
@@ -443,6 +454,224 @@ theorem cycDotL (μ : ℤ) :
       rw [← gDot_cyclic hS]
       congr 1
   all_goals simp [Layer.cod, Layer.dom, ob, inv_dual, sig0_dom_dot']
+
+omit [GradedBicategory.IsLinear B k] [∀ a b : B, IsIdempotentComplete (a ⟶ b)]
+  [∀ a b : B, HomFinite k (a ⟶ b)] in
+/-- Transporting the crossing along an equality of the middle index. -/
+theorem gCross_congr (a b b' c : ℤ) (h : b = b') (p₁ : a + 1 = b) (p₂ : b + 1 = c)
+    (p₁' : a + 1 = b') (p₂' : b' + 1 = c)
+    (e₁ : S.gEc a b' p₁' ≫ S.gEc b' c p₂' = S.gEc a b p₁ ≫ S.gEc b c p₂)
+    (e₂ : S.gEc a b p₁ ≫ S.gEc b c p₂ = S.gEc a b' p₁' ≫ S.gEc b' c p₂') :
+    eqToHom e₁ ≫ S.gCross a b c p₁ p₂ ≫ eqToHom e₂ = S.gCross a b' c p₁' p₂' := by
+  subst h; simp
+
+set_option maxHeartbeats 2000000 in
+/-- **Cyclicity of the crossing, right rotation** (KL III `eq_cyclic_cross-gen`, left-hand
+picture): the upward crossing rotated by nested cups on the right and nested caps on the left is
+the downward crossing. -/
+theorem cycCrossR (μ : ℤ) :
+    (interp (genImg hS) (KL3.Diagram.wt sl2RootDatum μ [dn (), dn ()] : ℤ) μ).functor.map
+      (rotCrossR sl2RootDatum () () μ) =
+    (interp (genImg hS) (KL3.Diagram.wt sl2RootDatum μ [dn (), dn ()] : ℤ) μ).functor.map
+      (downCross sl2RootDatum () () μ) := by
+  have hc : Cond (S := psig sl2RootDatum) (KL3.Diagram.wt sl2RootDatum μ [dn (), dn ()] : ℤ) μ
+      (ob sl2RootDatum μ [dn (), dn ()]) := ⟨⟨rfl, rfl, trivial⟩, rfl, rfl⟩
+  apply (cancel_epi (eqToHom (objI_pos _ _ hc).symm)).1
+  apply (cancel_mono (eqToHom (objI_pos _ _ hc))).1
+  set_option backward.isDefEq.respectTransparency false in
+  simp only [Interpretation.functor_map, rotCrossR, downCross, mkD, Diagram.layers_mk,
+    layList_cons, layList_nil, Interpretation.mapChain]
+  set_option backward.isDefEq.respectTransparency false in
+  simp only [lay, Shape.gen, wd_cons, wd_nil, wt_cons, wt_nil, List.nil_append,
+    List.cons_append, Shape.dom, dual_up']
+  generalize_proofs
+  generalize hy : sh sl2RootDatum (up ()) +
+    (sh sl2RootDatum (dn ()) + (sh sl2RootDatum (dn ()) + μ)) = y at *
+  have hyμ : y = sh sl2RootDatum (dn ()) + μ := by rw [← hy]; exact sh_true_sh_false () _
+  subst hyμ
+  generalize hx : sh sl2RootDatum (up ()) + (sh sl2RootDatum (dn ()) + μ) = x at *
+  have hxμ : x = μ := by rw [← hx]; exact sh_true_sh_false () μ
+  subst hxμ
+  rw [layerI_pos _ _ _ _ ?c1, layerI_pos _ _ _ _ ?c2, layerI_pos _ _ _ _ ?c3,
+    layerI_pos _ _ _ _ ?c4, layerI_pos _ _ _ _ ?c5, layerI_pos _ _ _ _ ?c6]
+  case c1 | c2 | c3 | c4 | c5 | c6 =>
+    refine ⟨?_, ?_, rfl⟩ <;>
+      simp [Signature.ok, Signature.endR, Layer.dom, inv_dual, sh_true_sh_false, Letter.dual,
+        sig0_colourSrc', sig0_colourTgt', sig0_dom_cross']
+  simp only [Category.assoc, eqToHom_trans_assoc, eqToHom_trans]
+  set_option backward.isDefEq.respectTransparency false in
+  rw [eqToHom_word ?w0 _]
+  set_option backward.isDefEq.respectTransparency false in
+  rw [eqToHom_word ?w1 _]
+  set_option backward.isDefEq.respectTransparency false in
+  try erw [eqToHom_word ?w2 _]
+  set_option backward.isDefEq.respectTransparency false in
+  try erw [eqToHom_word ?w3 _]
+  set_option backward.isDefEq.respectTransparency false in
+  try erw [eqToHom_word ?w4 _]
+  set_option backward.isDefEq.respectTransparency false in
+  try erw [eqToHom_word ?w5 _]
+  · unfold coreC core
+    dsimp only [Signature.endR, psig_colourTgt, psig_colourSrc, Signature.pivotal_dom_cup,
+      Signature.pivotal_cod_cup, Signature.pivotal_dom_cap, Signature.pivotal_cod_cap,
+      Signature.pivotal_dom_gen, Signature.pivotal_cod_gen, Signature.pivotal_left_cup,
+      Signature.pivotal_right_cup, Signature.pivotal_left_cap, Signature.pivotal_right_cap,
+      Signature.pivotal_left_gen, Signature.pivotal_right_gen, sig0_dom_cross', sig0_cod_cross',
+      wd_cons, wd_nil, wt_cons, wt_nil, inv_dual, dual_up', sig0_colourTgt', sig0_colourSrc']
+    refine rot2_key S.model
+      (r₁ := FreeBicategory.Hom.of (⟨⟨dn (), x⟩, rfl, rfl⟩ :
+        rq (S := psig sl2RootDatum) x ⟶ rq (sh sl2RootDatum (dn ()) + x)))
+      (e₁ := FreeBicategory.Hom.of (⟨⟨up (), sh sl2RootDatum (dn ()) + x⟩, rfl,
+          sh_true_sh_false () x⟩ :
+        rq (S := psig sl2RootDatum) (sh sl2RootDatum (dn ()) + x) ⟶ rq x))
+      (r₂ := FreeBicategory.Hom.of (⟨⟨dn (), sh sl2RootDatum (dn ()) + x⟩, rfl, rfl⟩ :
+        rq (S := psig sl2RootDatum) (sh sl2RootDatum (dn ()) + x) ⟶
+          rq (sh sl2RootDatum (dn ()) + (sh sl2RootDatum (dn ()) + x))))
+      (e₂ := FreeBicategory.Hom.of (⟨⟨up (), sh sl2RootDatum (dn ()) +
+          (sh sl2RootDatum (dn ()) + x)⟩, rfl, sh_true_sh_false () _⟩ :
+        rq (S := psig sl2RootDatum) (sh sl2RootDatum (dn ()) + (sh sl2RootDatum (dn ()) + x)) ⟶
+          rq (sh sl2RootDatum (dn ()) + x)))
+      (gAdjL hS (S.qi (sh sl2RootDatum (dn ()) + x)) (S.qi x) (S.qi_sh_false () x))
+      (gAdjL hS (S.qi (sh sl2RootDatum (dn ()) + (sh sl2RootDatum (dn ()) + x)))
+        (S.qi (sh sl2RootDatum (dn ()) + x)) (S.qi_sh_false () _))
+      (S.gCross (S.qi (sh sl2RootDatum (dn ()) + (sh sl2RootDatum (dn ()) + x)))
+        (S.qi (sh sl2RootDatum (dn ()) + x)) (S.qi x) (S.qi_sh_false () _) (S.qi_sh_false () x))
+      (Iso.refl _) (Iso.refl _) (Iso.refl _) (whiskerRightIso (eqToIso (hom_of_congr ?hc1)) _)
+      _ ?hg1
+      (Iso.refl _) (α_ _ _ _) (Iso.refl _) (whiskerRightIso (eqToIso (hom_of_congr ?hc2)) _)
+      _ ?hg2
+      (Iso.refl _) (Iso.refl _)
+      (eqToIso (by refine comp_of_congr hy rfl ?_; exact congrArg (Col.mk (up ())) hy))
+      (eqToIso (by refine comp_of_congr hy rfl ?_; exact congrArg (Col.mk (up ())) hy)) _ ?hg3
+      (Iso.refl _) (Iso.refl _)
+      (eqToIso (by refine comp_of_congr hx rfl ?_; exact congrArg (Col.mk (dn ())) hx))
+      (Iso.refl _) _ ?hg4
+      (Iso.refl _) (Iso.refl _)
+      (eqToIso (by refine comp_of_congr hy rfl ?_; exact congrArg (Col.mk (dn ())) hy))
+      (Iso.refl _) _ ?hg5
+      (Iso.refl _) (Iso.refl _) (Iso.refl _) (Iso.refl _) _ ?hg6
+      _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+    case hc1 => exact congrArg (Col.mk (dn ())) hx
+    case hc2 => exact congrArg (Col.mk (dn ())) hy
+    case hg1 | hg2 =>
+      simp only [Iso.refl_inv, PrelaxFunctor.map₂_id, Category.id_comp, whiskerRightIso_hom,
+        eqToIso.hom, lift_map₂_whiskerRight, lift_map₂_eqToHom]
+      erw [eqToHom_refl, id_whiskerRight, Category.comp_id]
+      rfl
+    case hg3 =>
+      simp only [eqToIso.inv, eqToIso.hom, lift_map₂_eqToHom]
+      exact gCross_congr _ _ _ _ (congrArg S.qi hy) _ _ _ _ _ _
+    case hg4 =>
+      simp only [Iso.refl_hom, PrelaxFunctor.map₂_id, Category.comp_id, eqToIso.inv,
+        lift_map₂_eqToHom]
+      exact gAdjL_counit_congr hS _ _ _ (congrArg S.qi hx) _ _ _
+    case hg5 =>
+      simp only [Iso.refl_hom, PrelaxFunctor.map₂_id, Category.comp_id, eqToIso.inv,
+        lift_map₂_eqToHom]
+      exact gAdjL_counit_congr hS _ _ _ (congrArg S.qi hy) _ _ _
+    case hg6 =>
+      simp only [Iso.refl_inv, Iso.refl_hom, PrelaxFunctor.map₂_id, Category.id_comp,
+        Category.comp_id]
+      simp only [genImg, gCrossR]
+      congr 1
+  all_goals simp [Layer.cod, Layer.dom, ob, inv_dual, hx, hy, sig0_dom_cross', sig0_cod_cross']
+
+set_option maxHeartbeats 2000000 in
+/-- **Cyclicity of the crossing, left rotation** (KL III `eq_cyclic_cross-gen`, right-hand
+picture): the upward crossing rotated by nested cups on the left and nested caps on the right is
+the downward crossing. This is CL Lemma 4.2 for the normalized left adjunctions, which holds
+under (BB_w) (`BBw.cyclic_cross`). -/
+theorem cycCrossL (μ : ℤ) :
+    (interp (genImg hS) (KL3.Diagram.wt sl2RootDatum μ [dn (), dn ()] : ℤ) μ).functor.map
+      (rotCrossL sl2RootDatum () () μ) =
+    (interp (genImg hS) (KL3.Diagram.wt sl2RootDatum μ [dn (), dn ()] : ℤ) μ).functor.map
+      (downCross sl2RootDatum () () μ) := by
+  have hc : Cond (S := psig sl2RootDatum) (KL3.Diagram.wt sl2RootDatum μ [dn (), dn ()] : ℤ) μ
+      (ob sl2RootDatum μ [dn (), dn ()]) := ⟨⟨rfl, rfl, trivial⟩, rfl, rfl⟩
+  apply (cancel_epi (eqToHom (objI_pos _ _ hc).symm)).1
+  apply (cancel_mono (eqToHom (objI_pos _ _ hc))).1
+  set_option backward.isDefEq.respectTransparency false in
+  simp only [Interpretation.functor_map, rotCrossL, downCross, mkD, Diagram.layers_mk,
+    layList_cons, layList_nil, Interpretation.mapChain]
+  set_option backward.isDefEq.respectTransparency false in
+  simp only [lay, Shape.gen, wd_cons, wd_nil, wt_cons, wt_nil, List.nil_append,
+    List.cons_append, Shape.dom, dual_dn']
+  generalize_proofs
+  generalize hy : sh sl2RootDatum (up ()) +
+    (sh sl2RootDatum (dn ()) + (sh sl2RootDatum (dn ()) + μ)) = y at *
+  have hyμ : y = sh sl2RootDatum (dn ()) + μ := by rw [← hy]; exact sh_true_sh_false () _
+  subst hyμ
+  generalize hx : sh sl2RootDatum (up ()) + (sh sl2RootDatum (dn ()) + μ) = x at *
+  have hxμ : x = μ := by rw [← hx]; exact sh_true_sh_false () μ
+  subst hxμ
+  rw [layerI_pos _ _ _ _ ?c1, layerI_pos _ _ _ _ ?c2, layerI_pos _ _ _ _ ?c3,
+    layerI_pos _ _ _ _ ?c4, layerI_pos _ _ _ _ ?c5, layerI_pos _ _ _ _ ?c6]
+  case c1 | c2 | c3 | c4 | c5 | c6 =>
+    refine ⟨?_, ?_, rfl⟩ <;>
+      simp [Signature.ok, Signature.endR, Layer.dom, inv_dual, sh_true_sh_false, Letter.dual,
+        sig0_colourSrc', sig0_colourTgt', sig0_dom_cross']
+  simp only [Category.assoc, eqToHom_trans_assoc, eqToHom_trans]
+  set_option backward.isDefEq.respectTransparency false in
+  rw [eqToHom_word ?w0 _]
+  set_option backward.isDefEq.respectTransparency false in
+  rw [eqToHom_word ?w1 _]
+  set_option backward.isDefEq.respectTransparency false in
+  try erw [eqToHom_word ?w2 _]
+  set_option backward.isDefEq.respectTransparency false in
+  try erw [eqToHom_word ?w3 _]
+  set_option backward.isDefEq.respectTransparency false in
+  try erw [eqToHom_word ?w4 _]
+  set_option backward.isDefEq.respectTransparency false in
+  try erw [eqToHom_word ?w5 _]
+  · unfold coreC core
+    dsimp only [Signature.endR, psig_colourTgt, psig_colourSrc, Signature.pivotal_dom_cup,
+      Signature.pivotal_cod_cup, Signature.pivotal_dom_cap, Signature.pivotal_cod_cap,
+      Signature.pivotal_dom_gen, Signature.pivotal_cod_gen, Signature.pivotal_left_cup,
+      Signature.pivotal_right_cup, Signature.pivotal_left_cap, Signature.pivotal_right_cap,
+      Signature.pivotal_left_gen, Signature.pivotal_right_gen, sig0_dom_cross', sig0_cod_cross',
+      wd_cons, wd_nil, wt_cons, wt_nil, inv_dual, dual_up', sig0_colourTgt', sig0_colourSrc']
+    refine rot2L_key S.model
+      (r₁ := FreeBicategory.Hom.of (⟨⟨dn (), x⟩, rfl, rfl⟩ :
+        rq (S := psig sl2RootDatum) x ⟶ rq (sh sl2RootDatum (dn ()) + x)))
+      (e₁ := FreeBicategory.Hom.of (⟨⟨up (), sh sl2RootDatum (dn ()) + x⟩, rfl,
+          sh_true_sh_false () x⟩ :
+        rq (S := psig sl2RootDatum) (sh sl2RootDatum (dn ()) + x) ⟶ rq x))
+      (r₂ := FreeBicategory.Hom.of (⟨⟨dn (), sh sl2RootDatum (dn ()) + x⟩, rfl, rfl⟩ :
+        rq (S := psig sl2RootDatum) (sh sl2RootDatum (dn ()) + x) ⟶
+          rq (sh sl2RootDatum (dn ()) + (sh sl2RootDatum (dn ()) + x))))
+      (e₂ := FreeBicategory.Hom.of (⟨⟨up (), sh sl2RootDatum (dn ()) +
+          (sh sl2RootDatum (dn ()) + x)⟩, rfl, sh_true_sh_false () _⟩ :
+        rq (S := psig sl2RootDatum) (sh sl2RootDatum (dn ()) + (sh sl2RootDatum (dn ()) + x)) ⟶
+          rq (sh sl2RootDatum (dn ()) + x)))
+      (S.gAdjE (S.qi (sh sl2RootDatum (dn ()) + x)) (S.qi x) (S.qi_sh_false () x))
+      (S.gAdjE (S.qi (sh sl2RootDatum (dn ()) + (sh sl2RootDatum (dn ()) + x)))
+        (S.qi (sh sl2RootDatum (dn ()) + x)) (S.qi_sh_false () _))
+      (S.gCross (S.qi (sh sl2RootDatum (dn ()) + (sh sl2RootDatum (dn ()) + x)))
+        (S.qi (sh sl2RootDatum (dn ()) + x)) (S.qi x) (S.qi_sh_false () _) (S.qi_sh_false () x))
+      (Iso.refl _) (Iso.refl _) (Iso.refl _) (Iso.refl _) _ ?hg1
+      (Iso.refl _) (Iso.refl _) (Iso.refl _) (Iso.refl _) _ ?hg2
+      (Iso.refl _) (Iso.refl _)
+      (eqToIso (by refine comp_of_congr hy rfl ?_; exact congrArg (Col.mk (up ())) hy))
+      (eqToIso (by refine comp_of_congr hy rfl ?_; exact congrArg (Col.mk (up ())) hy)) _ ?hg3
+      (Iso.refl _) (Iso.refl _) (Iso.refl _) (Iso.refl _) _ ?hg4
+      (Iso.refl _) (Iso.refl _) (Iso.refl _) (Iso.refl _) _ ?hg5
+      (Iso.refl _) (Iso.refl _) (Iso.refl _) (Iso.refl _) _ ?hg6
+      _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+    case hg1 | hg2 | hg4 | hg5 =>
+      simp only [Iso.refl_inv, Iso.refl_hom, PrelaxFunctor.map₂_id, Category.id_comp,
+        Category.comp_id]
+      rfl
+    case hg3 =>
+      simp only [eqToIso.inv, eqToIso.hom, lift_map₂_eqToHom]
+      exact gCross_congr _ _ _ _ (congrArg S.qi hy) _ _ _ _ _ _
+    case hg6 =>
+      simp only [Iso.refl_inv, Iso.refl_hom, PrelaxFunctor.map₂_id, Category.id_comp,
+        Category.comp_id]
+      simp only [genImg]
+      rw [← gCross_cyclic hS]
+      congr 1
+  all_goals simp [Layer.cod, Layer.dom, ob, inv_dual, hy, sig0_dom_cross', sig0_cod_cross']
+
 
 end StrongSl2
 

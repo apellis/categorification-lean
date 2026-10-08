@@ -337,6 +337,32 @@ theorem gDot_cyclic (a b : ℤ) (h : a + 1 = b) :
   rw [hl, hr]
   exact S.cyclic_dotN_of_cyclic_dot _ (hS.cyclic_dot_leftAdjN a)
 
+omit [GradedBicategory.IsLinear B k] [∀ a b : B, IsIdempotentComplete (a ⟶ b)]
+  [∀ a b : B, HomFinite k (a ⟶ b)] in
+theorem gCross_rfl (a : ℤ) : S.gCross a (a + 1) (a + 1 + 1) rfl rfl = S.grCross a := rfl
+
+/-- CL Lemma 4.2 for the normalized left adjunctions, transported (`BBw.cyclic_cross`): the right
+mate of the crossing under the composite of the adjunctions `E ⊣ R` is the downward crossing (its
+left mate under the composite of the normalized left adjunctions). -/
+theorem gCross_cyclic (a b c : ℤ) (h₁ : a + 1 = b) (h₂ : b + 1 = c) :
+    Bicategory.conjugateEquiv ((S.gAdjE a b h₁).comp (S.gAdjE b c h₂))
+        ((S.gAdjE a b h₁).comp (S.gAdjE b c h₂)) (S.gCross a b c h₁ h₂) =
+      gCrossR hS a b c h₁ h₂ := by
+  subst h₁ h₂
+  have hl : Bicategory.conjugateEquiv ((S.gAdjE a (a + 1) rfl).comp (S.gAdjE (a + 1) (a + 1 + 1) rfl))
+        ((S.gAdjE a (a + 1) rfl).comp (S.gAdjE (a + 1) (a + 1 + 1) rfl))
+        (S.gCross a (a + 1) (a + 1 + 1) rfl rfl) =
+      Bicategory.conjugateEquiv ((S.grAdj a).comp (S.grAdj (a + 1)))
+        ((S.grAdj a).comp (S.grAdj (a + 1))) (S.grCross a) := rfl
+  have hr : gCrossR hS a (a + 1) (a + 1 + 1) rfl rfl =
+      (Bicategory.conjugateEquiv ((hS.leftAdjN (a + 1)).comp (hS.leftAdjN a))
+        ((hS.leftAdjN (a + 1)).comp (hS.leftAdjN a))).symm (S.grCross a) := by
+    unfold gCrossR
+    rw [gAdjL_rfl, gAdjL_rfl, gCross_rfl]
+    congr 1
+  rw [hl, hr]
+  exact hS.cyclic_cross a
+
 end EqLemmas
 
 end StrongSl2

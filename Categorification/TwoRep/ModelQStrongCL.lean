@@ -9,7 +9,7 @@ import Categorification.Diagrams.CL.Rescale
 # CL Theorem 1.1: a `Q`-strong 2-representation is a 2-representation of `U_Q(g)`
 
 S. Cautis, A. D. Lauda, *Implicit structure in 2-representations of quantum groups*,
-arXiv:1111.1431v3, Theorem 1.1, for Cartan data with `(α_i, α_i) = 2`: if the KLR action of a
+arXiv:1111.1431v3, Theorem 1.1, for every (symmetrizable) Cartan datum: if the KLR action of a
 `Q`-strong 2-representation (Definition 1.2) is given by CL's polynomials `Q = qCL S₀` and scalars
 `r_i` for a choice of scalars `S₀ = (t, s, r)` (CL §2.3), the model of the 2-representation
 (`Categorification.TwoRep.ModelQStrong`) descends to `U_{S₀}(g)` (`presCL RD k S₀`).
@@ -94,19 +94,19 @@ theorem clRescale_presCL (S₀ : CL.CLScalars C k) :
       CL.presCL RD k S₀ := by
   rw [CL.RescaleDatum.mapScalars_inv]
 
-variable (S₀ : CL.CLScalars C k) (S : QStrong B C RD k (CL.qCL S₀)) (hsl : ∀ i, C.dot i i = 2)
+variable (S₀ : CL.CLScalars C k) (S : QStrong B C RD k (CL.qCL S₀))
   (hrQ : ∀ i, S.rQ i = S₀.r i)
 
 include hrQ in
 theorem respects_clRescale (s₀ t₀ : X) :
     (CL.presCL RD k ((clRescale RD S₀).mapScalars S₀)).Respects
-      (interp (S.genImg hsl ((clRescale RD S₀).mapScalars S₀)) s₀ t₀).functor :=
-  S.respects_presCL_of_QStrong hsl _ (clRescale_r S₀)
+      (interp (S.genImg ((clRescale RD S₀).mapScalars S₀)) s₀ t₀).functor :=
+  S.respects_presCL_of_QStrong _ (clRescale_r S₀)
     (fun c d h => by rw [clRescale_qCL S₀ h, hrQ c, hrQ d])
     (fun c d h => qCL_support S₀ h) (fun c d h => qbar_qCL_support S₀ h) s₀ t₀
 
 include hrQ in
-/-- **CL Theorem 1.1** (on hom categories, `(α_i, α_i) = 2`): a `Q`-strong 2-representation whose
+/-- **CL Theorem 1.1** (on hom categories, any Cartan datum): a `Q`-strong 2-representation whose
 KLR action is given by CL's polynomials `Q = qCL S₀` and scalars `r_i = S₀.r i` defines a
 2-representation of `U_{S₀}(g)`: the linear functor from the 2-morphisms of `U_{S₀}(g)` between
 1-morphisms `t₀ → s₀` to `K^•(obj t₀, obj s₀)`, given by the rescaling isomorphism
@@ -115,7 +115,7 @@ def interpUQ (s₀ t₀ : X) :
     (CL.presCL RD k S₀).Presented ⥤
       (S.model.lift.obj (fo (S := psig RD) t₀) ⟶ S.model.lift.obj (fo (S := psig RD) s₀)) :=
   ((clRescale RD S₀).inv.equiv ((clRescale RD S₀).mapScalars S₀) (clRescale_presCL S₀)).inverse ⋙
-    (CL.presCL RD k _).lift (respects_clRescale S₀ S hsl hrQ s₀ t₀)
+    (CL.presCL RD k _).lift (respects_clRescale S₀ S hrQ s₀ t₀)
 
 end QStrong
 

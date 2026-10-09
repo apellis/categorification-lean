@@ -47,7 +47,7 @@ variable {k : Type*} [Field k] {B : Type u} [Bicategory.{w, v} B]
 
 namespace QStrong
 
-variable {S : QStrong B C RD k Q} (hsl : ∀ i, C.dot i i = 2) (Sc : CL.CLScalars C k)
+variable {S : QStrong B C RD k Q} (Sc : CL.CLScalars C k)
 
 attribute [local irreducible] KL3.Diagram.sh
 
@@ -62,18 +62,18 @@ theorem sh_up_add_sh_dn (i : I) (r : X) :
 /-- **The left zigzag on an upward strand** (KL III (3.1)): the triangle identity of the left
 adjunction `R ⊣ E`. -/
 theorem zigL_up (i : I) (r : X) :
-    (interp (genImg (S := S) hsl Sc) (sh RD ((true, i) : Letter I) + r) r).functor.map
+    (interp (genImg (S := S) Sc) (sh RD ((true, i) : Letter I) + r) r).functor.map
       (Pivotal.zigL (inv RD).toColourDuality ⟨(true, i), r⟩) = 𝟙 _ := by
   have hc : Cond (S := psig RD) (sh RD ((true, i) : Letter I) + r) r
       (Pivotal.colourObj (inv RD).toColourDuality ⟨(true, i), r⟩) :=
     ⟨⟨rfl, trivial⟩, rfl, rfl⟩
   suffices key : eqToHom (objI_pos _ _ hc).symm ≫
-      (interp (genImg (S := S) hsl Sc) _ _).functor.map
+      (interp (genImg (S := S) Sc) _ _).functor.map
         (Pivotal.zigL (inv RD).toColourDuality ⟨(true, i), r⟩) ≫
       eqToHom (objI_pos _ _ hc) = 𝟙 _ by
     set_option backward.isDefEq.respectTransparency false in
     rw [eq_conj (objI_pos _ _ hc) (objI_pos _ _ hc)
-      ((interp (genImg (S := S) hsl Sc) _ _).functor.map _), key]
+      ((interp (genImg (S := S) Sc) _ _).functor.map _), key]
     simp
   set_option backward.isDefEq.respectTransparency false in
   simp only [Interpretation.functor_map, Pivotal.zigL, Diagram.layers_leftZigzag, Pivotal.cupD,
@@ -100,7 +100,7 @@ theorem zigL_up (i : I) (r : X) :
         rq (S := psig RD) (sh RD ((true, i) : Letter I) + r) ⟶ rq r))
       (Iso.refl _) (Iso.refl _) (Iso.refl _) (Iso.refl _) (Iso.refl _) (Iso.refl _)
       (Iso.refl _) (Iso.refl _)
-      (adjL (S := S) hsl i (x := r) (y := sh RD ((true, i) : Letter I) + r) (up_reg i rfl rfl))
+      (adjL (S := S) i (x := r) (y := sh RD ((true, i) : Letter I) + r) (up_reg i rfl rfl))
       _ _ ?_ ?_ _ _ _ _ _ _ _ _
     · simp only [Iso.refl_inv, Iso.refl_hom, PrelaxFunctor.map₂_id, Category.id_comp,
         Category.comp_id]
@@ -113,18 +113,18 @@ theorem zigL_up (i : I) (r : X) :
 /-- **The left zigzag on a downward strand** (KL III (3.1)): the triangle identity of
 `E ⊣ R`. -/
 theorem zigL_down (i : I) (r : X) :
-    (interp (genImg (S := S) hsl Sc) (sh RD ((false, i) : Letter I) + r) r).functor.map
+    (interp (genImg (S := S) Sc) (sh RD ((false, i) : Letter I) + r) r).functor.map
       (Pivotal.zigL (inv RD).toColourDuality ⟨(false, i), r⟩) = 𝟙 _ := by
   have hc : Cond (S := psig RD) (sh RD ((false, i) : Letter I) + r) r
       (Pivotal.colourObj (inv RD).toColourDuality ⟨(false, i), r⟩) :=
     ⟨⟨rfl, trivial⟩, rfl, rfl⟩
   suffices key : eqToHom (objI_pos _ _ hc).symm ≫
-      (interp (genImg (S := S) hsl Sc) _ _).functor.map
+      (interp (genImg (S := S) Sc) _ _).functor.map
         (Pivotal.zigL (inv RD).toColourDuality ⟨(false, i), r⟩) ≫
       eqToHom (objI_pos _ _ hc) = 𝟙 _ by
     set_option backward.isDefEq.respectTransparency false in
     rw [eq_conj (objI_pos _ _ hc) (objI_pos _ _ hc)
-      ((interp (genImg (S := S) hsl Sc) _ _).functor.map _), key]
+      ((interp (genImg (S := S) Sc) _ _).functor.map _), key]
     simp
   set_option backward.isDefEq.respectTransparency false in
   simp only [Interpretation.functor_map, Pivotal.zigL, Diagram.layers_leftZigzag, Pivotal.cupD,
@@ -164,18 +164,18 @@ theorem zigL_down (i : I) (r : X) :
 /-- **The right zigzag on the dual of an upward strand** (KL III (3.2)): the other triangle
 identity of the left adjunction `R ⊣ E`. -/
 theorem zigR_up (i : I) (r : X) :
-    (interp (genImg (S := S) hsl Sc) r (sh RD ((true, i) : Letter I) + r)).functor.map
+    (interp (genImg (S := S) Sc) r (sh RD ((true, i) : Letter I) + r)).functor.map
       (Pivotal.zigR (inv RD).toColourDuality ⟨(true, i), r⟩) = 𝟙 _ := by
   have hc : Cond (S := psig RD) r (sh RD ((true, i) : Letter I) + r)
       (Pivotal.dualObj (inv RD).toColourDuality ⟨(true, i), r⟩) :=
     ⟨⟨sh_dn_add_sh_up i r, trivial⟩, rfl, rfl⟩
   suffices key : eqToHom (objI_pos _ _ hc).symm ≫
-      (interp (genImg (S := S) hsl Sc) _ _).functor.map
+      (interp (genImg (S := S) Sc) _ _).functor.map
         (Pivotal.zigR (inv RD).toColourDuality ⟨(true, i), r⟩) ≫
       eqToHom (objI_pos _ _ hc) = 𝟙 _ by
     set_option backward.isDefEq.respectTransparency false in
     rw [eq_conj (objI_pos _ _ hc) (objI_pos _ _ hc)
-      ((interp (genImg (S := S) hsl Sc) _ _).functor.map _), key]
+      ((interp (genImg (S := S) Sc) _ _).functor.map _), key]
     simp
   set_option backward.isDefEq.respectTransparency false in
   simp only [Interpretation.functor_map, Pivotal.zigR, Diagram.layers_rightZigzag, Pivotal.cupD,
@@ -202,7 +202,7 @@ theorem zigR_up (i : I) (r : X) :
         rq (S := psig RD) (sh RD ((true, i) : Letter I) + r) ⟶ rq r))
       (Iso.refl _) (Iso.refl _) (Iso.refl _) (Iso.refl _) (Iso.refl _) (Iso.refl _)
       (Iso.refl _) (Iso.refl _)
-      (adjL (S := S) hsl i (x := r) (y := sh RD ((true, i) : Letter I) + r) (up_reg i rfl rfl))
+      (adjL (S := S) i (x := r) (y := sh RD ((true, i) : Letter I) + r) (up_reg i rfl rfl))
       _ _ ?_ ?_ _ _ _ _ _ _ _ _
     · simp only [Iso.refl_inv, Iso.refl_hom, PrelaxFunctor.map₂_id, Category.id_comp,
         Category.comp_id]
@@ -215,18 +215,18 @@ theorem zigR_up (i : I) (r : X) :
 /-- **The right zigzag on the dual of a downward strand** (KL III (3.2)): the other triangle
 identity of `E ⊣ R`. -/
 theorem zigR_down (i : I) (r : X) :
-    (interp (genImg (S := S) hsl Sc) r (sh RD ((false, i) : Letter I) + r)).functor.map
+    (interp (genImg (S := S) Sc) r (sh RD ((false, i) : Letter I) + r)).functor.map
       (Pivotal.zigR (inv RD).toColourDuality ⟨(false, i), r⟩) = 𝟙 _ := by
   have hc : Cond (S := psig RD) r (sh RD ((false, i) : Letter I) + r)
       (Pivotal.dualObj (inv RD).toColourDuality ⟨(false, i), r⟩) :=
     ⟨⟨sh_up_add_sh_dn i r, trivial⟩, rfl, rfl⟩
   suffices key : eqToHom (objI_pos _ _ hc).symm ≫
-      (interp (genImg (S := S) hsl Sc) _ _).functor.map
+      (interp (genImg (S := S) Sc) _ _).functor.map
         (Pivotal.zigR (inv RD).toColourDuality ⟨(false, i), r⟩) ≫
       eqToHom (objI_pos _ _ hc) = 𝟙 _ by
     set_option backward.isDefEq.respectTransparency false in
     rw [eq_conj (objI_pos _ _ hc) (objI_pos _ _ hc)
-      ((interp (genImg (S := S) hsl Sc) _ _).functor.map _), key]
+      ((interp (genImg (S := S) Sc) _ _).functor.map _), key]
     simp
   set_option backward.isDefEq.respectTransparency false in
   simp only [Interpretation.functor_map, Pivotal.zigR, Diagram.layers_rightZigzag, Pivotal.cupD,
@@ -265,21 +265,21 @@ theorem zigR_down (i : I) (r : X) :
 
 /-- **Biadjointness in the model**: the left zigzag relation of every strand. -/
 theorem zigL_eq (c : Col I X) :
-    (interp (genImg (S := S) hsl Sc) (sh RD c.l + c.r) c.r).functor.map
+    (interp (genImg (S := S) Sc) (sh RD c.l + c.r) c.r).functor.map
       (Pivotal.zigL (inv RD).toColourDuality c) = 𝟙 _ := by
   obtain ⟨⟨b, i⟩, r⟩ := c
   cases b
-  · exact zigL_down (S := S) hsl Sc i r
-  · exact zigL_up (S := S) hsl Sc i r
+  · exact zigL_down (S := S) Sc i r
+  · exact zigL_up (S := S) Sc i r
 
 /-- **Biadjointness in the model**: the right zigzag relation of every strand. -/
 theorem zigR_eq (c : Col I X) :
-    (interp (genImg (S := S) hsl Sc) c.r (sh RD c.l + c.r)).functor.map
+    (interp (genImg (S := S) Sc) c.r (sh RD c.l + c.r)).functor.map
       (Pivotal.zigR (inv RD).toColourDuality c) = 𝟙 _ := by
   obtain ⟨⟨b, i⟩, r⟩ := c
   cases b
-  · exact zigR_down (S := S) hsl Sc i r
-  · exact zigR_up (S := S) hsl Sc i r
+  · exact zigR_down (S := S) Sc i r
+  · exact zigR_up (S := S) Sc i r
 
 end QStrong
 

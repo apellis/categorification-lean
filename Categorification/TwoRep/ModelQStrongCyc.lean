@@ -163,7 +163,7 @@ variable {k : Type*} [Field k] {B : Type u} [Bicategory.{w, v} B]
 
 namespace QStrong
 
-variable {S : QStrong B C RD k Q} (hsl : ∀ i, C.dot i i = 2) (Sc : CL.CLScalars C k)
+variable {S : QStrong B C RD k Q} (Sc : CL.CLScalars C k)
 
 attribute [local irreducible] KL3.Diagram.sh
 
@@ -205,7 +205,7 @@ theorem crossQ_congr (j i : I) {l n n' m n₂ n₂' : X} (hn : n = n₂) (hn' : 
 
 theorem adjL_counit_congr (i : I) {x y y' : X} (hy : y = y') (h : x + RD.iX i = y)
     (h' : x + RD.iX i = y') (e : S.Eg i h' ≫ S.Rg i h' = S.Eg i h ≫ S.Rg i h) :
-    eqToHom e ≫ (adjL (S := S) hsl i h).counit = (adjL (S := S) hsl i h').counit := by
+    eqToHom e ≫ (adjL (S := S) i h).counit = (adjL (S := S) i h').counit := by
   subst hy
   simp
 
@@ -216,9 +216,9 @@ nested cups on the right and nested caps on the left is `t_{ij}` times the downw
 the model. -/
 theorem cycCrossR_gen (j i : I) (μ : X) :
     (((Sc.t i j)⁻¹ : kˣ) : k) •
-        (interp (genImg (S := S) hsl Sc) (KL3.Diagram.wt RD μ [dn j, dn i] : X) μ).functor.map
+        (interp (genImg (S := S) Sc) (KL3.Diagram.wt RD μ [dn j, dn i] : X) μ).functor.map
           (rotCrossR RD j i μ) =
-      (interp (genImg (S := S) hsl Sc) (KL3.Diagram.wt RD μ [dn j, dn i] : X) μ).functor.map
+      (interp (genImg (S := S) Sc) (KL3.Diagram.wt RD μ [dn j, dn i] : X) μ).functor.map
         (downCross RD j i μ) := by
   have hc : Cond (S := psig RD) (KL3.Diagram.wt RD μ [dn j, dn i] : X) μ
       (ob RD μ [dn j, dn i]) := condDn2 j i μ
@@ -276,7 +276,7 @@ theorem cycCrossR_gen (j i : I) (μ : X) :
       Signature.pivotal_left_gen, Signature.pivotal_right_gen, sig0_dom_cross_g, sig0_cod_cross_g,
       wd_cons, wd_nil, wt_cons, wt_nil, inv_dual, sig0_colourTgt_g, sig0_colourSrc_g]
     set_option backward.isDefEq.respectTransparency false in
-    erw [genImg_cross_false (S := S) hsl Sc j i μ _ _ _ _ _ rfl]
+    erw [genImg_cross_false (S := S) Sc j i μ _ _ _ _ _ rfl]
     set_option backward.isDefEq.respectTransparency false in
     simp only [crossDnQ]
     set_option backward.isDefEq.respectTransparency false in
@@ -306,11 +306,11 @@ theorem cycCrossR_gen (j i : I) (μ : X) :
       (f₂ := FreeBicategory.Hom.of (⟨⟨(true, i), (sh RD ((false, j) : Letter I) + (sh RD ((false, i) : Letter I) + μ))⟩, rfl,
           sh_ud' i j μ⟩ :
         rq (S := psig RD) (sh RD ((false, j) : Letter I) + (sh RD ((false, i) : Letter I) + μ)) ⟶ rq (sh RD ((false, j) : Letter I) + μ)))
-      (adjL (S := S) hsl i (x := sh RD ((false, i) : Letter I) + μ) (y := μ) (dn_reg i rfl rfl))
-      (adjL (S := S) hsl j (x := sh RD ((false, j) : Letter I) + (sh RD ((false, i) : Letter I) + μ))
+      (adjL (S := S) i (x := sh RD ((false, i) : Letter I) + μ) (y := μ) (dn_reg i rfl rfl))
+      (adjL (S := S) j (x := sh RD ((false, j) : Letter I) + (sh RD ((false, i) : Letter I) + μ))
         (y := sh RD ((false, i) : Letter I) + μ) (dn_reg j rfl rfl))
-      (adjL (S := S) hsl j (x := sh RD ((false, j) : Letter I) + μ) (y := μ) (dn_reg j rfl rfl))
-      (adjL (S := S) hsl i (x := sh RD ((false, j) : Letter I) + (sh RD ((false, i) : Letter I) + μ))
+      (adjL (S := S) j (x := sh RD ((false, j) : Letter I) + μ) (y := μ) (dn_reg j rfl rfl))
+      (adjL (S := S) i (x := sh RD ((false, j) : Letter I) + (sh RD ((false, i) : Letter I) + μ))
         (y := sh RD ((false, j) : Letter I) + μ) (dn_reg i rfl (sh_dd i j μ)))
       (S.crossQ j i (by simp only [sh_dn, rq]; abel) (by simp only [sh_dn, rq]; abel)
         (by simp only [sh_dn, rq]; abel) (by simp only [sh_dn, rq]; abel))
@@ -347,11 +347,11 @@ theorem cycCrossR_gen (j i : I) (μ : X) :
     case hg4 =>
       simp only [Iso.refl_hom, PrelaxFunctor.map₂_id, Category.comp_id, eqToIso.inv,
         lift_map₂_eqToHom]
-      exact adjL_counit_congr (S := S) hsl i (sh_ud i μ) _ _ _
+      exact adjL_counit_congr (S := S) i (sh_ud i μ) _ _ _
     case hg5 =>
       simp only [Iso.refl_hom, PrelaxFunctor.map₂_id, Category.comp_id, eqToIso.inv,
         lift_map₂_eqToHom]
-      exact adjL_counit_congr (S := S) hsl j (sh_ud j (sh RD ((false, i) : Letter I) + μ)) _ _ _
+      exact adjL_counit_congr (S := S) j (sh_ud j (sh RD ((false, i) : Letter I) + μ)) _ _ _
     case hg6 =>
       rw [Iso.refl_inv, Iso.refl_hom, PrelaxFunctor.map₂_id, PrelaxFunctor.map₂_id,
         Category.id_comp, Category.comp_id]

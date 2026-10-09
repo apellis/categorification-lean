@@ -324,7 +324,7 @@ end GrQ3
 
 section Up3
 
-variable {S : QStrong B C RD k Q} (hsl : ∀ i, C.dot i i = 2) (Sc : CL.CLScalars C k)
+variable {S : QStrong B C RD k Q} (Sc : CL.CLScalars C k)
 
 attribute [local irreducible] KL3.Diagram.sh
 
@@ -352,7 +352,7 @@ set_option maxHeartbeats 2000000 in
 /-- The image of the dot on the left strand of `E_c E_d E_e 1_μ`. -/
 theorem conj_E0 (c d e : I) (μ : X) :
     eqToHom (objI_pos _ _ (condUp3 c d e μ)).symm ≫
-        (interp (genImg (S := S) hsl Sc) (KL3.Diagram.wt RD μ [up c, up d, up e] : X) μ).functor.map
+        (interp (genImg (S := S) Sc) (KL3.Diagram.wt RD μ [up c, up d, up e] : X) μ).functor.map
           (upDiag RD μ (KLR.Diagram.E0 c d e)) ≫ eqToHom (objI_pos _ _ (condUp3 c d e μ)) =
       (S.Eg e (cross_up_reg e μ) ≫ S.Eg d (cross_up_reg d _)) ◁ S.dotQ c (cross_up_reg c _) := by
   rw [upDiag_E0_g]
@@ -386,7 +386,7 @@ set_option maxHeartbeats 2000000 in
 /-- The image of the dot on the middle strand of `E_c E_d E_e 1_μ`. -/
 theorem conj_E1 (c d e : I) (μ : X) :
     eqToHom (objI_pos _ _ (condUp3 c d e μ)).symm ≫
-        (interp (genImg (S := S) hsl Sc) (KL3.Diagram.wt RD μ [up c, up d, up e] : X) μ).functor.map
+        (interp (genImg (S := S) Sc) (KL3.Diagram.wt RD μ [up c, up d, up e] : X) μ).functor.map
           (upDiag RD μ (KLR.Diagram.E1 c d e)) ≫ eqToHom (objI_pos _ _ (condUp3 c d e μ)) =
       (α_ (S.Eg e (cross_up_reg e μ)) (S.Eg d (cross_up_reg d _)) (S.Eg c (cross_up_reg c _))).hom ≫
         S.Eg e (cross_up_reg e μ) ◁ (S.dotQ d (cross_up_reg d _) ▷ S.Eg c (cross_up_reg c _)) ≫
@@ -423,7 +423,7 @@ set_option maxHeartbeats 2000000 in
 /-- The image of the dot on the right strand of `E_c E_d E_e 1_μ`. -/
 theorem conj_E2 (c d e : I) (μ : X) :
     eqToHom (objI_pos _ _ (condUp3 c d e μ)).symm ≫
-        (interp (genImg (S := S) hsl Sc) (KL3.Diagram.wt RD μ [up c, up d, up e] : X) μ).functor.map
+        (interp (genImg (S := S) Sc) (KL3.Diagram.wt RD μ [up c, up d, up e] : X) μ).functor.map
           (upDiag RD μ (KLR.Diagram.E2 c d e)) ≫ eqToHom (objI_pos _ _ (condUp3 c d e μ)) =
       (α_ (S.Eg e (cross_up_reg e μ)) (S.Eg d (cross_up_reg d _)) (S.Eg c (cross_up_reg c _))).hom ≫
         S.dotQ e (cross_up_reg e μ) ▷ (S.Eg d (cross_up_reg d _) ≫ S.Eg c (cross_up_reg c _)) ≫
@@ -466,7 +466,7 @@ relation. -/
 theorem klr_braidQ (c d : I) (h : c ≠ d)
     (hQ : ∀ m ∈ (KLR.qbar (Q c d)).support, (m 0 : ℤ) * C.dot c c + (m 1 : ℤ) * C.dot d d +
       (m 2 : ℤ) * C.dot c c = -(C.dot c d + C.dot c c + C.dot d c)) (μ : X) :
-    (freeLift k (interp (genImg (S := S) hsl Sc) (KL3.Diagram.wt RD μ [up c, up d, up c] : X)
+    (freeLift k (interp (genImg (S := S) Sc) (KL3.Diagram.wt RD μ [up c, up d, up c] : X)
       μ).functor).map
       (upLin RD k μ (KLR.Diagram.relation k
         (fun i j => CL.Rescale.scaleP ![(S.rQ i : k), (S.rQ j : k)] (Q i j)) (.braidQ c d h))) =
@@ -477,10 +477,13 @@ theorem klr_braidQ (c d : I) (h : c ≠ d)
       ext m
       by_contra hm
       have := hQ m (MvPolynomial.mem_support_iff.2 hm)
-      rw [hsl c, hsl d, C.symm d c] at this
+      rw [C.symm d c] at this
       have h0 : 0 ≤ C.dot c d := le_of_not_gt hcd
-      have h1 : (0 : ℤ) ≤ (m 0 : ℤ) * 2 + (m 1 : ℤ) * 2 + (m 2 : ℤ) * 2 := by positivity
-      omega
+      have hc := C.dot_self_pos c
+      have hd := C.dot_self_pos d
+      have h1 : (0 : ℤ) ≤ (m 0 : ℤ) * C.dot c c + (m 1 : ℤ) * C.dot d d +
+          (m 2 : ℤ) * C.dot c c := by positivity
+      linarith
     have hq' : KLR.qbar (CL.Rescale.scaleP ![(S.rQ c : k), (S.rQ d : k)] (Q c d)) = 0 := by
       rw [CL.Rescale.qbar_scaleP, hq, map_zero, mul_zero]
     have hz : KLR.Diagram.lpoly k
@@ -490,18 +493,18 @@ theorem klr_braidQ (c d : I) (h : c ≠ d)
     set_option backward.isDefEq.respectTransparency false in
     rw [KLR.Diagram.relation, hq', hz, sub_zero, upLin_sub, upLin_of, upLin_of, Functor.map_sub,
       freeLift_map_of, freeLift_map_of]
-    exact klr_braid_gen' (S := S) hsl Sc c d c (fun h' => hcd h'.2) μ
+    exact klr_braid_gen' (S := S) Sc c d c (fun h' => hcd h'.2) μ
   set_option backward.isDefEq.respectTransparency false in
   rw [KLR.Diagram.relation, upLin_sub, upLin_sub, upLin_of, upLin_of, Functor.map_sub,
     Functor.map_sub, freeLift_map_of, freeLift_map_of, sub_eq_zero,
     ← freeLift_upDFL, ← Functor.comp_map]
   set G := freeLift k (upDFL k RD μ) ⋙
-    freeLift k (interp (genImg (S := S) hsl Sc) (KL3.Diagram.wt RD μ [up c, up d, up c] : X) μ).functor
+    freeLift k (interp (genImg (S := S) Sc) (KL3.Diagram.wt RD μ [up c, up d, up c] : X) μ).functor
   have hG : ∀ f : End (CategoryTheory.Free.of k (KLR.Diagram.ob [c, d, c])),
       G.map f = functorEndAlg k G _ f := fun _ => rfl
   have hGof : ∀ D : KLR.Diagram.ob [c, d, c] ⟶ KLR.Diagram.ob [c, d, c],
       functorEndAlg k G _ (LinDiagram.of D) =
-        (interp (genImg (S := S) hsl Sc) (KL3.Diagram.wt RD μ [up c, up d, up c] : X) μ).functor.map
+        (interp (genImg (S := S) Sc) (KL3.Diagram.wt RD μ [up c, up d, up c] : X) μ).functor.map
           (upDiag RD μ D) := by
     intro D
     change (freeLift k _).map ((freeLift k (upDFL k RD μ)).map (LinDiagram.of D)) = _
@@ -527,13 +530,13 @@ theorem klr_braidQ (c d : I) (h : c ≠ d)
     fin_cases a
     · simp only [Fin.zero_eta, Fin.isValue, Matrix.cons_val_zero]
       rw [conjAlg_apply, hGof]
-      exact conj_E0 (S := S) hsl Sc c d c μ
+      exact conj_E0 (S := S) Sc c d c μ
     · simp only [Fin.mk_one, Fin.isValue, Matrix.cons_val_one, Matrix.cons_val_zero]
       rw [conjAlg_apply, hGof]
-      exact conj_E1 (S := S) hsl Sc c d c μ
+      exact conj_E1 (S := S) Sc c d c μ
     · simp only [Fin.reduceFinMk, Matrix.cons_val_two, Matrix.tail_cons, Matrix.head_cons]
       rw [conjAlg_apply, hGof]
-      exact conj_E2 (S := S) hsl Sc c d c μ
+      exact conj_E2 (S := S) Sc c d c μ
   rw [hG]
   have hc : Cond (S := psig RD) (KL3.Diagram.wt RD μ [up c, up d, up c] : X) μ
       (ob RD μ [up c, up d, up c]) := condUp3 c d c μ

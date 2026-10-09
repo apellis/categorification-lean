@@ -226,7 +226,7 @@ end GrQ
 
 section Up
 
-variable {S : QStrong B C RD k Q} (hsl : ∀ i, C.dot i i = 2) (Sc : CL.CLScalars C k)
+variable {S : QStrong B C RD k Q} (Sc : CL.CLScalars C k)
 
 attribute [local irreducible] KL3.Diagram.sh
 
@@ -253,7 +253,7 @@ set_option maxHeartbeats 2000000 in
 /-- The image of the dot on the left strand of `E_c E_d 1_μ`. -/
 theorem conj_D0 (c d : I) (μ : X) :
     eqToHom (objI_pos _ _ (condUp2 c d μ)).symm ≫
-        (interp (genImg (S := S) hsl Sc) (KL3.Diagram.wt RD μ [up c, up d] : X) μ).functor.map
+        (interp (genImg (S := S) Sc) (KL3.Diagram.wt RD μ [up c, up d] : X) μ).functor.map
           (upDiag RD μ (KLR.Diagram.D0 c d)) ≫ eqToHom (objI_pos _ _ (condUp2 c d μ)) =
       S.Eg d (cross_up_reg d μ) ◁ S.dotQ c (cross_up_reg c _) := by
   rw [upDiag_D0_g]
@@ -287,7 +287,7 @@ set_option maxHeartbeats 2000000 in
 /-- The image of the dot on the right strand of `E_c E_d 1_μ`. -/
 theorem conj_D1 (c d : I) (μ : X) :
     eqToHom (objI_pos _ _ (condUp2 c d μ)).symm ≫
-        (interp (genImg (S := S) hsl Sc) (KL3.Diagram.wt RD μ [up c, up d] : X) μ).functor.map
+        (interp (genImg (S := S) Sc) (KL3.Diagram.wt RD μ [up c, up d] : X) μ).functor.map
           (upDiag RD μ (KLR.Diagram.D1 c d)) ≫ eqToHom (objI_pos _ _ (condUp2 c d μ)) =
       S.dotQ d (cross_up_reg d μ) ▷ S.Eg c (cross_up_reg c _) := by
   rw [upDiag_D1_g]
@@ -321,7 +321,7 @@ set_option maxHeartbeats 2000000 in
 /-- The image of the double crossing on `E_c E_d 1_μ`. -/
 theorem conj_X2X2 (c d : I) (μ : X) :
     eqToHom (objI_pos _ _ (condUp2 c d μ)).symm ≫
-        (interp (genImg (S := S) hsl Sc) (KL3.Diagram.wt RD μ [up c, up d] : X) μ).functor.map
+        (interp (genImg (S := S) Sc) (KL3.Diagram.wt RD μ [up c, up d] : X) μ).functor.map
           (upDiag RD μ (KLR.Diagram.X2 c d ≫ KLR.Diagram.X2 d c)) ≫
         eqToHom (objI_pos _ _ (condUp2 c d μ)) =
       S.crossQ c d (cross_up_reg d μ) (cross_up_reg c _) (cross_up_reg c μ)
@@ -362,7 +362,7 @@ its own outer regions. -/
 theorem klr_sqNe (c d : I) (h : c ≠ d)
     (hQ : ∀ m ∈ (Q c d).support,
       (m 0 : ℤ) * C.dot c c + (m 1 : ℤ) * C.dot d d = -2 * C.dot c d) (μ : X) :
-    (freeLift k (interp (genImg (S := S) hsl Sc) (KL3.Diagram.wt RD μ [up c, up d] : X) μ).functor).map
+    (freeLift k (interp (genImg (S := S) Sc) (KL3.Diagram.wt RD μ [up c, up d] : X) μ).functor).map
       (upLin RD k μ (KLR.Diagram.relation k
         (fun i j => CL.Rescale.scaleP ![(S.rQ i : k), (S.rQ j : k)] (Q i j)) (.sqNe c d h))) =
       0 := by
@@ -370,7 +370,7 @@ theorem klr_sqNe (c d : I) (h : c ≠ d)
   rw [KLR.Diagram.relation, upLin_sub, upLin_of, Functor.map_sub, freeLift_map_of, sub_eq_zero,
     ← freeLift_upDFL, ← Functor.comp_map]
   set G := freeLift k (upDFL k RD μ) ⋙
-    freeLift k (interp (genImg (S := S) hsl Sc) (KL3.Diagram.wt RD μ [up c, up d] : X) μ).functor
+    freeLift k (interp (genImg (S := S) Sc) (KL3.Diagram.wt RD μ [up c, up d] : X) μ).functor
   have hG : ∀ f : End (CategoryTheory.Free.of k (KLR.Diagram.ob [c, d])),
       G.map f = functorEndAlg k G _ f := fun _ => rfl
   rw [hG, AlgHom.map_ncEval]
@@ -385,7 +385,7 @@ theorem klr_sqNe (c d : I) (h : c ≠ d)
   rw [conj_X2X2, hc, AlgHom.map_ncEval]
   have hGof : ∀ D : KLR.Diagram.ob [c, d] ⟶ KLR.Diagram.ob [c, d],
       functorEndAlg k G _ (LinDiagram.of D) =
-        (interp (genImg (S := S) hsl Sc) (KL3.Diagram.wt RD μ [up c, up d] : X) μ).functor.map
+        (interp (genImg (S := S) Sc) (KL3.Diagram.wt RD μ [up c, up d] : X) μ).functor.map
           (upDiag RD μ D) := by
     intro D
     change (freeLift k _).map ((freeLift k (upDFL k RD μ)).map (LinDiagram.of D)) = _
@@ -400,10 +400,10 @@ theorem klr_sqNe (c d : I) (h : c ≠ d)
     fin_cases a
     · simp only [Fin.zero_eta, Fin.isValue, Matrix.cons_val_zero]
       rw [conjAlg_apply, hGof]
-      exact conj_D0 (S := S) hsl Sc c d μ
+      exact conj_D0 (S := S) Sc c d μ
     · simp only [Fin.mk_one, Fin.isValue, Matrix.cons_val_one, Matrix.cons_val_zero]
       rw [conjAlg_apply, hGof]
-      exact conj_D1 (S := S) hsl Sc c d μ
+      exact conj_D1 (S := S) Sc c d μ
   rw [hent]
   exact S.crossQ_sq c d h hQ _ _ _ _
 

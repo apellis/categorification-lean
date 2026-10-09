@@ -7,12 +7,20 @@ import Categorification.TwoRep.TorsionSeq
 /-!
 # Weight modules over a commutative ring in which the quantum integers are units
 
-The ring version of `WeightModule.lean` (used for S. Cautis, A. D. Lauda, *Implicit structure in
+Weight modules for `U̇(sl₂)` with bounded weights (used for S. Cautis, A. D. Lauda, *Implicit structure in
 2-representations of quantum groups*, arXiv:1111.1431v3, §3, Proposition 3.9 `prop:lradj`): the
 coefficient ring `K` is any commutative ring with a family of "quantum integers" `Q.qi : ℤ → K`
 (`QInts`) such that `[-m] = -[m]` and the sums `∑_{i<n} [μ + 2i]` (`= [n][μ + n - 1]`) are units
 whenever `n ≥ 1` and `μ + n - 1 ≠ 0`. No finiteness, freeness or torsion-freeness is assumed.
-The proof is that of `WeightModule.lean`, with "nonzero" replaced by "unit".
+
+Proof of `F_comm_of_E_comm` (elementary; no complete reducibility is used). Put `δ = Φ F - F Φ`.
+The relation `EF - FE = [n₀ + 2t]` gives `δ E = E δ`. Weight boundedness gives: if `v` has weight
+`μ` and `E^j v = 0` with `j ≤ -μ`, then `v = 0` (induction from the lowest weight, via `F v`). For a
+highest weight vector `u` (`E u = 0`) of weight `m ≥ 0`, `δ(F^m u)` has weight `-m - 2` and is
+killed by `E^{m+1}`, hence vanishes, and then so does every `δ(F^i u)`, `i ≤ m`. Finally induct on
+the least `a` with `E^a v = 0`: `v - c⁻¹ F^{a-1} E^{a-1} v` is killed by `E^{a-1}` for the unit `c`
+with `E^{a-1} F^{a-1} E^{a-1} v = c E^{a-1} v`; the scalars that must be units are the sums
+`∑_{i<j} [μ + 2i] = [j][μ + j - 1]` and `∑_{k<j} [μ - 2k]`.
 
 ## Main results
 

@@ -10,16 +10,17 @@ import Categorification.TwoRep.WeightModuleRing
 S. Cautis, A. D. Lauda, *Implicit structure in 2-representations of quantum groups*,
 arXiv:1111.1431v3, §3 (eq. (3.2) `eq:ind_hyp`, Proposition 3.9 `prop:lradj`).
 
-`NumericalAdjunction.lean` proves the numerical left adjunction
-`dim Hom(f X, Z⟨d⟩) = dim Hom(X, (e Z)⟨d - (n₀ + 2t + 1)⟩)` under the hypothesis that all Hom spaces
-between test objects are bounded below in degree. Here no boundedness is assumed (`Sl2CatData₀`):
+This file proves the numerical left adjunction
+`dim Hom(f X, Z⟨d⟩) = dim Hom(X, (e Z)⟨d - (n₀ + 2t + 1)⟩)` for abstract categorified `sl₂`-weight
+data (`Sl2CatData₀`), without assuming that Hom spaces are bounded below in degree:
 
 * **Torsion (`Sl2CatData₀.seq_f_torsion`)**: the defect
   `δ = ⟨f X, Z⟩ - T^{n₀ + 2t + 1} ⟨X, e Z⟩` of two-sided sequences of graded dimensions is killed by
-  a product of quantum integers `[n]`, `n ≥ 1`. The proof is that of `NumericalAdjunction.lean`
-  with the coefficient field `ℚ((q))` replaced by the ring `Tors.Rq = ℚ[T, T⁻¹][[n]⁻¹]` and the
-  Laurent-series pairing by the pairing with values in the localized sequences `Tors.MSeq`; the
-  `sl₂` lemma is `WtModuleR.F_comm_of_E_comm` (`WeightModuleRing.lean`).
+  a product of quantum integers `[n]`, `n ≥ 1`. The split Grothendieck group of the test objects,
+  linearised over the ring `Tors.Rq = ℚ[T, T⁻¹][[n]⁻¹]`, is a weight module by condition (3); the
+  pairing of graded dimensions, with values in the localized sequences `Tors.MSeq`, gives a map to
+  the dual weight module (`WtModuleR.homDual`) which commutes with `E` by the formal adjunction
+  `e ⊣ f`, hence with `F` by the `sl₂` lemma `WtModuleR.F_comm_of_E_comm` (`WeightModuleRing.lean`).
 * **Positivity (`Sl2CatData₀.finrank_f_eq_of_bdd`)**: the quantum integers have nonnegative
   coefficients, so a torsion sequence which has a sign on a half-line vanishes
   (`Tors.eq_zero_of_toM_eq_zero`). Hence the numerical adjunction holds **exactly as soon as one of

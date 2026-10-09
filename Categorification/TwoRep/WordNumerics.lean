@@ -2,7 +2,6 @@
 Copyright (c) 2026 Alex Ellis. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 -/
-import Categorification.TwoRep.NumericalAdjunction
 import Categorification.TwoRep.LemXind
 import Categorification.TwoRep.BBwProof
 
@@ -16,12 +15,12 @@ of Hom-dimensions that such an adjunction gives (`StrongSl2.NumAdj`, `WordBounde
 
 Since the boundedness condition (BB_w) (`StrongSl2.BBw`) holds (`StrongSl2.bbw`), these
 equalities hold **at every weight**, for word-generated test 1-morphisms (`numAdj`): apply the
-abstract numerical adjunction (`Sl2CatData.finrank_f_eq`, `NumericalAdjunction.lean`) to
+one-sided numerical adjunction (`Sl2CatData₀.finrank_f_eq_of_bdd`, `NumericalTorsion.lean`) to
 
 * the Hom categories `Hom(obj c, obj t)`, `t ∈ ℤ`, with `e = (- ≫ E)`, `f = (- ≫ F)`
-  (`leftData`): this gives `dim Hom(x ≫ F, y) = dim Hom(x, y ≫ E⟨-n-1⟩)`;
+  (`leftData₀`, `BBwProof.lean`): this gives `dim Hom(x ≫ F, y) = dim Hom(x, y ≫ E⟨-n-1⟩)`;
 * the Hom categories `Hom(obj t, obj c)`, `t ∈ ℤ`, with `e = (F ≫ -)`, `f = (E ≫ -)`
-  (`rightData`): this gives `dim Hom(x, F ≫ y) = dim Hom(E⟨-n-1⟩ ≫ x, y)`.
+  (`rightData₀`): this gives `dim Hom(x, F ≫ y) = dim Hom(E⟨-n-1⟩ ≫ x, y)`.
 
 In both cases condition (3) of CL Definition 1.2 gives the commutation relation, the formal
 adjunction `E 1_n ⊣ 1_n F ⟨n+1⟩` gives the adjunction of Hom-dimensions in one direction, the test
@@ -49,45 +48,9 @@ variable {k : Type*} [Field k] {B : Type u} [Bicategory.{w, v} B]
   [∀ a b : B, HomFinite k (a ⟶ b)] {S : StrongSl2 k B}
 
 variable (S) in
-/-- The categories `Hom(obj c, obj t)`, `t ∈ ℤ`, with the functors `- ≫ E`, `- ≫ F` and the
-word-generated 1-morphisms as test objects. -/
-def leftData (c : ℤ) : Sl2CatData k (fun t : ℤ => (S.obj c ⟶ S.obj t)) where
-  n₀ := S.n₀
-  e t := postcomp (S.obj c) (S.E t)
-  f t := postcomp (S.obj c) (S.F t)
-  eBiprod t X Y := whiskerRightBiprodIso X Y (S.E t)
-  fBiprod t X Y := whiskerRightBiprodIso X Y (S.F t)
-  eShift t X a := whiskerRightShiftIso X (S.E t) a
-  fShift t X a := whiskerRightShiftIso X (S.F t) a
-  EF t X h := by
-    obtain ⟨e⟩ := S.EF t h
-    exact ⟨α_ _ _ _ ≪≫ whiskerLeftIso X e ≪≫ whiskerLeftBiprodIso _ _ _ ≪≫
-      biprod.mapIso (α_ _ _ _).symm (compQsumIso _ _ _)⟩
-  FE t X h := by
-    obtain ⟨e⟩ := S.FE t h
-    exact ⟨α_ _ _ _ ≪≫ whiskerLeftIso X e ≪≫ whiskerLeftBiprodIso _ _ _ ≪≫
-      biprod.mapIso (α_ _ _ _).symm (compQsumIso _ _ _)⟩
-  adj t X Z d := by
-    change finrank k (X ≫ S.E t ⟶ Z⟦d⟧) = finrank k (X ⟶ (Z ≫ S.F t)⟦d + (S.n₀ + 2 * t + 1)⟧)
-    rw [(S.dimAdj t).left, finrank_hom_congr_right k X
-      (shiftCompShiftIso Z (S.F t) (p := d) (q := S.wt t + 1) (s := d + (S.n₀ + 2 * t + 1))
-        (by dsimp [wt]; ring))]
-  bdd := by
-    obtain ⟨N, hN⟩ := S.integrable
-    exact ⟨N, fun t ht X => isZero_of_isZero_id_tgt (hN t ht) X⟩
-  P t X := S.WordGen c t X
-  P_zero t := .zero _ _
-  P_biprod t _ _ hX hY := .biprod hX hY
-  P_shift t _ a hX := .shift a hX
-  P_iso t _ _ hX e := hX.of_iso e
-  P_e t _ hX := hX.comp (.E t)
-  P_f t _ hX := hX.comp (.F t)
-  bb t _ _ hX hZ := S.homBddBelow_wordGen hX hZ
-
-variable (S) in
 /-- The categories `Hom(obj t, obj c)`, `t ∈ ℤ`, with the functors `F ≫ -`, `E ≫ -` and the
-word-generated 1-morphisms as test objects. -/
-def rightData (c : ℤ) : Sl2CatData k (fun t : ℤ => (S.obj t ⟶ S.obj c)) where
+word-generated 1-morphisms as test objects (the mirror of `leftData₀`). -/
+def rightData₀ (c : ℤ) : Sl2CatData₀ k (fun t : ℤ => (S.obj t ⟶ S.obj c)) where
   n₀ := S.n₀
   e t := precomp (S.obj c) (S.F t)
   f t := precomp (S.obj c) (S.E t)
@@ -118,7 +81,6 @@ def rightData (c : ℤ) : Sl2CatData k (fun t : ℤ => (S.obj t ⟶ S.obj c)) wh
   P_iso t _ _ hX e := hX.of_iso e
   P_e t _ hX := (WordGen.F t).comp hX
   P_f t _ hX := (WordGen.E t).comp hX
-  bb t _ _ hX hZ := S.homBddBelow_wordGen hX hZ
 
 variable (S) in
 /-- **The numerical shadow of (3.2) holds at every weight**: for word-generated
@@ -126,14 +88,16 @@ test 1-morphisms `x`, `y`, `dim Hom(x ≫ F, y) = dim Hom(x, y ≫ E⟨-n-1⟩)`
 `dim Hom(x, F ≫ y) = dim Hom(E⟨-n-1⟩ ≫ x, y)`, `n = wt r`. -/
 theorem numAdj (r : ℤ) : S.NumAdj r where
   left c x y hx hy := by
-    have h := (leftData S c).finrank_f_eq (t := r) (X := x) (Z := y) hx hy 0
+    have h := (leftData₀ S c).finrank_f_eq_of_bdd (t := r) (X := x) (Z := y) hx hy
+      (.inl (S.homBddBelow_wordGen (hx.comp (.F r)) hy)) 0
     change finrank k (x ≫ S.F r ⟶ y⟦(0 : ℤ)⟧) =
       finrank k (x ⟶ (y ≫ S.E r)⟦0 - (S.n₀ + 2 * r + 1)⟧) at h
     rw [finrank_hom_shift_zero k _ _ rfl] at h
     rw [h, finrank_hom_congr_right k x (whiskerLeftShiftIso y (S.E r) _)]
     exact finrank_hom_shift_congr k _ _ (by dsimp [wt]; ring)
   right c x y hx hy := by
-    have h := (rightData S c).finrank_f_eq (t := r) (X := x) (Z := y) hx hy (S.wt r + 1)
+    have h := (rightData₀ S c).finrank_f_eq_of_bdd (t := r) (X := x) (Z := y) hx hy
+      (.inl (S.homBddBelow_wordGen ((WordGen.E r).comp hx) hy)) (S.wt r + 1)
     change finrank k (S.E r ≫ x ⟶ y⟦S.wt r + 1⟧) =
       finrank k (x ⟶ (S.F r ≫ y)⟦S.wt r + 1 - (S.n₀ + 2 * r + 1)⟧) at h
     rw [finrank_hom_shift_zero k x (S.F r ≫ y) (by dsimp [wt]; ring)] at h

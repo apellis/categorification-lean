@@ -40,6 +40,8 @@ import Categorification.Algebra.SplitK0
 import Categorification.Algebra.SymmetricFree
 import Categorification.Diagrams.BicatInterp
 import Categorification.Diagrams.BicatInterpPull
+import Categorification.Diagrams.BicatInterpPush
+import Categorification.Diagrams.StrictMate
 import Categorification.Diagrams.CL.DownKLR
 import Categorification.Diagrams.CL.Homogeneous
 import Categorification.Diagrams.CL.Presentation
@@ -439,6 +441,8 @@ import Categorification.TwoRep.DownwardDividedPower
 import Categorification.TwoRep.MultShift
 import Categorification.TwoRep.QStrong
 import Categorification.TwoRep.QStrongRestrict
+import Categorification.TwoRep.QStrongString
+import Categorification.TwoRep.Regrade
 import Categorification.TwoRep.Rank
 import Categorification.TwoRep.RightwardCrossing
 import Categorification.TwoRep.RouquierMaps

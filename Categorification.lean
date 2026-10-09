@@ -407,6 +407,7 @@ import Categorification.TwoRep.BSum
 import Categorification.TwoRep.Basic
 import Categorification.TwoRep.Biadjoint
 import Categorification.TwoRep.CLTwoFunctor
+import Categorification.TwoRep.CLTwoFunctorShift
 import Categorification.TwoRep.CisBub
 import Categorification.TwoRep.CisBubRight
 import Categorification.TwoRep.Coop
@@ -430,6 +431,8 @@ import Categorification.TwoRep.LemMainNeg
 import Categorification.TwoRep.LemXind
 import Categorification.TwoRep.MateSh
 import Categorification.TwoRep.ShiftCoherence
+import Categorification.TwoRep.ShiftEnvRealize
+import Categorification.TwoRep.ShiftEnvelope
 import Categorification.TwoRep.ShiftedMates
 import Categorification.TwoRep.ShiftedMatesWhisker
 import Categorification.TwoRep.ShiftedMatesReassociate
@@ -447,6 +450,7 @@ import Categorification.TwoRep.QStrong
 import Categorification.TwoRep.QStrongRestrict
 import Categorification.TwoRep.QStrongString
 import Categorification.TwoRep.Regrade
+import Categorification.TwoRep.PresGrading
 import Categorification.TwoRep.Rank
 import Categorification.TwoRep.RightwardCrossing
 import Categorification.TwoRep.RouquierMaps
@@ -494,6 +498,7 @@ import Categorification.TwoRep.ModelQStrongPres
 import Categorification.TwoRep.InterpHomogeneous
 import Categorification.TwoRep.ModelQStrongMixed
 import Categorification.TwoRep.ModelQStrongCL
+import Categorification.TwoRep.ModelQStrongGraded
 import Categorification.TypeA.Basic
 import Categorification.TypeA.DoubleCoset
 import Categorification.TypeA.Inversions

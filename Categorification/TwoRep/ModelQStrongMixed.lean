@@ -4,7 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 -/
 import Categorification.TwoRep.ModelQStrongPres
 import Categorification.TwoRep.InterpHomogeneous
-import Categorification.Diagrams.CL.BrundanMixed
+import Categorification.Diagrams.CL.CycMixed
 
 /-!
 # The mixed relations in the model of a `Q`-strong 2-representation
@@ -340,6 +340,155 @@ theorem isIso_interp_crossl {j i : I} (hji : j ≠ i) (ν : X) {s₀ : X}
   · exact GradedHomCat.isIso_of_comp_eq_smul_id' (S.isHomogeneous_crossl hsl Sc j i ν s₀ ν)
       (S.crossObjIso hsl Sc hji ν hs) (S.crossObjIso_hom_isHomogeneous hsl Sc hji ν hs)
       (Units.ne_zero _) (S.interp_crossr_crossl_ge hsl Sc hr hQ hQ2 hQ3 hji ν s₀ h)
+
+/-- Brundan's relation (5.5) (`KL3.Diagram.CL.dgN_downupEF_mid`) in the model:
+`crossl j i ≫ crossr j i = t_{ij} · 1` on `E_j F_i 1_ν` for `0 < ⟨i, ν - α_i⟩ < d_{ij}`. -/
+theorem interp_crossl_crossr_mid {j i : I} (hji : j ≠ i) (ν s₀ : X)
+    (h0 : 0 < KL3.Diagram.ip RD i (KL3.Diagram.wt RD ν [dn i]))
+    (h1 : KL3.Diagram.ip RD i (KL3.Diagram.wt RD ν [dn i]) < C.dij i j) :
+    (interp (S.genImg hsl Sc) s₀ ν).functor.map (crossl RD j i ν) ≫
+        (interp (S.genImg hsl Sc) s₀ ν).functor.map (crossr RD j i ν) =
+      (Sc.t i j : k) • 𝟙 _ := by
+  have e := congrArg ((CL.presNM RD k Sc).lift
+    (S.respects_presNM hsl Sc hr hQ hQ2 hQ3 s₀ ν)).map (CL.dgN_downupEF_mid hr hji.symm ν h0 h1)
+  rw [← CL.dgC_comp (s := [up j, dn i]) (t := [dn i, up j]) (r := [up j, dn i])
+    (A := crosslL j i) (B := crossrL j i) (by schain) (by schain), CL.dgN_crossl, CL.dgN_crossr,
+    CL.dgC_nil] at e
+  simp only [Functor.map_comp, Presentation.lift_diag, Functor.map_smul,
+    CategoryTheory.Functor.map_id] at e
+  exact e
+
+/-- **The sideways crossing `crossl j i` is an isomorphism in the model**, at every weight. -/
+theorem isIso_interp_crossl' {j i : I} (hji : j ≠ i) (ν : X) {s₀ : X}
+    (hs : (KL3.Diagram.wt RD ν [up j, dn i] : X) = s₀) :
+    IsIso ((interp (S.genImg hsl Sc) s₀ ν).functor.map (crossl RD j i ν)) := by
+  have hw : KL3.Diagram.ip RD i (KL3.Diagram.wt RD ν [dn i]) = KL3.Diagram.ip RD i ν - 2 := by
+    simp only [KL3.Diagram.wt_cons, KL3.Diagram.wt_nil, CL.ip_dn, CL.ip_iX_self]
+  by_cases h0 : KL3.Diagram.ip RD i (KL3.Diagram.wt RD ν [dn i]) ≤ 0
+  · exact S.isIso_interp_crossl hsl Sc hr hQ hQ2 hQ3 hji ν hs (Or.inl h0)
+  by_cases h1 : KL3.Diagram.ip RD i (KL3.Diagram.wt RD ν [dn i]) < C.dij i j
+  · exact GradedHomCat.isIso_of_comp_eq_smul_id (S.isHomogeneous_crossl hsl Sc j i ν s₀ ν)
+      (S.crossObjIso hsl Sc hji ν hs) (S.crossObjIso_hom_isHomogeneous hsl Sc hji ν hs)
+      (Units.ne_zero _) (S.interp_crossl_crossr_mid hsl Sc hr hQ hQ2 hQ3 hji ν s₀ (by omega) h1)
+  · exact S.isIso_interp_crossl hsl Sc hr hQ hQ2 hQ3 hji ν hs (Or.inr (by omega))
+
+/-- **The mixed relations in the model**: `crossl j i` and `crossr j i` are inverse up to
+`t_{ij}`, at every weight (CL Prop. 6.3, `sec:mixedrels`). -/
+theorem interp_crossl_crossr_all {j i : I} (hji : j ≠ i) (ν : X) {s₀ : X}
+    (hs : (KL3.Diagram.wt RD ν [up j, dn i] : X) = s₀) :
+    (interp (S.genImg hsl Sc) s₀ ν).functor.map (crossl RD j i ν) ≫
+        (interp (S.genImg hsl Sc) s₀ ν).functor.map (crossr RD j i ν) =
+      (Sc.t i j : k) • 𝟙 _ ∧
+    (interp (S.genImg hsl Sc) s₀ ν).functor.map (crossr RD j i ν) ≫
+        (interp (S.genImg hsl Sc) s₀ ν).functor.map (crossl RD j i ν) =
+      (Sc.t i j : k) • 𝟙 _ := by
+  have hiso := S.isIso_interp_crossl' hsl Sc hr hQ hQ2 hQ3 hji ν hs
+  set σ := (interp (S.genImg hsl Sc) s₀ ν).functor.map (crossl RD j i ν)
+  set ψ := (interp (S.genImg hsl Sc) s₀ ν).functor.map (crossr RD j i ν)
+  have hw : KL3.Diagram.ip RD i (KL3.Diagram.wt RD ν [dn i]) = KL3.Diagram.ip RD i ν - 2 := by
+    simp only [KL3.Diagram.wt_cons, KL3.Diagram.wt_nil, CL.ip_dn, CL.ip_iX_self]
+  by_cases hge : (C.dij i j : ℤ) ≤ KL3.Diagram.ip RD i ν
+  · have h2 : ψ ≫ σ = (Sc.t i j : k) • 𝟙 _ := S.interp_crossr_crossl_ge hsl Sc hr hQ hQ2 hQ3 hji ν s₀ hge
+    refine ⟨?_, h2⟩
+    have : ψ = (Sc.t i j : k) • inv σ := by
+      rw [← Category.comp_id ψ, ← IsIso.hom_inv_id σ, ← Category.assoc, h2, Linear.smul_comp,
+        Category.id_comp]
+    rw [this, Linear.comp_smul, IsIso.hom_inv_id]
+  · have h2 : σ ≫ ψ = (Sc.t i j : k) • 𝟙 _ := by
+      by_cases h0 : KL3.Diagram.ip RD i (KL3.Diagram.wt RD ν [dn i]) ≤ 0
+      · exact S.interp_crossl_crossr_le hsl Sc hr hQ hQ2 hQ3 hji ν s₀ h0
+      · exact S.interp_crossl_crossr_mid hsl Sc hr hQ hQ2 hQ3 hji ν s₀ (by omega) (by omega)
+    refine ⟨h2, ?_⟩
+    have : ψ = (Sc.t i j : k) • inv σ := by
+      rw [← Category.id_comp ψ, ← IsIso.inv_hom_id σ, Category.assoc, h2, Linear.comp_smul,
+        Category.comp_id]
+    rw [this, Linear.smul_comp, IsIso.inv_hom_id]
+
+/-- The relation `downupEF` of `presCL` is killed by the model. -/
+theorem killedCL_downupEF (j i : I) (hji : j ≠ i) (ν : X) :
+    KilledCL (S := S) hsl Sc (.downupEF j i hji ν) := by
+  unfold KilledCL
+  change (freeLift k (interp (S.genImg hsl Sc) (KL3.Diagram.wt RD ν [up j, dn i] : X)
+    ν).functor).map (LinDiagram.of (crossl RD j i ν ≫ crossr RD j i ν) -
+      (Sc.t i j : k) • LinDiagram.of (𝟙 _)) = 0
+  set_option backward.isDefEq.respectTransparency false in
+  rw [Functor.map_sub, Functor.map_smul, freeLift_map_of, freeLift_map_of, Functor.map_comp,
+    CategoryTheory.Functor.map_id, sub_eq_zero]
+  exact (S.interp_crossl_crossr_all hsl Sc hr hQ hQ2 hQ3 hji ν rfl).1
+
+/-- The relation `downupFE` of `presCL` is killed by the model. -/
+theorem killedCL_downupFE (i j : I) (hij : i ≠ j) (ν : X) :
+    KilledCL (S := S) hsl Sc (.downupFE i j hij ν) := by
+  unfold KilledCL
+  change (freeLift k (interp (S.genImg hsl Sc) (KL3.Diagram.wt RD ν [dn i, up j] : X)
+    ν).functor).map (LinDiagram.of (crossr RD j i ν ≫ crossl RD j i ν) -
+      (Sc.t i j : k) • LinDiagram.of (𝟙 _)) = 0
+  set_option backward.isDefEq.respectTransparency false in
+  rw [Functor.map_sub, Functor.map_smul, freeLift_map_of, freeLift_map_of, Functor.map_comp,
+    CategoryTheory.Functor.map_id, sub_eq_zero]
+  exact (S.interp_crossl_crossr_all hsl Sc hr hQ hQ2 hQ3 hij.symm ν
+    (@add_left_comm X _ _ _ _)).2
+
+/-- **The model respects `U_Q(g)` without the left rotation of mixed crossings** (`presNC`). -/
+theorem respects_presNC (s₀ t₀ : X) :
+    (CL.presNC RD k Sc).Respects (interp (S.genImg hsl Sc) s₀ t₀).functor := by
+  refine respects (S.genImg hsl Sc) (CL.presNC RD k Sc) s₀ t₀ ?_
+    (fun g => Signature.IsEven.odd_eq_false g)
+  intro i _ _ _ _
+  rcases i with (i | c | c) | ⟨r, hr'⟩
+  · exact i.elim
+  · change (freeLift k (interp (S.genImg hsl Sc) _ _).functor).map
+      (LinDiagram.of (Pivotal.zigL (inv RD).toColourDuality c) - LinDiagram.of (𝟙 _)) = 0
+    set_option backward.isDefEq.respectTransparency false in
+    rw [Functor.map_sub, freeLift_map_of, freeLift_map_of, CategoryTheory.Functor.map_id,
+      sub_eq_zero]
+    exact zigL_eq (S := S) hsl Sc c
+  · change (freeLift k (interp (S.genImg hsl Sc) _ _).functor).map
+      (LinDiagram.of (Pivotal.zigR (inv RD).toColourDuality c) - LinDiagram.of (𝟙 _)) = 0
+    set_option backward.isDefEq.respectTransparency false in
+    rw [Functor.map_sub, freeLift_map_of, freeLift_map_of, CategoryTheory.Functor.map_id,
+      sub_eq_zero]
+    exact zigR_eq (S := S) hsl Sc c
+  · rcases r with _ | _ | _ | _ | _ | _ | _ | _ | _ | _ | _ | ⟨j, i, μ⟩ | ⟨i, j, h, μ⟩ |
+      ⟨i, j, h, μ⟩ | _
+    all_goals first
+      | exact S.killedCL_downupEF hsl Sc hr hQ hQ2 hQ3 i j h μ
+      | exact S.killedCL_downupFE hsl Sc hr hQ hQ2 hQ3 i j h μ
+      | exact killedCL_of_not_mixed (S := S) hsl Sc hr hQ hQ2 hQ3 _ (fun hm => hm hr')
+      | exact killedCL_of_not_mixed (S := S) hsl Sc hr hQ hQ2 hQ3 _ (fun hm => hm)
+
+/-- The left rotation `cycCrossL j i` of a mixed crossing is killed by the model. -/
+theorem killedCL_cycCrossL (j i : I) (hji : j ≠ i) (μ : X) :
+    KilledCL (S := S) hsl Sc (.cycCrossL j i μ) := by
+  have h := congrArg ((CL.presNC RD k Sc).lift (S.respects_presNC hsl Sc hr hQ hQ2 hQ3
+    (Rel.cycCrossL j i μ).dom.start (Rel.cycCrossL j i μ).dom.endR)).map
+    (CL.presNC_lin_cycCrossL Sc hji μ)
+  rw [Presentation.lift_lin, Functor.map_zero] at h
+  exact h
+
+/-- **The mixed relations are killed by the model** (`MixedKilled`): CL Prop. 6.3 and the left
+rotation of mixed crossings, for every Cartan datum with `(α_i, α_i) = 2`. -/
+theorem mixedKilled : MixedKilled (S := S) hsl Sc :=
+  ⟨fun j i h μ => S.killedCL_cycCrossL hsl Sc hr hQ hQ2 hQ3 j i h μ,
+    fun i j h μ => S.killedCL_downupEF hsl Sc hr hQ hQ2 hQ3 i j h μ,
+    fun i j h μ => S.killedCL_downupFE hsl Sc hr hQ hQ2 hQ3 i j h μ⟩
+
+/-- **The model of a `Q`-strong 2-representation respects `U_Q(g)`** (CL Theorem 1.1, on hom
+categories, `(α_i, α_i) = 2`), with no hypothesis on the mixed relations: for all outer regions
+`s₀`, `t₀`, the interpretation of the free 2-category on the signature of `U` in
+`K^•(obj t₀, obj s₀)` descends to `presCL` for the scalars `Sc` (`r_i = 1`, KLR polynomials of the
+normalized dots). -/
+theorem respects_presCL_of_QStrong (s₀ t₀ : X) :
+    (CL.presCL RD k Sc).Respects (interp (S.genImg hsl Sc) s₀ t₀).functor :=
+  S.respects_presCL hsl Sc hr hQ hQ2 hQ3 (S.mixedKilled hsl Sc hr hQ hQ2 hQ3) s₀ t₀
+
+/-- **The 2-representation of `U_Q(g)` defined by a `Q`-strong 2-representation** (CL
+Theorem 1.1, on hom categories, `(α_i, α_i) = 2`): the linear functor from the 2-morphisms of
+`U_Q(g)` between 1-morphisms `t₀ → s₀` to `K^•(obj t₀, obj s₀)`. -/
+def interpCLQ (s₀ t₀ : X) :
+    (CL.presCL RD k Sc).Presented ⥤
+      (S.model.lift.obj (fo (S := psig RD) t₀) ⟶ S.model.lift.obj (fo (S := psig RD) s₀)) :=
+  S.interpCL hsl Sc hr hQ hQ2 hQ3 (S.mixedKilled hsl Sc hr hQ hQ2 hQ3) s₀ t₀
 
 end Mixed
 

@@ -54,6 +54,8 @@ import Categorification.Diagrams.CL.SlideCalculusC
 import Categorification.Diagrams.CL.NoMix
 import Categorification.Diagrams.CL.Brundan
 import Categorification.Diagrams.CL.BrundanMixed
+import Categorification.Diagrams.CL.BrundanMid
+import Categorification.Diagrams.CL.CycMixed
 import Categorification.Diagrams.KL3.Basic
 import Categorification.Diagrams.KL3.Bending
 import Categorification.Diagrams.KL3.BubbleSlides
@@ -483,6 +485,7 @@ import Categorification.TwoRep.ModelQStrongCyc
 import Categorification.TwoRep.ModelQStrongPres
 import Categorification.TwoRep.InterpHomogeneous
 import Categorification.TwoRep.ModelQStrongMixed
+import Categorification.TwoRep.ModelQStrongCL
 import Categorification.TypeA.Basic
 import Categorification.TypeA.DoubleCoset
 import Categorification.TypeA.Inversions

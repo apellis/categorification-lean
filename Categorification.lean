@@ -407,6 +407,7 @@ import Categorification.TwoRep.BSum
 import Categorification.TwoRep.Basic
 import Categorification.TwoRep.Biadjoint
 import Categorification.TwoRep.CLTwoFunctor
+import Categorification.TwoRep.CLTwoFunctorDot
 import Categorification.TwoRep.CLTwoFunctorShift
 import Categorification.TwoRep.CisBub
 import Categorification.TwoRep.CisBubRight
@@ -421,6 +422,7 @@ import Categorification.TwoRep.Duality
 import Categorification.TwoRep.DecompositionCupTransportNeg
 import Categorification.TwoRep.EndE
 import Categorification.TwoRep.GradedHomAdjunction
+import Categorification.TwoRep.KarRealize
 import Categorification.TwoRep.KrullSchmidt
 import Categorification.TwoRep.LeftAdjunction
 import Categorification.TwoRep.FixedAdjunction
@@ -429,6 +431,7 @@ import Categorification.TwoRep.LemAprimeScalar
 import Categorification.TwoRep.LemMain
 import Categorification.TwoRep.LemMainNeg
 import Categorification.TwoRep.LemXind
+import Categorification.TwoRep.MatKarFunctor
 import Categorification.TwoRep.MateSh
 import Categorification.TwoRep.ShiftCoherence
 import Categorification.TwoRep.ShiftEnvRealize

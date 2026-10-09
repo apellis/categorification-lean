@@ -167,6 +167,39 @@ theorem toShiftEnv_map₂_realize_map₂ {x y : 𝒳} {f g : x ⟶ y} (η : f �
       (shiftEnvIso (Q.map f)).hom ≫ Q.map₂ η ≫ (shiftEnvIso (Q.map g)).inv :=
   toShiftEnv_map₂_pre _
 
+theorem toShiftEnv_map₂_injective {a b : B} {f g : a ⟶ b} {η θ : f ⟶ g}
+    (h : (toShiftEnv k B).map₂ η = (toShiftEnv k B).map₂ θ) : η = θ := by
+  rw [← toShiftEnvPre_map₂ (k := k) η, ← toShiftEnvPre_map₂ (k := k) θ, h]
+
+theorem toShiftEnv_map₂_add {a b : B} {f g : a ⟶ b} (η θ : f ⟶ g) :
+    (toShiftEnv k B).map₂ (η + θ) = (toShiftEnv k B).map₂ η + (toShiftEnv k B).map₂ θ :=
+  hom₂_ext ((GradedHomCat.incl (a ⟶ b)).map_add)
+
+theorem toShiftEnv_map₂_smul {a b : B} {f g : a ⟶ b} (r : k) (η : f ⟶ g) :
+    (toShiftEnv k B).map₂ (r • η) = r • (toShiftEnv k B).map₂ η :=
+  hom₂_ext ((GradedHomCat.incl (a ⟶ b)).map_smul r η)
+
+/-- The realization is additive on 2-morphisms if `Q` is. -/
+theorem realize_map₂_add [∀ x y : 𝒳, Preadditive (x ⟶ y)]
+    (hQ : ∀ {x y : 𝒳} {f g : x ⟶ y} (η θ : f ⟶ g), Q.map₂ (η + θ) = Q.map₂ η + Q.map₂ θ)
+    {x y : 𝒳} {f g : x ⟶ y} (η θ : f ⟶ g) :
+    (realize Q).map₂ (η + θ) = (realize Q).map₂ η + (realize Q).map₂ θ := by
+  apply toShiftEnv_map₂_injective (k := k)
+  rw [toShiftEnv_map₂_add, toShiftEnv_map₂_realize_map₂, toShiftEnv_map₂_realize_map₂,
+    toShiftEnv_map₂_realize_map₂, hQ]
+  erw [Preadditive.add_comp, Preadditive.comp_add]
+  rfl
+
+/-- The realization is `k`-linear on 2-morphisms if `Q` is. -/
+theorem realize_map₂_smul [∀ x y : 𝒳, Preadditive (x ⟶ y)] [∀ x y : 𝒳, Linear k (x ⟶ y)]
+    (hQ : ∀ {x y : 𝒳} {f g : x ⟶ y} (r : k) (η : f ⟶ g), Q.map₂ (r • η) = r • Q.map₂ η)
+    {x y : 𝒳} {f g : x ⟶ y} (r : k) (η : f ⟶ g) :
+    (realize Q).map₂ (r • η) = r • (realize Q).map₂ η := by
+  apply toShiftEnv_map₂_injective (k := k)
+  rw [toShiftEnv_map₂_smul, toShiftEnv_map₂_realize_map₂, toShiftEnv_map₂_realize_map₂, hQ]
+  erw [Linear.smul_comp, Linear.comp_smul]
+  rfl
+
 end ShiftEnvK
 
 end Categorification.TwoRep

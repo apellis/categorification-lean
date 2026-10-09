@@ -21,9 +21,9 @@ In a strong 2-representation of `sl₂` (`StrongSl2`) the rightward crossing
 `E 1_λ ⊣ R_λ`, the crossing and the counit of `E 1_{λ-2} ⊣ R_{λ-2}`. Rouquier's map at `λ = 0` is
 `ρ_0 = σ_0`, and at `λ = 2` it is `ρ_2 = (σ_2, ε_0, ε_0 ∘ (R_0 x)) : E F 1_2 → F E 1_2 ⊕ 1_2 ⊕ 1_2`.
 This file proves that both are invertible using only the numerical shadow of (3.2) at the
-weights `> 0` (`StrongSl2.NumAdj`), hence unconditionally under (BB_w). These are exactly the
+weights `> 0` (`StrongSl2.NumAdj`), hence unconditionally. These are exactly the
 hypotheses of `adjHyp_of_wt_eq_zero` (Brundan's argument, `AdjointWeightZero.lean`), which
-therefore gives (3.2) at weight `0` under (BB_w); the dual 2-representation (`Duality.lean`)
+therefore gives (3.2) at weight `0`; the dual 2-representation (`Duality.lean`)
 turns this into (3.2) at weight `-2`.
 
 * `σ_0`: condition (3) of CL Definition 1.2 gives `E F 1_0 ≅ F E 1_0`; the space
@@ -44,11 +44,11 @@ turns this into (3.2) at weight `-2`.
   `IsIsoToSum₃`;
 * `StrongSl2.grSigma_ne_zero`, `StrongSl2.exists_grSigma_eq_smul_πFE`;
 * `StrongSl2.isIso_sigma_of_wt_eq_zero`, `StrongSl2.isIso_grSigma_of_wt_eq_zero`,
-  `StrongSl2.BBw.isIso_grSigma`: `σ_0` is invertible;
-* `StrongSl2.isIsoToSum₃_rho_two`, `StrongSl2.BBw.isIsoToSum₃_rho_two`: `ρ_2` is invertible
+  `StrongSl2.isIso_grSigma_zero`: `σ_0` is invertible;
+* `StrongSl2.isIsoToSum₃_rho_two`, `StrongSl2.isIsoToSum₃_rhoTwo`: `ρ_2` is invertible
   (Hom categories idempotent complete, for CL Lemma 3.6);
-* `StrongSl2.BBw.adjHyp_of_wt_eq_zero`, `StrongSl2.BBw.adjHyp_of_wt_eq_neg_two`: **CL
-  Proposition 3.9 at the weights `0` and `-2` under (BB_w)** (with shift coherence, Hom-finite
+* `StrongSl2.adjHyp_wt_zero`, `StrongSl2.adjHyp_wt_neg_two`: **CL
+  Proposition 3.9 at the weights `0` and `-2`** (with shift coherence, Hom-finite
   and idempotent-complete Hom categories).
 -/
 
@@ -290,10 +290,10 @@ theorem isIso_grSigma_of_wt_eq_zero {s : ℤ} (h0 : S.wt (s + 1) = 0)
   have := S.isIso_sigma_of_wt_eq_zero h0 hyp
   exact S.isIso_grSigma s
 
-/-- **`σ_0` is invertible under (BB_w).** -/
-theorem BBw.isIso_grSigma {S : StrongSl2 k B} (hS : S.BBw) {s : ℤ} (h0 : S.wt (s + 1) = 0) :
+/-- **`σ_0` is invertible.** -/
+theorem isIso_grSigma_zero (S : StrongSl2 k B) {s : ℤ} (h0 : S.wt (s + 1) = 0) :
     IsIso (S.grSigma s) :=
-  S.isIso_grSigma_of_wt_eq_zero h0 fun r' _ => hS.numAdj r'
+  S.isIso_grSigma_of_wt_eq_zero h0 fun r' _ => S.numAdj r'
 
 
 /-! ## `ρ_2` -/
@@ -579,32 +579,32 @@ theorem isIsoToSum₃_rho_two [∀ a b : B, IsIdempotentComplete (a ⟶ b)] {s :
   obtain ⟨h12, h13, h11⟩ := hσ
   exact isIsoToSum₃_of_triangular i₁ i₂ i₃ p₁ p₂ p₃ htot h12 h13 h21 h23 h31
 
-/-- **`ρ_2` is invertible under (BB_w).** -/
-theorem BBw.isIsoToSum₃_rho_two [∀ a b : B, IsIdempotentComplete (a ⟶ b)] {S : StrongSl2 k B}
-    (hS : S.BBw) {s : ℤ} (h0 : S.wt (s + 1) = 0) :
+/-- **`ρ_2` is invertible.** -/
+theorem isIsoToSum₃_rhoTwo [∀ a b : B, IsIdempotentComplete (a ⟶ b)] (S : StrongSl2 k B)
+    {s : ℤ} (h0 : S.wt (s + 1) = 0) :
     IsIsoToSum₃ (S.grSigma (s + 1)) (S.grCounit (s + 1))
       (S.grR (s + 1) ◁ S.grDot (s + 1) ≫ S.grCounit (s + 1)) :=
-  S.isIsoToSum₃_rho_two h0 fun r' _ => hS.numAdj r'
+  S.isIsoToSum₃_rho_two h0 fun r' _ => S.numAdj r'
 
-/-- **CL Proposition 3.9 at weight `0` under (BB_w)**: `(E 1_0)_L ≅ 1_0 F ⟨-1⟩`. The inputs of
+/-- **CL Proposition 3.9 at weight `0`**: `(E 1_0)_L ≅ 1_0 F ⟨-1⟩`. The inputs of
 Brundan's argument (`adjHyp_of_wt_eq_zero`) are supplied by `isIso_grSigma_of_wt_eq_zero`
 (`σ_0`), `isIsoToSum₃_rho_two` (`ρ_2`) and CL Lemma 3.1 (`End(E 1_0) = k`), all from the
-numerical shadow of (3.2) at the weights `> 0` (`BBw.numAdj`). -/
-theorem BBw.adjHyp_of_wt_eq_zero [∀ a b : B, IsIdempotentComplete (a ⟶ b)] {S : StrongSl2 k B}
-    (hS : S.BBw) {r : ℤ} (h0 : S.wt r = 0) : S.AdjHyp r := by
+numerical shadow of (3.2) at the weights `> 0` (`numAdj`). -/
+theorem adjHyp_wt_zero [∀ a b : B, IsIdempotentComplete (a ⟶ b)] (S : StrongSl2 k B)
+    {r : ℤ} (h0 : S.wt r = 0) : S.AdjHyp r := by
   obtain ⟨s, rfl⟩ : ∃ s, r = s + 1 := ⟨r - 1, by ring⟩
   by_cases h2 : IsZero (𝟙 (S.obj (s + 1 + 1)))
   · exact S.adjHyp_of_isZero (Or.inr h2)
-  have hyp : ∀ r', s + 1 < r' → S.NumAdj r' := fun r' _ => hS.numAdj r'
+  have hyp : ∀ r', s + 1 < r' → S.NumAdj r' := fun r' _ => S.numAdj r'
   exact S.adjHyp_of_wt_eq_zero h0 (S.isIso_grSigma_of_wt_eq_zero (s := s) h0 hyp)
     (S.isIsoToSum₃_rho_two h0 hyp) (S.lem1_zero_of_numAdj (r₀ := s + 1) (by omega) hyp le_rfl h2)
 
-/-- **CL Proposition 3.9 at weight `-2` under (BB_w)**: `(E 1_{-2})_L ≅ 1_{-2} F ⟨1⟩`, by the
+/-- **CL Proposition 3.9 at weight `-2`**: `(E 1_{-2})_L ≅ 1_{-2} F ⟨1⟩`, by the
 weight-`0` case applied to the dual 2-representation `S.dual` on the bidual `Bᶜᵒᵒᵖ`
 (`dual_adjHyp_iff`: (3.2) at `μ` in the dual is (3.2) at `-μ-2`). -/
-theorem BBw.adjHyp_of_wt_eq_neg_two [∀ a b : B, IsIdempotentComplete (a ⟶ b)]
-    {S : StrongSl2 k B} (hS : S.BBw) {r : ℤ} (h2 : S.wt r = -2) : S.AdjHyp r := by
-  have h := hS.dual.adjHyp_of_wt_eq_zero (r := -(r + 1)) (by
+theorem adjHyp_wt_neg_two [∀ a b : B, IsIdempotentComplete (a ⟶ b)]
+    (S : StrongSl2 k B) {r : ℤ} (h2 : S.wt r = -2) : S.AdjHyp r := by
+  have h := S.dual.adjHyp_wt_zero (r := -(r + 1)) (by
     rw [dual_wt, show -(-(r + 1)) = r + 1 by ring, S.wt_add_one, h2]; norm_num)
   rwa [dual_adjHyp_iff, show -(-(r + 1) + 1) = r by ring] at h
 

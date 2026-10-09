@@ -390,6 +390,7 @@ import Categorification.TwoRep.AdjointInductionNeg
 import Categorification.TwoRep.AdjointInductionNegCor
 import Categorification.TwoRep.AdjointPositive
 import Categorification.TwoRep.AdjointWeightNegOne
+import Categorification.TwoRep.BBwDeprecated
 import Categorification.TwoRep.AdjointWeightZero
 import Categorification.TwoRep.BSum
 import Categorification.TwoRep.Basic
@@ -449,7 +450,6 @@ import Categorification.TwoRep.TorsionSeq
 import Categorification.TwoRep.WeightModuleRing
 import Categorification.TwoRep.NumericalTorsion
 import Categorification.TwoRep.BBwProof
-import Categorification.TwoRep.Prop39
 import Categorification.TwoRep.DotNondegNeg
 import Categorification.TwoRep.FixedAdjunctionNeg
 import Categorification.TwoRep.CyclicDot
@@ -470,7 +470,6 @@ import Categorification.TwoRep.ModelSl2Curls
 import Categorification.TwoRep.ModelSl2Decomp
 import Categorification.TwoRep.ModelSl2Interp
 import Categorification.TwoRep.ModelSl2CL
-import Categorification.TwoRep.QStrongBBw
 import Categorification.TwoRep.ModelQStrong
 import Categorification.TwoRep.ModelQStrongSl2
 import Categorification.TwoRep.ModelQStrongKLR

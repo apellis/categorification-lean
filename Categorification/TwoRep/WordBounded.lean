@@ -36,8 +36,9 @@ graded-bimodule realizations is proved here.
 * `StrongSl2.WordGen S r s X`: `X` is *word-generated*: obtained from words by composition, grading
   shifts, finite direct sums and passing to retracts (in particular direct summands and isomorphic
   1-morphisms).
-* `StrongSl2.BBw.homBddBelow`: under (BB_w) the graded Hom spaces between word-generated
-  1-morphisms are bounded below.
+* `StrongSl2.bbw`, `StrongSl2.homBddBelow_wordGen` (`BBwProof.lean`): (BB_w) holds in every
+  strong 2-representation, and graded Hom spaces between word-generated 1-morphisms are bounded
+  below.
 * `StrongSl2.NumAdj S r`: the numerical shadow of the adjoint induction hypothesis (3.2) at the
   weight `wt r`, on word-generated test 1-morphisms; `AdjHyp.numAdj`.
 -/
@@ -169,11 +170,11 @@ inductive Word (S : StrongSl2 k B) : ∀ r s : ℤ, (S.obj r ⟶ S.obj s) → Pr
 
 /-- **The hypothesis (BB_w)**: the graded Hom spaces between words in `E`, `F` (with the same
 source and target) have finrank zero for `d ≪ 0`, with a bound for each pair. Under
-`HomFinite`, this is actual Hom-space vanishing; `BBw.homBddBelow` extends it to
+`HomFinite`, this is actual Hom-space vanishing; `homBddBelow_wordGen` extends it to
 word-generated pairs.
 
-This is an additional hypothesis, not part of CL Definition 1.2, whose finiteness condition
-is degreewise. -/
+It is not one of the conditions of CL Definition 1.2 (whose finiteness condition is degreewise),
+but it follows from them (`StrongSl2.bbw`, `BBwProof.lean`). -/
 def BBw (S : StrongSl2 k B) : Prop :=
   ∀ ⦃r s : ℤ⦄ ⦃X Z : S.obj r ⟶ S.obj s⦄, S.Word r s X → S.Word r s Z → HomBddBelow k X Z
 
@@ -307,7 +308,7 @@ theorem WordNF.wordGen {r s : ℤ} {X : S.obj r ⟶ S.obj s} (h : S.WordNF r s X
 that the adjunction `1_n F ⊣ E 1_n ⟨-n-1⟩` would give (`AdjHyp.dimAdjF`), for *word-generated*
 test 1-morphisms `x`, `y`. It follows from (3.2) at `n` (`AdjHyp.numAdj`), and it is all that the
 dimension counts of CL §3.2 use of (3.2). Under the boundedness hypothesis (BB_w) it holds at
-every weight (`BBw.numAdj`, `WordNumerics.lean`). -/
+every weight (`StrongSl2.numAdj`, `WordNumerics.lean`). -/
 structure NumAdj (S : StrongSl2 k B) (r : ℤ) : Prop where
   left : ∀ ⦃c : ℤ⦄ ⦃x : S.obj c ⟶ S.obj (r + 1)⦄ ⦃y : S.obj c ⟶ S.obj r⦄,
     S.WordGen c (r + 1) x → S.WordGen c r y →
@@ -322,30 +323,6 @@ variable [GradedBicategory.IsLinear B k]
 theorem AdjHyp.numAdj {r : ℤ} (h : S.AdjHyp r) : S.NumAdj r where
   left _ x y _ _ := (h.dimAdjF S).left x y
   right _ x y _ _ := (h.dimAdjF S).right x y
-
-variable [∀ a b : B, HomFinite k (a ⟶ b)]
-
-/-- **(BB_w) for word-generated 1-morphisms**: under (BB_w), the graded Hom spaces between direct
-summands of finite direct sums of shifts of words in `E`, `F` are bounded below. In particular
-the graded endomorphism algebra of every such summand is bounded below. -/
-theorem BBw.homBddBelow (hS : S.BBw) {r s : ℤ} {X Z : S.obj r ⟶ S.obj s} (hX : S.WordGen r s X)
-    (hZ : S.WordGen r s Z) : HomBddBelow k X Z := by
-  have key : ∀ {W : S.obj r ⟶ S.obj s} (a : ℤ), S.Word r s W → ∀ {Z : S.obj r ⟶ S.obj s},
-      S.WordNF r s Z → HomBddBelow k (W⟦a⟧) Z := by
-    intro W a hW Z hZ
-    induction hZ with
-    | shiftWord b hV => exact ((hS hW hV).shift_right b).shift_left a
-    | zero => exact .of_isZero_right _ (isZero_zero _)
-    | biprod _ _ ihX ihY => exact ihX.biprod_right ihY
-    | retract i p hip _ ih => exact ih.of_retract_right i p hip
-  have hZ' := hZ.wordNF
-  have hX' := hX.wordNF
-  clear hX hZ
-  induction hX' with
-  | shiftWord a hW => exact key a hW hZ'
-  | zero => exact .of_isZero_left (isZero_zero _) _
-  | biprod _ _ ihX ihY => exact ihX.biprod_left ihY
-  | retract i p hip _ ih => exact ih.of_retract_left i p hip
 
 end StrongSl2
 

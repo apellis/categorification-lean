@@ -16,7 +16,7 @@ Fix the object `q + 1` of weight `n = wt (q + 1) ≥ 0`. In the graded-Hom bicat
 
   `ζ = σ' ⊕ ⊕_{k<n} cup_k : F E 1_n ⊕ ⊕_k 1_n⟨n-1-2k⟩ → E F 1_n`
 
-(Corollary 3.13, with the sideways crossing `σ' = BBw.sideL q` of (4.16) and `cup_k` the left cup
+(Corollary 3.13, with the sideways crossing `σ' = sideLN q` of (4.16) and `cup_k` the left cup
 followed by `k` dots, `cupD`) is an isomorphism, and CL show that its inverse is
 
   `ζ⁻¹ = β σ ⊕ ⊕_k comp_k`,   `comp_k = ∑_{g} (k-th cap with dots) ∘ (fake bubble of degree 2g)`
@@ -25,12 +25,12 @@ followed by `k` dots, `cupD`) is an isomorphism, and CL show that its inverse is
 infinite Grassmannian relation). We prove this in the form of the relations it is equivalent to
 (CL's (A1)–(A5)):
 
-* (A1) `cup_{k'} ≫ comp_k = δ_{k k'}` (`BBw.cupD_comp_compK`): pure bubble algebra, from the
-  normalization (4.1) and the definition of the fake bubbles (`BBw.grassmannian_cw_ccw`);
-* (A3) `cup_k ≫ σ = 0` for `k < n` (`BBw.cupD_comp_grSigma`; a curl) and
-  (A4) `σ' ≫ comp_k = 0` (`BBw.sideL_comp_compK`): both by degrees, as `End(E 1_n)` has no
+* (A1) `cup_{k'} ≫ comp_k = δ_{k k'}` (`cupD_comp_compK`): pure bubble algebra, from the
+  normalization (4.1) and the definition of the fake bubbles (`grassmannian_cw_ccw`);
+* (A3) `cup_k ≫ σ = 0` for `k < n` (`cupD_comp_grSigma`; a curl) and
+  (A4) `σ' ≫ comp_k = 0` (`sideL_comp_compK`): both by degrees, as `End(E 1_n)` has no
   negative-degree elements (Lemma 3.1);
-* (A2) `σ' ≫ β σ = 1` and (A5) `1_{EF1_n} = β σ σ' + ∑_k comp_k cup_k` (`BBw.decompEF_beta`).
+* (A2) `σ' ≫ β σ = 1` and (A5) `1_{EF1_n} = β σ σ' + ∑_k comp_k cup_k` (`decompEF_beta`).
 
 For (A2), (A5) we start from a decomposition `E F 1_n ≅ F E 1_n ⊕ ⊕_{[n]} 1_n` (Definition 1.2 (3)),
 transported to the graded-Hom bicategory (`grι`, `grπ`, `grιFE`, `grπFE`). By degrees, the
@@ -47,8 +47,8 @@ The value `β = -1` (CL Lemma 5.4, with `r_i = 1`) is proved in a separate file.
 
 * generic: `InCupSpan`, `inCupSpan_of_triangular`; `GradedHomBicat.eq_zero_of_isHomogeneous_unit_side`,
   `GradedHomBicat.eq_zero_of_isHomogeneous_counit_side`, `GradedHomBicat.mateEquiv_zero`;
-* `StrongSl2.cupD`, `capD`, `compK`, `BBw.cupD_comp_compK` (A1), `BBw.cupD_comp_grSigma` (A3),
-  `BBw.sideL_comp_compK` (A4), `BBw.decompEF_beta` (A2, A5 and Proposition 5.1).
+* `StrongSl2.cupD`, `capD`, `compK`, `cupD_comp_compK` (A1), `cupD_comp_grSigma` (A3),
+  `sideL_comp_compK` (A4), `decompEF_beta` (A2, A5 and Proposition 5.1).
 -/
 
 noncomputable section
@@ -350,84 +350,92 @@ theorem isHomogeneous_grπ (hn : 0 ≤ S.wt (q + 1)) (j : ℕ) :
 
 end Decomp
 
-/-! ### Under (BB_w) -/
+/-! ### Consequences at every weight -/
 
 variable [∀ a b : B, HomFinite k (a ⟶ b)] [∀ a b : B, IsIdempotentComplete (a ⟶ b)] {S}
-  (hS : S.BBw)
 
-/-- Under (BB_w), `E 1_m` has no endomorphisms of negative degree (Lemma 3.1 and its `n ≤ 0`
+variable (S) in
+/-- `E 1_m` has no endomorphisms of negative degree (Lemma 3.1 and its `n ≤ 0`
 version). -/
-theorem BBw.finrank_end_E_neg (hS : S.BBw) (r : ℤ) {l : ℤ} (hl : l < 0) :
+theorem finrank_end_E_neg (r : ℤ) {l : ℤ} (hl : l < 0) :
     finrank k (S.E r ⟶ (S.E r)⟦l⟧) = 0 := by
   by_cases hr : 0 ≤ S.wt r
-  · exact S.lem1_neg hr (fun r' _ => hS.adjHyp r') r le_rfl l hl
-  · exact S.lem1Neg_neg (le_of_lt (not_le.1 hr)) (fun r' _ => hS.adjHyp r') r le_rfl l hl
+  · exact S.lem1_neg hr (fun r' _ => S.adjHyp r') r le_rfl l hl
+  · exact S.lem1Neg_neg (le_of_lt (not_le.1 hr)) (fun r' _ => S.adjHyp r') r le_rfl l hl
 
-theorem BBw.grE_end_eq_zero (hS : S.BBw) {r : ℤ} {ψ : S.grE r ⟶ S.grE r} {l : ℤ} (hψ : IsHomogeneous ψ l)
+variable (S) in
+theorem grE_end_eq_zero {r : ℤ} {ψ : S.grE r ⟶ S.grE r} {l : ℤ} (hψ : IsHomogeneous ψ l)
     (hl : l < 0) : ψ = 0 :=
-  GradedHomBicat.eq_zero_of_isHomogeneous hψ (hS.finrank_end_E_neg r hl)
+  GradedHomBicat.eq_zero_of_isHomogeneous hψ (S.finrank_end_E_neg r hl)
 
-/-- Under (BB_w), a homogeneous `1_n ⟶ F E 1_n` of negative degree vanishes. -/
-theorem BBw.eq_zero_to_ER (hS : S.BBw) {q : ℤ} {χ : 𝟙 (of (S.obj (q + 1))) ⟶ S.grE (q + 1) ≫ S.grR (q + 1)}
+variable (S) in
+/-- A homogeneous `1_n ⟶ F E 1_n` of negative degree vanishes. -/
+theorem eq_zero_to_ER {q : ℤ} {χ : 𝟙 (of (S.obj (q + 1))) ⟶ S.grE (q + 1) ≫ S.grR (q + 1)}
     {d : ℤ} (hχ : IsHomogeneous χ d) (hd : d < 0) : χ = 0 :=
   eq_zero_of_isHomogeneous_unit_side (S.grAdj (q + 1)) (c := 0) (isHomogeneous_incl₂ _)
-    (fun _ hψ => hS.grE_end_eq_zero hψ (by omega)) hχ
+    (fun _ hψ => S.grE_end_eq_zero hψ (by omega)) hχ
 
-/-- Under (BB_w), a homogeneous `F E 1_n ⟶ 1_n` of degree `< 2n + 2` vanishes. -/
-theorem BBw.eq_zero_from_ER (hS : S.BBw) {q : ℤ} {χ : S.grE (q + 1) ≫ S.grR (q + 1) ⟶ 𝟙 (of (S.obj (q + 1)))}
+variable (S) in
+/-- A homogeneous `F E 1_n ⟶ 1_n` of degree `< 2n + 2` vanishes. -/
+theorem eq_zero_from_ER {q : ℤ} {χ : S.grE (q + 1) ≫ S.grR (q + 1) ⟶ 𝟙 (of (S.obj (q + 1)))}
     {d : ℤ} (hχ : IsHomogeneous χ d) (hd : d < 2 * S.wt (q + 1) + 2) : χ = 0 :=
-  eq_zero_of_isHomogeneous_counit_side (hS.leftAdjN (q + 1)) (hS.leftAdjN_spec (q + 1)).1
-    (fun _ hψ => hS.grE_end_eq_zero hψ (by omega)) hχ
+  eq_zero_of_isHomogeneous_counit_side (S.leftAdjN (q + 1)) (S.leftAdjN_spec (q + 1)).1
+    (fun _ hψ => S.grE_end_eq_zero hψ (by omega)) hχ
 
+variable (S) in
 /-- **(A3)** (a curl vanishes): for `k < n`, `cup_k ≫ σ = 0` (by degrees). -/
-theorem BBw.cupD_comp_grSigma {q : ℤ} {j : ℕ} (hj : (j : ℤ) < S.wt (q + 1)) :
-    S.cupD (hS.leftAdjN q) j ≫ S.grSigma q = 0 :=
-  hS.eq_zero_to_ER ((S.isHomogeneous_cupD _ (hS.leftAdjN_spec q).1 j).comp
+theorem cupD_comp_grSigma {q : ℤ} {j : ℕ} (hj : (j : ℤ) < S.wt (q + 1)) :
+    S.cupD (S.leftAdjN q) j ≫ S.grSigma q = 0 :=
+  S.eq_zero_to_ER ((S.isHomogeneous_cupD _ (S.leftAdjN_spec q).1 j).comp
     (S.isHomogeneous_grSigma q) rfl) (by omega)
 
+variable (S) in
 /-- The `k`-th component of `ζ⁻¹` (CL (5.8) with the coefficients of Proposition 5.2):
 `comp_k = ∑_{g < n - k} cap_{n-1-k-g} ∘ (fake counter-clockwise bubble of degree 2g)`. -/
-def BBw.compK (q : ℤ) (j : ℕ) : S.grR q ≫ S.grE q ⟶ 𝟙 (of (S.obj (q + 1))) :=
+def compK (q : ℤ) (j : ℕ) : S.grR q ≫ S.grE q ⟶ 𝟙 (of (S.obj (q + 1))) :=
   ∑ g ∈ Finset.range ((S.wt (q + 1)).toNat - j),
-    S.capD q ((S.wt (q + 1)).toNat - 1 - j - g) ≫ hS.ccwL q (-S.wt (q + 1) - 1 + g)
+    S.capD q ((S.wt (q + 1)).toNat - 1 - j - g) ≫ S.ccwLN q (-S.wt (q + 1) - 1 + g)
 
+variable (S) in
 /-- **(A4)**: `σ' ≫ comp_k = 0` (by degrees). -/
-theorem BBw.sideL_comp_compK (q : ℤ) (j : ℕ) :
-    hS.sideL q ≫ hS.compK q j = 0 := by
-  rw [BBw.compK, Preadditive.comp_sum]
+theorem sideL_comp_compK (q : ℤ) (j : ℕ) :
+    S.sideLN q ≫ S.compK q j = 0 := by
+  rw [compK, Preadditive.comp_sum]
   refine Finset.sum_eq_zero fun g hg => ?_
   have hg' := Finset.mem_range.1 hg
-  rw [← Category.assoc, hS.eq_zero_from_ER ((hS.isHomogeneous_sideL q).comp
+  rw [← Category.assoc, S.eq_zero_from_ER ((S.isHomogeneous_sideLN q).comp
     (S.isHomogeneous_capD q _) rfl) (by omega), zero_comp]
 
+variable (S) in
 /-- Real clockwise bubbles with integer labels `≥ n - 1`. -/
-theorem BBw.cwL_eq_cwBub {q : ℤ} (hn1 : 1 ≤ S.wt (q + 1)) (i : ℕ) :
-    hS.cwL q (S.wt (q + 1) - 1 + i) = S.cwBub (hS.leftAdjN q) ((S.wt (q + 1)).toNat - 1 + i) := by
-  unfold BBw.cwL
+theorem cwL_eq_cwBub {q : ℤ} (hn1 : 1 ≤ S.wt (q + 1)) (i : ℕ) :
+    S.cwLN q (S.wt (q + 1) - 1 + i) = S.cwBub (S.leftAdjN q) ((S.wt (q + 1)).toNat - 1 + i) := by
+  unfold cwLN
   rw [cwL_of_nonneg _ _ _ (by omega)]
   congr 1
   omega
 
+variable (S) in
 /-- **(A1)**: `cup_{k'} ≫ comp_k = δ_{k k'}` for `k, k' < n`. -/
-theorem BBw.cupD_comp_compK {q : ℤ} {j j' : ℕ} (hj : j < (S.wt (q + 1)).toNat)
+theorem cupD_comp_compK {q : ℤ} {j j' : ℕ} (hj : j < (S.wt (q + 1)).toNat)
     (hj' : j' < (S.wt (q + 1)).toNat) :
-    S.cupD (hS.leftAdjN q) j' ≫ hS.compK q j = if j = j' then 𝟙 _ else 0 := by
-  rw [BBw.compK, Preadditive.comp_sum]
+    S.cupD (S.leftAdjN q) j' ≫ S.compK q j = if j = j' then 𝟙 _ else 0 := by
+  rw [compK, Preadditive.comp_sum]
   set N := (S.wt (q + 1)).toNat with hN
   have hn1 : 1 ≤ S.wt (q + 1) := by omega
   have hNn : (N : ℤ) = S.wt (q + 1) := Int.toNat_of_nonneg (by omega)
-  have hterm : ∀ g, S.cupD (hS.leftAdjN q) j' ≫ S.capD q (N - 1 - j - g) ≫
-      hS.ccwL q (-S.wt (q + 1) - 1 + g) =
-        hS.ccwL q (-S.wt (q + 1) - 1 + g) *
-          End.of (S.cwBub (hS.leftAdjN q) (j' + (N - 1 - j - g))) := by
+  have hterm : ∀ g, S.cupD (S.leftAdjN q) j' ≫ S.capD q (N - 1 - j - g) ≫
+      S.ccwLN q (-S.wt (q + 1) - 1 + g) =
+        S.ccwLN q (-S.wt (q + 1) - 1 + g) *
+          End.of (S.cwBub (S.leftAdjN q) (j' + (N - 1 - j - g))) := by
     intro g
     rw [← Category.assoc, cupD_comp_capD]
     rfl
   simp only [hterm]
   -- the terms with `j' + (N - 1 - j - g) < N - 1` vanish
   have hvan : ∀ g, j' + (N - 1 - j - g) < N - 1 →
-      S.cwBub (hS.leftAdjN q) (j' + (N - 1 - j - g)) = 0 := fun g hg =>
-    hS.cwBub_eq_zero (by omega)
+      S.cwBub (S.leftAdjN q) (j' + (N - 1 - j - g)) = 0 := fun g hg =>
+    S.cwBubN_eq_zero (by omega)
   by_cases hjj : j' < j
   · rw [ite_eq_right (by omega)]
     refine Finset.sum_eq_zero fun g hg => ?_
@@ -436,7 +444,7 @@ theorem BBw.cupD_comp_compK {q : ℤ} {j j' : ℕ} (hj : j < (S.wt (q + 1)).toNa
     have hDN : D + 1 ≤ N - j := by omega
     rw [← Finset.sum_range_add_sum_Ico _ hDN, Finset.sum_eq_zero (s := Finset.Ico _ _)
       (fun g hg => by rw [hvan g (by have := Finset.mem_Ico.1 hg; omega), mul_zero]), add_zero]
-    have hG := hS.grassmannian_cw_ccw hn1 (K := D) (by omega)
+    have hG := S.grassmannian_cw_ccw hn1 (K := D) (by omega)
     rw [← Finset.sum_range_reflect] at hG
     have hif : (if j = j' then (𝟙 _ : 𝟙 (of (S.obj (q + 1))) ⟶ 𝟙 _) else 0) =
         if D = 0 then (1 : End (𝟙 (of (S.obj (q + 1))))) else 0 := by
@@ -447,16 +455,17 @@ theorem BBw.cupD_comp_compK {q : ℤ} {j j' : ℕ} (hj : j < (S.wt (q + 1)).toNa
     refine Finset.sum_congr rfl fun g hg => ?_
     have hg' := Finset.mem_range.1 hg
     rw [show D + 1 - 1 - g = D - g by omega, show D - (D - g) = g by omega, mul_comm,
-      hS.cwL_eq_cwBub hn1, show j' + (N - 1 - j - g) = N - 1 + (D - g) by omega]
+      S.cwL_eq_cwBub hn1, show j' + (N - 1 - j - g) = N - 1 + (D - g) by omega]
 
+variable (S) in
 /-- **CL Proposition 5.1 (form of `ζ⁻¹`), first part, and (A2)**: for `n = wt (q + 1) ≥ 0` there
 are a scalar `β` and maps `φ_k : E F 1_n → 1_n` with `σ' ≫ β σ = 1_{FE1_n}` and
 `1_{EF1_n} = β σ σ' + ∑_{k<n} φ_k ∘ cup_k`. -/
-theorem BBw.exists_decompEF_aux {q : ℤ} (hn : 0 ≤ S.wt (q + 1)) :
+theorem exists_decompEF_aux {q : ℤ} (hn : 0 ≤ S.wt (q + 1)) :
     ∃ (β : k) (φ : ℕ → (S.grR q ≫ S.grE q ⟶ 𝟙 (of (S.obj (q + 1))))),
-      hS.sideL q ≫ (β • S.grSigma q) = 𝟙 _ ∧
-      β • (S.grSigma q ≫ hS.sideL q) +
-        ∑ j ∈ Finset.range (S.wt (q + 1)).toNat, φ j ≫ S.cupD (hS.leftAdjN q) j = 𝟙 _ := by
+      S.sideLN q ≫ (β • S.grSigma q) = 𝟙 _ ∧
+      β • (S.grSigma q ≫ S.sideLN q) +
+        ∑ j ∈ Finset.range (S.wt (q + 1)).toNat, φ j ≫ S.cupD (S.leftAdjN q) j = 𝟙 _ := by
   set N := (S.wt (q + 1)).toNat with hN
   have hNn : (N : ℤ) = S.wt (q + 1) := Int.toNat_of_nonneg hn
   -- the weight `n` is zero: everything vanishes
@@ -469,37 +478,37 @@ theorem BBw.exists_decompEF_aux {q : ℤ} (hn : 0 ≤ S.wt (q + 1)) :
     exact ⟨1, 0, hER.eq_of_src _ _, hRE.eq_of_src _ _⟩
   obtain ⟨e⟩ := S.exists_EFDecomp hn
   -- the matrix of the cups in the summands `1_n⟨n-1-2j⟩` is triangular
-  have hcupπ : ∀ j i : ℕ, IsHomogeneous (S.cupD (hS.leftAdjN q) j ≫ grπ e i)
+  have hcupπ : ∀ j i : ℕ, IsHomogeneous (S.cupD (S.leftAdjN q) j ≫ grπ e i)
       (2 * (j : ℤ) - 2 * (i : ℤ)) := fun j i =>
-    (S.isHomogeneous_cupD _ (hS.leftAdjN_spec q).1 j).comp (isHomogeneous_grπ e hn i) (by ring)
-  have hlow : ∀ j i, j < N → i < N → j < i → S.cupD (hS.leftAdjN q) j ≫ grπ e i = 0 :=
+    (S.isHomogeneous_cupD _ (S.leftAdjN_spec q).1 j).comp (isHomogeneous_grπ e hn i) (by ring)
+  have hlow : ∀ j i, j < N → i < N → j < i → S.cupD (S.leftAdjN q) j ≫ grπ e i = 0 :=
     fun j i _ _ hji => S.eq_zero_of_isHomogeneous_neg (hcupπ j i) (by omega)
-  have hcupFE : ∀ j, j < N → S.cupD (hS.leftAdjN q) j ≫ grπFE e = 0 := fun j hj =>
-    hS.eq_zero_to_ER ((S.isHomogeneous_cupD _ (hS.leftAdjN_spec q).1 j).comp
+  have hcupFE : ∀ j, j < N → S.cupD (S.leftAdjN q) j ≫ grπFE e = 0 := fun j hj =>
+    S.eq_zero_to_ER ((S.isHomogeneous_cupD _ (S.leftAdjN_spec q).1 j).comp
       (isHomogeneous_grπFE e) rfl) (by omega)
   have hexpand : ∀ j, j < N → ∀ {Y : _} (y : S.grR q ≫ S.grE q ⟶ Y),
-      S.cupD (hS.leftAdjN q) j ≫ y =
-        ∑ i ∈ Finset.range N, (S.cupD (hS.leftAdjN q) j ≫ grπ e i) ≫ grι e i ≫ y := by
+      S.cupD (S.leftAdjN q) j ≫ y =
+        ∑ i ∈ Finset.range N, (S.cupD (S.leftAdjN q) j ≫ grπ e i) ≫ grι e i ≫ y := by
     intro j hj Y y
     conv_lhs => rw [← Category.id_comp y, ← grTotal e]
     rw [Preadditive.add_comp, Preadditive.comp_add, Preadditive.sum_comp, Preadditive.comp_sum,
       Category.assoc, ← Category.assoc (S.cupD _ j) (grπFE e), hcupFE j hj, zero_comp, add_zero]
     simp only [Category.assoc]
     rfl
-  have hexp : ∀ j, j < N → S.cupD (hS.leftAdjN q) j =
-      ∑ i ∈ Finset.range N, (S.cupD (hS.leftAdjN q) j ≫ grπ e i) ≫ grι e i := by
+  have hexp : ∀ j, j < N → S.cupD (S.leftAdjN q) j =
+      ∑ i ∈ Finset.range N, (S.cupD (S.leftAdjN q) j ≫ grπ e i) ≫ grι e i := by
     intro j hj
     have := hexpand j hj (𝟙 _)
     simpa only [Category.comp_id] using this
   have hdiag : ∀ j, j < N → ∃ s : k, s ≠ 0 ∧
-      S.cupD (hS.leftAdjN q) j ≫ grπ e j = s • 𝟙 (𝟙 (of (S.obj (q + 1)))) := by
+      S.cupD (S.leftAdjN q) j ≫ grπ e j = s • 𝟙 (𝟙 (of (S.obj (q + 1)))) := by
     intro j hj
     obtain ⟨s, hs⟩ := S.exists_eq_smul_id ((hcupπ j j).of_eq (by ring))
     refine ⟨s, fun hs0 => h1 ?_, hs⟩
     have hn1 : 1 ≤ S.wt (q + 1) := by omega
-    have hbub : S.cupD (hS.leftAdjN q) j ≫ S.capD q (N - 1 - j) = 𝟙 _ := by
+    have hbub : S.cupD (S.leftAdjN q) j ≫ S.capD q (N - 1 - j) = 𝟙 _ := by
       rw [cupD_comp_capD, show j + (N - 1 - j) = N - 1 by omega]
-      exact BBw.cwBub_deg_zero hS hn1
+      exact cwBub_deg_zero S hn1
     rw [hexpand j hj, Finset.sum_eq_zero] at hbub
     · refine (IsZero.iff_id_eq_zero _).2 (incl₂_injective ?_)
       change incl₂ (𝟙 (𝟙 (S.obj (q + 1)))) = (incl _).map 0
@@ -515,7 +524,7 @@ theorem BBw.exists_decompEF_aux {q : ℤ} (hn : 0 ≤ S.wt (q + 1)) :
           ((isHomogeneous_grι e hn i).comp (S.isHomogeneous_capD q _) (by omega))
           (by omega), comp_zero]
   -- the projection onto `⊕_j 1_n⟨n-1-2j⟩` is a combination of the cups
-  obtain ⟨φ, hφ⟩ : InCupSpan N (S.cupD (hS.leftAdjN q))
+  obtain ⟨φ, hφ⟩ : InCupSpan N (S.cupD (S.leftAdjN q))
       (∑ j ∈ Finset.range N, grπ e j ≫ grι e j) :=
     InCupSpan.sum _ fun j hj => inCupSpan_of_triangular (grι e) (grπ e) hlow hdiag hexp j
       (Finset.mem_range.1 hj) (grπ e j)
@@ -528,26 +537,26 @@ theorem BBw.exists_decompEF_aux {q : ℤ} (hn : 0 ≤ S.wt (q + 1)) :
     have := grTotal e
     rwa [hER.eq_of_tgt (grπFE e) 0, zero_comp, add_zero] at this
   -- Lemma 3.12: the projection and the inclusion of `F E 1_n` are multiples of `σ` and `σ'`
-  obtain ⟨c, hc0, hσ⟩ := S.exists_grSigma_eq_smul_πFE hn (fun r' _ => hS.numAdj r') h2 e
+  obtain ⟨c, hc0, hσ⟩ := S.exists_grSigma_eq_smul_πFE hn (fun r' _ => S.numAdj r') h2 e
   have hσ' : S.grSigma q = c • grπFE e := hσ
-  obtain ⟨a, ha⟩ : ∃ a : k, grιFE e = a • hS.sideL q := by
-    have hcd : IsHomogeneous ((S.rhoTargetIso q).inv ≫ hS.sideL q ≫ (S.rhoSourceIso q).hom) 0 :=
-      ((S.isHomogeneous_rhoTargetIso_inv q).comp ((hS.isHomogeneous_sideL q).comp
+  obtain ⟨a, ha⟩ : ∃ a : k, grιFE e = a • S.sideLN q := by
+    have hcd : IsHomogeneous ((S.rhoTargetIso q).inv ≫ S.sideLN q ≫ (S.rhoSourceIso q).hom) 0 :=
+      ((S.isHomogeneous_rhoTargetIso_inv q).comp ((S.isHomogeneous_sideLN q).comp
         (S.isHomogeneous_rhoSourceIso_hom q) rfl) rfl).of_eq (by ring)
     obtain ⟨g, hg⟩ := exists_incl₂_of_isHomogeneous hcd
     have hdim : finrank k (S.E (q + 1) ≫ S.F (q + 1) ⟶ S.F q ≫ S.E q) = 1 :=
-      S.lemHoms_FE_EF_eq_one (r₀ := q + 1) hn (fun r' _ => hS.adjHyp r') le_rfl (hS.adjHyp q)
-        (hS.adjHyp (q + 1)) h2
-    have hsL : hS.sideL q = (S.rhoTargetIso q).hom ≫ incl₂ g ≫ (S.rhoSourceIso q).inv := by
+      S.lemHoms_FE_EF_eq_one (r₀ := q + 1) hn (fun r' _ => S.adjHyp r') le_rfl (S.adjHyp q)
+        (S.adjHyp (q + 1)) h2
+    have hsL : S.sideLN q = (S.rhoTargetIso q).hom ≫ incl₂ g ≫ (S.rhoSourceIso q).inv := by
       rw [← hg]
       simp
     by_cases hg0 : g = 0
-    · have hs0 : hS.sideL q = 0 := by
+    · have hs0 : S.sideLN q = 0 := by
         rw [hsL, hg0]
         change _ ≫ (incl _).map 0 ≫ _ = 0
         rw [Functor.map_zero, zero_comp, comp_zero]
       have hτ : S.grCross q = 0 := by
-        have : S.grCross q = mateEquiv (hS.leftAdjN q) (hS.leftAdjN (q + 1)) (hS.sideL q) := by
+        have : S.grCross q = mateEquiv (S.leftAdjN q) (S.leftAdjN (q + 1)) (S.sideLN q) := by
           exact ((Bicategory.mateEquiv _ _).apply_symm_apply (S.grCross q)).symm
         rw [this, hs0, mateEquiv_zero]
       have hσ0 : S.grSigma q = 0 := by rw [grSigma_eq_mateEquiv, hτ, mateEquiv_zero]
@@ -572,27 +581,28 @@ theorem BBw.exists_decompEF_aux {q : ℤ} (hn : 0 ≤ S.wt (q + 1)) :
       ← Linear.comp_smul, ← ha, ← hφ]
     exact (add_comm _ _).trans (grTotal e)
 
+variable (S) in
 /-- **CL Propositions 5.1, 5.2 and Corollary 5.3 for `n ≥ 0`** (relations (A2), (A5)): for
 `n = wt (q + 1) ≥ 0` there is a scalar `β` with `σ' ≫ β σ = 1_{FE1_n}` and
 `1_{EF1_n} = β σ σ' + ∑_{k<n} comp_k ∘ cup_k`, where `comp_k` is built from the fake bubbles
-(`BBw.compK`); i.e. `ζ⁻¹ = β σ ⊕ ⊕_k comp_k`. (`β = -1` by CL Lemma 5.4.) -/
-theorem BBw.decompEF_beta {q : ℤ} (hn : 0 ≤ S.wt (q + 1)) :
-    ∃ β : k, hS.sideL q ≫ (β • S.grSigma q) = 𝟙 _ ∧
-      β • (S.grSigma q ≫ hS.sideL q) +
-        ∑ j ∈ Finset.range (S.wt (q + 1)).toNat, hS.compK q j ≫ S.cupD (hS.leftAdjN q) j =
+(`compK`); i.e. `ζ⁻¹ = β σ ⊕ ⊕_k comp_k`. (`β = -1` by CL Lemma 5.4.) -/
+theorem decompEF_beta {q : ℤ} (hn : 0 ≤ S.wt (q + 1)) :
+    ∃ β : k, S.sideLN q ≫ (β • S.grSigma q) = 𝟙 _ ∧
+      β • (S.grSigma q ≫ S.sideLN q) +
+        ∑ j ∈ Finset.range (S.wt (q + 1)).toNat, S.compK q j ≫ S.cupD (S.leftAdjN q) j =
           𝟙 _ := by
-  obtain ⟨β, φ, h1, h2⟩ := hS.exists_decompEF_aux hn
+  obtain ⟨β, φ, h1, h2⟩ := S.exists_decompEF_aux hn
   refine ⟨β, h1, ?_⟩
-  have hφ : ∀ j ∈ Finset.range (S.wt (q + 1)).toNat, φ j = hS.compK q j := by
+  have hφ : ∀ j ∈ Finset.range (S.wt (q + 1)).toNat, φ j = S.compK q j := by
     intro j hj
     have hj' := Finset.mem_range.1 hj
-    have := congrArg (· ≫ hS.compK q j) h2
+    have := congrArg (· ≫ S.compK q j) h2
     simp only [Preadditive.add_comp, Preadditive.sum_comp, Linear.smul_comp, Category.assoc,
-      hS.sideL_comp_compK, comp_zero, smul_zero, zero_add, Category.id_comp] at this
+      S.sideL_comp_compK, comp_zero, smul_zero, zero_add, Category.id_comp] at this
     rw [← this, Finset.sum_eq_single_of_mem j hj]
-    · rw [hS.cupD_comp_compK hj' hj', ite_eq_left rfl, Category.comp_id]
+    · rw [S.cupD_comp_compK hj' hj', ite_eq_left rfl, Category.comp_id]
     · intro i hi hij
-      rw [hS.cupD_comp_compK hj' (Finset.mem_range.1 hi), ite_eq_right (Ne.symm hij), comp_zero]
+      rw [S.cupD_comp_compK hj' (Finset.mem_range.1 hi), ite_eq_right (Ne.symm hij), comp_zero]
   rw [← h2]
   congr 1
   exact Finset.sum_congr rfl fun j hj => by rw [hφ j hj]

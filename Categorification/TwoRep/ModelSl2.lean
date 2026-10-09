@@ -11,8 +11,8 @@ import Categorification.QuantumGroup.UDotKL3
 # The `sl₂` model of Khovanov–Lauda's `U` in the graded-Hom bicategory
 
 S. Cautis, A. D. Lauda, *Implicit structure in 2-representations of quantum groups*,
-arXiv:1111.1431v3, Theorem 5.5 for `g = sl₂`: a strong 2-representation of `sl₂` satisfying
-(BB_w) gives a 2-representation of `U_Q(sl₂)`. This file sets up the data of that 2-functor on the
+arXiv:1111.1431v3, Theorem 5.5 for `g = sl₂`: a strong 2-representation of `sl₂`
+gives a 2-representation of `U_Q(sl₂)`. This file sets up the data of that 2-functor on the
 signature `psig sl2RootDatum` of KL III's `U` (`Categorification.Diagrams.KL3.Basic`), as a model
 in the graded-Hom bicategory `K^•` in the sense of `Categorification.Diagrams.BicatInterp`, with
 the dots normalized to `r_i = 1`:
@@ -23,7 +23,7 @@ the dots normalized to `r_i = 1`:
   (`R = F⟨n + 1⟩`), transported along the equalities of indices (`Ec`, `Rc`);
 * the upward dot and crossing go to the normalized dot `grDotN` and the crossing `grCross`; the
   cups and caps go to the units and counits of the right adjunctions `E ⊣ R` (`grAdj`) and of the
-  normalized left adjunctions `R ⊣ E` (`BBw.leftAdjN`), following the table of
+  normalized left adjunctions `R ⊣ E` (`leftAdjN`), following the table of
   `Categorification.Diagrams.KL3.Basic`; the downward dot and crossing go to the mates of the upward
   ones under the left adjunctions (the rotations `rotDotR`, `rotCrossR` of KL III).
 
@@ -188,22 +188,21 @@ def gCross (a b c : ℤ) (h₁ : a + 1 = b) (h₂ : b + 1 = c) :
     S.gEc a b h₁ ≫ S.gEc b c h₂ ⟶ S.gEc a b h₁ ≫ S.gEc b c h₂ := by
   subst h₁ h₂; exact S.grCross a
 
-variable {S} (hS : S.BBw)
 
-/-- The normalized left adjunction `R ⊣ E` (`BBw.leftAdjN`), transported. -/
+/-- The normalized left adjunction `R ⊣ E` (`leftAdjN`), transported. -/
 def gAdjL (a b : ℤ) (h : a + 1 = b) : S.gRc a b h ⊣ S.gEc a b h := by
-  subst h; exact hS.leftAdjN a
+  subst h; exact S.leftAdjN a
 
 /-- The downward dot: the mate of the dot under the left adjunction (the rotation `rotDotR`). -/
 def gDotR (a b : ℤ) (h : a + 1 = b) : S.gRc a b h ⟶ S.gRc a b h :=
-  (Bicategory.conjugateEquiv (gAdjL hS a b h) (gAdjL hS a b h)).symm (S.gDot a b h)
+  (Bicategory.conjugateEquiv (gAdjL S a b h) (gAdjL S a b h)).symm (S.gDot a b h)
 
 /-- The downward crossing: the mate of the crossing under the left adjunctions (the rotation
 `rotCrossR`). -/
 def gCrossR (a b c : ℤ) (h₁ : a + 1 = b) (h₂ : b + 1 = c) :
     S.gRc b c h₂ ≫ S.gRc a b h₁ ⟶ S.gRc b c h₂ ≫ S.gRc a b h₁ :=
-  (Bicategory.conjugateEquiv ((gAdjL hS b c h₂).comp (gAdjL hS a b h₁))
-    ((gAdjL hS b c h₂).comp (gAdjL hS a b h₁))).symm (S.gCross a b c h₁ h₂)
+  (Bicategory.conjugateEquiv ((gAdjL S b c h₂).comp (gAdjL S a b h₁))
+    ((gAdjL S b c h₂).comp (gAdjL S a b h₁))).symm (S.gCross a b c h₁ h₂)
 
 /-- **The images of the generators** of `U` in the `sl₂` model, read between regions `a` (left)
 and `b` (right). -/
@@ -215,7 +214,7 @@ def genImg : GenImg S.model where
           obtain rfl : sh sl2RootDatum ((true, i) : Letter Unit) + r = a := hd.1
           exact S.qi_sh_true i r)
     | .gen (.dot ⟨(false, i), r⟩) => fun a b _ _ hd hde _ _ =>
-        gDotR hS (S.qi a) (S.qi b) (by
+        gDotR S (S.qi a) (S.qi b) (by
           obtain rfl : r = b := hde
           obtain rfl : sh sl2RootDatum ((false, i) : Letter Unit) + r = a := hd.1
           exact S.qi_sh_false i r)
@@ -227,7 +226,7 @@ def genImg : GenImg S.model where
               (sh sl2RootDatum ((true, ()) : Letter Unit) + ν) = a := hd.1
             exact S.qi_sh_true () _)
     | .gen (.cross false () () ν) => fun a b _ _ hd hde _ _ =>
-        gCrossR hS (S.qi a) (S.qi (sh sl2RootDatum ((false, ()) : Letter Unit) + ν)) (S.qi b)
+        gCrossR S (S.qi a) (S.qi (sh sl2RootDatum ((false, ()) : Letter Unit) + ν)) (S.qi b)
           (by
             obtain rfl : sh sl2RootDatum ((false, ()) : Letter Unit) +
               (sh sl2RootDatum ((false, ()) : Letter Unit) + ν) = a := hd.1
@@ -235,7 +234,7 @@ def genImg : GenImg S.model where
           (by obtain rfl : ν = b := hde; exact S.qi_sh_false () ν)
     | .cup ⟨(true, i), r⟩ => fun a b ha _ _ hde _ _ => by
         subst hde
-        exact (gAdjL hS (S.qi r) (S.qi a) (by
+        exact (gAdjL S (S.qi r) (S.qi a) (by
           obtain rfl : sh sl2RootDatum ((true, i) : Letter Unit) + r = a := ha
           exact S.qi_sh_true i r)).unit
     | .cup ⟨(false, i), r⟩ => fun a b ha _ _ hde _ _ => by
@@ -245,7 +244,7 @@ def genImg : GenImg S.model where
           exact S.qi_sh_false i r)).unit
     | .cap ⟨(true, i), r⟩ => fun a b _ _ _ hde _ hce => by
         subst hce
-        exact (gAdjL hS (S.qi a) (S.qi (sh sl2RootDatum ((true, i) : Letter Unit) + r)) (by
+        exact (gAdjL S (S.qi a) (S.qi (sh sl2RootDatum ((true, i) : Letter Unit) + r)) (by
           obtain rfl : r = a := hde
           exact S.qi_sh_true i r)).counit
     | .cap ⟨(false, i), r⟩ => fun a b _ _ _ hde _ hce => by
@@ -262,7 +261,7 @@ attribute [local irreducible] KL3.Diagram.sh
 unfolding the 2-morphisms on either side). -/
 
 theorem genImg_dot_true (i : Unit) (r a b : ℤ) (ha hb hd hde hc hce) :
-    (genImg hS).gen (.gen (.dot ⟨(true, i), r⟩)) a b ha hb hd hde hc hce =
+    (genImg S).gen (.gen (.dot ⟨(true, i), r⟩)) a b ha hb hd hde hc hce =
       S.gDot (S.qi b) (S.qi a) (by
         obtain rfl : r = b := hde
         obtain rfl : sh sl2RootDatum ((true, i) : Letter Unit) + r = a := hd.1
@@ -271,8 +270,8 @@ theorem genImg_dot_true (i : Unit) (r a b : ℤ) (ha hb hd hde hc hce) :
   congr 1
 
 theorem genImg_dot_false (i : Unit) (r a b : ℤ) (ha hb hd hde hc hce) :
-    (genImg hS).gen (.gen (.dot ⟨(false, i), r⟩)) a b ha hb hd hde hc hce =
-      gDotR hS (S.qi a) (S.qi b) (by
+    (genImg S).gen (.gen (.dot ⟨(false, i), r⟩)) a b ha hb hd hde hc hce =
+      gDotR S (S.qi a) (S.qi b) (by
         obtain rfl : r = b := hde
         obtain rfl : sh sl2RootDatum ((false, i) : Letter Unit) + r = a := hd.1
         exact S.qi_sh_false i r) := by
@@ -280,7 +279,7 @@ theorem genImg_dot_false (i : Unit) (r a b : ℤ) (ha hb hd hde hc hce) :
   congr 1
 
 theorem genImg_cross_true (ν a b : ℤ) (ha hb hd hde hc hce) :
-    (genImg hS).gen (.gen (.cross true () () ν)) a b ha hb hd hde hc hce =
+    (genImg S).gen (.gen (.cross true () () ν)) a b ha hb hd hde hc hce =
       S.gCross (S.qi b) (S.qi (sh sl2RootDatum ((true, ()) : Letter Unit) + ν)) (S.qi a)
         (by obtain rfl : ν = b := hde; exact S.qi_sh_true () ν)
         (by
@@ -291,15 +290,15 @@ theorem genImg_cross_true (ν a b : ℤ) (ha hb hd hde hc hce) :
   congr 1
 
 theorem genImg_cup_true (i : Unit) (r a : ℤ) (ha hb hd hc hce) :
-    (genImg hS).gen (.cup ⟨(true, i), r⟩) a a ha hb hd rfl hc hce =
-      (gAdjL hS (S.qi r) (S.qi a) (by
+    (genImg S).gen (.cup ⟨(true, i), r⟩) a a ha hb hd rfl hc hce =
+      (gAdjL S (S.qi r) (S.qi a) (by
         obtain rfl : sh sl2RootDatum ((true, i) : Letter Unit) + r = a := ha
         exact S.qi_sh_true i r)).unit := by
   simp only [genImg]
   congr 1
 
 theorem genImg_cup_false (i : Unit) (r a : ℤ) (ha hb hd hc hce) :
-    (genImg hS).gen (.cup ⟨(false, i), r⟩) a a ha hb hd rfl hc hce =
+    (genImg S).gen (.cup ⟨(false, i), r⟩) a a ha hb hd rfl hc hce =
       (S.gAdjE (S.qi a) (S.qi r) (by
         obtain rfl : sh sl2RootDatum ((false, i) : Letter Unit) + r = a := ha
         exact S.qi_sh_false i r)).unit := by
@@ -307,15 +306,15 @@ theorem genImg_cup_false (i : Unit) (r a : ℤ) (ha hb hd hc hce) :
   congr 1
 
 theorem genImg_cap_true (i : Unit) (r a : ℤ) (ha hb hd hde hc) :
-    (genImg hS).gen (.cap ⟨(true, i), r⟩) a a ha hb hd hde hc rfl =
-      (gAdjL hS (S.qi a) (S.qi (sh sl2RootDatum ((true, i) : Letter Unit) + r)) (by
+    (genImg S).gen (.cap ⟨(true, i), r⟩) a a ha hb hd hde hc rfl =
+      (gAdjL S (S.qi a) (S.qi (sh sl2RootDatum ((true, i) : Letter Unit) + r)) (by
         obtain rfl : r = a := hde
         exact S.qi_sh_true i r)).counit := by
   simp only [genImg]
   congr 1
 
 theorem genImg_cap_false (i : Unit) (r a : ℤ) (ha hb hd hde hc) :
-    (genImg hS).gen (.cap ⟨(false, i), r⟩) a a ha hb hd hde hc rfl =
+    (genImg S).gen (.cap ⟨(false, i), r⟩) a a ha hb hd hde hc rfl =
       (S.gAdjE (S.qi (sh sl2RootDatum ((false, i) : Letter Unit) + r)) (S.qi a) (by
         obtain rfl : r = a := hde
         exact S.qi_sh_false i r)).counit := by
@@ -329,50 +328,50 @@ theorem gAdjE_rfl (a : ℤ) : S.gAdjE a (a + 1) rfl = S.grAdj a := rfl
 omit [∀ a b : B, IsIdempotentComplete (a ⟶ b)] [∀ a b : B, HomFinite k (a ⟶ b)] in
 theorem gDot_rfl (a : ℤ) : S.gDot a (a + 1) rfl = S.grDotN a := rfl
 
-theorem gAdjL_rfl (a : ℤ) : gAdjL hS a (a + 1) rfl = hS.leftAdjN a := rfl
+theorem gAdjL_rfl (a : ℤ) : gAdjL S a (a + 1) rfl = S.leftAdjN a := rfl
 
 /-- CL Lemma 4.1 for the normalized left adjunctions, transported: the right mate of the dot
 under `E ⊣ R` is the downward dot (its left mate under `R ⊣ E`). -/
 theorem gDot_cyclic (a b : ℤ) (h : a + 1 = b) :
     Bicategory.conjugateEquiv (S.gAdjE a b h) (S.gAdjE a b h) (S.gDot a b h) =
-      gDotR hS a b h := by
+      gDotR S a b h := by
   subst h
   have hl : Bicategory.conjugateEquiv (S.gAdjE a (a + 1) rfl) (S.gAdjE a (a + 1) rfl)
       (S.gDot a (a + 1) rfl) =
       Bicategory.conjugateEquiv (S.grAdj a) (S.grAdj a) (S.grDotN a) := rfl
-  have hr : gDotR hS a (a + 1) rfl =
-      (Bicategory.conjugateEquiv (hS.leftAdjN a) (hS.leftAdjN a)).symm (S.grDotN a) := by
+  have hr : gDotR S a (a + 1) rfl =
+      (Bicategory.conjugateEquiv (S.leftAdjN a) (S.leftAdjN a)).symm (S.grDotN a) := by
     unfold gDotR
     rw [gAdjL_rfl, gDot_rfl]
     congr 1
   rw [hl, hr]
-  exact S.cyclic_dotN_of_cyclic_dot _ (hS.cyclic_dot_leftAdjN a)
+  exact S.cyclic_dotN_of_cyclic_dot _ (S.cyclic_dot_leftAdjN a)
 
 omit [GradedBicategory.IsLinear B k] [∀ a b : B, IsIdempotentComplete (a ⟶ b)]
   [∀ a b : B, HomFinite k (a ⟶ b)] in
 theorem gCross_rfl (a : ℤ) : S.gCross a (a + 1) (a + 1 + 1) rfl rfl = S.grCross a := rfl
 
-/-- CL Lemma 4.2 for the normalized left adjunctions, transported (`BBw.cyclic_cross`): the right
+/-- CL Lemma 4.2 for the normalized left adjunctions, transported (`cyclic_cross`): the right
 mate of the crossing under the composite of the adjunctions `E ⊣ R` is the downward crossing (its
 left mate under the composite of the normalized left adjunctions). -/
 theorem gCross_cyclic (a b c : ℤ) (h₁ : a + 1 = b) (h₂ : b + 1 = c) :
     Bicategory.conjugateEquiv ((S.gAdjE a b h₁).comp (S.gAdjE b c h₂))
         ((S.gAdjE a b h₁).comp (S.gAdjE b c h₂)) (S.gCross a b c h₁ h₂) =
-      gCrossR hS a b c h₁ h₂ := by
+      gCrossR S a b c h₁ h₂ := by
   subst h₁ h₂
   have hl : Bicategory.conjugateEquiv ((S.gAdjE a (a + 1) rfl).comp (S.gAdjE (a + 1) (a + 1 + 1) rfl))
         ((S.gAdjE a (a + 1) rfl).comp (S.gAdjE (a + 1) (a + 1 + 1) rfl))
         (S.gCross a (a + 1) (a + 1 + 1) rfl rfl) =
       Bicategory.conjugateEquiv ((S.grAdj a).comp (S.grAdj (a + 1)))
         ((S.grAdj a).comp (S.grAdj (a + 1))) (S.grCross a) := rfl
-  have hr : gCrossR hS a (a + 1) (a + 1 + 1) rfl rfl =
-      (Bicategory.conjugateEquiv ((hS.leftAdjN (a + 1)).comp (hS.leftAdjN a))
-        ((hS.leftAdjN (a + 1)).comp (hS.leftAdjN a))).symm (S.grCross a) := by
+  have hr : gCrossR S a (a + 1) (a + 1 + 1) rfl rfl =
+      (Bicategory.conjugateEquiv ((S.leftAdjN (a + 1)).comp (S.leftAdjN a))
+        ((S.leftAdjN (a + 1)).comp (S.leftAdjN a))).symm (S.grCross a) := by
     unfold gCrossR
     rw [gAdjL_rfl, gAdjL_rfl, gCross_rfl]
     congr 1
   rw [hl, hr]
-  exact hS.cyclic_cross a
+  exact S.cyclic_cross a
 
 end EqLemmas
 

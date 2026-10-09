@@ -16,7 +16,7 @@ so that the clockwise degree-zero bubble at the weight `n ≥ 1` (the left cup o
 `n - 1` dots, then the counit of `E 1_m ⊣ R_m`; `StrongSl2.cwBubble`) is the identity of `1_n`.
 This is possible because that bubble is nonzero (`topBubble_ne_zero`, CL Corollary 3.7)
 and the left cup is unique up to a scalar (`exists_eq_smul_leftAdj_unit`, CL Corollary 3.10):
-`StrongSl2.exists_normalized_leftAdj`, and under (BB_w) `StrongSl2.BBw.exists_normalized_leftAdj`.
+`StrongSl2.exists_normalized_leftAdj`, and `StrongSl2.exists_normalized_leftAdjN`.
 
 The counter-clockwise normalization at the weights `n < -1` is in `FixedAdjunctionNeg.lean`.
 -/
@@ -128,24 +128,24 @@ theorem exists_normalized_leftAdj [∀ a b : B, IsIdempotentComplete (a ⟶ b)] 
   change β⁻¹ • S.cwBubble (S.leftAdj h).unit = _
   rw [hβg, smul_smul, inv_mul_cancel₀ hβ0, one_smul]
 
-/-- **CL (4.1) for `n ≥ 1` under (BB_w)**: for every `E 1_m` with `m ≥ -1` there is a left
+/-- **CL (4.1) for `n ≥ 1`**: for every `E 1_m` with `m ≥ -1` there is a left
 adjunction `R_m ⊣ E 1_m` whose clockwise degree-zero bubble at the weight `m + 2` is the
 identity. -/
-theorem BBw.exists_normalized_leftAdj [∀ a b : B, IsIdempotentComplete (a ⟶ b)]
-    {S : StrongSl2 k B} (hS : S.BBw) {q : ℤ} (hn : 1 ≤ S.wt (q + 1 + 1)) :
+theorem exists_normalized_leftAdjN [∀ a b : B, IsIdempotentComplete (a ⟶ b)]
+    (S : StrongSl2 k B) {q : ℤ} (hn : 1 ≤ S.wt (q + 1 + 1)) :
     ∃ adj : S.grR (q + 1) ⊣ S.grE (q + 1),
       IsHomogeneous adj.unit (-(2 * S.wt (q + 1) + 2)) ∧
       IsHomogeneous adj.counit (2 * S.wt (q + 1) + 2) ∧ S.cwBubble adj.unit = 𝟙 _ := by
-  have hyp : ∀ r', S.AdjHyp r' := hS.adjHyp
+  have hyp : ∀ r', S.AdjHyp r' := S.adjHyp
   refine S.exists_normalized_leftAdj hn (hyp _) ?_ (fun r' _ => hyp r')
-    (fun r' _ => hS.numAdj r')
+    (fun r' _ => S.numAdj r')
   intro h2
   have hw : S.wt (q + 1 + 1) = S.wt (q + 1) + 2 := S.wt_add_one _
   rcases le_or_gt 0 (S.wt (q + 1)) with h0 | h0
   · exact S.lem1_zero (r₀ := q + 1) h0 (fun r' _ => hyp r') le_rfl h2
   · have hobj : ¬ IsZero (𝟙 (S.obj (q + 1))) := fun hz => by
       obtain ⟨e'⟩ := S.exists_EFDecomp (r := q + 1) (by omega)
-      apply S.topBubble_ne_zero hn (fun r' _ => hyp r') (fun r' _ => hS.numAdj r') h2 e'
+      apply S.topBubble_ne_zero hn (fun r' _ => hyp r') (fun r' _ => S.numAdj r') h2 e'
       have hZ : IsZero (S.grR (q + 1) ≫ S.grE (q + 1)) :=
         (incl _).map_isZero (isZero_comp_left (isZero_of_isZero_id_tgt hz _) _)
       rw [hZ.eq_of_src (S.grCounit (q + 1)) 0, comp_zero, comp_zero]

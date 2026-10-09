@@ -25,9 +25,9 @@ nonzero multiple of the identity:
   whiskered with bubbles. The only bubble of degree `0` is the one of CL Corollary 3.7, and it is
   nonzero.
 
-Together with the weight `0` (`RouquierMaps.lean`) this gives (3.2) at every weight `≥ 0` under
-(BB_w) (`StrongSl2.BBw.adjHyp_of_nonneg`), and by duality at every weight `≤ -2`
-(`StrongSl2.BBw.adjHyp_of_le_neg_two`).
+Together with the weight `0` (`RouquierMaps.lean`) this gives (3.2) at every weight `≥ 0`
+(`StrongSl2.adjHyp_of_nonneg`), and by duality at every weight `≤ -2`
+(`StrongSl2.adjHyp_of_le_neg_two`).
 -/
 
 noncomputable section
@@ -608,38 +608,38 @@ theorem adjHyp_of_wt_pos [∀ a b : B, IsIdempotentComplete (a ⟶ b)] {q : ℤ}
   rw [this, Linear.smul_comp, Linear.comp_smul, Category.id_comp, smul_smul,
     inv_mul_cancel₀ hlβ, one_smul]
 
-/-- **CL Proposition 3.9 at every weight `n ≥ 0` under (BB_w)**, by decreasing induction from the
-highest weight (`adjoint_induction`): the weight `0` is `BBw.adjHyp_of_wt_eq_zero`, the weights
-`n ≥ 1` are `adjHyp_of_wt_pos`, with the numerical shadow of (3.2) from `BBw.numAdj`. -/
-theorem BBw.adjHyp_of_nonneg [∀ a b : B, IsIdempotentComplete (a ⟶ b)] {S : StrongSl2 k B}
-    (hS : S.BBw) : ∀ r, 0 ≤ S.wt r → S.AdjHyp r := by
+/-- **CL Proposition 3.9 at every weight `n ≥ 0`**, by decreasing induction from the
+highest weight (`adjoint_induction`): the weight `0` is `adjHyp_wt_zero`, the weights
+`n ≥ 1` are `adjHyp_of_wt_pos`, with the numerical shadow of (3.2) from `numAdj`. -/
+theorem adjHyp_of_nonneg [∀ a b : B, IsIdempotentComplete (a ⟶ b)] (S : StrongSl2 k B)
+    : ∀ r, 0 ≤ S.wt r → S.AdjHyp r := by
   refine S.adjoint_induction fun r hr hyp => ?_
   rcases eq_or_lt_of_le hr with h0 | hpos
-  · exact hS.adjHyp_of_wt_eq_zero h0.symm
+  · exact S.adjHyp_wt_zero h0.symm
   obtain ⟨q, rfl⟩ : ∃ q, r = q + 1 + 1 := ⟨r - 2, by ring⟩
-  exact S.adjHyp_of_wt_pos (by omega) hyp fun r' _ => hS.numAdj r'
+  exact S.adjHyp_of_wt_pos (by omega) hyp fun r' _ => S.numAdj r'
 
-/-- **CL Proposition 3.9 at every weight `n ≤ -2` under (BB_w)**, by the weights `≥ 0` of the dual
+/-- **CL Proposition 3.9 at every weight `n ≤ -2`**, by the weights `≥ 0` of the dual
 2-representation (`dual_adjHyp_iff`). -/
-theorem BBw.adjHyp_of_le_neg_two [∀ a b : B, IsIdempotentComplete (a ⟶ b)] {S : StrongSl2 k B}
-    (hS : S.BBw) : ∀ r, S.wt r ≤ -2 → S.AdjHyp r := by
+theorem adjHyp_of_le_neg_two [∀ a b : B, IsIdempotentComplete (a ⟶ b)] (S : StrongSl2 k B)
+    : ∀ r, S.wt r ≤ -2 → S.AdjHyp r := by
   intro r hr
-  have h := hS.dual.adjHyp_of_nonneg (-(r + 1)) (by
+  have h := S.dual.adjHyp_of_nonneg (-(r + 1)) (by
     rw [dual_wt, show -(-(r + 1)) = r + 1 by ring, S.wt_add_one]; omega)
   rwa [dual_adjHyp_iff, show -(-(r + 1) + 1) = r by ring] at h
 
-/-- **CL Proposition 3.9 under (BB_w) at every weight other than `-1`.** -/
-theorem BBw.adjHyp_of_wt_ne_neg_one [∀ a b : B, IsIdempotentComplete (a ⟶ b)]
-    {S : StrongSl2 k B} (hS : S.BBw) {r : ℤ} (hr : S.wt r ≠ -1) : S.AdjHyp r := by
+/-- **CL Proposition 3.9 at every weight other than `-1`.** -/
+theorem adjHyp_of_wt_ne_neg_one [∀ a b : B, IsIdempotentComplete (a ⟶ b)]
+    (S : StrongSl2 k B) {r : ℤ} (hr : S.wt r ≠ -1) : S.AdjHyp r := by
   rcases le_or_gt 0 (S.wt r) with h | h
-  · exact hS.adjHyp_of_nonneg r h
-  · exact hS.adjHyp_of_le_neg_two r (by omega)
+  · exact S.adjHyp_of_nonneg r h
+  · exact S.adjHyp_of_le_neg_two r (by omega)
 
-/-- **CL Proposition 3.9 under (BB_w) for a string of even weights**: if the weights are even,
+/-- **CL Proposition 3.9 for a string of even weights**: if the weights are even,
 `(E 1_n)_L ≅ 1_n F ⟨-n-1⟩` at every weight. -/
-theorem BBw.adjHyp_of_even [∀ a b : B, IsIdempotentComplete (a ⟶ b)] {S : StrongSl2 k B}
-    (hS : S.BBw) (he : Even S.n₀) (r : ℤ) : S.AdjHyp r := by
-  refine hS.adjHyp_of_wt_ne_neg_one fun h => ?_
+theorem adjHyp_of_even [∀ a b : B, IsIdempotentComplete (a ⟶ b)] (S : StrongSl2 k B)
+    (he : Even S.n₀) (r : ℤ) : S.AdjHyp r := by
+  refine S.adjHyp_of_wt_ne_neg_one fun h => ?_
   obtain ⟨m, hm⟩ := he
   simp only [wt] at h
   omega

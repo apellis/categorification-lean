@@ -17,25 +17,25 @@ At the object `q + 1` of weight `n`, with `E 1_{n-2} = grE q` and `E 1_n = grE (
 
 * the **left curl** `curlE` on `E 1_{n-2}` (closing `E 1_n` on the left with the right cup and the
   left cap) is `∑_{g ≤ n} x^{n-g} · (counter-clockwise bubble of degree 2g)` for `n ≥ 0`
-  (`BBw.curlE_eq`) and `0` for `n < 0`;
+  (`curlE_eq`) and `0` for `n < 0`;
 * the **right curl** `curlG` on `E 1_n` (closing `E 1_{n-2}` on the right with the left cup and the
   right cap) is `-∑_{g ≤ -n} (clockwise bubble of degree 2g) · x^{-n-g}` for `n ≤ 0`
-  (`BBw.curlG_eq`) and `0` for `n > 0`.
+  (`curlG_eq`) and `0` for `n > 0`.
 
-The proof for `n ≥ 0`: the left cap is `-σ' ∘ (n dots) ∘ (right cap)` (`BBw.sideL_comp_capD`;
+The proof for `n ≥ 0`: the left cap is `-σ' ∘ (n dots) ∘ (right cap)` (`sideL_comp_capD`;
 Brundan's definition (1.17) of the leftward cap, arXiv:1501.00350v1), by closing both sides with
 the left cup (`sideL_cap_closed`): the closed diagram is a curl with `n` dots, which is `-1`
 (nilHecke). Then `σ ∘ (left cap)` is determined by the decomposition of `1_{EF1_n}` and the
-Grassmannian relation (`BBw.grSigma_comp_leftCounit`), and the curl is its mate. For `n ≤ 0` the
+Grassmannian relation (`grSigma_comp_leftCounit`), and the curl is its mate. For `n ≤ 0` the
 mirror argument gives that the left cup is `(right cup with -n dots) ∘ σ'`
-(`BBw.ccupD_comp_sideL_self`) and then `(left cup) ∘ σ` (`BBw.leftUnit_comp_grSigma`).
+(`ccupD_comp_sideL_self`) and then `(left cup) ∘ σ` (`leftUnit_comp_grSigma`).
 
 ## Main declarations
 
 * generic: `curlG_comp_whiskerRight_cap`, `sideL_cap_closed`, `capTest`, `cupTest`,
   `cupTest_sideL`, `counit_comp_bubble`;
-* `StrongSl2.BBw.sideL_comp_capD`, `BBw.grSigma_comp_leftCounit`, `BBw.curlE_eq` (`n ≥ 0`);
-* `StrongSl2.BBw.ccupD_comp_sideL_self`, `BBw.leftUnit_comp_grSigma`, `BBw.curlG_eq` (`n ≤ 0`).
+* `StrongSl2.sideL_comp_capD`, `grSigma_comp_leftCounit`, `curlE_eq` (`n ≥ 0`);
+* `StrongSl2.ccupD_comp_sideL_self`, `leftUnit_comp_grSigma`, `curlG_eq` (`n ≤ 0`).
 -/
 
 noncomputable section
@@ -202,43 +202,43 @@ namespace StrongSl2
 
 open GradedHomBicat GradedHomCat
 
-variable {S : StrongSl2 k B} (hS : S.BBw)
+variable (S : StrongSl2 k B)
 
-theorem BBw.sideL_eq (q : ℤ) : hS.sideL q =
-    (mateEquiv (hS.leftAdjN q) (hS.leftAdjN (q + 1))).symm (S.grCross q) := rfl
+theorem sideL_eq (q : ℤ) : S.sideLN q =
+    (mateEquiv (S.leftAdjN q) (S.leftAdjN (q + 1))).symm (S.grCross q) := rfl
 
 /-- **The right curl at `n = 0`** (`c_0^+` of CL (`eq_def_czeropm`)): the curl of `τ` on `E 1_0`
 is `-1`. -/
-theorem BBw.curlG_zero_wt {q : ℤ} (h0 : S.wt (q + 1) = 0) :
-    curlG (hS.leftAdjN q).unit (S.grCounit q) (S.grCross q) = -𝟙 _ := by
-  obtain ⟨h1, _⟩ := hS.decompEF (q := q) (by omega)
-  have htr := sideL_trace (hS.leftAdjN q) (hS.leftAdjN (q + 1)) (S.grAdj q) (S.grAdj (q + 1))
+theorem curlG_zero_wt {q : ℤ} (h0 : S.wt (q + 1) = 0) :
+    curlG (S.leftAdjN q).unit (S.grCounit q) (S.grCross q) = -𝟙 _ := by
+  obtain ⟨h1, _⟩ := S.decompEF (q := q) (by omega)
+  have htr := sideL_trace (S.leftAdjN q) (S.leftAdjN (q + 1)) (S.grAdj q) (S.grAdj (q + 1))
     (S.grCross q) (powComp (S.grDotN (q + 1)) 1)
   rw [← grSigma_eq_mateEquiv] at htr
-  change rtrace _ _ _ (hS.sideL q ≫ S.grSigma q) = _ at htr
-  have hbub : S.cwBub (hS.leftAdjN (q + 1)) 1 = 𝟙 _ := by
-    have h := BBw.cwBub_deg_zero hS (q := q + 1) (by rw [S.wt_add_one]; omega)
+  change rtrace _ _ _ (S.sideLN q ≫ S.grSigma q) = _ at htr
+  have hbub : S.cwBub (S.leftAdjN (q + 1)) 1 = 𝟙 _ := by
+    have h := cwBub_deg_zero S (q := q + 1) (by rw [S.wt_add_one]; omega)
     rwa [show (S.wt (q + 1 + 1)).toNat - 1 = 1 by rw [S.wt_add_one]; omega] at h
   rw [h1, show (-𝟙 (S.grE (q + 1) ≫ S.grR (q + 1))) = (-1 : k) • 𝟙 _ by rw [neg_one_smul],
     rtrace_smul, rtrace_id, grAdj_counit, grAdj_counit,
-    show (hS.leftAdjN (q + 1)).unit ≫ S.grR (q + 1) ◁ powComp (S.grDotN (q + 1)) 1 ≫
-      S.grCounit (q + 1) = S.cwBub (hS.leftAdjN (q + 1)) 1 from rfl, hbub,
+    show (S.leftAdjN (q + 1)).unit ≫ S.grR (q + 1) ◁ powComp (S.grDotN (q + 1)) 1 ≫
+      S.grCounit (q + 1) = S.cwBub (S.leftAdjN (q + 1)) 1 from rfl, hbub,
     Bicategory.whiskerLeft_id, Category.id_comp, Iso.inv_hom_id, whiskerLeft_powComp,
     tau_powComp_tau _ _ _ (S.grCross_sq q) (S.grDotN_slide_right q) 0, Finset.sum_range_one,
     powComp_zero, powComp_zero, Category.id_comp, Category.id_comp, neg_one_smul] at htr
   exact htr.symm
 
 /-- **The curl with `n` dots on the closed strand at the top is `-1`**, at the weight `n ≥ 0`. -/
-theorem BBw.curlG_tau_dots_top {q : ℤ} (hn : 0 ≤ S.wt (q + 1)) :
-    curlG (hS.leftAdjN q).unit (S.grCounit q)
+theorem curlG_tau_dots_top {q : ℤ} (hn : 0 ≤ S.wt (q + 1)) :
+    curlG (S.leftAdjN q).unit (S.grCounit q)
       (S.grCross q ≫ powComp (S.grDotN q) (S.wt (q + 1)).toNat ▷ S.grE (q + 1)) = -𝟙 _ := by
   set N := (S.wt (q + 1)).toNat with hN
   have hNn : (N : ℤ) = S.wt (q + 1) := Int.toNat_of_nonneg hn
   rcases lt_or_eq_of_le hn with hn' | hn'
-  · set A := hS.leftAdjN q
+  · set A := S.leftAdjN q
     have hz : curlG A.unit (S.grCounit q) (S.grCross q) = 0 := by
       rw [← cupD_zero A]
-      exact hS.curlG_cupD_eq_zero (by omega)
+      exact S.curlG_cupD_eq_zero (by omega)
     have hs := qpow_tau (S.grCross q) (S.grDotN q ▷ S.grE (q + 1)) (S.grE q ◁ S.grDotN (q + 1))
       (S.grDotN_slide q) N
     have hτ : S.grCross q ≫ powComp (S.grDotN q ▷ S.grE (q + 1)) N =
@@ -258,88 +258,88 @@ theorem BBw.curlG_tau_dots_top {q : ℤ} (hn : 0 ≤ S.wt (q + 1)) :
       rfl
     rw [Finset.sum_congr rfl (fun a _ => hterm a),
       Finset.sum_eq_single_of_mem 0 (Finset.mem_range.2 (by omega))]
-    · rw [powComp_zero, Category.id_comp, Nat.sub_zero, BBw.cwBub_deg_zero hS (by omega),
+    · rw [powComp_zero, Category.id_comp, Nat.sub_zero, cwBub_deg_zero S (by omega),
         id_whiskerRight, Category.id_comp, Iso.inv_hom_id]
     · intro a ha hne
       have ha' := Finset.mem_range.1 ha
-      rw [hS.cwBub_eq_zero (by omega), zero_whiskerRight, zero_comp, comp_zero, comp_zero]
+      rw [S.cwBubN_eq_zero (by omega), zero_whiskerRight, zero_comp, comp_zero, comp_zero]
   · rw [show N = 0 by omega, powComp_zero, id_whiskerRight, Category.comp_id]
-    exact hS.curlG_zero_wt hn'.symm
+    exact S.curlG_zero_wt hn'.symm
 
 /-- **The left cap for `n ≥ 0`** (Brundan, arXiv:1501.00350v1, (1.17)): the counit of the
 normalized left adjunction `R_n ⊣ E 1_n` is `-σ' ∘ (n dots) ∘ (right cap)`. -/
-theorem BBw.sideL_comp_capD {q : ℤ} (hn : 0 ≤ S.wt (q + 1)) :
-    hS.sideL q ≫ S.capD q (S.wt (q + 1)).toNat = -(hS.leftAdjN (q + 1)).counit := by
-  apply capTest_injective (hS.leftAdjN (q + 1))
-  have hneg : capTest (hS.leftAdjN (q + 1)) (-(hS.leftAdjN (q + 1)).counit) =
-      -capTest (hS.leftAdjN (q + 1)) (hS.leftAdjN (q + 1)).counit := by
-    have : (-(hS.leftAdjN (q + 1)).counit) ▷ S.grE (q + 1) =
-        -((hS.leftAdjN (q + 1)).counit ▷ S.grE (q + 1)) := by
+theorem sideL_comp_capD {q : ℤ} (hn : 0 ≤ S.wt (q + 1)) :
+    S.sideLN q ≫ S.capD q (S.wt (q + 1)).toNat = -(S.leftAdjN (q + 1)).counit := by
+  apply capTest_injective (S.leftAdjN (q + 1))
+  have hneg : capTest (S.leftAdjN (q + 1)) (-(S.leftAdjN (q + 1)).counit) =
+      -capTest (S.leftAdjN (q + 1)) (S.leftAdjN (q + 1)).counit := by
+    have : (-(S.leftAdjN (q + 1)).counit) ▷ S.grE (q + 1) =
+        -((S.leftAdjN (q + 1)).counit ▷ S.grE (q + 1)) := by
       refine eq_neg_of_add_eq_zero_left ?_
       rw [← GradedHomBicat.add_whiskerRight, neg_add_cancel, GradedHomBicat.zero_whiskerRight]
     simp only [capTest, this, Preadditive.neg_comp, Preadditive.comp_neg]
-  rw [hneg, capTest_counit, capTest, BBw.sideL_eq, sideL_cap_closed, capD,
-    ← curlG_comp_whiskerRight_cap, hS.curlG_tau_dots_top hn]
+  rw [hneg, capTest_counit, capTest, sideL_eq, sideL_cap_closed, capD,
+    ← curlG_comp_whiskerRight_cap, S.curlG_tau_dots_top hn]
 
 /-- The extended component `comp_{-1} = ∑_{g ≤ n} cap_{n-g} ∘ (fake ccw bubble of degree 2g)`. -/
-def BBw.compKe (q : ℤ) : S.grR q ≫ S.grE q ⟶ 𝟙 (of (S.obj (q + 1))) :=
+def compKe (q : ℤ) : S.grR q ≫ S.grE q ⟶ 𝟙 (of (S.obj (q + 1))) :=
   ∑ g ∈ Finset.range ((S.wt (q + 1)).toNat + 1),
-    S.capD q ((S.wt (q + 1)).toNat - g) ≫ hS.ccwL q (-S.wt (q + 1) - 1 + g)
+    S.capD q ((S.wt (q + 1)).toNat - g) ≫ S.ccwLN q (-S.wt (q + 1) - 1 + g)
 
 /-- `cup_k ≫ comp_{-1} = 0` for `k < n` (the Grassmannian relation in degree `k + 1 ≤ n`). -/
-theorem BBw.cupD_comp_compKe {q : ℤ} {j : ℕ} (hj : j < (S.wt (q + 1)).toNat) :
-    S.cupD (hS.leftAdjN q) j ≫ hS.compKe q = 0 := by
-  rw [BBw.compKe, Preadditive.comp_sum]
+theorem cupD_comp_compKe {q : ℤ} {j : ℕ} (hj : j < (S.wt (q + 1)).toNat) :
+    S.cupD (S.leftAdjN q) j ≫ S.compKe q = 0 := by
+  rw [compKe, Preadditive.comp_sum]
   set N := (S.wt (q + 1)).toNat with hN
   have hn1 : 1 ≤ S.wt (q + 1) := by omega
   have hNn : (N : ℤ) = S.wt (q + 1) := Int.toNat_of_nonneg (by omega)
-  have hterm : ∀ g, S.cupD (hS.leftAdjN q) j ≫ S.capD q (N - g) ≫
-      hS.ccwL q (-S.wt (q + 1) - 1 + g) =
-        hS.ccwL q (-S.wt (q + 1) - 1 + g) * End.of (S.cwBub (hS.leftAdjN q) (j + (N - g))) := by
+  have hterm : ∀ g, S.cupD (S.leftAdjN q) j ≫ S.capD q (N - g) ≫
+      S.ccwLN q (-S.wt (q + 1) - 1 + g) =
+        S.ccwLN q (-S.wt (q + 1) - 1 + g) * End.of (S.cwBub (S.leftAdjN q) (j + (N - g))) := by
     intro g
     rw [← Category.assoc, cupD_comp_capD]
     rfl
   simp only [hterm]
-  have hvan : ∀ g, j + (N - g) < N - 1 → S.cwBub (hS.leftAdjN q) (j + (N - g)) = 0 :=
-    fun g hg => hS.cwBub_eq_zero (by omega)
+  have hvan : ∀ g, j + (N - g) < N - 1 → S.cwBub (S.leftAdjN q) (j + (N - g)) = 0 :=
+    fun g hg => S.cwBubN_eq_zero (by omega)
   have hJN : j + 2 ≤ N + 1 := by omega
   rw [← Finset.sum_range_add_sum_Ico _ hJN, Finset.sum_eq_zero (s := Finset.Ico _ _)
     (fun g hg => by rw [hvan g (by have := Finset.mem_Ico.1 hg; omega), mul_zero]), add_zero]
-  have hG := hS.grassmannian_cw_ccw hn1 (K := j + 1) (by omega)
+  have hG := S.grassmannian_cw_ccw hn1 (K := j + 1) (by omega)
   rw [ite_eq_right (by omega), ← Finset.sum_range_reflect] at hG
   rw [← hG]
   refine Finset.sum_congr rfl fun g hg => ?_
   have hg' := Finset.mem_range.1 hg
   rw [show j + 1 + 1 - 1 - g = j + 1 - g by omega, show j + 1 - (j + 1 - g) = g by omega,
-    mul_comm, hS.cwL_eq_cwBub hn1, show j + (N - g) = N - 1 + (j + 1 - g) by omega]
+    mul_comm, S.cwL_eq_cwBub hn1, show j + (N - g) = N - 1 + (j + 1 - g) by omega]
 
 /-- **`σ ∘ (left cap)` for `n ≥ 0`**: `σ ≫ ε' = ∑_{g ≤ n} cap_{n-g} ∘ (ccw bubble of degree 2g)`. -/
-theorem BBw.grSigma_comp_leftCounit {q : ℤ} (hn : 0 ≤ S.wt (q + 1)) :
-    S.grSigma q ≫ (hS.leftAdjN (q + 1)).counit = hS.compKe q := by
+theorem grSigma_comp_leftCounit {q : ℤ} (hn : 0 ≤ S.wt (q + 1)) :
+    S.grSigma q ≫ (S.leftAdjN (q + 1)).counit = S.compKe q := by
   set N := (S.wt (q + 1)).toNat with hN
   have hNn : (N : ℤ) = S.wt (q + 1) := Int.toNat_of_nonneg hn
-  obtain ⟨h1, h2⟩ := hS.decompEF (q := q) hn
+  obtain ⟨h1, h2⟩ := S.decompEF (q := q) hn
   rw [← sub_eq_zero]
-  set X := S.grSigma q ≫ (hS.leftAdjN (q + 1)).counit - hS.compKe q with hX
+  set X := S.grSigma q ≫ (S.leftAdjN (q + 1)).counit - S.compKe q with hX
   -- σ' ≫ X = 0
-  have hσ'X : hS.sideL q ≫ X = 0 := by
-    have hc : hS.sideL q ≫ hS.compKe q = -(hS.leftAdjN (q + 1)).counit := by
-      rw [BBw.compKe, Preadditive.comp_sum, Finset.sum_range_succ', Finset.sum_eq_zero]
-      · rw [zero_add, Nat.sub_zero, ← Category.assoc, hS.sideL_comp_capD hn]
-        unfold BBw.ccwL
+  have hσ'X : S.sideLN q ≫ X = 0 := by
+    have hc : S.sideLN q ≫ S.compKe q = -(S.leftAdjN (q + 1)).counit := by
+      rw [compKe, Preadditive.comp_sum, Finset.sum_range_succ', Finset.sum_eq_zero]
+      · rw [zero_add, Nat.sub_zero, ← Category.assoc, S.sideL_comp_capD hn]
+        unfold ccwLN
         rw [ccwL_fake _ _ _ (i := 0) (by omega)]
         simp [grassInv_zero]
       · intro g hg
         have hg' := Finset.mem_range.1 hg
-        rw [← Category.assoc, hS.eq_zero_from_ER ((hS.isHomogeneous_sideL q).comp
+        rw [← Category.assoc, S.eq_zero_from_ER ((S.isHomogeneous_sideLN q).comp
           (S.isHomogeneous_capD q _) rfl) (by omega), zero_comp]
     rw [hX, Preadditive.comp_sub, ← Category.assoc, h1, hc]
     simp
   -- cup_k ≫ X = 0
-  have hcupX : ∀ j, j < N → S.cupD (hS.leftAdjN q) j ≫ X = 0 := by
+  have hcupX : ∀ j, j < N → S.cupD (S.leftAdjN q) j ≫ X = 0 := by
     intro j hj
-    rw [hX, Preadditive.comp_sub, ← Category.assoc, hS.cupD_comp_grSigma (by omega), zero_comp,
-      hS.cupD_comp_compKe hj, sub_zero]
+    rw [hX, Preadditive.comp_sub, ← Category.assoc, S.cupD_comp_grSigma (by omega), zero_comp,
+      S.cupD_comp_compKe hj, sub_zero]
   -- X = 0 by the decomposition of 1_{EF1_n}
   have : X = 𝟙 _ ≫ X := (Category.id_comp X).symm
   rw [this, ← h2, Preadditive.add_comp, Preadditive.sum_comp, Preadditive.neg_comp,
@@ -349,17 +349,17 @@ theorem BBw.grSigma_comp_leftCounit {q : ℤ} (hn : 0 ≤ S.wt (q + 1)) :
 
 /-- **The left curl relation for `n ≥ 0`** (KL III `curlL`, CL `eq_reduction-ngeqz`): the curl
 `curlE` on `E 1_{n-2}` is `∑_{g ≤ n} x^{n-g} · (ccw bubble of degree 2g)`. -/
-theorem BBw.curlE_eq {q : ℤ} (hn : 0 ≤ S.wt (q + 1)) :
-    curlE (S.grAdj (q + 1)) (hS.leftAdjN (q + 1)) (S.grCross q) =
+theorem curlE_eq {q : ℤ} (hn : 0 ≤ S.wt (q + 1)) :
+    curlE (S.grAdj (q + 1)) (S.leftAdjN (q + 1)) (S.grCross q) =
       ∑ g ∈ Finset.range ((S.wt (q + 1)).toNat + 1),
         powComp (S.grDotN q) ((S.wt (q + 1)).toNat - g) ≫
-          S.rightBub (hS.ccwL q (-S.wt (q + 1) - 1 + g)) := by
-  have h := hS.grSigma_comp_leftCounit hn
-  rw [grSigma_eq_mateEquiv, sigma_comp_counit, BBw.compKe, grAdj_counit] at h
-  have h' : S.grR q ◁ curlE (S.grAdj (q + 1)) (hS.leftAdjN (q + 1)) (S.grCross q) ≫
+          S.rightBub (S.ccwLN q (-S.wt (q + 1) - 1 + g)) := by
+  have h := S.grSigma_comp_leftCounit hn
+  rw [grSigma_eq_mateEquiv, sigma_comp_counit, compKe, grAdj_counit] at h
+  have h' : S.grR q ◁ curlE (S.grAdj (q + 1)) (S.leftAdjN (q + 1)) (S.grCross q) ≫
       S.grCounit q = S.grR q ◁ (∑ g ∈ Finset.range ((S.wt (q + 1)).toNat + 1),
         powComp (S.grDotN q) ((S.wt (q + 1)).toNat - g) ≫
-          S.rightBub (hS.ccwL q (-S.wt (q + 1) - 1 + g))) ≫ S.grCounit q := by
+          S.rightBub (S.ccwLN q (-S.wt (q + 1) - 1 + g))) ≫ S.grCounit q := by
     rw [h, GradedHomBicat.whiskerLeft_sum, Preadditive.sum_comp]
     refine Finset.sum_congr rfl fun g _ => ?_
     rw [Bicategory.whiskerLeft_comp, Category.assoc, capD, Category.assoc, rightBub,
@@ -376,38 +376,38 @@ theorem BBw.curlE_eq {q : ℤ} (hn : 0 ≤ S.wt (q + 1)) :
   exact hinj h'
 
 /-- **The left curl vanishes for `n < 0`** (by degrees). -/
-theorem BBw.curlE_eq_zero {q : ℤ} (hn : S.wt (q + 1) < 0) :
-    curlE (S.grAdj (q + 1)) (hS.leftAdjN (q + 1)) (S.grCross q) = 0 := by
+theorem curlE_eq_zero {q : ℤ} (hn : S.wt (q + 1) < 0) :
+    curlE (S.grAdj (q + 1)) (S.leftAdjN (q + 1)) (S.grCross q) = 0 := by
   rw [curlE_eq_curlEG, grAdj_unit, ← ccupD_zero q]
-  exact hS.curlEG_ccupD_eq_zero (by omega)
+  exact S.curlEG_ccupD_eq_zero (by omega)
 
 /-- **The right curl vanishes for `n > 0`** (by degrees). -/
-theorem BBw.curlG_eq_zero {q : ℤ} (hn : 0 < S.wt (q + 1)) :
-    curlG (hS.leftAdjN q).unit (S.grCounit q) (S.grCross q) = 0 := by
-  rw [← cupD_zero (hS.leftAdjN q)]
-  exact hS.curlG_cupD_eq_zero (by omega)
+theorem curlG_eq_zero {q : ℤ} (hn : 0 < S.wt (q + 1)) :
+    curlG (S.leftAdjN q).unit (S.grCounit q) (S.grCross q) = 0 := by
+  rw [← cupD_zero (S.leftAdjN q)]
+  exact S.curlG_cupD_eq_zero (by omega)
 
 /-- **The left curl with `-n` dots on the closed strand is `1`**, at every weight `n ≤ 0`. -/
-theorem BBw.curlEG_ccupD_self' {q : ℤ} (hn : S.wt (q + 1) ≤ 0) :
-    curlEG (S.ccupD q (-S.wt (q + 1)).toNat) (hS.leftAdjN (q + 1)).counit (S.grCross q) =
+theorem curlEG_ccupD_self' {q : ℤ} (hn : S.wt (q + 1) ≤ 0) :
+    curlEG (S.ccupD q (-S.wt (q + 1)).toNat) (S.leftAdjN (q + 1)).counit (S.grCross q) =
       𝟙 _ := by
   rcases lt_or_eq_of_le hn with hn' | hn'
-  · exact hS.curlEG_ccupD_self (by omega)
-  obtain ⟨h1, _⟩ := hS.decompFE (q := q) hn
+  · exact S.curlEG_ccupD_self (by omega)
+  obtain ⟨h1, _⟩ := S.decompFE (q := q) hn
   have hwq : S.wt q = -2 := by have := S.wt_add_one q; omega
-  have htr := capCupY_sigma_sideL (S.grAdj q) (hS.leftAdjN q) (S.grAdj (q + 1))
-    (hS.leftAdjN (q + 1)) (S.grCross q) (S.grDotN q)
+  have htr := capCupY_sigma_sideL (S.grAdj q) (S.leftAdjN q) (S.grAdj (q + 1))
+    (S.leftAdjN (q + 1)) (S.grCross q) (S.grDotN q)
   rw [← grSigma_eq_mateEquiv] at htr
-  change capCupY _ _ _ (S.grSigma q ≫ hS.sideL q) =
-    curlEG (S.grUnit (q + 1)) (hS.leftAdjN (q + 1)).counit _ at htr
+  change capCupY _ _ _ (S.grSigma q ≫ S.sideLN q) =
+    curlEG (S.grUnit (q + 1)) (S.leftAdjN (q + 1)).counit _ at htr
   have hτxτ : S.grCross q ≫ S.grDotN q ▷ S.grE (q + 1) ≫ S.grCross q = -S.grCross q := by
     have hs := S.grDotN_slide q
     have : S.grCross q ≫ S.grDotN q ▷ S.grE (q + 1) =
         S.grE q ◁ S.grDotN (q + 1) ≫ S.grCross q - 𝟙 _ := by rw [← hs]; abel
     rw [← Category.assoc, this, Preadditive.sub_comp, Category.assoc, S.grCross_sq,
       comp_zero, zero_sub, Category.id_comp]
-  have hbub : (S.grAdj q).unit ≫ S.grDotN q ▷ S.grR q ≫ (hS.leftAdjN q).counit = 𝟙 _ := by
-    have h := BBw.ccwBub_deg_zero hS (r := q) (by omega)
+  have hbub : (S.grAdj q).unit ≫ S.grDotN q ▷ S.grR q ≫ (S.leftAdjN q).counit = 𝟙 _ := by
+    have h := ccwBub_deg_zero S (r := q) (by omega)
     rw [show (-S.wt q).toNat - 1 = 1 by omega] at h
     simp only [ccwBub, powComp_succ, powComp_zero, Category.id_comp] at h
     exact h
@@ -419,85 +419,85 @@ theorem BBw.curlEG_ccupD_self' {q : ℤ} (hn : S.wt (q + 1) ≤ 0) :
 
 /-- **The left cup for `n ≤ 0`** (Brundan, arXiv:1501.00350v1, (1.18)): the unit of the normalized
 left adjunction `R_{n-2} ⊣ E 1_{n-2}` is `(right cup with -n dots) ∘ σ'`. -/
-theorem BBw.ccupD_comp_sideL_self {q : ℤ} (hn : S.wt (q + 1) ≤ 0) :
-    S.ccupD q (-S.wt (q + 1)).toNat ≫ hS.sideL q = (hS.leftAdjN q).unit := by
-  apply cupTest_injective (hS.leftAdjN q)
-  rw [cupTest_unit, BBw.sideL_eq, cupTest_sideL, hS.curlEG_ccupD_self' hn]
+theorem ccupD_comp_sideL_self {q : ℤ} (hn : S.wt (q + 1) ≤ 0) :
+    S.ccupD q (-S.wt (q + 1)).toNat ≫ S.sideLN q = (S.leftAdjN q).unit := by
+  apply cupTest_injective (S.leftAdjN q)
+  rw [cupTest_unit, sideL_eq, cupTest_sideL, S.curlEG_ccupD_self' hn]
 
 /-- The extended left-cup expression `∑_{g ≤ -n} (fake cw bubble of degree 2g) ∘ ccup_{-n-g}`. -/
-def BBw.cupKNe (q : ℤ) : 𝟙 (of (S.obj (q + 1))) ⟶ S.grE (q + 1) ≫ S.grR (q + 1) :=
+def cupKNe (q : ℤ) : 𝟙 (of (S.obj (q + 1))) ⟶ S.grE (q + 1) ≫ S.grR (q + 1) :=
   ∑ g ∈ Finset.range ((-S.wt (q + 1)).toNat + 1),
-    hS.cwL q (S.wt (q + 1) - 1 + g) ≫ S.ccupD q ((-S.wt (q + 1)).toNat - g)
+    S.cwLN q (S.wt (q + 1) - 1 + g) ≫ S.ccupD q ((-S.wt (q + 1)).toNat - g)
 
 /-- `ccup_{-n} ≫ ccomp_k = -(fake cw bubble of degree 2(-n-k))` for `k < -n`. -/
-theorem BBw.ccupD_self_comp_compKN {q : ℤ} {j : ℕ} (hj : j < (-S.wt (q + 1)).toNat) :
-    S.ccupD q (-S.wt (q + 1)).toNat ≫ hS.compKN q j =
-      -hS.cwL q (S.wt (q + 1) - 1 + ((-S.wt (q + 1)).toNat - j : ℕ)) := by
-  rw [BBw.compKN, Preadditive.comp_sum]
+theorem ccupD_self_comp_compKN {q : ℤ} {j : ℕ} (hj : j < (-S.wt (q + 1)).toNat) :
+    S.ccupD q (-S.wt (q + 1)).toNat ≫ S.compKN q j =
+      -S.cwLN q (S.wt (q + 1) - 1 + ((-S.wt (q + 1)).toNat - j : ℕ)) := by
+  rw [compKN, Preadditive.comp_sum]
   set N := (-S.wt (q + 1)).toNat with hN
   have hn1 : S.wt (q + 1) ≤ -1 := by omega
   have hNn : (N : ℤ) = -S.wt (q + 1) := Int.toNat_of_nonneg (by omega)
   set K := N - j with hK
   have hK1 : 1 ≤ K := by omega
-  have hterm : ∀ g, S.ccupD q N ≫ S.ccapD (hS.leftAdjN (q + 1)) (N - 1 - j - g) ≫
-      hS.cwL q (S.wt (q + 1) - 1 + g) =
-        hS.cwL q (S.wt (q + 1) - 1 + g) *
-          End.of (S.ccwBub (hS.leftAdjN (q + 1)) (N + (N - 1 - j - g))) := by
+  have hterm : ∀ g, S.ccupD q N ≫ S.ccapD (S.leftAdjN (q + 1)) (N - 1 - j - g) ≫
+      S.cwLN q (S.wt (q + 1) - 1 + g) =
+        S.cwLN q (S.wt (q + 1) - 1 + g) *
+          End.of (S.ccwBub (S.leftAdjN (q + 1)) (N + (N - 1 - j - g))) := by
     intro g
     rw [← Category.assoc, ccupD_comp_ccapD]
     rfl
   simp only [hterm]
-  have hG := hS.grassmannian_ccw_cw' hn1 (K := K) (by omega)
+  have hG := S.grassmannian_ccw_cw' hn1 (K := K) (by omega)
   rw [ite_eq_right (by omega), Finset.sum_range_succ'] at hG
   rw [← Finset.sum_range_reflect]
-  have hlast : hS.ccwL q (-S.wt (q + 1) - 1 + ((0 : ℕ) : ℤ)) = 1 := by
-    rw [hS.ccwL_eq_ccwBub hn1, Nat.add_zero, hS.ccwBub_deg_zero' hn1]
+  have hlast : S.ccwLN q (-S.wt (q + 1) - 1 + ((0 : ℕ) : ℤ)) = 1 := by
+    rw [S.ccwL_eq_ccwBub hn1, Nat.add_zero, S.ccwBub_deg_zero' hn1]
     rfl
   rw [hlast, one_mul, Nat.sub_zero] at hG
   rw [eq_neg_iff_add_eq_zero, ← hG]
   congr 1
   refine Finset.sum_congr rfl fun i hi => ?_
   have hi' := Finset.mem_range.1 hi
-  rw [hS.ccwL_eq_ccwBub hn1, mul_comm, show K - 1 - i = K - (i + 1) by omega,
+  rw [S.ccwL_eq_ccwBub hn1, mul_comm, show K - 1 - i = K - (i + 1) by omega,
     show N + (N - 1 - j - (K - (i + 1))) = N - 1 + (i + 1) by omega]
 
 /-- **`(left cup) ∘ σ` for `n ≤ 0`**: `η' ≫ σ = -∑_{g ≤ -n} (cw bubble of degree 2g) ∘ ccup_{-n-g}`. -/
-theorem BBw.leftUnit_comp_grSigma {q : ℤ} (hn : S.wt (q + 1) ≤ 0) :
-    (hS.leftAdjN q).unit ≫ S.grSigma q = -hS.cupKNe q := by
+theorem leftUnit_comp_grSigma {q : ℤ} (hn : S.wt (q + 1) ≤ 0) :
+    (S.leftAdjN q).unit ≫ S.grSigma q = -S.cupKNe q := by
   set N := (-S.wt (q + 1)).toNat with hN
   have hNn : (N : ℤ) = -S.wt (q + 1) := Int.toNat_of_nonneg (by omega)
-  obtain ⟨h1, h2⟩ := hS.decompFE (q := q) hn
-  have hcw0 : hS.cwL q (S.wt (q + 1) - 1 + ((0 : ℕ) : ℤ)) = 1 := by
-    unfold BBw.cwL
+  obtain ⟨h1, h2⟩ := S.decompFE (q := q) hn
+  have hcw0 : S.cwLN q (S.wt (q + 1) - 1 + ((0 : ℕ) : ℤ)) = 1 := by
+    unfold cwLN
     rw [cwL_fake _ _ _ (i := 0) (by omega)]
     simp [grassInv_zero]
   rw [← sub_eq_zero, sub_neg_eq_add]
-  set Y := (hS.leftAdjN q).unit ≫ S.grSigma q + hS.cupKNe q with hY
+  set Y := (S.leftAdjN q).unit ≫ S.grSigma q + S.cupKNe q with hY
   -- Y ≫ σ' = 0
-  have hYσ' : Y ≫ hS.sideL q = 0 := by
-    have hc : hS.cupKNe q ≫ hS.sideL q = (hS.leftAdjN q).unit := by
-      rw [BBw.cupKNe, Preadditive.sum_comp, Finset.sum_range_succ', Finset.sum_eq_zero]
-      · rw [zero_add, Nat.sub_zero, Category.assoc, hS.ccupD_comp_sideL_self hn, hcw0]
+  have hYσ' : Y ≫ S.sideLN q = 0 := by
+    have hc : S.cupKNe q ≫ S.sideLN q = (S.leftAdjN q).unit := by
+      rw [cupKNe, Preadditive.sum_comp, Finset.sum_range_succ', Finset.sum_eq_zero]
+      · rw [zero_add, Nat.sub_zero, Category.assoc, S.ccupD_comp_sideL_self hn, hcw0]
         exact Category.id_comp _
       · intro g hg
         have hg' := Finset.mem_range.1 hg
-        rw [Category.assoc, hS.ccupD_comp_sideL (by omega), comp_zero]
+        rw [Category.assoc, S.ccupD_comp_sideL (by omega), comp_zero]
     rw [hY, Preadditive.add_comp, Category.assoc, h1, hc]
     simp
   -- Y ≫ ccomp_k = 0
-  have hYc : ∀ j, j < N → Y ≫ hS.compKN q j = 0 := by
+  have hYc : ∀ j, j < N → Y ≫ S.compKN q j = 0 := by
     intro j hj
-    rw [hY, Preadditive.add_comp, Category.assoc, hS.grSigma_comp_compKN, comp_zero, zero_add,
-      BBw.cupKNe, Preadditive.sum_comp, Finset.sum_range_succ',
+    rw [hY, Preadditive.add_comp, Category.assoc, S.grSigma_comp_compKN, comp_zero, zero_add,
+      cupKNe, Preadditive.sum_comp, Finset.sum_range_succ',
       Finset.sum_eq_single_of_mem (N - 1 - j) (Finset.mem_range.2 (by omega))]
     · rw [Category.assoc, Category.assoc, show N - (N - 1 - j + 1) = j by omega,
-        hS.ccupD_comp_compKN hj hj, ite_eq_left rfl, Category.comp_id, Nat.sub_zero,
-        hS.ccupD_self_comp_compKN hj, hcw0, show N - 1 - j + 1 = N - j by omega]
+        S.ccupD_comp_compKN hj hj, ite_eq_left rfl, Category.comp_id, Nat.sub_zero,
+        S.ccupD_self_comp_compKN hj, hcw0, show N - 1 - j + 1 = N - j by omega]
       change _ + 𝟙 _ ≫ _ = _
       rw [Category.id_comp, add_neg_cancel]
     · intro g hg hne
       have hg' := Finset.mem_range.1 hg
-      rw [Category.assoc, hS.ccupD_comp_compKN hj (by omega), ite_eq_right (by omega),
+      rw [Category.assoc, S.ccupD_comp_compKN hj (by omega), ite_eq_right (by omega),
         comp_zero]
   have : Y = Y ≫ 𝟙 _ := (Category.comp_id Y).symm
   rw [this, ← h2, Preadditive.comp_add, Preadditive.comp_sum, Preadditive.comp_neg,
@@ -507,16 +507,16 @@ theorem BBw.leftUnit_comp_grSigma {q : ℤ} (hn : S.wt (q + 1) ≤ 0) :
 
 /-- **The right curl relation for `n ≤ 0`** (KL III `curlR`, CL `eq_reduction-nleqz`): the curl
 `curlG` on `E 1_n` is `-∑_{g ≤ -n} (cw bubble of degree 2g) · x^{-n-g}`. -/
-theorem BBw.curlG_eq {q : ℤ} (hn : S.wt (q + 1) ≤ 0) :
-    curlG (hS.leftAdjN q).unit (S.grCounit q) (S.grCross q) =
+theorem curlG_eq {q : ℤ} (hn : S.wt (q + 1) ≤ 0) :
+    curlG (S.leftAdjN q).unit (S.grCounit q) (S.grCross q) =
       -∑ g ∈ Finset.range ((-S.wt (q + 1)).toNat + 1),
-        S.leftBub (hS.cwL q (S.wt (q + 1) - 1 + g)) ≫
+        S.leftBub (S.cwLN q (S.wt (q + 1) - 1 + g)) ≫
           powComp (S.grDotN (q + 1)) ((-S.wt (q + 1)).toNat - g) := by
-  have h := hS.leftUnit_comp_grSigma hn
+  have h := S.leftUnit_comp_grSigma hn
   rw [grSigma_eq_mateEquiv] at h
-  have hc := closeR_unit_sigma (S.grAdj q) (S.grAdj (q + 1)) (hS.leftAdjN q).unit (S.grCross q)
+  have hc := closeR_unit_sigma (S.grAdj q) (S.grAdj (q + 1)) (S.leftAdjN q).unit (S.grCross q)
   rw [h, grAdj_counit] at hc
-  rw [← hc, BBw.cupKNe]
+  rw [← hc, cupKNe]
   have hlin : ∀ f g : 𝟙 (of (S.obj (q + 1))) ⟶ S.grE (q + 1) ≫ S.grR (q + 1),
       closeR (S.grAdj (q + 1)) (f + g) =
         closeR (S.grAdj (q + 1)) f + closeR (S.grAdj (q + 1)) g := by

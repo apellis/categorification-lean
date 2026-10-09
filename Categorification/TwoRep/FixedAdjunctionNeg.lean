@@ -15,8 +15,8 @@ For `n = wt r ≤ -2`, CL fix the scalar in the left adjunction `R_n ⊣ E 1_n`
 (`StrongSl2.leftAdj`) so that the counter-clockwise degree-zero bubble at the weight `n` (the unit
 of `E 1_n ⊣ R_n`, then `-n-1` dots on `E 1_n`, then the left cap, i.e. the counit of
 `R_n ⊣ E 1_n`; `StrongSl2.ccwBubble`) is the identity of `1_n`. This is possible because that
-bubble is nonzero, which is CL Corollary 3.7 for `n < 0` (`StrongSl2.BBw.isIso_bubbleN`)
-transported to the graded-Hom bicategory (`StrongSl2.BBw.botBubble_ne_zero`), and because the left
+bubble is nonzero, which is CL Corollary 3.7 for `n < 0` (`StrongSl2.isIso_bubbleN`)
+transported to the graded-Hom bicategory (`StrongSl2.botBubble_ne_zero`), and because the left
 cap is unique up to a scalar (`exists_eq_smul_leftAdj_counit`, CL Corollary 3.10). The left
 adjunctions of `E 1_m` for `m ≥ -1` are normalized by the clockwise bubbles instead
 (`FixedAdjunction.lean`); together the two normalizations fix every left adjunction, as in CL's
@@ -25,9 +25,9 @@ table in §4.1.
 ## Main declarations
 
 * `StrongSl2.ccwBubble`: the counter-clockwise degree-zero bubble of a left cap;
-* `StrongSl2.BBw.botBubble_ne_zero`: under (BB_w), the bubble built from the cap of a
+* `StrongSl2.botBubble_ne_zero`:, the bubble built from the cap of a
   decomposition datum of `F E 1_n` is nonzero;
-* `StrongSl2.BBw.exists_normalized_leftAdj_neg`: **CL (4.1) for `n < -1` under (BB_w)**.
+* `StrongSl2.exists_normalized_leftAdj_neg`: **CL (4.1) for `n < -1`**.
 -/
 
 noncomputable section
@@ -80,10 +80,10 @@ theorem isHomogeneous_capN {q : ℤ} (hn : S.wt (q + 1) ≤ -1) (e : S.FEDecomp 
       have : ((((-S.wt (q + 1)).toNat - 1 : ℕ) : ℤ)) = -S.wt (q + 1) - 1 := by omega
       rw [this]; simp only [wt] at hn ⊢; omega)
 
-/-- **The counter-clockwise degree-zero bubble of CL Corollary 3.7 is nonzero** under (BB_w): at
+/-- **The counter-clockwise degree-zero bubble of CL Corollary 3.7 is nonzero**: at
 the object `q + 1` of weight `n ≤ -2`, the unit of `E 1_n ⊣ R_n`, followed by `-n-1` dots on
 `E 1_n` and the cap of a decomposition datum of `F E 1_n`, is a nonzero endomorphism of `1_n`. -/
-theorem BBw.botBubble_ne_zero [∀ a b : B, IsIdempotentComplete (a ⟶ b)] (hS : S.BBw) {q : ℤ}
+theorem botBubble_ne_zero [∀ a b : B, IsIdempotentComplete (a ⟶ b)] {q : ℤ}
     (hn : S.wt (q + 1) ≤ -2) (h2 : ¬ IsZero (𝟙 (S.obj (q + 1)))) (e : S.FEDecomp q) :
     S.ccwBubble (S.capN e) ≠ 0 := by
   have hN : ((-S.wt (q + 1)).toNat : ℤ) = -S.wt (q + 1) := Int.toNat_of_nonneg (by omega)
@@ -127,7 +127,7 @@ theorem BBw.botBubble_ne_zero [∀ a b : B, IsIdempotentComplete (a ⟶ b)] (hS 
   have hMEF : (S.grUnit (q + 1) ≫ ρT.hom) ≫ incl₂ (πEF e) = 0 := by
     refine GradedHomBicat.eq_zero_of_isHomogeneous (k := k) (d := S.n₀ + 2 * (q + 1) + 1)
       (hηρ.comp (isHomogeneous_incl₂ _) (by ring)) ?_
-    have hyp : ∀ r', r' < q + 1 → S.AdjHyp r' := fun r' _ => hS.adjHyp r'
+    have hyp : ∀ r', r' < q + 1 → S.AdjHyp r' := fun r' _ => S.adjHyp r'
     rw [finrank_hom_shift_right k _ _ (b := -(S.n₀ + 2 * (q + 1) + 1)) (by ring),
       ← ((hyp q (by omega)).dimAdj S).left,
       finrank_hom_congr_left k (idShiftCompShiftIso (S.F q)
@@ -184,7 +184,7 @@ theorem BBw.botBubble_ne_zero [∀ a b : B, IsIdempotentComplete (a ⟶ b)] (hS 
       of₂_comp_of₂ _ _ (add_zero _), ShiftedHom.comp_mk₀, ShiftedHom.mk₀_comp]
     simp only [bubbleN, cupDotsN, Category.assoc]
     rfl
-  have hbI : IsIso (bubbleN e) := hS.isIso_bubbleN e (by omega)
+  have hbI : IsIso (bubbleN e) := S.isIso_bubbleN e (by omega)
   have hbI' : IsIso (of₂ (((N - 1 : ℕ) : ℤ) * 2) (bubbleN e)) := isIso_of₂ _ _
   have hc0 : (((S.rQ⁻¹ : kˣ) : k) ^ (N - 1)) ≠ 0 := pow_ne_zero _ (Units.ne_zero _)
   have key : S.ccwBubble (S.capN e) = (((S.rQ⁻¹ : kˣ) : k) ^ (N - 1)) •
@@ -199,24 +199,24 @@ theorem BBw.botBubble_ne_zero [∀ a b : B, IsIdempotentComplete (a ⟶ b)] (hS 
   have h1 := (smul_eq_zero.1 (key.symm.trans h0)).resolve_left hc0
   exact ha0 ((cancel_mono _).1 (h1.trans zero_comp.symm))
 
-/-- **CL (4.1) for `n < -1` under (BB_w)**: for every `E 1_n` with `n ≤ -2` there is a left
+/-- **CL (4.1) for `n < -1`**: for every `E 1_n` with `n ≤ -2` there is a left
 adjunction `R_n ⊣ E 1_n` (homogeneous unit and counit of degrees `-2n-2`, `2n+2`) whose
 counter-clockwise degree-zero bubble at the weight `n` is the identity. -/
-theorem BBw.exists_normalized_leftAdj_neg [∀ a b : B, IsIdempotentComplete (a ⟶ b)]
-    (hS : S.BBw) {r : ℤ} (hn : S.wt r ≤ -2) :
+theorem exists_normalized_leftAdj_neg [∀ a b : B, IsIdempotentComplete (a ⟶ b)]
+    {r : ℤ} (hn : S.wt r ≤ -2) :
     ∃ adj : S.grR r ⊣ S.grE r,
       IsHomogeneous adj.unit (-(2 * S.wt r + 2)) ∧
       IsHomogeneous adj.counit (2 * S.wt r + 2) ∧ S.ccwBubble adj.counit = 𝟙 _ := by
   obtain ⟨q, rfl⟩ : ∃ q, r = q + 1 := ⟨r - 1, by ring⟩
-  have h : S.AdjHyp (q + 1) := hS.adjHyp _
+  have h : S.AdjHyp (q + 1) := S.adjHyp _
   by_cases h2 : IsZero (𝟙 (S.obj (q + 1)))
   · have hz : IsZero (𝟙 (of (S.obj (q + 1)))) := (incl _).map_isZero h2
     exact ⟨S.leftAdj h, S.isHomogeneous_leftAdj_unit h, S.isHomogeneous_leftAdj_counit h,
       hz.eq_of_src _ _⟩
   obtain ⟨e⟩ := S.exists_FEDecomp (r := q) (by omega)
-  have hb := BBw.botBubble_ne_zero S hS hn h2 e
+  have hb := botBubble_ne_zero S hn h2 e
   have hend : finrank k (S.E (q + 1) ⟶ S.E (q + 1)) = 1 :=
-    S.lem1Neg_zero (r₁ := q + 1) (by omega) (fun r' _ => hS.adjHyp r') le_rfl (by omega) h2
+    S.lem1Neg_zero (r₁ := q + 1) (by omega) (fun r' _ => S.adjHyp r') le_rfl (by omega) h2
   obtain ⟨t, ht⟩ := S.exists_eq_smul_leftAdj_counit h hend (S.isHomogeneous_capN (by omega) e)
   have hdotN : IsHomogeneous (S.grDotN (q + 1)) 2 := (isHomogeneous_of₂ _ _).smul _
   have hbubH : IsHomogeneous (S.ccwBubble (S.leftAdj h).counit) 0 :=

@@ -445,6 +445,11 @@ import Categorification.TwoRep.Zigzag
 import Categorification.TwoRep.WordBounded
 import Categorification.TwoRep.NumericalAdjunction
 import Categorification.TwoRep.WordNumerics
+import Categorification.TwoRep.TorsionSeq
+import Categorification.TwoRep.WeightModuleRing
+import Categorification.TwoRep.NumericalTorsion
+import Categorification.TwoRep.BBwProof
+import Categorification.TwoRep.Prop39
 import Categorification.TwoRep.DotNondegNeg
 import Categorification.TwoRep.FixedAdjunctionNeg
 import Categorification.TwoRep.CyclicDot

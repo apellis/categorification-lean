@@ -167,6 +167,14 @@ theorem toShiftEnv_map₂_realize_map₂ {x y : 𝒳} {f g : x ⟶ y} (η : f �
       (shiftEnvIso (Q.map f)).hom ≫ Q.map₂ η ≫ (shiftEnvIso (Q.map g)).inv :=
   toShiftEnv_map₂_pre _
 
+/-- On 2-morphisms, `realize Q` is `Q` conjugated by the shift isomorphisms, read in the
+graded-Hom bicategory. -/
+theorem incl₂_realize_map₂ {x y : 𝒳} {f g : x ⟶ y} (η : f ⟶ g) :
+    incl₂ ((realize Q).map₂ η) =
+      (shiftIso₁ (bHom (Q.map f)) (Q.map f).sh).hom ≫ val₂ (Q.map₂ η) ≫
+        (shiftIso₁ (bHom (Q.map g)) (Q.map g).sh).inv :=
+  congrArg val₂ (toShiftEnv_map₂_realize_map₂ Q η)
+
 theorem toShiftEnv_map₂_injective {a b : B} {f g : a ⟶ b} {η θ : f ⟶ g}
     (h : (toShiftEnv k B).map₂ η = (toShiftEnv k B).map₂ θ) : η = θ := by
   rw [← toShiftEnvPre_map₂ (k := k) η, ← toShiftEnvPre_map₂ (k := k) θ, h]

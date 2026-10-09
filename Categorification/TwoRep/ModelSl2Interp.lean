@@ -10,7 +10,7 @@ import Categorification.Diagrams.KL3.Upward
 
 S. Cautis, A. D. Lauda, *Implicit structure in 2-representations of quantum groups*,
 arXiv:1111.1431v3, Theorem 5.5 for `g = sl₂` (with the dots normalized to `r_i = 1`, CL §2.6.1):
-a strong 2-representation of `sl₂` satisfying (BB_w) gives a 2-representation of `U(sl₂)`. Here, on
+a strong 2-representation of `sl₂` gives a 2-representation of `U(sl₂)`. Here, on
 hom categories: for outer regions `s₀`, `t₀` with `s₀ ≡ n₀ (mod 2)`, the `sl₂` model of
 `Categorification.TwoRep.ModelSl2` respects every relation of KL III's presentation
 `pres sl2RootDatum k` (Definition 3.1: the zigzags, cyclicity of dots and crossings, the nilHecke
@@ -51,7 +51,7 @@ variable {k : Type*} [Field k] {B : Type u} [Bicategory.{w, v} B]
 
 namespace StrongSl2
 
-variable {S : StrongSl2 k B} (hS : S.BBw)
+variable (S : StrongSl2 k B)
 
 attribute [local irreducible] KL3.Diagram.sh
 
@@ -91,22 +91,22 @@ own outer regions, is killed by the interpretation, as soon as its regions have 
 string. -/
 theorem relations_killed (i : (pres sl2RootDatum k).Rel)
     (hpar : ∃ q : ℤ, ((pres sl2RootDatum k).dom i).start = S.n₀ + 2 * q) :
-    (freeLift k (interp (genImg hS) ((pres sl2RootDatum k).dom i).start
+    (freeLift k (interp (genImg S) ((pres sl2RootDatum k).dom i).start
       ((pres sl2RootDatum k).dom i).endR).functor).map ((pres sl2RootDatum k).rel i) = 0 := by
   rcases i with (i | c | c) | r
   · exact i.elim
-  · change (freeLift k (interp (genImg hS) _ _).functor).map
+  · change (freeLift k (interp (genImg S) _ _).functor).map
       (LinDiagram.of (Pivotal.zigL (inv sl2RootDatum).toColourDuality c) - LinDiagram.of (𝟙 _)) = 0
     set_option backward.isDefEq.respectTransparency false in
     rw [Functor.map_sub, freeLift_map_of, freeLift_map_of, CategoryTheory.Functor.map_id]
     rw [sub_eq_zero]
-    exact zigL_eq hS c
-  · change (freeLift k (interp (genImg hS) _ _).functor).map
+    exact zigL_eq S c
+  · change (freeLift k (interp (genImg S) _ _).functor).map
       (LinDiagram.of (Pivotal.zigR (inv sl2RootDatum).toColourDuality c) - LinDiagram.of (𝟙 _)) = 0
     set_option backward.isDefEq.respectTransparency false in
     rw [Functor.map_sub, freeLift_map_of, freeLift_map_of, CategoryTheory.Functor.map_id]
     rw [sub_eq_zero]
-    exact zigR_eq hS c
+    exact zigR_eq S c
   · have hrel : (pres sl2RootDatum k).rel (Sum.inr r) = relation k r := rfl
     rw [hrel]
     rcases r with ⟨i, μ⟩ | ⟨i, μ⟩ | ⟨i, lam, α, h⟩ | ⟨i, lam, α, h⟩ | ⟨i, lam, h⟩ | ⟨i, lam, h⟩ |
@@ -115,70 +115,70 @@ theorem relations_killed (i : (pres sl2RootDatum k).Rel)
     · cases i
       set_option backward.isDefEq.respectTransparency false in
       rw [relation, Functor.map_sub, freeLift_map_of, freeLift_map_of, sub_eq_zero]
-      exact cycDotR hS μ
+      exact cycDotR S μ
     · cases i
       set_option backward.isDefEq.respectTransparency false in
       rw [relation, Functor.map_sub, freeLift_map_of, freeLift_map_of, sub_eq_zero]
-      exact cycDotL hS μ
+      exact cycDotL S μ
     · cases i
       set_option backward.isDefEq.respectTransparency false in
       rw [relation, freeLift_map_of]
-      exact cwReal_eq_zero hS hpar (by have h' := h; rw [ip_sl2] at h'; exact h')
+      exact cwReal_eq_zero S hpar (by have h' := h; rw [ip_sl2] at h'; exact h')
     · cases i
       set_option backward.isDefEq.respectTransparency false in
       rw [relation, freeLift_map_of]
-      exact ccwReal_eq_zero hS hpar (by have h' := h; rw [ip_sl2] at h'; exact h')
+      exact ccwReal_eq_zero S hpar (by have h' := h; rw [ip_sl2] at h'; exact h')
     · cases i
       set_option backward.isDefEq.respectTransparency false in
       rw [relation, Functor.map_sub, freeLift_map_of, freeLift_map_of,
         CategoryTheory.Functor.map_id, sub_eq_zero, ip_sl2]
-      exact cwReal_deg_zero hS hpar (by have h' := h; rw [ip_sl2] at h'; exact h')
+      exact cwReal_deg_zero S hpar (by have h' := h; rw [ip_sl2] at h'; exact h')
     · cases i
       set_option backward.isDefEq.respectTransparency false in
       rw [relation, Functor.map_sub, freeLift_map_of, freeLift_map_of,
         CategoryTheory.Functor.map_id, sub_eq_zero, ip_sl2]
-      exact ccwReal_deg_zero hS hpar (by have h' := h; rw [ip_sl2] at h'; exact h')
+      exact ccwReal_deg_zero S hpar (by have h' := h; rw [ip_sl2] at h'; exact h')
     · cases i
-      exact rel_curlR hS (par_sh_add (S := S) (up ()) hpar)
+      exact rel_curlR S (par_sh_add (S := S) (up ()) hpar)
     · cases i
-      exact rel_curlL hS (par_sh_add (S := S) (up ()) hpar)
+      exact rel_curlL S (par_sh_add (S := S) (up ()) hpar)
     · cases i
-      exact rel_decompEF hS (par_sh_add (S := S) (dn ()) (par_sh_add (S := S) (up ()) hpar))
+      exact rel_decompEF S (par_sh_add (S := S) (dn ()) (par_sh_add (S := S) (up ()) hpar))
     · cases i
-      exact rel_decompFE hS (par_sh_add (S := S) (up ()) (par_sh_add (S := S) (dn ()) hpar))
+      exact rel_decompFE S (par_sh_add (S := S) (up ()) (par_sh_add (S := S) (dn ()) hpar))
     · cases i; cases j
       set_option backward.isDefEq.respectTransparency false in
       rw [relation, Functor.map_sub, freeLift_map_of, freeLift_map_of, sub_eq_zero]
-      exact cycCrossR hS μ
+      exact cycCrossR S μ
     · cases i; cases j
       set_option backward.isDefEq.respectTransparency false in
       rw [relation, Functor.map_sub, freeLift_map_of, freeLift_map_of, sub_eq_zero]
-      exact cycCrossL hS μ
+      exact cycCrossL S μ
     · exact (h (Subsingleton.elim _ _)).elim
     · exact (h (Subsingleton.elim _ _)).elim
     · rcases r with c | ⟨c, d, h⟩ | c | ⟨c, d, h⟩ | c | ⟨c, d, h⟩ | ⟨c, d, e, h⟩ | ⟨c, d, h⟩
       · cases c
         set_option backward.isDefEq.respectTransparency false in
         rw [relation, KLR.Diagram.relation, upLin_of, freeLift_map_of]
-        exact klr_sqEq hS μ
+        exact klr_sqEq S μ
       · exact (h (Subsingleton.elim _ _)).elim
       · cases c
         set_option backward.isDefEq.respectTransparency false in
         rw [relation, KLR.Diagram.relation, upLin_sub, upLin_sub, upLin_of, upLin_of, upLin_of,
           Functor.map_sub, Functor.map_sub, freeLift_map_of, freeLift_map_of, freeLift_map_of]
-        exact klr_slideLEq hS μ
+        exact klr_slideLEq S μ
       · exact (h (Subsingleton.elim _ _)).elim
       · cases c
         set_option backward.isDefEq.respectTransparency false in
         rw [relation, KLR.Diagram.relation, upLin_sub, upLin_sub, upLin_of, upLin_of, upLin_of,
           Functor.map_sub, Functor.map_sub, freeLift_map_of, freeLift_map_of, freeLift_map_of]
-        exact klr_slideREq hS μ
+        exact klr_slideREq S μ
       · exact (h (Subsingleton.elim _ _)).elim
       · cases c; cases d; cases e
         set_option backward.isDefEq.respectTransparency false in
         rw [relation, KLR.Diagram.relation, upLin_sub, upLin_of, upLin_of,
           Functor.map_sub, freeLift_map_of, freeLift_map_of]
-        exact klr_braid hS μ
+        exact klr_braid S μ
       · exact (h (Subsingleton.elim _ _)).elim
 
 omit [GradedBicategory.ShiftCoherence B] [GradedBicategory.IsLinear B k]
@@ -199,12 +199,12 @@ CL's scalars `r_i = 1`): for outer regions `s₀`, `t₀` with `s₀ ≡ n₀ (m
 the free 2-category on the signature of `U` in the hom category `K^•(q t₀, q s₀)` of the
 graded-Hom bicategory descends to `U`. -/
 theorem respects_sl2 {s₀ : ℤ} (hs : ∃ q : ℤ, s₀ = S.n₀ + 2 * q) (t₀ : ℤ) :
-    (pres sl2RootDatum k).Respects (interp (genImg hS) s₀ t₀).functor :=
-  respects (genImg hS) (pres sl2RootDatum k) s₀ t₀
-    (fun i _ _ hw hc => relations_killed hS i (par_of_cond (S := S) hs hw hc))
+    (pres sl2RootDatum k).Respects (interp (genImg S) s₀ t₀).functor :=
+  respects (genImg S) (pres sl2RootDatum k) s₀ t₀
+    (fun i _ _ hw hc => relations_killed S i (par_of_cond (S := S) hs hw hc))
     (fun g => Signature.IsEven.odd_eq_false g)
 
-/-- **The 2-representation of `U(sl₂)` defined by a strong 2-representation satisfying (BB_w)**,
+/-- **The 2-representation of `U(sl₂)` defined by a strong 2-representation**,
 on hom categories (CL Theorem 5.5 for `g = sl₂`, with `r_i = 1`): for outer regions `s₀`, `t₀`
 with `s₀ ≡ n₀ (mod 2)`, the linear functor from the 2-morphisms of `U` between 1-morphisms
 `t₀ → s₀` (reading the regions from the right) to `K^•(q t₀, q s₀)`. -/
@@ -212,7 +212,7 @@ def interpU {s₀ : ℤ} (hs : ∃ q : ℤ, s₀ = S.n₀ + 2 * q) (t₀ : ℤ) 
     (pres sl2RootDatum k).Presented ⥤
       (S.model.lift.obj (fo (S := psig sl2RootDatum) t₀) ⟶
         S.model.lift.obj (fo (S := psig sl2RootDatum) s₀)) :=
-  (pres sl2RootDatum k).lift (respects_sl2 hS hs t₀)
+  (pres sl2RootDatum k).lift (respects_sl2 S hs t₀)
 
 end StrongSl2
 

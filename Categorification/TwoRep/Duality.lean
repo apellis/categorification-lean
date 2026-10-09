@@ -42,8 +42,7 @@ applying it to the dual.
 * `StrongSl2.dual : StrongSl2 k (Coop B)`;
 * `StrongSl2.dual_wt`, `isZero_dual_id_iff`, `finrank_dual_id_shift`;
 * `StrongSl2.dual_adjHyp_iff`, `StrongSl2.dual_adjHyp_neg_iff`, `StrongSl2.adjHyp_of_dual_gt`;
-* `StrongSl2.word_of_dual_word`: the words in `E`, `F` of `D(K)` are words of `K`, read backwards;
-* `StrongSl2.BBw.dual`: the hypothesis (BB_w) passes from `K` to `D(K)`.
+* `StrongSl2.word_of_dual_word`: the words in `E`, `F` of `D(K)` are words of `K`, read backwards.
 -/
 
 noncomputable section
@@ -411,7 +410,7 @@ theorem adjHyp_of_dual_gt {c : ℤ} (h : ∀ r, c < r → S.dual.AdjHyp r) (s : 
     (hs : s < -(c + 1)) : S.AdjHyp s :=
   (S.dual_adjHyp_neg_iff s).1 (h _ (by omega))
 
-/-! ## Words and the hypothesis (BB_w) under the duality -/
+/-! ## Words under the duality -/
 
 omit [GradedBicategory.IsLinear B k] in
 theorem word_Ec (s t : ℤ) (h : s + 1 = t) : S.Word s t (S.Ec s t h) := by
@@ -430,12 +429,6 @@ theorem word_of_dual_word {r s : ℤ} {X : S.dual.obj r ⟶ S.dual.obj s} (h : S
   | F r => exact S.word_Fc _ _ _
   | comp _ _ ihX ihY => exact .comp ihY ihX
 
-/-- **(BB_w) passes to the dual**: if (BB_w) holds for `K`, it holds for `D(K)`
-(`Hom'^d(X, Z) = Hom^d(Z, X)`, and words of `D(K)` are words of `K`). -/
-theorem BBw.dual {S : StrongSl2 k B} (h : S.BBw) : S.dual.BBw := by
-  intro r s X Z hX hZ
-  obtain ⟨N, hN⟩ := h (S.word_of_dual_word hZ) (S.word_of_dual_word hX)
-  exact ⟨N, fun d hd => (Coop.finrank_hom_shift k X.unop Z.unop d).trans (hN d hd)⟩
 
 end StrongSl2
 

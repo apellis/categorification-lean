@@ -7,15 +7,15 @@ import Categorification.TwoRep.WordNumerics
 import Categorification.TwoRep.AdjointWeightNegOne
 
 /-!
-# The lower half of Lemma 3.6 under (BB_w), by duality
+# The lower half of Lemma 3.6, by duality
 
 S. Cautis, A. D. Lauda, *Implicit structure in 2-representations of quantum groups*,
 arXiv:1111.1431v3, Lemma 3.6 (`lem:Xind`) for `n < -1`: the dot on the upward strand of
 `F E 1_n` induces an isomorphism on `-n-1` of the summands `1_n⟨k⟩` of `F E 1_n`.
 
 In the notation of `DotEntriesNeg.lean`, this is `DotNondegNeg e` for a decomposition datum
-`e : F E 1_n ≅ E F 1_n ⊕ ⊕_{j<-n} 1_n⟨-n-1-2j⟩`. We prove it under (BB_w) by applying the upper
-half (`BBw.dotNondeg`, for `n ≥ 2`) to the dual `D(K)` (`StrongSl2.dual`, in the bidual `Bᶜᵒᵒᵖ`):
+`e : F E 1_n ≅ E F 1_n ⊕ ⊕_{j<-n} 1_n⟨-n-1-2j⟩`. We prove it by applying the upper
+half (`dotNondeg`, for `n ≥ 2`) to the dual `D(K)` (`StrongSl2.dual`, in the bidual `Bᶜᵒᵒᵖ`):
 
 * `F E 1_n` in `K` is `E' F' 1_{-n}` in `D(K)`, and the dot on its `E`-strand is the dot of `D(K)`
   on the strand `E' 1_{-n-2}` (the whiskerings are exchanged by the duality);
@@ -36,10 +36,10 @@ transported back to the usual indexing by `StrongSl2.dotNondegNeg_of_c`.
 * `bsumLift`, `isoOfComponents`: a biproduct decomposition `X ≅ A ⊞ ⊕_j f j` from its components;
 * `BDecomp.ιs`, `πs`, `ιA`, `πA` and their relations, for any `X ≅ A ⊞ bsum f n`;
 * `StrongSl2.dualEFDecomp`, `StrongSl2.entry_dualEFDecomp`;
-* `StrongSl2.BBw.dotNondegNeg`: **CL Lemma 3.6 for `n < -1` under (BB_w)**;
-* `StrongSl2.BBw.isIso_bubbleN`: **CL Corollary 3.7 for `n < 0` under (BB_w)** (the
+* `StrongSl2.dotNondegNeg`: **CL Lemma 3.6 for `n < -1`**;
+* `StrongSl2.isIso_bubbleN`: **CL Corollary 3.7 for `n < 0`** (the
   counter-clockwise degree-zero bubble is an isomorphism);
-* `StrongSl2.BBw.isIso_zetaNeg`: CL Corollary 3.13 for `n ≤ 0` under (BB_w).
+* `StrongSl2.isIso_zetaNeg`: CL Corollary 3.13 for `n ≤ 0`.
 -/
 
 noncomputable section
@@ -439,9 +439,10 @@ theorem isIso_of_isZero_obj {s : ℤ} (hz : IsZero (𝟙 (S.obj s)))
 
 variable [∀ a b : B, HomFinite k (a ⟶ b)]
 
-/-- **The lower half of CL Lemma 3.6 under (BB_w), with free indices**: from the upper half
-(`BBw.dotNondeg`) for the dual. -/
-theorem BBw.dotNondegNegC_of_dual [∀ a b : B, IsIdempotentComplete (a ⟶ b)] (hS : S.BBw) :
+variable (S) in
+/-- **The lower half of CL Lemma 3.6, with free indices**: from the upper half
+(`dotNondeg`) for the dual. -/
+theorem dotNondegNegC_of_dual [∀ a b : B, IsIdempotentComplete (a ⟶ b)] :
     ∀ i : ℕ, i + 1 < (-S.wt (-(q + 1 + 1))).toNat → IsIso (entryNc ec i (i + 1)) := by
   intro a ha
   by_cases hz : IsZero (𝟙 (S.obj (-(q + 1 + 1))))
@@ -453,7 +454,7 @@ theorem BBw.dotNondegNegC_of_dual [∀ a b : B, IsIdempotentComplete (a ⟶ b)] 
   have h2 : ¬ IsZero (𝟙 (S.dual.obj (q + 1 + 1))) := by
     rwa [isZero_dual_id_iff]
   set N := (-S.wt (-(q + 1 + 1))).toNat with hN
-  have hD := BBw.dotNondeg hS.dual hn h2 (dualEFDecomp ec) (N - 2 - a)
+  have hD := dotNondeg S.dual hn h2 (dualEFDecomp ec) (N - 2 - a)
     (by rw [dual_wt_toNat]; omega)
   have hG := isIso_entryNc_of_dual ec (i := N - 2 - a) (by omega) hD
   have e1 : N - 1 - (N - 2 - a + 1) = a := by omega
@@ -461,27 +462,30 @@ theorem BBw.dotNondegNegC_of_dual [∀ a b : B, IsIdempotentComplete (a ⟶ b)] 
   rw [e1, e2] at hG
   exact hG
 
-/-- **CL Lemma 3.6 for `n < -1` under (BB_w)**: every decomposition datum of `F E 1_n`
+variable (S) in
+/-- **CL Lemma 3.6 for `n < -1`**: every decomposition datum of `F E 1_n`
 (`n ≤ 0`) has nondegenerate subdiagonal dot entries. -/
-theorem BBw.dotNondegNeg [∀ a b : B, IsIdempotentComplete (a ⟶ b)] (hS : S.BBw) {r : ℤ}
+theorem dotNondegNeg [∀ a b : B, IsIdempotentComplete (a ⟶ b)] {r : ℤ}
     (e : S.FEDecomp r) : DotNondegNeg e :=
   S.dotNondegNeg_of_c (s₀ := r) (s' := -(-(r + 3) + 1 + 1 + 1)) (s := -(-(r + 3) + 1 + 1))
     (t := -(-(r + 3) + 1)) (by omega) (by omega) (by omega)
-    (fun ec => BBw.dotNondegNegC_of_dual (q := -(r + 3)) ec hS) e
+    (fun ec => dotNondegNegC_of_dual S (q := -(r + 3)) ec) e
 
 variable [GradedBicategory.ShiftCoherence B] [∀ a b : B, IsIdempotentComplete (a ⟶ b)]
 
-/-- **CL Corollary 3.7 for `n < 0` under (BB_w)**: the counter-clockwise degree-zero bubble with
+variable (S) in
+/-- **CL Corollary 3.7 for `n < 0`**: the counter-clockwise degree-zero bubble with
 `-n-1` dots is an isomorphism. -/
-theorem BBw.isIso_bubbleN (hS : S.BBw) {r : ℤ} (e : S.FEDecomp r) (hn : S.wt (r + 1) < 0) :
+theorem isIso_bubbleN {r : ℤ} (e : S.FEDecomp r) (hn : S.wt (r + 1) < 0) :
     IsIso (bubbleN e) :=
-  cor_degz_bubbles_neg_of_dotNondeg e hn (fun r' _ => hS.adjHyp r') (hS.dotNondegNeg e)
+  cor_degz_bubbles_neg_of_dotNondeg e hn (fun r' _ => S.adjHyp r') (S.dotNondegNeg e)
 
-/-- **CL Corollary 3.13 for `n ≤ 0` under (BB_w)**: `ζ : E F 1_n ⊕ ⊕_{[-n]} 1_n → F E 1_n` is an
+variable (S) in
+/-- **CL Corollary 3.13 for `n ≤ 0`**: `ζ : E F 1_n ⊕ ⊕_{[-n]} 1_n → F E 1_n` is an
 isomorphism. -/
-theorem BBw.isIso_zetaNeg (hS : S.BBw) {r : ℤ} (e : S.FEDecomp r) (hn : S.wt (r + 1) ≤ 0) :
+theorem isIso_zetaNeg {r : ℤ} (e : S.FEDecomp r) (hn : S.wt (r + 1) ≤ 0) :
     IsIso (zetaNeg e) :=
-  isIso_zetaNeg_of_dotNondeg e hn (fun r' _ => hS.adjHyp r') (hS.dotNondegNeg e)
+  isIso_zetaNeg_of_dotNondeg e hn (fun r' _ => S.adjHyp r') (S.dotNondegNeg e)
 
 end StrongSl2
 

@@ -20,7 +20,7 @@ the statement is `conjugateEquiv B B x = (conjugateEquiv A A).symm x` for the do
 
 * `y` is homogeneous of degree `2` (`GradedHomBicat.isHomogeneous_conjugateEquiv`), so by
   Lemma 3.14 in degree `2` (`exists_decomp_deg_two` for `n ≥ 0`, from `lemMain_surjective`;
-  `BBw.exists_decomp_deg_two_neg` for `n ≤ -2`, from `lemMainNeg_surjective_of_dotNondeg` and the
+  `exists_decomp_deg_two_neg` for `n ≤ -2`, from `lemMainNeg_surjective_of_dotNondeg` and the
   lower half of Lemma 3.6) it is `bub(γ₀) + bub(γ₁) x` for bubbles `γ₀` of degree `2` and `γ₁`
   of degree `0` (CL (4.5));
 * closing `y x^m` into a bubble with the unit of `A` and the counit of `B` (clockwise, `n ≥ 0`)
@@ -43,8 +43,8 @@ normalization (4.1) for `n < -1`. The weight `n = -1` (CL's curl argument) is in
   `unit_whiskerLeft_rightBub_counit`, `unit_leftBub_whiskerRight_counit`;
 * `StrongSl2.grAdj`, `rightBub`, `leftBub`, `of₂_cisBubSh`, `of₂_cisBubRSh`, `of₂_dotsBub`,
   `of₂_dotsBubN`;
-* `StrongSl2.BBw.cyclic_dotN` (`n ≥ 0`), `StrongSl2.BBw.cyclic_dotN_neg` (`n ≤ -2`);
-* `StrongSl2.BBw.exists_cyclic_leftAdj`: **CL Lemma 4.1 under (BB_w) at every weight `n ≠ -1`**.
+* `StrongSl2.cyclic_dotN` (`n ≥ 0`), `StrongSl2.cyclic_dotN_neg` (`n ≤ -2`);
+* `StrongSl2.exists_cyclic_leftAdj`: **CL Lemma 4.1 at every weight `n ≠ -1`**.
 -/
 
 noncomputable section
@@ -331,7 +331,7 @@ theorem exists_decomp_deg_two [∀ a b : B, IsIdempotentComplete (a ⟶ b)] {q :
 for a left adjunction `R_n ⊣ E 1_n` normalized as in (4.1) (the clockwise degree-zero bubble at
 `n + 2` is the identity), the right mate of the (normalized) dot under `E 1_n ⊣ R_n` equals its
 left mate under `R_n ⊣ E 1_n`. -/
-theorem BBw.cyclic_dotN [∀ a b : B, IsIdempotentComplete (a ⟶ b)] (hS : S.BBw) {q : ℤ}
+theorem cyclic_dotN [∀ a b : B, IsIdempotentComplete (a ⟶ b)] {q : ℤ}
     (hn : 0 ≤ S.wt (q + 1)) (adjL : S.grR (q + 1) ⊣ S.grE (q + 1))
     (hu : IsHomogeneous adjL.unit (-(2 * S.wt (q + 1) + 2)))
     (hc : IsHomogeneous adjL.counit (2 * S.wt (q + 1) + 2))
@@ -353,7 +353,7 @@ theorem BBw.cyclic_dotN [∀ a b : B, IsIdempotentComplete (a ⟶ b)] (hS : S.BB
     isHomogeneous_conjugateEquiv adjL adjL hu (hc.of_eq (by ring))
       (isHomogeneous_conjugateEquiv _ _ (d := 0) (isHomogeneous_incl₂ _)
         ((isHomogeneous_incl₂ _).of_eq (by simp)) hdN)
-  obtain ⟨γ₀, γ₁, h0, h1, hdec⟩ := S.exists_decomp_deg_two hn (fun r' _ => hS.adjHyp r') hyH
+  obtain ⟨γ₀, γ₁, h0, h1, hdec⟩ := S.exists_decomp_deg_two hn (fun r' _ => S.adjHyp r') hyH
   set γ₁' := ((S.rQ : kˣ) : k) • γ₁ with hγ₁'
   have hdec' : conjugateEquiv adjL adjL (conjugateEquiv (S.grAdj (q + 1)) (S.grAdj (q + 1)) x) =
       S.rightBub γ₀ + S.rightBub γ₁' ≫ x := by
@@ -440,10 +440,10 @@ theorem of₂_dotsBubN (q : ℤ) (m : ℤ) (i : ℕ)
   rw [dotsBubN, ← of₂_comp_of₂ _ _ (by ring), of₂_cisBubRSh, GradedHomBicat.of₂_shPow]
   rfl
 
-/-- **CL Lemma 3.14 in degree 2 for `n ≤ -2`, in the graded-Hom bicategory**, under (BB_w): a
+/-- **CL Lemma 3.14 in degree 2 for `n ≤ -2`, in the graded-Hom bicategory**: a
 homogeneous degree-2 endomorphism of `E 1_n` is a bubble of degree 2 plus a bubble of degree 0
 times the dot, the bubbles placed on the left (eq. `eq:main2`). -/
-theorem BBw.exists_decomp_deg_two_neg [∀ a b : B, IsIdempotentComplete (a ⟶ b)] (hS : S.BBw)
+theorem exists_decomp_deg_two_neg [∀ a b : B, IsIdempotentComplete (a ⟶ b)]
     {q : ℤ} (hn : S.wt (q + 1) ≤ -2) {y : S.grE (q + 1) ⟶ S.grE (q + 1)}
     (hy : IsHomogeneous y 2) :
     ∃ γ₀ γ₁ : 𝟙 (of (S.obj (q + 1))) ⟶ 𝟙 (of (S.obj (q + 1))),
@@ -456,7 +456,7 @@ theorem BBw.exists_decomp_deg_two_neg [∀ a b : B, IsIdempotentComplete (a ⟶ 
         S.leftBub γ₀ + S.leftBub γ₁ ≫ S.grDot (q + 1)
   obtain ⟨e⟩ := S.exists_FEDecomp (r := q) (by omega)
   obtain ⟨f, hf⟩ := S.lemMainNeg_surjective_of_dotNondeg e (by omega)
-    (fun r' _ => hS.adjHyp r') (hS.dotNondegNeg e) (m := 2) (by omega) y₀
+    (fun r' _ => S.adjHyp r') (S.dotNondegNeg e) (m := 2) (by omega) y₀
   have hN : 2 ≤ (-S.wt (q + 1)).toNat := by omega
   rw [← hf, ΨN_apply, Finset.sum_eq_add (⟨0, by omega⟩ : Fin _) ⟨1, by omega⟩
       (by simp [Fin.ext_iff]) ?_ (fun h => absurd (Finset.mem_univ _) h)
@@ -477,11 +477,11 @@ theorem BBw.exists_decomp_deg_two_neg [∀ a b : B, IsIdempotentComplete (a ⟶ 
     rw [Subsingleton.elim (f i) 0]
     exact (S.dotsBubNLin q 2 i).map_zero
 
-/-- **CL Lemma 4.1 for `n ≤ -2`** (cyclicity of the dot, eq. (4.4)) under (BB_w): at a weight
+/-- **CL Lemma 4.1 for `n ≤ -2`** (cyclicity of the dot, eq. (4.4)): at a weight
 `n = wt (q + 1) ≤ -2`, for a left adjunction `R_n ⊣ E 1_n` normalized as in (4.1) (the
 counter-clockwise degree-zero bubble at `n` is the identity), the right mate of the
 (normalized) dot under `E 1_n ⊣ R_n` equals its left mate under `R_n ⊣ E 1_n`. -/
-theorem BBw.cyclic_dotN_neg [∀ a b : B, IsIdempotentComplete (a ⟶ b)] (hS : S.BBw) {q : ℤ}
+theorem cyclic_dotN_neg [∀ a b : B, IsIdempotentComplete (a ⟶ b)] {q : ℤ}
     (hn : S.wt (q + 1) ≤ -2) (adjL : S.grR (q + 1) ⊣ S.grE (q + 1))
     (hu : IsHomogeneous adjL.unit (-(2 * S.wt (q + 1) + 2)))
     (hc : IsHomogeneous adjL.counit (2 * S.wt (q + 1) + 2))
@@ -502,7 +502,7 @@ theorem BBw.cyclic_dotN_neg [∀ a b : B, IsIdempotentComplete (a ⟶ b)] (hS : 
     isHomogeneous_conjugateEquiv adjL adjL hu (hc.of_eq (by ring))
       (isHomogeneous_conjugateEquiv _ _ (d := 0) (isHomogeneous_incl₂ _)
         ((isHomogeneous_incl₂ _).of_eq (by simp)) hdN)
-  obtain ⟨γ₀, γ₁, h0, h1, hdec⟩ := BBw.exists_decomp_deg_two_neg S hS hn hyH
+  obtain ⟨γ₀, γ₁, h0, h1, hdec⟩ := exists_decomp_deg_two_neg S hn hyH
   set γ₁' := ((S.rQ : kˣ) : k) • γ₁ with hγ₁'
   have hdec' : conjugateEquiv adjL adjL (conjugateEquiv (S.grAdj (q + 1)) (S.grAdj (q + 1)) x) =
       S.leftBub γ₀ + S.leftBub γ₁' ≫ x := by
@@ -571,12 +571,12 @@ theorem cyclic_dot_of_cyclic_dotN {r : ℤ} (adjL : S.grR r ⊣ S.grE r)
     rw [grDotN, smul_smul, Units.mul_inv, one_smul]
   rw [e, conjugateEquiv_smul, conjugateEquiv_symm_smul, h]
 
-/-- **CL Lemma 4.1 under (BB_w), at every weight `n ≠ -1`**: there is a left adjunction
+/-- **CL Lemma 4.1, at every weight `n ≠ -1`**: there is a left adjunction
 `R_n ⊣ E 1_n` (homogeneous unit and counit of degrees `-2n-2`, `2n+2`), normalized as in CL
 (4.1) (the clockwise degree-zero bubble at `n + 2` is the identity if `n ≥ 0`, the
 counter-clockwise one at `n` if `n ≤ -2`), for which the downward dot is cyclic: the right mate
 of the dot under `E 1_n ⊣ R_n` equals its left mate under `R_n ⊣ E 1_n`. -/
-theorem BBw.exists_cyclic_leftAdj [∀ a b : B, IsIdempotentComplete (a ⟶ b)] (hS : S.BBw)
+theorem exists_cyclic_leftAdj [∀ a b : B, IsIdempotentComplete (a ⟶ b)]
     {r : ℤ} (hn : S.wt r ≠ -1) :
     ∃ adj : S.grR r ⊣ S.grE r,
       IsHomogeneous adj.unit (-(2 * S.wt r + 2)) ∧
@@ -587,13 +587,13 @@ theorem BBw.exists_cyclic_leftAdj [∀ a b : B, IsIdempotentComplete (a ⟶ b)] 
         (conjugateEquiv adj adj).symm (S.grDot r) := by
   obtain ⟨q, rfl⟩ : ∃ q, r = q + 1 := ⟨r - 1, by ring⟩
   rcases le_or_gt 0 (S.wt (q + 1)) with h0 | h0
-  · obtain ⟨adj, hu, hc, hb⟩ := BBw.exists_normalized_leftAdj hS (q := q)
+  · obtain ⟨adj, hu, hc, hb⟩ := exists_normalized_leftAdjN S (q := q)
       (by rw [S.wt_add_one]; omega)
     exact ⟨adj, hu, hc, fun _ => hb, fun h => absurd h (by omega),
-      S.cyclic_dot_of_cyclic_dotN adj (BBw.cyclic_dotN S hS h0 adj hu hc hb)⟩
-  · obtain ⟨adj, hu, hc, hb⟩ := BBw.exists_normalized_leftAdj_neg S hS (r := q + 1) (by omega)
+      S.cyclic_dot_of_cyclic_dotN adj (cyclic_dotN S h0 adj hu hc hb)⟩
+  · obtain ⟨adj, hu, hc, hb⟩ := exists_normalized_leftAdj_neg S (r := q + 1) (by omega)
     exact ⟨adj, hu, hc, fun h => absurd h (by omega), fun _ => hb,
-      S.cyclic_dot_of_cyclic_dotN adj (BBw.cyclic_dotN_neg S hS (by omega) adj hu hc hb)⟩
+      S.cyclic_dot_of_cyclic_dotN adj (cyclic_dotN_neg S (by omega) adj hu hc hb)⟩
 
 end StrongSl2
 

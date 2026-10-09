@@ -11,15 +11,15 @@ The curl relations of KL III's `U` (`curlR`, `curlL`; CL arXiv:1111.1431v3 §2.6
 `eq_reduction-ngeqz`, `eq_reduction-nleqz` and the display for `n = 0`, with `r_i = 1`) hold in the
 `sl₂` model of `Categorification.TwoRep.ModelSl2`, in every region of the right parity
 (`StrongSl2.rel_curlR`, `StrongSl2.rel_curlL`). They are the curl relations of CL §5.3 for the
-normalized left adjunctions (`BBw.curlG_eq`, `BBw.curlE_eq`, `BBw.curlG_eq_zero`,
-`BBw.curlE_eq_zero`), read through the interpretation:
+normalized left adjunctions (`curlG_eq`, `curlE_eq`, `curlG_eq_zero`,
+`curlE_eq_zero`), read through the interpretation:
 
 * the image of a curl diagram is a curl `curlG` / `curlEG` of the crossing (`img_curlR`,
   `img_curlL`), by the normal forms `curl_key`, `curlL_key`;
 * the images of linear combinations of diagrams from `1_λ` to itself form a ring homomorphism
   `bubHom` to `End(𝟙)`, which commutes with the infinite Grassmannian recursion
   (`map_grassInv`), so it sends KL III's fake bubbles to the fake bubbles of the model
-  (`bubHom_cwL`, `bubHom_ccwL`; `mcwL_eq`, `mccwL_eq` identify these with `BBw.cwL`, `BBw.ccwL`);
+  (`bubHom_cwL`, `bubHom_ccwL`; `mcwL_eq`, `mccwL_eq` identify these with `cwLN`, `ccwLN`);
 * bubbles placed next to a strand go to whiskered bubbles (`img_bubR`, `img_bubL`), by the image
   of a whiskered linear combination of diagrams (`BicatInterp.conj_freeLift_whisker`).
 
@@ -227,7 +227,7 @@ variable {k : Type*} [Field k] {B : Type u} [Bicategory.{w, v} B]
 
 namespace StrongSl2
 
-variable {S : StrongSl2 k B} (hS : S.BBw)
+variable (S : StrongSl2 k B)
 
 attribute [local irreducible] KL3.Diagram.sh
 
@@ -238,10 +238,10 @@ theorem img_curlR (lam : ℤ)
     (hc : Cond (S := psig sl2RootDatum) (sh sl2RootDatum (up ()) + lam) lam
       (ob sl2RootDatum lam [up ()])) :
     eqToHom (objI_pos _ _ hc).symm ≫
-        (interp (genImg hS) (sh sl2RootDatum (up ()) + lam) lam).functor.map
+        (interp (genImg S) (sh sl2RootDatum (up ()) + lam) lam).functor.map
           (KL3.Diagram.curlR sl2RootDatum () lam) ≫
         eqToHom (objI_pos _ _ hc) =
-      curlG (gAdjL hS (S.qi (sh sl2RootDatum (dn ()) + lam)) (S.qi lam) (S.qi_sh_false () lam)).unit
+      curlG (gAdjL S (S.qi (sh sl2RootDatum (dn ()) + lam)) (S.qi lam) (S.qi_sh_false () lam)).unit
         (S.gAdjE (S.qi (sh sl2RootDatum (dn ()) + lam)) (S.qi lam) (S.qi_sh_false () lam)).counit
         (S.gCross (S.qi (sh sl2RootDatum (dn ()) + lam)) (S.qi lam)
           (S.qi (sh sl2RootDatum (up ()) + lam)) (S.qi_sh_false () lam) (S.qi_sh_true () lam)) := by
@@ -283,7 +283,7 @@ theorem img_curlR (lam : ℤ)
         rq (S := psig sl2RootDatum) (sh sl2RootDatum (dn ()) + x) ⟶ rq x))
       (e' := FreeBicategory.Hom.of (⟨⟨up (), x⟩, rfl, rfl⟩ :
         rq (S := psig sl2RootDatum) x ⟶ rq (sh sl2RootDatum (up ()) + x)))
-      (gAdjL hS (S.qi (sh sl2RootDatum (dn ()) + x)) (S.qi x) (S.qi_sh_false () x)).unit
+      (gAdjL S (S.qi (sh sl2RootDatum (dn ()) + x)) (S.qi x) (S.qi_sh_false () x)).unit
       (S.gAdjE (S.qi (sh sl2RootDatum (dn ()) + x)) (S.qi x) (S.qi_sh_false () x)).counit
       (S.gCross (S.qi (sh sl2RootDatum (dn ()) + x)) (S.qi x)
         (S.qi (sh sl2RootDatum (up ()) + x)) (S.qi_sh_false () x) (S.qi_sh_true () x))
@@ -297,16 +297,16 @@ theorem img_curlR (lam : ℤ)
       simp only [Iso.refl_inv, PrelaxFunctor.map₂_id, Category.id_comp, eqToIso.hom,
         lift_map₂_eqToHom]
       erw [eqToHom_refl, Category.comp_id]
-      exact genImg_cup_true hS () _ _ _ _ _ _ _
+      exact genImg_cup_true S () _ _ _ _ _ _ _
     case hd2 | hc2 =>
       exact comp_of_congr hx rfl (congrArg (Col.mk (up ())) hx)
     case hg2 =>
       simp only [eqToIso.inv, eqToIso.hom, lift_map₂_eqToHom]
-      exact gCross_congr _ _ _ _ (congrArg S.qi hx) _ _ _ _ _ _
+      exact S.gCross_congr _ _ _ _ (congrArg S.qi hx) _ _ _ _ _ _
     case hg3 =>
       simp only [Iso.refl_inv, Iso.refl_hom, PrelaxFunctor.map₂_id, Category.id_comp,
         Category.comp_id]
-      exact genImg_cap_false hS () _ _ _ _ _ _ _
+      exact genImg_cap_false S () _ _ _ _ _ _ _
     case fin =>
       simp only [PrelaxFunctor.map₂_id, Category.id_comp, Category.comp_id]
   all_goals simp [Layer.cod, Layer.dom, ob, inv_dual, Letter.dual, hx, sig0_dom_cross',
@@ -322,31 +322,31 @@ homomorphism to the endomorphisms of `𝟙` at the object of `λ`. -/
 def bubHom (lam : ℤ) : LEnd sl2RootDatum k (ob sl2RootDatum lam []) →+*
     End (𝟙 (of (S.obj (S.qi lam)))) where
   toFun f := (eqToHom (objI_pos _ _ (cond_nil lam)).symm ≫
-    (freeLift k (interp (genImg hS) lam lam).functor).map f ≫
+    (freeLift k (interp (genImg S) lam lam).functor).map f ≫
       eqToHom (objI_pos _ _ (cond_nil lam)) : _)
   map_one' := by
-    change eqToHom _ ≫ (freeLift k (interp (genImg hS) lam lam).functor).map (𝟙 _) ≫
+    change eqToHom _ ≫ (freeLift k (interp (genImg S) lam lam).functor).map (𝟙 _) ≫
       eqToHom _ = 𝟙 _
     set_option backward.isDefEq.respectTransparency false in
     rw [CategoryTheory.Functor.map_id]
     set_option backward.isDefEq.respectTransparency false in
     simp [Preadditive.add_comp, Preadditive.comp_add]
   map_mul' f g := by
-    change eqToHom _ ≫ (freeLift k (interp (genImg hS) lam lam).functor).map (g ≫ f) ≫
+    change eqToHom _ ≫ (freeLift k (interp (genImg S) lam lam).functor).map (g ≫ f) ≫
       eqToHom _ = (eqToHom _ ≫ _ ≫ eqToHom _) ≫ (eqToHom _ ≫ _ ≫ eqToHom _)
     set_option backward.isDefEq.respectTransparency false in
     rw [CategoryTheory.Functor.map_comp]
     set_option backward.isDefEq.respectTransparency false in
     simp [Preadditive.add_comp, Preadditive.comp_add]
   map_zero' := by
-    change eqToHom _ ≫ (freeLift k (interp (genImg hS) lam lam).functor).map 0 ≫
+    change eqToHom _ ≫ (freeLift k (interp (genImg S) lam lam).functor).map 0 ≫
       eqToHom _ = 0
     set_option backward.isDefEq.respectTransparency false in
     rw [Functor.map_zero]
     set_option backward.isDefEq.respectTransparency false in
     simp [Preadditive.add_comp, Preadditive.comp_add]
   map_add' f g := by
-    change eqToHom _ ≫ (freeLift k (interp (genImg hS) lam lam).functor).map (f + g) ≫
+    change eqToHom _ ≫ (freeLift k (interp (genImg S) lam lam).functor).map (f + g) ≫
       eqToHom _ = (eqToHom _ ≫ _ ≫ eqToHom _) + (eqToHom _ ≫ _ ≫ eqToHom _)
     set_option backward.isDefEq.respectTransparency false in
     rw [Functor.map_add]
@@ -354,8 +354,8 @@ def bubHom (lam : ℤ) : LEnd sl2RootDatum k (ob sl2RootDatum lam []) →+*
     simp [Preadditive.add_comp, Preadditive.comp_add]
 
 theorem bubHom_apply (lam : ℤ) (f : LEnd sl2RootDatum k (ob sl2RootDatum lam [])) :
-    bubHom hS lam f = (eqToHom (objI_pos _ _ (cond_nil lam)).symm ≫
-      (freeLift k (interp (genImg hS) lam lam).functor).map f ≫
+    bubHom S lam f = (eqToHom (objI_pos _ _ (cond_nil lam)).symm ≫
+      (freeLift k (interp (genImg S) lam lam).functor).map f ≫
         eqToHom (objI_pos _ _ (cond_nil lam)) : _) := rfl
 
 omit [GradedBicategory.ShiftCoherence B] [GradedBicategory.IsLinear B k]
@@ -379,67 +379,67 @@ theorem map_grassInv {A A' : Type*} [Ring A] [Ring A'] (φ : A →+* A') (c : �
       rw [map_mul, ih _ (by omega)]
 
 theorem bubHom_cwReal (lam : ℤ) (j : ℕ) :
-    bubHom hS lam (LinDiagram.of (cwReal sl2RootDatum lam () j)) =
-      (gAdjL hS (S.qi (sh sl2RootDatum (dn ()) + lam)) (S.qi lam) (S.qi_sh_false () lam)).unit ≫
-        powComp (gDotR hS (S.qi (sh sl2RootDatum (dn ()) + lam)) (S.qi lam)
+    bubHom S lam (LinDiagram.of (cwReal sl2RootDatum lam () j)) =
+      (gAdjL S (S.qi (sh sl2RootDatum (dn ()) + lam)) (S.qi lam) (S.qi_sh_false () lam)).unit ≫
+        powComp (gDotR S (S.qi (sh sl2RootDatum (dn ()) + lam)) (S.qi lam)
           (S.qi_sh_false () lam)) j ▷ S.gEc (S.qi (sh sl2RootDatum (dn ()) + lam)) (S.qi lam)
             (S.qi_sh_false () lam) ≫
         (S.gAdjE (S.qi (sh sl2RootDatum (dn ()) + lam)) (S.qi lam)
           (S.qi_sh_false () lam)).counit := by
   set_option backward.isDefEq.respectTransparency false in
   rw [bubHom_apply, freeLift_map_of]
-  exact img_cwReal hS lam j
+  exact img_cwReal S lam j
 
 theorem bubHom_ccwReal (lam : ℤ) (j : ℕ) :
-    bubHom hS lam (LinDiagram.of (ccwReal sl2RootDatum lam () j)) =
+    bubHom S lam (LinDiagram.of (ccwReal sl2RootDatum lam () j)) =
       (S.gAdjE (S.qi lam) (S.qi (sh sl2RootDatum (up ()) + lam)) (S.qi_sh_true () lam)).unit ≫
         powComp (S.gDot (S.qi lam) (S.qi (sh sl2RootDatum (up ()) + lam))
           (S.qi_sh_true () lam)) j ▷ S.gRc (S.qi lam) (S.qi (sh sl2RootDatum (up ()) + lam))
             (S.qi_sh_true () lam) ≫
-        (gAdjL hS (S.qi lam) (S.qi (sh sl2RootDatum (up ()) + lam))
+        (gAdjL S (S.qi lam) (S.qi (sh sl2RootDatum (up ()) + lam))
           (S.qi_sh_true () lam)).counit := by
   set_option backward.isDefEq.respectTransparency false in
   rw [bubHom_apply, freeLift_map_of]
-  exact img_ccwReal hS lam j
+  exact img_ccwReal S lam j
 
 /-- The clockwise bubble with `j` dots of the model, between the objects `a`, `b = a + 1`. -/
 def mcw (a b : ℤ) (h : a + 1 = b) (j : ℕ) : End (𝟙 (of (S.obj b))) :=
-  (gAdjL hS a b h).unit ≫ powComp (gDotR hS a b h) j ▷ S.gEc a b h ≫ (S.gAdjE a b h).counit
+  (gAdjL S a b h).unit ≫ powComp (gDotR S a b h) j ▷ S.gEc a b h ≫ (S.gAdjE a b h).counit
 
 /-- The counter-clockwise bubble with `j` dots of the model, between the objects `b`,
 `c = b + 1`. -/
 def mccw (b c : ℤ) (h : b + 1 = c) (j : ℕ) : End (𝟙 (of (S.obj b))) :=
-  (S.gAdjE b c h).unit ≫ powComp (S.gDot b c h) j ▷ S.gRc b c h ≫ (gAdjL hS b c h).counit
+  (S.gAdjE b c h).unit ≫ powComp (S.gDot b c h) j ▷ S.gRc b c h ≫ (gAdjL S b c h).counit
 
 /-- The clockwise bubble with label `m ∈ ℤ` of the model at the object `b` of weight `n`. -/
 def mcwL (a b c : ℤ) (h : a + 1 = b) (h' : b + 1 = c) (n m : ℤ) : End (𝟙 (of (S.obj b))) :=
-  if 0 ≤ m then mcw hS a b h m.toNat
+  if 0 ≤ m then mcw S a b h m.toNat
   else if 0 ≤ m + 1 - n then
     Categorification.TwoRep.grassInv
-      (fun x => if 0 ≤ -n - 1 + (x : ℤ) then mccw hS b c h' (-n - 1 + (x : ℤ)).toNat else 0)
+      (fun x => if 0 ≤ -n - 1 + (x : ℤ) then mccw S b c h' (-n - 1 + (x : ℤ)).toNat else 0)
       (m + 1 - n).toNat
   else 0
 
 theorem mcwL_eq (a m : ℤ) :
-    mcwL hS a (a + 1) (a + 1 + 1) rfl rfl (S.wt (a + 1)) m = hS.cwL a m := by
+    mcwL S a (a + 1) (a + 1 + 1) rfl rfl (S.wt (a + 1)) m = S.cwLN a m := by
   unfold mcwL mcw mccw
   simp only [cwImg_eq, ccwImg_eq, StrongSl2.cwL, StrongSl2.ccwR]
 
 theorem bubHom_cwL (lam m : ℤ) :
-    bubHom hS lam (KL3.Diagram.cwL sl2RootDatum k lam () m) =
-      mcwL hS (S.qi (sh sl2RootDatum (dn ()) + lam)) (S.qi lam)
+    bubHom S lam (KL3.Diagram.cwL sl2RootDatum k lam () m) =
+      mcwL S (S.qi (sh sl2RootDatum (dn ()) + lam)) (S.qi lam)
         (S.qi (sh sl2RootDatum (up ()) + lam)) (S.qi_sh_false () lam) (S.qi_sh_true () lam)
         lam m := by
   unfold KL3.Diagram.cwL mcwL
   simp only [ip_sl2]
   split_ifs with h1 h2
-  · exact bubHom_cwReal hS lam _
+  · exact bubHom_cwReal S lam _
   · rw [map_grassInv]
     congr 1
     funext x
     unfold KL3.Diagram.ccwR
     split_ifs
-    · exact bubHom_ccwReal hS lam _
+    · exact bubHom_ccwReal S lam _
     · exact map_zero _
   · exact map_zero _
 
@@ -467,11 +467,11 @@ theorem img_bubR (lam : ℤ)
       (ob sl2RootDatum lam [up ()]))
     (b : LEnd sl2RootDatum k (ob sl2RootDatum lam [])) :
     eqToHom (objI_pos _ _ hc).symm ≫
-        (freeLift k (interp (genImg hS) (sh sl2RootDatum (up ()) + lam) lam).functor).map
+        (freeLift k (interp (genImg S) (sh sl2RootDatum (up ()) + lam) lam).functor).map
           (bubR sl2RootDatum k lam [up ()] b) ≫
         eqToHom (objI_pos _ _ hc) =
       (λ_ (S.gEc (S.qi lam) (S.qi (sh sl2RootDatum (up ()) + lam)) (S.qi_sh_true () lam))).inv ≫
-        bubHom hS lam b ▷
+        bubHom S lam b ▷
           S.gEc (S.qi lam) (S.qi (sh sl2RootDatum (up ()) + lam)) (S.qi_sh_true () lam) ≫
         (λ_ (S.gEc (S.qi lam) (S.qi (sh sl2RootDatum (up ()) + lam))
           (S.qi_sh_true () lam))).hom := by
@@ -483,7 +483,7 @@ theorem img_bubR (lam : ℤ)
       ((psig sl2RootDatum).endR lam [])
       ((ob sl2RootDatum lam []).whisker (ob sl2RootDatum lam [up ()]) []) :=
     (cond_nil lam).whisker hu rfl trivial
-  have key := conj_freeLift_whisker (genImg hS) (s := lam) (t := lam) (v := []) hu rfl trivial hw
+  have key := conj_freeLift_whisker (genImg S) (s := lam) (t := lam) (v := []) hu rfl trivial hw
     (cond_nil lam) (cond_nil lam) hwa hwa b
   unfold bubR
   set_option backward.isDefEq.respectTransparency false in
@@ -505,7 +505,7 @@ theorem img_dotUp (lam : ℤ)
     (hc : Cond (S := psig sl2RootDatum) (sh sl2RootDatum (up ()) + lam) lam
       (ob sl2RootDatum lam [up ()])) :
     eqToHom (objI_pos _ _ hc).symm ≫
-        (interp (genImg hS) (sh sl2RootDatum (up ()) + lam) lam).functor.map
+        (interp (genImg S) (sh sl2RootDatum (up ()) + lam) lam).functor.map
           (mkD sl2RootDatum lam [([], .dot (up ()), [])] ⟨rfl, rfl⟩) ≫
         eqToHom (objI_pos _ _ hc) =
       S.gDot (S.qi lam) (S.qi (sh sl2RootDatum (up ()) + lam)) (S.qi_sh_true () lam) := by
@@ -531,7 +531,7 @@ theorem img_dotUp (lam : ℤ)
       rw [layerAt_whole]
       simp only [lift_map₂_eqToHom, eqToHom_refl, PrelaxFunctor.map₂_id, Category.id_comp,
         Category.comp_id]
-      erw [genImg_dot_true hS]
+      erw [genImg_dot_true S]
       rfl
     case e => rfl
     case e' => rfl
@@ -540,23 +540,23 @@ theorem img_dotUp (lam : ℤ)
 /-- The right curl relation at the level of the model (CL `eq_reduction-*`, KL III `curlR`, with
 `r_i = 1`), for the objects `a`, `b = a + 1`, `c = b + 1`, `b` of weight `n`. -/
 theorem curlG_model (a b c : ℤ) (h : a + 1 = b) (h' : b + 1 = c) (n : ℤ) (hn : S.wt b = n) :
-    curlG (gAdjL hS a b h).unit (S.gAdjE a b h).counit (S.gCross a b c h h') =
+    curlG (gAdjL S a b h).unit (S.gAdjE a b h).counit (S.gCross a b c h h') =
       -∑ f ∈ Finset.range (-n + 1).toNat,
-        ((λ_ (S.gEc b c h')).inv ≫ mcwL hS a b c h h' n (n - 1 + f) ▷ S.gEc b c h' ≫
+        ((λ_ (S.gEc b c h')).inv ≫ mcwL S a b c h h' n (n - 1 + f) ▷ S.gEc b c h' ≫
           (λ_ (S.gEc b c h')).hom) ≫ powComp (S.gDot b c h') (-n - f).toNat := by
   subst h h' hn
   simp only [mcwL_eq]
   dsimp only [gAdjL_rfl, gAdjE_rfl, gCross_rfl, gEc_rfl, gDot_rfl]
   rw [grAdj_counit]
   rcases le_or_gt (S.wt (a + 1)) 0 with hn | hn
-  · refine (hS.curlG_eq hn).trans ?_
+  · refine (S.curlG_eq hn).trans ?_
     rw [show (-S.wt (a + 1) + 1).toNat = (-S.wt (a + 1)).toNat + 1 by omega]
     congr 1
     refine Finset.sum_congr rfl fun f hf => ?_
     rw [Finset.mem_range] at hf
     rw [show (-S.wt (a + 1) - f).toNat = (-S.wt (a + 1)).toNat - f by omega]
     rfl
-  · refine (hS.curlG_eq_zero hn).trans ?_
+  · refine (S.curlG_eq_zero hn).trans ?_
     rw [show (-S.wt (a + 1) + 1).toNat = 0 by omega, Finset.range_zero]
     exact (neg_eq_zero.2 Finset.sum_empty).symm
 
@@ -569,13 +569,13 @@ theorem cond_up (lam : ℤ) :
 /-- The image of a term of the right-hand side of the right curl relation. -/
 theorem img_curlRHS_term (lam : ℤ) (f : ℕ) :
     eqToHom (objI_pos _ _ (cond_up lam)).symm ≫
-        (freeLift k (interp (genImg hS) (sh sl2RootDatum (up ()) + lam) lam).functor).map
+        (freeLift k (interp (genImg S) (sh sl2RootDatum (up ()) + lam) lam).functor).map
           (bubR sl2RootDatum k lam [up ()]
               (KL3.Diagram.cwL sl2RootDatum k lam () (ip sl2RootDatum () lam - 1 + f)) ≫
             LinDiagram.of (dots sl2RootDatum lam [] (up ()) [] (-ip sl2RootDatum () lam - f).toNat)) ≫
         eqToHom (objI_pos _ _ (cond_up lam)) =
       ((λ_ (S.gEc (S.qi lam) (S.qi (sh sl2RootDatum (up ()) + lam)) (S.qi_sh_true () lam))).inv ≫
-        mcwL hS (S.qi (sh sl2RootDatum (dn ()) + lam)) (S.qi lam)
+        mcwL S (S.qi (sh sl2RootDatum (dn ()) + lam)) (S.qi lam)
           (S.qi (sh sl2RootDatum (up ()) + lam)) (S.qi_sh_false () lam) (S.qi_sh_true () lam)
           lam (lam - 1 + f) ▷
           S.gEc (S.qi lam) (S.qi (sh sl2RootDatum (up ()) + lam)) (S.qi_sh_true () lam) ≫
@@ -585,15 +585,15 @@ theorem img_curlRHS_term (lam : ℤ) (f : ℕ) :
           (-lam - f).toNat := by
   set_option backward.isDefEq.respectTransparency false in
   rw [CategoryTheory.Functor.map_comp, conj_comp_conj (objI_pos _ _ (cond_up lam))
-      (objI_pos _ _ (cond_up lam)) (objI_pos _ _ (cond_up lam)), img_bubR hS lam (cond_up lam),
+      (objI_pos _ _ (cond_up lam)) (objI_pos _ _ (cond_up lam)), img_bubR S lam (cond_up lam),
     bubHom_cwL,
     freeLift_map_of, ip_sl2]
-  erw [img_dots hS lam [] (up ()) [] (cond_up lam), img_dotUp hS lam (cond_up lam)]
+  erw [img_dots S lam [] (up ()) [] (cond_up lam), img_dotUp S lam (cond_up lam)]
 
 /-- **The right curl relation in the `sl₂` model** (KL III `curlR`; CL `eq_reduction-ngeqz`,
 `eq_reduction-nleqz` with `r_i = 1`), in the regions of the right parity. -/
 theorem rel_curlR {lam : ℤ} (hpar : ∃ q : ℤ, lam = S.n₀ + 2 * q) :
-    (freeLift k (interp (genImg hS) (sh sl2RootDatum (up ()) + lam) lam).functor).map
+    (freeLift k (interp (genImg S) (sh sl2RootDatum (up ()) + lam) lam).functor).map
       (LinDiagram.of (KL3.Diagram.curlR sl2RootDatum () lam) -
         KL3.Diagram.curlRHS sl2RootDatum k () lam) = 0 := by
   apply (cancel_epi (eqToHom (objI_pos _ _ (cond_up lam)).symm)).1
@@ -603,7 +603,7 @@ theorem rel_curlR {lam : ℤ} (hpar : ∃ q : ℤ, lam = S.n₀ + 2 * q) :
   set_option backward.isDefEq.respectTransparency false in
   simp only [Preadditive.comp_sub, Preadditive.sub_comp, Limits.comp_zero, Limits.zero_comp,
     Category.assoc]
-  rw [sub_eq_zero, img_curlR hS lam (cond_up lam)]
+  rw [sub_eq_zero, img_curlR S lam (cond_up lam)]
   unfold KL3.Diagram.curlRHS
   set_option backward.isDefEq.respectTransparency false in
   rw [Functor.map_neg, Functor.map_sum]
@@ -611,7 +611,7 @@ theorem rel_curlR {lam : ℤ} (hpar : ∃ q : ℤ, lam = S.n₀ + 2 * q) :
   simp only [Preadditive.neg_comp, Preadditive.comp_neg, Preadditive.sum_comp,
     Preadditive.comp_sum, Category.assoc, img_curlRHS_term]
   rw [ip_sl2]
-  refine (curlG_model hS _ _ _ _ _ lam (wt_qi hpar)).trans ?_
+  refine (curlG_model S _ _ _ _ _ lam (S.wt_qi hpar)).trans ?_
   set_option backward.isDefEq.respectTransparency false in
   simp only [Category.assoc]
 
@@ -620,13 +620,13 @@ set_option maxHeartbeats 4000000 in
 crossing, closed with the right cup and the left cap. -/
 theorem img_curlL (μ : ℤ) :
     eqToHom (objI_pos _ _ (cond_up μ)).symm ≫
-        (interp (genImg hS) (sh sl2RootDatum (up ()) + μ) μ).functor.map
+        (interp (genImg S) (sh sl2RootDatum (up ()) + μ) μ).functor.map
           (KL3.Diagram.curlL sl2RootDatum () μ) ≫
         eqToHom (objI_pos _ _ (cond_up μ)) =
       curlEG (S.gAdjE (S.qi (sh sl2RootDatum (up ()) + μ))
           (S.qi (sh sl2RootDatum (up ()) + (sh sl2RootDatum (up ()) + μ)))
           (S.qi_sh_true () _)).unit
-        (gAdjL hS (S.qi (sh sl2RootDatum (up ()) + μ))
+        (gAdjL S (S.qi (sh sl2RootDatum (up ()) + μ))
           (S.qi (sh sl2RootDatum (up ()) + (sh sl2RootDatum (up ()) + μ)))
           (S.qi_sh_true () _)).counit
         (S.gCross (S.qi μ) (S.qi (sh sl2RootDatum (up ()) + μ))
@@ -678,7 +678,7 @@ theorem img_curlL (μ : ℤ) :
       (S.gAdjE (S.qi (sh sl2RootDatum (up ()) + μ))
           (S.qi (sh sl2RootDatum (up ()) + (sh sl2RootDatum (up ()) + μ)))
           (S.qi_sh_true () _)).unit
-      (gAdjL hS (S.qi (sh sl2RootDatum (up ()) + μ))
+      (gAdjL S (S.qi (sh sl2RootDatum (up ()) + μ))
           (S.qi (sh sl2RootDatum (up ()) + (sh sl2RootDatum (up ()) + μ)))
           (S.qi_sh_true () _)).counit
       (S.gCross (S.qi μ) (S.qi (sh sl2RootDatum (up ()) + μ))
@@ -693,15 +693,15 @@ theorem img_curlL (μ : ℤ) :
     case hg1 =>
       simp only [eqToIso.inv, eqToIso.hom, lift_map₂_eqToHom, eqToHom_refl, PrelaxFunctor.map₂_id, Category.id_comp,
         Category.comp_id]
-      exact genImg_cup_false hS () _ _ _ _ _ _ _
+      exact genImg_cup_false S () _ _ _ _ _ _ _
     case hg2 =>
       simp only [eqToIso.inv, eqToIso.hom, lift_map₂_eqToHom, eqToHom_refl, PrelaxFunctor.map₂_id, Category.id_comp,
         Category.comp_id]
-      exact genImg_cross_true hS _ _ _ _ _ _ _ _ _
+      exact genImg_cross_true S _ _ _ _ _ _ _ _ _
     case hg3 =>
       simp only [eqToIso.inv, eqToIso.hom, lift_map₂_eqToHom, eqToHom_refl, PrelaxFunctor.map₂_id, Category.id_comp,
         Category.comp_id]
-      exact genImg_cap_true hS () _ _ _ _ _ _ _
+      exact genImg_cap_true S () _ _ _ _ _ _ _
     case fin =>
       simp only [PrelaxFunctor.map₂_id, Category.id_comp, Category.comp_id]
   all_goals simp [Layer.cod, Layer.dom, ob, inv_dual, Letter.dual, hy, sig0_dom_cross',
@@ -710,37 +710,37 @@ theorem img_curlL (μ : ℤ) :
 /-- The counter-clockwise bubble with label `m ∈ ℤ` of the model at the object `b` of weight
 `n`. -/
 def mccwL (a b c : ℤ) (h : a + 1 = b) (h' : b + 1 = c) (n m : ℤ) : End (𝟙 (of (S.obj b))) :=
-  if 0 ≤ m then mccw hS b c h' m.toNat
+  if 0 ≤ m then mccw S b c h' m.toNat
   else if 0 ≤ m + 1 + n then
     Categorification.TwoRep.grassInv
-      (fun x => if 0 ≤ n - 1 + (x : ℤ) then mcw hS a b h (n - 1 + (x : ℤ)).toNat else 0)
+      (fun x => if 0 ≤ n - 1 + (x : ℤ) then mcw S a b h (n - 1 + (x : ℤ)).toNat else 0)
       (m + 1 + n).toNat
   else 0
 
 theorem mccwL_eq (a m : ℤ) :
-    mccwL hS a (a + 1) (a + 1 + 1) rfl rfl (S.wt (a + 1)) m = hS.ccwL a m := by
+    mccwL S a (a + 1) (a + 1 + 1) rfl rfl (S.wt (a + 1)) m = S.ccwLN a m := by
   unfold mccwL mcw mccw
   simp only [cwImg_eq, ccwImg_eq, StrongSl2.ccwL, StrongSl2.cwR]
 
 theorem mccwL_congr {a a' : ℤ} (ha : a = a') (b c : ℤ) (h : a + 1 = b) (h₂ : a' + 1 = b)
-    (h' : b + 1 = c) (n m : ℤ) : mccwL hS a b c h h' n m = mccwL hS a' b c h₂ h' n m := by
+    (h' : b + 1 = c) (n m : ℤ) : mccwL S a b c h h' n m = mccwL S a' b c h₂ h' n m := by
   subst ha; rfl
 
 theorem bubHom_ccwL (lam m : ℤ) :
-    bubHom hS lam (KL3.Diagram.ccwL sl2RootDatum k lam () m) =
-      mccwL hS (S.qi (sh sl2RootDatum (dn ()) + lam)) (S.qi lam)
+    bubHom S lam (KL3.Diagram.ccwL sl2RootDatum k lam () m) =
+      mccwL S (S.qi (sh sl2RootDatum (dn ()) + lam)) (S.qi lam)
         (S.qi (sh sl2RootDatum (up ()) + lam)) (S.qi_sh_false () lam) (S.qi_sh_true () lam)
         lam m := by
   unfold KL3.Diagram.ccwL mccwL
   simp only [ip_sl2]
   split_ifs with h1 h2
-  · exact bubHom_ccwReal hS lam _
+  · exact bubHom_ccwReal S lam _
   · rw [map_grassInv]
     congr 1
     funext x
     unfold KL3.Diagram.cwR
     split_ifs
-    · exact bubHom_cwReal hS lam _
+    · exact bubHom_cwReal S lam _
     · exact map_zero _
   · exact map_zero _
 
@@ -764,12 +764,12 @@ set_option maxHeartbeats 2000000 in
 theorem img_bubL (μ : ℤ)
     (b : LEnd sl2RootDatum k (ob sl2RootDatum (KL3.Diagram.wt sl2RootDatum μ [up ()]) [])) :
     eqToHom (objI_pos _ _ (cond_up μ)).symm ≫
-        (freeLift k (interp (genImg hS) (sh sl2RootDatum (up ()) + μ) μ).functor).map
+        (freeLift k (interp (genImg S) (sh sl2RootDatum (up ()) + μ) μ).functor).map
           (bubL sl2RootDatum k μ [up ()] b) ≫
         eqToHom (objI_pos _ _ (cond_up μ)) =
       (ρ_ (S.gEc (S.qi μ) (S.qi (sh sl2RootDatum (up ()) + μ)) (S.qi_sh_true () μ))).inv ≫
         S.gEc (S.qi μ) (S.qi (sh sl2RootDatum (up ()) + μ)) (S.qi_sh_true () μ) ◁
-          bubHom hS (sh sl2RootDatum (up ()) + μ) b ≫
+          bubHom S (sh sl2RootDatum (up ()) + μ) b ≫
         (ρ_ (S.gEc (S.qi μ) (S.qi (sh sl2RootDatum (up ()) + μ))
           (S.qi_sh_true () μ))).hom := by
   have hw : (ob sl2RootDatum (KL3.Diagram.wt sl2RootDatum μ [up ()]) []).WhiskerOK
@@ -783,7 +783,7 @@ theorem img_bubL (μ : ℤ)
         (wd sl2RootDatum μ [up ()])) :=
     (cond_nil (sh sl2RootDatum (up ()) + μ)).whisker
       (u := ob sl2RootDatum (sh sl2RootDatum (up ()) + μ) []) trivial rfl (cond_up μ).1
-  have key := conj_freeLift_whisker (genImg hS) (s := sh sl2RootDatum (up ()) + μ)
+  have key := conj_freeLift_whisker (genImg S) (s := sh sl2RootDatum (up ()) + μ)
     (t := sh sl2RootDatum (up ()) + μ) (u := ob sl2RootDatum (sh sl2RootDatum (up ()) + μ) [])
     (v := wd sl2RootDatum μ [up ()]) trivial rfl (cond_up μ).1 hw
     (cond_nil _) (cond_nil _) hwa hwa b
@@ -805,27 +805,27 @@ theorem img_bubL (μ : ℤ)
 /-- The left curl relation at the level of the model (CL `eq_reduction-*`, KL III `curlL`, with
 `r_i = 1`), for the objects `a`, `b = a + 1`, `c = b + 1`, `b` of weight `n`. -/
 theorem curlE_model (a b c : ℤ) (h : a + 1 = b) (h' : b + 1 = c) (n : ℤ) (hn : S.wt b = n) :
-    curlE (S.gAdjE b c h') (gAdjL hS b c h') (S.gCross a b c h h') =
+    curlE (S.gAdjE b c h') (gAdjL S b c h') (S.gCross a b c h h') =
       ∑ g ∈ Finset.range (n + 1).toNat,
-        ((ρ_ (S.gEc a b h)).inv ≫ S.gEc a b h ◁ mccwL hS a b c h h' n (-n - 1 + g) ≫
+        ((ρ_ (S.gEc a b h)).inv ≫ S.gEc a b h ◁ mccwL S a b c h h' n (-n - 1 + g) ≫
           (ρ_ (S.gEc a b h)).hom) ≫ powComp (S.gDot a b h) (n - g).toNat := by
   subst h h' hn
   simp only [mccwL_eq]
   rcases le_or_gt 0 (S.wt (a + 1)) with hn | hn
-  · refine (hS.curlE_eq hn).trans ?_
+  · refine (S.curlE_eq hn).trans ?_
     rw [show (S.wt (a + 1) + 1).toNat = (S.wt (a + 1)).toNat + 1 by omega]
     refine Finset.sum_congr rfl fun g hg => ?_
     rw [Finset.mem_range] at hg
     rw [show (S.wt (a + 1) - g).toNat = (S.wt (a + 1)).toNat - g by omega]
     exact (rbub_comm _ _).symm
-  · refine (hS.curlE_eq_zero hn).trans ?_
+  · refine (S.curlE_eq_zero hn).trans ?_
     rw [show (S.wt (a + 1) + 1).toNat = 0 by omega, Finset.range_zero]
     exact Finset.sum_empty.symm
 
 /-- The image of a term of the right-hand side of the left curl relation. -/
 theorem img_curlLHS_term (μ : ℤ) (g : ℕ) :
     eqToHom (objI_pos _ _ (cond_up μ)).symm ≫
-        (freeLift k (interp (genImg hS) (sh sl2RootDatum (up ()) + μ) μ).functor).map
+        (freeLift k (interp (genImg S) (sh sl2RootDatum (up ()) + μ) μ).functor).map
           (bubL sl2RootDatum k μ [up ()]
               (KL3.Diagram.ccwL sl2RootDatum k (KL3.Diagram.wt sl2RootDatum μ [up ()]) ()
                 (-ip sl2RootDatum () (KL3.Diagram.wt sl2RootDatum μ [up ()]) - 1 + g)) ≫
@@ -834,7 +834,7 @@ theorem img_curlLHS_term (μ : ℤ) (g : ℕ) :
         eqToHom (objI_pos _ _ (cond_up μ)) =
       ((ρ_ (S.gEc (S.qi μ) (S.qi (sh sl2RootDatum (up ()) + μ)) (S.qi_sh_true () μ))).inv ≫
         S.gEc (S.qi μ) (S.qi (sh sl2RootDatum (up ()) + μ)) (S.qi_sh_true () μ) ◁
-          mccwL hS (S.qi μ) (S.qi (sh sl2RootDatum (up ()) + μ))
+          mccwL S (S.qi μ) (S.qi (sh sl2RootDatum (up ()) + μ))
             (S.qi (sh sl2RootDatum (up ()) + (sh sl2RootDatum (up ()) + μ))) (S.qi_sh_true () μ)
             (S.qi_sh_true () _) (sh sl2RootDatum (up ()) + μ)
             (-(sh sl2RootDatum (up ()) + μ) - 1 + g) ≫
@@ -844,17 +844,17 @@ theorem img_curlLHS_term (μ : ℤ) (g : ℕ) :
           (sh sl2RootDatum (up ()) + μ - g).toNat := by
   set_option backward.isDefEq.respectTransparency false in
   rw [CategoryTheory.Functor.map_comp, conj_comp_conj (objI_pos _ _ (cond_up μ))
-      (objI_pos _ _ (cond_up μ)) (objI_pos _ _ (cond_up μ)), img_bubL hS μ,
+      (objI_pos _ _ (cond_up μ)) (objI_pos _ _ (cond_up μ)), img_bubL S μ,
     freeLift_map_of]
   erw [bubHom_ccwL, ip_sl2]
-  erw [img_dots hS μ [] (up ()) [] (cond_up μ), img_dotUp hS μ (cond_up μ)]
-  rw [mccwL_congr hS (congrArg S.qi (sh_false_sh_true () μ))]
+  erw [img_dots S μ [] (up ()) [] (cond_up μ), img_dotUp S μ (cond_up μ)]
+  rw [mccwL_congr S (congrArg S.qi (sh_false_sh_true () μ))]
   rfl
 
 /-- **The left curl relation in the `sl₂` model** (KL III `curlL`; CL `eq_reduction-ngeqz`,
 `eq_reduction-nleqz` with `r_i = 1`), in the regions of the right parity. -/
 theorem rel_curlL {μ : ℤ} (hpar : ∃ q : ℤ, μ = S.n₀ + 2 * q) :
-    (freeLift k (interp (genImg hS) (sh sl2RootDatum (up ()) + μ) μ).functor).map
+    (freeLift k (interp (genImg S) (sh sl2RootDatum (up ()) + μ) μ).functor).map
       (LinDiagram.of (KL3.Diagram.curlL sl2RootDatum () μ) -
         KL3.Diagram.curlLHS sl2RootDatum k () μ) = 0 := by
   have hpar' : ∃ q : ℤ, sh sl2RootDatum (up ()) + μ = S.n₀ + 2 * q := by
@@ -867,15 +867,15 @@ theorem rel_curlL {μ : ℤ} (hpar : ∃ q : ℤ, μ = S.n₀ + 2 * q) :
   set_option backward.isDefEq.respectTransparency false in
   simp only [Preadditive.comp_sub, Preadditive.sub_comp, Limits.comp_zero, Limits.zero_comp,
     Category.assoc]
-  rw [sub_eq_zero, img_curlL hS μ]
+  rw [sub_eq_zero, img_curlL S μ]
   unfold KL3.Diagram.curlLHS
   set_option backward.isDefEq.respectTransparency false in
   rw [Functor.map_sum]
   set_option backward.isDefEq.respectTransparency false in
   simp only [Preadditive.sum_comp, Preadditive.comp_sum, Category.assoc]
-  rw [Finset.sum_congr rfl (fun g _ => img_curlLHS_term hS μ g)]
+  rw [Finset.sum_congr rfl (fun g _ => img_curlLHS_term S μ g)]
   erw [ip_sl2]
-  refine (curlE_model hS _ _ _ _ _ _ (wt_qi hpar')).trans ?_
+  refine (curlE_model S _ _ _ _ _ _ (S.wt_qi hpar')).trans ?_
   set_option backward.isDefEq.respectTransparency false in
   simp only [Category.assoc]
   rfl

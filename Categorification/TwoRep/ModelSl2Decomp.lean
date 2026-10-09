@@ -11,7 +11,7 @@ The decompositions of the identity of `E F 1_λ` and `F E 1_λ` (KL III `decompE
 arXiv:1111.1431v3 §2.6, `eq_ident_decomp-nleqz` and the displays for `n > 0`, `n = 0`, with
 `r_i = 1`) hold in the `sl₂` model of `Categorification.TwoRep.ModelSl2`, in every region of the
 right parity (`StrongSl2.rel_decompEF`, `StrongSl2.rel_decompFE`). They are CL's decompositions for
-the normalized left adjunctions (`BBw.decompEF`, `BBw.decompFE`, CL Prop. 5.2, Cor. 5.3, Lemma 5.4)
+the normalized left adjunctions (`decompEF`, `decompFE`, CL Prop. 5.2, Cor. 5.3, Lemma 5.4)
 read through the interpretation:
 
 * the sideways crossings `crossl`, `crossr` go to the mate `σ` of the crossing under the
@@ -195,7 +195,7 @@ variable {k : Type*} [Field k] {B : Type u} [Bicategory.{w, v} B]
 
 namespace StrongSl2
 
-variable {S : StrongSl2 k B} (hS : S.BBw)
+variable (S : StrongSl2 k B)
 
 attribute [local irreducible] KL3.Diagram.sh
 
@@ -204,7 +204,7 @@ set_option maxHeartbeats 4000000 in
 adjunctions `E ⊣ R` (CL's `σ`). -/
 theorem img_crossl (lam : ℤ) :
     eqToHom (objI_pos _ _ (cond_up_dn lam)).symm ≫
-        (interp (genImg hS) lam lam).functor.map (crossl sl2RootDatum () () lam) ≫
+        (interp (genImg S) lam lam).functor.map (crossl sl2RootDatum () () lam) ≫
         eqToHom (objI_pos _ _ (cond_dn_up lam)) =
       mateEquiv (S.gAdjE (S.qi (sh sl2RootDatum (dn ()) + lam)) (S.qi lam) (S.qi_sh_false () lam))
         (S.gAdjE (S.qi lam) (S.qi (sh sl2RootDatum (up ()) + lam)) (S.qi_sh_true () lam))
@@ -269,14 +269,14 @@ theorem img_crossl (lam : ℤ) :
     case hg1 =>
       simp only [eqToIso.inv, eqToIso.hom, lift_map₂_eqToHom]
       erw [eqToHom_refl, eqToHom_refl, Category.id_comp, Category.comp_id]
-      exact genImg_cup_false hS () _ _ _ _ _ _ _
+      exact genImg_cup_false S () _ _ _ _ _ _ _
     case hg2 =>
       simp only [eqToIso.inv, eqToIso.hom, lift_map₂_eqToHom]
-      exact gCross_congr _ _ _ _ (congrArg S.qi hx) _ _ _ _ _ _
+      exact S.gCross_congr _ _ _ _ (congrArg S.qi hx) _ _ _ _ _ _
     case hg3 =>
       simp only [eqToIso.inv, eqToIso.hom, lift_map₂_eqToHom]
       erw [eqToHom_refl, eqToHom_refl, Category.id_comp, Category.comp_id]
-      exact genImg_cap_false hS () _ _ _ _ _ _ _
+      exact genImg_cap_false S () _ _ _ _ _ _ _
     case fin =>
       simp only [PrelaxFunctor.map₂_id, Category.id_comp]
       erw [Category.comp_id]
@@ -289,10 +289,10 @@ set_option maxHeartbeats 4000000 in
 under the normalized left adjunctions `R ⊣ E` (CL's `σ'`, (4.16)). -/
 theorem img_crossr (lam : ℤ) :
     eqToHom (objI_pos _ _ (cond_dn_up lam)).symm ≫
-        (interp (genImg hS) lam lam).functor.map (crossr sl2RootDatum () () lam) ≫
+        (interp (genImg S) lam lam).functor.map (crossr sl2RootDatum () () lam) ≫
         eqToHom (objI_pos _ _ (cond_up_dn lam)) =
-      (mateEquiv (gAdjL hS (S.qi (sh sl2RootDatum (dn ()) + lam)) (S.qi lam) (S.qi_sh_false () lam))
-        (gAdjL hS (S.qi lam) (S.qi (sh sl2RootDatum (up ()) + lam)) (S.qi_sh_true () lam))).symm
+      (mateEquiv (gAdjL S (S.qi (sh sl2RootDatum (dn ()) + lam)) (S.qi lam) (S.qi_sh_false () lam))
+        (gAdjL S (S.qi lam) (S.qi (sh sl2RootDatum (up ()) + lam)) (S.qi_sh_true () lam))).symm
         (S.gCross (S.qi (sh sl2RootDatum (dn ()) + lam)) (S.qi lam)
           (S.qi (sh sl2RootDatum (up ()) + lam)) (S.qi_sh_false () lam) (S.qi_sh_true () lam)) := by
   set_option backward.isDefEq.respectTransparency false in
@@ -337,8 +337,8 @@ theorem img_crossr (lam : ℤ) :
       (r' := FreeBicategory.Hom.of (⟨⟨dn (), sh sl2RootDatum (up ()) + x⟩, rfl,
           sh_false_sh_true () x⟩ :
         rq (S := psig sl2RootDatum) (sh sl2RootDatum (up ()) + x) ⟶ rq x))
-      (gAdjL hS (S.qi (sh sl2RootDatum (dn ()) + x)) (S.qi x) (S.qi_sh_false () x))
-      (gAdjL hS (S.qi x) (S.qi (sh sl2RootDatum (up ()) + x)) (S.qi_sh_true () x))
+      (gAdjL S (S.qi (sh sl2RootDatum (dn ()) + x)) (S.qi x) (S.qi_sh_false () x))
+      (gAdjL S (S.qi x) (S.qi (sh sl2RootDatum (up ()) + x)) (S.qi_sh_true () x))
       (S.gCross (S.qi (sh sl2RootDatum (dn ()) + x)) (S.qi x)
         (S.qi (sh sl2RootDatum (up ()) + x)) (S.qi_sh_false () x) (S.qi_sh_true () x))
       (eqToIso ?e1) (eqToIso ?e2) (eqToIso ?e3) (eqToIso ?e4) _ ?hg1
@@ -354,14 +354,14 @@ theorem img_crossr (lam : ℤ) :
     case hg1 =>
       simp only [eqToIso.inv, eqToIso.hom, lift_map₂_eqToHom]
       erw [eqToHom_refl, eqToHom_refl, Category.id_comp, Category.comp_id]
-      exact genImg_cup_true hS () _ _ _ _ _ _ _
+      exact genImg_cup_true S () _ _ _ _ _ _ _
     case hg2 =>
       simp only [eqToIso.inv, eqToIso.hom, lift_map₂_eqToHom]
-      exact gCross_congr _ _ _ _ (congrArg S.qi hx) _ _ _ _ _ _
+      exact S.gCross_congr _ _ _ _ (congrArg S.qi hx) _ _ _ _ _ _
     case hg3 =>
       simp only [eqToIso.inv, eqToIso.hom, lift_map₂_eqToHom]
       erw [eqToHom_refl, eqToHom_refl, Category.id_comp, Category.comp_id]
-      exact genImg_cap_true hS () _ _ _ _ _ _ _
+      exact genImg_cap_true S () _ _ _ _ _ _ _
     case fin =>
       simp only [PrelaxFunctor.map₂_id, Category.id_comp]
       erw [Category.comp_id]
@@ -373,7 +373,7 @@ set_option maxHeartbeats 2000000 in
 /-- The image of a dot on the upward strand of `E F`. -/
 theorem img_dotUp_UD (lam : ℤ) :
     eqToHom (objI_pos _ _ (cond_up_dn lam)).symm ≫
-        (interp (genImg hS) lam lam).functor.map
+        (interp (genImg S) lam lam).functor.map
           (mkD sl2RootDatum lam [([], .dot (up ()), [dn ()])] ⟨rfl, rfl⟩) ≫
         eqToHom (objI_pos _ _ (cond_up_dn lam)) =
       S.gRc (S.qi (sh sl2RootDatum (dn ()) + lam)) (S.qi lam) (S.qi_sh_false () lam) ◁
@@ -400,7 +400,7 @@ theorem img_dotUp_UD (lam : ℤ) :
       rw [layerAt_right]
       simp only [lift_map₂_eqToHom, eqToHom_refl, PrelaxFunctor.map₂_id, Category.id_comp,
         Category.comp_id]
-      erw [genImg_dot_true hS]
+      erw [genImg_dot_true S]
       rfl
     case e => rfl
     case e' => rfl
@@ -411,11 +411,11 @@ set_option maxHeartbeats 2000000 in
 /-- The image of a dot on the downward strand of `F E`. -/
 theorem img_dotDn_DU (lam : ℤ) :
     eqToHom (objI_pos _ _ (cond_dn_up lam)).symm ≫
-        (interp (genImg hS) lam lam).functor.map
+        (interp (genImg S) lam lam).functor.map
           (mkD sl2RootDatum lam [([], .dot (dn ()), [up ()])] ⟨rfl, rfl⟩) ≫
         eqToHom (objI_pos _ _ (cond_dn_up lam)) =
       S.gEc (S.qi lam) (S.qi (sh sl2RootDatum (up ()) + lam)) (S.qi_sh_true () lam) ◁
-        gDotR hS (S.qi lam) (S.qi (sh sl2RootDatum (up ()) + lam)) (S.qi_sh_true () lam) := by
+        gDotR S (S.qi lam) (S.qi (sh sl2RootDatum (up ()) + lam)) (S.qi_sh_true () lam) := by
   set_option backward.isDefEq.respectTransparency false in
   simp only [Interpretation.functor_map, mkD, Diagram.layers_mk, layList_cons, layList_nil,
     Interpretation.mapChain]
@@ -438,7 +438,7 @@ theorem img_dotDn_DU (lam : ℤ) :
       rw [layerAt_right]
       simp only [lift_map₂_eqToHom, eqToHom_refl, PrelaxFunctor.map₂_id, Category.id_comp,
         Category.comp_id]
-      erw [genImg_dot_false hS]
+      erw [genImg_dot_false S]
       rfl
     case e => rfl
     case e' => rfl
@@ -483,7 +483,7 @@ theorem cupDotFE_eq (lam : ℤ) (m : ℕ) :
 
 theorem img_dotCapEF (lam : ℤ) (m : ℕ) :
     eqToHom (objI_pos _ _ (cond_up_dn lam)).symm ≫
-        (interp (genImg hS) lam lam).functor.map (dotCapEF sl2RootDatum lam () m) ≫
+        (interp (genImg S) lam lam).functor.map (dotCapEF sl2RootDatum lam () m) ≫
         eqToHom (objI_pos _ _ (cond_nil lam)) =
       S.gRc (S.qi (sh sl2RootDatum (dn ()) + lam)) (S.qi lam) (S.qi_sh_false () lam) ◁
           powComp (S.gDot (S.qi (sh sl2RootDatum (dn ()) + lam)) (S.qi lam)
@@ -493,44 +493,44 @@ theorem img_dotCapEF (lam : ℤ) (m : ℕ) :
   set_option backward.isDefEq.respectTransparency false in
   rw [dotCapEF_eq, CategoryTheory.Functor.map_comp,
     conj_comp_conj (objI_pos _ _ (cond_up_dn lam)) (objI_pos _ _ (cond_up_dn lam))
-      (objI_pos _ _ (cond_nil lam)), img_capDn hS lam (cond_up_dn lam) (cond_nil lam)]
-  erw [img_dots hS lam [] (up ()) [dn ()] (cond_up_dn lam) m, img_dotUp_UD hS lam]
+      (objI_pos _ _ (cond_nil lam)), img_capDn S lam (cond_up_dn lam) (cond_nil lam)]
+  erw [img_dots S lam [] (up ()) [dn ()] (cond_up_dn lam) m, img_dotUp_UD S lam]
   rw [whiskerLeft_powComp]
 
 theorem img_cupDotEF (lam : ℤ) (m : ℕ) :
     eqToHom (objI_pos _ _ (cond_nil lam)).symm ≫
-        (interp (genImg hS) lam lam).functor.map (cupDotEF sl2RootDatum lam () m) ≫
+        (interp (genImg S) lam lam).functor.map (cupDotEF sl2RootDatum lam () m) ≫
         eqToHom (objI_pos _ _ (cond_up_dn lam)) =
-      (gAdjL hS (S.qi (sh sl2RootDatum (dn ()) + lam)) (S.qi lam) (S.qi_sh_false () lam)).unit ≫
-        powComp (gDotR hS (S.qi (sh sl2RootDatum (dn ()) + lam)) (S.qi lam)
+      (gAdjL S (S.qi (sh sl2RootDatum (dn ()) + lam)) (S.qi lam) (S.qi_sh_false () lam)).unit ≫
+        powComp (gDotR S (S.qi (sh sl2RootDatum (dn ()) + lam)) (S.qi lam)
           (S.qi_sh_false () lam)) m ▷
           S.gEc (S.qi (sh sl2RootDatum (dn ()) + lam)) (S.qi lam) (S.qi_sh_false () lam) := by
   set_option backward.isDefEq.respectTransparency false in
   rw [cupDotEF_eq, CategoryTheory.Functor.map_comp,
     conj_comp_conj (objI_pos _ _ (cond_nil lam)) (objI_pos _ _ (cond_up_dn lam))
-      (objI_pos _ _ (cond_up_dn lam)), img_cupUp hS lam (cond_nil lam) (cond_up_dn lam)]
-  erw [img_dots hS lam [up ()] (dn ()) [] (cond_up_dn lam) m, img_dotDn_UD hS lam (cond_up_dn lam)]
+      (objI_pos _ _ (cond_up_dn lam)), img_cupUp S lam (cond_nil lam) (cond_up_dn lam)]
+  erw [img_dots S lam [up ()] (dn ()) [] (cond_up_dn lam) m, img_dotDn_UD S lam (cond_up_dn lam)]
   rw [← powComp_whiskerRight]
 
 theorem img_dotCapFE (lam : ℤ) (m : ℕ) :
     eqToHom (objI_pos _ _ (cond_dn_up lam)).symm ≫
-        (interp (genImg hS) lam lam).functor.map (dotCapFE sl2RootDatum lam () m) ≫
+        (interp (genImg S) lam lam).functor.map (dotCapFE sl2RootDatum lam () m) ≫
         eqToHom (objI_pos _ _ (cond_nil lam)) =
       S.gEc (S.qi lam) (S.qi (sh sl2RootDatum (up ()) + lam)) (S.qi_sh_true () lam) ◁
-          powComp (gDotR hS (S.qi lam) (S.qi (sh sl2RootDatum (up ()) + lam))
+          powComp (gDotR S (S.qi lam) (S.qi (sh sl2RootDatum (up ()) + lam))
             (S.qi_sh_true () lam)) m ≫
-        (gAdjL hS (S.qi lam) (S.qi (sh sl2RootDatum (up ()) + lam))
+        (gAdjL S (S.qi lam) (S.qi (sh sl2RootDatum (up ()) + lam))
           (S.qi_sh_true () lam)).counit := by
   set_option backward.isDefEq.respectTransparency false in
   rw [dotCapFE_eq, CategoryTheory.Functor.map_comp,
     conj_comp_conj (objI_pos _ _ (cond_dn_up lam)) (objI_pos _ _ (cond_dn_up lam))
-      (objI_pos _ _ (cond_nil lam)), img_capUp hS lam (cond_dn_up lam) (cond_nil lam)]
-  erw [img_dots hS lam [] (dn ()) [up ()] (cond_dn_up lam) m, img_dotDn_DU hS lam]
+      (objI_pos _ _ (cond_nil lam)), img_capUp S lam (cond_dn_up lam) (cond_nil lam)]
+  erw [img_dots S lam [] (dn ()) [up ()] (cond_dn_up lam) m, img_dotDn_DU S lam]
   rw [whiskerLeft_powComp]
 
 theorem img_cupDotFE (lam : ℤ) (m : ℕ) :
     eqToHom (objI_pos _ _ (cond_nil lam)).symm ≫
-        (interp (genImg hS) lam lam).functor.map (cupDotFE sl2RootDatum lam () m) ≫
+        (interp (genImg S) lam lam).functor.map (cupDotFE sl2RootDatum lam () m) ≫
         eqToHom (objI_pos _ _ (cond_dn_up lam)) =
       (S.gAdjE (S.qi lam) (S.qi (sh sl2RootDatum (up ()) + lam)) (S.qi_sh_true () lam)).unit ≫
         powComp (S.gDot (S.qi lam) (S.qi (sh sl2RootDatum (up ()) + lam))
@@ -539,8 +539,8 @@ theorem img_cupDotFE (lam : ℤ) (m : ℕ) :
   set_option backward.isDefEq.respectTransparency false in
   rw [cupDotFE_eq, CategoryTheory.Functor.map_comp,
     conj_comp_conj (objI_pos _ _ (cond_nil lam)) (objI_pos _ _ (cond_dn_up lam))
-      (objI_pos _ _ (cond_dn_up lam)), img_cupDn hS lam (cond_nil lam) (cond_dn_up lam)]
-  erw [img_dots hS lam [dn ()] (up ()) [] (cond_dn_up lam) m, img_dotUp_DU hS lam (cond_dn_up lam)]
+      (objI_pos _ _ (cond_dn_up lam)), img_cupDn S lam (cond_nil lam) (cond_dn_up lam)]
+  erw [img_dots S lam [dn ()] (up ()) [] (cond_dn_up lam) m, img_dotUp_DU S lam (cond_dn_up lam)]
   rw [← powComp_whiskerRight]
 
 omit [∀ a b : B, IsIdempotentComplete (a ⟶ b)] [∀ a b : B, HomFinite k (a ⟶ b)] in
@@ -563,51 +563,51 @@ theorem cap_mate {C : Type*} [Bicategory C] {a b : C} {R : b ⟶ a} {E : a ⟶ b
 `decompEF`, with `r_i = 1`), for the objects `a`, `b = a + 1`, `c = b + 1`, `b` of weight `n`. -/
 theorem decompEF_model (a b c : ℤ) (h : a + 1 = b) (h' : b + 1 = c) (n : ℤ) (hn : S.wt b = n) :
     𝟙 _ + mateEquiv (S.gAdjE a b h) (S.gAdjE b c h') (S.gCross a b c h h') ≫
-        (mateEquiv (gAdjL hS a b h) (gAdjL hS b c h')).symm (S.gCross a b c h h') -
+        (mateEquiv (gAdjL S a b h) (gAdjL S b c h')).symm (S.gCross a b c h h') -
       ∑ f ∈ Finset.range n.toNat, ∑ g ∈ Finset.range (f + 1),
         (S.gRc a b h ◁ powComp (S.gDot a b h) (f - g) ≫ (S.gAdjE a b h).counit) ≫
-          mccwL hS a b c h h' n (-n - 1 + g) ≫
-            ((gAdjL hS a b h).unit ≫ powComp (gDotR hS a b h) (n.toNat - 1 - f) ▷ S.gEc a b h) =
+          mccwL S a b c h h' n (-n - 1 + g) ≫
+            ((gAdjL S a b h).unit ≫ powComp (gDotR S a b h) (n.toNat - 1 - f) ▷ S.gEc a b h) =
       0 := by
   subst h h' hn
   have hσ : mateEquiv (S.gAdjE a (a + 1) rfl) (S.gAdjE (a + 1) (a + 1 + 1) rfl)
       (S.gCross a (a + 1) (a + 1 + 1) rfl rfl) = S.grSigma a := (S.grSigma_eq_mateEquiv a).symm
-  have hs : (mateEquiv (gAdjL hS a (a + 1) rfl) (gAdjL hS (a + 1) (a + 1 + 1) rfl)).symm
-      (S.gCross a (a + 1) (a + 1 + 1) rfl rfl) = hS.sideL a := by
-    rw [BBw.sideL, StrongSl2.sideL]
+  have hs : (mateEquiv (gAdjL S a (a + 1) rfl) (gAdjL S (a + 1) (a + 1 + 1) rfl)).symm
+      (S.gCross a (a + 1) (a + 1 + 1) rfl rfl) = S.sideLN a := by
+    rw [sideLN, StrongSl2.sideL]
     congr 1
   have hcap : ∀ m : ℕ, S.gRc a (a + 1) rfl ◁ powComp (S.gDot a (a + 1) rfl) m ≫
       (S.gAdjE a (a + 1) rfl).counit = S.capD a m := fun m => rfl
-  have hcup : ∀ m : ℕ, (gAdjL hS a (a + 1) rfl).unit ≫ powComp (gDotR hS a (a + 1) rfl) m ▷
-      S.gEc a (a + 1) rfl = S.cupD (hS.leftAdjN a) m := fun m => cup_mate _ _ m
+  have hcup : ∀ m : ℕ, (gAdjL S a (a + 1) rfl).unit ≫ powComp (gDotR S a (a + 1) rfl) m ▷
+      S.gEc a (a + 1) rfl = S.cupD (S.leftAdjN a) m := fun m => cup_mate _ _ m
   rw [hσ, hs]
   simp only [hcap, hcup, mccwL_eq]
   rcases le_or_gt 0 (S.wt (a + 1)) with hn | hn
-  · obtain ⟨_, h2⟩ := hS.decompEF hn
+  · obtain ⟨_, h2⟩ := S.decompEF hn
     set N := (S.wt (a + 1)).toNat with hN
     have hsum : ∑ f ∈ Finset.range N, ∑ g ∈ Finset.range (f + 1),
-        S.capD a (f - g) ≫ hS.ccwL a (-S.wt (a + 1) - 1 + g) ≫ S.cupD (hS.leftAdjN a) (N - 1 - f) =
-        ∑ j ∈ Finset.range N, hS.compK a j ≫ S.cupD (hS.leftAdjN a) j := by
+        S.capD a (f - g) ≫ S.ccwLN a (-S.wt (a + 1) - 1 + g) ≫ S.cupD (S.leftAdjN a) (N - 1 - f) =
+        ∑ j ∈ Finset.range N, S.compK a j ≫ S.cupD (S.leftAdjN a) j := by
       rw [← Finset.sum_range_reflect]
       refine Finset.sum_congr rfl fun j hj => ?_
       rw [Finset.mem_range] at hj
-      rw [BBw.compK, Preadditive.sum_comp, ← hN,
+      rw [compK, Preadditive.sum_comp, ← hN,
         show N - 1 - j + 1 = N - j by omega, show N - 1 - (N - 1 - j) = j by omega]
       refine Finset.sum_congr rfl fun g hg => ?_
       rw [Finset.mem_range] at hg
       rw [Category.assoc, show N - 1 - j - g = N - 1 - j - g from rfl]
-    have key : 𝟙 (S.grR a ≫ S.grE a) + S.grSigma a ≫ hS.sideL a -
+    have key : 𝟙 (S.grR a ≫ S.grE a) + S.grSigma a ≫ S.sideLN a -
         ∑ f ∈ Finset.range N, ∑ g ∈ Finset.range (f + 1),
-          S.capD a (f - g) ≫ hS.ccwL a (-S.wt (a + 1) - 1 + g) ≫
-            S.cupD (hS.leftAdjN a) (N - 1 - f) = 0 := by
+          S.capD a (f - g) ≫ S.ccwLN a (-S.wt (a + 1) - 1 + g) ≫
+            S.cupD (S.leftAdjN a) (N - 1 - f) = 0 := by
       rw [hsum, ← h2]
       abel
     exact key
-  · have h1 := (hS.decompFE (q := a) hn.le).1
-    have key : 𝟙 (S.grR a ≫ S.grE a) + S.grSigma a ≫ hS.sideL a -
+  · have h1 := (S.decompFE (q := a) hn.le).1
+    have key : 𝟙 (S.grR a ≫ S.grE a) + S.grSigma a ≫ S.sideLN a -
         ∑ f ∈ Finset.range (S.wt (a + 1)).toNat, ∑ g ∈ Finset.range (f + 1),
-          S.capD a (f - g) ≫ hS.ccwL a (-S.wt (a + 1) - 1 + g) ≫
-            S.cupD (hS.leftAdjN a) ((S.wt (a + 1)).toNat - 1 - f) = 0 := by
+          S.capD a (f - g) ≫ S.ccwLN a (-S.wt (a + 1) - 1 + g) ≫
+            S.cupD (S.leftAdjN a) ((S.wt (a + 1)).toNat - 1 - f) = 0 := by
       rw [show (S.wt (a + 1)).toNat = 0 by omega, Finset.range_zero, Finset.sum_empty, h1]
       abel
     exact key
@@ -615,54 +615,54 @@ theorem decompEF_model (a b c : ℤ) (h : a + 1 = b) (h' : b + 1 = c) (n : ℤ) 
 /-- The decomposition of `1_{FE}` at the level of the model (CL `eq_ident_decomp-nleqz`, KL III
 `decompFE`, with `r_i = 1`), for the objects `a`, `b = a + 1`, `c = b + 1`, `b` of weight `n`. -/
 theorem decompFE_model (a b c : ℤ) (h : a + 1 = b) (h' : b + 1 = c) (n : ℤ) (hn : S.wt b = n) :
-    𝟙 _ + (mateEquiv (gAdjL hS a b h) (gAdjL hS b c h')).symm (S.gCross a b c h h') ≫
+    𝟙 _ + (mateEquiv (gAdjL S a b h) (gAdjL S b c h')).symm (S.gCross a b c h h') ≫
         mateEquiv (S.gAdjE a b h) (S.gAdjE b c h') (S.gCross a b c h h') -
       ∑ f ∈ Finset.range (-n).toNat, ∑ g ∈ Finset.range (f + 1),
-        (S.gEc b c h' ◁ powComp (gDotR hS b c h') (f - g) ≫ (gAdjL hS b c h').counit) ≫
-          mcwL hS a b c h h' n (n - 1 + g) ≫
+        (S.gEc b c h' ◁ powComp (gDotR S b c h') (f - g) ≫ (gAdjL S b c h').counit) ≫
+          mcwL S a b c h h' n (n - 1 + g) ≫
             ((S.gAdjE b c h').unit ≫ powComp (S.gDot b c h') ((-n).toNat - 1 - f) ▷
               S.gRc b c h') =
       0 := by
   subst h h' hn
   have hσ : mateEquiv (S.gAdjE a (a + 1) rfl) (S.gAdjE (a + 1) (a + 1 + 1) rfl)
       (S.gCross a (a + 1) (a + 1 + 1) rfl rfl) = S.grSigma a := (S.grSigma_eq_mateEquiv a).symm
-  have hs : (mateEquiv (gAdjL hS a (a + 1) rfl) (gAdjL hS (a + 1) (a + 1 + 1) rfl)).symm
-      (S.gCross a (a + 1) (a + 1 + 1) rfl rfl) = hS.sideL a := by
-    rw [BBw.sideL, StrongSl2.sideL]
+  have hs : (mateEquiv (gAdjL S a (a + 1) rfl) (gAdjL S (a + 1) (a + 1 + 1) rfl)).symm
+      (S.gCross a (a + 1) (a + 1 + 1) rfl rfl) = S.sideLN a := by
+    rw [sideLN, StrongSl2.sideL]
     congr 1
   have hcap : ∀ m : ℕ, S.gEc (a + 1) (a + 1 + 1) rfl ◁
-      powComp (gDotR hS (a + 1) (a + 1 + 1) rfl) m ≫ (gAdjL hS (a + 1) (a + 1 + 1) rfl).counit =
-      S.ccapD (hS.leftAdjN (a + 1)) m := fun m => cap_mate _ _ m
+      powComp (gDotR S (a + 1) (a + 1 + 1) rfl) m ≫ (gAdjL S (a + 1) (a + 1 + 1) rfl).counit =
+      S.ccapD (S.leftAdjN (a + 1)) m := fun m => cap_mate _ _ m
   have hcup : ∀ m : ℕ, (S.gAdjE (a + 1) (a + 1 + 1) rfl).unit ≫
       powComp (S.gDot (a + 1) (a + 1 + 1) rfl) m ▷ S.gRc (a + 1) (a + 1 + 1) rfl =
       S.ccupD a m := fun m => rfl
   rw [hσ, hs]
   simp only [hcap, hcup, mcwL_eq]
   rcases le_or_gt (S.wt (a + 1)) 0 with hn | hn
-  · obtain ⟨_, h2⟩ := hS.decompFE hn
+  · obtain ⟨_, h2⟩ := S.decompFE hn
     set N := (-S.wt (a + 1)).toNat with hN
     have hsum : ∑ f ∈ Finset.range N, ∑ g ∈ Finset.range (f + 1),
-        S.ccapD (hS.leftAdjN (a + 1)) (f - g) ≫ hS.cwL a (S.wt (a + 1) - 1 + g) ≫
+        S.ccapD (S.leftAdjN (a + 1)) (f - g) ≫ S.cwLN a (S.wt (a + 1) - 1 + g) ≫
           S.ccupD a (N - 1 - f) =
-        ∑ j ∈ Finset.range N, hS.compKN a j ≫ S.ccupD a j := by
+        ∑ j ∈ Finset.range N, S.compKN a j ≫ S.ccupD a j := by
       rw [← Finset.sum_range_reflect]
       refine Finset.sum_congr rfl fun j hj => ?_
       rw [Finset.mem_range] at hj
-      rw [BBw.compKN, Preadditive.sum_comp, ← hN,
+      rw [compKN, Preadditive.sum_comp, ← hN,
         show N - 1 - j + 1 = N - j by omega, show N - 1 - (N - 1 - j) = j by omega]
       refine Finset.sum_congr rfl fun g hg => ?_
       rw [Category.assoc]
-    have key : 𝟙 (S.grE (a + 1) ≫ S.grR (a + 1)) + hS.sideL a ≫ S.grSigma a -
+    have key : 𝟙 (S.grE (a + 1) ≫ S.grR (a + 1)) + S.sideLN a ≫ S.grSigma a -
         ∑ f ∈ Finset.range N, ∑ g ∈ Finset.range (f + 1),
-          S.ccapD (hS.leftAdjN (a + 1)) (f - g) ≫ hS.cwL a (S.wt (a + 1) - 1 + g) ≫
+          S.ccapD (S.leftAdjN (a + 1)) (f - g) ≫ S.cwLN a (S.wt (a + 1) - 1 + g) ≫
             S.ccupD a (N - 1 - f) = 0 := by
       rw [hsum, ← h2]
       abel
     exact key
-  · have h1 := (hS.decompEF (q := a) hn.le).1
-    have key : 𝟙 (S.grE (a + 1) ≫ S.grR (a + 1)) + hS.sideL a ≫ S.grSigma a -
+  · have h1 := (S.decompEF (q := a) hn.le).1
+    have key : 𝟙 (S.grE (a + 1) ≫ S.grR (a + 1)) + S.sideLN a ≫ S.grSigma a -
         ∑ f ∈ Finset.range (-S.wt (a + 1)).toNat, ∑ g ∈ Finset.range (f + 1),
-          S.ccapD (hS.leftAdjN (a + 1)) (f - g) ≫ hS.cwL a (S.wt (a + 1) - 1 + g) ≫
+          S.ccapD (S.leftAdjN (a + 1)) (f - g) ≫ S.cwLN a (S.wt (a + 1) - 1 + g) ≫
             S.ccupD a ((-S.wt (a + 1)).toNat - 1 - f) = 0 := by
       rw [show (-S.wt (a + 1)).toNat = 0 by omega, Finset.range_zero, Finset.sum_empty, h1]
       abel
@@ -671,7 +671,7 @@ theorem decompFE_model (a b c : ℤ) (h : a + 1 = b) (h' : b + 1 = c) (n : ℤ) 
 /-- The image of a term of the sum in the decomposition of `1_{EF}`. -/
 theorem img_decompEF_term (lam : ℤ) (f g : ℕ) :
     eqToHom (objI_pos _ _ (cond_up_dn lam)).symm ≫
-        (freeLift k (interp (genImg hS) lam lam).functor).map
+        (freeLift k (interp (genImg S) lam lam).functor).map
           (LinDiagram.of (dotCapEF sl2RootDatum lam () (f - g)) ≫
             KL3.Diagram.ccwL sl2RootDatum k lam () (-ip sl2RootDatum () lam - 1 + g) ≫
               LinDiagram.of (cupDotEF sl2RootDatum lam () ((ip sl2RootDatum () lam).toNat - 1 - f))) ≫
@@ -681,11 +681,11 @@ theorem img_decompEF_term (lam : ℤ) (f g : ℕ) :
             (S.qi_sh_false () lam)) (f - g) ≫
         (S.gAdjE (S.qi (sh sl2RootDatum (dn ()) + lam)) (S.qi lam)
           (S.qi_sh_false () lam)).counit) ≫
-        mccwL hS (S.qi (sh sl2RootDatum (dn ()) + lam)) (S.qi lam)
+        mccwL S (S.qi (sh sl2RootDatum (dn ()) + lam)) (S.qi lam)
           (S.qi (sh sl2RootDatum (up ()) + lam)) (S.qi_sh_false () lam) (S.qi_sh_true () lam)
           lam (-lam - 1 + g) ≫
-        ((gAdjL hS (S.qi (sh sl2RootDatum (dn ()) + lam)) (S.qi lam) (S.qi_sh_false () lam)).unit ≫
-          powComp (gDotR hS (S.qi (sh sl2RootDatum (dn ()) + lam)) (S.qi lam)
+        ((gAdjL S (S.qi (sh sl2RootDatum (dn ()) + lam)) (S.qi lam) (S.qi_sh_false () lam)).unit ≫
+          powComp (gDotR S (S.qi (sh sl2RootDatum (dn ()) + lam)) (S.qi lam)
             (S.qi_sh_false () lam)) (lam.toNat - 1 - f) ▷
             S.gEc (S.qi (sh sl2RootDatum (dn ()) + lam)) (S.qi lam) (S.qi_sh_false () lam)) := by
   set_option backward.isDefEq.respectTransparency false in
@@ -700,17 +700,17 @@ theorem img_decompEF_term (lam : ℤ) (f g : ℕ) :
 /-- The image of a term of the sum in the decomposition of `1_{FE}`. -/
 theorem img_decompFE_term (lam : ℤ) (f g : ℕ) :
     eqToHom (objI_pos _ _ (cond_dn_up lam)).symm ≫
-        (freeLift k (interp (genImg hS) lam lam).functor).map
+        (freeLift k (interp (genImg S) lam lam).functor).map
           (LinDiagram.of (dotCapFE sl2RootDatum lam () (f - g)) ≫
             KL3.Diagram.cwL sl2RootDatum k lam () (ip sl2RootDatum () lam - 1 + g) ≫
               LinDiagram.of (cupDotFE sl2RootDatum lam () ((-ip sl2RootDatum () lam).toNat - 1 - f))) ≫
         eqToHom (objI_pos _ _ (cond_dn_up lam)) =
       (S.gEc (S.qi lam) (S.qi (sh sl2RootDatum (up ()) + lam)) (S.qi_sh_true () lam) ◁
-          powComp (gDotR hS (S.qi lam) (S.qi (sh sl2RootDatum (up ()) + lam))
+          powComp (gDotR S (S.qi lam) (S.qi (sh sl2RootDatum (up ()) + lam))
             (S.qi_sh_true () lam)) (f - g) ≫
-        (gAdjL hS (S.qi lam) (S.qi (sh sl2RootDatum (up ()) + lam))
+        (gAdjL S (S.qi lam) (S.qi (sh sl2RootDatum (up ()) + lam))
           (S.qi_sh_true () lam)).counit) ≫
-        mcwL hS (S.qi (sh sl2RootDatum (dn ()) + lam)) (S.qi lam)
+        mcwL S (S.qi (sh sl2RootDatum (dn ()) + lam)) (S.qi lam)
           (S.qi (sh sl2RootDatum (up ()) + lam)) (S.qi_sh_false () lam) (S.qi_sh_true () lam)
           lam (lam - 1 + g) ≫
         ((S.gAdjE (S.qi lam) (S.qi (sh sl2RootDatum (up ()) + lam)) (S.qi_sh_true () lam)).unit ≫
@@ -738,7 +738,7 @@ set_option maxHeartbeats 4000000 in
 `eq_ident_decomp` with `r_i = 1`), read with the outer regions `λ`, `λ`, in the regions of the right
 parity. -/
 theorem rel_decompEF' {lam : ℤ} (hpar : ∃ q : ℤ, lam = S.n₀ + 2 * q) :
-    (freeLift k (interp (genImg hS) lam lam).functor).map
+    (freeLift k (interp (genImg S) lam lam).functor).map
       (LinDiagram.of (𝟙 _) + LinDiagram.of (crossl sl2RootDatum () () lam ≫
           crossr sl2RootDatum () () lam) - decompEFSum sl2RootDatum k () lam) = 0 := by
   apply (cancel_epi (eqToHom (objI_pos _ _ (cond_up_dn lam)).symm)).1
@@ -759,18 +759,18 @@ theorem rel_decompEF' {lam : ℤ} (hpar : ∃ q : ℤ, lam = S.n₀ + 2 * q) :
   simp only [Functor.map_sum, Preadditive.sum_comp, Preadditive.comp_sum, Category.assoc]
   set_option backward.isDefEq.respectTransparency false in
   rw [Finset.sum_congr rfl (fun f _ => Finset.sum_congr rfl
-    (fun g _ => img_decompEF_term hS lam f g))]
+    (fun g _ => img_decompEF_term S lam f g))]
   erw [ip_sl2]
-  exact decompEF_model hS (S.qi (sh sl2RootDatum (dn ()) + lam)) (S.qi lam)
+  exact decompEF_model S (S.qi (sh sl2RootDatum (dn ()) + lam)) (S.qi lam)
     (S.qi (sh sl2RootDatum (up ()) + lam)) (S.qi_sh_false () lam) (S.qi_sh_true () lam) lam
-    (wt_qi hpar)
+    (S.wt_qi hpar)
 
 set_option maxHeartbeats 4000000 in
 /-- **The decomposition of `1_{FE}` in the `sl₂` model** (KL III `decompFE`; CL
 `eq_ident_decomp-nleqz` with `r_i = 1`), read with the outer regions `λ`, `λ`, in the regions of
 the right parity. -/
 theorem rel_decompFE' {lam : ℤ} (hpar : ∃ q : ℤ, lam = S.n₀ + 2 * q) :
-    (freeLift k (interp (genImg hS) lam lam).functor).map
+    (freeLift k (interp (genImg S) lam lam).functor).map
       (LinDiagram.of (𝟙 _) + LinDiagram.of (crossr sl2RootDatum () () lam ≫
           crossl sl2RootDatum () () lam) - decompFESum sl2RootDatum k () lam) = 0 := by
   apply (cancel_epi (eqToHom (objI_pos _ _ (cond_dn_up lam)).symm)).1
@@ -791,33 +791,33 @@ theorem rel_decompFE' {lam : ℤ} (hpar : ∃ q : ℤ, lam = S.n₀ + 2 * q) :
   simp only [Functor.map_sum, Preadditive.sum_comp, Preadditive.comp_sum, Category.assoc]
   set_option backward.isDefEq.respectTransparency false in
   rw [Finset.sum_congr rfl (fun f _ => Finset.sum_congr rfl
-    (fun g _ => img_decompFE_term hS lam f g))]
+    (fun g _ => img_decompFE_term S lam f g))]
   erw [ip_sl2]
-  exact decompFE_model hS (S.qi (sh sl2RootDatum (dn ()) + lam)) (S.qi lam)
+  exact decompFE_model S (S.qi (sh sl2RootDatum (dn ()) + lam)) (S.qi lam)
     (S.qi (sh sl2RootDatum (up ()) + lam)) (S.qi_sh_false () lam) (S.qi_sh_true () lam) lam
-    (wt_qi hpar)
+    (S.wt_qi hpar)
 
 /-- **The decomposition of `1_{EF}` in the `sl₂` model**, read with its own outer regions (KL III
 `decompEF`, the relation of `U` with bottom boundary `E F 1_λ`). -/
 theorem rel_decompEF {lam : ℤ} (hpar : ∃ q : ℤ, lam = S.n₀ + 2 * q) :
-    (freeLift k (interp (genImg hS) (KL3.Diagram.wt sl2RootDatum lam [up (), dn ()] : ℤ)
+    (freeLift k (interp (genImg S) (KL3.Diagram.wt sl2RootDatum lam [up (), dn ()] : ℤ)
         lam).functor).map
       (LinDiagram.of (𝟙 _) + LinDiagram.of (crossl sl2RootDatum () () lam ≫
           crossr sl2RootDatum () () lam) - decompEFSum sl2RootDatum k () lam) = 0 := by
   have e : KL3.Diagram.wt sl2RootDatum lam [up (), dn ()] = lam := sh_true_sh_false () lam
   rw [e]
-  exact rel_decompEF' hS hpar
+  exact rel_decompEF' S hpar
 
 /-- **The decomposition of `1_{FE}` in the `sl₂` model**, read with its own outer regions (KL III
 `decompFE`, the relation of `U` with bottom boundary `F E 1_λ`). -/
 theorem rel_decompFE {lam : ℤ} (hpar : ∃ q : ℤ, lam = S.n₀ + 2 * q) :
-    (freeLift k (interp (genImg hS) (KL3.Diagram.wt sl2RootDatum lam [dn (), up ()] : ℤ)
+    (freeLift k (interp (genImg S) (KL3.Diagram.wt sl2RootDatum lam [dn (), up ()] : ℤ)
         lam).functor).map
       (LinDiagram.of (𝟙 _) + LinDiagram.of (crossr sl2RootDatum () () lam ≫
           crossl sl2RootDatum () () lam) - decompFESum sl2RootDatum k () lam) = 0 := by
   have e : KL3.Diagram.wt sl2RootDatum lam [dn (), up ()] = lam := sh_false_sh_true () lam
   rw [e]
-  exact rel_decompFE' hS hpar
+  exact rel_decompFE' S hpar
 
 end StrongSl2
 

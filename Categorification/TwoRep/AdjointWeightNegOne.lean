@@ -7,7 +7,7 @@ import Categorification.TwoRep.AdjointInductionNegCor
 import Categorification.TwoRep.DotEntriesNeg
 
 /-!
-# The adjoint induction hypothesis at the weight `-1`, and CL Proposition 3.9 under (BB_w)
+# The adjoint induction hypothesis at the weight `-1`, and CL Proposition 3.9
 
 S. Cautis, A. D. Lauda, *Implicit structure in 2-representations of quantum groups*,
 arXiv:1111.1431v3, §3, Proposition 3.9 (`prop:lradj`).
@@ -28,8 +28,8 @@ adjunctions of `E 1_{-3}`, this composite is a closed diagram built from an endo
 3.2 for `n ≤ 0` (`cor0Neg_neg`). So `(u, w)` satisfies the zigzag identity for `E`, and the
 one-zigzag lemma (`adjHyp_of_rightZigzag`, with `End(E 1_{-1}) = k`) gives (3.2) at `-1`.
 
-With `AdjointPositive.lean` this proves **CL Proposition 3.9 at every weight under (BB_w)**
-(`StrongSl2.BBw.adjHyp`), with shift coherence and Hom-finite, idempotent-complete Hom
+With `AdjointPositive.lean` this proves **CL Proposition 3.9 at every weight**
+(`StrongSl2.adjHyp`), with shift coherence and Hom-finite, idempotent-complete Hom
 categories.
 -/
 
@@ -367,17 +367,17 @@ theorem adjHyp_of_wt_eq_neg_one {s : ℤ} (h1 : S.wt (s + 1) = -1)
   rw [hcross, zero_comp, comp_zero, sub_zero] at hz
   exact S.adjHyp_of_rightZigzag (s + 1) u w (hu.of_eq (by omega)) (hw.of_eq (by omega)) hz hend
 
-/-- **CL Proposition 3.9 under (BB_w)**: in a strong 2-representation of `sl₂` satisfying (BB_w)
+/-- **CL Proposition 3.9**: in a strong 2-representation of `sl₂`
 (with shift coherence and Hom-finite, idempotent-complete Hom categories), the left adjoint of
 `E 1_n` is `1_n F ⟨-n-1⟩` at every weight `n`: `E` and `F` are biadjoint up to the shifts of
 (3.2). -/
-theorem BBw.adjHyp [∀ a b : B, IsIdempotentComplete (a ⟶ b)] {S : StrongSl2 k B} (hS : S.BBw)
+theorem adjHyp [∀ a b : B, IsIdempotentComplete (a ⟶ b)] (S : StrongSl2 k B)
     (r : ℤ) : S.AdjHyp r := by
   by_cases hr : S.wt r = -1
   · obtain ⟨s, rfl⟩ : ∃ s, r = s + 1 := ⟨r - 1, by ring⟩
     exact S.adjHyp_of_wt_eq_neg_one hr fun r' hr' =>
-      hS.adjHyp_of_wt_ne_neg_one (by have := S.wt_lt_wt hr'; omega)
-  · exact hS.adjHyp_of_wt_ne_neg_one hr
+      S.adjHyp_of_wt_ne_neg_one (by have := S.wt_lt_wt hr'; omega)
+  · exact S.adjHyp_of_wt_ne_neg_one hr
 
 end StrongSl2
 

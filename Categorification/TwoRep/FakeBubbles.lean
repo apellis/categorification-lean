@@ -22,9 +22,9 @@ adjunctions `A₀ : R_{n-2} ⊣ E 1_{n-2}` (`E 1_{n-2} = grE q`) and `A₁ : R_n
 
 (With the dots `x` normalized so that the nilHecke relation reads `x τ - τ x = 1`, i.e. CL's
 `r_i = 1`; CL §2.6.1 reduce `U_Q(sl₂)` to `r_i = 1` by rescaling.) They vanish in negative degree
-(`cwBub_eq_zero`, `ccwBub_eq_zero`, CL (3.4)), and under (BB_w), for the normalized left adjunctions
-`BBw.leftAdjN`, the degree-zero bubbles are the identity, CL (4.1) (`BBw.cwBub_deg_zero`,
-`BBw.ccwBub_deg_zero`; the counter-clockwise one at `n = -1` is CL's `c_{-1}`, Lemma 5.4).
+(`cwBub_eq_zero`, `ccwBub_eq_zero`, CL (3.4)), and, for the normalized left adjunctions
+`leftAdjN`, the degree-zero bubbles are the identity, CL (4.1) (`cwBub_deg_zero`,
+`ccwBub_deg_zero`; the counter-clockwise one at `n = -1` is CL's `c_{-1}`, Lemma 5.4).
 
 The **fake bubbles** are bubbles with a negative number of dots and nonnegative degree. As in
 KL III and CL (`eq_fake_nleqz`, `eq_fake_ngeqz`, and the definition at `n = 0`), they are defined by
@@ -46,8 +46,8 @@ Endomorphisms of an identity 1-morphism commute (`Bicategory.endId_comm`, Eckman
 * `StrongSl2.cwBub`, `ccwBub`, `isHomogeneous_cwBub`, `isHomogeneous_ccwBub`, `cwBub_eq_zero`,
   `ccwBub_eq_zero`, `exists_eq_smul_id`;
 * `StrongSl2.cwR`, `ccwR`, `cwL`, `ccwL` (fake bubbles), `ccwL_fake`, `cwL_fake`;
-* `StrongSl2.BBw.cwBub_deg_zero`, `BBw.ccwBub_deg_zero`;
-* `StrongSl2.BBw.grassmannian_cw_ccw`, `BBw.grassmannian_ccw_cw`: the infinite Grassmannian
+* `StrongSl2.cwBub_deg_zero`, `ccwBub_deg_zero`;
+* `StrongSl2.grassmannian_cw_ccw`, `grassmannian_ccw_cw`: the infinite Grassmannian
   relation in the degrees where it defines the fake bubbles.
 -/
 
@@ -281,85 +281,93 @@ theorem ccwBub_eq_zero {r : ℤ} (A : S.grR r ⊣ S.grE r)
     S.ccwBub A j = 0 :=
   S.eq_zero_of_isHomogeneous_neg (S.isHomogeneous_ccwBub A hc j) (by omega)
 
-/-! ## Under (BB_w): the normalized bubbles -/
+/-! ## The normalized bubbles -/
 
-variable {S} [∀ a b : B, IsIdempotentComplete (a ⟶ b)] (hS : S.BBw)
+variable {S} [∀ a b : B, IsIdempotentComplete (a ⟶ b)]
 
+variable (S) in
 /-- **CL (4.1), clockwise**: for the normalized left adjunctions, the clockwise bubble of degree
 zero in the region `n = wt (q + 1) ≥ 1` (with `n - 1` dots) is the identity. -/
-theorem BBw.cwBub_deg_zero {q : ℤ} (hn : 1 ≤ S.wt (q + 1)) :
-    S.cwBub (hS.leftAdjN q) ((S.wt (q + 1)).toNat - 1) = 𝟙 _ :=
-  (hS.leftAdjN_spec q).2.2.1 (by rw [S.wt_add_one] at hn; omega)
+theorem cwBub_deg_zero {q : ℤ} (hn : 1 ≤ S.wt (q + 1)) :
+    S.cwBub (S.leftAdjN q) ((S.wt (q + 1)).toNat - 1) = 𝟙 _ :=
+  (S.leftAdjN_spec q).2.2.1 (by rw [S.wt_add_one] at hn; omega)
 
+variable (S) in
 /-- **CL (4.1), counter-clockwise**: for the normalized left adjunctions, the counter-clockwise
 bubble of degree zero in the region `n = wt r ≤ -2` (with `-n - 1` dots) is the identity. -/
-theorem BBw.ccwBub_deg_zero {r : ℤ} (hn : S.wt r ≤ -2) :
-    S.ccwBub (hS.leftAdjN r) ((-S.wt r).toNat - 1) = 𝟙 _ :=
-  (hS.leftAdjN_spec r).2.2.2.1 hn
+theorem ccwBub_deg_zero {r : ℤ} (hn : S.wt r ≤ -2) :
+    S.ccwBub (S.leftAdjN r) ((-S.wt r).toNat - 1) = 𝟙 _ :=
+  (S.leftAdjN_spec r).2.2.2.1 hn
 
+variable (S) in
 /-- The clockwise bubbles for the normalized left adjunctions vanish in negative degree. -/
-theorem BBw.cwBub_eq_zero {q : ℤ} {j : ℕ} (hj : (j : ℤ) < S.wt (q + 1) - 1) :
-    S.cwBub (hS.leftAdjN q) j = 0 :=
-  S.cwBub_eq_zero _ (hS.leftAdjN_spec q).1 hj
+theorem cwBubN_eq_zero {q : ℤ} {j : ℕ} (hj : (j : ℤ) < S.wt (q + 1) - 1) :
+    S.cwBub (S.leftAdjN q) j = 0 :=
+  S.cwBub_eq_zero _ (S.leftAdjN_spec q).1 hj
 
+variable (S) in
 /-- The counter-clockwise bubbles for the normalized left adjunctions vanish in negative degree. -/
-theorem BBw.ccwBub_eq_zero {r : ℤ} {j : ℕ} (hj : (j : ℤ) < -S.wt r - 1) :
-    S.ccwBub (hS.leftAdjN r) j = 0 :=
-  S.ccwBub_eq_zero _ (hS.leftAdjN_spec r).2.1 hj
+theorem ccwBubN_eq_zero {r : ℤ} {j : ℕ} (hj : (j : ℤ) < -S.wt r - 1) :
+    S.ccwBub (S.leftAdjN r) j = 0 :=
+  S.ccwBub_eq_zero _ (S.leftAdjN_spec r).2.1 hj
 
+variable (S) in
 /-- The bubbles with integer labels in the region `q + 1`, for the normalized left adjunctions. -/
-abbrev BBw.cwL (q m : ℤ) : End (𝟙 (of (S.obj (q + 1)))) :=
-  S.cwL (hS.leftAdjN q) (hS.leftAdjN (q + 1)) m
+abbrev cwLN (q m : ℤ) : End (𝟙 (of (S.obj (q + 1)))) :=
+  S.cwL (S.leftAdjN q) (S.leftAdjN (q + 1)) m
 
+variable (S) in
 /-- The counter-clockwise bubbles with integer labels in the region `q + 1`, for the normalized
 left adjunctions. -/
-abbrev BBw.ccwL (q m : ℤ) : End (𝟙 (of (S.obj (q + 1)))) :=
-  S.ccwL (hS.leftAdjN q) (hS.leftAdjN (q + 1)) m
+abbrev ccwLN (q m : ℤ) : End (𝟙 (of (S.obj (q + 1)))) :=
+  S.ccwL (S.leftAdjN q) (S.leftAdjN (q + 1)) m
 
+variable (S) in
 /-- **The infinite Grassmannian relation where it defines the counter-clockwise fake bubbles**: in
 the region `n = wt (q + 1) ≥ 1`, for `K ≤ n`,
 `∑_{i ≤ K} (cw bubble of degree 2i) (ccw bubble of degree 2(K - i)) = δ_{K,0}`. -/
-theorem BBw.grassmannian_cw_ccw {q : ℤ} (hn : 1 ≤ S.wt (q + 1)) {K : ℕ}
+theorem grassmannian_cw_ccw {q : ℤ} (hn : 1 ≤ S.wt (q + 1)) {K : ℕ}
     (hK : (K : ℤ) ≤ S.wt (q + 1)) :
     ∑ i ∈ Finset.range (K + 1),
-        hS.cwL q (S.wt (q + 1) - 1 + i) * hS.ccwL q (-S.wt (q + 1) - 1 + (K - i : ℕ)) =
+        S.cwLN q (S.wt (q + 1) - 1 + i) * S.ccwLN q (-S.wt (q + 1) - 1 + (K - i : ℕ)) =
       if K = 0 then 1 else 0 := by
   set c : ℕ → End (𝟙 (of (S.obj (q + 1)))) :=
-    fun b => S.cwR (hS.leftAdjN q) (S.wt (q + 1) - 1 + b) with hc
+    fun b => S.cwR (S.leftAdjN q) (S.wt (q + 1) - 1 + b) with hc
   have hc0 : c 0 = 1 := by
     rw [hc]
     dsimp only
     rw [cwR_of_nonneg _ _ (by omega), show (S.wt (q + 1) - 1 + ((0 : ℕ) : ℤ)).toNat =
-      (S.wt (q + 1)).toNat - 1 by omega, BBw.cwBub_deg_zero hS hn]
+      (S.wt (q + 1)).toNat - 1 by omega, cwBub_deg_zero S hn]
     rfl
   rw [← sum_mul_grassInv c hc0 K]
   refine Finset.sum_congr rfl fun i hi => ?_
   have hi' := Finset.mem_range.1 hi
-  unfold BBw.cwL BBw.ccwL
+  unfold cwLN ccwLN
   rw [ccwL_fake _ _ _ (by omega), hc]
   dsimp only
   rw [cwL_of_nonneg _ _ _ (by omega), cwR_of_nonneg _ _ (by omega)]
 
+variable (S) in
 /-- **The infinite Grassmannian relation where it defines the clockwise fake bubbles**: in the
 region `n = wt (q + 1) ≤ -2`, for `K ≤ -n`,
 `∑_{i ≤ K} (ccw bubble of degree 2i) (cw bubble of degree 2(K - i)) = δ_{K,0}`. -/
-theorem BBw.grassmannian_ccw_cw {q : ℤ} (hn : S.wt (q + 1) ≤ -2) {K : ℕ}
+theorem grassmannian_ccw_cw {q : ℤ} (hn : S.wt (q + 1) ≤ -2) {K : ℕ}
     (hK : (K : ℤ) ≤ -S.wt (q + 1)) :
     ∑ i ∈ Finset.range (K + 1),
-        hS.ccwL q (-S.wt (q + 1) - 1 + i) * hS.cwL q (S.wt (q + 1) - 1 + (K - i : ℕ)) =
+        S.ccwLN q (-S.wt (q + 1) - 1 + i) * S.cwLN q (S.wt (q + 1) - 1 + (K - i : ℕ)) =
       if K = 0 then 1 else 0 := by
   set c : ℕ → End (𝟙 (of (S.obj (q + 1)))) :=
-    fun a => S.ccwR (hS.leftAdjN (q + 1)) (-S.wt (q + 1) - 1 + a) with hc
+    fun a => S.ccwR (S.leftAdjN (q + 1)) (-S.wt (q + 1) - 1 + a) with hc
   have hc0 : c 0 = 1 := by
     rw [hc]
     dsimp only
     rw [ccwR_of_nonneg _ _ (by omega), show (-S.wt (q + 1) - 1 + ((0 : ℕ) : ℤ)).toNat =
-      (-S.wt (q + 1)).toNat - 1 by omega, BBw.ccwBub_deg_zero hS hn]
+      (-S.wt (q + 1)).toNat - 1 by omega, ccwBub_deg_zero S hn]
     rfl
   rw [← sum_mul_grassInv c hc0 K]
   refine Finset.sum_congr rfl fun i hi => ?_
   have hi' := Finset.mem_range.1 hi
-  unfold BBw.cwL BBw.ccwL
+  unfold cwLN ccwLN
   rw [cwL_fake _ _ _ (by omega), hc]
   dsimp only
   rw [ccwL_of_nonneg _ _ _ (by omega), ccwR_of_nonneg _ _ (by omega)]

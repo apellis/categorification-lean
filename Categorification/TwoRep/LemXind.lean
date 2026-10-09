@@ -20,8 +20,8 @@ Lemma 13.1), made non-circular by assuming (3.2) *at* `n` (Proposition 3.9 at `n
 available, and organised so that no Krull–Schmidt cancellation with rigidity is needed. Only the
 numerical shadow `NumAdj` (`WordBounded.lean`) of (3.2) is used, at the weight `n` and above
 (`lemXind_of_numAdj`). The Hom-finite hypothesis remains essential when turning vanishing
-finranks into zero morphisms. Under (BB_w) and the ambient graded linear and Hom-finite
-hypotheses, `BBw.numAdj` (in `WordNumerics.lean`) supplies the shadow at every weight; this does not
+finranks into zero morphisms. Under the ambient graded linear and Hom-finite
+hypotheses, `numAdj` (in `WordNumerics.lean`) supplies the shadow at every weight; this does not
 construct an actual adjunction.
 
 Indexing: `1_n` at the object `r + 1 + 1`, `E 1_{n-2} = E (r + 1)`, `E 1_{n-4} = E r`,

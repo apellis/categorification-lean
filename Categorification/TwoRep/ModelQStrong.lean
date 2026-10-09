@@ -3,7 +3,7 @@ Copyright (c) 2026 Alex Ellis. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 -/
 import Categorification.TwoRep.ModelSl2
-import Categorification.TwoRep.QStrongBBw
+import Categorification.TwoRep.QStrongRestrict
 import Categorification.TwoRep.BBwProof
 import Categorification.Diagrams.CL.Scalars
 
@@ -27,7 +27,7 @@ is formalized in this case):
 * the upward dot goes to the normalized dot `r_i⁻¹ x` (`dotQ`), the upward crossing to the
   crossing `τ_{ij}` of the KLR action (`crossQ`);
 * the left adjunctions `R ⊣ E` of an `α_i`-string are the normalized left adjunctions
-  (`StrongSl2.BBw.leftAdjN`, CL (4.1)) of the restriction of `S` to that string, for one fixed
+  (`StrongSl2.leftAdjN`, CL (4.1)) of the restriction of `S` to that string, for one fixed
   base point of each coset `λ + ℤ α_i` (`strBase`; the index of `λ` along the string is
   `strIdx`), so that all strands of a string use the same choice (`adjL`);
 * cups and caps go to the units and counits of `E ⊣ R` and `R ⊣ E` (table of
@@ -234,7 +234,7 @@ include hsl in
 def adjLAux (i : I) (b : X) (r : ℤ) {x y : X} (e : b + r • RD.iX i = x)
     (e' : b + (r + 1) • RD.iX i = y) (h : x + RD.iX i = y) : S.Rg i h ⊣ S.Eg i h := by
   subst e e'
-  exact transportLeft (grR_toStrongSl2 S hsl i b r h) (((S.toStrongSl2 i (hsl i) b).bbw).leftAdjN r)
+  exact transportLeft (grR_toStrongSl2 S hsl i b r h) ((S.toStrongSl2 i (hsl i) b).leftAdjN r)
 
 theorem adjLAux_congr (i : I) {b b' : X} {r r' : ℤ} (hb : b = b') (hr : r = r') {x y : X}
     (e : b + r • RD.iX i = x) (e' : b + (r + 1) • RD.iX i = y)

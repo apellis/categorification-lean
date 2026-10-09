@@ -52,7 +52,7 @@ variable {k : Type*} [Field k] {B : Type u} [Bicategory.{w, v} B]
 
 namespace StrongSl2
 
-variable {S : StrongSl2 k B} (hS : S.BBw)
+variable (S : StrongSl2 k B)
 
 attribute [local irreducible] KL3.Diagram.sh
 
@@ -98,48 +98,48 @@ theorem bub_mate {C : Type*} [Bicategory C] {a b : C} {R : b ⟶ a} {E : a ⟶ b
 /-- The clockwise bubble of the model (left cup, dots on the downward strand, right cap) is the
 clockwise bubble `cwBub` (dots on the upward strand). -/
 theorem cwImg_eq (a : ℤ) (m : ℕ) :
-    (gAdjL hS a (a + 1) rfl).unit ≫ powComp (gDotR hS a (a + 1) rfl) m ▷ S.gEc a (a + 1) rfl ≫
-        (S.gAdjE a (a + 1) rfl).counit = S.cwBub (hS.leftAdjN a) m :=
-  (bub_mate (gAdjL hS a (a + 1) rfl) (S.gAdjE a (a + 1) rfl) (S.gDot a (a + 1) rfl) m).trans rfl
+    (gAdjL S a (a + 1) rfl).unit ≫ powComp (gDotR S a (a + 1) rfl) m ▷ S.gEc a (a + 1) rfl ≫
+        (S.gAdjE a (a + 1) rfl).counit = S.cwBub (S.leftAdjN a) m :=
+  (bub_mate (gAdjL S a (a + 1) rfl) (S.gAdjE a (a + 1) rfl) (S.gDot a (a + 1) rfl) m).trans rfl
 
 /-- The counter-clockwise bubble of the model is `ccwBub`. -/
 theorem ccwImg_eq (a : ℤ) (m : ℕ) :
     (S.gAdjE a (a + 1) rfl).unit ≫ powComp (S.gDot a (a + 1) rfl) m ▷ S.gRc a (a + 1) rfl ≫
-        (gAdjL hS a (a + 1) rfl).counit = S.ccwBub (hS.leftAdjN a) m := by
+        (gAdjL S a (a + 1) rfl).counit = S.ccwBub (S.leftAdjN a) m := by
   rfl
 
 /-- Clockwise bubbles of negative degree vanish in the model. -/
 theorem cwImg_eq_zero (a b : ℤ) (h : a + 1 = b) {m : ℕ} (hm : (m : ℤ) < S.wt b - 1) :
-    (gAdjL hS a b h).unit ≫ powComp (gDotR hS a b h) m ▷ S.gEc a b h ≫
+    (gAdjL S a b h).unit ≫ powComp (gDotR S a b h) m ▷ S.gEc a b h ≫
         (S.gAdjE a b h).counit = 0 := by
   subst h
   rw [cwImg_eq]
-  exact hS.cwBub_eq_zero hm
+  exact S.cwBubN_eq_zero hm
 
 /-- The clockwise bubble of degree zero is the identity in the model. -/
 theorem cwImg_eq_id (a b : ℤ) (h : a + 1 = b) (hb : 1 ≤ S.wt b) :
-    (gAdjL hS a b h).unit ≫ powComp (gDotR hS a b h) ((S.wt b).toNat - 1) ▷ S.gEc a b h ≫
+    (gAdjL S a b h).unit ≫ powComp (gDotR S a b h) ((S.wt b).toNat - 1) ▷ S.gEc a b h ≫
         (S.gAdjE a b h).counit = 𝟙 _ := by
   subst h
   rw [cwImg_eq]
-  exact hS.cwBub_deg_zero hb
+  exact S.cwBub_deg_zero hb
 
 /-- Counter-clockwise bubbles of negative degree vanish in the model. -/
 theorem ccwImg_eq_zero (a b : ℤ) (h : a + 1 = b) {m : ℕ} (hm : (m : ℤ) < -S.wt a - 1) :
     (S.gAdjE a b h).unit ≫ powComp (S.gDot a b h) m ▷ S.gRc a b h ≫
-        (gAdjL hS a b h).counit = 0 := by
+        (gAdjL S a b h).counit = 0 := by
   subst h
   rw [ccwImg_eq]
-  exact hS.ccwBub_eq_zero hm
+  exact S.ccwBubN_eq_zero hm
 
 /-- The counter-clockwise bubble of degree zero is the identity in the model (for weight `-1`
 this is CL's `c_{-1} = 1`, Lemma 5.4). -/
 theorem ccwImg_eq_id (a b : ℤ) (h : a + 1 = b) (ha : S.wt a ≤ -1) :
     (S.gAdjE a b h).unit ≫ powComp (S.gDot a b h) ((-S.wt a).toNat - 1) ▷ S.gRc a b h ≫
-        (gAdjL hS a b h).counit = 𝟙 _ := by
+        (gAdjL S a b h).counit = 𝟙 _ := by
   subst h
   rw [ccwImg_eq]
-  exact hS.ccwBub_deg_zero' ha
+  exact S.ccwBub_deg_zero' ha
 
 omit [∀ a b : B, IsIdempotentComplete (a ⟶ b)] [∀ a b : B, HomFinite k (a ⟶ b)] in
 /-- Splitting a conjugated composite. -/
@@ -161,10 +161,10 @@ theorem img_dots {s t : ℤ} (lam : ℤ) (u : List (Letter Unit)) (l : Letter Un
     (v : List (Letter Unit))
     (h : Cond (S := psig sl2RootDatum) s t (ob sl2RootDatum lam (u ++ [l] ++ v))) (m : ℕ) :
     eqToHom (objI_pos _ _ h).symm ≫
-        (interp (genImg hS) s t).functor.map (dots sl2RootDatum lam u l v m) ≫
+        (interp (genImg S) s t).functor.map (dots sl2RootDatum lam u l v m) ≫
         eqToHom (objI_pos _ _ h) =
       powComp (eqToHom (objI_pos _ _ h).symm ≫
-        (interp (genImg hS) s t).functor.map
+        (interp (genImg S) s t).functor.map
           (mkD sl2RootDatum lam [(u, .dot l, v)] ⟨rfl, rfl⟩) ≫ eqToHom (objI_pos _ _ h)) m := by
   induction m with
   | zero =>
@@ -181,10 +181,10 @@ set_option maxHeartbeats 2000000 in
 theorem img_cupUp (lam : ℤ) (h₀ : Cond (S := psig sl2RootDatum) lam lam (ob sl2RootDatum lam []))
     (h₁ : Cond (S := psig sl2RootDatum) lam lam (ob sl2RootDatum lam [up (), dn ()])) :
     eqToHom (objI_pos _ _ h₀).symm ≫
-        (interp (genImg hS) lam lam).functor.map
+        (interp (genImg S) lam lam).functor.map
           (mkD sl2RootDatum lam [([], .cup (up ()), [])] ⟨rfl, rfl⟩) ≫
         eqToHom (objI_pos _ _ h₁) =
-      (gAdjL hS (S.qi (sh sl2RootDatum (dn ()) + lam)) (S.qi lam) (S.qi_sh_false () lam)).unit := by
+      (gAdjL S (S.qi (sh sl2RootDatum (dn ()) + lam)) (S.qi lam) (S.qi_sh_false () lam)).unit := by
   set_option backward.isDefEq.respectTransparency false in
   simp only [Interpretation.functor_map, mkD, Diagram.layers_mk, layList_cons, layList_nil,
     Interpretation.mapChain]
@@ -205,7 +205,7 @@ theorem img_cupUp (lam : ℤ) (h₀ : Cond (S := psig sl2RootDatum) lam lam (ob 
       set_option backward.isDefEq.respectTransparency false in
       rw [layerAt_whole, PrelaxFunctor.map₂_id, Category.id_comp, lift_map₂_eqToHom]
       erw [eqToHom_refl, Category.comp_id]
-      exact genImg_cup_true hS () _ _ _ _ _ _ _
+      exact genImg_cup_true S () _ _ _ _ _ _ _
     case e =>
       exact fw_eq (by simp [inv_dual, Letter.dual, sh_true_sh_false, ob]) _ _ _ _
   all_goals simp [Layer.cod, Layer.dom, ob, inv_dual, Letter.dual, sh_true_sh_false, sh_false_sh_true, sig0_dom_dot']
@@ -215,7 +215,7 @@ set_option maxHeartbeats 2000000 in
 theorem img_cupDn (lam : ℤ) (h₀ : Cond (S := psig sl2RootDatum) lam lam (ob sl2RootDatum lam []))
     (h₁ : Cond (S := psig sl2RootDatum) lam lam (ob sl2RootDatum lam [dn (), up ()])) :
     eqToHom (objI_pos _ _ h₀).symm ≫
-        (interp (genImg hS) lam lam).functor.map
+        (interp (genImg S) lam lam).functor.map
           (mkD sl2RootDatum lam [([], .cup (dn ()), [])] ⟨rfl, rfl⟩) ≫
         eqToHom (objI_pos _ _ h₁) =
       (S.gAdjE (S.qi lam) (S.qi (sh sl2RootDatum (up ()) + lam)) (S.qi_sh_true () lam)).unit := by
@@ -239,7 +239,7 @@ theorem img_cupDn (lam : ℤ) (h₀ : Cond (S := psig sl2RootDatum) lam lam (ob 
       set_option backward.isDefEq.respectTransparency false in
       rw [layerAt_whole, PrelaxFunctor.map₂_id, Category.id_comp, lift_map₂_eqToHom]
       erw [eqToHom_refl, Category.comp_id]
-      exact genImg_cup_false hS () _ _ _ _ _ _ _
+      exact genImg_cup_false S () _ _ _ _ _ _ _
     case e =>
       exact fw_eq (by simp [inv_dual, Letter.dual, sh_false_sh_true, ob]) _ _ _ _
   all_goals simp [Layer.cod, Layer.dom, ob, inv_dual, Letter.dual, sh_true_sh_false, sh_false_sh_true, sig0_dom_dot']
@@ -250,10 +250,10 @@ theorem img_capUp (lam : ℤ)
     (h₀ : Cond (S := psig sl2RootDatum) lam lam (ob sl2RootDatum lam [dn (), up ()]))
     (h₁ : Cond (S := psig sl2RootDatum) lam lam (ob sl2RootDatum lam [])) :
     eqToHom (objI_pos _ _ h₀).symm ≫
-        (interp (genImg hS) lam lam).functor.map
+        (interp (genImg S) lam lam).functor.map
           (mkD sl2RootDatum lam [([], .cap (up ()), [])] ⟨rfl, rfl⟩) ≫
         eqToHom (objI_pos _ _ h₁) =
-      (gAdjL hS (S.qi lam) (S.qi (sh sl2RootDatum (up ()) + lam)) (S.qi_sh_true () lam)).counit := by
+      (gAdjL S (S.qi lam) (S.qi (sh sl2RootDatum (up ()) + lam)) (S.qi_sh_true () lam)).counit := by
   set_option backward.isDefEq.respectTransparency false in
   simp only [Interpretation.functor_map, mkD, Diagram.layers_mk, layList_cons, layList_nil,
     Interpretation.mapChain]
@@ -274,7 +274,7 @@ theorem img_capUp (lam : ℤ)
       set_option backward.isDefEq.respectTransparency false in
       rw [layerAt_whole, PrelaxFunctor.map₂_id, Category.comp_id, lift_map₂_eqToHom]
       erw [eqToHom_refl, Category.id_comp]
-      exact genImg_cap_true hS () _ _ _ _ _ _ _
+      exact genImg_cap_true S () _ _ _ _ _ _ _
     case e =>
       exact fw_eq (by simp [inv_dual, Letter.dual, ob]) _ _ _ _
   all_goals simp [Layer.cod, Layer.dom, ob, inv_dual, Letter.dual, sh_true_sh_false, sh_false_sh_true, sig0_dom_dot']
@@ -285,7 +285,7 @@ theorem img_capDn (lam : ℤ)
     (h₀ : Cond (S := psig sl2RootDatum) lam lam (ob sl2RootDatum lam [up (), dn ()]))
     (h₁ : Cond (S := psig sl2RootDatum) lam lam (ob sl2RootDatum lam [])) :
     eqToHom (objI_pos _ _ h₀).symm ≫
-        (interp (genImg hS) lam lam).functor.map
+        (interp (genImg S) lam lam).functor.map
           (mkD sl2RootDatum lam [([], .cap (dn ()), [])] ⟨rfl, rfl⟩) ≫
         eqToHom (objI_pos _ _ h₁) =
       (S.gAdjE (S.qi (sh sl2RootDatum (dn ()) + lam)) (S.qi lam) (S.qi_sh_false () lam)).counit := by
@@ -309,7 +309,7 @@ theorem img_capDn (lam : ℤ)
       set_option backward.isDefEq.respectTransparency false in
       rw [layerAt_whole, PrelaxFunctor.map₂_id, Category.comp_id, lift_map₂_eqToHom]
       erw [eqToHom_refl, Category.id_comp]
-      exact genImg_cap_false hS () _ _ _ _ _ _ _
+      exact genImg_cap_false S () _ _ _ _ _ _ _
     case e =>
       exact fw_eq (by simp [inv_dual, Letter.dual, ob]) _ _ _ _
   all_goals simp [Layer.cod, Layer.dom, ob, inv_dual, Letter.dual, sh_true_sh_false, sh_false_sh_true, sig0_dom_dot']
@@ -319,10 +319,10 @@ set_option maxHeartbeats 2000000 in
 theorem img_dotDn_UD (lam : ℤ)
     (h₀ : Cond (S := psig sl2RootDatum) lam lam (ob sl2RootDatum lam [up (), dn ()])) :
     eqToHom (objI_pos _ _ h₀).symm ≫
-        (interp (genImg hS) lam lam).functor.map
+        (interp (genImg S) lam lam).functor.map
           (mkD sl2RootDatum lam [([up ()], .dot (dn ()), [])] ⟨rfl, rfl⟩) ≫
         eqToHom (objI_pos _ _ h₀) =
-      gDotR hS (S.qi (sh sl2RootDatum (dn ()) + lam)) (S.qi lam) (S.qi_sh_false () lam) ▷
+      gDotR S (S.qi (sh sl2RootDatum (dn ()) + lam)) (S.qi lam) (S.qi_sh_false () lam) ▷
         S.gEc (S.qi (sh sl2RootDatum (dn ()) + lam)) (S.qi lam)
           (by have := S.qi_sh_true () (sh sl2RootDatum (dn ()) + lam)
               rwa [sh_true_sh_false] at this) := by
@@ -348,7 +348,7 @@ theorem img_dotDn_UD (lam : ℤ)
       rw [layerAt_left]
       simp only [lift_map₂_eqToHom, eqToHom_refl, PrelaxFunctor.map₂_id, Category.id_comp,
         Category.comp_id]
-      erw [genImg_dot_false hS]
+      erw [genImg_dot_false S]
       rfl
     case e => rfl
     case e' => rfl
@@ -359,7 +359,7 @@ set_option maxHeartbeats 2000000 in
 theorem img_dotUp_DU (lam : ℤ)
     (h₀ : Cond (S := psig sl2RootDatum) lam lam (ob sl2RootDatum lam [dn (), up ()])) :
     eqToHom (objI_pos _ _ h₀).symm ≫
-        (interp (genImg hS) lam lam).functor.map
+        (interp (genImg S) lam lam).functor.map
           (mkD sl2RootDatum lam [([dn ()], .dot (up ()), [])] ⟨rfl, rfl⟩) ≫
         eqToHom (objI_pos _ _ h₀) =
       S.gDot (S.qi lam) (S.qi (sh sl2RootDatum (up ()) + lam)) (S.qi_sh_true () lam) ▷
@@ -386,7 +386,7 @@ theorem img_dotUp_DU (lam : ℤ)
       rw [layerAt_left]
       simp only [lift_map₂_eqToHom, eqToHom_refl, PrelaxFunctor.map₂_id, Category.id_comp,
         Category.comp_id]
-      erw [genImg_dot_true hS]
+      erw [genImg_dot_true S]
       rfl
     case e => rfl
     case e' => rfl
@@ -435,10 +435,10 @@ theorem cond_dn_up (lam : ℤ) :
 /-- The image of the clockwise bubble with `m` dots in the region `λ`. -/
 theorem img_cwReal (lam : ℤ) (m : ℕ) :
     eqToHom (objI_pos _ _ (cond_nil lam)).symm ≫
-        (interp (genImg hS) lam lam).functor.map (cwReal sl2RootDatum lam () m) ≫
+        (interp (genImg S) lam lam).functor.map (cwReal sl2RootDatum lam () m) ≫
         eqToHom (objI_pos _ _ (cond_nil lam)) =
-      (gAdjL hS (S.qi (sh sl2RootDatum (dn ()) + lam)) (S.qi lam) (S.qi_sh_false () lam)).unit ≫
-        powComp (gDotR hS (S.qi (sh sl2RootDatum (dn ()) + lam)) (S.qi lam)
+      (gAdjL S (S.qi (sh sl2RootDatum (dn ()) + lam)) (S.qi lam) (S.qi_sh_false () lam)).unit ≫
+        powComp (gDotR S (S.qi (sh sl2RootDatum (dn ()) + lam)) (S.qi lam)
           (S.qi_sh_false () lam)) m ▷ S.gEc (S.qi (sh sl2RootDatum (dn ()) + lam)) (S.qi lam)
             (S.qi_sh_false () lam) ≫
         (S.gAdjE (S.qi (sh sl2RootDatum (dn ()) + lam)) (S.qi lam)
@@ -449,21 +449,21 @@ theorem img_cwReal (lam : ℤ) (m : ℕ) :
       (objI_pos _ _ (cond_nil lam)),
     conj_comp_conj (objI_pos _ _ (cond_up_dn lam)) (objI_pos _ _ (cond_up_dn lam))
       (objI_pos _ _ (cond_nil lam)),
-    img_cupUp hS lam (cond_nil lam) (cond_up_dn lam), 
-    img_capDn hS lam (cond_up_dn lam) (cond_nil lam)]
-  erw [img_dots hS lam [up ()] (dn ()) [] (cond_up_dn lam) m, img_dotDn_UD hS lam (cond_up_dn lam)]
+    img_cupUp S lam (cond_nil lam) (cond_up_dn lam), 
+    img_capDn S lam (cond_up_dn lam) (cond_nil lam)]
+  erw [img_dots S lam [up ()] (dn ()) [] (cond_up_dn lam) m, img_dotDn_UD S lam (cond_up_dn lam)]
   rw [← powComp_whiskerRight]
 
 /-- The image of the counter-clockwise bubble with `m` dots in the region `λ`. -/
 theorem img_ccwReal (lam : ℤ) (m : ℕ) :
     eqToHom (objI_pos _ _ (cond_nil lam)).symm ≫
-        (interp (genImg hS) lam lam).functor.map (ccwReal sl2RootDatum lam () m) ≫
+        (interp (genImg S) lam lam).functor.map (ccwReal sl2RootDatum lam () m) ≫
         eqToHom (objI_pos _ _ (cond_nil lam)) =
       (S.gAdjE (S.qi lam) (S.qi (sh sl2RootDatum (up ()) + lam)) (S.qi_sh_true () lam)).unit ≫
         powComp (S.gDot (S.qi lam) (S.qi (sh sl2RootDatum (up ()) + lam))
           (S.qi_sh_true () lam)) m ▷ S.gRc (S.qi lam) (S.qi (sh sl2RootDatum (up ()) + lam))
             (S.qi_sh_true () lam) ≫
-        (gAdjL hS (S.qi lam) (S.qi (sh sl2RootDatum (up ()) + lam))
+        (gAdjL S (S.qi lam) (S.qi (sh sl2RootDatum (up ()) + lam))
           (S.qi_sh_true () lam)).counit := by
   set_option backward.isDefEq.respectTransparency false in
   rw [ccwReal_eq, CategoryTheory.Functor.map_comp, CategoryTheory.Functor.map_comp,
@@ -471,27 +471,27 @@ theorem img_ccwReal (lam : ℤ) (m : ℕ) :
       (objI_pos _ _ (cond_nil lam)),
     conj_comp_conj (objI_pos _ _ (cond_dn_up lam)) (objI_pos _ _ (cond_dn_up lam))
       (objI_pos _ _ (cond_nil lam)),
-    img_cupDn hS lam (cond_nil lam) (cond_dn_up lam), 
-    img_capUp hS lam (cond_dn_up lam) (cond_nil lam)]
-  erw [img_dots hS lam [dn ()] (up ()) [] (cond_dn_up lam) m, img_dotUp_DU hS lam (cond_dn_up lam)]
+    img_cupDn S lam (cond_nil lam) (cond_dn_up lam), 
+    img_capUp S lam (cond_dn_up lam) (cond_nil lam)]
+  erw [img_dots S lam [dn ()] (up ()) [] (cond_dn_up lam) m, img_dotUp_DU S lam (cond_dn_up lam)]
   rw [← powComp_whiskerRight]
 
 /-- **Clockwise bubbles of negative degree vanish** in the `sl₂` model (KL III `cwNeg`), in the
 regions of the right parity. -/
 theorem cwReal_eq_zero {lam : ℤ} (hpar : ∃ q : ℤ, lam = S.n₀ + 2 * q) {m : ℕ}
     (hm : (m : ℤ) < lam - 1) :
-    (interp (genImg hS) lam lam).functor.map (cwReal sl2RootDatum lam () m) = 0 := by
+    (interp (genImg S) lam lam).functor.map (cwReal sl2RootDatum lam () m) = 0 := by
   apply (cancel_epi (eqToHom (objI_pos _ _ (cond_nil lam)).symm)).1
   apply (cancel_mono (eqToHom (objI_pos _ _ (cond_nil lam)))).1
   set_option backward.isDefEq.respectTransparency false in
   simp only [Category.assoc, Limits.comp_zero, Limits.zero_comp]
   rw [img_cwReal]
-  exact cwImg_eq_zero hS _ _ _ (by rw [wt_qi hpar]; exact hm)
+  exact cwImg_eq_zero S _ _ _ (by rw [S.wt_qi hpar]; exact hm)
 
 /-- **The clockwise bubble of degree zero is the identity** in the `sl₂` model (KL III `cwOne`),
 in the regions `λ ≥ 1` of the right parity. -/
 theorem cwReal_deg_zero {lam : ℤ} (hpar : ∃ q : ℤ, lam = S.n₀ + 2 * q) (hl : 1 ≤ lam) :
-    (interp (genImg hS) lam lam).functor.map (cwReal sl2RootDatum lam () (lam - 1).toNat) =
+    (interp (genImg S) lam lam).functor.map (cwReal sl2RootDatum lam () (lam - 1).toNat) =
       𝟙 _ := by
   apply (cancel_epi (eqToHom (objI_pos _ _ (cond_nil lam)).symm)).1
   apply (cancel_mono (eqToHom (objI_pos _ _ (cond_nil lam)))).1
@@ -499,15 +499,15 @@ theorem cwReal_deg_zero {lam : ℤ} (hpar : ∃ q : ℤ, lam = S.n₀ + 2 * q) (
   simp only [Category.assoc]
   rw [img_cwReal]
   erw [Category.id_comp, eqToHom_trans, eqToHom_refl]
-  have e : (lam - 1).toNat = (S.wt (S.qi lam)).toNat - 1 := by rw [wt_qi hpar]; omega
+  have e : (lam - 1).toNat = (S.wt (S.qi lam)).toNat - 1 := by rw [S.wt_qi hpar]; omega
   rw [e]
-  exact cwImg_eq_id hS _ _ (S.qi_sh_false () lam) (by rw [wt_qi hpar]; exact hl)
+  exact cwImg_eq_id S _ _ (S.qi_sh_false () lam) (by rw [S.wt_qi hpar]; exact hl)
 
 /-- **The counter-clockwise bubble of degree zero is the identity** in the `sl₂` model (KL III
 `ccwOne`), in the regions `λ ≤ -1` of the right parity (for `λ = -1` this is CL's `c_{-1} = 1`,
 Lemma 5.4). -/
 theorem ccwReal_deg_zero {lam : ℤ} (hpar : ∃ q : ℤ, lam = S.n₀ + 2 * q) (hl : lam ≤ -1) :
-    (interp (genImg hS) lam lam).functor.map (ccwReal sl2RootDatum lam () (-lam - 1).toNat) =
+    (interp (genImg S) lam lam).functor.map (ccwReal sl2RootDatum lam () (-lam - 1).toNat) =
       𝟙 _ := by
   apply (cancel_epi (eqToHom (objI_pos _ _ (cond_nil lam)).symm)).1
   apply (cancel_mono (eqToHom (objI_pos _ _ (cond_nil lam)))).1
@@ -515,21 +515,21 @@ theorem ccwReal_deg_zero {lam : ℤ} (hpar : ∃ q : ℤ, lam = S.n₀ + 2 * q) 
   simp only [Category.assoc]
   rw [img_ccwReal]
   erw [Category.id_comp, eqToHom_trans, eqToHom_refl]
-  have e : (-lam - 1).toNat = (-S.wt (S.qi lam)).toNat - 1 := by rw [wt_qi hpar]; omega
+  have e : (-lam - 1).toNat = (-S.wt (S.qi lam)).toNat - 1 := by rw [S.wt_qi hpar]; omega
   rw [e]
-  exact ccwImg_eq_id hS _ _ (S.qi_sh_true () lam) (by rw [wt_qi hpar]; exact hl)
+  exact ccwImg_eq_id S _ _ (S.qi_sh_true () lam) (by rw [S.wt_qi hpar]; exact hl)
 
 /-- **Counter-clockwise bubbles of negative degree vanish** in the `sl₂` model (KL III
 `ccwNeg`), in the regions of the right parity. -/
 theorem ccwReal_eq_zero {lam : ℤ} (hpar : ∃ q : ℤ, lam = S.n₀ + 2 * q) {m : ℕ}
     (hm : (m : ℤ) < -lam - 1) :
-    (interp (genImg hS) lam lam).functor.map (ccwReal sl2RootDatum lam () m) = 0 := by
+    (interp (genImg S) lam lam).functor.map (ccwReal sl2RootDatum lam () m) = 0 := by
   apply (cancel_epi (eqToHom (objI_pos _ _ (cond_nil lam)).symm)).1
   apply (cancel_mono (eqToHom (objI_pos _ _ (cond_nil lam)))).1
   set_option backward.isDefEq.respectTransparency false in
   simp only [Category.assoc, Limits.comp_zero, Limits.zero_comp]
   rw [img_ccwReal]
-  exact ccwImg_eq_zero hS _ _ _ (by rw [wt_qi hpar]; exact hm)
+  exact ccwImg_eq_zero S _ _ _ (by rw [S.wt_qi hpar]; exact hm)
 
 end StrongSl2
 

@@ -24,9 +24,9 @@ whiskering, and the two mates of the dots agree (Lemma 4.1), so the nilHecke rel
 * `Bicategory.Adjunction.comp_unit_eq`, `comp_counit_eq`: explicit units and counits of composite
   adjunctions;
 * `StrongSl2.cyclic_cross_of_cyclic_dot`: the crossing is cyclic if the dots are;
-* `StrongSl2.BBw.leftAdjN`: under (BB_w), a choice of left adjunctions `R_n ⊣ E 1_n` normalized
-  as in CL (4.1), for which the dots are cyclic (`BBw.cyclic_dot_leftAdjN`);
-* `StrongSl2.BBw.cyclic_cross`: **CL Lemma 4.2 under (BB_w)** for these left adjunctions.
+* `StrongSl2.leftAdjN`:, a choice of left adjunctions `R_n ⊣ E 1_n` normalized
+  as in CL (4.1), for which the dots are cyclic (`cyclic_dot_leftAdjN`);
+* `StrongSl2.cyclic_cross`: **CL Lemma 4.2** for these left adjunctions.
 -/
 
 noncomputable section
@@ -136,11 +136,11 @@ open KrullSchmidtCat (HomFinite)
 
 variable (S : StrongSl2 k B)
 
-/-- **CL Lemma 4.2 from Lemma 4.1** under (BB_w): for left adjunctions `R_n ⊣ E 1_n`,
+/-- **CL Lemma 4.2 from Lemma 4.1**: for left adjunctions `R_n ⊣ E 1_n`,
 `R_{n+2} ⊣ E 1_{n+2}` (homogeneous units and counits) for which the dots are cyclic, the
 crossing on `E E 1_n` is cyclic: its right mate under the composite of the right adjunctions
 equals its left mate under the composite of the left adjunctions. -/
-theorem cyclic_cross_of_cyclic_dot [∀ a b : B, IsIdempotentComplete (a ⟶ b)] (hS : S.BBw)
+theorem cyclic_cross_of_cyclic_dot [∀ a b : B, IsIdempotentComplete (a ⟶ b)]
     (r : ℤ) (A₁ : S.grR r ⊣ S.grE r) (A₂ : S.grR (r + 1) ⊣ S.grE (r + 1))
     (hu₁ : IsHomogeneous A₁.unit (-(2 * S.wt r + 2)))
     (hc₁ : IsHomogeneous A₁.counit (2 * S.wt r + 2))
@@ -212,7 +212,7 @@ theorem cyclic_cross_of_cyclic_dot [∀ a b : B, IsIdempotentComplete (a ⟶ b)]
     isHomogeneous_conjugateEquiv_symm Bc Bc hBu hBc' hLH
   -- the degree `-2` endomorphisms of `E E 1_n` form a line (CL Corollary 3.2)
   have hfin : finrank k (S.E r ≫ S.E (r + 1) ⟶ (S.E r ≫ S.E (r + 1))⟦(-2 : ℤ)⟧) = 1 := by
-    have hyp : ∀ r', S.AdjHyp r' := hS.adjHyp
+    have hyp : ∀ r', S.AdjHyp r' := S.adjHyp
     have hE : ¬ IsZero (S.E r ≫ S.E (r + 1)) := fun hz =>
       hτ0 (((incl _).map_isZero hz).eq_of_src _ _)
     rcases le_or_gt (-2) (S.wt r) with hw | hw
@@ -251,40 +251,44 @@ theorem cyclic_dotN_of_cyclic_dot {r : ℤ} (adjL : S.grR r ⊣ S.grE r)
 
 variable {S}
 
-/-- **The normalized left adjunctions** under (BB_w): for each `n`, a left adjunction
-`R_n ⊣ E 1_n` normalized as in CL (4.1), for which the dot is cyclic (`BBw.cyclic_dot`). -/
-def BBw.leftAdjN [∀ a b : B, IsIdempotentComplete (a ⟶ b)] (hS : S.BBw) (r : ℤ) :
+variable (S) in
+/-- **The normalized left adjunctions**: for each `n`, a left adjunction
+`R_n ⊣ E 1_n` normalized as in CL (4.1), for which the dot is cyclic (`cyclic_dot`). -/
+def leftAdjN [∀ a b : B, IsIdempotentComplete (a ⟶ b)] (r : ℤ) :
     S.grR r ⊣ S.grE r :=
-  (BBw.cyclic_dot S hS r).choose
+  (cyclic_dot S r).choose
 
-theorem BBw.leftAdjN_spec [∀ a b : B, IsIdempotentComplete (a ⟶ b)] (hS : S.BBw) (r : ℤ) :
-    IsHomogeneous (hS.leftAdjN r).unit (-(2 * S.wt r + 2)) ∧
-      IsHomogeneous (hS.leftAdjN r).counit (2 * S.wt r + 2) ∧
-      (-1 ≤ S.wt r → S.cwBubble (hS.leftAdjN r).unit = 𝟙 _) ∧
-      (S.wt r ≤ -2 → S.ccwBubble (hS.leftAdjN r).counit = 𝟙 _) ∧
+variable (S) in
+theorem leftAdjN_spec [∀ a b : B, IsIdempotentComplete (a ⟶ b)] (r : ℤ) :
+    IsHomogeneous (S.leftAdjN r).unit (-(2 * S.wt r + 2)) ∧
+      IsHomogeneous (S.leftAdjN r).counit (2 * S.wt r + 2) ∧
+      (-1 ≤ S.wt r → S.cwBubble (S.leftAdjN r).unit = 𝟙 _) ∧
+      (S.wt r ≤ -2 → S.ccwBubble (S.leftAdjN r).counit = 𝟙 _) ∧
       Bicategory.conjugateEquiv (S.grAdj r) (S.grAdj r) (S.grDot r) =
-        (Bicategory.conjugateEquiv (hS.leftAdjN r) (hS.leftAdjN r)).symm (S.grDot r) :=
-  (BBw.cyclic_dot S hS r).choose_spec
+        (Bicategory.conjugateEquiv (S.leftAdjN r) (S.leftAdjN r)).symm (S.grDot r) :=
+  (cyclic_dot S r).choose_spec
 
-/-- **CL Lemma 4.1 under (BB_w)**, for the normalized left adjunctions. -/
-theorem BBw.cyclic_dot_leftAdjN [∀ a b : B, IsIdempotentComplete (a ⟶ b)] (hS : S.BBw)
+variable (S) in
+/-- **CL Lemma 4.1**, for the normalized left adjunctions. -/
+theorem cyclic_dot_leftAdjN [∀ a b : B, IsIdempotentComplete (a ⟶ b)]
     (r : ℤ) :
     Bicategory.conjugateEquiv (S.grAdj r) (S.grAdj r) (S.grDot r) =
-      (Bicategory.conjugateEquiv (hS.leftAdjN r) (hS.leftAdjN r)).symm (S.grDot r) :=
-  (hS.leftAdjN_spec r).2.2.2.2
+      (Bicategory.conjugateEquiv (S.leftAdjN r) (S.leftAdjN r)).symm (S.grDot r) :=
+  (S.leftAdjN_spec r).2.2.2.2
 
-/-- **CL Lemma 4.2 under (BB_w)** (cyclicity of the crossing, eq. (4.10)), for the normalized
+variable (S) in
+/-- **CL Lemma 4.2** (cyclicity of the crossing, eq. (4.10)), for the normalized
 left adjunctions: the right mate of the crossing on `E E 1_n` under the composite of the right
 adjunctions equals its left mate under the composite of the normalized left adjunctions. -/
-theorem BBw.cyclic_cross [∀ a b : B, IsIdempotentComplete (a ⟶ b)] (hS : S.BBw) (r : ℤ) :
+theorem cyclic_cross [∀ a b : B, IsIdempotentComplete (a ⟶ b)] (r : ℤ) :
     Bicategory.conjugateEquiv ((S.grAdj r).comp (S.grAdj (r + 1)))
         ((S.grAdj r).comp (S.grAdj (r + 1))) (S.grCross r) =
-      (Bicategory.conjugateEquiv ((hS.leftAdjN (r + 1)).comp (hS.leftAdjN r))
-        ((hS.leftAdjN (r + 1)).comp (hS.leftAdjN r))).symm (S.grCross r) :=
-  S.cyclic_cross_of_cyclic_dot hS r _ _ (hS.leftAdjN_spec r).1 (hS.leftAdjN_spec r).2.1
-    (hS.leftAdjN_spec (r + 1)).1 (hS.leftAdjN_spec (r + 1)).2.1
-    (S.cyclic_dotN_of_cyclic_dot _ (hS.cyclic_dot_leftAdjN r))
-    (S.cyclic_dotN_of_cyclic_dot _ (hS.cyclic_dot_leftAdjN (r + 1)))
+      (Bicategory.conjugateEquiv ((S.leftAdjN (r + 1)).comp (S.leftAdjN r))
+        ((S.leftAdjN (r + 1)).comp (S.leftAdjN r))).symm (S.grCross r) :=
+  S.cyclic_cross_of_cyclic_dot r _ _ (S.leftAdjN_spec r).1 (S.leftAdjN_spec r).2.1
+    (S.leftAdjN_spec (r + 1)).1 (S.leftAdjN_spec (r + 1)).2.1
+    (S.cyclic_dotN_of_cyclic_dot _ (S.cyclic_dot_leftAdjN r))
+    (S.cyclic_dotN_of_cyclic_dot _ (S.cyclic_dot_leftAdjN (r + 1)))
 
 end StrongSl2
 

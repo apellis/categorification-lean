@@ -25,15 +25,15 @@ in Mathlib's diagrammatic order `R_r ≫ E_r` is CL's `E F 1_{n+2}`.
 
 Both are instances of Mathlib's `Bicategory.mateEquiv`:
 `grSigma r = mateEquiv (grAdj r) (grAdj (r+1)) τ` (`StrongSl2.grSigma_eq_mateEquiv`) and
-`sideL A₁ A₂ = (mateEquiv A₁ A₂).symm τ` by definition. Under (BB_w) we use the normalized left
-adjunctions `BBw.leftAdjN` of CL §4.1 (`StrongSl2.BBw.sideL`).
+`sideL A₁ A₂ = (mateEquiv A₁ A₂).symm τ` by definition. We use the normalized left
+adjunctions `leftAdjN` of CL §4.1 (`StrongSl2.sideLN`).
 
 ## Main declarations
 
 * generic: `RightwardCrossing.sigma_eq_mateEquiv`, `mateEquiv_symm_eq_comp`;
   `GradedHomBicat.isHomogeneous_mateEquiv_symm`, `GradedHomBicat.isHomogeneous_mateEquiv`;
 * `StrongSl2.grSigma_eq_mateEquiv`, `StrongSl2.sideL`, `StrongSl2.isHomogeneous_sideL`;
-* `StrongSl2.BBw.sideL`: CL's leftward sideways crossing (4.16), of degree `2`.
+* `StrongSl2.sideLN`: CL's leftward sideways crossing (4.16), of degree `2`.
 -/
 
 noncomputable section
@@ -151,7 +151,7 @@ def sideL {r : ℤ} (A₁ : S.grR r ⊣ S.grE r) (A₂ : S.grR (r + 1) ⊣ S.grE
   (mateEquiv A₁ A₂).symm (S.grCross r)
 
 /-- The leftward sideways crossing is homogeneous of degree `2`, for left adjunctions with
-homogeneous units and counits of the degrees of `BBw.leftAdjN`. -/
+homogeneous units and counits of the degrees of `leftAdjN`. -/
 theorem isHomogeneous_sideL {r : ℤ} (A₁ : S.grR r ⊣ S.grE r)
     (A₂ : S.grR (r + 1) ⊣ S.grE (r + 1)) (hu : IsHomogeneous A₁.unit (-(2 * S.wt r + 2)))
     (hc : IsHomogeneous A₂.counit (2 * S.wt (r + 1) + 2)) :
@@ -161,15 +161,17 @@ theorem isHomogeneous_sideL {r : ℤ} (A₁ : S.grR r ⊣ S.grE r)
 
 variable {S} [GradedBicategory.IsLinear B k] [∀ a b : B, KrullSchmidtCat.HomFinite k (a ⟶ b)]
 
-/-- **CL's leftward sideways crossing (4.16)** under (BB_w), for the normalized left adjunctions
-`BBw.leftAdjN` of CL §4.1. -/
-def BBw.sideL [∀ a b : B, IsIdempotentComplete (a ⟶ b)] (hS : S.BBw) (r : ℤ) :
+variable (S) in
+/-- **CL's leftward sideways crossing (4.16)**, for the normalized left adjunctions
+`leftAdjN` of CL §4.1. -/
+def sideLN [∀ a b : B, IsIdempotentComplete (a ⟶ b)] (r : ℤ) :
     S.grE (r + 1) ≫ S.grR (r + 1) ⟶ S.grR r ≫ S.grE r :=
-  S.sideL (hS.leftAdjN r) (hS.leftAdjN (r + 1))
+  S.sideL (S.leftAdjN r) (S.leftAdjN (r + 1))
 
-theorem BBw.isHomogeneous_sideL [∀ a b : B, IsIdempotentComplete (a ⟶ b)] (hS : S.BBw)
-    (r : ℤ) : IsHomogeneous (hS.sideL r) 2 :=
-  S.isHomogeneous_sideL _ _ (hS.leftAdjN_spec r).1 (hS.leftAdjN_spec (r + 1)).2.1
+variable (S) in
+theorem isHomogeneous_sideLN [∀ a b : B, IsIdempotentComplete (a ⟶ b)]
+    (r : ℤ) : IsHomogeneous (S.sideLN r) 2 :=
+  S.isHomogeneous_sideL _ _ (S.leftAdjN_spec r).1 (S.leftAdjN_spec (r + 1)).2.1
 
 end StrongSl2
 

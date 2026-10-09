@@ -10,7 +10,7 @@ import Categorification.TwoRep.DecompEF
 S. Cautis, A. D. Lauda, *Implicit structure in 2-representations of quantum groups*,
 arXiv:1111.1431v3, §5.3, Lemma 5.4 (`lem_coeff`), with the dots normalized to `r_i = 1`.
 
-By `BBw.decompEF_beta`, at a weight `n = wt (q + 1) ≥ 0` the inverse of CL's `ζ` is
+By `decompEF_beta`, at a weight `n = wt (q + 1) ≥ 0` the inverse of CL's `ζ` is
 `β σ ⊕ ⊕_k comp_k` for a scalar `β`; Lemma 5.4 says `β = -r_i^{-2}`, i.e. `β = -1` for normalized
 dots. CL's argument (eq. `eq_coeffreduction`) for `n > 0`, made explicit:
 
@@ -25,14 +25,14 @@ dots. CL's argument (eq. `eq_coeffreduction`) for `n > 0`, made explicit:
   with fewer than `n` dots vanish by degrees (Lemma 3.1), and the remaining bubbles are the
   degree-zero bubble `1` in the region `n` and negative-degree bubbles.
 
-Hence `β = -1` (`BBw.beta_eq_neg_one`), and the decompositions of CL §5.3 hold with `β = -1`
-(`BBw.decompEF`, `BBw.decompFE_of_nonneg`).
+Hence `β = -1` (`beta_eq_neg_one`), and the decompositions of CL §5.3 hold with `β = -1`
+(`decompEF`, `decompFE_of_nonneg`).
 
 ## Main declarations
 
 * generic: `rtrace`, `rtrace_id`, `sideL_trace`, `tau_powComp_tau`, `powComp_tau`;
-* `StrongSl2.BBw.curl_powComp`, `StrongSl2.BBw.beta_eq_neg_one` (`n ≥ 1`),
-  `StrongSl2.BBw.decompEF_pos`, `StrongSl2.BBw.decompFE_pos`.
+* `StrongSl2.curl_powComp`, `StrongSl2.beta_eq_neg_one` (`n ≥ 1`),
+  `StrongSl2.decompEF_pos`, `StrongSl2.decompFE_pos`.
 -/
 
 noncomputable section
@@ -238,12 +238,14 @@ namespace StrongSl2
 
 open GradedHomBicat GradedHomCat
 
-variable {S : StrongSl2 k B} (hS : S.BBw)
+variable (S : StrongSl2 k B)
 
+variable {S} in
 omit [∀ a b : B, KrullSchmidtCat.HomFinite k (a ⟶ b)] [∀ a b : B, IsIdempotentComplete (a ⟶ b)] in
 theorem cupD_zero {q : ℤ} (A : S.grR q ⊣ S.grE q) : S.cupD A 0 = A.unit := by
   simp [cupD]
 
+variable {S} in
 omit [∀ a b : B, KrullSchmidtCat.HomFinite k (a ⟶ b)] [∀ a b : B, IsIdempotentComplete (a ⟶ b)] in
 /-- Dots on the two strands of `E E` commute. -/
 theorem powComp_whiskerRight_comm {q : ℤ} (i j : ℕ) :
@@ -253,11 +255,12 @@ theorem powComp_whiskerRight_comm {q : ℤ} (i j : ℕ) :
 
 /-- **Curls with fewer than `n` dots vanish** (by degrees, Lemma 3.1): at the weight
 `n = wt (q + 1)`, the curl of `τ` on `E 1_n` closing `E 1_{n-2}` with `a < n` dots is `0`. -/
-theorem BBw.curlG_cupD_eq_zero {q : ℤ} {a : ℕ} (ha : (a : ℤ) < S.wt (q + 1)) :
-    curlG (S.cupD (hS.leftAdjN q) a) (S.grCounit q) (S.grCross q) = 0 :=
-  hS.grE_end_eq_zero (isHomogeneous_curlG (S.isHomogeneous_cupD _ (hS.leftAdjN_spec q).1 a)
+theorem curlG_cupD_eq_zero {q : ℤ} {a : ℕ} (ha : (a : ℤ) < S.wt (q + 1)) :
+    curlG (S.cupD (S.leftAdjN q) a) (S.grCounit q) (S.grCross q) = 0 :=
+  S.grE_end_eq_zero (isHomogeneous_curlG (S.isHomogeneous_cupD _ (S.leftAdjN_spec q).1 a)
     (isHomogeneous_of₂ _ _) (isHomogeneous_incl₂ _)) (by omega)
 
+variable {S} in
 omit [∀ a b : B, KrullSchmidtCat.HomFinite k (a ⟶ b)] [∀ a b : B, IsIdempotentComplete (a ⟶ b)] in
 /-- `curl(x₁^a x₂^b τ) = x^b curl(x^a τ)`. -/
 theorem curlG_dots_tau {q : ℤ} (A : S.grR q ⊣ S.grE q) (a b : ℕ) :
@@ -268,6 +271,7 @@ theorem curlG_dots_tau {q : ℤ} (A : S.grR q ⊣ S.grE q) (a b : ℕ) :
     curlG_whiskerLeft_comp, ← powComp_whiskerRight, curlG_whiskerRight_comp]
   rfl
 
+variable {S} in
 omit [∀ a b : B, KrullSchmidtCat.HomFinite k (a ⟶ b)] [∀ a b : B, IsIdempotentComplete (a ⟶ b)] in
 /-- `curl(x₁^a x₂^b) = x^b (bubble with a dots)`. -/
 theorem curlG_dots {q : ℤ} (A : S.grR q ⊣ S.grE q) (a b : ℕ) :
@@ -282,31 +286,31 @@ theorem curlG_dots {q : ℤ} (A : S.grR q ⊣ S.grE q) (a b : ℕ) :
 /-- **The curl with `n` dots is `-1`** (CL (4.9) at the weight `n ≥ 1`): moving the dots
 through the crossing (nilHecke), the curl of `τ` vanishes and the bubbles are those of degree
 `≤ 0` in the region `n`. -/
-theorem BBw.curlG_cupD_self {q : ℤ} (hn : 1 ≤ S.wt (q + 1)) :
-    curlG (S.cupD (hS.leftAdjN q) (S.wt (q + 1)).toNat) (S.grCounit q) (S.grCross q) =
+theorem curlG_cupD_self {q : ℤ} (hn : 1 ≤ S.wt (q + 1)) :
+    curlG (S.cupD (S.leftAdjN q) (S.wt (q + 1)).toNat) (S.grCounit q) (S.grCross q) =
       -𝟙 _ := by
   set N := (S.wt (q + 1)).toNat with hN
   have hNn : (N : ℤ) = S.wt (q + 1) := Int.toNat_of_nonneg (by omega)
-  set A := hS.leftAdjN q
+  set A := S.leftAdjN q
   have hcup : S.cupD A N = A.unit ≫ S.grR q ◁ powComp (S.grDotN q) N := rfl
   have hz : curlG A.unit (S.grCounit q) (S.grCross q) = 0 := by
     rw [← cupD_zero A]
-    exact hS.curlG_cupD_eq_zero (by omega)
+    exact S.curlG_cupD_eq_zero (by omega)
   rw [hcup, ← curlG_whiskerRight_comp, powComp_whiskerRight,
     powComp_tau _ _ _ (S.grDotN_slide_right q), curlG_sub, curlG_sum, ← whiskerLeft_powComp,
     curlG_comp_whiskerLeft, hz, zero_comp,
     zero_sub, Finset.sum_congr rfl (fun a _ => curlG_dots A a (N - 1 - a)),
     Finset.sum_eq_single_of_mem (N - 1) (Finset.mem_range.2 (by omega))]
   · rw [show N - 1 - (N - 1) = 0 by omega, powComp_zero, Category.id_comp,
-      BBw.cwBub_deg_zero hS hn, id_whiskerRight, Category.id_comp, Iso.inv_hom_id]
+      cwBub_deg_zero S hn, id_whiskerRight, Category.id_comp, Iso.inv_hom_id]
   · intro a ha hne
     have ha' := Finset.mem_range.1 ha
-    rw [hS.cwBub_eq_zero (by omega), zero_whiskerRight, zero_comp, comp_zero, comp_zero]
+    rw [S.cwBubN_eq_zero (by omega), zero_whiskerRight, zero_comp, comp_zero, comp_zero]
 
 /-- **The closed diagram of CL eq. `eq_coeffreduction`**: at the weight `n ≥ 1`, the curl of
 `τ (E x^{n+1}) τ` on `E 1_n` is `-1`. -/
-theorem BBw.curlG_tau_dots_tau {q : ℤ} (hn : 1 ≤ S.wt (q + 1)) :
-    curlG (hS.leftAdjN q).unit (S.grCounit q) (S.grCross q ≫
+theorem curlG_tau_dots_tau {q : ℤ} (hn : 1 ≤ S.wt (q + 1)) :
+    curlG (S.leftAdjN q).unit (S.grCounit q) (S.grCross q ≫
         S.grE q ◁ powComp (S.grDotN (q + 1)) ((S.wt (q + 1)).toNat + 1) ≫ S.grCross q) =
       -𝟙 _ := by
   set N := (S.wt (q + 1)).toNat with hN
@@ -315,14 +319,14 @@ theorem BBw.curlG_tau_dots_tau {q : ℤ} (hn : 1 ≤ S.wt (q + 1)) :
     curlG_sum]
   simp only [curlG_dots_tau]
   rw [Finset.sum_range_succ, Finset.sum_eq_zero, zero_add, Nat.sub_self, powComp_zero,
-    Category.id_comp, hS.curlG_cupD_self hn]
+    Category.id_comp, S.curlG_cupD_self hn]
   intro a ha
-  rw [hS.curlG_cupD_eq_zero (by have := Finset.mem_range.1 ha; omega), comp_zero]
+  rw [S.curlG_cupD_eq_zero (by have := Finset.mem_range.1 ha; omega), comp_zero]
 
 /-- **CL Lemma 5.4, `β_n = -r_i^{-2}`, for `n ≥ 1`** (with normalized dots, `β = -1`): if
 `σ' ≫ β σ = 1_{FE1_n}` and `F E 1_n ≠ 0`, then `β = -1`. -/
-theorem BBw.beta_eq_neg_one {q : ℤ} (hn : 1 ≤ S.wt (q + 1)) {β : k}
-    (hβ : hS.sideL q ≫ (β • S.grSigma q) = 𝟙 _)
+theorem beta_eq_neg_one {q : ℤ} (hn : 1 ≤ S.wt (q + 1)) {β : k}
+    (hβ : S.sideLN q ≫ (β • S.grSigma q) = 𝟙 _)
     (hER : ¬ IsZero (S.grE (q + 1) ≫ S.grR (q + 1))) : β = -1 := by
   set N := (S.wt (q + 1)).toNat with hN
   have hNn : (N : ℤ) = S.wt (q + 1) := Int.toNat_of_nonneg (by omega)
@@ -330,19 +334,19 @@ theorem BBw.beta_eq_neg_one {q : ℤ} (hn : 1 ≤ S.wt (q + 1)) {β : k}
     rintro rfl
     rw [zero_smul, comp_zero] at hβ
     exact hER ((IsZero.iff_id_eq_zero _).2 hβ.symm)
-  have h1 : hS.sideL q ≫ S.grSigma q = β⁻¹ • 𝟙 _ := by
+  have h1 : S.sideLN q ≫ S.grSigma q = β⁻¹ • 𝟙 _ := by
     rw [← hβ, Linear.comp_smul, smul_smul, inv_mul_cancel₀ hβ0, one_smul]
-  have htr := sideL_trace (hS.leftAdjN q) (hS.leftAdjN (q + 1)) (S.grAdj q) (S.grAdj (q + 1))
+  have htr := sideL_trace (S.leftAdjN q) (S.leftAdjN (q + 1)) (S.grAdj q) (S.grAdj (q + 1))
     (S.grCross q) (powComp (S.grDotN (q + 1)) (N + 1))
   rw [← grSigma_eq_mateEquiv] at htr
-  change rtrace _ _ _ (hS.sideL q ≫ S.grSigma q) = _ at htr
-  have hbub : S.cwBub (hS.leftAdjN (q + 1)) (N + 1) = 𝟙 _ := by
-    have h := BBw.cwBub_deg_zero hS (q := q + 1) (by rw [S.wt_add_one]; omega)
+  change rtrace _ _ _ (S.sideLN q ≫ S.grSigma q) = _ at htr
+  have hbub : S.cwBub (S.leftAdjN (q + 1)) (N + 1) = 𝟙 _ := by
+    have h := cwBub_deg_zero S (q := q + 1) (by rw [S.wt_add_one]; omega)
     rwa [show (S.wt (q + 1 + 1)).toNat - 1 = N + 1 by rw [S.wt_add_one]; omega] at h
   rw [h1, rtrace_smul, rtrace_id, grAdj_counit, grAdj_counit,
-    show (hS.leftAdjN (q + 1)).unit ≫ S.grR (q + 1) ◁ powComp (S.grDotN (q + 1)) (N + 1) ≫
-      S.grCounit (q + 1) = S.cwBub (hS.leftAdjN (q + 1)) (N + 1) from rfl, hbub,
-    Bicategory.whiskerLeft_id, Category.id_comp, Iso.inv_hom_id, hS.curlG_tau_dots_tau hn] at htr
+    show (S.leftAdjN (q + 1)).unit ≫ S.grR (q + 1) ◁ powComp (S.grDotN (q + 1)) (N + 1) ≫
+      S.grCounit (q + 1) = S.cwBub (S.leftAdjN (q + 1)) (N + 1) from rfl, hbub,
+    Bicategory.whiskerLeft_id, Category.id_comp, Iso.inv_hom_id, S.curlG_tau_dots_tau hn] at htr
   have hE : 𝟙 (S.grE (q + 1)) ≠ 0 := by
     intro h0
     apply hER
@@ -354,16 +358,16 @@ theorem BBw.beta_eq_neg_one {q : ℤ} (hn : 1 ≤ S.wt (q + 1)) {β : k}
 
 /-- **CL relations (A2), (A5) with `β = -1`, `n ≥ 1`**: the decompositions of `1_{FE1_n}` and
 `1_{EF1_n}` (KL III `eq_ident_decomp` for `n > 0`, with CL's `-r_i^{-2} = -1`). -/
-theorem BBw.decompEF_pos {q : ℤ} (hn : 1 ≤ S.wt (q + 1)) :
-    hS.sideL q ≫ S.grSigma q = -𝟙 _ ∧
-      -(S.grSigma q ≫ hS.sideL q) +
-        ∑ j ∈ Finset.range (S.wt (q + 1)).toNat, hS.compK q j ≫ S.cupD (hS.leftAdjN q) j =
+theorem decompEF_pos {q : ℤ} (hn : 1 ≤ S.wt (q + 1)) :
+    S.sideLN q ≫ S.grSigma q = -𝟙 _ ∧
+      -(S.grSigma q ≫ S.sideLN q) +
+        ∑ j ∈ Finset.range (S.wt (q + 1)).toNat, S.compK q j ≫ S.cupD (S.leftAdjN q) j =
           𝟙 _ := by
-  obtain ⟨β, h1, h2⟩ := hS.decompEF_beta (q := q) (by omega)
+  obtain ⟨β, h1, h2⟩ := S.decompEF_beta (q := q) (by omega)
   by_cases hER : IsZero (S.grE (q + 1) ≫ S.grR (q + 1))
   · refine ⟨hER.eq_of_src _ _, ?_⟩
     rw [← h2, hER.eq_of_tgt (S.grSigma q) 0, zero_comp, neg_zero, smul_zero]
-  · have hβ := hS.beta_eq_neg_one hn h1 hER
+  · have hβ := S.beta_eq_neg_one hn h1 hER
     subst hβ
     refine ⟨?_, ?_⟩
     · rw [← h1, Linear.comp_smul, neg_smul, one_smul, neg_neg]

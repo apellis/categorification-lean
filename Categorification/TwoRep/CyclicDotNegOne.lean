@@ -30,8 +30,8 @@ not set `m = n` in (4.7)"). CL use curls instead; we make the argument a dimensi
 
 * generic: `curlG`, `curlR`, `cwR` and their sliding lemmas;
 * `StrongSl2.grDotN_slide_right` (the second dot-slide relation in the graded-Hom bicategory);
-* `StrongSl2.BBw.cyclic_dotN_neg_one`: **CL Lemma 4.1 at the weight `-1`** under (BB_w);
-* `StrongSl2.BBw.cyclic_dot`: **CL Lemma 4.1 under (BB_w) at every weight**, with the
+* `StrongSl2.cyclic_dotN_neg_one`: **CL Lemma 4.1 at the weight `-1`**;
+* `StrongSl2.cyclic_dot`: **CL Lemma 4.1 at every weight**, with the
   normalization (4.1).
 -/
 
@@ -272,7 +272,7 @@ end Lin
 
 variable [∀ a b : B, HomFinite k (a ⟶ b)]
 
-/-- **CL Lemma 4.1 at the weight `-1`** (the curl argument, CL (4.8), (4.9)) under (BB_w): at a
+/-- **CL Lemma 4.1 at the weight `-1`** (the curl argument, CL (4.8), (4.9)): at a
 weight `n = wt r = -1`, for a left adjunction `R_n ⊣ E 1_n` normalized as in (4.1) (the
 clockwise degree-zero bubble at `n + 2 = 1` is the identity), the right mate of the
 (normalized) dot under `E 1_n ⊣ R_n` equals its left mate under `R_n ⊣ E 1_n`.
@@ -284,7 +284,7 @@ strand are both `-1`. Together with the clockwise bubble, the curl detects homog
 degree-`2` endomorphisms of `R_n`: the map `f ↦ (cw bubble, curl)` is onto a space of the same
 dimension as `Hom²(E 1_{-1}, E 1_{-1})` (CL eq. `eq:new`, `lemMain_finrank_two`), hence injective;
 both functionals agree on the two mates. -/
-theorem BBw.cyclic_dotN_neg_one [∀ a b : B, IsIdempotentComplete (a ⟶ b)] (hS : S.BBw) {r : ℤ}
+theorem cyclic_dotN_neg_one [∀ a b : B, IsIdempotentComplete (a ⟶ b)] {r : ℤ}
     (hr : S.wt r = -1) (adjL : S.grR r ⊣ S.grE r)
     (hu : IsHomogeneous adjL.unit (-(2 * S.wt r + 2)))
     (hc : IsHomogeneous adjL.counit (2 * S.wt r + 2))
@@ -307,7 +307,7 @@ theorem BBw.cyclic_dotN_neg_one [∀ a b : B, IsIdempotentComplete (a ⟶ b)] (h
     simp only [cwBubble, h0, powComp_zero, Bicategory.whiskerLeft_id, Category.id_comp] at hnorm
     exact hnorm
   have hu' : IsHomogeneous u 0 := hu.of_eq (by rw [hr]; norm_num)
-  have hyp : ∀ r', S.AdjHyp r' := hS.adjHyp
+  have hyp : ∀ r', S.AdjHyp r' := S.adjHyp
   -- the curl of the crossing vanishes
   have hcurl0 : curlG u eps τ = 0 := by
     have hH : IsHomogeneous (curlG u eps τ) (-2) := by
@@ -481,12 +481,12 @@ theorem BBw.cyclic_dotN_neg_one [∀ a b : B, IsIdempotentComplete (a ⟶ b)] (h
     rw [← Equiv.apply_symm_apply (conjugateEquiv (S.grAdj r) (S.grAdj r)) d, h, conj_zero]
   exact sub_eq_zero.1 hd0
 
-/-- **CL Lemma 4.1 under (BB_w)** (cyclicity of the dot, eq. (4.4)), at every weight: for every
+/-- **CL Lemma 4.1** (cyclicity of the dot, eq. (4.4)), at every weight: for every
 `E 1_n` there is a left adjunction `R_n ⊣ E 1_n` (homogeneous unit and counit of degrees
 `-2n-2`, `2n+2`), normalized as in CL (4.1) (the clockwise degree-zero bubble at `n + 2` is the
 identity if `n ≥ -1`, the counter-clockwise one at `n` if `n ≤ -2`), for which the right mate of
 the dot under `E 1_n ⊣ R_n` equals its left mate under `R_n ⊣ E 1_n`. -/
-theorem BBw.cyclic_dot [∀ a b : B, IsIdempotentComplete (a ⟶ b)] (hS : S.BBw) (r : ℤ) :
+theorem cyclic_dot [∀ a b : B, IsIdempotentComplete (a ⟶ b)] (r : ℤ) :
     ∃ adj : S.grR r ⊣ S.grE r,
       IsHomogeneous adj.unit (-(2 * S.wt r + 2)) ∧
       IsHomogeneous adj.counit (2 * S.wt r + 2) ∧
@@ -496,11 +496,11 @@ theorem BBw.cyclic_dot [∀ a b : B, IsIdempotentComplete (a ⟶ b)] (hS : S.BBw
         (conjugateEquiv adj adj).symm (S.grDot r) := by
   by_cases hr : S.wt r = -1
   · obtain ⟨q, rfl⟩ : ∃ q, r = q + 1 := ⟨r - 1, by ring⟩
-    obtain ⟨adj, hu, hc, hb⟩ := BBw.exists_normalized_leftAdj hS (q := q)
+    obtain ⟨adj, hu, hc, hb⟩ := exists_normalized_leftAdjN S (q := q)
       (by rw [S.wt_add_one]; omega)
     exact ⟨adj, hu, hc, fun _ => hb, fun h => absurd h (by omega),
-      S.cyclic_dot_of_cyclic_dotN adj (BBw.cyclic_dotN_neg_one S hS hr adj hu hc hb)⟩
-  · obtain ⟨adj, hu, hc, hcw, hccw, hcyc⟩ := BBw.exists_cyclic_leftAdj S hS hr
+      S.cyclic_dot_of_cyclic_dotN adj (cyclic_dotN_neg_one S hr adj hu hc hb)⟩
+  · obtain ⟨adj, hu, hc, hcw, hccw, hcyc⟩ := exists_cyclic_leftAdj S hr
     exact ⟨adj, hu, hc, fun h => hcw (by omega), hccw, hcyc⟩
 
 end StrongSl2

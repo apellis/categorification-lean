@@ -9,7 +9,7 @@ import Categorification.TwoRep.ModelSl2
 
 Verification, for the `sl₂` model of `Categorification.TwoRep.ModelSl2`, of the defining relations
 of KL III's `U` (with CL's scalars `r_i = 1`): for each relation, read with its own outer regions,
-the image of the relation under the interpretation `BicatInterp.interp (genImg hS) s t` vanishes.
+the image of the relation under the interpretation `BicatInterp.interp (genImg S) s t` vanishes.
 
 * Biadjointness (KL III (3.1), (3.2); CL Definition 1.1 (1)): the four zigzag relations of the
   pivotal extension, from the triangle identities of `E ⊣ R` and of the normalized left
@@ -17,7 +17,7 @@ the image of the relation under the interpretation `BicatInterp.interp (genImg h
 * Cyclicity of dots (KL III (3.3); CL Definition 1.1 (2)): the upward dot rotated by a cup on the
   right and a cap on the left (`cycDotR`), or on the other side (`cycDotL`), is the downward dot.
   The first is the definition of the downward dot as a mate; the second is CL Lemma 4.1 for the
-  normalized left adjunctions (`gDot_cyclic`), which holds under (BB_w).
+  normalized left adjunctions (`gDot_cyclic`), which holds.
 * Cyclicity of crossings (KL III `eq_cyclic_cross-gen` for `i = j`): the upward crossing rotated
   by nested cups and caps on the right (`cycCrossR`) or on the left (`cycCrossL`) is the downward
   crossing; the second is CL Lemma 4.2 for the normalized left adjunctions (`gCross_cyclic`).
@@ -58,7 +58,7 @@ variable {k : Type*} [Field k] {B : Type u} [Bicategory.{w, v} B]
 
 namespace StrongSl2
 
-variable {S : StrongSl2 k B} (hS : S.BBw)
+variable (S : StrongSl2 k B)
 
 attribute [local irreducible] KL3.Diagram.sh
 
@@ -67,17 +67,17 @@ attribute [local irreducible] KL3.Diagram.sh
 /-- **The left zigzag on an upward strand** (KL III (3.1)): the triangle identity of the
 normalized left adjunction `R ⊣ E`. -/
 theorem zigL_up (r : ℤ) :
-    (interp (genImg hS) (sh sl2RootDatum ((true, ()) : Letter Unit) + r) r).functor.map
+    (interp (genImg S) (sh sl2RootDatum ((true, ()) : Letter Unit) + r) r).functor.map
       (Pivotal.zigL (inv sl2RootDatum).toColourDuality ⟨(true, ()), r⟩) = 𝟙 _ := by
   have hc : Cond (S := psig sl2RootDatum) (sh sl2RootDatum ((true, ()) : Letter Unit) + r) r
       (Pivotal.colourObj (inv sl2RootDatum).toColourDuality ⟨(true, ()), r⟩) :=
     ⟨⟨rfl, trivial⟩, rfl, rfl⟩
   suffices key : eqToHom (objI_pos _ _ hc).symm ≫
-      (interp (genImg hS) _ _).functor.map
+      (interp (genImg S) _ _).functor.map
         (Pivotal.zigL (inv sl2RootDatum).toColourDuality ⟨(true, ()), r⟩) ≫
       eqToHom (objI_pos _ _ hc) = 𝟙 _ by
     set_option backward.isDefEq.respectTransparency false in
-    rw [eq_conj (objI_pos _ _ hc) (objI_pos _ _ hc) ((interp (genImg hS) _ _).functor.map _), key]
+    rw [eq_conj (objI_pos _ _ hc) (objI_pos _ _ hc) ((interp (genImg S) _ _).functor.map _), key]
     simp
   set_option backward.isDefEq.respectTransparency false in
   simp only [Interpretation.functor_map, Pivotal.zigL, Diagram.layers_leftZigzag, Pivotal.cupD,
@@ -105,7 +105,7 @@ theorem zigL_up (r : ℤ) :
         rq (S := psig sl2RootDatum) (sh sl2RootDatum ((true, ()) : Letter Unit) + r) ⟶ rq r))
       (Iso.refl _) (Iso.refl _) (Iso.refl _) (Iso.refl _) (Iso.refl _) (Iso.refl _)
       (Iso.refl _) (Iso.refl _)
-      (gAdjL hS (S.qi r) (S.qi (sh sl2RootDatum ((true, ()) : Letter Unit) + r)) (S.qi_sh_true () r))
+      (gAdjL S (S.qi r) (S.qi (sh sl2RootDatum ((true, ()) : Letter Unit) + r)) (S.qi_sh_true () r))
       _ _ ?_ ?_ _ _ _ _ _ _ _ _
     · simp only [Iso.refl_inv, Iso.refl_hom, PrelaxFunctor.map₂_id, Category.id_comp,
         Category.comp_id]
@@ -118,17 +118,17 @@ theorem zigL_up (r : ℤ) :
 /-- **The left zigzag on a downward strand** (KL III (3.1)): the triangle identity of
 `E ⊣ R`. -/
 theorem zigL_down (r : ℤ) :
-    (interp (genImg hS) (sh sl2RootDatum ((false, ()) : Letter Unit) + r) r).functor.map
+    (interp (genImg S) (sh sl2RootDatum ((false, ()) : Letter Unit) + r) r).functor.map
       (Pivotal.zigL (inv sl2RootDatum).toColourDuality ⟨(false, ()), r⟩) = 𝟙 _ := by
   have hc : Cond (S := psig sl2RootDatum) (sh sl2RootDatum ((false, ()) : Letter Unit) + r) r
       (Pivotal.colourObj (inv sl2RootDatum).toColourDuality ⟨(false, ()), r⟩) :=
     ⟨⟨rfl, trivial⟩, rfl, rfl⟩
   suffices key : eqToHom (objI_pos _ _ hc).symm ≫
-      (interp (genImg hS) _ _).functor.map
+      (interp (genImg S) _ _).functor.map
         (Pivotal.zigL (inv sl2RootDatum).toColourDuality ⟨(false, ()), r⟩) ≫
       eqToHom (objI_pos _ _ hc) = 𝟙 _ by
     set_option backward.isDefEq.respectTransparency false in
-    rw [eq_conj (objI_pos _ _ hc) (objI_pos _ _ hc) ((interp (genImg hS) _ _).functor.map _), key]
+    rw [eq_conj (objI_pos _ _ hc) (objI_pos _ _ hc) ((interp (genImg S) _ _).functor.map _), key]
     simp
   set_option backward.isDefEq.respectTransparency false in
   simp only [Interpretation.functor_map, Pivotal.zigL, Diagram.layers_leftZigzag, Pivotal.cupD,
@@ -165,17 +165,17 @@ theorem zigL_down (r : ℤ) :
 /-- **The right zigzag on the dual of an upward strand** (KL III (3.2)): the other triangle
 identity of the normalized left adjunction `R ⊣ E`. -/
 theorem zigR_up (r : ℤ) :
-    (interp (genImg hS) r (sh sl2RootDatum ((true, ()) : Letter Unit) + r)).functor.map
+    (interp (genImg S) r (sh sl2RootDatum ((true, ()) : Letter Unit) + r)).functor.map
       (Pivotal.zigR (inv sl2RootDatum).toColourDuality ⟨(true, ()), r⟩) = 𝟙 _ := by
   have hc : Cond (S := psig sl2RootDatum) r (sh sl2RootDatum ((true, ()) : Letter Unit) + r)
       (Pivotal.dualObj (inv sl2RootDatum).toColourDuality ⟨(true, ()), r⟩) :=
     ⟨⟨sh_false_sh_true () r, trivial⟩, rfl, rfl⟩
   suffices key : eqToHom (objI_pos _ _ hc).symm ≫
-      (interp (genImg hS) _ _).functor.map
+      (interp (genImg S) _ _).functor.map
         (Pivotal.zigR (inv sl2RootDatum).toColourDuality ⟨(true, ()), r⟩) ≫
       eqToHom (objI_pos _ _ hc) = 𝟙 _ by
     set_option backward.isDefEq.respectTransparency false in
-    rw [eq_conj (objI_pos _ _ hc) (objI_pos _ _ hc) ((interp (genImg hS) _ _).functor.map _), key]
+    rw [eq_conj (objI_pos _ _ hc) (objI_pos _ _ hc) ((interp (genImg S) _ _).functor.map _), key]
     simp
   set_option backward.isDefEq.respectTransparency false in
   simp only [Interpretation.functor_map, Pivotal.zigR, Diagram.layers_rightZigzag, Pivotal.cupD,
@@ -199,7 +199,7 @@ theorem zigR_up (r : ℤ) :
         rq (S := psig sl2RootDatum) (sh sl2RootDatum ((true, ()) : Letter Unit) + r) ⟶ rq r))
       (Iso.refl _) (Iso.refl _) (Iso.refl _) (Iso.refl _) (Iso.refl _) (Iso.refl _)
       (Iso.refl _) (Iso.refl _)
-      (gAdjL hS (S.qi r) (S.qi (sh sl2RootDatum ((true, ()) : Letter Unit) + r)) (S.qi_sh_true () r))
+      (gAdjL S (S.qi r) (S.qi (sh sl2RootDatum ((true, ()) : Letter Unit) + r)) (S.qi_sh_true () r))
       _ _ ?_ ?_ _ _ _ _ _ _ _ _
     · simp only [Iso.refl_inv, Iso.refl_hom, PrelaxFunctor.map₂_id, Category.id_comp,
         Category.comp_id]
@@ -214,17 +214,17 @@ theorem zigR_up (r : ℤ) :
 /-- **The right zigzag on the dual of a downward strand** (KL III (3.2)): the other triangle
 identity of `E ⊣ R`. -/
 theorem zigR_down (r : ℤ) :
-    (interp (genImg hS) r (sh sl2RootDatum ((false, ()) : Letter Unit) + r)).functor.map
+    (interp (genImg S) r (sh sl2RootDatum ((false, ()) : Letter Unit) + r)).functor.map
       (Pivotal.zigR (inv sl2RootDatum).toColourDuality ⟨(false, ()), r⟩) = 𝟙 _ := by
   have hc : Cond (S := psig sl2RootDatum) r (sh sl2RootDatum ((false, ()) : Letter Unit) + r)
       (Pivotal.dualObj (inv sl2RootDatum).toColourDuality ⟨(false, ()), r⟩) :=
     ⟨⟨sh_true_sh_false () r, trivial⟩, rfl, rfl⟩
   suffices key : eqToHom (objI_pos _ _ hc).symm ≫
-      (interp (genImg hS) _ _).functor.map
+      (interp (genImg S) _ _).functor.map
         (Pivotal.zigR (inv sl2RootDatum).toColourDuality ⟨(false, ()), r⟩) ≫
       eqToHom (objI_pos _ _ hc) = 𝟙 _ by
     set_option backward.isDefEq.respectTransparency false in
-    rw [eq_conj (objI_pos _ _ hc) (objI_pos _ _ hc) ((interp (genImg hS) _ _).functor.map _), key]
+    rw [eq_conj (objI_pos _ _ hc) (objI_pos _ _ hc) ((interp (genImg S) _ _).functor.map _), key]
     simp
   set_option backward.isDefEq.respectTransparency false in
   simp only [Interpretation.functor_map, Pivotal.zigR, Diagram.layers_rightZigzag, Pivotal.cupD,
@@ -261,23 +261,23 @@ theorem zigR_down (r : ℤ) :
 
 /-- **Biadjointness in the `sl₂` model**: the left zigzag relation of every strand. -/
 theorem zigL_eq (c : Col Unit ℤ) :
-    (interp (genImg hS) (sh sl2RootDatum c.l + c.r) c.r).functor.map
+    (interp (genImg S) (sh sl2RootDatum c.l + c.r) c.r).functor.map
       (Pivotal.zigL (inv sl2RootDatum).toColourDuality c) = 𝟙 _ := by
   obtain ⟨⟨b, i⟩, r⟩ := c
   cases i
   cases b
-  · exact zigL_down hS r
-  · exact zigL_up hS r
+  · exact zigL_down S r
+  · exact zigL_up S r
 
 /-- **Biadjointness in the `sl₂` model**: the right zigzag relation of every strand. -/
 theorem zigR_eq (c : Col Unit ℤ) :
-    (interp (genImg hS) c.r (sh sl2RootDatum c.l + c.r)).functor.map
+    (interp (genImg S) c.r (sh sl2RootDatum c.l + c.r)).functor.map
       (Pivotal.zigR (inv sl2RootDatum).toColourDuality c) = 𝟙 _ := by
   obtain ⟨⟨b, i⟩, r⟩ := c
   cases i
   cases b
-  · exact zigR_down hS r
-  · exact zigR_up hS r
+  · exact zigR_down S r
+  · exact zigR_up S r
 
 /-! ## Cyclicity of dots -/
 
@@ -311,16 +311,16 @@ theorem dual_dn' (i : Unit) : Letter.dual (dn i) = up i := rfl
 /-- Transporting the counit of `R ⊣ E` along an equality of indices. -/
 theorem gAdjL_counit_congr (a b b' : ℤ) (h : b = b') (p : a + 1 = b) (p' : a + 1 = b')
     (e : S.gEc a b' p' ≫ S.gRc a b' p' = S.gEc a b p ≫ S.gRc a b p) :
-    eqToHom e ≫ (gAdjL hS a b p).counit = (gAdjL hS a b' p').counit := by
+    eqToHom e ≫ (gAdjL S a b p).counit = (gAdjL S a b' p').counit := by
   subst h; simp
 
 set_option maxHeartbeats 2000000 in
 /-- **Cyclicity of the dot, right rotation** (KL III (3.3), left-hand picture): the upward dot
 rotated by a cup on the right and a cap on the left is the downward dot. -/
 theorem cycDotR (μ : ℤ) :
-    (interp (genImg hS) (KL3.Diagram.wt sl2RootDatum μ [dn ()] : ℤ) μ).functor.map
+    (interp (genImg S) (KL3.Diagram.wt sl2RootDatum μ [dn ()] : ℤ) μ).functor.map
       (rotDotR sl2RootDatum () μ) =
-    (interp (genImg hS) (KL3.Diagram.wt sl2RootDatum μ [dn ()] : ℤ) μ).functor.map
+    (interp (genImg S) (KL3.Diagram.wt sl2RootDatum μ [dn ()] : ℤ) μ).functor.map
       (downDot sl2RootDatum () μ) := by
   have hc : Cond (S := psig sl2RootDatum) (KL3.Diagram.wt sl2RootDatum μ [dn ()] : ℤ) μ
       (ob sl2RootDatum μ [dn ()]) := ⟨⟨rfl, trivial⟩, rfl, rfl⟩
@@ -362,7 +362,7 @@ theorem cycDotR (μ : ℤ) :
       (e := FreeBicategory.Hom.of (⟨⟨up (), sh sl2RootDatum (dn ()) + x⟩, rfl,
           sh_true_sh_false () x⟩ :
         rq (S := psig sl2RootDatum) (sh sl2RootDatum (dn ()) + x) ⟶ rq x))
-      (gAdjL hS (S.qi (sh sl2RootDatum (dn ()) + x)) (S.qi x) (S.qi_sh_false () x))
+      (gAdjL S (S.qi (sh sl2RootDatum (dn ()) + x)) (S.qi x) (S.qi_sh_false () x))
       (S.gDot (S.qi (sh sl2RootDatum (dn ()) + x)) (S.qi x) (S.qi_sh_false () x))
       (Iso.refl _) (Iso.refl _) (Iso.refl _) (whiskerRightIso (eqToIso (hom_of_congr ?hc1)) _)
       _ ?hg1
@@ -383,7 +383,7 @@ theorem cycDotR (μ : ℤ) :
     case hg3 =>
       simp only [Iso.refl_hom, PrelaxFunctor.map₂_id, Category.comp_id, eqToIso.inv,
         lift_map₂_eqToHom]
-      exact gAdjL_counit_congr hS _ _ _ (congrArg S.qi hx) _ _ _
+      exact gAdjL_counit_congr S _ _ _ (congrArg S.qi hx) _ _ _
     case hg4 =>
       simp only [Iso.refl_inv, Iso.refl_hom, PrelaxFunctor.map₂_id, Category.id_comp,
         Category.comp_id]
@@ -394,11 +394,11 @@ theorem cycDotR (μ : ℤ) :
 set_option maxHeartbeats 2000000 in
 /-- **Cyclicity of the dot, left rotation** (KL III (3.3), right-hand picture): the upward dot
 rotated by a cup on the left and a cap on the right is the downward dot. This is CL Lemma 4.1
-for the normalized left adjunctions, which holds under (BB_w) (`BBw.cyclic_dot_leftAdjN`). -/
+for the normalized left adjunctions, which holds (`cyclic_dot_leftAdjN`). -/
 theorem cycDotL (μ : ℤ) :
-    (interp (genImg hS) (KL3.Diagram.wt sl2RootDatum μ [dn ()] : ℤ) μ).functor.map
+    (interp (genImg S) (KL3.Diagram.wt sl2RootDatum μ [dn ()] : ℤ) μ).functor.map
       (rotDotL sl2RootDatum () μ) =
-    (interp (genImg hS) (KL3.Diagram.wt sl2RootDatum μ [dn ()] : ℤ) μ).functor.map
+    (interp (genImg S) (KL3.Diagram.wt sl2RootDatum μ [dn ()] : ℤ) μ).functor.map
       (downDot sl2RootDatum () μ) := by
   have hc : Cond (S := psig sl2RootDatum) (KL3.Diagram.wt sl2RootDatum μ [dn ()] : ℤ) μ
       (ob sl2RootDatum μ [dn ()]) := ⟨⟨rfl, trivial⟩, rfl, rfl⟩
@@ -455,7 +455,7 @@ theorem cycDotL (μ : ℤ) :
       simp only [Iso.refl_inv, Iso.refl_hom, PrelaxFunctor.map₂_id, Category.id_comp,
         Category.comp_id]
       simp only [genImg]
-      rw [← gDot_cyclic hS]
+      rw [← gDot_cyclic S]
       congr 1
   all_goals simp [Layer.cod, Layer.dom, ob, inv_dual, sig0_dom_dot']
 
@@ -474,9 +474,9 @@ set_option maxHeartbeats 2000000 in
 picture): the upward crossing rotated by nested cups on the right and nested caps on the left is
 the downward crossing. -/
 theorem cycCrossR (μ : ℤ) :
-    (interp (genImg hS) (KL3.Diagram.wt sl2RootDatum μ [dn (), dn ()] : ℤ) μ).functor.map
+    (interp (genImg S) (KL3.Diagram.wt sl2RootDatum μ [dn (), dn ()] : ℤ) μ).functor.map
       (rotCrossR sl2RootDatum () () μ) =
-    (interp (genImg hS) (KL3.Diagram.wt sl2RootDatum μ [dn (), dn ()] : ℤ) μ).functor.map
+    (interp (genImg S) (KL3.Diagram.wt sl2RootDatum μ [dn (), dn ()] : ℤ) μ).functor.map
       (downCross sl2RootDatum () () μ) := by
   have hc : Cond (S := psig sl2RootDatum) (KL3.Diagram.wt sl2RootDatum μ [dn (), dn ()] : ℤ) μ
       (ob sl2RootDatum μ [dn (), dn ()]) := ⟨⟨rfl, rfl, trivial⟩, rfl, rfl⟩
@@ -535,8 +535,8 @@ theorem cycCrossR (μ : ℤ) :
           (sh sl2RootDatum (dn ()) + x)⟩, rfl, sh_true_sh_false () _⟩ :
         rq (S := psig sl2RootDatum) (sh sl2RootDatum (dn ()) + (sh sl2RootDatum (dn ()) + x)) ⟶
           rq (sh sl2RootDatum (dn ()) + x)))
-      (gAdjL hS (S.qi (sh sl2RootDatum (dn ()) + x)) (S.qi x) (S.qi_sh_false () x))
-      (gAdjL hS (S.qi (sh sl2RootDatum (dn ()) + (sh sl2RootDatum (dn ()) + x)))
+      (gAdjL S (S.qi (sh sl2RootDatum (dn ()) + x)) (S.qi x) (S.qi_sh_false () x))
+      (gAdjL S (S.qi (sh sl2RootDatum (dn ()) + (sh sl2RootDatum (dn ()) + x)))
         (S.qi (sh sl2RootDatum (dn ()) + x)) (S.qi_sh_false () _))
       (S.gCross (S.qi (sh sl2RootDatum (dn ()) + (sh sl2RootDatum (dn ()) + x)))
         (S.qi (sh sl2RootDatum (dn ()) + x)) (S.qi x) (S.qi_sh_false () _) (S.qi_sh_false () x))
@@ -564,15 +564,15 @@ theorem cycCrossR (μ : ℤ) :
       rfl
     case hg3 =>
       simp only [eqToIso.inv, eqToIso.hom, lift_map₂_eqToHom]
-      exact gCross_congr _ _ _ _ (congrArg S.qi hy) _ _ _ _ _ _
+      exact S.gCross_congr _ _ _ _ (congrArg S.qi hy) _ _ _ _ _ _
     case hg4 =>
       simp only [Iso.refl_hom, PrelaxFunctor.map₂_id, Category.comp_id, eqToIso.inv,
         lift_map₂_eqToHom]
-      exact gAdjL_counit_congr hS _ _ _ (congrArg S.qi hx) _ _ _
+      exact gAdjL_counit_congr S _ _ _ (congrArg S.qi hx) _ _ _
     case hg5 =>
       simp only [Iso.refl_hom, PrelaxFunctor.map₂_id, Category.comp_id, eqToIso.inv,
         lift_map₂_eqToHom]
-      exact gAdjL_counit_congr hS _ _ _ (congrArg S.qi hy) _ _ _
+      exact gAdjL_counit_congr S _ _ _ (congrArg S.qi hy) _ _ _
     case hg6 =>
       simp only [Iso.refl_inv, Iso.refl_hom, PrelaxFunctor.map₂_id, Category.id_comp,
         Category.comp_id]
@@ -584,11 +584,11 @@ set_option maxHeartbeats 2000000 in
 /-- **Cyclicity of the crossing, left rotation** (KL III `eq_cyclic_cross-gen`, right-hand
 picture): the upward crossing rotated by nested cups on the left and nested caps on the right is
 the downward crossing. This is CL Lemma 4.2 for the normalized left adjunctions, which holds
-under (BB_w) (`BBw.cyclic_cross`). -/
+(`cyclic_cross`). -/
 theorem cycCrossL (μ : ℤ) :
-    (interp (genImg hS) (KL3.Diagram.wt sl2RootDatum μ [dn (), dn ()] : ℤ) μ).functor.map
+    (interp (genImg S) (KL3.Diagram.wt sl2RootDatum μ [dn (), dn ()] : ℤ) μ).functor.map
       (rotCrossL sl2RootDatum () () μ) =
-    (interp (genImg hS) (KL3.Diagram.wt sl2RootDatum μ [dn (), dn ()] : ℤ) μ).functor.map
+    (interp (genImg S) (KL3.Diagram.wt sl2RootDatum μ [dn (), dn ()] : ℤ) μ).functor.map
       (downCross sl2RootDatum () () μ) := by
   have hc : Cond (S := psig sl2RootDatum) (KL3.Diagram.wt sl2RootDatum μ [dn (), dn ()] : ℤ) μ
       (ob sl2RootDatum μ [dn (), dn ()]) := ⟨⟨rfl, rfl, trivial⟩, rfl, rfl⟩
@@ -667,12 +667,12 @@ theorem cycCrossL (μ : ℤ) :
       rfl
     case hg3 =>
       simp only [eqToIso.inv, eqToIso.hom, lift_map₂_eqToHom]
-      exact gCross_congr _ _ _ _ (congrArg S.qi hy) _ _ _ _ _ _
+      exact S.gCross_congr _ _ _ _ (congrArg S.qi hy) _ _ _ _ _ _
     case hg6 =>
       simp only [Iso.refl_inv, Iso.refl_hom, PrelaxFunctor.map₂_id, Category.id_comp,
         Category.comp_id]
       simp only [genImg]
-      rw [← gCross_cyclic hS]
+      rw [← gCross_cyclic S]
       congr 1
   all_goals simp [Layer.cod, Layer.dom, ob, inv_dual, hy, sig0_dom_cross', sig0_cod_cross']
 
@@ -688,7 +688,7 @@ theorem gCross_sq (a b c : ℤ) (h₁ : a + 1 = b) (h₂ : b + 1 = c) :
 set_option maxHeartbeats 2000000 in
 /-- `τ² = 0` on two upward strands. -/
 theorem klr_sqEq (μ : ℤ) :
-    (interp (genImg hS) (KL3.Diagram.wt sl2RootDatum μ [up (), up ()] : ℤ) μ).functor.map
+    (interp (genImg S) (KL3.Diagram.wt sl2RootDatum μ [up (), up ()] : ℤ) μ).functor.map
       (upDiag sl2RootDatum μ (KLR.Diagram.X2 () () ≫ KLR.Diagram.X2 () ())) = 0 := by
   have hc : Cond (S := psig sl2RootDatum) (KL3.Diagram.wt sl2RootDatum μ [up (), up ()] : ℤ) μ
       (ob sl2RootDatum μ (ups [(), ()])) := ⟨⟨rfl, rfl, trivial⟩, rfl, rfl⟩
@@ -724,7 +724,7 @@ theorem klr_sqEq (μ : ℤ) :
       ((λ_ _) ≪≫ (ρ_ _)) ((λ_ _) ≪≫ (ρ_ _)) _ _ _ _ _ _ _ _ (𝟙 _) (𝟙 _)).trans ?_
     rw [layerAt_whole, layerAt_whole]
     simp only [PrelaxFunctor.map₂_id, Category.id_comp, Category.comp_id]
-    exact gCross_sq _ _ _ _ _
+    exact S.gCross_sq _ _ _ _ _
   all_goals simp [sig0_dom_cross', Layer.dom, ob]
 
 
@@ -757,11 +757,11 @@ theorem upDiag_id2 (μ : ℤ) :
 set_option maxHeartbeats 2000000 in
 /-- The dot slide `τ (x on the left strand) - (x on the right strand) τ = 1`. -/
 theorem klr_slideLEq (μ : ℤ) :
-    (interp (genImg hS) (KL3.Diagram.wt sl2RootDatum μ [up (), up ()] : ℤ) μ).functor.map
+    (interp (genImg S) (KL3.Diagram.wt sl2RootDatum μ [up (), up ()] : ℤ) μ).functor.map
         (upDiag sl2RootDatum μ (KLR.Diagram.X2 () () ≫ KLR.Diagram.D0 () ())) -
-      (interp (genImg hS) (KL3.Diagram.wt sl2RootDatum μ [up (), up ()] : ℤ) μ).functor.map
+      (interp (genImg S) (KL3.Diagram.wt sl2RootDatum μ [up (), up ()] : ℤ) μ).functor.map
         (upDiag sl2RootDatum μ (KLR.Diagram.D1 () () ≫ KLR.Diagram.X2 () ())) -
-      (interp (genImg hS) (KL3.Diagram.wt sl2RootDatum μ [up (), up ()] : ℤ) μ).functor.map
+      (interp (genImg S) (KL3.Diagram.wt sl2RootDatum μ [up (), up ()] : ℤ) μ).functor.map
         (upDiag sl2RootDatum μ (𝟙 _)) = 0 := by
   rw [upDiag_X2_D0, upDiag_D1_X2, upDiag_id2]
   have hc : Cond (S := psig sl2RootDatum) (KL3.Diagram.wt sl2RootDatum μ [up (), up ()] : ℤ) μ
@@ -831,11 +831,11 @@ theorem upDiag_X2_D1 (μ : ℤ) :
 set_option maxHeartbeats 2000000 in
 /-- The dot slide `(x on the left strand) τ - τ (x on the right strand) = 1`. -/
 theorem klr_slideREq (μ : ℤ) :
-    (interp (genImg hS) (KL3.Diagram.wt sl2RootDatum μ [up (), up ()] : ℤ) μ).functor.map
+    (interp (genImg S) (KL3.Diagram.wt sl2RootDatum μ [up (), up ()] : ℤ) μ).functor.map
         (upDiag sl2RootDatum μ (KLR.Diagram.D0 () () ≫ KLR.Diagram.X2 () ())) -
-      (interp (genImg hS) (KL3.Diagram.wt sl2RootDatum μ [up (), up ()] : ℤ) μ).functor.map
+      (interp (genImg S) (KL3.Diagram.wt sl2RootDatum μ [up (), up ()] : ℤ) μ).functor.map
         (upDiag sl2RootDatum μ (KLR.Diagram.X2 () () ≫ KLR.Diagram.D1 () ())) -
-      (interp (genImg hS) (KL3.Diagram.wt sl2RootDatum μ [up (), up ()] : ℤ) μ).functor.map
+      (interp (genImg S) (KL3.Diagram.wt sl2RootDatum μ [up (), up ()] : ℤ) μ).functor.map
         (upDiag sl2RootDatum μ (𝟙 _)) = 0 := by
   rw [upDiag_D0_X2, upDiag_X2_D1, upDiag_id2]
   have hc : Cond (S := psig sl2RootDatum) (KL3.Diagram.wt sl2RootDatum μ [up (), up ()] : ℤ) μ
@@ -937,9 +937,9 @@ theorem upDiag_braidR (μ : ℤ) :
 set_option maxHeartbeats 10000000 in
 /-- The braid relation on three upward strands. -/
 theorem klr_braid (μ : ℤ) :
-    (interp (genImg hS) (KL3.Diagram.wt sl2RootDatum μ [up (), up (), up ()] : ℤ) μ).functor.map
+    (interp (genImg S) (KL3.Diagram.wt sl2RootDatum μ [up (), up (), up ()] : ℤ) μ).functor.map
         (upDiag sl2RootDatum μ (KLR.Diagram.braidL () () ())) -
-      (interp (genImg hS) (KL3.Diagram.wt sl2RootDatum μ [up (), up (), up ()] : ℤ) μ).functor.map
+      (interp (genImg S) (KL3.Diagram.wt sl2RootDatum μ [up (), up (), up ()] : ℤ) μ).functor.map
         (upDiag sl2RootDatum μ (KLR.Diagram.braidR () () ())) = 0 := by
   rw [upDiag_braidL, upDiag_braidR]
   have hc : Cond (S := psig sl2RootDatum)

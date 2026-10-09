@@ -389,6 +389,6 @@ theorem bbw (S : StrongSl2 k B) : S.BBw :=
 /-- Graded Hom spaces between word-generated 1-morphisms are bounded below. -/
 theorem homBddBelow_wordGen (S : StrongSl2 k B) {r s : ℤ} {X Z : S.obj r ⟶ S.obj s}
     (hX : S.WordGen r s X) (hZ : S.WordGen r s Z) : HomBddBelow k X Z :=
-  S.bbw.homBddBelow hX hZ
+  homBddBelow_of_words (fun hX' hZ' => bdd_src _ hX' hZ') hX hZ
 
 end Categorification.TwoRep.StrongSl2

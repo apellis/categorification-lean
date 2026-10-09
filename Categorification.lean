@@ -40,13 +40,16 @@ import Categorification.Algebra.SplitK0
 import Categorification.Algebra.SymmetricFree
 import Categorification.Diagrams.BicatInterp
 import Categorification.Diagrams.BicatInterpPull
+import Categorification.Diagrams.BicatInterpPseudo
 import Categorification.Diagrams.BicatInterpPush
+import Categorification.Diagrams.RevBicat
 import Categorification.Diagrams.StrictMate
 import Categorification.Diagrams.CL.DownKLR
 import Categorification.Diagrams.CL.Homogeneous
 import Categorification.Diagrams.CL.Presentation
 import Categorification.Diagrams.CL.Rescale
 import Categorification.Diagrams.CL.RescaleBasic
+import Categorification.Diagrams.CL.RescaleBicat
 import Categorification.Diagrams.CL.RescaleR
 import Categorification.Diagrams.CL.Rotate
 import Categorification.Diagrams.CL.Scalars
@@ -403,6 +406,7 @@ import Categorification.TwoRep.AdjointWeightZero
 import Categorification.TwoRep.BSum
 import Categorification.TwoRep.Basic
 import Categorification.TwoRep.Biadjoint
+import Categorification.TwoRep.CLTwoFunctor
 import Categorification.TwoRep.CisBub
 import Categorification.TwoRep.CisBubRight
 import Categorification.TwoRep.Coop

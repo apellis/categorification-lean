@@ -473,6 +473,7 @@ import Categorification.TwoRep.ModelQStrongZig
 import Categorification.TwoRep.ModelQStrongPoly
 import Categorification.TwoRep.ModelQStrongBraidQ
 import Categorification.TwoRep.ModelQStrongCyc
+import Categorification.TwoRep.ModelQStrongPres
 import Categorification.TypeA.Basic
 import Categorification.TypeA.DoubleCoset
 import Categorification.TypeA.Inversions

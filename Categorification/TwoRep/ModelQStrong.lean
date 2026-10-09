@@ -4,14 +4,16 @@ Released under Apache 2.0 license as described in the file LICENSE.
 -/
 import Categorification.TwoRep.ModelSl2
 import Categorification.TwoRep.QStrongBBw
+import Categorification.TwoRep.BBwProof
 import Categorification.Diagrams.CL.Scalars
 
 /-!
 # The model of `U_Q(g)` given by a `Q`-strong 2-representation
 
 S. Cautis, A. D. Lauda, *Implicit structure in 2-representations of quantum groups*,
-arXiv:1111.1431v3, Theorem 1.1: a `Q`-strong 2-representation of `g` (Definition 1.2) satisfying
-(BB_w) gives a 2-representation of `U_Q(g)`. This file sets up the data of that 2-functor on the
+arXiv:1111.1431v3, Theorem 1.1: a `Q`-strong 2-representation of `g` (Definition 1.2) gives a 2-representation of
+`U_Q(g)`. (The boundedness hypothesis (BB_w) is not needed: on each `α_i`-string it holds by
+`StrongSl2.bbw`.) This file sets up the data of that 2-functor on the
 signature `psig RD` of `U` (`Categorification.Diagrams.KL3.Basic`), as a model in the
 graded-Hom bicategory `K^•` in the sense of `Categorification.Diagrams.BicatInterp`, for a Cartan
 datum with `(α_i, α_i) = 2` for all `i` (the restriction to `α_i`-strings `QStrong.toStrongSl2`
@@ -219,48 +221,48 @@ theorem grR_toStrongSl2 (hsl : ∀ i, C.dot i i = 2) (i : I) (b : X) (r : ℤ)
   exact congrArg (fun n : ℤ => of₁ ((S.F i h)⟦n⟧)) e
 
 variable [∀ a b : B, IsIdempotentComplete (a ⟶ b)] [∀ a b : B, HomFinite k (a ⟶ b)]
-variable {S} (hsl : ∀ i, C.dot i i = 2) (hS : S.BBw)
+variable {S} (hsl : ∀ i, C.dot i i = 2)
 
 /-- Transport of an adjunction along an equality of left adjoints. -/
 def transportLeft {D : Type*} [Bicategory D] {a b : D} {R R' : b ⟶ a} {E : a ⟶ b} (h : R = R')
     (adj : R ⊣ E) : R' ⊣ E :=
   h ▸ adj
 
-include hsl hS in
+include hsl in
 /-- The normalized left adjunction of the `α_i`-string through the base point `b`, at the index
 `r`, transported to the weights `x = b + r α_i`, `y = b + (r + 1) α_i`. -/
 def adjLAux (i : I) (b : X) (r : ℤ) {x y : X} (e : b + r • RD.iX i = x)
     (e' : b + (r + 1) • RD.iX i = y) (h : x + RD.iX i = y) : S.Rg i h ⊣ S.Eg i h := by
   subst e e'
-  exact transportLeft (grR_toStrongSl2 S hsl i b r h) ((hS.toStrongSl2 i (hsl i) b).leftAdjN r)
+  exact transportLeft (grR_toStrongSl2 S hsl i b r h) (((S.toStrongSl2 i (hsl i) b).bbw).leftAdjN r)
 
 theorem adjLAux_congr (i : I) {b b' : X} {r r' : ℤ} (hb : b = b') (hr : r = r') {x y : X}
     (e : b + r • RD.iX i = x) (e' : b + (r + 1) • RD.iX i = y)
     (f : b' + r' • RD.iX i = x) (f' : b' + (r' + 1) • RD.iX i = y) (h : x + RD.iX i = y) :
-    adjLAux hsl hS i b r e e' h = adjLAux hsl hS i b' r' f f' h := by
+    adjLAux (S := S) hsl i b r e e' h = adjLAux (S := S) hsl i b' r' f f' h := by
   subst hb hr; rfl
 
-include hsl hS in
+include hsl in
 /-- **The left adjunction `R ⊣ E`** of the model: the normalized left adjunction of the
 restriction of `S` to the `α_i`-string through the base point of `λ`. -/
 def adjL (i : I) {x y : X} (h : x + RD.iX i = y) : S.Rg i h ⊣ S.Eg i h :=
-  adjLAux hsl hS i (strBase RD i x) (strIdx RD i x) (strBase_add_strIdx i x) (strBase_succ i h) h
+  adjLAux (S := S) hsl i (strBase RD i x) (strIdx RD i x) (strBase_add_strIdx i x) (strBase_succ i h) h
 
 /-- Along the string of a base point `b`, the left adjunction at `b + r α_i` is the normalized
 left adjunction of the restriction to the string through `b`, at index `r`. -/
 theorem adjL_eq (i : I) (b : X) (hb : strBase RD i b = b) (r : ℤ) {x y : X}
     (e : b + r • RD.iX i = x) (e' : b + (r + 1) • RD.iX i = y) (h : x + RD.iX i = y) :
-    adjL hsl hS i h = adjLAux hsl hS i b r e e' h := by
+    adjL (S := S) hsl i h = adjLAux (S := S) hsl i b r e e' h := by
   have hx : strBase RD i x = b := by rw [← e, strBase_add_zsmul, hb]
   have hr : strIdx RD i x = r := strIdx_eq i (by rw [hx, e])
-  exact adjLAux_congr hsl hS i hx hr _ _ _ _ h
+  exact adjLAux_congr (S := S) hsl i hx hr _ _ _ _ h
 
-include hsl hS in
+include hsl in
 /-- The downward dot: the mate of the dot under the left adjunction (the rotation `rotDotR`). -/
 def dotDnQ (i : I) {x y : X} (h : x + RD.iX i = y) : S.Rg i h ⟶ S.Rg i h :=
-  (Bicategory.conjugateEquiv (adjL hsl hS i h) (adjL hsl hS i h)).symm (S.dotQ i h)
+  (Bicategory.conjugateEquiv (adjL (S := S) hsl i h) (adjL (S := S) hsl i h)).symm (S.dotQ i h)
 
-include hsl hS in
+include hsl in
 /-- The downward crossing with bottom labels `i`, `j` (CL's reading; Mathlib: `R_j ≫ R_i`): the
 mate of the upward crossing `τ_{ij}` under the composites of the left adjunctions (the rotation
 `rotCrossR`), times `t_{ji}⁻¹`. -/
@@ -268,8 +270,8 @@ def crossDnQ (Sc : CL.CLScalars C k) (i j : I) {a n n' b : X} (hj : n' + RD.iX j
     (hi : a + RD.iX i = n') (hi' : n + RD.iX i = b) (hj' : a + RD.iX j = n) :
     S.Rg j hj ≫ S.Rg i hi ⟶ S.Rg i hi' ≫ S.Rg j hj' :=
   (((Sc.t j i)⁻¹ : kˣ) : k) •
-    (Bicategory.conjugateEquiv ((adjL hsl hS i hi').comp (adjL hsl hS j hj'))
-      ((adjL hsl hS j hj).comp (adjL hsl hS i hi))).symm (S.crossQ i j hj' hi' hi hj)
+    (Bicategory.conjugateEquiv ((adjL (S := S) hsl i hi').comp (adjL (S := S) hsl j hj'))
+      ((adjL (S := S) hsl j hj).comp (adjL (S := S) hsl i hi))).symm (S.crossQ i j hj' hi' hi hj)
 
 end Gens
 
@@ -279,7 +281,7 @@ section GenImg
 
 variable {S : QStrong B C RD k Q} [GradedBicategory.IsLinear B k]
   [∀ a b : B, IsIdempotentComplete (a ⟶ b)] [∀ a b : B, HomFinite k (a ⟶ b)]
-  (hsl : ∀ i, C.dot i i = 2) (hS : S.BBw) (Sc : CL.CLScalars C k)
+  (hsl : ∀ i, C.dot i i = 2) (Sc : CL.CLScalars C k)
 
 theorem cross_up_reg (j : I) (ν : X) : ν + RD.iX j = sh RD ((true, j) : Letter I) + ν := by
   rw [sh_up, add_comm]
@@ -307,7 +309,7 @@ theorem cross_dn_swap (i j : I) {ν a : X}
     a + RD.iX j = sh RD ((false, i) : Letter I) + ν := by
   rw [← ha, sh_dn, sh_dn]; abel
 
-include hsl hS Sc in
+include hsl Sc in
 /-- **The images of the generators** of `U` in the model of a `Q`-strong 2-representation, read
 between regions `a` (left) and `b` (right). -/
 def genImg : GenImg S.model where
@@ -315,24 +317,24 @@ def genImg : GenImg S.model where
     | .gen (.dot ⟨(true, i), r⟩) => fun a b _ _ hd hde _ _ =>
         S.dotQ i (up_reg i hde hd.1)
     | .gen (.dot ⟨(false, i), r⟩) => fun a b _ _ hd hde _ _ =>
-        dotDnQ hsl hS i (dn_reg i hde hd.1)
+        dotDnQ (S := S) hsl i (dn_reg i hde hd.1)
     | .gen (.cross true i j ν) => fun a b _ _ hd hde _ _ => by
         obtain rfl : ν = b := hde
         exact S.crossQ i j (cross_up_reg j ν) (cross_up_reg' i j hd.1) (cross_up_reg i ν)
           (cross_up_swap i j hd.1)
     | .gen (.cross false i j ν) => fun a b _ _ hd hde _ _ => by
         obtain rfl : ν = b := hde
-        exact crossDnQ hsl hS Sc i j (cross_dn_reg j ν) (cross_dn_reg' i j hd.1)
+        exact crossDnQ (S := S) hsl Sc i j (cross_dn_reg j ν) (cross_dn_reg' i j hd.1)
           (cross_dn_reg i ν) (cross_dn_swap i j hd.1)
     | .cup ⟨(true, i), r⟩ => fun a b ha _ _ hde _ _ => by
         subst hde
-        exact (adjL hsl hS i (up_reg i rfl ha)).unit
+        exact (adjL (S := S) hsl i (up_reg i rfl ha)).unit
     | .cup ⟨(false, i), r⟩ => fun a b ha _ _ hde _ _ => by
         subst hde
         exact (S.adjR i (dn_reg i rfl ha)).unit
     | .cap ⟨(true, i), r⟩ => fun a b _ _ _ hde _ hce => by
         subst hce
-        exact (adjL hsl hS i (up_reg i hde rfl)).counit
+        exact (adjL (S := S) hsl i (up_reg i hde rfl)).counit
     | .cap ⟨(false, i), r⟩ => fun a b _ _ _ hde _ hce => by
         subst hce
         exact (S.adjR i (dn_reg i hde rfl)).counit

@@ -280,7 +280,7 @@ end Gr
 
 section Up
 
-variable {S : QStrong B C RD k Q} (hsl : ∀ i, C.dot i i = 2) (hS : S.BBw) (Sc : CL.CLScalars C k)
+variable {S : QStrong B C RD k Q} (hsl : ∀ i, C.dot i i = 2) (Sc : CL.CLScalars C k)
 
 attribute [local irreducible] KL3.Diagram.sh
 
@@ -315,9 +315,9 @@ set_option maxHeartbeats 2000000 in
 /-- The dot slide `τ (x on the left strand) = (x on the right strand) τ` for differently labelled
 strands. -/
 theorem klr_slideLNe (c d : I) (h : c ≠ d) (μ : X) :
-    (interp (genImg hsl hS Sc) (KL3.Diagram.wt RD μ [up c, up d] : X) μ).functor.map
+    (interp (genImg (S := S) hsl Sc) (KL3.Diagram.wt RD μ [up c, up d] : X) μ).functor.map
         (upDiag RD μ (KLR.Diagram.X2 c d ≫ KLR.Diagram.D0 d c)) -
-      (interp (genImg hsl hS Sc) (KL3.Diagram.wt RD μ [up c, up d] : X) μ).functor.map
+      (interp (genImg (S := S) hsl Sc) (KL3.Diagram.wt RD μ [up c, up d] : X) μ).functor.map
         (upDiag RD μ (KLR.Diagram.D1 c d ≫ KLR.Diagram.X2 c d)) = 0 := by
   rw [upDiag_X2_D0_g, upDiag_D1_X2_g]
   have hc : Cond (S := psig RD) (KL3.Diagram.wt RD μ [up c, up d] : X) μ
@@ -381,9 +381,9 @@ set_option maxHeartbeats 2000000 in
 /-- The dot slide `(x on the left strand) τ = τ (x on the right strand)` for differently labelled
 strands. -/
 theorem klr_slideRNe (c d : I) (h : c ≠ d) (μ : X) :
-    (interp (genImg hsl hS Sc) (KL3.Diagram.wt RD μ [up c, up d] : X) μ).functor.map
+    (interp (genImg (S := S) hsl Sc) (KL3.Diagram.wt RD μ [up c, up d] : X) μ).functor.map
         (upDiag RD μ (KLR.Diagram.D0 c d ≫ KLR.Diagram.X2 c d)) -
-      (interp (genImg hsl hS Sc) (KL3.Diagram.wt RD μ [up c, up d] : X) μ).functor.map
+      (interp (genImg (S := S) hsl Sc) (KL3.Diagram.wt RD μ [up c, up d] : X) μ).functor.map
         (upDiag RD μ (KLR.Diagram.X2 c d ≫ KLR.Diagram.D1 d c)) = 0 := by
   rw [upDiag_D0_X2_g, upDiag_X2_D1_g]
   have hc : Cond (S := psig RD) (KL3.Diagram.wt RD μ [up c, up d] : X) μ
@@ -447,9 +447,9 @@ set_option maxHeartbeats 10000000 in
 /-- The braid relation on three upward strands with bottom labels `c d e`, unless `c = e` and
 `(α_c, α_d) < 0` (the hypothesis of CL (2.13)). -/
 theorem klr_braid_gen' (c d e : I) (hb' : ¬ (c = e ∧ C.dot c d < 0)) (μ : X) :
-    (interp (genImg hsl hS Sc) (KL3.Diagram.wt RD μ [up c, up d, up e] : X) μ).functor.map
+    (interp (genImg (S := S) hsl Sc) (KL3.Diagram.wt RD μ [up c, up d, up e] : X) μ).functor.map
         (upDiag RD μ (KLR.Diagram.braidL c d e)) -
-      (interp (genImg hsl hS Sc) (KL3.Diagram.wt RD μ [up c, up d, up e] : X) μ).functor.map
+      (interp (genImg (S := S) hsl Sc) (KL3.Diagram.wt RD μ [up c, up d, up e] : X) μ).functor.map
         (upDiag RD μ (KLR.Diagram.braidR c d e)) = 0 := by
   rw [upDiag_braidL_g, upDiag_braidR_g]
   have hc : Cond (S := psig RD) (KL3.Diagram.wt RD μ [up c, up d, up e] : X) μ
@@ -580,11 +580,11 @@ theorem klr_braid_gen' (c d e : I) (hb' : ¬ (c = e ∧ C.dot c d < 0)) (μ : X)
 
 /-- The braid relation on three upward strands with bottom labels `c d e`, unless `c = e ≠ d`. -/
 theorem klr_braid_gen (c d e : I) (hb : ¬ (c = e ∧ c ≠ d)) (μ : X) :
-    (interp (genImg hsl hS Sc) (KL3.Diagram.wt RD μ [up c, up d, up e] : X) μ).functor.map
+    (interp (genImg (S := S) hsl Sc) (KL3.Diagram.wt RD μ [up c, up d, up e] : X) μ).functor.map
         (upDiag RD μ (KLR.Diagram.braidL c d e)) -
-      (interp (genImg hsl hS Sc) (KL3.Diagram.wt RD μ [up c, up d, up e] : X) μ).functor.map
+      (interp (genImg (S := S) hsl Sc) (KL3.Diagram.wt RD μ [up c, up d, up e] : X) μ).functor.map
         (upDiag RD μ (KLR.Diagram.braidR c d e)) = 0 := by
-  refine klr_braid_gen' hsl hS Sc c d e ?_ μ
+  refine klr_braid_gen' (S := S) hsl Sc c d e ?_ μ
   rintro ⟨rfl, hcd⟩
   refine hb ⟨rfl, fun h' => ?_⟩
   subst h'
@@ -595,31 +595,31 @@ theorem klr_braid_gen (c d e : I) (hb : ¬ (c = e ∧ c ≠ d)) (μ : X) :
 /-! ### The relations, read with their own outer regions -/
 
 theorem killed_klr_slideLNe (c d : I) (h : c ≠ d) (μ : X) :
-    (freeLift k (interp (genImg hsl hS Sc) (Rel.dom (.klr μ (.slideLNe c d h) : Rel RD)).start
+    (freeLift k (interp (genImg (S := S) hsl Sc) (Rel.dom (.klr μ (.slideLNe c d h) : Rel RD)).start
       (Rel.dom (.klr μ (.slideLNe c d h) : Rel RD)).endR).functor).map
         (relation k (.klr μ (.slideLNe c d h) : Rel RD)) = 0 := by
   set_option backward.isDefEq.respectTransparency false in
   rw [relation, KLR.Diagram.relation, upLin_sub, upLin_of, upLin_of, Functor.map_sub,
     freeLift_map_of, freeLift_map_of]
-  exact klr_slideLNe hsl hS Sc c d h μ
+  exact klr_slideLNe (S := S) hsl Sc c d h μ
 
 theorem killed_klr_slideRNe (c d : I) (h : c ≠ d) (μ : X) :
-    (freeLift k (interp (genImg hsl hS Sc) (Rel.dom (.klr μ (.slideRNe c d h) : Rel RD)).start
+    (freeLift k (interp (genImg (S := S) hsl Sc) (Rel.dom (.klr μ (.slideRNe c d h) : Rel RD)).start
       (Rel.dom (.klr μ (.slideRNe c d h) : Rel RD)).endR).functor).map
         (relation k (.klr μ (.slideRNe c d h) : Rel RD)) = 0 := by
   set_option backward.isDefEq.respectTransparency false in
   rw [relation, KLR.Diagram.relation, upLin_sub, upLin_of, upLin_of, Functor.map_sub,
     freeLift_map_of, freeLift_map_of]
-  exact klr_slideRNe hsl hS Sc c d h μ
+  exact klr_slideRNe (S := S) hsl Sc c d h μ
 
 theorem killed_klr_braid_gen (c d e : I) (h : ¬ (c = e ∧ c ≠ d)) (μ : X) :
-    (freeLift k (interp (genImg hsl hS Sc) (Rel.dom (.klr μ (.braid c d e h) : Rel RD)).start
+    (freeLift k (interp (genImg (S := S) hsl Sc) (Rel.dom (.klr μ (.braid c d e h) : Rel RD)).start
       (Rel.dom (.klr μ (.braid c d e h) : Rel RD)).endR).functor).map
         (relation k (.klr μ (.braid c d e h) : Rel RD)) = 0 := by
   set_option backward.isDefEq.respectTransparency false in
   rw [relation, KLR.Diagram.relation, upLin_sub, upLin_of, upLin_of, Functor.map_sub,
     freeLift_map_of, freeLift_map_of]
-  exact klr_braid_gen hsl hS Sc c d e h μ
+  exact klr_braid_gen (S := S) hsl Sc c d e h μ
 
 end Up
 

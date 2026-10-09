@@ -158,26 +158,24 @@ theorem crossQ_heq (i : I) (b : X) (r c d : ℤ) (p₁ : r + 1 = c) (p₂ : c + 
       (string_add i b r) (string_add i b (r + 1))) (by rw [hsl i]))
   exact GradedHomCat.homOf_congr (by rw [hsl i]) _
 
-variable (hS : S.BBw)
-
 theorem adjLAux_rfl (i : I) (b : X) (r : ℤ) (h : b + r • RD.iX i + RD.iX i = b + (r + 1) • RD.iX i) :
-    adjLAux hsl hS i b r rfl rfl h =
-      transportLeft (grR_toStrongSl2 S hsl i b r h) ((hS.toStrongSl2 i (hsl i) b).leftAdjN r) :=
+    adjLAux (S := S) hsl i b r rfl rfl h =
+      transportLeft (grR_toStrongSl2 S hsl i b r h) (((S.toStrongSl2 i (hsl i) b).bbw).leftAdjN r) :=
   rfl
 
 theorem adjL_heq' (i : I) (b : X) (hb : strBase RD i b = b) (r : ℤ)
     (h : b + r • RD.iX i + RD.iX i = b + (r + 1) • RD.iX i) :
-    adjL hsl hS i h ≍ StrongSl2.gAdjL (hS.toStrongSl2 i (hsl i) b) r (r + 1) rfl := by
-  rw [adjL_eq hsl hS i b hb r rfl rfl h, adjLAux_rfl]
+    adjL (S := S) hsl i h ≍ StrongSl2.gAdjL ((S.toStrongSl2 i (hsl i) b).bbw) r (r + 1) rfl := by
+  rw [adjL_eq (S := S) hsl i b hb r rfl rfl h, adjLAux_rfl]
   exact heq_transportLeft _ _
 
 theorem adjL_heq (i : I) (b : X) (hb : strBase RD i b = b) (r c : ℤ) (p : r + 1 = c)
     (h : b + r • RD.iX i + RD.iX i = b + c • RD.iX i) :
-    (adjL hsl hS i h).unit ≍ (StrongSl2.gAdjL (hS.toStrongSl2 i (hsl i) b) r c p).unit ∧
-      (adjL hsl hS i h).counit ≍ (StrongSl2.gAdjL (hS.toStrongSl2 i (hsl i) b) r c p).counit := by
+    (adjL (S := S) hsl i h).unit ≍ (StrongSl2.gAdjL ((S.toStrongSl2 i (hsl i) b).bbw) r c p).unit ∧
+      (adjL (S := S) hsl i h).counit ≍ (StrongSl2.gAdjL ((S.toStrongSl2 i (hsl i) b).bbw) r c p).counit := by
   subst p
   exact heq_adj_unit (gRc_eq S hsl i b r (r + 1) rfl h).symm (gEc_eq S hsl i b r (r + 1) rfl h).symm
-    (adjL_heq' hsl hS i b hb r h)
+    (adjL_heq' (S := S) hsl i b hb r h)
 
 theorem adjR_heq (i : I) (b : X) (r c : ℤ) (p : r + 1 = c)
     (h : b + r • RD.iX i + RD.iX i = b + c • RD.iX i) :
@@ -196,26 +194,26 @@ theorem adjR_heq (i : I) (b : X) (r c : ℤ) (p : r + 1 = c)
 
 theorem adjL_heqP (i : I) (b : X) (hb : strBase RD i b = b) (r c : ℤ) (p : r + 1 = c)
     (h : b + r • RD.iX i + RD.iX i = b + c • RD.iX i) :
-    adjL hsl hS i h ≍ StrongSl2.gAdjL (hS.toStrongSl2 i (hsl i) b) r c p := by
+    adjL (S := S) hsl i h ≍ StrongSl2.gAdjL ((S.toStrongSl2 i (hsl i) b).bbw) r c p := by
   subst p
-  exact adjL_heq' hsl hS i b hb r h
+  exact adjL_heq' (S := S) hsl i b hb r h
 
 theorem dotDnQ_heq (i : I) (b : X) (hb : strBase RD i b = b) (r c : ℤ) (p : r + 1 = c)
     (h : b + r • RD.iX i + RD.iX i = b + c • RD.iX i) :
-    dotDnQ hsl hS i h ≍ StrongSl2.gDotR (hS.toStrongSl2 i (hsl i) b) r c p :=
+    dotDnQ (S := S) hsl i h ≍ StrongSl2.gDotR ((S.toStrongSl2 i (hsl i) b).bbw) r c p :=
   heq_mate_gr (a := of ((S.toStrongSl2 i (hsl i) b).obj r))
     (b := of ((S.toStrongSl2 i (hsl i) b).obj c))
     (a' := of (S.obj (b + r • RD.iX i))) (b' := of (S.obj (b + c • RD.iX i))) (by subst p; rfl)
     (by subst p; rfl) (heq_of_eq (gRc_eq S hsl i b r c p h).symm)
-    (heq_of_eq (gEc_eq S hsl i b r c p h).symm) (adjL_heqP hsl hS i b hb r c p h)
+    (heq_of_eq (gEc_eq S hsl i b r c p h).symm) (adjL_heqP (S := S) hsl i b hb r c p h)
     (dotQ_heq S hsl i b r c p h)
 
 theorem crossDnQ_heq (Sc : KL3.Diagram.CL.CLScalars C k) (i : I) (b : X)
     (hb : strBase RD i b = b) (r c d : ℤ) (p₁ : r + 1 = c) (p₂ : c + 1 = d) {n : X}
     (hn : n = b + c • RD.iX i) (hj : n + RD.iX i = b + d • RD.iX i)
     (hi : b + r • RD.iX i + RD.iX i = n) :
-    crossDnQ hsl hS Sc i i hj hi hj hi ≍
-      StrongSl2.gCrossR (hS.toStrongSl2 i (hsl i) b) r c d p₁ p₂ := by
+    crossDnQ (S := S) hsl Sc i i hj hi hj hi ≍
+      StrongSl2.gCrossR ((S.toStrongSl2 i (hsl i) b).bbw) r c d p₁ p₂ := by
   subst hn
   unfold crossDnQ StrongSl2.gCrossR
   rw [Sc.t_self, inv_one, Units.val_one, one_smul]
@@ -226,15 +224,15 @@ theorem crossDnQ_heq (Sc : KL3.Diagram.CL.CLScalars C k) (i : I) (b : X)
     (by subst p₁ p₂; rfl)
     (heq_of_eq (gRc_eq S hsl i b c d p₂ hj).symm) (heq_of_eq (gEc_eq S hsl i b c d p₂ hj).symm)
     (heq_of_eq (gRc_eq S hsl i b r c p₁ hi).symm) (heq_of_eq (gEc_eq S hsl i b r c p₁ hi).symm)
-    (adjL_heqP hsl hS i b hb c d p₂ hj) (adjL_heqP hsl hS i b hb r c p₁ hi)
+    (adjL_heqP (S := S) hsl i b hb c d p₂ hj) (adjL_heqP (S := S) hsl i b hb r c p₁ hi)
     (crossQ_heq S hsl i b r c d p₁ p₂ (n := b + c • RD.iX i) rfl hi hj hi hj)
 
 theorem adjL_heqG (i : I) (b : X) (hb : strBase RD i b = b) (r c : ℤ) (p : r + 1 = c) {x y : X}
     (hx : x = b + r • RD.iX i) (hy : y = b + c • RD.iX i) (h : x + RD.iX i = y) :
-    (adjL hsl hS i h).unit ≍ (StrongSl2.gAdjL (hS.toStrongSl2 i (hsl i) b) r c p).unit ∧
-      (adjL hsl hS i h).counit ≍ (StrongSl2.gAdjL (hS.toStrongSl2 i (hsl i) b) r c p).counit := by
+    (adjL (S := S) hsl i h).unit ≍ (StrongSl2.gAdjL ((S.toStrongSl2 i (hsl i) b).bbw) r c p).unit ∧
+      (adjL (S := S) hsl i h).counit ≍ (StrongSl2.gAdjL ((S.toStrongSl2 i (hsl i) b).bbw) r c p).counit := by
   subst hx hy
-  exact adjL_heq hsl hS i b hb r c p h
+  exact adjL_heq (S := S) hsl i b hb r c p h
 
 theorem adjR_heqG (i : I) (b : X) (r c : ℤ) (p : r + 1 = c) {x y : X}
     (hx : x = b + r • RD.iX i) (hy : y = b + c • RD.iX i) (h : x + RD.iX i = y) :
@@ -288,20 +286,20 @@ theorem pull_strandAt_eq (i : I) (b : X) :
 
 section EqLemmas
 
-variable (hS : S.BBw) (Sc : CL.CLScalars C k)
+variable (Sc : CL.CLScalars C k)
 
 attribute [local irreducible] KL3.Diagram.sh dotDnQ crossDnQ adjL dotQ crossQ
 
 theorem genImg_dot_true (i : I) (r a b : X) (ha hb hd hde hc hce) :
-    (genImg hsl hS Sc).gen (.gen (.dot ⟨(true, i), r⟩)) a b ha hb hd hde hc hce =
+    (genImg (S := S) hsl Sc).gen (.gen (.dot ⟨(true, i), r⟩)) a b ha hb hd hde hc hce =
       S.dotQ i (up_reg i hde hd.1) := rfl
 
 theorem genImg_dot_false (i : I) (r a b : X) (ha hb hd hde hc hce) :
-    (genImg hsl hS Sc).gen (.gen (.dot ⟨(false, i), r⟩)) a b ha hb hd hde hc hce =
-      dotDnQ hsl hS i (dn_reg i hde hd.1) := rfl
+    (genImg (S := S) hsl Sc).gen (.gen (.dot ⟨(false, i), r⟩)) a b ha hb hd hde hc hce =
+      dotDnQ (S := S) hsl i (dn_reg i hde hd.1) := rfl
 
 theorem genImg_cross_true (i j : I) (ν a b : X) (ha hb hd) (hde : ν = b) (hc hce) :
-    (genImg hsl hS Sc).gen (.gen (.cross true i j ν)) a b ha hb hd hde hc hce =
+    (genImg (S := S) hsl Sc).gen (.gen (.cross true i j ν)) a b ha hb hd hde hc hce =
       S.crossQ i j (l := b) (n := sh RD ((true, j) : Letter I) + ν) (m := a)
         (n' := sh RD ((true, i) : Letter I) + ν) (by rw [← hde]; exact cross_up_reg j ν)
         (cross_up_reg' i j hd.1) (by rw [← hde]; exact cross_up_reg i ν)
@@ -309,27 +307,27 @@ theorem genImg_cross_true (i j : I) (ν a b : X) (ha hb hd) (hde : ν = b) (hc h
   subst hde; rfl
 
 theorem genImg_cross_false (i j : I) (ν a b : X) (ha hb hd) (hde : ν = b) (hc hce) :
-    (genImg hsl hS Sc).gen (.gen (.cross false i j ν)) a b ha hb hd hde hc hce =
-      crossDnQ hsl hS Sc i j (a := a) (n := sh RD ((false, i) : Letter I) + ν)
+    (genImg (S := S) hsl Sc).gen (.gen (.cross false i j ν)) a b ha hb hd hde hc hce =
+      crossDnQ (S := S) hsl Sc i j (a := a) (n := sh RD ((false, i) : Letter I) + ν)
         (n' := sh RD ((false, j) : Letter I) + ν) (b := b)
         (by rw [← hde]; exact cross_dn_reg j ν) (cross_dn_reg' i j hd.1)
         (by rw [← hde]; exact cross_dn_reg i ν) (cross_dn_swap i j hd.1) := by
   subst hde; rfl
 
 theorem genImg_cup_true (i : I) (r a : X) (ha hb hd hc hce) :
-    (genImg hsl hS Sc).gen (.cup ⟨(true, i), r⟩) a a ha hb hd rfl hc hce =
-      (adjL hsl hS i (up_reg i rfl ha)).unit := rfl
+    (genImg (S := S) hsl Sc).gen (.cup ⟨(true, i), r⟩) a a ha hb hd rfl hc hce =
+      (adjL (S := S) hsl i (up_reg i rfl ha)).unit := rfl
 
 theorem genImg_cup_false (i : I) (r a : X) (ha hb hd hc hce) :
-    (genImg hsl hS Sc).gen (.cup ⟨(false, i), r⟩) a a ha hb hd rfl hc hce =
+    (genImg (S := S) hsl Sc).gen (.cup ⟨(false, i), r⟩) a a ha hb hd rfl hc hce =
       (S.adjR i (dn_reg i rfl ha)).unit := rfl
 
 theorem genImg_cap_true (i : I) (r a : X) (ha hb hd hde hc) :
-    (genImg hsl hS Sc).gen (.cap ⟨(true, i), r⟩) a a ha hb hd hde hc rfl =
-      (adjL hsl hS i (up_reg i hde rfl)).counit := rfl
+    (genImg (S := S) hsl Sc).gen (.cap ⟨(true, i), r⟩) a a ha hb hd hde hc rfl =
+      (adjL (S := S) hsl i (up_reg i hde rfl)).counit := rfl
 
 theorem genImg_cap_false (i : I) (r a : X) (ha hb hd hde hc) :
-    (genImg hsl hS Sc).gen (.cap ⟨(false, i), r⟩) a a ha hb hd hde hc rfl =
+    (genImg (S := S) hsl Sc).gen (.cap ⟨(false, i), r⟩) a a ha hb hd hde hc rfl =
       (S.adjR i (dn_reg i hde rfl)).counit := rfl
 
 end EqLemmas
@@ -338,7 +336,7 @@ end EqLemmas
 
 section PullGen
 
-variable (hS : S.BBw) (Sc : CL.CLScalars C k)
+variable (Sc : CL.CLScalars C k)
 
 attribute [local irreducible] KL3.Diagram.sh in
 theorem StrongSl2_genImg_cross_false (T : StrongSl2 k B) (hT : T.BBw) (ν a b : ℤ) (ha hb hd)
@@ -356,57 +354,57 @@ theorem StrongSl2_genImg_cross_false (T : StrongSl2 k B) (hT : T.BBw) (ν a b : 
   congr 1
 
 theorem pg_dot_false (i : I) (b : X) (hb : strBase RD i b = b) (u : Unit) (r a c : ℤ) (ha hb' hd hde hc hce) :
-    ((genImg hsl hS Sc).pull (strφ S hsl i b)).gen (.gen (.dot ⟨(false, u), r⟩)) a c ha hb' hd hde hc hce ≍
-      (StrongSl2.genImg (hS.toStrongSl2 i (hsl i) b)).gen (.gen (.dot ⟨(false, u), r⟩)) a c ha hb' hd hde hc hce := by
+    ((genImg (S := S) hsl Sc).pull (strφ S hsl i b)).gen (.gen (.dot ⟨(false, u), r⟩)) a c ha hb' hd hde hc hce ≍
+      (StrongSl2.genImg ((S.toStrongSl2 i (hsl i) b).bbw)).gen (.gen (.dot ⟨(false, u), r⟩)) a c ha hb' hd hde hc hce := by
   refine (heq_conj _ _ _).trans ?_
   erw [genImg_dot_false, StrongSl2.genImg_dot_false]
-  exact dotDnQ_heq hsl hS i b hb _ _ _ _
+  exact dotDnQ_heq (S := S) hsl i b hb _ _ _ _
 
 theorem pg_dot_true (i : I) (b : X) (u : Unit) (r a c : ℤ) (ha hb' hd hde hc hce) :
-    ((genImg hsl hS Sc).pull (strφ S hsl i b)).gen (.gen (.dot ⟨(true, u), r⟩)) a c ha hb' hd hde hc hce ≍
-      (StrongSl2.genImg (hS.toStrongSl2 i (hsl i) b)).gen (.gen (.dot ⟨(true, u), r⟩)) a c ha hb' hd hde hc hce := by
+    ((genImg (S := S) hsl Sc).pull (strφ S hsl i b)).gen (.gen (.dot ⟨(true, u), r⟩)) a c ha hb' hd hde hc hce ≍
+      (StrongSl2.genImg ((S.toStrongSl2 i (hsl i) b).bbw)).gen (.gen (.dot ⟨(true, u), r⟩)) a c ha hb' hd hde hc hce := by
   refine (heq_conj _ _ _).trans ?_
   erw [genImg_dot_true, StrongSl2.genImg_dot_true]
   exact dotQ_heq S hsl i b _ _ _ _
 
 theorem pg_cross_false (i : I) (b : X) (hb : strBase RD i b = b) (u u' : Unit) (ν a c : ℤ) (ha hb' hd hde hc hce) :
-    ((genImg hsl hS Sc).pull (strφ S hsl i b)).gen (.gen (.cross false u u' ν)) a c ha hb' hd hde hc hce ≍
-      (StrongSl2.genImg (hS.toStrongSl2 i (hsl i) b)).gen (.gen (.cross false u u' ν)) a c ha hb' hd hde hc hce := by
+    ((genImg (S := S) hsl Sc).pull (strφ S hsl i b)).gen (.gen (.cross false u u' ν)) a c ha hb' hd hde hc hce ≍
+      (StrongSl2.genImg ((S.toStrongSl2 i (hsl i) b).bbw)).gen (.gen (.cross false u u' ν)) a c ha hb' hd hde hc hce := by
   refine (heq_conj _ _ _).trans ?_
   subst hde
-  erw [genImg_cross_false hsl hS Sc i i _ _ _ _ _ _ rfl, StrongSl2_genImg_cross_false _ _ _ _ _ _ _ _
+  erw [genImg_cross_false (S := S) hsl Sc i i _ _ _ _ _ _ rfl, StrongSl2_genImg_cross_false _ _ _ _ _ _ _ _
     rfl]
-  exact crossDnQ_heq hsl hS Sc i b hb _ _ _ _ _
+  exact crossDnQ_heq (S := S) hsl Sc i b hb _ _ _ _ _
     ((StringEmbed.sh_sl RD i b (S.toStrongSl2 i (hsl i) b).qi (qi_two _) (false, ()) _).trans rfl) _ _
 
 theorem pg_cross_true (i : I) (b : X) (u u' : Unit) (ν a c : ℤ) (ha hb' hd hde hc hce) :
-    ((genImg hsl hS Sc).pull (strφ S hsl i b)).gen (.gen (.cross true u u' ν)) a c ha hb' hd hde hc hce ≍
-      (StrongSl2.genImg (hS.toStrongSl2 i (hsl i) b)).gen (.gen (.cross true u u' ν)) a c ha hb' hd hde hc hce := by
+    ((genImg (S := S) hsl Sc).pull (strφ S hsl i b)).gen (.gen (.cross true u u' ν)) a c ha hb' hd hde hc hce ≍
+      (StrongSl2.genImg ((S.toStrongSl2 i (hsl i) b).bbw)).gen (.gen (.cross true u u' ν)) a c ha hb' hd hde hc hce := by
   refine (heq_conj _ _ _).trans ?_
   subst hde
-  erw [genImg_cross_true hsl hS Sc i i _ _ _ _ _ _ rfl, StrongSl2.genImg_cross_true]
+  erw [genImg_cross_true (S := S) hsl Sc i i _ _ _ _ _ _ rfl, StrongSl2.genImg_cross_true]
   exact crossQ_heq S hsl i b _ _ _ _ _
     ((StringEmbed.sh_sl RD i b (S.toStrongSl2 i (hsl i) b).qi (qi_two _) (true, ()) _).trans rfl) _ _ _ _
 
 theorem pg_cup_false (i : I) (b : X) (u : Unit) (r a c : ℤ) (ha hb' hd hde hc hce) :
-    ((genImg hsl hS Sc).pull (strφ S hsl i b)).gen (.cup ⟨(false, u), r⟩) a c ha hb' hd hde hc hce ≍
-      (StrongSl2.genImg (hS.toStrongSl2 i (hsl i) b)).gen (.cup ⟨(false, u), r⟩) a c ha hb' hd hde hc hce := by
+    ((genImg (S := S) hsl Sc).pull (strφ S hsl i b)).gen (.cup ⟨(false, u), r⟩) a c ha hb' hd hde hc hce ≍
+      (StrongSl2.genImg ((S.toStrongSl2 i (hsl i) b).bbw)).gen (.cup ⟨(false, u), r⟩) a c ha hb' hd hde hc hce := by
   refine (heq_conj _ _ _).trans ?_
   subst hde
   erw [genImg_cup_false, StrongSl2.genImg_cup_false]
   exact (adjR_heqG (S := S) hsl i b _ _ _ rfl rfl _).1
 
 theorem pg_cup_true (i : I) (b : X) (hb : strBase RD i b = b) (u : Unit) (r a c : ℤ) (ha hb' hd hde hc hce) :
-    ((genImg hsl hS Sc).pull (strφ S hsl i b)).gen (.cup ⟨(true, u), r⟩) a c ha hb' hd hde hc hce ≍
-      (StrongSl2.genImg (hS.toStrongSl2 i (hsl i) b)).gen (.cup ⟨(true, u), r⟩) a c ha hb' hd hde hc hce := by
+    ((genImg (S := S) hsl Sc).pull (strφ S hsl i b)).gen (.cup ⟨(true, u), r⟩) a c ha hb' hd hde hc hce ≍
+      (StrongSl2.genImg ((S.toStrongSl2 i (hsl i) b).bbw)).gen (.cup ⟨(true, u), r⟩) a c ha hb' hd hde hc hce := by
   refine (heq_conj _ _ _).trans ?_
   subst hde
   erw [genImg_cup_true, StrongSl2.genImg_cup_true]
-  exact (adjL_heqG (S := S) hsl hS i b hb _ _ _ rfl rfl _).1
+  exact (adjL_heqG (S := S) hsl i b hb _ _ _ rfl rfl _).1
 
 theorem pg_cap_false (i : I) (b : X) (u : Unit) (r a c : ℤ) (ha hb' hd hde hc hce) :
-    ((genImg hsl hS Sc).pull (strφ S hsl i b)).gen (.cap ⟨(false, u), r⟩) a c ha hb' hd hde hc hce ≍
-      (StrongSl2.genImg (hS.toStrongSl2 i (hsl i) b)).gen (.cap ⟨(false, u), r⟩) a c ha hb' hd hde hc hce := by
+    ((genImg (S := S) hsl Sc).pull (strφ S hsl i b)).gen (.cap ⟨(false, u), r⟩) a c ha hb' hd hde hc hce ≍
+      (StrongSl2.genImg ((S.toStrongSl2 i (hsl i) b).bbw)).gen (.cap ⟨(false, u), r⟩) a c ha hb' hd hde hc hce := by
   refine (heq_conj _ _ _).trans ?_
   subst hce
   erw [genImg_cap_false, StrongSl2.genImg_cap_false]
@@ -414,29 +412,29 @@ theorem pg_cap_false (i : I) (b : X) (u : Unit) (r a c : ℤ) (ha hb' hd hde hc 
     rfl _).2
 
 theorem pg_cap_true (i : I) (b : X) (hb : strBase RD i b = b) (u : Unit) (r a c : ℤ) (ha hb' hd hde hc hce) :
-    ((genImg hsl hS Sc).pull (strφ S hsl i b)).gen (.cap ⟨(true, u), r⟩) a c ha hb' hd hde hc hce ≍
-      (StrongSl2.genImg (hS.toStrongSl2 i (hsl i) b)).gen (.cap ⟨(true, u), r⟩) a c ha hb' hd hde hc hce := by
+    ((genImg (S := S) hsl Sc).pull (strφ S hsl i b)).gen (.cap ⟨(true, u), r⟩) a c ha hb' hd hde hc hce ≍
+      (StrongSl2.genImg ((S.toStrongSl2 i (hsl i) b).bbw)).gen (.cap ⟨(true, u), r⟩) a c ha hb' hd hde hc hce := by
   refine (heq_conj _ _ _).trans ?_
   subst hce
   erw [genImg_cap_true, StrongSl2.genImg_cap_true]
-  exact (adjL_heqG (S := S) hsl hS i b hb _ _ _ rfl
+  exact (adjL_heqG (S := S) hsl i b hb _ _ _ rfl
     ((StringEmbed.sh_sl RD i b (S.toStrongSl2 i (hsl i) b).qi (qi_two _) (true, ()) _).trans rfl) _).2
 
 
 /-- **The pulled-back generator images are those of the `sl₂` model.** -/
 theorem pull_gen_heq (i : I) (b : X) (hb : strBase RD i b = b) (g : (psig sl2RootDatum).Gen)
     (a c : ℤ) (ha hb' hd hde hc hce) :
-    ((genImg hsl hS Sc).pull (strφ S hsl i b)).gen g a c ha hb' hd hde hc hce ≍
-      (StrongSl2.genImg (hS.toStrongSl2 i (hsl i) b)).gen g a c ha hb' hd hde hc hce := by
+    ((genImg (S := S) hsl Sc).pull (strφ S hsl i b)).gen g a c ha hb' hd hde hc hce ≍
+      (StrongSl2.genImg ((S.toStrongSl2 i (hsl i) b).bbw)).gen g a c ha hb' hd hde hc hce := by
   rcases g with (⟨⟨⟨e, u⟩, r⟩⟩ | ⟨e, u, u', ν⟩) | ⟨⟨e, u⟩, r⟩ | ⟨⟨e, u⟩, r⟩ <;> cases e
-  · exact pg_dot_false hsl hS Sc i b hb u r a c ha hb' hd hde hc hce
-  · exact pg_dot_true hsl hS Sc i b u r a c ha hb' hd hde hc hce
-  · exact pg_cross_false hsl hS Sc i b hb u u' ν a c ha hb' hd hde hc hce
-  · exact pg_cross_true hsl hS Sc i b u u' ν a c ha hb' hd hde hc hce
-  · exact pg_cup_false hsl hS Sc i b u r a c ha hb' hd hde hc hce
-  · exact pg_cup_true hsl hS Sc i b hb u r a c ha hb' hd hde hc hce
-  · exact pg_cap_false hsl hS Sc i b u r a c ha hb' hd hde hc hce
-  · exact pg_cap_true hsl hS Sc i b hb u r a c ha hb' hd hde hc hce
+  · exact pg_dot_false (S := S) hsl Sc i b hb u r a c ha hb' hd hde hc hce
+  · exact pg_dot_true (S := S) hsl Sc i b u r a c ha hb' hd hde hc hce
+  · exact pg_cross_false (S := S) hsl Sc i b hb u u' ν a c ha hb' hd hde hc hce
+  · exact pg_cross_true (S := S) hsl Sc i b u u' ν a c ha hb' hd hde hc hce
+  · exact pg_cup_false (S := S) hsl Sc i b u r a c ha hb' hd hde hc hce
+  · exact pg_cup_true (S := S) hsl Sc i b hb u r a c ha hb' hd hde hc hce
+  · exact pg_cap_false (S := S) hsl Sc i b u r a c ha hb' hd hde hc hce
+  · exact pg_cap_true (S := S) hsl Sc i b hb u r a c ha hb' hd hde hc hce
 
 /-- **Transfer from the `sl₂` model**: a linear combination of diagrams of `U(sl₂)` killed by the
 `sl₂` model of the restriction of `S` to the `α_i`-string through a base point `b` is, relabelled
@@ -444,9 +442,9 @@ along the string, killed by the model of `S`. -/
 theorem killed_of_sl2 (i : I) (b : X) (hb : strBase RD i b = b) {μ : ℤ}
     {s t : List (Letter Unit)} (f : LinDiagram k (ob sl2RootDatum μ s) (ob sl2RootDatum μ t))
     (hst : KL3.Diagram.wt sl2RootDatum μ t = KL3.Diagram.wt sl2RootDatum μ s)
-    (hf : (freeLift k (interp (StrongSl2.genImg (hS.toStrongSl2 i (hsl i) b))
+    (hf : (freeLift k (interp (StrongSl2.genImg ((S.toStrongSl2 i (hsl i) b).bbw))
       (KL3.Diagram.wt sl2RootDatum μ s : ℤ) μ).functor).map f = 0) :
-    (freeLift k (interp (genImg hsl hS Sc) (KL3.Diagram.wt RD (StringEmbed.sw RD i b
+    (freeLift k (interp (genImg (S := S) hsl Sc) (KL3.Diagram.wt RD (StringEmbed.sw RD i b
       (S.toStrongSl2 i (hsl i) b).qi μ) (s.map (StringEmbed.sl i)) : X)
       (StringEmbed.sw RD i b (S.toStrongSl2 i (hsl i) b).qi μ : X)).functor).map
       (StringEmbed.Psi RD i b (S.toStrongSl2 i (hsl i) b).qi (qi_two _) f) = 0 := by
@@ -461,9 +459,9 @@ theorem killed_of_sl2 (i : I) (b : X) (hb : strBase RD i b = b) {μ : ℤ}
     · show (psig sl2RootDatum).endR _ (wd sl2RootDatum μ t) = μ
       rw [← hst]; exact endR_wd _ μ t
   have h1 := freeLift_eq_zero_of_strand_heq _ (pull_strandAt_eq hsl i b) _ _
-    (pull_gen_heq hsl hS Sc i b hb) _ _ f hf
-  have h2 := freeLift_pull_eq_zero (strφ S hsl i b) (genImg hsl hS Sc) ha hb₂ f h1
-  exact freeLift_cast_eq_zero (genImg hsl hS Sc) (StringEmbed.wt_map RD i b _ (qi_two _) μ s) rfl
+    (pull_gen_heq (S := S) hsl Sc i b hb) _ _ f hf
+  have h2 := freeLift_pull_eq_zero (strφ S hsl i b) (genImg (S := S) hsl Sc) ha hb₂ f h1
+  exact freeLift_cast_eq_zero (genImg (S := S) hsl Sc) (StringEmbed.wt_map RD i b _ (qi_two _) μ s) rfl
     _ _ _ h2
 
 end PullGen
@@ -472,7 +470,7 @@ end PullGen
 
 section Single
 
-variable (hS : S.BBw) (Sc : CL.CLScalars C k)
+variable (Sc : CL.CLScalars C k)
 
 theorem n₀_toStrongSl2 (i : I) (b : X) :
     (S.toStrongSl2 i (hsl i) b).n₀ = RD.pair (RD.iY i) b := rfl
@@ -520,15 +518,15 @@ theorem killed_rel (i : I) (b : X) (hb : strBase RD i b = b) {μ : ℤ}
       (ob RD (StringEmbed.sw RD i b (S.toStrongSl2 i (hsl i) b).qi μ) (t.map (StringEmbed.sl i))))
     (hΨ : StringEmbed.Psi RD i b (S.toStrongSl2 i (hsl i) b).qi (qi_two _) f₂ = f)
     (hst : KL3.Diagram.wt sl2RootDatum μ t = KL3.Diagram.wt sl2RootDatum μ s)
-    (hf₂ : (freeLift k (interp (StrongSl2.genImg (hS.toStrongSl2 i (hsl i) b))
+    (hf₂ : (freeLift k (interp (StrongSl2.genImg ((S.toStrongSl2 i (hsl i) b).bbw))
       (ob sl2RootDatum μ s).start (ob sl2RootDatum μ s).endR).functor).map f₂ = 0) :
-    (freeLift k (interp (genImg hsl hS Sc)
+    (freeLift k (interp (genImg (S := S) hsl Sc)
       (ob RD (StringEmbed.sw RD i b (S.toStrongSl2 i (hsl i) b).qi μ)
         (s.map (StringEmbed.sl i))).start
       (ob RD (StringEmbed.sw RD i b (S.toStrongSl2 i (hsl i) b).qi μ)
         (s.map (StringEmbed.sl i))).endR).functor).map f = 0 := by
   subst hΨ
-  have h := killed_of_sl2 hsl hS Sc i b hb f₂ hst
+  have h := killed_of_sl2 (S := S) hsl Sc i b hb f₂ hst
     (freeLift_regions_eq_zero _ rfl (endR_wd _ μ s) f₂ hf₂)
   exact freeLift_regions_eq_zero _ rfl (endR_wd _ _ _).symm _ h
 
@@ -536,158 +534,158 @@ end Single
 
 section SingleRel
 
-variable (hS : S.BBw) (Sc : CL.CLScalars C k)
+variable (Sc : CL.CLScalars C k)
 
 theorem killed_cycDotR (i : I) (μ : X) :
-    (freeLift k (interp (genImg hsl hS Sc) (Rel.dom (.cycDotR i μ : Rel RD)).start
+    (freeLift k (interp (genImg (S := S) hsl Sc) (Rel.dom (.cycDotR i μ : Rel RD)).start
       (Rel.dom (.cycDotR i μ : Rel RD)).endR).functor).map (relation k (.cycDotR i μ : Rel RD)) = 0 := by
   obtain ⟨b, n, hb, rfl, hn⟩ := exists_string (S := S) hsl i μ
-  exact killed_rel hsl hS Sc i b hb (relation k (.cycDotR () n : Rel sl2RootDatum)) _
+  exact killed_rel (S := S) hsl Sc i b hb (relation k (.cycDotR () n : Rel sl2RootDatum)) _
     (StringEmbed.Ψ_rel_cycDotR RD i b (S.toStrongSl2 i (hsl i) b).qi (qi_two _) k () n) rfl
-    (StrongSl2.relations_killed (hS.toStrongSl2 i (hsl i) b) (.inr (.cycDotR () n : Rel sl2RootDatum))
+    (StrongSl2.relations_killed ((S.toStrongSl2 i (hsl i) b).bbw) (.inr (.cycDotR () n : Rel sl2RootDatum))
       (par_wt hn [dn ()]))
 
 theorem killed_cycDotL (i : I) (μ : X) :
-    (freeLift k (interp (genImg hsl hS Sc) (Rel.dom (.cycDotL i μ : Rel RD)).start
+    (freeLift k (interp (genImg (S := S) hsl Sc) (Rel.dom (.cycDotL i μ : Rel RD)).start
       (Rel.dom (.cycDotL i μ : Rel RD)).endR).functor).map (relation k (.cycDotL i μ : Rel RD)) = 0 := by
   obtain ⟨b, n, hb, rfl, hn⟩ := exists_string (S := S) hsl i μ
-  exact killed_rel hsl hS Sc i b hb (relation k (.cycDotL () n : Rel sl2RootDatum)) _
+  exact killed_rel (S := S) hsl Sc i b hb (relation k (.cycDotL () n : Rel sl2RootDatum)) _
     (StringEmbed.Ψ_rel_cycDotL RD i b (S.toStrongSl2 i (hsl i) b).qi (qi_two _) k () n) rfl
-    (StrongSl2.relations_killed (hS.toStrongSl2 i (hsl i) b) (.inr (.cycDotL () n : Rel sl2RootDatum))
+    (StrongSl2.relations_killed ((S.toStrongSl2 i (hsl i) b).bbw) (.inr (.cycDotL () n : Rel sl2RootDatum))
       (par_wt hn [dn ()]))
 
 theorem killed_cycCrossR (i : I) (μ : X) :
-    (freeLift k (interp (genImg hsl hS Sc) (Rel.dom (.cycCrossR i i μ : Rel RD)).start
+    (freeLift k (interp (genImg (S := S) hsl Sc) (Rel.dom (.cycCrossR i i μ : Rel RD)).start
       (Rel.dom (.cycCrossR i i μ : Rel RD)).endR).functor).map (relation k (.cycCrossR i i μ : Rel RD)) = 0 := by
   obtain ⟨b, n, hb, rfl, hn⟩ := exists_string (S := S) hsl i μ
-  exact killed_rel hsl hS Sc i b hb (relation k (.cycCrossR () () n : Rel sl2RootDatum)) _
+  exact killed_rel (S := S) hsl Sc i b hb (relation k (.cycCrossR () () n : Rel sl2RootDatum)) _
     (StringEmbed.Ψ_rel_cycCrossR RD i b (S.toStrongSl2 i (hsl i) b).qi (qi_two _) k () () n) rfl
-    (StrongSl2.relations_killed (hS.toStrongSl2 i (hsl i) b) (.inr (.cycCrossR () () n : Rel sl2RootDatum))
+    (StrongSl2.relations_killed ((S.toStrongSl2 i (hsl i) b).bbw) (.inr (.cycCrossR () () n : Rel sl2RootDatum))
       (par_wt hn [dn (), dn ()]))
 
 theorem killed_cycCrossL (i : I) (μ : X) :
-    (freeLift k (interp (genImg hsl hS Sc) (Rel.dom (.cycCrossL i i μ : Rel RD)).start
+    (freeLift k (interp (genImg (S := S) hsl Sc) (Rel.dom (.cycCrossL i i μ : Rel RD)).start
       (Rel.dom (.cycCrossL i i μ : Rel RD)).endR).functor).map (relation k (.cycCrossL i i μ : Rel RD)) = 0 := by
   obtain ⟨b, n, hb, rfl, hn⟩ := exists_string (S := S) hsl i μ
-  exact killed_rel hsl hS Sc i b hb (relation k (.cycCrossL () () n : Rel sl2RootDatum)) _
+  exact killed_rel (S := S) hsl Sc i b hb (relation k (.cycCrossL () () n : Rel sl2RootDatum)) _
     (StringEmbed.Ψ_rel_cycCrossL RD i b (S.toStrongSl2 i (hsl i) b).qi (qi_two _) k () () n) rfl
-    (StrongSl2.relations_killed (hS.toStrongSl2 i (hsl i) b) (.inr (.cycCrossL () () n : Rel sl2RootDatum))
+    (StrongSl2.relations_killed ((S.toStrongSl2 i (hsl i) b).bbw) (.inr (.cycCrossL () () n : Rel sl2RootDatum))
       (par_wt hn [dn (), dn ()]))
 
 theorem killed_curlR (i : I) (lam : X) :
-    (freeLift k (interp (genImg hsl hS Sc) (Rel.dom (.curlR i lam : Rel RD)).start
+    (freeLift k (interp (genImg (S := S) hsl Sc) (Rel.dom (.curlR i lam : Rel RD)).start
       (Rel.dom (.curlR i lam : Rel RD)).endR).functor).map (relation k (.curlR i lam : Rel RD)) = 0 := by
   obtain ⟨b, n, hb, rfl, hn⟩ := exists_string (S := S) hsl i lam
-  exact killed_rel hsl hS Sc i b hb (relation k (.curlR () n : Rel sl2RootDatum)) _
+  exact killed_rel (S := S) hsl Sc i b hb (relation k (.curlR () n : Rel sl2RootDatum)) _
     (StringEmbed.Ψ_rel_curlR RD i b (S.toStrongSl2 i (hsl i) b).qi (qi_two _) k () n (ip_sw hsl i b hn)) rfl
-    (StrongSl2.relations_killed (hS.toStrongSl2 i (hsl i) b) (.inr (.curlR () n : Rel sl2RootDatum))
+    (StrongSl2.relations_killed ((S.toStrongSl2 i (hsl i) b).bbw) (.inr (.curlR () n : Rel sl2RootDatum))
       (par_wt hn [up ()]))
 
 theorem killed_curlL (i : I) (μ : X) :
-    (freeLift k (interp (genImg hsl hS Sc) (Rel.dom (.curlL i μ : Rel RD)).start
+    (freeLift k (interp (genImg (S := S) hsl Sc) (Rel.dom (.curlL i μ : Rel RD)).start
       (Rel.dom (.curlL i μ : Rel RD)).endR).functor).map (relation k (.curlL i μ : Rel RD)) = 0 := by
   obtain ⟨b, n, hb, rfl, hn⟩ := exists_string (S := S) hsl i μ
-  exact killed_rel hsl hS Sc i b hb (relation k (.curlL () n : Rel sl2RootDatum)) _
+  exact killed_rel (S := S) hsl Sc i b hb (relation k (.curlL () n : Rel sl2RootDatum)) _
     (StringEmbed.Ψ_rel_curlL RD i b (S.toStrongSl2 i (hsl i) b).qi (qi_two _) k () n (ip_sw hsl i b (par_wt hn [up ()]))) rfl
-    (StrongSl2.relations_killed (hS.toStrongSl2 i (hsl i) b) (.inr (.curlL () n : Rel sl2RootDatum))
+    (StrongSl2.relations_killed ((S.toStrongSl2 i (hsl i) b).bbw) (.inr (.curlL () n : Rel sl2RootDatum))
       (par_wt hn [up ()]))
 
 theorem killed_decompEF (i : I) (lam : X) :
-    (freeLift k (interp (genImg hsl hS Sc) (Rel.dom (.decompEF i lam : Rel RD)).start
+    (freeLift k (interp (genImg (S := S) hsl Sc) (Rel.dom (.decompEF i lam : Rel RD)).start
       (Rel.dom (.decompEF i lam : Rel RD)).endR).functor).map (relation k (.decompEF i lam : Rel RD)) = 0 := by
   obtain ⟨b, n, hb, rfl, hn⟩ := exists_string (S := S) hsl i lam
-  exact killed_rel hsl hS Sc i b hb (relation k (.decompEF () n : Rel sl2RootDatum)) _
+  exact killed_rel (S := S) hsl Sc i b hb (relation k (.decompEF () n : Rel sl2RootDatum)) _
     (StringEmbed.Ψ_rel_decompEF RD i b (S.toStrongSl2 i (hsl i) b).qi (qi_two _) k () n (ip_sw hsl i b hn)) rfl
-    (StrongSl2.relations_killed (hS.toStrongSl2 i (hsl i) b) (.inr (.decompEF () n : Rel sl2RootDatum))
+    (StrongSl2.relations_killed ((S.toStrongSl2 i (hsl i) b).bbw) (.inr (.decompEF () n : Rel sl2RootDatum))
       (par_wt hn [up (), dn ()]))
 
 theorem killed_decompFE (i : I) (lam : X) :
-    (freeLift k (interp (genImg hsl hS Sc) (Rel.dom (.decompFE i lam : Rel RD)).start
+    (freeLift k (interp (genImg (S := S) hsl Sc) (Rel.dom (.decompFE i lam : Rel RD)).start
       (Rel.dom (.decompFE i lam : Rel RD)).endR).functor).map (relation k (.decompFE i lam : Rel RD)) = 0 := by
   obtain ⟨b, n, hb, rfl, hn⟩ := exists_string (S := S) hsl i lam
-  exact killed_rel hsl hS Sc i b hb (relation k (.decompFE () n : Rel sl2RootDatum)) _
+  exact killed_rel (S := S) hsl Sc i b hb (relation k (.decompFE () n : Rel sl2RootDatum)) _
     (StringEmbed.Ψ_rel_decompFE RD i b (S.toStrongSl2 i (hsl i) b).qi (qi_two _) k () n (ip_sw hsl i b hn)) rfl
-    (StrongSl2.relations_killed (hS.toStrongSl2 i (hsl i) b) (.inr (.decompFE () n : Rel sl2RootDatum))
+    (StrongSl2.relations_killed ((S.toStrongSl2 i (hsl i) b).bbw) (.inr (.decompFE () n : Rel sl2RootDatum))
       (par_wt hn [dn (), up ()]))
 
 theorem killed_cwNeg (i : I) (lam : X) (α : ℕ) (h : (α : ℤ) < ip RD i lam - 1) :
-    (freeLift k (interp (genImg hsl hS Sc) (Rel.dom (.cwNeg i lam α h : Rel RD)).start
+    (freeLift k (interp (genImg (S := S) hsl Sc) (Rel.dom (.cwNeg i lam α h : Rel RD)).start
       (Rel.dom (.cwNeg i lam α h : Rel RD)).endR).functor).map (relation k (.cwNeg i lam α h : Rel RD)) = 0 := by
   obtain ⟨b, n, hb, rfl, hn⟩ := exists_string (S := S) hsl i lam
   have h₂ : (α : ℤ) < ip sl2RootDatum () n - 1 := by
     rw [StringEmbed.ip_S2]; rw [ip_sw hsl i b hn] at h; exact h
-  exact killed_rel hsl hS Sc i b hb (relation k (.cwNeg () n α h₂ : Rel sl2RootDatum)) _
+  exact killed_rel (S := S) hsl Sc i b hb (relation k (.cwNeg () n α h₂ : Rel sl2RootDatum)) _
     (StringEmbed.Ψ_rel_cwNeg RD i b (S.toStrongSl2 i (hsl i) b).qi (qi_two _) k () n α h₂ h) rfl
-    (StrongSl2.relations_killed (hS.toStrongSl2 i (hsl i) b) (.inr (.cwNeg () n α h₂ : Rel sl2RootDatum))
+    (StrongSl2.relations_killed ((S.toStrongSl2 i (hsl i) b).bbw) (.inr (.cwNeg () n α h₂ : Rel sl2RootDatum))
       (par_wt hn []))
 
 theorem killed_ccwNeg (i : I) (lam : X) (α : ℕ) (h : (α : ℤ) < -ip RD i lam - 1) :
-    (freeLift k (interp (genImg hsl hS Sc) (Rel.dom (.ccwNeg i lam α h : Rel RD)).start
+    (freeLift k (interp (genImg (S := S) hsl Sc) (Rel.dom (.ccwNeg i lam α h : Rel RD)).start
       (Rel.dom (.ccwNeg i lam α h : Rel RD)).endR).functor).map (relation k (.ccwNeg i lam α h : Rel RD)) = 0 := by
   obtain ⟨b, n, hb, rfl, hn⟩ := exists_string (S := S) hsl i lam
   have h₂ : (α : ℤ) < -ip sl2RootDatum () n - 1 := by
     rw [StringEmbed.ip_S2]; rw [ip_sw hsl i b hn] at h; exact h
-  exact killed_rel hsl hS Sc i b hb (relation k (.ccwNeg () n α h₂ : Rel sl2RootDatum)) _
+  exact killed_rel (S := S) hsl Sc i b hb (relation k (.ccwNeg () n α h₂ : Rel sl2RootDatum)) _
     (StringEmbed.Ψ_rel_ccwNeg RD i b (S.toStrongSl2 i (hsl i) b).qi (qi_two _) k () n α h₂ h) rfl
-    (StrongSl2.relations_killed (hS.toStrongSl2 i (hsl i) b) (.inr (.ccwNeg () n α h₂ : Rel sl2RootDatum))
+    (StrongSl2.relations_killed ((S.toStrongSl2 i (hsl i) b).bbw) (.inr (.ccwNeg () n α h₂ : Rel sl2RootDatum))
       (par_wt hn []))
 
 theorem killed_cwOne (i : I) (lam : X) (h : 1 ≤ ip RD i lam) :
-    (freeLift k (interp (genImg hsl hS Sc) (Rel.dom (.cwOne i lam h : Rel RD)).start
+    (freeLift k (interp (genImg (S := S) hsl Sc) (Rel.dom (.cwOne i lam h : Rel RD)).start
       (Rel.dom (.cwOne i lam h : Rel RD)).endR).functor).map (relation k (.cwOne i lam h : Rel RD)) = 0 := by
   obtain ⟨b, n, hb, rfl, hn⟩ := exists_string (S := S) hsl i lam
   have h₂ : 1 ≤ ip sl2RootDatum () n := by
     rw [StringEmbed.ip_S2]; rw [ip_sw hsl i b hn] at h; exact h
-  exact killed_rel hsl hS Sc i b hb (relation k (.cwOne () n h₂ : Rel sl2RootDatum)) _
+  exact killed_rel (S := S) hsl Sc i b hb (relation k (.cwOne () n h₂ : Rel sl2RootDatum)) _
     (StringEmbed.Ψ_rel_cwOne RD i b (S.toStrongSl2 i (hsl i) b).qi (qi_two _) k () n h₂ h (ip_sw hsl i b hn)) rfl
-    (StrongSl2.relations_killed (hS.toStrongSl2 i (hsl i) b) (.inr (.cwOne () n h₂ : Rel sl2RootDatum))
+    (StrongSl2.relations_killed ((S.toStrongSl2 i (hsl i) b).bbw) (.inr (.cwOne () n h₂ : Rel sl2RootDatum))
       (par_wt hn []))
 
 theorem killed_ccwOne (i : I) (lam : X) (h : ip RD i lam ≤ -1) :
-    (freeLift k (interp (genImg hsl hS Sc) (Rel.dom (.ccwOne i lam h : Rel RD)).start
+    (freeLift k (interp (genImg (S := S) hsl Sc) (Rel.dom (.ccwOne i lam h : Rel RD)).start
       (Rel.dom (.ccwOne i lam h : Rel RD)).endR).functor).map (relation k (.ccwOne i lam h : Rel RD)) = 0 := by
   obtain ⟨b, n, hb, rfl, hn⟩ := exists_string (S := S) hsl i lam
   have h₂ : ip sl2RootDatum () n ≤ -1 := by
     rw [StringEmbed.ip_S2]; rw [ip_sw hsl i b hn] at h; exact h
-  exact killed_rel hsl hS Sc i b hb (relation k (.ccwOne () n h₂ : Rel sl2RootDatum)) _
+  exact killed_rel (S := S) hsl Sc i b hb (relation k (.ccwOne () n h₂ : Rel sl2RootDatum)) _
     (StringEmbed.Ψ_rel_ccwOne RD i b (S.toStrongSl2 i (hsl i) b).qi (qi_two _) k () n h₂ h (ip_sw hsl i b hn)) rfl
-    (StrongSl2.relations_killed (hS.toStrongSl2 i (hsl i) b) (.inr (.ccwOne () n h₂ : Rel sl2RootDatum))
+    (StrongSl2.relations_killed ((S.toStrongSl2 i (hsl i) b).bbw) (.inr (.ccwOne () n h₂ : Rel sl2RootDatum))
       (par_wt hn []))
 
 theorem killed_klr_sqEq (i : I) (μ : X) :
-    (freeLift k (interp (genImg hsl hS Sc) (Rel.dom (.klr μ (.sqEq i) : Rel RD)).start
+    (freeLift k (interp (genImg (S := S) hsl Sc) (Rel.dom (.klr μ (.sqEq i) : Rel RD)).start
       (Rel.dom (.klr μ (.sqEq i) : Rel RD)).endR).functor).map (relation k (.klr μ (.sqEq i) : Rel RD)) = 0 := by
   obtain ⟨b, n, hb, rfl, hn⟩ := exists_string (S := S) hsl i μ
-  exact killed_rel hsl hS Sc i b hb (relation k (.klr n (.sqEq ()) : Rel sl2RootDatum)) _
+  exact killed_rel (S := S) hsl Sc i b hb (relation k (.klr n (.sqEq ()) : Rel sl2RootDatum)) _
     (StringEmbed.Ψ_rel_klr_sqEq RD i b (S.toStrongSl2 i (hsl i) b).qi (qi_two _) k () n) rfl
-    (StrongSl2.relations_killed (hS.toStrongSl2 i (hsl i) b) (.inr (.klr n (.sqEq ()) : Rel sl2RootDatum))
+    (StrongSl2.relations_killed ((S.toStrongSl2 i (hsl i) b).bbw) (.inr (.klr n (.sqEq ()) : Rel sl2RootDatum))
       (par_wt hn [up (), up ()]))
 
 theorem killed_klr_slideLEq (i : I) (μ : X) :
-    (freeLift k (interp (genImg hsl hS Sc) (Rel.dom (.klr μ (.slideLEq i) : Rel RD)).start
+    (freeLift k (interp (genImg (S := S) hsl Sc) (Rel.dom (.klr μ (.slideLEq i) : Rel RD)).start
       (Rel.dom (.klr μ (.slideLEq i) : Rel RD)).endR).functor).map (relation k (.klr μ (.slideLEq i) : Rel RD)) = 0 := by
   obtain ⟨b, n, hb, rfl, hn⟩ := exists_string (S := S) hsl i μ
-  exact killed_rel hsl hS Sc i b hb (relation k (.klr n (.slideLEq ()) : Rel sl2RootDatum)) _
+  exact killed_rel (S := S) hsl Sc i b hb (relation k (.klr n (.slideLEq ()) : Rel sl2RootDatum)) _
     (StringEmbed.Ψ_rel_klr_slideLEq RD i b (S.toStrongSl2 i (hsl i) b).qi (qi_two _) k () n) rfl
-    (StrongSl2.relations_killed (hS.toStrongSl2 i (hsl i) b) (.inr (.klr n (.slideLEq ()) : Rel sl2RootDatum))
+    (StrongSl2.relations_killed ((S.toStrongSl2 i (hsl i) b).bbw) (.inr (.klr n (.slideLEq ()) : Rel sl2RootDatum))
       (par_wt hn [up (), up ()]))
 
 theorem killed_klr_slideREq (i : I) (μ : X) :
-    (freeLift k (interp (genImg hsl hS Sc) (Rel.dom (.klr μ (.slideREq i) : Rel RD)).start
+    (freeLift k (interp (genImg (S := S) hsl Sc) (Rel.dom (.klr μ (.slideREq i) : Rel RD)).start
       (Rel.dom (.klr μ (.slideREq i) : Rel RD)).endR).functor).map (relation k (.klr μ (.slideREq i) : Rel RD)) = 0 := by
   obtain ⟨b, n, hb, rfl, hn⟩ := exists_string (S := S) hsl i μ
-  exact killed_rel hsl hS Sc i b hb (relation k (.klr n (.slideREq ()) : Rel sl2RootDatum)) _
+  exact killed_rel (S := S) hsl Sc i b hb (relation k (.klr n (.slideREq ()) : Rel sl2RootDatum)) _
     (StringEmbed.Ψ_rel_klr_slideREq RD i b (S.toStrongSl2 i (hsl i) b).qi (qi_two _) k () n) rfl
-    (StrongSl2.relations_killed (hS.toStrongSl2 i (hsl i) b) (.inr (.klr n (.slideREq ()) : Rel sl2RootDatum))
+    (StrongSl2.relations_killed ((S.toStrongSl2 i (hsl i) b).bbw) (.inr (.klr n (.slideREq ()) : Rel sl2RootDatum))
       (par_wt hn [up (), up ()]))
 
 theorem killed_klr_braid (i : I) (μ : X) (h : ¬ (i = i ∧ i ≠ i)) :
-    (freeLift k (interp (genImg hsl hS Sc) (Rel.dom (.klr μ (.braid i i i h) : Rel RD)).start
+    (freeLift k (interp (genImg (S := S) hsl Sc) (Rel.dom (.klr μ (.braid i i i h) : Rel RD)).start
       (Rel.dom (.klr μ (.braid i i i h) : Rel RD)).endR).functor).map (relation k (.klr μ (.braid i i i h) : Rel RD)) = 0 := by
   obtain ⟨b, n, hb, rfl, hn⟩ := exists_string (S := S) hsl i μ
-  exact killed_rel hsl hS Sc i b hb (relation k (.klr n (.braid () () () (fun h' => h'.2 rfl)) : Rel sl2RootDatum)) _
+  exact killed_rel (S := S) hsl Sc i b hb (relation k (.klr n (.braid () () () (fun h' => h'.2 rfl)) : Rel sl2RootDatum)) _
     (StringEmbed.Ψ_rel_klr_braid RD i b (S.toStrongSl2 i (hsl i) b).qi (qi_two _) k () n _ h) rfl
-    (StrongSl2.relations_killed (hS.toStrongSl2 i (hsl i) b) (.inr (.klr n (.braid () () () (fun h' => h'.2 rfl)) : Rel sl2RootDatum))
+    (StrongSl2.relations_killed ((S.toStrongSl2 i (hsl i) b).bbw) (.inr (.klr n (.braid () () () (fun h' => h'.2 rfl)) : Rel sl2RootDatum))
       (par_wt hn [up (), up (), up ()]))
 
 end SingleRel

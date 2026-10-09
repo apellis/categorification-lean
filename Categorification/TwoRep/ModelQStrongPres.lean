@@ -61,22 +61,22 @@ variable {k : Type*} [Field k] {B : Type u} [Bicategory.{w, v} B]
 
 namespace QStrong
 
-variable {S : QStrong B C RD k Q} (hsl : ∀ i, C.dot i i = 2) (hS : S.BBw) (Sc : CL.CLScalars C k)
+variable {S : QStrong B C RD k Q} (hsl : ∀ i, C.dot i i = 2) (Sc : CL.CLScalars C k)
 
 attribute [local irreducible] KL3.Diagram.sh
 
 /-- A relation of `presCL` is killed by the model, read with its own outer regions. -/
 def KilledCL (r : Rel RD) : Prop :=
-  (freeLift k (interp (genImg hsl hS Sc) (Rel.dom r).start (Rel.dom r).endR).functor).map
+  (freeLift k (interp (genImg (S := S) hsl Sc) (Rel.dom r).start (Rel.dom r).endR).functor).map
     (CL.relationCL RD k Sc r) = 0
 
 /-- **The mixed relations** of `presCL` are killed by the model: the left rotation of mixed
 crossings (`cycCrossL j i`, `i ≠ j`; CL `eq_almost_cyclic`, §6.3) and the relations
 `downupEF`, `downupFE` (CL §2.4, Prop. 6.3). -/
 structure MixedKilled : Prop where
-  cycCrossL : ∀ (j i : I), j ≠ i → ∀ μ : X, KilledCL hsl hS Sc (.cycCrossL j i μ)
-  downupEF : ∀ (i j : I) (h : i ≠ j) (μ : X), KilledCL hsl hS Sc (.downupEF i j h μ)
-  downupFE : ∀ (i j : I) (h : i ≠ j) (μ : X), KilledCL hsl hS Sc (.downupFE i j h μ)
+  cycCrossL : ∀ (j i : I), j ≠ i → ∀ μ : X, KilledCL (S := S) hsl Sc (.cycCrossL j i μ)
+  downupEF : ∀ (i j : I) (h : i ≠ j) (μ : X), KilledCL (S := S) hsl Sc (.downupEF i j h μ)
+  downupFE : ∀ (i j : I) (h : i ≠ j) (μ : X), KilledCL (S := S) hsl Sc (.downupFE i j h μ)
 
 /-- The mixed relations of `presCL`: `cycCrossL j i` for `j ≠ i`, `downupEF`, `downupFE`. -/
 def _root_.Categorification.KL3.Diagram.Rel.IsMixed : Rel RD → Prop
@@ -87,21 +87,21 @@ def _root_.Categorification.KL3.Diagram.Rel.IsMixed : Rel RD → Prop
 
 /-- A KL III relation that is also a relation of `presCL` (for `r = 1`, `t_{ii} = 1`). -/
 theorem killedCL_of_relation {r : Rel RD} (h : CL.relationCL RD k Sc r = relation k r)
-    (hk : (freeLift k (interp (genImg hsl hS Sc) (Rel.dom r).start (Rel.dom r).endR).functor).map
-      (relation k r) = 0) : KilledCL hsl hS Sc r := by
+    (hk : (freeLift k (interp (genImg (S := S) hsl Sc) (Rel.dom r).start (Rel.dom r).endR).functor).map
+      (relation k r) = 0) : KilledCL (S := S) hsl Sc r := by
   rw [KilledCL, h]; exact hk
 
 set_option maxHeartbeats 2000000 in
 /-- `Q`-cyclicity, right rotation, for all labels (`ModelQStrongCyc`), as a relation of
 `presCL`. -/
-theorem killedCL_cycCrossR (j i : I) (μ : X) : KilledCL hsl hS Sc (.cycCrossR j i μ) := by
+theorem killedCL_cycCrossR (j i : I) (μ : X) : KilledCL (S := S) hsl Sc (.cycCrossR j i μ) := by
   unfold KilledCL
-  change (freeLift k (interp (genImg hsl hS Sc) (KL3.Diagram.wt RD μ [dn j, dn i] : X)
+  change (freeLift k (interp (genImg (S := S) hsl Sc) (KL3.Diagram.wt RD μ [dn j, dn i] : X)
     μ).functor).map ((((Sc.t i j)⁻¹ : kˣ) : k) • LinDiagram.of (rotCrossR RD j i μ) -
       LinDiagram.of (downCross RD j i μ)) = 0
   set_option backward.isDefEq.respectTransparency false in
   rw [Functor.map_sub, Functor.map_smul, freeLift_map_of, freeLift_map_of, sub_eq_zero]
-  exact cycCrossR_gen hsl hS Sc j i μ
+  exact cycCrossR_gen (S := S) hsl Sc j i μ
 
 /-- The KLR relations of `presCL` for scalars `Sc` with `r_i = 1` whose KLR polynomials are those
 of the normalized dots. -/
@@ -112,7 +112,7 @@ theorem killedCL_klr (hr : ∀ c, Sc.r c = 1)
       (m 0 : ℤ) * C.dot c c + (m 1 : ℤ) * C.dot d d = -2 * C.dot c d)
     (hQ3 : ∀ c d, c ≠ d → ∀ m ∈ (KLR.qbar (Q c d)).support, (m 0 : ℤ) * C.dot c c +
       (m 1 : ℤ) * C.dot d d + (m 2 : ℤ) * C.dot c c = -(C.dot c d + C.dot c c + C.dot d c))
-    (μ : X) (r : KLR.Diagram.Rel I) : KilledCL hsl hS Sc (.klr μ r) := by
+    (μ : X) (r : KLR.Diagram.Rel I) : KilledCL (S := S) hsl Sc (.klr μ r) := by
   have hr' : (fun c => (Sc.r c : k)) = fun _ => 1 := by funext c; rw [hr c, Units.val_one]
   rw [KilledCL]
   have he : CL.relationCL RD k Sc (.klr μ r) = upLin RD k μ (KLR.Diagram.relation k
@@ -122,14 +122,14 @@ theorem killedCL_klr (hr : ∀ c, Sc.r c = 1)
       ![(S.rQ i : k), (S.rQ j : k)] (Q i j)) hQ rfl, CL.relationR_one]
   rw [he]
   rcases r with c | ⟨c, d, h⟩ | c | ⟨c, d, h⟩ | c | ⟨c, d, h⟩ | ⟨c, d, e, h⟩ | ⟨c, d, h⟩
-  · exact killed_klr_sqEq hsl hS Sc c μ
-  · exact klr_sqNe hsl hS Sc c d h (hQ2 c d h) μ
-  · exact killed_klr_slideLEq hsl hS Sc c μ
-  · exact killed_klr_slideLNe hsl hS Sc c d h μ
-  · exact killed_klr_slideREq hsl hS Sc c μ
-  · exact killed_klr_slideRNe hsl hS Sc c d h μ
-  · exact killed_klr_braid_gen hsl hS Sc c d e h μ
-  · exact klr_braidQ hsl hS Sc c d h (hQ3 c d h) μ
+  · exact killed_klr_sqEq (S := S) hsl Sc c μ
+  · exact klr_sqNe (S := S) hsl Sc c d h (hQ2 c d h) μ
+  · exact killed_klr_slideLEq (S := S) hsl Sc c μ
+  · exact killed_klr_slideLNe (S := S) hsl Sc c d h μ
+  · exact killed_klr_slideREq (S := S) hsl Sc c μ
+  · exact killed_klr_slideRNe (S := S) hsl Sc c d h μ
+  · exact killed_klr_braid_gen (S := S) hsl Sc c d e h μ
+  · exact klr_braidQ (S := S) hsl Sc c d h (hQ3 c d h) μ
 
 set_option maxHeartbeats 1000000 in
 /-- **Every relation of `presCL` other than the mixed ones** is killed by the model, for scalars
@@ -142,49 +142,49 @@ theorem killedCL_of_not_mixed (hr : ∀ c, Sc.r c = 1)
       (m 0 : ℤ) * C.dot c c + (m 1 : ℤ) * C.dot d d = -2 * C.dot c d)
     (hQ3 : ∀ c d, c ≠ d → ∀ m ∈ (KLR.qbar (Q c d)).support, (m 0 : ℤ) * C.dot c c +
       (m 1 : ℤ) * C.dot d d + (m 2 : ℤ) * C.dot c c = -(C.dot c d + C.dot c c + C.dot d c))
-    (r : Rel RD) (hmix : ¬ r.IsMixed) : KilledCL hsl hS Sc r := by
+    (r : Rel RD) (hmix : ¬ r.IsMixed) : KilledCL (S := S) hsl Sc r := by
   have hri : ∀ c, (((Sc.r c)⁻¹ : kˣ) : k) ^ 2 = 1 := fun c => by
     rw [hr c, inv_one, Units.val_one, one_pow]
   rcases r with ⟨i, μ⟩ | ⟨i, μ⟩ | ⟨i, lam, α, h⟩ | ⟨i, lam, α, h⟩ | ⟨i, lam, h⟩ | ⟨i, lam, h⟩ |
     ⟨i, lam⟩ | ⟨i, μ⟩ | ⟨i, lam⟩ | ⟨i, lam⟩ | ⟨j, i, μ⟩ | ⟨j, i, μ⟩ | ⟨i, j, h, μ⟩ |
     ⟨i, j, h, μ⟩ | ⟨μ, r⟩
-  · exact killedCL_of_relation hsl hS Sc rfl (killed_cycDotR hsl hS Sc i μ)
-  · exact killedCL_of_relation hsl hS Sc rfl (killed_cycDotL hsl hS Sc i μ)
-  · exact killedCL_of_relation hsl hS Sc rfl (killed_cwNeg hsl hS Sc i lam α h)
-  · exact killedCL_of_relation hsl hS Sc rfl (killed_ccwNeg hsl hS Sc i lam α h)
-  · exact killedCL_of_relation hsl hS Sc rfl (killed_cwOne hsl hS Sc i lam h)
-  · exact killedCL_of_relation hsl hS Sc rfl (killed_ccwOne hsl hS Sc i lam h)
-  · refine killedCL_of_relation hsl hS Sc ?_ (killed_curlR hsl hS Sc i lam)
+  · exact killedCL_of_relation (S := S) hsl Sc rfl (killed_cycDotR (S := S) hsl Sc i μ)
+  · exact killedCL_of_relation (S := S) hsl Sc rfl (killed_cycDotL (S := S) hsl Sc i μ)
+  · exact killedCL_of_relation (S := S) hsl Sc rfl (killed_cwNeg (S := S) hsl Sc i lam α h)
+  · exact killedCL_of_relation (S := S) hsl Sc rfl (killed_ccwNeg (S := S) hsl Sc i lam α h)
+  · exact killedCL_of_relation (S := S) hsl Sc rfl (killed_cwOne (S := S) hsl Sc i lam h)
+  · exact killedCL_of_relation (S := S) hsl Sc rfl (killed_ccwOne (S := S) hsl Sc i lam h)
+  · refine killedCL_of_relation (S := S) hsl Sc ?_ (killed_curlR (S := S) hsl Sc i lam)
     change LinDiagram.of (KL3.Diagram.curlR RD i lam) - (Sc.r i : k) • curlRHS RD k i lam =
       LinDiagram.of (KL3.Diagram.curlR RD i lam) - curlRHS RD k i lam
     rw [hr i, Units.val_one, one_smul]
-  · refine killedCL_of_relation hsl hS Sc ?_ (killed_curlL hsl hS Sc i μ)
+  · refine killedCL_of_relation (S := S) hsl Sc ?_ (killed_curlL (S := S) hsl Sc i μ)
     change LinDiagram.of (KL3.Diagram.curlL RD i μ) - (Sc.r i : k) • curlLHS RD k i μ =
       LinDiagram.of (KL3.Diagram.curlL RD i μ) - curlLHS RD k i μ
     rw [hr i, Units.val_one, one_smul]
-  · refine killedCL_of_relation hsl hS Sc ?_ (killed_decompEF hsl hS Sc i lam)
+  · refine killedCL_of_relation (S := S) hsl Sc ?_ (killed_decompEF (S := S) hsl Sc i lam)
     change LinDiagram.of (𝟙 _) + (((Sc.r i)⁻¹ : kˣ) : k) ^ 2 •
         LinDiagram.of (KL3.Diagram.crossl RD i i lam ≫ KL3.Diagram.crossr RD i i lam) - decompEFSum RD k i lam =
       LinDiagram.of (𝟙 _) + LinDiagram.of (KL3.Diagram.crossl RD i i lam ≫ KL3.Diagram.crossr RD i i lam) -
         decompEFSum RD k i lam
     rw [hri i, one_smul]
-  · refine killedCL_of_relation hsl hS Sc ?_ (killed_decompFE hsl hS Sc i lam)
+  · refine killedCL_of_relation (S := S) hsl Sc ?_ (killed_decompFE (S := S) hsl Sc i lam)
     change LinDiagram.of (𝟙 _) + (((Sc.r i)⁻¹ : kˣ) : k) ^ 2 •
         LinDiagram.of (KL3.Diagram.crossr RD i i lam ≫ KL3.Diagram.crossl RD i i lam) - decompFESum RD k i lam =
       LinDiagram.of (𝟙 _) + LinDiagram.of (KL3.Diagram.crossr RD i i lam ≫ KL3.Diagram.crossl RD i i lam) -
         decompFESum RD k i lam
     rw [hri i, one_smul]
-  · exact killedCL_cycCrossR hsl hS Sc j i μ
+  · exact killedCL_cycCrossR (S := S) hsl Sc j i μ
   · have hji : j = i := not_not.1 hmix
     subst hji
-    refine killedCL_of_relation hsl hS Sc ?_ (killed_cycCrossL hsl hS Sc j μ)
+    refine killedCL_of_relation (S := S) hsl Sc ?_ (killed_cycCrossL (S := S) hsl Sc j μ)
     change (((Sc.t j j)⁻¹ : kˣ) : k) • LinDiagram.of (rotCrossL RD j j μ) -
         LinDiagram.of (downCross RD j j μ) =
       LinDiagram.of (rotCrossL RD j j μ) - LinDiagram.of (downCross RD j j μ)
     rw [Sc.t_self, inv_one, Units.val_one, one_smul]
   · exact absurd trivial hmix
   · exact absurd trivial hmix
-  · exact killedCL_klr hsl hS Sc hr hQ hQ2 hQ3 μ r
+  · exact killedCL_klr (S := S) hsl Sc hr hQ hQ2 hQ3 μ r
 
 /-- **Every relation of `presCL`** is killed by the model, given the mixed relations
 (`MixedKilled`). -/
@@ -195,7 +195,7 @@ theorem relationsCL_killed (hr : ∀ c, Sc.r c = 1)
       (m 0 : ℤ) * C.dot c c + (m 1 : ℤ) * C.dot d d = -2 * C.dot c d)
     (hQ3 : ∀ c d, c ≠ d → ∀ m ∈ (KLR.qbar (Q c d)).support, (m 0 : ℤ) * C.dot c c +
       (m 1 : ℤ) * C.dot d d + (m 2 : ℤ) * C.dot c c = -(C.dot c d + C.dot c c + C.dot d c))
-    (hmix : MixedKilled hsl hS Sc) (r : Rel RD) : KilledCL hsl hS Sc r := by
+    (hmix : MixedKilled (S := S) hsl Sc) (r : Rel RD) : KilledCL (S := S) hsl Sc r := by
   by_cases hm : r.IsMixed
   · rcases r with _ | _ | _ | _ | _ | _ | _ | _ | _ | _ | _ | ⟨j, i, μ⟩ | ⟨i, j, h, μ⟩ |
       ⟨i, j, h, μ⟩ | _
@@ -204,7 +204,7 @@ theorem relationsCL_killed (hr : ∀ c, Sc.r c = 1)
       | exact hmix.cycCrossL j i hm μ
       | exact hmix.downupEF i j h μ
       | exact hmix.downupFE i j h μ
-  · exact killedCL_of_not_mixed hsl hS Sc hr hQ hQ2 hQ3 r hm
+  · exact killedCL_of_not_mixed (S := S) hsl Sc hr hQ hQ2 hQ3 r hm
 
 /-- **The model of a `Q`-strong 2-representation respects `U_Q(g)`** (CL Theorem 1.1, on hom
 categories, `(α_i, α_i) = 2`), given the mixed relations: for all outer regions `s₀`, `t₀`, the
@@ -217,29 +217,28 @@ theorem respects_presCL (hr : ∀ c, Sc.r c = 1)
       (m 0 : ℤ) * C.dot c c + (m 1 : ℤ) * C.dot d d = -2 * C.dot c d)
     (hQ3 : ∀ c d, c ≠ d → ∀ m ∈ (KLR.qbar (Q c d)).support, (m 0 : ℤ) * C.dot c c +
       (m 1 : ℤ) * C.dot d d + (m 2 : ℤ) * C.dot c c = -(C.dot c d + C.dot c c + C.dot d c))
-    (hmix : MixedKilled hsl hS Sc) (s₀ t₀ : X) :
-    (CL.presCL RD k Sc).Respects (interp (genImg hsl hS Sc) s₀ t₀).functor := by
-  refine respects (genImg hsl hS Sc) (CL.presCL RD k Sc) s₀ t₀ ?_
+    (hmix : MixedKilled (S := S) hsl Sc) (s₀ t₀ : X) :
+    (CL.presCL RD k Sc).Respects (interp (genImg (S := S) hsl Sc) s₀ t₀).functor := by
+  refine respects (genImg (S := S) hsl Sc) (CL.presCL RD k Sc) s₀ t₀ ?_
     (fun g => Signature.IsEven.odd_eq_false g)
   intro i _ _ _ _
   rcases i with (i | c | c) | r
   · exact i.elim
-  · change (freeLift k (interp (genImg hsl hS Sc) _ _).functor).map
+  · change (freeLift k (interp (genImg (S := S) hsl Sc) _ _).functor).map
       (LinDiagram.of (Pivotal.zigL (inv RD).toColourDuality c) - LinDiagram.of (𝟙 _)) = 0
     set_option backward.isDefEq.respectTransparency false in
     rw [Functor.map_sub, freeLift_map_of, freeLift_map_of, CategoryTheory.Functor.map_id,
       sub_eq_zero]
-    exact zigL_eq hsl hS Sc c
-  · change (freeLift k (interp (genImg hsl hS Sc) _ _).functor).map
+    exact zigL_eq (S := S) hsl Sc c
+  · change (freeLift k (interp (genImg (S := S) hsl Sc) _ _).functor).map
       (LinDiagram.of (Pivotal.zigR (inv RD).toColourDuality c) - LinDiagram.of (𝟙 _)) = 0
     set_option backward.isDefEq.respectTransparency false in
     rw [Functor.map_sub, freeLift_map_of, freeLift_map_of, CategoryTheory.Functor.map_id,
       sub_eq_zero]
-    exact zigR_eq hsl hS Sc c
-  · exact relationsCL_killed hsl hS Sc hr hQ hQ2 hQ3 hmix r
+    exact zigR_eq (S := S) hsl Sc c
+  · exact relationsCL_killed (S := S) hsl Sc hr hQ hQ2 hQ3 hmix r
 
-/-- **The 2-representation of `U_Q(g)` defined by a `Q`-strong 2-representation** satisfying
-(BB_w), on hom categories (CL Theorem 1.1, `(α_i, α_i) = 2`), given the mixed relations: the
+/-- **The 2-representation of `U_Q(g)` defined by a `Q`-strong 2-representation**, on hom categories (CL Theorem 1.1, `(α_i, α_i) = 2`), given the mixed relations: the
 linear functor from the 2-morphisms of `U_Q(g)` between 1-morphisms `t₀ → s₀` to
 `K^•(obj t₀, obj s₀)`. -/
 def interpCL (hr : ∀ c, Sc.r c = 1)
@@ -249,10 +248,10 @@ def interpCL (hr : ∀ c, Sc.r c = 1)
       (m 0 : ℤ) * C.dot c c + (m 1 : ℤ) * C.dot d d = -2 * C.dot c d)
     (hQ3 : ∀ c d, c ≠ d → ∀ m ∈ (KLR.qbar (Q c d)).support, (m 0 : ℤ) * C.dot c c +
       (m 1 : ℤ) * C.dot d d + (m 2 : ℤ) * C.dot c c = -(C.dot c d + C.dot c c + C.dot d c))
-    (hmix : MixedKilled hsl hS Sc) (s₀ t₀ : X) :
+    (hmix : MixedKilled (S := S) hsl Sc) (s₀ t₀ : X) :
     (CL.presCL RD k Sc).Presented ⥤
       (S.model.lift.obj (fo (S := psig RD) t₀) ⟶ S.model.lift.obj (fo (S := psig RD) s₀)) :=
-  (CL.presCL RD k Sc).lift (respects_presCL hsl hS Sc hr hQ hQ2 hQ3 hmix s₀ t₀)
+  (CL.presCL RD k Sc).lift (respects_presCL (S := S) hsl Sc hr hQ hQ2 hQ3 hmix s₀ t₀)
 
 end QStrong
 

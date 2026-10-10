@@ -378,6 +378,12 @@ exchanging cups and caps, `♠` and `♣`, and clockwise and counter-clockwise b
 (3.10)). `TwoRep/RouqGrass.lean` proves **Brundan Theorem 3.2, the infinite Grassmannian
 relation** (`RouqLoc.infGrass`), with no condition on `End(1_λ)`.
 
+| Theorem | Source | Declarations (`TwoRep.RouqLoc`) | Hypotheses | Status |
+| --- | --- | --- | --- | --- |
+| Inverse cup and cap components | Brundan arXiv:1501.00350v1, Cor. 3.3 | `cupN_expansion`, `capN_expansion` | Rouquier data; preadditive Hom categories and additive whiskering; no grading | Proved |
+| Decompositions with bubble coefficients | Same, Cor. 3.4 | `decompEF`, `decompFE` | Same | Proved |
+| Capped and cupped rightward crossings | Same, Cor. 3.5 | `sig_capL_expansion`, `cupL_sig_expansion` | Same | Proved |
+
 `TwoRep/ShiftedMates.lean` constructs mates from an explicit adjunction, preserving degree
 while reversing composition (`mateSh_comp`), with identity, additive and injectivity laws.
 Scalar compatibility uses explicit linear Hom/whiskering/shift hypotheses.

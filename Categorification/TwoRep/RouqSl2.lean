@@ -112,6 +112,27 @@ theorem SumInvFrom.f'_comp_of_zero {X Y Z : D} {f : Y ⟶ X} {g : ℕ → (Z ⟶
     (I : SumInvFrom f g 0) : I.f' ≫ f = 𝟙 X := by
   simpa using I.total
 
+/-- An inverse component is determined by its composites with all the original components. -/
+theorem SumInvTo.eq_g' {X Y Z : D} {f : X ⟶ Y} {g : ℕ → (X ⟶ Z)} {n k : ℕ}
+    (I : SumInvTo f g n) (hk : k < n) (c : Z ⟶ X) (hf : c ≫ f = 0)
+    (hg : ∀ m, m < n → c ≫ g m = if k = m then 𝟙 Z else 0) : c = I.g' k := by
+  calc c = c ≫ (f ≫ I.f' + ∑ m ∈ Finset.range n, g m ≫ I.g' m) := by
+        rw [I.total, Category.comp_id]
+    _ = ∑ m ∈ Finset.range n, (if k = m then 𝟙 Z else 0) ≫ I.g' m := by
+        rw [Preadditive.comp_add, Preadditive.comp_sum, ← Category.assoc, hf,
+          Limits.zero_comp, zero_add]
+        apply Finset.sum_congr rfl
+        intro m hm
+        rw [← Category.assoc, hg m (Finset.mem_range.mp hm)]
+    _ = I.g' k := by
+        simp only [ite_comp, Category.id_comp, Limits.zero_comp]
+        rw [Finset.sum_eq_single k]
+        · simp
+        · intro m _ hmk
+          simp [Ne.symm hmk]
+        · intro hkn
+          exact False.elim (hkn (Finset.mem_range.mpr hk))
+
 end SumInv
 
 /-! ## Generic relations for the rightward crossing -/

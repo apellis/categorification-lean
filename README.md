@@ -182,7 +182,7 @@ used in the proof and in Cor. 5.5, holds (`Flag.lemma_5_4_iii`).
 |---|---|---|---|---|
 | Explicit signed-word spanning | KL III Prop. 3.11 | `isSpanFamily_twoB` | Arbitrary Cartan/root datum; field; finite colour set | Proved, not merely a dimension inequality |
 | Integral block-map surjectivity | KL III Thm. 1.1, §3.8 | `gammaUA'_surjective` | Same; source `LinearMap.range dpComb`; core map uses proved `homGdim` | Proved without `SimplyLaced` |
-| Integral block-map bijectivity | KL III Thm. 1.2 | `gammaUA'_bijective` | Same, plus `CalculusNondeg` and `FormNondeg` | Conditional; no general-Cartan nondegeneracy claim |
+| Integral block-map bijectivity | KL III Thm. 1.2 | `gammaUA'_bijective_unconditional`, `gammaUA'_injective_unconditional` | Same, plus `CalculusNondeg` (the hypothesis of Thm. 1.2; Prop. 2.5 is proved) | Thm. 1.2 as printed; no general-Cartan nondegeneracy claim |
 
 The transcription of Def. 3.1 is cross-checked by homogeneity of every relation and by cyclicity
 of the generators with respect to the biadjunctions; no faithful 2-representation is formalized yet.
@@ -483,7 +483,7 @@ weight pairs, with multiplication induced by composition.
 |---|---|---|---|---|
 | Global non-unital algebra map, respecting weight idempotents and Laurent scalars | KL III §3.6, Prop. 3.27 | `gammaAlg`, `gammaAlg_one`, `gammaAlg_smul` | Field; `TorsionFreeK0` (supplied by `HomGdim`) | Proved on `AUD → K0All` |
 | Global surjectivity | KL III Thm. 1.1 | `gammaAlg_surjective_unconditional` | Field; finite colour set; arbitrary Cartan/root datum | Proved, without `SimplyLaced` |
-| Global injectivity and equivalence | KL III Thm. 1.2 | `gammaAlg_injective`, `gammaAlgEquiv_unconditional` | Field; `HomGdim` for injectivity; finite colour set for the displayed equivalence; `CalculusNondeg` in both | Conditional ring equivalence; Laurent-scalar compatibility proved separately |
+| Global injectivity and equivalence | KL III Thm. 1.2 | `gammaAlg_injective_unconditional`, `gammaAlgEquiv_unconditional` | Field; finite colour set; arbitrary Cartan/root datum; `CalculusNondeg` (the hypothesis of Thm. 1.2) | Thm. 1.2 as printed; conditional ring equivalence; Laurent-scalar compatibility proved separately |
 | Type-A global equivalence | KL III Thm. 1.3, Prop. 1.4 | `gammaAlgEquiv_sl` | Field; `slRootDatum m` | Proved without a nondegeneracy assumption |
 
 The conditional core also supports arbitrary colour sets under explicit `HomGdim`

@@ -27,13 +27,21 @@ hypothesis is used. Proposition 2.5 is supplied by `UDot.KL3.formNondeg_uncondit
 * `gammaAlg_injective`: **Theorem 1.2** given `hG` and `CalculusNondeg RD k`;
 * `gammaAlgEquiv`: the resulting ring equivalence given `hG`, `hspan`, `CalculusNondeg RD k`;
 * `gammaAlg_surjective_unconditional`: surjectivity for every finite Cartan datum;
+* `gammaAlg_injective_unconditional`: Theorem 1.2 as printed for every finite Cartan datum (the
+  only hypothesis is `CalculusNondeg RD k`, which is the hypothesis of Theorem 1.2);
 * `gammaAlgEquiv_unconditional`: equivalence for every finite Cartan datum, still requiring
   `CalculusNondeg RD k` ("unconditional" discharges hom-finiteness and spanning, not nondegeneracy);
 * `gammaAlgEquiv_sl`: the `sl_n` case over any field, using Theorem 1.3.
 
 The equivalences are packaged as `RingEquiv` between non-unital rings. Laurent-scalar
 compatibility is stated separately by `gammaAlg_smul`, and weight idempotents are respected
-by `gammaAlg_one`. This is not an unconditional general-Cartan nondegeneracy theorem.
+by `gammaAlg_one`. This is not an unconditional general-Cartan nondegeneracy theorem: KL III
+prove nondegeneracy only for `sl_n` (Theorem 1.3) and leave other root data open (§1).
+
+The colour set `I` is finite throughout KL III (a Cartan datum in Lusztig's sense), and
+finiteness is used by `homGdim` (the graded pieces of `END(1_λ)` are spanned by monomials in
+the bubbles of all colours). For an arbitrary colour set the conditional statements take
+`HomGdim RD k` as a hypothesis.
 -/
 
 noncomputable section
@@ -119,6 +127,14 @@ def gammaAlgEquiv (hspan : SortedSpan RD k) (hnd : CalculusNondeg RD k) :
 theorem gammaAlg_surjective_unconditional :
     Function.Surjective (gammaAlg (RD := RD) k (torsionFreeK0_of_homGdim homGdim)) :=
   gammaAlg_surjective homGdim sortedSpan_holds
+
+/-- **KL III Theorem 1.2 for every finite Cartan datum, as printed**: if the graphical calculus is
+nondegenerate, `γ : _𝒜 U̇ → K₀(U̇)` is injective. Hom-finiteness is supplied by `homGdim` and
+Proposition 2.5 by `UDot.KL3.formNondeg_unconditional`; the only hypothesis is the one in the
+statement of Theorem 1.2. -/
+theorem gammaAlg_injective_unconditional (hnd : CalculusNondeg RD k) :
+    Function.Injective (gammaAlg (RD := RD) k (torsionFreeK0_of_homGdim homGdim)) :=
+  gammaAlg_injective homGdim hnd
 
 /-- `_𝒜 U̇ ≅ K₀(U̇)` for every finite Cartan datum with nondegenerate calculus. -/
 def gammaAlgEquiv_unconditional (hnd : CalculusNondeg RD k) :

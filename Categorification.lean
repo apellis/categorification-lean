@@ -279,6 +279,7 @@ import Categorification.KLR.CyclotomicFinite
 import Categorification.KLR.CyclotomicExact
 import Categorification.KLR.CyclotomicMaps
 import Categorification.KLR.CyclotomicSeq
+import Categorification.KLR.CyclotomicFree
 import Categorification.KLR.DividedPowerCharacters
 import Categorification.KLR.DividedPowerDecomposition
 import Categorification.KLR.DividedPowerIdempotents

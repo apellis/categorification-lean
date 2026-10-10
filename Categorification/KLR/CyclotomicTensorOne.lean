@@ -57,6 +57,15 @@ abbrev KOneTensor : Type _ := BalancedTensor k R Rb M Rl
 /-- The elementary tensor represented by a corner element and a cyclotomic coefficient. -/
 def kOneTensorElem (m : M) (z : Rl) : KOneTensor Q i β a := BalancedTensor.tmul m z
 
+/-- The elementary tensor map is bilinear over the base ring. -/
+def kOneTensorBilinear : M →ₗ[k] Rl →ₗ[k] KOneTensor Q i β a :=
+  BalancedTensor.mkBil k R Rb M Rl
+
+/-- Left multiplication acts on the first tensor factor. -/
+theorem kOneTensor_smul_elem (r : R) (m : M) (z : Rl) :
+    r • kOneTensorElem Q i β a m z = kOneTensorElem Q i β a (r • m) z :=
+  BalancedTensor.smul_tmul' r m z
+
 /-- The unit tensor `r e(i,β) ⊗ 1`. -/
 def kOneTensorUnit : R →ₗ[R] KOneTensor Q i β a :=
   { toFun r := kOneTensorElem Q i β a (Graded.leftIdealProj oneConcat_idem r) 1

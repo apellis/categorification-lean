@@ -50,6 +50,14 @@ def admissibleChain (G : GenImg M) {s t : S.Region} :
       coreC G h.1 (h.2.1 ▸ ha) ≫
         admissibleChain G L.cod ls b h.2.2 ((h.2.1 ▸ ha).cod h.1) hb
 
+/-- Changing the layer list transports its chain witness explicitly. -/
+theorem admissibleChain_congr (G : GenImg M) {s t : S.Region} {a b : Obj S}
+    {ls ms : List (Layer S)} (e : ls = ms) (h : Chain a ls b)
+    (ha : Cond s t a) (hb : Cond s t b) :
+    admissibleChain G a ls b h ha hb = admissibleChain G a ms b (e ▸ h) ha hb := by
+  subst ms
+  rfl
+
 /-- Composition of admissible chains is concatenation. -/
 theorem admissibleChain_append (G : GenImg M) {s t : S.Region}
     {a b c : Obj S} {ls ms : List (Layer S)} (h₁ : Chain a ls b) (h₂ : Chain b ms c)

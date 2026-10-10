@@ -390,6 +390,10 @@ relation** (`RouqLoc.infGrass`), with no condition on `End(1_λ)`.
 | Same-colour crossing cyclicity at every weight | Same, Thm. 5.3 (5.8) and final cyclicity deduction | `mate_sigL`, `cupL_pitchfork`, `capL_pitchfork`, `cyclic_cross` | Three adjacent Rouquier structures, nilHecke squares and braids; no grading | Proved |
 | Leftward pitchforks in the specified weight ranges | Same, Lem. 4.2 | `capL_pitchfork_of_neg`, `cupL_pitchfork_of_gt_neg_two` | Adjacent Rouquier data, nilHecke squares and braid; preadditive Hom categories and additive whiskering | Proved |
 
+| Theorem | Source | Declarations (`TwoRep.RouqFamily`) | Hypotheses | Status |
+| --- | --- | --- | --- | --- |
+| Ungraded generator model at arbitrary weights; derived left adjunctions and single-colour cyclicity | Brundan arXiv:1501.00350v1, Def. 1.1 and Thm. 4.3 | `toRouqSl2`, `adjL`, `adjL_eq`, `dotDn_eq_rightMate`, `cyclic_cross`, `crossDn_self`, `model`, `genImg` | Weight-indexed right adjunctions and single-colour Rouquier relations; additive whiskering; a commutative scalar ring for `genImg`; no zero objects or grading | Generator model proved; presentation relations and the mixed-colour extension remain |
+
 `TwoRep/ShiftedMates.lean` constructs mates from an explicit adjunction, preserving degree
 while reversing composition (`mateSh_comp`), with identity, additive and injectivity laws.
 Scalar compatibility uses explicit linear Hom/whiskering/shift hypotheses.

@@ -491,6 +491,7 @@ import Categorification.TwoRep.Rank
 import Categorification.TwoRep.RightwardCrossing
 import Categorification.TwoRep.RouqAdjunction
 import Categorification.TwoRep.RouqCyclicCross
+import Categorification.TwoRep.RouqModel
 import Categorification.TwoRep.RouqCyclicDot
 import Categorification.TwoRep.RouqCurl
 import Categorification.TwoRep.RouqDottedCurls

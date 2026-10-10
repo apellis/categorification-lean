@@ -306,7 +306,7 @@ def lowerCoefficientAppend : KLRAlgebra k Q Si ⊗[k] KLRAlgebra k Q γ →ₗ[k
     KLRAlgebra k Q Si ⊗[k] Rb :=
   TensorProduct.map LinearMap.id (cLLinear (Q := Q) i γ)
 
-private theorem lower_cL_concat (t : KLRAlgebra k Q Si ⊗[k] KLRAlgebra k Q γ) :
+theorem lower_cL_concat (t : KLRAlgebra k Q Si ⊗[k] KLRAlgebra k Q γ) :
     cL Q i β (concat Q Si γ t) = concat Q Si β (lowerCoefficientAppend Q i γ t) := by
   induction t using TensorProduct.inductionOn with
   | add t u ht hu => simp only [map_add, cL_add, ht, hu]

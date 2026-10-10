@@ -306,6 +306,7 @@ import Categorification.KLR.CyclotomicPQ
 import Categorification.KLR.CyclotomicAProduct
 import Categorification.KLR.CyclotomicAPhi
 import Categorification.KLR.CyclotomicDegree
+import Categorification.KLR.CyclotomicTensor
 import Categorification.KLR.DividedPowerCharacters
 import Categorification.KLR.DividedPowerDecomposition
 import Categorification.KLR.DividedPowerIdempotents

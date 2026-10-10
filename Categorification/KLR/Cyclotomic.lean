@@ -11,8 +11,8 @@ import Mathlib.RingTheory.TwoSidedIdeal.Operations
 The cyclotomic quotient `R^Λ(β)` of the KLR algebra `R(β)`, following
 
 * S.-J. Kang, M. Kashiwara, *Categorification of highest weight modules via
-  Khovanov–Lauda–Rouquier algebras*, arXiv:1102.4677v4, §4.1, Definition "cyclotomic
-  Khovanov–Lauda–Rouquier algebra" (`R^Λ(β) = R(β) / R(β) a^Λ(x_1) R(β)`), and
+  Khovanov–Lauda–Rouquier algebras*, arXiv:1102.4677v4, §4.1, Definition 4.1
+  (`R^Λ(β) = R(β) / R(β) a^Λ(x_1) R(β)`), and
 * M. Khovanov, A. Lauda, *A categorification of quantum `sl(n)`*, arXiv:0807.3250v1, §3.4
   (the undeformed case `a_i(u) = u^{⟨i, Λ⟩}`).
 

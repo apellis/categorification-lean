@@ -276,6 +276,7 @@ import Categorification.KLR.Crystal.Tops
 import Categorification.KLR.BaseChange
 import Categorification.KLR.Cyclotomic
 import Categorification.KLR.CyclotomicFinite
+import Categorification.KLR.CyclotomicExact
 import Categorification.KLR.DividedPowerCharacters
 import Categorification.KLR.DividedPowerDecomposition
 import Categorification.KLR.DividedPowerIdempotents

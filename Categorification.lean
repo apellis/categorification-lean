@@ -300,6 +300,7 @@ import Categorification.KLR.GradingFlip
 import Categorification.KLR.Induction
 import Categorification.KLR.InductionAlgebra
 import Categorification.KLR.InductionFree
+import Categorification.KLR.Intertwiner
 import Categorification.KLR.K0Algebra
 import Categorification.KLR.K0Free
 import Categorification.KLR.KL1

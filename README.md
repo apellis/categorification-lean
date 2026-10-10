@@ -394,6 +394,10 @@ relation** (`RouqLoc.infGrass`), with no condition on `End(1_λ)`.
 | --- | --- | --- | --- | --- |
 | Ungraded generator model at arbitrary weights; derived left adjunctions and single-colour cyclicity | Brundan arXiv:1501.00350v1, Def. 1.1 and Thm. 4.3 | `toRouqSl2`, `adjL`, `adjL_eq`, `dotDn_eq_rightMate`, `cyclic_cross`, `crossDn_self`, `model`, `genImg` | Weight-indexed right adjunctions and single-colour Rouquier relations; additive whiskering; a commutative scalar ring for `genImg`; no zero objects or grading | Generator model proved; presentation relations and the mixed-colour extension remain |
 
+| Theorem | Declarations | Hypotheses | Status |
+| --- | --- | --- | --- |
+| Free and linear interpretation on admissible words | `Diagrams.BicatInterp.admissibleInterp`, `admissibleMap_comp`, `admissibleLinearInterp`; `TwoRep.RouqFamily.interp`, `linearInterp` | A bicategorical generator model; preadditive and linear Hom categories for the linear extension; no zero objects | Proved, including comparison with the total interpretation where available; presentation descent and pseudofunctor assembly remain |
+
 `TwoRep/ShiftedMates.lean` constructs mates from an explicit adjunction, preserving degree
 while reversing composition (`mateSh_comp`), with identity, additive and injectivity laws.
 Scalar compatibility uses explicit linear Hom/whiskering/shift hypotheses.

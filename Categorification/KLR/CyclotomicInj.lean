@@ -53,7 +53,8 @@ noncomputable def singleGen : Gen Si → Polynomial k
 omit [DecidableEq I] in
 theorem card_single : Multiset.card Si = 1 := Multiset.card_singleton i
 
-noncomputable instance : Unique (Seq Si) := { default := default, uniq := fun _ => Subsingleton.elim _ _ }
+noncomputable instance seqSingleUnique : Unique (Seq Si) :=
+  { default := default, uniq := fun _ => Subsingleton.elim _ _ }
 
 variable (Q) in
 /-- `R(i) → k[t]`: `x ↦ t`. -/

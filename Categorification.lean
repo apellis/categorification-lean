@@ -477,6 +477,9 @@ import Categorification.TwoRep.Regrade
 import Categorification.TwoRep.PresGrading
 import Categorification.TwoRep.Rank
 import Categorification.TwoRep.RightwardCrossing
+import Categorification.TwoRep.RouqDual
+import Categorification.TwoRep.RouqGrass
+import Categorification.TwoRep.RouqSl2
 import Categorification.TwoRep.RouquierMaps
 import Categorification.TwoRep.ShiftInterchange
 import Categorification.TwoRep.Sl2

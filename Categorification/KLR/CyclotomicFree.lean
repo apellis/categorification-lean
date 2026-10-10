@@ -68,7 +68,7 @@ noncomputable def rFree (t : Shuffle (Seq.card_add' ν ν') → T) : KLRAlgebra 
   ∑ u, rW u * concat Q ν ν' (t u)
 
 omit [IsDomain k] in
-theorem hflip_freeMap (t : Shuffle (Seq.card_add' ν ν') → T) :
+theorem hflip_freeMap_eq_rFree (t : Shuffle (Seq.card_add' ν ν') → T) :
     hflip ((freeMap (Q := Q) shW (Finsupp.equivFunOnFinite.symm
       (fun u => tflip Q ν ν' (t u))) : KLRAlgebra k Q (ν + ν'))) = rFree t := by
   rw [freeMap, Finsupp.linearCombination_apply, Finsupp.sum_fintype,
@@ -92,7 +92,7 @@ theorem rfree_injective {t : Shuffle (Seq.card_add' ν ν') → T} (h : rFree t 
         KLRAlgebra k Q (ν + ν')) = 0 := by
     rw [← hflip_hflip ((freeMap (Q := Q) shW (Finsupp.equivFunOnFinite.symm
       (fun u => tflip Q ν ν' (t u))) : oneConcatSub (ν := ν) (ν' := ν') Q) :
-        KLRAlgebra k Q (ν + ν')), hflip_freeMap, h, hflip_zero]
+        KLRAlgebra k Q (ν + ν')), hflip_freeMap_eq_rFree, h, hflip_zero]
   have h0 : freeMap (Q := Q) shW (Finsupp.equivFunOnFinite.symm
       (fun u => tflip Q ν ν' (t u))) = 0 := Subtype.ext h1
   have := hbij.1 (h0.trans (map_zero _).symm)
@@ -113,7 +113,7 @@ theorem rfree_span (r : KLRAlgebra k Q (ν + ν')) :
     mem_oneConcatSub.2 (by rw [← mul_assoc, oneConcat_idem.eq])
   obtain ⟨f, hf⟩ := hbij.2 ⟨_, hmem⟩
   refine ⟨fun u => tflip Q ν ν' (f u), ?_⟩
-  rw [← hflip_freeMap]
+  rw [← hflip_freeMap_eq_rFree]
   have hf' : (Finsupp.equivFunOnFinite.symm fun u => tflip Q ν ν' (tflip Q ν ν' (f u))) = f := by
     ext u; simp
   rw [hf', hf, hflip_mul, hflip_hflip, hflip_oneConcat_eq]

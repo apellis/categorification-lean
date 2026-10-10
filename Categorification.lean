@@ -292,6 +292,7 @@ import Categorification.KLR.CyclotomicEF
 import Categorification.KLR.CyclotomicB
 import Categorification.KLR.CyclotomicC
 import Categorification.KLR.CyclotomicA
+import Categorification.KLR.CyclotomicRecursion
 import Categorification.KLR.DividedPowerCharacters
 import Categorification.KLR.DividedPowerDecomposition
 import Categorification.KLR.DividedPowerIdempotents

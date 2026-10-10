@@ -12,12 +12,12 @@ Khovanov–Lauda–Rouquier algebras*, arXiv:1102.4677v4, §5.2: Lemma 5.5 and P
 the two consequences for the map `A` used at the end of the proof of Theorem 5.2.
 
 In KK, `A : R^Λ(β)[t_i] → R^Λ(β)[t_i]` is a right `R^Λ(β)`-linear map obtained by a diagram chase,
-with `A(a t_i) − A(a) t_i ∈ R^Λ(β)` for all `a` (KK (5.11)) and `A(t_i^k S) = γ^{-1} t_i^k F`
-(KK (5.10)), where `S` and `F` are central monic polynomials of degrees `2p` and
+with `A(a t_i) − A(a) t_i ∈ R^Λ(β)` for all `a` (KK (5.18)) and `A(t_i^k S) = γ^{-1} t_i^k F`
+(KK (5.16)), where `S` and `F` are central monic polynomials of degrees `2p` and
 `⟨h_i, λ⟩ + 2p`. Here everything is stated for an arbitrary ring `R`, an additive map
 `A : R[t] → R[t]` and an arbitrary unit `c` of a commutative ring `k` over which `R` is an algebra:
 
-* `degree_sub_mul_lt` (KK (5.12)): `A(a f) − A(a) f` has degree `< deg f`;
+* `degree_sub_mul_lt` (KK (5.19)): `A(a f) − A(a) f` has degree `< deg f`;
 * `apply_X_pow_eq` (**KK Lemma 5.5**): `A(t^k) = c · ((t^k F) /ₘ S)`;
 * `phi_spec` (**KK Proposition 5.3**): with `e = deg S − deg F` and `l = deg F − deg S`
   (truncated subtraction), `A(t^k) = 0` for `k < e`, and for `k ≥ e`, `c⁻¹ A(t^k)` is monic of
@@ -49,7 +49,7 @@ theorem degree_mul_le_of_degree_le_zero {p q : R[X]} (hp : p.degree ≤ 0) :
 
 variable (A : R[X] →+ R[X])
 
-/-- **KK (5.12)**: if `A` is right `R`-linear and `A(a t) − A(a) t` is constant for every `a`, then
+/-- **KK (5.19)**: if `A` is right `R`-linear and `A(a t) − A(a) t` is constant for every `a`, then
 `A(a f) − A(a) f` has degree `< m` whenever `deg f ≤ m`. -/
 theorem degree_sub_mul_lt (hC : ∀ p (r : R), A (p * C r) = A p * C r)
     (hX : ∀ p, (A (p * X) - A p * X).degree ≤ 0) :

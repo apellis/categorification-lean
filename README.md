@@ -384,6 +384,7 @@ relation** (`RouqLoc.infGrass`), with no condition on `End(1_λ)`.
 | Decompositions with bubble coefficients | Same, Cor. 3.4 | `decompEF`, `decompFE` | Same | Proved |
 | Capped and cupped rightward crossings | Same, Cor. 3.5 | `sig_capL_expansion`, `cupL_sig_expansion` | Same | Proved |
 | Dotted curls through the boundary degree | Same, Lem. 4.1 | `curlG_dotted`, `curlEG_dotted` | Same | Proved |
+| Leftward pitchforks in the specified weight ranges | Same, Lem. 4.2 | `capL_pitchfork_of_neg`, `cupL_pitchfork_of_gt_neg_two` | Adjacent Rouquier data, nilHecke squares and braid; preadditive Hom categories and additive whiskering | Proved |
 
 `TwoRep/ShiftedMates.lean` constructs mates from an explicit adjunction, preserving degree
 while reversing composition (`mateSh_comp`), with identity, additive and injectivity laws.

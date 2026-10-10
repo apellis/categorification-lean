@@ -66,10 +66,12 @@ variable {C : Type u} [Bicategory.{w, v} C] [∀ a b : C, Preadditive (a ⟶ b)]
 
 open AdditiveWhiskering
 
+omit [AdditiveWhiskering C] in
 theorem whiskerLeft_powComp_capD (m n : ℕ) :
     R₁ ◁ powComp x₁ m ≫ L.capD n = L.capD (m + n) := by
   rw [capD, capD, ← Category.assoc, ← Bicategory.whiskerLeft_comp, powComp_comp_powComp]
 
+omit [AdditiveWhiskering C] in
 theorem cupD_powComp_whiskerRight (m n : ℕ) :
     L.cupD m ≫ powComp x₂ n ▷ R₂ = L.cupD (m + n) := by
   rw [cupD, cupD, Category.assoc, ← Bicategory.comp_whiskerRight, powComp_comp_powComp]
@@ -83,8 +85,9 @@ theorem powComp_sig (m : ℕ) :
   | zero => simp
   | succ m ih =>
     have h1 : R₁ ◁ x₁ ≫ L.sig = L.sig ≫ x₂ ▷ R₂ - L.capD 0 ≫ L.cupD 0 := by
-      rw [← L.sig_dot_sub]
-      simp [capD, cupD]
+      have h0 : L.capD 0 ≫ L.cupD 0 = adj₁.counit ≫ adj₂.unit := by simp [capD, cupD]
+      rw [h0, ← L.sig_dot_sub]
+      abel
     rw [powComp_succ, Bicategory.whiskerLeft_comp, Category.assoc, h1, Preadditive.comp_sub,
       ← Category.assoc, ih, Preadditive.sub_comp, Category.assoc, ← Bicategory.comp_whiskerRight,
       ← powComp_succ, Finset.sum_range_succ, Preadditive.sum_comp, ← Category.assoc,
@@ -93,7 +96,8 @@ theorem powComp_sig (m : ℕ) :
         L.capD j ≫ L.cupD (m + 1 - 1 - j) := by
       intro j hj
       have hj' : j < m := Finset.mem_range.mp hj
-      rw [Category.assoc, ← powComp_one x₂, cupD_powComp_whiskerRight]
+      have hx : x₂ ▷ R₂ = powComp x₂ 1 ▷ R₂ := by rw [powComp_one]
+      rw [Category.assoc, hx, cupD_powComp_whiskerRight]
       congr 2
       omega
     rw [Finset.sum_congr rfl h2, Nat.sub_self, Nat.add_sub_cancel]
@@ -203,12 +207,11 @@ theorem infGrass (m : ℕ) (lo : ℤ) (K : ℕ) (hlo : lo ≤ min h 0 - 1)
       (lo := (m : ℤ) - lo - K) (K := K) (lo' := -1) (K' := m + 1 + ((-h).toNat + 1)) ?_
       (by omega) (by push_cast; omega)] at hD
     · simp only [dual_ccw, dual_cw] at hD
-      have hD' : (∑ i ∈ Finset.range K,
-          L.ccw ((m : ℤ) - 1 - ((m : ℤ) - lo - K + i)) ≫ L.cw ((m : ℤ) - lo - K + i)).op = 0 := by
-        rw [← hD, op_sum]
-        rfl
-      have hD'' := congrArg Quiver.Hom.unop hD'
-      simp only [Quiver.Hom.unop_op] at hD''
+      have hD'' : ∑ i ∈ Finset.range K,
+          L.ccw ((m : ℤ) - 1 - ((m : ℤ) - lo - K + i)) ≫ L.cw ((m : ℤ) - lo - K + i) = 0 := by
+        have h3 := congrArg Quiver.Hom.unop hD
+        rw [Coop.unop_sum₂] at h3
+        exact h3
       rw [← Finset.sum_range_reflect] at hD''
       rw [← hD'']
       refine Finset.sum_congr rfl fun i hi => ?_

@@ -532,6 +532,7 @@ deformed), `KLR.CycKLR k Q a ν` is `R^Λ(ν) = R(ν) / R(ν) a^Λ(x_1) R(ν)`.
 | KK Lemma 4.10 (right linearity), Props. 4.13–4.14, Lemma 4.19, Thm. 4.5 (splitting) | `P : K_1 → K_0` and `Q : K_0 → K_1` are right `R(β)`-linear; `P` has a right `R(β)`-linear left inverse on `K_1 e(i, β)`, so `0 → K_1 e(i, β) → K_0 → F^Λ → 0` splits as right `R(β)`-modules (domain `k`, factorized `Q` with unit leading coefficients, monic `a_i`) | `KLR.KLRAlgebra.pMap_act`, `KLR.KLRAlgebra.qMap_act`, `KLR.KLRAlgebra.cL_mul_gProd`, `KLR.KLRAlgebra.splitMap_pMap`, `KLR.KLRAlgebra.splitMap_act` |
 | KK Lemma 4.8 (`K_0`) | `∑_u ψ(ŵ_u) ι(t_u) ∈ R(ν) a^Λ(x_1) R(β)` iff all `t_u ∈ J ⊗ R(i)` (`ν = β + i`); `K_0 e(β, i) ≅ ⊕_{shuffles} R^Λ(β)[t]` as right `R(β)`-modules | `KLR.KLRAlgebra.mem_cycL0_iff`, `KLR.KLRAlgebra.coordL_embL`, `KLR.KLRAlgebra.embL_coordL`, `KLR.KLRAlgebra.coordL_act0` |
 | **KK Thm. 4.5** | `R^Λ(β + α_i) e(β, i)` is a projective right `R^Λ(β)`-module (domain `k`, factorized `Q` with unit leading coefficients, monic `a_i`, `β ≠ 0`); `R^Λ(β)[t]` is a free right `R^Λ(β)`-module | `KLR.KLRAlgebra.projective_FE`, `KLR.KLRAlgebra.instModuleFE`, `KLR.polyOpEquiv` |
+| KK, proofs of Prop. 3.4 and Thm. 5.1 | the mirror coset decomposition `R(n + 1) = ∑_a R(n, 1) τ_n ⋯ τ_a`, from `spTau_eq_top` by the vertical flip `σ` (symmetric `Q`, any commutative ring) | `KLR.KLRAlgebra.spTauR_eq_top`, `KLR.KLRAlgebra.sigma_tauProd`, `KLR.KLRAlgebra.sigma_mem_subR0` |
 
 ### Lusztig's algebra `f` (Lusztig, *Introduction to quantum groups*, Ch. 1; KL I §3.1)
 

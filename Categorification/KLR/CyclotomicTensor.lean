@@ -57,6 +57,15 @@ abbrev KZeroTensor : Type _ := BalancedTensor k R Rb M Rl
 /-- The elementary tensor represented by a corner element and a cyclotomic coefficient. -/
 def kZeroTensorElem (m : M) (z : Rl) : KZeroTensor Q i β a := BalancedTensor.tmul m z
 
+/-- The elementary tensor map is bilinear over the base ring. -/
+def kZeroTensorBilinear : M →ₗ[k] Rl →ₗ[k] KZeroTensor Q i β a :=
+  BalancedTensor.mkBil k R Rb M Rl
+
+/-- Left multiplication acts on the first tensor factor. -/
+theorem kZeroTensor_smul_elem (r : R) (m : M) (z : Rl) :
+    r • kZeroTensorElem Q i β a m z = kZeroTensorElem Q i β a (r • m) z :=
+  BalancedTensor.smul_tmul' r m z
+
 /-- The unit tensor `r e(β,i) ⊗ 1`. -/
 def kZeroTensorUnit : R →ₗ[R] KZeroTensor Q i β a :=
   { toFun r := kZeroTensorElem Q i β a (Graded.leftIdealProj oneConcat_idem r) 1

@@ -308,6 +308,10 @@ import Categorification.KLR.CyclotomicAPhi
 import Categorification.KLR.CyclotomicDegree
 import Categorification.KLR.CyclotomicTensor
 import Categorification.KLR.CyclotomicTensorOne
+import Categorification.KLR.CyclotomicSource
+import Categorification.KLR.CyclotomicLower
+import Categorification.KLR.CyclotomicLowerCrossing
+import Categorification.KLR.CyclotomicLowerCoordinates
 import Categorification.KLR.DividedPowerCharacters
 import Categorification.KLR.DividedPowerDecomposition
 import Categorification.KLR.DividedPowerIdempotents

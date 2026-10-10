@@ -3,6 +3,7 @@ Copyright (c) 2026 Alex Ellis. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 -/
 import Categorification.KLR.BasisTheorem
+import Categorification.KLR.BaseChange
 
 /-!
 # Intertwiners in KLR algebras
@@ -20,15 +21,16 @@ to KK's `τ_a`), the element is
 
 In the polynomial representation `g_j` acts by `f ↦ c(x_j, x_{j+1}) · s_j f`, where `c` is
 `x_{j+1} - x_j` for equal labels and `P_{i_j i_{j+1}}` otherwise (`polyRep_gInt`). The relations
-of KK Lemma 4.12 are proved by computing in the polynomial representation, which is faithful
-(KL I Cor. 2.6, `polyRep_injective`); they therefore carry the hypotheses of the basis theorem
-(`k` a domain, `Q` factorized as `Q_{ab}(u, v) = P_{ba}(u, v) P_{ab}(v, u)` with `P_{ab} ≠ 0`).
+of KK Lemma 4.12 are first proved by computing in the polynomial representation, which is faithful
+for a domain `k` and factorized `Q` (KL I Cor. 2.6, `polyRep_injective`); applying this to the
+universal symmetric KLR data (`Categorification.KLR.BaseChange`) and specializing gives them over
+any commutative ring, for any symmetric `Q` (KK's setting).
 
 ## Main definitions and results
 
 * `KLRAlgebra.gInt j h` (KK's `g_{j+1}`, zero-indexed).
-* `KLRAlgebra.x_mul_gInt`: `x_{s_j(b)} g_j = g_j x_b` (KK Lemma 4.12, first identity).
-* `KLRAlgebra.ψ_mul_gInt_mul_gInt`: `ψ_j g_{j+1} g_j = g_{j+1} g_j ψ_{j+1}` (KK Lemma 4.12,
+* `x_mul_gInt`: `x_{s_j(b)} g_j = g_j x_b` (KK Lemma 4.12, first identity).
+* `ψ_mul_gInt_mul_gInt`: `ψ_j g_{j+1} g_j = g_{j+1} g_j ψ_{j+1}` (KK Lemma 4.12,
   second identity).
 -/
 
@@ -130,6 +132,8 @@ end KLRAlgebra
 
 open KLRAlgebra
 
+section factor
+
 variable {P Q : I → I → MvPolynomial (Fin 2) k}
   (hPQ : ∀ a b, a ≠ b → Q a b = P b a * rename ![1, 0] (P a b)) {ν : Multiset I}
 
@@ -186,8 +190,9 @@ theorem polyRep_gInt (j : ℕ) (h : j + 1 < m) (f : Pol k ν) (t : Seq ν) :
 variable (hP : ∀ a b, a ≠ b → P a b ≠ 0) [IsDomain k]
 
 include hPQ hP in
-/-- **Kang–Kashiwara, Lemma 4.12**, first identity: `x_{s_j(b)} g_j = g_j x_b`. -/
-theorem x_mul_gInt (j : ℕ) (h : j + 1 < m) (b : Fin m) :
+/-- Kang–Kashiwara, Lemma 4.12, first identity, for factorized `Q` over a domain (via the faithful
+polynomial representation). See `x_mul_gInt` for arbitrary rings. -/
+theorem x_mul_gInt_of_factor (j : ℕ) (h : j + 1 < m) (b : Fin m) :
     (x (swap (⟨j, by omega⟩ : Fin m) ⟨j + 1, h⟩ b) * gInt j h : KLRAlgebra k Q ν) =
       gInt j h * x b := by
   apply polyRep_injective hPQ hP
@@ -197,8 +202,9 @@ theorem x_mul_gInt (j : ℕ) (h : j + 1 < m) (b : Fin m) :
   ring
 
 include hPQ hP in
-/-- **Kang–Kashiwara, Lemma 4.12**, second identity: `ψ_j g_{j+1} g_j = g_{j+1} g_j ψ_{j+1}`. -/
-theorem ψ_mul_gInt_mul_gInt (j : ℕ) (h : j + 2 < m) :
+/-- Kang–Kashiwara, Lemma 4.12, second identity, for factorized `Q` over a domain (via the
+faithful polynomial representation). See `ψ_mul_gInt_mul_gInt` for arbitrary rings. -/
+theorem ψ_mul_gInt_mul_gInt_of_factor (j : ℕ) (h : j + 2 < m) :
     (ψ j * gInt (j + 1) h * gInt j (by omega) : KLRAlgebra k Q ν) =
       gInt (j + 1) h * gInt j (by omega) * ψ (j + 1) := by
   apply polyRep_injective hPQ hP
@@ -228,5 +234,53 @@ theorem ψ_mul_gInt_mul_gInt (j : ℕ) (h : j + 2 < m) :
     rw [← mul_assoc, ← mul_assoc, swap_braid hpq hqr hpr]
   rw [hseq]
   exact intOp_braid P hpq hqr hpr _ _ _ _
+
+end factor
+
+/-! ### Kang–Kashiwara Lemma 4.12 over an arbitrary commutative ring
+
+Both identities are equalities between expressions in the generators, so they follow from the
+case of the universal symmetric KLR data over the domain `UnivRing I` (where the polynomial
+representation is faithful) by base change (`KLRAlgebra.mapRingHom`). -/
+
+section general
+
+theorem KLRAlgebra.mapRingHom_gInt {k' : Type*} [CommRing k'] (φ : k →+* k')
+    {Q : I → I → MvPolynomial (Fin 2) k} {Q' : I → I → MvPolynomial (Fin 2) k'}
+    (hQ : ∀ a b, a ≠ b → MvPolynomial.map φ (Q a b) = Q' a b) {ν : Multiset I} (j : ℕ)
+    (h : j + 1 < Multiset.card ν) :
+    mapRingHom φ hQ (gInt j h : KLRAlgebra k Q ν) = gInt j h := by
+  simp only [gInt, map_sum, map_mul]
+  refine Finset.sum_congr rfl fun i _ => ?_
+  split_ifs <;> simp
+
+variable {Q : I → I → MvPolynomial (Fin 2) k}
+  (hsym : ∀ a b, a ≠ b → Q b a = rename ![1, 0] (Q a b)) {ν : Multiset I}
+
+local notation "m" => Multiset.card ν
+
+include hsym in
+/-- **Kang–Kashiwara, Lemma 4.12**, first identity: `x_{s_j(b)} g_j = g_j x_b`, over any
+commutative ring, for symmetric `Q` (`Q_{ba}(u, v) = Q_{ab}(v, u)`, as in KK (2.1)). -/
+theorem x_mul_gInt (j : ℕ) (h : j + 1 < m) (b : Fin m) :
+    (x (swap (⟨j, by omega⟩ : Fin m) ⟨j + 1, h⟩ b) * gInt j h : KLRAlgebra k Q ν) =
+      gInt j h * x b := by
+  have h0 := x_mul_gInt_of_factor (k := UnivRing I) (P := univP Q) (Q := univQ Q) (ν := ν)
+    (univQ_factor Q) (fun a b _ => univP_ne_zero Q a b) j h b
+  have := congrArg (mapRingHom (univMap Q) (map_univQ Q hsym)) h0
+  simpa only [map_mul, mapRingHom_x, mapRingHom_gInt] using this
+
+include hsym in
+/-- **Kang–Kashiwara, Lemma 4.12**, second identity: `ψ_j g_{j+1} g_j = g_{j+1} g_j ψ_{j+1}`,
+over any commutative ring, for symmetric `Q`. -/
+theorem ψ_mul_gInt_mul_gInt (j : ℕ) (h : j + 2 < m) :
+    (ψ j * gInt (j + 1) h * gInt j (by omega) : KLRAlgebra k Q ν) =
+      gInt (j + 1) h * gInt j (by omega) * ψ (j + 1) := by
+  have h0 := ψ_mul_gInt_mul_gInt_of_factor (k := UnivRing I) (P := univP Q) (Q := univQ Q)
+    (ν := ν) (univQ_factor Q) (fun a b _ => univP_ne_zero Q a b) j h
+  have := congrArg (mapRingHom (univMap Q) (map_univQ Q hsym)) h0
+  simpa only [map_mul, mapRingHom_ψ, mapRingHom_gInt] using this
+
+end general
 
 end Categorification.KLR

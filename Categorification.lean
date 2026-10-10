@@ -273,6 +273,7 @@ import Categorification.KLR.Crystal.Socle
 import Categorification.KLR.Crystal.Thm317
 import Categorification.KLR.Crystal.Thm317Graded
 import Categorification.KLR.Crystal.Tops
+import Categorification.KLR.BaseChange
 import Categorification.KLR.Cyclotomic
 import Categorification.KLR.CyclotomicFinite
 import Categorification.KLR.DividedPowerCharacters

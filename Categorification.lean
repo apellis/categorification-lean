@@ -507,6 +507,7 @@ import Categorification.TwoRep.RouqModel
 import Categorification.TwoRep.RouqInterp
 import Categorification.TwoRep.RouqUpKLR
 import Categorification.TwoRep.RouqUpInterp
+import Categorification.TwoRep.RouqMixedSource
 import Categorification.TwoRep.RouqZig
 import Categorification.TwoRep.RouqCyc
 import Categorification.TwoRep.RouqCyclicDot

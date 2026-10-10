@@ -6,52 +6,59 @@ import Categorification.TwoRep.AdjointPositive
 import Categorification.TwoRep.CyclicDot
 
 /-!
-# Rouquier's `sl₂` data along a weight string, without grading
+# Rouquier's `sl₂` data, without grading
 
 J. Brundan, *On the definition of Kac–Moody 2-category*, arXiv:1501.00350v1, Definition 1.1
-(R. Rouquier, *2-Kac–Moody algebras*, arXiv:0812.5023, §4.1.3) for a single colour `i`, read
-along one `α_i`-string of weights in an arbitrary bicategory whose Hom categories are preadditive.
-No grading, no finiteness of Hom spaces and no condition on `End(1_λ)` is assumed.
+(R. Rouquier, *2-Kac–Moody algebras*, arXiv:0812.5023, §4.1.3) for a single colour `i`, in an
+arbitrary bicategory whose Hom categories are preadditive. No grading, no finiteness of Hom spaces
+and no condition on `End(1_λ)` is assumed.
 
-`RouqSl2 C` is the following data. Objects `obj r` (`r ∈ ℤ`) of weight `wt r = n₀ + 2 r`;
-1-morphisms `E r : obj r ⟶ obj (r + 1)` (Brundan's `E_i 1_λ`) and `F r : obj (r + 1) ⟶ obj r`
-(`F_i 1_{λ + α_i}`); a right adjunction `adj r : E r ⊣ F r` (Brundan (1.5)); the dot `x r` and the
-crossing `τ r` satisfying the nilHecke relations (Brundan (1.2)–(1.4) for `i = j = k`, with Brundan's
-normalization: no scalar in the dot slides); and two-sided inverses of Rouquier's maps (Brundan
-(1.8), (1.9)) as explicit inverse components (`SumInvTo`, `SumInvFrom`), so that no biproducts are
-needed. At the object `obj (r + 1)`, of weight `h = wt (r + 1)`, these maps are
+**Data at one weight** (`RouqLoc adj₁ adj₂ x₁ x₂ τ h`). An object `b` of weight `h` with
+neighbours `a` and `c`; 1-morphisms `E₁ : a ⟶ b` (Brundan's `E_i 1_{λ-α_i}`) and `E₂ : b ⟶ c`
+(`E_i 1_λ`) with right adjoints `R₁`, `R₂` (`F_i 1_λ`, `F_i 1_{λ+α_i}`) and adjunctions `adj₁`,
+`adj₂` (Brundan (1.5)); dots `x₁`, `x₂`; an upward crossing `τ` on `E₁ ≫ E₂`; the dot slides
+(Brundan (1.2) for `i = j`, normalized as in `StrongSl2` with `r_i = 1`: the left strand of
+`E₁ ≫ E₂` is `E₂`); and two-sided inverses of Rouquier's maps at `b`, as explicit inverse
+components (`SumInvTo`, `SumInvFrom`), so that no biproducts are needed:
 
 * `(σ, capD 0, …, capD (h-1)) : E F 1_λ → F E 1_λ ⊕ 1_λ^{⊕ h}` if `h ≥ 0` (Brundan (1.8));
 * `(σ, cupD 0, …, cupD (-h-1)) : E F 1_λ ⊕ 1_λ^{⊕ -h} → F E 1_λ` if `h ≤ 0` (Brundan (1.9)),
 
-where `σ = sig r : F r ≫ E r ⟶ E (r + 1) ≫ F (r + 1)` is the rightward crossing (Brundan (1.6),
-`RightwardCrossing.sigma`), `capD r n` is the counit with `n` dots on the upward strand and
-`cupD s n` the unit with `n` dots.
+where `σ = sig : R₁ ≫ E₁ ⟶ E₂ ≫ R₂` is the rightward crossing (Brundan (1.6),
+`RightwardCrossing.sigma`), `capD n` the counit of `adj₁` with `n` dots on the upward strand and
+`cupD n` the unit of `adj₂` with `n` dots.
+
+**Data along a weight string** (`RouqSl2 C`): objects `obj r` of weight `n₀ + 2 r`, 1-morphisms
+`E r : obj r ⟶ obj (r + 1)` with right adjoints `F r`, dots and crossings with the nilHecke
+relations (Brundan (1.3), (1.4) for `i = j = k`) and data `loc r` at every object `obj (r + 1)`.
 
 **Composition order.** As everywhere in this library, composition is written in Mathlib's
-diagrammatic order: Brundan's `E_i F_i 1_λ` (first `F_i`, then `E_i`) at the object `obj (r + 1)` is
-`F r ≫ E r`, and `F_i E_i 1_λ` is `E (r + 1) ≫ F (r + 1)`.
+diagrammatic order: Brundan's `E_i F_i 1_λ` (first `F_i`, then `E_i`) at `b` is `R₁ ≫ E₁`, and
+`F_i E_i 1_λ` is `E₂ ≫ R₂`.
 
 ## Main definitions
 
 * `SumInvTo f g n`, `SumInvFrom f g n`: explicit two-sided inverses of `(f, g 0, …, g (n-1))`
   into (resp. out of) a direct sum `Y ⊕ Z^{⊕ n}`;
-* `RouqSl2 C`: the data above;
-* `RouqSl2.sig`, `capD`, `cupD`, `dotD` (the downward dot, Brundan (1.12): the right mate of `x`);
-* `RouqSl2.sigL` (Brundan's leftward crossing `σ'`, (1.14)–(1.16)), `cupN` (the components `η'_n`
+* `RouqLoc`, `RouqSl2`: the data above;
+* `RouqLoc.sig`, `capD`, `cupD`, `dotD₁`, `dotD₂` (the downward dots, Brundan (1.12): the right
+  mates of the dots);
+* `RouqLoc.sigL` (Brundan's leftward crossing `σ'`, (1.14)–(1.16)), `cupN` (the components `η'_n`
   of the inverse of (1.8), Brundan's `♠`-cups (3.1)), `capN` (the components `ε'_n` of the inverse
-  of (1.9), Brundan's `♣`-caps (3.2)), `cupL` (the leftward cup `η'`, (1.14) and (1.18)) and `capL`
-  (the leftward cap `ε'`, (1.15) and (1.17)).
+  of (1.9), Brundan's `♣`-caps (3.2)), `cupL` (the leftward cup `η'`, (1.14) and (1.18)), `capL`
+  (the leftward cap `ε'`, (1.15) and (1.17));
+* `RouqLoc.ccw`, `RouqLoc.cw`: the dotted bubbles of all integer degrees (Brundan (3.8), (3.9)).
 
 ## Main statements
 
-* Brundan Lemma 2.1: `unit_dotD`, `dotD_counit` ((2.1)); `sig_counit_pitchfork`,
+* Brundan Lemma 2.1: `unit_dotD₂`, `dotD₁_counit` ((2.1)); `sig_counit_pitchfork`,
   `unit_sig_pitchfork` ((2.2)); `sig_dot_sub`, `sig_dotD_sub` ((2.3));
 * Brundan (3.3): `cupL_of_pos`, `capL_of_neg`;
 * Brundan Lemma 3.1: `sig_sigL_of_nonneg`, `sigL_sig_of_nonpos` ((3.5)), `sigL_sig_of_nonneg`,
   `sig_sigL_of_nonpos` (the other composite is `-1`), `cupN_sig`, `sigL_capD`, `cupN_capD`,
   `cupL_sig`, `cupL_capD` ((3.6)) and `sig_capN`, `cupD_sigL`, `cupD_capN`, `sig_capL`,
-  `cupD_capL` ((3.7)); at the weight `0`, `sigL_eq_neg_inv`.
+  `cupD_capL` ((3.7)); the resulting values of the bubbles of low degree, `ccw_of_lt`,
+  `ccw_self`, `cw_of_lt`, `cw_self`.
 -/
 
 noncomputable section

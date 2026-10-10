@@ -487,6 +487,7 @@ import Categorification.TwoRep.RouqCurl
 import Categorification.TwoRep.RouqDottedCurls
 import Categorification.TwoRep.RouqDual
 import Categorification.TwoRep.RouqGrass
+import Categorification.TwoRep.RouqPitchfork
 import Categorification.TwoRep.RouqSl2
 import Categorification.TwoRep.RouquierMaps
 import Categorification.TwoRep.ShiftInterchange

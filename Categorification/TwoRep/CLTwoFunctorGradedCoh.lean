@@ -239,12 +239,6 @@ namespace QStrong
 variable (S₀ : CL.CLScalars C k) (S : QStrong B C RD k (CL.qCL S₀))
   (hrQ : ∀ i, S.rQ i = S₀.r i)
 
-theorem shiftHOM_sh_shiftHom {a b : UQShift RD S₀} (f : a ⟶ b) :
-    ((shiftHOM S₀ S hrQ).map f).sh + 1 = ((shiftHOM S₀ S hrQ).map ((shiftHom 1 a b).obj f)).sh := by
-  show _ + _ + _ + 1 = _ + 1 + _ + _
-  simp only [ShiftEnv.map_map_hom, shiftHom_obj_hom]
-  ring
-
 theorem incl₂_twoFunctorShift_map₂_shiftCompLeft {a b c : UQShift RD S₀} (f : a ⟶ b)
     (g : b ⟶ c) :
     incl₂ ((twoFunctorShift S₀ S hrQ).map₂ (shiftCompLeft f g).hom) =

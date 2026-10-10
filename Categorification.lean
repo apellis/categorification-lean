@@ -411,6 +411,7 @@ import Categorification.TwoRep.CLTwoFunctorDot
 import Categorification.TwoRep.CLTwoFunctorGraded
 import Categorification.TwoRep.CLTwoFunctorGradedCoh
 import Categorification.TwoRep.CLTwoFunctorShift
+import Categorification.TwoRep.DotExtension
 import Categorification.TwoRep.CisBub
 import Categorification.TwoRep.CisBubRight
 import Categorification.TwoRep.Coop
@@ -504,6 +505,7 @@ import Categorification.TwoRep.InterpHomogeneous
 import Categorification.TwoRep.ModelQStrongMixed
 import Categorification.TwoRep.ModelQStrongCL
 import Categorification.TwoRep.ModelQStrongGraded
+import Categorification.TwoRep.KernelExact
 import Categorification.TypeA.Basic
 import Categorification.TypeA.DoubleCoset
 import Categorification.TypeA.Inversions

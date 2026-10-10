@@ -333,25 +333,36 @@ theorem theta_aPrime_eq_smul (hQ : ∀ a b : I, a ≠ b → IsUnit (polyInY (Q a
     theta Q i β (aPrime Q i β a) = lamA Q i β • aMonic Q i β a := by
   rw [aMonic, smul_smul, Ring.mul_inverse_cancel _ (isUnit_lamA i β hQ), one_smul]
 
-/-- `M = λ⁻¹ θ(A)` is monic of degree `deg a_i + ∑_b deg_t Q_{β_b, i}`. -/
+/-- The coefficients above the expected degree vanish, before taking the cyclotomic quotient. -/
+theorem degree_aMonic_le (hsym : ∀ a b, a ≠ b → Q b a = MvPolynomial.rename ![1, 0] (Q a b))
+    (hQ : ∀ a b : I, a ≠ b → IsUnit (polyInY (Q a b)).leadingCoeff) (ha : (a i).Monic) :
+    (aMonic Q i β a).degree ≤ degA Q i β a := by
+  have hl := lead_fSplit_gPol (Q := Q) i β a hsym hQ ha
+  rw [Polynomial.degree_le_iff_coeff_zero]
+  intro n hn
+  rw [aMonic, Polynomial.coeff_smul, coeff_theta_aPrime]
+  have hn' : degA Q i β a < n := by exact_mod_cast hn
+  rw [Finset.sum_eq_zero fun s _ => ?_, smul_zero]
+  rw [Polynomial.coeff_eq_zero_of_natDegree_lt ((hl s).2.symm ▸ hn'), map_zero, zero_mul]
+
+/-- The coefficient at the expected degree is one, including for zero coefficient rings. -/
+theorem coeff_aMonic_degA (hsym : ∀ a b, a ≠ b → Q b a = MvPolynomial.rename ![1, 0] (Q a b))
+    (hQ : ∀ a b : I, a ≠ b → IsUnit (polyInY (Q a b)).leadingCoeff) (ha : (a i).Monic) :
+    (aMonic Q i β a).coeff (degA Q i β a) = 1 := by
+  have hl := lead_fSplit_gPol (Q := Q) i β a hsym hQ ha
+  rw [aMonic, Polynomial.coeff_smul, coeff_theta_aPrime]
+  have : ∀ s : Seq β, (pol ((fSplit (k := k) i β (gPol Q i β a s)).coeff (degA Q i β a)) * e s :
+      Rb) = algebraMap k Rb (lamA Q i β) * e s := fun s => by
+    rw [← (hl s).2, Polynomial.coeff_natDegree, (hl s).1, MvPolynomial.algHom_C]
+  rw [Finset.sum_congr rfl fun s _ => this s, ← Finset.mul_sum, sum_e, mul_one, Algebra.smul_def,
+    ← map_mul, Ring.inverse_mul_cancel _ (isUnit_lamA i β hQ), map_one]
+
+/-- `M = λ⁻¹ θ(A)` is monic. -/
 theorem monic_aMonic (hsym : ∀ a b, a ≠ b → Q b a = MvPolynomial.rename ![1, 0] (Q a b))
     (hQ : ∀ a b : I, a ≠ b → IsUnit (polyInY (Q a b)).leadingCoeff) (ha : (a i).Monic) :
-    (aMonic Q i β a).Monic := by
-  have hl := lead_fSplit_gPol (Q := Q) i β a hsym hQ ha
-  refine Polynomial.monic_of_degree_le (degA Q i β a) ?_ ?_
-  · rw [Polynomial.degree_le_iff_coeff_zero]
-    intro n hn
-    rw [aMonic, Polynomial.coeff_smul, coeff_theta_aPrime]
-    have hn' : degA Q i β a < n := by exact_mod_cast hn
-    rw [Finset.sum_eq_zero fun s _ => ?_, smul_zero]
-    rw [Polynomial.coeff_eq_zero_of_natDegree_lt ((hl s).2.symm ▸ hn'), map_zero, zero_mul]
-  · rw [aMonic, Polynomial.coeff_smul, coeff_theta_aPrime]
-    have : ∀ s : Seq β, (pol ((fSplit (k := k) i β (gPol Q i β a s)).coeff (degA Q i β a)) * e s :
-        Rb) = algebraMap k Rb (lamA Q i β) * e s := fun s => by
-      rw [← (hl s).2, Polynomial.coeff_natDegree, (hl s).1, MvPolynomial.algHom_C]
-    rw [Finset.sum_congr rfl fun s _ => this s, ← Finset.mul_sum, sum_e, mul_one, Algebra.smul_def,
-      ← map_mul, Ring.inverse_mul_cancel _ (isUnit_lamA i β hQ),
-      map_one]
+    (aMonic Q i β a).Monic :=
+  Polynomial.monic_of_degree_le (degA Q i β a)
+    (degree_aMonic_le i β a hsym hQ ha) (coeff_aMonic_degA i β a hsym hQ ha)
 
 /-- `M` is central in `R(β)[t]`. -/
 theorem aMonic_comm (hPQ : ∀ a b, a ≠ b → Q a b = P b a * MvPolynomial.rename ![1, 0] (P a b))

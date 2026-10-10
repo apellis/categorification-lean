@@ -386,6 +386,7 @@ relation** (`RouqLoc.infGrass`), with no condition on `End(1_λ)`.
 | Dotted curls through the boundary degree | Same, Lem. 4.1 | `curlG_dotted`, `curlEG_dotted` | Same | Proved |
 | Upward-strand left-adjunction triangle | Same, Thm. 4.3 | `leftAdj_triangle_E`, `rightZigzag_left` | Adjacent Rouquier data, nilHecke squares and braid; no grading | Proved |
 | Left adjunction with the prescribed cup and cap | Same, Thm. 4.3 | `leftZigzag_left`, `leftAdjunction` | Same; right-mate reflection gives the downward triangle | Proved |
+| Dot cyclicity at every weight | Same, Lem. 5.1 and Thm. 5.3 (5.6) | `cyclic_dot`, `cupL_dot`, `capL_dot` | Same; inverse-component cancellation and the left adjunction | Proved |
 | Leftward pitchforks in the specified weight ranges | Same, Lem. 4.2 | `capL_pitchfork_of_neg`, `cupL_pitchfork_of_gt_neg_two` | Adjacent Rouquier data, nilHecke squares and braid; preadditive Hom categories and additive whiskering | Proved |
 
 `TwoRep/ShiftedMates.lean` constructs mates from an explicit adjunction, preserving degree

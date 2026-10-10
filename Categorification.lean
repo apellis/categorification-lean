@@ -285,6 +285,7 @@ import Categorification.KLR.CyclotomicProj
 import Categorification.KLR.CyclotomicDiv
 import Categorification.KLR.CyclotomicSplit
 import Categorification.KLR.CyclotomicK0
+import Categorification.KLR.CyclotomicProjective
 import Categorification.KLR.DividedPowerCharacters
 import Categorification.KLR.DividedPowerDecomposition
 import Categorification.KLR.DividedPowerIdempotents

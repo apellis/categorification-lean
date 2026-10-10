@@ -316,6 +316,7 @@ import Categorification.KLR.CyclotomicLowerP
 import Categorification.KLR.CyclotomicLowerSquare
 import Categorification.KLR.CyclotomicLowerExactOne
 import Categorification.KLR.CyclotomicLowerExactZero
+import Categorification.KLR.CyclotomicLowerSplitColumns
 import Categorification.KLR.DividedPowerCharacters
 import Categorification.KLR.DividedPowerDecomposition
 import Categorification.KLR.DividedPowerIdempotents

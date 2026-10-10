@@ -480,6 +480,7 @@ import Categorification.TwoRep.PresGrading
 import Categorification.TwoRep.Rank
 import Categorification.TwoRep.RightwardCrossing
 import Categorification.TwoRep.RouqCurl
+import Categorification.TwoRep.RouqDottedCurls
 import Categorification.TwoRep.RouqDual
 import Categorification.TwoRep.RouqGrass
 import Categorification.TwoRep.RouqSl2

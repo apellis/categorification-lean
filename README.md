@@ -383,6 +383,7 @@ relation** (`RouqLoc.infGrass`), with no condition on `End(1_λ)`.
 | Inverse cup and cap components | Brundan arXiv:1501.00350v1, Cor. 3.3 | `cupN_expansion`, `capN_expansion` | Rouquier data; preadditive Hom categories and additive whiskering; no grading | Proved |
 | Decompositions with bubble coefficients | Same, Cor. 3.4 | `decompEF`, `decompFE` | Same | Proved |
 | Capped and cupped rightward crossings | Same, Cor. 3.5 | `sig_capL_expansion`, `cupL_sig_expansion` | Same | Proved |
+| Dotted curls through the boundary degree | Same, Lem. 4.1 | `curlG_dotted`, `curlEG_dotted` | Same | Proved |
 
 `TwoRep/ShiftedMates.lean` constructs mates from an explicit adjunction, preserving degree
 while reversing composition (`mateSh_comp`), with identity, additive and injectivity laws.

@@ -39,6 +39,7 @@ import Categorification.Algebra.PermExpansion
 import Categorification.Algebra.SplitK0
 import Categorification.Algebra.SymmetricFree
 import Categorification.Diagrams.BicatInterp
+import Categorification.Diagrams.BicatInterpAdmissible
 import Categorification.Diagrams.BicatInterpPull
 import Categorification.Diagrams.BicatInterpPseudo
 import Categorification.Diagrams.BicatInterpPush
@@ -494,6 +495,7 @@ import Categorification.TwoRep.RightwardCrossing
 import Categorification.TwoRep.RouqAdjunction
 import Categorification.TwoRep.RouqCyclicCross
 import Categorification.TwoRep.RouqModel
+import Categorification.TwoRep.RouqInterp
 import Categorification.TwoRep.RouqCyclicDot
 import Categorification.TwoRep.RouqCurl
 import Categorification.TwoRep.RouqDottedCurls

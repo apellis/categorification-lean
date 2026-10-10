@@ -297,6 +297,7 @@ import Categorification.KLR.CyclotomicPsi
 import Categorification.KLR.CyclotomicBLeading
 import Categorification.KLR.CyclotomicBProduct
 import Categorification.KLR.CyclotomicS
+import Categorification.KLR.CyclotomicSCentral
 import Categorification.KLR.DividedPowerCharacters
 import Categorification.KLR.DividedPowerDecomposition
 import Categorification.KLR.DividedPowerIdempotents

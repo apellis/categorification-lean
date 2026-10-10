@@ -300,6 +300,8 @@ import Categorification.KLR.CyclotomicS
 import Categorification.KLR.CyclotomicSCentral
 import Categorification.KLR.CyclotomicBalanced
 import Categorification.KLR.CyclotomicAB
+import Categorification.KLR.CyclotomicMonic
+import Categorification.KLR.CyclotomicPQ
 import Categorification.KLR.DividedPowerCharacters
 import Categorification.KLR.DividedPowerDecomposition
 import Categorification.KLR.DividedPowerIdempotents

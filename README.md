@@ -366,6 +366,18 @@ adjunctions of `E 1_{-3}`, it is a closed diagram on an endomorphism of `E E 1_{
 (CL Corollary 3.2 for `n ≤ 0`). Hence **CL Proposition 3.9 holds at every weight**
 (`StrongSl2.adjHyp`), assuming shift coherence and Hom-finite, idempotent-complete Hom categories.
 
+`TwoRep/RouqSl2.lean` starts Brundan's theorem (arXiv:1501.00350v1) **without grading
+hypotheses**: in any bicategory with preadditive Hom categories, `RouqLoc` is Rouquier's data at
+one weight `h` (right adjunctions `E ⊣ F`, dots, a crossing with the dot slides, and explicit
+inverses of Rouquier's maps (1.8)/(1.9)) and `RouqSl2` the data along a weight string. From the
+inverses it defines the leftward crossing, the `♠`-cups and `♣`-caps, the leftward cup and cap
+(Brundan (1.14)–(1.18)) and the dotted bubbles of all integer degrees ((3.8), (3.9)), and proves
+Brundan Lemmas 2.1 and 3.1. `TwoRep/RouqDual.lean` realizes Brundan's Chevalley involution
+(Theorem 2.3) as `RouqLoc.dual`, data at the weight `-h` in the bidual, with the dictionary
+exchanging cups and caps, `♠` and `♣`, and clockwise and counter-clockwise bubbles ((3.4),
+(3.10)). `TwoRep/RouqGrass.lean` proves **Brundan Theorem 3.2, the infinite Grassmannian
+relation** (`RouqLoc.infGrass`), with no condition on `End(1_λ)`.
+
 `TwoRep/ShiftedMates.lean` constructs mates from an explicit adjunction, preserving degree
 while reversing composition (`mateSh_comp`), with identity, additive and injectivity laws.
 Scalar compatibility uses explicit linear Hom/whiskering/shift hypotheses.

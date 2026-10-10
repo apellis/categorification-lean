@@ -5,10 +5,10 @@ Released under Apache 2.0 license as described in the file LICENSE.
 import Categorification.KLR.CyclotomicDiv
 
 /-!
-# The polynomial algebra behind Kang–Kashiwara Proposition 5.4
+# The polynomial algebra behind Kang–Kashiwara Proposition 5.3
 
 S.-J. Kang, M. Kashiwara, *Categorification of highest weight modules via
-Khovanov–Lauda–Rouquier algebras*, arXiv:1102.4677v4, §5.2: Lemma 5.5 and Proposition 5.4, and
+Khovanov–Lauda–Rouquier algebras*, arXiv:1102.4677v4, §5.2: Lemma 5.5 and Proposition 5.3, and
 the two consequences for the map `A` used at the end of the proof of Theorem 5.2.
 
 In KK, `A : R^Λ(β)[t_i] → R^Λ(β)[t_i]` is a right `R^Λ(β)`-linear map obtained by a diagram chase,
@@ -19,7 +19,7 @@ with `A(a t_i) − A(a) t_i ∈ R^Λ(β)` for all `a` (KK (5.11)) and `A(t_i^k S
 
 * `degree_sub_mul_lt` (KK (5.12)): `A(a f) − A(a) f` has degree `< deg f`;
 * `apply_X_pow_eq` (**KK Lemma 5.5**): `A(t^k) = c · ((t^k F) /ₘ S)`;
-* `phi_spec` (**KK Proposition 5.4**): with `e = deg S − deg F` and `l = deg F − deg S`
+* `phi_spec` (**KK Proposition 5.3**): with `e = deg S − deg F` and `l = deg F − deg S`
   (truncated subtraction), `A(t^k) = 0` for `k < e`, and for `k ≥ e`, `c⁻¹ A(t^k)` is monic of
   degree `k − e + l = k + deg F − deg S`;
 * triangularity of such a map (`natDegree_apply`, `apply_eq_zero_iff`,
@@ -249,7 +249,7 @@ theorem degree_lt_of_apply_add_eq_zero {p r : R[X]} (hr : r.degree < l) (h : A p
 
 end Triangular
 
-/-! ### KK Proposition 5.4 -/
+/-! ### KK Proposition 5.3 -/
 
 theorem monic_divByMonic {p : R[X]} (hp : p.Monic) (hS : S.Monic) (h : S.natDegree ≤ p.natDegree) :
     (p /ₘ S).Monic := by
@@ -272,7 +272,7 @@ theorem monic_divByMonic {p : R[X]} (hp : p.Monic) (hS : S.Monic) (h : S.natDegr
   rw [Monic, ← leadingCoeff_monic_mul hS, ← leadingCoeff_add_of_degree_lt hdeg, hsplit]
   exact hp
 
-/-- **KK Proposition 5.4**, in the form used for Theorem 5.2: with `e = deg S − deg F` and
+/-- **KK Proposition 5.3**, in the form used for Theorem 5.2: with `e = deg S − deg F` and
 `l = deg F − deg S` (truncated), `A(t^j) = 0` for `j < e`, and for `j ≥ e`, `c⁻¹ A(t^j)` is monic
 of degree `j − e + l = j + deg F − deg S`. -/
 theorem phi_spec [Nontrivial R] (hC : ∀ p (r : R), A (p * C r) = A p * C r)

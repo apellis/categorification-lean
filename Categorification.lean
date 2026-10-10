@@ -408,10 +408,12 @@ import Categorification.TwoRep.Basic
 import Categorification.TwoRep.Biadjoint
 import Categorification.TwoRep.CLTwoFunctor
 import Categorification.TwoRep.CLTwoFunctorDot
+import Categorification.TwoRep.CLTwoFunctorDotGraded
 import Categorification.TwoRep.CLTwoFunctorGraded
 import Categorification.TwoRep.CLTwoFunctorGradedCoh
 import Categorification.TwoRep.CLTwoFunctorShift
 import Categorification.TwoRep.DotExtension
+import Categorification.TwoRep.DotExtensionShift
 import Categorification.TwoRep.CisBub
 import Categorification.TwoRep.CisBubRight
 import Categorification.TwoRep.Coop

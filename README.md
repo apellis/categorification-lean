@@ -396,6 +396,7 @@ relation** (`RouqLoc.infGrass`), with no condition on `End(1_λ)`.
 
 | Theorem | Declarations | Hypotheses | Status |
 | --- | --- | --- | --- |
+| Single-colour cyclicity in the ungraded admissible interpretation | `TwoRep.RouqFamily.cycDotR_rel`, `cycDotL_rel`, `cycCrossR_rel`, `cycCrossL_rel` | Ungraded Rouquier family; commutative scalar ring; no zero objects, grading, or finiteness | Both dot and both same-colour crossing relations of `presNM` proved; the remaining presentation relations are separate |
 | Zigzag relations in the ungraded admissible interpretation | `TwoRep.RouqFamily.zigL_eq`, `zigR_eq`, `zigL_rel`, `zigR_rel` | The ungraded Rouquier family and a commutative scalar ring; no zero objects | Proved for every oriented strand; uses the derived left adjunction |
 | Free and linear interpretation on admissible words | `Diagrams.BicatInterp.admissibleInterp`, `admissibleMap_comp`, `admissibleLinearInterp`; `TwoRep.RouqFamily.interp`, `linearInterp` | A bicategorical generator model; preadditive and linear Hom categories for the linear extension; no zero objects | Proved, including comparison with the total interpretation where available; presentation descent and pseudofunctor assembly remain |
 

@@ -3,7 +3,7 @@ Copyright (c) 2026 Alex Ellis. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 -/
 import Categorification.TwoRep.CLTwoFunctorShift
-import Categorification.TwoRep.KarRealize
+import Categorification.TwoRep.DotExtension
 
 /-!
 # CL Theorem 1.1: a 2-functor from the Karoubi completion of `U_Q(g)`
@@ -29,7 +29,13 @@ Here:
 `QStrong.twoFunctorDot : UQDot RD S₀ ⥤ᵖ B` is the extension of `QStrong.twoFunctorShift`: first to
 formal direct sums (`MatBicat.mapPseudofunctor`), then to idempotents
 (`KarBicat.mapPseudofunctor`), and realized in `B`, where formal direct sums are biproducts
-(`MatBicat.realize`) and idempotents split (`KarBicat.realize`).
+(`MatBicat.realize`) and idempotents split (`KarBicat.realize`); this is the general construction
+`DotExt.ext` of `Categorification.TwoRep.DotExtension`.
+
+`twoFunctorDot` extends `twoFunctorShift` as a pseudofunctor: the isomorphisms
+`twoFunctorDotInclIso x : twoFunctorDot ((x), 1) ≅ twoFunctorShift x` are natural in 2-morphisms
+(`twoFunctorDotInclIso_naturality`) and compatible with the composition and identity constraints
+(`twoFunctorDotInclIso_mapComp`, `twoFunctorDotInclIso_mapId`).
 -/
 
 noncomputable section
@@ -93,49 +99,6 @@ theorem presPseudo_map₂_smul {C' : Type*} [Bicategory C'] [∀ a b : C', Pread
       r • (P.lift (hP b.as.region a.as.region)).map η from Functor.map_smul _ _ _,
     Linear.smul_comp, Linear.comp_smul]
 
-theorem comp_map₂_add {A' C₁ D₁ : Type*} [Bicategory A'] [Bicategory C₁] [Bicategory D₁]
-    [∀ a b : A', Preadditive (a ⟶ b)] [∀ a b : C₁, Preadditive (a ⟶ b)]
-    [∀ a b : D₁, Preadditive (a ⟶ b)] (F : Pseudofunctor A' C₁) (G : Pseudofunctor C₁ D₁)
-    (hF : ∀ {a b : A'} {f g : a ⟶ b} (η θ : f ⟶ g), F.map₂ (η + θ) = F.map₂ η + F.map₂ θ)
-    (hG : ∀ {a b : C₁} {f g : a ⟶ b} (η θ : f ⟶ g), G.map₂ (η + θ) = G.map₂ η + G.map₂ θ)
-    {a b : A'} {f g : a ⟶ b} (η θ : f ⟶ g) :
-    (F.comp G).map₂ (η + θ) = (F.comp G).map₂ η + (F.comp G).map₂ θ := by
-  show G.map₂ (F.map₂ (η + θ)) = G.map₂ (F.map₂ η) + G.map₂ (F.map₂ θ)
-  rw [hF, hG]
-
-theorem comp_map₂_smul {A' C₁ D₁ : Type*} [Bicategory A'] [Bicategory C₁] [Bicategory D₁]
-    [∀ a b : A', Preadditive (a ⟶ b)] [∀ a b : C₁, Preadditive (a ⟶ b)]
-    [∀ a b : D₁, Preadditive (a ⟶ b)] [∀ a b : A', Linear R (a ⟶ b)]
-    [∀ a b : C₁, Linear R (a ⟶ b)] [∀ a b : D₁, Linear R (a ⟶ b)]
-    (F : Pseudofunctor A' C₁) (G : Pseudofunctor C₁ D₁)
-    (hF : ∀ {a b : A'} {f g : a ⟶ b} (r : R) (η : f ⟶ g), F.map₂ (r • η) = r • F.map₂ η)
-    (hG : ∀ {a b : C₁} {f g : a ⟶ b} (r : R) (η : f ⟶ g), G.map₂ (r • η) = r • G.map₂ η)
-    {a b : A'} {f g : a ⟶ b} (r : R) (η : f ⟶ g) :
-    (F.comp G).map₂ (r • η) = r • (F.comp G).map₂ η := by
-  show G.map₂ (F.map₂ (r • η)) = r • G.map₂ (F.map₂ η)
-  rw [hF, hG]
-
-/-- A biproduct over `PUnit`. -/
-def biprodPUnitIso {D : Type*} [Category D] [Preadditive D] [HasFiniteBiproducts D] (X : D) :
-    ⨁ (fun _ : PUnit => X) ≅ X where
-  hom := biproduct.π (fun _ : PUnit => X) PUnit.unit
-  inv := biproduct.ι (fun _ : PUnit => X) PUnit.unit
-  hom_inv_id := by
-    rw [← biproduct.total, Fintype.sum_unique]
-  inv_hom_id := biproduct.ι_π_self _ _
-
-theorem biprodPUnit_aux {D : Type*} [Category D] [Preadditive D] [HasFiniteBiproducts D]
-    {X Y : D} (φ : X ⟶ Y) :
-    (biproduct.π (fun _ : PUnit => X) PUnit.unit ≫ φ ≫ biproduct.ι (fun _ : PUnit => Y) PUnit.unit) ≫
-        (biprodPUnitIso Y).hom ≫ 𝟙 Y =
-      ((biprodPUnitIso X).hom ≫ 𝟙 X) ≫ φ := by
-  simp [biprodPUnitIso]
-
-theorem iso_conj_aux {𝒞 : Type*} [Category 𝒞] {A A' B B' Z Z' : 𝒞} (R : A ≅ A') (R' : B ≅ B')
-    (k : A' ⟶ B') (m' : B' ⟶ Z) (m : A' ⟶ Z') (n : Z' ⟶ Z) (h : k ≫ m' = m ≫ n) :
-    (R.hom ≫ k ≫ R'.inv) ≫ (R'.hom ≫ m') = (R.hom ≫ m) ≫ n := by
-  simp [h]
-
 end Generic
 
 variable {k : Type*} [Field k] {B : Type u} [Bicategory.{w, v} B]
@@ -198,112 +161,82 @@ theorem twoFunctorShift_map₂_smul {a b : UQShift RD S₀} {f g : a ⟶ b} (r :
     (twoFunctorShift S₀ S hrQ).map₂ (r • η) = r • (twoFunctorShift S₀ S hrQ).map₂ η :=
   realize_map₂_smul _ (shiftHOM_map₂_smul S₀ S hrQ) r η
 
+theorem twoFunctorShift_addHyp : DotExt.AddHyp (twoFunctorShift S₀ S hrQ) :=
+  ⟨fun η θ => twoFunctorShift_map₂_add S₀ S hrQ η θ⟩
+
 /-- The pseudofunctor into the Karoubi envelope of `B` realized by `twoFunctorDot`: the extension
 of `twoFunctorShift` to formal direct sums and idempotents, followed by the realization of formal
 direct sums in `B`. -/
 abbrev kQ : Pseudofunctor (UQDot RD S₀) (StringDiagrams.KarBicat B) :=
-  (KarBicat.mapPseudofunctor (MatBicat.mapPseudofunctor (twoFunctorShift S₀ S hrQ)
-    (twoFunctorShift_map₂_add S₀ S hrQ))).comp
-    (KarBicat.mapPseudofunctor (MatBicat.realize (Pseudofunctor.id (StringDiagrams.MatBicat B))))
-
-set_option maxHeartbeats 2000000 in
-theorem kQ_map₂_add {a b : UQDot RD S₀} {f g : a ⟶ b} (η θ : f ⟶ g) :
-    (kQ S₀ S hrQ).map₂ (η + θ) = (kQ S₀ S hrQ).map₂ η + (kQ S₀ S hrQ).map₂ θ :=
-  comp_map₂_add _ _
-    (KarBicat.mapPseudofunctor_map₂_add _
-      (MatBicat.mapPseudofunctor_map₂_add _ (twoFunctorShift_map₂_add S₀ S hrQ)))
-    (KarBicat.mapPseudofunctor_map₂_add _ (MatBicat.realize_map₂_add _ (fun _ _ => rfl))) η θ
-
-set_option maxHeartbeats 2000000 in
-theorem kQ_map₂_smul {a b : UQDot RD S₀} {f g : a ⟶ b} (r : k) (η : f ⟶ g) :
-    (kQ S₀ S hrQ).map₂ (r • η) = r • (kQ S₀ S hrQ).map₂ η :=
-  comp_map₂_smul _ _
-    (KarBicat.mapPseudofunctor_map₂_smul _
-      (MatBicat.mapPseudofunctor_map₂_smul _ _ (twoFunctorShift_map₂_smul S₀ S hrQ)))
-    (KarBicat.mapPseudofunctor_map₂_smul _ (MatBicat.realize_map₂_smul _ (fun _ _ => rfl))) r η
+  DotExt.kar (twoFunctorShift S₀ S hrQ) (twoFunctorShift_addHyp S₀ S hrQ)
 
 include hrQ in
 /-- **CL Theorem 1.1** (arXiv:1111.1431v3, §1.2, for every symmetrizable Cartan datum, under CL's
 hypotheses only): a `Q`-strong 2-representation (Definition 1.2) whose KLR action is given by CL's
 polynomials `Q = qCL S₀` and scalars `r_i = S₀.r i` extends to a 2-representation of `U̇_{S₀}(g)`:
 a pseudofunctor from the Karoubi completion `UQDot RD S₀` of `U_{S₀}(g)` to the target bicategory
-`B`. -/
-def twoFunctorDot : Pseudofunctor (UQDot RD S₀) B :=
-  KarBicat.realize (kQ S₀ S hrQ)
+`B` (the extension `DotExt.ext` of `twoFunctorShift` to the additive Karoubi envelope). -/
+abbrev twoFunctorDot : Pseudofunctor (UQDot RD S₀) B :=
+  DotExt.ext (twoFunctorShift S₀ S hrQ) (twoFunctorShift_addHyp S₀ S hrQ)
+
+example : twoFunctorDot S₀ S hrQ = (twoFunctorDot S₀ S hrQ : Pseudofunctor (UQDot RD S₀) B) := rfl
 
 /-- `twoFunctorDot` is additive on 2-morphisms. -/
 theorem twoFunctorDot_map₂_add {a b : UQDot RD S₀} {f g : a ⟶ b} (η θ : f ⟶ g) :
     (twoFunctorDot S₀ S hrQ).map₂ (η + θ) =
       (twoFunctorDot S₀ S hrQ).map₂ η + (twoFunctorDot S₀ S hrQ).map₂ θ :=
-  KarBicat.realize_map₂_add _ (kQ_map₂_add S₀ S hrQ) η θ
+  DotExt.ext_map₂_add _ _ η θ
 
 /-- `twoFunctorDot` is `k`-linear on 2-morphisms. -/
 theorem twoFunctorDot_map₂_smul {a b : UQDot RD S₀} {f g : a ⟶ b} (r : k) (η : f ⟶ g) :
     (twoFunctorDot S₀ S hrQ).map₂ (r • η) = r • (twoFunctorDot S₀ S hrQ).map₂ η :=
-  KarBicat.realize_map₂_smul _ (kQ_map₂_smul S₀ S hrQ) r η
+  DotExt.ext_map₂_smul _ _ (twoFunctorShift_map₂_smul S₀ S hrQ) r η
 
 /-! ### `twoFunctorDot` extends `twoFunctorShift` -/
 
 variable (RD) in
 /-- The inclusion of `U_Q(g)` before direct sums into its Karoubi completion: `x ↦ ((x), 1)`. -/
 abbrev inclDot : Pseudofunctor (UQShift RD S₀) (UQDot RD S₀) :=
-  (MatBicat.toMat (UQShift RD S₀)).comp (KarBicat.toKar (StringDiagrams.MatBicat (UQShift RD S₀)))
-
-theorem kQ_map_inclDot_p {a b : UQShift RD S₀} (x : a ⟶ b) :
-    ((kQ S₀ S hrQ).map ((inclDot RD S₀).map x)).p = 𝟙 _ := by
-  show (MatBicat.realize (Pseudofunctor.id _)).map₂
-    ((MatBicat.mapPseudofunctor (twoFunctorShift S₀ S hrQ)
-      (twoFunctorShift_map₂_add S₀ S hrQ)).map₂ (𝟙 _)) = 𝟙 _
-  rw [PrelaxFunctor.map₂_id, PrelaxFunctor.map₂_id]
+  DotExt.incl (UQShift RD S₀)
 
 /-- **`twoFunctorDot` extends `twoFunctorShift`** on 1-morphisms: the image of the inclusion of
 `x` is isomorphic to `twoFunctorShift x`. -/
-def twoFunctorDotInclIso {a b : UQShift RD S₀} (x : a ⟶ b) :
+abbrev twoFunctorDotInclIso {a b : UQShift RD S₀} (x : a ⟶ b) :
     (twoFunctorDot S₀ S hrQ).map ((inclDot RD S₀).map x) ≅ (twoFunctorShift S₀ S hrQ).map x :=
-  (Idempotents.fullyFaithfulToKaroubi _).preimageIso
-    (KarBicat.realizeIso (kQ S₀ S hrQ) ((inclDot RD S₀).map x) ≪≫
-      StringDiagrams.Karoubi.mkIso (biprodPUnitIso ((twoFunctorShift S₀ S hrQ).map x)) (by
-        rw [kQ_map_inclDot_p]
-        exact (Category.id_comp _).trans (Category.comp_id _).symm))
+  DotExt.inclIso _ _ x
 
-theorem matRealize_map₂_mat1 {a' b' : B} {f g : a' ⟶ b'} (φ : f ⟶ g) :
-    (MatBicat.realize (Pseudofunctor.id (StringDiagrams.MatBicat B))).map₂ (MatBicat.mat1 φ) =
-      biproduct.π (fun _ : PUnit => f) PUnit.unit ≫ φ ≫
-        biproduct.ι (fun _ : PUnit => g) PUnit.unit := by
-  show ((MatBicat.matIsoC (StringDiagrams.MatBicat.single f)).hom ≫ MatBicat.mat1 φ ≫
-    (MatBicat.matIsoC (StringDiagrams.MatBicat.single g)).inv) PUnit.unit PUnit.unit = _
-  rw [CategoryTheory.Mat_.comp_apply, Fintype.sum_unique, CategoryTheory.Mat_.comp_apply,
-    Fintype.sum_unique]
-  rfl
-
-theorem kQ_map₂_inclDot {a b : UQShift RD S₀} {x y : a ⟶ b} (η : x ⟶ y) :
-    (kQ S₀ S hrQ).map₂ ((inclDot RD S₀).map₂ η) ≫
-        (StringDiagrams.Karoubi.mkIso (biprodPUnitIso ((twoFunctorShift S₀ S hrQ).map y))
-          (by rw [kQ_map_inclDot_p]
-              exact (Category.id_comp _).trans (Category.comp_id _).symm)).hom =
-      (StringDiagrams.Karoubi.mkIso (biprodPUnitIso ((twoFunctorShift S₀ S hrQ).map x))
-          (by rw [kQ_map_inclDot_p]
-              exact (Category.id_comp _).trans (Category.comp_id _).symm)).hom ≫
-        (KarBicat.toKar B).map₂ ((twoFunctorShift S₀ S hrQ).map₂ η) := by
-  apply Idempotents.Karoubi.hom_ext
-  show (MatBicat.realize (Pseudofunctor.id (StringDiagrams.MatBicat B))).map₂
-      (MatBicat.mat1 ((twoFunctorShift S₀ S hrQ).map₂ η)) ≫
-        (biprodPUnitIso ((twoFunctorShift S₀ S hrQ).map y)).hom ≫ 𝟙 _ =
-      ((biprodPUnitIso ((twoFunctorShift S₀ S hrQ).map x)).hom ≫ 𝟙 _) ≫
-        (twoFunctorShift S₀ S hrQ).map₂ η
-  rw [matRealize_map₂_mat1]
-  exact biprodPUnit_aux
-    (D := (twoFunctorShift S₀ S hrQ).obj a ⟶ (twoFunctorShift S₀ S hrQ).obj b) _
-
-set_option maxHeartbeats 4000000 in
 /-- **Naturality**: the isomorphisms `twoFunctorDotInclIso` intertwine `twoFunctorDot` on the
 image of a 2-morphism and `twoFunctorShift`. -/
 theorem twoFunctorDotInclIso_naturality {a b : UQShift RD S₀} {x y : a ⟶ b} (η : x ⟶ y) :
     (twoFunctorDot S₀ S hrQ).map₂ ((inclDot RD S₀).map₂ η) ≫
         (twoFunctorDotInclIso S₀ S hrQ y).hom =
       (twoFunctorDotInclIso S₀ S hrQ x).hom ≫ (twoFunctorShift S₀ S hrQ).map₂ η := by
-  exact congrArg Idempotents.Karoubi.Hom.f
-    (iso_conj_aux _ _ _ _ _ _ (kQ_map₂_inclDot S₀ S hrQ η))
+  -- The two types agree up to the normalization of universe levels (see `kernel_exact`).
+  kernel_exact DotExt.inclIso_naturality (twoFunctorShift S₀ S hrQ)
+    (twoFunctorShift_addHyp S₀ S hrQ) η
+
+/-- **Compatibility with the composition constraints**: under `twoFunctorDotInclIso`, the
+composition constraint of `twoFunctorDot` at the inclusions of `x` and `y` is that of
+`twoFunctorShift` at `(x, y)`. -/
+theorem twoFunctorDotInclIso_mapComp {a b c : UQShift RD S₀} (x : a ⟶ b) (y : b ⟶ c) :
+    ((twoFunctorDot S₀ S hrQ).mapComp ((inclDot RD S₀).map x) ((inclDot RD S₀).map y)).hom ≫
+        (twoFunctorDotInclIso S₀ S hrQ x).hom ▷
+            (twoFunctorDot S₀ S hrQ).map ((inclDot RD S₀).map y) ≫
+          (twoFunctorShift S₀ S hrQ).map x ◁ (twoFunctorDotInclIso S₀ S hrQ y).hom =
+      (twoFunctorDot S₀ S hrQ).map₂ ((inclDot RD S₀).mapComp x y).inv ≫
+        (twoFunctorDotInclIso S₀ S hrQ (x ≫ y)).hom ≫
+          ((twoFunctorShift S₀ S hrQ).mapComp x y).hom := by
+  kernel_exact DotExt.inclIso_mapComp (twoFunctorShift S₀ S hrQ)
+    (twoFunctorShift_addHyp S₀ S hrQ) x y
+
+/-- **Compatibility with the identity constraints**: under `twoFunctorDotInclIso`, the identity
+constraint of `twoFunctorDot` at the inclusion of `a` is that of `twoFunctorShift`. -/
+theorem twoFunctorDotInclIso_mapId (a : UQShift RD S₀) :
+    (twoFunctorDot S₀ S hrQ).map₂ ((inclDot RD S₀).mapId a).hom ≫
+        ((twoFunctorDot S₀ S hrQ).mapId ((inclDot RD S₀).obj a)).hom =
+      (twoFunctorDotInclIso S₀ S hrQ (𝟙 a)).hom ≫ ((twoFunctorShift S₀ S hrQ).mapId a).hom := by
+  kernel_exact DotExt.inclIso_mapId (twoFunctorShift S₀ S hrQ)
+    (twoFunctorShift_addHyp S₀ S hrQ) a
 
 end QStrong
 

@@ -19,7 +19,7 @@ Karoubi completion (`QStrong.shiftDot`, entrywise). This file proves:
 * `QStrong.twoFunctorDotShiftIso`: on each hom category, `twoFunctorDot` commutes with the shift
   of `U̇_Q(g)`, naturally (an isomorphism of functors, obtained from the previous one by the
   universal properties of the additive envelope, `MatExtGen.ext`, and of the Karoubi envelope,
-  `KarMatExt.ext`).
+  `KarMatExt.ext`; the general statement is `DotExt.extNatIso`).
 -/
 
 noncomputable section
@@ -117,125 +117,6 @@ end TwoRep.GradedHomCat
 
 
 
-/-! ## Isomorphisms of additive functors out of an additive envelope, in any universes
-
-`Mathlib`'s `Mat_.ext` asks the source and target categories to live in the same universes; the
-statements below are the same with arbitrary universes (same proofs). -/
-
-namespace MatExtGen
-
-open Mat_
-
-universe v₁ v₂ u₂ u₃
-
-variable {C : Type u₂} [Category.{v₁} C] [Preadditive C] {D : Type u₃} [Category.{v₂} D]
-  [Preadditive D]
-
-/-- Every `F M` is the biproduct of the images of the summands of `M`. -/
-def addIso (F : Mat_ C ⥤ D) [F.Additive] [HasFiniteBiproducts D] (M : Mat_ C) :
-    F.obj M ≅ ⨁ fun i => F.obj ((embedding C).obj (M.X i)) :=
-  F.mapIso (isoBiproductEmbedding M) ≪≫ F.mapBiproduct _
-
-variable [HasFiniteBiproducts D]
-
-set_option backward.isDefEq.respectTransparency.types false in
-set_option backward.defeqAttrib.useBackward true in
-@[reassoc (attr := simp)]
-lemma addIso_hom_π (F : Mat_ C ⥤ D) [F.Additive] (M : Mat_ C) (i : M.ι) :
-    (addIso F M).hom ≫ biproduct.π _ i = F.map (M.isoBiproductEmbedding.hom ≫ biproduct.π _ i) := by
-  dsimp [addIso]
-  rw [biproduct.lift_π, Category.assoc]
-  erw [biproduct.lift_π, ← F.map_comp]
-  simp
-
-set_option backward.defeqAttrib.useBackward true in
-set_option backward.isDefEq.respectTransparency false in
-@[reassoc (attr := simp)]
-lemma ι_addIso_inv (F : Mat_ C ⥤ D) [F.Additive] (M : Mat_ C) (i : M.ι) :
-    biproduct.ι _ i ≫ (addIso F M).inv = F.map (biproduct.ι _ i ≫ M.isoBiproductEmbedding.inv) := by
-  dsimp [addIso, Functor.mapBiproduct, Functor.mapBicone]
-  simp only [biproduct.ι_desc, biproduct.ι_desc_assoc, ← F.map_comp]
-
-set_option backward.isDefEq.respectTransparency false in
-@[reassoc]
-theorem addIso_naturality (F : Mat_ C ⥤ D) [F.Additive] {M N : Mat_ C} (f : M ⟶ N) :
-    F.map f ≫ (addIso F N).hom =
-      (addIso F M).hom ≫ biproduct.matrix fun i j => F.map ((embedding C).map (f i j)) := by
-  classical
-  ext i : 1
-  simp only [Category.assoc, addIso_hom_π, isoBiproductEmbedding_hom,
-    biproduct.lift_π, biproduct.matrix_π,
-    ← cancel_epi (addIso F M).inv, Iso.inv_hom_id_assoc]
-  ext j : 1
-  simp only [ι_addIso_inv_assoc, isoBiproductEmbedding_inv,
-    biproduct.ι_desc, ← F.map_comp]
-  congr 1
-  funext ⟨⟩ ⟨⟩
-  simp [Mat_.comp_apply, dite_comp, comp_dite]
-
-@[reassoc]
-theorem addIso_naturality' (F : Mat_ C ⥤ D) [F.Additive] {M N : Mat_ C} (f : M ⟶ N) :
-    (addIso F M).inv ≫ F.map f =
-      biproduct.matrix (fun i j => F.map ((embedding C).map (f i j)) :) ≫ (addIso F N).inv := by
-  rw [Iso.inv_comp_eq, ← Category.assoc, Iso.eq_comp_inv, addIso_naturality]
-
-set_option backward.isDefEq.respectTransparency false in
-set_option backward.defeqAttrib.useBackward true in
-/-- **Two additive functors out of `Mat_ C` are isomorphic if their restrictions to `C` are.** -/
-def ext {F G : Mat_ C ⥤ D} [F.Additive] [G.Additive] (α : embedding C ⋙ F ≅ embedding C ⋙ G) :
-    F ≅ G :=
-  NatIso.ofComponents
-    (fun M => addIso F M ≪≫ (biproduct.mapIso fun i => α.app (M.X i)) ≪≫ (addIso G M).symm)
-    fun f => by
-      dsimp only [Iso.trans_hom, Iso.symm_hom, biproduct.mapIso_hom]
-      simp only [addIso_naturality_assoc]
-      simp only [biproduct.matrix_map_assoc, Category.assoc]
-      simp only [addIso_naturality']
-      simp only [biproduct.map_matrix_assoc]
-      congr 3
-      ext j k
-      exact α.hom.naturality (f j k)
-
-end MatExtGen
-
-/-! ## Isomorphisms of additive functors out of an additive Karoubi envelope -/
-
-namespace KarMatExt
-
-open Idempotents
-
-variable {E : Type*} [Category E] [Preadditive E] {D : Type*} [Category D] [Preadditive D]
-  [HasFiniteBiproducts D]
-
-/-- The inclusion `E ⥤ Karoubi (Mat_ E)`. -/
-abbrev incl (E : Type*) [Category E] [Preadditive E] : E ⥤ Karoubi (Mat_ E) :=
-  Mat_.embedding E ⋙ toKaroubi (Mat_ E)
-
-/-- An additive endofunctor `S` of `E`, extended to `Karoubi (Mat_ E)`, restricts to `S`. -/
-def inclShift (S : E ⥤ E) [S.Additive] :
-    incl E ⋙ mapKaroubi S.mapMat_ ≅ S ⋙ incl E :=
-  NatIso.ofComponents (fun x => StringDiagrams.Karoubi.mkIso (Iso.refl _) (by
-    show S.mapMat_.map (𝟙 _) ≫ 𝟙 _ = 𝟙 _ ≫ 𝟙 _
-    rw [CategoryTheory.Functor.map_id]))
-    (fun {x y} η => Karoubi.hom_ext _ _ (by
-      simp only [Karoubi.comp_f, StringDiagrams.Karoubi.mkIso, Iso.refl_hom, Functor.comp_map,
-        Functor.comp_obj, mapKaroubi_map_f, toKaroubi_map_f]
-      erw [StringDiagrams.Karoubi.mkHom_f, StringDiagrams.Karoubi.mkHom_f]
-      simp only [toKaroubi_obj_p]
-      repeat (first | erw [Category.id_comp] | erw [Category.comp_id])
-      apply CategoryTheory.Mat_.hom_ext
-      intro i j
-      rfl))
-
-/-- **Two additive functors out of `Karoubi (Mat_ E)` are isomorphic as soon as their restrictions
-to `E` are.** -/
-def ext {G₁ G₂ : Karoubi (Mat_ E) ⥤ D} [G₁.Additive] [G₂.Additive]
-    (γ : incl E ⋙ G₁ ≅ incl E ⋙ G₂) : G₁ ≅ G₂ :=
-  (whiskeringLeftObjToKaroubiFullyFaithful (C := Mat_ E) (D := D)).preimageIso
-    (MatExtGen.ext (F := toKaroubi (Mat_ E) ⋙ G₁) (G := toKaroubi (Mat_ E) ⋙ G₂) γ)
-
-end KarMatExt
-
 /-! ## `twoFunctorShift` commutes with the shift -/
 
 namespace TwoRep
@@ -260,29 +141,31 @@ namespace QStrong
 variable (S₀ : CL.CLScalars C k) (S : QStrong B C RD k (CL.qCL S₀))
   (hrQ : ∀ i, S.rQ i = S₀.r i)
 
+theorem shiftHOM_sh_shiftHom {a b : UQShift RD S₀} (f : a ⟶ b) :
+    ((shiftHOM S₀ S hrQ).map f).sh + 1 = ((shiftHOM S₀ S hrQ).map ((shiftHom 1 a b).obj f)).sh := by
+  show _ + _ + _ + 1 = _ + 1 + _ + _
+  simp only [ShiftEnv.map_map_hom, shiftHom_obj_hom]
+  ring
+
 /-- The shift constraint of `twoFunctorShift` at a 1-morphism `f = x⟨t⟩`:
 `F(x⟨t + 1⟩) ≅ F(x⟨t⟩)⟨1⟩`. -/
 def shiftConstraint {a b : UQShift RD S₀} (f : a ⟶ b) :
     (twoFunctorShift S₀ S hrQ).map ((shiftHom 1 a b).obj f) ≅
       ((twoFunctorShift S₀ S hrQ).map f)⟦(1 : ℤ)⟧ :=
   (shiftFunctorAdd' _ ((shiftHOM S₀ S hrQ).map f).sh 1
-    ((shiftHOM S₀ S hrQ).map ((shiftHom 1 a b).obj f)).sh (by
-      show _ + _ + _ + 1 = _ + 1 + _ + _
-      simp only [ShiftEnv.map_map_hom, shiftHom_obj_hom]
-      ring)).app (bHom ((shiftHOM S₀ S hrQ).map f))
+    ((shiftHOM S₀ S hrQ).map ((shiftHom 1 a b).obj f)).sh
+    (shiftHOM_sh_shiftHom S₀ S hrQ f)).app (bHom ((shiftHOM S₀ S hrQ).map f))
 
-set_option maxHeartbeats 4000000 in
+-- The final unification identifies the underlying 1-morphisms of `F(x⟨1⟩)` and `F(x)`.
+set_option maxHeartbeats 1000000 in
 theorem shiftConstraint_naturality {a b : UQShift RD S₀} {f g : a ⟶ b} (η : f ⟶ g) :
     (twoFunctorShift S₀ S hrQ).map₂ ((shiftHom 1 a b).map η) ≫ (shiftConstraint S₀ S hrQ g).hom =
-      (shiftConstraint S₀ S hrQ f).hom ≫ ((twoFunctorShift S₀ S hrQ).map₂ η)⟦(1 : ℤ)⟧' :=
-  GradedHomCat.shift_conj (C := bObj ((shiftHOM S₀ S hrQ).obj a) ⟶ bObj ((shiftHOM S₀ S hrQ).obj b))
-    (t₁ := ((shiftHOM S₀ S hrQ).map f).sh) (t₂ := ((shiftHOM S₀ S hrQ).map g).sh)
-    (c₁ := ((shiftHOM S₀ S hrQ).map ((shiftHom 1 a b).obj f)).sh)
-    (c₂ := ((shiftHOM S₀ S hrQ).map ((shiftHom 1 a b).obj g)).sh) _ _
-    ((twoFunctorShift S₀ S hrQ).map₂ η)
-    ((twoFunctorShift S₀ S hrQ).map₂ ((shiftHom 1 a b).map η))
-    (val₂ ((shiftHOM S₀ S hrQ).map₂ η)) (incl₂_realize_map₂ _ η)
-    (incl₂_realize_map₂ _ ((shiftHom 1 a b).map η))
+      (shiftConstraint S₀ S hrQ f).hom ≫ ((twoFunctorShift S₀ S hrQ).map₂ η)⟦(1 : ℤ)⟧' := by
+  -- Elaborating the auxiliary statement first (without the expected type) is much faster.
+  have key := GradedHomCat.shift_conj (shiftHOM_sh_shiftHom S₀ S hrQ f)
+    (shiftHOM_sh_shiftHom S₀ S hrQ g) _ _ _ (incl₂_realize_map₂ (shiftHOM S₀ S hrQ) η)
+    (incl₂_realize_map₂ (shiftHOM S₀ S hrQ) ((shiftHom 1 a b).map η))
+  exact key
 
 /-- **`twoFunctorShift` commutes with the shift** on each hom category:
 `F(x⟨t + 1⟩) ≅ F(x⟨t⟩)⟨1⟩`, naturally in 2-morphisms. -/
@@ -314,25 +197,20 @@ abbrev dotHom (a b : UQDot RD S₀) :
 instance dotHom_additive (a b : UQDot RD S₀) : (dotHom S₀ S hrQ a b).Additive where
   map_add {_ _ η θ} := twoFunctorDot_map₂_add S₀ S hrQ η θ
 
-set_option maxHeartbeats 4000000 in
 /-- On the image of `UQShift RD S₀`, `twoFunctorDot` is `twoFunctorShift`. -/
 def dotHomInclIso (a b : UQDot RD S₀) :
     KarMatExt.incl (a.obj.obj ⟶ b.obj.obj) ⋙ dotHom S₀ S hrQ a b ≅
-      (twoFunctorShift S₀ S hrQ).mapFunctor a.obj.obj b.obj.obj :=
-  NatIso.ofComponents (fun x => twoFunctorDotInclIso S₀ S hrQ x)
-    (fun η => twoFunctorDotInclIso_naturality S₀ S hrQ η)
+      (twoFunctorShift S₀ S hrQ).mapFunctor a.obj.obj b.obj.obj := by
+  -- The two types agree up to the normalization of universe levels (see `kernel_exact`).
+  kernel_exact DotExt.inclNatIso (twoFunctorShift S₀ S hrQ) (twoFunctorShift_addHyp S₀ S hrQ) a b
 
-set_option maxHeartbeats 4000000 in
 /-- **`twoFunctorDot` commutes with the grading shift** on each hom category of `U̇_Q(g)`:
 `F(X⟨1⟩) ≅ F(X)⟨1⟩`, naturally in `X` (CL §2.1.2: a graded 2-functor). -/
 def twoFunctorDotShiftIso (a b : UQDot RD S₀) :
-    shiftDot RD S₀ a b ⋙ dotHom S₀ S hrQ a b ≅ dotHom S₀ S hrQ a b ⋙ shiftFunctor _ (1 : ℤ) :=
-  KarMatExt.ext
-    (Functor.isoWhiskerRight (KarMatExt.inclShift (shiftHom 1 a.obj.obj b.obj.obj))
-        (dotHom S₀ S hrQ a b) ≪≫
-      Functor.isoWhiskerLeft (shiftHom 1 a.obj.obj b.obj.obj) (dotHomInclIso S₀ S hrQ a b) ≪≫
-      twoFunctorShiftShiftIso S₀ S hrQ a.obj.obj b.obj.obj ≪≫
-      Functor.isoWhiskerRight (dotHomInclIso S₀ S hrQ a b).symm (shiftFunctor _ (1 : ℤ)))
+    shiftDot RD S₀ a b ⋙ dotHom S₀ S hrQ a b ≅ dotHom S₀ S hrQ a b ⋙ shiftFunctor _ (1 : ℤ) := by
+  kernel_exact DotExt.extNatIso (twoFunctorShift S₀ S hrQ) (twoFunctorShift_addHyp S₀ S hrQ) a b
+    (shiftHom 1 a.obj.obj b.obj.obj) (shiftFunctor _ (1 : ℤ))
+    (twoFunctorShiftShiftIso S₀ S hrQ a.obj.obj b.obj.obj)
 
 end QStrong
 

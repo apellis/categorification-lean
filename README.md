@@ -407,6 +407,16 @@ The mixed upward source data retain Brundan's entire rectangular sum of deformat
 coefficients. This is not automatically `CL.qCL`, whose sum is filtered by weighted degree.
 `TwoRep.brundanQ_eq_qCL` and `BrundanUpKLR.toCL` give the precise specialization when the
 excluded source coefficients vanish. This restricts coefficients, not the target bicategory.
+`TwoRep/RouqMixedNonpositive.lean` proves Brundan Lemma 5.2 (5.2) for
+`h ≤ 0` and `h < dᵢⱼ`: `RouqFamily.mixedCap_pitchfork_nonpos` is the genuine
+`tᵢⱼ`-corrected cap pitchfork for `S.cross`, `S.mixedSigma`, and the derived
+`S.adjL` caps. Its only mixed invertibility input is the original defining
+relation (1.7) for that actual mate. Both nonpositive inversion components
+are evaluated from the raw upward source equations; the unrestricted
+rectangular correction terms vanish by the bubble bounds. The Hom categories
+and horizontal whiskering are explicitly `k`-linear; no grading or field is
+assumed. The positive-weight cases and all-weight mixed cyclicity remain open.
+
 The normalized source dots do not establish arbitrary-`r` soundness merely because `genImg`
 accepts `Sc`; scalar rescaling is separate. Mixed crossing cyclicity, bubbles, curls,
 decompositions, aggregate `presNM` soundness, quotient descent and horizontal coherence

@@ -8,7 +8,7 @@ import Categorification.KLR.CyclotomicProjective
 # The mirror coset decomposition `R(n + 1) = ∑_a R(n, 1) τ_n ⋯ τ_a`
 
 S.-J. Kang, M. Kashiwara, *Categorification of highest weight modules via
-Khovanov–Lauda–Rouquier algebras*, arXiv:1102.4677v4: the proofs of Proposition 3.4
+Khovanov–Lauda–Rouquier algebras*, arXiv:1102.4677v4: the proofs of Proposition 3.3
 (`R(n) ⊗_{R(n-1)} R(n) ⊕ R(n, 1) ≅ R(n + 1)`) and of Theorem 5.1 use
 `R(n + 1) = ∑_{a = 1}^{n + 1} R(n, 1) τ_n ⋯ τ_a`, the mirror image of the decomposition
 `R(n + 1) = ∑_a (k[x_1] ⊗ R^1(n)) τ_1 ⋯ τ_a` (`spTau_eq_top`). We deduce it from `spTau_eq_top`
@@ -94,7 +94,7 @@ noncomputable def spTauR (n c : ℕ) : Submodule k A :=
 
 include hQ in
 /-- **The mirror coset decomposition** `R(n + 1) = ∑_a R(n, 1) τ_n ⋯ τ_a` (KK, proofs of
-Proposition 3.4 and Theorem 5.1), zero-indexed. -/
+Proposition 3.3 and Theorem 5.1), zero-indexed. -/
 theorem spTauR_eq_top (n : ℕ) (hn : n + 1 = m) : spTauR (k := k) (Q := Q) ν n n = ⊤ := by
   have key : ∀ r' : A, sigma hQ r' ∈ spTauR (k := k) (Q := Q) ν n n := by
     intro r'

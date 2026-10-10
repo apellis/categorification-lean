@@ -288,6 +288,7 @@ import Categorification.KLR.CyclotomicK0
 import Categorification.KLR.CyclotomicProjective
 import Categorification.KLR.CyclotomicMirror
 import Categorification.KLR.CyclotomicPhi
+import Categorification.KLR.CyclotomicEF
 import Categorification.KLR.DividedPowerCharacters
 import Categorification.KLR.DividedPowerDecomposition
 import Categorification.KLR.DividedPowerIdempotents

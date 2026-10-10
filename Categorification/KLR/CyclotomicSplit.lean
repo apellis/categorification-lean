@@ -475,6 +475,30 @@ theorem monic_aMonicL (hsym : ∀ a b, a ≠ b → Q b a = MvPolynomial.rename !
     (aMonicL Q i β a).Monic := by
   rw [aMonicL, Polynomial.coe_mapAlgHom]; exact (monic_aMonic i β a hsym hQ ha).map _
 
+/-- The degree bound survives even when the cyclotomic quotient is the zero ring. -/
+theorem degree_aMonicL_le (hsym : ∀ a b, a ≠ b → Q b a = MvPolynomial.rename ![1, 0] (Q a b))
+    (hQ : ∀ a b : I, a ≠ b → IsUnit (polyInY (Q a b)).leadingCoeff) (ha : (a i).Monic) :
+    (aMonicL Q i β a).degree ≤ degA Q i β a := by
+  rw [aMonicL, Polynomial.coe_mapAlgHom]
+  exact Polynomial.degree_map_le.trans (degree_aMonic_le i β a hsym hQ ha)
+
+/-- The top coefficient is one in the cyclotomic quotient, including the zero ring. -/
+theorem coeff_aMonicL_degA (hsym : ∀ a b, a ≠ b → Q b a = MvPolynomial.rename ![1, 0] (Q a b))
+    (hQ : ∀ a b : I, a ≠ b → IsUnit (polyInY (Q a b)).leadingCoeff) (ha : (a i).Monic) :
+    (aMonicL Q i β a).coeff (degA Q i β a) = 1 := by
+  rw [aMonicL, Polynomial.coe_mapAlgHom, Polynomial.coeff_map,
+    coeff_aMonic_degA i β a hsym hQ ha, map_one]
+
+/-- Exact degree requires a nonzero cyclotomic quotient; monicity alone does not. -/
+theorem natDegree_aMonicL [Nontrivial Rl]
+    (hsym : ∀ a b, a ≠ b → Q b a = MvPolynomial.rename ![1, 0] (Q a b))
+    (hQ : ∀ a b : I, a ≠ b → IsUnit (polyInY (Q a b)).leadingCoeff) (ha : (a i).Monic) :
+    (aMonicL Q i β a).natDegree = degA Q i β a := by
+  apply Polynomial.natDegree_eq_of_le_of_coeff_ne_zero
+    (Polynomial.natDegree_le_of_degree_le (degree_aMonicL_le i β a hsym hQ ha))
+  rw [coeff_aMonicL_degA i β a hsym hQ ha]
+  exact one_ne_zero
+
 include hPQ hP in
 theorem aMonicL_comm (q : Polynomial Rl) : Commute q (aMonicL Q i β a) := by
   obtain ⟨q', rfl⟩ := Polynomial.map_surjective (CycKLR.mk k Q a β : Rb →+* Rl)

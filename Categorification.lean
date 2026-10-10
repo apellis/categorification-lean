@@ -274,6 +274,7 @@ import Categorification.KLR.Crystal.Thm317
 import Categorification.KLR.Crystal.Thm317Graded
 import Categorification.KLR.Crystal.Tops
 import Categorification.KLR.Cyclotomic
+import Categorification.KLR.CyclotomicFinite
 import Categorification.KLR.DividedPowerCharacters
 import Categorification.KLR.DividedPowerDecomposition
 import Categorification.KLR.DividedPowerIdempotents

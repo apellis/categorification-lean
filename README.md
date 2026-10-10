@@ -392,13 +392,24 @@ relation** (`RouqLoc.infGrass`), with no condition on `End(1_λ)`.
 
 | Theorem | Source | Declarations (`TwoRep.RouqFamily`) | Hypotheses | Status |
 | --- | --- | --- | --- | --- |
-| Ungraded generator model at arbitrary weights; derived left adjunctions and single-colour cyclicity | Brundan arXiv:1501.00350v1, Def. 1.1 and Thm. 4.3 | `toRouqSl2`, `adjL`, `adjL_eq`, `dotDn_eq_rightMate`, `cyclic_cross`, `crossDn_self`, `model`, `genImg` | Weight-indexed right adjunctions and single-colour Rouquier relations; additive whiskering; a commutative scalar ring for `genImg`; no zero objects or grading | Generator model proved; presentation relations and the mixed-colour extension remain |
+| Ungraded generator model at arbitrary weights; derived left adjunctions and single-colour cyclicity | Brundan arXiv:1501.00350v1, Def. 1.1 and Thm. 4.3 | `toRouqSl2`, `adjL`, `adjL_eq`, `dotDn_eq_rightMate`, `cyclic_cross`, `crossDn_self`, `model`, `genImg` | Weight-indexed right adjunctions and single-colour Rouquier relations; additive whiskering; a commutative scalar ring for `genImg`; no zero objects or grading | Generator model proved; mixed upward source equations and their interpretation are packaged separately below; the remaining presentation relations are not assumed |
 
 | Theorem | Declarations | Hypotheses | Status |
 | --- | --- | --- | --- |
+| Mixed upward source KLR data (Brundan Def. 1.1, (1.2)–(1.4)) | `TwoRep.RouqUpKLR`, `BrundanUpKLR`, `brundanQ` | Original ungraded Rouquier family; raw whiskered square, two slides and braid equations, not target relation predicates | Conservative extension; no zero object, target grading, Hom-finiteness or `End(1) = k` hypothesis |
+| Concrete mixed upward relation equations | `TwoRep.RouqFamily.up_sqNe`, `up_slideLNe`, `up_slideRNe`, `up_braid`, `up_braidQ`; `brundan_sqNe`, `brundan_braidQ`; `klr_sqNe_rel`, `klr_slideLNe_rel`, `klr_slideRNe_rel`, `klr_braid_rel`, `klr_braidQ_rel` | `RouqUpKLR S Q`; commutative scalar ring, preadditive/linear Hom categories and additive whiskering. CL corollaries use `Q = CL.qCL Sc`; the corrected CL braid also requires `Sc.r c = 1` | Proved for the actual `admissibleMap (S.genImg Sc)`: mixed square, both slides, braid with distinct outer labels, and divided-difference braid with repeated outer label |
 | Single-colour cyclicity in the ungraded admissible interpretation | `TwoRep.RouqFamily.cycDotR_rel`, `cycDotL_rel`, `cycCrossR_rel`, `cycCrossL_rel` | Ungraded Rouquier family; commutative scalar ring; no zero objects, grading, or finiteness | Both dot and both same-colour crossing relations of `presNM` proved; the remaining presentation relations are separate |
 | Zigzag relations in the ungraded admissible interpretation | `TwoRep.RouqFamily.zigL_eq`, `zigR_eq`, `zigL_rel`, `zigR_rel` | The ungraded Rouquier family and a commutative scalar ring; no zero objects | Proved for every oriented strand; uses the derived left adjunction |
 | Free and linear interpretation on admissible words | `Diagrams.BicatInterp.admissibleInterp`, `admissibleMap_comp`, `admissibleLinearInterp`; `TwoRep.RouqFamily.interp`, `linearInterp` | A bicategorical generator model; preadditive and linear Hom categories for the linear extension; no zero objects | Proved, including comparison with the total interpretation where available; presentation descent and pseudofunctor assembly remain |
+
+The mixed upward source data retain Brundan's entire rectangular sum of deformation
+coefficients. This is not automatically `CL.qCL`, whose sum is filtered by weighted degree.
+`TwoRep.brundanQ_eq_qCL` and `BrundanUpKLR.toCL` give the precise specialization when the
+excluded source coefficients vanish. This restricts coefficients, not the target bicategory.
+The normalized source dots do not establish arbitrary-`r` soundness merely because `genImg`
+accepts `Sc`; scalar rescaling is separate. Mixed crossing cyclicity, bubbles, curls,
+decompositions, aggregate `presNM` soundness, quotient descent and horizontal coherence
+remain open boundaries of this ungraded interpreter; the full Brundan comparison is not claimed.
 
 `TwoRep/ShiftedMates.lean` constructs mates from an explicit adjunction, preserving degree
 while reversing composition (`mateSh_comp`), with identity, additive and injectivity laws.

@@ -175,7 +175,7 @@ local notation "R" => KLRAlgebra k Q (Si + β)
 local notation "T" => KLRAlgebra k Q Si ⊗[k] KLRAlgebra k Q β
 
 omit [IsDomain k] in
-instance : Subsingleton (Seq Si) := by
+instance seqSingleSubsingleton : Subsingleton (Seq Si) := by
   refine ⟨fun s t => Subtype.ext (funext fun a => ?_)⟩
   rw [Multiset.mem_singleton.1 (s.mem a), Multiset.mem_singleton.1 (t.mem a)]
 
@@ -312,7 +312,7 @@ theorem concat_one_tmul_mem_subR1 (b : KLRAlgebra k Q β) :
     rw [map_add, TensorProduct.tmul_add, map_add]
     exact Subalgebra.add_mem _ hu hv
 
-instance : Inhabited (Seq Si) :=
+instance seqSingleInhabited : Inhabited (Seq Si) :=
   ⟨⟨fun _ => i, by simp⟩⟩
 
 omit [DecidableEq I] [IsDomain k] in

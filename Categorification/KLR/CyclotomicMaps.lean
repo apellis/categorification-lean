@@ -14,15 +14,17 @@ Propositions 4.13, 4.14, and the module form of Theorem 4.15.
 Fix a weight `ν` with `m = n + 1` strands, a colour `i` and cyclotomic data `a`. Write `β` for the
 weight `ν − α_i` of the first `n` (resp. last `n`) strands. KK's bimodules are
 `K_0 = R(ν) e(β, i) / R(ν) a^Λ(x_1) R(β) e(β, i)` and
-`K_1 = R(ν) e(i, β) / R(ν) a^Λ(x_2) R^1(β) e(i, β)`; here they are the quotients
-`R(ν) / (L + R(ν)(1 − e))` of the regular left module by the left ideals `cycL0 a + R(ν)(1 − e(β, i))`
-and `cycL1 a + R(ν)(1 − e(i, β))` (`KZero`, `KOne`), which are canonically `R(ν) e / L e`.
+`K_1 = R(ν) e(i, β) / R(ν) a^Λ(x_2) R^1(β) e(i, β)`. The library types `KZero` and `KOne`
+are initially the uncut regular-module quotients `R(ν) / cycL0` and `R(ν) / cycL1`.
+The source modules are their right-idempotent summands; `CyclotomicTensor` and
+`CyclotomicTensorOne` identify those summands with the actual balanced induction tensors.
 
 * `pMap` (KK's `P`, Lemma 4.10 and (4.6)): right multiplication by
-  `a^Λ(x_1) ψ_0 ⋯ ψ_{n-1} e(β, i)`; well defined because `R(ν) a^Λ(x_2) R^1(β)` is carried into
+  `a^Λ(x_1) ψ_0 ⋯ ψ_{n-1}` on the uncut quotient; well defined because `R(ν) a^Λ(x_2) R^1(β)` is carried into
   `R(ν) a^Λ(x_1) R(β)` (`mul_tauW_mem`).
 * `qMap` (KK's `Q`, Props. 4.13, 4.14): right multiplication by `e(β, i) g_{n-1} ⋯ g_0`; well
-  defined by Lemma 4.12 (`gProd` intertwines `R(β)` with `R^1(β)` exactly).
+  defined by Lemma 4.12 (`gProd` intertwines `R(β)` with `R^1(β)` exactly). Its uncut formula
+  omits the idempotent, which is imposed when restricting to the source summand.
 * `qMap_comp_pMap` (KK Thm. 4.15): `Q ∘ P` is right multiplication by
   `∑_{i_1 = i} a_i(x_1) F_n(𝐢) e(𝐢)` (see `Categorification.KLR.CyclotomicExact` for `F_n` and the sign).
 

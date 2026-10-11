@@ -517,6 +517,7 @@ import Categorification.TwoRep.RouqMixedSource
 import Categorification.TwoRep.RouqMixedNonpositive
 import Categorification.TwoRep.RouqMixedPositive
 import Categorification.TwoRep.RouqMixedCup
+import Categorification.TwoRep.RouqMixedPitchfork
 import Categorification.TwoRep.RouqZig
 import Categorification.TwoRep.RouqCyc
 import Categorification.TwoRep.RouqCyclicDot

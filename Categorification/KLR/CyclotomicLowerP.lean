@@ -65,7 +65,7 @@ private theorem lowerZeroElem_cyc (r : Rb) (b : KLRAlgebra k Q γ)
     rw [(CycKLR.mk_eq_zero_iff _).2 (cL_mem_cycIdeal i γ a hb), zero_mul]
   rw [h, lowerZeroElem_zero_right]
 
-private theorem lowerZeroElem_cycL0 (hγ : 0 < Multiset.card γ) (r : Rb)
+theorem lowerZeroElem_cycL0 (hγ : 0 < Multiset.card γ) (r : Rb)
     (hr : r ∈ cycL0 a (zero_lt_card_single_add i γ)) (y : N) :
     lowerZeroElem Q i γ a r y = 0 := by
   induction hr using Submodule.span_induction with

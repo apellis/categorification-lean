@@ -531,6 +531,7 @@ import Categorification.TwoRep.RouqMixedCycLeft
 import Categorification.TwoRep.RouqMixedDownup
 import Categorification.TwoRep.RouqZig
 import Categorification.TwoRep.RouqCyc
+import Categorification.TwoRep.RouqBubbles
 import Categorification.TwoRep.RouqCyclicDot
 import Categorification.TwoRep.RouqCurl
 import Categorification.TwoRep.RouqDottedCurls

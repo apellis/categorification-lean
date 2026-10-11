@@ -332,6 +332,7 @@ import Categorification.KLR.CyclotomicAbsentModule
 import Categorification.KLR.CyclotomicPresentModule
 import Categorification.KLR.CyclotomicAdjunction
 import Categorification.KLR.CyclotomicInductionCalculus
+import Categorification.KLR.CyclotomicInductionDotted
 import Categorification.KLR.CyclotomicPolynomialTrace
 import Categorification.KLR.CyclotomicQuadraticAdjunction
 import Categorification.KLR.CyclotomicRelativePolynomialTrace
@@ -558,6 +559,7 @@ import Categorification.TwoRep.RouqGrass
 import Categorification.TwoRep.RouqPitchfork
 import Categorification.TwoRep.RouqTriangleE
 import Categorification.TwoRep.RouqSl2
+import Categorification.TwoRep.CyclotomicLocalCommutator
 import Categorification.TwoRep.RouquierMaps
 import Categorification.TwoRep.ShiftInterchange
 import Categorification.TwoRep.Sl2

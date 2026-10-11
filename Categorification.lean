@@ -320,6 +320,7 @@ import Categorification.KLR.CyclotomicLowerSplitColumns
 import Categorification.KLR.CyclotomicLowerSnake
 import Categorification.KLR.CyclotomicRowCokernels
 import Categorification.KLR.CyclotomicPositiveCommutator
+import Categorification.KLR.CyclotomicNegativeCommutator
 import Categorification.KLR.DividedPowerCharacters
 import Categorification.KLR.DividedPowerDecomposition
 import Categorification.KLR.DividedPowerIdempotents

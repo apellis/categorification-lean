@@ -413,6 +413,7 @@ relation** (`RouqLoc.infGrass`), with no condition on `End(1_λ)`.
 | Normalized `presNM` generator soundness | `TwoRep.RouqFamily.presNM_rel`, `presNM_rel_of_brundan` | Global `∀ i, Sc.r i = 1`; `RouqUpKLR S (CL.qCL Sc)`, or `BrundanUpKLR S Sc` with the off-weight coefficient vanishing in `brundanQ_eq_qCL`; commutative ring, linear Hom categories and whiskering | Every defining relation killed, including both pivotal zigzags, every KLR constructor, all right crossing cyclicities, bubbles, curls and decompositions; no zero objects or target grading; horizontal ideal closure and quotient descent are proved below |
 | Admissible horizontal coherence and ideal annihilation | `Diagrams.BicatInterp.admissibleChain_whisker`, `admissibleInterp_interchange`, `admissibleMap_whisker`, `admissibleMap_allRel`, `admissibleMap_ideal` | Original even signature and bicategorical generator images killing the defining relations; commutative ring, linear Hom categories and whiskering; no zero objects | Actual two-sided contexts, interchange and the original horizontal ideal proved by chain and span induction |
 | Normalized `presNM` quotient action | `TwoRep.RouqFamily.presNM_ideal`, `presNMFunctor`, `presNMPseudofunctor`, `presNMPseudofunctor_map₂_lin`, `presNMPseudofunctorOfBrundan` | Exactly the normalized generator-soundness hypotheses above | Descends unchanged `genImg` to the original quotient; linear component functors and every pseudofunctor law proved; full `presCL` and arbitrary-scalar rescaling are not claimed |
+| Full normalized CL soundness and quotient action | Brundan arXiv:1501.00350v1 (1.7); `TwoRep.BrundanMixedInversion`, `RouqFamily.fullCL_rel`, `presCL_rel`, `presCL_ideal`, `presCLFunctor`, `presCLPseudofunctor` | `BrundanUpKLR S Sc`, **independent mixed inversion for every distinct ordered pair and region square**, `r_i = 1`, explicit off-weight coefficient vanishing; commutative ring and linear Hom categories/whiskering | All original relations and horizontal ideal killed; actual full quotient linear component functors and pseudofunctor, with representative agreement; no grading, zero objects or finiteness |
 | Zigzag relations in the ungraded admissible interpretation | `TwoRep.RouqFamily.zigL_eq`, `zigR_eq`, `zigL_rel`, `zigR_rel` | The ungraded Rouquier family and a commutative scalar ring; no zero objects | Proved for every oriented strand; uses the derived left adjunction |
 | Free and linear interpretation on admissible words | `Diagrams.BicatInterp.admissibleInterp`, `admissibleMap_comp`, `admissibleLinearInterp`; `TwoRep.RouqFamily.interp`, `linearInterp` | A bicategorical generator model; preadditive and linear Hom categories for the linear extension; no zero objects | Proved, including comparison with the total interpretation where available; zero-object-free presentation descent and pseudofunctor assembly are above |
 
@@ -423,9 +424,12 @@ excluded source coefficients vanish. This restricts coefficients, not the target
 The normalized source dots do not establish arbitrary-`r` soundness merely because `genImg`
 accepts `Sc`; scalar rescaling is separate. Normalized `presNM` now descends through the
 original horizontal ideal, with admissible interchange, linear component functors and a
-pseudofunctor proved without zero objects. The full `presCL` assembly and unrestricted-scalar
-Brundan comparison are not claimed; `presNM` excludes precisely distinct-colour left crossing
-cyclicity and distinct-colour down-up relations, not all mixed relations.
+pseudofunctor proved without zero objects. With the additional, separately named source
+`BrundanMixedInversion` and the same explicit coefficient compatibility, `RouqFullCL`
+proves full `presCL` soundness and quotient descent. This does not derive inversion from
+the weaker `presNM` data: concrete cyclotomic or unfurling actions must prove the actual
+mixed mates invertible. Arbitrary-`r` rescaling and unrestricted rectangular-to-CL
+comparison remain separate.
 
 `TwoRep/ShiftedMates.lean` constructs mates from an explicit adjunction, preserving degree
 while reversing composition (`mateSh_comp`), with identity, additive and injectivity laws.

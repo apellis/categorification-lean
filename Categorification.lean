@@ -315,6 +315,8 @@ import Categorification.KLR.CyclotomicTensorOne
 import Categorification.KLR.CyclotomicSource
 import Categorification.KLR.CyclotomicMixedInversionAffine
 import Categorification.KLR.CyclotomicMixedInversionTensor
+import Categorification.KLR.CyclotomicMixedInversionDescent
+import Categorification.TwoRep.CyclotomicMixedDescentExamples
 import Categorification.KLR.CyclotomicLower
 import Categorification.KLR.CyclotomicLowerCrossing
 import Categorification.KLR.CyclotomicLowerCoordinates

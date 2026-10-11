@@ -331,6 +331,8 @@ import Categorification.KLR.CyclotomicAdjunction
 import Categorification.KLR.CyclotomicPolynomialTrace
 import Categorification.KLR.CyclotomicQuadraticAdjunction
 import Categorification.KLR.CyclotomicRelativePolynomialTrace
+import Categorification.KLR.CyclotomicCornerTrace
+import Categorification.KLR.CyclotomicCornerTracePolynomial
 import Categorification.KLR.DividedPowerCharacters
 import Categorification.KLR.DividedPowerDecomposition
 import Categorification.KLR.DividedPowerIdempotents

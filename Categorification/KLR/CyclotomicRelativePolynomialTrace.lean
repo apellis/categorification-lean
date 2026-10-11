@@ -19,12 +19,13 @@ coefficient and monicity assumptions of the existing `CyclotomicSplit` proofs
 of monicity and centrality. The underlying polynomial theorem only needs a ring,
 monicity and centrality and permits zero divisors and the zero ring.
 
-Kang–Kashiwara §4.2 supplies the polynomial-coordinate splitting, not an
+Kang–Kashiwara §§4.2–4.3 supply the polynomial-coordinate splitting, not an
 identification of this polynomial quotient with the entire induction corner.
-The remaining nonzero-beta step is to descend a trace through the actual corner
-presentation, including its crossing/lower-tensor summand, and prove duality for
-the actual induction/restriction bimodules. No such descent, adjunction, grading,
-or prescribed-mixed-map compatibility is asserted here.
+`CyclotomicCornerTracePolynomial` proves a weighted version descends to the
+entire present-colour corner in positive weight; the factor `sPoly` is essential.
+`CyclotomicCornerTrace` handles the nonpositive range using the actual corrected
+crossing inverse. These maps do not establish relative bimodule duality. No
+adjunction, grading or prescribed-mixed-map compatibility is asserted here.
 -/
 
 noncomputable section

@@ -28,6 +28,7 @@ import Categorification.Algebra.Graded.TensorSimple
 import Categorification.Algebra.Graded.TwistTensor
 import Categorification.Algebra.IdempotentEquiv
 import Categorification.Algebra.K0FinDim
+import Categorification.Algebra.MonicTrace
 import Categorification.Algebra.NilHecke
 import Categorification.Algebra.NilHeckeIdempotent
 import Categorification.Algebra.NilHeckeKato
@@ -327,7 +328,9 @@ import Categorification.KLR.CyclotomicAbsentEquivalence
 import Categorification.KLR.CyclotomicAbsentModule
 import Categorification.KLR.CyclotomicPresentModule
 import Categorification.KLR.CyclotomicAdjunction
+import Categorification.KLR.CyclotomicPolynomialTrace
 import Categorification.KLR.CyclotomicQuadraticAdjunction
+import Categorification.KLR.CyclotomicRelativePolynomialTrace
 import Categorification.KLR.DividedPowerCharacters
 import Categorification.KLR.DividedPowerDecomposition
 import Categorification.KLR.DividedPowerIdempotents

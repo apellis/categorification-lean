@@ -7,7 +7,7 @@ import Categorification.TwoRep.RouqUpInterp
 /-!
 # Equal-colour upward relation consumers
 
-The nilHecke relations of Cautis–Lauda, arXiv:1111.1431v3, §2.2, are evaluated
+The nilHecke relations of Cautis–Lauda, arXiv:1111.1431v3, §2.3, are evaluated
 on the unchanged `RouqFamily.genImg`. The two slides require the explicit local
 normalization `Sc.r i = 1`; the square and braid do not. These are statements
 in the original target Hom categories, with no zero-object assumption.

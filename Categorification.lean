@@ -40,6 +40,9 @@ import Categorification.Algebra.SplitK0
 import Categorification.Algebra.SymmetricFree
 import Categorification.Diagrams.BicatInterp
 import Categorification.Diagrams.BicatInterpAdmissible
+import Categorification.Diagrams.BicatInterpAdmissibleHorizontal
+import Categorification.Diagrams.BicatInterpAdmissibleDescent
+import Categorification.Diagrams.BicatInterpAdmissiblePseudo
 import Categorification.Diagrams.BicatInterpPull
 import Categorification.Diagrams.BicatInterpPseudo
 import Categorification.Diagrams.BicatInterpPush
@@ -539,6 +542,7 @@ import Categorification.TwoRep.RouqCurls
 import Categorification.TwoRep.RouqDecomp
 import Categorification.TwoRep.RouqUpEqual
 import Categorification.TwoRep.RouqSoundness
+import Categorification.TwoRep.RouqDescent
 import Categorification.TwoRep.RouqCyclicDot
 import Categorification.TwoRep.RouqCurl
 import Categorification.TwoRep.RouqDottedCurls

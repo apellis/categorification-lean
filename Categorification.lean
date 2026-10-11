@@ -324,6 +324,7 @@ import Categorification.KLR.CyclotomicNegativeCommutator
 import Categorification.KLR.CyclotomicCommutatorBimodule
 import Categorification.KLR.CyclotomicAbsentColour
 import Categorification.KLR.CyclotomicAbsentEquivalence
+import Categorification.KLR.CyclotomicAbsentModule
 import Categorification.KLR.DividedPowerCharacters
 import Categorification.KLR.DividedPowerDecomposition
 import Categorification.KLR.DividedPowerIdempotents

@@ -9,7 +9,7 @@ import Categorification.TwoRep.RouqCurl
 /-!
 # Actual CL decomposition relations from ungraded Rouquier data
 
-The original `genImg` sends the actual CL EF decomposition to zero when the local
+The original `genImg` sends both actual CL EF and FE decompositions to zero when the local
 unit parameter satisfies `r_i = 1`. The finite triangular sum is compared term by
 term with Brundan's inverse-component expansion; its empty cases are included.
 
@@ -17,7 +17,9 @@ Sources: Cautis–Lauda, arXiv:1111.1431v3, the extended sl₂ double-crossing
 decomposition displays; Brundan, arXiv:1501.00350v1, Corollary 3.4, (3.16)–(3.17).
 The bubble orientation dictionary reverses the local names `cw` and `ccw`.
 No grading, Hom-finiteness, scalar endomorphism ring, or presentation relation is
-assumed. Arbitrary-scalar rescaling and aggregate presentation descent are separate.
+assumed. This verifies the two decomposition constructors, not all upward KLR
+constructors or the horizontally generated presentation ideal. Normalized `presNM`
+soundness/descent and arbitrary-scalar rescaling remain separate.
 -/
 
 noncomputable section
@@ -323,6 +325,97 @@ theorem decompEF_rel (i : I) (μ : X) (hr : Sc.r i = 1) :
     rfl
   rw [hid, decompEFSum_map, hc]
   exact S.decompEF_local i μ
+
+private theorem decompFESum_map (i : I) (μ : X) :
+    admissibleMap (S.genImg Sc) (bubbleDU i μ).property (bubbleDU i μ).property
+      (decompFESum RD k i μ) =
+      ∑ f ∈ Finset.range (-ip RD i μ).toNat, ∑ g ∈ Finset.range (f + 1),
+        (powComp (S.dot i (cross_up_reg i μ)) (f - g) ▷ S.F i (cross_up_reg i μ) ≫
+          (S.loc i (cross_dn_reg i μ) (cross_up_reg i μ)).capL) ≫
+          (S.loc i (cross_dn_reg i μ) (cross_up_reg i μ)).ccw (ip RD i μ - 1 + g) ≫
+          (S.loc i (cross_dn_reg i μ) (cross_up_reg i μ)).cupD ((-ip RD i μ).toNat - 1 - f) := by
+  unfold decompFESum
+  rw [map_sum]
+  apply Finset.sum_congr rfl
+  intro f _
+  rw [map_sum]
+  apply Finset.sum_congr rfl
+  intro g _
+  erw [admissibleMap_comp (S.genImg Sc) (bubbleDU i μ).property
+      (bubbleNil μ).property (bubbleDU i μ).property,
+    admissibleMap_comp (S.genImg Sc) (bubbleNil μ).property
+      (bubbleNil μ).property (bubbleDU i μ).property,
+    admissibleMap_of, admissibleMap_of]
+  change (S.interp Sc μ μ).map (ObjectProperty.homMk (X := bubbleDU i μ)
+      (Y := bubbleNil μ) (dotCapFE RD μ i (f - g))) ≫
+      S.bubbleHom Sc μ (cwL RD k μ i (ip RD i μ - 1 + g)) ≫
+      (S.interp Sc μ μ).map (ObjectProperty.homMk (X := bubbleNil μ)
+        (Y := bubbleDU i μ) (cupDotFE RD μ i ((-ip RD i μ).toNat - 1 - f))) = _
+  erw [decomp_dotCapFE, decomp_cupDotFE,
+    S.bubble_cwL Sc i (cross_dn_reg i μ) (cross_up_reg i μ)]
+  rfl
+
+private theorem decompFE_local (i : I) (μ : X) :
+    𝟙 (S.E i (cross_up_reg i μ) ≫ S.F i (cross_up_reg i μ)) +
+      (S.loc i (cross_dn_reg i μ) (cross_up_reg i μ)).sigL ≫
+        (S.loc i (cross_dn_reg i μ) (cross_up_reg i μ)).sig -
+      ∑ f ∈ Finset.range (-ip RD i μ).toNat, ∑ g ∈ Finset.range (f + 1),
+        (powComp (S.dot i (cross_up_reg i μ)) (f - g) ▷ S.F i (cross_up_reg i μ) ≫
+          (S.loc i (cross_dn_reg i μ) (cross_up_reg i μ)).capL) ≫
+          (S.loc i (cross_dn_reg i μ) (cross_up_reg i μ)).ccw (ip RD i μ - 1 + g) ≫
+          (S.loc i (cross_dn_reg i μ) (cross_up_reg i μ)).cupD ((-ip RD i μ).toNat - 1 - f) = 0 := by
+  let L := S.loc i (cross_dn_reg i μ) (cross_up_reg i μ)
+  have hs : ∑ f ∈ Finset.range (-ip RD i μ).toNat, ∑ g ∈ Finset.range (f + 1),
+      (powComp (S.dot i (cross_up_reg i μ)) (f - g) ▷ S.F i (cross_up_reg i μ) ≫ L.capL) ≫
+        L.ccw (ip RD i μ - 1 + g) ≫ L.cupD ((-ip RD i μ).toNat - 1 - f) =
+      ∑ n ∈ Finset.range (-ip RD i μ).toNat, ∑ r ∈ Finset.range ((-ip RD i μ).toNat - n),
+        powComp (S.dot i (cross_up_reg i μ)) r ▷ S.F i (cross_up_reg i μ) ≫
+          L.capL ≫ L.ccw (-(n : ℤ) - r - 2) ≫ L.cupD n := by
+    rw [decomp_triangle (-ip RD i μ).toNat (fun r n g =>
+      (powComp (S.dot i (cross_up_reg i μ)) r ▷ S.F i (cross_up_reg i μ) ≫ L.capL) ≫
+        L.ccw (ip RD i μ - 1 + g) ≫ L.cupD n)]
+    rw [Finset.sum_comm' (s := Finset.range (-ip RD i μ).toNat)
+      (t' := Finset.range (-ip RD i μ).toNat)
+      (s' := fun n => Finset.range ((-ip RD i μ).toNat - n))
+      (fun r n => by simp only [Finset.mem_range]; omega)]
+    apply Finset.sum_congr rfl
+    intro n hn
+    apply Finset.sum_congr rfl
+    intro r hr
+    have hn' := Finset.mem_range.mp hn
+    have hr' := Finset.mem_range.mp hr
+    rw [show ip RD i μ - 1 + (((-ip RD i μ).toNat - 1 - r - n : ℕ) : ℤ) =
+      -(n : ℤ) - r - 2 by omega, Category.assoc]
+  change 𝟙 _ + L.sigL ≫ L.sig - _ = 0
+  rw [hs, L.decompFE]
+  abel
+
+/-- The actual CL FE decomposition relation vanishes at every weight for `r_i = 1`. -/
+theorem decompFE_rel (i : I) (μ : X) (hr : Sc.r i = 1) :
+    admissibleMap (S.genImg Sc) (bubbleDU i μ).property (bubbleDU i μ).property
+      (CL.relationCL RD k Sc (.decompFE i μ)) = 0 := by
+  change admissibleMap (S.genImg Sc) _ _
+    (LinDiagram.of (𝟙 (ob RD μ [dn i, up i])) +
+      (((Sc.r i)⁻¹ : kˣ) : k) ^ 2 • LinDiagram.of (crossr RD i i μ ≫ crossl RD i i μ) -
+        decompFESum RD k i μ) = 0
+  rw [map_sub, map_add, map_smul, hr]
+  simp only [inv_one, Units.val_one, one_pow, one_smul]
+  have hid : admissibleMap (S.genImg Sc) (bubbleDU i μ).property (bubbleDU i μ).property
+      (LinDiagram.of (𝟙 _) : LinDiagram k _ _) = 𝟙 _ := by
+    erw [admissibleMap_of]
+    exact (S.interp Sc μ μ).map_id _
+  have hc : admissibleMap (S.genImg Sc) (bubbleDU i μ).property (bubbleDU i μ).property
+      (LinDiagram.of (crossr RD i i μ ≫ crossl RD i i μ) : LinDiagram k _ _) =
+      (S.loc i (cross_dn_reg i μ) (cross_up_reg i μ)).sigL ≫
+        (S.loc i (cross_dn_reg i μ) (cross_up_reg i μ)).sig := by
+    erw [admissibleMap_of]
+    change (S.interp Sc μ μ).map
+      ((ObjectProperty.homMk (X := bubbleDU i μ) (Y := bubbleUD i μ) (crossr RD i i μ)) ≫
+        ObjectProperty.homMk (X := bubbleUD i μ) (Y := bubbleDU i μ) (crossl RD i i μ)) = _
+    erw [Functor.map_comp, decomp_crossr, decomp_crossl]
+    rfl
+  rw [hid, decompFESum_map, hc]
+  exact S.decompFE_local i μ
 
 end RouqFamily
 end Categorification.TwoRep

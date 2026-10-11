@@ -431,6 +431,21 @@ the weaker `presNM` data: concrete cyclotomic or unfurling actions must prove th
 mixed mates invertible. Arbitrary-`r` rescaling and unrestricted rectangular-to-CL
 comparison remain separate.
 
+`KLR/CyclotomicMixedInversionAffine.lean` and
+`KLR/CyclotomicMixedInversionTensor.lean` prove the distinct-colour **affine**
+rectangular crossing equivalence used in Kang–Kashiwara, arXiv:1102.4677v4,
+Theorem 5.1. The source is the actual tensor
+`R(γ+j)e(γ,j) ⊗_{R(γ)} e(γ,i)R(γ+i)`; the target is the full rectangular
+corner, not an associated-graded quotient. Distinct colours kill the noncrossing
+stratum. Coefficient absorption removes the redundant Mackey factors with both
+inverses proved, and the equivalence and its inverse respect the two different
+coefficient algebras. `tauEquiv` has the actual elementary formula with `τ = -ψ`.
+The empty lower weight `γ = 0` is included. Injectivity retains an integral base
+domain and the nonzero PBW factorization of `Q`; the tensor comparison needs only
+a commutative base. This is not yet a cyclotomic equivalence or
+`BrundanMixedInversion`: descent through the two coefficient ideals and equality
+with the ordinary-adjunction mixed mate remain to be proved.
+
 `TwoRep/ShiftedMates.lean` constructs mates from an explicit adjunction, preserving degree
 while reversing composition (`mateSh_comp`), with identity, additive and injectivity laws.
 Scalar compatibility uses explicit linear Hom/whiskering/shift hypotheses.

@@ -3,7 +3,7 @@ import Categorification.KLR.CyclotomicMixedInversionQuotient
 /-!
 # Cyclotomic rectangular mixed-crossing equivalence
 
-Kang–Kashiwara, arXiv:1102.4677v4, Theorem 5.1 and Lemma 5.2:
+Kang–Kashiwara, arXiv:1102.4677v4, Theorem 5.1, especially equation (5.2) in its proof:
 the actual affine crossing maps the span of the two cyclotomic factor ideals
 onto the upper cyclotomic ideal intersected with the full rectangular corner.
 The signed crossing `tau = -psi` therefore descends between actual cyclotomic

@@ -536,6 +536,8 @@ import Categorification.TwoRep.RouqCyc
 import Categorification.TwoRep.RouqBubbles
 import Categorification.TwoRep.RouqCurls
 import Categorification.TwoRep.RouqDecomp
+import Categorification.TwoRep.RouqUpEqual
+import Categorification.TwoRep.RouqSoundness
 import Categorification.TwoRep.RouqCyclicDot
 import Categorification.TwoRep.RouqCurl
 import Categorification.TwoRep.RouqDottedCurls

@@ -523,6 +523,7 @@ import Categorification.TwoRep.RouqMixedCup
 import Categorification.TwoRep.RouqMixedPitchfork
 import Categorification.TwoRep.RouqMixedCyc
 import Categorification.TwoRep.RouqMixedCycRight
+import Categorification.TwoRep.RouqMixedCycLeft
 import Categorification.TwoRep.RouqZig
 import Categorification.TwoRep.RouqCyc
 import Categorification.TwoRep.RouqCyclicDot

@@ -36,11 +36,13 @@ attribute [local irreducible] KL3.Diagram.sh
 /-- The empty word in its unchanged outer region. -/
 abbrev bubbleNil (μ : X) : Admissible (S := psig RD) μ μ :=
   ⟨ob RD μ [], ⟨trivial, rfl, rfl⟩⟩
-private abbrev bubbleDU (i : I) (μ : X) : Admissible (S := psig RD) μ μ :=
+/-- The downward-upward word at equal outer regions. -/
+abbrev bubbleDU (i : I) (μ : X) : Admissible (S := psig RD) μ μ :=
   ⟨ob RD μ [dn i, up i],
     ⟨⟨sh_dn_add_sh_up i μ, rfl, trivial⟩, rfl, sh_dn_add_sh_up i μ⟩⟩
 
-private theorem bubble_cupDn (i : I) (μ : X) :
+/-- The actual right cup maps to the original unit. -/
+theorem bubble_cupDn (i : I) (μ : X) :
     (S.interp Sc μ μ).map
       (ObjectProperty.homMk (X := bubbleNil μ) (Y := bubbleDU i μ)
         (mkD RD μ [([], .cup (dn i), [])] ⟨rfl, rfl⟩)) =
@@ -70,7 +72,8 @@ private theorem bubble_cupDn (i : I) (μ : X) :
     rw [sh_dn_add_sh_up]
     rfl
 
-private theorem bubble_capUp (i : I) (μ : X) :
+/-- The actual left cap maps to the derived counit. -/
+theorem bubble_capUp (i : I) (μ : X) :
     (S.interp Sc μ μ).map
       (ObjectProperty.homMk (X := bubbleDU i μ) (Y := bubbleNil μ)
         (mkD RD μ [([], .cap (up i), [])] ⟨rfl, rfl⟩)) =
@@ -91,7 +94,8 @@ private theorem bubble_capUp (i : I) (μ : X) :
   case w0 => rfl
   case w1 => rfl
 
-private theorem bubble_dotUp (i : I) (μ : X) :
+/-- A dot on the upward strand of the downward-upward word. -/
+theorem bubble_dotUp (i : I) (μ : X) :
     (S.interp Sc μ μ).map
       (ObjectProperty.homMk (X := bubbleDU i μ) (Y := bubbleDU i μ)
         (mkD RD μ [([dn i], .dot (up i), [])] ⟨rfl, rfl⟩)) =
@@ -113,11 +117,13 @@ private theorem bubble_dotUp (i : I) (μ : X) :
     case e' => rfl
   case w0 => rfl
 
-private abbrev bubbleUD (i : I) (μ : X) : Admissible (S := psig RD) μ μ :=
+/-- The upward-downward word at equal outer regions. -/
+abbrev bubbleUD (i : I) (μ : X) : Admissible (S := psig RD) μ μ :=
   ⟨ob RD μ [up i, dn i],
     ⟨⟨sh_up_add_sh_dn i μ, rfl, trivial⟩, rfl, sh_up_add_sh_dn i μ⟩⟩
 
-private theorem bubble_cupUp (i : I) (μ : X) :
+/-- The actual left cup maps to the derived unit. -/
+theorem bubble_cupUp (i : I) (μ : X) :
     (S.interp Sc μ μ).map
       (ObjectProperty.homMk (X := bubbleNil μ) (Y := bubbleUD i μ)
         (mkD RD μ [([], .cup (up i), [])] ⟨rfl, rfl⟩)) =
@@ -147,7 +153,8 @@ private theorem bubble_cupUp (i : I) (μ : X) :
     rw [sh_up_add_sh_dn]
     rfl
 
-private theorem bubble_capDn (i : I) (μ : X) :
+/-- The actual right cap maps to the original counit. -/
+theorem bubble_capDn (i : I) (μ : X) :
     (S.interp Sc μ μ).map
       (ObjectProperty.homMk (X := bubbleUD i μ) (Y := bubbleNil μ)
         (mkD RD μ [([], .cap (dn i), [])] ⟨rfl, rfl⟩)) =
@@ -168,7 +175,8 @@ private theorem bubble_capDn (i : I) (μ : X) :
   case w0 => rfl
   case w1 => rfl
 
-private theorem bubble_dotDn (i : I) (μ : X) :
+/-- A dot on the downward strand of the upward-downward word. -/
+theorem bubble_dotDn (i : I) (μ : X) :
     (S.interp Sc μ μ).map
       (ObjectProperty.homMk (X := bubbleUD i μ) (Y := bubbleUD i μ)
         (mkD RD μ [([up i], .dot (dn i), [])] ⟨rfl, rfl⟩)) =
@@ -190,7 +198,8 @@ private theorem bubble_dotDn (i : I) (μ : X) :
     case e' => rfl
   case w0 => rfl
 
-private theorem bubble_dots (μ : X) (u : List (Letter I)) (l : Letter I)
+/-- Repeated actual dots map to the corresponding composition power. -/
+theorem bubble_dots (μ : X) (u : List (Letter I)) (l : Letter I)
     (v : List (Letter I)) (h : Cond (S := psig RD) μ μ (ob RD μ (u ++ [l] ++ v)))
     (m : ℕ) :
     (S.interp Sc μ μ).map (ObjectProperty.homMk (X := ⟨_, h⟩) (Y := ⟨_, h⟩)

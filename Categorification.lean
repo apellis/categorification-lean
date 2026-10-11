@@ -313,6 +313,8 @@ import Categorification.KLR.CyclotomicDegree
 import Categorification.KLR.CyclotomicTensor
 import Categorification.KLR.CyclotomicTensorOne
 import Categorification.KLR.CyclotomicSource
+import Categorification.KLR.CyclotomicMixedInversionAffine
+import Categorification.KLR.CyclotomicMixedInversionTensor
 import Categorification.KLR.CyclotomicLower
 import Categorification.KLR.CyclotomicLowerCrossing
 import Categorification.KLR.CyclotomicLowerCoordinates

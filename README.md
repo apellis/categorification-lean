@@ -442,9 +442,21 @@ inverses proved, and the equivalence and its inverse respect the two different
 coefficient algebras. `tauEquiv` has the actual elementary formula with `τ = -ψ`.
 The empty lower weight `γ = 0` is included. Injectivity retains an integral base
 domain and the nonzero PBW factorization of `Q`; the tensor comparison needs only
-a commutative base. This is not yet a cyclotomic equivalence or
-`BrundanMixedInversion`: descent through the two coefficient ideals and equality
-with the ordinary-adjunction mixed mate remain to be proved.
+a commutative base.
+
+`CyclotomicMixedInversionIdeal`, `CyclotomicMixedInversionQuotient`, and
+`CyclotomicMixedInversionDescent` now prove the actual two-sided ideal image
+equality and the **cyclotomic bimodule equivalence**. The source is
+`RΛ(γ+j)e(γ,j) ⊗_{RΛ(γ)} e(γ,i)RΛ(γ+i)` and the target is the full corner
+in `RΛ(γ+i+j)`, with explicit weight transport. Both inverse identities and both
+outer coefficient actions are proved, with `τ = -ψ`; the empty lower weight and
+actual absent-colour zero projectors are included. No ideal compatibility, kernel
+exhaustion, flatness, or isomorphism is assumed. The equivalence retains the domain,
+nonzero PBW factorization and `KLRSymm Q` hypotheses; the ideal reduction alone
+must not be mistaken for arbitrary-`Q` bijectivity. Tensor-with-modules natural
+comparisons and identification with the prescribed ordinary-adjunction mixed mate
+remain unproved. Consequently this is **not yet** a `BrundanMixedInversion` witness
+or a concrete full CL action.
 
 `TwoRep/ShiftedMates.lean` constructs mates from an explicit adjunction, preserving degree
 while reversing composition (`mateSh_comp`), with identity, additive and injectivity laws.

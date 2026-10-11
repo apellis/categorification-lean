@@ -331,6 +331,7 @@ import Categorification.KLR.CyclotomicAbsentEquivalence
 import Categorification.KLR.CyclotomicAbsentModule
 import Categorification.KLR.CyclotomicPresentModule
 import Categorification.KLR.CyclotomicAdjunction
+import Categorification.KLR.CyclotomicInductionCalculus
 import Categorification.KLR.CyclotomicPolynomialTrace
 import Categorification.KLR.CyclotomicQuadraticAdjunction
 import Categorification.KLR.CyclotomicRelativePolynomialTrace

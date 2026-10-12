@@ -564,6 +564,8 @@ import Categorification.TwoRep.RouqPitchfork
 import Categorification.TwoRep.RouqTriangleE
 import Categorification.TwoRep.RouqSl2
 import Categorification.TwoRep.CyclotomicLocalCommutator
+import Categorification.TwoRep.AdditiveCat
+import Categorification.TwoRep.CyclotomicRouqAdjunction
 import Categorification.TwoRep.RouquierMaps
 import Categorification.TwoRep.ShiftInterchange
 import Categorification.TwoRep.Sl2

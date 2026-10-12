@@ -327,6 +327,7 @@ import Categorification.KLR.CyclotomicMixedMate.Weight
 import Categorification.KLR.CyclotomicMixedMate.Coefficient
 import Categorification.KLR.CyclotomicMixedMate.Square
 import Categorification.KLR.CyclotomicMixedMate.NaturalInverse
+import Categorification.KLR.CyclotomicMixedMate.Bundled
 import Categorification.KLR.CyclotomicMixedMate.BimoduleComparison
 import Categorification.TwoRep.CyclotomicMixedDescentExamples
 import Categorification.KLR.CyclotomicLower

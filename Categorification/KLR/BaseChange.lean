@@ -69,6 +69,52 @@ theorem map_qbar (φ : k →+* k') (P : MvPolynomial (Fin 2) k) :
 
 end ncEvalMap
 
+section ncEvalAntihom
+
+variable {A B : Type*} [Ring A] [Algebra k A] [Ring B] [Algebra k B]
+
+theorem ofFn_reverse {α : Type*} {n : ℕ} (f : Fin n → α) :
+    (List.ofFn f).reverse = List.ofFn fun a => f (Fin.rev a) := by
+  rw [List.ofFn_eq_map, List.ofFn_eq_map, ← List.map_reverse, List.finRange_reverse, List.map_map]
+  rfl
+
+/-- A `k`-linear, unital map reversing products sends `ncEval y p` to the evaluation of the
+reversed polynomial on the images of the reversed variables. -/
+theorem ncEval_antihom (φ : A →ₗ[k] B) (h1 : φ 1 = 1) (hmul : ∀ x y, φ (x * y) = φ y * φ x)
+    {n : ℕ} (y : Fin n → A) (p : MvPolynomial (Fin n) k) :
+    φ (ncEval y p) = ncEval (fun a => φ (y (Fin.rev a))) (MvPolynomial.rename Fin.rev p) := by
+  have hpow : ∀ (x : A) (m : ℕ), φ (x ^ m) = φ x ^ m := by
+    intro x m
+    induction m with
+    | zero => rw [pow_zero, pow_zero, h1]
+    | succ m ih => rw [pow_succ, hmul, ih, pow_succ']
+  have hlist : ∀ l : List A, φ l.prod = (l.map φ).reverse.prod := by
+    intro l
+    induction l with
+    | nil => simp [h1]
+    | cons x l ih =>
+      rw [List.prod_cons, hmul, ih, List.map_cons, List.reverse_cons, List.prod_append,
+        List.prod_singleton]
+  have halg : ∀ c : k, φ (algebraMap k A c) = algebraMap k B c := by
+    intro c
+    rw [Algebra.algebraMap_eq_smul_one, map_smul, h1, Algebra.algebraMap_eq_smul_one]
+  induction p using MvPolynomial.induction_on' with
+  | add p q hp hq => rw [ncEval_add, map_add, hp, hq, map_add, ncEval_add]
+  | monomial s c =>
+    rw [ncEval_monomial, MvPolynomial.rename_monomial, ncEval_monomial, hmul,
+      halg, hlist, ← Algebra.commutes]
+    congr 1
+    rw [List.map_ofFn, ofFn_reverse]
+    congr 1
+    refine congrArg List.ofFn (funext fun a => ?_)
+    simp only [Function.comp_apply, hpow]
+    congr 1
+    have := Finsupp.mapDomain_apply_of_injective Fin.rev_injective s (Fin.rev a)
+    rw [Fin.rev_rev] at this
+    rw [this]
+
+end ncEvalAntihom
+
 /-! ### The base-change homomorphism -/
 
 namespace KLRAlgebra

@@ -352,6 +352,8 @@ import Categorification.KLR.CyclotomicPositiveCommutator
 import Categorification.KLR.CyclotomicNegativeCommutator
 import Categorification.KLR.CyclotomicCommutatorBimodule
 import Categorification.KLR.CyclotomicAbsentColour
+import Categorification.KLR.CyclotomicAction.Block
+import Categorification.KLR.CyclotomicAction.Induction
 import Categorification.KLR.CyclotomicAbsentEquivalence
 import Categorification.KLR.CyclotomicAbsentModule
 import Categorification.KLR.CyclotomicPresentModule

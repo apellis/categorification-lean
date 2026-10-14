@@ -358,6 +358,7 @@ import Categorification.KLR.CyclotomicAbsentColour
 import Categorification.KLR.CyclotomicAction.Block
 import Categorification.KLR.CyclotomicAction.Braid
 import Categorification.KLR.CyclotomicAction.Induction
+import Categorification.KLR.CyclotomicAction.Slides
 import Categorification.KLR.CyclotomicAction.Square
 import Categorification.KLR.CyclotomicAbsentEquivalence
 import Categorification.KLR.CyclotomicAbsentModule

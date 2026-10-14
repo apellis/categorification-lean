@@ -539,6 +539,7 @@ import Categorification.TwoRep.LemAprimeScalar
 import Categorification.TwoRep.LemMain
 import Categorification.TwoRep.LemMainNeg
 import Categorification.TwoRep.LemXind
+import Categorification.TwoRep.LinearCat
 import Categorification.TwoRep.MatKarFunctor
 import Categorification.TwoRep.MateSh
 import Categorification.TwoRep.ShiftCoherence

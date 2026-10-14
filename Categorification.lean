@@ -260,6 +260,8 @@ import Categorification.KLR.BarGamma
 import Categorification.KLR.BarK0
 import Categorification.KLR.Basic
 import Categorification.KLR.BasisTheorem
+import Categorification.KLR.BasisTheoremGeneral
+import Categorification.KLR.SymmetricFactorization
 import Categorification.KLR.Bialgebra
 import Categorification.KLR.Center
 import Categorification.KLR.CenterFree

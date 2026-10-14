@@ -68,6 +68,7 @@ The simply-laced rings of KL I, for a simple graph `Γ`, are `KLR.R1 k Γ ν` (`
 | KL I Prop. 3.11 (2), (3) | for a composition `μ` of `n`, the socle of `Res_μ L_n` over the parabolic nilHecke algebra is simple and isomorphic to the Young coinvariant module `L_μ`, and every simple subquotient is isomorphic to `L_μ`; the socle of `Res^n_{n-1} L_n` is simple | `NilHecke.parNH_socle`, `NilHecke.nonempty_linearEquiv_youngRep_subquotient`, `NilHecke.resNH_socle` |
 | KL I Prop. 2.3 | polynomial representation, for every orientation of `Γ` (and for any factorisation `Q_ij(u,v) = P_ji(u,v) P_ij(v,u)`) | `KLR.polyRepKL1`, `KLR.PolyRep.polyRep` |
 | KL I Thm. 2.5 | for any choice of reduced expressions, `_jR(ν)_i` is free with basis `ψ_ŵ x^u e_i` (`w • i = j`) | `KLR.KL1.cornerBasis`, `KLR.KL1.cornerBasis_apply`, `KLR.KL1.basis`; general form `KLR.KLRAlgebra.cornerBasis` |
+| KL I Thm. 2.5, any commutative ring | for any commutative `k` and symmetric data `Q_{ji}(u,v) = Q_{ij}(v,u)` (`KLRSymm Q`, the setting of Kang–Kashiwara arXiv:1102.4677v4 §3) and any reduced expressions, `ψ_ŵ x^u e_i` is a `k`-basis of `R(ν)`; by base change from the universal symmetric data over `UnivRing I` (generators of `R_k(ν)` sent to `1 ⊗` generators of `k ⊗ R_U(ν)`). Symmetric data admit the factorization `Q_{ij}(u,v) = P_{ji}(u,v) P_{ij}(v,u)` used by the polynomial representation | `KLR.KLRAlgebra.basisOfSymm`, `KLR.KLRAlgebra.linearIndependent_stdElt_of_symm`, `KLR.KLRAlgebra.liftAlong`, `KLR.symmP_factor`, `KLR.factorization_of_symm` |
 | KL I Cor. 2.6 | the polynomial representation is faithful | `KLR.KL1.polyRepKL1_injective`; general form `KLR.polyRep_injective` |
 | KL I Prop. 2.7 | `R(ν)` is free of rank `m!` over `Pol(ν)`, for both the right and the left action | `KLR.KL1.rightBasis`, `KLR.KL1.leftBasis`, `KLR.KL1.finrank_polMod` |
 | KL I Thm. 2.9 | the center of `R(ν)` is `Sym(ν) = Pol(ν)^{S_m}` | `KLR.KL1.center_eq`, `KLR.KL1.symNuEquivCenter`, `KLR.symNu` |
@@ -94,7 +95,8 @@ The simply-laced rings of KL I, for a simple graph `Γ`, are `KLR.R1 k Γ ν` (`
 | KL I §3.2, Lemma 2.20, Lemmas 3.5–3.8, Prop. 3.10, Cor. 3.12 (ungraded) | the shuffle lemma (dimensions); `Δ_{i^n}`, `ε_i`, `Hom(Ind N, M) ≅ Hom(N, Δ M)`; simple `R(μ) ⊗ R(ni)`-modules are `N ⊠ L(i^n)`; Lemmas 3.6–3.8; the socle of `Δ_{i^n}M` is simple of the form `L ⊠ L(i^n)` (Prop. 3.10, proved without Kato's theorem); Cor. 3.12 (for finite-dimensional modules with nilpotent dots, which holds for graded simples) | `KLR.KLRAlgebra.shuffle_lemma_finrank`, `KLR.KLRAlgebra.indResEquiv`, `KLR.KLRAlgebra.lemma_3_6`, `KLR.KLRAlgebra.lemma_3_7_head`, `KLR.KLRAlgebra.lemma_3_8`, `KLR.KLRAlgebra.prop_3_10_socle`, `KLR.KLRAlgebra.cor_3_12_socle`, `KLR.KLRAlgebra.crystal_hypotheses_of_isGradedSimple` |
 | KL I Cor. 2.17 | restriction takes projective modules to projective modules | `KLR.KLRAlgebra.res_projective` |
 
-The basis theorem is proved over any integral domain (the paper works over `ℤ`). Spanning holds
+The basis theorem is proved over any integral domain (the paper works over `ℤ`), and for symmetric
+`Q` over any commutative ring (`KLR.KLRAlgebra.basisOfSymm`). Spanning holds
 over any commutative ring (`KLR.KLRAlgebra.span_eq_top'`). Linear independence is proved by
 expanding the action on the polynomial representation over the fraction field in terms of the
 automorphisms `w ∈ S_m` (`Categorification.PermExpansion`), rather than by the paper's

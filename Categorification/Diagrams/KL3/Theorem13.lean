@@ -32,7 +32,7 @@ Here `sl_n` is `slRootDatum m` with `n = m + 1`, and `𝕜` is any field.
   Theorem 1.3;
 * **`prop_1_4_sl`**, `gammaUA'Equiv_sl`: KL III Proposition 1.4,
   `γ : 1_ρ (_𝒜 U̇(sl_n)) 1_λ → K₀(U̇(λ, ρ))` is bijective (with KL III Proposition 2.5 supplied
-  by the quantum Gabber–Kac theorem, `gammaUA'_bijective_unconditional`).
+  by the quantum Gabber–Kac theorem, `gammaUA'_bijective_of_calculusNondeg`).
 -/
 
 noncomputable section
@@ -103,13 +103,13 @@ and any field `K`, `γ : 1_ρ (_𝒜 U̇) 1_λ → K₀(U̇(λ, ρ))` is bijecti
 theorem prop_1_4_sl (K : Type u) [Field K] (m : ℕ) (lam ρ : Fin m → ℤ) :
     Function.Bijective
       (gammaUA' (RD := slRootDatum m) (k := K) homGdim lam ρ) :=
-  gammaUA'_bijective_unconditional (theorem_1_3 K m) lam ρ
+  gammaUA'_bijective_of_calculusNondeg (theorem_1_3 K m) lam ρ
 
 /-- `γ` as an isomorphism `1_ρ (_𝒜 U̇(sl_{m+1})) 1_λ ≅ K₀(U̇(λ, ρ))`. -/
 def gammaUA'Equiv_sl (K : Type u) [Field K] (m : ℕ) (lam ρ : Fin m → ℤ) :
     LinearMap.range (dpComb (RD := slRootDatum m) lam ρ) ≃ₗ[LaurentPolynomial ℤ]
       K0Kar (slRootDatum m) K ρ lam :=
-  gammaUA'Equiv_unconditional (theorem_1_3 K m) lam ρ
+  gammaUA'Equiv_of_calculusNondeg (theorem_1_3 K m) lam ρ
 
 end Categorification.KL3.Diagram
 

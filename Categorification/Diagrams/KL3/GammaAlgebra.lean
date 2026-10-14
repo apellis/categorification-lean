@@ -27,10 +27,10 @@ hypothesis is used. Proposition 2.5 is supplied by `UDot.KL3.formNondeg_uncondit
 * `gammaAlg_injective`: **Theorem 1.2** given `hG` and `CalculusNondeg RD k`;
 * `gammaAlgEquiv`: the resulting ring equivalence given `hG`, `hspan`, `CalculusNondeg RD k`;
 * `gammaAlg_surjective_unconditional`: surjectivity for every finite Cartan datum;
-* `gammaAlg_injective_unconditional`: Theorem 1.2 as printed for every finite Cartan datum (the
+* `gammaAlg_injective_of_calculusNondeg`: Theorem 1.2 as printed for every finite Cartan datum (the
   only hypothesis is `CalculusNondeg RD k`, which is the hypothesis of Theorem 1.2);
-* `gammaAlgEquiv_unconditional`: equivalence for every finite Cartan datum, still requiring
-  `CalculusNondeg RD k` ("unconditional" discharges hom-finiteness and spanning, not nondegeneracy);
+* `gammaAlgEquiv_of_calculusNondeg`: equivalence for every finite Cartan datum, still requiring
+  `CalculusNondeg RD k` (hom-finiteness and spanning are discharged, nondegeneracy is not);
 * `gammaAlgEquiv_sl`: the `sl_n` case over any field, using Theorem 1.3.
 
 The equivalences are packaged as `RingEquiv` between non-unital rings. Laurent-scalar
@@ -105,7 +105,7 @@ theorem gammaAlg_injective (hnd : CalculusNondeg RD k) :
         (by rw [hK', map_zero])
     have hz : (⟨dpComb a.2 a.1 f', LinearMap.mem_range_self _ _⟩ :
         LinearMap.range (dpComb (RD := RD) a.2 a.1)) = 0 := by
-      refine gammaUA'_injective_unconditional hG hnd a.2 a.1 ?_
+      refine gammaUA'_injective_of_calculusNondeg hG hnd a.2 a.1 ?_
       rw [gammaUA'_apply, h0, map_zero]
     have hz' : dpComb (RD := RD) a.2 a.1 f' = 0 := congrArg Subtype.val hz
     rw [← genU_genOne, ← genU_genOne, ← genU_mulG, ← genU_mulG, hf', genU_mapDomain, hz',
@@ -132,12 +132,12 @@ theorem gammaAlg_surjective_unconditional :
 nondegenerate, `γ : _𝒜 U̇ → K₀(U̇)` is injective. Hom-finiteness is supplied by `homGdim` and
 Proposition 2.5 by `UDot.KL3.formNondeg_unconditional`; the only hypothesis is the one in the
 statement of Theorem 1.2. -/
-theorem gammaAlg_injective_unconditional (hnd : CalculusNondeg RD k) :
+theorem gammaAlg_injective_of_calculusNondeg (hnd : CalculusNondeg RD k) :
     Function.Injective (gammaAlg (RD := RD) k (torsionFreeK0_of_homGdim homGdim)) :=
   gammaAlg_injective homGdim hnd
 
 /-- `_𝒜 U̇ ≅ K₀(U̇)` for every finite Cartan datum with nondegenerate calculus. -/
-def gammaAlgEquiv_unconditional (hnd : CalculusNondeg RD k) :
+def gammaAlgEquiv_of_calculusNondeg (hnd : CalculusNondeg RD k) :
     AUD RD vQ ≃+* K0All RD k :=
   gammaAlgEquiv homGdim sortedSpan_holds hnd
 
@@ -153,7 +153,7 @@ attribute [local instance] KLR.KLGamma.vAlgebra
 any field `K` (Theorems 1.1, 1.2 with Theorem 1.3; root datum `slRootDatum m`, `I = Fin m`). -/
 def gammaAlgEquiv_sl (K : Type w) [Field K] (m : ℕ) :
     AUD (Categorification.Flag.slRootDatum m) vQ ≃+* K0All (Categorification.Flag.slRootDatum m) K :=
-  gammaAlgEquiv_unconditional (theorem_1_3 K m)
+  gammaAlgEquiv_of_calculusNondeg (theorem_1_3 K m)
 
 end SlN
 

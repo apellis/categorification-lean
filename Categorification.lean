@@ -29,6 +29,7 @@ import Categorification.Algebra.Graded.TwistTensor
 import Categorification.Algebra.IdempotentEquiv
 import Categorification.Algebra.InductionAlong
 import Categorification.Algebra.InductionAlongEnd
+import Categorification.Algebra.InductionAlongRes
 import Categorification.Algebra.InductionAlongTriple
 import Categorification.Algebra.K0FinDim
 import Categorification.Algebra.ModuleCatLinear
@@ -358,6 +359,7 @@ import Categorification.KLR.CyclotomicAbsentColour
 import Categorification.KLR.CyclotomicAction.Block
 import Categorification.KLR.CyclotomicAction.Braid
 import Categorification.KLR.CyclotomicAction.Induction
+import Categorification.KLR.CyclotomicAction.Restriction
 import Categorification.KLR.CyclotomicAction.Slides
 import Categorification.KLR.CyclotomicAction.Square
 import Categorification.KLR.CyclotomicAbsentEquivalence

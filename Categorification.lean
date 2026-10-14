@@ -28,8 +28,10 @@ import Categorification.Algebra.Graded.TensorSimple
 import Categorification.Algebra.Graded.TwistTensor
 import Categorification.Algebra.IdempotentEquiv
 import Categorification.Algebra.InductionAlong
+import Categorification.Algebra.InductionAlongEnd
 import Categorification.Algebra.InductionAlongTriple
 import Categorification.Algebra.K0FinDim
+import Categorification.Algebra.ModuleCatLinear
 import Categorification.Algebra.MonicTrace
 import Categorification.Algebra.NilHecke
 import Categorification.Algebra.NilHeckeIdempotent
@@ -356,6 +358,7 @@ import Categorification.KLR.CyclotomicAbsentColour
 import Categorification.KLR.CyclotomicAction.Block
 import Categorification.KLR.CyclotomicAction.Braid
 import Categorification.KLR.CyclotomicAction.Induction
+import Categorification.KLR.CyclotomicAction.Square
 import Categorification.KLR.CyclotomicAbsentEquivalence
 import Categorification.KLR.CyclotomicAbsentModule
 import Categorification.KLR.CyclotomicPresentModule

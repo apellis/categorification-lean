@@ -27,6 +27,7 @@ import Categorification.Algebra.Graded.TensorGdim
 import Categorification.Algebra.Graded.TensorSimple
 import Categorification.Algebra.Graded.TwistTensor
 import Categorification.Algebra.IdempotentEquiv
+import Categorification.Algebra.InductionAlong
 import Categorification.Algebra.K0FinDim
 import Categorification.Algebra.MonicTrace
 import Categorification.Algebra.NilHecke

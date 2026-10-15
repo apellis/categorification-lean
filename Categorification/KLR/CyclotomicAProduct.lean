@@ -95,17 +95,15 @@ theorem cLL_mul_last_dot_pow (t : T0) (d : ℕ) :
     congr 1
     rw [mul_assoc, Algebra.TensorProduct.tmul_mul_tmul, one_mul, ← pow_succ]
 
-variable [IsDomain k] {P : I → I → MvPolynomial (Fin 2) k}
-  (hPQ : ∀ a b, a ≠ b → Q a b = P b a * rename ![1, 0] (P a b))
-  (hP : ∀ a b, a ≠ b → P a b ≠ 0)
+variable (hsym : KLRSymm Q)
   (hβ : 0 < Multiset.card β)
-  (hQ : ∀ i j : I, i ≠ j → IsUnit (polyInY (Q i j)).leadingCoeff)
+  (hQ : ∀ i j : I, i ≠ j → ∃ c : k, IsUnit c ∧ (polyInY (Q i j)).leadingCoeff = Polynomial.C c)
   (ha : ∀ i, (a i).Monic)
 
 include hβ hQ ha in
 /-- The dotted intertwiner yields the actual product polynomial after applying `CP`. -/
 theorem cPoly_gProd_first_dot_tauW (d : ℕ) :
-    cPoly i β hPQ hP a ((gProd (Multiset.card β) * oneConcat Q Si β *
+    cPoly i β hsym a ((gProd (Multiset.card β) * oneConcat Q Si β *
       (x ⟨0, zero_lt_card_single_add i β⟩ : R) ^ d) *
         tauW a (zero_lt_card_single_add i β) (Multiset.card β)) =
       thetaL Q i β a (aPrime Q i β a) * Polynomial.X ^ d := by
@@ -113,16 +111,16 @@ theorem cPoly_gProd_first_dot_tauW (d : ℕ) :
   have hn := (card_single_add i β).symm
   have hx := pol_mul_tauW (Q := Q) a h0 (Multiset.card β) hn (X ⟨0, h0⟩ ^ d)
   rw [map_pow, pol_X, map_pow, rename_X, cP_apply_zero _ hn h0, map_pow, pol_X] at hx
-  have hz := cPoly_eq_zero i β hPQ hP a hβ
+  have hz := cPoly_eq_zero i β hsym a hβ
     (Submodule.smul_mem _ (gProd (Multiset.card β) * oneConcat Q Si β : R) hx)
-  change cPoly i β hPQ hP a
+  change cPoly i β hsym a
     ((gProd (Multiset.card β) * oneConcat Q Si β) *
       (x ⟨0, h0⟩ ^ d * tauW a h0 (Multiset.card β) -
         tauW a h0 (Multiset.card β) * x ⟨Multiset.card β, lastPos_lt i β⟩ ^ d)) = 0 at hz
   rw [mul_sub, map_sub, sub_eq_zero] at hz
-  have hd := mul_mem_cycL0 a (reverse_defect_cut_mem a i β hPQ hP hβ hQ ha)
+  have hd := mul_mem_cycL0 a (reverse_defect_cut_mem a hsym i β hβ hQ ha)
     (Subalgebra.pow_mem _ (x_mem_subR0 ⟨Multiset.card β, lastPos_lt i β⟩) d)
-  have hz' := cPoly_eq_zero i β hPQ hP a hβ hd
+  have hz' := cPoly_eq_zero i β hsym a hβ hd
   rw [sub_mul, sub_mul, map_sub, sub_eq_zero] at hz'
   rw [mul_assoc, hz, ← mul_assoc, mul_assoc (gProd (Multiset.card β)), oneConcat_mul_tauW,
     ← mul_assoc, hz', bElt_mul_cL_one, cLL_mul_last_dot_pow,
@@ -137,21 +135,20 @@ variable (h1 : 1 < Multiset.card ((Singleton.singleton i : Multiset I) + β))
 include hQ ha in
 /-- The summed form of KK (5.15) for the actual map `A`. -/
 theorem aMap_sPoly_mul_X_pow (d : ℕ) :
-    aMap i β a h1 hβ hPQ hP (sPoly (Q := Q) i β a * Polynomial.X ^ d) =
+    aMap i β a h1 hβ hsym (sPoly (Q := Q) i β a * Polynomial.X ^ d) =
       thetaL Q i β a (aPrime Q i β a) * Polynomial.X ^ d := by
-  rw [← bMap_gProd_mul_first_dot_pow i β a hPQ hP h1 hβ,
+  rw [← bMap_gProd_mul_first_dot_pow i β a hsym h1 hβ,
     aMap_bMap, pMap_mk, cMap_mk]
-  exact cPoly_gProd_first_dot_tauW i β a hPQ hP hβ hQ ha d
+  exact cPoly_gProd_first_dot_tauW i β a hsym hβ hQ ha d
 
 include hQ ha in
 /-- KK (5.16), using the existing monic polynomial `aMonicL` rather than a new normalization. -/
 theorem aMap_sPoly_mul_X_pow_monic (d : ℕ) :
-    aMap i β a h1 hβ hPQ hP (sPoly (Q := Q) i β a * Polynomial.X ^ d) =
+    aMap i β a h1 hβ hsym (sPoly (Q := Q) i β a * Polynomial.X ^ d) =
       lamA Q i β • (aMonicL Q i β a * Polynomial.X ^ d) := by
-  rw [aMap_sPoly_mul_X_pow i β a hPQ hP hβ hQ ha h1, thetaL_aPrime i β a hQ,
+  rw [aMap_sPoly_mul_X_pow i β a hsym hβ hQ ha h1, thetaL_aPrime i β a hQ,
     smul_mul_assoc]
 
-omit [IsDomain k] in
 theorem sPoly_mul_C_e (s : Seq β) :
     sPoly (Q := Q) i β a * Polynomial.C (CycKLR.mk k Q a β (e s)) =
       gLeadPoly (Q := Q) i β a (Multiset.card β) le_rfl s := by
@@ -163,7 +160,6 @@ theorem sPoly_mul_C_e (s : Seq β) :
       e_mul_e, ite_eq_right ht, map_zero, Polynomial.C_0, mul_zero]
   · intro h; exact absurd (Finset.mem_univ _) h
 
-omit [IsDomain k] in
 theorem aPrime_mul_one_tmul_e (s : Seq β) :
     aPrime Q i β a * (1 ⊗ₜ e s) = cOf Q i β (gPol Q i β a s) * (1 ⊗ₜ e s) := by
   rw [aPrime, Finset.sum_mul]
@@ -177,12 +173,12 @@ theorem aPrime_mul_one_tmul_e (s : Seq β) :
 include hQ ha in
 /-- KK (5.15), sequence by sequence, with its signed product encoded by `gPol`. -/
 theorem aMap_gLeadPoly_mul_X_pow (s : Seq β) (d : ℕ) :
-    aMap i β a h1 hβ hPQ hP
+    aMap i β a h1 hβ hsym
       (gLeadPoly (Q := Q) i β a (Multiset.card β) le_rfl s * Polynomial.X ^ d) =
       thetaL Q i β a (cOf Q i β (gPol Q i β a s) * (1 ⊗ₜ e s)) * Polynomial.X ^ d := by
   rw [← sPoly_mul_C_e, mul_assoc,
     ← (Polynomial.commute_X_pow (Polynomial.C (CycKLR.mk k Q a β (e s))) d).eq,
-    ← mul_assoc, aMap_mul_C, aMap_sPoly_mul_X_pow i β a hPQ hP hβ hQ ha h1,
+    ← mul_assoc, aMap_mul_C, aMap_sPoly_mul_X_pow i β a hsym hβ hQ ha h1,
     mul_assoc, (Polynomial.commute_X_pow (Polynomial.C (CycKLR.mk k Q a β (e s))) d).eq,
     ← mul_assoc, ← thetaL_one_tmul, ← map_mul, aPrime_mul_one_tmul_e]
 

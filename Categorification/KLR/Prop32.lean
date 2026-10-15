@@ -157,7 +157,7 @@ variable (G : GradingDatum Q) {P : I → I → MvPolynomial (Fin 2) k}
 `[Res_{ν,ν'}] [P_s] = ∑_u q^{deg(ψ_{σ(u)} 1_s)} [P_{i_u}] ⊗ [P_{j_u}]`, the sum over the shuffles
 `u` of `s` (`u • s = i_u j_u`). -/
 theorem resK0_projP (s : Seq (ν + ν')) :
-    G.resK0 ν ν' hPQ hP (K0.of (G.projP s)) =
+    G.resK0 ν ν' (KLRSymm.of_factorization hPQ hP) (K0.of (G.projP s)) =
       ∑ u : ShuffleOf ν ν' s, (T (G.degW (shuffleWord u.1) s) : LaurentPolynomial ℤ) •
         K0.extTensor (G.grade ν) (G.grade ν') (K0.of (G.projP u.split.1))
           (K0.of (G.projP u.split.2)) := by

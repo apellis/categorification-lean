@@ -397,43 +397,41 @@ theorem embed_right (a : C) (z : Source Q γ i j) :
     change ((y : C) * a) ⊗ₜ 1 = ((y : C) ⊗ₜ 1) * (a ⊗ₜ 1)
     rw [Algebra.TensorProduct.tmul_mul_tmul, one_mul]
 
-variable [IsDomain k] {P : I → I → MvPolynomial (Fin 2) k}
-  (hPQ : ∀ a b, a ≠ b → Q a b = P b a * MvPolynomial.rename ![1, 0] (P a b))
-  (hP : ∀ a b, a ≠ b → P a b ≠ 0)
+variable (hsym : KLRSymm Q)
 
 /-- The actual rectangular affine Mackey equivalence, balanced over `R(γ)` alone. -/
 def affineEquiv (hij : i ≠ j) : Source Q γ i j ≃ₗ[k] bimod Q (weightSquare γ i j) :=
-  (sourceEquiv Q γ i j).trans (crossingEquiv γ i j hPQ hP hij)
+  (sourceEquiv Q γ i j).trans (crossingEquiv γ i j hsym hij)
 
 theorem affineEquiv_tmul (hij : i ≠ j) (x : Left Q γ j) (y : Right Q γ i) :
-    (affineEquiv Q γ i j hPQ hP hij (BalancedTensor.tmul x y) : KLRAlgebra k Q ((γ + {j}) + {i})) =
+    (affineEquiv Q γ i j hsym hij (BalancedTensor.tmul x y) : KLRAlgebra k Q ((γ + {j}) + {i})) =
       concat Q (γ + {j}) {i} ((x : A) ⊗ₜ 1) * ψ (Multiset.card γ) *
         botConcat Q (weightSquare γ i j) ((y : C) ⊗ₜ 1) :=
-  crossingEquiv_tmul γ i j hPQ hP hij _ _
+  crossingEquiv_tmul γ i j hsym hij _ _
 
 theorem affineEquiv_left (hij : i ≠ j) (a : A) (z : Source Q γ i j) :
-    (affineEquiv Q γ i j hPQ hP hij (a • z) : KLRAlgebra k Q ((γ + {j}) + {i})) =
-      concat Q (γ + {j}) {i} (a ⊗ₜ 1) * affineEquiv Q γ i j hPQ hP hij z := by
-  change (crossingEquiv γ i j hPQ hP hij (embed Q γ i j (a • z)) : KLRAlgebra k Q ((γ + {j}) + {i})) = _
+    (affineEquiv Q γ i j hsym hij (a • z) : KLRAlgebra k Q ((γ + {j}) + {i})) =
+      concat Q (γ + {j}) {i} (a ⊗ₜ 1) * affineEquiv Q γ i j hsym hij z := by
+  change (crossingEquiv γ i j hsym hij (embed Q γ i j (a • z)) : KLRAlgebra k Q ((γ + {j}) + {i})) = _
   rw [embed_left, crossingEquiv_left]
   rfl
 
 theorem affineEquiv_right (hij : i ≠ j) (a : C) (z : Source Q γ i j) :
-    (affineEquiv Q γ i j hPQ hP hij (rightAct Q γ i j a z) : KLRAlgebra k Q ((γ + {j}) + {i})) =
-      affineEquiv Q γ i j hPQ hP hij z * botConcat Q (weightSquare γ i j) (a ⊗ₜ 1) := by
-  change (crossingEquiv γ i j hPQ hP hij (embed Q γ i j (rightAct Q γ i j a z)) : KLRAlgebra k Q ((γ + {j}) + {i})) = _
+    (affineEquiv Q γ i j hsym hij (rightAct Q γ i j a z) : KLRAlgebra k Q ((γ + {j}) + {i})) =
+      affineEquiv Q γ i j hsym hij z * botConcat Q (weightSquare γ i j) (a ⊗ₜ 1) := by
+  change (crossingEquiv γ i j hsym hij (embed Q γ i j (rightAct Q γ i j a z)) : KLRAlgebra k Q ((γ + {j}) + {i})) = _
   rw [embed_right, crossingEquiv_right]
   rfl
 
 /-- The source convention `τ = -ψ`, not an unspecified isomorphism. -/
 def tauEquiv (hij : i ≠ j) : Source Q γ i j ≃ₗ[k] bimod Q (weightSquare γ i j) :=
-  (affineEquiv Q γ i j hPQ hP hij).trans (LinearEquiv.neg k)
+  (affineEquiv Q γ i j hsym hij).trans (LinearEquiv.neg k)
 
 theorem tauEquiv_tmul (hij : i ≠ j) (x : Left Q γ j) (y : Right Q γ i) :
-    (tauEquiv Q γ i j hPQ hP hij (BalancedTensor.tmul x y) : KLRAlgebra k Q ((γ + {j}) + {i})) =
+    (tauEquiv Q γ i j hsym hij (BalancedTensor.tmul x y) : KLRAlgebra k Q ((γ + {j}) + {i})) =
       concat Q (γ + {j}) {i} ((x : A) ⊗ₜ 1) * (-ψ (Multiset.card γ)) *
         botConcat Q (weightSquare γ i j) ((y : C) ⊗ₜ 1) := by
-  change -(affineEquiv Q γ i j hPQ hP hij (BalancedTensor.tmul x y) : KLRAlgebra k Q ((γ + {j}) + {i})) = _
+  change -(affineEquiv Q γ i j hsym hij (BalancedTensor.tmul x y) : KLRAlgebra k Q ((γ + {j}) + {i})) = _
   rw [affineEquiv_tmul, mul_neg, neg_mul]
 
 /-- Left multiplication by the actual left coefficient algebra on the corner. -/
@@ -447,27 +445,27 @@ def cornerRight (a : C) (z : bimod Q (weightSquare γ i j)) : bimod Q (weightSqu
     mul_botConcat_mem_bimod (weightSquare γ i j) (a ⊗ₜ 1) z.2⟩
 
 theorem affineEquiv_symm_left (hij : i ≠ j) (a : A) (z : bimod Q (weightSquare γ i j)) :
-    (affineEquiv Q γ i j hPQ hP hij).symm (cornerLeft Q γ i j a z) =
-      a • (affineEquiv Q γ i j hPQ hP hij).symm z := by
-  apply (affineEquiv Q γ i j hPQ hP hij).injective
+    (affineEquiv Q γ i j hsym hij).symm (cornerLeft Q γ i j a z) =
+      a • (affineEquiv Q γ i j hsym hij).symm z := by
+  apply (affineEquiv Q γ i j hsym hij).injective
   apply Subtype.ext
   simp only [LinearEquiv.apply_symm_apply, affineEquiv_left]
   rfl
 
 theorem affineEquiv_symm_right (hij : i ≠ j) (a : C) (z : bimod Q (weightSquare γ i j)) :
-    (affineEquiv Q γ i j hPQ hP hij).symm (cornerRight Q γ i j a z) =
-      rightAct Q γ i j a ((affineEquiv Q γ i j hPQ hP hij).symm z) := by
-  apply (affineEquiv Q γ i j hPQ hP hij).injective
+    (affineEquiv Q γ i j hsym hij).symm (cornerRight Q γ i j a z) =
+      rightAct Q γ i j a ((affineEquiv Q γ i j hsym hij).symm z) := by
+  apply (affineEquiv Q γ i j hsym hij).injective
   apply Subtype.ext
   simp only [LinearEquiv.apply_symm_apply, affineEquiv_right]
   rfl
 
 @[simp] theorem affineEquiv_inverse_forward (hij : i ≠ j) (z : Source Q γ i j) :
-    (affineEquiv Q γ i j hPQ hP hij).symm (affineEquiv Q γ i j hPQ hP hij z) = z :=
-  (affineEquiv Q γ i j hPQ hP hij).symm_apply_apply z
+    (affineEquiv Q γ i j hsym hij).symm (affineEquiv Q γ i j hsym hij z) = z :=
+  (affineEquiv Q γ i j hsym hij).symm_apply_apply z
 
 @[simp] theorem affineEquiv_forward_inverse (hij : i ≠ j) (z : bimod Q (weightSquare γ i j)) :
-    affineEquiv Q γ i j hPQ hP hij ((affineEquiv Q γ i j hPQ hP hij).symm z) = z :=
-  (affineEquiv Q γ i j hPQ hP hij).apply_symm_apply z
+    affineEquiv Q γ i j hsym hij ((affineEquiv Q γ i j hsym hij).symm z) = z :=
+  (affineEquiv Q γ i j hsym hij).apply_symm_apply z
 
 end Categorification.KLR.KLRAlgebra.MixedAffine.Lower

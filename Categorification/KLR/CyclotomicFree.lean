@@ -30,10 +30,8 @@ namespace Categorification.KLR
 open Equiv MvPolynomial TypeA PolyRep
 open scoped TensorProduct
 
-variable {I : Type*} [DecidableEq I] {k : Type*} [CommRing k] [IsDomain k]
-  {Q : I → I → MvPolynomial (Fin 2) k} {P : I → I → MvPolynomial (Fin 2) k}
-  (hPQ : ∀ a b, a ≠ b → Q a b = P b a * rename ![1, 0] (P a b))
-  (hP : ∀ a b, a ≠ b → P a b ≠ 0)
+variable {I : Type*} [DecidableEq I] {k : Type*} [CommRing k]
+  {Q : I → I → MvPolynomial (Fin 2) k} (hsym : KLRSymm Q)
 
 namespace KLRAlgebra
 
@@ -52,12 +50,10 @@ noncomputable abbrev shW (u : Shuffle (Seq.card_add' ν ν')) : List ℕ := canW
 noncomputable def rW (u : Shuffle (Seq.card_add' ν ν')) : KLRAlgebra k Q (ν + ν') :=
   hflip (hatW shW u)
 
-omit [IsDomain k] in
 theorem rW_mul_oneConcat (u : Shuffle (Seq.card_add' ν ν')) :
     (rW u * oneConcat Q ν ν' : KLRAlgebra k Q (ν + ν')) = rW u := by
   rw [rW, hatW, hflip_mul, hflip_oneConcat_eq, mul_assoc, oneConcat_idem.eq]
 
-omit [IsDomain k] in
 /-- The identity shuffle gives `ψ(ŵ_1) = 1_{ν,ν'}`. -/
 theorem rW_one : (rW (⟨1, isShuffle_one _⟩ : Shuffle (Seq.card_add' ν ν')) :
     KLRAlgebra k Q (ν + ν')) = oneConcat Q ν ν' := by
@@ -67,7 +63,6 @@ theorem rW_one : (rW (⟨1, isShuffle_one _⟩ : Shuffle (Seq.card_add' ν ν'))
 noncomputable def rFree (t : Shuffle (Seq.card_add' ν ν') → T) : KLRAlgebra k Q (ν + ν') :=
   ∑ u, rW u * concat Q ν ν' (t u)
 
-omit [IsDomain k] in
 theorem hflip_freeMap_eq_rFree (t : Shuffle (Seq.card_add' ν ν') → T) :
     hflip ((freeMap (Q := Q) shW (Finsupp.equivFunOnFinite.symm
       (fun u => tflip Q ν ν' (t u))) : KLRAlgebra k Q (ν + ν'))) = rFree t := by
@@ -79,11 +74,11 @@ theorem hflip_freeMap_eq_rFree (t : Shuffle (Seq.card_add' ν ν') → T) :
     rfl
   · intro i; exact zero_smul _ _
 
-include hPQ hP in
+include hsym in
 /-- **Uniqueness** in the right free decomposition. -/
 theorem rfree_injective {t : Shuffle (Seq.card_add' ν ν') → T} (h : rFree t = 0) :
     ∀ u, t u = 0 := by
-  have hbij := freeMap_bijective (ν := ν) (ν' := ν') hPQ hP (canWord _) (canWord _) shW
+  have hbij := freeMap_bijective (ν := ν) (ν' := ν') hsym (canWord _) (canWord _) shW
     (fun a => ⟨isReduced_canWord _ a, wordProd_canWord _ a⟩)
     (fun b => ⟨isReduced_canWord _ b, wordProd_canWord _ b⟩)
     (fun u => ⟨isReduced_canWord _ u.1, wordProd_canWord _ u.1⟩)
@@ -101,11 +96,11 @@ theorem rfree_injective {t : Shuffle (Seq.card_add' ν ν') → T} (h : rFree t 
   simp only [Finsupp.coe_equivFunOnFinite_symm, Finsupp.coe_zero, Pi.zero_apply] at hu
   rw [← tflip_tflip (t := t u), hu, map_zero]
 
-include hPQ hP in
+include hsym in
 /-- **Existence** in the right free decomposition: `r 1_{ν,ν'} = ∑_u ψ(ŵ_u) ι(t_u)`. -/
 theorem rfree_span (r : KLRAlgebra k Q (ν + ν')) :
     ∃ t : Shuffle (Seq.card_add' ν ν') → T, r * oneConcat Q ν ν' = rFree t := by
-  have hbij := freeMap_bijective (ν := ν) (ν' := ν') hPQ hP (canWord _) (canWord _) shW
+  have hbij := freeMap_bijective (ν := ν) (ν' := ν') hsym (canWord _) (canWord _) shW
     (fun a => ⟨isReduced_canWord _ a, wordProd_canWord _ a⟩)
     (fun b => ⟨isReduced_canWord _ b, wordProd_canWord _ b⟩)
     (fun u => ⟨isReduced_canWord _ u.1, wordProd_canWord _ u.1⟩)
@@ -118,21 +113,17 @@ theorem rfree_span (r : KLRAlgebra k Q (ν + ν')) :
     ext u; simp
   rw [hf', hf, hflip_mul, hflip_hflip, hflip_oneConcat_eq]
 
-omit [IsDomain k] in
 theorem rFree_add (t t' : Shuffle (Seq.card_add' ν ν') → T) :
     rFree (t + t') = rFree t + rFree t' := by
   simp only [rFree, Pi.add_apply, map_add, mul_add, Finset.sum_add_distrib]
 
-omit [IsDomain k] in
 theorem rFree_sub (t t' : Shuffle (Seq.card_add' ν ν') → T) :
     rFree (t - t') = rFree t - rFree t' := by
   simp only [rFree, Pi.sub_apply, map_sub, mul_sub, Finset.sum_sub_distrib]
 
-omit [IsDomain k] in
 theorem rFree_zero : rFree (0 : Shuffle (Seq.card_add' ν ν') → T) = 0 := by
   simp [rFree]
 
-omit [IsDomain k] in
 theorem rFree_single_one (c : T) :
     rFree (Pi.single (⟨1, isShuffle_one _⟩ : Shuffle (Seq.card_add' ν ν')) c) = concat Q ν ν' c := by
   rw [rFree, Finset.sum_eq_single (⟨1, isShuffle_one _⟩ : Shuffle (Seq.card_add' ν ν'))]
@@ -140,20 +131,19 @@ theorem rFree_single_one (c : T) :
   · intro u _ hu; rw [Pi.single_eq_of_ne hu, map_zero, mul_zero]
   · simp
 
-omit [IsDomain k] in
 theorem rFree_mul_oneConcat (t : Shuffle (Seq.card_add' ν ν') → T) :
     rFree t * oneConcat Q ν ν' = rFree t := by
   rw [rFree, Finset.sum_mul]
   exact Finset.sum_congr rfl fun u _ => by rw [mul_assoc, concat_mul_oneConcat]
 
-include hPQ hP in
+include hsym in
 /-- Left multiplication preserves the shape `∑_u ψ(ŵ_u) ι(t_u)`, and keeps the `t_u` in any
 left ideal of `R(ν) ⊗ R(ν')` containing them. -/
 theorem exists_mul_rFree (S : Submodule k T) (hS : ∀ c : T, ∀ t ∈ S, c * t ∈ S)
     (r : KLRAlgebra k Q (ν + ν')) (t : Shuffle (Seq.card_add' ν ν') → T) :
     ∃ t' : Shuffle (Seq.card_add' ν ν') → T, r * rFree t = rFree t' ∧
       ((∀ u, t u ∈ S) → ∀ u, t' u ∈ S) := by
-  choose c hc using fun u => rfree_span hPQ hP (r * rW u)
+  choose c hc using fun u => rfree_span hsym (r * rW u)
   refine ⟨fun u' => ∑ u, c u u' * t u, ?_, fun ht u' => Submodule.sum_mem _ fun u _ => hS _ _ (ht u)⟩
   have hc' : ∀ u, r * rW u = rFree (c u) := fun u => by
     rw [← hc u, mul_assoc, rW_mul_oneConcat]
@@ -174,18 +164,15 @@ local notation "Ri" => KLRAlgebra k Q Si
 local notation "R" => KLRAlgebra k Q (Si + β)
 local notation "T" => KLRAlgebra k Q Si ⊗[k] KLRAlgebra k Q β
 
-omit [IsDomain k] in
 instance seqSingleSubsingleton : Subsingleton (Seq Si) := by
   refine ⟨fun s t => Subtype.ext (funext fun a => ?_)⟩
   rw [Multiset.mem_singleton.1 (s.mem a), Multiset.mem_singleton.1 (t.mem a)]
 
-omit [IsDomain k] in
 theorem e_single (s : Seq Si) : (e s : Ri) = 1 := by
   rw [← sum_e (k := k) (Q := Q) (ν := Si)]
   exact (Finset.sum_eq_single_of_mem s (Finset.mem_univ s)
     (fun t _ ht => absurd (Subsingleton.elim t s) ht)).symm
 
-omit [IsDomain k] in
 theorem concatSet_stable {l : ℕ} (hl : 1 ≤ l) (s : Seq (Si + β)) :
     s ∈ concatSet Si β ↔
       sadj (Multiset.card (Si + β)) l • s ∈ concatSet Si β := by
@@ -208,7 +195,6 @@ theorem concatSet_stable {l : ℕ} (hl : 1 ≤ l) (s : Seq (Si + β)) :
       rw [this]; exact append_mem_concatSet _ _
   · rw [sadj_of_not_lt hlm, one_smul]
 
-omit [IsDomain k] in
 /-- `k[x_1] ⊗ R^1(β)` commutes with `1_{i, β}`. -/
 theorem commute_oneConcat_subR1 {w : R} (hw : w ∈ subR1 (k := k) (Q := Q) (Si + β)) :
     w * oneConcat Q Si β = oneConcat Q Si β * w := by
@@ -222,17 +208,16 @@ theorem commute_oneConcat_subR1 {w : R} (hw : w ∈ subR1 (k := k) (Q := Q) (Si 
   | add y z _ _ hy hz => rw [add_mul, mul_add, hy, hz]
   | mul y z _ _ hy hz => rw [mul_assoc, hz, ← mul_assoc, hy, mul_assoc]
 
-omit [DecidableEq I] [IsDomain k] in
+omit [DecidableEq I] in
 theorem posL_single_zero (h : 0 < Multiset.card Si) :
     Seq.posL β (⟨0, h⟩ : Fin (Multiset.card Si)) = ⟨0, by simp⟩ :=
   Fin.ext rfl
 
-omit [DecidableEq I] [IsDomain k] in
+omit [DecidableEq I] in
 theorem posR_single (b : Fin (Multiset.card β)) :
     Seq.posR Si b = ⟨b.val + 1, by simp only [Multiset.card_add, Multiset.card_singleton]; omega⟩ :=
   Fin.ext (by simp [Seq.posR_val, add_comm])
 
-omit [IsDomain k] in
 /-- `(k[x_1] ⊗ R^1(β)) 1_{i, β}` lies in the image of `ι : R(i) ⊗ R(β) → R(Si + β)`. -/
 theorem exists_concat_of_subR1 {w : R} (hw : w ∈ subR1 (k := k) (Q := Q) (Si + β)) :
     ∃ c : T, w * oneConcat Q Si β = concat Q _ _ c := by
@@ -272,12 +257,10 @@ theorem exists_concat_of_subR1 {w : R} (hw : w ∈ subR1 (k := k) (Q := Q) (Si +
     refine ⟨c * c', ?_⟩
     rw [mul_assoc, hc', ← oneConcat_mul_concat, ← mul_assoc, hc, concat_mul]
 
-omit [IsDomain k] in
 theorem oneConcat_mem_subR1 :
     (oneConcat Q Si β : R) ∈ subR1 (k := k) (Q := Q) (Si + β) :=
   Subalgebra.sum_mem _ fun t _ => e_mem_subR1 t
 
-omit [IsDomain k] in
 /-- `ι(1 ⊗ R(β)) ⊆ k[x_1] ⊗ R^1(β)`. -/
 theorem concat_one_tmul_mem_subR1 (b : KLRAlgebra k Q β) :
     concat Q Si β (1 ⊗ₜ b) ∈ subR1 (k := k) (Q := Q) (Si + β) := by
@@ -315,7 +298,7 @@ theorem concat_one_tmul_mem_subR1 (b : KLRAlgebra k Q β) :
 instance seqSingleInhabited : Inhabited (Seq Si) :=
   ⟨⟨fun _ => i, by simp⟩⟩
 
-omit [DecidableEq I] [IsDomain k] in
+omit [DecidableEq I] in
 theorem append_single_apply_one (s₀ : Seq Si) (s : Seq β) (h1 : 1 < Multiset.card (Si + β))
     (hβ : 0 < Multiset.card β) : (s₀.append s).1 ⟨1, h1⟩ = s.1 ⟨0, hβ⟩ := by
   rw [Seq.append_apply_ge _ _ _ (by simp)]
@@ -323,7 +306,6 @@ theorem append_single_apply_one (s₀ : Seq Si) (s : Seq β) (h1 : 1 < Multiset.
 
 variable (a : I → Polynomial k)
 
-omit [IsDomain k] in
 /-- `a^Λ(x_2) 1_{i, β} = ι(1 ⊗ a^Λ(x_1))`. -/
 theorem cycAt_one_mul_oneConcat (h1 : 1 < Multiset.card (Si + β))
     (hβ : 0 < Multiset.card β) :
@@ -357,7 +339,6 @@ theorem cycAt_one_mul_oneConcat (h1 : 1 < Multiset.card (Si + β))
 noncomputable def tJ : Submodule k T :=
   Submodule.span k {t | ∃ (c : Ri) (j : KLRAlgebra k Q β), j ∈ cycIdeal Q a β ∧ t = c ⊗ₜ j}
 
-omit [IsDomain k] in
 theorem mul_mem_tJ {t : T} (ht : t ∈ tJ (Q := Q) i β a) (c : T) : c * t ∈ tJ i β a := by
   induction ht using Submodule.span_induction with
   | mem y hy =>
@@ -371,7 +352,6 @@ theorem mul_mem_tJ {t : T} (ht : t ∈ tJ (Q := Q) i β a) (c : T) : c * t ∈ t
   | add y z _ _ hy hz => rw [mul_add]; exact Submodule.add_mem _ hy hz
   | smul r y _ hy => rw [mul_smul_comm]; exact Submodule.smul_mem _ r hy
 
-omit [IsDomain k] in
 theorem tJ_mul_mem {t : T} (ht : t ∈ tJ (Q := Q) i β a) (c : T) : t * c ∈ tJ i β a := by
   induction ht using Submodule.span_induction with
   | mem y hy =>
@@ -385,7 +365,6 @@ theorem tJ_mul_mem {t : T} (ht : t ∈ tJ (Q := Q) i β a) (c : T) : t * c ∈ t
   | add y z _ _ hy hz => rw [add_mul]; exact Submodule.add_mem _ hy hz
   | smul r y _ hy => rw [smul_mul_assoc]; exact Submodule.smul_mem _ r hy
 
-omit [IsDomain k] in
 /-- `ι(R(i) ⊗ J) ⊆ R(ν) a^Λ(x_2) R^1(β)`. -/
 theorem concat_mem_cycL1 (h1 : 1 < Multiset.card (Si + β)) (hβ : 0 < Multiset.card β) {t : T}
     (ht : t ∈ tJ (Q := Q) i β a) : concat Q Si β t ∈ cycL1 a h1 := by
@@ -424,7 +403,7 @@ theorem concat_mem_cycL1 (h1 : 1 < Multiset.card (Si + β)) (hβ : 0 < Multiset.
   | add y z _ _ hy hz => rw [map_add]; exact Submodule.add_mem _ hy hz
   | smul r y _ hy => rw [map_smul]; exact Submodule.smul_of_tower_mem _ r hy
 
-include hPQ hP in
+include hsym in
 /-- **KK Lemma 4.8 for `K_1`** (structure): `∑_u ψ(ŵ_u) ι(t_u)` lies in
 `R(ν) a^Λ(x_2) R^1(β)` exactly when every `t_u` lies in `R(i) ⊗ J`. So
 `K_1 e(i, β) ≅ ⊕_u (R(i) ⊗ R(β)) / (R(i) ⊗ J) = ⊕_u R(i) ⊗ R^Λ(β)`. -/
@@ -457,14 +436,14 @@ theorem mem_cycL1_iff (h1 : 1 < Multiset.card (Si + β)) (hβ : 0 < Multiset.car
           rw [add_mul, hy, hz, rFree_add]⟩
       | smul r y _ hy =>
         obtain ⟨t', ht', hy⟩ := hy
-        obtain ⟨t'', ht'', hS⟩ := exists_mul_rFree hPQ hP (tJ (Q := Q) i β a)
+        obtain ⟨t'', ht'', hS⟩ := exists_mul_rFree hsym (tJ (Q := Q) i β a)
           (fun c t ht => mul_mem_tJ i β a ht c) r t'
         exact ⟨t'', hS ht', by rw [smul_eq_mul, mul_assoc, hy, ht'']⟩
     obtain ⟨t', ht', heq⟩ := key _ ht
     rw [rFree_mul_oneConcat] at heq
     have h0 : rFree (t - t') = 0 := by rw [rFree_sub, heq, sub_self]
     intro u
-    have := rfree_injective hPQ hP h0 u
+    have := rfree_injective hsym h0 u
     rw [Pi.sub_apply, sub_eq_zero] at this
     rw [this]; exact ht' u
   · intro ht

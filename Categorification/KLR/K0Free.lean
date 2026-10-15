@@ -60,12 +60,12 @@ include hPQ hP hG
 generated graded projective `R(ν)`-modules up to isomorphism and grading shift. -/
 def k0Basis :
     Module.Basis (GProj.IndecClass (G.grade ν)) (LaurentPolynomial ℤ) (K0 (G.grade ν)) :=
-  have := G.hasGdim_grade' (ν := ν) hPQ hP hG
+  have := G.hasGdim_grade' (ν := ν) (KLRSymm.of_factorization hPQ hP) hG
   K0.indecBasis (G.grade ν)
 
 theorem k0Basis_apply (b : GProj.IndecClass (G.grade ν)) :
     G.k0Basis hPQ hP hG ν b = K0.of b.rep := by
-  have := G.hasGdim_grade' (ν := ν) hPQ hP hG
+  have := G.hasGdim_grade' (ν := ν) (KLRSymm.of_factorization hPQ hP) hG
   exact K0.indecBasis_apply b
 
 /-- **KL I, §2.5: `K₀(R(ν))` is a free `ℤ[q, q⁻¹]`-module.** -/
@@ -95,7 +95,7 @@ projective `R(ν)`-modules: their graded simple tops are pairwise non-isomorphic
 theorem finite_and_card_indecClass_le :
     Finite (GProj.IndecClass (G.grade ν)) ∧
       Nat.card (GProj.IndecClass (G.grade ν)) ≤ (Multiset.card ν).factorial ^ 2 := by
-  have := G.hasGdim_grade' (ν := ν) hPQ hP hG
+  have := G.hasGdim_grade' (ν := ν) (KLRSymm.of_factorization hPQ hP) hG
   choose S f hS hf hf0 using G.exists_top ν
   refine KLRAlgebra.card_le_of_isGradedSimple hPQ hP G hG (fun b => (S b).carrier)
     (fun b => (S b).grading) hS fun b b' c ⟨e⟩ => ?_
@@ -124,7 +124,7 @@ theorem finiteDimensional_top (b : GProj.IndecClass (G.grade ν)) : FiniteDimens
 `k0Basis` (`S_b` is the graded simple top of `P_b`). -/
 def g0Basis :
     Module.Basis (GProj.IndecClass (G.grade ν)) (LaurentPolynomial ℤ) (G0 (G.grade ν)) :=
-  have := G.hasGdim_grade' (ν := ν) hPQ hP hG
+  have := G.hasGdim_grade' (ν := ν) (KLRSymm.of_factorization hPQ hP) hG
   G0.topBasis (G.finiteDimensional_top hPQ hP hG ν)
 
 /-- **KL I, §2.5: `G₀(R(ν))` is a free `ℤ[q, q⁻¹]`-module.** -/
@@ -139,7 +139,7 @@ theorem pairing_k0Basis_g0Basis (b b' : GProj.IndecClass (G.grade ν)) :
     pairing (G.k0Basis hPQ hP hG ν b) (G.g0Basis hPQ hP hG ν b') =
       if b = b' then HahnSeries.single 0 (Module.finrank k (endZero (KLRAlgebra k Q ν)
         b.top.grading) : ℤ) else 0 := by
-  have := G.hasGdim_grade' (ν := ν) hPQ hP hG
+  have := G.hasGdim_grade' (ν := ν) (KLRSymm.of_factorization hPQ hP) hG
   exact pairing_indecBasis_topBasis _ b b'
 
 end GradingDatum

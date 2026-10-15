@@ -321,10 +321,8 @@ theorem cyclotomicDotUnit_op_smul (r : Rlᵐᵒᵖ) (p : Polynomial Rl) :
     rw [Polynomial.smul_monomial]
     exact cyclotomicDotUnit_monomial_mul_right Q i γ a s r.unop d
 
-variable [IsDomain k] {P : I → I → MvPolynomial (Fin 2) k}
-  (hPQ : ∀ j l, j ≠ l → Q j l = P l j * MvPolynomial.rename ![1, 0] (P j l))
-  (hP : ∀ j l, j ≠ l → P j l ≠ 0)
-  (hQ : ∀ j l : I, j ≠ l → IsUnit (polyInY (Q j l)).leadingCoeff)
+variable (hsym : KLRSymm Q)
+  (hQ : ∀ j l : I, j ≠ l → ∃ c : k, IsUnit c ∧ (polyInY (Q j l)).leadingCoeff = Polynomial.C c)
   (ha : ∀ j, (a j).Monic)
   {C : QuantumGroup.CartanDatum I} {X Y : Type*} [AddCommGroup X] [AddCommGroup Y]
   (RD : QuantumGroup.UDot.RootDatum C X Y) (Λ : X)
@@ -332,8 +330,8 @@ variable [IsDomain k] {P : I → I → MvPolynomial (Fin 2) k}
   (hdeg : ∀ j, j ≠ i → ((polyInY (Q j i)).natDegree : ℤ) =
     -RD.pair (RD.iY i) (RD.iX j))
 local notation "wt" => RD.pair (RD.iY i) (Λ - Multiset.sum (Multiset.map RD.iX β))
-local notation "pos" => cyclotomicCommutatorFinEquiv Q i γ a hPQ hP hQ ha RD Λ hΛ hdeg
-local notation "neg" => cyclotomicNegativeCommutatorEquiv Q i γ a hPQ hP hQ ha RD Λ hΛ hdeg
+local notation "pos" => cyclotomicCommutatorFinEquiv Q i γ a hsym hQ ha RD Λ hΛ hdeg
+local notation "neg" => cyclotomicNegativeCommutatorEquiv Q i γ a hsym hQ ha RD Λ hΛ hdeg
 
 theorem cyclotomicCommutatorFinEquiv_smul (hwt : 0 ≤ wt) (r : Rl)
     (z : LowerCyclotomic Q i γ a × (Fin (wt).toNat → Rl)) :
@@ -366,28 +364,28 @@ def cyclotomicCommutatorBimoduleEquiv (hwt : 0 ≤ wt) :
     (LowerCyclotomic Q i γ a × (Fin (wt).toNat → Rl)) ≃ₗ[Rl] MiddleCyclotomic Q i γ a where
   toEquiv := (pos hwt).toEquiv
   map_add' := map_add (pos hwt)
-  map_smul' := cyclotomicCommutatorFinEquiv_smul Q i γ a hPQ hP hQ ha RD Λ hΛ hdeg hwt
+  map_smul' := cyclotomicCommutatorFinEquiv_smul Q i γ a hsym hQ ha RD Λ hΛ hdeg hwt
 
 theorem cyclotomicCommutatorBimoduleEquiv_apply (hwt : 0 ≤ wt)
     (z : LowerCyclotomic Q i γ a × (Fin (wt).toNat → Rl)) :
-    cyclotomicCommutatorBimoduleEquiv Q i γ a hPQ hP hQ ha RD Λ hΛ hdeg hwt z = pos hwt z := rfl
+    cyclotomicCommutatorBimoduleEquiv Q i γ a hsym hQ ha RD Λ hΛ hdeg hwt z = pos hwt z := rfl
 
 theorem cyclotomicCommutatorBimoduleEquiv_symm_apply (hwt : 0 ≤ wt)
     (z : MiddleCyclotomic Q i γ a) :
-    (cyclotomicCommutatorBimoduleEquiv Q i γ a hPQ hP hQ ha RD Λ hΛ hdeg hwt).symm z =
+    (cyclotomicCommutatorBimoduleEquiv Q i γ a hsym hQ ha RD Λ hΛ hdeg hwt).symm z =
       (pos hwt).symm z := rfl
 
 theorem cyclotomicCommutatorBimoduleEquiv_op_smul (hwt : 0 ≤ wt) (r : Rlᵐᵒᵖ)
     (z : LowerCyclotomic Q i γ a × (Fin (wt).toNat → Rl)) :
-    cyclotomicCommutatorBimoduleEquiv Q i γ a hPQ hP hQ ha RD Λ hΛ hdeg hwt (r • z) =
-      r • cyclotomicCommutatorBimoduleEquiv Q i γ a hPQ hP hQ ha RD Λ hΛ hdeg hwt z :=
-  cyclotomicCommutatorFinEquiv_op_smul Q i γ a hPQ hP hQ ha RD Λ hΛ hdeg hwt r z
+    cyclotomicCommutatorBimoduleEquiv Q i γ a hsym hQ ha RD Λ hΛ hdeg hwt (r • z) =
+      r • cyclotomicCommutatorBimoduleEquiv Q i γ a hsym hQ ha RD Λ hΛ hdeg hwt z :=
+  cyclotomicCommutatorFinEquiv_op_smul Q i γ a hsym hQ ha RD Λ hΛ hdeg hwt r z
 
 theorem cyclotomicCommutatorBimoduleEquiv_symm_op_smul (hwt : 0 ≤ wt) (r : Rlᵐᵒᵖ)
     (z : MiddleCyclotomic Q i γ a) :
-    (cyclotomicCommutatorBimoduleEquiv Q i γ a hPQ hP hQ ha RD Λ hΛ hdeg hwt).symm (r • z) =
-      r • (cyclotomicCommutatorBimoduleEquiv Q i γ a hPQ hP hQ ha RD Λ hΛ hdeg hwt).symm z := by
-  apply (cyclotomicCommutatorBimoduleEquiv Q i γ a hPQ hP hQ ha RD Λ hΛ hdeg hwt).injective
+    (cyclotomicCommutatorBimoduleEquiv Q i γ a hsym hQ ha RD Λ hΛ hdeg hwt).symm (r • z) =
+      r • (cyclotomicCommutatorBimoduleEquiv Q i γ a hsym hQ ha RD Λ hΛ hdeg hwt).symm z := by
+  apply (cyclotomicCommutatorBimoduleEquiv Q i γ a hsym hQ ha RD Λ hΛ hdeg hwt).injective
   rw [LinearEquiv.apply_symm_apply, cyclotomicCommutatorBimoduleEquiv_op_smul,
     LinearEquiv.apply_symm_apply]
 
@@ -411,28 +409,28 @@ def cyclotomicNegativeCommutatorBimoduleEquiv (hwt : wt ≤ 0) :
     LowerCyclotomic Q i γ a ≃ₗ[Rl] MiddleCyclotomic Q i γ a × (Fin (-wt).toNat → Rl) where
   toEquiv := (neg hwt).toEquiv
   map_add' := map_add (neg hwt)
-  map_smul' := cyclotomicNegativeCommutatorEquiv_smul Q i γ a hPQ hP hQ ha RD Λ hΛ hdeg hwt
+  map_smul' := cyclotomicNegativeCommutatorEquiv_smul Q i γ a hsym hQ ha RD Λ hΛ hdeg hwt
 
 theorem cyclotomicNegativeCommutatorBimoduleEquiv_apply (hwt : wt ≤ 0)
     (z : LowerCyclotomic Q i γ a) :
-    cyclotomicNegativeCommutatorBimoduleEquiv Q i γ a hPQ hP hQ ha RD Λ hΛ hdeg hwt z = neg hwt z := rfl
+    cyclotomicNegativeCommutatorBimoduleEquiv Q i γ a hsym hQ ha RD Λ hΛ hdeg hwt z = neg hwt z := rfl
 
 theorem cyclotomicNegativeCommutatorBimoduleEquiv_symm_apply (hwt : wt ≤ 0)
     (z : MiddleCyclotomic Q i γ a × (Fin (-wt).toNat → Rl)) :
-    (cyclotomicNegativeCommutatorBimoduleEquiv Q i γ a hPQ hP hQ ha RD Λ hΛ hdeg hwt).symm z =
+    (cyclotomicNegativeCommutatorBimoduleEquiv Q i γ a hsym hQ ha RD Λ hΛ hdeg hwt).symm z =
       (neg hwt).symm z := rfl
 
 theorem cyclotomicNegativeCommutatorBimoduleEquiv_op_smul (hwt : wt ≤ 0) (r : Rlᵐᵒᵖ)
     (z : LowerCyclotomic Q i γ a) :
-    cyclotomicNegativeCommutatorBimoduleEquiv Q i γ a hPQ hP hQ ha RD Λ hΛ hdeg hwt (r • z) =
-      r • cyclotomicNegativeCommutatorBimoduleEquiv Q i γ a hPQ hP hQ ha RD Λ hΛ hdeg hwt z :=
-  cyclotomicNegativeCommutatorEquiv_op_smul Q i γ a hPQ hP hQ ha RD Λ hΛ hdeg hwt r z
+    cyclotomicNegativeCommutatorBimoduleEquiv Q i γ a hsym hQ ha RD Λ hΛ hdeg hwt (r • z) =
+      r • cyclotomicNegativeCommutatorBimoduleEquiv Q i γ a hsym hQ ha RD Λ hΛ hdeg hwt z :=
+  cyclotomicNegativeCommutatorEquiv_op_smul Q i γ a hsym hQ ha RD Λ hΛ hdeg hwt r z
 
 theorem cyclotomicNegativeCommutatorBimoduleEquiv_symm_op_smul (hwt : wt ≤ 0) (r : Rlᵐᵒᵖ)
     (z : MiddleCyclotomic Q i γ a × (Fin (-wt).toNat → Rl)) :
-    (cyclotomicNegativeCommutatorBimoduleEquiv Q i γ a hPQ hP hQ ha RD Λ hΛ hdeg hwt).symm (r • z) =
-      r • (cyclotomicNegativeCommutatorBimoduleEquiv Q i γ a hPQ hP hQ ha RD Λ hΛ hdeg hwt).symm z := by
-  apply (cyclotomicNegativeCommutatorBimoduleEquiv Q i γ a hPQ hP hQ ha RD Λ hΛ hdeg hwt).injective
+    (cyclotomicNegativeCommutatorBimoduleEquiv Q i γ a hsym hQ ha RD Λ hΛ hdeg hwt).symm (r • z) =
+      r • (cyclotomicNegativeCommutatorBimoduleEquiv Q i γ a hsym hQ ha RD Λ hΛ hdeg hwt).symm z := by
+  apply (cyclotomicNegativeCommutatorBimoduleEquiv Q i γ a hsym hQ ha RD Λ hΛ hdeg hwt).injective
   rw [LinearEquiv.apply_symm_apply, cyclotomicNegativeCommutatorBimoduleEquiv_op_smul,
     LinearEquiv.apply_symm_apply]
 

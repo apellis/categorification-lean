@@ -2,7 +2,7 @@
 Copyright (c) 2026 Alex Ellis. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 -/
-import Categorification.KLR.BasisTheorem
+import Categorification.KLR.BasisTheoremGeneral
 import Categorification.KLR.Symmetries
 import Categorification.KLR.KL1Basis
 
@@ -31,8 +31,8 @@ homomorphism `polNu : f ↦ ∑_i pol (f i) * e i` (injective, `polNu_injective`
 ## Main results
 
 * `KLRAlgebra.rightBasis` : **Proposition 2.7** (right action): the basis
-  `w ↦ ψw (ρ w)` of `R(ν)` over `Pol(ν)`, for an integral domain `k` and data `Q`
-  satisfying the hypotheses of the basis theorem (`KLRAlgebra.basis`).
+  `w ↦ ψw (ρ w)` of `R(ν)` over `Pol(ν)`, for a commutative ring `k` and data `Q`
+  with `Q_{ij}(u,v) = Q_{ji}(v,u)` (`KLRAlgebra.basisOfSymm`).
 * `KLRAlgebra.leftBasis` : **Proposition 2.7** (left action), deduced with the
   antiinvolution `hflip`.
 * `KLRAlgebra.exists_unique_right_expansion`, `KLRAlgebra.exists_unique_left_expansion` :
@@ -287,9 +287,7 @@ theorem ψw_eq_sum_mul_e (ρ : List ℕ) : (ψw ρ : KLRAlgebra k Q ν) = ∑ i,
 
 section Basis
 
-variable {P : I → I → MvPolynomial (Fin 2) k}
-  (hPQ : ∀ a b, a ≠ b → Q a b = P b a * rename ![1, 0] (P a b))
-  (hP : ∀ a b, a ≠ b → P a b ≠ 0)
+variable (hsym : KLRSymm Q)
   (ρ : Perm (Fin (Multiset.card ν)) → List ℕ)
   (hρ : ∀ w, IsReduced (Multiset.card ν) (ρ w) ∧ wordProd (Multiset.card ν) (ρ w) = w)
 
@@ -314,9 +312,7 @@ theorem exists_sum_ψw_mul_polNu (r : KLRAlgebra k Q ν) :
     obtain ⟨c, rfl⟩ := hx
     exact ⟨a • c, by simp [Finset.smul_sum]⟩
 
-variable [IsDomain k]
-
-include hPQ hP hρ in
+include hsym hρ in
 /-- Right `Pol(ν)`-combinations of the `ψ_{ρ w}` are independent. -/
 theorem eq_zero_of_sum_ψw_mul_polNu_eq_zero (c : Perm (Fin m) → Pol k ν)
     (h : (∑ w, ψw (ρ w) * polNu (c w) : KLRAlgebra k Q ν) = 0) : c = 0 := by
@@ -326,7 +322,7 @@ theorem eq_zero_of_sum_ψw_mul_polNu_eq_zero (c : Perm (Fin m) → Pol k ν)
   have hU : ∀ w i, (c w i).support ⊆ U := fun w i u hu =>
     Finset.mem_biUnion.2 ⟨w, Finset.mem_univ _, Finset.mem_biUnion.2 ⟨i, Finset.mem_univ _, hu⟩⟩
   rw [sum_ψw_mul_polNu_eq ρ c U hU] at h
-  have := linearIndependent_iff'.1 (linearIndependent_stdElt hPQ hP ρ hρ) _ _ h
+  have := linearIndependent_iff'.1 (linearIndependent_stdElt_of_symm hsym ρ hρ) _ _ h
   funext w i
   ext u
   by_cases hu : u ∈ U
@@ -334,14 +330,13 @@ theorem eq_zero_of_sum_ψw_mul_polNu_eq_zero (c : Perm (Fin m) → Pol k ν)
   · simp only [Pi.zero_apply, AddMonoidAlgebra.coeff_zero, Finsupp.coe_zero]
     exact notMem_support_iff.1 fun h' => hu (hU w i h')
 
-/-- **KL I, Proposition 2.7** (right action). For an integral domain `k`, data `Q` as in the
-basis theorem and any choice `ρ` of reduced words, `R(ν)` is a free right `Pol(ν)`-module
+/-- **KL I, Proposition 2.7** (right action). For a commutative ring `k`, symmetric data `Q` and any choice `ρ` of reduced words, `R(ν)` is a free right `Pol(ν)`-module
 with basis `ŵ = ψ_{ρ w}` (`w ∈ S_m`); in particular it has rank `m!`. -/
 noncomputable def rightBasis : Module.Basis (Perm (Fin m)) (Pol k ν) (RightPolMod k Q ν) :=
   Module.Basis.mk (v := fun w => RightPolMod.of (ψw (ρ w)))
     (Fintype.linearIndependent_iff.2 fun g hg w => by
       simp only [RightPolMod.smul_of, ← map_sum] at hg
-      have := eq_zero_of_sum_ψw_mul_polNu_eq_zero hPQ hP ρ hρ g
+      have := eq_zero_of_sum_ψw_mul_polNu_eq_zero hsym ρ hρ g
         ((map_eq_zero_iff _ RightPolMod.of.injective).1 hg)
       exact congrFun this w)
     (fun r _ => by
@@ -352,19 +347,19 @@ noncomputable def rightBasis : Module.Basis (Perm (Fin m)) (Pol k ν) (RightPolM
       exact Submodule.sum_mem _ fun w _ => Submodule.smul_mem _ _ (Submodule.subset_span ⟨w, rfl⟩))
 
 theorem rightBasis_apply (w : Perm (Fin m)) :
-    rightBasis hPQ hP ρ hρ w = RightPolMod.of (ψw (ρ w) : KLRAlgebra k Q ν) := by
+    rightBasis hsym ρ hρ w = RightPolMod.of (ψw (ρ w) : KLRAlgebra k Q ν) := by
   simp [rightBasis]
 
 omit hρ in
-include hPQ hP in
+include hsym in
 /-- The rank of `R(ν)` over `Pol(ν)` (right action) is `m!`. -/
-theorem finrank_rightPolMod :
+theorem finrank_rightPolMod [Nontrivial k] :
     Module.finrank (Pol k ν) (RightPolMod k Q ν) = (Multiset.card ν).factorial := by
-  rw [Module.finrank_eq_card_basis (rightBasis hPQ hP (fun w => canWord m w)
+  rw [Module.finrank_eq_card_basis (rightBasis hsym (fun w => canWord m w)
     (fun w => ⟨isReduced_canWord m w, wordProd_canWord m w⟩)), Fintype.card_perm,
     Fintype.card_fin]
 
-include hPQ hP hρ in
+include hsym hρ in
 /-- **KL I, Proposition 2.7** (right action), elementary form: every `r ∈ R(ν)` is uniquely
 `∑_w ψ_{ρ w} f_w` with `f_w ∈ Pol(ν)`. -/
 theorem exists_unique_right_expansion (r : KLRAlgebra k Q ν) :
@@ -372,23 +367,21 @@ theorem exists_unique_right_expansion (r : KLRAlgebra k Q ν) :
   obtain ⟨c, hc⟩ := exists_sum_ψw_mul_polNu ρ hρ r
   refine ⟨c, hc, fun c' hc' => ?_⟩
   simp only at hc'
-  have := eq_zero_of_sum_ψw_mul_polNu_eq_zero hPQ hP ρ hρ (c' - c) (by
+  have := eq_zero_of_sum_ψw_mul_polNu_eq_zero hsym ρ hρ (c' - c) (by
     simp only [Pi.sub_apply, map_sub, mul_sub, Finset.sum_sub_distrib, hc, hc', sub_self])
   exact sub_eq_zero.1 this
 
 /-! ### Proposition 2.7, left action -/
 
-omit [IsDomain k] in
 theorem hflip_polNu (f : Pol k ν) : hflip (polNu f : KLRAlgebra k Q ν) = polNu f := by
   simp only [polNu_apply, hflip_sum, hflip_mul, hflip_e, hflip_pol, (e_commute_pol _ _).eq]
 
-omit [IsDomain k] in
 theorem hflip_ψw (σ : List ℕ) : hflip (ψw σ : KLRAlgebra k Q ν) = ψw σ.reverse := by
   induction σ with
   | nil => simp
   | cons j σ ih => simp [ih]
 
-omit [IsDomain k] [DecidableEq I] in
+omit [DecidableEq I] in
 theorem isReduced_reverse {σ : List ℕ} (h : IsReduced m σ) : IsReduced m σ.reverse :=
   ⟨validWord_reverse.2 h.1, by rw [List.length_reverse, wordProd_reverse, length_inv]; exact h.2⟩
 
@@ -407,41 +400,40 @@ noncomputable def flipPolMod : LeftPolMod k Q ν ≃ₗ[Pol k ν] RightPolMod k 
   right_inv r := by
     simp only [AddEquiv.symm_apply_apply, hflip_hflip, AddEquiv.apply_symm_apply]
 
-omit [DecidableEq I] [IsDomain k] in
+omit [DecidableEq I] in
 include hρ in
 /-- If `ρ w` are reduced words for `w`, then `(ρ w⁻¹).reverse` are reduced words for `w`. -/
 theorem reverse_inv_reduced : ∀ w, IsReduced m ((ρ w⁻¹).reverse) ∧ wordProd m ((ρ w⁻¹).reverse) = w :=
   fun w => ⟨isReduced_reverse (hρ w⁻¹).1, by rw [wordProd_reverse, (hρ w⁻¹).2, inv_inv]⟩
 
-/-- **KL I, Proposition 2.7** (left action). For an integral domain `k`, data `Q` as in the
-basis theorem and any choice `ρ` of reduced words, `R(ν)` is a free left `Pol(ν)`-module
+/-- **KL I, Proposition 2.7** (left action). For a commutative ring `k`, symmetric data `Q` and any choice `ρ` of reduced words, `R(ν)` is a free left `Pol(ν)`-module
 with basis `ŵ = ψ_{ρ w}` (`w ∈ S_m`). Deduced from the right action with `hflip`. -/
 noncomputable def leftBasis : Module.Basis (Perm (Fin m)) (Pol k ν) (LeftPolMod k Q ν) :=
-  ((rightBasis hPQ hP (fun w => (ρ w⁻¹).reverse) (reverse_inv_reduced ρ hρ)).map
+  ((rightBasis hsym (fun w => (ρ w⁻¹).reverse) (reverse_inv_reduced ρ hρ)).map
     (flipPolMod k Q ν).symm).reindex (Equiv.inv _)
 
 theorem leftBasis_apply (w : Perm (Fin m)) :
-    leftBasis hPQ hP ρ hρ w = LeftPolMod.of (ψw (ρ w) : KLRAlgebra k Q ν) := by
+    leftBasis hsym ρ hρ w = LeftPolMod.of (ψw (ρ w) : KLRAlgebra k Q ν) := by
   simp only [leftBasis, Module.Basis.reindex_apply, Module.Basis.map_apply, rightBasis_apply]
   show LeftPolMod.of (hflip (ψw (ρ ((Equiv.inv _).symm w)⁻¹).reverse)) = _
   rw [hflip_ψw, List.reverse_reverse]
   simp
 
 omit hρ in
-include hPQ hP in
+include hsym in
 /-- The rank of `R(ν)` over `Pol(ν)` (left action) is `m!`. -/
-theorem finrank_leftPolMod :
+theorem finrank_leftPolMod [Nontrivial k] :
     Module.finrank (Pol k ν) (LeftPolMod k Q ν) = (Multiset.card ν).factorial := by
-  rw [Module.finrank_eq_card_basis (leftBasis hPQ hP (fun w => canWord m w)
+  rw [Module.finrank_eq_card_basis (leftBasis hsym (fun w => canWord m w)
     (fun w => ⟨isReduced_canWord m w, wordProd_canWord m w⟩)), Fintype.card_perm,
     Fintype.card_fin]
 
-include hPQ hP hρ in
+include hsym hρ in
 /-- **KL I, Proposition 2.7** (left action), elementary form: every `r ∈ R(ν)` is uniquely
 `∑_w f_w ψ_{ρ w}` with `f_w ∈ Pol(ν)`. -/
 theorem exists_unique_left_expansion (r : KLRAlgebra k Q ν) :
     ∃! c : Perm (Fin m) → Pol k ν, ∑ w, polNu (c w) * ψw (ρ w) = r := by
-  let b := leftBasis hPQ hP ρ hρ
+  let b := leftBasis hsym ρ hρ
   have key : ∀ c : Perm (Fin m) → Pol k ν,
       ∑ w, c w • b w = LeftPolMod.of (∑ w, polNu (c w) * ψw (ρ w)) := by
     intro c
@@ -468,38 +460,38 @@ variable {Γ : SimpleGraph I} [DecidableRel Γ.Adj]
 theorem polNu_injective : Function.Injective (polNu : Pol k ν → R1 k Γ ν) :=
   KLRAlgebra.polNu_injective (klQ_eq_klP (Γ := Γ) stdOrient_spec)
 
-variable [IsDomain k] (ρ : Perm (Fin (Multiset.card ν)) → List ℕ)
+variable (ρ : Perm (Fin (Multiset.card ν)) → List ℕ)
   (hρ : ∀ w, IsReduced (Multiset.card ν) (ρ w) ∧ wordProd (Multiset.card ν) (ρ w) = w)
 
-/-- **KL I, Proposition 2.7** (right action) for the rings `R(ν)` of KL I (over `ℤ`, or any
-integral domain): `R(ν)` is a free right `Pol(ν)`-module with basis `ψ_{ρ w}`, `w ∈ S_m`. -/
+/-- **KL I, Proposition 2.7** (right action) for the rings `R(ν)` of KL I (over any
+commutative ring): `R(ν)` is a free right `Pol(ν)`-module with basis `ψ_{ρ w}`, `w ∈ S_m`. -/
 noncomputable def rightBasis :
     Module.Basis (Perm (Fin (Multiset.card ν))) (Pol k ν) (RightPolMod k (klQ (k := k) Γ) ν) :=
-  KLRAlgebra.rightBasis (klQ_eq_klP (Γ := Γ) stdOrient_spec) (fun a b _ => klP_ne_zero _ a b)
+  KLRAlgebra.rightBasis (KLRSymm.of_factor (klQ_eq_klP (Γ := Γ) stdOrient_spec))
     ρ hρ
 
 theorem rightBasis_apply (w : Perm (Fin m)) :
     KL1.rightBasis (k := k) (Γ := Γ) ρ hρ w = RightPolMod.of (ψw (ρ w) : R1 k Γ ν) :=
-  KLRAlgebra.rightBasis_apply _ _ ρ hρ w
+  KLRAlgebra.rightBasis_apply _ ρ hρ w
 
 /-- **KL I, Proposition 2.7** (left action) for the rings `R(ν)` of KL I: `R(ν)` is a free
 left `Pol(ν)`-module with basis `ψ_{ρ w}`, `w ∈ S_m`. -/
 noncomputable def leftBasis :
     Module.Basis (Perm (Fin (Multiset.card ν))) (Pol k ν) (LeftPolMod k (klQ (k := k) Γ) ν) :=
-  KLRAlgebra.leftBasis (klQ_eq_klP (Γ := Γ) stdOrient_spec) (fun a b _ => klP_ne_zero _ a b)
+  KLRAlgebra.leftBasis (KLRSymm.of_factor (klQ_eq_klP (Γ := Γ) stdOrient_spec))
     ρ hρ
 
 theorem leftBasis_apply (w : Perm (Fin m)) :
     KL1.leftBasis (k := k) (Γ := Γ) ρ hρ w = LeftPolMod.of (ψw (ρ w) : R1 k Γ ν) :=
-  KLRAlgebra.leftBasis_apply _ _ ρ hρ w
+  KLRAlgebra.leftBasis_apply _ ρ hρ w
 
 /-- The rank of `R(ν)` over `Pol(ν)` is `m!`, for both actions. -/
-theorem finrank_polMod :
+theorem finrank_polMod [Nontrivial k] :
     Module.finrank (Pol k ν) (RightPolMod k (klQ (k := k) Γ) ν) = (Multiset.card ν).factorial ∧
       Module.finrank (Pol k ν) (LeftPolMod k (klQ (k := k) Γ) ν) =
         (Multiset.card ν).factorial :=
-  ⟨finrank_rightPolMod (klQ_eq_klP (Γ := Γ) stdOrient_spec) (fun a b _ => klP_ne_zero _ a b),
-    finrank_leftPolMod (klQ_eq_klP (Γ := Γ) stdOrient_spec) (fun a b _ => klP_ne_zero _ a b)⟩
+  ⟨finrank_rightPolMod (KLRSymm.of_factor (klQ_eq_klP (Γ := Γ) stdOrient_spec)),
+    finrank_leftPolMod (KLRSymm.of_factor (klQ_eq_klP (Γ := Γ) stdOrient_spec))⟩
 
 end KL1
 

@@ -80,44 +80,42 @@ theorem bSection_mul_C (s : Polynomial Rl) (b : KLRAlgebra k Q β) :
     bSection_thetaL, act1_mk, concat_mul, mul_assoc]
   rfl
 
-variable [IsDomain k] {P : I → I → MvPolynomial (Fin 2) k}
-  (hPQ : ∀ a b, a ≠ b → Q a b = P b a * rename ![1, 0] (P a b))
-  (hP : ∀ a b, a ≠ b → P a b ≠ 0)
+variable (hsym : KLRSymm Q)
 
 /-- The full-crossing lift is a genuine right inverse of the final-coordinate map. -/
 @[simp] theorem bMap_bSection (s : Polynomial Rl) :
-    bMap i β hPQ hP a h1 hβ (bSection i β a h1 hβ s) = s := by
+    bMap i β hsym a h1 hβ (bSection i β a h1 hβ s) = s := by
   obtain ⟨t, rfl⟩ := thetaL_surjective i β a s
   rw [bSection_thetaL, bMap_top]
 
-include hPQ hP in
+include hsym in
 theorem bSection_injective : Function.Injective (bSection (Q := Q) i β a h1 hβ) := by
   intro s t h
-  have := congrArg (bMap i β hPQ hP a h1 hβ) h
+  have := congrArg (bMap i β hsym a h1 hβ) h
   simpa only [bMap_bSection] using this
 
 /-- The polynomial map obtained by applying `P` to the full-crossing lift and then `C`. -/
 noncomputable def aMap : Polynomial Rl →ₗ[k] Polynomial Rl :=
-  (cMap i β hPQ hP a hβ).comp
+  (cMap i β hsym a hβ).comp
     ((pMap a (zero_lt_card_single_add i β) h1 (Multiset.card β)
       (card_single_add i β).symm).restrictScalars k) ∘ₗ bSection i β a h1 hβ
 
 /-- Formula for `A` on any tensor representative of a cyclotomic polynomial. -/
 theorem aMap_thetaL (t : T) :
-    aMap i β a h1 hβ hPQ hP (thetaL Q i β a t) = cPoly i β hPQ hP a
+    aMap i β a h1 hβ hsym (thetaL Q i β a t) = cPoly i β hsym a
       ((ψw (descRun 0 (Multiset.card β)) * concat Q Si β t) *
         tauW a (zero_lt_card_single_add i β) (Multiset.card β)) := by
-  change cMap i β hPQ hP a hβ
+  change cMap i β hsym a hβ
     (pMap a (zero_lt_card_single_add i β) h1 (Multiset.card β) (card_single_add i β).symm
       (bSection i β a h1 hβ (thetaL Q i β a t))) = _
   rw [bSection_thetaL, pMap_mk, cMap_mk]
 
 /-- Right linearity in the coefficient algebra; no `k[t]`-linearity is claimed. -/
 theorem aMap_mul_C (s : Polynomial Rl) (b : Rl) :
-    aMap i β a h1 hβ hPQ hP (s * Polynomial.C b) =
-      aMap i β a h1 hβ hPQ hP s * Polynomial.C b := by
+    aMap i β a h1 hβ hsym (s * Polynomial.C b) =
+      aMap i β a h1 hβ hsym s * Polynomial.C b := by
   obtain ⟨y, rfl⟩ := CycKLR.mk_surjective b
-  change cMap i β hPQ hP a hβ
+  change cMap i β hsym a hβ
     (pMap a (zero_lt_card_single_add i β) h1 (Multiset.card β) (card_single_add i β).symm
       (bSection i β a h1 hβ (s * Polynomial.C (CycKLR.mk k Q a β y)))) = _
   rw [bSection_mul_C, pMap_act, cMap_act0]

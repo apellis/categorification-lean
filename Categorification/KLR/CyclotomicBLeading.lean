@@ -244,19 +244,17 @@ local notation "Si" => (Singleton.singleton i : Multiset I)
 local notation "A" => KLRAlgebra k Q (Si + β)
 local notation "T" => KLRAlgebra k Q Si ⊗[k] KLRAlgebra k Q β
 
-variable [IsDomain k] {P : I → I → MvPolynomial (Fin 2) k}
-  (hPQ : ∀ a b, a ≠ b → Q a b = P b a * rename ![1, 0] (P a b))
-  (hP : ∀ a b, a ≠ b → P a b ≠ 0)
+variable (hsym : KLRSymm Q)
 
 theorem bCoord_mul_oneConcat (r : A) :
-    bCoord i β hPQ hP (r * oneConcat Q Si β) = bCoord i β hPQ hP r := by
+    bCoord i β hsym (r * oneConcat Q Si β) = bCoord i β hsym r := by
   rw [← concat_one, bCoord_mul_concat, mul_one]
 
 /-- `B` discards every lower first-strand term. -/
 theorem bCoord_eq_zero_of_mem_firstLower {c : ℕ} (hc : c < Multiset.card β) {r : A}
-    (hr : r ∈ firstLower c) : bCoord i β hPQ hP r = 0 := by
+    (hr : r ∈ firstLower c) : bCoord i β hsym r = 0 := by
   have key : ∀ z ∈ spTau (k := k) (Q := Q) (Si + β) c,
-      bCoord i β hPQ hP (hflip z) = 0 := by
+      bCoord i β hsym (hflip z) = 0 := by
     intro z hz
     induction hz using Submodule.span_induction with
     | mem y hy =>
@@ -273,8 +271,8 @@ theorem bCoord_eq_zero_of_mem_firstLower {c : ℕ} (hc : c < Multiset.card β) {
 
 /-- The final coefficient depends only on the top first-strand term. -/
 theorem bCoord_eq_of_sub_mem_firstLower {c : ℕ} (hc : c < Multiset.card β) {r s : A}
-    (hrs : r - s ∈ firstLower c) : bCoord i β hPQ hP r = bCoord i β hPQ hP s := by
-  have h := bCoord_eq_zero_of_mem_firstLower i β hPQ hP hc hrs
+    (hrs : r - s ∈ firstLower c) : bCoord i β hsym r = bCoord i β hsym s := by
+  have h := bCoord_eq_zero_of_mem_firstLower i β hsym hc hrs
   rw [map_sub, sub_eq_zero] at h
   exact h
 
@@ -283,17 +281,17 @@ theorem bMap_eq_of_sub_top_mem_firstLower (a : I → Polynomial k)
     (h1 : 1 < Multiset.card ((Singleton.singleton i : Multiset I) + β))
     (hβ : 0 < Multiset.card β) {c : ℕ} (hc : c < Multiset.card β) (r : A) (t : T)
     (hr : r - ψw (descRun 0 (Multiset.card β)) * concat Q Si β t ∈ firstLower c) :
-    bMap i β hPQ hP a h1 hβ (Submodule.Quotient.mk r) = thetaL Q i β a t := by
+    bMap i β hsym a h1 hβ (Submodule.Quotient.mk r) = thetaL Q i β a t := by
   rw [bMap_mk]
-  change thetaL Q i β a (bCoord i β hPQ hP r) = _
-  rw [bCoord_eq_of_sub_mem_firstLower i β hPQ hP hc hr, bCoord_top]
+  change thetaL Q i β a (bCoord i β hsym r) = _
+  rw [bCoord_eq_of_sub_mem_firstLower i β hsym hc hr, bCoord_top]
 
 /-- The leading polynomial controls `B` on each intertwiner summand. -/
 theorem bCoord_gProd (hβ : 0 < Multiset.card β) (s : Seq (Si + β)) :
-    bCoord i β hPQ hP (gProd (Multiset.card β) * e s) =
-      bCoord i β hPQ hP (ψw (descRun 0 (Multiset.card β)) *
+    bCoord i β hsym (gProd (Multiset.card β) * e s) =
+      bCoord i β hsym (ψw (descRun 0 (Multiset.card β)) *
         pol (gLead (Multiset.card β) (lastPos_lt i β) s) * e s) :=
-  bCoord_eq_of_sub_mem_firstLower i β hPQ hP (by omega)
+  bCoord_eq_of_sub_mem_firstLower i β hsym (by omega)
     (gProd_sub_top_mem_firstLower (Multiset.card β) (lastPos_lt i β) s)
 
 end Coefficient

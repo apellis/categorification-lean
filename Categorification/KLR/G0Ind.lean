@@ -229,7 +229,7 @@ abbrev indMap (g : N₁ →ₗ[TensorKLR Q ν ν'] N₂) :
 
 /-- **The decomposition `Ind N ≅ ⊕_u N` is natural in `N`.** -/
 theorem indDecomp_mapRight (g : N₁ →ₗ[TensorKLR Q ν ν'] N₂) (y : Ind Q ν ν' N₁) :
-    indDecomp hPQ hP N₂ (indMap g y) = fun u => g (indDecomp hPQ hP N₁ y u) := by
+    indDecomp (KLRSymm.of_factorization hPQ hP) N₂ (indMap g y) = fun u => g (indDecomp (KLRSymm.of_factorization hPQ hP) N₁ y u) := by
   induction y using BalancedTensor.induction_on with
   | zero =>
     rw [LinearMap.map_zero, LinearEquiv.map_zero, LinearEquiv.map_zero]
@@ -248,11 +248,11 @@ include hPQ hP in
 theorem mapRight_injective {g : N₁ →ₗ[TensorKLR Q ν ν'] N₂} (hg : Function.Injective g) :
     Function.Injective (indMap (Q := Q) g) := by
   intro x y h
-  apply (indDecomp hPQ hP N₁).injective
+  apply (indDecomp (KLRSymm.of_factorization hPQ hP) N₁).injective
   funext u
   apply hg
-  have := congrFun (congrArg (indDecomp hPQ hP N₂) h) u
-  rwa [indDecomp_mapRight, indDecomp_mapRight] at this
+  have := congrFun (congrArg (indDecomp (KLRSymm.of_factorization hPQ hP) N₂) h) u
+  rwa [indDecomp_mapRight hPQ hP, indDecomp_mapRight hPQ hP] at this
 
 include hPQ hP in
 /-- `Ind` preserves exact sequences. -/
@@ -261,17 +261,17 @@ theorem mapRight_exact {f : N₁ →ₗ[TensorKLR Q ν ν'] N₂} {g : N₂ →�
   intro y
   constructor
   · intro hy
-    have h1 : ∀ u, g (indDecomp hPQ hP N₂ y u) = 0 := fun u => by
-      have := congrFun (congrArg (indDecomp hPQ hP N₃) hy) u
-      rwa [indDecomp_mapRight, LinearEquiv.map_zero] at this
+    have h1 : ∀ u, g (indDecomp (KLRSymm.of_factorization hPQ hP) N₂ y u) = 0 := fun u => by
+      have := congrFun (congrArg (indDecomp (KLRSymm.of_factorization hPQ hP) N₃) hy) u
+      rwa [indDecomp_mapRight hPQ hP, LinearEquiv.map_zero] at this
     choose x hx using fun u => (hfg _).1 (h1 u)
-    refine ⟨(indDecomp hPQ hP N₁).symm x, (indDecomp hPQ hP N₂).injective ?_⟩
-    rw [indDecomp_mapRight, LinearEquiv.apply_symm_apply]
+    refine ⟨(indDecomp (KLRSymm.of_factorization hPQ hP) N₁).symm x, (indDecomp (KLRSymm.of_factorization hPQ hP) N₂).injective ?_⟩
+    rw [indDecomp_mapRight hPQ hP, LinearEquiv.apply_symm_apply]
     funext u
     exact hx u
   · rintro ⟨x, rfl⟩
-    apply (indDecomp hPQ hP N₃).injective
-    rw [indDecomp_mapRight, indDecomp_mapRight, LinearEquiv.map_zero]
+    apply (indDecomp (KLRSymm.of_factorization hPQ hP) N₃).injective
+    rw [indDecomp_mapRight hPQ hP, indDecomp_mapRight hPQ hP, LinearEquiv.map_zero]
     funext u
     exact hfg.apply_apply_eq_zero _
 
@@ -298,7 +298,7 @@ def indFin (M : GFin (G.grade ν)) (M' : GFin (G.grade ν')) : GFin (G.grade (ν
         decomposition := balancedDecomposition (tensorGrading (G.grade ν) (G.grade ν'))
           (fun _ _ _ _ hm ht => G.op_smul_mem_bimodGrading hm ht)
         gradedSMul := gradedSMul_balanced (G.grade (ν + ν')) }
-    finiteDimensional := finiteDimensional_ind hPQ hP _ }
+    finiteDimensional := finiteDimensional_ind (KLRSymm.of_factorization hPQ hP) _ }
 
 theorem indFin_carrier (M : GFin (G.grade ν)) (M' : GFin (G.grade ν')) :
     (G.indFin hPQ hP M M').carrier = Ind Q ν ν' (ExtTensor k M.carrier M'.carrier) := rfl

@@ -167,9 +167,7 @@ theorem coe_resProjMap (s : Seq (ν + ν'))
     (t : (u : ShuffleOf ν ν' s) → projPP Q u.split.1 u.split.2) :
     ((resProjMap σ s t : projP Q s) : KLRAlgebra k Q (ν + ν')) = resSum σ s t := rfl
 
-variable [IsDomain k] {P : I → I → MvPolynomial (Fin 2) k}
-  (hPQ : ∀ a b, a ≠ b → Q a b = P b a * rename ![1, 0] (P a b))
-  (hP : ∀ a b, a ≠ b → P a b ≠ 0)
+variable (hsym : KLRSymm Q)
 
 private theorem sum_subtype_ite {α M : Type*} [Fintype α] [AddCommMonoid M] (p : α → Prop)
     [DecidablePred p] [Fintype {a // p a}] (g : α → M) :
@@ -185,7 +183,6 @@ private theorem sum_subtype_dite {α M : Type*} [Fintype α] [AddCommMonoid M] (
   rw [Finset.sum_subtype (Finset.univ.filter p) (p := p) (by simp)]
   exact Finset.sum_congr rfl fun a _ => dite_eq_left a.2
 
-omit [IsDomain k] in
 theorem coe_freeMap (f : Shuffle (Seq.card_add' ν ν') →₀ KLRAlgebra k Q ν ⊗[k] KLRAlgebra k Q ν') :
     ((freeMap (Q := Q) σ f : oneConcatSub Q) : KLRAlgebra k Q (ν + ν')) =
       ∑ u, concat Q ν ν' (f u) * hatW σ u := by
@@ -198,11 +195,11 @@ variable (ρ₁ : Perm (Fin (Multiset.card ν)) → List ℕ)
   (hρ₁ : ∀ a, IsReduced (Multiset.card ν) (ρ₁ a) ∧ wordProd (Multiset.card ν) (ρ₁ a) = a)
   (hρ₂ : ∀ b, IsReduced (Multiset.card ν') (ρ₂ b) ∧ wordProd (Multiset.card ν') (ρ₂ b) = b)
 
-include hPQ hP hρ₁ hρ₂ hσ in
+include hsym hρ₁ hρ₂ hσ in
 theorem resProjMap_bijective (s : Seq (ν + ν')) :
     Function.Bijective (resProjMap (Q := Q) σ s) := by
   classical
-  have hbij := freeMap_bijective (Q := Q) hPQ hP ρ₁ ρ₂ σ hρ₁ hρ₂ hσ
+  have hbij := freeMap_bijective (Q := Q) hsym ρ₁ ρ₂ σ hρ₁ hρ₂ hσ
   constructor
   · intro t t' htt
     have h0 : resSum σ s t = resSum σ s t' := by
@@ -258,11 +255,11 @@ theorem resProjMap_bijective (s : Seq (ν + ν')) :
 noncomputable def resProjEquiv (s : Seq (ν + ν')) :
     ((u : ShuffleOf ν ν' s) → projPP Q u.split.1 u.split.2) ≃ₗ[KLRAlgebra k Q ν ⊗[k]
       KLRAlgebra k Q ν'] Res Q ν ν' (projP Q s) :=
-  LinearEquiv.ofBijective (resProjMap σ s) (resProjMap_bijective σ hσ hPQ hP ρ₁ ρ₂ hρ₁ hρ₂ s)
+  LinearEquiv.ofBijective (resProjMap σ s) (resProjMap_bijective σ hσ hsym ρ₁ ρ₂ hρ₁ hρ₂ s)
 
 theorem resProjEquiv_apply (s : Seq (ν + ν'))
     (t : (u : ShuffleOf ν ν' s) → projPP Q u.split.1 u.split.2) :
-    ((resProjEquiv σ hσ hPQ hP ρ₁ ρ₂ hρ₁ hρ₂ s t : projP Q s) : KLRAlgebra k Q (ν + ν')) =
+    ((resProjEquiv σ hσ hsym ρ₁ ρ₂ hρ₁ hρ₂ s t : projP Q s) : KLRAlgebra k Q (ν + ν')) =
       ∑ u, concat Q ν ν' (t u : KLRAlgebra k Q ν ⊗[k] KLRAlgebra k Q ν') * (ψw (σ u.1) * e s) :=
   rfl
 

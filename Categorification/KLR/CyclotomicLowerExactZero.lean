@@ -132,31 +132,29 @@ theorem lowerFCoordinates_lastBasis (d : D) (c : Ri) (y : N) (b : Rb)
   simp only [mul_assoc]
   rw [← mul_assoc (cL Q i β (cL Q i γ 1)), hc, mul_assoc]
 
-variable [IsDomain k] {P : I → I → MvPolynomial (Fin 2) k}
-  (hPQ : ∀ j l, j ≠ l → Q j l = P l j * MvPolynomial.rename ![1, 0] (P j l))
-  (hP : ∀ j l, j ≠ l → P j l ≠ 0)
+variable (hsym : KLRSymm Q)
 
 /-- Decode the full F coordinates with the source crossing sign. -/
 def lowerFDecodeRep : R →ₗ[k] KZeroPrime Q i γ a :=
   -∑ d : D, (lowerLastDecode Q i γ a d).comp
-    ((LinearMap.proj d).comp ((LinearMap.fst k _ _).comp (kkCoord i β hPQ hP)))
+    ((LinearMap.proj d).comp ((LinearMap.fst k _ _).comp (kkCoord i β hsym)))
 
 theorem lowerFDecodeRep_apply (r : R) :
-    lowerFDecodeRep Q i γ a hPQ hP r =
-      -∑ d : D, lowerLastDecode Q i γ a d ((kkCoord i β hPQ hP r).1 d) := by
+    lowerFDecodeRep Q i γ a hsym r =
+      -∑ d : D, lowerLastDecode Q i γ a d ((kkCoord i β hsym r).1 d) := by
   simp only [lowerFDecodeRep, LinearMap.neg_apply, LinearMap.sum_apply,
     LinearMap.comp_apply, LinearMap.proj_apply, LinearMap.fst_apply]
 
 /-- The explicit representative decoder kills the actual cyclotomic submodule. -/
 theorem lowerFDecodeRep_eq_zero {r : R}
     (hr : r ∈ cycL0 a (zero_lt_card_single_add i β)) :
-    lowerFDecodeRep Q i γ a hPQ hP r = 0 := by
-  have hr' : kkF i β (kkCoord i β hPQ hP r).1 (kkCoord i β hPQ hP r).2 ∈
+    lowerFDecodeRep Q i γ a hsym r = 0 := by
+  have hr' : kkF i β (kkCoord i β hsym r).1 (kkCoord i β hsym r).2 ∈
       cycL0 a (zero_lt_card_single_add i β) := by
-    change kkExpand i β (kkCoord i β hPQ hP r) ∈ _
+    change kkExpand i β (kkCoord i β hsym r) ∈ _
     rw [kkExpand_kkCoord]
     exact mul_mem_cycL0 a hr (cL_one_mem_subR0 i β)
-  have hc := ((kkF_mem_cycL0_iff i β a hPQ hP
+  have hc := ((kkF_mem_cycL0_iff i β a hsym
     (zero_lt_card_single_add i γ) _ _).1 hr').1
   rw [lowerFDecodeRep_apply, Finset.sum_eq_zero (fun d _ =>
     lowerLastDecode_eq_zero Q i γ a d (hc d)), neg_zero]
@@ -165,16 +163,16 @@ theorem lowerFDecodeRep_eq_zero {r : R}
 def lowerFDecode : KZero Q (Si + β) a (zero_lt_card_single_add i β) →ₗ[k]
     KZeroPrime Q i γ a :=
   ((cycL0 a (zero_lt_card_single_add i β)).restrictScalars k).liftQ
-    (lowerFDecodeRep Q i γ a hPQ hP)
-    (fun _ hr => LinearMap.mem_ker.2 (lowerFDecodeRep_eq_zero Q i γ a hPQ hP hr)) ∘ₗ
+    (lowerFDecodeRep Q i γ a hsym)
+    (fun _ hr => LinearMap.mem_ker.2 (lowerFDecodeRep_eq_zero Q i γ a hsym hr)) ∘ₗ
   (Submodule.Quotient.restrictScalarsEquiv k (cycL0 a _)).symm.toLinearMap
 
 @[simp] theorem lowerFDecode_mk (r : R) :
-    lowerFDecode Q i γ a hPQ hP (Submodule.Quotient.mk r) =
-      lowerFDecodeRep Q i γ a hPQ hP r := rfl
+    lowerFDecode Q i γ a hsym (Submodule.Quotient.mk r) =
+      lowerFDecodeRep Q i γ a hsym r := rfl
 
 theorem lowerFDecodeRep_fT (d : D) (t : Rb ⊗[k] Ri) :
-    lowerFDecodeRep Q i γ a hPQ hP (fT Q i β d.val t) =
+    lowerFDecodeRep Q i γ a hsym (fT Q i β d.val t) =
       -lowerLastDecode Q i γ a d t := by
   have he : fT Q i β d.val t = kkF i β (Pi.single d t) 0 := by
     simp only [kkF, map_zero, add_zero]
@@ -194,7 +192,7 @@ theorem lowerFDecodeRep_fT (d : D) (t : Rb ⊗[k] Ri) :
 
 /-- The source roundtrip on elementary last-strand basis tensors. -/
 theorem lowerFDecode_lastBasis (d : D) (c : Ri) (y : N) :
-    lowerFDecode Q i γ a hPQ hP
+    lowerFDecode Q i γ a hsym
       (lowerFCoordinates Q i γ a (BalancedTensor.tmul (lowerLastBasis Q i γ d c) y)) =
       BalancedTensor.tmul (lowerLastBasis Q i γ d c) y := by
   obtain ⟨b, hb⟩ := CycKLR.mk_surjective (y : Rl)
@@ -203,7 +201,6 @@ theorem lowerFDecode_lastBasis (d : D) (c : Ri) (y : N) :
     map_mul, hb, show CycKLR.mk k Q a β (cL Q i γ 1) * (y : Rl) = y from y.2,
     lowerCoefficientProj_coe]
 
-omit [IsDomain k] in
 /-- A lower last-free summand with its actual right colour cut. -/
 def lowerLastTerm (d : D) : Rg ⊗[k] Ri →ₗ[k] L where
   toFun t := ⟨ψw (upW d.val (Multiset.card γ)) * cLL Q i γ t, by
@@ -212,7 +209,6 @@ def lowerLastTerm (d : D) : Rg ⊗[k] Ri →ₗ[k] L where
   map_add' t u := Subtype.ext (by simp only [map_add, mul_add]; rfl)
   map_smul' s t := Subtype.ext (by simp only [map_smul, mul_smul_comm]; rfl)
 
-omit [IsDomain k] in
 /-- The lower coefficient moves by the actual R(γ) action. -/
 theorem lowerLastTerm_tmul (d : D) (r : Rg) (c : Ri) :
     lowerLastTerm Q i γ d (r ⊗ₜ c) = op r • lowerLastBasis Q i γ d c := by
@@ -221,11 +217,11 @@ theorem lowerLastTerm_tmul (d : D) (r : Rg) (c : Ri) :
     (ψw _ * cLL Q i γ (1 ⊗ₜ c)) * cL Q i γ r
   rw [mul_assoc, ← cLL_mul_cL, Algebra.TensorProduct.tmul_mul_tmul, one_mul, mul_one]
 
-include hPQ hP in
+include hsym in
 /-- The genuine lower corner is spanned by its last-free summands, also at γ=0. -/
 theorem lowerLastTerm_span (x : L) : ∃ t : D → Rg ⊗[k] Ri,
     ∑ d, lowerLastTerm Q i γ d (t d) = x := by
-  obtain ⟨t, ht⟩ := lastFree_span i γ hPQ hP (x : Rb)
+  obtain ⟨t, ht⟩ := lastFree_span i γ hsym (x : Rb)
   have hn : Multiset.card γ + 1 = Multiset.card β := by simp
   refine ⟨fun d => t (Fin.cast hn.symm d), ?_⟩
   apply Subtype.ext
@@ -244,12 +240,12 @@ theorem lowerLastTerm_span (x : L) : ∃ t : D → Rg ⊗[k] Ri,
 
 /-- The decoder is a left inverse on the genuine balanced tensor K₀′. -/
 theorem lowerFDecode_leftInverse (t : KZeroPrime Q i γ a) :
-    lowerFDecode Q i γ a hPQ hP (lowerFCoordinates Q i γ a t) = t := by
+    lowerFDecode Q i γ a hsym (lowerFCoordinates Q i γ a t) = t := by
   induction t using BalancedTensor.induction_on with
   | zero => simp only [map_zero]
   | add t u ht hu => simp only [map_add, ht, hu]
   | tmul x y =>
-    obtain ⟨p, hp⟩ := lowerLastTerm_span Q i γ hPQ hP x
+    obtain ⟨p, hp⟩ := lowerLastTerm_span Q i γ hsym x
     rw [← hp]
     rw [show BalancedTensor.tmul (∑ d, lowerLastTerm Q i γ d (p d)) y =
         ∑ d, BalancedTensor.tmul (lowerLastTerm Q i γ d (p d)) y from
@@ -261,9 +257,9 @@ theorem lowerFDecode_leftInverse (t : KZeroPrime Q i γ a) :
     | add u v hu hv => simp only [map_add, BalancedTensor.add_tmul, hu, hv]
     | tmul r c =>
       rw [lowerLastTerm_tmul, BalancedTensor.op_smul_tmul]
-      exact lowerFDecode_lastBasis Q i γ a hPQ hP d c (r • y)
+      exact lowerFDecode_lastBasis Q i γ a hsym d c (r • y)
 
-include hPQ hP in
+include hsym in
 /-- The actual source crossing into E_i K₀ is injective. -/
 theorem lowerF_injective : Function.Injective (lowerF Q i γ a) := by
   intro t u h
@@ -271,10 +267,9 @@ theorem lowerF_injective : Function.Injective (lowerF Q i γ a) := by
     change lowerQuotientCast Q i γ a (tensorToKZero Q i β a _ _ (lowerF Q i γ a t)) =
       lowerQuotientCast Q i γ a (tensorToKZero Q i β a _ _ (lowerF Q i γ a u))
     rw [h]
-  have hd := congrArg (lowerFDecode Q i γ a hPQ hP) hc
+  have hd := congrArg (lowerFDecode Q i γ a hsym) hc
   simpa only [lowerFDecode_leftInverse] using hd
 
-omit [IsDomain k] in
 /-- The last-colour cut across the crossing is exactly the double-last-colour cut. -/
 theorem lowerLastCut_crossing :
     cL Q i β 1 * ψ (Multiset.card γ) * cL Q i β 1 =
@@ -312,7 +307,6 @@ theorem lowerLastCut_crossing :
   · rw [cL_e, ← ψ_mul_e]
   · rw [zero_mul, cL_zero, mul_zero]
 
-omit [IsDomain k] in
 /-- Left-cutting a free crossing term cuts precisely its lower coefficient. -/
 theorem lowerLastCut_fT_tmul (d : D) (b : Rb) (c : Ri) :
     cL Q i β 1 * fT Q i β d.val (b ⊗ₜ c) =
@@ -342,7 +336,6 @@ theorem lowerLastCut_fT_tmul (d : D) (b : Rb) (c : Ri) :
     lowerLastCut_crossing]
   simp only [mul_assoc]
 
-omit [IsDomain k] in
 /-- Forward reconstruction is the actual left projection of each free term. -/
 theorem lowerFCoordinates_decode (d : D) (t : Rb ⊗[k] Ri) :
     lowerFCoordinates Q i γ a (lowerLastDecode Q i γ a d t) =
@@ -357,17 +350,17 @@ theorem lowerFCoordinates_decode (d : D) (t : Rb ⊗[k] Ri) :
 
 /-- Forward reconstruction on the quotient is the cut of the full F part. -/
 theorem lowerFCoordinates_decode_eq (z : KZero Q (Si + β) a (zero_lt_card_single_add i β)) :
-    lowerFCoordinates Q i γ a (lowerFDecode Q i γ a hPQ hP z) =
+    lowerFCoordinates Q i γ a (lowerFDecode Q i γ a hsym z) =
       cL Q i β 1 • fSection i β a (zero_lt_card_single_add i γ)
-        (fCoords i β a hPQ hP (zero_lt_card_single_add i γ) z) := by
+        (fCoords i β a hsym (zero_lt_card_single_add i γ) z) := by
   obtain ⟨r, rfl⟩ := Submodule.Quotient.mk_surjective _ z
   rw [lowerFDecode_mk, lowerFDecodeRep_apply, map_neg, map_sum]
   simp only [lowerFCoordinates_decode, Finset.sum_neg_distrib, neg_neg]
   rw [fCoords_mk]
   change _ = cL Q i β 1 • fSection i β a (zero_lt_card_single_add i γ)
-    (fun d => thetaL0 Q i β a ((kkCoord i β hPQ hP r).1 d))
+    (fun d => thetaL0 Q i β a ((kkCoord i β hsym r).1 d))
   rw [fSection_thetaL0]
-  change _ = Submodule.Quotient.mk (cL Q i β 1 * kkF i β (kkCoord i β hPQ hP r).1 0)
+  change _ = Submodule.Quotient.mk (cL Q i β 1 * kkF i β (kkCoord i β hsym r).1 0)
   rw [kkF, map_zero, add_zero, Finset.mul_sum]
   exact (map_sum (cycL0 a (zero_lt_card_single_add i β)).mkQ _ _).symm
 
@@ -375,13 +368,12 @@ theorem lowerFCoordinates_decode_eq (z : KZero Q (Si + β) a (zero_lt_card_singl
 theorem lowerFCoordinates_decode_kernel
     (z : KZero Q (Si + β) a (zero_lt_card_single_add i β))
     (hr : act0 Q i β a 1 z = z) (hl : cL Q i β 1 • z = z)
-    (hz : cMap i β hPQ hP a (zero_lt_card_single_add i γ) z = 0) :
-    lowerFCoordinates Q i γ a (lowerFDecode Q i γ a hPQ hP z) = z := by
-  have he := fSection_add_cSection i β a hPQ hP (zero_lt_card_single_add i γ) z
+    (hz : cMap i β hsym a (zero_lt_card_single_add i γ) z = 0) :
+    lowerFCoordinates Q i γ a (lowerFDecode Q i γ a hsym z) = z := by
+  have he := fSection_add_cSection i β a hsym (zero_lt_card_single_add i γ) z
   rw [hz, map_zero, add_zero, hr] at he
   rw [lowerFCoordinates_decode_eq, he, hl]
 
-omit [IsDomain k] in
 /-- Canonical tensor-to-quotient multiplication followed only by multiset transport. -/
 def eiZeroCoordinates : EIKZero Q i β a →ₗ[k]
     KZero Q (Si + β) a (zero_lt_card_single_add i β) :=
@@ -389,30 +381,28 @@ def eiZeroCoordinates : EIKZero Q i β a →ₗ[k]
     (((tensorToKZero Q i β a (by simp) (zero_lt_card_single_add i γ)).restrictScalars k).comp
       (Graded.idemSubspace k (KZeroTensor Q i β a) (oneConcat Q β Si)).subtype)
 
-omit [IsDomain k] in
 theorem eiZeroCoordinates_lowerF (t : KZeroPrime Q i γ a) :
     eiZeroCoordinates Q i γ a (lowerF Q i γ a t) = lowerFCoordinates Q i γ a t := rfl
 
 /-- The existing C restricted to the genuine left-cut tensor E_i K₀. -/
 def eiC : EIKZero Q i β a →ₗ[k] Polynomial Rl :=
-  (cMap i β hPQ hP a (zero_lt_card_single_add i γ)).comp (eiZeroCoordinates Q i γ a)
+  (cMap i β hsym a (zero_lt_card_single_add i γ)).comp (eiZeroCoordinates Q i γ a)
 
 theorem eiC_lowerF (t : KZeroPrime Q i γ a) :
-    eiC Q i γ a hPQ hP (lowerF Q i γ a t) = 0 :=
-  cMap_lowerF Q i γ a hPQ hP t
+    eiC Q i γ a hsym (lowerF Q i γ a t) = 0 :=
+  cMap_lowerF Q i γ a hsym t
 
 /-- Explicit reconstruction from the actual restricted kernel into K₀′. -/
-def lowerFKernelInv : LinearMap.ker (eiC Q i γ a hPQ hP) →ₗ[k] KZeroPrime Q i γ a :=
-  (lowerFDecode Q i γ a hPQ hP).comp
-    ((eiZeroCoordinates Q i γ a).comp (LinearMap.ker (eiC Q i γ a hPQ hP)).subtype)
+def lowerFKernelInv : LinearMap.ker (eiC Q i γ a hsym) →ₗ[k] KZeroPrime Q i γ a :=
+  (lowerFDecode Q i γ a hsym).comp
+    ((eiZeroCoordinates Q i γ a).comp (LinearMap.ker (eiC Q i γ a hsym)).subtype)
 
 /-- The kernel reconstruction after the genuine crossing is the source identity. -/
 theorem lowerFKernelInv_forward (t : KZeroPrime Q i γ a) :
-    lowerFKernelInv Q i γ a hPQ hP
-      ⟨lowerF Q i γ a t, eiC_lowerF Q i γ a hPQ hP t⟩ = t :=
-  lowerFDecode_leftInverse Q i γ a hPQ hP t
+    lowerFKernelInv Q i γ a hsym
+      ⟨lowerF Q i γ a t, eiC_lowerF Q i γ a hsym t⟩ = t :=
+  lowerFDecode_leftInverse Q i γ a hsym t
 
-omit [IsDomain k] in
 /-- Multiset transport does not lose information in the quotient. -/
 theorem lowerQuotientCast_injective : Function.Injective (lowerQuotientCast Q i γ a) := by
   have he : Function.LeftInverse (lowerQuotientUncast Q i γ a) (lowerQuotientCast Q i γ a) := by
@@ -424,7 +414,6 @@ theorem lowerQuotientCast_injective : Function.Injective (lowerQuotientCast Q i 
       rw [castKLR_symm_castAlg]
   exact he.injective
 
-omit [IsDomain k] in
 /-- Canonical coordinates distinguish actual left-cut tensors. -/
 theorem eiZeroCoordinates_injective : Function.Injective (eiZeroCoordinates Q i γ a) := by
   intro t u h
@@ -433,7 +422,6 @@ theorem eiZeroCoordinates_injective : Function.Injective (eiZeroCoordinates Q i 
   apply Subtype.ext
   exact lowerQuotientCast_injective Q i γ a h
 
-omit [IsDomain k] in
 theorem lowerQuotientCast_rightCut (z : KZero Q (β + Si) a (by simp)) :
     lowerQuotientCast Q i γ a (kZeroRightCut Q i β a (by simp) z) =
       act0 Q i β a 1 (lowerQuotientCast Q i γ a z) := by
@@ -443,7 +431,6 @@ theorem lowerQuotientCast_rightCut (z : KZero Q (β + Si) a (by simp)) :
       Submodule.Quotient.mk (castKLR Q (add_comm β Si) r * cL Q i β 1)
     rw [map_mul, ← cL_one_eq_cast]
 
-omit [IsDomain k] in
 theorem lowerQuotientCast_leftCut (z : KZero Q (β + Si) a (by simp)) :
     lowerQuotientCast Q i γ a (oneConcat Q β Si • z) =
       cL Q i β 1 • lowerQuotientCast Q i γ a z := by
@@ -453,7 +440,6 @@ theorem lowerQuotientCast_leftCut (z : KZero Q (β + Si) a (by simp)) :
       Submodule.Quotient.mk (cL Q i β 1 * castKLR Q (add_comm β Si) r)
     rw [map_mul, ← cL_one_eq_cast]
 
-omit [IsDomain k] in
 theorem eiZeroCoordinates_rightCut (z : EIKZero Q i β a) :
     act0 Q i β a 1 (eiZeroCoordinates Q i γ a z) = eiZeroCoordinates Q i γ a z := by
   change act0 Q i β a 1 (lowerQuotientCast Q i γ a (tensorToKZero Q i β a _ _ z)) = _
@@ -461,7 +447,6 @@ theorem eiZeroCoordinates_rightCut (z : EIKZero Q i β a) :
     (by simp) (zero_lt_card_single_add i γ), kZeroToTensor_tensorToKZero]
   rfl
 
-omit [IsDomain k] in
 theorem eiZeroCoordinates_leftCut (z : EIKZero Q i β a) :
     cL Q i β 1 • eiZeroCoordinates Q i γ a z = eiZeroCoordinates Q i γ a z := by
   change cL Q i β 1 • lowerQuotientCast Q i γ a (tensorToKZero Q i β a _ _ z) = _
@@ -470,30 +455,30 @@ theorem eiZeroCoordinates_leftCut (z : EIKZero Q i β a) :
     (tensorToKZero Q i β a (by simp) (zero_lt_card_single_add i γ) t)) z.2
 
 /-- The actual crossing after kernel reconstruction is the target identity. -/
-theorem lowerF_kernelInv (z : LinearMap.ker (eiC Q i γ a hPQ hP)) :
-    lowerF Q i γ a (lowerFKernelInv Q i γ a hPQ hP z) = z := by
+theorem lowerF_kernelInv (z : LinearMap.ker (eiC Q i γ a hsym)) :
+    lowerF Q i γ a (lowerFKernelInv Q i γ a hsym z) = z := by
   apply eiZeroCoordinates_injective Q i γ a
   rw [eiZeroCoordinates_lowerF]
-  exact lowerFCoordinates_decode_kernel Q i γ a hPQ hP (eiZeroCoordinates Q i γ a z.val)
+  exact lowerFCoordinates_decode_kernel Q i γ a hsym (eiZeroCoordinates Q i γ a z.val)
     (eiZeroCoordinates_rightCut Q i γ a z.val) (eiZeroCoordinates_leftCut Q i γ a z.val) z.2
 
 /-- The genuine middle column is exact at E_i K₀. -/
 theorem range_lowerF_eq_ker_eiC :
-    LinearMap.range (lowerF Q i γ a) = LinearMap.ker (eiC Q i γ a hPQ hP) := by
+    LinearMap.range (lowerF Q i γ a) = LinearMap.ker (eiC Q i γ a hsym) := by
   ext z
   constructor
   · rintro ⟨t, rfl⟩
-    exact eiC_lowerF Q i γ a hPQ hP t
+    exact eiC_lowerF Q i γ a hsym t
   · intro hz
-    exact ⟨lowerFKernelInv Q i γ a hPQ hP ⟨z, hz⟩,
-      lowerF_kernelInv Q i γ a hPQ hP ⟨z, hz⟩⟩
+    exact ⟨lowerFKernelInv Q i γ a hsym ⟨z, hz⟩,
+      lowerF_kernelInv Q i γ a hsym ⟨z, hz⟩⟩
 
 /-- The actual crossing and explicit cut-tensor decoder form a k-linear equivalence. -/
-def lowerFKernelEquiv : KZeroPrime Q i γ a ≃ₗ[k] LinearMap.ker (eiC Q i γ a hPQ hP) where
-  toFun t := ⟨lowerF Q i γ a t, eiC_lowerF Q i γ a hPQ hP t⟩
-  invFun := lowerFKernelInv Q i γ a hPQ hP
-  left_inv := lowerFKernelInv_forward Q i γ a hPQ hP
-  right_inv z := Subtype.ext (lowerF_kernelInv Q i γ a hPQ hP z)
+def lowerFKernelEquiv : KZeroPrime Q i γ a ≃ₗ[k] LinearMap.ker (eiC Q i γ a hsym) where
+  toFun t := ⟨lowerF Q i γ a t, eiC_lowerF Q i γ a hsym t⟩
+  invFun := lowerFKernelInv Q i γ a hsym
+  left_inv := lowerFKernelInv_forward Q i γ a hsym
+  right_inv z := Subtype.ext (lowerF_kernelInv Q i γ a hsym z)
   map_add' t u := Subtype.ext (map_add _ t u)
   map_smul' s t := Subtype.ext (map_smul _ s t)
 

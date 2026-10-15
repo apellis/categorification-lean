@@ -170,7 +170,7 @@ variable {P : I → I → MvPolynomial (Fin 2) k}
 words, `(t_u)_u ↦ ∑_u 1_s ψ_{σ(u)^{rev}} ι(t_u)`. -/
 abbrev resProjEquivRightCan (s : Seq (ν + ν')) :
     ((u : ShuffleOf ν ν' s) → projPPR Q u.split.1 u.split.2) ≃ₗ[k] resRightSub Q ν ν' s :=
-  resProjEquivRight shuffleWord hPQ hP shuffleWord_spec (canWord _) (canWord _)
+  resProjEquivRight shuffleWord (KLRSymm.of_factorization hPQ hP) shuffleWord_spec (canWord _) (canWord _)
     (fun a => ⟨isReduced_canWord _ a, wordProd_canWord _ a⟩)
     (fun b => ⟨isReduced_canWord _ b, wordProd_canWord _ b⟩) s
 
@@ -229,7 +229,7 @@ theorem resProjGradedEquivRight_mul (s : Seq (ν + ν')) (δ : ShuffleOf ν ν' 
         resRightSub Q ν ν' s) : KLRAlgebra k Q (ν + ν')) =
       (G.resProjGradedEquivRightOf hPQ hP s δ hδ t : KLRAlgebra k Q (ν + ν')) *
         concat Q ν ν' c :=
-  resProjEquivRight_mul shuffleWord hPQ hP shuffleWord_spec (canWord _) (canWord _)
+  resProjEquivRight_mul shuffleWord (KLRSymm.of_factorization hPQ hP) shuffleWord_spec (canWord _) (canWord _)
     (fun a => ⟨isReduced_canWord _ a, wordProd_canWord _ a⟩)
     (fun b => ⟨isReduced_canWord _ b, wordProd_canWord _ b⟩) s t c
 

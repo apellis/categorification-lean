@@ -71,10 +71,8 @@ def mixedMateNat : restrictionFunctor.{u,v,w} Q i a β ⋙ inductionFunctor Q i 
   ext t
   rfl
 
-variable [IsDomain k] {P : I → I → MvPolynomial (Fin 2) k}
-  (hPQ : ∀ a b, a ≠ b → Q a b = P b a * MvPolynomial.rename ![1, 0] (P a b))
-  (hP : ∀ a b, a ≠ b → P a b ≠ 0)
-  (hQ : ∀ i j : I, i ≠ j → IsUnit (polyInY (Q i j)).leadingCoeff)
+variable (hsym : KLRSymm Q)
+  (hQ : ∀ i j : I, i ≠ j → ∃ c : k, IsUnit c ∧ (polyInY (Q i j)).leadingCoeff = Polynomial.C c)
   (ha : ∀ i, (a i).Monic)
   {C : QuantumGroup.CartanDatum I} {X Y : Type*} [AddCommGroup X] [AddCommGroup Y]
   (RD : QuantumGroup.UDot.RootDatum C X Y) (Λ : X)
@@ -87,27 +85,27 @@ def originalPositiveEquiv (M : ModuleCat.{max u v w} S) (hwt : 0 ≤ wt) :
     ((restrictionFunctor Q i a β ⋙ inductionFunctor Q i a β).obj M × (Fin (wt).toNat → M)) ≃ₗ[S]
       (inductionFunctor Q i a β₁ ⋙ restrictionFunctor Q i a β₁).obj M :=
   ((feRebaseEquiv Q i a β M).symm.prodCongr (LinearEquiv.refl S _)).trans
-    (PresentColour.positiveEquiv Q i β a M hPQ hP hQ ha RD Λ hΛ hdeg hwt)
+    (PresentColour.positiveEquiv Q i β a M hsym hQ ha RD Λ hΛ hdeg hwt)
 
 /-- Actual original-functor commutator at nonpositive KK weight (nonnegative source weight). -/
 def originalNegativeEquiv (M : ModuleCat.{max u v w} S) (hwt : wt ≤ 0) :
     (restrictionFunctor Q i a β ⋙ inductionFunctor Q i a β).obj M ≃ₗ[S]
       ((inductionFunctor Q i a β₁ ⋙ restrictionFunctor Q i a β₁).obj M × (Fin (-wt).toNat → M)) :=
   (feRebaseEquiv Q i a β M).symm.trans
-    (PresentColour.negativeEquiv Q i β a M hPQ hP hQ ha RD Λ hΛ hdeg hwt)
+    (PresentColour.negativeEquiv Q i β a M hsym hQ ha RD Λ hΛ hdeg hwt)
 
-include hPQ hP hQ ha hΛ hdeg in
+include hsym hQ ha hΛ hdeg in
 theorem positive_original_mate (M : ModuleCat.{max u v w} S) (hwt : 0 ≤ wt) (t : PresentColour.FE Q i β a M) :
-    (PresentColour.positiveEquiv Q i β a M hPQ hP hQ ha RD Λ hΛ hdeg) hwt (t, 0) = (mixedMate Q i a β M).hom (feRebase Q i a β M t) := by
+    (PresentColour.positiveEquiv Q i β a M hsym hQ ha RD Λ hΛ hdeg) hwt (t, 0) = (mixedMate Q i a β M).hom (feRebase Q i a β M t) := by
   rw [mixedMate_rebase]
   obtain ⟨t, rfl⟩ := (PresentColour.indResEquiv Q i β a M).symm.surjective t
-  change (PresentColour.positiveEquiv Q i β a M hPQ hP hQ ha RD Λ hΛ hdeg) hwt (PresentColour.lowerToFE Q i β a M t, 0) = _
+  change (PresentColour.positiveEquiv Q i β a M hsym hQ ha RD Λ hΛ hdeg) hwt (PresentColour.lowerToFE Q i β a M t, 0) = _
   change _ = (PresentColour.efMiddleEquiv Q i β a M).symm
     (BalancedTensor.mapLeft (sigmaOuter Q i a β) (cyclotomicSigma_op_smul Q i β a)
       ((PresentColour.indResEquiv Q i β a M) ((PresentColour.indResEquiv Q i β a M).symm t)))
   rw [LinearEquiv.apply_symm_apply]
   induction t using BalancedTensor.induction_on with
-  | zero => simp only [map_zero]; exact map_zero ((PresentColour.positiveEquiv Q i β a M hPQ hP hQ ha RD Λ hΛ hdeg) hwt)
+  | zero => simp only [map_zero]; exact map_zero ((PresentColour.positiveEquiv Q i β a M hsym hQ ha RD Λ hΛ hdeg) hwt)
   | add t u ht hu =>
     rw [map_add]
     have hz : (PresentColour.lowerToFE Q i β a M t + PresentColour.lowerToFE Q i β a M u,
@@ -115,14 +113,14 @@ theorem positive_original_mate (M : ModuleCat.{max u v w} S) (hwt : 0 ≤ wt) (t
         (PresentColour.lowerToFE Q i β a M t, 0) +
           (PresentColour.lowerToFE Q i β a M u, 0) := by simp only [Prod.mk_add_mk, add_zero]
     rw [hz, map_add, ht, hu, map_add, map_add]
-  | tmul l n => exact PresentColour.positiveEquiv_crossing Q i β a M hPQ hP hQ ha RD Λ hΛ hdeg hwt l n
+  | tmul l n => exact PresentColour.positiveEquiv_crossing Q i β a M hsym hQ ha RD Λ hΛ hdeg hwt l n
 
-include hPQ hP hQ ha hΛ hdeg in
+include hsym hQ ha hΛ hdeg in
 theorem negative_original_mate (M : ModuleCat.{max u v w} S) (hwt : wt ≤ 0) (t : PresentColour.FE Q i β a M) :
-    ((PresentColour.negativeEquiv Q i β a M hPQ hP hQ ha RD Λ hΛ hdeg) hwt t).1 = (mixedMate Q i a β M).hom (feRebase Q i a β M t) := by
+    ((PresentColour.negativeEquiv Q i β a M hsym hQ ha RD Λ hΛ hdeg) hwt t).1 = (mixedMate Q i a β M).hom (feRebase Q i a β M t) := by
   rw [mixedMate_rebase]
   obtain ⟨t, rfl⟩ := (PresentColour.indResEquiv Q i β a M).symm.surjective t
-  change ((PresentColour.negativeEquiv Q i β a M hPQ hP hQ ha RD Λ hΛ hdeg) hwt (PresentColour.lowerToFE Q i β a M t)).1 = _
+  change ((PresentColour.negativeEquiv Q i β a M hsym hQ ha RD Λ hΛ hdeg) hwt (PresentColour.lowerToFE Q i β a M t)).1 = _
   change _ = (PresentColour.efMiddleEquiv Q i β a M).symm
     (BalancedTensor.mapLeft (sigmaOuter Q i a β) (cyclotomicSigma_op_smul Q i β a)
       ((PresentColour.indResEquiv Q i β a M) ((PresentColour.indResEquiv Q i β a M).symm t)))
@@ -138,27 +136,27 @@ theorem negative_original_mate (M : ModuleCat.{max u v w} S) (hwt : wt ≤ 0) (t
 /-- The forward crossing component of the actual equivalence is the original mixed mate. -/
 theorem originalPositiveEquiv_mate (M : ModuleCat.{max u v w} S) (hwt : 0 ≤ wt)
     (t : (restrictionFunctor Q i a β ⋙ inductionFunctor Q i a β).obj M) :
-    originalPositiveEquiv Q i a β hPQ hP hQ ha RD Λ hΛ hdeg M hwt (t, 0) =
+    originalPositiveEquiv Q i a β hsym hQ ha RD Λ hΛ hdeg M hwt (t, 0) =
       (mixedMate Q i a β M).hom t := by
   obtain ⟨t, rfl⟩ := (feRebaseEquiv Q i a β M).surjective t
-  change (PresentColour.positiveEquiv Q i β a M hPQ hP hQ ha RD Λ hΛ hdeg hwt)
+  change (PresentColour.positiveEquiv Q i β a M hsym hQ ha RD Λ hΛ hdeg hwt)
     ((feRebaseEquiv Q i a β M).symm ((feRebaseEquiv Q i a β M) t), 0) = _
   rw [LinearEquiv.symm_apply_apply]
-  exact positive_original_mate Q i a β hPQ hP hQ ha RD Λ hΛ hdeg M hwt t
+  exact positive_original_mate Q i a β hsym hQ ha RD Λ hΛ hdeg M hwt t
 
 /-- The first component of the actual equivalence is the original mixed mate. -/
 theorem originalNegativeEquiv_mate (M : ModuleCat.{max u v w} S) (hwt : wt ≤ 0)
     (t : (restrictionFunctor Q i a β ⋙ inductionFunctor Q i a β).obj M) :
-    (originalNegativeEquiv Q i a β hPQ hP hQ ha RD Λ hΛ hdeg M hwt t).1 =
+    (originalNegativeEquiv Q i a β hsym hQ ha RD Λ hΛ hdeg M hwt t).1 =
       (mixedMate Q i a β M).hom t := by
   obtain ⟨t, rfl⟩ := (feRebaseEquiv Q i a β M).surjective t
-  change (PresentColour.negativeEquiv Q i β a M hPQ hP hQ ha RD Λ hΛ hdeg hwt
+  change (PresentColour.negativeEquiv Q i β a M hsym hQ ha RD Λ hΛ hdeg hwt
     ((feRebaseEquiv Q i a β M).symm ((feRebaseEquiv Q i a β M) t))).1 = _
   rw [LinearEquiv.symm_apply_apply]
-  exact negative_original_mate Q i a β hPQ hP hQ ha RD Λ hΛ hdeg M hwt t
+  exact negative_original_mate Q i a β hsym hQ ha RD Λ hΛ hdeg M hwt t
 
-local notation "Pos" => originalPositiveEquiv Q i a β hPQ hP hQ ha RD Λ hΛ hdeg
-local notation "Neg" => originalNegativeEquiv Q i a β hPQ hP hQ ha RD Λ hΛ hdeg
+local notation "Pos" => originalPositiveEquiv Q i a β hsym hQ ha RD Λ hΛ hdeg
+local notation "Neg" => originalNegativeEquiv Q i a β hsym hQ ha RD Λ hΛ hdeg
 local notation "FEF" => (restrictionFunctor Q i a β ⋙ inductionFunctor Q i a β)
 local notation "EFF" => (inductionFunctor Q i a β₁ ⋙ restrictionFunctor Q i a β₁)
 
@@ -166,7 +164,7 @@ local notation "EFF" => (inductionFunctor Q i a β₁ ⋙ restrictionFunctor Q i
 theorem originalPositiveEquiv_dots (M : ModuleCat.{max u v w} S) (hwt : 0 ≤ wt)
     (v : Fin (wt).toNat → M) :
     Pos M hwt (0, v) = ∑ d : Fin (wt).toNat, (dottedUnit Q i a β₁ d).app M (v d) := by
-  change PresentColour.positiveEquiv Q i β a M hPQ hP hQ ha RD Λ hΛ hdeg hwt
+  change PresentColour.positiveEquiv Q i β a M hsym hQ ha RD Λ hΛ hdeg hwt
     ((feRebaseEquiv Q i a β M).symm 0, v) = _
   rw [map_zero, PresentColour.positiveEquiv_dots, map_sum]
   apply Finset.sum_congr rfl
@@ -186,8 +184,8 @@ theorem originalPositiveEquiv_apply (M : ModuleCat.{max u v w} S) (hwt : 0 ≤ w
       conv_lhs => rw [hz]
       exact map_add _ _ _
     _ = _ := congrArg₂ (· + ·)
-      (originalPositiveEquiv_mate Q i a β hPQ hP hQ ha RD Λ hΛ hdeg M hwt z.1)
-      (originalPositiveEquiv_dots Q i a β hPQ hP hQ ha RD Λ hΛ hdeg M hwt z.2)
+      (originalPositiveEquiv_mate Q i a β hsym hQ ha RD Λ hΛ hdeg M hwt z.1)
+      (originalPositiveEquiv_dots Q i a β hsym hQ ha RD Λ hΛ hdeg M hwt z.2)
 
 /-- All finite-sum rows are the categorical dotted ordinary counits. -/
 theorem originalNegativeEquiv_dots (M : ModuleCat.{max u v w} S) (hwt : wt ≤ 0)
@@ -195,7 +193,7 @@ theorem originalNegativeEquiv_dots (M : ModuleCat.{max u v w} S) (hwt : wt ≤ 0
     (Neg M hwt t).2 d = (dottedCounit Q i a β d).app M t := by
   obtain ⟨t, rfl⟩ := (feRebaseEquiv Q i a β M).surjective t
   obtain ⟨l, rfl⟩ := (PresentColour.indResEquiv Q i β a M).symm.surjective t
-  change (PresentColour.negativeEquiv Q i β a M hPQ hP hQ ha RD Λ hΛ hdeg hwt
+  change (PresentColour.negativeEquiv Q i β a M hsym hQ ha RD Λ hΛ hdeg hwt
     ((feRebaseEquiv Q i a β M).symm ((feRebaseEquiv Q i a β M)
       (PresentColour.lowerToFE Q i β a M l)))).2 d = _
   rw [LinearEquiv.symm_apply_apply]
@@ -211,11 +209,10 @@ theorem originalNegativeEquiv_apply (M : ModuleCat.{max u v w} S) (hwt : wt ≤ 
     Neg M hwt t = ((mixedMate Q i a β M).hom t,
       fun d : Fin (-wt).toNat => (dottedCounit Q i a β d).app M t) := by
   apply Prod.ext
-  · exact originalNegativeEquiv_mate Q i a β hPQ hP hQ ha RD Λ hΛ hdeg M hwt t
+  · exact originalNegativeEquiv_mate Q i a β hsym hQ ha RD Λ hΛ hdeg M hwt t
   · funext d
-    exact originalNegativeEquiv_dots Q i a β hPQ hP hQ ha RD Λ hΛ hdeg M hwt t d
+    exact originalNegativeEquiv_dots Q i a β hsym hQ ha RD Λ hΛ hdeg M hwt t d
 
-omit [IsDomain k] in
 /-- The scalar-presentation comparison is natural for every module homomorphism. -/
 theorem feUnbase_natural {M M' : ModuleCat.{max u v w} S} (f : M ⟶ M') (t : (FEF).obj M) :
     feUnbase Q i a β M' ((FEF).map f t) =
@@ -230,10 +227,10 @@ theorem originalPositiveEquiv_natural (hwt : 0 ≤ wt)
     (z : (FEF).obj M × (Fin (wt).toNat → M)) :
     (EFF).map f (Pos M hwt z) = Pos M' hwt ((FEF).map f z.1, fun d => f (z.2 d)) := by
   change AbsentColour.efMap Q i a β₁ M f.hom
-    (PresentColour.positiveEquiv Q i β a M hPQ hP hQ ha RD Λ hΛ hdeg hwt
+    (PresentColour.positiveEquiv Q i β a M hsym hQ ha RD Λ hΛ hdeg hwt
       (feUnbase Q i a β M z.1, z.2)) = _
   rw [PresentColour.positiveEquiv_natural]
-  change _ = PresentColour.positiveEquiv Q i β a M' hPQ hP hQ ha RD Λ hΛ hdeg hwt
+  change _ = PresentColour.positiveEquiv Q i β a M' hsym hQ ha RD Λ hΛ hdeg hwt
     (feUnbase Q i a β M' ((FEF).map f z.1), fun d => f (z.2 d))
   rw [feUnbase_natural]
 
@@ -241,7 +238,7 @@ theorem originalNegativeEquiv_natural (hwt : wt ≤ 0)
     {M M' : ModuleCat.{max u v w} S} (f : M ⟶ M') (t : (FEF).obj M) :
     Neg M' hwt ((FEF).map f t) =
       ((EFF).map f (Neg M hwt t).1, fun d => f ((Neg M hwt t).2 d)) := by
-  change PresentColour.negativeEquiv Q i β a M' hPQ hP hQ ha RD Λ hΛ hdeg hwt
+  change PresentColour.negativeEquiv Q i β a M' hsym hQ ha RD Λ hΛ hdeg hwt
     (feUnbase Q i a β M' ((FEF).map f t)) = _
   rw [feUnbase_natural, PresentColour.negativeEquiv_natural]
   rfl
@@ -268,7 +265,7 @@ def positiveInverseCrossing (hwt : 0 ≤ wt) :
   naturality M M' f := by
     ext t
     exact congrArg Prod.fst
-      (originalPositiveEquiv_symm_natural Q i a β hPQ hP hQ ha RD Λ hΛ hdeg hwt f t)
+      (originalPositiveEquiv_symm_natural Q i a β hsym hQ ha RD Λ hΛ hdeg hwt f t)
 
 /-- The finite inverse rows; unused indices are zero. -/
 def positiveInverseDot (hwt : 0 ≤ wt) (d : ℕ) : EFF ⟶ 𝟭 (ModuleCat.{max u v w} S) := by
@@ -280,12 +277,12 @@ def positiveInverseDot (hwt : 0 ≤ wt) (d : ℕ) : EFF ⟶ 𝟭 (ModuleCat.{max
       naturality := fun M M' f => by
         ext t
         exact congrArg (fun z => z.2 ⟨d, hd⟩)
-          (originalPositiveEquiv_symm_natural Q i a β hPQ hP hQ ha RD Λ hΛ hdeg hwt f t) }
+          (originalPositiveEquiv_symm_natural Q i a β hsym hQ ha RD Λ hΛ hdeg hwt f t) }
   else 0
 
 theorem positiveInverseDot_app (hwt : 0 ≤ wt) (d : ℕ) (hd : d < (wt).toNat)
     (M : ModuleCat.{max u v w} S) (t : (EFF).obj M) :
-    (positiveInverseDot.{u,v,w} Q i a β hPQ hP hQ ha RD Λ hΛ hdeg hwt d).app M t =
+    (positiveInverseDot.{u,v,w} Q i a β hsym hQ ha RD Λ hΛ hdeg hwt d).app M t =
       ((Pos M hwt).symm t).2 ⟨d, hd⟩ := by
   simp only [positiveInverseDot, dite_eq_left hd]
   rfl
@@ -301,7 +298,7 @@ theorem originalPositiveEquiv_single (M : ModuleCat.{max u v w} S) (hwt : 0 ≤ 
   · exact fun hd => (hd (Finset.mem_univ d)).elim
 
 private theorem positiveInverse_total (hwt : 0 ≤ wt) :
-    positiveInverseCrossing.{u,v,w} Q i a β hPQ hP hQ ha RD Λ hΛ hdeg hwt ≫ mixedMateNat.{u,v,w} Q i a β + ∑ d ∈ Finset.range (wt).toNat, positiveInverseDot.{u,v,w} Q i a β hPQ hP hQ ha RD Λ hΛ hdeg hwt d ≫ dottedUnit Q i a β₁ d = 𝟙 _ := by
+    positiveInverseCrossing.{u,v,w} Q i a β hsym hQ ha RD Λ hΛ hdeg hwt ≫ mixedMateNat.{u,v,w} Q i a β + ∑ d ∈ Finset.range (wt).toNat, positiveInverseDot.{u,v,w} Q i a β hsym hQ ha RD Λ hΛ hdeg hwt d ≫ dottedUnit Q i a β₁ d = 𝟙 _ := by
     ext M : 2
     apply ModuleCat.hom_ext
     apply LinearMap.ext
@@ -310,12 +307,12 @@ private theorem positiveInverse_total (hwt : 0 ≤ wt) :
       ModuleCat.hom_add, ModuleCat.hom_sum, LinearMap.add_apply, LinearMap.sum_apply,
       ModuleCat.hom_comp, LinearMap.comp_apply, mixedMateNat_app]
     rw [← Fin.sum_univ_eq_sum_range]
-    simp only [positiveInverseDot_app _ _ _ _ _ _ _ _ _ _ _ _ _ _ (Fin.isLt _)]
-    exact (originalPositiveEquiv_apply Q i a β hPQ hP hQ ha RD Λ hΛ hdeg M hwt
+    simp only [positiveInverseDot_app _ _ _ _ _ _ _ _ _ _ _ _ _ (Fin.isLt _)]
+    exact (originalPositiveEquiv_apply Q i a β hsym hQ ha RD Λ hΛ hdeg M hwt
       ((Pos M hwt).symm t)).symm.trans ((Pos M hwt).apply_symm_apply t)
 
 private theorem positiveInverse_ff (hwt : 0 ≤ wt) :
-    mixedMateNat.{u,v,w} Q i a β ≫ positiveInverseCrossing.{u,v,w} Q i a β hPQ hP hQ ha RD Λ hΛ hdeg hwt = 𝟙 _ := by
+    mixedMateNat.{u,v,w} Q i a β ≫ positiveInverseCrossing.{u,v,w} Q i a β hsym hQ ha RD Λ hΛ hdeg hwt = 𝟙 _ := by
     ext M : 2
     apply ModuleCat.hom_ext
     apply LinearMap.ext
@@ -327,21 +324,21 @@ private theorem positiveInverse_ff (hwt : 0 ≤ wt) :
     exact congrArg Prod.fst h
 
 private theorem positiveInverse_fg (hwt : 0 ≤ wt) :
-    ∀ d, d < (wt).toNat → mixedMateNat.{u,v,w} Q i a β ≫ positiveInverseDot.{u,v,w} Q i a β hPQ hP hQ ha RD Λ hΛ hdeg hwt d = 0 := by
+    ∀ d, d < (wt).toNat → mixedMateNat.{u,v,w} Q i a β ≫ positiveInverseDot.{u,v,w} Q i a β hsym hQ ha RD Λ hΛ hdeg hwt d = 0 := by
     intro d hd
     ext M : 2
     apply ModuleCat.hom_ext
     apply LinearMap.ext
     intro t
-    change (positiveInverseDot.{u,v,w} Q i a β hPQ hP hQ ha RD Λ hΛ hdeg hwt d).app M
+    change (positiveInverseDot.{u,v,w} Q i a β hsym hQ ha RD Λ hΛ hdeg hwt d).app M
       ((mixedMateNat Q i a β).app M t) = 0
-    rw [positiveInverseDot_app _ _ _ _ _ _ _ _ _ _ _ _ _ _ hd, mixedMateNat_app]
+    rw [positiveInverseDot_app _ _ _ _ _ _ _ _ _ _ _ _ _ hd, mixedMateNat_app]
     have h := (Pos M hwt).symm_apply_apply (t, 0)
     rw [originalPositiveEquiv_mate] at h
     exact congrArg (fun z => z.2 ⟨d, hd⟩) h
 
 private theorem positiveInverse_gf (hwt : 0 ≤ wt) :
-    ∀ d, d < (wt).toNat → dottedUnit Q i a β₁ d ≫ positiveInverseCrossing.{u,v,w} Q i a β hPQ hP hQ ha RD Λ hΛ hdeg hwt = 0 := by
+    ∀ d, d < (wt).toNat → dottedUnit Q i a β₁ d ≫ positiveInverseCrossing.{u,v,w} Q i a β hsym hQ ha RD Λ hΛ hdeg hwt = 0 := by
     intro d hd
     ext M : 2
     apply ModuleCat.hom_ext
@@ -354,7 +351,7 @@ private theorem positiveInverse_gf (hwt : 0 ≤ wt) :
     exact congrArg Prod.fst h
 
 private theorem positiveInverse_gg (hwt : 0 ≤ wt) :
-    ∀ d e, d < (wt).toNat → e < (wt).toNat → dottedUnit Q i a β₁ d ≫ positiveInverseDot.{u,v,w} Q i a β hPQ hP hQ ha RD Λ hΛ hdeg hwt e = if d = e then 𝟙 _ else 0 := by
+    ∀ d e, d < (wt).toNat → e < (wt).toNat → dottedUnit Q i a β₁ d ≫ positiveInverseDot.{u,v,w} Q i a β hsym hQ ha RD Λ hΛ hdeg hwt e = if d = e then 𝟙 _ else 0 := by
     classical
     intro d e hd he
     ext M : 2
@@ -365,9 +362,9 @@ private theorem positiveInverse_gg (hwt : 0 ≤ wt) :
     have h := (Pos M hwt).symm_apply_apply (0, Pi.single (⟨d, hd⟩ : Fin (wt).toNat) m)
     rw [originalPositiveEquiv_single] at h
     have hh := congrArg (fun z => z.2 ⟨e, he⟩) h
-    change (positiveInverseDot.{u,v,w} Q i a β hPQ hP hQ ha RD Λ hΛ hdeg hwt e).app M
+    change (positiveInverseDot.{u,v,w} Q i a β hsym hQ ha RD Λ hΛ hdeg hwt e).app M
       ((dottedUnit Q i a β₁ d).app M m) = _
-    rw [positiveInverseDot_app _ _ _ _ _ _ _ _ _ _ _ _ _ _ he, hh]
+    rw [positiveInverseDot_app _ _ _ _ _ _ _ _ _ _ _ _ _ he, hh]
     by_cases hde : d = e
     · subst e
       rw [ite_eq_left rfl]
@@ -382,13 +379,13 @@ private theorem positiveInverse_gg (hwt : 0 ≤ wt) :
 This is the source nonpositive inversion, since source weight is minus KK weight. -/
 def actualSumInvFrom (hwt : 0 ≤ wt) :
     SumInvFrom (mixedMateNat.{u,v,w} Q i a β) (dottedUnit Q i a β₁) (wt).toNat where
-  f' := positiveInverseCrossing.{u,v,w} Q i a β hPQ hP hQ ha RD Λ hΛ hdeg hwt
-  g' := positiveInverseDot.{u,v,w} Q i a β hPQ hP hQ ha RD Λ hΛ hdeg hwt
-  total := positiveInverse_total Q i a β hPQ hP hQ ha RD Λ hΛ hdeg hwt
-  ff := positiveInverse_ff Q i a β hPQ hP hQ ha RD Λ hΛ hdeg hwt
-  fg := positiveInverse_fg Q i a β hPQ hP hQ ha RD Λ hΛ hdeg hwt
-  gf := positiveInverse_gf Q i a β hPQ hP hQ ha RD Λ hΛ hdeg hwt
-  gg := positiveInverse_gg Q i a β hPQ hP hQ ha RD Λ hΛ hdeg hwt
+  f' := positiveInverseCrossing.{u,v,w} Q i a β hsym hQ ha RD Λ hΛ hdeg hwt
+  g' := positiveInverseDot.{u,v,w} Q i a β hsym hQ ha RD Λ hΛ hdeg hwt
+  total := positiveInverse_total Q i a β hsym hQ ha RD Λ hΛ hdeg hwt
+  ff := positiveInverse_ff Q i a β hsym hQ ha RD Λ hΛ hdeg hwt
+  fg := positiveInverse_fg Q i a β hsym hQ ha RD Λ hΛ hdeg hwt
+  gf := positiveInverse_gf Q i a β hsym hQ ha RD Λ hΛ hdeg hwt
+  gg := positiveInverse_gg Q i a β hsym hQ ha RD Λ hΛ hdeg hwt
 
 /-- The inverse crossing row at nonpositive Kang–Kashiwara weight. -/
 def negativeInverseCrossing (hwt : wt ≤ 0) :
@@ -396,7 +393,7 @@ def negativeInverseCrossing (hwt : wt ≤ 0) :
   app M := ModuleCat.ofHom ((Neg M hwt).symm.toLinearMap.comp (LinearMap.inl S _ _))
   naturality M M' f := by
     ext t
-    have h := originalNegativeEquiv_symm_natural Q i a β hPQ hP hQ ha RD Λ hΛ hdeg hwt f (t, 0)
+    have h := originalNegativeEquiv_symm_natural Q i a β hsym hQ ha RD Λ hΛ hdeg hwt f (t, 0)
     change (Neg M' hwt).symm ((EFF).map f t, 0) = (FEF).map f ((Neg M hwt).symm (t, 0))
     have hz : (fun d : Fin (-wt).toNat => f ((0 : Fin (-wt).toNat → M) d)) = 0 := by
       funext d
@@ -414,7 +411,7 @@ def negativeInverseDot (hwt : wt ≤ 0) (d : ℕ) : 𝟭 (ModuleCat.{max u v w} 
       naturality := fun M M' f => by
         ext m
         change M at m
-        have h := originalNegativeEquiv_symm_natural Q i a β hPQ hP hQ ha RD Λ hΛ hdeg hwt f
+        have h := originalNegativeEquiv_symm_natural Q i a β hsym hQ ha RD Λ hΛ hdeg hwt f
           (0, Pi.single (⟨d, hd⟩ : Fin (-wt).toNat) m)
         have hs : (fun e => f ((Pi.single (⟨d, hd⟩ : Fin (-wt).toNat) m : Fin (-wt).toNat → M) e)) =
             Pi.single ⟨d, hd⟩ (f m) := by
@@ -427,7 +424,7 @@ def negativeInverseDot (hwt : wt ≤ 0) (d : ℕ) : 𝟭 (ModuleCat.{max u v w} 
 
 theorem negativeInverseDot_app (hwt : wt ≤ 0) (d : ℕ) (hd : d < (-wt).toNat)
     (M : ModuleCat.{max u v w} S) (m : M) :
-    (negativeInverseDot.{u,v,w} Q i a β hPQ hP hQ ha RD Λ hΛ hdeg hwt d).app M m =
+    (negativeInverseDot.{u,v,w} Q i a β hsym hQ ha RD Λ hΛ hdeg hwt d).app M m =
       (Neg M hwt).symm (0, Pi.single (⟨d, hd⟩ : Fin (-wt).toNat) m) := by
   simp only [negativeInverseDot, dite_eq_left hd]
   rfl
@@ -435,9 +432,9 @@ theorem negativeInverseDot_app (hwt : wt ≤ 0) (d : ℕ) (hd : d < (-wt).toNat)
 theorem originalNegativeEquiv_symm_apply (M : ModuleCat.{max u v w} S) (hwt : wt ≤ 0)
     (z : (EFF).obj M × (Fin (-wt).toNat → M)) :
     (Neg M hwt).symm z =
-      (negativeInverseCrossing.{u,v,w} Q i a β hPQ hP hQ ha RD Λ hΛ hdeg hwt).app M z.1 +
+      (negativeInverseCrossing.{u,v,w} Q i a β hsym hQ ha RD Λ hΛ hdeg hwt).app M z.1 +
         ∑ d : Fin (-wt).toNat,
-          (negativeInverseDot.{u,v,w} Q i a β hPQ hP hQ ha RD Λ hΛ hdeg hwt d).app M (z.2 d) := by
+          (negativeInverseDot.{u,v,w} Q i a β hsym hQ ha RD Λ hΛ hdeg hwt d).app M (z.2 d) := by
   classical
   have hz : z = ((z.1, 0) : (EFF).obj M × (Fin (-wt).toNat → M)) +
       ∑ d : Fin (-wt).toNat, ((0, Pi.single d (z.2 d)) : (EFF).obj M × (Fin (-wt).toNat → M)) := by
@@ -448,12 +445,12 @@ theorem originalNegativeEquiv_symm_apply (M : ModuleCat.{max u v w} S) (hwt : wt
   congr 1
   apply Finset.sum_congr rfl
   intro d _
-  exact (negativeInverseDot_app Q i a β hPQ hP hQ ha RD Λ hΛ hdeg hwt d d.isLt M (z.2 d)).symm
+  exact (negativeInverseDot_app Q i a β hsym hQ ha RD Λ hΛ hdeg hwt d d.isLt M (z.2 d)).symm
 
 private theorem negativeInverse_total (hwt : wt ≤ 0) :
-    mixedMateNat.{u,v,w} Q i a β ≫ negativeInverseCrossing.{u,v,w} Q i a β hPQ hP hQ ha RD Λ hΛ hdeg hwt +
+    mixedMateNat.{u,v,w} Q i a β ≫ negativeInverseCrossing.{u,v,w} Q i a β hsym hQ ha RD Λ hΛ hdeg hwt +
       ∑ d ∈ Finset.range (-wt).toNat, dottedCounit Q i a β d ≫
-        negativeInverseDot.{u,v,w} Q i a β hPQ hP hQ ha RD Λ hΛ hdeg hwt d = 𝟙 _ := by
+        negativeInverseDot.{u,v,w} Q i a β hsym hQ ha RD Λ hΛ hdeg hwt d = 𝟙 _ := by
   ext M : 2
   apply ModuleCat.hom_ext
   apply LinearMap.ext
@@ -462,14 +459,14 @@ private theorem negativeInverse_total (hwt : wt ≤ 0) :
     ModuleCat.hom_add, ModuleCat.hom_sum, LinearMap.add_apply, LinearMap.sum_apply,
     ModuleCat.hom_comp, LinearMap.comp_apply, mixedMateNat_app]
   rw [← Fin.sum_univ_eq_sum_range]
-  have h := originalNegativeEquiv_symm_apply Q i a β hPQ hP hQ ha RD Λ hΛ hdeg M hwt
+  have h := originalNegativeEquiv_symm_apply Q i a β hsym hQ ha RD Λ hΛ hdeg M hwt
     (Neg M hwt t)
   rw [LinearEquiv.symm_apply_apply] at h
   rw [originalNegativeEquiv_apply] at h
   exact h.symm
 
 private theorem negativeInverse_ff (hwt : wt ≤ 0) :
-    negativeInverseCrossing.{u,v,w} Q i a β hPQ hP hQ ha RD Λ hΛ hdeg hwt ≫ mixedMateNat Q i a β = 𝟙 _ := by
+    negativeInverseCrossing.{u,v,w} Q i a β hsym hQ ha RD Λ hΛ hdeg hwt ≫ mixedMateNat Q i a β = 𝟙 _ := by
   ext M : 2
   apply ModuleCat.hom_ext
   apply LinearMap.ext
@@ -479,7 +476,7 @@ private theorem negativeInverse_ff (hwt : wt ≤ 0) :
   exact congrArg Prod.fst h
 
 private theorem negativeInverse_fg (hwt : wt ≤ 0) :
-    ∀ d, d < (-wt).toNat → negativeInverseCrossing.{u,v,w} Q i a β hPQ hP hQ ha RD Λ hΛ hdeg hwt ≫
+    ∀ d, d < (-wt).toNat → negativeInverseCrossing.{u,v,w} Q i a β hsym hQ ha RD Λ hΛ hdeg hwt ≫
       dottedCounit Q i a β d = 0 := by
   intro d hd
   ext M : 2
@@ -491,7 +488,7 @@ private theorem negativeInverse_fg (hwt : wt ≤ 0) :
   exact congrArg (fun z => z.2 ⟨d, hd⟩) h
 
 private theorem negativeInverse_gf (hwt : wt ≤ 0) :
-    ∀ d, d < (-wt).toNat → negativeInverseDot.{u,v,w} Q i a β hPQ hP hQ ha RD Λ hΛ hdeg hwt d ≫
+    ∀ d, d < (-wt).toNat → negativeInverseDot.{u,v,w} Q i a β hsym hQ ha RD Λ hΛ hdeg hwt d ≫
       mixedMateNat Q i a β = 0 := by
   intro d hd
   ext M : 2
@@ -500,15 +497,15 @@ private theorem negativeInverse_gf (hwt : wt ≤ 0) :
   intro m
   change M at m
   change (mixedMateNat Q i a β).app M
-    ((negativeInverseDot.{u,v,w} Q i a β hPQ hP hQ ha RD Λ hΛ hdeg hwt d).app M m) = 0
-  rw [negativeInverseDot_app _ _ _ _ _ _ _ _ _ _ _ _ _ _ hd, mixedMateNat_app]
+    ((negativeInverseDot.{u,v,w} Q i a β hsym hQ ha RD Λ hΛ hdeg hwt d).app M m) = 0
+  rw [negativeInverseDot_app _ _ _ _ _ _ _ _ _ _ _ _ _ hd, mixedMateNat_app]
   have h := (Neg M hwt).apply_symm_apply (0, Pi.single (⟨d, hd⟩ : Fin (-wt).toNat) m)
   rw [originalNegativeEquiv_apply] at h
   exact congrArg Prod.fst h
 
 private theorem negativeInverse_gg (hwt : wt ≤ 0) :
     ∀ d e, d < (-wt).toNat → e < (-wt).toNat →
-      negativeInverseDot.{u,v,w} Q i a β hPQ hP hQ ha RD Λ hΛ hdeg hwt d ≫ dottedCounit Q i a β e =
+      negativeInverseDot.{u,v,w} Q i a β hsym hQ ha RD Λ hΛ hdeg hwt d ≫ dottedCounit Q i a β e =
         if d = e then 𝟙 _ else 0 := by
   classical
   intro d e hd he
@@ -518,8 +515,8 @@ private theorem negativeInverse_gg (hwt : wt ≤ 0) :
   intro m
   change M at m
   change (dottedCounit Q i a β e).app M
-    ((negativeInverseDot.{u,v,w} Q i a β hPQ hP hQ ha RD Λ hΛ hdeg hwt d).app M m) = _
-  rw [negativeInverseDot_app _ _ _ _ _ _ _ _ _ _ _ _ _ _ hd]
+    ((negativeInverseDot.{u,v,w} Q i a β hsym hQ ha RD Λ hΛ hdeg hwt d).app M m) = _
+  rw [negativeInverseDot_app _ _ _ _ _ _ _ _ _ _ _ _ _ hd]
   have h := (Neg M hwt).apply_symm_apply (0, Pi.single (⟨d, hd⟩ : Fin (-wt).toNat) m)
   rw [originalNegativeEquiv_apply] at h
   have hh := congrArg (fun z => z.2 ⟨e, he⟩) h
@@ -538,20 +535,20 @@ private theorem negativeInverse_gg (hwt : wt ≤ 0) :
 /-- The source nonnegative inversion on the original functors, with all inverse equations. -/
 def actualSumInvTo (hwt : wt ≤ 0) :
     SumInvTo (mixedMateNat.{u,v,w} Q i a β) (dottedCounit Q i a β) (-wt).toNat where
-  f' := negativeInverseCrossing.{u,v,w} Q i a β hPQ hP hQ ha RD Λ hΛ hdeg hwt
-  g' := negativeInverseDot.{u,v,w} Q i a β hPQ hP hQ ha RD Λ hΛ hdeg hwt
-  total := negativeInverse_total.{u,v,w} Q i a β hPQ hP hQ ha RD Λ hΛ hdeg hwt
-  ff := negativeInverse_ff Q i a β hPQ hP hQ ha RD Λ hΛ hdeg hwt
-  fg := negativeInverse_fg Q i a β hPQ hP hQ ha RD Λ hΛ hdeg hwt
-  gf := negativeInverse_gf Q i a β hPQ hP hQ ha RD Λ hΛ hdeg hwt
-  gg := negativeInverse_gg Q i a β hPQ hP hQ ha RD Λ hΛ hdeg hwt
+  f' := negativeInverseCrossing.{u,v,w} Q i a β hsym hQ ha RD Λ hΛ hdeg hwt
+  g' := negativeInverseDot.{u,v,w} Q i a β hsym hQ ha RD Λ hΛ hdeg hwt
+  total := negativeInverse_total.{u,v,w} Q i a β hsym hQ ha RD Λ hΛ hdeg hwt
+  ff := negativeInverse_ff Q i a β hsym hQ ha RD Λ hΛ hdeg hwt
+  fg := negativeInverse_fg Q i a β hsym hQ ha RD Λ hΛ hdeg hwt
+  gf := negativeInverse_gf Q i a β hsym hQ ha RD Λ hΛ hdeg hwt
+  gg := negativeInverse_gg Q i a β hsym hQ ha RD Λ hΛ hdeg hwt
 
 /-- The two inverse crossing choices agree when both sign presentations apply. -/
 theorem inverseCrossing_zero_agree (hp : 0 ≤ wt) (hn : wt ≤ 0) :
-    positiveInverseCrossing.{u,v,w} Q i a β hPQ hP hQ ha RD Λ hΛ hdeg hp =
-      negativeInverseCrossing Q i a β hPQ hP hQ ha RD Λ hΛ hdeg hn := by
-  let p := actualSumInvFrom.{u,v,w} Q i a β hPQ hP hQ ha RD Λ hΛ hdeg hp
-  let n := actualSumInvTo.{u,v,w} Q i a β hPQ hP hQ ha RD Λ hΛ hdeg hn
+    positiveInverseCrossing.{u,v,w} Q i a β hsym hQ ha RD Λ hΛ hdeg hp =
+      negativeInverseCrossing Q i a β hsym hQ ha RD Λ hΛ hdeg hn := by
+  let p := actualSumInvFrom.{u,v,w} Q i a β hsym hQ ha RD Λ hΛ hdeg hp
+  let n := actualSumInvTo.{u,v,w} Q i a β hsym hQ ha RD Λ hΛ hdeg hn
   change p.f' = n.f'
   calc
     p.f' = (n.f' ≫ mixedMateNat Q i a β) ≫ p.f' := by rw [n.ff, Category.id_comp]
@@ -562,10 +559,10 @@ natural isomorphism. This is the weight-zero case, not an absent-colour boundary
 def mixedMateIsoAtZero (hwt : wt = 0) :
     restrictionFunctor.{u,v,w} Q i a β ⋙ inductionFunctor Q i a β ≅ EFF where
   hom := mixedMateNat Q i a β
-  inv := positiveInverseCrossing Q i a β hPQ hP hQ ha RD Λ hΛ hdeg (by omega)
-  hom_inv_id := positiveInverse_ff Q i a β hPQ hP hQ ha RD Λ hΛ hdeg (by omega)
+  inv := positiveInverseCrossing Q i a β hsym hQ ha RD Λ hΛ hdeg (by omega)
+  hom_inv_id := positiveInverse_ff Q i a β hsym hQ ha RD Λ hΛ hdeg (by omega)
   inv_hom_id := by
-    have h := positiveInverse_total.{u,v,w} Q i a β hPQ hP hQ ha RD Λ hΛ hdeg (by omega)
+    have h := positiveInverse_total.{u,v,w} Q i a β hsym hQ ha RD Λ hΛ hdeg (by omega)
     simpa only [hwt, Int.toNat_zero, Finset.range_zero, Finset.sum_empty, add_zero] using h
 
 end Categorification.KLR.KLRAlgebra.AbsentColour.InductionCalculus

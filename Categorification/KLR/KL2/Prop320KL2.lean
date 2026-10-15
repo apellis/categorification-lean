@@ -95,7 +95,7 @@ theorem prop_3_20_of_div :
   classical
   have := G.finite_indecClass hPQ hP hG ν
   have := Fintype.ofFinite (GProj.IndecClass (G.grade ν))
-  have := G.hasGdim_grade' (ν := ν) hPQ hP hG
+  have := G.hasGdim_grade' (ν := ν) (KLRSymm.of_factorization hPQ hP) hG
   let rk : I → Cardinal := embeddingToCardinal
   have hrk : Function.Injective rk := embeddingToCardinal.injective
   have hyp := fun c : GProj.IndecClass (G.grade ν) =>

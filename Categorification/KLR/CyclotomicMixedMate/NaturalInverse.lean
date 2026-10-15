@@ -44,20 +44,18 @@ theorem upperComparison_natural (f : M →ₗ[C] M') (z : Target Q a γ i j M) :
     | tmul x m => simp only [BalancedTensor.mapRight_tmul, cutTensor_tmul]
   exact h z.1
 
-variable [IsDomain k] {P : I → I → MvPolynomial (Fin 2) k}
-  (hPQ : ∀ a b, a ≠ b → Q a b = P b a * MvPolynomial.rename ![1, 0] (P a b))
-  (hP : ∀ a b, a ≠ b → P a b ≠ 0) (hij : i ≠ j) (hsym : KLRSymm Q)
+variable (hij : i ≠ j) (hsym : KLRSymm Q)
 
 theorem tensorForward_natural (f : M →ₗ[C] M') :
-    (BalancedTensor.mapRight f).comp (tensorForward Q a γ i j hPQ hP hij hsym M) =
-      (tensorForward Q a γ i j hPQ hP hij hsym M').comp (BalancedTensor.mapRight f) := by
+    (BalancedTensor.mapRight f).comp (tensorForward Q a γ i j hij hsym M) =
+      (tensorForward Q a γ i j hij hsym M').comp (BalancedTensor.mapRight f) := by
   apply BalancedTensor.extB
   intro z m
   rfl
 
 theorem tensorInverse_natural (f : M →ₗ[C] M') :
-    (BalancedTensor.mapRight f).comp (tensorInverse Q a γ i j hPQ hP hij hsym M) =
-      (tensorInverse Q a γ i j hPQ hP hij hsym M').comp (BalancedTensor.mapRight f) := by
+    (BalancedTensor.mapRight f).comp (tensorInverse Q a γ i j hij hsym M) =
+      (tensorInverse Q a γ i j hij hsym M').comp (BalancedTensor.mapRight f) := by
   apply BalancedTensor.extB
   intro z m
   rfl
@@ -65,29 +63,29 @@ theorem tensorInverse_natural (f : M →ₗ[C] M') :
 /-- The equivalence's forward naturality is that of the original ordinary mate. -/
 theorem originalMateEquiv_natural (f : M →ₗ[C] M') :
     (mateTargetMap Q a γ i j M M' f).comp
-      (originalMateEquiv Q a γ i j hPQ hP hij hsym M).toLinearMap =
-        (originalMateEquiv Q a γ i j hPQ hP hij hsym M').toLinearMap.comp
+      (originalMateEquiv Q a γ i j hij hsym M).toLinearMap =
+        (originalMateEquiv Q a γ i j hij hsym M').toLinearMap.comp
           (mateSourceMap Q a γ i j M M' f) := by
   rw [originalMateEquiv_eq_mate, originalMateEquiv_eq_mate]
   exact mate_natural Q a γ i j M M' f
 
 /-- The actual inverse is natural on arbitrary original cyclotomic module maps. -/
 theorem mateInverse_natural (f : M →ₗ[C] M') :
-    (mateSourceMap Q a γ i j M M' f).comp (mateInverse Q a γ i j hPQ hP hij hsym M) =
-      (mateInverse Q a γ i j hPQ hP hij hsym M').comp (mateTargetMap Q a γ i j M M' f) := by
+    (mateSourceMap Q a γ i j M M' f).comp (mateInverse Q a γ i j hij hsym M) =
+      (mateInverse Q a γ i j hij hsym M').comp (mateTargetMap Q a γ i j M M' f) := by
   apply LinearMap.ext
   intro z
-  apply (originalMateEquiv Q a γ i j hPQ hP hij hsym M').injective
-  change (originalMateEquiv Q a γ i j hPQ hP hij hsym M').toLinearMap _ =
-    (originalMateEquiv Q a γ i j hPQ hP hij hsym M').toLinearMap _
+  apply (originalMateEquiv Q a γ i j hij hsym M').injective
+  change (originalMateEquiv Q a γ i j hij hsym M').toLinearMap _ =
+    (originalMateEquiv Q a γ i j hij hsym M').toLinearMap _
   rw [originalMateEquiv_eq_mate]
   change mate Q a γ i j M' (mateSourceMap Q a γ i j M M' f
-    (mateInverse Q a γ i j hPQ hP hij hsym M z)) =
-      mate Q a γ i j M' (mateInverse Q a γ i j hPQ hP hij hsym M'
+    (mateInverse Q a γ i j hij hsym M z)) =
+      mate Q a γ i j M' (mateInverse Q a γ i j hij hsym M'
         (mateTargetMap Q a γ i j M M' f z))
   rw [mate_mateInverse]
   have h := LinearMap.congr_fun (mate_natural Q a γ i j M M' f)
-    (mateInverse Q a γ i j hPQ hP hij hsym M z)
+    (mateInverse Q a γ i j hij hsym M z)
   simpa only [LinearMap.coe_comp, Function.comp_apply, mate_mateInverse] using h.symm
 
 end Categorification.KLR.KLRAlgebra.AbsentColour.MixedComparison

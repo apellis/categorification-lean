@@ -117,7 +117,7 @@ theorem cons1_succ (s : Seq β) (b : ℕ) (hb : b + 1 < Multiset.card (Si + β))
   rw [Seq.append_apply_ge _ _ _ (by simp)]
   congr 1
 
-theorem fSplit_cycFac_succ (hsym : ∀ a b, a ≠ b → Q b a = MvPolynomial.rename ![1, 0] (Q a b))
+theorem fSplit_cycFac_succ (hsym : KLRSymm Q)
     (s : Seq β) (b : ℕ) (hb : b + 1 < Multiset.card (Si + β)) :
     fSplit (k := k) i β (cycFac Q (cons1 i β s) (b + 1)) =
       if s.1 ⟨b, by rw [card_single_add] at hb; omega⟩ = i then -1 else
@@ -146,17 +146,18 @@ theorem aeval_C_X_eq_map (q : MvPolynomial (Fin 2) k) (z : Pb) :
   · simp [Polynomial.mapAlgHom]
 
 omit [DecidableEq I] in
-theorem lc_coeff_zero_of_isUnit [IsDomain k] {q : MvPolynomial (Fin 2) k}
-    (hq : IsUnit (polyInY q).leadingCoeff) :
+theorem lc_coeff_zero_of_isUnit {q : MvPolynomial (Fin 2) k}
+    (hq : ∃ c : k, IsUnit c ∧ (polyInY q).leadingCoeff = Polynomial.C c) :
     Polynomial.C ((polyInY q).leadingCoeff.coeff 0) = (polyInY q).leadingCoeff ∧
       IsUnit ((polyInY q).leadingCoeff.coeff 0) := by
-  obtain ⟨c, hc, hcq⟩ := Polynomial.isUnit_iff.1 hq
+  obtain ⟨c, hc, hcq⟩ := hq
+  replace hcq := hcq.symm
   rw [← hcq, Polynomial.coeff_C_zero]
   exact ⟨rfl, hc⟩
 
 omit [DecidableEq I] in
-theorem lead_aeval_C_X [IsDomain k] {q : MvPolynomial (Fin 2) k}
-    (hq : IsUnit (polyInY q).leadingCoeff) (z : Pb) :
+theorem lead_aeval_C_X [Nontrivial k] {q : MvPolynomial (Fin 2) k}
+    (hq : ∃ c : k, IsUnit c ∧ (polyInY q).leadingCoeff = Polynomial.C c) (z : Pb) :
     (MvPolynomial.aeval ![Polynomial.C z, Polynomial.X] q).leadingCoeff =
         MvPolynomial.C ((polyInY q).leadingCoeff.coeff 0) ∧
       (MvPolynomial.aeval ![Polynomial.C z, Polynomial.X] q).natDegree = (polyInY q).natDegree := by
@@ -170,12 +171,10 @@ theorem lead_aeval_C_X [IsDomain k] {q : MvPolynomial (Fin 2) k}
     Polynomial.natDegree_map_of_leadingCoeff_ne_zero _ hne, ← h1]
   simp
 
-variable [IsDomain k]
-
 /-- The `t`-degree and leading coefficient of the factor of `F_n` at strand `b + 1`. -/
-theorem lead_fSplit_cycFac_succ
-    (hsym : ∀ a b, a ≠ b → Q b a = MvPolynomial.rename ![1, 0] (Q a b))
-    (hQ : ∀ a b : I, a ≠ b → IsUnit (polyInY (Q a b)).leadingCoeff)
+theorem lead_fSplit_cycFac_succ [Nontrivial k]
+    (hsym : KLRSymm Q)
+    (hQ : ∀ a b : I, a ≠ b → ∃ c : k, IsUnit c ∧ (polyInY (Q a b)).leadingCoeff = Polynomial.C c)
     (s : Seq β) (b : ℕ) (hb : b + 1 < Multiset.card (Si + β)) :
     (fSplit (k := k) i β (cycFac Q (cons1 i β s) (b + 1))).leadingCoeff =
         MvPolynomial.C (lcFac Q i (s.1 ⟨b, by rw [card_single_add] at hb; omega⟩)) ∧
@@ -186,20 +185,20 @@ theorem lead_fSplit_cycFac_succ
   · simp
   · exact lead_aeval_C_X β (hQ _ _ h) _
 
-theorem isUnit_lcFac (hQ : ∀ a b : I, a ≠ b → IsUnit (polyInY (Q a b)).leadingCoeff) (j : I) :
+theorem isUnit_lcFac (hQ : ∀ a b : I, a ≠ b → ∃ c : k, IsUnit c ∧ (polyInY (Q a b)).leadingCoeff = Polynomial.C c) (j : I) :
     IsUnit (lcFac Q i j) := by
   rw [lcFac]
   split_ifs with h
   · exact isUnit_one.neg
   · exact (lc_coeff_zero_of_isUnit (hQ _ _ h)).2
 
-omit [DecidableEq I] [IsDomain k] in
+omit [DecidableEq I] in
 theorem prod_seq_map {M : Type*} [CommMonoid M] (f : I → M) (s : Seq β) :
     ∏ b, f (s.1 b) = (β.map f).prod := by
   rw [Finset.prod_eq_multiset_prod, show (Finset.univ.val.map fun b => f (s.1 b)) =
     (Finset.univ.val.map s.1).map f from (Multiset.map_map _ _ _).symm, s.2]
 
-omit [DecidableEq I] [IsDomain k] in
+omit [DecidableEq I] in
 theorem sum_seq_map {M : Type*} [AddCommMonoid M] (f : I → M) (s : Seq β) :
     ∑ b, f (s.1 b) = (β.map f).sum := by
   rw [Finset.sum_eq_multiset_sum, show (Finset.univ.val.map fun b => f (s.1 b)) =
@@ -213,14 +212,13 @@ variable (Q) in
 /-- The `t`-degree of `θ(A)`. -/
 noncomputable def degA : ℕ := (a i).natDegree + (β.map (degFac Q i)).sum
 
-theorem isUnit_lamA (hQ : ∀ a b : I, a ≠ b → IsUnit (polyInY (Q a b)).leadingCoeff) :
+theorem isUnit_lamA (hQ : ∀ a b : I, a ≠ b → ∃ c : k, IsUnit c ∧ (polyInY (Q a b)).leadingCoeff = Polynomial.C c) :
     IsUnit (lamA Q i β) := by
   rw [lamA]
   induction β using Multiset.induction_on with
   | empty => simp
   | cons j β ih => rw [Multiset.map_cons, Multiset.prod_cons]; exact (isUnit_lcFac i hQ j).mul ih
 
-omit [IsDomain k] in
 /-- `fSplit (gPol s) = fSplit (a_i(x_0)) * ∏_{b < n} fSplit (factor at strand b + 1)`. -/
 theorem fSplit_gPol_eq (s : Seq β) :
     fSplit (k := k) i β (gPol Q i β a s) =
@@ -232,8 +230,8 @@ theorem fSplit_gPol_eq (s : Seq β) :
     unfold cycFac; split_ifs <;> first | rfl | omega
   rw [h0, map_one, mul_one]
 
-theorem lead_fSplit_gPol (hsym : ∀ a b, a ≠ b → Q b a = MvPolynomial.rename ![1, 0] (Q a b))
-    (hQ : ∀ a b : I, a ≠ b → IsUnit (polyInY (Q a b)).leadingCoeff) (ha : (a i).Monic)
+theorem lead_fSplit_gPol [Nontrivial k] (hsym : KLRSymm Q)
+    (hQ : ∀ a b : I, a ≠ b → ∃ c : k, IsUnit c ∧ (polyInY (Q a b)).leadingCoeff = Polynomial.C c) (ha : (a i).Monic)
     (s : Seq β) :
     (fSplit (k := k) i β (gPol Q i β a s)).leadingCoeff = MvPolynomial.C (lamA Q i β) ∧
       (fSplit (k := k) i β (gPol Q i β a s)).natDegree = degA Q i β a := by
@@ -245,17 +243,23 @@ theorem lead_fSplit_gPol (hsym : ∀ a b, a ≠ b → Q b a = MvPolynomial.renam
   have hb : ∀ b : Fin (Multiset.card β), b.val + 1 < Multiset.card (Si + β) := fun b => by
     rw [card_single_add]; omega
   have hlead := fun b : Fin (Multiset.card β) => lead_fSplit_cycFac_succ i β hsym hQ s b.val (hb b)
-  have hne : ∀ b ∈ (Finset.univ : Finset (Fin (Multiset.card β))),
-      fSplit (k := k) i β (cycFac Q (cons1 i β s) (b.val + 1)) ≠ 0 := fun b _ h => by
-    have := (hlead b).1
-    rw [h, Polynomial.leadingCoeff_zero, eq_comm, MvPolynomial.C_eq_zero] at this
-    exact (isUnit_lcFac i hQ _).ne_zero this
-  rw [fSplit_gPol_eq, Polynomial.leadingCoeff_mul, Polynomial.natDegree_mul hA.1.ne_zero
-    (Finset.prod_ne_zero_iff.2 hne), Polynomial.leadingCoeff_prod, Polynomial.natDegree_prod _ _ hne,
-    hA.1.leadingCoeff, one_mul, hA.2, degA, lamA, ← prod_seq_map β _ s, ← sum_seq_map β _ s, map_prod]
-  refine ⟨Finset.prod_congr rfl fun b _ => ?_, congrArg _ (Finset.sum_congr rfl fun b _ => ?_)⟩
-  · rw [(hlead b).1]
-  · rw [(hlead b).2]
+  have hP : (∏ b : Fin (Multiset.card β),
+      (fSplit (k := k) i β (cycFac Q (cons1 i β s) (b.val + 1))).leadingCoeff) =
+        MvPolynomial.C (lamA Q i β) := by
+    rw [lamA, ← prod_seq_map β _ s, map_prod]
+    exact Finset.prod_congr rfl fun b _ => (hlead b).1
+  have hne' : (∏ b : Fin (Multiset.card β),
+      (fSplit (k := k) i β (cycFac Q (cons1 i β s) (b.val + 1))).leadingCoeff) ≠ 0 := by
+    rw [hP, Ne, MvPolynomial.C_eq_zero]
+    exact (isUnit_lamA i β hQ).ne_zero
+  have hAP : (fSplit (k := k) i β (cycA a (zero_lt_card_single_add i β) (cons1 i β s))).leadingCoeff *
+      (∏ b : Fin (Multiset.card β),
+        fSplit (k := k) i β (cycFac Q (cons1 i β s) (b.val + 1))).leadingCoeff ≠ 0 := by
+    rwa [hA.1.leadingCoeff, one_mul, Polynomial.leadingCoeff_prod' _ _ hne']
+  rw [fSplit_gPol_eq, Polynomial.leadingCoeff_mul' hAP, Polynomial.natDegree_mul' hAP,
+    Polynomial.leadingCoeff_prod' _ _ hne', Polynomial.natDegree_prod' _ _ hne', hA.1.leadingCoeff,
+    one_mul, hP, hA.2, degA, ← sum_seq_map β _ s]
+  exact ⟨rfl, congrArg _ (Finset.sum_congr rfl fun b _ => (hlead b).2)⟩
 
 end Lead
 
@@ -300,13 +304,10 @@ theorem concat_mem_subR1 (t : T) : concat Q Si β t ∈ subR1 (k := k) (Q := Q) 
       exact Subalgebra.mul_mem _ h
         (Subalgebra.mul_mem _ (x_mem_subR1 _) (oneConcat_mem_subR1 i β))
 
-variable {P : I → I → MvPolynomial (Fin 2) k}
-
 /-- **KK Remark 4.20 (i)**: `A` is central in `R(i) ⊗ R(β)`. -/
-theorem aPrime_comm [IsDomain k] (hPQ : ∀ a b, a ≠ b → Q a b = P b a * MvPolynomial.rename ![1, 0] (P a b))
-    (hP : ∀ a b, a ≠ b → P a b ≠ 0) (t : T) :
+theorem aPrime_comm (hsym : KLRSymm Q) (t : T) :
     aPrime Q i β a * t = t * aPrime Q i β a := by
-  apply concat_injective hPQ hP
+  apply concat_injective hsym
   have hA := aElt_mul_oneConcat (Q := Q) i β a
   have hcomm := aElt_comm_subR1 (Q := Q) a (zero_lt_card_single_add i β) (Multiset.card β)
     (card_single_add i β).symm (concat_mem_subR1 i β t)
@@ -327,15 +328,13 @@ theorem coeff_theta_aPrime (n : ℕ) :
   rw [Polynomial.coeff_mul_C, Polynomial.coeff_map]
   rfl
 
-variable [IsDomain k]
-
-theorem theta_aPrime_eq_smul (hQ : ∀ a b : I, a ≠ b → IsUnit (polyInY (Q a b)).leadingCoeff) :
+theorem theta_aPrime_eq_smul (hQ : ∀ a b : I, a ≠ b → ∃ c : k, IsUnit c ∧ (polyInY (Q a b)).leadingCoeff = Polynomial.C c) :
     theta Q i β (aPrime Q i β a) = lamA Q i β • aMonic Q i β a := by
   rw [aMonic, smul_smul, Ring.mul_inverse_cancel _ (isUnit_lamA i β hQ), one_smul]
 
 /-- The coefficients above the expected degree vanish, before taking the cyclotomic quotient. -/
-theorem degree_aMonic_le (hsym : ∀ a b, a ≠ b → Q b a = MvPolynomial.rename ![1, 0] (Q a b))
-    (hQ : ∀ a b : I, a ≠ b → IsUnit (polyInY (Q a b)).leadingCoeff) (ha : (a i).Monic) :
+theorem degree_aMonic_le [Nontrivial k] (hsym : KLRSymm Q)
+    (hQ : ∀ a b : I, a ≠ b → ∃ c : k, IsUnit c ∧ (polyInY (Q a b)).leadingCoeff = Polynomial.C c) (ha : (a i).Monic) :
     (aMonic Q i β a).degree ≤ degA Q i β a := by
   have hl := lead_fSplit_gPol (Q := Q) i β a hsym hQ ha
   rw [Polynomial.degree_le_iff_coeff_zero]
@@ -345,9 +344,9 @@ theorem degree_aMonic_le (hsym : ∀ a b, a ≠ b → Q b a = MvPolynomial.renam
   rw [Finset.sum_eq_zero fun s _ => ?_, smul_zero]
   rw [Polynomial.coeff_eq_zero_of_natDegree_lt ((hl s).2.symm ▸ hn'), map_zero, zero_mul]
 
-/-- The coefficient at the expected degree is one, including for zero coefficient rings. -/
-theorem coeff_aMonic_degA (hsym : ∀ a b, a ≠ b → Q b a = MvPolynomial.rename ![1, 0] (Q a b))
-    (hQ : ∀ a b : I, a ≠ b → IsUnit (polyInY (Q a b)).leadingCoeff) (ha : (a i).Monic) :
+/-- The coefficient at the expected degree is one. -/
+theorem coeff_aMonic_degA [Nontrivial k] (hsym : KLRSymm Q)
+    (hQ : ∀ a b : I, a ≠ b → ∃ c : k, IsUnit c ∧ (polyInY (Q a b)).leadingCoeff = Polynomial.C c) (ha : (a i).Monic) :
     (aMonic Q i β a).coeff (degA Q i β a) = 1 := by
   have hl := lead_fSplit_gPol (Q := Q) i β a hsym hQ ha
   rw [aMonic, Polynomial.coeff_smul, coeff_theta_aPrime]
@@ -358,19 +357,21 @@ theorem coeff_aMonic_degA (hsym : ∀ a b, a ≠ b → Q b a = MvPolynomial.rena
     ← map_mul, Ring.inverse_mul_cancel _ (isUnit_lamA i β hQ), map_one]
 
 /-- `M = λ⁻¹ θ(A)` is monic. -/
-theorem monic_aMonic (hsym : ∀ a b, a ≠ b → Q b a = MvPolynomial.rename ![1, 0] (Q a b))
-    (hQ : ∀ a b : I, a ≠ b → IsUnit (polyInY (Q a b)).leadingCoeff) (ha : (a i).Monic) :
-    (aMonic Q i β a).Monic :=
-  Polynomial.monic_of_degree_le (degA Q i β a)
-    (degree_aMonic_le i β a hsym hQ ha) (coeff_aMonic_degA i β a hsym hQ ha)
+theorem monic_aMonic (hsym : KLRSymm Q)
+    (hQ : ∀ a b : I, a ≠ b → ∃ c : k, IsUnit c ∧ (polyInY (Q a b)).leadingCoeff = Polynomial.C c) (ha : (a i).Monic) :
+    (aMonic Q i β a).Monic := by
+  rcases subsingleton_or_nontrivial k with hk | hk
+  · have : Subsingleton Rb := (algebraMap k Rb).codomain_trivial
+    exact Subsingleton.elim _ _
+  · exact Polynomial.monic_of_degree_le (degA Q i β a)
+      (degree_aMonic_le i β a hsym hQ ha) (coeff_aMonic_degA i β a hsym hQ ha)
 
 /-- `M` is central in `R(β)[t]`. -/
-theorem aMonic_comm (hPQ : ∀ a b, a ≠ b → Q a b = P b a * MvPolynomial.rename ![1, 0] (P a b))
-    (hP : ∀ a b, a ≠ b → P a b ≠ 0) (q : Polynomial Rb) :
+theorem aMonic_comm (hsym : KLRSymm Q) (q : Polynomial Rb) :
     Commute q (aMonic Q i β a) := by
   rw [← theta_thetaInv (Q := Q) i β q, aMonic]
   refine Commute.smul_right ?_ _
-  rw [Commute, SemiconjBy, ← map_mul, ← map_mul, aPrime_comm i β a hPQ hP]
+  rw [Commute, SemiconjBy, ← map_mul, ← map_mul, aPrime_comm i β a hsym]
 
 end Central
 

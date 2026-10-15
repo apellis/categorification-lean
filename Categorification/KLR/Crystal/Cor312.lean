@@ -82,7 +82,7 @@ theorem epsI_ind_extTensor_le :
     epsI Q (μ + ν') i (Ind Q μ ν' (ExtTensor K N W)) ≤ epsI Q μ i N + Multiset.card ν' := by
   rw [epsI_le_iff]
   intro s hs
-  obtain ⟨u, j, j', hu, hne⟩ := exists_shuffle_of_fixSub_ind_ne_bot hPQ hP _ hs
+  obtain ⟨u, j, j', hu, hne⟩ := exists_shuffle_of_fixSub_ind_ne_bot (KLRSymm.of_factorization hPQ hP) _ hs
   have hj := tailLen_le_epsI (i := i) (fixSub_ne_bot_of_extTensor' hne)
   have := tailLen_le_of_shuffle (i := i) u hu
   omega

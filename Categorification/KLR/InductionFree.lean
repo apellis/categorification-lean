@@ -3,7 +3,7 @@ Copyright (c) 2026 Alex Ellis. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 -/
 import Categorification.KLR.Concat
-import Categorification.KLR.BasisTheorem
+import Categorification.KLR.BasisTheoremGeneral
 import Mathlib.LinearAlgebra.TensorProduct.Basis
 import Mathlib.LinearAlgebra.Finsupp.VectorSpace
 
@@ -34,7 +34,7 @@ diagram of the minimal presentation of `u` with top ends labelled by `ij`, lying
   (`KLRAlgebra.free_oneConcat`).
 * `KLRAlgebra.concat_injective`: `ι_{ν,ν'}` is injective.
 
-All statements are over an integral domain `k` with the hypotheses of the basis theorem.
+All statements are over a commutative ring `k`, for symmetric `Q` (`KLRSymm Q`).
 -/
 
 namespace Categorification.KLR
@@ -42,10 +42,8 @@ namespace Categorification.KLR
 open Equiv MvPolynomial TypeA PolyRep
 open scoped TensorProduct
 
-variable {I : Type*} [DecidableEq I] {k : Type*} [CommRing k] [IsDomain k]
-  {Q : I → I → MvPolynomial (Fin 2) k} {P : I → I → MvPolynomial (Fin 2) k}
-  (hPQ : ∀ a b, a ≠ b → Q a b = P b a * rename ![1, 0] (P a b))
-  (hP : ∀ a b, a ≠ b → P a b ≠ 0)
+variable {I : Type*} [DecidableEq I] {k : Type*} [CommRing k]
+  {Q : I → I → MvPolynomial (Fin 2) k} (hsym : KLRSymm Q)
 
 namespace KLRAlgebra
 
@@ -57,7 +55,6 @@ variable {μ : Multiset I}
 
 local notation "m" => Multiset.card μ
 
-omit [IsDomain k] in
 theorem hflip_ψw (ρ : List ℕ) : hflip (ψw ρ : KLRAlgebra k Q μ) = ψw ρ.reverse := by
   induction ρ with
   | nil => simp
@@ -69,7 +66,6 @@ variable (k Q μ) in
 noncomputable def hflipEquiv : KLRAlgebra k Q μ ≃ₗ[k] KLRAlgebra k Q μ :=
   (flipH k Q μ).toLinearEquiv.trans (MulOpposite.opLinearEquiv k).symm
 
-omit [IsDomain k] in
 @[simp] theorem hflipEquiv_apply (a : KLRAlgebra k Q μ) : hflipEquiv k Q μ a = hflip a := rfl
 
 /-- Reindexing `(i', w, d) ↦ (w • i', w⁻¹, d)`. -/
@@ -99,18 +95,17 @@ theorem revWord_spec (w : Perm (Fin m)) :
 `x^d ψ_{ρ w} 1_i` form a basis of `R(μ)`. -/
 noncomputable def lbasis :
     Module.Basis (Seq μ × Perm (Fin m) × (Fin m →₀ ℕ)) k (KLRAlgebra k Q μ) :=
-  ((basis hPQ hP (revWord ρ) (revWord_spec ρ hρ)).map (hflipEquiv k Q μ)).reindex flipIdx
+  ((basisOfSymm hsym (revWord ρ) (revWord_spec ρ hρ)).map (hflipEquiv k Q μ)).reindex flipIdx
 
 theorem lbasis_apply (b : Seq μ × Perm (Fin m) × (Fin m →₀ ℕ)) :
-    lbasis hPQ hP ρ hρ b = pol (monomial b.2.2 1) * ψw (ρ b.2.1) * e b.1 := by
+    lbasis hsym ρ hρ b = pol (monomial b.2.2 1) * ψw (ρ b.2.1) * e b.1 := by
   obtain ⟨i, v, d⟩ := b
-  simp only [lbasis, Module.Basis.reindex_apply, Module.Basis.map_apply, basis_apply, hflipEquiv_apply,
+  simp only [lbasis, Module.Basis.reindex_apply, Module.Basis.map_apply, basisOfSymm_apply, hflipEquiv_apply,
     hflip_mul, hflip_e, hflip_pol, hflip_ψw]
   simp only [flipIdx, Equiv.coe_fn_symm_mk, revWord, List.reverse_reverse, inv_inv]
   rw [← mul_assoc, (e_commute_pol _ _).eq, mul_assoc, e_mul_ψw, ← mul_assoc, (hρ v).2,
     inv_smul_smul]
 
-omit [IsDomain k] in
 /-- A left standard element is fixed by the idempotent of its top sequence. -/
 theorem e_mul_pol_ψw_e (p : MvPolynomial (Fin m) k) (ρ : List ℕ) (s : Seq μ) :
     (e (wordProd m ρ • s) * (pol p * ψw ρ * e s) : KLRAlgebra k Q μ) =
@@ -168,7 +163,7 @@ theorem expEquiv_apply (d : Fin (Multiset.card ν) →₀ ℕ)
     · rintro ⟨a, ha⟩
       exact Sum.inl_ne_inr ((blockEquiv (Seq.card_add' ν ν')).injective ha)
 
-omit [DecidableEq I] [IsDomain k] in
+omit [DecidableEq I] in
 theorem monomial_expEquiv (d : Fin (Multiset.card ν) →₀ ℕ)
     (d' : Fin (Multiset.card ν') →₀ ℕ) :
     (monomial (expEquiv ν ν' (d, d')) 1 : MvPolynomial (Fin (Multiset.card (ν + ν'))) k) =
@@ -257,7 +252,6 @@ theorem exists_indIdxMap {s : Seq (ν + ν')} {w : Perm (Fin (Multiset.card (ν 
 noncomputable def hatW (u : Shuffle (Seq.card_add' ν ν')) : KLRAlgebra k Q (ν + ν') :=
   oneConcat Q ν ν' * ψw (σ u)
 
-omit [IsDomain k] in
 theorem hatW_eq_sum (u : Shuffle (Seq.card_add' ν ν')) :
     (hatW σ u : KLRAlgebra k Q (ν + ν')) =
       ∑ p : Seq ν × Seq ν',
@@ -270,7 +264,6 @@ variable (Q) in
 noncomputable def oneConcatSub : Submodule k (KLRAlgebra k Q (ν + ν')) :=
   LinearMap.range (LinearMap.mulLeft k (oneConcat Q ν ν'))
 
-omit [IsDomain k] in
 theorem mem_oneConcatSub {r : KLRAlgebra k Q (ν + ν')} :
     r ∈ oneConcatSub Q ↔ oneConcat Q ν ν' * r = r := by
   constructor
@@ -280,12 +273,12 @@ theorem mem_oneConcatSub {r : KLRAlgebra k Q (ν + ν')} :
 
 /-- The elements `ι(b ⊗ b') ŵ_u` of Proposition 2.16. -/
 noncomputable def indElt (x : IndIdx ν ν') : KLRAlgebra k Q (ν + ν') :=
-  concat Q ν ν' (lbasis hPQ hP ρ₁ hρ₁ x.1.1 ⊗ₜ lbasis hPQ hP ρ₂ hρ₂ x.1.2) *
+  concat Q ν ν' (lbasis hsym ρ₁ hρ₁ x.1.1 ⊗ₜ lbasis hsym ρ₂ hρ₂ x.1.2) *
     hatW σ x.2
 
 theorem indElt_eq (x : IndIdx ν ν') :
-    indElt hPQ hP ρ₁ ρ₂ σ hρ₁ hρ₂ x =
-      lbasis hPQ hP (parWord ρ₁ ρ₂ σ) (parWord_spec ρ₁ ρ₂ σ hρ₁ hρ₂ hσ)
+    indElt hsym ρ₁ ρ₂ σ hρ₁ hρ₂ x =
+      lbasis hsym (parWord ρ₁ ρ₂ σ) (parWord_spec ρ₁ ρ₂ σ hρ₁ hρ₂ hσ)
         (indIdxMap x) := by
   obtain ⟨⟨⟨i, a, d⟩, ⟨j, b, d'⟩⟩, u⟩ := x
   simp only [indElt, lbasis_apply, indIdxMap]
@@ -294,7 +287,6 @@ theorem indElt_eq (x : IndIdx ν ν') :
     ite_eq_left (append_mem_concatSet i j), mul_assoc _ (e _), e_mul_ψw, (hσ u).2, ← mul_assoc,
     mul_assoc (pol _), ← ψw_append]
 
-omit [IsDomain k] in
 theorem oneConcat_mul_pol_ψw_e (p : MvPolynomial (Fin (Multiset.card (ν + ν'))) k)
     (ρ : List ℕ) (s : Seq (ν + ν')) :
     (oneConcat Q ν ν' * (pol p * ψw ρ * e s) : KLRAlgebra k Q (ν + ν')) =
@@ -305,17 +297,17 @@ theorem oneConcat_mul_pol_ψw_e (p : MvPolynomial (Fin (Multiset.card (ν + ν')
 
 include hσ in
 theorem linearIndependent_indElt :
-    LinearIndependent k (indElt (Q := Q) hPQ hP ρ₁ ρ₂ σ hρ₁ hρ₂) := by
-  have : indElt (Q := Q) hPQ hP ρ₁ ρ₂ σ hρ₁ hρ₂ =
-      lbasis hPQ hP (parWord ρ₁ ρ₂ σ) (parWord_spec ρ₁ ρ₂ σ hρ₁ hρ₂ hσ) ∘
+    LinearIndependent k (indElt (Q := Q) hsym ρ₁ ρ₂ σ hρ₁ hρ₂) := by
+  have : indElt (Q := Q) hsym ρ₁ ρ₂ σ hρ₁ hρ₂ =
+      lbasis hsym (parWord ρ₁ ρ₂ σ) (parWord_spec ρ₁ ρ₂ σ hρ₁ hρ₂ hσ) ∘
         indIdxMap :=
-    funext fun x => indElt_eq hPQ hP ρ₁ ρ₂ σ hρ₁ hρ₂ hσ x
+    funext fun x => indElt_eq hsym ρ₁ ρ₂ σ hρ₁ hρ₂ hσ x
   rw [this]
   exact (Module.Basis.linearIndependent _).comp _ indIdxMap_injective
 
 include hσ in
 theorem span_indElt :
-    Submodule.span k (Set.range (indElt (Q := Q) hPQ hP ρ₁ ρ₂ σ hρ₁ hρ₂)) =
+    Submodule.span k (Set.range (indElt (Q := Q) hsym ρ₁ ρ₂ σ hρ₁ hρ₂)) =
       oneConcatSub Q := by
   apply le_antisymm
   · rw [Submodule.span_le]
@@ -323,7 +315,7 @@ theorem span_indElt :
     refine mem_oneConcatSub.2 ?_
     rw [indElt, ← mul_assoc, oneConcat_mul_concat]
   · rintro r ⟨r', rfl⟩
-    let B := lbasis (Q := Q) hPQ hP (parWord ρ₁ ρ₂ σ)
+    let B := lbasis (Q := Q) hsym (parWord ρ₁ ρ₂ σ)
       (parWord_spec ρ₁ ρ₂ σ hρ₁ hρ₂ hσ)
     rw [LinearMap.mulLeft_apply, ← B.linearCombination_repr r', Finsupp.linearCombination_apply,
       Finsupp.sum, Finset.mul_sum]
@@ -332,11 +324,11 @@ theorem span_indElt :
     refine Submodule.smul_mem _ _ ?_
     obtain ⟨s, w, f⟩ := β
     have hB : B (s, w, f) = pol (monomial f 1) * ψw (parWord ρ₁ ρ₂ σ w) * e s :=
-      lbasis_apply _ _ _ _ _
+      lbasis_apply _ _ _ _
     rw [hB, oneConcat_mul_pol_ψw_e, (parWord_spec ρ₁ ρ₂ σ hρ₁ hρ₂ hσ w).2]
     split_ifs with hβ
     · obtain ⟨x, hx⟩ := exists_indIdxMap (f := f) hβ
-      rw [← hB, ← hx, ← indElt_eq hPQ hP ρ₁ ρ₂ σ hρ₁ hρ₂ hσ]
+      rw [← hB, ← hx, ← indElt_eq hsym ρ₁ ρ₂ σ hρ₁ hρ₂ hσ]
       exact Submodule.subset_span ⟨x, rfl⟩
     · exact zero_mem _
 
@@ -345,18 +337,17 @@ in the bases `lbasis` of `R(ν)`, `R(ν')` and `u` a shuffle, form a `k`-basis o
 `1_{ν,ν'} R(ν + ν')`. -/
 noncomputable def inductionBasis :
     Module.Basis (IndIdx ν ν') k (oneConcatSub (ν := ν) (ν' := ν') Q) :=
-  (Module.Basis.span (linearIndependent_indElt hPQ hP ρ₁ ρ₂ σ hρ₁ hρ₂ hσ)).map
-    (LinearEquiv.ofEq _ _ (span_indElt hPQ hP ρ₁ ρ₂ σ hρ₁ hρ₂ hσ))
+  (Module.Basis.span (linearIndependent_indElt hsym ρ₁ ρ₂ σ hρ₁ hρ₂ hσ)).map
+    (LinearEquiv.ofEq _ _ (span_indElt hsym ρ₁ ρ₂ σ hρ₁ hρ₂ hσ))
 
 theorem inductionBasis_apply (x : IndIdx ν ν') :
-    (inductionBasis hPQ hP ρ₁ ρ₂ σ hρ₁ hρ₂ hσ x : KLRAlgebra k Q (ν + ν')) =
-      concat Q ν ν' (lbasis hPQ hP ρ₁ hρ₁ x.1.1 ⊗ₜ lbasis hPQ hP ρ₂ hρ₂ x.1.2) *
+    (inductionBasis hsym ρ₁ ρ₂ σ hρ₁ hρ₂ hσ x : KLRAlgebra k Q (ν + ν')) =
+      concat Q ν ν' (lbasis hsym ρ₁ hρ₁ x.1.1 ⊗ₜ lbasis hsym ρ₂ hρ₂ x.1.2) *
         hatW σ x.2 := by
   simp [inductionBasis, Module.Basis.span_apply, indElt]
 
 /-! #### The module structure and freeness -/
 
-omit [IsDomain k] in
 theorem concat_mul_mem (t : KLRAlgebra k Q ν ⊗[k] KLRAlgebra k Q ν')
     {r : KLRAlgebra k Q (ν + ν')} (_hr : r ∈ oneConcatSub Q) :
     concat Q ν ν' t * r ∈ oneConcatSub Q :=
@@ -367,7 +358,6 @@ noncomputable instance : SMul (KLRAlgebra k Q ν ⊗[k] KLRAlgebra k Q ν')
     (oneConcatSub (ν := ν) (ν' := ν') Q) :=
   ⟨fun t r => ⟨concat Q ν ν' t * r, concat_mul_mem t r.2⟩⟩
 
-omit [IsDomain k] in
 theorem coe_tensor_smul (t : KLRAlgebra k Q ν ⊗[k] KLRAlgebra k Q ν')
     (r : oneConcatSub (ν := ν) (ν' := ν') Q) :
     ((t • r : oneConcatSub (ν := ν) (ν' := ν') Q) : KLRAlgebra k Q (ν + ν')) =
@@ -392,7 +382,6 @@ noncomputable instance : IsScalarTower k (KLRAlgebra k Q ν ⊗[k] KLRAlgebra k 
   ⟨fun c t r => Subtype.ext (by
     rw [coe_tensor_smul, Submodule.coe_smul, coe_tensor_smul, map_smul, smul_mul_assoc])⟩
 
-omit [IsDomain k] in
 theorem hatW_mem (u : Shuffle (Seq.card_add' ν ν')) :
     (hatW σ u : KLRAlgebra k Q (ν + ν')) ∈ oneConcatSub Q :=
   mem_oneConcatSub.2 (by rw [hatW, ← mul_assoc, oneConcat_idem.eq])
@@ -413,12 +402,12 @@ noncomputable def freeMap :
 def sigmaIdxEquiv : (Σ _ : Shuffle (Seq.card_add' ν ν'), Idx ν × Idx ν') ≃ IndIdx ν ν' :=
   (Equiv.sigmaEquivProd _ _).trans (Equiv.prodComm _ _)
 
-include hPQ hP hρ₁ hρ₂ hσ in
+include hsym hρ₁ hρ₂ hσ in
 theorem freeMap_bijective : Function.Bijective (freeMap (Q := Q) σ) := by
   let tb :=
-    (lbasis (Q := Q) hPQ hP ρ₁ hρ₁).tensorProduct (lbasis (Q := Q) hPQ hP ρ₂ hρ₂)
+    (lbasis (Q := Q) hsym ρ₁ hρ₁).tensorProduct (lbasis (Q := Q) hsym ρ₂ hρ₂)
   let kb := Finsupp.basis (R := k) (ι := Shuffle (Seq.card_add' ν ν')) (fun _ => tb)
-  let B := inductionBasis (Q := Q) hPQ hP ρ₁ ρ₂ σ hρ₁ hρ₂ hσ
+  let B := inductionBasis (Q := Q) hsym ρ₁ ρ₂ σ hρ₁ hρ₂ hσ
   have key : (freeMap (Q := Q) σ).restrictScalars k =
       (kb.equiv B sigmaIdxEquiv).toLinearMap := by
     refine kb.ext fun ⟨u, x⟩ => ?_
@@ -438,10 +427,10 @@ of the cosets `(S_n × S_{n'}) u`. -/
 noncomputable def freeBasis : Module.Basis (Shuffle (Seq.card_add' ν ν'))
     (KLRAlgebra k Q ν ⊗[k] KLRAlgebra k Q ν') (oneConcatSub (ν := ν) (ν' := ν') Q) :=
   Module.Basis.ofRepr
-    (LinearEquiv.ofBijective _ (freeMap_bijective hPQ hP ρ₁ ρ₂ σ hρ₁ hρ₂ hσ)).symm
+    (LinearEquiv.ofBijective _ (freeMap_bijective hsym ρ₁ ρ₂ σ hρ₁ hρ₂ hσ)).symm
 
 theorem freeBasis_apply (u : Shuffle (Seq.card_add' ν ν')) :
-    (freeBasis hPQ hP ρ₁ ρ₂ σ hρ₁ hρ₂ hσ u : KLRAlgebra k Q (ν + ν')) =
+    (freeBasis hsym ρ₁ ρ₂ σ hρ₁ hρ₂ hσ u : KLRAlgebra k Q (ν + ν')) =
       hatW σ u := by
   simp only [freeBasis, Module.Basis.coe_ofRepr, LinearEquiv.symm_symm, LinearEquiv.ofBijective_apply]
   rw [freeMap, Finsupp.linearCombination_single, one_smul]
@@ -455,12 +444,12 @@ section Canonical
 
 variable {ν ν' : Multiset I}
 
-include hPQ hP in
+include hsym in
 /-- **KL I, Proposition 2.16**: `1_{ν,ν'} R(ν + ν')` is a free `R(ν) ⊗ R(ν')`-module. -/
 theorem free_oneConcat :
     Module.Free (KLRAlgebra k Q ν ⊗[k] KLRAlgebra k Q ν')
       (oneConcatSub (ν := ν) (ν' := ν') Q) :=
-  Module.Free.of_basis (freeBasis hPQ hP (canWord _) (canWord _) (fun u => canWord _ u.1)
+  Module.Free.of_basis (freeBasis hsym (canWord _) (canWord _) (fun u => canWord _ u.1)
     (fun a => ⟨isReduced_canWord _ a, wordProd_canWord _ a⟩)
     (fun b => ⟨isReduced_canWord _ b, wordProd_canWord _ b⟩)
     (fun u => ⟨isReduced_canWord _ u.1, wordProd_canWord _ u.1⟩))
@@ -471,14 +460,14 @@ theorem canWord_one (m : ℕ) : canWord m 1 = [] := by
   rw [length_one] at h
   exact List.length_eq_zero_iff.1 h
 
-include hPQ hP in
+include hsym in
 /-- The inclusion `ι_{ν,ν'} : R(ν) ⊗ R(ν') → R(ν + ν')` is injective. -/
 theorem concat_injective : Function.Injective (concat Q ν ν') := by
   let σ : Shuffle (Seq.card_add' ν ν') → List ℕ := fun u => canWord _ u.1
   have hσ : ∀ u : Shuffle (Seq.card_add' ν ν'),
       IsReduced _ (σ u) ∧ wordProd _ (σ u) = u.1 :=
     fun u => ⟨isReduced_canWord _ u.1, wordProd_canWord _ u.1⟩
-  have hbij := freeMap_bijective (Q := Q) hPQ hP (canWord _) (canWord _) σ
+  have hbij := freeMap_bijective (Q := Q) hsym (canWord _) (canWord _) σ
     (fun a => ⟨isReduced_canWord _ a, wordProd_canWord _ a⟩)
     (fun b => ⟨isReduced_canWord _ b, wordProd_canWord _ b⟩) hσ
   let u₁ : Shuffle (Seq.card_add' ν ν') := ⟨1, isShuffle_one _⟩

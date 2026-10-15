@@ -86,31 +86,29 @@ theorem cut_kkF_zero (hi : i ∉ β) (p : Fin (Multiset.card β) → Rb ⊗[k] R
   simp only [kkF, map_zero, add_zero, Finset.mul_sum, cut_fT_zero Q i β hi,
     Finset.sum_const_zero]
 
-variable [IsDomain k] {P : I → I → MvPolynomial (Fin 2) k}
-  (hPQ : ∀ a b, a ≠ b → Q a b = P b a * MvPolynomial.rename ![1, 0] (P a b))
-  (hP : ∀ a b, a ≠ b → P a b ≠ 0)
+variable (hsym : KLRSymm Q)
   (a : I → Polynomial k) (hβ : 0 < Multiset.card β)
 
 theorem cut_kkExpand (hi : i ∉ β) (r : R) :
     cL Q i β 1 * r * cL Q i β 1 =
-      cLL Q i β (kkCoord i β hPQ hP r).2 := by
-  rw [mul_assoc, ← kkExpand_kkCoord i β hPQ hP r]
+      cLL Q i β (kkCoord i β hsym r).2 := by
+  rw [mul_assoc, ← kkExpand_kkCoord i β hsym r]
   change cL Q i β 1 * kkF i β _ _ = _
   rw [kkF, mul_add, Finset.mul_sum, cL_one_mul_cLL]
   simp only [cut_fT_zero Q i β hi, Finset.sum_const_zero, zero_add]
 
 theorem cSection_cMap_mk (hi : i ∉ β) (r : R) :
-    cSection i β a hβ (cMap i β hPQ hP a hβ (Submodule.Quotient.mk r)) =
+    cSection i β a hβ (cMap i β hsym a hβ (Submodule.Quotient.mk r)) =
       Submodule.Quotient.mk (cL Q i β 1 * r * cL Q i β 1) := by
-  change cSection i β a hβ (thetaL0 Q i β a (kkCoord i β hPQ hP r).2) = _
-  rw [cSection_thetaL0, cut_kkExpand Q i β hPQ hP hi]
+  change cSection i β a hβ (thetaL0 Q i β a (kkCoord i β hsym r).2) = _
+  rw [cSection_thetaL0, cut_kkExpand Q i β hsym hi]
 
 theorem cSection_cMap (hi : i ∉ β)
     (z : KZero Q (Si + β) a (zero_lt_card_single_add i β)) :
-    cSection i β a hβ (cMap i β hPQ hP a hβ z) =
+    cSection i β a hβ (cMap i β hsym a hβ z) =
       cL Q i β 1 • act0 Q i β a 1 z := by
   obtain ⟨r, rfl⟩ := Submodule.Quotient.mk_surjective _ z
-  rw [cSection_cMap_mk Q i β hPQ hP a hβ hi, act0_mk]
+  rw [cSection_cMap_mk Q i β hsym a hβ hi, act0_mk]
   change Submodule.Quotient.mk _ = Submodule.Quotient.mk _
   rw [mul_assoc]
   rfl
@@ -119,9 +117,9 @@ theorem cMap_injective_on_cut (hi : i ∉ β)
     {z w : KZero Q (Si + β) a (zero_lt_card_single_add i β)}
     (hz : cL Q i β 1 • act0 Q i β a 1 z = z)
     (hw : cL Q i β 1 • act0 Q i β a 1 w = w)
-    (he : cMap i β hPQ hP a hβ z = cMap i β hPQ hP a hβ w) : z = w := by
+    (he : cMap i β hsym a hβ z = cMap i β hsym a hβ w) : z = w := by
   have h := congrArg (cSection i β a hβ) he
-  rw [cSection_cMap Q i β hPQ hP a hβ hi, cSection_cMap Q i β hPQ hP a hβ hi,
+  rw [cSection_cMap Q i β hsym a hβ hi, cSection_cMap Q i β hsym a hβ hi,
     hz, hw] at h
   exact h
 
@@ -135,11 +133,9 @@ def quotientMap : K0 →ₗ[k] S :=
     (by intro r hr; exact (CycKLR.mk_eq_zero_iff r).2 (cycL0_le a _ hr)) ∘ₗ
     (Submodule.Quotient.restrictScalarsEquiv k (cycL0 a _)).symm.toLinearMap
 
-omit [IsDomain k] in
 theorem quotientMap_mk (r : R) :
     quotientMap Q i β a (Submodule.Quotient.mk r) = CycKLR.mk k Q a (Si + β) r := rfl
 
-omit [IsDomain k] in
 theorem quotientMap_cut (z : K0) :
     quotientMap Q i β a (cL Q i β 1 • act0 Q i β a 1 z) =
       CycKLR.mk k Q a (Si + β) (cL Q i β 1) * quotientMap Q i β a z *
@@ -158,21 +154,20 @@ def polynomialToCorner : Polynomial Rl →ₗ[k] Corner Q i a β :=
     · rw [← map_mul, cL_one_mul_cLL]
     · rw [← map_mul, cLL_mul_cL_one])
 
-include hPQ hP in
+include hsym in
 theorem polynomialToCorner_surjective (hi : i ∉ β) :
     Function.Surjective (polynomialToCorner Q i β a hβ) := by
   intro z
   obtain ⟨r, hr⟩ := CycKLR.mk_surjective (z : S)
-  refine ⟨cMap i β hPQ hP a hβ (Submodule.Quotient.mk r), ?_⟩
+  refine ⟨cMap i β hsym a hβ (Submodule.Quotient.mk r), ?_⟩
   apply Subtype.ext
-  change quotientMap Q i β a (cSection i β a hβ (cMap i β hPQ hP a hβ _)) = _
-  rw [cSection_cMap Q i β hPQ hP a hβ hi, quotientMap_cut, quotientMap_mk, hr]
+  change quotientMap Q i β a (cSection i β a hβ (cMap i β hsym a hβ _)) = _
+  rw [cSection_cMap Q i β hsym a hβ hi, quotientMap_cut, quotientMap_mk, hr]
   rw [z.2.1, z.2.2]
 
 variable (h1 : 1 < Multiset.card ((Singleton.singleton i : Multiset I) + β))
 
 include h1 in
-omit [IsDomain k] in
 theorem quotientMap_pMap (z : KOne Q (Si + β) a h1) :
     quotientMap Q i β a ((pMap (Q := Q) a (zero_lt_card_single_add i β) h1 (Multiset.card β) (card_single_add i β).symm) z) = 0 := by
   obtain ⟨r, rfl⟩ := Submodule.Quotient.mk_surjective _ z
@@ -183,7 +178,7 @@ theorem quotientMap_pMap (z : KOne Q (Si + β) a h1) :
 
 include h1 in
 theorem ker_polynomialToCorner (hi : i ∉ β) :
-    LinearMap.ker (polynomialToCorner Q i β a hβ) = LinearMap.range (aMap i β a h1 hβ hPQ hP) := by
+    LinearMap.ker (polynomialToCorner Q i β a hβ) = LinearMap.range (aMap i β a h1 hβ hsym) := by
   ext p
   constructor
   · intro hp
@@ -198,23 +193,22 @@ theorem ker_polynomialToCorner (hi : i ∉ β) :
       rw [range_pMap]
       exact hpi
     obtain ⟨z, hz⟩ := hm
-    refine ⟨bMap i β hPQ hP a h1 hβ z, ?_⟩
+    refine ⟨bMap i β hsym a h1 hβ z, ?_⟩
     rw [aMap_bMap, hz, cMap_cSection]
   · rintro ⟨q, rfl⟩
     apply Subtype.ext
-    change quotientMap Q i β a (cSection i β a hβ ((aMap i β a h1 hβ hPQ hP) q)) = 0
+    change quotientMap Q i β a (cSection i β a hβ ((aMap i β a h1 hβ hsym) q)) = 0
     change quotientMap Q i β a (cSection i β a hβ
-      (cMap i β hPQ hP a hβ ((pMap (Q := Q) a (zero_lt_card_single_add i β) h1 (Multiset.card β) (card_single_add i β).symm) (bSection i β a h1 hβ q)))) = 0
-    rw [cSection_cMap Q i β hPQ hP a hβ hi, quotientMap_cut, quotientMap_pMap,
+      (cMap i β hsym a hβ ((pMap (Q := Q) a (zero_lt_card_single_add i β) h1 (Multiset.card β) (card_single_add i β).symm) (bSection i β a h1 hβ q)))) = 0
+    rw [cSection_cMap Q i β hsym a hβ hi, quotientMap_cut, quotientMap_pMap,
       mul_zero, zero_mul]
 
 def polynomialCokernelEquiv (hi : i ∉ β) :
-    (Polynomial Rl ⧸ LinearMap.range (aMap i β a h1 hβ hPQ hP)) ≃ₗ[k] Corner Q i a β :=
-  (Submodule.quotEquivOfEq _ _ (ker_polynomialToCorner Q i β hPQ hP a hβ h1 hi).symm).trans
+    (Polynomial Rl ⧸ LinearMap.range (aMap i β a h1 hβ hsym)) ≃ₗ[k] Corner Q i a β :=
+  (Submodule.quotEquivOfEq _ _ (ker_polynomialToCorner Q i β hsym a hβ h1 hi).symm).trans
     ((polynomialToCorner Q i β a hβ).quotKerEquivOfSurjective
-      (polynomialToCorner_surjective Q i β hPQ hP a hβ hi))
+      (polynomialToCorner_surjective Q i β hsym a hβ hi))
 
-omit [IsDomain k] in
 theorem polynomialToCorner_monomial (b : Rb) (d : ℕ) :
     polynomialToCorner Q i β a hβ (Polynomial.monomial d (CycKLR.mk k Q a β b)) =
       dotUnitTerm Q i a β d (CycKLR.mk k Q a β b) := by
@@ -233,7 +227,6 @@ theorem polynomialToCorner_monomial (b : Rb) (d : ℕ) :
   change _ = cyclotomicLast Q i a β (CycKLR.mk k Q a β b) * _ * cyclotomicLast Q i a β 1
   rw [cyclotomicLast_mk, cyclotomicLast_one, mul_assoc]
 
-omit [IsDomain k] in
 theorem dotUnitSum_eq_polynomial (n : ℕ) (v : Fin n → Rl) :
     dotUnitSum Q i a β n v = polynomialToCorner Q i β a hβ
       ((Polynomial.degreeLTEquiv Rl n).symm v : Polynomial Rl) := by
@@ -246,7 +239,7 @@ theorem dotUnitSum_eq_polynomial (n : ℕ) (v : Fin n → Rl) :
   rw [← hb, polynomialToCorner_monomial]
 
 variable
-  (hQ : ∀ i j : I, i ≠ j → IsUnit (polyInY (Q i j)).leadingCoeff)
+  (hQ : ∀ i j : I, i ≠ j → ∃ c : k, IsUnit c ∧ (polyInY (Q i j)).leadingCoeff = Polynomial.C c)
   (ha : ∀ i, (a i).Monic)
   {C : QuantumGroup.CartanDatum I} {X Y : Type*} [AddCommGroup X] [AddCommGroup Y]
   (RD : QuantumGroup.UDot.RootDatum C X Y) (Λ : X)
@@ -255,40 +248,40 @@ variable
     -RD.pair (RD.iY i) (RD.iX j))
 local notation "wt" => RD.pair (RD.iY i) (Λ - Multiset.sum (Multiset.map RD.iX β))
 
-include hPQ hP hQ ha hΛ hdeg h1 hβ in
+include hsym hQ ha hΛ hdeg h1 hβ in
 theorem exists_small_remainder (q : Polynomial Rl) :
-    ∃ p, (q - aMap i β a h1 hβ hPQ hP p).degree < ((wt).toNat : ℕ) := by
+    ∃ p, (q - aMap i β a h1 hβ hsym p).degree < ((wt).toNat : ℕ) := by
   rcases subsingleton_or_nontrivial Rl with h | h
   · refine ⟨0, ?_⟩
     rw [Subsingleton.elim q 0, map_zero, sub_self, Polynomial.degree_zero]
     exact WithBot.bot_lt_coe _
-  · obtain ⟨p, hp⟩ := aMap_exists_remainder i β a hPQ hP hβ hQ ha h1 q
-    have hd := aMonicL_degree_gap i β a RD Λ (sym_of_factor hPQ) hQ (ha i) hΛ hdeg
+  · obtain ⟨p, hp⟩ := aMap_exists_remainder i β a hsym hβ hQ ha h1 q
+    have hd := aMonicL_degree_gap i β a RD Λ hsym hQ (ha i) hΛ hdeg
     have he : (aMonicL Q i β a).natDegree - (sPoly (Q := Q) i β a).natDegree = (wt).toNat := by omega
     exact ⟨p, by simpa only [he] using hp⟩
 
-include hPQ hP hQ ha hΛ hdeg h1 hβ in
+include hsym hQ ha hΛ hdeg h1 hβ in
 theorem range_eq_small_zero (r : Polynomial Rl) (hr : r.degree < ((wt).toNat : ℕ))
-    (he : r ∈ LinearMap.range (aMap i β a h1 hβ hPQ hP)) : r = 0 := by
+    (he : r ∈ LinearMap.range (aMap i β a h1 hβ hsym)) : r = 0 := by
   rcases subsingleton_or_nontrivial Rl with h | h
   · exact Subsingleton.elim _ _
   · obtain ⟨p, hp⟩ := he
     obtain ⟨c, hc⟩ := isUnit_lamA (Q := Q) i β hQ
-    obtain ⟨hlow, hhigh⟩ := aMap_phi_spec i β a hPQ hP hβ hQ ha h1
+    obtain ⟨hlow, hhigh⟩ := aMap_phi_spec i β a hsym hβ hQ ha h1
     rw [← hc, Ring.inverse_unit] at hhigh
-    have hd := aMonicL_degree_gap i β a RD Λ (sym_of_factor hPQ) hQ (ha i) hΛ hdeg
+    have hd := aMonicL_degree_gap i β a RD Λ hsym hQ (ha i) hΛ hdeg
     have heh : (aMonicL Q i β a).natDegree - (sPoly (Q := Q) i β a).natDegree = (wt).toNat := by omega
     have hz := PhiAlg.degree_lt_of_apply_add_eq_zero
-      (aMap i β a h1 hβ hPQ hP).toAddMonoidHom c
+      (aMap i β a h1 hβ hsym).toAddMonoidHom c
       ((sPoly (Q := Q) i β a).natDegree - (aMonicL Q i β a).natDegree)
       ((aMonicL Q i β a).natDegree - (sPoly (Q := Q) i β a).natDegree)
-      (aMap_mul_C i β a h1 hβ hPQ hP) hlow hhigh
+      (aMap_mul_C i β a h1 hβ hsym) hlow hhigh
       (p := p) (r := -r) (by simpa only [Polynomial.degree_neg, heh] using hr)
-      (by change aMap i β a h1 hβ hPQ hP p + -r = 0; rw [hp, add_neg_cancel])
-    have hp0 := (aMap_eq_zero_iff i β a hPQ hP hβ hQ ha h1 p).2 hz
+      (by change aMap i β a h1 hβ hsym p + -r = 0; rw [hp, add_neg_cancel])
+    have hp0 := (aMap_eq_zero_iff i β a hsym hβ hQ ha h1 p).2 hz
     exact hp.symm.trans hp0
 
-include hPQ hP hQ ha hΛ hdeg h1 hβ in
+include hsym hQ ha hΛ hdeg h1 hβ in
 theorem dotUnitSum_bijective_positive (hi : i ∉ β) :
     Function.Bijective (dotUnitSum Q i a β (wt).toNat) := by
   constructor
@@ -298,28 +291,28 @@ theorem dotUnitSum_bijective_positive (hi : i ∉ β) :
     have he : polynomialToCorner Q i β a hβ (pv - pw : Polynomial Rl) = 0 := by
       rw [map_sub, sub_eq_zero]
       simpa only [dotUnitSum_eq_polynomial Q i β a hβ] using hvw
-    have hm : (pv - pw : Polynomial Rl) ∈ LinearMap.range (aMap i β a h1 hβ hPQ hP) := by
-      rw [← ker_polynomialToCorner Q i β hPQ hP a hβ h1 hi]
+    have hm : (pv - pw : Polynomial Rl) ∈ LinearMap.range (aMap i β a h1 hβ hsym) := by
+      rw [← ker_polynomialToCorner Q i β hsym a hβ h1 hi]
       exact he
-    have hz := range_eq_small_zero Q i β hPQ hP a hβ h1 hQ ha RD Λ hΛ hdeg
+    have hz := range_eq_small_zero Q i β hsym a hβ h1 hQ ha RD Λ hΛ hdeg
       (pv - pw) (Polynomial.mem_degreeLT.1 (pv - pw).2) hm
     have heq : pv = pw := Subtype.ext (sub_eq_zero.1 hz)
     exact (Polynomial.degreeLTEquiv Rl (wt).toNat).symm.injective heq
   · intro z
-    obtain ⟨q, hq⟩ := polynomialToCorner_surjective Q i β hPQ hP a hβ hi z
-    obtain ⟨p, hp⟩ := exists_small_remainder Q i β hPQ hP a hβ h1 hQ ha RD Λ hΛ hdeg q
-    let r : Polynomial.degreeLT Rl (wt).toNat := ⟨q - aMap i β a h1 hβ hPQ hP p,
+    obtain ⟨q, hq⟩ := polynomialToCorner_surjective Q i β hsym a hβ hi z
+    obtain ⟨p, hp⟩ := exists_small_remainder Q i β hsym a hβ h1 hQ ha RD Λ hΛ hdeg q
+    let r : Polynomial.degreeLT Rl (wt).toNat := ⟨q - aMap i β a h1 hβ hsym p,
       Polynomial.mem_degreeLT.2 hp⟩
     refine ⟨Polynomial.degreeLTEquiv Rl (wt).toNat r, ?_⟩
     rw [dotUnitSum_eq_polynomial, LinearEquiv.symm_apply_apply]
-    change polynomialToCorner Q i β a hβ (q - aMap i β a h1 hβ hPQ hP p) = z
-    have hz : polynomialToCorner Q i β a hβ (aMap i β a h1 hβ hPQ hP p) = 0 := by
-      have hm : aMap i β a h1 hβ hPQ hP p ∈ LinearMap.range (aMap i β a h1 hβ hPQ hP) := ⟨p, rfl⟩
-      rw [← ker_polynomialToCorner Q i β hPQ hP a hβ h1 hi] at hm
+    change polynomialToCorner Q i β a hβ (q - aMap i β a h1 hβ hsym p) = z
+    have hz : polynomialToCorner Q i β a hβ (aMap i β a h1 hβ hsym p) = 0 := by
+      have hm : aMap i β a h1 hβ hsym p ∈ LinearMap.range (aMap i β a h1 hβ hsym) := ⟨p, rfl⟩
+      rw [← ker_polynomialToCorner Q i β hsym a hβ h1 hi] at hm
       exact hm
     rw [map_sub, hz, sub_zero, hq]
 
-include hPQ hP hQ ha hΛ hdeg in
+include hsym hQ ha hΛ hdeg in
 /-- The prescribed finite dot-unit map is bijective for every absent colour, including rank zero. -/
 theorem dotUnitSum_bijective (hi : i ∉ β) :
     Function.Bijective (dotUnitSum Q i a β (wt).toNat) := by
@@ -333,28 +326,27 @@ theorem dotUnitSum_bijective (hi : i ∉ β) :
     rw [← he]
     exact (zeroFinEquiv Q i a (ha i)).bijective
   · have hb' : 0 < Multiset.card β := Multiset.card_pos.mpr hb
-    exact dotUnitSum_bijective_positive Q i β hPQ hP a hb' (by simpa only [card_single_add] using Nat.succ_lt_succ hb')
+    exact dotUnitSum_bijective_positive Q i β hsym a hb' (by simpa only [card_single_add] using Nat.succ_lt_succ hb')
       hQ ha RD Λ hΛ hdeg hi
 
 /-- The equivalence retains the original dot-unit sum as its forward map. -/
 def finEquiv (hi : i ∉ β) : (Fin (wt).toNat → Rl) ≃ₗ[k] Corner Q i a β :=
   LinearEquiv.ofBijective (dotUnitSum Q i a β (wt).toNat)
-    (dotUnitSum_bijective Q i β hPQ hP a hQ ha RD Λ hΛ hdeg hi)
+    (dotUnitSum_bijective Q i β hsym a hQ ha RD Λ hΛ hdeg hi)
 
 theorem finEquiv_apply (hi : i ∉ β) (v : Fin (wt).toNat → Rl) :
-    finEquiv Q i β hPQ hP a hQ ha RD Λ hΛ hdeg hi v = dotUnitSum Q i a β (wt).toNat v := rfl
+    finEquiv Q i β hsym a hQ ha RD Λ hΛ hdeg hi v = dotUnitSum Q i a β (wt).toNat v := rfl
 
 theorem finEquiv_inverse_forward (hi : i ∉ β) (v : Fin (wt).toNat → Rl) :
-    (finEquiv Q i β hPQ hP a hQ ha RD Λ hΛ hdeg hi).symm
+    (finEquiv Q i β hsym a hQ ha RD Λ hΛ hdeg hi).symm
       (dotUnitSum Q i a β (wt).toNat v) = v :=
-  (finEquiv Q i β hPQ hP a hQ ha RD Λ hΛ hdeg hi).symm_apply_apply v
+  (finEquiv Q i β hsym a hQ ha RD Λ hΛ hdeg hi).symm_apply_apply v
 
 theorem finEquiv_forward_inverse (hi : i ∉ β) (z : Corner Q i a β) :
     dotUnitSum Q i a β (wt).toNat
-      ((finEquiv Q i β hPQ hP a hQ ha RD Λ hΛ hdeg hi).symm z) = z :=
-  (finEquiv Q i β hPQ hP a hQ ha RD Λ hΛ hdeg hi).apply_symm_apply z
+      ((finEquiv Q i β hsym a hQ ha RD Λ hΛ hdeg hi).symm z) = z :=
+  (finEquiv Q i β hsym a hQ ha RD Λ hΛ hdeg hi).apply_symm_apply z
 
-omit [IsDomain k] in
 theorem dotUnitSum_left (n : ℕ) (r : Rl) (v : Fin n → Rl) :
     dotUnitSum Q i a β n (fun d => r * v d) = r • dotUnitSum Q i a β n v := by
   apply Subtype.ext
@@ -363,7 +355,6 @@ theorem dotUnitSum_left (n : ℕ) (r : Rl) (v : Fin n → Rl) :
   intro d _
   simp only [map_mul, mul_assoc]
 
-omit [IsDomain k] in
 theorem dotUnitSum_right (n : ℕ) (r : Rl) (v : Fin n → Rl) :
     dotUnitSum Q i a β n (fun d => v d * r) = MulOpposite.op r • dotUnitSum Q i a β n v := by
   apply Subtype.ext
@@ -380,25 +371,25 @@ theorem dotUnitSum_right (n : ℕ) (r : Rl) (v : Fin n → Rl) :
   simp only [mul_assoc, ← map_mul, mul_one, one_mul]
 
 theorem finEquiv_left (hi : i ∉ β) (r : Rl) (v : Fin (wt).toNat → Rl) :
-    finEquiv Q i β hPQ hP a hQ ha RD Λ hΛ hdeg hi (fun d => r * v d) =
-      r • finEquiv Q i β hPQ hP a hQ ha RD Λ hΛ hdeg hi v :=
+    finEquiv Q i β hsym a hQ ha RD Λ hΛ hdeg hi (fun d => r * v d) =
+      r • finEquiv Q i β hsym a hQ ha RD Λ hΛ hdeg hi v :=
   dotUnitSum_left Q i β a _ r v
 
 theorem finEquiv_right (hi : i ∉ β) (r : Rl) (v : Fin (wt).toNat → Rl) :
-    finEquiv Q i β hPQ hP a hQ ha RD Λ hΛ hdeg hi (fun d => v d * r) =
-      MulOpposite.op r • finEquiv Q i β hPQ hP a hQ ha RD Λ hΛ hdeg hi v :=
+    finEquiv Q i β hsym a hQ ha RD Λ hΛ hdeg hi (fun d => v d * r) =
+      MulOpposite.op r • finEquiv Q i β hsym a hQ ha RD Λ hΛ hdeg hi v :=
   dotUnitSum_right Q i β a _ r v
 
 theorem finEquiv_symm_left (hi : i ∉ β) (r : Rl) (z : Corner Q i a β) :
-    (finEquiv Q i β hPQ hP a hQ ha RD Λ hΛ hdeg hi).symm (r • z) =
-      fun d => r * (finEquiv Q i β hPQ hP a hQ ha RD Λ hΛ hdeg hi).symm z d := by
-  apply (finEquiv Q i β hPQ hP a hQ ha RD Λ hΛ hdeg hi).injective
+    (finEquiv Q i β hsym a hQ ha RD Λ hΛ hdeg hi).symm (r • z) =
+      fun d => r * (finEquiv Q i β hsym a hQ ha RD Λ hΛ hdeg hi).symm z d := by
+  apply (finEquiv Q i β hsym a hQ ha RD Λ hΛ hdeg hi).injective
   rw [LinearEquiv.apply_symm_apply, finEquiv_left, LinearEquiv.apply_symm_apply]
 
 theorem finEquiv_symm_right (hi : i ∉ β) (r : Rl) (z : Corner Q i a β) :
-    (finEquiv Q i β hPQ hP a hQ ha RD Λ hΛ hdeg hi).symm (MulOpposite.op r • z) =
-      fun d => (finEquiv Q i β hPQ hP a hQ ha RD Λ hΛ hdeg hi).symm z d * r := by
-  apply (finEquiv Q i β hPQ hP a hQ ha RD Λ hΛ hdeg hi).injective
+    (finEquiv Q i β hsym a hQ ha RD Λ hΛ hdeg hi).symm (MulOpposite.op r • z) =
+      fun d => (finEquiv Q i β hsym a hQ ha RD Λ hΛ hdeg hi).symm z d * r := by
+  apply (finEquiv Q i β hsym a hQ ha RD Λ hΛ hdeg hi).injective
   rw [LinearEquiv.apply_symm_apply, finEquiv_right, LinearEquiv.apply_symm_apply]
 
 end Categorification.KLR.KLRAlgebra.AbsentColour

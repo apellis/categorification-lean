@@ -87,42 +87,40 @@ theorem thetaL_gLeadTensor (n : ℕ) (hn : n ≤ Multiset.card β) (s : Seq β) 
     · rw [map_pow, map_sub, thetaL_x_tmul_one, thetaL_one_tmul]
     · rw [map_one]
 
-variable [IsDomain k] {P : I → I → MvPolynomial (Fin 2) k}
-  (hPQ : ∀ a b, a ≠ b → Q a b = P b a * rename ![1, 0] (P a b))
-  (hP : ∀ a b, a ≠ b → P a b ≠ 0)
+variable (hsym : KLRSymm Q)
   (h1 : 1 < Multiset.card ((Singleton.singleton i : Multiset I) + β))
   (hβ : 0 < Multiset.card β)
 
 include hβ in
 theorem bCoord_gProd_cons1 (s : Seq β) :
-    bCoord i β hPQ hP (gProd (Multiset.card β) * e (cons1 i β s)) =
+    bCoord i β hsym (gProd (Multiset.card β) * e (cons1 i β s)) =
       gLeadTensor i β (Multiset.card β) le_rfl s := by
-  rw [bCoord_gProd i β hPQ hP hβ, mul_assoc, ← concat_gLeadTensor i β, bCoord_top]
+  rw [bCoord_gProd i β hsym hβ, mul_assoc, ← concat_gLeadTensor i β, bCoord_top]
 
 /-- The actual map `B` evaluates the intertwiner product to the squared-difference polynomial. -/
 theorem bMap_gProd_cons1 (s : Seq β) :
-    bMap i β hPQ hP a h1 hβ (Submodule.Quotient.mk
+    bMap i β hsym a h1 hβ (Submodule.Quotient.mk
       (gProd (Multiset.card β) * e (cons1 i β s))) =
       gLeadPoly i β a (Multiset.card β) le_rfl s := by
   rw [bMap_mk]
-  change thetaL Q i β a (bCoord i β hPQ hP _) = _
-  rw [bCoord_gProd_cons1 i β hPQ hP hβ, thetaL_gLeadTensor]
+  change thetaL Q i β a (bCoord i β hsym _) = _
+  rw [bCoord_gProd_cons1 i β hsym hβ, thetaL_gLeadTensor]
 
 /-- The first dot acts as the polynomial variable under the final-coordinate map. -/
 theorem bCoord_mul_first_dot (r : R) :
-    bCoord i β hPQ hP (r * x ⟨0, zero_lt_card_single_add i β⟩) =
-      bCoord i β hPQ hP r * (x ⟨0, by rw [card_single']; omega⟩ ⊗ₜ 1) := by
+    bCoord i β hsym (r * x ⟨0, zero_lt_card_single_add i β⟩) =
+      bCoord i β hsym r * (x ⟨0, by rw [card_single']; omega⟩ ⊗ₜ 1) := by
   calc
-    _ = bCoord i β hPQ hP ((r * x ⟨0, zero_lt_card_single_add i β⟩) * oneConcat Q Si β) :=
-      (bCoord_mul_oneConcat i β hPQ hP _).symm
-    _ = bCoord i β hPQ hP (r * concat Q Si β
+    _ = bCoord i β hsym ((r * x ⟨0, zero_lt_card_single_add i β⟩) * oneConcat Q Si β) :=
+      (bCoord_mul_oneConcat i β hsym _).symm
+    _ = bCoord i β hsym (r * concat Q Si β
         (x ⟨0, by rw [card_single']; omega⟩ ⊗ₜ 1)) := by
       rw [concat_x_tmul_one, posL_single_zero, mul_assoc]
-    _ = _ := bCoord_mul_concat i β hPQ hP _ _
+    _ = _ := bCoord_mul_concat i β hsym _ _
 
 theorem bCoord_mul_first_dot_pow (r : R) (m : ℕ) :
-    bCoord i β hPQ hP (r * x ⟨0, zero_lt_card_single_add i β⟩ ^ m) =
-      bCoord i β hPQ hP r * (x ⟨0, by rw [card_single']; omega⟩ ⊗ₜ 1) ^ m := by
+    bCoord i β hsym (r * x ⟨0, zero_lt_card_single_add i β⟩ ^ m) =
+      bCoord i β hsym r * (x ⟨0, by rw [card_single']; omega⟩ ⊗ₜ 1) ^ m := by
   induction m with
   | zero => rw [pow_zero, pow_zero, mul_one, mul_one]
   | succ m ih => rw [pow_succ, ← mul_assoc, bCoord_mul_first_dot, ih, mul_assoc, ← pow_succ]
@@ -130,13 +128,13 @@ theorem bCoord_mul_first_dot_pow (r : R) (m : ℕ) :
 /-- The dotted intertwiner has coefficient `S_s X^m`. Since `X` is central, this
 is also `X^m S_s`, the summand used before (5.15). -/
 theorem bMap_gProd_cons1_mul_first_dot_pow (s : Seq β) (m : ℕ) :
-    bMap i β hPQ hP a h1 hβ (Submodule.Quotient.mk
+    bMap i β hsym a h1 hβ (Submodule.Quotient.mk
       (gProd (Multiset.card β) * e (cons1 i β s) *
         x ⟨0, zero_lt_card_single_add i β⟩ ^ m)) =
       gLeadPoly i β a (Multiset.card β) le_rfl s * Polynomial.X ^ m := by
   rw [bMap_mk]
-  change thetaL Q i β a (bCoord i β hPQ hP _) = _
-  rw [bCoord_mul_first_dot_pow, bCoord_gProd_cons1 i β hPQ hP hβ, map_mul,
+  change thetaL Q i β a (bCoord i β hsym _) = _
+  rw [bCoord_mul_first_dot_pow, bCoord_gProd_cons1 i β hsym hβ, map_mul,
     map_pow, thetaL_x_tmul_one, thetaL_gLeadTensor]
 
 end Categorification.KLR.KLRAlgebra

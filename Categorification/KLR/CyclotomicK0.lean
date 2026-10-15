@@ -251,11 +251,9 @@ theorem concat_mem_cycL0 (h0 : 0 < Multiset.card (β + Si)) (hβ : 0 < Multiset.
   | add y z _ _ hy hz => rw [map_add]; exact Submodule.add_mem _ hy hz
   | smul r y _ hy => rw [map_smul]; exact Submodule.smul_of_tower_mem _ r hy
 
-variable [IsDomain k] {P : I → I → MvPolynomial (Fin 2) k}
-  (hPQ : ∀ a b, a ≠ b → Q a b = P b a * MvPolynomial.rename ![1, 0] (P a b))
-  (hP : ∀ a b, a ≠ b → P a b ≠ 0)
+variable (hsym : KLRSymm Q)
 
-include hPQ hP in
+include hsym in
 /-- **KK Lemma 4.8 for `K_0`** (structure): `∑_u ψ(ŵ_u) ι(t_u)` lies in `R(ν) a^Λ(x_1) R(β)`
 exactly when every `t_u` lies in `J ⊗ R(i)`. So `K_0 e(β, i) ≅ ⊕_u R^Λ(β) ⊗ R(i)`. -/
 theorem mem_cycL0_iff (h0 : 0 < Multiset.card (β + Si)) (hβ : 0 < Multiset.card β)
@@ -287,14 +285,14 @@ theorem mem_cycL0_iff (h0 : 0 < Multiset.card (β + Si)) (hβ : 0 < Multiset.car
           rw [add_mul, hy, hz, rFree_add]⟩
       | smul r y _ hy =>
         obtain ⟨t', ht', hy⟩ := hy
-        obtain ⟨t'', ht'', hS⟩ := exists_mul_rFree hPQ hP (tJ0 (Q := Q) i β a)
+        obtain ⟨t'', ht'', hS⟩ := exists_mul_rFree hsym (tJ0 (Q := Q) i β a)
           (fun c t ht => mul_mem_tJ0 i β a ht c) r t'
         exact ⟨t'', hS ht', by rw [smul_eq_mul, mul_assoc, hy, ht'']⟩
     obtain ⟨t', ht', heq⟩ := key _ ht
     rw [rFree_mul_oneConcat] at heq
     have h0' : rFree (t - t') = 0 := by rw [rFree_sub, heq, sub_self]
     intro u
-    have := rfree_injective hPQ hP h0' u
+    have := rfree_injective hsym h0' u
     rw [Pi.sub_apply, sub_eq_zero] at this
     rw [this]; exact ht' u
   · intro ht
@@ -318,9 +316,7 @@ theorem castKLR_mem_cycL0 (a : I → Polynomial k) {μ μ' : Multiset I} (h : μ
     castKLR Q h z ∈ cycL0 a h0' ↔ z ∈ cycL0 a h0 := by
   subst h; rfl
 
-variable [IsDomain k] {P : I → I → MvPolynomial (Fin 2) k}
-  (hPQ : ∀ a b, a ≠ b → Q a b = P b a * MvPolynomial.rename ![1, 0] (P a b))
-  (hP : ∀ a b, a ≠ b → P a b ≠ 0)
+variable (hsym : KLRSymm Q)
   (i : I) (β : Multiset I) (a : I → Polynomial k)
 
 local notation "Si" => (Singleton.singleton i : Multiset I)
@@ -330,15 +326,12 @@ local notation "R" => KLRAlgebra k Q (Si + β)
 local notation "Rl" => CycKLR k Q a β
 local notation "Sh0" => Shuffle (Seq.card_add' β Si)
 
-omit [IsDomain k] in
 theorem cL_one_eq_cast : cL Q i β 1 = castKLR Q (add_comm β Si) (oneConcat Q β Si) := by
   rw [cL, concat_one_tmul_one]
 
-omit [IsDomain k] in
 theorem cL_eq_cast (b : Rb) : cL Q i β b = castKLR Q (add_comm β Si) (concat Q β Si (b ⊗ₜ 1)) :=
   rfl
 
-omit [IsDomain k] in
 theorem rFree_mul_concat' (t : Sh0 → T0) (c : T0) :
     rFree t * concat Q β Si c = rFree (fun u => t u * c) := by
   simp only [rFree, Finset.sum_mul, mul_assoc, concat_mul]
@@ -346,20 +339,20 @@ theorem rFree_mul_concat' (t : Sh0 → T0) (c : T0) :
 variable (Q) in
 /-- The coefficients `t` of `z e(β, i) = cast(∑_u ψ(ŵ_u) ι(t_u))`. -/
 noncomputable def tcoL (z : R) : Sh0 → T0 :=
-  (rfree_span hPQ hP (castKLR Q (add_comm β Si).symm z)).choose
+  (rfree_span hsym (castKLR Q (add_comm β Si).symm z)).choose
 
 theorem tcoL_spec (z : R) :
-    z * cL Q i β 1 = castKLR Q (add_comm β Si) (rFree (tcoL Q hPQ hP i β z)) := by
-  rw [tcoL, ← (rfree_span hPQ hP (castKLR Q (add_comm β Si).symm z)).choose_spec, map_mul,
+    z * cL Q i β 1 = castKLR Q (add_comm β Si) (rFree (tcoL Q hsym i β z)) := by
+  rw [tcoL, ← (rfree_span hsym (castKLR Q (add_comm β Si).symm z)).choose_spec, map_mul,
     castKLR_castAlg_symm, cL_one_eq_cast]
 
 theorem tcoL_eq {z : R} {t : Sh0 → T0}
-    (h : z * cL Q i β 1 = castKLR Q (add_comm β Si) (rFree t)) : tcoL Q hPQ hP i β z = t := by
-  have h' : rFree (tcoL Q hPQ hP i β z) = rFree t := by
+    (h : z * cL Q i β 1 = castKLR Q (add_comm β Si) (rFree t)) : tcoL Q hsym i β z = t := by
+  have h' : rFree (tcoL Q hsym i β z) = rFree t := by
     apply (castKLR Q (add_comm β Si)).injective
     rw [← tcoL_spec, h]
   funext u
-  have := rfree_injective hPQ hP (t := tcoL Q hPQ hP i β z - t)
+  have := rfree_injective hsym (t := tcoL Q hsym i β z - t)
     (by rw [rFree_sub, h', sub_self]) u
   rwa [Pi.sub_apply, sub_eq_zero] at this
 
@@ -368,23 +361,19 @@ variable (Q) in
 noncomputable def thetaL0 : T0 →ₐ[k] Polynomial Rl :=
   (thetaL Q i β a).comp (Algebra.TensorProduct.comm k Rb (KLRAlgebra k Q Si)).toAlgHom
 
-omit [IsDomain k] in
 theorem thetaL0_apply (t : T0) :
     thetaL0 Q i β a t = thetaL Q i β a (Algebra.TensorProduct.comm k Rb (KLRAlgebra k Q Si) t) :=
   rfl
 
-omit [IsDomain k] in
 theorem thetaL0_tmul_one (b : Rb) :
     thetaL0 Q i β a (b ⊗ₜ 1) = Polynomial.C (CycKLR.mk k Q a β b) := by
   rw [thetaL0_apply, Algebra.TensorProduct.comm_tmul, thetaL_one_tmul]
 
-omit [IsDomain k] in
 theorem thetaL0_surjective : Function.Surjective (thetaL0 Q i β a) := fun q => by
   obtain ⟨t, ht⟩ := thetaL_surjective i β a q
   exact ⟨(Algebra.TensorProduct.comm k Rb (KLRAlgebra k Q Si)).symm t, by
     rw [thetaL0_apply, AlgEquiv.apply_symm_apply, ht]⟩
 
-omit [IsDomain k] in
 theorem comm_mem_tJ_iff (t : T0) :
     Algebra.TensorProduct.comm k Rb (KLRAlgebra k Q Si) t ∈ tJ (Q := Q) i β a ↔
       t ∈ tJ0 (Q := Q) i β a := by
@@ -410,33 +399,32 @@ theorem comm_mem_tJ_iff (t : T0) :
     | add y z _ _ hy hz => rw [map_add]; exact Submodule.add_mem _ hy hz
     | smul r y _ hy => rw [map_smul]; exact Submodule.smul_mem _ r hy
 
-omit [IsDomain k] in
 theorem thetaL0_eq_zero_iff (t : T0) : thetaL0 Q i β a t = 0 ↔ t ∈ tJ0 (Q := Q) i β a := by
   rw [thetaL0_apply, thetaL_eq_zero_iff, comm_mem_tJ_iff]
 
 variable (Q) in
 /-- The coordinates of `z e(β, i)` in `⊕_u R^Λ(β)[t]`. -/
 noncomputable def coordLR : R →ₗ[k] (Sh0 → Polynomial Rl) where
-  toFun z u := thetaL0 Q i β a (tcoL Q hPQ hP i β z u)
+  toFun z u := thetaL0 Q i β a (tcoL Q hsym i β z u)
   map_add' z z' := by
-    have : tcoL Q hPQ hP i β (z + z') = tcoL Q hPQ hP i β z + tcoL Q hPQ hP i β z' :=
-      tcoL_eq hPQ hP i β (by
-        rw [add_mul, tcoL_spec hPQ hP i β z, tcoL_spec hPQ hP i β z', rFree_add, map_add])
+    have : tcoL Q hsym i β (z + z') = tcoL Q hsym i β z + tcoL Q hsym i β z' :=
+      tcoL_eq hsym i β (by
+        rw [add_mul, tcoL_spec hsym i β z, tcoL_spec hsym i β z', rFree_add, map_add])
     funext u; simp only [this, Pi.add_apply, map_add]
   map_smul' c z := by
-    have : tcoL Q hPQ hP i β (c • z) = c • tcoL Q hPQ hP i β z :=
-      tcoL_eq hPQ hP i β (by rw [smul_mul_assoc, tcoL_spec hPQ hP i β z, rFree_smul', map_smul])
+    have : tcoL Q hsym i β (c • z) = c • tcoL Q hsym i β z :=
+      tcoL_eq hsym i β (by rw [smul_mul_assoc, tcoL_spec hsym i β z, rFree_smul', map_smul])
     funext u; simp only [this, Pi.smul_apply, map_smul, RingHom.id_apply]
 
 theorem coordLR_apply (z : R) (u : Sh0) :
-    coordLR Q hPQ hP i β a z u = thetaL0 Q i β a (tcoL Q hPQ hP i β z u) := rfl
+    coordLR Q hsym i β a z u = thetaL0 Q i β a (tcoL Q hsym i β z u) := rfl
 
 theorem coordLR_eq_zero (hβ : 0 < Multiset.card β) {z : R}
-    (hz : z ∈ cycL0 a (zero_lt_card_single_add i β)) : coordLR Q hPQ hP i β a z = 0 := by
+    (hz : z ∈ cycL0 a (zero_lt_card_single_add i β)) : coordLR Q hsym i β a z = 0 := by
   have hz' : z * cL Q i β 1 ∈ cycL0 a (zero_lt_card_single_add i β) :=
     mul_mem_cycL0 a hz (cL_one_mem_subR0 i β)
   have h0 : 0 < Multiset.card (β + Si) := by rw [add_comm]; exact zero_lt_card_single_add i β
-  rw [tcoL_spec hPQ hP i β z, castKLR_mem_cycL0 a _ h0, mem_cycL0_iff i β a hPQ hP h0 hβ] at hz'
+  rw [tcoL_spec hsym i β z, castKLR_mem_cycL0 a _ h0, mem_cycL0_iff i β a hsym h0 hβ] at hz'
   funext u
   exact (thetaL0_eq_zero_iff i β a _).2 (hz' u)
 
@@ -444,23 +432,21 @@ variable (Q) in
 /-- The coordinates on `K_0`. -/
 noncomputable def coordL (hβ : 0 < Multiset.card β) :
     KZero Q (Si + β) a (zero_lt_card_single_add i β) →ₗ[k] (Sh0 → Polynomial Rl) :=
-  ((cycL0 a (zero_lt_card_single_add i β)).restrictScalars k).liftQ (coordLR Q hPQ hP i β a)
-      (fun _ hz => LinearMap.mem_ker.2 (coordLR_eq_zero hPQ hP i β a hβ hz)) ∘ₗ
+  ((cycL0 a (zero_lt_card_single_add i β)).restrictScalars k).liftQ (coordLR Q hsym i β a)
+      (fun _ hz => LinearMap.mem_ker.2 (coordLR_eq_zero hsym i β a hβ hz)) ∘ₗ
     (Submodule.Quotient.restrictScalarsEquiv k (cycL0 a _)).symm.toLinearMap
 
 theorem coordL_mk (hβ : 0 < Multiset.card β) (y : R) :
-    coordL Q hPQ hP i β a hβ (Submodule.Quotient.mk y) = coordLR Q hPQ hP i β a y := rfl
+    coordL Q hsym i β a hβ (Submodule.Quotient.mk y) = coordLR Q hsym i β a y := rfl
 
 variable (Q) in
 /-- `(t_u)_u ↦ (θ(t_u) mod J)_u`. -/
 noncomputable def thetaS0 : (Sh0 → T0) →ₗ[k] (Sh0 → Polynomial Rl) :=
   LinearMap.pi fun u => (thetaL0 Q i β a).toLinearMap ∘ₗ LinearMap.proj u
 
-omit [IsDomain k] in
 theorem thetaS0_apply (t : Sh0 → T0) (u : Sh0) : thetaS0 Q i β a t u = thetaL0 Q i β a (t u) :=
   rfl
 
-omit [IsDomain k] in
 theorem thetaS0_surjective : Function.Surjective (thetaS0 Q i β a) := fun c =>
   ⟨fun u => (thetaL0_surjective i β a (c u)).choose,
     funext fun u => (thetaL0_surjective i β a (c u)).choose_spec⟩
@@ -471,14 +457,14 @@ noncomputable def gL : (Sh0 → T0) →ₗ[k] KZero Q (Si + β) a (zero_lt_card_
   ((cycL0 a _).mkQ.restrictScalars k) ∘ₗ (castKLR Q (add_comm β Si)).toLinearMap ∘ₗ
     { toFun := rFree, map_add' := rFree_add, map_smul' := rFree_smul' }
 
-include hPQ hP in
+include hsym in
 theorem ker_thetaS0_le (hβ : 0 < Multiset.card β) :
     LinearMap.ker (thetaS0 Q i β a) ≤ LinearMap.ker (gL Q i β a) := by
   intro t ht
   rw [LinearMap.mem_ker] at ht ⊢
   show Submodule.Quotient.mk (castKLR Q (add_comm β Si) (rFree t)) = 0
   have h0 : 0 < Multiset.card (β + Si) := by rw [add_comm]; exact zero_lt_card_single_add i β
-  rw [Submodule.Quotient.mk_eq_zero, castKLR_mem_cycL0 a _ h0, mem_cycL0_iff i β a hPQ hP h0 hβ]
+  rw [Submodule.Quotient.mk_eq_zero, castKLR_mem_cycL0 a _ h0, mem_cycL0_iff i β a hsym h0 hβ]
   intro u
   exact (thetaL0_eq_zero_iff i β a _).1 (congrFun ht u)
 
@@ -486,27 +472,27 @@ variable (Q) in
 /-- The inverse of the coordinates: `⊕_u R^Λ(β)[t] → K_0 e(β, i)`. -/
 noncomputable def embL (hβ : 0 < Multiset.card β) :
     (Sh0 → Polynomial Rl) →ₗ[k] KZero Q (Si + β) a (zero_lt_card_single_add i β) :=
-  (LinearMap.ker (thetaS0 Q i β a)).liftQ (gL Q i β a) (ker_thetaS0_le hPQ hP i β a hβ) ∘ₗ
+  (LinearMap.ker (thetaS0 Q i β a)).liftQ (gL Q i β a) (ker_thetaS0_le hsym i β a hβ) ∘ₗ
     ((thetaS0 Q i β a).quotKerEquivOfSurjective (thetaS0_surjective i β a)).symm.toLinearMap
 
 theorem embL_thetaS0 (hβ : 0 < Multiset.card β) (t : Sh0 → T0) :
-    embL Q hPQ hP i β a hβ (thetaS0 Q i β a t) =
+    embL Q hsym i β a hβ (thetaS0 Q i β a t) =
       Submodule.Quotient.mk (castKLR Q (add_comm β Si) (rFree t)) := by
   rw [embL, LinearMap.comp_apply, LinearEquiv.coe_coe,
     LinearMap.quotKerEquivOfSurjective_symm_apply, Submodule.liftQ_apply]
   rfl
 
 theorem embL_coordL (hβ : 0 < Multiset.card β) (y : R) :
-    embL Q hPQ hP i β a hβ (coordL Q hPQ hP i β a hβ (Submodule.Quotient.mk y)) =
+    embL Q hsym i β a hβ (coordL Q hsym i β a hβ (Submodule.Quotient.mk y)) =
       Submodule.Quotient.mk (y * cL Q i β 1) := by
-  rw [coordL_mk, show coordLR Q hPQ hP i β a y = thetaS0 Q i β a (tcoL Q hPQ hP i β y) from rfl,
+  rw [coordL_mk, show coordLR Q hsym i β a y = thetaS0 Q i β a (tcoL Q hsym i β y) from rfl,
     embL_thetaS0, ← tcoL_spec]
 
 theorem coordL_embL (hβ : 0 < Multiset.card β) (c : Sh0 → Polynomial Rl) :
-    coordL Q hPQ hP i β a hβ (embL Q hPQ hP i β a hβ c) = c := by
+    coordL Q hsym i β a hβ (embL Q hsym i β a hβ c) = c := by
   obtain ⟨t, rfl⟩ := thetaS0_surjective i β a c
   rw [embL_thetaS0, coordL_mk]
-  have : tcoL Q hPQ hP i β (castKLR Q (add_comm β Si) (rFree t)) = t := by
+  have : tcoL Q hsym i β (castKLR Q (add_comm β Si) (rFree t)) = t := by
     apply tcoL_eq
     rw [cL_one_eq_cast, ← map_mul, rFree_mul_oneConcat]
   funext u
@@ -514,20 +500,20 @@ theorem coordL_embL (hβ : 0 < Multiset.card β) (c : Sh0 → Polynomial Rl) :
 
 theorem coordL_act0 (hβ : 0 < Multiset.card β) (b : Rb)
     (w : KZero Q (Si + β) a (zero_lt_card_single_add i β)) :
-    coordL Q hPQ hP i β a hβ (act0 Q i β a b w) =
-      fun u => coordL Q hPQ hP i β a hβ w u * Polynomial.C (CycKLR.mk k Q a β b) := by
+    coordL Q hsym i β a hβ (act0 Q i β a b w) =
+      fun u => coordL Q hsym i β a hβ w u * Polynomial.C (CycKLR.mk k Q a β b) := by
   obtain ⟨y, rfl⟩ := Submodule.Quotient.mk_surjective _ w
-  have h : tcoL Q hPQ hP i β (y * cL Q i β b) =
-      fun u => tcoL Q hPQ hP i β y u * (b ⊗ₜ 1) := by
+  have h : tcoL Q hsym i β (y * cL Q i β b) =
+      fun u => tcoL Q hsym i β y u * (b ⊗ₜ 1) := by
     apply tcoL_eq
-    rw [mul_assoc, ← cL_mul, mul_one, ← one_mul b, cL_mul, ← mul_assoc, tcoL_spec hPQ hP i β y,
+    rw [mul_assoc, ← cL_mul, mul_one, ← one_mul b, cL_mul, ← mul_assoc, tcoL_spec hsym i β y,
       one_mul, cL_eq_cast, ← map_mul, rFree_mul_concat']
   funext u
   rw [act0_mk, coordL_mk, coordL_mk, coordLR_apply, coordLR_apply, h, map_mul, thetaL0_tmul_one]
 
 theorem embL_mul_C (hβ : 0 < Multiset.card β) (b : Rb) (c : Sh0 → Polynomial Rl) :
-    embL Q hPQ hP i β a hβ (fun u => c u * Polynomial.C (CycKLR.mk k Q a β b)) =
-      act0 Q i β a b (embL Q hPQ hP i β a hβ c) := by
+    embL Q hsym i β a hβ (fun u => c u * Polynomial.C (CycKLR.mk k Q a β b)) =
+      act0 Q i β a b (embL Q hsym i β a hβ c) := by
   obtain ⟨t, rfl⟩ := thetaS0_surjective i β a c
   have h : (fun u => thetaS0 Q i β a t u * Polynomial.C (CycKLR.mk k Q a β b)) =
       thetaS0 Q i β a (fun u => t u * (b ⊗ₜ 1)) := by

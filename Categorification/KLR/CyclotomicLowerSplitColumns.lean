@@ -155,192 +155,190 @@ theorem eiCSection_coordinates (p : Polynomial Rl) :
   rw [tensorToKZero_kZeroToTensor, lowerQuotientCast_rightCut,
     lowerQuotientCast_uncast, cSection_rightCut]
 
-variable [IsDomain k] {P : I → I → MvPolynomial (Fin 2) k}
-  (hPQ : ∀ j l, j ≠ l → Q j l = P l j * MvPolynomial.rename ![1, 0] (P j l))
-  (hP : ∀ j l, j ≠ l → P j l ≠ 0)
+variable (hsym : KLRSymm Q)
 
 @[simp] theorem eiB_eiBSection (p : Polynomial Rl) :
-    eiB Q i γ a hPQ hP (eiBSection Q i γ a p) = p := by
-  change bMap i β hPQ hP a (by simp) (zero_lt_card_single_add i γ)
+    eiB Q i γ a hsym (eiBSection Q i γ a p) = p := by
+  change bMap i β hsym a (by simp) (zero_lt_card_single_add i γ)
     (tensorToKOne Q i β a (by simp) (zero_lt_card_single_add i γ)
       (eiBSection Q i γ a p : KOneTensor Q i β a)) = _
   rw [eiBSection_coordinates, bMap_bSection]
 
 @[simp] theorem eiC_eiCSection (p : Polynomial Rl) :
-    eiC Q i γ a hPQ hP (eiCSection Q i γ a p) = p := by
-  change cMap i β hPQ hP a (zero_lt_card_single_add i γ) (eiZeroCoordinates Q i γ a _) = _
+    eiC Q i γ a hsym (eiCSection Q i γ a p) = p := by
+  change cMap i β hsym a (zero_lt_card_single_add i γ) (eiZeroCoordinates Q i γ a _) = _
   rw [eiCSection_coordinates, cMap_cSection]
 
-theorem eiB_surjective : Function.Surjective (eiB Q i γ a hPQ hP) :=
-  fun p => ⟨eiBSection Q i γ a p, eiB_eiBSection Q i γ a hPQ hP p⟩
+theorem eiB_surjective : Function.Surjective (eiB Q i γ a hsym) :=
+  fun p => ⟨eiBSection Q i γ a p, eiB_eiBSection Q i γ a hsym p⟩
 
-theorem eiC_surjective : Function.Surjective (eiC Q i γ a hPQ hP) :=
-  fun p => ⟨eiCSection Q i γ a p, eiC_eiCSection Q i γ a hPQ hP p⟩
+theorem eiC_surjective : Function.Surjective (eiC Q i γ a hsym) :=
+  fun p => ⟨eiCSection Q i γ a p, eiC_eiCSection Q i γ a hsym p⟩
 
 /-- Remove the explicit polynomial summand, retaining an element of the actual kernel. -/
-def eiBKernelPart : EIKOne Q i β a →ₗ[k] LinearMap.ker (eiB Q i γ a hPQ hP) :=
-  (LinearMap.id - (eiBSection Q i γ a).comp (eiB Q i γ a hPQ hP)).codRestrict _ (by
+def eiBKernelPart : EIKOne Q i β a →ₗ[k] LinearMap.ker (eiB Q i γ a hsym) :=
+  (LinearMap.id - (eiBSection Q i γ a).comp (eiB Q i γ a hsym)).codRestrict _ (by
     intro z
-    change eiB Q i γ a hPQ hP (z - eiBSection Q i γ a (eiB Q i γ a hPQ hP z)) = 0
+    change eiB Q i γ a hsym (z - eiBSection Q i γ a (eiB Q i γ a hsym z)) = 0
     rw [map_sub, eiB_eiBSection, sub_self])
 
 /-- The lower tensor coordinate uses the previously constructed kernel inverse. -/
 def eiBLowerProjection : EIKOne Q i β a →ₗ[k] KOnePrime Q i γ a :=
-  (lowerVerticalKernelInv Q i γ a hPQ hP).comp (eiBKernelPart Q i γ a hPQ hP)
+  (lowerVerticalKernelInv Q i γ a hsym).comp (eiBKernelPart Q i γ a hsym)
 
 theorem lowerVertical_eiBLowerProjection (z : EIKOne Q i β a) :
-    lowerVertical Q i γ a (eiBLowerProjection Q i γ a hPQ hP z) =
-      z - eiBSection Q i γ a (eiB Q i γ a hPQ hP z) :=
-  lowerVertical_kernelInv Q i γ a hPQ hP (eiBKernelPart Q i γ a hPQ hP z)
+    lowerVertical Q i γ a (eiBLowerProjection Q i γ a hsym z) =
+      z - eiBSection Q i γ a (eiB Q i γ a hsym z) :=
+  lowerVertical_kernelInv Q i γ a hsym (eiBKernelPart Q i γ a hsym z)
 
 @[simp] theorem eiBLowerProjection_lowerVertical (t : KOnePrime Q i γ a) :
-    eiBLowerProjection Q i γ a hPQ hP (lowerVertical Q i γ a t) = t := by
-  have hk : eiBKernelPart Q i γ a hPQ hP (lowerVertical Q i γ a t) =
-      ⟨lowerVertical Q i γ a t, eiB_lowerVertical Q i γ a hPQ hP t⟩ := by
+    eiBLowerProjection Q i γ a hsym (lowerVertical Q i γ a t) = t := by
+  have hk : eiBKernelPart Q i γ a hsym (lowerVertical Q i γ a t) =
+      ⟨lowerVertical Q i γ a t, eiB_lowerVertical Q i γ a hsym t⟩ := by
     apply Subtype.ext
-    change lowerVertical Q i γ a t - eiBSection Q i γ a (eiB Q i γ a hPQ hP _) = _
+    change lowerVertical Q i γ a t - eiBSection Q i γ a (eiB Q i γ a hsym _) = _
     rw [eiB_lowerVertical, map_zero, sub_zero]
-  change lowerVerticalKernelInv Q i γ a hPQ hP (eiBKernelPart Q i γ a hPQ hP _) = _
+  change lowerVerticalKernelInv Q i γ a hsym (eiBKernelPart Q i γ a hsym _) = _
   rw [hk, lowerVerticalKernelInv_forward]
 
 @[simp] theorem eiBLowerProjection_section (p : Polynomial Rl) :
-    eiBLowerProjection Q i γ a hPQ hP (eiBSection Q i γ a p) = 0 := by
-  have hk : eiBKernelPart Q i γ a hPQ hP (eiBSection Q i γ a p) = 0 := by
+    eiBLowerProjection Q i γ a hsym (eiBSection Q i γ a p) = 0 := by
+  have hk : eiBKernelPart Q i γ a hsym (eiBSection Q i γ a p) = 0 := by
     apply Subtype.ext
-    change eiBSection Q i γ a p - eiBSection Q i γ a (eiB Q i γ a hPQ hP _) = 0
+    change eiBSection Q i γ a p - eiBSection Q i γ a (eiB Q i γ a hsym _) = 0
     rw [eiB_eiBSection, sub_self]
-  change lowerVerticalKernelInv Q i γ a hPQ hP (eiBKernelPart Q i γ a hPQ hP _) = _
+  change lowerVerticalKernelInv Q i γ a hsym (eiBKernelPart Q i γ a hsym _) = _
   rw [hk, map_zero]
 
 /-- The actual cut tensor is the k-linear sum of its lower tensor and polynomial parts.
 This does not assert a graded or bimodule splitting. -/
 def eiBSplitEquiv : (KOnePrime Q i γ a × Polynomial Rl) ≃ₗ[k] EIKOne Q i β a where
   toFun x := lowerVertical Q i γ a x.1 + eiBSection Q i γ a x.2
-  invFun z := (eiBLowerProjection Q i γ a hPQ hP z, eiB Q i γ a hPQ hP z)
+  invFun z := (eiBLowerProjection Q i γ a hsym z, eiB Q i γ a hsym z)
   left_inv x := by
     apply Prod.ext
     · simp only [map_add, eiBLowerProjection_lowerVertical, eiBLowerProjection_section, add_zero]
     · simp only [map_add, eiB_lowerVertical, eiB_eiBSection, zero_add]
   right_inv z := by
-    change lowerVertical Q i γ a (eiBLowerProjection Q i γ a hPQ hP z) +
-      eiBSection Q i γ a (eiB Q i γ a hPQ hP z) = z
+    change lowerVertical Q i γ a (eiBLowerProjection Q i γ a hsym z) +
+      eiBSection Q i γ a (eiB Q i γ a hsym z) = z
     rw [lowerVertical_eiBLowerProjection, sub_add_cancel]
   map_add' x y := by simp only [Prod.fst_add, Prod.snd_add, map_add]; abel
   map_smul' c x := by simp only [Prod.smul_fst, Prod.smul_snd, map_smul, smul_add, RingHom.id_apply]
 
 @[simp] theorem eiBSplitEquiv_apply (t : KOnePrime Q i γ a) (p : Polynomial Rl) :
-    eiBSplitEquiv Q i γ a hPQ hP (t, p) = lowerVertical Q i γ a t + eiBSection Q i γ a p := rfl
+    eiBSplitEquiv Q i γ a hsym (t, p) = lowerVertical Q i γ a t + eiBSection Q i γ a p := rfl
 
 @[simp] theorem eiBSplitEquiv_symm_apply (z : EIKOne Q i β a) :
-    (eiBSplitEquiv Q i γ a hPQ hP).symm z =
-      (eiBLowerProjection Q i γ a hPQ hP z, eiB Q i γ a hPQ hP z) := rfl
+    (eiBSplitEquiv Q i γ a hsym).symm z =
+      (eiBLowerProjection Q i γ a hsym z, eiB Q i γ a hsym z) := rfl
 
 theorem eiBSplitEquiv_lower (t : KOnePrime Q i γ a) :
-    eiBSplitEquiv Q i γ a hPQ hP (t, 0) = lowerVertical Q i γ a t := by
+    eiBSplitEquiv Q i γ a hsym (t, 0) = lowerVertical Q i γ a t := by
   rw [eiBSplitEquiv_apply, map_zero, add_zero]
 
 theorem eiBSplitEquiv_polynomial (p : Polynomial Rl) :
-    eiBSplitEquiv Q i γ a hPQ hP (0, p) = eiBSection Q i γ a p := by
+    eiBSplitEquiv Q i γ a hsym (0, p) = eiBSection Q i γ a p := by
   rw [eiBSplitEquiv_apply, map_zero, zero_add]
 
 theorem eiBSplitEquiv_projection (x : KOnePrime Q i γ a × Polynomial Rl) :
-    eiB Q i γ a hPQ hP (eiBSplitEquiv Q i γ a hPQ hP x) = x.2 := by
-  change eiB Q i γ a hPQ hP (lowerVertical Q i γ a x.1 + eiBSection Q i γ a x.2) = _
+    eiB Q i γ a hsym (eiBSplitEquiv Q i γ a hsym x) = x.2 := by
+  change eiB Q i γ a hsym (lowerVertical Q i γ a x.1 + eiBSection Q i γ a x.2) = _
   rw [map_add, eiB_lowerVertical, eiB_eiBSection, zero_add]
 
 /-- Remove the explicit polynomial summand, retaining an element of the actual kernel. -/
-def eiCKernelPart : EIKZero Q i β a →ₗ[k] LinearMap.ker (eiC Q i γ a hPQ hP) :=
-  (LinearMap.id - (eiCSection Q i γ a).comp (eiC Q i γ a hPQ hP)).codRestrict _ (by
+def eiCKernelPart : EIKZero Q i β a →ₗ[k] LinearMap.ker (eiC Q i γ a hsym) :=
+  (LinearMap.id - (eiCSection Q i γ a).comp (eiC Q i γ a hsym)).codRestrict _ (by
     intro z
-    change eiC Q i γ a hPQ hP (z - eiCSection Q i γ a (eiC Q i γ a hPQ hP z)) = 0
+    change eiC Q i γ a hsym (z - eiCSection Q i γ a (eiC Q i γ a hsym z)) = 0
     rw [map_sub, eiC_eiCSection, sub_self])
 
 /-- The lower tensor coordinate uses the previously constructed kernel inverse. -/
 def eiCLowerProjection : EIKZero Q i β a →ₗ[k] KZeroPrime Q i γ a :=
-  (lowerFKernelInv Q i γ a hPQ hP).comp (eiCKernelPart Q i γ a hPQ hP)
+  (lowerFKernelInv Q i γ a hsym).comp (eiCKernelPart Q i γ a hsym)
 
 theorem lowerF_eiCLowerProjection (z : EIKZero Q i β a) :
-    lowerF Q i γ a (eiCLowerProjection Q i γ a hPQ hP z) =
-      z - eiCSection Q i γ a (eiC Q i γ a hPQ hP z) :=
-  lowerF_kernelInv Q i γ a hPQ hP (eiCKernelPart Q i γ a hPQ hP z)
+    lowerF Q i γ a (eiCLowerProjection Q i γ a hsym z) =
+      z - eiCSection Q i γ a (eiC Q i γ a hsym z) :=
+  lowerF_kernelInv Q i γ a hsym (eiCKernelPart Q i γ a hsym z)
 
 @[simp] theorem eiCLowerProjection_lowerF (t : KZeroPrime Q i γ a) :
-    eiCLowerProjection Q i γ a hPQ hP (lowerF Q i γ a t) = t := by
-  have hk : eiCKernelPart Q i γ a hPQ hP (lowerF Q i γ a t) =
-      ⟨lowerF Q i γ a t, eiC_lowerF Q i γ a hPQ hP t⟩ := by
+    eiCLowerProjection Q i γ a hsym (lowerF Q i γ a t) = t := by
+  have hk : eiCKernelPart Q i γ a hsym (lowerF Q i γ a t) =
+      ⟨lowerF Q i γ a t, eiC_lowerF Q i γ a hsym t⟩ := by
     apply Subtype.ext
-    change lowerF Q i γ a t - eiCSection Q i γ a (eiC Q i γ a hPQ hP _) = _
+    change lowerF Q i γ a t - eiCSection Q i γ a (eiC Q i γ a hsym _) = _
     rw [eiC_lowerF, map_zero, sub_zero]
-  change lowerFKernelInv Q i γ a hPQ hP (eiCKernelPart Q i γ a hPQ hP _) = _
+  change lowerFKernelInv Q i γ a hsym (eiCKernelPart Q i γ a hsym _) = _
   rw [hk, lowerFKernelInv_forward]
 
 @[simp] theorem eiCLowerProjection_section (p : Polynomial Rl) :
-    eiCLowerProjection Q i γ a hPQ hP (eiCSection Q i γ a p) = 0 := by
-  have hk : eiCKernelPart Q i γ a hPQ hP (eiCSection Q i γ a p) = 0 := by
+    eiCLowerProjection Q i γ a hsym (eiCSection Q i γ a p) = 0 := by
+  have hk : eiCKernelPart Q i γ a hsym (eiCSection Q i γ a p) = 0 := by
     apply Subtype.ext
-    change eiCSection Q i γ a p - eiCSection Q i γ a (eiC Q i γ a hPQ hP _) = 0
+    change eiCSection Q i γ a p - eiCSection Q i γ a (eiC Q i γ a hsym _) = 0
     rw [eiC_eiCSection, sub_self]
-  change lowerFKernelInv Q i γ a hPQ hP (eiCKernelPart Q i γ a hPQ hP _) = _
+  change lowerFKernelInv Q i γ a hsym (eiCKernelPart Q i γ a hsym _) = _
   rw [hk, map_zero]
 
 /-- The actual cut tensor is the k-linear sum of its lower tensor and polynomial parts.
 This does not assert a graded or bimodule splitting. -/
 def eiCSplitEquiv : (KZeroPrime Q i γ a × Polynomial Rl) ≃ₗ[k] EIKZero Q i β a where
   toFun x := lowerF Q i γ a x.1 + eiCSection Q i γ a x.2
-  invFun z := (eiCLowerProjection Q i γ a hPQ hP z, eiC Q i γ a hPQ hP z)
+  invFun z := (eiCLowerProjection Q i γ a hsym z, eiC Q i γ a hsym z)
   left_inv x := by
     apply Prod.ext
     · simp only [map_add, eiCLowerProjection_lowerF, eiCLowerProjection_section, add_zero]
     · simp only [map_add, eiC_lowerF, eiC_eiCSection, zero_add]
   right_inv z := by
-    change lowerF Q i γ a (eiCLowerProjection Q i γ a hPQ hP z) +
-      eiCSection Q i γ a (eiC Q i γ a hPQ hP z) = z
+    change lowerF Q i γ a (eiCLowerProjection Q i γ a hsym z) +
+      eiCSection Q i γ a (eiC Q i γ a hsym z) = z
     rw [lowerF_eiCLowerProjection, sub_add_cancel]
   map_add' x y := by simp only [Prod.fst_add, Prod.snd_add, map_add]; abel
   map_smul' c x := by simp only [Prod.smul_fst, Prod.smul_snd, map_smul, smul_add, RingHom.id_apply]
 
 @[simp] theorem eiCSplitEquiv_apply (t : KZeroPrime Q i γ a) (p : Polynomial Rl) :
-    eiCSplitEquiv Q i γ a hPQ hP (t, p) = lowerF Q i γ a t + eiCSection Q i γ a p := rfl
+    eiCSplitEquiv Q i γ a hsym (t, p) = lowerF Q i γ a t + eiCSection Q i γ a p := rfl
 
 @[simp] theorem eiCSplitEquiv_symm_apply (z : EIKZero Q i β a) :
-    (eiCSplitEquiv Q i γ a hPQ hP).symm z =
-      (eiCLowerProjection Q i γ a hPQ hP z, eiC Q i γ a hPQ hP z) := rfl
+    (eiCSplitEquiv Q i γ a hsym).symm z =
+      (eiCLowerProjection Q i γ a hsym z, eiC Q i γ a hsym z) := rfl
 
 theorem eiCSplitEquiv_lower (t : KZeroPrime Q i γ a) :
-    eiCSplitEquiv Q i γ a hPQ hP (t, 0) = lowerF Q i γ a t := by
+    eiCSplitEquiv Q i γ a hsym (t, 0) = lowerF Q i γ a t := by
   rw [eiCSplitEquiv_apply, map_zero, add_zero]
 
 theorem eiCSplitEquiv_polynomial (p : Polynomial Rl) :
-    eiCSplitEquiv Q i γ a hPQ hP (0, p) = eiCSection Q i γ a p := by
+    eiCSplitEquiv Q i γ a hsym (0, p) = eiCSection Q i γ a p := by
   rw [eiCSplitEquiv_apply, map_zero, zero_add]
 
 theorem eiCSplitEquiv_projection (x : KZeroPrime Q i γ a × Polynomial Rl) :
-    eiC Q i γ a hPQ hP (eiCSplitEquiv Q i γ a hPQ hP x) = x.2 := by
-  change eiC Q i γ a hPQ hP (lowerF Q i γ a x.1 + eiCSection Q i γ a x.2) = _
+    eiC Q i γ a hsym (eiCSplitEquiv Q i γ a hsym x) = x.2 := by
+  change eiC Q i γ a hsym (lowerF Q i γ a x.1 + eiCSection Q i γ a x.2) = _
   rw [map_add, eiC_lowerF, eiC_eiCSection, zero_add]
 
 /-- The explicit lower/polynomial decoder followed by reconstruction is the identity. -/
 theorem eiBSplitEquiv_forward_inverse (z : EIKOne Q i β a) :
-    eiBSplitEquiv Q i γ a hPQ hP
-      (eiBLowerProjection Q i γ a hPQ hP z, eiB Q i γ a hPQ hP z) = z :=
-  (eiBSplitEquiv Q i γ a hPQ hP).apply_symm_apply z
+    eiBSplitEquiv Q i γ a hsym
+      (eiBLowerProjection Q i γ a hsym z, eiB Q i γ a hsym z) = z :=
+  (eiBSplitEquiv Q i γ a hsym).apply_symm_apply z
 
 /-- Reconstruction followed by the explicit lower/polynomial decoder is the identity. -/
 theorem eiBSplitEquiv_inverse_forward (x : KOnePrime Q i γ a × Polynomial Rl) :
-    (eiBLowerProjection Q i γ a hPQ hP (lowerVertical Q i γ a x.1 + eiBSection Q i γ a x.2),
-      eiB Q i γ a hPQ hP (lowerVertical Q i γ a x.1 + eiBSection Q i γ a x.2)) = x :=
-  (eiBSplitEquiv Q i γ a hPQ hP).symm_apply_apply x
+    (eiBLowerProjection Q i γ a hsym (lowerVertical Q i γ a x.1 + eiBSection Q i γ a x.2),
+      eiB Q i γ a hsym (lowerVertical Q i γ a x.1 + eiBSection Q i γ a x.2)) = x :=
+  (eiBSplitEquiv Q i γ a hsym).symm_apply_apply x
 
 /-- The explicit lower/polynomial decoder followed by reconstruction is the identity. -/
 theorem eiCSplitEquiv_forward_inverse (z : EIKZero Q i β a) :
-    eiCSplitEquiv Q i γ a hPQ hP
-      (eiCLowerProjection Q i γ a hPQ hP z, eiC Q i γ a hPQ hP z) = z :=
-  (eiCSplitEquiv Q i γ a hPQ hP).apply_symm_apply z
+    eiCSplitEquiv Q i γ a hsym
+      (eiCLowerProjection Q i γ a hsym z, eiC Q i γ a hsym z) = z :=
+  (eiCSplitEquiv Q i γ a hsym).apply_symm_apply z
 
 /-- Reconstruction followed by the explicit lower/polynomial decoder is the identity. -/
 theorem eiCSplitEquiv_inverse_forward (x : KZeroPrime Q i γ a × Polynomial Rl) :
-    (eiCLowerProjection Q i γ a hPQ hP (lowerF Q i γ a x.1 + eiCSection Q i γ a x.2),
-      eiC Q i γ a hPQ hP (lowerF Q i γ a x.1 + eiCSection Q i γ a x.2)) = x :=
-  (eiCSplitEquiv Q i γ a hPQ hP).symm_apply_apply x
+    (eiCLowerProjection Q i γ a hsym (lowerF Q i γ a x.1 + eiCSection Q i γ a x.2),
+      eiC Q i γ a hsym (lowerF Q i γ a x.1 + eiCSection Q i γ a x.2)) = x :=
+  (eiCSplitEquiv Q i γ a hsym).symm_apply_apply x
 
 end Categorification.KLR.KLRAlgebra

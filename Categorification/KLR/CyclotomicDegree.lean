@@ -24,14 +24,14 @@ below, do not impose that restriction.
 namespace Categorification.KLR.KLRAlgebra
 open MvPolynomial Polynomial QuantumGroup QuantumGroup.UDot
 
-variable {I : Type*} [DecidableEq I] {k : Type*} [CommRing k] [IsDomain k]
-  {Q P : I → I → MvPolynomial (Fin 2) k} (i : I) (β : Multiset I)
+variable {I : Type*} [DecidableEq I] {k : Type*} [CommRing k]
+  {Q : I → I → MvPolynomial (Fin 2) k} (i : I) (β : Multiset I)
   (a : I → Polynomial k)
   {C : CartanDatum I} {X Y : Type*} [AddCommGroup X] [AddCommGroup Y]
   (RD : RootDatum C X Y) (Λ : X)
 
 /-- A degree bound and a unit extremal coefficient determine the parameter degree. -/
-theorem natDegree_polyInY_of_bounds (q : MvPolynomial (Fin 2) k) (d : ℕ)
+theorem natDegree_polyInY_of_bounds [Nontrivial k] (q : MvPolynomial (Fin 2) k) (d : ℕ)
     (hbound : (polyInY q).degree ≤ d) (htop : IsUnit ((polyInY q).coeff d)) :
     (polyInY q).natDegree = d :=
   Polynomial.natDegree_eq_of_le_of_coeff_ne_zero
@@ -39,7 +39,7 @@ theorem natDegree_polyInY_of_bounds (q : MvPolynomial (Fin 2) k) (d : ℕ)
 
 omit [DecidableEq I] in
 /-- KK's second-variable degree follows from the degree bound and extremal-unit condition. -/
-theorem polyInY_degree_eq_neg_pair (j : I) (hji : j ≠ i)
+theorem polyInY_degree_eq_neg_pair [Nontrivial k] (j : I) (hji : j ≠ i)
     (hbound : (polyInY (Q j i)).degree ≤ (-RD.pair (RD.iY i) (RD.iX j)).toNat)
     (htop : IsUnit ((polyInY (Q j i)).coeff (-RD.pair (RD.iY i) (RD.iX j)).toNat)) :
     ((polyInY (Q j i)).natDegree : ℤ) = -RD.pair (RD.iY i) (RD.iX j) := by
@@ -50,7 +50,6 @@ theorem polyInY_degree_eq_neg_pair (j : I) (hji : j ≠ i)
   have := C.dot_nonpos i j (Ne.symm hji)
   nlinarith
 
-omit [IsDomain k] in
 /-- The formal degree gap is the weight pairing under the actual parameter-degree conditions.
 The second-variable degree of `Q j i` uses the Cartan entry with indices `i,j`. -/
 theorem degA_sub_count_eq_pair
@@ -87,8 +86,8 @@ theorem degA_sub_count_eq_pair
 
 /-- The gap of the actual two monic polynomials, not only their formal expected degrees. -/
 theorem aMonicL_degree_gap [Nontrivial (CycKLR k Q a β)]
-    (hsym : ∀ a b, a ≠ b → Q b a = rename ![1, 0] (Q a b))
-    (hQ : ∀ a b : I, a ≠ b → IsUnit (polyInY (Q a b)).leadingCoeff)
+    (hsym : KLRSymm Q)
+    (hQ : ∀ a b : I, a ≠ b → ∃ c : k, IsUnit c ∧ (polyInY (Q a b)).leadingCoeff = Polynomial.C c)
     (ha : (a i).Monic)
     (hΛ : ((a i).natDegree : ℤ) = RD.pair (RD.iY i) Λ)
     (hdeg : ∀ j, j ≠ i → ((polyInY (Q j i)).natDegree : ℤ) =
@@ -101,10 +100,9 @@ theorem aMonicL_degree_gap [Nontrivial (CycKLR k Q a β)]
 section ActualMap
 
 variable
-  (hPQ : ∀ a b, a ≠ b → Q a b = P b a * rename ![1, 0] (P a b))
-  (hP : ∀ a b, a ≠ b → P a b ≠ 0)
+  (hsym : KLRSymm Q)
   (hβ : 0 < Multiset.card β)
-  (hQ : ∀ i j : I, i ≠ j → IsUnit (polyInY (Q i j)).leadingCoeff)
+  (hQ : ∀ i j : I, i ≠ j → ∃ c : k, IsUnit c ∧ (polyInY (Q i j)).leadingCoeff = Polynomial.C c)
   (ha : ∀ i, (a i).Monic)
   (h1 : 1 < Multiset.card ((Singleton.singleton i : Multiset I) + β))
   (hΛ : ((a i).natDegree : ℤ) = RD.pair (RD.iY i) Λ)
@@ -112,7 +110,7 @@ variable
     -RD.pair (RD.iY i) (RD.iX j))
 
 local notation "Rl" => CycKLR k Q a β
-local notation "Amap" => aMap i β a h1 hβ hPQ hP
+local notation "Amap" => aMap i β a h1 hβ hsym
 local notation "wt" => RD.pair (RD.iY i) (Λ - Multiset.sum (Multiset.map RD.iX β))
 
 include hQ ha hΛ hdeg in
@@ -120,8 +118,8 @@ include hQ ha hΛ hdeg in
 theorem aMap_X_pow_eq_zero_of_pair_neg (j : ℕ) (hj : wt + j < 0) :
     Amap (Polynomial.X ^ j) = 0 := by
   nontriviality Rl
-  have hd := aMonicL_degree_gap i β a RD Λ (sym_of_factor hPQ) hQ (ha i) hΛ hdeg
-  exact (aMap_phi_spec i β a hPQ hP hβ hQ ha h1).1 j (by omega)
+  have hd := aMonicL_degree_gap i β a RD Λ hsym hQ (ha i) hΛ hdeg
+  exact (aMap_phi_spec i β a hsym hβ hQ ha h1).1 j (by omega)
 
 include hQ ha hΛ hdeg in
 /-- KK Proposition 5.3(b) with the actual Cartan pairing and actual normalized polynomial. -/
@@ -129,8 +127,8 @@ theorem aMap_X_pow_monic_degree_of_pair_nonneg [Nontrivial Rl]
     (j : ℕ) (hj : 0 ≤ wt + j) :
     (Ring.inverse (lamA Q i β) • Amap (Polynomial.X ^ j)).Monic ∧
       ((Ring.inverse (lamA Q i β) • Amap (Polynomial.X ^ j)).natDegree : ℤ) = wt + j := by
-  have hd := aMonicL_degree_gap i β a RD Λ (sym_of_factor hPQ) hQ (ha i) hΛ hdeg
-  obtain ⟨hm, hmd⟩ := (aMap_phi_spec i β a hPQ hP hβ hQ ha h1).2 j (by omega)
+  have hd := aMonicL_degree_gap i β a RD Λ hsym hQ (ha i) hΛ hdeg
+  obtain ⟨hm, hmd⟩ := (aMap_phi_spec i β a hsym hβ hQ ha h1).2 j (by omega)
   exact ⟨hm, by omega⟩
 
 include hQ ha hΛ hdeg in
@@ -138,8 +136,8 @@ include hQ ha hΛ hdeg in
 This is not yet the asserted inverse of the bimodule map in KK Theorem 5.2. -/
 theorem aMap_injective_of_pair_nonneg (hwt : 0 ≤ wt) : Function.Injective Amap := by
   nontriviality Rl
-  have hd := aMonicL_degree_gap i β a RD Λ (sym_of_factor hPQ) hQ (ha i) hΛ hdeg
-  exact aMap_injective_of_degree_le i β a hPQ hP hβ hQ ha h1 (by omega)
+  have hd := aMonicL_degree_gap i β a RD Λ hsym hQ (ha i) hΛ hdeg
+  exact aMap_injective_of_degree_le i β a hsym hβ hQ ha h1 (by omega)
 
 include hQ ha hΛ hdeg in
 /-- Nonpositive weight gives surjectivity of the actual polynomial map, including a zero quotient. -/
@@ -147,8 +145,8 @@ theorem aMap_surjective_of_pair_nonpos (hwt : wt ≤ 0) : Function.Surjective Am
   rcases subsingleton_or_nontrivial Rl with h | h
   · intro q
     exact ⟨0, Subsingleton.elim _ _⟩
-  · have hd := aMonicL_degree_gap i β a RD Λ (sym_of_factor hPQ) hQ (ha i) hΛ hdeg
-    exact aMap_surjective_of_degree_le i β a hPQ hP hβ hQ ha h1 (by omega)
+  · have hd := aMonicL_degree_gap i β a RD Λ hsym hQ (ha i) hΛ hdeg
+    exact aMap_surjective_of_degree_le i β a hsym hβ hQ ha h1 (by omega)
 
 end ActualMap
 

@@ -204,7 +204,7 @@ theorem ψ_mul_tauProd (j r : ℕ) (hj : r + 1 ≤ j) :
 
 section hsym
 
-variable (hsym : ∀ a b, a ≠ b → Q b a = rename ![1, 0] (Q a b))
+variable (hsym : KLRSymm Q)
 include hsym
 
 theorem x_mul_gInt' (j : ℕ) (h : j + 1 < m) (b : Fin m) :
@@ -413,7 +413,7 @@ theorem pol_mul_pol_assoc (f g : MvPolynomial (Fin m) k) (y : A) :
 
 section hsym
 
-variable (hsym : ∀ a b, a ≠ b → Q b a = rename ![1, 0] (Q a b))
+variable (hsym : KLRSymm Q)
 include hsym
 
 theorem pol_mul_gProd_assoc (r : ℕ) (hr : r < m) (f : MvPolynomial (Fin m) k) (y : A) :
@@ -795,7 +795,7 @@ theorem bracket_two (j : ℕ) (hj : j + 1 < m) (hj1 : 1 ≤ j) {s : Seq ν}
 
 section hsym
 
-variable (hsym : ∀ a b, a ≠ b → Q b a = rename ![1, 0] (Q a b))
+variable (hsym : KLRSymm Q)
 include hsym
 
 /-- **Kang–Kashiwara, Theorem 4.15** (arXiv:1102.4677v4), in the form of an identity modulo the

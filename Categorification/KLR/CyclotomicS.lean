@@ -129,18 +129,16 @@ theorem sPoly_natDegree [Nontrivial Rl] :
   rw [sPoly_coeff_top]
   exact one_ne_zero
 
-variable [IsDomain k] {P : I → I → MvPolynomial (Fin 2) k}
-  (hPQ : ∀ a b, a ≠ b → Q a b = P b a * rename ![1, 0] (P a b))
-  (hP : ∀ a b, a ≠ b → P a b ≠ 0)
+variable (hsym : KLRSymm Q)
   (h1 : 1 < Multiset.card ((Singleton.singleton i : Multiset I) + β))
   (hβ : 0 < Multiset.card β)
 
 /-- `S X^m` is obtained by applying `B` to the dotted full intertwiner. -/
 theorem bMap_gProd_mul_first_dot_pow (m : ℕ) :
-    bMap i β hPQ hP a h1 hβ (Submodule.Quotient.mk
+    bMap i β hsym a h1 hβ (Submodule.Quotient.mk
       (gProd (Multiset.card β) * oneConcat Q Si β *
         x ⟨0, zero_lt_card_single_add i β⟩ ^ m)) = sPoly i β a * Polynomial.X ^ m := by
   rw [bMap_mk, oneConcat_single_eq, Finset.mul_sum, Finset.sum_mul, map_sum, sPoly, Finset.sum_mul]
-  exact Finset.sum_congr rfl fun s _ => bMap_gProd_cons1_mul_first_dot_pow i β a hPQ hP h1 hβ s m
+  exact Finset.sum_congr rfl fun s _ => bMap_gProd_cons1_mul_first_dot_pow i β a hsym h1 hβ s m
 
 end Categorification.KLR.KLRAlgebra

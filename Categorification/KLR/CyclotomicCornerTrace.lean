@@ -42,10 +42,8 @@ local notation "β" => (Si + γ)
 local notation "R" => CycKLR k Q a β
 local notation "M" => MiddleCyclotomic Q i γ a
 local notation "L" => LowerCyclotomic Q i γ a
-variable [IsDomain k] {P : I → I → MvPolynomial (Fin 2) k}
-  (hPQ : ∀ j l, j ≠ l → Q j l = P l j * MvPolynomial.rename ![1, 0] (P j l))
-  (hP : ∀ j l, j ≠ l → P j l ≠ 0)
-  (hQ : ∀ j l : I, j ≠ l → IsUnit (polyInY (Q j l)).leadingCoeff)
+variable (hsym : KLRSymm Q)
+  (hQ : ∀ j l : I, j ≠ l → ∃ c : k, IsUnit c ∧ (polyInY (Q j l)).leadingCoeff = Polynomial.C c)
   (ha : ∀ j, (a j).Monic)
   {C : QuantumGroup.CartanDatum I} {X Y : Type*} [AddCommGroup X] [AddCommGroup Y]
   (RD : QuantumGroup.UDot.RootDatum C X Y) (Λ : X)
@@ -53,8 +51,8 @@ variable [IsDomain k] {P : I → I → MvPolynomial (Fin 2) k}
   (hdeg : ∀ j, j ≠ i → ((polyInY (Q j i)).natDegree : ℤ) =
     -RD.pair (RD.iY i) (RD.iX j))
 local notation "wt" => RD.pair (RD.iY i) (Λ - Multiset.sum (Multiset.map RD.iX β))
-local notation "pos" => cyclotomicCommutatorBimoduleEquiv Q i γ a hPQ hP hQ ha RD Λ hΛ hdeg
-local notation "neg" => cyclotomicNegativeCommutatorBimoduleEquiv Q i γ a hPQ hP hQ ha RD Λ hΛ hdeg
+local notation "pos" => cyclotomicCommutatorBimoduleEquiv Q i γ a hsym hQ ha RD Λ hΛ hdeg
+local notation "neg" => cyclotomicNegativeCommutatorBimoduleEquiv Q i γ a hsym hQ ha RD Λ hΛ hdeg
 
 /-- Last inverse component, defined on the entire actual corner. -/
 def positive (hw : 0 < wt) : M →ₗ[R] R where
@@ -62,7 +60,7 @@ def positive (hw : 0 < wt) : M →ₗ[R] R where
   map_add' z t := by simp only [map_add, Prod.snd_add, Pi.add_apply]
   map_smul' r z := by simp only [map_smul, Prod.smul_snd, Pi.smul_apply, smul_eq_mul, RingHom.id_apply]
 
-local notation "trP" => positive Q i γ a hPQ hP hQ ha RD Λ hΛ hdeg
+local notation "trP" => positive Q i γ a hsym hQ ha RD Λ hΛ hdeg
 
 /-- Right linearity is for the actual right multiplication action on the corner. -/
 theorem positive_op_smul (hw : 0 < wt) (r : Rᵐᵒᵖ) (z : M) :
@@ -121,13 +119,13 @@ def dottedCounit (d : ℕ) : L →ₗ[R] R where
 def negativeLift (hw : wt ≤ 0) : M →ₗ[R] L :=
   (neg hw).symm.toLinearMap.comp (LinearMap.inl R M (Fin (-wt).toNat → R))
 
-local notation "liftN" => negativeLift Q i γ a hPQ hP hQ ha RD Λ hΛ hdeg
+local notation "liftN" => negativeLift Q i γ a hsym hQ ha RD Λ hΛ hdeg
 
 /-- Dotted multiplication after the prescribed inverse, including weight zero. -/
 def nonpositive (hw : wt ≤ 0) : M →ₗ[R] R :=
   (dottedCounit Q i γ a (-wt).toNat).comp (liftN hw)
 
-local notation "trN" => nonpositive Q i γ a hPQ hP hQ ha RD Λ hΛ hdeg
+local notation "trN" => nonpositive Q i γ a hsym hQ ha RD Λ hΛ hdeg
 
 theorem negativeLift_spec (hw : wt ≤ 0) (z : M) :
     cyclotomicSigma Q i γ a (liftN hw z) = z ∧
@@ -158,16 +156,16 @@ theorem nonpositive_crossing_normalized (hw : wt ≤ 0) (l : L)
     (hd : ∀ d : Fin (-wt).toNat, cyclotomicDotCounit Q i γ a d l = 0) :
     trN hw (cyclotomicSigma Q i γ a l) = cyclotomicDotCounit Q i γ a (-wt).toNat l := by
   change cyclotomicDotCounit Q i γ a (-wt).toNat (liftN hw _) = _
-  rw [← negativeLift_unique Q i γ a hPQ hP hQ ha RD Λ hΛ hdeg hw _ l rfl hd]
+  rw [← negativeLift_unique Q i γ a hsym hQ ha RD Λ hΛ hdeg hw _ l rfl hd]
 
 /-- The correction is the actual connecting tensor, computed by the dotted kernel matrix. -/
 theorem negativeLift_representative (hw : wt ≤ 0) (z : M) (l : L)
     (hs : cyclotomicSigma Q i γ a l = z) :
-    liftN hw z = l + negativeConnecting Q i γ a hPQ hP hQ ha RD Λ hΛ hdeg
-      ((negativeCounitMatrixEquiv Q i γ a hPQ hP hQ ha RD Λ hΛ hdeg hw).symm
+    liftN hw z = l + negativeConnecting Q i γ a hsym hQ ha RD Λ hΛ hdeg
+      ((negativeCounitMatrixEquiv Q i γ a hsym hQ ha RD Λ hΛ hdeg hw).symm
         (-(fun d : Fin (-wt).toNat => cyclotomicDotCounit Q i γ a d l))) := by
-  change (cyclotomicNegativeCommutatorEquiv Q i γ a hPQ hP hQ ha RD Λ hΛ hdeg hw).symm (z,0) = _
-  rw [cyclotomicNegativeCommutator_inverse_representative Q i γ a hPQ hP hQ ha RD Λ hΛ hdeg hw z 0 l hs,
+  change (cyclotomicNegativeCommutatorEquiv Q i γ a hsym hQ ha RD Λ hΛ hdeg hw).symm (z,0) = _
+  rw [cyclotomicNegativeCommutator_inverse_representative Q i γ a hsym hQ ha RD Λ hΛ hdeg hw z 0 l hs,
     zero_sub]
 
 /-- Formula on every crossing, retaining rather than discarding its lower-kernel term. -/
@@ -175,25 +173,25 @@ theorem nonpositive_crossing (hw : wt ≤ 0) (l : L) :
     trN hw (cyclotomicSigma Q i γ a l) =
       cyclotomicDotCounit Q i γ a (-wt).toNat l +
       cyclotomicDotCounit Q i γ a (-wt).toNat
-        (negativeConnecting Q i γ a hPQ hP hQ ha RD Λ hΛ hdeg
-          ((negativeCounitMatrixEquiv Q i γ a hPQ hP hQ ha RD Λ hΛ hdeg hw).symm
+        (negativeConnecting Q i γ a hsym hQ ha RD Λ hΛ hdeg
+          ((negativeCounitMatrixEquiv Q i γ a hsym hQ ha RD Λ hΛ hdeg hw).symm
             (-(fun d : Fin (-wt).toNat => cyclotomicDotCounit Q i γ a d l)))) := by
   change cyclotomicDotCounit Q i γ a (-wt).toNat (liftN hw _) = _
-  rw [negativeLift_representative Q i γ a hPQ hP hQ ha RD Λ hΛ hdeg hw _ l rfl, map_add]
+  rw [negativeLift_representative Q i γ a hsym hQ ha RD Λ hΛ hdeg hw _ l rfl, map_add]
 
 /-- One prescribed bimodule trace on the entire actual present-colour corner. -/
 def trace : M →ₗ[R] R :=
   if hw : 0 < wt then trP hw else trN (le_of_not_gt hw)
 
-local notation "tr" => trace Q i γ a hPQ hP hQ ha RD Λ hΛ hdeg
+local notation "tr" => trace Q i γ a hsym hQ ha RD Λ hΛ hdeg
 
 theorem trace_smul (r : R) (z : M) : tr (r • z) = r * tr z := map_smul tr r z
 
 theorem trace_op_smul (r : R) (z : M) : tr (op r • z) = tr z * r := by
   unfold trace
   split
-  · exact positive_op_smul Q i γ a hPQ hP hQ ha RD Λ hΛ hdeg _ (op r) z
-  · exact nonpositive_op_smul Q i γ a hPQ hP hQ ha RD Λ hΛ hdeg _ (op r) z
+  · exact positive_op_smul Q i γ a hsym hQ ha RD Λ hΛ hdeg _ (op r) z
+  · exact nonpositive_op_smul Q i γ a hsym hQ ha RD Λ hΛ hdeg _ (op r) z
 
 /-- Both noncommutative coefficient orders are retained. -/
 theorem trace_bimodule (r s : R) (z : M) :

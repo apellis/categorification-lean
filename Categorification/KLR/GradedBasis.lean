@@ -3,6 +3,7 @@ Copyright (c) 2026 Alex Ellis. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 -/
 import Categorification.KLR.KL1Basis
+import Categorification.KLR.BasisTheoremGeneral
 import Categorification.KLR.GradedModules
 import Categorification.Algebra.Graded.HomogeneousBasis
 import Categorification.TypeA.Inversions
@@ -41,7 +42,7 @@ Khovanov–Lauda I (arXiv:0803.4121v2), §2.4–2.5. We combine the basis theore
   `gdim (1_j R(ν) 1_i) = ∑_{w • i = j} q^{- ∑_{(a,b) ∈ inv(w)} i_a · i_b} (1 - q²)^{-m}`
   (`KL1.gdim_cornerGrade`).
 
-All statements are for a field `k` and data `Q` satisfying the hypotheses of the basis theorem;
+All statements are for a field `k` and data `Q` with `Q_{ij}(u,v) = Q_{ji}(v,u)` (`KLRSymm`);
 the KL I specialisations (for a simple graph `Γ`, `klGradingDatum`) are in the namespace `KL1`.
 -/
 
@@ -256,13 +257,11 @@ end StdDeg
 section Pieces
 
 variable {k : Type*} [Field k] [DecidableEq I] {Q : I → I → MvPolynomial (Fin 2) k}
-  {P : I → I → MvPolynomial (Fin 2) k}
-  (hPQ : ∀ a b, a ≠ b → Q a b = P b a * rename ![1, 0] (P a b))
-  (hP : ∀ a b, a ≠ b → P a b ≠ 0) (G : GradingDatum Q) {ν : Multiset I}
+  (hsym : KLRSymm Q) (G : GradingDatum Q) {ν : Multiset I}
   (ρ : Perm (Fin (Multiset.card ν)) → List ℕ)
   (hρ : ∀ w, IsReduced (Multiset.card ν) (ρ w) ∧ wordProd (Multiset.card ν) (ρ w) = w)
 
-include hPQ hP hρ
+include hsym hρ
 
 namespace GradingDatum
 
@@ -270,18 +269,18 @@ namespace GradingDatum
 `stdDeg`. -/
 theorem basis_mem_grade
     (b : Seq ν × Perm (Fin (Multiset.card ν)) × (Fin (Multiset.card ν) →₀ ℕ)) :
-    KLRAlgebra.basis hPQ hP ρ hρ b ∈ G.grade ν (G.stdDeg ρ b) := by
-  rw [basis_apply]
+    KLRAlgebra.basisOfSymm hsym ρ hρ b ∈ G.grade ν (G.stdDeg ρ b) := by
+  rw [basisOfSymm_apply]
   exact G.stdElt_mem_grade ρ b
 
 theorem span_basis_univ :
-    Submodule.span k (KLRAlgebra.basis hPQ hP ρ hρ '' Set.univ) = ⊤ := by
+    Submodule.span k (KLRAlgebra.basisOfSymm hsym ρ hρ '' Set.univ) = ⊤ := by
   rw [Set.image_univ, Module.Basis.span_eq]
 
 /-- **`R(ν)_d` is spanned by the basis elements of degree `d`.** -/
 theorem grade_eq_span (d : ℤ) :
-    G.grade ν d = Submodule.span k (KLRAlgebra.basis hPQ hP ρ hρ '' {b | G.stdDeg ρ b = d}) := by
-  have h := inf_span_eq (G.grade ν) (G.stdDeg ρ) (G.basis_mem_grade hPQ hP ρ hρ) Set.univ d
+    G.grade ν d = Submodule.span k (KLRAlgebra.basisOfSymm hsym ρ hρ '' {b | G.stdDeg ρ b = d}) := by
+  have h := inf_span_eq (G.grade ν) (G.stdDeg ρ) (G.basis_mem_grade hsym ρ hρ) Set.univ d
   rw [span_basis_univ, inf_top_eq] at h
   rw [h]
   congr 2
@@ -293,8 +292,8 @@ of degree `d` (when all dots have positive degree). -/
 theorem finrank_grade (hX : ∀ a, 0 < G.degX a) (d : ℤ) :
     Module.finrank k (G.grade ν d) = Nat.card {b | G.stdDeg ρ b = d} := by
   have h := finrank_inf_span (G.grade ν) (G.stdDeg ρ)
-    (KLRAlgebra.basis hPQ hP ρ hρ).linearIndependent
-    (G.basis_mem_grade hPQ hP ρ hρ) Set.univ d (by simpa using G.finite_stdDeg_eq ρ hX d)
+    (KLRAlgebra.basisOfSymm hsym ρ hρ).linearIndependent
+    (G.basis_mem_grade hsym ρ hρ) Set.univ d (by simpa using G.finite_stdDeg_eq ρ hX d)
   rw [span_basis_univ, inf_top_eq] at h
   rw [h]
   simp
@@ -302,7 +301,7 @@ theorem finrank_grade (hX : ∀ a, 0 < G.degX a) (d : ℤ) :
 /-- **`R(ν)` has a graded dimension**: its graded pieces are finite-dimensional and vanish in
 sufficiently negative degrees, when all dots have positive degree. -/
 theorem hasGdim_grade (hX : ∀ a, 0 < G.degX a) : HasGdim (G.grade ν) := by
-  have h := hasGdim_inf_span (G.grade ν) (G.stdDeg ρ) (G.basis_mem_grade hPQ hP ρ hρ) Set.univ
+  have h := hasGdim_inf_span (G.grade ν) (G.stdDeg ρ) (G.basis_mem_grade hsym ρ hρ) Set.univ
     (fun d => by simpa using G.finite_stdDeg_eq ρ hX d)
     (G.bddBelow_stdDeg ρ (fun a => (hX a).le) _)
   simp only [span_basis_univ, inf_top_eq] at h
@@ -313,7 +312,7 @@ theorem hasGdim_grade (hX : ∀ a, 0 < G.degX a) : HasGdim (G.grade ν) := by
 theorem grade_eq_bot_of_lt (hX : ∀ a, 0 ≤ G.degX a) {d : ℤ}
     (hd : ∀ (i : Seq ν) (w : Perm (Fin (Multiset.card ν))), d < G.degW (ρ w) i) :
     G.grade ν d = ⊥ := by
-  rw [G.grade_eq_span hPQ hP ρ hρ d]
+  rw [G.grade_eq_span hsym ρ hρ d]
   have : {b | G.stdDeg ρ b = d} = ∅ := Set.eq_empty_iff_forall_notMem.2 fun b hb => by
     have h1 := G.degW_le_stdDeg ρ hX b
     have h2 := hd b.1 b.2.1
@@ -326,26 +325,26 @@ theorem grade_eq_bot_of_lt (hX : ∀ a, 0 ≤ G.degX a) {d : ℤ}
 /-- The span of the basis elements `ψ_{ρ w} x^u 1_i` with `(i, w) ∈ F`. -/
 noncomputable def spanF (F : Finset (Seq ν × Perm (Fin (Multiset.card ν)))) :
     Submodule k (KLRAlgebra k Q ν) :=
-  Submodule.span k (KLRAlgebra.basis hPQ hP ρ hρ '' {b | (b.1, b.2.1) ∈ F})
+  Submodule.span k (KLRAlgebra.basisOfSymm hsym ρ hρ '' {b | (b.1, b.2.1) ∈ F})
 
 /-- `R(ν)_d ∩ span F` is spanned by the basis elements of degree `d` with `(i, w) ∈ F`, and
 the family `d ↦ R(ν)_d ∩ span F` has a graded dimension. -/
 theorem hasGdim_spanF (hX : ∀ a, 0 < G.degX a)
     (F : Finset (Seq ν × Perm (Fin (Multiset.card ν)))) :
-    HasGdim fun d => (G.grade ν d ⊓ spanF hPQ hP ρ hρ F : Submodule k (KLRAlgebra k Q ν)) :=
-  hasGdim_inf_span (G.grade ν) (G.stdDeg ρ) (G.basis_mem_grade hPQ hP ρ hρ) _
+    HasGdim fun d => (G.grade ν d ⊓ spanF hsym ρ hρ F : Submodule k (KLRAlgebra k Q ν)) :=
+  hasGdim_inf_span (G.grade ν) (G.stdDeg ρ) (G.basis_mem_grade hsym ρ hρ) _
     (fun d => (G.finite_stdDeg_eq ρ hX d).subset fun _ hb => hb.2)
     (G.bddBelow_stdDeg ρ (fun a => (hX a).le) _)
 
 /-- **Graded dimension of the span of basis elements with `(i, w) ∈ F`**:
 `∑_{(i, w) ∈ F} q^{deg(ψ_{ρ w} 1_i)} ∏_a (1 - q^{deg x_{a,i}})⁻¹`. -/
 theorem gdim_spanF (hX : ∀ a, 0 < G.degX a) (F : Finset (Seq ν × Perm (Fin (Multiset.card ν)))) :
-    gdim (fun d => (G.grade ν d ⊓ spanF hPQ hP ρ hρ F : Submodule k (KLRAlgebra k Q ν))) =
+    gdim (fun d => (G.grade ν d ⊓ spanF hsym ρ hρ F : Submodule k (KLRAlgebra k Q ν))) =
       ∑ p ∈ F, HahnSeries.single (G.degW (ρ p.2) p.1) 1 *
         ∏ a, geomSeries (G.degX (p.1.lbl a)) := by
   ext d
   rw [spanF, coeff_gdim_inf_span (G.grade ν) (G.stdDeg ρ)
-    (KLRAlgebra.basis hPQ hP ρ hρ).linearIndependent (G.basis_mem_grade hPQ hP ρ hρ) _
+    (KLRAlgebra.basisOfSymm hsym ρ hρ).linearIndependent (G.basis_mem_grade hsym ρ hρ) _
     (fun d => (G.finite_stdDeg_eq ρ hX d).subset fun _ hb => hb.2)
     (G.bddBelow_stdDeg ρ (fun a => (hX a).le) _) d]
   rw [show {x | x ∈ {b : Seq ν × Perm (Fin (Multiset.card ν)) × (Fin (Multiset.card ν) →₀ ℕ) |
@@ -355,8 +354,8 @@ theorem gdim_spanF (hX : ∀ a, 0 < G.degX a) (F : Finset (Seq ν × Perm (Fin (
   rw [← sub_add_cancel d (G.degW (ρ p.2) p.1), HahnSeries.coeff_single_mul_add, one_mul,
     coeff_prod_geomSeries _ (fun a => hX _), add_sub_cancel_right]
 
-theorem spanF_univ : spanF hPQ hP ρ hρ Finset.univ = ⊤ := by
-  rw [spanF, ← span_basis_univ hPQ hP ρ hρ]
+theorem spanF_univ : spanF hsym ρ hρ Finset.univ = ⊤ := by
+  rw [spanF, ← span_basis_univ hsym ρ hρ]
   congr 2
   ext b
   simp
@@ -366,14 +365,14 @@ theorem spanF_univ : spanF hPQ hP ρ hρ Finset.univ = ⊤ := by
 theorem gdim_grade (hX : ∀ a, 0 < G.degX a) :
     gdim (G.grade ν) = ∑ i : Seq ν, ∑ w : Perm (Fin (Multiset.card ν)),
       HahnSeries.single (G.degW (ρ w) i) 1 * ∏ a, geomSeries (G.degX (i.lbl a)) := by
-  have h := G.gdim_spanF hPQ hP ρ hρ hX Finset.univ
+  have h := G.gdim_spanF hsym ρ hρ hX Finset.univ
   simp only [spanF_univ, inf_top_eq] at h
   rw [h, ← Finset.univ_product_univ, Finset.sum_product]
 
 /-- The corner `1_j R(ν) 1_i` is the span of the basis elements `ψ_{ρ w} x^u 1_i` with
 `w • i = j`. -/
 theorem spanF_corner (j i : Seq ν) :
-    spanF hPQ hP ρ hρ ({i} ×ˢ Finset.univ.filter fun w => w • i = j) = corner j i := by
+    spanF hsym ρ hρ ({i} ×ˢ Finset.univ.filter fun w => w • i = j) = corner j i := by
   rw [spanF, ← span_cornerElt ρ hρ j i]
   congr 1
   ext r
@@ -381,14 +380,14 @@ theorem spanF_corner (j i : Seq ν) :
     Finset.mem_filter, Finset.mem_univ, true_and, Set.mem_range]
   constructor
   · rintro ⟨⟨i', w, u⟩, ⟨rfl, hw⟩, rfl⟩
-    exact ⟨(⟨w, hw⟩, u), by rw [basis_apply]; rfl⟩
+    exact ⟨(⟨w, hw⟩, u), by rw [basisOfSymm_apply]; rfl⟩
   · rintro ⟨⟨⟨w, hw⟩, u⟩, rfl⟩
-    exact ⟨(i, w, u), ⟨rfl, hw⟩, by rw [basis_apply]; rfl⟩
+    exact ⟨(i, w, u), ⟨rfl, hw⟩, by rw [basisOfSymm_apply]; rfl⟩
 
 /-- **`1_j R(ν) 1_i` has a graded dimension.** -/
 theorem hasGdim_cornerGrade (hX : ∀ a, 0 < G.degX a) (j i : Seq ν) :
     HasGdim (G.cornerGrade j i) := by
-  have h := G.hasGdim_spanF hPQ hP ρ hρ hX ({i} ×ˢ Finset.univ.filter fun w => w • i = j)
+  have h := G.hasGdim_spanF hsym ρ hρ hX ({i} ×ˢ Finset.univ.filter fun w => w • i = j)
   simp only [spanF_corner] at h
   exact h
 
@@ -398,7 +397,7 @@ where `(1 - q^d)⁻¹ = geomSeries d` (`one_sub_mul_geomSeries`). -/
 theorem gdim_cornerGrade (hX : ∀ a, 0 < G.degX a) (j i : Seq ν) :
     gdim (G.cornerGrade j i) = ∑ w ∈ Finset.univ.filter (fun w => w • i = j),
       HahnSeries.single (G.degW (ρ w) i) 1 * ∏ a, geomSeries (G.degX (i.lbl a)) := by
-  have h := G.gdim_spanF hPQ hP ρ hρ hX ({i} ×ˢ Finset.univ.filter fun w => w • i = j)
+  have h := G.gdim_spanF hsym ρ hρ hX ({i} ×ˢ Finset.univ.filter fun w => w • i = j)
   simp only [spanF_corner] at h
   rw [show G.cornerGrade j i = fun d => G.grade ν d ⊓ corner j i from rfl, h,
     Finset.sum_product, Finset.sum_singleton]
@@ -408,7 +407,7 @@ theorem gdim_cornerGrade (hX : ∀ a, 0 < G.degX a) (j i : Seq ν) :
 theorem gdim_cornerGrade_mul_prod (hX : ∀ a, 0 < G.degX a) (j i : Seq ν) :
     gdim (G.cornerGrade j i) * ∏ a, (1 - HahnSeries.single (G.degX (i.lbl a)) 1) =
       ∑ w ∈ Finset.univ.filter (fun w => w • i = j), HahnSeries.single (G.degW (ρ w) i) 1 := by
-  rw [G.gdim_cornerGrade hPQ hP ρ hρ hX, Finset.sum_mul]
+  rw [G.gdim_cornerGrade hsym ρ hρ hX, Finset.sum_mul]
   refine Finset.sum_congr rfl fun w _ => ?_
   rw [mul_assoc, ← Finset.prod_mul_distrib]
   simp only [mul_comm (geomSeries _), one_sub_mul_geomSeries (hX _), Finset.prod_const_one,
@@ -416,7 +415,7 @@ theorem gdim_cornerGrade_mul_prod (hX : ∀ a, 0 < G.degX a) (j i : Seq ν) :
 
 /-- The left ideal `R(ν) 1_i = P_i` is the span of the basis elements `ψ_{ρ w} x^u 1_i`. -/
 theorem spanF_leftIdeal (i : Seq ν) :
-    spanF hPQ hP ρ hρ ({i} ×ˢ Finset.univ) =
+    spanF hsym ρ hρ ({i} ×ˢ Finset.univ) =
       (Graded.leftIdeal (e i : KLRAlgebra k Q ν)).restrictScalars k := by
   apply le_antisymm
   · rw [spanF, Submodule.span_le]
@@ -425,22 +424,22 @@ theorem spanF_leftIdeal (i : Seq ν) :
       and_true] at hb
     subst hb
     show _ * _ = _
-    rw [basis_apply, mul_assoc _ (e i'), e_mul_self]
+    rw [basisOfSymm_apply, mul_assoc _ (e i'), e_mul_self]
   · intro r hr
     have hr' : r * e i = r := hr
     rw [← hr']
     clear hr hr'
-    have hr2 : r ∈ Submodule.span k (Set.range (KLRAlgebra.basis hPQ hP ρ hρ)) := by
+    have hr2 : r ∈ Submodule.span k (Set.range (KLRAlgebra.basisOfSymm hsym ρ hρ)) := by
       rw [Module.Basis.span_eq]; trivial
     induction hr2 using Submodule.span_induction with
     | mem x hx =>
       obtain ⟨⟨i', w, u⟩, rfl⟩ := hx
-      rw [basis_apply]
+      rw [basisOfSymm_apply]
       dsimp only
       rw [gen_mul_e]
       split_ifs with h
       · subst h
-        exact Submodule.subset_span ⟨(i', w, u), by simp, by rw [basis_apply]⟩
+        exact Submodule.subset_span ⟨(i', w, u), by simp, by rw [basisOfSymm_apply]⟩
       · exact zero_mem _
     | zero => rw [zero_mul]; exact zero_mem _
     | add x y _ _ hx hy => rw [add_mul]; exact add_mem hx hy
@@ -452,7 +451,7 @@ theorem gdim_leftIdeal (hX : ∀ a, 0 < G.degX a) (i : Seq ν) :
     gdim (fun d => (G.grade ν d ⊓ (Graded.leftIdeal (e i : KLRAlgebra k Q ν)).restrictScalars k
       : Submodule k (KLRAlgebra k Q ν))) = ∑ w : Perm (Fin (Multiset.card ν)),
       HahnSeries.single (G.degW (ρ w) i) 1 * ∏ a, geomSeries (G.degX (i.lbl a)) := by
-  have h := G.gdim_spanF hPQ hP ρ hρ hX ({i} ×ˢ Finset.univ)
+  have h := G.gdim_spanF hsym ρ hρ hX ({i} ×ˢ Finset.univ)
   simp only [spanF_leftIdeal] at h
   rw [h, Finset.sum_product, Finset.sum_singleton]
 
@@ -580,32 +579,30 @@ end KL1Bound
 section Modules
 
 variable {k : Type*} [Field k] [DecidableEq I] {Q : I → I → MvPolynomial (Fin 2) k}
-  {P : I → I → MvPolynomial (Fin 2) k}
-  (hPQ : ∀ a b, a ≠ b → Q a b = P b a * rename ![1, 0] (P a b))
-  (hP : ∀ a b, a ≠ b → P a b ≠ 0) (G : GradingDatum Q) {ν : Multiset I}
+  (hsym : KLRSymm Q) (G : GradingDatum Q) {ν : Multiset I}
 
 namespace GradingDatum
 
-include hPQ hP in
+include hsym in
 /-- `R(ν)` has a graded dimension (all dots of positive degree). -/
 theorem hasGdim_grade' (hX : ∀ a, 0 < G.degX a) : HasGdim (G.grade ν) :=
-  G.hasGdim_grade hPQ hP (fun w => canWord _ w)
+  G.hasGdim_grade hsym (fun w => canWord _ w)
     (fun w => ⟨isReduced_canWord _ w, wordProd_canWord _ w⟩) hX
 
-include hPQ hP in
+include hsym in
 /-- **Finitely generated graded `R(ν)`-modules have graded dimensions** (over a field, all dots
 of positive degree): their graded pieces are finite-dimensional and vanish in sufficiently
 negative degrees. -/
 theorem hasGdim_of_finite (hX : ∀ a, 0 < G.degX a) (M : GMod (G.grade ν))
     [Module.Finite (KLRAlgebra k Q ν) M] : HasGdim M.grading :=
-  have := G.hasGdim_grade' (ν := ν) hPQ hP hX
+  have := G.hasGdim_grade' (ν := ν) hsym hX
   Graded.hasGdim_of_finite (G.grade ν) M.grading
 
-include hPQ hP in
+include hsym in
 /-- Finitely generated graded projective `R(ν)`-modules have graded dimensions. -/
 theorem hasGdim_gproj (hX : ∀ a, 0 < G.degX a) (M : GProj (G.grade ν)) :
     HasGdim M.grading :=
-  G.hasGdim_of_finite hPQ hP hX M.toGMod
+  G.hasGdim_of_finite hsym hX M.toGMod
 
 /-- The subspace `1_j (R(ν) 1_i)` of `P_i` is `1_j R(ν) 1_i`. -/
 theorem range_idem_leftIdeal (j i : Seq ν) :
@@ -638,7 +635,7 @@ theorem ch_projP (i j : Seq ν) : G.ch (G.projP i).toGMod j = gdim (G.cornerGrad
   rw [range_idem_leftIdeal] at h
   exact h
 
-include hPQ hP in
+include hsym in
 /-- **Graded dimension formula for the characters of the `P_i`** (KL I, §2.5):
 `ch(P_i, j) = gdim (1_j R(ν) 1_i) = ∑_{w • i = j} q^{deg(ψ_{ρ w} 1_i)}
 ∏_a (1 - q^{deg x_{a,i}})⁻¹`, for any choice `ρ` of reduced words. -/
@@ -647,7 +644,7 @@ theorem ch_projP_eq_sum (ρ : Perm (Fin (Multiset.card ν)) → List ℕ)
     (hX : ∀ a, 0 < G.degX a) (i j : Seq ν) :
     G.ch (G.projP i).toGMod j = ∑ w ∈ Finset.univ.filter (fun w => w • i = j),
       HahnSeries.single (G.degW (ρ w) i) 1 * ∏ a, geomSeries (G.degX (i.lbl a)) := by
-  rw [ch_projP, G.gdim_cornerGrade hPQ hP ρ hρ hX]
+  rw [ch_projP, G.gdim_cornerGrade hsym ρ hρ hX]
 
 end GradingDatum
 
@@ -674,8 +671,7 @@ theorem degW_eq {ρ : List ℕ} (hρ : IsReduced (Multiset.card ν) ρ) (i : Seq
 
 /-- **KL I: `R(ν)` has a graded dimension** (over a field). -/
 instance hasGdim_grade : HasGdim ((klGradingDatum k Γ).grade ν) :=
-  (klGradingDatum k Γ).hasGdim_grade' (klQ_eq_klP (Γ := Γ) stdOrient_spec)
-    (fun a b _ => klP_ne_zero _ a b) degX_pos
+  (klGradingDatum k Γ).hasGdim_grade' (KLRSymm.of_factor (klQ_eq_klP (Γ := Γ) stdOrient_spec)) degX_pos
 
 /-- **KL I: finitely generated graded `R(ν)`-modules have graded dimensions.** -/
 instance hasGdim_of_finite (M : GMod ((klGradingDatum k Γ).grade ν))
@@ -686,8 +682,7 @@ instance hasGdim_of_finite (M : GMod ((klGradingDatum k Γ).grade ν))
 theorem grade_eq_bot_of_lt {d : ℤ}
     (hd : d < -(∑ c ∈ ν.toFinset, ((ν.count c * (ν.count c - 1) : ℕ) : ℤ))) :
     (klGradingDatum k Γ).grade ν d = ⊥ :=
-  (klGradingDatum k Γ).grade_eq_bot_of_lt (klQ_eq_klP (Γ := Γ) stdOrient_spec)
-    (fun a b _ => klP_ne_zero _ a b) (fun w => canWord _ w)
+  (klGradingDatum k Γ).grade_eq_bot_of_lt (KLRSymm.of_factor (klQ_eq_klP (Γ := Γ) stdOrient_spec)) (fun w => canWord _ w)
     (fun w => ⟨isReduced_canWord _ w, wordProd_canWord _ w⟩) (fun a => (degX_pos a).le)
     fun i w => lt_of_lt_of_le hd (neg_sum_le_degW (isReduced_canWord _ w) i)
 
@@ -697,8 +692,7 @@ theorem gdim_cornerGrade (j i : Seq ν) :
     gdim ((klGradingDatum k Γ).cornerGrade j i) = ∑ w ∈ Finset.univ.filter (fun w => w • i = j),
       HahnSeries.single (-∑ p ∈ invSet (Multiset.card ν) w, cartan Γ (i.lbl p.1) (i.lbl p.2)) 1 *
         geomSeries 2 ^ Multiset.card ν := by
-  rw [(klGradingDatum k Γ).gdim_cornerGrade (klQ_eq_klP (Γ := Γ) stdOrient_spec)
-    (fun a b _ => klP_ne_zero _ a b) (fun w => canWord _ w)
+  rw [(klGradingDatum k Γ).gdim_cornerGrade (KLRSymm.of_factor (klQ_eq_klP (Γ := Γ) stdOrient_spec)) (fun w => canWord _ w)
     (fun w => ⟨isReduced_canWord _ w, wordProd_canWord _ w⟩) degX_pos]
   refine Finset.sum_congr rfl fun w _ => ?_
   rw [degW_eq (isReduced_canWord _ w), wordProd_canWord]

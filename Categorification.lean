@@ -619,6 +619,8 @@ import Categorification.TwoRep.RouqCurl
 import Categorification.TwoRep.CoproductCRT
 import Categorification.TwoRep.CoproductGauss
 import Categorification.TwoRep.RouqCoproductBubbles
+import Categorification.TwoRep.RouqCoproductTeleporter
+import Categorification.TwoRep.RouqCoproduct
 import Categorification.TwoRep.RouqDottedCurls
 import Categorification.TwoRep.RouqDual
 import Categorification.TwoRep.RouqGrass

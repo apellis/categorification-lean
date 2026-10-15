@@ -436,6 +436,7 @@ import Categorification.KLR.NilHeckeBlockSplitting
 import Categorification.KLR.Pairing
 import Categorification.KLR.PolNu
 import Categorification.KLR.PolyRep.Defs
+import Categorification.KLR.PolyRep.Graded
 import Categorification.KLR.PolyRep.Independence
 import Categorification.KLR.PolyRep.Sound
 import Categorification.KLR.Prop213
@@ -460,6 +461,7 @@ import Categorification.KLR.Theorem11
 import Categorification.KLR.Theorem321
 import Categorification.KLR.Theorem321Functor
 import Categorification.KLR.TightMonomials
+import Categorification.KLR.Unfurling.CompletedPolyRep
 import Categorification.QuantumGroup.Bar
 import Categorification.QuantumGroup.Cartan
 import Categorification.QuantumGroup.Coproduct

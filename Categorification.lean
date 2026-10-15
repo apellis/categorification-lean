@@ -374,6 +374,7 @@ import Categorification.KLR.CyclotomicAction.GlobalSlides
 import Categorification.KLR.CyclotomicAction.GlobalCross
 import Categorification.KLR.CyclotomicAction.Comparison
 import Categorification.KLR.CyclotomicAction.KangKashiwara
+import Categorification.KLR.CyclotomicAction.GlobalLoc
 import Categorification.KLR.CyclotomicAbsentEquivalence
 import Categorification.KLR.CyclotomicAbsentModule
 import Categorification.KLR.CyclotomicPresentModule
@@ -630,6 +631,7 @@ import Categorification.TwoRep.RouqCoproduct
 import Categorification.TwoRep.RouqCoproductNeg
 import Categorification.TwoRep.RouqDottedCurls
 import Categorification.TwoRep.RouqDual
+import Categorification.TwoRep.SumInvPointwise
 import Categorification.TwoRep.RouqGrass
 import Categorification.TwoRep.RouqPitchfork
 import Categorification.TwoRep.RouqTriangleE

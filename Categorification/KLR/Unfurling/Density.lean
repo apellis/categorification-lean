@@ -18,7 +18,7 @@ one-variable polynomials whose linear coefficients are all nonzero. The substitu
 point `p_t = ((φ t a).coeff 0)_a` to the origin. If the points `p_t` are pairwise distinct, then
 for every truncation degree `D` and every family `g : T → k[x]` there is a single polynomial `f`
 with `subst (φ t) f ≡ g t` modulo monomials of total degree `≥ D`, simultaneously for all `t`
-(`exists_subst_coeff_sub_eq_zero`).
+(`exists_subst_coeff_sub_eq_zero`). Each `subst (φ t)` is moreover injective (`subst_injective`).
 
 In other words, the joint substitution map is surjective onto the product over `t` of the
 truncations of `k[x]` at the origin. This is the density statement in the proof of
@@ -36,6 +36,8 @@ polynomial part of the homomorphism `γ` is dense in the completed polynomial re
 * `subst φ` maps the `D`-th power of the maximal ideal of `p` into `orderIdeal D`; the powers of
   the maximal ideals of distinct points are pairwise coprime, so the Chinese remainder theorem
   (`Ideal.exists_forall_sub_mem_ideal`) glues the local solutions.
+* Injectivity: after the translation `x_a ↦ x_a + p_a`, `subst φ` becomes `x_a ↦ x_a · w_a`
+  with `w_a(0) ≠ 0`, which keeps a monomial of minimal total degree with a nonzero coefficient.
 -/
 
 namespace Categorification.KLR.Unfurling
@@ -197,6 +199,62 @@ theorem map_subst_pointIdeal_pow_le (φ : σ → Polynomial k) (D : ℕ) :
   rintro _ ⟨_, ⟨a, rfl⟩, rfl⟩
   refine mem_orderIdeal_one_of_constantCoeff ?_
   rw [subst_X_sub_C, map_mul, constantCoeff_X, zero_mul]
+
+/-- The substitution `x_a ↦ x_a · w_a` is injective when every `w_a` has nonzero constant term:
+a monomial of minimal total degree in the support of `g` survives with its coefficient scaled by
+`∏ w_a(0)^{c_a}`. -/
+theorem aeval_X_mul_eq_zero {w : σ → MvPolynomial σ k} (hw : ∀ a, constantCoeff (w a) ≠ 0)
+    {g : MvPolynomial σ k} (hg : aeval (fun a => X a * w a) g = 0) : g = 0 := by
+  classical
+  by_contra hne
+  obtain ⟨d, hd, hmin⟩ := g.support.exists_min_image Finsupp.degree (support_nonempty.2 hne)
+  have hsum : aeval (fun a => X a * w a) g =
+      ∑ c ∈ g.support, g.coeff c • (monomial c 1 * c.prod fun a n => w a ^ n) := by
+    conv_lhs => rw [g.as_sum]
+    rw [map_sum]
+    refine Finset.sum_congr rfl fun c _ => ?_
+    rw [aeval_monomial, monomial_eq, C_1, one_mul, ← Finsupp.prod_mul, algebraMap_eq,
+      ← smul_eq_C_mul]
+    simp only [mul_pow]
+  have hcoeff := congrArg (fun p : MvPolynomial σ k => p.coeff d) hg
+  simp only [hsum, coeff_sum, coeff_smul, coeff_monomial_mul', one_mul, smul_eq_mul] at hcoeff
+  rw [Finset.sum_eq_single d] at hcoeff
+  · simp only [le_refl, ↓reduceIte, tsub_self] at hcoeff
+    rw [← constantCoeff_eq, Finsupp.prod, map_prod] at hcoeff
+    refine mul_ne_zero (mem_support_iff.1 hd) (Finset.prod_ne_zero_iff.2 fun a _ => ?_) hcoeff
+    rw [map_pow]
+    exact pow_ne_zero _ (hw a)
+  · intro c hc hcd
+    split_ifs with hle
+    · exfalso
+      have h1 : c.degree ≤ d.degree := Finsupp.degree_mono hle
+      have h2 : (d - c).degree = 0 := by
+        have := hmin c hc
+        have h3 : (d - c).degree + c.degree = d.degree := by rw [← map_add, tsub_add_cancel_of_le hle]
+        omega
+      rw [Finsupp.degree_eq_zero_iff, tsub_eq_zero_iff_le] at h2
+      exact hcd (le_antisymm hle h2)
+    · rw [mul_zero]
+  · intro h; exact absurd hd h
+
+/-- A coordinatewise substitution `x_a ↦ (φ a)(x_a)` with nonzero linear coefficients is
+injective. -/
+theorem subst_injective (φ : σ → Polynomial k) (hφ1 : ∀ a, (φ a).coeff 1 ≠ 0) :
+    Function.Injective (subst φ) := by
+  refine (injective_iff_map_eq_zero (subst φ)).2 fun f hf => ?_
+  set p : σ → k := fun a => (φ a).coeff 0
+  have hinv : (aeval fun a => X a - C (p a)).comp (aeval fun a => X a + C (p a)) =
+      AlgHom.id k (MvPolynomial σ k) := by
+    ext a
+    simp
+  have hf' : f = aeval (fun a => X a - C (p a)) (aeval (fun a => X a + C (p a)) f) := by
+    rw [← AlgHom.comp_apply, hinv, AlgHom.id_apply]
+  rw [hf', ← AlgHom.comp_apply, comp_aeval] at hf
+  simp only [p, subst_X_sub_C] at hf
+  have h0 := aeval_X_mul_eq_zero (fun a => ?_) hf
+  · rw [hf', h0, map_zero]
+  · rw [constantCoeff_aeval_X, Polynomial.coeff_divX]
+    exact hφ1 a
 
 theorem isCoprime_pointIdeal {p q : σ → k} (hpq : p ≠ q) :
     IsCoprime (pointIdeal p) (pointIdeal q) := by

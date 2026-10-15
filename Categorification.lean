@@ -290,6 +290,7 @@ import Categorification.KLR.BaseChange
 import Categorification.KLR.Cyclotomic
 import Categorification.KLR.CyclotomicMultFree
 import Categorification.KLR.CyclotomicFinite
+import Categorification.KLR.CyclotomicNilpotent
 import Categorification.KLR.CyclotomicExact
 import Categorification.KLR.CyclotomicMaps
 import Categorification.KLR.CyclotomicSeq

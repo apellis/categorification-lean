@@ -393,6 +393,7 @@ relation** (`RouqLoc.infGrass`), with no condition on `End(1_λ)`.
 | Dot cyclicity at every weight | Same, Lem. 5.1 and Thm. 5.3 (5.6) | `cyclic_dot`, `cupL_dot`, `capL_dot` | Same; inverse-component cancellation and the left adjunction | Proved |
 | Same-colour crossing cyclicity at every weight | Same, Thm. 5.3 (5.8) and final cyclicity deduction | `mate_sigL`, `cupL_pitchfork`, `capL_pitchfork`, `cyclic_cross` | Three adjacent Rouquier structures, nilHecke squares and braids; no grading | Proved |
 | Leftward pitchforks in the specified weight ranges | Same, Lem. 4.2 | `capL_pitchfork_of_neg`, `cupL_pitchfork_of_gt_neg_two` | Adjacent Rouquier data, nilHecke squares and braid; preadditive Hom categories and additive whiskering | Proved |
+| Orientation-reversing twist | KL III arXiv:0807.3250v1, §3.3.2 (`ω̃`); Brundan arXiv:1501.00350v1, §5 | `twist`, `twist_sig`, `twistInvPos`, `twistInvNeg`, `RouqFamily.twist`, `RouqFamily.twist_dot` | Adjacent Rouquier data with nilHecke squares and braid (local); a Rouquier family (global) | Proved. Same-colour crossing `−(right mate)`, as in KL; on mixed colours the twist also carries the sign `−1`, which KL's `ω̃` does not, and no statement uses mixed crossings yet |
 
 | Theorem | Source | Declarations (`TwoRep.RouqFamily`) | Hypotheses | Status |
 | --- | --- | --- | --- | --- |

@@ -638,6 +638,7 @@ import Categorification.TwoRep.RouqUpEqual
 import Categorification.TwoRep.RouqSoundness
 import Categorification.TwoRep.RouqDescent
 import Categorification.TwoRep.RouqFullCL
+import Categorification.TwoRep.RouqUpWords
 import Categorification.TwoRep.RouqCyclicDot
 import Categorification.TwoRep.RouqCurl
 import Categorification.TwoRep.CoproductCRT

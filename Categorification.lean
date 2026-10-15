@@ -485,6 +485,7 @@ import Categorification.KLR.Unfurling.Density
 import Categorification.KLR.Unfurling.Gamma
 import Categorification.KLR.Unfurling.GammaHomo
 import Categorification.KLR.Unfurling.Generic
+import Categorification.KLR.Unfurling.GenericLabels
 import Categorification.KLR.Unfurling.Intertwine
 import Categorification.KLR.Unfurling.Nondeg
 import Categorification.KLR.Unfurling.SeriesAction

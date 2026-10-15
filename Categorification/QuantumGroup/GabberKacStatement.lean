@@ -394,7 +394,7 @@ theorem gabberKac_of_quantumGabberKac {C : CartanDatum I} (hsl : ∀ i, C.dot i 
     PreF.GabberKac C.dot qK⁻¹ (cK C) :=
   (gabberKac_cK_of_quantumGabberKac h).toPreF C hsl h01
 
-variable {X Y : Type*} [AddCommGroup X] [AddCommGroup Y] (RD : RootDatum C X Y)
+variable {X Y : Type*} [AddCommGroup X] [AddCommGroup Y] (RD : WeightDatum C X Y)
 
 /-- **Khovanov–Lauda III, Proposition 2.5 for `( , )`** (arXiv:0807.3250v1, §2.1.3), for an
 arbitrary Cartan datum, from the canonical quantum Gabber–Kac statement (Lusztig 33.1.3(a)). -/

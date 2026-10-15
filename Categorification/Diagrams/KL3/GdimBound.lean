@@ -348,7 +348,7 @@ def spanFiberEquiv (ℓ : I → ℤ) (d : ℤ) :
   left_inv b := rfl
   right_inv x := rfl
 
-variable {X Y : Type v} [AddCommGroup X] [AddCommGroup Y] (RD : RootDatum C X Y)
+variable {X Y : Type v} [AddCommGroup X] [AddCommGroup Y] (RD : WeightDatum C X Y)
 
 /-- **Khovanov–Lauda III, Proposition 3.12** (`eq_pi_bi_s`): for signed sequences `𝐢 = s`,
 `𝐣 = t`, a weight `λ` and every degree `d`, the set of elements of `B_{𝐢,𝐣,λ}` of degree `d` is
@@ -407,7 +407,7 @@ theorem finrank_le_and_iff {V : Type*} [AddCommGroup V] [Module k V] {ι : Type*
 end Linear
 
 variable {I : Type u} {C : CartanDatum I} {X Y : Type v} [AddCommGroup X] [AddCommGroup Y]
-  {RD : RootDatum C X Y} {k : Type w} [Field k]
+  {RD : WeightDatum C X Y} {k : Type w} [Field k]
 
 variable (RD k) in
 /-- `b` is a **graded spanning family of `HOM_U(E_s 1_λ, E_t 1_λ)` indexed by `B_{s,t,λ}`**: each

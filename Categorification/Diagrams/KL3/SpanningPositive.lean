@@ -284,7 +284,7 @@ end Degree
 section Family
 
 variable {I : Type u} {C : CartanDatum I} {X Y : Type v} [AddCommGroup X] [AddCommGroup Y]
-  {RD : RootDatum C X Y} {k : Type w} [Field k] [DecidableEq I] {ν : Multiset I}
+  {RD : WeightDatum C X Y} {k : Type w} [Field k] [DecidableEq I] {ν : Multiset I}
   {i j : KLR.Seq ν}
 
 /-- The dots of an element of `B_{+i,+j,λ}`, as a function on the lower endpoints. -/
@@ -336,7 +336,7 @@ end Family
 section Span
 
 variable {I : Type u} {C : CartanDatum I} {X Y : Type v} [AddCommGroup X] [AddCommGroup Y]
-  {RD : RootDatum C X Y} {k : Type w} [Field k] [DecidableEq I] {ν : Multiset I}
+  {RD : WeightDatum C X Y} {k : Type w} [Field k] [DecidableEq I] {ν : Multiset I}
 
 variable (RD k) in
 /-- The `(i, j)`-entries of the images under `ϕ_{ν,λ}` of the tensor products of the KL II basis
@@ -506,7 +506,7 @@ end Span
 section Consequences
 
 variable {I : Type u} {C : CartanDatum I} {X Y : Type v} [AddCommGroup X] [AddCommGroup Y]
-  {RD : RootDatum C X Y} {k : Type w} [Field k] [DecidableEq I] [Finite I]
+  {RD : WeightDatum C X Y} {k : Type w} [Field k] [DecidableEq I] [Finite I]
 
 /-- **`B_{+i,+j,λ}` is a graded spanning family** (`IsSpanFamily`) of
 `HOM_U(E_{+i} 1_λ, E_{+j} 1_λ)`. -/

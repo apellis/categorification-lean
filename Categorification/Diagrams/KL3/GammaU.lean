@@ -67,7 +67,7 @@ open CategoryTheory CategoryTheory.Limits StringDiagrams QuantumGroup UDot Prese
 universe w u v
 
 variable {I : Type u} {C : CartanDatum I} {X Y : Type v} [AddCommGroup X] [AddCommGroup Y]
-  (RD : RootDatum C X Y) (k : Type w) [CommRing k] [DecidableEq I]
+  (RD : WeightDatum C X Y) (k : Type w) [CommRing k] [DecidableEq I]
 
 /-! ## Multiplicativity on generators -/
 
@@ -273,7 +273,7 @@ theorem wt_serreW (ε : Bool) (i j : I) {N n : ℕ} (hn : n ≤ N) (lam : X)
     (a b : List (Letter I)) :
     wt RD lam (a ++ (serreW i j N n).map (fun l => (ε, l)) ++ b) =
       wt RD lam (a ++ (serreW i j N 0).map (fun l => (ε, l)) ++ b) := by
-  simp only [wt_eq_add_wX, RootDatum.wX, List.map_append, List.sum_append, serreW,
+  simp only [wt_eq_add_wX, WeightDatum.wX, List.map_append, List.sum_append, serreW,
     List.map_cons, List.sum_cons, List.map_replicate, List.sum_replicate, Nat.sub_zero,
     List.replicate_zero, List.nil_append]
   have : n • (sgn ε • RD.iX i) + (N - n) • (sgn ε • RD.iX i) = N • (sgn ε • RD.iX i) := by

@@ -74,21 +74,31 @@ theorem addMonoidHom_eq_sum {m : ℕ} (f : (Fin m → ℤ) →+ ℤ) (x : Fin m 
     rw [← Pi.single_smul]; simp
   rw [this, map_zsmul, smul_eq_mul, mul_comm]
 
-/-- **The root datum of `sl_{m+1}`** (KL III §4.1): `X = Y = ℤ^m`, `i = e_i`, `i_X` the `i`-th
-column of the Cartan matrix. -/
-def slRootDatum (m : ℕ) : RootDatum (slCartan m) (Fin m → ℤ) (Fin m → ℤ) where
+/-- **The weight datum of `sl_{m+1}`** (KL III §4.1): `X = Y = ℤ^m`, `i = e_i`, `i_X` the `i`-th
+column of the Cartan matrix. It is a root datum: `slRootDatumPerfect`. -/
+def slRootDatum (m : ℕ) : WeightDatum (slCartan m) (Fin m → ℤ) (Fin m → ℤ) where
   pair := slPair m
+  iX j := fun a => (slCartan m).dot a j
+  iY i := Pi.single i 1
+  pair_iY_iX i j := by
+    rw [slPair_single_left, CartanDatum.ofGraph_dot_self]
+    omega
+
+/-- **The root datum of `sl_{m+1}`** (KL III §4.1): the weight datum `slRootDatum m`, whose
+groups are free of finite rank and whose pairing is perfect. -/
+def slRootDatumPerfect (m : ℕ) : RootDatum (slCartan m) (Fin m → ℤ) (Fin m → ℤ) where
+  toWeightDatum := slRootDatum m
   perfect_left := by
     refine ⟨fun y y' h => funext fun a => ?_, fun f => ⟨fun a => f (Pi.single a 1), ?_⟩⟩
     · have := DFunLike.congr_fun h (Pi.single a 1)
-      rwa [slPair_single_right, slPair_single_right] at this
+      rwa [slRootDatum, slPair_single_right, slPair_single_right] at this
     · refine AddMonoidHom.ext fun x => ?_
       exact (addMonoidHom_eq_sum f x).symm
   perfect_right := by
     refine ⟨fun x x' h => funext fun a => ?_, fun f => ⟨fun a => f (Pi.single a 1), ?_⟩⟩
     · have := DFunLike.congr_fun h (Pi.single a 1)
       simp only [AddMonoidHom.flip_apply] at this
-      rwa [slPair_single_left, slPair_single_left] at this
+      rwa [slRootDatum, slPair_single_left, slPair_single_left] at this
     · refine AddMonoidHom.ext fun y => ?_
       change ∑ a, y a * f (Pi.single a 1) = f y
       rw [addMonoidHom_eq_sum f y]
@@ -97,11 +107,6 @@ def slRootDatum (m : ℕ) : RootDatum (slCartan m) (Fin m → ℤ) (Fin m → �
   finite_X := inferInstance
   free_Y := inferInstance
   finite_Y := inferInstance
-  iX j := fun a => (slCartan m).dot a j
-  iY i := Pi.single i 1
-  pair_iY_iX i j := by
-    rw [slPair_single_left, CartanDatum.ofGraph_dot_self]
-    omega
 
 @[simp] theorem slRootDatum_iX_apply (m : ℕ) (j a : Fin m) :
     (slRootDatum m).iX j a = (slCartan m).dot a j := rfl

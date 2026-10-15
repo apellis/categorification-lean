@@ -28,7 +28,7 @@ variable {I : Type*} [DecidableEq I] {k : Type*} [CommRing k]
   {Q : I → I → MvPolynomial (Fin 2) k} (i : I) (β : Multiset I)
   (a : I → Polynomial k)
   {C : CartanDatum I} {X Y : Type*} [AddCommGroup X] [AddCommGroup Y]
-  (RD : RootDatum C X Y) (Λ : X)
+  (RD : WeightDatum C X Y) (Λ : X)
 
 /-- A degree bound and a unit extremal coefficient determine the parameter degree. -/
 theorem natDegree_polyInY_of_bounds [Nontrivial k] (q : MvPolynomial (Fin 2) k) (d : ℕ)

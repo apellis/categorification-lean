@@ -50,7 +50,7 @@ open StringDiagrams.Chord (Move Step Rw Fits lstep canon run)
 universe w u v
 
 variable {I : Type u} {C : CartanDatum I} {X Y : Type v} [AddCommGroup X] [AddCommGroup Y]
-  {RD : RootDatum C X Y} {k : Type w} [CommRing k]
+  {RD : WeightDatum C X Y} {k : Type w} [CommRing k]
 
 /-! ## The diagram of a chord diagram -/
 

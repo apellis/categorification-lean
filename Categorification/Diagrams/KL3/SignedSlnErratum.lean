@@ -111,7 +111,7 @@ universe w u v
 section Generic
 
 variable {I : Type u} {C : CartanDatum I} {X Y : Type v} [AddCommGroup X] [AddCommGroup Y]
-  (RD : RootDatum C X Y) {k : Type w} [CommRing k]
+  (RD : WeightDatum C X Y) {k : Type w} [CommRing k]
 
 local notation "HK" => LinDiagram.homDeg k (degK (I := I) (C := C))
 local notation "HD" => LinDiagram.homDeg k (deg RD)

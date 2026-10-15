@@ -31,7 +31,7 @@ open QuantumGroup UDot
 universe w u v
 
 variable {I : Type u} {C : CartanDatum I} {X Y : Type v} [AddCommGroup X] [AddCommGroup Y]
-  {RD : RootDatum C X Y} {k : Type w} [Field k]
+  {RD : WeightDatum C X Y} {k : Type w} [Field k]
 
 attribute [local instance] KLR.KLGamma.vAlgebra
 

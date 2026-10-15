@@ -111,7 +111,7 @@ end Abstract
 section Bend
 
 variable {I : Type u} {C : CartanDatum I} {X Y : Type v} [AddCommGroup X] [AddCommGroup Y]
-  {RD : RootDatum C X Y} {k : Type w} [Field k]
+  {RD : WeightDatum C X Y} {k : Type w} [Field k]
 
 variable (RD k) in
 /-- Bending the lower endpoints up on the left (nested cups): `HOM(E_s 1_μ, E_t 1_μ) →

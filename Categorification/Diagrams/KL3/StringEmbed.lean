@@ -47,7 +47,7 @@ universe w u v
 local notation "S2" => sl2RootDatum
 
 variable {I : Type u} {C : CartanDatum I} {X Y : Type v} [AddCommGroup X] [AddCommGroup Y]
-  (RD : RootDatum C X Y) (i : I) (b : X) (q : ℤ → ℤ) (hq : ∀ n, q (2 + n) = q n + 1)
+  (RD : WeightDatum C X Y) (i : I) (b : X) (q : ℤ → ℤ) (hq : ∀ n, q (2 + n) = q n + 1)
 
 /-! ## Weights and letters -/
 
@@ -500,14 +500,14 @@ theorem hwt (μ : ℤ) (t : List (Letter Unit)) :
 
 omit [AddCommGroup Y] in
 theorem bubL_zero' {I' : Type*} {C' : CartanDatum I'} {X' Y' : Type v} [AddCommGroup X']
-    [AddCommGroup Y'] (RD' : RootDatum C' X' Y') (μ : X') (t : List (Letter I')) :
+    [AddCommGroup Y'] (RD' : WeightDatum C' X' Y') (μ : X') (t : List (Letter I')) :
     bubL RD' K μ t 0 = 0 := by
   simp only [bubL]
   erw [LinDiagram.whisker_zero, linCast_zero]
 
 omit [AddCommGroup Y] in
 theorem bubL_add' {I' : Type*} {C' : CartanDatum I'} {X' Y' : Type v} [AddCommGroup X']
-    [AddCommGroup Y'] (RD' : RootDatum C' X' Y') (μ : X') (t : List (Letter I'))
+    [AddCommGroup Y'] (RD' : WeightDatum C' X' Y') (μ : X') (t : List (Letter I'))
     (f g : LEnd RD' K (ob RD' (wt RD' μ t) [])) :
     bubL RD' K μ t (f + g) = bubL RD' K μ t f + bubL RD' K μ t g := by
   simp only [bubL]

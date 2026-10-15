@@ -76,7 +76,7 @@ open CategoryTheory StringDiagrams QuantumGroup UDot Presentation Opposite
 universe w u v
 
 variable {I : Type u} {C : CartanDatum I} {X Y : Type v} [AddCommGroup X] [AddCommGroup Y]
-  (RD : RootDatum C X Y) (k : Type w) [CommRing k]
+  (RD : WeightDatum C X Y) (k : Type w) [CommRing k]
 
 namespace Sig
 
@@ -554,7 +554,7 @@ theorem sgn_layList [DecidableEq I] (μ : X) (ls : List (LayerData I)) :
   simp only [sgn, layList, sgnS, List.map_map, Function.comp_def, lay, sgnG_gen_shape]
 
 theorem wX_reverse (t : List (Letter I)) : RD.wX t.reverse = RD.wX t := by
-  simp [UDot.RootDatum.wX, List.map_reverse, List.sum_reverse]
+  simp [UDot.WeightDatum.wX, List.map_reverse, List.sum_reverse]
 
 theorem word_wd (μ : X) (t : List (Letter I)) :
     word RD (wd RD μ t) = wd RD (-wt RD μ t) t.reverse := by
@@ -585,19 +585,19 @@ theorem rlay_lay (μ : X) (u : List (Letter I)) (g : Shape I) (v : List (Letter 
       wt RD (-wt RD μ (u ++ g.dom ++ v)) (v.reverse ++ (shape g).dom ++ u.reverse)
     rw [Shape.right_gen, show eR (RD := RD) (wt RD μ v) (wd RD μ v) = μ from endR_wd RD μ v,
       wt_eq_add_wX, wt_eq_add_wX]
-    simp only [UDot.RootDatum.wX_append, shape_dom, wX_reverse]
+    simp only [UDot.WeightDatum.wX_append, shape_dom, wX_reverse]
     abel
   · show word RD (wd RD μ v) = wd RD (wt RD (-wt RD μ (u ++ g.dom ++ v)) ((shape g).dom ++ u.reverse))
       v.reverse
     rw [word_wd]
     congr 1
     rw [wt_eq_add_wX, wt_eq_add_wX, wt_eq_add_wX]
-    simp only [UDot.RootDatum.wX_append, shape_dom, wX_reverse]
+    simp only [UDot.WeightDatum.wX_append, shape_dom, wX_reverse]
     abel
   · show gen (g.gen RD (wt RD μ v)) = (shape g).gen RD (wt RD (-wt RD μ (u ++ g.dom ++ v)) u.reverse)
     have e : wt RD (-wt RD μ (u ++ g.dom ++ v)) u.reverse = -wt RD μ (g.dom ++ v) := by
       rw [wt_eq_add_wX, wt_eq_add_wX, wt_eq_add_wX]
-      simp only [UDot.RootDatum.wX_append, wX_reverse]
+      simp only [UDot.WeightDatum.wX_append, wX_reverse]
       abel
     rw [e]
     cases g with

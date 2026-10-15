@@ -74,7 +74,7 @@ theorem braidLeft_sub_braidRight (i j : I) (hij : i ≠ j) {γ β β₁ β₂ β
   exact braidQ Q a i j hij h₁ h₂ h₃ h₄ h₅ h₆ h₇
 
 variable {C : CartanDatum I} {X Y : Type u₁} [AddCommGroup X] [AddCommGroup Y]
-  (RD : QuantumGroup.UDot.RootDatum C X Y) (Λ : X)
+  (RD : QuantumGroup.UDot.WeightDatum C X Y) (Λ : X)
 
 omit [DecidableEq I] in
 /-- The multiset identity of appending a strand to a block. -/

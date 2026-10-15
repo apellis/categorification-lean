@@ -78,7 +78,7 @@ open CategoryTheory StringDiagrams QuantumGroup UDot Presentation
 universe w u v
 
 variable {I : Type u} {C : CartanDatum I} {X Y : Type v} [AddCommGroup X] [AddCommGroup Y]
-  {RD : RootDatum C X Y} {k : Type w} [CommRing k]
+  {RD : WeightDatum C X Y} {k : Type w} [CommRing k]
 
 /-! ## Good 2-morphisms -/
 
@@ -712,7 +712,7 @@ theorem cor37_gdim_le_pi_unconditional [StrongRankCondition k] [Fintype I]
 
 /-- **KL III Corollary 3.7**, "local graded ring" (`k` a field): a homogeneous element
 of `END_U(1_λ)` of degree `≤ 0` which is nonzero is a unit. -/
-theorem cor37_isUnit_unconditional {K : Type w} [Field K] {RD : RootDatum C X Y}
+theorem cor37_isUnit_unconditional {K : Type w} [Field K] {RD : WeightDatum C X Y}
     (lam : X) {x : EndOne RD K lam} {d : ℤ} (hx : x ∈ HDo RD K lam d)
     (hd : d ≤ 0) (hx0 : x ≠ 0) : IsUnit x :=
   cor37_isUnit lam (prop36 lam) hx hd hx0

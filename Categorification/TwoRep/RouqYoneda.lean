@@ -457,7 +457,7 @@ variable {k : Type w'} [CommRing k] {B : Type u} [Bicategory.{w, v} B]
   [∀ a b : B, Preadditive (a ⟶ b)] [∀ a b : B, Linear k (a ⟶ b)] [AdditiveWhiskering B]
   [∀ (a b c : B) (f : b ⟶ c), (postcomp a f).Linear k]
   {I : Type*} {C : CartanDatum I} {X Y : Type u₁} [AddCommGroup X] [AddCommGroup Y]
-  {RD : RootDatum C X Y}
+  {RD : WeightDatum C X Y}
 
 variable (k) in
 /-- **A Rouquier family under postcomposition** with `y ⟶ -`: the objects `y ⟶ S.obj x`, the

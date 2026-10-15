@@ -72,7 +72,7 @@ open CategoryTheory StringDiagrams QuantumGroup UDot Presentation MvPolynomial K
 universe w u v
 
 variable {I : Type u} {C : CartanDatum I} {X Y : Type v} [AddCommGroup X] [AddCommGroup Y]
-  (RD : RootDatum C X Y) (k : Type w) [CommRing k] (S : CLScalars C k)
+  (RD : WeightDatum C X Y) (k : Type w) [CommRing k] (S : CLScalars C k)
 
 /-! ## Rotation of polynomials in dots -/
 

@@ -101,7 +101,7 @@ theorem signedCross_sameBraid (i : I) {γ β β₁ δ : Multiset I} (h₁ : {i} 
   exact sameCross_braid Q a i h₁ h₂ h₃
 
 variable {C : CartanDatum I} {X Y : Type u₁} [AddCommGroup X] [AddCommGroup Y]
-  (RD : QuantumGroup.UDot.RootDatum C X Y) (Λ : X)
+  (RD : QuantumGroup.UDot.WeightDatum C X Y) (Λ : X)
 
 /-- The associator of `LinearCat k` on generators. -/
 theorem gen_assoc {𝒟 : Type*} [Category 𝒟] {P G : 𝒟} (g : P ⟶ G) : g ≫ 𝟙 G = 𝟙 P ≫ g :=

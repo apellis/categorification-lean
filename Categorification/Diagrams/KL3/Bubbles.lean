@@ -37,7 +37,7 @@ open CategoryTheory StringDiagrams QuantumGroup UDot Presentation Biadjunction
 universe w u v
 
 variable {I : Type u} {C : CartanDatum I} {X Y : Type v} [AddCommGroup X] [AddCommGroup Y]
-  (RD : RootDatum C X Y) (k : Type w) [CommRing k]
+  (RD : WeightDatum C X Y) (k : Type w) [CommRing k]
 
 /-- `m` upward dots on `E_{+i} 1_λ`, as a 2-morphism of `U`. -/
 def updots (i : I) (lam : X) (m : ℕ) : strandE RD k i lam ⟶ strandE RD k i lam :=

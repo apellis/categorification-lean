@@ -16,7 +16,7 @@ arXiv:1111.1431v3, Definition 1.2 (`def_Qstrong`), with the KLR relations of §2
 
 ## Conventions
 
-* The Cartan datum is a `RootDatum C X Y` of this library: `X` is the weight lattice, `α_i` is
+* The Cartan datum is a `WeightDatum C X Y` of this library: `X` is the weight lattice, `α_i` is
   `RD.iX i`, `⟨i, λ⟩` is `RD.pair (RD.iY i) λ`; `(α_i, α_j) = C.dot i j`, `d_i = (α_i, α_i)/2` is
   `UDot.di C i`, and `(α_i, λ) = d_i ⟨i, λ⟩` (CL: `⟨i, λ⟩ = 2 (α_i, λ)/(α_i, α_i)`).
 * **Weights as indices.** To avoid transporting 1-morphisms along equalities of weights such as
@@ -75,7 +75,7 @@ universe w v u
 variable (B : Type u) [Bicategory.{w, v} B] [∀ a b : B, Preadditive (a ⟶ b)]
   [∀ a b : B, HasShift (a ⟶ b) ℤ] [GradedBicategory B]
   {I : Type*} (C : CartanDatum I) {X Y : Type*} [AddCommGroup X] [AddCommGroup Y]
-  (RD : RootDatum C X Y)
+  (RD : WeightDatum C X Y)
 
 /-- **The generators of a KLR action** on the 1-morphisms `E_i 1_λ` (CL §2.3): objects indexed by
 the weights, `E_i 1_λ` (as `E i h` for `h : λ + α_i = μ`), dots of degree `(α_i, α_i)` and

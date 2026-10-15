@@ -41,7 +41,7 @@ open CategoryTheory StringDiagrams QuantumGroup UDot Presentation Biadjunction
 universe w u v
 
 variable {I : Type u} {C : CartanDatum I} {X Y : Type v} [AddCommGroup X] [AddCommGroup Y]
-  (RD : RootDatum C X Y) (k : Type w) [CommRing k]
+  (RD : WeightDatum C X Y) (k : Type w) [CommRing k]
 
 @[simp] theorem sh_dn_add_sh_up (i : I) (ν : X) : sh RD (dn i) + (sh RD (up i) + ν) = ν := by
   rw [← add_assoc, show dn i = (up i).dual from rfl, sh_dual_add_sh, zero_add]

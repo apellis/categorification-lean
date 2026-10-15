@@ -37,7 +37,7 @@ namespace UDot
 
 variable {I : Type*} {K : Type*} [Field K]
 variable {C : CartanDatum I} {X Y : Type*} [AddCommGroup X] [AddCommGroup Y]
-  (RD : RootDatum C X Y) (q : Kˣ)
+  (RD : WeightDatum C X Y) (q : Kˣ)
 
 variable (C) in
 /-- The divided power `E_{εi}^{(a)} = E_{εi}^a / [a]_i^!` in the free algebra (KL III (2.14)). -/

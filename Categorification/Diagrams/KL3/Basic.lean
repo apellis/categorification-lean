@@ -88,7 +88,7 @@ def Letter.dual {I : Type u} (l : Letter I) : Letter I := (!l.1, l.2)
     Letter.dual (b, i) = (!b, i) := rfl
 
 variable {I : Type u} {C : CartanDatum I} {X Y : Type v} [AddCommGroup X] [AddCommGroup Y]
-  (RD : RootDatum C X Y)
+  (RD : WeightDatum C X Y)
 
 /-- The weight `ε i_X` of the signed letter `(ε, i)`. -/
 def sh (l : Letter I) : X := sgn l.1 • RD.iX l.2
@@ -281,7 +281,7 @@ def cod : Shape I → List (Letter I)
 variable {RD}
 
 /-- The generator of `psig` of shape `g` whose rightmost region is `ν`. -/
-def gen (RD : RootDatum C X Y) (ν : X) : Shape I → (psig RD).Gen
+def gen (RD : WeightDatum C X Y) (ν : X) : Shape I → (psig RD).Gen
   | dot l => .gen (.dot ⟨l, ν⟩)
   | cross ε i j => .gen (.cross ε i j ν)
   | cup l => .cup ⟨l, sh RD l.dual + ν⟩

@@ -105,7 +105,7 @@ namespace KL3
 variable {X Y : Type*} [AddCommGroup X] [AddCommGroup Y]
 
 /-- **KL III Proposition 2.5 in rank one** (e.g. `U̇(sl₂)`), over `ℚ(q)`, with no hypothesis. -/
-theorem formNondeg_rankOne [Subsingleton I] (RD : RootDatum C X Y) : FormNondeg RD := by
+theorem formNondeg_rankOne [Subsingleton I] (RD : WeightDatum C X Y) : FormNondeg RD := by
   refine formNondeg RD fun x hx => ?_
   rw [radK_eq_bot hqK (fun i => ?_) hx]
   · exact Submodule.zero_mem _

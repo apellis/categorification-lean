@@ -93,7 +93,7 @@ variable {k : Type*} [Field k] {B : Type u} [Bicategory.{w, v} B]
   [∀ a b : B, HasShift (a ⟶ b) ℤ] [GradedBicategory B]
   [∀ a b : B, HasZeroObject (a ⟶ b)] [∀ a b : B, HasBinaryBiproducts (a ⟶ b)]
   {I : Type*} {C : CartanDatum I} {X Y : Type*} [AddCommGroup X] [AddCommGroup Y]
-  {RD : RootDatum C X Y} {Q : I → I → MvPolynomial (Fin 2) k}
+  {RD : WeightDatum C X Y} {Q : I → I → MvPolynomial (Fin 2) k}
 
 namespace QStrong
 

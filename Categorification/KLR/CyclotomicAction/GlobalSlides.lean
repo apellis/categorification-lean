@@ -29,7 +29,7 @@ noncomputable section
 variable {I : Type u} [DecidableEq I] {k : Type v} [CommRing k]
   (Q : I → I → MvPolynomial (Fin 2) k) (a : I → Polynomial k)
   {C : CartanDatum I} {X Y : Type u₁} [AddCommGroup X] [AddCommGroup Y]
-  (RD : QuantumGroup.UDot.RootDatum C X Y) (Λ : X)
+  (RD : QuantumGroup.UDot.WeightDatum C X Y) (Λ : X)
 
 /-- **Endomorphisms of `E_j E_i` compatible with the generators at a block `γ`**: pairs of an
 endomorphism of the composite on weight spaces and of the composite of cyclotomic induction

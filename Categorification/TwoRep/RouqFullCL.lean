@@ -38,7 +38,7 @@ universe w v u u₁
 variable {k : Type*} [CommRing k] {B : Type u} [Bicategory.{w, v} B]
   [∀ a b : B, Preadditive (a ⟶ b)] [∀ a b : B, Linear k (a ⟶ b)]
   {I : Type*} {C : CartanDatum I} {X Y : Type u₁} [AddCommGroup X] [AddCommGroup Y]
-  {RD : RootDatum C X Y}
+  {RD : WeightDatum C X Y}
 
 /-- Brundan's mixed inversion relation (1.7), on the actual right-adjunction
 mates for every distinct ordered pair and every region square. This is separate

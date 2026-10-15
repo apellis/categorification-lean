@@ -76,7 +76,7 @@ open CategoryTheory CategoryTheory.Limits CategoryTheory.Idempotents StringDiagr
 universe w u v
 
 variable {I : Type u} {C : CartanDatum I} {X Y : Type v} [AddCommGroup X] [AddCommGroup Y]
-  (RD : RootDatum C X Y) (k : Type w) [Field k]
+  (RD : WeightDatum C X Y) (k : Type w) [Field k]
 
 /-! ## The ring `K₀(U̇) = ⊕_{λ, ρ} K₀(U̇(λ, ρ))` -/
 

@@ -136,7 +136,7 @@ end Evaluation
 
 namespace RouqFamily
 variable {I : Type*} {C : CartanDatum I} {X Y : Type u₁}
-  [AddCommGroup X] [AddCommGroup Y] {RD : RootDatum C X Y}
+  [AddCommGroup X] [AddCommGroup Y] {RD : WeightDatum C X Y}
   (S : RouqFamily (B := B) RD)
 
 /-- The positive-band cap turn, using the actual positive inverse component. -/

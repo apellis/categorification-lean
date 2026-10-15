@@ -97,7 +97,7 @@ open QuantumGroup UDot
 variable {B : Type u} [Bicategory.{w, v} B] [∀ a b : B, Preadditive (a ⟶ b)]
   [AdditiveWhiskering B]
   {I : Type*} {C : CartanDatum I} {X Y : Type u₁} [AddCommGroup X] [AddCommGroup Y]
-  {RD : RootDatum C X Y} (S : RouqFamily (B := B) RD)
+  {RD : WeightDatum C X Y} (S : RouqFamily (B := B) RD)
 
 /-- The double right mate of the downward dot is the dot. -/
 theorem conj_dotDn (i : I) {x y : X} (h : x + RD.iX i = y) :

@@ -146,7 +146,7 @@ variable {k : Type w'} [CommRing k] {B : Type u} [Bicategory.{w, v} B]
   [∀ (a b c : B) (f : a ⟶ b), (precomp c f).Linear k]
   {I₁ I₂ : Type*} {C₁ : CartanDatum I₁} {C₂ : CartanDatum I₂}
   {X₁ Y₁ X₂ Y₂ : Type u₁} [AddCommGroup X₁] [AddCommGroup Y₁] [AddCommGroup X₂]
-  [AddCommGroup Y₂] {RD₁ : RootDatum C₁ X₁ Y₁} {RD₂ : RootDatum C₂ X₂ Y₂}
+  [AddCommGroup Y₂] {RD₁ : WeightDatum C₁ X₁ Y₁} {RD₂ : WeightDatum C₂ X₂ Y₂}
   {W : RouqFamily (B := B) RD₁} {T : RouqFamily (B := B) RD₂}
 
 theorem fst_step' (i : I₁) {a₁ b₁ : X₁} {a₂ b₂ : X₂}
@@ -179,7 +179,7 @@ def prodQ (Q₁ : I₁ → I₁ → MvPolynomial (Fin 2) k) (Q₂ : I₂ → I�
 
 /-- The braid relation of `RouqUpKLR.braid` for a Rouquier family, as a proposition. -/
 def braidEq {I : Type*} {C : CartanDatum I} {X Y : Type u₁} [AddCommGroup X] [AddCommGroup Y]
-    {RD : RootDatum C X Y} {B' : Type*} [Bicategory B'] [∀ a b : B', Preadditive (a ⟶ b)]
+    {RD : WeightDatum C X Y} {B' : Type*} [Bicategory B'] [∀ a b : B', Preadditive (a ⟶ b)]
     (S : RouqFamily (B := B') RD)
     (i j c : I) {l w₁ w₂ w₃ w₄ w₅ w₆ m : X} (e1 : l + RD.iX c = w₁) (e2 : w₁ + RD.iX j = w₂)
     (e3 : w₂ + RD.iX i = m) (e4 : w₁ + RD.iX i = w₃) (e5 : w₃ + RD.iX j = m)

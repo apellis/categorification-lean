@@ -36,14 +36,14 @@ variable {I : Type*} {C : CartanDatum I} {X Y : Type*} [AddCommGroup X] [AddComm
 /-- **KL III Proposition 2.5 for `( , )` over `ℚ(q)`** (as a statement): the bilinear form
 `( , )` of Proposition 2.2 on `U̇` is nondegenerate, i.e. `(x, y) = 0` for all `y` forces
 `x = 0`. -/
-def FormNondeg (RD : RootDatum C X Y) : Prop :=
+def FormNondeg (RD : WeightDatum C X Y) : Prop :=
   ∀ x : UD RD qK, (∀ y : UD RD qK, form RD x y = 0) → x = 0
 
-theorem formNondeg_iff (RD : RootDatum C X Y) :
+theorem formNondeg_iff (RD : WeightDatum C X Y) :
     FormNondeg RD ↔ Nondegenerate (form RD) := Iff.rfl
 
 /-- **KL III Proposition 2.5 for `⟨ , ⟩`, given the statement for `( , )`**. -/
-theorem sform_nondeg {RD : RootDatum C X Y} (h : FormNondeg RD) (x : UD RD qK)
+theorem sform_nondeg {RD : WeightDatum C X Y} (h : FormNondeg RD) (x : UD RD qK)
     (hx : ∀ y, sform RD x y = 0) : x = 0 :=
   nondegenerate_hform_of_formUD RD qK (cK C) hqK barQ barQ_vQ barQ_barQ h x hx
 

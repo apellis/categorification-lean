@@ -131,7 +131,7 @@ theorem sconv_two_left (w : ℕ → A) (t₀ t₁ : A) (β : ℕ) :
 end Conv
 
 variable {I : Type u} {C : CartanDatum I} {X Y : Type v} [AddCommGroup X] [AddCommGroup Y]
-  (RD : RootDatum C X Y) (k : Type w) [CommRing k]
+  (RD : WeightDatum C X Y) (k : Type w) [CommRing k]
 
 theorem lin_ccwL_eq_zero (ν : X) (i : I) (m : ℤ) (h : m + 1 + ip RD i ν < 0) :
     (pres RD k).lin (ccwL RD k ν i m) = 0 := ccwU_eq_zero RD k ν i m h

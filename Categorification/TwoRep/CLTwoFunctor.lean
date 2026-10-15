@@ -59,7 +59,7 @@ variable {k : Type*} [Field k] {B : Type u} [Bicategory.{w, v} B]
   [GradedBicategory.ShiftCoherence B] [GradedBicategory.IsLinear B k]
   [∀ a b : B, IsIdempotentComplete (a ⟶ b)] [∀ a b : B, HomFinite k (a ⟶ b)]
   {I : Type*} [DecidableEq I] {C : CartanDatum I} {X Y : Type u₁} [AddCommGroup X]
-  [AddCommGroup Y] {RD : RootDatum C X Y}
+  [AddCommGroup Y] {RD : WeightDatum C X Y}
 
 namespace QStrong
 

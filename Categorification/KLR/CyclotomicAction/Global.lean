@@ -53,7 +53,7 @@ instance res_linear (i : I) {β δ : Multiset I} (h : {i} + β = δ) :
 /-! ### Weights of blocks -/
 
 variable {C : CartanDatum I} {X Y : Type u₁} [AddCommGroup X] [AddCommGroup Y]
-  (RD : QuantumGroup.UDot.RootDatum C X Y) (Λ : X)
+  (RD : QuantumGroup.UDot.WeightDatum C X Y) (Λ : X)
 
 /-- The weight `Σ_{i ∈ β} i_X - Λ` of the block `R^Λ(β)-mod`. -/
 def blockWeight (β : Multiset I) : X := (β.map RD.iX).sum - Λ

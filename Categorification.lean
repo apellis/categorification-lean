@@ -369,6 +369,7 @@ import Categorification.KLR.CyclotomicAction.Slides
 import Categorification.KLR.CyclotomicAction.Square
 import Categorification.KLR.CyclotomicAction.Global
 import Categorification.KLR.CyclotomicAction.GlobalBraid
+import Categorification.KLR.CyclotomicAction.GlobalBraidQ
 import Categorification.KLR.CyclotomicAction.GlobalCross
 import Categorification.KLR.CyclotomicAction.Comparison
 import Categorification.KLR.CyclotomicAction.KangKashiwara

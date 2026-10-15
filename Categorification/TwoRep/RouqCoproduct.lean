@@ -488,27 +488,35 @@ theorem mat_neg_apply {D : Type*} [Category D] [Preadditive D] {M N : Mat_ D} (f
     (i : M.ι) (j : N.ι) : (-f) i j = -(f i j) := rfl
 
 omit [AdditiveWhiskering B] in
+theorem sigD_sigLD : sigD L ≫ (-sigLD L) + capP L ≫ cupNP L = 𝟙 _ := by
+  rw [Preadditive.comp_neg, sigD, sigLD, diagMat_comp_diagMat, ← diagMat_neg]
+  refine Mat_.hom_ext _ _ fun a c => ?_
+  rw [Mat_.add_apply, capP_comp_apply]
+  simp only [cupNP, diagMat]
+  by_cases hac : a = c
+  · subst hac
+    simp only [dite_true, eqToHom_refl, Category.comp_id, ite_true, Mat_.id_apply_self,
+      sig_sigL_eq (L a), Fin.sum_univ_eq_sum_range (fun m => (L a).capD m ≫ (L a).cupN m)]
+    abel
+  · simp [hac, Mat_.id_apply_of_ne _ _ _ hac]
+
+omit [AdditiveWhiskering B] in
+theorem sigD_capNM : sigD L ≫ capNM L = 0 := by
+  refine Mat_.hom_ext _ _ fun a q => ?_
+  rw [sigD, diagMat_comp_apply, mat_zero_apply]
+  simp only [capNM]
+  split_ifs with haq
+  · subst haq
+    exact (L q.1).sig_capN (by have := q.2.2; omega) q.2.2
+  · exact Limits.comp_zero
+
+omit [AdditiveWhiskering B] in
 theorem phiHom_phiInv : phiHom L ≫ phiInv L = 𝟙 _ := by
   rw [phiHom, phiInv, Biprod.ofComponents_comp, ← Biprod.ofComponents_id]
   congr 1
-  · rw [Preadditive.comp_neg, sigD, sigLD, diagMat_comp_diagMat, ← diagMat_neg]
-    refine Mat_.hom_ext _ _ fun a c => ?_
-    rw [Mat_.add_apply, capP_comp_apply]
-    simp only [cupNP, diagMat]
-    by_cases hac : a = c
-    · subst hac
-      simp only [dite_true, eqToHom_refl, Category.comp_id, ite_true, Mat_.id_apply_self,
-        sig_sigL_eq (L a), Fin.sum_univ_eq_sum_range (fun m => (L a).capD m ≫ (L a).cupN m)]
-      abel
-    · simp [hac, Mat_.id_apply_of_ne _ _ _ hac]
+  · exact sigD_sigLD L
   · rw [Limits.comp_zero, add_zero]
-    refine Mat_.hom_ext _ _ fun a q => ?_
-    rw [sigD, diagMat_comp_apply, mat_zero_apply]
-    simp only [capNM]
-    split_ifs with haq
-    · subst haq
-      exact (L q.1).sig_capN (by have := q.2.2; omega) q.2.2
-    · exact Limits.comp_zero
+    exact sigD_capNM L
   · rw [Limits.zero_comp, add_zero, Preadditive.comp_neg]
     refine Mat_.hom_ext _ _ fun q c => ?_
     rw [mat_neg_apply, sigLD, comp_diagMat_apply, mat_zero_apply]

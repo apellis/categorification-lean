@@ -141,4 +141,17 @@ theorem BrundanUpKLR.toCL {S : RouqFamily (B := B) RD} {Sc : CL.CLScalars C k}
   rw [← brundanQ_eq_qCL Sc h]
   exact H
 
+/-- The mixed upward equations use `Q i j` only for `i ≠ j`. -/
+theorem RouqUpKLR.of_eq {S : RouqFamily (B := B) RD} {Q Q' : I → I → MvPolynomial (Fin 2) k}
+    (H : RouqUpKLR S Q) (h : ∀ i j, i ≠ j → Q i j = Q' i j) : RouqUpKLR S Q' where
+  square i j hij _ _ _ _ h₁ h₂ h₃ h₄ := by
+    rw [← h i j hij]
+    exact H.square i j hij h₁ h₂ h₃ h₄
+  slide_left := H.slide_left
+  slide_right := H.slide_right
+  braid := H.braid
+  braidQ i j hij _ _ _ _ _ _ h₁ h₂ h₃ h₄ h₅ h₆ h₇ := by
+    rw [← h i j hij]
+    exact H.braidQ i j hij h₁ h₂ h₃ h₄ h₅ h₆ h₇
+
 end Categorification.TwoRep

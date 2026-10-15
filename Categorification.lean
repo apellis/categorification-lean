@@ -378,6 +378,8 @@ import Categorification.KLR.CyclotomicAction.GlobalLoc
 import Categorification.KLR.CyclotomicAction.GlobalFamily
 import Categorification.KLR.CyclotomicAction.MixedComparison
 import Categorification.KLR.CyclotomicAction.GlobalMixed
+import Categorification.KLR.KKScalars
+import Categorification.KLR.CyclotomicAction.PresCL
 import Categorification.KLR.CyclotomicAbsentEquivalence
 import Categorification.KLR.CyclotomicAbsentModule
 import Categorification.KLR.CyclotomicPresentModule

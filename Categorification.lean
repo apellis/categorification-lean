@@ -375,6 +375,7 @@ import Categorification.KLR.CyclotomicAction.GlobalCross
 import Categorification.KLR.CyclotomicAction.Comparison
 import Categorification.KLR.CyclotomicAction.KangKashiwara
 import Categorification.KLR.CyclotomicAction.GlobalLoc
+import Categorification.KLR.CyclotomicAction.GlobalFamily
 import Categorification.KLR.CyclotomicAbsentEquivalence
 import Categorification.KLR.CyclotomicAbsentModule
 import Categorification.KLR.CyclotomicPresentModule

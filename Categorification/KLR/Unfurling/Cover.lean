@@ -15,9 +15,10 @@ import Mathlib.Tactic.FinCases
 /-!
 # The unfurled index set and the factorization of `P_{ij}`
 
-Webster, *Unfurling Khovanov–Lauda–Rouquier algebras*, arXiv:1603.06311v3, §3.3, attaches to
-a KLR datum on `I` and a choice of spectra `U_i` (finite sets of nonzero scalars) the unfurled
-index set `Ĩ` of pairs `(i, u)` with `u ∈ U_i` (definition with LaTeX label `def:tilde-I`).
+Webster, *Unfurling Khovanov–Lauda–Rouquier algebras*, arXiv:1603.06311v3, §2, attaches to
+a KLR datum on `I` and a choice of spectra `U_i` (sets of nonzero scalars, finite or infinite)
+the unfurled index set `Ĩ` of pairs `(i, u)` with `u ∈ U_i` (definition with LaTeX label
+`def:tilde-I`); §3.3 counts its arrows.
 After the substitution `x ↦ u (1 + x)^{d_i}`, the polynomials `P_{ij}` factor as a power of the
 difference of the two variables times a unit of the power series ring (equation with label
 `eq:factorize`); the exponent is the number of arrows between the two vertices of `Ĩ`.
@@ -38,7 +39,8 @@ invertibility of `d_i` is used only for the linear coefficient of `ϖ_{(i,u)}`.
   polynomial (natural weights); `KLR.Unfurling.exists_aeval_eq_pow_mul_of_int` for integer
   weights `(c e₁, c e₂)`, `c > 0`, as in KLR gradings.
 * `KLR.Unfurling.eq_of_pow_mul_eq_pow_mul` : the exponent is unique (order of vanishing).
-* `KLR.Unfurling.UnfurlingDatum.ofSpectra` : the datum on `Σ i, U i`.
+* `KLR.Unfurling.UnfurlingDatum.ofSpectra` : the datum on `Σ i, U i` for arbitrary spectra
+  `U_i ⊆ k ∖ {0}`; `ofFinsetSpectra` for finite spectra and `ofClosure` for `U_i = k ∖ {0}`.
 
 ## Argument order
 
@@ -243,11 +245,12 @@ variable {I : Type*} {P : I → I → MvPolynomial (Fin 2) k}
 
 /-- The unfurling datum on `Σ i, U i` (Webster, arXiv:1603.06311v3, definition with label
 `def:tilde-I`, and §3.3, equation with label `eq:factorize`): `ϖ_{(i,u)}(z) = u (1 + z)^{d_i}`,
-and the arrows and units come from `exists_aeval_eq_pow_mul`. The hypotheses: `d_i > 0` is
-invertible in `k`, `0 ∉ U_i`, `P i j ≠ 0` for `i ≠ j`, and `P i j` is weighted homogeneous
-for the weights `(d_j, d_i)` (its first variable sits on a `j`-strand). -/
+and the arrows and units come from `exists_aeval_eq_pow_mul`. The spectra `U_i ⊆ k ∖ {0}` are
+arbitrary subsets, finite or infinite, as in Webster. The hypotheses: `d_i > 0` is invertible in
+`k`, `0 ∉ U_i`, `P i j ≠ 0` for `i ≠ j`, and `P i j` is weighted homogeneous for the weights
+`(d_j, d_i)` (its first variable sits on a `j`-strand). -/
 noncomputable def ofSpectra (d : I → ℕ) (hdpos : ∀ i, 0 < d i) (hd : ∀ i, ((d i : ℕ) : k) ≠ 0)
-    (U : I → Finset k) (hU : ∀ i, (0 : k) ∉ U i) (hP : ∀ i j, i ≠ j → P i j ≠ 0)
+    (U : I → Set k) (hU : ∀ i, (0 : k) ∉ U i) (hP : ∀ i j, i ≠ j → P i j ≠ 0)
     (hhom : ∀ i j, i ≠ j → ∃ D, (P i j).IsWeightedHomogeneous ![d j, d i] D) :
     UnfurlingDatum k P (Σ i, U i) :=
   haveI := Classical.dec
@@ -284,6 +287,45 @@ noncomputable def ofSpectra (d : I → ℕ) (hdpos : ∀ i, 0 < d i) (hd : ∀ i
       congr 2
       funext i
       fin_cases i <;> simp }
+
+@[simp] theorem ofSpectra_π (d : I → ℕ) (hdpos hd) (U : I → Set k) (hU hP hhom) :
+    (ofSpectra (P := P) d hdpos hd U hU hP hhom).π = Sigma.fst := rfl
+
+@[simp] theorem ofSpectra_pw (d : I → ℕ) (hdpos hd) (U : I → Set k) (hU hP hhom)
+    (j : Σ i, U i) :
+    (ofSpectra (P := P) d hdpos hd U hU hP hhom).pw j =
+      Polynomial.C (j.2 : k) * (1 + Polynomial.X) ^ d j.1 := rfl
+
+/-- The constant term of `ϖ_{(i,u)}` is `u`. -/
+@[simp] theorem ofSpectra_pw_coeff_zero (d : I → ℕ) (hdpos hd) (U : I → Set k) (hU hP hhom)
+    (j : Σ i, U i) : ((ofSpectra (P := P) d hdpos hd U hU hP hhom).pw j).coeff 0 = j.2 := by
+  simp [add_comm (1 : Polynomial k), Polynomial.coeff_X_add_one_pow]
+
+/-- `ofSpectra` for finite spectra `U_i`. -/
+noncomputable def ofFinsetSpectra (d : I → ℕ) (hdpos : ∀ i, 0 < d i)
+    (hd : ∀ i, ((d i : ℕ) : k) ≠ 0) (U : I → Finset k) (hU : ∀ i, (0 : k) ∉ U i)
+    (hP : ∀ i j, i ≠ j → P i j ≠ 0)
+    (hhom : ∀ i j, i ≠ j → ∃ D, (P i j).IsWeightedHomogeneous ![d j, d i] D) :
+    UnfurlingDatum k P (Σ i, U i) :=
+  ofSpectra d hdpos hd (fun i => (U i : Set k)) hU hP hhom
+
+/-- The unfurling datum on the full closure `Σ i, k ∖ {0}`: every nonzero scalar is a spectral
+value (Webster, arXiv:1603.06311v3, definition with label `def:tilde-I`, with `U_i = k ∖ {0}`;
+this choice is complete in Webster's sense). -/
+noncomputable def ofClosure (d : I → ℕ) (hdpos : ∀ i, 0 < d i) (hd : ∀ i, ((d i : ℕ) : k) ≠ 0)
+    (hP : ∀ i j, i ≠ j → P i j ≠ 0)
+    (hhom : ∀ i j, i ≠ j → ∃ D, (P i j).IsWeightedHomogeneous ![d j, d i] D) :
+    UnfurlingDatum k P (Σ _ : I, {u : k // u ≠ 0}) :=
+  ofSpectra d hdpos hd (fun _ => {u | u ≠ 0}) (fun _ h => h rfl) hP hhom
+
+@[simp] theorem ofClosure_π (d : I → ℕ) (hdpos hd hP hhom) :
+    (ofClosure (P := P) d hdpos hd hP hhom).π = Sigma.fst := rfl
+
+/-- The constant term of `ϖ_{(i,u)}` is `u`. -/
+@[simp] theorem ofClosure_pw_coeff_zero (d : I → ℕ) (hdpos hd hP hhom)
+    (j : Σ _ : I, {u : k // u ≠ 0}) :
+    ((ofClosure (P := P) d hdpos hd hP hhom).pw j).coeff 0 = j.2 :=
+  ofSpectra_pw_coeff_zero (U := fun _ => {u | u ≠ 0}) d hdpos hd _ hP hhom j
 
 end UnfurlingDatum
 

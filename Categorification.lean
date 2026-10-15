@@ -461,6 +461,9 @@ import Categorification.KLR.Theorem321
 import Categorification.KLR.Theorem321Functor
 import Categorification.KLR.TightMonomials
 import Categorification.KLR.Unfurling.Cover
+import Categorification.KLR.Unfurling.Density
+import Categorification.KLR.Unfurling.Substitution
+import Categorification.KLR.Unfurling.Target
 import Categorification.QuantumGroup.Bar
 import Categorification.QuantumGroup.Cartan
 import Categorification.QuantumGroup.Coproduct

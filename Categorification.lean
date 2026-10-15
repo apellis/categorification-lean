@@ -478,12 +478,14 @@ import Categorification.KLR.Theorem321Functor
 import Categorification.KLR.TightMonomials
 import Categorification.KLR.Unfurling.BranchedCover
 import Categorification.KLR.Unfurling.CompletedPolyRep
+import Categorification.KLR.Unfurling.BubbleValues
 import Categorification.KLR.Unfurling.Completion
 import Categorification.KLR.Unfurling.Cover
 import Categorification.KLR.Unfurling.Density
 import Categorification.KLR.Unfurling.Gamma
 import Categorification.KLR.Unfurling.GammaHomo
 import Categorification.KLR.Unfurling.Generic
+import Categorification.KLR.Unfurling.GenericLabels
 import Categorification.KLR.Unfurling.Intertwine
 import Categorification.KLR.Unfurling.Nondeg
 import Categorification.KLR.Unfurling.SeriesAction

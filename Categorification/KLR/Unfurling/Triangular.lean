@@ -31,16 +31,18 @@ For a lift `t` of `𝐢` (`π ∘ t = 𝐢`) and a reduced word `σ`:
   constant term: only the full word survives, and every crossing contributes a unit factor in
   the dots (Webster's observation that the leading diagram is multiplied by an invertible power
   series).
-* `Unfurling.eq_zero_of_cycGamma_mul_e_eq_zero`, `Unfurling.eq_zero_of_cycGamma_eq_zero`: for
-  the series `ϖ_j(x) = z_j + x` of `UnfurlingDatum.ofGeneric`, if
+* `Unfurling.eq_zero_of_cycGamma_mul_e_eq_zero`, `Unfurling.eq_zero_of_cycGamma_eq_zero`: if
   `Γ(∑ c_{w,u} ψ_{ρ w} x^u e(𝐢)) e(t) = 0` (in particular if `Γ(∑ …) = 0`) with all exponents
-  `u_a < M`, then all `c_{w,u} = 0`. Take `w` of maximal length with a nonzero coefficient; in
-  the corner `e(w • t) (·) e(t)` only the terms with this `w` remain, and they give
-  `ψ_{ρ w} U(y) ∑_u c_{w,u} ∏_a (z_{t_a} + y_a)^{u_a} e(t)`. The corner basis of the cyclotomic
-  quotient (`CycKLR.cornerBasis`, the rank-one computation of the source) and the invertibility
-  of `U` modulo `(y_a^M)` reduce this to `∑_u c_{w,u} ∏_a (z_{t_a} + y_a)^{u_a} ≡ 0` modulo
-  `(y_a^M)`, and the shift `y_a ↦ y_a - z_{t_a}` turns it into `∑_u c_{w,u} y^u ≡ 0` modulo
-  `((y_a - z_{t_a})^M)`, so all coefficients vanish.
+  `u_a < M`, then all `c_{w,u} = 0`. The series `ϖ_j` are arbitrary (with nonzero linear
+  coefficient, as in every unfurling datum): Webster's `u(1 + x)^{d_i}` and the linear series
+  `z_j + x` of `UnfurlingDatum.ofGeneric` are both covered. Take `w` of maximal length with a
+  nonzero coefficient; in the corner `e(w • t) (·) e(t)` only the terms with this `w` remain,
+  and they give `ψ_{ρ w} U(y) f(ϖ_{t_1}(y_1), …) e(t)` with `f = ∑_u c_{w,u} x^u`. The corner
+  basis of the cyclotomic quotient (`CycKLR.cornerBasis`, the rank-one computation of the
+  source) and the invertibility of `U` modulo `(y_a^M)` reduce this to `f(ϖ(y)) ≡ 0` modulo
+  `(y_a^M)`, and `eq_zero_of_aeval_mem_boxIdeal` gives `f = 0`: after the shift
+  `x_a ↦ ϖ_a(0) + x_a`, the substitution sends `x^c` to `y^c` times a unit, so the coefficient
+  of a minimal exponent `c` survives (this is Webster's "minimal number of dots" step).
 
 Comparison with the source. Webster applies the argument to the 2-category `𝒰` and the
 representations `𝒳^{μ₊, μ₋}`, with the bound `m` on the number of dots; here the statement is
@@ -159,8 +161,152 @@ theorem mem_boxIdeal_of_aeval_add_mem {n n' M : ℕ} (hn : n = n') (z : Fin n �
 
 end Ideal
 
-/-- The series of `UnfurlingDatum.ofGeneric` are linear, `ϖ_j(x) = z_j + x`: the hypothesis of
-`eq_zero_of_cycGamma_eq_zero` (with `UnfurlingDatum.ofGeneric_arrows` for the arrows). -/
+/-! ### Substitution by series with nonzero linear coefficient -/
+
+section Substitution
+
+variable {k : Type*} [Field k] {n : ℕ}
+
+/-- The shift `x_a ↦ z_a + x_a` does not raise the degree in any variable. -/
+theorem degreeOf_aeval_C_add_X_le (z : Fin n → k) (f : MvPolynomial (Fin n) k) (b : Fin n) :
+    degreeOf b (aeval (fun a => C (z a) + X a) f) ≤ degreeOf b f := by
+  classical
+  conv_lhs => rw [f.as_sum, map_sum]
+  refine (degreeOf_sum_le _ _ _).trans (Finset.sup_le fun s hs => ?_)
+  rw [aeval_monomial, algebraMap_eq]
+  refine (degreeOf_C_mul_le _ _ _).trans ?_
+  refine (degreeOf_prod_le _ _ _).trans ((Finset.sum_le_sum fun a _ =>
+    degreeOf_pow_le _ _ _).trans ?_)
+  refine le_trans ?_ (monomial_le_degreeOf b hs)
+  have hle : ∀ a, degreeOf b (C (z a) + X a : MvPolynomial (Fin n) k) ≤ if a = b then 1 else 0 := by
+    intro a
+    refine (degreeOf_add_le _ _ _).trans (max_le (by rw [degreeOf_C]; exact Nat.zero_le _) ?_)
+    rw [degreeOf_X]
+    split_ifs <;> simp_all [eq_comm]
+  calc ∑ a ∈ s.support, s a * degreeOf b (C (z a) + X a : MvPolynomial (Fin n) k)
+      ≤ ∑ a ∈ s.support, s a * (if a = b then 1 else 0) :=
+        Finset.sum_le_sum fun a _ => Nat.mul_le_mul_left _ (hle a)
+    _ ≤ s b := by
+        simp only [mul_ite, mul_one, mul_zero, Finset.sum_ite_eq']
+        split_ifs <;> simp
+
+/-- An element of `(x_a^M)` has no monomial `x^c` with all `c_a < M`. -/
+theorem coeff_eq_zero_of_mem_boxIdeal {M : ℕ} {F : MvPolynomial (Fin n) k}
+    (hF : F ∈ boxIdeal (fun _ : Fin n => (Polynomial.X ^ M : Polynomial k))) {c : Fin n →₀ ℕ}
+    (hc : ∀ a, c a < M) : F.coeff c = 0 := by
+  classical
+  have hspan : boxIdeal (fun _ : Fin n => (Polynomial.X ^ M : Polynomial k)) =
+      Ideal.span ((fun s => monomial s (1 : k)) '' Set.range fun q => Finsupp.single q M) := by
+    rw [boxIdeal, ← Set.range_comp]
+    congr 2
+    funext q
+    simp [X_pow_eq_monomial]
+  rw [hspan, mem_ideal_span_monomial_image] at hF
+  by_contra h0
+  obtain ⟨_, ⟨q, rfl⟩, hq⟩ := hF c (mem_support_iff.2 h0)
+  have := hq q
+  simp only [Finsupp.single_eq_same] at this
+  exact (hc q).not_ge this
+
+/-- The coefficient of a minimal exponent after the substitution `x_a ↦ x_a V_a`. -/
+theorem coeff_aeval_X_mul_of_minimal (V : Fin n → MvPolynomial (Fin n) k)
+    (f : MvPolynomial (Fin n) k) {c : Fin n →₀ ℕ}
+    (hmin : ∀ c' ∈ f.support, c' ≤ c → c' = c) :
+    (aeval (fun a => X a * V a) f).coeff c =
+      f.coeff c * c.prod fun a e => constantCoeff (V a) ^ e := by
+  classical
+  conv_lhs => rw [f.as_sum, map_sum]
+  rw [coeff_sum]
+  have hterm : ∀ s, aeval (fun a => X a * V a) (monomial s (f.coeff s)) =
+      monomial s (f.coeff s) * s.prod fun a e => V a ^ e := by
+    intro s
+    rw [aeval_monomial, algebraMap_eq, monomial_eq, mul_assoc, ← Finsupp.prod_mul]
+    simp only [mul_pow]
+  simp only [hterm, coeff_monomial_mul']
+  by_cases hc : c ∈ f.support
+  · rw [Finset.sum_eq_single c]
+    · rw [ite_eq_left_iff.2 fun h => (h le_rfl).elim, tsub_self, ← constantCoeff_eq,
+        map_finsuppProd]
+      simp only [map_pow]
+    · intro s hs hne
+      rw [ite_eq_right_iff.2 fun hle => (hne (hmin s hs hle)).elim]
+    · intro h; exact (h hc).elim
+  · rw [notMem_support_iff.1 hc, zero_mul]
+    refine Finset.sum_eq_zero fun s hs => ?_
+    rw [ite_eq_right_iff.2 fun hle => (hc (hmin s hs hle ▸ hs)).elim]
+
+/-- **Substitution by series with nonzero linear coefficient is injective modulo `(y_a^M)` on
+polynomials of degree `< M` in each variable.** If `φ_a(0)`-shifted variables are replaced by
+`φ_a(y_a)` with `φ_a'(0) ≠ 0`, and `f(φ(y)) ∈ (y_a^M)` with `f` supported on exponents `< M`,
+then `f = 0`. -/
+theorem eq_zero_of_aeval_mem_boxIdeal {n' M : ℕ} (hn : n = n') (φ : Fin n → Polynomial k)
+    (hφ : ∀ a, (φ a).coeff 1 ≠ 0) {f : MvPolynomial (Fin n) k}
+    (hf : ∀ s, f.coeff s ≠ 0 → ∀ a, s a < M)
+    (h : aeval (fun a => Polynomial.aeval (X (Fin.cast hn a)) (φ a)) f ∈
+      boxIdeal (fun _ : Fin n' => (Polynomial.X ^ M : Polynomial k))) : f = 0 := by
+  classical
+  subst hn
+  simp only [Fin.cast_eq_self] at h
+  by_contra hf0
+  -- the shift
+  set z : Fin n → k := fun a => (φ a).coeff 0
+  have hdvd : ∀ a, Polynomial.X ∣ φ a - Polynomial.C (z a) := fun a =>
+    Polynomial.X_dvd_iff.2 (by simp [z])
+  choose q hq using hdvd
+  have hq0 : ∀ a, (q a).coeff 0 ≠ 0 := by
+    intro a
+    have := congrArg (fun p : Polynomial k => p.coeff 1) (hq a)
+    simp only [Polynomial.coeff_sub, Polynomial.coeff_C, Polynomial.coeff_X_mul] at this
+    rw [← this]
+    simpa using hφ a
+  set ft := aeval (fun a => C (z a) + X a) f
+  have hback : aeval (fun a => X a - C (z a)) ft = f := by
+    rw [← AlgHom.comp_apply, comp_aeval]
+    conv_rhs => rw [← aeval_X_left_apply f]
+    refine congrArg (fun F => aeval F f) (funext fun a => ?_)
+    simp
+  have hft0 : ft ≠ 0 := fun h0 => hf0 (by rw [← hback, h0, map_zero])
+  -- the substitution factors through the shift
+  set V : Fin n → MvPolynomial (Fin n) k := fun a => Polynomial.aeval (X a) (q a)
+  have hfac : aeval (fun a => Polynomial.aeval (X a) (φ a)) f = aeval (fun a => X a * V a) ft := by
+    rw [← AlgHom.comp_apply, comp_aeval]
+    refine congrArg (fun F => aeval F f) (funext fun a => ?_)
+    have : φ a = Polynomial.C (z a) + Polynomial.X * q a := by rw [← hq a]; ring
+    rw [this]
+    simp [V, MvPolynomial.algebraMap_eq]
+  -- a minimal exponent of the shifted polynomial
+  obtain ⟨c, hcmin⟩ := exists_minimal_of_wellFoundedLT (· ∈ ft.support)
+    (support_nonempty.2 hft0)
+  have hcs : c ∈ ft.support := hcmin.prop
+  have hcbox : ∀ a, c a < M := by
+    intro a
+    have hM : 0 < M := by
+      obtain ⟨s, hs⟩ := support_nonempty.2 hf0
+      exact (Nat.zero_le _).trans_lt (hf s (mem_support_iff.1 hs) a)
+    calc c a ≤ degreeOf a ft := monomial_le_degreeOf a hcs
+      _ ≤ degreeOf a f := degreeOf_aeval_C_add_X_le z f a
+      _ < M := (degreeOf_lt_iff hM).2 fun s hs => hf s (mem_support_iff.1 hs) a
+  have hcoeff := coeff_aeval_X_mul_of_minimal V ft (c := c) fun c' hc' hle =>
+    le_antisymm hle (hcmin.2 hc' hle)
+  rw [← hfac, coeff_eq_zero_of_mem_boxIdeal h hcbox] at hcoeff
+  refine (mul_ne_zero (mem_support_iff.1 hcs) ?_) hcoeff.symm
+  rw [Finsupp.prod]
+  refine Finset.prod_ne_zero_iff.2 fun a _ => pow_ne_zero _ ?_
+  have hcc : ∀ p : Polynomial k,
+      constantCoeff (Polynomial.aeval (X a : MvPolynomial (Fin n) k) p) = p.coeff 0 := by
+    intro p
+    induction p using Polynomial.induction_on' with
+    | add p q hp hq => rw [map_add, map_add, hp, hq, Polynomial.coeff_add]
+    | monomial m r =>
+      rw [Polynomial.aeval_monomial, map_mul, algebraMap_eq, constantCoeff_C, map_pow,
+        constantCoeff_X, Polynomial.coeff_monomial]
+      rcases m with _ | m <;> simp
+  simp only [V, hcc]
+  exact hq0 a
+
+end Substitution
+
+/-- The series of `UnfurlingDatum.ofGeneric` are linear, `ϖ_j(x) = z_j + x`. -/
 theorem UnfurlingDatum.ofGeneric_pw_linear {I J k : Type*} [Field k]
     {P : I → I → MvPolynomial (Fin 2) k} (π : J → I) (z : J → k) (hz) (hP) (j : J) :
     (UnfurlingDatum.ofGeneric (P := P) π z hz hP).pw j =
@@ -608,14 +754,13 @@ theorem substAt_eq_of_linear
 
 /-- **Triangularity of `Γ` on one column** (Webster, arXiv:1603.06311v3, proof of the theorem
 with label `nondegenerate`, the step showing that a relation acts by zero, for the KLR algebra).
-Let `D` have no arrows and linear series `ϖ_j(x) = z_j + x` (as `UnfurlingDatum.ofGeneric`), let
+Let `D` have no arrows (for instance `UnfurlingDatum.ofGeneric`; the series are arbitrary), let
 the labels of `ν̃` be pairwise distinct, and let `t` lift `𝐢`. If
 `Γ(∑_{(w,u) ∈ S} c_{w,u} ψ_{ρ w} x^u e(𝐢)) e(t) = 0` in the cyclotomic quotient with
 `a_j = y^M`, for reduced words `ρ w` and exponents `u_a < M`, then every `c_{w,u}` vanishes.
 Only the column `e(t)` is used: this is the morphism out of the summand `Ẽ_t 𝕍` of `E_𝐢 𝕍` in
 the source. -/
 theorem eq_zero_of_cycGamma_mul_e_eq_zero
-    (hlin : ∀ j, D.pw j = Polynomial.C ((D.pw j).coeff 0) + Polynomial.X)
     {i : Seq ν} {t : Seq ν'} (ht : down D.π hν t = i)
     (ρ : Perm (Fin (Multiset.card ν)) → List ℕ)
     (hρ : ∀ w, IsReduced (Multiset.card ν) (ρ w) ∧ wordProd (Multiset.card ν) (ρ w) = w)
@@ -672,20 +817,17 @@ theorem eq_zero_of_cycGamma_mul_e_eq_zero
     simp only [map_sum, Finset.mul_sum, Finset.sum_mul, map_smul, mul_smul_comm, smul_mul_assoc]
   have h1 := mem_boxIdeal_of_cycMk_eq_zero D harr hnd M (hred p0.1) t hcomb
   have h2 := mem_of_mul_mem_boxIdeal hU h1
-  rw [substAt_eq_of_linear D hν hlin t] at h2
-  have h3 := mem_boxIdeal_of_aeval_add_mem hm _ h2
-  have hbox : BoxSupported (fun a => (Polynomial.X - Polynomial.C
-      ((D.pw (t.lbl (Fin.cast hm a))).coeff 0)) ^ M) f := by
+  have hboxf : ∀ s, f.coeff s ≠ 0 → ∀ a, s a < M := by
     intro s hs a
     rw [hf, coeff_sum] at hs
     obtain ⟨p, hp, hps⟩ := Finset.exists_ne_zero_of_sum_ne_zero hs
     rw [coeff_smul, coeff_monomial] at hps
     split_ifs at hps with hpe
-    · rw [← hpe, Polynomial.natDegree_pow, Polynomial.natDegree_X_sub_C, mul_one]
+    · rw [← hpe]
       exact hS p (Finset.mem_filter.1 hp).1 a
     · simp at hps
-  have hf0 := eq_zero_of_boxSupported_of_mem _
-    (fun a => (Polynomial.monic_X_sub_C _).pow M) hbox h3
+  have hf0 := eq_zero_of_aeval_mem_boxIdeal hm (fun a => D.pw (t.lbl (Fin.cast hm a)))
+    (fun a => D.pw_coeff_one _) hboxf h2
   have hcoeff : f.coeff p0.2 = 0 := by rw [hf0]; simp
   rw [hf, coeff_sum, Finset.sum_eq_single p0] at hcoeff
   · rw [coeff_smul, coeff_monomial, ite_eq_left rfl, smul_eq_mul, mul_one] at hcoeff
@@ -698,12 +840,11 @@ theorem eq_zero_of_cycGamma_mul_e_eq_zero
 
 /-- **Triangularity of `Γ`** (Webster, arXiv:1603.06311v3, proof of the theorem with label
 `nondegenerate`, the step showing that a relation acts by zero, for the KLR algebra). Let `D` have no arrows
-and linear series `ϖ_j(x) = z_j + x` (as `UnfurlingDatum.ofGeneric`), let the labels of `ν̃`
+(the series are arbitrary), let the labels of `ν̃`
 be pairwise distinct, and let `t` lift `𝐢`. If
 `Γ(∑_{(w,u) ∈ S} c_{w,u} ψ_{ρ w} x^u e(𝐢)) = 0` in the cyclotomic quotient with `a_j = y^M`,
 for reduced words `ρ w` and exponents `u_a < M`, then every `c_{w,u}` vanishes. -/
 theorem eq_zero_of_cycGamma_eq_zero
-    (hlin : ∀ j, D.pw j = Polynomial.C ((D.pw j).coeff 0) + Polynomial.X)
     {i : Seq ν} {t : Seq ν'} (ht : down D.π hν t = i)
     (ρ : Perm (Fin (Multiset.card ν)) → List ℕ)
     (hρ : ∀ w, IsReduced (Multiset.card ν) (ρ w) ∧ wordProd (Multiset.card ν) (ρ w) = w)
@@ -712,7 +853,7 @@ theorem eq_zero_of_cycGamma_eq_zero
     (hS : ∀ p ∈ S, ∀ a, p.2 a < M)
     (h0 : Γ (∑ p ∈ S, c p • (ψw (ρ p.1) * pol (monomial p.2 1) * e i)) = 0) :
     ∀ p ∈ S, c p = 0 :=
-  eq_zero_of_cycGamma_mul_e_eq_zero D harr hν hnd M hPQ hlin ht ρ hρ S c hS
+  eq_zero_of_cycGamma_mul_e_eq_zero D harr hν hnd M hPQ ht ρ hρ S c hS
     (by rw [h0, zero_mul])
 
 end Categorification.KLR.Unfurling

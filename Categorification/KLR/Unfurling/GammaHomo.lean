@@ -3,31 +3,43 @@ Copyright (c) 2026 Alex Ellis. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 -/
 import Categorification.KLR.Unfurling.Gamma
-import Categorification.KLR.Unfurling.CompletedPolyRep
+import Categorification.KLR.Unfurling.SeriesAction
 import Categorification.KLR.BasisTheorem
 
 /-!
 # Webster's Lemma `lem:gamma-homo`
+
+Webster, *Unfurling Khovanov–Lauda–Rouquier algebras* (arXiv:1603.06311v3), §3.3, Lemma label
+`lem:gamma-homo`: the formulas with labels `com0new`–`com0newerer` define an injective
+homomorphism `γ : R → 𝖱̂` from the KLR algebra of `I` to the graded completion of the KLR
+algebra of the unfurled index set.
+
+* `Unfurling.gamma`: the homomorphism `γ : R(ν) → ∏_{ν̃.map π = ν} 𝖱̂(ν̃)`, for an unfurling
+  datum `D` over a field and any `Q` with a factorization `Q a b = P b a · P a b(v, u)`;
+* `Unfurling.gamma_intertwine`: `γ(r)` acts on the completed polynomial representation of the
+  unfurled algebra as `r` acts on `Pol_ν`, through the substitution `γ_P`;
+* `Unfurling.gamma_injective`: `γ` is injective when `π` is surjective (all spectra nonempty)
+  and `P a b ≠ 0` for `a ≠ b`.
+
+The proof is Webster's: the images of the generators intertwine `γ_P` (`Unfurling.Intertwine`),
+so the images of the two sides of a relation act equally on the image of `γ_P`; this image is
+dense (`Unfurling.Density`), the action is continuous and faithful
+(`Unfurling.CompletedPolyRep`), so `γ` respects the relations. Injectivity follows from the
+injectivity of `γ_P` and of the polynomial representation (KL I Cor. 2.6).
+
+Comparison with the source. Webster works over an algebraically closed field with the
+polynomials `P_{ij}` of a Cartan datum and possibly infinite spectra; here `k` is any field, the
+parameters are any `Q` admitting the polynomial-representation factorization, and `J` is any
+index set with the data of `UnfurlingDatum` (built from finite spectra by
+`UnfurlingDatum.ofSpectra` when the `P_{ij}` are weighted homogeneous). The completion is taken
+for the grading `unfGrading`, which differs from the symmetric grading of `𝖱` by a bounded shift
+on each idempotent and has the same completion.
 -/
 
 namespace Categorification.KLR.Unfurling
 
 open MvPolynomial TypeA PolyRep KLRAlgebra GradingDatum
 
--- STUB (to be replaced by the series-action file)
-section Stub
-variable {I : Type*} [DecidableEq I] {k : Type*} [CommRing k]
-  {Q : I → I → MvPolynomial (Fin 2) k} {P : I → I → MvPolynomial (Fin 2) k}
-  (hPQ : ∀ a b, a ≠ b → Q a b = P b a * rename ![1, 0] (P a b))
-  {G : GradingDatum Q} {ν : Multiset I}
-theorem coe_toCompletion_eq_ser (a : KLRAlgebra k Q ν) :
-    (↑(G.toCompletion a) : HahnSeries ℤ _) = ser G a := sorry
-theorem act_seriesAt_decomp (hX : ∀ a, 0 < G.degX a) (i : Seq ν)
-    (F : MvPowerSeries (Fin (Multiset.card ν)) k) {v w : Pol k ν}
-    (hw : F * (v i : MvPowerSeries _ k) = (w i : MvPowerSeries _ k))
-    (hw0 : ∀ i', i' ≠ i → w i' = 0) :
-    act hPQ (↑(seriesAt hX i F)) (decomp G v) = decomp G w := sorry
-end Stub
 
 variable {I J : Type*} [DecidableEq I] [DecidableEq J] {k : Type*} [Field k]
   {P Q : I → I → MvPolynomial (Fin 2) k} (D : UnfurlingDatum k P J)

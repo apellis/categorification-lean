@@ -466,6 +466,7 @@ import Categorification.KLR.Unfurling.Completion
 import Categorification.KLR.Unfurling.Cover
 import Categorification.KLR.Unfurling.Density
 import Categorification.KLR.Unfurling.Gamma
+import Categorification.KLR.Unfurling.GammaHomo
 import Categorification.KLR.Unfurling.Intertwine
 import Categorification.KLR.Unfurling.SeriesAction
 import Categorification.KLR.Unfurling.Substitution

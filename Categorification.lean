@@ -287,6 +287,7 @@ import Categorification.KLR.Crystal.Thm317Graded
 import Categorification.KLR.Crystal.Tops
 import Categorification.KLR.BaseChange
 import Categorification.KLR.Cyclotomic
+import Categorification.KLR.CyclotomicMultFree
 import Categorification.KLR.CyclotomicFinite
 import Categorification.KLR.CyclotomicExact
 import Categorification.KLR.CyclotomicMaps
@@ -539,6 +540,7 @@ import Categorification.TwoRep.LemAprimeScalar
 import Categorification.TwoRep.LemMain
 import Categorification.TwoRep.LemMainNeg
 import Categorification.TwoRep.LemXind
+import Categorification.TwoRep.LinearCat
 import Categorification.TwoRep.MatKarFunctor
 import Categorification.TwoRep.MateSh
 import Categorification.TwoRep.ShiftCoherence

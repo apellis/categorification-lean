@@ -43,11 +43,12 @@ abbrev UnfKLR (ν' : Multiset J) : Type _ := KLRAlgebra k (unfQ (k := k) D.arrow
 /-- Its graded completion `𝖱̂(ν̃)`. -/
 abbrev UnfCompl (ν' : Multiset J) : Type _ := (unfGrading (k := k) D.arrows).completion ν'
 
+omit [DecidableEq I] in
 theorem unf_degX_pos : ∀ a, 0 < (unfGrading (k := k) D.arrows).degX a :=
   fun _ => two_pos
 
 /-- `F(y) e_t` in the completion. -/
-noncomputable abbrev ser (t : Seq ν') (F : MvPowerSeries (Fin (Multiset.card ν')) k) :
+noncomputable abbrev serU (t : Seq ν') (F : MvPowerSeries (Fin (Multiset.card ν')) k) :
     UnfCompl D ν' :=
   seriesAt (unf_degX_pos D) t F
 
@@ -68,6 +69,7 @@ def posR : Fin (Multiset.card ν') := ⟨j + 1, lt_card_of_lt D hν h⟩
 
 end Positions
 
+omit [DecidableEq I] [DecidableEq J] in
 theorem constantCoeff_pwDiff_ne_zero (a : J) :
     MvPolynomial.constantCoeff (pwDiff D a) ≠ 0 := by
   rw [constantCoeff_pwDiff]; exact D.pw_coeff_one a
@@ -79,11 +81,11 @@ noncomputable def crossImage {j : ℕ} (h : j + 1 < Multiset.card ν) (t : Seq �
   let b := t.lbl (posR D hν h)
   if hc : D.π a = D.π b then
     if hab : a = b then
-      ser D t ((↑(rename ![posL D hν h, posR D hν h] (pwDiff D a)) :
+      serU D t ((↑(rename ![posL D hν h, posR D hν h] (pwDiff D a)) :
           MvPowerSeries (Fin (Multiset.card ν')) k).invOfUnit
         (Units.mk0 _ (constantCoeff_pwDiff_ne_zero D a))) * toC D (ψ j)
     else
-      ser D t ((↑(pwAt D.pw a (posL D hν h) - pwAt D.pw b (posR D hν h)) :
+      serU D t ((↑(pwAt D.pw a (posL D hν h) - pwAt D.pw b (posR D hν h)) :
           MvPowerSeries (Fin (Multiset.card ν')) k).invOfUnit
         (Units.mk0 ((D.pw a).coeff 0 - (D.pw b).coeff 0)
           (sub_ne_zero.2 fun e => hab (D.pw_coeff_zero_inj a b hc e)))) *

@@ -45,7 +45,7 @@ attribute [instance] category preadditive linear
 instance : CoeSort (LinearCat.{w, v, u} k) (Type u) := ⟨carrier⟩
 
 /-- A preadditive `k`-linear category as an object of `LinearCat k`. -/
-def of (C : Type u) [Category.{v} C] [Preadditive C] [Linear k C] : LinearCat.{w, v, u} k := ⟨C⟩
+abbrev of (C : Type u) [Category.{v} C] [Preadditive C] [Linear k C] : LinearCat.{w, v, u} k := ⟨C⟩
 
 section Functors
 

@@ -29,6 +29,7 @@ import Categorification.Algebra.Graded.TwistTensor
 import Categorification.Algebra.IdempotentEquiv
 import Categorification.Algebra.InductionAlong
 import Categorification.Algebra.InductionAlongEnd
+import Categorification.Algebra.InductionAlongLinear
 import Categorification.Algebra.InductionAlongRes
 import Categorification.Algebra.InductionAlongTriple
 import Categorification.Algebra.K0FinDim
@@ -365,6 +366,7 @@ import Categorification.KLR.CyclotomicAction.Induction
 import Categorification.KLR.CyclotomicAction.Restriction
 import Categorification.KLR.CyclotomicAction.Slides
 import Categorification.KLR.CyclotomicAction.Square
+import Categorification.KLR.CyclotomicAction.Global
 import Categorification.KLR.CyclotomicAction.Comparison
 import Categorification.KLR.CyclotomicAction.KangKashiwara
 import Categorification.KLR.CyclotomicAbsentEquivalence
@@ -554,6 +556,9 @@ import Categorification.TwoRep.LemMain
 import Categorification.TwoRep.LemMainNeg
 import Categorification.TwoRep.LemXind
 import Categorification.TwoRep.LinearCat
+import Categorification.TwoRep.PiLinear
+import Categorification.TwoRep.BlockSum
+import Categorification.TwoRep.BlockSumCross
 import Categorification.TwoRep.MatKarFunctor
 import Categorification.TwoRep.MateSh
 import Categorification.TwoRep.ShiftCoherence

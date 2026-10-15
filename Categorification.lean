@@ -658,6 +658,7 @@ import Categorification.TwoRep.RouqReverse
 import Categorification.TwoRep.RouqProduct
 import Categorification.TwoRep.RouqProductKLR
 import Categorification.TwoRep.RouqProductNilpotent
+import Categorification.TwoRep.RouqProductVanishing
 import Categorification.TwoRep.RouqVanishing
 import Categorification.TwoRep.RouqSl2
 import Categorification.TwoRep.CyclotomicLocalCommutator

@@ -4,6 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 -/
 import Categorification.KLR.Unfurling.CoverNilpotent
 import Categorification.TwoRep.RouqVanishing
+import Categorification.TwoRep.RouqProductVanishing
 
 /-!
 # Labels acting by zero in the cyclotomic family of the unfurled graph
@@ -112,6 +113,34 @@ theorem coverFamily_isZero_E (b : J) {x y : (J → ℤ) × (J →₀ ℤ)}
   · have he : IsEmpty (WeightBlocks (coverWeight n) ((fun j => (Λ j : ℤ)), 0) x) :=
       not_nonempty_iff.1 hne
     exact ⟨isZero_from_weightSpace _ _ _ _ he _, isZero_to_weightSpace _ _ _ _ he _⟩
+
+variable {J₂ : Type u} [DecidableEq J₂] (n₂ : J₂ → J₂ → ℕ) (Λ₂ : J₂ → ℕ)
+
+/-- **A label of `Ĩ₋` acts by zero on `coverProduct`** where it has no weight, is absent from
+the block of the first component and has no arrows to its labels. -/
+theorem coverProduct_isZero_inl (a : J) {x y}
+    (h : x + ((coverWeight n).prod (coverWeight n₂)).iX (.inl a) = y)
+    (hx : ∀ β : WeightBlocks (coverWeight n) ((fun j => (Λ j : ℤ)), 0) x.1,
+      a ∉ β.1 ∧ ∀ c ∈ β.1, n a c = 0 ∧ n c a = 0)
+    (hΛ : Λ a = 0) :
+    IsZero ((coverProduct.{u, v, w} n (L := L) Λ n₂ Λ₂).E (.inl a) h) ∧
+      IsZero ((coverProduct.{u, v, w} n (L := L) Λ n₂ Λ₂).F (.inl a) h) :=
+  have hz := coverFamily_isZero_E.{u, v, w} n (L := L) Λ a
+    (RouqFamily.fst_step (RD₂ := coverWeight n₂) (y := y) a h) hx hΛ
+  RouqFamily.homProduct_isZero_inl L _ _ a h hz.1 hz.2
+
+/-- **A label of `Ĩ₊` acts by zero on `coverProduct`** where it has no weight, is absent from
+the block of the second component (at the negated weight) and has no arrows to its labels. -/
+theorem coverProduct_isZero_inr (b : J₂) {x y}
+    (h : x + ((coverWeight n).prod (coverWeight n₂)).iX (.inr b) = y)
+    (hx : ∀ β : WeightBlocks (coverWeight n₂) ((fun j => (Λ₂ j : ℤ)), 0) (-y.2),
+      b ∉ β.1 ∧ ∀ c ∈ β.1, n₂ b c = 0 ∧ n₂ c b = 0)
+    (hΛ : Λ₂ b = 0) :
+    IsZero ((coverProduct.{u, v, w} n (L := L) Λ n₂ Λ₂).E (.inr b) h) ∧
+      IsZero ((coverProduct.{u, v, w} n (L := L) Λ n₂ Λ₂).F (.inr b) h) :=
+  have hz := coverFamily_isZero_E.{u, v, w} n₂ (L := L) Λ₂ b
+    (RouqFamily.neg_reg b (RouqFamily.snd_step (RD₁ := coverWeight n) (y := y) b h)) hx hΛ
+  RouqFamily.homProduct_isZero_inr L _ _ b h hz.1 hz.2
 
 end Unfurling
 

@@ -3,6 +3,7 @@ Copyright (c) 2026 Alex Ellis. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 -/
 import Categorification.KLR.PolyRep.Defs
+import Categorification.KLR.Unfurling.Density
 
 /-!
 # Unfurling: the substitution map on polynomial representations
@@ -180,5 +181,71 @@ theorem polySubst_opΨ_of_eq (P : I → I → MvPolynomial (Fin 2) k) {j : ℕ}
     ddiff_spec (by simp [Fin.ext_iff]), map_sub, polySubst_apply, polySubst_apply, hs,
     show Equiv.swap (⟨j, by omega⟩ : Fin (Multiset.card ν)) ⟨j + 1, h⟩ = sadj _ j by
       simp [sadj, h], substAt_rename_sadj]
+
+/-! ### Density and injectivity over a field -/
+
+section Field
+
+variable {K : Type*} [Field K] (pw : J → Polynomial K)
+
+omit [DecidableEq I] in
+/-- On the summand of `t`, `γ_P` is the coordinatewise substitution `subst` (with variables
+renamed along `card ν = card ν̃`). -/
+theorem substAt_eq_subst (t : Seq ν') (f : MvPolynomial (Fin (Multiset.card ν)) K) :
+    substAt π pw hν t f = subst (fun b => pw (t.lbl b)) (rename (Fin.cast (card_eq π hν)) f) := by
+  rw [substAt, subst, aeval_rename]
+  rfl
+
+omit [DecidableEq I] in
+theorem substAt_injective (hpw1 : ∀ j, (pw j).coeff 1 ≠ 0) (t : Seq ν') :
+    Function.Injective (substAt π pw hν t) := by
+  intro f g hfg
+  rw [substAt_eq_subst, substAt_eq_subst] at hfg
+  exact rename_injective _ (Fin.cast_injective _) (subst_injective _ (fun b => hpw1 _) hfg)
+
+omit [DecidableEq I] in
+/-- `γ_P` is injective as soon as every sequence of weight `ν` lifts to weight `ν̃`. -/
+theorem polySubst_injective (hpw1 : ∀ j, (pw j).coeff 1 ≠ 0)
+    (hlift : ∀ i : Seq ν, ∃ t : Seq ν', down π hν t = i) :
+    Function.Injective (polySubst π pw hν) := by
+  intro p q hpq
+  funext i
+  obtain ⟨t, rfl⟩ := hlift i
+  exact substAt_injective π hν pw hpw1 t (congrFun hpq t)
+
+omit [DecidableEq I] in
+/-- Density of the image of `γ_P` (Webster, proof of Lemma label `lem:gamma-homo`): modulo
+monomials of total degree `≥ D`, every element of `Pol_ν̃` is in the image of `γ_P`, provided
+the base points `ϖ_j(0)` of labels with the same image in `I` are distinct. -/
+theorem exists_polySubst_coeff_sub_eq_zero (hpw1 : ∀ j, (pw j).coeff 1 ≠ 0)
+    (hpw0 : ∀ j j', π j = π j' → (pw j).coeff 0 = (pw j').coeff 0 → j = j')
+    (D : ℕ) (q : Pol K ν') :
+    ∃ p : Pol K ν, ∀ t c, c.degree < D → (polySubst π pw hν p t - q t).coeff c = 0 := by
+  have key : ∀ i : Seq ν, ∃ f : MvPolynomial (Fin (Multiset.card ν')) K,
+      ∀ t : {t : Seq ν' // down π hν t = i}, ∀ c : Fin (Multiset.card ν') →₀ ℕ, c.degree < D →
+        (subst (fun b => pw (t.1.lbl b)) f - q t.1).coeff c = 0 := by
+    intro i
+    have hinj : Function.Injective fun (t : {t : Seq ν' // down π hν t = i})
+        (b : Fin (Multiset.card ν')) => (pw (t.1.lbl b)).coeff 0 := by
+      rintro ⟨t, ht⟩ ⟨t', ht'⟩ htt'
+      have hlbl : t.lbl = t'.lbl := by
+        funext b
+        have h1 : (down π hν t).lbl (Fin.cast (card_eq π hν).symm b) =
+            (down π hν t').lbl (Fin.cast (card_eq π hν).symm b) := by rw [ht, ht']
+        rw [down_lbl, down_lbl, Fin.cast_cast, Fin.cast_eq_self] at h1
+        exact hpw0 _ _ h1 (congrFun htt' b)
+      exact Subtype.ext (Subtype.ext hlbl)
+    exact exists_subst_coeff_sub_eq_zero (σ := Fin (Multiset.card ν'))
+      (fun (t : {t : Seq ν' // down π hν t = i}) b => pw (t.1.lbl b)) (fun _ _ => hpw1 _) hinj D
+      (fun t => q t.1)
+  choose f hf using key
+  refine ⟨fun i => rename (Fin.cast (card_eq π hν).symm) (f i), fun t c hc => ?_⟩
+  rw [polySubst_apply, substAt_eq_subst, rename_rename]
+  have : (Fin.cast (card_eq π hν)) ∘ (Fin.cast (card_eq π hν).symm) = id := by
+    funext b; simp
+  rw [this, rename_id_apply]
+  exact hf _ ⟨t, rfl⟩ c hc
+
+end Field
 
 end Categorification.KLR.Unfurling

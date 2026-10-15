@@ -8,9 +8,8 @@ the actual affine crossing maps the span of the two cyclotomic factor ideals
 onto the upper cyclotomic ideal intersected with the full rectangular corner.
 The signed crossing `tau = -psi` therefore descends between actual cyclotomic
 bimodules; both inverses and both differently ordered coefficient actions are proved.
-The empty lower weight is included. Injectivity retains `IsDomain k`, the specified
-nonzero factorization of `Q`, and `KLRSymm Q`: this is narrower than the source's
-commutative-base generality. No arbitrary-Q or `BrundanMixedInversion` claim is made.
+The empty lower weight is included. Injectivity assumes `KLRSymm Q` over any
+commutative ring `k`. No arbitrary-Q or `BrundanMixedInversion` claim is made.
 Tensor-with-modules naturality and comparison with Brundan's ordinary-adjunction
 mixed mate are separate remaining obligations.
 -/

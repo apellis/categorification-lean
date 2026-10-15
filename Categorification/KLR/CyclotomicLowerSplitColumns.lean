@@ -27,9 +27,8 @@ bimodule assertions are stronger; no graded or bimodule splitting is claimed.
 The existing ψ-normalization of `B` and the convention `ψ = −τ` are unchanged.
 
 The cuts and sections require only a commutative base ring. The right-inverse
-and decomposition theorems retain the coordinate hypotheses: a domain with
-nonzero off-diagonal factors of `Q`. The cyclotomic polynomials are arbitrary,
-including the constant-one family, and `γ = 0` is included. No flatness,
+and decomposition theorems assume the coordinate hypothesis `KLRSymm Q`. The cyclotomic
+polynomials are arbitrary, including the constant-one family, and `γ = 0` is included. No flatness,
 monicity, quotient nontriviality or Cartan-degree hypothesis is added.
 Absent-colour blocks, snake connecting maps and the final bimodule inverses
 of Theorems 5.1–5.2 remain separate.

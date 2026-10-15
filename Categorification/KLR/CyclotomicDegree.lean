@@ -13,7 +13,7 @@ The polynomial degree gap in Kang–Kashiwara, arXiv:1102.4677v4, §5 equals
 We make the needed parameter conditions explicit: the degree in the second
 variable is bounded by the negative Cartan entry, and its extremal coefficient
 is a unit. These are the consequences of the nonnegative coefficient grading
-and extremal-unit condition in §2; arbitrary factorized parameters need not
+and extremal-unit condition in §2; arbitrary symmetric parameters need not
 satisfy them. No grading of the quotient is assumed here.
 
 Exact polynomial degrees require a nontrivial cyclotomic quotient. The

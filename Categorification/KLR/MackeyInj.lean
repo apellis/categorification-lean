@@ -22,7 +22,7 @@ balanced tensor product is spanned by the elements `(ψ_{u₁} ⊗ ψ_{u₂}) �
 (`KLRAlgebra.span_genSet`; the right `R'`-module `_ν R_{ν-λ,λ} ⊗ …` is spanned by the
 `ψ_{u₁} ⊗ ψ_{u₂}` over the minimal coset representatives, `mul_quadTop_one_mem_span`).
 
-## Main results (under the hypotheses of the basis theorem: `k` a domain, `Q = P P'`)
+## Main results (for any commutative ring `k` and symmetric `Q`, `KLRSymm Q`)
 
 * `KLRAlgebra.mackeyMap_injective` : `mackeyMap h q` is injective.
 * `KLRAlgebra.mackeyMap_iSupIndep` : the images for the different `λ` with `|λ| = c` are
@@ -34,7 +34,7 @@ balanced tensor product is spanned by the elements `(ψ_{u₁} ⊗ ψ_{u₂}) �
   (`KLRAlgebra.mackeyMap_mem_subquotGrading`). Refining the filtration `F_c` by any ordering of
   the `λ` with `|λ| = c` gives the paper's filtration indexed by `λ`.
 * `KL1.mackeySubquot_isInternal`, `KL1.mackeyMap_injective` : the case of KL I (a simple graph,
-  over `ℤ` or any integral domain).
+  over any commutative ring `k`).
 -/
 
 noncomputable section
@@ -918,8 +918,8 @@ variable {Γ : SimpleGraph I} [DecidableRel Γ.Adj] {ν ν' ν'' ν''' : Multise
   (h : ν'' + ν''' = ν + ν')
 
 open Classical in
-/-- **KL I, Proposition 2.18** for the rings `R(ν)` of a simple graph `Γ` (over `ℤ` or any
-integral domain): `F_c / F_{c-1} ≅ ⊕_{|λ| = c} (_ν R_{ν-λ,λ} ⊗ _{ν'} R_{ν'+λ-ν''',ν'''-λ}) ⊗_{R'}
+/-- **KL I, Proposition 2.18** for the rings `R(ν)` of a simple graph `Γ` (over any commutative
+ring `k`): `F_c / F_{c-1} ≅ ⊕_{|λ| = c} (_ν R_{ν-λ,λ} ⊗ _{ν'} R_{ν'+λ-ν''',ν'''-λ}) ⊗_{R'}
 (_{ν-λ,ν''+λ-ν} R_{ν''} ⊗ _{λ,ν'''-λ} R_{ν'''}){-λ·(ν'+λ-ν''')}` as bimodules, via the injective
 bimodule maps `mackeyMap` (`KLRAlgebra.mackeyMap_injective`, `mackeyMap_left`, `mackeyMap_right`)
 of degree `-λ·(ν'+λ-ν''')` (`KLRAlgebra.mackeyMap_mem_subquotGrading`, `KL1.mackeyShift_eq`). -/

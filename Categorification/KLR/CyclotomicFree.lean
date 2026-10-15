@@ -20,9 +20,9 @@ Khovanov–Lauda–Rouquier algebras*, arXiv:1102.4677v4, §4.2, Lemma 4.8 (from
   (`mem_cycL1_iff`). Hence `K_1 e(i, β) ≅ ⊕_u (R(i) ⊗ R^Λ(β))` as right modules; this is KK's
   Lemma 4.8 for `K_1`.
 
-These results use the basis theorem, so they assume (like `KLRAlgebra.freeBasis`) that `k` is a
-domain and that `Q` is factorized (`Q_{ab}(u, v) = P_{ba}(u, v) P_{ab}(v, u)`, `P_{ab} ≠ 0`); for
-symmetric `Q` with `Q_{ab} ≠ 0` over a domain such a factorization always exists.
+These results use the basis theorem over a commutative ring (`KLRAlgebra.basisOfSymm`), so they
+assume (like `KLRAlgebra.freeBasis`) that `Q` is symmetric, `Q_{ab}(u, v) = Q_{ba}(v, u)`
+(`KLRSymm Q`); `k` is any commutative ring.
 -/
 
 namespace Categorification.KLR

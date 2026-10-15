@@ -6,7 +6,7 @@ import Categorification.KLR.CyclotomicNegativeCommutator
 The positive and negative decompositions of Kang–Kashiwara, §5.2, have canonical
 outer actions over `RΛ(β)`, for `β = {i} + γ`. On the lower tensor the actions are
 multiplication on its first and second factors. On the middle corner they are
-multiplication by the actual last-strand inclusion, descended through the
+multiplication by the last-strand inclusion, descended through the
 cyclotomic ideal. On the finite correction they are pointwise regular actions.
 
 `cyclotomicCommutatorBimoduleEquiv` and `cyclotomicNegativeCommutatorBimoduleEquiv`
@@ -16,8 +16,8 @@ previously constructed equivalences. These are usable as ungraded bimodule
 isomorphisms; no module action is transported through a commutator equivalence.
 
 The action and map-compatibility statements require only a commutative ground
-ring. Bijectivity retains the existing domain, nonzero factorization, unit
-leading coefficient, monicity and Cartan-degree assumptions. Unlike the graded
+ring. Bijectivity assumes `KLRSymm Q`, unit constant leading coefficients of the
+`Q_{jl}`, monic `a_j` and the Cartan-degree condition. Unlike the graded
 source, these statements forget grading. They cover only present colour; no
 functor, naturality or adjunction packaging is asserted.
 -/

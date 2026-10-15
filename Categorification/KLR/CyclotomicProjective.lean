@@ -22,8 +22,9 @@ Here, with `ν = {i} + β`:
   `K_0 e(β, i) ≅ ⊕_{shuffles} R^Λ(β)[t]` (`coordL`, `embL`), and `R^Λ(β)[t]` is a free right
   `R^Λ(β)`-module (`polyOpEquiv`).
 
-Domain `k`, factorized `Q` with unit leading coefficients, monic `a_i`, `β ≠ 0`. (KK work over a
-graded commutative ring with the Cartan-datum form of `Q`; the argument used here is KK's.)
+Any commutative ring `k`, `KLRSymm Q` with unit constant leading coefficients of the `Q_{ab}`,
+monic `a_i`, `β ≠ 0`. (KK work over a graded commutative ring with the Cartan-datum form of `Q`;
+the argument used here is KK's.)
 -/
 
 namespace Categorification.KLR

@@ -18,8 +18,9 @@ formula on arbitrary middle representatives are proved.
 
 The polynomial matrix entry remains `eiA = (-1)^|β| • aMap`. Its existing
 triangularity and remainder theorems supply the complement; no splitting or
-exactness hypothesis is introduced. The domain, factorization, monicity,
-unit leading-coefficient and Cartan-degree hypotheses are retained. Neither
+exactness hypothesis is introduced. The hypotheses are `KLRSymm Q` over a
+commutative ring `k`, unit constant leading coefficients of the `Q_{jl}`, monic
+`a_j` and the Cartan-degree condition. Neither
 `γ = 0` nor a zero cyclotomic quotient is excluded. Only k-linearity is asserted;
 there is no graded, bimodule, functorial, negative-weight or absent-colour claim.
 -/

@@ -13,8 +13,8 @@ identities are proved. The resulting full-corner equivalence has elementary
 formula `x ⊗ y ↦ ι(x) ψ_{|γ|} ι(y)` and both coefficient linearities.
 `tauEquiv` is the signed map with the source convention `τ = -ψ`.
 
-Affine injectivity retains the integral-domain and nonzero factorization
-hypotheses of the PBW theorem. The tensor comparison itself needs only a
+Affine injectivity assumes `KLRSymm Q`, the hypothesis of the basis theorem over a
+commutative ring (`KLRAlgebra.basisOfSymm`). The tensor comparison itself needs only a
 commutative base. Cyclotomic quotient descent and comparison with the
 adjunction-defined mixed mate are not established in this module.
 -/

@@ -7,9 +7,9 @@ import Categorification.KLR.CyclotomicCommutatorBimodule
 /-!
 # The prescribed trace on the entire present-colour cyclotomic corner
 
-For `β = {i} + γ`, construct an `RΛ(β)`-bimodule map on the actual corner
+For `β = {i} + γ`, construct an `RΛ(β)`-bimodule map on the corner
 `e(β,i) RΛ(β+i) e(β,i)`, in every weight range. The definition uses the
-actual signed crossing and dotted unit/counit maps in the cyclotomic
+signed crossing and dotted unit/counit maps in the cyclotomic
 commutator, not an arbitrary vector-space splitting.
 
 With KK weight `w`, for `w > 0` the trace is the last correction coordinate
@@ -19,8 +19,8 @@ formulas of Brundan, arXiv:1501.00350v1, (1.15), (1.17), with Brundan weight
 `-w`; the two signs in the second formula cancel. The inversions are the
 ungraded bimodule maps of Kang–Kashiwara, arXiv:1102.4677v4, Theorem 5.2.
 
-The domain, nonzero factorization, unit leading-coefficient, monicity and
-Cartan-degree hypotheses are exactly those of the existing inversions.
+The hypotheses are those of the inversions: `KLRSymm Q`, unit constant
+leading coefficients of the `Q_{jl}`, monic `a_j` and the Cartan-degree condition.
 The coefficient algebra is not assumed commutative or nontrivial.
 
 The negative formula retains the connecting-kernel correction. In particular,

@@ -22,7 +22,8 @@ Khovanov–Lauda–Rouquier algebras*, arXiv:1102.4677v4, §4.2. For `ν = {i} +
   `h = Q`, using KK Thm. 4.15 `Q ∘ P = A`). Hence `0 → K_1 e(i, β) → K_0 → F^Λ → 0`
   (`range_pMap`) splits as a sequence of right `R(β)`-modules.
 
-Domain `k`, factorized `Q` with unit leading coefficients, monic `a_i` (as for KK's Lemma 4.16).
+Any commutative ring `k`, `KLRSymm Q` with unit constant leading coefficients of the `Q_{ab}`,
+monic `a_i` (as for KK's Lemma 4.16).
 -/
 
 namespace Categorification.KLR

@@ -20,8 +20,9 @@ original module, and both maps are natural. The lower multiset may be nonempty,
 and no quotient nontriviality, homogeneity, projectivity, pairing-perfectness,
 opposite-adjunction premise, or synthetic lower edge is assumed.
 
-All domain, factorization, nonzero-factor, unit-leading, monicity and Cartan-degree
-hypotheses of the actual inversion are retained. This result is ungraded; a global
+The hypotheses are those of the inversion: `KLRSymm Q` over a commutative ring `k`,
+unit constant leading coefficients of the `Q_{jl}`, monic `a_j` and the Cartan-degree
+condition. This result is ungraded; a global
 weight-indexed action and distinct-colour compatibility are separate statements.
 -/
 noncomputable section

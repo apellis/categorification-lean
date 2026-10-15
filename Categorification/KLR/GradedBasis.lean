@@ -13,7 +13,7 @@ import Categorification.Algebra.Graded.GeomSeries
 # The graded basis of `R(ν)` and graded dimensions
 
 Khovanov–Lauda I (arXiv:0803.4121v2), §2.4–2.5. We combine the basis theorem
-(`KLRAlgebra.basis`, KL I Theorem 2.5) with the grading (`GradingDatum.grade`):
+(`KLRAlgebra.basisOfSymm`, KL I Theorem 2.5) with the grading (`GradingDatum.grade`):
 
 * **Degrees of basis elements.** `ψ_{ρ w} x^u 1_i` is homogeneous of degree
   `stdDeg = deg(ψ_{ρ w} 1_i) + ∑_a u_a · deg(x_{a,i})` (`stdElt_mem_grade`,

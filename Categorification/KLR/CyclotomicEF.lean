@@ -26,8 +26,9 @@ colour `i` is the last one (zero-indexed: strand `n`), `e(β, i) = cL 1` and
   `∑_{b < n} F_b(p_b) + ι(q) ∈ R(ν) a^Λ(x_1) R(β)` iff all `p_b`, `q` lie in `J ⊗ R(i)`, `J` the
   cyclotomic ideal of `R(β)`.
 
-The free-module statements use the basis theorem, so they assume (like `KLRAlgebra.freeBasis`)
-that `k` is a domain and `Q` is factorized.
+The free-module statements use the basis theorem over a commutative ring
+(`KLRAlgebra.basisOfSymm`), so they assume (like `KLRAlgebra.freeBasis`) that `Q` is symmetric
+(`KLRSymm Q`); `k` is any commutative ring.
 -/
 
 namespace Categorification.KLR

@@ -19,7 +19,7 @@ actual lift gives the same class. `ker_snakeDelta` and `range_snakeDelta`
 prove exactness at the polynomial kernel and the lower cokernel.
 This is the k-linear connecting segment of Kang–Kashiwara,
 arXiv:1102.4677v4, §5.2, not the source's graded bimodule inverse.
-The existing domain/factorization hypotheses suffice for arbitrary cyclotomic
+The hypothesis `KLRSymm Q` over a commutative ring suffices for arbitrary cyclotomic
 polynomials, including the constant-one family, and for `γ = 0`.
 -/
 

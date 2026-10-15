@@ -22,7 +22,7 @@ polynomial with invertible leading coefficient is injective on a free `A[t]`-mod
   modulo `R(i) ⊗ J` (KK Lemma 4.16 in this case), and by `Q ∘ P = A` (KK Thm. 4.15) and the
   structure of `K_1` (`mem_cycL1_iff`), `P` is injective on `K_1 e(i, β)` (KK Lemma 4.17).
 
-Domain `k` and factorized `Q` (as for the basis theorem); symmetric `Q` is implied.
+Any commutative ring `k` and symmetric `Q` (`KLRSymm Q`, as for `KLRAlgebra.basisOfSymm`).
 -/
 
 namespace Categorification.KLR

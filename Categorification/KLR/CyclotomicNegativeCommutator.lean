@@ -22,11 +22,11 @@ an arbitrary coefficient module proves invertibility without a field or
 root-separation assumption. The specified forward map, tensor representative
 formulas, both inverse roundtrips and an inverse correction formula are proved.
 
-The existing domain, factorization, monicity, unit leading-coefficient and
-Cartan-degree hypotheses are unchanged. No global nontriviality assumption
-on the cyclotomic quotient is imposed, and `γ = 0` is included. No graded,
-bimodule, functorial, absent-colour or full categorical commutator assertion
-is made here.
+The hypotheses are `KLRSymm Q` over a commutative ring `k`, unit constant
+leading coefficients of the `Q_{jl}`, monic `a_j` and the Cartan-degree condition.
+No global nontriviality assumption on the cyclotomic quotient is imposed, and
+`γ = 0` is included. No graded, bimodule, functorial, absent-colour or full
+categorical commutator assertion is made here.
 -/
 
 noncomputable section

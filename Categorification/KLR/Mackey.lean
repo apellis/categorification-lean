@@ -54,7 +54,7 @@ transported along `h`). `n = card ν`, `n'' = card ν''`.
   the `c`-th step is spanned by the standard elements of `_{ν,ν'}R_{ν'',ν'''}` with `|λ| ≤ c`;
   `KLRAlgebra.mackeyBasis` (a `k`-basis of each step) and `KLRAlgebra.mackeySubquotBasis`
   (a `k`-basis of each subquotient `F_{c+1} / F_c`, indexed by the standard elements with
-  `|λ| = c + 1`, `mem_mackeyIdx_diff`), under the hypotheses of the basis theorem.
+  `|λ| = c + 1`, `mem_mackeyIdx_diff`), for symmetric `Q` (`KLRSymm Q`).
 * `KLRAlgebra.stdElt_mackeyWord` — with the Mackey-adapted reduced words
   `ρ₁(a) (n + ρ₂(b)) σ(d) ρ₃(y) (n'' + ρ₄(y'))` of `w = (a × b) d (y × y')`, every standard
   element of `_{ν,ν'}R_{ν'',ν'''}` is `ι(ψ_a 1_i ⊗ ψ_b 1_j) · ψ_{σ(d)} · ι''(ψ_y x^{u₁} 1_{s₁} ⊗
@@ -63,7 +63,7 @@ transported along `h`). `n = card ν`, `n'' = card ν''`.
   `ι(t) ψ_d ι''(t')` over the minimal double coset representatives `d` with `|λ| ≤ c`
   (the paper's generators of the subquotients).
 * `KL1.mackeyBasis`, `KL1.mackeySubquotBasis` — the specialisation to KL I (simple graph `Γ`,
-  `klQ Γ`, over `ℤ` or any integral domain).
+  `klQ Γ`, over any commutative ring `k`).
 
 ## Relation to the paper and what is not covered
 
@@ -1218,8 +1218,8 @@ variable {Γ : SimpleGraph I} [DecidableRel Γ.Adj] {ν ν' ν'' ν''' : Multise
   (hρ : ∀ w, IsReduced (Multiset.card (ν + ν')) (ρ w) ∧
     wordProd (Multiset.card (ν + ν')) (ρ w) = w)
 
-/-- **KL I, Proposition 2.18** for the rings `R(ν)` of a simple graph `Γ` (over `ℤ`, or any
-integral domain): the subquotient `F_{c+1} / F_c` of the Mackey filtration of
+/-- **KL I, Proposition 2.18** for the rings `R(ν)` of a simple graph `Γ` (over any
+commutative ring `k`): the subquotient `F_{c+1} / F_c` of the Mackey filtration of
 `_{ν,ν'}R_{ν'',ν'''}` has the basis of classes of the standard elements `ψ_{ρ w} x^u 1_s` of
 `_{ν,ν'}R_{ν'',ν'''}` with `|λ| = c + 1`. -/
 noncomputable def mackeySubquotBasis (c : ℕ) :

@@ -22,7 +22,7 @@ diagram of the minimal presentation of `u` with top ends labelled by `ij`, lying
 ## Main results
 
 * `KLRAlgebra.lbasis` — the basis theorem with dots at the top: for any choice of reduced
-  words, `x^d ψ_{ρ w} 1_i` is a `k`-basis of `R(ν)` (from `KLRAlgebra.basis` via the
+  words, `x^d ψ_{ρ w} 1_i` is a `k`-basis of `R(ν)` (from `KLRAlgebra.basisOfSymm` via the
   horizontal flip).
 * `KLRAlgebra.inductionBasis` (**Prop. 2.16, explicit form**): the elements
   `ι(b ⊗ b') ŵ_u`, for `b`, `b'` running over the bases `lbasis` of `R(ν)`, `R(ν')` and `u`

@@ -10,7 +10,7 @@ import Categorification.KLR.CyclotomicMixedMate.Coefficient
 
 `comparison_square` identifies the original mate with the accepted crossing tensored
 with an arbitrary module. `originalMateEquiv_eq_mate` and both inverse identities
-retain the domain, nonzero factorization and KLR symmetry hypotheses, with arbitrary
+assume `KLRSymm Q` over a commutative ring `k`, with arbitrary
 cyclotomic polynomials. The input is `{i} + gamma`, including `gamma = 0`; no monicity,
 flatness, projectivity or nonzero quotient is assumed. This is ungraded and does not
 give a globally absent-input extension, a bundled natural isomorphism or an

@@ -14,9 +14,9 @@ The value lies in the actual, generally noncommutative, cyclotomic algebra.
 Left/right coefficient linearity and dual-basis recovery modulo `aMonicL`
 are theorems. They do not assume relative Frobenius identities.
 
-The specialization retains the domain, nonzero factorization, unit-leading-
-coefficient and monicity assumptions of the existing `CyclotomicSplit` proofs
-of monicity and centrality. The underlying polynomial theorem only needs a ring,
+The specialization assumes `KLRSymm Q`, unit constant leading coefficients of
+the `Q_{cd}` and monic `a_i`, as in the `CyclotomicSplit` proofs of monicity and
+centrality. The underlying polynomial theorem only needs a ring,
 monicity and centrality and permits zero divisors and the zero ring.
 
 Kang–Kashiwara §§4.2–4.3 supply the polynomial-coordinate splitting, not an

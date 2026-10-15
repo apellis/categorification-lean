@@ -10,7 +10,7 @@ import Categorification.KLR.CyclotomicMixedMate.BicategoricalComparison
 
 Invertibility of the actual four-object cyclotomic bicategorical mate on
 input {i} + γ for distinct colours. Comparison holds over any commutative ring;
-inversion assumes a domain, nonzero PBW factorization and KLRSymm.
+inversion assumes `KLRSymm Q`.
 This does not construct a global RouqFamily, all-multiset mixed inversion,
 graded action, or nondegeneracy theorem.
 -/

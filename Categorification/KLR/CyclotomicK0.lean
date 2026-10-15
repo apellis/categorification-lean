@@ -18,7 +18,7 @@ Khovanov–Lauda–Rouquier algebras*, arXiv:1102.4677v4, Lemma 4.8: `K_0 = R(β
   their inverse `embL` on `K_0 e(β, i)`, intertwining the right actions (`coordL_act0`,
   `embL_mul_C`): `K_0 e(β, i) ≅ ⊕_{shuffles} R^Λ(β)[t]` as right `R(β)`-modules.
 
-Domain `k`, factorized `Q` (as for the basis theorem).
+Any commutative ring `k` and symmetric `Q` (`KLRSymm Q`, as for `KLRAlgebra.basisOfSymm`).
 -/
 
 namespace Categorification.KLR

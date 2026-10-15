@@ -8,17 +8,18 @@ import Categorification.KLR.CyclotomicLowerExactOne
 /-!
 # The absent-colour polynomial cokernel and finite dot-unit equivalence
 
-For `i ∉ β`, the actual two-cut `K₀` has inverse coordinates `C` and `cSection`:
+For `i ∉ β`, the two-cut `K₀` has inverse coordinates `C` and `cSection`:
 the lower crossing coordinates vanish after the last-colour cut. The general
 identity `AB = CP` and `range P = ker π` identify the cyclotomic corner with
 `coker A`, without introducing a lower object with a negative multiplicity.
 Polynomial triangularity then proves bijectivity of the prescribed finite
-dot-unit sum. Both outer actions are the original quotient multiplications.
+dot-unit sum. Both outer actions are the quotient multiplications.
 
 This is the absent-colour case of Kang–Kashiwara, arXiv:1102.4677v4, §5.2.
-The base ring is a commutative domain for the coordinate decomposition; no
-nontriviality or domain assumption is made on any cyclotomic quotient. The
-rank-zero case uses the stronger commutative-ring result.
+The base ring `k` is any commutative ring and `Q` satisfies `KLRSymm Q`; the
+bijectivity statements also assume unit constant leading coefficients of the
+`Q_{ij}`, monic `a_i` and the Cartan-degree condition. No nontriviality
+assumption is made on any cyclotomic quotient.
 -/
 
 noncomputable section
@@ -329,7 +330,7 @@ theorem dotUnitSum_bijective (hi : i ∉ β) :
     exact dotUnitSum_bijective_positive Q i β hsym a hb' (by simpa only [card_single_add] using Nat.succ_lt_succ hb')
       hQ ha RD Λ hΛ hdeg hi
 
-/-- The equivalence retains the original dot-unit sum as its forward map. -/
+/-- The equivalence has the dot-unit sum as its forward map. -/
 def finEquiv (hi : i ∉ β) : (Fin (wt).toNat → Rl) ≃ₗ[k] Corner Q i a β :=
   LinearEquiv.ofBijective (dotUnitSum Q i a β (wt).toNat)
     (dotUnitSum_bijective Q i β hsym a hQ ha RD Λ hΛ hdeg hi)

@@ -22,8 +22,7 @@ uses the last-colour cut identity on the crossing. The full free coordinate
 space is not identified with the lower tensor without that cut.
 
 The maps and colour identities use a commutative base ring; coordinate
-extraction retains the existing domain and nonzero off-diagonal
-factorization hypotheses. Cyclotomic polynomials are arbitrary, with no
+extraction assumes `KLRSymm Q`. Cyclotomic polynomials are arbitrary, with no
 monicity, nontrivial quotient, Cartan-degree or flatness assumption. The
 case `γ = 0` tensors over the genuine algebra `R(0)`.
 

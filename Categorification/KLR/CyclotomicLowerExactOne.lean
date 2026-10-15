@@ -23,8 +23,7 @@ proved using the actual balancing relation. In particular, the full free
 coordinate space is never identified with a lower tensor without its cut.
 
 The colour identities and forward maps work over a commutative ring.
-Coordinate extraction retains the existing domain and nonzero off-diagonal
-factorization hypotheses. There are no monicity, cyclotomic nontriviality,
+Coordinate extraction assumes `KLRSymm Q`. There are no monicity, cyclotomic nontriviality,
 Cartan-degree or flatness hypotheses. The case `γ = 0` is included.
 `eiB` is the existing ψ-normalized `B`, with its domain restricted by the
 canonical tensor-to-quotient map. No crossing signs are changed.

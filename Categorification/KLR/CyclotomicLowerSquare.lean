@@ -18,8 +18,8 @@ representative maps and multiplied by `(-1)^|β|`: the library uses `ψ=-τ`.
 not an assumed square or a square between arbitrarily chosen coordinates.
 Its quotient formula is `lowerP_square`. All map and square constructions
 work over a commutative ring, including `γ=0`. Only the concluding
-`bMap_lowerVertical_zero` uses the existing domain, factorization and
-nonzero-factor hypotheses of the first-strand coordinates.
+`bMap_lowerVertical_zero` uses the hypothesis `KLRSymm Q` of the first-strand
+coordinates.
 
 No kernel exhaustion, injectivity of the vertical map, snake connecting map,
 bimodule inverse or proof of Theorems 5.1–5.2 is asserted here.
@@ -353,8 +353,8 @@ theorem bCoord_lowerVerticalFactor (x : L) : bCoord i β hsym (cL Q i β (x : Rb
   rw [hl, map_sum]
   simp only [bCoord_lower_shuffle Q i γ hsym, Finset.sum_const_zero]
 
-/-- `B` annihilates the vertical image. The domain and factorization hypotheses
-are those of the existing first-coordinate `bMap`, not assumptions of exactness. -/
+/-- `B` annihilates the vertical image. The hypothesis `KLRSymm Q` is that of the
+first-coordinate `bMap`, not an assumption of exactness. -/
 theorem bMap_lowerVertical_zero (t : KOnePrime Q i γ a) :
     bMap i β hsym a (by simp) (zero_lt_card_single_add i γ) (lowerVerticalCoordinates Q i γ a t) = 0 := by
   induction t using BalancedTensor.induction_on with

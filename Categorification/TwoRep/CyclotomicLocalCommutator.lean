@@ -10,8 +10,9 @@ original mixed crossing mate and all categorical dotted ordinary cups or caps.
 Both maps and their inverses are natural. `actualSumInvFrom` and `actualSumInvTo`
 provide every inverse equation in the finite-sum presentation.
 
-The equivalences retain the integral-domain, nonzero polynomial factorization,
-unit-leading-coefficient, monic cyclotomic-polynomial and Cartan-degree hypotheses.
+The equivalences assume `KLRSymm Q` over a commutative ring `k`, unit constant
+leading coefficients of the `Q_{ij}`, monic cyclotomic polynomials `a_i` and the
+Cartan-degree condition.
 For the middle category at beta + alpha_i, the Kang–Kashiwara weight is
 `pair i (Lambda - beta - alpha_i)`. Induction is source E and Kang–Kashiwara F,
 so the source weight is the negative of this value. Thus the nonnegative KK case

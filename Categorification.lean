@@ -291,6 +291,7 @@ import Categorification.KLR.Cyclotomic
 import Categorification.KLR.CyclotomicMultFree
 import Categorification.KLR.CyclotomicFinite
 import Categorification.KLR.CyclotomicNilpotent
+import Categorification.KLR.CyclotomicAction.GlobalNilpotent
 import Categorification.KLR.CyclotomicExact
 import Categorification.KLR.CyclotomicMaps
 import Categorification.KLR.CyclotomicSeq
@@ -485,6 +486,8 @@ import Categorification.KLR.Unfurling.Completion
 import Categorification.KLR.Unfurling.Cover
 import Categorification.KLR.Unfurling.CoverDatum
 import Categorification.KLR.Unfurling.CoverFamily
+import Categorification.KLR.Unfurling.CoverNilpotent
+import Categorification.KLR.Unfurling.CoverVanishing
 import Categorification.KLR.Unfurling.Density
 import Categorification.KLR.Unfurling.Gamma
 import Categorification.KLR.Unfurling.GammaHomo
@@ -655,6 +658,9 @@ import Categorification.TwoRep.RouqYoneda
 import Categorification.TwoRep.RouqReverse
 import Categorification.TwoRep.RouqProduct
 import Categorification.TwoRep.RouqProductKLR
+import Categorification.TwoRep.RouqProductNilpotent
+import Categorification.TwoRep.RouqProductVanishing
+import Categorification.TwoRep.RouqVanishing
 import Categorification.TwoRep.RouqSl2
 import Categorification.TwoRep.CyclotomicLocalCommutator
 import Categorification.TwoRep.AdditiveCat

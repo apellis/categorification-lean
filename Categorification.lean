@@ -466,7 +466,6 @@ import Categorification.KLR.Unfurling.Density
 import Categorification.KLR.Unfurling.Intertwine
 import Categorification.KLR.Unfurling.Substitution
 import Categorification.KLR.Unfurling.Target
-
 import Categorification.QuantumGroup.Bar
 import Categorification.QuantumGroup.Cartan
 import Categorification.QuantumGroup.Coproduct

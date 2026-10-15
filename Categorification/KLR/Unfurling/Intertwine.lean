@@ -113,4 +113,81 @@ theorem polySubst_opΨ_of_ne_colour {j : ℕ} (h : j + 1 < Multiset.card ν) (p 
     GradingDatum.lbl_sadj_smul, GradingDatum.lbl_sadj_smul, sadj_apply_left h',
     sadj_apply_right h', map_mul, unfP, mul_assoc, mul_left_comm]
 
+omit [DecidableEq J] in
+theorem sadj_smul_eq_of_lbl_eq {μ : Multiset J} (t : Seq μ) {j : ℕ} (h : j + 1 < Multiset.card μ)
+    (heq : t.lbl ⟨j, by omega⟩ = t.lbl ⟨j + 1, h⟩) : sadj (Multiset.card μ) j • t = t := by
+  apply Subtype.ext
+  funext a
+  show (sadj (Multiset.card μ) j • t).lbl a = t.lbl a
+  rw [GradingDatum.lbl_sadj_smul]
+  by_cases h1 : (a : ℕ) = j
+  · rw [show a = ⟨j, by omega⟩ from Fin.ext h1, sadj_apply_left h]; exact heq.symm
+  · by_cases h2 : (a : ℕ) = j + 1
+    · rw [show a = ⟨j + 1, h⟩ from Fin.ext h2, sadj_apply_right h]; exact heq
+    · rw [sadj_apply_of_ne a h1 h2]
+
+/-- Webster's (label `com0newer`, first term): a crossing of two strands with the same label of
+`J`. The factor `h(y_j, y_{j+1})` becomes `q⁻¹` in the completion. -/
+theorem pwDiff_mul_polySubst_opΨ_of_eq_label {j : ℕ} (h : j + 1 < Multiset.card ν)
+    (p : Pol k ν) (t : Seq ν')
+    (heq : t.lbl ⟨j, by have := lt_card_of_lt D hν h; omega⟩ =
+      t.lbl ⟨j + 1, lt_card_of_lt D hν h⟩) :
+    rename ![(⟨j, by have := lt_card_of_lt D hν h; omega⟩ : Fin (Multiset.card ν')),
+          ⟨j + 1, lt_card_of_lt D hν h⟩] (pwDiff D (t.lbl ⟨j, by have := lt_card_of_lt D hν h; omega⟩)) *
+        polySubst D.π D.pw hν (opΨ P j p) t =
+      opΨ (unfP D.arrows) j (polySubst D.π D.pw hν p) t := by
+  have h' := lt_card_of_lt D hν h
+  have hst := sadj_smul_eq_of_lbl_eq t h' heq
+  have hdeq : (down D.π hν t).lbl ⟨j, by omega⟩ = (down D.π hν t).lbl ⟨j + 1, h⟩ := by
+    simp only [down_lbl]; exact congrArg D.π heq
+  have key := polySubst_opΨ_of_eq D.π D.pw hν P h p t hdeq
+  rw [hst, substAt_X, substAt_X] at key
+  simp only [Fin.cast_mk] at key
+  rw [opΨ_apply _ j h', hst, crossComp, ite_eq_left_of_eq_true _ _ (eq_true heq)]
+  refine X_sub_X_mul_left_cancel (a := (⟨j, by omega⟩ : Fin (Multiset.card ν')))
+    (b := ⟨j + 1, h'⟩) (by simp [Fin.ext_iff]) ?_
+  rw [ddiff_spec (by simp [Fin.ext_iff]), ← mul_assoc,
+    show (X (⟨j, by omega⟩ : Fin (Multiset.card ν')) - X ⟨j + 1, h'⟩) *
+        rename ![(⟨j, by omega⟩ : Fin (Multiset.card ν')), ⟨j + 1, h'⟩] (pwDiff D (t.lbl ⟨j, by omega⟩)) =
+      pwAt D.pw (t.lbl ⟨j, by omega⟩) (⟨j, by omega⟩ : Fin (Multiset.card ν')) -
+        pwAt D.pw (t.lbl ⟨j + 1, h'⟩) (⟨j + 1, h'⟩ : Fin (Multiset.card ν')) by
+      rw [← heq]
+      have := congrArg (rename ![(⟨j, by omega⟩ : Fin (Multiset.card ν')), ⟨j + 1, h'⟩])
+        (X_sub_X_mul_pwDiff D (t.lbl ⟨j, by omega⟩))
+      unfold pwAt at this ⊢
+      rw [map_mul, map_sub, rename_X, rename_X, map_sub,
+        ← Polynomial.aeval_algHom_apply, ← Polynomial.aeval_algHom_apply, rename_X, rename_X] at this
+      exact this]
+  convert key using 3
+  rw [show Equiv.swap (⟨j, by omega⟩ : Fin (Multiset.card ν')) ⟨j + 1, h'⟩ = sadj _ j by
+      simp [sadj, h']]
+
+/-- Webster's (label `com0newer`, dumbbell terms): a crossing of two strands of the same colour
+with different labels of `J`. The factor `ϖ_a(y_j) - ϖ_b(y_{j+1})` becomes `f_{a,b}⁻¹` in the
+completion. -/
+theorem pwSub_mul_polySubst_opΨ_of_ne_label {j : ℕ} (h : j + 1 < Multiset.card ν)
+    (p : Pol k ν) (t : Seq ν')
+    (hπ : D.π (t.lbl ⟨j, by have := lt_card_of_lt D hν h; omega⟩) =
+      D.π (t.lbl ⟨j + 1, lt_card_of_lt D hν h⟩))
+    (hne : t.lbl ⟨j, by have := lt_card_of_lt D hν h; omega⟩ ≠
+      t.lbl ⟨j + 1, lt_card_of_lt D hν h⟩) :
+    (pwAt D.pw (t.lbl ⟨j, by have := lt_card_of_lt D hν h; omega⟩)
+          (⟨j, by have := lt_card_of_lt D hν h; omega⟩ : Fin (Multiset.card ν')) -
+        pwAt D.pw (t.lbl ⟨j + 1, lt_card_of_lt D hν h⟩) (⟨j + 1, lt_card_of_lt D hν h⟩ : Fin _)) *
+        polySubst D.π D.pw hν (opΨ P j p) t =
+      polySubst D.π D.pw hν p t - opΨ (unfP D.arrows) j (polySubst D.π D.pw hν p) t := by
+  have h' := lt_card_of_lt D hν h
+  have hdeq : (down D.π hν t).lbl ⟨j, by omega⟩ = (down D.π hν t).lbl ⟨j + 1, h⟩ := by
+    simp only [down_lbl]; exact hπ
+  have key := polySubst_opΨ_of_eq D.π D.pw hν P h p t hdeq
+  rw [substAt_X, substAt_X] at key
+  simp only [Fin.cast_mk] at key
+  rw [key, opΨ_apply _ j h', crossComp, ite_eq_right_of_eq_false _ _ (eq_false (by
+      rw [GradingDatum.lbl_sadj_smul, GradingDatum.lbl_sadj_smul, sadj_apply_left h',
+        sadj_apply_right h']
+      exact fun e => hne e.symm)),
+    LinearMap.comp_apply, LinearMap.mulLeft_apply, AlgHom.toLinearMap_apply,
+    GradingDatum.lbl_sadj_smul, GradingDatum.lbl_sadj_smul, sadj_apply_left h',
+    sadj_apply_right h', unfP, D.arrows_of_eq _ _ hπ, pow_zero, map_one, one_mul]
+
 end Categorification.KLR.Unfurling

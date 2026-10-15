@@ -462,6 +462,7 @@ import Categorification.KLR.Prop320
 import Categorification.KLR.Prop32Mult
 import Categorification.KLR.Prop33
 import Categorification.KLR.Prop34
+import Categorification.KLR.Reindex
 import Categorification.KLR.ResK0
 import Categorification.KLR.ResProjGraded
 import Categorification.KLR.Restriction

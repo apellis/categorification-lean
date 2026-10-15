@@ -477,6 +477,7 @@ import Categorification.KLR.Unfurling.Intertwine
 import Categorification.KLR.Unfurling.SeriesAction
 import Categorification.KLR.Unfurling.Substitution
 import Categorification.KLR.Unfurling.Target
+import Categorification.KLR.Unfurling.Triangular
 import Categorification.KLR.Unfurling.Truncation
 import Categorification.QuantumGroup.Bar
 import Categorification.QuantumGroup.Cartan

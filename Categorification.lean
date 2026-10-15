@@ -368,6 +368,7 @@ import Categorification.KLR.CyclotomicAction.Restriction
 import Categorification.KLR.CyclotomicAction.Slides
 import Categorification.KLR.CyclotomicAction.Square
 import Categorification.KLR.CyclotomicAction.Global
+import Categorification.KLR.CyclotomicAction.GlobalBraid
 import Categorification.KLR.CyclotomicAction.GlobalCross
 import Categorification.KLR.CyclotomicAction.Comparison
 import Categorification.KLR.CyclotomicAction.KangKashiwara
@@ -566,6 +567,7 @@ import Categorification.TwoRep.PiLinear
 import Categorification.TwoRep.BlockSum
 import Categorification.TwoRep.BlockSumCross
 import Categorification.TwoRep.BlockSumGen
+import Categorification.TwoRep.BlockSumTriple
 import Categorification.TwoRep.MatKarFunctor
 import Categorification.TwoRep.MateSh
 import Categorification.TwoRep.ShiftCoherence

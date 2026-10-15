@@ -646,6 +646,7 @@ import Categorification.TwoRep.RouqTwist
 import Categorification.TwoRep.RouqYoneda
 import Categorification.TwoRep.RouqReverse
 import Categorification.TwoRep.RouqProduct
+import Categorification.TwoRep.RouqProductKLR
 import Categorification.TwoRep.RouqSl2
 import Categorification.TwoRep.CyclotomicLocalCommutator
 import Categorification.TwoRep.AdditiveCat

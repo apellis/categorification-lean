@@ -477,6 +477,7 @@ import Categorification.KLR.Theorem321
 import Categorification.KLR.Theorem321Functor
 import Categorification.KLR.TightMonomials
 import Categorification.KLR.Unfurling.CompletedPolyRep
+import Categorification.KLR.Unfurling.BubbleValues
 import Categorification.KLR.Unfurling.Completion
 import Categorification.KLR.Unfurling.Cover
 import Categorification.KLR.Unfurling.Density

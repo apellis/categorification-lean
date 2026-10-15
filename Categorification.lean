@@ -480,6 +480,7 @@ import Categorification.KLR.TightMonomials
 import Categorification.KLR.Unfurling.BranchedCover
 import Categorification.KLR.Unfurling.CompletedPolyRep
 import Categorification.KLR.Unfurling.BubbleValues
+import Categorification.KLR.Unfurling.BubbleMultiplicity
 import Categorification.KLR.Unfurling.Completion
 import Categorification.KLR.Unfurling.Cover
 import Categorification.KLR.Unfurling.Density

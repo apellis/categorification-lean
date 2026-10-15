@@ -642,6 +642,7 @@ import Categorification.TwoRep.RouqGrass
 import Categorification.TwoRep.RouqPitchfork
 import Categorification.TwoRep.RouqTriangleE
 import Categorification.TwoRep.RouqTwist
+import Categorification.TwoRep.RouqYoneda
 import Categorification.TwoRep.RouqSl2
 import Categorification.TwoRep.CyclotomicLocalCommutator
 import Categorification.TwoRep.AdditiveCat

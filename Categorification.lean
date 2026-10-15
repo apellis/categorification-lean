@@ -603,6 +603,7 @@ import Categorification.TwoRep.RouqDescent
 import Categorification.TwoRep.RouqFullCL
 import Categorification.TwoRep.RouqCyclicDot
 import Categorification.TwoRep.RouqCurl
+import Categorification.TwoRep.RouqCoproductBubbles
 import Categorification.TwoRep.RouqDottedCurls
 import Categorification.TwoRep.RouqDual
 import Categorification.TwoRep.RouqGrass

@@ -39,7 +39,7 @@ open QuantumGroup UDot LaurentPolynomial
 universe u v
 
 variable {I : Type u} {C : CartanDatum I} {X Y : Type v} [AddCommGroup X] [AddCommGroup Y]
-  {RD : RootDatum C X Y}
+  {RD : WeightDatum C X Y}
 
 section Span
 

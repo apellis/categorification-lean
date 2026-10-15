@@ -95,7 +95,7 @@ noncomputable section
 variable {I : Type u} [DecidableEq I] {k : Type v} [CommRing k]
   (Q : I → I → MvPolynomial (Fin 2) k) (a : I → Polynomial k)
   {C : CartanDatum I} {X Y : Type u₁} [AddCommGroup X] [AddCommGroup Y]
-  (RD : QuantumGroup.UDot.RootDatum C X Y) (Λ : X)
+  (RD : QuantumGroup.UDot.WeightDatum C X Y) (Λ : X)
 
 /-- **The dotted cups on weight spaces, blockwise.** -/
 theorem cupD_app (i : I) {y z : X} (h : y + RD.iX i = z)

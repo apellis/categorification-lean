@@ -20,7 +20,7 @@ namespace Categorification.KL3.Diagram
 open CategoryTheory StringDiagrams QuantumGroup UDot Presentation
 universe w u v
 variable {I : Type u} {C : CartanDatum I} {X Y : Type v} [AddCommGroup X] [AddCommGroup Y]
-  {RD : RootDatum C X Y} {k : Type w} [CommRing k]
+  {RD : WeightDatum C X Y} {k : Type w} [CommRing k]
 
 theorem capBlk_eq (S : List (Letter I)) (l : Letter I) (d : ℕ) :
     capBlk S l d = (lmLc S l).map (whL [l.dual] []) ++ List.replicate d ([], .dot l.dual, l :: S) ++

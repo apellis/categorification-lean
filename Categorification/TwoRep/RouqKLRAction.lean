@@ -65,7 +65,7 @@ universe w v u u₁
 section Weighted
 
 variable {I : Type*} {C : CartanDatum I} {X Y : Type u₁} [AddCommGroup X] [AddCommGroup Y]
-  (RD : RootDatum C X Y)
+  (RD : WeightDatum C X Y)
 
 /-- A list of letters with, for each letter, the weight below it is a valid weighted word from
 `μ` to `μ'` if the weights are consistent. -/
@@ -230,7 +230,7 @@ section Words
 
 variable {B : Type u} [Bicategory.{w, v} B] [∀ a b : B, Preadditive (a ⟶ b)]
   {I : Type*} {C : CartanDatum I} {X Y : Type u₁} [AddCommGroup X] [AddCommGroup Y]
-  {RD : RootDatum C X Y}
+  {RD : WeightDatum C X Y}
 
 namespace RouqFamily
 
@@ -584,7 +584,7 @@ variable {k : Type*} [CommRing k] {B : Type u} [Bicategory.{w, v} B]
   [∀ (a b c : B) (f : a ⟶ b), (precomp c f).Linear k]
   [∀ (a b c : B) (f : b ⟶ c), (postcomp a f).Linear k]
   {I : Type*} {C : CartanDatum I} {X Y : Type u₁} [AddCommGroup X] [AddCommGroup Y]
-  {RD : RootDatum C X Y}
+  {RD : WeightDatum C X Y}
 
 namespace RouqFamily
 
@@ -983,7 +983,7 @@ variable {k : Type*} [CommRing k] {B : Type u} [Bicategory.{w, v} B]
   [∀ (a b c : B) (f : a ⟶ b), (precomp c f).Linear k]
   [∀ (a b c : B) (f : b ⟶ c), (postcomp a f).Linear k]
   {I : Type*} [DecidableEq I] {C : CartanDatum I} {X Y : Type u₁} [AddCommGroup X]
-  [AddCommGroup Y] {RD : RootDatum C X Y}
+  [AddCommGroup Y] {RD : WeightDatum C X Y}
 
 namespace RouqFamily
 

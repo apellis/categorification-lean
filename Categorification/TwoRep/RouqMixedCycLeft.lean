@@ -129,7 +129,7 @@ variable {B : Type u} [Bicategory.{w, v} B]
   {k : Type*} [CommRing k] [∀ a b : B, Linear k (a ⟶ b)]
 namespace RouqFamily
 variable {I : Type*} {C : CartanDatum I} {X Y : Type u₁}
-  [AddCommGroup X] [AddCommGroup Y] {RD : RootDatum C X Y}
+  [AddCommGroup X] [AddCommGroup Y] {RD : WeightDatum C X Y}
   (S : RouqFamily (B := B) RD) (Sc : CL.CLScalars C k)
 attribute [local irreducible] KL3.Diagram.sh
 open QStrong (sig0_colourSrc_g sig0_colourTgt_g sig0_dom_cross_g sig0_cod_cross_g

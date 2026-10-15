@@ -70,7 +70,7 @@ namespace UDot
 
 variable {I : Type*} {K : Type*} [Field K]
 variable {C : CartanDatum I} {X Y : Type*} [AddCommGroup X] [AddCommGroup Y]
-  (RD : RootDatum C X Y) (q : Kˣ)
+  (RD : WeightDatum C X Y) (q : Kˣ)
 
 /-! ### Generic anti-homomorphisms of `U̇` -/
 
@@ -198,7 +198,7 @@ end Anti
 section Helpers
 
 theorem wX_reverse (t : List (Bool × I)) : RD.wX t.reverse = RD.wX t := by
-  simp [RootDatum.wX, List.map_reverse, List.sum_reverse]
+  simp [WeightDatum.wX, List.map_reverse, List.sum_reverse]
 
 theorem ρW_eq (t : List (Bool × I)) : ρW t = (t.map flipL).reverse := rfl
 
@@ -329,7 +329,7 @@ theorem sigF_killsRel : KillsRel (sigF RD q) where
     · subst h
       have h0 : RD.wX [(true, j), (false, j)] = 0 := by simp [RD.wX_cons]
       rw [h0, add_zero, map_neg, qbr_neg, neg_smul]
-      simp only [wl_nil, RootDatum.ellOf]
+      simp only [wl_nil, WeightDatum.ellOf]
       abel
     · simp
   pos ν i j hij := by
@@ -451,7 +451,7 @@ theorem rexp_append (lam : X) (s t : List (Bool × I)) :
     ring
 
 theorem wX_perm {t t' : List (Bool × I)} (h : t.Perm t') : RD.wX t = RD.wX t' := by
-  unfold RootDatum.wX
+  unfold WeightDatum.wX
   exact (h.map _).sum_eq
 
 /-- `rexp` is invariant under permutations: `d_i ⟨i, j_X⟩ = i·j` is symmetric. -/
@@ -541,7 +541,7 @@ theorem rhoF_killsRel : KillsRel (rhoF RD q) where
     · subst h
       have h0 : RD.wX [(true, i), (false, i)] = 0 := by simp [RD.wX_cons]
       rw [rexp_EF, h0, add_zero]
-      simp only [RootDatum.ellOf, qp_zero, one_smul]
+      simp only [WeightDatum.ellOf, qp_zero, one_smul]
       abel
     · exact absurd h.symm h'
     · exact absurd h'.symm h

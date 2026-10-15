@@ -35,7 +35,7 @@ open CategoryTheory StringDiagrams QuantumGroup UDot Presentation
 universe w u v
 
 variable {I : Type u} {C : CartanDatum I} {X Y : Type v} [AddCommGroup X] [AddCommGroup Y]
-  {RD : RootDatum C X Y} {k : Type w} [CommRing k] (P : Presentation.{w, max u v} (psig RD) k)
+  {RD : WeightDatum C X Y} {k : Type w} [CommRing k] (P : Presentation.{w, max u v} (psig RD) k)
 
 
 /-- **Placement.** The `k`-linear map placing a 2-morphism `E_s 1_ν ⟶ E_t 1_ν`, with

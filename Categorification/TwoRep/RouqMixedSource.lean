@@ -73,7 +73,7 @@ theorem rightMate_pre {a b c d : B} {g g' : a ⟶ c} {h : b ⟶ d}
 variable [∀ a b : B, Preadditive (a ⟶ b)]
 variable {k : Type*} [CommRing k] [∀ a b : B, Linear k (a ⟶ b)]
 variable {I : Type*} {C : CartanDatum I} {X Y : Type u₁} [AddCommGroup X] [AddCommGroup Y]
-variable {RD : RootDatum C X Y}
+variable {RD : WeightDatum C X Y}
 
 /-- The divided difference of Brundan's rectangular polynomial, with no
 homogeneity restriction on `s`. This is the polynomial in the bent braid (2.4). -/

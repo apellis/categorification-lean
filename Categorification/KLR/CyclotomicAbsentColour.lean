@@ -282,7 +282,7 @@ theorem dotUnitSum_apply (h : ℕ) (r : Fin h → Rl) :
 
 theorem weight_nonneg_of_absent
     {C : QuantumGroup.CartanDatum I} {X Y : Type*} [AddCommGroup X] [AddCommGroup Y]
-    (RD : QuantumGroup.UDot.RootDatum C X Y) (Λ : X)
+    (RD : QuantumGroup.UDot.WeightDatum C X Y) (Λ : X)
     (hi : i ∉ β)
     (hΛ : ((a i).natDegree : ℤ) = RD.pair (RD.iY i) Λ)
     (hdeg : ∀ j, j ≠ i → ((polyInY (Q j i)).natDegree : ℤ) =
@@ -406,7 +406,7 @@ omit [DecidableEq I] in
 /-- Rank-zero degree is the nonnegative Cartan weight, without a dominance premise. -/
 theorem zero_degree_eq_weight
     {C : QuantumGroup.CartanDatum I} {X Y : Type*} [AddCommGroup X] [AddCommGroup Y]
-    (RD : QuantumGroup.UDot.RootDatum C X Y) (Λ : X)
+    (RD : QuantumGroup.UDot.WeightDatum C X Y) (Λ : X)
     (hΛ : ((a i).natDegree : ℤ) = RD.pair (RD.iY i) Λ) :
     (a i).natDegree = (RD.pair (RD.iY i) (Λ - ((0 : Multiset I).map RD.iX).sum)).toNat := by
   simp only [Multiset.map_zero, Multiset.sum_zero, sub_zero, ← hΛ, Int.toNat_natCast]

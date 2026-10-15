@@ -12,7 +12,7 @@ Khovanov–Lauda III, arXiv:0807.3250v1, §2.1.1 (root datum), §2.1.3 (`U̇`, P
 * `UDot.RootDatum C X Y` — a root datum `(Y, X, ⟨,⟩, …)` of type `(I, ·)`: free finitely
   generated abelian groups `X`, `Y`, a perfect pairing `⟨,⟩ : Y × X → ℤ` and maps
   `I → X`, `i ↦ i_X`, `I → Y`, `i ↦ i` with `⟨i, j_X⟩ = 2 (i·j)/(i·i)`. (The maps `I → X`,
-  `I → Y` are then automatically injective: `UDot.RootDatum.iX_injective`.)
+  `I → Y` are then automatically injective: `UDot.WeightDatum.iX_injective`.)
 * `UDot.U1 RD q λ = U̇ 1_λ` — the quotient of the free algebra `'U 1_λ` on the signed letters
   by the relations of `U̇` (KL III eqs. (2.2)–(2.4) and the quantum Serre relations; see
   `Categorification.QuantumGroup.UDotSerre`).
@@ -55,12 +55,25 @@ variable {I : Type*} {K : Type*} [Field K]
 
 /-! ### Root data -/
 
-/-- A root datum of type `(I, ·)` (KL III §2.1.1; Lusztig 2.2.1): free finitely generated
-abelian groups `X`, `Y` with a perfect pairing `⟨,⟩ : Y × X → ℤ`, and maps `I → X`
-(`i ↦ i_X`), `I → Y` (`i ↦ i`) with `⟨i, j_X⟩ = 2 (i·j)/(i·i)`. -/
-structure RootDatum (C : CartanDatum I) (X Y : Type*) [AddCommGroup X] [AddCommGroup Y] where
+/-- A weight datum of type `(I, ·)`: abelian groups `X`, `Y` with a pairing
+`⟨,⟩ : Y × X → ℤ`, and maps `I → X` (`i ↦ i_X`), `I → Y` (`i ↦ i`) with
+`⟨i, j_X⟩ = 2 (i·j)/(i·i)`. This is a root datum (KL III §2.1.1; Lusztig 2.2.1) without the
+conditions that `X`, `Y` be free of finite rank and the pairing perfect; the index set `I` may
+be infinite. Weight data of infinite rank occur for the unfurled Kac–Moody algebra `g̃` of
+B. Webster, *Unfurling Khovanov–Lauda–Rouquier algebras*, arXiv:1603.06311v3, §3.3. -/
+structure WeightDatum (C : CartanDatum I) (X Y : Type*) [AddCommGroup X] [AddCommGroup Y] where
   /-- The pairing `⟨,⟩ : Y × X → ℤ`. -/
   pair : Y →+ X →+ ℤ
+  /-- `i ↦ i_X`. -/
+  iX : I → X
+  /-- `i ↦ i ∈ Y`. -/
+  iY : I → Y
+  pair_iY_iX : ∀ i j, pair (iY i) (iX j) = 2 * C.dot i j / C.dot i i
+
+/-- A root datum of type `(I, ·)` (KL III §2.1.1; Lusztig 2.2.1): a weight datum whose groups
+`X`, `Y` are free finitely generated and whose pairing `⟨,⟩ : Y × X → ℤ` is perfect. -/
+structure RootDatum (C : CartanDatum I) (X Y : Type*) [AddCommGroup X] [AddCommGroup Y]
+    extends WeightDatum C X Y where
   /-- Perfectness: `Y ≅ Hom(X, ℤ)`. -/
   perfect_left : Function.Bijective pair
   /-- Perfectness: `X ≅ Hom(Y, ℤ)`. -/
@@ -69,16 +82,15 @@ structure RootDatum (C : CartanDatum I) (X Y : Type*) [AddCommGroup X] [AddCommG
   finite_X : Module.Finite ℤ X
   free_Y : Module.Free ℤ Y
   finite_Y : Module.Finite ℤ Y
-  /-- `i ↦ i_X`. -/
-  iX : I → X
-  /-- `i ↦ i ∈ Y`. -/
-  iY : I → Y
-  pair_iY_iX : ∀ i j, pair (iY i) (iX j) = 2 * C.dot i j / C.dot i i
 
-namespace RootDatum
+instance {C : CartanDatum I} {X Y : Type*} [AddCommGroup X] [AddCommGroup Y] :
+    CoeOut (RootDatum C X Y) (WeightDatum C X Y) :=
+  ⟨RootDatum.toWeightDatum⟩
+
+namespace WeightDatum
 
 variable {C : CartanDatum I} {X Y : Type*} [AddCommGroup X] [AddCommGroup Y]
-  (RD : RootDatum C X Y)
+  (RD : WeightDatum C X Y)
 
 theorem pair_iY_iX_eq_A (i j : I) : RD.pair (RD.iY i) (RD.iX j) = A C i j := RD.pair_iY_iX i j
 
@@ -139,10 +151,10 @@ theorem wX_eq (t : List (Bool × I)) :
     obtain ⟨b, i⟩ := l
     cases b <;> simp [ih] <;> abel
 
-end RootDatum
+end WeightDatum
 
 variable {C : CartanDatum I} {X Y : Type*} [AddCommGroup X] [AddCommGroup Y]
-  (RD : RootDatum C X Y) (q : Kˣ)
+  (RD : WeightDatum C X Y) (q : Kˣ)
 
 /-! ### `X`-graded pieces of `'U 1_λ` -/
 

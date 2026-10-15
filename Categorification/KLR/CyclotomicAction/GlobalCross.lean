@@ -64,7 +64,7 @@ theorem gen_comp_comp {𝒟 : Type*} [Category 𝒟] {P P' P'' G G' G'' : 𝒟} 
   rw [← Category.assoc, h₁, Category.assoc, h₂, Category.assoc]
 
 variable {C : CartanDatum I} {X Y : Type u₁} [AddCommGroup X] [AddCommGroup Y]
-  (RD : QuantumGroup.UDot.RootDatum C X Y) (Λ : X)
+  (RD : QuantumGroup.UDot.WeightDatum C X Y) (Λ : X)
 
 omit [DecidableEq I] in
 theorem blockSucc_comm (i j : I) {x y z t : X} (h₁ : x + RD.iX j = y) (h₂ : y + RD.iX i = t)

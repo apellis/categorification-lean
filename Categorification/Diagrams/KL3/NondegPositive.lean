@@ -82,7 +82,7 @@ end Linear
 section Bend
 
 variable {I : Type u} {C : CartanDatum I} {X Y : Type v} [AddCommGroup X] [AddCommGroup Y]
-  {RD : RootDatum C X Y} {k : Type w} [Field k]
+  {RD : WeightDatum C X Y} {k : Type w} [Field k]
 
 set_option backward.isDefEq.respectTransparency false in
 /-- **Bending the source up on the left** (biadjointness): `HOM_U(E_s 1_μ, E_t 1_μ)_d ≅
@@ -148,7 +148,7 @@ end Bend
 section Words
 
 variable {I : Type u} {C : CartanDatum I} {X Y : Type v} [AddCommGroup X] [AddCommGroup Y]
-  {RD : RootDatum C X Y}
+  {RD : WeightDatum C X Y}
 
 theorem rd_eq_ρW (s : List (Letter I)) : rd s = ρW s := rfl
 
@@ -166,7 +166,7 @@ end Words
 section OneSided
 
 variable {I : Type u} {C : CartanDatum I} {X Y : Type v} [AddCommGroup X] [AddCommGroup Y]
-  {RD : RootDatum C X Y} {k : Type w} [Field k] (hG : HomGdim RD k)
+  {RD : WeightDatum C X Y} {k : Type w} [Field k] (hG : HomGdim RD k)
 
 /-- `dim HOM_U(1_μ, E_u 1_μ)_t` as the value of the functional `homDim` on `[E_u 1_μ]`. -/
 theorem finrank_eq_homDim {μ : X} (u : List (Letter I)) (hu : wt RD μ u = μ) (t : ℤ) :

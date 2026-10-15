@@ -88,7 +88,7 @@ open CategoryTheory StringDiagrams QuantumGroup UDot Presentation MvPolynomial R
 universe w u v
 
 variable {I : Type u} {C : CartanDatum I} {X Y : Type v} [AddCommGroup X] [AddCommGroup Y]
-  (RD : RootDatum C X Y) (k : Type w) [CommRing k]
+  (RD : WeightDatum C X Y) (k : Type w) [CommRing k]
 
 /-- **A rescaling datum** (see the module docstring): units `a_i` for dots, `c_{ij}` for upward
 crossings and `β_c` for cups (caps get `β_c⁻¹`), with `β_{E_i, x} = a_i^{-1-⟨i,x⟩} β_{F_i, x+i_X}`. -/

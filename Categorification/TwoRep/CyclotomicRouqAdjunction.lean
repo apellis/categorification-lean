@@ -151,7 +151,7 @@ variable (hsym : KLRSymm Q)
   (hQ : ∀ j l : I, j ≠ l → ∃ c : k, IsUnit c ∧ (polyInY (Q j l)).leadingCoeff = Polynomial.C c)
   (ha : ∀ j, (a j).Monic)
   {C : QuantumGroup.CartanDatum I} {X Y : Type*} [AddCommGroup X] [AddCommGroup Y]
-  (RD : QuantumGroup.UDot.RootDatum C X Y) (Λ : X)
+  (RD : QuantumGroup.UDot.WeightDatum C X Y) (Λ : X)
   (hΛ : ((a i).natDegree : ℤ) = RD.pair (RD.iY i) Λ)
   (hdeg : ∀ j, j ≠ i → ((polyInY (Q j i)).natDegree : ℤ) =
     -RD.pair (RD.iY i) (RD.iX j))

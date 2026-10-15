@@ -42,7 +42,7 @@ theorem mixedMate_isIso_of_eq (i j : I) (hij : i ≠ j) (hsym : KLRSymm Q)
   exact mixedMate_isIso Q a γ i j hij hsym h₄
 
 variable {C : CartanDatum I} {X Y : Type u₁} [AddCommGroup X] [AddCommGroup Y]
-  (RD : QuantumGroup.UDot.RootDatum C X Y) (Λ : X)
+  (RD : QuantumGroup.UDot.WeightDatum C X Y) (Λ : X)
 
 /-- The generator of `E_j E_i` on `F_i E_i`, followed by the counit, for any target block. -/
 theorem gen₂_counit_of_eq (i j : I) {x y z : X} (h₁ : x + RD.iX i = y) (h₂ : y + RD.iX j = z)

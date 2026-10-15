@@ -52,7 +52,7 @@ open scoped TensorProduct
 universe w u v
 
 variable {I : Type u} {C : CartanDatum I} {X Y : Type v} [AddCommGroup X] [AddCommGroup Y]
-  {RD : RootDatum C X Y} {k : Type w} [Field k]
+  {RD : WeightDatum C X Y} {k : Type w} [Field k]
 
 /-! ## Endomorphisms of `x{t}` in `U̇` -/
 

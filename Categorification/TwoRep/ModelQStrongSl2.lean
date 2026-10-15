@@ -83,7 +83,7 @@ variable {k : Type*} [Field k] {B : Type u} [Bicategory.{w, v} B]
   [GradedBicategory.ShiftCoherence B] [GradedBicategory.IsLinear B k]
   [∀ a b : B, IsIdempotentComplete (a ⟶ b)] [∀ a b : B, HomFinite k (a ⟶ b)]
   {I : Type*} {C : CartanDatum I} {X Y : Type u₁} [AddCommGroup X] [AddCommGroup Y]
-  {RD : RootDatum C X Y} {Q : I → I → MvPolynomial (Fin 2) k}
+  {RD : WeightDatum C X Y} {Q : I → I → MvPolynomial (Fin 2) k}
 
 namespace QStrong
 
@@ -319,7 +319,7 @@ variable {k : Type*} [Field k] {B : Type u} [Bicategory.{w, v} B]
   [GradedBicategory.ShiftCoherence B] [GradedBicategory.IsLinear B k]
   [∀ a b : B, IsIdempotentComplete (a ⟶ b)] [∀ a b : B, HomFinite k (a ⟶ b)]
   {I : Type*} {C : CartanDatum I} {X Y : Type u₁} [AddCommGroup X] [AddCommGroup Y]
-  {RD : RootDatum C X Y} {Q : I → I → MvPolynomial (Fin 2) k}
+  {RD : WeightDatum C X Y} {Q : I → I → MvPolynomial (Fin 2) k}
 
 namespace QStrong
 

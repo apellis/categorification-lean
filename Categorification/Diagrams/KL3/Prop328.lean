@@ -155,7 +155,7 @@ open CategoryTheory CategoryTheory.Limits CategoryTheory.Idempotents StringDiagr
 universe w u v
 
 variable {I : Type u} {C : CartanDatum I} {X Y : Type v} [AddCommGroup X] [AddCommGroup Y]
-  {RD : RootDatum C X Y} {k : Type w} [CommRing k]
+  {RD : WeightDatum C X Y} {k : Type w} [CommRing k]
 
 /-! ## Bar invariance of quantum factorials -/
 

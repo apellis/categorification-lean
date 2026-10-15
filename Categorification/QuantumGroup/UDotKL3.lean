@@ -36,7 +36,7 @@ namespace UDot
 
 variable {I : Type*} {K : Type*} [Field K]
 variable {C : CartanDatum I} {X Y : Type*} [AddCommGroup X] [AddCommGroup Y]
-  (RD : RootDatum C X Y) (q : Kˣ) (c : I → K)
+  (RD : WeightDatum C X Y) (q : Kˣ) (c : I → K)
 
 /-! ### Nondegeneracy -/
 
@@ -148,23 +148,28 @@ end KL3
 
 /-! ### Example: the root datum of `sl₂` -/
 
-/-- The root datum of `sl₂` (`SL₂` form): `I = {pt}`, `X = Y = ℤ`, `⟨y, x⟩ = y x`, `i_X = 2`,
-`i = 1`. This shows the hypotheses of `UDot.RootDatum` are satisfiable. -/
-def sl2RootDatum : RootDatum (CartanDatum.ofGraph (⊥ : SimpleGraph Unit)) ℤ ℤ where
+/-- The weight datum of `sl₂` (`SL₂` form): `I = {pt}`, `X = Y = ℤ`, `⟨y, x⟩ = y x`, `i_X = 2`,
+`i = 1`. It is a root datum (`sl2RootDatumPerfect`), so the hypotheses of `UDot.RootDatum` are
+satisfiable. -/
+def sl2RootDatum : WeightDatum (CartanDatum.ofGraph (⊥ : SimpleGraph Unit)) ℤ ℤ where
   pair := AddMonoidHom.mul
+  iX _ := 2
+  iY _ := 1
+  pair_iY_iX _ _ := by simp [CartanDatum.ofGraph]
+
+/-- The root datum of `sl₂`. -/
+def sl2RootDatumPerfect : RootDatum (CartanDatum.ofGraph (⊥ : SimpleGraph Unit)) ℤ ℤ where
+  toWeightDatum := sl2RootDatum
   perfect_left := by
-    refine ⟨fun a b h => ?_, fun f => ⟨f 1, AddMonoidHom.ext_int (by simp)⟩⟩
-    simpa using DFunLike.congr_fun h 1
+    refine ⟨fun a b h => ?_, fun f => ⟨f 1, AddMonoidHom.ext_int (by simp [sl2RootDatum])⟩⟩
+    simpa [sl2RootDatum] using DFunLike.congr_fun h 1
   perfect_right := by
-    refine ⟨fun a b h => ?_, fun f => ⟨f 1, AddMonoidHom.ext_int (by simp)⟩⟩
-    simpa using DFunLike.congr_fun h 1
+    refine ⟨fun a b h => ?_, fun f => ⟨f 1, AddMonoidHom.ext_int (by simp [sl2RootDatum])⟩⟩
+    simpa [sl2RootDatum] using DFunLike.congr_fun h 1
   free_X := inferInstance
   finite_X := inferInstance
   free_Y := inferInstance
   finite_Y := inferInstance
-  iX _ := 2
-  iY _ := 1
-  pair_iY_iX _ _ := by simp [CartanDatum.ofGraph]
 
 /-- KL III Proposition 2.2 for `U̇(sl₂)` over `ℚ(q)` (a non-vacuity check). -/
 example : ∃! F : UD sl2RootDatum KL3.qK →ₗ[RatFunc ℚ] UD sl2RootDatum KL3.qK →ₗ[RatFunc ℚ] RatFunc ℚ,

@@ -45,7 +45,7 @@ open CategoryTheory StringDiagrams QuantumGroup UDot Presentation Biadjunction
 universe w u v
 
 variable {I : Type u} {C : CartanDatum I} {X Y : Type v} [AddCommGroup X] [AddCommGroup Y]
-  (RD : RootDatum C X Y) (k : Type w) [CommRing k]
+  (RD : WeightDatum C X Y) (k : Type w) [CommRing k]
 
 /-- The base presentation: no relations among dots and crossings alone (all relations of `U`
 are added after the pivotal extension). -/

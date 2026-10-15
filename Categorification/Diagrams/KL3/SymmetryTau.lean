@@ -54,7 +54,7 @@ open CategoryTheory StringDiagrams QuantumGroup UDot Presentation Opposite
 universe w u v
 
 variable {I : Type u} {C : CartanDatum I} {X Y : Type v} [AddCommGroup X] [AddCommGroup Y]
-  (RD : RootDatum C X Y) (k : Type w) [CommRing k]
+  (RD : WeightDatum C X Y) (k : Type w) [CommRing k]
 
 /-- **The rotation `τ̃` of KL III (3.46)** on the Hom category `U(a, b)`: the library's rotation
 functor for the pivotal structure of `U`, `x ↦ x*`, `ζ ↦ ζ*` (the right mate). -/

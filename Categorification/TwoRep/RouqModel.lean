@@ -33,7 +33,7 @@ universe w v u u₁
 
 variable {B : Type u} [Bicategory.{w, v} B] [∀ a b : B, Preadditive (a ⟶ b)]
   {I : Type*} {C : CartanDatum I} {X Y : Type u₁} [AddCommGroup X] [AddCommGroup Y]
-  (RD : RootDatum C X Y)
+  (RD : WeightDatum C X Y)
 
 /-- Weight-indexed Rouquier generators with all single-colour relations. Mixed KLR relations
 and mixed invertibility are deliberately not included in this generator-layer structure. -/

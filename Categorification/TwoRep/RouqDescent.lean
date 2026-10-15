@@ -31,7 +31,7 @@ variable {k : Type*} [CommRing k] {B : Type u} [Bicategory.{w, v} B]
   [∀ a b : B, Preadditive (a ⟶ b)] [∀ a b : B, Linear k (a ⟶ b)]
   [AdditiveWhiskering B]
   {I : Type*} {C : CartanDatum I} {X Y : Type u₁} [AddCommGroup X] [AddCommGroup Y]
-  {RD : RootDatum C X Y}
+  {RD : WeightDatum C X Y}
 namespace RouqFamily
 variable (S : RouqFamily (B := B) RD) (Sc : CL.CLScalars C k)
   [∀ (a b c : B) (f : a ⟶ b), (precomp c f).Linear k]

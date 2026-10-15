@@ -296,7 +296,7 @@ end Correction
 
 namespace RouqFamily
 variable {I : Type*} {C : CartanDatum I} {X Y : Type u₁}
-  [AddCommGroup X] [AddCommGroup Y] {RD : RootDatum C X Y}
+  [AddCommGroup X] [AddCommGroup Y] {RD : WeightDatum C X Y}
   (S : RouqFamily (B := B) RD)
 
 /-- The derived left unit is the cup of the local inverse at its upper weight. -/

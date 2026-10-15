@@ -32,7 +32,7 @@ variable {B : Type u} [Bicategory.{w, v} B]
 
 namespace RouqFamily
 variable {I : Type*} {C : CartanDatum I} {X Y : Type u₁}
-  [AddCommGroup X] [AddCommGroup Y] {RD : RootDatum C X Y}
+  [AddCommGroup X] [AddCommGroup Y] {RD : WeightDatum C X Y}
   (S : RouqFamily (B := B) RD)
 
 omit [AdditiveWhiskering B] in
@@ -374,7 +374,7 @@ end CupEvaluation
 
 namespace RouqFamily
 variable {I : Type*} {C : CartanDatum I} {X Y : Type u₁}
-  [AddCommGroup X] [AddCommGroup Y] {RD : RootDatum C X Y}
+  [AddCommGroup X] [AddCommGroup Y] {RD : WeightDatum C X Y}
   (S : RouqFamily (B := B) RD)
 
 omit [∀ a b : B, Preadditive (a ⟶ b)] [AdditiveWhiskering B] in

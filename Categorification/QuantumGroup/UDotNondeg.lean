@@ -531,7 +531,7 @@ theorem B_posF_radical (ℓ : I → ℤ) {x : PreF K I} (hx : x ∈ radK C q c) 
 
 /-! ### KL III Proposition 2.5 -/
 
-variable {X Y : Type*} [AddCommGroup X] [AddCommGroup Y] (RD : RootDatum C X Y)
+variable {X Y : Type*} [AddCommGroup X] [AddCommGroup Y] (RD : WeightDatum C X Y)
 
 include hc in
 /-- **KL III Prop. 2.5 for `( , )`, blockwise**: the form is nondegenerate on each `U̇ 1_λ`. -/

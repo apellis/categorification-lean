@@ -360,7 +360,7 @@ open QuantumGroup UDot
 variable {B : Type u} [Bicategory.{w, v} B] [∀ a b : B, Preadditive (a ⟶ b)]
   [AdditiveWhiskering B]
   {I : Type*} {C : CartanDatum I} {X Y : Type u₁} [AddCommGroup X] [AddCommGroup Y]
-  {RD : RootDatum C X Y} (S : RouqFamily (B := B) RD)
+  {RD : WeightDatum C X Y} (S : RouqFamily (B := B) RD)
 
 /-- An edge `x → y` of colour `i` gives the edge `-y → -x`. -/
 theorem neg_reg (i : I) {x y : X} (h : x + RD.iX i = y) : -y + RD.iX i = -x := by

@@ -29,7 +29,7 @@ open CategoryTheory StringDiagrams QuantumGroup UDot Presentation
 universe w u v
 
 variable {I : Type u} {C : CartanDatum I} {X Y : Type v} [AddCommGroup X] [AddCommGroup Y]
-  (RD : RootDatum C X Y) (k : Type w) [CommRing k]
+  (RD : WeightDatum C X Y) (k : Type w) [CommRing k]
 
 theorem sum_coeff_succ {M : Type*} [AddCommGroup M] (F : ℕ → M) (n : ℕ) :
     ∑ ℓ ∈ Finset.range (n + 2), (n + 2 - ℓ) • F ℓ =

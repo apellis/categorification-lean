@@ -153,7 +153,7 @@ end KLR
 section Downward
 
 variable {I : Type u} {C : CartanDatum I} {X Y : Type v} [AddCommGroup X] [AddCommGroup Y]
-  (RD : RootDatum C X Y)
+  (RD : WeightDatum C X Y)
 
 /-- Downward strands of the given colours. -/
 abbrev dns (l : List I) : List (Letter I) := l.map dn
@@ -214,7 +214,7 @@ end Downward
 section Presentation
 
 variable {I : Type u} {C : CartanDatum I} {X Y : Type v} [AddCommGroup X] [AddCommGroup Y]
-  (RD : RootDatum C X Y) (k : Type w) [CommRing k]
+  (RD : WeightDatum C X Y) (k : Type w) [CommRing k]
 
 open LinDiagram in
 /-- **The relations of `U_Q(g)`** other than the zigzag relations (see the module docstring for
@@ -272,7 +272,7 @@ abbrev biadjColour (S : CLScalars C k) :
 /-- Index type of the KLR relations on downward strands: a rightmost region and a KLR
 relation. (The root datum is a parameter so that the index type is attached to `RD`, as
 `Rel RD` is.) -/
-inductive RelDown (_RD : RootDatum C X Y) : Type (max u v)
+inductive RelDown (_RD : WeightDatum C X Y) : Type (max u v)
   | klr (μ : X) (r : KLR.Diagram.Rel I)
 
 variable {RD}

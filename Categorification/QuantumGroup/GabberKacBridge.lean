@@ -383,7 +383,7 @@ end CartanDatum
 namespace UDot.KL3
 
 variable {I : Type*} {C : CartanDatum I} {X Y : Type*} [AddCommGroup X] [AddCommGroup Y]
-  (RD : RootDatum C X Y)
+  (RD : WeightDatum C X Y)
 
 /-- **Khovanov–Lauda III, Proposition 2.5 for `( , )`** (arXiv:0807.3250v1, §2.1.3), for an
 arbitrary Cartan datum. -/

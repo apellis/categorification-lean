@@ -61,7 +61,7 @@ open CategoryTheory StringDiagrams QuantumGroup UDot Presentation MvPolynomial
 universe w u v
 
 variable {I : Type u} {C : CartanDatum I} {X Y : Type v} [AddCommGroup X] [AddCommGroup Y]
-  (RD : RootDatum C X Y) (k : Type w) [CommRing k]
+  (RD : WeightDatum C X Y) (k : Type w) [CommRing k]
 
 /-- The relations of Definition 3.1, with the `R(ν)`-relations those of the KLR presentation for
 the polynomials `Q` instead of the KL II polynomials. -/

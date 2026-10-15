@@ -583,7 +583,7 @@ theorem qi_sq_ne_one (hq : ∀ n : ℕ, 0 < n → q ^ n ≠ 1) (i : I) :
   rw [qi, hn, zpow_natCast, ← pow_mul, mul_comm] at this
   exact this
 
-variable {X Y : Type*} [AddCommGroup X] [AddCommGroup Y] (RD : RootDatum C X Y)
+variable {X Y : Type*} [AddCommGroup X] [AddCommGroup Y] (RD : WeightDatum C X Y)
   (hq : ∀ n : ℕ, 0 < n → q ^ n ≠ 1)
 
 omit hq2 in
@@ -624,7 +624,7 @@ end UDot
 
 namespace KL3
 
-variable {X Y : Type*} [AddCommGroup X] [AddCommGroup Y] (RD : RootDatum C X Y)
+variable {X Y : Type*} [AddCommGroup X] [AddCommGroup Y] (RD : WeightDatum C X Y)
 
 /-- **Khovanov–Lauda III, Theorem 2.7** over `ℚ(q)` (KL III's setting: `q` the indeterminate,
 `(θ_i, θ_i) = (1 - q_i²)⁻¹`): for all signed sequences `𝐢 = s`, `𝐣 = t` and `λ, μ ∈ X`,

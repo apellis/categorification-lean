@@ -19,7 +19,7 @@ the colours of `RD₁` act by postcomposition with the 1-morphisms of `W`
 (`RouqFamily.yoneda`), and the colours of `RD₂` act by precomposition with those of `T`, that
 is, by postcomposition in the horizontal opposite with the reverse family (`RouqFamily.reverse`).
 Colours of different sides commute through the associators. This is a Rouquier family
-`RouqFamily.homProduct W T` for the product root datum (`RootDatum.prod`).
+`RouqFamily.homProduct W T` for the product root datum (`WeightDatum.prod`).
 
 When `W` is lowest weight and `T` is lowest weight (for instance both cyclotomic), `RD₁`
 colours act as on a lowest-weight representation and `RD₂` colours as on a highest-weight one.
@@ -40,7 +40,7 @@ the reverse of `T`.
 * `RouqFamily.homProduct`: the Rouquier family on `Hom_B(T(-x₂), W(x₁))`;
 * `RouqFamily.prodE_inl`, `RouqFamily.prodE_inr`: its 1-morphisms at weights whose unchanged
   component is literally the same, which are those of `W` and of the reverse of `T`;
-* `RootDatum.prod` (in `QuantumGroup.RootDatumSum`): the product root datum.
+* `WeightDatum.prod` (in `QuantumGroup.RootDatumSum`): the product weight datum.
 -/
 
 noncomputable section
@@ -77,7 +77,7 @@ variable (k : Type w') [CommRing k] {B : Type u} [Bicategory.{w, v} B]
   [∀ (a b c : B) (f : a ⟶ b), (precomp c f).Linear k]
   {I₁ I₂ : Type*} {C₁ : CartanDatum I₁} {C₂ : CartanDatum I₂}
   {X₁ Y₁ X₂ Y₂ : Type u₁} [AddCommGroup X₁] [AddCommGroup Y₁] [AddCommGroup X₂]
-  [AddCommGroup Y₂] {RD₁ : RootDatum C₁ X₁ Y₁} {RD₂ : RootDatum C₂ X₂ Y₂}
+  [AddCommGroup Y₂] {RD₁ : WeightDatum C₁ X₁ Y₁} {RD₂ : WeightDatum C₂ X₂ Y₂}
   (W : RouqFamily (B := B) RD₁) (T : RouqFamily (B := B) RD₂)
 
 /-- The category `Hom_B(T(-x₂), W(x₁))` at the weight `(x₁, x₂)`. -/
@@ -137,14 +137,14 @@ omit [∀ (a b c : B) (f : a ⟶ b), (precomp c f).Linear k] in
 theorem inl_snd (i : I₁) {a₁ b₁ : X₁} {a₂ b₂ : X₂}
     (h : (a₁, a₂) + (RD₁.prod RD₂).iX (.inl i) = (b₁, b₂)) : a₂ = b₂ := by
   have := congrArg Prod.snd h
-  simp only [Prod.snd_add, RootDatum.prod_iX_inl, add_zero] at this
+  simp only [Prod.snd_add, WeightDatum.prod_iX_inl, add_zero] at this
   exact this
 
 omit [∀ (a b c : B) (f : a ⟶ b), (precomp c f).Linear k] in
 theorem inr_fst (i : I₂) {a₁ b₁ : X₁} {a₂ b₂ : X₂}
     (h : (a₁, a₂) + (RD₁.prod RD₂).iX (.inr i) = (b₁, b₂)) : a₁ = b₁ := by
   have := congrArg Prod.fst h
-  simp only [Prod.fst_add, RootDatum.prod_iX_inr, add_zero] at this
+  simp only [Prod.fst_add, WeightDatum.prod_iX_inr, add_zero] at this
   exact this
 
 variable (k W T)

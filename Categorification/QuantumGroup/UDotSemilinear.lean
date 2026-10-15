@@ -38,7 +38,7 @@ namespace UDot
 
 variable {I : Type*} {K : Type*} [Field K]
 variable {C : CartanDatum I} {X Y : Type*} [AddCommGroup X] [AddCommGroup Y]
-  (RD : RootDatum C X Y) (q : Kˣ) (c : I → K) (σ : K →+* K)
+  (RD : WeightDatum C X Y) (q : Kˣ) (c : I → K) (σ : K →+* K)
 
 /-! ### `ψ` on the free algebra -/
 

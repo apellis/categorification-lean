@@ -33,7 +33,7 @@ open CategoryTheory StringDiagrams QuantumGroup UDot Presentation
 universe w u v
 
 variable {I : Type u} {C : CartanDatum I} {X Y : Type v} [AddCommGroup X] [AddCommGroup Y]
-  {RD : RootDatum C X Y} {k : Type w} [CommRing k] {S : CLScalars C k}
+  {RD : WeightDatum C X Y} {k : Type w} [CommRing k] {S : CLScalars C k}
 
 omit [AddCommGroup X] [AddCommGroup Y] in
 theorem map_whL_nil (l : List (LayerData I)) : l.map (whL [] []) = l := by

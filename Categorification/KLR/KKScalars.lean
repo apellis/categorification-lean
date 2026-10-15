@@ -100,7 +100,7 @@ theorem weight_single_add (i j : I) (p q : ℕ) :
 
 omit [DecidableEq I] in
 /-- `-⟨h_i, α_j⟩ = d_ij` for `i ≠ j`. -/
-theorem neg_pair_eq_dij {X Y : Type*} [AddCommGroup X] [AddCommGroup Y] (RD : RootDatum C X Y)
+theorem neg_pair_eq_dij {X Y : Type*} [AddCommGroup X] [AddCommGroup Y] (RD : WeightDatum C X Y)
     {i j : I} (hij : i ≠ j) : -RD.pair (RD.iY i) (RD.iX j) = C.dij i j := by
   have h := C.dij_mul hij
   have hpos := C.dot_self_pos i
@@ -111,7 +111,7 @@ omit [DecidableEq I] in
 /-- **The extremal coefficient is a unit** under the hypotheses of the cyclotomic family. -/
 theorem isUnit_extremalCoeff (hQ : KLRSymm Q)
     (hlead : ∀ j l, j ≠ l → ∃ c : k, IsUnit c ∧ (polyInY (Q j l)).leadingCoeff = Polynomial.C c)
-    {X Y : Type*} [AddCommGroup X] [AddCommGroup Y] (RD : RootDatum C X Y)
+    {X Y : Type*} [AddCommGroup X] [AddCommGroup Y] (RD : WeightDatum C X Y)
     (hdeg : ∀ i j, j ≠ i → ((polyInY (Q j i)).natDegree : ℤ) = -RD.pair (RD.iY i) (RD.iX j))
     {i j : I} (hij : i ≠ j) : IsUnit (extremalCoeff C Q i j) := by
   obtain ⟨c, hc, hlc⟩ := hlead j i (Ne.symm hij)

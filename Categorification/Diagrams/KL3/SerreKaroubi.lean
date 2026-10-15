@@ -59,7 +59,7 @@ open CategoryTheory CategoryTheory.Limits StringDiagrams QuantumGroup UDot Prese
 universe w u v
 
 variable {I : Type u} {C : CartanDatum I} {X Y : Type v} [AddCommGroup X] [AddCommGroup Y]
-  (RD : RootDatum C X Y) (k : Type w) [CommRing k] [DecidableEq I]
+  (RD : WeightDatum C X Y) (k : Type w) [CommRing k] [DecidableEq I]
 
 /-! ## Arithmetic of the shifts -/
 

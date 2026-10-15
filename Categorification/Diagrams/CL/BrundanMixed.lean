@@ -33,7 +33,7 @@ open CategoryTheory StringDiagrams QuantumGroup UDot Presentation
 universe w u v
 
 variable {I : Type u} {C : CartanDatum I} {X Y : Type v} [AddCommGroup X] [AddCommGroup Y]
-  {RD : RootDatum C X Y} {k : Type w} [CommRing k] {S : CLScalars C k}
+  {RD : WeightDatum C X Y} {k : Type w} [CommRing k] {S : CLScalars C k}
 
 theorem wt_dn_up (ν : X) (i : I) : wt RD ν [dn i, up i] = ν := by
   simp only [wt_cons, wt_nil, sh, up, dn, sgn]; simp

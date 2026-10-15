@@ -8,8 +8,8 @@ import Categorification.QuantumGroup.UDotBlock
 # Direct sums of Cartan data and root data
 
 The Cartan datum on `I₁ ⊕ I₂` whose form is the orthogonal sum of the two forms
-(`CartanDatum.sum`), and the root datum on `X₁ × X₂`, `Y₁ × Y₂` with the sum pairing
-(`RootDatum.prod`). Colours of different summands have `i · j = 0`.
+(`CartanDatum.sum`), and the weight and root data on `X₁ × X₂`, `Y₁ × Y₂` with the sum pairing
+(`WeightDatum.prod`, `RootDatum.prod`). Colours of different summands have `i · j = 0`.
 
 This is the Kac–Moody datum of the product of a lowest-weight and a highest-weight
 representation in the test representations of B. Webster, *Unfurling Khovanov–Lauda–Rouquier
@@ -112,13 +112,28 @@ theorem prodPair_flip (p₁ : Y₁ →+ X₁ →+ ℤ) (p₂ : Y₂ →+ X₂ �
   ext x y
   simp
 
-/-- **The product root datum** on `X₁ × X₂`, `Y₁ × Y₂`, for the orthogonal sum of the Cartan
+/-- **The product weight datum** on `X₁ × X₂`, `Y₁ × Y₂`, for the orthogonal sum of the Cartan
 data, with `(i₁)_X = (i_X, 0)` and `(i₂)_X = (0, i_X)`. -/
+def _root_.Categorification.QuantumGroup.UDot.WeightDatum.prod (RD₁ : WeightDatum C₁ X₁ Y₁)
+    (RD₂ : WeightDatum C₂ X₂ Y₂) : WeightDatum (C₁.sum C₂) (X₁ × X₂) (Y₁ × Y₂) where
+  pair := prodPair RD₁.pair RD₂.pair
+  iX := Sum.elim (fun i => (RD₁.iX i, 0)) (fun i => (0, RD₂.iX i))
+  iY := Sum.elim (fun i => (RD₁.iY i, 0)) (fun i => (0, RD₂.iY i))
+  pair_iY_iX
+    | .inl i, .inl j => by simp [RD₁.pair_iY_iX]
+    | .inr i, .inr j => by simp [RD₂.pair_iY_iX]
+    | .inl _, .inr _ => by simp
+    | .inr _, .inl _ => by simp
+
+/-- **The product root datum** on `X₁ × X₂`, `Y₁ × Y₂`, for the orthogonal sum of the Cartan
+data, with `(i₁)_X = (i_X, 0)` and `(i₂)_X = (0, i_X)`. Its weight datum is
+`WeightDatum.prod`. -/
 def prod (RD₁ : RootDatum C₁ X₁ Y₁) (RD₂ : RootDatum C₂ X₂ Y₂) :
     RootDatum (C₁.sum C₂) (X₁ × X₂) (Y₁ × Y₂) where
-  pair := prodPair RD₁.pair RD₂.pair
+  toWeightDatum := RD₁.toWeightDatum.prod RD₂.toWeightDatum
   perfect_left := prodPair_bijective RD₁.perfect_left RD₂.perfect_left
   perfect_right := by
+    change Function.Bijective (prodPair RD₁.pair RD₂.pair).flip
     rw [prodPair_flip]
     exact prodPair_bijective RD₁.perfect_right RD₂.perfect_right
   free_X := by
@@ -137,15 +152,17 @@ def prod (RD₁ : RootDatum C₁ X₁ Y₁) (RD₂ : RootDatum C₂ X₂ Y₂) :
     have := RD₁.finite_Y
     have := RD₂.finite_Y
     infer_instance
-  iX := Sum.elim (fun i => (RD₁.iX i, 0)) (fun i => (0, RD₂.iX i))
-  iY := Sum.elim (fun i => (RD₁.iY i, 0)) (fun i => (0, RD₂.iY i))
-  pair_iY_iX
-    | .inl i, .inl j => by simp [RD₁.pair_iY_iX]
-    | .inr i, .inr j => by simp [RD₂.pair_iY_iX]
-    | .inl _, .inr _ => by simp
-    | .inr _, .inl _ => by simp
 
-variable (RD₁ : RootDatum C₁ X₁ Y₁) (RD₂ : RootDatum C₂ X₂ Y₂)
+theorem toWeightDatum_prod (RD₁ : RootDatum C₁ X₁ Y₁) (RD₂ : RootDatum C₂ X₂ Y₂) :
+    (RD₁.prod RD₂).toWeightDatum = RD₁.toWeightDatum.prod RD₂.toWeightDatum := rfl
+
+end RootDatum
+
+namespace WeightDatum
+
+variable {I₁ I₂ : Type*} {C₁ : CartanDatum I₁} {C₂ : CartanDatum I₂}
+  {X₁ Y₁ X₂ Y₂ : Type*} [AddCommGroup X₁] [AddCommGroup Y₁] [AddCommGroup X₂] [AddCommGroup Y₂]
+  (RD₁ : WeightDatum C₁ X₁ Y₁) (RD₂ : WeightDatum C₂ X₂ Y₂)
 
 @[simp] theorem prod_iX_inl (i : I₁) : (RD₁.prod RD₂).iX (.inl i) = (RD₁.iX i, 0) := rfl
 
@@ -158,7 +175,7 @@ variable (RD₁ : RootDatum C₁ X₁ Y₁) (RD₂ : RootDatum C₂ X₂ Y₂)
 @[simp] theorem prod_pair (y : Y₁ × Y₂) (x : X₁ × X₂) :
     (RD₁.prod RD₂).pair y x = RD₁.pair y.1 x.1 + RD₂.pair y.2 x.2 := rfl
 
-end RootDatum
+end WeightDatum
 
 end UDot
 

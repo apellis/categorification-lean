@@ -164,7 +164,7 @@ open StringDiagrams.Chord (Same Valid Lettered canon)
 universe w u v
 
 variable {I : Type u} {C : CartanDatum I} {X Y : Type v} [AddCommGroup X] [AddCommGroup Y]
-  {RD : RootDatum C X Y}
+  {RD : WeightDatum C X Y}
 
 /-! ## Degrees of cups and crossings -/
 

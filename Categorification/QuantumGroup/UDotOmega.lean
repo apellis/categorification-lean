@@ -32,7 +32,7 @@ namespace UDot
 
 variable {I : Type*} {K : Type*} [Field K]
 variable {C : CartanDatum I} {X Y : Type*} [AddCommGroup X] [AddCommGroup Y]
-  (RD : RootDatum C X Y) (q : Kˣ)
+  (RD : WeightDatum C X Y) (q : Kˣ)
 
 /-- Flip the sign of a signed letter. -/
 def flipL (l : Bool × I) : Bool × I := (!l.1, l.2)

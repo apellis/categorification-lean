@@ -67,7 +67,7 @@ variable {k : Type*} [CommRing k] {B : Type u} [Bicategory.{w, v} B]
   [∀ a b : B, Preadditive (a ⟶ b)] [∀ a b : B, Linear k (a ⟶ b)]
   [AdditiveWhiskering B]
   {I : Type*} {C : CartanDatum I} {X Y : Type u₁} [AddCommGroup X] [AddCommGroup Y]
-  {RD : RootDatum C X Y}
+  {RD : WeightDatum C X Y}
 private theorem up_dom_cross («ε» : Bool) (i j : I) (μ : X) :
     (sig0 RD).dom (.cross «ε» i j μ) = wd RD μ [(«ε», i), («ε», j)] := rfl
 

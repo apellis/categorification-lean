@@ -36,7 +36,7 @@ private lemma mixedCyc_mate_smul {a b c d : B} {l₁ : a ⟶ b} {r₁ : b ⟶ a}
 
 namespace RouqFamily
 variable {I : Type*} {C : CartanDatum I} {X Y : Type u₁}
-  [AddCommGroup X] [AddCommGroup Y] {RD : RootDatum C X Y}
+  [AddCommGroup X] [AddCommGroup Y] {RD : WeightDatum C X Y}
   (S : RouqFamily (B := B) RD)
 
 /-- Taking a composite right mate and then a composite left mate of

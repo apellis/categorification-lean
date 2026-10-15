@@ -23,7 +23,8 @@ This is the cyclotomic input on the roadmap for KL III Thm. 1.2. The hypotheses 
 Kang–Kashiwara §3, ungraded: any commutative ring `k`, `KLRSymm Q`, a unit constant leading
 coefficient of `Q_jl` (`j ≠ l`) in the second variable, monic `a_j` of degree `⟨h_j, Λ⟩`, and
 `deg_v Q_ji = -⟨h_i, α_j⟩` for `j ≠ i`. Brundan's invertibility of the mixed sideways crossings
-(1.7) (`TwoRep.BrundanMixedInversion`) is not part of this file.
+(1.7) (`TwoRep.BrundanMixedInversion`) is `cyclotomicFamily_mixedInversion`
+(`KLR.CyclotomicAction.GlobalMixed`).
 -/
 
 namespace Categorification.KLR.CyclotomicAction

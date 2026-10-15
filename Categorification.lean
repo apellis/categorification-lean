@@ -510,6 +510,7 @@ import Categorification.QuantumGroup.SerreDivided
 import Categorification.QuantumGroup.TwistedMonoidAlgebra
 import Categorification.QuantumGroup.UDotAlgebra
 import Categorification.QuantumGroup.UDotBlock
+import Categorification.QuantumGroup.RootDatumSum
 import Categorification.QuantumGroup.UDotForm
 import Categorification.QuantumGroup.UDotFormFormula
 import Categorification.QuantumGroup.UDotFormNondeg
@@ -644,6 +645,7 @@ import Categorification.TwoRep.RouqTriangleE
 import Categorification.TwoRep.RouqTwist
 import Categorification.TwoRep.RouqYoneda
 import Categorification.TwoRep.RouqReverse
+import Categorification.TwoRep.RouqProduct
 import Categorification.TwoRep.RouqSl2
 import Categorification.TwoRep.CyclotomicLocalCommutator
 import Categorification.TwoRep.AdditiveCat

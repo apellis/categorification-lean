@@ -561,6 +561,7 @@ import Categorification.TwoRep.LemMain
 import Categorification.TwoRep.LemMainNeg
 import Categorification.TwoRep.LemXind
 import Categorification.TwoRep.LinearCat
+import Categorification.TwoRep.LinFunBiproduct
 import Categorification.TwoRep.PiLinear
 import Categorification.TwoRep.BlockSum
 import Categorification.TwoRep.BlockSumCross

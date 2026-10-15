@@ -26,8 +26,9 @@ generic labels `(i, z_{i,q})`, a different `q` on each strand. `UnfurledEval RD 
 records exactly what the argument uses from this, for a pair `i, j ∈ Seq(ν)` of positive
 sequences and a bound `N`:
 
-* a field `L ⊇ k` and an unfurling datum `D` over `L` with no arrows and series
-  `ϖ_a(x) = z_a + x` (as `UnfurlingDatum.ofGeneric`; the labels of the strands);
+* a field `L ⊇ k` and an unfurling datum `D` over `L` with no arrows (the labels of the
+  strands; for instance `UnfurlingDatum.ofGeneric`, or the restriction of Webster's datum, with
+  series `u(1 + x)^{d_i}`, to the generic labels);
 * a lift `t` of `i` to a weight `ν̃` of `D` with pairwise distinct labels, and a level `M ≥ N`
   of the cyclotomic quotient `𝖱^Λ(ν̃)` with `a_b = y^M` (`UnfCyc`);
 * the evaluation `Θ : HOM_U(E_{+i} 1_λ, E_{+j} 1_λ) → 𝖱^Λ(ν̃)`, semilinear over `k → L`
@@ -118,8 +119,8 @@ variable (RD k) in
 (Webster, arXiv:1603.06311v3, proof of the theorem with label `nondegenerate`: the action of
 Lemma `lem:g-action` on the generating object `𝕍`, restricted to the summand `Ẽ_t 𝕍` with
 generic labels). For positive sequences `i, j ∈ Seq(ν)`, a weight `λ` and a bound `N` on the
-dots and the bubble indices: a field `L ⊇ k`, an unfurling datum over `L` without arrows and
-with linear series, a lift `t` of `i` with pairwise distinct labels, a cyclotomic level
+dots and the bubble indices: a field `L ⊇ k`, an unfurling datum over `L` without arrows, a
+lift `t` of `i` with pairwise distinct labels, a cyclotomic level
 `M ≥ N`, a `k`-semilinear map `Θ` from `HOM_U(E_{+i} 1_λ, E_{+j} 1_λ)` to the cyclotomic
 quotient, and the action `bub` of the bubbles on `𝕍`, independent in the indices `< N`, such that
 `Θ` sends the basis diagram `ψ_{ρ w} x^u 1_i` with the bubble monomial `m` to
@@ -139,7 +140,6 @@ structure UnfurledEval (μ : X) {ν : Multiset I} (i j : KLR.Seq ν) (N : ℕ) w
   /-- The unfurling datum of the labels. -/
   D : UnfurlingDatum L P J
   harr : ∀ a b, D.arrows a b = 0
-  hlin : ∀ a, D.pw a = Polynomial.C ((D.pw a).coeff 0) + Polynomial.X
   /-- The weight of the lift. -/
   ν' : Multiset J
   hν : ν'.map D.π = ν
@@ -256,7 +256,7 @@ theorem linearIndependent_posB_of_unfurledEval (μ : X) {ν : Multiset I} (i j :
     intro p hp a
     obtain ⟨x, hx, rfl⟩ := Finset.mem_image.1 hp
     exact (hdots x hx a).trans_le W.hM
-  have hc := eq_zero_of_cycGamma_mul_e_eq_zero W.D W.harr W.hν W.hnd W.M W.hPQ W.hlin W.ht
+  have hc := eq_zero_of_cycGamma_mul_e_eq_zero W.D W.harr W.hν W.hnd W.M W.hPQ W.ht
     (ρc ν) (hρc ν) S c hS h0
   -- the bubble part
   have hF0 : F (key x0) = 0 := by

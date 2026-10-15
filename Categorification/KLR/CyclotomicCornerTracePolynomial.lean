@@ -73,10 +73,8 @@ local notation "β" => (Si + γ)
 local notation "R" => CycKLR k Q a β
 local notation "F" => aMonicL Q i β a
 local notation "S" => sPoly (Q := Q) i β a
-variable [IsDomain k] {P : I → I → MvPolynomial (Fin 2) k}
-  (hPQ : ∀ j l, j ≠ l → Q j l = P l j * MvPolynomial.rename ![1, 0] (P j l))
-  (hP : ∀ j l, j ≠ l → P j l ≠ 0)
-  (hQ : ∀ j l : I, j ≠ l → IsUnit (polyInY (Q j l)).leadingCoeff)
+variable (hsym : KLRSymm Q)
+  (hQ : ∀ j l : I, j ≠ l → ∃ c : k, IsUnit c ∧ (polyInY (Q j l)).leadingCoeff = Polynomial.C c)
   (ha : ∀ j, (a j).Monic)
   {C : QuantumGroup.CartanDatum I} {X Y : Type*} [AddCommGroup X] [AddCommGroup Y]
   (RD : QuantumGroup.UDot.RootDatum C X Y) (Λ : X)
@@ -84,8 +82,8 @@ variable [IsDomain k] {P : I → I → MvPolynomial (Fin 2) k}
   (hdeg : ∀ j, j ≠ i → ((polyInY (Q j i)).natDegree : ℤ) =
     -RD.pair (RD.iY i) (RD.iX j))
 local notation "wt" => RD.pair (RD.iY i) (Λ - Multiset.sum (Multiset.map RD.iX β))
-local notation "Amap" => aMap i β a (by simp) (zero_lt_card_single_add i γ) hPQ hP
-local notation "trP" => positive Q i γ a hPQ hP hQ ha RD Λ hΛ hdeg
+local notation "Amap" => aMap i β a (by simp) (zero_lt_card_single_add i γ) hsym
+local notation "trP" => positive Q i γ a hsym hQ ha RD Λ hΛ hdeg
 
 include hQ ha hΛ hdeg
 
@@ -94,56 +92,56 @@ theorem weighted_trace_aMap (hw : 0 < wt) (p : Polynomial R) :
     MonicTrace.trace F (S * Amap p) = 0 := by
   rcases subsingleton_or_nontrivial (CycKLR k Q a (Si + γ)) with h | h
   · exact Subsingleton.elim _ _
-  have hf := monic_aMonicL (Q := Q) i β a (sym_of_factor hPQ) hQ (ha i)
-  have hc := aMonicL_comm hPQ hP i β a
-  have hd := aMonicL_degree_gap i β a RD Λ (sym_of_factor hPQ) hQ (ha i) hΛ hdeg
+  have hf := monic_aMonicL (Q := Q) i β a hsym hQ (ha i)
+  have hc := aMonicL_comm hsym i β a
+  have hd := aMonicL_degree_gap i β a RD Λ hsym hQ (ha i) hΛ hdeg
   induction p using Polynomial.induction_on' with
   | add p q hp hq =>
     rw [map_add, mul_add, MonicTrace.trace_add _ hf, hp, hq, add_zero]
   | monomial d r =>
     rw [← C_mul_X_pow_eq_monomial, ← X_pow_mul_C, aMap_mul_C,
       ← mul_assoc, MonicTrace.trace_mul_C _ hf]
-    rw [aMap_X_pow_eq_div i β a hPQ hP (zero_lt_card_single_add i γ) hQ ha (by simp)]
+    rw [aMap_X_pow_eq_div i β a hsym (zero_lt_card_single_add i γ) hQ ha (by simp)]
     rw [mul_smul_comm, smul_eq_mul_C_algebraMap, MonicTrace.trace_mul_C _ hf]
     rw [weighted_quotient_trace_zero F S hf (sPoly_monic i β a) hc (by omega), zero_mul, zero_mul]
 
 /-- The signed actual relation is killed as well. -/
 theorem weighted_trace_eiA (hw : 0 < wt) (p : Polynomial R) :
-    MonicTrace.trace F (S * eiA Q i γ a hPQ hP p) = 0 := by
-  have hf := monic_aMonicL (Q := Q) i β a (sym_of_factor hPQ) hQ (ha i)
+    MonicTrace.trace F (S * eiA Q i γ a hsym p) = 0 := by
+  have hf := monic_aMonicL (Q := Q) i β a hsym hQ (ha i)
   change MonicTrace.trace F (S * (((-1 : k)^Multiset.card β) • Amap p)) = 0
   rw [mul_smul_comm, smul_eq_mul_C_algebraMap, MonicTrace.trace_mul_C _ hf,
-    weighted_trace_aMap Q i γ a hPQ hP hQ ha RD Λ hΛ hdeg hw, zero_mul]
+    weighted_trace_aMap Q i γ a hsym hQ ha RD Λ hΛ hdeg hw, zero_mul]
 
 /-- The actual positive inverse on any middle representative has a weighted polynomial formula. -/
 theorem positive_representative (hw : 0 < wt) (z : EIKZero Q i β a) :
     trP hw (middleCyclotomicProj Q i γ a z) =
-      RelativePolynomialTrace.trace i β a (S * eiC Q i γ a hPQ hP z) := by
+      RelativePolynomialTrace.trace i β a (S * eiC Q i γ a hsym z) := by
   rcases subsingleton_or_nontrivial (CycKLR k Q a (Si + γ)) with h | h
   · exact Subsingleton.elim _ _
-  have hf := monic_aMonicL (Q := Q) i β a (sym_of_factor hPQ) hQ (ha i)
-  have hd := aMonicL_degree_gap i β a RD Λ (sym_of_factor hPQ) hQ (ha i) hΛ hdeg
-  obtain ⟨p,hp⟩ := eiA_exists_small_remainder Q i γ a hPQ hP hQ ha RD Λ hΛ hdeg hw.le
-    (eiC Q i γ a hPQ hP z)
-  have he := cyclotomicCommutator_inverse_remainder Q i γ a hPQ hP hQ ha RD Λ hΛ hdeg hw.le z p hp
-  change (((cyclotomicCommutatorFinEquiv Q i γ a hPQ hP hQ ha RD Λ hΛ hdeg hw.le).symm
+  have hf := monic_aMonicL (Q := Q) i β a hsym hQ (ha i)
+  have hd := aMonicL_degree_gap i β a RD Λ hsym hQ (ha i) hΛ hdeg
+  obtain ⟨p,hp⟩ := eiA_exists_small_remainder Q i γ a hsym hQ ha RD Λ hΛ hdeg hw.le
+    (eiC Q i γ a hsym z)
+  have he := cyclotomicCommutator_inverse_remainder Q i γ a hsym hQ ha RD Λ hΛ hdeg hw.le z p hp
+  change (((cyclotomicCommutatorFinEquiv Q i γ a hsym hQ ha RD Λ hΛ hdeg hw.le).symm
     (middleCyclotomicProj Q i γ a z)).2 _) = _
   change (((cyclotomicCorrectionEquiv Q i γ a (wt).toNat)
-    ((cyclotomicCommutatorEquiv Q i γ a hPQ hP hQ ha RD Λ hΛ hdeg hw.le).symm
+    ((cyclotomicCommutatorEquiv Q i γ a hsym hQ ha RD Λ hΛ hdeg hw.le).symm
       (middleCyclotomicProj Q i γ a z)).2) _) = _
   rw [he]
-  change (eiC Q i γ a hPQ hP z - eiA Q i γ a hPQ hP p).coeff ((wt).toNat - 1) = _
+  change (eiC Q i γ a hsym z - eiA Q i γ a hsym p).coeff ((wt).toNat - 1) = _
   have hgap : (F).natDegree - (S).natDegree = (wt).toNat := by omega
   have hs := weighted_small_trace F S hf (sPoly_monic i β a) (by omega)
-    (eiC Q i γ a hPQ hP z - eiA Q i γ a hPQ hP p) (by simpa only [hgap] using hp)
+    (eiC Q i γ a hsym z - eiA Q i γ a hsym p) (by simpa only [hgap] using hp)
   rw [hgap] at hs
   rw [← hs]
   change MonicTrace.trace F (S * _) = MonicTrace.trace F (S * _)
   have ht := MonicTrace.trace_add F hf
-    (S * (eiC Q i γ a hPQ hP z - eiA Q i γ a hPQ hP p))
-    (S * eiA Q i γ a hPQ hP p)
+    (S * (eiC Q i γ a hsym z - eiA Q i γ a hsym p))
+    (S * eiA Q i γ a hsym p)
   rw [← mul_add, sub_add_cancel,
-    weighted_trace_eiA Q i γ a hPQ hP hQ ha RD Λ hΛ hdeg hw, add_zero] at ht
+    weighted_trace_eiA Q i γ a hsym hQ ha RD Λ hΛ hdeg hw, add_zero] at ht
   exact ht.symm
 
 /-- In particular the polynomial inclusion uses the weighted, not unweighted, trace. -/

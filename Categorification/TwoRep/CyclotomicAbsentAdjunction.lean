@@ -20,8 +20,9 @@ original module, and both maps are natural. The lower multiset may be nonempty,
 and no quotient nontriviality, homogeneity, projectivity, pairing-perfectness,
 opposite-adjunction premise, or synthetic lower edge is assumed.
 
-All domain, factorization, nonzero-factor, unit-leading, monicity and Cartan-degree
-hypotheses of the actual inversion are retained. This result is ungraded; a global
+The hypotheses are those of the inversion: `KLRSymm Q` over a commutative ring `k`,
+unit constant leading coefficients of the `Q_{jl}`, monic `a_j` and the Cartan-degree
+condition. This result is ungraded; a global
 weight-indexed action and distinct-colour compatibility are separate statements.
 -/
 noncomputable section
@@ -32,10 +33,8 @@ open InductionCalculus ConcreteAdjunction
 universe u v w
 variable {I : Type u} [DecidableEq I] {k : Type v} [CommRing k]
   (Q : I → I → MvPolynomial (Fin 2) k) (i : I) (a : I → Polynomial k) (β : Multiset I)
-  [IsDomain k] {P : I → I → MvPolynomial (Fin 2) k}
-  (hPQ : ∀ j l, j ≠ l → Q j l = P l j * MvPolynomial.rename ![1, 0] (P j l))
-  (hP : ∀ j l, j ≠ l → P j l ≠ 0)
-  (hQ : ∀ j l : I, j ≠ l → IsUnit (polyInY (Q j l)).leadingCoeff)
+  (hsym : KLRSymm Q)
+  (hQ : ∀ j l : I, j ≠ l → ∃ c : k, IsUnit c ∧ (polyInY (Q j l)).leadingCoeff = Polynomial.C c)
   (ha : ∀ j, (a j).Monic)
   {C : QuantumGroup.CartanDatum I} {X Y : Type*} [AddCommGroup X] [AddCommGroup Y]
   (RD : QuantumGroup.UDot.RootDatum C X Y) (Λ : X)
@@ -49,7 +48,7 @@ local notation "EFF" => inductionFunctor Q i a β ⋙ restrictionFunctor Q i a �
 
 /-- Every finite basis vector is the original dotted unit, including its dot order. -/
 theorem equiv_single (N : ModuleCat.{max u v w} R) (d : Fin (wt).toNat) (n : N) :
-    iso N hPQ hP hQ ha RD Λ hΛ hdeg hi (Pi.single d n) = (dottedUnit Q i a β d).app N n := by
+    iso N hsym hQ ha RD Λ hΛ hdeg hi (Pi.single d n) = (dottedUnit Q i a β d).app N n := by
   apply Subtype.ext
   rw [absentEFEquiv_single, dottedUnit_val]
   congr 1
@@ -67,30 +66,30 @@ def coefficient (d : ℕ) : EFF ⟶ 𝟭 (ModuleCat.{max u v w} R) := by
   classical
   exact if hd : d < (wt).toNat then
     { app := fun N => ModuleCat.ofHom ((LinearMap.proj (⟨d, hd⟩ : Fin (wt).toNat)).comp
-        (iso N hPQ hP hQ ha RD Λ hΛ hdeg hi).symm.toLinearMap)
+        (iso N hsym hQ ha RD Λ hΛ hdeg hi).symm.toLinearMap)
       naturality := fun N N' f => by
         ext z
         exact congrFun
-          (absentEFEquiv_symm_natural Q i a β N hPQ hP hQ ha RD Λ hΛ hdeg hi f.hom z)
+          (absentEFEquiv_symm_natural Q i a β N hsym hQ ha RD Λ hΛ hdeg hi f.hom z)
           ⟨d, hd⟩ }
   else 0
-local notation "coef" => coefficient Q i a β hPQ hP hQ ha RD Λ hΛ hdeg hi
+local notation "coef" => coefficient Q i a β hsym hQ ha RD Λ hΛ hdeg hi
 
 theorem coefficient_app (d : ℕ) (hd : d < (wt).toNat)
     (N : ModuleCat.{max u v w} R) (z : (EFF).obj N) :
-    (coef d).app N z = (iso N hPQ hP hQ ha RD Λ hΛ hdeg hi).symm z ⟨d, hd⟩ := by
+    (coef d).app N z = (iso N hsym hQ ha RD Λ hΛ hdeg hi).symm z ⟨d, hd⟩ := by
   simp only [coefficient, dite_eq_left hd]
   rfl
 
 theorem equiv_apply (N : ModuleCat.{max u v w} R) (v : Fin (wt).toNat → N) :
-    iso N hPQ hP hQ ha RD Λ hΛ hdeg hi v =
+    iso N hsym hQ ha RD Λ hΛ hdeg hi v =
       ∑ d : Fin (wt).toNat, (dottedUnit Q i a β d).app N (v d) := by
   classical
   have hv : v = ∑ d : Fin (wt).toNat, Pi.single d (v d) := by ext j; simp [Pi.single_apply]
   conv_lhs => rw [hv]
   rw [map_sum]
   exact Finset.sum_congr rfl (fun d _ =>
-    equiv_single Q i a β hPQ hP hQ ha RD Λ hΛ hdeg hi N d (v d))
+    equiv_single Q i a β hsym hQ ha RD Λ hΛ hdeg hi N d (v d))
 
 theorem coefficient_total :
     (∑ d ∈ Finset.range (wt).toNat, coef d ≫ dottedUnit.{u,v,w} Q i a β d) = 𝟙 _ := by
@@ -101,10 +100,10 @@ theorem coefficient_total :
   simp only [NatTrans.comp_app, NatTrans.app_sum, ModuleCat.hom_sum,
     LinearMap.sum_apply, ModuleCat.hom_comp, LinearMap.comp_apply]
   rw [← Fin.sum_univ_eq_sum_range]
-  simp only [coefficient_app _ _ _ _ _ _ _ _ _ _ _ _ _ _ (Fin.isLt _)]
-  exact (equiv_apply Q i a β hPQ hP hQ ha RD Λ hΛ hdeg hi N
-    ((iso N hPQ hP hQ ha RD Λ hΛ hdeg hi).symm z)).symm.trans
-      ((iso N hPQ hP hQ ha RD Λ hΛ hdeg hi).apply_symm_apply z)
+  simp only [coefficient_app _ _ _ _ _ _ _ _ _ _ _ _ _ (Fin.isLt _)]
+  exact (equiv_apply Q i a β hsym hQ ha RD Λ hΛ hdeg hi N
+    ((iso N hsym hQ ha RD Λ hΛ hdeg hi).symm z)).symm.trans
+      ((iso N hsym hQ ha RD Λ hΛ hdeg hi).apply_symm_apply z)
 
 theorem coefficient_entry (d e : ℕ) (hd : d < (wt).toNat) (he : e < (wt).toNat) :
     dottedUnit.{u,v,w} Q i a β d ≫ coef e = if d = e then 𝟙 _ else 0 := by
@@ -114,12 +113,12 @@ theorem coefficient_entry (d e : ℕ) (hd : d < (wt).toNat) (he : e < (wt).toNat
   apply LinearMap.ext
   intro m
   change N at m
-  have h := (iso N hPQ hP hQ ha RD Λ hΛ hdeg hi).symm_apply_apply
+  have h := (iso N hsym hQ ha RD Λ hΛ hdeg hi).symm_apply_apply
     (Pi.single (⟨d, hd⟩ : Fin (wt).toNat) m)
   rw [equiv_single.{u,v,w}] at h
   have hh := congrFun h ⟨e, he⟩
   change (coef e).app N ((dottedUnit Q i a β d).app N m) = _
-  rw [coefficient_app _ _ _ _ _ _ _ _ _ _ _ _ _ _ he, hh]
+  rw [coefficient_app _ _ _ _ _ _ _ _ _ _ _ _ _ he, hh]
   by_cases hde : d = e
   · subst e
     rw [ite_eq_left rfl]
@@ -157,10 +156,10 @@ def coefficients : RouqBoundary.Coefficients (adj.{u,v,w} Q i a β) (dot Q i a �
       rw [RouqBoundary.cupD, cup_hom]
       rfl
     simp only [hc]
-    exact coefficient_total.{u,v,w} Q i a β hPQ hP hQ ha RD Λ hΛ hdeg hi
+    exact coefficient_total.{u,v,w} Q i a β hsym hQ ha RD Λ hΛ hdeg hi
   entry d e hd he := by
     apply ObjectProperty.hom_ext
-    have hh := coefficient_entry.{u,v,w} Q i a β hPQ hP hQ ha RD Λ hΛ hdeg hi d e hd he
+    have hh := coefficient_entry.{u,v,w} Q i a β hsym hQ ha RD Λ hΛ hdeg hi d e hd he
     change (RouqBoundary.cupD (adj Q i a β) (dot Q i a β) d).hom ≫ coef e = _
     rw [RouqBoundary.cupD, cup_hom]
     split_ifs at hh ⊢ <;> exact hh
@@ -169,7 +168,7 @@ def coefficients : RouqBoundary.Coefficients (adj.{u,v,w} Q i a β) (dot Q i a �
 def cap : EFF ⟶ 𝟭 (ModuleCat.{max u v w} R) :=
   if 0 < (wt).toNat then coef ((wt).toNat-1) else 0
 
-omit [IsDomain k] [DecidableEq I] in
+omit [DecidableEq I] in
 include hi hΛ hdeg in
 /-- The source weight of the upper loc is exactly two minus the boundary degree. -/
 theorem upper_weight :
@@ -185,50 +184,50 @@ theorem upper_weight :
 /-- Genuine absent-colour opposite adjunction, on the original functors. -/
 def absent_oppositeAdjunction : restrictionFunctor.{u,v,w} Q i a β ⊣ inductionFunctor Q i a β :=
   AdditiveCat.toAdjunction (RouqBoundary.oppositeAdjunction
-    (coefficients.{u,v,w} Q i a β hPQ hP hQ ha RD Λ hΛ hdeg hi)
-    (loc.{u,v,w} Q i a β hPQ hP hQ ha RD Λ hΛ hdeg)
+    (coefficients.{u,v,w} Q i a β hsym hQ ha RD Λ hΛ hdeg hi)
+    (loc.{u,v,w} Q i a β hsym hQ ha RD Λ hΛ hdeg)
     (upper_weight Q i a β RD Λ hΛ hdeg hi) (crossing_square Q i a β))
 
 /-- The unit is the prescribed upper cup, with no alternative Frobenius unit chosen. -/
 theorem absent_oppositeAdjunction_unit :
-    (absent_oppositeAdjunction.{u,v,w} Q i a β hPQ hP hQ ha RD Λ hΛ hdeg hi).unit =
-      (loc.{u,v,w} Q i a β hPQ hP hQ ha RD Λ hΛ hdeg).cupL.hom := rfl
+    (absent_oppositeAdjunction.{u,v,w} Q i a β hsym hQ ha RD Λ hΛ hdeg hi).unit =
+      (loc.{u,v,w} Q i a β hsym hQ ha RD Λ hΛ hdeg).cupL.hom := rfl
 
 /-- The counit is precisely the actual highest inverse coefficient. -/
 theorem absent_oppositeAdjunction_counit :
-    (absent_oppositeAdjunction.{u,v,w} Q i a β hPQ hP hQ ha RD Λ hΛ hdeg hi).counit =
-      cap.{u,v,w} Q i a β hPQ hP hQ ha RD Λ hΛ hdeg hi := by
+    (absent_oppositeAdjunction.{u,v,w} Q i a β hsym hQ ha RD Λ hΛ hdeg hi).counit =
+      cap.{u,v,w} Q i a β hsym hQ ha RD Λ hΛ hdeg hi := by
   change (RouqBoundary.cap
-    (coefficients.{u,v,w} Q i a β hPQ hP hQ ha RD Λ hΛ hdeg hi)).hom = _
+    (coefficients.{u,v,w} Q i a β hsym hQ ha RD Λ hΛ hdeg hi)).hom = _
   unfold RouqBoundary.cap cap
   split_ifs <;> rfl
 
 /-- The cap extracts degree `n-1` with positive sign when the boundary degree is positive. -/
 theorem cap_app (hn : 0 < (wt).toNat) (N : ModuleCat.{max u v w} R) (z : (EFF).obj N) :
-    (cap Q i a β hPQ hP hQ ha RD Λ hΛ hdeg hi).app N z =
-      (iso N hPQ hP hQ ha RD Λ hΛ hdeg hi).symm z ⟨(wt).toNat-1, by omega⟩ := by
-  rw [cap, ite_eq_left hn, coefficient_app _ _ _ _ _ _ _ _ _ _ _ _ _ _ (by omega)]
+    (cap Q i a β hsym hQ ha RD Λ hΛ hdeg hi).app N z =
+      (iso N hsym hQ ha RD Λ hΛ hdeg hi).symm z ⟨(wt).toNat-1, by omega⟩ := by
+  rw [cap, ite_eq_left hn, coefficient_app _ _ _ _ _ _ _ _ _ _ _ _ _ (by omega)]
 
 /-- Degree zero is not discarded or assumed nonzero. -/
 theorem cap_degree_zero (hn : (wt).toNat = 0) :
-    cap.{u,v,w} Q i a β hPQ hP hQ ha RD Λ hΛ hdeg hi = 0 := by
+    cap.{u,v,w} Q i a β hsym hQ ha RD Λ hΛ hdeg hi = 0 := by
   rw [cap, ite_eq_right (by omega)]
 
 /-- Naturality of the cap for every linear map of original modules. -/
 theorem cap_naturality {N N' : ModuleCat.{max u v w} R} (f : N ⟶ N') :
-    (EFF).map f ≫ (cap Q i a β hPQ hP hQ ha RD Λ hΛ hdeg hi).app N' =
-      (cap Q i a β hPQ hP hQ ha RD Λ hΛ hdeg hi).app N ≫ f :=
-  (cap Q i a β hPQ hP hQ ha RD Λ hΛ hdeg hi).naturality f
+    (EFF).map f ≫ (cap Q i a β hsym hQ ha RD Λ hΛ hdeg hi).app N' =
+      (cap Q i a β hsym hQ ha RD Λ hΛ hdeg hi).app N ≫ f :=
+  (cap Q i a β hsym hQ ha RD Λ hΛ hdeg hi).naturality f
 
 /-- The restriction triangle holds on all original modules at the upper block. -/
 theorem restriction_triangle
     (M : ModuleCat.{max u v w} (CycKLR k Q a ((Singleton.singleton i : Multiset I) + β))) :
     (restrictionFunctor.{u,v,w} Q i a β).map
-        ((loc.{u,v,w} Q i a β hPQ hP hQ ha RD Λ hΛ hdeg).cupL.hom.app M) ≫
-      (cap.{u,v,w} Q i a β hPQ hP hQ ha RD Λ hΛ hdeg hi).app
+        ((loc.{u,v,w} Q i a β hsym hQ ha RD Λ hΛ hdeg).cupL.hom.app M) ≫
+      (cap.{u,v,w} Q i a β hsym hQ ha RD Λ hΛ hdeg hi).app
         ((restrictionFunctor.{u,v,w} Q i a β).obj M) =
       𝟙 ((restrictionFunctor.{u,v,w} Q i a β).obj M) := by
-  let A := absent_oppositeAdjunction.{u,v,w} Q i a β hPQ hP hQ ha RD Λ hΛ hdeg hi
+  let A := absent_oppositeAdjunction.{u,v,w} Q i a β hsym hQ ha RD Λ hΛ hdeg hi
   have h := A.left_triangle_components M
   dsimp only [A] at h
   rw [absent_oppositeAdjunction_unit, absent_oppositeAdjunction_counit] at h
@@ -236,12 +235,12 @@ theorem restriction_triangle
 
 /-- The induction triangle holds on all original modules at an arbitrary absent-colour block. -/
 theorem induction_triangle (N : ModuleCat.{max u v w} R) :
-    (loc.{u,v,w} Q i a β hPQ hP hQ ha RD Λ hΛ hdeg).cupL.hom.app
+    (loc.{u,v,w} Q i a β hsym hQ ha RD Λ hΛ hdeg).cupL.hom.app
         ((inductionFunctor.{u,v,w} Q i a β).obj N) ≫
       (inductionFunctor.{u,v,w} Q i a β).map
-        ((cap.{u,v,w} Q i a β hPQ hP hQ ha RD Λ hΛ hdeg hi).app N) =
+        ((cap.{u,v,w} Q i a β hsym hQ ha RD Λ hΛ hdeg hi).app N) =
       𝟙 ((inductionFunctor.{u,v,w} Q i a β).obj N) := by
-  let A := absent_oppositeAdjunction.{u,v,w} Q i a β hPQ hP hQ ha RD Λ hΛ hdeg hi
+  let A := absent_oppositeAdjunction.{u,v,w} Q i a β hsym hQ ha RD Λ hΛ hdeg hi
   have h := A.right_triangle_components N
   dsimp only [A] at h
   rw [absent_oppositeAdjunction_unit, absent_oppositeAdjunction_counit] at h

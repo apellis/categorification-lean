@@ -153,24 +153,22 @@ theorem thetaL_sTensor : thetaL Q i β a (sTensor i β) = sPoly i β a := by
   rw [sTensor, map_sum, sPoly]
   exact Finset.sum_congr rfl fun s _ => thetaL_gLeadTensor i β a _ _ s
 
-variable [IsDomain k] {P : I → I → MvPolynomial (Fin 2) k}
-  (hPQ : ∀ a b, a ≠ b → Q a b = P b a * rename ![1, 0] (P a b))
-  (hP : ∀ a b, a ≠ b → P a b ≠ 0)
+variable (hsym : KLRSymm Q)
 
-include hPQ hP in
+include hsym in
 theorem sTensor_comm (t : T) : sTensor i β * t = t * sTensor i β := by
-  apply concat_injective hPQ hP
+  apply concat_injective hsym
   have hc := sElt_comm_subR1 (Multiset.card β) (card_single_add i β).symm
     (concat_mem_subR1 i β t)
   rw [concat_mul, concat_mul, concat_sTensor, mul_assoc, oneConcat_mul_concat,
     ← mul_assoc, ← hc, mul_assoc, concat_mul_oneConcat]
 
-include hPQ hP in
+include hsym in
 /-- The actual squared-difference polynomial `S` is central. -/
 theorem sPoly_comm (q : Polynomial Rl) : Commute q (sPoly i β a) := by
   obtain ⟨t, rfl⟩ := thetaL_surjective (Q := Q) i β a q
   rw [← thetaL_sTensor]
-  exact (show Commute t (sTensor i β) from (sTensor_comm i β hPQ hP t).symm).map
+  exact (show Commute t (sTensor i β) from (sTensor_comm i β hsym t).symm).map
     (thetaL Q i β a)
 
 end Polynomial

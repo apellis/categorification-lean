@@ -147,10 +147,8 @@ theorem cup_hom (n : ℕ) :
 theorem crossing_square : crossing.{u,v,w} Q i a β ≫ crossing Q i a β = 0 :=
   ObjectProperty.hom_ext _ (crossingNat_square Q i a β)
 
-variable [IsDomain k] {P : I → I → MvPolynomial (Fin 2) k}
-  (hPQ : ∀ j l, j ≠ l → Q j l = P l j * MvPolynomial.rename ![1, 0] (P j l))
-  (hP : ∀ j l, j ≠ l → P j l ≠ 0)
-  (hQ : ∀ j l : I, j ≠ l → IsUnit (polyInY (Q j l)).leadingCoeff)
+variable (hsym : KLRSymm Q)
+  (hQ : ∀ j l : I, j ≠ l → ∃ c : k, IsUnit c ∧ (polyInY (Q j l)).leadingCoeff = Polynomial.C c)
   (ha : ∀ j, (a j).Monic)
   {C : QuantumGroup.CartanDatum I} {X Y : Type*} [AddCommGroup X] [AddCommGroup Y]
   (RD : QuantumGroup.UDot.RootDatum C X Y) (Λ : X)
@@ -174,12 +172,12 @@ def loc : RouqLoc (E₁ := ind.{u,v,w} Q i a β) (R₁ := res.{u,v,w} Q i a β)
   invPos hh := by
     apply AdditiveCat.sumInvTo
     simp only [sigma_hom, cap_hom]
-    exact actualSumInvTo Q i a β hPQ hP hQ ha RD Λ hΛ hdeg
+    exact actualSumInvTo Q i a β hsym hQ ha RD Λ hΛ hdeg
       (neg_nonneg.mp hh)
   invNeg hh := by
     apply AdditiveCat.sumInvFrom
     simp only [sigma_hom, cup_hom, neg_neg]
-    exact actualSumInvFrom Q i a β hPQ hP hQ ha RD Λ hΛ hdeg
+    exact actualSumInvFrom Q i a β hsym hQ ha RD Λ hΛ hdeg
       (neg_nonpos.mp hh)
 
 omit [DecidableEq I] in
@@ -195,39 +193,39 @@ Both prescribed maps come from the adjacent concrete Rouquier inverses. -/
 def oppositeAdjunction : restrictionFunctor.{u,v,w} Q i a (Si + β) ⊣
     inductionFunctor.{u,v,w} Q i a (Si + β) :=
   AdditiveCat.toAdjunction
-    ((loc.{u,v,w} Q i a β hPQ hP hQ ha RD Λ hΛ hdeg).leftAdjunction
-      (loc.{u,v,w} Q i a (Si + β) hPQ hP hQ ha RD Λ hΛ hdeg)
+    ((loc.{u,v,w} Q i a β hsym hQ ha RD Λ hΛ hdeg).leftAdjunction
+      (loc.{u,v,w} Q i a (Si + β) hsym hQ ha RD Λ hΛ hdeg)
       (adjacent_source_weight i β RD Λ) (crossing_square Q i a β)
       (crossing_square Q i a (Si + β))
       (AdditiveCat.braid_of _ _ _ _ _ (crossingNat_braid.{u,v,w} Q i a β)))
 
 /-- The unit is exactly Brundan's prescribed cup from the upper concrete inversion. -/
 theorem oppositeAdjunction_unit :
-    (oppositeAdjunction.{u,v,w} Q i a β hPQ hP hQ ha RD Λ hΛ hdeg).unit =
-      (loc.{u,v,w} Q i a (Si + β) hPQ hP hQ ha RD Λ hΛ hdeg).cupL.hom := rfl
+    (oppositeAdjunction.{u,v,w} Q i a β hsym hQ ha RD Λ hΛ hdeg).unit =
+      (loc.{u,v,w} Q i a (Si + β) hsym hQ ha RD Λ hΛ hdeg).cupL.hom := rfl
 
 /-- The counit is exactly Brundan's prescribed cap from the lower concrete inversion. -/
 theorem oppositeAdjunction_counit :
-    (oppositeAdjunction.{u,v,w} Q i a β hPQ hP hQ ha RD Λ hΛ hdeg).counit =
-      (loc.{u,v,w} Q i a β hPQ hP hQ ha RD Λ hΛ hdeg).capL.hom := rfl
+    (oppositeAdjunction.{u,v,w} Q i a β hsym hQ ha RD Λ hΛ hdeg).counit =
+      (loc.{u,v,w} Q i a β hsym hQ ha RD Λ hΛ hdeg).capL.hom := rfl
 
 /-- The restriction triangle holds on every original cyclotomic module. -/
 theorem restriction_triangle (M : ModuleCat.{max u v w} (CycKLR k Q a (Si + (Si + β)))) :
     (restrictionFunctor.{u,v,w} Q i a (Si + β)).map
-        ((loc.{u,v,w} Q i a (Si + β) hPQ hP hQ ha RD Λ hΛ hdeg).cupL.hom.app M) ≫
-      (loc.{u,v,w} Q i a β hPQ hP hQ ha RD Λ hΛ hdeg).capL.hom.app
+        ((loc.{u,v,w} Q i a (Si + β) hsym hQ ha RD Λ hΛ hdeg).cupL.hom.app M) ≫
+      (loc.{u,v,w} Q i a β hsym hQ ha RD Λ hΛ hdeg).capL.hom.app
         ((restrictionFunctor.{u,v,w} Q i a (Si + β)).obj M) =
       𝟙 ((restrictionFunctor.{u,v,w} Q i a (Si + β)).obj M) :=
-  (oppositeAdjunction.{u,v,w} Q i a β hPQ hP hQ ha RD Λ hΛ hdeg).left_triangle_components M
+  (oppositeAdjunction.{u,v,w} Q i a β hsym hQ ha RD Λ hΛ hdeg).left_triangle_components M
 
 /-- The induction triangle holds on every original cyclotomic module. -/
 theorem induction_triangle (N : ModuleCat.{max u v w} (CycKLR k Q a (Si + β))) :
-    (loc.{u,v,w} Q i a (Si + β) hPQ hP hQ ha RD Λ hΛ hdeg).cupL.hom.app
+    (loc.{u,v,w} Q i a (Si + β) hsym hQ ha RD Λ hΛ hdeg).cupL.hom.app
         ((inductionFunctor.{u,v,w} Q i a (Si + β)).obj N) ≫
       (inductionFunctor.{u,v,w} Q i a (Si + β)).map
-        ((loc.{u,v,w} Q i a β hPQ hP hQ ha RD Λ hΛ hdeg).capL.hom.app N) =
+        ((loc.{u,v,w} Q i a β hsym hQ ha RD Λ hΛ hdeg).capL.hom.app N) =
       𝟙 ((inductionFunctor.{u,v,w} Q i a (Si + β)).obj N) :=
-  (oppositeAdjunction.{u,v,w} Q i a β hPQ hP hQ ha RD Λ hΛ hdeg).right_triangle_components N
+  (oppositeAdjunction.{u,v,w} Q i a β hsym hQ ha RD Λ hΛ hdeg).right_triangle_components N
 
 end ConcreteAdjunction
 end Categorification.KLR.KLRAlgebra.AbsentColour

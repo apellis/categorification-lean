@@ -3,6 +3,7 @@ Copyright (c) 2026 Alex Ellis. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 -/
 import Categorification.KLR.CyclotomicMonic
+import Categorification.KLR.SymmetricFactorization
 import Categorification.KLR.CyclotomicBalanced
 
 /-!
@@ -47,7 +48,7 @@ theorem aElt_tauW_sub_mem (h0 : 0 < m) (n : ℕ) (hn : n + 1 = m) :
   rw [mul_assoc, e_mul_tauW, ← mul_assoc, ← mul_assoc, ← sub_mul]
   exact mul_mem_cycL0 a (pol_mul_tauW a h0 n hn _) (e_mem_subR0 _)
 
-variable (hsym : ∀ a b, a ≠ b → Q b a = rename ![1, 0] (Q a b))
+variable (hsym : KLRSymm Q)
 
 include hsym
 
@@ -112,14 +113,11 @@ theorem oneConcat_mul_tauW :
   intro s _
   rw [e_mul_tauW, cP_smul_cons1]
 
-variable [IsDomain k] {P : I → I → MvPolynomial (Fin 2) k}
-  (hPQ : ∀ a b, a ≠ b → Q a b = P b a * rename ![1, 0] (P a b))
-  (hP : ∀ a b, a ≠ b → P a b ≠ 0)
-  (hβ : 0 < Multiset.card β)
-  (hQ : ∀ i j : I, i ≠ j → IsUnit (polyInY (Q i j)).leadingCoeff)
+variable (hβ : 0 < Multiset.card β)
+  (hQ : ∀ i j : I, i ≠ j → ∃ c : k, IsUnit c ∧ (polyInY (Q i j)).leadingCoeff = Polynomial.C c)
   (ha : ∀ i, (a i).Monic)
 
-include hPQ hP hβ hQ ha in
+include hsym hβ hQ ha in
 /-- KK Lemma 4.19: the reversed-product defect vanishes on the last-colour corner. -/
 theorem reverse_defect_cut_mem :
     ((gProd (Multiset.card β) * tauW a (zero_lt_card_single_add i β) (Multiset.card β) -
@@ -129,11 +127,12 @@ theorem reverse_defect_cut_mem :
   have h1 : 1 < Multiset.card (Si + β) := by rw [card_single_add]; omega
   have hn := (card_single_add i β).symm
   let d : R0 := gProd (Multiset.card β) * tauW a h0 (Multiset.card β) - bElt a h0 (Multiset.card β)
-  obtain ⟨g, hg, hgz⟩ := CycKLR.exists_monic_dots (ν := Si + β) hQ ha
+  obtain ⟨g, hg, hgz⟩ := CycKLR.exists_monic_dots (ν := Si + β)
+    (fun i j h => isUnit_of_leadConst (hQ i j h)) ha
   have hz := hgz ⟨Multiset.card β, lastPos_lt i β⟩
   rw [CycKLR.mk_eq_zero_iff] at hz
-  have hj := cycIdeal_mul_reverse_defect_mem a (sym_of_factor hPQ) h0 h1 (Multiset.card β) hn hz
-  have hc := pol_reverse_defect_sub_mem a (sym_of_factor hPQ) h0 (Multiset.card β) hn
+  have hj := cycIdeal_mul_reverse_defect_mem a hsym h0 h1 (Multiset.card β) hn hz
+  have hc := pol_reverse_defect_sub_mem a hsym h0 (Multiset.card β) hn
     (Polynomial.aeval (X ⟨Multiset.card β, lastPos_lt i β⟩) g)
   have hd := Submodule.sub_mem _ hj hc
   rw [sub_sub_cancel, pol_aeval_X] at hd
@@ -141,34 +140,34 @@ theorem reverse_defect_cut_mem :
   have he := (commute_aeval_of_commute (commute_x_last_cL (Q := Q) i β 1) g).eq
   have hcut : (d * cL Q i β 1) * cL Q i β 1 = d * cL Q i β 1 := by
     rw [mul_assoc, ← cL_mul, mul_one]
-  apply (mul_monic_mem_cycL0_iff_of_cut i β a hPQ hP hβ _ hcut g hg).1
+  apply (mul_monic_mem_cycL0_iff_of_cut i β a hsym hβ _ hcut g hg).1
   change (d * cL Q i β 1) * Polynomial.aeval (x ⟨Multiset.card β, lastPos_lt i β⟩ : R0) g ∈ _
   rw [mul_assoc, ← he, ← mul_assoc]
   exact hd'
 
-include hPQ hP hβ hQ ha in
+include hsym hβ hQ ha in
 /-- The reversed product after explicit last-colour projection. -/
 theorem pMap_qMap_cut (h1 : 1 < Multiset.card ((Singleton.singleton i : Multiset I) + β)) (r : R0) :
     (act0 Q i β a 1)
       (pMap a (zero_lt_card_single_add i β) h1 (Multiset.card β) (card_single_add i β).symm
-        (qMap a (sym_of_factor hPQ) (zero_lt_card_single_add i β) h1 (Multiset.card β)
+        (qMap a hsym (zero_lt_card_single_add i β) h1 (Multiset.card β)
           (card_single_add i β).symm (Submodule.Quotient.mk r))) =
       Submodule.Quotient.mk (r * bElt a (zero_lt_card_single_add i β) (Multiset.card β) * cL Q i β 1) := by
   rw [qMap_mk, pMap_mk, act0_mk, Submodule.Quotient.eq]
-  have h := Submodule.smul_mem _ r (reverse_defect_cut_mem a i β hPQ hP hβ hQ ha)
+  have h := Submodule.smul_mem _ r (reverse_defect_cut_mem a hsym i β hβ hQ ha)
   convert h using 1
   simp only [smul_eq_mul, mul_sub, sub_mul, mul_assoc]
 
-include hPQ hP hβ hQ ha in
+include hsym hβ hQ ha in
 /-- **KK Lemma 4.19**, on the right `e(β,i)` corner: `PQ` is right multiplication
 by the cyclically transported polynomial, with the library's crossing normalization. -/
 theorem pMap_qMap (h1 : 1 < Multiset.card ((Singleton.singleton i : Multiset I) + β))
     (r : R0) (hr : r * cL Q i β 1 = r) :
     pMap a (zero_lt_card_single_add i β) h1 (Multiset.card β) (card_single_add i β).symm
-      (qMap a (sym_of_factor hPQ) (zero_lt_card_single_add i β) h1 (Multiset.card β)
+      (qMap a hsym (zero_lt_card_single_add i β) h1 (Multiset.card β)
         (card_single_add i β).symm (Submodule.Quotient.mk r)) =
       Submodule.Quotient.mk (r * bElt a (zero_lt_card_single_add i β) (Multiset.card β)) := by
-  have h := pMap_qMap_cut a i β hPQ hP hβ hQ ha h1 r
+  have h := pMap_qMap_cut a hsym i β hβ hQ ha h1 r
   have he : act0 Q i β a 1 (Submodule.Quotient.mk r) = Submodule.Quotient.mk r := by
     rw [act0_mk, hr]
   rw [← pMap_act, ← qMap_act, he] at h

@@ -20,19 +20,17 @@ variable {I : Type*} [DecidableEq I] {k : Type*} [CommRing k]
   (γ : Multiset I) (i j : I)
 local notation "A" => CycKLR k Q a ((Singleton.singleton j : Multiset I) + γ)
 local notation "C" => CycKLR k Q a ((Singleton.singleton i : Multiset I) + γ)
-variable [IsDomain k] {P : I → I → MvPolynomial (Fin 2) k}
-  (hPQ : ∀ a b, a ≠ b → Q a b = P b a * MvPolynomial.rename ![1, 0] (P a b))
-  (hP : ∀ a b, a ≠ b → P a b ≠ 0) (hij : i ≠ j) (hsym : KLRSymm Q)
+variable (hij : i ≠ j) (hsym : KLRSymm Q)
 
 /-- Accepted cyclotomic equivalence, in the two original weight conventions. -/
 def coefficientEquiv : MixedModule.Lower Q γ i j a ≃ₗ[k] Corner Q a γ i j :=
   (lowerAcceptedSource Q a γ i j).trans
-    ((MixedCyclotomic.quotientTauEquiv Q γ i j a hPQ hP hij hsym).trans
+    ((MixedCyclotomic.quotientTauEquiv Q γ i j a hij hsym).trans
       (upperAcceptedCorner Q a γ i j))
 
 theorem quotientTau_quotient_tmul (x : MixedCyclotomic.QuotientLeft Q γ j a)
     (y : MixedCyclotomic.QuotientRight Q γ i a) :
-    (MixedCyclotomic.quotientTau Q γ i j a hPQ hP hij hsym (BalancedTensor.tmul x y)).1 =
+    (MixedCyclotomic.quotientTau Q γ i j a hij hsym (BalancedTensor.tmul x y)).1 =
       MixedCyclotomic.quotientInc Q a (γ + {j}) i x.1 *
         (-CycKLR.mk k Q a ((γ + {j}) + {i}) (ψ (Multiset.card γ))) *
           MixedCyclotomic.quotientBotLinear Q γ i j a y.1 := by
@@ -46,7 +44,6 @@ theorem quotientTau_quotient_tmul (x : MixedCyclotomic.QuotientLeft Q γ j a)
   simp only [map_neg, map_mul, mul_neg, neg_mul]
   rfl
 
-omit [IsDomain k] in
 theorem upperWeight_psi :
     upperWeight Q a γ i j (CycKLR.mk k Q a ((γ + {j}) + {i}) (ψ (Multiset.card γ))) =
       (κ Q a γ i j).symm (CycKLR.mk k Q a ({i} + ({j} + γ)) (ψ (Multiset.card γ))) := by
@@ -58,10 +55,10 @@ theorem upperWeight_psi :
 /-- The accepted equivalence has the actual ordinary-mate coefficient, not an assumed one. -/
 theorem coefficientEquiv_tmul (x : IndCorner Q j a γ)
     (y : MixedModule.Coefficient Q γ i a) :
-    (coefficientEquiv Q a γ i j hPQ hP hij hsym (BalancedTensor.tmul x y)).1 =
+    (coefficientEquiv Q a γ i j hij hsym (BalancedTensor.tmul x y)).1 =
       (op y.1 • factor Q a γ i j x).1 := by
   change upperWeight Q a γ i j
-    (MixedCyclotomic.quotientTau Q γ i j a hPQ hP hij hsym
+    (MixedCyclotomic.quotientTau Q γ i j a hij hsym
       (toAccepted Q a γ i j (BalancedTensor.tmul x y))).1 = _
   rw [toAccepted_tmul, quotientTau_quotient_tmul, map_mul, map_mul, map_neg,
     upperWeight_left, upperWeight_right, upperWeight_psi]
@@ -74,8 +71,8 @@ theorem coefficientEquiv_tmul (x : IndCorner Q j a γ)
 
 /-- The weight-compared accepted equivalence respects the original left action. -/
 theorem coefficientEquiv_left (b : A) (z : MixedModule.Lower Q γ i j a) :
-    coefficientEquiv Q a γ i j hPQ hP hij hsym (b • z) =
-      b • coefficientEquiv Q a γ i j hPQ hP hij hsym z := by
+    coefficientEquiv Q a γ i j hij hsym (b • z) =
+      b • coefficientEquiv Q a γ i j hij hsym z := by
   induction z using BalancedTensor.induction_on with
   | zero => simp only [smul_zero, map_zero]
   | add z t hz ht => simp only [smul_add, map_add, hz, ht]
@@ -84,7 +81,7 @@ theorem coefficientEquiv_left (b : A) (z : MixedModule.Lower Q γ i j a) :
     apply Subtype.ext
     rw [coefficientEquiv_tmul]
     change (op y.1 • factor Q a γ i j (b • x)).1 =
-      leftInc Q a γ i j b * (coefficientEquiv Q a γ i j hPQ hP hij hsym
+      leftInc Q a γ i j b * (coefficientEquiv Q a γ i j hij hsym
         (BalancedTensor.tmul x y)).1
     rw [coefficientEquiv_tmul]
     change (κ Q a γ i j).symm (cyclotomicLast Q i a ({j} + γ) (b * x.1) *
@@ -98,18 +95,18 @@ theorem coefficientEquiv_left (b : A) (z : MixedModule.Lower Q γ i j a) :
 
 /-- The weight-compared accepted equivalence respects the original right action. -/
 theorem coefficientEquiv_right (c : C) (z : MixedModule.Lower Q γ i j a) :
-    coefficientEquiv Q a γ i j hPQ hP hij hsym (op c • z) =
-      op c • coefficientEquiv Q a γ i j hPQ hP hij hsym z := by
+    coefficientEquiv Q a γ i j hij hsym (op c • z) =
+      op c • coefficientEquiv Q a γ i j hij hsym z := by
   induction z using BalancedTensor.induction_on with
   | zero => simp only [smul_zero, map_zero]
   | add z t hz ht => simp only [smul_add, map_add, hz, ht]
   | tmul x y =>
-    change coefficientEquiv Q a γ i j hPQ hP hij hsym
+    change coefficientEquiv Q a γ i j hij hsym
       (BalancedTensor.tmul x (MixedModule.rightMul Q γ i a c y)) = _
     apply Subtype.ext
     rw [coefficientEquiv_tmul]
     change (factor Q a γ i j x).1 * cyclotomicLast Q j a ({i} + γ) (y.1 * c) =
-      (coefficientEquiv Q a γ i j hPQ hP hij hsym (BalancedTensor.tmul x y)).1 *
+      (coefficientEquiv Q a γ i j hij hsym (BalancedTensor.tmul x y)).1 *
         cyclotomicLast Q j a ({i} + γ) c
     rw [coefficientEquiv_tmul, map_mul]
     exact (mul_assoc _ _ _).symm

@@ -203,7 +203,7 @@ variable {P : I → I → MvPolynomial (Fin 2) k}
 theorem homGdim_indProj (Y : GProj (G.grade ν)) (Y' : GProj (G.grade ν'))
     (X : GProj (G.grade (ν + ν'))) :
     GProj.homGdim (G.indProj Y Y') X =
-      GProj.homGdim (Y.extTensor Y') (G.resGProj ν ν' hPQ hP X) :=
+      GProj.homGdim (Y.extTensor Y') (G.resGProj ν ν' (KLRSymm.of_factorization hPQ hP) X) :=
   gdim_eq_of_finrank_eq fun d =>
     (G.homGradeFrobenius (ExtTensor.grading Y.grading Y'.grading) X.grading d).finrank_eq
 
@@ -215,7 +215,7 @@ theorem homForm_indK0 [HasGdim (G.grade ν)] [HasGdim (G.grade ν')]
     (y : K0 (G.grade (ν + ν'))) :
     K0.homForm (G.grade (ν + ν')) (G.indK0 ν ν' x x') y =
       K0.homForm (tensorGrading (G.grade ν) (G.grade ν'))
-        (K0.extTensor (G.grade ν) (G.grade ν') x x') (G.resK0 ν ν' hPQ hP y) := by
+        (K0.extTensor (G.grade ν) (G.grade ν') x x') (G.resK0 ν ν' (KLRSymm.of_factorization hPQ hP) y) := by
   induction y using K0.induction_on with
   | of X =>
     induction x using K0.induction_on with

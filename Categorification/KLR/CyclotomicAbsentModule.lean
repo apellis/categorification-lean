@@ -244,10 +244,8 @@ theorem resIndEquiv_cut_tmul (z : IndCorner Q i a β) (n : N) :
   change lastIdem Q i a β * (lastIdem Q i a β * z.1) = lastIdem Q i a β * z.1
   rw [← mul_assoc, lastIdem_mul]
 
-variable [IsDomain k] {P : I → I → MvPolynomial (Fin 2) k}
-  (hPQ : ∀ a b, a ≠ b → Q a b = P b a * MvPolynomial.rename ![1, 0] (P a b))
-  (hP : ∀ a b, a ≠ b → P a b ≠ 0)
-  (hQ : ∀ i j : I, i ≠ j → IsUnit (polyInY (Q i j)).leadingCoeff)
+variable (hsym : KLRSymm Q)
+  (hQ : ∀ i j : I, i ≠ j → ∃ c : k, IsUnit c ∧ (polyInY (Q i j)).leadingCoeff = Polynomial.C c)
   (ha : ∀ i, (a i).Monic)
   {C : QuantumGroup.CartanDatum I} {X Y : Type*} [AddCommGroup X] [AddCommGroup Y]
   (RD : QuantumGroup.UDot.RootDatum C X Y) (Λ : X)
@@ -255,7 +253,7 @@ variable [IsDomain k] {P : I → I → MvPolynomial (Fin 2) k}
   (hdeg : ∀ j, j ≠ i → ((polyInY (Q j i)).natDegree : ℤ) = -RD.pair (RD.iY i) (RD.iX j))
   (hi : i ∉ β)
 local notation "wt" => RD.pair (RD.iY i) (Λ - Multiset.sum (Multiset.map RD.iX β))
-local notation "E" => finEquiv Q i β hPQ hP a hQ ha RD Λ hΛ hdeg hi
+local notation "E" => finEquiv Q i β hsym a hQ ha RD Λ hΛ hdeg hi
 
 /-- Coefficients of an actual two-cut tensor, acting on its module factor. -/
 def tensorCoefficients : BalancedTensor k Rl Rl (Corner Q i a β) N →ₗ[Rl] (Fin (wt).toNat → N) :=
@@ -274,7 +272,7 @@ def tensorCoefficients : BalancedTensor k Rl Rl (Corner Q i a β) N →ₗ[Rl] (
       change (E).symm (r • z) d • n = r • ((E).symm z d • n)
       rw [finEquiv_symm_left, mul_smul])
 
-local notation "coeff" => tensorCoefficients Q i a β N hPQ hP hQ ha RD Λ hΛ hdeg hi
+local notation "coeff" => tensorCoefficients Q i a β N hsym hQ ha RD Λ hΛ hdeg hi
 
 /-- Finite dot-unit tensors, in the accepted original order. -/
 def tensorDotSum : (Fin (wt).toNat → N) →ₗ[Rl] BalancedTensor k Rl Rl (Corner Q i a β) N where
@@ -293,7 +291,7 @@ def tensorDotSum : (Fin (wt).toNat → N) →ₗ[Rl] BalancedTensor k Rl Rl (Cor
     · subst j; simp
     · simp [h]
 
-local notation "dots" => tensorDotSum Q i a β N hPQ hP hQ ha RD Λ hΛ hdeg hi
+local notation "dots" => tensorDotSum Q i a β N hsym hQ ha RD Λ hΛ hdeg hi
 
 theorem coefficients_dotSum (v : Fin (wt).toNat → N) : coeff (dots v) = v := by
   change coeff (∑ d, BalancedTensor.tmul (E (Pi.single d 1)) (v d)) = v
@@ -334,11 +332,11 @@ def absentEFEquiv : (Fin (wt).toNat → N) ≃ₗ[Rl] EF Q i a β N :=
   let e : (Fin (wt).toNat → N) ≃ₗ[Rl] BalancedTensor k Rl Rl (Corner Q i a β) N :=
     { dots with
       invFun := coeff
-      left_inv := coefficients_dotSum Q i a β N hPQ hP hQ ha RD Λ hΛ hdeg hi
-      right_inv := dotSum_coefficients Q i a β N hPQ hP hQ ha RD Λ hΛ hdeg hi }
+      left_inv := coefficients_dotSum Q i a β N hsym hQ ha RD Λ hΛ hdeg hi
+      right_inv := dotSum_coefficients Q i a β N hsym hQ ha RD Λ hΛ hdeg hi }
   e.trans (resIndEquiv Q i a β N).symm
 
-local notation "EFiso" => absentEFEquiv Q i a β N hPQ hP hQ ha RD Λ hΛ hdeg hi
+local notation "EFiso" => absentEFEquiv Q i a β N hsym hQ ha RD Λ hΛ hdeg hi
 
 /-- The finite map lands in genuine induction with its original dot-unit representatives. -/
 theorem absentEFEquiv_val (v : Fin (wt).toNat → N) :
@@ -355,7 +353,6 @@ theorem absentEFEquiv_val (v : Fin (wt).toNat → N) :
   classical
   simp [Pi.single_apply, apply_ite]
 
-omit [IsDomain k] in
 /-- The dot order in the genuine one-sided representative is `e x_last^d e`. -/
 theorem absentEFEquiv_dot_val (d : Fin (wt).toNat) :
     (cornerToInd Q i a β (dotUnitTerm Q i a β d 1)).1 =
@@ -385,7 +382,7 @@ theorem absentEFEquiv_forward_inverse (z : EF Q i a β N) :
 /-- Naturality for every linear map of actual cyclotomic modules. -/
 theorem absentEFEquiv_natural (f : N →ₗ[Rl] N') (v : Fin (wt).toNat → N) :
     efMap Q i a β N f (EFiso v) =
-      absentEFEquiv Q i a β N' hPQ hP hQ ha RD Λ hΛ hdeg hi (fun d => f (v d)) := by
+      absentEFEquiv Q i a β N' hsym hQ ha RD Λ hΛ hdeg hi (fun d => f (v d)) := by
   apply Subtype.ext
   rw [efMap_val, absentEFEquiv_val, absentEFEquiv_val, map_sum]
   apply Finset.sum_congr rfl
@@ -393,9 +390,9 @@ theorem absentEFEquiv_natural (f : N →ₗ[Rl] N') (v : Fin (wt).toNat → N) :
   exact BalancedTensor.mapRight_tmul f _ _
 
 theorem absentEFEquiv_symm_natural (f : N →ₗ[Rl] N') (z : EF Q i a β N) :
-    (absentEFEquiv Q i a β N' hPQ hP hQ ha RD Λ hΛ hdeg hi).symm (efMap Q i a β N f z) =
+    (absentEFEquiv Q i a β N' hsym hQ ha RD Λ hΛ hdeg hi).symm (efMap Q i a β N f z) =
       fun d => f ((EFiso).symm z d) := by
-  apply (absentEFEquiv Q i a β N' hPQ hP hQ ha RD Λ hΛ hdeg hi).injective
+  apply (absentEFEquiv Q i a β N' hsym hQ ha RD Λ hΛ hdeg hi).injective
   rw [LinearEquiv.apply_symm_apply, ← absentEFEquiv_natural, LinearEquiv.apply_symm_apply]
 
 end Categorification.KLR.KLRAlgebra.AbsentColour

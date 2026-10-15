@@ -367,6 +367,8 @@ import Categorification.KLR.CyclotomicAction.Restriction
 import Categorification.KLR.CyclotomicAction.Slides
 import Categorification.KLR.CyclotomicAction.Square
 import Categorification.KLR.CyclotomicAction.Global
+import Categorification.KLR.CyclotomicAction.Comparison
+import Categorification.KLR.CyclotomicAction.KangKashiwara
 import Categorification.KLR.CyclotomicAbsentEquivalence
 import Categorification.KLR.CyclotomicAbsentModule
 import Categorification.KLR.CyclotomicPresentModule
@@ -438,6 +440,7 @@ import Categorification.KLR.NilHeckeBlockSplitting
 import Categorification.KLR.Pairing
 import Categorification.KLR.PolNu
 import Categorification.KLR.PolyRep.Defs
+import Categorification.KLR.PolyRep.Graded
 import Categorification.KLR.PolyRep.Independence
 import Categorification.KLR.PolyRep.Sound
 import Categorification.KLR.Prop213
@@ -462,6 +465,16 @@ import Categorification.KLR.Theorem11
 import Categorification.KLR.Theorem321
 import Categorification.KLR.Theorem321Functor
 import Categorification.KLR.TightMonomials
+import Categorification.KLR.Unfurling.CompletedPolyRep
+import Categorification.KLR.Unfurling.Completion
+import Categorification.KLR.Unfurling.Cover
+import Categorification.KLR.Unfurling.Density
+import Categorification.KLR.Unfurling.Gamma
+import Categorification.KLR.Unfurling.GammaHomo
+import Categorification.KLR.Unfurling.Intertwine
+import Categorification.KLR.Unfurling.SeriesAction
+import Categorification.KLR.Unfurling.Substitution
+import Categorification.KLR.Unfurling.Target
 import Categorification.QuantumGroup.Bar
 import Categorification.QuantumGroup.Cartan
 import Categorification.QuantumGroup.Coproduct
@@ -608,6 +621,7 @@ import Categorification.TwoRep.AdditiveCat
 import Categorification.TwoRep.CyclotomicRouqAdjunction
 import Categorification.TwoRep.RouqBoundaryAdjunction
 import Categorification.TwoRep.CyclotomicAbsentAdjunction
+import Categorification.TwoRep.RouqLocTransport
 import Categorification.TwoRep.RouquierMaps
 import Categorification.TwoRep.ShiftInterchange
 import Categorification.TwoRep.Sl2

@@ -3,6 +3,7 @@ Copyright (c) 2026 Alex Ellis. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 -/
 import Categorification.KLR.GradedFree
+import Categorification.KLR.PolyRep.Graded
 
 /-!
 # The graded dimension `(ν)_q` of `Sym(ν)`
@@ -381,17 +382,6 @@ end Main
 
 /-! ### `Sym(ν)` -/
 
-theorem isWeightedHomogeneous_rename {V W : Type*} {k : Type*} [CommSemiring k] {w : V → ℤ}
-    {w' : W → ℤ} (σ : V → W) (hσ : ∀ v, w' (σ v) = w v) {p : MvPolynomial V k} {d : ℤ}
-    (hp : p.IsWeightedHomogeneous w d) : (rename σ p).IsWeightedHomogeneous w' d := by
-  rw [p.as_sum, map_sum]
-  refine IsWeightedHomogeneous.sum _ _ _ fun u hu => ?_
-  rw [rename_monomial]
-  refine isWeightedHomogeneous_monomial _ _ _ ?_
-  rw [← hp (mem_support_iff.1 hu), Finsupp.weight_apply, Finsupp.weight_apply,
-    Finsupp.sum_mapDomain_index (by simp) (fun _ _ _ => add_smul _ _ _)]
-  exact Finsupp.sum_congr fun v _ => by rw [hσ]
-
 namespace KLR
 
 open TypeA KLRAlgebra PolyRep
@@ -439,7 +429,7 @@ theorem apply_mem_polGrade_of_polNu {f : Pol k ν} (i : Seq ν) {d : ℤ}
   have hc : ∑ w, ψw (ρ w) * polNu (c w) = (pol (f i) * e i : KLRAlgebra k Q ν) := by
     rw [Finset.sum_eq_single 1 (fun w _ hw => by simp [c, hw]) (by simp)]
     simp only [c, ite_eq_left rfl, ρ, canWord_one, ψw_nil, one_mul, polNu_single]
-  have := G.rightExpansion_isWeightedHomogeneous hPQ hP ρ hρ h1 hc 1 i
+  have := G.rightExpansion_isWeightedHomogeneous (KLRSymm.of_factorization hPQ hP) ρ hρ h1 hc 1 i
   simp only [c, ite_eq_left rfl, Pi.single_eq_same, ρ, canWord_one, degW, sub_zero] at this
   exact this
 

@@ -353,7 +353,9 @@ theorem vB_mem (μ : X) (i j : KLR.Seq ν) (p) :
   obtain ⟨b, m⟩ := p
   have hb : toUEnd RD k μ ν (KLR.KL2.basis (k := k) (C := C) (ν := ν) (ρc ν) (hρc ν) b) ∈
       matDeg RD k μ ν ((KLR.klGradingDatum2 k C).stdDeg (ρc ν) b) :=
-    toUEnd_mem ((KLR.klGradingDatum2 k C).basis_mem_grade _ _ (ρc ν) (hρc ν) b)
+    toUEnd_mem (by
+      rw [KLR.KL2.basis_apply (ρc ν) (hρc ν) b]
+      exact (KLR.klGradingDatum2 k C).stdElt_mem_grade (ρc ν) b)
   have hm : bubDiag RD k μ ν (bubMap RD k μ (MvPolynomial.monomial m 1)) ∈
       matDeg RD k μ ν (Finsupp.weight (wPi C) m) := by
     rw [bubDiag_apply]

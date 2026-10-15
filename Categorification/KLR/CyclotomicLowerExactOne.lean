@@ -23,8 +23,7 @@ proved using the actual balancing relation. In particular, the full free
 coordinate space is never identified with a lower tensor without its cut.
 
 The colour identities and forward maps work over a commutative ring.
-Coordinate extraction retains the existing domain and nonzero off-diagonal
-factorization hypotheses. There are no monicity, cyclotomic nontriviality,
+Coordinate extraction assumes `KLRSymm Q`. There are no monicity, cyclotomic nontriviality,
 Cartan-degree or flatness hypotheses. The case `γ = 0` is included.
 `eiB` is the existing ψ-normalized `B`, with its domain restricted by the
 canonical tensor-to-quotient map. No crossing signs are changed.
@@ -156,27 +155,25 @@ theorem lowerFirstDecode_eq_zero (d : D) {t : Ri ⊗[k] Rb}
   | add t u _ _ ht hu => rw [map_add, ht, hu, add_zero]
   | smul s t _ ht => rw [map_smul, ht, smul_zero]
 
-variable [IsDomain k] {P : I → I → MvPolynomial (Fin 2) k}
-  (hPQ : ∀ j l, j ≠ l → Q j l = P l j * MvPolynomial.rename ![1, 0] (P j l))
-  (hP : ∀ j l, j ≠ l → P j l ≠ 0)
+variable (hsym : KLRSymm Q)
 
 /-- Reconstruct the lower tensor from the nonterminal first-strand coordinates. -/
 def lowerVerticalDecodeRep : R →ₗ[k] KOnePrime Q i γ a :=
   ∑ d : D, (lowerFirstDecode Q i γ a d).comp
     ((LinearMap.proj ⟨d.val, by have := d.isLt; simp at *⟩).comp
-      (firstCoord i β hPQ hP))
+      (firstCoord i β hsym))
 
 theorem lowerVerticalDecodeRep_apply (r : R) :
-    lowerVerticalDecodeRep Q i γ a hPQ hP r =
+    lowerVerticalDecodeRep Q i γ a hsym r =
       ∑ d : D, lowerFirstDecode Q i γ a d
-        (firstCoord i β hPQ hP r ⟨d.val, by have := d.isLt; simp at *⟩) := by
+        (firstCoord i β hsym r ⟨d.val, by have := d.isLt; simp at *⟩) := by
   simp only [lowerVerticalDecodeRep, LinearMap.sum_apply, LinearMap.comp_apply,
     LinearMap.proj_apply]
 
 theorem lowerVerticalDecodeRep_eq_zero {r : R} (hr : r ∈ cycL1 a (by simp)) :
-    lowerVerticalDecodeRep Q i γ a hPQ hP r = 0 := by
-  have hc : ∀ d, firstCoord i β hPQ hP r d ∈ tJ (Q := Q) i β a := by
-    apply (firstFree_mem_cycL1_iff i β hPQ hP a (by simp)
+    lowerVerticalDecodeRep Q i γ a hsym r = 0 := by
+  have hc : ∀ d, firstCoord i β hsym r d ∈ tJ (Q := Q) i β a := by
+    apply (firstFree_mem_cycL1_iff i β hsym a (by simp)
       (zero_lt_card_single_add i γ) _).1
     rw [firstFree_firstCoord]
     exact mul_mem_cycL1 a hr (oneConcat_mem_subR1 i β)
@@ -186,16 +183,16 @@ theorem lowerVerticalDecodeRep_eq_zero {r : R} (hr : r ∈ cycL1 a (by simp)) :
 /-- A map out of the actual cyclotomic quotient, not a chosen inverse. -/
 def lowerVerticalDecode : KOne Q (Si + β) a (by simp) →ₗ[k] KOnePrime Q i γ a :=
   ((cycL1 a (by simp)).restrictScalars k).liftQ
-    (lowerVerticalDecodeRep Q i γ a hPQ hP)
-    (fun _ hr => LinearMap.mem_ker.2 (lowerVerticalDecodeRep_eq_zero Q i γ a hPQ hP hr)) ∘ₗ
+    (lowerVerticalDecodeRep Q i γ a hsym)
+    (fun _ hr => LinearMap.mem_ker.2 (lowerVerticalDecodeRep_eq_zero Q i γ a hsym hr)) ∘ₗ
   (Submodule.Quotient.restrictScalarsEquiv k (cycL1 a (by simp))).symm.toLinearMap
 
 @[simp] theorem lowerVerticalDecode_mk (r : R) :
-    lowerVerticalDecode Q i γ a hPQ hP (Submodule.Quotient.mk r) =
-      lowerVerticalDecodeRep Q i γ a hPQ hP r := rfl
+    lowerVerticalDecode Q i γ a hsym (Submodule.Quotient.mk r) =
+      lowerVerticalDecodeRep Q i γ a hsym r := rfl
 
 theorem lowerVerticalDecodeRep_single (d : D) (t : Ri ⊗[k] Rb) :
-    lowerVerticalDecodeRep Q i γ a hPQ hP
+    lowerVerticalDecodeRep Q i γ a hsym
       (ψw (descRun 0 d.val) * concat Q Si β t) = lowerFirstDecode Q i γ a d t := by
   let d' : Fin (Multiset.card β + 1) := ⟨d.val, by have := d.isLt; simp at *⟩
   rw [← firstFree_single (Q := Q) i β d' t, lowerVerticalDecodeRep_apply,
@@ -209,7 +206,7 @@ theorem lowerVerticalDecodeRep_single (d : D) (t : Ri ⊗[k] Rb) :
     exact he (Fin.ext hv)
   · simp
 
-omit hPQ hP [IsDomain k] in
+omit hsym in
 theorem lowerVerticalCoordinates_firstBasis (d : D) (c : Ri) (y : N) (b : Rb)
     (hb : (y : Rl) = CycKLR.mk k Q a β b) :
     lowerVerticalCoordinates Q i γ a (BalancedTensor.tmul (lowerFirstBasis Q i γ d c) y) =
@@ -229,7 +226,7 @@ theorem lowerVerticalCoordinates_firstBasis (d : D) (c : Ri) (y : N) (b : Rb)
   rw [mul_assoc, ← concat_mul, Algebra.TensorProduct.tmul_mul_tmul, mul_one]
 
 theorem lowerVerticalDecode_firstBasis (d : D) (c : Ri) (y : N) :
-    lowerVerticalDecode Q i γ a hPQ hP
+    lowerVerticalDecode Q i γ a hsym
       (lowerVerticalCoordinates Q i γ a (BalancedTensor.tmul (lowerFirstBasis Q i γ d c) y)) =
       BalancedTensor.tmul (lowerFirstBasis Q i γ d c) y := by
   obtain ⟨b, hb⟩ := CycKLR.mk_surjective (y : Rl)
@@ -240,7 +237,7 @@ theorem lowerVerticalDecode_firstBasis (d : D) (c : Ri) (y : N) :
   change lowerCoefficientProj Q i γ a (lowerCoefficientProj Q i γ a (y : Rl) : Rl) = y
   rw [lowerCoefficientProj_coe, lowerCoefficientProj_coe]
 
-omit a hPQ hP [IsDomain k] in
+omit a hsym in
 /-- The actual lower first-strand summand, retaining its colour cut. -/
 def lowerFirstTerm (d : D) : Ri ⊗[k] Rg →ₗ[k] L where
   toFun t := ⟨ψw (descRun 0 d.val) * concat Q Si γ t, by
@@ -253,7 +250,7 @@ def lowerFirstTerm (d : D) : Ri ⊗[k] Rg →ₗ[k] L where
     change ψw _ * concat Q Si γ (s • t) = s • _
     rw [map_smul, mul_smul_comm])
 
-omit a hPQ hP [IsDomain k] in
+omit a hsym in
 theorem lowerFirstTerm_tmul (d : D) (c : Ri) (r : Rg) :
     lowerFirstTerm Q i γ d (c ⊗ₜ r) = op r • lowerFirstBasis Q i γ d c := by
   apply Subtype.ext
@@ -263,12 +260,12 @@ theorem lowerFirstTerm_tmul (d : D) (c : Ri) (r : Rg) :
 
 omit a in
 theorem lowerFirstTerm_sum (x : L) :
-    ∑ d : D, lowerFirstTerm Q i γ d (firstCoord i γ hPQ hP (x : Rb) d) = x := by
+    ∑ d : D, lowerFirstTerm Q i γ d (firstCoord i γ hsym (x : Rb) d) = x := by
   apply Subtype.ext
-  rw [show (∑ d : D, lowerFirstTerm Q i γ d (firstCoord i γ hPQ hP (x : Rb) d) : L).val =
-      ∑ d : D, (lowerFirstTerm Q i γ d (firstCoord i γ hPQ hP (x : Rb) d) : Rb) from
+  rw [show (∑ d : D, lowerFirstTerm Q i γ d (firstCoord i γ hsym (x : Rb) d) : L).val =
+      ∑ d : D, (lowerFirstTerm Q i γ d (firstCoord i γ hsym (x : Rb) d) : Rb) from
     map_sum (Graded.leftIdeal ((lowerFirst Q i γ) 1)).subtype _ _]
-  change firstFree i γ (firstCoord i γ hPQ hP (x : Rb)) = (x : Rb)
+  change firstFree i γ (firstCoord i γ hsym (x : Rb)) = (x : Rb)
   rw [firstFree_firstCoord]
   have hx := CornerTensor.left_mem (lowerFirst Q i γ) x
   change (x : Rb) * cR Q i γ 1 = x at hx
@@ -276,41 +273,41 @@ theorem lowerFirstTerm_sum (x : L) :
 
 /-- The explicit quotient reconstruction is a left inverse of the actual vertical. -/
 theorem lowerVerticalDecode_leftInverse (t : KOnePrime Q i γ a) :
-    lowerVerticalDecode Q i γ a hPQ hP (lowerVerticalCoordinates Q i γ a t) = t := by
+    lowerVerticalDecode Q i γ a hsym (lowerVerticalCoordinates Q i γ a t) = t := by
   induction t using BalancedTensor.induction_on with
   | zero => simp only [map_zero]
   | add t u ht hu => simp only [map_add, ht, hu]
   | tmul x y =>
-    have hs := lowerFirstTerm_sum Q i γ hPQ hP x
+    have hs := lowerFirstTerm_sum Q i γ hsym x
     conv_rhs => rw [← hs]
     conv_lhs => rw [← hs]
     rw [show (BalancedTensor.tmul (∑ d : D, lowerFirstTerm Q i γ d
-        (firstCoord i γ hPQ hP (x : Rb) d)) y : KOnePrime Q i γ a) =
+        (firstCoord i γ hsym (x : Rb) d)) y : KOnePrime Q i γ a) =
         ∑ d : D, BalancedTensor.tmul (lowerFirstTerm Q i γ d
-          (firstCoord i γ hPQ hP (x : Rb) d)) y from
+          (firstCoord i γ hsym (x : Rb) d)) y from
       map_sum ((BalancedTensor.mkBil k Rb Rg L N).flip y) _ _]
     rw [map_sum, map_sum]
     apply Finset.sum_congr rfl
     intro d _
-    generalize firstCoord i γ hPQ hP (x : Rb) d = v
+    generalize firstCoord i γ hsym (x : Rb) d = v
     induction v using TensorProduct.inductionOn with
     | add v w hv hw =>
       simp only [map_add, BalancedTensor.add_tmul, hv, hw]
     | tmul c r =>
       rw [lowerFirstTerm_tmul, BalancedTensor.op_smul_tmul]
-      exact lowerVerticalDecode_firstBasis Q i γ a hPQ hP d c (r • y)
+      exact lowerVerticalDecode_firstBasis Q i γ a hsym d c (r • y)
 
-include hPQ hP in
+include hsym in
 /-- Injectivity is proved in the genuine balanced source, not assumed from free coordinates. -/
 theorem lowerVertical_injective : Function.Injective (lowerVertical Q i γ a) := by
   intro t u h
   have hc : lowerVerticalCoordinates Q i γ a t = lowerVerticalCoordinates Q i γ a u :=
     congrArg (fun z : EIKOne Q i β a =>
       tensorToKOne Q i β a (by simp) (zero_lt_card_single_add i γ) z) h
-  have hd := congrArg (lowerVerticalDecode Q i γ a hPQ hP) hc
+  have hd := congrArg (lowerVerticalDecode Q i γ a hsym) hc
   simpa only [lowerVerticalDecode_leftInverse] using hd
 
-omit hPQ hP [IsDomain k] in
+omit hsym in
 /-- Forward reconstruction is the actual left colour projection on each lower summand. -/
 theorem lowerVerticalCoordinates_decode (d : D) (t : Ri ⊗[k] Rb) :
     lowerVerticalCoordinates Q i γ a (lowerFirstDecode Q i γ a d t) =
@@ -349,10 +346,10 @@ theorem lowerVerticalCoordinates_decode_kernel
     (z : KOne Q (Si + β) a (by simp))
     (hr : kOneRightCut Q i β a (by simp) z = z)
     (hl : cL Q i β 1 • z = z)
-    (hz : bMap i β hPQ hP a (by simp) (zero_lt_card_single_add i γ) z = 0) :
-    lowerVerticalCoordinates Q i γ a (lowerVerticalDecode Q i γ a hPQ hP z) = z := by
+    (hz : bMap i β hsym a (by simp) (zero_lt_card_single_add i γ) z = 0) :
+    lowerVerticalCoordinates Q i γ a (lowerVerticalDecode Q i γ a hsym z) = z := by
   obtain ⟨r, rfl⟩ := Submodule.Quotient.mk_surjective _ z
-  obtain ⟨t, ht, he⟩ := (bMap_mk_eq_zero_iff i β hPQ hP a (by simp)
+  obtain ⟨t, ht, he⟩ := (bMap_mk_eq_zero_iff i β hsym a (by simp)
     (zero_lt_card_single_add i γ) r).1 hz
   have heq : (Submodule.Quotient.mk (firstFree i β t) : KOne Q (Si + β) a (by simp)) =
       Submodule.Quotient.mk r := by
@@ -378,27 +375,27 @@ theorem lowerVerticalCoordinates_decode_kernel
 
 /-- The existing `B` restricted to the genuine left-cut tensor. -/
 def eiB : EIKOne Q i β a →ₗ[k] Polynomial Rl :=
-  (bMap i β hPQ hP a (by simp) (zero_lt_card_single_add i γ)).comp
+  (bMap i β hsym a (by simp) (zero_lt_card_single_add i γ)).comp
     (((tensorToKOne Q i β a (by simp) (zero_lt_card_single_add i γ)).restrictScalars k).comp
       (Graded.idemSubspace k (KOneTensor Q i β a) (cL Q i β 1)).subtype)
 
 /-- An explicit map from the actual kernel into the lower-rank tensor over `R(γ)`. -/
-def lowerVerticalKernelInv : LinearMap.ker (eiB Q i γ a hPQ hP) →ₗ[k] KOnePrime Q i γ a :=
-  (lowerVerticalDecode Q i γ a hPQ hP).comp
+def lowerVerticalKernelInv : LinearMap.ker (eiB Q i γ a hsym) →ₗ[k] KOnePrime Q i γ a :=
+  (lowerVerticalDecode Q i γ a hsym).comp
     (((tensorToKOne Q i β a (by simp) (zero_lt_card_single_add i γ)).restrictScalars k).comp
       ((Graded.idemSubspace k (KOneTensor Q i β a) (cL Q i β 1)).subtype.comp
-        (LinearMap.ker (eiB Q i γ a hPQ hP)).subtype))
+        (LinearMap.ker (eiB Q i γ a hsym)).subtype))
 
 /-- The explicit kernel reconstruction, followed by the genuine vertical, is the identity. -/
-theorem lowerVertical_kernelInv (z : LinearMap.ker (eiB Q i γ a hPQ hP)) :
-    lowerVertical Q i γ a (lowerVerticalKernelInv Q i γ a hPQ hP z) = z := by
+theorem lowerVertical_kernelInv (z : LinearMap.ker (eiB Q i γ a hsym)) :
+    lowerVertical Q i γ a (lowerVerticalKernelInv Q i γ a hsym z) = z := by
   apply Subtype.ext
   apply (kOneTensorEquiv Q i β a (by simp) (zero_lt_card_single_add i γ)).injective
   apply Subtype.ext
   change lowerVerticalCoordinates Q i γ a
-    (lowerVerticalDecode Q i γ a hPQ hP
+    (lowerVerticalDecode Q i γ a hsym
       (tensorToKOne Q i β a (by simp) (zero_lt_card_single_add i γ) z.val.val)) = _
-  apply lowerVerticalCoordinates_decode_kernel Q i γ a hPQ hP
+  apply lowerVerticalCoordinates_decode_kernel Q i γ a hsym
   · rw [← tensorToKOne_kOneToTensor Q i β a (by simp) (zero_lt_card_single_add i γ),
       kOneToTensor_tensorToKOne]
   · rw [← map_smul]
@@ -406,33 +403,33 @@ theorem lowerVertical_kernelInv (z : LinearMap.ker (eiB Q i γ a hPQ hP)) :
   · exact z.2
 
 theorem eiB_lowerVertical (t : KOnePrime Q i γ a) :
-    eiB Q i γ a hPQ hP (lowerVertical Q i γ a t) = 0 :=
-  bMap_lowerVertical_zero Q i γ a hPQ hP t
+    eiB Q i γ a hsym (lowerVertical Q i γ a t) = 0 :=
+  bMap_lowerVertical_zero Q i γ a hsym t
 
 /-- The backward-forward identity also holds in the genuine lower-rank tensor. -/
 theorem lowerVerticalKernelInv_forward (t : KOnePrime Q i γ a) :
-    lowerVerticalKernelInv Q i γ a hPQ hP
-      ⟨lowerVertical Q i γ a t, eiB_lowerVertical Q i γ a hPQ hP t⟩ = t :=
-  lowerVerticalDecode_leftInverse Q i γ a hPQ hP t
+    lowerVerticalKernelInv Q i γ a hsym
+      ⟨lowerVertical Q i γ a t, eiB_lowerVertical Q i γ a hsym t⟩ = t :=
+  lowerVerticalDecode_leftInverse Q i γ a hsym t
 
 /-- The genuine left column in the source diagram is exact at `E_i K₁`. -/
 theorem range_lowerVertical_eq_ker_eiB :
-    LinearMap.range (lowerVertical Q i γ a) = LinearMap.ker (eiB Q i γ a hPQ hP) := by
+    LinearMap.range (lowerVertical Q i γ a) = LinearMap.ker (eiB Q i γ a hsym) := by
   ext z
   constructor
   · rintro ⟨t, rfl⟩
-    exact eiB_lowerVertical Q i γ a hPQ hP t
+    exact eiB_lowerVertical Q i γ a hsym t
   · intro hz
-    exact ⟨lowerVerticalKernelInv Q i γ a hPQ hP ⟨z, hz⟩,
-      lowerVertical_kernelInv Q i γ a hPQ hP ⟨z, hz⟩⟩
+    exact ⟨lowerVerticalKernelInv Q i γ a hsym ⟨z, hz⟩,
+      lowerVertical_kernelInv Q i γ a hsym ⟨z, hz⟩⟩
 
 /-- The actual vertical, with the explicit cut-tensor reconstruction as its inverse. -/
 def lowerVerticalKernelEquiv :
-    KOnePrime Q i γ a ≃ₗ[k] LinearMap.ker (eiB Q i γ a hPQ hP) where
-  toFun t := ⟨lowerVertical Q i γ a t, eiB_lowerVertical Q i γ a hPQ hP t⟩
-  invFun := lowerVerticalKernelInv Q i γ a hPQ hP
-  left_inv := lowerVerticalKernelInv_forward Q i γ a hPQ hP
-  right_inv z := Subtype.ext (lowerVertical_kernelInv Q i γ a hPQ hP z)
+    KOnePrime Q i γ a ≃ₗ[k] LinearMap.ker (eiB Q i γ a hsym) where
+  toFun t := ⟨lowerVertical Q i γ a t, eiB_lowerVertical Q i γ a hsym t⟩
+  invFun := lowerVerticalKernelInv Q i γ a hsym
+  left_inv := lowerVerticalKernelInv_forward Q i γ a hsym
+  right_inv z := Subtype.ext (lowerVertical_kernelInv Q i γ a hsym z)
   map_add' t u := Subtype.ext (map_add _ t u)
   map_smul' s t := Subtype.ext (map_smul _ s t)
 

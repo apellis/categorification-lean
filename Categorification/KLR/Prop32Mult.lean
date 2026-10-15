@@ -405,7 +405,7 @@ def extWords (x y : FreeMonoid I) : K0 (tensorGrading (G.grade ν) (G.grade ν')
 `[Res_{ν,ν'}] [P_s] = ∑_b q^{inv(s, b)} [P_{s|b=false}] ⊠ [P_{s|b=true}]`, the sum over all masks
 `b` of `s` (only those splitting `s` into subwords of weights `ν`, `ν'` contribute). -/
 theorem resK0_projP_eq_sum_mask (s : Seq (ν + ν')) :
-    G.resK0 ν ν' hPQ hP (K0.of (G.projP s)) =
+    G.resK0 ν ν' (KLRSymm.of_factorization hPQ hP) (K0.of (G.projP s)) =
       ∑ b : Fin (Multiset.card (ν + ν')) → Bool,
         (T (maskInv G.degΨ s.1 b) : LaurentPolynomial ℤ) •
           G.extWords ν ν' (maskWord s.1 b false) (maskWord s.1 b true) := by
@@ -439,7 +439,7 @@ the realisation of `r(θ_{s_1} ⋯ θ_{s_m}) ∈ 'f ⊗ 'f`, where `r` is taken 
 `degΨ` and `v = q` (for the KL I grading `degΨ(i, j) = -i·j`; see `resK0_gammaZ` for Lusztig's
 normalisation `v = q⁻¹`). -/
 theorem resK0_projP_eq_realize (s : Seq (ν + ν')) :
-    G.resK0 ν ν' hPQ hP (K0.of (G.projP s)) =
+    G.resK0 ν ν' (KLRSymm.of_factorization hPQ hP) (K0.of (G.projP s)) =
       G.realize ν ν' (r G.degΨ qUnitLP (word (FreeMonoid.ofList (List.ofFn s.1)))) := by
   rw [r_ofFn, map_sum, G.resK0_projP_eq_sum_mask hPQ hP]
   refine Finset.sum_congr rfl fun b _ => ?_
@@ -501,7 +501,7 @@ variable (ν ν') in
 /-- The `(ν, ν')`-component `K₀(R) → K₀(R(ν) ⊗ R(ν'))` of `[Res]` (KL I §3.1): the projection to
 `K₀(R(ν + ν'))` followed by `[Res_{ν,ν'}]`. -/
 def resComp : G.K0R →ₗ[LaurentPolynomial ℤ] K0 (tensorGrading (G.grade ν) (G.grade ν')) :=
-  G.resK0 ν ν' hPQ hP ∘ₗ DirectSum.component (LaurentPolynomial ℤ) (Multiset I) G.K0fam (ν + ν')
+  G.resK0 ν ν' (KLRSymm.of_factorization hPQ hP) ∘ₗ DirectSum.component (LaurentPolynomial ℤ) (Multiset I) G.K0fam (ν + ν')
 
 omit [DecidableEq I] in
 private theorem wt_maskWord_add {m : ℕ} (w : Fin m → I) (b : Fin m → Bool) :

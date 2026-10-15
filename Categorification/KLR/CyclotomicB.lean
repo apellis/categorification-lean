@@ -227,39 +227,37 @@ theorem firstFree_single (a : N) (c : T) :
   · intro b _ hb; rw [Pi.single_eq_of_ne hb, map_zero, mul_zero]
   · simp
 
-variable [IsDomain k]
-  {P : I → I → MvPolynomial (Fin 2) k}
-  (hPQ : ∀ a b, a ≠ b → Q a b = P b a * rename ![1, 0] (P a b))
-  (hP : ∀ a b, a ≠ b → P a b ≠ 0)
+variable
+  (hsym : KLRSymm Q)
 
-include hPQ hP in
+include hsym in
 /-- Uniqueness of the explicit first-strand coordinates. -/
 theorem firstFree_injective : Function.Injective (firstFree (Q := Q) i β) := by
   intro s t h
   have hz : firstFree i β (s - t) = 0 := by rw [firstFree_sub, h, sub_self]
   rw [← rFree_first_comp_symm] at hz
   funext a
-  have ha := rfree_injective hPQ hP hz
+  have ha := rfree_injective hsym hz
     (shFirst (card_single_add_eq i β) (Seq.card_add' Si β) (card_single' i) a)
   simpa only [Function.comp_apply, Equiv.symm_apply_apply, Pi.sub_apply, sub_eq_zero] using ha
 
-include hPQ hP in
+include hsym in
 /-- Existence of the explicit first-strand coordinates. -/
 theorem firstFree_span (r : R) :
     ∃ t : N → T, r * oneConcat Q Si β = firstFree i β t := by
-  obtain ⟨t, ht⟩ := rfree_span hPQ hP r
+  obtain ⟨t, ht⟩ := rfree_span hsym r
   refine ⟨t ∘ shFirst (card_single_add_eq i β) (Seq.card_add' Si β) (card_single' i), ?_⟩
   rw [← rFree_first_comp_symm, ht]
   congr 1
   funext u
   simp only [Function.comp_apply, Equiv.apply_symm_apply]
 
-include hPQ hP in
+include hsym in
 /-- The cyclotomic submodule is coordinatewise `R(i) ⊗ J`. -/
 theorem firstFree_mem_cycL1_iff (a : I → Polynomial k)
     (h1 : 1 < Multiset.card (Si + β)) (hβ : 0 < Multiset.card β) (t : N → T) :
     firstFree i β t ∈ cycL1 a h1 ↔ ∀ b, t b ∈ tJ (Q := Q) i β a := by
-  rw [← rFree_first_comp_symm, mem_cycL1_iff hPQ hP i β a h1 hβ]
+  rw [← rFree_first_comp_symm, mem_cycL1_iff hsym i β a h1 hβ]
   constructor
   · intro ht b
     simpa only [Function.comp_apply, Equiv.symm_apply_apply] using
@@ -269,68 +267,68 @@ theorem firstFree_mem_cycL1_iff (a : I → Polynomial k)
 
 /-- Coordinates of the right projection `r e(i,β)`. -/
 noncomputable def firstCoord : R →ₗ[k] (N → T) where
-  toFun r := (firstFree_span i β hPQ hP r).choose
-  map_add' r s := firstFree_injective i β hPQ hP (by
-    rw [← (firstFree_span i β hPQ hP (r + s)).choose_spec, firstFree_add,
-      ← (firstFree_span i β hPQ hP r).choose_spec,
-      ← (firstFree_span i β hPQ hP s).choose_spec, add_mul])
-  map_smul' c r := firstFree_injective i β hPQ hP (by
-    rw [← (firstFree_span i β hPQ hP (c • r)).choose_spec, firstFree_smul,
-      ← (firstFree_span i β hPQ hP r).choose_spec, smul_mul_assoc, RingHom.id_apply])
+  toFun r := (firstFree_span i β hsym r).choose
+  map_add' r s := firstFree_injective i β hsym (by
+    rw [← (firstFree_span i β hsym (r + s)).choose_spec, firstFree_add,
+      ← (firstFree_span i β hsym r).choose_spec,
+      ← (firstFree_span i β hsym s).choose_spec, add_mul])
+  map_smul' c r := firstFree_injective i β hsym (by
+    rw [← (firstFree_span i β hsym (c • r)).choose_spec, firstFree_smul,
+      ← (firstFree_span i β hsym r).choose_spec, smul_mul_assoc, RingHom.id_apply])
 
 theorem firstFree_firstCoord (r : R) :
-    firstFree i β (firstCoord i β hPQ hP r) = r * oneConcat Q Si β :=
-  (firstFree_span i β hPQ hP r).choose_spec.symm
+    firstFree i β (firstCoord i β hsym r) = r * oneConcat Q Si β :=
+  (firstFree_span i β hsym r).choose_spec.symm
 
 @[simp] theorem firstCoord_firstFree (t : N → T) :
-    firstCoord i β hPQ hP (firstFree i β t) = t := by
-  apply firstFree_injective i β hPQ hP
+    firstCoord i β hsym (firstFree i β t) = t := by
+  apply firstFree_injective i β hsym
   rw [firstFree_firstCoord, firstFree_mul_oneConcat]
 
 theorem firstCoord_mul_concat (r : R) (c : T) :
-    firstCoord i β hPQ hP (r * concat Q Si β c) =
-      fun a => firstCoord i β hPQ hP r a * c := by
-  apply firstFree_injective i β hPQ hP
+    firstCoord i β hsym (r * concat Q Si β c) =
+      fun a => firstCoord i β hsym r a * c := by
+  apply firstFree_injective i β hsym
   rw [firstFree_firstCoord, firstFree_mul_concat, firstFree_firstCoord,
     mul_assoc, concat_mul_oneConcat, mul_assoc, oneConcat_mul_concat]
 
 /-- The final first-strand coordinate (the coordinate form of KK's map `B`). -/
 noncomputable def bCoord : R →ₗ[k] T :=
-  (LinearMap.proj (Fin.last (Multiset.card β))).comp (firstCoord i β hPQ hP)
+  (LinearMap.proj (Fin.last (Multiset.card β))).comp (firstCoord i β hsym)
 
 @[simp] theorem bCoord_firstFree (t : N → T) :
-    bCoord i β hPQ hP (firstFree i β t) = t (Fin.last (Multiset.card β)) := by
-  change firstCoord i β hPQ hP (firstFree i β t) _ = _
+    bCoord i β hsym (firstFree i β t) = t (Fin.last (Multiset.card β)) := by
+  change firstCoord i β hsym (firstFree i β t) _ = _
   rw [firstCoord_firstFree]
 
 theorem bCoord_mul_concat (r : R) (c : T) :
-    bCoord i β hPQ hP (r * concat Q Si β c) = bCoord i β hPQ hP r * c := by
-  change firstCoord i β hPQ hP (r * concat Q Si β c) _ = _
+    bCoord i β hsym (r * concat Q Si β c) = bCoord i β hsym r * c := by
+  change firstCoord i β hsym (r * concat Q Si β c) _ = _
   rw [firstCoord_mul_concat]
   rfl
 
 /-- A section of the final-coordinate map. -/
 theorem bCoord_top (c : T) :
-    bCoord i β hPQ hP (ψw (descRun 0 (Multiset.card β)) * concat Q Si β c) = c := by
+    bCoord i β hsym (ψw (descRun 0 (Multiset.card β)) * concat Q Si β c) = c := by
   have hs := firstFree_single (Q := Q) i β (Fin.last (Multiset.card β)) c
   simp only [Fin.val_last] at hs
   rw [← hs, bCoord_firstFree, Pi.single_eq_same]
 
 /-- The final coordinate map is surjective. -/
-theorem bCoord_surjective : Function.Surjective (bCoord i β hPQ hP) :=
-  fun c => ⟨_, bCoord_top i β hPQ hP c⟩
+theorem bCoord_surjective : Function.Surjective (bCoord i β hsym) :=
+  fun c => ⟨_, bCoord_top i β hsym c⟩
 
 /-- Its kernel consists of the lower first-strand summands. -/
 theorem bCoord_eq_zero_iff (r : R) :
-    bCoord i β hPQ hP r = 0 ↔ ∃ t : N → T,
+    bCoord i β hsym r = 0 ↔ ∃ t : N → T,
       t (Fin.last (Multiset.card β)) = 0 ∧ r * oneConcat Q Si β = firstFree i β t := by
   constructor
   · intro hr
-    exact ⟨firstCoord i β hPQ hP r, hr, (firstFree_firstCoord i β hPQ hP r).symm⟩
+    exact ⟨firstCoord i β hsym r, hr, (firstFree_firstCoord i β hsym r).symm⟩
   · rintro ⟨t, ht, hr⟩
-    have hc : firstCoord i β hPQ hP r = t :=
-      firstFree_injective i β hPQ hP ((firstFree_firstCoord i β hPQ hP r).trans hr)
-    change firstCoord i β hPQ hP r _ = 0
+    have hc : firstCoord i β hsym r = t :=
+      firstFree_injective i β hsym ((firstFree_firstCoord i β hsym r).trans hr)
+    change firstCoord i β hsym r _ = 0
     rw [hc, ht]
 
 variable (a : I → Polynomial k)
@@ -339,71 +337,71 @@ variable (a : I → Polynomial k)
 
 /-- The final coordinate with coefficients reduced modulo the cyclotomic ideal. -/
 noncomputable def bPoly : R →ₗ[k] Polynomial (CycKLR k Q a β) :=
-  (thetaL Q i β a).toLinearMap.comp (bCoord i β hPQ hP)
+  (thetaL Q i β a).toLinearMap.comp (bCoord i β hsym)
 
 theorem bPoly_firstFree (t : N → T) :
-    bPoly i β hPQ hP a (firstFree i β t) =
+    bPoly i β hsym a (firstFree i β t) =
       thetaL Q i β a (t (Fin.last (Multiset.card β))) := by
-  change thetaL Q i β a (bCoord i β hPQ hP (firstFree i β t)) = _
+  change thetaL Q i β a (bCoord i β hsym (firstFree i β t)) = _
   rw [bCoord_firstFree]
 
 include h1 hβ in
-theorem bPoly_eq_zero {r : R} (hr : r ∈ cycL1 a h1) : bPoly i β hPQ hP a r = 0 := by
+theorem bPoly_eq_zero {r : R} (hr : r ∈ cycL1 a h1) : bPoly i β hsym a r = 0 := by
   have hr' : r * oneConcat Q Si β ∈ cycL1 a h1 :=
     mul_mem_cycL1 a hr (oneConcat_mem_subR1 i β)
-  rw [← firstFree_firstCoord i β hPQ hP r,
-    firstFree_mem_cycL1_iff i β hPQ hP a h1 hβ] at hr'
+  rw [← firstFree_firstCoord i β hsym r,
+    firstFree_mem_cycL1_iff i β hsym a h1 hβ] at hr'
   exact (thetaL_eq_zero_iff i β a _).2 (hr' (Fin.last (Multiset.card β)))
 
 /-- The cyclotomic final-coordinate map, the `ψ`-normalized version of `B`.
 It is expressed in `R^Λ(β)[t]` and includes right projection to
 `e(i,β)`, so it is defined on all of `K_1` and restricts to the corner used in KK §5.2. -/
 noncomputable def bMap : KOne Q (Si + β) a h1 →ₗ[k] Polynomial (CycKLR k Q a β) :=
-  ((cycL1 a h1).restrictScalars k).liftQ (bPoly i β hPQ hP a)
-      (fun _ hr => LinearMap.mem_ker.2 (bPoly_eq_zero i β hPQ hP a h1 hβ hr)) ∘ₗ
+  ((cycL1 a h1).restrictScalars k).liftQ (bPoly i β hsym a)
+      (fun _ hr => LinearMap.mem_ker.2 (bPoly_eq_zero i β hsym a h1 hβ hr)) ∘ₗ
     (Submodule.Quotient.restrictScalarsEquiv k (cycL1 a h1)).symm.toLinearMap
 
 @[simp] theorem bMap_mk (r : R) :
-    bMap i β hPQ hP a h1 hβ (Submodule.Quotient.mk r) = bPoly i β hPQ hP a r := rfl
+    bMap i β hsym a h1 hβ (Submodule.Quotient.mk r) = bPoly i β hsym a r := rfl
 
 /-- The full first-strand crossing lifts each coefficient of `B`. -/
 theorem bMap_top (c : T) :
-    bMap i β hPQ hP a h1 hβ (Submodule.Quotient.mk
+    bMap i β hsym a h1 hβ (Submodule.Quotient.mk
       (ψw (descRun 0 (Multiset.card β)) * concat Q Si β c)) = thetaL Q i β a c := by
   rw [bMap_mk]
-  change thetaL Q i β a (bCoord i β hPQ hP _) = _
+  change thetaL Q i β a (bCoord i β hsym _) = _
   rw [bCoord_top]
 
 /-- Surjectivity of the cyclotomic final-coordinate map. -/
-theorem bMap_surjective : Function.Surjective (bMap i β hPQ hP a h1 hβ) := by
+theorem bMap_surjective : Function.Surjective (bMap i β hsym a h1 hβ) := by
   intro p
   obtain ⟨c, rfl⟩ := thetaL_surjective i β a p
-  exact ⟨_, bMap_top i β hPQ hP a h1 hβ c⟩
+  exact ⟨_, bMap_top i β hsym a h1 hβ c⟩
 
 /-- Right `R(β)`-linearity, with the target action through the cyclotomic quotient. -/
 theorem bMap_act1 (b : KLRAlgebra k Q β) (w : KOne Q (Si + β) a h1) :
-    bMap i β hPQ hP a h1 hβ (act1 Q i β a h1 b w) =
-      bMap i β hPQ hP a h1 hβ w * Polynomial.C (CycKLR.mk k Q a β b) := by
+    bMap i β hsym a h1 hβ (act1 Q i β a h1 b w) =
+      bMap i β hsym a h1 hβ w * Polynomial.C (CycKLR.mk k Q a β b) := by
   obtain ⟨r, rfl⟩ := Submodule.Quotient.mk_surjective _ w
   rw [act1_mk, bMap_mk, bMap_mk]
-  change thetaL Q i β a (bCoord i β hPQ hP (r * concat Q Si β (1 ⊗ₜ b))) = _
+  change thetaL Q i β a (bCoord i β hsym (r * concat Q Si β (1 ⊗ₜ b))) = _
   rw [bCoord_mul_concat, map_mul, thetaL_one_tmul]
   rfl
 
 /-- The coordinate form of exactness at `K_1`: the kernel of `B` is the sum of the
 lower first-strand summands, modulo the cyclotomic submodule. -/
 theorem bMap_mk_eq_zero_iff (r : R) :
-    bMap i β hPQ hP a h1 hβ (Submodule.Quotient.mk r) = 0 ↔
+    bMap i β hsym a h1 hβ (Submodule.Quotient.mk r) = 0 ↔
       ∃ t : N → T, t (Fin.last (Multiset.card β)) = 0 ∧
         r * oneConcat Q Si β - firstFree i β t ∈ cycL1 a h1 := by
   rw [bMap_mk]
   constructor
   · intro hr
-    let s := firstCoord i β hPQ hP r
+    let s := firstCoord i β hsym r
     let t := s - Pi.single (Fin.last (Multiset.card β)) (s (Fin.last (Multiset.card β)))
     refine ⟨t, by simp only [t, Pi.sub_apply, Pi.single_eq_same, sub_self], ?_⟩
-    rw [← firstFree_firstCoord i β hPQ hP r, ← firstFree_sub,
-      firstFree_mem_cycL1_iff i β hPQ hP a h1 hβ]
+    rw [← firstFree_firstCoord i β hsym r, ← firstFree_sub,
+      firstFree_mem_cycL1_iff i β hsym a h1 hβ]
     intro b
     change s b - (s b - (Pi.single (Fin.last (Multiset.card β))
       (s (Fin.last (Multiset.card β))) : N → T) b) ∈ _
@@ -415,8 +413,8 @@ theorem bMap_mk_eq_zero_iff (r : R) :
     · rw [Pi.single_eq_of_ne hb]
       exact Submodule.zero_mem _
   · rintro ⟨t, ht, hr⟩
-    have hz := bPoly_eq_zero i β hPQ hP a h1 hβ hr
-    rw [map_sub, ← firstFree_firstCoord i β hPQ hP r, bPoly_firstFree,
+    have hz := bPoly_eq_zero i β hsym a h1 hβ hr
+    rw [map_sub, ← firstFree_firstCoord i β hsym r, bPoly_firstFree,
       bPoly_firstFree, ht, map_zero, sub_zero] at hz
     exact hz
 

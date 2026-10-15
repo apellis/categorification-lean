@@ -74,7 +74,7 @@ theorem homForm_projP_eq_sum [HasGdim (G.grade ν)] (ρ : Perm (Fin (Multiset.ca
     K0.homForm (G.grade ν) (K0.of (G.projP j)) (K0.of (G.projP i)) =
       ∑ w ∈ Finset.univ.filter (fun w => w • i = j),
         HahnSeries.single (G.degW (ρ w) i) 1 * ∏ a, geomSeries (G.degX (i.lbl a)) := by
-  rw [homForm_projP, G.gdim_cornerGrade hPQ hP ρ hρ hX]
+  rw [homForm_projP, G.gdim_cornerGrade (KLRSymm.of_factorization hPQ hP) ρ hρ hX]
 
 end GradingDatum
 

@@ -252,7 +252,7 @@ theorem epsI_crystalF :
 omit [IsSimpleModule (KLRAlgebra K Q μ) N] in
 include hν' hPQ hP in
 theorem instFiniteDimensionalCrystalF : FiniteDimensional K (CrystalF Q μ hν' N) :=
-  have := finiteDimensional_ind hPQ hP (ExtTensor K N (KLRRep hν' Q)) (Q := Q) (ν := μ)
+  have := finiteDimensional_ind (KLRSymm.of_factorization hPQ hP) (ExtTensor K N (KLRRep hν' Q)) (Q := Q) (ν := μ)
     (ν' := ν')
   inferInstance
 

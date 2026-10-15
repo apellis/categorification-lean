@@ -223,13 +223,11 @@ theorem lowerFCoordinates_tmul (x : L) (y : N) (b : Rb)
   rw [map_mul, map_mul, map_neg, castKLR_ψ]
   rfl
 
-variable [IsDomain k] {P : I → I → MvPolynomial (Fin 2) k}
-  (hPQ : ∀ c d, c ≠ d → Q c d = P d c * MvPolynomial.rename ![1, 0] (P c d))
-  (hP : ∀ c d, c ≠ d → P c d ≠ 0)
+variable (hsym : KLRSymm Q)
 
 /-- The existing cokernel coordinate annihilates the actual lower-rank crossing map. -/
 theorem cMap_lowerF (t : KZeroPrime Q i γ a) :
-    cMap i β hPQ hP a (zero_lt_card_single_add i γ) (lowerFCoordinates Q i γ a t) = 0 := by
+    cMap i β hsym a (zero_lt_card_single_add i γ) (lowerFCoordinates Q i γ a t) = 0 := by
   induction t using BalancedTensor.induction_on with
   | zero => rw [map_zero, map_zero]
   | add t u ht hu => rw [map_add, map_add, ht, hu, add_zero]
@@ -238,6 +236,6 @@ theorem cMap_lowerF (t : KZeroPrime Q i γ a) :
     rw [lowerFCoordinates_tmul Q i γ a x y b hb.symm]
     have hn : Multiset.card β - 1 = Multiset.card γ := by simp
     rw [mul_neg, neg_mul, Submodule.Quotient.mk_neg, map_neg]
-    rw [← hn, cMap_cL_crossing i β (zero_lt_card_single_add i γ) hPQ hP a, neg_zero]
+    rw [← hn, cMap_cL_crossing i β (zero_lt_card_single_add i γ) hsym a, neg_zero]
 
 end Categorification.KLR.KLRAlgebra

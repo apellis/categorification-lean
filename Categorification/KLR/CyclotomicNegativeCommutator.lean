@@ -22,11 +22,11 @@ an arbitrary coefficient module proves invertibility without a field or
 root-separation assumption. The specified forward map, tensor representative
 formulas, both inverse roundtrips and an inverse correction formula are proved.
 
-The existing domain, factorization, monicity, unit leading-coefficient and
-Cartan-degree hypotheses are unchanged. No global nontriviality assumption
-on the cyclotomic quotient is imposed, and `γ = 0` is included. No graded,
-bimodule, functorial, absent-colour or full categorical commutator assertion
-is made here.
+The hypotheses are `KLRSymm Q` over a commutative ring `k`, unit constant
+leading coefficients of the `Q_{jl}`, monic `a_j` and the Cartan-degree condition.
+No global nontriviality assumption on the cyclotomic quotient is imposed, and
+`γ = 0` is included. No graded, bimodule, functorial, absent-colour or full
+categorical commutator assertion is made here.
 -/
 
 noncomputable section
@@ -174,33 +174,30 @@ theorem lowerE_lowerDot_lowerP (d : ℕ) (t : KOnePrime Q i γ a) :
     lowerE Q i γ a (lowerDot Q i γ a d (lowerP Q i γ a t)) = 0 := by
   rw [← cyclotomicDotCounit_proj, lowerCyclotomicProj_lowerP, map_zero]
 
-variable [IsDomain k] {P : I → I → MvPolynomial (Fin 2) k}
-  (hPQ : ∀ j l, j ≠ l → Q j l = P l j * MvPolynomial.rename ![1, 0] (P j l))
-  (hP : ∀ j l, j ≠ l → P j l ≠ 0)
+variable (hsym : KLRSymm Q)
 local notation "sgn" => ((-1 : k) ^ Multiset.card β)
-local notation "FC" => fCoords i β a hPQ hP (zero_lt_card_single_add i γ)
+local notation "FC" => fCoords i β a hsym (zero_lt_card_single_add i γ)
 local notation "FS" => fSection i β a (zero_lt_card_single_add i γ)
-local notation "EC" => eCoords i β a hPQ hP (zero_lt_card_single_add i γ)
-local notation "PS" => psiCoords i β a hPQ hP (zero_lt_card_single_add i γ) (by simp)
+local notation "EC" => eCoords i β a hsym (zero_lt_card_single_add i γ)
+local notation "PS" => psiCoords i β a hsym (zero_lt_card_single_add i γ) (by simp)
 
 /-- The actual off-diagonal lift has the signed source psi coordinates. -/
 theorem lowerFCoordinates_offDiagonal (p : Polynomial Rl) :
-    lowerFCoordinates Q i γ a (eiPOffDiagonal Q i γ a hPQ hP p) =
+    lowerFCoordinates Q i γ a (eiPOffDiagonal Q i γ a hsym p) =
       sgn • FS (PS p) := by
   rw [← eiZeroCoordinates_lowerF, lowerF_eiPOffDiagonal, map_sub,
     eiP_coordinates, eiBSection_coordinates, eiCSection_coordinates]
   change sgn • act0 Q i β a 1 (pLift i β a (zero_lt_card_single_add i γ) (by simp) p) -
     cSection i β a (zero_lt_card_single_add i γ) (sgn •
-      aMap i β a (by simp) (zero_lt_card_single_add i γ) hPQ hP p) = _
-  rw [act0_one_pLift, pLift_decomposition i β a hPQ hP, smul_add, map_smul, add_sub_cancel_right]
+      aMap i β a (by simp) (zero_lt_card_single_add i γ) hsym p) = _
+  rw [act0_one_pLift, pLift_decomposition i β a hsym, smul_add, map_smul, add_sub_cancel_right]
 
 /-- Multiplication on the genuine connecting lift agrees with the signed constant correction. -/
 theorem lowerE_offDiagonal (p : Polynomial Rl) :
-    lowerE Q i γ a (eiPOffDiagonal Q i γ a hPQ hP p) = sgn • EC (PS p) := by
-  rw [← eCoords_lowerF Q i γ a hPQ hP, lowerFCoordinates_offDiagonal,
+    lowerE Q i γ a (eiPOffDiagonal Q i γ a hsym p) = sgn • EC (PS p) := by
+  rw [← eCoords_lowerF Q i γ a hsym, lowerFCoordinates_offDiagonal,
     map_smul, fCoords_fSection, map_smul]
 
-omit [IsDomain k] in
 /-- The last-dot identity retains the actual lower tensor and multiplication error. -/
 theorem lastDot_lowerFCoordinates (t : KZeroPrime Q i γ a) :
     lastDot0 i β a (lowerFCoordinates Q i γ a t) =
@@ -226,13 +223,12 @@ theorem fCoords_lowerDot_one (t : KZeroPrime Q i γ a) :
     FC (lowerFCoordinates Q i γ a (lowerDot Q i γ a 1 t)) =
       fun b => FC (lowerFCoordinates Q i γ a t) b * Polynomial.X := by
   have he := lastDot_lowerFCoordinates Q i γ a t
-  rw [← fSection_lowerF Q i γ a hPQ hP t,
-    lastDot0_fSection i β a hPQ hP, eCoords_lowerF] at he
+  rw [← fSection_lowerF Q i γ a hsym t,
+    lastDot0_fSection i β a hsym, eCoords_lowerF] at he
   have hf : FS (fun b => FC (lowerFCoordinates Q i γ a t) b * Polynomial.X) =
       lowerFCoordinates Q i γ a (lowerDot Q i γ a 1 t) := add_right_cancel he
   rw [← hf, fCoords_fSection]
 
-omit [IsDomain k] in
 theorem lowerDot_zero (t : KZeroPrime Q i γ a) : lowerDot Q i γ a 0 t = t := by
   induction t using BalancedTensor.induction_on with
   | zero => exact map_zero _
@@ -245,7 +241,6 @@ theorem lowerDot_zero (t : KZeroPrime Q i γ a) : lowerDot Q i γ a 0 t = t := b
       rw [pow_zero, mul_one]
     rw [he]
 
-omit [IsDomain k] in
 theorem lowerDot_succ (d : ℕ) (t : KZeroPrime Q i γ a) :
     lowerDot Q i γ a (d + 1) t = lowerDot Q i γ a 1 (lowerDot Q i γ a d t) := by
   induction t using BalancedTensor.induction_on with
@@ -261,7 +256,7 @@ theorem lowerDot_succ (d : ℕ) (t : KZeroPrime Q i γ a) :
 
 /-- Every power of the actual dot agrees with polynomial multiplication in the psi coordinates. -/
 theorem fCoords_lowerDot_offDiagonal (d : ℕ) (p : Polynomial Rl) :
-    FC (lowerFCoordinates Q i γ a (lowerDot Q i γ a d (eiPOffDiagonal Q i γ a hPQ hP p))) =
+    FC (lowerFCoordinates Q i γ a (lowerDot Q i γ a d (eiPOffDiagonal Q i γ a hsym p))) =
       sgn • PS (p * Polynomial.X ^ d) := by
   induction d with
   | zero => rw [lowerDot_zero, lowerFCoordinates_offDiagonal, map_smul, fCoords_fSection,
@@ -276,27 +271,27 @@ theorem fCoords_lowerDot_offDiagonal (d : ℕ) (p : Polynomial Rl) :
 /-- The dotted counits on the actual connecting representative are the signed recurrence entries. -/
 theorem cyclotomicDotCounit_offDiagonal (d : ℕ) (p : Polynomial Rl) :
     cyclotomicDotCounit Q i γ a d
-      (lowerCyclotomicProj Q i γ a (eiPOffDiagonal Q i γ a hPQ hP p)) =
+      (lowerCyclotomicProj Q i γ a (eiPOffDiagonal Q i γ a hsym p)) =
         sgn • EC (PS (p * Polynomial.X ^ d)) := by
-  rw [cyclotomicDotCounit_proj, ← eCoords_lowerF Q i γ a hPQ hP,
+  rw [cyclotomicDotCounit_proj, ← eCoords_lowerF Q i γ a hsym,
     fCoords_lowerDot_offDiagonal, map_smul]
 
 /-- The restriction is on the genuine connecting kernel, not an auxiliary family of maps. -/
 theorem cyclotomicDotCounit_snakeDelta (d : ℕ)
-    (p : LinearMap.ker (eiA Q i γ a hPQ hP)) :
+    (p : LinearMap.ker (eiA Q i γ a hsym)) :
     cyclotomicDotCounit Q i γ a d
-      (lowerPCokerEquiv Q i γ a (snakeDelta Q i γ a hPQ hP p)) =
+      (lowerPCokerEquiv Q i γ a (snakeDelta Q i γ a hsym p)) =
         sgn • EC (PS (p.val * Polynomial.X ^ d)) := by
   rw [snakeDelta_offDiagonal]
-  exact cyclotomicDotCounit_offDiagonal Q i γ a hPQ hP d p.val
+  exact cyclotomicDotCounit_offDiagonal Q i γ a hsym d p.val
 
 /-- The recurrence identifies dotted multiplication with the constant coefficient of signed A. -/
 theorem cyclotomicDotCounit_offDiagonal_coeff (d : ℕ) (p : Polynomial Rl) :
     cyclotomicDotCounit Q i γ a d
-      (lowerCyclotomicProj Q i γ a (eiPOffDiagonal Q i γ a hPQ hP p)) =
-        (eiA Q i γ a hPQ hP (p * Polynomial.X ^ (d + 1))).coeff 0 := by
+      (lowerCyclotomicProj Q i γ a (eiPOffDiagonal Q i γ a hsym p)) =
+        (eiA Q i γ a hsym (p * Polynomial.X ^ (d + 1))).coeff 0 := by
   rw [cyclotomicDotCounit_offDiagonal, pow_succ, ← mul_assoc]
-  change _ = (sgn • aMap i β a (by simp) (zero_lt_card_single_add i γ) hPQ hP
+  change _ = (sgn • aMap i β a (by simp) (zero_lt_card_single_add i γ) hsym
     ((p * Polynomial.X ^ d) * Polynomial.X)).coeff 0
   rw [aMap_mul_X_eq, Polynomial.coeff_smul, Polynomial.coeff_add,
     Polynomial.coeff_mul_X_zero, Polynomial.coeff_C_zero, zero_add]
@@ -305,14 +300,13 @@ def cyclotomicNegativeCommutator (h : ℕ) : LowerCyclotomic Q i γ a →ₗ[k]
     MiddleCyclotomic Q i γ a × (Fin h → Rl) :=
   (cyclotomicSigma Q i γ a).prod (LinearMap.pi fun d => cyclotomicDotCounit Q i γ a d)
 
-omit [IsDomain k] in
 /-- The specified forward map is the crossing together with the canonical dotted counits. -/
 theorem cyclotomicNegativeCommutator_apply (h : ℕ) (t : LowerCyclotomic Q i γ a) :
     cyclotomicNegativeCommutator Q i γ a h t =
       (cyclotomicSigma Q i γ a t, fun d : Fin h => cyclotomicDotCounit Q i γ a d t) := rfl
 
 variable
-  (hQ : ∀ j l : I, j ≠ l → IsUnit (polyInY (Q j l)).leadingCoeff)
+  (hQ : ∀ j l : I, j ≠ l → ∃ c : k, IsUnit c ∧ (polyInY (Q j l)).leadingCoeff = Polynomial.C c)
   (ha : ∀ j, (a j).Monic)
   {C : QuantumGroup.CartanDatum I} {X Y : Type*} [AddCommGroup X] [AddCommGroup Y]
   (RD : QuantumGroup.UDot.RootDatum C X Y) (Λ : X)
@@ -320,30 +314,30 @@ variable
   (hdeg : ∀ j, j ≠ i → ((polyInY (Q j i)).natDegree : ℤ) =
     -RD.pair (RD.iY i) (RD.iX j))
 local notation "wt" => RD.pair (RD.iY i) (Λ - Multiset.sum (Multiset.map RD.iX β))
-local notation "Amap" => aMap i β a (by simp) (zero_lt_card_single_add i γ) hPQ hP
+local notation "Amap" => aMap i β a (by simp) (zero_lt_card_single_add i γ) hsym
 
-include hPQ hP hQ ha hΛ hdeg in
+include hsym hQ ha hΛ hdeg in
 /-- Below the anti-diagonal the entries of the actual dotted connecting matrix vanish. -/
 theorem cyclotomicDotCounit_offDiagonal_X_pow_zero (d j : ℕ) (hj : wt + (j + d + 1) < 0) :
     cyclotomicDotCounit Q i γ a d
-      (lowerCyclotomicProj Q i γ a (eiPOffDiagonal Q i γ a hPQ hP (Polynomial.X ^ j))) = 0 := by
+      (lowerCyclotomicProj Q i γ a (eiPOffDiagonal Q i γ a hsym (Polynomial.X ^ j))) = 0 := by
   rw [cyclotomicDotCounit_offDiagonal_coeff, ← pow_add]
-  have hz := aMap_X_pow_eq_zero_of_pair_neg i β a RD Λ hPQ hP
+  have hz := aMap_X_pow_eq_zero_of_pair_neg i β a RD Λ hsym
     (zero_lt_card_single_add i γ) hQ ha (by simp) hΛ hdeg (j + (d + 1)) (by omega)
   change (sgn • Amap (Polynomial.X ^ (j + (d + 1)))).coeff 0 = 0
   rw [hz, smul_zero, Polynomial.coeff_zero]
 
-include hPQ hP hQ ha hΛ hdeg in
+include hsym hQ ha hΛ hdeg in
 /-- The anti-diagonal is the determined unit scalar, with the unchanged psi normalization. -/
 theorem cyclotomicDotCounit_offDiagonal_X_pow_antidiagonal (d j : ℕ)
     (hj : wt + (j + d + 1) = 0) :
     cyclotomicDotCounit Q i γ a d
-      (lowerCyclotomicProj Q i γ a (eiPOffDiagonal Q i γ a hPQ hP (Polynomial.X ^ j))) =
+      (lowerCyclotomicProj Q i γ a (eiPOffDiagonal Q i γ a hsym (Polynomial.X ^ j))) =
         (sgn * lamA Q i β) • (1 : Rl) := by
   rcases subsingleton_or_nontrivial Rl with h | h
   · exact Subsingleton.elim _ _
   · rw [cyclotomicDotCounit_offDiagonal_coeff, ← pow_add]
-    obtain ⟨hm, hd⟩ := aMap_X_pow_monic_degree_of_pair_nonneg i β a RD Λ hPQ hP
+    obtain ⟨hm, hd⟩ := aMap_X_pow_monic_degree_of_pair_nonneg i β a RD Λ hsym
       (zero_lt_card_single_add i γ) hQ ha (by simp) hΛ hdeg (j + (d + 1)) (by omega)
     have hd0 : (Ring.inverse (lamA Q i β) • Amap (Polynomial.X ^ (j + (d + 1)))).natDegree = 0 := by omega
     have he : Ring.inverse (lamA Q i β) • Amap (Polynomial.X ^ (j + (d + 1))) = 1 :=
@@ -354,25 +348,25 @@ theorem cyclotomicDotCounit_offDiagonal_X_pow_antidiagonal (d j : ℕ)
     change (sgn • Amap (Polynomial.X ^ (j + (d + 1)))).coeff 0 = _
     rw [hv, smul_smul, Polynomial.coeff_smul, Polynomial.coeff_one_zero]
 
-include hPQ hP hQ ha hΛ hdeg in
+include hsym hQ ha hΛ hdeg in
 theorem eiA_surjective_of_pair_nonpos (hwt : wt ≤ 0) :
-    Function.Surjective (eiA Q i γ a hPQ hP) := by
+    Function.Surjective (eiA Q i γ a hsym) := by
   intro q
-  obtain ⟨p, hp⟩ := aMap_surjective_of_pair_nonpos i β a RD Λ hPQ hP
+  obtain ⟨p, hp⟩ := aMap_surjective_of_pair_nonpos i β a RD Λ hsym
     (zero_lt_card_single_add i γ) hQ ha (by simp) hΛ hdeg hwt (sgn • q)
   refine ⟨p, ?_⟩
   change sgn • Amap p = q
   rw [hp, smul_smul, ← mul_pow, neg_one_mul, neg_neg, one_pow, one_smul]
 
-include hPQ hP hQ ha hΛ hdeg in
+include hsym hQ ha hΛ hdeg in
 /-- The actual crossing is surjective at nonpositive weight. -/
 theorem cyclotomicSigma_surjective_of_pair_nonpos (hwt : wt ≤ 0) :
     Function.Surjective (cyclotomicSigma Q i γ a) := by
   intro m
   obtain ⟨z, rfl⟩ := middleCyclotomicProj_surjective Q i γ a m
-  obtain ⟨p, hp⟩ := eiA_surjective_of_pair_nonpos Q i γ a hPQ hP hQ ha RD Λ hΛ hdeg hwt
-    (eiC Q i γ a hPQ hP z)
-  let u := eiCLowerProjection Q i γ a hPQ hP z - eiPOffDiagonal Q i γ a hPQ hP p
+  obtain ⟨p, hp⟩ := eiA_surjective_of_pair_nonpos Q i γ a hsym hQ ha RD Λ hΛ hdeg hwt
+    (eiC Q i γ a hsym z)
+  let u := eiCLowerProjection Q i γ a hsym z - eiPOffDiagonal Q i γ a hsym p
   refine ⟨lowerPCokerEquiv Q i γ a (Submodule.Quotient.mk u), ?_⟩
   rw [cyclotomicSigma_lowerPCoker, lowerFCoker_mk, eiPCokerEquiv_mk]
   have he : lowerF Q i γ a u = z - eiP Q i γ a (eiBSection Q i γ a p) := by
@@ -381,15 +375,15 @@ theorem cyclotomicSigma_surjective_of_pair_nonpos (hwt : wt ≤ 0) :
     abel
   rw [he, map_sub, middleCyclotomicProj_eiP, sub_zero]
 
-include hPQ hP hQ ha hΛ hdeg in
+include hsym hQ ha hΛ hdeg in
 /-- The signed polynomial kernel is exactly the finite negative-weight polynomial space. -/
 theorem eiA_eq_zero_iff_degree_lt (p : Polynomial Rl) :
-    eiA Q i γ a hPQ hP p = 0 ↔ p.degree < (-wt).toNat := by
+    eiA Q i γ a hsym p = 0 ↔ p.degree < (-wt).toNat := by
   rcases subsingleton_or_nontrivial Rl with h | h
   · have hp : p = 0 := Subsingleton.elim _ _
     simp only [hp, map_zero, Polynomial.degree_zero, true_iff]
     exact WithBot.bot_lt_coe _
-  · have hs : eiA Q i γ a hPQ hP p = 0 ↔ Amap p = 0 := by
+  · have hs : eiA Q i γ a hsym p = 0 ↔ Amap p = 0 := by
       constructor
       · intro he
         have he' := congrArg (fun q : Polynomial Rl => sgn • q) he
@@ -398,20 +392,20 @@ theorem eiA_eq_zero_iff_degree_lt (p : Polynomial Rl) :
       · intro he
         change sgn • Amap p = 0
         rw [he, smul_zero]
-    rw [hs, aMap_eq_zero_iff i β a hPQ hP (zero_lt_card_single_add i γ) hQ ha (by simp)]
-    have hd := aMonicL_degree_gap i β a RD Λ (sym_of_factor hPQ) hQ (ha i) hΛ hdeg
+    rw [hs, aMap_eq_zero_iff i β a hsym (zero_lt_card_single_add i γ) hQ ha (by simp)]
+    have hd := aMonicL_degree_gap i β a RD Λ hsym hQ (ha i) hΛ hdeg
     have he : (sPoly (Q := Q) i β a).natDegree - (aMonicL Q i β a).natDegree = (-wt).toNat := by omega
     rw [he]
 
 /-- The genuine polynomial kernel in finite coefficient coordinates. -/
-def negativeKernelFinEquiv : LinearMap.ker (eiA Q i γ a hPQ hP) ≃ₗ[k]
+def negativeKernelFinEquiv : LinearMap.ker (eiA Q i γ a hsym) ≃ₗ[k]
     (Fin (-wt).toNat → Rl) :=
-  (LinearEquiv.ofEq (LinearMap.ker (eiA Q i γ a hPQ hP))
+  (LinearEquiv.ofEq (LinearMap.ker (eiA Q i γ a hsym))
     ((Polynomial.degreeLT Rl (-wt).toNat).restrictScalars k) (by
       ext p
-      change eiA Q i γ a hPQ hP p = 0 ↔ p ∈ Polynomial.degreeLT Rl (-wt).toNat
+      change eiA Q i γ a hsym p = 0 ↔ p ∈ Polynomial.degreeLT Rl (-wt).toNat
       rw [Polynomial.mem_degreeLT]
-      exact eiA_eq_zero_iff_degree_lt Q i γ a hPQ hP hQ ha RD Λ hΛ hdeg p)).trans
+      exact eiA_eq_zero_iff_degree_lt Q i γ a hsym hQ ha RD Λ hΛ hdeg p)).trans
       (cyclotomicCorrectionEquiv Q i γ a (-wt).toNat)
 
 include hQ in
@@ -422,9 +416,9 @@ theorem isUnit_negativeCounitScalar : IsUnit (sgn * lamA Q i β) :=
 /-- The actual recurrence is right-linear in each coefficient. -/
 theorem cyclotomicDotCounit_offDiagonal_monomial (d j : ℕ) (b : Rl) :
     cyclotomicDotCounit Q i γ a d
-      (lowerCyclotomicProj Q i γ a (eiPOffDiagonal Q i γ a hPQ hP (Polynomial.monomial j b))) =
+      (lowerCyclotomicProj Q i γ a (eiPOffDiagonal Q i γ a hsym (Polynomial.monomial j b))) =
         cyclotomicDotCounit Q i γ a d
-          (lowerCyclotomicProj Q i γ a (eiPOffDiagonal Q i γ a hPQ hP (Polynomial.X ^ j))) * b := by
+          (lowerCyclotomicProj Q i γ a (eiPOffDiagonal Q i γ a hsym (Polynomial.X ^ j))) * b := by
   rw [cyclotomicDotCounit_offDiagonal_coeff, cyclotomicDotCounit_offDiagonal_coeff]
   rw [← Polynomial.C_mul_X_pow_eq_monomial, ← Polynomial.X_pow_mul_C,
     mul_assoc, ← Polynomial.X_pow_mul_C, ← mul_assoc]
@@ -436,19 +430,19 @@ theorem cyclotomicDotCounit_offDiagonal_monomial (d j : ℕ) (b : Rl) :
 def negativeCounitMatrix : (Fin (-wt).toNat → Rl) →ₗ[k] (Fin (-wt).toNat → Rl) :=
   (LinearMap.pi fun d : Fin (-wt).toNat => cyclotomicDotCounit Q i γ a d).comp
     ((lowerPCokerEquiv Q i γ a).toLinearMap.comp
-      ((snakeDelta Q i γ a hPQ hP).comp
-        (negativeKernelFinEquiv Q i γ a hPQ hP hQ ha RD Λ hΛ hdeg).symm.toLinearMap))
+      ((snakeDelta Q i γ a hsym).comp
+        (negativeKernelFinEquiv Q i γ a hsym hQ ha RD Λ hΛ hdeg).symm.toLinearMap))
 
 theorem negativeCounitMatrix_single (j d : Fin (-wt).toNat) (b : Rl) :
-    negativeCounitMatrix Q i γ a hPQ hP hQ ha RD Λ hΛ hdeg (Pi.single j b) d =
+    negativeCounitMatrix Q i γ a hsym hQ ha RD Λ hΛ hdeg (Pi.single j b) d =
       cyclotomicDotCounit Q i γ a d
-        (lowerCyclotomicProj Q i γ a (eiPOffDiagonal Q i γ a hPQ hP (Polynomial.monomial j b))) := by
+        (lowerCyclotomicProj Q i γ a (eiPOffDiagonal Q i γ a hsym (Polynomial.monomial j b))) := by
   classical
   change cyclotomicDotCounit Q i γ a d (lowerPCokerEquiv Q i γ a
-    (snakeDelta Q i γ a hPQ hP ((negativeKernelFinEquiv Q i γ a hPQ hP hQ ha RD Λ hΛ hdeg).symm (Pi.single j b)))) = _
+    (snakeDelta Q i γ a hsym ((negativeKernelFinEquiv Q i γ a hsym hQ ha RD Λ hΛ hdeg).symm (Pi.single j b)))) = _
   rw [snakeDelta_offDiagonal]
   change cyclotomicDotCounit Q i γ a d (lowerCyclotomicProj Q i γ a
-    (eiPOffDiagonal Q i γ a hPQ hP _)) = _
+    (eiPOffDiagonal Q i γ a hsym _)) = _
   congr 3
   change (∑ l : Fin (-wt).toNat, Polynomial.monomial l (Pi.single j b l)) = _
   rw [Finset.sum_eq_single j]
@@ -461,9 +455,9 @@ theorem negativeCounitMatrix_single (j d : Fin (-wt).toNat) (b : Rl) :
 include hQ ha hΛ hdeg in
 /-- The finite matrix of canonical dotted counits on the genuine kernel is invertible. -/
 theorem negativeCounitMatrix_bijective (hwt : wt ≤ 0) :
-    Function.Bijective (negativeCounitMatrix Q i γ a hPQ hP hQ ha RD Λ hΛ hdeg) := by
+    Function.Bijective (negativeCounitMatrix Q i γ a hsym hQ ha RD Λ hΛ hdeg) := by
   classical
-  let D := negativeCounitMatrix Q i γ a hPQ hP hQ ha RD Λ hΛ hdeg
+  let D := negativeCounitMatrix Q i γ a hsym hQ ha RD Λ hΛ hdeg
   let r : (Fin (-wt).toNat → Rl) ≃ₗ[k] (Fin (-wt).toNat → Rl) :=
     LinearEquiv.funCongrLeft k Rl (Fin.revPerm)
   have hr (v : Fin (-wt).toNat → Rl) : r v = fun j => v j.rev := rfl
@@ -479,7 +473,7 @@ theorem negativeCounitMatrix_bijective (hwt : wt ≤ 0) :
     · intro j l b hlj
       change D (r (Pi.single j b)) l = 0
       rw [hs, negativeCounitMatrix_single, cyclotomicDotCounit_offDiagonal_monomial,
-        cyclotomicDotCounit_offDiagonal_X_pow_zero Q i γ a hPQ hP hQ ha RD Λ hΛ hdeg,
+        cyclotomicDotCounit_offDiagonal_X_pow_zero Q i γ a hsym hQ ha RD Λ hΛ hdeg,
         zero_mul]
       have hj := j.isLt
       simp only [Fin.val_rev]
@@ -487,7 +481,7 @@ theorem negativeCounitMatrix_bijective (hwt : wt ≤ 0) :
     · intro j b
       change D (r (Pi.single j b)) j = (u : k) • b
       rw [hs, negativeCounitMatrix_single, cyclotomicDotCounit_offDiagonal_monomial,
-        cyclotomicDotCounit_offDiagonal_X_pow_antidiagonal Q i γ a hPQ hP hQ ha RD Λ hΛ hdeg]
+        cyclotomicDotCounit_offDiagonal_X_pow_antidiagonal Q i γ a hsym hQ ha RD Λ hΛ hdeg]
       · rw [smul_mul_assoc, one_mul, hu]
       · have hj := j.isLt
         simp only [Fin.val_rev]
@@ -496,50 +490,50 @@ theorem negativeCounitMatrix_bijective (hwt : wt ≤ 0) :
 
 /-- The connecting kernel embedded in the actual cyclotomic lower tensor. -/
 def negativeConnecting : (Fin (-wt).toNat → Rl) →ₗ[k] LowerCyclotomic Q i γ a :=
-  (lowerPCokerEquiv Q i γ a).toLinearMap.comp ((snakeDelta Q i γ a hPQ hP).comp
-    (negativeKernelFinEquiv Q i γ a hPQ hP hQ ha RD Λ hΛ hdeg).symm.toLinearMap)
+  (lowerPCokerEquiv Q i γ a).toLinearMap.comp ((snakeDelta Q i γ a hsym).comp
+    (negativeKernelFinEquiv Q i γ a hsym hQ ha RD Λ hΛ hdeg).symm.toLinearMap)
 
 theorem cyclotomicSigma_negativeConnecting (v : Fin (-wt).toNat → Rl) :
-    cyclotomicSigma Q i γ a (negativeConnecting Q i γ a hPQ hP hQ ha RD Λ hΛ hdeg v) = 0 := by
-  change cyclotomicSigma Q i γ a (lowerPCokerEquiv Q i γ a (snakeDelta Q i γ a hPQ hP _)) = 0
+    cyclotomicSigma Q i γ a (negativeConnecting Q i γ a hsym hQ ha RD Λ hΛ hdeg v) = 0 := by
+  change cyclotomicSigma Q i γ a (lowerPCokerEquiv Q i γ a (snakeDelta Q i γ a hsym _)) = 0
   rw [cyclotomicSigma_lowerPCoker]
-  have he : lowerFCoker Q i γ a (snakeDelta Q i γ a hPQ hP
-      ((negativeKernelFinEquiv Q i γ a hPQ hP hQ ha RD Λ hΛ hdeg).symm v)) = 0 := by
+  have he : lowerFCoker Q i γ a (snakeDelta Q i γ a hsym
+      ((negativeKernelFinEquiv Q i γ a hsym hQ ha RD Λ hΛ hdeg).symm v)) = 0 := by
     apply LinearMap.mem_ker.1
-    rw [← range_snakeDelta Q i γ a hPQ hP]
+    rw [← range_snakeDelta Q i γ a hsym]
     exact ⟨_, rfl⟩
   exact (congrArg (eiPCokerEquiv Q i γ a) he).trans (map_zero _)
 
 theorem range_negativeConnecting :
-    LinearMap.range (negativeConnecting Q i γ a hPQ hP hQ ha RD Λ hΛ hdeg) =
+    LinearMap.range (negativeConnecting Q i γ a hsym hQ ha RD Λ hΛ hdeg) =
       LinearMap.ker (cyclotomicSigma Q i γ a) := by
   ext t
   constructor
   · rintro ⟨v, rfl⟩
-    exact cyclotomicSigma_negativeConnecting Q i γ a hPQ hP hQ ha RD Λ hΛ hdeg v
+    exact cyclotomicSigma_negativeConnecting Q i γ a hsym hQ ha RD Λ hΛ hdeg v
   · intro ht
     have he : (lowerPCokerEquiv Q i γ a).symm t ∈ LinearMap.ker (lowerFCoker Q i γ a) := by
       apply LinearMap.mem_ker.2
       apply (eiPCokerEquiv Q i γ a).injective
       rw [map_zero, ← cyclotomicSigma_lowerPCoker, LinearEquiv.apply_symm_apply]
       exact ht
-    rw [← range_snakeDelta Q i γ a hPQ hP] at he
+    rw [← range_snakeDelta Q i γ a hsym] at he
     obtain ⟨p, hp⟩ := he
-    refine ⟨negativeKernelFinEquiv Q i γ a hPQ hP hQ ha RD Λ hΛ hdeg p, ?_⟩
-    change lowerPCokerEquiv Q i γ a (snakeDelta Q i γ a hPQ hP
-      ((negativeKernelFinEquiv Q i γ a hPQ hP hQ ha RD Λ hΛ hdeg).symm
-        (negativeKernelFinEquiv Q i γ a hPQ hP hQ ha RD Λ hΛ hdeg p))) = t
+    refine ⟨negativeKernelFinEquiv Q i γ a hsym hQ ha RD Λ hΛ hdeg p, ?_⟩
+    change lowerPCokerEquiv Q i γ a (snakeDelta Q i γ a hsym
+      ((negativeKernelFinEquiv Q i γ a hsym hQ ha RD Λ hΛ hdeg).symm
+        (negativeKernelFinEquiv Q i γ a hsym hQ ha RD Λ hΛ hdeg p))) = t
     rw [LinearEquiv.symm_apply_apply, hp, LinearEquiv.apply_symm_apply]
 
-include hPQ hP hQ ha hΛ hdeg in
+include hsym hQ ha hΛ hdeg in
 /-- The actual crossing and canonical dotted counits are jointly bijective. -/
 theorem cyclotomicNegativeCommutator_bijective (hwt : wt ≤ 0) :
     Function.Bijective (cyclotomicNegativeCommutator Q i γ a (-wt).toNat) := by
-  let K := negativeConnecting Q i γ a hPQ hP hQ ha RD Λ hΛ hdeg
-  let D := negativeCounitMatrix Q i γ a hPQ hP hQ ha RD Λ hΛ hdeg
+  let K := negativeConnecting Q i γ a hsym hQ ha RD Λ hΛ hdeg
+  let D := negativeCounitMatrix Q i γ a hsym hQ ha RD Λ hΛ hdeg
   let E : LowerCyclotomic Q i γ a →ₗ[k] (Fin (-wt).toNat → Rl) :=
     LinearMap.pi fun d => cyclotomicDotCounit Q i γ a d
-  have hD : Function.Bijective D := negativeCounitMatrix_bijective Q i γ a hPQ hP hQ ha RD Λ hΛ hdeg hwt
+  have hD : Function.Bijective D := negativeCounitMatrix_bijective Q i γ a hsym hQ ha RD Λ hΛ hdeg hwt
   have hEK (v) : E (K v) = D v := rfl
   constructor
   · apply (LinearMap.ker_eq_bot).1
@@ -554,7 +548,7 @@ theorem cyclotomicNegativeCommutator_bijective (hwt : wt ≤ 0) :
     have hv : v = 0 := hD.1 (by rw [map_zero]; exact (hEK v).symm.trans ht₂)
     rw [hv, map_zero]
   · rintro ⟨m, v⟩
-    obtain ⟨t, ht⟩ := cyclotomicSigma_surjective_of_pair_nonpos Q i γ a hPQ hP hQ ha RD Λ hΛ hdeg hwt m
+    obtain ⟨t, ht⟩ := cyclotomicSigma_surjective_of_pair_nonpos Q i γ a hsym hQ ha RD Λ hΛ hdeg hwt m
     obtain ⟨w, hw⟩ := hD.2 (v - E t)
     refine ⟨t + K w, ?_⟩
     apply Prod.ext
@@ -569,38 +563,38 @@ The forward map is precisely the actual crossing and the canonical dotted counit
 def cyclotomicNegativeCommutatorEquiv (hwt : wt ≤ 0) :
     LowerCyclotomic Q i γ a ≃ₗ[k] MiddleCyclotomic Q i γ a × (Fin (-wt).toNat → Rl) :=
   LinearEquiv.ofBijective (cyclotomicNegativeCommutator Q i γ a (-wt).toNat)
-    (cyclotomicNegativeCommutator_bijective Q i γ a hPQ hP hQ ha RD Λ hΛ hdeg hwt)
+    (cyclotomicNegativeCommutator_bijective Q i γ a hsym hQ ha RD Λ hΛ hdeg hwt)
 
 theorem cyclotomicNegativeCommutatorEquiv_apply (hwt : wt ≤ 0) (t : LowerCyclotomic Q i γ a) :
-    cyclotomicNegativeCommutatorEquiv Q i γ a hPQ hP hQ ha RD Λ hΛ hdeg hwt t =
+    cyclotomicNegativeCommutatorEquiv Q i γ a hsym hQ ha RD Λ hΛ hdeg hwt t =
       (cyclotomicSigma Q i γ a t, fun d : Fin (-wt).toNat => cyclotomicDotCounit Q i γ a d t) := rfl
 
 theorem cyclotomicNegativeCommutator_left_inv (hwt : wt ≤ 0) (t : LowerCyclotomic Q i γ a) :
-    (cyclotomicNegativeCommutatorEquiv Q i γ a hPQ hP hQ ha RD Λ hΛ hdeg hwt).symm
+    (cyclotomicNegativeCommutatorEquiv Q i γ a hsym hQ ha RD Λ hΛ hdeg hwt).symm
       (cyclotomicNegativeCommutator Q i γ a (-wt).toNat t) = t :=
-  (cyclotomicNegativeCommutatorEquiv Q i γ a hPQ hP hQ ha RD Λ hΛ hdeg hwt).symm_apply_apply t
+  (cyclotomicNegativeCommutatorEquiv Q i γ a hsym hQ ha RD Λ hΛ hdeg hwt).symm_apply_apply t
 
 theorem cyclotomicNegativeCommutator_right_inv (hwt : wt ≤ 0)
     (z : MiddleCyclotomic Q i γ a × (Fin (-wt).toNat → Rl)) :
     cyclotomicNegativeCommutator Q i γ a (-wt).toNat
-      ((cyclotomicNegativeCommutatorEquiv Q i γ a hPQ hP hQ ha RD Λ hΛ hdeg hwt).symm z) = z :=
-  (cyclotomicNegativeCommutatorEquiv Q i γ a hPQ hP hQ ha RD Λ hΛ hdeg hwt).apply_symm_apply z
+      ((cyclotomicNegativeCommutatorEquiv Q i γ a hsym hQ ha RD Λ hΛ hdeg hwt).symm z) = z :=
+  (cyclotomicNegativeCommutatorEquiv Q i γ a hsym hQ ha RD Λ hΛ hdeg hwt).apply_symm_apply z
 
 /-- The inverse of the actual finite dotted-kernel matrix. -/
 def negativeCounitMatrixEquiv (hwt : wt ≤ 0) :
     (Fin (-wt).toNat → Rl) ≃ₗ[k] (Fin (-wt).toNat → Rl) :=
-  LinearEquiv.ofBijective (negativeCounitMatrix Q i γ a hPQ hP hQ ha RD Λ hΛ hdeg)
-    (negativeCounitMatrix_bijective Q i γ a hPQ hP hQ ha RD Λ hΛ hdeg hwt)
+  LinearEquiv.ofBijective (negativeCounitMatrix Q i γ a hsym hQ ha RD Λ hΛ hdeg)
+    (negativeCounitMatrix_bijective Q i γ a hsym hQ ha RD Λ hΛ hdeg hwt)
 
 /-- Both components on lower tensor representatives are the prescribed crossing and dotted products. -/
 theorem cyclotomicNegativeCommutatorEquiv_tmul (hwt : wt ≤ 0)
     (u : CornerTensor.Left (lowerLast Q i γ)) (y : N) (b : Rb)
     (hy : (y : Rl) = CycKLR.mk k Q a β b) :
-    ((cyclotomicNegativeCommutatorEquiv Q i γ a hPQ hP hQ ha RD Λ hΛ hdeg hwt
+    ((cyclotomicNegativeCommutatorEquiv Q i γ a hsym hQ ha RD Λ hΛ hdeg hwt
       (BalancedTensor.tmul (lowerLeftQuotient Q i γ a u) y)).1 : CycKLR k Q a (Si + β)) =
         CycKLR.mk k Q a (Si + β) (cL Q i β (u : Rb) * -ψ (Multiset.card γ) * cL Q i β b) ∧
     (∀ d : Fin (-wt).toNat,
-      (cyclotomicNegativeCommutatorEquiv Q i γ a hPQ hP hQ ha RD Λ hΛ hdeg hwt
+      (cyclotomicNegativeCommutatorEquiv Q i γ a hsym hQ ha RD Λ hΛ hdeg hwt
         (BalancedTensor.tmul (lowerLeftQuotient Q i γ a u) y)).2 d =
           CycKLR.mk k Q a β ((u : Rb) * (x ⟨Multiset.card γ, lastPos_lt i γ⟩) ^ (d : ℕ) * b)) := by
   constructor
@@ -615,11 +609,11 @@ Such a lift exists by `cyclotomicSigma_surjective_of_pair_nonpos`. -/
 theorem cyclotomicNegativeCommutator_inverse_representative (hwt : wt ≤ 0)
     (m : MiddleCyclotomic Q i γ a) (v : Fin (-wt).toNat → Rl)
     (t : LowerCyclotomic Q i γ a) (ht : cyclotomicSigma Q i γ a t = m) :
-    (cyclotomicNegativeCommutatorEquiv Q i γ a hPQ hP hQ ha RD Λ hΛ hdeg hwt).symm (m, v) =
-      t + negativeConnecting Q i γ a hPQ hP hQ ha RD Λ hΛ hdeg
-        ((negativeCounitMatrixEquiv Q i γ a hPQ hP hQ ha RD Λ hΛ hdeg hwt).symm
+    (cyclotomicNegativeCommutatorEquiv Q i γ a hsym hQ ha RD Λ hΛ hdeg hwt).symm (m, v) =
+      t + negativeConnecting Q i γ a hsym hQ ha RD Λ hΛ hdeg
+        ((negativeCounitMatrixEquiv Q i γ a hsym hQ ha RD Λ hΛ hdeg hwt).symm
           (v - fun d : Fin (-wt).toNat => cyclotomicDotCounit Q i γ a d t)) := by
-  apply (cyclotomicNegativeCommutatorEquiv Q i γ a hPQ hP hQ ha RD Λ hΛ hdeg hwt).injective
+  apply (cyclotomicNegativeCommutatorEquiv Q i γ a hsym hQ ha RD Λ hΛ hdeg hwt).injective
   rw [LinearEquiv.apply_symm_apply, cyclotomicNegativeCommutatorEquiv_apply]
   apply Prod.ext
   · rw [map_add, cyclotomicSigma_negativeConnecting, add_zero, ht]
@@ -628,8 +622,8 @@ theorem cyclotomicNegativeCommutator_inverse_representative (hwt : wt ≤ 0)
       LinearMap.pi fun d => cyclotomicDotCounit Q i γ a d
     change E (t + _) = v
     rw [map_add]
-    change E t + negativeCounitMatrixEquiv Q i γ a hPQ hP hQ ha RD Λ hΛ hdeg hwt
-      ((negativeCounitMatrixEquiv Q i γ a hPQ hP hQ ha RD Λ hΛ hdeg hwt).symm (v - E t)) = v
+    change E t + negativeCounitMatrixEquiv Q i γ a hsym hQ ha RD Λ hΛ hdeg hwt
+      ((negativeCounitMatrixEquiv Q i γ a hsym hQ ha RD Λ hΛ hdeg hwt).symm (v - E t)) = v
     rw [LinearEquiv.apply_symm_apply]
     abel
 

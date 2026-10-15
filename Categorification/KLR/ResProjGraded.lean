@@ -285,7 +285,7 @@ def resProjExtEquiv (s : Seq (ν + ν')) :
     LinearEquiv.piCongrRight fun u => extProjPPEquiv u.split.1 u.split.2
   let e₂ : ((u : ShuffleOf ν ν' s) → projPP Q u.split.1 u.split.2) ≃ₗ[TensorKLR Q ν ν']
       Res Q ν ν' (projP Q s) :=
-    resProjEquiv shuffleWord shuffleWord_spec hPQ hP (canWord _) (canWord _)
+    resProjEquiv shuffleWord shuffleWord_spec (KLRSymm.of_factorization hPQ hP) (canWord _) (canWord _)
       (fun a => ⟨isReduced_canWord _ a, wordProd_canWord _ a⟩)
       (fun b => ⟨isReduced_canWord _ b, wordProd_canWord _ b⟩) s
   e₁.trans (e₂.trans (resProjPEquiv s))
@@ -333,20 +333,20 @@ theorem resProjExtEquiv_mem (s : Seq (ν + ν')) {d : ℤ} {t : ResProjDom (Q :=
 `R(ν) ⊗ R(ν')`-modules. -/
 def resProjGradedEquiv (s : Seq (ν + ν')) :
     GradedEquiv (TensorKLR Q ν ν') (M := ResProjDom (Q := Q) ν ν' s)
-      (N := (G.resGProj ν ν' hPQ hP (G.projP s)).carrier)
+      (N := (G.resGProj ν ν' (KLRSymm.of_factorization hPQ hP) (G.projP s)).carrier)
       (piGrading fun u => (G.resSummand ν ν' s u).grading)
-      (G.resGProj ν ν' hPQ hP (G.projP s)).grading := by
+      (G.resGProj ν ν' (KLRSymm.of_factorization hPQ hP) (G.projP s)).grading := by
   classical
   let ℳ : ℤ → Submodule k (ResProjDom (Q := Q) ν ν' s) :=
     piGrading fun u => (G.resSummand ν ν' s u).grading
   let 𝒩 : ℤ → Submodule k (ResIdem Q ν ν' (leftIdeal (e s : KLRAlgebra k Q (ν + ν')))) :=
-    (G.resGProj ν ν' hPQ hP (G.projP s)).grading
+    (G.resGProj ν ν' (KLRSymm.of_factorization hPQ hP) (G.projP s)).grading
   have hp : PreservesGrading ℳ 𝒩 (resProjExtEquiv hPQ hP s).toLinearMap := by
     intro d t ht
     exact G.resProjExtEquiv_mem hPQ hP s ht
   letI : Decomposition ℳ := (isInternal_piGrading
     (fun u => (G.resSummand ν ν' s u).grading)).chooseDecomposition
-  letI : Decomposition 𝒩 := (G.resGProj ν ν' hPQ hP (G.projP s)).decomposition
+  letI : Decomposition 𝒩 := (G.resGProj ν ν' (KLRSymm.of_factorization hPQ hP) (G.projP s)).decomposition
   exact GradedEquiv.ofPreserves (ℳ := ℳ) (𝒩 := 𝒩) (resProjExtEquiv hPQ hP s) hp
 
 variable [HasGdim (G.grade ν)] [HasGdim (G.grade ν')]
@@ -355,7 +355,7 @@ variable [HasGdim (G.grade ν)] [HasGdim (G.grade ν')]
 `Y ∈ (R(ν) ⊗ R(ν'))-pmod`. -/
 theorem homGdim_resGProj_projP (Y : GProj (tensorGrading (G.grade ν) (G.grade ν')))
     (s : Seq (ν + ν')) :
-    GProj.homGdim Y (G.resGProj ν ν' hPQ hP (G.projP s)) =
+    GProj.homGdim Y (G.resGProj ν ν' (KLRSymm.of_factorization hPQ hP) (G.projP s)) =
       ∑ u : ShuffleOf ν ν' s, HahnSeries.single (G.degW (shuffleWord u.1) s) 1 *
         GProj.homGdim Y ((G.projP u.split.1).extTensor (G.projP u.split.2)) := by
   rw [GProj.homGdim_eq_sum_of_iso_pi Y _ (G.resSummand ν ν' s)
@@ -368,7 +368,7 @@ form**: `(z, [Res] [P_s]) = ∑_u q^{deg(ψ_{σ(u)} 1_s)} (z, [P_{i_u}] ⊗ [P_{
 theorem homForm_resK0_projP (z : K0 (tensorGrading (G.grade ν) (G.grade ν')))
     (s : Seq (ν + ν')) :
     K0.homForm (tensorGrading (G.grade ν) (G.grade ν')) z
-        (G.resK0 ν ν' hPQ hP (K0.of (G.projP s))) =
+        (G.resK0 ν ν' (KLRSymm.of_factorization hPQ hP) (K0.of (G.projP s))) =
       ∑ u : ShuffleOf ν ν' s, HahnSeries.single (G.degW (shuffleWord u.1) s) 1 *
         K0.homForm (tensorGrading (G.grade ν) (G.grade ν')) z
           (K0.extTensor (G.grade ν) (G.grade ν') (K0.of (G.projP u.split.1))

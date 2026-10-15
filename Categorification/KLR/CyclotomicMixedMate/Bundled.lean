@@ -83,14 +83,12 @@ theorem originalMate_app_homToRes (M : ModuleCat.{max u v w} C) :
   rw [LinearEquiv.apply_symm_apply]
   rfl
 
-variable [IsDomain k] {P : I → I → MvPolynomial (Fin 2) k}
-  (hPQ : ∀ s t, s ≠ t → Q s t = P t s * MvPolynomial.rename ![1, 0] (P s t))
-  (hP : ∀ s t, s ≠ t → P s t ≠ 0) (hij : i ≠ j) (hsym : KLRSymm Q)
+variable (hij : i ≠ j) (hsym : KLRSymm Q)
 
 /-- The accepted inverse transported back through the canonical tensor identification. -/
 def originalInverse : targetFunctor.{u,v,w} Q a γ i j ⟶ sourceFunctor Q a γ i j where
   app M := ModuleCat.ofHom ((sourceEquiv Q a γ i j M).symm.toLinearMap.comp
-    (mateInverse Q a γ i j hPQ hP hij hsym M))
+    (mateInverse Q a γ i j hij hsym M))
   naturality {M M'} f := by
     apply ModuleCat.hom_ext
     apply LinearMap.ext
@@ -98,22 +96,22 @@ def originalInverse : targetFunctor.{u,v,w} Q a γ i j ⟶ sourceFunctor Q a γ 
     change Target Q a γ i j M at z
     apply (sourceEquiv Q a γ i j M').injective
     change sourceEquiv Q a γ i j M'
-        ((sourceEquiv Q a γ i j M').symm (mateInverse Q a γ i j hPQ hP hij hsym M'
+        ((sourceEquiv Q a γ i j M').symm (mateInverse Q a γ i j hij hsym M'
           (mateTargetMap Q a γ i j M M' f.hom z))) =
       sourceEquiv Q a γ i j M' (((sourceFunctor Q a γ i j).map f).hom
-        ((sourceEquiv Q a γ i j M).symm (mateInverse Q a γ i j hPQ hP hij hsym M z)))
+        ((sourceEquiv Q a γ i j M).symm (mateInverse Q a γ i j hij hsym M z)))
     rw [LinearEquiv.apply_symm_apply]
     have hn := LinearMap.congr_fun (sourceEquiv_natural Q a γ i j f)
-      ((sourceEquiv Q a γ i j M).symm (mateInverse Q a γ i j hPQ hP hij hsym M z))
+      ((sourceEquiv Q a γ i j M).symm (mateInverse Q a γ i j hij hsym M z))
     simp only [LinearMap.coe_comp, Function.comp_apply, LinearEquiv.coe_coe,
       LinearEquiv.apply_symm_apply] at hn
     exact (LinearMap.congr_fun
-      (mateInverse_natural Q a γ i j M M' hPQ hP hij hsym f.hom) z).symm.trans hn.symm
+      (mateInverse_natural Q a γ i j M M' hij hsym f.hom) z).symm.trans hn.symm
 
 /-- Natural isomorphism of the original composites on every removable-colour input. -/
 def mixedNatIso : sourceFunctor.{u,v,w} Q a γ i j ≅ targetFunctor Q a γ i j where
   hom := originalMate Q a γ i j
-  inv := originalInverse Q a γ i j hPQ hP hij hsym
+  inv := originalInverse Q a γ i j hij hsym
   hom_inv_id := by
     apply NatTrans.ext
     funext M
@@ -121,7 +119,7 @@ def mixedNatIso : sourceFunctor.{u,v,w} Q a γ i j ≅ targetFunctor Q a γ i j 
     apply LinearMap.ext
     intro z
     change (sourceEquiv Q a γ i j M).symm
-      (mateInverse Q a γ i j hPQ hP hij hsym M
+      (mateInverse Q a γ i j hij hsym M
         (mate Q a γ i j M (sourceEquiv Q a γ i j M z))) = z
     rw [mateInverse_mate, LinearEquiv.symm_apply_apply]
   inv_hom_id := by
@@ -131,33 +129,33 @@ def mixedNatIso : sourceFunctor.{u,v,w} Q a γ i j ≅ targetFunctor Q a γ i j 
     apply LinearMap.ext
     intro z
     change mate Q a γ i j M (sourceEquiv Q a γ i j M
-      ((sourceEquiv Q a γ i j M).symm (mateInverse Q a γ i j hPQ hP hij hsym M z))) = z
+      ((sourceEquiv Q a γ i j M).symm (mateInverse Q a γ i j hij hsym M z))) = z
     rw [LinearEquiv.apply_symm_apply]
-    exact mate_mateInverse Q a γ i j hPQ hP hij hsym M z
+    exact mate_mateInverse Q a γ i j hij hsym M z
 
 /-- Exactly the original ordinary mate under the original source identification. -/
 theorem mixedNatIso_hom_app (M : ModuleCat.{max u v w} C) :
-    ((mixedNatIso Q a γ i j hPQ hP hij hsym).hom.app M).hom =
+    ((mixedNatIso Q a γ i j hij hsym).hom.app M).hom =
       (mate Q a γ i j M).comp (sourceEquiv Q a γ i j M).toLinearMap := rfl
 
 /-- The inverse is the accepted comparison inverse on the original target. -/
 theorem mixedNatIso_inv_app (M : ModuleCat.{max u v w} C) :
-    ((mixedNatIso Q a γ i j hPQ hP hij hsym).inv.app M).hom =
+    ((mixedNatIso Q a γ i j hij hsym).inv.app M).hom =
       (sourceEquiv Q a γ i j M).symm.toLinearMap.comp
-        (mateInverse Q a γ i j hPQ hP hij hsym M) := rfl
+        (mateInverse Q a γ i j hij hsym M) := rfl
 
 /-- Agreement with the accepted equivalence, after canonical rebundling. -/
 theorem mixedNatIso_hom_app_eq_equiv (M : ModuleCat.{max u v w} C) :
-    ((mixedNatIso Q a γ i j hPQ hP hij hsym).hom.app M).hom =
-      (originalMateEquiv Q a γ i j hPQ hP hij hsym M).toLinearMap.comp
+    ((mixedNatIso Q a γ i j hij hsym).hom.app M).hom =
+      (originalMateEquiv Q a γ i j hij hsym M).toLinearMap.comp
         (sourceEquiv Q a γ i j M).toLinearMap := by
   rw [originalMateEquiv_eq_mate]
   rfl
 
-include hPQ hP hij hsym in
+include hij hsym in
 /-- Invertibility of the original natural transformation, not an assumed mate. -/
 theorem originalMate_isIso : IsIso (originalMate.{u,v,w} Q a γ i j) := by
-  change IsIso (mixedNatIso Q a γ i j hPQ hP hij hsym).hom
+  change IsIso (mixedNatIso Q a γ i j hij hsym).hom
   infer_instance
 
 end Categorification.KLR.KLRAlgebra.AbsentColour.MixedNatIso

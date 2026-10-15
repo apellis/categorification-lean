@@ -404,18 +404,16 @@ theorem efMiddleEquiv_symm_natural (f : N →ₗ[Rl] N')
   | add t u ht hu => simp only [map_add, ht, hu]
   | tmul z n => rfl
 
-variable [IsDomain k] {P : I → I → MvPolynomial (Fin 2) k}
-  (hPQ : ∀ a b, a ≠ b → Q a b = P b a * MvPolynomial.rename ![1, 0] (P a b))
-  (hP : ∀ a b, a ≠ b → P a b ≠ 0)
-  (hQ : ∀ i j : I, i ≠ j → IsUnit (polyInY (Q i j)).leadingCoeff)
+variable (hsym : KLRSymm Q)
+  (hQ : ∀ i j : I, i ≠ j → ∃ c : k, IsUnit c ∧ (polyInY (Q i j)).leadingCoeff = Polynomial.C c)
   (ha : ∀ i, (a i).Monic)
   {C : QuantumGroup.CartanDatum I} {X Y : Type*} [AddCommGroup X] [AddCommGroup Y]
   (RD : QuantumGroup.UDot.RootDatum C X Y) (Λ : X)
   (hΛ : ((a i).natDegree : ℤ) = RD.pair (RD.iY i) Λ)
   (hdeg : ∀ j, j ≠ i → ((polyInY (Q j i)).natDegree : ℤ) = -RD.pair (RD.iY i) (RD.iX j))
 local notation "wt" => RD.pair (RD.iY i) (Λ - Multiset.sum (Multiset.map RD.iX β))
-local notation "pos" => cyclotomicCommutatorBimoduleEquiv Q i γ a hPQ hP hQ ha RD Λ hΛ hdeg
-local notation "neg" => cyclotomicNegativeCommutatorBimoduleEquiv Q i γ a hPQ hP hQ ha RD Λ hΛ hdeg
+local notation "pos" => cyclotomicCommutatorBimoduleEquiv Q i γ a hsym hQ ha RD Λ hΛ hdeg
+local notation "neg" => cyclotomicNegativeCommutatorBimoduleEquiv Q i γ a hsym hQ ha RD Λ hΛ hdeg
 
 /-- The nonnegative commutator on genuine induction/restriction composites. -/
 def positiveEquiv (hwt : 0 ≤ wt) :
@@ -423,7 +421,7 @@ def positiveEquiv (hwt : 0 ≤ wt) :
   ((indResEquiv Q i γ a N).prodCongr (LinearEquiv.refl Rl _)).trans
     ((BalancedTensor.prodFin (LowerCyclotomic Q i γ a) N (wt).toNat).symm.trans
       ((BalancedTensor.congrLeft (pos hwt)
-        (cyclotomicCommutatorBimoduleEquiv_op_smul Q i γ a hPQ hP hQ ha RD Λ hΛ hdeg hwt)).trans
+        (cyclotomicCommutatorBimoduleEquiv_op_smul Q i γ a hsym hQ ha RD Λ hΛ hdeg hwt)).trans
         (efMiddleEquiv Q i γ a N).symm))
 
 /-- The nonpositive commutator on genuine induction/restriction composites. -/
@@ -431,29 +429,29 @@ def negativeEquiv (hwt : wt ≤ 0) :
     FE Q i γ a N ≃ₗ[Rl] (AbsentColour.EF Q i a β N × (Fin (-wt).toNat → N)) :=
   (indResEquiv Q i γ a N).trans
     ((BalancedTensor.congrLeft (neg hwt)
-      (cyclotomicNegativeCommutatorBimoduleEquiv_op_smul Q i γ a hPQ hP hQ ha RD Λ hΛ hdeg hwt)).trans
+      (cyclotomicNegativeCommutatorBimoduleEquiv_op_smul Q i γ a hsym hQ ha RD Λ hΛ hdeg hwt)).trans
       ((BalancedTensor.prodFin (MiddleCyclotomic Q i γ a) N (-wt).toNat).trans
         ((efMiddleEquiv Q i γ a N).symm.prodCongr (LinearEquiv.refl Rl _))))
 
-local notation "Pos" => positiveEquiv Q i γ a N hPQ hP hQ ha RD Λ hΛ hdeg
-local notation "Neg" => negativeEquiv Q i γ a N hPQ hP hQ ha RD Λ hΛ hdeg
+local notation "Pos" => positiveEquiv Q i γ a N hsym hQ ha RD Λ hΛ hdeg
+local notation "Neg" => negativeEquiv Q i γ a N hsym hQ ha RD Λ hΛ hdeg
 
 theorem positiveEquiv_natural (hwt : 0 ≤ wt) (f : N →ₗ[Rl] N')
     (z : FE Q i γ a N × (Fin (wt).toNat → N)) :
     AbsentColour.efMap Q i a β N f (Pos hwt z) =
-      positiveEquiv Q i γ a N' hPQ hP hQ ha RD Λ hΛ hdeg hwt
+      positiveEquiv Q i γ a N' hsym hQ ha RD Λ hΛ hdeg hwt
         (feMap Q i γ a N f z.1, fun d => f (z.2 d)) := by
   unfold positiveEquiv
   simp only [LinearEquiv.trans_apply, LinearEquiv.prodCongr_apply, LinearEquiv.refl_apply]
   rw [efMiddleEquiv_symm_natural]
   change (efMiddleEquiv Q i γ a N').symm (BalancedTensor.mapRight f
     (BalancedTensor.mapLeft (pos hwt).toLinearMap
-      (cyclotomicCommutatorBimoduleEquiv_op_smul Q i γ a hPQ hP hQ ha RD Λ hΛ hdeg hwt) _)) = _
+      (cyclotomicCommutatorBimoduleEquiv_op_smul Q i γ a hsym hQ ha RD Λ hΛ hdeg hwt) _)) = _
   rw [BalancedTensor.mapLeft_natural, BalancedTensor.prodFin_symm_natural, indResEquiv_natural]
   rfl
 
 theorem negativeEquiv_natural (hwt : wt ≤ 0) (f : N →ₗ[Rl] N') (z : FE Q i γ a N) :
-    negativeEquiv Q i γ a N' hPQ hP hQ ha RD Λ hΛ hdeg hwt (feMap Q i γ a N f z) =
+    negativeEquiv Q i γ a N' hsym hQ ha RD Λ hΛ hdeg hwt (feMap Q i γ a N f z) =
       (AbsentColour.efMap Q i a β N f (Neg hwt z).1, fun d => f ((Neg hwt z).2 d)) := by
   unfold negativeEquiv
   simp only [LinearEquiv.trans_apply, LinearEquiv.prodCongr_apply, LinearEquiv.refl_apply]
@@ -521,16 +519,16 @@ theorem negativeEquiv_forward_inverse (hwt : wt ≤ 0)
     Neg hwt ((Neg hwt).symm z) = z := (Neg hwt).apply_symm_apply z
 
 theorem positiveEquiv_symm_natural (hwt : 0 ≤ wt) (f : N →ₗ[Rl] N') (z : AbsentColour.EF Q i a β N) :
-    (positiveEquiv Q i γ a N' hPQ hP hQ ha RD Λ hΛ hdeg hwt).symm (AbsentColour.efMap Q i a β N f z) =
+    (positiveEquiv Q i γ a N' hsym hQ ha RD Λ hΛ hdeg hwt).symm (AbsentColour.efMap Q i a β N f z) =
       (feMap Q i γ a N f ((Pos hwt).symm z).1, fun d => f (((Pos hwt).symm z).2 d)) := by
-  apply (positiveEquiv Q i γ a N' hPQ hP hQ ha RD Λ hΛ hdeg hwt).injective
+  apply (positiveEquiv Q i γ a N' hsym hQ ha RD Λ hΛ hdeg hwt).injective
   rw [LinearEquiv.apply_symm_apply, ← positiveEquiv_natural, LinearEquiv.apply_symm_apply]
 
 theorem negativeEquiv_symm_natural (hwt : wt ≤ 0) (f : N →ₗ[Rl] N')
     (z : AbsentColour.EF Q i a β N × (Fin (-wt).toNat → N)) :
-    (negativeEquiv Q i γ a N' hPQ hP hQ ha RD Λ hΛ hdeg hwt).symm
+    (negativeEquiv Q i γ a N' hsym hQ ha RD Λ hΛ hdeg hwt).symm
       (AbsentColour.efMap Q i a β N f z.1, fun d => f (z.2 d)) = feMap Q i γ a N f ((Neg hwt).symm z) := by
-  apply (negativeEquiv Q i γ a N' hPQ hP hQ ha RD Λ hΛ hdeg hwt).injective
+  apply (negativeEquiv Q i γ a N' hsym hQ ha RD Λ hΛ hdeg hwt).injective
   rw [LinearEquiv.apply_symm_apply, negativeEquiv_natural, LinearEquiv.apply_symm_apply]
 
 end Categorification.KLR.KLRAlgebra.PresentColour

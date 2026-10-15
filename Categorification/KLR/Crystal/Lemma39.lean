@@ -375,7 +375,7 @@ theorem finrank_fixSub_topIdem_ind_le (hεN : epsI Q (μ' + ν'') i N ≤ Multis
       Module.finrank K (fixSub K N (e j : KLRAlgebra K Q (μ' + ν''))) :=
     finrank_fixSub_eSum N _
   have : FiniteDimensional K (Ind Q (μ' + ν'') ν' (ExtTensor K N (KLRRep hν' Q))) :=
-    finiteDimensional_ind hPQ hP _
+    finiteDimensional_ind (KLRSymm.of_factorization hPQ hP) _
   have : ∀ t : concatSet μ' ν'', Module.Free K (fixSub K
       (Ind Q (μ' + ν'') ν' (ExtTensor K N (KLRRep hν' Q)))
       (e ((t : Seq (μ' + ν'')).append c') : KLRAlgebra K Q ((μ' + ν'') + ν'))) :=
@@ -389,7 +389,7 @@ theorem finrank_fixSub_topIdem_ind_le (hεN : epsI Q (μ' + ν'') i N ≤ Multis
   rw [Finset.sum_coe_sort (concatSet μ' ν'') (fun t => Module.finrank K (fixSub K
     (Ind Q (μ' + ν'') ν' (ExtTensor K N (KLRRep hν' Q)))
       (e (t.append c') : KLRAlgebra K Q ((μ' + ν'') + ν'))))]
-  simp_rw [finrank_fixSub_ind hPQ hP (ExtTensor K N (KLRRep hν' Q))]
+  simp_rw [finrank_fixSub_ind (KLRSymm.of_factorization hPQ hP) (ExtTensor K N (KLRRep hν' Q))]
   rw [Finset.sum_comm]
   -- the bound for one shuffle
   have key : ∀ u : Shuffle (Seq.card_add' (μ' + ν'') ν'),
@@ -744,7 +744,7 @@ theorem quot_facts (P' : Submodule (KLRAlgebra K Q ((μ' + ν'') + ν'))
         Module.finrank K (HWSpace Q μ' ν'' (ResSub Q μ' ν'' N)) *
           (Multiset.card ν'' + Multiset.card ν').factorial := by
   have : FiniteDimensional K (Ind Q (μ' + ν'') ν' (ExtTensor K N (KLRRep hν' Q))) :=
-    finiteDimensional_ind hPQ hP _
+    finiteDimensional_ind (KLRSymm.of_factorization hPQ hP) _
   have hnilM : ∀ a, SmulNilpotent (x a : KLRAlgebra K Q ((μ' + ν'') + ν'))
       (Ind Q (μ' + ν'') ν' (ExtTensor K N (KLRRep hν' Q))) :=
     smulNilpotent_ind_extTensor hPQ hP hnilN (smulNilpotent_klrRep hν')
@@ -806,7 +806,7 @@ theorem fixSub_coatom_eq_bot (P' : Submodule (KLRAlgebra K Q ((μ' + ν'') + ν'
       (Ind Q (μ' + ν'') ν' (ExtTensor K N (KLRRep hν' Q)))) (hP' : IsCoatom P') :
     fixSub K P' (topIdem Q μ' ν'' ν') = ⊥ := by
   have : FiniteDimensional K (Ind Q (μ' + ν'') ν' (ExtTensor K N (KLRRep hν' Q))) :=
-    finiteDimensional_ind hPQ hP _
+    finiteDimensional_ind (KLRSymm.of_factorization hPQ hP) _
   refine fixSub_eq_bot_of_finrank_le topIdem_idem P' ?_
   rw [(quot_facts hν'' hν' hPQ hP hnilN hεN P' hP').2]
   exact finrank_fixSub_topIdem_ind_le' hν'' hν' hPQ hP hnilN hεN
@@ -825,7 +825,7 @@ theorem lemma_3_9_core :
         (P₂ : Submodule (KLRAlgebra K Q ((μ' + ν'') + ν')) P₁) [Nontrivial (P₁ ⧸ P₂)],
         epsI Q ((μ' + ν'') + ν') i (P₁ ⧸ P₂) < Multiset.card ν'' + Multiset.card ν' := by
   have : FiniteDimensional K (Ind Q (μ' + ν'') ν' (ExtTensor K N (KLRRep hν' Q))) :=
-    finiteDimensional_ind hPQ hP _
+    finiteDimensional_ind (KLRSymm.of_factorization hPQ hP) _
   have : Nontrivial N := IsSimpleModule.nontrivial (KLRAlgebra K Q (μ' + ν'')) N
   -- `M ≠ 0`, so it has a maximal submodule
   have : Nontrivial (Ind Q (μ' + ν'') ν' (ExtTensor K N (KLRRep hν' Q))) := by
@@ -835,7 +835,7 @@ theorem lemma_3_9_core :
         (B := KLRAlgebra K Q ν') hw (lMk_one_ne_zero (K := K) (Q := Q) hν')
     refine ⟨⟨BalancedTensor.tmul oneConcatSubBimod (ExtTensor.tmul w (lMk hν' Q 1)), 0, ?_⟩⟩
     intro h0
-    have := congrArg (indDecomp (ν := μ' + ν'') (ν' := ν') hPQ hP
+    have := congrArg (indDecomp (ν := μ' + ν'') (ν' := ν') (KLRSymm.of_factorization hPQ hP)
       (ExtTensor K N (KLRRep hν' Q))) h0
     rw [indDecomp_tmul_oneConcat, LinearEquiv.map_zero] at this
     exact hy0 (by simpa using congrFun this shufOne)

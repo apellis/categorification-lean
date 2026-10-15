@@ -22,8 +22,9 @@ Here, with `ν = {i} + β`:
   `K_0 e(β, i) ≅ ⊕_{shuffles} R^Λ(β)[t]` (`coordL`, `embL`), and `R^Λ(β)[t]` is a free right
   `R^Λ(β)`-module (`polyOpEquiv`).
 
-Domain `k`, factorized `Q` with unit leading coefficients, monic `a_i`, `β ≠ 0`. (KK work over a
-graded commutative ring with the Cartan-datum form of `Q`; the argument used here is KK's.)
+Any commutative ring `k`, `KLRSymm Q` with unit constant leading coefficients of the `Q_{ab}`,
+monic `a_i`, `β ≠ 0`. (KK work over a graded commutative ring with the Cartan-datum form of `Q`;
+the argument used here is KK's.)
 -/
 
 namespace Categorification.KLR
@@ -240,12 +241,9 @@ end FE
 
 section Proj
 
-variable [IsDomain k] {P : I → I → MvPolynomial (Fin 2) k}
-  (hPQ : ∀ a b, a ≠ b → Q a b = P b a * MvPolynomial.rename ![1, 0] (P a b))
-  (hP : ∀ a b, a ≠ b → P a b ≠ 0)
-  (i : I) (β : Multiset I) (a : I → Polynomial k)
-  (hsym : ∀ a b, a ≠ b → Q b a = MvPolynomial.rename ![1, 0] (Q a b))
-  (hQ : ∀ a b : I, a ≠ b → IsUnit (polyInY (Q a b)).leadingCoeff) (ha : (a i).Monic)
+variable (i : I) (β : Multiset I) (a : I → Polynomial k)
+  (hsym : KLRSymm Q)
+  (hQ : ∀ a b : I, a ≠ b → ∃ c : k, IsUnit c ∧ (polyInY (Q a b)).leadingCoeff = Polynomial.C c) (ha : (a i).Monic)
   (hβ : 0 < Multiset.card β)
 
 local notation "Si" => (Singleton.singleton i : Multiset I)
@@ -264,18 +262,18 @@ noncomputable def tauK : K0 →ₗ[k] K0 :=
   (act0 Q i β a 1).restrictScalars k -
     (pMap a (zero_lt_card_single_add i β) (one_lt_card_single_add i β hβ) (Multiset.card β)
       (card_single_add i β).symm).restrictScalars k ∘ₗ
-      splitMap Q hPQ hP i β a hsym hQ ha (one_lt_card_single_add i β hβ) hβ ∘ₗ
+      splitMap Q i β a hsym hQ ha (one_lt_card_single_add i β hβ) hβ ∘ₗ
         (act0 Q i β a 1).restrictScalars k
 
 theorem tauK_apply (z : K0) :
-    tauK Q hPQ hP i β a hsym hQ ha hβ z = act0 Q i β a 1 z -
+    tauK Q i β a hsym hQ ha hβ z = act0 Q i β a 1 z -
       pMap a (zero_lt_card_single_add i β) (one_lt_card_single_add i β hβ) (Multiset.card β)
         (card_single_add i β).symm
-        (splitMap Q hPQ hP i β a hsym hQ ha (one_lt_card_single_add i β hβ) hβ
+        (splitMap Q i β a hsym hQ ha (one_lt_card_single_add i β hβ) hβ
           (act0 Q i β a 1 z)) := rfl
 
 theorem tauK_eq_zero {z : K0} (hz : piMap a (zero_lt_card_single_add i β) z = 0) :
-    tauK Q hPQ hP i β a hsym hQ ha hβ z = 0 := by
+    tauK Q i β a hsym hQ ha hβ z = 0 := by
   have h1 := one_lt_card_single_add i β hβ
   rw [← LinearMap.mem_ker, ← range_pMap a _ h1 (Multiset.card β) (card_single_add i β).symm]
     at hz
@@ -284,8 +282,8 @@ theorem tauK_eq_zero {z : K0} (hz : piMap a (zero_lt_card_single_add i β) z = 0
   rw [tauK_apply, ← pMap_act, act1_mk, cR_one, splitMap_pMap, sub_self]
 
 theorem tauK_act0 (b : Rb) (z : K0) :
-    tauK Q hPQ hP i β a hsym hQ ha hβ (act0 Q i β a b z) =
-      act0 Q i β a b (tauK Q hPQ hP i β a hsym hQ ha hβ z) := by
+    tauK Q i β a hsym hQ ha hβ (act0 Q i β a b z) =
+      act0 Q i β a b (tauK Q i β a hsym hQ ha hβ z) := by
   rw [tauK_apply, tauK_apply, map_sub, act0_act0, act0_act0, mul_one, one_mul, ← pMap_act,
     ← splitMap_act, act0_act0, one_mul]
 
@@ -293,14 +291,14 @@ variable (Q) in
 /-- **The section of `π : K_0 → F^Λ`** (from the splitting of `P`). -/
 noncomputable def secF : FLam Q (Si + β) a →ₗ[k] K0 :=
   (LinearMap.ker ((piMap a (zero_lt_card_single_add i β)).restrictScalars k)).liftQ
-      (tauK Q hPQ hP i β a hsym hQ ha hβ) (fun _ hz => LinearMap.mem_ker.2
-        (tauK_eq_zero hPQ hP i β a hsym hQ ha hβ (LinearMap.mem_ker.1 hz))) ∘ₗ
+      (tauK Q i β a hsym hQ ha hβ) (fun _ hz => LinearMap.mem_ker.2
+        (tauK_eq_zero i β a hsym hQ ha hβ (LinearMap.mem_ker.1 hz))) ∘ₗ
     (((piMap a (zero_lt_card_single_add i β)).restrictScalars k).quotKerEquivOfSurjective
       (piMap_surjective a _)).symm.toLinearMap
 
 theorem secF_piMap (z : K0) :
-    secF Q hPQ hP i β a hsym hQ ha hβ (piMap a (zero_lt_card_single_add i β) z) =
-      tauK Q hPQ hP i β a hsym hQ ha hβ z := by
+    secF Q i β a hsym hQ ha hβ (piMap a (zero_lt_card_single_add i β) z) =
+      tauK Q i β a hsym hQ ha hβ z := by
   have h : (((piMap a (zero_lt_card_single_add i β)).restrictScalars k).quotKerEquivOfSurjective
       (piMap_surjective a _)).symm (piMap a (zero_lt_card_single_add i β) z) =
         Submodule.Quotient.mk z := by
@@ -308,21 +306,21 @@ theorem secF_piMap (z : K0) :
   rw [secF, LinearMap.comp_apply, LinearEquiv.coe_coe, h, Submodule.liftQ_apply]
 
 theorem piMap_secF (f : FLam Q (Si + β) a) :
-    piMap a (zero_lt_card_single_add i β) (secF Q hPQ hP i β a hsym hQ ha hβ f) =
+    piMap a (zero_lt_card_single_add i β) (secF Q i β a hsym hQ ha hβ f) =
       actF Q i β a 1 f := by
   obtain ⟨z, rfl⟩ := piMap_surjective (Q := Q) a (zero_lt_card_single_add i β) f
   have h1 := one_lt_card_single_add i β hβ
   rw [secF_piMap, tauK_apply, map_sub, piMap_act0]
   have : piMap a (zero_lt_card_single_add i β) (pMap a (zero_lt_card_single_add i β) h1
-      (Multiset.card β) (card_single_add i β).symm (splitMap Q hPQ hP i β a hsym hQ ha h1 hβ
+      (Multiset.card β) (card_single_add i β).symm (splitMap Q i β a hsym hQ ha h1 hβ
         (act0 Q i β a 1 z))) = 0 := by
     rw [← LinearMap.mem_ker, ← range_pMap a _ h1 (Multiset.card β) (card_single_add i β).symm]
     exact LinearMap.mem_range_self _ _
   rw [this, sub_zero]
 
 theorem secF_actF (b : Rb) (f : FLam Q (Si + β) a) :
-    secF Q hPQ hP i β a hsym hQ ha hβ (actF Q i β a b f) =
-      act0 Q i β a b (secF Q hPQ hP i β a hsym hQ ha hβ f) := by
+    secF Q i β a hsym hQ ha hβ (actF Q i β a b f) =
+      act0 Q i β a b (secF Q i β a hsym hQ ha hβ f) := by
   obtain ⟨z, rfl⟩ := piMap_surjective (Q := Q) a (zero_lt_card_single_add i β) f
   rw [← piMap_act0, secF_piMap, secF_piMap, tauK_act0]
 
@@ -332,7 +330,7 @@ local notation "Rl" => CycKLR k Q a β
 variable (Q) in
 /-- `F^Λ e(β, i) → K_0 e(β, i) ≅ ⊕_u R^Λ(β)[t]`. -/
 noncomputable def inclFE : FE Q i β a →ₗ[Rlᵐᵒᵖ] (Sh0 → Polynomial Rl) where
-  toFun f := coordL Q hPQ hP i β a hβ (secF Q hPQ hP i β a hsym hQ ha hβ f)
+  toFun f := coordL Q hsym i β a hβ (secF Q i β a hsym hQ ha hβ f)
   map_add' f g := by simp only [Submodule.coe_add, map_add]
   map_smul' c f := by
     obtain ⟨x, rfl⟩ : ∃ x, op x = c := ⟨unop c, op_unop c⟩
@@ -344,7 +342,7 @@ noncomputable def inclFE : FE Q i β a →ₗ[Rlᵐᵒᵖ] (Sh0 → Polynomial R
 variable (Q) in
 /-- `⊕_u R^Λ(β)[t] ≅ K_0 e(β, i) → F^Λ e(β, i)`. -/
 noncomputable def projFE : (Sh0 → Polynomial Rl) →ₗ[Rlᵐᵒᵖ] FE Q i β a where
-  toFun c := ⟨actF Q i β a 1 (piMap a (zero_lt_card_single_add i β) (embL Q hPQ hP i β a hβ c)),
+  toFun c := ⟨actF Q i β a 1 (piMap a (zero_lt_card_single_add i β) (embL Q hsym i β a hβ c)),
     actF_mem i β a 1 _⟩
   map_add' c d := by
     apply Subtype.ext
@@ -361,21 +359,21 @@ noncomputable def projFE : (Sh0 → Polynomial Rl) →ₗ[Rlᵐᵒᵖ] FE Q i β
     rw [this, embL_mul_C, piMap_act0, actF_actF, actF_actF, one_mul, mul_one]
 
 theorem projFE_inclFE (f : FE Q i β a) :
-    projFE Q hPQ hP i β a hβ (inclFE Q hPQ hP i β a hsym hQ ha hβ f) = f := by
+    projFE Q i β a hsym hβ (inclFE Q i β a hsym hQ ha hβ f) = f := by
   apply Subtype.ext
-  show actF Q i β a 1 (piMap a _ (embL Q hPQ hP i β a hβ
-    (coordL Q hPQ hP i β a hβ (secF Q hPQ hP i β a hsym hQ ha hβ f)))) = f
-  obtain ⟨y, hy⟩ := Submodule.Quotient.mk_surjective _ (secF Q hPQ hP i β a hsym hQ ha hβ f)
+  show actF Q i β a 1 (piMap a _ (embL Q hsym i β a hβ
+    (coordL Q hsym i β a hβ (secF Q i β a hsym hQ ha hβ f)))) = f
+  obtain ⟨y, hy⟩ := Submodule.Quotient.mk_surjective _ (secF Q i β a hsym hQ ha hβ f)
   rw [← hy, embL_coordL, ← act0_mk, piMap_act0, hy, piMap_secF, actF_actF, actF_actF,
     mul_one, mul_one, actF_one_of_mem i β a f.2]
 
-include hPQ hP hsym hQ ha hβ in
+include hsym hQ ha hβ in
 /-- **Kang–Kashiwara, Theorem 4.5**: `R^Λ(β + α_i) e(β, i)` is a projective right
 `R^Λ(β)`-module. -/
 theorem projective_FE : Module.Projective (CycKLR k Q a β)ᵐᵒᵖ (FE Q i β a) := by
   have := projective_pi_poly_op (CycKLR k Q a β) Sh0
-  exact Module.Projective.of_split (inclFE Q hPQ hP i β a hsym hQ ha hβ) (projFE Q hPQ hP i β a hβ)
-    (LinearMap.ext fun f => projFE_inclFE hPQ hP i β a hsym hQ ha hβ f)
+  exact Module.Projective.of_split (inclFE Q i β a hsym hQ ha hβ) (projFE Q i β a hsym hβ)
+    (LinearMap.ext fun f => projFE_inclFE i β a hsym hQ ha hβ f)
 
 end Proj
 

@@ -184,41 +184,39 @@ theorem thetaL0_one_tmul_x :
     theta_tmul, singlePoly_x, Polynomial.aeval_X, map_one, mul_one,
     Polynomial.coe_mapAlgHom, Polynomial.map_X]
 
-variable [IsDomain k] {P : I → I → MvPolynomial (Fin 2) k}
-  (hPQ : ∀ a b, a ≠ b → Q a b = P b a * rename ![1, 0] (P a b))
-  (hP : ∀ a b, a ≠ b → P a b ≠ 0)
+variable (hsym : KLRSymm Q)
 
 theorem cPoly_fT (b : Fin (Multiset.card β)) (t : T0) :
-    cPoly i β hPQ hP a (fT Q i β b.val t) = 0 := by
+    cPoly i β hsym a (fT Q i β b.val t) = 0 := by
   rw [← kkF_single_zero i β b, cPoly_kkF, map_zero]
 
-theorem cPoly_cLL (t : T0) : cPoly i β hPQ hP a (cLL Q i β t) = thetaL0 Q i β a t := by
+theorem cPoly_cLL (t : T0) : cPoly i β hsym a (cLL Q i β t) = thetaL0 Q i β a t := by
   rw [← kkF_zero_left i β, cPoly_kkF]
 
 theorem cPoly_cL (y : Rb) :
-    cPoly i β hPQ hP a (cL Q i β y) = Polynomial.C (CycKLR.mk k Q a β y) := by
+    cPoly i β hsym a (cL Q i β y) = Polynomial.C (CycKLR.mk k Q a β y) := by
   rw [← cLL_tmul_one, cPoly_cLL, thetaL0_tmul_one]
 
-theorem cPoly_mul_cL_one (r : R) : cPoly i β hPQ hP a (r * cL Q i β 1) = cPoly i β hPQ hP a r := by
-  change thetaL0 Q i β a (cCoord i β hPQ hP (r * cL Q i β 1)) = _
+theorem cPoly_mul_cL_one (r : R) : cPoly i β hsym a (r * cL Q i β 1) = cPoly i β hsym a r := by
+  change thetaL0 Q i β a (cCoord i β hsym (r * cL Q i β 1)) = _
   rw [cCoord_mul_cL, ← Algebra.TensorProduct.one_def, mul_one]
   rfl
 
 theorem cPoly_cLL_mul_last_dot (t : T0) :
-    cPoly i β hPQ hP a (cLL Q i β t * x ⟨Multiset.card β, lastPos_lt i β⟩) =
+    cPoly i β hsym a (cLL Q i β t * x ⟨Multiset.card β, lastPos_lt i β⟩) =
       thetaL0 Q i β a t * Polynomial.X := by
   rw [← cLL_mul_last_dot, cPoly_cLL, map_mul, thetaL0_one_tmul_x]
 
 /-- The constant-error recursion for the `C` coordinate. -/
 theorem cPoly_mul_last_dot_sub (r : R) :
-    ∃ y : Rb, cPoly i β hPQ hP a (r * x ⟨Multiset.card β, lastPos_lt i β⟩) -
-      cPoly i β hPQ hP a r * Polynomial.X = Polynomial.C (CycKLR.mk k Q a β y) := by
-  obtain ⟨p, q, hpq⟩ := kkF_surj i β hPQ hP r
+    ∃ y : Rb, cPoly i β hsym a (r * x ⟨Multiset.card β, lastPos_lt i β⟩) -
+      cPoly i β hsym a r * Polynomial.X = Polynomial.C (CycKLR.mk k Q a β y) := by
+  obtain ⟨p, q, hpq⟩ := kkF_surj i β hsym r
   choose y hy using fun b => fT_mul_last_dot i β b (p b)
-  have hc : cPoly i β hPQ hP a r = thetaL0 Q i β a q := by
-    rw [← cPoly_mul_cL_one i β a hPQ hP r, hpq, cPoly_kkF]
-  have hd : cPoly i β hPQ hP a (r * x ⟨Multiset.card β, lastPos_lt i β⟩) =
-      cPoly i β hPQ hP a (kkF i β p q * x ⟨Multiset.card β, lastPos_lt i β⟩) := by
+  have hc : cPoly i β hsym a r = thetaL0 Q i β a q := by
+    rw [← cPoly_mul_cL_one i β a hsym r, hpq, cPoly_kkF]
+  have hd : cPoly i β hsym a (r * x ⟨Multiset.card β, lastPos_lt i β⟩) =
+      cPoly i β hsym a (kkF i β p q * x ⟨Multiset.card β, lastPos_lt i β⟩) := by
     rw [← hpq, mul_assoc, ← (commute_x_last_cL i β 1).eq, ← mul_assoc,
       cPoly_mul_cL_one]
   refine ⟨∑ b, y b, ?_⟩
@@ -231,13 +229,11 @@ theorem cPoly_mul_last_dot_sub (r : R) :
 variable (h1 : 1 < Multiset.card ((Singleton.singleton i : Multiset I) + β))
   (hβ : 0 < Multiset.card β)
 
-omit [IsDomain k] in
 theorem thetaL_x_tmul_one :
     thetaL Q i β a (x ⟨0, by rw [card_single']; omega⟩ ⊗ₜ 1) = Polynomial.X := by
   rw [thetaL, AlgHom.comp_apply, theta_tmul, singlePoly_x, Polynomial.aeval_X,
     map_one, mul_one, Polynomial.coe_mapAlgHom, Polynomial.map_X]
 
-omit [IsDomain k] in
 theorem concat_mul_first_dot (t : Ri ⊗[k] Rb) :
     concat Q Si β (t * (x ⟨0, by rw [card_single']; omega⟩ ⊗ₜ 1)) =
       concat Q Si β t * x ⟨0, zero_lt_card_single_add i β⟩ := by
@@ -250,23 +246,23 @@ theorem concat_mul_first_dot (t : Ri ⊗[k] Rb) :
 This is KK (5.18), a consequence of the recursion (5.14). -/
 theorem aMap_mul_X_sub (s : Polynomial (CycKLR k Q a β)) :
     ∃ y : CycKLR k Q a β,
-      aMap i β a h1 hβ hPQ hP (s * Polynomial.X) -
-        aMap i β a h1 hβ hPQ hP s * Polynomial.X = Polynomial.C y := by
+      aMap i β a h1 hβ hsym (s * Polynomial.X) -
+        aMap i β a h1 hβ hsym s * Polynomial.X = Polynomial.C y := by
   obtain ⟨t, rfl⟩ := thetaL_surjective i β a s
   let r : R := ψw (descRun 0 (Multiset.card β)) * concat Q Si β t
-  have he : cPoly i β hPQ hP a
+  have he : cPoly i β hsym a
       ((r * x ⟨0, zero_lt_card_single_add i β⟩) * tauW a (zero_lt_card_single_add i β) (Multiset.card β)) =
-      cPoly i β hPQ hP a
+      cPoly i β hsym a
         ((r * tauW a (zero_lt_card_single_add i β) (Multiset.card β)) *
           x ⟨Multiset.card β, lastPos_lt i β⟩) := by
     apply sub_eq_zero.1
     rw [← map_sub]
-    apply cPoly_eq_zero i β hPQ hP a hβ
+    apply cPoly_eq_zero i β hsym a hβ
     have hz := Submodule.smul_mem (cycL0 (Q := Q) a (zero_lt_card_single_add i β)) r
       (x_zero_mul_tauW a (zero_lt_card_single_add i β) (Multiset.card β)
         (card_single_add i β).symm)
     simpa only [smul_eq_mul, mul_sub, ← mul_assoc] using hz
-  obtain ⟨y, hy⟩ := cPoly_mul_last_dot_sub i β a hPQ hP
+  obtain ⟨y, hy⟩ := cPoly_mul_last_dot_sub i β a hsym
     (r * tauW a (zero_lt_card_single_add i β) (Multiset.card β))
   refine ⟨CycKLR.mk k Q a β y, ?_⟩
   rw [← thetaL_x_tmul_one i β a, ← map_mul, aMap_thetaL,
@@ -276,18 +272,18 @@ theorem aMap_mul_X_sub (s : Polynomial (CycKLR k Q a β)) :
 
 /-- The concrete `A` satisfies the constant-error hypothesis of `CyclotomicPhi`. -/
 theorem aMap_mul_X_degree (s : Polynomial (CycKLR k Q a β)) :
-    (aMap i β a h1 hβ hPQ hP (s * Polynomial.X) -
-      aMap i β a h1 hβ hPQ hP s * Polynomial.X).degree ≤ 0 := by
-  obtain ⟨y, hy⟩ := aMap_mul_X_sub i β a hPQ hP h1 hβ s
+    (aMap i β a h1 hβ hsym (s * Polynomial.X) -
+      aMap i β a h1 hβ hsym s * Polynomial.X).degree ≤ 0 := by
+  obtain ⟨y, hy⟩ := aMap_mul_X_sub i β a hsym h1 hβ s
   rw [hy]
   exact Polynomial.degree_C_le
 
 /-- KK (5.19) for the concrete cyclotomic polynomial map. -/
 theorem aMap_mul_sub_degree_lt (m : ℕ) (f : Polynomial (CycKLR k Q a β))
     (hf : f.natDegree ≤ m) (s : Polynomial (CycKLR k Q a β)) :
-    (aMap i β a h1 hβ hPQ hP (s * f) - aMap i β a h1 hβ hPQ hP s * f).degree <
+    (aMap i β a h1 hβ hsym (s * f) - aMap i β a h1 hβ hsym s * f).degree <
       (m : WithBot ℕ) :=
-  PhiAlg.degree_sub_mul_lt (aMap i β a h1 hβ hPQ hP).toAddMonoidHom
-    (aMap_mul_C i β a h1 hβ hPQ hP) (aMap_mul_X_degree i β a hPQ hP h1 hβ) m f hf s
+  PhiAlg.degree_sub_mul_lt (aMap i β a h1 hβ hsym).toAddMonoidHom
+    (aMap_mul_C i β a h1 hβ hsym) (aMap_mul_X_degree i β a hsym h1 hβ) m f hf s
 
 end Categorification.KLR.KLRAlgebra

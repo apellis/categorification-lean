@@ -102,7 +102,7 @@ theorem chG0_g0Basis_eq_gdimPoly {ν : Multiset I} (j : Seq ν)
     (c : GProj.IndecClass (G.grade ν)) :
     chG0 G j (G.g0Basis hPQ hP hG ν c) =
       gdimPoly (idem c.top.grading (e j : KLRAlgebra K Q ν)) := by
-  have := G.hasGdim_grade' (ν := ν) hPQ hP hG
+  have := G.hasGdim_grade' (ν := ν) (KLRSymm.of_factorization hPQ hP) hG
   rw [GradingDatum.g0Basis, G0.topBasis_apply, chG0_of]
   rfl
 

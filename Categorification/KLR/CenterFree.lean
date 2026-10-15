@@ -296,7 +296,7 @@ noncomputable def centerBasisOfInv
       rw [Fintype.sum_prod_type] at hc
       simp only [key] at hc
       simp only [← Finset.mul_sum, ← map_sum] at hc
-      have h0 := eq_zero_of_sum_ψw_mul_polNu_eq_zero hPQ hP ρ hρ _ hc
+      have h0 := eq_zero_of_sum_ψw_mul_polNu_eq_zero (KLRSymm.of_factor hPQ) ρ hρ _ hc
       have h1 : f q = 0 := eq_zero_of_sum_polElt i b hind (fun q' => f (q.1, q'))
         (fun q' => hf _) (congrFun h0 q.1) q.2
       apply Subtype.ext

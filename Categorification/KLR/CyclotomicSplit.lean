@@ -22,7 +22,8 @@ Khovanov–Lauda–Rouquier algebras*, arXiv:1102.4677v4, §4.2. For `ν = {i} +
   `h = Q`, using KK Thm. 4.15 `Q ∘ P = A`). Hence `0 → K_1 e(i, β) → K_0 → F^Λ → 0`
   (`range_pMap`) splits as a sequence of right `R(β)`-modules.
 
-Domain `k`, factorized `Q` with unit leading coefficients, monic `a_i` (as for KK's Lemma 4.16).
+Any commutative ring `k`, `KLRSymm Q` with unit constant leading coefficients of the `Q_{ab}`,
+monic `a_i` (as for KK's Lemma 4.16).
 -/
 
 namespace Categorification.KLR
@@ -172,7 +173,7 @@ theorem cR_mem_subR1 (b : Rb) : cR Q i β b ∈ subR1 (k := k) (Q := Q) (Si + β
 
 section G
 
-variable (hsym : ∀ a b, a ≠ b → Q b a = MvPolynomial.rename ![1, 0] (Q a b))
+variable (hsym : KLRSymm Q)
 
 include hsym in
 /-- **KK Props. 4.13, 4.14** (exact form): `cL b · G = G · cR b`. -/
@@ -314,7 +315,7 @@ theorem pMap_act (h1 : 1 < Multiset.card (Si + β)) (b : Rb)
   exact Submodule.smul_mem _ y (cR_mul_tauW_sub_mem i β a b)
 
 /-- **KK Props. 4.13, 4.14**: `Q : K_0 → K_1` is right `R(β)`-linear. -/
-theorem qMap_act (hsym : ∀ a b, a ≠ b → Q b a = MvPolynomial.rename ![1, 0] (Q a b))
+theorem qMap_act (hsym : KLRSymm Q)
     (h1 : 1 < Multiset.card (Si + β)) (b : Rb)
     (z : KZero Q (Si + β) a (zero_lt_card_single_add i β)) :
     qMap a hsym (zero_lt_card_single_add i β) h1 (Multiset.card β) (card_single_add i β).symm
@@ -330,9 +331,7 @@ end Act
 
 section Split
 
-variable [IsDomain k] {P : I → I → MvPolynomial (Fin 2) k}
-  (hPQ : ∀ a b, a ≠ b → Q a b = P b a * MvPolynomial.rename ![1, 0] (P a b))
-  (hP : ∀ a b, a ≠ b → P a b ≠ 0)
+variable (hsym : KLRSymm Q)
   (i : I) (β : Multiset I) (a : I → Polynomial k)
 
 local notation "Si" => (Singleton.singleton i : Multiset I)
@@ -342,11 +341,9 @@ local notation "R" => KLRAlgebra k Q (Si + β)
 local notation "Rl" => CycKLR k Q a β
 local notation "Sh" => Shuffle (Seq.card_add' Si β)
 
-omit [IsDomain k] in
 theorem rFree_smul (c : k) (t : Sh → T) : rFree (c • t) = c • rFree t := by
   simp only [rFree, Pi.smul_apply, map_smul, mul_smul_comm, Finset.smul_sum]
 
-omit [IsDomain k] in
 theorem rFree_mul_concat (t : Sh → T) (c : T) :
     rFree t * concat Q Si β c = rFree (fun u => t u * c) := by
   simp only [rFree, Finset.sum_mul, mul_assoc, concat_mul]
@@ -356,19 +353,16 @@ variable (Q) in
 noncomputable def thetaL : T →ₐ[k] Polynomial Rl :=
   (Polynomial.mapAlgHom (CycKLR.mk k Q a β)).comp (theta Q i β)
 
-omit [IsDomain k] in
 theorem thetaL_surjective : Function.Surjective (thetaL Q i β a) := by
   intro q
   obtain ⟨q', rfl⟩ := Polynomial.map_surjective (CycKLR.mk k Q a β : Rb →+* Rl)
     (CycKLR.mk_surjective) q
   exact ⟨thetaInv Q i β q', by rw [thetaL, AlgHom.comp_apply, theta_thetaInv]; rfl⟩
 
-omit [IsDomain k] in
 theorem thetaL_eq_zero_iff (t : T) : thetaL Q i β a t = 0 ↔ t ∈ tJ (Q := Q) i β a := by
   rw [mem_tJ_iff i β a t, thetaL, AlgHom.comp_apply, Polynomial.coe_mapAlgHom, Polynomial.ext_iff]
   simp only [Polynomial.coeff_map, Polynomial.coeff_zero, RingHom.coe_coe, CycKLR.mk_eq_zero_iff]
 
-omit [IsDomain k] in
 theorem thetaL_one_tmul (b : Rb) :
     thetaL Q i β a (1 ⊗ₜ b) = Polynomial.C (CycKLR.mk k Q a β b) := by
   rw [thetaL, AlgHom.comp_apply, theta_tmul, map_one, map_one, one_mul, Polynomial.coe_mapAlgHom,
@@ -377,38 +371,38 @@ theorem thetaL_one_tmul (b : Rb) :
 
 variable (Q) in
 /-- The coefficients `t` of `z 1_{i,β} = ∑_u ψ(ŵ_u) ι(t_u)`. -/
-noncomputable def tco (z : R) : Sh → T := (rfree_span hPQ hP z).choose
+noncomputable def tco (z : R) : Sh → T := (rfree_span hsym z).choose
 
-theorem tco_spec (z : R) : z * oneConcat Q Si β = rFree (tco Q hPQ hP i β z) :=
-  (rfree_span hPQ hP z).choose_spec
+theorem tco_spec (z : R) : z * oneConcat Q Si β = rFree (tco Q hsym i β z) :=
+  (rfree_span hsym z).choose_spec
 
 theorem tco_eq {z : R} {t : Sh → T} (h : z * oneConcat Q Si β = rFree t) :
-    tco Q hPQ hP i β z = t := by
+    tco Q hsym i β z = t := by
   funext u
-  have := rfree_injective hPQ hP (t := tco Q hPQ hP i β z - t)
-    (by rw [rFree_sub, ← tco_spec hPQ hP i β z, h, sub_self]) u
+  have := rfree_injective hsym (t := tco Q hsym i β z - t)
+    (by rw [rFree_sub, ← tco_spec hsym i β z, h, sub_self]) u
   rwa [Pi.sub_apply, sub_eq_zero] at this
 
 variable (Q) in
 /-- The coordinates of `z 1_{i,β}` in `⊕_u R^Λ(β)[t]`. -/
 noncomputable def coordR : R →ₗ[k] (Sh → Polynomial Rl) where
-  toFun z u := thetaL Q i β a (tco Q hPQ hP i β z u)
+  toFun z u := thetaL Q i β a (tco Q hsym i β z u)
   map_add' z z' := by
-    have : tco Q hPQ hP i β (z + z') = tco Q hPQ hP i β z + tco Q hPQ hP i β z' :=
-      tco_eq hPQ hP i β (by rw [add_mul, tco_spec hPQ hP i β z, tco_spec hPQ hP i β z', rFree_add])
+    have : tco Q hsym i β (z + z') = tco Q hsym i β z + tco Q hsym i β z' :=
+      tco_eq hsym i β (by rw [add_mul, tco_spec hsym i β z, tco_spec hsym i β z', rFree_add])
     funext u; simp only [this, Pi.add_apply, map_add]
   map_smul' c z := by
-    have : tco Q hPQ hP i β (c • z) = c • tco Q hPQ hP i β z :=
-      tco_eq hPQ hP i β (by rw [smul_mul_assoc, tco_spec hPQ hP i β z, rFree_smul])
+    have : tco Q hsym i β (c • z) = c • tco Q hsym i β z :=
+      tco_eq hsym i β (by rw [smul_mul_assoc, tco_spec hsym i β z, rFree_smul])
     funext u; simp only [this, Pi.smul_apply, map_smul, RingHom.id_apply]
 
 theorem coordR_apply (z : R) (u : Sh) :
-    coordR Q hPQ hP i β a z u = thetaL Q i β a (tco Q hPQ hP i β z u) := rfl
+    coordR Q hsym i β a z u = thetaL Q i β a (tco Q hsym i β z u) := rfl
 
 theorem coordR_eq_zero (h1 : 1 < Multiset.card (Si + β)) (hβ : 0 < Multiset.card β) {z : R}
-    (hz : z ∈ cycL1 a h1) : coordR Q hPQ hP i β a z = 0 := by
+    (hz : z ∈ cycL1 a h1) : coordR Q hsym i β a z = 0 := by
   have hz' : z * oneConcat Q Si β ∈ cycL1 a h1 := mul_mem_cycL1 a hz (oneConcat_mem_subR1 i β)
-  rw [tco_spec hPQ hP i β z, mem_cycL1_iff hPQ hP i β a h1 hβ] at hz'
+  rw [tco_spec hsym i β z, mem_cycL1_iff hsym i β a h1 hβ] at hz'
   funext u
   exact (thetaL_eq_zero_iff i β a _).2 (hz' u)
 
@@ -416,22 +410,20 @@ variable (Q) in
 /-- The coordinates on `K_1`. -/
 noncomputable def coordK (h1 : 1 < Multiset.card (Si + β)) (hβ : 0 < Multiset.card β) :
     KOne Q (Si + β) a h1 →ₗ[k] (Sh → Polynomial Rl) :=
-  ((cycL1 a h1).restrictScalars k).liftQ (coordR Q hPQ hP i β a)
-      (fun _ hz => LinearMap.mem_ker.2 (coordR_eq_zero hPQ hP i β a h1 hβ hz)) ∘ₗ
+  ((cycL1 a h1).restrictScalars k).liftQ (coordR Q hsym i β a)
+      (fun _ hz => LinearMap.mem_ker.2 (coordR_eq_zero hsym i β a h1 hβ hz)) ∘ₗ
     (Submodule.Quotient.restrictScalarsEquiv k (cycL1 a h1)).symm.toLinearMap
 
 theorem coordK_mk (h1 : 1 < Multiset.card (Si + β)) (hβ : 0 < Multiset.card β) (y : R) :
-    coordK Q hPQ hP i β a h1 hβ (Submodule.Quotient.mk y) = coordR Q hPQ hP i β a y := rfl
+    coordK Q hsym i β a h1 hβ (Submodule.Quotient.mk y) = coordR Q hsym i β a y := rfl
 
 variable (Q) in
 /-- `(t_u)_u ↦ (θ(t_u) mod J)_u`. -/
 noncomputable def thetaS : (Sh → T) →ₗ[k] (Sh → Polynomial Rl) :=
   LinearMap.pi fun u => (thetaL Q i β a).toLinearMap ∘ₗ LinearMap.proj u
 
-omit [IsDomain k] in
 theorem thetaS_apply (t : Sh → T) (u : Sh) : thetaS Q i β a t u = thetaL Q i β a (t u) := rfl
 
-omit [IsDomain k] in
 theorem thetaS_surjective : Function.Surjective (thetaS Q i β a) := fun c =>
   ⟨fun u => (thetaL_surjective i β a (c u)).choose,
     funext fun u => (thetaL_surjective i β a (c u)).choose_spec⟩
@@ -442,13 +434,13 @@ noncomputable def gK (h1 : 1 < Multiset.card (Si + β)) : (Sh → T) →ₗ[k] K
   ((cycL1 a h1).mkQ.restrictScalars k) ∘ₗ
     { toFun := rFree, map_add' := rFree_add, map_smul' := rFree_smul i β }
 
-include hPQ hP in
+include hsym in
 theorem ker_thetaS_le (h1 : 1 < Multiset.card (Si + β)) (hβ : 0 < Multiset.card β) :
     LinearMap.ker (thetaS Q i β a) ≤ LinearMap.ker (gK Q i β a h1) := by
   intro t ht
   rw [LinearMap.mem_ker] at ht ⊢
   show Submodule.Quotient.mk (rFree t) = 0
-  rw [Submodule.Quotient.mk_eq_zero, mem_cycL1_iff hPQ hP i β a h1 hβ]
+  rw [Submodule.Quotient.mk_eq_zero, mem_cycL1_iff hsym i β a h1 hβ]
   intro u
   exact (thetaL_eq_zero_iff i β a _).1 (congrFun ht u)
 
@@ -456,11 +448,11 @@ variable (Q) in
 /-- The inverse of the coordinates: `⊕_u R^Λ(β)[t] → K_1 e(i, β)`. -/
 noncomputable def embK (h1 : 1 < Multiset.card (Si + β)) (hβ : 0 < Multiset.card β) :
     (Sh → Polynomial Rl) →ₗ[k] KOne Q (Si + β) a h1 :=
-  (LinearMap.ker (thetaS Q i β a)).liftQ (gK Q i β a h1) (ker_thetaS_le hPQ hP i β a h1 hβ) ∘ₗ
+  (LinearMap.ker (thetaS Q i β a)).liftQ (gK Q i β a h1) (ker_thetaS_le hsym i β a h1 hβ) ∘ₗ
     ((thetaS Q i β a).quotKerEquivOfSurjective (thetaS_surjective i β a)).symm.toLinearMap
 
 theorem embK_thetaS (h1 : 1 < Multiset.card (Si + β)) (hβ : 0 < Multiset.card β) (t : Sh → T) :
-    embK Q hPQ hP i β a h1 hβ (thetaS Q i β a t) = Submodule.Quotient.mk (rFree t) := by
+    embK Q hsym i β a h1 hβ (thetaS Q i β a t) = Submodule.Quotient.mk (rFree t) := by
   rw [embK, LinearMap.comp_apply, LinearEquiv.coe_coe,
     LinearMap.quotKerEquivOfSurjective_symm_apply, Submodule.liftQ_apply]
   rfl
@@ -470,43 +462,50 @@ variable (Q) in
 noncomputable def aMonicL : Polynomial Rl :=
   Polynomial.mapAlgHom (CycKLR.mk k Q a β) (aMonic Q i β a)
 
-theorem monic_aMonicL (hsym : ∀ a b, a ≠ b → Q b a = MvPolynomial.rename ![1, 0] (Q a b))
-    (hQ : ∀ a b : I, a ≠ b → IsUnit (polyInY (Q a b)).leadingCoeff) (ha : (a i).Monic) :
+theorem monic_aMonicL (hsym : KLRSymm Q)
+    (hQ : ∀ a b : I, a ≠ b → ∃ c : k, IsUnit c ∧ (polyInY (Q a b)).leadingCoeff = Polynomial.C c) (ha : (a i).Monic) :
     (aMonicL Q i β a).Monic := by
   rw [aMonicL, Polynomial.coe_mapAlgHom]; exact (monic_aMonic i β a hsym hQ ha).map _
 
 /-- The degree bound survives even when the cyclotomic quotient is the zero ring. -/
-theorem degree_aMonicL_le (hsym : ∀ a b, a ≠ b → Q b a = MvPolynomial.rename ![1, 0] (Q a b))
-    (hQ : ∀ a b : I, a ≠ b → IsUnit (polyInY (Q a b)).leadingCoeff) (ha : (a i).Monic) :
+theorem degree_aMonicL_le (hsym : KLRSymm Q)
+    (hQ : ∀ a b : I, a ≠ b → ∃ c : k, IsUnit c ∧ (polyInY (Q a b)).leadingCoeff = Polynomial.C c) (ha : (a i).Monic) :
     (aMonicL Q i β a).degree ≤ degA Q i β a := by
+  rcases subsingleton_or_nontrivial k with hk | hk
+  · have : Subsingleton (CycKLR k Q a β) := (algebraMap k (CycKLR k Q a β)).codomain_trivial
+    rw [Polynomial.degree_of_subsingleton]
+    exact bot_le
   rw [aMonicL, Polynomial.coe_mapAlgHom]
   exact Polynomial.degree_map_le.trans (degree_aMonic_le i β a hsym hQ ha)
 
 /-- The top coefficient is one in the cyclotomic quotient, including the zero ring. -/
-theorem coeff_aMonicL_degA (hsym : ∀ a b, a ≠ b → Q b a = MvPolynomial.rename ![1, 0] (Q a b))
-    (hQ : ∀ a b : I, a ≠ b → IsUnit (polyInY (Q a b)).leadingCoeff) (ha : (a i).Monic) :
+theorem coeff_aMonicL_degA (hsym : KLRSymm Q)
+    (hQ : ∀ a b : I, a ≠ b → ∃ c : k, IsUnit c ∧ (polyInY (Q a b)).leadingCoeff = Polynomial.C c) (ha : (a i).Monic) :
     (aMonicL Q i β a).coeff (degA Q i β a) = 1 := by
+  rcases subsingleton_or_nontrivial k with hk | hk
+  · have : Subsingleton (CycKLR k Q a β) := (algebraMap k (CycKLR k Q a β)).codomain_trivial
+    exact Subsingleton.elim _ _
   rw [aMonicL, Polynomial.coe_mapAlgHom, Polynomial.coeff_map,
     coeff_aMonic_degA i β a hsym hQ ha, map_one]
 
 /-- Exact degree requires a nonzero cyclotomic quotient; monicity alone does not. -/
 theorem natDegree_aMonicL [Nontrivial Rl]
-    (hsym : ∀ a b, a ≠ b → Q b a = MvPolynomial.rename ![1, 0] (Q a b))
-    (hQ : ∀ a b : I, a ≠ b → IsUnit (polyInY (Q a b)).leadingCoeff) (ha : (a i).Monic) :
+    (hsym : KLRSymm Q)
+    (hQ : ∀ a b : I, a ≠ b → ∃ c : k, IsUnit c ∧ (polyInY (Q a b)).leadingCoeff = Polynomial.C c) (ha : (a i).Monic) :
     (aMonicL Q i β a).natDegree = degA Q i β a := by
   apply Polynomial.natDegree_eq_of_le_of_coeff_ne_zero
     (Polynomial.natDegree_le_of_degree_le (degree_aMonicL_le i β a hsym hQ ha))
   rw [coeff_aMonicL_degA i β a hsym hQ ha]
   exact one_ne_zero
 
-include hPQ hP in
+include hsym in
 theorem aMonicL_comm (q : Polynomial Rl) : Commute q (aMonicL Q i β a) := by
   obtain ⟨q', rfl⟩ := Polynomial.map_surjective (CycKLR.mk k Q a β : Rb →+* Rl)
     (CycKLR.mk_surjective) q
   rw [aMonicL, Polynomial.coe_mapAlgHom]
-  exact (aMonic_comm i β a hPQ hP q').map (Polynomial.mapRingHom (CycKLR.mk k Q a β : Rb →+* Rl))
+  exact (aMonic_comm i β a hsym q').map (Polynomial.mapRingHom (CycKLR.mk k Q a β : Rb →+* Rl))
 
-theorem thetaL_aPrime (hQ : ∀ a b : I, a ≠ b → IsUnit (polyInY (Q a b)).leadingCoeff) :
+theorem thetaL_aPrime (hQ : ∀ a b : I, a ≠ b → ∃ c : k, IsUnit c ∧ (polyInY (Q a b)).leadingCoeff = Polynomial.C c) :
     thetaL Q i β a (aPrime Q i β a) = lamA Q i β • aMonicL Q i β a := by
   rw [thetaL, AlgHom.comp_apply, theta_aPrime_eq_smul i β a hQ, map_smul, aMonicL]
 
@@ -516,62 +515,60 @@ noncomputable def divK {M : Polynomial Rl} (hM : M.Monic) :
     (Sh → Polynomial Rl) →ₗ[k] (Sh → Polynomial Rl) :=
   Ring.inverse (lamA Q i β) • LinearMap.pi fun u => divByMonicLin k hM ∘ₗ LinearMap.proj u
 
-omit [IsDomain k] in
 theorem divK_apply {M : Polynomial Rl} (hM : M.Monic) (c : Sh → Polynomial Rl) (u : Sh) :
     divK Q i β a hM c u = Ring.inverse (lamA Q i β) • (c u /ₘ M) := rfl
 
 variable (Q) in
 /-- **The splitting of `P`** (KK Lemma 4.19 with `h = Q`): `Q`, then coordinates, then
 division by `M̄`. -/
-noncomputable def splitMap (hsym : ∀ a b, a ≠ b → Q b a = MvPolynomial.rename ![1, 0] (Q a b))
-    (hQ : ∀ a b : I, a ≠ b → IsUnit (polyInY (Q a b)).leadingCoeff) (ha : (a i).Monic)
+noncomputable def splitMap (hsym : KLRSymm Q)
+    (hQ : ∀ a b : I, a ≠ b → ∃ c : k, IsUnit c ∧ (polyInY (Q a b)).leadingCoeff = Polynomial.C c) (ha : (a i).Monic)
     (h1 : 1 < Multiset.card (Si + β)) (hβ : 0 < Multiset.card β) :
     KZero Q (Si + β) a (zero_lt_card_single_add i β) →ₗ[k] KOne Q (Si + β) a h1 :=
-  embK Q hPQ hP i β a h1 hβ ∘ₗ divK Q i β a (monic_aMonicL i β a hsym hQ ha) ∘ₗ
-    coordK Q hPQ hP i β a h1 hβ ∘ₗ
+  embK Q hsym i β a h1 hβ ∘ₗ divK Q i β a (monic_aMonicL i β a hsym hQ ha) ∘ₗ
+    coordK Q hsym i β a h1 hβ ∘ₗ
       (qMap a hsym (zero_lt_card_single_add i β) h1 (Multiset.card β)
         (card_single_add i β).symm).restrictScalars k
 
 /-- **KK Lemma 4.19 / Theorem 4.5 (splitting)**: `splitMap ∘ P = id` on `K_1 e(i, β)`. -/
-theorem splitMap_pMap (hsym : ∀ a b, a ≠ b → Q b a = MvPolynomial.rename ![1, 0] (Q a b))
-    (hQ : ∀ a b : I, a ≠ b → IsUnit (polyInY (Q a b)).leadingCoeff) (ha : (a i).Monic)
+theorem splitMap_pMap (hsym : KLRSymm Q)
+    (hQ : ∀ a b : I, a ≠ b → ∃ c : k, IsUnit c ∧ (polyInY (Q a b)).leadingCoeff = Polynomial.C c) (ha : (a i).Monic)
     (h1 : 1 < Multiset.card (Si + β)) (hβ : 0 < Multiset.card β) (y : R) :
-    splitMap Q hPQ hP i β a hsym hQ ha h1 hβ
+    splitMap Q i β a hsym hQ ha h1 hβ
         (pMap a (zero_lt_card_single_add i β) h1 (Multiset.card β) (card_single_add i β).symm
           (Submodule.Quotient.mk (y * oneConcat Q Si β))) =
       Submodule.Quotient.mk (y * oneConcat Q Si β) := by
-  set t := tco Q hPQ hP i β y with ht
-  have htA : tco Q hPQ hP i β (y * oneConcat Q Si β *
+  set t := tco Q hsym i β y with ht
+  have htA : tco Q hsym i β (y * oneConcat Q Si β *
       aElt a (zero_lt_card_single_add i β) (Multiset.card β)) =
         fun u => t u * aPrime Q i β a := by
     apply tco_eq
-    rw [mul_assoc _ (aElt _ _ _), aElt_mul_oneConcat, tco_spec hPQ hP i β y, rFree_mul_concat]
+    rw [mul_assoc _ (aElt _ _ _), aElt_mul_oneConcat, tco_spec hsym i β y, rFree_mul_concat]
   have hM := monic_aMonicL i β a hsym hQ ha
-  have hdiv : divK Q i β a hM (coordR Q hPQ hP i β a (y * oneConcat Q Si β *
+  have hdiv : divK Q i β a hM (coordR Q hsym i β a (y * oneConcat Q Si β *
       aElt a (zero_lt_card_single_add i β) (Multiset.card β))) = thetaS Q i β a t := by
     funext u
     rw [divK_apply, coordR_apply, htA, map_mul, thetaL_aPrime i β a hQ, mul_smul_comm,
       ← divByMonicLin_apply (k := k) hM, map_smul, divByMonicLin_apply,
-      mul_divByMonic_of_commute hM (aMonicL_comm hPQ hP i β a _), smul_smul,
+      mul_divByMonic_of_commute hM (aMonicL_comm hsym i β a _), smul_smul,
       Ring.inverse_mul_cancel _ (isUnit_lamA i β hQ), one_smul, thetaS_apply]
   rw [splitMap, LinearMap.comp_apply, LinearMap.comp_apply, LinearMap.comp_apply,
     LinearMap.restrictScalars_apply, qMap_pMap, coordK_mk, hdiv, embK_thetaS, ht,
-    ← tco_spec hPQ hP i β y]
+    ← tco_spec hsym i β y]
 
 theorem coordK_act1 (h1 : 1 < Multiset.card (Si + β)) (hβ : 0 < Multiset.card β) (b : Rb)
     (w : KOne Q (Si + β) a h1) :
-    coordK Q hPQ hP i β a h1 hβ (act1 Q i β a h1 b w) =
-      fun u => coordK Q hPQ hP i β a h1 hβ w u * Polynomial.C (CycKLR.mk k Q a β b) := by
+    coordK Q hsym i β a h1 hβ (act1 Q i β a h1 b w) =
+      fun u => coordK Q hsym i β a h1 hβ w u * Polynomial.C (CycKLR.mk k Q a β b) := by
   obtain ⟨y, rfl⟩ := Submodule.Quotient.mk_surjective _ w
-  have h : tco Q hPQ hP i β (y * cR Q i β b) =
-      fun u => tco Q hPQ hP i β y u * (1 ⊗ₜ b) := by
+  have h : tco Q hsym i β (y * cR Q i β b) =
+      fun u => tco Q hsym i β y u * (1 ⊗ₜ b) := by
     apply tco_eq
     rw [mul_assoc, cR, concat_mul_oneConcat, ← oneConcat_mul_concat, ← mul_assoc,
-      tco_spec hPQ hP i β y, rFree_mul_concat]
+      tco_spec hsym i β y, rFree_mul_concat]
   funext u
   rw [act1_mk, coordK_mk, coordK_mk, coordR_apply, coordR_apply, h, map_mul, thetaL_one_tmul]
 
-omit [IsDomain k] in
 theorem divK_mul_C {M : Polynomial Rl} (hM : M.Monic) (c : Sh → Polynomial Rl) (r : Rl) :
     divK Q i β a hM (fun u => c u * Polynomial.C r) =
       fun u => divK Q i β a hM c u * Polynomial.C r := by
@@ -580,8 +577,8 @@ theorem divK_mul_C {M : Polynomial Rl} (hM : M.Monic) (c : Sh → Polynomial Rl)
 
 theorem embK_mul_C (h1 : 1 < Multiset.card (Si + β)) (hβ : 0 < Multiset.card β) (b : Rb)
     (c : Sh → Polynomial Rl) :
-    embK Q hPQ hP i β a h1 hβ (fun u => c u * Polynomial.C (CycKLR.mk k Q a β b)) =
-      act1 Q i β a h1 b (embK Q hPQ hP i β a h1 hβ c) := by
+    embK Q hsym i β a h1 hβ (fun u => c u * Polynomial.C (CycKLR.mk k Q a β b)) =
+      act1 Q i β a h1 b (embK Q hsym i β a h1 hβ c) := by
   obtain ⟨t, rfl⟩ := thetaS_surjective i β a c
   have h : (fun u => thetaS Q i β a t u * Polynomial.C (CycKLR.mk k Q a β b)) =
       thetaS Q i β a (fun u => t u * (1 ⊗ₜ b)) := by
@@ -590,12 +587,12 @@ theorem embK_mul_C (h1 : 1 < Multiset.card (Si + β)) (hβ : 0 < Multiset.card �
 
 /-- **The splitting is right `R(β)`-linear**, so `P : K_1 e(i, β) → K_0` splits as a map of
 right `R(β)`-modules (KK Theorem 4.5). -/
-theorem splitMap_act (hsym : ∀ a b, a ≠ b → Q b a = MvPolynomial.rename ![1, 0] (Q a b))
-    (hQ : ∀ a b : I, a ≠ b → IsUnit (polyInY (Q a b)).leadingCoeff) (ha : (a i).Monic)
+theorem splitMap_act (hsym : KLRSymm Q)
+    (hQ : ∀ a b : I, a ≠ b → ∃ c : k, IsUnit c ∧ (polyInY (Q a b)).leadingCoeff = Polynomial.C c) (ha : (a i).Monic)
     (h1 : 1 < Multiset.card (Si + β)) (hβ : 0 < Multiset.card β) (b : Rb)
     (z : KZero Q (Si + β) a (zero_lt_card_single_add i β)) :
-    splitMap Q hPQ hP i β a hsym hQ ha h1 hβ (act0 Q i β a b z) =
-      act1 Q i β a h1 b (splitMap Q hPQ hP i β a hsym hQ ha h1 hβ z) := by
+    splitMap Q i β a hsym hQ ha h1 hβ (act0 Q i β a b z) =
+      act1 Q i β a h1 b (splitMap Q i β a hsym hQ ha h1 hβ z) := by
   rw [splitMap, LinearMap.comp_apply, LinearMap.comp_apply, LinearMap.comp_apply,
     LinearMap.restrictScalars_apply, qMap_act i β a hsym h1 b, coordK_act1, divK_mul_C,
     embK_mul_C]

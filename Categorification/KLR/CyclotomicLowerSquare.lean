@@ -18,8 +18,8 @@ representative maps and multiplied by `(-1)^|β|`: the library uses `ψ=-τ`.
 not an assumed square or a square between arbitrarily chosen coordinates.
 Its quotient formula is `lowerP_square`. All map and square constructions
 work over a commutative ring, including `γ=0`. Only the concluding
-`bMap_lowerVertical_zero` uses the existing domain, factorization and
-nonzero-factor hypotheses of the first-strand coordinates.
+`bMap_lowerVertical_zero` uses the hypothesis `KLRSymm Q` of the first-strand
+coordinates.
 
 No kernel exhaustion, injectivity of the vertical map, snake connecting map,
 bimodule inverse or proof of Theorems 5.1–5.2 is asserted here.
@@ -315,13 +315,11 @@ theorem lower_cL_concat (t : KLRAlgebra k Q Si ⊗[k] KLRAlgebra k Q γ) :
     unfold cL
     rw [concat_cast_right, ← concat_assoc, lower_cast_trans]
 
-variable [IsDomain k] {P : I → I → MvPolynomial (Fin 2) k}
-  (hPQ : ∀ j l, j ≠ l → Q j l = P l j * MvPolynomial.rename ![1, 0] (P j l))
-  (hP : ∀ j l, j ≠ l → P j l ≠ 0)
+variable (hsym : KLRSymm Q)
 
 private theorem bCoord_lower_shuffle (b : Fin (Multiset.card γ + 1))
     (c : KLRAlgebra k Q Si ⊗[k] KLRAlgebra k Q γ) :
-    bCoord i β hPQ hP
+    bCoord i β hsym
       (cL Q i β (ψw (descRun 0 b.val) * concat Q Si γ c)) = 0 := by
   have hb : ∀ j ∈ descRun 0 b.val, j + 1 < Multiset.card β := by
     intro j hj
@@ -341,36 +339,36 @@ private theorem bCoord_lower_shuffle (b : Fin (Multiset.card γ + 1))
   omega
 
 /-- The terminal first-strand coordinate vanishes on the actual appended lower factor. -/
-theorem bCoord_lowerVerticalFactor (x : L) : bCoord i β hPQ hP (cL Q i β (x : Rb)) = 0 := by
-  have hx : (x : Rb) = firstFree i γ (firstCoord i γ hPQ hP (x : Rb)) := by
+theorem bCoord_lowerVerticalFactor (x : L) : bCoord i β hsym (cL Q i β (x : Rb)) = 0 := by
+  have hx : (x : Rb) = firstFree i γ (firstCoord i γ hsym (x : Rb)) := by
     rw [firstFree_firstCoord]
     have hh := (CornerTensor.left_mem (lowerFirst Q i γ) x).symm
     change (x : Rb) = (x : Rb) * cR Q i γ 1 at hh
     simpa only [cR_one] using hh
   rw [hx, firstFree]
   have hl : cL Q i β (∑ b, ψw (descRun 0 b.val) *
-      concat Q Si γ (firstCoord i γ hPQ hP (x : Rb) b)) =
-      ∑ b, cL Q i β (ψw (descRun 0 b.val) * concat Q Si γ (firstCoord i γ hPQ hP (x : Rb) b)) :=
+      concat Q Si γ (firstCoord i γ hsym (x : Rb) b)) =
+      ∑ b, cL Q i β (ψw (descRun 0 b.val) * concat Q Si γ (firstCoord i γ hsym (x : Rb) b)) :=
     map_sum (cLLinear (Q := Q) i β) _ _
   rw [hl, map_sum]
-  simp only [bCoord_lower_shuffle Q i γ hPQ hP, Finset.sum_const_zero]
+  simp only [bCoord_lower_shuffle Q i γ hsym, Finset.sum_const_zero]
 
-/-- `B` annihilates the vertical image. The domain and factorization hypotheses
-are those of the existing first-coordinate `bMap`, not assumptions of exactness. -/
+/-- `B` annihilates the vertical image. The hypothesis `KLRSymm Q` is that of the
+first-coordinate `bMap`, not an assumption of exactness. -/
 theorem bMap_lowerVertical_zero (t : KOnePrime Q i γ a) :
-    bMap i β hPQ hP a (by simp) (zero_lt_card_single_add i γ) (lowerVerticalCoordinates Q i γ a t) = 0 := by
+    bMap i β hsym a (by simp) (zero_lt_card_single_add i γ) (lowerVerticalCoordinates Q i γ a t) = 0 := by
   induction t using BalancedTensor.induction_on with
   | zero => rw [map_zero, map_zero]
   | add t u ht hu => rw [map_add, map_add, ht, hu, add_zero]
   | tmul x y =>
     obtain ⟨b, hb⟩ := CycKLR.mk_surjective (y : Rl)
     rw [lowerVerticalCoordinates_tmul Q i γ a x y b hb.symm, bMap_mk]
-    have hc : bCoord i β hPQ hP (cL Q i β (x : Rb) * cR Q i β b) = 0 := by
-      change firstCoord i β hPQ hP (cL Q i β (x : Rb) * concat Q Si β (1 ⊗ₜ b)) _ = 0
+    have hc : bCoord i β hsym (cL Q i β (x : Rb) * cR Q i β b) = 0 := by
+      change firstCoord i β hsym (cL Q i β (x : Rb) * concat Q Si β (1 ⊗ₜ b)) _ = 0
       rw [firstCoord_mul_concat]
-      change bCoord i β hPQ hP (cL Q i β (x : Rb)) * (1 ⊗ₜ b) = 0
-      rw [bCoord_lowerVerticalFactor Q i γ hPQ hP, zero_mul]
-    change thetaL Q i β a (bCoord i β hPQ hP _) = 0
+      change bCoord i β hsym (cL Q i β (x : Rb)) * (1 ⊗ₜ b) = 0
+      rw [bCoord_lowerVerticalFactor Q i γ hsym, zero_mul]
+    change thetaL Q i β a (bCoord i β hsym _) = 0
     rw [hc, map_zero]
 
 end Categorification.KLR.KLRAlgebra

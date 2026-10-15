@@ -22,7 +22,7 @@ polynomial with invertible leading coefficient is injective on a free `A[t]`-mod
   modulo `R(i) ⊗ J` (KK Lemma 4.16 in this case), and by `Q ∘ P = A` (KK Thm. 4.15) and the
   structure of `K_1` (`mem_cycL1_iff`), `P` is injective on `K_1 e(i, β)` (KK Lemma 4.17).
 
-Domain `k` and factorized `Q` (as for the basis theorem); symmetric `Q` is implied.
+Any commutative ring `k` and symmetric `Q` (`KLRSymm Q`, as for `KLRAlgebra.basisOfSymm`).
 -/
 
 namespace Categorification.KLR
@@ -394,10 +394,11 @@ theorem fSplit_rename_vec2 (b : ℕ) (hb : b + 1 < Multiset.card (Si + β))
     exact fSplit_X_succ i β b hb
 
 omit [DecidableEq I] in
-theorem umonic_aeval_Q [IsDomain k] (q : MvPolynomial (Fin 2) k)
-    (hq : IsUnit (polyInY q).leadingCoeff) (z : Pb) :
+theorem umonic_aeval_Q (q : MvPolynomial (Fin 2) k)
+    (hq : ∃ c : k, IsUnit c ∧ (polyInY q).leadingCoeff = Polynomial.C c) (z : Pb) :
     UMonic (MvPolynomial.aeval ![Polynomial.C z, Polynomial.X] q) := by
-  obtain ⟨c, hc, hcq⟩ := Polynomial.isUnit_iff.1 hq
+  obtain ⟨c, hc, hcq⟩ := hq
+  replace hcq := hcq.symm
   set φ : Polynomial (Polynomial k) →ₐ[k] Polynomial Pb :=
     Polynomial.mapAlgHom (Polynomial.aeval z) with hφ
   have hmap : φ (polyInY q) = MvPolynomial.aeval ![Polynomial.C z, Polynomial.X] q := by
@@ -477,7 +478,7 @@ end Inj
 
 section Final
 
-variable [IsDomain k] (i : I) (β : Multiset I) (a : I → Polynomial k)
+variable (i : I) (β : Multiset I) (a : I → Polynomial k)
 
 local notation "Si" => (Singleton.singleton i : Multiset I)
 local notation "T" => KLRAlgebra k Q Si ⊗[k] KLRAlgebra k Q β
@@ -485,14 +486,14 @@ local notation "Rb" => KLRAlgebra k Q β
 local notation "R" => KLRAlgebra k Q (Si + β)
 local notation "Pb" => MvPolynomial (Fin (Multiset.card β)) k
 
-omit [DecidableEq I] [IsDomain k] in
+omit [DecidableEq I] in
 theorem cons1_zero (s : Seq β) : (cons1 i β s).1 ⟨0, zero_lt_card_single_add i β⟩ = i := by
   rw [Seq.append_apply_lt _ _ _ (by simp)]
   exact Multiset.mem_singleton.1 ((default : Seq Si).mem _)
 
 /-- Each factor of KK's `A` is a unit times a monic polynomial in `t`. -/
-theorem umonic_gPol (hsym : ∀ a b, a ≠ b → Q b a = MvPolynomial.rename ![1, 0] (Q a b))
-    (hQ : ∀ a b : I, a ≠ b → IsUnit (polyInY (Q a b)).leadingCoeff) (ha : (a i).Monic)
+theorem umonic_gPol (hsym : KLRSymm Q)
+    (hQ : ∀ a b : I, a ≠ b → ∃ c : k, IsUnit c ∧ (polyInY (Q a b)).leadingCoeff = Polynomial.C c) (ha : (a i).Monic)
     (s : Seq β) : UMonic (fSplit (k := k) i β (gPol Q i β a s)) := by
   rw [gPol, map_mul]
   refine UMonic.mul ?_ ?_
@@ -524,8 +525,8 @@ theorem umonic_gPol (hsym : ∀ a b, a ≠ b → Q b a = MvPolynomial.rename ![1
 /-- **KK Lemma 4.16** in the case at hand: right multiplication by `θ(A)` is injective modulo
 polynomials with coefficients in the cyclotomic ideal `J` of `R(β)`. -/
 theorem coeff_mem_of_mul_theta_aPrime
-    (hsym : ∀ a b, a ≠ b → Q b a = MvPolynomial.rename ![1, 0] (Q a b))
-    (hQ : ∀ a b : I, a ≠ b → IsUnit (polyInY (Q a b)).leadingCoeff) (ha : (a i).Monic)
+    (hsym : KLRSymm Q)
+    (hQ : ∀ a b : I, a ≠ b → ∃ c : k, IsUnit c ∧ (polyInY (Q a b)).leadingCoeff = Polynomial.C c) (ha : (a i).Monic)
     (q : Polynomial Rb) (h : ∀ n, (q * theta Q i β (aPrime Q i β a)).coeff n ∈ cycIdeal Q a β) :
     ∀ n, q.coeff n ∈ cycIdeal Q a β := by
   set π : Polynomial Rb →+* Polynomial (CycKLR k Q a β) :=
@@ -574,26 +575,17 @@ theorem coeff_mem_of_mul_theta_aPrime
     exact Finset.sum_eq_zero fun s _ => hs s
   exact (hzero q).1 this
 
-variable {P : I → I → MvPolynomial (Fin 2) k}
-  (hPQ : ∀ a b, a ≠ b → Q a b = P b a * MvPolynomial.rename ![1, 0] (P a b))
-  (hP : ∀ a b, a ≠ b → P a b ≠ 0)
+variable (hsym : KLRSymm Q)
 
-omit [DecidableEq I] [IsDomain k] in
-include hPQ in
-theorem sym_of_factor : ∀ a b, a ≠ b → Q b a = MvPolynomial.rename ![1, 0] (Q a b) := by
-  intro a b hab
-  rw [hPQ a b hab, hPQ b a hab.symm, map_mul, rename_swap_rename_swap, mul_comm]
-
-include hPQ hP in
+include hsym in
 /-- **Right multiplication by KK's `A` is injective on `K_1 e(i, β)`**: if
 `r 1_{i,β} A ∈ R a^Λ(x_2) R^1(β)` then `r 1_{i,β} ∈ R a^Λ(x_2) R^1(β)`. -/
 theorem mem_cycL1_of_mul_aElt
-    (hQ : ∀ a b : I, a ≠ b → IsUnit (polyInY (Q a b)).leadingCoeff) (ha : (a i).Monic)
+    (hQ : ∀ a b : I, a ≠ b → ∃ c : k, IsUnit c ∧ (polyInY (Q a b)).leadingCoeff = Polynomial.C c) (ha : (a i).Monic)
     (h1 : 1 < Multiset.card (Si + β)) (hβ : 0 < Multiset.card β) (r : R)
     (h : r * oneConcat Q Si β * aElt a (zero_lt_card_single_add i β) (Multiset.card β) ∈
       cycL1 a h1) : r * oneConcat Q Si β ∈ cycL1 a h1 := by
-  have hsym := sym_of_factor hPQ
-  obtain ⟨t, ht⟩ := rfree_span hPQ hP r
+  obtain ⟨t, ht⟩ := rfree_span hsym r
   rw [ht] at h ⊢
   have haElt : aElt a (zero_lt_card_single_add i β) (Multiset.card β) ∈
       subR1 (k := k) (Q := Q) (Si + β) :=
@@ -603,27 +595,27 @@ theorem mem_cycL1_of_mul_aElt
     rw [← rFree_mul_oneConcat, mul_assoc, ← commute_oneConcat_subR1 i β haElt,
       aElt_mul_oneConcat, rFree, rFree, Finset.sum_mul]
     exact Finset.sum_congr rfl fun u _ => by rw [mul_assoc, ← concat_mul]
-  rw [hmul, mem_cycL1_iff hPQ hP i β a h1 hβ] at h
-  rw [mem_cycL1_iff hPQ hP i β a h1 hβ]
+  rw [hmul, mem_cycL1_iff hsym i β a h1 hβ] at h
+  rw [mem_cycL1_iff hsym i β a h1 hβ]
   intro u
   have hu := (mem_tJ_iff i β a _).1 (h u)
   rw [map_mul] at hu
   exact (mem_tJ_iff i β a _).2
     (coeff_mem_of_mul_theta_aPrime i β a hsym hQ ha _ hu)
 
-include hPQ hP in
+include hsym in
 /-- **Kang–Kashiwara, Lemma 4.17** (injectivity of `P : K_1 → K_0`), on `K_1 e(i, β)`. -/
 theorem pMap_injective_first
-    (hQ : ∀ a b : I, a ≠ b → IsUnit (polyInY (Q a b)).leadingCoeff) (ha : (a i).Monic)
+    (hQ : ∀ a b : I, a ≠ b → ∃ c : k, IsUnit c ∧ (polyInY (Q a b)).leadingCoeff = Polynomial.C c) (ha : (a i).Monic)
     (h1 : 1 < Multiset.card (Si + β)) (hβ : 0 < Multiset.card β) (r : R)
     (h : pMap a (zero_lt_card_single_add i β) h1 (Multiset.card β) (card_single_add i β).symm
       (Submodule.Quotient.mk (r * oneConcat Q Si β)) = 0) :
     (Submodule.Quotient.mk (r * oneConcat Q Si β) : KOne Q (Si + β) a h1) = 0 := by
-  have hq := congrArg (qMap a (sym_of_factor hPQ) (zero_lt_card_single_add i β) h1
+  have hq := congrArg (qMap a hsym (zero_lt_card_single_add i β) h1
     (Multiset.card β) (card_single_add i β).symm) h
-  rw [qMap_pMap, map_zero, Submodule.Quotient.mk_eq_zero] at hq
+  rw [qMap_pMap a hsym, map_zero, Submodule.Quotient.mk_eq_zero] at hq
   rw [Submodule.Quotient.mk_eq_zero]
-  exact mem_cycL1_of_mul_aElt i β a hPQ hP hQ ha h1 hβ r hq
+  exact mem_cycL1_of_mul_aElt i β a hsym hQ ha h1 hβ r hq
 
 end Final
 

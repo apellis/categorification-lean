@@ -59,8 +59,7 @@ theorem degX_pos2 (a : I) : 0 < (klGradingDatum2 k C).degX a := C.dot_self_pos a
 
 /-- **KL II: `R(ν)` has a graded dimension** (over a field). -/
 instance hasGdim_grade2 : HasGdim ((klGradingDatum2 k C).grade ν) :=
-  (klGradingDatum2 k C).hasGdim_grade' (klQ2_eq_klP2 (o := KL1.stdOrient) stdOrient_spec)
-    (fun a b hab => klP2_ne_zero a b hab) degX_pos2
+  (klGradingDatum2 k C).hasGdim_grade' (KLRSymm.of_factor (klQ2_eq_klP2 (o := KL1.stdOrient) stdOrient_spec)) degX_pos2
 
 omit [DecidableEq I] in
 /-- For KL II, `deg(ψ_ρ 1_i) = - ∑_{(a,b) ∈ inv(w)} i_a · i_b` for any reduced word `ρ` of `w`. -/
@@ -78,8 +77,7 @@ theorem gdim_cornerGrade2 (j i : Seq ν) :
       ∑ w ∈ Finset.univ.filter (fun w => w • i = j),
         HahnSeries.single (-∑ p ∈ invSet (Multiset.card ν) w, C.dot (i.lbl p.1) (i.lbl p.2)) 1 *
           ∏ a, geomSeries (C.dot (i.lbl a) (i.lbl a)) := by
-  rw [(klGradingDatum2 k C).gdim_cornerGrade (klQ2_eq_klP2 (o := KL1.stdOrient) stdOrient_spec)
-    (fun a b hab => klP2_ne_zero a b hab) (fun w => canWord _ w)
+  rw [(klGradingDatum2 k C).gdim_cornerGrade (KLRSymm.of_factor (klQ2_eq_klP2 (o := KL1.stdOrient) stdOrient_spec)) (fun w => canWord _ w)
     (fun w => ⟨isReduced_canWord _ w, wordProd_canWord _ w⟩) degX_pos2]
   refine Finset.sum_congr rfl fun w _ => ?_
   rw [degW_eq2 (isReduced_canWord _ w), wordProd_canWord]

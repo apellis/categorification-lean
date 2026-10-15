@@ -26,8 +26,9 @@ colour `i` is the last one (zero-indexed: strand `n`), `e(β, i) = cL 1` and
   `∑_{b < n} F_b(p_b) + ι(q) ∈ R(ν) a^Λ(x_1) R(β)` iff all `p_b`, `q` lie in `J ⊗ R(i)`, `J` the
   cyclotomic ideal of `R(β)`.
 
-The free-module statements use the basis theorem, so they assume (like `KLRAlgebra.freeBasis`)
-that `k` is a domain and `Q` is factorized.
+The free-module statements use the basis theorem over a commutative ring
+(`KLRAlgebra.basisOfSymm`), so they assume (like `KLRAlgebra.freeBasis`) that `Q` is symmetric
+(`KLRSymm Q`); `k` is any commutative ring.
 -/
 
 namespace Categorification.KLR
@@ -173,10 +174,8 @@ section RightFreeLast
 open MvPolynomial
 open scoped TensorProduct
 
-variable {I : Type*} [DecidableEq I] {k : Type*} [CommRing k] [IsDomain k]
-  {Q : I → I → MvPolynomial (Fin 2) k} {P : I → I → MvPolynomial (Fin 2) k}
-  (hPQ : ∀ a b, a ≠ b → Q a b = P b a * rename ![1, 0] (P a b))
-  (hP : ∀ a b, a ≠ b → P a b ≠ 0)
+variable {I : Type*} [DecidableEq I] {k : Type*} [CommRing k]
+  {Q : I → I → MvPolynomial (Fin 2) k} (hsym : KLRSymm Q)
 
 namespace KLRAlgebra
 
@@ -207,7 +206,6 @@ theorem lastW_spec (u : Shuffle (Seq.card_add' β Si)) :
 /-- `ψ_a ψ_{a+1} ⋯ ψ_{n-1}`. -/
 noncomputable def upW (a n : ℕ) : List ℕ := List.range' a (n - a)
 
-omit [IsDomain k] in
 theorem hflip_hatW_lastW (a : Fin (Multiset.card β + 1)) :
     hflip (hatW (Q := Q) (lastW i β) (shLast (card_add_single_eq i β) _ (card_single' i) a)) =
       ψw (upW a.val (Multiset.card β)) * oneConcat Q β Si := by
@@ -216,17 +214,14 @@ theorem hflip_hatW_lastW (a : Fin (Multiset.card β + 1)) :
   rw [lastW, upW, descRun, List.reverse_reverse]
   rw [shLast_apply, cycA_symm_lastB (card_add_single_eq i β) _ _ (Nat.lt_succ_iff.1 a.2)]
 
-omit [IsDomain k] in
 /-- The basis element `ψ(ŵ_u)` of the right free module for the reduced words `lastW`. -/
 noncomputable def rWL (u : Shuffle (Seq.card_add' β Si)) : KLRAlgebra k Q (β + Si) :=
   hflip (hatW (lastW i β) u)
 
-omit [IsDomain k] in
 /-- `∑_u ψ(ŵ_u) ι(t_u)` for the reduced words `lastW`. -/
 noncomputable def rFreeL (t : Shuffle (Seq.card_add' β Si) → T0) : KLRAlgebra k Q (β + Si) :=
   ∑ u, rWL (Q := Q) i β u * concat Q β Si (t u)
 
-omit [IsDomain k] in
 theorem hflip_freeMap_eq_rFreeL (t : Shuffle (Seq.card_add' β Si) → T0) :
     hflip ((freeMap (Q := Q) (lastW i β) (Finsupp.equivFunOnFinite.symm
       (fun u => tflip Q β Si (t u))) : KLRAlgebra k Q (β + Si))) = rFreeL i β t := by
@@ -238,11 +233,11 @@ theorem hflip_freeMap_eq_rFreeL (t : Shuffle (Seq.card_add' β Si) → T0) :
     rfl
   · intro _; exact zero_smul _ _
 
-include hPQ hP in
+include hsym in
 /-- Uniqueness in the right free decomposition for the reduced words `lastW`. -/
 theorem rfreeL_injective {t : Shuffle (Seq.card_add' β Si) → T0} (h : rFreeL i β t = 0) :
     ∀ u, t u = 0 := by
-  have hbij := freeMap_bijective (ν := β) (ν' := Si) hPQ hP (canWord _) (canWord _) (lastW i β)
+  have hbij := freeMap_bijective (ν := β) (ν' := Si) hsym (canWord _) (canWord _) (lastW i β)
     (fun a => ⟨isReduced_canWord _ a, wordProd_canWord _ a⟩)
     (fun b => ⟨isReduced_canWord _ b, wordProd_canWord _ b⟩) (lastW_spec i β)
   have h1 : ((freeMap (Q := Q) (lastW i β) (Finsupp.equivFunOnFinite.symm
@@ -259,11 +254,11 @@ theorem rfreeL_injective {t : Shuffle (Seq.card_add' β Si) → T0} (h : rFreeL 
   simp only [Finsupp.coe_equivFunOnFinite_symm, Finsupp.coe_zero, Pi.zero_apply] at hu
   rw [← tflip_tflip (t := t u), hu, map_zero]
 
-include hPQ hP in
+include hsym in
 /-- Existence in the right free decomposition for the reduced words `lastW`. -/
 theorem rfreeL_span (r : KLRAlgebra k Q (β + Si)) :
     ∃ t : Shuffle (Seq.card_add' β Si) → T0, r * oneConcat Q β Si = rFreeL i β t := by
-  have hbij := freeMap_bijective (ν := β) (ν' := Si) hPQ hP (canWord _) (canWord _) (lastW i β)
+  have hbij := freeMap_bijective (ν := β) (ν' := Si) hsym (canWord _) (canWord _) (lastW i β)
     (fun a => ⟨isReduced_canWord _ a, wordProd_canWord _ a⟩)
     (fun b => ⟨isReduced_canWord _ b, wordProd_canWord _ b⟩) (lastW_spec i β)
   have hmem : oneConcat Q β Si * hflip r ∈ oneConcatSub (ν := β) (ν' := Si) Q :=
@@ -275,12 +270,10 @@ theorem rfreeL_span (r : KLRAlgebra k Q (β + Si)) :
     ext u; simp
   rw [hf', hf, hflip_mul, hflip_hflip, hflip_oneConcat_eq]
 
-omit [IsDomain k] in
 /-- `∑_{a ≤ n} ψ_a ⋯ ψ_{n-1} ι(t_a)` in `R(β + i)`. -/
 noncomputable def lastFree' (t : Fin (Multiset.card β + 1) → T0) : KLRAlgebra k Q (β + Si) :=
   ∑ a, ψw (upW a.val (Multiset.card β)) * concat Q β Si (t a)
 
-omit [IsDomain k] in
 theorem rFreeL_comp_symm (t : Fin (Multiset.card β + 1) → T0) :
     rFreeL i β (t ∘ (shLast (card_add_single_eq i β) _ (card_single' i)).symm) =
       lastFree' i β t := by
@@ -290,18 +283,18 @@ theorem rFreeL_comp_symm (t : Fin (Multiset.card β + 1) → T0) :
   rw [Function.comp_apply, rWL, hflip_hatW_lastW, mul_assoc, oneConcat_mul_concat,
     Equiv.symm_apply_apply]
 
-include hPQ hP in
+include hsym in
 theorem lastFree'_injective {t : Fin (Multiset.card β + 1) → T0} (h : lastFree' i β t = 0) :
     t = 0 := by
   rw [← rFreeL_comp_symm] at h
   funext a
-  have := rfreeL_injective hPQ hP i β h (shLast (card_add_single_eq i β) _ (card_single' i) a)
+  have := rfreeL_injective hsym i β h (shLast (card_add_single_eq i β) _ (card_single' i) a)
   rwa [Function.comp_apply, Equiv.symm_apply_apply] at this
 
-include hPQ hP in
+include hsym in
 theorem lastFree'_span (r : KLRAlgebra k Q (β + Si)) :
     ∃ t : Fin (Multiset.card β + 1) → T0, r * oneConcat Q β Si = lastFree' i β t := by
-  obtain ⟨t, ht⟩ := rfreeL_span hPQ hP i β r
+  obtain ⟨t, ht⟩ := rfreeL_span hsym i β r
   refine ⟨t ∘ shLast (card_add_single_eq i β) _ (card_single' i), ?_⟩
   rw [← rFreeL_comp_symm, ht]
   congr 1
@@ -504,22 +497,20 @@ theorem lastFree_mul_cL (t : Fin (Multiset.card β + 1) → T0) (b : Rb) :
 
 section Domain
 
-variable [IsDomain k] {P : I → I → MvPolynomial (Fin 2) k}
-  (hPQ : ∀ a b, a ≠ b → Q a b = P b a * rename ![1, 0] (P a b))
-  (hP : ∀ a b, a ≠ b → P a b ≠ 0)
+variable (hsym : KLRSymm Q)
 
-include hPQ hP in
+include hsym in
 /-- **Uniqueness**: `R({i} + β) e(β, i) = ⊕_{a ≤ n} ψ_a ⋯ ψ_{n-1} ι(R(β) ⊗ R(i))`. -/
 theorem lastFree_injective {t : Fin (Multiset.card β + 1) → T0} (h : lastFree i β t = 0) :
     t = 0 := by
   rw [lastFree_eq, map_eq_zero_iff _ (castKLR Q (add_comm β Si)).injective] at h
-  exact lastFree'_injective hPQ hP i β h
+  exact lastFree'_injective hsym i β h
 
-include hPQ hP in
+include hsym in
 /-- **Existence**: `r e(β, i) = ∑_{a ≤ n} ψ_a ⋯ ψ_{n-1} ι(t_a)`. -/
 theorem lastFree_span (r : R) :
     ∃ t : Fin (Multiset.card β + 1) → T0, r * cL Q i β 1 = lastFree i β t := by
-  obtain ⟨t, ht⟩ := lastFree'_span hPQ hP i β ((castKLR Q (add_comm β Si)).symm r)
+  obtain ⟨t, ht⟩ := lastFree'_span hsym i β ((castKLR Q (add_comm β Si)).symm r)
   refine ⟨t, ?_⟩
   rw [lastFree_eq, ← ht, map_mul, castKLR_symm_apply, castKLR_castAlg_symm, cL_one_eq_cast]
 
@@ -623,15 +614,13 @@ theorem kkF_eq_lastFree (p : Fin (Multiset.card β) → T0) (q : T0) (s : Fin (M
 
 section Domain
 
-variable [IsDomain k] {P : I → I → MvPolynomial (Fin 2) k}
-  (hPQ : ∀ a b, a ≠ b → Q a b = P b a * rename ![1, 0] (P a b))
-  (hP : ∀ a b, a ≠ b → P a b ≠ 0)
+variable (hsym : KLRSymm Q)
 
-include hPQ hP in
+include hsym in
 /-- **KK Proposition 3.3, existence**: every `r e(β, i)` is `∑_{b < n} F_b(p_b) + ι(q)`. -/
 theorem kkF_surj (r : R) :
     ∃ (p : Fin (Multiset.card β) → T0) (q : T0), r * cL Q i β 1 = kkF i β p q := by
-  obtain ⟨t, ht⟩ := lastFree_span i β hPQ hP r
+  obtain ⟨t, ht⟩ := lastFree_span i β hsym r
   choose s hs using fun b : Fin (Multiset.card β) => exists_fT_eq i β b (t b.castSucc)
   refine ⟨fun b => t b.castSucc, t (Fin.last _) - ∑ b, s b, ?_⟩
   rw [ht, kkF_eq_lastFree i β _ _ s hs, sub_add_cancel]
@@ -639,21 +628,21 @@ theorem kkF_surj (r : R) :
   funext a
   induction a using Fin.lastCases <;> simp
 
-include hPQ hP in
+include hsym in
 /-- **KK Proposition 3.3, uniqueness**: the map `(p, q) ↦ ∑_{b < n} F_b(p_b) + ι(q)` is
 injective. -/
 theorem kkF_inj {p : Fin (Multiset.card β) → T0} {q : T0} (h : kkF i β p q = 0) :
     p = 0 ∧ q = 0 := by
   choose s hs using fun b : Fin (Multiset.card β) => exists_fT_eq i β b (p b)
   rw [kkF_eq_lastFree i β _ _ s hs] at h
-  have h0 := lastFree_injective i β hPQ hP h
+  have h0 := lastFree_injective i β hsym h
   have hp : p = 0 := funext fun b => by
     simpa using congrFun h0 b.castSucc
   refine ⟨hp, ?_⟩
   have hs0 : ∀ b, s b = 0 := fun b => by
     have := hs b
     rw [hp, Pi.zero_apply, map_zero, map_zero, mul_zero, zero_add] at this
-    have h1 := lastFree_injective i β hPQ hP (t := Fin.lastCases (s b) 0) (by
+    have h1 := lastFree_injective i β hsym (t := Fin.lastCases (s b) 0) (by
       rw [lastFree, Fin.sum_univ_castSucc]
       simp only [Fin.lastCases_castSucc, Fin.lastCases_last, Pi.zero_apply, map_zero, mul_zero,
         Finset.sum_const_zero, zero_add, Fin.val_last, upW, Nat.sub_self, List.range'_zero, ψw_nil,
@@ -722,16 +711,14 @@ theorem kkF_mem_cycL0 (hβ : 0 < Multiset.card β) {p : Fin (Multiset.card β) �
 
 section Domain
 
-variable [IsDomain k] {P : I → I → MvPolynomial (Fin 2) k}
-  (hPQ : ∀ a b, a ≠ b → Q a b = P b a * rename ![1, 0] (P a b))
-  (hP : ∀ a b, a ≠ b → P a b ≠ 0)
+variable (hsym : KLRSymm Q)
 
-include hPQ hP in
+include hsym in
 theorem exists_mul_lastFree (r : R) (t : Fin (Multiset.card β + 1) → T0) :
     ∃ t' : Fin (Multiset.card β + 1) → T0, r * lastFree i β t = lastFree i β t' ∧
       ((∀ b, t b ∈ tJ0 (Q := Q) i β a) → ∀ b, t' b ∈ tJ0 (Q := Q) i β a) := by
   choose c hc using fun b : Fin (Multiset.card β + 1) =>
-    lastFree_span i β hPQ hP (r * ψw (upW b.val (Multiset.card β)))
+    lastFree_span i β hsym (r * ψw (upW b.val (Multiset.card β)))
   refine ⟨fun b' => ∑ b, c b b' * t b, ?_,
     fun ht b' => Submodule.sum_mem _ fun b _ => mul_mem_tJ0 i β a (ht b) _⟩
   have hc' : ∀ b, r * (ψw (upW b.val (Multiset.card β)) * cLL Q i β (t b)) =
@@ -742,7 +729,7 @@ theorem exists_mul_lastFree (r : R) (t : Fin (Multiset.card β + 1) → T0) :
   simp_rw [hc', lastFree, map_sum, Finset.mul_sum]
   exact Finset.sum_comm
 
-include hPQ hP in
+include hsym in
 /-- **KK Lemma 4.8 for `K_0`, with the basis `ψ_a ⋯ ψ_{n-1}`**: `∑_a ψ_a ⋯ ψ_{n-1} ι(t_a)` lies in
 `R(ν) a^Λ(x_1) R(β)` exactly when every `t_a` lies in `J ⊗ R(i)`. -/
 theorem lastFree_mem_cycL0_iff (hβ : 0 < Multiset.card β) (t : Fin (Multiset.card β + 1) → T0) :
@@ -773,17 +760,17 @@ theorem lastFree_mem_cycL0_iff (hβ : 0 < Multiset.card β) (t : Fin (Multiset.c
         rw [add_mul, hy, hz, lastFree_add]⟩
     | smul r y _ hy =>
       obtain ⟨t', ht', hy⟩ := hy
-      obtain ⟨t'', ht'', hS⟩ := exists_mul_lastFree i β a hPQ hP r t'
+      obtain ⟨t'', ht'', hS⟩ := exists_mul_lastFree i β a hsym r t'
       exact ⟨t'', hS ht', by rw [smul_eq_mul, mul_assoc, hy, ht'']⟩
   obtain ⟨t', ht', heq⟩ := key _ ht
   have hself : lastFree i β t * cL Q i β 1 = lastFree i β t := by
     simp only [lastFree, Finset.sum_mul, mul_assoc, cLL_mul_cL_one]
   rw [hself] at heq
-  have h0 : t - t' = 0 := lastFree_injective i β hPQ hP (by rw [lastFree_sub, heq, sub_self])
+  have h0 : t - t' = 0 := lastFree_injective i β hsym (by rw [lastFree_sub, heq, sub_self])
   intro b
   rw [sub_eq_zero.1 h0]; exact ht' b
 
-include hPQ hP in
+include hsym in
 /-- **KK Proposition 3.3 tensored with `R^Λ(β)`** (`E_i K_0 = F(K_0') ⊕ (R^Λ(β) ⊗ R(i)) e(β,i)`,
 as in KK's proof of Thm. 5.2, in coordinates): `∑_{b < n} F_b(p_b) + ι(q)` lies in
 `R(ν) a^Λ(x_1) R(β)` exactly when all `p_b` and `q` lie in `J ⊗ R(i)`. -/
@@ -793,13 +780,13 @@ theorem kkF_mem_cycL0_iff (hβ : 0 < Multiset.card β) (p : Fin (Multiset.card �
   refine ⟨fun h => ?_, fun h => kkF_mem_cycL0 i β a hβ h.1 h.2⟩
   choose s hs using fun b : Fin (Multiset.card β) => exists_fT_eq i β b (p b)
   have h' := h
-  rw [kkF_eq_lastFree i β _ _ s hs, lastFree_mem_cycL0_iff i β a hPQ hP hβ] at h'
+  rw [kkF_eq_lastFree i β _ _ s hs, lastFree_mem_cycL0_iff i β a hsym hβ] at h'
   have hp : ∀ b, p b ∈ tJ0 (Q := Q) i β a := fun b => by simpa using h' b.castSucc
   refine ⟨hp, ?_⟩
   have hq : cLL Q i β q ∈ cycL0 a (zero_lt_card_single_add i β) := by
     have := Submodule.sub_mem _ h (kkF_mem_cycL0 i β a hβ hp (Submodule.zero_mem _))
     rwa [kkF, kkF, map_zero, add_zero, add_sub_cancel_left] at this
-  rw [← lastFree_single_last, lastFree_mem_cycL0_iff i β a hPQ hP hβ] at hq
+  rw [← lastFree_single_last, lastFree_mem_cycL0_iff i β a hsym hβ] at hq
   simpa using hq (Fin.last _)
 
 end Domain

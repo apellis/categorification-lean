@@ -239,7 +239,7 @@ theorem epsI_ind_le :
       epsI Q μ i N + Multiset.card ν' := by
   rw [epsI_le_iff]
   intro s hs
-  obtain ⟨u, j, j', hu, hne⟩ := exists_shuffle_of_fixSub_ind_ne_bot hPQ hP _ hs
+  obtain ⟨u, j, j', hu, hne⟩ := exists_shuffle_of_fixSub_ind_ne_bot (KLRSymm.of_factorization hPQ hP) _ hs
   have hj := tailLen_le_epsI (i := i) (fixSub_ne_bot_of_extTensor hν' hne)
   have := tailLen_le_of_shuffle (i := i) u hu
   omega
@@ -289,7 +289,7 @@ include hν' hPQ hP in
 theorem indUnit_bijective (hN : epsI Q μ i N = 0) :
     Function.Bijective (indAdjFwd (LinearMap.id :
       Ind Q μ ν' (ExtTensor K N (KLRRep hν' Q)) →ₗ[KLRAlgebra K Q (μ + ν')] _)) := by
-  set D := indDecomp (ν := μ) (ν' := ν') hPQ hP (ExtTensor K N (KLRRep hν' Q))
+  set D := indDecomp (ν := μ) (ν' := ν') (KLRSymm.of_factorization hPQ hP) (ExtTensor K N (KLRRep hν' Q))
   constructor
   · intro y y' h
     have h' := congrArg (fun z : ResSub Q μ ν' (Ind Q μ ν' (ExtTensor K N (KLRRep hν' Q))) => D (z : Ind Q μ ν' (ExtTensor K N (KLRRep hν' Q)))) h
@@ -389,7 +389,7 @@ theorem lemma_3_7_head :
   obtain ⟨z, hz⟩ := exists_ne (0 : ResSub Q μ ν' (Ind Q μ ν' (ExtTensor K N (KLRRep hν' Q))))
   have hz' : (z : (Ind Q μ ν' (ExtTensor K N (KLRRep hν' Q)))) ≠ 0 := fun h => hz (Subtype.ext h)
   have : Nontrivial (Ind Q μ ν' (ExtTensor K N (KLRRep hν' Q))) := ⟨⟨_, 0, hz'⟩⟩
-  have : FiniteDimensional K (Ind Q μ ν' (ExtTensor K N (KLRRep hν' Q))) := finiteDimensional_ind hPQ hP _
+  have : FiniteDimensional K (Ind Q μ ν' (ExtTensor K N (KLRRep hν' Q))) := finiteDimensional_ind (KLRSymm.of_factorization hPQ hP) _
   have : Module.Finite (KLRAlgebra K Q (μ + ν')) (Ind Q μ ν' (ExtTensor K N (KLRRep hν' Q))) :=
     Module.Finite.of_restrictScalars_finite K _ _
   obtain ⟨P', hP', -⟩ := (eq_top_or_exists_le_coatom (⊥ : Submodule (KLRAlgebra K Q (μ + ν')) (Ind Q μ ν' (ExtTensor K N (KLRRep hν' Q))))).resolve_left bot_ne_top

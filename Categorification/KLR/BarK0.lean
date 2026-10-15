@@ -429,7 +429,7 @@ theorem pform_indK0 {x : K0 (G.grade ν)} {x' : K0 (G.grade ν')}
     (y : K0 (G.grade (ν + ν'))) :
     K0.pform (G.grade (ν + ν')) (G.psi hsymm (ν + ν')) (G.indK0 ν ν' x x') y =
       K0.pform (tensorGrading (G.grade ν) (G.grade ν')) (G.psiTensor hsymm ν ν')
-        (K0.extTensor (G.grade ν) (G.grade ν') x x') (G.resK0 ν ν' hPQ hP y) := by
+        (K0.extTensor (G.grade ν) (G.grade ν') x x') (G.resK0 ν ν' (KLRSymm.of_factorization hPQ hP) y) := by
   rw [K0.pform_apply, G.bar_indK0_of_mem_span hsymm hx hx', G.homForm_indK0 hPQ hP,
     K0.pform_apply, K0.bar_extTensor_of_mem_span _ _ hx hx']
 
@@ -442,7 +442,7 @@ theorem pform_indK0_right (x : K0 (G.grade (ν + ν'))) {y : K0 (G.grade ν)}
     (hy' : y' ∈ Submodule.span (LaurentPolynomial ℤ) (K0.idemClasses (G.grade ν'))) :
     K0.pform (G.grade (ν + ν')) (G.psi hsymm (ν + ν')) x (G.indK0 ν ν' y y') =
       K0.pform (tensorGrading (G.grade ν) (G.grade ν')) (G.psiTensor hsymm ν ν')
-        (G.resK0 ν ν' hPQ hP x) (K0.extTensor (G.grade ν) (G.grade ν') y y') := by
+        (G.resK0 ν ν' (KLRSymm.of_factorization hPQ hP) x) (K0.extTensor (G.grade ν) (G.grade ν') y y') := by
   rw [K0.pform_comm, G.pform_indK0 hsymm hPQ hP hy hy', K0.pform_comm]
 
 /-- **KL I, Proposition 3.3 (4), evaluated**: if `[Res] y = ∑_α y_α ⊗ y'_α`, then
@@ -452,7 +452,7 @@ theorem pform_indK0_eq_sum {x : K0 (G.grade ν)} {x' : K0 (G.grade ν')}
     (hx' : x' ∈ Submodule.span (LaurentPolynomial ℤ) (K0.idemClasses (G.grade ν')))
     (y : K0 (G.grade (ν + ν'))) {ι : Type*} (s : Finset ι) (z : ι → K0 (G.grade ν))
     (z' : ι → K0 (G.grade ν'))
-    (hy : G.resK0 ν ν' hPQ hP y = ∑ α ∈ s, K0.extTensor (G.grade ν) (G.grade ν') (z α) (z' α)) :
+    (hy : G.resK0 ν ν' (KLRSymm.of_factorization hPQ hP) y = ∑ α ∈ s, K0.extTensor (G.grade ν) (G.grade ν') (z α) (z' α)) :
     K0.pform (G.grade (ν + ν')) (G.psi hsymm (ν + ν')) (G.indK0 ν ν' x x') y =
       ∑ α ∈ s, K0.pform (G.grade ν) (G.psi hsymm ν) x (z α) *
         K0.pform (G.grade ν') (G.psi hsymm ν') x' (z' α) := by

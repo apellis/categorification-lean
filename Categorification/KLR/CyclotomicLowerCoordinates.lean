@@ -93,15 +93,13 @@ theorem lower_crossing_last_dot (u : L) (b : Rb) :
       simp only [xl, mul_assoc, neg_mul, mul_neg]
     _ = _ := by rw [eq_sub_iff_add_eq.mpr hd.symm]; noncomm_ring [he]
 
-variable (a : I → Polynomial k) [IsDomain k]
-  {P : I → I → MvPolynomial (Fin 2) k}
-  (hPQ : ∀ c d, c ≠ d → Q c d = P d c * MvPolynomial.rename ![1, 0] (P c d))
-  (hP : ∀ c d, c ≠ d → P c d ≠ 0)
+variable (a : I → Polynomial k)
+  (hsym : KLRSymm Q)
 local notation "Rl" => CycKLR k Q a β
 
 /-- The constant coordinate of the last dot on the genuine crossing is multiplication. -/
 theorem cMap_lastDot_lowerF (t : KZeroPrime Q i γ a) :
-    cMap i β hPQ hP a (zero_lt_card_single_add i γ)
+    cMap i β hsym a (zero_lt_card_single_add i γ)
       (lastDot0 i β a (lowerFCoordinates Q i γ a t)) = Polynomial.C (lowerE Q i γ a t) := by
   induction t using BalancedTensor.induction_on with
   | zero => simp only [map_zero]
@@ -111,7 +109,7 @@ theorem cMap_lastDot_lowerF (t : KZeroPrime Q i γ a) :
     rw [lowerFCoordinates_tmul Q i γ a u y b hb.symm, lastDot0_mk, lower_crossing_last_dot,
       Submodule.Quotient.mk_add, map_add]
     have hn : Multiset.card β - 1 = Multiset.card γ := by simp
-    have hz := cMap_cL_crossing i β (zero_lt_card_single_add i γ) hPQ hP a
+    have hz := cMap_cL_crossing i β (zero_lt_card_single_add i γ) hsym a
       ((u : Rb) * x ⟨Multiset.card γ, by simp⟩) b
     rw [hn] at hz
     rw [mul_neg, neg_mul, Submodule.Quotient.mk_neg, map_neg, hz, neg_zero, zero_add,
@@ -121,9 +119,9 @@ theorem cMap_lastDot_lowerF (t : KZeroPrime Q i γ a) :
 assert that every free coordinate belongs to the lower-rank source. -/
 theorem fSection_lowerF (t : KZeroPrime Q i γ a) :
     fSection i β a (zero_lt_card_single_add i γ)
-      (fCoords i β a hPQ hP (zero_lt_card_single_add i γ) (lowerFCoordinates Q i γ a t)) =
+      (fCoords i β a hsym (zero_lt_card_single_add i γ) (lowerFCoordinates Q i γ a t)) =
       lowerFCoordinates Q i γ a t := by
-  have h := fSection_add_cSection i β a hPQ hP (zero_lt_card_single_add i γ)
+  have h := fSection_add_cSection i β a hsym (zero_lt_card_single_add i γ)
     (lowerFCoordinates Q i γ a t)
   rw [cMap_lowerF, map_zero, add_zero] at h
   rw [h]
@@ -139,10 +137,10 @@ theorem fSection_lowerF (t : KZeroPrime Q i γ a) :
 /-- The source's actual multiplication map agrees with the previously defined constant-error
 coordinate on the actual crossing image, with `ψ = -τ` already incorporated in `lowerF`. -/
 theorem eCoords_lowerF (t : KZeroPrime Q i γ a) :
-    eCoords i β a hPQ hP (zero_lt_card_single_add i γ)
-      (fCoords i β a hPQ hP (zero_lt_card_single_add i γ) (lowerFCoordinates Q i γ a t)) =
+    eCoords i β a hsym (zero_lt_card_single_add i γ)
+      (fCoords i β a hsym (zero_lt_card_single_add i γ) (lowerFCoordinates Q i γ a t)) =
       lowerE Q i γ a t := by
-  change (cMap i β hPQ hP a (zero_lt_card_single_add i γ)
+  change (cMap i β hsym a (zero_lt_card_single_add i γ)
     (lastDot0 i β a (fSection i β a (zero_lt_card_single_add i γ) _))).coeff 0 = _
   rw [fSection_lowerF, cMap_lastDot_lowerF, Polynomial.coeff_C_zero]
 

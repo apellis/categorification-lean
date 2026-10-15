@@ -86,7 +86,9 @@ theorem hasGdim_seq (μ : X) (ν : Multiset I) (i j : KLR.Seq ν) :
   have hv : ∀ p, v p ∈ HomD RD k μ (ups (word i)) (ups (word j)) (δ p) := by
     rintro ⟨b, m⟩
     have hb : toUEnd RD k μ ν (bR b) ∈ matDeg RD k μ ν (G.stdDeg (ρc ν) b) :=
-      toUEnd_mem (G.basis_mem_grade _ _ (ρc ν) (hρc ν) b)
+      toUEnd_mem (by
+        rw [show bR b = KLR.KLRAlgebra.stdElt (ρc ν) b from KLR.KL2.basis_apply (ρc ν) (hρc ν) b]
+        exact G.stdElt_mem_grade (ρc ν) b)
     have hm : bubDiag RD k μ ν (bubMap RD k μ (MvPolynomial.monomial m 1)) ∈
         matDeg RD k μ ν (Finsupp.weight (wPi C) m) := by
       rw [bubDiag_apply]

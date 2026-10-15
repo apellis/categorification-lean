@@ -213,9 +213,7 @@ noncomputable def resProjMapR (s : Seq (ν + ν')) :
     simp only [resSumR, Pi.smul_apply, Submodule.coe_smul, map_smul, mul_smul_comm,
       RingHom.id_apply, Finset.smul_sum]
 
-variable [IsDomain k] {P : I → I → MvPolynomial (Fin 2) k}
-  (hPQ : ∀ a b, a ≠ b → Q a b = P b a * rename ![1, 0] (P a b))
-  (hP : ∀ a b, a ≠ b → P a b ≠ 0)
+variable (hsym : KLRSymm Q)
   (hσ : ∀ u, IsReduced (Multiset.card (ν + ν')) (σ u) ∧
     wordProd (Multiset.card (ν + ν')) (σ u) = u.1)
   (ρ₁ : Perm (Fin (Multiset.card ν)) → List ℕ)
@@ -223,10 +221,10 @@ variable [IsDomain k] {P : I → I → MvPolynomial (Fin 2) k}
   (hρ₁ : ∀ a, IsReduced (Multiset.card ν) (ρ₁ a) ∧ wordProd (Multiset.card ν) (ρ₁ a) = a)
   (hρ₂ : ∀ b, IsReduced (Multiset.card ν') (ρ₂ b) ∧ wordProd (Multiset.card ν') (ρ₂ b) = b)
 
-include hPQ hP hρ₁ hρ₂ hσ in
+include hsym hρ₁ hρ₂ hσ in
 theorem resProjMapR_bijective (s : Seq (ν + ν')) :
     Function.Bijective (resProjMapR (Q := Q) σ s) := by
-  have hbij := resProjMap_bijective σ hσ hPQ hP ρ₁ ρ₂ hρ₁ hρ₂ s
+  have hbij := resProjMap_bijective σ hσ hsym ρ₁ ρ₂ hρ₁ hρ₂ s
   constructor
   · intro t t' htt
     have h0 : resSumR σ s t = resSumR σ s t' := congrArg Subtype.val htt
@@ -258,11 +256,11 @@ theorem resProjMapR_bijective (s : Seq (ν + ν')) :
 noncomputable def resProjEquivRight (s : Seq (ν + ν')) :
     ((u : ShuffleOf ν ν' s) → projPPR Q u.split.1 u.split.2) ≃ₗ[k] resRightSub Q ν ν' s :=
   LinearEquiv.ofBijective (resProjMapR σ s)
-    (resProjMapR_bijective σ hPQ hP hσ ρ₁ ρ₂ hρ₁ hρ₂ s)
+    (resProjMapR_bijective σ hsym hσ ρ₁ ρ₂ hρ₁ hρ₂ s)
 
 theorem resProjEquivRight_apply (s : Seq (ν + ν'))
     (t : (u : ShuffleOf ν ν' s) → projPPR Q u.split.1 u.split.2) :
-    ((resProjEquivRight σ hPQ hP hσ ρ₁ ρ₂ hρ₁ hρ₂ s t : resRightSub Q ν ν' s) :
+    ((resProjEquivRight σ hsym hσ ρ₁ ρ₂ hρ₁ hρ₂ s t : resRightSub Q ν ν' s) :
       KLRAlgebra k Q (ν + ν')) =
       ∑ u, e s * ψw (σ u.1).reverse *
         concat Q ν ν' (t u : KLRAlgebra k Q ν ⊗[k] KLRAlgebra k Q ν') :=
@@ -273,10 +271,10 @@ theorem resProjEquivRight_apply (s : Seq (ν + ν'))
 theorem resProjEquivRight_mul (s : Seq (ν + ν'))
     (t : (u : ShuffleOf ν ν' s) → projPPR Q u.split.1 u.split.2)
     (c : KLRAlgebra k Q ν ⊗[k] KLRAlgebra k Q ν') :
-    ((resProjEquivRight σ hPQ hP hσ ρ₁ ρ₂ hρ₁ hρ₂ s (fun u =>
+    ((resProjEquivRight σ hsym hσ ρ₁ ρ₂ hρ₁ hρ₂ s (fun u =>
       ⟨(t u : KLRAlgebra k Q ν ⊗[k] KLRAlgebra k Q ν') * c, mul_mem_projPPR (t u).2 c⟩) :
         resRightSub Q ν ν' s) : KLRAlgebra k Q (ν + ν')) =
-      (resProjEquivRight σ hPQ hP hσ ρ₁ ρ₂ hρ₁ hρ₂ s t : KLRAlgebra k Q (ν + ν')) *
+      (resProjEquivRight σ hsym hσ ρ₁ ρ₂ hρ₁ hρ₂ s t : KLRAlgebra k Q (ν + ν')) *
         concat Q ν ν' c :=
   resSumR_mul σ s t c
 

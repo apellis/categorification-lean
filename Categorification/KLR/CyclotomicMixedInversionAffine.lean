@@ -187,9 +187,7 @@ theorem zero_weight_corner (added target : I) (hne : target ≠ added)
     lastColourProjector 0 added target * r * oneConcat Q 0 {added} = 0 :=
   absent_corner 0 added target (by simp) hne r
 
-variable [IsDomain k] {P : I → I → MvPolynomial (Fin 2) k}
-  (hPQ : ∀ a b, a ≠ b → Q a b = P b a * rename ![1, 0] (P a b))
-  (hP : ∀ a b, a ≠ b → P a b ≠ 0)
+variable (hsym : KLRSymm Q)
 
 /-- Actual rectangular affine crossing equivalence into the full corner.
 The source here is the balanced four-block Mackey tensor. -/
@@ -197,11 +195,11 @@ def crossingEquiv (hij : i ≠ j) : MackeyX Q (crossingQuad γ i j) ≃ₗ[k]
     bimod Q (weightSquare γ i j) :=
   (LinearEquiv.ofBijective
     (mackeyMap (weightSquare γ i j) (crossingQuad γ i j) (by simp [crossingQuad]))
-    ⟨mackeyMap_injective (weightSquare γ i j) hPQ hP _ _,
+    ⟨mackeyMap_injective (weightSquare γ i j) hsym _ _,
       crossingMap_surjective γ i j hij⟩).trans (cornerClassEquiv γ i j hij).symm
 
 theorem cornerClass_crossingEquiv (hij : i ≠ j) (z : MackeyX Q (crossingQuad γ i j)) :
-    cornerClass γ i j (crossingEquiv γ i j hPQ hP hij z) =
+    cornerClass γ i j (crossingEquiv γ i j hsym hij z) =
       mackeyMap (weightSquare γ i j) (crossingQuad γ i j)
         (by simp [crossingQuad]) z :=
   (cornerClassEquiv γ i j hij).apply_symm_apply _
@@ -209,11 +207,11 @@ theorem cornerClass_crossingEquiv (hij : i ≠ j) (z : MackeyX Q (crossingQuad �
 /-- The forward map is the single actual crossing, in the ambient algebra. -/
 theorem crossingEquiv_tmul (hij : i ≠ j)
     (t : MackeyTop Q (crossingQuad γ i j)) (b : MackeyBot Q (crossingQuad γ i j)) :
-    (crossingEquiv γ i j hPQ hP hij (BalancedTensor.tmul t b) :
+    (crossingEquiv γ i j hsym hij (BalancedTensor.tmul t b) :
       KLRAlgebra k Q ((γ + {j}) + {i})) =
       concat Q (γ + {j}) {i} t * ψ (Multiset.card γ) *
         botConcat Q (weightSquare γ i j) b := by
-  have hc := cornerClass_crossingEquiv γ i j hPQ hP hij (BalancedTensor.tmul t b)
+  have hc := cornerClass_crossingEquiv γ i j hsym hij (BalancedTensor.tmul t b)
   rw [mackeyMap_tmul] at hc
   have he := (subquotOf_eq_iff (weightSquare γ i j) _ _).1 hc
   rw [mackeyLowerBimod_succ, zero_stratum γ i j hij, Submodule.mem_bot,
@@ -223,10 +221,10 @@ theorem crossingEquiv_tmul (hij : i ≠ j)
 /-- Left coefficient linearity on the full rectangular corner. -/
 theorem crossingEquiv_left (hij : i ≠ j) (a : TensorKLR Q (γ + {j}) {i})
     (z : MackeyX Q (crossingQuad γ i j)) :
-    (crossingEquiv γ i j hPQ hP hij (a • z) : KLRAlgebra k Q ((γ + {j}) + {i})) =
-      concat Q (γ + {j}) {i} a * crossingEquiv γ i j hPQ hP hij z := by
-  have hc := cornerClass_crossingEquiv γ i j hPQ hP hij (a • z)
-  rw [mackeyMap_left, ← cornerClass_crossingEquiv γ i j hPQ hP hij z] at hc
+    (crossingEquiv γ i j hsym hij (a • z) : KLRAlgebra k Q ((γ + {j}) + {i})) =
+      concat Q (γ + {j}) {i} a * crossingEquiv γ i j hsym hij z := by
+  have hc := cornerClass_crossingEquiv γ i j hsym hij (a • z)
+  rw [mackeyMap_left, ← cornerClass_crossingEquiv γ i j hsym hij z] at hc
   change subquotOf _ _ _ = subquotLeft _ _ a (subquotOf _ _ _) at hc
   rw [subquotLeft_of] at hc
   have he := (subquotOf_eq_iff (weightSquare γ i j) _ _).1 hc
@@ -236,12 +234,12 @@ theorem crossingEquiv_left (hij : i ≠ j) (a : TensorKLR Q (γ + {j}) {i})
 /-- Right coefficient linearity on the full rectangular corner. -/
 theorem crossingEquiv_right (hij : i ≠ j) (a : TensorKLR Q (γ + {i}) {j})
     (z : MackeyX Q (crossingQuad γ i j)) :
-    (crossingEquiv γ i j hPQ hP hij (MackeyX.rightAct (q := crossingQuad γ i j) a z) :
+    (crossingEquiv γ i j hsym hij (MackeyX.rightAct (q := crossingQuad γ i j) a z) :
       KLRAlgebra k Q ((γ + {j}) + {i})) =
-      crossingEquiv γ i j hPQ hP hij z * botConcat Q (weightSquare γ i j) a := by
-  have hc := cornerClass_crossingEquiv γ i j hPQ hP hij
+      crossingEquiv γ i j hsym hij z * botConcat Q (weightSquare γ i j) a := by
+  have hc := cornerClass_crossingEquiv γ i j hsym hij
     (MackeyX.rightAct (q := crossingQuad γ i j) a z)
-  rw [mackeyMap_right, ← cornerClass_crossingEquiv γ i j hPQ hP hij z] at hc
+  rw [mackeyMap_right, ← cornerClass_crossingEquiv γ i j hsym hij z] at hc
   change subquotOf _ _ _ = subquotRight _ _ a (subquotOf _ _ _) at hc
   rw [subquotRight_of] at hc
   have he := (subquotOf_eq_iff (weightSquare γ i j) _ _).1 hc

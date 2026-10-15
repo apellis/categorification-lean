@@ -429,7 +429,7 @@ theorem apply_mem_polGrade_of_polNu {f : Pol k ν} (i : Seq ν) {d : ℤ}
   have hc : ∑ w, ψw (ρ w) * polNu (c w) = (pol (f i) * e i : KLRAlgebra k Q ν) := by
     rw [Finset.sum_eq_single 1 (fun w _ hw => by simp [c, hw]) (by simp)]
     simp only [c, ite_eq_left rfl, ρ, canWord_one, ψw_nil, one_mul, polNu_single]
-  have := G.rightExpansion_isWeightedHomogeneous hPQ hP ρ hρ h1 hc 1 i
+  have := G.rightExpansion_isWeightedHomogeneous (KLRSymm.of_factorization hPQ hP) ρ hρ h1 hc 1 i
   simp only [c, ite_eq_left rfl, Pi.single_eq_same, ρ, canWord_one, degW, sub_zero] at this
   exact this
 

@@ -371,7 +371,7 @@ include hPQ hP hG in
 degree). -/
 theorem thm_3_17_G0 : Function.Injective (chMap G (ν := ν)) := by
   classical
-  have := G.hasGdim_grade' (ν := ν) hPQ hP hG
+  have := G.hasGdim_grade' (ν := ν) (KLRSymm.of_factorization hPQ hP) hG
   let B := Categorification.Graded.G0.topBasis (G.finiteDimensional_top hPQ hP hG ν)
   have hB : ∀ b, chMap G (B b) =
       fun s => gdimPoly (idem b.top.grading (e s : KLRAlgebra K Q ν)) := by

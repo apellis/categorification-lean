@@ -22,7 +22,7 @@ balanced tensor product is spanned by the elements `(ψ_{u₁} ⊗ ψ_{u₂}) �
 (`KLRAlgebra.span_genSet`; the right `R'`-module `_ν R_{ν-λ,λ} ⊗ …` is spanned by the
 `ψ_{u₁} ⊗ ψ_{u₂}` over the minimal coset representatives, `mul_quadTop_one_mem_span`).
 
-## Main results (under the hypotheses of the basis theorem: `k` a domain, `Q = P P'`)
+## Main results (for any commutative ring `k` and symmetric `Q`, `KLRSymm Q`)
 
 * `KLRAlgebra.mackeyMap_injective` : `mackeyMap h q` is injective.
 * `KLRAlgebra.mackeyMap_iSupIndep` : the images for the different `λ` with `|λ| = c` are
@@ -34,7 +34,7 @@ balanced tensor product is spanned by the elements `(ψ_{u₁} ⊗ ψ_{u₂}) �
   (`KLRAlgebra.mackeyMap_mem_subquotGrading`). Refining the filtration `F_c` by any ordering of
   the `λ` with `|λ| = c` gives the paper's filtration indexed by `λ`.
 * `KL1.mackeySubquot_isInternal`, `KL1.mackeyMap_injective` : the case of KL I (a simple graph,
-  over `ℤ` or any integral domain).
+  over any commutative ring `k`).
 -/
 
 noncomputable section
@@ -297,21 +297,19 @@ theorem stdElt_mem_mackeyBimodFilt {c : ℕ} (b : ↥(mackeyIdx h c \ lowerIdx h
   rw [mackeyBimodFilt_eq_span h _ (mackeyRho_spec h c) c]
   exact Submodule.subset_span ⟨b.1, b.2.1, rfl⟩
 
-variable [IsDomain k] {P : I → I → MvPolynomial (Fin 2) k}
-  (hPQ : ∀ a b, a ≠ b → Q a b = P b a * rename ![1, 0] (P a b))
-  (hP : ∀ a b, a ≠ b → P a b ≠ 0)
+variable (hsym : KLRSymm Q)
 
 variable (Q) in
 /-- **The Mackey-adapted basis of `F_c / F_{c-1}`**: the classes of the standard elements
 `ψ_{ρ(w)} x^u 1_s` of `_{ν,ν'}R_{ν'',ν'''}` with exactly `c` crossing strands, for the
 Mackey-adapted reduced words `ρ = mackeyRho h c`. -/
 def subquotBasis (c : ℕ) : Module.Basis ↥(mackeyIdx h c \ lowerIdx h c) k (MackeySubquot Q h c) :=
-  quotBasis (linearIndependent_stdElt hPQ hP (mackeyRho h c) (mackeyRho_spec h c))
+  quotBasis (linearIndependent_stdElt_of_symm hsym (mackeyRho h c) (mackeyRho_spec h c))
     (lowerIdx_subset h c) _ _ (mackeyBimodFilt_eq_span h _ (mackeyRho_spec h c) c)
     (mackeyLowerBimod_eq_span h _ (mackeyRho_spec h c) c)
 
 theorem subquotBasis_apply {c : ℕ} (b : ↥(mackeyIdx h c \ lowerIdx h c)) :
-    subquotBasis Q h hPQ hP c b =
+    subquotBasis Q h hsym c b =
       subquotOf h (stdElt (mackeyRho h c) b.1) (stdElt_mem_mackeyBimodFilt h b) :=
   quotBasis_apply' _ _ _ _ _ _ b
 
@@ -469,9 +467,7 @@ theorem mem_idx_of_quadCond {c : ℕ} (hq : Multiset.card q.β = c) {s₃ : Seq 
     quadPerm_smul, Seq.blockPerm_smul_append]
   exact append_mem_concatSet _ _
 
-variable [IsDomain k] {P : I → I → MvPolynomial (Fin 2) k}
-  (hPQ : ∀ a b, a ≠ b → Q a b = P b a * rename ![1, 0] (P a b))
-  (hP : ∀ a b, a ≠ b → P a b ≠ 0)
+variable (hsym : KLRSymm Q)
 
 variable (Q) in
 /-- The value of the inverse map on a basis element. -/
@@ -484,7 +480,7 @@ variable (Q) in
 /-- **The projection `F_c / F_{c-1} → (… ⊗_{R'} …)` onto the summand of `λ = β`**, defined on the
 Mackey-adapted basis. -/
 def mackeyPsi (c : ℕ) : MackeySubquot Q h c →ₗ[k] MackeyX Q q :=
-  (subquotBasis Q h hPQ hP c).constr k (psiVal Q h q c)
+  (subquotBasis Q h hsym c).constr k (psiVal Q h q c)
 
 theorem mackeyPsi_basis {c : ℕ} (hc : MackeyAdm ν ν'' ν''' c) {s₃ : Seq ν''} {s₄ : Seq ν'''}
     {x : FacData ν ν' ν'' ν'''} (hx₁ : IsShuffle (adm_hA hc) x.1⁻¹)
@@ -493,7 +489,7 @@ theorem mackeyPsi_basis {c : ℕ} (hc : MackeyAdm ν ν'' ν''' c) {s₃ : Seq �
     (hmem : ((seqCast h (s₃.append s₄), blockPerm (Seq.card_add' ν ν') x.1 x.2.1 * mackeyD h c *
         blockPerm (card_add_bot h) x.2.2.1 x.2.2.2, uncastExp h (expEquiv ν'' ν''' (v₃, v₄))) :
         StdIdx (ν + ν')) ∈ mackeyIdx h c \ lowerIdx h c) :
-    mackeyPsi Q h q hPQ hP c (subquotBasis Q h hPQ hP c ⟨_, hmem⟩) = gen Q q s₃ s₄ x v₃ v₄ := by
+    mackeyPsi Q h q hsym c (subquotBasis Q h hsym c ⟨_, hmem⟩) = gen Q q s₃ s₄ x v₃ v₄ := by
   rw [mackeyPsi, Module.Basis.constr_basis, psiVal]
   dsimp only
   obtain ⟨u₁, u₂, Y, Y'⟩ := x
@@ -505,11 +501,8 @@ end Psi
 
 section MapGen
 
-variable (q : MackeyQuad ν ν' ν'' ν''') [IsDomain k] {P : I → I → MvPolynomial (Fin 2) k}
-  (hPQ : ∀ a b, a ≠ b → Q a b = P b a * rename ![1, 0] (P a b))
-  (hP : ∀ a b, a ≠ b → P a b ≠ 0)
+variable (q : MackeyQuad ν ν' ν'' ν''') (hsym : KLRSymm Q)
 
-omit [IsDomain k] in
 /-- `ι(ψ_{u₁} ⊗ ψ_{u₂}) ψ_d ι''(ψ_Y x^{v₃} 1_{s₃} ⊗ ψ_{Y'} x^{v₄} 1_{s₄})` is the standard element
 `ψ_{ρ(w)} x^v 1_s` for the Mackey-adapted word of `w = (u₁ × u₂) d (Y × Y')`. -/
 theorem mackeyRep_gen {c : ℕ} (hc : MackeyAdm ν ν'' ν''' c) (hq : Multiset.card q.β = c)
@@ -544,7 +537,7 @@ theorem mackeyMap_gen {c : ℕ} (hc : MackeyAdm ν ν'' ν''' c) (hq : Multiset.
     (hb : QuadCond q s₃ s₄ x.2.2.1 x.2.2.2) (hx₁ : IsShuffle (adm_hA hc) x.1⁻¹)
     (hx₂ : IsShuffle (adm_hG h hc) x.2.1⁻¹) (v₃ : Fin (Multiset.card ν'') →₀ ℕ)
     (v₄ : Fin (Multiset.card ν''') →₀ ℕ) :
-    mackeyMap h q hq (gen Q q s₃ s₄ x v₃ v₄) = subquotBasis Q h hPQ hP c
+    mackeyMap h q hq (gen Q q s₃ s₄ x v₃ v₄) = subquotBasis Q h hsym c
       ⟨_, mem_idx_of_quadCond h q hq hb (uncastExp h (expEquiv ν'' ν''' (v₃, v₄)))⟩ := by
   rw [gen, dite_eq_left hb, mackeyMap_tmul, subquotBasis_apply]
   exact subquotOf_congr h (mackeyRep_gen h q hc hq hb hx₁ hx₂ v₃ v₄) _ _
@@ -554,8 +547,8 @@ theorem mackeyPsi_mackeyMap_gen {c : ℕ} (hc : MackeyAdm ν ν'' ν''' c) (hq :
     (hb : QuadCond q s₃ s₄ x.2.2.1 x.2.2.2) (hx₁ : IsShuffle (adm_hA hc) x.1⁻¹)
     (hx₂ : IsShuffle (adm_hG h hc) x.2.1⁻¹) (v₃ : Fin (Multiset.card ν'') →₀ ℕ)
     (v₄ : Fin (Multiset.card ν''') →₀ ℕ) :
-    mackeyPsi Q h q hPQ hP c (mackeyMap h q hq (gen Q q s₃ s₄ x v₃ v₄)) = gen Q q s₃ s₄ x v₃ v₄ := by
-  rw [mackeyMap_gen h q hPQ hP hc hq hb hx₁ hx₂, mackeyPsi_basis h q hPQ hP hc hx₁ hx₂]
+    mackeyPsi Q h q hsym c (mackeyMap h q hq (gen Q q s₃ s₄ x v₃ v₄)) = gen Q q s₃ s₄ x v₃ v₄ := by
+  rw [mackeyMap_gen h q hsym hc hq hb hx₁ hx₂, mackeyPsi_basis h q hsym hc hx₁ hx₂]
 
 theorem mackeyPsi_mackeyMap_gen_ne {c : ℕ} (hc : MackeyAdm ν ν'' ν''' c)
     (hq : Multiset.card q.β = c) {q' : MackeyQuad ν ν' ν'' ν'''} (hq' : Multiset.card q'.β = c)
@@ -563,8 +556,8 @@ theorem mackeyPsi_mackeyMap_gen_ne {c : ℕ} (hc : MackeyAdm ν ν'' ν''' c)
     (hb : QuadCond q' s₃ s₄ x.2.2.1 x.2.2.2) (hx₁ : IsShuffle (adm_hA hc) x.1⁻¹)
     (hx₂ : IsShuffle (adm_hG h hc) x.2.1⁻¹) (v₃ : Fin (Multiset.card ν'') →₀ ℕ)
     (v₄ : Fin (Multiset.card ν''') →₀ ℕ) :
-    mackeyPsi Q h q hPQ hP c (mackeyMap h q' hq' (gen Q q' s₃ s₄ x v₃ v₄)) = 0 := by
-  rw [mackeyMap_gen h q' hPQ hP hc hq' hb hx₁ hx₂, mackeyPsi_basis h q hPQ hP hc hx₁ hx₂, gen,
+    mackeyPsi Q h q hsym c (mackeyMap h q' hq' (gen Q q' s₃ s₄ x v₃ v₄)) = 0 := by
+  rw [mackeyMap_gen h q' hsym hc hq' hb hx₁ hx₂, mackeyPsi_basis h q hsym hc hx₁ hx₂, gen,
     dite_eq_right]
   intro hb'
   exact hne (quadCond_unique hb' hb (hq.trans hq'.symm))
@@ -841,38 +834,36 @@ end TopSpan
 
 section Main
 
-variable [IsDomain k] {P : I → I → MvPolynomial (Fin 2) k}
-  (hPQ : ∀ a b, a ≠ b → Q a b = P b a * rename ![1, 0] (P a b))
-  (hP : ∀ a b, a ≠ b → P a b ≠ 0)
+variable (hsym : KLRSymm Q)
 
 /-- `mackeyPsi` is a left inverse of `mackeyMap`. -/
 theorem mackeyPsi_comp_mackeyMap (q : MackeyQuad ν ν' ν'' ν''') {c : ℕ}
     (hq : Multiset.card q.β = c) :
-    (mackeyPsi Q h q hPQ hP c).comp (mackeyMap h q hq) = LinearMap.id := by
+    (mackeyPsi Q h q hsym c).comp (mackeyMap h q hq) = LinearMap.id := by
   have hc : MackeyAdm ν ν'' ν''' c := hq ▸ mackeyAdm_of_quad q
   refine LinearMap.ext_on (span_genSet h q hc hq) ?_
   rintro _ ⟨s₃, s₄, x, v₃, v₄, hb, hx₁, hx₂, rfl⟩
-  exact mackeyPsi_mackeyMap_gen h q hPQ hP hc hq hb hx₁ hx₂ v₃ v₄
+  exact mackeyPsi_mackeyMap_gen h q hsym hc hq hb hx₁ hx₂ v₃ v₄
 
 /-- `mackeyPsi` for `λ` vanishes on the image of `mackeyMap` for `λ' ≠ λ`. -/
 theorem mackeyPsi_comp_mackeyMap_ne {q q' : MackeyQuad ν ν' ν'' ν'''} {c : ℕ}
     (hq : Multiset.card q.β = c) (hq' : Multiset.card q'.β = c) (hne : q ≠ q') :
-    (mackeyPsi Q h q hPQ hP c).comp (mackeyMap h q' hq') = 0 := by
+    (mackeyPsi Q h q hsym c).comp (mackeyMap h q' hq') = 0 := by
   have hc : MackeyAdm ν ν'' ν''' c := hq ▸ mackeyAdm_of_quad q
   refine LinearMap.ext_on (span_genSet h q' hc hq') ?_
   rintro _ ⟨s₃, s₄, x, v₃, v₄, hb, hx₁, hx₂, rfl⟩
-  exact mackeyPsi_mackeyMap_gen_ne h q hPQ hP hc hq hq' hne hb hx₁ hx₂ v₃ v₄
+  exact mackeyPsi_mackeyMap_gen_ne h q hsym hc hq hq' hne hb hx₁ hx₂ v₃ v₄
 
-include hPQ hP in
+include hsym in
 /-- **KL I, Proposition 2.18 (injectivity)**: the map
 `(_ν R_{ν-λ,λ} ⊗ _{ν'} R_{…}) ⊗_{R'} (…) → F_c / F_{c-1}` is injective. -/
 theorem mackeyMap_injective (q : MackeyQuad ν ν' ν'' ν''') {c : ℕ}
     (hq : Multiset.card q.β = c) : Function.Injective (mackeyMap (Q := Q) h q hq) := by
   intro x y hxy
-  have := congrArg (mackeyPsi Q h q hPQ hP c) hxy
+  have := congrArg (mackeyPsi Q h q hsym c) hxy
   rwa [← LinearMap.comp_apply, ← LinearMap.comp_apply, mackeyPsi_comp_mackeyMap] at this
 
-include hPQ hP in
+include hsym in
 /-- **KL I, Proposition 2.18 (independence)**: the images of the maps for the different `λ` with
 `|λ| = c` are independent in `F_c / F_{c-1}`. -/
 theorem mackeyMap_iSupIndep (c : ℕ) :
@@ -882,25 +873,24 @@ theorem mackeyMap_iSupIndep (c : ℕ) :
   rw [Submodule.disjoint_def]
   rintro x ⟨y, rfl⟩ hx
   have hker : (⨆ j ≠ q, LinearMap.range (mackeyMap (Q := Q) h j.1 j.2)) ≤
-      LinearMap.ker (mackeyPsi Q h q.1 hPQ hP c) := by
+      LinearMap.ker (mackeyPsi Q h q.1 hsym c) := by
     refine iSup₂_le fun j hj => ?_
     rintro _ ⟨z, rfl⟩
     rw [LinearMap.mem_ker, ← LinearMap.comp_apply,
-      mackeyPsi_comp_mackeyMap_ne h hPQ hP q.2 j.2 (fun e => hj (Subtype.ext e.symm)),
+      mackeyPsi_comp_mackeyMap_ne h hsym q.2 j.2 (fun e => hj (Subtype.ext e.symm)),
       LinearMap.zero_apply]
   have h0 := hker hx
   rw [LinearMap.mem_ker, ← LinearMap.comp_apply, mackeyPsi_comp_mackeyMap, LinearMap.id_apply]
     at h0
   rw [h0, map_zero]
 
-omit [IsDomain k] in
 /-- **KL I, Proposition 2.18 (the images span)**, indexed by the `λ` with `|λ| = c`. -/
 theorem iSup_range_mackeyMap (c : ℕ) :
     (⨆ q : {q : MackeyQuad ν ν' ν'' ν''' // Multiset.card q.β = c},
       LinearMap.range (mackeyMap (Q := Q) h q.1 q.2)) = ⊤ := by
   rw [← mackeyImage_eq_top h c, mackeyImage, iSup_subtype']
 
-include hPQ hP in
+include hsym in
 open Classical in
 /-- **KL I, Proposition 2.18.** The subquotient `F_c / F_{c-1}` of the Mackey filtration of the
 `(R(ν) ⊗ R(ν'), R(ν'') ⊗ R(ν'''))`-bimodule `_{ν,ν'}R_{ν'',ν'''}` is the internal direct sum,
@@ -912,7 +902,7 @@ theorem mackeySubquot_isInternal (c : ℕ) :
     DirectSum.IsInternal fun q : {q : MackeyQuad ν ν' ν'' ν''' // Multiset.card q.β = c} =>
       LinearMap.range (mackeyMap (Q := Q) h q.1 q.2) :=
   (DirectSum.isInternal_submodule_iff_iSupIndep_and_iSup_eq_top _).2
-    ⟨mackeyMap_iSupIndep h hPQ hP c, iSup_range_mackeyMap h c⟩
+    ⟨mackeyMap_iSupIndep h hsym c, iSup_range_mackeyMap h c⟩
 
 end Main
 
@@ -924,26 +914,24 @@ namespace KL1
 
 open KLRAlgebra
 
-variable {Γ : SimpleGraph I} [DecidableRel Γ.Adj] [IsDomain k] {ν ν' ν'' ν''' : Multiset I}
+variable {Γ : SimpleGraph I} [DecidableRel Γ.Adj] {ν ν' ν'' ν''' : Multiset I}
   (h : ν'' + ν''' = ν + ν')
 
 open Classical in
-/-- **KL I, Proposition 2.18** for the rings `R(ν)` of a simple graph `Γ` (over `ℤ` or any
-integral domain): `F_c / F_{c-1} ≅ ⊕_{|λ| = c} (_ν R_{ν-λ,λ} ⊗ _{ν'} R_{ν'+λ-ν''',ν'''-λ}) ⊗_{R'}
+/-- **KL I, Proposition 2.18** for the rings `R(ν)` of a simple graph `Γ` (over any commutative
+ring `k`): `F_c / F_{c-1} ≅ ⊕_{|λ| = c} (_ν R_{ν-λ,λ} ⊗ _{ν'} R_{ν'+λ-ν''',ν'''-λ}) ⊗_{R'}
 (_{ν-λ,ν''+λ-ν} R_{ν''} ⊗ _{λ,ν'''-λ} R_{ν'''}){-λ·(ν'+λ-ν''')}` as bimodules, via the injective
 bimodule maps `mackeyMap` (`KLRAlgebra.mackeyMap_injective`, `mackeyMap_left`, `mackeyMap_right`)
 of degree `-λ·(ν'+λ-ν''')` (`KLRAlgebra.mackeyMap_mem_subquotGrading`, `KL1.mackeyShift_eq`). -/
 theorem mackeySubquot_isInternal (c : ℕ) :
     DirectSum.IsInternal fun q : {q : MackeyQuad ν ν' ν'' ν''' // Multiset.card q.β = c} =>
       LinearMap.range (mackeyMap (Q := klQ (k := k) Γ) h q.1 q.2) :=
-  KLRAlgebra.mackeySubquot_isInternal h (klQ_eq_klP (Γ := Γ) stdOrient_spec)
-    (fun a b _ => klP_ne_zero _ a b) c
+  KLRAlgebra.mackeySubquot_isInternal h (KLRSymm.of_factor (klQ_eq_klP (Γ := Γ) stdOrient_spec)) c
 
 /-- **KL I, Proposition 2.18 (injectivity)** for the rings `R(ν)` of a simple graph. -/
 theorem mackeyMap_injective (q : MackeyQuad ν ν' ν'' ν''') {c : ℕ}
     (hq : Multiset.card q.β = c) : Function.Injective (mackeyMap (Q := klQ (k := k) Γ) h q hq) :=
-  KLRAlgebra.mackeyMap_injective h (klQ_eq_klP (Γ := Γ) stdOrient_spec)
-    (fun a b _ => klP_ne_zero _ a b) q hq
+  KLRAlgebra.mackeyMap_injective h (KLRSymm.of_factor (klQ_eq_klP (Γ := Γ) stdOrient_spec)) q hq
 
 end KL1
 

@@ -253,38 +253,35 @@ theorem hflip_freeMap (g : Shuffle (Seq.card_add' ν ν') →₀ TensorKLR Q ν 
 
 section Bijective
 
-variable [IsDomain k] {P : I → I → MvPolynomial (Fin 2) k}
-  (hPQ : ∀ a b, a ≠ b → Q a b = P b a * rename ![1, 0] (P a b))
-  (hP : ∀ a b, a ≠ b → P a b ≠ 0)
+variable (hsym : KLRSymm Q)
 
-include hPQ hP in
+include hsym in
 theorem freeMap_shufWord_bijective :
     Function.Bijective (freeMap (Q := Q) (ν := ν) (ν' := ν') shufWord) :=
-  freeMap_bijective hPQ hP (canWord _) (canWord _) shufWord
+  freeMap_bijective hsym (canWord _) (canWord _) shufWord
     (fun a => ⟨isReduced_canWord _ a, wordProd_canWord _ a⟩)
     (fun b => ⟨isReduced_canWord _ b, wordProd_canWord _ b⟩) shufWord_spec
 
-omit [IsDomain k] in
 theorem rightFreeMap_eq_hflip_freeMap (g : Shuffle (Seq.card_add' ν ν') →₀ TensorKLR Q ν ν') :
     rightFreeMap g = hflip ((freeMap (Q := Q) shufWord
       (g.mapRange (tensorHflip ν ν') (map_zero _)) : oneConcatSub Q) :
         KLRAlgebra k Q (ν + ν')) := by
   rw [hflip_freeMap, mapRange_tensorHflip_tensorHflip]
 
-include hPQ hP in
+include hsym in
 theorem rightFreeMap_injective :
     Function.Injective (rightFreeMap (Q := Q) (ν := ν) (ν' := ν')) := by
   intro g g' h
   rw [rightFreeMap_eq_hflip_freeMap, rightFreeMap_eq_hflip_freeMap] at h
-  have h2 := (freeMap_shufWord_bijective hPQ hP).1 (Subtype.ext (hflip_injective h))
+  have h2 := (freeMap_shufWord_bijective hsym).1 (Subtype.ext (hflip_injective h))
   rw [← mapRange_tensorHflip_tensorHflip g, h2, mapRange_tensorHflip_tensorHflip]
 
-include hPQ hP in
+include hsym in
 theorem exists_rightFreeMap_eq {r : KLRAlgebra k Q (ν + ν')} (hr : r * oneConcat Q ν ν' = r) :
     ∃ g, rightFreeMap g = r := by
   have hmem : hflip r ∈ oneConcatSub (ν := ν) (ν' := ν') Q := by
     rw [mem_oneConcatSub, ← hflip_oneConcat, ← hflip_mul, hr]
-  obtain ⟨g, hg⟩ := (freeMap_shufWord_bijective (ν := ν) (ν' := ν') hPQ hP).2 ⟨hflip r, hmem⟩
+  obtain ⟨g, hg⟩ := (freeMap_shufWord_bijective (ν := ν) (ν' := ν') hsym).2 ⟨hflip r, hmem⟩
   refine ⟨g.mapRange (tensorHflip ν ν') (map_zero _), ?_⟩
   rw [← hflip_freeMap, hg, hflip_hflip]
 
@@ -292,7 +289,6 @@ theorem exists_rightFreeMap_eq {r : KLRAlgebra k Q (ν + ν')} (hr : r * oneConc
 def hatWRevSub (u : Shuffle (Seq.card_add' ν ν')) : IndBimod Q ν ν' :=
   ⟨hatWRev u, hatWRev_mul_oneConcat u⟩
 
-omit [IsDomain k] in
 theorem coe_hatWRevSub (u : Shuffle (Seq.card_add' ν ν')) :
     ((hatWRevSub u : IndBimod Q ν ν') : KLRAlgebra k Q (ν + ν')) = hatWRev u := rfl
 
@@ -309,26 +305,26 @@ variable (ν ν') in
 def rightFreeEquiv :
     (Shuffle (Seq.card_add' ν ν') →₀ TensorKLR Q ν ν') ≃ₗ[k] IndBimod Q ν ν' :=
   LinearEquiv.ofBijective rightFreeLin
-    ⟨fun g g' h => rightFreeMap_injective hPQ hP (congrArg Subtype.val h), fun r => by
-      obtain ⟨g, hg⟩ := exists_rightFreeMap_eq hPQ hP (Graded.mem_leftIdeal.1 r.2)
+    ⟨fun g g' h => rightFreeMap_injective hsym (congrArg Subtype.val h), fun r => by
+      obtain ⟨g, hg⟩ := exists_rightFreeMap_eq hsym (Graded.mem_leftIdeal.1 r.2)
       exact ⟨g, Subtype.ext hg⟩⟩
 
 theorem coe_rightFreeEquiv (g : Shuffle (Seq.card_add' ν ν') →₀ TensorKLR Q ν ν') :
-    ((rightFreeEquiv ν ν' hPQ hP g : IndBimod Q ν ν') : KLRAlgebra k Q (ν + ν')) =
+    ((rightFreeEquiv ν ν' hsym g : IndBimod Q ν ν') : KLRAlgebra k Q (ν + ν')) =
       rightFreeMap g := rfl
 
 theorem rightFreeEquiv_single_one (u : Shuffle (Seq.card_add' ν ν')) :
-    rightFreeEquiv ν ν' hPQ hP (Finsupp.single u 1) = hatWRevSub u := by
+    rightFreeEquiv ν ν' hsym (Finsupp.single u 1) = hatWRevSub u := by
   apply Subtype.ext
   rw [coe_rightFreeEquiv, rightFreeMap_single, concat_one, hatWRev_mul_oneConcat]; rfl
 
 theorem rightFreeEquiv_symm_op_smul (r : IndBimod Q ν ν') (t : TensorKLR Q ν ν') :
-    (rightFreeEquiv ν ν' hPQ hP).symm (op t • r) =
-      ((rightFreeEquiv ν ν' hPQ hP).symm r).mapRange (· * t) (zero_mul t) := by
-  apply (rightFreeEquiv ν ν' hPQ hP).injective
+    (rightFreeEquiv ν ν' hsym).symm (op t • r) =
+      ((rightFreeEquiv ν ν' hsym).symm r).mapRange (· * t) (zero_mul t) := by
+  apply (rightFreeEquiv ν ν' hsym).injective
   rw [LinearEquiv.apply_symm_apply]
   apply Subtype.ext
-  rw [coe_rightFreeEquiv, rightFreeMap_mapRange_mul, ← coe_rightFreeEquiv (hPQ := hPQ) (hP := hP),
+  rw [coe_rightFreeEquiv, rightFreeMap_mapRange_mul, ← coe_rightFreeEquiv (hsym := hsym),
     LinearEquiv.apply_symm_apply, coe_op_smul, unop_op]
 
 end Bijective
@@ -390,25 +386,23 @@ end ConcatIdem
 
 section IndDecomp
 
-variable {ν ν' : Multiset I} [IsDomain k] {P : I → I → MvPolynomial (Fin 2) k}
-  (hPQ : ∀ a b, a ≠ b → Q a b = P b a * rename ![1, 0] (P a b))
-  (hP : ∀ a b, a ≠ b → P a b ≠ 0)
+variable {ν ν' : Multiset I} (hsym : KLRSymm Q)
   (N : Type*) [AddCommGroup N] [Module k N] [Module (TensorKLR Q ν ν') N]
   [IsScalarTower k (TensorKLR Q ν ν') N]
 
 /-- The `k`-bilinear map `(r, n) ↦ (t_u(r) n)_u`, `r = ∑_u ŵ_u^* ι(t_u(r))`. -/
 def indDecompBil : IndBimod Q ν ν' →ₗ[k] N →ₗ[k] (Shuffle (Seq.card_add' ν ν') → N) :=
-  LinearMap.mk₂ k (fun r n u => ((rightFreeEquiv ν ν' hPQ hP).symm r) u • n)
+  LinearMap.mk₂ k (fun r n u => ((rightFreeEquiv ν ν' hsym).symm r) u • n)
     (fun r r' n => by funext u; simp [add_smul])
     (fun c r n => by funext u; simp [smul_assoc])
     (fun r n n' => by funext u; simp [smul_add])
     (fun c r n => by funext u; simp [smul_comm c])
 
 theorem indDecompBil_apply (r : IndBimod Q ν ν') (n : N) (u : Shuffle (Seq.card_add' ν ν')) :
-    indDecompBil hPQ hP N r n u = ((rightFreeEquiv ν ν' hPQ hP).symm r) u • n := rfl
+    indDecompBil hsym N r n u = ((rightFreeEquiv ν ν' hsym).symm r) u • n := rfl
 
 theorem indDecompBil_balanced (r : IndBimod Q ν ν') (t : TensorKLR Q ν ν') (n : N) :
-    indDecompBil hPQ hP N (op t • r) n = indDecompBil hPQ hP N r (t • n) := by
+    indDecompBil hsym N (op t • r) n = indDecompBil hsym N r (t • n) := by
   funext u
   rw [indDecompBil_apply, indDecompBil_apply, rightFreeEquiv_symm_op_smul,
     Finsupp.mapRange_apply, mul_smul]
@@ -418,23 +412,23 @@ def indDecompInv : (Shuffle (Seq.card_add' ν ν') → N) →ₗ[k] Ind Q ν ν'
   ∑ u, (BalancedTensor.mkBil k (KLRAlgebra k Q (ν + ν')) (TensorKLR Q ν ν') (IndBimod Q ν ν') N
     (hatWRevSub u)).comp (LinearMap.proj u)
 
-omit [IsDomain k] [IsScalarTower k (TensorKLR Q ν ν') N] in
+omit [IsScalarTower k (TensorKLR Q ν ν') N] in
 theorem indDecompInv_apply (g : Shuffle (Seq.card_add' ν ν') → N) :
     indDecompInv N g = ∑ u, (BalancedTensor.tmul (hatWRevSub u) (g u) : Ind Q ν ν' N) := by
   simp [indDecompInv]
 
 /-- **The decomposition `Ind N ≅ ⊕_u N`** (as vector spaces), `ŵ_u^* ⊗ n ↦ (n at u)`. -/
 def indDecomp : Ind Q ν ν' N ≃ₗ[k] (Shuffle (Seq.card_add' ν ν') → N) :=
-  LinearEquiv.ofLinearMap (BalancedTensor.lift (indDecompBil hPQ hP N)
-      (indDecompBil_balanced hPQ hP N)) (indDecompInv N)
+  LinearEquiv.ofLinearMap (BalancedTensor.lift (indDecompBil hsym N)
+      (indDecompBil_balanced hsym N)) (indDecompInv N)
     (by
       apply LinearMap.ext; intro g; funext u'
       rw [LinearMap.comp_apply, indDecompInv_apply, map_sum, Finset.sum_apply,
         Finset.sum_eq_single u']
-      · rw [BalancedTensor.lift_tmul, indDecompBil_apply, ← rightFreeEquiv_single_one hPQ hP,
+      · rw [BalancedTensor.lift_tmul, indDecompBil_apply, ← rightFreeEquiv_single_one hsym,
           LinearEquiv.symm_apply_apply, Finsupp.single_eq_same, one_smul, LinearMap.id_apply]
       · intro u _ hu
-        rw [BalancedTensor.lift_tmul, indDecompBil_apply, ← rightFreeEquiv_single_one hPQ hP,
+        rw [BalancedTensor.lift_tmul, indDecompBil_apply, ← rightFreeEquiv_single_one hsym,
           LinearEquiv.symm_apply_apply, Finsupp.single_eq_of_ne hu.symm, zero_smul]
       · simp)
     (by
@@ -455,24 +449,24 @@ def indDecomp : Ind Q ν ν' N ≃ₗ[k] (Shuffle (Seq.card_add' ν ν') → N) 
       congr 1
       apply Subtype.ext
       rw [Submodule.coe_sum]
-      conv_rhs => rw [← (rightFreeEquiv ν ν' hPQ hP).apply_symm_apply r, coe_rightFreeEquiv,
+      conv_rhs => rw [← (rightFreeEquiv ν ν' hsym).apply_symm_apply r, coe_rightFreeEquiv,
         rightFreeMap_apply, Finsupp.sum_fintype _ _ (fun _ => by rw [map_zero, mul_zero])]
       refine Finset.sum_congr rfl fun u _ => ?_
       rw [coe_op_smul, unop_op, coe_hatWRevSub])
 
 theorem indDecomp_tmul (r : IndBimod Q ν ν') (n : N) (u : Shuffle (Seq.card_add' ν ν')) :
-    indDecomp hPQ hP N (BalancedTensor.tmul r n) u =
-      ((rightFreeEquiv ν ν' hPQ hP).symm r) u • n := rfl
+    indDecomp hsym N (BalancedTensor.tmul r n) u =
+      ((rightFreeEquiv ν ν' hsym).symm r) u • n := rfl
 
 theorem indDecomp_symm_apply (g : Shuffle (Seq.card_add' ν ν') → N) :
-    (indDecomp hPQ hP N).symm g =
+    (indDecomp hsym N).symm g =
       ∑ u, (BalancedTensor.tmul (hatWRevSub u) (g u) : Ind Q ν ν' N) :=
   indDecompInv_apply N g
 
 theorem indDecomp_tmul_hatWRevSub (u : Shuffle (Seq.card_add' ν ν')) (n : N) :
-    indDecomp hPQ hP N (BalancedTensor.tmul (hatWRevSub u) n) = Pi.single u n := by
+    indDecomp hsym N (BalancedTensor.tmul (hatWRevSub u) n) = Pi.single u n := by
   funext u'
-  rw [indDecomp_tmul, ← rightFreeEquiv_single_one hPQ hP, LinearEquiv.symm_apply_apply,
+  rw [indDecomp_tmul, ← rightFreeEquiv_single_one hsym, LinearEquiv.symm_apply_apply,
     Finsupp.single_apply, Pi.single_apply]
   by_cases h : u' = u
   · subst h; simp
@@ -481,24 +475,22 @@ theorem indDecomp_tmul_hatWRevSub (u : Shuffle (Seq.card_add' ν ν')) (n : N) :
 /-- The element `1_{ν,ν'} ∈ R(ν + ν') 1_{ν,ν'}`. -/
 def oneConcatSubBimod : IndBimod Q ν ν' := ⟨oneConcat Q ν ν', oneConcat_idem.eq⟩
 
-omit [IsDomain k] in
 theorem oneConcatSubBimod_eq : (oneConcatSubBimod : IndBimod Q ν ν') = hatWRevSub shufOne :=
   Subtype.ext hatWRev_one.symm
 
 /-- The unit `n ↦ 1_{ν,ν'} ⊗ n` corresponds to the summand of the shuffle `u = 1`. -/
 theorem indDecomp_tmul_oneConcat (n : N) :
-    indDecomp (ν := ν) (ν' := ν') hPQ hP N (BalancedTensor.tmul oneConcatSubBimod n) =
+    indDecomp (ν := ν) (ν' := ν') hsym N (BalancedTensor.tmul oneConcatSubBimod n) =
       Pi.single shufOne n := by
   rw [oneConcatSubBimod_eq, indDecomp_tmul_hatWRevSub]
 
-omit [IsDomain k] in
 theorem e_mul_hatWRev (s : Seq (ν + ν')) (u : Shuffle (Seq.card_add' ν ν')) :
     (e s * hatWRev u : KLRAlgebra k Q (ν + ν')) =
       hatWRev u * concat Q ν ν' (concatIdem (u.1 • s)) := by
   rw [hatWRev, ← mul_assoc, e_mul_ψw, wordProd_reverse, (shufWord_spec u).2, inv_inv,
     mul_assoc, ← concat_concatIdem, mul_assoc, oneConcat_mul_concat]
 
-omit [IsDomain k] [IsScalarTower k (TensorKLR Q ν ν') N] in
+omit [IsScalarTower k (TensorKLR Q ν ν') N] in
 theorem e_smul_tmul_hatWRevSub (s : Seq (ν + ν')) (u : Shuffle (Seq.card_add' ν ν')) (n : N) :
     (e s : KLRAlgebra k Q (ν + ν')) • (BalancedTensor.tmul (hatWRevSub u) n : Ind Q ν ν' N) =
       BalancedTensor.tmul (hatWRevSub u) (concatIdem (Q := Q) (u.1 • s) • n) := by
@@ -510,12 +502,12 @@ theorem e_smul_tmul_hatWRevSub (s : Seq (ν + ν')) (u : Shuffle (Seq.card_add' 
 /-- **`1_s` acts on the summand `u` through `1_{u s}`.** -/
 theorem indDecomp_e_smul (s : Seq (ν + ν')) (y : Ind Q ν ν' N)
     (u : Shuffle (Seq.card_add' ν ν')) :
-    indDecomp hPQ hP N ((e s : KLRAlgebra k Q (ν + ν')) • y) u =
-      concatIdem (Q := Q) (u.1 • s) • indDecomp hPQ hP N y u := by
-  set g := indDecomp hPQ hP N y
-  have hy : y = (indDecomp hPQ hP N).symm g := ((indDecomp hPQ hP N).symm_apply_apply y).symm
+    indDecomp hsym N ((e s : KLRAlgebra k Q (ν + ν')) • y) u =
+      concatIdem (Q := Q) (u.1 • s) • indDecomp hsym N y u := by
+  set g := indDecomp hsym N y
+  have hy : y = (indDecomp hsym N).symm g := ((indDecomp hsym N).symm_apply_apply y).symm
   have : (e s : KLRAlgebra k Q (ν + ν')) • y =
-      (indDecomp hPQ hP N).symm (fun u => concatIdem (Q := Q) (u.1 • s) • g u) := by
+      (indDecomp hsym N).symm (fun u => concatIdem (Q := Q) (u.1 • s) • g u) := by
     rw [hy, indDecomp_symm_apply, indDecomp_symm_apply, Finset.smul_sum]
     exact Finset.sum_congr rfl fun u _ => e_smul_tmul_hatWRevSub N s u (g u)
   rw [this, LinearEquiv.apply_symm_apply]
@@ -524,11 +516,11 @@ theorem indDecomp_e_smul (s : Seq (ν + ν')) (y : Ind Q ν ν' N)
 def fixSubIndEquiv (s : Seq (ν + ν')) :
     fixSub k (Ind Q ν ν' N) (e s : KLRAlgebra k Q (ν + ν')) ≃ₗ[k]
       ((u : Shuffle (Seq.card_add' ν ν')) → fixSub k N (concatIdem (Q := Q) (u.1 • s))) where
-  toFun y u := ⟨indDecomp (ν := ν) (ν' := ν') hPQ hP N (y : Ind Q ν ν' N) u, by
+  toFun y u := ⟨indDecomp (ν := ν) (ν' := ν') hsym N (y : Ind Q ν ν' N) u, by
     rw [mem_fixSub, ← indDecomp_e_smul, mem_fixSub.1 y.2]⟩
-  invFun g := ⟨(indDecomp (ν := ν) (ν' := ν') hPQ hP N).symm fun u => (g u : N), by
+  invFun g := ⟨(indDecomp (ν := ν) (ν' := ν') hsym N).symm fun u => (g u : N), by
     rw [mem_fixSub]
-    apply (indDecomp (ν := ν) (ν' := ν') hPQ hP N).injective
+    apply (indDecomp (ν := ν) (ν' := ν') hsym N).injective
     funext u
     rw [indDecomp_e_smul, LinearEquiv.apply_symm_apply]
     exact (g u).2⟩
@@ -540,19 +532,19 @@ def fixSubIndEquiv (s : Seq (ν + ν')) :
     simp only [Submodule.coe_smul_of_tower, map_smul, Pi.smul_apply, RingHom.id_apply]
   left_inv y := by
     apply Subtype.ext
-    exact (indDecomp (ν := ν) (ν' := ν') hPQ hP N).symm_apply_apply (y : Ind Q ν ν' N)
+    exact (indDecomp (ν := ν) (ν' := ν') hsym N).symm_apply_apply (y : Ind Q ν ν' N)
   right_inv g := by
     funext u; apply Subtype.ext
-    show indDecomp (ν := ν) (ν' := ν') hPQ hP N
-      ((indDecomp (ν := ν) (ν' := ν') hPQ hP N).symm fun u => (g u : N)) u = g u
+    show indDecomp (ν := ν) (ν' := ν') hsym N
+      ((indDecomp (ν := ν) (ν' := ν') hsym N).symm fun u => (g u : N)) u = g u
     rw [LinearEquiv.apply_symm_apply]
 
 theorem fixSubIndEquiv_apply (s : Seq (ν + ν'))
     (y : fixSub k (Ind Q ν ν' N) (e s : KLRAlgebra k Q (ν + ν')))
     (u : Shuffle (Seq.card_add' ν ν')) :
-    (fixSubIndEquiv hPQ hP N s y u : N) = indDecomp hPQ hP N (y : Ind Q ν ν' N) u := rfl
+    (fixSubIndEquiv hsym N s y u : N) = indDecomp hsym N (y : Ind Q ν ν' N) u := rfl
 
-include hPQ hP in
+include hsym in
 /-- **Support form of the Shuffle Lemma**: if `1_s Ind N ≠ 0` then `u s = ij` for a shuffle `u`
 and sequences `i`, `j` with `(1_i ⊗ 1_j) N ≠ 0`. -/
 theorem exists_shuffle_of_fixSub_ind_ne_bot {s : Seq (ν + ν')}
@@ -579,8 +571,8 @@ theorem exists_shuffle_of_fixSub_ind_ne_bot {s : Seq (ν + ν')}
       exact (Submodule.mem_bot k).1 hv'
     · rw [concatIdem_of_not_mem hmem, zero_smul] at hv
       exact hv.symm
-  have h0 : fixSubIndEquiv hPQ hP N s ⟨y, hy⟩ = 0 := funext fun u => hsub u _
-  have := congrArg Subtype.val ((fixSubIndEquiv hPQ hP N s).map_eq_zero_iff.1 h0)
+  have h0 : fixSubIndEquiv hsym N s ⟨y, hy⟩ = 0 := funext fun u => hsub u _
+  have := congrArg Subtype.val ((fixSubIndEquiv hsym N s).map_eq_zero_iff.1 h0)
   rw [Submodule.mem_bot]
   exact this
 
@@ -592,17 +584,16 @@ section Shuffle
 
 variable {K : Type*} [Field K] {Q : I → I → MvPolynomial (Fin 2) K} {ν ν' : Multiset I}
   {P : I → I → MvPolynomial (Fin 2) K}
-  (hPQ : ∀ a b, a ≠ b → Q a b = P b a * rename ![1, 0] (P a b))
-  (hP : ∀ a b, a ≠ b → P a b ≠ 0)
+  (hsym : KLRSymm Q)
   (N : Type*) [AddCommGroup N] [Module K N] [Module (TensorKLR Q ν ν') N]
   [IsScalarTower K (TensorKLR Q ν ν') N]
 
-include hPQ hP in
+include hsym in
 /-- Induced modules of finite-dimensional modules are finite-dimensional. -/
 theorem finiteDimensional_ind [FiniteDimensional K N] : FiniteDimensional K (Ind Q ν ν' N) :=
-  LinearEquiv.finiteDimensional (indDecomp hPQ hP N).symm
+  LinearEquiv.finiteDimensional (indDecomp hsym N).symm
 
-include hPQ hP in
+include hsym in
 /-- **KL I, Lemma 2.20 (Shuffle Lemma), ungraded**: `dim 1_s Ind N = ∑_u dim 1_{u s} N`, the sum
 over the shuffles `u`; `1_{u s} = 1_i ⊗ 1_j` if `u s = ij` (`concatIdem_append`) and `0`
 otherwise (`concatIdem_of_not_mem`). -/
@@ -610,7 +601,7 @@ theorem finrank_fixSub_ind [FiniteDimensional K N] (s : Seq (ν + ν')) :
     Module.finrank K (fixSub K (Ind Q ν ν' N) (e s : KLRAlgebra K Q (ν + ν'))) =
       ∑ u : Shuffle (Seq.card_add' ν ν'),
         Module.finrank K (fixSub K N (concatIdem (Q := Q) (u.1 • s))) := by
-  rw [(fixSubIndEquiv hPQ hP N s).finrank_eq, Module.finrank_pi_fintype]
+  rw [(fixSubIndEquiv hsym N s).finrank_eq, Module.finrank_pi_fintype]
 
 end Shuffle
 
@@ -664,14 +655,13 @@ section ShuffleExt
 
 variable {K : Type*} [Field K] {Q : I → I → MvPolynomial (Fin 2) K} {ν ν' : Multiset I}
   {P : I → I → MvPolynomial (Fin 2) K}
-  (hPQ : ∀ a b, a ≠ b → Q a b = P b a * rename ![1, 0] (P a b))
-  (hP : ∀ a b, a ≠ b → P a b ≠ 0)
+  (hsym : KLRSymm Q)
   (N₁ : Type*) [AddCommGroup N₁] [Module K N₁] [Module (KLRAlgebra K Q ν) N₁]
   [IsScalarTower K (KLRAlgebra K Q ν) N₁] [FiniteDimensional K N₁]
   (N₂ : Type*) [AddCommGroup N₂] [Module K N₂] [Module (KLRAlgebra K Q ν') N₂]
   [IsScalarTower K (KLRAlgebra K Q ν') N₂] [FiniteDimensional K N₂]
 
-include hPQ hP in
+include hsym in
 /-- **KL I, Lemma 2.20 (Shuffle Lemma), ungraded**: for `s ∈ Seq(ν + ν')`,
 `dim 1_s Ind (N₁ ⊠ N₂) = ∑ dim 1_i N₁ · dim 1_j N₂`, the sum over the ways `u` of writing `s` as a
 shuffle of `i ∈ Seq ν` and `j ∈ Seq ν'` (`ShuffleOf ν ν' s`, `(i, j) = u.split`). In terms of
@@ -683,7 +673,7 @@ theorem shuffle_lemma_finrank (s : Seq (ν + ν')) :
   classical
   have : FiniteDimensional K (ExtTensor K N₁ N₂) :=
     inferInstanceAs (FiniteDimensional K (N₁ ⊗[K] N₂))
-  rw [finrank_fixSub_ind hPQ hP,
+  rw [finrank_fixSub_ind hsym,
     ← Fintype.sum_subtype_add_sum_subtype (fun u : Shuffle (Seq.card_add' ν ν') =>
       u.1 • s ∈ concatSet ν ν')]
   have hzero : ∑ u : {u : Shuffle (Seq.card_add' ν ν') // ¬ u.1 • s ∈ concatSet ν ν'},

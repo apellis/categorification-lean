@@ -194,3 +194,23 @@ theorem basisOfSymm_apply (b : Seq ν × Perm (Fin (Multiset.card ν)) × (Fin (
 end KLRAlgebra
 
 end Categorification.KLR
+
+namespace Categorification.KLR
+
+/-- Factorized data `Q_{ab}(u,v) = P_{ba}(u,v) P_{ab}(v,u)` are symmetric. -/
+theorem KLRSymm.of_factor {k : Type*} [CommRing k] {I : Type*}
+    {Q P : I → I → MvPolynomial (Fin 2) k}
+    (hPQ : ∀ a b, a ≠ b → Q a b = P b a * MvPolynomial.rename ![1, 0] (P a b)) : KLRSymm Q := by
+  intro a b hab
+  rw [hPQ a b hab, hPQ b a hab.symm, map_mul, rename_swap_rename_swap, mul_comm]
+
+/-- `KLRSymm.of_factor` with the full factorization hypotheses `hPQ`, `hP` of `basis` as
+arguments (`hP` is not needed). Results stated under these hypotheses that rely on results
+stated under `KLRSymm Q` pass both through this lemma. -/
+theorem KLRSymm.of_factorization {k : Type*} [CommRing k] {I : Type*}
+    {Q P : I → I → MvPolynomial (Fin 2) k}
+    (hPQ : ∀ a b, a ≠ b → Q a b = P b a * MvPolynomial.rename ![1, 0] (P a b))
+    (_hP : ∀ a b, a ≠ b → P a b ≠ 0) : KLRSymm Q :=
+  KLRSymm.of_factor hPQ
+
+end Categorification.KLR

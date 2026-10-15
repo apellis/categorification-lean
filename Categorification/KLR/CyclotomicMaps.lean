@@ -540,7 +540,7 @@ end lemma410
 
 section prop413
 
-variable (a : I → Polynomial k) (hsym : ∀ a b, a ≠ b → Q b a = rename ![1, 0] (Q a b))
+variable (a : I → Polynomial k) (hsym : KLRSymm Q)
 include hsym
 
 /-- `ψ_j G_r = G_r ψ_{j+1}` for `j + 2 ≤ r` (from KK Lemma 4.12). -/
@@ -629,7 +629,7 @@ abbrev KOne (h1 : 1 < m) : Type _ := A ⧸ cycL1 (Q := Q) a h1
 
 /-- **KK Proposition 4.14**: right multiplication by `G_n` carries `R(ν) a^Λ(x_1) R(β)` into
 `R(ν) a^Λ(x_2) R^1(β)`. -/
-theorem mul_gProd_mem (hsym : ∀ a b, a ≠ b → Q b a = rename ![1, 0] (Q a b)) (h0 : 0 < m)
+theorem mul_gProd_mem (hsym : KLRSymm Q) (h0 : 0 < m)
     (h1 : 1 < m) (n : ℕ) (hn : n + 1 = m) {z : A} (hz : z ∈ cycL0 a h0) :
     z * gProd n ∈ cycL1 a h1 := by
   induction hz using Submodule.span_induction with
@@ -658,7 +658,7 @@ theorem pMap_mk (h0 : 0 < m) (h1 : 1 < m) (n : ℕ) (hn : n + 1 = m) (r : A) :
     smul_eq_mul, Submodule.mkQ_apply]
 
 /-- **KK's map `Q : K_0 → K_1`** (Props. 4.13, 4.14): right multiplication by `g_{n-1} ⋯ g_0`. -/
-noncomputable def qMap (hsym : ∀ a b, a ≠ b → Q b a = rename ![1, 0] (Q a b)) (h0 : 0 < m)
+noncomputable def qMap (hsym : KLRSymm Q) (h0 : 0 < m)
     (h1 : 1 < m) (n : ℕ) (hn : n + 1 = m) : KZero Q ν a h0 →ₗ[A] KOne Q ν a h1 :=
   (cycL0 a h0).liftQ ((cycL1 a h1).mkQ ∘ₗ LinearMap.toSpanSingleton A A (gProd n))
     (fun z hz => by
@@ -666,7 +666,7 @@ noncomputable def qMap (hsym : ∀ a b, a ≠ b → Q b a = rename ![1, 0] (Q a 
         Submodule.mkQ_apply, Submodule.Quotient.mk_eq_zero]
       exact mul_gProd_mem a hsym h0 h1 n hn hz)
 
-theorem qMap_mk (hsym : ∀ a b, a ≠ b → Q b a = rename ![1, 0] (Q a b)) (h0 : 0 < m)
+theorem qMap_mk (hsym : KLRSymm Q) (h0 : 0 < m)
     (h1 : 1 < m) (n : ℕ) (hn : n + 1 = m) (r : A) :
     qMap a hsym h0 h1 n hn (Submodule.Quotient.mk r) = Submodule.Quotient.mk (r * gProd n) := by
   rw [qMap, Submodule.liftQ_apply, LinearMap.comp_apply, LinearMap.toSpanSingleton_apply,
@@ -679,7 +679,7 @@ noncomputable def aElt (h0 : 0 < m) (n : ℕ) : A :=
 /-- **Kang–Kashiwara, Theorem 4.15**: `Q ∘ P` is right multiplication by
 `A = ∑_𝐢 a_{i_1}(x_1) F_n(𝐢) e(𝐢)` on `K_1` (`F_n(𝐢) = (−1)^{β_{i_1}} ∏_{i_b ≠ i_1}
 Q_{i_1 i_b}(x_1, x_b)`; the sign is the conversion between KK's `τ` and `ψ`). -/
-theorem qMap_pMap (hsym : ∀ a b, a ≠ b → Q b a = rename ![1, 0] (Q a b)) (h0 : 0 < m)
+theorem qMap_pMap (hsym : KLRSymm Q) (h0 : 0 < m)
     (h1 : 1 < m) (n : ℕ) (hn : n + 1 = m) (r : A) :
     qMap a hsym h0 h1 n hn (pMap a h0 h1 n hn (Submodule.Quotient.mk r)) =
       Submodule.Quotient.mk (r * aElt a h0 n) := by

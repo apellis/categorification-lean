@@ -138,18 +138,16 @@ end Free
 
 /-! ### Corollary 2.17 -/
 
-variable [IsDomain k] {P : I → I → MvPolynomial (Fin 2) k}
-  (hPQ : ∀ a b, a ≠ b → Q a b = P b a * rename ![1, 0] (P a b))
-  (hP : ∀ a b, a ≠ b → P a b ≠ 0)
+variable (hsym : KLRSymm Q)
 
-include hPQ hP in
+include hsym in
 /-- **KL I, Corollary 2.17**: the restriction functor `Res_{ν,ν'}` takes projective
 `R(ν + ν')`-modules to projective `R(ν) ⊗ R(ν')`-modules. -/
 theorem res_projective (N : Type*) [AddCommGroup N] [Module (KLRAlgebra k Q (ν + ν')) N]
     [Module.Projective (KLRAlgebra k Q (ν + ν')) N] :
     Module.Projective (KLRAlgebra k Q ν ⊗[k] KLRAlgebra k Q ν') (Res Q ν ν' N) := by
   obtain ⟨s, hs⟩ := Module.projective_def'.1 ‹Module.Projective (KLRAlgebra k Q (ν + ν')) N›
-  have := free_oneConcat (ν := ν) (ν' := ν') hPQ hP
+  have := free_oneConcat (ν := ν) (ν' := ν') hsym
   have : Module.Projective (KLRAlgebra k Q ν ⊗[k] KLRAlgebra k Q ν')
       (Res Q ν ν' (N →₀ KLRAlgebra k Q (ν + ν'))) :=
     Module.Projective.of_equiv (resFinsuppEquiv N).symm

@@ -135,9 +135,7 @@ open TypeA Categorification.Graded KLRAlgebra PolyRep
 universe uI
 
 variable {I : Type uI} [DecidableEq I] {k : Type*} [Field k] {Q : I → I → MvPolynomial (Fin 2) k}
-  {P : I → I → MvPolynomial (Fin 2) k}
-  (hPQ : ∀ a b, a ≠ b → Q a b = P b a * rename ![1, 0] (P a b))
-  (hP : ∀ a b, a ≠ b → P a b ≠ 0) (G : GradingDatum Q)
+  (hsym : KLRSymm Q) (G : GradingDatum Q)
 
 namespace GradingDatum
 
@@ -172,7 +170,7 @@ variable (ρ : Perm (Fin (Multiset.card μ)) → List ℕ)
 
 /-- The basis with dots on top (`lbasis`) consists of homogeneous elements. -/
 theorem lbasis_mem_grade (b : Seq μ × Perm (Fin (Multiset.card μ)) × (Fin (Multiset.card μ) →₀ ℕ)) :
-    lbasis hPQ hP ρ hρ b ∈ G.grade μ
+    lbasis hsym ρ hρ b ∈ G.grade μ
       (Finsupp.weight (fun a => G.degX ((b.2.1 • b.1).lbl a)) b.2.2 + G.degW (ρ b.2.1) b.1) := by
   rw [lbasis_apply]
   have := G.pol_monomial_mul_ψw_mul_e_mem_grade b.2.2 (ρ b.2.1) b.1
@@ -191,16 +189,16 @@ variable {ν : Multiset I} (ρ : Perm (Fin (Multiset.card ν)) → List ℕ)
 the polynomials `(f_w)_i`. -/
 theorem basis_repr_sum_ψw_mul_polNu (c : Perm (Fin (Multiset.card ν)) → Pol k ν)
     (b : Seq ν × Perm (Fin (Multiset.card ν)) × (Fin (Multiset.card ν) →₀ ℕ)) :
-    (KLRAlgebra.basis hPQ hP ρ hρ).repr (∑ w, ψw (ρ w) * polNu (c w)) b =
+    (KLRAlgebra.basisOfSymm hsym ρ hρ).repr (∑ w, ψw (ρ w) * polNu (c w)) b =
       (c b.2.1 b.1).coeff b.2.2 := by
   classical
-  set B := KLRAlgebra.basis hPQ hP ρ hρ
+  set B := KLRAlgebra.basisOfSymm hsym ρ hρ
   have key : ∀ (w : Perm (Fin (Multiset.card ν))) (i : Seq ν) (p : MvPolynomial _ k),
       (ψw (ρ w) * pol p * e i : KLRAlgebra k Q ν) =
         ∑ u ∈ p.support, p.coeff u • B (i, w, u) := by
     intro w i p
     conv_lhs => rw [p.as_sum]
-    simp only [map_sum, Finset.mul_sum, Finset.sum_mul, B, basis_apply]
+    simp only [map_sum, Finset.mul_sum, Finset.sum_mul, B, basisOfSymm_apply]
     refine Finset.sum_congr rfl fun u _ => ?_
     rw [show (monomial u (p.coeff u) : MvPolynomial _ k) = p.coeff u • monomial u 1 by
       rw [smul_monomial, smul_eq_mul, mul_one], map_smul, mul_smul_comm, smul_mul_assoc]
@@ -223,7 +221,7 @@ theorem basis_repr_sum_ψw_mul_polNu (c : Perm (Fin (Multiset.card ν)) → Pol 
   · rfl
   · exact (notMem_support_iff.1 h).symm
 
-include hPQ hP hρ in
+include hsym hρ in
 /-- **KL I, Proposition 2.7, graded (right action)**: if `r ∈ R(ν)_d` is written as
 `r = ∑_w ψ_{ρ w} f_w` with `f_w ∈ Pol(ν)`, then each `(f_w)_i` is weighted homogeneous of degree
 `d - deg(ψ_{ρ w} 1_i)` (weights `deg x_a = degX(i_a)`). So
@@ -234,8 +232,8 @@ theorem rightExpansion_isWeightedHomogeneous {r : KLRAlgebra k Q ν} {d : ℤ}
     (hc : ∑ w, ψw (ρ w) * polNu (c w) = r) (w : Perm (Fin (Multiset.card ν))) (i : Seq ν) :
     (c w i).IsWeightedHomogeneous (fun a => G.degX (i.lbl a)) (d - G.degW (ρ w) i) := by
   intro u hu
-  rw [G.grade_eq_span hPQ hP ρ hρ d, Module.Basis.mem_span_image] at hr
-  have h1 : (i, w, u) ∈ ((KLRAlgebra.basis hPQ hP ρ hρ).repr r).support := by
+  rw [G.grade_eq_span hsym ρ hρ d, Module.Basis.mem_span_image] at hr
+  have h1 : (i, w, u) ∈ ((KLRAlgebra.basisOfSymm hsym ρ hρ).repr r).support := by
     rw [Finsupp.mem_support_iff, ← hc, basis_repr_sum_ψw_mul_polNu]
     exact hu
   have h2 : G.stdDeg ρ (i, w, u) = d := hr h1
@@ -249,7 +247,9 @@ end Prop27
 
 section Cor210
 
-variable {ν : Multiset I}
+variable {ν : Multiset I} {P : I → I → MvPolynomial (Fin 2) k}
+  (hPQ : ∀ a b, a ≠ b → Q a b = P b a * rename ![1, 0] (P a b))
+  (hP : ∀ a b, a ≠ b → P a b ≠ 0)
 
 include hPQ hP in
 /-- **KL I, Corollary 2.10 (2)**: `R(ν)` is a free graded module over its center
@@ -298,9 +298,9 @@ include hσ in
 component `ψ_{σ(u)} 1_s` of `ŵ_u` is homogeneous) this is the graded form of the freeness of
 `1_{ν,ν'} R(ν + ν')` over `R(ν) ⊗ R(ν')`. -/
 theorem indElt_mem_grade (x : IndIdx ν ν') :
-    ∃ d, indElt hPQ hP ρ₁ ρ₂ σ hρ₁ hρ₂ x ∈ G.grade (ν + ν') d := by
-  rw [indElt_eq hPQ hP ρ₁ ρ₂ σ hρ₁ hρ₂ hσ]
-  exact ⟨_, G.lbasis_mem_grade hPQ hP _ (parWord_spec ρ₁ ρ₂ σ hρ₁ hρ₂ hσ) _⟩
+    ∃ d, indElt hsym ρ₁ ρ₂ σ hρ₁ hρ₂ x ∈ G.grade (ν + ν') d := by
+  rw [indElt_eq hsym ρ₁ ρ₂ σ hρ₁ hρ₂ hσ]
+  exact ⟨_, G.lbasis_mem_grade hsym _ (parWord_spec ρ₁ ρ₂ σ hρ₁ hρ₂ hσ) _⟩
 
 /-- The components `ψ_{σ(u)} 1_s` of the basis elements `ŵ_u = ∑_s ψ_{σ(u)} 1_s` of
 Proposition 2.16 are homogeneous of degree `deg(ψ_{σ(u)} 1_s)`. -/

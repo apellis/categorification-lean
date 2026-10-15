@@ -41,30 +41,28 @@ theorem thetaL0_one_tmul_sec (g : Polynomial k) :
     singlePoly_sec, mul_one, Polynomial.coeff_map]
   exact (CycKLR.mk k Q a β).commutes _
 
-variable [IsDomain k] {P : I → I → MvPolynomial (Fin 2) k}
-  (hPQ : ∀ a b, a ≠ b → Q a b = P b a * rename ![1, 0] (P a b))
-  (hP : ∀ a b, a ≠ b → P a b ≠ 0)
+variable (hsym : KLRSymm Q)
   (hβ : 0 < Multiset.card β)
 
-include hPQ hP hβ in
+include hsym hβ in
 /-- Monic cancellation, retaining the explicit right colour projection. -/
 theorem mul_monic_mem_cycL0_iff (r : R) (g : Polynomial k) (hg : g.Monic) :
     (r * Polynomial.aeval (x ⟨Multiset.card β, lastPos_lt i β⟩ : R) g) * cL Q i β 1 ∈
         cycL0 a (zero_lt_card_single_add i β) ↔
       r * cL Q i β 1 ∈ cycL0 a (zero_lt_card_single_add i β) := by
-  obtain ⟨t, ht⟩ := lastFree_span i β hPQ hP r
+  obtain ⟨t, ht⟩ := lastFree_span i β hsym r
   have hm : lastFree i β (fun b => t b * (1 ⊗ₜ sec Q i g)) =
       (r * Polynomial.aeval (x ⟨Multiset.card β, lastPos_lt i β⟩ : R) g) * cL Q i β 1 := by
     rw [← lastFree_mul_cLL, ← ht, mul_assoc, cL_one_mul_cLL,
       cLL_one_tmul, singlePoly_sec, mul_assoc]
-  rw [← hm, ht, lastFree_mem_cycL0_iff i β a hPQ hP hβ,
-    lastFree_mem_cycL0_iff i β a hPQ hP hβ]
+  rw [← hm, ht, lastFree_mem_cycL0_iff i β a hsym hβ,
+    lastFree_mem_cycL0_iff i β a hsym hβ]
   apply forall_congr'
   intro b
   rw [← thetaL0_eq_zero_iff, ← thetaL0_eq_zero_iff, map_mul, thetaL0_one_tmul_sec]
   exact (hg.map (algebraMap k (CycKLR k Q a β))).mul_left_eq_zero_iff
 
-include hPQ hP hβ in
+include hsym hβ in
 /-- On the `e(β,i)` corner, no additional projection is needed for monic cancellation. -/
 theorem mul_monic_mem_cycL0_iff_of_cut (r : R) (hr : r * cL Q i β 1 = r)
     (g : Polynomial k) (hg : g.Monic) :
@@ -72,7 +70,7 @@ theorem mul_monic_mem_cycL0_iff_of_cut (r : R) (hr : r * cL Q i β 1 = r)
         cycL0 a (zero_lt_card_single_add i β) ↔
       r ∈ cycL0 a (zero_lt_card_single_add i β) := by
   have hc := (commute_aeval_of_commute (commute_x_last_cL (Q := Q) i β 1) g).eq
-  have h := mul_monic_mem_cycL0_iff i β a hPQ hP hβ r g hg
+  have h := mul_monic_mem_cycL0_iff i β a hsym hβ r g hg
   rwa [mul_assoc, hc, ← mul_assoc, hr] at h
 
 end Categorification.KLR.KLRAlgebra

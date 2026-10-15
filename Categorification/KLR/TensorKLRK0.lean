@@ -75,8 +75,8 @@ theorem polNu_tmul_one_smul_eq_zero
     (hU : IsGradedSimple (tensorGrading (G.grade ν) (G.grade ν')) 𝒰) {f : symNu k ν}
     (hf : f ∈ symNuPlus k ν) (u : U) :
     ((polNu (f : Pol k ν) : KLRAlgebra k Q ν) ⊗ₜ[k] (1 : KLRAlgebra k Q ν')) • u = 0 := by
-  have := G.hasGdim_grade' (ν := ν) hPQ hP hG
-  have := G.hasGdim_grade' (ν := ν') hPQ hP hG
+  have := G.hasGdim_grade' (ν := ν) (KLRSymm.of_factorization hPQ hP) hG
+  have := G.hasGdim_grade' (ν := ν') (KLRSymm.of_factorization hPQ hP) hG
   obtain ⟨N, hN⟩ := exists_grade_eq_bot_of_hasGdim (tensorGrading (G.grade ν) (G.grade ν'))
   set z : KLRAlgebra k Q ν := polNu (f : Pol k ν)
   have hz : ∀ a : KLRAlgebra k Q ν, Commute z a := fun a =>
@@ -110,8 +110,8 @@ theorem one_tmul_polNu_smul_eq_zero
     (hU : IsGradedSimple (tensorGrading (G.grade ν) (G.grade ν')) 𝒰) {f : symNu k ν'}
     (hf : f ∈ symNuPlus k ν') (u : U) :
     ((1 : KLRAlgebra k Q ν) ⊗ₜ[k] (polNu (f : Pol k ν') : KLRAlgebra k Q ν')) • u = 0 := by
-  have := G.hasGdim_grade' (ν := ν) hPQ hP hG
-  have := G.hasGdim_grade' (ν := ν') hPQ hP hG
+  have := G.hasGdim_grade' (ν := ν) (KLRSymm.of_factorization hPQ hP) hG
+  have := G.hasGdim_grade' (ν := ν') (KLRSymm.of_factorization hPQ hP) hG
   obtain ⟨N, hN⟩ := exists_grade_eq_bot_of_hasGdim (tensorGrading (G.grade ν) (G.grade ν'))
   set z : KLRAlgebra k Q ν' := polNu (f : Pol k ν')
   have hz : ∀ a : KLRAlgebra k Q ν', Commute z a := fun a =>
@@ -255,14 +255,14 @@ theorem tensorK0Hyp : TensorK0Hyp (G.grade ν) (G.grade ν') where
 def k0TensorEquiv :
     K0 (G.grade ν) ⊗[LaurentPolynomial ℤ] K0 (G.grade ν') ≃ₗ[LaurentPolynomial ℤ]
       K0 (tensorGrading (G.grade ν) (G.grade ν')) :=
-  have := G.hasGdim_grade' (ν := ν) hPQ hP hG
-  have := G.hasGdim_grade' (ν := ν') hPQ hP hG
+  have := G.hasGdim_grade' (ν := ν) (KLRSymm.of_factorization hPQ hP) hG
+  have := G.hasGdim_grade' (ν := ν') (KLRSymm.of_factorization hPQ hP) hG
   (G.tensorK0Hyp hPQ hP hG ν ν').extTensorEquiv
 
 @[simp] theorem k0TensorEquiv_tmul (x : K0 (G.grade ν)) (y : K0 (G.grade ν')) :
     G.k0TensorEquiv hPQ hP hG ν ν' (x ⊗ₜ y) = K0.extTensor (G.grade ν) (G.grade ν') x y := by
-  have := G.hasGdim_grade' (ν := ν) hPQ hP hG
-  have := G.hasGdim_grade' (ν := ν') hPQ hP hG
+  have := G.hasGdim_grade' (ν := ν) (KLRSymm.of_factorization hPQ hP) hG
+  have := G.hasGdim_grade' (ν := ν') (KLRSymm.of_factorization hPQ hP) hG
   exact (G.tensorK0Hyp hPQ hP hG ν ν').extTensorEquiv_tmul x y
 
 theorem k0TensorEquiv_symm_extTensor (x : K0 (G.grade ν)) (y : K0 (G.grade ν')) :
@@ -276,8 +276,8 @@ theorem nonempty_iso_extTensor_rep
     (c : IndecClass (tensorGrading (G.grade ν) (G.grade ν'))) :
     ∃ (b : IndecClass (G.grade ν)) (b' : IndecClass (G.grade ν')) (a : ℤ),
       Nonempty (c.rep.Iso ((b.rep.extTensor b'.rep).shift a)) := by
-  have := G.hasGdim_grade' (ν := ν) hPQ hP hG
-  have := G.hasGdim_grade' (ν := ν') hPQ hP hG
+  have := G.hasGdim_grade' (ν := ν) (KLRSymm.of_factorization hPQ hP) hG
+  have := G.hasGdim_grade' (ν := ν') (KLRSymm.of_factorization hPQ hP) hG
   set H := G.tensorK0Hyp hPQ hP hG ν ν'
   exact ⟨H.fst c, H.snd c, H.shift c, H.nonempty_iso_rep c⟩
 
@@ -286,8 +286,8 @@ include hPQ hP hG in
 of `R(ν)`, `R(ν')` (absolute indecomposability). -/
 theorem isIndec_extTensor_rep (b : IndecClass (G.grade ν)) (b' : IndecClass (G.grade ν')) :
     (b.rep.extTensor b'.rep).IsIndec (KLRAlgebra k Q ν ⊗[k] KLRAlgebra k Q ν') := by
-  have := G.hasGdim_grade' (ν := ν) hPQ hP hG
-  have := G.hasGdim_grade' (ν := ν') hPQ hP hG
+  have := G.hasGdim_grade' (ν := ν) (KLRSymm.of_factorization hPQ hP) hG
+  have := G.hasGdim_grade' (ν := ν') (KLRSymm.of_factorization hPQ hP) hG
   exact (G.tensorK0Hyp hPQ hP hG ν ν').isIndec_extTensor_rep b b'
 
 end GradingDatum

@@ -366,14 +366,14 @@ variable {P : I → I → MvPolynomial (Fin 2) k}
 def g0TensorEquiv (ν ν' : Multiset I) :
     G0 (G.grade ν) ⊗[LaurentPolynomial ℤ] G0 (G.grade ν') ≃ₗ[LaurentPolynomial ℤ]
       G0 (tensorGrading (G.grade ν) (G.grade ν')) :=
-  have := G.hasGdim_grade' (ν := ν) hPQ hP hG
-  have := G.hasGdim_grade' (ν := ν') hPQ hP hG
+  have := G.hasGdim_grade' (ν := ν) (KLRSymm.of_factorization hPQ hP) hG
+  have := G.hasGdim_grade' (ν := ν') (KLRSymm.of_factorization hPQ hP) hG
   (G.tensorK0Hyp hPQ hP hG ν ν').g0ExtTensorEquiv
 
 @[simp] theorem g0TensorEquiv_tmul (x : G0 (G.grade ν)) (y : G0 (G.grade ν')) :
     G.g0TensorEquiv hPQ hP hG ν ν' (x ⊗ₜ y) = G0.extTensor (G.grade ν) (G.grade ν') x y := by
-  have := G.hasGdim_grade' (ν := ν) hPQ hP hG
-  have := G.hasGdim_grade' (ν := ν') hPQ hP hG
+  have := G.hasGdim_grade' (ν := ν) (KLRSymm.of_factorization hPQ hP) hG
+  have := G.hasGdim_grade' (ν := ν') (KLRSymm.of_factorization hPQ hP) hG
   exact (G.tensorK0Hyp hPQ hP hG ν ν').g0ExtTensorEquiv_tmul x y
 
 theorem g0TensorEquiv_symm_of (M : GFin (G.grade ν)) (M' : GFin (G.grade ν')) :

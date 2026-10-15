@@ -220,15 +220,13 @@ theorem cL_x_pow (b : Fin (Multiset.card β)) (d : ℕ) :
     change (x ⟨b.val, _⟩ : R) * x ⟨b.val, _⟩ ^ d * _ = _
     rw [← pow_succ']
 
-variable [IsDomain k] {P : I → I → MvPolynomial (Fin 2) k}
-  (hPQ : ∀ a b, a ≠ b → Q a b = P b a * rename ![1, 0] (P a b))
-  (hP : ∀ a b, a ≠ b → P a b ≠ 0)
+variable (hsym : KLRSymm Q)
   (a : I → Polynomial k)
 
 /-- A lower last-strand normal form is one free `F` coordinate after crossing. -/
 theorem cPoly_coset_crossing (b : ℕ) (hb : b ≤ Multiset.card β - 1)
     (d : ℕ) (z : Rb) (hz : z ∈ penSub (Q := Q) β) (y : Rb) :
-    cPoly i β hPQ hP a
+    cPoly i β hsym a
       (cL Q i β (ψw (upW b (Multiset.card β - 1)) *
         ((x ⟨Multiset.card β - 1, by omega⟩ : Rb) ^ d * z)) *
           ψ (Multiset.card β - 1) * cL Q i β y) = 0 := by
@@ -253,16 +251,16 @@ theorem cPoly_coset_crossing (b : ℕ) (hb : b ≤ Multiset.card β - 1)
     simp only [mul_assoc] at hy ⊢
     rw [hy]
   rw [he]
-  exact cPoly_fT i β a hPQ hP ⟨b, by omega⟩ _
+  exact cPoly_fT i β a hsym ⟨b, by omega⟩ _
 
 include hβ in
 /-- `C` annihilates the actual balanced crossing image, including the
 `e(β,i)` cuts supplied by both occurrences of `cL`. -/
 theorem cPoly_cL_crossing (x y : Rb) :
-    cPoly i β hPQ hP a
+    cPoly i β hsym a
       (cL Q i β x * ψ (Multiset.card β - 1) * cL Q i β y) = 0 := by
-  apply lastCoset_induction (sym_of_factor hPQ) (Multiset.card β - 1) (by omega)
-    (fun x => cPoly i β hPQ hP a
+  apply lastCoset_induction hsym (Multiset.card β - 1) (by omega)
+    (fun x => cPoly i β hsym a
       (cL Q i β x * ψ (Multiset.card β - 1) * cL Q i β y) = 0)
     (x := x)
   · intro b hb u hu
@@ -271,7 +269,7 @@ theorem cPoly_cL_crossing (x y : Rb) :
     induction hu' using Submodule.span_induction with
     | mem u hu =>
       obtain ⟨d, z, hz, rfl⟩ := hu
-      exact cPoly_coset_crossing i β hβ hPQ hP a b hb d z hz y
+      exact cPoly_coset_crossing i β hβ hsym a b hb d z hz y
     | zero => simp only [mul_zero, cL_zero, zero_mul, map_zero]
     | add u v _ _ hu hv => simp only [mul_add, cL_add, add_mul, map_add, hu, hv, add_zero]
     | smul r u _ hu => simp only [mul_smul_comm, cL_smul, smul_mul_assoc, map_smul, hu, smul_zero]
@@ -282,11 +280,10 @@ theorem cPoly_cL_crossing (x y : Rb) :
     simp only [cL_smul, smul_mul_assoc, map_smul, hu, smul_zero]
 
 theorem cMap_cL_crossing (x y : Rb) :
-    cMap i β hPQ hP a hβ (Submodule.Quotient.mk
+    cMap i β hsym a hβ (Submodule.Quotient.mk
       (cL Q i β x * ψ (Multiset.card β - 1) * cL Q i β y)) = 0 :=
-  cPoly_cL_crossing i β hβ hPQ hP a x y
+  cPoly_cL_crossing i β hβ hsym a x y
 
-omit [IsDomain k] in
 theorem commute_cL_one_subR0 {w : R} (hw : w ∈ subR0 (k := k) (Q := Q) (Si + β)) :
     w * cL Q i β 1 = cL Q i β 1 * w := by
   have h := commute_oneConcat_subR0 (Q := Q) i β
@@ -294,7 +291,6 @@ theorem commute_cL_one_subR0 {w : R} (hw : w ∈ subR0 (k := k) (Q := Q) (Si + �
   have h' := congrArg (castKLR Q (add_comm β Si)) h
   simpa only [map_mul, castKLR_symm_castAlg, ← cL_one_eq_cast] using h'
 
-omit [IsDomain k] in
 theorem cL_one_mul_core {w : R} (hw : w ∈ cLCore i β)
     (hw' : w ∈ subR0 (k := k) (Q := Q) (Si + β)) :
     ∃ z : Rb, cL Q i β 1 * w = cL Q i β z := by
@@ -304,7 +300,7 @@ theorem cL_one_mul_core {w : R} (hw : w ∈ cLCore i β)
 include hβ in
 /-- The left colour cut preserves every free crossing summand. -/
 theorem cPoly_cL_one_fT (b : Fin (Multiset.card β)) (t : T0) :
-    cPoly i β hPQ hP a (cL Q i β 1 * fT Q i β b.val t) = 0 := by
+    cPoly i β hsym a (cL Q i β 1 * fT Q i β b.val t) = 0 := by
   induction t using TensorProduct.inductionOn with
   | tmul y c =>
     let w : R := ψw (upW b.val (Multiset.card β - 1)) *
@@ -320,34 +316,34 @@ theorem cPoly_cL_one_fT (b : Fin (Multiset.card β)) (t : T0) :
           Subalgebra.smul_mem _ (Subalgebra.pow_mem _ (x_mem_subR0 _) _) _
     obtain ⟨z, hz⟩ := cL_one_mul_core i β hw hw'
     rw [fT_tmul]
-    change cPoly i β hPQ hP a (cL Q i β 1 * (w * ψ (Multiset.card β - 1) * cL Q i β y)) = 0
+    change cPoly i β hsym a (cL Q i β 1 * (w * ψ (Multiset.card β - 1) * cL Q i β y)) = 0
     rw [← mul_assoc, ← mul_assoc, hz]
-    exact cPoly_cL_crossing i β hβ hPQ hP a z y
+    exact cPoly_cL_crossing i β hβ hsym a z y
   | add s t hs ht => simp only [map_add, mul_add, hs, ht, add_zero]
 
 include hβ in
 /-- The complementary coordinate already includes the left `e(β,i)` cut. -/
 theorem cPoly_cL_one_mul (r : R) :
-    cPoly i β hPQ hP a (cL Q i β 1 * r) = cPoly i β hPQ hP a r := by
-  obtain ⟨p, q, hpq⟩ := kkF_surj i β hPQ hP r
+    cPoly i β hsym a (cL Q i β 1 * r) = cPoly i β hsym a r := by
+  obtain ⟨p, q, hpq⟩ := kkF_surj i β hsym r
   calc
-    _ = cPoly i β hPQ hP a (cL Q i β 1 * (r * cL Q i β 1)) := by
+    _ = cPoly i β hsym a (cL Q i β 1 * (r * cL Q i β 1)) := by
       rw [← mul_assoc, cPoly_mul_cL_one]
     _ = thetaL0 Q i β a q := by
       rw [hpq, kkF, mul_add, Finset.mul_sum, map_add, map_sum, cL_one_mul_cLL]
-      simp only [cPoly_cL_one_fT i β hβ hPQ hP a, Finset.sum_const_zero, zero_add]
-      exact cPoly_cLL i β a hPQ hP q
-    _ = cPoly i β hPQ hP a r := by
-      rw [← cPoly_kkF i β hPQ hP a p q, ← hpq, cPoly_mul_cL_one]
+      simp only [cPoly_cL_one_fT i β hβ hsym a, Finset.sum_const_zero, zero_add]
+      exact cPoly_cLL i β a hsym q
+    _ = cPoly i β hsym a r := by
+      rw [← cPoly_kkF i β hsym a p q, ← hpq, cPoly_mul_cL_one]
 
 include hβ in
 /-- A colour-preserving lower multiplier before the final crossing has zero `C` coordinate. -/
 theorem cPoly_core_crossing {w : R} (hw : w ∈ cLCore i β)
     (hw' : w ∈ subR0 (k := k) (Q := Q) (Si + β)) (y : Rb) :
-    cPoly i β hPQ hP a (w * ψ (Multiset.card β - 1) * cL Q i β y) = 0 := by
-  rw [← cPoly_cL_one_mul i β hβ hPQ hP a]
+    cPoly i β hsym a (w * ψ (Multiset.card β - 1) * cL Q i β y) = 0 := by
+  rw [← cPoly_cL_one_mul i β hβ hsym a]
   obtain ⟨z, hz⟩ := cL_one_mul_core i β hw hw'
   rw [← mul_assoc, ← mul_assoc, hz]
-  exact cPoly_cL_crossing i β hβ hPQ hP a z y
+  exact cPoly_cL_crossing i β hβ hsym a z y
 
 end Categorification.KLR.KLRAlgebra

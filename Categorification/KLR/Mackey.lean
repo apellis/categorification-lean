@@ -54,7 +54,7 @@ transported along `h`). `n = card ν`, `n'' = card ν''`.
   the `c`-th step is spanned by the standard elements of `_{ν,ν'}R_{ν'',ν'''}` with `|λ| ≤ c`;
   `KLRAlgebra.mackeyBasis` (a `k`-basis of each step) and `KLRAlgebra.mackeySubquotBasis`
   (a `k`-basis of each subquotient `F_{c+1} / F_c`, indexed by the standard elements with
-  `|λ| = c + 1`, `mem_mackeyIdx_diff`), under the hypotheses of the basis theorem.
+  `|λ| = c + 1`, `mem_mackeyIdx_diff`), for symmetric `Q` (`KLRSymm Q`).
 * `KLRAlgebra.stdElt_mackeyWord` — with the Mackey-adapted reduced words
   `ρ₁(a) (n + ρ₂(b)) σ(d) ρ₃(y) (n'' + ρ₄(y'))` of `w = (a × b) d (y × y')`, every standard
   element of `_{ν,ν'}R_{ν'',ν'''}` is `ι(ψ_a 1_i ⊗ ψ_b 1_j) · ψ_{σ(d)} · ι''(ψ_y x^{u₁} 1_{s₁} ⊗
@@ -63,7 +63,7 @@ transported along `h`). `n = card ν`, `n'' = card ν''`.
   `ι(t) ψ_d ι''(t')` over the minimal double coset representatives `d` with `|λ| ≤ c`
   (the paper's generators of the subquotients).
 * `KL1.mackeyBasis`, `KL1.mackeySubquotBasis` — the specialisation to KL I (simple graph `Γ`,
-  `klQ Γ`, over `ℤ` or any integral domain).
+  `klQ Γ`, over any commutative ring `k`).
 
 ## Relation to the paper and what is not covered
 
@@ -955,19 +955,17 @@ theorem mackeyBimodFilt_eq_span (c : ℕ) :
     · rw [hF]
       exact Submodule.subset_span ⟨b, h3, rfl⟩
 
-variable [IsDomain k] {P : I → I → MvPolynomial (Fin 2) k}
-  (hPQ : ∀ a b, a ≠ b → Q a b = P b a * rename ![1, 0] (P a b))
-  (hP : ∀ a b, a ≠ b → P a b ≠ 0)
+variable (hsym : KLRSymm Q)
 
 /-- **KL I, Proposition 2.18 (basis of the filtration steps).** A `k`-basis of the `c`-th step
 of the Mackey filtration of `_{ν,ν'}R_{ν'',ν'''}`, by standard elements `ψ_{ρ w} x^u 1_s`. -/
 noncomputable def mackeyBasis (c : ℕ) : Module.Basis (mackeyIdx h c) k (mackeyBimodFilt Q h c) :=
-  (Module.Basis.span ((linearIndependent_stdElt hPQ hP ρ hρ).comp _ Subtype.val_injective)).map
+  (Module.Basis.span ((linearIndependent_stdElt_of_symm hsym ρ hρ).comp _ Subtype.val_injective)).map
     (LinearEquiv.ofEq _ _ ((congrArg (Submodule.span k) (Set.image_eq_range _ _).symm).trans
       (mackeyBimodFilt_eq_span h ρ hρ c).symm))
 
 theorem mackeyBasis_apply (c : ℕ) (b : mackeyIdx h c) :
-    (mackeyBasis h ρ hρ hPQ hP c b : KLRAlgebra k Q (ν + ν')) = stdElt ρ b.1 := by
+    (mackeyBasis h ρ hρ hsym c b : KLRAlgebra k Q (ν + ν')) = stdElt ρ b.1 := by
   simp [mackeyBasis, Module.Basis.span_apply]
 
 /-- **KL I, Proposition 2.18 (subquotients).** The subquotient
@@ -978,11 +976,11 @@ noncomputable def mackeySubquotBasis (c : ℕ) :
     Module.Basis ↥(mackeyIdx h (c + 1) \ mackeyIdx h c) k
       (↥(mackeyBimodFilt Q h (c + 1)) ⧸
         (mackeyBimodFilt Q h c).comap (mackeyBimodFilt Q h (c + 1)).subtype) :=
-  quotBasis (linearIndependent_stdElt hPQ hP ρ hρ) (mackeyIdx_mono h (Nat.le_succ c)) _ _
+  quotBasis (linearIndependent_stdElt_of_symm hsym ρ hρ) (mackeyIdx_mono h (Nat.le_succ c)) _ _
     (mackeyBimodFilt_eq_span h ρ hρ (c + 1)) (mackeyBimodFilt_eq_span h ρ hρ c)
 
 theorem mackeySubquotBasis_apply (c : ℕ) (b : ↥(mackeyIdx h (c + 1) \ mackeyIdx h c)) :
-    ∃ hb, mackeySubquotBasis h ρ hρ hPQ hP c b =
+    ∃ hb, mackeySubquotBasis h ρ hρ hsym c b =
       Submodule.Quotient.mk (⟨stdElt ρ b.1, hb⟩ : mackeyBimodFilt Q h (c + 1)) :=
   ⟨_, quotBasis_apply' _ _ _ _ _ _ b⟩
 
@@ -1214,14 +1212,14 @@ namespace KL1
 
 open KLRAlgebra
 
-variable {Γ : SimpleGraph I} [DecidableRel Γ.Adj] [IsDomain k] {ν ν' ν'' ν''' : Multiset I}
+variable {Γ : SimpleGraph I} [DecidableRel Γ.Adj] {ν ν' ν'' ν''' : Multiset I}
   (h : ν'' + ν''' = ν + ν')
   (ρ : Perm (Fin (Multiset.card (ν + ν'))) → List ℕ)
   (hρ : ∀ w, IsReduced (Multiset.card (ν + ν')) (ρ w) ∧
     wordProd (Multiset.card (ν + ν')) (ρ w) = w)
 
-/-- **KL I, Proposition 2.18** for the rings `R(ν)` of a simple graph `Γ` (over `ℤ`, or any
-integral domain): the subquotient `F_{c+1} / F_c` of the Mackey filtration of
+/-- **KL I, Proposition 2.18** for the rings `R(ν)` of a simple graph `Γ` (over any
+commutative ring `k`): the subquotient `F_{c+1} / F_c` of the Mackey filtration of
 `_{ν,ν'}R_{ν'',ν'''}` has the basis of classes of the standard elements `ψ_{ρ w} x^u 1_s` of
 `_{ν,ν'}R_{ν'',ν'''}` with `|λ| = c + 1`. -/
 noncomputable def mackeySubquotBasis (c : ℕ) :
@@ -1229,14 +1227,12 @@ noncomputable def mackeySubquotBasis (c : ℕ) :
       (↥(mackeyBimodFilt (klQ (k := k) Γ) h (c + 1)) ⧸
         (mackeyBimodFilt (klQ (k := k) Γ) h c).comap
           (mackeyBimodFilt (klQ (k := k) Γ) h (c + 1)).subtype) :=
-  KLRAlgebra.mackeySubquotBasis h ρ hρ (klQ_eq_klP (Γ := Γ) stdOrient_spec)
-    (fun a b _ => klP_ne_zero _ a b) c
+  KLRAlgebra.mackeySubquotBasis h ρ hρ (KLRSymm.of_factor (klQ_eq_klP (Γ := Γ) stdOrient_spec)) c
 
 /-- **KL I, Proposition 2.18** (the filtration steps) for the rings `R(ν)` of a simple graph. -/
 noncomputable def mackeyBasis (c : ℕ) :
     Module.Basis (mackeyIdx h c) k (mackeyBimodFilt (klQ (k := k) Γ) h c) :=
-  KLRAlgebra.mackeyBasis h ρ hρ (klQ_eq_klP (Γ := Γ) stdOrient_spec)
-    (fun a b _ => klP_ne_zero _ a b) c
+  KLRAlgebra.mackeyBasis h ρ hρ (KLRSymm.of_factor (klQ_eq_klP (Γ := Γ) stdOrient_spec)) c
 
 end KL1
 

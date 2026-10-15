@@ -365,6 +365,8 @@ import Categorification.KLR.CyclotomicAction.Induction
 import Categorification.KLR.CyclotomicAction.Restriction
 import Categorification.KLR.CyclotomicAction.Slides
 import Categorification.KLR.CyclotomicAction.Square
+import Categorification.KLR.CyclotomicAction.Comparison
+import Categorification.KLR.CyclotomicAction.KangKashiwara
 import Categorification.KLR.CyclotomicAbsentEquivalence
 import Categorification.KLR.CyclotomicAbsentModule
 import Categorification.KLR.CyclotomicPresentModule
@@ -614,6 +616,7 @@ import Categorification.TwoRep.AdditiveCat
 import Categorification.TwoRep.CyclotomicRouqAdjunction
 import Categorification.TwoRep.RouqBoundaryAdjunction
 import Categorification.TwoRep.CyclotomicAbsentAdjunction
+import Categorification.TwoRep.RouqLocTransport
 import Categorification.TwoRep.RouquierMaps
 import Categorification.TwoRep.ShiftInterchange
 import Categorification.TwoRep.Sl2

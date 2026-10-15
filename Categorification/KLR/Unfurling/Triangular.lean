@@ -31,8 +31,9 @@ For a lift `t` of `𝐢` (`π ∘ t = 𝐢`) and a reduced word `σ`:
   constant term: only the full word survives, and every crossing contributes a unit factor in
   the dots (Webster's observation that the leading diagram is multiplied by an invertible power
   series).
-* `Unfurling.eq_zero_of_cycGamma_eq_zero`: for the series `ϖ_j(x) = z_j + x` of
-  `UnfurlingDatum.ofGeneric`, if `Γ(∑ c_{w,u} ψ_{ρ w} x^u e(𝐢)) = 0` with all exponents
+* `Unfurling.eq_zero_of_cycGamma_mul_e_eq_zero`, `Unfurling.eq_zero_of_cycGamma_eq_zero`: for
+  the series `ϖ_j(x) = z_j + x` of `UnfurlingDatum.ofGeneric`, if
+  `Γ(∑ c_{w,u} ψ_{ρ w} x^u e(𝐢)) e(t) = 0` (in particular if `Γ(∑ …) = 0`) with all exponents
   `u_a < M`, then all `c_{w,u} = 0`. Take `w` of maximal length with a nonzero coefficient; in
   the corner `e(w • t) (·) e(t)` only the terms with this `w` remain, and they give
   `ψ_{ρ w} U(y) ∑_u c_{w,u} ∏_a (z_{t_a} + y_a)^{u_a} e(t)`. The corner basis of the cyclotomic
@@ -605,13 +606,15 @@ theorem substAt_eq_of_linear
   conv_lhs => rw [hlin]
   simp [MvPolynomial.algebraMap_eq]
 
-/-- **Triangularity of `Γ`** (Webster, arXiv:1603.06311v3, proof of the theorem with label
-`nondegenerate`, the step showing that a relation acts by zero, for the KLR algebra). Let `D` have no arrows
-and linear series `ϖ_j(x) = z_j + x` (as `UnfurlingDatum.ofGeneric`), let the labels of `ν̃`
-be pairwise distinct, and let `t` lift `𝐢`. If
-`Γ(∑_{(w,u) ∈ S} c_{w,u} ψ_{ρ w} x^u e(𝐢)) = 0` in the cyclotomic quotient with `a_j = y^M`,
-for reduced words `ρ w` and exponents `u_a < M`, then every `c_{w,u}` vanishes. -/
-theorem eq_zero_of_cycGamma_eq_zero
+/-- **Triangularity of `Γ` on one column** (Webster, arXiv:1603.06311v3, proof of the theorem
+with label `nondegenerate`, the step showing that a relation acts by zero, for the KLR algebra).
+Let `D` have no arrows and linear series `ϖ_j(x) = z_j + x` (as `UnfurlingDatum.ofGeneric`), let
+the labels of `ν̃` be pairwise distinct, and let `t` lift `𝐢`. If
+`Γ(∑_{(w,u) ∈ S} c_{w,u} ψ_{ρ w} x^u e(𝐢)) e(t) = 0` in the cyclotomic quotient with
+`a_j = y^M`, for reduced words `ρ w` and exponents `u_a < M`, then every `c_{w,u}` vanishes.
+Only the column `e(t)` is used: this is the morphism out of the summand `Ẽ_t 𝕍` of `E_𝐢 𝕍` in
+the source. -/
+theorem eq_zero_of_cycGamma_mul_e_eq_zero
     (hlin : ∀ j, D.pw j = Polynomial.C ((D.pw j).coeff 0) + Polynomial.X)
     {i : Seq ν} {t : Seq ν'} (ht : down D.π hν t = i)
     (ρ : Perm (Fin (Multiset.card ν)) → List ℕ)
@@ -619,7 +622,7 @@ theorem eq_zero_of_cycGamma_eq_zero
     (S : Finset (Perm (Fin (Multiset.card ν)) × (Fin (Multiset.card ν) →₀ ℕ)))
     (c : Perm (Fin (Multiset.card ν)) × (Fin (Multiset.card ν) →₀ ℕ) → k)
     (hS : ∀ p ∈ S, ∀ a, p.2 a < M)
-    (h0 : Γ (∑ p ∈ S, c p • (ψw (ρ p.1) * pol (monomial p.2 1) * e i)) = 0) :
+    (h0 : Γ (∑ p ∈ S, c p • (ψw (ρ p.1) * pol (monomial p.2 1) * e i)) * E t = 0) :
     ∀ p ∈ S, c p = 0 := by
   classical
   have hm : Multiset.card ν = m' := card_eq D.π hν
@@ -636,7 +639,7 @@ theorem eq_zero_of_cycGamma_eq_zero
   set w0 := wordProd m' (ρ p0.1)
   obtain ⟨U, hU, hlead⟩ := corner_cycGamma_ψw D harr hν hnd M hPQ (hred p0.1) t
   have hcorner : E (w0 • t) * Γ (∑ p ∈ S, c p • (ψw (ρ p.1) * pol (monomial p.2 1) * e i)) *
-      E t = 0 := by rw [h0, mul_zero, zero_mul]
+      E t = 0 := by rw [mul_assoc, h0, mul_zero]
   rw [map_sum, Finset.mul_sum, Finset.sum_mul] at hcorner
   simp only [map_smul, mul_smul_comm, smul_mul_assoc,
     corner_cycGamma_std D harr hν hnd M hPQ ht] at hcorner
@@ -692,5 +695,24 @@ theorem eq_zero_of_cycGamma_eq_zero
       (Finset.mem_filter.1 hp).2 he), smul_zero]
   · intro hn
     exact (hn (Finset.mem_filter.2 ⟨hp0S, rfl⟩)).elim
+
+/-- **Triangularity of `Γ`** (Webster, arXiv:1603.06311v3, proof of the theorem with label
+`nondegenerate`, the step showing that a relation acts by zero, for the KLR algebra). Let `D` have no arrows
+and linear series `ϖ_j(x) = z_j + x` (as `UnfurlingDatum.ofGeneric`), let the labels of `ν̃`
+be pairwise distinct, and let `t` lift `𝐢`. If
+`Γ(∑_{(w,u) ∈ S} c_{w,u} ψ_{ρ w} x^u e(𝐢)) = 0` in the cyclotomic quotient with `a_j = y^M`,
+for reduced words `ρ w` and exponents `u_a < M`, then every `c_{w,u}` vanishes. -/
+theorem eq_zero_of_cycGamma_eq_zero
+    (hlin : ∀ j, D.pw j = Polynomial.C ((D.pw j).coeff 0) + Polynomial.X)
+    {i : Seq ν} {t : Seq ν'} (ht : down D.π hν t = i)
+    (ρ : Perm (Fin (Multiset.card ν)) → List ℕ)
+    (hρ : ∀ w, IsReduced (Multiset.card ν) (ρ w) ∧ wordProd (Multiset.card ν) (ρ w) = w)
+    (S : Finset (Perm (Fin (Multiset.card ν)) × (Fin (Multiset.card ν) →₀ ℕ)))
+    (c : Perm (Fin (Multiset.card ν)) × (Fin (Multiset.card ν) →₀ ℕ) → k)
+    (hS : ∀ p ∈ S, ∀ a, p.2 a < M)
+    (h0 : Γ (∑ p ∈ S, c p • (ψw (ρ p.1) * pol (monomial p.2 1) * e i)) = 0) :
+    ∀ p ∈ S, c p = 0 :=
+  eq_zero_of_cycGamma_mul_e_eq_zero D harr hν hnd M hPQ hlin ht ρ hρ S c hS
+    (by rw [h0, zero_mul])
 
 end Categorification.KLR.Unfurling

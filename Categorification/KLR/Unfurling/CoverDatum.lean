@@ -16,8 +16,9 @@ one for each arrow. This file records the Kac–Moody data of `g̃` that these p
 
 * the symmetric Cartan datum `a · a = 2` and `a · b = -(n_{ab} + n_{ba})` for `a ≠ b`,
   where `n_{ab}` is the number of arrows from `a` to `b` (`coverCartan`);
-* a weight datum on the functions `J → ℤ`, with coweights the finitely supported functions
-  (`coverWeight`); `J` is in general infinite, so this weight datum has infinite rank;
+* a weight datum on `(J → ℤ) × (J →₀ ℤ)`, graded by the root lattice, with coweights the
+  finitely supported functions (`coverWeight`); `J` is in general infinite, so this weight
+  datum has infinite rank;
 * the hypotheses of Kang–Kashiwara (arXiv:1102.4677v4, §3) on `unfQ` for this Cartan datum:
   symmetry `unfQ_klrSymm`, unit leading coefficient `unfQ_leadingCoeff`, and the degree
   `unfQ_natDegree_eq_neg_pair`.
@@ -65,22 +66,31 @@ theorem coverCartan_dot_of_ne {a b : J} (h : a ≠ b) :
     (coverCartan arrows).dot a b = -((arrows a b + arrows b a : ℕ) : ℤ) := by
   simp [coverCartan, h]
 
-/-- The weight datum of the unfurled graph: weights `J → ℤ`, coweights `J →₀ ℤ`,
-`a_X = (b ↦ b · a)` and `a_Y` the indicator of `a`. -/
-def coverWeight : WeightDatum (coverCartan arrows) (J → ℤ) (J →₀ ℤ) where
-  pair := coverPair
-  iX b a := (coverCartan arrows).dot a b
+/-- The weight datum of the unfurled graph, graded by the root lattice. A weight is a pair
+`(x, γ)` of a function `x : J → ℤ` and a finitely supported `γ : J →₀ ℤ`. The coweights are
+the finitely supported functions `J →₀ ℤ`, `a_Y` is the indicator of `a`, and
+`a_X = (b ↦ b · a, single a 1)`; the pairing only sees `x`. The second component records the
+root-lattice degree, so the cyclotomic weight space of a weight is the module category of at
+most one block `R^Λ(β)`, also when `g̃` has imaginary roots. -/
+def coverWeight : WeightDatum (coverCartan arrows) ((J → ℤ) × (J →₀ ℤ)) (J →₀ ℤ) where
+  pair := AddMonoidHom.flip (coverPair.flip.comp (AddMonoidHom.fst _ _))
+  iX b := (fun a => (coverCartan arrows).dot a b, Finsupp.single b 1)
   iY a := Finsupp.single a 1
   pair_iY_iX a b := by
+    change coverPair (Finsupp.single a 1) (fun a' => (coverCartan arrows).dot a' b) = _
     rw [coverPair_single, one_mul, coverCartan_dot_self]
     omega
 
-@[simp] theorem coverWeight_pair_iY (a : J) (x : J → ℤ) :
-    (coverWeight arrows).pair ((coverWeight arrows).iY a) x = x a := by
+@[simp] theorem coverWeight_pair (y : J →₀ ℤ) (x : (J → ℤ) × (J →₀ ℤ)) :
+    (coverWeight arrows).pair y x = coverPair y x.1 := rfl
+
+@[simp] theorem coverWeight_pair_iY (a : J) (x : (J → ℤ) × (J →₀ ℤ)) :
+    (coverWeight arrows).pair ((coverWeight arrows).iY a) x = x.1 a := by
   simp [coverWeight]
 
-@[simp] theorem coverWeight_iX (a b : J) :
-    (coverWeight arrows).iX b a = (coverCartan arrows).dot a b := rfl
+@[simp] theorem coverWeight_iX (b : J) :
+    (coverWeight arrows).iX b =
+      (fun a => (coverCartan arrows).dot a b, Finsupp.single b 1) := rfl
 
 end Cartan
 
@@ -128,7 +138,9 @@ theorem unfQ_natDegree_eq_neg_pair [DecidableEq J] [IsDomain k] {a b : J} (h : b
   rw [polyInY_unfQ,
     Polynomial.natDegree_C_mul (((isUnit_neg_one (α := Polynomial k)).pow _).ne_zero),
     Polynomial.natDegree_pow, Polynomial.natDegree_X_sub_C,
-    coverWeight_pair_iY, coverWeight_iX, coverCartan_dot_of_ne arrows (Ne.symm h)]
+    coverWeight_pair_iY, coverWeight_iX]
+  dsimp only
+  rw [coverCartan_dot_of_ne arrows (Ne.symm h)]
   push_cast
   ring
 

@@ -52,7 +52,7 @@ theorem cover_hmonic : ∀ j : J, (Polynomial.X ^ Λ j : Polynomial L).Monic :=
   fun _ => Polynomial.monic_X_pow _
 
 theorem cover_hΛ : ∀ j : J, (((Polynomial.X ^ Λ j : Polynomial L)).natDegree : ℤ) =
-    (coverWeight n).pair ((coverWeight n).iY j) (fun j => (Λ j : ℤ)) := by
+    (coverWeight n).pair ((coverWeight n).iY j) ((fun j => (Λ j : ℤ)), 0) := by
   intro j
   rw [Polynomial.natDegree_X_pow, coverWeight_pair_iY]
 
@@ -63,11 +63,12 @@ theorem cover_hdeg : ∀ i j : J, j ≠ i →
 
 /-- **The cyclotomic Rouquier family of the unfurled graph** with dominant weight `Λ`
 (Webster, arXiv:1603.06311v3, proof of `nondegenerate`; Kang–Kashiwara, arXiv:1102.4677v4,
-Theorem 5.2), on the weight datum of infinite rank `coverWeight n`. -/
+Theorem 5.2), on the root-graded weight datum of infinite rank `coverWeight n`: each weight space is the module
+category of a single cyclotomic block `R^Λ(β)` (or zero). -/
 def coverFamily :
     RouqFamily (B := LinearCat.{v, max (max u v) w, max (max u v) w + 1} L) (coverWeight n) :=
   cyclotomicFamily.{u, v, w} (unfQ_klrSymm n) (cover_hlead n) (cover_hmonic (L := L) Λ)
-    (coverWeight n) (fun j => (Λ j : ℤ)) (cover_hΛ n Λ) (cover_hdeg n)
+    (coverWeight n) ((fun j => (Λ j : ℤ)), 0) (cover_hΛ n Λ) (cover_hdeg n)
 
 theorem coverFamily_upKLR : RouqUpKLR (coverFamily.{u, v, w} n (L := L) Λ) (unfQ (k := L) n) :=
   cyclotomicFamily_upKLR _ _ _ _ _ _ _

@@ -381,6 +381,7 @@ import Categorification.KLR.CyclotomicAction.MixedComparison
 import Categorification.KLR.CyclotomicAction.GlobalMixed
 import Categorification.KLR.KKScalars
 import Categorification.KLR.CyclotomicAction.PresCL
+import Categorification.KLR.CyclotomicAction.Vacuum
 import Categorification.KLR.CyclotomicAbsentEquivalence
 import Categorification.KLR.CyclotomicAbsentModule
 import Categorification.KLR.CyclotomicPresentModule

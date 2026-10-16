@@ -168,6 +168,14 @@ theorem sum_plc_comp_plc [Fintype ι] {W : C} (c : ι) (f : W ⟶ Y c) (g : ∀ 
   · intro u _ hu; rw [plc_of_ne _ (Ne.symm hu), Limits.zero_comp, plc_zero]
   · simp
 
+theorem sum_map_plc_add_comp_rect {D : Type*} [Category D] [Preadditive D] (F : C ⥤ D)
+    [F.Additive] {τ : Type*} [Fintype τ] [DecidableEq τ] {Z : τ → C} {Y' : ι → D} (d : τ → ι)
+    (G : ∀ s, F.obj (Z s) ⟶ Y' (d s)) {W : C} (a b : τ) (f : W ⟶ Z a) (g : W ⟶ Z b) (t : ι) :
+    ∑ u, F.map (plc a f u + plc b g u) ≫ rect d G u t =
+      plc (d a) (F.map f ≫ G a) t + plc (d b) (F.map g ≫ G b) t := by
+  simp only [Functor.map_add, map_plc, Preadditive.add_comp, Finset.sum_add_distrib,
+    sum_plc_comp_rect]
+
 end Plc
 
 section MapAlg
@@ -443,6 +451,34 @@ theorem pcrossSwap_eq (β : Φ.Blk μ) (j : ℕ) (L : List (I × X)) (Ps : List 
     (congrArg (fun f => (evalSrc Φ S (M β)).map f ≫ _) (Category.assoc _ _ _).symm)
   rfl
 
+/-- The term of the crossing of `g` to the same labels (`pcrossSelf`), for distinct labels of
+the same colour, after an identification of the word of `g̃` of the source with `Lc`, as the
+coefficient `selfW` in the dots of `Lc`. -/
+theorem pcrossSelf_eq (β : Φ.Blk μ) (j : ℕ) (L : List (I × X)) (Ps : List J) (μ' : X)
+    (hL : wValid RD μ L μ') (hP : IsPath Φ β.1 L Ps) (δ : Φ.Blk μ')
+    (hδ : endBlk β.1 Ps = δ.1) (hj : j + 1 < Ps.length)
+    (Lc : List (J × Xc)) (eS : Lc = liftL Φ β.1 Ps) (hc : wValid RDc (Φ.wtT β.1) Lc (Φ.wtT δ.1))
+    (L' : List (I × X)) (eL : wswap RD j L = L') (hL' : wValid RD μ L' μ')
+    (hP' : IsPath Φ β.1 L' Ps) (hs : Φ.π Ps[j] = Φ.π Ps[j + 1] ∧ Ps[j] ≠ Ps[j + 1])
+    (p₀ p₁ : J) (hp₀ : Ps[j] = p₀) (hp₁ : Ps[j + 1] = p₁) (T : (blkCat Φ S δ.1 : Type u₂))
+    (hW : (((rouqData Φ S D).wcell μ (wswap RD j L) μ' (wValid_wswap j L hL)).obj.obj M) δ = T)
+    (hW' : (((rouqData Φ S D).wcell μ L' μ' hL').obj.obj M) δ = T) :
+    (evalSrc Φ S (β' := δ.1) (M β)).map
+        (eqToHom (S.wcell_congr (Φ.wtT β.1) eS hc (wValid_liftL_of_eq Φ β.1 Ps hδ))) ≫
+      pcrossSelf Φ S D M β j L Ps μ' hL hP δ hδ hj ≫ eqToHom hW =
+    (evalSrc Φ S (β' := δ.1) (M β)).map
+        (KLR.Unfurling.selfW (A := End (S.wcell (Φ.wtT β.1) Lc (Φ.wtT δ.1) hc)) D p₀ p₁
+          ![End.of (S.wdot (Φ.wtT β.1) j Lc (Φ.wtT δ.1) hc),
+            End.of (S.wdot (Φ.wtT β.1) (j + 1) Lc (Φ.wtT δ.1) hc)] : _ ⟶ _) ≫
+      (evalSrc Φ S (β' := δ.1) (M β)).map
+        (eqToHom (S.wcell_congr (Φ.wtT β.1) eS hc (wValid_liftL_of_eq Φ β.1 Ps hδ))) ≫
+      pgen Φ S D M β L' Ps μ' hL' hP' δ hδ ≫ eqToHom hW' := by
+  subst eS eL hp₀ hp₁
+  rw [pcrossSelf, dite_eq_left hs]
+  simp only [eqToHom_refl, CategoryTheory.Functor.map_id, Category.id_comp]
+  refine (Category.assoc _ _ _).trans ?_
+  rfl
+
 end CrossTerms
 
 /-! ## The generators of the summands of lifts -/
@@ -594,6 +630,114 @@ theorem intertw_dot (a : Fin (Multiset.card ν)) :
     (wValid_liftL_of_eq Φ β.1 (word s) ((endBlk_word β.1 s).trans hδ))
     (D.pw (s.lbl (Fin.cast (Unfurling.card_eq D.π ν'.2) a)))
   exact congrArg (fun f => f.hom.app (M β)) key
+
+/-- The crossings of `R(ν)` (Webster, `lem:gamma-homo`, formulas `com0new`–`com0newerer`). -/
+theorem intertw_cross (j : ℕ) :
+    MatEnd.Intertw (Unfurling.down D.π ν'.2) (lgen S hπ μ M δ β ν' hδ)
+      (actG S μ M δ (FreeAlgebra.ι k (.cross j)))
+      (actT μ M δ β ν' hδ H hnil (FreeAlgebra.ι k (.cross j))) := by
+  intro s t
+  by_cases hr : IsRel Φ β.1 (word s)
+  swap
+  · exact (isZero_wordCellAt S μ M δ β ν' hδ hzero s hr).eq_of_src _ _
+  rw [actG_ι, actT_ι, MatEnd.mapAlg_apply]
+  by_cases h : j + 1 < Multiset.card ν
+  swap
+  · simp only [RouqData.klrGen, RouqData.wordΨ_of_le (not_lt.1 h), Unfurling.genImage, h,
+      dite_false, map_zero]
+    simp only [MatEnd.zero_apply, Functor.map_zero, Limits.comp_zero]
+    exact (Finset.sum_eq_zero fun _ _ => Limits.zero_comp).symm
+  simp only [RouqData.klrGen, RouqData.wordΨ, Unfurling.genImage, h, dite_true,
+    MatEnd.sum_single_apply (g := fun t => TypeA.sadj (Multiset.card ν) j • t),
+    MatEnd.mapAlg_apply, klrComplAt_sum_crossImage_apply S D H hnil _ _ _ ν'.2 h s]
+  erw [MatEnd.sum_map_plc_add_comp_rect]
+  rw [MatEnd.map_plc (evalBlk Φ S M δ), MatEnd.comp_plc]
+  have hj' : j + 1 < Multiset.card ν'.1 := Unfurling.lt_card_of_lt D ν'.2 h
+  have hjs : j + 1 < (word s).length := by rw [length_word]; exact hj'
+  have hP := isPath_down hπ μ ν'.2 β.1 s hr
+  rw [lgen_of_isRel S hπ μ M δ β ν' hδ s hr, RouqData.wordCross_def _ _ _ h, RouqData.wcrossTo,
+    Functor.map_comp, eqToHom_map, evalBlk_map]
+  refine Eq.trans (congrArg (fun f => MatEnd.plc _ f t) ((Category.assoc _ _ _).trans
+    (congrArg (_ ≫ ·) ((Category.assoc _ _ _).symm.trans (congrArg (· ≫ _)
+      (pgen_wcross Φ S D M hnil hπ β j _ _ _ _ hP δ _ hjs)))))) ?_
+  erw [Preadditive.add_comp, Preadditive.comp_add, MatEnd.plc_add]
+  have hw0 : (word s)[j]'(by omega) = s.lbl (Unfurling.posL D ν'.2 h) := by
+    simp only [getElem_word]; rfl
+  have hw1 : (word s)[j + 1] = s.lbl (Unfurling.posR D ν'.2 h) := by
+    simp only [getElem_word]; rfl
+  refine congrArg₂ (· + ·) ?_ ?_
+  · have hd := Unfurling.down_sadj_smul D.π ν'.2 j s
+    rw [MatEnd.plc_congr hd.symm]
+    refine congrArg (fun f => MatEnd.plc _ f t) ?_
+    simp only [Category.assoc]
+    refine (congrArg (_ ≫ ·) ((Category.assoc _ _ _).trans
+      (congrArg (_ ≫ ·) (eqToHom_trans _ _)))).trans ?_
+    have eP : lswap j (word s) = word (TypeA.sadj (Multiset.card ν'.1) j • s) := by
+      rw [lswap_eq _ _ hjs, Diagram.word_sadj s hj']
+      simp only [getElem_word]
+    have eL : wswap RD j (wordL RD μ (Unfurling.down D.π ν'.2 s)) =
+        wordL RD μ (Unfurling.down D.π ν'.2 (TypeA.sadj (Multiset.card ν'.1) j • s)) :=
+      (wswap_wordL μ _ h).trans (congrArg _ hd.symm)
+    by_cases hr' : IsRel Φ β.1 (word (TypeA.sadj (Multiset.card ν'.1) j • s))
+    · rw [lgen_of_isRel S hπ μ M δ β ν' hδ _ hr']
+      have hl0 : (TypeA.sadj (Multiset.card ν'.1) j • s).lbl (Unfurling.posL D ν'.2 h) =
+          s.lbl (Unfurling.posR D ν'.2 h) := by
+        show s.lbl ((TypeA.sadj _ j).symm _) = _
+        rw [← Equiv.Perm.inv_def, TypeA.sadj_inv, Unfurling.posL, TypeA.sadj_apply_left hj']
+        rfl
+      have hl1 : (TypeA.sadj (Multiset.card ν'.1) j • s).lbl (Unfurling.posR D ν'.2 h) =
+          s.lbl (Unfurling.posL D ν'.2 h) := by
+        show s.lbl ((TypeA.sadj _ j).symm _) = _
+        rw [← Equiv.Perm.inv_def, TypeA.sadj_inv, Unfurling.posR, TypeA.sadj_apply_right hj']
+        rfl
+      have hsame : D.π ((TypeA.sadj (Multiset.card ν'.1) j • s).lbl (Unfurling.posL D ν'.2 h)) =
+            D.π ((TypeA.sadj (Multiset.card ν'.1) j • s).lbl (Unfurling.posR D ν'.2 h)) ↔
+          Φ.π (word s)[j] = Φ.π (word s)[j + 1] := by
+        rw [hl0, hl1, hw0, hw1, hπ, hπ]; exact eq_comm
+      refine (pcrossSwap_eq M β j _ (word s) _ (wValid_wordL μ _) δ ((endBlk_word β.1 s).trans hδ)
+        hjs _ (liftL_eq_canon Φ β.1 (word s)).symm
+        (wValid_of_eq (wValid_wordL _ s) (wtop_lift μ δ β ν' hδ)) _
+        (wswap_wordL (Φ.wtT β.1) s hj') (wValid_of_eq (wValid_wordL _ _) (wtop_lift μ δ β ν' hδ))
+        _ eL (wValid_wordL μ _) _ eP (isPath_down hπ μ ν'.2 β.1 _ hr')
+        ((endBlk_word β.1 _).trans hδ) (liftL_eq_canon Φ β.1 (word _)).symm _ hsame _ _
+        (hw1.trans hl0.symm) (hw0.trans hl1.symm) _ _ rfl).trans ?_
+      erw [eqToHom_refl, Category.comp_id]
+      rw [RouqFamily.wordCrossAt, dite_eq_left hj']
+      exact congrArg (fun f => (evalSrc Φ S (M β)).map f ≫ _) (Category.assoc _ _ _).symm
+    · have hl : lgen S hπ μ M δ β ν' hδ (TypeA.sadj (Multiset.card ν'.1) j • s) = 0 := by
+        unfold lgen; split_ifs; rfl
+      have hnp : ¬ IsPath Φ β.1 (wswap RD j (wordL RD μ (Unfurling.down D.π ν'.2 s)))
+          (lswap j (word s)) := fun hp =>
+        hr' ((isPath_canon_iff Φ β.1 μ _).1 (by rwa [eL, eP, wordL_down hπ] at hp))
+      rw [hl, pcrossSwap, dite_eq_right hnp]
+      erw [Limits.zero_comp, Limits.comp_zero]
+      exact Limits.comp_zero.symm
+  · by_cases hs : D.π (s.lbl (Unfurling.posL D ν'.2 h)) = D.π (s.lbl (Unfurling.posR D ν'.2 h)) ∧
+        s.lbl (Unfurling.posL D ν'.2 h) ≠ s.lbl (Unfurling.posR D ν'.2 h)
+    · have hc : TypeA.sadj (Multiset.card ν) j • Unfurling.down D.π ν'.2 s =
+          Unfurling.down D.π ν'.2 s := Unfurling.sadj_smul_down_eq D.π ν'.2 s h hs.1
+      rw [MatEnd.plc_congr hc]
+      refine congrArg (fun f => MatEnd.plc _ f t) ?_
+      simp only [Category.assoc]
+      refine (congrArg (_ ≫ ·) ((Category.assoc _ _ _).trans
+        (congrArg (_ ≫ ·) (eqToHom_trans _ _)))).trans ?_
+      rw [selfCoef, ite_eq_left hs]
+      have eL : wswap RD j (wordL RD μ (Unfurling.down D.π ν'.2 s)) =
+          wordL RD μ (Unfurling.down D.π ν'.2 s) :=
+        (wswap_wordL μ _ h).trans (congrArg _ hc)
+      have hs' : Φ.π (word s)[j] = Φ.π (word s)[j + 1] ∧ (word s)[j] ≠ (word s)[j + 1] := by
+        rw [hw0, hw1, hπ, hπ]; exact hs
+      refine (pcrossSelf_eq M β j _ (word s) _ (wValid_wordL μ _) hP δ
+        ((endBlk_word β.1 s).trans hδ) hjs _ (liftL_eq_canon Φ β.1 (word s)).symm
+        (wValid_of_eq (wValid_wordL _ s) (wtop_lift μ δ β ν' hδ)) _ eL (wValid_wordL μ _) hP hs'
+        _ _ hw0 hw1 _ _ rfl).trans ?_
+      erw [eqToHom_refl, Category.comp_id]
+      rfl
+    · have hs' : ¬ (Φ.π (word s)[j] = Φ.π (word s)[j + 1] ∧ (word s)[j] ≠ (word s)[j + 1]) := by
+        rw [hw0, hw1, hπ, hπ]; exact hs
+      rw [pcrossSelf, dite_eq_right hs', selfCoef, ite_eq_right hs, Functor.map_zero]
+      erw [Limits.zero_comp, Limits.comp_zero, Limits.zero_comp, MatEnd.plc_zero, MatEnd.plc_zero]
+      rfl
 
 end Gen
 

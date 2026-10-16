@@ -4,6 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 -/
 import Categorification.TwoRep.FurledCorner
 import Categorification.TwoRep.FurlingKL
+import Categorification.TwoRep.RouqUpBubbles
 
 /-!
 # Evaluation on the summands of a furled word
@@ -87,6 +88,49 @@ theorem upEvalData_toUEnd_mk (r : KLRAlgebra k (klQ2 k C) ν)
   subst d
   change T.upEvalSemilinear H M μ _ = _
   rw [upEvalSemilinear_toUEnd, ha, RouqFamily.klrAct_mk]
+omit [DecidableEq I] in
+/-- Transport to defining Rouquier data preserves composition of upward morphisms. -/
+theorem upEvalData_comp {t s q : Seq ν}
+    (f : (pres RD k).obj (ob RD μ (ups (word t))) ⟶ (pres RD k).obj (ob RD μ (ups (word s))))
+    (g : (pres RD k).obj (ob RD μ (ups (word s))) ⟶ (pres RD k).obj (ob RD μ (ups (word q)))) :
+    T.upEvalData H M d hd μ (f ≫ g) = T.upEvalData H M d hd μ f ≫ T.upEvalData H M d hd μ g := by
+  subst d
+  exact T.upEval_comp H.brundan_kl_restrictScalars M μ f g
+private theorem rightBubble_app {A B : LinearCat.{wL, v₁, u₂} L}
+    (F : A ⟶ B) (b : End (𝟙 A)) (V : A) :
+    (((λ_ F).inv ≫ b ▷ F ≫ (λ_ F).hom).hom.app V) = F.obj.map (b.hom.app V) := by
+  change 𝟙 _ ≫ F.obj.map (b.hom.app V) ≫ 𝟙 _ = _
+  simp only [Category.id_comp, Category.comp_id]
+
+private theorem map_scalar_id {A B : LinearCat.{wL, v₁, u₂} L}
+    (F : A ⟶ B) (V : A) (c : L) : F.obj.map (c • 𝟙 V) = c • 𝟙 (F.obj.obj V) := by
+  rw [Functor.map_smul, CategoryTheory.Functor.map_id]
+
+omit [DecidableEq I] in
+/-- A scalar categorical bubble action on an object stays scalar after an upward word. -/
+theorem upEvalAtSemilinear_bubMap_of_scalar (V : T.obj μ) (t : Seq ν)
+    (p : PiLam I k) (c : L)
+    (hp : (T.bubbleMap H.brundan_kl_restrictScalars M μ p).hom.app V = c • 𝟙 V) :
+    T.upEvalAtSemilinear H M μ V (bubAt RD k μ (ups (word t)) (bubMap RD k μ p).val) =
+      c • 𝟙 _ := by
+  change (T.upEval H.brundan_kl_restrictScalars M μ _).hom.app V = _
+  rw [T.upEval_bubMap, rightBubble_app, hp]
+  exact map_scalar_id (T.wordCell μ t) V c
+
+/-- An object in prescribed Rouquier data, viewed in the equal family. -/
+def dataObj (V : d.obj μ) : T.obj μ := hd.symm ▸ V
+
+omit [DecidableEq I] in
+/-- Scalar bubble evaluation survives transport to the defining Rouquier data.
+The input is only the categorical bubble action on the original object. -/
+theorem upEvalData_bubMap_of_scalar (V : d.obj μ) (t : Seq ν) (p : PiLam I k) (c : L)
+    (hp : (T.bubbleMap H.brundan_kl_restrictScalars M μ p).hom.app (T.dataObj d hd μ V) =
+      c • 𝟙 _) :
+    (T.upEvalData H M d hd μ (bubAt RD k μ (ups (word t)) (bubMap RD k μ p).val)).hom.app V =
+      c • 𝟙 _ := by
+  subst d
+  exact T.upEvalAtSemilinear_bubMap_of_scalar H M μ V t p c hp
+
 end Data
 
 section Transport
@@ -194,5 +238,20 @@ theorem upCorner_toUEnd
   rw [RouqFamily.upEvalData_toUEnd_mk T HT MT _ hT μ r a ha.symm]
   rw [cornerEval_free hπ V δ β ν' hδ H hnil hzero a t s hs, ← ha, Unfurling.gamma_mk]
   rfl
+/-- A scalar action on the input word factors out of every projected lift coordinate.
+Only the evaluated morphism at the specified block is required to be scalar. -/
+theorem upCorner_comp_of_scalar (t s : Seq ν'.1) (j : Seq ν)
+    (b : End ((pres RD k).obj (ob RD μ (ups (word (Unfurling.down D.π ν'.2 t))))))
+    (f : (pres RD k).obj (ob RD μ (ups (word (Unfurling.down D.π ν'.2 t)))) ⟶
+      (pres RD k).obj (ob RD μ (ups (word j)))) (c : L)
+    (hb : (evalBlk Φ S V δ).map (T.upEvalData HT MT (rouqData Φ S D) hT μ b) = c • 𝟙 _) :
+    upCorner hπ V δ β ν' hδ T hT HT MT t s j (b ≫ f) =
+      c • upCorner hπ V δ β ν' hδ T hT HT MT t s j f := by
+  change lgen S hπ μ V δ β ν' hδ t ≫
+    (evalBlk Φ S V δ).map (T.upEvalData HT MT _ hT μ (b ≫ f)) ≫ lproj S V hπ δ β ν' hδ j s = _
+  rw [RouqFamily.upEvalData_comp, Functor.map_comp, hb]
+  simp only [Linear.smul_comp, Category.id_comp, Linear.comp_smul]
+  rfl
+
 end Furling
 end Categorification.TwoRep

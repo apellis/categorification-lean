@@ -4,6 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 -/
 import Categorification.KLR.Unfurling.VacuumCorner
 import Categorification.TwoRep.FurledEvaluation
+import Categorification.KLR.Unfurling.Nondeg
 
 /-!
 # Semilinear evaluation on the cyclotomic vacuum
@@ -17,8 +18,11 @@ The output is the actual unfurled cyclotomic quotient, with scalar extension exp
 `theta_toUEnd` proves its KLR component on every element, using `lgen`, `lproj`,
 `wgen`, `wcoord` and the completed action under `gamma`. The explicit weight and object
 equalities connect a block of the furled family to the product vacuum. The formula does
-not assume a basis-image equation. Identification of the categorical bubble action with
-an independent scalar evaluation is separate from this KLR computation.
+not assume a basis-image equation. `theta_toUEnd_basis` specializes this to the KLR basis.
+`unfurledEvalOfVacuum` constructs the consumer structure and proves `map_basis` from the
+categorical bubble scalar equation on the vacuum and scalar algebraic independence.
+Specializing the displayed weight/object equalities and bubble equation to the generic
+KL family remains separate; the final nondegeneracy theorem is not asserted here.
 -/
 
 noncomputable section
@@ -137,7 +141,7 @@ variable [DecidableEq I₀] {C₀ : CartanDatum I₀}
   (G : RouqFamily (B := LinearCat.{v, max (max u v) w + 1, max (max u v) w + 1} k) RD₀)
   (hG : G.toRouqData = Furling.rouqData Φ (homProduct k (S) T) D)
   (HG : RouqUpKLR G (klQ2 k C₀)) (MG : BrundanMixedInversion G)
-  {k₀ : Type*} [CommRing k₀] [Algebra k₀ k]
+  {k₀ : Type*} [Field k₀] [Algebra k₀ k]
 
 /-- The vacuum coordinate of a single output lift of a positive-word morphism. -/
 def thetaEntry (t s : Seq ν) (j : Seq ((ν.map Sum.inl).map D.π)) :
@@ -160,6 +164,25 @@ def theta (t : Seq ν) (j : Seq ((ν.map Sum.inl).map D.π)) :
   exact ∑ s : {s : Seq ν // down D.π rfl (Seq.map Sum.inl s) = j},
     thetaEntry hQ hlead ha hΛ hdeg μ₂ V₀ h0 v₀ (Ψ₀ := Ψ₀) V z hz M haM D hprodD Φ hπ Vg β δ hδ
       hx hy hV G hG HG MG t s.1 j
+
+/-- A scalar input endomorphism factors out of the sum of all vacuum coordinates. -/
+theorem theta_comp_of_scalar (t : Seq ν) (j : Seq ((ν.map Sum.inl).map D.π))
+    (b : End ((pres RD₀ k₀).obj (ob RD₀ μg (ups (word (down D.π rfl (Seq.map Sum.inl t)))))))
+    (f : (pres RD₀ k₀).obj (ob RD₀ μg (ups (word (down D.π rfl (Seq.map Sum.inl t))))) ⟶
+      (pres RD₀ k₀).obj (ob RD₀ μg (ups (word j)))) (c : k)
+    (hb : (Furling.evalBlk Φ (homProduct k (S) T) Vg δ).map
+      (G.upEvalData HG MG (Furling.rouqData Φ (homProduct k (S) T) D) hG μg b) = c • 𝟙 _) :
+    theta hQ hlead ha hΛ hdeg μ₂ V₀ h0 v₀ (Ψ₀ := Ψ₀) V z hz M haM D hprodD Φ hπ Vg β δ hδ
+      hx hy hV G hG HG MG t j (b ≫ f) =
+    c • theta hQ hlead ha hΛ hdeg μ₂ V₀ h0 v₀ (Ψ₀ := Ψ₀) V z hz M haM D hprodD Φ hπ Vg β δ hδ
+      hx hy hV G hG HG MG t j f := by
+  classical
+  simp only [theta, LinearMap.sum_apply, Finset.smul_sum]
+  apply Finset.sum_congr rfl
+  intro s _
+  simp only [thetaEntry, LinearMap.comp_apply, LinearEquiv.coe_coe]
+  rw [Furling.upCorner_comp_of_scalar hπ Vg δ β ⟨ν.map Sum.inl, rfl⟩ hδ G hG HG MG _ _ j b f c hb,
+    map_smul, map_smul]
 
 variable
   (H : RouqUpKLR (homProduct k (S) T) (unfQ (k := k) D.arrows))
@@ -229,6 +252,110 @@ theorem theta_toUEnd (r : KLRAlgebra k₀ (klQ2 k₀ C₀) ((ν.map Sum.inl).map
       rw [← map_sum, ← Finset.sum_mul, ← Finset.sum_mul, sum_cycMk_inl M D harr hnd hPQ j]
       rw [map_mul (mapRingHom (algebraMap k₀ k) (fun i j _ => map_klQ2 C₀ _ i j)),
         mapRingHom_e, map_mul (cycGamma D harr rfl hnd M hPQ)]
+
+omit [DecidableEq I] [DecidableEq I₂] in
+private theorem mapRingHom_crossWord
+    (ρ : List ℕ) :
+    mapRingHom (ν := ((ν.map Sum.inl).map D.π)) (algebraMap k₀ k)
+      (fun i j _ => map_klQ2 C₀ _ i j) (ψw ρ) = ψw ρ := by
+  induction ρ with
+  | nil => simp only [ψw_nil, map_one]
+  | cons j ρ ih => rw [ψw_cons, map_mul, mapRingHom_ψ, ih, ψw_cons]
+
+include H₂ hQ₂ hΨ₀ hzero H hnil in
+/-- The KLR basis-image component of the constructed semilinear vacuum evaluation. -/
+theorem theta_toUEnd_basis
+    (ρ : Equiv.Perm (Fin ((ν.map Sum.inl).map D.π).card) → List ℕ)
+    (hρ : ∀ w, TypeA.IsReduced ((ν.map Sum.inl).map D.π).card (ρ w) ∧
+      TypeA.wordProd ((ν.map Sum.inl).map D.π).card (ρ w) = w)
+    (t : Seq ν) (j : Seq ((ν.map Sum.inl).map D.π))
+    (w : Equiv.Perm (Fin ((ν.map Sum.inl).map D.π).card))
+    (u : Fin ((ν.map Sum.inl).map D.π).card →₀ ℕ)
+    (hw : w • down D.π rfl (Seq.map Sum.inl t) = j) :
+    theta hQ hlead ha hΛ hdeg μ₂ V₀ h0 v₀ (Ψ₀ := Ψ₀) V z hz M haM D hprodD Φ hπ Vg β δ hδ
+      hx hy hV G hG HG MG t j
+      (toUEnd RD₀ k₀ μg _
+        (KL2.basis ρ hρ (down D.π rfl (Seq.map Sum.inl t), w, u))
+        (down D.π rfl (Seq.map Sum.inl t)) j) =
+    cycFlip D harr hnd M (cycGamma D harr rfl hnd M hPQ
+      (ψw (ρ w) * pol (MvPolynomial.monomial u 1) * e (down D.π rfl (Seq.map Sum.inl t))) *
+        cycMk D _ M (e (Seq.map Sum.inl t))) := by
+  rw [theta_toUEnd hQ hlead ha hΛ hdeg H₂ hQ₂ μ₂ V₀ h0 v₀ hΨ₀ V z hz M haM D
+    hprodD Φ hπ Vg β δ hδ hx hy hV G hG HG MG H hnil hzero harr hnd hPQ]
+  rw [KL2.basis_apply, e_mul_gen, (hρ w).2, ← hw, inv_smul_smul, ite_eq_left rfl]
+  simp only [map_mul, mapRingHom_e, mapRingHom_pol, MvPolynomial.map_monomial, map_one,
+    mapRingHom_crossWord]
+
+include H₂ hQ₂ hΨ₀ hzero H hnil in
+/-- The basis-image equation follows from the scalar bubble action on the input word.
+This hypothesis is a single evaluated bubble equation, not an assumed basis-image formula. -/
+theorem theta_phi_basis_of_bubble
+    (ρ : Equiv.Perm (Fin ((ν.map Sum.inl).map D.π).card) → List ℕ)
+    (hρ : ∀ w, TypeA.IsReduced ((ν.map Sum.inl).map D.π).card (ρ w) ∧
+      TypeA.wordProd ((ν.map Sum.inl).map D.π).card (ρ w) = w)
+    (t : Seq ν) (j : Seq ((ν.map Sum.inl).map D.π))
+    (w : Equiv.Perm (Fin ((ν.map Sum.inl).map D.π).card))
+    (u : Fin ((ν.map Sum.inl).map D.π).card →₀ ℕ)
+    (hw : w • down D.π rfl (Seq.map Sum.inl t) = j)
+    (p : PiLam I₀ k₀) (c : k)
+    (hb : (Furling.evalBlk Φ (homProduct k (S) T) Vg δ).map
+      (G.upEvalData HG MG (Furling.rouqData Φ (homProduct k (S) T) D) hG μg
+        (bubAt RD₀ k₀ μg (ups (word (down D.π rfl (Seq.map Sum.inl t))))
+          (bubMap RD₀ k₀ μg p).val)) = c • 𝟙 _) :
+    theta hQ hlead ha hΛ hdeg μ₂ V₀ h0 v₀ (Ψ₀ := Ψ₀) V z hz M haM D hprodD Φ hπ Vg β δ hδ
+      hx hy hV G hG HG MG t j
+      (phi RD₀ k₀ μg _
+        (KL2.basis ρ hρ (down D.π rfl (Seq.map Sum.inl t), w, u) ⊗ₜ[k₀] p)
+        (down D.π rfl (Seq.map Sum.inl t)) j) =
+    c • cycFlip D harr hnd M (cycGamma D harr rfl hnd M hPQ
+      (ψw (ρ w) * pol (MvPolynomial.monomial u 1) * e (down D.π rfl (Seq.map Sum.inl t))) *
+        cycMk D _ M (e (Seq.map Sum.inl t))) := by
+  rw [phi_tmul_apply,
+    theta_comp_of_scalar hQ hlead ha hΛ hdeg μ₂ V₀ h0 v₀ V z hz M haM D hprodD Φ hπ Vg β δ hδ
+      hx hy hV G hG HG MG t j _ _ c hb]
+  exact congrArg (c • ·) (theta_toUEnd_basis hQ hlead ha hΛ hdeg H₂ hQ₂ μ₂ V₀ h0 v₀ hΨ₀ V z hz M haM D
+    hprodD Φ hπ Vg β δ hδ hx hy hV G hG HG MG H hnil hzero harr hnd hPQ ρ hρ t j w u hw)
+
+attribute [local instance] ScalarRestriction.linearCatHom
+  ScalarRestriction.precompLinear ScalarRestriction.postcompLinear
+
+include H₂ hQ₂ hΨ₀ hzero H hnil in
+/-- Assemble the evaluation consumed by the nondegeneracy argument from the constructed
+vacuum map. The remaining bubble input is its evaluated scalar action, not `map_basis`.
+The weight and object identifications above must be supplied for the chosen vacuum. -/
+def unfurledEvalOfVacuum (t : Seq ν) (j : Seq ((ν.map Sum.inl).map D.π)) (N : ℕ)
+    (hM : N ≤ M) (bub : PiLam I₀ k₀ →ₐ[k₀] k)
+    (hind : AlgebraicIndependent k₀ fun p : {p : I₀ × ℕ // p.2 < N} => bub (MvPolynomial.X p.1))
+    (hb : ∀ p : PiLam I₀ k₀, (G.bubbleMap HG.brundan_kl_restrictScalars MG μg p).hom.app
+      (G.dataObj (Furling.rouqData Φ (homProduct k (S) T) D) hG μg Vg) = bub p • 𝟙 _) :
+    UnfurledEval RD₀ k₀ μg (down D.π rfl (Seq.map Sum.inl t)) j N where
+  L := k
+  J := I ⊕ I₂
+  P := P
+  hPQ := hPQ
+  D := D
+  ν' := ν.map Sum.inl
+  hν := rfl
+  hnd := hnd
+  harr := harr
+  t := Seq.map Sum.inl t
+  ht := rfl
+  M := M
+  hM := hM
+  bub := bub
+  bub_indep := hind
+  Θ := theta hQ hlead ha hΛ hdeg μ₂ V₀ h0 v₀ (Ψ₀ := Ψ₀) V z hz M haM D hprodD Φ hπ Vg β δ hδ
+    hx hy hV G hG HG MG t j
+  ρ := cycFlip D harr hnd M
+  ρ_injective := cycFlip_injective D harr hnd M
+  map_basis w u m hw :=
+    theta_phi_basis_of_bubble hQ hlead ha hΛ hdeg H₂ hQ₂ μ₂ V₀ h0 v₀ hΨ₀ V z hz M haM D
+      hprodD Φ hπ Vg β δ hδ hx hy hV G hG HG MG H hnil hzero harr hnd hPQ
+      (ρc _) (hρc _) t j w u hw (MvPolynomial.monomial m 1) _ (by
+        have he := G.upEvalData_bubMap_of_scalar HG MG
+          (Furling.rouqData Φ (homProduct k (S) T) D) hG μg Vg
+          (down D.π rfl (Seq.map Sum.inl t)) (MvPolynomial.monomial m 1) _ (hb _)
+        exact congrFun he δ)
 
 end Furled
 end Categorification.KLR.CyclotomicAction

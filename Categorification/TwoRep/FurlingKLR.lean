@@ -4,6 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 -/
 import Categorification.TwoRep.FurlingIntertwine
 import Categorification.KLR.Symmetries
+import Categorification.TwoRep.RouqKLRRelations
 
 /-!
 # Furling: the KLR algebra of `g` through the unfurling homomorphism
@@ -28,6 +29,9 @@ intertwine the two (`Furling.intertw_freeGamma`).
   respects the relations of `R(ν)`, hence `R(ν)` acts on the words of `g`. The hypotheses are
   those of the cover: the mixed relations `RouqUpKLR` of `g̃` for the matrices of the unfurling
   datum, nilpotent dots, and vanishing of the generators of `g̃` along irrelevant edges.
+* `Furling.respectsKLR`, `Furling.rouqUpKLR`: the same statement as `RouqData.RespectsKLR`;
+  hence every Rouquier family with the generators of `g` satisfies the mixed relations
+  `RouqUpKLR` for `Q` (Brundan, Definition 1.1, (1.2)–(1.4)).
 * `KLR.ncEval_rename_of_commute`, `KLR.ncEval_pwAt_of_commute`: `ncEval` at pairwise commuting
   elements.
 -/
@@ -849,6 +853,20 @@ def klrAct : KLRAlgebra k Q ν →ₐ[k] (rouqData Φ S D).WordEnd μ ν :=
 theorem klrAct_mk (a : FreeAlgebra k (KLR.Gen ν)) :
     klrAct hπ μ H hnil hzero hPQ (KLRAlgebra.mk k Q ν a) = (rouqData Φ S D).klrActFree k μ ν a :=
   RingQuot.liftAlgHom_mkAlgHom_apply k _ _ a
+
+include hπ H hnil hzero hPQ in
+/-- **Webster, `lem:g-action`**, as a property of the Rouquier data of `g`: the action of the free
+algebra on the generators of `R(ν)` respects the relations of `R(ν)` for `Q`. -/
+theorem respectsKLR : (rouqData Φ S D).RespectsKLR k Q :=
+  fun μ _ _ _ h => klrActFree_rel hπ μ H hnil hzero hPQ h
+
+include hπ H hnil hzero hPQ in
+/-- **The mixed KLR relations for `g`** (Brundan, arXiv:1501.00350v1, Definition 1.1,
+(1.2)–(1.4), for distinct colours): every Rouquier family whose generators are those of `g`
+satisfies `RouqUpKLR` for the matrices `Q` of `P`. -/
+theorem rouqUpKLR (T : RouqFamily (B := LinearCat k) RD)
+    (hT : T.toRouqData = rouqData Φ S D) : RouqUpKLR T Q :=
+  RouqFamily.rouqUpKLR_of_respectsKLR (hT ▸ respectsKLR hπ H hnil hzero hPQ)
 
 end Descent
 

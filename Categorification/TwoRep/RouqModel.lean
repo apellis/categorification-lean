@@ -35,17 +35,22 @@ variable {B : Type u} [Bicategory.{w, v} B] [∀ a b : B, Preadditive (a ⟶ b)]
   {I : Type*} {C : CartanDatum I} {X Y : Type u₁} [AddCommGroup X] [AddCommGroup Y]
   (RD : WeightDatum C X Y)
 
-/-- Weight-indexed Rouquier generators with all single-colour relations. Mixed KLR relations
-and mixed invertibility are deliberately not included in this generator-layer structure. -/
-structure RouqFamily where
+/-- The upward generators of a Rouquier family: weight-indexed 1-morphisms `E_i`, dots and
+upward crossings, with no relations. The words in these generators and the action of the free
+algebra on the generators of `R(ν)` (`RouqData.klrActFree`) are defined at this level. -/
+structure RouqData where
   obj : X → B
   E : ∀ (i : I) {x y : X}, x + RD.iX i = y → (obj x ⟶ obj y)
-  F : ∀ (i : I) {x y : X}, x + RD.iX i = y → (obj y ⟶ obj x)
-  adj : ∀ (i : I) {x y : X} (h : x + RD.iX i = y), E i h ⊣ F i h
   dot : ∀ (i : I) {x y : X} (h : x + RD.iX i = y), E i h ⟶ E i h
   cross : ∀ (i j : I) {a b c d : X} (h₁ : a + RD.iX j = b)
     (h₂ : b + RD.iX i = d) (h₃ : a + RD.iX i = c) (h₄ : c + RD.iX j = d),
     E j h₁ ≫ E i h₂ ⟶ E i h₃ ≫ E j h₄
+
+/-- Weight-indexed Rouquier generators with all single-colour relations. Mixed KLR relations
+and mixed invertibility are deliberately not included in this generator-layer structure. -/
+structure RouqFamily extends RouqData (B := B) RD where
+  F : ∀ (i : I) {x y : X}, x + RD.iX i = y → (obj y ⟶ obj x)
+  adj : ∀ (i : I) {x y : X} (h : x + RD.iX i = y), E i h ⊣ F i h
   square : ∀ (i : I) {a b c : X} (h₁ : a + RD.iX i = b) (h₂ : b + RD.iX i = c),
     cross i i h₁ h₂ h₁ h₂ ≫ cross i i h₁ h₂ h₁ h₂ = 0
   braid : ∀ (i : I) {a b c d : X} (h₁ : a + RD.iX i = b)

@@ -36,13 +36,14 @@ the same letters, which are equal by `wcell_congr`.
 
 ## Main definitions and results
 
-* `RouqFamily.wcell`, `RouqFamily.wdot`, `RouqFamily.wcross`: weighted words and their dots
-  and crossings; the relations on weighted words are `wdot_comm`, `wdot_wcross`,
+* `RouqData.wcell`, `RouqData.wdot`, `RouqData.wcross`: weighted words and their dots and
+  crossings, defined for the generators alone (`RouqData`); the relations on weighted words are `wdot_comm`, `wdot_wcross`,
   `wcross_comm`, `wcross_sq_self`, `wslide_left_self`, `wslide_right_self`, and, for a family
   with `H : RouqUpKLR S Q`, `wcross_sq_ne`, `wslide_left_ne`, `wslide_right_ne`, `wbraid` and
   `wbraidQ`.
-* `RouqFamily.WordEnd S μ ν`: the matrix algebra of the words of weight `ν` at `μ`, with the
-  elements `wordE t`, `wordX a` and `wordΨ j`.
+* `RouqData.WordEnd S μ ν`: the matrix algebra of the words of weight `ν` at `μ`, with the
+  elements `wordE t`, `wordX a` and `wordΨ j`, and the action `RouqData.klrActFree` of the
+  free algebra on the generators of `R(ν)`.
 * `RouqFamily.klrAct`: the action of `R(ν)`, with `klrAct_e`, `klrAct_dot`, `klrAct_cross`.
 * `RouqFamily.klrAct_pol_X_pow`: if every dot satisfies `x^M = 0`, then `x_a^M` acts by zero.
 
@@ -232,15 +233,16 @@ variable {B : Type u} [Bicategory.{w, v} B] [∀ a b : B, Preadditive (a ⟶ b)]
   {I : Type*} {C : CartanDatum I} {X Y : Type u₁} [AddCommGroup X] [AddCommGroup Y]
   {RD : WeightDatum C X Y}
 
-namespace RouqFamily
+namespace RouqData
 
-variable (S : RouqFamily (B := B) RD) (μ : X)
+variable (S : RouqData (B := B) RD) (μ : X)
 
 /-- The 1-morphism of a valid weighted word: `E c₀ ∘ ⋯ ∘ E c_{n-1}` from `μ` to `μ'`. -/
 def wcell : (L : List (I × X)) → (μ' : X) → wValid RD μ L μ' → (S.obj μ ⟶ S.obj μ')
   | [], _, h => eqToHom (congrArg S.obj h)
   | (c, ν) :: L, _, h => wcell L ν h.1 ≫ S.E c h.2
 
+omit [∀ a b : B, Preadditive (a ⟶ b)] in
 theorem wcell_congr {L L' : List (I × X)} (e : L = L') {μ' : X} (h : wValid RD μ L μ')
     (h' : wValid RD μ L' μ') : S.wcell μ L μ' h = S.wcell μ L' μ' h' := by
   subst e; rfl
@@ -324,7 +326,7 @@ theorem wcross_of_le : ∀ (j : ℕ) (L : List (I × X)) (μ' : X) (h : wValid R
     rw [wcross_of_le j L ν h.1 (by simpa using hl)]
     exact AdditiveWhiskering.zero_whiskerRight _ _ _
 
-end RouqFamily
+end RouqData
 
 end Words
 
@@ -586,9 +588,9 @@ variable {k : Type*} [CommRing k] {B : Type u} [Bicategory.{w, v} B]
   {I : Type*} {C : CartanDatum I} {X Y : Type u₁} [AddCommGroup X] [AddCommGroup Y]
   {RD : WeightDatum C X Y}
 
-namespace RouqFamily
+namespace RouqData
 
-variable (S : RouqFamily (B := B) RD) (μ : X)
+variable (S : RouqData (B := B) RD) (μ : X)
 
 omit [AdditiveWhiskering B] in
 /-- Dots on a weighted word commute. -/
@@ -624,7 +626,7 @@ theorem wdot_wcross : ∀ (a j : ℕ) (L : List (I × X)) (μ' : X) (h : wValid 
   | _ + 2, 0, [_], _, _, _, _ => by simp [wcross]
   | _, _ + 1, [], _, _, _, _ => by simp [wcross]
 
-omit [AdditiveWhiskering B] in
+omit [AdditiveWhiskering B] [∀ a b : B, Preadditive (a ⟶ b)] in
 theorem eqToHom_wcell_cons (c : I) (ν : X) {L₁ L₂ : List (I × X)} (e : L₁ = L₂) {μ' : X}
     (h₁ : wValid RD μ ((c, ν) :: L₁) μ') (h₂ : wValid RD μ ((c, ν) :: L₂) μ')
     (p : S.wcell μ ((c, ν) :: L₁) μ' h₁ = S.wcell μ ((c, ν) :: L₂) μ' h₂) :
@@ -656,6 +658,41 @@ theorem wcross_comm : ∀ (j l : ℕ) (L : List (I × X)) (μ' : X) (h : wValid 
   | 0, 0, _, _, _, h => by omega
   | 0, 1, _, _, _, h => by omega
   | _ + 1, 0, _, _, _, h => by omega
+
+omit [AdditiveWhiskering B] [∀ (a b c : B) (f : a ⟶ b), (precomp c f).Linear k]
+  [∀ (a b c : B) (f : b ⟶ c), (postcomp a f).Linear k] in
+@[reassoc]
+theorem eqToHom_wdot (a : ℕ) {L L' : List (I × X)} (e : L = L') {μ' : X}
+    (h : wValid RD μ L μ') (h' : wValid RD μ L' μ') :
+    eqToHom (S.wcell_congr μ e h h') ≫ S.wdot μ a L' μ' h' =
+      S.wdot μ a L μ' h ≫ eqToHom (S.wcell_congr μ e h h') := by
+  subst e; simp
+
+omit [AdditiveWhiskering B] [∀ (a b c : B) (f : a ⟶ b), (precomp c f).Linear k]
+  [∀ (a b c : B) (f : b ⟶ c), (postcomp a f).Linear k] in
+@[reassoc]
+theorem eqToHom_wcross (j : ℕ) {L L' : List (I × X)} (e : L = L') {μ' : X}
+    (h : wValid RD μ L μ') (h' : wValid RD μ L' μ') :
+    eqToHom (S.wcell_congr μ e h h') ≫ S.wcross μ j L' μ' h' =
+      S.wcross μ j L μ' h ≫ eqToHom (S.wcell_congr μ (congrArg (wswap RD j) e)
+        (wValid_wswap j L h) (wValid_wswap j L' h')) := by
+  subst e; simp
+
+omit [AdditiveWhiskering B] [∀ (a b c : B) (f : a ⟶ b), (precomp c f).Linear k]
+  [∀ (a b c : B) (f : b ⟶ c), (postcomp a f).Linear k] in
+theorem wcrossTo_comp_eqToHom (j : ℕ) {L M M' : List (I × X)} {μ' : X} (e : wswap RD j L = M)
+    (h : wValid RD μ L μ') (hM : wValid RD μ M μ') (hM' : wValid RD μ M' μ') (e' : M = M')
+    (p : S.wcell μ M μ' hM = S.wcell μ M' μ' hM') :
+    S.wcrossTo μ j L M μ' e h hM ≫ eqToHom p = S.wcrossTo μ j L M' μ' (e.trans e') h hM' := by
+  subst e'; simp [wcrossTo]
+
+end RouqData
+
+namespace RouqFamily
+
+open RouqData
+
+variable (S : RouqFamily (B := B) RD) (μ : X)
 
 /-- The same-colour quadratic relation `ψ_j² = 0`. -/
 theorem wcross_sq_self : ∀ (j : ℕ) (L : List (I × X)) (μ' : X) (h : wValid RD μ L μ')
@@ -731,33 +768,6 @@ theorem wslide_right_self : ∀ (j : ℕ) (L : List (I × X)) (μ' : X) (h : wVa
   | 0, [], _, _, _, h₁, _, _ => by simp at h₁
   | 0, [_], _, _, _, _, h₂, _ => by simp at h₂
   | _ + 1, [], _, _, _, h₁, _, _ => by simp at h₁
-
-omit [AdditiveWhiskering B] [∀ (a b c : B) (f : a ⟶ b), (precomp c f).Linear k]
-  [∀ (a b c : B) (f : b ⟶ c), (postcomp a f).Linear k] in
-@[reassoc]
-theorem eqToHom_wdot (a : ℕ) {L L' : List (I × X)} (e : L = L') {μ' : X}
-    (h : wValid RD μ L μ') (h' : wValid RD μ L' μ') :
-    eqToHom (S.wcell_congr μ e h h') ≫ S.wdot μ a L' μ' h' =
-      S.wdot μ a L μ' h ≫ eqToHom (S.wcell_congr μ e h h') := by
-  subst e; simp
-
-omit [AdditiveWhiskering B] [∀ (a b c : B) (f : a ⟶ b), (precomp c f).Linear k]
-  [∀ (a b c : B) (f : b ⟶ c), (postcomp a f).Linear k] in
-@[reassoc]
-theorem eqToHom_wcross (j : ℕ) {L L' : List (I × X)} (e : L = L') {μ' : X}
-    (h : wValid RD μ L μ') (h' : wValid RD μ L' μ') :
-    eqToHom (S.wcell_congr μ e h h') ≫ S.wcross μ j L' μ' h' =
-      S.wcross μ j L μ' h ≫ eqToHom (S.wcell_congr μ (congrArg (wswap RD j) e)
-        (wValid_wswap j L h) (wValid_wswap j L' h')) := by
-  subst e; simp
-
-omit [AdditiveWhiskering B] [∀ (a b c : B) (f : a ⟶ b), (precomp c f).Linear k]
-  [∀ (a b c : B) (f : b ⟶ c), (postcomp a f).Linear k] in
-theorem wcrossTo_comp_eqToHom (j : ℕ) {L M M' : List (I × X)} {μ' : X} (e : wswap RD j L = M)
-    (h : wValid RD μ L μ') (hM : wValid RD μ M μ') (hM' : wValid RD μ M' μ') (e' : M = M')
-    (p : S.wcell μ M μ' hM = S.wcell μ M' μ' hM') :
-    S.wcrossTo μ j L M μ' e h hM ≫ eqToHom p = S.wcrossTo μ j L M' μ' (e.trans e') h hM' := by
-  subst e'; simp [wcrossTo]
 
 section Mixed
 
@@ -985,11 +995,11 @@ variable {k : Type*} [CommRing k] {B : Type u} [Bicategory.{w, v} B]
   {I : Type*} [DecidableEq I] {C : CartanDatum I} {X Y : Type u₁} [AddCommGroup X]
   [AddCommGroup Y] {RD : WeightDatum C X Y}
 
-namespace RouqFamily
+namespace RouqData
 
 open Diagram MatEnd
 
-variable (S : RouqFamily (B := B) RD) (μ : X) {ν : Multiset I}
+variable (S : RouqData (B := B) RD) (μ : X) {ν : Multiset I}
 
 local notation "m" => Multiset.card ν
 
@@ -1150,6 +1160,76 @@ theorem wordΨ_mul_wordΨ {j l : ℕ} (h : j + 1 < l) :
 
 /-! #### The local relations -/
 
+/-! #### The action of `R(ν)` -/
+
+section ActionFree
+
+variable (S μ ν) in
+/-- The images of the generators of `R(ν)`. -/
+def klrGen : KLR.Gen ν → S.WordEnd μ ν
+  | .idem t => S.wordE μ t
+  | .dot a => S.wordX μ a
+  | .cross j => S.wordΨ μ j
+
+variable (k S μ ν) in
+/-- The action of the free algebra on the generators of `R(ν)`. -/
+def klrActFree : FreeAlgebra k (KLR.Gen ν) →ₐ[k] S.WordEnd μ ν :=
+  FreeAlgebra.lift k (S.klrGen μ ν)
+
+omit [∀ (a b c : B) (f : a ⟶ b), (precomp c f).Linear k]
+  [∀ (a b c : B) (f : b ⟶ c), (postcomp a f).Linear k] [AdditiveWhiskering B] in
+@[simp] theorem klrActFree_fe (t : Seq ν) : S.klrActFree k μ ν (fe k ν t) = S.wordE μ t := by
+  simp [klrActFree, klrGen]
+
+omit [∀ (a b c : B) (f : a ⟶ b), (precomp c f).Linear k]
+  [∀ (a b c : B) (f : b ⟶ c), (postcomp a f).Linear k] [AdditiveWhiskering B] in
+@[simp] theorem klrActFree_fx (a : Fin m) : S.klrActFree k μ ν (fx k ν a) = S.wordX μ a := by
+  simp [klrActFree, klrGen]
+
+omit [∀ (a b c : B) (f : a ⟶ b), (precomp c f).Linear k]
+  [∀ (a b c : B) (f : b ⟶ c), (postcomp a f).Linear k] [AdditiveWhiskering B] in
+@[simp] theorem klrActFree_fψ (j : ℕ) : S.klrActFree k μ ν (fψ k ν j) = S.wordΨ μ j := by
+  simp [klrActFree, klrGen]
+
+variable (S) in
+omit [DecidableEq I] [∀ (a b c : B) (f : a ⟶ b), (precomp c f).Linear k]
+  [∀ (a b c : B) (f : b ⟶ c), (postcomp a f).Linear k] in
+/-- If every dot satisfies `x^M = 0`, so does every dot on a weighted word. -/
+theorem wdot_pow_eq_zero {M : ℕ}
+    (hM : ∀ (c : I) {x y : X} (h : x + RD.iX c = y), End.of (S.dot c h) ^ M = 0) :
+    ∀ (a : ℕ) (L : List (I × X)) (μ' : X) (h : wValid RD μ L μ'), a < L.length →
+      End.of (S.wdot μ a L μ' h) ^ M = 0
+  | 0, (c, ν) :: L, _, h, _ => by
+    change End.of (S.wcell μ L ν h.1 ◁ S.dot c h.2) ^ M = 0
+    rw [whiskerLeft_pow, hM]
+    exact AdditiveWhiskering.whiskerLeft_zero _ _ _
+  | a + 1, (c, ν) :: L, _, h, ha => by
+    change End.of (S.wdot μ a L ν h.1 ▷ S.E c h.2) ^ M = 0
+    rw [whiskerRight_pow, wdot_pow_eq_zero hM a L ν h.1 (by simpa using ha)]
+    exact AdditiveWhiskering.zero_whiskerRight _ _ _
+  | _, [], _, _, ha => by simp at ha
+
+omit [AdditiveWhiskering B] in
+theorem wordX_pow_mul_wordE (a : Fin m) (t : Seq ν) (n : ℕ) :
+    S.wordX μ a ^ n * S.wordE μ t = single t t (S.wordDot μ t a ^ n) := by
+  induction n with
+  | zero => rw [pow_zero, pow_zero, one_mul]; rfl
+  | succ n ih => rw [pow_succ', mul_assoc, ih, wordX_mul_single, pow_succ']; rfl
+
+end ActionFree
+
+end RouqData
+
+namespace RouqFamily
+
+open Diagram MatEnd RouqData
+
+variable {S : RouqFamily (B := B) RD} {μ : X} {ν : Multiset I}
+
+local notation "m" => Multiset.card ν
+
+variable [AdditiveWhiskering B]
+
 section Local
 
 variable {Q : I → I → MvPolynomial (Fin 2) k} (H : RouqUpKLR S Q)
@@ -1277,36 +1357,7 @@ theorem wordBraid {j : ℕ} (h : j + 2 < m) (t : Seq ν) :
 
 end Local
 
-/-! #### The action of `R(ν)` -/
-
 section Action
-
-variable (S μ ν) in
-/-- The images of the generators of `R(ν)`. -/
-def klrGen : KLR.Gen ν → S.WordEnd μ ν
-  | .idem t => S.wordE μ t
-  | .dot a => S.wordX μ a
-  | .cross j => S.wordΨ μ j
-
-variable (k S μ ν) in
-/-- The action of the free algebra on the generators of `R(ν)`. -/
-def klrActFree : FreeAlgebra k (KLR.Gen ν) →ₐ[k] S.WordEnd μ ν :=
-  FreeAlgebra.lift k (S.klrGen μ ν)
-
-omit [∀ (a b c : B) (f : a ⟶ b), (precomp c f).Linear k]
-  [∀ (a b c : B) (f : b ⟶ c), (postcomp a f).Linear k] [AdditiveWhiskering B] in
-@[simp] theorem klrActFree_fe (t : Seq ν) : S.klrActFree k μ ν (fe k ν t) = S.wordE μ t := by
-  simp [klrActFree, klrGen]
-
-omit [∀ (a b c : B) (f : a ⟶ b), (precomp c f).Linear k]
-  [∀ (a b c : B) (f : b ⟶ c), (postcomp a f).Linear k] [AdditiveWhiskering B] in
-@[simp] theorem klrActFree_fx (a : Fin m) : S.klrActFree k μ ν (fx k ν a) = S.wordX μ a := by
-  simp [klrActFree, klrGen]
-
-omit [∀ (a b c : B) (f : a ⟶ b), (precomp c f).Linear k]
-  [∀ (a b c : B) (f : b ⟶ c), (postcomp a f).Linear k] [AdditiveWhiskering B] in
-@[simp] theorem klrActFree_fψ (j : ℕ) : S.klrActFree k μ ν (fψ k ν j) = S.wordΨ μ j := by
-  simp [klrActFree, klrGen]
 
 variable {Q : I → I → MvPolynomial (Fin 2) k}
 
@@ -1371,31 +1422,6 @@ variable (H : RouqUpKLR S Q)
     klrAct H μ (KLRAlgebra.ψ j : KLRAlgebra k Q ν) = S.wordΨ μ j := by
   rw [KLRAlgebra.ψ, klrAct_mk, klrActFree_fψ]
 
-variable (S) in
-omit [DecidableEq I] [∀ (a b c : B) (f : a ⟶ b), (precomp c f).Linear k]
-  [∀ (a b c : B) (f : b ⟶ c), (postcomp a f).Linear k] in
-/-- If every dot satisfies `x^M = 0`, so does every dot on a weighted word. -/
-theorem wdot_pow_eq_zero {M : ℕ}
-    (hM : ∀ (c : I) {x y : X} (h : x + RD.iX c = y), End.of (S.dot c h) ^ M = 0) :
-    ∀ (a : ℕ) (L : List (I × X)) (μ' : X) (h : wValid RD μ L μ'), a < L.length →
-      End.of (S.wdot μ a L μ' h) ^ M = 0
-  | 0, (c, ν) :: L, _, h, _ => by
-    change End.of (S.wcell μ L ν h.1 ◁ S.dot c h.2) ^ M = 0
-    rw [whiskerLeft_pow, hM]
-    exact AdditiveWhiskering.whiskerLeft_zero _ _ _
-  | a + 1, (c, ν) :: L, _, h, ha => by
-    change End.of (S.wdot μ a L ν h.1 ▷ S.E c h.2) ^ M = 0
-    rw [whiskerRight_pow, wdot_pow_eq_zero hM a L ν h.1 (by simpa using ha)]
-    exact AdditiveWhiskering.zero_whiskerRight _ _ _
-  | _, [], _, _, ha => by simp at ha
-
-omit [AdditiveWhiskering B] in
-theorem wordX_pow_mul_wordE (a : Fin m) (t : Seq ν) (n : ℕ) :
-    S.wordX μ a ^ n * S.wordE μ t = single t t (S.wordDot μ t a ^ n) := by
-  induction n with
-  | zero => rw [pow_zero, pow_zero, one_mul]; rfl
-  | succ n ih => rw [pow_succ', mul_assoc, ih, wordX_mul_single, pow_succ']; rfl
-
 /-- If every dot satisfies `x^M = 0` (for instance in a cyclotomic quotient with all levels at
 most `M`), then `x_a^M` acts by zero. -/
 theorem klrAct_pol_X_pow {M : ℕ}
@@ -1407,7 +1433,6 @@ theorem klrAct_pol_X_pow {M : ℕ}
     S.wdot_pow_eq_zero (μ := μ) hM _ _ _ _ (by simp [length_canon]), single_zero]
 
 end Action
-
 
 end RouqFamily
 

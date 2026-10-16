@@ -487,6 +487,7 @@ import Categorification.KLR.Unfurling.BranchedCover
 import Categorification.KLR.Unfurling.CompletedPolyRep
 import Categorification.KLR.Unfurling.BubbleValues
 import Categorification.KLR.Unfurling.BubbleMultiplicity
+import Categorification.KLR.Unfurling.BubbleFibres
 import Categorification.KLR.Unfurling.Completion
 import Categorification.KLR.Unfurling.Cover
 import Categorification.KLR.Unfurling.CoverDatum
@@ -494,6 +495,7 @@ import Categorification.KLR.Unfurling.CoverFamily
 import Categorification.KLR.Unfurling.CoverFurling
 import Categorification.KLR.Unfurling.CoverLabels
 import Categorification.KLR.Unfurling.GenericFields
+import Categorification.KLR.Unfurling.GenericBubbleValues
 import Categorification.KLR.Unfurling.CoverNilpotent
 import Categorification.KLR.Unfurling.CoverVanishing
 import Categorification.KLR.Unfurling.CycFlip

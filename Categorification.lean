@@ -260,6 +260,7 @@ import Categorification.KLR.BarDivided
 import Categorification.KLR.BarGamma
 import Categorification.KLR.BarK0
 import Categorification.KLR.Basic
+import Categorification.KLR.NcEvalHom
 import Categorification.KLR.BasisTheorem
 import Categorification.KLR.BasisTheoremGeneral
 import Categorification.KLR.SymmetricFactorization
@@ -689,6 +690,7 @@ import Categorification.TwoRep.RouqProductKLR
 import Categorification.TwoRep.RouqProductLeft
 import Categorification.TwoRep.RouqProductNilpotent
 import Categorification.TwoRep.RouqProductVanishing
+import Categorification.TwoRep.RouqReparam
 import Categorification.TwoRep.RouqVanishing
 import Categorification.TwoRep.RouqSl2
 import Categorification.TwoRep.CyclotomicLocalCommutator

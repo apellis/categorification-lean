@@ -32,6 +32,8 @@ Nothing else about the grading is used; in particular the dots need not have pos
   `≥ truncBound`.
 * `KLR.GradingDatum.completionLift` : the extension `R̂(ν) → B`, an algebra map.
 * `KLR.GradingDatum.completionLift_toCompletion` : it extends `φ`.
+* `KLR.GradingDatum.completionLift_eq_trunc` : on an element `f`, it is `φ` of the truncation
+  `trunc N f = ∑_{d < N} f_d` for every `N ≥ truncBound`.
 -/
 
 open Finset MvPolynomial Equiv
@@ -358,6 +360,21 @@ theorem completionLift_apply (f : G.completion ν) :
 theorem completionLift_toCompletion (a : KLRAlgebra k Q ν) :
     G.completionLift φ hφ (G.toCompletion a) = φ a :=
   G.truncSum_toCompletion φ hφ a (coeff_eq_zero_of_lt_order' _)
+
+/-- The truncation `∑_{ord f ≤ d < N} f_d ∈ R(ν)` of an element `f` of the completion. -/
+noncomputable def trunc (N : ℤ) (f : G.completion ν) : KLRAlgebra k Q ν :=
+  ∑ d ∈ Ico f.1.order N, f.1.coeff d
+
+/-- **The extension to the completion is a truncation**: for every `N ≥ truncBound`, the
+extension of `φ` sends `f` to `φ` of the truncation of `f` below degree `N`. In particular two
+algebra maps killing powers of the dots are extended by evaluating them at one common element of
+`R(ν)`. -/
+theorem completionLift_eq_trunc {N : ℤ} (hN : G.truncBound ν M ≤ N) (f : G.completion ν) :
+    G.completionLift φ hφ f = φ (G.trunc N f) := by
+  rw [completionLift_apply, truncSum, trunc, map_sum]
+  refine Finset.sum_subset (Finset.Ico_subset_Ico_right hN) fun d hd hdn => ?_
+  rw [mem_Ico] at hd hdn
+  exact G.map_coeff_eq_zero φ hφ f (by omega)
 
 end GradingDatum
 

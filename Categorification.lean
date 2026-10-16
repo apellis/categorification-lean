@@ -665,6 +665,7 @@ import Categorification.TwoRep.RouqDescent
 import Categorification.TwoRep.RouqFullCL
 import Categorification.TwoRep.RouqUpWords
 import Categorification.TwoRep.RouqUpScalars
+import Categorification.TwoRep.RouqUpBubbles
 import Categorification.TwoRep.RouqCyclicDot
 import Categorification.TwoRep.RouqCurl
 import Categorification.TwoRep.CoproductCRT
@@ -682,6 +683,9 @@ import Categorification.TwoRep.FurlingKLR
 import Categorification.TwoRep.FurlingFamily
 import Categorification.TwoRep.FurlingKL
 import Categorification.TwoRep.FurlingBlock
+import Categorification.TwoRep.FurlingMixed
+import Categorification.TwoRep.FurlingZero
+import Categorification.TwoRep.FurlingKM3
 import Categorification.TwoRep.FurledCorner
 import Categorification.TwoRep.RouqDottedCurls
 import Categorification.TwoRep.RouqDual

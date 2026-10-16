@@ -513,6 +513,7 @@ import Categorification.KLR.Unfurling.VacuumLabelLocDual
 import Categorification.KLR.Unfurling.VacuumMixed
 import Categorification.KLR.Unfurling.VacuumMixedDual
 import Categorification.KLR.Unfurling.VacuumPartialFractions
+import Categorification.KLR.Unfurling.VacuumRouqBubbles
 import Categorification.QuantumGroup.Bar
 import Categorification.QuantumGroup.Cartan
 import Categorification.QuantumGroup.Coproduct

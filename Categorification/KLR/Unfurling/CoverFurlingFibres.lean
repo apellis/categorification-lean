@@ -54,9 +54,10 @@ def coverFurlingOfFibreFinite
   finite_in β i := (coverRel_fibre_finite D Λm Λp hΛ β i).subset fun a ⟨ha, h⟩ =>
     ⟨ha, coverRel_sub_imp β a h⟩
 
-/-- With globally finite weights this is exactly the original cover furling. -/
+/-- The combined-fibre and signed-fibre presentations define the same cover furling. -/
 theorem coverFurling_eq_ofFibreFinite
-    (hΛm : (Function.support Λm).Finite) (hΛp : (Function.support Λp).Finite)
+    (hΛm : ∀ i, {a | D.π (.inl a) = i ∧ Λm a ≠ 0}.Finite)
+    (hΛp : ∀ i, {a | D.π (.inr a) = i ∧ Λp a ≠ 0}.Finite)
     (hΛ : ∀ i, {a | D.π a = i ∧ coverBaseVal Λm Λp a ≠ 0}.Finite) :
     coverFurling D Λm Λp RD μ hΛm hΛp =
       coverFurlingOfFibreFinite D Λm Λp RD μ hΛ := rfl

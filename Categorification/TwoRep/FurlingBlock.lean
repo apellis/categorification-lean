@@ -67,7 +67,8 @@ def blkSub (h₁ : l + RD.iX i = l') (δ : Φ.Blk l') (a : J) (ha : Φ.π a = i)
     exact add_right_cancel e⟩
 
 /-- The edge `δ - a →a→ δ`. -/
-def inEdge (h₁ : l + RD.iX i = l') (δ : Φ.Blk l') (a : J) (ha : Φ.π a = i) (hr : Φ.rel (δ.1 - Finsupp.single a 1) a) :
+def inEdge (h₁ : l + RD.iX i = l') (δ : Φ.Blk l') (a : J) (ha : Φ.π a = i)
+    (hr : Φ.rel (δ.1 - Finsupp.single a 1) a) :
     Φ.Edge i l :=
   ⟨(blkSub h₁ δ a ha, a), ha, hr⟩
 
@@ -77,7 +78,8 @@ theorem inEdge_tgt (h₁ : l + RD.iX i = l') (δ : Φ.Blk l') (a : J) (ha : Φ.�
   Subtype.ext (by simp [inEdge, blkSub])
 
 omit [DecidableEq I] [DecidableEq J] in
-theorem src_val_of_tgt (h₁ : l + RD.iX i = l') {δ : Φ.Blk l'} (p : {e : Φ.Edge i l // e.tgt h₁ = δ}) :
+theorem src_val_of_tgt (h₁ : l + RD.iX i = l') {δ : Φ.Blk l'}
+    (p : {e : Φ.Edge i l // e.tgt h₁ = δ}) :
     p.1.src.1 = δ.1 - Finsupp.single p.1.lbl 1 := by
   rw [Edge.src_eq_of_tgt h₁, p.2]
 
@@ -189,14 +191,16 @@ abbrev projE (M : ∀ β : Φ.Blk m, blkCat Φ S β.1) {γ : Φ.Blk m'}
     (Ea Φ S h p.1 γ p.2).obj ((blockRes Edge.src (resSrc Φ S)).obj M p.1)) p
 
 /-- The inclusion of the summand `F_b` of an edge `q` out of `β` into `(F_i N)_β`. -/
-abbrev incFq (N : ∀ γ : Φ.Blk m', blkCat Φ S γ.1) {β : Φ.Blk m} (q : {e : Φ.Edge i m // e.src = β}) :
+abbrev incFq (N : ∀ γ : Φ.Blk m', blkCat Φ S γ.1) {β : Φ.Blk m}
+    (q : {e : Φ.Edge i m // e.src = β}) :
     (incSrc Φ S q.1 β q.2).obj ((Fa Φ S h q.1 (q.1.tgt h) rfl).obj (N (q.1.tgt h))) ⟶
       (F Φ S i h).obj.obj N β :=
   biproduct.ι (fun q : {e : Φ.Edge i m // e.src = β} =>
     (incSrc Φ S q.1 β q.2).obj ((blockRes (Edge.tgt h) (Fa Φ S h)).obj N q.1)) q
 
 /-- The projection of `(F_i N)_β` onto the summand `F_b` of an edge `q` out of `β`. -/
-abbrev projFq (N : ∀ γ : Φ.Blk m', blkCat Φ S γ.1) {β : Φ.Blk m} (q : {e : Φ.Edge i m // e.src = β}) :
+abbrev projFq (N : ∀ γ : Φ.Blk m', blkCat Φ S γ.1) {β : Φ.Blk m}
+    (q : {e : Φ.Edge i m // e.src = β}) :
     (F Φ S i h).obj.obj N β ⟶
       (incSrc Φ S q.1 β q.2).obj ((Fa Φ S h q.1 (q.1.tgt h) rfl).obj (N (q.1.tgt h))) :=
   biproduct.π (fun q : {e : Φ.Edge i m // e.src = β} =>
@@ -349,7 +353,6 @@ abbrev SrcMix : Type u₁ :=
 
 noncomputable instance : Fintype (SrcMix h₁ δ) := Fintype.ofFinite _
 
-noncomputable instance : DecidableEq (SrcMix h₁ δ) := Classical.decEq _
 
 /-- The mixed summand `E_a F_b N` of `(p, q)`. -/
 abbrev srcM (x : SrcMix h₁ δ) : blkCat Φ S δ.1 :=
@@ -492,6 +495,225 @@ theorem src_total :
       exact sr_cancel _ _ _ _ _ _ _ (Iso.inv_hom_id _)
 
 end Source
+
+/-! ## The summands of `E_i F_i` on a block -/
+
+section Target
+
+variable {Φ S} {l'' : X} (h₂ : l' + RD.iX i = l'') (N : ∀ γ : Φ.Blk l', blkCat Φ S γ.1)
+  (δ : Φ.Blk l')
+
+/-- The shift-zero summand `F_c E_c N_δ` of `(E_i F_i N)_δ`, `c = lab t`. -/
+abbrev tgtZ (t : Fin (nLbl Φ i δ.1)) : blkCat Φ S δ.1 :=
+  (S.F (lab Φ i δ.1 t) (Φ.wtT_add_single δ.1 _)).obj.obj
+    ((S.E (lab Φ i δ.1 t) (Φ.wtT_add_single δ.1 _)).obj.obj (N δ))
+
+/-- The edge `δ →c→ δ + c` of the label `c = lab t`. -/
+abbrev rOut (t : Fin (nLbl Φ i δ.1)) (hr : Φ.rel δ.1 (lab Φ i δ.1 t)) :
+    {e : Φ.Edge i l' // e.src = δ} :=
+  ⟨outEdge δ (lab Φ i δ.1 t) (lab_π δ.1 t) hr, rfl⟩
+
+open scoped Classical in
+/-- The inclusion of the shift-zero summand of label `lab t` (zero if there is no edge out of
+`δ` of this label). -/
+def sZ' (t : Fin (nLbl Φ i δ.1)) : tgtZ N δ t ⟶ ((E Φ S i h₂ ≫ F Φ S i h₂).obj.obj N) δ :=
+  if hr : Φ.rel δ.1 (lab Φ i δ.1 t) then
+    (Fa Φ S h₂ (rOut δ t hr).1 _ rfl).map (genE Φ S i h₂ N ⟨(rOut δ t hr).1, rfl⟩) ≫
+      incFq S h₂ ((E Φ S i h₂).obj.obj N) (rOut δ t hr)
+  else 0
+
+open scoped Classical in
+/-- The projection onto the shift-zero summand of label `lab t`. -/
+def rZ' (t : Fin (nLbl Φ i δ.1)) : ((E Φ S i h₂ ≫ F Φ S i h₂).obj.obj N) δ ⟶ tgtZ N δ t :=
+  if hr : Φ.rel δ.1 (lab Φ i δ.1 t) then
+    projFq S h₂ ((E Φ S i h₂).obj.obj N) (rOut δ t hr) ≫
+      (Fa Φ S h₂ (rOut δ t hr).1 _ rfl).map (projE S h₂ N ⟨(rOut δ t hr).1, rfl⟩)
+  else 0
+
+/-- The pairs `(r, s)` of an edge `r` out of `δ` and an edge `s` into its target with a
+different label: the mixed summands `F_b E_a` of `(E_i F_i N)_δ`. -/
+abbrev TgtMix : Type u₁ :=
+  {y : Σ r : {e : Φ.Edge i l' // e.src = δ}, {s : Φ.Edge i l' // s.tgt h₂ = r.1.tgt h₂} //
+    y.2.1.lbl ≠ y.1.1.lbl}
+
+noncomputable instance : Fintype (TgtMix h₂ δ) := Fintype.ofFinite _
+
+
+/-- The mixed summand `F_b E_a N` of `(r, s)`. -/
+abbrev tgtM (y : TgtMix h₂ δ) : blkCat Φ S δ.1 :=
+  (incSrc Φ S y.1.1.1 δ y.1.1.2).obj ((Fa Φ S h₂ y.1.1.1 (y.1.1.1.tgt h₂) rfl).obj
+    ((Ea Φ S h₂ y.1.2.1 (y.1.1.1.tgt h₂) y.1.2.2).obj (N y.1.2.1.src)))
+
+/-- The inclusion of a mixed summand. -/
+def sM' (y : TgtMix h₂ δ) : tgtM h₂ N δ y ⟶ ((E Φ S i h₂ ≫ F Φ S i h₂).obj.obj N) δ :=
+  (incSrc Φ S y.1.1.1 δ y.1.1.2).map ((Fa Φ S h₂ y.1.1.1 (y.1.1.1.tgt h₂) rfl).map
+    (genE Φ S i h₂ N y.1.2)) ≫ incFq S h₂ ((E Φ S i h₂).obj.obj N) y.1.1
+
+/-- The projection onto a mixed summand. -/
+def rM' (y : TgtMix h₂ δ) : ((E Φ S i h₂ ≫ F Φ S i h₂).obj.obj N) δ ⟶ tgtM h₂ N δ y :=
+  projFq S h₂ ((E Φ S i h₂).obj.obj N) y.1.1 ≫ (incSrc Φ S y.1.1.1 δ y.1.1.2).map
+    ((Fa Φ S h₂ y.1.1.1 (y.1.1.1.tgt h₂) rfl).map (projE S h₂ N y.1.2))
+
+variable (hzero : ∀ (β : J →₀ ℤ) (a : J) {y : Xc} (h : Φ.wtT β + RDc.iX a = y), ¬ Φ.rel β a →
+    IsZero (S.E a h))
+
+include hzero in
+omit [DecidableEq I] [DecidableEq J] [∀ (x : Xc), HasFiniteBiproducts (S.obj x).carrier] in
+theorem isZero_tgtZ (t : Fin (nLbl Φ i δ.1)) (hr : ¬ Φ.rel δ.1 (lab Φ i δ.1 t)) :
+    IsZero (tgtZ N δ t) :=
+  Functor.map_isZero _ (Functor.map_isZero (LinearCat.evalAt _)
+    (hzero _ _ (Φ.wtT_add_single δ.1 _) hr))
+
+theorem map_comp_eq_id {C₁ C₂ : Type*} [Category C₁] [Category C₂] (K : C₁ ⥤ C₂) {A B : C₁}
+    {v : A ⟶ B} {v' : B ⟶ A} (hv : v ≫ v' = 𝟙 A) : K.map v ≫ K.map v' = 𝟙 _ := by
+  rw [← K.map_comp, hv, CategoryTheory.Functor.map_id]
+
+theorem map_comp_eq_zero {C₁ C₂ : Type*} [Category C₁] [Category C₂] [Preadditive C₁]
+    [Preadditive C₂] (K : C₁ ⥤ C₂) [K.Additive] {A B A' : C₁}
+    {v : A ⟶ B} {v' : B ⟶ A'} (hv : v ≫ v' = 0) : K.map v ≫ K.map v' = 0 := by
+  rw [← K.map_comp, hv, K.map_zero]
+
+include hzero in
+omit [DecidableEq I] [DecidableEq J] in
+theorem sZ_rZ' (t : Fin (nLbl Φ i δ.1)) : sZ' h₂ N δ t ≫ rZ' h₂ N δ t = 𝟙 _ := by
+  by_cases hr : Φ.rel δ.1 (lab Φ i δ.1 t)
+  · simp only [sZ', rZ', hr, ↓reduceDIte]
+    exact sr_id' _ _ _ _ _ (genE_projE S h₂ _ _) (incFq_projFq S h₂ _ _)
+  · exact (isZero_tgtZ N δ hzero t hr).eq_of_src _ _
+
+omit [DecidableEq I] [DecidableEq J] in
+theorem rOut_ne {t t' : Fin (nLbl Φ i δ.1)} (htt : t ≠ t') (hr : Φ.rel δ.1 (lab Φ i δ.1 t))
+    (hr' : Φ.rel δ.1 (lab Φ i δ.1 t')) : rOut δ t hr ≠ rOut δ t' hr' := fun h =>
+  htt (lab_injective δ.1 (congrArg (fun p => p.1.lbl) h))
+
+omit [DecidableEq I] [DecidableEq J] in
+theorem sZ_rZ_ne' {t t' : Fin (nLbl Φ i δ.1)} (htt : t ≠ t') :
+    sZ' h₂ N δ t ≫ rZ' h₂ N δ t' = 0 := by
+  by_cases hr : Φ.rel δ.1 (lab Φ i δ.1 t)
+  · by_cases hr' : Φ.rel δ.1 (lab Φ i δ.1 t')
+    · simp only [sZ', rZ', hr, hr', ↓reduceDIte]
+      exact comp_zero_mid _ _ _ _ (incFq_projFq_ne S h₂ _ (rOut_ne δ htt hr hr'))
+    · simp only [rZ', hr', ↓reduceDIte, Limits.comp_zero]
+  · simp only [sZ', hr, ↓reduceDIte, Limits.zero_comp]
+
+omit [DecidableEq I] [DecidableEq J] in
+theorem sM_rM' (y : TgtMix h₂ δ) : sM' h₂ N δ y ≫ rM' h₂ N δ y = 𝟙 _ :=
+  sr_id' _ _ _ _ _ (map_comp_eq_id _ (genE_projE S h₂ _ _)) (incFq_projFq S h₂ _ _)
+
+omit [DecidableEq I] in
+theorem sM_rM_ne' {y y' : TgtMix h₂ δ} (hy : y ≠ y') : sM' h₂ N δ y ≫ rM' h₂ N δ y' = 0 := by
+  obtain ⟨⟨r, q⟩, hq⟩ := y
+  obtain ⟨⟨r', q'⟩, hq'⟩ := y'
+  by_cases hr : r = r'
+  · subst hr
+    have hqq : q ≠ q' := fun h => hy (by subst h; rfl)
+    exact sr_zero _ _ _ _ _ (incFq_projFq S h₂ _ _)
+      (map_comp_eq_zero _ (genE_projE_ne S h₂ _ hqq))
+  · exact comp_zero_mid _ _ _ _ (incFq_projFq_ne S h₂ _ hr)
+
+omit [DecidableEq I] in
+theorem sZ_rM' (t : Fin (nLbl Φ i δ.1)) (y : TgtMix h₂ δ) : sZ' h₂ N δ t ≫ rM' h₂ N δ y = 0 := by
+  by_cases hr : Φ.rel δ.1 (lab Φ i δ.1 t)
+  · obtain ⟨⟨r, q⟩, hq⟩ := y
+    simp only [sZ', hr, ↓reduceDIte]
+    by_cases hp : rOut δ t hr = r
+    · subst hp
+      exact sr_zero _ _ _ _ _ (incFq_projFq S h₂ _ _) (genE_projE_ne S h₂ _
+        (p := ⟨(rOut δ t hr).1, rfl⟩) (p' := q)
+        (fun h => hq (congrArg (fun q => q.1.lbl) h).symm))
+    · exact comp_zero_mid _ _ _ _ (incFq_projFq_ne S h₂ _ hp)
+  · simp only [sZ', hr, ↓reduceDIte, Limits.zero_comp]
+
+omit [DecidableEq I] in
+theorem sM_rZ' (y : TgtMix h₂ δ) (t : Fin (nLbl Φ i δ.1)) : sM' h₂ N δ y ≫ rZ' h₂ N δ t = 0 := by
+  by_cases hr : Φ.rel δ.1 (lab Φ i δ.1 t)
+  · obtain ⟨⟨r, q⟩, hq⟩ := y
+    simp only [rZ', hr, ↓reduceDIte]
+    by_cases hp : r = rOut δ t hr
+    · subst hp
+      exact sr_zero _ _ _ _ _ (incFq_projFq S h₂ _ _) (map_comp_eq_zero _ (genE_projE_ne S h₂ _
+        (p := q) (p' := ⟨(rOut δ t hr).1, rfl⟩) (fun h => hq (congrArg (fun q => q.1.lbl) h))))
+    · exact comp_zero_mid _ _ _ _ (incFq_projFq_ne S h₂ _ hp)
+  · simp only [rZ', hr, ↓reduceDIte, Limits.comp_zero]
+
+omit [DecidableEq I] [DecidableEq J] in
+theorem outEdge_congr {c c' : J} (h : c = c') (hc : Φ.π c = i) (hc' : Φ.π c' = i)
+    (hr : Φ.rel δ.1 c) (hr' : Φ.rel δ.1 c') : outEdge δ c hc hr = outEdge δ c' hc' hr' := by
+  subst h; rfl
+
+omit [DecidableEq I] in
+theorem tgt_total :
+    ∑ t, rZ' h₂ N δ t ≫ sZ' h₂ N δ t + ∑ y, rM' h₂ N δ y ≫ sM' h₂ N δ y = 𝟙 _ := by
+  classical
+  have H := total_two
+    (Cp := fun r : {e : Φ.Edge i l' // e.src = δ} => blkCat Φ S (r.1.tgt h₂).1)
+    (Z := fun r => (E Φ S i h₂).obj.obj N (r.1.tgt h₂))
+    (Q := fun r : {e : Φ.Edge i l' // e.src = δ} =>
+      {s : Φ.Edge i l' // s.tgt h₂ = r.1.tgt h₂})
+    (W := fun _ s => (Ea Φ S h₂ s.1 _ s.2).obj (N s.1.src))
+    (fun r => Fa Φ S h₂ r.1 (r.1.tgt h₂) rfl ⋙ incSrc Φ S r.1 δ r.2)
+    (projFq S h₂ ((E Φ S i h₂).obj.obj N)) (incFq S h₂ ((E Φ S i h₂).obj.obj N))
+    (total_projFq S h₂ _ δ) (fun _ s => projE S h₂ N s) (fun _ s => genE Φ S i h₂ N s)
+    (fun r => total_projE S h₂ N (r.1.tgt h₂))
+  refine Eq.trans ?_ H
+  rw [← Fintype.sum_subtype_add_sum_subtype (fun y : Σ r : {e : Φ.Edge i l' // e.src = δ},
+    {s : Φ.Edge i l' // s.tgt h₂ = r.1.tgt h₂} => y.2.1.lbl ≠ y.1.1.lbl), add_comm]
+  congr 1
+  · rw [show instFintypeTgtMix h₂ δ = Subtype.fintype _ from Subsingleton.elim _ _]
+    exact Finset.sum_congr rfl fun _ _ => rfl
+  · rw [← Fintype.sum_subtype_add_sum_subtype (fun t => Φ.rel δ.1 (lab Φ i δ.1 t))]
+    have hz : ∑ t : {t // ¬ Φ.rel δ.1 (lab Φ i δ.1 t)}, rZ' h₂ N δ t ≫ sZ' h₂ N δ t = 0 :=
+      Finset.sum_eq_zero fun t _ => by simp only [rZ', t.2, ↓reduceDIte, Limits.zero_comp]
+    rw [hz, add_zero]
+    refine Fintype.sum_bijective (fun t => ⟨⟨rOut δ t.1 t.2, ⟨(rOut δ t.1 t.2).1, rfl⟩⟩,
+      not_not.mpr rfl⟩) ⟨fun t t' h => Subtype.ext (lab_injective δ.1
+        (congrArg (fun x => x.1.1.1.lbl) h)), fun y => ?_⟩ _ _ fun t => ?_
+    · obtain ⟨⟨r, q⟩, hy⟩ := y
+      have hl : q.1.lbl = r.1.lbl := not_not.mp hy
+      have ht := lab_labIdx δ.1 r.1.lbl r.1.π_lbl (Or.inr (rel_of_src r))
+      have hr : Φ.rel δ.1 (lab Φ i δ.1 (labIdx δ.1 r.1.lbl r.1.π_lbl
+          (Or.inr (rel_of_src r)))) := by rw [ht]; exact rel_of_src r
+      have hp : rOut δ _ hr = r :=
+        Subtype.ext ((outEdge_congr δ ht (lab_π _ _) _ hr _).trans (eq_outEdge r).symm)
+      refine ⟨⟨_, hr⟩, Subtype.ext (Sigma.subtype_ext hp ?_)⟩
+      refine (congrArg Subtype.val hp).trans (Edge.ext ?_ hl.symm)
+      apply Subtype.ext
+      rw [Edge.src_eq_of_tgt h₂ r.1, Edge.src_eq_of_tgt h₂ q.1, q.2, hl]
+    · simp only [rZ', sZ', t.2, ↓reduceDIte]
+      rfl
+
+end Target
+
+/-! ## The decompositions -/
+
+section Iso
+
+attribute [local instance] hasBinaryBiproducts_of_finite_biproducts
+
+variable {Φ S} {l'' : X} (h₁ : l + RD.iX i = l') (h₂ : l' + RD.iX i = l'')
+  (N : ∀ γ : Φ.Blk l', blkCat Φ S γ.1) (δ : Φ.Blk l')
+  (hzero : ∀ (β : J →₀ ℤ) (a : J) {y : Xc} (h : Φ.wtT β + RDc.iX a = y), ¬ Φ.rel β a →
+    IsZero (S.E a h))
+
+/-- **`(F_i E_i N)_δ` as a biproduct** of the shift-zero summands `E_a F_a N_δ` (labels `a` at
+`δ`) and the mixed summands `E_a F_b N_{δ-a+b}`, `a ≠ b`. -/
+def srcIso : ((F Φ S i h₁ ≫ E Φ S i h₁).obj.obj N) δ ≅
+    (⨁ srcZ (i := i) N δ) ⊞ (⨁ srcM h₁ N δ) :=
+  isoOfDecomp₂ (ι := Fin (nLbl Φ i δ.1)) (κ := SrcMix h₁ δ) (Y := srcZ (i := i) N δ)
+    (Z := srcM h₁ N δ) (sZ h₁ N δ) (rZ h₁ N δ) (sM h₁ N δ) (rM h₁ N δ) (sZ_rZ h₁ N δ hzero)
+    (fun _ _ h => sZ_rZ_ne h₁ N δ h) (sM_rM h₁ N δ) (fun _ _ h => sM_rM_ne h₁ N δ h)
+    (sZ_rM h₁ N δ) (sM_rZ h₁ N δ) (src_total h₁ N δ)
+
+/-- **`(E_i F_i N)_δ` as a biproduct** of the shift-zero summands `F_c E_c N_δ` (labels `c` at
+`δ`) and the mixed summands `F_b E_a N_{δ+b-a}`, `a ≠ b`. -/
+def tgtIso : ((E Φ S i h₂ ≫ F Φ S i h₂).obj.obj N) δ ≅
+    (⨁ tgtZ (i := i) N δ) ⊞ (⨁ tgtM h₂ N δ) :=
+  isoOfDecomp₂ (ι := Fin (nLbl Φ i δ.1)) (κ := TgtMix h₂ δ) (Y := tgtZ (i := i) N δ)
+    (Z := tgtM h₂ N δ) (sZ' h₂ N δ) (rZ' h₂ N δ) (sM' h₂ N δ) (rM' h₂ N δ) (sZ_rZ' h₂ N δ hzero)
+    (fun _ _ h => sZ_rZ_ne' h₂ N δ h) (sM_rM' h₂ N δ) (fun _ _ h => sM_rM_ne' h₂ N δ h)
+    (sZ_rM' h₂ N δ) (sM_rZ' h₂ N δ) (tgt_total h₂ N δ)
+
+end Iso
 
 end Furling
 

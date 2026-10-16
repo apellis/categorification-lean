@@ -675,10 +675,12 @@ import Categorification.TwoRep.FurlingWords
 import Categorification.TwoRep.FurlingIntertwine
 import Categorification.TwoRep.FurlingKLR
 import Categorification.TwoRep.FurlingFamily
+import Categorification.TwoRep.FurlingBlock
 import Categorification.TwoRep.FurledCorner
 import Categorification.TwoRep.RouqDottedCurls
 import Categorification.TwoRep.RouqDual
 import Categorification.TwoRep.SumInvBiprod
+import Categorification.TwoRep.BiprodDecomp
 import Categorification.TwoRep.SumInvPointwise
 import Categorification.TwoRep.MateNat
 import Categorification.TwoRep.RouqGrass

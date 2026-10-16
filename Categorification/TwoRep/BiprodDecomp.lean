@@ -30,10 +30,11 @@ variable {D : Type u} [Category.{v} D] [Preadditive D]
 
 section General
 
-variable {J : Type w} [Fintype J] [DecidableEq J] {f : J → D} [HasBiproduct f]
+variable {J : Type w} [Fintype J] {f : J → D} [HasBiproduct f]
 
 /-- `biproduct.total` for index types in any universe. -/
 theorem biproduct_total' : ∑ j, biproduct.π f j ≫ biproduct.ι f j = 𝟙 (⨁ f) := by
+  classical
   ext j j'
   simp [Preadditive.sum_comp, biproduct.ι_π, comp_dite]
 
@@ -47,7 +48,7 @@ end General
 
 section Decomp
 
-variable {ι : Type w} [Fintype ι] [DecidableEq ι] {X : D} {Y : ι → D} [HasBiproduct Y]
+variable {ι : Type w} [Fintype ι] {X : D} {Y : ι → D} [HasBiproduct Y]
   (s : ∀ i, Y i ⟶ X) (r : ∀ i, X ⟶ Y i)
 
 /-- **A decomposition into a biproduct**: `X ≅ ⨁ᵢ Yᵢ` from an orthogonal family of retracts
@@ -59,6 +60,7 @@ def isoOfDecomp (hsr : ∀ i, s i ≫ r i = 𝟙 _) (hsr' : ∀ i j, i ≠ j →
   inv := biproduct.desc s
   hom_inv_id := by rw [biproduct_lift_desc', htot]
   inv_hom_id := by
+    classical
     ext i j
     simp only [biproduct.ι_desc_assoc, Category.assoc, biproduct.lift_π, Category.id_comp]
     by_cases hij : i = j
@@ -70,8 +72,7 @@ end Decomp
 section Decomp₂
 
 variable [HasBinaryBiproducts D] {ι : Type w} {κ : Type w'} [Fintype ι]
-  [DecidableEq ι]
-  [Fintype κ] [DecidableEq κ] {X : D} {Y : ι → D} {Z : κ → D} [HasBiproduct Y] [HasBiproduct Z]
+  [Fintype κ] {X : D} {Y : ι → D} {Z : κ → D} [HasBiproduct Y] [HasBiproduct Z]
   (s : ∀ i, Y i ⟶ X) (r : ∀ i, X ⟶ Y i) (s' : ∀ j, Z j ⟶ X) (r' : ∀ j, X ⟶ Z j)
 
 /-- **A decomposition into two biproducts**: `X ≅ (⨁ᵢ Yᵢ) ⊞ (⨁ⱼ Zⱼ)` from an orthogonal family
@@ -85,6 +86,7 @@ def isoOfDecomp₂ (hsr : ∀ i, s i ≫ r i = 𝟙 _) (hsr' : ∀ i i', i ≠ i
   inv := biprod.desc (biproduct.desc s) (biproduct.desc s')
   hom_inv_id := by rw [biprod.lift_desc, biproduct_lift_desc', biproduct_lift_desc', htot]
   inv_hom_id := by
+    classical
     apply biprod.hom_ext' <;> apply biprod.hom_ext
     · ext i j
       simp only [biprod.inl_desc_assoc, biprod.lift_fst, biproduct.ι_desc_assoc,
@@ -107,28 +109,29 @@ end Decomp₂
 
 section Monomial
 
-variable {ι : Type w} {κ : Type w'} [Fintype ι] [DecidableEq ι] [Fintype κ]
-  [DecidableEq κ] {Y : ι → D} {Z : κ → D} [HasBiproduct Y] [HasBiproduct Z]
+variable {ι : Type w} {κ : Type w'} [Fintype ι] [Fintype κ]
+  {Y : ι → D} {Z : κ → D} [HasBiproduct Y] [HasBiproduct Z]
 
 /-- The morphism `⨁ᵢ Yᵢ ⟶ ⨁ⱼ Zⱼ` with entries `M i j` (`biproduct.matrix`, for index types
 in any universe). -/
 def matrixW (M : ∀ i j, Y i ⟶ Z j) : ⨁ Y ⟶ ⨁ Z :=
   biproduct.desc fun i => biproduct.lift fun j => M i j
 
-omit [Fintype ι] [DecidableEq ι] [Fintype κ] [DecidableEq κ] in
+omit [Fintype ι] [Fintype κ] in
+omit [Fintype ι] [Fintype κ] in
 @[reassoc (attr := simp)]
 theorem ι_matrixW_π (M : ∀ i j, Y i ⟶ Z j) (i : ι) (j : κ) :
     biproduct.ι Y i ≫ matrixW M ≫ biproduct.π Z j = M i j := by
   simp [matrixW]
 
-omit [Fintype ι] [DecidableEq ι] in
+omit [Fintype ι] in
 theorem ι_matrixW_comp_π {W : ι → D} [HasBiproduct W] (M : ∀ i j, Y i ⟶ Z j)
     (N : ∀ j i, Z j ⟶ W i) (i : ι) (i' : ι) :
     biproduct.ι Y i ≫ matrixW M ≫ matrixW N ≫ biproduct.π W i' = ∑ j, M i j ≫ N j i' := by
   rw [← Category.id_comp (matrixW N), ← biproduct_total' (f := Z)]
   simp [Preadditive.comp_sum, Preadditive.sum_comp]
 
-omit [Fintype κ] [DecidableEq κ] in
+omit [Fintype κ] in
 theorem ι_matrixW_comp_π' {W : κ → D} [HasBiproduct W] (N : ∀ j i, Z j ⟶ Y i)
     (M : ∀ i j, Y i ⟶ W j) (j j' : κ) :
     biproduct.ι Z j ≫ matrixW N ≫ matrixW M ≫ biproduct.π W j' = ∑ i, N j i ≫ M i j' := by

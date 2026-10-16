@@ -116,7 +116,7 @@ vacuum, for a weight `ν` whose image `ν̃ = ν.map inl` has pairwise distinct 
 among them and level `a_i = y^M` on its labels: for every `f ∈ R̂(ν̃)`, the coordinate at `s` of
 the `(inl ∘ t, inl ∘ s)` entry of the completed action of `f` applied to the generator at `t`,
 relabelled to `𝖱^Λ(ν̃)`, is `cycFlip (e(inl ∘ s) · cycLift f · e(inl ∘ t))`. -/
-theorem relabel_wcoord_klrComplAt_inl_wgen {P : I → I → MvPolynomial (Fin 2) k}
+theorem relabel_wcoord_klrComplAt_inl_wgen {I₀ : Type*} {P : I₀ → I₀ → MvPolynomial (Fin 2) k}
     (D : UnfurlingDatum k P (I ⊕ I₂)) (hprodD : prodQ Q Q₂ = unfQ (k := k) D.arrows)
     (H : RouqUpKLR (homProduct k (S) T) (unfQ (k := k) D.arrows))
     (hnil : ∀ (c : I ⊕ I₂) {x y : X × X₂} (h : x + (RD.prod RD₂).iX c = y),

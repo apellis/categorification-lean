@@ -190,6 +190,17 @@ used in the proof and in Cor. 5.5, holds (`Flag.lemma_5_4_iii`).
 | Nondegeneracy from unfurled representations | Webster arXiv:1603.06311v3, Thm. `nondegenerate` (label), for positive sequences | `KLR.Unfurling.calculusNondeg_of_unfurledEval` | Same, plus `UnfurledEval` for all `λ`, positive `𝐢, 𝐣` and bounds `N` (the action of `U` on unfurled cyclotomic representations, Lemma `lem:g-action`, not yet formalized) | Conditional; the triangularity argument is proved |
 | Bubbles under upward-word evaluation | Webster arXiv:1603.06311v3, proof of Thm. `nondegenerate`, “Triviality of a relation” | `TwoRep.RouqFamily.bubbleMap_X`, `TwoRep.RouqFamily.upEval_bubAt`, `TwoRep.RouqFamily.upEval_bubMap` | Rouquier family with `BrundanUpKLR` and `BrundanMixedInversion`, as for `upEval` | Proved: explicit opposite diagram/local orientation conventions and right-whiskering formula; vacuum values and independence still required |
 
+The scalar products over the constructed generic fields now have an algebraically independent
+polynomial action for arbitrary colour sets and finitely many label slots per colour:
+`GenericFields.bubbleEval_indep` (Webster arXiv:1603.06311v3, proof of `nondegenerate`).
+The hypotheses require enough negative-alphabet slots of level one; other levels are arbitrary.
+`GenericFields.vacuumBubbleEval_indep` discharges the level hypotheses for the explicit
+strand/bubble/balancing weights, leaving only `N ≤ b` for the number of bubble slots.
+`bubbleEval_X_of_nonneg` and `bubbleEval_X_of_neg` express its generators in the two vacuum
+`lwSeq` formulas, with the orientation and dot shift explicit. Reindexing the categorical
+vacuum edge products by these slots, and identifying this scalar map with the vacuum action,
+remain to be proved; this does not yet construct `UnfurledEval`.
+
 The transcription of Def. 3.1 is cross-checked by homogeneity of every relation and by cyclicity
 of the generators with respect to the biadjunctions; no faithful 2-representation is formalized yet.
 In KL III (3.23) the second sum should run over `g_1 + ⋯ + g_4 = −⟨i,λ⟩ − 2` (zero when

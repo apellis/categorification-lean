@@ -672,6 +672,7 @@ import Categorification.TwoRep.FurlingSigma
 import Categorification.TwoRep.FurlingWords
 import Categorification.TwoRep.FurlingIntertwine
 import Categorification.TwoRep.FurlingKLR
+import Categorification.TwoRep.FurledCorner
 import Categorification.TwoRep.RouqDottedCurls
 import Categorification.TwoRep.RouqDual
 import Categorification.TwoRep.SumInvPointwise
@@ -681,6 +682,7 @@ import Categorification.TwoRep.RouqPitchfork
 import Categorification.TwoRep.RouqTriangleE
 import Categorification.TwoRep.RouqTwist
 import Categorification.TwoRep.RouqYoneda
+import Categorification.TwoRep.RouqYonedaEval
 import Categorification.TwoRep.RouqReverse
 import Categorification.TwoRep.RouqProduct
 import Categorification.TwoRep.RouqProductKLR

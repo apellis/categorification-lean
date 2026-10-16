@@ -110,4 +110,14 @@ theorem coverRouqFamily_toRouqData {Q : I → I → MvPolynomial (Fin 2) L}
       Furling.rouqData (coverFurling D Λm Λp RD μ hΛm hΛp)
         (coverProduct.{u, v, w} (arrowsNeg D) (L := L) Λm (arrowsPos D) Λp) D := rfl
 
+/-- Upward KLR relations for the constructed cyclotomic-cover family. -/
+theorem coverRouqFamily_upKLR {Q : I → I → MvPolynomial (Fin 2) L}
+    (hPQ : ∀ a b, a ≠ b → Q a b = P b a * MvPolynomial.rename ![1, 0] (P a b)) :
+    RouqUpKLR (coverRouqFamily.{u, v, w} D Λm Λp RD μ hΛm hΛp hD hμ hcover hPQ) Q :=
+  Furling.rouqUpKLR (fun _ => rfl)
+    (coverProduct_upKLR_unfQ D Λm Λp hD)
+    (coverProduct_dot_isNilpotent D Λm Λp)
+    (fun β a _ h hr => (coverFurling_isZero D Λm Λp RD μ hΛm hΛp β a h hr).1)
+    hPQ _ (coverRouqFamily_toRouqData D Λm Λp RD μ hΛm hΛp hD hμ hcover hPQ)
+
 end Categorification.KLR.Unfurling

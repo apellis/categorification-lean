@@ -37,8 +37,11 @@ sequences and a bound `N`:
   algebraically independent over `k` (in the source they act through the symmetric functions
   of the independent `z`'s, so they are independent in the degrees below the number of
   labels: the step "bubbles map to generic elements" left implicit in the source);
-* the images of the basis diagrams: `Θ(ψ_{ρ w} x^u 1_i · m) = bub(m) · Γ(ψ_{ρ w} x^u e(i)) e(t)`
-  for `w • i = j`, where `Γ = cycGamma` is `γ` (Lemma `lem:gamma-homo`) followed by the
+* an injective `L`-linear endomorphism `ρ` of `𝖱^Λ(ν̃)`, comparing the summand with the
+  cyclotomic quotient (for the cyclotomic family it is `hflip ∘ σ`, see
+  `CyclotomicAction.klrAct_wgen`);
+* the images of the basis diagrams:
+  `Θ(ψ_{ρ w} x^u 1_i · m) = bub(m) · ρ(Γ(ψ_{ρ w} x^u e(i)) e(t))` for `w • i = j`, where `Γ = cycGamma` is `γ` (Lemma `lem:gamma-homo`) followed by the
   cyclotomic quotient: the 2-functor sends the KLR part through `γ` and the bubbles on the far
   right to scalars on `𝕍`.
 
@@ -58,7 +61,8 @@ Discharging this hypothesis (the action of `𝒰` on the unfurled representation
 
 Let `∑_x g_x posB x = 0`. Choose `N` larger than every dot exponent and every bubble index in
 the relation, and apply `Θ` for a witness of `UnfurledEval RD k μ i j N`. Grouping the terms by
-the KLR basis element `(w, u)` gives `Γ(∑_{(w,u)} c_{w,u} ψ_{ρ w} x^u e(i)) e(t) = 0` with
+the KLR basis element `(w, u)` and using the injectivity of `ρ` gives
+`Γ(∑_{(w,u)} c_{w,u} ψ_{ρ w} x^u e(i)) e(t) = 0` with
 `c_{w,u} = bub(∑_{x ↦ (w,u)} g_x m_x)`. The triangularity of `Γ`
 (`eq_zero_of_cycGamma_mul_e_eq_zero`: the maximal-crossing pairing, then the minimal dots, as in
 the source) gives `c_{w,u} = 0`. The bubble monomials involved have indices `< N`, so the
@@ -122,9 +126,9 @@ generic labels). For positive sequences `i, j ∈ Seq(ν)`, a weight `λ` and a 
 dots and the bubble indices: a field `L ⊇ k`, an unfurling datum over `L` without arrows, a
 lift `t` of `i` with pairwise distinct labels, a cyclotomic level
 `M ≥ N`, a `k`-semilinear map `Θ` from `HOM_U(E_{+i} 1_λ, E_{+j} 1_λ)` to the cyclotomic
-quotient, and the action `bub` of the bubbles on `𝕍`, independent in the indices `< N`, such that
-`Θ` sends the basis diagram `ψ_{ρ w} x^u 1_i` with the bubble monomial `m` to
-`bub(m) · Γ(ψ_{ρ w} x^u e(i)) e(t)`. -/
+quotient, the action `bub` of the bubbles on `𝕍`, independent in the indices `< N`, and an
+injective `L`-linear endomorphism `ρ` of the cyclotomic quotient, such that `Θ` sends the basis
+diagram `ψ_{ρ w} x^u 1_i` with the bubble monomial `m` to `bub(m) · ρ(Γ(ψ_{ρ w} x^u e(i)) e(t))`. -/
 structure UnfurledEval (μ : X) {ν : Multiset I} (i j : KLR.Seq ν) (N : ℕ) where
   /-- The field of definition of the representation, containing the `z`'s. -/
   L : Type w₁
@@ -156,11 +160,16 @@ structure UnfurledEval (μ : X) {ν : Multiset I} (i j : KLR.Seq ν) (N : ℕ) w
   /-- The evaluation on `𝕍`, restricted to the summand `Ẽ_t 𝕍`. -/
   Θ : ((KL3.Diagram.pres RD k).obj (ob RD μ (posW (Diagram.word i))) ⟶
       (KL3.Diagram.pres RD k).obj (ob RD μ (posW (Diagram.word j)))) →ₛₗ[algebraMap k L] UnfCyc D ν' M
+  /-- The comparison of the summand `Ẽ_t 𝕍` with the cyclotomic quotient: an injective `L`-linear
+  endomorphism of `𝖱^Λ(ν̃)` (for the cyclotomic family, the anti-involution `hflip ∘ σ`, which
+  reverses the order of the strands). -/
+  ρ : UnfCyc D ν' M →ₗ[L] UnfCyc D ν' M
+  ρ_injective : Function.Injective ρ
   map_basis : ∀ (w : Perm (Fin (Multiset.card ν))) (u : Fin (Multiset.card ν) →₀ ℕ)
     (m : (I × ℕ) →₀ ℕ), w • i = j →
     Θ (phi RD k μ ν (KLR.KL2.basis (k := k) (C := C) (ν := ν) (ρc ν) (hρc ν) (i, w, u) ⊗ₜ
         monomial m 1) i j) =
-      bub (monomial m 1) • (cycGamma D harr hν hnd M hPQ
+      bub (monomial m 1) • ρ (cycGamma D harr hν hnd M hPQ
         (ψw (ρc ν w) * pol (monomial u 1) * e i : KLRAlgebra L (KLR.klQ2 L C) ν) *
           cycMk D ν' M (e t))
 
@@ -237,18 +246,19 @@ theorem linearIndependent_posB_of_unfurledEval (μ : X) {ν : Multiset I} (i j :
     fun p => ψw (ρc ν p.1) * pol (monomial p.2 1) * e i
   let Γ := cycGamma W.D W.harr W.hν W.hnd W.M W.hPQ
   have himg : ∀ x ∈ s, W.Θ (posB RD k μ x) =
-      W.bub (monomial x.2.2 1) • (Γ (std (key x)) * cycMk W.D W.ν' W.M (e W.t)) :=
+      W.bub (monomial x.2.2 1) • W.ρ (Γ (std (key x)) * cycMk W.D W.ν' W.M (e W.t)) :=
     fun x _ => W.map_basis _ _ _ (posPerm_smul x.1)
   have h0 : Γ (∑ p ∈ S, c p • std p) * cycMk W.D W.ν' W.M (e W.t) = 0 := by
+    refine W.ρ_injective ((?_ : _ = (0 : UnfCyc W.D W.ν' W.M)).trans (map_zero W.ρ).symm)
     have hΘ := congrArg W.Θ hg
     rw [map_sum, map_zero] at hΘ
     rw [← hΘ, ← Finset.sum_fiberwise_of_maps_to (g := key) (t := S)
-      (fun x hx => Finset.mem_image_of_mem key hx), map_sum, Finset.sum_mul]
+      (fun x hx => Finset.mem_image_of_mem key hx), map_sum, Finset.sum_mul, map_sum]
     refine Finset.sum_congr rfl fun p _ => ?_
     have hc : c p = ∑ x ∈ s with key x = p, algebraMap k W.L (g x) * W.bub (monomial x.2.2 1) := by
       simp only [c, F, map_sum]
       exact Finset.sum_congr rfl fun x _ => by rw [map_smul, Algebra.smul_def]
-    rw [map_smul, smul_mul_assoc, hc, Finset.sum_smul]
+    rw [map_smul, smul_mul_assoc, map_smul, hc, Finset.sum_smul]
     refine Finset.sum_congr rfl fun x hx => ?_
     obtain ⟨hxs, hkx⟩ := Finset.mem_filter.1 hx
     rw [LinearMap.map_smulₛₗ, himg x hxs, hkx, smul_smul]

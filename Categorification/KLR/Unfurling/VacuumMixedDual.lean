@@ -14,7 +14,7 @@ Rouquier's inverse (Brundan (1.8)) gives a cup `ν : V → R E V` and caps `Dᵗ
 with `ν ≫ Dᵗ ≫ d = δ_{t, n-1}` for `t < n`, and `ν ≫ σ = 0` for the rightward crossing
 `σ : R E V → E R V`. The bubble `ν ≫ Dᵏ ≫ d` is the counterclockwise bubble with `k` dots.
 This is the statement of `VacuumMixed` in the opposite category: the lowest weight labels now
-decompose the caps, and the Jordan chains of the highest weight labels map out of `E R V`.
+decompose the caps, and the chains of the highest weight labels map out of `E R V`.
 
 ## Main results
 
@@ -68,7 +68,8 @@ cup `ν : V → Q` and caps `Dᵗ ≫ d : Q → V` dual to it in degrees `t < n`
 * Over the lowest weight labels `a`: `Q = ⊕ₐ Wₐ` (`∑ ι a ≫ π a = 1`), the cap with `n` dots is
   `(zₐ + yₐ)ⁿ ≫ νₐ` on the summand `a`, and `yₐ^m ≫ νₐ = 0` for `m ≥ hₐ`.
 * Over the highest weight labels `b`: `w_b` is a two-sided inverse of `D - z_b`, and
-  `u_{b,1}, …, u_{b,Λ_b} : P → V` is a Jordan chain of `D' - z_b` with `κ ≫ u_{b,m} = δ_{m,1}`.
+  `c_{b,0}, …, c_{b,Λ_b-1} : P → V` satisfy `(D' - z_b) ≫ c_{b,m} = ∑_{j<m} β_{b,m,j} c_{b,j}`
+  with `β_{b,m+1,m} ≠ 0`, and `κ ≫ c_{b,m} = δ_{m,0}`.
 * `σ : Q → P` satisfies the dot slide `D ≫ σ - σ ≫ D' = d ≫ κ`, and `ν ≫ σ = 0` if `n > 0`,
   `ν ≫ σ = κ` if `n = 0` (for `n = 0`, `σ` is invertible and `ν = κ ≫ σ⁻¹`).
 * `∑ₐ hₐ = n + ∑_b Λ_b > 0`.
@@ -87,9 +88,11 @@ theorem ev_comp_eq_lwSeq_dual {R : Type*} [CommRing R] [Algebra L R] {V Q P : C}
     (Λ : B → ℕ) (w : B → End Q) (hw₁ : ∀ b, (D - algebraMap L (End Q) (zb b)) * w b = 1)
     (hw₂ : ∀ b, w b * (D - algebraMap L (End Q) (zb b)) = 1)
     (σ : Q ⟶ P) (κ : V ⟶ P) (D' : End P) (hrel : D ≫ σ - σ ≫ D' = d ≫ κ)
-    (u : B → ℕ → (P ⟶ V)) (hu0 : ∀ b, u b 0 = 0)
-    (hu : ∀ b m, m < Λ b → (D' - algebraMap L (End P) (zb b) : End P) ≫ u b (m + 1) = u b m)
-    (huκ : ∀ b m, m < Λ b → κ ≫ u b (m + 1) = if m = 0 then 𝟙 V else 0)
+    (c : B → ℕ → (P ⟶ V)) (β : B → ℕ → ℕ → L)
+    (hcN : ∀ b m, m < Λ b → (D' - algebraMap L (End P) (zb b) : End P) ≫ c b m =
+      ∑ j ∈ Finset.range m, β b m j • c b j)
+    (hβ : ∀ b m, m + 1 < Λ b → β b (m + 1) m ≠ 0)
+    (hcκ : ∀ b m, m < Λ b → κ ≫ c b m = if m = 0 then 𝟙 V else 0)
     (n : ℕ) (hN : ∑ a, hp a = n + ∑ b, Λ b) (hNpos : 0 < ∑ a, hp a)
     (hσd : ν ≫ σ = if n = 0 then κ else 0)
     (hd : ∀ t < n, ev (ν ≫ (D ^ t : End Q) ≫ d) = if t + 1 = n then 1 else 0) (k : ℕ) :
@@ -117,7 +120,7 @@ theorem ev_comp_eq_lwSeq_dual {R : Type*} [CommRing R] [Algebra L R] {V Q P : C}
   rw [hb]
   refine ev_comp_eq_lwSeq (evOp ev) (fun a => (π a).op) (fun a => (ι a).op) (fun a => (νa a).op)
     (fun a => endOp (y a)) za hp d.op ν.op (endOp D) ?_ ?_ ?_ zb hzb Λ (fun b => endOp (w b)) ?_ ?_
-    σ.op κ.op (endOp D') ?_ (fun b m => (u b m).op) ?_ ?_ ?_ n hN hNpos ?_ ?_ k
+    σ.op κ.op (endOp D') ?_ (fun b m => (c b m).op) β ?_ hβ ?_ n hN hNpos ?_ ?_ k
   · apply Quiver.Hom.unop_inj
     rw [unop_sum]
     simpa using hπι
@@ -141,17 +144,16 @@ theorem ev_comp_eq_lwSeq_dual {R : Type*} [CommRing R] [Algebra L R] {V Q P : C}
   · apply Quiver.Hom.unop_inj
     rw [unop_sub, unop_comp, unop_comp, unop_comp]
     exact hrel
-  · intro b
-    rw [hu0 b]; rfl
   · intro b m hm
     apply Quiver.Hom.unop_inj
-    rw [unop_comp, hsc' (zb b) D']
-    exact hu b m hm
+    rw [unop_comp, hsc' (zb b) D', unop_sum]
+    simp only [TwoRep.unop_smul', Quiver.Hom.unop_op]
+    exact hcN b m hm
   · intro b m hm
     apply Quiver.Hom.unop_inj
     rw [unop_comp]
     simp only [Quiver.Hom.unop_op]
-    rw [huκ b m hm]
+    rw [hcκ b m hm]
     split_ifs <;> rfl
   · apply Quiver.Hom.unop_inj
     rw [unop_comp]

@@ -19,19 +19,20 @@ for `i`. Rouquier's inverse (Brundan (1.9)) gives cups `ν ≫ Dᵗ : V → F E 
 `d : F E V → V` with `ν ≫ Dᵗ ≫ d = δ_{t, n-1}` for `t < n` and `σ ≫ d = 0`, `σ : E F V → F E V` the
 rightward crossing. Over the lowest weight labels `a`, `F E V = ⊕ₐ Wₐ` as in `VacuumBubbles`,
 now with `∑ₐ hₐ = n + ∑_b Λ_b`. For each highest weight label `b`, `D - z_b` is invertible on
-`F E V`, with inverse `w_b`, and `E F V` contains a Jordan chain `u_{b,1}, …, u_{b,Λ_b}` for the
-dot `D' - z_b` whose first vector has cap `1` (`u_{b,m} ≫ κ = δ_{m,1}`).
+`F E V`, with inverse `w_b`, and `E F V` contains a chain `c_{b,0}, …, c_{b,Λ_b-1}` for the dot:
+`c_{b,m} ≫ (D' - z_b) = ∑_{j<m} β_{b,m,j} c_{b,j}` with `β_{b,m+1,m} ≠ 0`, and the cap of `c_{b,m}`
+is `δ_{m,0}` (`c_{b,m} ≫ κ = δ_{m,0}`).
 
 Then, through an `L`-algebra map `ev` from `End V` to a commutative ring,
 
   `ev (ν ≫ Dᵏ ≫ d) = [t^{k+1-n}] ∏ₐ (1 - zₐ t)^{-hₐ} ∏_b (1 - z_b t)^{Λ_b}`
 
 (`ev_comp_eq_lwSeq`). The same holds at `h = 0` (`n = 0`): then `σ` is invertible, the bubble
-uses the cap `d = σ⁻¹ ≫ κ`, and the Jordan chains give `ν ≫ w_b ≫ d = 1` instead of `0`. The
+uses the cap `d = σ⁻¹ ≫ κ`, and the chains give `ν ≫ w_b ≫ d = 1` instead of `0`. The
 proof:
 
-* the dot slide `σ ≫ D - D' ≫ σ = κ ≫ ν` turns the Jordan chain into `ν ≫ w_bᵐ = u_{b,m} ≫ σ`
-  (`chain_comp_sigma`), so `ν ≫ w_bᵐ ≫ d = 0`;
+* the dot slide `σ ≫ D - D' ≫ σ = κ ≫ ν` and the chain give `ν ≫ w_bᵐ ≫ d = 0` for
+  `1 ≤ m ≤ Λ_b` (`chainSum_comp_sigma`);
 * partial fractions (`map_pow_mul_prod_pow_eq`) then give the dual-basis values of the cap
   `W ≫ d`, `W = ∏_b w_b^{Λ_b}`, in degrees below `∑ₐ hₐ`;
 * `ev_comp_eq_coeff` computes all values of `W ≫ d`;
@@ -44,7 +45,7 @@ proof:
 
 ## Main results
 
-* `chain_comp_sigma`: the Jordan chain and the inverted dot.
+* `chainSum_comp_sigma`: the chain of a highest weight label and the inverted dot.
 * `map_pow_mul_eq_lwSeq_of_prod`: removing the inverted dots.
 * `ev_comp_eq_lwSeq`: the values of the bubbles.
 -/
@@ -140,16 +141,21 @@ theorem commute_of_mul_eq_one {M : Type*} [Monoid M] {a a' b : M} (h1 : a * a' =
     _ = (a' * a) * (b * a') := by simp only [mul_assoc]
     _ = b * a' := by rw [h2, one_mul]
 
-/-- **The Jordan chain and the inverted dot.** Let `σ : P → Q` satisfy the dot slide
-`σ ≫ D - D' ≫ σ = κ ≫ ν`, let `w` be a left inverse of `D - z` (`(D - z) ≫ w = 𝟙`), and let
-`u₁, …, u_Λ : V → P` be a Jordan chain of `D' - z` (`u_{m+1} ≫ (D' - z) = u_m`, `u₀ = 0`) with
-`u_{m+1} ≫ κ = δ_{m,0}`. Then `u_{m+1} ≫ σ = ν ≫ w^{m+1}` for `m < Λ`. -/
-theorem chain_comp_sigma {V P Q : C} (σ : P ⟶ Q) (κ : P ⟶ V) (ν : V ⟶ Q) (D : End Q)
-    (D' : End P) (hrel : σ ≫ D - D' ≫ σ = κ ≫ ν) (z : L) (w : End Q)
-    (hw : w * (D - algebraMap L (End Q) z) = 1) (Λ : ℕ) (u : ℕ → (V ⟶ P)) (hu0 : u 0 = 0)
-    (hu : ∀ m, m < Λ → u (m + 1) ≫ (D' - algebraMap L (End P) z : End P) = u m)
-    (huκ : ∀ m, m < Λ → u (m + 1) ≫ κ = if m = 0 then 𝟙 V else 0) :
-    ∀ m, m < Λ → u (m + 1) ≫ σ = ν ≫ (w ^ (m + 1) : End Q) := by
+/-- **The chain of a highest weight label and the inverted dot.** Let `σ : P → Q` satisfy the
+dot slide `σ ≫ D - D' ≫ σ = κ ≫ ν`, let `w` be a left inverse of `D - z`, and let
+`c₀, …, c_{Λ-1} : V → P` satisfy `c_m ≫ (D' - z) = ∑_{j<m} β_{m,j} c_j` with `β_{m+1,m}` a
+unit and `c_m ≫ κ = δ_{m,0}`. If `σ ≫ d = κ ≫ e`, then `ν ≫ w^{r+1} ≫ d = δ_{r,0} e` for
+`r < Λ`. A Jordan chain is the case `β_{m,j} = δ_{j,m-1}`; on a highest weight label the dot
+acts through a power series `z + β₁ y + β₂ y² + ⋯` in a nilpotent `y` with `β₁ ≠ 0`. -/
+theorem chainSum_comp_sigma {V P Q : C} (σ : P ⟶ Q) (κ : P ⟶ V) (ν : V ⟶ Q) (d : Q ⟶ V)
+    (D : End Q) (D' : End P) (hrel : σ ≫ D - D' ≫ σ = κ ≫ ν) (z : L) (w : End Q)
+    (hw : w * (D - algebraMap L (End Q) z) = 1) (Λ : ℕ) (c : ℕ → (V ⟶ P)) (β : ℕ → ℕ → L)
+    (hcN : ∀ m, m < Λ → c m ≫ (D' - algebraMap L (End P) z : End P) =
+      ∑ j ∈ Finset.range m, β m j • c j)
+    (hβ : ∀ m, m + 1 < Λ → IsUnit (β (m + 1) m))
+    (hcκ : ∀ m, m < Λ → c m ≫ κ = if m = 0 then 𝟙 V else 0) (e : V ⟶ V)
+    (hσd : σ ≫ d = κ ≫ e) :
+    ∀ r, r < Λ → ν ≫ (w ^ (r + 1) : End Q) ≫ d = if r = 0 then e else 0 := by
   have hz : σ ≫ (algebraMap L (End Q) z : End Q) = (algebraMap L (End P) z : End P) ≫ σ := by
     rw [Algebra.algebraMap_eq_smul_one, Algebra.algebraMap_eq_smul_one, Linear.comp_smul,
       Linear.smul_comp, End.one_def, End.one_def, Category.comp_id, Category.id_comp]
@@ -163,19 +169,56 @@ theorem chain_comp_sigma {V P Q : C} (σ : P ⟶ Q) (κ : P ⟶ V) (ν : V ⟶ Q
       rw [← End.mul_def, hw, End.one_def]
     rw [hw', Category.comp_id] at h
     rw [← h]; abel
-  intro m
-  induction m with
-  | zero =>
-    intro hm
-    rw [hσ, Preadditive.comp_add, ← Category.assoc, hu 0 hm, hu0, Limits.zero_comp, zero_add,
-      ← Category.assoc, huκ 0 hm]
-    simp only [↓reduceIte, Category.id_comp, zero_add, pow_one]
-  | succ m ih =>
-    intro hm
-    rw [hσ, Preadditive.comp_add, ← Category.assoc, hu (m + 1) hm,
-      ← Category.assoc (u (m + 1 + 1)) κ, huκ (m + 1) hm]
-    simp only [Nat.add_one_ne_zero, ↓reduceIte, Limits.zero_comp, add_zero]
-    rw [← Category.assoc, ih (by omega), Category.assoc, pow_succ' w (m + 1), End.mul_def]
+  have hww : ∀ r, w ≫ (w ^ r : End Q) = (w ^ (r + 1) : End Q) := fun r => by
+    rw [← End.mul_def, ← pow_succ]
+  -- `A m r = c_m ≫ σ ≫ w^r ≫ d`
+  let A : ℕ → ℕ → (V ⟶ V) := fun m r => c m ≫ σ ≫ (w ^ r : End Q) ≫ d
+  have hA : ∀ m r, m < Λ → A m r = ∑ j ∈ Finset.range m, β m j • A j (r + 1) +
+      if m = 0 then ν ≫ (w ^ (r + 1) : End Q) ≫ d else 0 := by
+    intro m r hm
+    have h1 : c m ≫ σ ≫ (w ^ r : End Q) ≫ d =
+        (c m ≫ (D' - algebraMap L (End P) z : End P)) ≫ σ ≫ (w ^ (r + 1) : End Q) ≫ d +
+          (c m ≫ κ) ≫ ν ≫ (w ^ (r + 1) : End Q) ≫ d := by
+      conv_lhs => rw [hσ]
+      simp only [Preadditive.add_comp, Preadditive.comp_add, Category.assoc]
+      rw [← Category.assoc w, hww]
+    change c m ≫ σ ≫ (w ^ r : End Q) ≫ d = _
+    rw [h1, hcN m hm, hcκ m hm, Preadditive.sum_comp]
+    congr 1
+    · refine Finset.sum_congr rfl fun j _ => ?_
+      rw [Linear.smul_comp]
+    · split_ifs <;> simp
+  have hA0 : ∀ m, m < Λ → A m 0 = if m = 0 then e else 0 := fun m hm => by
+    change c m ≫ σ ≫ (w ^ 0 : End Q) ≫ d = _
+    rw [pow_zero, End.one_def, Category.id_comp, hσd, ← Category.assoc, hcκ m hm]
+    split_ifs <;> simp
+  have hzero : ∀ s m, m + s < Λ → (m ≠ 0 ∨ s ≠ 0) → A m s = 0 := by
+    intro s
+    induction s with
+    | zero =>
+      intro m hm hne
+      rw [hA0 m (by omega)]
+      simp only [hne.resolve_right (by omega), ↓reduceIte]
+    | succ s ih =>
+      intro m
+      induction m using Nat.strong_induction_on with
+      | _ m ihm =>
+        intro hm _
+        have h := hA (m + 1) s (by omega)
+        rw [ih (m + 1) (by omega) (Or.inl (by omega)), Finset.sum_range_succ,
+          Finset.sum_eq_zero (fun j hj => by
+            rw [ihm j (Finset.mem_range.mp hj) (by have := Finset.mem_range.mp hj; omega)
+              (Or.inr (by omega)), smul_zero]), zero_add] at h
+        simp only [Nat.add_one_ne_zero, ↓reduceIte, add_zero] at h
+        exact ((hβ m (by omega)).smul_eq_zero).mp h.symm
+  intro r hr
+  have h0 := hA 0 r (by omega)
+  simp only [Finset.range_zero, Finset.sum_empty, zero_add, ↓reduceIte] at h0
+  rw [← h0]
+  rcases r with _ | r
+  · rw [hA0 0 hr]
+  · rw [hzero (r + 1) 0 (by omega) (Or.inr (by omega))]; rfl
+
 
 end Chain
 
@@ -192,7 +235,8 @@ cups `ν ≫ Dᵗ : V → Q` and a cap `d : Q → V` dual to them in degrees `t 
 * Over the lowest weight labels `a`: `Q = ⊕ₐ Wₐ`, the cup with `n` dots is `νₐ ≫ (zₐ + yₐ)ⁿ` on
   the summand `a`, and `νₐ ≫ yₐ^m = 0` for `m ≥ hₐ`.
 * Over the highest weight labels `b`: `w_b` is a two-sided inverse of `D - z_b`, and
-  `u_{b,1}, …, u_{b,Λ_b} : V → P` is a Jordan chain of `D' - z_b` whose cap is `δ_{m,1}`.
+  `c_{b,0}, …, c_{b,Λ_b-1} : V → P` satisfy `c_{b,m} ≫ (D' - z_b) = ∑_{j<m} β_{b,m,j} c_{b,j}`
+  with `β_{b,m+1,m} ≠ 0`, and `c_{b,m} ≫ κ = δ_{m,0}`.
 * `σ : P → Q` satisfies the dot slide `σ ≫ D - D' ≫ σ = κ ≫ ν`, and `σ ≫ d = 0` if `n > 0`,
   `σ ≫ d = κ` if `n = 0` (for `n = 0`, `σ` is invertible and `d = σ⁻¹ ≫ κ`).
 * `∑ₐ hₐ = n + ∑_b Λ_b > 0`.
@@ -210,9 +254,11 @@ theorem ev_comp_eq_lwSeq {R : Type*} [CommRing R] [Algebra L R] {V Q P : C}
     (Λ : B → ℕ) (w : B → End Q) (hw₁ : ∀ b, (D - algebraMap L (End Q) (zb b)) * w b = 1)
     (hw₂ : ∀ b, w b * (D - algebraMap L (End Q) (zb b)) = 1)
     (σ : P ⟶ Q) (κ : P ⟶ V) (D' : End P) (hrel : σ ≫ D - D' ≫ σ = κ ≫ ν)
-    (u : B → ℕ → (V ⟶ P)) (hu0 : ∀ b, u b 0 = 0)
-    (hu : ∀ b m, m < Λ b → u b (m + 1) ≫ (D' - algebraMap L (End P) (zb b) : End P) = u b m)
-    (huκ : ∀ b m, m < Λ b → u b (m + 1) ≫ κ = if m = 0 then 𝟙 V else 0)
+    (c : B → ℕ → (V ⟶ P)) (β : B → ℕ → ℕ → L)
+    (hcN : ∀ b m, m < Λ b → c b m ≫ (D' - algebraMap L (End P) (zb b) : End P) =
+      ∑ j ∈ Finset.range m, β b m j • c b j)
+    (hβ : ∀ b m, m + 1 < Λ b → β b (m + 1) m ≠ 0)
+    (hcκ : ∀ b m, m < Λ b → c b m ≫ κ = if m = 0 then 𝟙 V else 0)
     (n : ℕ) (hN : ∑ a, hp a = n + ∑ b, Λ b) (hNpos : 0 < ∑ a, hp a)
     (hσd : σ ≫ d = if n = 0 then κ else 0)
     (hd : ∀ t < n, ev (ν ≫ (D ^ t : End Q) ≫ d) = if t + 1 = n then 1 else 0) (k : ℕ) :
@@ -263,13 +309,15 @@ theorem ev_comp_eq_lwSeq {R : Type*} [CommRing R] [Algebra L R] {V Q P : C}
   have hwj : ∀ b j, 1 ≤ j → j ≤ Λ b → ψ (w' b ^ j) = if n = 0 ∧ j = 1 then 1 else 0 := by
     intro b j hj1 hj
     obtain ⟨m, rfl⟩ : ∃ m, j = m + 1 := ⟨j - 1, by omega⟩
-    rw [hψ, hwpow, ← Category.assoc, ← chain_comp_sigma σ κ ν D D' hrel (zb b) (w b) (hw₂ b)
-      (Λ b) (u b) (hu0 b) (hu b) (huκ b) m (by omega), Category.assoc, hσd]
+    have hσd' : σ ≫ d = κ ≫ (if n = 0 then 𝟙 V else 0) := by
+      rw [hσd]; split_ifs <;> simp
+    rw [hψ, hwpow, chainSum_comp_sigma σ κ ν d D D' hrel (zb b) (w b) (hw₂ b) (Λ b) (c b)
+      (β b) (hcN b) (fun m hm => (hβ b m hm).isUnit) (hcκ b) _ hσd' m (by omega)]
     by_cases hn : n = 0
-    · simp only [hn, ↓reduceIte, true_and]
-      rw [huκ b m (by omega)]
-      split_ifs <;> first | exact ev.map_one | exact ev.map_zero | omega
-    · simp only [hn, ↓reduceIte, false_and, Limits.comp_zero, map_zero]
+    · by_cases hm : m = 0
+      · simp only [hn, hm, ↓reduceIte, and_self]; exact ev.map_one
+      · simp [hn, hm]
+    · simp [hn]
   -- partial fractions
   have helim := map_pow_mul_prod_pow_eq ψ x hzb w' hw' Λ n hx hwj
   let W : Algebra.adjoin L s := ∏ b, w' b ^ Λ b

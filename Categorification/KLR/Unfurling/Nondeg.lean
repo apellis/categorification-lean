@@ -26,10 +26,11 @@ generic labels `(i, z_{i,q})`, a different `q` on each strand. `UnfurledEval RD 
 records exactly what the argument uses from this, for a pair `i, j ∈ Seq(ν)` of positive
 sequences and a bound `N`:
 
-* a field `L ⊇ k` and an unfurling datum `D` over `L` with no arrows (the labels of the
-  strands; for instance `UnfurlingDatum.ofGeneric`, or the restriction of Webster's datum, with
-  series `u(1 + x)^{d_i}`, to the generic labels);
-* a lift `t` of `i` to a weight `ν̃` of `D` with pairwise distinct labels, and a level `M ≥ N`
+* a field `L ⊇ k` and an unfurling datum `D` over `L` on a set of labels `J`, possibly
+  infinite and with arrows (for instance `UnfurlingDatum.ofGeneric`, or Webster's closure with
+  series `u(1 + x)^{d_i}`);
+* a lift `t` of `i` to a weight `ν̃` of `D` with pairwise distinct labels and no arrows among
+  them (in the source, generic labels `(i, z_{i,q})`), and a level `M ≥ N`
   of the cyclotomic quotient `𝖱^Λ(ν̃)` with `a_b = y^M` (`UnfCyc`);
 * the evaluation `Θ : HOM_U(E_{+i} 1_λ, E_{+j} 1_λ) → 𝖱^Λ(ν̃)`, semilinear over `k → L`
   (the action on `𝕍`, followed by the restriction to the summand `Ẽ_t 𝕍`);
@@ -123,8 +124,8 @@ variable (RD k) in
 (Webster, arXiv:1603.06311v3, proof of the theorem with label `nondegenerate`: the action of
 Lemma `lem:g-action` on the generating object `𝕍`, restricted to the summand `Ẽ_t 𝕍` with
 generic labels). For positive sequences `i, j ∈ Seq(ν)`, a weight `λ` and a bound `N` on the
-dots and the bubble indices: a field `L ⊇ k`, an unfurling datum over `L` without arrows, a
-lift `t` of `i` with pairwise distinct labels, a cyclotomic level
+dots and the bubble indices: a field `L ⊇ k`, an unfurling datum over `L`, a lift `t` of `i`
+with pairwise distinct labels and no arrows among them, a cyclotomic level
 `M ≥ N`, a `k`-semilinear map `Θ` from `HOM_U(E_{+i} 1_λ, E_{+j} 1_λ)` to the cyclotomic
 quotient, the action `bub` of the bubbles on `𝕍`, independent in the indices `< N`, and an
 injective `L`-linear endomorphism `ρ` of the cyclotomic quotient, such that `Θ` sends the basis
@@ -137,17 +138,17 @@ structure UnfurledEval (μ : X) {ν : Multiset I} (i j : KLR.Seq ν) (N : ℕ) w
   /-- The labels. -/
   J : Type w₂
   [instDecEq : DecidableEq J]
-  [instFintype : Fintype J]
   /-- The crossing polynomials of the KL II datum over `L`. -/
   P : I → I → MvPolynomial (Fin 2) L
   hPQ : ∀ a b, a ≠ b → KLR.klQ2 L C a b = P b a * rename ![1, 0] (P a b)
   /-- The unfurling datum of the labels. -/
   D : UnfurlingDatum L P J
-  harr : ∀ a b, D.arrows a b = 0
   /-- The weight of the lift. -/
   ν' : Multiset J
   hν : ν'.map D.π = ν
   hnd : ν'.Nodup
+  /-- No arrows among the labels of the lift (`D` may have arrows elsewhere). -/
+  harr : ∀ a ∈ ν', ∀ b ∈ ν', D.arrows a b = 0
   /-- The lift of `i`. -/
   t : KLR.Seq ν'
   ht : down D.π hν t = i
@@ -174,7 +175,6 @@ structure UnfurledEval (μ : X) {ν : Multiset I} (i j : KLR.Seq ν) (N : ℕ) w
           cycMk D ν' M (e t))
 
 attribute [instance] UnfurledEval.instField UnfurledEval.instAlgebra UnfurledEval.instDecEq
-  UnfurledEval.instFintype
 
 /-! ### The triangularity argument -/
 

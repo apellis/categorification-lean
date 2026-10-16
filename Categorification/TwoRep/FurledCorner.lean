@@ -25,6 +25,10 @@ action of `𝒰` on `𝕍` is computed on the summands `Ẽ_t 𝕍`.
 
 * `MatEnd.comp_proj_of_intertw`: entries of intertwined matrices against a left inverse family.
 * `Furling.projE`, `Furling.pproj`, `Furling.pgen_pproj`, `Furling.pgen_pproj_of_ne`.
+* `Furling.lproj`, `Furling.lgen_lproj`: the projections onto the summands of lifts, a left
+  inverse family of the generators `lgen`.
+* `Furling.lgen_actG_lproj`: the entries of the action of `R(ν)` on the words of `g` between
+  lifts are the entries of the action of `γ(r)` on the words of `g̃`.
 -/
 
 noncomputable section
@@ -183,6 +187,90 @@ theorem pgen_pproj_of_ne (β : Φ.Blk μ) : ∀ (L : List (I × X)) (Ps Ps' : Li
   | [], _ :: _, _, _, _, hP, _, _, _, _, _ => hP.elim
   | _ :: _, [], _, _, _, hP, _, _, _, _, _ => hP.elim
   | _ :: _, _ :: _, [], _, _, _, hP', _, _, _, _ => hP'.elim
+
+/-! ## Projections onto the summands of lifts -/
+
+section Lift
+
+variable {Φ D} (hπ : ∀ a, Φ.π a = D.π a) {ν : Multiset I} (δ : Φ.Blk (wtop RD μ ν))
+  (β : Φ.Blk μ) (ν' : Unfurling.Lift D ν) (hδ : β.1 + blkSum ν'.1 = δ.1)
+
+open Classical in
+/-- **The projection onto the summand of a lift**: from the word of `g` of `t` applied to `M`, at
+the block `δ`, to the word of `g̃` of a lift `s` of `t` applied to `M β`. It is the projection
+`pproj` onto the path of the labels of `s` if `s` lies over `t` and its edges are relevant, and
+zero otherwise. It is a left inverse family of the generators `lgen` (`lgen_lproj`). -/
+def lproj (t : Seq ν) (s : Seq ν'.1) :
+    (evalBlk Φ S M δ).obj ((rouqData Φ S D).wordCell μ t) ⟶
+      (S.wordCellAt (Φ.wtT β.1) (Φ.wtT δ.1) (wtop_lift μ δ β ν' hδ) s).obj.obj (M β) :=
+  if h : Unfurling.down D.π ν'.2 s = t ∧ IsRel Φ β.1 (word s) then
+    pproj Φ S D M β (wordL RD μ t) (word s) (wtop RD μ ν) (wValid_wordL μ t)
+        (h.1 ▸ isPath_down hπ μ ν'.2 β.1 s h.2) δ ((endBlk_word β.1 s).trans hδ) ≫
+      (eqToHom (S.wcell_congr (Φ.wtT β.1) (liftL_eq_canon Φ β.1 (word s)) _
+        (wValid_of_eq (wValid_wordL _ s) (wtop_lift μ δ β ν' hδ)))).hom.app (M β)
+  else 0
+
+open Classical in
+theorem lproj_of_not (t : Seq ν) (s : Seq ν'.1)
+    (h : ¬ (Unfurling.down D.π ν'.2 s = t ∧ IsRel Φ β.1 (word s))) :
+    lproj S M hπ δ β ν' hδ t s = 0 := by
+  unfold lproj; rw [dite_eq_right h]
+
+variable (hzero : ∀ (β : J →₀ ℤ) (a : J) {y : Xc} (h : Φ.wtT β + RDc.iX a = y), ¬ Φ.rel β a →
+    IsZero (S.E a h))
+include hzero
+
+/-- **The projections onto lifts are a left inverse family of the generators of lifts**: for a
+lift `u` of `t`, `lgen u ≫ lproj t u'` is the identity if `u = u'` and zero otherwise. -/
+theorem lgen_lproj (u u' : Seq ν'.1) {t : Seq ν} (hu : Unfurling.down D.π ν'.2 u = t) :
+    lgen S hπ μ M δ β ν' hδ u ≫
+        eqToHom (congrArg (fun t : Seq ν => (evalBlk Φ S M δ).obj
+          ((rouqData Φ S D).wordCell μ t)) hu) ≫ lproj S M hπ δ β ν' hδ t u' =
+      if h : u = u' then eqToHom (congrArg (fun s : Seq ν'.1 =>
+        (S.wordCellAt (Φ.wtT β.1) (Φ.wtT δ.1) (wtop_lift μ δ β ν' hδ) s).obj.obj (M β)) h)
+      else 0 := by
+  classical
+  subst hu
+  rw [eqToHom_refl, Category.id_comp]
+  by_cases hr : IsRel Φ β.1 (word u)
+  · rw [lgen_of_isRel S hπ μ M δ β ν' hδ u hr]
+    by_cases h : u = u'
+    · subst h
+      rw [lproj, dite_eq_left ⟨rfl, hr⟩, dite_eq_left rfl, eqToHom_refl]
+      refine (Category.assoc _ _ _).trans ?_
+      erw [reassoc_of% (pgen_pproj Φ S D M β _ _ _ _ _ _ _)]
+      rw [LinearCat.eqToHom_hom_app, LinearCat.eqToHom_hom_app, eqToHom_trans, eqToHom_refl]
+    · rw [dite_eq_right h]
+      by_cases h' : Unfurling.down D.π ν'.2 u' = Unfurling.down D.π ν'.2 u ∧
+          IsRel Φ β.1 (word u')
+      · rw [lproj, dite_eq_left h']
+        refine (Category.assoc _ _ _).trans ?_
+        erw [reassoc_of% (pgen_pproj_of_ne Φ S D M β _ _ _ _ _ _ _ _ _ _
+          (fun e => h (word_injective e)))]
+        rw [Limits.zero_comp, Limits.comp_zero]
+      · rw [lproj_of_not S M hπ δ β ν' hδ _ _ h']; exact Limits.comp_zero
+  · have hl : lgen S hπ μ M δ β ν' hδ u = 0 := by unfold lgen; rw [dite_eq_right hr]
+    rw [hl, Limits.zero_comp]
+    split_ifs
+    · exact (isZero_wordCellAt S μ M δ β ν' hδ hzero u hr).eq_of_src _ _
+    · rfl
+
+variable {S} (H : RouqUpKLR S (Unfurling.unfQ (k := k) D.arrows))
+  (hnil : ∀ (c : J) {x y : Xc} (h : x + RDc.iX c = y), IsNilpotent (End.of (S.dot c h)))
+
+/-- **The entries of the action of `g` between lifts** (Webster, arXiv:1603.06311v3, Lemma
+`lem:g-action` (label)): for lifts `s`, `u` with `u` over `t`, the composite of the generator of `s`,
+the `(down s, t)` entry of the action of `r` on the words of `g`, and the projection onto `u`, is
+the `(s, u)` entry of the action of `γ(r)` on the words of `g̃`. -/
+theorem lgen_actG_lproj (r : FreeAlgebra k (KLR.Gen ν)) (s u : Seq ν'.1) {t : Seq ν}
+    (hu : Unfurling.down D.π ν'.2 u = t) :
+    lgen S hπ μ M δ β ν' hδ s ≫ actG S μ M δ r (Unfurling.down D.π ν'.2 s) t ≫
+        lproj S M hπ δ β ν' hδ t u =
+      actT μ M δ β ν' hδ H hnil r s u :=
+  MatEnd.comp_proj_of_intertw _ _ (intertw_freeGamma hπ μ M δ β ν' hδ H hnil hzero r) t
+    (lproj S M hπ δ β ν' hδ t) (fun u u' hu => lgen_lproj S M hπ δ β ν' hδ hzero u u' hu) s u hu
+
+end Lift
 
 end Furling
 

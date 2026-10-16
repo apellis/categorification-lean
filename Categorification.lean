@@ -496,6 +496,8 @@ import Categorification.KLR.Unfurling.CoverFurling
 import Categorification.KLR.Unfurling.CoverLabels
 import Categorification.KLR.Unfurling.GenericFields
 import Categorification.KLR.Unfurling.GenericBubbleValues
+import Categorification.KLR.Unfurling.GenericWeights
+import Categorification.KLR.Unfurling.CoverVacuum
 import Categorification.KLR.Unfurling.CoverNilpotent
 import Categorification.KLR.Unfurling.CoverVanishing
 import Categorification.KLR.Unfurling.CycFlip
@@ -682,6 +684,9 @@ import Categorification.TwoRep.FurlingIntertwine
 import Categorification.TwoRep.FurlingKLR
 import Categorification.TwoRep.FurlingFamily
 import Categorification.TwoRep.FurlingBlock
+import Categorification.TwoRep.FurlingMixed
+import Categorification.TwoRep.FurlingZero
+import Categorification.TwoRep.FurlingKM3
 import Categorification.TwoRep.FurledCorner
 import Categorification.TwoRep.RouqDottedCurls
 import Categorification.TwoRep.RouqDual

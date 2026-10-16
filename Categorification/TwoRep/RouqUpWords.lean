@@ -255,6 +255,8 @@ theorem cswap_wd (μ : X) : ∀ (j : ℕ) (l : List I),
 
 namespace RouqFamily
 
+open RouqData
+
 variable (S : RouqFamily (B := B) RD)
 
 /-- **The image of an upward free word is the 1-morphism of its weighted word.** -/

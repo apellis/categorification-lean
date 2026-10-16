@@ -120,7 +120,7 @@ variable {k : Type*} [CommRing k] {B : Type u} [Bicategory.{w, v} B]
 
 namespace RouqFamily
 
-open Diagram MatEnd
+open Diagram MatEnd RouqData
 
 variable {S : RouqFamily (B := B) RD} {Q : I → I → MvPolynomial (Fin 2) k} (H : RouqUpKLR S Q)
   (μ : X) {ν : Multiset I} (x' : X) (e : wtop RD μ ν = x')
@@ -174,7 +174,7 @@ theorem klrActAt_pol_mul_e (p : MvPolynomial (Fin m) k) (t : Seq ν) :
     rw [KLRAlgebra.ncEval_eq_pol id, MvPolynomial.rename_id_apply]
   rw [map_mul, klrAct_e, hp, AlgHom.map_ncEval]
   simp only [klrAct_dot]
-  exact (single_ncEval (S := S) (μ := μ) t id p).symm
+  exact (single_ncEval (S := S.toRouqData) (μ := μ) t id p).symm
 
 theorem klrActAt_cross (j : ℕ) :
     klrActAt H μ x' e (KLRAlgebra.ψ j : KLRAlgebra k Q ν) =

@@ -134,7 +134,7 @@ variable (h0 : blockWeight RD Λ 0 = μ) (v₀ : V ⟨0, h0⟩)
 /-- **The generator of a word applied to the vacuum**: `z_∅ ↦ e(β, c) ⊗ ⋯`, built one strand
 at a time. -/
 def vgen : ∀ (L : List (I × X)) (μ' : X) (h : wValid RD μ L μ') (δ : WeightBlocks RD Λ μ'),
-    δ.1 = ↑(L.map Prod.fst) → ((RouqFamily.wcell (S) μ L μ' h).obj.obj V δ : Type _)
+    δ.1 = ↑(L.map Prod.fst) → ((RouqData.wcell (S).toRouqData μ L μ' h).obj.obj V δ : Type _)
   | [], μ', h, δ, hδ => by
     subst h
     obtain ⟨δ, hw⟩ := δ
@@ -143,7 +143,7 @@ def vgen : ∀ (L : List (I × X)) (μ' : X) (h : wValid RD μ L μ') (δ : Weig
     exact v₀
   | (c, ν) :: L, μ', h, δ, hδ =>
     (blockι (blockSucc RD Λ c h.2) (indBlock Q a RD Λ c h.2)
-      ((RouqFamily.wcell (S) μ L ν h.1).obj.obj V) ⟨wblk h0 L ν h.1, blockSucc_wblk h0 c ν L h hδ⟩).hom
+      ((RouqData.wcell (S).toRouqData μ L ν h.1).obj.obj V) ⟨wblk h0 L ν h.1, blockSucc_wblk h0 c ν L h hδ⟩).hom
       (InductionAlong.Ind.tmul (InductionAlong.unitGen _) (vgen L ν h.1 (wblk h0 L ν h.1) rfl))
 
 variable (Ψ₀ : V ⟨0, h0⟩ →ₗ[CycKLR k Q a 0] CycKLR k Q a 0)
@@ -152,7 +152,7 @@ variable (Ψ₀ : V ⟨0, h0⟩ →ₗ[CycKLR k Q a 0] CycKLR k Q a 0)
 `z ⊗ n ↦ z · ι(Ψ n)`, built one strand at a time from `Ψ₀`. -/
 def vcoord : ∀ (L : List (I × X)) (μ' : X) (h : wValid RD μ L μ') (δ : WeightBlocks RD Λ μ'),
     δ.1 = ↑(L.map Prod.fst) →
-      (((RouqFamily.wcell (S) μ L μ' h).obj.obj V δ : Type _) →ₗ[CycKLR k Q a δ.1] CycKLR k Q a δ.1)
+      (((RouqData.wcell (S).toRouqData μ L μ' h).obj.obj V δ : Type _) →ₗ[CycKLR k Q a δ.1] CycKLR k Q a δ.1)
   | [], μ', h, δ, hδ => by
     subst h
     obtain ⟨δ, hw⟩ := δ
@@ -170,7 +170,7 @@ def vcoord : ∀ (L : List (I × X)) (μ' : X) (h : wValid RD μ L μ') (δ : We
         rw [map_smul, smul_eq_mul, map_mul, mul_assoc]; rfl)
       (fun b z n => mul_assoc _ _ _)).comp
       (biproduct.π (fun p : {β // blockSucc RD Λ c h.2 β = δ} =>
-        (indBlock Q a RD Λ c h.2 p.1 δ p.2).obj ((RouqFamily.wcell (S) μ L ν h.1).obj.obj V p.1))
+        (indBlock Q a RD Λ c h.2 p.1 δ p.2).obj ((RouqData.wcell (S).toRouqData μ L ν h.1).obj.obj V p.1))
         ⟨wblk h0 L ν h.1, blockSucc_wblk h0 c ν L h hδ⟩).hom
 
 /-! ### Induction, dots and crossings on generators -/
@@ -299,7 +299,7 @@ theorem vgen_cons (c : I) (ν : X) (L : List (I × X)) {μ' : X} (h : wValid RD 
     (β : WeightBlocks RD Λ ν) (p : blockSucc RD Λ c h.2 β = δ) (hβ : β.1 = ↑(L.map Prod.fst)) :
     vgen hQ hlead ha hΛ hdeg V h0 v₀ ((c, ν) :: L) μ' h δ hδ =
       (blockι (blockSucc RD Λ c h.2) (indBlock Q a RD Λ c h.2)
-        ((RouqFamily.wcell (S) μ L ν h.1).obj.obj V) ⟨β, p⟩).hom
+        ((RouqData.wcell (S).toRouqData μ L ν h.1).obj.obj V) ⟨β, p⟩).hom
         (InductionAlong.Ind.tmul (InductionAlong.unitGen _)
           (vgen hQ hlead ha hΛ hdeg V h0 v₀ L ν h.1 β hβ)) := by
   obtain rfl : β = wblk h0 L ν h.1 := Subtype.ext hβ
@@ -350,7 +350,7 @@ theorem e_smul_vgen : ∀ (L : List (I × X)) (μ' : X) (h : wValid RD μ L μ')
 the word with one more strand by the image of `r` under the last-strand inclusion. -/
 theorem vgen_whiskerRight (c : I) (ν : X) (L L' : List (I × X)) {μ' : X}
     (h : wValid RD μ ((c, ν) :: L) μ') (h' : wValid RD μ ((c, ν) :: L') μ')
-    (f : RouqFamily.wcell (S) μ L ν h.1 ⟶ RouqFamily.wcell (S) μ L' ν h'.1)
+    (f : RouqData.wcell (S).toRouqData μ L ν h.1 ⟶ RouqData.wcell (S).toRouqData μ L' ν h'.1)
     {δ : WeightBlocks RD Λ μ'} (hδ : δ.1 = ↑(((c, ν) :: L).map Prod.fst))
     (hδ' : δ.1 = ↑(((c, ν) :: L').map Prod.fst))
     (hβ' : (wblk h0 L ν h.1).1 = ↑(L'.map Prod.fst)) (r : CycKLR k Q a (wblk h0 L ν h.1).1)
@@ -362,7 +362,7 @@ theorem vgen_whiskerRight (c : I) (ν : X) (L L' : List (I × X)) {μ' : X}
   rw [vgen, vgen_cons hQ hlead ha hΛ hdeg c ν L' h' hδ' _ (blockSucc_wblk h0 c ν L h hδ) hβ']
   change ((blockSum (blockSucc RD Λ c h.2) (indBlock Q a RD Λ c h.2)).map (f.hom.app V) δ).hom
     ((blockι (blockSucc RD Λ c h.2) (indBlock Q a RD Λ c h.2)
-      ((RouqFamily.wcell (S) μ L ν h.1).obj.obj V) ⟨wblk h0 L ν h.1, _⟩).hom _) = _
+      ((RouqData.wcell (S).toRouqData μ L ν h.1).obj.obj V) ⟨wblk h0 L ν h.1, _⟩).hom _) = _
   refine (blockι_map_apply (blockSucc RD Λ c h.2)
     (R := fun δ : WeightBlocks RD Λ μ' => CycKLR k Q a δ.1) (indBlock Q a RD Λ c h.2)
     (f.hom.app V) _ _).trans ?_
@@ -372,7 +372,7 @@ theorem vgen_whiskerRight (c : I) (ν : X) (L L' : List (I × X)) {μ' : X}
 /-- **The dot on the last letter acts on the generator by the dot on the last strand.** -/
 theorem vgen_dot (c : I) (ν : X) (L : List (I × X)) {μ' : X} (h : wValid RD μ ((c, ν) :: L) μ')
     {δ : WeightBlocks RD Λ μ'} (hδ : δ.1 = ↑(((c, ν) :: L).map Prod.fst)) :
-    ((RouqFamily.wcell (S) μ L ν h.1 ◁ (S).dot c h.2).hom.app V δ).hom
+    ((RouqData.wcell (S).toRouqData μ L ν h.1 ◁ (S).dot c h.2).hom.app V δ).hom
         (vgen hQ hlead ha hΛ hdeg V h0 v₀ _ μ' h δ hδ) =
       dotElt Q a c (blockSucc_eq RD Λ c (blockSucc_wblk h0 c ν L h hδ)) •
         vgen hQ hlead ha hΛ hdeg V h0 v₀ _ μ' h δ hδ := by
@@ -395,7 +395,7 @@ two strands**, with the sign `-1` for equal letters (`signedCross`). -/
 theorem vgen_cross (c d : I) (ν₁ ν₂ : X) (L : List (I × X)) {μ' : X}
     (h : wValid RD μ ((c, ν₁) :: (d, ν₂) :: L) μ') {δ : WeightBlocks RD Λ μ'}
     (hδ : δ.1 = ↑(((c, ν₁) :: (d, ν₂) :: L).map Prod.fst)) :
-    ((RouqFamily.wcross (S) μ 0 _ μ' h).hom.app V δ).hom
+    ((RouqData.wcross (S).toRouqData μ 0 _ μ' h).hom.app V δ).hom
         (vgen hQ hlead ha hΛ hdeg V h0 v₀ _ μ' h δ hδ) =
       ((if c = d then -1 else 1 : k) • crossElt Q a (γ := (wblk h0 L ν₂ h.1.1).1) (δ := δ.1)) •
         vgen hQ hlead ha hΛ hdeg V h0 v₀ _ μ' (wValid_wswap 0 _ h) δ
@@ -414,7 +414,7 @@ theorem vgen_cross (c d : I) (ν₁ ν₂ : X) (L : List (I × X)) {μ' : X}
         (Ind.tmul (unitGen (lastEmb Q a d (blockSucc_eq RD Λ d hq)))
         (vgen hQ hlead ha hΛ hdeg V h0 v₀ L ν₂ h.1.1 (wblk h0 L ν₂ h.1.1) rfl))))
     (gen₂_globalCross Q a RD Λ c d h.1.2 h.2 rfl h4
-      ((RouqFamily.wcell (S) μ L ν₂ h.1.1).obj.obj V) (wblk h0 L ν₂ h.1.1) hq hp rfl hp')
+      ((RouqData.wcell (S).toRouqData μ L ν₂ h.1.1).obj.obj V) (wblk h0 L ν₂ h.1.1) hq hp rfl hp')
   erw [ModuleCat.hom_comp, LinearMap.comp_apply, ModuleCat.hom_comp, LinearMap.comp_apply] at key
   rw [vgen, vgen_cons hQ hlead ha hΛ hdeg d ν₂ L h.1 rfl (wblk h0 L ν₂ h.1.1) hq rfl]
   erw [← ind_map_tmul]
@@ -443,7 +443,7 @@ theorem lastEmb_one_smul_vgen (c : I) (ν : X) (L : List (I × X)) {μ' : X}
 theorem vgen_eqToHom {L L' : List (I × X)} (e : L = L') {μ' : X} (h : wValid RD μ L μ')
     (h' : wValid RD μ L' μ') {δ : WeightBlocks RD Λ μ'} (hδ : δ.1 = ↑(L.map Prod.fst))
     (hδ' : δ.1 = ↑(L'.map Prod.fst)) :
-    ((eqToHom (RouqFamily.wcell_congr (S) μ e h h')).hom.app V δ).hom
+    ((eqToHom (RouqData.wcell_congr (S).toRouqData μ e h h')).hom.app V δ).hom
         (vgen hQ hlead ha hΛ hdeg V h0 v₀ L μ' h δ hδ) =
       vgen hQ hlead ha hΛ hdeg V h0 v₀ L' μ' h' δ hδ' := by
   subst e
@@ -458,7 +458,7 @@ theorem length_lt_card {L : List (I × X)} {β : Multiset I} (hβ : β = ↑(L.m
 `|L| - 1 - a`.** -/
 theorem vgen_wdot : ∀ (b : ℕ) (L : List (I × X)) (μ' : X) (h : wValid RD μ L μ')
     (δ : WeightBlocks RD Λ μ') (hδ : δ.1 = ↑(L.map Prod.fst)) (hb : b < L.length),
-    ((RouqFamily.wdot (S) μ b L μ' h).hom.app V δ).hom
+    ((RouqData.wdot (S).toRouqData μ b L μ' h).hom.app V δ).hom
         (vgen hQ hlead ha hΛ hdeg V h0 v₀ L μ' h δ hδ) =
       CycKLR.mk k Q a δ.1 (x ⟨L.length - 1 - b, length_lt_card hδ (by omega)⟩) •
         vgen hQ hlead ha hΛ hdeg V h0 v₀ L μ' h δ hδ
@@ -482,7 +482,7 @@ theorem vgen_wdot : ∀ (b : ℕ) (L : List (I × X)) (μ' : X) (h : wValid RD �
 strands `|L| - 2 - j`, `|L| - 1 - j`**, with the sign `-1` for equal letters. -/
 theorem vgen_wcross : ∀ (j : ℕ) (L : List (I × X)) (μ' : X) (h : wValid RD μ L μ')
     (δ : WeightBlocks RD Λ μ') (hδ : δ.1 = ↑(L.map Prod.fst)), j + 1 < L.length →
-    ((RouqFamily.wcross (S) μ j L μ' h).hom.app V δ).hom
+    ((RouqData.wcross (S).toRouqData μ j L μ' h).hom.app V δ).hom
         (vgen hQ hlead ha hΛ hdeg V h0 v₀ L μ' h δ hδ) =
       (lsgn k j (L.map Prod.fst) • CycKLR.mk k Q a δ.1 (ψ (L.length - 2 - j))) •
         vgen hQ hlead ha hΛ hdeg V h0 v₀ (wswap RD j L) μ' (wValid_wswap j L h) δ
@@ -546,12 +546,12 @@ def familyObj : ((S).obj μ).carrier := V
 /-- **The generator of the word of `t` applied to the vacuum**, an element of the
 `R^Λ(ν)`-module `E_t 𝕍`. -/
 def wgen (t : Seq ν) :
-    ((RouqFamily.wordCell (S) μ t).obj.obj (familyObj hQ hlead ha hΛ hdeg V) (topBlk h0) : Type _) :=
+    ((RouqData.wordCell (S).toRouqData μ t).obj.obj (familyObj hQ hlead ha hΛ hdeg V) (topBlk h0) : Type _) :=
   vgen hQ hlead ha hΛ hdeg V h0 v₀ _ _ (wValid_wordL μ t) _ (topBlk_eq h0 t)
 
 /-- The coordinate of the word of `t` applied to the vacuum. -/
 def wcoord (t : Seq ν) :
-    ((RouqFamily.wordCell (S) μ t).obj.obj (familyObj hQ hlead ha hΛ hdeg V) (topBlk h0) : Type _) →ₗ[CycKLR k Q a (topBlk h0 (ν := ν)).1]
+    ((RouqData.wordCell (S).toRouqData μ t).obj.obj (familyObj hQ hlead ha hΛ hdeg V) (topBlk h0) : Type _) →ₗ[CycKLR k Q a (topBlk h0 (ν := ν)).1]
       CycKLR k Q a (topBlk h0 (ν := ν)).1 :=
   vcoord hQ hlead ha hΛ hdeg V h0 Ψ₀ _ _ (wValid_wordL μ t) _ (topBlk_eq h0 t)
 
@@ -575,7 +575,7 @@ theorem comp_app_apply {μ' : X} {F G H : (S).obj μ ⟶ (S).obj μ'}
 
 /-- The dot on the `b`-th strand of the word of `t` acts on the generator by `x_{rev b}`. -/
 theorem wordDot_wgen (t : Seq ν) (b : Fin (Multiset.card ν)) :
-    ((RouqFamily.wordDot (S) μ t b).hom.app (familyObj hQ hlead ha hΛ hdeg V) (topBlk h0)).hom
+    ((RouqData.wordDot (S).toRouqData μ t b).hom.app (familyObj hQ hlead ha hΛ hdeg V) (topBlk h0)).hom
         (wgen hQ hlead ha hΛ hdeg V h0 v₀ t) =
       CycKLR.mk k Q a (topBlk h0 (ν := ν)).1 (x b.rev) • wgen hQ hlead ha hΛ hdeg V h0 v₀ t := by
   have hl : (wordL RD μ t).length = Multiset.card ν := by simp
@@ -589,12 +589,12 @@ theorem wordDot_wgen (t : Seq ν) (b : Fin (Multiset.card ν)) :
 /-- The crossing of the strands `j`, `j + 1` of the word of `t` acts on the generator by
 `± ψ_{m - 2 - j}`. -/
 theorem wordCross_wgen (t : Seq ν) {j : ℕ} (hj : j + 1 < Multiset.card ν) :
-    ((RouqFamily.wordCross (S) μ t j).hom.app (familyObj hQ hlead ha hΛ hdeg V) (topBlk h0)).hom
+    ((RouqData.wordCross (S).toRouqData μ t j).hom.app (familyObj hQ hlead ha hΛ hdeg V) (topBlk h0)).hom
         (wgen hQ hlead ha hΛ hdeg V h0 v₀ t) =
       (lsgn k j (Diagram.word t) • CycKLR.mk k Q a (topBlk h0 (ν := ν)).1
         (ψ (Multiset.card ν - 2 - j))) • wgen hQ hlead ha hΛ hdeg V h0 v₀ (TypeA.sadj _ j • t) := by
   have hl : (wordL RD μ t).length = Multiset.card ν := by simp
-  rw [RouqFamily.wordCross_def _ _ _ hj, RouqFamily.wcrossTo]
+  rw [RouqData.wordCross_def _ _ _ hj, RouqData.wcrossTo]
   erw [comp_app_apply]
   erw [vgen_wcross hQ hlead ha hΛ hdeg V h0 v₀ j _ _ (wValid_wordL μ t) _ (topBlk_eq h0 t)
     (by omega), map_smul, vgen_eqToHom]
@@ -684,7 +684,7 @@ theorem klrAct_wgen (r : KLRAlgebra k Q ν) (t s : Seq ν) :
       · simp [e_mul_e, h1]
     refine Eq.trans ?_ (smul_wgen_congr hQ hlead ha hΛ hdeg V h0 v₀
       (congrArg (fun z => CycKLR.mk k Q a (topBlk h0 (ν := ν)).1 (hflip (sigma hQ z))) hc).symm s)
-    rw [RouqFamily.klrAct_e, RouqFamily.wordE_eq]
+    rw [RouqFamily.klrAct_e, RouqData.wordE_eq]
     by_cases h : t = u ∧ s = u
     · obtain ⟨rfl, rfl⟩ := h
       rw [Diagram.MatEnd.single_apply_self, ite_eq_left ⟨rfl, rfl⟩, sigma_e, hflip_e, e_smul_wgen]
@@ -701,7 +701,7 @@ theorem klrAct_wgen (r : KLRAlgebra k Q ν) (t s : Seq ν) :
       · subst h; simp [hflip_mul]
       · simp [h, Ne.symm h]
     refine Eq.trans ?_ (smul_wgen_congr hQ hlead ha hΛ hdeg V h0 v₀ hc.symm s)
-    rw [RouqFamily.klrAct_dot, entry_eq_mul_single (RouqFamily.wordX (S) μ b) t s, RouqFamily.wordX_mul_single, Category.id_comp]
+    rw [RouqFamily.klrAct_dot, entry_eq_mul_single (RouqData.wordX (S).toRouqData μ b) t s, RouqData.wordX_mul_single, Category.id_comp]
     by_cases h : t = s
     · subst h
       rw [Diagram.MatEnd.single_apply_self, ite_eq_left rfl, mul_smul, e_smul_wgen]
@@ -728,7 +728,7 @@ theorem klrAct_wgen (r : KLRAlgebra k Q ν) (t s : Seq ν) :
             rw [← h', sadj_smul_smul])
           rw [ite_eq_right h', ite_eq_right h, mul_zero, map_zero, hflip_zero, map_zero]
       refine Eq.trans ?_ (smul_wgen_congr hQ hlead ha hΛ hdeg V h0 v₀ hc.symm s)
-      rw [RouqFamily.klrAct_cross, entry_eq_mul_single (RouqFamily.wordΨ (S) μ j) t s, RouqFamily.wordΨ_mul_single,
+      rw [RouqFamily.klrAct_cross, entry_eq_mul_single (RouqData.wordΨ (S).toRouqData μ j) t s, RouqData.wordΨ_mul_single,
         Category.id_comp]
       by_cases h : s = TypeA.sadj (Multiset.card ν) j • t
       · subst h
@@ -736,7 +736,7 @@ theorem klrAct_wgen (r : KLRAlgebra k Q ν) (t s : Seq ν) :
         exact wordCross_wgen hQ hlead ha hΛ hdeg V h0 v₀ t hj
       · rw [Diagram.MatEnd.single_apply_of_ne _ (fun h' => h h'.2), ite_eq_right h, zero_smul]
         rfl
-    · rw [RouqFamily.klrAct_cross, RouqFamily.wordΨ_of_le (by exact not_lt.mp hj), map_mul,
+    · rw [RouqFamily.klrAct_cross, RouqData.wordΨ_of_le (by exact not_lt.mp hj), map_mul,
         map_mul, sigma_ψ_of_le hQ (by exact not_lt.mp hj), mul_zero, zero_mul, hflip_zero, map_zero, zero_smul]
       rfl
   | add r r' hr hr' =>
@@ -799,7 +799,7 @@ theorem mk_hflip_sigma_eq_zero_of_klrAct (hΨ₀ : Ψ₀ v₀ = 1) (r : KLRAlgeb
       CycKLR.mk k Q a (topBlk h0 (ν := ν)).1 (hflip (sigma hQ (e s * r * e t))) = 0 := by
     intro t s
     refine (wcoord_klrAct_wgen hQ hlead ha hΛ hdeg V h0 v₀ hΨ₀ r t s).symm.trans ?_
-    have key : ∀ f : RouqFamily.WordEnd (S) μ ν, f = 0 →
+    have key : ∀ f : RouqData.WordEnd (S).toRouqData μ ν, f = 0 →
         wcoord hQ hlead ha hΛ hdeg V h0 Ψ₀ s (((f t s).hom.app (familyObj hQ hlead ha hΛ hdeg V)
           (topBlk h0)).hom (wgen hQ hlead ha hΛ hdeg V h0 v₀ t)) = 0 := by
       rintro f rfl

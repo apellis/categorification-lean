@@ -40,7 +40,7 @@ open CategoryTheory CategoryTheory.Limits PowerSeries
 
 namespace Categorification.KLR.Unfurling
 
-variable {L : Type*} [Field L] {C : Type*} [Category C] [Preadditive C] [Linear L C]
+variable {L : Type*} [CommRing L] {C : Type*} [Category C] [Preadditive C] [Linear L C]
   {A : Type*} [Fintype A] {V W : C} {Wa : A → C}
   (π : ∀ a, W ⟶ Wa a) (ι : ∀ a, Wa a ⟶ W) (ν : ∀ a, V ⟶ Wa a) (y : ∀ a, End (Wa a))
   (z : A → L) (hp : A → ℕ) (c : ℕ → (V ⟶ W)) (d : W ⟶ V)

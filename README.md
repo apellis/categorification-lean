@@ -194,6 +194,8 @@ The scalar products over the constructed generic fields now have an algebraicall
 polynomial action for arbitrary colour sets and finitely many label slots per colour:
 `GenericFields.bubbleEval_indep` (Webster arXiv:1603.06311v3, proof of `nondegenerate`).
 The hypotheses require enough negative-alphabet slots of level one; other levels are arbitrary.
+`GenericFields.vacuumBubbleEval_indep` discharges the level hypotheses for the explicit
+strand/bubble/balancing weights, leaving only `N ≤ b` for the number of bubble slots.
 `bubbleEval_X_of_nonneg` and `bubbleEval_X_of_neg` express its generators in the two vacuum
 `lwSeq` formulas, with the orientation and dot shift explicit. Reindexing the categorical
 vacuum edge products by these slots, and identifying this scalar map with the vacuum action,

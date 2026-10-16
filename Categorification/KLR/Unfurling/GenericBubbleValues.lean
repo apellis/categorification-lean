@@ -3,7 +3,7 @@ Copyright (c) 2026 Alex Ellis. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 -/
 import Categorification.KLR.Unfurling.BubbleFibres
-import Categorification.KLR.Unfurling.GenericFields
+import Categorification.KLR.Unfurling.GenericWeights
 import Categorification.KLR.Unfurling.VacuumMixed
 
 /-!
@@ -23,6 +23,8 @@ of `ccw_app_vacuum` and `cw_app_vacuum`. `bubbleEval_indep` proves the independe
 by `UnfurledEval.bub_indep`, without assuming any independence of the constructed spectral
 values and without requiring a finite colour set. It needs only enough negative-alphabet
 slots of level one; the remaining multiplicities are arbitrary natural numbers.
+`vacuumBubbleEval_indep` specializes this to the constructed `negLevel`/`posLevel`,
+leaving only the numerical requirement that the number of bubble slots is at least `N`.
 
 Identification with the categorical vacuum action still requires the structural hypotheses
 of the vacuum bubble theorems and reindexing their edge products by these slots. This file
@@ -133,5 +135,28 @@ theorem bubbleEval_X_of_neg (h : I → ℤ) (nm np : I → Q → ℕ)
   rw [hm, lwSeq_degree_index]
   simp only [bubbleEval, fibreBubEval, MvPolynomial.aeval_X, fibreMultVal]
   rw [bubbleSeries_of_neg k h nm np i hi]
+
+omit [Fintype Q] in
+/-- The scalar bubble map for the concrete strand, bubble and balancing levels. -/
+def vacuumBubbleEval (s b M : ℕ) (h : I → ℤ) :
+    KL3.Diagram.PiLam I k →ₐ[k] L k (I × Slots s b) (I × Slots s b) :=
+  bubbleEval k h (negLevel s b M h) (posLevel s b M h)
+
+omit [Fintype Q] in
+/-- The explicit generic weights supply the independence required by `UnfurledEval.bub_indep`.
+There is no characteristic restriction on the strand level `M` and no finiteness hypothesis
+on the colour set. -/
+theorem vacuumBubbleEval_indep (s b M : ℕ) (h : I → ℤ) {N : ℕ} (hN : N ≤ b) :
+    AlgebraicIndependent k fun p : {p : I × ℕ // p.2 < N} =>
+      vacuumBubbleEval k s b M h (MvPolynomial.X p.1) := by
+  classical
+  let e : Fin b ↪ Slots s b := ⟨fun q => Sum.inr (Sum.inl q),
+    fun _ _ h => Sum.inl_injective (Sum.inr_injective h)⟩
+  refine bubbleEval_indep k h (negLevel s b M h) (posLevel s b M h)
+    (Finset.univ.map e) ?_ ?_
+  · intro i q hq
+    obtain ⟨a, _, rfl⟩ := Finset.mem_map.1 hq
+    rfl
+  · simpa using hN
 
 end Categorification.KLR.Unfurling.GenericFields

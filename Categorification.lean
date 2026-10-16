@@ -506,6 +506,9 @@ import Categorification.KLR.Unfurling.Triangular
 import Categorification.KLR.Unfurling.Truncation
 import Categorification.KLR.Unfurling.VacuumBubbles
 import Categorification.KLR.Unfurling.VacuumFurling
+import Categorification.KLR.Unfurling.VacuumFurlingLabels
+import Categorification.KLR.Unfurling.VacuumFurlingLabelsDual
+import Categorification.KLR.Unfurling.VacuumFurlingNilpotent
 import Categorification.KLR.Unfurling.VacuumJets
 import Categorification.KLR.Unfurling.VacuumLabels
 import Categorification.KLR.Unfurling.VacuumLabelLoc
@@ -513,6 +516,7 @@ import Categorification.KLR.Unfurling.VacuumLabelLocDual
 import Categorification.KLR.Unfurling.VacuumMixed
 import Categorification.KLR.Unfurling.VacuumMixedDual
 import Categorification.KLR.Unfurling.VacuumPartialFractions
+import Categorification.KLR.Unfurling.VacuumRouqBubbles
 import Categorification.QuantumGroup.Bar
 import Categorification.QuantumGroup.Cartan
 import Categorification.QuantumGroup.Coproduct

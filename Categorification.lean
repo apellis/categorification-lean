@@ -487,6 +487,8 @@ import Categorification.KLR.Unfurling.Completion
 import Categorification.KLR.Unfurling.Cover
 import Categorification.KLR.Unfurling.CoverDatum
 import Categorification.KLR.Unfurling.CoverFamily
+import Categorification.KLR.Unfurling.CoverFurling
+import Categorification.KLR.Unfurling.CoverLabels
 import Categorification.KLR.Unfurling.CoverNilpotent
 import Categorification.KLR.Unfurling.CoverVanishing
 import Categorification.KLR.Unfurling.CycFlip
@@ -502,6 +504,8 @@ import Categorification.KLR.Unfurling.Substitution
 import Categorification.KLR.Unfurling.Target
 import Categorification.KLR.Unfurling.Triangular
 import Categorification.KLR.Unfurling.Truncation
+import Categorification.KLR.Unfurling.VacuumBubbles
+import Categorification.KLR.Unfurling.VacuumJets
 import Categorification.QuantumGroup.Bar
 import Categorification.QuantumGroup.Cartan
 import Categorification.QuantumGroup.Coproduct

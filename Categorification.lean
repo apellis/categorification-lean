@@ -429,6 +429,7 @@ import Categorification.KLR.KL1
 import Categorification.KLR.KL1Basis
 import Categorification.KLR.KL2.Bialgebra2
 import Categorification.KLR.KL2.Datum
+import Categorification.KLR.KL2.ScalarExtension
 import Categorification.KLR.KL2.Gamma2
 import Categorification.KLR.KL2.K0Free2
 import Categorification.KLR.KL2.K0Relations
@@ -662,6 +663,7 @@ import Categorification.TwoRep.RouqSoundness
 import Categorification.TwoRep.RouqDescent
 import Categorification.TwoRep.RouqFullCL
 import Categorification.TwoRep.RouqUpWords
+import Categorification.TwoRep.RouqUpScalars
 import Categorification.TwoRep.RouqCyclicDot
 import Categorification.TwoRep.RouqCurl
 import Categorification.TwoRep.CoproductCRT
@@ -677,6 +679,7 @@ import Categorification.TwoRep.FurlingWords
 import Categorification.TwoRep.FurlingIntertwine
 import Categorification.TwoRep.FurlingKLR
 import Categorification.TwoRep.FurlingFamily
+import Categorification.TwoRep.FurlingKL
 import Categorification.TwoRep.FurlingBlock
 import Categorification.TwoRep.FurledCorner
 import Categorification.TwoRep.RouqDottedCurls

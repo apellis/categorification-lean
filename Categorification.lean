@@ -674,6 +674,7 @@ import Categorification.TwoRep.FurlingSigma
 import Categorification.TwoRep.FurlingWords
 import Categorification.TwoRep.FurlingIntertwine
 import Categorification.TwoRep.FurlingKLR
+import Categorification.TwoRep.FurlingFamily
 import Categorification.TwoRep.FurledCorner
 import Categorification.TwoRep.RouqDottedCurls
 import Categorification.TwoRep.RouqDual

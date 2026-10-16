@@ -494,6 +494,8 @@ import Categorification.KLR.Unfurling.CoverFamily
 import Categorification.KLR.Unfurling.CoverFurling
 import Categorification.KLR.Unfurling.CoverLabels
 import Categorification.KLR.Unfurling.GenericFields
+import Categorification.KLR.Unfurling.GenericWeights
+import Categorification.KLR.Unfurling.CoverVacuum
 import Categorification.KLR.Unfurling.CoverNilpotent
 import Categorification.KLR.Unfurling.CoverVanishing
 import Categorification.KLR.Unfurling.CycFlip

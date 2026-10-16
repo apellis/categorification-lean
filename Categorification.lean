@@ -494,6 +494,7 @@ import Categorification.KLR.Unfurling.Cover
 import Categorification.KLR.Unfurling.CoverDatum
 import Categorification.KLR.Unfurling.CoverFamily
 import Categorification.KLR.Unfurling.CoverFurling
+import Categorification.KLR.Unfurling.CoverRouqFamily
 import Categorification.KLR.Unfurling.CoverLabels
 import Categorification.KLR.Unfurling.GenericFields
 import Categorification.KLR.Unfurling.GenericBubbleValues

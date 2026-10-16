@@ -696,6 +696,7 @@ import Categorification.TwoRep.FurlingMixedZero
 import Categorification.TwoRep.FurlingMixedEntries
 import Categorification.TwoRep.FurlingMixedBlocks
 import Categorification.TwoRep.FurlingMixedAssembly
+import Categorification.KLR.Unfurling.CoverMixedInversion
 import Categorification.TwoRep.FurlingMixed
 import Categorification.TwoRep.FurlingZero
 import Categorification.TwoRep.FurlingKM3

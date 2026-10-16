@@ -113,26 +113,6 @@ down relations; for pairwise commuting arguments it agrees with `MvPolynomial.ae
 noncomputable def ncEval {n : ℕ} (x : Fin n → A) (p : MvPolynomial (Fin n) k) : A :=
   p.coeff.sum fun s c => algebraMap k A c * (List.ofFn fun a => x a ^ s a).prod
 
-open scoped IsMulCommutative in
-/-- Evaluation of polynomials at pairwise commuting elements is an algebra homomorphism. -/
-theorem exists_algHom_ncEval {n : ℕ} (y : Fin n → A) (hc : ∀ a b, Commute (y a) (y b)) :
-    ∃ φ : MvPolynomial (Fin n) k →ₐ[k] A, (∀ a, φ (X a) = y a) ∧ ∀ p, ncEval y p = φ p := by
-  set R := Algebra.adjoin k (Set.range y)
-  have := Algebra.isMulCommutative_adjoin k (s := Set.range y)
-    (by rintro _ ⟨a, rfl⟩ _ ⟨b, rfl⟩ _; exact hc a b)
-  let y' : Fin n → R := fun a => ⟨y a, Algebra.subset_adjoin ⟨a, rfl⟩⟩
-  refine ⟨R.val.comp (aeval y'), fun a => by simp [y'], fun p => ?_⟩
-  have hval : ncEval y p = R.val (ncEval y' p) := by
-    simp only [ncEval, Finsupp.sum, map_sum, map_mul, AlgHom.commutes, map_list_prod,
-      List.map_ofFn, Function.comp_def, map_pow]
-    rfl
-  have haeval : ncEval y' p = aeval y' p := by
-    simp only [ncEval, aeval_def, eval₂]
-    refine Finsupp.sum_congr fun s _ => ?_
-    rw [List.prod_ofFn, Finsupp.prod_fintype _ _ (fun _ => pow_zero _)]
-  rw [hval, haeval]
-  rfl
-
 end ncEval
 
 /-! ### The divided difference `Q̄` -/

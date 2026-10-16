@@ -25,8 +25,10 @@ are no arrows between the two parts.
 * `coverDatum_noCrossArrows`: no arrows between the two parts;
 * `coverDatum_finsum_arrows`: the branched-cover identity in the form used by
   `coverFurling_pair`, `∑_{a over i} (n_{ac} + n_{ca}) = -⟨i, α_{π c}⟩` for `i ≠ π c`;
-* `coverWeightNeg`, `coverWeightPos`, `coverDatum_finsum_base`: the base weights, one label over
-  each vertex in each part, with the base identity of `coverFurling_pair`.
+* `coverWeightNeg`, `coverWeightPos`, `coverDatum_finsum_base`: the base weights, finitely many
+  weighted labels `(i, zm i q)`, `(i, zp i q)` over each vertex in each part (as in the proof of
+  the theorem with label `nondegenerate`, where they are pairwise distinct generic scalars), with
+  the base identity of `coverFurling_pair`.
 -/
 
 open MvPolynomial
@@ -169,62 +171,122 @@ theorem coverDatum_finsum_arrows [IsAlgClosed L] (C : QuantumGroup.CartanDatum I
 
 /-! ## Base weights -/
 
-variable (zm : I → {u : L // u ≠ 0 ∧ u ∈ Set.range (algebraMap K L)})
-  (zp : I → {u : L // u ≠ 0 ∧ u ∉ Set.range (algebraMap K L)}) (nm np : I → ℕ)
+section Base
+
+/-- The base value of a sum of weights is the sum of the base values. -/
+theorem coverBaseVal_sum {Q : Type*} (s : Finset Q) (Λm : Q → LabelNeg I K L → ℕ)
+    (Λp : Q → LabelPos I K L → ℕ) (a : LabelNeg I K L ⊕ LabelPos I K L) :
+    coverBaseVal (fun c => ∑ q ∈ s, Λm q c) (fun c => ∑ q ∈ s, Λp q c) a =
+      ∑ q ∈ s, coverBaseVal (Λm q) (Λp q) a := by
+  rcases a with a | a <;> simp [coverBaseVal]
+
+variable (zm₁ : I → {u : L // u ≠ 0 ∧ u ∈ Set.range (algebraMap K L)})
+  (zp₁ : I → {u : L // u ≠ 0 ∧ u ∉ Set.range (algebraMap K L)}) (nm₁ np₁ : I → ℕ)
 
 open Classical in
-/-- The weights `Λ₋` on `Ĩ₋`: `n₋(i)` at the label `(i, zm i)`, zero elsewhere. -/
-def coverWeightNeg (a : LabelNeg I K L) : ℕ := if a.2 = zm a.1 then nm a.1 else 0
+/-- For one weighted label over each vertex in each part, the labels over `i` with a nonzero
+base value are among `(i, zm₁ i)` and `(i, zp₁ i)`. -/
+private theorem support_base_single_subset (i : I) :
+    Function.support (fun a : {a // (coverDatum P₀ d hdpos hd hP hhom).π a = i} =>
+        coverBaseVal (fun a : LabelNeg I K L => if a.2 = zm₁ a.1 then nm₁ a.1 else 0)
+          (fun a : LabelPos I K L => if a.2 = zp₁ a.1 then np₁ a.1 else 0) a.1) ⊆
+      ↑({⟨.inl ⟨i, zm₁ i⟩, rfl⟩, ⟨.inr ⟨i, zp₁ i⟩, rfl⟩} :
+        Finset {a // (coverDatum P₀ d hdpos hd hP hhom).π a = i}) := by
+  rintro ⟨⟨i', u⟩ | ⟨i', u⟩, h⟩ hs <;> change i' = i at h <;> subst h <;>
+    simp only [Function.mem_support, coverBaseVal, ne_eq, neg_eq_zero, Nat.cast_eq_zero,
+      ite_eq_right_iff, not_forall] at hs <;>
+    obtain ⟨rfl, -⟩ := hs <;>
+    first
+    | exact Finset.mem_coe.2 (Finset.mem_insert_self _ _)
+    | exact Finset.mem_coe.2 (Finset.mem_insert_of_mem (Finset.mem_singleton_self _))
 
 open Classical in
-/-- The weights `Λ₊` on `Ĩ₊`: `n₊(i)` at the label `(i, zp i)`, zero elsewhere. -/
-def coverWeightPos (a : LabelPos I K L) : ℕ := if a.2 = zp a.1 then np a.1 else 0
+/-- The base identity for one weighted label over each vertex in each part:
+`∑_{a over i} x̃₀(a) = n₊(i) - n₋(i)` for the weights `n₋(i)` at `(i, zm₁ i)` and `n₊(i)` at
+`(i, zp₁ i)`. -/
+private theorem finsum_base_single (i : I) :
+    ∑ᶠ a : {a // (coverDatum P₀ d hdpos hd hP hhom).π a = i},
+        coverBaseVal (fun a : LabelNeg I K L => if a.2 = zm₁ a.1 then nm₁ a.1 else 0)
+          (fun a : LabelPos I K L => if a.2 = zp₁ a.1 then np₁ a.1 else 0) a.1 =
+      (np₁ i : ℤ) - nm₁ i := by
+  have hne : (⟨.inl ⟨i, zm₁ i⟩, rfl⟩ : {a // (coverDatum P₀ d hdpos hd hP hhom).π a = i}) ≠
+      ⟨.inr ⟨i, zp₁ i⟩, rfl⟩ := fun h => Sum.inl_ne_inr (congrArg Subtype.val h)
+  rw [finsum_eq_sum_of_support_subset _ (support_base_single_subset P₀ d hdpos hd hP hhom zm₁ zp₁
+    nm₁ np₁ i), Finset.sum_pair hne]
+  simp [coverBaseVal]
+  ring
+
+end Base
+
+variable {Q : Type*} [Fintype Q]
+  (zm : I → Q → {u : L // u ≠ 0 ∧ u ∈ Set.range (algebraMap K L)})
+  (zp : I → Q → {u : L // u ≠ 0 ∧ u ∉ Set.range (algebraMap K L)}) (nm np : I → Q → ℕ)
+
+open Classical in
+/-- The weights `Λ₋` on `Ĩ₋`: `n₋(i, q)` at the label `(i, zm i q)` for each `q`, zero at the
+labels not of this form (the values add up if `zm i` takes a label twice). In the proof of the
+theorem with label `nondegenerate` (Webster, arXiv:1603.06311v3), `q` runs over `[1, m]` and the
+labels `zm i q` are pairwise distinct generic scalars. -/
+def coverWeightNeg (a : LabelNeg I K L) : ℕ := ∑ q, if a.2 = zm a.1 q then nm a.1 q else 0
+
+open Classical in
+/-- The weights `Λ₊` on `Ĩ₊`: `n₊(i, q)` at the label `(i, zp i q)` for each `q`, zero at the
+labels not of this form. -/
+def coverWeightPos (a : LabelPos I K L) : ℕ := ∑ q, if a.2 = zp a.1 q then np a.1 q else 0
+
+/-- At a label `(i, zm i q)` with `zm i` injective, the weight is `n₋(i, q)`. -/
+theorem coverWeightNeg_mk {i : I} (hzm : Function.Injective (zm i)) (q : Q) :
+    coverWeightNeg zm nm ⟨i, zm i q⟩ = nm i q := by
+  classical
+  simp [coverWeightNeg, hzm.eq_iff]
+
+/-- At a label `(i, zp i q)` with `zp i` injective, the weight is `n₊(i, q)`. -/
+theorem coverWeightPos_mk {i : I} (hzp : Function.Injective (zp i)) (q : Q) :
+    coverWeightPos zp np ⟨i, zp i q⟩ = np i q := by
+  classical
+  simp [coverWeightPos, hzp.eq_iff]
 
 theorem coverWeightNeg_finite (hnm : (Function.support nm).Finite) :
     (Function.support (coverWeightNeg zm nm)).Finite :=
-  (hnm.image fun i => (⟨i, zm i⟩ : LabelNeg I K L)).subset fun a ha => by
-    classical
-    obtain ⟨i, u⟩ := a
-    by_cases h : u = zm i
-    · subst h
-      have ha' : coverWeightNeg zm nm ⟨i, zm i⟩ ≠ 0 := ha
-      refine ⟨i, ?_, rfl⟩
-      intro h0
-      exact ha' (by simp [coverWeightNeg, h0])
-    · exact absurd (by simp [coverWeightNeg, h]) ha
+  (hnm.biUnion fun i _ => Set.finite_range fun q => (⟨i, zm i q⟩ : LabelNeg I K L)).subset
+    fun a ha => by
+      classical
+      obtain ⟨i, u⟩ := a
+      obtain ⟨q, -, hq⟩ := Finset.exists_ne_zero_of_sum_ne_zero ha
+      obtain ⟨hu, hq⟩ := (ite_ne_right_iff).1 hq
+      exact Set.mem_biUnion (x := i) (fun h0 => hq (congrFun h0 q))
+        ⟨q, congrArg (Sigma.mk i) hu.symm⟩
 
 theorem coverWeightPos_finite (hnp : (Function.support np).Finite) :
     (Function.support (coverWeightPos zp np)).Finite :=
-  (hnp.image fun i => (⟨i, zp i⟩ : LabelPos I K L)).subset fun a ha => by
-    classical
-    obtain ⟨i, u⟩ := a
-    by_cases h : u = zp i
-    · subst h
-      have ha' : coverWeightPos zp np ⟨i, zp i⟩ ≠ 0 := ha
-      refine ⟨i, ?_, rfl⟩
-      intro h0
-      exact ha' (by simp [coverWeightPos, h0])
-    · exact absurd (by simp [coverWeightPos, h]) ha
+  (hnp.biUnion fun i _ => Set.finite_range fun q => (⟨i, zp i q⟩ : LabelPos I K L)).subset
+    fun a ha => by
+      classical
+      obtain ⟨i, u⟩ := a
+      obtain ⟨q, -, hq⟩ := Finset.exists_ne_zero_of_sum_ne_zero ha
+      obtain ⟨hu, hq⟩ := (ite_ne_right_iff).1 hq
+      exact Set.mem_biUnion (x := i) (fun h0 => hq (congrFun h0 q))
+        ⟨q, congrArg (Sigma.mk i) hu.symm⟩
 
-/-- **The base identity** of `coverFurling_pair`: with one weighted label over each vertex in
-each part, `∑_{a over i} x̃₀(a) = n₊(i) - n₋(i)`. -/
+/-- **The base identity** of `coverFurling_pair`: with the weights `n₋(i, q)` at the labels
+`(i, zm i q)` and `n₊(i, q)` at `(i, zp i q)`,
+`∑_{a over i} x̃₀(a) = ∑_q (n₊(i, q) - n₋(i, q))`. -/
 theorem coverDatum_finsum_base (i : I) :
     ∑ᶠ a : {a // (coverDatum P₀ d hdpos hd hP hhom).π a = i},
         coverBaseVal (coverWeightNeg zm nm) (coverWeightPos zp np) a.1 =
-      (np i : ℤ) - nm i := by
+      ∑ q, ((np i q : ℤ) - nm i q) := by
   classical
-  let am : {a // (coverDatum P₀ d hdpos hd hP hhom).π a = i} := ⟨.inl ⟨i, zm i⟩, rfl⟩
-  let ap : {a // (coverDatum P₀ d hdpos hd hP hhom).π a = i} := ⟨.inr ⟨i, zp i⟩, rfl⟩
-  have hne : am ≠ ap := fun h => Sum.inl_ne_inr (congrArg Subtype.val h)
-  rw [finsum_eq_sum_of_support_subset (s := {am, ap}) _ ?_, Finset.sum_pair hne]
-  · simp [am, ap, coverBaseVal, coverWeightNeg, coverWeightPos]
-    ring
-  · rintro ⟨⟨i', u⟩ | ⟨i', u⟩, h⟩ hs <;> change i' = i at h <;> subst h <;>
-      simp only [Function.mem_support, coverBaseVal, coverWeightNeg, coverWeightPos, ne_eq,
-        neg_eq_zero, Nat.cast_eq_zero, ite_eq_right_iff, not_forall] at hs <;>
-      obtain ⟨rfl, -⟩ := hs <;>
-      first
-      | exact Finset.mem_coe.2 (Finset.mem_insert_self _ _)
-      | exact Finset.mem_coe.2 (Finset.mem_insert_of_mem (Finset.mem_singleton_self _))
+  have hsum : ∀ a : {a // (coverDatum P₀ d hdpos hd hP hhom).π a = i},
+      coverBaseVal (coverWeightNeg zm nm) (coverWeightPos zp np) a.1 =
+        ∑ q, coverBaseVal (fun a : LabelNeg I K L => if a.2 = zm a.1 q then nm a.1 q else 0)
+          (fun a : LabelPos I K L => if a.2 = zp a.1 q then np a.1 q else 0) a.1 := fun a =>
+    coverBaseVal_sum Finset.univ (fun q (a : LabelNeg I K L) => if a.2 = zm a.1 q then nm a.1 q
+      else 0) (fun q (a : LabelPos I K L) => if a.2 = zp a.1 q then np a.1 q else 0) a.1
+  rw [finsum_congr hsum, finsum_sum_comm]
+  · exact Finset.sum_congr rfl fun q _ =>
+      finsum_base_single P₀ d hdpos hd hP hhom (zm · q) (zp · q) (nm · q) (np · q) i
+  · intro q _
+    exact (Finset.finite_toSet _).subset
+      (support_base_single_subset P₀ d hdpos hd hP hhom (zm · q) (zp · q) (nm · q) (np · q) i)
 
 end Categorification.KLR.Unfurling

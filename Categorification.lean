@@ -386,6 +386,7 @@ import Categorification.KLR.CyclotomicAction.Vacuum
 import Categorification.KLR.CyclotomicAction.VacuumProduct
 import Categorification.KLR.ReindexSymmetries
 import Categorification.KLR.Unfurling.VacuumCorner
+import Categorification.KLR.Unfurling.VacuumEvaluation
 import Categorification.KLR.CyclotomicAbsentEquivalence
 import Categorification.KLR.CyclotomicAbsentModule
 import Categorification.KLR.CyclotomicPresentModule
@@ -703,6 +704,7 @@ import Categorification.TwoRep.FurlingMixed
 import Categorification.TwoRep.FurlingZero
 import Categorification.TwoRep.FurlingKM3
 import Categorification.TwoRep.FurledCorner
+import Categorification.TwoRep.FurledEvaluation
 import Categorification.TwoRep.RouqDottedCurls
 import Categorification.TwoRep.RouqDual
 import Categorification.TwoRep.SumInvBiprod

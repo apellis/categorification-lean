@@ -500,6 +500,8 @@ import Categorification.KLR.Unfurling.GenericBubbleValues
 import Categorification.KLR.Unfurling.GenericWeights
 import Categorification.KLR.Unfurling.CoverVacuum
 import Categorification.KLR.Unfurling.FurlingVacuum
+import Categorification.KLR.Unfurling.CoverFurlingFibres
+import Categorification.KLR.Unfurling.GenericVacuum
 import Categorification.TwoRep.PiBiproduct
 import Categorification.KLR.Unfurling.CoverNilpotent
 import Categorification.KLR.Unfurling.CoverVanishing

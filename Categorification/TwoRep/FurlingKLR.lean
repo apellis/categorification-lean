@@ -154,6 +154,20 @@ theorem sum_plc_comp_rect {τ : Type*} [Fintype τ] [DecidableEq τ] {Z : τ →
   · intro u _ hu; rw [plc_of_ne _ (Ne.symm hu), Limits.zero_comp]
   · simp
 
+theorem single_self_mul_apply [Fintype ι] (i : ι) (c : Y i ⟶ Y i) (g : MatEnd Y) (s t : ι) :
+    (single i i c * g) s t = plc i (g s i ≫ c) t := by
+  rw [mul_apply, Finset.sum_eq_single i]
+  · rw [single_apply_plc, dite_eq_left rfl, eqToHom_refl, Category.id_comp, comp_plc]
+  · intro u _ hu; rw [single_apply_plc, dite_eq_right hu, Limits.comp_zero]
+  · simp
+
+theorem sum_plc_comp_plc [Fintype ι] {W : C} (c : ι) (f : W ⟶ Y c) (g : ∀ u, Y u ⟶ Y u)
+    (t : ι) : ∑ u, plc u (plc c f u ≫ g u) t = plc c (f ≫ g c) t := by
+  rw [Finset.sum_eq_single c]
+  · rw [plc_self]
+  · intro u _ hu; rw [plc_of_ne _ (Ne.symm hu), Limits.zero_comp, plc_zero]
+  · simp
+
 end Plc
 
 section MapAlg
@@ -228,6 +242,96 @@ instance {x : Xc} {β' : J →₀ ℤ} (N : (S.obj x : Type u₂)) : (evalSrc Φ
 instance {x : Xc} {β' : J →₀ ℤ} (N : (S.obj x : Type u₂)) :
     (evalSrc Φ S (β' := β') N).Linear k where
   map_smul _ _ := rfl
+
+/-! ## The crossings of `g̃` under the unfurling homomorphism -/
+
+section CrossImage
+
+open RouqFamily
+
+variable (H : RouqUpKLR S (Unfurling.unfQ (k := k) D.arrows))
+  (hnil : ∀ (c : J) {x y : Xc} (h : x + RDc.iX c = y), IsNilpotent (End.of (S.dot c h)))
+  (μ : Xc) {ν' : Multiset J} (x' : Xc) (e : wtop RDc μ ν' = x')
+  {ν : Multiset I} (hν : ν'.map D.π = ν) {j : ℕ} (h : j + 1 < Multiset.card ν)
+
+/-- The dots on the strands `j`, `j + 1` of the word of `u`. -/
+def dotPair (u : Seq ν') : Fin 2 → End (S.wordCellAt μ x' e u) :=
+  ![S.wordDotAt μ x' e u (Unfurling.posL D hν h), S.wordDotAt μ x' e u (Unfurling.posR D hν h)]
+
+/-- The coefficient of the crossing in `γ(ψ_j)` on the output summand `u`. -/
+def swapCoef (u : Seq ν') : End (S.wordCellAt μ x' e u) :=
+  Unfurling.swapW D (D.π (u.lbl (Unfurling.posL D hν h)) = D.π (u.lbl (Unfurling.posR D hν h)))
+    (u.lbl (Unfurling.posL D hν h)) (u.lbl (Unfurling.posR D hν h)) (dotPair S D μ x' e hν h u)
+
+open Classical in
+/-- The coefficient of the idempotent in `γ(ψ_j)` on the output summand `u`: nonzero only for
+distinct labels of the same colour. -/
+def selfCoef (u : Seq ν') : End (S.wordCellAt μ x' e u) :=
+  if D.π (u.lbl (Unfurling.posL D hν h)) = D.π (u.lbl (Unfurling.posR D hν h)) ∧
+      u.lbl (Unfurling.posL D hν h) ≠ u.lbl (Unfurling.posR D hν h) then
+    Unfurling.selfW D (u.lbl (Unfurling.posL D hν h)) (u.lbl (Unfurling.posR D hν h))
+      (dotPair S D μ x' e hν h u)
+  else 0
+
+omit [∀ x, HasFiniteBiproducts (S.obj x : Type u₂)] [DecidableEq I] [DecidableEq J] in
+theorem commute_wordDotAt (u : Seq ν') (a b : Fin (Multiset.card ν')) :
+    Commute (S.wordDotAt μ x' e u a) (S.wordDotAt μ x' e u b) := by
+  exact RouqData.wdot_comm _ _ _ _ _ _ _
+
+omit [∀ x, HasFiniteBiproducts (S.obj x : Type u₂)] [DecidableEq I] [DecidableEq J] in
+theorem ncEval_rename_posLR (u : Seq ν') (p : MvPolynomial (Fin 2) k) :
+    ncEval (fun a => S.wordDotAt μ x' e u a)
+        (MvPolynomial.rename ![Unfurling.posL D hν h, Unfurling.posR D hν h] p) =
+      ncEval (dotPair S D μ x' e hν h u) p := by
+  rw [ncEval_rename_of_commute _ (commute_wordDotAt S μ x' e u)]
+  congr 1
+  funext a; fin_cases a <;> rfl
+
+omit [DecidableEq I] [DecidableEq J] in
+theorem rename_pwAt_sub (a b : J) :
+    MvPolynomial.rename ![Unfurling.posL D hν h, Unfurling.posR D hν h]
+        (Unfurling.pwAt D.pw a 0 - Unfurling.pwAt D.pw b 1 : MvPolynomial (Fin 2) k) =
+      Unfurling.pwAt D.pw a (Unfurling.posL D hν h) - Unfurling.pwAt D.pw b (Unfurling.posR D hν h) := by
+  simp only [Unfurling.pwAt, map_sub, ← Polynomial.aeval_algHom_apply, MvPolynomial.rename_X]
+  rfl
+
+omit [∀ x, HasFiniteBiproducts (S.obj x : Type u₂)] in
+include H hnil in
+/-- The image of `γ(ψ_j)` on the output summand `u` (`Unfurling.crossImage`): the crossing
+followed by `swapCoef`, plus `selfCoef` on `u`. -/
+theorem klrComplAt_crossImage (u : Seq ν') :
+    klrComplAt H μ x' e hnil (Unfurling.unfGrading (k := k) D.arrows)
+        (Unfurling.crossImage D hν h u) =
+      MatEnd.single u u (swapCoef S D μ x' e hν h u) * klrActAt H μ x' e (KLRAlgebra.ψ j) +
+        MatEnd.single u u (selfCoef S D μ x' e hν h u) := by
+  have hX := Unfurling.unf_degX_pos (k := k) D
+  unfold Unfurling.crossImage swapCoef selfCoef Unfurling.swapW
+  by_cases hc : D.π (u.lbl (Unfurling.posL D hν h)) = D.π (u.lbl (Unfurling.posR D hν h))
+  · by_cases hab : u.lbl (Unfurling.posL D hν h) = u.lbl (Unfurling.posR D hν h)
+    · simp only [hab, dite_true, ite_true, ne_eq, not_true_eq_false, and_false, ite_false,
+        MatEnd.single_zero, add_zero]
+      rw [map_mul, klrComplAt_toCompletion,
+        (klrComplAt_seriesAt_invOfUnit H μ x' e hnil hX u _ _ ?_).2, ncEval_rename_posLR]
+      rw [Units.val_mk0, ← MvPowerSeries.coeff_zero_eq_constantCoeff_apply,
+        MvPolynomial.coeff_coe, ← MvPolynomial.constantCoeff_eq,
+        MvPolynomial.constantCoeff_rename]
+    · simp only [hc, dite_true, ite_true, hab, dite_false, ite_false, ne_eq, not_false_eq_true,
+        and_self, Unfurling.selfW]
+      have hr := rename_pwAt_sub (k := k) D hν h (u.lbl (Unfurling.posL D hν h))
+        (u.lbl (Unfurling.posR D hν h))
+      rw [map_mul, (klrComplAt_seriesAt_invOfUnit H μ x' e hnil hX u _ _ ?_).2, map_sub, map_sub,
+        klrComplAt_toCompletion, klrComplAt_toCompletion, klrActAt_e, mul_sub,
+        MatEnd.single_mul_single_self, Category.id_comp, ← hr, ncEval_rename_posLR,
+        MatEnd.single_neg, neg_mul]
+      · abel
+      · rw [Units.val_mk0, ← hr, ← MvPowerSeries.coeff_zero_eq_constantCoeff_apply,
+          MvPolynomial.coeff_coe, ← MvPolynomial.constantCoeff_eq,
+          MvPolynomial.constantCoeff_rename, Unfurling.constantCoeff_pwAt_sub]
+  · simp only [hc, dite_false, ite_false, false_and, MatEnd.single_zero, add_zero]
+    rw [klrComplAt_toCompletion, map_mul (klrActAt H μ x' e) _ (KLRAlgebra.ψ j),
+      klrActAt_pol_mul_e, ncEval_rename_posLR]
+
+end CrossImage
 
 /-! ## Lifts of words -/
 

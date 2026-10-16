@@ -680,6 +680,9 @@ import Categorification.TwoRep.FurlingIntertwine
 import Categorification.TwoRep.FurlingKLR
 import Categorification.TwoRep.FurlingFamily
 import Categorification.TwoRep.FurlingBlock
+import Categorification.TwoRep.FurlingMixed
+import Categorification.TwoRep.FurlingZero
+import Categorification.TwoRep.FurlingKM3
 import Categorification.TwoRep.FurledCorner
 import Categorification.TwoRep.RouqDottedCurls
 import Categorification.TwoRep.RouqDual

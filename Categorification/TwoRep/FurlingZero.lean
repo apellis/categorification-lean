@@ -17,7 +17,9 @@ algebras*, arXiv:1603.06311v3, §2.3, equation `a-auto` and Lemma `many-sl2`.
 The constant part of each spectral polynomial is separated from its nilpotent part.
 The resulting coproduct crossing matrix, evaluated at an object of a weight block,
 is the shift-zero block `desc sZ ≫ sigma ≫ lift rZ′` of the furled action.
-The cap/cup comparison and the correction-summand count are not established here.
+The dotted cap and cup matrices agree as well; `zeroPos` and `zeroNeg` construct
+the shift-zero sum inverses. The correction-summand count is transported along an
+explicit pairing identity, which must be supplied by a cover specialization.
 -/
 
 noncomputable section
@@ -438,6 +440,301 @@ theorem sigma_zero_matrix (δ : Φ.Blk l') :
   exact desc_comp_lift_matrix _ _ _ _
     (sZ_sigma_rZ' (S := S) (D := D) (h₁ := h₁) (h₂ := h₂) (N := N)
       (hnil := hnil) (hzero := hzero) δ)
+
+
+private theorem counit_chain_id {C D : Type*} [Category C] [Category D]
+    (K : C ⥤ D) {Y₀ Y₁ : C} {Z T : D} (i : Y₀ ⟶ Y₁) (g : K.obj Y₁ ⟶ Z)
+    (θ : Z ⟶ Z) (eps : Z ⟶ T) (φ : K ⟶ K) (pr : Y₁ ⟶ Y₀) (c : K.obj Y₀ ⟶ T)
+    (hg : g ≫ θ = φ.app Y₁ ≫ g) (hc : g ≫ eps = K.map pr ≫ c)
+    (hi : i ≫ pr = 𝟙 _) : (K.map i ≫ g) ≫ (θ ≫ eps) = φ.app Y₀ ≫ c := by
+  rw [Category.assoc, ← Category.assoc g, hg, Category.assoc, hc, ← Category.assoc,
+    φ.naturality, Category.assoc, ← K.map_comp_assoc, hi, K.map_id, Category.id_comp]
+
+private theorem powComp_hom {A B : LinearCat.{wk, v₁, u₂} k} {E : A ⟶ B}
+    (θ : E ⟶ E) (n : ℕ) : (powComp θ n).hom = powComp θ.hom n := by
+  induction n with
+  | zero => rfl
+  | succ n ih =>
+    change (powComp θ n).hom ≫ θ.hom = powComp θ.hom n ≫ θ.hom
+    rw [ih]
+
+/-- The dotted cap on the incoming self summand of an edge. -/
+theorem self_pow_counit (p : Φ.Edge i l) (n : ℕ) :
+    ((Ea Φ S h₁ p (p.tgt h₁) rfl).map (incF Φ S h₁ N p) ≫
+      genE Φ S i h₁ ((F Φ S i h₁).obj.obj N) ⟨p, rfl⟩) ≫
+      (F Φ S i h₁ ◁ powComp ((rouqData Φ S D).dot i h₁) n ≫
+        (adj Φ S i h₁).counit).hom.app N (p.tgt h₁) =
+      (S.F p.lbl (wt_tgt h₁ p rfl) ◁
+        powComp (Polynomial.aeval (End.of (S.dot p.lbl (wt_tgt h₁ p rfl))) (D.pw p.lbl)) n ≫
+        (S.adj p.lbl (wt_tgt h₁ p rfl)).counit).hom.app (N (p.tgt h₁)) := by
+  rw [whisker_counit_app]
+  have H := counit_chain_id (Ea Φ S h₁ p (p.tgt h₁) rfl) _ _ _ _ _ _ _
+    (genE_powComp_dot D.pw i h₁ ((F Φ S i h₁).obj.obj N) ⟨p, rfl⟩ n)
+    (genE_counit Φ S i h₁ N p) (incF_projF Φ S h₁ N p)
+  refine H.trans ?_
+  change (powComp (Polynomial.aeval (End.of (S.dot p.lbl (wt_tgt h₁ p rfl)))
+    (D.pw p.lbl)).hom n).app _ ≫ _ = _
+  rw [← powComp_hom]
+  rfl
+
+private theorem map_id_cap_chain {C D : Type*} [Category C] [Category D]
+    (K : C ⥤ D) {A B : C} {Z T : D} (u : A ⟶ A) (v : A ⟶ B)
+    (g : K.obj B ⟶ Z) (c : Z ⟶ T) (hu : u = 𝟙 A) :
+    (K.map (u ≫ v) ≫ g) ≫ c = (K.map v ≫ g) ≫ c := by rw [hu, Category.id_comp]
+
+/-- The dotted cap on a self summand specified by its target block. -/
+theorem self_pow_counit_at (δ : Φ.Blk l') (p : {e : Φ.Edge i l // e.tgt h₁ = δ}) (n : ℕ) :
+    ((Ea Φ S h₁ p.1 δ p.2).map ((trF S h₁ N p.1 p.2).hom ≫ incF Φ S h₁ N p.1) ≫
+      genE Φ S i h₁ ((F Φ S i h₁).obj.obj N) p) ≫
+      (F Φ S i h₁ ◁ powComp ((rouqData Φ S D).dot i h₁) n ≫
+        (adj Φ S i h₁).counit).hom.app N δ =
+      (S.F p.1.lbl (wt_tgt h₁ p.1 p.2) ◁
+        powComp (Polynomial.aeval (End.of (S.dot p.1.lbl (wt_tgt h₁ p.1 p.2))) (D.pw p.1.lbl)) n ≫
+        (S.adj p.1.lbl (wt_tgt h₁ p.1 p.2)).counit).hom.app (N δ) := by
+  obtain ⟨p, hp⟩ := p
+  subst hp
+  exact (map_id_cap_chain _ (trF S h₁ N p rfl).hom _ _ _ rfl).trans
+    (self_pow_counit S D h₁ N p n)
+
+
+include hzero in
+/-- Dotted caps on the canonical shift-zero summands. -/
+theorem sZ_pow_counit (δ : Φ.Blk l') (t : Fin (nLbl Φ i δ.1)) (n : ℕ) :
+    sZ h₁ N δ t ≫
+      (F Φ S i h₁ ◁ powComp ((rouqData Φ S D).dot i h₁) n ≫
+        (adj Φ S i h₁).counit).hom.app N δ =
+      (S.F (lab Φ i δ.1 t) (wtT_sub_add (Φ := Φ) δ.1 _) ◁
+        powComp (Polynomial.aeval (End.of (S.dot (lab Φ i δ.1 t)
+          (wtT_sub_add (Φ := Φ) δ.1 _))) (D.pw (lab Φ i δ.1 t))) n ≫
+        (S.adj (lab Φ i δ.1 t) (wtT_sub_add (Φ := Φ) δ.1 _)).counit).hom.app (N δ) := by
+  by_cases hr : Φ.rel (δ.1 - Finsupp.single (lab Φ i δ.1 t) 1) (lab Φ i δ.1 t)
+  · simp only [sZ, hr, dite_true]
+    exact self_pow_counit_at S D h₁ N δ (pIn h₁ δ t hr) n
+  · exact (isZero_srcZ N δ hzero t hr).eq_of_src _ _
+
+private theorem unit_chain_id {C D : Type*} [Category C] [Category D]
+    (K : C ⥤ D) {A B : D} {V W : C} (u : A ⟶ B) (t : B ⟶ B) (pr : B ⟶ K.obj W)
+    (u' : A ⟶ K.obj V) (g : V ⟶ W) (θ : W ⟶ W) (φ : V ⟶ V) (m : W ⟶ V)
+    (hn : t ≫ pr = pr ≫ K.map θ) (hu : u ≫ pr = u' ≫ K.map g)
+    (hg : g ≫ θ = φ ≫ g) (hm : g ≫ m = 𝟙 _) :
+    (u ≫ t) ≫ (pr ≫ K.map m) = u' ≫ K.map φ := by
+  rw [Category.assoc, ← Category.assoc t, hn, Category.assoc, ← Category.assoc u, hu,
+    Category.assoc, ← K.map_comp, ← K.map_comp, ← Category.assoc, hg,
+    Category.assoc, hm, Category.comp_id]
+
+/-- The dotted cup projected to the outgoing self summand of an edge. -/
+theorem unit_pow_self (r : Φ.Edge i l') (n : ℕ) :
+    ((adj Φ S i h₂).unit ≫ powComp ((rouqData Φ S D).dot i h₂) n ▷ F Φ S i h₂).hom.app N r.src ≫
+      (projF Φ S i h₂ ((E Φ S i h₂).obj.obj N) r ≫
+        (Fa Φ S h₂ r _ rfl).map (projEb S h₂ N ⟨r, rfl⟩)) =
+      ((S.adj r.lbl (wt_tgt h₂ r rfl)).unit ≫
+        powComp (Polynomial.aeval (End.of (S.dot r.lbl (wt_tgt h₂ r rfl))) (D.pw r.lbl)) n ▷
+        S.F r.lbl (wt_tgt h₂ r rfl)).hom.app (N r.src) := by
+  rw [unit_whisker_app]
+  have H := unit_chain_id (Fa Φ S h₂ r _ rfl) _ _ _ _ _ _ _ _
+    (projF_natural Φ S h₂ ((powComp ((rouqData Φ S D).dot i h₂) n).hom.app N) r)
+    (unit_projF Φ S i h₂ N r)
+    (genE_powComp_dot D.pw i h₂ N ⟨r, rfl⟩ n)
+    (genE_projEb S h₂ N ⟨r, rfl⟩)
+  refine H.trans ?_
+  change _ ≫ (Fa Φ S h₂ r _ rfl).map ((powComp
+    (Polynomial.aeval (End.of (S.dot r.lbl (wt_tgt h₂ r rfl))) (D.pw r.lbl)).hom n).app _) = _
+  rw [← powComp_hom]
+  rfl
+
+include hzero in
+/-- Dotted cups on the canonical shift-zero summands. -/
+theorem unit_pow_rZ' (δ : Φ.Blk l') (t : Fin (nLbl Φ i δ.1)) (n : ℕ) :
+    ((adj Φ S i h₂).unit ≫ powComp ((rouqData Φ S D).dot i h₂) n ▷ F Φ S i h₂).hom.app N δ ≫
+      rZ' h₂ N δ t =
+      ((S.adj (lab Φ i δ.1 t) (Φ.wtT_add_single δ.1 _)).unit ≫
+        powComp (Polynomial.aeval (End.of (S.dot (lab Φ i δ.1 t)
+          (Φ.wtT_add_single δ.1 _))) (D.pw (lab Φ i δ.1 t))) n ▷
+        S.F (lab Φ i δ.1 t) (Φ.wtT_add_single δ.1 _)).hom.app (N δ) := by
+  by_cases hr : Φ.rel δ.1 (lab Φ i δ.1 t)
+  · simp only [rZ', hr, dite_true]
+    exact unit_pow_self S D h₂ N (rOut δ t hr).1 n
+  · exact (isZero_tgtZ N δ hzero t hr).eq_of_tgt _ _
+
+
+private theorem desc_comp_of_entries {C : Type*} [Category C] [Preadditive C]
+    {A : Type} [Fintype A] [HasFiniteBiproducts C] {X : A → C} {U V : C}
+    (s : ∀ a, X a ⟶ U) (c : U ⟶ V) (f : ∀ a, X a ⟶ V)
+    (h : ∀ a, s a ≫ c = f a) : biproduct.desc s ≫ c = biproduct.desc f := by
+  apply biproduct.hom_ext'
+  intro a
+  simpa using h a
+
+private theorem comp_lift_of_entries {C : Type*} [Category C] [Preadditive C]
+    {A : Type} [Fintype A] [HasFiniteBiproducts C] {X : A → C} {U V : C}
+    (c : U ⟶ V) (r : ∀ a, V ⟶ X a) (f : ∀ a, U ⟶ X a)
+    (h : ∀ a, c ≫ r a = f a) : c ≫ biproduct.lift r = biproduct.lift f := by
+  apply biproduct.hom_ext
+  intro a
+  simpa using h a
+
+include hzero in
+/-- The projected dotted cap is a column of the evaluated spectral cap matrix. -/
+theorem caps_zero_matrix (δ : Φ.Blk l') {M : ℕ} (m : Fin M) :
+    biproduct.desc (sZ h₁ N δ) ≫
+      (F Φ S i h₁ ◁ powComp ((rouqData Φ S D).dot i h₁) m ≫
+        (adj Φ S i h₁).counit).hom.app N δ =
+      (matLift (LinearCat.evalAt (N δ))).map
+        (RouqCoproduct.rouqCaps (blockZeroLoc Φ S D hnil i δ.1)
+          (fun t => (D.pw (lab Φ i δ.1 t)).coeff 0) M) ≫
+      biproduct.π (fun _ : Fin M => N δ) m := by
+  refine (desc_comp_of_entries _ _ _ (fun t => ?_)).trans
+    (matLift_map_π (LinearCat.evalAt (N δ))
+      (RouqCoproduct.rouqCaps (blockZeroLoc Φ S D hnil i δ.1)
+        (fun t => (D.pw (lab Φ i δ.1 t)).coeff 0) M) m).symm
+  refine (sZ_pow_counit S D h₁ N hzero δ t m).trans ?_
+  exact congrArg (fun x : End (S.E (lab Φ i δ.1 t) (wtT_sub_add (Φ := Φ) δ.1 _)) =>
+    (S.F (lab Φ i δ.1 t) (wtT_sub_add (Φ := Φ) δ.1 _) ◁ powComp x m ≫
+      (S.adj (lab Φ i δ.1 t) (wtT_sub_add (Φ := Φ) δ.1 _)).counit).hom.app (N δ))
+    (aeval_pw_eq D _ _)
+
+include hzero in
+/-- The projected dotted cup is a row of the evaluated spectral cup matrix. -/
+theorem cups_zero_matrix (δ : Φ.Blk l') {M : ℕ} (m : Fin M) :
+    ((adj Φ S i h₂).unit ≫ powComp ((rouqData Φ S D).dot i h₂) m ▷ F Φ S i h₂).hom.app N δ ≫
+      biproduct.lift (rZ' h₂ N δ) =
+      biproduct.ι (fun _ : Fin M => N δ) m ≫
+      (matLift (LinearCat.evalAt (N δ))).map
+        (RouqCoproduct.rouqCups (blockZeroLoc Φ S D hnil i δ.1)
+          (fun t => (D.pw (lab Φ i δ.1 t)).coeff 0) M) := by
+  refine (comp_lift_of_entries _ _ _ (fun t => ?_)).trans
+    (ι_matLift_map (LinearCat.evalAt (N δ))
+      (RouqCoproduct.rouqCups (blockZeroLoc Φ S D hnil i δ.1)
+        (fun t => (D.pw (lab Φ i δ.1 t)).coeff 0) M) m).symm
+  refine (unit_pow_rZ' S D h₂ N hzero δ t m).trans ?_
+  exact congrArg (fun x : End (S.E (lab Φ i δ.1 t) (Φ.wtT_add_single δ.1 _)) =>
+    ((S.adj (lab Φ i δ.1 t) (Φ.wtT_add_single δ.1 _)).unit ≫ powComp x m ▷
+      S.F (lab Φ i δ.1 t) (Φ.wtT_add_single δ.1 _)).hom.app (N δ))
+    (aeval_pw_eq D _ _)
+
+private def sumInvToCongrOn {C : Type*} [Category C] [Preadditive C] {X Y Z : C}
+    {f f₂ : X ⟶ Y} {g g₂ : ℕ → (X ⟶ Z)} {n : ℕ} (T : SumInvTo f g n)
+    (hf : f = f₂) (hg : ∀ m, m < n → g m = g₂ m) : SumInvTo f₂ g₂ n := by
+  subst hf
+  exact {
+    f' := T.f'
+    g' := T.g'
+    total := by
+      rw [← T.total]
+      congr 1
+      exact Finset.sum_congr rfl fun m hm => by rw [hg m (Finset.mem_range.mp hm)]
+    ff := T.ff
+    fg := fun m hm => by rw [← hg m hm]; exact T.fg m hm
+    gf := T.gf
+    gg := fun m m' hm hm' => by rw [← hg m' hm']; exact T.gg m m' hm hm' }
+
+private def sumInvFromCongrOn {C : Type*} [Category C] [Preadditive C] {X Y Z : C}
+    {f f₂ : Y ⟶ X} {g g₂ : ℕ → (Z ⟶ X)} {n : ℕ} (T : SumInvFrom f g n)
+    (hf : f = f₂) (hg : ∀ m, m < n → g m = g₂ m) : SumInvFrom f₂ g₂ n := by
+  subst hf
+  exact {
+    f' := T.f'
+    g' := T.g'
+    total := by
+      rw [← T.total]
+      congr 1
+      exact Finset.sum_congr rfl fun m hm => by rw [hg m (Finset.mem_range.mp hm)]
+    ff := T.ff
+    fg := T.fg
+    gf := fun m hm => by rw [← hg m hm]; exact T.gf m hm
+    gg := fun m m' hm hm' => by rw [← hg m hm]; exact T.gg m m' hm hm' }
+
+/-- The positive shift-zero sum inverse, constructed from the spectral coproduct theorem.
+The pairing identity is explicit because an arbitrary `Furling` does not include it. -/
+def zeroPos (hπ : Φ.π = D.π) (δ : Φ.Blk l')
+    (hpair : RD.pair (RD.iY i) l' =
+      ∑ t : Fin (nLbl Φ i δ.1), RDc.pair (RDc.iY (lab Φ i δ.1 t)) (Φ.wtT δ.1))
+    (hpos : 0 ≤ RD.pair (RD.iY i) l') :
+    SumInvTo (biproduct.desc (sZ h₁ N δ) ≫ (sigma Φ S D h₁ h₂).hom.app N δ ≫
+      biproduct.lift (rZ' h₂ N δ))
+      (fun m => biproduct.desc (sZ h₁ N δ) ≫ (F Φ S i h₁ ◁
+        powComp ((rouqData Φ S D).dot i h₁) m ≫ (adj Φ S i h₁).counit).hom.app N δ)
+      (RD.pair (RD.iY i) l').toNat := by
+  let T := SumInvTo.ofMat (LinearCat.evalAt (N δ)) _ _
+    (isIso_blockZero_pos Φ S D hnil i δ.1 hπ (hpair ▸ hpos))
+  refine (sumInvToCongrOn T
+    (sigma_zero_matrix (S := S) (D := D) (hnil := hnil) (h₁ := h₁) (h₂ := h₂)
+      (N := N) (hzero := hzero) δ).symm ?_).congr rfl rfl (congrArg Int.toNat hpair.symm)
+  intro m hm
+  simp only [finExt, hm, dite_true]
+  exact (caps_zero_matrix (S := S) (D := D) (h₁ := h₁) (N := N) (hzero := hzero) (hnil := hnil) δ ⟨m, hm⟩).symm
+
+/-- The negative shift-zero sum inverse, constructed from the spectral coproduct theorem.
+The pairing identity is explicit because an arbitrary `Furling` does not include it. -/
+def zeroNeg (hπ : Φ.π = D.π) (δ : Φ.Blk l')
+    (hpair : RD.pair (RD.iY i) l' =
+      ∑ t : Fin (nLbl Φ i δ.1), RDc.pair (RDc.iY (lab Φ i δ.1 t)) (Φ.wtT δ.1))
+    (hneg : RD.pair (RD.iY i) l' ≤ 0) :
+    SumInvFrom (biproduct.desc (sZ h₁ N δ) ≫ (sigma Φ S D h₁ h₂).hom.app N δ ≫
+      biproduct.lift (rZ' h₂ N δ))
+      (fun m => ((adj Φ S i h₂).unit ≫ powComp ((rouqData Φ S D).dot i h₂) m ▷
+        F Φ S i h₂).hom.app N δ ≫ biproduct.lift (rZ' h₂ N δ))
+      (-RD.pair (RD.iY i) l').toNat := by
+  let T := SumInvFrom.ofMat (LinearCat.evalAt (N δ)) _ _
+    (isIso_blockZero_neg Φ S D hnil i δ.1 hπ (hpair ▸ hneg))
+  refine (sumInvFromCongrOn T
+    (sigma_zero_matrix (S := S) (D := D) (hnil := hnil) (h₁ := h₁) (h₂ := h₂)
+      (N := N) (hzero := hzero) δ).symm ?_).congr rfl rfl
+        (congrArg (fun z : ℤ => (-z).toNat) hpair.symm)
+  intro m hm
+  simp only [finExt, hm, dite_true]
+  exact (cups_zero_matrix (S := S) (D := D) (h₂ := h₂) (N := N) (hzero := hzero) (hnil := hnil) δ ⟨m, hm⟩).symm
+
+
+private theorem isZero_biprod_family {C : Type*} [Category C] [Preadditive C]
+    [HasFiniteBiproducts C] {A : Type} [Fintype A] {X : A → C} (hX : ∀ a, IsZero (X a)) :
+    IsZero (⨁ X) := by
+  apply (IsZero.iff_id_eq_zero _).mpr
+  apply biproduct.hom_ext'
+  intro a
+  exact (hX a).eq_of_src _ _
+
+omit [DecidableEq I] [DecidableEq J] in
+theorem isZero_srcSum (δ : Φ.Blk l') (hz : IsZero (N δ)) :
+    IsZero (⨁ (srcZ (i := i) N δ)) :=
+  isZero_biprod_family fun t => Functor.map_isZero
+    (S.E (lab Φ i δ.1 t) (wtT_sub_add (Φ := Φ) δ.1 _)).obj
+    (Functor.map_isZero (S.F (lab Φ i δ.1 t) (wtT_sub_add (Φ := Φ) δ.1 _)).obj hz)
+
+omit [DecidableEq I] [DecidableEq J] in
+theorem isZero_tgtSum (δ : Φ.Blk l') (hz : IsZero (N δ)) :
+    IsZero (⨁ (tgtZ (i := i) N δ)) :=
+  isZero_biprod_family fun t => Functor.map_isZero
+    (S.F (lab Φ i δ.1 t) (Φ.wtT_add_single δ.1 _)).obj
+    (Functor.map_isZero (S.E (lab Φ i δ.1 t) (Φ.wtT_add_single δ.1 _)).obj hz)
+
+/-- The positive shift-zero sum inverse at a zero object, with any correction count. -/
+def zeroPosOfIsZero (δ : Φ.Blk l') (hz : IsZero (N δ)) (n : ℕ) :
+    SumInvTo (biproduct.desc (sZ h₁ N δ) ≫ (sigma Φ S D h₁ h₂).hom.app N δ ≫
+      biproduct.lift (rZ' h₂ N δ))
+      (fun m => biproduct.desc (sZ h₁ N δ) ≫ (F Φ S i h₁ ◁
+        powComp ((rouqData Φ S D).dot i h₁) m ≫ (adj Φ S i h₁).counit).hom.app N δ) n where
+  f' := 0
+  g' _ := 0
+  total := (isZero_srcSum (i := i) S N δ hz).eq_of_src _ _
+  ff := (isZero_tgtSum (i := i) S N δ hz).eq_of_src _ _
+  fg _ _ := (isZero_tgtSum (i := i) S N δ hz).eq_of_src _ _
+  gf _ _ := hz.eq_of_src _ _
+  gg _ _ _ _ := hz.eq_of_src _ _
+
+/-- The negative shift-zero sum inverse at a zero object, with any correction count. -/
+def zeroNegOfIsZero (δ : Φ.Blk l') (hz : IsZero (N δ)) (n : ℕ) :
+    SumInvFrom (biproduct.desc (sZ h₁ N δ) ≫ (sigma Φ S D h₁ h₂).hom.app N δ ≫
+      biproduct.lift (rZ' h₂ N δ))
+      (fun m => ((adj Φ S i h₂).unit ≫ powComp ((rouqData Φ S D).dot i h₂) m ▷
+        F Φ S i h₂).hom.app N δ ≫ biproduct.lift (rZ' h₂ N δ)) n where
+  f' := 0
+  g' _ := 0
+  total := (isZero_tgtSum (i := i) S N δ hz).eq_of_src _ _
+  ff := (isZero_srcSum (i := i) S N δ hz).eq_of_src _ _
+  fg _ _ := (isZero_srcSum (i := i) S N δ hz).eq_of_src _ _
+  gf _ _ := hz.eq_of_src _ _
+  gg _ _ _ _ := hz.eq_of_src _ _
 
 
 end Entries

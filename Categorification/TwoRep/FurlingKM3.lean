@@ -3,6 +3,7 @@ Copyright (c) 2026 Alex Ellis. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 -/
 import Categorification.TwoRep.FurlingMixed
+import Categorification.TwoRep.FurlingZero
 import Categorification.TwoRep.SumInvBiprod
 import Categorification.TwoRep.RouqLocTransport
 
@@ -31,6 +32,9 @@ of `σ` on the block (`blockPos`, `blockNeg`), and these globalize over objects 
   `Furling.rouqFamilyOf`, from the shift-zero blocks.
 * `Furling.rouqFamilyOfBlocks`: the Rouquier family of `g`, given the shift-zero block inverses
   and the mixed inversion hypothesis `hmix`.
+* `Furling.rouqFamilyOfPairing`: constructs those inverses from the spectral coproduct
+  theorem and a pairing identity on nonzero blocks; its concrete cyclotomic-cover
+  consumer is `KLR.Unfurling.coverRouqFamily`.
 -/
 
 noncomputable section
@@ -303,6 +307,39 @@ def rouqFamilyOfBlocks
 theorem rouqFamilyOfBlocks_toRouqData (Z0pos Z0neg) :
     (rouqFamilyOfBlocks hzero hmix hπ H hnil hPQ Z0pos Z0neg).toRouqData = rouqData Φ S D :=
   rfl
+
+variable (hpairOrZero : ∀ (i : I) (β : J →₀ ℤ),
+    RD.pair (RD.iY i) (Φ.wtG β) =
+      ∑ t : Fin (nLbl Φ i β), RDc.pair (RDc.iY (lab Φ i β t)) (Φ.wtT β) ∨
+    ∀ M : blkCat Φ S β, IsZero M)
+
+/-- Positive shift-zero inverse when the pairing identity is needed only on nonzero blocks. -/
+def zeroPosOfPairing (i : I) {l l' l'' : X} (h₁ : l + RD.iX i = l') (h₂ : l' + RD.iX i = l'')
+    (N : ∀ γ : Φ.Blk l', blkCat Φ S γ.1) (δ : Φ.Blk l') (hp : 0 ≤ RD.pair (RD.iY i) l') := by
+  classical
+  exact if hc : RD.pair (RD.iY i) (Φ.wtG δ.1) =
+      ∑ t : Fin (nLbl Φ i δ.1), RDc.pair (RDc.iY (lab Φ i δ.1 t)) (Φ.wtT δ.1) then
+    zeroPos (S := S) (D := D) (h₁ := h₁) (h₂ := h₂) (N := N) (hzero := hzero)
+      (hnil := hnil) (funext hπ) δ ((congrArg (RD.pair (RD.iY i)) δ.2).symm.trans hc) hp
+  else zeroPosOfIsZero (S := S) (D := D) (h₁ := h₁) (h₂ := h₂) (N := N) δ
+    ((hpairOrZero i δ.1).resolve_left hc (N δ)) _
+
+/-- Negative shift-zero inverse when the pairing identity is needed only on nonzero blocks. -/
+def zeroNegOfPairing (i : I) {l l' l'' : X} (h₁ : l + RD.iX i = l') (h₂ : l' + RD.iX i = l'')
+    (N : ∀ γ : Φ.Blk l', blkCat Φ S γ.1) (δ : Φ.Blk l') (hp : RD.pair (RD.iY i) l' ≤ 0) := by
+  classical
+  exact if hc : RD.pair (RD.iY i) (Φ.wtG δ.1) =
+      ∑ t : Fin (nLbl Φ i δ.1), RDc.pair (RDc.iY (lab Φ i δ.1 t)) (Φ.wtT δ.1) then
+    zeroNeg (S := S) (D := D) (h₁ := h₁) (h₂ := h₂) (N := N) (hzero := hzero)
+      (hnil := hnil) (funext hπ) δ ((congrArg (RD.pair (RD.iY i)) δ.2).symm.trans hc) hp
+  else zeroNegOfIsZero (S := S) (D := D) (h₁ := h₁) (h₂ := h₂) (N := N) δ
+    ((hpairOrZero i δ.1).resolve_left hc (N δ)) _
+
+/-- Construct the furled family from the pairing on nonzero blocks, not assumed block inverses. -/
+def rouqFamilyOfPairing : RouqFamily (B := LinearCat.{wk, max u₁ v₁, max u₁ u₂} k) RD :=
+  rouqFamilyOfBlocks hzero hmix hπ H hnil hPQ
+    (zeroPosOfPairing hzero hπ hnil hpairOrZero) (zeroNegOfPairing hzero hπ hnil hpairOrZero)
+
 
 end Global
 

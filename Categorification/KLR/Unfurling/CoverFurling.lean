@@ -187,21 +187,22 @@ variable {D Λm Λp}
 
 omit [DecidableEq Jm] [DecidableEq Jp] in
 /-- The labels over `i` that carry weight, lie in the support of `β`, or are adjacent to it. -/
-private theorem coverRel_finite_aux (hΛm : (Function.support Λm).Finite)
-    (hΛp : (Function.support Λp).Finite) (β : Jm ⊕ Jp →₀ ℤ) (i : I) :
+private theorem coverRel_finite_aux (hΛm : ∀ i, ({a | D.π (.inl a) = i ∧ Λm a ≠ 0} : Set Jm).Finite)
+    (hΛp : ∀ i, ({a | D.π (.inr a) = i ∧ Λp a ≠ 0} : Set Jp).Finite) (β : Jm ⊕ Jp →₀ ℤ) (i : I) :
     ({a | D.π a = i ∧ (coverBaseVal Λm Λp a ≠ 0 ∨ a ∈ β.support ∨ CoverAdj D β a)} :
       Set (Jm ⊕ Jp)).Finite := by
-  have h₁ : (Sum.inl '' Function.support Λm ∪ Sum.inr '' Function.support Λp ∪
+  have h₁ : (Sum.inl '' {a | D.π (.inl a) = i ∧ Λm a ≠ 0} ∪
+      Sum.inr '' {a | D.π (.inr a) = i ∧ Λp a ≠ 0} ∪
       (β.support : Set (Jm ⊕ Jp)) ∪
       ⋃ c ∈ (β.support : Set (Jm ⊕ Jp)),
         {a | D.π a = i ∧ (D.arrows a c ≠ 0 ∨ D.arrows c a ≠ 0)}).Finite :=
-    (((hΛm.image _).union (hΛp.image _)).union β.support.finite_toSet).union
+    ((((hΛm i).image _).union ((hΛp i).image _)).union β.support.finite_toSet).union
       (β.support.finite_toSet.biUnion fun c _ => D.finite_adjacent c i)
   refine h₁.subset fun a ⟨ha, h⟩ => ?_
   rcases h with h | h | ⟨c, hc, -, hac⟩
   · rcases a with a | a
-    · exact Or.inl (Or.inl (Or.inl ⟨a, fun h0 => h (by simp [coverBaseVal, h0]), rfl⟩))
-    · exact Or.inl (Or.inl (Or.inr ⟨a, fun h0 => h (by simp [coverBaseVal, h0]), rfl⟩))
+    · exact Or.inl (Or.inl (Or.inl ⟨a, ⟨ha, fun h0 => h (by simp [coverBaseVal, h0])⟩, rfl⟩))
+    · exact Or.inl (Or.inl (Or.inr ⟨a, ⟨ha, fun h0 => h (by simp [coverBaseVal, h0])⟩, rfl⟩))
   · exact Or.inl (Or.inr h)
   · exact Or.inr (Set.mem_biUnion hc ⟨ha, hac⟩)
 
@@ -247,8 +248,9 @@ variable {C : CartanDatum I} {X Y : Type u₄} [AddCommGroup X] [AddCommGroup Y]
 
 /-- **The furling datum of the unfurled product family** (Webster, arXiv:1603.06311v3, §2.3,
 Lemma with label `lem:g-action`): the cover `π` of the labels, the base weights `x̃₀ = (-Λm, Λp)`
-of `g̃` and `μ` of `g`, and the relevant edges `coverRel`. -/
-def coverFurling (hΛm : (Function.support Λm).Finite) (hΛp : (Function.support Λp).Finite) :
+of `g̃` and `μ` of `g`, and the relevant edges `coverRel`. Only finite support within
+each base-colour fibre is required; the colour set and global weight support may be infinite. -/
+def coverFurling (hΛm : ∀ i, ({a | D.π (.inl a) = i ∧ Λm a ≠ 0} : Set Jm).Finite) (hΛp : ∀ i, ({a | D.π (.inr a) = i ∧ Λp a ≠ 0} : Set Jp).Finite) :
     TwoRep.Furling (coverProdWeight D) RD where
   π := D.π
   base := coverBase Λm Λp
@@ -259,7 +261,7 @@ def coverFurling (hΛm : (Function.support Λm).Finite) (hΛp : (Function.suppor
   finite_in γ i := (coverRel_finite_aux hΛm hΛp γ i).subset fun a ⟨ha, h⟩ =>
     ⟨ha, coverRel_sub_imp γ a h⟩
 
-variable (hΛm : (Function.support Λm).Finite) (hΛp : (Function.support Λp).Finite)
+variable (hΛm : ∀ i, ({a | D.π (.inl a) = i ∧ Λm a ≠ 0} : Set Jm).Finite) (hΛp : ∀ i, ({a | D.π (.inr a) = i ∧ Λp a ≠ 0} : Set Jp).Finite)
 
 @[simp] theorem coverFurling_π : (coverFurling D Λm Λp RD μ hΛm hΛp).π = D.π := rfl
 

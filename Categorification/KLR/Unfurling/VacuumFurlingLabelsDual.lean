@@ -223,7 +223,8 @@ theorem ιIn_πIn (hM : ∀ β, β ≠ β₀ → IsZero (M β)) (p : InEdge Φ i
       (Φ.Ea S h₀ e (e.tgt h₀) rfl).map (injF Φ S i h₀ M e) ≫
         genE Φ S i h₀ ((Φ.F S i h₀).obj.obj M) ⟨e, rfl⟩ = _
   rw [Category.assoc, ← Category.assoc ((Φ.Ea S h₀ e (e.tgt h₀) rfl).map _),
-    ← CategoryTheory.Functor.map_comp, projF_injF Φ S i h₀ M e hM, CategoryTheory.Functor.map_id, Category.id_comp]
+    ← CategoryTheory.Functor.map_comp, projF_injF Φ S i h₀ M e hM,
+    CategoryTheory.Functor.map_id, Category.id_comp]
 
 /-- **`E_i F_i M` at `β₀` is the sum of the summands of the edges into `β₀`**, for `M`
 concentrated at `β₀`. -/
@@ -295,6 +296,12 @@ section Out
 
 variable (ϖ : J → Polynomial k) (i : I) {l l' : X} (h : l + RD.iX i = l')
   (M : ∀ β : Φ.Blk l, Φ.blkCat S β.1) (β₀ : Φ.Blk l)
+
+/-- The edges out of `β₀` whose label has negative weight at `β₀`. -/
+abbrev NegOutEdge :=
+  {p : OutEdge Φ i β₀ // RDc.pair (RDc.iY p.1.lbl) (Φ.wtT β₀.1) < 0}
+
+instance : Fintype (NegOutEdge Φ i β₀) := Fintype.ofFinite _
 
 /-- Rouquier's data of the label of an edge out of a block, at the weight of that block. -/
 abbrev labelLocOut (e : Φ.Edge i l) :=
@@ -406,13 +413,15 @@ of the colour `i` for the furled action of `g` at a weight `λ` with `⟨h_i, λ
 concentrated at the block `β₀`, with `End M_{β₀}` reduced and the dots of `S̃` nilpotent. Suppose
 
 * for the relevant edges `a` into `β₀`: `(ϖ_a(y) - z_a)^{h_a} = 0` on `E_a F_a M_{β₀}`;
-* for the relevant edges `b` out of `β₀`: the label `b` has weight `-Λ_b = ⟨h_b, wt β₀⟩ ≤ 0` at
-  `β₀`, `E_b F_b M_{β₀} = 0`, the constant terms `ϖ_b(0)` are distinct and differ from the `z_a`
+* for the relevant edges `b` out of `β₀` whose label has negative weight `⟨h_b, wt β₀⟩` at
+  `β₀`: `E_b F_b M_{β₀} = 0`, the constant terms `ϖ_b(0)` are distinct and differ from the `z_a`
   with `h_a ≠ 0`, and the linear coefficients `[ϖ_b]_1` are nonzero;
-* `∑ₐ h_a = ⟨h_i, λ⟩ + ∑_b Λ_b > 0`.
+* `∑ₐ h_a = ⟨h_i, λ⟩ + ∑_b Λ_b > 0`, where `Λ_b = max(-⟨h_b, wt β₀⟩, 0)` over all edges out of
+  `β₀`.
 
 Then the counterclockwise bubble with `m` dots acts on `M_{β₀}` by
-`[t^{m+1-⟨h_i,λ⟩}] ∏_b (1 - ϖ_b(0) t)^{Λ_b} ∏ₐ (1 - z_a t)^{-h_a}`. -/
+`[t^{m+1-⟨h_i,λ⟩}] ∏_b (1 - ϖ_b(0) t)^{Λ_b} ∏ₐ (1 - z_a t)^{-h_a}`. Edges out of `β₀` whose label
+has weight `≥ 0` contribute the factor `1`. -/
 theorem ccw_app_furled {τ : Φ.E S i h₀ ≫ Φ.E S i h ⟶ Φ.E S i h₀ ≫ Φ.E S i h} {hl : ℤ}
     (L : RouqLoc (Φ.adj S i h₀) (Φ.adj S i h) (dot Φ S ϖ i h₀) (dot Φ S ϖ i h) τ hl)
     (hhl : 0 ≤ hl) (hM : ∀ β, β ≠ β₀ → IsZero (M β)) [IsReduced (End (M β₀))]
@@ -420,13 +429,12 @@ theorem ccw_app_furled {τ : Φ.E S i h₀ ≫ Φ.E S i h ⟶ Φ.E S i h₀ ≫ 
     (z : InEdge Φ i h₀ β₀ → k) (hp : InEdge Φ i h₀ β₀ → ℕ)
     (hnil : ∀ p m, hp p ≤ m → ((labelDotIn Φ S ϖ i h₀ M β₀ p - algebraMap k _ (z p)) ^ m :
       End (WIn Φ S i h₀ M β₀ p)) = 0)
-    (hhb : ∀ p : OutEdge Φ i β₀, RDc.pair (RDc.iY p.1.lbl) (Φ.wtT β₀.1) ≤ 0)
-    (hY : ∀ p : OutEdge Φ i β₀,
-      IsZero ((S.E p.1.lbl (sub_add_cancel (Φ.wtT β₀.1) (RDc.iX p.1.lbl))).obj.obj
-        ((S.F p.1.lbl (sub_add_cancel (Φ.wtT β₀.1) (RDc.iX p.1.lbl))).obj.obj (M β₀))))
-    (hzb : Function.Injective fun p : OutEdge Φ i β₀ => (ϖ p.1.lbl).coeff 0)
-    (hsep : ∀ a (b : OutEdge Φ i β₀), hp a ≠ 0 → z a ≠ (ϖ b.1.lbl).coeff 0)
-    (hβ : ∀ p : OutEdge Φ i β₀, (ϖ p.1.lbl).coeff 1 ≠ 0)
+    (hY : ∀ p : NegOutEdge Φ i β₀,
+      IsZero ((S.E p.1.1.lbl (sub_add_cancel (Φ.wtT β₀.1) (RDc.iX p.1.1.lbl))).obj.obj
+        ((S.F p.1.1.lbl (sub_add_cancel (Φ.wtT β₀.1) (RDc.iX p.1.1.lbl))).obj.obj (M β₀))))
+    (hzb : Function.Injective fun p : NegOutEdge Φ i β₀ => (ϖ p.1.1.lbl).coeff 0)
+    (hsep : ∀ a (b : NegOutEdge Φ i β₀), hp a ≠ 0 → z a ≠ (ϖ b.1.1.lbl).coeff 0)
+    (hβ : ∀ p : NegOutEdge Φ i β₀, (ϖ p.1.1.lbl).coeff 1 ≠ 0)
     (hN : ∑ a, hp a = hl.toNat +
       ∑ b : OutEdge Φ i β₀, (-RDc.pair (RDc.iY b.1.lbl) (Φ.wtT β₀.1)).toNat)
     (hNpos : 0 < ∑ a, hp a) {R : Type*} [CommRing R] [Algebra k R] (ev : End (M β₀) →ₐ[k] R)
@@ -436,15 +444,20 @@ theorem ccw_app_furled {τ : Φ.E S i h₀ ≫ Φ.E S i h ⟶ Φ.E S i h₀ ≫ 
           (-RDc.pair (RDc.iY b.1.lbl) (Φ.wtT β₀.1)).toNat) *
         ((∏ a, oneSubUnit (z a) ^ (-(hp a : ℤ)) : (PowerSeries k)ˣ) : PowerSeries k)) m) := by
   classical
-  have hw := fun b : OutEdge Φ i β₀ => exists_efDot_inverse Φ S ϖ i h₀ M β₀ hM z hp
-    (fun p => hnil p (hp p) le_rfl) ((ϖ b.1.lbl).coeff 0) (fun a ha => hsep a b ha)
+  have hw := fun b : NegOutEdge Φ i β₀ => exists_efDot_inverse Φ S ϖ i h₀ M β₀ hM z hp
+    (fun p => hnil p (hp p) le_rfl) ((ϖ b.1.1.lbl).coeff 0) (fun a ha => hsep a b ha)
+  have h0 : ∀ b : OutEdge Φ i β₀, ¬ RDc.pair (RDc.iY b.1.lbl) (Φ.wtT β₀.1) < 0 →
+      (-RDc.pair (RDc.iY b.1.lbl) (Φ.wtT β₀.1)).toNat = 0 := fun _ hb =>
+    Int.toNat_eq_zero.mpr (by omega)
+  rw [← prod_subtype_of_one _ _ fun b hb => by rw [h0 b hb, pow_zero]]
   refine ccw_app_eq_lwSeq L (blkEval Φ S M β₀) hhl ev (Wa := WIn Φ S i h₀ M β₀)
     (πIn Φ S i h₀ M β₀) (ιIn Φ S i h₀ M β₀)
     (fun p => (Φ.adjA S h₀ p.1 β₀ p.2).counit.app (M β₀))
     (fun p => labelDotIn Φ S ϖ i h₀ M β₀ p - algebraMap k _ (z p)) z hp
     (sum_ιIn_πIn Φ S i h₀ M β₀ hM) ?_ ?_
-    (fun b => (ϖ b.1.lbl).coeff 0) hzb _ (fun b => (hw b).choose) ?_ ?_
-    (chainOut Φ S i h M β₀) (fun b m j => (ϖ b.1.lbl).coeff (m - j)) ?_ ?_ ?_ hN hNpos m
+    (fun b => (ϖ b.1.1.lbl).coeff 0) hzb _ (fun b => (hw b).choose) ?_ ?_
+    (fun b => chainOut Φ S i h M β₀ b.1) (fun b m j => (ϖ b.1.1.lbl).coeff (m - j)) ?_ ?_ ?_
+    (hN.trans (congrArg _ (sum_subtype_of_zero _ _ h0).symm)) hNpos m
   · intro n p
     rw [add_sub_cancel]
     refine (Category.assoc _ _ _).symm.trans ?_
@@ -458,12 +471,12 @@ theorem ccw_app_furled {τ : Φ.E S i h₀ ≫ Φ.E S i h ⟶ Φ.E S i h₀ ≫ 
   · intro b; exact (hw b).choose_spec.1
   · intro b; exact (hw b).choose_spec.2
   · intro b m hm
-    exact dot_sub_chainOut Φ S ϖ i h M β₀ hnilS b (hhb b) (hY b) m hm
+    exact dot_sub_chainOut Φ S ϖ i h M β₀ hnilS b.1 b.2.le (hY b) m hm
   · intro b m _
     rw [Nat.add_sub_cancel_left]
     exact hβ b
   · intro b m hm
-    exact unit_chainOut Φ S i h M β₀ hnilS b m hm
+    exact unit_chainOut Φ S i h M β₀ hnilS b.1 m hm
 
 end Bubbles
 

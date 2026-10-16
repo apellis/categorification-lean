@@ -508,6 +508,7 @@ import Categorification.KLR.Unfurling.VacuumBubbles
 import Categorification.KLR.Unfurling.VacuumFurling
 import Categorification.KLR.Unfurling.VacuumFurlingLabels
 import Categorification.KLR.Unfurling.VacuumFurlingLabelsDual
+import Categorification.KLR.Unfurling.VacuumFurlingNilpotent
 import Categorification.KLR.Unfurling.VacuumJets
 import Categorification.KLR.Unfurling.VacuumLabels
 import Categorification.KLR.Unfurling.VacuumLabelLoc

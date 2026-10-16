@@ -22,8 +22,8 @@ exponent `u_a ≥ M`. Consequently `φ` extends to the completion
 (`completionLift`): a series `∑_d f_d` is sent to the finite sum `∑_{d < D} φ(f_d)`. The
 extension is an algebra map and agrees with `φ` on `R(ν)`.
 
-The index set `I` is finite, so the degrees of dots and crossings are bounded. Nothing else
-about the grading is used; in particular the dots need not have positive degree.
+Only the finitely many labels occurring in `ν` matter, so the index set `I` may be infinite.
+Nothing else about the grading is used; in particular the dots need not have positive degree.
 
 ## Main definitions and results
 
@@ -40,7 +40,7 @@ namespace Categorification.KLR
 
 open KLRAlgebra HahnSeries TypeA
 
-variable {I : Type*} [Fintype I] {k : Type*} [CommRing k]
+variable {I : Type*} {k : Type*} [CommRing k]
   {Q : I → I → MvPolynomial (Fin 2) k}
 
 namespace GradingDatum
@@ -56,34 +56,38 @@ theorem redWord_spec (n : ℕ) (w : Perm (Fin n)) :
     TypeA.IsReduced n (redWord n w) ∧ wordProd n (redWord n w) = w :=
   (exists_reduced n w).choose_spec
 
-/-- A bound for the absolute values of the degrees of crossings. -/
-def degΨAbs : ℤ := ∑ a, ∑ b, |G.degΨ a b|
+variable [DecidableEq I]
 
-/-- A bound for the absolute values of the degrees of dots. -/
-def degXAbs : ℤ := ∑ a, |G.degX a|
+variable (ν) in
+/-- A bound for the absolute values of the degrees of crossings between labels of `ν`. -/
+def degΨAbs : ℤ := ∑ a ∈ ν.toFinset, ∑ b ∈ ν.toFinset, |G.degΨ a b|
 
-theorem degΨ_le (a b : I) : G.degΨ a b ≤ G.degΨAbs :=
+variable (ν) in
+/-- A bound for the absolute values of the degrees of dots with labels in `ν`. -/
+def degXAbs : ℤ := ∑ a ∈ ν.toFinset, |G.degX a|
+
+theorem degΨ_le {a b : I} (ha : a ∈ ν) (hb : b ∈ ν) : G.degΨ a b ≤ G.degΨAbs ν :=
   (le_abs_self _).trans <| (Finset.single_le_sum (f := fun b => |G.degΨ a b|)
-    (fun _ _ => abs_nonneg _) (mem_univ b)).trans <|
-    Finset.single_le_sum (f := fun a => ∑ b, |G.degΨ a b|)
-      (fun _ _ => Finset.sum_nonneg fun _ _ => abs_nonneg _) (mem_univ a)
+    (fun _ _ => abs_nonneg _) (Multiset.mem_toFinset.2 hb)).trans <|
+    Finset.single_le_sum (f := fun a => ∑ b ∈ ν.toFinset, |G.degΨ a b|)
+      (fun _ _ => Finset.sum_nonneg fun _ _ => abs_nonneg _) (Multiset.mem_toFinset.2 ha)
 
-theorem degΨAbs_nonneg : 0 ≤ G.degΨAbs :=
+theorem degΨAbs_nonneg : 0 ≤ G.degΨAbs ν :=
   Finset.sum_nonneg fun _ _ => Finset.sum_nonneg fun _ _ => abs_nonneg _
 
-theorem degX_le (a : I) : G.degX a ≤ G.degXAbs :=
+theorem degX_le {a : I} (ha : a ∈ ν) : G.degX a ≤ G.degXAbs ν :=
   (le_abs_self _).trans <| Finset.single_le_sum (f := fun a => |G.degX a|)
-    (fun _ _ => abs_nonneg _) (mem_univ a)
+    (fun _ _ => abs_nonneg _) (Multiset.mem_toFinset.2 ha)
 
-theorem degXAbs_nonneg : 0 ≤ G.degXAbs := Finset.sum_nonneg fun _ _ => abs_nonneg _
+theorem degXAbs_nonneg : 0 ≤ G.degXAbs ν := Finset.sum_nonneg fun _ _ => abs_nonneg _
 
-theorem dψ_le (j : ℕ) (i : Seq ν) : G.dψ j i ≤ G.degΨAbs := by
+theorem dψ_le (j : ℕ) (i : Seq ν) : G.dψ j i ≤ G.degΨAbs ν := by
   unfold dψ
   split_ifs
-  · exact G.degΨ_le _ _
+  · exact G.degΨ_le (i.mem _) (i.mem _)
   · exact G.degΨAbs_nonneg
 
-theorem degW_le (ρ : List ℕ) (i : Seq ν) : G.degW ρ i ≤ ρ.length * G.degΨAbs := by
+theorem degW_le (ρ : List ℕ) (i : Seq ν) : G.degW ρ i ≤ ρ.length * G.degΨAbs ν := by
   induction ρ with
   | nil => simp [degW]
   | cons j ρ ih =>
@@ -97,24 +101,23 @@ variable (ν) in
 /-- The degree bound: homogeneous elements of degree `≥ truncBound ν M` lie in the span of
 the `ψ_w x^u e_i` with some `u_a ≥ M`. -/
 noncomputable def truncBound (M : ℕ) : ℤ :=
-  redLen m * G.degΨAbs + m * M * G.degXAbs + 1
+  redLen m * G.degΨAbs ν + m * M * G.degXAbs ν + 1
 
 theorem weight_le_of_lt {u : Fin m →₀ ℕ} {M : ℕ} (hu : ∀ a, u a < M) (i : Seq ν) :
-    Finsupp.weight (fun a => G.degX (i.lbl a)) u ≤ m * M * G.degXAbs := by
+    Finsupp.weight (fun a => G.degX (i.lbl a)) u ≤ m * M * G.degXAbs ν := by
   rw [Finsupp.weight_apply, Finsupp.sum_fintype _ _ (by simp)]
-  calc ∑ a, u a • G.degX (i.lbl a) ≤ ∑ _a : Fin m, (M : ℤ) * G.degXAbs := by
+  calc ∑ a, u a • G.degX (i.lbl a) ≤ ∑ _a : Fin m, (M : ℤ) * G.degXAbs ν := by
         refine Finset.sum_le_sum fun a _ => ?_
         rw [nsmul_eq_mul]
-        calc (u a : ℤ) * G.degX (i.lbl a) ≤ u a * G.degXAbs :=
-              mul_le_mul_of_nonneg_left (G.degX_le _) (Nat.cast_nonneg _)
-          _ ≤ M * G.degXAbs :=
+        calc (u a : ℤ) * G.degX (i.lbl a) ≤ u a * G.degXAbs ν :=
+              mul_le_mul_of_nonneg_left (G.degX_le (i.mem a)) (Nat.cast_nonneg _)
+          _ ≤ M * G.degXAbs ν :=
               mul_le_mul_of_nonneg_right (by exact_mod_cast (hu a).le) G.degXAbs_nonneg
-    _ = m * M * G.degXAbs := by
+    _ = m * M * G.degXAbs ν := by
         rw [Finset.sum_const, card_univ, Fintype.card_fin, nsmul_eq_mul, mul_assoc]
 
-variable [DecidableEq I] {B : Type*} [Ring B] [Algebra k B]
+variable {B : Type*} [Ring B] [Algebra k B]
 
-omit [Fintype I] in
 /-- If `φ` kills `x_a^M` for every `a`, it kills every `ψ_w x^u e_i` with some `u_a ≥ M`. -/
 theorem map_stdElt_eq_zero (φ : KLRAlgebra k Q ν →ₐ[k] B) {M : ℕ}
     (hφ : ∀ a : Fin m, φ (pol (X a ^ M)) = 0) (ρ : List ℕ) (i : Seq ν)
@@ -154,7 +157,7 @@ theorem map_eq_zero_of_mem_grade (φ : KLRAlgebra k Q ν →ₐ[k] B) {M : ℕ}
       · exfalso
         have h1 := G.degW_le (redWord m w) i
         have h2 := G.weight_le_of_lt hu i
-        have h3 : ((redWord m w).length : ℤ) * G.degΨAbs ≤ redLen m * G.degΨAbs :=
+        have h3 : ((redWord m w).length : ℤ) * G.degΨAbs ν ≤ redLen m * G.degΨAbs ν :=
           mul_le_mul_of_nonneg_right (by exact_mod_cast Finset.le_sup (f := fun w :
             Perm (Fin m) => (redWord m w).length) (mem_univ w)) G.degΨAbs_nonneg
         unfold truncBound at hd
@@ -175,7 +178,6 @@ variable (φ : KLRAlgebra k Q ν →ₐ[k] B) (D : ℤ)
 noncomputable def truncSum (b : ℤ) (f : HahnSeries ℤ (KLRAlgebra k Q ν)) : B :=
   ∑ d ∈ Ico b D, φ (f.coeff d)
 
-omit [Fintype I] in
 /-- The truncated sum does not depend on the lower limit below the support. -/
 theorem truncSum_eq_of_le {b b' : ℤ} (hbb' : b' ≤ b) {f : HahnSeries ℤ (KLRAlgebra k Q ν)}
     (hf : ∀ d < b, f.coeff d = 0) : truncSum φ D b' f = truncSum φ D b f := by
@@ -185,23 +187,19 @@ theorem truncSum_eq_of_le {b b' : ℤ} (hbb' : b' ≤ b) {f : HahnSeries ℤ (KL
   · rw [mem_Ico] at hd hdn
     rw [hf d (by omega), map_zero]
 
-omit [Fintype I] in
 theorem coeff_eq_zero_of_lt_order' (f : HahnSeries ℤ (KLRAlgebra k Q ν)) :
     ∀ d < f.order, f.coeff d = 0 := fun _ hd => coeff_eq_zero_of_lt_order hd
 
 variable {M : ℕ}
 
-omit [DecidableEq I] in
 theorem truncBound_pos : 0 < G.truncBound ν M := by
-  have := G.degΨAbs_nonneg; have := G.degXAbs_nonneg
+  have := G.degΨAbs_nonneg (ν := ν); have := G.degXAbs_nonneg (ν := ν)
   unfold truncBound
   positivity
 
-omit [Fintype I] in
 theorem order_le_of_ne_zero {f : HahnSeries ℤ (KLRAlgebra k Q ν)} {d : ℤ}
     (hd : f.coeff d ≠ 0) : f.order ≤ d := order_le_of_coeff_ne_zero hd
 
-omit [Fintype I] in
 /-- The coefficients of a product vanish below the sum of the orders. -/
 theorem coeff_mul_eq_zero_of_lt (f g : HahnSeries ℤ (KLRAlgebra k Q ν)) {d : ℤ}
     (hd : d < f.order + g.order) : (f * g).coeff d = 0 := by

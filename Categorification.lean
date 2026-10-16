@@ -623,6 +623,7 @@ import Categorification.TwoRep.RouqModel
 import Categorification.TwoRep.RouqInterp
 import Categorification.TwoRep.RouqUpKLR
 import Categorification.TwoRep.RouqKLRAction
+import Categorification.TwoRep.RouqKLRCompletion
 import Categorification.TwoRep.RouqUpInterp
 import Categorification.TwoRep.RouqMixedSource
 import Categorification.TwoRep.RouqMixedNonpositive

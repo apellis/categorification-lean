@@ -77,4 +77,19 @@ theorem klP2_isWeightedHomogeneous (o : I → I → Prop) [DecidableRel o]
       simp only [Matrix.cons_val_one, Matrix.cons_val_zero, nsmul_eq_mul]
       exact (symmetrizer_dij C d hsym hij).symm.trans (Nat.mul_comm _ _)
   · exact ⟨0, isWeightedHomogeneous_one k _⟩
+
+/-- The extremal coefficient of each off-diagonal KL polynomial is one. -/
+theorem klQ2_coeff_extremal (i j : I) (hij : i ≠ j) :
+    (klQ2 k C i j).coeff (Finsupp.single 0 (C.dij i j)) = 1 := by
+  classical
+  by_cases hd : C.dot i j = 0
+  · simp [klQ2, hd, (C.dij_eq_zero_iff hij).2 hd]
+  · have hne : (Finsupp.single (1 : Fin 2) (C.dij j i)) ≠
+        Finsupp.single 0 (C.dij i j) := by
+      intro he
+      have := congrArg (fun f : Fin 2 →₀ ℕ => f 0) he
+      simp at this
+      exact (C.dij_pos hij hd).ne' this.symm
+    simp [klQ2, hd, X_pow_eq_monomial, coeff_monomial, hne]
+
 end Categorification.KLR

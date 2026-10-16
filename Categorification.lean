@@ -682,6 +682,7 @@ import Categorification.TwoRep.RouqYoneda
 import Categorification.TwoRep.RouqReverse
 import Categorification.TwoRep.RouqProduct
 import Categorification.TwoRep.RouqProductKLR
+import Categorification.TwoRep.RouqProductLeft
 import Categorification.TwoRep.RouqProductNilpotent
 import Categorification.TwoRep.RouqProductVanishing
 import Categorification.TwoRep.RouqVanishing

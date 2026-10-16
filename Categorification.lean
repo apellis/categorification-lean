@@ -687,6 +687,7 @@ import Categorification.TwoRep.FurlingKLR
 import Categorification.TwoRep.FurlingFamily
 import Categorification.TwoRep.FurlingKL
 import Categorification.TwoRep.FurlingBlock
+import Categorification.TwoRep.FurlingMixedInversion
 import Categorification.TwoRep.FurlingMixed
 import Categorification.TwoRep.FurlingZero
 import Categorification.TwoRep.FurlingKM3

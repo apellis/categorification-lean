@@ -23,6 +23,11 @@ intertwine the two (`Furling.intertw_freeGamma`).
 * `Furling.lgen`: the generator of a path, on the summand of a lift of a word.
 * `Furling.actG`, `Furling.actT`: the free algebra on the generators of `R(ν)` acting on the
   words of `g`, and through `γ` on the words of `g̃` of a lift.
+* `Furling.intertw_freeGamma`: the generators of lifts intertwine the two actions.
+* `Furling.klrActFree_rel`, `Furling.klrAct` (Webster, `lem:g-action`): the action of `g`
+  respects the relations of `R(ν)`, hence `R(ν)` acts on the words of `g`. The hypotheses are
+  those of the cover: the mixed relations `RouqUpKLR` of `g̃` for the matrices of the unfurling
+  datum, nilpotent dots, and vanishing of the generators of `g̃` along irrelevant edges.
 * `KLR.ncEval_rename_of_commute`, `KLR.ncEval_pwAt_of_commute`: `ncEval` at pairwise commuting
   elements.
 -/
@@ -763,6 +768,89 @@ theorem intertw_freeGamma (r : FreeAlgebra k (KLR.Gen ν)) :
     exact (MatEnd.intertwSubalgebra k _ _).add_mem ha hb
 
 end Gen
+
+/-! ## Descent of the action of `g` to `R(ν)` -/
+
+section Descent
+
+omit [DecidableEq I] [DecidableEq J] in
+/-- Every list of colours is the word of a sequence. -/
+theorem exists_word_eq (l : List J) : ∃ (ν' : Multiset J) (s : Seq ν'), word s = l := by
+  have hc : Multiset.card (l : Multiset J) = l.length := Multiset.coe_card l
+  refine ⟨l, ⟨fun a => l.get (Fin.cast hc a), ?_⟩, ?_⟩
+  · rw [Fin.univ_val_map, ← List.ofFn_congr hc.symm l.get, List.ofFn_get]
+  · change List.ofFn (fun a => l.get (Fin.cast hc a)) = l
+    rw [← List.ofFn_congr hc.symm l.get, List.ofFn_get]
+
+omit [DecidableEq I] [DecidableEq J] in
+theorem coe_word_I {ν : Multiset I} (t : KLR.Seq ν) : (word t : Multiset I) = ν := by
+  rw [word, ← Fin.univ_val_map]; exact t.2
+
+variable {Φ D} {S} (hπ : ∀ a, Φ.π a = D.π a) (μ : X) {ν : Multiset I}
+  (H : RouqUpKLR S (Unfurling.unfQ (k := k) D.arrows))
+  (hnil : ∀ (c : J) {x y : Xc} (h : x + RDc.iX c = y), IsNilpotent (End.of (S.dot c h)))
+  (hzero : ∀ (β : J →₀ ℤ) (a : J) {y : Xc} (h : Φ.wtT β + RDc.iX a = y), ¬ Φ.rel β a →
+    IsZero (S.E a h))
+  {Q : I → I → MvPolynomial (Fin 2) k}
+  (hPQ : ∀ a b, a ≠ b → Q a b = P b a * MvPolynomial.rename ![1, 0] (P a b))
+
+include hπ H hnil hzero hPQ in
+/-- **The action of `g` respects the relations of `R(ν)`** (Webster, `lem:g-action`): if `x` and
+`y` are related by a defining relation of `R(ν)`, they act equally on the words of `g` at every
+object and block. The generators of paths into a word of `g` are the generators of the lifts of
+its words (`Furling.lgen`), on which the two actions are those of `γ(x) = γ(y)`. -/
+theorem actG_eq_of_rel (M : ∀ β : Φ.Blk μ, blkCat Φ S β.1) (δ : Φ.Blk (wtop RD μ ν))
+    {x y : FreeAlgebra k (KLR.Gen ν)} (h : Rel k Q ν x y) :
+    actG (D := D) S μ M δ x = actG (D := D) S μ M δ y := by
+  ext t' t
+  refine pgen_ext Φ S D M (wordL RD μ t') (wValid_wordL μ t') δ (𝟭 _)
+    (g := actG (D := D) S μ M δ x t' t) (g' := actG (D := D) S μ M δ y t' t) fun β Ps hP hδ => ?_
+  obtain ⟨ν'', s, rfl⟩ := exists_word_eq Ps
+  have hw : word t' = (word s).map Φ.π := by
+    rw [← map_fst_of_isPath Φ β.1 _ _ hP, wordL, map_fst_canon]
+  have hν : ν''.map D.π = ν := by
+    rw [← coe_word_I t', hw, ← Multiset.map_coe, coe_word]
+    exact Multiset.map_congr rfl fun a _ => (hπ a).symm
+  obtain rfl : Unfurling.down D.π hν s = t' :=
+    word_injective ((word_down hπ hν s).trans hw.symm)
+  have hδ' : β.1 + blkSum ν'' = δ.1 := (endBlk_word β.1 s).symm.trans hδ
+  have hr : IsRel Φ β.1 (word s) := by
+    have := hP; rw [wordL_down hπ] at this; exact (isPath_canon_iff Φ β.1 μ _).1 this
+  have hT : actT μ M δ β ⟨ν'', hν⟩ hδ' H hnil x = actT μ M δ β ⟨ν'', hν⟩ hδ' H hnil y := by
+    have hg := Unfurling.freeGamma_rel D hPQ h
+    unfold actT
+    erw [AlgHom.comp_apply, AlgHom.comp_apply, AlgHom.comp_apply, hg]
+    rfl
+  have key := (intertw_freeGamma hπ μ M δ β ⟨ν'', hν⟩ hδ' H hnil hzero x s t).trans
+    (hT ▸ (intertw_freeGamma hπ μ M δ β ⟨ν'', hν⟩ hδ' H hnil hzero y s t).symm)
+  rw [lgen_of_isRel S hπ μ M δ β ⟨ν'', hν⟩ hδ' s hr] at key
+  exact (cancel_epi _).1 ((Category.assoc _ _ _).symm.trans (key.trans (Category.assoc _ _ _)))
+
+include hπ H hnil hzero hPQ in
+/-- **Webster, arXiv:1603.06311v3, §2.3, Lemma label `lem:g-action`** (the relations): the
+generators of `g` satisfy the defining relations of `R(ν)` for the matrices `Q` of `P`, that is,
+`RouqData.klrActFree` of `g` factors through `R(ν)`. -/
+theorem klrActFree_rel {x y : FreeAlgebra k (KLR.Gen ν)} (h : Rel k Q ν x y) :
+    (rouqData Φ S D).klrActFree k μ ν x = (rouqData Φ S D).klrActFree k μ ν y := by
+  ext t' t
+  apply ObjectProperty.hom_ext
+  ext M δ
+  have := congrFun (congrFun (actG_eq_of_rel hπ μ H hnil hzero hPQ M δ h) t') t
+  simp only [actG, AlgHom.comp_apply, MatEnd.mapAlg_apply, evalBlk_map] at this
+  exact this
+
+/-- **Webster, arXiv:1603.06311v3, §2.3, Lemma label `lem:g-action`**: the KLR algebra `R(ν)`
+of the matrices `Q` of `P` acts on the words of weight `ν` of `g`, the generators acting by
+the idempotents, dots and crossings of `g`. -/
+def klrAct : KLRAlgebra k Q ν →ₐ[k] (rouqData Φ S D).WordEnd μ ν :=
+  RingQuot.liftAlgHom k ⟨(rouqData Φ S D).klrActFree k μ ν,
+    fun _ _ h => klrActFree_rel hπ μ H hnil hzero hPQ h⟩
+
+theorem klrAct_mk (a : FreeAlgebra k (KLR.Gen ν)) :
+    klrAct hπ μ H hnil hzero hPQ (KLRAlgebra.mk k Q ν a) = (rouqData Φ S D).klrActFree k μ ν a :=
+  RingQuot.liftAlgHom_mkAlgHom_apply k _ _ a
+
+end Descent
 
 end Furling
 

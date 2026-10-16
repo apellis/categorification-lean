@@ -418,7 +418,7 @@ theorem intertw_dot (a : Fin (Multiset.card ν)) :
   rw [lgen_of_isRel S hπ μ M δ β ν' hδ s hr, evalBlk_map, evalSrc_map, RouqData.wordDot]
   refine (Category.assoc _ _ _).trans ?_
   erw [pgen_wdot Φ S D M β a _ _ _ _ _ _ _ ha]
-  rw [ncEval_pwAt_of_commute _ (fun _ _ => RouqData.wdot_comm _ _ _ _ _ _ _)]
+  rw [ncEval_pwAt_of_commute _ (fun _ _ => by exact RouqData.wdot_comm _ _ _ _ _ _ _)]
   refine (Category.assoc _ _ _).symm.trans (Eq.trans ?_ (Category.assoc _ _ _))
   refine congrArg (· ≫ _) ?_
   have hl : (word s)[(a : ℕ)] = s.lbl (Fin.cast (Unfurling.card_eq D.π ν'.2) a) := by

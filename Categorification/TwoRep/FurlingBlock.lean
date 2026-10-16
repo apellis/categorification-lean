@@ -184,7 +184,7 @@ omit [DecidableEq I] [DecidableEq J] [∀ (x : Xc), HasFiniteBiproducts (S.obj x
     trF S h N e rfl = Iso.refl _ := rfl
 
 /-- The projection of `E_i M` onto the summand of an edge. -/
-abbrev projE (M : ∀ β : Φ.Blk m, blkCat Φ S β.1) {γ : Φ.Blk m'}
+abbrev projEb (M : ∀ β : Φ.Blk m, blkCat Φ S β.1) {γ : Φ.Blk m'}
     (p : {e : Φ.Edge i m // e.tgt h = γ}) :
     (E Φ S i h).obj.obj M γ ⟶ (Ea Φ S h p.1 γ p.2).obj (M p.1.src) :=
   biproduct.π (fun p : {e : Φ.Edge i m // e.tgt h = γ} =>
@@ -208,14 +208,14 @@ abbrev projFq (N : ∀ γ : Φ.Blk m', blkCat Φ S γ.1) {β : Φ.Blk m}
 
 omit [DecidableEq I] [DecidableEq J] in
 @[reassoc (attr := simp)]
-theorem genE_projE (M : ∀ β : Φ.Blk m, blkCat Φ S β.1) {γ : Φ.Blk m'}
-    (p : {e : Φ.Edge i m // e.tgt h = γ}) : genE Φ S i h M p ≫ projE S h M p = 𝟙 _ :=
+theorem genE_projEb (M : ∀ β : Φ.Blk m, blkCat Φ S β.1) {γ : Φ.Blk m'}
+    (p : {e : Φ.Edge i m // e.tgt h = γ}) : genE Φ S i h M p ≫ projEb S h M p = 𝟙 _ :=
   biproduct.ι_π_self _ _
 
 omit [DecidableEq I] [DecidableEq J] in
-theorem genE_projE_ne (M : ∀ β : Φ.Blk m, blkCat Φ S β.1) {γ : Φ.Blk m'}
+theorem genE_projEb_ne (M : ∀ β : Φ.Blk m, blkCat Φ S β.1) {γ : Φ.Blk m'}
     {p p' : {e : Φ.Edge i m // e.tgt h = γ}} (hp : p ≠ p') :
-    genE Φ S i h M p ≫ projE S h M p' = 0 :=
+    genE Φ S i h M p ≫ projEb S h M p' = 0 :=
   biproduct.ι_π_ne _ hp
 
 omit [DecidableEq I] [DecidableEq J] in
@@ -237,7 +237,7 @@ noncomputable instance fintypeSrc (β : Φ.Blk m) : Fintype {e : Φ.Edge i m // 
 
 omit [DecidableEq I] [DecidableEq J] in
 theorem total_projE (M : ∀ β : Φ.Blk m, blkCat Φ S β.1) (γ : Φ.Blk m') :
-    ∑ p : {e : Φ.Edge i m // e.tgt h = γ}, projE S h M p ≫ genE Φ S i h M p = 𝟙 _ := by
+    ∑ p : {e : Φ.Edge i m // e.tgt h = γ}, projEb S h M p ≫ genE Φ S i h M p = 𝟙 _ := by
   classical
   exact biproduct_total'
 
@@ -339,7 +339,7 @@ open scoped Classical in
 /-- The projection onto the shift-zero summand of label `lab t`. -/
 def rZ (t : Fin (nLbl Φ i δ.1)) : ((F Φ S i h₁ ≫ E Φ S i h₁).obj.obj N) δ ⟶ srcZ N δ t :=
   if hr : Φ.rel (δ.1 - Finsupp.single (lab Φ i δ.1 t) 1) (lab Φ i δ.1 t) then
-    projE S h₁ ((F Φ S i h₁).obj.obj N) (pIn h₁ δ t hr) ≫
+    projEb S h₁ ((F Φ S i h₁).obj.obj N) (pIn h₁ δ t hr) ≫
       (Ea Φ S h₁ (pIn h₁ δ t hr).1 δ (pIn h₁ δ t hr).2).map
         (projF Φ S i h₁ N (pIn h₁ δ t hr).1 ≫
           (trF S h₁ N (pIn h₁ δ t hr).1 (pIn h₁ δ t hr).2).inv)
@@ -366,7 +366,7 @@ def sM (x : SrcMix h₁ δ) : srcM h₁ N δ x ⟶ ((F Φ S i h₁ ≫ E Φ S i 
 
 /-- The projection onto a mixed summand. -/
 def rM (x : SrcMix h₁ δ) : ((F Φ S i h₁ ≫ E Φ S i h₁).obj.obj N) δ ⟶ srcM h₁ N δ x :=
-  projE S h₁ ((F Φ S i h₁).obj.obj N) x.1.1 ≫ (Ea Φ S h₁ x.1.1.1 δ x.1.1.2).map
+  projEb S h₁ ((F Φ S i h₁).obj.obj N) x.1.1 ≫ (Ea Φ S h₁ x.1.1.1 δ x.1.1.2).map
     (projFq S h₁ N x.1.2)
 
 variable (hzero : ∀ (β : J →₀ ℤ) (a : J) {y : Xc} (h : Φ.wtT β + RDc.iX a = y), ¬ Φ.rel β a →
@@ -384,7 +384,7 @@ theorem sZ_rZ (t : Fin (nLbl Φ i δ.1)) : sZ h₁ N δ t ≫ rZ h₁ N δ t = �
   by_cases hr : Φ.rel (δ.1 - Finsupp.single (lab Φ i δ.1 t) 1) (lab Φ i δ.1 t)
   · simp only [sZ, rZ, hr, ↓reduceDIte]
     exact sr_id _ _ _ _ _ _ _ (Iso.hom_inv_id _) (incF_projF Φ S h₁ N _)
-      (genE_projE S h₁ _ _)
+      (genE_projEb S h₁ _ _)
   · exact (isZero_srcZ N δ hzero t hr).eq_of_src _ _
 
 omit [DecidableEq I] [DecidableEq J] in
@@ -399,13 +399,13 @@ theorem sZ_rZ_ne {t t' : Fin (nLbl Φ i δ.1)} (htt : t ≠ t') : sZ h₁ N δ t
   by_cases hr : Φ.rel (δ.1 - Finsupp.single (lab Φ i δ.1 t) 1) (lab Φ i δ.1 t)
   · by_cases hr' : Φ.rel (δ.1 - Finsupp.single (lab Φ i δ.1 t') 1) (lab Φ i δ.1 t')
     · simp only [sZ, rZ, hr, hr', ↓reduceDIte]
-      exact comp_zero_mid _ _ _ _ (genE_projE_ne S h₁ _ (pIn_ne h₁ δ htt hr hr'))
+      exact comp_zero_mid _ _ _ _ (genE_projEb_ne S h₁ _ (pIn_ne h₁ δ htt hr hr'))
     · simp only [rZ, hr', ↓reduceDIte, Limits.comp_zero]
   · simp only [sZ, hr, ↓reduceDIte, Limits.zero_comp]
 
 omit [DecidableEq I] [DecidableEq J] in
 theorem sM_rM (x : SrcMix h₁ δ) : sM h₁ N δ x ≫ rM h₁ N δ x = 𝟙 _ :=
-  sr_id' _ _ _ _ _ (incFq_projFq S h₁ N _) (genE_projE S h₁ _ _)
+  sr_id' _ _ _ _ _ (incFq_projFq S h₁ N _) (genE_projEb S h₁ _ _)
 
 omit [DecidableEq I] in
 theorem sM_rM_ne {x x' : SrcMix h₁ δ} (hx : x ≠ x') : sM h₁ N δ x ≫ rM h₁ N δ x' = 0 := by
@@ -414,8 +414,8 @@ theorem sM_rM_ne {x x' : SrcMix h₁ δ} (hx : x ≠ x') : sM h₁ N δ x ≫ rM
   by_cases hp : p = p'
   · subst hp
     have hqq : q ≠ q' := fun h => hx (by subst h; rfl)
-    exact sr_zero _ _ _ _ _ (genE_projE S h₁ _ _) (incFq_projFq_ne S h₁ N hqq)
-  · exact comp_zero_mid _ _ _ _ (genE_projE_ne S h₁ _ hp)
+    exact sr_zero _ _ _ _ _ (genE_projEb S h₁ _ _) (incFq_projFq_ne S h₁ N hqq)
+  · exact comp_zero_mid _ _ _ _ (genE_projEb_ne S h₁ _ hp)
 
 omit [DecidableEq I] in
 theorem sZ_rM (t : Fin (nLbl Φ i δ.1)) (x : SrcMix h₁ δ) : sZ h₁ N δ t ≫ rM h₁ N δ x = 0 := by
@@ -424,11 +424,11 @@ theorem sZ_rM (t : Fin (nLbl Φ i δ.1)) (x : SrcMix h₁ δ) : sZ h₁ N δ t �
     simp only [sZ, hr, ↓reduceDIte]
     by_cases hp : pIn h₁ δ t hr = p
     · subst hp
-      refine sr_zero _ _ _ _ _ (genE_projE S h₁ _ _) ?_
+      refine sr_zero _ _ _ _ _ (genE_projEb S h₁ _ _) ?_
       exact (Category.assoc _ _ _).trans ((congrArg (_ ≫ ·) (incFq_projFq_ne S h₁ N
         (q := ⟨(pIn h₁ δ t hr).1, rfl⟩) (q' := q)
         (fun h => hq (congrArg (fun q => q.1.lbl) h).symm))).trans Limits.comp_zero)
-    · exact comp_zero_mid _ _ _ _ (genE_projE_ne S h₁ _ hp)
+    · exact comp_zero_mid _ _ _ _ (genE_projEb_ne S h₁ _ hp)
   · simp only [sZ, hr, ↓reduceDIte, Limits.zero_comp]
 
 omit [DecidableEq I] in
@@ -438,11 +438,11 @@ theorem sM_rZ (x : SrcMix h₁ δ) (t : Fin (nLbl Φ i δ.1)) : sM h₁ N δ x �
     simp only [rZ, hr, ↓reduceDIte]
     by_cases hp : p = pIn h₁ δ t hr
     · subst hp
-      refine sr_zero _ _ _ _ _ (genE_projE S h₁ _ _) ?_
+      refine sr_zero _ _ _ _ _ (genE_projEb S h₁ _ _) ?_
       exact (Category.assoc _ _ _).symm.trans ((congrArg (· ≫ _) (incFq_projFq_ne S h₁ N (q := q)
         (q' := ⟨(pIn h₁ δ t hr).1, rfl⟩) (fun h => hq (congrArg (fun q => q.1.lbl) h)))).trans
         Limits.zero_comp)
-    · exact comp_zero_mid _ _ _ _ (genE_projE_ne S h₁ _ hp)
+    · exact comp_zero_mid _ _ _ _ (genE_projEb_ne S h₁ _ hp)
   · simp only [rZ, hr, ↓reduceDIte, Limits.comp_zero]
 
 
@@ -462,7 +462,7 @@ theorem src_total :
     (W := fun _ q => (incSrc Φ S q.1 _ q.2).obj
       ((Fa Φ S h₁ q.1 (q.1.tgt h₁) rfl).obj (N (q.1.tgt h₁))))
     (fun p => Ea Φ S h₁ p.1 δ p.2)
-    (projE S h₁ ((F Φ S i h₁).obj.obj N)) (genE Φ S i h₁ ((F Φ S i h₁).obj.obj N))
+    (projEb S h₁ ((F Φ S i h₁).obj.obj N)) (genE Φ S i h₁ ((F Φ S i h₁).obj.obj N))
     (total_projE S h₁ _ δ) (fun _ q => projFq S h₁ N q) (fun _ q => incFq S h₁ N q)
     (fun p => total_projFq S h₁ N p.1.src)
   refine Eq.trans ?_ H
@@ -527,7 +527,7 @@ open scoped Classical in
 def rZ' (t : Fin (nLbl Φ i δ.1)) : ((E Φ S i h₂ ≫ F Φ S i h₂).obj.obj N) δ ⟶ tgtZ N δ t :=
   if hr : Φ.rel δ.1 (lab Φ i δ.1 t) then
     projFq S h₂ ((E Φ S i h₂).obj.obj N) (rOut δ t hr) ≫
-      (Fa Φ S h₂ (rOut δ t hr).1 _ rfl).map (projE S h₂ N ⟨(rOut δ t hr).1, rfl⟩)
+      (Fa Φ S h₂ (rOut δ t hr).1 _ rfl).map (projEb S h₂ N ⟨(rOut δ t hr).1, rfl⟩)
   else 0
 
 /-- The pairs `(r, s)` of an edge `r` out of `δ` and an edge `s` into its target with a
@@ -552,7 +552,7 @@ def sM' (y : TgtMix h₂ δ) : tgtM h₂ N δ y ⟶ ((E Φ S i h₂ ≫ F Φ S i
 /-- The projection onto a mixed summand. -/
 def rM' (y : TgtMix h₂ δ) : ((E Φ S i h₂ ≫ F Φ S i h₂).obj.obj N) δ ⟶ tgtM h₂ N δ y :=
   projFq S h₂ ((E Φ S i h₂).obj.obj N) y.1.1 ≫ (incSrc Φ S y.1.1.1 δ y.1.1.2).map
-    ((Fa Φ S h₂ y.1.1.1 (y.1.1.1.tgt h₂) rfl).map (projE S h₂ N y.1.2))
+    ((Fa Φ S h₂ y.1.1.1 (y.1.1.1.tgt h₂) rfl).map (projEb S h₂ N y.1.2))
 
 variable (hzero : ∀ (β : J →₀ ℤ) (a : J) {y : Xc} (h : Φ.wtT β + RDc.iX a = y), ¬ Φ.rel β a →
     IsZero (S.E a h))
@@ -578,7 +578,7 @@ omit [DecidableEq I] [DecidableEq J] in
 theorem sZ_rZ' (t : Fin (nLbl Φ i δ.1)) : sZ' h₂ N δ t ≫ rZ' h₂ N δ t = 𝟙 _ := by
   by_cases hr : Φ.rel δ.1 (lab Φ i δ.1 t)
   · simp only [sZ', rZ', hr, ↓reduceDIte]
-    exact sr_id' _ _ _ _ _ (genE_projE S h₂ _ _) (incFq_projFq S h₂ _ _)
+    exact sr_id' _ _ _ _ _ (genE_projEb S h₂ _ _) (incFq_projFq S h₂ _ _)
   · exact (isZero_tgtZ N δ hzero t hr).eq_of_src _ _
 
 omit [DecidableEq I] [DecidableEq J] in
@@ -598,7 +598,7 @@ theorem sZ_rZ_ne' {t t' : Fin (nLbl Φ i δ.1)} (htt : t ≠ t') :
 
 omit [DecidableEq I] [DecidableEq J] in
 theorem sM_rM' (y : TgtMix h₂ δ) : sM' h₂ N δ y ≫ rM' h₂ N δ y = 𝟙 _ :=
-  sr_id' _ _ _ _ _ (map_comp_eq_id _ (genE_projE S h₂ _ _)) (incFq_projFq S h₂ _ _)
+  sr_id' _ _ _ _ _ (map_comp_eq_id _ (genE_projEb S h₂ _ _)) (incFq_projFq S h₂ _ _)
 
 omit [DecidableEq I] in
 theorem sM_rM_ne' {y y' : TgtMix h₂ δ} (hy : y ≠ y') : sM' h₂ N δ y ≫ rM' h₂ N δ y' = 0 := by
@@ -608,7 +608,7 @@ theorem sM_rM_ne' {y y' : TgtMix h₂ δ} (hy : y ≠ y') : sM' h₂ N δ y ≫ 
   · subst hr
     have hqq : q ≠ q' := fun h => hy (by subst h; rfl)
     exact sr_zero _ _ _ _ _ (incFq_projFq S h₂ _ _)
-      (map_comp_eq_zero _ (genE_projE_ne S h₂ _ hqq))
+      (map_comp_eq_zero _ (genE_projEb_ne S h₂ _ hqq))
   · exact comp_zero_mid _ _ _ _ (incFq_projFq_ne S h₂ _ hr)
 
 omit [DecidableEq I] in
@@ -618,7 +618,7 @@ theorem sZ_rM' (t : Fin (nLbl Φ i δ.1)) (y : TgtMix h₂ δ) : sZ' h₂ N δ t
     simp only [sZ', hr, ↓reduceDIte]
     by_cases hp : rOut δ t hr = r
     · subst hp
-      exact sr_zero _ _ _ _ _ (incFq_projFq S h₂ _ _) (genE_projE_ne S h₂ _
+      exact sr_zero _ _ _ _ _ (incFq_projFq S h₂ _ _) (genE_projEb_ne S h₂ _
         (p := ⟨(rOut δ t hr).1, rfl⟩) (p' := q)
         (fun h => hq (congrArg (fun q => q.1.lbl) h).symm))
     · exact comp_zero_mid _ _ _ _ (incFq_projFq_ne S h₂ _ hp)
@@ -631,7 +631,7 @@ theorem sM_rZ' (y : TgtMix h₂ δ) (t : Fin (nLbl Φ i δ.1)) : sM' h₂ N δ y
     simp only [rZ', hr, ↓reduceDIte]
     by_cases hp : r = rOut δ t hr
     · subst hp
-      exact sr_zero _ _ _ _ _ (incFq_projFq S h₂ _ _) (map_comp_eq_zero _ (genE_projE_ne S h₂ _
+      exact sr_zero _ _ _ _ _ (incFq_projFq S h₂ _ _) (map_comp_eq_zero _ (genE_projEb_ne S h₂ _
         (p := q) (p' := ⟨(rOut δ t hr).1, rfl⟩) (fun h => hq (congrArg (fun q => q.1.lbl) h))))
     · exact comp_zero_mid _ _ _ _ (incFq_projFq_ne S h₂ _ hp)
   · simp only [rZ', hr, ↓reduceDIte, Limits.comp_zero]
@@ -653,7 +653,7 @@ theorem tgt_total :
     (W := fun _ s => (Ea Φ S h₂ s.1 _ s.2).obj (N s.1.src))
     (fun r => Fa Φ S h₂ r.1 (r.1.tgt h₂) rfl ⋙ incSrc Φ S r.1 δ r.2)
     (projFq S h₂ ((E Φ S i h₂).obj.obj N)) (incFq S h₂ ((E Φ S i h₂).obj.obj N))
-    (total_projFq S h₂ _ δ) (fun _ s => projE S h₂ N s) (fun _ s => genE Φ S i h₂ N s)
+    (total_projFq S h₂ _ δ) (fun _ s => projEb S h₂ N s) (fun _ s => genE Φ S i h₂ N s)
     (fun r => total_projE S h₂ N (r.1.tgt h₂))
   refine Eq.trans ?_ H
   rw [← Fintype.sum_subtype_add_sum_subtype (fun y : Σ r : {e : Φ.Edge i l' // e.src = δ},

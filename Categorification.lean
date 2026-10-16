@@ -429,6 +429,7 @@ import Categorification.KLR.KL1
 import Categorification.KLR.KL1Basis
 import Categorification.KLR.KL2.Bialgebra2
 import Categorification.KLR.KL2.Datum
+import Categorification.KLR.KL2.ScalarExtension
 import Categorification.KLR.KL2.Gamma2
 import Categorification.KLR.KL2.K0Free2
 import Categorification.KLR.KL2.K0Relations
@@ -487,12 +488,17 @@ import Categorification.KLR.Unfurling.BranchedCover
 import Categorification.KLR.Unfurling.CompletedPolyRep
 import Categorification.KLR.Unfurling.BubbleValues
 import Categorification.KLR.Unfurling.BubbleMultiplicity
+import Categorification.KLR.Unfurling.BubbleFibres
 import Categorification.KLR.Unfurling.Completion
 import Categorification.KLR.Unfurling.Cover
 import Categorification.KLR.Unfurling.CoverDatum
 import Categorification.KLR.Unfurling.CoverFamily
 import Categorification.KLR.Unfurling.CoverFurling
 import Categorification.KLR.Unfurling.CoverLabels
+import Categorification.KLR.Unfurling.GenericFields
+import Categorification.KLR.Unfurling.GenericBubbleValues
+import Categorification.KLR.Unfurling.GenericWeights
+import Categorification.KLR.Unfurling.CoverVacuum
 import Categorification.KLR.Unfurling.CoverNilpotent
 import Categorification.KLR.Unfurling.CoverVanishing
 import Categorification.KLR.Unfurling.CycFlip
@@ -662,6 +668,8 @@ import Categorification.TwoRep.RouqSoundness
 import Categorification.TwoRep.RouqDescent
 import Categorification.TwoRep.RouqFullCL
 import Categorification.TwoRep.RouqUpWords
+import Categorification.TwoRep.RouqUpScalars
+import Categorification.TwoRep.RouqUpBubbles
 import Categorification.TwoRep.RouqCyclicDot
 import Categorification.TwoRep.RouqCurl
 import Categorification.TwoRep.CoproductCRT
@@ -677,8 +685,12 @@ import Categorification.TwoRep.FurlingWords
 import Categorification.TwoRep.FurlingIntertwine
 import Categorification.TwoRep.FurlingKLR
 import Categorification.TwoRep.FurlingFamily
+import Categorification.TwoRep.FurlingKL
 import Categorification.TwoRep.FurlingBlock
 import Categorification.TwoRep.FurlingMixedInversion
+import Categorification.TwoRep.FurlingMixed
+import Categorification.TwoRep.FurlingZero
+import Categorification.TwoRep.FurlingKM3
 import Categorification.TwoRep.FurledCorner
 import Categorification.TwoRep.RouqDottedCurls
 import Categorification.TwoRep.RouqDual

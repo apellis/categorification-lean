@@ -505,6 +505,7 @@ import Categorification.KLR.Unfurling.Target
 import Categorification.KLR.Unfurling.Triangular
 import Categorification.KLR.Unfurling.Truncation
 import Categorification.KLR.Unfurling.VacuumBubbles
+import Categorification.KLR.Unfurling.VacuumFurling
 import Categorification.KLR.Unfurling.VacuumJets
 import Categorification.QuantumGroup.Bar
 import Categorification.QuantumGroup.Cartan

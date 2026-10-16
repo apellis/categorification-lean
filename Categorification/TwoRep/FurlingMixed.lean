@@ -170,13 +170,13 @@ theorem genFE_sigma_zero_of (b : J) (hb : Φ.π b = i) (hrb : Φ.rel p.src.1 b) 
     (hs : c = b → s.1.lbl ≠ p.lbl) :
     genFE Φ S h₁ N p b hb hrb ≫ (sigma Φ S D h₁ h₂).hom.app N (p.tgt h₁) ≫
       (projF Φ S i h₂ ((E Φ S i h₂).obj.obj N) (Edge.next h₁ p c hc hrc) ≫
-        (Fa Φ S h₂ (Edge.next h₁ p c hc hrc) _ rfl).map (projE S h₂ N s)) = 0 := by
+        (Fa Φ S h₂ (Edge.next h₁ p c hc hrc) _ rfl).map (projEb S h₂ N s)) = 0 := by
   by_cases hcb : c = b
   · subst hcb
     by_cases hsw : Φ.rel (p.src.1 + Finsupp.single c 1) p.lbl
     · exact chain_swap_zero _ _ _ _ _ _ _ _ _
         (genFE_sigma_projF_swap Φ S D h₁ h₂ N p c hb hrb hrc hsw)
-        (genE_projE_ne S h₂ N fun h => hs rfl (congrArg (fun e => e.1.lbl) h).symm)
+        (genE_projEb_ne S h₂ N fun h => hs rfl (congrArg (fun e => e.1.lbl) h).symm)
     · exact chain_zero _ _ _ _
         (genFE_sigma_projF_swap_of_not_rel Φ S D h₁ h₂ N p c hb hrb hrc hsw)
   · exact chain_zero _ _ _ _
@@ -189,15 +189,15 @@ theorem genFE_self_sigma_zero (c : J) (hc : Φ.π c = i) (hrc : Φ.rel (p.tgt h�
     (hs : s.1.lbl ≠ c) :
     genFE Φ S h₁ N p p.lbl p.π_lbl p.rel_src ≫ (sigma Φ S D h₁ h₂).hom.app N (p.tgt h₁) ≫
       (projF Φ S i h₂ ((E Φ S i h₂).obj.obj N) (Edge.next h₁ p c hc hrc) ≫
-        (Fa Φ S h₂ (Edge.next h₁ p c hc hrc) _ rfl).map (projE S h₂ N s)) = 0 := by
+        (Fa Φ S h₂ (Edge.next h₁ p c hc hrc) _ rfl).map (projEb S h₂ N s)) = 0 := by
   by_cases hac : p.lbl = c
   · subst hac
     exact chain_swap_zero _ _ _ _ _ _ _ _ _
       (genFE_sigma_projF_swap Φ S D h₁ h₂ N p p.lbl p.π_lbl p.rel_src hrc hrc)
-      (genE_projE_ne S h₂ N fun h => hs (congrArg (fun e => e.1.lbl) h).symm)
+      (genE_projEb_ne S h₂ N fun h => hs (congrArg (fun e => e.1.lbl) h).symm)
   · exact chain_swap_zero _ _ _ _ _ _ _ _ _
       (genFE_sigma_projF_self Φ S D h₁ h₂ N p c hc hrc hac)
-      (genE_projE_ne S h₂ N fun h => hs (congrArg (fun e => e.1.lbl) h).symm)
+      (genE_projEb_ne S h₂ N fun h => hs (congrArg (fun e => e.1.lbl) h).symm)
 
 end Core
 
@@ -218,7 +218,7 @@ theorem sM_sigma_zero (x : SrcMix h₁ δ) (r : {e : Φ.Edge i l' // e.src = δ}
     (hs : r.1.lbl = x.1.2.1.lbl → s.1.lbl ≠ x.1.1.1.lbl) :
     sM h₁ N δ x ≫ (sigma Φ S D h₁ h₂).hom.app N δ ≫
       (projFq S h₂ ((E Φ S i h₂).obj.obj N) r ≫
-        (incSrc Φ S r.1 δ r.2).map ((Fa Φ S h₂ r.1 (r.1.tgt h₂) rfl).map (projE S h₂ N s))) =
+        (incSrc Φ S r.1 δ r.2).map ((Fa Φ S h₂ r.1 (r.1.tgt h₂) rfl).map (projEb S h₂ N s))) =
       0 := by
   obtain ⟨⟨⟨p, hp⟩, ⟨⟨⟨qs, b⟩, hb, hrb⟩, hq⟩⟩, hne⟩ := x
   subst hp
@@ -311,7 +311,7 @@ theorem unit_pow_rM' (y : TgtMix h₂ δ) (n : ℕ) :
     (projF_natural Φ S h₂ ((powComp ((rouqData Φ S D).dot i h₂) n).hom.app N) r)
     (unit_projF Φ S i h₂ N r)
     (genE_powComp_dot D.pw i h₂ N ⟨r, rfl⟩ n)
-    (genE_projE_ne S h₂ N fun h => hne (congrArg (fun e => e.1.lbl) h).symm)
+    (genE_projEb_ne S h₂ N fun h => hne (congrArg (fun e => e.1.lbl) h).symm)
 
 end CapsCups
 
@@ -326,7 +326,7 @@ theorem genFE_sigma_swap_entry (p : Φ.Edge i l) (b : J) (hb : Φ.π b = i)
     (hs : Φ.rel (p.src.1 + Finsupp.single b 1) p.lbl) :
     genFE Φ S h₁ N p b hb hrb ≫ (sigma Φ S D h₁ h₂).hom.app N (p.tgt h₁) ≫
       (projF Φ S i h₂ ((E Φ S i h₂).obj.obj N) (Edge.next h₁ p b hb hr) ≫
-        (Fa Φ S h₂ (Edge.next h₁ p b hb hr) _ rfl).map (projE S h₂ N
+        (Fa Φ S h₂ (Edge.next h₁ p b hb hr) _ rfl).map (projEb S h₂ N
           ⟨swapSnd Φ h₁ p b hb hrb hs, swapSnd_tgt Φ h₁ h₂ h₁ h₂ p b hb hr hrb hs rfl⟩)) =
       (adjA Φ S h₂ (Edge.next h₁ p b hb hr) _ rfl).unit.app _ ≫
         (Fa Φ S h₂ (Edge.next h₁ p b hb hr) _ rfl).map
@@ -340,7 +340,7 @@ theorem genFE_sigma_swap_entry (p : Φ.Edge i l) (b : J) (hb : Φ.π b = i)
               ((adjA Φ S h₁ (sameSrc Φ p b hb hrb) _ rfl).counit.app
                 (N ((sameSrc Φ p b hb hrb).tgt h₁)))) :=
   chain_swap_id _ _ _ _ _ _ _ _ _ (genFE_sigma_projF_swap Φ S D h₁ h₂ N p b hb hrb hr hs)
-    (genE_projE S h₂ N _)
+    (genE_projEb S h₂ N _)
 
 variable (δ : Φ.Blk l')
 

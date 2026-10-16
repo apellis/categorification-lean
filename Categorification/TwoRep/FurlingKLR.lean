@@ -282,6 +282,14 @@ end Zero
 
 /-! ## The generators of the summands of lifts -/
 
+omit [∀ x, HasFiniteBiproducts (S.obj x : Type u₂)] [DecidableEq I] [DecidableEq J] in
+/-- Polynomials in a dot commute with the identification of words with equal letters. -/
+theorem eqToHom_aeval_wdot (x : Xc) (r : ℕ) {L L' : List (J × Xc)} (e : L = L') {x' : Xc}
+    (h : wValid RDc x L x') (h' : wValid RDc x L' x') (p : Polynomial k) :
+    eqToHom (S.wcell_congr x e h h') ≫ Polynomial.aeval (End.of (S.wdot x r L' x' h')) p =
+      Polynomial.aeval (End.of (S.wdot x r L x' h)) p ≫ eqToHom (S.wcell_congr x e h h') := by
+  subst e; simp
+
 section Gen
 
 variable {Φ D} (hπ : ∀ a, Φ.π a = D.π a) (μ : X) {ν : Multiset I}
@@ -389,6 +397,38 @@ theorem intertw_idem (i : Seq ν) :
     erw [CategoryTheory.Functor.map_id, MatEnd.sum_plc_comp_rect, Category.id_comp]
   · simp only [hd, dite_false, ite_false, Functor.map_zero, Limits.comp_zero]
     exact (Finset.sum_eq_zero fun _ _ => Limits.zero_comp).symm
+
+/-- The dots of `R(ν)` (Webster, `lem:gamma-homo`, `x_a e_{π ∘ t} ↦ ϖ_{t_a}(y_a) e_t`). -/
+theorem intertw_dot (a : Fin (Multiset.card ν)) :
+    MatEnd.Intertw (Unfurling.down D.π ν'.2) (lgen S hπ μ M δ β ν' hδ)
+      (actG S μ M δ (FreeAlgebra.ι k (.dot a))) (actT μ M δ β ν' hδ H hnil (FreeAlgebra.ι k (.dot a))) := by
+  intro s t
+  by_cases hr : IsRel Φ β.1 (word s)
+  swap
+  · exact (isZero_wordCellAt S μ M δ β ν' hδ hzero s hr).eq_of_src _ _
+  rw [actG_ι, actT_ι, MatEnd.mapAlg_apply]
+  simp only [RouqData.klrGen, RouqData.wordX, Unfurling.genImage, map_sum,
+    RouqFamily.klrComplAt_toCompletion, RouqFamily.klrActAt_pol_mul_e, MatEnd.mapAlg_single,
+    MatEnd.sum_single_apply (g := fun x => x)]
+  rw [MatEnd.map_plc (evalBlk Φ S M δ), MatEnd.comp_plc]
+  erw [MatEnd.sum_plc_comp_rect]
+  refine congrArg (fun f => MatEnd.plc _ f t) ?_
+  have ha : (a : ℕ) < (word s).length := by
+    rw [length_word, ← Unfurling.card_eq D.π ν'.2]; exact a.2
+  rw [lgen_of_isRel S hπ μ M δ β ν' hδ s hr, evalBlk_map, evalSrc_map, RouqData.wordDot]
+  refine (Category.assoc _ _ _).trans ?_
+  erw [pgen_wdot Φ S D M β a _ _ _ _ _ _ _ ha]
+  rw [ncEval_pwAt_of_commute _ (fun _ _ => RouqData.wdot_comm _ _ _ _ _ _ _)]
+  refine (Category.assoc _ _ _).symm.trans (Eq.trans ?_ (Category.assoc _ _ _))
+  refine congrArg (· ≫ _) ?_
+  have hl : (word s)[(a : ℕ)] = s.lbl (Fin.cast (Unfurling.card_eq D.π ν'.2) a) := by
+    simp only [getElem_word]; rfl
+  rw [hl]
+  have key := eqToHom_aeval_wdot S (x' := Φ.wtT δ.1) (Φ.wtT β.1) a
+    (liftL_eq_canon Φ β.1 (word s)).symm (wValid_of_eq (wValid_wordL _ s) (wtop_lift μ δ β ν' hδ))
+    (wValid_liftL_of_eq Φ β.1 (word s) ((endBlk_word β.1 s).trans hδ))
+    (D.pw (s.lbl (Fin.cast (Unfurling.card_eq D.π ν'.2) a)))
+  exact congrArg (fun f => f.hom.app (M β)) key
 
 end Gen
 

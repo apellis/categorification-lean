@@ -489,6 +489,7 @@ import Categorification.KLR.Unfurling.CoverDatum
 import Categorification.KLR.Unfurling.CoverFamily
 import Categorification.KLR.Unfurling.CoverNilpotent
 import Categorification.KLR.Unfurling.CoverVanishing
+import Categorification.KLR.Unfurling.CycFlip
 import Categorification.KLR.Unfurling.Density
 import Categorification.KLR.Unfurling.Gamma
 import Categorification.KLR.Unfurling.GammaHomo

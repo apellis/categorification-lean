@@ -739,6 +739,29 @@ theorem intertw_cross (j : ℕ) :
       erw [Limits.zero_comp, Limits.comp_zero, Limits.zero_comp, MatEnd.plc_zero, MatEnd.plc_zero]
       rfl
 
+/-- **The generators of lifts intertwine the two actions** (Webster, `lem:g-action`): on the
+summand of the lift `ν̃`, the action of `r` on the words of `g` is the action of `γ(r)` on the
+words of `g̃`. -/
+theorem intertw_freeGamma (r : FreeAlgebra k (KLR.Gen ν)) :
+    MatEnd.Intertw (Unfurling.down D.π ν'.2) (lgen S hπ μ M δ β ν' hδ)
+      (actG S μ M δ r) (actT μ M δ β ν' hδ H hnil r) := by
+  change (actG S μ M δ r, actT μ M δ β ν' hδ H hnil r) ∈ MatEnd.intertwSubalgebra k _ _
+  induction r using FreeAlgebra.induction with
+  | grade0 c =>
+    rw [AlgHom.commutes, AlgHom.commutes]
+    exact (MatEnd.intertwSubalgebra k _ _).algebraMap_mem c
+  | grade1 g =>
+    cases g with
+    | idem i => exact intertw_idem hπ μ M δ β ν' hδ H hnil hzero i
+    | dot a => exact intertw_dot hπ μ M δ β ν' hδ H hnil hzero a
+    | cross j => exact intertw_cross hπ μ M δ β ν' hδ H hnil hzero j
+  | mul a b ha hb =>
+    rw [map_mul, map_mul]
+    exact (MatEnd.intertwSubalgebra k _ _).mul_mem ha hb
+  | add a b ha hb =>
+    rw [map_add, map_add]
+    exact (MatEnd.intertwSubalgebra k _ _).add_mem ha hb
+
 end Gen
 
 end Furling

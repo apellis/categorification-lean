@@ -26,7 +26,9 @@ Then, through an `L`-algebra map `ev` from `End V` to a commutative ring,
 
   `ev (ν ≫ Dᵏ ≫ d) = [t^{k+1-n}] ∏ₐ (1 - zₐ t)^{-hₐ} ∏_b (1 - z_b t)^{Λ_b}`
 
-(`ev_comp_eq_lwSeq`). The proof:
+(`ev_comp_eq_lwSeq`). The same holds at `h = 0` (`n = 0`): then `σ` is invertible, the bubble
+uses the cap `d = σ⁻¹ ≫ κ`, and the Jordan chains give `ν ≫ w_b ≫ d = 1` instead of `0`. The
+proof:
 
 * the dot slide `σ ≫ D - D' ≫ σ = κ ≫ ν` turns the Jordan chain into `ν ≫ w_bᵐ = u_{b,m} ≫ σ`
   (`chain_comp_sigma`), so `ν ≫ w_bᵐ ≫ d = 0`;
@@ -185,14 +187,15 @@ variable {L : Type*} [Field L] {C : Type*} [Category C] [Preadditive C] [Linear 
 
 /-- **The clockwise bubbles on the generating object, labels of both signs** (Webster,
 arXiv:1603.06311v3, proof of the theorem with label `nondegenerate`). Let `V` be an object with
-cups `ν ≫ Dᵗ : V → Q` and a cap `d : Q → V` dual to them in degrees `t < n`, `n > 0`.
+cups `ν ≫ Dᵗ : V → Q` and a cap `d : Q → V` dual to them in degrees `t < n`.
 
 * Over the lowest weight labels `a`: `Q = ⊕ₐ Wₐ`, the cup with `n` dots is `νₐ ≫ (zₐ + yₐ)ⁿ` on
   the summand `a`, and `νₐ ≫ yₐ^m = 0` for `m ≥ hₐ`.
 * Over the highest weight labels `b`: `w_b` is a two-sided inverse of `D - z_b`, and
   `u_{b,1}, …, u_{b,Λ_b} : V → P` is a Jordan chain of `D' - z_b` whose cap is `δ_{m,1}`.
-* `σ : P → Q` satisfies the dot slide `σ ≫ D - D' ≫ σ = κ ≫ ν` and `σ ≫ d = 0`.
-* `∑ₐ hₐ = n + ∑_b Λ_b`.
+* `σ : P → Q` satisfies the dot slide `σ ≫ D - D' ≫ σ = κ ≫ ν`, and `σ ≫ d = 0` if `n > 0`,
+  `σ ≫ d = κ` if `n = 0` (for `n = 0`, `σ` is invertible and `d = σ⁻¹ ≫ κ`).
+* `∑ₐ hₐ = n + ∑_b Λ_b > 0`.
 
 Then `ev (ν ≫ Dᵏ ≫ d) = [t^{k+1-n}] ∏_b (1 - z_b t)^{Λ_b} ∏ₐ (1 - zₐ t)^{-hₐ}`. -/
 theorem ev_comp_eq_lwSeq {R : Type*} [CommRing R] [Algebra L R] {V Q P : C}
@@ -206,11 +209,12 @@ theorem ev_comp_eq_lwSeq {R : Type*} [CommRing R] [Algebra L R] {V Q P : C}
     {B : Type*} [Fintype B] [DecidableEq B] (zb : B → L) (hzb : Function.Injective zb)
     (Λ : B → ℕ) (w : B → End Q) (hw₁ : ∀ b, (D - algebraMap L (End Q) (zb b)) * w b = 1)
     (hw₂ : ∀ b, w b * (D - algebraMap L (End Q) (zb b)) = 1)
-    (σ : P ⟶ Q) (κ : P ⟶ V) (D' : End P) (hrel : σ ≫ D - D' ≫ σ = κ ≫ ν) (hσd : σ ≫ d = 0)
+    (σ : P ⟶ Q) (κ : P ⟶ V) (D' : End P) (hrel : σ ≫ D - D' ≫ σ = κ ≫ ν)
     (u : B → ℕ → (V ⟶ P)) (hu0 : ∀ b, u b 0 = 0)
     (hu : ∀ b m, m < Λ b → u b (m + 1) ≫ (D' - algebraMap L (End P) (zb b) : End P) = u b m)
     (huκ : ∀ b m, m < Λ b → u b (m + 1) ≫ κ = if m = 0 then 𝟙 V else 0)
-    (n : ℕ) (hn : 0 < n) (hN : ∑ a, hp a = n + ∑ b, Λ b)
+    (n : ℕ) (hN : ∑ a, hp a = n + ∑ b, Λ b) (hNpos : 0 < ∑ a, hp a)
+    (hσd : σ ≫ d = if n = 0 then κ else 0)
     (hd : ∀ t < n, ev (ν ≫ (D ^ t : End Q) ≫ d) = if t + 1 = n then 1 else 0) (k : ℕ) :
     ev (ν ≫ (D ^ k : End Q) ≫ d) = algebraMap L R (lwSeq n
       ((∏ b, (1 - PowerSeries.C (zb b) * X) ^ Λ b) *
@@ -260,9 +264,12 @@ theorem ev_comp_eq_lwSeq {R : Type*} [CommRing R] [Algebra L R] {V Q P : C}
     intro b j hj1 hj
     obtain ⟨m, rfl⟩ : ∃ m, j = m + 1 := ⟨j - 1, by omega⟩
     rw [hψ, hwpow, ← Category.assoc, ← chain_comp_sigma σ κ ν D D' hrel (zb b) (w b) (hw₂ b)
-      (Λ b) (u b) (hu0 b) (hu b) (huκ b) m (by omega), Category.assoc, hσd, Limits.comp_zero,
-      map_zero]
-    simp only [show ¬n = 0 by omega, false_and, ↓reduceIte]
+      (Λ b) (u b) (hu0 b) (hu b) (huκ b) m (by omega), Category.assoc, hσd]
+    by_cases hn : n = 0
+    · simp only [hn, ↓reduceIte, true_and]
+      rw [huκ b m (by omega)]
+      split_ifs <;> first | exact ev.map_one | exact ev.map_zero | omega
+    · simp only [hn, ↓reduceIte, false_and, Limits.comp_zero, map_zero]
   -- partial fractions
   have helim := map_pow_mul_prod_pow_eq ψ x hzb w' hw' Λ n hx hwj
   let W : Algebra.adjoin L s := ∏ b, w' b ^ Λ b
@@ -271,7 +278,6 @@ theorem ev_comp_eq_lwSeq {R : Type*} [CommRing R] [Algebra L R] {V Q P : C}
     rw [mul_comm]
     show (W : End Q) * ((x ^ t : Algebra.adjoin L s) : End Q) = _
     rw [hxpow, End.mul_def]
-  have hNpos : 0 < ∑ a, hp a := by omega
   have hd' : ∀ t < ∑ a, hp a, ev ((ν ≫ (D ^ t : End Q)) ≫ (W : End Q) ≫ d) =
       if t + 1 = ∑ a, hp a then 1 else 0 := by
     intro t ht

@@ -13,8 +13,9 @@ import Categorification.KLR.CyclotomicMultFree
 Webster, *Unfurling Khovanov–Lauda–Rouquier algebras*, arXiv:1603.06311v3, proof of the theorem
 with label `nondegenerate`, the step showing that a relation acts by zero, at the level of the KLR algebra.
 
-Fix an unfurling datum `D` without arrows (for instance `UnfurlingDatum.ofGeneric`), a weight
-`ν̃` of `J` with pairwise distinct labels over `ν`, and `M`. Compose `γ` (Lemma `lem:gamma-homo`,
+Fix an unfurling datum `D`, a weight `ν̃` of `J` with pairwise distinct labels over `ν` and no
+arrows among them (for instance any weight of `UnfurlingDatum.ofGeneric`, or generic labels of
+Webster's closure, which has arrows elsewhere), and `M`. Compose `γ` (Lemma `lem:gamma-homo`,
 `Unfurling.gamma`), the projection to the factor `𝖱̂(ν̃)`, and the extension
 (`GradingDatum.completionLift`) of the quotient map to the cyclotomic quotient `𝖱^Λ(ν̃)` with
 `a_j = y^M` for every label; the dots are nilpotent there. Call the composite `Γ`
@@ -338,7 +339,13 @@ theorem unfQ_eq_one (harr : ∀ a b, D.arrows a b = 0) (a b : J) :
     unfQ (k := k) D.arrows a b = 1 := by
   simp [unfQ, unfP, harr]
 
-variable (harr : ∀ a b, D.arrows a b = 0) {ν : Multiset I} {ν' : Multiset J}
+omit [DecidableEq I] [DecidableEq J] in
+/-- Without arrows among the labels of `ν̃`, the unfurled parameters between them are `Q = 1`. -/
+theorem unfQ_eq_one_of_mem {ν' : Multiset J} (harr : ∀ a ∈ ν', ∀ b ∈ ν', D.arrows a b = 0)
+    {a b : J} (ha : a ∈ ν') (hb : b ∈ ν') : unfQ (k := k) D.arrows a b = 1 := by
+  simp [unfQ, unfP, harr a ha b hb, harr b hb a ha]
+
+variable {ν : Multiset I} {ν' : Multiset J} (harr : ∀ a ∈ ν', ∀ b ∈ ν', D.arrows a b = 0)
   (hν : ν'.map D.π = ν) (hnd : ν'.Nodup) (M : ℕ)
 
 local notation "m'" => Multiset.card ν'
@@ -351,7 +358,7 @@ theorem cycMk_pol_X_pow (a : Fin m') : cycMk D ν' M (pol (X a ^ M)) = 0 := by
   rw [← mul_one (pol _), ← sum_e, Finset.mul_sum, map_sum]
   refine Finset.sum_eq_zero fun s _ => ?_
   have := CycKLR.mk_aeval_x_mul_e_of_nodup (a := fun _ => Polynomial.X ^ M) hnd
-    (fun i _ j _ _ => unfQ_eq_one D harr i j) s a
+    (fun _ hi _ hj _ => unfQ_eq_one_of_mem D harr hi hj) s a
   simpa [map_pow, pol_X] using this
 
 /-- The extension `𝖱̂(ν̃) → 𝖱^Λ(ν̃)` of the quotient map to the completion. -/
@@ -683,7 +690,7 @@ theorem mem_boxIdeal_of_cycMk_eq_zero {σ : List ℕ} (hσ : IsReduced m' σ) (t
     F ∈ boxIdeal (fun _ : Fin m' => (Polynomial.X ^ M : Polynomial k)) := by
   classical
   have hQ : ∀ i ∈ ν', ∀ j ∈ ν', i ≠ j → unfQ (k := k) D.arrows i j = 1 :=
-    fun i _ j _ _ => unfQ_eq_one D harr i j
+    fun _ hi _ hj _ => unfQ_eq_one_of_mem D harr hi hj
   have ha : ∀ j : J, ((fun _ : J => (Polynomial.X ^ M : Polynomial k)) j).Monic :=
     fun _ => Polynomial.monic_X_pow M
   obtain ⟨G, hG, hFG⟩ := exists_boxSupported_sub_mem
@@ -753,8 +760,8 @@ theorem substAt_eq_of_linear
 
 /-- **Triangularity of `Γ` on one column** (Webster, arXiv:1603.06311v3, proof of the theorem
 with label `nondegenerate`, the step showing that a relation acts by zero, for the KLR algebra).
-Let `D` have no arrows (for instance `UnfurlingDatum.ofGeneric`; the series are arbitrary), let
-the labels of `ν̃` be pairwise distinct, and let `t` lift `𝐢`. If
+Let the labels of `ν̃` be pairwise distinct with no arrows among them (the series are
+arbitrary, and `D` may have arrows elsewhere), and let `t` lift `𝐢`. If
 `Γ(∑_{(w,u) ∈ S} c_{w,u} ψ_{ρ w} x^u e(𝐢)) e(t) = 0` in the cyclotomic quotient with
 `a_j = y^M`, for reduced words `ρ w` and exponents `u_a < M`, then every `c_{w,u}` vanishes.
 Only the column `e(t)` is used: this is the morphism out of the summand `Ẽ_t 𝕍` of `E_𝐢 𝕍` in
@@ -838,9 +845,9 @@ theorem eq_zero_of_cycGamma_mul_e_eq_zero
     exact (hn (Finset.mem_filter.2 ⟨hp0S, rfl⟩)).elim
 
 /-- **Triangularity of `Γ`** (Webster, arXiv:1603.06311v3, proof of the theorem with label
-`nondegenerate`, the step showing that a relation acts by zero, for the KLR algebra). Let `D` have no arrows
-(the series are arbitrary), let the labels of `ν̃`
-be pairwise distinct, and let `t` lift `𝐢`. If
+`nondegenerate`, the step showing that a relation acts by zero, for the KLR algebra). Let the
+labels of `ν̃` be pairwise distinct with no arrows among them (the series are arbitrary), and let
+`t` lift `𝐢`. If
 `Γ(∑_{(w,u) ∈ S} c_{w,u} ψ_{ρ w} x^u e(𝐢)) = 0` in the cyclotomic quotient with `a_j = y^M`,
 for reduced words `ρ w` and exponents `u_a < M`, then every `c_{w,u}` vanishes. -/
 theorem eq_zero_of_cycGamma_eq_zero

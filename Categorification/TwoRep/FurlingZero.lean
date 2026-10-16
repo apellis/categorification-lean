@@ -7,6 +7,7 @@ import Categorification.TwoRep.RouqReparam
 import Categorification.TwoRep.FurlingIntertwine
 import Categorification.TwoRep.FurlingKLR
 import Categorification.TwoRep.RouqCoproductNeg
+import Categorification.TwoRep.SumInvBiprod
 
 /-!
 # Reparametrized label data for the shift-zero block
@@ -14,6 +15,9 @@ import Categorification.TwoRep.RouqCoproductNeg
 The labelwise data and teleporters in Webster, *Unfurling Khovanov–Lauda–Rouquier
 algebras*, arXiv:1603.06311v3, §2.3, equation `a-auto` and Lemma `many-sl2`.
 The constant part of each spectral polynomial is separated from its nilpotent part.
+The resulting coproduct crossing matrix, evaluated at an object of a weight block,
+is the shift-zero block `desc sZ ≫ sigma ≫ lift rZ′` of the furled action.
+The cap/cup comparison and the correction-summand count are not established here.
 -/
 
 noncomputable section
@@ -271,6 +275,170 @@ theorem genFE_self_sigma_diag (p : Φ.Edge i l) (hr : Φ.rel (p.tgt h₁).1 p.lb
       simp only [swapCell, ite_true]
       exact unit_map_comp_chain
         (S.F p.lbl (wt_tgt h₂ (Edge.next h₁ p p.lbl p.π_lbl hr) rfl)).obj _ _ _
+
+/-- The off-diagonal shift-zero entry is the sideways teleporter. -/
+theorem genFE_self_sigma_offdiag (p : Φ.Edge i l) (c : J) (hc : Φ.π c = i)
+    (hr : Φ.rel (p.tgt h₁).1 c) (hac : p.lbl ≠ c) :
+    genFE Φ S h₁ N p p.lbl p.π_lbl p.rel_src ≫ (sigma Φ S D h₁ h₂).hom.app N (p.tgt h₁) ≫
+      (projF Φ S i h₂ ((E Φ S i h₂).obj.obj N) (Edge.next h₁ p c hc hr) ≫
+        (Fa Φ S h₂ (Edge.next h₁ p c hc hr) _ rfl).map
+          (projEb S h₂ N ⟨Edge.next h₁ p c hc hr, rfl⟩)) =
+      (RightwardCrossing.sigma
+        (S.adj c (wt_tgt h₂ (Edge.next h₁ p c hc hr) rfl)).unit
+        (selfCell S D (wt_tgt h₁ p rfl) (wt_tgt h₂ (Edge.next h₁ p c hc hr) rfl))
+        (S.adj p.lbl (wt_tgt h₁ p rfl)).counit).hom.app (N (p.tgt h₁)) := by
+  have H := chain_swap_id _ _ _ _ _ _ _ _ _
+    (genFE_sigma_projF_self Φ S D h₁ h₂ N p c hc hr hac)
+    (genE_projEb S h₂ N ⟨selfSnd Φ h₁ h₁ rfl p c hc hr,
+      selfSnd_tgt Φ h₁ h₂ h₁ h₂ rfl p c hc hr rfl⟩)
+  calc
+    _ = _ := H
+    _ = _ := by
+      rw [LinearCat.sigma_hom_app]
+      exact unit_map_comp_chain (S.F c (wt_tgt h₂ (Edge.next h₁ p c hc hr) rfl)).obj _ _ _
+
+/-- The diagonal crossing entry with a specified incoming edge and its target block. -/
+theorem self_sigma_diag (δ : Φ.Blk l') (p : {e : Φ.Edge i l // e.tgt h₁ = δ})
+    (hr : Φ.rel δ.1 p.1.lbl) :
+    ((Ea Φ S h₁ p.1 δ p.2).map ((trF S h₁ N p.1 p.2).hom ≫ incF Φ S h₁ N p.1) ≫
+      genE Φ S i h₁ ((F Φ S i h₁).obj.obj N) p) ≫ (sigma Φ S D h₁ h₂).hom.app N δ ≫
+      (projFq S h₂ ((E Φ S i h₂).obj.obj N) ⟨outEdge δ p.1.lbl p.1.π_lbl hr, rfl⟩ ≫
+        (Fa Φ S h₂ (outEdge δ p.1.lbl p.1.π_lbl hr) _ rfl).map
+          (projEb S h₂ N ⟨outEdge δ p.1.lbl p.1.π_lbl hr, rfl⟩)) =
+      (RightwardCrossing.sigma (S.adj p.1.lbl (Φ.wtT_add_single δ.1 p.1.lbl)).unit
+        (swapCell S D True (wt_tgt h₁ p.1 p.2) (Φ.wtT_add_single δ.1 p.1.lbl)
+          (wt_tgt h₁ p.1 p.2) (Φ.wtT_add_single δ.1 p.1.lbl))
+        (S.adj p.1.lbl (wt_tgt h₁ p.1 p.2)).counit).hom.app (N δ) := by
+  obtain ⟨p, hp⟩ := p
+  subst hp
+  exact (map_id_comp_chain _ (trF S h₁ N p rfl).hom _ _ _ rfl).trans
+    (genFE_self_sigma_diag S D h₁ h₂ N p hr)
+
+/-- The diagonal entry on canonical block inclusions and projections. -/
+theorem sZ_sigma_rZ'_diag (δ : Φ.Blk l') (t : Fin (nLbl Φ i δ.1))
+    (hr₁ : Φ.rel (δ.1 - Finsupp.single (lab Φ i δ.1 t) 1) (lab Φ i δ.1 t))
+    (hr₂ : Φ.rel δ.1 (lab Φ i δ.1 t)) :
+    sZ h₁ N δ t ≫ (sigma Φ S D h₁ h₂).hom.app N δ ≫ rZ' h₂ N δ t =
+      (RightwardCrossing.sigma
+        (S.adj (lab Φ i δ.1 t) (Φ.wtT_add_single δ.1 _)).unit
+        (swapCell S D True (wtT_sub_add (Φ := Φ) δ.1 _)
+          (Φ.wtT_add_single δ.1 _) (wtT_sub_add (Φ := Φ) δ.1 _)
+          (Φ.wtT_add_single δ.1 _))
+        (S.adj (lab Φ i δ.1 t) (wtT_sub_add (Φ := Φ) δ.1 _)).counit).hom.app (N δ) := by
+  simp only [sZ, rZ', hr₁, hr₂, dite_true]
+  exact self_sigma_diag S D h₁ h₂ N δ (pIn h₁ δ t hr₁) hr₂
+
+/-- The off-diagonal crossing entry with a specified incoming edge and its target block. -/
+theorem self_sigma_offdiag (δ : Φ.Blk l') (p : {e : Φ.Edge i l // e.tgt h₁ = δ})
+    (c : J) (hc : Φ.π c = i) (hr : Φ.rel δ.1 c) (hac : p.1.lbl ≠ c) :
+    ((Ea Φ S h₁ p.1 δ p.2).map ((trF S h₁ N p.1 p.2).hom ≫ incF Φ S h₁ N p.1) ≫
+      genE Φ S i h₁ ((F Φ S i h₁).obj.obj N) p) ≫ (sigma Φ S D h₁ h₂).hom.app N δ ≫
+      (projFq S h₂ ((E Φ S i h₂).obj.obj N) ⟨outEdge δ c hc hr, rfl⟩ ≫
+        (Fa Φ S h₂ (outEdge δ c hc hr) _ rfl).map
+          (projEb S h₂ N ⟨outEdge δ c hc hr, rfl⟩)) =
+      (RightwardCrossing.sigma (S.adj c (Φ.wtT_add_single δ.1 c)).unit
+        (selfCell S D (wt_tgt h₁ p.1 p.2) (Φ.wtT_add_single δ.1 c))
+        (S.adj p.1.lbl (wt_tgt h₁ p.1 p.2)).counit).hom.app (N δ) := by
+  obtain ⟨p, hp⟩ := p
+  subst hp
+  exact (map_id_comp_chain _ (trF S h₁ N p rfl).hom _ _ _ rfl).trans
+    (genFE_self_sigma_offdiag S D h₁ h₂ N p c hc hr hac)
+
+/-- The teleporter entry on canonical block inclusions and projections. -/
+theorem sZ_sigma_rZ'_offdiag (δ : Φ.Blk l') (t t' : Fin (nLbl Φ i δ.1)) (hne : t ≠ t')
+    (hr₁ : Φ.rel (δ.1 - Finsupp.single (lab Φ i δ.1 t) 1) (lab Φ i δ.1 t))
+    (hr₂ : Φ.rel δ.1 (lab Φ i δ.1 t')) :
+    sZ h₁ N δ t ≫ (sigma Φ S D h₁ h₂).hom.app N δ ≫ rZ' h₂ N δ t' =
+      (RightwardCrossing.sigma
+        (S.adj (lab Φ i δ.1 t') (Φ.wtT_add_single δ.1 _)).unit
+        (selfCell S D (wtT_sub_add (Φ := Φ) δ.1 (lab Φ i δ.1 t))
+          (Φ.wtT_add_single δ.1 (lab Φ i δ.1 t')))
+        (S.adj (lab Φ i δ.1 t) (wtT_sub_add (Φ := Φ) δ.1 _)).counit).hom.app (N δ) := by
+  simp only [sZ, rZ', hr₁, hr₂, dite_true]
+  exact self_sigma_offdiag S D h₁ h₂ N δ (pIn h₁ δ t hr₁) (lab Φ i δ.1 t')
+    (lab_π δ.1 t') hr₂ (fun h => hne (lab_injective δ.1 h))
+
+variable (hzero : ∀ (β : J →₀ ℤ) (a : J) {y : Xc} (h : Φ.wtT β + RDc.iX a = y),
+    ¬ Φ.rel β a → IsZero (S.E a h))
+
+private theorem diag_off_self {A : Type} [Fintype A] [DecidableEq A]
+    {B : Type*} [Category B] [Preadditive B] {X Y : A → B}
+    (f : ∀ a, X a ⟶ Y a) (g : ∀ a b, X a ⟶ Y b) (a : A) :
+    ((RouqCoproduct.diagMat f : (⟨A, X⟩ : Mat_ B) ⟶ ⟨A, Y⟩) +
+      (show (⟨A, X⟩ : Mat_ B) ⟶ ⟨A, Y⟩ from fun a b => if a = b then 0 else g a b)) a a = f a := by
+  change (if h : a = a then f a ≫ eqToHom (congrArg Y h) else 0) +
+    (if a = a then 0 else g a a) = f a
+  simp
+
+private theorem diag_off_ne {A : Type} [Fintype A] [DecidableEq A]
+    {B : Type*} [Category B] [Preadditive B] {X Y : A → B}
+    (f : ∀ a, X a ⟶ Y a) (g : ∀ a b, X a ⟶ Y b) (a b : A) (h : a ≠ b) :
+    ((RouqCoproduct.diagMat f : (⟨A, X⟩ : Mat_ B) ⟶ ⟨A, Y⟩) +
+      (show (⟨A, X⟩ : Mat_ B) ⟶ ⟨A, Y⟩ from fun a b => if a = b then 0 else g a b)) a b = g a b := by
+  change (if h : a = b then f a ≫ eqToHom (congrArg Y h) else 0) +
+    (if a = b then 0 else g a b) = g a b
+  simp [h]
+
+include hzero in
+/-- Every shift-zero matrix entry is the evaluated coproduct crossing entry, including
+labels whose incoming or outgoing edge is irrelevant. -/
+theorem sZ_sigma_rZ' (δ : Φ.Blk l') (t t' : Fin (nLbl Φ i δ.1)) :
+    sZ h₁ N δ t ≫ (sigma Φ S D h₁ h₂).hom.app N δ ≫ rZ' h₂ N δ t' =
+      ((RouqCoproduct.rouqSig (blockZeroLoc Φ S D hnil i δ.1)
+        (fun a b => selfCell S D (wtT_sub_add (Φ := Φ) δ.1 (lab Φ i δ.1 a))
+          (Φ.wtT_add_single δ.1 (lab Φ i δ.1 b)))) t t').hom.app (N δ) := by
+  by_cases hr₁ : Φ.rel (δ.1 - Finsupp.single (lab Φ i δ.1 t) 1) (lab Φ i δ.1 t)
+  · by_cases hr₂ : Φ.rel δ.1 (lab Φ i δ.1 t')
+    · by_cases ht : t = t'
+      · subst ht
+        have he : (RouqCoproduct.rouqSig (blockZeroLoc Φ S D hnil i δ.1)
+            (fun a b => selfCell S D (wtT_sub_add (Φ := Φ) δ.1 (lab Φ i δ.1 a))
+              (Φ.wtT_add_single δ.1 (lab Φ i δ.1 b)))) t t =
+            (blockZeroLoc Φ S D hnil i δ.1 t).sig := by
+          exact diag_off_self (fun a => (blockZeroLoc Φ S D hnil i δ.1 a).sig) _ t
+        rw [he]
+        exact sZ_sigma_rZ'_diag S D h₁ h₂ N δ t hr₁ hr₂
+      · have he : (RouqCoproduct.rouqSig (blockZeroLoc Φ S D hnil i δ.1)
+            (fun a b => selfCell S D (wtT_sub_add (Φ := Φ) δ.1 (lab Φ i δ.1 a))
+              (Φ.wtT_add_single δ.1 (lab Φ i δ.1 b)))) t t' =
+            RightwardCrossing.sigma
+              (S.adj (lab Φ i δ.1 t') (Φ.wtT_add_single δ.1 _)).unit
+              (selfCell S D (wtT_sub_add (Φ := Φ) δ.1 (lab Φ i δ.1 t))
+                (Φ.wtT_add_single δ.1 (lab Φ i δ.1 t')))
+              (S.adj (lab Φ i δ.1 t) (wtT_sub_add (Φ := Φ) δ.1 _)).counit := by
+          exact diag_off_ne (fun a => (blockZeroLoc Φ S D hnil i δ.1 a).sig) _ t t' ht
+        rw [he]
+        exact sZ_sigma_rZ'_offdiag S D h₁ h₂ N δ t t' ht hr₁ hr₂
+    · exact (isZero_tgtZ N δ hzero t' hr₂).eq_of_tgt _ _
+  · exact (isZero_srcZ N δ hzero t hr₁).eq_of_src _ _
+
+private theorem desc_comp_lift_matrix {C : Type*} [Category C] [Preadditive C]
+    [HasFiniteBiproducts C] {A B : Type} [Fintype A] [Fintype B] {X : A → C} {Y : B → C}
+    {U V : C}
+    (s : ∀ a, X a ⟶ U) (r : ∀ b, V ⟶ Y b) (σ : U ⟶ V)
+    (m : ∀ a b, X a ⟶ Y b) (hm : ∀ a b, s a ≫ σ ≫ r b = m a b) :
+    biproduct.desc s ≫ σ ≫ biproduct.lift r = biproduct.matrix m := by
+  apply biproduct.hom_ext'
+  intro a
+  apply biproduct.hom_ext
+  intro b
+  simp only [Category.assoc, biproduct.lift_π, biproduct.ι_desc_assoc,
+    biproduct.matrix_π, biproduct.ι_desc]
+  exact hm a b
+
+include hzero in
+/-- The shift-zero block is the evaluated spectral coproduct crossing matrix. -/
+theorem sigma_zero_matrix (δ : Φ.Blk l') :
+    biproduct.desc (sZ h₁ N δ) ≫ (sigma Φ S D h₁ h₂).hom.app N δ ≫
+      biproduct.lift (rZ' h₂ N δ) =
+      (matLift (LinearCat.evalAt (N δ))).map
+        (RouqCoproduct.rouqSig (blockZeroLoc Φ S D hnil i δ.1)
+          (fun a b => selfCell S D (wtT_sub_add (Φ := Φ) δ.1 (lab Φ i δ.1 a))
+            (Φ.wtT_add_single δ.1 (lab Φ i δ.1 b)))) := by
+  exact desc_comp_lift_matrix _ _ _ _
+    (sZ_sigma_rZ' (S := S) (D := D) (h₁ := h₁) (h₂ := h₂) (N := N)
+      (hnil := hnil) (hzero := hzero) δ)
+
 
 end Entries
 

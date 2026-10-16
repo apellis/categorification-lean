@@ -647,6 +647,7 @@ import Categorification.TwoRep.RouqCoproductTeleporter
 import Categorification.TwoRep.RouqCoproduct
 import Categorification.TwoRep.RouqCoproductNeg
 import Categorification.TwoRep.Furling
+import Categorification.TwoRep.FurlingCross
 import Categorification.TwoRep.RouqDottedCurls
 import Categorification.TwoRep.RouqDual
 import Categorification.TwoRep.SumInvPointwise

@@ -99,6 +99,16 @@ theorem comp_map_comp_sub {D : Type*} [Category D] (G : D ⥤ C)
 
 end Comp
 
+/-- A product over a subtype equals the product over the whole type when the factors outside the
+subtype are `1`. -/
+@[to_additive /-- A sum over a subtype equals the sum over the whole type when the terms outside
+the subtype vanish. -/]
+theorem prod_subtype_of_one {B M : Type*} [Fintype B] [CommMonoid M] (p : B → Prop)
+    [DecidablePred p] [Fintype (Subtype p)] (f : B → M) (h : ∀ b, ¬ p b → f b = 1) :
+    ∏ b : Subtype p, f b.1 = ∏ b, f b := by
+  rw [← Finset.prod_subtype (Finset.univ.filter p) (by simp) f]
+  exact Finset.prod_filter_of_ne fun b _ hb => by_contra fun hp => hb (h b hp)
+
 /-- Polynomials in a 2-endomorphism, evaluated at an object. -/
 theorem aeval_hom_app {k : Type wk} [CommRing k] {C₁ C₂ : LinearCat.{wk, v₁, u₂} k}
     {E : C₁ ⟶ C₂} (x : End E) (p : Polynomial k) (V : (C₁ : Type u₂)) :
@@ -228,6 +238,12 @@ abbrev InEdge := {e : Φ.Edge i l₀ // e.tgt h₀ = β₀}
 
 instance : Fintype (InEdge Φ i h₀ β₀) := Fintype.ofFinite _
 
+/-- The edges into `β₀` whose label has positive weight at `β₀`. -/
+abbrev PosInEdge :=
+  {p : InEdge Φ i h₀ β₀ // 0 < RDc.pair (RDc.iY p.1.lbl) (Φ.wtT β₀.1)}
+
+instance : Fintype (PosInEdge Φ i h₀ β₀) := Fintype.ofFinite _
+
 /-- The inclusion of the summand of an edge into `F_i N`. -/
 abbrev injF (N : ∀ γ : Φ.Blk l, Φ.blkCat S γ.1) (e : Φ.Edge i l₀) :
     (Φ.Fa S h₀ e (e.tgt h₀) rfl).obj (N (e.tgt h₀)) ⟶ (Φ.F S i h₀).obj.obj N e.src :=
@@ -337,13 +353,14 @@ for the furled action of `g` at a weight `λ` with `⟨h_i, λ⟩ ≤ 0`, and le
 the block `β₀`, with `End M_{β₀}` reduced and the dots of `S̃` nilpotent. Suppose
 
 * for the relevant edges `a` out of `β₀`: `(ϖ_a(y) - z_a)^{h_a} = 0` on `E_a M_{β₀}`;
-* for the relevant edges `b` into `β₀`: the label `b` has weight `Λ_b = ⟨h_b, wt β₀⟩ ≥ 0` at
-  `β₀`, `F_b E_b M_{β₀} = 0`, the constant terms `ϖ_b(0)` are distinct and differ from the `z_a`
-  with `h_a ≠ 0`, and the linear coefficients `[ϖ_b]_1` are nonzero;
-* `∑ₐ h_a = -⟨h_i, λ⟩ + ∑_b Λ_b > 0`.
+* for the relevant edges `b` into `β₀` whose label has positive weight `⟨h_b, wt β₀⟩` at `β₀`:
+  `F_b E_b M_{β₀} = 0`, the constant terms `ϖ_b(0)` are distinct and differ from the `z_a` with
+  `h_a ≠ 0`, and the linear coefficients `[ϖ_b]_1` are nonzero;
+* `∑ₐ h_a = -⟨h_i, λ⟩ + ∑_b Λ_b > 0`, where `Λ_b = max(⟨h_b, wt β₀⟩, 0)` over all edges into `β₀`.
 
 Then the clockwise bubble with `m` dots acts on `M_{β₀}` by
-`[t^{m+1+⟨h_i,λ⟩}] ∏_b (1 - ϖ_b(0) t)^{Λ_b} ∏ₐ (1 - z_a t)^{-h_a}`. -/
+`[t^{m+1+⟨h_i,λ⟩}] ∏_b (1 - ϖ_b(0) t)^{Λ_b} ∏ₐ (1 - z_a t)^{-h_a}`. Edges into `β₀` whose label
+has weight `≤ 0` contribute the factor `1`. -/
 theorem cw_app_furled {τ : Φ.E S i h₀ ≫ Φ.E S i h ⟶ Φ.E S i h₀ ≫ Φ.E S i h} {hl : ℤ}
     (L : RouqLoc (Φ.adj S i h₀) (Φ.adj S i h) (dot Φ S ϖ i h₀) (dot Φ S ϖ i h) τ hl)
     (hhl : hl ≤ 0) (hM : ∀ β, β ≠ β₀ → IsZero (M β)) [IsReduced (End (M β₀))]
@@ -351,13 +368,12 @@ theorem cw_app_furled {τ : Φ.E S i h₀ ≫ Φ.E S i h ⟶ Φ.E S i h₀ ≫ �
     (z : OutEdge Φ i β₀ → k) (hp : OutEdge Φ i β₀ → ℕ)
     (hnil : ∀ p m, hp p ≤ m → ((labelDot Φ S ϖ i h M p.1 - algebraMap k _ (z p)) ^ m :
       End ((Φ.Ea S h p.1 (p.1.tgt h) rfl).obj (M p.1.src))) = 0)
-    (hhb : ∀ p : InEdge Φ i h₀ β₀, 0 ≤ RDc.pair (RDc.iY p.1.lbl) (Φ.wtT β₀.1))
-    (hY : ∀ p : InEdge Φ i h₀ β₀,
-      IsZero ((S.F p.1.lbl (rfl : Φ.wtT β₀.1 + RDc.iX p.1.lbl = _)).obj.obj
-        ((S.E p.1.lbl (rfl : Φ.wtT β₀.1 + RDc.iX p.1.lbl = _)).obj.obj (M β₀))))
-    (hzb : Function.Injective fun p : InEdge Φ i h₀ β₀ => (ϖ p.1.lbl).coeff 0)
-    (hsep : ∀ a (b : InEdge Φ i h₀ β₀), hp a ≠ 0 → z a ≠ (ϖ b.1.lbl).coeff 0)
-    (hβ : ∀ p : InEdge Φ i h₀ β₀, (ϖ p.1.lbl).coeff 1 ≠ 0)
+    (hY : ∀ p : PosInEdge Φ i h₀ β₀,
+      IsZero ((S.F p.1.1.lbl (rfl : Φ.wtT β₀.1 + RDc.iX p.1.1.lbl = _)).obj.obj
+        ((S.E p.1.1.lbl (rfl : Φ.wtT β₀.1 + RDc.iX p.1.1.lbl = _)).obj.obj (M β₀))))
+    (hzb : Function.Injective fun p : PosInEdge Φ i h₀ β₀ => (ϖ p.1.1.lbl).coeff 0)
+    (hsep : ∀ a (b : PosInEdge Φ i h₀ β₀), hp a ≠ 0 → z a ≠ (ϖ b.1.1.lbl).coeff 0)
+    (hβ : ∀ p : PosInEdge Φ i h₀ β₀, (ϖ p.1.1.lbl).coeff 1 ≠ 0)
     (hN : ∑ a, hp a = (-hl).toNat +
       ∑ b : InEdge Φ i h₀ β₀, (RDc.pair (RDc.iY b.1.lbl) (Φ.wtT β₀.1)).toNat)
     (hNpos : 0 < ∑ a, hp a) {R : Type*} [CommRing R] [Algebra k R] (ev : End (M β₀) →ₐ[k] R)
@@ -367,13 +383,18 @@ theorem cw_app_furled {τ : Φ.E S i h₀ ≫ Φ.E S i h ⟶ Φ.E S i h₀ ≫ �
           (RDc.pair (RDc.iY b.1.lbl) (Φ.wtT β₀.1)).toNat) *
         ((∏ a, oneSubUnit (z a) ^ (-(hp a : ℤ)) : (PowerSeries k)ˣ) : PowerSeries k)) m) := by
   classical
-  have hw := fun b : InEdge Φ i h₀ β₀ => exists_feDot_inverse Φ S ϖ i h M β₀ hM z hp
-    (fun p => hnil p (hp p) le_rfl) ((ϖ b.1.lbl).coeff 0) (fun a ha => hsep a b ha)
+  have hw := fun b : PosInEdge Φ i h₀ β₀ => exists_feDot_inverse Φ S ϖ i h M β₀ hM z hp
+    (fun p => hnil p (hp p) le_rfl) ((ϖ b.1.1.lbl).coeff 0) (fun a ha => hsep a b ha)
+  have h0 : ∀ b : InEdge Φ i h₀ β₀, ¬ 0 < RDc.pair (RDc.iY b.1.lbl) (Φ.wtT β₀.1) →
+      (RDc.pair (RDc.iY b.1.lbl) (Φ.wtT β₀.1)).toNat = 0 := fun _ hb =>
+    Int.toNat_eq_zero.mpr (not_lt.mp hb)
+  rw [← prod_subtype_of_one _ _ fun b hb => by rw [h0 b hb, pow_zero]]
   refine cw_app_eq_lwSeq L (blkEval Φ S M β₀) hhl ev (Wa := fun _ => feAt Φ S i h M β₀)
     (feProj Φ S i h M β₀) (fun _ => 𝟙 _) (fun p => feUnit Φ S i h M β₀ ≫ feProj Φ S i h M β₀ p)
     (fun p => feDot Φ S ϖ i h M β₀ - algebraMap k _ (z p)) z hp ?_ ?_ ?_
-    (fun b => (ϖ b.1.lbl).coeff 0) hzb _ (fun b => (hw b).choose) ?_ ?_ (chainIn Φ S i h₀ M β₀)
-    (fun b m j => (ϖ b.1.lbl).coeff (m - j)) ?_ ?_ ?_ hN hNpos m
+    (fun b => (ϖ b.1.1.lbl).coeff 0) hzb _ (fun b => (hw b).choose) ?_ ?_
+    (fun b => chainIn Φ S i h₀ M β₀ b.1) (fun b m j => (ϖ b.1.1.lbl).coeff (m - j)) ?_ ?_ ?_
+    (hN.trans (congrArg _ (sum_subtype_of_zero _ _ h0).symm)) hNpos m
   · exact (Finset.sum_congr rfl fun a _ => Category.comp_id _).trans (feProj_sum Φ S i h M β₀)
   · intro n p
     change (feUnit Φ S i h M β₀ ≫ (feDot Φ S ϖ i h M β₀ ^ n : End _)) ≫ feProj Φ S i h M β₀ p =
@@ -388,12 +409,12 @@ theorem cw_app_furled {τ : Φ.E S i h₀ ≫ Φ.E S i h ⟶ Φ.E S i h₀ ≫ �
   · intro b; exact (hw b).choose_spec.1
   · intro b; exact (hw b).choose_spec.2
   · intro b m hm
-    exact chainIn_dot_sub Φ S ϖ i h₀ M β₀ hnilS b (hhb b) (hY b) m hm
+    exact chainIn_dot_sub Φ S ϖ i h₀ M β₀ hnilS b.1 b.2.le (hY b) m hm
   · intro b m _
     rw [Nat.add_sub_cancel_left]
     exact hβ b
   · intro b m hm
-    exact chainIn_counit Φ S i h₀ M β₀ hnilS b m hm
+    exact chainIn_counit Φ S i h₀ M β₀ hnilS b.1 m hm
 
 end Bubbles
 

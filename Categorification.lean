@@ -508,6 +508,7 @@ import Categorification.KLR.Unfurling.VacuumBubbles
 import Categorification.KLR.Unfurling.VacuumFurling
 import Categorification.KLR.Unfurling.VacuumJets
 import Categorification.KLR.Unfurling.VacuumLabels
+import Categorification.KLR.Unfurling.VacuumLabelLoc
 import Categorification.KLR.Unfurling.VacuumMixed
 import Categorification.KLR.Unfurling.VacuumMixedDual
 import Categorification.KLR.Unfurling.VacuumPartialFractions

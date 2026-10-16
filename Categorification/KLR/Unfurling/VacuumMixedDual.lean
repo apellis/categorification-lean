@@ -13,8 +13,8 @@ theorem with label `nondegenerate`: the case of a positive weight `h = n > 0` fo
 Rouquier's inverse (Brundan (1.8)) gives a cup `ν : V → R E V` and caps `Dᵗ ≫ d : R E V → V`
 with `ν ≫ Dᵗ ≫ d = δ_{t, n-1}` for `t < n`, and `ν ≫ σ = 0` for the rightward crossing
 `σ : R E V → E R V`. The bubble `ν ≫ Dᵏ ≫ d` is the counterclockwise bubble with `k` dots.
-This is the statement of `VacuumMixed` in the opposite category: the lowest weight labels now
-decompose the caps, and the chains of the highest weight labels map out of `E R V`.
+This is the statement of `VacuumMixed` in the opposite category: the highest weight labels now
+decompose the caps, and the chains of the lowest weight labels map out of `E R V`.
 
 ## Main results
 
@@ -65,9 +65,9 @@ def evOp {R : Type*} [CommRing R] [Algebra L R] {V : C} (ev : End V →ₐ[L] R)
 arXiv:1603.06311v3, proof of the theorem with label `nondegenerate`). Let `V` be an object with a
 cup `ν : V → Q` and caps `Dᵗ ≫ d : Q → V` dual to it in degrees `t < n`.
 
-* Over the lowest weight labels `a`: `Q = ⊕ₐ Wₐ` (`∑ ι a ≫ π a = 1`), the cap with `n` dots is
+* Over the highest weight labels `a`: `Q = ⊕ₐ Wₐ` (`∑ ι a ≫ π a = 1`), the cap with `n` dots is
   `(zₐ + yₐ)ⁿ ≫ νₐ` on the summand `a`, and `yₐ^m ≫ νₐ = 0` for `m ≥ hₐ`.
-* Over the highest weight labels `b`: `w_b` is a two-sided inverse of `D - z_b`, and
+* Over the lowest weight labels `b`: `w_b` is a two-sided inverse of `D - z_b`, and
   `c_{b,0}, …, c_{b,Λ_b-1} : P → V` satisfy `(D' - z_b) ≫ c_{b,m} = ∑_{j<m} β_{b,m,j} c_{b,j}`
   with `β_{b,m+1,m} ≠ 0`, and `κ ≫ c_{b,m} = δ_{m,0}`.
 * `σ : Q → P` satisfies the dot slide `D ≫ σ - σ ≫ D' = d ≫ κ`, and `ν ≫ σ = 0` if `n > 0`,

@@ -681,6 +681,7 @@ import Categorification.TwoRep.RouqPitchfork
 import Categorification.TwoRep.RouqTriangleE
 import Categorification.TwoRep.RouqTwist
 import Categorification.TwoRep.RouqYoneda
+import Categorification.TwoRep.RouqYonedaEval
 import Categorification.TwoRep.RouqReverse
 import Categorification.TwoRep.RouqProduct
 import Categorification.TwoRep.RouqProductKLR

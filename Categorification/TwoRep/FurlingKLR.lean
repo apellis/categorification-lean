@@ -331,6 +331,23 @@ theorem klrComplAt_crossImage (u : Seq ν') :
     rw [klrComplAt_toCompletion, map_mul (klrActAt H μ x' e) _ (KLRAlgebra.ψ j),
       klrActAt_pol_mul_e, ncEval_rename_posLR]
 
+omit [∀ x, HasFiniteBiproducts (S.obj x : Type u₂)] in
+include H hnil in
+/-- The row of `γ(ψ_j)` at the word of `s`: the crossing to `sadj j • s` followed by
+`swapCoef`, plus `selfCoef` on `s`. -/
+theorem klrComplAt_sum_crossImage_apply (s u' : Seq ν') :
+    klrComplAt H μ x' e hnil (Unfurling.unfGrading (k := k) D.arrows)
+        (∑ u, Unfurling.crossImage D hν h u) s u' =
+      MatEnd.plc (TypeA.sadj (Multiset.card ν') j • s)
+          (S.wordCrossAt μ x' e s j ≫ swapCoef S D μ x' e hν h (TypeA.sadj (Multiset.card ν') j • s)) u' +
+        MatEnd.plc s (selfCoef S D μ x' e hν h s) u' := by
+  rw [map_sum, Finset.sum_congr rfl fun u _ => klrComplAt_crossImage S D H hnil μ x' e hν h u,
+    Finset.sum_add_distrib, MatEnd.add_apply, MatEnd.sum_single_apply (g := fun x => x),
+    MatEnd.sum_apply]
+  simp only [MatEnd.single_self_mul_apply, klrActAt_cross,
+    MatEnd.sum_single_apply (g := fun t => TypeA.sadj (Multiset.card ν') j • t)]
+  rw [MatEnd.sum_plc_comp_plc]
+
 end CrossImage
 
 /-! ## Lifts of words -/
@@ -383,6 +400,50 @@ theorem isZero_wcell_liftL (β : J →₀ ℤ) (N : (S.obj (Φ.wtT β) : Type u�
     · exact Functor.map_isZero (S.E a h.2).obj (isZero_wcell_liftL β N Ps h.1 h₁)
 
 end Zero
+
+/-! ## The two terms of a crossing, transported -/
+
+section CrossTerms
+
+variable {Φ S D} {μ : X} (M : ∀ β : Φ.Blk μ, blkCat Φ S β.1)
+
+/-- The term of the crossing of `g` to the swapped path (`pcrossSwap`), after an identification
+of the word of `g̃` of the source with `Lc`, as the crossing of `Lc` with the coefficient
+`swapW` in the dots of the swapped word `Lc'`. -/
+theorem pcrossSwap_eq (β : Φ.Blk μ) (j : ℕ) (L : List (I × X)) (Ps : List J) (μ' : X)
+    (hL : wValid RD μ L μ') (δ : Φ.Blk μ') (hδ : endBlk β.1 Ps = δ.1) (hj : j + 1 < Ps.length)
+    (Lc : List (J × Xc)) (eS : Lc = liftL Φ β.1 Ps) (hc : wValid RDc (Φ.wtT β.1) Lc (Φ.wtT δ.1))
+    (Lc' : List (J × Xc)) (eC : wswap RDc j Lc = Lc') (hc' : wValid RDc (Φ.wtT β.1) Lc' (Φ.wtT δ.1))
+    (L' : List (I × X)) (eL : wswap RD j L = L') (hL' : wValid RD μ L' μ')
+    (Ps' : List J) (eP : lswap j Ps = Ps') (hP' : IsPath Φ β.1 L' Ps')
+    (hδ' : endBlk β.1 Ps' = δ.1) (eLift : Lc' = liftL Φ β.1 Ps')
+    (same : Prop) [Decidable same] (hsame : same ↔ Φ.π Ps[j] = Φ.π Ps[j + 1]) (p₀ p₁ : J)
+    (hp₀ : Ps[j + 1] = p₀) (hp₁ : Ps[j] = p₁) (T : (blkCat Φ S δ.1 : Type u₂))
+    (hW : (((rouqData Φ S D).wcell μ (wswap RD j L) μ' (wValid_wswap j L hL)).obj.obj M) δ = T)
+    (hW' : (((rouqData Φ S D).wcell μ L' μ' hL').obj.obj M) δ = T) :
+    (evalSrc Φ S (β' := δ.1) (M β)).map
+        (eqToHom (S.wcell_congr (Φ.wtT β.1) eS hc (wValid_liftL_of_eq Φ β.1 Ps hδ))) ≫
+      pcrossSwap Φ S D M β j L Ps μ' hL δ hδ hj ≫ eqToHom hW =
+    (evalSrc Φ S (β' := δ.1) (M β)).map
+        (S.wcross (Φ.wtT β.1) j Lc (Φ.wtT δ.1) hc ≫
+          eqToHom (S.wcell_congr (Φ.wtT β.1) eC (wValid_wswap j Lc hc) hc') ≫
+          (KLR.Unfurling.swapW (A := End (S.wcell (Φ.wtT β.1) Lc' (Φ.wtT δ.1) hc')) D same p₀ p₁
+            ![End.of (S.wdot (Φ.wtT β.1) j Lc' (Φ.wtT δ.1) hc'),
+              End.of (S.wdot (Φ.wtT β.1) (j + 1) Lc' (Φ.wtT δ.1) hc')] : _ ⟶ _)) ≫
+      (evalSrc Φ S (β' := δ.1) (M β)).map
+        (eqToHom (S.wcell_congr (Φ.wtT β.1) eLift hc' (wValid_liftL_of_eq Φ β.1 Ps' hδ'))) ≫
+      pgen Φ S D M β L' Ps' μ' hL' hP' δ hδ' ≫ eqToHom hW' := by
+  subst eS eC eL eP hp₀ hp₁
+  rw [pcrossSwap, dite_eq_left hP', KLR.Unfurling.swapW_congr D hsame]
+  simp only [eqToHom_refl, CategoryTheory.Functor.map_id, Category.id_comp]
+  refine (Category.assoc _ _ _).trans ?_
+  refine Eq.trans ?_ (Category.assoc _ _ _)
+  refine Eq.trans ?_ (congrArg (· ≫ _) ((evalSrc Φ S (M β)).map_comp _ _))
+  refine Eq.trans ?_
+    (congrArg (fun f => (evalSrc Φ S (M β)).map f ≫ _) (Category.assoc _ _ _).symm)
+  rfl
+
+end CrossTerms
 
 /-! ## The generators of the summands of lifts -/
 

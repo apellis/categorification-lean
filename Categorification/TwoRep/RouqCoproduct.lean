@@ -763,21 +763,26 @@ theorem mul_matE0_apply {μ : Type*} [Fintype μ] (X : Matrix μ (A × Fin n) (E
     (r : Neg h) : (X * matE0 b hn : Matrix μ (Neg h) (End (𝟙 b))) x r = X x (embN hn r) := by
   simp [Matrix.mul_apply, matE0]
 
+variable (b) in
+/-- The constant part of the Schur complement of `(σ + cap ∘ T ∘ cup, cap ∘ W)` after Gaussian
+elimination against the labelwise inverses: the rows of `W` at the caps `capD m` (`m < h a`), and
+minus the entries of `T` from these caps to the cups `cupD m` (`m < -h a`). -/
+def schurPos {N : ℕ} (T : oMat (𝟙 b) (A × Fin n) ⟶ oMat (𝟙 b) (A × Fin n))
+    (W : oMat (𝟙 b) (A × Fin n) ⟶ oMat (𝟙 b) (Fin N)) :
+    Matrix (Pos h) (Fin N ⊕ Neg h) (End (𝟙 b)) :=
+  matB0 b hn * (oMat.toMatrix W *
+      (Matrix.fromCols 1 0 : Matrix (Fin N) (Fin N ⊕ Neg h) (End (𝟙 b)))) -
+    matB0 b hn * (oMat.toMatrix T *
+      (matE0 b hn * (Matrix.fromCols 0 1 : Matrix (Neg h) (Fin N ⊕ Neg h) (End (𝟙 b)))))
+
 omit [AdditiveWhiskering B] [∀ (a b c : B) (f : a ⟶ b), (precomp c f).Linear k]
   [∀ (a b c : B) (f : b ⟶ c), (postcomp a f).Linear k] in
 /-- The constant part of the Schur complement is the partial-fraction matrix. -/
 theorem schur_const_eq {N : ℕ} (u : A → k) :
-    (matB0 b hn * (oMat.toMatrix (wMat b u n N) *
-        (Matrix.fromCols 1 0 : Matrix (Fin N) (Fin N ⊕ Neg h) (End (𝟙 b)))) -
-      matB0 b hn * (oMat.toMatrix (tel b u n) * ((1 : Matrix (A × Fin n) (A × Fin n) (End (𝟙 b))) *
-        ((0 : Matrix (A × Fin n) (A × Fin n) (End (𝟙 b))) * (oMat.toMatrix (wMat b u n N) *
-          (Matrix.fromCols 1 0 : Matrix (Fin N) (Fin N ⊕ Neg h) (End (𝟙 b)))) +
-          matE0 b hn * (Matrix.fromCols 0 1 : Matrix (Neg h) (Fin N ⊕ Neg h) (End (𝟙 b)))))) :
-        Matrix (Pos h) (Fin N ⊕ Neg h) (End (𝟙 b))) =
+    schurPos b hn (tel b u n) (wMat b u n N) =
       (crtMatrix u (fun a => (h a).toNat) (fun a => (-h a).toNat) N).map
         (algebraMap k (End (𝟙 b))) := by
-  simp only [Matrix.one_mul, Matrix.zero_mul, zero_add, Matrix.mul_fromCols, Matrix.mul_one,
-    Matrix.mul_zero]
+  simp only [schurPos, Matrix.mul_fromCols, Matrix.mul_one, Matrix.mul_zero]
   ext p y
   rcases y with t | r
   · simp only [Matrix.sub_apply, Matrix.fromCols_apply_inl, Matrix.zero_apply, sub_zero,
@@ -801,14 +806,15 @@ theorem schur_const_eq {N : ℕ} (u : A → k) :
 omit [∀ (a b c : B) (f : a ⟶ b), (precomp c f).Linear k]
   [∀ (a b c : B) (f : b ⟶ c), (postcomp a f).Linear k] in
 include hx₁ hx₂ hn in
-/-- **Block `(2)`, with teleporters**: for `∑ₐ h a ≥ 0`, the map
-`(σ + cap ∘ teleporter ∘ cup, cap ∘ binomials) : ⊞ Eₐ Fₐ → ⊞ Fₐ Eₐ ⊕ 1^{⊕ N}` is invertible. -/
-theorem isIso_lift_teleporter {u : A → k} (hu : Function.Injective u) (hN : 0 ≤ ∑ a, h a) :
-    IsIso (biprod.lift (sigD L + capAll L n ≫ tel b u n ≫ cupAll L n)
-      (capAll L n ≫ wMat b u n (∑ a, h a).toNat)) := by
-  set N := (∑ a, h a).toNat with hNdef
-  set T := tel b u n
-  set W := wMat b u n N
+/-- **Gaussian elimination against the labelwise inverses**: the map
+`(σ + cap ∘ T ∘ cup, cap ∘ W) : ⊞ Eₐ Fₐ → ⊞ Fₐ Eₐ ⊕ 1^{⊕ N}`, for matrices `T`, `W` over the
+commutative ring `End 1_b`, is invertible as soon as the constant part `schurPos` of its Schur
+complement is an invertible matrix. -/
+theorem isIso_lift_of_schur {N : ℕ} (T : oMat (𝟙 b) (A × Fin n) ⟶ oMat (𝟙 b) (A × Fin n))
+    (W : oMat (𝟙 b) (A × Fin n) ⟶ oMat (𝟙 b) (Fin N))
+    {Dm : Matrix (Fin N ⊕ Neg h) (Pos h) (End (𝟙 b))} (hCD : schurPos b hn T W * Dm = 1)
+    (hDC : Dm * schurPos b hn T W = 1) :
+    IsIso (biprod.lift (sigD L + capAll L n ≫ T ≫ cupAll L n) (capAll L n ≫ W)) := by
   refine isIso_lift_of_isIso_ofComponents _ _ (cupM L) ?_
   suffices hΨ : IsIso (phiInv L ≫ Biprod.ofComponents (sigD L + capAll L n ≫ T ≫ cupAll L n)
       ((capAll L n ≫ W) ≫ biprod.inl) (cupM L) biprod.inr) from
@@ -859,20 +865,15 @@ theorem isIso_lift_teleporter {u : A → k} (hu : Function.Injective u) (hN : 0 
   rw [hS]
   -- pass to matrices
   rw [← isIso_comp_right_iff _ (sumIso b (Fin N) (Neg h)).hom]
-  -- the inverse of the partial-fraction matrix
-  have hdisj : ∀ a, (h a).toNat = 0 ∨ (-h a).toNat = 0 := fun a => by omega
-  have hN' : ∑ a, (h a).toNat = N + ∑ a, (-h a).toNat := by
-    have e : ∀ a, ((h a).toNat : ℤ) = h a + ((-h a).toNat : ℤ) := fun a => by omega
-    zify
-    rw [hNdef, Int.toNat_of_nonneg hN]
-    simp only [e, Finset.sum_add_distrib]
-  obtain ⟨Dk, hCD, hDC⟩ := crtMatrix_exists_inv (k := k) (u := u)
-    (hp := fun a => (h a).toNat) (hn := fun a => (-h a).toNat) (N := N) hu hdisj hN'
-  let φ := algebraMap k (End (𝟙 b))
-  refine isIso_of_nilEq _ (C := (crtMatrix u (fun a => (h a).toNat) (fun a => (-h a).toNat) N).map φ)
-    (Dm := Dk.map φ) (by rw [← Matrix.map_mul, hCD, Matrix.map_one _ (map_zero φ) (map_one φ)])
-    (by rw [← Matrix.map_mul, hDC, Matrix.map_one _ (map_zero φ) (map_one φ)]) ?_
-  rw [← schur_const_eq hn u]
+  refine isIso_of_nilEq _ (C := schurPos b hn T W) (Dm := Dm) hCD hDC ?_
+  have e : schurPos b hn T W = matB0 b hn * (oMat.toMatrix W *
+      (Matrix.fromCols 1 0 : Matrix (Fin N) (Fin N ⊕ Neg h) (End (𝟙 b)))) -
+      matB0 b hn * (oMat.toMatrix T * ((1 : Matrix (A × Fin n) (A × Fin n) (End (𝟙 b))) *
+        ((0 : Matrix (A × Fin n) (A × Fin n) (End (𝟙 b))) * (oMat.toMatrix W *
+          (Matrix.fromCols 1 0 : Matrix (Fin N) (Fin N ⊕ Neg h) (End (𝟙 b)))) +
+          matE0 b hn * (Matrix.fromCols 0 1 : Matrix (Neg h) (Fin N ⊕ Neg h) (End (𝟙 b)))))) := by
+    simp only [schurPos, Matrix.one_mul, Matrix.zero_mul, zero_add]
+  rw [e]
   simp only [sumIso, Preadditive.sub_comp, Preadditive.add_comp, Category.assoc, biprod.inl_desc,
     biprod.inr_desc, toMatrix_sub, toMatrix_add, oMat_comp_toMatrix endId_hcomm, toMatrix_ofMatrix]
   -- the inverse of the unipotent block is congruent to `1`
@@ -895,6 +896,28 @@ theorem isIso_lift_teleporter {u : A → k} (hu : Function.Injective u) (hN : 0 
   exact NilEq.sub (NilEq.mul hB (NilEq.refl _))
     (NilEq.mul hB (NilEq.mul (NilEq.refl _) (NilEq.mul hGi
       (NilEq.add (NilEq.mul hgam0 (NilEq.refl _)) (NilEq.mul hE (NilEq.refl _))))))
+
+omit [∀ (a b c : B) (f : a ⟶ b), (precomp c f).Linear k]
+  [∀ (a b c : B) (f : b ⟶ c), (postcomp a f).Linear k] in
+include hx₁ hx₂ hn in
+/-- **Block `(2)`, with teleporters**: for `∑ₐ h a ≥ 0`, the map
+`(σ + cap ∘ teleporter ∘ cup, cap ∘ binomials) : ⊞ Eₐ Fₐ → ⊞ Fₐ Eₐ ⊕ 1^{⊕ N}` is invertible. -/
+theorem isIso_lift_teleporter {u : A → k} (hu : Function.Injective u) (hN : 0 ≤ ∑ a, h a) :
+    IsIso (biprod.lift (sigD L + capAll L n ≫ tel b u n ≫ cupAll L n)
+      (capAll L n ≫ wMat b u n (∑ a, h a).toNat)) := by
+  set N := (∑ a, h a).toNat with hNdef
+  have hdisj : ∀ a, (h a).toNat = 0 ∨ (-h a).toNat = 0 := fun a => by omega
+  have hN' : ∑ a, (h a).toNat = N + ∑ a, (-h a).toNat := by
+    have e : ∀ a, ((h a).toNat : ℤ) = h a + ((-h a).toNat : ℤ) := fun a => by omega
+    zify
+    rw [hNdef, Int.toNat_of_nonneg hN]
+    simp only [e, Finset.sum_add_distrib]
+  obtain ⟨Dk, hCD, hDC⟩ := crtMatrix_exists_inv (k := k) (u := u)
+    (hp := fun a => (h a).toNat) (hn := fun a => (-h a).toNat) (N := N) hu hdisj hN'
+  let φ := algebraMap k (End (𝟙 b))
+  refine isIso_lift_of_schur L hx₁ hx₂ hn _ _ (Dm := Dk.map φ) ?_ ?_
+  · rw [schur_const_eq hn u, ← Matrix.map_mul, hCD, Matrix.map_one _ (map_zero φ) (map_one φ)]
+  · rw [schur_const_eq hn u, ← Matrix.map_mul, hDC, Matrix.map_one _ (map_zero φ) (map_one φ)]
 
 end Main
 

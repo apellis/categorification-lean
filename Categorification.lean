@@ -384,6 +384,8 @@ import Categorification.KLR.KKScalars
 import Categorification.KLR.CyclotomicAction.PresCL
 import Categorification.KLR.CyclotomicAction.Vacuum
 import Categorification.KLR.CyclotomicAction.VacuumProduct
+import Categorification.KLR.ReindexSymmetries
+import Categorification.KLR.Unfurling.VacuumCorner
 import Categorification.KLR.CyclotomicAbsentEquivalence
 import Categorification.KLR.CyclotomicAbsentModule
 import Categorification.KLR.CyclotomicPresentModule

@@ -268,6 +268,26 @@ theorem coverWeightPos_finite (hnp : (Function.support np).Finite) :
       exact Set.mem_biUnion (x := i) (fun h0 => hq (congrFun h0 q))
         ⟨q, congrArg (Sigma.mk i) hu.symm⟩
 
+/-- Finitely many weighted negative labels over each colour, without finite colour support. -/
+theorem coverWeightNeg_finite_fibre (i : I) :
+    ({a : LabelNeg I K L | a.1 = i ∧ coverWeightNeg zm nm a ≠ 0} : Set _).Finite := by
+  classical
+  apply (Set.finite_range fun q => (⟨i, zm i q⟩ : LabelNeg I K L)).subset
+  rintro ⟨j, u⟩ ⟨rfl, h⟩
+  obtain ⟨q, _, hq⟩ := Finset.exists_ne_zero_of_sum_ne_zero h
+  obtain ⟨hu, _⟩ := (ite_ne_right_iff).1 hq
+  exact ⟨q, congrArg (Sigma.mk j) hu.symm⟩
+
+/-- Finitely many weighted positive labels over each colour, without finite colour support. -/
+theorem coverWeightPos_finite_fibre (i : I) :
+    ({a : LabelPos I K L | a.1 = i ∧ coverWeightPos zp np a ≠ 0} : Set _).Finite := by
+  classical
+  apply (Set.finite_range fun q => (⟨i, zp i q⟩ : LabelPos I K L)).subset
+  rintro ⟨j, u⟩ ⟨rfl, h⟩
+  obtain ⟨q, _, hq⟩ := Finset.exists_ne_zero_of_sum_ne_zero h
+  obtain ⟨hu, _⟩ := (ite_ne_right_iff).1 hq
+  exact ⟨q, congrArg (Sigma.mk j) hu.symm⟩
+
 /-- **The base identity** of `coverFurling_pair`: with the weights `n₋(i, q)` at the labels
 `(i, zm i q)` and `n₊(i, q)` at `(i, zp i q)`,
 `∑_{a over i} x̃₀(a) = ∑_q (n₊(i, q) - n₋(i, q))`. -/

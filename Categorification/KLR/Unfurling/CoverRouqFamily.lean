@@ -25,7 +25,7 @@ The correction count is `coverFurling_pair_lab` on admissible blocks; on other
 blocks all objects are zero. Thus no pairing identity is required on a zero block.
 Nilpotence and omitted-edge vanishing come from the cyclotomic cover construction.
 
-The structural inputs remain explicit: finite support of `Λm`, `Λp`, no arrows
+The structural inputs remain explicit: finite support of `Λm`, `Λp` over each base colour, no arrows
 between the two signed components, the base-weight and off-fibre Cartan pairing
 identities, and `Q = Pᵒᵖ P`. Specializing these inputs to the generic KL spectral
 cover and constructing `UnfurledEval` are separate from this family construction.
@@ -41,7 +41,7 @@ variable {I : Type*} [DecidableEq I] {L : Type v} [Field L]
   (D : UnfurlingDatum L P (Jm ⊕ Jp)) (Λm : Jm → ℕ) (Λp : Jp → ℕ)
   {C : CartanDatum I} {X Y : Type u₄} [AddCommGroup X] [AddCommGroup Y]
   (RD : WeightDatum C X Y) (μ : X)
-  (hΛm : (Function.support Λm).Finite) (hΛp : (Function.support Λp).Finite)
+  (hΛm : ∀ i, ({a | D.π (.inl a) = i ∧ Λm a ≠ 0} : Set Jm).Finite) (hΛp : ∀ i, ({a | D.π (.inr a) = i ∧ Λp a ≠ 0} : Set Jp).Finite)
   (hD : NoCrossArrows D)
   (hμ : ∀ i, RD.pair (RD.iY i) μ = ∑ᶠ a : {a // D.π a = i}, coverBaseVal Λm Λp a.1)
   (hcover : ∀ (c : Jm ⊕ Jp) (i : I), i ≠ D.π c →
@@ -85,7 +85,7 @@ theorem coverProduct_dot_isNilpotent :
 /-- The Rouquier family of the furled cyclotomic cover product (Webster,
 arXiv:1603.06311v3, §2.3, `lem:g-action`). The shift-zero inverses, mixed inverses,
 nilpotence and omitted-edge vanishing are all constructed, not assumed.
-The finite support, base-weight and branched-cover pairing inputs are explicit. -/
+The fibrewise finite support, base-weight and branched-cover pairing inputs are explicit. -/
 def coverRouqFamily {Q : I → I → MvPolynomial (Fin 2) L}
     (hPQ : ∀ a b, a ≠ b → Q a b = P b a * MvPolynomial.rename ![1, 0] (P a b)) :=
   Furling.rouqFamilyOfPairing

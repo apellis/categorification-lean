@@ -500,6 +500,7 @@ import Categorification.KLR.Unfurling.CoverLabels
 import Categorification.KLR.Unfurling.GenericFields
 import Categorification.KLR.Unfurling.GenericBubbleValues
 import Categorification.KLR.Unfurling.GenericWeights
+import Categorification.KLR.Unfurling.GenericStrands
 import Categorification.KLR.Unfurling.CoverVacuum
 import Categorification.KLR.Unfurling.FurlingVacuum
 import Categorification.KLR.Unfurling.CoverFurlingFibres

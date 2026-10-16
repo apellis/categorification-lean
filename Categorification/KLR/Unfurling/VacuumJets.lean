@@ -27,8 +27,8 @@ multiplicities `hₐ`). Then for every `n`,
   `∑_{(a, m)} ψ_{a,m} C(n, m) u_a^{n-m} = [t^{n+1-N}] ∏ₐ (1 - u_a t)^{-hₐ}`,
 
 which is `0` for `n < N - 1` (`jetSum_eq_coeff`). In other words, the generating function of the
-left side is `t^{N-1} / ∏ₐ (1 - u_a t)^{hₐ}`. No distinctness of the `u_a` is needed for this
-identity; distinctness is what makes such a `ψ` exist.
+left side is `t^{N-1} / ∏ₐ (1 - u_a t)^{hₐ}`. The identity holds over any commutative ring, and
+no distinctness of the `u_a` is needed; distinctness is what makes such a `ψ` exist.
 
 **Proof (ours).** `∑_n C(n, m) u^{n-m} tⁿ = t^m / (1 - u t)^{m+1}` (`jetSeries_mul`). Hence the
 generating function `G` of the left side satisfies: `G · ∏ₐ (1 - u_a t)^{hₐ}` is a polynomial of
@@ -45,7 +45,7 @@ open PowerSeries
 
 namespace Categorification.KLR.Unfurling
 
-variable {k : Type*} [Field k]
+variable {k : Type*} [CommRing k]
 
 /-- `[x^m] (u + x)^n = C(n, m) u^{n-m}`. -/
 def jetCoeff (u : k) (m n : ℕ) : k := (n.choose m : k) * u ^ (n - m)

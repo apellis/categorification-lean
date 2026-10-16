@@ -26,7 +26,8 @@ so that the action can be compared with words whose weights are given in another
 * `RouqFamily.klrActAt`: the action of `R(ν)` on the words with target weight `x'`;
   `klrActAt_e`, `klrActAt_pol_mul_e`, `klrActAt_cross`.
 * `RouqFamily.klrComplAt`: its extension to the completion `R̂(ν)`, for nilpotent dots;
-  `klrComplAt_toCompletion`, `klrComplAt_seriesAt_coe`, `klrComplAt_seriesAt_invOfUnit`.
+  `klrComplAt_toCompletion`, `klrComplAt_seriesAt_coe`, `klrComplAt_seriesAt_invOfUnit`;
+  `klrComplAt_eq_klrActAt_trunc`: it is the action of a truncation.
 -/
 
 noncomputable section
@@ -237,6 +238,13 @@ def klrComplAt : G.completion ν →ₐ[k] MatEnd (fun t : Seq ν => S.wordCellA
 theorem klrComplAt_toCompletion (a : KLRAlgebra k Q ν) :
     klrComplAt H μ x' e hnil G (G.toCompletion a) = klrActAt H μ x' e a :=
   G.completionLift_toCompletion _ _ a
+
+/-- **Truncation of the completed action**: for every `N` beyond a bound, the action of an
+element `f` of the completion is the action of its truncation `∑_{d < N} f_d ∈ R(ν)`. -/
+theorem klrComplAt_eq_klrActAt_trunc :
+    ∃ N₀ : ℤ, ∀ N, N₀ ≤ N → ∀ f : G.completion ν,
+      klrComplAt H μ x' e hnil G f = klrActAt H μ x' e (G.trunc N f) :=
+  ⟨_, fun _ hN f => G.completionLift_eq_trunc _ _ hN f⟩
 
 variable {G} (hX : ∀ a, 0 < G.degX a)
 

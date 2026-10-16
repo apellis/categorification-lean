@@ -320,7 +320,7 @@ theorem wordProd_eq_of_eq {n n' : ℕ} (hn : n = n') {σ τ : List ℕ}
 
 /-! ### The composite `Γ` -/
 
-variable {I J : Type*} [DecidableEq I] [DecidableEq J] [Fintype J] {k : Type*} [Field k]
+variable {I J : Type*} [DecidableEq I] [DecidableEq J] {k : Type*} [Field k]
   {P Q : I → I → MvPolynomial (Fin 2) k} (D : UnfurlingDatum k P J)
 
 /-- The cyclotomic quotient `𝖱^Λ(ν̃)` of the unfurled KLR algebra with `a_j = y^M` for
@@ -332,7 +332,7 @@ abbrev UnfCyc (ν' : Multiset J) (M : ℕ) : Type _ :=
 noncomputable abbrev cycMk (ν' : Multiset J) (M : ℕ) : UnfKLR D ν' →ₐ[k] UnfCyc D ν' M :=
   CycKLR.mk k _ _ ν'
 
-omit [DecidableEq I] [DecidableEq J] [Fintype J] in
+omit [DecidableEq I] [DecidableEq J] in
 /-- Without arrows, the unfurled parameters are `Q = 1`. -/
 theorem unfQ_eq_one (harr : ∀ a b, D.arrows a b = 0) (a b : J) :
     unfQ (k := k) D.arrows a b = 1 := by
@@ -343,7 +343,7 @@ variable (harr : ∀ a b, D.arrows a b = 0) {ν : Multiset I} {ν' : Multiset J}
 
 local notation "m'" => Multiset.card ν'
 
-omit [DecidableEq I] [Fintype J] in
+omit [DecidableEq I] in
 include harr hnd in
 /-- The dots satisfy `y_a^M = 0` in `𝖱^Λ(ν̃)`: the labels are pairwise distinct and
 non-adjacent, so the cyclotomic relation holds on every strand. -/
@@ -383,12 +383,12 @@ theorem cycGamma_gen (g : Gen ν) :
 
 /-! ### Products with idempotents -/
 
-omit [DecidableEq I] [Fintype J] in
+omit [DecidableEq I] in
 theorem cycMk_e_mul_e (s t : Seq ν') : E s * E t = if s = t then E s else 0 := by
   simp only [← map_mul, e_mul_e]
   split_ifs <;> simp
 
-omit [DecidableEq I] [Fintype J] in
+omit [DecidableEq I] in
 /-- Inserting `1 = ∑_s e(s)` between two factors. -/
 theorem mul_eq_sum_e (X Y : UnfCyc D ν' M) : X * Y = ∑ s, X * E s * (E s * Y) := by
   have h1 : ∑ s, E s = 1 := by rw [← map_sum, sum_e, map_one]
@@ -447,7 +447,7 @@ theorem cycGamma_e_mul_e {i : Seq ν} {t : Seq ν'} (ht : down D.π hν t = i) :
   rw [Finset.sum_ite_eq']
   simp [ht]
 
-omit [DecidableEq I] [Fintype J] in
+omit [DecidableEq I] in
 theorem cycMk_e_mul_pol_e (t : Seq ν') (f : MvPolynomial (Fin m') k) :
     E t * cycMk D ν' M (pol f * e t) = cycMk D ν' M (pol f * e t) := by
   rw [← map_mul, ← mul_assoc, (e_commute_pol t f).eq, mul_assoc, e_mul_self]
@@ -474,7 +474,7 @@ theorem cycGamma_pol_mul_e (f : MvPolynomial (Fin (Multiset.card ν)) k) (t : Se
 
 /-! ### Crossings -/
 
-omit [DecidableEq I] [Fintype J] in
+omit [DecidableEq I] in
 /-- `e(t) ψ_j e(s)` is `ψ_j e(s)` if `s_j • s = t`, and zero otherwise. -/
 theorem e_mul_ψ_mul_e (j : ℕ) (t s : Seq ν') :
     (e t * ψ j * e s : UnfKLR D ν') = if sadj m' j • s = t then ψ j * e s else 0 := by
@@ -485,7 +485,6 @@ theorem e_mul_ψ_mul_e (j : ℕ) (t s : Seq ν') :
   · exact absurd h2.symm h1
   · rw [zero_mul]
 
-omit [Fintype J] in
 theorem toC_e_mul_crossImage {j : ℕ} (h : j + 1 < Multiset.card ν) (t t' : Seq ν') :
     toC D (e t) * crossImage D hν h t' = if t = t' then crossImage D hν h t' else 0 := by
   unfold crossImage
@@ -512,7 +511,7 @@ theorem e_mul_cycGamma_ψ {j : ℕ} (h : j + 1 < Multiset.card ν) (t : Seq ν')
   rw [Finset.sum_ite_eq, ite_eq_left (Finset.mem_univ _)]
 
 include hnd in
-omit [DecidableEq J] [Fintype J] in
+omit [DecidableEq J] in
 theorem sadj_smul_ne {j : ℕ} (h : j + 1 < m') (t : Seq ν') : sadj m' j • t ≠ t := by
   intro he
   have h1 : sadj m' j = 1 := NonInteracting.smul_left_injective hnd t (by rw [he, one_smul])
@@ -675,7 +674,7 @@ theorem corner_cycGamma_std {i : Seq ν} {t : Seq ν'} (ht : down D.π hν t = i
         rw [cycGamma_e_mul_e D harr hν hnd M hPQ ht, cycGamma_pol_mul_e, mul_assoc _ (E t),
           cycMk_e_mul_pol_e]
 
-omit [DecidableEq I] [Fintype J] in
+omit [DecidableEq I] in
 include harr hnd in
 /-- In the corner `e(w_σ • t) 𝖱^Λ(ν̃) e(t)`, `ψ_σ F(y) e(t) = 0` forces `F ∈ (y_a^M)` (the
 corner basis `CycKLR.cornerBasis`). -/
@@ -738,7 +737,7 @@ theorem mem_boxIdeal_of_cycMk_eq_zero {σ : List ℕ} (hσ : IsReduced m' σ) (t
   rw [hG', sub_zero] at hFG
   exact hFG
 
-omit [DecidableEq I] [DecidableEq J] [Fintype J] in
+omit [DecidableEq I] [DecidableEq J] in
 /-- For linear series `ϖ_j(x) = z_j + x`, the substitution is `x_a ↦ z_{t_a} + y_a`. -/
 theorem substAt_eq_of_linear
     (hlin : ∀ j, D.pw j = Polynomial.C ((D.pw j).coeff 0) + Polynomial.X) (t : Seq ν') :

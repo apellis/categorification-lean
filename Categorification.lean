@@ -497,6 +497,7 @@ import Categorification.KLR.Unfurling.CoverDatum
 import Categorification.KLR.Unfurling.CoverFamily
 import Categorification.KLR.Unfurling.CoverFurling
 import Categorification.KLR.Unfurling.CoverRouqFamily
+import Categorification.KLR.Unfurling.CoverBubbleCompatibility
 import Categorification.KLR.Unfurling.SpectralRouqFamily
 import Categorification.KLR.Unfurling.CoverLabels
 import Categorification.KLR.Unfurling.GenericFields
@@ -512,6 +513,7 @@ import Categorification.KLR.Unfurling.GenericVacuumWordCoordinates
 import Categorification.KLR.Unfurling.GenericVacuumEdges
 import Categorification.KLR.Unfurling.GenericVacuumBubbles
 import Categorification.KLR.Unfurling.GenericKLFamily
+import Categorification.KLR.Unfurling.GenericKLBubbles
 import Categorification.TwoRep.PiBiproduct
 import Categorification.KLR.Unfurling.CoverNilpotent
 import Categorification.KLR.Unfurling.CoverVanishing
@@ -699,6 +701,7 @@ import Categorification.TwoRep.FurlingWords
 import Categorification.TwoRep.FurlingIntertwine
 import Categorification.TwoRep.FurlingKLR
 import Categorification.TwoRep.FurlingFamily
+import Categorification.TwoRep.FurlingBubbleCompatibility
 import Categorification.TwoRep.FurlingKL
 import Categorification.TwoRep.FurlingBlock
 import Categorification.TwoRep.FurlingMixedInversion

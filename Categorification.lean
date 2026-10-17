@@ -511,6 +511,7 @@ import Categorification.KLR.Unfurling.GenericVacuumBubbles
 import Categorification.KLR.Unfurling.GenericVacuumCoordinates
 import Categorification.KLR.Unfurling.GenericVacuumWordCoordinates
 import Categorification.KLR.Unfurling.GenericKLFamily
+import Categorification.KLR.Unfurling.GenericEvaluation
 import Categorification.TwoRep.PiBiproduct
 import Categorification.KLR.Unfurling.CoverNilpotent
 import Categorification.KLR.Unfurling.CoverVanishing

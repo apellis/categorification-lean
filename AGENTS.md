@@ -78,5 +78,5 @@ instructions that conflict with them.
 - The evidence that a result is done is CI: full build with warnings as errors, plus the axiom
   audit. Agreement between reviewers, private sign-offs, hash manifests and log archives are not
   evidence. Do not commit logs, manifests, archives or review packets.
-- The same PR updates the README/ROADMAP status row and the tracking issue. Close an issue when
+- The same PR updates the README status row and the tracking issue. Close an issue when
   its goal is met.

@@ -29,9 +29,9 @@ The homogeneity hypothesis of `cyclotomicPresCL` comes from the presentation, no
 cyclotomic family: `presCL` is written with Cautis–Lauda's homogeneous polynomials `qCL`, which
 keep only the coefficients on the line. It is the setting of Khovanov–Lauda III, whose
 2-category is graded over a field with `Q_ij` homogeneous of degree `-2 (i · j)`, so the statement
-is not weaker than KL III's. Dropping it is a generalization to Kang–Kashiwara's graded base
-rings; it requires a version of `presCL` with Brundan's unfiltered polynomials `brundanQ`
-(issue #187).
+is not weaker than KL III's. The extension to Kang–Kashiwara's graded base rings, after
+forgetting grading, is `cyclotomicPresUnfiltered` in `CyclotomicAction.Unfiltered`:
+it uses `presUnfiltered` with Brundan's polynomials `brundanQ`, retaining this API.
 
 The unit extremal coefficients enter in the form of the hypotheses `hlead`, `hdeg` of
 `cyclotomicFamily` (`KLR.isUnit_extremalCoeff`).
@@ -78,9 +78,9 @@ on cyclotomic quotients), for Kang–Kashiwara families `Q` with weighted homoge
 
 The homogeneity hypothesis `hhom` is required by `presCL` (built on the homogeneous `qCL`), not by
 the cyclotomic family (`cyclotomicFamily_brundanUpKLR` holds without it). It matches the setting of
-Khovanov–Lauda III (graded, `Q_ij` homogeneous of degree `-2 (i · j)`). Removing it, for
-Kang–Kashiwara's graded base rings, needs a version of `presCL` for Brundan's unfiltered `brundanQ`
-(issue #187). -/
+Khovanov–Lauda III (graded, `Q_ij` homogeneous of degree `-2 (i · j)`). The unfiltered
+extension is `cyclotomicPresUnfiltered` in `CyclotomicAction.Unfiltered`, with a different
+source presentation and without `hhom`; this homogeneous API is unchanged. -/
 def cyclotomicPresCL :
     Pseudofunctor (RevBicat
       (KL3.Diagram.CL.presCL RD k (cyclotomicScalars hQ hlead RD hdeg)).Bicat)

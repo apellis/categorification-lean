@@ -385,6 +385,7 @@ import Categorification.KLR.CyclotomicAction.MixedComparison
 import Categorification.KLR.CyclotomicAction.GlobalMixed
 import Categorification.KLR.KKScalars
 import Categorification.KLR.CyclotomicAction.PresCL
+import Categorification.KLR.CyclotomicAction.Unfiltered
 import Categorification.KLR.CyclotomicAction.Vacuum
 import Categorification.KLR.CyclotomicAction.VacuumProduct
 import Categorification.KLR.ReindexSymmetries

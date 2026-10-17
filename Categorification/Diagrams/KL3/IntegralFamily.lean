@@ -4,7 +4,14 @@ Released under Apache 2.0 license as described in the file LICENSE.
 -/
 import Categorification.Diagrams.KL3.IntegralSpanning
 
-/-! # Scalar compatibility of the integral KL diagram family -/
+/-!
+# Scalar compatibility and integral KL nondegeneracy descent
+
+Khovanov–Lauda, *A categorification of quantum sl(n)*, arXiv:0807.3250v1,
+§6.4, “Simple nondegeneracy observations”, using the spanning family of
+Proposition 3.11. Rational nondegeneracy supplies an integral canonical basis;
+base change then supplies that basis over every commutative ring.
+-/
 noncomputable section
 namespace Categorification.KL3.Diagram.IntegralScalars
 open CategoryTheory StringDiagrams QuantumGroup UDot Presentation Module

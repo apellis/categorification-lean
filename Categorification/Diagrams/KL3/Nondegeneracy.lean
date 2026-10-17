@@ -40,7 +40,7 @@ theorem calculusNondeg (k : Type w) [Field k] : CalculusNondeg RD k := by
   exact calculusNondeg_of_rational k (KLR.Unfurling.GenericFields.calculusNondeg_charZero ℚ RD)
 
 /-- The canonical KL diagram basis over every commutative ring. This is a
-basis of the actual presented Hom, not of a replacement free module. -/
+basis of the presented Hom itself, not of a replacement free module. -/
 def canonicalBasis (k : Type w) [CommRing k] (μ : X) (s t : List (Letter I)) :
     Basis (SpanIdx s t) k ((pres RD k).obj (ob RD μ s) ⟶ (pres RD k).obj (ob RD μ t)) := by
   classical

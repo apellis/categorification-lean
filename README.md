@@ -100,12 +100,25 @@ The simply-laced rings of KL I, for a simple graph `Γ`, are `KLR.R1 k Γ ν` (`
 | KL I §3.2, Lemma 2.20, Lemmas 3.5–3.8, Prop. 3.10, Cor. 3.12 (ungraded) | the shuffle lemma (dimensions); `Δ_{i^n}`, `ε_i`, `Hom(Ind N, M) ≅ Hom(N, Δ M)`; simple `R(μ) ⊗ R(ni)`-modules are `N ⊠ L(i^n)`; Lemmas 3.6–3.8; the socle of `Δ_{i^n}M` is simple of the form `L ⊠ L(i^n)` (Prop. 3.10, proved without Kato's theorem); Cor. 3.12 (for finite-dimensional modules with nilpotent dots, which holds for graded simples) | `KLR.KLRAlgebra.shuffle_lemma_finrank`, `KLR.KLRAlgebra.indResEquiv`, `KLR.KLRAlgebra.lemma_3_6`, `KLR.KLRAlgebra.lemma_3_7_head`, `KLR.KLRAlgebra.lemma_3_8`, `KLR.KLRAlgebra.prop_3_10_socle`, `KLR.KLRAlgebra.cor_3_12_socle`, `KLR.KLRAlgebra.crystal_hypotheses_of_isGradedSimple` |
 | KL I Cor. 2.17 | restriction takes projective modules to projective modules | `KLR.KLRAlgebra.res_projective` |
 
-The basis theorem is proved over any integral domain (the paper works over `ℤ`), and for symmetric
-`Q` over any commutative ring (`KLR.KLRAlgebra.basisOfSymm`). Spanning holds
-over any commutative ring (`KLR.KLRAlgebra.span_eq_top'`). Linear independence is proved by
-expanding the action on the polynomial representation over the fraction field in terms of the
-automorphisms `w ∈ S_m` (`Categorification.PermExpansion`), rather than by the paper's
-induction on sequences.
+The basis theorem (the paper works over `ℤ`) is proved over every commutative ring, for every
+matrix `Q` with `Q_{ji}(u,v) = Q_{ij}(v,u)` and no condition on a Cartan datum or on leading
+coefficients (`KLR.KLRAlgebra.basisOfSymm`); this is the generality of R. Rouquier,
+arXiv:0812.5023v1, Thm. 3.7, which also shows the symmetry condition is necessary. Spanning holds
+over any commutative ring (`KLR.KLRAlgebra.span_eq_top'`). Over an integral domain, linear
+independence is proved by expanding the action on the polynomial representation over the fraction
+field in terms of the automorphisms `w ∈ S_m` (`Categorification.PermExpansion`), rather than by
+the paper's induction on sequences (`KLR.KLRAlgebra.basis`); the general case follows by base change
+from universal symmetric data over a domain.
+
+The detour through a universal domain is needed: over a ring with zero divisors the polynomial
+representation need not be faithful. Rouquier, arXiv:0812.5023v1, Prop. 3.12, asserts faithfulness
+for every commutative ring and every factorization `Q_{ij}(u,v) = P_{ij}(u,v) P_{ji}(v,u)`. Over
+`ℤ/4` with `Q_{ij} = Q_{ji} = 2`, every such factorization has one factor equal to `2` up to a unit,
+so one of `2τ1_{(ij)}`, `2τ1_{(ji)}` acts by zero although it is nonzero (it is twice a basis
+element); over a field, `Q_{ij} = 0` gives a similar example. Faithfulness holds exactly when every
+`P_{ij}` (`i ≠ j`) is a non-zero-divisor in `k[u,v]`, the hypothesis Rouquier adds in
+arXiv:1112.3619v1, §3.2. Thm. 3.7 itself holds over every commutative ring, as above. (This
+observation is not formalized.)
 
 ### Iterated flag varieties (Khovanov–Lauda III, §4–5, first part)
 

@@ -25,10 +25,11 @@ These were introduced one at a time, where first needed:
   associator, with the shift on the right, middle and left factor of a triple composite;
 * `GradedBicategory.ShiftUnitor` (`MateSh.lean`): compatibility with the unitors.
 
-`GradedBicategory.ShiftCoherence B` is their conjunction, **shift coherence**. It packages the explicit coherence hypotheses needed for a future graded-Hom bicategory
-construction; that construction is not asserted here. No boundedness or adjunction hypothesis
-is used in this infrastructure. The boundedness assumption for the Prop. 3.9 route remains an
-extra hypothesis, not part of the printed theorem; the unrestricted problem is separate.
+`GradedBicategory.ShiftCoherence B` is their conjunction, **shift coherence**.
+It packages the explicit coherence hypotheses of the graded-Hom bicategory `GradedHomBicat`
+(`GradedHomBicategory.lean`). No boundedness or adjunction hypothesis is used in this
+infrastructure; the boundedness condition (BB_w) of the Prop. 3.9 route is a theorem,
+`StrongSl2.bbw` (`BBwProof.lean`).
 
 This file also restates the associator and unitor compatibilities as identities between shifted
 2-morphisms: the whiskering axioms of a bicategory (`id_whiskerLeft`, `comp_whiskerLeft`,

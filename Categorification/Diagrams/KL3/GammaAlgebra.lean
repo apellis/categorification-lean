@@ -29,14 +29,17 @@ hypothesis is used. Proposition 2.5 is supplied by `UDot.KL3.formNondeg_uncondit
 * `gammaAlg_surjective_unconditional`: surjectivity for every finite Cartan datum;
 * `gammaAlg_injective_of_calculusNondeg`: Theorem 1.2 as printed for every finite Cartan datum (the
   only hypothesis is `CalculusNondeg RD k`, which is the hypothesis of Theorem 1.2);
-* `gammaAlgEquiv_of_calculusNondeg`: equivalence for every finite Cartan datum, still requiring
-  `CalculusNondeg RD k` (hom-finiteness and spanning are discharged, nondegeneracy is not);
+* `gammaAlgEquiv_of_calculusNondeg`: equivalence for every finite Cartan datum given
+  `CalculusNondeg RD k` (hom-finiteness and spanning are discharged in this file);
 * `gammaAlgEquiv_sl`: the `sl_n` case over any field, using Theorem 1.3.
 
 The equivalences are packaged as `RingEquiv` between non-unital rings. Laurent-scalar
 compatibility is stated separately by `gammaAlg_smul`, and weight idempotents are respected
-by `gammaAlg_one`. This is not an unconditional general-Cartan nondegeneracy theorem: KL III
-prove nondegeneracy only for `sl_n` (Theorem 1.3) and leave other root data open (§1).
+by `gammaAlg_one`. KL III prove nondegeneracy only for `sl_n` (Theorem 1.3) and leave other
+root data open (§1). For every finite Cartan datum and every field, nondegeneracy is proved in
+`Categorification.Diagrams.KL3.Nondegeneracy` (`calculusNondeg`, following Webster,
+arXiv:1603.06311v3), which also gives `gammaAlg_injective_unconditional` and
+`gammaAlgEquiv_unconditional`.
 
 The colour set `I` is finite throughout KL III (a Cartan datum in Lusztig's sense), and
 finiteness is used by `homGdim` (the graded pieces of `END(1_λ)` are spanned by monomials in

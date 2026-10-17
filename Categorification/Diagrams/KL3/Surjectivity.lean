@@ -36,15 +36,18 @@ that `P` is a direct summand of `E_w 1_λ {t}`.
 (Any root datum, `k` a field, given hom-finiteness `HomGdim RD k`: the Krull–Schmidt property of
 `Categorification.Diagrams.KL3.KrullSchmidtU` is used.)
 
-## What remains for the surjectivity of `γ`
+## KL III's route to the surjectivity of `γ`
 
-KL III's proof of surjectivity (Theorem 1.1) continues by analysing the minimal idempotents of
-`END(E_{ν,-ν'} 1_λ)` through `R(ν) ⊗ R(ν') ⊗ Π_λ` (Propositions 3.32–3.36, Corollary 3.37):
+Surjectivity of `γ` (Theorem 1.1) is proved for every finite Cartan datum by a different route,
+through sorted spanning: `gammaUA'_surjective` (`SortedSpanProof.lean`) and
+`gammaAlg_surjective_unconditional` (`GammaAlgebra.lean`). KL III's own proof continues by
+analysing the minimal idempotents of `END(E_{ν,-ν'} 1_λ)` through `R(ν) ⊗ R(ν') ⊗ Π_λ`
+(Propositions 3.32–3.36, Corollary 3.37):
 the ideal `I_{ν,-ν',λ}` of 2-morphisms factoring through shorter sequences, the surjection
 `βα : R(ν) ⊗ R(ν') ⊗ Π_λ → R_{ν,-ν',λ}`, virtually nilpotent ideals, and the identification
-`K₀(R(ν) ⊗ R(ν') ⊗ Π_λ) ≅ _𝒜f_ν ⊗ _𝒜f_{ν'}`. These are not formalized here, so the statement
-"`[P]` lies in the image of `γ` for every indecomposable `P`" remains open; the results above
-reduce it to the indecomposable summands of the sorted 1-morphisms `E_{+a} E_{-b} 1_λ`.
+`K₀(R(ν) ⊗ R(ν') ⊗ Π_λ) ≅ _𝒜f_ν ⊗ _𝒜f_{ν'}`. These steps of KL III's argument are not
+formalized; the results above reduce that argument to the indecomposable summands of the sorted
+1-morphisms `E_{+a} E_{-b} 1_λ`.
 -/
 
 noncomputable section

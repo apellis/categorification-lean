@@ -50,6 +50,7 @@ def unfurledEval (μ : X) {ν : Multiset I} (i j : Seq ν) (N : ℕ) :
     (bubbleScalarLaw_proved k RD μ ν.card (N+1) (N+1) d hdpos hd hsym
       (Nat.succ_pos N))
 
+include d hdpos hd hsym in
 /-- KL nondegeneracy over a field with an invertible positive symmetrizer.
 This is the intermediate direct-unfurling result in Webster's proof; the
 characteristic restriction is removed by rational-to-integral descent. -/

@@ -1,7 +1,7 @@
-import Categorification.Diagrams.KL3.IntegralFamily
+import Categorification
 import Mathlib.Data.ZMod.Basic
 
-/-! Importing consumers for KL III §6.4 integral descent, including a nonflat
+/-! Root-importing consumers for KL III §6.4 integral descent, including a nonflat
 coefficient ring. Run with `lake env lean -DwarningAsError=true`.
 -/
 
@@ -32,6 +32,31 @@ example : Function.Bijective
 universe u v w
 variable {I : Type u} {C : CartanDatum I} {X Y : Type v}
   [AddCommGroup X] [AddCommGroup Y] {RD : WeightDatum C X Y} [Finite I]
+
+-- Presentation base change and spanning do not require rational nondegeneracy.
+omit [Finite I] in
+example (μ : X) (s t : List (Letter I)) :
+    (ZMod 4) ⊗[ℤ] ((pres RD ℤ).obj (ob RD μ s) ⟶ (pres RD ℤ).obj (ob RD μ t)) ≃ₗ[ZMod 4]
+      ((pres RD (ZMod 4)).obj (ob RD μ s) ⟶ (pres RD (ZMod 4)).obj (ob RD μ t)) :=
+  IntegralScalars.homBaseChange (ZMod 4) RD _ _
+
+omit [Finite I] in
+example (μ : X) (s t : List (Letter I)) :
+    Submodule.span (ZMod 4) (Set.range (IntegralSpanning.twoB RD (ZMod 4) μ s t)) = ⊤ := by
+  classical
+  exact IntegralSpanning.span_twoB μ s t
+
+omit [Finite I] in
+example (μ : X) (s t : List (Letter I)) (x : SpanIdx s t) :
+    IntegralScalars.homBaseChange (ZMod 4) RD _ _
+      (1 ⊗ₜ[ℤ] IntegralSpanning.twoB RD ℤ μ s t x) =
+        IntegralSpanning.twoB RD (ZMod 4) μ s t x := by
+  simp
+
+-- Over fields the ring family is the existing KL family, not a new basis choice.
+omit [Finite I] in
+example {k : Type w} [Field k] (μ : X) (s t : List (Letter I)) :
+    IntegralSpanning.twoB RD k μ s t = twoB RD k μ s t := rfl
 
 -- The presentation, integral spanning, and family comparison are not hypotheses.
 example (hnd : CalculusNondeg RD ℚ) (μ : X) (s t : List (Letter I)) :

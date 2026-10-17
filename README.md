@@ -152,17 +152,35 @@ the latter two differ from the arXiv v1 text by a sign: the sideways crossing
 `F_j E_i → E_i F_j` is minus the swap when `i = j + 1` (`Flag.crossrW_one`), so the relations
 `eq_downup_ij-gen` hold only up to sign (`Flag.downupEF_W`, `Flag.downupFE_W`), and the two
 rotations of an adjacent-colour crossing differ by `-1` (`Flag.rotCrossRW_eq_neg_rotCrossLW`).
-This agrees with Khovanov–Lauda's *Erratum to "A categorification of quantum sl(n)"*, Quantum
-Topol. 2 (2011), 97–99, which revises Lemma 6.4 and Definition 4.1 accordingly. The revised
-Definition 4.1 is formalized literally (`KL3.Diagram.Signed.presSignedQT`, homogeneous, differing
-from the v1 definition `KL3.Diagram.Signed.presSigned` only in the adjacent-colour relations). On
-`Γ_N`, the revised cyclicity relation holds as printed (`Flag.rotCrossRW_add_rotCrossLW`), but the
-revised relations (3.13) hold with the opposite sign, `crossl_{ij} ∘ crossr_{ij} = (j - i)` for
-`i · j = -1` (`Flag.downupEF_W_consistent`, `Flag.downupFE_W_consistent`), as the erratum's own
-revised Lemma 6.4 implies; we also formalize this variant (`KL3.Diagram.Signed.presSignedQT'`). The
-signs `(j - i)`, `(i - j)` are also those of the mixed relations of Cautis–Lauda
-(arXiv:1111.1431, (2.16), Prop. 6.3) for the scalars `t_{ij} = i - j` that the signed `R(ν)`
-relations force. Cyclicity for equal colours (`Flag.rotCrossRW_same_eq`,
+Khovanov–Lauda's *Erratum to "A categorification of quantum sl(n)"*, Quantum Topol. 2
+(2011), 97–99, successfully corrects Lemma 6.4: for distinct colours its two maps agree
+with `Flag.crosslW_one` and `Flag.crossrW_one` and their dot-slide extensions. Its revised
+Definition 4.1 is formalized literally (`KL3.Diagram.Signed.presSignedQT`, homogeneous,
+differing from the v1 definition `KL3.Diagram.Signed.presSigned` only in the adjacent-colour
+relations). The two-rotation cyclicity equation on p. 97 also holds on `Γ_N`
+(`Flag.rotCrossRW_add_rotCrossLW`). The residual discrepancy is in the mixed relations
+(3.13) on p. 98 and the same signs in the Proposition 6.6 amendment on p. 99: retaining
+the specified flag maps and upward KLR normalization requires `j - i` in the first
+display and `i - j` in the second, opposite to the printed scalars. Equivalently, fixing
+upward colour `i` and downward colour `j`, both products of the sideways maps act by
+`j - i` for adjacent colours (`Flag.downupEF_W_consistent`, `Flag.downupFE_W_consistent`).
+The disagreement requires admissible flag steps and an element not killed by `2`
+(`Flag.downupEF_W_ne_literal`, `Flag.downupFE_W_ne_literal`), not merely adjacency.
+The corrected presentation is `KL3.Diagram.Signed.presSignedQT'`; these are also the mixed
+signs of Cautis–Lauda (arXiv:1111.1431v3, (2.16), Prop. 6.3) for `t_{ij} = i - j`.
+
+There is a related downward-normalization issue when the Proposition 6.5 amendment is
+compared with **arXiv:0807.3250v1**, (6.9) and (6.16), pp. 74, 77. Writing `A, D, B`
+for the three maps in (6.16), from left to right, the amendment gives `A = D = -B`
+for adjacent colours, whereas the specified maps give `A = -D = -B`
+(`Flag.rotCrossRW_eq_crossDn`, `Flag.rotCrossLW_eq_crossDn`). Thus the amended relation
+between the outer rotations is correct; matching the middle downward crossing requires
+a consistent normalization. This comparison is with arXiv v1, not a separate collation
+of the 2010 journal printing. The two-rotation relation alone does not fix the bare
+downward generator. These local sign/normalization issues do not disprove the principal
+categorification theorem or rule out an abstract category defined by the literal relations.
+
+Cyclicity for equal colours (`Flag.rotCrossRW_same_eq`,
 `Flag.rotCrossLW_same_eq`) and the `EF`/`FE` decompositions of Prop. 6.3
 (`KL3.Diagram.Signed.decompEF_W`, `decompFE_W`, with the degenerate regions) hold on the word
 model, as do the `R(ν)`-relations in the degenerate regions where an intermediate 1-morphism is
@@ -258,10 +276,27 @@ throughout (without them the isomorphisms of Prop. 3.24 are not of degree 0).
 | KL III Def. 4.1 and erratum | for `sl_n` with `t_{ij} = i - j` for adjacent `i, j` (the scalars forced by the signed `R(ν)` relations), the relations of `U_Q(sl_n)` agree with those of the revised Definition 4.1 with the corrected signs in (3.13), and differ from the printed (3.13) by `2(j - i)`; the erratum's adjacent-colour cyclicity relation is a consequence of CL's, which in addition fix the downward crossing | `KL3.Diagram.CL.Sln.relationCL_sln_eq_relationQT'`, `KL3.Diagram.CL.Sln.relationCL_sln_downupEF_adj`, `KL3.Diagram.CL.Sln.relationQT_sub_relationCL_sln_downupEF_adj`, `KL3.Diagram.CL.Sln.erratum_cyc_eq` |
 
 | CL §2.6, Remark (3) on p. 8; KL III §4.2.1 and erratum | rescaling isomorphisms: a unit scaling of dots, upward crossings and cups (with the cup/cap scalars constrained by the bubble relations, downward crossings forced by `Q`-cyclicity) gives an isomorphism `U_Q(𝔤) ≅ U_{Q'}(𝔤)` with `Q'_{ij}(u, v) = (c_{ij} c_{ji})^{-1} Q_{ij}(a_i u, a_j v)`, `r'_i = r_i (a_i c_{ii})^{-1}`; hence every `U_Q` is isomorphic to one with `r = 1`, a single-vertex `U_Q` is isomorphic to KL III's `U`, and so is any `U_Q` with balanced scalars and `s = 0` | `KL3.Diagram.CL.RescaleDatum.equiv`, `KL3.Diagram.CL.RescaleDatum.scL_relationCL`, `KL3.Diagram.CL.equivWithRone`, `KL3.Diagram.CL.equivSingleVertexPres`, `KL3.Diagram.CL.equivOfBalanced` |
-| KL III §4.2.1, erratum p. 99 | the isomorphism `Σ : U(sl_n) ≅ U_Q(sl_n)` with `t_{ij} = i - j` (the corrected `U→(sl_n)`): dots and upward crossings are scaled as in KL III, cups and caps as in the erratum; the downward crossings carry weight-dependent signs forced by cyclicity | `KL3.Diagram.CL.Sln.sigmaEquiv`, `KL3.Diagram.CL.Sln.sigmaEquivPres` |
+| KL III §4.2.1, erratum p. 99 | the isomorphism `Σ : U(sl_n) ≅ U_Q(sl_n)` with `t_{ij} = i - j`, targeting CL's normalized presentation, not the literal amended Definition 4.1: dots and upward crossings are scaled as in KL III, and all four revised cup/cap rules agree with the mod-four datum; downward-crossing signs are forced by CL's cyclicity convention | `KL3.Diagram.CL.Sln.sigmaEquiv`, `KL3.Diagram.CL.Sln.sigmaEquivPres` |
 | CL §1.2, §2.1.2 | graded additive `k`-linear 2-categories (Mathlib bicategories with preadditive, linear Hom categories with a shift `⟨1⟩` commuting with whiskering), strong 2-representations of `sl_2` along a weight string, and `Q`-strong 2-representations of `𝔤` (Def. 1.2) | `TwoRep.GradedBicategory`, `TwoRep.StrongSl2`, `TwoRep.QStrong` |
 | CL §3.1 | cancellation `A ⊕ B ≅ A ⊕ C ⇒ B ≅ C` in Krull–Schmidt categories, and `A ⊗ V ≅ B ⊗ V ⇒ A ≅ B` for `V ≠ 0` graded when no indecomposable is isomorphic to a nonzero shift of itself (as stated in CL, without these hypotheses, the second law fails, e.g. for `V = 0`); bricks, `A`-rank | `TwoRep.cancel_biprod`, `TwoRep.cancel_shiftSum`, `TwoRep.IsBrick`, `TwoRep.rk` |
 | CL §3.2–3.6 (partial) | the adjoint induction from the highest weight (`n ≥ 0`) and from the lowest weight (`n ≤ 0`); Lemma 3.1 (`E1_m` has no negative-degree endomorphisms and is a brick, with the nonvanishing hypotheses made explicit), Cor. 3.2, Cor. 3.3, Lemma 3.4, Cor. 3.10, Lemma 3.12, and the dimension formula (3.15) of Lemma 3.14; the divided power `E^{(2)}` with `EE1_n ≅ E^{(2)}⟨1⟩ ⊕ E^{(2)}⟨-1⟩`, additivity of rank, and the restriction of a `Q`-strong 2-representation to an `sl_2` string (any `d_i`, on the regraded bicategory `Regrade B (d_i)`); the interchange law for shifted 2-morphisms (under a coherence mixin); at the induction step, whiskering kills negative-degree endomorphisms of `E1_{n-2}`, `FE1_n` has no summand `1_n⟨l⟩`, and an indecomposable summand `X` of `E1_{n-2}` with `X E1_n ≠ 0` occurs once; the `n ≤ 0` versions of Cor. 3.2, Lemma 3.4, Cor. 3.3; the dot is an isomorphism on the common summand `E^{(2)}⟨1⟩`; Cor. 3.7 from the nondegeneracy of the subdiagonal dot entries on `EF1_n`; Lemma 3.14 for `n ≥ -1` (low-degree endomorphisms of `E1_n` are sums of dots times bubbles, given (3.2) at weights `> n`); Lemma 3.6, Cor. 3.7, Cor. 3.13 and Lemma 3.8 at weight `n` given the adjunction (3.2) at weights `≥ n` (a multiplicity argument that avoids the cancellation `E^{(2)}F ≅ FE^{(2)} ⊕ [n-1]E`). For `n ≤ 0` (Remark 3.11): the mirror decomposition of `FE1_n`, Cor. 3.7 and Cor. 3.13 from the nondegeneracy of the dot entries, and Lemma 3.14 (`eq:main2`) from it; the `n ≤ 0` Lemma 3.6 does not follow by mirroring within Def. 1.2 (it needs the nilHecke action on `FF`, constructed by mates); it is proved through the duality and `(BB_w)` (`dotNondegNeg`, table below). Prop. 3.9 (biadjointness is automatic), i.e. (3.2) at `n` itself, is proved via `(BB_w)` (`adjHyp`, table below), and `(BB_w)` holds in every strong 2-representation (`StrongSl2.bbw`), so Prop. 3.9 holds as printed (`StrongSl2.adjHyp`) | `TwoRep.StrongSl2.adjoint_induction`, `TwoRep.StrongSl2.lem1_neg`, `TwoRep.StrongSl2.lem1_zero`, `TwoRep.StrongSl2.cor_EFidhoms`, `TwoRep.StrongSl2.lemHoms_EF_FE_eq_one`, `TwoRep.StrongSl2.lemMain_finrank`, `TwoRep.StrongSl2.exists_E2`, `TwoRep.rk0_biprod_map`, `TwoRep.QStrong.toStrongSl2`, `TwoRep.shWhisker_exchange`, `TwoRep.StrongSl2.lemA`, `TwoRep.StrongSl2.not_retract_one_FE_step`, `TwoRep.StrongSl2.not_iso_biprod_self`, `TwoRep.StrongSl2.cor_degz_bubbles_of_dotNondeg`, `TwoRep.StrongSl2.lemXind_of_adjHyp`, `TwoRep.StrongSl2.isIso_zeta_of_adjHyp`, `TwoRep.StrongSl2.lemAprimeRight_ne_zero`, `TwoRep.StrongSl2.lemMain_surjective`, `TwoRep.StrongSl2.isIso_zetaNeg_of_dotNondeg`, `TwoRep.StrongSl2.lemMainNeg_surjective_of_dotNondeg` |
+
+The revised `Σ` cup/cap formulas (erratum p. 99) are correct for all integral weights:
+with source indices `i = 1, …, n-1` and `d_i = (-1)^i`, a cap has factor `d_i` when
+its exterior weight satisfies `λ_i ≡ 0 mod 4`, and a cup when `λ_i ≡ 2 mod 4`;
+otherwise the factor is `1`, in either orientation
+(`CL.Sln.sigmaDatum_chi_cap`, `CL.Sln.sigmaDatum_chi_cup`, in `KL3.Diagram`).
+The cup's exterior region differs from the region in the internal datum by a simple root.
+These successful corrections do not repair the literal target's mixed signs. For example,
+over `ℚ` in `sl₃` with `N = 2`, the flag sequence `(0,0,2,2)` admits both orders of
+`E₁` and `F₂`. Their sideways composites are fixed by the prescribed `Σ` scalars,
+but their product is the identity in the source and minus the identity in the literal
+amended target. The tensor of units is not killed by `2`: compatible cohomology
+augmentations send it to `1` in `ℚ`. Thus the specified isomorphism to that literal
+target fails, while `sigmaEquivPres` proves the equivalence to CL's normalized target.
+This is the same mixed-sign defect as (3.13)/Proposition 6.6, not an independent
+cup/cap error or a separate failure of the principal theorem. The weight-dependent
+downward factor is forced by CL's convention, not an additional printed `Σ` rule.
 
 In CL §2.1.1, "`s_{ij}^{pq} = 0` when … `d_{ij} ≥ p` or `d_{ji} ≥ q`" should read "`p ≥ d_{ij}` or
 `q ≥ d_{ji}`". In the last paragraph of the proof of CL Lemma 5.4, the value `β_0 = -r_i^2` should

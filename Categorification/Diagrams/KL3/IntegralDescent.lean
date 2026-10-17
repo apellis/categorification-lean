@@ -20,9 +20,10 @@ No flatness or torsion-freeness hypothesis is imposed on a Hom module or on the
 target ring.
 
 These are intermediate descent results: integral spanning, the map to rational
-Hom, and the presentation base-change equivalence remain explicit inputs. The
-existing `prop311` and `HomD` APIs require a field, and do not discharge those
-inputs over `ℤ`. `scalarHomD` below is the existing presentation's homogeneous
+Hom, and the presentation base-change equivalence are explicit inputs here.
+`IntegralSpanning`, `IntegralBaseChange`, and `IntegralFamily` construct the
+actual calculus inputs and assemble full-Hom descent, collecting the rational
+graded bases first. `scalarHomD` below is the existing presentation's homogeneous
 submodule over a commutative ring, not a different model of the calculus.
 -/
 
@@ -134,9 +135,10 @@ def homBasisOfRational (k : Type w) [CommRing k] (hnd : CalculusNondeg RD ℚ)
 /-- The source-grounded inputs to integral descent for fixed boundary words.
 
 `spanning` is the integral form of Proposition 3.11. `toRational` and its
-compatibility express scalar change on the diagram family. These inputs have
-not yet been constructed for `pres`; in particular a field-only spanning
-theorem cannot supply `spanning` by specialization. -/
+compatibility express scalar change on the diagram family. This degreewise
+interface keeps its inputs explicit. The completed full-Hom route in
+`IntegralFamily` constructs ring-valued spanning rather than specializing a
+field-only spanning theorem. -/
 structure IntegralHomFamily (μ : X) (s t : List (Letter I)) where
   rational : SpanIdx s t →
     ((pres RD ℚ).obj (ob RD μ s) ⟶ (pres RD ℚ).obj (ob RD μ t))

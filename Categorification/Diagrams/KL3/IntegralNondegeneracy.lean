@@ -10,8 +10,9 @@ import Categorification.Diagrams.KL3.IntegralBaseChange
 
 KL III, arXiv:0807.3250v1, Proposition 3.11 and §6.4, paragraph
 “Simple nondegeneracy observations”. This uses the concrete presentation
-base-change equivalence, not an assumed equivalence. The remaining integral
-spanning family and its rational image are explicit intermediate inputs.
+base-change equivalence, not an assumed equivalence. The integral spanning
+family and its rational image are explicit intermediate inputs in this file;
+`IntegralFamily` constructs them and supplies the final descent theorem.
 -/
 
 noncomputable section

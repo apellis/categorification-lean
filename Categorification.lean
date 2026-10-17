@@ -512,6 +512,7 @@ import Categorification.KLR.Unfurling.GenericVacuumEdges
 import Categorification.KLR.Unfurling.GenericVacuumBubbles
 import Categorification.KLR.Unfurling.GenericKLFamily
 import Categorification.KLR.Unfurling.GenericEvaluation
+import Categorification.KLR.Unfurling.GenericNondeg
 import Categorification.KLR.Unfurling.GenericKLBubbles
 import Categorification.TwoRep.PiBiproduct
 import Categorification.KLR.Unfurling.CoverNilpotent

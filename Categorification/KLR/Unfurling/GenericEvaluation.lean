@@ -3,6 +3,7 @@ Copyright (c) 2026 Alex Ellis. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 -/
 import Categorification.KLR.Unfurling.GenericKLFamily
+import Categorification.KLR.Unfurling.GenericKLBubbles
 import Categorification.KLR.Unfurling.GenericStrands
 import Categorification.KLR.Unfurling.VacuumEvaluation
 import Categorification.KLR.Unfurling.GenericBubbleValues
@@ -311,6 +312,18 @@ private def evaluationFromScalarRaw {ν : Multiset I} (i : Seq ν) (hs : ν.card
   exact evaluationFromScalarRawCore k RD μ s b M d hdpos hd hsym i hs N hM hbnd G hG HE MG
     (klVacuum k RD μ s b M d hdpos hd hsym)
     (kl_dataObj_vacuum RD k μ s b M d hdpos hd hsym) hb j
+
+/-- The actual categorical scalar action supplies the evaluation law once
+its polynomial bubble map is identified with the generic scalar series. -/
+theorem bubbleScalarLaw_of_map_eq
+    (heq : klVacuumBubbleMap k RD μ s b M d hdpos hd hsym =
+      vacuumBubbleEval k s b M (fun i => RD.pair (RD.iY i) μ)) :
+    bubbleScalarLaw k RD μ s b M d hdpos hd hsym := by
+  intro p
+  have hp := klVacuumBubbleMap_action k RD μ s b M d hdpos hd hsym p
+  rw [heq] at hp
+  exact hp
+
 
 /-- Assemble the concrete generic evaluation from its scalar vacuum identity.
 All coordinate, support, weight, and action data are constructed here. -/

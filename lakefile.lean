@@ -6,11 +6,11 @@ package Categorification where
 
 require StringDiagrams from git
   "https://github.com/apellis/string-diagrams-lean.git" @
-  "6f066162223bcc1762b2eebc1983dfa8e0f90630"
+  "4540cd4a47cf0c4d8ef7597cdc8a5fa95c84a11f"
 
 require LieLean from git
   "https://github.com/apellis/lie-lean.git" @
-  "aa683687d4e22463e006ecd3fb0b4b9e6d704866"
+  "84222f8a9861e73db9778092c6a9d51ff39315cb"
 
 require mathlib from git
   "https://github.com/leanprover-community/mathlib4.git" @

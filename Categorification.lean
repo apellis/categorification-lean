@@ -506,6 +506,8 @@ import Categorification.KLR.Unfurling.CoverVacuum
 import Categorification.KLR.Unfurling.FurlingVacuum
 import Categorification.KLR.Unfurling.CoverFurlingFibres
 import Categorification.KLR.Unfurling.GenericVacuum
+import Categorification.KLR.Unfurling.GenericVacuumCoordinates
+import Categorification.KLR.Unfurling.GenericVacuumWordCoordinates
 import Categorification.KLR.Unfurling.GenericKLFamily
 import Categorification.TwoRep.PiBiproduct
 import Categorification.KLR.Unfurling.CoverNilpotent

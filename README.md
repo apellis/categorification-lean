@@ -196,12 +196,13 @@ used in the proof and in Cor. 5.5, holds (`Flag.lemma_5_4_iii`).
 | Bubbles under upward-word evaluation | Webster arXiv:1603.06311v3, proof of Thm. `nondegenerate`, “Triviality of a relation” | `TwoRep.RouqFamily.bubbleMap_X`, `TwoRep.RouqFamily.upEval_bubAt`, `TwoRep.RouqFamily.upEval_bubMap` | Rouquier family with `BrundanUpKLR` and `BrundanMixedInversion`, as for `upEval` | Proved: explicit opposite diagram/local orientation conventions and right-whiskering formula; vacuum values and independence still required |
 | Integral spanning and scalar descent | KL III Prop. 3.11 and §6.4, “Simple nondegeneracy observations” | `IntegralSpanning.span_twoB`, `IntegralScalars.homBaseChange`, `integralCanonicalBasis`, `integralNondegBasis`, `calculusNondeg_of_rational` | Spanning and presentation base change: commutative ring, arbitrary colour set. Basis descent: finite colour set and `CalculusNondeg RD ℚ` | Concrete integral spanning and presented-Hom tensor equivalence proved; rational nondegeneracy gives the same diagram basis over every commutative ring, without flatness or injectivity assumptions |
 
-**Nondegeneracy roadmap ([#71](https://github.com/apellis/categorification-lean/issues/71)).**
-The scalar-descent step is proved: `integralNondegBasis k hnd` gives the canonical diagram
-basis over any commutative ring, and `calculusNondeg_of_rational k hnd` gives the existing
-field-valued nondegeneracy statement in every characteristic. These interfaces still require
-`hnd : CalculusNondeg RD ℚ`; constructing that rational input from the generic evaluation
-is the remaining assembly step, not a conclusion of integral descent.
+**Nondegeneracy ([#71](https://github.com/apellis/categorification-lean/issues/71)).**
+`GenericFields.calculusNondeg_charZero` constructs the rational input from the
+proved generic evaluation and the explicit diagonal symmetrizer. The integral
+interfaces `integralNondegBasis` and `calculusNondeg_of_rational` then give the
+unconditional endpoints `canonicalBasis` and `calculusNondeg`. Direct unfurling
+is used only in characteristic zero; bad-characteristic fields and rings with
+zero divisors are covered by integral spanning and presentation base change.
 `scripts/IntegralDescentCheck.lean` exercises the root import and the presented-Hom basis map
 over `ZMod 4`, rather than assuming that specialization preserves linear independence.
 

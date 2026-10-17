@@ -16,3 +16,5 @@ jobs:
           build-args: "--wfail"
       - name: Axiom audit
         run: lake env lean -DwarningAsError=true scripts/AxiomAudit.lean
+      - name: Integral descent consumer
+        run: lake env lean -DwarningAsError=true scripts/IntegralDescentCheck.lean

@@ -190,6 +190,16 @@ used in the proof and in Cor. 5.5, holds (`Flag.lemma_5_4_iii`).
 | Nondegeneracy from unfurled representations | Webster arXiv:1603.06311v3, Thm. `nondegenerate` (label), for positive sequences | `KLR.Unfurling.calculusNondeg_of_unfurledEval` | Same, plus `UnfurledEval` for all `λ`, positive `𝐢, 𝐣` and bounds `N` (the full evaluation comparison for the action of `U` on unfurled cyclotomic representations, not yet assembled) | Conditional; the triangularity argument is proved |
 | Vacuum evaluation and its KLR component | Webster arXiv:1603.06311v3, proof of Thm. `nondegenerate` | `TwoRep.Furling.upCorner_toUEnd`, `KLR.CyclotomicAction.theta`, `theta_toUEnd_basis`, `unfurledEvalOfVacuum` | A furled cyclotomic product family, nilpotent cover dots, irrelevant-edge vanishing, a vacuum block and its weight/object identifications, distinct negative labels without arrows | The semilinear map and its KLR basis-image formula are proved. `unfurledEvalOfVacuum` constructs the consumer structure, proving `map_basis` from the categorical bubble scalar equation on the vacuum. Specialization of the block/object identifications and bubble equation to the generic KL family remains. |
 | Bubbles under upward-word evaluation | Webster arXiv:1603.06311v3, proof of Thm. `nondegenerate`, “Triviality of a relation” | `TwoRep.RouqFamily.bubbleMap_X`, `TwoRep.RouqFamily.upEval_bubAt`, `TwoRep.RouqFamily.upEval_bubMap` | Rouquier family with `BrundanUpKLR` and `BrundanMixedInversion`, as for `upEval` | Proved: explicit opposite diagram/local orientation conventions and right-whiskering formula; vacuum values and independence still required |
+| Integral spanning and scalar descent | KL III Prop. 3.11 and §6.4, “Simple nondegeneracy observations” | `IntegralSpanning.span_twoB`, `IntegralScalars.homBaseChange`, `integralCanonicalBasis`, `integralNondegBasis`, `calculusNondeg_of_rational` | Spanning and presentation base change: commutative ring, arbitrary colour set. Basis descent: finite colour set and `CalculusNondeg RD ℚ` | Concrete integral spanning and presented-Hom tensor equivalence proved; rational nondegeneracy gives the same diagram basis over every commutative ring, without flatness or injectivity assumptions |
+
+**Nondegeneracy roadmap ([#71](https://github.com/apellis/categorification-lean/issues/71)).**
+The scalar-descent step is proved: `integralNondegBasis k hnd` gives the canonical diagram
+basis over any commutative ring, and `calculusNondeg_of_rational k hnd` gives the existing
+field-valued nondegeneracy statement in every characteristic. These interfaces still require
+`hnd : CalculusNondeg RD ℚ`; constructing that rational input from the generic evaluation
+is the remaining assembly step, not a conclusion of integral descent.
+`scripts/IntegralDescentCheck.lean` exercises the root import and the presented-Hom basis map
+over `ZMod 4`, rather than assuming that specialization preserves linear independence.
 
 The scalar products over the constructed generic fields now have an algebraically independent
 polynomial action for arbitrary colour sets and finitely many label slots per colour:

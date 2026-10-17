@@ -24,6 +24,23 @@ noncomputable section
 namespace Categorification.KLR.Unfurling.GenericFields
 open QuantumGroup QuantumGroup.UDot TwoRep MvPolynomial CategoryTheory CategoryTheory.Bicategory
 universe u v w
+
+/-- The scalar bubble evaluation is injective on polynomials in the bounded variables. -/
+theorem vacuumBubbleEval_rename_injective (k : Type v) [Field k] {I : Type u}
+    (s b M : ℕ) (h : I → ℤ) {N : ℕ} (hN : N ≤ b) :
+    Function.Injective (fun p : MvPolynomial {p : I × ℕ // p.2 < N} k =>
+      vacuumBubbleEval k s b M h (MvPolynomial.rename Subtype.val p)) := by
+  have he : (vacuumBubbleEval k s b M h).comp
+      (MvPolynomial.rename (fun p : {p : I × ℕ // p.2 < N} => p.val)) =
+      MvPolynomial.aeval (fun p : {p : I × ℕ // p.2 < N} =>
+        vacuumBubbleEval k s b M h (MvPolynomial.X p.val)) := by
+    ext p
+    simp
+  change Function.Injective ((vacuumBubbleEval k s b M h).comp
+    (MvPolynomial.rename (fun p : {p : I × ℕ // p.2 < N} => p.val)))
+  rw [he]
+  exact vacuumBubbleEval_indep k s b M h hN
+
 variable {I : Type u} [DecidableEq I] (k : Type v) [Field k]
   {C : CartanDatum I} {X Y : Type w} [AddCommGroup X] [AddCommGroup Y]
   (RD : WeightDatum C X Y) (μ : X) (s b M : ℕ)

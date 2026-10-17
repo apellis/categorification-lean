@@ -198,9 +198,13 @@ The hypotheses require enough negative-alphabet slots of level one; other levels
 `GenericFields.vacuumBubbleEval_indep` discharges the level hypotheses for the explicit
 strand/bubble/balancing weights, leaving only `N ≤ b` for the number of bubble slots.
 `bubbleEval_X_of_nonneg` and `bubbleEval_X_of_neg` express its generators in the two vacuum
-`lwSeq` formulas, with the orientation and dot shift explicit. Reindexing the categorical
-vacuum edge products by these slots, and identifying this scalar map with the vacuum action,
-remain to be proved; this does not yet construct `UnfurledEval`.
+`lwSeq` formulas, with the orientation and dot shift explicit. The categorical
+vacuum edge products now reindex to these slots. `GenericFields.klVacuumBubbleMap`
+is the polynomial map defined by evaluation of the generic KL family at its vacuum,
+and `klVacuumBubbleMap_action` proves that the categorical action is multiplication
+by that scalar, using the injective `genericVacuumEv`. Identifying that scalar with
+`vacuumBubbleEval` for the assembled family remains; this does not yet construct
+`UnfurledEval`.
 
 The transcription of Def. 3.1 is cross-checked by homogeneity of every relation and by cyclicity
 of the generators with respect to the biadjunctions; no faithful 2-representation is formalized yet.

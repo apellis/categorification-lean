@@ -61,7 +61,9 @@ theorem generic_base_pair (i : I) :
 local notation "Φ" => genericFurling k RD μ s b M P₀ d hdpos hd hP hhom
 
 /-- The constructed vacuum in the generic furling category. -/
-def genericVacuum :=
+def genericVacuum :
+    (Φ).obj (coverProduct.{max u v, max u v, 0}
+      (arrowsNeg D) (L := L₀) Λm (arrowsPos D) Λp) μ :=
   furledVacuum (arrowsNeg D) (L := L₀) Λm (arrowsPos D) Λp Φ
     (coverBase_eq_vacuumBase Λm Λp)
 
@@ -82,7 +84,7 @@ instance genericVacuum_isReduced :
     (coverBase_eq_vacuumBase Λm Λp)
 
 /-- The zero block of the constructed generic furling. -/
-def genericZeroBlock := vacuumZeroBlock (arrowsNeg D) (arrowsPos D) Φ
+def genericZeroBlock : (Φ).Blk μ := vacuumZeroBlock (arrowsNeg D) (arrowsPos D) Φ
 
 /-- The scalar evaluation at the distinguished zero block. -/
 def genericVacuumBlockEv :

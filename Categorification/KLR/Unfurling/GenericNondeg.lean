@@ -10,10 +10,12 @@ Webster, arXiv:1603.06311v3, theorem labelled `nondegenerate`, “Triviality
 of a relation”; KL III, arXiv:0807.3250v1, Theorem 1.2.
 
 The strand, bubble and truncation levels are fixed here as `ν.card`, `N+1`
-and `N+1`. The sole remaining input is the categorical scalar bubble law
-at those levels. No evaluation, basis-image, coordinate, action-relation
-or weight-transport hypothesis is assumed. The field nondegeneracy result
-with that scalar-law input discharged is a subsequent specialization.
+and `N+1`. The categorical scalar bubble law is proved at those levels.
+`calculusNondeg_of_symmetrizer` has only the positive invertible symmetrizer
+hypotheses required by direct unfurling; `calculusNondeg_charZero` supplies
+them from the Cartan datum. No evaluation, scalar-law, basis-image, coordinate,
+action-relation or weight-transport hypothesis occurs in these conclusions.
+The general Cartan scope follows Webster; KL III states nondegeneracy in type A.
 -/
 
 noncomputable section
@@ -40,5 +42,26 @@ theorem calculusNondeg_of_scalarLaw [Finite I]
     CalculusNondeg RD k :=
   calculusNondeg_of_unfurledEval fun μ ν i j N =>
     ⟨unfurledEvalOfScalarLaw k RD d hdpos hd hsym μ i j N (hb μ ν.card N)⟩
+
+/-- The generic evaluation with every categorical scalar law supplied. -/
+def unfurledEval (μ : X) {ν : Multiset I} (i j : Seq ν) (N : ℕ) :
+    UnfurledEval RD k μ i j N :=
+  unfurledEvalOfScalarLaw k RD d hdpos hd hsym μ i j N
+    (bubbleScalarLaw_proved k RD μ ν.card (N+1) (N+1) d hdpos hd hsym
+      (Nat.succ_pos N))
+
+/-- KL nondegeneracy over a field with an invertible positive symmetrizer.
+This is the intermediate direct-unfurling result in Webster's proof; the
+characteristic restriction is removed by rational-to-integral descent. -/
+theorem calculusNondeg_of_symmetrizer [Finite I] : CalculusNondeg RD k :=
+  calculusNondeg_of_unfurledEval fun μ _ i j N =>
+    ⟨unfurledEval k RD d hdpos hd hsym μ i j N⟩
+
+/-- Characteristic-zero KL nondegeneracy, using positive diagonal Cartan
+lengths as the explicit power-series symmetrizer. No evaluation or scalar
+bubble law is assumed. -/
+theorem calculusNondeg_charZero [Finite I] [CharZero k] : CalculusNondeg RD k := by
+  obtain ⟨d, hdpos, hd, hsym⟩ := exists_symmetrizer_of_charZero (C := C) (k := k)
+  exact calculusNondeg_of_symmetrizer k RD d hdpos hd hsym
 
 end Categorification.KLR.Unfurling.GenericFields

@@ -23,8 +23,8 @@ lengths provide the power-series symmetrizer in characteristic zero.
 `evaluationFromScalar` constructs the evaluation from the categorical scalar
 bubble identity. The normalized coordinates, source/target identifications,
 strand support and upward/mixed action relations are all supplied. It does not
-assume an evaluation or basis-image formula; the scalar identity remains the
-explicit interface to the bubble computation.
+assume an evaluation or basis-image formula. `bubbleScalarLaw_proved` supplies
+the scalar identity from the computed generic KL vacuum bubble action.
 -/
 
 noncomputable section
@@ -324,6 +324,14 @@ theorem bubbleScalarLaw_of_map_eq
   rw [heq] at hp
   exact hp
 
+
+/-- The generic KL vacuum satisfies the scalar bubble law, by the computed
+polynomial bubble action. The positive slot count is ensured by `b = N + 1`
+in the nondegeneracy application. -/
+theorem bubbleScalarLaw_proved (hbpos : 0 < b) :
+    bubbleScalarLaw k RD μ s b M d hdpos hd hsym := by
+  intro p
+  exact klVacuumBubbleMap_scalar k RD μ s b M d hdpos hd hsym hbpos p
 
 /-- Assemble the concrete generic evaluation from its scalar vacuum identity.
 All coordinate, support, weight, and action data are constructed here. -/

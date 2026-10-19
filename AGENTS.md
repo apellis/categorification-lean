@@ -12,6 +12,9 @@ public: keep it mathematical and technical.
   (CI runs it as well). Committed files contain no `sorry`, `admit`, `native_decide` or new
   `axiom`. The axiom closure is contained in `propext`, `Classical.choice` and `Quot.sound`.
   Compilation alone is not the acceptance criterion; source fidelity is.
+- `scripts/NonVacuity.lean` (run by CI) applies each headline theorem to concrete data with every
+  hypothesis proved. When a headline theorem is added or its hypotheses change, add or update its
+  example there.
 - Dependencies: Mathlib, string-diagrams-lean and lie-lean. Generic diagrammatics belong in string-diagrams-lean, Lie-theoretic results in lie-lean, and odd or super-specific results in odd-lean.
 - Record the source of every main result in its docstring: paper and version, section, and
   theorem or equation number. Check each locator in the cited version. Distinguish the literal

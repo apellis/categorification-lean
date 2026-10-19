@@ -64,7 +64,7 @@ example := KL3.Diagram.gammaAlg_surjective_unconditional (RD := sl2RootDatum) (k
 
 example := KL3.Diagram.gammaAlg_surjective_unconditional (RD := Flag.slRootDatum 2) (k := ZMod 3)
 
-example := KL3.Diagram.gammaAlg_injective_unconditional sl2RootDatum (ZMod 5)
+example := KL3.Diagram.gammaAlg_injective_unconditional sl2RootDatum (ZMod 3)
 
 example : AUD sl2RootDatum vQ ≃+* KL3.Diagram.K0All sl2RootDatum ℚ :=
   KL3.Diagram.gammaAlgEquiv_unconditional sl2RootDatum ℚ
@@ -88,7 +88,7 @@ def lam : (Bool → ℤ) × (Bool →₀ ℤ) := (fun _ => 1, 0)
 
 theorem hΛ : ∀ i, ((Polynomial.X : Polynomial ℚ).natDegree : ℤ) =
     (coverWeight arr).pair ((coverWeight arr).iY i) lam := by
-  intro i; simp [lam]
+  intro i; rw [coverWeight_pair_iY]; simp [lam]
 
 example := KLR.CyclotomicAction.blockLoc (k := ℚ) (Q := unfQ arr) (a := fun _ => Polynomial.X)
   (unfQ_klrSymm arr) (fun j l _ => unfQ_leadingCoeff arr j l) (fun _ => Polynomial.monic_X)

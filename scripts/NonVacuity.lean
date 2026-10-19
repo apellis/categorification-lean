@@ -12,8 +12,11 @@ Data: `sl₂` (`UDot.sl2RootDatum`), `sl₃` (`Flag.slRootDatum 2`), a Cartan da
 (defined below, so that the non-simply-laced case is exercised), and the unfurled datum of one
 arrow `false → true` for Kang–Kashiwara Theorem 5.2.
 
-The Cautis–Lauda results (`TwoRep.StrongSl2.bbw`, `TwoRep.StrongSl2.adjHyp`) are not covered:
-the library has no concrete graded 2-category carrying a strong `sl₂` 2-representation.
+For the Cautis–Lauda condition `(BB_w)` (`TwoRep.StrongSl2.bbw`): the strong `sl₂`
+2-representation `TwoRep.Grassmannian.l2` on the cohomology rings of `Gr(0,2)`, `Gr(1,2)`,
+`Gr(2,2)` (the categorification of the irreducible representation of highest weight `2`).
+`TwoRep.StrongSl2.adjHyp` (CL Prop. 3.9) is not covered: it also needs shift coherence and
+idempotent-complete Hom categories, which are not yet established for that bicategory.
 -/
 
 open Categorification CategoryTheory QuantumGroup UDot
@@ -101,5 +104,13 @@ example := KLR.CyclotomicAction.blockBoundary (k := ℚ) (Q := unfQ arr) (a := f
   false (β := 0) (by simp) rfl
 
 end KangKashiwara
+
+/-! ### Cautis–Lauda, `(BB_w)` (strong `sl₂` 2-representation on `Gr(•,2)`) -/
+
+example : (TwoRep.Grassmannian.l2 ℚ).BBw := TwoRep.StrongSl2.bbw _
+
+/-- The weight-`0` object `H*(Gr(1,2)) = H*(ℙ¹)` is nonzero. -/
+example : ¬ Limits.IsZero (𝟙 ((TwoRep.Grassmannian.l2 ℚ).obj 1)) :=
+  TwoRep.Grassmannian.not_isZero_id_l2Obj_one
 
 end NonVacuity

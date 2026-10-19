@@ -753,6 +753,11 @@ import Categorification.TwoRep.RouqLocTransport
 import Categorification.TwoRep.RouquierMaps
 import Categorification.TwoRep.ShiftInterchange
 import Categorification.TwoRep.Sl2
+import Categorification.TwoRep.Grassmannian.Bimodule
+import Categorification.TwoRep.Grassmannian.Bicategory
+import Categorification.TwoRep.Grassmannian.Graded
+import Categorification.TwoRep.Grassmannian.Adjunctions
+import Categorification.TwoRep.Grassmannian.StrongSl2
 import Categorification.TwoRep.StepLemmas
 import Categorification.TwoRep.StepLemmasNeg
 import Categorification.TwoRep.UpDownCrossing

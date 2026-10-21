@@ -41,6 +41,7 @@ import Categorification.Algebra.NilHeckeKato
 import Categorification.Algebra.NilHeckeParabolic
 import Categorification.Algebra.NilHeckeSimple
 import Categorification.Algebra.NilHeckeSplitting
+import Categorification.Algebra.NilHeckeDemazure
 import Categorification.Algebra.ParabolicSymmetricFree
 import Categorification.Algebra.PermExpansion
 import Categorification.Algebra.SplitK0

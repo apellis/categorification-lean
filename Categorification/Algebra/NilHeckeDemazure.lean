@@ -31,6 +31,11 @@ Such products of Demazure operators are the divided-power idempotents of Brundan
 * `demw_apply_one`, `ddw_w0Word_yDelta` : `π_ρ 1 = 1`, hence `∂_{w_0} x^ρ = (-1)^{n choose 2}`.
 * `demIdem k m = π_{w_0}` (rank `m`), `isIdempotentElem_demIdem`, `demA_mul_ddw`,
   `ddw_mul_demA`.
+* `mul_mulPoly_of_forall`: `NH_m` commutes with multiplication by symmetric polynomials.
+* `demIdem_mul_mul_demIdem` : **the corner** `π_{w_0} NH_m π_{w_0}` consists of the elements
+  `c π_{w_0}` with `c` symmetric: `π_{w_0} T π_{w_0} = ∂_{w_0}(x^ρ_± T(1)) π_{w_0}`. This is the
+  computation behind `π_{w_0} NH_m π_{w_0} ≅ Sym_m` (KL I §2.2), used for the endomorphisms of
+  the divided-power projectives of Brundan–Ellis, arXiv:1701.04133v2, §11.
 -/
 
 namespace Categorification.NilHecke
@@ -275,5 +280,42 @@ theorem demA_mul_ddw : demA k m * ddw (w0Word m) = idemNH k m := by
 /-- `∂_{w_0} (x^δ π_{w_0}) = π_{w_0}`. -/
 theorem ddw_mul_demA : ddw (w0Word m) * demA k m = demIdem k m := by
   rw [demA, demIdem_eq, ← mul_assoc, ← mul_assoc, ddw_w0Word_mul_xDelta_mul_ddw_w0Word]
+
+/-! ### The corner `π_{w_0} NH_m π_{w_0}` -/
+
+/-- Elements of `NH_m` commute with multiplication by a polynomial invariant under all adjacent
+transpositions. -/
+theorem mul_mulPoly_of_forall {g : MvPolynomial (Fin m) k}
+    (hg : ∀ j (h : j + 1 < m), rename (swap (⟨j, by omega⟩ : Fin m) ⟨j + 1, h⟩) g = g)
+    {T : Module.End k (MvPolynomial (Fin m) k)} (hT : T ∈ nilHecke k m) :
+    T * mulPoly k m g = mulPoly k m g * T := by
+  induction hT using Algebra.adjoin_induction with
+  | mem x hx =>
+    rcases hx with ⟨a, rfl⟩ | ⟨j, rfl⟩
+    · rw [mulX, ← map_mul, ← map_mul, mul_comm]
+    · refine LinearMap.ext fun f => ?_
+      have h := ddw_mul_of_forall (ρ := [j]) (fun j' hj' h => by
+        rw [List.mem_singleton] at hj'; subst hj'; exact hg j' h) f
+      simpa [ddw] using h
+  | algebraMap r => exact Algebra.commutes (A := Module.End k (MvPolynomial (Fin m) k)) r _
+  | add x y _ _ hx hy => rw [add_mul, mul_add, hx, hy]
+  | mul x y _ _ hx hy => rw [mul_assoc, hy, ← mul_assoc, hx, mul_assoc]
+
+/-- **The corner `π_{w_0} NH_m π_{w_0}`.** For `T ∈ NH_m`,
+`π_{w_0} T π_{w_0} = c π_{w_0}` with `c = ∂_{w_0}((-1)^{m choose 2} x^ρ T(1))` symmetric. -/
+theorem demIdem_mul_mul_demIdem {T : Module.End k (MvPolynomial (Fin m) k)}
+    (hT : T ∈ nilHecke k m) :
+    demIdem k m * T * demIdem k m =
+      mulPoly k m (ddw (w0Word m) (yDeltaSign m * T 1)) * demIdem k m := by
+  refine LinearMap.ext fun f => ?_
+  rw [demIdem_eq]
+  simp only [Module.End.mul_apply, mulPoly_apply]
+  have hs := fun j (h : j + 1 < m) => rename_swap_ddw_w0Word h (yDeltaSign m * f)
+  have hT1 : T (ddw (w0Word m) (yDeltaSign m * f)) =
+      ddw (w0Word m) (yDeltaSign m * f) * T 1 := by
+    have := congrArg (fun φ : Module.End k (MvPolynomial (Fin m) k) => φ 1)
+      (mul_mulPoly_of_forall hs hT)
+    simpa [Module.End.mul_apply, mulPoly_apply] using this
+  rw [hT1, mul_left_comm, ddw_mul_of_forall (fun j _ h => hs j h), mul_comm]
 
 end Categorification.NilHecke

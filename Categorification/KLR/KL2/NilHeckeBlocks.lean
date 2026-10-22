@@ -283,7 +283,7 @@ theorem blockElt_mul_x_pow_mul_chainR (h : q + (n + 1) ≤ m) (hc : IsConstOn t 
 `[q, q + l + 2)` of equal labels. -/
 theorem chainL_mul_chainL_mul_e {l : ℕ} (h : q + (l + 2) ≤ m) (hc : IsConstOn t q (l + 2)) :
     (chainL q (l + 1) * chainL q l * e t : A) = chainL (q + 1) l * chainL q (l + 1) * e t := by
-  have H := chL_mul_chL (blockFamily (k := k) (Q := Q) h hc) 0 l
+  have H := chL_mul_chL (blockFamily (k := k) (Q := Q) h hc).isBraidFamily 0 l
   simp only [chL_map, ← map_mul] at H
   have := toCorner_eq H
   simp only [Subring.coe_mul, val_chL h hc (s := 0) (l := l + 1) (by omega),
@@ -295,7 +295,7 @@ theorem chainL_mul_chainL_mul_e {l : ℕ} (h : q + (l + 2) ≤ m) (hc : IsConstO
 `[q, q + l + 2)` of equal labels. -/
 theorem chainR_mul_chainR_mul_e {l : ℕ} (h : q + (l + 2) ≤ m) (hc : IsConstOn t q (l + 2)) :
     (chainR q l * chainR q (l + 1) * e t : A) = chainR q (l + 1) * chainR (q + 1) l * e t := by
-  have H := chR_mul_chR (blockFamily (k := k) (Q := Q) h hc) 0 l
+  have H := chR_mul_chR (blockFamily (k := k) (Q := Q) h hc).isBraidFamily 0 l
   simp only [chR_map, ← map_mul] at H
   have := toCorner_eq H
   simp only [Subring.coe_mul, val_chR h hc (s := 0) (l := l + 1) (by omega),

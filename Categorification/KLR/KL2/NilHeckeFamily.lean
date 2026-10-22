@@ -108,7 +108,18 @@ end words
 
 section relations
 
-variable {n : ℕ} {X : Fin n → B} {D : ℕ → B} (hF : IsNilHeckeFamily n X D)
+/-- A *braid family*: elements `D_j` satisfying the far commutation and braid relations of the
+symmetric group (no quadratic relation). Both the divided differences `∂_j` of the nilHecke ring
+(`∂_j² = 0`) and the Demazure operators (`π_j² = π_j`) form one. -/
+structure IsBraidFamily (D : ℕ → B) : Prop where
+  d_comm : ∀ j l, j + 1 < l → D j * D l = D l * D j
+  braid : ∀ j, D j * D (j + 1) * D j = D (j + 1) * D j * D (j + 1)
+
+theorem _root_.Categorification.KLR.NilHecke.IsNilHeckeFamily.isBraidFamily {n : ℕ}
+    {X : Fin n → B} {D : ℕ → B} (hF : IsNilHeckeFamily n X D) : IsBraidFamily D :=
+  ⟨hF.d_comm, hF.braid⟩
+
+variable {D : ℕ → B} (hF : IsBraidFamily D)
 include hF
 
 theorem d_comm' {j l : ℕ} (h : j + 1 < l ∨ l + 1 < j) : D j * D l = D l * D j := by
@@ -283,29 +294,31 @@ theorem wb_succ_eq_wb_mul_chR (s n : ℕ) : Wb D s (n + 1) = Wb D s n * chR D s 
     _ = Wb D s (n + 1) * chR D s (n + 1) := by
         rw [wb_succ_eq_chR_mul_wb hF s n, mul_assoc]
 
-/-- `∂(n) D_j = 0` for a crossing `D_j` of the block. -/
-theorem wb_mul_d {s n j : ℕ} (h₁ : s ≤ j) (h₂ : j + 1 < s + n) : Wb D s n * D j = 0 := by
+/-- `∂(n) D_j = c ∂(n)` for a crossing `D_j` of the block, if every `D_j² = c D_j`. -/
+theorem wb_mul_d_eq_smul {c : ℤ} (hsq : ∀ j, D j * D j = c • D j) {s n j : ℕ} (h₁ : s ≤ j)
+    (h₂ : j + 1 < s + n) : Wb D s n * D j = c • Wb D s n := by
   induction n generalizing s with
   | zero => omega
   | succ n ih =>
     by_cases hj : j + 1 < s + n
-    · rw [wb_succ, mul_assoc, ih h₁ hj, mul_zero]
+    · rw [wb_succ, mul_assoc, ih h₁ hj, mul_smul_comm]
     · obtain ⟨n, rfl⟩ : ∃ n', n = n' + 1 := ⟨n - 1, by omega⟩
       obtain rfl : j = s + n := by omega
-      rw [wb_succ_eq_wb_mul_chL hF, chL_succ', mul_assoc, mul_assoc, hF.d_sq, mul_zero,
-        mul_zero]
+      rw [wb_succ_eq_wb_mul_chL hF, chL_succ', mul_assoc, mul_assoc, hsq, mul_smul_comm,
+        mul_smul_comm]
 
-/-- `D_j ∂(n) = 0` for a crossing `D_j` of the block. -/
-theorem d_mul_wb {s n j : ℕ} (h₁ : s ≤ j) (h₂ : j + 1 < s + n) : D j * Wb D s n = 0 := by
+/-- `D_j ∂(n) = c ∂(n)` for a crossing `D_j` of the block, if every `D_j² = c D_j`. -/
+theorem d_mul_wb_eq_smul {c : ℤ} (hsq : ∀ j, D j * D j = c • D j) {s n j : ℕ} (h₁ : s ≤ j)
+    (h₂ : j + 1 < s + n) : D j * Wb D s n = c • Wb D s n := by
   induction n generalizing s j with
   | zero => omega
   | succ n ih =>
     rw [wb_succ_eq_chR_mul_wb hF]
     by_cases hj : j + 2 ≤ s + n
-    · rw [← mul_assoc, d_mul_chR hF h₁ hj, mul_assoc, ih (by omega) (by omega), mul_zero]
+    · rw [← mul_assoc, d_mul_chR hF h₁ hj, mul_assoc, ih (by omega) (by omega), mul_smul_comm]
     · obtain ⟨n, rfl⟩ : ∃ n', n = n' + 1 := ⟨n - 1, by omega⟩
       obtain rfl : j = s + n := by omega
-      rw [chR_succ', ← mul_assoc, ← mul_assoc, hF.d_sq, zero_mul, zero_mul]
+      rw [chR_succ', ← mul_assoc, ← mul_assoc, hsq, smul_mul_assoc, smul_mul_assoc]
 
 omit hF in
 theorem map_range_eq_reverse_range' (s n : ℕ) :
@@ -333,6 +346,23 @@ theorem wp_w0Word_mirror (s n : ℕ) :
       try (funext j; omega)
 
 end relations
+
+section nilHecke
+
+variable {n : ℕ} {X : Fin n → B} {D : ℕ → B} (hF : IsNilHeckeFamily n X D)
+include hF
+
+/-- `∂(n) D_j = 0` for a crossing `D_j` of the block. -/
+theorem wb_mul_d {s n j : ℕ} (h₁ : s ≤ j) (h₂ : j + 1 < s + n) : Wb D s n * D j = 0 := by
+  simpa using wb_mul_d_eq_smul hF.isBraidFamily (c := 0) (fun j => by rw [hF.d_sq, zero_smul])
+    h₁ h₂
+
+/-- `D_j ∂(n) = 0` for a crossing `D_j` of the block. -/
+theorem d_mul_wb {s n j : ℕ} (h₁ : s ≤ j) (h₂ : j + 1 < s + n) : D j * Wb D s n = 0 := by
+  simpa using d_mul_wb_eq_smul hF.isBraidFamily (c := 0) (fun j => by rw [hF.d_sq, zero_smul])
+    h₁ h₂
+
+end nilHecke
 
 /-! ### Subfamilies and the mirror family -/
 
@@ -512,7 +542,7 @@ theorem eb_mul_eb_left {s n : ℕ} (h : s + n + 1 ≤ N) :
 /-- **KL II (10)**, right: `e_{n+1} (1 ⊗ e_n) = e_{n+1}`. -/
 theorem eb_mul_eb_right {s n : ℕ} (h : s + n + 1 ≤ N) :
     Eb X D s (n + 1) * Eb X D (s + 1) n = Eb X D s (n + 1) := by
-  simp only [Eb, wb_succ_eq_chR_mul_wb hF s n, mul_assoc]
+  simp only [Eb, wb_succ_eq_chR_mul_wb hF.isBraidFamily s n, mul_assoc]
   rw [← mul_assoc (Wb D (s + 1) n), wb_mul_Δb_mul_wb hF (s := s + 1) (n := n) (by omega)]
 
 /-- **KL II (11)**, left: `(e_n ⊗ 1) D_{n} ⋯ D_1 e_{n+1} = (e_n ⊗ 1) D_{n} ⋯ D_1`
@@ -520,7 +550,7 @@ theorem eb_mul_eb_right {s n : ℕ} (h : s + n + 1 ≤ N) :
 theorem eb_mul_chR_mul_eb {s n : ℕ} (h : s + n + 1 ≤ N) :
     Eb X D s n * chR D s n * Eb X D s (n + 1) = Eb X D s n * chR D s n := by
   have e1 : Eb X D s n * chR D s n = Δb X s n * Wb D s (n + 1) := by
-    rw [Eb, mul_assoc, ← wb_succ_eq_wb_mul_chR hF]
+    rw [Eb, mul_assoc, ← wb_succ_eq_wb_mul_chR hF.isBraidFamily]
   rw [e1, Eb, mul_assoc, ← mul_assoc (Wb D s (n + 1)),
     wb_mul_Δb_mul_wb hF (s := s) (n := n + 1) h]
 
@@ -529,7 +559,7 @@ theorem eb_mul_chR_mul_eb {s n : ℕ} (h : s + n + 1 ≤ N) :
 theorem eb_mul_chL_mul_eb {s n : ℕ} (h : s + n + 1 ≤ N) :
     Eb X D (s + 1) n * chL D s n * Eb X D s (n + 1) = Eb X D (s + 1) n * chL D s n := by
   have e1 : Eb X D (s + 1) n * chL D s n = Δb X (s + 1) n * Wb D s (n + 1) := by
-    rw [Eb, mul_assoc, ← wb_succ_eq_wb_mul_chL hF]
+    rw [Eb, mul_assoc, ← wb_succ_eq_wb_mul_chL hF.isBraidFamily]
   rw [e1, Eb, mul_assoc, ← mul_assoc (Wb D s (n + 1)),
     wb_mul_Δb_mul_wb hF (s := s) (n := n + 1) h]
 
@@ -539,7 +569,7 @@ theorem eb_mul_d {s n j : ℕ} (h₁ : s ≤ j) (h₂ : j + 1 < s + n) : Eb X D 
 
 /-- `e_{n+1} = x_s^n (1 ⊗ e_n) D_s ⋯ D_{s+n-1}`. -/
 theorem eb_succ_eq {s n : ℕ} : Eb X D s (n + 1) = xN X s ^ n * Eb X D (s + 1) n * chL D s n := by
-  rw [Eb, Δb_succ, wb_succ_eq_wb_mul_chL hF, Eb]; simp only [mul_assoc]
+  rw [Eb, Δb_succ, wb_succ_eq_wb_mul_chL hF.isBraidFamily, Eb]; simp only [mul_assoc]
 
 theorem xN_commute_eb {a s n : ℕ} (h : a < s ∨ s + n ≤ a) : Commute (xN X a) (Eb X D s n) :=
   (xN_commute_Δb hF a s n).mul_right (xN_commute_wp hF fun j hj => by
@@ -625,7 +655,7 @@ theorem eb_mul_x_pow_mul_chR {s n a : ℕ} (h : s + n + 1 ≤ N) (ha : a ≤ n) 
       (fun j hj => by
         simp only [Function.comp_apply, zero_add]
         rw [hDM j (lt_of_mem_w0Word hj), show s + (n + 1) - 2 - j = s + n - 1 - j by omega]),
-      prod_map_neg, length_w0Word, ← wp_w0Word_mirror hF s (n + 1), wp, List.map_map]
+      prod_map_neg, length_w0Word, ← wp_w0Word_mirror hF.isBraidFamily s (n + 1), wp, List.map_map]
     rfl
   have key := wb_mul_Δb_mul_wb hM (s := 0) (n := n + 1) (by omega)
   rw [m3] at key

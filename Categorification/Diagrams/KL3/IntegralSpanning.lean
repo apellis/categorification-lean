@@ -184,4 +184,72 @@ theorem span_twoB (μ : X) (s t : List (Letter I)) :
   rw [Set.range_comp, ← Submodule.map_span, span_oneB, Submodule.map_top]
   exact LinearMap.range_eq_top.mpr (bendG_surjective μ s t)
 
+omit [DecidableEq I] in
+/-- **The elements of `B_{∅,v,λ}` are homogeneous of the degrees `spanDeg`**, over every
+commutative ring. -/
+theorem oneB_mem (μ : X) (v : List (Letter I)) (x : SpanIdx [] v) :
+    oneB RD k μ v x ∈ HomD RD k μ [] v (spanDeg C (RD.ellOf μ) x) := by
+  have h1 : dg RD k μ [] v (chL [] (canon (pState x.1.1)) ++ dotsL v (arcDots x.2.1)) ∈
+      HomD RD k μ [] v (pdeg C (RD.ellOf μ) [] v x.1.1 +
+        ∑ a, (x.2.1 a : ℤ) * C.dot (arcCol a) (arcCol a)) := by
+    refine dg_mem_homD ?_
+    rw [sdegSum_append, sdegSum_canon_pState μ x.1.2, sdegSum_dotsL, sum_dotList]
+    congr 1
+    refine Finset.sum_congr rfl fun a _ => ?_
+    simp only [dotDeg, show (a.1 : ℕ) < v.length from a.1.2, ↓reduceDIte]
+    rfl
+  have h2 := bubAt_mem (RD := RD) (k := k) μ v (bubMon_mem (RD := RD) (k := k) μ x.2.2)
+  exact comp_mem_homDeg h1 h2
+
+omit [DecidableEq I] in
+/-- **The elements of `B_{s,t,λ}` are homogeneous of the degrees `spanDeg`**, over every
+commutative ring (KL III §3.2.3). -/
+theorem twoB_mem (μ : X) (s t : List (Letter I)) (x : SpanIdx s t) :
+    twoB RD k μ s t x ∈ HomD RD k μ s t (spanDeg C (RD.ellOf μ) x) := by
+  have hpre : SChain [] (cupA (rd s)) (rd s ++ s ++ []) := by simpa using sChain_cupA (rd s)
+  have hpostF : SChain (rd s ++ t ++ []) [] (rd s ++ t) := by simp
+  have hpreG : SChain s [] (s ++ [] ++ []) := by simp
+  have hpostG : SChain (s ++ (rd s ++ t) ++ []) ((capA (rd s)).map (whL [] t)) t := by
+    simpa using (sChain_capA (rd s)).whisk [] t
+  let F := ctxL RD k μ [] (rd s ++ t) (cupA (rd s)) (rd s) [] [] s t
+  let G := bendG RD k μ s t
+  set y := oneB RD k μ (rd s ++ t) (oneIdx x) with hy_def
+  have hy := oneB_mem (RD := RD) (k := k) μ (rd s ++ t) (oneIdx x)
+  rw [← hy_def] at hy
+  change G y ∈ _
+  by_cases hy0 : y = 0
+  · rw [hy0, map_zero]; exact Submodule.zero_mem _
+  have keyFG : F.comp G = LinearMap.id := by
+    refine hom_ext_dg RD k μ _ _ (fun M hM => ?_)
+    change F (G (dg RD k μ [] (rd s ++ t) M)) = dg RD k μ [] (rd s ++ t) M
+    dsimp only [F, G, bendG]
+    erw [ctxL_dg_nil RD k μ hpreG hpostG, ctxL_dg_nil RD k μ hpre hpostF]
+    have e := dg_unbend_sharp (RD := RD) (k := k) (rd s) [] [] t (M := M) (by simpa using hM) μ
+    refine Eq.trans (dg_list_eq ?_) e
+    simp [sharpL, rd_rd, List.map_map, Function.comp_def, whL_def]
+  have hG : G y ∈ HomD RD k μ s t
+      (spanDeg C (RD.ellOf μ) (oneIdx x) + (sdegSum RD μ [] + sdegSum RD μ ((capA (rd s)).map (whL [] t)))) :=
+    map_ctxL_le μ hpreG hpostG _ ⟨y, hy, rfl⟩
+  have hFG : F (G y) ∈ HomD RD k μ [] (rd s ++ t)
+      (spanDeg C (RD.ellOf μ) (oneIdx x) + (sdegSum RD μ [] + sdegSum RD μ ((capA (rd s)).map (whL [] t))) +
+        (sdegSum RD μ (cupA (rd s)) + sdegSum RD μ [])) :=
+    map_ctxL_le μ hpre hpostF _ ⟨G y, hG, rfl⟩
+  rw [show F (G y) = y from LinearMap.congr_fun keyFG y] at hFG
+  have hcc : sdegSum RD μ ((capA (rd s)).map (whL [] t)) + sdegSum RD μ (cupA (rd s)) = 0 := by
+    by_contra hne
+    have hdisj := (isInternal_homDeg (RD := RD) (k := k) (ob RD μ []) (ob RD μ (rd s ++ t))
+      ).submodule_iSupIndep.pairwiseDisjoint
+    have : sdegSum RD μ ([] : List (LayerData I)) = 0 := rfl
+    exact hy0 (Submodule.disjoint_def.1 (hdisj (show spanDeg C (RD.ellOf μ) (oneIdx x) ≠ _ by omega)) y hy hFG)
+  have hw : wt RD μ s = wt RD μ t := by
+    refine wt_eq_of_rd_append ?_
+    by_contra hne
+    rw [homD_eq_bot_of_wt_ne hne] at hy
+    exact hy0 ((Submodule.mem_bot k).1 hy)
+  convert hG using 1
+  rw [spanDeg_bend, wl_ellOf_eq', ← hw, ← neg_neg (rcx C _ s), ← sdegSum_cupA_rd]
+  have : sdegSum RD μ ([] : List (LayerData I)) = 0 := rfl
+  congr 1
+  omega
+
 end Categorification.KL3.Diagram.IntegralSpanning

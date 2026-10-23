@@ -250,13 +250,6 @@ def CalculusNondeg : Prop :=
     ((finrank k (HomD RD k lam s w t) : ℤ) : ℚ) =
       (piLS C * toLS (UDot.KL3.sform RD (E1 RD vQ s lam) (E1 RD vQ w lam))).coeff t
 
-/-- The Hom-spaces between `E_s 1_λ` and `E_w 1_λ` vanish unless the left weights agree. -/
-theorem homD_eq_bot_of_wt_ne {lam : X} {s w : List (Letter I)} (h : wt RD lam s ≠ wt RD lam w)
-    (d : ℤ) : HomD RD k lam s w d = ⊥ := by
-  rw [homD_eq_span, Submodule.span_eq_bot]
-  rintro f ⟨ls, hls, -, rfl⟩
-  exact absurd (hls.wt_eq RD lam).symm h
-
 /-- **Sanity check of `CalculusNondeg`**: for sequences with different left weights both sides of
 the defining equality vanish, so the condition is only about `HOM_U(E_𝐢 1_λ, E_𝐣 1_λ)` with
 `λ + 𝐢_X = λ + 𝐣_X`. -/

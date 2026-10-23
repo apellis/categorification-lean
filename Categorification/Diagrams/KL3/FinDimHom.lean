@@ -177,9 +177,13 @@ open QuantumGroup UDot Presentation
 universe w u v
 
 variable {I : Type u} {C : CartanDatum I} {X Y : Type v} [AddCommGroup X] [AddCommGroup Y]
-  {RD : WeightDatum C X Y} {k : Type w} [Field k]
+  {RD : WeightDatum C X Y}
 
 /-! ## Degrees of normal-form diagrams -/
+
+section Ring
+
+variable {k : Type w} [CommRing k]
 
 variable (RD) in
 /-- The degree of the normal-form diagram with layers `ls` and rightmost region `μ`. -/
@@ -216,6 +220,13 @@ theorem homD_eq_span (μ : X) (s t : List (Letter I)) (d : ℤ) :
   · rintro ⟨ls, hls, hd, rfl⟩
     exact ⟨mkD RD μ ls hls, by show Diagram.degree _ _ = d; rw [degree_mkD]; exact hd,
       (dg_of hls).symm⟩
+
+/-- The Hom-spaces between `E_s 1_λ` and `E_w 1_λ` vanish unless the left weights agree. -/
+theorem homD_eq_bot_of_wt_ne {lam : X} {s w : List (Letter I)} (h : wt RD lam s ≠ wt RD lam w)
+    (d : ℤ) : HomD RD k lam s w d = ⊥ := by
+  rw [homD_eq_span, Submodule.span_eq_bot]
+  rintro f ⟨ls, hls, -, rfl⟩
+  exact absurd (hls.wt_eq RD lam).symm h
 
 theorem dg_mem_homD {μ : X} {s t : List (Letter I)} {ls : List (LayerData I)} {d : ℤ}
     (h : sdegSum RD μ ls = d) : dg RD k μ s t ls ∈ HomD RD k μ s t d := by
@@ -268,6 +279,10 @@ theorem bubAt_mem (μ : X) (s : List (Letter I)) {β : End ((pres RD k).obj (ob 
 theorem bubMon_mem (μ : X) (s : (I × ℕ) →₀ ℕ) :
     bubMon RD k μ s ∈ HomD RD k μ [] [] (Finsupp.weight (wPi C) s) :=
   mem_HDo.1 (bubMap_monomial_mem (RD := RD) (k := k) μ s 1)
+
+end Ring
+
+variable {k : Type w} [Field k]
 
 /-- The image of `Π_μ` is spanned by the bubble monomials. -/
 theorem isBub_mem_span {μ : X} {δ : End ((pres RD k).obj (ob RD μ []))} (h : IsBub RD k μ δ) :

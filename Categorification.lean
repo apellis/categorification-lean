@@ -817,6 +817,7 @@ import Categorification.WeightedKLR.Algebra
 import Categorification.WeightedKLR.GalleryRep
 import Categorification.WeightedKLR.Arrangement
 import Categorification.WeightedKLR.Relabel
+import Categorification.WeightedKLR.Segment
 /-!
 # Categorification
 

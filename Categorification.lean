@@ -844,6 +844,8 @@ import Categorification.WeightedKLR.KLR.Crossing
 import Categorification.WeightedKLR.KLR.Faithful
 import Categorification.WeightedKLR.KLR.SpacedCrossing
 import Categorification.WeightedKLR.KLR.SpacedComparison
+import Categorification.WeightedKLR.Loadings.Family
+import Categorification.WeightedKLR.Loadings.Components
 /-!
 # Categorification
 

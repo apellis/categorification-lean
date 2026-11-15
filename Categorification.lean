@@ -819,6 +819,7 @@ import Categorification.WeightedKLR.Gallery
 import Categorification.WeightedKLR.Arrangement
 import Categorification.WeightedKLR.Relabel
 import Categorification.WeightedKLR.Segment
+import Categorification.WeightedKLR.Segment.Extension
 import Categorification.WeightedKLR.Segment.Perturb
 /-!
 # Categorification

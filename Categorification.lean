@@ -811,6 +811,32 @@ import Categorification.TypeA.Length
 import Categorification.TypeA.Matsumoto
 import Categorification.TypeA.NormalForm
 import Categorification.TypeA.Parabolic
+import Categorification.WeightedKLR.Loading
+import Categorification.WeightedKLR.PolyRep
+import Categorification.WeightedKLR.Algebra
+import Categorification.WeightedKLR.GalleryRep
+import Categorification.WeightedKLR.Gallery
+import Categorification.WeightedKLR.Arrangement
+import Categorification.WeightedKLR.Relabel
+import Categorification.WeightedKLR.Segment
+import Categorification.WeightedKLR.Segment.Blocks
+import Categorification.WeightedKLR.Segment.Chain
+import Categorification.WeightedKLR.Segment.Extension
+import Categorification.WeightedKLR.Segment.Perturb
+import Categorification.WeightedKLR.Segment.Sweep
+import Categorification.WeightedKLR.GallerySpan.Bridge
+import Categorification.WeightedKLR.GallerySpan.Realize
+import Categorification.WeightedKLR.GallerySpan.Blocks
+import Categorification.WeightedKLR.GallerySpan.Flip
+import Categorification.WeightedKLR.GallerySpan.Spanning
+import Categorification.WeightedKLR.GallerySpan.DotsBottom
+import Categorification.WeightedKLR.GalleryBasis.Twisted
+import Categorification.WeightedKLR.GalleryBasis.Leading
+import Categorification.WeightedKLR.GalleryBasis.Independence
+import Categorification.WeightedKLR.GalleryBasis.Basis
+import Categorification.WeightedKLR.Calculator.Perturbation
+import Categorification.WeightedKLR.Calculator.Segment
+import Categorification.WeightedKLR.GalleryBasis.Corner
 /-!
 # Categorification
 

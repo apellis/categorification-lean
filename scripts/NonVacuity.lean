@@ -169,5 +169,50 @@ example (ν : Fin 2 →₀ ℕ) := WeightedKLR.GalleryAlgebra.straightBasis (k :
     (fun _ => Nat.succ_ne_zero _)
     (pt := fun C => C.2.choose) (fun C => C.2.choose_spec)
 
+/-! Webster, Theorem 2.8 under the hypotheses of the paper (`WeightedGraph.Standing`). -/
+
+/-- `u - v` is homogeneous of degree `1` for the degrees `1, 1`, with unit coefficients of `u`
+and `v`. -/
+theorem isUnitHomogeneous_X_sub_X :
+    WeightedKLR.WeightedGraph.IsUnitHomogeneous 1 1 1 1
+      (MvPolynomial.X 0 - MvPolynomial.X 1 : MvPolynomial (Fin 2) ℚ) := by
+  refine ⟨rfl, ?_, ?_, ?_⟩
+  · exact (MvPolynomial.isWeightedHomogeneous_X ℚ _ 0).sub
+      (MvPolynomial.isWeightedHomogeneous_X ℚ _ 1)
+  · simp [MvPolynomial.coeff_X, Finsupp.single_left_inj one_ne_zero]
+  · simp [MvPolynomial.coeff_X, Finsupp.single_left_inj one_ne_zero]
+
+/-- `wkGraph` satisfies Webster's standing hypothesis, with `d = 1`. -/
+theorem wkGraph_standing : wkGraph.Standing := by
+  refine ⟨fun _ => 1, fun _ => one_pos, fun _ => ⟨1, 1, isUnitHomogeneous_X_sub_X⟩, ?_⟩
+  intro i P h
+  simp only [wkGraph] at h
+  split_ifs at h
+  obtain rfl := Option.some_injective _ h
+  exact ⟨by simp, 1, 1, by simpa using isUnitHomogeneous_X_sub_X⟩
+
+theorem wkGraph_dagger : wkGraph.Dagger :=
+  ⟨fun _ _ _ _ _ => rfl, fun _ _ h₁ _ _ => by simp [wkGraph] at h₁⟩
+
+theorem wkGraph_noZeroLoops : wkGraph.NoZeroLoops := fun _ h _ => by simp [wkGraph] at h
+
+/-- Webster, Theorem 2.8, for Webster's algebra under Webster's hypotheses. -/
+example (ν : Fin 2 →₀ ℕ) := WeightedKLR.GalleryAlgebra.exists_weightedKLRBasis (k := ℚ)
+  (ν := ν) wkGraph_dagger wkGraph_noZeroLoops wkGraph_standing
+
+/-- The straight-line choice, for Webster's algebra and for the corners. -/
+example (ν : Fin 2 →₀ ℕ) := WeightedKLR.GalleryAlgebra.straightWeightedKLRBasis (k := ℚ)
+    (ν := ν) wkGraph_dagger wkGraph_noZeroLoops wkGraph_standing
+    (ρ := fun s => (Fintype.equivFin _ s).val + 1)
+    (fun _ _ h => (Fintype.equivFin _).injective (Fin.ext (by simpa using h)))
+    (fun _ => Nat.succ_ne_zero _)
+    (pt := fun C => C.2.choose) (fun C => C.2.choose_spec)
+
+example (ν : Fin 2 →₀ ℕ) := WeightedKLR.GalleryAlgebra.cornerBasisOfStanding (k := ℚ)
+    (ν := ν) (WeightedKLR.GalleryAlgebra.isChamberSegment_straightSegment wkGraph_dagger
+      wkGraph_noZeroLoops (ρ := fun s => (Fintype.equivFin _ s).val + 1)
+      (fun _ _ h => (Fintype.equivFin _).injective (Fin.ext (by simpa using h)))
+      (fun _ => Nat.succ_ne_zero _) (pt := fun C => C.2.choose) (fun C => C.2.choose_spec))
+    wkGraph_dagger wkGraph_noZeroLoops wkGraph_standing
 
 end NonVacuity

@@ -838,6 +838,7 @@ import Categorification.WeightedKLR.Calculator.Perturbation
 import Categorification.WeightedKLR.Calculator.Segment
 import Categorification.WeightedKLR.GalleryBasis.Corner
 import Categorification.WeightedKLR.Standing
+import Categorification.WeightedKLR.GalleryBasis.Standing
 /-!
 # Categorification
 

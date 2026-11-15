@@ -113,4 +113,35 @@ example : (TwoRep.Grassmannian.l2 ℚ).BBw := TwoRep.StrongSl2.bbw _
 example : ¬ Limits.IsZero (𝟙 ((TwoRep.Grassmannian.l2 ℚ).obj 1)) :=
   TwoRep.Grassmannian.not_isZero_id_l2Obj_one
 
+/-! ### Webster, weighted KLR algebras (arXiv:1209.2463v4), Theorem 2.8 -/
+
+/-- A weighted graph on two vertices: one edge `0 → 1` of weight `1` with `Q_e = u - v`, and a
+loop of weight `0` at `0` with `P = 1`. -/
+def wkGraph : WeightedKLR.WeightedGraph (Fin 2) ℚ ℚ where
+  E := Unit
+  tail _ := 0
+  head _ := 1
+  weight _ := 1
+  Q _ := MvPolynomial.X 0 - MvPolynomial.X 1
+  loop i := if i = 0 then some 1 else none
+
+example (ν : Fin 2 →₀ ℕ) := WeightedKLR.GalleryAlgebra.exists_basis (k := ℚ) (Γ := wkGraph)
+    (ν := ν)
+    ⟨fun _ _ _ _ _ => rfl, fun _ _ h₁ h₂ _ => by simp [wkGraph] at h₁⟩
+    (fun _ h _ => by simp [wkGraph] at h)
+    (fun i P h => by
+      simp only [wkGraph] at h
+      split_ifs at h
+      obtain rfl := Option.some_injective _ h
+      simp)
+    (fun w => by
+      refine IsRegular.of_ne_zero ?_
+      simp only [WeightedKLR.Wall.factor, wkGraph, map_sub, MvPolynomial.aeval_X]
+      simpa [sub_eq_zero, WeightedKLR.Wall.src, WeightedKLR.Wall.tgt] using w.2.2.2)
+    (fun P a b h _ _ => by
+      simp only [wkGraph] at h
+      split_ifs at h
+      obtain rfl := Option.some_injective _ h
+      simpa [WeightedKLR.loopFactor] using isRegular_one)
+
 end NonVacuity

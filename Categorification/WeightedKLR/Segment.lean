@@ -447,7 +447,8 @@ lemma Flip.reverse (hf : Flip f σ w w') (hw : w.Nodup) :
     Flip f (flipSigns σ w) w.reverse w'.reverse := by
   obtain ⟨a, B, c, rfl, rfl, hl, ⟨x, hx, hxs⟩, hr⟩ := hf
   refine ⟨c.reverse, B.reverse, a.reverse, by simp, by simp, by simpa using hl,
-    ⟨x, fun h => by rw [hx, List.mem_reverse], fun h hh => ?_⟩, by rwa [show {h | h ∈ B.reverse} = {h | h ∈ B} by ext; simp]⟩
+    ⟨x, fun h => by rw [hx, List.mem_reverse], fun h hh => ?_⟩,
+    by rwa [show {h | h ∈ B.reverse} = {h | h ∈ B} by ext; simp]⟩
   rw [List.mem_reverse] at hh
   rw [hxs h hh]
   have hd : h ∈ a → h ∉ c := by

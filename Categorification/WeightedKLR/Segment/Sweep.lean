@@ -84,7 +84,8 @@ lemma pairFun_swap (q u : ι → 𝕜) (g g' : H) : pairFun f q g' g u = -pairFu
 
 omit [Fintype H] [DecidableEq H] in
 lemma crossTime_eq_iff_pairFun {u q : ι → 𝕜} {g g' : H} (hg : Separates f u q g)
-    (hg' : Separates f u q g') : crossTime f u q g = crossTime f u q g' ↔ pairFun f q g g' u = 0 := by
+    (hg' : Separates f u q g') :
+    crossTime f u q g = crossTime f u q g' ↔ pairFun f q g g' u = 0 := by
   rw [crossTime_eq_iff (ne_of_separates hg) (ne_of_separates hg'), pairFun_apply]
   constructor <;> intro e <;> linarith
 
@@ -268,7 +269,8 @@ lemma sweep_event (hdist : ∀ h g, h ≠ g → ∃ x, f h x = 0 ∧ f g x ≠ 0
     rw [hord a ha ha1 g g' hg hg', hord b hb0 hb g' g hg' hg, pairFun_swap q (segPt p p' b) g g',
       show f g' (segPt p p' b) * f g (segPt p p' b) = f g (segPt p p' b) * f g' (segPt p p' b)
         from mul_comm _ _]
-    exact mul_neg_iff_of_mul_pos_of_mul_pos (by rw [mul_neg]; exact neg_pos.2 hneg) (hD a b ha ha1 hb0 hb g g')
+    exact mul_neg_iff_of_mul_pos_of_mul_pos (by rw [mul_neg]; exact neg_pos.2 hneg)
+      (hD a b ha ha1 hb0 hb g g')
   have hsa := hsimple a le_rfl (by linarith) hae.ne
   have hsb := hsimple b (by linarith) le_rfl heb.ne'
   have hmema : ∀ x, x ∈ word f (segPt p p' a) q ↔ Separates f p q x := fun x => by

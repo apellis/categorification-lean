@@ -813,6 +813,7 @@ import Categorification.TypeA.NormalForm
 import Categorification.TypeA.Parabolic
 import Categorification.WeightedKLR.Loading
 import Categorification.WeightedKLR.PolyRep
+import Categorification.WeightedKLR.Arrangement
 /-!
 # Categorification
 

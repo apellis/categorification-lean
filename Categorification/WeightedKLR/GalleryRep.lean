@@ -717,4 +717,150 @@ theorem stepOp_square {C B B' D : FullChamber Γ ν} {h₁ h₂ : Hyp Γ ν} (hn
 
 end Local
 
+/-! ### Hexagons -/
+
+section Hexagons
+
+variable [Field 𝕜] [LinearOrder 𝕜] [IsStrictOrderedRing 𝕜]
+
+omit [IsStrictOrderedRing 𝕜] in
+/-- The operator of the gallery `A₀ → A₁ → A₂ → A₃`, read off the sides of `A₀`. -/
+theorem Hexagon.stepOp_gal₁ (H : Hexagon Γ ν) :
+    stepOp (k := k) Γ H.A₂ H.A₃ ∘ₗ stepOp Γ H.A₁ H.A₂ ∘ₗ stepOp Γ H.A₀ H.A₁ =
+      hypOp Γ H.h₃ (H.A₀.1 H.h₃) (!H.A₀.1 H.h₃) ∘ₗ hypOp Γ H.h₂ (H.A₀.1 H.h₂) (!H.A₀.1 H.h₂) ∘ₗ
+        hypOp Γ H.h₁ (H.A₀.1 H.h₁) (!H.A₀.1 H.h₁) := by
+  rw [stepOp_eq H.adj₀₁, stepOp_eq H.adj₁₂, stepOp_eq H.adj₂₃, ← H.adj₁₂.2 H.h₃ H.ne₂₃.symm,
+    ← H.adj₀₁.2 H.h₃ H.ne₁₃.symm, ← H.adj₀₁.2 H.h₂ H.ne₁₂.symm]
+
+omit [IsStrictOrderedRing 𝕜] in
+/-- The operator of the gallery `A₀ → A₅ → A₄ → A₃`, read off the sides of `A₀`. -/
+theorem Hexagon.stepOp_gal₂ (H : Hexagon Γ ν) :
+    stepOp (k := k) Γ H.A₄ H.A₃ ∘ₗ stepOp Γ H.A₅ H.A₄ ∘ₗ stepOp Γ H.A₀ H.A₅ =
+      hypOp Γ H.h₁ (H.A₀.1 H.h₁) (!H.A₀.1 H.h₁) ∘ₗ hypOp Γ H.h₂ (H.A₀.1 H.h₂) (!H.A₀.1 H.h₂) ∘ₗ
+        hypOp Γ H.h₃ (H.A₀.1 H.h₃) (!H.A₀.1 H.h₃) := by
+  rw [stepOp_eq H.adj₀₅, stepOp_eq H.adj₅₄, stepOp_eq H.adj₄₃, ← H.adj₅₄.2 H.h₁ H.ne₁₂,
+    ← H.adj₀₅.2 H.h₁ H.ne₁₃, ← H.adj₀₅.2 H.h₂ H.ne₂₃]
+
+omit [Field 𝕜] [LinearOrder 𝕜] [IsStrictOrderedRing 𝕜] in
+/-- Three walls: the operators are multiplications and commute. -/
+theorem hypOp_walls {h₁ h₂ h₃ : Hyp Γ ν} (e₁ : h₁.isLeft) (e₂ : h₂.isLeft) (e₃ : h₃.isLeft)
+    (σ₁ σ₂ σ₃ : Bool) :
+    hypOp (k := k) Γ h₃ σ₃ (!σ₃) ∘ₗ hypOp Γ h₂ σ₂ (!σ₂) ∘ₗ hypOp Γ h₁ σ₁ (!σ₁) =
+      hypOp Γ h₁ σ₁ (!σ₁) ∘ₗ hypOp Γ h₂ σ₂ (!σ₂) ∘ₗ hypOp Γ h₃ σ₃ (!σ₃) := by
+  rcases h₁ with w₁ | d₁ <;> rcases h₂ with w₂ | d₂ <;> rcases h₃ with w₃ | d₃ <;>
+    simp only [Sum.isLeft_inl, Sum.isLeft_inr, Bool.false_eq_true] at e₁ e₂ e₃
+  simp only [hypOp, wallOp_eq_mulLeft]
+  refine LinearMap.ext fun f => ?_
+  simp only [LinearMap.comp_apply, LinearMap.mulLeft_apply]
+  ring
+
+omit [Field 𝕜] [LinearOrder 𝕜] [IsStrictOrderedRing 𝕜] in
+theorem Wall.factor_comap_refl (w : Wall Γ ν) (d : Diag ν) :
+    (w.comap d.refl).factor (k := k) = rename (swap d.fst d.snd) w.factor := by
+  rw [← Wall.rename_factor_comap d.refl w]
+  exact (rename_swap_rename_swap d.fst d.snd _).symm
+
+omit [Field 𝕜] [LinearOrder 𝕜] [IsStrictOrderedRing 𝕜] in
+/-- A strand crossing two strands of one colour through a ghost, the diagonal crossed in the
+middle: Webster's relations (4a), (4b) in the representation. -/
+theorem hypOp_mid_diag (w : Wall Γ ν) (d : Diag ν) {l r : Strand ν} (hlr : l ≠ r)
+    (hs : swap l r = swap d.fst d.snd) {σ τ : Bool} (hστ : σ ≠ τ) :
+    wallOp (k := k) (w.comap d.refl) τ (!τ) ∘ₗ psiOp Γ l r ∘ₗ wallOp w σ (!σ) -
+        wallOp w σ (!σ) ∘ₗ psiOp Γ l r ∘ₗ wallOp (w.comap d.refl) τ (!τ) =
+      LinearMap.mulLeft k (stepFactor Γ l r w.factor) ∘ₗ ren d.refl := by
+  have hF := Wall.factor_comap_refl (k := k) w d
+  rw [← hs] at hF
+  have hR : ∀ f, ren (k := k) d.refl f = rename (swap l r) f := fun f => by
+    rw [hs]; rfl
+  refine LinearMap.ext fun f => ?_
+  have L := psiOp_leibniz (Γ := Γ) hlr
+  cases σ <;> cases τ <;> simp only [ne_eq, not_true_eq_false] at hστ <;>
+    simp only [wallOp_eq_mulLeft, hF, LinearMap.sub_apply, LinearMap.comp_apply,
+      LinearMap.mulLeft_apply, hR, Bool.not_false, Bool.not_true, and_true,
+      Bool.false_eq_true, and_false, ↓reduceIte, one_mul]
+  · exact L _ _
+  · rw [← neg_sub, L, stepFactor_rename_swap hlr, neg_mul, neg_neg]
+
+omit [Field 𝕜] [LinearOrder 𝕜] [IsStrictOrderedRing 𝕜] in
+/-- The same flat with the diagonal crossed first or last: both walls act alike, by
+multiplication by a polynomial symmetric in the two strands, or trivially. -/
+theorem hypOp_end_diag (w : Wall Γ ν) (d : Diag ν) {l r : Strand ν} (hlr : l ≠ r)
+    (hs : swap l r = swap d.fst d.snd) (σ : Bool) :
+    wallOp (k := k) (w.comap d.refl) σ (!σ) ∘ₗ wallOp w σ (!σ) ∘ₗ psiOp Γ l r =
+      psiOp Γ l r ∘ₗ wallOp w σ (!σ) ∘ₗ wallOp (w.comap d.refl) σ (!σ) := by
+  have hF := Wall.factor_comap_refl (k := k) w d
+  rw [← hs] at hF
+  refine LinearMap.ext fun f => ?_
+  cases σ
+  · simp only [wallOp_eq_mulLeft, hF, LinearMap.comp_apply, LinearMap.mulLeft_apply,
+      Bool.not_false, and_self, ↓reduceIte]
+    have hc : rename (swap l r) (rename (swap l r) w.factor * w.factor) =
+        rename (swap l r) w.factor * w.factor := by
+      rw [map_mul, rename_swap_rename_swap, mul_comm]
+    rw [← mul_assoc, ← mul_assoc, ← psiOp_mul_of_rename_eq hlr hc, mul_comm (w.factor)]
+  · simp only [wallOp_eq_mulLeft, LinearMap.comp_apply, LinearMap.mulLeft_apply,
+      Bool.not_true, Bool.true_eq_false, false_and, ↓reduceIte, one_mul]
+
+omit [Field 𝕜] [LinearOrder 𝕜] [IsStrictOrderedRing 𝕜] in
+/-- Without a loop, `ψ` on either orientation of a pair is a multiple of one divided
+difference. -/
+theorem psiOp_pair_of_none {u v a b : Strand ν} (huv : u ≠ v) (hc : u.1 = v.1)
+    (h : Γ.loop u.1 = none) (hab : (a = u ∧ b = v) ∨ (a = v ∧ b = u)) :
+    ∃ c : k, psiOp (k := k) Γ a b = c • ddiff u v := by
+  rcases hab with ⟨rfl, rfl⟩ | ⟨rfl, rfl⟩
+  · exact ⟨1, by rw [psiOp_of_none h, one_smul]⟩
+  · refine ⟨-1, LinearMap.ext fun f => ?_⟩
+    rw [psiOp_of_none (hc ▸ h), ddiff_comm huv, LinearMap.smul_apply, neg_one_smul]
+
+omit [Field 𝕜] [LinearOrder 𝕜] [IsStrictOrderedRing 𝕜] in
+/-- With a symmetric loop, `ψ` does not depend on the orientation of the pair. -/
+theorem psiOp_pair_of_some {u v a b : Strand ν} {P : MvPolynomial (Fin 2) k}
+    (hP : rename (swap (0 : Fin 2) 1) P = P) (hc : u.1 = v.1) (h : Γ.loop u.1 = some P)
+    (hab : (a = u ∧ b = v) ∨ (a = v ∧ b = u)) :
+    psiOp (k := k) Γ a b = psiOp Γ u v := by
+  rcases hab with ⟨rfl, rfl⟩ | ⟨rfl, rfl⟩
+  · rfl
+  · exact LinearMap.ext fun f => psiOp_swap_of_some hP h (hc ▸ h) f
+
+omit [Field 𝕜] [LinearOrder 𝕜] [IsStrictOrderedRing 𝕜] in
+/-- Three strands of one colour without a loop: the braid relation. -/
+theorem psiOp_braid_of_none {u v w a₁ b₁ a₂ b₂ a₃ b₃ : Strand ν} (huv : u ≠ v) (huw : u ≠ w)
+    (hvw : v ≠ w) (hc₁ : u.1 = v.1) (hc₂ : u.1 = w.1) (h : Γ.loop u.1 = none)
+    (j₁ : (a₁ = u ∧ b₁ = v) ∨ (a₁ = v ∧ b₁ = u)) (j₂ : (a₂ = u ∧ b₂ = w) ∨ (a₂ = w ∧ b₂ = u))
+    (j₃ : (a₃ = v ∧ b₃ = w) ∨ (a₃ = w ∧ b₃ = v)) :
+    psiOp (k := k) Γ a₃ b₃ ∘ₗ psiOp Γ a₂ b₂ ∘ₗ psiOp Γ a₁ b₁ =
+      psiOp Γ a₁ b₁ ∘ₗ psiOp Γ a₂ b₂ ∘ₗ psiOp Γ a₃ b₃ := by
+  obtain ⟨c₁, e₁⟩ := psiOp_pair_of_none huv hc₁ h j₁
+  obtain ⟨c₂, e₂⟩ := psiOp_pair_of_none huw hc₂ h j₂
+  obtain ⟨c₃, e₃⟩ := psiOp_pair_of_none hvw (hc₁.symm.trans hc₂) (hc₁ ▸ h) j₃
+  rw [e₁, e₂, e₃]
+  refine LinearMap.ext fun f => ?_
+  simp only [LinearMap.comp_apply, LinearMap.smul_apply, map_smul, smul_smul,
+    ddiff_braid_labelled huv huw hvw]
+  congr 1
+  ring
+
+omit [Field 𝕜] [LinearOrder 𝕜] [IsStrictOrderedRing 𝕜] in
+/-- Three strands of one colour with a loop: Webster's relation (4c). -/
+theorem psiOp_braid_of_some {u v w a₁ b₁ a₂ b₂ a₃ b₃ : Strand ν} {P : MvPolynomial (Fin 2) k}
+    (hP : rename (swap (0 : Fin 2) 1) P = P) (huv : u ≠ v) (huw : u ≠ w)
+    (hvw : v ≠ w) (hc₁ : u.1 = v.1) (hc₂ : u.1 = w.1) (h : Γ.loop u.1 = some P)
+    (j₁ : (a₁ = u ∧ b₁ = v) ∨ (a₁ = v ∧ b₁ = u)) (j₂ : (a₂ = u ∧ b₂ = w) ∨ (a₂ = w ∧ b₂ = u))
+    (j₃ : (a₃ = v ∧ b₃ = w) ∨ (a₃ = w ∧ b₃ = v)) (f : PolyRing ν k) :
+    psiOp (k := k) Γ a₃ b₃ (psiOp Γ a₂ b₂ (psiOp Γ a₁ b₁ f)) -
+        psiOp Γ a₁ b₁ (psiOp Γ a₂ b₂ (psiOp Γ a₃ b₃ f)) =
+      -(loopFactor P u v * loopFactor P u w - loopFactor P v w * loopFactor P u w -
+          loopFactor P v w * loopFactor P u v) *
+          rename (swap u w) (rename (swap u v) (psiOp Γ a₁ b₁ f)) +
+        -(loopFactor P u v * loopFactor P u w + loopFactor P u v * loopFactor P v w -
+          loopFactor P u w * loopFactor P v w) *
+          rename (swap u w) (rename (swap v w) (psiOp Γ a₃ b₃ f)) := by
+  have hv : Γ.loop v.1 = some P := hc₁ ▸ h
+  rw [psiOp_pair_of_some hP hc₁ h j₁, psiOp_pair_of_some hP hc₂ h j₂,
+    psiOp_pair_of_some hP (hc₁.symm.trans hc₂) hv j₃]
+  simp only [psiOp_of_some h, psiOp_of_some hv]
+  exact psi_braid_loop hP huv huw hvw f
+
+end Hexagons
+
 end Categorification.WeightedKLR

@@ -288,4 +288,91 @@ noncomputable example (ν : Multiset (Fin 2)) :=
   WeightedKLR.spacedEquiv (k := ℚ) (ν := ν) wkLooplessGraph_standing
     wkLooplessGraph_dagger (fun _ => by simp [wkLooplessGraph]) (fun _ => rfl)
 
+/-! ### Webster, §2, canonical deformations -/
+
+/-- Standing data for `wkGraph`, with `d = 1` and `c_e = c_ē = 1`. -/
+def wkStandingData : wkGraph.StandingData :=
+  ⟨fun _ => 1, fun _ => one_pos, fun _ => 1, fun _ => 1, fun _ => isUnitHomogeneous_X_sub_X,
+    fun i P h => by
+      simp only [wkGraph] at h
+      split_ifs at h
+      obtain rfl := Option.some_injective _ h
+      exact ⟨by simp, 1, 1, by simpa using isUnitHomogeneous_X_sub_X⟩⟩
+
+/-- Webster, §2, the Proposition on canonical deformations: the deformation is free over `S`. -/
+example (ν : Fin 2 →₀ ℕ) := WeightedKLR.GalleryAlgebra.free_deform wkStandingData (ν := ν)
+  wkGraph_dagger wkGraph_noZeroLoops
+
+/-- The deformation has a parameter: `z_{e,0,0}` (one for the edge, as `c_e = 1`). -/
+example : Nonempty wkStandingData.DeformVar :=
+  ⟨⟨(), ⟨(⟨0, one_pos⟩, ⟨0, one_pos⟩), by simp [wkStandingData]⟩⟩⟩
+
+/-! ### Webster, §2, steadied quotients -/
+
+/-- The graph on two vertices with no edges. -/
+def wkEdgelessGraph : WeightedKLR.WeightedGraph (Fin 2) ℚ ℚ where
+  E := Empty
+  tail := Empty.elim
+  head := Empty.elim
+  weight := Empty.elim
+  Q := Empty.elim
+  loop _ := none
+
+/-- The weight `α₀ + α₁`. -/
+abbrev wkNu : Fin 2 →₀ ℕ := Finsupp.single 0 1 + Finsupp.single 1 1
+
+/-- The loading with the strand of colour `0` at `0` and the strand of colour `1` at `5`. -/
+def wkSplitLoading : WeightedKLR.Loading wkEdgelessGraph wkNu where
+  pos s := if s.1.1 = 0 then 0 else 5
+  admissible := by
+    refine ⟨?_, ?_, fun w => w.1.1.elim⟩
+    · rintro ⟨⟨i, hi⟩, a⟩ ⟨⟨j, hj⟩, b⟩ h
+      have ha : (a : ℕ) = 0 := by
+        have := a.2
+        fin_cases i <;> simp_all
+      have hb : (b : ℕ) = 0 := by
+        have := b.2
+        fin_cases j <;> simp_all
+      fin_cases i <;> fin_cases j <;> simp at h <;>
+        · congr
+          exact Fin.ext (by omega)
+    · rintro ⟨⟨i, hi⟩, a⟩ ⟨⟨j, hj⟩, b⟩ hij hab
+      have := a.2
+      have := b.2
+      simp only [Subtype.mk.injEq] at hij
+      subst hij
+      fin_cases i <;> simp_all
+
+/-- The charge `c(α₀) = i`, `c(α₁) = 1`. -/
+def wkCharge : WeightedKLR.Charge (Fin 2) where
+  toFun i := if i = 0 then Complex.I else 1
+  mem i := by
+    fin_cases i
+    · left; simp
+    · right; simp
+
+/-- The chamber of `wkSplitLoading` is unsteady for `wkCharge`: it is induced from
+`α₀` and `α₁`, and `arg c(α₀) > arg c(α₁)`. -/
+theorem wkSplit_isUnsteady : wkSplitLoading.chamber.IsUnsteady wkCharge := by
+  refine ⟨Finsupp.single 0 1, by simp, by simp, ?_, ?_, ⟨wkSplitLoading, rfl, ?_⟩⟩
+  · intro h
+    have := congrArg (fun f : Fin 2 →₀ ℕ => f 1) h
+    simp at this
+  · show Complex.arg (wkCharge.eval (wkNu - Finsupp.single 0 1)) <
+      Complex.arg (wkCharge.eval (Finsupp.single 0 1))
+    rw [show wkNu - Finsupp.single 0 1 = Finsupp.single 1 1 from add_tsub_cancel_left _ _,
+      WeightedKLR.Charge.eval_single, WeightedKLR.Charge.eval_single]
+    simp [wkCharge, Complex.arg_I, Real.pi_pos]
+  · rintro ⟨⟨i, hi⟩, a⟩ ⟨⟨j, hj⟩, b⟩ ha hb
+    have := b.2
+    simp only [WeightedKLR.Strand.IsLeft] at ha hb
+    have hs : wkEdgelessGraph.sepBound = (0 : ℚ) :=
+      Finset.sum_eq_zero fun e _ => (e : Empty).elim
+    simp only [wkSplitLoading, hs]
+    fin_cases i <;> fin_cases j <;> simp_all
+
+/-- Webster, §2, steadied quotients: the idempotent of an unsteady chamber vanishes in the
+steadied quotient. -/
+example := WeightedKLR.SteadiedQuotient.mk_chamberIdem (k := ℚ) wkCharge wkSplit_isUnsteady
+
 end NonVacuity

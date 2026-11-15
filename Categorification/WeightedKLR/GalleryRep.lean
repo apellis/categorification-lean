@@ -863,4 +863,240 @@ theorem psiOp_braid_of_some {u v w a₁ b₁ a₂ b₂ a₃ b₃ : Strand ν} {P
 
 end Hexagons
 
+/-! ### The representation -/
+
+section Assembly
+
+variable [Field 𝕜] [LinearOrder 𝕜] [IsStrictOrderedRing 𝕜]
+
+omit [IsStrictOrderedRing 𝕜] in
+theorem hypOp_inr_left (C : FullChamber Γ ν) (d : Diag ν) (σ' : Bool) :
+    hypOp (k := k) Γ (.inr d) (C.1 (.inr d)) σ' = psiOp Γ (d.left C) (d.right C) := rfl
+
+omit [DecidableEq I] [IsStrictOrderedRing 𝕜] in
+theorem Diag.Joins.left_right {d : Diag ν} {a b : Strand ν} (h : d.Joins a b)
+    (C : FullChamber Γ ν) : (d.left C = a ∧ d.right C = b) ∨ (d.left C = b ∧ d.right C = a) := by
+  unfold Diag.left Diag.right
+  rcases h with ⟨rfl, rfl⟩ | ⟨rfl, rfl⟩ <;> split_ifs <;> simp
+
+omit [DecidableEq I] [IsStrictOrderedRing 𝕜] in
+theorem Diag.Joins.ne {d : Diag ν} {a b : Strand ν} (h : d.Joins a b) : a ≠ b := by
+  rcases h with ⟨rfl, rfl⟩ | ⟨rfl, rfl⟩
+  · exact d.fst_ne_snd
+  · exact d.fst_ne_snd.symm
+
+omit [DecidableEq I] [IsStrictOrderedRing 𝕜] in
+theorem Diag.Joins.label_eq {d : Diag ν} {a b : Strand ν} (h : d.Joins a b) : a.1 = b.1 := by
+  rcases h with ⟨rfl, rfl⟩ | ⟨rfl, rfl⟩
+  · exact d.fst_label_eq_snd
+  · exact d.fst_label_eq_snd.symm
+
+omit [IsStrictOrderedRing 𝕜] in
+theorem Diag.Joins.swap_eq {d : Diag ν} {a b : Strand ν} (h : d.Joins a b) :
+    swap d.fst d.snd = swap a b := by
+  rcases h with ⟨rfl, rfl⟩ | ⟨rfl, rfl⟩
+  · rfl
+  · exact swap_comm _ _
+
+omit [IsStrictOrderedRing 𝕜] in
+theorem Diag.refl_mul_refl (d : Diag ν) : d.refl * d.refl = 1 :=
+  Subtype.ext (swap_mul_self _ _)
+
+omit [DecidableEq I] [IsStrictOrderedRing 𝕜] in
+theorem ren_mul_apply (g h : ColPerm ν) (f : PolyRing ν k) :
+    ren (k := k) (g * h) f = ren g (ren h f) := by
+  simp only [ren, AlgHom.toLinearMap_apply, rename_rename]
+  rfl
+
+omit [DecidableEq I] [IsStrictOrderedRing 𝕜] in
+theorem ren_one : ren (k := k) (1 : ColPerm ν) = LinearMap.id := by
+  refine LinearMap.ext fun f => ?_
+  simp only [ren, AlgHom.toLinearMap_apply, LinearMap.id_apply]
+  exact rename_id_apply f
+
+variable (k Γ ν) in
+/-- The action of the generators on `V = (FullChamber Γ ν → k[y_s])`. -/
+noncomputable def genOp : Gen k Γ ν → Module.End k (FullChamber Γ ν → PolyRing ν k)
+  | .idem C => blk k C C LinearMap.id
+  | .poly f => diagOp (LinearMap.mulLeft k f)
+  | .step C C' => blk k C C' (stepOp Γ C C')
+  | .relabel g C => blk k C (g • C) (ren g)
+
+variable (k Γ ν) in
+/-- The action of the free algebra on the generators. -/
+noncomputable def freeRep :
+    FreeAlgebra k (Gen k Γ ν) →ₐ[k] Module.End k (FullChamber Γ ν → PolyRing ν k) :=
+  FreeAlgebra.lift k (genOp k Γ ν)
+
+theorem freeRep_gal₁ (H : Hexagon Γ ν) :
+    freeRep k Γ ν (H.gal₁ k Γ ν) =
+      blk k H.A₀ H.A₃ (stepOp Γ H.A₂ H.A₃ ∘ₗ stepOp Γ H.A₁ H.A₂ ∘ₗ stepOp Γ H.A₀ H.A₁) := by
+  simp only [Hexagon.gal₁, freeRep, map_mul, FreeAlgebra.lift_ι_apply, genOp,
+    Module.End.mul_eq_comp, blk_comp_blk, LinearMap.comp_assoc]
+
+theorem freeRep_gal₂ (H : Hexagon Γ ν) :
+    freeRep k Γ ν (H.gal₂ k Γ ν) =
+      blk k H.A₀ H.A₃ (stepOp Γ H.A₄ H.A₃ ∘ₗ stepOp Γ H.A₅ H.A₄ ∘ₗ stepOp Γ H.A₀ H.A₅) := by
+  simp only [Hexagon.gal₂, freeRep, map_mul, FreeAlgebra.lift_ι_apply, genOp,
+    Module.End.mul_eq_comp, blk_comp_blk, LinearMap.comp_assoc]
+
+/-- The representation respects the defining relations of the gallery algebra. -/
+theorem freeRep_rel (hΓ : Γ.PSymm) {x y : FreeAlgebra k (Gen k Γ ν)} (h : Rel k Γ ν x y) :
+    freeRep k Γ ν x = freeRep k Γ ν y := by
+  cases h with
+  | idem_mul C D =>
+    simp only [freeRep, map_mul, FreeAlgebra.lift_ι_apply, genOp, Module.End.mul_eq_comp]
+    split_ifs with hCD
+    · subst hCD
+      rw [blk_comp_blk, LinearMap.id_comp, FreeAlgebra.lift_ι_apply]
+      rfl
+    · rw [blk_comp_blk_of_ne (Ne.symm hCD), map_zero]
+  | idem_sum =>
+    simp only [freeRep, map_sum, FreeAlgebra.lift_ι_apply, genOp, map_one]
+    exact sum_blk_id
+  | poly_add f g =>
+    simp only [freeRep, map_add, FreeAlgebra.lift_ι_apply, genOp]
+    refine LinearMap.ext fun x => ?_
+    funext A
+    simp [add_mul]
+  | poly_mul f g =>
+    simp only [freeRep, map_mul, FreeAlgebra.lift_ι_apply, genOp, Module.End.mul_eq_comp]
+    refine LinearMap.ext fun x => ?_
+    funext A
+    simp
+  | poly_C c =>
+    simp only [freeRep, AlgHom.commutes, FreeAlgebra.lift_ι_apply, genOp]
+    refine LinearMap.ext fun x => ?_
+    funext A
+    simp [Module.algebraMap_end_apply, C_mul']
+  | poly_idem f C =>
+    simp only [freeRep, map_mul, FreeAlgebra.lift_ι_apply, genOp, Module.End.mul_eq_comp,
+      diagOp_comp_blk, blk_comp_diagOp, LinearMap.comp_id, LinearMap.id_comp]
+  | step_idem C C' =>
+    simp only [freeRep, map_mul, FreeAlgebra.lift_ι_apply, genOp, Module.End.mul_eq_comp,
+      blk_comp_blk, LinearMap.comp_id, LinearMap.id_comp]
+  | step_zero C C' hC =>
+    simp only [freeRep, FreeAlgebra.lift_ι_apply, genOp, stepOp_of_not hC, blk_zero, map_zero]
+  | relabel_idem g C =>
+    simp only [freeRep, map_mul, FreeAlgebra.lift_ι_apply, genOp, Module.End.mul_eq_comp,
+      blk_comp_blk, LinearMap.comp_id, LinearMap.id_comp]
+  | relabel_one C =>
+    simp only [freeRep, FreeAlgebra.lift_ι_apply, genOp, one_smul, ren_one]
+  | relabel_mul g h C =>
+    simp only [freeRep, map_mul, FreeAlgebra.lift_ι_apply, genOp, Module.End.mul_eq_comp,
+      blk_comp_blk, mul_smul]
+    congr 1
+    exact LinearMap.ext fun f => (ren_mul_apply g h f).symm
+  | relabel_poly g C f =>
+    simp only [freeRep, map_mul, FreeAlgebra.lift_ι_apply, genOp, Module.End.mul_eq_comp,
+      diagOp_comp_blk, blk_comp_diagOp]
+    congr 1
+    refine LinearMap.ext fun p => ?_
+    simp [ren, map_mul]
+  | relabel_step g C C' =>
+    simp only [freeRep, map_mul, FreeAlgebra.lift_ι_apply, genOp, Module.End.mul_eq_comp,
+      blk_comp_blk, ren_comp_stepOp]
+  | wall_bigon C C' w h =>
+    simp only [freeRep, map_mul, FreeAlgebra.lift_ι_apply, genOp, Module.End.mul_eq_comp,
+      blk_comp_blk, diagOp_comp_blk, LinearMap.comp_id, stepOp_comp_stepOp_inl h]
+  | diag_bigon C C' d h =>
+    rcases hl : Γ.loop d.fst.1 with _ | P
+    · simp only [freeRep, map_mul, FreeAlgebra.lift_ι_apply, genOp, Module.End.mul_eq_comp,
+        blk_comp_blk, map_zero]
+      convert blk_zero (k := k) C C
+      refine LinearMap.ext fun f => ?_
+      simp only [LinearMap.comp_apply, stepOp_stepOp_inr hΓ h f, hl, LinearMap.zero_apply]
+    · simp only [freeRep, map_mul, FreeAlgebra.lift_ι_apply, genOp, Module.End.mul_eq_comp,
+        blk_comp_blk, diagOp_comp_blk, h.symm.refl_smul]
+      congr 1
+      refine LinearMap.ext fun f => ?_
+      simp only [LinearMap.comp_apply, stepOp_stepOp_inr hΓ h f, hl, LinearMap.mulLeft_apply]
+      rfl
+  | wall_poly C C' w h f =>
+    simp only [freeRep, map_mul, FreeAlgebra.lift_ι_apply, genOp, Module.End.mul_eq_comp,
+      diagOp_comp_blk, blk_comp_diagOp, stepOp_inl h, wallOp_eq_mulLeft]
+    congr 1
+    refine LinearMap.ext fun p => ?_
+    simp only [LinearMap.comp_apply, LinearMap.mulLeft_apply]
+    ring
+  | diag_poly C C' d h f =>
+    simp only [freeRep, map_mul, map_sub, FreeAlgebra.lift_ι_apply, genOp,
+      Module.End.mul_eq_comp, diagOp_comp_blk, blk_comp_diagOp, h.refl_smul, ← blk_sub]
+    congr 1
+    refine LinearMap.ext fun g => ?_
+    simp only [LinearMap.sub_apply, LinearMap.comp_apply, LinearMap.mulLeft_apply]
+    exact stepOp_mul_inr h f g
+  | square C B B' D h₁ h₂ hne hi a₁ a₂ a₃ a₄ =>
+    simp only [freeRep, map_mul, FreeAlgebra.lift_ι_apply, genOp, Module.End.mul_eq_comp,
+      blk_comp_blk, stepOp_square hne hi a₁ a₂ a₃ a₄]
+  | hex_walls H e₁ e₂ e₃ =>
+    rw [freeRep_gal₁, freeRep_gal₂, H.stepOp_gal₁, H.stepOp_gal₂, hypOp_walls e₁ e₂ e₃]
+  | hex_mid_diag H w d h₁ h₂ h₃ hσ hA =>
+    have e₁ : H.A₁.1 H.h₂ = H.A₀.1 H.h₂ := (H.adj₀₁.2 _ H.ne₁₂.symm).symm
+    rw [h₂] at e₁
+    have hl : d.left H.A₁ = d.left H.A₀ := by unfold Diag.left; rw [e₁]
+    have hr : d.right H.A₁ = d.right H.A₀ := by unfold Diag.right; rw [e₁]
+    rw [map_sub, freeRep_gal₁, freeRep_gal₂, H.stepOp_gal₁, H.stepOp_gal₂, ← blk_sub, h₁, h₂,
+      h₃, hypOp_inr_left, hl, hr]
+    simp only [freeRep, map_mul, FreeAlgebra.lift_ι_apply, genOp, Module.End.mul_eq_comp,
+      diagOp_comp_blk, hA]
+    congr 1
+    exact hypOp_mid_diag w d (Diag.left_ne_right _ d) (Diag.swap_left_right _ d) hσ
+  | hex_end_diag H w d h₂ hd hσ =>
+    rw [freeRep_gal₁, freeRep_gal₂, H.stepOp_gal₁, H.stepOp_gal₂]
+    congr 1
+    rcases hd with ⟨h₁, h₃⟩ | ⟨h₁, h₃⟩
+    · rw [h₁, h₂, h₃, hypOp_inr_left, ← hσ]
+      exact hypOp_end_diag w d (Diag.left_ne_right _ d) (Diag.swap_left_right _ d) _
+    · rw [h₁, h₂, h₃, hypOp_inr_left, ← hσ]
+      exact (hypOp_end_diag w d (Diag.left_ne_right _ d) (Diag.swap_left_right _ d) _).symm
+  | hex_diags H d₁ d₂ d₃ u v w h₁ h₂ h₃ j₁ j₂ j₃ hA =>
+    have huv := j₁.ne
+    have huw := j₂.ne
+    have hvw := j₃.ne
+    have hc₁ := j₁.label_eq
+    have hc₂ := j₂.label_eq
+    rw [map_sub, freeRep_gal₁, freeRep_gal₂, H.stepOp_gal₁, H.stepOp_gal₂, ← blk_sub, h₁, h₂,
+      h₃, hypOp_inr_left, hypOp_inr_left, hypOp_inr_left]
+    rcases hl : Γ.loop u.1 with _ | P
+    · simp only [map_zero]
+      rw [psiOp_braid_of_none huv huw hvw hc₁ hc₂ hl (j₁.left_right _) (j₂.left_right _)
+        (j₃.left_right _), sub_self, blk_zero]
+    · have hP := hΓ u.1 P hl
+      have a₁ : H.A₀.Adjacent H.A₁ (.inr d₁) := h₁ ▸ H.adj₀₁
+      have a₅ : H.A₀.Adjacent H.A₅ (.inr d₃) := h₃ ▸ H.adj₀₅
+      have g₁ : (d₂.refl * d₁.refl) • H.A₁ = H.A₃ := by
+        rw [← a₁.refl_smul, ← mul_smul, mul_assoc, Diag.refl_mul_refl, mul_one, hA]
+      have g₂ : (d₂.refl * d₃.refl) • H.A₅ = H.A₃ := by
+        rw [← a₅.refl_smul, ← mul_smul, mul_assoc, Diag.refl_mul_refl, mul_one, hA]
+      simp only [Hexagon.loopCorrection, freeRep, map_add, map_mul, FreeAlgebra.lift_ι_apply,
+        genOp, Module.End.mul_eq_comp, blk_comp_blk, diagOp_comp_blk, g₁, g₂, ← blk_add,
+        stepOp_inr a₁, stepOp_inr a₅]
+      congr 1
+      refine LinearMap.ext fun f => ?_
+      simp only [LinearMap.sub_apply, LinearMap.add_apply, LinearMap.comp_apply,
+        LinearMap.mulLeft_apply, ren_mul_apply]
+      have r₁ : ∀ p, ren (k := k) d₁.refl p = rename (swap u v) p := fun p => by
+        rw [← j₁.swap_eq]; rfl
+      have r₂ : ∀ p, ren (k := k) d₂.refl p = rename (swap u w) p := fun p => by
+        rw [← j₂.swap_eq]; rfl
+      have r₃ : ∀ p, ren (k := k) d₃.refl p = rename (swap v w) p := fun p => by
+        rw [← j₃.swap_eq]; rfl
+      rw [r₁, r₂, r₂, r₃]
+      exact psiOp_braid_of_some hP huv huw hvw hc₁ hc₂ hl (j₁.left_right _) (j₂.left_right _)
+        (j₃.left_right _) f
+
+variable (k) in
+/-- The polynomial representation of the gallery algebra (B. Webster, arXiv:1209.2463v4,
+Proposition `prop:action`, for labelled strands), for symmetric loop polynomials. -/
+noncomputable def galleryRep (hΓ : Γ.PSymm) :
+    GalleryAlgebra k Γ ν →ₐ[k] Module.End k (FullChamber Γ ν → PolyRing ν k) :=
+  RingQuot.liftAlgHom k ⟨freeRep k Γ ν, fun _ _ h => freeRep_rel hΓ h⟩
+
+theorem galleryRep_mk (hΓ : Γ.PSymm) (x : FreeAlgebra k (Gen k Γ ν)) :
+    galleryRep k hΓ (GalleryAlgebra.mk k Γ ν x) = freeRep k Γ ν x :=
+  RingQuot.liftAlgHom_mkAlgHom_apply k _ _ x
+
+end Assembly
+
 end Categorification.WeightedKLR

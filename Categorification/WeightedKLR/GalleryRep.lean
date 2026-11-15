@@ -1,0 +1,262 @@
+/-
+Copyright (c) 2026 Alex Ellis. All rights reserved.
+Released under Apache 2.0 license as described in the file LICENSE.
+-/
+import Categorification.WeightedKLR.Algebra
+
+/-!
+# The polynomial representation of the gallery algebra
+
+B. Webster, *Weighted Khovanov–Lauda–Rouquier algebras*, arXiv:1209.2463v4, §2.1,
+Proposition `prop:action`.
+
+The gallery algebra `GalleryAlgebra k Γ ν` acts on `V = (FullChamber Γ ν → k[y_s])`, one copy of
+the polynomial ring for each full chamber: `e C` is the projection to the copy of `C`, a
+polynomial acts by multiplication on every copy, a relabelling `r g C` renames the variables by
+`g` from the copy of `C` to that of `g • C`, and a step `t C C'` across the hyperplane `h` maps
+the copy of `C` to that of `C'` by
+
+* `wallOp`: multiplication by `Q_e(y_a, y_b)` when crossing the wall `w = (e, a, b)` from the
+  side where `b` is left of the ghost of `a`, and the identity in the other direction;
+* `psiOp`: the divided difference `∂_{l r}`, or `P_i(y_l, y_r)(1 - s_{l r})` when there is a loop
+  at the colour `i`, when crossing a diagonal with the strand `l` on the left.
+
+This file proves that these operators satisfy the defining relations of the gallery algebra.
+The relations of three strands of one colour are the labelled nilHecke braid relation
+(`ddiff_braid_labelled`) and its loop correction (`psi_braid_loop`, Webster's relation (4c)).
+
+## Main results
+
+* `ddiff_braid_labelled`: `∂_{v w} ∂_{u w} ∂_{u v} = ∂_{u v} ∂_{u w} ∂_{v w}`.
+* `psiOp_leibniz`: `ψ (f g) - f ψ g = Δ(f) s(g)`, Webster's relations (1).
+-/
+
+namespace Categorification.WeightedKLR
+
+open MvPolynomial Equiv
+
+variable {I : Type*} [DecidableEq I] {𝕜 : Type*} {k : Type*} [CommRing k]
+  {Γ : WeightedGraph I 𝕜 k} {ν : I →₀ ℕ}
+
+/-! ### Polynomial identities -/
+
+section Poly
+
+omit [DecidableEq I] in
+theorem loopFactor_rename (P : MvPolynomial (Fin 2) k) (φ : Strand ν → Strand ν)
+    (s s' : Strand ν) : rename φ (loopFactor P s s') = loopFactor P (φ s) (φ s') := by
+  rw [loopFactor, ← AlgHom.comp_apply, comp_aeval, loopFactor]
+  congr 2
+  funext j
+  fin_cases j <;> simp
+
+omit [DecidableEq I] in
+theorem loopFactor_comm {P : MvPolynomial (Fin 2) k} (hP : rename (swap (0 : Fin 2) 1) P = P)
+    (s s' : Strand ν) : loopFactor P s s' = loopFactor P s' s := by
+  conv_lhs => rw [loopFactor, ← hP, aeval_rename]
+  rw [loopFactor]
+  congr 2
+  funext j
+  fin_cases j <;> simp [swap_apply_left, swap_apply_right]
+
+/-- Renaming the variables by a colour-preserving permutation conjugates `ψ`. -/
+theorem psiOp_rename (φ : Perm (Strand ν)) (hφ : ∀ s, (φ s).1 = s.1) {s s' : Strand ν}
+    (hss' : s ≠ s') (f : PolyRing ν k) :
+    rename φ (psiOp Γ s s' f) = psiOp Γ (φ s) (φ s') (rename φ f) := by
+  rcases h : Γ.loop s.1 with _ | P
+  · have h' : Γ.loop (φ s).1 = none := by rw [hφ]; exact h
+    rw [psiOp_of_none h, psiOp_of_none h', rename_ddiff φ.injective hss']
+  · have h' : Γ.loop (φ s).1 = some P := by rw [hφ]; exact h
+    rw [psiOp_of_some h, psiOp_of_some h', map_mul, map_sub, loopFactor_rename, rename_rename,
+      rename_rename, φ.injective.swap_comp]
+
+/-- `ψ` is linear over polynomials symmetric in its two strands. -/
+theorem psiOp_mul_of_rename_eq {s s' : Strand ν} (hss' : s ≠ s') {c : PolyRing ν k}
+    (hc : rename (swap s s') c = c) (f : PolyRing ν k) :
+    psiOp Γ s s' (c * f) = c * psiOp Γ s s' f := by
+  rcases h : Γ.loop s.1 with _ | P
+  · rw [psiOp_of_none h, ddiff_mul_of_rename_eq hss' hc]
+  · rw [psiOp_of_some h, psiOp_of_some h, map_mul, hc]
+    ring
+
+/-- Webster's relations (1), labelled form: `ψ (f g) - f ψ g = Δ_{s s'}(f) s_{s s'}(g)`. -/
+theorem psiOp_leibniz {s s' : Strand ν} (hss' : s ≠ s') (f g : PolyRing ν k) :
+    psiOp Γ s s' (f * g) - f * psiOp Γ s s' g =
+      stepFactor Γ s s' f * rename (swap s s') g := by
+  rcases h : Γ.loop s.1 with _ | P
+  · simp only [psiOp_of_none h, stepFactor, h]
+    have e1 := ddiff_spec (k := k) hss' f
+    have e2 := ddiff_spec (k := k) hss' g
+    rw [ddiff_mul hss']
+    linear_combination (ddiff s s' g) * e1 - (ddiff s s' f) * e2
+  · simp only [psiOp_of_some h, stepFactor, h, map_mul]
+    ring
+
+theorem stepFactor_rename_swap {s s' : Strand ν} (hss' : s ≠ s') (f : PolyRing ν k) :
+    stepFactor Γ s s' (rename (swap s s') f) = -stepFactor Γ s s' f := by
+  rcases h : Γ.loop s.1 with _ | P
+  · simp only [stepFactor, h, ddiff_rename_swap hss']
+  · simp only [stepFactor, h, rename_swap_rename_swap]
+    ring
+
+/-- `ψ` with the two strands exchanged, without a loop. -/
+theorem psiOp_swap_of_none {s s' : Strand ν} (hss' : s ≠ s') (h : Γ.loop s.1 = none)
+    (h' : Γ.loop s'.1 = none) (f : PolyRing ν k) :
+    psiOp Γ s' s f = -psiOp Γ s s' f := by
+  rw [psiOp_of_none h, psiOp_of_none h', ddiff_comm hss']
+
+/-- `ψ` with the two strands exchanged, with a symmetric loop polynomial. -/
+theorem psiOp_swap_of_some {s s' : Strand ν} {P : MvPolynomial (Fin 2) k}
+    (hP : rename (swap (0 : Fin 2) 1) P = P) (h : Γ.loop s.1 = some P)
+    (h' : Γ.loop s'.1 = some P) (f : PolyRing ν k) :
+    psiOp Γ s' s f = psiOp Γ s s' f := by
+  rw [psiOp_of_some h, psiOp_of_some h', loopFactor_comm hP, swap_comm]
+
+/-- The strand bigon, read with the strands exchanged after the first crossing. -/
+theorem psiOp_psiOp_swap (hΓ : Γ.PSymm) {s s' : Strand ν} (hss' : s ≠ s') (hc : s.1 = s'.1)
+    (f : PolyRing ν k) :
+    psiOp Γ s' s (psiOp Γ s s' f) =
+      match Γ.loop s.1 with
+      | none => 0
+      | some P => -2 * loopFactor P s s' * rename (swap s s') (psiOp Γ s s' f) := by
+  rcases h : Γ.loop s.1 with _ | P
+  · have h' : Γ.loop s'.1 = none := by rw [← hc]; exact h
+    rw [psiOp_swap_of_none hss' h h', psiOp_of_none h, ddiff_ddiff hss', neg_zero]
+  · have h' : Γ.loop s'.1 = some P := by rw [← hc]; exact h
+    have hP := hΓ _ P h
+    rw [psiOp_swap_of_some hP h h']
+    simp only [psiOp_of_some h, map_mul, map_sub, rename_swap_rename_swap,
+      rename_swap_loopFactor hP]
+    ring
+
+/-- `ψ`s on disjoint pairs of strands commute. -/
+theorem psiOp_psiOp_comm {a b c d : Strand ν} (hab : a ≠ b) (hcd : c ≠ d) (hab' : a.1 = b.1)
+    (hcd' : c.1 = d.1) (hac : a ≠ c) (had : a ≠ d) (hbc : b ≠ c) (hbd : b ≠ d)
+    (f : PolyRing ν k) :
+    psiOp Γ a b (psiOp Γ c d f) = psiOp Γ c d (psiOp Γ a b f) := by
+  -- `ψ_{c d}` commutes with `s_{a b}`, and with multiplication by `P(y_a, y_b)`
+  have hcol : ∀ {x y : Strand ν}, x.1 = y.1 → ∀ s, ((swap x y) s).1 = s.1 := by
+    intro x y hxy s
+    rcases eq_or_ne s x with rfl | h1
+    · rw [swap_apply_left]; exact hxy.symm
+    rcases eq_or_ne s y with rfl | h2
+    · rw [swap_apply_right]; exact hxy
+    · rw [swap_apply_of_ne_of_ne h1 h2]
+  have r1 : ∀ g, rename (swap a b) (psiOp Γ c d g) = psiOp Γ c d (rename (swap a b) g) := by
+    intro g
+    rw [psiOp_rename _ (hcol hab') hcd, swap_apply_of_ne_of_ne hac.symm hbc.symm,
+      swap_apply_of_ne_of_ne had.symm hbd.symm]
+  have r2 : ∀ g, rename (swap c d) (psiOp Γ a b g) = psiOp Γ a b (rename (swap c d) g) := by
+    intro g
+    rw [psiOp_rename _ (hcol hcd') hab, swap_apply_of_ne_of_ne hac had,
+      swap_apply_of_ne_of_ne hbc hbd]
+  rcases h1 : Γ.loop a.1 with _ | P
+  · rcases h2 : Γ.loop c.1 with _ | Q
+    · rw [psiOp_of_none h1, psiOp_of_none h2, ddiff_ddiff_comm hab hcd hac had hbc hbd]
+    · have hQ : rename (swap a b) (loopFactor Q c d) = loopFactor Q c d := by
+        rw [loopFactor_rename, swap_apply_of_ne_of_ne hac.symm hbc.symm,
+          swap_apply_of_ne_of_ne had.symm hbd.symm]
+      rw [psiOp_of_some h2, psiOp_of_some h2, psiOp_mul_of_rename_eq hab hQ, map_sub,
+        ← r2]
+  · have hP : rename (swap c d) (loopFactor P a b) = loopFactor P a b := by
+      rw [loopFactor_rename, swap_apply_of_ne_of_ne hac had, swap_apply_of_ne_of_ne hbc hbd]
+    rw [psiOp_of_some h1, psiOp_of_some h1, psiOp_mul_of_rename_eq hcd hP, map_sub, ← r1]
+
+end Poly
+
+/-! ### The braid relations of three strands of one colour -/
+
+section Braid
+
+variable {σ : Type*} [DecidableEq σ] {u v w : σ}
+
+/-- Composition rules for the transpositions of three distinct elements, used to put
+products of renamings in the normal form `1, s_{uv}, s_{uw}, s_{vw}, s_{uw} s_{uv},
+s_{vw} s_{uv}`. -/
+theorem swap_comp_swap_of_three (huv : u ≠ v) (huw : u ≠ w) (hvw : v ≠ w) :
+    (⇑(swap u v) ∘ ⇑(swap u w) = ⇑(swap v w) ∘ ⇑(swap u v)) ∧
+    (⇑(swap u v) ∘ ⇑(swap v w) = ⇑(swap u w) ∘ ⇑(swap u v)) ∧
+    (⇑(swap u w) ∘ ⇑(swap v w) = ⇑(swap v w) ∘ ⇑(swap u v)) ∧
+    (⇑(swap v w) ∘ ⇑(swap u w) = ⇑(swap u w) ∘ ⇑(swap u v)) := by
+  refine ⟨?_, ?_, ?_, ?_⟩ <;> funext x <;> simp only [Function.comp_apply, swap_apply_def] <;>
+    split_ifs <;> simp_all
+
+/-- `Δ · ∂_{vw} ∂_{uw} ∂_{uv} f` is the alternating sum of the `S₃`-translates of `f`,
+where `Δ = (X u - X v)(X u - X w)(X v - X w)`. -/
+theorem ddiff_braid_labelled_aux (huv : u ≠ v) (huw : u ≠ w) (hvw : v ≠ w)
+    (f : MvPolynomial σ k) :
+    (X u - X v) * (X u - X w) * (X v - X w) * ddiff v w (ddiff u w (ddiff u v f)) =
+      f - rename (swap u v) f - rename (swap v w) f - rename (swap u w) f
+        + rename (swap u w) (rename (swap u v) f)
+        + rename (swap v w) (rename (swap u v) f) := by
+  obtain ⟨r1, r2, r3, r4⟩ := swap_comp_swap_of_three huv huw hvw
+  set D1 := ddiff u v f
+  set D2 := ddiff u w D1
+  have E1 := ddiff_spec huv f
+  have E2 := ddiff_spec huw D1
+  have E3 := ddiff_spec hvw D2
+  have sE2 := congrArg (rename (swap v w)) E2
+  have saE1 := congrArg (rename (swap u w)) E1
+  have sbE1 := congrArg (rename (swap v w)) E1
+  have hD1 : rename (swap u v) D1 = D1 := rename_swap_ddiff huv f
+  have Ecc : rename (swap v w) (rename (swap u w) D1) = rename (swap u w) D1 := by
+    rw [rename_rename, r4, ← rename_rename, hD1]
+  have h1 : swap v w u = u := swap_apply_of_ne_of_ne huv huw
+  have h2 : swap u w v = v := swap_apply_of_ne_of_ne huv.symm hvw
+  simp only [map_mul, map_sub, rename_X, swap_apply_left, swap_apply_right, h1, h2] at sE2 saE1 sbE1
+  linear_combination (X u - X v) * (X u - X w) * E3 + (X u - X v) * E2 - (X u - X w) * sE2
+    + E1 - sbE1 + (X u - X w) * Ecc - saE1
+
+/-- The nilHecke braid relation with explicit strands:
+`∂_{vw} ∂_{uw} ∂_{uv} = ∂_{uv} ∂_{uw} ∂_{vw}`. -/
+theorem ddiff_braid_labelled (huv : u ≠ v) (huw : u ≠ w) (hvw : v ≠ w)
+    (f : MvPolynomial σ k) :
+    ddiff v w (ddiff u w (ddiff u v f)) = ddiff u v (ddiff u w (ddiff v w f)) := by
+  obtain ⟨r1, r2, r3, r4⟩ := swap_comp_swap_of_three huv huw hvw
+  have hL := ddiff_braid_labelled_aux huv huw hvw f
+  have hR := ddiff_braid_labelled_aux hvw.symm huw.symm huv.symm f
+  rw [ddiff_comm huv, ddiff_comm huw, ddiff_comm hvw] at hR
+  simp only [map_neg, neg_neg, mul_neg] at hR
+  rw [swap_comm w v, swap_comm v u, swap_comm w u, rename_rename, rename_rename, r3,
+    r2] at hR
+  rw [rename_rename, rename_rename] at hL
+  apply X_sub_X_mul_left_cancel huv
+  apply X_sub_X_mul_left_cancel huw
+  apply X_sub_X_mul_left_cancel hvw
+  linear_combination hL - hR
+
+/-- Webster's relation (4c) with explicit strands: with `ψ_{ab} g = P_{ab} (g - s_{ab} g)` for a
+symmetric `P`, the difference of the two braid words is a combination of two crossings
+followed by renamings. -/
+theorem psi_braid_loop {P : MvPolynomial (Fin 2) k} (hP : rename (swap (0 : Fin 2) 1) P = P)
+    {u v w : Strand ν} (huv : u ≠ v) (huw : u ≠ w) (hvw : v ≠ w) (g : PolyRing ν k) :
+    let ψ : Strand ν → Strand ν → PolyRing ν k → PolyRing ν k :=
+      fun a b f => loopFactor P a b * (f - rename (swap a b) f)
+    ψ v w (ψ u w (ψ u v g)) - ψ u v (ψ u w (ψ v w g)) =
+      -(loopFactor P u v * loopFactor P u w - loopFactor P v w * loopFactor P u w -
+          loopFactor P v w * loopFactor P u v) *
+          rename (swap u w) (rename (swap u v) (ψ u v g)) +
+        -(loopFactor P u v * loopFactor P u w + loopFactor P u v * loopFactor P v w -
+          loopFactor P u w * loopFactor P v w) *
+          rename (swap u w) (rename (swap v w) (ψ v w g)) := by
+  intro ψ
+  obtain ⟨r1, r2, r3, r4⟩ := swap_comp_swap_of_three huv huw hvw
+  have c2 : ∀ f : Strand ν → Strand ν, ⇑(swap u v) ∘ (⇑(swap v w) ∘ f) =
+      ⇑(swap u w) ∘ (⇑(swap u v) ∘ f) := fun f => by rw [← Function.comp_assoc, r2]; rfl
+  have c4 : ∀ f : Strand ν → Strand ν, ⇑(swap v w) ∘ (⇑(swap u w) ∘ f) =
+      ⇑(swap u w) ∘ (⇑(swap u v) ∘ f) := fun f => by rw [← Function.comp_assoc, r4]; rfl
+  have i1 : ∀ a b : Strand ν, ⇑(swap a b) ∘ ⇑(swap a b) = id := fun a b => by
+    funext x; simp
+  have h1 : swap v w u = u := swap_apply_of_ne_of_ne huv huw
+  have h2 : swap u w v = v := swap_apply_of_ne_of_ne huv.symm hvw
+  have h3 : swap u v w = w := swap_apply_of_ne_of_ne huw.symm hvw.symm
+  have p1 : loopFactor P v u = loopFactor P u v := loopFactor_comm hP _ _
+  have p3 : loopFactor P w v = loopFactor P v w := loopFactor_comm hP _ _
+  simp only [ψ, map_mul, map_sub, rename_rename, loopFactor_rename, Function.comp_id,
+    swap_apply_left, swap_apply_right, h1, h2, h3, p1, p3, r1, r2, r3, r4, c2, c4, i1,
+    rename_id, AlgHom.id_apply]
+  ring
+
+end Braid
+
+end Categorification.WeightedKLR

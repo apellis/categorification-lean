@@ -277,4 +277,15 @@ example (ν : Multiset (Fin 2)) :=
   WeightedKLR.spacedHom_injective (k := ℚ) (ν := ν) wkLooplessGraph_standing
     wkLooplessGraph_dagger (fun _ => by simp [wkLooplessGraph]) (fun _ => rfl)
 
+/-- Webster, Proposition 2.14, surjectivity, for a graph without loops. -/
+example (ν : Multiset (Fin 2)) :=
+  WeightedKLR.spacedHom_surjective (k := ℚ) (ν := ν) wkLooplessGraph_standing
+    wkLooplessGraph_dagger (fun _ => by simp [wkLooplessGraph]) (fun _ => rfl)
+
+/-- Webster, Proposition 2.14: the KLR algebra is isomorphic to the weighted KLR algebra on the
+evenly spaced loadings, for a graph without loops. -/
+noncomputable example (ν : Multiset (Fin 2)) :=
+  WeightedKLR.spacedEquiv (k := ℚ) (ν := ν) wkLooplessGraph_standing
+    wkLooplessGraph_dagger (fun _ => by simp [wkLooplessGraph]) (fun _ => rfl)
+
 end NonVacuity

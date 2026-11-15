@@ -842,6 +842,17 @@ deformed), `KLR.CycKLR k Q a ν` is `R^Λ(ν) = R(ν) / R(ν) a^Λ(x_1) R(ν)`.
 | KK §5.2, centrality of S | The squared-difference family is equivariant under permutations of the last `n` strands; its diagonal element commutes with `R(i) ⊗ R(β)`, hence the actual monic polynomial `S` is central after the cyclotomic quotient (commutative ring `k`, `KLRSymm Q`) | `KLR.KLRAlgebra.swapPol_sFactors`, `KLR.KLRAlgebra.sElt_comm_subR1`, `KLR.KLRAlgebra.sTensor_comm`, `KLR.KLRAlgebra.sPoly_comm` |
 | **KK Thm. 5.2**, on the cyclotomic block functors (input for KL III Thm. 1.2, `RouqFamily.loc`) | For the block functors `indA`, `resA` of `CyclotomicAction` (target block tied to the source by `h : {i} + β = δ`): Rouquier's local data (Brundan (1.8), (1.9), `RouqLoc`) at every middle block `β = {i} + γ`, with Brundan weight `-⟨h_i, Λ - β⟩`, dots `dotA` and same-colour crossing `sameCrossA = -ψ`; and for `i ∉ β` the boundary decomposition of `E_i F_i` into `⟨h_i, Λ - β⟩` copies of the identity through the dotted units (`RouqBoundary.Coefficients`). Kang–Kashiwara's §3 hypotheses, ungraded: any commutative ring `k`, `KLRSymm Q`, unit constant leading coefficients of `Q_{jl}` (`j ≠ l`) in the second variable, monic `a_j` of degree `⟨h_j, Λ⟩`, `deg_v Q_{ji} = -⟨h_i, α_j⟩`. Proved by transporting the statements for the module functors along natural isomorphisms of the 1-cells (`AdditiveCat.RouqLoc.transport`, `RouqBoundary.Coefficients.transport`) and the comparison isomorphisms `indIsoA`, `resIsoA` | `KLR.CyclotomicAction.blockLoc`, `KLR.CyclotomicAction.blockBoundary`, `KLR.CyclotomicAction.indIsoA`, `KLR.CyclotomicAction.resIsoA`, `TwoRep.AdditiveCat.RouqLoc.transport`, `TwoRep.RouqBoundary.Coefficients.transport` |
 
+### Weighted KLR algebras (Webster, arXiv:1209.2463v4)
+
+In progress (issue #289). Objects are chambers of loadings: a configuration of strands, indexed by
+colour and rank, on no wall `x_b - x_a = ϑ_e`; two loadings lie in the same chamber exactly when
+they are equivalent (the paper's Definition `def:equivalent`).
+
+| Source | Result | Declarations |
+|---|---|---|
+| §2.1, Definitions `def:loading`, `def:equivalent` | weighted graphs, walls, loadings, chambers; loadings in the same chamber are equivalent | `WeightedKLR.WeightedGraph`, `WeightedKLR.Wall`, `WeightedKLR.Loading`, `WeightedKLR.Chamber`, `WeightedKLR.Loading.chamber_eq_iff` |
+| §2.1, Proposition `prop:action` (operators) | the operators of the polynomial representation for dots, wall crossings and same-colour crossings; the ghost bigon (relation (2)), the strand bigon (relation (3)) and the dot relations (1) | `WeightedKLR.dotOp`, `WeightedKLR.wallOp`, `WeightedKLR.psiOp`, `WeightedKLR.wallOp_comp_wallOp`, `WeightedKLR.psiOp_comp_psiOp`, `WeightedKLR.psiOp_comp_dotOp_left`, `WeightedKLR.psiOp_comp_dotOp_right` |
+
 ### Lusztig's algebra `f` (Lusztig, *Introduction to quantum groups*, Ch. 1; KL I §3.1)
 
 For a symmetric Cartan datum (`QuantumGroup.CartanDatum`, including the simply-laced datum of a

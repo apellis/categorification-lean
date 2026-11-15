@@ -811,6 +811,8 @@ import Categorification.TypeA.Length
 import Categorification.TypeA.Matsumoto
 import Categorification.TypeA.NormalForm
 import Categorification.TypeA.Parabolic
+import Categorification.WeightedKLR.Loading
+import Categorification.WeightedKLR.PolyRep
 /-!
 # Categorification
 

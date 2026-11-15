@@ -830,6 +830,9 @@ import Categorification.WeightedKLR.GallerySpan.Blocks
 import Categorification.WeightedKLR.GallerySpan.Flip
 import Categorification.WeightedKLR.GallerySpan.Spanning
 import Categorification.WeightedKLR.GallerySpan.DotsBottom
+import Categorification.WeightedKLR.GalleryBasis.Twisted
+import Categorification.WeightedKLR.GalleryBasis.Leading
+import Categorification.WeightedKLR.GalleryBasis.Independence
 /-!
 # Categorification
 

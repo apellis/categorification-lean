@@ -1,0 +1,254 @@
+/-
+Copyright (c) 2026 Alex Ellis. All rights reserved.
+Released under Apache 2.0 license as described in the file LICENSE.
+-/
+import Categorification.WeightedKLR.KLR.SpacedCrossing
+import Categorification.KLR.BasisTheorem
+
+/-!
+# The weighted KLR algebra of the evenly spaced loadings is a KLR algebra
+
+B. Webster, *Weighted Khovanov–Lauda–Rouquier algebras*, arXiv:1209.2463v4, Proposition 2.14.
+
+For a weighted graph without loops (no loop of weight `0` at any colour and no edge whose head is
+its tail), Webster identifies the weighted KLR algebra on the evenly spaced loadings
+`B_s(i)` (`i ∈ Seq ν`, `s` larger than every `|ϑ_e|`) with the KLR algebra `R(ν)` for the
+polynomials
+`Q_{ij}(u, v) = ∏_{e : j → i} Q_e(u, v) · ∏_{e : i → j} Q_e(v, u)`,
+where the product runs over the edges in both directions between `i` and `j` (`e : j → i` means
+`t(e) = j`, `h(e) = i`). In the notation of `KLR.PolyRep` this is
+`Q a b = P b a · P a b (v, u)` for `P a b = ∏_{e : a → b} Q_e` (`WeightedGraph.edgeProd`).
+
+## The target algebra
+
+Two different sequences `i ≠ j` can give equivalent loadings `B_s(i)`, `B_s(j)` (this happens
+exactly when `i` and `j` differ by exchanging neighbouring positions of colours not joined by an
+edge). The gallery algebra has one idempotent per equivalence class of loadings, so the
+idempotents `e(i)` of `R(ν)` cannot be sent to distinct idempotents of the gallery algebra. The
+weighted KLR algebra on the family of loadings `(B_s(i))_{i ∈ Seq ν}`, with one idempotent per
+member of the family, is the corner `ε · M · ε` of the matrix algebra
+`M = Matrix (Seq ν) (Seq ν) A` over the gallery algebra `A`, cut out by the diagonal idempotent
+`ε = diag(e(B_s(i)))_i` (`spacedIdem`, `SpacedAlgebra`). Its `(j, i)` entry is the space of
+elements of the weighted KLR algebra from `B_s(i)` to `B_s(j)`.
+
+## Main definitions and results
+
+* `IsIdempotentElem.Corner` is a `k`-algebra when the ambient ring is.
+* `spacedIdem`, `SpacedAlgebra`: the weighted KLR algebra on the evenly spaced loadings.
+* `spacedRep`: its polynomial representation on `Seq ν → k[y_t]`.
+* `spacedHom`: the homomorphism `R(ν) → SpacedAlgebra` sending `e(i)` to the idempotent of
+  `B_s(i)`, the dot `x_a` to the dot on the strand at position `a`, and the crossing `ψ_n` to the
+  straight gallery `crossElt` exchanging the strands at positions `n` and `n + 1`.
+* `spacedRep_spacedHom`: `spacedHom` intertwines the polynomial representations.
+* `spacedHom_injective`: `spacedHom` is injective (Proposition 2.14, injectivity).
+-/
+
+namespace IsIdempotentElem
+
+variable {R A : Type*} [CommSemiring R] [Semiring A] [Algebra R A] {e : A}
+
+theorem corner_smul_mem (idem : IsIdempotentElem e) (c : R) {x : A}
+    (hx : x ∈ Subsemigroup.corner e) : c • x ∈ Subsemigroup.corner e := by
+  rw [Subsemigroup.mem_corner_iff idem] at hx ⊢
+  rw [mul_smul_comm, smul_mul_assoc, hx.1, hx.2]
+  exact ⟨rfl, rfl⟩
+
+variable (idem : IsIdempotentElem e)
+
+/-- The corner `e A e` of an `R`-algebra `A` is an `R`-algebra, with unit `e`. -/
+noncomputable instance : Algebra R idem.Corner where
+  smul c x := ⟨c • x.1, corner_smul_mem idem c x.2⟩
+  algebraMap :=
+    { toFun := fun c => ⟨c • e, corner_smul_mem idem c ((Subsemigroup.mem_corner_iff idem).2
+        ⟨idem.eq, idem.eq⟩)⟩
+      map_one' := Subtype.ext (one_smul R e)
+      map_mul' := fun a b => Subtype.ext (by
+        show (a * b) • e = (a • e) * (b • e)
+        rw [smul_mul_smul_comm, idem.eq])
+      map_zero' := Subtype.ext (zero_smul R e)
+      map_add' := fun a b => Subtype.ext (add_smul a b e) }
+  commutes' c x := Subtype.ext (by
+    have hx := (Subsemigroup.mem_corner_iff idem).1 x.2
+    show (c • e) * x.1 = x.1 * (c • e)
+    rw [smul_mul_assoc, mul_smul_comm, hx.1, hx.2])
+  smul_def' c x := Subtype.ext (by
+    have hx := (Subsemigroup.mem_corner_iff idem).1 x.2
+    show c • x.1 = (c • e) * x.1
+    rw [smul_mul_assoc, hx.1])
+
+theorem corner_val_smul (c : R) (x : idem.Corner) : (c • x : idem.Corner).1 = c • x.1 := rfl
+theorem corner_val_mul (x y : idem.Corner) : (x * y : idem.Corner).1 = x.1 * y.1 := rfl
+theorem corner_val_one : (1 : idem.Corner).1 = e := rfl
+theorem corner_val_add (x y : idem.Corner) : (x + y : idem.Corner).1 = x.1 + y.1 := rfl
+theorem corner_val_zero : (0 : idem.Corner).1 = 0 := rfl
+
+end IsIdempotentElem
+
+namespace Categorification.WeightedKLR
+
+open Equiv MvPolynomial FullChamber GalleryAlgebra
+
+variable {I : Type*} [DecidableEq I] {𝕜 : Type*} [Field 𝕜] [LinearOrder 𝕜]
+  [IsStrictOrderedRing 𝕜] {k : Type*} [CommRing k] {Γ : WeightedGraph I 𝕜 k} {ν : Multiset I}
+
+local notation "m" => Multiset.card ν
+local notation "ν'" => Multiset.toFinsupp ν
+
+section Renaming
+
+/-- Renaming the variables of `k[x_1, …, x_m]` to the strands, along the sequence `i`. -/
+noncomputable abbrev seqRen (i : KLR.Seq ν) :
+    MvPolynomial (Fin m) k →ₗ[k] PolyRing (Multiset.toFinsupp ν) k :=
+  (rename i.strandAt).toLinearMap
+
+theorem seqRen_injective (i : KLR.Seq ν) : Function.Injective (seqRen (k := k) i) :=
+  rename_injective _ i.strandAt_injective
+
+omit [Field 𝕜] [LinearOrder 𝕜] [IsStrictOrderedRing 𝕜] in
+/-- The crossing operator of the evenly spaced loadings is the KLR crossing operator for
+`P = edgeProd Γ`, after renaming variables to strands. -/
+theorem crossOp_seqRen (t : KLR.Seq ν) (n : ℕ) (h : n + 1 < m) (g : MvPolynomial (Fin m) k) :
+    crossOp k Γ t n h (seqRen t g) =
+      seqRen (TypeA.sadj m n • t) (KLR.PolyRep.crossComp Γ.edgeProd n h t g) := by
+  have hs0 := TypeA.sadj_apply_left h
+  have hs1 := TypeA.sadj_apply_right h
+  by_cases hc : t.1 ⟨n, by omega⟩ = t.1 ⟨n + 1, h⟩
+  · simp only [crossOp, KLR.PolyRep.crossComp, KLR.Seq.lbl, hc, ↓reduceIte]
+    rw [KLR.Seq.sadj_smul_of_eq t h hc]
+    simp only [seqRen, AlgHom.toLinearMap_apply]
+    rw [rename_ddiff t.strandAt_injective (by simp)]
+  · simp only [crossOp, KLR.PolyRep.crossComp, KLR.Seq.lbl, hc, ↓reduceIte]
+    simp only [seqRen, AlgHom.toLinearMap_apply, LinearMap.mulLeft_apply, LinearMap.comp_apply,
+      map_mul, rename_rename]
+    have hσ := KLR.Seq.lt_sadj_iff t h hc
+    congr 3
+    · funext c
+      fin_cases c
+      · show rightStrand t n h = (TypeA.sadj m n • t).strandAt ⟨n, by omega⟩
+        rw [← hs1, KLR.Seq.strandAt_smul t _ hσ]
+      · show leftStrand t n h = (TypeA.sadj m n • t).strandAt ⟨n + 1, h⟩
+        rw [← hs0, KLR.Seq.strandAt_smul t _ hσ]
+    · funext c
+      exact (KLR.Seq.strandAt_smul t _ hσ c).symm
+
+end Renaming
+
+section Algebra
+
+variable (k Γ ν) in
+/-- The diagonal idempotent `diag(e(B_s(i)))_i` of the matrix algebra over the gallery algebra. -/
+noncomputable def spacedIdem : Matrix (KLR.Seq ν) (KLR.Seq ν) (GalleryAlgebra k Γ ν') :=
+  Matrix.diagonal fun i => e (spacedFull Γ i)
+
+theorem isIdempotentElem_spacedIdem : IsIdempotentElem (spacedIdem k Γ ν) := by
+  rw [IsIdempotentElem, spacedIdem, Matrix.diagonal_mul_diagonal]
+  congr 1
+  funext i
+  simp [e_mul_e]
+
+variable (k Γ ν) in
+/-- The weighted KLR algebra on the family of evenly spaced loadings `(B_s(i))_{i ∈ Seq ν}`:
+the corner of `Matrix (Seq ν) (Seq ν) A` (`A` the gallery algebra) at `spacedIdem`. Its
+`(j, i)` entry lies in `e(B_s(j)) A e(B_s(i))`. -/
+abbrev SpacedAlgebra : Type _ :=
+  (isIdempotentElem_spacedIdem (k := k) (Γ := Γ) (ν := ν)).Corner
+
+theorem SpacedAlgebra.e_mul (x : SpacedAlgebra k Γ ν) (j i : KLR.Seq ν) :
+    e (spacedFull Γ j) * x.1 j i = x.1 j i := by
+  have h := ((Subsemigroup.mem_corner_iff isIdempotentElem_spacedIdem).1 x.2).1
+  have := congrFun (congrFun h j) i
+  simpa [spacedIdem, Matrix.diagonal_mul] using this
+
+theorem SpacedAlgebra.mul_e (x : SpacedAlgebra k Γ ν) (j i : KLR.Seq ν) :
+    x.1 j i * e (spacedFull Γ i) = x.1 j i := by
+  have h := ((Subsemigroup.mem_corner_iff isIdempotentElem_spacedIdem).1 x.2).2
+  have := congrFun (congrFun h j) i
+  simpa [spacedIdem, Matrix.mul_diagonal] using this
+
+theorem galleryRep_apply_of_mul_e (hΓ : Γ.PSymm) {x : GalleryAlgebra k Γ ν'}
+    {C : FullChamber Γ ν'} (hx : x * e C = x) (v : FullChamber Γ ν' → PolyRing ν' k) :
+    galleryRep k hΓ x v = galleryRep k hΓ x (Pi.single C (v C)) := by
+  conv_lhs => rw [← hx]
+  rw [map_mul, galleryRep_e, Module.End.mul_apply, blk_apply, LinearMap.id_apply]
+
+theorem galleryRep_apply_of_e_mul (hΓ : Γ.PSymm) {x : GalleryAlgebra k Γ ν'}
+    {C : FullChamber Γ ν'} (hx : e C * x = x) (v : FullChamber Γ ν' → PolyRing ν' k) :
+    galleryRep k hΓ x v = Pi.single C (galleryRep k hΓ x v C) := by
+  conv_lhs => rw [← hx]
+  rw [map_mul, galleryRep_e, Module.End.mul_apply, blk_apply, LinearMap.id_apply]
+
+variable (k) in
+/-- The polynomial representation of the matrix algebra over the gallery algebra on
+`Seq ν → k[y_t]`: the entry `c j i` acts from the `i`-th copy, placed in the copy of
+`B_s(i)`, to the `j`-th copy, read off at the copy of `B_s(j)`. -/
+noncomputable def spacedOp (hΓ : Γ.PSymm)
+    (c : Matrix (KLR.Seq ν) (KLR.Seq ν) (GalleryAlgebra k Γ ν')) :
+    Module.End k (KLR.Seq ν → PolyRing ν' k) :=
+  LinearMap.pi fun j => ∑ i,
+    (LinearMap.proj (R := k) (φ := fun _ : FullChamber Γ ν' => PolyRing ν' k) (spacedFull Γ j)) ∘ₗ
+      galleryRep k hΓ (c j i) ∘ₗ
+      LinearMap.single k (fun _ : FullChamber Γ ν' => PolyRing ν' k) (spacedFull Γ i) ∘ₗ
+      LinearMap.proj (R := k) (φ := fun _ : KLR.Seq ν => PolyRing ν' k) i
+
+theorem spacedOp_apply (hΓ : Γ.PSymm) (c : Matrix (KLR.Seq ν) (KLR.Seq ν) (GalleryAlgebra k Γ ν'))
+    (g : KLR.Seq ν → PolyRing ν' k) (j : KLR.Seq ν) :
+    spacedOp k hΓ c g j =
+      ∑ i, galleryRep k hΓ (c j i) (Pi.single (spacedFull Γ i) (g i)) (spacedFull Γ j) := by
+  simp [spacedOp, LinearMap.sum_apply]
+
+theorem spacedOp_single (hΓ : Γ.PSymm)
+    (c : Matrix (KLR.Seq ν) (KLR.Seq ν) (GalleryAlgebra k Γ ν')) (i : KLR.Seq ν)
+    (p : PolyRing ν' k) (j : KLR.Seq ν) :
+    spacedOp k hΓ c (Pi.single i p) j =
+      galleryRep k hΓ (c j i) (Pi.single (spacedFull Γ i) p) (spacedFull Γ j) := by
+  rw [spacedOp_apply, Finset.sum_eq_single i]
+  · rw [Pi.single_eq_same]
+  · intro i' _ hi'
+    rw [Pi.single_eq_of_ne hi', Pi.single_zero, map_zero, Pi.zero_apply]
+  · intro h
+    exact absurd (Finset.mem_univ i) h
+
+theorem spacedOp_add (hΓ : Γ.PSymm)
+    (c d : Matrix (KLR.Seq ν) (KLR.Seq ν) (GalleryAlgebra k Γ ν')) :
+    spacedOp k hΓ (c + d) = spacedOp k hΓ c + spacedOp k hΓ d := by
+  refine LinearMap.ext fun g => funext fun j => ?_
+  simp only [spacedOp_apply, LinearMap.add_apply, Pi.add_apply, Matrix.add_apply, map_add,
+    ← Finset.sum_add_distrib]
+
+theorem spacedOp_smul (hΓ : Γ.PSymm) (a : k)
+    (c : Matrix (KLR.Seq ν) (KLR.Seq ν) (GalleryAlgebra k Γ ν')) :
+    spacedOp k hΓ (a • c) = a • spacedOp k hΓ c := by
+  refine LinearMap.ext fun g => funext fun j => ?_
+  simp only [spacedOp_apply, LinearMap.smul_apply, Pi.smul_apply, Matrix.smul_apply, map_smul,
+    Finset.smul_sum]
+
+theorem spacedOp_spacedIdem (hΓ : Γ.PSymm) : spacedOp k hΓ (spacedIdem k Γ ν) = 1 := by
+  refine LinearMap.ext fun g => funext fun j => ?_
+  rw [spacedOp_apply, Finset.sum_eq_single j]
+  · simp [spacedIdem, galleryRep_e, blk_apply]
+  · intro i _ hij
+    simp [spacedIdem, Matrix.diagonal_apply_ne _ (Ne.symm hij)]
+  · intro h
+    exact absurd (Finset.mem_univ j) h
+
+theorem spacedOp_mul (hΓ : Γ.PSymm)
+    {c : Matrix (KLR.Seq ν) (KLR.Seq ν) (GalleryAlgebra k Γ ν')}
+    (hc : ∀ j i, c j i * e (spacedFull Γ i) = c j i)
+    (d : Matrix (KLR.Seq ν) (KLR.Seq ν) (GalleryAlgebra k Γ ν')) :
+    spacedOp k hΓ (c * d) = spacedOp k hΓ c * spacedOp k hΓ d := by
+  refine LinearMap.ext fun g => funext fun l => ?_
+  have key : ∀ j, galleryRep k hΓ (c l j) (Pi.single (spacedFull Γ j) (spacedOp k hΓ d g j)) =
+      ∑ i, galleryRep k hΓ (c l j)
+        (galleryRep k hΓ (d j i) (Pi.single (spacedFull Γ i) (g i))) := by
+    intro j
+    rw [← map_sum, galleryRep_apply_of_mul_e hΓ (hc l j)
+      (∑ i, galleryRep k hΓ (d j i) (Pi.single (spacedFull Γ i) (g i))),
+      Finset.sum_apply, spacedOp_apply]
+  rw [Module.End.mul_apply, spacedOp_apply, spacedOp_apply]
+  simp only [key, Matrix.mul_apply, map_sum, map_mul, LinearMap.sum_apply, Finset.sum_apply,
+    Module.End.mul_apply]
+  exact Finset.sum_comm
+
+end Algebra
+
+end Categorification.WeightedKLR

@@ -30,16 +30,18 @@ by (†)) going to `loop`.
 
 * `GalleryAlgebra.cornerBasisOfStanding`, `GalleryAlgebra.chamberBasisOfStanding`: the basis of
   `e D * A * e C` (diagrams from `C` to `D`).
-* `GalleryAlgebra.weightedKLRBasisOfStanding`: the basis of Webster's algebra.
+* `GalleryAlgebra.weightedKLRBasisOfStanding`, `GalleryAlgebra.weightedKLRChamberBasisOfStanding`:
+  the basis of Webster's algebra, indexed by rank-ordered full chambers and by Webster's chambers.
 * `GalleryAlgebra.cornerPolyEquivOfStanding`: freeness over the polynomials in the dots.
-* `GalleryAlgebra.straightBasisOfStanding`, `GalleryAlgebra.straightWeightedKLRBasis`: the
-  bases of the gallery algebra and of Webster's algebra for the straight-line choice of the
-  diagrams `b_π`.
+* `GalleryAlgebra.straightBasisOfStanding`, `GalleryAlgebra.straightWeightedKLRBasis`,
+  `GalleryAlgebra.straightWeightedKLRChamberBasis`: the bases of the gallery algebra and of
+  Webster's algebra for the straight-line choice of the diagrams `b_π`.
 
 ## Main results
 
-* `GalleryAlgebra.exists_weightedKLRBasis`: Theorem 2.8 for Webster's algebra, for some choice of
-  the diagrams `b_π`.
+* `GalleryAlgebra.exists_weightedKLRBasis`, `GalleryAlgebra.exists_weightedKLRChamberBasis`:
+  Theorem 2.8 for Webster's algebra, for some choice of the diagrams `b_π`; the second in
+  Webster's indexing (pairs of chambers, permutations, monomials).
 -/
 
 namespace Categorification.WeightedKLR
@@ -103,6 +105,23 @@ theorem weightedKLRBasisOfStanding_apply (C D : RankChamber Γ ν) (g : ColPerm 
       r g (g⁻¹ • D.1) * segGallery P C.1 (g⁻¹ • D.1) * poly (monomial m 1) :=
   weightedKLRBasis_apply _ _ _ _ _ _ C D g m
 
+/-- **Webster, Theorem 2.8 (basis theorem)** for Webster's weighted KLR algebra, in Webster's
+indexing and under Webster's hypotheses: for chambers (loadings up to equivalence) `c` at the
+bottom and `d` at the top, colour-preserving permutations `π` and monomials `y^m` in the dots at
+the bottom, the elements `r π (π⁻¹ • d) * segGallery P c (π⁻¹ • d) * poly (y^m)` form a
+`k`-basis. -/
+noncomputable def weightedKLRChamberBasisOfStanding :
+    Module.Basis (Chamber Γ ν × Chamber Γ ν × ColPerm ν × (Strand ν →₀ ℕ)) k
+      (weightedKLR k Γ ν) :=
+  weightedKLRChamberBasis hP hD hZ hS.psymm hS.isRegular_factor hS.isRegular_loopFactor'
+
+@[simp]
+theorem weightedKLRChamberBasisOfStanding_apply (c d : Chamber Γ ν) (π : ColPerm ν)
+    (m : Strand ν →₀ ℕ) :
+    (weightedKLRChamberBasisOfStanding hP hD hZ hS (c, d, π, m) : GalleryAlgebra k Γ ν) =
+      r π (π⁻¹ • d.toFull) * segGallery P c.toFull (π⁻¹ • d.toFull) * poly (monomial m 1) :=
+  weightedKLRChamberBasis_apply _ _ _ _ _ _ c d π m
+
 /-- **Webster, Theorem 2.8**, as freeness over the polynomials in the dots at the bottom, under
 Webster's hypotheses: every element of `e D * A * e C` is `∑_g b(g, 1) * poly (f g)` for unique
 polynomials `f g`. -/
@@ -130,6 +149,23 @@ theorem exists_weightedKLRBasis (hD : Γ.Dagger) (hZ : Γ.NoZeroLoops) (hS : Γ.
   obtain ⟨P, hP, -⟩ := exists_span_segGallery (k := k) hD hZ
   exact ⟨P, weightedKLRBasisOfStanding hP hD hZ hS,
     weightedKLRBasisOfStanding_apply hP hD hZ hS⟩
+
+/-- **Webster, Theorem 2.8 (basis theorem)** for Webster's weighted KLR algebra, in Webster's
+indexing and under Webster's hypotheses (the standing hypothesis of §2.1 and (†)): for some
+choice of simple segments `P` between the full chambers, the elements
+`r π (π⁻¹ • d) * segGallery P c (π⁻¹ • d) * poly (y^m)`, for chambers (loadings up to
+equivalence) `c` at the bottom and `d` at the top, colour-preserving permutations `π` and
+monomials `y^m`, form a `k`-basis. -/
+theorem exists_weightedKLRChamberBasis (hD : Γ.Dagger) (hZ : Γ.NoZeroLoops) (hS : Γ.Standing) :
+    ∃ P : FullChamber Γ ν → FullChamber Γ ν → (Strand ν → 𝕜) × (Strand ν → 𝕜),
+      ∃ b : Module.Basis (Chamber Γ ν × Chamber Γ ν × ColPerm ν × (Strand ν →₀ ℕ)) k
+        (weightedKLR k Γ ν), ∀ c d π m,
+        (b (c, d, π, m) : GalleryAlgebra k Γ ν) =
+          r π (π⁻¹ • d.toFull) * segGallery P c.toFull (π⁻¹ • d.toFull) *
+            poly (monomial m 1) := by
+  obtain ⟨P, hP, -⟩ := exists_span_segGallery (k := k) hD hZ
+  exact ⟨P, weightedKLRChamberBasisOfStanding hP hD hZ hS,
+    weightedKLRChamberBasisOfStanding_apply hP hD hZ hS⟩
 
 section Straight
 
@@ -167,6 +203,22 @@ theorem straightWeightedKLRBasis_apply (C D : RankChamber Γ ν) (g : ColPerm ν
       r g (g⁻¹ • D.1) * segGallery (straightSegment ρ pt) C.1 (g⁻¹ • D.1) *
         poly (monomial m 1) :=
   weightedKLRBasisOfStanding_apply _ _ _ _ C D g m
+
+/-- **Webster, Theorem 2.8 (basis theorem)** for Webster's weighted KLR algebra, in Webster's
+indexing (chambers `c`, `d`, permutations `π`, monomials `m`), with the straight-line choice of
+the diagrams `b_π`, under Webster's hypotheses. -/
+noncomputable def straightWeightedKLRChamberBasis :
+    Module.Basis (Chamber Γ ν × Chamber Γ ν × ColPerm ν × (Strand ν →₀ ℕ)) k
+      (weightedKLR k Γ ν) :=
+  weightedKLRChamberBasisOfStanding (isChamberSegment_straightSegment hD hZ hρ hρ0 hpt) hD hZ hS
+
+@[simp]
+theorem straightWeightedKLRChamberBasis_apply (c d : Chamber Γ ν) (π : ColPerm ν)
+    (m : Strand ν →₀ ℕ) :
+    (straightWeightedKLRChamberBasis hD hZ hS hρ hρ0 hpt (c, d, π, m) : GalleryAlgebra k Γ ν) =
+      r π (π⁻¹ • d.toFull) * segGallery (straightSegment ρ pt) c.toFull (π⁻¹ • d.toFull) *
+        poly (monomial m 1) :=
+  weightedKLRChamberBasisOfStanding_apply _ _ _ _ c d π m
 
 end Straight
 

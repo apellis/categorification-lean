@@ -200,6 +200,22 @@ theorem wkGraph_noZeroLoops : wkGraph.NoZeroLoops := fun _ h _ => by simp [wkGra
 example (ν : Fin 2 →₀ ℕ) := WeightedKLR.GalleryAlgebra.exists_weightedKLRBasis (k := ℚ)
   (ν := ν) wkGraph_dagger wkGraph_noZeroLoops wkGraph_standing
 
+/-- Webster, Theorem 2.8, for Webster's algebra under Webster's hypotheses, in Webster's indexing
+(pairs of chambers, permutations, monomials). -/
+example (ν : Fin 2 →₀ ℕ) := WeightedKLR.GalleryAlgebra.exists_weightedKLRChamberBasis (k := ℚ)
+  (ν := ν) wkGraph_dagger wkGraph_noZeroLoops wkGraph_standing
+
+/-- Webster's chambers are the rank-ordered full chambers. -/
+example (ν : Fin 2 →₀ ℕ) := WeightedKLR.GalleryAlgebra.chamberEquiv wkGraph ν
+
+/-- The straight-line choice, in Webster's indexing. -/
+example (ν : Fin 2 →₀ ℕ) := WeightedKLR.GalleryAlgebra.straightWeightedKLRChamberBasis (k := ℚ)
+    (ν := ν) wkGraph_dagger wkGraph_noZeroLoops wkGraph_standing
+    (ρ := fun s => (Fintype.equivFin _ s).val + 1)
+    (fun _ _ h => (Fintype.equivFin _).injective (Fin.ext (by simpa using h)))
+    (fun _ => Nat.succ_ne_zero _)
+    (pt := fun C => C.2.choose) (fun C => C.2.choose_spec)
+
 /-- The straight-line choice, for Webster's algebra and for the corners. -/
 example (ν : Fin 2 →₀ ℕ) := WeightedKLR.GalleryAlgebra.straightWeightedKLRBasis (k := ℚ)
     (ν := ν) wkGraph_dagger wkGraph_noZeroLoops wkGraph_standing

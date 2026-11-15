@@ -56,7 +56,7 @@ theorem rename_colPerm_injective (g : ColPerm ν) :
 
 omit [DecidableEq I] in
 /-- Relabelling the variables preserves non-zero-divisors. -/
-theorem IsRegular.rename_colPerm {a : PolyRing ν k} (ha : IsRegular a) (g : ColPerm ν) :
+theorem isRegular_rename_colPerm {a : PolyRing ν k} (ha : IsRegular a) (g : ColPerm ν) :
     IsRegular (rename ⇑g.1 a) := by
   suffices IsLeftRegular (rename ⇑g.1 a) from ⟨this, this.right_of_commute <| Commute.all _⟩
   intro p q (hpq : rename ⇑g.1 a * p = rename ⇑g.1 a * q)

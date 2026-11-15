@@ -301,4 +301,133 @@ theorem prod_wallCoeff_joinsPair (C : FullChamber Γ ν') {u v : Strand ν'} (hu
 
 end Walls
 
+section Element
+
+omit [DecidableEq I] [Field 𝕜] [LinearOrder 𝕜] [IsStrictOrderedRing 𝕜] in
+theorem _root_.List.eq_singleton_of_nodup {α : Type*} {l : List α} {a : α} (hd : l.Nodup)
+    (ha : a ∈ l) (h : ∀ x ∈ l, x = a) : l = [a] := by
+  match l, hd with
+  | [], _ => simp at ha
+  | [x], _ => rw [h x (by simp)]
+  | x :: y :: t, hd =>
+    exact absurd (by rw [h x (by simp), ← h y (by simp)]; simp) (List.nodup_cons.1 hd).1
+
+/-- When the strands at positions `n` and `n + 1` of `i` have the same colour, they form a
+diagonal. -/
+def crossDiag (i : KLR.Seq ν) (n : ℕ) (h : n + 1 < m) (hc : i.1 ⟨n, by omega⟩ = i.1 ⟨n + 1, h⟩) :
+    Diag (Multiset.toFinsupp ν) :=
+  ⟨(leftStrand i n h, rightStrand i n h), Subtype.ext hc,
+    i.rank_lt_rank (Fin.mk_lt_mk.2 (Nat.lt_succ_self n)) hc⟩
+
+variable (k Γ) in
+/-- The crossing of the strands at positions `n` and `n + 1` in the weighted KLR algebra on the
+evenly spaced loadings: the straight gallery exchanging the two strands, followed, when they
+have the same colour, by the relabelling exchanging them. It goes from the copy of `B_s(i)` to
+the copy of `B_s(s_n i)`. -/
+noncomputable def crossElt (i : KLR.Seq ν) (n : ℕ) (h : n + 1 < m) :
+    GalleryAlgebra k Γ (Multiset.toFinsupp ν) :=
+  if hc : i.1 ⟨n, by omega⟩ = i.1 ⟨n + 1, h⟩ then
+    r (crossDiag i n h hc).refl ((spacedFull Γ i).flips (crossWord Γ i n h)) *
+      galList k (spacedFull Γ i) (crossWord Γ i n h)
+  else galList k (spacedFull Γ i) (crossWord Γ i n h)
+
+variable (k Γ) in
+/-- The operator of the crossing: the divided difference `∂_{u v}` for strands `u, v` of the same
+colour, and multiplication by `∏_{e : u → v} Q_e(y_v, y_u)` otherwise. -/
+noncomputable def crossOp (i : KLR.Seq ν) (n : ℕ) (h : n + 1 < m) :
+    PolyRing (Multiset.toFinsupp ν) k →ₗ[k] PolyRing (Multiset.toFinsupp ν) k :=
+  if i.1 ⟨n, by omega⟩ = i.1 ⟨n + 1, h⟩ then ddiff (leftStrand i n h) (rightStrand i n h)
+  else LinearMap.mulLeft k
+    (rename ![rightStrand i n h, leftStrand i n h] (Γ.edgeProd (i.1 ⟨n, by omega⟩) (i.1 ⟨n + 1, h⟩)))
+
+/-- In the polynomial representation the crossing acts from the copy of `B_s(i)` to the copy of
+`B_s(s_n i)` by `crossOp`. -/
+theorem galleryRep_crossElt (hΓ : Γ.PSymm) (hD : Γ.Dagger) (hl : ∀ c, Γ.loop c = none)
+    (hE : ∀ e, Γ.head e ≠ Γ.tail e) (i : KLR.Seq ν) (n : ℕ) (h : n + 1 < m) :
+    galleryRep k hΓ (crossElt k Γ i n h) =
+      blk k (spacedFull Γ i) (spacedFull Γ (TypeA.sadj m n • i)) (crossOp k Γ i n h) := by
+  have hZ : Γ.NoZeroLoops := fun e he => absurd he (hE e)
+  obtain ⟨hgood, hflips⟩ := goodWord_crossWord (Γ := Γ) i n h hD hZ
+  have hne := leftStrand_ne_rightStrand i n h
+  by_cases hc : i.1 ⟨n, by omega⟩ = i.1 ⟨n + 1, h⟩
+  · set d := crossDiag i n h hc
+    have hw : crossWord Γ i n h = [.inr d] := by
+      refine List.eq_singleton_of_nodup (nodup_crossWord i n h) ?_ fun x hx => ?_
+      · exact (mem_crossWord i n h).2 (Or.inl ⟨rfl, rfl⟩)
+      · have hj := (mem_crossWord i n h).1 hx
+        rcases x with w | d'
+        · exfalso
+          rcases hj with ⟨hs, ht⟩ | ⟨hs, ht⟩
+          · apply hE w.edge
+            have e1 : w.src.label = Γ.head w.edge := w.2.1
+            have e2 : w.tgt.label = Γ.tail w.edge := w.2.2.1
+            rw [← e1, ← e2, hs, ht]
+            exact hc
+          · apply hE w.edge
+            have e1 : w.src.label = Γ.head w.edge := w.2.1
+            have e2 : w.tgt.label = Γ.tail w.edge := w.2.2.1
+            rw [← e1, ← e2, hs, ht]
+            exact hc.symm
+        · rcases hj with ⟨hs, ht⟩ | ⟨hs, ht⟩
+          · exact congrArg Sum.inr (Subtype.ext (Prod.ext hs ht))
+          · exfalso
+            have h1 := d'.2.2
+            have h2 : (leftStrand i n h).2.val < (rightStrand i n h).2.val := d.2.2
+            change d'.fst.2.val < d'.snd.2.val at h1
+            rw [hs, ht] at h1
+            omega
+    obtain ⟨hf, ha, -⟩ := (hw ▸ hgood).cons
+    have hC : d.refl • (spacedFull Γ i).flips [.inr d] =
+        spacedFull Γ (TypeA.sadj m n • i) := by
+      rw [flips_cons, flips_nil, ← ha.refl_smul, smul_smul, Diag.refl_mul_refl, one_smul,
+        KLR.Seq.sadj_smul_of_eq i h hc]
+    simp only [crossElt, hc, ↓reduceDIte, crossOp, ↓reduceIte]
+    rw [hw, map_mul, galleryRep_r, galleryRep_galList, Module.End.mul_eq_comp, blk_comp_blk, hC]
+    congr 1
+    rw [opList, opList, LinearMap.id_comp, stepOp_inr ha, psiOp_of_none (hl _)]
+    have h1 : (spacedFull Γ i).1 (.inr d) = true := rfl
+    refine LinearMap.ext fun f => ?_
+    simp only [LinearMap.comp_apply, Diag.left, Diag.right, h1, ↓reduceIte]
+    exact rename_swap_ddiff hne _
+  · have hw : ∀ d, (Sum.inr d : Hyp Γ _) ∉ crossWord Γ i n h := by
+      intro d hd
+      rcases (mem_crossWord i n h).1 hd with ⟨hs, ht⟩ | ⟨hs, ht⟩
+      · exact hc (by
+          have := d.2.1
+          change d.fst.1 = d.snd.1 at this
+          rw [hs, ht] at this
+          exact congrArg Subtype.val this)
+      · exact hc (by
+          have := d.2.1
+          change d.fst.1 = d.snd.1 at this
+          rw [hs, ht] at this
+          exact (congrArg Subtype.val this).symm)
+    have hflip : (spacedFull Γ i).flips (crossWord Γ i n h) =
+        spacedFull Γ (TypeA.sadj m n • i) := by
+      apply Subtype.ext
+      rw [hflips, ← fullSigns_spacedPos]
+      congr 1
+      funext t
+      simp only [Function.comp_apply, KLR.Seq.spacedPos]
+      rw [KLR.Seq.posOf_swap i h, KLR.Seq.posOf_smul i _ (KLR.Seq.lt_sadj_iff i h hc)]
+    simp only [crossElt, hc, ↓reduceDIte, crossOp, ↓reduceIte]
+    rw [galleryRep_galList, hflip, opList_of_walls hgood hw]
+    congr 2
+    classical
+    rw [← List.prod_toFinset _ (nodup_crossWord i n h)]
+    have hset : (crossWord Γ i n h).toFinset =
+        Finset.univ.filter (fun x : Hyp Γ _ => x.JoinsPair (leftStrand i n h) (rightStrand i n h)) := by
+      ext x
+      simp [mem_crossWord]
+    rw [hset]
+    refine prod_wallCoeff_joinsPair (k := k) (spacedFull Γ i) hne ?_ ?_
+    · intro w hs ht
+      rw [KLR.Seq.toFull_spacedChamber_apply_inl, hs, ht]
+      simp [Fin.lt_def]
+    · intro w hs ht
+      rw [KLR.Seq.toFull_spacedChamber_apply_inl, hs, ht]
+      simp [Fin.lt_def]
+
+end Element
+
 end Categorification.WeightedKLR

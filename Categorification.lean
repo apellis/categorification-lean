@@ -822,6 +822,7 @@ import Categorification.WeightedKLR.Segment
 import Categorification.WeightedKLR.Segment.Blocks
 import Categorification.WeightedKLR.Segment.Extension
 import Categorification.WeightedKLR.Segment.Perturb
+import Categorification.WeightedKLR.Segment.Sweep
 /-!
 # Categorification
 

@@ -390,4 +390,155 @@ theorem stepOp_of_not {C C' : FullChamber Γ ν} (hh : ∀ h, ¬C.Adjacent C' h)
 
 end Steps
 
+/-! ### Relabelling hyperplanes and steps -/
+
+section Transport
+
+variable [Field 𝕜] [LinearOrder 𝕜] [IsStrictOrderedRing 𝕜]
+
+omit [DecidableEq I] [Field 𝕜] [LinearOrder 𝕜] [IsStrictOrderedRing 𝕜] in
+theorem ColPerm.mul_inv_apply (g h : ColPerm ν) (s : Strand ν) :
+    (g * h).1⁻¹ s = h.1⁻¹ (g.1⁻¹ s) := rfl
+
+omit [DecidableEq I] in
+theorem Diag.eq_of_pair {d d' : Diag ν}
+    (h : (d.fst = d'.fst ∧ d.snd = d'.snd) ∨ (d.fst = d'.snd ∧ d.snd = d'.fst)) : d = d' := by
+  rcases h with ⟨h₁, h₂⟩ | ⟨h₁, h₂⟩
+  · exact Subtype.ext (Prod.ext h₁ h₂)
+  · exfalso
+    have a := d.2.2
+    have b := d'.2.2
+    change d.fst.2.val < d.snd.2.val at a
+    change d'.fst.2.val < d'.snd.2.val at b
+    rw [h₁, h₂] at a
+    omega
+
+omit [DecidableEq I] in
+theorem Diag.comap_spec (g : ColPerm ν) (d : Diag ν) :
+    ((d.comap g).2 = false ∧ (d.comap g).1.fst = g.1⁻¹ d.fst ∧
+      (d.comap g).1.snd = g.1⁻¹ d.snd) ∨
+    ((d.comap g).2 = true ∧ (d.comap g).1.fst = g.1⁻¹ d.snd ∧
+      (d.comap g).1.snd = g.1⁻¹ d.fst) := by
+  unfold Diag.comap
+  split_ifs
+  · exact Or.inl ⟨rfl, rfl, rfl⟩
+  · exact Or.inr ⟨rfl, rfl, rfl⟩
+
+omit [DecidableEq I] in
+theorem Diag.comap_one (d : Diag ν) : (d.comap 1).1 = d := by
+  apply Diag.eq_of_pair
+  rcases Diag.comap_spec 1 d with ⟨-, h₁, h₂⟩ | ⟨-, h₁, h₂⟩
+  · exact Or.inl ⟨h₁, h₂⟩
+  · exact Or.inr ⟨h₁, h₂⟩
+
+omit [DecidableEq I] in
+theorem Diag.comap_mul (g h : ColPerm ν) (d : Diag ν) :
+    (d.comap (g * h)).1 = ((d.comap g).1.comap h).1 := by
+  apply Diag.eq_of_pair
+  rcases Diag.comap_spec (g * h) d with ⟨-, a₁, a₂⟩ | ⟨-, a₁, a₂⟩ <;>
+  rcases Diag.comap_spec h (d.comap g).1 with ⟨-, b₁, b₂⟩ | ⟨-, b₁, b₂⟩ <;>
+  rcases Diag.comap_spec g d with ⟨-, c₁, c₂⟩ | ⟨-, c₁, c₂⟩ <;>
+  simp only [a₁, a₂, b₁, b₂, c₁, c₂, ColPerm.mul_inv_apply, and_self, true_or, or_true]
+
+namespace Hyp
+
+omit [DecidableEq I] [Field 𝕜] [LinearOrder 𝕜] [IsStrictOrderedRing 𝕜] in
+theorem comap_one (x : Hyp Γ ν) : x.comap 1 = x := by
+  rcases x with w | d
+  · rfl
+  · exact congrArg Sum.inr (Diag.comap_one d)
+
+omit [DecidableEq I] [Field 𝕜] [LinearOrder 𝕜] [IsStrictOrderedRing 𝕜] in
+theorem comap_mul (g h : ColPerm ν) (x : Hyp Γ ν) : x.comap (g * h) = (x.comap g).comap h := by
+  rcases x with w | d
+  · rfl
+  · exact congrArg Sum.inr (Diag.comap_mul g h d)
+
+omit [DecidableEq I] [Field 𝕜] [LinearOrder 𝕜] [IsStrictOrderedRing 𝕜] in
+@[simp] theorem comap_inv_comap (g : ColPerm ν) (x : Hyp Γ ν) : (x.comap g⁻¹).comap g = x := by
+  rw [← comap_mul, inv_mul_cancel, comap_one]
+
+omit [DecidableEq I] [Field 𝕜] [LinearOrder 𝕜] [IsStrictOrderedRing 𝕜] in
+@[simp] theorem comap_comap_inv (g : ColPerm ν) (x : Hyp Γ ν) : (x.comap g).comap g⁻¹ = x := by
+  rw [← comap_mul, mul_inv_cancel, comap_one]
+
+end Hyp
+
+namespace FullChamber
+
+omit [DecidableEq I] in
+theorem smul_apply (g : ColPerm ν) (C : FullChamber Γ ν) (x : Hyp Γ ν) :
+    (g • C).1 x = if x.reverses g then !C.1 (x.comap g) else C.1 (x.comap g) := rfl
+
+omit [DecidableEq I] in
+theorem Adjacent.smul {C C' : FullChamber Γ ν} {h : Hyp Γ ν} (hh : C.Adjacent C' h)
+    (g : ColPerm ν) : (g • C).Adjacent (g • C') (h.comap g⁻¹) := by
+  refine ⟨?_, fun x hx => ?_⟩
+  · rw [smul_apply, smul_apply, Hyp.comap_inv_comap]
+    have := hh.1
+    split_ifs <;> simpa using this
+  · have hx' : x.comap g ≠ h := fun e => hx (by rw [← e, Hyp.comap_comap_inv])
+    rw [smul_apply, smul_apply, hh.2 _ hx']
+
+omit [DecidableEq I] in
+theorem Adjacent.of_smul {C C' : FullChamber Γ ν} {h : Hyp Γ ν} (g : ColPerm ν)
+    (hh : (g • C).Adjacent (g • C') h) : C.Adjacent C' (h.comap g) := by
+  have := hh.smul g⁻¹
+  rwa [inv_smul_smul, inv_smul_smul, inv_inv] at this
+
+end FullChamber
+
+/-- Renaming the variables by a relabelling. -/
+noncomputable abbrev ren (g : ColPerm ν) : PolyRing ν k →ₗ[k] PolyRing ν k :=
+  (rename (R := k) ⇑g.1).toLinearMap
+
+omit [DecidableEq I] [Field 𝕜] [LinearOrder 𝕜] [IsStrictOrderedRing 𝕜] in
+theorem Wall.rename_factor_comap (g : ColPerm ν) (w : Wall Γ ν) :
+    rename ⇑g.1 (w.comap g).factor = w.factor (k := k) := by
+  rw [Wall.factor_eq, Wall.factor_eq, loopFactor_rename]
+  show loopFactor _ (g.1 (g.1⁻¹ w.src)) (g.1 (g.1⁻¹ w.tgt)) = _
+  rw [show ∀ x, g.1 (g.1⁻¹ x) = x from fun x => g.1.apply_symm_apply x,
+    show ∀ x, g.1 (g.1⁻¹ x) = x from fun x => g.1.apply_symm_apply x]
+  rfl
+
+omit [Field 𝕜] [LinearOrder 𝕜] [IsStrictOrderedRing 𝕜] in
+theorem ren_comp_hypOp (g : ColPerm ν) (x : Hyp Γ ν) (σ : Bool) :
+    ren (k := k) g ∘ₗ hypOp Γ (x.comap g) σ (!σ) =
+      hypOp Γ x (if x.reverses g then !σ else σ) (!(if x.reverses g then !σ else σ)) ∘ₗ
+        ren g := by
+  rcases x with w | d
+  · simp only [Hyp.comap, Hyp.reverses, Bool.false_eq_true, ↓reduceIte, hypOp,
+      wallOp_eq_mulLeft]
+    refine LinearMap.ext fun f => ?_
+    simp only [LinearMap.comp_apply, LinearMap.mulLeft_apply, AlgHom.toLinearMap_apply,
+      map_mul]
+    split_ifs
+    · rw [Wall.rename_factor_comap]
+    · rw [map_one]
+  · simp only [Hyp.comap, Hyp.reverses, hypOp]
+    refine LinearMap.ext fun f => ?_
+    simp only [LinearMap.comp_apply, AlgHom.toLinearMap_apply]
+    have hne : ∀ τ : Bool, (if τ then (d.comap g).1.fst else (d.comap g).1.snd) ≠
+        (if τ then (d.comap g).1.snd else (d.comap g).1.fst) := by
+      intro τ
+      cases τ
+      · exact (d.comap g).1.fst_ne_snd.symm
+      · exact (d.comap g).1.fst_ne_snd
+    rw [psiOp_rename g.1 (ColPerm.apply_fst g) (hne σ)]
+    rcases Diag.comap_spec g d with ⟨e, h₁, h₂⟩ | ⟨e, h₁, h₂⟩ <;>
+      cases σ <;> simp [e, h₁, h₂]
+
+theorem ren_comp_stepOp (g : ColPerm ν) (C C' : FullChamber Γ ν) :
+    ren (k := k) g ∘ₗ stepOp Γ C C' = stepOp Γ (g • C) (g • C') ∘ₗ ren g := by
+  by_cases hC : ∃ h, C.Adjacent C' h
+  · obtain ⟨h, hh⟩ := hC
+    rw [stepOp_eq hh, stepOp_eq (hh.smul g), FullChamber.smul_apply]
+    have := ren_comp_hypOp (k := k) g (h.comap g⁻¹) (C.1 h)
+    simpa only [Hyp.comap_inv_comap] using this
+  · push Not at hC
+    have hC' : ∀ h, ¬(g • C).Adjacent (g • C') h := fun h hh => hC _ (hh.of_smul g)
+    rw [stepOp_of_not hC, stepOp_of_not hC', LinearMap.comp_zero, LinearMap.zero_comp]
+
+end Transport
+
 end Categorification.WeightedKLR

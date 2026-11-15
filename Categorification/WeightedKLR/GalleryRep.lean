@@ -541,4 +541,180 @@ theorem ren_comp_stepOp (g : ColPerm ν) (C C' : FullChamber Γ ν) :
 
 end Transport
 
+/-! ### Bigons, polynomials past steps and squares -/
+
+section Local
+
+variable [Field 𝕜] [LinearOrder 𝕜] [IsStrictOrderedRing 𝕜]
+
+omit [DecidableEq I] [Field 𝕜] [LinearOrder 𝕜] [IsStrictOrderedRing 𝕜] in
+theorem Diag.fst_label_eq_snd (d : Diag ν) : d.fst.1 = d.snd.1 := d.2.1
+
+omit [DecidableEq I] [IsStrictOrderedRing 𝕜] in
+theorem Diag.left_ne_right (C : FullChamber Γ ν) (d : Diag ν) : d.left C ≠ d.right C := by
+  unfold Diag.left Diag.right
+  split_ifs
+  · exact d.fst_ne_snd
+  · exact d.fst_ne_snd.symm
+
+omit [DecidableEq I] [IsStrictOrderedRing 𝕜] in
+theorem Diag.left_label (C : FullChamber Γ ν) (d : Diag ν) : (d.left C).1 = d.fst.1 := by
+  unfold Diag.left
+  split_ifs
+  · rfl
+  · exact d.fst_label_eq_snd.symm
+
+omit [DecidableEq I] [IsStrictOrderedRing 𝕜] in
+theorem Diag.right_label (C : FullChamber Γ ν) (d : Diag ν) : (d.right C).1 = d.fst.1 := by
+  unfold Diag.right
+  split_ifs
+  · exact d.fst_label_eq_snd.symm
+  · rfl
+
+omit [IsStrictOrderedRing 𝕜] in
+theorem Diag.swap_left_right (C : FullChamber Γ ν) (d : Diag ν) :
+    swap (d.left C) (d.right C) = swap d.fst d.snd := by
+  unfold Diag.left Diag.right
+  split_ifs
+  · rfl
+  · exact swap_comm _ _
+
+omit [DecidableEq I] [IsStrictOrderedRing 𝕜] in
+theorem Diag.left_of_adjacent {C C' : FullChamber Γ ν} {d : Diag ν}
+    (h : C.Adjacent C' (.inr d)) : d.left C' = d.right C := by
+  unfold Diag.left Diag.right
+  rw [h.apply_eq_not]
+  cases C.1 (.inr d) <;> rfl
+
+omit [DecidableEq I] [IsStrictOrderedRing 𝕜] in
+theorem Diag.right_of_adjacent {C C' : FullChamber Γ ν} {d : Diag ν}
+    (h : C.Adjacent C' (.inr d)) : d.right C' = d.left C := by
+  unfold Diag.left Diag.right
+  rw [h.apply_eq_not]
+  cases C.1 (.inr d) <;> rfl
+
+omit [IsStrictOrderedRing 𝕜] in
+theorem stepOp_inl {C C' : FullChamber Γ ν} {w : Wall Γ ν} (h : C.Adjacent C' (.inl w)) :
+    stepOp (k := k) Γ C C' = wallOp w (C.1 (.inl w)) (!C.1 (.inl w)) :=
+  stepOp_eq h
+
+omit [IsStrictOrderedRing 𝕜] in
+theorem stepOp_inr {C C' : FullChamber Γ ν} {d : Diag ν} (h : C.Adjacent C' (.inr d)) :
+    stepOp (k := k) Γ C C' = psiOp Γ (d.left C) (d.right C) :=
+  stepOp_eq h
+
+omit [IsStrictOrderedRing 𝕜] in
+/-- The ghost bigon in the representation. -/
+theorem stepOp_comp_stepOp_inl {C C' : FullChamber Γ ν} {w : Wall Γ ν}
+    (h : C.Adjacent C' (.inl w)) :
+    stepOp (k := k) Γ C' C ∘ₗ stepOp Γ C C' = LinearMap.mulLeft k w.factor := by
+  rw [stepOp_inl h, stepOp_inl h.symm, h.apply_eq_not, Bool.not_not]
+  exact wallOp_comp_wallOp w (by cases C.1 (.inl w) <;> decide)
+
+omit [IsStrictOrderedRing 𝕜] in
+/-- The strand bigon in the representation. -/
+theorem stepOp_stepOp_inr (hΓ : Γ.PSymm) {C C' : FullChamber Γ ν} {d : Diag ν}
+    (h : C.Adjacent C' (.inr d)) (f : PolyRing ν k) :
+    stepOp Γ C' C (stepOp Γ C C' f) =
+      match Γ.loop d.fst.1 with
+      | none => 0
+      | some P => -2 * loopFactor P (d.left C) (d.right C) *
+          rename (swap d.fst d.snd) (stepOp Γ C C' f) := by
+  rw [stepOp_inr h, stepOp_inr h.symm, Diag.left_of_adjacent h, Diag.right_of_adjacent h,
+    psiOp_psiOp_swap hΓ (Diag.left_ne_right C d)
+      (by rw [Diag.left_label C d, Diag.right_label C d]),
+    Diag.left_label C d, Diag.swap_left_right C d]
+
+omit [IsStrictOrderedRing 𝕜] in
+/-- Polynomials past a diagonal step in the representation. -/
+theorem stepOp_mul_inr {C C' : FullChamber Γ ν} {d : Diag ν} (h : C.Adjacent C' (.inr d))
+    (f g : PolyRing ν k) :
+    stepOp Γ C C' (f * g) - f * stepOp Γ C C' g =
+      stepFactor Γ (d.left C) (d.right C) f * rename (swap d.fst d.snd) g := by
+  rw [stepOp_inr h, psiOp_leibniz (Diag.left_ne_right C d), Diag.swap_left_right C d]
+
+omit [Field 𝕜] [LinearOrder 𝕜] [IsStrictOrderedRing 𝕜] in
+theorem Wall.rename_swap_factor (w : Wall Γ ν) {a b : Strand ν} (ha₁ : a ≠ w.src)
+    (ha₂ : a ≠ w.tgt) (hb₁ : b ≠ w.src) (hb₂ : b ≠ w.tgt) :
+    rename (swap a b) (w.factor (k := k)) = w.factor := by
+  rw [Wall.factor_eq, loopFactor_rename, swap_apply_of_ne_of_ne ha₁.symm hb₁.symm,
+    swap_apply_of_ne_of_ne ha₂.symm hb₂.symm]
+
+omit [Field 𝕜] [LinearOrder 𝕜] [IsStrictOrderedRing 𝕜] in
+theorem wallOp_psiOp_comm (w : Wall Γ ν) {a b : Strand ν} (hab : a ≠ b) (ha₁ : a ≠ w.src)
+    (ha₂ : a ≠ w.tgt) (hb₁ : b ≠ w.src) (hb₂ : b ≠ w.tgt) (σ σ' : Bool) :
+    wallOp (k := k) w σ σ' ∘ₗ psiOp Γ a b = psiOp Γ a b ∘ₗ wallOp w σ σ' := by
+  rw [wallOp_eq_mulLeft]
+  refine LinearMap.ext fun f => ?_
+  simp only [LinearMap.comp_apply, LinearMap.mulLeft_apply]
+  rw [psiOp_mul_of_rename_eq hab]
+  split_ifs
+  · exact Wall.rename_swap_factor w ha₁ ha₂ hb₁ hb₂
+  · exact map_one _
+
+omit [Field 𝕜] [LinearOrder 𝕜] [IsStrictOrderedRing 𝕜] in
+/-- The operators of two independent hyperplanes commute. -/
+theorem hypOp_comm {h₁ h₂ : Hyp Γ ν} (hi : h₁.Independent h₂) (σ₁ σ₁' σ₂ σ₂' : Bool) :
+    hypOp (k := k) Γ h₂ σ₂ σ₂' ∘ₗ hypOp Γ h₁ σ₁ σ₁' =
+      hypOp Γ h₁ σ₁ σ₁' ∘ₗ hypOp Γ h₂ σ₂ σ₂' := by
+  rcases h₁ with w₁ | d₁ <;> rcases h₂ with w₂ | d₂
+  · simp only [hypOp, wallOp_eq_mulLeft]
+    refine LinearMap.ext fun f => ?_
+    simp only [LinearMap.comp_apply, LinearMap.mulLeft_apply]
+    ring
+  · rcases hi with ⟨-, h⟩ | hd
+    · exact absurd h (by simp)
+    simp only [Hyp.strands, Finset.disjoint_insert_left, Finset.disjoint_insert_right,
+      Finset.mem_insert, Finset.mem_singleton, Finset.disjoint_singleton, not_or] at hd
+    simp only [hypOp]
+    have hne : ∀ τ : Bool, (if τ then d₂.fst else d₂.snd) ≠ (if τ then d₂.snd else d₂.fst) := by
+      intro τ; cases τ
+      · exact d₂.fst_ne_snd.symm
+      · exact d₂.fst_ne_snd
+    cases σ₂ <;> simp only [Bool.false_eq_true, ↓reduceIte] <;>
+      first
+      | exact (wallOp_psiOp_comm w₁ (hne false) (by tauto) (by tauto) (by tauto) (by tauto) _
+          _).symm
+      | exact (wallOp_psiOp_comm w₁ (hne true) (by tauto) (by tauto) (by tauto) (by tauto) _
+          _).symm
+  · rcases hi with ⟨h, -⟩ | hd
+    · exact absurd h (by simp)
+    simp only [Hyp.strands, Finset.disjoint_insert_left, Finset.disjoint_insert_right,
+      Finset.mem_insert, Finset.mem_singleton, Finset.disjoint_singleton, not_or] at hd
+    simp only [hypOp]
+    have hne : ∀ τ : Bool, (if τ then d₁.fst else d₁.snd) ≠ (if τ then d₁.snd else d₁.fst) := by
+      intro τ; cases τ
+      · exact d₁.fst_ne_snd.symm
+      · exact d₁.fst_ne_snd
+    cases σ₁ <;> simp only [Bool.false_eq_true, ↓reduceIte] <;>
+      first
+      | exact (wallOp_psiOp_comm w₂ (hne false) (by tauto) (by tauto) (by tauto) (by tauto) _ _)
+      | exact (wallOp_psiOp_comm w₂ (hne true) (by tauto) (by tauto) (by tauto) (by tauto) _ _)
+  · rcases hi with ⟨h, -⟩ | hd
+    · exact absurd h (by simp)
+    simp only [Hyp.strands, Finset.disjoint_insert_left, Finset.disjoint_insert_right,
+      Finset.mem_insert, Finset.mem_singleton, Finset.disjoint_singleton, not_or] at hd
+    simp only [hypOp]
+    refine LinearMap.ext fun f => ?_
+    simp only [LinearMap.comp_apply]
+    cases σ₁ <;> cases σ₂ <;> simp only [Bool.false_eq_true, ↓reduceIte] <;>
+      exact (psiOp_psiOp_comm (Γ := Γ)
+        (by first | exact Diag.fst_ne_snd _ | exact (Diag.fst_ne_snd _).symm)
+        (by first | exact Diag.fst_ne_snd _ | exact (Diag.fst_ne_snd _).symm)
+        (by first | exact Diag.fst_label_eq_snd _ | exact (Diag.fst_label_eq_snd _).symm)
+        (by first | exact Diag.fst_label_eq_snd _ | exact (Diag.fst_label_eq_snd _).symm)
+        (by tauto) (by tauto) (by tauto) (by tauto) f).symm
+
+omit [IsStrictOrderedRing 𝕜] in
+/-- The square relation in the representation. -/
+theorem stepOp_square {C B B' D : FullChamber Γ ν} {h₁ h₂ : Hyp Γ ν} (hne : h₁ ≠ h₂)
+    (hi : h₁.Independent h₂) (a₁ : C.Adjacent B h₁) (a₂ : B.Adjacent D h₂)
+    (a₃ : C.Adjacent B' h₂) (a₄ : B'.Adjacent D h₁) :
+    stepOp (k := k) Γ B D ∘ₗ stepOp Γ C B = stepOp Γ B' D ∘ₗ stepOp Γ C B' := by
+  rw [stepOp_eq a₁, stepOp_eq a₂, stepOp_eq a₃, stepOp_eq a₄, ← a₁.2 h₂ hne.symm,
+    ← a₃.2 h₁ hne]
+  exact hypOp_comm hi _ _ _ _
+
+end Local
+
 end Categorification.WeightedKLR

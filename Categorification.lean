@@ -847,6 +847,7 @@ import Categorification.WeightedKLR.KLR.SpacedComparison
 import Categorification.WeightedKLR.Loadings.Family
 import Categorification.WeightedKLR.Loadings.Components
 import Categorification.WeightedKLR.Loadings.Shift
+import Categorification.WeightedKLR.KLR.SpacedSurjective
 /-!
 # Categorification
 

@@ -837,6 +837,16 @@ import Categorification.WeightedKLR.GalleryBasis.Basis
 import Categorification.WeightedKLR.Calculator.Perturbation
 import Categorification.WeightedKLR.Calculator.Segment
 import Categorification.WeightedKLR.GalleryBasis.Corner
+import Categorification.WeightedKLR.Standing
+import Categorification.WeightedKLR.GalleryBasis.Standing
+import Categorification.WeightedKLR.KLR.Loadings
+import Categorification.WeightedKLR.KLR.Crossing
+import Categorification.WeightedKLR.KLR.Faithful
+import Categorification.WeightedKLR.KLR.SpacedCrossing
+import Categorification.WeightedKLR.KLR.SpacedComparison
+import Categorification.WeightedKLR.Loadings.Family
+import Categorification.WeightedKLR.Loadings.Components
+import Categorification.WeightedKLR.Loadings.Shift
 /-!
 # Categorification
 

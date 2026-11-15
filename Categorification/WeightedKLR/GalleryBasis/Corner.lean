@@ -55,10 +55,14 @@ The hypotheses are those of `basisOfSegments`: Webster's condition (†), no loo
 symmetric loop polynomials, and wall and loop polynomials that are non-zero-divisors; `P` is any
 choice of simple segments between the full chambers.
 
-Rank-ordered full chambers are the image of Webster's chambers `Chamber Γ ν` under the injective
-map `Chamber.toFull`; `chamberBasis` states the block form for `c d : Chamber Γ ν`. The basis of
-the whole algebra (`weightedKLRBasis`) is indexed by rank-ordered full chambers (Webster's
-loadings, bottom and top), colour-preserving permutations and monomials.
+Rank-ordered full chambers are exactly the images of Webster's chambers `Chamber Γ ν` under the
+map `Chamber.toFull`, which is injective (`Chamber.toFull_injective`) and onto the rank-ordered
+full chambers (`Chamber.exists_toFull_eq`: perturb a generic point of a rank-ordered full chamber
+to an injective one without changing any sign), giving `chamberEquiv`. `chamberBasis` states the
+block form for `c d : Chamber Γ ν`. The basis of the whole algebra (`weightedKLRBasis`) is indexed
+by rank-ordered full chambers (Webster's loadings, bottom and top), colour-preserving permutations
+and monomials; `weightedKLRChamberBasis` is the same basis in Webster's indexing, by pairs of
+chambers (loadings up to equivalence), permutations `π` and monomials.
 
 ## Main definitions
 
@@ -66,12 +70,16 @@ loadings, bottom and top), colour-preserving permutations and monomials.
 * `GalleryAlgebra.rankIdem`: the idempotent `∑_{C rank-ordered} e C`.
 * `GalleryAlgebra.weightedKLR`, `GalleryAlgebra.WeightedKLRAlgebra`: Webster's algebra, as a
   submodule and as a ring.
+* `GalleryAlgebra.chamberEquiv`: Webster's chambers are the rank-ordered full chambers.
 
 ## Main results
 
 * `GalleryAlgebra.cornerBasis`: the basis of `e D * A * e C`, indexed by `(g, m)`.
 * `GalleryAlgebra.chamberBasis`: the same for Webster's chambers.
-* `GalleryAlgebra.weightedKLRBasis`: the basis of Webster's algebra.
+* `Chamber.exists_toFull_eq`, `Chamber.range_toFull`: every rank-ordered full chamber comes from
+  one of Webster's chambers.
+* `GalleryAlgebra.weightedKLRBasis`, `GalleryAlgebra.weightedKLRChamberBasis`: the basis of
+  Webster's algebra, indexed by rank-ordered full chambers and by Webster's chambers.
 * `GalleryAlgebra.cornerPolyEquiv`: `e D * A * e C` is free as a right module over the
   polynomials in the dots, on the elements `b(g, 1)`.
 -/
@@ -118,6 +126,70 @@ end Projection
 
 variable {I : Type*} [DecidableEq I] {𝕜 : Type*} [Field 𝕜] [LinearOrder 𝕜]
   [IsStrictOrderedRing 𝕜] {k : Type*} [CommRing k] {Γ : WeightedGraph I 𝕜 k} {ν : I →₀ ℕ}
+
+/-! ### Webster's chambers are the rank-ordered full chambers -/
+
+/-- Every rank-ordered full chamber is the full chamber of one of Webster's chambers: perturb a
+generic point `p` of it to `q = p + t r`, with `r` injective and `t > 0` small enough that no
+hyperplane changes sign and strands at distinct points stay apart; then `q` is injective, so it
+is a loading, and its chamber has full chamber the given one. -/
+theorem Chamber.exists_toFull_eq (C : FullChamber Γ ν) (hC : C.IsRankOrdered) :
+    ∃ c : Chamber Γ ν, c.toFull = C := by
+  obtain ⟨p, hp, hs⟩ := C.2
+  set e := Fintype.equivFin (Strand ν)
+  set r : Strand ν → 𝕜 := fun s => ((e s : ℕ) : 𝕜) with hr_def
+  have hr : Function.Injective r := fun s u h =>
+    e.injective (Fin.ext (Nat.cast_injective (R := 𝕜) h))
+  set a : Hyp Γ ν ⊕ (Strand ν × Strand ν) → 𝕜 :=
+    Sum.elim (fun h => h.val p) (fun x => p x.1 - p x.2) with ha_def
+  set c : Hyp Γ ν ⊕ (Strand ν × Strand ν) → 𝕜 :=
+    Sum.elim (Sum.elim (fun w => r w.tgt - r w.src) (fun d => d.val r))
+      (fun x => r x.1 - r x.2) with hc_def
+  obtain ⟨t, ht0, -, ht⟩ := exists_pos_small a c c
+  set q : Strand ν → 𝕜 := fun s => p s + t * r s with hq_def
+  have hval : ∀ h : Hyp Γ ν, h.val q = h.val p + t * c (.inl h) := by
+    rintro (w | d)
+    · simp only [Hyp.val_inl, Wall.val, hq_def, hc_def, Sum.elim_inl]
+      ring
+    · simp only [Hyp.val_inr, Diag.val, hq_def, hc_def, Sum.elim_inl, Sum.elim_inr]
+      ring
+  have hkeep : ∀ h : Hyp Γ ν, (0 < h.val q ↔ 0 < h.val p) ∧ h.val q ≠ 0 := fun h => by
+    rw [hval]
+    exact pos_add_iff_of_abs_lt (hp h) (ht (.inl h) (hp h)).1
+  have hinj : Function.Injective q := by
+    intro s u hsu
+    have hsu' : p s - p u + t * (r s - r u) = 0 := by
+      have := congrArg id hsu
+      simp only [hq_def, id] at this
+      linear_combination this
+    by_cases hpe : p s = p u
+    · rw [hpe, sub_self, zero_add, mul_eq_zero] at hsu'
+      rcases hsu' with h | h
+      · exact absurd h ht0.ne'
+      · exact hr (sub_eq_zero.1 h)
+    · exact absurd hsu'
+        (pos_add_iff_of_abs_lt (sub_ne_zero.2 hpe) (ht (.inr (s, u)) (sub_ne_zero.2 hpe)).1).2
+  have hadm : IsAdmissible Γ q := by
+    refine ⟨hinj, fun s u h₁ h₂ => ?_, fun w => (hkeep (.inl w)).2⟩
+    let d : Diag ν := ⟨(s, u), h₁, h₂⟩
+    have hd : fullSigns (Γ := Γ) p (.inr d) = true := by rw [hs]; exact hC d
+    simp only [fullSigns, decide_eq_true_eq] at hd
+    have := (hkeep (.inr d)).1.2 hd
+    simp only [Hyp.val_inr, Diag.val, sub_pos] at this
+    exact this
+  refine ⟨⟨signs q, q, hadm, rfl⟩, Subtype.ext (funext fun h => ?_)⟩
+  rcases h with w | d
+  · show signs q w = C.1 (.inl w)
+    rw [← hs]
+    simp only [signs, fullSigns, decide_eq_decide]
+    exact (hkeep (.inl w)).1
+  · exact (hC d).symm
+
+/-- The rank-ordered full chambers are exactly the full chambers of Webster's chambers. -/
+theorem Chamber.range_toFull :
+    Set.range (Chamber.toFull (Γ := Γ) (ν := ν)) = {C | C.IsRankOrdered} := by
+  ext C
+  exact ⟨fun ⟨c, hc⟩ => hc ▸ c.toFull_isRankOrdered, fun hC => Chamber.exists_toFull_eq C hC⟩
 
 namespace GalleryAlgebra
 
@@ -340,6 +412,42 @@ theorem weightedKLRBasis_apply (C D : RankChamber Γ ν) (g : ColPerm ν) (m : S
       r g (g⁻¹ • D.1) * segGallery P C.1 (g⁻¹ • D.1) * poly (monomial m 1) := by
   simp only [weightedKLRBasis, Module.Basis.reindex_apply, basisRangeOfApply_apply]
   exact basisOfSegments_apply hP hD hZ hΓ hW hL C.1 (g⁻¹ • D.1) g m
+
+variable (Γ ν) in
+/-- Webster's chambers (equivalence classes of loadings) are the rank-ordered full chambers:
+`Chamber.toFull` is a bijection onto them. -/
+noncomputable def chamberEquiv : Chamber Γ ν ≃ RankChamber Γ ν :=
+  Equiv.ofBijective (fun c => ⟨c.toFull, c.toFull_isRankOrdered⟩)
+    ⟨fun _ _ h => Chamber.toFull_injective (congrArg Subtype.val h),
+      fun C => (Chamber.exists_toFull_eq C.1 C.2).imp fun _ h => Subtype.ext h⟩
+
+@[simp]
+theorem chamberEquiv_apply_coe (c : Chamber Γ ν) : (chamberEquiv Γ ν c : FullChamber Γ ν) =
+    c.toFull := rfl
+
+@[simp]
+theorem toFull_chamberEquiv_symm (C : RankChamber Γ ν) :
+    ((chamberEquiv Γ ν).symm C).toFull = C.1 :=
+  congrArg Subtype.val ((chamberEquiv Γ ν).apply_symm_apply C)
+
+/-- **Webster, Theorem 2.8 (basis theorem)** for Webster's weighted KLR algebra, in Webster's
+indexing: for chambers (loadings up to equivalence) `c` at the bottom and `d` at the top,
+colour-preserving permutations `π` and monomials `y^m` in the dots at the bottom, the elements
+`b_π y^m = r π (π⁻¹ • d) * segGallery P c (π⁻¹ • d) * poly (y^m)` form a `k`-basis. -/
+noncomputable def weightedKLRChamberBasis :
+    Module.Basis (Chamber Γ ν × Chamber Γ ν × ColPerm ν × (Strand ν →₀ ℕ)) k
+      (weightedKLR k Γ ν) :=
+  (weightedKLRBasis hP hD hZ hΓ hW hL).reindex
+    ((chamberEquiv Γ ν).prodCongr ((chamberEquiv Γ ν).prodCongr (Equiv.refl _))).symm
+
+@[simp]
+theorem weightedKLRChamberBasis_apply (c d : Chamber Γ ν) (π : ColPerm ν)
+    (m : Strand ν →₀ ℕ) :
+    (weightedKLRChamberBasis hP hD hZ hΓ hW hL (c, d, π, m) : GalleryAlgebra k Γ ν) =
+      r π (π⁻¹ • d.toFull) * segGallery P c.toFull (π⁻¹ • d.toFull) * poly (monomial m 1) := by
+  simp only [weightedKLRChamberBasis, Module.Basis.reindex_apply, Equiv.symm_symm,
+    Equiv.prodCongr_apply, Prod.map_apply, Equiv.refl_apply]
+  exact weightedKLRBasis_apply hP hD hZ hΓ hW hL _ _ π m
 
 /-! ### Freeness over the polynomials in the dots -/
 

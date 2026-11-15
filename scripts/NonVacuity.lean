@@ -169,5 +169,112 @@ example (ν : Fin 2 →₀ ℕ) := WeightedKLR.GalleryAlgebra.straightBasis (k :
     (fun _ => Nat.succ_ne_zero _)
     (pt := fun C => C.2.choose) (fun C => C.2.choose_spec)
 
+/-! Webster, Theorem 2.8 under the hypotheses of the paper (`WeightedGraph.Standing`). -/
+
+/-- `u - v` is homogeneous of degree `1` for the degrees `1, 1`, with unit coefficients of `u`
+and `v`. -/
+theorem isUnitHomogeneous_X_sub_X :
+    WeightedKLR.WeightedGraph.IsUnitHomogeneous 1 1 1 1
+      (MvPolynomial.X 0 - MvPolynomial.X 1 : MvPolynomial (Fin 2) ℚ) := by
+  refine ⟨rfl, ?_, ?_, ?_⟩
+  · exact (MvPolynomial.isWeightedHomogeneous_X ℚ _ 0).sub
+      (MvPolynomial.isWeightedHomogeneous_X ℚ _ 1)
+  · simp [MvPolynomial.coeff_X, Finsupp.single_left_inj one_ne_zero]
+  · simp [MvPolynomial.coeff_X, Finsupp.single_left_inj one_ne_zero]
+
+/-- `wkGraph` satisfies Webster's standing hypothesis, with `d = 1`. -/
+theorem wkGraph_standing : wkGraph.Standing := by
+  refine ⟨fun _ => 1, fun _ => one_pos, fun _ => ⟨1, 1, isUnitHomogeneous_X_sub_X⟩, ?_⟩
+  intro i P h
+  simp only [wkGraph] at h
+  split_ifs at h
+  obtain rfl := Option.some_injective _ h
+  exact ⟨by simp, 1, 1, by simpa using isUnitHomogeneous_X_sub_X⟩
+
+theorem wkGraph_dagger : wkGraph.Dagger :=
+  ⟨fun _ _ _ _ _ => rfl, fun _ _ h₁ _ _ => by simp [wkGraph] at h₁⟩
+
+theorem wkGraph_noZeroLoops : wkGraph.NoZeroLoops := fun _ h _ => by simp [wkGraph] at h
+
+/-- Webster, Theorem 2.8, for Webster's algebra under Webster's hypotheses. -/
+example (ν : Fin 2 →₀ ℕ) := WeightedKLR.GalleryAlgebra.exists_weightedKLRBasis (k := ℚ)
+  (ν := ν) wkGraph_dagger wkGraph_noZeroLoops wkGraph_standing
+
+/-- Webster, Theorem 2.8, for Webster's algebra under Webster's hypotheses, in Webster's indexing
+(pairs of chambers, permutations, monomials). -/
+example (ν : Fin 2 →₀ ℕ) := WeightedKLR.GalleryAlgebra.exists_weightedKLRChamberBasis (k := ℚ)
+  (ν := ν) wkGraph_dagger wkGraph_noZeroLoops wkGraph_standing
+
+/-- Webster's chambers are the rank-ordered full chambers. -/
+example (ν : Fin 2 →₀ ℕ) := WeightedKLR.GalleryAlgebra.chamberEquiv wkGraph ν
+
+/-- The straight-line choice, in Webster's indexing. -/
+example (ν : Fin 2 →₀ ℕ) := WeightedKLR.GalleryAlgebra.straightWeightedKLRChamberBasis (k := ℚ)
+    (ν := ν) wkGraph_dagger wkGraph_noZeroLoops wkGraph_standing
+    (ρ := fun s => (Fintype.equivFin _ s).val + 1)
+    (fun _ _ h => (Fintype.equivFin _).injective (Fin.ext (by simpa using h)))
+    (fun _ => Nat.succ_ne_zero _)
+    (pt := fun C => C.2.choose) (fun C => C.2.choose_spec)
+
+/-- The straight-line choice, for Webster's algebra and for the corners. -/
+example (ν : Fin 2 →₀ ℕ) := WeightedKLR.GalleryAlgebra.straightWeightedKLRBasis (k := ℚ)
+    (ν := ν) wkGraph_dagger wkGraph_noZeroLoops wkGraph_standing
+    (ρ := fun s => (Fintype.equivFin _ s).val + 1)
+    (fun _ _ h => (Fintype.equivFin _).injective (Fin.ext (by simpa using h)))
+    (fun _ => Nat.succ_ne_zero _)
+    (pt := fun C => C.2.choose) (fun C => C.2.choose_spec)
+
+example (ν : Fin 2 →₀ ℕ) := WeightedKLR.GalleryAlgebra.cornerBasisOfStanding (k := ℚ)
+    (ν := ν) (WeightedKLR.GalleryAlgebra.isChamberSegment_straightSegment wkGraph_dagger
+      wkGraph_noZeroLoops (ρ := fun s => (Fintype.equivFin _ s).val + 1)
+      (fun _ _ h => (Fintype.equivFin _).injective (Fin.ext (by simpa using h)))
+      (fun _ => Nat.succ_ne_zero _) (pt := fun C => C.2.choose) (fun C => C.2.choose_spec))
+    wkGraph_dagger wkGraph_noZeroLoops wkGraph_standing
+
+/-! ### Webster, weighted KLR algebras (arXiv:1209.2463v4), Propositions 2.11, 2.12, 2.15 -/
+
+/-- The graph `wkGraph` with real weights, for Proposition 2.12. -/
+noncomputable def wkGraphReal : WeightedKLR.WeightedGraph (Fin 2) ℝ ℚ :=
+  { wkGraph with weight := fun _ => 1 }
+
+example (ν : Fin 2 →₀ ℕ) (B : WeightedKLR.Loading wkGraph ν) :=
+  WeightedKLR.familyProjectiveEquiv (k := ℚ) (L := fun _ : Fin 2 => B) (b := 0) (b' := 1)
+    (fun _ => Iff.rfl)
+
+example (ν : Fin 2 →₀ ℕ) (B : WeightedKLR.Loading wkGraph ν) :=
+  WeightedKLR.one_eq_familyIdemOff_add (k := ℚ) (L := fun _ : Fin 2 => B) (b := 0) 1
+    (by decide) (fun _ => Iff.rfl)
+
+example (ν : Fin 2 →₀ ℕ) (B : WeightedKLR.Loading wkGraph ν) :=
+  WeightedKLR.familyRemoveEquiv (k := ℚ) (L := fun _ : Fin 2 => B) 1
+
+example (ν : Fin 2 →₀ ℕ) := WeightedKLR.chamberComponentEquiv wkGraphReal ν
+
+example (ν : Fin 2 →₀ ℕ) := WeightedKLR.weightedKLRShiftEquiv (Γ := wkGraph) ℚ ν ![1, 0]
+
+/-! ### Webster, weighted KLR algebras (arXiv:1209.2463v4), Proposition 2.14 -/
+
+/-- A weighted graph without loops: one edge `0 → 1` of weight `1` with `Q_e = u - v`. -/
+def wkLooplessGraph : WeightedKLR.WeightedGraph (Fin 2) ℚ ℚ where
+  E := Unit
+  tail _ := 0
+  head _ := 1
+  weight _ := 1
+  Q _ := MvPolynomial.X 0 - MvPolynomial.X 1
+  loop _ := none
+
+/-- `wkLooplessGraph` satisfies Webster's standing hypothesis, with `d = 1`. -/
+theorem wkLooplessGraph_standing : wkLooplessGraph.Standing :=
+  ⟨fun _ => 1, fun _ => one_pos, fun _ => ⟨1, 1, isUnitHomogeneous_X_sub_X⟩,
+    fun _ _ h => by simp [wkLooplessGraph] at h⟩
+
+theorem wkLooplessGraph_dagger : wkLooplessGraph.Dagger :=
+  ⟨fun _ _ _ _ _ => rfl, fun _ _ h₁ _ _ => by simp [wkLooplessGraph] at h₁⟩
+
+/-- Webster, Proposition 2.14: the injective homomorphism from the KLR algebra to the weighted
+KLR algebra on the evenly spaced loadings, for a graph without loops. -/
+example (ν : Multiset (Fin 2)) :=
+  WeightedKLR.spacedHom_injective (k := ℚ) (ν := ν) wkLooplessGraph_standing
+    wkLooplessGraph_dagger (fun _ => by simp [wkLooplessGraph]) (fun _ => rfl)
 
 end NonVacuity

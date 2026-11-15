@@ -117,13 +117,9 @@ structure Hexagon where
   adj₅₄ : A₅.Adjacent A₄ h₂
   adj₄₃ : A₄.Adjacent A₃ h₁
 
-/-- The strand shared by two diagonals (the second strand of `d` if they share none). -/
-def Diag.shared (d d' : Diag ν) : Strand ν :=
-  if d.fst = d'.fst ∨ d.fst = d'.snd then d.fst else d.snd
-
-/-- The strand of `d` other than `s`. -/
-def Diag.other (d : Diag ν) (s : Strand ν) : Strand ν :=
-  if d.fst = s then d.snd else d.fst
+/-- The diagonal `d` is the hyperplane `x_a = x_b`. -/
+def Diag.Joins (d : Diag ν) (a b : Strand ν) : Prop :=
+  (d.fst = a ∧ d.snd = b) ∨ (d.fst = b ∧ d.snd = a)
 
 /-! ### Generators and relations -/
 
@@ -159,15 +155,12 @@ noncomputable def Hexagon.gal₁ (H : Hexagon Γ ν) : Fr :=
 noncomputable def Hexagon.gal₂ (H : Hexagon Γ ν) : Fr :=
   ft k Γ ν H.A₄ H.A₃ * ft k Γ ν H.A₅ H.A₄ * ft k Γ ν H.A₀ H.A₅
 
-/-- The correction of the braid relation for three diagonals with a loop of polynomial `P`
-(Webster's relation (4c), labelled form). The first gallery crosses `d₁ = {u, v}` first and
-`d₃ = {v, w}` last; the correction is a combination of the one-step galleries `A₀ → A₁`,
-`A₀ → A₅` followed by relabellings to `A₃`. -/
+/-- The correction of the braid relation for three diagonals `{u, v}`, `{u, w}`, `{v, w}`
+with a loop of polynomial `P` (Webster's relation (4c), labelled form). The first gallery
+crosses `d₁ = {u, v}` first and `d₃ = {v, w}` last; the correction is a combination of the
+one-step galleries `A₀ → A₁`, `A₀ → A₅` followed by relabellings to `A₃`. -/
 noncomputable def Hexagon.loopCorrection (H : Hexagon Γ ν) (d₁ d₂ d₃ : Diag ν)
-    (P : MvPolynomial (Fin 2) k) : Fr :=
-  let v := d₁.shared d₃
-  let u := d₁.other v
-  let w := d₃.other v
+    (u v w : Strand ν) (P : MvPolynomial (Fin 2) k) : Fr :=
   let Puv : PolyRing ν k := loopFactor P u v
   let Puw : PolyRing ν k := loopFactor P u w
   let Pvw : PolyRing ν k := loopFactor P v w
@@ -254,13 +247,13 @@ inductive Rel : Fr → Fr → Prop
       Rel (H.gal₁ k Γ ν) (H.gal₂ k Γ ν)
   /-- Three strands of one colour: the braid relation, with Webster's correction (4c) when
   there is a loop. -/
-  | hex_diags (H : Hexagon Γ ν) (d₁ d₂ d₃ : Diag ν) (h₁ : H.h₁ = .inr d₁) (h₂ : H.h₂ = .inr d₂)
-      (h₃ : H.h₃ = .inr d₃) (hd : d₂.refl = d₁.refl * d₃.refl * d₁.refl)
-      (hA : d₂.refl • H.A₀ = H.A₃) :
+  | hex_diags (H : Hexagon Γ ν) (d₁ d₂ d₃ : Diag ν) (u v w : Strand ν) (h₁ : H.h₁ = .inr d₁)
+      (h₂ : H.h₂ = .inr d₂) (h₃ : H.h₃ = .inr d₃) (j₁ : d₁.Joins u v) (j₂ : d₂.Joins u w)
+      (j₃ : d₃.Joins v w) (hA : d₂.refl • H.A₀ = H.A₃) :
       Rel (H.gal₁ k Γ ν - H.gal₂ k Γ ν)
-        (match Γ.loop d₁.fst.1 with
+        (match Γ.loop u.1 with
           | none => 0
-          | some P => H.loopCorrection k Γ ν d₁ d₂ d₃ P)
+          | some P => H.loopCorrection k Γ ν d₁ d₂ d₃ u v w P)
 
 end Rel
 

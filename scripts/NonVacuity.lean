@@ -375,4 +375,29 @@ theorem wkSplit_isUnsteady : wkSplitLoading.chamber.IsUnsteady wkCharge := by
 steadied quotient. -/
 example := WeightedKLR.SteadiedQuotient.mk_chamberIdem (k := ℚ) wkCharge wkSplit_isUnsteady
 
+/-! ### Webster, weighted KLR algebras (arXiv:1209.2463v4), Corollary 2.16 -/
+
+/-- `wkLooplessGraph` is a tree: one edge between two vertices. -/
+theorem wkLooplessGraph_isTree : wkLooplessGraph.IsTree := by
+  refine ⟨⟨fun _ => by simp [wkLooplessGraph], fun _ => rfl, fun _ _ _ => rfl,
+    SimpleGraph.IsAcyclic.of_card_le_two (by simp)⟩, ?_⟩
+  have h : wkLooplessGraph.simpleGraph.Adj 0 1 :=
+    WeightedKLR.WeightedGraph.edgeGraph_adj.2 ⟨by decide, Or.inr ⟨(), trivial, rfl, rfl⟩⟩
+  refine SimpleGraph.Connected.mk fun i j => ?_
+  fin_cases i <;> fin_cases j
+  · rfl
+  · exact h.reachable
+  · exact h.reachable.symm
+  · rfl
+
+/-- Webster, Corollary 2.16, first step: over any commutative ring, the weighted KLR algebra of a
+forest is a full corner of the weighted KLR algebra on the evenly spaced loadings. -/
+example (ν : Multiset (Fin 2)) :=
+  wkLooplessGraph_isTree.1.exists_spacedCorner (k := ℚ) (ν := ν)
+
+/-- Webster, Corollary 2.16: for a tree, the weighted KLR algebra is a full corner of the KLR
+algebra (Morita equivalence). -/
+example (ν : Multiset (Fin 2)) :=
+  wkLooplessGraph_isTree.exists_klrCorner (k := ℚ) (ν := ν) wkLooplessGraph_standing
+
 end NonVacuity

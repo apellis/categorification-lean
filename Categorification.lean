@@ -824,6 +824,11 @@ import Categorification.WeightedKLR.Segment.Chain
 import Categorification.WeightedKLR.Segment.Extension
 import Categorification.WeightedKLR.Segment.Perturb
 import Categorification.WeightedKLR.Segment.Sweep
+import Categorification.WeightedKLR.GallerySpan.Bridge
+import Categorification.WeightedKLR.GallerySpan.Realize
+import Categorification.WeightedKLR.GallerySpan.Blocks
+import Categorification.WeightedKLR.GallerySpan.Flip
+import Categorification.WeightedKLR.GallerySpan.Spanning
 /-!
 # Categorification
 

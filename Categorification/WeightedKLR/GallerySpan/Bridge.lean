@@ -9,7 +9,7 @@ import Categorification.WeightedKLR.Segment
 # Walls and diagonals as affine functions
 
 B. Webster, *Weighted Khovanov–Lauda–Rouquier algebras*, arXiv:1209.2463v4, §2.1 and proof of
-Theorem 2.13.
+Theorem 2.8.
 
 Every hyperplane `h` of the arrangement of walls and diagonals has the form
 `x_{h.hi} - x_{h.lo} = h.cst` for two distinct strands `h.lo`, `h.hi`. This file packages the

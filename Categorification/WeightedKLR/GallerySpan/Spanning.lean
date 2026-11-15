@@ -10,7 +10,7 @@ import Categorification.WeightedKLR.Segment.Extension
 /-!
 # Straight-line galleries span the gallery algebra
 
-B. Webster, *Weighted Khovanov–Lauda–Rouquier algebras*, arXiv:1209.2463v4, Theorem 2.13,
+B. Webster, *Weighted Khovanov–Lauda–Rouquier algebras*, arXiv:1209.2463v4, Theorem 2.8,
 spanning half. Choose for each pair of full chambers `C, E` a simple segment from a generic
 point of `C` to a generic point of `E`, and let `seg C E` be the gallery of its word. Under (†)
 (`Γ.Dagger`) and the absence of loops of weight `0` (`Γ.NoZeroLoops`), the elements
@@ -283,7 +283,7 @@ theorem t_mul_segGallery_mem (hD : Γ.Dagger) (hZ : Γ.NoZeroLoops) (m : ℕ)
       exact Submodule.add_mem _ (hm (stepFilt_mono (by omega) d₂))
         (segGallery_mem_segSpan hP hl)
 
-/-- **Webster, Theorem 2.13, spanning half.** Under (†) and the absence of loops of weight `0`,
+/-- **Webster, Theorem 2.8, spanning half.** Under (†) and the absence of loops of weight `0`,
 for any choice of simple segments between the full chambers, the elements
 `poly f * r g E * galList C (word pq)`, `pq` the segment from `C` to `E`, span the gallery
 algebra. -/
@@ -300,7 +300,7 @@ theorem span_segGallery (hD : Γ.Dagger) (hZ : Γ.NoZeroLoops) :
 
 end Choice
 
-/-- **Webster, Theorem 2.13, spanning half**, with a choice of segments. -/
+/-- **Webster, Theorem 2.8, spanning half**, with a choice of segments. -/
 theorem exists_span_segGallery (hD : Γ.Dagger) (hZ : Γ.NoZeroLoops) :
     ∃ P : FullChamber Γ ν → FullChamber Γ ν → (Strand ν → 𝕜) × (Strand ν → 𝕜),
       (∀ C E, IsChamberSegment C E (P C E)) ∧

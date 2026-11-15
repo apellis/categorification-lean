@@ -9,7 +9,7 @@ import Categorification.WeightedKLR.GallerySpan.Blocks
 # Flips of galleries
 
 Spanning half of the proof of Webster, *Weighted Khovanov–Lauda–Rouquier algebras*,
-arXiv:1209.2463v4, Theorem 2.13. A flip of a word reverses the block of hyperplanes through a
+arXiv:1209.2463v4, Theorem 2.8. A flip of a word reverses the block of hyperplanes through a
 flat of codimension two. Under (†) and the absence of loops of weight `0`, such a block has two
 or three hyperplanes: two independent ones (a square) or three on the three pairs of three
 strands (a hexagon). The defining relations of the gallery algebra then show that a flip changes

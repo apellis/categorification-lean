@@ -17,7 +17,7 @@ The points `q`, `q'` are taken close to the point `x` where the segment from `e`
 `h`, and `p₀` is chosen in the chamber of `p` so that the segment from `p₀` to `x` meets no two
 hyperplanes at the same time. This is the geometric input to the inductive step in the
 spanning part of the basis theorem for weighted KLR algebras (B. Webster, arXiv:1209.2463v4,
-proof of Theorem 2.13), where a diagram is extended by one crossing.
+proof of Theorem 2.8), where a diagram is extended by one crossing.
 -/
 
 namespace Categorification.WeightedKLR.Segment

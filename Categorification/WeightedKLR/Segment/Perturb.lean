@@ -15,7 +15,7 @@ simple segment (`Segment.exists_simple`), and every prefix of the word of a simp
 the set of hyperplanes crossed up to some time (`Segment.exists_prefix_chamber`).
 
 These are the general-position arguments in the proof of the basis theorem for weighted KLR
-algebras (B. Webster, arXiv:1209.2463v4, proof of Theorem 2.13).
+algebras (B. Webster, arXiv:1209.2463v4, proof of Theorem 2.8).
 -/
 
 namespace Categorification.WeightedKLR.Segment

@@ -9,7 +9,7 @@ import Categorification.WeightedKLR.GallerySpan.Spanning
 # Straight-line galleries span, with the polynomial at the bottom
 
 B. Webster, *Weighted Khovanov–Lauda–Rouquier algebras*, arXiv:1209.2463v4, Theorem 2.8 and
-Theorem 2.13, spanning half, with the dots at the bottom of the diagram. Products in the gallery
+Theorem 2.8, spanning half, with the dots at the bottom of the diagram. Products in the gallery
 algebra are composition (`x * y` is `y` followed by `x`), so the polynomial at the bottom is the
 right-hand factor: the elements `r g E * segGallery P C E * poly f` span the gallery algebra.
 
@@ -145,7 +145,7 @@ theorem segSpan_le_segSpanBottom (hD : Γ.Dagger) (hZ : Γ.NoZeroLoops) (m : ℕ
       (fun m hm C E E₁ hl => t_mul_segGallery_mem hP hD hZ m hm C E E₁ hl) _ hmem
     exact segSpanBottom_mono (by omega) (ih _ (by omega) hstep)
 
-/-- **Webster, Theorem 2.13, spanning half, with the dots at the bottom.** Under (†) and the
+/-- **Webster, Theorem 2.8, spanning half, with the dots at the bottom.** Under (†) and the
 absence of loops of weight `0`, for any choice of simple segments between the full chambers,
 the elements `r g E * segGallery P C E * poly f` span the gallery algebra. Products are
 composition, so `poly f` is at the bottom of the diagram, as in the basis of Webster,
@@ -161,7 +161,7 @@ theorem span_segGallery_mul_poly (hD : Γ.Dagger) (hZ : Γ.NoZeroLoops) :
   rintro _ ⟨C', E', g', f', -, hx⟩
   exact ⟨C', E', g', f', hx⟩
 
-/-- **Webster, Theorem 2.13, spanning half, with the dots at the bottom**, monomial form: the
+/-- **Webster, Theorem 2.8, spanning half, with the dots at the bottom**, monomial form: the
 elements `r g E * segGallery P C E * poly (monomial m 1)` span the gallery algebra. -/
 theorem span_segGallery_mul_monomial (hD : Γ.Dagger) (hZ : Γ.NoZeroLoops) :
     Submodule.span k {x : GalleryAlgebra k Γ ν | ∃ (C E : FullChamber Γ ν) (g : ColPerm ν)

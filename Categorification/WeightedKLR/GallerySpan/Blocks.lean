@@ -8,7 +8,7 @@ import Categorification.WeightedKLR.GallerySpan.Realize
 # Reversing the hyperplanes through a codimension-two flat
 
 B. Webster, *Weighted Khovanov–Lauda–Rouquier algebras*, arXiv:1209.2463v4, proof of
-Theorem 2.13.
+Theorem 2.8.
 
 A flip of the word of a segment reverses a block `B` of consecutive hyperplanes all passing
 through a point `x` of a flat of codimension two, and through no other hyperplane. Under (†)
@@ -23,7 +23,7 @@ chains of flips (`galList_flip`, `galList_reflTransGen`).
 
 * `Hyp.triangle`: three distinct hyperplanes through a flat of codimension two lie on the three
   pairs of three strands.
-* `FullChamber.Adjacent.smul`: relabelling preserves adjacency.
+* `FullChamber.Adjacent.smul_comap`: relabelling preserves adjacency.
 * `galList_block`, `galList_flip`, `galList_reflTransGen`.
 -/
 
@@ -296,7 +296,7 @@ namespace FullChamber
 
 omit [DecidableEq I] in
 /-- Relabelling preserves adjacency. -/
-theorem Adjacent.smul {C C' : FullChamber Γ ν} {h : Hyp Γ ν} (hC : C.Adjacent C' h)
+theorem Adjacent.smul_comap {C C' : FullChamber Γ ν} {h : Hyp Γ ν} (hC : C.Adjacent C' h)
     (g : ColPerm ν) {h' : Hyp Γ ν} (hh : h'.comap g = h) : (g • C).Adjacent (g • C') h' := by
   refine ⟨?_, fun h'' hne => ?_⟩
   · show signMap g C.1 h' ≠ signMap g C'.1 h'
@@ -325,7 +325,7 @@ namespace GalleryAlgebra
 
 theorem hexagon_refl_smul (H : Hexagon Γ ν) {d : Diag ν} (e₂ : H.h₂ = .inr d)
     (hc : H.h₃.comap d.refl = H.h₁) : d.refl • H.A₀ = H.A₃ := by
-  have a := H.adj₀₁.smul d.refl hc
+  have a := H.adj₀₁.smul_comap d.refl hc
   have hr : d.refl • H.A₁ = H.A₂ := Adjacent.refl_smul (by rw [← e₂]; exact H.adj₁₂)
   rw [hr] at a
   exact a.symm.eq_of_adjacent H.adj₂₃

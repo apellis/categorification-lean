@@ -10,7 +10,7 @@ import Categorification.WeightedKLR.Segment.Perturb
 # Words whose prefixes are chambers
 
 B. Webster, *Weighted Khovanov–Lauda–Rouquier algebras*, arXiv:1209.2463v4, proof of
-Theorem 2.13.
+Theorem 2.8.
 
 A word `w` of hyperplanes is *good* from a sign vector `σ` (`GoodWord σ w`) if it has no
 repetitions and flipping `σ` along every prefix of `w` gives a full chamber. Along a good word

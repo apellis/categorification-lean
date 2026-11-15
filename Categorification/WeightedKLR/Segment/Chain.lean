@@ -19,7 +19,7 @@ plane, except on the edge opposite `q̃`; there this follows from simplicity or 
 lying in a chamber.
 
 This is the geometric input to the spanning part of the basis theorem for weighted KLR
-algebras (B. Webster, arXiv:1209.2463v4, proof of Theorem 2.13).
+algebras (B. Webster, arXiv:1209.2463v4, proof of Theorem 2.8).
 -/
 
 namespace Categorification.WeightedKLR.Segment

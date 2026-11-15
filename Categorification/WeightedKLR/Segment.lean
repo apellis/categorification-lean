@@ -24,7 +24,7 @@ The files `Segment/*.lean` record how words change: the words of two simple segm
 endpoints in the same chambers are related by *flips*, reversals of a block of hyperplanes
 through a common point whose intersection has codimension two. This is the geometric input to
 the spanning part of the basis theorem for weighted KLR algebras (B. Webster,
-arXiv:1209.2463v4, proof of Theorem 2.13): two diagrams given by straight-line galleries are
+arXiv:1209.2463v4, proof of Theorem 2.8): two diagrams given by straight-line galleries are
 related by the local relations at codimension-two flats.
 
 ## Main definitions

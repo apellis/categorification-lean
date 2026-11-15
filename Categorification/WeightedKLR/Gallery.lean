@@ -8,7 +8,7 @@ import Categorification.WeightedKLR.Algebra
 # Galleries of words and the step filtration
 
 B. Webster, *Weighted Khovanov–Lauda–Rouquier algebras*, arXiv:1209.2463v4, proof of
-Theorem 2.13 (spanning).
+Theorem 2.8 (spanning).
 
 A word `w` of hyperplanes, read from a full chamber `C`, gives the gallery `galList C w`: the
 product of the steps across the hyperplanes of `w` in turn. The *step filtration*

@@ -259,4 +259,135 @@ theorem psi_braid_loop {P : MvPolynomial (Fin 2) k} (hP : rename (swap (0 : Fin 
 
 end Braid
 
+/-! ### Block operators on `V = (FullChamber Γ ν → k[y_s])` -/
+
+section Blocks
+
+variable {ι : Type*} [DecidableEq ι] {M : Type*} [AddCommGroup M] [Module k M]
+
+variable (k) in
+/-- The operator `V → V` acting by `a` from the copy of `A` to the copy of `B`. -/
+noncomputable def blk (A B : ι) (a : M →ₗ[k] M) : (ι → M) →ₗ[k] (ι → M) :=
+  LinearMap.single k (fun _ => M) B ∘ₗ a ∘ₗ LinearMap.proj A
+
+omit [DecidableEq I] in
+theorem blk_apply (A B : ι) (a : M →ₗ[k] M) (x : ι → M) :
+    blk k A B a x = Pi.single B (a (x A)) := rfl
+
+omit [DecidableEq I] in
+theorem blk_comp_blk (A B D : ι) (a b : M →ₗ[k] M) :
+    blk k B D b ∘ₗ blk k A B a = blk k A D (b ∘ₗ a) := by
+  ext x : 1
+  simp [blk_apply]
+
+omit [DecidableEq I] in
+theorem blk_comp_blk_of_ne {A B B' D : ι} (h : B ≠ B') (a b : M →ₗ[k] M) :
+    blk k B' D b ∘ₗ blk k A B a = 0 := by
+  ext x : 1
+  simp [blk_apply, Ne.symm h]
+
+omit [DecidableEq I] in
+@[simp] theorem blk_zero (A B : ι) : blk k A B (0 : M →ₗ[k] M) = 0 := by
+  ext x : 1
+  simp [blk_apply]
+
+omit [DecidableEq I] in
+theorem blk_add (A B : ι) (a b : M →ₗ[k] M) : blk k A B (a + b) = blk k A B a + blk k A B b := by
+  ext x : 1
+  simp [blk_apply, Pi.single_add]
+
+omit [DecidableEq I] in
+theorem blk_sub (A B : ι) (a b : M →ₗ[k] M) : blk k A B (a - b) = blk k A B a - blk k A B b := by
+  ext x : 1
+  simp [blk_apply, Pi.single_sub]
+
+omit [DecidableEq I] in
+theorem sum_blk_id [Fintype ι] : ∑ A : ι, blk k A A (LinearMap.id : M →ₗ[k] M) = 1 := by
+  refine LinearMap.ext fun x => ?_
+  rw [LinearMap.sum_apply]
+  simp only [blk_apply, LinearMap.id_apply, Module.End.one_apply]
+  exact Finset.univ_sum_single x
+
+/-- Pointwise application of `a` on every copy. -/
+noncomputable def diagOp (a : M →ₗ[k] M) : (ι → M) →ₗ[k] (ι → M) :=
+  LinearMap.pi fun A => a ∘ₗ LinearMap.proj A
+
+omit [DecidableEq I] [DecidableEq ι] in
+@[simp] theorem diagOp_apply (a : M →ₗ[k] M) (x : ι → M) (A : ι) :
+    diagOp (ι := ι) a x A = a (x A) := rfl
+
+omit [DecidableEq I] in
+theorem diagOp_comp_blk (A B : ι) (a b : M →ₗ[k] M) :
+    diagOp b ∘ₗ blk k A B a = blk k A B (b ∘ₗ a) := by
+  ext x : 1
+  funext D
+  simp only [LinearMap.comp_apply, diagOp_apply, blk_apply, Pi.single_apply]
+  split_ifs with h
+  · subst h; rfl
+  · exact map_zero b
+
+omit [DecidableEq I] in
+theorem blk_comp_diagOp (A B : ι) (a b : M →ₗ[k] M) :
+    blk k A B a ∘ₗ diagOp b = blk k A B (a ∘ₗ b) := rfl
+
+end Blocks
+
+/-! ### The operators of hyperplane steps -/
+
+section Steps
+
+variable [Field 𝕜] [LinearOrder 𝕜] [IsStrictOrderedRing 𝕜]
+
+omit [DecidableEq I] [Field 𝕜] [LinearOrder 𝕜] [IsStrictOrderedRing 𝕜] in
+theorem Wall.factor_eq (w : Wall Γ ν) : w.factor = loopFactor (k := k) (Γ.Q w.edge) w.src w.tgt :=
+  rfl
+
+omit [DecidableEq I] [Field 𝕜] [LinearOrder 𝕜] [IsStrictOrderedRing 𝕜] in
+theorem wallOp_eq_mulLeft (w : Wall Γ ν) (σ σ' : Bool) :
+    wallOp (k := k) w σ σ' =
+      LinearMap.mulLeft k (if σ = false ∧ σ' = true then w.factor else 1) := by
+  unfold wallOp
+  split_ifs
+  · rfl
+  · ext f : 1; simp
+
+variable (Γ) in
+/-- The operator of crossing the hyperplane `h` from the side `σ` to the side `σ'`. Across a
+diagonal from the side `σ`, the left strand is `d.fst` if `σ` and `d.snd` otherwise. -/
+noncomputable def hypOp : Hyp Γ ν → Bool → Bool → PolyRing ν k →ₗ[k] PolyRing ν k
+  | .inl w, σ, σ' => wallOp w σ σ'
+  | .inr d, σ, _ => psiOp Γ (if σ then d.fst else d.snd) (if σ then d.snd else d.fst)
+
+omit [DecidableEq I] [IsStrictOrderedRing 𝕜] in
+theorem FullChamber.Adjacent.unique {C C' : FullChamber Γ ν} {h h' : Hyp Γ ν}
+    (hh : C.Adjacent C' h) (hh' : C.Adjacent C' h') : h = h' := by
+  by_contra hne
+  exact hh'.1 (hh.2 h' (Ne.symm hne))
+
+omit [DecidableEq I] [IsStrictOrderedRing 𝕜] in
+theorem FullChamber.Adjacent.apply_eq_not {C C' : FullChamber Γ ν} {h : Hyp Γ ν}
+    (hh : C.Adjacent C' h) : C'.1 h = !C.1 h := by
+  have := hh.1
+  revert this
+  cases C.1 h <;> cases C'.1 h <;> simp
+
+variable (Γ) in
+/-- The operator of the step from `C` to `C'`: zero unless they are adjacent. -/
+noncomputable def stepOp (C C' : FullChamber Γ ν) : PolyRing ν k →ₗ[k] PolyRing ν k :=
+  open Classical in
+  if hC : ∃ h, C.Adjacent C' h then hypOp Γ hC.choose (C.1 hC.choose) (C'.1 hC.choose) else 0
+
+omit [IsStrictOrderedRing 𝕜] in
+theorem stepOp_eq {C C' : FullChamber Γ ν} {h : Hyp Γ ν} (hh : C.Adjacent C' h) :
+    stepOp (k := k) Γ C C' = hypOp Γ h (C.1 h) (!C.1 h) := by
+  have hC : ∃ h, C.Adjacent C' h := ⟨h, hh⟩
+  rw [stepOp, dite_eq_left_of_eq_true (eq_true hC), (hC.choose_spec.unique hh), hh.apply_eq_not]
+
+omit [IsStrictOrderedRing 𝕜] in
+theorem stepOp_of_not {C C' : FullChamber Γ ν} (hh : ∀ h, ¬C.Adjacent C' h) :
+    stepOp (k := k) Γ C C' = 0 := by
+  rw [stepOp, dite_eq_right_of_eq_false (eq_false (not_exists.2 hh))]
+
+end Steps
+
 end Categorification.WeightedKLR

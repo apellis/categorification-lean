@@ -852,6 +852,7 @@ they are equivalent (the paper's Definition `def:equivalent`).
 |---|---|---|
 | §2.1, Definitions `def:loading`, `def:equivalent` | weighted graphs, walls, loadings, chambers; loadings in the same chamber are equivalent | `WeightedKLR.WeightedGraph`, `WeightedKLR.Wall`, `WeightedKLR.Loading`, `WeightedKLR.Chamber`, `WeightedKLR.Loading.chamber_eq_iff` |
 | §2.1, Proposition `prop:action` (operators) | the operators of the polynomial representation for dots, wall crossings and same-colour crossings; the ghost bigon (relation (2)), the strand bigon (relation (3)) and the dot relations (1) | `WeightedKLR.dotOp`, `WeightedKLR.wallOp`, `WeightedKLR.psiOp`, `WeightedKLR.wallOp_comp_wallOp`, `WeightedKLR.psiOp_comp_psiOp`, `WeightedKLR.psiOp_comp_dotOp_left`, `WeightedKLR.psiOp_comp_dotOp_right` |
+| §2.1, Theorem 2.8 (choice of `b_π`) | the straight-line diagrams from fixed generic bottom points to the top points moved by `ε^{ρ(s)}` (`ρ` injective, positive), `ε > 0` small: for small `ε` the segment is simple, ends in the top chamber, and its word does not depend on `ε`; the basis of the gallery algebra for this choice | `WeightedKLR.Segment.exists_stablePerturbation`, `WeightedKLR.GalleryAlgebra.straightSegment`, `WeightedKLR.GalleryAlgebra.isChamberSegment_straightSegment`, `WeightedKLR.GalleryAlgebra.segGallery_straightSegment`, `WeightedKLR.GalleryAlgebra.straightBasis` |
 
 ### Lusztig's algebra `f` (Lusztig, *Introduction to quantum groups*, Ch. 1; KL I §3.1)
 

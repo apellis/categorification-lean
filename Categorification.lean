@@ -834,6 +834,8 @@ import Categorification.WeightedKLR.GalleryBasis.Twisted
 import Categorification.WeightedKLR.GalleryBasis.Leading
 import Categorification.WeightedKLR.GalleryBasis.Independence
 import Categorification.WeightedKLR.GalleryBasis.Basis
+import Categorification.WeightedKLR.Calculator.Perturbation
+import Categorification.WeightedKLR.Calculator.Segment
 /-!
 # Categorification
 

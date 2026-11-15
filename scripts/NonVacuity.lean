@@ -144,4 +144,30 @@ example (ν : Fin 2 →₀ ℕ) := WeightedKLR.GalleryAlgebra.exists_basis (k :=
       obtain rfl := Option.some_injective _ h
       simpa [WeightedKLR.loopFactor] using isRegular_one)
 
+/-- The straight-line choice: top end points moved by `ε ^ (index + 1)`, representative points
+chosen in each full chamber. -/
+example (ν : Fin 2 →₀ ℕ) := WeightedKLR.GalleryAlgebra.straightBasis (k := ℚ) (Γ := wkGraph)
+    (ν := ν)
+    ⟨fun _ _ _ _ _ => rfl, fun _ _ h₁ h₂ _ => by simp [wkGraph] at h₁⟩
+    (fun _ h _ => by simp [wkGraph] at h)
+    (fun i P h => by
+      simp only [wkGraph] at h
+      split_ifs at h
+      obtain rfl := Option.some_injective _ h
+      simp)
+    (fun w => by
+      refine IsRegular.of_ne_zero ?_
+      simp only [WeightedKLR.Wall.factor, wkGraph, map_sub, MvPolynomial.aeval_X]
+      simpa [sub_eq_zero, WeightedKLR.Wall.src, WeightedKLR.Wall.tgt] using w.2.2.2)
+    (fun P a b h _ _ => by
+      simp only [wkGraph] at h
+      split_ifs at h
+      obtain rfl := Option.some_injective _ h
+      simpa [WeightedKLR.loopFactor] using isRegular_one)
+    (ρ := fun s => (Fintype.equivFin _ s).val + 1)
+    (fun _ _ h => (Fintype.equivFin _).injective (Fin.ext (by simpa using h)))
+    (fun _ => Nat.succ_ne_zero _)
+    (pt := fun C => C.2.choose) (fun C => C.2.choose_spec)
+
+
 end NonVacuity

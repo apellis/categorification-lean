@@ -231,6 +231,27 @@ example (ν : Fin 2 →₀ ℕ) := WeightedKLR.GalleryAlgebra.cornerBasisOfStand
       (fun _ => Nat.succ_ne_zero _) (pt := fun C => C.2.choose) (fun C => C.2.choose_spec))
     wkGraph_dagger wkGraph_noZeroLoops wkGraph_standing
 
+/-! ### Webster, weighted KLR algebras (arXiv:1209.2463v4), Propositions 2.11, 2.12, 2.15 -/
+
+/-- The graph `wkGraph` with real weights, for Proposition 2.12. -/
+noncomputable def wkGraphReal : WeightedKLR.WeightedGraph (Fin 2) ℝ ℚ :=
+  { wkGraph with weight := fun _ => 1 }
+
+example (ν : Fin 2 →₀ ℕ) (B : WeightedKLR.Loading wkGraph ν) :=
+  WeightedKLR.familyProjectiveEquiv (k := ℚ) (L := fun _ : Fin 2 => B) (b := 0) (b' := 1)
+    (fun _ => Iff.rfl)
+
+example (ν : Fin 2 →₀ ℕ) (B : WeightedKLR.Loading wkGraph ν) :=
+  WeightedKLR.one_eq_familyIdemOff_add (k := ℚ) (L := fun _ : Fin 2 => B) (b := 0) 1
+    (by decide) (fun _ => Iff.rfl)
+
+example (ν : Fin 2 →₀ ℕ) (B : WeightedKLR.Loading wkGraph ν) :=
+  WeightedKLR.familyRemoveEquiv (k := ℚ) (L := fun _ : Fin 2 => B) 1
+
+example (ν : Fin 2 →₀ ℕ) := WeightedKLR.chamberComponentEquiv wkGraphReal ν
+
+example (ν : Fin 2 →₀ ℕ) := WeightedKLR.weightedKLRShiftEquiv (Γ := wkGraph) ℚ ν ![1, 0]
+
 /-! ### Webster, weighted KLR algebras (arXiv:1209.2463v4), Proposition 2.14 -/
 
 /-- A weighted graph without loops: one edge `0 → 1` of weight `1` with `Q_e = u - v`. -/

@@ -374,4 +374,111 @@ theorem spacedOp_genMat (hΓ : Γ.PSymm) (hD : Γ.Dagger) (hl : ∀ c, Γ.loop c
 
 end Generators
 
+section Hom
+
+namespace WeightedGraph
+
+variable (Γ) in
+/-- The polynomials `Q_{ab}(u, v) = ∏_{e : b → a} Q_e(u, v) · ∏_{e : a → b} Q_e(v, u)` of the
+KLR algebra of Webster's Proposition 2.14, the product running over the edges between `a` and
+`b` in both directions. -/
+noncomputable def klrQ (a b : I) : MvPolynomial (Fin 2) k :=
+  Γ.edgeProd b a * rename ![1, 0] (Γ.edgeProd a b)
+
+omit [DecidableEq I] [Field 𝕜] [LinearOrder 𝕜] [IsStrictOrderedRing 𝕜] in
+/-- Under Webster's standing hypothesis no `Q_e` vanishes. -/
+theorem Standing.Q_ne_zero [Nontrivial k] (hS : Γ.Standing) (e : Γ.E) : Γ.Q e ≠ 0 := by
+  obtain ⟨d, -, hQ, -⟩ := hS
+  obtain ⟨c, c', hc⟩ := hQ e
+  intro h0
+  have := hc.2.2.1
+  simp [h0] at this
+
+omit [Field 𝕜] [LinearOrder 𝕜] [IsStrictOrderedRing 𝕜] in
+theorem Standing.edgeProd_ne_zero [IsDomain k] (hS : Γ.Standing) (a b : I) :
+    Γ.edgeProd a b ≠ 0 :=
+  Finset.prod_ne_zero_iff.2 fun e _ => hS.Q_ne_zero e
+
+end WeightedGraph
+
+theorem eq_of_comp_seqRenEquiv {A B : Module.End k (KLR.Seq ν → PolyRing ν' k)}
+    (h : A ∘ₗ (seqRenEquiv (k := k) (ν := ν)).toLinearMap =
+      B ∘ₗ (seqRenEquiv (k := k) (ν := ν)).toLinearMap) : A = B :=
+  LinearMap.ext fun v => by simpa using LinearMap.congr_fun h (seqRenEquiv.symm v)
+
+variable (k Γ ν) in
+/-- The generators of `R(ν)` in the weighted KLR algebra of the evenly spaced loadings, on the
+free algebra. -/
+noncomputable def spacedFreeHom : FreeAlgebra k (KLR.Gen ν) →ₐ[k] SpacedAlgebra k Γ ν :=
+  FreeAlgebra.lift k (genImg k Γ)
+
+theorem spacedRep_spacedFreeHom (hΓ : Γ.PSymm) (hD : Γ.Dagger) (hl : ∀ c, Γ.loop c = none)
+    (hE : ∀ e, Γ.head e ≠ Γ.tail e) (x : FreeAlgebra k (KLR.Gen ν)) :
+    spacedRep k hΓ (spacedFreeHom k Γ ν x) ∘ₗ seqRenEquiv.toLinearMap =
+      seqRenEquiv.toLinearMap ∘ₗ KLR.PolyRep.freeRep ν Γ.edgeProd x := by
+  induction x using FreeAlgebra.induction with
+  | grade0 r =>
+    rw [AlgHom.commutes, AlgHom.commutes]
+    refine LinearMap.ext fun f => ?_
+    simp [Module.algebraMap_end_apply]
+  | grade1 g =>
+    rw [spacedFreeHom, FreeAlgebra.lift_ι_apply, KLR.PolyRep.freeRep, FreeAlgebra.lift_ι_apply,
+      spacedRep_apply]
+    show spacedOp k hΓ (spacedIdem k Γ ν * genMat k Γ g * spacedIdem k Γ ν) ∘ₗ _ = _
+    rw [spacedOp_sandwich]
+    exact spacedOp_genMat hΓ hD hl hE g
+  | mul a b ha hb =>
+    rw [map_mul, map_mul, map_mul, Module.End.mul_eq_comp, Module.End.mul_eq_comp,
+      LinearMap.comp_assoc, hb, ← LinearMap.comp_assoc, ha, LinearMap.comp_assoc]
+  | add a b ha hb =>
+    rw [map_add, map_add, map_add, LinearMap.add_comp, LinearMap.comp_add, ha, hb]
+
+variable (k) in
+/-- **Webster, Proposition 2.14** (the map): for a weighted graph without loops, the
+homomorphism from the KLR algebra `R(ν)` for `Q = klrQ Γ` to the weighted KLR algebra on the
+evenly spaced loadings `B_s(i)`, sending `e(i)` to the idempotent of `B_s(i)`, the dot `x_a` to
+the dot on the strand at position `a`, and `ψ_n` to the straight crossing of the strands at
+positions `n` and `n + 1` (`crossElt`, followed by the relabelling for strands of one colour).
+The relations are checked in the faithful polynomial representation. -/
+noncomputable def spacedHom (hS : Γ.Standing) (hD : Γ.Dagger) (hE : ∀ e, Γ.head e ≠ Γ.tail e)
+    (hl : ∀ c, Γ.loop c = none) : KLR.KLRAlgebra k Γ.klrQ ν →ₐ[k] SpacedAlgebra k Γ ν :=
+  RingQuot.liftAlgHom k ⟨spacedFreeHom k Γ ν, fun x y h =>
+    spacedRep_injective hD hE hl hS.psymm hS.isRegular_factor (eq_of_comp_seqRenEquiv (by
+      rw [spacedRep_spacedFreeHom hS.psymm hD hl hE, spacedRep_spacedFreeHom hS.psymm hD hl hE,
+        KLR.PolyRep.freeRep_rel (Q := Γ.klrQ) (fun a b _ => rfl) h]))⟩
+
+theorem spacedHom_mk (hS : Γ.Standing) (hD : Γ.Dagger) (hE : ∀ e, Γ.head e ≠ Γ.tail e)
+    (hl : ∀ c, Γ.loop c = none) (x : FreeAlgebra k (KLR.Gen ν)) :
+    spacedHom k hS hD hE hl (KLR.KLRAlgebra.mk k Γ.klrQ ν x) = spacedFreeHom k Γ ν x :=
+  RingQuot.liftAlgHom_mkAlgHom_apply k _ _ x
+
+/-- `spacedHom` intertwines the polynomial representation of the KLR algebra (KL I,
+Proposition 2.3, for `P = edgeProd Γ`) with that of the weighted KLR algebra on the evenly spaced
+loadings, after renaming the variables of the component `i` to the strands of `B_s(i)`. -/
+theorem spacedRep_spacedHom (hS : Γ.Standing) (hD : Γ.Dagger) (hE : ∀ e, Γ.head e ≠ Γ.tail e)
+    (hl : ∀ c, Γ.loop c = none) (x : KLR.KLRAlgebra k Γ.klrQ ν) :
+    spacedRep k hS.psymm (spacedHom k hS hD hE hl x) ∘ₗ seqRenEquiv.toLinearMap =
+      seqRenEquiv.toLinearMap ∘ₗ KLR.PolyRep.polyRep (P := Γ.edgeProd) (fun _ _ _ => rfl) x := by
+  obtain ⟨x, rfl⟩ := KLR.KLRAlgebra.mk_surjective x
+  have h := KLR.PolyRep.polyRep_mk (Q := Γ.klrQ) (P := Γ.edgeProd) (fun _ _ _ => rfl) x
+  rw [spacedHom_mk]
+  refine (spacedRep_spacedFreeHom hS.psymm hD hl hE x).trans ?_
+  exact congrArg (seqRenEquiv.toLinearMap ∘ₗ ·) h.symm
+
+/-- **Webster, Proposition 2.14** (injectivity): over a domain, the homomorphism `spacedHom` from
+the KLR algebra to the weighted KLR algebra on the evenly spaced loadings is injective. -/
+theorem spacedHom_injective [IsDomain k] (hS : Γ.Standing) (hD : Γ.Dagger)
+    (hE : ∀ e, Γ.head e ≠ Γ.tail e) (hl : ∀ c, Γ.loop c = none) :
+    Function.Injective (spacedHom k hS hD hE hl (ν := ν)) := by
+  intro x y hxy
+  apply KLR.polyRep_injective (P := Γ.edgeProd) (fun a b _ => rfl)
+    (fun a b _ => hS.edgeProd_ne_zero a b)
+  have hx := spacedRep_spacedHom hS hD hE hl x
+  have hy := spacedRep_spacedHom hS hD hE hl y
+  rw [hxy] at hx
+  have h := hx.symm.trans hy
+  exact LinearMap.ext fun f => seqRenEquiv.injective (LinearMap.congr_fun h f)
+
+end Hom
+
 end Categorification.WeightedKLR

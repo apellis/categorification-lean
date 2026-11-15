@@ -842,6 +842,8 @@ import Categorification.WeightedKLR.GalleryBasis.Standing
 import Categorification.WeightedKLR.KLR.Loadings
 import Categorification.WeightedKLR.KLR.Crossing
 import Categorification.WeightedKLR.KLR.Faithful
+import Categorification.WeightedKLR.KLR.SpacedCrossing
+import Categorification.WeightedKLR.KLR.SpacedComparison
 /-!
 # Categorification
 

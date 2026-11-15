@@ -231,4 +231,29 @@ example (ν : Fin 2 →₀ ℕ) := WeightedKLR.GalleryAlgebra.cornerBasisOfStand
       (fun _ => Nat.succ_ne_zero _) (pt := fun C => C.2.choose) (fun C => C.2.choose_spec))
     wkGraph_dagger wkGraph_noZeroLoops wkGraph_standing
 
+/-! ### Webster, weighted KLR algebras (arXiv:1209.2463v4), Proposition 2.14 -/
+
+/-- A weighted graph without loops: one edge `0 → 1` of weight `1` with `Q_e = u - v`. -/
+def wkLooplessGraph : WeightedKLR.WeightedGraph (Fin 2) ℚ ℚ where
+  E := Unit
+  tail _ := 0
+  head _ := 1
+  weight _ := 1
+  Q _ := MvPolynomial.X 0 - MvPolynomial.X 1
+  loop _ := none
+
+/-- `wkLooplessGraph` satisfies Webster's standing hypothesis, with `d = 1`. -/
+theorem wkLooplessGraph_standing : wkLooplessGraph.Standing :=
+  ⟨fun _ => 1, fun _ => one_pos, fun _ => ⟨1, 1, isUnitHomogeneous_X_sub_X⟩,
+    fun _ _ h => by simp [wkLooplessGraph] at h⟩
+
+theorem wkLooplessGraph_dagger : wkLooplessGraph.Dagger :=
+  ⟨fun _ _ _ _ _ => rfl, fun _ _ h₁ _ _ => by simp [wkLooplessGraph] at h₁⟩
+
+/-- Webster, Proposition 2.14: the injective homomorphism from the KLR algebra to the weighted
+KLR algebra on the evenly spaced loadings, for a graph without loops. -/
+example (ν : Multiset (Fin 2)) :=
+  WeightedKLR.spacedHom_injective (k := ℚ) (ν := ν) wkLooplessGraph_standing
+    wkLooplessGraph_dagger (fun _ => by simp [wkLooplessGraph]) (fun _ => rfl)
+
 end NonVacuity

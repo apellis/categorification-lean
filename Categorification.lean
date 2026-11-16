@@ -859,6 +859,7 @@ import Categorification.WeightedKLR.RedStrands.Stendhal
 import Categorification.WeightedKLR.Induction.Embedding
 import Categorification.WeightedKLR.Induction.Juxtapose
 import Categorification.WeightedKLR.Induction.TensorMap
+import Categorification.WeightedKLR.RedStrands.StendhalBasis
 import Categorification.WeightedKLR.RedStrands.StendhalCrossing
 import Categorification.WeightedKLR.RedStrands.StendhalDescent
 import Categorification.WeightedKLR.RedStrands.StendhalHom

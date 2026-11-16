@@ -870,6 +870,7 @@ import Categorification.WeightedKLR.Induction.K0
 import Categorification.WeightedKLR.Induction.ModuleMonoidal
 import Categorification.WeightedKLR.Induction.Monoidal
 import Categorification.WeightedKLR.Induction.TensorMap
+import Categorification.WeightedKLR.Mackey.BlockConjugate
 import Categorification.WeightedKLR.Mackey.BlockPieces
 import Categorification.WeightedKLR.Mackey.ConjugateEmbedding
 import Categorification.WeightedKLR.Mackey.CornerShuffle

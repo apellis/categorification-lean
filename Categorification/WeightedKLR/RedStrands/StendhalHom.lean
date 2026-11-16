@@ -203,6 +203,18 @@ noncomputable def chamberRep (hΓ : Δ.PSymm) :
 theorem chamberRep_apply (hΓ : Δ.PSymm) (x : ChamberAlgebra k F) :
     chamberRep k F hΓ x = chamberOp k F hΓ x.1 := rfl
 
+variable (k F) in
+/-- The element `diag(e(F)) c diag(e(F))` of the corner. -/
+noncomputable def chamberElt (c : Matrix ι ι (GalleryAlgebra k Δ ν)) : ChamberAlgebra k F :=
+  ⟨chamberIdem k F * c * chamberIdem k F,
+    (Subsemigroup.mem_corner_iff (isIdempotentElem_chamberIdem F)).2
+      ⟨by rw [← mul_assoc, ← mul_assoc, (isIdempotentElem_chamberIdem F).eq],
+        by rw [mul_assoc, (isIdempotentElem_chamberIdem F).eq]⟩⟩
+
+theorem chamberRep_chamberElt (hΓ : Δ.PSymm) (c : Matrix ι ι (GalleryAlgebra k Δ ν)) :
+    chamberRep k F hΓ (chamberElt k F c) = chamberOp k F hΓ c :=
+  chamberOp_sandwich hΓ c
+
 /-- The polynomial representation of the weighted KLR algebra on a family of chambers is
 faithful, under the hypotheses of the basis theorem. -/
 theorem chamberRep_injective (hD : Δ.Dagger) (hZ : Δ.NoZeroLoops) (hΓ : Δ.PSymm)
@@ -494,6 +506,94 @@ theorem chamberOp_stGenMat (hD : Γ.Dagger) (hE : ∀ e, Γ.head e ≠ Γ.tail e
       simp only [stGenMat, h, ↓reduceDIte, KLR.PolyRep.genOp, KLR.PolyRep.opΨ_eq_zero _ h',
         LinearMap.zero_apply, Pi.zero_apply, map_zero, chamberOp_apply, Matrix.zero_apply,
         Finset.sum_const_zero]
+
+variable (ν k Λ) in
+/-- The images of the generators, on the free algebra. -/
+noncomputable def stFreeHom (hϖ : StrictMono ϖ) (hw0 : ∀ e, Γ.weight e = 0) :
+    FreeAlgebra k (KLR.Gen (stendhalWeight ℓ ν)) →ₐ[k]
+      ChamberAlgebra k (stFull (ν := ν) Λ hϖ hw0) :=
+  FreeAlgebra.lift k fun g => chamberElt k _ (stGenMat k Λ hϖ hw0 g)
+
+theorem stFreeHom_ι (hϖ : StrictMono ϖ) (hw0 : ∀ e, Γ.weight e = 0)
+    (g : KLR.Gen (stendhalWeight ℓ ν)) :
+    stFreeHom ν k Λ hϖ hw0 (FreeAlgebra.ι k g) = chamberElt k _ (stGenMat k Λ hϖ hw0 g) :=
+  FreeAlgebra.lift_ι_apply _ _
+
+theorem chamberRep_stFreeHom (hD : Γ.Dagger) (hE : ∀ e, Γ.head e ≠ Γ.tail e)
+    (hl : ∀ c, Γ.loop c = none) (hϖ : StrictMono ϖ) (hw0 : ∀ e, Γ.weight e = 0)
+    (x : FreeAlgebra k (KLR.Gen (stendhalWeight ℓ ν))) :
+    chamberRep k (stFull Λ hϖ hw0) (WeightedGraph.crawleyBoeveyIn_psymm (psymm_of_loop hl))
+        (stFreeHom ν k Λ hϖ hw0 x) ∘ₗ stRenOp ℓ ν k =
+      stRenOp ℓ ν k ∘ₗ KLR.PolyRep.freeRep _ (stP Γ Λ) x := by
+  induction x using FreeAlgebra.induction with
+  | grade0 r =>
+    simp only [AlgHom.commutes, Module.algebraMap_end_eq_smul_id, LinearMap.smul_comp,
+      LinearMap.comp_smul, LinearMap.id_comp, LinearMap.comp_id]
+  | grade1 g =>
+    refine LinearMap.ext fun f => funext fun j => ?_
+    rw [LinearMap.comp_apply, LinearMap.comp_apply, stFreeHom_ι,
+      chamberRep_chamberElt, chamberOp_stGenMat hD hE hl, stRenOp_apply,
+      KLR.PolyRep.freeRep, FreeAlgebra.lift_ι_apply]
+  | mul a b ha hb =>
+    rw [map_mul, map_mul, Module.End.mul_eq_comp, LinearMap.comp_assoc,
+      hb, ← LinearMap.comp_assoc, ha, LinearMap.comp_assoc, map_mul]
+    rfl
+  | add a b ha hb =>
+    simp only [map_add, LinearMap.add_comp, LinearMap.comp_add, ha, hb]
+
+theorem stRenOp_single (j : OrdSeq ℓ ν) (q : MvPolynomial (Fin m) k) :
+    stRenOp ℓ ν k (Pi.single j.1 q) = Pi.single j (stRen j.1 q) := by
+  funext j'
+  by_cases hj : j' = j
+  · subst hj
+    simp
+  · rw [stRenOp_apply, Pi.single_eq_of_ne hj, Pi.single_eq_of_ne (fun e => hj (Subtype.ext e)),
+      map_zero]
+
+/-- An operator commuting with the dot on the `0`-strand is determined by its composite with
+the renaming: the variables of the black strands come from the KLR polynomial representation,
+and the variable of the `0`-strand acts through the commuting dot. -/
+theorem eq_of_comp_stRenOp {A B : Module.End k (OrdSeq ℓ ν → PolyRing ν̃ k)}
+    (hA : Commute A (mulXOp (GalleryAlgebra.zeroStrand (Multiset.toFinsupp ν))))
+    (hB : Commute B (mulXOp (GalleryAlgebra.zeroStrand (Multiset.toFinsupp ν))))
+    (h : A ∘ₗ stRenOp ℓ ν k = B ∘ₗ stRenOp ℓ ν k) : A = B := by
+  have key : ∀ (j : OrdSeq ℓ ν) (p : PolyRing ν̃ k) (q : MvPolynomial (Fin m) k),
+      A (Pi.single j (p * stRen j.1 q)) = B (Pi.single j (p * stRen j.1 q)) := by
+    intro j p
+    induction p using MvPolynomial.induction_on with
+    | C c =>
+      intro q
+      have hc : C c * stRen j.1 q = stRen j.1 (C c * q) := by
+        rw [map_mul, stRen, rename_C]
+      rw [hc, ← stRenOp_single]
+      exact LinearMap.congr_fun h _
+    | add p p' hp hp' =>
+      intro q
+      rw [add_mul, Pi.single_add, map_add, map_add, hp, hp']
+    | mul_X p s hp =>
+      intro q
+      by_cases hs : s = GalleryAlgebra.zeroStrand (Multiset.toFinsupp ν)
+      · subst hs
+        have hm : (Pi.single j (p * X (GalleryAlgebra.zeroStrand (Multiset.toFinsupp ν)) *
+            stRen j.1 q) : OrdSeq ℓ ν → PolyRing ν̃ k) =
+            mulXOp (GalleryAlgebra.zeroStrand (Multiset.toFinsupp ν))
+              (Pi.single j (p * stRen j.1 q)) := by
+          funext j'
+          by_cases hj : j' = j
+          · subst hj
+            simp only [Pi.single_eq_same, mulXOp_apply]
+            ring
+          · simp [Pi.single_eq_of_ne hj]
+        rw [hm, ← Module.End.mul_apply, hA.eq, Module.End.mul_apply, hp,
+          ← Module.End.mul_apply, ← hB.eq, Module.End.mul_apply]
+      · obtain ⟨s', hs'⟩ := exists_ofTilde_of_ne hs
+        have hX : (X s : PolyRing ν̃ k) = stRen j.1 (X (j.1.posOf s')) := by
+          rw [stRen, rename_X, KLR.Seq.strandAt_posOf, toTilde_of_ofTilde hs']
+        rw [hX, mul_assoc, ← map_mul]
+        exact hp _
+  refine LinearMap.pi_ext fun j p => ?_
+  have := key j p 1
+  rwa [map_one, mul_one] at this
 
 end Hom
 

@@ -7,17 +7,20 @@ import Mathlib
 /-!
 # Expansions of operators on polynomials in the skew group ring
 
-Let `k` be an integral domain, `R = k[x_0, …, x_{n-1}]` and `K = Frac R`. The symmetric
-group `S_n` acts on `R` by `rename` and hence on `K` by field automorphisms `act k w`.
+Let `k` be a commutative ring, `R = k[x_0, …, x_{n-1}]` and `K = Frac R` the total ring of
+fractions (the localization at the non-zero-divisors; a field when `k` is a domain). The
+symmetric group `S_n` acts on `R` by `rename` and hence on `K` by ring automorphisms `act k w`.
 A map `T : R → R` has *expansion* `g : S_n → K` if
 
   `T f = ∑_w g w · w(f)` in `K`, for all `f ∈ R`,
 
 i.e. `T` is the restriction of the element `∑_w g w · w` of the skew group ring `K ⋊ S_n`.
 Multiplication operators, `rename`, and divided differences have expansions; expansions
-compose by the skew convolution `conv`, and are unique by Dedekind's independence of
-characters. This is the tool used to prove linear independence of the operators in
-the polynomial representation of KLR algebras (KL I, arXiv:0803.4121v2, Thm 2.5).
+compose by the skew convolution `conv`, and are unique by Dedekind's argument for the
+independence of characters, which only uses that the differences `x_a - x_b` are
+non-zero-divisors (`HasExp.eq_zero_of_forall_sum`). This is the tool used to prove linear
+independence of the operators in the polynomial representation of KLR algebras (KL I,
+arXiv:0803.4121v2, Thm 2.5).
 
 ## Main definitions
 
@@ -43,7 +46,7 @@ local notation "R" => MvPolynomial (Fin n) k
 local notation "K" => FractionRing (MvPolynomial (Fin n) k)
 
 variable (k) in
-/-- The field automorphism of `Frac k[x]` induced by `rename w`. -/
+/-- The ring automorphism of `Frac k[x]` induced by `rename w`. -/
 noncomputable def act (w : Perm (Fin n)) : K ≃+* K :=
   IsFractionRing.ringEquivOfRingEquiv (renameEquiv k w).toRingEquiv
 
@@ -75,6 +78,29 @@ theorem act_ne_zero (w : Perm (Fin n)) {x : K} (hx : x ≠ 0) : act k w x ≠ 0 
 
 theorem algebraMap_ne_zero {f : R} (hf : f ≠ 0) : algebraMap R K f ≠ 0 :=
   (map_ne_zero_iff _ (IsFractionRing.injective R K)).mpr hf
+
+/-- A non-zero-divisor of `R` becomes a unit in its total ring of fractions. -/
+theorem isUnit_algebraMap {f : R} (hf : IsRegular f) : IsUnit (algebraMap R K f) :=
+  IsLocalization.map_units K (⟨f, isRegular_iff_mem_nonZeroDivisors.1 hf⟩ : nonZeroDivisors R)
+
+theorem isRegular_X_sub_X {a b : Fin n} (hab : a ≠ b) : IsRegular (X a - X b : R) := by
+  suffices IsLeftRegular (X a - X b : R) from ⟨this, this.right_of_commute <| Commute.all _⟩
+  intro p q (hpq : (X a - X b) * p = (X a - X b) * q)
+  let φ : R →ₐ[k] R := aeval fun c => if c = a then X a + X b else X c
+  let ψ : R →ₐ[k] R := aeval fun c => if c = a then X a - X b else X c
+  have hψφ : ∀ g, ψ (φ g) = g := fun g => by
+    have : ψ.comp φ = AlgHom.id k R := by
+      apply MvPolynomial.algHom_ext
+      intro c
+      by_cases hc : c = a
+      · subst hc; simp [φ, ψ, Ne.symm hab]
+      · simp [φ, ψ, hc]
+    exact congrArg (fun χ : R →ₐ[k] R => χ g) this
+  have h := congrArg φ hpq
+  have hX : φ (X a - X b) = X a := by simp [φ, Ne.symm hab]
+  rw [map_mul, map_mul, hX] at h
+  have := (isRegular_X : IsRegular (X a : R)).left h
+  rw [← hψφ p, ← hψφ q, this]
 
 /-- `T : R → R` has expansion `g : S_n → K`: `T f = ∑_w g w · w(f)` in `Frac R`. -/
 def HasExp (T : R → R) (g : Perm (Fin n) → K) : Prop :=
@@ -134,36 +160,70 @@ theorem comp {T T' : R → R} {g g' : Perm (Fin n) → K} (h : HasExp T g) (h' :
   refine Finset.sum_congr rfl fun v _ => ?_
   simp only [Equiv.coe_mulLeft, inv_mul_cancel_left, act_mul, mul_assoc]
 
-/-- The characters `f ↦ w(f)` of the multiplicative monoid of `R` in `K`. -/
-noncomputable def chi (w : Perm (Fin n)) : R →* K :=
-  ((algebraMap R K).comp (rename w).toRingHom).toMonoidHom
+/-- **Dedekind's argument.** If `∑_w g w · w(f) = 0` in `Frac R` for every `f ∈ R`, then
+`g = 0`. It only uses that the differences `x_a - x_b` (`a ≠ b`) are non-zero-divisors, so it
+holds over any commutative ring `k`. -/
+theorem eq_zero_of_forall_sum {g : Perm (Fin n) → K}
+    (h : ∀ f : R, ∑ w, g w * act k w (algebraMap R K f) = 0) : g = 0 := by
+  classical
+  suffices H : ∀ S : Finset (Perm (Fin n)), ∀ g : Perm (Fin n) → K, (∀ x ∉ S, g x = 0) →
+      (∀ f : R, ∑ w, g w * act k w (algebraMap R K f) = 0) → g = 0 from
+    H Finset.univ g (fun x hx => absurd (Finset.mem_univ x) hx) h
+  intro S
+  induction S using Finset.induction_on with
+  | empty => exact fun g hg _ => funext fun x => hg x (Finset.notMem_empty x)
+  | insert x₀ S hx₀ ih =>
+    intro g hg h
+    have hS : ∀ y ∈ S, g y = 0 := by
+      intro y hy
+      have hne : y ≠ x₀ := fun e => hx₀ (e ▸ hy)
+      obtain ⟨t, ht⟩ : ∃ t, y t ≠ x₀ t := by
+        by_contra hc
+        push Not at hc
+        exact hne (Equiv.ext hc)
+      have hb := ih (fun x => g x * algebraMap R K (X (x t) - X (x₀ t))) (fun x hx => ?_)
+        (fun f => ?_)
+      · have := congrFun hb y
+        simpa only [Pi.zero_apply, (isUnit_algebraMap (isRegular_X_sub_X ht)).mul_left_eq_zero]
+          using this
+      · by_cases e : x = x₀
+        · simp only [e, sub_self, map_zero, mul_zero]
+        · rw [hg x (by simp [e, hx]), zero_mul]
+      · have h1 := h (X t * f)
+        have h2 := h f
+        have e : ∑ x, g x * algebraMap R K (X (x t) - X (x₀ t)) * act k x (algebraMap R K f) =
+            ∑ x, g x * act k x (algebraMap R K (X t * f)) -
+              algebraMap R K (X (x₀ t)) * ∑ x, g x * act k x (algebraMap R K f) := by
+          rw [Finset.mul_sum, ← Finset.sum_sub_distrib]
+          refine Finset.sum_congr rfl fun x _ => ?_
+          simp only [act_algebraMap, map_mul, rename_X, map_sub]
+          ring
+        rw [e, h1, h2, mul_zero, sub_zero]
+    have h0 := h 1
+    simp only [map_one, mul_one] at h0
+    rw [Finset.sum_eq_single x₀ (fun y _ hy => by
+      by_cases hyS : y ∈ S
+      · exact hS y hyS
+      · exact hg y (by simp [hy, hyS])) (fun hx => absurd (Finset.mem_univ x₀) hx)] at h0
+    funext x
+    by_cases e : x = x₀
+    · rw [e]; exact h0
+    · by_cases hxS : x ∈ S
+      · exact hS x hxS
+      · exact hg x (by simp [e, hxS])
 
-theorem chi_injective [IsDomain k] : Function.Injective (chi (n := n) (k := k)) := by
-  intro u v huv
-  ext a
-  have := DFunLike.congr_fun huv (X a)
-  simp only [chi, RingHom.toMonoidHom_eq_coe, MonoidHom.coe_coe, RingHom.coe_comp,
-    Function.comp_apply, AlgHom.toRingHom_eq_coe, RingHom.coe_coe, rename_X] at this
-  exact congrArg Fin.val (X_injective (IsFractionRing.injective R K this))
-
-/-- Expansions are unique (Dedekind independence of the characters `f ↦ w(f)`). -/
-theorem unique [IsDomain k] {T : R → R} {g g' : Perm (Fin n) → K} (h : HasExp T g) (h' : HasExp T g') : g = g' := by
-  have li := (linearIndependent_monoidHom R K).comp chi chi_injective
-  have key := Fintype.linearIndependent_iff.mp li (g - g') (by
-    funext f
-    have e1 := h f
-    have e2 := h' f
-    simp only [Finset.sum_apply, Pi.smul_apply, Function.comp_apply, chi,
-      RingHom.toMonoidHom_eq_coe, MonoidHom.coe_coe, RingHom.coe_comp, Function.comp_apply,
-      AlgHom.toRingHom_eq_coe, RingHom.coe_coe, Pi.sub_apply, smul_eq_mul, sub_mul,
-      Finset.sum_sub_distrib, Pi.zero_apply]
-    simp only [act_algebraMap] at e1 e2
-    rw [← e1, ← e2, sub_self])
+/-- Expansions are unique (Dedekind's argument, `eq_zero_of_forall_sum`). -/
+theorem unique {T : R → R} {g g' : Perm (Fin n) → K} (h : HasExp T g) (h' : HasExp T g') :
+    g = g' := by
+  have key := eq_zero_of_forall_sum (g := g - g') fun f => by
+    simp only [Pi.sub_apply, sub_mul, Finset.sum_sub_distrib]
+    rw [← h f, ← h' f, sub_self]
   funext w
-  exact sub_eq_zero.mp (key w)
+  exact sub_eq_zero.mp (congrFun key w)
 
 /-- If `T` vanishes identically then its expansion vanishes. -/
-theorem eq_zero_of_forall [IsDomain k] {T : R → R} {g : Perm (Fin n) → K} (h : HasExp T g) (hT : ∀ f, T f = 0) : g = 0 :=
+theorem eq_zero_of_forall {T : R → R} {g : Perm (Fin n) → K} (h : HasExp T g)
+    (hT : ∀ f, T f = 0) : g = 0 :=
   (h.congr fun f => (hT f).symm).unique zero
 
 end HasExp
@@ -183,19 +243,19 @@ theorem hasExp_mul_rename (p : R) (w : Perm (Fin n)) :
   intro f; simp [sum_single_mul]
 
 /-- An operator `D` with `(X a - X b) * D f = f - rename (swap a b) f` (a divided difference)
-has expansion `(X a - X b)⁻¹ (δ_1 - δ_{(a b)})`. -/
-theorem hasExp_ddiffLike [IsDomain k] {a b : Fin n} (hab : a ≠ b) {D : R → R}
+has expansion `(X a - X b)⁻¹ (δ_1 - δ_{(a b)})`; `X a - X b` is a unit of `Frac R` and its
+inverse is written `Ring.inverse`. -/
+theorem hasExp_ddiffLike {a b : Fin n} (hab : a ≠ b) {D : R → R}
     (hD : ∀ f, (X a - X b) * D f = f - rename (swap a b) f) :
-    HasExp D (Pi.single 1 (algebraMap R K (X a - X b))⁻¹ +
-      Pi.single (swap a b) (-(algebraMap R K (X a - X b))⁻¹)) := by
+    HasExp D (Pi.single 1 (Ring.inverse (algebraMap R K (X a - X b))) +
+      Pi.single (swap a b) (-Ring.inverse (algebraMap R K (X a - X b)))) := by
   intro f
-  have hne : algebraMap R K (X a - X b) ≠ 0 :=
-    algebraMap_ne_zero (sub_ne_zero.mpr fun h => hab (X_injective h))
+  have hu : IsUnit (algebraMap R K (X a - X b)) := isUnit_algebraMap (isRegular_X_sub_X hab)
   have := congrArg (algebraMap R K) (hD f)
   rw [map_mul, map_sub _ f] at this
-  have key : algebraMap R K (D f) = (algebraMap R K (X a - X b))⁻¹ *
+  have key : algebraMap R K (D f) = Ring.inverse (algebraMap R K (X a - X b)) *
       (algebraMap R K f - algebraMap R K (rename (swap a b) f)) := by
-    rw [← this, ← mul_assoc, inv_mul_cancel₀ hne, one_mul]
+    rw [← this, ← mul_assoc, Ring.inverse_mul_cancel _ hu, one_mul]
   simp only [Pi.add_apply, add_mul, Finset.sum_add_distrib, sum_single_mul,
     act_algebraMap, Perm.coe_one, rename_id_apply]
   rw [key]

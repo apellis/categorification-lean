@@ -191,3 +191,43 @@ theorem polyRep_injective : Function.Injective (polyRep hPQ : KLRAlgebra k Q ν 
   rw [this, map_zero]
 
 end Categorification.KLR
+
+namespace Categorification.KLR
+
+open Equiv MvPolynomial TypeA PolyRep KLRAlgebra
+
+variable {I : Type*} [DecidableEq I] {k : Type*} [CommRing k]
+  {Q : I → I → MvPolynomial (Fin 2) k} {P : I → I → MvPolynomial (Fin 2) k}
+  (hPQ : ∀ a b, a ≠ b → Q a b = P b a * rename ![1, 0] (P a b)) {ν : Multiset I}
+
+/-- **KL I, Corollary 2.6** over any commutative ring: the polynomial representation is
+faithful as soon as each `P a b` (`a ≠ b`) is a non-zero-divisor in any two distinct variables
+of `k[x_1, …, x_m]` (over a domain, `P a b ≠ 0` suffices: `polyRep_injective`). The standard
+family `ψ_{ρ w} x^u e_i` spans `R(ν)` over any commutative ring (`span_stdElt`), and its
+operators are linearly independent (`linearIndependent_opΨw_of_isRegular`). -/
+theorem polyRep_injective_of_isRegular
+    (hP : ∀ a b, a ≠ b → ∀ f : Fin 2 → Fin (Multiset.card ν), Function.Injective f →
+      IsRegular (rename f (P a b))) :
+    Function.Injective (polyRep hPQ : KLRAlgebra k Q ν → _) := by
+  obtain ⟨ρ, hρ⟩ : ∃ ρ : Perm (Fin (Multiset.card ν)) → List ℕ,
+      ∀ w, IsReduced _ (ρ w) ∧ wordProd _ (ρ w) = w :=
+    ⟨fun w => canWord _ w, fun w => ⟨isReduced_canWord _ w, wordProd_canWord _ w⟩⟩
+  have hli := linearIndependent_opΨw_of_isRegular (ν := ν) hP ρ hρ
+  have h2 : (polyRep hPQ).toLinearMap ∘ stdElt (k := k) (Q := Q) ρ =
+      fun b => opΨw P (ρ b.2.1) ∘ₗ mulMono b.2.2 ∘ₗ opE b.1 := by
+    funext b; exact polyRep_stdElt hPQ ρ b
+  rw [← h2] at hli
+  show Function.Injective (polyRep hPQ).toLinearMap
+  rw [← LinearMap.ker_eq_bot, LinearMap.ker_eq_bot']
+  intro r hr
+  have hmem : r ∈ Submodule.span k (Set.range (stdElt (k := k) (Q := Q) ρ)) := by
+    rw [span_stdElt ρ hρ]; trivial
+  obtain ⟨c, rfl⟩ := Finsupp.mem_span_range_iff_exists_finsupp.1 hmem
+  have hc : c = 0 := by
+    rw [linearIndependent_iff] at hli
+    apply hli
+    rw [Finsupp.linearCombination_apply, ← hr, Finsupp.sum, Finsupp.sum, map_sum]
+    simp [map_smul]
+  simp [hc]
+
+end Categorification.KLR

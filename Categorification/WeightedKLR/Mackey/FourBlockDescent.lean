@@ -168,6 +168,66 @@ theorem typeShuffle_balance_mem_mackeyFilt {L R : FullChamber Γ (a + b + (c + d
     (fourShuffle_mul_sub_mul_fourShuffle_mem_mackeyFilt_middleSwap hΓ hP hD hZ hW hL hA hB hC
       hD₀ hA' hB' hC' hD' xa xb xc xd)
 
+/-- **Balancedness of the map of the middle parabolic, up to lower shuffle types.** For
+`x ∈ W_{a+c} ⊗ W_{b+d}`, `y ∈ W_{a+b} ⊗ W_{c+d}` and `x_a, x_b, x_c, x_d` in `W_a, W_b, W_c, W_d`,
+the map `x ⊗ y ↦ e L ι(x) ψ_c ι(y) e R` of the shuffle type `c` takes the same value on
+`x ⊗ (ι(x_a ⊗ x_b) ⊗ ι(x_c ⊗ x_d)) y` and on `x (ι(x_a ⊗ x_c) ⊗ ι(x_b ⊗ x_d)) ⊗ y`, up to the step
+of the shuffle types strictly below `c` (Webster, arXiv:1209.2463v4, Theorem 2.19). -/
+theorem typeInductionAux_middle_sub_mem_mackeyFilt {L R : FullChamber Γ (a + b + (c + d))}
+    (hL' : L.IsRankOrdered) (hR : R.IsRankOrdered)
+    (x : WeightedKLRAlgebra k Γ (a + c) ⊗[k] WeightedKLRAlgebra k Γ (b + d))
+    (y : WeightedKLRAlgebra k Γ (a + b) ⊗[k] WeightedKLRAlgebra k Γ (c + d))
+    (xa : WeightedKLRAlgebra k Γ a) (xb : WeightedKLRAlgebra k Γ b)
+    (xc : WeightedKLRAlgebra k Γ c) (xd : WeightedKLRAlgebra k Γ d) :
+    typeInductionAux k hD hZ (rfl : a + b + (c + d) = a + b + (c + d)) (layout_eq a b c d) L R
+        (middleLeft a b c d)
+        (x ⊗ₜ ((inductionMap k Γ a b (xa ⊗ₜ xb) ⊗ₜ inductionMap k Γ c d (xc ⊗ₜ xd)) * y)) -
+      typeInductionAux k hD hZ (rfl : a + b + (c + d) = a + b + (c + d)) (layout_eq a b c d) L R
+        (middleLeft a b c d)
+        ((x * (inductionMap k Γ a c (xa ⊗ₜ xc) ⊗ₜ inductionMap k Γ b d (xb ⊗ₜ xd))) ⊗ₜ y) ∈
+      mackeyFilt k hP hD hZ hΓ hW hL (a + b) (a + c) L R (Set.Iio ⇑c) := by
+  have h₁ : inductionVal k (rfl : a + b + (c + d) = a + b + (c + d))
+      (inductionMap k Γ a b (xa ⊗ₜ xb) ⊗ₜ inductionMap k Γ c d (xc ⊗ₜ xd)) =
+      (∑ q ∈ rankQuads Γ a b c d, e (fourChamber a b c d q)) *
+        (galleryTensorHom k Γ (a + b) (c + d)
+          ((galleryTensorHom k Γ a b (xa.1 ⊗ₜ xb.1)).1 ⊗ₜ
+            (galleryTensorHom k Γ c d (xc.1 ⊗ₜ xd.1)).1)).1 *
+        ∑ q ∈ rankQuads Γ a b c d, e (fourChamber a b c d q) := by
+    have hu : inductionMap k Γ a b (xa ⊗ₜ xb) ⊗ₜ inductionMap k Γ c d (xc ⊗ₜ xd) =
+        (inductionMap k Γ a b 1 ⊗ₜ[k] inductionMap k Γ c d 1) *
+          (inductionMap k Γ a b (xa ⊗ₜ xb) ⊗ₜ inductionMap k Γ c d (xc ⊗ₜ xd)) *
+          (inductionMap k Γ a b 1 ⊗ₜ[k] inductionMap k Γ c d 1) := by
+      rw [Algebra.TensorProduct.tmul_mul_tmul, Algebra.TensorProduct.tmul_mul_tmul,
+        ← map_mul (inductionMap k Γ a b), ← map_mul (inductionMap k Γ a b),
+        ← map_mul (inductionMap k Γ c d), ← map_mul (inductionMap k Γ c d), one_mul, one_mul,
+        mul_one, mul_one]
+    rw [hu, inductionVal_mul, inductionVal_mul, inductionVal_apply, castGallery_rfl,
+      inductionMap_tmul, inductionMap_one, inductionMap_one, galleryTensorHom_splitIdem_splitIdem]
+    rfl
+  have h₂ : inductionVal k (layout_eq a b c d)
+      (inductionMap k Γ a c (xa ⊗ₜ xc) ⊗ₜ inductionMap k Γ b d (xb ⊗ₜ xd)) =
+      (∑ q ∈ rankQuads Γ a b c d, e (fourChamberSwap a b c d q)) *
+        castGallery k Γ (layout_eq a b c d) (galleryTensorHom k Γ (a + c) (b + d)
+          ((galleryTensorHom k Γ a c (xa.1 ⊗ₜ xc.1)).1 ⊗ₜ
+            (galleryTensorHom k Γ b d (xb.1 ⊗ₜ xd.1)).1)).1 *
+        ∑ q ∈ rankQuads Γ a b c d, e (fourChamberSwap a b c d q) := by
+    have hu : inductionMap k Γ a c (xa ⊗ₜ xc) ⊗ₜ inductionMap k Γ b d (xb ⊗ₜ xd) =
+        (inductionMap k Γ a c 1 ⊗ₜ[k] inductionMap k Γ b d 1) *
+          (inductionMap k Γ a c (xa ⊗ₜ xc) ⊗ₜ inductionMap k Γ b d (xb ⊗ₜ xd)) *
+          (inductionMap k Γ a c 1 ⊗ₜ[k] inductionMap k Γ b d 1) := by
+      rw [Algebra.TensorProduct.tmul_mul_tmul, Algebra.TensorProduct.tmul_mul_tmul,
+        ← map_mul (inductionMap k Γ a c), ← map_mul (inductionMap k Γ a c),
+        ← map_mul (inductionMap k Γ b d), ← map_mul (inductionMap k Γ b d), one_mul, one_mul,
+        mul_one, mul_one]
+    rw [hu, inductionVal_mul, inductionVal_mul, inductionVal_apply (layout_eq a b c d)
+      (inductionMap k Γ a c 1 ⊗ₜ[k] inductionMap k Γ b d 1), inductionMap_tmul, inductionMap_one,
+      inductionMap_one, castGallery_galleryTensorHom_splitIdem_splitIdem]
+    rfl
+  rw [typeInductionAux_tmul, typeInductionAux_tmul, inductionVal_mul, inductionVal_mul, h₁, h₂]
+  convert typeShuffle_balance_mem_mackeyFilt hP hD hZ hΓ hW hL hL' hR x y xa.1 xb.1 xc.1 xd.1
+    using 1
+  simp only [mul_sub, sub_mul, mul_assoc]
+
 end Juxtapose
 
 end Categorification.WeightedKLR

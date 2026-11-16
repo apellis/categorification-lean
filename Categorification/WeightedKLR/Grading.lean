@@ -41,10 +41,14 @@ grading datum `WeightedGraph.Standing.gradingDatum` uses the *doubled* normaliza
 * a step across a diagonal of colour `i` has degree `-2 d_i` without a loop of weight `0` at `i`,
   and `2 d_i (c_i - 1)` (the degree of `P_i`) with one.
 
-All degrees are twice those obtained from the standing hypothesis' weights, so that they are
-integers. With a single edge between two colours, no loops and `⟨α_i, α_i⟩ = 2 d_i`,
-`⟨α_i, α_j⟩ = -d_{h(e)} c_e`, this is Webster's printed degree function. The printed function does
-not make every relation homogeneous in general:
+These are twice the degrees obtained by reading Webster's pairing as `⟨α_i, α_i⟩ = d_i` and
+`⟨α_i, α_j⟩ = -d_{h(e)} c_e`, the reading under which his printed degrees agree with the standing
+hypothesis (a dot of degree `d_i`, so `Q_e` of degree `d_{h(e)} c_e`, and two ghost crossings of
+total degree `-⟨α_i, α_j⟩ = d_{h(e)} c_e`); with that reading the ghost crossings can have
+half-integral degree, which the doubling avoids. With the usual reading `⟨α_i, α_i⟩ = 2 d_i` the
+printed dot and strand-crossing degrees are ours, but the printed ghost crossings have degree
+`½ d_{h(e)} c_e`, half the degree the ghost bigon (relation (2)) requires. Beyond this
+normalization, the printed function does not make every relation homogeneous in general:
 
 * with several edges between `i` and `j`, each ghost crossing must carry the degree of its own
   edge, not a total `⟨α_i, α_j⟩`;
@@ -61,11 +65,12 @@ The grading is constructed with a coaction `GalleryAlgebra k Γ ν → GalleryAl
 ## Main definitions and results
 
 * `WeightedKLR.GradingDatum Γ` : grading data compatible with `Γ`.
-* `GradingDatum.coaction`, `GradingDatum.grade` and the `GradedAlgebra (G.grade k Γ ν)`
+* `GradingDatum.coaction`, `GradingDatum.grade` and the `GradedAlgebra (G.grade ν)`
   structure `GradingDatum.gradedAlgebra`.
 * `GradingDatum.e_mem_grade`, `GradingDatum.poly_mem_grade`, `GradingDatum.t_mem_grade`,
   `GradingDatum.r_mem_grade`, `GradingDatum.galList_mem_grade` : degrees of the generators and of
-  galleries.
+  galleries; `GradingDatum.r_mul_galList_mul_poly_mem_grade` : the elements of the basis of
+  Webster's Theorem 2.8 are homogeneous.
 * `WeightedGraph.Standing.gradingDatum` : the grading datum of Webster's standing hypothesis.
 -/
 
@@ -125,6 +130,25 @@ structure GradingDatum where
   cross_of_loop_none : ∀ i, Γ.loop i = none → cross i = -dot i
   isWeightedHomogeneous_loop : ∀ i P, Γ.loop i = some P →
     P.IsWeightedHomogeneous ![dot i, dot i] (cross i)
+
+omit [DecidableEq I] [IsStrictOrderedRing 𝕜] in
+theorem Diag.left_fst (C : FullChamber Γ ν) (d : Diag ν) : (d.left C).1 = d.fst.1 := by
+  unfold Diag.left; split_ifs
+  · rfl
+  · exact d.2.1.symm
+
+omit [DecidableEq I] [IsStrictOrderedRing 𝕜] in
+theorem Diag.right_fst (C : FullChamber Γ ν) (d : Diag ν) : (d.right C).1 = d.fst.1 := by
+  unfold Diag.right; split_ifs
+  · exact d.2.1.symm
+  · rfl
+
+omit [DecidableEq I] in
+theorem Diag.Joins.fst_eq {d : Diag ν} {a b : Strand ν} (h : d.Joins a b) :
+    d.fst.1 = a.1 ∧ b.1 = a.1 := by
+  rcases h with ⟨h1, h2⟩ | ⟨h1, h2⟩
+  · exact ⟨by rw [h1], by rw [← h1, ← h2]; exact d.2.1.symm⟩
+  · exact ⟨by rw [← h2]; exact d.2.1, by rw [← h1, ← h2]; exact d.2.1⟩
 
 namespace GradingDatum
 
@@ -232,31 +256,6 @@ theorem stepFactor_add (l r : Strand ν) (f g : PolyRing ν k) :
   split
   · exact map_add _ f g
   · rw [map_add]; ring
-
-omit [DecidableEq I] [IsStrictOrderedRing 𝕜] in
-theorem Diag.left_fst (C : FullChamber Γ ν) (d : Diag ν) : (d.left C).1 = d.fst.1 := by
-  unfold Diag.left; split_ifs
-  · rfl
-  · exact d.2.1.symm
-
-omit [DecidableEq I] [IsStrictOrderedRing 𝕜] in
-theorem Diag.right_fst (C : FullChamber Γ ν) (d : Diag ν) : (d.right C).1 = d.fst.1 := by
-  unfold Diag.right; split_ifs
-  · exact d.2.1.symm
-  · rfl
-
-omit [DecidableEq I] [IsStrictOrderedRing 𝕜] in
-theorem Diag.left_ne_right (C : FullChamber Γ ν) (d : Diag ν) : d.left C ≠ d.right C := by
-  unfold Diag.left Diag.right; split_ifs
-  · exact d.fst_ne_snd
-  · exact d.fst_ne_snd.symm
-
-omit [DecidableEq I] in
-theorem Diag.Joins.fst_eq {d : Diag ν} {a b : Strand ν} (h : d.Joins a b) :
-    d.fst.1 = a.1 ∧ b.1 = a.1 := by
-  rcases h with ⟨h1, h2⟩ | ⟨h1, h2⟩
-  · exact ⟨by rw [h1], by rw [← h1, ← h2]; exact d.2.1.symm⟩
-  · exact ⟨by rw [← h2]; exact d.2.1, by rw [← h1, ← h2]; exact d.2.1⟩
 
 /-! ### The coaction on the free algebra -/
 
@@ -645,5 +644,146 @@ theorem decompose_apply (a : GalleryAlgebra k Γ ν) (d : ℤ) :
   CoactionGrading.decompose_apply G.counit G.coassoc a d
 
 end GradingDatum
+
+
+/-! ### The grading datum of the standing hypothesis -/
+
+section Weighted
+
+variable {σ R : Type*} [CommRing R] {w : σ → ℤ}
+
+/-- Multiplying by a weighted homogeneous polynomial of degree `a` shifts weighted homogeneous
+components by `a`. -/
+theorem weightedHomogeneousComponent_mul_of_isWeightedHomogeneous {φ : MvPolynomial σ R} {a : ℤ}
+    (hφ : φ.IsWeightedHomogeneous w a) (m : ℤ) (P : MvPolynomial σ R) :
+    weightedHomogeneousComponent w (a + m) (φ * P) = φ * weightedHomogeneousComponent w m P := by
+  induction P using MvPolynomial.induction_on' with
+  | monomial d c =>
+    have hd : (monomial d c : MvPolynomial σ R).IsWeightedHomogeneous w (Finsupp.weight w d) :=
+      isWeightedHomogeneous_monomial _ _ _ rfl
+    by_cases h : Finsupp.weight w d = m
+    · subst h
+      rw [(hφ.mul hd).weightedHomogeneousComponent_same, hd.weightedHomogeneousComponent_same]
+    · rw [(hφ.mul hd).weightedHomogeneousComponent_ne _ (by omega),
+        hd.weightedHomogeneousComponent_ne _ (Ne.symm h), mul_zero]
+  | add p q hp hq => rw [mul_add, map_add, map_add, hp, hq, mul_add]
+
+/-- If `φ` is weighted homogeneous of degree `a` and a non-zero-divisor, and `φ P` is weighted
+homogeneous of degree `n`, then `P` is weighted homogeneous of degree `n - a`. -/
+theorem isWeightedHomogeneous_of_mul_left {φ P : MvPolynomial σ R} {a n : ℤ}
+    (hφ : φ.IsWeightedHomogeneous w a) (hreg : IsRegular φ)
+    (h : (φ * P).IsWeightedHomogeneous w n) : P.IsWeightedHomogeneous w (n - a) := by
+  have hz : ∀ m, m ≠ n - a → weightedHomogeneousComponent w m P = 0 := fun m hm =>
+    hreg.left (by
+      change φ * _ = φ * 0
+      rw [mul_zero, ← weightedHomogeneousComponent_mul_of_isWeightedHomogeneous hφ,
+        h.weightedHomogeneousComponent_ne _ (by omega)])
+  have hP : P = weightedHomogeneousComponent w (n - a) P := by
+    conv_lhs => rw [← sum_weightedHomogeneousComponent w P]
+    exact finsum_eq_single _ _ hz
+  rw [hP]
+  exact weightedHomogeneousComponent_isWeightedHomogeneous _ _
+
+/-- Scaling natural weights and the degree by the same integer preserves weighted homogeneity. -/
+theorem isWeightedHomogeneous_intCast_mul {w : σ → ℕ} {p : MvPolynomial σ R} {n : ℕ}
+    (hp : p.IsWeightedHomogeneous w n) (c : ℤ) :
+    p.IsWeightedHomogeneous (fun j => c * (w j : ℤ)) (c * n) := by
+  intro d hd
+  rw [← hp hd, Finsupp.weight_apply, Finsupp.weight_apply, Finsupp.sum, Finsupp.sum,
+    Nat.cast_sum, Finset.mul_sum]
+  refine Finset.sum_congr rfl fun j _ => ?_
+  simp only [smul_eq_mul, nsmul_eq_mul, Nat.cast_mul]
+  ring
+
+end Weighted
+
+namespace WeightedGraph
+
+/-- `u - v` is weighted homogeneous of degree `a` for the weights `(a, a)`. -/
+theorem isWeightedHomogeneous_X_sub_X (a : ℤ) :
+    (X 0 - X 1 : MvPolynomial (Fin 2) k).IsWeightedHomogeneous ![a, a] a := by
+  have h0 := isWeightedHomogeneous_X k ![a, a] (0 : Fin 2)
+  have h1 := isWeightedHomogeneous_X k ![a, a] (1 : Fin 2)
+  simp only [Matrix.cons_val_zero, Matrix.cons_val_one] at h0 h1
+  exact h0.sub h1
+
+theorem two_mul_vecCons_two (a b : ℕ) :
+    (fun j => (2 : ℤ) * ((![a, b] : Fin 2 → ℕ) j : ℤ)) = ![2 * (a : ℤ), 2 * b] := by
+  funext j; fin_cases j <;> rfl
+
+namespace Standing
+
+omit [DecidableEq I] [Field 𝕜] [LinearOrder 𝕜] [IsStrictOrderedRing 𝕜]
+
+variable (h : Γ.Standing)
+include h
+
+/-- The symmetrizer `d` of the standing hypothesis. -/
+noncomputable def symm (i : I) : ℕ := h.choose i
+
+/-- The multiplicity `c_e` of the edge `e` in the standing hypothesis. -/
+noncomputable def edgeMult (e : Γ.E) : ℕ := (h.choose_spec.2.1 e).choose
+
+theorem isUnitHomogeneous_Q (e : Γ.E) :
+    ∃ c', IsUnitHomogeneous (h.symm (Γ.head e)) (h.symm (Γ.tail e)) (h.edgeMult e) c' (Γ.Q e) :=
+  (h.choose_spec.2.1 e).choose_spec
+
+theorem exists_loopMult (i : I) : ∃ c : ℕ, ∀ P, Γ.loop i = some P →
+    ∃ c', IsUnitHomogeneous (h.symm i) (h.symm i) c c' ((X 0 - X 1) * P) := by
+  cases hl : Γ.loop i with
+  | none => exact ⟨0, fun P hP => absurd hP (by simp)⟩
+  | some Q =>
+    obtain ⟨-, c, c', hc⟩ := h.choose_spec.2.2 i Q hl
+    exact ⟨c, fun P hP => ⟨c', by rwa [← Option.some_injective _ hP]⟩⟩
+
+/-- The multiplicity `c_i` of the loop of weight `0` at `i`: `(u - v) P_i` has degree
+`d_i c_i`. -/
+noncomputable def loopMult (i : I) : ℕ := (h.exists_loopMult i).choose
+
+theorem isUnitHomogeneous_loop {i : I} {P : MvPolynomial (Fin 2) k} (hP : Γ.loop i = some P) :
+    ∃ c', IsUnitHomogeneous (h.symm i) (h.symm i) (h.loopMult i) c' ((X 0 - X 1) * P) :=
+  (h.exists_loopMult i).choose_spec P hP
+
+open Classical in
+/-- **The grading of Webster's standing hypothesis** (arXiv:1209.2463v4, §2.1), in the doubled
+normalization of the module docstring: a dot on an `i`-strand has degree `2 d_i`, a wall of the
+edge `e` degree `d_{h(e)} c_e`, and a crossing of two `i`-strands degree `-2 d_i`, or
+`2 d_i (c_i - 1)` if there is a loop of weight `0` at `i`. -/
+noncomputable def gradingDatum : GradingDatum Γ where
+  dot i := 2 * h.symm i
+  wall e := h.symm (Γ.head e) * h.edgeMult e
+  cross i := if Γ.loop i = none then -(2 * h.symm i) else 2 * h.symm i * ((h.loopMult i : ℤ) - 1)
+  isWeightedHomogeneous_Q e := by
+    obtain ⟨c', -, hQ, -⟩ := h.isUnitHomogeneous_Q e
+    have := isWeightedHomogeneous_intCast_mul hQ 2
+    rw [two_mul_vecCons_two] at this
+    convert this using 1
+    push_cast; ring
+  cross_of_loop_none i hi := by simp [hi]
+  isWeightedHomogeneous_loop i P hP := by
+    simp only [hP, reduceCtorEq, ↓reduceIte]
+    obtain ⟨c', -, hQ, -⟩ := h.isUnitHomogeneous_loop hP
+    have hQ' := isWeightedHomogeneous_intCast_mul hQ 2
+    rw [two_mul_vecCons_two] at hQ'
+    have := isWeightedHomogeneous_of_mul_left (isWeightedHomogeneous_X_sub_X (k := k) _)
+      (isRegular_X_sub_X (by decide : (0 : Fin 2) ≠ 1)) hQ'
+    convert this using 1
+    push_cast; ring
+
+@[simp] theorem gradingDatum_dot (i : I) : h.gradingDatum.dot i = 2 * h.symm i := rfl
+
+@[simp] theorem gradingDatum_wall (e : Γ.E) :
+    h.gradingDatum.wall e = h.symm (Γ.head e) * h.edgeMult e := rfl
+
+theorem gradingDatum_cross_of_none {i : I} (hi : Γ.loop i = none) :
+    h.gradingDatum.cross i = -(2 * h.symm i) := by simp [gradingDatum, hi]
+
+theorem gradingDatum_cross_of_some {i : I} {P : MvPolynomial (Fin 2) k} (hP : Γ.loop i = some P) :
+    h.gradingDatum.cross i = 2 * h.symm i * ((h.loopMult i : ℤ) - 1) := by
+  simp [gradingDatum, hP]
+
+end Standing
+
+end WeightedGraph
 
 end Categorification.WeightedKLR

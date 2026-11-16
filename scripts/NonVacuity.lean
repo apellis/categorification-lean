@@ -472,5 +472,25 @@ noncomputable example (ν : Multiset (Fin 2)) :=
 example (ν : Multiset (Fin 2)) :=
   wkLooplessGraphZMod4_isTree.exists_klrCorner (k := ZMod 4) (ν := ν)
     wkLooplessGraphZMod4_standing
+/-- Webster, Theorem 2.8 for the Crawley-Boevey graph of `wkGraph` with the new edge directed
+into the new vertex (the orientation of Webster's Theorem 3.5). -/
+example (ν : Option (Fin 2) →₀ ℕ) := WeightedKLR.GalleryAlgebra.exists_redBasisIn (k := ℚ)
+  (Λ := fun _ : Fin 1 => Finsupp.single 0 1) (ϖ := fun _ => (2 : ℚ)) (ν := ν)
+  wkGraph_dagger wkGraph_noZeroLoops wkGraph_standing (fun _ _ _ => Subsingleton.elim _ _)
+
+/-- The basis of the reduced quotient for `ν̃ = ν + α_0`, new edges into the new vertex. -/
+example (ν : Fin 2 →₀ ℕ) : ∃ (ι : Type) (_ : Module.Basis ι ℚ
+    (WeightedKLR.GalleryAlgebra.ReducedQuotient ℚ
+      (wkGraph.crawleyBoeveyIn (fun _ : Fin 1 => Finsupp.single 0 1) fun _ => (2 : ℚ))
+      (WeightedKLR.WeightedGraph.redWeight ν) (WeightedKLR.GalleryAlgebra.zeroStrand ν))),
+    True := by
+  have hϖ : Function.Injective fun _ : Fin 1 => (2 : ℚ) := fun _ _ _ => Subsingleton.elim _ _
+  obtain ⟨P, hP, -⟩ := WeightedKLR.GalleryAlgebra.exists_span_segGallery (k := ℚ)
+    (ν := WeightedKLR.WeightedGraph.redWeight ν)
+    (WeightedKLR.WeightedGraph.crawleyBoeveyIn_dagger wkGraph_dagger hϖ)
+    (WeightedKLR.WeightedGraph.crawleyBoeveyIn_noZeroLoops
+      (Λ := fun _ : Fin 1 => Finsupp.single 0 1) (ϖ := fun _ => (2 : ℚ)) wkGraph_noZeroLoops)
+  exact ⟨_, WeightedKLR.GalleryAlgebra.redReducedBasisIn ν hP wkGraph_dagger wkGraph_noZeroLoops
+    wkGraph_standing hϖ, trivial⟩
 
 end NonVacuity

@@ -894,6 +894,7 @@ import Categorification.WeightedKLR.Mackey.Subquotient
 import Categorification.WeightedKLR.Mackey.Support
 import Categorification.WeightedKLR.Mackey.Swap
 import Categorification.WeightedKLR.Mackey.TypeShuffle
+import Categorification.WeightedKLR.Mackey.TypeFiltration
 import Categorification.WeightedKLR.RedStrands.StendhalBasis
 import Categorification.WeightedKLR.RedStrands.StendhalCrossing
 import Categorification.WeightedKLR.RedStrands.StendhalDescent

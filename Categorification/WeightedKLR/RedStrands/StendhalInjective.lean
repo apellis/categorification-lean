@@ -185,6 +185,23 @@ theorem exists_eq_sum_stendhalTerm
     redOrderedIdem_mul_ofKLR_stdElt_mul (fun w => (hρ w).2)]
   split_ifs <;> simp
 
+variable (ρ) in
+/-- The lift `ψ_{ρ w} x^u e(i)` of a term of the KLR basis to the free algebra. -/
+noncomputable def fStd (b : KLR.Seq μ × Perm (Fin m) × (Fin m →₀ ℕ)) :
+    FreeAlgebra k (KLR.Gen μ) :=
+  ((ρ b.2.1).map (KLR.fψ k μ)).prod * KLR.ncEval (fun a => KLR.fx k μ a) (monomial b.2.2 (1 : k)) *
+    KLR.fe k μ b.1
+
+theorem mk_fStd (b : KLR.Seq μ × Perm (Fin m) × (Fin m →₀ ℕ)) :
+    KLRAlgebra.mk k (stendhalQ Q Λ) μ (fStd ρ b) = KLRAlgebra.stdElt ρ b := by
+  have hp : KLRAlgebra.mk k (stendhalQ Q Λ) μ
+      (KLR.ncEval (fun a => KLR.fx k μ a) (monomial b.2.2 (1 : k))) =
+        KLRAlgebra.pol (monomial b.2.2 1) := by
+    rw [KLRAlgebra.mk_ncEval]
+    exact (KLRAlgebra.ncEval_eq_pol id _).trans (by rw [rename_id]; rfl)
+  rw [fStd, map_mul, map_mul, hp, map_list_prod, List.map_map]
+  rfl
+
 end Terms
 
 section Injective
@@ -259,6 +276,150 @@ theorem exists_chamberRep_eq_mulXOp (hϖ : StrictMono ϖ) (hw0 : ∀ e, Γ.weigh
   | right_absorb b x _ h =>
     obtain ⟨G, hG⟩ := h (chamberRep k (stFull Λ hϖ hw0) hΓ b g)
     exact ⟨G, by rw [map_mul, Module.End.mul_apply, hG]⟩
+
+/-! ### The polynomial representation of the lifted terms -/
+
+open KLR.PolyRep in
+theorem freeRep_fStd_single (P : I ⊕ Fin ℓ → I ⊕ Fin ℓ → MvPolynomial (Fin 2) k)
+    (ρ : Perm (Fin m) → List ℕ) (b : KLR.Seq μ × Perm (Fin m) × (Fin m →₀ ℕ))
+    (i : KLR.Seq μ) (h : MvPolynomial (Fin m) k) :
+    freeRep μ P (fStd ρ b) (Pi.single i h) =
+      if b.1 = i then
+        Pi.single (TypeA.wordProd m (ρ b.2.1) • i) (wordComp P (ρ b.2.1) i (monomial b.2.2 1 * h))
+      else 0 := by
+  have hψ : freeRep μ P ((ρ b.2.1).map (KLR.fψ k μ)).prod = opΨw P (ρ b.2.1) := by
+    rw [map_list_prod, List.map_map]
+    simp [opΨw, Function.comp_def]
+  have hp : freeRep μ P (KLR.ncEval (fun a => KLR.fx k μ a) (monomial b.2.2 (1 : k))) =
+      opMul μ (monomial b.2.2 (1 : k)) :=
+    (freeRep_ncEval P id _).trans (by rw [rename_id]; rfl)
+  rw [fStd, map_mul, map_mul, hψ, hp, Module.End.mul_apply, Module.End.mul_apply, freeRep_fe]
+  by_cases hi : b.1 = i
+  · subst hi
+    have e1 : opE b.1 (Pi.single b.1 h) = Pi.single b.1 h := by
+      funext t; rw [opE_apply]; by_cases ht : t = b.1 <;> simp [ht]
+    have e2 : opMul μ (monomial b.2.2 1) (Pi.single b.1 h : Pol k μ) =
+        Pi.single b.1 (monomial b.2.2 1 * h) := by
+      funext t; rw [opMul_apply]; by_cases ht : t = b.1 <;> simp [ht]
+    rw [e1, e2, opΨw_single]
+    simp
+  · have e1 : opE b.1 (Pi.single i h) = 0 := by
+      funext t; rw [opE_apply]; by_cases ht : t = b.1 <;> simp [ht, Ne.symm hi]
+    rw [e1, map_zero, map_zero]
+    simp [hi]
+
+open KLR.PolyRep in
+/-- The operator of a combination of lifted terms, between the components `Pol_i` and `Pol_t`,
+is the block `blockSum`. -/
+theorem freeRep_sum_fStd (P : I ⊕ Fin ℓ → I ⊕ Fin ℓ → MvPolynomial (Fin 2) k)
+    {ρ : Perm (Fin m) → List ℕ} (hρ : ∀ w, TypeA.wordProd m (ρ w) = w)
+    (s : Finset (KLR.Seq μ × Perm (Fin m) × (Fin m →₀ ℕ)))
+    (c : KLR.Seq μ × Perm (Fin m) × (Fin m →₀ ℕ) → k) (i t : KLR.Seq μ)
+    (h : MvPolynomial (Fin m) k) :
+    freeRep μ P (∑ b ∈ s, c b • fStd ρ b) (Pi.single i h) t = blockSum P ρ s c i t h := by
+  classical
+  simp only [map_sum, map_smul, LinearMap.sum_apply, LinearMap.smul_apply, Finset.sum_apply,
+    Pi.smul_apply, freeRep_fStd_single, hρ, blockSum, Finset.sum_filter]
+  refine Finset.sum_congr rfl fun b _ => ?_
+  by_cases hi : b.1 = i
+  · subst hi
+    by_cases ht : b.2.1 • b.1 = t
+    · subst ht; simp
+    · simp [ht, Ne.symm ht]
+  · simp [hi]
+
+omit [DecidableEq I] in
+theorem blackEval_monomial {i : KLR.Seq μ} {u : Fin m →₀ ℕ}
+    (hu : ∀ a ∈ u.support, (i.1 a).isLeft) :
+    blackEval (k := k) i (monomial u 1) = monomial u 1 := by
+  rw [blackEval, aeval_monomial, monomial_eq, map_one, C_1]
+  congr 1
+  refine Finsupp.prod_congr fun a ha => ?_
+  simp [hu a ha]
+
+omit [Field 𝕜] [LinearOrder 𝕜] [IsStrictOrderedRing 𝕜] in
+/-- Killing the red variables turns the blocks for `stP` into the blocks for `stBlackP`, on the
+polynomials in the black variables, for combinations of terms without red dots or red
+crossings. -/
+theorem blackEval_blockSum {ρ : Perm (Fin m) → List ℕ} (hρ : ∀ w, TypeA.wordProd m (ρ w) = w)
+    (s : Finset (KLR.Seq μ × Perm (Fin m) × (Fin m →₀ ℕ)))
+    (c : KLR.Seq μ × Perm (Fin m) × (Fin m →₀ ℕ) → k)
+    (hc : ∀ b, c b ≠ 0 → (∀ a ∈ b.2.2.support, (b.1.1 a).isLeft) ∧ NoRedCross (ρ b.2.1) b.1)
+    (i t : KLR.Seq μ) {h : MvPolynomial (Fin m) k} (hh : blackEval i h = h) :
+    blackEval t (blockSum (stP Γ Λ) ρ s c i t h) = blockSum (stBlackP Γ Λ) ρ s c i t h := by
+  simp only [blockSum, LinearMap.sum_apply, LinearMap.smul_apply, LinearMap.comp_apply,
+    LinearMap.mulLeft_apply, map_sum, map_smul]
+  refine Finset.sum_congr rfl fun b hb => ?_
+  obtain ⟨-, rfl, rfl⟩ := Finset.mem_filter.1 hb
+  by_cases hcb : c b = 0
+  · simp [hcb]
+  obtain ⟨hu, hn⟩ := hc b hcb
+  have := blackEval_wordComp (Γ := Γ) (Λ := Λ) (ρ b.2.1) b.1 hn (monomial b.2.2 1 * h)
+  rw [hρ] at this
+  rw [this, map_mul, blackEval_monomial hu, hh]
+
+/-! ### Injectivity -/
+
+open StendhalAlgebraAllOrders in
+/-- **Injectivity in Webster's Theorem 3.5** (arXiv:1209.2463v4, proof of Theorem 3.5): the
+homomorphism `stTildeHom` from `T̃^λ` to the chamber algebra of `Γ_λ = crawleyBoeveyIn Γ Λ ϖ`
+modulo the dot on the `0`-strand is injective.
+
+The hypotheses `hE` (no edge from a vertex to itself) and `hl` (no loops) are those of
+`stTildeHom`; they are needed only to check the relations through the polynomial
+representation, and are not among Webster's hypotheses. -/
+theorem stTildeHom_injective (hD : Γ.Dagger) (hE : ∀ e, Γ.head e ≠ Γ.tail e)
+    (hl : ∀ c, Γ.loop c = none) (hϖ : StrictMono ϖ) (hw0 : ∀ e, Γ.weight e = 0)
+    (hS : Γ.Standing) : Function.Injective (stTildeHom ν k Γ Λ hD hE hl hϖ hw0 hS) := by
+  classical
+  rw [injective_iff_map_eq_zero]
+  intro x hx
+  obtain ⟨ρ, hρ⟩ : ∃ ρ : Perm (Fin m) → List ℕ,
+      ∀ w, TypeA.IsReduced m (ρ w) ∧ TypeA.wordProd m (ρ w) = w :=
+    ⟨fun w => (TypeA.exists_reduced m w).choose, fun w => (TypeA.exists_reduced m w).choose_spec⟩
+  have hρ' : ∀ w, TypeA.wordProd m (ρ w) = w := fun w => (hρ w).2
+  obtain ⟨c, hc⟩ := exists_eq_sum_stendhalTerm (k := k) (Q := Γ.klrQ) (Λ := Λ) hρ x
+  set c' := fun b => if IsStendhalTerm ρ b then c b else 0 with hc'
+  have hc'0 : ∀ b, c' b ≠ 0 → IsStendhalTerm ρ b := fun b hb => by
+    by_contra h; exact hb (by simp [hc', h])
+  set F := ∑ b ∈ c.support, c' b • fStd (k := k) ρ b
+  have hxF : x.1 = RingQuot.mkAlgHom k (Rel k Γ.klrQ Λ ν) F := by
+    rw [hc, map_sum]
+    refine Finset.sum_congr rfl fun b _ => ?_
+    rw [map_smul, ← ofKLR_mk, mk_fStd]
+    rfl
+  have hF : stFreeHom ν k Λ hϖ hw0 F ∈ stZeroDotIdeal ν k Λ hϖ hw0 := by
+    have h0 := hx
+    rw [stTildeHom_apply, hxF, stStendhalHom_mk, ← map_zero
+      ((stZeroDotIdeal ν k Λ hϖ hw0).ringCon.mkₐ k)] at h0
+    have := (TwoSidedIdeal.rel_iff _ _ _).1 ((RingCon.eq _).1 h0)
+    rwa [sub_zero] at this
+  have hzero : ∀ b ∈ c.support, c' b = 0 := by
+    refine eq_zero_of_blockSum_eq_zero (stBlackP Γ Λ) c.support c'
+      (fun a b _ f hf => isRegular_rename_stBlackP hS a b hf) hρ fun i t h hh => ?_
+    by_cases hit : IsRedOrdered i ∧ IsRedOrdered t
+    · rw [← blackEval_blockSum hρ' c.support c'
+        (fun b hb => ⟨(hc'0 b hb).2.2.1, (hc'0 b hb).2.2.2⟩) i t hh,
+        ← freeRep_sum_fStd (stP Γ Λ) hρ']
+      obtain ⟨G, hG⟩ := exists_chamberRep_eq_mulXOp hϖ hw0
+        (WeightedGraph.crawleyBoeveyIn_psymm (psymm_of_loop hl)) hF
+        (stRenOp ℓ ν k (Pi.single i h))
+      have hR := congrArg (fun φ => φ (Pi.single i h) ⟨t, hit.2⟩)
+        (chamberRep_stFreeHom (Λ := Λ) hD hE hl hϖ hw0 F)
+      simp only [LinearMap.comp_apply, hG, mulXOp_apply, stRenOp_apply] at hR
+      exact blackEval_eq_zero_of_stRen_eq hR.symm
+    · rw [blockSum, LinearMap.sum_apply]
+      refine Finset.sum_eq_zero fun b hb => ?_
+      obtain ⟨-, rfl, rfl⟩ := Finset.mem_filter.1 hb
+      have : c' b = 0 := by
+        by_contra hcb
+        exact hit ⟨(hc'0 b hcb).1, (hc'0 b hcb).2.1⟩
+      rw [LinearMap.smul_apply, this, zero_smul]
+  refine Subtype.ext ?_
+  rw [hc]
+  refine (Finset.sum_eq_zero fun b hb => ?_).trans rfl
+  change c' b • _ = 0
+  rw [hzero b hb, zero_smul]
 
 end Injective
 

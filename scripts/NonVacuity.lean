@@ -417,6 +417,30 @@ noncomputable example (ν₁ ν₂ ν₃ : Fin 2 →₀ ℕ) :=
         (WeightedKLR.castW ℚ wkGraph (add_assoc ν₁ ν₂ ν₃) d) * l
       rw [AlgEquiv.symm_apply_apply])
 
+/-! ### Webster, weighted KLR algebras (arXiv:1209.2463v4), §2.5, Proposition 2.20 (a) -/
+
+/-- A weighted graph with one edge `e : 0 → 0` from a vertex to itself, of weight `1`, with
+`Q_e = u - v`: when the weight of `e` is interpolated through `0`, a strand meets its own
+ghost. -/
+def wkSelfEdgeGraph : WeightedKLR.WeightedGraph (Fin 2) ℚ ℚ where
+  E := Unit
+  tail _ := 0
+  head _ := 0
+  weight _ := 1
+  Q _ := MvPolynomial.X 0 - MvPolynomial.X 1
+  loop _ := none
+
+example (ν : Fin 2 →₀ ℕ) :=
+  WeightedKLR.twGalleryRep ℚ (Γ := wkSelfEdgeGraph) (ν := ν)
+    (fun _ _ h => by simp [wkSelfEdgeGraph] at h)
+
+example (ν : Fin 2 →₀ ℕ) := WeightedKLR.twGalleryRep ℚ (Γ := wkGraph) (ν := ν)
+  (fun i P h => by
+    simp only [wkGraph] at h
+    split_ifs at h
+    obtain rfl := Option.some_injective _ h
+    exact map_one _)
+
 /-! ### Webster, weighted KLR algebras (arXiv:1209.2463v4), proof of Theorem 3.5 -/
 
 /-- A weighted graph without loops: one edge `0 → 1` of weight `0` with `Q_e = u - v`. -/

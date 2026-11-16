@@ -25,7 +25,7 @@ For a sequence `i = (i₁, …, iₙ)` of colours, `e(B_s(i))` is the idempotent
 the configuration with the strand of `iₘ` at position `s m` (`spacedW`). The results:
 
 * `castChamber_chamber_spacedFull`: juxtaposing the evenly spaced chambers of `i` and `j` gives
-  the evenly spaced chamber of the concatenation `ij` (`Seq.append`).
+  the evenly spaced chamber of the concatenation `ij` (`Seq.finAppend`).
 * `inductionMap_spacedW`: hence `ι_{ν₁;ν₂}(e(B_s(i)) ⊗ e(B_s(j))) = e(B_s(ij))`.
 * `juxtUnits_eq_spacedW`: the iterated juxtaposition `e_{i₁} ∘ ⋯ ∘ e_{iₙ}` of the units of the
   one-strand algebras `W_{α_{iₘ}}` is `e(B_s(i₁ ⋯ iₙ))`.
@@ -45,7 +45,7 @@ open Categorification.WeightedKLR
 variable {I : Type*} {ν₁ ν₂ : Multiset I}
 
 /-- The concatenation of two sequences. -/
-def append (i : Seq ν₁) (j : Seq ν₂) : Seq (ν₁ + ν₂) :=
+def finAppend (i : Seq ν₁) (j : Seq ν₂) : Seq (ν₁ + ν₂) :=
   ⟨fun a => Fin.append i.1 j.1 (Fin.cast (Multiset.card_add ν₁ ν₂) a), by
     have hi := i.2
     have hj := j.2
@@ -61,13 +61,13 @@ def inlPos (a : Fin (Multiset.card ν₁)) : Fin (Multiset.card (ν₁ + ν₂))
 def inrPos (b : Fin (Multiset.card ν₂)) : Fin (Multiset.card (ν₁ + ν₂)) :=
   Fin.cast (Multiset.card_add ν₁ ν₂).symm (Fin.natAdd _ b)
 
-@[simp] theorem append_inlPos (i : Seq ν₁) (j : Seq ν₂) (a : Fin (Multiset.card ν₁)) :
-    (i.append j).1 (inlPos a) = i.1 a := by
-  simp [append, inlPos]
+@[simp] theorem finAppend_inlPos (i : Seq ν₁) (j : Seq ν₂) (a : Fin (Multiset.card ν₁)) :
+    (i.finAppend j).1 (inlPos a) = i.1 a := by
+  simp [finAppend, inlPos]
 
-@[simp] theorem append_inrPos (i : Seq ν₁) (j : Seq ν₂) (b : Fin (Multiset.card ν₂)) :
-    (i.append j).1 (inrPos b) = j.1 b := by
-  simp [append, inrPos]
+@[simp] theorem finAppend_inrPos (i : Seq ν₁) (j : Seq ν₂) (b : Fin (Multiset.card ν₂)) :
+    (i.finAppend j).1 (inrPos b) = j.1 b := by
+  simp [finAppend, inrPos]
 
 theorem card_filter_cast {m n : ℕ} (h : m = n) (p : Fin n → Prop) [DecidablePred p] :
     (Finset.univ.filter p).card = (Finset.univ.filter fun a : Fin m => p (Fin.cast h a)).card := by
@@ -91,25 +91,25 @@ theorem inlPos_lt_inrPos (a : Fin (Multiset.card ν₁)) (b : Fin (Multiset.card
 variable [DecidableEq I]
 
 theorem rank_append_inlPos (i : Seq ν₁) (j : Seq ν₂) (a : Fin (Multiset.card ν₁)) :
-    (i.append j).rank (inlPos a) = i.rank a := by
+    (i.finAppend j).rank (inlPos a) = i.rank a := by
   rw [rank, card_filter_cast (Multiset.card_add ν₁ ν₂).symm, Finset.card_filter,
     Fin.sum_univ_add, rank, Finset.card_filter]
   have h1 : ∀ c, Fin.cast (Multiset.card_add ν₁ ν₂).symm (Fin.castAdd _ c) = inlPos (ν₂ := ν₂) c :=
     fun _ => rfl
   have h2 : ∀ c, Fin.cast (Multiset.card_add ν₁ ν₂).symm (Fin.natAdd _ c) = inrPos (ν₁ := ν₁) c :=
     fun _ => rfl
-  simp only [h1, h2, append_inlPos, append_inrPos, inlPos_lt_inlPos,
+  simp only [h1, h2, finAppend_inlPos, finAppend_inrPos, inlPos_lt_inlPos,
     (inlPos_lt_inrPos a _).not_gt, false_and, ite_false, Finset.sum_const_zero, add_zero]
 
 theorem rank_append_inrPos (i : Seq ν₁) (j : Seq ν₂) (b : Fin (Multiset.card ν₂)) :
-    (i.append j).rank (inrPos b) = ν₁.count (j.1 b) + j.rank b := by
+    (i.finAppend j).rank (inrPos b) = ν₁.count (j.1 b) + j.rank b := by
   rw [rank, card_filter_cast (Multiset.card_add ν₁ ν₂).symm, Finset.card_filter,
     Fin.sum_univ_add, rank, Finset.card_filter, count_eq_card i, Finset.card_filter]
   have h1 : ∀ c, Fin.cast (Multiset.card_add ν₁ ν₂).symm (Fin.castAdd _ c) = inlPos (ν₂ := ν₂) c :=
     fun _ => rfl
   have h2 : ∀ c, Fin.cast (Multiset.card_add ν₁ ν₂).symm (Fin.natAdd _ c) = inrPos (ν₁ := ν₁) c :=
     fun _ => rfl
-  simp only [h1, h2, append_inlPos, append_inrPos, inrPos_lt_inrPos, inlPos_lt_inrPos, true_and]
+  simp only [h1, h2, finAppend_inlPos, finAppend_inrPos, inrPos_lt_inrPos, inlPos_lt_inrPos, true_and]
 
 
 theorem toFinsupp_add (ν₁ ν₂ : Multiset I) :
@@ -118,35 +118,35 @@ theorem toFinsupp_add (ν₁ ν₂ : Multiset I) :
 
 open Juxtapose in
 theorem strandAt_append_inlPos (i : Seq ν₁) (j : Seq ν₂) (a : Fin (Multiset.card ν₁)) :
-    (i.append j).strandAt (inlPos a) =
+    (i.finAppend j).strandAt (inlPos a) =
       castStrand (toFinsupp_add ν₁ ν₂) (inlStrand _ _ (i.strandAt a)) := by
   refine strand_ext (Subtype.ext ?_) ?_
   · rw [castStrand_colour]
-    exact append_inlPos i j a
+    exact finAppend_inlPos i j a
   · rw [castStrand_rank]
     exact rank_append_inlPos i j a
 
 open Juxtapose in
 theorem strandAt_append_inrPos (i : Seq ν₁) (j : Seq ν₂) (b : Fin (Multiset.card ν₂)) :
-    (i.append j).strandAt (inrPos b) =
+    (i.finAppend j).strandAt (inrPos b) =
       castStrand (toFinsupp_add ν₁ ν₂) (inrStrand _ _ (j.strandAt b)) := by
   refine strand_ext (Subtype.ext ?_) ?_
   · rw [castStrand_colour]
-    exact append_inrPos i j b
+    exact finAppend_inrPos i j b
   · rw [castStrand_rank]
-    show (i.append j).rank (inrPos b) = Multiset.toFinsupp ν₁ (j.1 b) + j.rank b
+    show (i.finAppend j).rank (inrPos b) = Multiset.toFinsupp ν₁ (j.1 b) + j.rank b
     rw [rank_append_inrPos, Multiset.toFinsupp_apply]
 
 open Juxtapose in
 theorem posOf_append_inl (i : Seq ν₁) (j : Seq ν₂) (s : Strand (Multiset.toFinsupp ν₁)) :
-    (i.append j).posOf (castStrand (toFinsupp_add ν₁ ν₂) (inlStrand _ _ s)) =
+    (i.finAppend j).posOf (castStrand (toFinsupp_add ν₁ ν₂) (inlStrand _ _ s)) =
       inlPos (i.posOf s) := by
   conv_lhs => rw [← i.strandAt_posOf s, ← strandAt_append_inlPos i j]
   exact posOf_strandAt _ _
 
 open Juxtapose in
 theorem posOf_append_inr (i : Seq ν₁) (j : Seq ν₂) (s : Strand (Multiset.toFinsupp ν₂)) :
-    (i.append j).posOf (castStrand (toFinsupp_add ν₁ ν₂) (inrStrand _ _ s)) =
+    (i.finAppend j).posOf (castStrand (toFinsupp_add ν₁ ν₂) (inrStrand _ _ s)) =
       inrPos (j.posOf s) := by
   conv_lhs => rw [← j.strandAt_posOf s, ← strandAt_append_inrPos i j]
   exact posOf_strandAt _ _
@@ -159,8 +159,8 @@ def ofList (l : List I) : Seq (l : Multiset I) :=
     rw [Fin.univ_val_map, ← List.ofFn_congr (Multiset.coe_card l).symm, List.ofFn_get]⟩
 
 omit [DecidableEq I] in
-theorem append_ofList (c : I) (l : List I) :
-    (ofList [c]).append (ofList l) = (ofList (c :: l) : Seq ((↑[c] : Multiset I) + ↑l)) := by
+theorem finAppend_ofList (c : I) (l : List I) :
+    (ofList [c]).finAppend (ofList l) = (ofList (c :: l) : Seq ((↑[c] : Multiset I) + ↑l)) := by
   apply Subtype.ext
   funext a
   obtain ⟨n, hn⟩ := a
@@ -366,9 +366,9 @@ theorem ofPoint_spacedPos {ν : Multiset I} (i : Seq ν) :
 chamber of `B_s(ij)`, `ij` the concatenation. -/
 theorem castChamber_chamber_spacedFull (i : Seq ν₁) (j : Seq ν₂) :
     castChamber (Seq.toFinsupp_add ν₁ ν₂) (chamber (spacedFull Γ i) (spacedFull Γ j)) =
-      spacedFull Γ (i.append j) := by
+      spacedFull Γ (i.finAppend j) := by
   set h := Seq.toFinsupp_add ν₁ ν₂
-  set P := (i.append j).spacedPos Γ.spacing
+  set P := (i.finAppend j).spacedPos Γ.spacing
   have hP : IsGeneric Γ P := isGeneric_spacedPos _
   set q := P ∘ castStrand h
   have hq : IsGeneric Γ q := isGeneric_comp_castStrand h.symm hP
@@ -468,13 +468,13 @@ theorem spacedW_val {ν : Multiset I} (i : Seq ν) : (spacedW k Γ i).1 = e (spa
 theorem castGallery_galleryTensorHom_spacedFull (i : Seq ν₁) (j : Seq ν₂) :
     castGallery k Γ (Seq.toFinsupp_add ν₁ ν₂)
         (galleryTensorHom k Γ _ _ (e (spacedFull Γ i) ⊗ₜ e (spacedFull Γ j))).1 =
-      e (spacedFull Γ (i.append j)) := by
+      e (spacedFull Γ (i.finAppend j)) := by
   rw [galleryTensorHom_e_tmul_e, castGallery_e, castChamber_chamber_spacedFull]
 
 /-- Webster's map `ι` sends `e(B_s(i)) ⊗ e(B_s(j))` to `e(B_s(ij))`. -/
 theorem inductionMap_spacedW (i : Seq ν₁) (j : Seq ν₂) :
     castW k Γ (Seq.toFinsupp_add ν₁ ν₂)
-        (inductionMap k Γ _ _ (spacedW k Γ i ⊗ₜ spacedW k Γ j)) = spacedW k Γ (i.append j) := by
+        (inductionMap k Γ _ _ (spacedW k Γ i ⊗ₜ spacedW k Γ j)) = spacedW k Γ (i.finAppend j) := by
   apply Subtype.ext
   rw [castW_val, inductionMap_tmul]
   exact castGallery_galleryTensorHom_spacedFull i j
@@ -509,7 +509,7 @@ theorem juxtUnits_eq_spacedW (l : List I) : juxtUnits k Γ l = spacedW k Γ (Seq
   | nil => exact one_eq_spacedW_nil
   | cons c l ih =>
     rw [juxtUnits, ih, one_eq_spacedW_single, inductionMap_spacedW]
-    exact congrArg (spacedW k Γ) (Seq.append_ofList c l)
+    exact congrArg (spacedW k Γ) (Seq.finAppend_ofList c l)
 
 /-! ### Induction of the projectives `W e(B_s(i))` -/
 
@@ -526,7 +526,7 @@ theorem isIdempotentElem_tmul {A₁ A₂ : Type*} [Ring A₁] [Algebra k A₁] [
 
 theorem inductionRingHom_spacedW (i : Seq ν₁) (j : Seq ν₂) :
     inductionRingHom k Γ _ _ (spacedW k Γ i ⊗ₜ spacedW k Γ j) =
-      (castW k Γ (Seq.toFinsupp_add ν₁ ν₂)).symm (spacedW k Γ (i.append j)) := by
+      (castW k Γ (Seq.toFinsupp_add ν₁ ν₂)).symm (spacedW k Γ (i.finAppend j)) := by
   rw [← inductionMap_spacedW, AlgEquiv.symm_apply_apply]
   rfl
 
@@ -577,7 +577,7 @@ noncomputable def indSpacedEquiv (i : Seq ν₁) (j : Seq ν₂) :
     ind k Γ (Multiset.toFinsupp ν₁) (Multiset.toFinsupp ν₂) (lIdeal (spacedW k Γ i))
         (lIdeal (spacedW k Γ j)) ≃ₗ[
           WeightedKLRAlgebra k Γ (Multiset.toFinsupp ν₁ + Multiset.toFinsupp ν₂)]
-      lIdeal ((castW k Γ (Seq.toFinsupp_add ν₁ ν₂)).symm (spacedW k Γ (i.append j))) :=
+      lIdeal ((castW k Γ (Seq.toFinsupp_add ν₁ ν₂)).symm (spacedW k Γ (i.finAppend j))) :=
   ((indSpacedEquivAux₁ k Γ i j).trans (indSpacedEquivAux₂ k Γ i j)).trans
     (LinearEquiv.ofEq _ _ (congrArg lIdeal (inductionRingHom_spacedW i j)))
 

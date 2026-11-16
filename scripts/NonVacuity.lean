@@ -624,6 +624,20 @@ noncomputable example (ν₁ ν₂ ν₃ : Fin 2 →₀ ℕ) :=
     WeightedKLR.Juxtapose.indUnitRightEquiv ℚ wkGraph ν₁
       (WeightedKLR.GalleryAlgebra.WeightedKLRAlgebra ℚ wkGraph ν₁))
 
+/-- Webster, Theorem 2.19, the algebra structure on `⊕_ν K₀(W_ν)` (ungraded, any commutative
+ring): associativity and units of `[P] [Q] = [Ind (P ⊠ Q)]`, on the classes of the regular
+modules. -/
+example (ν₁ ν₂ ν₃ : Fin 2 →₀ ℕ) :=
+  let x := Categorification.ProjK0.of
+    (Categorification.FGProj.regular ℚ (WeightedKLR.GalleryAlgebra.WeightedKLRAlgebra ℚ wkGraph ν₁))
+  let y := Categorification.ProjK0.of
+    (Categorification.FGProj.regular ℚ (WeightedKLR.GalleryAlgebra.WeightedKLRAlgebra ℚ wkGraph ν₂))
+  let z := Categorification.ProjK0.of
+    (Categorification.FGProj.regular ℚ (WeightedKLR.GalleryAlgebra.WeightedKLRAlgebra ℚ wkGraph ν₃))
+  And.intro (WeightedKLR.Juxtapose.indK0_assoc ν₁ ν₂ ν₃ x y z)
+    (And.intro (WeightedKLR.Juxtapose.indK0_one_left ν₁ x)
+      (WeightedKLR.Juxtapose.indK0_one_right ν₁ x))
+
 /-- Webster, Proposition 2.18, on modules: coassociativity of restriction, for the regular module
 and its transport along `castW`. -/
 noncomputable example (ν₁ ν₂ ν₃ : Fin 2 →₀ ℕ) :=

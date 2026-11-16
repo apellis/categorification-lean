@@ -433,6 +433,54 @@ theorem stStendhalHom_mk (hD : Γ.Dagger) (hE : ∀ e, Γ.head e ≠ Γ.tail e)
       (stZeroDotIdeal ν k Λ hϖ hw0).ringCon.mkₐ k (stFreeHom ν k Λ hϖ hw0 x) :=
   RingQuot.liftAlgHom_mkAlgHom_apply _ _ _ _
 
+theorem stStendhalHom_e (hD : Γ.Dagger) (hE : ∀ e, Γ.head e ≠ Γ.tail e)
+    (hl : ∀ c, Γ.loop c = none) (hϖ : StrictMono ϖ) (hw0 : ∀ e, Γ.weight e = 0)
+    (hS : Γ.Standing) (i : KLR.Seq μ) :
+    stStendhalHom ν k Γ Λ hD hE hl hϖ hw0 hS (StendhalAlgebraAllOrders.e i) =
+      (stZeroDotIdeal ν k Λ hϖ hw0).ringCon.mkₐ k (stFreeHom ν k Λ hϖ hw0 (KLR.fe k μ i)) := by
+  rw [StendhalAlgebraAllOrders.e, KLR.KLRAlgebra.e, StendhalAlgebraAllOrders.ofKLR_mk,
+    stStendhalHom_mk]
+
+/-- The idempotent of `T̃^λ` (the sum of the `e(i)` with red strands in order) goes to `1`. -/
+theorem stStendhalHom_redOrderedIdem (hD : Γ.Dagger) (hE : ∀ e, Γ.head e ≠ Γ.tail e)
+    (hl : ∀ c, Γ.loop c = none) (hϖ : StrictMono ϖ) (hw0 : ∀ e, Γ.weight e = 0)
+    (hS : Γ.Standing) :
+    stStendhalHom ν k Γ Λ hD hE hl hϖ hw0 hS
+      (StendhalAlgebraAllOrders.redOrderedIdem k Γ.klrQ Λ ν) = 1 := by
+  classical
+  have h1 := stFreeHom_rel hD hE hl hϖ hw0 hS (KLR.Rel.idem_sum (k := k) (Q := stQ Γ Λ)
+    (ν := μ))
+  rw [map_sum, map_one] at h1
+  rw [StendhalAlgebraAllOrders.redOrderedIdem, map_sum]
+  simp_rw [stStendhalHom_e]
+  rw [← map_sum, ← map_one ((stZeroDotIdeal ν k Λ hϖ hw0).ringCon.mkₐ k), ← h1,
+    Finset.sum_filter]
+  congr 1
+  refine Finset.sum_congr rfl fun i _ => ?_
+  split_ifs with hi
+  · rfl
+  · exact (stFreeHom_fe_of_not hϖ hw0 hi).symm
+
+variable (ν k Γ Λ) in
+/-- **The homomorphism of Theorem 3.5 on `T̃^λ`** (arXiv:1209.2463v4, proof of Theorem 3.5):
+the restriction of `stStendhalHom` to the corner `T̃^λ = StendhalAlgebra k Γ.klrQ Λ ν`, a unital
+ring homomorphism to the chamber algebra of `Γ_λ` modulo the dot on the `0`-strand. -/
+noncomputable def stTildeHom (hD : Γ.Dagger) (hE : ∀ e, Γ.head e ≠ Γ.tail e)
+    (hl : ∀ c, Γ.loop c = none) (hϖ : StrictMono ϖ) (hw0 : ∀ e, Γ.weight e = 0)
+    (hS : Γ.Standing) :
+    StendhalAlgebra k Γ.klrQ Λ ν →+* (stZeroDotIdeal ν k Λ hϖ hw0).ringCon.Quotient where
+  toFun x := stStendhalHom ν k Γ Λ hD hE hl hϖ hw0 hS x.1
+  map_one' := stStendhalHom_redOrderedIdem hD hE hl hϖ hw0 hS
+  map_mul' x y := map_mul (stStendhalHom ν k Γ Λ hD hE hl hϖ hw0 hS) x.1 y.1
+  map_zero' := map_zero (stStendhalHom ν k Γ Λ hD hE hl hϖ hw0 hS)
+  map_add' x y := map_add (stStendhalHom ν k Γ Λ hD hE hl hϖ hw0 hS) x.1 y.1
+
+theorem stTildeHom_apply (hD : Γ.Dagger) (hE : ∀ e, Γ.head e ≠ Γ.tail e)
+    (hl : ∀ c, Γ.loop c = none) (hϖ : StrictMono ϖ) (hw0 : ∀ e, Γ.weight e = 0)
+    (hS : Γ.Standing) (x : StendhalAlgebra k Γ.klrQ Λ ν) :
+    stTildeHom ν k Γ Λ hD hE hl hϖ hw0 hS x = stStendhalHom ν k Γ Λ hD hE hl hϖ hw0 hS x.1 :=
+  rfl
+
 end Descent
 
 end Categorification.Stendhal

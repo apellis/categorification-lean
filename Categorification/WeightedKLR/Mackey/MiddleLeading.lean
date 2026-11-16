@@ -326,6 +326,53 @@ theorem castGallery_cosetElt_mul_fourShuffle (hD : Γ.Dagger) (hZ : Γ.NoZeroLoo
   rw [shuffleTop_middleCoset_inv_smul]
   exact hxy
 
+variable {R' : FullChamber Γ (a + b)} {R'' : FullChamber Γ (c + d)}
+
+/-- **The image of a vector of the spanning family, in the gallery algebra.** With
+`L = castChamber (chamber L' L'')` and `R = chamber R' R''`, the map
+`x ⊗ y ↦ e L ι(x) ψ_c ι(y) e R` sends `(c_{u₁} ⊗ c_{u₂}) ⊗ (x₁ ⊗ x₂)` to `c_{U ρ} ι(x₁ ⊗ x₂)`,
+for `x₁`, `x₂` in the corners from the four-block chamber of `u₁`, `u₂` to `R'`, `R''` (Webster,
+arXiv:1209.2463v4, Theorem 2.19). -/
+theorem typeInductionAux_middleCorner (hD : Γ.Dagger) (hZ : Γ.NoZeroLoops)
+    (hL' : L'.IsRankOrdered) (hL'' : L''.IsRankOrdered) (hR' : R'.IsRankOrdered)
+    (hR'' : R''.IsRankOrdered) (u₁ : ParabolicRep a L') (u₂ : ParabolicRep b L'')
+    (x₁ : cornerSpace k (chamber (repLeft u₁) (repLeft u₂)) R')
+    (x₂ : cornerSpace k (chamber (repRight u₁) (repRight u₂)) R'') :
+    typeInductionAux k hD hZ (rfl : a + b + (c + d) = a + b + (c + d)) (layout_eq a b c d)
+        (castChamber (layout_eq a b c d) (chamber L' L'')) (chamber R' R'') (middleLeft a b c d)
+        ((cosetW k hD hZ hL' u₁ ⊗ₜ cosetW k hD hZ hL'' u₂) ⊗ₜ
+          (cornerW k (isRankOrdered_botLeft u₁ u₂) hR' x₁ ⊗ₜ
+            cornerW k (isRankOrdered_botRight u₁ u₂) hR'' x₂)) =
+      cosetElt k hD hZ (a + b) (middleCoset u₁ u₂)
+          (castChamber (layout_eq a b c d) (chamber L' L'')) *
+        (galleryTensorHom k Γ (a + b) (c + d)
+          ((x₁ : GalleryAlgebra k Γ (a + b)) ⊗ₜ (x₂ : GalleryAlgebra k Γ (c + d)))).1 := by
+  set hbl := isRankOrdered_botLeft u₁ u₂
+  set hbr := isRankOrdered_botRight u₁ u₂
+  set y := cornerW k hbl hR' x₁ ⊗ₜ[k] cornerW k hbr hR'' x₂
+  set q := (repLeft u₁, repLeft u₂, repRight u₁, repRight u₂)
+  have hq : (fourChamber a b c d q).IsRankOrdered :=
+    (isRankOrdered_chamber_iff _ _).2 ⟨hbl, hbr⟩
+  have hE : ∀ {C' : FullChamber Γ (a + b)} {C'' : FullChamber Γ (c + d)}
+      (h' : C'.IsRankOrdered) (h'' : C''.IsRankOrdered),
+      inductionVal k (rfl : a + b + (c + d) = a + b + (c + d)) (rankE k h' ⊗ₜ rankE k h'') =
+        e (chamber C' C'') := fun h' h'' => by
+    rw [inductionVal_apply, castGallery_rfl, inductionMap_rankE_tmul_rankE]
+    rfl
+  have hyR : inductionVal k rfl y * e (chamber R' R'') = inductionVal k rfl y := by
+    rw [← hE hR' hR'', ← inductionVal_mul, Algebra.TensorProduct.tmul_mul_tmul,
+      cornerW_mul_rankE, cornerW_mul_rankE]
+  have hyL : inductionVal k rfl y = e (fourChamber a b c d q) * inductionVal k rfl y := by
+    rw [fourChamber, ← hE hbl hbr, ← inductionVal_mul, Algebra.TensorProduct.tmul_mul_tmul,
+      rankE_mul_cornerW, rankE_mul_cornerW]
+  rw [typeInductionAux_tmul, mul_assoc _ (inductionVal k rfl y), hyR, hyL, ← mul_assoc,
+    mul_assoc _ _ (e (fourChamber a b c d q)), typeShuffle_mul_e_fourChamber hD hZ hq,
+    mul_assoc (e _)]
+  have hc := castGallery_cosetElt_mul_fourShuffle (k := k) hD hZ u₁ u₂
+  erw [hc]
+  rw [cosetElt, ← mul_assoc, e_mul_r, ite_eq_left (smul_inv_smul _ _).symm]
+  rfl
+
 end Juxtapose
 
 end Categorification.WeightedKLR

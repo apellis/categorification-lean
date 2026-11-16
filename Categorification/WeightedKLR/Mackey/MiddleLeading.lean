@@ -253,6 +253,79 @@ theorem shuffleTop_inv_middleSwap_smul {E₁ : FullChamber Γ (a + c)}
     split_ifs
     rfl
 
+variable {L' : FullChamber Γ (a + c)} {L'' : FullChamber Γ (b + d)}
+
+/-- The relabelling `U ρ` of `(a + b) + (c + d)` attached to representatives `u₁`, `u₂` for `L'`,
+`L''`: `U` is the juxtaposition of `u₁` and `u₂`, read in `(a + b) + (c + d)`, and `ρ` the middle
+swap. -/
+noncomputable def middleCoset (u₁ : ParabolicRep a L') (u₂ : ParabolicRep b L'') :
+    ColPerm (a + b + (c + d)) :=
+  (layout_eq a b c d ▸ colPermProd (a + c) (b + d) (u₁.1, u₂.1)) * middleSwap a b c d
+
+omit [DecidableEq I] in
+theorem middleCoset_inv_smul (u₁ : ParabolicRep a L') (u₂ : ParabolicRep b L'') :
+    (middleCoset u₁ u₂)⁻¹ • castChamber (layout_eq a b c d) (chamber L' L'') =
+      (middleSwap a b c d)⁻¹ • castChamber (layout_eq a b c d)
+        (chamber (u₁.1⁻¹ • L') (u₂.1⁻¹ • L'')) := by
+  rw [middleCoset, mul_inv_rev, mul_smul]
+  congr 1
+  rw [inv_smul_eq_iff, cast_smul_castChamber, colPermProd_smul_chamber, smul_inv_smul,
+    smul_inv_smul]
+
+omit [DecidableEq I] in
+/-- The four-block chamber `(A B)(C D)` of the restrictions of `G_{u₁}` and `G_{u₂}`. -/
+theorem shuffleTop_middleCoset_inv_smul (u₁ : ParabolicRep a L') (u₂ : ParabolicRep b L'') :
+    shuffleTop (fun t => decide (t.IsLeft (a + b)))
+        ((middleCoset u₁ u₂)⁻¹ • castChamber (layout_eq a b c d) (chamber L' L'')) =
+      chamber (chamber (repLeft u₁) (repLeft u₂)) (chamber (repRight u₁) (repRight u₂)) := by
+  rw [middleCoset_inv_smul]
+  exact shuffleTop_inv_middleSwap_smul (chamber_repLeft_repRight u₁)
+    (chamber_repLeft_repRight u₂)
+    (isFourBlock_fourChamber (isRankOrdered_repLeft u₁) (isRankOrdered_repLeft u₂)
+      (isRankOrdered_repRight u₁) (isRankOrdered_repRight u₂))
+
+/-- **The coset elements of the middle parabolic.** The juxtaposition of `c_{u₁}` and `c_{u₂}`,
+followed by the four-block shuffle element of `(A B)(C D)`, is the coset element `c_{U ρ}` of
+`(a + b) + (c + d)`. -/
+theorem castGallery_cosetElt_mul_fourShuffle (hD : Γ.Dagger) (hZ : Γ.NoZeroLoops)
+    (u₁ : ParabolicRep a L') (u₂ : ParabolicRep b L'') :
+    castGallery k Γ (layout_eq a b c d) (galleryTensorHom k Γ (a + c) (b + d)
+        (cosetElt k hD hZ a u₁.1 L' ⊗ₜ cosetElt k hD hZ b u₂.1 L'')).1 *
+      fourShuffle k hD hZ (middleLeft a b c d)
+        (chamber (chamber (repLeft u₁) (repLeft u₂)) (chamber (repRight u₁) (repRight u₂))) =
+      cosetElt k hD hZ (a + b) (middleCoset u₁ u₂)
+        (castChamber (layout_eq a b c d) (chamber L' L'')) := by
+  set ρ := middleSwap a b c d
+  set Gq := chamber (chamber (repLeft u₁) (repLeft u₂)) (chamber (repRight u₁) (repRight u₂))
+  set F := castChamber (layout_eq a b c d) (chamber (u₁.1⁻¹ • L') (u₂.1⁻¹ • L''))
+  have h₁ := isRelGal_cosetElt (k := k) hD hZ a u₁.1 L'
+  have h₂ := isRelGal_cosetElt (k := k) hD hZ b u₂.1 L''
+  rw [← chamber_repLeft_repRight] at h₁ h₂
+  have hx := (Juxtapose.IsRelGal.galleryTensorHom h₁ h₂).castGallery (layout_eq a b c d)
+  have hsw : ρ • shuffleTop (middleLeft a b c d) Gq =
+      castChamber (layout_eq a b c d)
+        (chamber (chamber (repLeft u₁) (repRight u₁)) (chamber (repLeft u₂) (repRight u₂))) :=
+    middleSwap_smul_shuffleTop a b c d _ _ _ _
+  rw [← hsw] at hx
+  have hρ : (ρ • shuffleTop (middleLeft a b c d) Gq).IsRankOrdered := by
+    rw [hsw, isRankOrdered_castChamber_chamber_iff, chamber_repLeft_repRight,
+      chamber_repLeft_repRight]
+    exact ⟨u₁.2, u₂.2⟩
+  have hy := isRelGal_fourShuffle (k := k) hD hZ (middleLeft a b c d) Gq hρ
+  have hsep : IsSeparated (middleLeft a b c d) (ρ⁻¹ • F) :=
+    (isSeparated_castChamber_chamber (layout_eq a b c d) _ _).smul_of ρ⁻¹ fun s => by
+      rw [middleLeft_eq]
+      have hc := (ρ⁻¹).2 s
+      change ((ρ⁻¹).1 s).1 = s.1 at hc
+      have hs : ρ.1 ((ρ⁻¹).1 s) = s := ρ.1.apply_symm_apply s
+      rw [hs, hc]
+      rfl
+  have hxy := hy.mul hx fun s hs => shuffleTop_between hsep s hs
+  rw [← middleCoset_inv_smul] at hxy
+  refine IsRelGal.eq_cosetElt hD hZ (a + b) ?_
+  rw [shuffleTop_middleCoset_inv_smul]
+  exact hxy
+
 end Juxtapose
 
 end Categorification.WeightedKLR

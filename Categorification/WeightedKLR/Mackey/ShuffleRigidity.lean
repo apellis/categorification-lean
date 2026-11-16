@@ -5,6 +5,7 @@ Authors: Alex Ellis
 -/
 import Categorification.WeightedKLR.Mackey.TypeShuffle
 import Categorification.WeightedKLR.Mackey.Dominance
+import Categorification.WeightedKLR.Mackey.IdentityCoefficient
 
 /-!
 # Rigidity of the four-block shuffle
@@ -31,11 +32,17 @@ turns these inequalities into equalities.
 * `FullChamber.StrandLt.of_shuffleTop`: the order of the strands in `shuffleTop Z B`.
 * `IsDominated.eq_one_of_isFourBlock`: a relabelling dominated by `shuffleTop Z B` that sends at
   least as many strands outside `X` into `Z`, at every colour, is the identity.
+* `GalleryAlgebra.exists_isTwisted_opList_shuffleTop`: the gallery from a four-block chamber `B`
+  to `shuffleTop Z B` acts by an operator whose coefficient of the identity is
+  `galNum / galDen`, and whose other relabellings send, at some colour, fewer strands outside `X`
+  into `Z`.
 -/
 
 namespace Categorification.WeightedKLR
 
 open FullChamber
+
+attribute [local instance] ColPerm.fintype
 
 variable {I : Type*} [DecidableEq I] {𝕜 : Type*} [Field 𝕜] [LinearOrder 𝕜]
   [IsStrictOrderedRing 𝕜] {k : Type*} [CommRing k] {Γ : WeightedGraph I 𝕜 k} {ν : I →₀ ℕ}
@@ -370,5 +377,35 @@ theorem IsDominated.eq_one_of_isFourBlock {X Z : Strand ν → Bool} {B : FullCh
   cases hZ : Z t
   · exact fixN t hZ
   · exact fixZ t hZ
+
+namespace GalleryAlgebra
+
+/-- **The top-type term of the four-block shuffle.** Let `B` be a four-block chamber for `X` and
+`Z`, and `w` a good word from `B` to `shuffleTop Z B`. In the polynomial representation the
+gallery of `w` is twisted with a non-zero-divisor denominator `M`, its coefficient of the
+identity is `M * galNum / galDen`, and every other relabelling `x` occurring in it sends, at some
+colour, fewer strands outside `X` into `Z` than there are strands outside `X` in `Z`.
+
+A step of the proof of Webster, arXiv:1209.2463v4, Theorem 2.19. -/
+theorem exists_isTwisted_opList_shuffleTop {X Z : Strand ν → Bool} {B : FullChamber Γ ν}
+    (hB : IsFourBlock X Z B) {w : List (Hyp Γ ν)} (hw : GoodWord B.1 w)
+    (hT : B.flips w = shuffleTop Z B) :
+    ∃ (M : PolyRing ν k) (a : ColPerm ν → PolyRing ν k), IsRegular M ∧
+      IsTwisted (opList k Γ B w) M a ∧ a 1 * galDen k B w = M * galNum k B w ∧
+      ∀ x, a x ≠ 0 → x ≠ 1 → ∃ c : ν.support,
+        (Finset.univ.filter fun t : Strand ν => t.1 = c ∧ X t = false ∧ Z (x.1 t) = true).card <
+          (Finset.univ.filter fun t : Strand ν => t.1 = c ∧ X t = false ∧ Z t = true).card := by
+  classical
+  obtain ⟨M, a, hM, hTw, h1, -⟩ := exists_isTwisted_opList_galNum (k := k) hw
+  refine ⟨M, a, hM, hTw, h1, fun x hx hx1 => ?_⟩
+  have hdom : IsDominated (shuffleTop Z B) x := by
+    by_contra hnd
+    rw [← hT] at hnd
+    exact hx ((isSupported_opList_isDominated (k := k) hB.1 hw).coeff_eq_zero hTw hnd)
+  by_contra hlt
+  push Not at hlt
+  exact hx1 (hdom.eq_one_of_isFourBlock hB hlt)
+
+end GalleryAlgebra
 
 end Categorification.WeightedKLR

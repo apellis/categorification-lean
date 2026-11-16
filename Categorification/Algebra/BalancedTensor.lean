@@ -35,6 +35,9 @@ structure is of interest one takes `B = k`.
 * `BalancedTensor.prodRight` : `M ⊗_A (N × N') ≃ (M ⊗_A N) × (M ⊗_A N')`.
 * `BalancedTensor.rid` : `M ⊗_A A ≃ M`, and `BalancedTensor.finsuppRight` :
   `M ⊗_A (X →₀ A) ≃ (X →₀ M)`.
+* `BalancedTensor.idemEquiv` : if `M ≅ ⨁_u e_u A` as right `A`-modules (`e_u` idempotents,
+  generators `g_u = g_u e_u`), then `M ⊗_A N ≅ ⨁_u e_u N` as `k`-modules; for `e_u = 1` this is
+  the free case `M ⊗_A N ≅ ⨁_u N`.
 * `BalancedTensor.projective` : if `M` is a projective `B`-module and `N` a projective
   `A`-module then `M ⊗_A N` is a projective `B`-module; `BalancedTensor.finite` : likewise for
   finite generation.
@@ -449,6 +452,154 @@ theorem finite [Module.Finite B M] [Module.Finite A N] :
     ((mapRight_surjective hsurj).comp (finsuppRight k B A M S).symm.surjective)
 
 end Projective
+
+/-! ### Sums of idempotent right ideals -/
+
+section IdempotentDecomposition
+
+variable [Algebra k A] [IsScalarTower k Aᵐᵒᵖ M] [IsScalarTower k A N] [SMulCommClass B Aᵐᵒᵖ M]
+
+variable (k) in
+/-- The right ideal `e A = {a | e a = a}` of an idempotent `e`, as a `k`-submodule of `A`. -/
+def idemLeft (e : A) : Submodule k A where
+  carrier := {a | e * a = a}
+  add_mem' {a a'} ha ha' := by simp_all [mul_add]
+  zero_mem' := mul_zero e
+  smul_mem' c a ha := by simp_all
+
+theorem mem_idemLeft {e a : A} : a ∈ idemLeft k e ↔ e * a = a := Iff.rfl
+
+variable (k N) in
+/-- The part `e N = {n | e n = n}` of a left `A`-module cut out by an idempotent `e`. -/
+def idemPart (e : A) : Submodule k N where
+  carrier := {n | e • n = n}
+  add_mem' {n n'} hn hn' := by simp_all [smul_add]
+  zero_mem' := smul_zero e
+  smul_mem' c n hn := by simp_all [smul_comm e c n]
+
+theorem mem_idemPart {e : A} {n : N} : n ∈ idemPart k N e ↔ e • n = n := Iff.rfl
+
+variable {U : Type*} [DecidableEq U] (e : U → A)
+
+variable (k M) in
+/-- The map `(a_u)_u ↦ ∑_u g_u a_u` from `⨁_u e_u A` to a right `A`-module `M`. -/
+def idemSum (g : U → M) : (Π₀ u, idemLeft k (e u)) →ₗ[k] M :=
+  DFinsupp.lsum ℕ fun u => (rsmul k A M (g u)).comp (idemLeft k (e u)).subtype
+
+theorem idemSum_single (g : U → M) (u : U) (a : idemLeft k (e u)) :
+    idemSum k M e g (DFinsupp.single u a) = op (a : A) • g u := by
+  simp [idemSum]
+
+/-- Right multiplication by `b` on `⨁_u e_u A`. -/
+def idemRMul (b : A) : (Π₀ u, idemLeft k (e u)) →ₗ[k] Π₀ u, idemLeft k (e u) :=
+  DFinsupp.mapRange.linearMap fun u =>
+    { toFun := fun a => ⟨a * b, by rw [mem_idemLeft, ← mul_assoc, a.2]⟩
+      map_add' := fun a a' => Subtype.ext (add_mul _ _ _)
+      map_smul' := fun c a => Subtype.ext (smul_mul_assoc _ _ _) }
+
+theorem idemSum_idemRMul (g : U → M) (b : A) (a : Π₀ u, idemLeft k (e u)) :
+    idemSum k M e g (idemRMul e b a) = op b • idemSum k M e g a := by
+  have : (idemSum k M e g).comp (idemRMul e b) =
+      ((rsmul k A M).flip b).comp (idemSum k M e g) := by
+    refine DFinsupp.lhom_ext' fun u => LinearMap.ext fun a => ?_
+    simp only [LinearMap.coe_comp, Function.comp_apply, DFinsupp.lsingle_apply, idemRMul,
+      DFinsupp.mapRange.linearMap_apply, DFinsupp.mapRange_single, LinearMap.coe_mk,
+      AddHom.coe_mk, idemSum_single, LinearMap.flip_apply, rsmul_apply, op_mul, mul_smul]
+  exact congrArg (fun f => f a) this
+
+
+variable {e} {g : U → M} (he : ∀ u, IsIdempotentElem (e u)) (hg : ∀ u, op (e u) • g u = g u)
+  (hbij : Function.Bijective (idemSum k M e g))
+
+/-- The coordinates `M → ⨁_u e_u A` inverse to `idemSum`. -/
+def idemCoord : M →ₗ[k] Π₀ u, idemLeft k (e u) :=
+  (LinearEquiv.ofBijective _ hbij).symm.toLinearMap
+
+theorem idemSum_idemCoord (x : M) : idemSum k M e g (idemCoord hbij x) = x :=
+  (LinearEquiv.ofBijective _ hbij).apply_symm_apply x
+
+theorem idemCoord_idemSum (a : Π₀ u, idemLeft k (e u)) : idemCoord hbij (idemSum k M e g a) = a :=
+  (LinearEquiv.ofBijective _ hbij).symm_apply_apply a
+
+theorem idemCoord_op_smul (b : A) (x : M) :
+    idemCoord hbij (op b • x) = idemRMul e b (idemCoord hbij x) := by
+  conv_lhs => rw [← idemSum_idemCoord hbij x, ← idemSum_idemRMul]
+  exact idemCoord_idemSum hbij _
+
+include he hg in
+theorem idemCoord_apply_generator (u : U) :
+    idemCoord hbij (g u) = DFinsupp.single u ⟨e u, (he u).eq⟩ := by
+  have h : idemSum k M e g (DFinsupp.single u ⟨e u, (he u).eq⟩) = g u := by
+    rw [idemSum_single, hg]
+  rw [← h, idemCoord_idemSum]
+
+/-- The action `a ↦ a n` from `e A` to `e N`. -/
+def idemAct (u : U) (n : N) : idemLeft k (e u) →ₗ[k] idemPart k N (e u) where
+  toFun a := ⟨(a : A) • n, by rw [mem_idemPart, ← mul_smul, a.2]⟩
+  map_add' a a' := Subtype.ext (add_smul _ _ _)
+  map_smul' c a := Subtype.ext (smul_assoc c (a : A) n)
+
+/-- The balanced bilinear map `(x, n) ↦ (x_u n)_u`, `x_u` the coordinates of `x`. -/
+def idemBil : M →ₗ[k] N →ₗ[k] Π₀ u, idemPart k N (e u) :=
+  LinearMap.mk₂ k (fun x n => DFinsupp.mapRange.linearMap (fun u => idemAct u n) (idemCoord hbij x))
+    (fun x x' n => by rw [map_add, map_add])
+    (fun c x n => by rw [map_smul, map_smul])
+    (fun x n n' => by
+      ext u
+      simp [idemAct, smul_add])
+    (fun c x n => by
+      ext u
+      simp [idemAct, smul_comm _ c n])
+
+theorem idemBil_balanced (x : M) (b : A) (n : N) :
+    idemBil hbij (op b • x) n = idemBil hbij x (b • n) := by
+  ext u
+  simp [idemBil, idemCoord_op_smul, idemRMul, idemAct, mul_smul]
+
+include he hg in
+/-- **The balanced tensor product with a sum of idempotent right ideals.** Let `M` be a right
+`A`-module and `(g_u)_u` elements with `g_u e_u = g_u` for idempotents `e_u ∈ A`, such that every
+`x ∈ M` is uniquely `x = ∑_u g_u a_u` with `a_u ∈ e_u A` (so `M ≅ ⨁_u e_u A`). Then
+`M ⊗_A N ≅ ⨁_u e_u N` as `k`-modules, `g_u a ⊗ n ↦ (a n)_u`. For `e_u = 1` this is the free case
+`M ⊗_A N ≅ ⨁_u N`. -/
+noncomputable def idemEquiv : BalancedTensor k B A M N ≃ₗ[k] Π₀ u, idemPart k N (e u) :=
+  LinearEquiv.ofLinearMap (lift (idemBil hbij) (idemBil_balanced hbij))
+    (DFinsupp.lsum ℕ fun u => (mkBil k B A M N (g u)).comp (idemPart k N (e u)).subtype)
+    (by
+      refine DFinsupp.lhom_ext' fun u => LinearMap.ext fun n => ?_
+      have h : idemAct u (n : N) ⟨e u, (he u).eq⟩ = n := Subtype.ext n.2
+      simp only [LinearMap.coe_comp, Function.comp_apply, DFinsupp.lsingle_apply,
+        DFinsupp.lsum_single, Submodule.coe_subtype, mkBil_apply, lift_tmul, idemBil,
+        LinearMap.mk₂_apply, idemCoord_apply_generator he hg hbij,
+        DFinsupp.mapRange.linearMap_apply, DFinsupp.mapRange_single, LinearMap.id_coe, id_eq]
+      rw [h])
+    (by
+      refine ext fun x n => ?_
+      have key : (DFinsupp.lsum ℕ fun u => (mkBil k B A M N (g u)).comp
+            (idemPart k N (e u)).subtype).comp
+            (DFinsupp.mapRange.linearMap (fun u => idemAct u n)) =
+          ((mkBil k B A M N).flip n).comp (idemSum k M e g) := by
+        refine DFinsupp.lhom_ext' fun u => LinearMap.ext fun a => ?_
+        simp only [LinearMap.coe_comp, Function.comp_apply, DFinsupp.lsingle_apply,
+          DFinsupp.mapRange.linearMap_apply, DFinsupp.mapRange_single, DFinsupp.lsum_single,
+          Submodule.coe_subtype, mkBil_apply, LinearMap.flip_apply, idemSum_single]
+        exact (op_smul_tmul _ _ _).symm
+      have := congrArg (fun f => f (idemCoord hbij x)) key
+      simp only [LinearMap.coe_comp, Function.comp_apply, idemSum_idemCoord, LinearMap.flip_apply,
+        mkBil_apply] at this
+      simpa [idemBil] using this)
+
+theorem idemEquiv_tmul (x : M) (n : N) (u : U) :
+    ((idemEquiv (B := B) he hg hbij (BalancedTensor.tmul x n) u : idemPart k N (e u)) : N) =
+      (idemCoord hbij x u : A) • n := by
+  simp [idemEquiv, idemBil, idemAct]
+
+theorem idemEquiv_symm_single (u : U) (n : idemPart k N (e u)) :
+    (idemEquiv (B := B) he hg hbij).symm (DFinsupp.single u n) =
+      BalancedTensor.tmul (g u) (n : N) := by
+  simp [idemEquiv]
+
+end IdempotentDecomposition
 
 end BalancedTensor
 

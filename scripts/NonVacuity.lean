@@ -507,4 +507,13 @@ example (ν : Multiset (Fin 2)) : Algebra ℚ (Stendhal.TensorProductAlgebra ℚ
     (fun _ _ : Fin 2 => (1 : MvPolynomial (Fin 2) ℚ)) (fun _ : Fin 1 => Finsupp.single 0 1) ν) :=
   inferInstance
 
+/-! Webster §2.4: the juxtaposition map `ι_{ν';ν''}` on Webster's chambers. -/
+example (ν' ν'' : Fin 2 →₀ ℕ) :=
+  WeightedKLR.Juxtapose.inductionMap_one (k := ℚ) (Γ := wkGraph) (ν' := ν') (ν'' := ν'')
+
+example (ν' ν'' : Fin 2 →₀ ℕ) (c' : WeightedKLR.Chamber wkGraph ν')
+    (c'' : WeightedKLR.Chamber wkGraph ν'') :=
+  WeightedKLR.Juxtapose.inductionMap_e_tmul_e (k := ℚ) c'.toFull_isRankOrdered
+    c''.toFull_isRankOrdered
+
 end NonVacuity

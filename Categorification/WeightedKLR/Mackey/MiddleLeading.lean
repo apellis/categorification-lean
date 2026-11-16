@@ -24,6 +24,13 @@ Theorem 2.8, modulo shorter corner basis vectors.
 * `GalleryAlgebra.IsRelGal.mul`: composition of relabelled minimal galleries through a chamber in
   between.
 * `Juxtapose.IsRelGal.galleryTensorHom`: juxtaposition of relabelled minimal galleries.
+* `Juxtapose.cosetElt_mul_middleCorner_sub_mem`: the image of a spanning vector is a corner basis
+  vector of Webster, Theorem 2.8, modulo shorter ones; its index `middleLead` has shuffle type `c`
+  (`shuffleType_middleLead`) and is injective (`middleLead_injective`).
+* `Juxtapose.linearIndependent_middleTensorMap_middleCornerVec`: the images of the spanning family
+  are independent in the subquotient `S / S'` when `c ∉ S'`.
+* `Juxtapose.middleCornerEquiv`: the juxtaposed corner of `MiddleTensor` is isomorphic to the
+  subquotient of the Mackey filtration of shuffle type `c` (Webster, Theorem 2.19).
 -/
 
 namespace Module.Basis
@@ -92,6 +99,23 @@ theorem eq_zero_of_triangular_sum_mem (b : Module.Basis ι R N) (ℓ : ι → �
   exact hj₀g h0
 
 end Module.Basis
+
+/-- A linear map whose composite with a family is linearly independent is injective on the span
+of the family. -/
+theorem LinearIndependent.injective_restrict_span {R M N κ : Type*} [CommRing R]
+    [AddCommGroup M] [Module R M] [AddCommGroup N] [Module R N] {v : κ → M} (f : M →ₗ[R] N)
+    (hv : LinearIndependent R (f ∘ v)) :
+    Function.Injective (f.domRestrict (Submodule.span R (Set.range v))) := by
+  rw [← LinearMap.ker_eq_bot, LinearMap.ker_eq_bot']
+  rintro ⟨z, hz⟩ hfz
+  obtain ⟨l, rfl⟩ := Finsupp.mem_span_range_iff_exists_finsupp.1 hz
+  have h : Finsupp.linearCombination R (f ∘ v) l = 0 := by
+    rw [LinearMap.domRestrict_apply] at hfz
+    simpa [Finsupp.linearCombination_apply, Finsupp.sum, map_sum, map_smul] using hfz
+  have hl := linearIndependent_iff.1 hv l h
+  subst hl
+  ext
+  simp
 
 namespace Categorification.WeightedKLR
 
@@ -212,7 +236,8 @@ omit [DecidableEq I] in
 /-- `shuffleTop` commutes with transport along `ν₀ = ν`. -/
 theorem shuffleTop_castChamber {ν₀ ν : I →₀ ℕ} (h : ν₀ = ν) (W : Strand ν → Bool)
     (C : FullChamber Γ ν₀) :
-    shuffleTop W (castChamber h C) = castChamber h (shuffleTop (fun s => W (castStrand h s)) C) := by
+    shuffleTop W (castChamber h C) =
+      castChamber h (shuffleTop (fun s => W (castStrand h s)) C) := by
   subst h
   rfl
 
@@ -473,7 +498,8 @@ omit [DecidableEq I] in
 theorem isRankOrdered_shuffleTop_middleCoset_inv_smul (u₁ : ParabolicRep a L')
     (u₂ : ParabolicRep b L'') :
     (shuffleTop (fun t => decide (t.IsLeft (a + b)))
-      ((middleCoset u₁ u₂)⁻¹ • castChamber (layout_eq a b c d) (chamber L' L''))).IsRankOrdered := by
+      ((middleCoset u₁ u₂)⁻¹ • castChamber (layout_eq a b c d)
+        (chamber L' L''))).IsRankOrdered := by
   rw [shuffleTop_middleCoset_inv_smul]
   exact (isRankOrdered_chamber_iff _ _).2 ⟨isRankOrdered_botLeft u₁ u₂,
     isRankOrdered_botRight u₁ u₂⟩
@@ -624,6 +650,125 @@ theorem linearIndependent_middleTensorMap_middleCornerVec
       exact hcS') s g hg
 
 end Independence
+
+section Isomorphism
+
+variable {P : FullChamber Γ (a + b + (c + d)) → FullChamber Γ (a + b + (c + d)) →
+    (Strand (a + b + (c + d)) → 𝕜) × (Strand (a + b + (c + d)) → 𝕜)}
+  (hP : ∀ C E, IsChamberSegment C E (P C E)) (hD : Γ.Dagger) (hZ : Γ.NoZeroLoops)
+  (hΓ : Γ.PSymm) (hW : ∀ w : Wall Γ (a + b + (c + d)), IsRegular (w.factor (k := k)))
+  (hL : ∀ (Q : MvPolynomial (Fin 2) k) (s t : Strand (a + b + (c + d))),
+    Γ.loop s.1 = some Q → s ≠ t → s.1 = t.1 → IsRegular (loopFactor Q s t))
+
+omit [DecidableEq I] [Field 𝕜] [LinearOrder 𝕜] [IsStrictOrderedRing 𝕜] in
+/-- The hypothesis of Webster, Theorem 2.8, on walls, for the reordered weight
+`a + c + (b + d)`. -/
+theorem isRegular_factor_layout (hW : ∀ w : Wall Γ (a + b + (c + d)),
+    IsRegular (w.factor (k := k))) (w : Wall Γ (a + c + (b + d))) :
+    IsRegular (w.factor (k := k)) := by
+  revert w
+  rw [layout_eq a b c d]
+  exact hW
+
+omit [DecidableEq I] [Field 𝕜] [LinearOrder 𝕜] [IsStrictOrderedRing 𝕜] in
+/-- The hypothesis of Webster, Theorem 2.8, on loops, for the reordered weight
+`a + c + (b + d)`. -/
+theorem isRegular_loopFactor_layout (hL : ∀ (Q : MvPolynomial (Fin 2) k)
+    (s t : Strand (a + b + (c + d))), Γ.loop s.1 = some Q → s ≠ t → s.1 = t.1 →
+      IsRegular (loopFactor Q s t)) (Q : MvPolynomial (Fin 2) k)
+    (s t : Strand (a + c + (b + d))) : Γ.loop s.1 = some Q → s ≠ t → s.1 = t.1 →
+      IsRegular (loopFactor Q s t) := by
+  revert s t
+  rw [layout_eq a b c d]
+  exact hL Q
+
+include hP hΓ hW hL in
+/-- `middleTensorMap` factors through the projection `middleCornerMap` onto the juxtaposed
+corner `(e L' ⊗ e L'') MiddleTensor (e R' ⊗ e R'')`. -/
+theorem middleTensorMap_comp_middleCornerMap (hL' : L'.IsRankOrdered)
+    (hL'' : L''.IsRankOrdered) (hR' : R'.IsRankOrdered) (hR'' : R''.IsRankOrdered)
+    (hRc : (chamber R' R'').IsRankOrdered)
+    (hLc : (castChamber (layout_eq a b c d) (chamber L' L'')).IsRankOrdered)
+    {S' S : Set (I → ℕ)} (hS : IsLowerSet S) (hcS : ⇑c ∈ S) (hS' : Set.Iio ⇑c ⊆ S') :
+    (middleTensorMap hP hD hZ hΓ hW hL hRc hLc hS hcS hS').comp
+        (middleCornerMap (rankE k hL' ⊗ₜ rankE k hL'') (rankE k hR' ⊗ₜ rankE k hR'')) =
+      middleTensorMap hP hD hZ hΓ hW hL hRc hLc hS hcS hS' := by
+  have hzL : inductionVal k (layout_eq a b c d) (rankE k hL' ⊗ₜ rankE k hL'') =
+      e (castChamber (layout_eq a b c d) (chamber L' L'')) := by
+    have hcast : ∀ {μ : I →₀ ℕ} (h : a + c + (b + d) = μ) (C : FullChamber Γ (a + c + (b + d))),
+        castGallery k Γ h (e C) = e (castChamber h C) := by
+      intro μ h C
+      subst h
+      rfl
+    rw [inductionVal_apply, inductionMap_rankE_tmul_rankE]
+    exact hcast _ _
+  have hzR : inductionVal k (rfl : a + b + (c + d) = a + b + (c + d))
+      (rankE k hR' ⊗ₜ rankE k hR'') = e (chamber R' R'') := by
+    rw [inductionVal_apply, inductionMap_rankE_tmul_rankE, castGallery_rfl]
+    rfl
+  refine BalancedTensor.ext fun t y => ?_
+  rw [LinearMap.comp_apply, middleCornerMap_tmul]
+  exact middleTensorMap_tmul_corner hP hD hZ hΓ hW hL hRc hLc hS hcS hS' hzL hzR t y
+
+/-- **The juxtaposed corner is the Mackey subquotient corner** (Webster, arXiv:1209.2463v4,
+Theorem 2.19; after Khovanov–Lauda, arXiv:0803.4121v2, Proposition 2.18). For rank-ordered
+chambers `L'`, `L''` for `a + c`, `b + d` and `R'`, `R''` for `a + b`, `c + d`, and a lower set
+`S ∋ c` of shuffle types whose only type outside `S' ⊇ {μ < c}` is `c`, the map
+`(e L' ⊗ e L'') t ⊗ y (e R' ⊗ e R'') ↦ [e L ι(t) ψ_c ι(y) e R]` is a linear isomorphism from the
+juxtaposed corner of `MiddleTensor` onto the subquotient `S / S'` of the Mackey filtration of the
+corner `e L A e R`, `L`, `R` the juxtaposed chambers. The hypotheses of Webster, Theorem 2.8, are
+those for the weight `a + b + c + d`; they imply those for `a + c`, `b + d`, `a + b` and `c + d`
+(`isRegular_factor_of_embedding`, `isRegular_loopFactor_of_embedding`). -/
+noncomputable def middleCornerEquiv (hL' : L'.IsRankOrdered) (hL'' : L''.IsRankOrdered)
+    (hR' : R'.IsRankOrdered) (hR'' : R''.IsRankOrdered) {S' S : Set (I → ℕ)}
+    (hS : IsLowerSet S) (hcS : ⇑c ∈ S) (hS' : Set.Iio ⇑c ⊆ S') (hcS' : ⇑c ∉ S')
+    (hc : ∀ μ' ∈ S, μ' ∉ S' → μ' = ⇑c) :
+    LinearMap.range (middleCornerMap (rankE k hL' ⊗ₜ rankE k hL'')
+        (rankE k hR' ⊗ₜ rankE k hR'')) ≃ₗ[k]
+      MackeySubquotient k hP hD hZ hΓ hW hL (a + b) (a + c)
+        (castChamber (layout_eq a b c d) (chamber L' L'')) (chamber R' R'') S' S :=
+  LinearEquiv.ofBijective
+    ((middleTensorMap hP hD hZ hΓ hW hL ((isRankOrdered_chamber_iff R' R'').2 ⟨hR', hR''⟩)
+      ((isRankOrdered_castChamber_chamber_iff (layout_eq a b c d) L' L'').2 ⟨hL', hL''⟩) hS hcS
+        hS').domRestrict _) <| by
+    classical
+    have hRc := (isRankOrdered_chamber_iff R' R'').2 ⟨hR', hR''⟩
+    have hLc := (isRankOrdered_castChamber_chamber_iff (layout_eq a b c d) L' L'').2 ⟨hL', hL''⟩
+    set f := middleTensorMap hP hD hZ hΓ hW hL hRc hLc hS hcS hS'
+    set π := middleCornerMap (rankE k hL' ⊗ₜ rankE k hL'') (rankE k hR' ⊗ₜ rankE k hR'')
+    have hfπ : f.comp π = f :=
+      middleTensorMap_comp_middleCornerMap hP hD hZ hΓ hW hL hL' hL'' hR' hR'' hRc hLc hS hcS hS'
+    refine ⟨?_, fun q => ?_⟩
+    · choose P₁ hP₁ using fun C E : FullChamber Γ (a + c) => exists_isChamberSegment hD hZ C E
+      choose P₂ hP₂ using fun C E : FullChamber Γ (b + d) => exists_isChamberSegment hD hZ C E
+      choose P₃ hP₃ using fun C E : FullChamber Γ (a + b) => exists_isChamberSegment hD hZ C E
+      choose P₄ hP₄ using fun C E : FullChamber Γ (c + d) => exists_isChamberSegment hD hZ C E
+      have hW' := isRegular_factor_layout hW
+      have hL'₀ := isRegular_loopFactor_layout hL
+      have hW₁ := isRegular_factor_of_embedding (leftEmb (a + c) (b + d)) hW'
+      have hW₂ := isRegular_factor_of_embedding (rightEmb (a + c) (b + d)) hW'
+      have hW₃ := isRegular_factor_of_embedding (leftEmb (a + b) (c + d)) hW
+      have hW₄ := isRegular_factor_of_embedding (rightEmb (a + b) (c + d)) hW
+      have hL₁ := isRegular_loopFactor_of_embedding (leftEmb (a + c) (b + d)) hL'₀
+      have hL₂ := isRegular_loopFactor_of_embedding (rightEmb (a + c) (b + d)) hL'₀
+      have hL₃ := isRegular_loopFactor_of_embedding (leftEmb (a + b) (c + d)) hL
+      have hL₄ := isRegular_loopFactor_of_embedding (rightEmb (a + b) (c + d)) hL
+      have heq : LinearMap.range π = Submodule.span k (Set.range
+          (middleCornerVec hP₃ hP₄ hD hZ hΓ hW₃ hW₄ hL₃ hL₄ hL' hL'' hR' hR'')) :=
+        le_antisymm (range_middleCornerMap_le_span (hP₁ := hP₁) (hP₂ := hP₂) (hW₁ := hW₁)
+            (hW₂ := hW₂) (hL₁ := hL₁) (hL₂ := hL₂) hP₃ hP₄ hD hZ hΓ hW₃ hW₄ hL₃ hL₄ hL' hL''
+            hR' hR'')
+          (Submodule.span_le.2 (Set.range_subset_iff.2 fun i =>
+            middleCornerVec_mem_range hP₃ hP₄ hD hZ hΓ hW₃ hW₄ hL₃ hL₄ hL' hL'' hR' hR'' i))
+      rw [heq]
+      exact LinearIndependent.injective_restrict_span f
+        (linearIndependent_middleTensorMap_middleCornerVec hP hP₃ hP₄ hD hZ hΓ hW hW₃ hW₄ hL hL₃
+          hL₄ hRc hLc hS hcS hS' hcS')
+    · obtain ⟨x, rfl⟩ := middleTensorMap_surjective_of_chamber hP hD hZ hΓ hW hL hRc hLc hS hcS
+        hS' hc q
+      exact ⟨⟨π x, LinearMap.mem_range_self π x⟩, LinearMap.congr_fun hfπ x⟩
+
+end Isomorphism
 
 end Juxtapose
 

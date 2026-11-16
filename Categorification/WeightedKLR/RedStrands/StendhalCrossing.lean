@@ -313,6 +313,177 @@ theorem blk_smul {ι M : Type*} [DecidableEq ι] [AddCommGroup M] [Module k M] (
   ext x : 1
   simp [blk_apply, Pi.single_smul]
 
+/-- **The crossings of Stendhal diagrams in the polynomial representation**
+(Webster, arXiv:1209.2463v4, proof of Theorem 3.5): `stCross` acts from the copy of the chamber
+of `i` to the copy of the chamber of `s_n i` by `stCrossOp`. -/
+theorem galleryRep_stCross (hD : Γ.Dagger) (hE : ∀ e, Γ.head e ≠ Γ.tail e)
+    (hl : ∀ c, Γ.loop c = none) (hϖ : StrictMono ϖ) (hw0 : ∀ e, Γ.weight e = 0)
+    (i : OrdSeq ℓ ν) (n : ℕ) (h : n + 1 < m) (hi : IsRedOrdered (TypeA.sadj m n • i.1)) :
+    galleryRep k (WeightedGraph.crawleyBoeveyIn_psymm (psymm_of_loop hl))
+        (stCross k Λ hϖ hw0 i n h) =
+      blk k (stFull Λ hϖ hw0 i) (stFull Λ hϖ hw0 ⟨TypeA.sadj m n • i.1, hi⟩)
+        (stCrossOp k Γ Λ i.1 n h) := by
+  have hZ : Γ.NoZeroLoops := fun e he => absurd he (hE e)
+  set u := i.1.strandAt ⟨n, by omega⟩ with hu_def
+  set v := i.1.strandAt ⟨n + 1, h⟩ with hv_def
+  have hπ := isAdm_posVal i.2
+  have huv : posVal i.1 v = posVal i.1 u + 1 := by
+    rw [hu_def, hv_def, posVal_strandAt, posVal_strandAt]
+  have hlt : posVal i.1 u < posVal i.1 v := by omega
+  have hne : u ≠ v := fun e => by
+    have := i.1.strandAt_injective e
+    simp [Fin.ext_iff] at this
+  by_cases hc : i.1.1 ⟨n, by omega⟩ = i.1.1 ⟨n + 1, h⟩
+  · have hu : u.1.1.isLeft := isLeft_of_eq h hc
+    have hv : v.1.1.isLeft := by
+      show (i.1.1 ⟨n + 1, h⟩).isLeft
+      rw [← hc]
+      exact isLeft_of_eq h hc
+    have hπ' := hπ.comp_swap hu hv
+    set d := stDiag i.1 n h hc
+    have hlf : Lifts ν (.inr d : Hyp Γλ ν̃) u v := ⟨ofTilde_toTilde_inl hu, ofTilde_toTilde_inl hv⟩
+    have hw : stWord Γ Λ ϖ i.1 n h = [.inr d] :=
+      word_stCfg_swap_eq hD hZ hϖ hw0 hπ hπ' huv ⟨u, v, hlf, Or.inl ⟨rfl, rfl⟩⟩
+    obtain ⟨hgood, -⟩ := goodWord_flips_word (C := stFull Λ hϖ hw0 i)
+      (simple_stCfg_swap hD hZ hϖ hw0 hπ hπ' huv) rfl
+    have hgood' : GoodWord (stFull Λ hϖ hw0 i).1 [.inr d] := by
+      rw [← hw]
+      exact hgood
+    obtain ⟨-, ha, -⟩ := hgood'.cons
+    have hC : d.refl • (stFull Λ hϖ hw0 i).flips [.inr d] =
+        stFull Λ hϖ hw0 ⟨TypeA.sadj m n • i.1, hi⟩ := by
+      rw [flips_cons, flips_nil, ← ha.refl_smul, smul_smul, Diag.refl_mul_refl, one_smul]
+      congr 1
+      exact Subtype.ext (KLR.Seq.sadj_smul_of_eq i.1 h hc).symm
+    have h1 : (stFull Λ hϖ hw0 i).1 (.inr d) = true := (stFull_eq_true_iff hϖ hw0 i hlf).2 hlt
+    simp only [stCross, hc, ↓reduceDIte, stCrossOp, ↓reduceIte]
+    rw [hw, map_mul, galleryRep_r, galleryRep_galList, Module.End.mul_eq_comp, blk_comp_blk, hC]
+    congr 1
+    rw [opList, opList, LinearMap.id_comp, stepOp_inr ha,
+      psiOp_of_none (loop_crawleyBoeveyIn hl _)]
+    refine LinearMap.ext fun f => ?_
+    simp only [LinearMap.comp_apply, Diag.left, Diag.right, h1, ↓reduceIte]
+    exact rename_swap_ddiff (fun e => hne (eq_of_toTilde_eq hv e)) _
+  · have hπ' : IsAdm ν m (posVal i.1 ∘ swap u v) := by
+      have := isAdm_posVal hi
+      rwa [posVal_sadj i.1 h hc] at this
+    have hmem := fun x => mem_word_stCfg_swap (Γ := Γ) (Λ := Λ) hϖ hw0 hπ hπ' huv (x := x)
+    obtain ⟨hgood₀, hflips⟩ := goodWord_flips_word (C := stFull Λ hϖ hw0 i)
+      (simple_stCfg_swap hD hZ hϖ hw0 hπ hπ' huv) rfl
+    have hgood : GoodWord (stFull Λ hϖ hw0 i).1 (stWord Γ Λ ϖ i.1 n h) := hgood₀
+    have hflip : (stFull Λ hϖ hw0 i).flips (stWord Γ Λ ϖ i.1 n h) =
+        stFull Λ hϖ hw0 ⟨TypeA.sadj m n • i.1, hi⟩ := by
+      refine Subtype.ext (hflips.trans ?_)
+      show _ = fullSigns (stCfg ϖ m (posVal (TypeA.sadj m n • i.1)))
+      rw [posVal_sadj i.1 h hc]
+    have hdiag : ∀ d, (Sum.inr d : Hyp Γλ ν̃) ∉ stWord Γ Λ ϖ i.1 n h := by
+      intro d hd
+      obtain ⟨a, b, hab, hor⟩ := (hmem _).1 hd
+      have e : a.1 = b.1 := fst_eq_of_toTilde (isLeft_of_ofTilde hab.1)
+        (isLeft_of_ofTilde hab.2)
+        (by rw [toTilde_of_ofTilde hab.1, toTilde_of_ofTilde hab.2]; exact d.2.1)
+      rcases hor with ⟨rfl, rfl⟩ | ⟨rfl, rfl⟩
+      · exact hc (congrArg Subtype.val e)
+      · exact hc (congrArg Subtype.val e).symm
+    simp only [stCross, hc, ↓reduceDIte, stCrossOp, ↓reduceIte]
+    rw [map_smul, galleryRep_galList, hflip, opList_of_walls hgood hdiag, blk_smul]
+    congr 1
+    suffices key : crossSign k Λ (i.1.1 ⟨n, by omega⟩) (i.1.1 ⟨n + 1, h⟩) •
+        ((stWord Γ Λ ϖ i.1 n h).map
+          fun x => wallCoeff (k := k) x ((stFull Λ hϖ hw0 i).1 x)).prod =
+        rename ![toTilde v, toTilde u] (stP Γ Λ (i.1.1 ⟨n, by omega⟩) (i.1.1 ⟨n + 1, h⟩)) by
+      rw [← key]
+      refine LinearMap.ext fun f => ?_
+      simp
+    rcases hlu : i.1.1 ⟨n, by omega⟩ with a | r <;> rcases hlv : i.1.1 ⟨n + 1, h⟩ with b | r'
+    · -- two black strands of distinct colours
+      classical
+      have hu : u.1.1.isLeft := by rw [show u.1.1 = _ from hlu]; rfl
+      have hv : v.1.1.isLeft := by rw [show v.1.1 = _ from hlv]; rfl
+      simp only [crossSign, stP, one_smul]
+      rw [← edgeProd_crawleyBoeveyIn_some (Λ := Λ) (ϖ := ϖ), ← List.prod_toFinset _ hgood.1]
+      have hset : (stWord Γ Λ ϖ i.1 n h).toFinset = Finset.univ.filter
+          (fun x : Hyp Γλ ν̃ => x.JoinsPair (toTilde u) (toTilde v)) := by
+        ext x
+        simp only [List.mem_toFinset, Finset.mem_filter, Finset.mem_univ, true_and]
+        rw [← crosses_iff_joinsPair hu hv]
+        exact hmem x
+      have e1 : (toTilde u).label = some a := toTilde_fst hlu
+      have e2 : (toTilde v).label = some b := toTilde_fst hlv
+      rw [hset, ← e1, ← e2]
+      refine prod_wallCoeff_joinsPair (k := k) _ (fun e => hne (eq_of_toTilde_eq hv e)) ?_ ?_
+      · intro w hs ht
+        exact (stFull_eq_true_iff hϖ hw0 i (x := .inl w) (a := u) (b := v)
+          ⟨Or.inl (by rw [hs]; exact ofTilde_toTilde_inl hu),
+            by rw [ht]; exact ofTilde_toTilde_inl hv⟩).2 hlt
+      · intro w hs ht
+        rw [Bool.eq_false_iff]
+        intro hh
+        have := (stFull_eq_true_iff hϖ hw0 i (x := .inl w) (a := v) (b := u)
+          ⟨Or.inl (by rw [hs]; exact ofTilde_toTilde_inl hv),
+            by rw [ht]; exact ofTilde_toTilde_inl hu⟩).1 hh
+        omega
+    · -- a black strand left of a red strand
+      have hu : u.1.1.isLeft := by rw [show u.1.1 = _ from hlu]; rfl
+      have hv : ¬ v.1.1.isLeft := by rw [show v.1.1 = _ from hlv]; simp
+      have hvr : v = redStrand ν r' := eq_redStrand hlv
+      have htv : toTilde v = GalleryAlgebra.zeroStrand (Multiset.toFinsupp ν) :=
+        toTilde_of_not_isLeft hv
+      have hcr : ∀ x, Crosses ν u v x → ∃ (w : Wall Γλ ν̃) (c : WeightedGraph.RedEdge Λ),
+          x = .inl w ∧ w.edge = .inr c ∧ c.1 = r' ∧ c.2.1 = a ∧ w.tgt = toTilde u ∧
+            (stFull Λ hϖ hw0 i).1 x = false := by
+        rintro x ⟨a', b', hl', ⟨rfl, rfl⟩ | ⟨rfl, rfl⟩⟩
+        · exact absurd (isLeft_of_lifts hl') hv
+        · rcases x with w | d
+          · obtain ⟨hsrc | ⟨c, hc', hvc⟩, htg⟩ := hl'
+            · exact absurd (isLeft_of_ofTilde hsrc) hv
+            · have htg' : w.tgt = toTilde u := (toTilde_of_ofTilde htg).symm
+              refine ⟨w, c, rfl, hc', redStrand_injective (hvc.symm.trans hvr), ?_, htg', ?_⟩
+              · have := tgt_label_of_edge_inr w hc'
+                rw [htg', toTilde_fst hlu] at this
+                exact (Option.some_injective _ this).symm
+              · rw [Bool.eq_false_iff]
+                intro hh
+                have := (stFull_eq_true_iff hϖ hw0 i
+                  (x := .inl w) (a := v) (b := u) ⟨Or.inr ⟨c, hc', hvc⟩, htg⟩).1 hh
+                omega
+          · exact absurd (isLeft_of_ofTilde hl'.1) hv
+      by_cases hex : ∃ x : Hyp Γλ ν̃, Crosses ν u v x
+      · obtain ⟨x, hx⟩ := hex
+        have hword := word_stCfg_swap_eq hD hZ hϖ hw0 hπ hπ' huv hx
+        obtain ⟨w, c, rfl, hc', hcr', hca, htg, hsg⟩ := hcr x hx
+        rw [show stWord Γ Λ ϖ i.1 n h = [.inl w] from hword]
+        simp only [List.map_cons, List.map_nil, List.prod_cons, List.prod_nil, mul_one, hsg,
+          wallCoeff, ↓reduceIte, crossSign, stP]
+        rw [Wall.factor_eq_rename, src_eq_zeroStrand w hc', htg, htv, hc']
+        rw [show Γλ.Q (.inr c) = (X 0 - X 1) ^ Λ c.1 c.2.1 from rfl, hca, hcr']
+        simp only [map_pow, map_sub, rename_X, Matrix.cons_val_zero, Matrix.cons_val_one,
+          Matrix.cons_val_fin_one]
+        rw [Algebra.smul_def, map_pow, map_neg, map_one, ← neg_sub (X _) (X (toTilde u)),
+          neg_pow (X _ - X _)]
+      · push Not at hex
+        have hΛ : Λ r' a = 0 := by
+          by_contra hΛ
+          let c : WeightedGraph.RedEdge Λ := ⟨r', ⟨a, Finsupp.mem_support_iff.2 hΛ⟩⟩
+          let w0 : Wall Γλ ν̃ := ⟨(.inr c, GalleryAlgebra.zeroStrand _, toTilde u),
+            rfl, toTilde_fst hlu, (toTilde_ne_zeroStrand hu).symm⟩
+          exact hex (.inl w0)
+            ⟨v, u, ⟨Or.inr ⟨c, rfl, hvr⟩, ofTilde_toTilde_inl hu⟩, Or.inr ⟨rfl, rfl⟩⟩
+        rw [show stWord Γ Λ ϖ i.1 n h = [] from word_stCfg_swap_eq_nil hϖ hw0 hπ hπ' huv hex]
+        simp [crossSign, stP, hΛ]
+    · -- a red strand left of a black strand
+      have hu : ¬ u.1.1.isLeft := by rw [show u.1.1 = _ from hlu]; simp
+      rw [List.prod_eq_one]
+      · simp [crossSign, stP]
+      intro y hy
+      obtain ⟨x, hx, rfl⟩ := List.mem_map.1 hy
+      obtain ⟨a', b', hl', hor⟩ := (hmem x).1 hx
+      rcases hor with ⟨rfl, rfl⟩ | ⟨rfl, rfl⟩
+      · rw [(stFull_eq_true_iff hϖ hw0 i hl').2 hlt]
+        rcases x with w | d <;> simp [wallCoeff]
+      · exact absurd (isLeft_of_lifts hl') hu
+    · exact (not_red_red i.2 h hi hlu hlv).elim
+
 end Crossing
 
 end Categorification.Stendhal

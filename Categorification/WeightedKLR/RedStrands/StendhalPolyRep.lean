@@ -233,4 +233,113 @@ theorem wordComp_X_mul (P : I ⊕ Fin ℓ → I ⊕ Fin ℓ → MvPolynomial (Fi
       rw [ih, crossComp_X_mul P _ j h hc', TypeA.wordProd_cons, Perm.mul_apply]
     · simp [wordComp, h]
 
+/-! ### Faithfulness on the black strands -/
+
+section Faithful
+
+variable (P : I ⊕ Fin ℓ → I ⊕ Fin ℓ → MvPolynomial (Fin 2) k)
+  (ρ : Perm (Fin (Multiset.card (stendhalWeight ℓ ν))) → List ℕ)
+  (s : Finset (KLR.Seq (stendhalWeight ℓ ν) × Perm (Fin (Multiset.card (stendhalWeight ℓ ν))) ×
+    (Fin (Multiset.card (stendhalWeight ℓ ν)) →₀ ℕ)))
+  (c : KLR.Seq (stendhalWeight ℓ ν) × Perm (Fin (Multiset.card (stendhalWeight ℓ ν))) ×
+    (Fin (Multiset.card (stendhalWeight ℓ ν)) →₀ ℕ) → k)
+
+/-- The component from `Pol_i` to `Pol_t` of `∑_{b ∈ s} c_b ψ_{ρ w} x^u 1_i` (`b = (i, w, u)`),
+when `ρ w` is a word for `w`. -/
+noncomputable def blockSum (i t : KLR.Seq (stendhalWeight ℓ ν)) :
+    MvPolynomial (Fin m) k →ₗ[k] MvPolynomial (Fin m) k :=
+  ∑ b ∈ s with b.1 = i ∧ b.2.1 • i = t,
+    c b • (wordComp P (ρ b.2.1) i ∘ₗ LinearMap.mulLeft k (monomial b.2.2 1))
+
+variable {ρ} in
+/-- Within one block, the variable of a red strand is transported to a single position. -/
+theorem exists_blockSum_X_mul (hρ : ∀ w, wordProd m (ρ w) = w)
+    (i t : KLR.Seq (stendhalWeight ℓ ν)) {a : Fin m} (ha : ¬ (i.1 a).isLeft) :
+    ∃ q : Fin m, ∀ h, blockSum P ρ s c i t (X a * h) = X q * blockSum P ρ s c i t h := by
+  obtain ⟨r, hr⟩ : ∃ r, i.1 a = .inr r := by
+    rcases hx : i.1 a with x | r
+    · rw [hx] at ha; simp at ha
+    · exact ⟨r, rfl⟩
+  by_cases hex : ∃ b ∈ s, b.1 = i ∧ b.2.1 • i = t
+  · obtain ⟨b₀, -, -, hb₀⟩ := hex
+    refine ⟨b₀.2.1 a, fun h => ?_⟩
+    simp only [blockSum, LinearMap.sum_apply, LinearMap.smul_apply,
+      LinearMap.coe_comp, Function.comp_apply, LinearMap.mulLeft_apply, Finset.mul_sum]
+    refine Finset.sum_congr rfl fun b hb => ?_
+    obtain ⟨-, rfl, hbt⟩ := Finset.mem_filter.1 hb
+    have hq : b.2.1 a = b₀.2.1 a := by
+      refine eq_of_lbl_eq_inr (i := t) (r := r) ?_ ?_
+      · rw [← hbt, KLR.Seq.smul_apply, Equiv.symm_apply_apply, hr]
+      · rw [← hb₀, KLR.Seq.smul_apply, Equiv.symm_apply_apply, hr]
+    rw [mul_left_comm, wordComp_X_mul P _ _ ha, hρ, hq, mul_smul_comm]
+  · refine ⟨a, fun h => ?_⟩
+    have he : s.filter (fun b => b.1 = i ∧ b.2.1 • i = t) = ∅ :=
+      Finset.filter_eq_empty_iff.2 fun b hb hb' => hex ⟨b, hb, hb'⟩
+    simp [blockSum, he]
+
+omit [DecidableEq I] in
+theorem blackEval_C (i : KLR.Seq (stendhalWeight ℓ ν)) (x : k) :
+    blackEval i (C x : MvPolynomial (Fin m) k) = C x :=
+  (blackEval i).commutes x
+
+variable {ρ} in
+/-- A block vanishing on the polynomials in the black variables vanishes. -/
+theorem blockSum_eq_zero (hρ : ∀ w, wordProd m (ρ w) = w) (i t : KLR.Seq (stendhalWeight ℓ ν))
+    (h0 : ∀ h, blackEval i h = h → blockSum P ρ s c i t h = 0) (h : MvPolynomial (Fin m) k) :
+    blockSum P ρ s c i t h = 0 := by
+  suffices H : ∀ p g : MvPolynomial (Fin m) k, blackEval i g = g →
+      blockSum P ρ s c i t (p * g) = 0 by
+    simpa using H h 1 (map_one _)
+  intro p
+  induction p using MvPolynomial.induction_on with
+  | C x =>
+    intro g hg
+    exact h0 _ (by rw [map_mul, blackEval_C, hg])
+  | add p p' hp hp' =>
+    intro g hg
+    rw [add_mul, map_add, hp g hg, hp' g hg, add_zero]
+  | mul_X p a hp =>
+    intro g hg
+    by_cases ha : (i.1 a).isLeft
+    · rw [mul_assoc]
+      exact hp _ (by simp only [map_mul, hg, blackEval_X, ha, ↓reduceIte])
+    · obtain ⟨q, hq⟩ := exists_blockSum_X_mul P s c hρ i t ha
+      rw [mul_comm p, mul_assoc, hq, hp g hg, mul_zero]
+
+variable {ρ} in
+/-- **Faithfulness on the black strands**: if `P` has non-zero-divisor values and a combination
+of the operators `ψ_{ρ w} x^u 1_i` vanishes, in every block, on the polynomials in the
+variables of the black strands, then its coefficients vanish. -/
+theorem eq_zero_of_blockSum_eq_zero
+    (hP : ∀ a b, a ≠ b → ∀ f : Fin 2 → Fin m, Function.Injective f →
+      IsRegular (rename f (P a b)))
+    (hρ : ∀ w, IsReduced m (ρ w) ∧ wordProd m (ρ w) = w)
+    (h0 : ∀ i t h, blackEval i h = h → blockSum P ρ s c i t h = 0) :
+    ∀ b ∈ s, c b = 0 := by
+  have hρ' : ∀ w, wordProd m (ρ w) = w := fun w => (hρ w).2
+  refine linearIndependent_iff'.1 (linearIndependent_opΨw_of_isRegular hP ρ hρ) s c ?_
+  refine LinearMap.ext fun g => funext fun t => ?_
+  have hb : ∀ i, blockSum P ρ s c i t (g i) = 0 := fun i =>
+    blockSum_eq_zero P s c hρ' i t (h0 i t) (g i)
+  trans ∑ i, blockSum P ρ s c i t (g i)
+  swap
+  · simp [hb]
+  simp only [blockSum, LinearMap.sum_apply, Finset.sum_filter]
+  rw [Finset.sum_apply, Finset.sum_comm]
+  refine Finset.sum_congr rfl fun b _ => ?_
+  have e1 : opE b.1 g = Pi.single b.1 (g b.1) := by
+    funext t'; rw [opE_apply]; by_cases ht : t' = b.1 <;> simp [ht]
+  have e2 : mulMono b.2.2 (Pi.single b.1 (g b.1) : KLR.PolyRep.Pol k _) =
+      Pi.single b.1 (monomial b.2.2 1 * g b.1) := by
+    funext t'; rw [mulMono_apply]; by_cases ht : t' = b.1 <;> simp [ht]
+  rw [LinearMap.smul_apply, LinearMap.comp_apply, LinearMap.comp_apply, e1, e2, opΨw_single,
+    hρ', Pi.smul_apply, Finset.sum_eq_single b.1]
+  · by_cases ht : b.2.1 • b.1 = t
+    · subst ht; simp
+    · simp [ht]
+  · intro i _ hi; simp [Ne.symm hi]
+  · intro h; exact absurd (Finset.mem_univ _) h
+
+end Faithful
+
 end Categorification.Stendhal

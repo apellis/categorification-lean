@@ -881,6 +881,8 @@ import Categorification.WeightedKLR.Mackey.Filtration
 import Categorification.WeightedKLR.Mackey.FourBlockBalanced
 import Categorification.WeightedKLR.Mackey.FourBlockChamber
 import Categorification.WeightedKLR.Mackey.FourBlockConj
+import Categorification.WeightedKLR.Mackey.FourBlockDecomp
+import Categorification.WeightedKLR.Mackey.FourBlockDescent
 import Categorification.WeightedKLR.Mackey.FourBlockJuxtapose
 import Categorification.WeightedKLR.Mackey.FourBlockLayout
 import Categorification.WeightedKLR.Mackey.FourBlockShuffle

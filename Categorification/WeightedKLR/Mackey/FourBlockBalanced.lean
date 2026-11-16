@@ -21,6 +21,7 @@ relabel strands only within these four blocks.
 * `Juxtapose.isFourBlock_fourChamber`: `(A B)(C D)` is a four-block chamber.
 * `Juxtapose.isBlockSupported_galleryTensorHom_fourBlock`: the juxtapositions
   `(x_a x_b)(x_c x_d)` relabel strands only within the four blocks.
+* `Juxtapose.shuffleType_middleSwap`: the middle swap has shuffle type `c`.
 * `Juxtapose.isRankOrdered_fourChamberSwap_iff`: `(A C)(B D)` is rank-ordered exactly when
   `(A B)(C D)` is.
 -/
@@ -193,6 +194,55 @@ theorem isRankOrdered_fourChamberSwap_iff
     (fourChamberSwap a b c d q).IsRankOrdered ↔ (fourChamber a b c d q).IsRankOrdered := by
   simp only [fourChamberSwap, fourChamber, isRankOrdered_castChamber, isRankOrdered_chamber_iff]
   tauto
+
+/-- **The shuffle type of the middle swap.** The middle swap sends exactly `c i` strands of colour
+`i` of the second block `c + d` into the first block `a + c`. -/
+theorem shuffleType_middleSwap :
+    shuffleType (a + b) (a + c) (middleSwap a b c d) = ⇑c := by
+  funext i
+  unfold shuffleType
+  by_cases hi : i ∈ (a + b + (c + d)).support
+  · have e : (Finset.univ.filter fun t : Strand (a + b + (c + d)) => t.1.1 = i ∧
+        ¬ t.IsLeft (a + b) ∧ ((middleSwap a b c d).1 t).IsLeft (a + c)) =
+        Finset.univ.filter fun t : Strand (a + b + (c + d)) => t.1 = ⟨i, hi⟩ ∧
+          (a + b) i ≤ t.2.val ∧ t.2.val < (a + b) i + c i ∧ True := by
+      refine Finset.filter_congr fun t _ => ?_
+      obtain ⟨⟨i', hi'⟩, ⟨n, hn⟩⟩ := t
+      show i' = i ∧ ¬ n < (a + b) i' ∧ middleRank (a i') (b i') (c i') n < (a + c) i' ↔
+        (⟨i', hi'⟩ : (a + b + (c + d)).support) = ⟨i, hi⟩ ∧ (a + b) i ≤ n ∧
+          n < (a + b) i + c i ∧ True
+      rw [Subtype.mk.injEq]
+      constructor
+      · rintro ⟨rfl, h2, h3⟩
+        simp only [Finsupp.add_apply] at h2 h3 hn ⊢
+        unfold middleRank at h3
+        refine ⟨trivial, by omega, ?_, trivial⟩
+        split_ifs at h3 <;> omega
+      · rintro ⟨rfl, h2, h3, -⟩
+        simp only [Finsupp.add_apply] at h2 h3 hn ⊢
+        unfold middleRank
+        refine ⟨trivial, by omega, ?_⟩
+        split_ifs <;> omega
+    rw [e, card_filter_colour ⟨i, hi⟩ ((a + b) i) ((a + b) i + c i)
+      (by show _ ≤ (a + b + (c + d)) i; simp only [Finsupp.add_apply]; omega)]
+    have e3 : ((Finset.Ico ((a + b) i) ((a + b) i + c i)).filter
+        fun r => ∃ _ : r < (a + b + (c + d)) i, True) =
+        Finset.Ico ((a + b) i) ((a + b) i + c i) := by
+      ext r
+      simp only [Finset.mem_filter, Finset.mem_Ico, exists_prop, and_true]
+      refine ⟨fun h => h.1, fun h => ⟨h, ?_⟩⟩
+      simp only [Finsupp.add_apply] at h ⊢
+      omega
+    rw [e3, Nat.card_Ico]
+    show (a + b) i + c i - (a + b) i = c i
+    omega
+  · have hc : c i = 0 := by
+      rw [Finsupp.notMem_support_iff] at hi
+      simp only [Finsupp.add_apply] at hi
+      omega
+    rw [hc, Finset.card_eq_zero, Finset.filter_eq_empty_iff]
+    rintro t - ⟨h1, -⟩
+    exact hi (h1 ▸ t.1.2)
 
 variable (hΓ : Γ.PSymm)
 

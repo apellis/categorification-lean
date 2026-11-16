@@ -339,6 +339,29 @@ noncomputable example (ν : Multiset (Fin 2)) :=
     (fun _ => by simp [wkWeightZeroGraph]) (fun _ => rfl) (fun _ _ h => Nat.cast_lt.mpr h)
     (fun _ => rfl) wkWeightZeroGraph_standing
 
+/-- Webster, arXiv:1309.3796v2, Proposition 4.16: the Stendhal terms form a basis of `T̃^λ`, for
+the same data and a choice of reduced words. -/
+noncomputable example (ν : Multiset (Fin 2)) :=
+  Stendhal.stendhalBasis (ν := ν) wkWeightZeroGraph (fun _ : Fin 2 => Finsupp.single 0 1)
+    wkWeightZeroGraph_dagger (fun _ => by simp [wkWeightZeroGraph]) (fun _ => rfl)
+    (fun _ => rfl) wkWeightZeroGraph_standing
+    (fun w => (TypeA.exists_reduced _ w).choose) (fun w => (TypeA.exists_reduced _ w).choose_spec)
+
+/-- Webster, arXiv:1309.3796v2, Definition 4.6: the violating ideal is spanned by products of
+two Stendhal terms through a violated sequence, for the same data. -/
+example (ν : Multiset (Fin 2)) (x : Stendhal.StendhalAlgebra ℚ wkWeightZeroGraph.klrQ
+    (fun _ : Fin 2 => Finsupp.single 0 1) ν) :=
+  Stendhal.mem_violatedIdeal_iff (fun w => (TypeA.exists_reduced _ w).choose_spec) x
+
+/-- Webster, arXiv:1209.2463v4, Theorem 3.6: the same spanning set for the violating ideal of the
+reduced weighted KLR algebra, for the same data. -/
+example (ν : Multiset (Fin 2)) (x : (Stendhal.stZeroDotIdeal ν ℚ
+    (fun _ : Fin 2 => Finsupp.single 0 1) (ϖ := fun r : Fin 2 => ((r : ℕ) : ℚ))
+    (Γ := wkWeightZeroGraph) (fun _ _ h => Nat.cast_lt.mpr h) (fun _ => rfl)).ringCon.Quotient) :=
+  Stendhal.mem_stViolatingIdeal_iff (Γ := wkWeightZeroGraph) wkWeightZeroGraph_dagger
+    (fun _ => by simp [wkWeightZeroGraph]) (fun _ => rfl) (fun _ _ h => Nat.cast_lt.mpr h)
+    (fun _ => rfl) wkWeightZeroGraph_standing (fun w => (TypeA.exists_reduced _ w).choose_spec) x
+
 /-! ### Webster, §2, canonical deformations -/
 
 /-- Standing data for `wkGraph`, with `d = 1` and `c_e = c_ē = 1`. -/

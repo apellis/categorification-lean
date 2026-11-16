@@ -865,6 +865,7 @@ import Categorification.WeightedKLR.RedStrands.StendhalHom
 import Categorification.WeightedKLR.RedStrands.StendhalInjective
 import Categorification.WeightedKLR.RedStrands.StendhalLoadings
 import Categorification.WeightedKLR.RedStrands.StendhalPolyRep
+import Categorification.WeightedKLR.RedStrands.StendhalSurjective
 /-!
 # Categorification
 

@@ -9,8 +9,26 @@ import Categorification.WeightedKLR.KLR.SpacedSurjective
 /-!
 # Surjectivity of the homomorphism of Webster's Theorem 3.5
 
-B. Webster, *Weighted Khovanov–Lauda–Rouquier algebras*, arXiv:1209.2463v4, proof of
-Theorem 3.5, surjectivity.
+B. Webster, *Weighted Khovanov–Lauda–Rouquier algebras*, arXiv:1209.2463v4, Theorem 3.5:
+the algebra `T̃^λ` (`StendhalAlgebra`, the corner at the ordered idempotents of
+`StendhalAlgebraAllOrders`) is isomorphic to the reduced weighted KLR algebra of the
+Crawley-Boevey graph cut down to the Stendhal chambers, i.e. the corner of the gallery
+algebra at the chambers `stFull` modulo the dot on the `0`-strand (`stZeroDotIdeal`).
+
+## Main results
+
+* `eq_top_of_stGenMat_mem`: the images of the Stendhal generators together with the dot on
+  the `0`-strand generate the chamber algebra (induction on the number of inversions of the
+  position permutation, following Webster's proof).
+* `stStendhalHom_surjective`, `stTildeHom_surjective`, `stTildeHom_bijective`.
+* `stTildeEquiv`: the ring isomorphism of Theorem 3.5.
+
+## Route hypotheses
+
+The injectivity half (`stTildeHom_injective`) and hence `stTildeEquiv` carry the hypotheses
+`hE` and `hl` used by the polynomial-representation route of `StendhalInjective`; they are
+not hypotheses of Webster's Theorem 3.5. Surjectivity (`stStendhalHom_surjective`) uses them
+only because `stStendhalHom` is constructed under them.
 -/
 
 namespace Categorification.WeightedKLR
@@ -714,5 +732,88 @@ theorem eq_top_of_stGenMat_mem (hD : Γ.Dagger) (hZ : Γ.NoZeroLoops)
   exact hall N _ hN j i
 
 end Generation
+
+/-! ### Surjectivity and the isomorphism -/
+
+section Surjective
+
+variable {I : Type} [DecidableEq I] {ℓ : ℕ} (ν : Multiset I)
+  {𝕜 : Type*} [Field 𝕜] [LinearOrder 𝕜] [IsStrictOrderedRing 𝕜] (k : Type*) [CommRing k]
+  (Γ : WeightedGraph I 𝕜 k) (Λ : Fin ℓ → I →₀ ℕ) {ϖ : Fin ℓ → 𝕜}
+
+open StendhalAlgebraAllOrders
+
+/-- **Surjectivity in Webster's Theorem 3.5**, for red strands in any order
+(arXiv:1209.2463v4, proof of Theorem 3.5): `stStendhalHom` is onto the chamber algebra of the
+Stendhal chambers modulo the dot on the `0`-strand. -/
+theorem stStendhalHom_surjective (hD : Γ.Dagger) (hE : ∀ e, Γ.head e ≠ Γ.tail e)
+    (hl : ∀ c, Γ.loop c = none) (hϖ : StrictMono ϖ) (hw0 : ∀ e, Γ.weight e = 0)
+    (hS : Γ.Standing) : Function.Surjective (stStendhalHom ν k Γ Λ hD hE hl hϖ hw0 hS) := by
+  have hZ : Γ.NoZeroLoops := fun e he => absurd he (hE e)
+  set R := (stZeroDotIdeal ν k Λ hϖ hw0).ringCon
+  let S := (stStendhalHom ν k Γ Λ hD hE hl hϖ hw0 hS).range.comap (R.mkₐ k)
+  have hgen : ∀ g, chamberElt k _ (stGenMat k Λ hϖ hw0 g) ∈ S := fun g =>
+    ⟨RingQuot.mkAlgHom k (Rel k Γ.klrQ Λ ν) (FreeAlgebra.ι k g),
+      (stStendhalHom_mk hD hE hl hϖ hw0 hS _).trans (congrArg _ (stFreeHom_ι hϖ hw0 g))⟩
+  have h0 : R.mkₐ k (stZeroDot ν k Λ hϖ hw0) = 0 := by
+    rw [← map_zero (R.mkₐ k)]
+    exact (RingCon.eq _).2 ((TwoSidedIdeal.rel_iff _ _ _).2
+      (by rw [sub_zero]; exact TwoSidedIdeal.subset_span rfl))
+  have hz : stZeroDot ν k Λ hϖ hw0 ∈ S := ⟨0, (map_zero _).trans h0.symm⟩
+  have htop := eq_top_of_stGenMat_mem hgen hD hZ hz
+  intro y
+  obtain ⟨x, rfl⟩ := RingCon.mkₐ_surjective (α := k) R y
+  have hx : x ∈ S := htop ▸ Algebra.mem_top
+  exact hx
+
+/-- **Surjectivity in Webster's Theorem 3.5** (arXiv:1209.2463v4, proof of Theorem 3.5): the
+homomorphism `stTildeHom` from `T̃^λ` to the chamber algebra of `Γ_λ` modulo the dot on the
+`0`-strand is surjective. As for `stTildeHom` itself, the hypotheses `hE` and `hl` are needed only
+to check the relations, and are not among Webster's hypotheses. -/
+theorem stTildeHom_surjective (hD : Γ.Dagger) (hE : ∀ e, Γ.head e ≠ Γ.tail e)
+    (hl : ∀ c, Γ.loop c = none) (hϖ : StrictMono ϖ) (hw0 : ∀ e, Γ.weight e = 0)
+    (hS : Γ.Standing) : Function.Surjective (stTildeHom ν k Γ Λ hD hE hl hϖ hw0 hS) := by
+  intro y
+  obtain ⟨x, rfl⟩ := stStendhalHom_surjective ν k Γ Λ hD hE hl hϖ hw0 hS y
+  set E := redOrderedIdem k Γ.klrQ Λ ν
+  refine ⟨⟨E * x * E, ⟨x, rfl⟩⟩, ?_⟩
+  show stStendhalHom ν k Γ Λ hD hE hl hϖ hw0 hS (E * x * E) = _
+  rw [map_mul, map_mul, stStendhalHom_redOrderedIdem, one_mul, mul_one]
+
+theorem stTildeHom_bijective (hD : Γ.Dagger) (hE : ∀ e, Γ.head e ≠ Γ.tail e)
+    (hl : ∀ c, Γ.loop c = none) (hϖ : StrictMono ϖ) (hw0 : ∀ e, Γ.weight e = 0)
+    (hS : Γ.Standing) : Function.Bijective (stTildeHom ν k Γ Λ hD hE hl hϖ hw0 hS) :=
+  ⟨stTildeHom_injective hD hE hl hϖ hw0 hS, stTildeHom_surjective ν k Γ Λ hD hE hl hϖ hw0 hS⟩
+
+/-- **Webster's Theorem 3.5** (arXiv:1209.2463v4): Webster's algebra `T̃^λ` of Stendhal diagrams
+(`StendhalAlgebra k Γ.klrQ Λ ν`) is isomorphic to the reduced weighted KLR algebra of the
+Crawley-Boevey graph `Γ_λ = crawleyBoeveyIn Γ Λ ϖ`, cut down to the Stendhal chambers.
+
+The target is the chamber algebra `ChamberAlgebra k (stFull Λ hϖ hw0)`: the corner, at the
+diagonal matrix of the idempotents `e(stFull i)`, of the matrices indexed by the red-ordered
+Stendhal sequences `i` over the gallery algebra of `Γ_λ` (the weighted KLR algebra of `Γ_λ`,
+Theorem 2.8), modulo the two-sided ideal generated by the dot on the `0`-strand. Since
+`stFull i` is the chamber of the Stendhal loading of `i`, this corner is
+`End(⊕_i P(stFull i))` in the weighted KLR algebra, which is Webster's
+`e_λ W̃^ϑ e_λ` (the sum of the idempotents of the Stendhal loadings, one for each `i`); the
+dot on the `0`-strand is the reduction of `Γ_λ` at the Crawley-Boevey vertex.
+
+The hypotheses `hE` (no edge from a vertex to itself) and `hl` (no loops of `Γ`) are route
+hypotheses: they are used only to check the relations of `T̃^λ` through the polynomial
+representation, and are not among Webster's hypotheses. -/
+noncomputable def stTildeEquiv (hD : Γ.Dagger) (hE : ∀ e, Γ.head e ≠ Γ.tail e)
+    (hl : ∀ c, Γ.loop c = none) (hϖ : StrictMono ϖ) (hw0 : ∀ e, Γ.weight e = 0)
+    (hS : Γ.Standing) :
+    StendhalAlgebra k Γ.klrQ Λ ν ≃+* (stZeroDotIdeal ν k Λ hϖ hw0).ringCon.Quotient :=
+  RingEquiv.ofBijective (stTildeHom ν k Γ Λ hD hE hl hϖ hw0 hS)
+    (stTildeHom_bijective ν k Γ Λ hD hE hl hϖ hw0 hS)
+
+theorem stTildeEquiv_apply (hD : Γ.Dagger) (hE : ∀ e, Γ.head e ≠ Γ.tail e)
+    (hl : ∀ c, Γ.loop c = none) (hϖ : StrictMono ϖ) (hw0 : ∀ e, Γ.weight e = 0)
+    (hS : Γ.Standing) (x : StendhalAlgebra k Γ.klrQ Λ ν) :
+    stTildeEquiv ν k Γ Λ hD hE hl hϖ hw0 hS x = stTildeHom ν k Γ Λ hD hE hl hϖ hw0 hS x :=
+  rfl
+
+end Surjective
 
 end Categorification.Stendhal

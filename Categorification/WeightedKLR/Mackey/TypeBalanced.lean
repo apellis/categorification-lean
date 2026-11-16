@@ -209,6 +209,101 @@ theorem isSupported_opList_comp_sub_comp_opList (hν' : ν' + ν'' = ν) (hν₁
   linear_combination (P2 * MU * N1 1 * u z) * h1' - (P1 * M' * u z * N2 z) * e2 +
     (P2 * u z * M' * n) * e3 - (P1 * M' * u z * n) * e4
 
+variable {P : FullChamber Γ ν → FullChamber Γ ν → (Strand ν → 𝕜) × (Strand ν → 𝕜)}
+  (hP : ∀ C E, IsChamberSegment C E (P C E)) (hD : Γ.Dagger) (hZ : Γ.NoZeroLoops)
+  (hΓ : Γ.PSymm) (hW : ∀ w : Wall Γ ν, IsRegular (w.factor (k := k)))
+  (hL : ∀ (Q : MvPolynomial (Fin 2) k) (a b : Strand ν), Γ.loop a.1 = some Q → a ≠ b →
+    a.1 = b.1 → IsRegular (loopFactor Q a b))
+
+/-- In the polynomial representation, the four-block shuffle `r ρ T * galList B w` acts from
+`B` to `ρ • T` by `ren ρ ∘ opList B w`. -/
+theorem blockOp_r_mul_galList {B T : FullChamber Γ ν} {w : List (Hyp Γ ν)}
+    (hT : B.flips w = T) (ρ : ColPerm ν) :
+    blockOp k hΓ (ρ • T) B (r ρ T * galList k B w) = ren ρ ∘ₗ opList k Γ B w := by
+  refine blockOp_of_galleryRep_eq_blk hΓ ?_
+  rw [map_mul, galleryRep_r, galleryRep_galList, hT, Module.End.mul_eq_comp, blk_comp_blk]
+
+/-- **Balancedness of the four-block shuffle modulo lower shuffle types**, in the algebra. Let
+`μ` be a shuffle type, `Z = blockLeft ν' ν₁ μ`, `B`, `B'` four-block chambers for the strands of
+`ν'` and `Z`, and `ρ` the relabelling rank-ordering `shuffleTop Z B`. Let `u ∈ e B' A e B` act
+in the polynomial representation by an operator `U` supported in the block-preserving
+relabellings, and `u'' ∈ e (ρ • shuffleTop Z B') A e (ρ • shuffleTop Z B)` act by the conjugate
+`ρ U ρ⁻¹`. Then `fourShuffle Z B' * u - u'' * fourShuffle Z B` lies in the step of the
+filtration of the shuffle types strictly below `μ`.
+
+A step of the proof of Webster, arXiv:1209.2463v4, Theorem 2.19. -/
+theorem fourShuffle_mul_sub_mul_fourShuffle_mem_mackeyFilt (hν' : ν' + ν'' = ν)
+    (hν₁ : ν₁ + ν₂ = ν) {μ : I → ℕ} (hμ : μ ∈ Set.range (shuffleType (ν := ν) ν' ν₁))
+    {B B' : FullChamber Γ ν}
+    (hB : IsFourBlock (fun t => decide (t.IsLeft ν')) (blockLeft ν' ν₁ μ) B)
+    (hB' : IsFourBlock (fun t => decide (t.IsLeft ν')) (blockLeft ν' ν₁ μ) B')
+    {ρ : ColPerm ν} (hρ : (ρ • shuffleTop (blockLeft ν' ν₁ μ) B).IsRankOrdered)
+    {u u'' : GalleryAlgebra k Γ ν} (hu : u ∈ cornerSpace k B' B)
+    (hu'' : u'' ∈ cornerSpace k (ρ • shuffleTop (blockLeft ν' ν₁ μ) B')
+      (ρ • shuffleTop (blockLeft ν' ν₁ μ) B))
+    (hUs : IsSupported (blockOp k hΓ B' B u)
+      {y | ∀ t, decide ((y.1 t).IsLeft ν') = decide (t.IsLeft ν') ∧
+        blockLeft ν' ν₁ μ (y.1 t) = blockLeft ν' ν₁ μ t})
+    (hU'' : blockOp k hΓ (ρ • shuffleTop (blockLeft ν' ν₁ μ) B')
+      (ρ • shuffleTop (blockLeft ν' ν₁ μ) B) u'' =
+        ren ρ ∘ₗ blockOp k hΓ B' B u ∘ₗ ren ρ⁻¹) :
+    fourShuffle k hD hZ (blockLeft ν' ν₁ μ) B' * u -
+        u'' * fourShuffle k hD hZ (blockLeft ν' ν₁ μ) B ∈
+      mackeyFilt k hP hD hZ hΓ hW hL ν' ν₁ (ρ • shuffleTop (blockLeft ν' ν₁ μ) B') B
+        (Set.Iio μ) := by
+  classical
+  set Zμ := blockLeft ν' ν₁ μ
+  set T := shuffleTop Zμ B
+  set T' := shuffleTop Zμ B'
+  have hρ' : (ρ • T').IsRankOrdered :=
+    isRankOrdered_smul_shuffleTop_of_isRankOrdered hB.1 hB'.1 hρ
+  obtain ⟨w, hw, hT⟩ := exists_goodWord hD hZ B T
+  obtain ⟨w', hw', hT'⟩ := exists_goodWord hD hZ B' T'
+  rw [fourShuffle_eq (k := k) hD hZ Zμ B hρ hw hT, fourShuffle_eq (k := k) hD hZ Zμ B' hρ' hw' hT']
+  set F := r ρ T * galList k B w
+  set F' := r ρ T' * galList k B' w'
+  have heF : e (ρ • T) * F = F := by
+    simp only [F, ← mul_assoc, e_mul_r, ↓reduceIte]
+  have heF' : e (ρ • T') * F' = F' := by
+    simp only [F', ← mul_assoc, e_mul_r, ↓reduceIte]
+  have hFe : F * e B = F := by simp only [F, mul_assoc, galList_mul_e]
+  have hu1 := mem_cornerSpace_iff.1 hu
+  have hu2 := mem_cornerSpace_iff.1 hu''
+  have heu : e B' * u = u := by
+    rw [← hu1, ← mul_assoc, ← mul_assoc, e_mul_e, ite_eq_left rfl]
+  have hue : u * e B = u := by rw [← hu1, mul_assoc, e_mul_e, ite_eq_left rfl]
+  have heu'' : e (ρ • T') * u'' = u'' := by
+    rw [← hu2, ← mul_assoc, ← mul_assoc, e_mul_e, ite_eq_left rfl]
+  have hmem : F' * u - u'' * F ∈ cornerSpace k (ρ • T') B := by
+    refine mem_cornerSpace_iff.2 ?_
+    have : e (ρ • T') * (F' * u - u'' * F) * e B =
+        (e (ρ • T') * F') * (u * e B) - (e (ρ • T') * u'') * (F * e B) := by
+      simp only [mul_sub, sub_mul, mul_assoc]
+    rw [this, heF', hue, heu'', hFe]
+  rw [mem_mackeyFilt_iff hP hD hZ hΓ hW hL ν' ν₁ hB.1 hρ' (isLowerSet_Iio μ) hmem]
+  have hsub : ∀ a b : GalleryAlgebra k Γ ν,
+      blockOp k hΓ (ρ • T') B (a - b) = blockOp k hΓ (ρ • T') B a - blockOp k hΓ (ρ • T') B b :=
+    fun a b => LinearMap.ext fun f => by
+      simp only [blockOp_apply, map_sub, LinearMap.sub_apply, Pi.sub_apply]
+  have hrr : ren (k := k) ρ⁻¹ ∘ₗ ren ρ = LinearMap.id := LinearMap.ext fun f => by
+    show rename ⇑(ρ⁻¹).1 (rename ⇑ρ.1 f) = f
+    rw [← rename_colPerm_mul, inv_mul_cancel, rename_colPerm_one]
+  rw [hsub, blockOp_mul hΓ F' heu, blockOp_mul hΓ u'' heF, hU'',
+    blockOp_r_mul_galList hΓ hT ρ, blockOp_r_mul_galList hΓ hT' ρ]
+  have key : (ren ρ ∘ₗ opList k Γ B' w') ∘ₗ blockOp k hΓ B' B u -
+      (ren ρ ∘ₗ blockOp k hΓ B' B u ∘ₗ ren ρ⁻¹) ∘ₗ (ren ρ ∘ₗ opList k Γ B w) =
+      ren ρ ∘ₗ (opList k Γ B' w' ∘ₗ blockOp k hΓ B' B u -
+        blockOp k hΓ B' B u ∘ₗ opList k Γ B w) := by
+    refine LinearMap.ext fun f => ?_
+    have e := LinearMap.congr_fun hrr (opList k Γ B w f)
+    simp only [LinearMap.sub_apply, LinearMap.comp_apply, LinearMap.id_apply] at e ⊢
+    rw [e, map_sub]
+  rw [key]
+  refine ((isSupported_opList_comp_sub_comp_opList (k := k) hν' hν₁ hμ hB hB' hw hw' hT hT' hρ
+    hUs).rename ρ).mono ?_
+  rintro y ⟨x, hx, rfl⟩
+  exact hx
+
 end GalleryAlgebra
 
 end Categorification.WeightedKLR

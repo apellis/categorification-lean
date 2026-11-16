@@ -43,6 +43,8 @@ induction on the length gives spanning.
 * `GalleryAlgebra.galList_eq_cosetWord`: any minimal gallery from `shuffleTop X E` to `E` gives
   the same element.
 * `GalleryAlgebra.cosetElt_eq_mul_r`: right relabelling of a coset element inside the blocks.
+* `GalleryAlgebra.existsUnique_rep`: every relabelling is uniquely `u * v` with `u` a
+  representative and `v` a relabelling inside the blocks.
 * `GalleryAlgebra.exists_cosetElt_mul_inductionMap_sub_cornerBasis_mem`: **factorization**
   `b(g, m) ≡ r u (u⁻¹ • D) c_u ι(y)` with `u` a representative.
 * `GalleryAlgebra.cornerSpace_le_span_cosetElt`: **spanning** of the corner by coset elements
@@ -173,6 +175,50 @@ theorem exists_cosetElt_eq_mul_castGallery (hν : ν' + ν'' = ν) (hD : Γ.Dagg
     exact h₁
   · rw [← hz]
     exact cosetElt_eq_mul_r hD hZ g D hv
+
+omit [DecidableEq I] in
+theorem inv_mem_leftBlockStab {v : ColPerm ν} (hv : v ∈ leftBlockStab ν ν') :
+    v⁻¹ ∈ leftBlockStab ν ν' := fun s => by
+  have := hv ((v⁻¹ : ColPerm ν).1 s)
+  have h2 : v.1 ((v⁻¹ : ColPerm ν).1 s) = s := by simp
+  rw [h2] at this
+  exact this.symm
+
+omit [DecidableEq I] in
+/-- **Uniqueness of the representative.** Two representatives (relabellings `u` with
+`shuffleTop X (u⁻¹ • D)` rank-ordered) differing by a relabelling inside the blocks are equal. -/
+theorem eq_of_inv_mul_mem_leftBlockStab {D : FullChamber Γ ν} {u u' : ColPerm ν}
+    (hu : (shuffleTop (fun t => decide (t.IsLeft ν')) (u⁻¹ • D)).IsRankOrdered)
+    (hu' : (shuffleTop (fun t => decide (t.IsLeft ν')) (u'⁻¹ • D)).IsRankOrdered)
+    (hv : u⁻¹ * u' ∈ leftBlockStab ν ν') : u = u' := by
+  have he : u'⁻¹ • D = (u⁻¹ * u')⁻¹ • (u⁻¹ • D) := by
+    rw [← mul_smul, mul_inv_rev, inv_inv, mul_assoc, mul_inv_cancel, mul_one]
+  rw [he, ← shuffleTop_smul_of_mem (inv_mem_leftBlockStab hv)] at hu'
+  have h1 := FullChamber.eq_one_of_isRankOrdered_smul hu hu'
+  rw [inv_eq_one] at h1
+  calc u = u * (u⁻¹ * u') := by rw [h1, mul_one]
+    _ = u' := by rw [mul_inv_cancel_left]
+
+/-- **Factorization of a relabelling** `g = u * v` with `u` a representative (`shuffleTop X
+(u⁻¹ • D)` rank-ordered) and `v` a relabelling inside the blocks; `u` is unique. -/
+theorem existsUnique_rep (hν : ν' + ν'' = ν) (g : ColPerm ν) (D : FullChamber Γ ν) :
+    ∃! u : ColPerm ν, (shuffleTop (fun t => decide (t.IsLeft ν')) (u⁻¹ • D)).IsRankOrdered ∧
+      u⁻¹ * g ∈ leftBlockStab ν ν' := by
+  set G := shuffleTop (fun t => decide (t.IsLeft ν')) (g⁻¹ • D)
+  have hG : IsSeparated (fun t => decide (t.IsLeft ν')) G := isSeparated_sep _ _ _
+  obtain ⟨h₁, -⟩ := blockSort_spec (k := k) hν hG
+  have hv := blockSort_mem_leftBlockStab hν G
+  have hrep : (shuffleTop (fun t => decide (t.IsLeft ν'))
+      ((g * (blockSort hν G)⁻¹)⁻¹ • D)).IsRankOrdered := by
+    rw [mul_inv_rev, inv_inv, mul_smul, ← shuffleTop_smul_of_mem hv]
+    exact h₁
+  have hmem : (g * (blockSort hν G)⁻¹)⁻¹ * g ∈ leftBlockStab ν ν' := by
+    rwa [mul_inv_rev, inv_inv, mul_assoc, inv_mul_cancel, mul_one]
+  refine ⟨g * (blockSort hν G)⁻¹, ⟨hrep, hmem⟩, fun u' ⟨hu', hm'⟩ => ?_⟩
+  refine (eq_of_inv_mul_mem_leftBlockStab hrep hu' ?_).symm
+  have := (leftBlockStab ν ν').mul_mem hmem (inv_mem_leftBlockStab hm')
+  convert this using 1
+  group
 
 variable {P : FullChamber Γ ν → FullChamber Γ ν → (Strand ν → 𝕜) × (Strand ν → 𝕜)}
   (hP : ∀ C E, IsChamberSegment C E (P C E)) (hD : Γ.Dagger) (hZ : Γ.NoZeroLoops)

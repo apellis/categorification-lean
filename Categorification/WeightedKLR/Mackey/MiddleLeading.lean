@@ -440,6 +440,72 @@ theorem typeInductionAux_middleCorner (hD : Γ.Dagger) (hZ : Γ.NoZeroLoops)
   rw [cosetElt, ← mul_assoc, e_mul_r, ite_eq_left (smul_inv_smul _ _).symm]
   rfl
 
+omit [DecidableEq I] in
+theorem cast_mem_leftBlockStab {μ ν ν₁ : I →₀ ℕ} (h : μ = ν) {g : ColPerm μ}
+    (hg : g ∈ leftBlockStab μ ν₁) : h ▸ g ∈ leftBlockStab ν ν₁ := by
+  subst h
+  exact hg
+
+omit [DecidableEq I] in
+theorem cast_colPerm_injective {μ ν : I →₀ ℕ} (h : μ = ν) {g g' : ColPerm μ}
+    (hg : h ▸ g = h ▸ g') : g = g' := by
+  subst h
+  exact hg
+
+variable (L' L'') in
+/-- The leading index of a vector of the spanning family of the juxtaposed corner: the relabelling
+`U ρ (h₁ × h₂)` and the juxtaposed dots `m₁ m₂`. -/
+noncomputable def middleLead (i : MiddleCornerIdx Γ L' L'') :
+    ColPerm (a + b + (c + d)) × (Strand (a + b + (c + d)) →₀ ℕ) :=
+  (middleCoset i.1.1 i.1.2 * colPermProd (a + b) (c + d) (i.2.1.1, i.2.2.1),
+    juxtDots i.2.1.2 i.2.2.2)
+
+/-- Every leading index has shuffle type `c`. -/
+theorem shuffleType_middleLead (i : MiddleCornerIdx Γ L' L'') :
+    shuffleType (a + b) (a + c) (middleLead L' L'' i).1 = ⇑c := by
+  rw [middleLead, shuffleType_mul_of_image_right _ _
+      (fun j => image_rightStrands_of_mem (colPermProd_mem_leftBlockStab _) j),
+    middleCoset, shuffleType_mul_of_image_left _ _
+      (image_leftStrands_of_mem (cast_mem_leftBlockStab _ (colPermProd_mem_leftBlockStab _))),
+    shuffleType_middleSwap]
+
+omit [DecidableEq I] in
+theorem isRankOrdered_shuffleTop_middleCoset_inv_smul (u₁ : ParabolicRep a L')
+    (u₂ : ParabolicRep b L'') :
+    (shuffleTop (fun t => decide (t.IsLeft (a + b)))
+      ((middleCoset u₁ u₂)⁻¹ • castChamber (layout_eq a b c d) (chamber L' L''))).IsRankOrdered := by
+  rw [shuffleTop_middleCoset_inv_smul]
+  exact (isRankOrdered_chamber_iff _ _).2 ⟨isRankOrdered_botLeft u₁ u₂,
+    isRankOrdered_botRight u₁ u₂⟩
+
+omit [DecidableEq I] in
+/-- **The leading index is injective.** -/
+theorem middleLead_injective : Function.Injective (middleLead (Γ := Γ) L' L'') := by
+  rintro ⟨⟨u₁, u₂⟩, ⟨h₁, m₁⟩, ⟨h₂, m₂⟩⟩ ⟨⟨u₁', u₂'⟩, ⟨h₁', m₁'⟩, ⟨h₂', m₂'⟩⟩ hp
+  obtain ⟨hg, hm⟩ := Prod.mk.inj hp
+  have hU : middleCoset u₁ u₂ = middleCoset u₁' u₂' := by
+    refine eq_of_inv_mul_mem_leftBlockStab (isRankOrdered_shuffleTop_middleCoset_inv_smul u₁ u₂)
+      (isRankOrdered_shuffleTop_middleCoset_inv_smul u₁' u₂') ?_
+    have : (middleCoset u₁ u₂)⁻¹ * middleCoset u₁' u₂' =
+        colPermProd (a + b) (c + d) (h₁, h₂) * (colPermProd (a + b) (c + d) (h₁', h₂'))⁻¹ := by
+      rw [eq_mul_inv_iff_mul_eq, mul_assoc]
+      exact inv_mul_eq_of_eq_mul hg.symm
+    rw [this]
+    exact (leftBlockStab _ (a + b)).mul_mem (colPermProd_mem_leftBlockStab _)
+      (inv_mem_leftBlockStab (colPermProd_mem_leftBlockStab _))
+  have hu := Juxtapose.colPermProd_injective
+    (cast_colPerm_injective (layout_eq a b c d) (mul_right_cancel hU))
+  simp only [Prod.mk.injEq] at hu
+  obtain ⟨hu₁, hu₂⟩ := hu
+  obtain rfl : u₁ = u₁' := Subtype.ext hu₁
+  obtain rfl : u₂ = u₂' := Subtype.ext hu₂
+  have hh := Juxtapose.colPermProd_injective (mul_left_cancel hg)
+  have hmm := juxtDots_bijective.1 (a₁ := (m₁, m₂)) (a₂ := (m₁', m₂')) hm
+  simp only [Prod.mk.injEq] at hh hmm
+  obtain ⟨rfl, rfl⟩ := hh
+  obtain ⟨rfl, rfl⟩ := hmm
+  rfl
+
 end Juxtapose
 
 end Categorification.WeightedKLR

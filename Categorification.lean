@@ -872,6 +872,7 @@ import Categorification.WeightedKLR.Induction.Monoidal
 import Categorification.WeightedKLR.Induction.TensorMap
 import Categorification.WeightedKLR.Mackey.BlockPieces
 import Categorification.WeightedKLR.Mackey.CornerShuffle
+import Categorification.WeightedKLR.Mackey.CrossingGallery
 import Categorification.WeightedKLR.Mackey.Degree
 import Categorification.WeightedKLR.Mackey.Dominance
 import Categorification.WeightedKLR.Mackey.Filtration
@@ -881,6 +882,7 @@ import Categorification.WeightedKLR.Mackey.Parabolic
 import Categorification.WeightedKLR.Mackey.Separated
 import Categorification.WeightedKLR.Mackey.SeparatedJuxtapose
 import Categorification.WeightedKLR.Mackey.ShuffleElement
+import Categorification.WeightedKLR.Mackey.ShuffleExact
 import Categorification.WeightedKLR.Mackey.ShuffleFactor
 import Categorification.WeightedKLR.Mackey.ShuffleGallery
 import Categorification.WeightedKLR.Mackey.ShufflePattern

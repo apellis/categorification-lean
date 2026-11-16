@@ -910,6 +910,7 @@ import Categorification.WeightedKLR.Mackey.TypeShuffle
 import Categorification.WeightedKLR.Mackey.TypeFiltration
 import Categorification.WeightedKLR.Mackey.TypeLeading
 import Categorification.WeightedKLR.Mackey.TypeBalanced
+import Categorification.WeightedKLR.Mackey.TypeTensor
 import Categorification.WeightedKLR.RedStrands.StendhalBasis
 import Categorification.WeightedKLR.RedStrands.StendhalCrossing
 import Categorification.WeightedKLR.RedStrands.StendhalDescent

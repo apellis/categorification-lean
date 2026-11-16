@@ -179,6 +179,16 @@ theorem chamberOp_sandwich (hΓ : Δ.PSymm) (c : Matrix ι ι (GalleryAlgebra k 
   refine Finset.sum_congr rfl fun i _ => ?_
   simp [chamberIdem, Matrix.mul_diagonal, Matrix.diagonal_mul, galleryRep_e, blk_apply]
 
+theorem chamberOp_diagonal (hΓ : Δ.PSymm) (d : ι → GalleryAlgebra k Δ ν)
+    (g : ι → PolyRing ν k) (j : ι) :
+    chamberOp k F hΓ (Matrix.diagonal d) g j = galleryRep k hΓ (d j) (Pi.single (F j) (g j)) (F j) := by
+  rw [chamberOp_apply, Finset.sum_eq_single j]
+  · rw [Matrix.diagonal_apply_eq]
+  · intro i _ hij
+    rw [Matrix.diagonal_apply_ne _ (Ne.symm hij), map_zero, LinearMap.zero_apply, Pi.zero_apply]
+  · intro h
+    exact absurd (Finset.mem_univ j) h
+
 variable (k F) in
 /-- The polynomial representation of the weighted KLR algebra on a family of chambers. -/
 noncomputable def chamberRep (hΓ : Δ.PSymm) :
@@ -348,6 +358,52 @@ theorem stCrossOp_stRen (t : KLR.Seq (stendhalWeight ℓ ν)) (n : ℕ) (h : n +
       · simp [← hsm ⟨n + 1, h⟩, TypeA.sadj_apply_right h]
       · simp [← hsm ⟨n, by omega⟩, TypeA.sadj_apply_left h]
     · exact congrArg (fun φ => rename φ g) (funext fun c => congrArg toTilde (hsm c).symm)
+
+omit [DecidableEq I] in
+set_option linter.unusedSimpArgs false in
+/-- Exchanging two neighbouring strands, one of them black, keeps the red strands in order. -/
+theorem isRedOrdered_sadj {i : KLR.Seq (stendhalWeight ℓ ν)} (hi : IsRedOrdered i) {n : ℕ}
+    (h : n + 1 < m) (hb : (i.1 ⟨n, by omega⟩).isLeft ∨ (i.1 ⟨n + 1, h⟩).isLeft) :
+    IsRedOrdered (TypeA.sadj m n • i) := by
+  have hs : TypeA.sadj m n = swap ⟨n, by omega⟩ ⟨n + 1, h⟩ := by
+    simp only [TypeA.sadj, h, ↓reduceDIte]
+  have hs' : (TypeA.sadj m n).symm = TypeA.sadj m n := by
+    rw [← Perm.inv_def]
+    exact inv_eq_of_mul_eq_one_left (TypeA.sadj_mul_self m n)
+  intro a b r r' hab ha hb'
+  simp only [KLR.Seq.lbl, KLR.Seq.smul_apply] at ha hb'
+  rw [hs', hs] at ha hb'
+  have key : swap (⟨n, by omega⟩ : Fin m) ⟨n + 1, h⟩ a < swap ⟨n, by omega⟩ ⟨n + 1, h⟩ b ∨
+      (a = ⟨n, by omega⟩ ∧ b = ⟨n + 1, h⟩) := by
+    rw [Fin.lt_def] at hab
+    simp only [swap_apply_def, Fin.lt_def, Fin.ext_iff]
+    split_ifs <;> (try simp only [Fin.ext_iff, Fin.val_mk] at *) <;> omega
+  rcases key with key | ⟨h1, h2⟩
+  · exact hi _ _ r r' key ha hb'
+  · rw [h1, swap_apply_left] at ha
+    rw [h2, swap_apply_right] at hb'
+    rcases hb with hb | hb
+    · rw [hb'] at hb; simp at hb
+    · rw [ha] at hb; simp at hb
+
+omit [DecidableEq I] in
+theorem sadj_smul_sadj_smul (t : KLR.Seq (stendhalWeight ℓ ν)) (n : ℕ) :
+    TypeA.sadj m n • TypeA.sadj m n • t = t := by
+  rw [smul_smul, TypeA.sadj_mul_self, one_smul]
+
+variable (k Λ) in
+/-- The images of the generators of the KLR algebra `R(ν + {λ_1, …, λ_ℓ})` in the matrix
+algebra over the gallery algebra of `Γ_λ`: `e(i)` to `e(stFull i)` on the diagonal if the red
+strands of `i` are in order (and to `0` otherwise), the dot on the strand at position `a` to the
+dot on the corresponding strand of `ν̃` (the `0`-strand for a red strand), and the crossing `ψ_n`
+to the matrix of the crossings `stCross`. -/
+noncomputable def stGenMat (hϖ : StrictMono ϖ) (hw0 : ∀ e, Γ.weight e = 0) :
+    KLR.Gen (stendhalWeight ℓ ν) → Matrix (OrdSeq ℓ ν) (OrdSeq ℓ ν) (GalleryAlgebra k Γλ ν̃)
+  | .idem i => Matrix.diagonal fun j => if j.1 = i then e (stFull Λ hϖ hw0 j) else 0
+  | .dot a => Matrix.diagonal fun j => poly (X (toTilde (j.1.strandAt a)))
+  | .cross n => if h : n + 1 < m then
+      Matrix.of fun j i => if j.1 = TypeA.sadj m n • i.1 then stCross k Λ hϖ hw0 i n h else 0
+    else 0
 
 end Hom
 

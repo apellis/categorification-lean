@@ -478,6 +478,25 @@ example (ν' ν'' : Fin 2 →₀ ℕ) (C' D' : WeightedKLR.FullChamber wkGraph �
     (WeightedKLR.Juxtapose.isSeparated_chamber C' C'')
     (WeightedKLR.Juxtapose.isSeparated_chamber D' D'') (Set.Iio μ) (isLowerSet_Iic μ)
 
+/-- Relabellings between rank-ordered chambers are trivial. -/
+example (ν : Fin 2 →₀ ℕ) (A : WeightedKLR.FullChamber wkGraph ν) (hA : A.IsRankOrdered)
+    (ρ : WeightedKLR.ColPerm ν) (hρ : (ρ • A).IsRankOrdered) : ρ = 1 :=
+  WeightedKLR.FullChamber.eq_one_of_isRankOrdered_smul hA hρ
+
+/-- The maps `x ⊗ y ↦ [e D ι(x) ψ^W_g ι(y) e C]` depend only on the strands that `g` sends into
+the first block. -/
+example (ν' ν'' : Fin 2 →₀ ℕ) (C' D' : WeightedKLR.FullChamber wkGraph ν')
+    (C'' D'' : WeightedKLR.FullChamber wkGraph ν'')
+    (hC : (WeightedKLR.Juxtapose.chamber C' C'').IsRankOrdered)
+    (hD : (WeightedKLR.Juxtapose.chamber D' D'').IsRankOrdered) (μ : Fin 2 → ℕ)
+    (g g' : WeightedKLR.ColPerm (ν' + ν'')) (hg : WeightedKLR.shuffleType ν' ν' g ∈ Set.Iic μ)
+    (hg' : WeightedKLR.shuffleType ν' ν' g' ∈ Set.Iic μ)
+    (h : ∀ t, (g.1 t).IsLeft ν' ↔ (g'.1 t).IsLeft ν') :=
+  WeightedKLR.GalleryAlgebra.shuffleInductionMap_eq_of_isLeft_iff (k := ℚ)
+    (wkGraph_isChamberSegment _) wkGraph_dagger wkGraph_noZeroLoops wkGraph_pSymm
+    (wkGraph_wallRegular _) (wkGraph_loopRegular _) (ν'' := ν'') (ν₂ := ν'') rfl rfl hC hD
+    (Set.Iio μ) (isLowerSet_Iic μ) hg hg' h
+
 /-! ### Webster, weighted KLR algebras (arXiv:1209.2463v4), the grading of §2.1 -/
 
 /-- The grading of Webster's standing hypothesis (doubled normalization): a `ℤ`-grading of the

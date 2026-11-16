@@ -28,6 +28,7 @@ other edge.
 
 * `twStepOp Γ C C'`: the operator of the step from `C` to `C'`.
 * `twGalleryRep k hΓ`: the polynomial representation, for symmetric loop polynomials.
+* `twStepOp_toTw`: on one weighting, the steps are those of `galleryRep`.
 -/
 
 namespace Categorification.WeightedKLR
@@ -372,5 +373,26 @@ noncomputable def twGalleryRep (hΓ : Γ.PSymm) :
 theorem twGalleryRep_mk (hΓ : Γ.PSymm) (x : FreeAlgebra k (TwGen k Γ ν)) :
     twGalleryRep k hΓ (TwGalleryAlgebra.mk k Γ ν x) = twFreeRep k Γ ν x :=
   RingQuot.liftAlgHom_mkAlgHom_apply k _ _ x
+
+/-! ### Comparison with a fixed weighting -/
+
+omit [Field 𝕜] [LinearOrder 𝕜] [IsStrictOrderedRing 𝕜] in
+theorem hypOp_withWeight (ϑ : Γ.E → 𝕜) (h : Hyp Γ ν) (σ σ' : Bool) :
+    hypOp (k := k) (Γ.withWeight ϑ) h σ σ' = hypOp Γ h σ σ' := by
+  rcases h with w | d <;> rfl
+
+omit [IsStrictOrderedRing 𝕜] in
+/-- On the chambers of the fibre over a weighting `ϑ`, the steps of the twisted representation
+are those of the polynomial representation of the gallery algebra of `ϑ`: the representation of
+`P` restricts on each weighting to that of Proposition `prop:action`. -/
+theorem twStepOp_toTw {ϑ : Γ.E → 𝕜} (C C' : FullChamber (Γ.withWeight ϑ) ν) :
+    twStepOp (k := k) Γ C.toTw C'.toTw = stepOp (Γ.withWeight ϑ) C C' := by
+  by_cases hC : ∃ h : Hyp Γ ν, C.Adjacent C' h
+  · obtain ⟨h, hh⟩ := hC
+    exact (twStepOp_eq (Γ := Γ) (FullChamber.adjacent_toTw_iff.2 hh)).trans
+      ((hypOp_withWeight ϑ h _ _).symm.trans (stepOp_eq hh).symm)
+  · have hC' : ∀ h : Hyp Γ ν, ¬C.toTw.Adjacent C'.toTw h := fun h hh => hC ⟨h, hh⟩
+    exact (twStepOp_of_not (Γ := Γ) hC').trans
+      (stepOp_of_not (Γ := Γ.withWeight ϑ) (C := C) (C' := C') fun h hh => hC ⟨h, hh⟩).symm
 
 end Categorification.WeightedKLR

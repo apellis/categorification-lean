@@ -116,6 +116,11 @@ theorem qbar_X_one_mul {k : Type*} [CommRing k] (p : MvPolynomial (Fin 2) k) :
     ring
   | add p q hp hq => rw [mul_add, qbar_add, qbar_add, hp, hq, mul_add]
 
+theorem qbar_zero {k : Type*} [CommRing k] : qbar (0 : MvPolynomial (Fin 2) k) = 0 := by
+  have h := qbar_add (0 : MvPolynomial (Fin 2) k) 0
+  rw [add_zero] at h
+  exact add_eq_left.1 h.symm
+
 theorem qbar_sub {k : Type*} [CommRing k] (p q : MvPolynomial (Fin 2) k) :
     qbar (p - q) = qbar p - qbar q := by
   rw [eq_sub_iff_add_eq, ← qbar_add, sub_add_cancel]
@@ -142,7 +147,8 @@ variable (ν k Γ Λ ϖ) in
 diagonal matrix of its renamings to the strands of `ν̃`. -/
 noncomputable def stDotMat :
     MvPolynomial (Fin m) k →ₐ[k]
-      Matrix (OrdSeq ℓ ν) (OrdSeq ℓ ν) (GalleryAlgebra k (WeightedGraph.crawleyBoeveyIn Γ Λ ϖ) ν̃) :=
+      Matrix (OrdSeq ℓ ν) (OrdSeq ℓ ν)
+        (GalleryAlgebra k (WeightedGraph.crawleyBoeveyIn Γ Λ ϖ) ν̃) :=
   (Matrix.diagonalAlgHom k).comp
     (AlgHom.pi fun j => (polyHom k (WeightedGraph.crawleyBoeveyIn Γ Λ ϖ) ν̃).comp (stRen j.1))
 
@@ -274,6 +280,158 @@ theorem stQ_sub_stendhalQ (a b : I ⊕ Fin ℓ) :
     rw [hc]
     ring
   · exact ⟨0, 0, by simp [stQ, stP, stendhalQ]⟩
+
+omit [DecidableEq I] [Field 𝕜] [LinearOrder 𝕜] [IsStrictOrderedRing 𝕜] in
+/-- Exchanging two neighbouring red strands breaks the order of the red strands. -/
+theorem not_isRedOrdered_sadj {i : KLR.Seq μ} (hi : IsRedOrdered i) {n : ℕ} (h : n + 1 < m)
+    (h₁ : (i.lbl ⟨n, by omega⟩).isRight) (h₂ : (i.lbl ⟨n + 1, h⟩).isRight) :
+    ¬ IsRedOrdered (TypeA.sadj m n • i) := by
+  have hs' : (TypeA.sadj m n).symm = TypeA.sadj m n := by
+    rw [← Perm.inv_def]
+    exact inv_eq_of_mul_eq_one_left (TypeA.sadj_mul_self m n)
+  obtain ⟨r, hr⟩ : ∃ r, i.lbl ⟨n, by omega⟩ = .inr r := by
+    rcases hc : i.lbl ⟨n, by omega⟩ with c | r
+    · rw [hc] at h₁; cases h₁
+    · exact ⟨r, rfl⟩
+  obtain ⟨r', hr'⟩ : ∃ r', i.lbl ⟨n + 1, h⟩ = .inr r' := by
+    rcases hc : i.lbl ⟨n + 1, h⟩ with c | r'
+    · rw [hc] at h₂; cases h₂
+    · exact ⟨r', rfl⟩
+  have hlt := hi ⟨n, by omega⟩ ⟨n + 1, h⟩ r r' (Fin.mk_lt_mk.2 (Nat.lt_succ_self n)) hr hr'
+  intro ho
+  have e1 : (TypeA.sadj m n • i).lbl ⟨n, by omega⟩ = .inr r' := by
+    rw [KLR.Seq.lbl, KLR.Seq.smul_apply, hs', TypeA.sadj_apply_left h]; exact hr'
+  have e2 : (TypeA.sadj m n • i).lbl ⟨n + 1, h⟩ = .inr r := by
+    rw [KLR.Seq.lbl, KLR.Seq.smul_apply, hs', TypeA.sadj_apply_right h]; exact hr
+  exact absurd (ho _ _ r' r (Fin.mk_lt_mk.2 (Nat.lt_succ_self n)) e1 e2) (not_lt.2 hlt.le)
+
+theorem stDot_rename_mul_mem (hϖ : StrictMono ϖ) (hw0 : ∀ e, Γ.weight e = 0) {i : KLR.Seq μ}
+    {n : ℕ} (v : Fin n → Fin m) {c : Fin n} (hc : ¬ (i.1 (v c)).isLeft)
+    (q : MvPolynomial (Fin n) k) :
+    stDot ν k Λ hϖ hw0 (rename v (X c * q)) * stFreeHom ν k Λ hϖ hw0 (KLR.fe k μ i) ∈
+      stZeroDotIdeal ν k Λ hϖ hw0 := by
+  rw [map_mul, rename_X]
+  exact stDot_mul_mem hϖ hw0 hc _
+
+theorem stDot_sub_mem (hϖ : StrictMono ϖ) (hw0 : ∀ e, Γ.weight e = 0) {i : KLR.Seq μ}
+    {n : ℕ} (v : Fin n → Fin m) (c₀ c₁ : Fin n) (b₀ b₁ : Bool)
+    (hb₀ : b₀ = false → ¬ (i.1 (v c₀)).isLeft) (hb₁ : b₁ = false → ¬ (i.1 (v c₁)).isLeft)
+    (h₀ h₁ : MvPolynomial (Fin n) k) :
+    stDot ν k Λ hϖ hw0 (rename v ((if b₀ then 0 else X c₀ * h₀) +
+        (if b₁ then 0 else X c₁ * h₁))) * stFreeHom ν k Λ hϖ hw0 (KLR.fe k μ i) ∈
+      stZeroDotIdeal ν k Λ hϖ hw0 := by
+  rw [map_add, map_add, add_mul]
+  refine add_mem ?_ ?_
+  · cases b₀
+    · exact stDot_rename_mul_mem hϖ hw0 v (hb₀ rfl) h₀
+    · simp only [↓reduceIte, map_zero, zero_mul]; exact zero_mem _
+  · cases b₁
+    · exact stDot_rename_mul_mem hϖ hw0 v (hb₁ rfl) h₁
+    · simp only [↓reduceIte, map_zero, zero_mul]; exact zero_mem _
+
+omit [DecidableEq I] [Field 𝕜] [LinearOrder 𝕜] [IsStrictOrderedRing 𝕜] in
+theorem isLeft_of_false {x : I ⊕ Fin ℓ} (h : x.isLeft = false) : ¬ x.isLeft := by
+  rw [h]; exact Bool.false_ne_true
+
+/-- **The relations of Stendhal diagrams hold modulo the `0`-dot**: the images under
+`stFreeHom` of the two sides of each relation of `StendhalAlgebraAllOrders k Γ.klrQ Λ ν`
+(arXiv:1309.3796v2, Definition 4.5) differ by an element of `stZeroDotIdeal`. -/
+theorem stFreeHom_stendhalRel (hD : Γ.Dagger) (hE : ∀ e, Γ.head e ≠ Γ.tail e)
+    (hl : ∀ c, Γ.loop c = none) (hϖ : StrictMono ϖ) (hw0 : ∀ e, Γ.weight e = 0)
+    (hS : Γ.Standing) ⦃x y : FreeAlgebra k (KLR.Gen μ)⦄ (h : Rel k Γ.klrQ Λ ν x y) :
+    stFreeHom ν k Λ hϖ hw0 x - stFreeHom ν k Λ hϖ hw0 y ∈ stZeroDotIdeal ν k Λ hϖ hw0 := by
+  have hz : ∀ {a b : FreeAlgebra k (KLR.Gen μ)}, KLR.Rel k (stQ Γ Λ) μ a b →
+      stFreeHom ν k Λ hϖ hw0 a - stFreeHom ν k Λ hϖ hw0 b ∈ stZeroDotIdeal ν k Λ hϖ hw0 :=
+    fun h => by rw [stFreeHom_rel hD hE hl hϖ hw0 hS h, sub_self]; exact zero_mem _
+  rcases h with ⟨h⟩ | ⟨a, i, h⟩ | ⟨j, h, i, h₁, h₂⟩
+  · rcases h with ⟨i, j⟩ | _ | ⟨a, i⟩ | ⟨j, i⟩ | ⟨j, h⟩ | ⟨a, b⟩ | ⟨j, l, h⟩ | ⟨a, j, h₁, h₂⟩ |
+      ⟨j, h, i⟩ | ⟨j, h, i⟩ | ⟨j, h, i⟩ | ⟨j, h, i⟩
+    · exact hz (.idem_mul i j)
+    · exact hz .idem_sum
+    · exact hz (.dot_idem a i)
+    · exact hz (.cross_idem j i)
+    · exact hz (.cross_zero j h)
+    · exact hz (.dot_dot a b)
+    · exact hz (.cross_cross j l h)
+    · exact hz (.dot_cross a j h₁ h₂)
+    · exact hz (.dot_cross_left j h i)
+    · exact hz (.dot_cross_right j h i)
+    · rw [stFreeHom_rel hD hE hl hϖ hw0 hS (.cross_sq j h i)]
+      split_ifs
+      · rw [sub_self]; exact zero_mem _
+      · have hy : ∀ c, (![KLR.fx k μ ⟨j, by omega⟩, KLR.fx k μ ⟨j + 1, h⟩] : Fin 2 → _) c =
+            KLR.fx k μ ((![⟨j, by omega⟩, ⟨j + 1, h⟩] : Fin 2 → Fin m) c) := fun c => by
+          fin_cases c <;> rfl
+        rw [map_mul, map_mul, stFreeHom_ncEval hϖ hw0 _ _ hy, stFreeHom_ncEval hϖ hw0 _ _ hy,
+          ← sub_mul, ← map_sub, ← map_sub]
+        obtain ⟨h₀, h₁, he⟩ := stQ_sub_stendhalQ (k := k) (Γ := Γ) (Λ := Λ)
+          (i.lbl ⟨j, by omega⟩) (i.lbl ⟨j + 1, h⟩)
+        rw [he]
+        exact stDot_sub_mem hϖ hw0 _ 0 1 _ _ isLeft_of_false isLeft_of_false h₀ h₁
+    · rw [stFreeHom_rel hD hE hl hϖ hw0 hS (.braid j h i)]
+      split_ifs with hc
+      · by_cases hi : IsRedOrdered i
+        · have hy : ∀ c, (![KLR.fx k μ ⟨j, by omega⟩, KLR.fx k μ ⟨j + 1, by omega⟩,
+              KLR.fx k μ ⟨j + 2, h⟩] : Fin 3 → _) c =
+              KLR.fx k μ ((![⟨j, by omega⟩, ⟨j + 1, by omega⟩, ⟨j + 2, h⟩] :
+                Fin 3 → Fin m) c) := fun c => by
+            fin_cases c <;> rfl
+          rw [map_mul, map_mul, stFreeHom_ncEval hϖ hw0 _ _ hy, stFreeHom_ncEval hϖ hw0 _ _ hy,
+            ← sub_mul, ← map_sub (stDot ν k Λ hϖ hw0), ← map_sub (rename (R := k)
+              (![⟨j, by omega⟩, ⟨j + 1, by omega⟩, ⟨j + 2, h⟩] : Fin 3 → Fin m)),
+            ← KLR.qbar_sub]
+          obtain ⟨h₀, h₁, he⟩ := stQ_sub_stendhalQ (k := k) (Γ := Γ) (Λ := Λ)
+            (i.lbl ⟨j, by omega⟩) (i.lbl ⟨j + 1, by omega⟩)
+          have hl0 : (i.lbl ⟨j, by omega⟩).isLeft := by
+            rcases hc' : i.lbl ⟨j, by omega⟩ with c | r
+            · rfl
+            · exfalso
+              have h2 : i.lbl ⟨j + 2, h⟩ = .inr r := hc.1 ▸ hc'
+              exact lt_irrefl r (hi _ _ r r (Fin.mk_lt_mk.2 (by omega)) hc' h2)
+          rw [he]
+          simp only [hl0, ↓reduceIte, zero_add]
+          split_ifs with hl1
+          · rw [KLR.qbar_zero, map_zero, map_zero, zero_mul]; exact zero_mem _
+          · rw [KLR.qbar_X_one_mul]
+            exact stDot_rename_mul_mem hϖ hw0 _ hl1 _
+        · rw [map_mul, map_mul, stFreeHom_fe_of_not hϖ hw0 hi, mul_zero, mul_zero, sub_self]
+          exact zero_mem _
+      · rw [sub_self]; exact zero_mem _
+  · have hm := stDot_mul_mem (Λ := Λ) hϖ hw0 (Sum.not_isLeft.2 h) 1
+    rwa [mul_one, ← stFreeHom_fx, ← map_mul, ← sub_zero (stFreeHom ν k Λ hϖ hw0 _),
+      ← map_zero (stFreeHom ν k Λ hϖ hw0)] at hm
+  · rw [map_zero, sub_zero]
+    by_cases hi : IsRedOrdered i
+    · rw [stFreeHom_rel hD hE hl hϖ hw0 hS (.cross_idem j i), map_mul,
+        stFreeHom_fe_of_not hϖ hw0 (not_isRedOrdered_sadj hi h h₁ h₂), zero_mul]
+      exact zero_mem _
+    · rw [map_mul, stFreeHom_fe_of_not hϖ hw0 hi, mul_zero]
+      exact zero_mem _
+
+variable (ν k Γ Λ) in
+/-- **Stendhal diagrams to the weighted KLR algebra**: the map from the algebra of Stendhal
+diagrams with red strands in any order, for the polynomials `Γ.klrQ` between black strands,
+to the chamber algebra of `Γ_λ = crawleyBoeveyIn Γ Λ ϖ` modulo the dot on the `0`-strand
+(arXiv:1209.2463v4, proof of Theorem 3.5). A sequence whose red strands are not in the order
+`λ_1, …, λ_ℓ` goes to `0`, a red strand to a ghost of the `0`-strand, and the crossings of a
+black strand `a` to the left of a red strand `r` carry the sign `(-1)^{λ_r(a)}`.
+
+The hypotheses `hE` (no edge from a vertex to itself) and `hl` (no loops) are those of the
+faithfulness of the polynomial representation used to check the relations. -/
+noncomputable def stStendhalHom (hD : Γ.Dagger) (hE : ∀ e, Γ.head e ≠ Γ.tail e)
+    (hl : ∀ c, Γ.loop c = none) (hϖ : StrictMono ϖ) (hw0 : ∀ e, Γ.weight e = 0)
+    (hS : Γ.Standing) :
+    StendhalAlgebraAllOrders k Γ.klrQ Λ ν →ₐ[k] (stZeroDotIdeal ν k Λ hϖ hw0).ringCon.Quotient :=
+  RingQuot.liftAlgHom k ⟨((stZeroDotIdeal ν k Λ hϖ hw0).ringCon.mkₐ k).comp
+      (stFreeHom ν k Λ hϖ hw0), fun _ _ h => (RingCon.eq _).2
+    ((TwoSidedIdeal.rel_iff _ _ _).2 (stFreeHom_stendhalRel hD hE hl hϖ hw0 hS h))⟩
+
+theorem stStendhalHom_mk (hD : Γ.Dagger) (hE : ∀ e, Γ.head e ≠ Γ.tail e)
+    (hl : ∀ c, Γ.loop c = none) (hϖ : StrictMono ϖ) (hw0 : ∀ e, Γ.weight e = 0)
+    (hS : Γ.Standing) (x : FreeAlgebra k (KLR.Gen μ)) :
+    stStendhalHom ν k Γ Λ hD hE hl hϖ hw0 hS (RingQuot.mkAlgHom k (Rel k Γ.klrQ Λ ν) x) =
+      (stZeroDotIdeal ν k Λ hϖ hw0).ringCon.mkₐ k (stFreeHom ν k Λ hϖ hw0 x) :=
+  RingQuot.liftAlgHom_mkAlgHom_apply _ _ _ _
 
 end Descent
 

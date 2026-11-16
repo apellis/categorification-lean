@@ -26,6 +26,73 @@ Theorem 2.8, modulo shorter corner basis vectors.
 * `Juxtapose.IsRelGal.galleryTensorHom`: juxtaposition of relabelled minimal galleries.
 -/
 
+namespace Module.Basis
+
+variable {R G ι κ : Type*} [CommRing R] [AddCommGroup G] [Module R G] {N : Submodule R G}
+
+/-- **Triangular families stay independent modulo part of the basis.** Let `b` be a basis of
+`N ≤ G`, `ℓ` a length on its index set and `y j ∈ G` congruent to `b (e j)` modulo basis vectors
+of smaller length, for an injective leading index `e`. If a combination of the `y j` lies in the
+span of the basis vectors `b i` with `p i`, and no leading index satisfies `p`, then all its
+coefficients vanish. -/
+theorem eq_zero_of_triangular_sum_mem (b : Module.Basis ι R N) (ℓ : ι → ℕ) {e : κ → ι}
+    (he : Function.Injective e) (y : κ → G)
+    (hy : ∀ j, y j - (b (e j) : G) ∈
+      Submodule.span R (Set.range fun i : {i // ℓ i < ℓ (e j)} => (b i : G)))
+    (p : ι → Prop) (hp : ∀ j, ¬ p (e j)) (s : Finset κ) (g : κ → R)
+    (hg : ∑ j ∈ s, g j • y j ∈ Submodule.span R (Set.range fun i : {i // p i} => (b i : G))) :
+    ∀ j ∈ s, g j = 0 := by
+  classical
+  have hspan : ∀ q : ι → Prop,
+      Submodule.span R (Set.range fun i : {i // q i} => (b i : G)) ≤ N :=
+    fun q => Submodule.span_le.2 (by rintro _ ⟨i, rfl⟩; exact (b i).2)
+  have hyN : ∀ j, y j ∈ N := fun j => by
+    have := N.add_mem (hspan _ (hy j)) (b (e j)).2
+    rwa [sub_add_cancel] at this
+  set x : κ → N := fun j => ⟨y j, hyN j⟩
+  have hx : ∀ j, x j - b (e j) ∈ Submodule.span R (b '' {i | ℓ i < ℓ (e j)}) := fun j =>
+    mem_span_image_of_coe_mem b (fun i => ℓ i < ℓ (e j)) (y := x j - b (e j)) (hy j)
+  have hsum : ∑ j ∈ s, g j • x j ∈ Submodule.span R (b '' {i | p i}) := by
+    refine mem_span_image_of_coe_mem b p ?_
+    have : ((∑ j ∈ s, g j • x j : N) : G) = ∑ j ∈ s, g j • y j := by
+      simp only [Submodule.coe_sum, Submodule.coe_smul, x]
+    rw [this]
+    exact hg
+  intro j hj
+  by_contra hne
+  obtain ⟨j₀, hj₀, hmax⟩ : ∃ j ∈ s.filter (fun j => g j ≠ 0),
+      ∀ j' ∈ s.filter (fun j => g j ≠ 0), ℓ (e j') ≤ ℓ (e j) :=
+    Finset.exists_max_image _ (fun j => ℓ (e j)) ⟨j, Finset.mem_filter.2 ⟨hj, hne⟩⟩
+  obtain ⟨hj₀s, hj₀g⟩ := Finset.mem_filter.1 hj₀
+  have hterm : ∀ j' ∈ s, g j' * b.repr (x j') (e j₀) = if j' = j₀ then g j₀ else 0 := by
+    intro j' hj'
+    by_cases hg' : g j' = 0
+    · rw [hg', zero_mul]
+      split_ifs with h
+      · rw [← h, hg']
+      · rfl
+    have hle : ℓ (e j') ≤ ℓ (e j₀) := hmax j' (Finset.mem_filter.2 ⟨hj', hg'⟩)
+    have hz : b.repr (x j' - b (e j')) (e j₀) = 0 := by
+      rw [← Finsupp.notMem_support_iff]
+      intro hmem
+      have := b.mem_span_image.1 (hx j') hmem
+      exact absurd hle (not_le.2 this)
+    rw [map_sub, Finsupp.sub_apply, b.repr_self, sub_eq_zero] at hz
+    rw [hz, Finsupp.single_apply, he.eq_iff]
+    split_ifs with h
+    · rw [h, mul_one]
+    · exact mul_zero _
+  have h0 : b.repr (∑ j ∈ s, g j • x j) (e j₀) = 0 := by
+    rw [← Finsupp.notMem_support_iff]
+    exact fun hmem => hp j₀ (b.mem_span_image.1 hsum hmem)
+  simp only [map_sum, map_smul, Finsupp.coe_finsetSum, Finset.sum_apply, Finsupp.smul_apply,
+    smul_eq_mul] at h0
+  rw [Finset.sum_congr rfl hterm, Finset.sum_ite_eq' s j₀] at h0
+  simp only [hj₀s, ↓reduceIte] at h0
+  exact hj₀g h0
+
+end Module.Basis
+
 namespace Categorification.WeightedKLR
 
 open FullChamber GalleryAlgebra Juxtapose MulOpposite

@@ -520,6 +520,35 @@ example (ν : Fin 2 →₀ ℕ) : ∃ (ι : Type) (_ : Module.Basis ι ℚ
   exact ⟨_, WeightedKLR.GalleryAlgebra.redReducedBasisIn ν hP wkGraph_dagger wkGraph_noZeroLoops
     wkGraph_standing hϖ, trivial⟩
 
+/-- Webster, §3.1: the reduced quotient for `ν̃ = ν + α_0`, new edges into the new vertex, acts
+faithfully on the polynomial representation with the dot on the new strand set to zero. -/
+example (ν : Fin 2 →₀ ℕ) : Function.Injective
+    (WeightedKLR.GalleryAlgebra.reducedRep (k := ℚ)
+      (WeightedKLR.WeightedGraph.crawleyBoeveyIn_psymm
+        (Λ := fun _ : Fin 1 => Finsupp.single 0 1) (ϖ := fun _ => (2 : ℚ))
+        wkGraph_standing.psymm)
+      (WeightedKLR.GalleryAlgebra.redWeight_zeroStrand ν)) := by
+  have hϖ : Function.Injective fun _ : Fin 1 => (2 : ℚ) := fun _ _ _ => Subsingleton.elim _ _
+  obtain ⟨P, hP, -⟩ := WeightedKLR.GalleryAlgebra.exists_span_segGallery (k := ℚ)
+    (ν := WeightedKLR.WeightedGraph.redWeight ν)
+    (WeightedKLR.WeightedGraph.crawleyBoeveyIn_dagger wkGraph_dagger hϖ)
+    (WeightedKLR.WeightedGraph.crawleyBoeveyIn_noZeroLoops
+      (Λ := fun _ : Fin 1 => Finsupp.single 0 1) (ϖ := fun _ => (2 : ℚ)) wkGraph_noZeroLoops)
+  exact WeightedKLR.GalleryAlgebra.redReducedRepIn_injective ν hP wkGraph_dagger
+    wkGraph_noZeroLoops wkGraph_standing hϖ
+
+/-- Webster, §3.1: the images of the reduced basis act by linearly independent operators. -/
+example (ν : Fin 2 →₀ ℕ) : True := by
+  have hϖ : Function.Injective fun _ : Fin 1 => (2 : ℚ) := fun _ _ _ => Subsingleton.elim _ _
+  obtain ⟨P, hP, -⟩ := WeightedKLR.GalleryAlgebra.exists_span_segGallery (k := ℚ)
+    (ν := WeightedKLR.WeightedGraph.redWeight ν)
+    (WeightedKLR.WeightedGraph.crawleyBoeveyIn_dagger wkGraph_dagger hϖ)
+    (WeightedKLR.WeightedGraph.crawleyBoeveyIn_noZeroLoops
+      (Λ := fun _ : Fin 1 => Finsupp.single 0 1) (ϖ := fun _ => (2 : ℚ)) wkGraph_noZeroLoops)
+  have := WeightedKLR.GalleryAlgebra.linearIndependent_redReducedRepIn ν hP wkGraph_dagger
+    wkGraph_noZeroLoops wkGraph_standing hϖ
+  trivial
+
 /-! ### Webster, arXiv:1309.3796v2, Definitions 4.5–4.7 (Stendhal diagrams) -/
 
 /-- The bigon relation (4.2) for one red strand `λ_1 = ϖ_0` over the vertices of `wkGraph`. -/

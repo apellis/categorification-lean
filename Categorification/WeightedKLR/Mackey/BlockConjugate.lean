@@ -12,14 +12,15 @@ import Categorification.WeightedKLR.Mackey.ConjugateEmbedding
 A step of the proof of B. Webster, *Weighted Khovanov–Lauda–Rouquier algebras*,
 arXiv:1209.2463v4, Theorem 2.19 (the Mackey filtration of §2.4). Let `μ` be a shuffle type with
 four-block chambers `χ q` whose shuffles are sent by a relabelling `ρ` to the rank-ordered
-chambers `χ' q`. If `z` relabels strands only within the four blocks and `z'` is locally conjugate
-to `z` along `ρ` (`GalleryAlgebra.IsLocalConj`), then for all `q, q'` the four-block shuffle
-passes from `e (χ q) z e (χ q')` to `e (χ' q) z' e (χ' q')` up to terms of lower shuffle type
-(`GalleryAlgebra.fourShuffle_mul_sub_mul_fourShuffle_mem_mackeyFilt_of_isLocalConj`).
+chambers `χ' q`. If `z` relabels strands only within the four blocks and the blocks of `z'` at
+`χ'` are those of `z` at `χ` relabelled along `ρ` (as for `GalleryAlgebra.IsLocalConj`), then
+for all `q, q'` the four-block shuffle passes from `e (χ q) z e (χ q')` to
+`e (χ' q) z' e (χ' q')` up to terms of lower shuffle type
+(`GalleryAlgebra.fourShuffle_mul_sub_mul_fourShuffle_mem_mackeyFilt_of_blockOp`).
 
 This is the algebra form of `GalleryAlgebra.fourShuffle_mul_sub_mul_fourShuffle_mem_mackeyFilt`
-in which the operator hypotheses are replaced by block support and local conjugacy, the two
-properties enjoyed by juxtaposed diagrams of the middle parabolic.
+in which the operator hypotheses are replaced by block support and conjugacy of block operators,
+the two properties enjoyed by juxtaposed diagrams of the middle parabolic.
 
 ## Main definitions
 
@@ -28,7 +29,7 @@ properties enjoyed by juxtaposed diagrams of the middle parabolic.
 ## Main results
 
 * `GalleryAlgebra.blockOp_e_mul_mul_e`: cutting down to a corner does not change its block.
-* `GalleryAlgebra.fourShuffle_mul_sub_mul_fourShuffle_mem_mackeyFilt_of_isLocalConj`.
+* `GalleryAlgebra.fourShuffle_mul_sub_mul_fourShuffle_mem_mackeyFilt_of_blockOp`.
 -/
 
 namespace Categorification.WeightedKLR
@@ -71,15 +72,17 @@ variable {P : FullChamber Γ ν → FullChamber Γ ν → (Strand ν → 𝕜) �
 
 variable {ν' ν'' ν₁ ν₂ : I →₀ ℕ}
 
-/-- **Balancedness of the four-block shuffle for locally conjugate elements.** Let `μ` be a
+/-- **Balancedness of the four-block shuffle for conjugate block operators.** Let `μ` be a
 shuffle type, `Z = blockLeft ν' ν₁ μ`, `χ q` four-block chambers for the strands of `ν'` and `Z`,
 and `ρ` a relabelling sending `shuffleTop Z (χ q)` to the rank-ordered chamber `χ' q`. Let `z`
-relabel strands only among the four blocks, and let `z'` be locally conjugate to `z` along `ρ`.
+relabel strands only among the four blocks, and let the blocks of `z'` between the chambers
+`χ' q` be the relabellings along `ρ` of the blocks of `z` between the chambers `χ q` (the block
+part of `GalleryAlgebra.IsLocalConj`).
 Then `fourShuffle Z (χ q) * (e (χ q) z e (χ q')) - (e (χ' q) z' e (χ' q')) * fourShuffle Z (χ q')`
 lies in the step of the filtration of the shuffle types strictly below `μ`.
 
 A step of the proof of Webster, arXiv:1209.2463v4, Theorem 2.19. -/
-theorem fourShuffle_mul_sub_mul_fourShuffle_mem_mackeyFilt_of_isLocalConj (hν' : ν' + ν'' = ν)
+theorem fourShuffle_mul_sub_mul_fourShuffle_mem_mackeyFilt_of_blockOp (hν' : ν' + ν'' = ν)
     (hν₁ : ν₁ + ν₂ = ν) {μ : I → ℕ} (hμ : μ ∈ Set.range (shuffleType (ν := ν) ν' ν₁))
     {Q : Type*} {χ χ' : Q → FullChamber Γ ν}
     (hχ : ∀ q, IsFourBlock (fun t => decide (t.IsLeft ν')) (blockLeft ν' ν₁ μ) (χ q))
@@ -87,7 +90,8 @@ theorem fourShuffle_mul_sub_mul_fourShuffle_mem_mackeyFilt_of_isLocalConj (hν' 
     (hχr : ∀ q, (χ' q).IsRankOrdered) {z z' : GalleryAlgebra k Γ ν}
     (hz : IsBlockSupported hΓ (blockStab ν (fun t => decide (t.IsLeft ν'))
       (blockLeft ν' ν₁ μ)) z)
-    (hzz : IsLocalConj k hΓ χ χ' ρ z' z) (q q' : Q) :
+    (hzz : ∀ q q', blockOp k hΓ (χ' q) (χ' q') z' =
+      ren ρ ∘ₗ blockOp k hΓ (χ q) (χ q') z ∘ₗ ren ρ⁻¹) (q q' : Q) :
     fourShuffle k hD hZ (blockLeft ν' ν₁ μ) (χ q) * (e (χ q) * z * e (χ q')) -
         (e (χ' q) * z' * e (χ' q')) * fourShuffle k hD hZ (blockLeft ν' ν₁ μ) (χ q') ∈
       mackeyFilt k hP hD hZ hΓ hW hL ν' ν₁ (χ' q) (χ q') (Set.Iio μ) := by
@@ -100,7 +104,7 @@ theorem fourShuffle_mul_sub_mul_fourShuffle_mem_mackeyFilt_of_isLocalConj (hν' 
     (u := e (χ q) * z * e (χ q')) (u'' := e (χ' q) * z' * e (χ' q'))
     (hcorner _ _ _) (by rw [hχ', hχ']; exact hcorner _ _ _)
     ((((IsBlockSupported.e (χ q)).mul hz).mul (IsBlockSupported.e (χ q'))) (χ q) (χ q'))
-    (by rw [hχ', hχ', blockOp_e_mul_mul_e, blockOp_e_mul_mul_e]; exact hzz.2.2 q q')
+    (by rw [hχ', hχ', blockOp_e_mul_mul_e, blockOp_e_mul_mul_e]; exact hzz q q')
   rwa [hχ'] at h
 
 end GalleryAlgebra

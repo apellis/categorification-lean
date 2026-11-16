@@ -887,6 +887,7 @@ import Categorification.WeightedKLR.Mackey.FourBlockJuxtapose
 import Categorification.WeightedKLR.Mackey.FourBlockLayout
 import Categorification.WeightedKLR.Mackey.FourBlockShuffle
 import Categorification.WeightedKLR.Mackey.FourBlockSwap
+import Categorification.WeightedKLR.Mackey.FourBlockTensor
 import Categorification.WeightedKLR.Mackey.FourBlockType
 import Categorification.WeightedKLR.Mackey.IdentityCoefficient
 import Categorification.WeightedKLR.Mackey.Intermediate
@@ -909,6 +910,7 @@ import Categorification.WeightedKLR.Mackey.TypeShuffle
 import Categorification.WeightedKLR.Mackey.TypeFiltration
 import Categorification.WeightedKLR.Mackey.TypeLeading
 import Categorification.WeightedKLR.Mackey.TypeBalanced
+import Categorification.WeightedKLR.Mackey.TypeTensor
 import Categorification.WeightedKLR.RedStrands.StendhalBasis
 import Categorification.WeightedKLR.RedStrands.StendhalCrossing
 import Categorification.WeightedKLR.RedStrands.StendhalDescent

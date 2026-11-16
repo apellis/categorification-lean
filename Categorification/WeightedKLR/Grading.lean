@@ -534,6 +534,116 @@ theorem liftF_rel {a b : Fr} (h : Rel k Γ ν a b) : G.liftF a = G.liftF b := by
         (Diag.Joins.fst_eq j₁).2]
       ring
 
+/-! ### The coaction and the grading of the gallery algebra -/
+
+/-- The coaction `A → A[ℤ]` defining the grading: `e_C ↦ single 0 e_C`, a weighted homogeneous
+polynomial of degree `D` goes to `single D`, a step `t C C'` to `single (stepDeg C C')` and a
+relabelling to `single 0`. -/
+noncomputable def coaction : GalleryAlgebra k Γ ν →ₐ[k] AddMonoidAlgebra (GalleryAlgebra k Γ ν) ℤ :=
+  RingQuot.liftAlgHom k ⟨G.liftF, fun _ _ h => G.liftF_rel h⟩
+
+theorem coaction_mk (u : Fr) : G.coaction (mkF u) = G.liftF u :=
+  RingQuot.liftAlgHom_mkAlgHom_apply _ _ _ _
+
+variable (ν) in
+/-- The grading of the gallery algebra: the degree `d` part is `{a | coaction a = single d a}`. -/
+noncomputable def grade : ℤ → Submodule k (GalleryAlgebra k Γ ν) :=
+  CoactionGrading.grade (G.coaction (ν := ν))
+
+theorem mem_grade {d : ℤ} {a : GalleryAlgebra k Γ ν} :
+    a ∈ G.grade ν d ↔ G.coaction a = single d a := Iff.rfl
+
+theorem IsHom.mk_mem_grade {D : ℤ} {u : Fr} (h : G.IsHom D u) : mkF u ∈ G.grade ν D := by
+  rw [mem_grade, coaction_mk]; exact h
+
+/-- The idempotents `e_C` have degree `0`. -/
+theorem e_mem_grade (C : FullChamber Γ ν) : (e C : GalleryAlgebra k Γ ν) ∈ G.grade ν 0 :=
+  (G.isHom_fe C).mk_mem_grade
+
+/-- A polynomial in the dots which is weighted homogeneous of degree `D` (dot on a strand of
+label `i` in degree `dot i`) has degree `D`. -/
+theorem poly_mem_grade {f : PolyRing ν k} {D : ℤ} (hf : f.IsWeightedHomogeneous G.wt D) :
+    (poly f : GalleryAlgebra k Γ ν) ∈ G.grade ν D :=
+  (G.isHom_fp hf).mk_mem_grade
+
+/-- The monomial `x^m` has degree `∑_s m_s · dot (label s)`. -/
+theorem poly_monomial_mem_grade (m : Strand ν →₀ ℕ) (c : k) :
+    (poly (monomial m c) : GalleryAlgebra k Γ ν) ∈ G.grade ν (Finsupp.weight G.wt m) :=
+  G.poly_mem_grade (isWeightedHomogeneous_monomial _ _ _ rfl)
+
+/-- A step `t C C'` has degree `stepDeg C C'`: the degree of the crossed hyperplane when `C` and
+`C'` are adjacent. -/
+theorem t_mem_grade (C C' : FullChamber Γ ν) :
+    (t C C' : GalleryAlgebra k Γ ν) ∈ G.grade ν (G.stepDeg C C') :=
+  (G.isHom_ft C C').mk_mem_grade
+
+/-- The relabellings `r g C` have degree `0`. -/
+theorem r_mem_grade (g : ColPerm ν) (C : FullChamber Γ ν) :
+    (r g C : GalleryAlgebra k Γ ν) ∈ G.grade ν 0 :=
+  (G.isHom_fr g C).mk_mem_grade
+
+/-- The degree of the gallery `galList C w`: the sum of the degrees of its steps. -/
+noncomputable def galDeg : FullChamber Γ ν → List (Hyp Γ ν) → ℤ
+  | _, [] => 0
+  | C, h :: w => galDeg (C.flipH h) w + G.stepDeg C (C.flipH h)
+
+/-- The gallery `galList C w` is homogeneous of degree `galDeg C w`. -/
+theorem galList_mem_grade (C : FullChamber Γ ν) (w : List (Hyp Γ ν)) :
+    galList k C w ∈ G.grade ν (G.galDeg C w) := by
+  induction w generalizing C with
+  | nil => exact G.e_mem_grade C
+  | cons h w ih =>
+    exact CoactionGrading.mul_mem_grade _ (ih _) (G.t_mem_grade _ _)
+
+/-- `r g E · galList C w · x^m` is homogeneous of degree `galDeg C w + ∑_s m_s · dot (label s)`.
+These are the elements of the basis of Webster's Theorem 2.8. -/
+theorem r_mul_galList_mul_poly_mem_grade (g : ColPerm ν) (E C : FullChamber Γ ν)
+    (w : List (Hyp Γ ν)) (m : Strand ν →₀ ℕ) :
+    r g E * galList k C w * poly (monomial m 1) ∈
+      G.grade ν (G.galDeg C w + Finsupp.weight G.wt m) := by
+  have := CoactionGrading.mul_mem_grade _
+    (CoactionGrading.mul_mem_grade _ (G.r_mem_grade g E) (G.galList_mem_grade C w))
+    (G.poly_monomial_mem_grade m 1)
+  rwa [zero_add] at this
+
+/-- Every element of the gallery algebra is a sum of homogeneous elements. -/
+theorem mem_homogeneousSubalgebra (a : GalleryAlgebra k Γ ν) :
+    a ∈ CoactionGrading.homogeneousSubalgebra G.coaction := by
+  obtain ⟨u, rfl⟩ := mk_surjective a
+  induction u using FreeAlgebra.induction with
+  | grade0 c => rw [AlgHom.commutes]; exact Subalgebra.algebraMap_mem _ c
+  | grade1 x =>
+    cases x with
+    | idem C =>
+      exact CoactionGrading.mem_homogeneousSubalgebra_of_mem_grade _ (G.e_mem_grade C)
+    | poly f =>
+      change poly f ∈ _
+      rw [show (poly f : GalleryAlgebra k Γ ν) = polyHom k Γ ν f from rfl, f.as_sum, map_sum]
+      exact Subalgebra.sum_mem _ fun m _ =>
+        CoactionGrading.mem_homogeneousSubalgebra_of_mem_grade _
+          (G.poly_monomial_mem_grade m (f.coeff m))
+    | step C C' =>
+      exact CoactionGrading.mem_homogeneousSubalgebra_of_mem_grade _ (G.t_mem_grade C C')
+    | relabel g C =>
+      exact CoactionGrading.mem_homogeneousSubalgebra_of_mem_grade _ (G.r_mem_grade g C)
+  | mul u v hu hv => rw [map_mul]; exact Subalgebra.mul_mem _ hu hv
+  | add u v hu hv => rw [map_add]; exact Subalgebra.add_mem _ hu hv
+
+theorem counit : CoactionGrading.Counit (G.coaction (ν := ν)) :=
+  CoactionGrading.counit_of_forall_mem _ G.mem_homogeneousSubalgebra
+
+theorem coassoc : CoactionGrading.Coassoc (G.coaction (ν := ν)) :=
+  CoactionGrading.coassoc_of_forall_mem _ G.mem_homogeneousSubalgebra
+
+/-- The `ℤ`-grading of the gallery algebra defined by the grading datum `G` (Webster §2.1). -/
+noncomputable instance gradedAlgebra : GradedAlgebra (G.grade ν) :=
+  CoactionGrading.gradedAlgebra G.counit G.coassoc
+
+/-- The degree `d` component of `a` is the coefficient of `single d` in `coaction a`. -/
+theorem decompose_apply (a : GalleryAlgebra k Γ ν) (d : ℤ) :
+    (DirectSum.decompose (G.grade ν) a d : GalleryAlgebra k Γ ν) = (G.coaction a).coeff d :=
+  CoactionGrading.decompose_apply G.counit G.coassoc a d
+
 end GradingDatum
 
 end Categorification.WeightedKLR

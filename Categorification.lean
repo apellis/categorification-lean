@@ -882,6 +882,7 @@ import Categorification.WeightedKLR.RedStrands.StendhalViolating
 import Categorification.WeightedKLR.RedStrands.ViolatingComparison
 import Categorification.WeightedKLR.Twisted.Arrangement
 import Categorification.WeightedKLR.Twisted.Blocks
+import Categorification.WeightedKLR.Twisted.Relabel
 /-!
 # Categorification
 

@@ -558,6 +558,71 @@ theorem cosetElt_mul_middleCorner_sub_mem (hRc : (chamber R' R'').IsRankOrdered)
     restrict_rightEmb_chamber] at h
   exact h
 
+variable {hL' : L'.IsRankOrdered} {hL'' : L''.IsRankOrdered} {hR' : R'.IsRankOrdered}
+  {hR'' : R''.IsRankOrdered}
+
+include hP hΓ hW hL in
+/-- **The image of the spanning family is independent in the subquotient** (Webster,
+arXiv:1209.2463v4, Theorem 2.19, injectivity half; after Khovanov–Lauda, arXiv:0803.4121v2, proof
+of Proposition 2.18). If the shuffle type `c` is not in `S'`, the classes of the images
+`[e L ι(c_{u₁} ⊗ c_{u₂}) ψ_c ι(b₁ ⊗ b₂) e R]` of the vectors of the spanning family of the
+juxtaposed corner are linearly independent in the subquotient `S / S'` of the Mackey filtration:
+they are unitriangular with respect to the basis of Webster, Theorem 2.8, with injective leading
+index of shuffle type `c`. -/
+theorem linearIndependent_middleTensorMap_middleCornerVec
+    (hRc : (chamber R' R'').IsRankOrdered)
+    (hLc : (castChamber (layout_eq a b c d) (chamber L' L'')).IsRankOrdered)
+    {S' S : Set (I → ℕ)} (hS : IsLowerSet S) (hcS : ⇑c ∈ S) (hS' : Set.Iio ⇑c ⊆ S')
+    (hcS' : ⇑c ∉ S') :
+    LinearIndependent k fun i : MiddleCornerIdx Γ L' L'' =>
+      middleTensorMap hP hD hZ hΓ hW hL hRc hLc hS hcS hS'
+        (middleCornerVec hP₃ hP₄ hD hZ hΓ hW₃ hW₄ hL₃ hL₄ hL' hL'' hR' hR'' i) := by
+  classical
+  set Lc := castChamber (layout_eq a b c d) (chamber L' L'')
+  set Y : MiddleCornerIdx Γ L' L'' → GalleryAlgebra k Γ (a + b + (c + d)) := fun i =>
+    cosetElt k hD hZ (a + b) (middleCoset i.1.1 i.1.2) Lc *
+      (galleryTensorHom k Γ (a + b) (c + d)
+        ((cornerBasis hP₃ hD hZ hΓ hW₃ hL₃ (chamber (repLeft i.1.1) (repLeft i.1.2)) R' i.2.1 :
+            GalleryAlgebra k Γ (a + b)) ⊗ₜ
+          (cornerBasis hP₄ hD hZ hΓ hW₄ hL₄ (chamber (repRight i.1.1) (repRight i.1.2)) R''
+            i.2.2 : GalleryAlgebra k Γ (c + d)))).1
+  have hmem : ∀ i, Y i ∈ mackeyFilt k hP hD hZ hΓ hW hL (a + b) (a + c) Lc (chamber R' R'') S :=
+    fun i => by
+      have h := typeInductionAux_mem_mackeyFilt hP hD hZ hΓ hW hL rfl (layout_eq a b c d) hRc
+        hLc hS hcS (Set.mem_range.2 ⟨middleSwap a b c d, shuffleType_middleSwap⟩)
+        ((cosetW k hD hZ hL' i.1.1 ⊗ₜ cosetW k hD hZ hL'' i.1.2) ⊗ₜ
+          (cornerW k (isRankOrdered_botLeft i.1.1 i.1.2) hR'
+              (cornerBasis hP₃ hD hZ hΓ hW₃ hL₃ _ R' i.2.1) ⊗ₜ
+            cornerW k (isRankOrdered_botRight i.1.1 i.1.2) hR''
+              (cornerBasis hP₄ hD hZ hΓ hW₄ hL₄ _ R'' i.2.2)))
+      rwa [typeInductionAux_middleCorner hD hZ hL' hL'' hR' hR''] at h
+  have hY : ∀ i, middleTensorMap hP hD hZ hΓ hW hL hRc hLc hS hcS hS'
+      (middleCornerVec hP₃ hP₄ hD hZ hΓ hW₃ hW₄ hL₃ hL₄ hL' hL'' hR' hR'' i) =
+      Submodule.Quotient.mk ⟨Y i, hmem i⟩ := by
+    intro i
+    rw [middleCornerVec, middleTensorMap_tmul, typeInductionMap_apply]
+    congr 2
+    exact typeInductionAux_middleCorner hD hZ hL' hL'' hR' hR'' i.1.1 i.1.2 _ _
+  rw [linearIndependent_iff']
+  intro s g hg
+  have hsum : ∑ i ∈ s, g i • middleTensorMap hP hD hZ hΓ hW hL hRc hLc hS hcS hS'
+      (middleCornerVec hP₃ hP₄ hD hZ hΓ hW₃ hW₄ hL₃ hL₄ hL' hL'' hR' hR'' i) =
+      Submodule.mkQ _ (∑ i ∈ s, g i • (⟨Y i, hmem i⟩ :
+        mackeyFilt k hP hD hZ hΓ hW hL (a + b) (a + c) Lc (chamber R' R'') S)) := by
+    simp only [map_sum, map_smul, Submodule.mkQ_apply, hY]
+  rw [hsum, Submodule.mkQ_apply, Submodule.Quotient.mk_eq_zero, Submodule.mem_comap,
+    Submodule.subtype_apply, Submodule.coe_sum] at hg
+  simp only [Submodule.coe_smul] at hg
+  exact Module.Basis.eq_zero_of_triangular_sum_mem
+    (cornerBasis hP hD hZ hΓ hW hL Lc (chamber R' R''))
+    (fun j => segLength P (chamber R' R'') (j.1⁻¹ • Lc)) middleLead_injective Y
+    (cosetElt_mul_middleCorner_sub_mem hP hP₃ hP₄ hD hZ hΓ hW hW₃ hW₄ hL hL₃ hL₄ hRc hLc)
+    (fun j => shuffleType (a + b) (a + c) j.1 ∈ S')
+    (fun j => by
+      show shuffleType (a + b) (a + c) (middleLead L' L'' j).1 ∉ S'
+      rw [shuffleType_middleLead]
+      exact hcS') s g hg
+
 end Independence
 
 end Juxtapose

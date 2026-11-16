@@ -841,6 +841,8 @@ import Categorification.WeightedKLR.Calculator.Segment
 import Categorification.WeightedKLR.GalleryBasis.Corner
 import Categorification.WeightedKLR.Standing
 import Categorification.WeightedKLR.GalleryBasis.Standing
+import Categorification.WeightedKLR.Grading
+import Categorification.WeightedKLR.GalleryBasis.Graded
 import Categorification.WeightedKLR.KLR.Loadings
 import Categorification.WeightedKLR.KLR.Crossing
 import Categorification.WeightedKLR.KLR.Faithful
@@ -861,6 +863,7 @@ import Categorification.WeightedKLR.RedStrands.Stendhal
 import Categorification.WeightedKLR.Induction.Associativity
 import Categorification.WeightedKLR.Induction.Embedding
 import Categorification.WeightedKLR.Induction.Generation
+import Categorification.WeightedKLR.Induction.Graded
 import Categorification.WeightedKLR.Induction.Juxtapose
 import Categorification.WeightedKLR.Induction.ModuleMonoidal
 import Categorification.WeightedKLR.Induction.Monoidal

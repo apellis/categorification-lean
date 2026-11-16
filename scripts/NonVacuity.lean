@@ -231,6 +231,35 @@ example (ν : Fin 2 →₀ ℕ) := WeightedKLR.GalleryAlgebra.cornerBasisOfStand
       (fun _ => Nat.succ_ne_zero _) (pt := fun C => C.2.choose) (fun C => C.2.choose_spec))
     wkGraph_dagger wkGraph_noZeroLoops wkGraph_standing
 
+/-! ### Webster, weighted KLR algebras (arXiv:1209.2463v4), the grading of §2.1 -/
+
+/-- The grading of Webster's standing hypothesis (doubled normalization): a `ℤ`-grading of the
+gallery algebra of `wkGraph`, which has a loop of weight `0`. -/
+example (ν : Fin 2 →₀ ℕ) :
+    GradedAlgebra (wkGraph_standing.gradingDatum.grade (k := ℚ) (𝕜 := ℚ) ν) := inferInstance
+
+/-- The crossing degree at the colour with a loop of weight `0` is the degree of `P_0`. -/
+example : wkGraph_standing.gradingDatum.cross 0 =
+    2 * wkGraph_standing.symm 0 * ((wkGraph_standing.loopMult 0 : ℤ) - 1) :=
+  wkGraph_standing.gradingDatum_cross_of_some (P := 1) (by simp [wkGraph])
+
+/-- The straight-line basis of Theorem 2.8 is homogeneous. -/
+example (ν : Fin 2 →₀ ℕ) := WeightedKLR.GalleryAlgebra.straightBasisOfStanding_mem_grade
+    (k := ℚ) (ν := ν) wkGraph_dagger wkGraph_noZeroLoops wkGraph_standing
+    (ρ := fun s => (Fintype.equivFin _ s).val + 1)
+    (fun _ _ h => (Fintype.equivFin _).injective (Fin.ext (by simpa using h)))
+    (fun _ => Nat.succ_ne_zero _)
+    (pt := fun C => C.2.choose) (fun C => C.2.choose_spec)
+
+open scoped TensorProduct in
+/-- Webster's map `ι_{ν';ν''}` (§2.4) adds degrees: `ι(1 ⊗ 1)` has degree `0 + 0`. -/
+example (ν' ν'' : Fin 2 →₀ ℕ) :
+    (WeightedKLR.Juxtapose.inductionMap ℚ wkGraph ν' ν'' (1 ⊗ₜ 1)).1 ∈
+      wkGraph_standing.gradingDatum.grade (ν' + ν'') (0 + 0) :=
+  WeightedKLR.Juxtapose.inductionMap_tmul_mem_grade _
+    (Submodule.sum_mem _ fun C _ => wkGraph_standing.gradingDatum.e_mem_grade C)
+    (Submodule.sum_mem _ fun C _ => wkGraph_standing.gradingDatum.e_mem_grade C)
+
 /-! ### Webster, weighted KLR algebras (arXiv:1209.2463v4), Propositions 2.11, 2.12, 2.15 -/
 
 /-- The graph `wkGraph` with real weights, for Proposition 2.12. -/

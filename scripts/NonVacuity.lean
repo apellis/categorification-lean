@@ -251,6 +251,15 @@ example (ν : Fin 2 →₀ ℕ) := WeightedKLR.GalleryAlgebra.straightBasisOfSta
     (fun _ => Nat.succ_ne_zero _)
     (pt := fun C => C.2.choose) (fun C => C.2.choose_spec)
 
+open scoped TensorProduct in
+/-- Webster's map `ι_{ν';ν''}` (§2.4) adds degrees: `ι(1 ⊗ 1)` has degree `0 + 0`. -/
+example (ν' ν'' : Fin 2 →₀ ℕ) :
+    (WeightedKLR.Juxtapose.inductionMap ℚ wkGraph ν' ν'' (1 ⊗ₜ 1)).1 ∈
+      wkGraph_standing.gradingDatum.grade (ν' + ν'') (0 + 0) :=
+  WeightedKLR.Juxtapose.inductionMap_tmul_mem_grade _
+    (Submodule.sum_mem _ fun C _ => wkGraph_standing.gradingDatum.e_mem_grade C)
+    (Submodule.sum_mem _ fun C _ => wkGraph_standing.gradingDatum.e_mem_grade C)
+
 /-! ### Webster, weighted KLR algebras (arXiv:1209.2463v4), Propositions 2.11, 2.12, 2.15 -/
 
 /-- The graph `wkGraph` with real weights, for Proposition 2.12. -/

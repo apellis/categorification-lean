@@ -323,6 +323,22 @@ example (ν : Multiset (Fin 2)) :=
     (fun _ => by simp [wkWeightZeroGraph]) (fun _ => rfl) (fun _ _ h => Nat.cast_lt.mpr h)
     (fun _ => rfl) wkWeightZeroGraph_standing
 
+/-- Webster, Theorem 3.5: `T̃^λ` is isomorphic to the chamber algebra of the Crawley-Boevey graph
+modulo the dot on the `0`-strand, for the same data. -/
+noncomputable example (ν : Multiset (Fin 2)) :=
+  Stendhal.stTildeEquiv ν ℚ wkWeightZeroGraph (fun _ : Fin 2 => Finsupp.single 0 1)
+    (ϖ := fun r : Fin 2 => ((r : ℕ) : ℚ)) wkWeightZeroGraph_dagger
+    (fun _ => by simp [wkWeightZeroGraph]) (fun _ => rfl) (fun _ _ h => Nat.cast_lt.mpr h)
+    (fun _ => rfl) wkWeightZeroGraph_standing
+
+/-- Webster, Theorem 3.6: `T^λ` is isomorphic to that algebra modulo the idempotents of the
+chambers whose leftmost strand is black, for the same data. -/
+noncomputable example (ν : Multiset (Fin 2)) :=
+  Stendhal.stTensorEquiv ν ℚ wkWeightZeroGraph (fun _ : Fin 2 => Finsupp.single 0 1)
+    (ϖ := fun r : Fin 2 => ((r : ℕ) : ℚ)) wkWeightZeroGraph_dagger
+    (fun _ => by simp [wkWeightZeroGraph]) (fun _ => rfl) (fun _ _ h => Nat.cast_lt.mpr h)
+    (fun _ => rfl) wkWeightZeroGraph_standing
+
 /-! ### Webster, §2, canonical deformations -/
 
 /-- Standing data for `wkGraph`, with `d = 1` and `c_e = c_ē = 1`. -/

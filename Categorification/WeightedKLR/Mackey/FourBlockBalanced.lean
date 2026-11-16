@@ -11,20 +11,23 @@ import Categorification.WeightedKLR.Mackey.FourBlockJuxtapose
 A step of the proof of B. Webster, *Weighted Khovanov–Lauda–Rouquier algebras*,
 arXiv:1209.2463v4, Theorem 2.19. The chambers `(A B)(C D)` of `(a + b) + (c + d)` with
 rank-ordered `A, B, C, D` are four-block chambers for the strands of `a + b` and the strands
-`middleLeft a b c d` of the blocks `a` and `c`.
+`middleLeft a b c d` of the blocks `a` and `c`, and the juxtaposed diagrams `(x_a x_b)(x_c x_d)`
+relabel strands only within these four blocks.
 
 ## Main results
 
 * `FullChamber.shuffleBot_eq_self`: a chamber separated by `X`, `X ∧ Z` and `X ∨ Z` is fixed by
   `shuffleBot X Z`.
 * `Juxtapose.isFourBlock_fourChamber`: `(A B)(C D)` is a four-block chamber.
+* `Juxtapose.isBlockSupported_galleryTensorHom_fourBlock`: the juxtapositions
+  `(x_a x_b)(x_c x_d)` relabel strands only within the four blocks.
 * `Juxtapose.isRankOrdered_fourChamberSwap_iff`: `(A C)(B D)` is rank-ordered exactly when
   `(A B)(C D)` is.
 -/
 
 namespace Categorification.WeightedKLR
 
-open FullChamber
+open FullChamber GalleryAlgebra ChamberEmbedding TensorProduct IsIdempotentElem
 
 variable {I : Type*} [DecidableEq I] {𝕜 : Type*} [Field 𝕜] [LinearOrder 𝕜]
   [IsStrictOrderedRing 𝕜] {k : Type*} [CommRing k] {Γ : WeightedGraph I 𝕜 k}
@@ -61,6 +64,24 @@ theorem isSeparated_const (x : Bool) (C : FullChamber Γ ν) :
   fun _ h => (h rfl).elim
 
 end FullChamber
+
+namespace ChamberEmbedding
+
+omit [DecidableEq I] in
+/-- The relabellings extended from a chamber embedding on whose strands `X` and `Z` are constant
+preserve `X` and `Z`. -/
+theorem perm_mem_blockStab {ν₀ ν : I →₀ ℕ} {J : ChamberEmbedding Γ ν₀ ν}
+    {X Z : Strand ν → Bool} {x z : Bool} (hX : ∀ s, X (J.toFun s) = x)
+    (hZ : ∀ s, Z (J.toFun s) = z) (g : ColPerm ν₀) : J.perm g ∈ blockStab ν X Z := by
+  intro t
+  by_cases ht : t ∈ Set.range J.toFun
+  · obtain ⟨s, rfl⟩ := ht
+    rw [J.perm_apply, hX, hX, hZ, hZ]
+    exact ⟨rfl, rfl⟩
+  · rw [J.perm_apply_of_not_mem _ _ ht]
+    exact ⟨rfl, rfl⟩
+
+end ChamberEmbedding
 
 namespace Juxtapose
 
@@ -172,6 +193,49 @@ theorem isRankOrdered_fourChamberSwap_iff
     (fourChamberSwap a b c d q).IsRankOrdered ↔ (fourChamber a b c d q).IsRankOrdered := by
   simp only [fourChamberSwap, fourChamber, isRankOrdered_castChamber, isRankOrdered_chamber_iff]
   tauto
+
+variable (hΓ : Γ.PSymm)
+
+/-- **Juxtaposed diagrams in the layout `a b c d` preserve the four blocks.** The juxtaposition
+`(x_a x_b)(x_c x_d)` relabels strands only through relabellings preserving the strands of `a + b`
+and those of the blocks `a` and `c`. -/
+theorem isBlockSupported_galleryTensorHom_fourBlock (xa : GalleryAlgebra k Γ a)
+    (xb : GalleryAlgebra k Γ b) (xc : GalleryAlgebra k Γ c) (xd : GalleryAlgebra k Γ d) :
+    IsBlockSupported hΓ (blockStab (a + b + (c + d)) (fun t => decide (t.IsLeft (a + b)))
+      (middleLeft a b c d))
+      (galleryTensorHom k Γ (a + b) (c + d)
+        ((galleryTensorHom k Γ a b (xa ⊗ₜ xb)).1 ⊗ₜ
+          (galleryTensorHom k Γ c d (xc ⊗ₜ xd)).1)).1 := by
+  simp only [galleryTensorHom_tmul, corner_val_mul, map_mul]
+  refine (((?_ : IsBlockSupported _ _ _).mul ?_).mul ((?_ : IsBlockSupported _ _ _).mul ?_))
+  · rw [leftHom_leftHom_val]
+    refine IsBlockSupported.sum _ fun u _ => ?_
+    rw [toHom_apply]
+    exact isBlockSupported_galleryHom ((leftChamberEmb u.1).comp (leftChamberEmb u.2)) hΓ
+      (perm_mem_blockStab (x := true) (z := true)
+        (fun s => decide_eq_true (isLeft_inlStrand (ν'' := c + d) (inlStrand a b s)))
+        (fun s => middleLeft_inl_inl s)) xa
+  · rw [leftHom_rightHom_val]
+    refine IsBlockSupported.sum _ fun u _ => ?_
+    rw [toHom_apply]
+    exact isBlockSupported_galleryHom ((rightChamberEmb u.1).comp (leftChamberEmb u.2)) hΓ
+      (perm_mem_blockStab (x := true) (z := false)
+        (fun s => decide_eq_true (isLeft_inlStrand (ν'' := c + d) (inrStrand a b s)))
+        (fun s => middleLeft_inl_inr s)) xb
+  · rw [rightHom_leftHom_val]
+    refine IsBlockSupported.sum _ fun u _ => ?_
+    rw [toHom_apply]
+    exact isBlockSupported_galleryHom ((leftChamberEmb u.1).comp (rightChamberEmb u.2)) hΓ
+      (perm_mem_blockStab (x := false) (z := true)
+        (fun s => decide_eq_false (not_isLeft_inrStrand (ν' := a + b) (inlStrand c d s)))
+        (fun s => middleLeft_inr_inl s)) xc
+  · rw [rightHom_rightHom_val]
+    refine IsBlockSupported.sum _ fun u _ => ?_
+    rw [toHom_apply]
+    exact isBlockSupported_galleryHom ((rightChamberEmb u.1).comp (rightChamberEmb u.2)) hΓ
+      (perm_mem_blockStab (x := false) (z := false)
+        (fun s => decide_eq_false (not_isLeft_inrStrand (ν' := a + b) (inrStrand c d s)))
+        (fun s => middleLeft_inr_inr s)) xd
 
 end Juxtapose
 

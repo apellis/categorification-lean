@@ -21,6 +21,8 @@ layout `a b c d` and the juxtaposition `(x_a x_c)(x_b x_d)` of the same diagrams
 
 ## Main results
 
+* `Juxtapose.leftHom_leftHom_val` and its three analogues: the four factors of
+  `(x_a x_b)(x_c x_d)` as sums over composites of chamber embeddings.
 * `Juxtapose.isLocalConj_galleryTensorHom_fourBlock`: the two juxtapositions are locally
   conjugate along `middleSwap a b c d`.
 -/
@@ -85,6 +87,54 @@ omit [DecidableEq I] in
 theorem fourChamberSwap_injective : Function.Injective (fourChamberSwap (Γ := Γ) a b c d) :=
   fun _ _ h => (fourChamberSwap_eq_iff.1 h).symm ▸ rfl
 
+/-- `(x ∘ 1) ∘ 1` as a sum over chamber embeddings of `a` into `(a + b) + (c + d)`. -/
+theorem leftHom_leftHom_val (x : GalleryAlgebra k Γ a) :
+    (leftHom k Γ (a + b) (c + d) (leftHom k Γ a b x).1).1 =
+    ∑ u : FullChamber Γ b × FullChamber Γ (c + d),
+      ((leftChamberEmb u.1).comp (leftChamberEmb u.2)).toHom x := by
+  rw [leftHom_val (ν'' := c + d) (leftHom k Γ a b x).1, Fintype.sum_prod_type,
+    Finset.sum_comm]
+  refine Finset.sum_congr rfl fun E _ => ?_
+  rw [leftHom_val (ν'' := b) x, map_sum]
+  exact Finset.sum_congr rfl fun B _ => by
+    rw [toHom_comp, NonUnitalAlgHom.comp_apply]
+
+/-- `(1 ∘ y) ∘ 1` as a sum over chamber embeddings of `b` into `(a + b) + (c + d)`. -/
+theorem leftHom_rightHom_val (y : GalleryAlgebra k Γ b) :
+    (leftHom k Γ (a + b) (c + d) (rightHom k Γ a b y).1).1 =
+    ∑ u : FullChamber Γ a × FullChamber Γ (c + d),
+      ((rightChamberEmb u.1).comp (leftChamberEmb u.2)).toHom y := by
+  rw [leftHom_val (ν'' := c + d) (rightHom k Γ a b y).1, Fintype.sum_prod_type,
+    Finset.sum_comm]
+  refine Finset.sum_congr rfl fun E _ => ?_
+  rw [rightHom_val (ν' := a) y, map_sum]
+  exact Finset.sum_congr rfl fun A _ => by
+    rw [toHom_comp, NonUnitalAlgHom.comp_apply]
+
+/-- `1 ∘ (y ∘ 1)` as a sum over chamber embeddings of `c` into `(a + b) + (c + d)`. -/
+theorem rightHom_leftHom_val (y : GalleryAlgebra k Γ c) :
+    (rightHom k Γ (a + b) (c + d) (leftHom k Γ c d y).1).1 =
+    ∑ u : FullChamber Γ d × FullChamber Γ (a + b),
+      ((leftChamberEmb u.1).comp (rightChamberEmb u.2)).toHom y := by
+  rw [rightHom_val (ν' := a + b) (leftHom k Γ c d y).1, Fintype.sum_prod_type,
+    Finset.sum_comm]
+  refine Finset.sum_congr rfl fun F _ => ?_
+  rw [leftHom_val (ν'' := d) y, map_sum]
+  exact Finset.sum_congr rfl fun D _ => by
+    rw [toHom_comp, NonUnitalAlgHom.comp_apply]
+
+/-- `1 ∘ (1 ∘ y)` as a sum over chamber embeddings of `d` into `(a + b) + (c + d)`. -/
+theorem rightHom_rightHom_val (y : GalleryAlgebra k Γ d) :
+    (rightHom k Γ (a + b) (c + d) (rightHom k Γ c d y).1).1 =
+    ∑ u : FullChamber Γ c × FullChamber Γ (a + b),
+      ((rightChamberEmb u.1).comp (rightChamberEmb u.2)).toHom y := by
+  rw [rightHom_val (ν' := a + b) (rightHom k Γ c d y).1, Fintype.sum_prod_type,
+    Finset.sum_comm]
+  refine Finset.sum_congr rfl fun F _ => ?_
+  rw [rightHom_val (ν' := c) y, map_sum]
+  exact Finset.sum_congr rfl fun C _ => by
+    rw [toHom_comp, NonUnitalAlgHom.comp_apply]
+
 variable (hΓ : Γ.PSymm)
 
 /-- The factor `x_a`: `(x_a ∘ 1) ∘ 1` in both layouts. -/
@@ -93,15 +143,7 @@ theorem isLocalConj_leftHom_leftHom (x : GalleryAlgebra k Γ a) :
       (castGallery k Γ (layout_eq a b c d)
         (leftHom k Γ (a + c) (b + d) (leftHom k Γ a c x).1).1)
       (leftHom k Γ (a + b) (c + d) (leftHom k Γ a b x).1).1 := by
-  have h1 : (leftHom k Γ (a + b) (c + d) (leftHom k Γ a b x).1).1 =
-      ∑ u : FullChamber Γ b × FullChamber Γ (c + d),
-        ((leftChamberEmb u.1).comp (leftChamberEmb u.2)).toHom x := by
-    rw [leftHom_val (ν'' := c + d) (leftHom k Γ a b x).1, Fintype.sum_prod_type,
-      Finset.sum_comm]
-    refine Finset.sum_congr rfl fun E _ => ?_
-    rw [leftHom_val (ν'' := b) x, map_sum]
-    exact Finset.sum_congr rfl fun B _ => by
-      rw [toHom_comp, NonUnitalAlgHom.comp_apply]
+  have h1 := leftHom_leftHom_val (a := a) (b := b) (c := c) (d := d) x
   have h2 : castGallery k Γ (layout_eq a b c d)
         (leftHom k Γ (a + c) (b + d) (leftHom k Γ a c x).1).1 =
       ∑ u : FullChamber Γ c × FullChamber Γ (b + d),
@@ -146,15 +188,7 @@ theorem isLocalConj_rightHom_leftHom (y : GalleryAlgebra k Γ b) :
       (castGallery k Γ (layout_eq a b c d)
         (rightHom k Γ (a + c) (b + d) (leftHom k Γ b d y).1).1)
       (leftHom k Γ (a + b) (c + d) (rightHom k Γ a b y).1).1 := by
-  have h1 : (leftHom k Γ (a + b) (c + d) (rightHom k Γ a b y).1).1 =
-      ∑ u : FullChamber Γ a × FullChamber Γ (c + d),
-        ((rightChamberEmb u.1).comp (leftChamberEmb u.2)).toHom y := by
-    rw [leftHom_val (ν'' := c + d) (rightHom k Γ a b y).1, Fintype.sum_prod_type,
-      Finset.sum_comm]
-    refine Finset.sum_congr rfl fun E _ => ?_
-    rw [rightHom_val (ν' := a) y, map_sum]
-    exact Finset.sum_congr rfl fun A _ => by
-      rw [toHom_comp, NonUnitalAlgHom.comp_apply]
+  have h1 := leftHom_rightHom_val (a := a) (b := b) (c := c) (d := d) y
   have h2 : castGallery k Γ (layout_eq a b c d)
         (rightHom k Γ (a + c) (b + d) (leftHom k Γ b d y).1).1 =
       ∑ u : FullChamber Γ d × FullChamber Γ (a + c),
@@ -199,15 +233,7 @@ theorem isLocalConj_leftHom_rightHom (y : GalleryAlgebra k Γ c) :
       (castGallery k Γ (layout_eq a b c d)
         (leftHom k Γ (a + c) (b + d) (rightHom k Γ a c y).1).1)
       (rightHom k Γ (a + b) (c + d) (leftHom k Γ c d y).1).1 := by
-  have h1 : (rightHom k Γ (a + b) (c + d) (leftHom k Γ c d y).1).1 =
-      ∑ u : FullChamber Γ d × FullChamber Γ (a + b),
-        ((leftChamberEmb u.1).comp (rightChamberEmb u.2)).toHom y := by
-    rw [rightHom_val (ν' := a + b) (leftHom k Γ c d y).1, Fintype.sum_prod_type,
-      Finset.sum_comm]
-    refine Finset.sum_congr rfl fun F _ => ?_
-    rw [leftHom_val (ν'' := d) y, map_sum]
-    exact Finset.sum_congr rfl fun D _ => by
-      rw [toHom_comp, NonUnitalAlgHom.comp_apply]
+  have h1 := rightHom_leftHom_val (a := a) (b := b) (c := c) (d := d) y
   have h2 : castGallery k Γ (layout_eq a b c d)
         (leftHom k Γ (a + c) (b + d) (rightHom k Γ a c y).1).1 =
       ∑ u : FullChamber Γ a × FullChamber Γ (b + d),
@@ -252,15 +278,7 @@ theorem isLocalConj_rightHom_rightHom (y : GalleryAlgebra k Γ d) :
       (castGallery k Γ (layout_eq a b c d)
         (rightHom k Γ (a + c) (b + d) (rightHom k Γ b d y).1).1)
       (rightHom k Γ (a + b) (c + d) (rightHom k Γ c d y).1).1 := by
-  have h1 : (rightHom k Γ (a + b) (c + d) (rightHom k Γ c d y).1).1 =
-      ∑ u : FullChamber Γ c × FullChamber Γ (a + b),
-        ((rightChamberEmb u.1).comp (rightChamberEmb u.2)).toHom y := by
-    rw [rightHom_val (ν' := a + b) (rightHom k Γ c d y).1, Fintype.sum_prod_type,
-      Finset.sum_comm]
-    refine Finset.sum_congr rfl fun F _ => ?_
-    rw [rightHom_val (ν' := c) y, map_sum]
-    exact Finset.sum_congr rfl fun C _ => by
-      rw [toHom_comp, NonUnitalAlgHom.comp_apply]
+  have h1 := rightHom_rightHom_val (a := a) (b := b) (c := c) (d := d) y
   have h2 : castGallery k Γ (layout_eq a b c d)
         (rightHom k Γ (a + c) (b + d) (rightHom k Γ b d y).1).1 =
       ∑ u : FullChamber Γ b × FullChamber Γ (a + c),

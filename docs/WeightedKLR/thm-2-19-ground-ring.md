@@ -36,11 +36,13 @@ These statements do not involve the comparison map.
   * `InductionAlong.Ind.projective`, `InductionAlong.Ind.finite`.
 * **Restriction.** `Res` sends finitely generated projective modules to finitely generated
   projective `W_{ν'} ⊗ W_{ν''}`-modules, so `Δ` is defined with values in
-  `⊕ K_0(W_{ν'} ⊗ W_{ν''})`. Not yet formalized; see the last section.
-  * The KLR analogue is `KLR.KLRAlgebra.res_projective`.
-  * It follows from the left freeness of KL I Prop. 2.16 (`KLR.KLRAlgebra.free_oneConcat`).
+  `⊕ K_0(W_{ν'} ⊗ W_{ν''})`. Formalized, ungraded, under the standing hypothesis:
+  * `Juxtapose.res_projective`, `Juxtapose.res_finite`, `Juxtapose.resProj`,
+    `Juxtapose.resK0` (`Δ_{ν';ν''}`, additive), `Juxtapose.resK0_of`;
+  * see the last section for the proof; the KLR analogue is `KLR.KLRAlgebra.res_projective`.
 * **Coassociativity** of `Δ` in this form. The module-level isomorphism is
-  `Juxtapose.resCoassocEquiv`.
+  `Juxtapose.resCoassocEquiv`. The statement on `K_0` is not yet formalized: it needs `Res` along
+  `W_{ν₁} ⊗ W_{ν₂+ν₃} → W_{ν₁} ⊗ (W_{ν₂} ⊗ W_{ν₃})` to preserve projectives as well.
 * **The Mackey identity.** The Mackey filtration of `Res ∘ Ind` gives an identity between
   `Δ(xy)` and the twisted product of `Δ(x)` and `Δ(y)`, written in `⊕ K_0` of the four-fold
   tensor products.
@@ -84,28 +86,27 @@ isomorphism given the following inputs.
      it is proved.
 
 In short: over a field, the missing formal inputs are a `HasGdim` structure on `W_ν`, the graded
-`K_0` of `W_ν`, restriction of projectives (next section), and the Mackey identity in graded
+`K_0` of `W_ν`, and the Mackey identity in graded
 `K_0`. The comparison then follows from `KLR.TensorK0Hyp.extTensorEquiv`, under hypothesis (2).
 
-## Missing lemma: restriction preserves finitely generated projectives
+## Restriction preserves finitely generated projectives
 
 `Res_{ν';ν''} L = e_{ν';ν''} L`, a module over `W_{ν'} ⊗ W_{ν''}` through
-`ι = Juxtapose.inductionRingHom`. Res sends finitely generated projective modules to finitely
-generated projective modules as soon as `e_{ν';ν''} W_ν`, as a *left* `W_{ν'} ⊗ W_{ν''}`-module
-through `ι`, is finitely generated projective.
+`ι = Juxtapose.inductionRingHom`. The proof follows KL I Prop. 2.16, as Webster's proof of
+Theorem 2.19 indicates (`WeightedKLR/Induction/Restriction.lean`).
 
-The formalized parabolic decomposition `GalleryAlgebra.parabolicCornerEquiv` is the
-right-handed version. For rank-ordered chambers `D` and `C' ∘ C''`, it decomposes
-`e_D W e_{C' ∘ C''}` as a right module over `ι(W_{ν'} ⊗ W_{ν''})` into pieces indexed by the
-coset elements. This proves that `W_ν e_{ν';ν''}` is projective as a right module, which is what
-`Ind` uses.
+* `InductionAlong.Res.projective_of_regular`, `InductionAlong.Res.finite_of_regular`: it suffices
+  that `Res W_ν = e_{ν';ν''} W_ν` is finitely generated projective, since `Res` commutes with
+  finite direct sums and retracts.
+* `GalleryAlgebra.rowEquiv`: the right module `W_ν e_{ν';ν''}` is a finite direct sum of
+  modules `f (W_{ν'} ⊗ W_{ν''})` with `f` idempotent, `x ↦ Σ c_u ι(x_u)`, assembled from the
+  parabolic decomposition `GalleryAlgebra.parabolicCornerEquiv`. Hence `corner_projective` and
+  `corner_finite`.
+* `InductionAlong.Res.projective_of_corner`: the vertical reflection `reflectW`, an
+  anti-involution intertwining `ι` with `ρ ⊗ ρ` (`Juxtapose.reflectW_inductionMap`,
+  `Juxtapose.reflectTensorEquiv`), turns the right module `W_ν e` into the left module `e W_ν`.
 
-The left-handed statement has the same proof, with the diagrams turned upside down. There are two
-ways to obtain it:
-
-* an anti-involution of the gallery algebra, compatible with juxtaposition, that reverses steps
-  and inverts relabellings;
-* a mirror of `Mackey/ParabolicSpan.lean` and `Mackey/ParabolicBasis.lean`.
-
-This is engineering, not a mathematical gap: the defining relations of the source are invariant
-under the vertical flip when the loop polynomials are symmetric.
+Hypotheses of `Juxtapose.res_projective`: `Γ.Standing` (§2.1 of the source; it contains the
+symmetry of the loop polynomials, the source's reading of the degree-0 loop relation, used by
+the reflection), `Γ.Dagger` (the source's condition (†)) and `Γ.NoZeroLoops` (an encoding
+convention of the library), the hypotheses under which the gallery basis is formalized.

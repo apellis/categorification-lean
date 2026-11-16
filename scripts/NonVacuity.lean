@@ -391,6 +391,67 @@ example (ν' ν'' : Fin 2 →₀ ℕ) (C' D' : WeightedKLR.FullChamber wkGraph �
     (WeightedKLR.Juxtapose.isSeparated_chamber D' D'') (isLowerSet_Iic μ) hg ha hfa hb hfb hc
     hfc m
 
+open scoped TensorProduct in
+/-- A gallery from a juxtaposition along which no strand crosses between the two blocks is the
+juxtaposition `ι(a₁ ⊗ a₂)` of galleries of the two factors, here for the empty gallery. -/
+example (ν' ν'' : Fin 2 →₀ ℕ) (C' : WeightedKLR.FullChamber wkGraph ν')
+    (C'' : WeightedKLR.FullChamber wkGraph ν'') :=
+  WeightedKLR.Juxtapose.exists_galList_eq_galleryTensorHom (k := ℚ) (C' := C') (C'' := C'')
+    (WeightedKLR.goodWord_nil _) (by simp)
+
+open scoped TensorProduct in
+/-- The bottom piece `a`, with the dots, and the top piece `r g c` of the factorization through
+the shuffle lie in the image of the juxtaposition map `ι`, for juxtaposed `C` and `D`. -/
+example (ν' ν'' : Fin 2 →₀ ℕ) (C' D' : WeightedKLR.FullChamber wkGraph ν')
+    (C'' D'' : WeightedKLR.FullChamber wkGraph ν'') (g : WeightedKLR.ColPerm (ν' + ν''))
+    (f : WeightedKLR.PolyRing (ν' + ν'') ℚ) : True := by
+  obtain ⟨a, b, c, ha, hfa, hb, hfb, hc, hfc⟩ :=
+    WeightedKLR.FullChamber.exists_goodWord_shuffle wkGraph_dagger wkGraph_noZeroLoops
+      (fun t => decide (WeightedKLR.Strand.IsLeft ν' t))
+      (fun t => decide (WeightedKLR.Strand.IsLeft ν' (g.1 t)))
+      (WeightedKLR.Juxtapose.chamber C' C'') (g⁻¹ • WeightedKLR.Juxtapose.chamber D' D'')
+  have _ := WeightedKLR.GalleryAlgebra.exists_bot_mul_poly_eq_castGallery (k := ℚ)
+    (ν'' := ν'') rfl (WeightedKLR.Juxtapose.isSeparated_chamber C' C'') ha hfa f
+  have _ := WeightedKLR.GalleryAlgebra.exists_r_mul_top_eq_castGallery (k := ℚ) (ν₂ := ν'')
+    rfl (WeightedKLR.Juxtapose.isSeparated_chamber D' D'') g hc hfc
+  trivial
+
+/-- The middle piece of the factorization through the shuffle may be replaced by the fixed
+minimal gallery `shuffleWord`, modulo shorter basis elements of the same step. -/
+example (ν' ν'' : Fin 2 →₀ ℕ) (C' D' : WeightedKLR.FullChamber wkGraph ν')
+    (C'' D'' : WeightedKLR.FullChamber wkGraph ν'')
+    (hC : (WeightedKLR.Juxtapose.chamber C' C'').IsRankOrdered)
+    (hD : (WeightedKLR.Juxtapose.chamber D' D'').IsRankOrdered) (μ : Fin 2 → ℕ)
+    (g : WeightedKLR.ColPerm (ν' + ν'')) (hg : WeightedKLR.shuffleType ν' ν' g ∈ Set.Iic μ)
+    (m : WeightedKLR.Strand (ν' + ν'') →₀ ℕ) : True := by
+  obtain ⟨a, b, c, ha, hfa, hb, hfb, hc, hfc⟩ :=
+    WeightedKLR.FullChamber.exists_goodWord_shuffle wkGraph_dagger wkGraph_noZeroLoops
+      (fun t => decide (WeightedKLR.Strand.IsLeft ν' t))
+      (fun t => decide (WeightedKLR.Strand.IsLeft ν' (g.1 t)))
+      (WeightedKLR.Juxtapose.chamber C' C'') (g⁻¹ • WeightedKLR.Juxtapose.chamber D' D'')
+  have _ := WeightedKLR.GalleryAlgebra.shuffle_sub_shuffleWord_mem (k := ℚ)
+    (wkGraph_isChamberSegment _) wkGraph_dagger wkGraph_noZeroLoops wkGraph_pSymm
+    (wkGraph_wallRegular _) (wkGraph_loopRegular _) ν' ν' hC hD
+    (WeightedKLR.Juxtapose.isSeparated_chamber C' C'')
+    (WeightedKLR.Juxtapose.isSeparated_chamber D' D'') (isLowerSet_Iic μ) hg ha hfa hb hfb hc
+    hfc m
+  trivial
+
+/-- The factorization of the basis element `b(g, m)` of Theorem 2.8 as `ι(x) ψ_g ι(y)` modulo
+shorter basis elements of the same step of the shuffle-type filtration, for juxtaposed `C`
+and `D`. -/
+example (ν' ν'' : Fin 2 →₀ ℕ) (C' D' : WeightedKLR.FullChamber wkGraph ν')
+    (C'' D'' : WeightedKLR.FullChamber wkGraph ν'')
+    (hC : (WeightedKLR.Juxtapose.chamber C' C'').IsRankOrdered)
+    (hD : (WeightedKLR.Juxtapose.chamber D' D'').IsRankOrdered) (μ : Fin 2 → ℕ)
+    (g : WeightedKLR.ColPerm (ν' + ν'')) (hg : WeightedKLR.shuffleType ν' ν' g ∈ Set.Iic μ)
+    (m : WeightedKLR.Strand (ν' + ν'') →₀ ℕ) :=
+  WeightedKLR.GalleryAlgebra.exists_cornerBasis_sub_shuffleElt_mem (k := ℚ)
+    (wkGraph_isChamberSegment _) wkGraph_dagger wkGraph_noZeroLoops wkGraph_pSymm
+    (wkGraph_wallRegular _) (wkGraph_loopRegular _) (ν'' := ν'') (ν₂ := ν'') rfl rfl hC hD
+    (WeightedKLR.Juxtapose.isSeparated_chamber C' C'')
+    (WeightedKLR.Juxtapose.isSeparated_chamber D' D'') (isLowerSet_Iic μ) hg m
+
 /-! ### Webster, weighted KLR algebras (arXiv:1209.2463v4), the grading of §2.1 -/
 
 /-- The grading of Webster's standing hypothesis (doubled normalization): a `ℤ`-grading of the

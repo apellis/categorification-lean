@@ -851,6 +851,8 @@ import Categorification.WeightedKLR.Loadings.Tree
 import Categorification.WeightedKLR.KLR.SpacedSurjective
 import Categorification.WeightedKLR.Steadied
 import Categorification.WeightedKLR.Deformation
+import Categorification.WeightedKLR.RedStrands.CrawleyBoevey
+import Categorification.WeightedKLR.RedStrands.Reduced
 /-!
 # Categorification
 

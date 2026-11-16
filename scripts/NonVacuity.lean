@@ -400,4 +400,27 @@ algebra (Morita equivalence). -/
 example (ν : Multiset (Fin 2)) :=
   wkLooplessGraph_isTree.exists_klrCorner (k := ℚ) (ν := ν) wkLooplessGraph_standing
 
+/-! ### Webster, weighted KLR algebras (arXiv:1209.2463v4), §3.1, red strands -/
+
+/-- Webster, Theorem 2.8 for the Crawley-Boevey graph of `wkGraph` with one red strand of weight
+`ϖ = 2` for the fundamental weight at the vertex `0`. -/
+example (ν : Option (Fin 2) →₀ ℕ) := WeightedKLR.GalleryAlgebra.exists_redBasis (k := ℚ)
+  (Λ := fun _ : Fin 1 => Finsupp.single 0 1) (ϖ := fun _ => (2 : ℚ)) (ν := ν)
+  wkGraph_dagger wkGraph_noZeroLoops wkGraph_standing (fun _ _ _ => Subsingleton.elim _ _)
+
+/-- The basis of the reduced quotient for `ν̃ = ν + α_0`. -/
+example (ν : Fin 2 →₀ ℕ) : ∃ (ι : Type) (_ : Module.Basis ι ℚ
+    (WeightedKLR.GalleryAlgebra.ReducedQuotient ℚ
+      (wkGraph.crawleyBoevey (fun _ : Fin 1 => Finsupp.single 0 1) fun _ => (2 : ℚ))
+      (WeightedKLR.WeightedGraph.redWeight ν) (WeightedKLR.GalleryAlgebra.zeroStrand ν))),
+    True := by
+  have hϖ : Function.Injective fun _ : Fin 1 => (2 : ℚ) := fun _ _ _ => Subsingleton.elim _ _
+  obtain ⟨P, hP, -⟩ := WeightedKLR.GalleryAlgebra.exists_span_segGallery (k := ℚ)
+    (ν := WeightedKLR.WeightedGraph.redWeight ν)
+    (WeightedKLR.WeightedGraph.crawleyBoevey_dagger wkGraph_dagger hϖ)
+    (WeightedKLR.WeightedGraph.crawleyBoevey_noZeroLoops
+      (Λ := fun _ : Fin 1 => Finsupp.single 0 1) (ϖ := fun _ => (2 : ℚ)) wkGraph_noZeroLoops)
+  exact ⟨_, WeightedKLR.GalleryAlgebra.redReducedBasis ν hP wkGraph_dagger wkGraph_noZeroLoops
+    wkGraph_standing hϖ, trivial⟩
+
 end NonVacuity

@@ -405,6 +405,96 @@ noncomputable def stGenMat (hϖ : StrictMono ϖ) (hw0 : ∀ e, Γ.weight e = 0) 
       Matrix.of fun j i => if j.1 = TypeA.sadj m n • i.1 then stCross k Λ hϖ hw0 i n h else 0
     else 0
 
+/-- **The generators in the two polynomial representations**: renaming intertwines the KLR
+polynomial representation for `P₂ = stP` (KL I, Proposition 2.3) with the polynomial
+representation of the images `stGenMat` of the generators. -/
+theorem chamberOp_stGenMat (hD : Γ.Dagger) (hE : ∀ e, Γ.head e ≠ Γ.tail e)
+    (hl : ∀ c, Γ.loop c = none) (hϖ : StrictMono ϖ) (hw0 : ∀ e, Γ.weight e = 0)
+    (g : KLR.Gen (stendhalWeight ℓ ν)) (f : KLR.PolyRep.Pol k (stendhalWeight ℓ ν))
+    (j : OrdSeq ℓ ν) :
+    chamberOp k (stFull Λ hϖ hw0) (WeightedGraph.crawleyBoeveyIn_psymm (psymm_of_loop hl))
+        (stGenMat k Λ hϖ hw0 g) (stRenOp ℓ ν k f) j =
+      stRen j.1 (KLR.PolyRep.genOp _ (stP Γ Λ) g f j.1) := by
+  cases g with
+  | idem i =>
+    simp only [stGenMat, chamberOp_diagonal, KLR.PolyRep.genOp, KLR.PolyRep.opE_apply]
+    by_cases hj : j.1 = i
+    · subst hj
+      simp [galleryRep_e, blk_apply]
+    · simp [hj]
+  | dot a =>
+    simp [stGenMat, chamberOp_diagonal, KLR.PolyRep.genOp, galleryRep_poly, stRen]
+  | cross n =>
+    by_cases h : n + 1 < m
+    · rw [KLR.PolyRep.genOp, KLR.PolyRep.opΨ_apply _ _ h, chamberOp_apply]
+      by_cases ht : IsRedOrdered (TypeA.sadj m n • j.1)
+      · rw [Finset.sum_eq_single ⟨TypeA.sadj m n • j.1, ht⟩]
+        · have hj : (⟨TypeA.sadj m n • (TypeA.sadj m n • j.1), by
+              rw [sadj_smul_sadj_smul]; exact j.2⟩ : OrdSeq ℓ ν) = j :=
+            Subtype.ext (sadj_smul_sadj_smul _ _)
+          simp only [stGenMat, h, ↓reduceDIte, Matrix.of_apply, sadj_smul_sadj_smul,
+            ↓reduceIte]
+          rw [galleryRep_stCross hD hE hl hϖ hw0 _ n h, blk_apply, hj, Pi.single_eq_same,
+            Pi.single_eq_same, stRenOp_apply, stCrossOp_stRen]
+          exact congrArg (fun x => stRen x ((KLR.PolyRep.crossComp (stP Γ Λ) n h
+            (TypeA.sadj m n • j.1)) (f (TypeA.sadj m n • j.1)))) (sadj_smul_sadj_smul j.1 n)
+          exact (sadj_smul_sadj_smul j.1 n).symm ▸ j.2
+        · intro i _ hi
+          have hz : stGenMat k Λ hϖ hw0 (.cross n) j i = 0 := by
+            simp only [stGenMat, h, ↓reduceDIte, Matrix.of_apply]
+            rw [ite_eq_right_iff]
+            intro e
+            exfalso
+            apply hi
+            apply Subtype.ext
+            show i.1 = TypeA.sadj m n • j.1
+            rw [e, sadj_smul_sadj_smul]
+          rw [hz, map_zero, LinearMap.zero_apply, Pi.zero_apply]
+        · intro hn
+          exact absurd (Finset.mem_univ _) hn
+      · rw [Finset.sum_eq_zero]
+        · have hred : ¬ (j.1.1 ⟨n, by omega⟩).isLeft ∧ ¬ (j.1.1 ⟨n + 1, h⟩).isLeft := by
+            by_contra hc
+            rw [not_and_or, not_not, not_not] at hc
+            exact ht (isRedOrdered_sadj j.2 h hc)
+          have hs' : (TypeA.sadj m n).symm = TypeA.sadj m n := by
+            rw [← Perm.inv_def]
+            exact inv_eq_of_mul_eq_one_left (TypeA.sadj_mul_self m n)
+          have e1 : (TypeA.sadj m n • j.1).1 ⟨n, by omega⟩ = j.1.1 ⟨n + 1, h⟩ := by
+            rw [KLR.Seq.smul_apply, hs', TypeA.sadj_apply_left h]
+          have e2 : (TypeA.sadj m n • j.1).1 ⟨n + 1, h⟩ = j.1.1 ⟨n, by omega⟩ := by
+            rw [KLR.Seq.smul_apply, hs', TypeA.sadj_apply_right h]
+          obtain ⟨r, hr⟩ : ∃ r, j.1.1 ⟨n, by omega⟩ = .inr r := by
+            rcases hx : j.1.1 ⟨n, by omega⟩ with a | r
+            · exact absurd (by rw [hx]; rfl) hred.1
+            · exact ⟨r, rfl⟩
+          obtain ⟨r', hr'⟩ : ∃ r, j.1.1 ⟨n + 1, h⟩ = .inr r := by
+            rcases hx : j.1.1 ⟨n + 1, h⟩ with a | r
+            · exact absurd (by rw [hx]; rfl) hred.2
+            · exact ⟨r, rfl⟩
+          have hne : (TypeA.sadj m n • j.1).1 ⟨n, by omega⟩ ≠
+              (TypeA.sadj m n • j.1).1 ⟨n + 1, h⟩ := fun hc => by
+            have := isLeft_of_eq h hc
+            rw [e1, hr'] at this
+            simp at this
+          simp only [KLR.PolyRep.crossComp, KLR.Seq.lbl, hne, ↓reduceIte]
+          simp only [e1, e2, hr, hr', stP, map_zero, LinearMap.comp_apply,
+            LinearMap.mulLeft_apply, zero_mul]
+        · intro i _
+          have hz : stGenMat k Λ hϖ hw0 (.cross n) j i = 0 := by
+            simp only [stGenMat, h, ↓reduceDIte, Matrix.of_apply]
+            rw [ite_eq_right_iff]
+            intro e
+            exfalso
+            apply ht
+            rw [e, sadj_smul_sadj_smul]
+            exact i.2
+          rw [hz, map_zero, LinearMap.zero_apply, Pi.zero_apply]
+    · have h' : m ≤ n + 1 := by omega
+      simp only [stGenMat, h, ↓reduceDIte, KLR.PolyRep.genOp, KLR.PolyRep.opΨ_eq_zero _ h',
+        LinearMap.zero_apply, Pi.zero_apply, map_zero, chamberOp_apply, Matrix.zero_apply,
+        Finset.sum_const_zero]
+
 end Hom
 
 end Categorification.Stendhal

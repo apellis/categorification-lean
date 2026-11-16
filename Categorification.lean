@@ -876,6 +876,7 @@ import Categorification.WeightedKLR.Mackey.CrossingGallery
 import Categorification.WeightedKLR.Mackey.Degree
 import Categorification.WeightedKLR.Mackey.Dominance
 import Categorification.WeightedKLR.Mackey.Filtration
+import Categorification.WeightedKLR.Mackey.FourBlockShuffle
 import Categorification.WeightedKLR.Mackey.Intermediate
 import Categorification.WeightedKLR.Mackey.MinimalGallery
 import Categorification.WeightedKLR.Mackey.Parabolic

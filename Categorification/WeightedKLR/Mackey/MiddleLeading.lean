@@ -506,6 +506,60 @@ theorem middleLead_injective : Function.Injective (middleLead (Γ := Γ) L' L'')
   obtain ⟨rfl, rfl⟩ := hmm
   rfl
 
+section Independence
+
+variable {P : FullChamber Γ (a + b + (c + d)) → FullChamber Γ (a + b + (c + d)) →
+    (Strand (a + b + (c + d)) → 𝕜) × (Strand (a + b + (c + d)) → 𝕜)}
+  (hP : ∀ C E, IsChamberSegment C E (P C E))
+  {P₃ : FullChamber Γ (a + b) → FullChamber Γ (a + b) →
+    (Strand (a + b) → 𝕜) × (Strand (a + b) → 𝕜)}
+  (hP₃ : ∀ C E, IsChamberSegment C E (P₃ C E))
+  {P₄ : FullChamber Γ (c + d) → FullChamber Γ (c + d) →
+    (Strand (c + d) → 𝕜) × (Strand (c + d) → 𝕜)}
+  (hP₄ : ∀ C E, IsChamberSegment C E (P₄ C E)) (hD : Γ.Dagger) (hZ : Γ.NoZeroLoops)
+  (hΓ : Γ.PSymm) (hW : ∀ w : Wall Γ (a + b + (c + d)), IsRegular (w.factor (k := k)))
+  (hW₃ : ∀ w : Wall Γ (a + b), IsRegular (w.factor (k := k)))
+  (hW₄ : ∀ w : Wall Γ (c + d), IsRegular (w.factor (k := k)))
+  (hL : ∀ (Q : MvPolynomial (Fin 2) k) (s t : Strand (a + b + (c + d))),
+    Γ.loop s.1 = some Q → s ≠ t → s.1 = t.1 → IsRegular (loopFactor Q s t))
+  (hL₃ : ∀ (Q : MvPolynomial (Fin 2) k) (s t : Strand (a + b)), Γ.loop s.1 = some Q →
+    s ≠ t → s.1 = t.1 → IsRegular (loopFactor Q s t))
+  (hL₄ : ∀ (Q : MvPolynomial (Fin 2) k) (s t : Strand (c + d)), Γ.loop s.1 = some Q →
+    s ≠ t → s.1 = t.1 → IsRegular (loopFactor Q s t))
+
+include hP hP₃ hP₄ hΓ hW hW₃ hW₄ hL hL₃ hL₄ in
+/-- **Leading term of the image of a spanning vector** (Webster, arXiv:1209.2463v4, proof of
+Theorem 2.19). `c_{U ρ} ι(b₁ ⊗ b₂)` is congruent to the basis vector `b(U ρ (h₁ × h₂), m₁ m₂)` of
+Webster, Theorem 2.8, of `e L * A * e R`, modulo basis vectors with shorter chosen gallery. -/
+theorem cosetElt_mul_middleCorner_sub_mem (hRc : (chamber R' R'').IsRankOrdered)
+    (hLc : (castChamber (layout_eq a b c d) (chamber L' L'')).IsRankOrdered)
+    (i : MiddleCornerIdx Γ L' L'') :
+    cosetElt k hD hZ (a + b) (middleCoset i.1.1 i.1.2)
+          (castChamber (layout_eq a b c d) (chamber L' L'')) *
+        (galleryTensorHom k Γ (a + b) (c + d)
+          ((cornerBasis hP₃ hD hZ hΓ hW₃ hL₃ (chamber (repLeft i.1.1) (repLeft i.1.2)) R' i.2.1 :
+              GalleryAlgebra k Γ (a + b)) ⊗ₜ
+            (cornerBasis hP₄ hD hZ hΓ hW₄ hL₄ (chamber (repRight i.1.1) (repRight i.1.2)) R''
+              i.2.2 : GalleryAlgebra k Γ (c + d)))).1 -
+      (cornerBasis hP hD hZ hΓ hW hL (castChamber (layout_eq a b c d) (chamber L' L''))
+        (chamber R' R'') (middleLead L' L'' i) : GalleryAlgebra k Γ (a + b + (c + d))) ∈
+      Submodule.span k (Set.range fun j :
+        {j : ColPerm (a + b + (c + d)) × (Strand (a + b + (c + d)) →₀ ℕ) //
+          segLength P (chamber R' R'')
+              (j.1⁻¹ • castChamber (layout_eq a b c d) (chamber L' L'')) <
+            segLength P (chamber R' R'')
+              ((middleLead L' L'' i).1⁻¹ • castChamber (layout_eq a b c d) (chamber L' L''))} =>
+        (cornerBasis hP hD hZ hΓ hW hL (castChamber (layout_eq a b c d) (chamber L' L''))
+          (chamber R' R'') j.1 : GalleryAlgebra k Γ (a + b + (c + d)))) := by
+  obtain ⟨⟨u₁, u₂⟩, ⟨h₁, m₁⟩, ⟨h₂, m₂⟩⟩ := i
+  have h := cosetElt_mul_galleryTensorHom_sub_cornerBasis_mem hP hP₃ hP₄ hD hZ hΓ hW hW₃ hW₄ hL
+    hL₃ hL₄ hRc hLc (middleCoset u₁ u₂) h₁ m₁ h₂ m₂
+  rw [shuffleTop_middleCoset_inv_smul, restrict_leftEmb_chamber,
+    restrict_rightEmb_chamber] at h
+  exact h
+
+end Independence
+
 end Juxtapose
 
 end Categorification.WeightedKLR

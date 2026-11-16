@@ -619,4 +619,18 @@ example (ν' ν'' : Fin 2 →₀ ℕ) (c' : WeightedKLR.Chamber wkGraph ν')
   WeightedKLR.Juxtapose.inductionMap_e_tmul_e (k := ℚ) c'.toFull_isRankOrdered
     c''.toFull_isRankOrdered
 
+/-! Webster §2.4, Proposition 2.18 (chamber level): juxtaposition of chambers is associative and
+unital. -/
+example (ν₁ ν₂ ν₃ : Fin 2 →₀ ℕ) (c₁ : WeightedKLR.Chamber wkGraph ν₁)
+    (c₂ : WeightedKLR.Chamber wkGraph ν₂) (c₃ : WeightedKLR.Chamber wkGraph ν₃) :=
+  WeightedKLR.Juxtapose.castChamber_chamber_assoc c₁.toFull c₂.toFull c₃.toFull
+
+example (ν : Fin 2 →₀ ℕ) (c : WeightedKLR.Chamber wkGraph ν)
+    (c₀ : WeightedKLR.Chamber wkGraph 0) :=
+  WeightedKLR.Juxtapose.castChamber_chamber_zero_right c.toFull c₀.toFull
+
+example (ν : Fin 2 →₀ ℕ) (c : WeightedKLR.Chamber wkGraph ν)
+    (c₀ : WeightedKLR.Chamber wkGraph 0) :=
+  WeightedKLR.Juxtapose.castChamber_chamber_zero_left c₀.toFull c.toFull
+
 end NonVacuity

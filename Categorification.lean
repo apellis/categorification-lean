@@ -892,6 +892,8 @@ import Categorification.WeightedKLR.Mackey.FourBlockType
 import Categorification.WeightedKLR.Mackey.IdentityCoefficient
 import Categorification.WeightedKLR.Mackey.Intermediate
 import Categorification.WeightedKLR.Mackey.JuxtaposedCorner
+import Categorification.WeightedKLR.Mackey.MiddleCorner
+import Categorification.WeightedKLR.Mackey.MiddleLeading
 import Categorification.WeightedKLR.Mackey.MiddleSpan
 import Categorification.WeightedKLR.Mackey.MinimalGallery
 import Categorification.WeightedKLR.Mackey.Parabolic

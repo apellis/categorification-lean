@@ -33,6 +33,10 @@ below `μ` (`GalleryAlgebra.exists_isTwisted_ren_opList_shuffleType_lt`).
   hyperplanes (`GalleryAlgebra.galNum_eq_prod`), and the crossed hyperplanes are those joining
   strands in different blocks of `X` and of `Z` in the two different orders
   (`GalleryAlgebra.IsFourBlock.ne_shuffleTop_iff`), a set permuted by such relabellings.
+* `GalleryAlgebra.galNum_galDen_eq_of_isFourBlock`,
+  `GalleryAlgebra.isRankOrdered_smul_shuffleTop_of_isRankOrdered`: two four-block chambers for
+  the same blocks have the same identity coefficient and the same rank-ordering relabelling of
+  their shuffles.
 -/
 
 namespace Categorification.WeightedKLR

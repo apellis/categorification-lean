@@ -46,6 +46,7 @@ import Categorification.Algebra.NilHeckeSplitting
 import Categorification.Algebra.NilHeckeDemazure
 import Categorification.Algebra.ParabolicSymmetricFree
 import Categorification.Algebra.PermExpansion
+import Categorification.Algebra.ProjK0
 import Categorification.Algebra.SplitK0
 import Categorification.Algebra.SymmetricFree
 import Categorification.Diagrams.BicatInterp

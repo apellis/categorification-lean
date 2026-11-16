@@ -133,6 +133,17 @@ theorem mackeySubquotientBasis_apply (ν' ν₁ : I →₀ ℕ) (D C : FullChamb
   rw [mackeySubquotientBasis, Module.Basis.map_apply, Module.Basis.quotientSpanImage_apply]
   rfl
 
+/-- **Only occurring shuffle types contribute.** If every shuffle type of `S` that occurs lies
+in `S'`, the subquotient `S / S'` is zero; in particular the strict step of a shuffle type that
+no relabelling has vanishes. -/
+theorem subsingleton_mackeySubquotient (ν' ν₁ : I →₀ ℕ) (D C : FullChamber Γ ν)
+    {S' S : Set (I → ℕ)} (h : S' ⊆ S) (hS : S ∩ Set.range (shuffleType (ν := ν) ν' ν₁) ⊆ S') :
+    Subsingleton (MackeySubquotient k hP hD hZ hΓ hW hL ν' ν₁ D C S' S) := by
+  have : IsEmpty ({i | shuffleType ν' ν₁ i.1.1 ∈ S'}ᶜ :
+      Set {i : ColPerm ν × (Strand ν →₀ ℕ) // shuffleType ν' ν₁ i.1 ∈ S}) :=
+    ⟨fun j => j.2 (hS ⟨j.1.2, j.1.1.1, rfl⟩)⟩
+  exact (mackeySubquotientBasis hP hD hZ hΓ hW hL ν' ν₁ D C h).repr.toEquiv.subsingleton
+
 end GalleryAlgebra
 
 end Categorification.WeightedKLR

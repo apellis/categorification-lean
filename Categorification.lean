@@ -820,6 +820,7 @@ import Categorification.WeightedKLR.Algebra
 import Categorification.WeightedKLR.GalleryRep
 import Categorification.WeightedKLR.Gallery
 import Categorification.WeightedKLR.Arrangement
+import Categorification.WeightedKLR.Reflection
 import Categorification.WeightedKLR.Relabel
 import Categorification.WeightedKLR.Segment
 import Categorification.WeightedKLR.Segment.Blocks

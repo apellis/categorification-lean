@@ -174,6 +174,20 @@ theorem stPt_injOn (hϖ : StrictMono ϖ) {M : ℕ} (ρ : Fin ℓ → ℕ) {p p' 
   · rfl
   · exact absurd h (stPt_lt_stPt hϖ ρ hl hp).ne'
 
+theorem stPt_lt_ghost (hϖ : StrictMono ϖ) {M : ℕ} {ρ : Fin ℓ → ℕ} (hρ : StrictMono ρ)
+    {p : ℕ} (hp : p < M) {r : Fin ℓ} (hlt : p < ρ r) : stPt ϖ M ρ p < ϖ r :=
+  calc stPt ϖ M ρ p < lowB ϖ (gap ρ p + 1) := stPt_lt_lowB hϖ ρ hp
+    _ ≤ lowB ϖ (r.val + 1) := (lowB_strictMono hϖ).monotone (by have := gap_le hρ hlt; omega)
+    _ = ϖ r := extW_fin r
+
+theorem stPt_lt_stPt_iff (hϖ : StrictMono ϖ) {M : ℕ} (ρ : Fin ℓ → ℕ) {p p' : ℕ} (hp : p < M)
+    (hp' : p' < M) : stPt ϖ M ρ p < stPt ϖ M ρ p' ↔ p < p' := by
+  refine ⟨fun h => ?_, fun h => stPt_lt_stPt hϖ ρ h hp'⟩
+  by_contra h'
+  rcases (not_lt.1 h').lt_or_eq with h'' | h''
+  · exact absurd h (not_lt.2 (stPt_lt_stPt hϖ ρ h'' hp).le)
+  · subst h''; exact lt_irrefl _ h
+
 /-- **The ghosts of the `0`-strand are the red strands**: the black strand at position `p`, not
 a red position, lies right of `ϖ_j` exactly when the `j`-th red strand is left of it. -/
 theorem ghost_lt_stPt_iff (hϖ : StrictMono ϖ) {M : ℕ} {ρ : Fin ℓ → ℕ} (hρ : StrictMono ρ)
@@ -183,17 +197,267 @@ theorem ghost_lt_stPt_iff (hϖ : StrictMono ϖ) {M : ℕ} {ρ : Fin ℓ → ℕ}
   · intro h
     by_contra h'
     have hlt : p < ρ r := lt_of_le_of_ne (not_lt.1 h') (hpr r).symm
-    have hg := gap_le hρ hlt
-    have : stPt ϖ M ρ p < ϖ r := by
-      calc stPt ϖ M ρ p < lowB ϖ (gap ρ p + 1) := stPt_lt_lowB hϖ ρ hp
-        _ ≤ lowB ϖ (r.val + 1) := (lowB_strictMono hϖ).monotone (by omega)
-        _ = ϖ r := extW_fin r
-    exact absurd h (not_lt.2 this.le)
+    exact absurd h (not_lt.2 (stPt_lt_ghost hϖ hρ hp hlt).le)
   · intro h
     calc ϖ r = lowB ϖ (r.val + 1) := (extW_fin r).symm
       _ ≤ lowB ϖ (gap ρ p) := (lowB_strictMono hϖ).monotone (succ_le_gap hρ h)
       _ < stPt ϖ M ρ p := lowB_lt_stPt hϖ ρ hp
 
 end Points
+
+section Strands
+
+variable {I : Type} [DecidableEq I] {ℓ : ℕ} {ν : Multiset I}
+
+local notation "μ" => Multiset.toFinsupp (stendhalWeight ℓ ν)
+local notation "ν̃" => WeightedGraph.redWeight (Multiset.toFinsupp ν)
+
+theorem stendhalWeight_inl (a : I) :
+    Multiset.toFinsupp (stendhalWeight ℓ ν) (.inl a) = ν.count a := by
+  rw [Multiset.toFinsupp_apply, stendhalWeight, Multiset.count_add,
+    Multiset.count_map_eq_count' _ _ Sum.inl_injective]
+  simp
+
+theorem stendhalWeight_inr (r : Fin ℓ) :
+    Multiset.toFinsupp (stendhalWeight ℓ ν) (.inr r) = 1 := by
+  rw [Multiset.toFinsupp_apply, stendhalWeight, Multiset.count_add,
+    Multiset.count_map_eq_count' _ _ Sum.inr_injective]
+  simp
+
+theorem redWeight_toFinsupp_some (a : I) : ν̃ (some a) = ν.count a := by
+  rw [WeightedGraph.redWeight_some, Multiset.toFinsupp_apply]
+
+variable (ν) in
+/-- The red strand labelled `λ_r` of a Stendhal sequence. -/
+def redStrand (r : Fin ℓ) : Strand μ :=
+  ⟨⟨.inr r, Finsupp.mem_support_iff.2 (by rw [stendhalWeight_inr]; exact one_ne_zero)⟩,
+    ⟨0, by rw [stendhalWeight_inr]; exact Nat.one_pos⟩⟩
+
+theorem redStrand_injective : Function.Injective (redStrand (ℓ := ℓ) ν) := by
+  intro r r' h
+  have := congrArg (fun s : Strand μ => s.1.1) h
+  exact Sum.inr_injective this
+
+/-- The strands of a Stendhal sequence as strands of `ν̃ = ν + α_0`: the black strands are the
+strands of `ν`, and the red strands all become the `0`-strand. -/
+def toTilde : Strand μ → Strand ν̃
+  | ⟨⟨.inl a, ha⟩, r⟩ => ⟨⟨some a, Finsupp.mem_support_iff.2 (by
+      rw [redWeight_toFinsupp_some, ← stendhalWeight_inl (ℓ := ℓ)]
+      exact Finsupp.mem_support_iff.1 ha)⟩,
+      ⟨r.val, by rw [redWeight_toFinsupp_some, ← stendhalWeight_inl (ℓ := ℓ)]; exact r.2⟩⟩
+  | ⟨⟨.inr _, _⟩, _⟩ => GalleryAlgebra.zeroStrand _
+
+/-- The black strand of a Stendhal sequence corresponding to a strand of `ν̃` other than the
+`0`-strand. -/
+def ofTilde : Strand ν̃ → Option (Strand μ)
+  | ⟨⟨none, _⟩, _⟩ => none
+  | ⟨⟨some a, ha⟩, r⟩ => some ⟨⟨.inl a, Finsupp.mem_support_iff.2 (by
+      rw [stendhalWeight_inl, ← redWeight_toFinsupp_some]
+      exact Finsupp.mem_support_iff.1 ha)⟩,
+      ⟨r.val, by rw [stendhalWeight_inl, ← redWeight_toFinsupp_some]; exact r.2⟩⟩
+
+theorem ofTilde_toTilde_inl {s : Strand μ} (hs : s.1.1.isLeft) : ofTilde (toTilde s) = some s := by
+  obtain ⟨⟨a | r, ha⟩, n⟩ := s
+  · rfl
+  · simp at hs
+
+theorem toTilde_of_ofTilde {t : Strand ν̃} {s : Strand μ} (h : ofTilde t = some s) :
+    toTilde s = t := by
+  obtain ⟨⟨_ | a, ha⟩, n⟩ := t
+  · simp [ofTilde] at h
+  · simp only [ofTilde, Option.some.injEq] at h
+    subst h
+    rfl
+
+theorem isLeft_of_ofTilde {t : Strand ν̃} {s : Strand μ} (h : ofTilde t = some s) :
+    s.1.1.isLeft := by
+  obtain ⟨⟨_ | a, ha⟩, n⟩ := t
+  · simp [ofTilde] at h
+  · simp only [ofTilde, Option.some.injEq] at h
+    subst h
+    rfl
+
+theorem exists_ofTilde {t : Strand ν̃} (h : t.1.1 ≠ none) :
+    ∃ s : Strand μ, ofTilde t = some s := by
+  obtain ⟨⟨_ | a, ha⟩, n⟩ := t
+  · exact absurd rfl h
+  · exact ⟨_, rfl⟩
+
+theorem ofTilde_zeroStrand : ofTilde (GalleryAlgebra.zeroStrand (Multiset.toFinsupp ν)) =
+    (none : Option (Strand μ)) := rfl
+
+theorem toTilde_ne_zeroStrand {s : Strand μ} (hs : s.1.1.isLeft) :
+    toTilde s ≠ GalleryAlgebra.zeroStrand (Multiset.toFinsupp ν) := by
+  intro h
+  have := ofTilde_toTilde_inl hs
+  rw [h, ofTilde_zeroStrand] at this
+  simp at this
+
+theorem toTilde_inj {s s' : Strand μ} (hs : s.1.1.isLeft) (hs' : s'.1.1.isLeft) :
+    toTilde s = toTilde s' ↔ s = s' := by
+  refine ⟨fun h => ?_, fun h => h ▸ rfl⟩
+  have h1 := ofTilde_toTilde_inl hs
+  rw [h, ofTilde_toTilde_inl hs'] at h1
+  exact (Option.some_injective _ h1).symm
+
+theorem not_isLeft_redStrand (r : Fin ℓ) : ¬ (redStrand ν r).1.1.isLeft := by
+  simp [redStrand]
+
+theorem ofTilde_eq_none {t : Strand ν̃} (h : t.1.1 = none) : ofTilde t = (none : Option (Strand μ)) := by
+  obtain ⟨⟨_ | a, ha⟩, n⟩ := t
+  · rfl
+  · simp at h
+
+theorem exists_ofTilde_of_ne {t : Strand ν̃} (h : t ≠ GalleryAlgebra.zeroStrand _) :
+    ∃ s : Strand μ, ofTilde t = some s := by
+  refine exists_ofTilde fun h' => h ?_
+  exact GalleryAlgebra.eq_of_fst_eq (GalleryAlgebra.redWeight_zeroStrand _) (Subtype.ext h')
+
+end Strands
+
+section Config
+
+variable {I : Type} [DecidableEq I] {ℓ : ℕ} {ν : Multiset I}
+  {𝕜 : Type*} [Field 𝕜] [LinearOrder 𝕜] [IsStrictOrderedRing 𝕜] {k : Type*} [CommRing k]
+  {Γ : WeightedGraph I 𝕜 k} {Λ : Fin ℓ → I →₀ ℕ} {ϖ : Fin ℓ → 𝕜}
+
+local notation "μ" => Multiset.toFinsupp (stendhalWeight ℓ ν)
+local notation "ν̃" => WeightedGraph.redWeight (Multiset.toFinsupp ν)
+local notation "Γλ" => WeightedGraph.crawleyBoeveyIn Γ Λ ϖ
+
+variable (ν) in
+/-- The positions of the red strands. -/
+def redPosOf (π : Strand μ → ℕ) (r : Fin ℓ) : ℕ := π (redStrand ν r)
+
+variable (ϖ) in
+/-- **The loading of a Stendhal position function** `π` (positions `< M`): the `0`-strand at
+`0`, and the black strand `s` at `stPt ϖ M ρ (π s)`, `ρ` the positions of the red strands. -/
+def stCfg (M : ℕ) (π : Strand μ → ℕ) (t : Strand ν̃) : 𝕜 :=
+  (ofTilde t).elim 0 fun s => stPt ϖ M (redPosOf ν π) (π s)
+
+omit [IsStrictOrderedRing 𝕜] in
+theorem stCfg_some {M : ℕ} {π : Strand μ → ℕ} {t : Strand ν̃} {s : Strand μ}
+    (h : ofTilde t = some s) : stCfg ϖ M π t = stPt ϖ M (redPosOf ν π) (π s) := by
+  rw [stCfg, h, Option.elim_some]
+
+omit [IsStrictOrderedRing 𝕜] in
+theorem stCfg_none {M : ℕ} {π : Strand μ → ℕ} {t : Strand ν̃} (h : t.1.1 = none) :
+    stCfg ϖ M π t = 0 := by
+  rw [stCfg, ofTilde_eq_none h, Option.elim_none]
+
+variable (ν) in
+/-- An admissible position function: injective, with values `< M`, and with the red strands in
+the order `λ_1, …, λ_ℓ`. -/
+structure IsAdm (M : ℕ) (π : Strand μ → ℕ) : Prop where
+  inj : Function.Injective π
+  lt : ∀ s, π s < M
+  red : StrictMono (redPosOf ν π)
+
+theorem IsAdm.ne_red {M : ℕ} {π : Strand μ → ℕ} (hπ : IsAdm ν M π) {s : Strand μ}
+    (hs : s.1.1.isLeft) (r : Fin ℓ) : redPosOf ν π r ≠ π s := fun h =>
+  not_isLeft_redStrand (ν := ν) r (hπ.inj h ▸ hs)
+
+/-- The side of an old wall: `x_b > x_a` exactly when `π a < π b`. -/
+theorem oldWall_pos_iff (hϖ : StrictMono ϖ) (hw0 : ∀ e, Γ.weight e = 0) {M : ℕ}
+    {π : Strand μ → ℕ} (hπ : IsAdm ν M π) (w : Wall Γλ ν̃) {e : Γ.E} (he : w.edge = .inl e)
+    {a b : Strand μ} (ha : ofTilde w.src = some a) (hb : ofTilde w.tgt = some b) :
+    0 < w.val (stCfg ϖ M π) ↔ π a < π b := by
+  have hw : Γλ.weight w.edge = 0 := by rw [he]; exact hw0 e
+  rw [Wall.val, hw, sub_zero, stCfg_some ha, stCfg_some hb, sub_pos,
+    stPt_lt_stPt_iff hϖ _ (hπ.lt a) (hπ.lt b)]
+
+omit [Field 𝕜] [LinearOrder 𝕜] [IsStrictOrderedRing 𝕜] in
+theorem src_none_of_edge_inr (w : Wall Γλ ν̃) {c : WeightedGraph.RedEdge Λ}
+    (he : w.edge = .inr c) : w.src.1.1 = none := by
+  have := w.2.1
+  rw [show w.1.1 = w.edge from rfl, he] at this
+  exact this
+
+omit [Field 𝕜] [LinearOrder 𝕜] [IsStrictOrderedRing 𝕜] in
+theorem tgt_label_of_edge_inr (w : Wall Γλ ν̃) {c : WeightedGraph.RedEdge Λ}
+    (he : w.edge = .inr c) : w.tgt.1.1 = some c.2.1 := by
+  have := w.2.2.1
+  rw [show w.1.1 = w.edge from rfl, he] at this
+  exact this
+
+omit [Field 𝕜] [LinearOrder 𝕜] [IsStrictOrderedRing 𝕜] in
+theorem label_of_edge_inl (w : Wall Γλ ν̃) {e : Γ.E} (he : w.edge = .inl e) :
+    w.src.1.1 = some (Γ.head e) ∧ w.tgt.1.1 = some (Γ.tail e) := by
+  have h1 := w.2.1
+  have h2 := w.2.2.1
+  rw [show w.1.1 = w.edge from rfl, he] at h1 h2
+  exact ⟨h1, h2⟩
+
+/-- The side of a new wall `x_b - x_0 = ϖ_j`: `b` lies right of the ghost `ϖ_j` exactly when
+the red strand `λ_j` is left of it. -/
+theorem newWall_pos_iff (hϖ : StrictMono ϖ) {M : ℕ} {π : Strand μ → ℕ} (hπ : IsAdm ν M π)
+    (w : Wall Γλ ν̃) {c : WeightedGraph.RedEdge Λ} (he : w.edge = .inr c) {b : Strand μ}
+    (hb : ofTilde w.tgt = some b) :
+    0 < w.val (stCfg ϖ M π) ↔ π (redStrand ν c.1) < π b := by
+  have hw : Γλ.weight w.edge = ϖ c.1 := by rw [he]; rfl
+  rw [Wall.val, hw, stCfg_none (src_none_of_edge_inr w he), stCfg_some hb, sub_zero, sub_pos]
+  exact ghost_lt_stPt_iff hϖ hπ.red (hπ.lt b) (hπ.ne_red (isLeft_of_ofTilde hb)) c.1
+
+theorem diag_pos_iff (hϖ : StrictMono ϖ) {M : ℕ} {π : Strand μ → ℕ} (hπ : IsAdm ν M π)
+    (d : Diag ν̃) {a b : Strand μ} (ha : ofTilde d.fst = some a) (hb : ofTilde d.snd = some b) :
+    0 < d.val (stCfg ϖ M π) ↔ π a < π b := by
+  rw [Diag.val, stCfg_some ha, stCfg_some hb, sub_pos,
+    stPt_lt_stPt_iff hϖ _ (hπ.lt a) (hπ.lt b)]
+
+theorem exists_ofTilde_diag (d : Diag ν̃) :
+    (∃ a : Strand μ, ofTilde d.fst = some a) ∧ ∃ b : Strand μ, ofTilde d.snd = some b :=
+  ⟨exists_ofTilde_of_ne (GalleryAlgebra.diag_ne (GalleryAlgebra.redWeight_zeroStrand _) d).1,
+    exists_ofTilde_of_ne (GalleryAlgebra.diag_ne (GalleryAlgebra.redWeight_zeroStrand _) d).2⟩
+
+omit [Field 𝕜] [LinearOrder 𝕜] [IsStrictOrderedRing 𝕜] in
+theorem exists_ofTilde_wall_inl (w : Wall Γλ ν̃) {e : Γ.E} (he : w.edge = .inl e) :
+    (∃ a : Strand μ, ofTilde w.src = some a) ∧ ∃ b : Strand μ, ofTilde w.tgt = some b :=
+  ⟨exists_ofTilde (by rw [(label_of_edge_inl w he).1]; exact Option.some_ne_none _),
+    exists_ofTilde (by rw [(label_of_edge_inl w he).2]; exact Option.some_ne_none _)⟩
+
+omit [Field 𝕜] [LinearOrder 𝕜] [IsStrictOrderedRing 𝕜] in
+theorem exists_ofTilde_wall_inr (w : Wall Γλ ν̃) {c : WeightedGraph.RedEdge Λ}
+    (he : w.edge = .inr c) : ∃ b : Strand μ, ofTilde w.tgt = some b :=
+  exists_ofTilde (by rw [tgt_label_of_edge_inr w he]; exact Option.some_ne_none _)
+
+theorem ne_of_ofTilde {t t' : Strand ν̃} (h : t ≠ t') {a b : Strand μ} (ha : ofTilde t = some a)
+    (hb : ofTilde t' = some b) : a ≠ b := by
+  rintro rfl
+  exact h ((toTilde_of_ofTilde ha).symm.trans (toTilde_of_ofTilde hb))
+
+/-- **The Stendhal loading is generic.** -/
+theorem isGeneric_stCfg (hϖ : StrictMono ϖ) (hw0 : ∀ e, Γ.weight e = 0) {M : ℕ}
+    {π : Strand μ → ℕ} (hπ : IsAdm ν M π) : IsGeneric Γλ (stCfg ϖ M π) := by
+  intro h
+  rcases h with w | d
+  · rw [Hyp.val_inl]
+    rcases he : w.edge with e | c
+    · obtain ⟨⟨a, ha⟩, ⟨b, hb⟩⟩ := exists_ofTilde_wall_inl w he
+      have hab := ne_of_ofTilde w.2.2.2 ha hb
+      have hab' : π a ≠ π b := fun h => hab (hπ.inj h)
+      rw [Wall.val, show Γλ.weight w.edge = 0 by rw [he]; exact hw0 e, sub_zero,
+        stCfg_some ha, stCfg_some hb, sub_ne_zero]
+      exact fun h => hab' (stPt_injOn hϖ _ (hπ.lt a) (hπ.lt b) h.symm)
+    · obtain ⟨b, hb⟩ := exists_ofTilde_wall_inr w he
+      have hw : Γλ.weight w.edge = ϖ c.1 := by rw [he]; rfl
+      rw [Wall.val, hw, stCfg_none (src_none_of_edge_inr w he), stCfg_some hb, sub_zero,
+        sub_ne_zero]
+      intro h
+      rcases lt_or_gt_of_ne (hπ.ne_red (isLeft_of_ofTilde hb) c.1) with hl | hl
+      · exact (ne_of_gt ((ghost_lt_stPt_iff hϖ hπ.red (hπ.lt b)
+          (hπ.ne_red (isLeft_of_ofTilde hb)) c.1).2 hl)) h
+      · exact (stPt_lt_ghost hϖ hπ.red (hπ.lt b) hl).ne h
+  · rw [Hyp.val_inr]
+    obtain ⟨⟨a, ha⟩, ⟨b, hb⟩⟩ := exists_ofTilde_diag (ℓ := ℓ) d
+    have hne : d.fst ≠ d.snd := fun h => by
+      have h2 : d.fst.2.val < d.snd.2.val := d.2.2
+      rw [h] at h2
+      exact lt_irrefl _ h2
+    have hab := ne_of_ofTilde hne ha hb
+    have hab' : π a ≠ π b := fun h => hab (hπ.inj h)
+    rw [Diag.val, stCfg_some ha, stCfg_some hb, sub_ne_zero]
+    exact fun h => hab' (stPt_injOn hϖ _ (hπ.lt a) (hπ.lt b) h.symm)
+
+end Config
 
 end Categorification.Stendhal

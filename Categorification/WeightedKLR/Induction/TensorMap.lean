@@ -4,7 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 -/
 import Categorification.WeightedKLR.Induction.Juxtapose
 import Categorification.WeightedKLR.GalleryBasis.Corner
-import Categorification.Algebra.InductionAlongRes
+import Categorification.Algebra.InductionAlongTensor
 import Categorification.Algebra.ExternalTensor
 
 /-!
@@ -809,13 +809,14 @@ noncomputable def inductionRingHom :
   map_add' x y := map_add (inductionMap k Γ ν' ν'') x y
 
 /-- Webster's induction `Ind M ⊠ N = W_{ν'+ν''} ⊗_{W_{ν'} ⊗ W_{ν''}} (M ⊠ N)`: induction along
-`ι_{ν';ν''}` of the external tensor product. -/
+`ι_{ν';ν''}` of the external tensor product. It carries the `k`-module structure through
+`W_{ν'+ν''}` (`InductionAlong.IndK`), so that induction can be iterated. -/
 abbrev ind (M : Type*) [AddCommGroup M] [Module k M] [Module (WeightedKLRAlgebra k Γ ν') M]
     [IsScalarTower k (WeightedKLRAlgebra k Γ ν') M] (N : Type*) [AddCommGroup N] [Module k N]
     [Module (WeightedKLRAlgebra k Γ ν'') N] [IsScalarTower k (WeightedKLRAlgebra k Γ ν'') N] :=
-  Categorification.InductionAlong.Ind
+  Categorification.InductionAlong.IndK
     (A := WeightedKLRAlgebra k Γ ν' ⊗[k] WeightedKLRAlgebra k Γ ν'')
-    (B := WeightedKLRAlgebra k Γ (ν' + ν'')) (Categorification.ExtTensor k M N)
+    (B := WeightedKLRAlgebra k Γ (ν' + ν'')) k (Categorification.ExtTensor k M N)
     (inductionRingHom k Γ ν' ν'')
 
 /-- Webster's restriction `Res L = e_{ν';ν''} L`, a module over `W_{ν'} ⊗ W_{ν''}`. -/

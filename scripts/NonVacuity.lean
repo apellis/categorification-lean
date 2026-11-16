@@ -320,6 +320,32 @@ noncomputable example (i : KLR.Seq ((([0] : List (Fin 2)) : Multiset (Fin 2))))
     (j : KLR.Seq ((([1, 1] : List (Fin 2)) : Multiset (Fin 2)))) :=
   WeightedKLR.indSpacedEquiv ℚ wkGraph i j
 
+/-- Webster, Proposition 2.18, on modules: associativity and units of induction, on the regular
+modules. -/
+noncomputable example (ν₁ ν₂ ν₃ : Fin 2 →₀ ℕ) :=
+  (WeightedKLR.Juxtapose.indAssocEquiv ℚ wkGraph ν₁ ν₂ ν₃
+      (WeightedKLR.GalleryAlgebra.WeightedKLRAlgebra ℚ wkGraph ν₁)
+      (WeightedKLR.GalleryAlgebra.WeightedKLRAlgebra ℚ wkGraph ν₂)
+      (WeightedKLR.GalleryAlgebra.WeightedKLRAlgebra ℚ wkGraph ν₃),
+    WeightedKLR.Juxtapose.indUnitLeftEquiv ℚ wkGraph ν₁
+      (WeightedKLR.GalleryAlgebra.WeightedKLRAlgebra ℚ wkGraph ν₁),
+    WeightedKLR.Juxtapose.indUnitRightEquiv ℚ wkGraph ν₁
+      (WeightedKLR.GalleryAlgebra.WeightedKLRAlgebra ℚ wkGraph ν₁))
+
+/-- Webster, Proposition 2.18, on modules: coassociativity of restriction, for the regular module
+and its transport along `castW`. -/
+noncomputable example (ν₁ ν₂ ν₃ : Fin 2 →₀ ℕ) :=
+  letI : Module (WeightedKLR.GalleryAlgebra.WeightedKLRAlgebra ℚ wkGraph (ν₁ + (ν₂ + ν₃)))
+      (WeightedKLR.GalleryAlgebra.WeightedKLRAlgebra ℚ wkGraph (ν₁ + ν₂ + ν₃)) :=
+    Module.compHom _ (WeightedKLR.castW ℚ wkGraph (add_assoc ν₁ ν₂ ν₃)).symm.toRingEquiv.toRingHom
+  WeightedKLR.Juxtapose.resCoassocEquiv ℚ wkGraph ν₁ ν₂ ν₃
+    (WeightedKLR.GalleryAlgebra.WeightedKLRAlgebra ℚ wkGraph (ν₁ + ν₂ + ν₃))
+    (WeightedKLR.GalleryAlgebra.WeightedKLRAlgebra ℚ wkGraph (ν₁ + ν₂ + ν₃)) (AddEquiv.refl _)
+    (fun d l => by
+      change d * l = (WeightedKLR.castW ℚ wkGraph (add_assoc ν₁ ν₂ ν₃)).symm
+        (WeightedKLR.castW ℚ wkGraph (add_assoc ν₁ ν₂ ν₃) d) * l
+      rw [AlgEquiv.symm_apply_apply])
+
 /-! ### Webster, weighted KLR algebras (arXiv:1209.2463v4), proof of Theorem 3.5 -/
 
 /-- A weighted graph without loops: one edge `0 → 1` of weight `0` with `Q_e = u - v`. -/

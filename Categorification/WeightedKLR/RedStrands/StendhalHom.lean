@@ -181,7 +181,8 @@ theorem chamberOp_sandwich (hΓ : Δ.PSymm) (c : Matrix ι ι (GalleryAlgebra k 
 
 theorem chamberOp_diagonal (hΓ : Δ.PSymm) (d : ι → GalleryAlgebra k Δ ν)
     (g : ι → PolyRing ν k) (j : ι) :
-    chamberOp k F hΓ (Matrix.diagonal d) g j = galleryRep k hΓ (d j) (Pi.single (F j) (g j)) (F j) := by
+    chamberOp k F hΓ (Matrix.diagonal d) g j =
+      galleryRep k hΓ (d j) (Pi.single (F j) (g j)) (F j) := by
   rw [chamberOp_apply, Finset.sum_eq_single j]
   · rw [Matrix.diagonal_apply_eq]
   · intro i _ hij
@@ -594,6 +595,45 @@ theorem eq_of_comp_stRenOp {A B : Module.End k (OrdSeq ℓ ν → PolyRing ν̃ 
   refine LinearMap.pi_ext fun j p => ?_
   have := key j p 1
   rwa [map_one, mul_one] at this
+
+/-- The images of the generators satisfy the KLR relations for `stQ`: both sides act in the same
+way in the faithful polynomial representation of the chamber algebra, as they do in the KLR
+polynomial representation. -/
+theorem stFreeHom_rel (hD : Γ.Dagger) (hE : ∀ e, Γ.head e ≠ Γ.tail e)
+    (hl : ∀ c, Γ.loop c = none) (hϖ : StrictMono ϖ) (hw0 : ∀ e, Γ.weight e = 0)
+    (hS : Γ.Standing) ⦃x y : FreeAlgebra k (KLR.Gen (stendhalWeight ℓ ν))⦄
+    (h : KLR.Rel k (stQ Γ Λ) (stendhalWeight ℓ ν) x y) :
+    stFreeHom ν k Λ hϖ hw0 x = stFreeHom ν k Λ hϖ hw0 y := by
+  have hΓ := WeightedGraph.crawleyBoeveyIn_psymm (Λ := Λ) (ϖ := ϖ) (psymm_of_loop hl)
+  apply chamberRep_injective (WeightedGraph.crawleyBoeveyIn_dagger hD hϖ.injective)
+    (WeightedGraph.crawleyBoeveyIn_noZeroLoops fun e he => absurd he (hE e)) hΓ
+    (WeightedGraph.crawleyBoeveyIn_isRegular_factor hS)
+    (fun Q a b ha => by rw [loop_crawleyBoeveyIn hl] at ha; cases ha)
+  have h₀ := GalleryAlgebra.redWeight_zeroStrand (Multiset.toFinsupp ν)
+  refine eq_of_comp_stRenOp (chamberOp_commute_mulXOp h₀ hΓ _)
+    (chamberOp_commute_mulXOp h₀ hΓ _) ?_
+  rw [chamberRep_stFreeHom hD hE hl, chamberRep_stFreeHom hD hE hl,
+    KLR.PolyRep.freeRep_rel (fun _ _ _ => rfl) h]
+
+variable (Γ ν k Λ) in
+/-- **The map of Theorem 3.5** (Webster, arXiv:1209.2463v4, §3.2): the KLR algebra on the black
+and red strands, with the polynomials `stQ`, maps to the weighted KLR algebra of the
+Crawley-Boevey graph on the family of Stendhal chambers. A red strand goes to a ghost of the
+`0`-strand; a black/red crossing with the black strand on the left is rescaled by
+`(-1)^{α_a^∨(λ_r)}`. -/
+noncomputable def stKLRHom (hD : Γ.Dagger) (hE : ∀ e, Γ.head e ≠ Γ.tail e)
+    (hl : ∀ c, Γ.loop c = none) (hϖ : StrictMono ϖ) (hw0 : ∀ e, Γ.weight e = 0)
+    (hS : Γ.Standing) :
+    KLR.KLRAlgebra k (stQ Γ Λ) (stendhalWeight ℓ ν) →ₐ[k]
+      ChamberAlgebra k (stFull (ν := ν) Λ hϖ hw0) :=
+  RingQuot.liftAlgHom k ⟨stFreeHom ν k Λ hϖ hw0, stFreeHom_rel hD hE hl hϖ hw0 hS⟩
+
+theorem chamberRep_stKLRHom (hD : Γ.Dagger) (hE : ∀ e, Γ.head e ≠ Γ.tail e)
+    (hl : ∀ c, Γ.loop c = none) (hϖ : StrictMono ϖ) (hw0 : ∀ e, Γ.weight e = 0)
+    (hS : Γ.Standing) (x : FreeAlgebra k (KLR.Gen (stendhalWeight ℓ ν))) :
+    stKLRHom ν k Γ Λ hD hE hl hϖ hw0 hS (RingQuot.mkAlgHom k _ x) =
+      stFreeHom ν k Λ hϖ hw0 x :=
+  RingQuot.liftAlgHom_mkAlgHom_apply _ _ _ _
 
 end Hom
 

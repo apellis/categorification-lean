@@ -286,7 +286,7 @@ def wkGrading : WeightedKLR.GradingDatum wkGraph where
 order, crosses the wall of the edge `0 → 1`, of degree `1`. The non-symmetric form `⟨j, i⟩` of
 Webster's §2.4 would give `0` in one of the two orders. -/
 example : wkGrading.pairDeg 0 1 = 1 ∧ wkGrading.pairDeg 1 0 = 1 := by
-  simp [WeightedKLR.GradingDatum.pairDeg, wkGrading, wkGraph]
+  decide
 
 /-- Two strands of colour `1` cross one diagonal, of degree `-2 = -(α_1 · α_1)`. -/
 example : wkGrading.pairDeg 1 1 = -2 := by

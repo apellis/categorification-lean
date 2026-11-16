@@ -841,6 +841,8 @@ import Categorification.WeightedKLR.Calculator.Segment
 import Categorification.WeightedKLR.GalleryBasis.Corner
 import Categorification.WeightedKLR.Standing
 import Categorification.WeightedKLR.GalleryBasis.Standing
+import Categorification.WeightedKLR.Grading
+import Categorification.WeightedKLR.GalleryBasis.Graded
 import Categorification.WeightedKLR.KLR.Loadings
 import Categorification.WeightedKLR.KLR.Crossing
 import Categorification.WeightedKLR.KLR.Faithful

@@ -5,6 +5,8 @@ Authors: Alex Ellis
 -/
 import Categorification.WeightedKLR.RedStrands.StendhalDescent
 import Categorification.WeightedKLR.RedStrands.StendhalPolyRep
+import Categorification.KLR.BasisTheorem
+import Categorification.KLR.Filtration
 
 /-!
 # Injectivity of the homomorphism of Webster's Theorem 3.5
@@ -36,6 +38,154 @@ strands (`blackEval_wordComp`). Faithfulness on the black strands
 namespace Categorification.Stendhal
 
 open Categorification.WeightedKLR Equiv MvPolynomial FullChamber GalleryAlgebra
+
+
+/-! ### The spanning set of `T̃^λ` -/
+
+section Terms
+
+open KLR TypeA StendhalAlgebraAllOrders
+
+variable {I : Type} [DecidableEq I] {k : Type*} [CommRing k] {ℓ : ℕ}
+  {Q : I → I → MvPolynomial (Fin 2) k} {Λ : Fin ℓ → I →₀ ℕ} {ν : Multiset I}
+
+local notation "μ" => stendhalWeight ℓ ν
+local notation "m" => Multiset.card (stendhalWeight ℓ ν)
+
+/-- A word exchanging two red strands kills `e(i)` in the algebra of Stendhal diagrams. -/
+theorem ofKLR_ψw_mul_e_of_not_noRedCross (ρ : List ℕ) (i : KLR.Seq μ)
+    (hn : ¬ NoRedCross ρ i) :
+    ofKLR k Q Λ ν (KLRAlgebra.ψw ρ * KLRAlgebra.e i) = 0 := by
+  induction ρ with
+  | nil => exact absurd trivial hn
+  | cons j ρ ih =>
+    rw [KLRAlgebra.ψw_cons, mul_assoc]
+    by_cases hρ : NoRedCross ρ i
+    · have hj : ¬ ∀ h : j + 1 < m, ((wordProd m ρ • i).1 ⟨j, by omega⟩).isLeft ∨
+          ((wordProd m ρ • i).1 ⟨j + 1, h⟩).isLeft := fun hj => hn ⟨hρ, hj⟩
+      push Not at hj
+      obtain ⟨h, h₁, h₂⟩ := hj
+      have hz := ψ_mul_e_of_red (k := k) (Q := Q) (Λ := Λ) j h (wordProd m ρ • i)
+        (by simpa using h₁) (by simpa using h₂)
+      rw [KLRAlgebra.ψw_mul_e, ← mul_assoc, map_mul, map_mul]
+      change ψ j * e (wordProd m ρ • i) * _ = 0
+      rw [hz, zero_mul]
+    · rw [map_mul, ih hρ, mul_zero]
+
+/-- A dot on a red strand kills `e(i)` in the algebra of Stendhal diagrams. -/
+theorem ofKLR_pol_mul_e_of_red (u : Fin m →₀ ℕ) (i : KLR.Seq μ) {a : Fin m}
+    (ha : a ∈ u.support) (hr : ¬ (i.1 a).isLeft) :
+    ofKLR k Q Λ ν (KLRAlgebra.pol (monomial u 1) * KLRAlgebra.e i) = 0 := by
+  obtain ⟨v, rfl⟩ : ∃ v, u = v + Finsupp.single a 1 :=
+    ⟨u - Finsupp.single a 1, (tsub_add_cancel_of_le (Finsupp.single_le_iff.2
+      (Nat.one_le_iff_ne_zero.2 (Finsupp.mem_support_iff.1 ha)))).symm⟩
+  have hz := x_mul_e_of_red (k := k) (Q := Q) (Λ := Λ) a i (by simpa using hr)
+  rw [monomial_add_single, pow_one, map_mul KLRAlgebra.pol, KLRAlgebra.pol_X, mul_assoc, map_mul,
+    map_mul]
+  change _ * (x a * e i) = 0
+  rw [hz, mul_zero]
+
+variable (ρ : Perm (Fin (Multiset.card (stendhalWeight ℓ ν))) → List ℕ)
+
+/-- The terms `ψ_{ρ w} x^u e(i)` of the KLR basis that survive in `T̃^λ`: `i` and `w • i` have
+their red strands in order, `u` puts no dot on a red strand, and `ρ w` exchanges no two red
+strands. -/
+def IsStendhalTerm (b : KLR.Seq μ × Perm (Fin m) × (Fin m →₀ ℕ)) : Prop :=
+  IsRedOrdered b.1 ∧ IsRedOrdered (b.2.1 • b.1) ∧ (∀ a ∈ b.2.2.support, (b.1.1 a).isLeft) ∧
+    NoRedCross (ρ b.2.1) b.1
+
+variable {ρ}
+
+theorem stdElt_mul_e (b : KLR.Seq μ × Perm (Fin m) × (Fin m →₀ ℕ)) :
+    (KLRAlgebra.stdElt ρ b : KLRAlgebra k (stendhalQ Q Λ) μ) * KLRAlgebra.e b.1 =
+      KLRAlgebra.stdElt ρ b := by
+  rw [KLRAlgebra.stdElt, mul_assoc, KLRAlgebra.e_mul_e]
+  simp
+
+theorem e_mul_stdElt (hρ : ∀ w, wordProd m (ρ w) = w)
+    (b : KLR.Seq μ × Perm (Fin m) × (Fin m →₀ ℕ)) :
+    KLRAlgebra.e (b.2.1 • b.1) * (KLRAlgebra.stdElt ρ b : KLRAlgebra k (stendhalQ Q Λ) μ) =
+      KLRAlgebra.stdElt ρ b := by
+  rw [KLRAlgebra.stdElt, KLRAlgebra.e_mul_gen, hρ, inv_smul_smul]
+  simp
+
+theorem stdElt_eq_ψw_mul_e_mul_pol (b : KLR.Seq μ × Perm (Fin m) × (Fin m →₀ ℕ)) :
+    (KLRAlgebra.stdElt ρ b : KLRAlgebra k (stendhalQ Q Λ) μ) =
+      KLRAlgebra.ψw (ρ b.2.1) * KLRAlgebra.e b.1 * KLRAlgebra.pol (monomial b.2.2 1) := by
+  rw [KLRAlgebra.stdElt, mul_assoc, ← (KLRAlgebra.e_commute_pol _ _).eq, mul_assoc]
+
+open Classical in
+/-- **Cutting a basis term by the idempotent of `T̃^λ`**: `ψ_{ρ w} x^u e(i)` survives exactly
+when it is a Stendhal term. -/
+theorem redOrderedIdem_mul_ofKLR_stdElt_mul (hρ : ∀ w, wordProd m (ρ w) = w)
+    (b : KLR.Seq μ × Perm (Fin m) × (Fin m →₀ ℕ)) :
+    redOrderedIdem k Q Λ ν * ofKLR k Q Λ ν (KLRAlgebra.stdElt ρ b) * redOrderedIdem k Q Λ ν =
+      if IsStendhalTerm ρ b then ofKLR k Q Λ ν (KLRAlgebra.stdElt ρ b) else 0 := by
+  set y := ofKLR k Q Λ ν (KLRAlgebra.stdElt ρ b)
+  have hr : y * redOrderedIdem k Q Λ ν = if IsRedOrdered b.1 then y else 0 := by
+    have hy : y = y * e b.1 := by
+      change _ = ofKLR k Q Λ ν _ * ofKLR k Q Λ ν _
+      rw [← map_mul, stdElt_mul_e]
+    calc y * redOrderedIdem k Q Λ ν = y * (e b.1 * redOrderedIdem k Q Λ ν) := by
+          rw [← mul_assoc, ← hy]
+      _ = _ := by rw [e_mul_redOrderedIdem]; split_ifs <;> simp [← hy]
+  have hl : redOrderedIdem k Q Λ ν * y = if IsRedOrdered (b.2.1 • b.1) then y else 0 := by
+    have hy : y = e (b.2.1 • b.1) * y := by
+      change _ = ofKLR k Q Λ ν _ * ofKLR k Q Λ ν _
+      rw [← map_mul, e_mul_stdElt hρ]
+    calc redOrderedIdem k Q Λ ν * y = redOrderedIdem k Q Λ ν * e (b.2.1 • b.1) * y := by
+          rw [mul_assoc, ← hy]
+      _ = _ := by rw [redOrderedIdem_mul_e]; split_ifs <;> simp [← hy]
+  rw [hl]
+  by_cases h₁ : IsRedOrdered (b.2.1 • b.1)
+  · simp only [h₁, ↓reduceIte, hr]
+    by_cases h₂ : IsRedOrdered b.1
+    · simp only [h₂, ↓reduceIte]
+      by_cases h₃ : ∀ a ∈ b.2.2.support, (b.1.1 a).isLeft
+      · by_cases h₄ : NoRedCross (ρ b.2.1) b.1
+        · have ht : IsStendhalTerm ρ b := ⟨h₂, h₁, h₃, h₄⟩
+          simp only [ht, ↓reduceIte]
+        · have ht : ¬ IsStendhalTerm ρ b := fun h => h₄ h.2.2.2
+          have hy : y = 0 := by
+            simp only [y]
+            rw [stdElt_eq_ψw_mul_e_mul_pol, map_mul, ofKLR_ψw_mul_e_of_not_noRedCross _ _ h₄,
+              zero_mul]
+          simp only [ht, ↓reduceIte, hy]
+      · have ht : ¬ IsStendhalTerm ρ b := fun h => h₃ h.2.2.1
+        push Not at h₃
+        obtain ⟨a, ha, har⟩ := h₃
+        have hy : y = 0 := by
+          simp only [y]
+          rw [KLRAlgebra.stdElt, mul_assoc, map_mul,
+            ofKLR_pol_mul_e_of_red _ _ ha (by simpa using har), mul_zero]
+        simp only [ht, ↓reduceIte, hy]
+    · have ht : ¬ IsStendhalTerm ρ b := fun h => h₂ h.1
+      simp only [h₂, ht, ↓reduceIte]
+  · have ht : ¬ IsStendhalTerm ρ b := fun h => h₁ h.2.1
+    simp only [h₁, ht, ↓reduceIte, zero_mul]
+
+open Classical in
+/-- **The Stendhal terms span `T̃^λ`**: every element of `T̃^λ` is a combination of the images
+of the Stendhal terms `ψ_{ρ w} x^u e(i)` of the KLR basis (KL I, Theorem 2.5). -/
+theorem exists_eq_sum_stendhalTerm
+    (hρ : ∀ w, IsReduced m (ρ w) ∧ wordProd m (ρ w) = w) (x : StendhalAlgebra k Q Λ ν) :
+    ∃ c : KLR.Seq μ × Perm (Fin m) × (Fin m →₀ ℕ) →₀ k,
+      x.1 = ∑ b ∈ c.support, (if IsStendhalTerm ρ b then c b else 0) •
+        ofKLR k Q Λ ν (KLRAlgebra.stdElt ρ b) := by
+  have hx' := (Subsemigroup.mem_corner_iff isIdempotentElem_redOrderedIdem).1 x.2
+  obtain ⟨y, hy⟩ := ofKLR_surjective (k := k) (Q := Q) (Λ := Λ) (ν := ν) x.1
+  have hys : y ∈ Submodule.span k (Set.range (KLRAlgebra.stdElt (k := k)
+      (Q := stendhalQ Q Λ) ρ)) := by
+    rw [KLRAlgebra.span_stdElt ρ hρ]; trivial
+  obtain ⟨c, rfl⟩ := Finsupp.mem_span_range_iff_exists_finsupp.1 hys
+  refine ⟨c, ?_⟩
+  rw [← hx'.2, ← hx'.1, ← hy, Finsupp.sum, map_sum, Finset.mul_sum, Finset.sum_mul]
+  refine Finset.sum_congr rfl fun b _ => ?_
+  rw [map_smul, mul_smul_comm, smul_mul_assoc,
+    redOrderedIdem_mul_ofKLR_stdElt_mul (fun w => (hρ w).2)]
+  split_ifs <;> simp
+
+end Terms
 
 section Injective
 

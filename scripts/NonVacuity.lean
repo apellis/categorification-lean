@@ -1120,4 +1120,25 @@ example (ν : Fin 2 →₀ ℕ) (c : WeightedKLR.Chamber wkGraph ν)
     (c₀ : WeightedKLR.Chamber wkGraph 0) :=
   WeightedKLR.Juxtapose.castChamber_chamber_zero_left c₀.toFull c.toFull
 
+/-- Freeness of a corner over the parabolic subalgebra (proof of Webster, Theorem 2.19): for
+rank-ordered `C'`, `C''` and `D`, the corner `e D * A * e (C' ∘ C'')` is the direct sum over the
+representatives of the tensor products of the corners of the two sides. The regularity hypotheses
+of the two sides follow from those of `ν' + ν''` along the strand embeddings. -/
+example (ν' ν'' : Fin 2 →₀ ℕ) (C' : WeightedKLR.GalleryAlgebra.RankChamber wkGraph ν')
+    (C'' : WeightedKLR.GalleryAlgebra.RankChamber wkGraph ν'')
+    (D : WeightedKLR.GalleryAlgebra.RankChamber wkGraph (ν' + ν'')) :=
+  WeightedKLR.GalleryAlgebra.parabolicCornerEquiv (k := ℚ) (wkGraph_isChamberSegment _)
+    (wkGraph_isChamberSegment _) (wkGraph_isChamberSegment _) wkGraph_dagger
+    wkGraph_noZeroLoops wkGraph_pSymm (wkGraph_wallRegular _)
+    (WeightedKLR.GalleryAlgebra.isRegular_factor_of_embedding
+      (WeightedKLR.Juxtapose.leftEmb ν' ν'') (wkGraph_wallRegular _))
+    (WeightedKLR.GalleryAlgebra.isRegular_factor_of_embedding
+      (WeightedKLR.Juxtapose.rightEmb ν' ν'') (wkGraph_wallRegular _))
+    (wkGraph_loopRegular _)
+    (WeightedKLR.GalleryAlgebra.isRegular_loopFactor_of_embedding
+      (WeightedKLR.Juxtapose.leftEmb ν' ν'') (wkGraph_loopRegular _))
+    (WeightedKLR.GalleryAlgebra.isRegular_loopFactor_of_embedding
+      (WeightedKLR.Juxtapose.rightEmb ν' ν'') (wkGraph_loopRegular _))
+    ((WeightedKLR.Juxtapose.isRankOrdered_chamber_iff C'.1 C''.1).2 ⟨C'.2, C''.2⟩) D.2
+
 end NonVacuity

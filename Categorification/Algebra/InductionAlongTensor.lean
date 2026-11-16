@@ -25,7 +25,6 @@ Proposition 2.18; Khovanov–Lauda I, arXiv:0803.4121v2, Proposition 3.1).
   `id ⊗ φ : C ⊗ A → C ⊗ B` of a `k`-linear `φ`.
 * `extIndLeft`: `Ind_φ X ⊠ P ≅ Ind_{φ ⊗ id} (X ⊠ P)`; `extIndRight`:
   `P ⊠ Ind_φ X ≅ Ind_{id ⊗ φ} (P ⊠ X)`.
-* `Res.compEquiv`: `Res_φ (Res_ψ M) ≅ Res_{ψ ∘ φ} M`.
 -/
 
 namespace Categorification

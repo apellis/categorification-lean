@@ -28,10 +28,10 @@ import Categorification.Algebra.Graded.TensorSimple
 import Categorification.Algebra.Graded.TwistTensor
 import Categorification.Algebra.IdempotentEquiv
 import Categorification.Algebra.InductionAlong
+import Categorification.Algebra.InductionAlongAssoc
 import Categorification.Algebra.InductionAlongEnd
 import Categorification.Algebra.InductionAlongLinear
 import Categorification.Algebra.InductionAlongRes
-import Categorification.Algebra.InductionAlongAssoc
 import Categorification.Algebra.InductionAlongTensor
 import Categorification.Algebra.InductionAlongTriple
 import Categorification.Algebra.K0FinDim

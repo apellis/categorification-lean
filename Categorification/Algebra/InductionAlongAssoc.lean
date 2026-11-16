@@ -277,6 +277,292 @@ theorem resCoassoc_smul (t : (A₁ ⊗[k] A₂) ⊗[k] A₃)
 
 end Assoc
 
+/-! ### Units -/
+
+section UnitLeft
+
+variable (k : Type*) [CommRing k] {A₀ A D : Type u} [Ring A₀] [Algebra k A₀] [Ring A]
+  [Algebra k A] [Ring D] [Algebra k D] (ψ : A₀ ⊗[k] A →ₙ+* D)
+  (hψ : ∀ (r : k) (t : A₀ ⊗[k] A), ψ (r • t) = r • ψ t) (c : D ≃ₐ[k] A)
+  (hc : ∀ a, c (ψ (1 ⊗ₜ a)) = a)
+  (M : Type w) [AddCommGroup M] [Module k M] [Module A M] [IsScalarTower k A M]
+
+include hc in
+theorem unitLeft_map_one : ψ 1 = 1 :=
+  c.injective (by rw [Algebra.TensorProduct.one_def, hc, map_one])
+
+include hc in
+theorem unitLeft_map_one_tmul (a : A) : ψ (1 ⊗ₜ a) = c.symm a :=
+  c.injective (by rw [hc, c.apply_symm_apply])
+
+variable {M} in
+/-- For fixed `z`, the bilinear map `(x, m) ↦ c(z ψ(x ⊗ 1)) m`. -/
+def unitLeftPair (z : Corner ψ) : A₀ →ₗ[k] M →ₗ[k] M :=
+  LinearMap.mk₂ k (fun x m => c (z.1 * ψ (x ⊗ₜ 1)) • m)
+    (fun x x' m => by rw [TensorProduct.add_tmul, map_add, mul_add, map_add, add_smul])
+    (fun r x m => by
+      rw [← TensorProduct.smul_tmul', hψ, mul_smul_comm, map_smul, smul_assoc])
+    (fun x m m' => smul_add _ m m')
+    (fun r x m => smul_comm _ r m)
+
+variable {M} in
+/-- For fixed `z`, the map `x ⊗ m ↦ c(z ψ(x ⊗ 1)) m` on `A₀ ⊠ M`. -/
+def unitLeftInner (z : Corner ψ) : ExtTensor k A₀ M →+ M :=
+  (ExtTensor.lift (unitLeftPair k ψ hψ c z)).toAddMonoidHom
+
+theorem unitLeftInner_tmul (z : Corner ψ) (x : A₀) (m : M) :
+    unitLeftInner k ψ hψ c z (ExtTensor.tmul x m) = c (z.1 * ψ (x ⊗ₜ 1)) • m := rfl
+
+theorem unitLeftInner_add (z z' : Corner ψ) (x : ExtTensor k A₀ M) :
+    unitLeftInner k ψ hψ c (z + z') x = unitLeftInner k ψ hψ c z x + unitLeftInner k ψ hψ c z' x := by
+  induction x using ExtTensor.induction_on with
+  | zero => rw [map_zero, map_zero, map_zero, add_zero]
+  | tmul x m =>
+    rw [unitLeftInner_tmul, unitLeftInner_tmul, unitLeftInner_tmul]
+    change c ((z.1 + z'.1) * _) • m = _
+    rw [add_mul, map_add, add_smul]
+  | add x y hx hy => rw [map_add, map_add, map_add, hx, hy]; abel
+
+theorem unitLeftInner_smul (d : D) (z : Corner ψ) (x : ExtTensor k A₀ M) :
+    unitLeftInner k ψ hψ c (d • z) x = c d • unitLeftInner k ψ hψ c z x := by
+  induction x using ExtTensor.induction_on with
+  | zero => rw [map_zero, map_zero, smul_zero]
+  | tmul x m =>
+    rw [unitLeftInner_tmul, unitLeftInner_tmul]
+    change c (d * z.1 * _) • m = _
+    rw [mul_assoc, map_mul, mul_smul]
+  | add x y hx hy => rw [map_add, map_add, hx, hy, smul_add]
+
+include hc in
+theorem unitLeftInner_op_smul (z : Corner ψ) (t : A₀ ⊗[k] A) (x : ExtTensor k A₀ M) :
+    unitLeftInner k ψ hψ c (op t • z) x = unitLeftInner k ψ hψ c z (t • x) := by
+  induction t using TensorProduct.inductionOn with
+  | tmul x' a =>
+    induction x using ExtTensor.induction_on with
+    | zero => rw [smul_zero, map_zero, map_zero]
+    | tmul x₀ m =>
+      rw [ExtTensor.smul_tmul, unitLeftInner_tmul, unitLeftInner_tmul, smul_eq_mul]
+      change c (z.1 * ψ (x' ⊗ₜ a) * ψ (x₀ ⊗ₜ 1)) • m = _
+      have h : z.1 * ψ (x' ⊗ₜ a) * ψ (x₀ ⊗ₜ 1) = z.1 * ψ ((x' * x₀) ⊗ₜ 1) * ψ (1 ⊗ₜ a) := by
+        rw [mul_assoc, ← map_mul, Algebra.TensorProduct.tmul_mul_tmul, mul_one, mul_assoc,
+          ← map_mul, Algebra.TensorProduct.tmul_mul_tmul, mul_one, one_mul]
+      rw [h, map_mul, hc, mul_smul]
+    | add x y hx hy => rw [map_add, hx, hy, smul_add, map_add]
+  | add t t' ht ht' =>
+    rw [op_add, add_smul, unitLeftInner_add, ht, ht', add_smul, map_add]
+
+/-- The forward map `z ⊗ (x ⊗ m) ↦ c(z ψ(x ⊗ 1)) m`. -/
+def indUnitLeftFwd : Ind (ExtTensor k A₀ M) ψ →+ M :=
+  Ind.liftAdd (fun z x => unitLeftInner k ψ hψ c z x)
+    (fun z z' x => unitLeftInner_add k ψ hψ c M z z' x) (fun _ x x' => map_add _ x x')
+    (fun z t x => unitLeftInner_op_smul k ψ hψ c hc M z t x)
+
+theorem indUnitLeftFwd_smul (d : D) (y : Ind (ExtTensor k A₀ M) ψ) :
+    indUnitLeftFwd k ψ hψ c hc M (d • y) = c d • indUnitLeftFwd k ψ hψ c hc M y := by
+  induction y using Ind.induction_on with
+  | zero => rw [smul_zero, map_zero, smul_zero]
+  | tmul z x => rw [Ind.smul_tmul]; exact unitLeftInner_smul k ψ hψ c M d z x
+  | add y y' hy hy' => rw [smul_add, map_add, map_add, hy, hy', smul_add]
+
+/-- The inverse map `m ↦ ψ(1) ⊗ (1 ⊗ m)`. -/
+def indUnitLeftBwd : M →+ Ind (ExtTensor k A₀ M) ψ :=
+  AddMonoidHom.mk' (fun m => Ind.tmul (unitGen ψ) (ExtTensor.tmul (1 : A₀) m))
+    (fun m m' => by rw [ExtTensor.tmul_add, Ind.tmul_add])
+
+/-- **Left unit of induction**: `Ind_ψ (A₀ ⊠ M) ≅ M` when `c (ψ (1 ⊗ a)) = a`, semilinear
+along `c` (`indUnitLeft_smul`). The module form of the unit statement of Webster,
+arXiv:1209.2463v4, §2.4, Proposition 2.18. -/
+def indUnitLeft : IndK k (ExtTensor k A₀ M) ψ ≃+ M where
+  toFun := indUnitLeftFwd k ψ hψ c hc M
+  invFun := indUnitLeftBwd k ψ M
+  left_inv y := by
+    change indUnitLeftBwd k ψ M (indUnitLeftFwd k ψ hψ c hc M y) = y
+    induction y using Ind.induction_on with
+    | zero => rw [map_zero, map_zero]
+    | tmul z x =>
+      induction x using ExtTensor.induction_on with
+      | zero => rw [Ind.tmul_zero, map_zero, map_zero]
+      | tmul x₀ m =>
+        change Ind.tmul (unitGen ψ) (ExtTensor.tmul (1 : A₀) (c (z.1 * ψ (x₀ ⊗ₜ 1)) • m)) =
+          Ind.tmul z (ExtTensor.tmul x₀ m)
+        have e1 : (ExtTensor.tmul (1 : A₀) (c (z.1 * ψ (x₀ ⊗ₜ 1)) • m) : ExtTensor k A₀ M) =
+            ((1 : A₀) ⊗ₜ[k] c (z.1 * ψ (x₀ ⊗ₜ 1))) • ExtTensor.tmul (1 : A₀) m := by
+          rw [ExtTensor.smul_tmul, one_smul]
+        have e2 : (op ((1 : A₀) ⊗ₜ[k] c (z.1 * ψ (x₀ ⊗ₜ 1))) • unitGen ψ : Corner ψ) =
+            op (x₀ ⊗ₜ[k] (1 : A)) • z := Subtype.ext (by
+          change ψ 1 * ψ (1 ⊗ₜ c (z.1 * ψ (x₀ ⊗ₜ 1))) = z.1 * ψ (x₀ ⊗ₜ 1)
+          have h1 : ψ 1 = 1 := unitLeft_map_one k ψ c hc
+          exact (congrArg (· * ψ (1 ⊗ₜ c (z.1 * ψ (x₀ ⊗ₜ 1)))) h1).trans
+            (by rw [one_mul, unitLeft_map_one_tmul k ψ c hc, c.symm_apply_apply]))
+        have e3 : ((x₀ ⊗ₜ[k] (1 : A)) • ExtTensor.tmul (1 : A₀) m : ExtTensor k A₀ M) =
+            ExtTensor.tmul x₀ m := by
+          rw [ExtTensor.smul_tmul, smul_eq_mul, mul_one, one_smul]
+        rw [e1, ← Ind.op_smul_tmul, e2, Ind.op_smul_tmul, e3]
+      | add x x' hx hx' => rw [Ind.tmul_add, map_add, map_add, hx, hx']
+    | add y y' hy hy' => rw [map_add, map_add, hy, hy']
+  right_inv m := by
+    change c (ψ 1 * ψ (1 ⊗ₜ 1)) • m = m
+    rw [← Algebra.TensorProduct.one_def, unitLeft_map_one k ψ c hc, one_mul, map_one, one_smul]
+  map_add' := map_add (indUnitLeftFwd k ψ hψ c hc M)
+
+theorem indUnitLeft_smul (d : D) (y : IndK k (ExtTensor k A₀ M) ψ) :
+    indUnitLeft k ψ hψ c hc M (d • y) = c d • indUnitLeft k ψ hψ c hc M y :=
+  indUnitLeftFwd_smul k ψ hψ c hc M d y
+
+theorem indUnitLeft_symm_apply (m : M) :
+    (indUnitLeft k ψ hψ c hc M).symm m = Ind.tmul (unitGen ψ) (ExtTensor.tmul (1 : A₀) m) :=
+  rfl
+
+/-- `indUnitLeft` as a `k`-linear isomorphism. -/
+def indUnitLeftLinear : IndK k (ExtTensor k A₀ M) ψ ≃ₗ[k] M :=
+  { indUnitLeft k ψ hψ c hc M with
+    map_smul' := fun r y => by
+      change indUnitLeft k ψ hψ c hc M (algebraMap k D r • y) = r • indUnitLeft k ψ hψ c hc M y
+      rw [indUnitLeft_smul, AlgEquiv.commutes, algebraMap_smul] }
+
+end UnitLeft
+
+section UnitRight
+
+variable (k : Type*) [CommRing k] {A₀ A D : Type u} [Ring A₀] [Algebra k A₀] [Ring A]
+  [Algebra k A] [Ring D] [Algebra k D] (ψ : A ⊗[k] A₀ →ₙ+* D)
+  (hψ : ∀ (r : k) (t : A ⊗[k] A₀), ψ (r • t) = r • ψ t) (c : D ≃ₐ[k] A)
+  (hc : ∀ a, c (ψ (a ⊗ₜ 1)) = a)
+  (M : Type w) [AddCommGroup M] [Module k M] [Module A M] [IsScalarTower k A M]
+
+include hc in
+theorem unitRight_map_one : ψ 1 = 1 :=
+  c.injective (by rw [Algebra.TensorProduct.one_def, hc, map_one])
+
+include hc in
+theorem unitRight_map_tmul_one (a : A) : ψ (a ⊗ₜ 1) = c.symm a :=
+  c.injective (by rw [hc, c.apply_symm_apply])
+
+variable {M} in
+/-- For fixed `z`, the bilinear map `(m, x) ↦ c(z ψ(1 ⊗ x)) m`. -/
+def unitRightPair (z : Corner ψ) : M →ₗ[k] A₀ →ₗ[k] M :=
+  LinearMap.mk₂ k (fun m x => c (z.1 * ψ (1 ⊗ₜ x)) • m)
+    (fun m m' x => smul_add _ m m')
+    (fun r m x => smul_comm _ r m)
+    (fun m x x' => by rw [TensorProduct.tmul_add, map_add, mul_add, map_add, add_smul])
+    (fun r m x => by
+      rw [TensorProduct.tmul_smul, hψ, mul_smul_comm, map_smul, smul_assoc])
+
+variable {M} in
+/-- For fixed `z`, the map `m ⊗ x ↦ c(z ψ(1 ⊗ x)) m` on `M ⊠ A₀`. -/
+def unitRightInner (z : Corner ψ) : ExtTensor k M A₀ →+ M :=
+  (ExtTensor.lift (unitRightPair k ψ hψ c z)).toAddMonoidHom
+
+theorem unitRightInner_tmul (z : Corner ψ) (m : M) (x : A₀) :
+    unitRightInner k ψ hψ c z (ExtTensor.tmul m x) = c (z.1 * ψ (1 ⊗ₜ x)) • m := rfl
+
+theorem unitRightInner_add (z z' : Corner ψ) (x : ExtTensor k M A₀) :
+    unitRightInner k ψ hψ c (z + z') x =
+      unitRightInner k ψ hψ c z x + unitRightInner k ψ hψ c z' x := by
+  induction x using ExtTensor.induction_on with
+  | zero => rw [map_zero, map_zero, map_zero, add_zero]
+  | tmul m x =>
+    rw [unitRightInner_tmul, unitRightInner_tmul, unitRightInner_tmul]
+    change c ((z.1 + z'.1) * _) • m = _
+    rw [add_mul, map_add, add_smul]
+  | add x y hx hy => rw [map_add, map_add, map_add, hx, hy]; abel
+
+theorem unitRightInner_smul (d : D) (z : Corner ψ) (x : ExtTensor k M A₀) :
+    unitRightInner k ψ hψ c (d • z) x = c d • unitRightInner k ψ hψ c z x := by
+  induction x using ExtTensor.induction_on with
+  | zero => rw [map_zero, map_zero, smul_zero]
+  | tmul m x =>
+    rw [unitRightInner_tmul, unitRightInner_tmul]
+    change c (d * z.1 * _) • m = _
+    rw [mul_assoc, map_mul, mul_smul]
+  | add x y hx hy => rw [map_add, map_add, hx, hy, smul_add]
+
+include hc in
+theorem unitRightInner_op_smul (z : Corner ψ) (t : A ⊗[k] A₀) (x : ExtTensor k M A₀) :
+    unitRightInner k ψ hψ c (op t • z) x = unitRightInner k ψ hψ c z (t • x) := by
+  induction t using TensorProduct.inductionOn with
+  | tmul a x' =>
+    induction x using ExtTensor.induction_on with
+    | zero => rw [smul_zero, map_zero, map_zero]
+    | tmul m x₀ =>
+      rw [ExtTensor.smul_tmul, unitRightInner_tmul, unitRightInner_tmul, smul_eq_mul]
+      change c (z.1 * ψ (a ⊗ₜ x') * ψ (1 ⊗ₜ x₀)) • m = _
+      have h : z.1 * ψ (a ⊗ₜ x') * ψ (1 ⊗ₜ x₀) = z.1 * ψ (1 ⊗ₜ (x' * x₀)) * ψ (a ⊗ₜ 1) := by
+        rw [mul_assoc, ← map_mul, Algebra.TensorProduct.tmul_mul_tmul, mul_one, mul_assoc,
+          ← map_mul, Algebra.TensorProduct.tmul_mul_tmul, mul_one, one_mul]
+      rw [h, map_mul, hc, mul_smul]
+    | add x y hx hy => rw [map_add, hx, hy, smul_add, map_add]
+  | add t t' ht ht' =>
+    rw [op_add, add_smul, unitRightInner_add, ht, ht', add_smul, map_add]
+
+/-- The forward map `z ⊗ (m ⊗ x) ↦ c(z ψ(1 ⊗ x)) m`. -/
+def indUnitRightFwd : Ind (ExtTensor k M A₀) ψ →+ M :=
+  Ind.liftAdd (fun z x => unitRightInner k ψ hψ c z x)
+    (fun z z' x => unitRightInner_add k ψ hψ c M z z' x) (fun _ x x' => map_add _ x x')
+    (fun z t x => unitRightInner_op_smul k ψ hψ c hc M z t x)
+
+theorem indUnitRightFwd_smul (d : D) (y : Ind (ExtTensor k M A₀) ψ) :
+    indUnitRightFwd k ψ hψ c hc M (d • y) = c d • indUnitRightFwd k ψ hψ c hc M y := by
+  induction y using Ind.induction_on with
+  | zero => rw [smul_zero, map_zero, smul_zero]
+  | tmul z x => rw [Ind.smul_tmul]; exact unitRightInner_smul k ψ hψ c M d z x
+  | add y y' hy hy' => rw [smul_add, map_add, map_add, hy, hy', smul_add]
+
+/-- The inverse map `m ↦ ψ(1) ⊗ (m ⊗ 1)`. -/
+def indUnitRightBwd : M →+ Ind (ExtTensor k M A₀) ψ :=
+  AddMonoidHom.mk' (fun m => Ind.tmul (unitGen ψ) (ExtTensor.tmul m (1 : A₀)))
+    (fun m m' => by rw [ExtTensor.add_tmul, Ind.tmul_add])
+
+/-- **Right unit of induction**: `Ind_ψ (M ⊠ A₀) ≅ M` when `c (ψ (a ⊗ 1)) = a`, semilinear
+along `c` (`indUnitRight_smul`). The module form of the unit statement of Webster,
+arXiv:1209.2463v4, §2.4, Proposition 2.18. -/
+def indUnitRight : IndK k (ExtTensor k M A₀) ψ ≃+ M where
+  toFun := indUnitRightFwd k ψ hψ c hc M
+  invFun := indUnitRightBwd k ψ M
+  left_inv y := by
+    change indUnitRightBwd k ψ M (indUnitRightFwd k ψ hψ c hc M y) = y
+    induction y using Ind.induction_on with
+    | zero => rw [map_zero, map_zero]
+    | tmul z x =>
+      induction x using ExtTensor.induction_on with
+      | zero => rw [Ind.tmul_zero, map_zero, map_zero]
+      | tmul m x₀ =>
+        change Ind.tmul (unitGen ψ) (ExtTensor.tmul (c (z.1 * ψ (1 ⊗ₜ x₀)) • m) (1 : A₀)) =
+          Ind.tmul z (ExtTensor.tmul m x₀)
+        have e1 : (ExtTensor.tmul (c (z.1 * ψ (1 ⊗ₜ x₀)) • m) (1 : A₀) : ExtTensor k M A₀) =
+            (c (z.1 * ψ (1 ⊗ₜ x₀)) ⊗ₜ[k] (1 : A₀)) • ExtTensor.tmul m (1 : A₀) := by
+          rw [ExtTensor.smul_tmul, one_smul]
+        have e2 : (op (c (z.1 * ψ (1 ⊗ₜ x₀)) ⊗ₜ[k] (1 : A₀)) • unitGen ψ : Corner ψ) =
+            op ((1 : A) ⊗ₜ[k] x₀) • z := Subtype.ext (by
+          change ψ 1 * ψ (c (z.1 * ψ (1 ⊗ₜ x₀)) ⊗ₜ 1) = z.1 * ψ (1 ⊗ₜ x₀)
+          have h1 : ψ 1 = 1 := unitRight_map_one k ψ c hc
+          exact (congrArg (· * ψ (c (z.1 * ψ (1 ⊗ₜ x₀)) ⊗ₜ 1)) h1).trans
+            (by rw [one_mul, unitRight_map_tmul_one k ψ c hc, c.symm_apply_apply]))
+        have e3 : (((1 : A) ⊗ₜ[k] x₀) • ExtTensor.tmul m (1 : A₀) : ExtTensor k M A₀) =
+            ExtTensor.tmul m x₀ := by
+          rw [ExtTensor.smul_tmul, smul_eq_mul, mul_one, one_smul]
+        rw [e1, ← Ind.op_smul_tmul, e2, Ind.op_smul_tmul, e3]
+      | add x x' hx hx' => rw [Ind.tmul_add, map_add, map_add, hx, hx']
+    | add y y' hy hy' => rw [map_add, map_add, hy, hy']
+  right_inv m := by
+    change c (ψ 1 * ψ (1 ⊗ₜ 1)) • m = m
+    rw [← Algebra.TensorProduct.one_def, unitRight_map_one k ψ c hc, one_mul, map_one, one_smul]
+  map_add' := map_add (indUnitRightFwd k ψ hψ c hc M)
+
+theorem indUnitRight_smul (d : D) (y : IndK k (ExtTensor k M A₀) ψ) :
+    indUnitRight k ψ hψ c hc M (d • y) = c d • indUnitRight k ψ hψ c hc M y :=
+  indUnitRightFwd_smul k ψ hψ c hc M d y
+
+/-- `indUnitRight` as a `k`-linear isomorphism. -/
+def indUnitRightLinear : IndK k (ExtTensor k M A₀) ψ ≃ₗ[k] M :=
+  { indUnitRight k ψ hψ c hc M with
+    map_smul' := fun r y => by
+      change indUnitRight k ψ hψ c hc M (algebraMap k D r • y) =
+        r • indUnitRight k ψ hψ c hc M y
+      rw [indUnitRight_smul, AlgEquiv.commutes, algebraMap_smul] }
+
+end UnitRight
+
 end InductionAlong
 
 end

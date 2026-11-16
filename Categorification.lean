@@ -820,6 +820,7 @@ import Categorification.WeightedKLR.Algebra
 import Categorification.WeightedKLR.GalleryRep
 import Categorification.WeightedKLR.Gallery
 import Categorification.WeightedKLR.Arrangement
+import Categorification.WeightedKLR.Reflection
 import Categorification.WeightedKLR.Relabel
 import Categorification.WeightedKLR.Segment
 import Categorification.WeightedKLR.Segment.Blocks
@@ -869,6 +870,7 @@ import Categorification.WeightedKLR.Induction.Juxtapose
 import Categorification.WeightedKLR.Induction.K0
 import Categorification.WeightedKLR.Induction.ModuleMonoidal
 import Categorification.WeightedKLR.Induction.Monoidal
+import Categorification.WeightedKLR.Induction.Reflection
 import Categorification.WeightedKLR.Induction.TensorMap
 import Categorification.WeightedKLR.Mackey.BlockConjugate
 import Categorification.WeightedKLR.Mackey.BlockPieces

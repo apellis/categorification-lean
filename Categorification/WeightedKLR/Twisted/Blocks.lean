@@ -14,26 +14,29 @@ B. Webster, *Weighted Khovanov–Lauda–Rouquier algebras*, arXiv:1209.2463v4, 
 `P` before Proposition 2.20, read as the gallery algebra of the arrangement of walls
 `x_b - x_a - ϑ_e` and diagonals `x_b - x_a` on the space of pairs `(x, ϑ)`.
 
-All hyperplanes of this arrangement are linear, and three distinct hyperplanes through a flat of
-codimension two satisfy a linear relation with nonzero coefficients (`twRel_of_finrank`). Such a
-triple is either three diagonals on the three pairs of three strands, or a diagonal `d` with a
-wall `W` and the wall `W.comap d.refl` (`twTriple_of_finrank`). The second case contains the
-triangles of the fibrewise arrangement and, when `W` lies on the two strands of `d`, the
-**loop block**: a loop `e` at the colour of `d`, the wall where one strand meets the ghost of the
-other, and the reversed wall (`Wall.comap_refl_of_isPair`). Nothing about `Γ` is assumed: no
+All hyperplanes of this arrangement are linear, and three distinct hyperplanes whose linear
+functions span a space of dimension two satisfy a linear relation with nonzero coefficients
+(`twRel_of_finrank`). Such a triple is either three diagonals on the three pairs of three
+strands, or a diagonal `d` with a wall `W` and the wall `W.comap d.refl` (`twTriple_of_finrank`).
+The second case contains the triangles of the fibrewise arrangement and, when `W` lies on the two
+strands of `d`, the **loop block**: a loop `e` at the colour of `d`, the wall where one strand
+meets the ghost of the other, and the same wall with the strands exchanged
+(`Wall.comap_refl_of_isPair`, `Wall.comap_refl_ne_of_isPair`). Nothing about `Γ` is assumed: no
 condition (†) and no condition on loops of weight zero.
 
 Blocks have at most three hyperplanes (`twBlock_length_le`), and two hyperplanes through a point
-on no other hyperplane are independent (`twIndependent_of_pair`). In the polynomial
-representation, the hexagon of the loop block holds with the correction of a diagonal crossed in
-the middle (`hypOp_loop_mid`, `hypOp_loop_end`).
+on no other hyperplane are independent (`twIndependent_of_pair`).
+
+The hexagon relations of a block `{d, W, W.comap d.refl}` in the polynomial representation are
+`hypOp_mid_diag` and `hypOp_end_diag` at the strands `d.fst, d.snd`; they make no assumption on
+the position of `W`, so they hold for the loop block, where the correction term of the diagonal
+crossed in the middle is the divided difference of the polynomial of the loop.
 
 ## Main results
 
 * `TwRel`, `twRel_of_finrank`: the linear relation of three hyperplanes of a block.
 * `TwTriple`, `twTriple_of_finrank`: the classification of three hyperplanes of a block.
 * `twIndependent_of_pair`, `twBlock_length_le`.
-* `hypOp_loop_mid`, `hypOp_loop_end`: the hexagon of the loop block in the representation.
 -/
 
 namespace Categorification.WeightedKLR
@@ -612,5 +615,167 @@ theorem twTriple_of_finrank {B : List (Hyp Γ ν)}
     {h₁ h₂ h₃ : Hyp Γ ν} (m₁ : h₁ ∈ B) (m₂ : h₂ ∈ B) (m₃ : h₃ ∈ B) (n₁₂ : h₁ ≠ h₂)
     (n₁₃ : h₁ ≠ h₃) (n₂₃ : h₂ ≠ h₃) : TwTriple h₁ h₂ h₃ :=
   (twRel_of_finrank hB m₁ m₂ m₃ n₁₂ n₁₃ n₂₃).twTriple n₁₂ n₁₃ n₂₃
+
+/-! ### The loop block -/
+
+omit [Field 𝕜] [LinearOrder 𝕜] [IsStrictOrderedRing 𝕜] in
+/-- On the two strands of a diagonal `d`, the wall `W.comap d.refl` is `W` with its strands
+exchanged: together with `d` they form the loop block, where one strand meets the ghost of the
+other along a loop. -/
+theorem Wall.comap_refl_of_isPair {W : Wall Γ ν} {d : Diag ν}
+    (hp : Hyp.IsPair (Sum.inl W : Hyp Γ ν) d.fst d.snd) :
+    (W.comap d.refl).src = W.tgt ∧ (W.comap d.refl).tgt = W.src := by
+  show d.refl.1⁻¹ W.src = W.tgt ∧ d.refl.1⁻¹ W.tgt = W.src
+  rw [Diag.refl_inv_apply, Diag.refl_inv_apply]
+  rcases hp with ⟨h1, h2⟩ | ⟨h1, h2⟩
+  · change W.src = d.fst at h1
+    change W.tgt = d.snd at h2
+    rw [h1, h2, swap_apply_left, swap_apply_right]
+    exact ⟨rfl, rfl⟩
+  · change W.src = d.snd at h1
+    change W.tgt = d.fst at h2
+    rw [h1, h2, swap_apply_left, swap_apply_right]
+    exact ⟨rfl, rfl⟩
+
+omit [Field 𝕜] [LinearOrder 𝕜] [IsStrictOrderedRing 𝕜] in
+/-- The two walls of the loop block are distinct. -/
+theorem Wall.comap_refl_ne_of_isPair {W : Wall Γ ν} {d : Diag ν}
+    (hp : Hyp.IsPair (Sum.inl W : Hyp Γ ν) d.fst d.snd) : W.comap d.refl ≠ W := by
+  intro e
+  have hs := (Wall.comap_refl_of_isPair hp).1
+  rw [e] at hs
+  exact W.2.2.2 hs
+
+/-! ### Independence of two hyperplanes through a generic point of a flat -/
+
+namespace Hyp
+
+omit [LinearOrder 𝕜] [IsStrictOrderedRing 𝕜] in
+/-- Relabelling by the reflection of a diagonal through `z` preserves the hyperplanes
+through `z`. -/
+theorem twVal_comap_refl_eq_zero {d : Diag ν} {z : Strand ν ⊕ Γ.E → 𝕜}
+    (hd : Hyp.twVal (Sum.inr d : Hyp Γ ν) z = 0) {h : Hyp Γ ν} (hh : h.twVal z = 0) :
+    (h.comap d.refl).twVal z = 0 := by
+  rw [twVal_eq] at hd hh ⊢
+  have hc : Hyp.comap (Γ := Γ) d.refl h =
+      Hyp.comap (Γ := Γ.withWeight (z ∘ Sum.inr)) d.refl h := by
+    rcases h with w | d' <;> rfl
+  rw [hc]
+  exact comap_val_eq_zero (act_refl_of_val hd) hh
+
+omit [DecidableEq I] [Field 𝕜] [LinearOrder 𝕜] [IsStrictOrderedRing 𝕜] in
+theorem IsPair.isPair_fst_snd {d : Diag ν} {h : Hyp Γ ν} {a b : Strand ν}
+    (hd : Hyp.IsPair (Sum.inr d : Hyp Γ ν) a b) (hh : h.IsPair a b) : h.IsPair d.fst d.snd := by
+  rcases hd with ⟨h1, h2⟩ | ⟨h1, h2⟩
+  · change d.fst = a at h1
+    change d.snd = b at h2
+    rw [h1, h2]
+    exact hh
+  · change d.fst = b at h1
+    change d.snd = a at h2
+    rw [h1, h2]
+    exact hh.symm
+
+omit [LinearOrder 𝕜] [IsStrictOrderedRing 𝕜] in
+/-- A diagonal and another hyperplane through `z` sharing a strand give a third hyperplane
+through `z`; on the two strands of the diagonal this is the reversed wall of the loop block. -/
+theorem twExists_third_of_shared {z : Strand ν ⊕ Γ.E → 𝕜} {d : Diag ν} {h : Hyp Γ ν}
+    (zd : Hyp.twVal (Sum.inr d : Hyp Γ ν) z = 0) (zh : h.twVal z = 0)
+    (hne : (Sum.inr d : Hyp Γ ν) ≠ h) {a : Strand ν} (ad : Mem a (Sum.inr d : Hyp Γ ν))
+    (ah : Mem a h) : ∃ g : Hyp Γ ν, g.twVal z = 0 ∧ g ≠ .inr d ∧ g ≠ h := by
+  refine ⟨h.comap d.refl, twVal_comap_refl_eq_zero zd zh, ?_⟩
+  obtain ⟨c, hca, pd⟩ := exists_other ad
+  obtain ⟨b, hba, ph⟩ := exists_other ah
+  by_cases hbc : b = c
+  · subst hbc
+    rcases h with W | d'
+    · have hp := pd.isPair_fst_snd ph
+      exact ⟨Sum.inl_ne_inr, fun e => Wall.comap_refl_ne_of_isPair hp (Sum.inl_injective e)⟩
+    · exact absurd (congrArg Sum.inr (Diag.eq_of_isPair (Γ := Γ) pd ph)) hne
+  have pg := comap_refl_isPair pd hba hbc ph
+  exact ⟨IsPair.ne_of_not_mem pd pg.symm hba hbc, IsPair.ne_of_not_mem ph pg hca (Ne.symm hbc)⟩
+
+end Hyp
+
+omit [LinearOrder 𝕜] [IsStrictOrderedRing 𝕜] in
+/-- Two distinct hyperplanes of the big arrangement through a point on no other hyperplane are
+independent: two walls, or two hyperplanes on disjoint strands. -/
+theorem twIndependent_of_pair {z : Strand ν ⊕ Γ.E → 𝕜} {h₁ h₂ : Hyp Γ ν}
+    (hz : ∀ h : Hyp Γ ν, h.twVal z = 0 ↔ h ∈ [h₁, h₂]) (hne : h₁ ≠ h₂) :
+    h₁.Independent h₂ := by
+  have z₁ := (hz h₁).2 (by simp)
+  have z₂ := (hz h₂).2 (by simp)
+  by_cases hl : h₁.isLeft ∧ h₂.isLeft
+  · exact .inl hl
+  by_cases hdj : Disjoint h₁.strands h₂.strands
+  · exact .inr hdj
+  exfalso
+  obtain ⟨a, a₁, a₂⟩ := Finset.not_disjoint_iff.1 hdj
+  rw [Hyp.mem_strands_iff] at a₁ a₂
+  have third : ∀ (d : Diag ν) (h : Hyp Γ ν), Hyp.twVal (Sum.inr d : Hyp Γ ν) z = 0 →
+      h.twVal z = 0 → (Sum.inr d : Hyp Γ ν) ≠ h → Hyp.Mem a (Sum.inr d : Hyp Γ ν) →
+      Hyp.Mem a h → ({Sum.inr d, h} : Set (Hyp Γ ν)) = {h₁, h₂} → False := by
+    intro d h zd zh n ad ah e
+    obtain ⟨g, zg, g₁, g₂⟩ := Hyp.twExists_third_of_shared zd zh n ad ah
+    have hg := (hz g).1 zg
+    simp only [List.mem_cons, List.not_mem_nil, or_false] at hg
+    have : g ∈ ({h₁, h₂} : Set (Hyp Γ ν)) := by rcases hg with rfl | rfl <;> simp
+    rw [← e] at this
+    rcases this with rfl | rfl
+    · exact g₁ rfl
+    · exact g₂ rfl
+  rcases h₁ with W₁ | d₁
+  · rcases h₂ with W₂ | d₂
+    · exact hl ⟨rfl, rfl⟩
+    · exact third d₂ _ z₂ z₁ (Ne.symm hne) a₂ a₁ (Set.pair_comm _ _)
+  · exact third d₁ h₂ z₁ z₂ hne a₁ a₂ rfl
+
+/-- A block of the big arrangement, a set of hyperplanes whose linear functions span a space of
+dimension two, has at most three hyperplanes. -/
+theorem twBlock_length_le {B : List (Hyp Γ ν)}
+    (hB : Module.finrank 𝕜 (Submodule.span 𝕜 ((fun h : Hyp Γ ν => h.twLin) '' {h | h ∈ B})) = 2)
+    (hn : B.Nodup) : B.length ≤ 3 := by
+  match B, hB, hn with
+  | [], _, _ => simp
+  | [_], _, _ => simp
+  | [_, _], _, _ => simp
+  | [_, _, _], _, _ => simp
+  | h₁ :: h₂ :: h₃ :: h₄ :: l, hB, hn =>
+    exfalso
+    simp only [List.nodup_cons, List.mem_cons, not_or] at hn
+    obtain ⟨⟨n₁₂, n₁₃, n₁₄, -⟩, ⟨n₂₃, n₂₄, -⟩, ⟨n₃₄, -⟩, -⟩ := hn
+    have t₁₂₃ := twTriple_of_finrank hB (by simp) (by simp) (by simp) n₁₂ n₁₃ n₂₃
+    have t₁₂₄ := twTriple_of_finrank hB (by simp) (by simp) (h₃ := h₄) (by simp) n₁₂ n₁₄ n₂₄
+    have t₁₃₄ := twTriple_of_finrank hB (by simp) (by simp) (h₃ := h₄) (by simp) n₁₃ n₁₄ n₃₄
+    have t₂₃₄ := twTriple_of_finrank hB (by simp) (by simp) (h₃ := h₄) (by simp) n₂₃ n₂₄ n₃₄
+    have l₃ := t₁₂₃.isLeft_eq
+    have l₄ := t₁₂₄.isLeft_eq
+    have l₄' := t₁₃₄.isLeft_eq
+    have l₄'' := t₂₃₄.isLeft_eq
+    have l₁ : h₁.isLeft = false := by
+      revert l₃ l₄ l₄' l₄''
+      cases h₁.isLeft <;> cases h₂.isLeft <;> cases h₃.isLeft <;> cases h₄.isLeft <;> decide
+    have l₂ : h₂.isLeft = false := by
+      revert l₃ l₄ l₄' l₄''
+      cases h₁.isLeft <;> cases h₂.isLeft <;> cases h₃.isLeft <;> cases h₄.isLeft <;> decide
+    rcases t₁₂₃ with ⟨-, -, d₃, -, -, e₃, u, v, w, p₁, p₂, p₃⟩ | ⟨_, _, -, e, -⟩ |
+      ⟨_, _, e, -, -⟩ | ⟨_, _, e, -, -⟩ <;> try simp [e] at l₁ l₂
+    rcases t₁₂₄ with ⟨-, -, d₄, -, -, e₄, u', v', w', p₁', p₂', p₄⟩ | ⟨_, _, -, e, -⟩ |
+      ⟨_, _, e, -, -⟩ | ⟨_, _, e, -, -⟩ <;> try simp [e] at l₁ l₂
+    have hu : u' = u := by
+      rcases (p₁.mem_iff u').1 ((p₁'.mem_iff u').2 (Or.inl rfl)) with e | e
+      · exact e
+      · exfalso
+        subst e
+        rcases (p₂.mem_iff u').1 ((p₂'.mem_iff u').2 (Or.inl rfl)) with e' | e'
+        · exact p₁.ne e'.symm
+        · exact p₃.ne e'
+    subst hu
+    have hv := p₁.right_unique p₁'
+    have hw := p₂.right_unique p₂'
+    subst hv hw
+    rw [e₃] at p₃ n₃₄
+    rw [e₄] at p₄ n₃₄
+    exact n₃₄ (congrArg Sum.inr (Diag.eq_of_isPair (Γ := Γ) p₃ p₄))
 
 end Categorification.WeightedKLR

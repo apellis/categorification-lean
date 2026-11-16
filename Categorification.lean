@@ -854,6 +854,7 @@ import Categorification.WeightedKLR.Deformation
 import Categorification.WeightedKLR.RedStrands.CrawleyBoevey
 import Categorification.WeightedKLR.RedStrands.CrawleyBoeveyIn
 import Categorification.WeightedKLR.RedStrands.Reduced
+import Categorification.WeightedKLR.RedStrands.Stendhal
 /-!
 # Categorification
 

@@ -887,6 +887,7 @@ import Categorification.WeightedKLR.Mackey.FourBlockJuxtapose
 import Categorification.WeightedKLR.Mackey.FourBlockLayout
 import Categorification.WeightedKLR.Mackey.FourBlockShuffle
 import Categorification.WeightedKLR.Mackey.FourBlockSwap
+import Categorification.WeightedKLR.Mackey.FourBlockTensor
 import Categorification.WeightedKLR.Mackey.FourBlockType
 import Categorification.WeightedKLR.Mackey.IdentityCoefficient
 import Categorification.WeightedKLR.Mackey.Intermediate

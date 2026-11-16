@@ -308,6 +308,12 @@ example (ν₁ ν₂ ν' ν'' : Fin 2 →₀ ℕ) (h : ν₁ + ν₂ = ν' + ν'
   WeightedKLR.GalleryAlgebra.inductionMap_mul_mul_mem_mackeyFilt _ _ _ _ _ _ h rfl
     C.2 C'.2 D.2 D'.2 (isLowerSet_Iic μ) u w hz
 
+/-- The strict step of shuffle type `μ` of the filtration has a basis. -/
+example (ν ν' ν₁ : Fin 2 →₀ ℕ) (C D : WeightedKLR.FullChamber wkGraph ν) (μ : Fin 2 → ℕ) :=
+  WeightedKLR.GalleryAlgebra.mackeySubquotientBasis (k := ℚ) (wkGraph_isChamberSegment _)
+    wkGraph_dagger wkGraph_noZeroLoops wkGraph_pSymm (wkGraph_wallRegular _)
+    (wkGraph_loopRegular _) ν' ν₁ D C (Set.sdiff_subset : Set.Iic μ \ {μ} ⊆ Set.Iic μ)
+
 /-! ### Webster, weighted KLR algebras (arXiv:1209.2463v4), the grading of §2.1 -/
 
 /-- The grading of Webster's standing hypothesis (doubled normalization): a `ℤ`-grading of the

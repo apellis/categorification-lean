@@ -260,7 +260,8 @@ theorem Hyp.twVal_single_inl (g : Hyp Γ ν) (s : Strand ν) :
 omit [LinearOrder 𝕜] [IsStrictOrderedRing 𝕜] in
 theorem Hyp.twVal_single_inr (g : Hyp Γ ν) (e : Γ.E) :
     g.twVal (Pi.single (.inr e) 1) = -g.edgeVal (Pi.single e 1) := by
-  have : (Pi.single (.inr e) 1 : Strand ν ⊕ Γ.E → 𝕜) = Sum.elim (0 : Strand ν → 𝕜) (Pi.single e 1) := by
+  have : (Pi.single (.inr e) 1 : Strand ν ⊕ Γ.E → 𝕜) =
+      Sum.elim (0 : Strand ν → 𝕜) (Pi.single e 1) := by
     funext c
     rcases c with c | c <;> simp [Pi.single_apply]
   rw [this, ← twLin_apply, twLin_elim]
@@ -345,6 +346,7 @@ theorem twHdist (h g : Hyp Γ ν) (hne : h ≠ g) :
         simp [Hyp.edgeVal, Hyp.hi, Hyp.lo, ← p1, ← p2, Pi.single_eq_of_ne hst]
   · obtain ⟨w₀, e₀, -⟩ := he w' rfl
     cases e₀
-  · exact absurd (congrArg Sum.inr (Diag.eq_of_isPair (Γ := Γ) (Hyp.isPair_self _) hp)) (Ne.symm hne)
+  · exact absurd (congrArg Sum.inr (Diag.eq_of_isPair (Γ := Γ) (Hyp.isPair_self _) hp))
+      (Ne.symm hne)
 
 end Categorification.WeightedKLR

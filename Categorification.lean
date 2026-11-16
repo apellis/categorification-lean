@@ -862,6 +862,7 @@ import Categorification.WeightedKLR.RedStrands.StendhalCrossing
 import Categorification.WeightedKLR.RedStrands.StendhalDescent
 import Categorification.WeightedKLR.RedStrands.StendhalHom
 import Categorification.WeightedKLR.RedStrands.StendhalLoadings
+import Categorification.WeightedKLR.RedStrands.StendhalPolyRep
 /-!
 # Categorification
 

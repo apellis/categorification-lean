@@ -492,22 +492,22 @@ theorem single_mem_corner_spacedIdem {i j : KLR.Seq ν} {x : GalleryAlgebra k Γ
       · simp [h]
 
 /-- The chosen representative of the full chamber of `B_s(i)`. -/
-noncomputable def chamberRep (i : KLR.Seq ν) : KLR.Seq ν :=
+noncomputable def chamberSeqRep (i : KLR.Seq ν) : KLR.Seq ν :=
   chamberSeq ν h0 ⟨spacedFull Γ i, (KLR.Seq.spacedChamber Γ i).toFull_isRankOrdered⟩
 
-theorem spacedFull_chamberRep (i : KLR.Seq ν) : spacedFull Γ (chamberRep h0 i) = spacedFull Γ i :=
+theorem spacedFull_chamberRep (i : KLR.Seq ν) : spacedFull Γ (chamberSeqRep h0 i) = spacedFull Γ i :=
   spacedFull_chamberSeq h0 _
 
 variable (k) in
 /-- The matrix unit moving `B_s(i)` to the chosen representative of its chamber. -/
 noncomputable def toChamberRep (i : KLR.Seq ν) : SpacedAlgebra k Γ ν :=
-  ⟨Matrix.single i (chamberRep h0 i) (e (spacedFull Γ i)), single_mem_corner_spacedIdem
+  ⟨Matrix.single i (chamberSeqRep h0 i) (e (spacedFull Γ i)), single_mem_corner_spacedIdem
     (by rw [e_mul_e, ite_eq_left rfl]) (by rw [spacedFull_chamberRep, e_mul_e, ite_eq_left rfl])⟩
 
 variable (k) in
 /-- The matrix unit moving the chosen representative of the chamber of `B_s(i)` to `B_s(i)`. -/
 noncomputable def fromChamberRep (i : KLR.Seq ν) : SpacedAlgebra k Γ ν :=
-  ⟨Matrix.single (chamberRep h0 i) i (e (spacedFull Γ i)), single_mem_corner_spacedIdem
+  ⟨Matrix.single (chamberSeqRep h0 i) i (e (spacedFull Γ i)), single_mem_corner_spacedIdem
     (by rw [spacedFull_chamberRep, e_mul_e, ite_eq_left rfl]) (by rw [e_mul_e, ite_eq_left rfl])⟩
 
 /-- `spacedChamberIdem` is a full idempotent: `1 = ∑_i u_i f v_i`. -/
@@ -515,11 +515,11 @@ theorem spacedChamberIdem_full :
     ∑ i, toChamberRep k h0 i * spacedChamberIdem k ν h0 * fromChamberRep k h0 i = 1 := by
   apply Subtype.ext
   rw [← cornerVal_apply, map_sum]
-  show ∑ i, Matrix.single i (chamberRep h0 i) (e (spacedFull Γ i)) *
+  show ∑ i, Matrix.single i (chamberSeqRep h0 i) (e (spacedFull Γ i)) *
       Matrix.diagonal (chamberDiag k ν h0) *
-      Matrix.single (chamberRep h0 i) i (e (spacedFull Γ i)) = spacedIdem k Γ ν
-  have hd : ∀ i, chamberDiag k ν h0 (chamberRep h0 i) = e (spacedFull Γ i) := fun i => by
-    rw [chamberRep, chamberDiag_chamberSeq]
+      Matrix.single (chamberSeqRep h0 i) i (e (spacedFull Γ i)) = spacedIdem k Γ ν
+  have hd : ∀ i, chamberDiag k ν h0 (chamberSeqRep h0 i) = e (spacedFull Γ i) := fun i => by
+    rw [chamberSeqRep, chamberDiag_chamberSeq]
   simp only [Matrix.single_mul_mul_single, Matrix.diagonal_apply_eq, hd, e_mul_e, ite_true]
   rw [Matrix.sum_single_eq_diagonal]
   rfl

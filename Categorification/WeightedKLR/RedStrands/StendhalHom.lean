@@ -22,7 +22,7 @@ black strands of colours not joined by an edge crosses no hyperplane). As in Web
 Proposition 2.14 (`SpacedAlgebra`), the weighted KLR algebra on the family of loadings
 `(stFull i)_i`, one idempotent per red-ordered sequence `i`, is the corner of the matrix algebra
 over the gallery algebra cut out by the diagonal idempotent `diag(e(stFull i))_i`
-(`chamberIdem`, `ChamberAlgebra`). Its polynomial representation (`chamberRep`) is faithful.
+(`chamberMatIdem`, `ChamberAlgebra`). Its polynomial representation (`chamberRep`) is faithful.
 
 ## The map
 
@@ -43,7 +43,7 @@ determines the operators.
 
 ## Main definitions and results
 
-* `chamberIdem`, `ChamberAlgebra`, `chamberRep`, `chamberRep_injective`: the weighted KLR
+* `chamberMatIdem`, `ChamberAlgebra`, `chamberRep`, `chamberRep_injective`: the weighted KLR
   algebra on a family of chambers and its faithful polynomial representation.
 * `Stendhal.stQ`, `Stendhal.stKLRHom`: the homomorphism from the KLR algebra of `stQ`.
 -/
@@ -61,22 +61,22 @@ variable {J : Type*} [DecidableEq J] {𝕜 : Type*} [Field 𝕜] [LinearOrder �
 variable (k) in
 /-- The diagonal idempotent `diag(e(F i))_i` of the matrix algebra over the gallery algebra, for
 a family `F` of chambers. -/
-noncomputable def chamberIdem (F : ι → FullChamber Δ ν) : Matrix ι ι (GalleryAlgebra k Δ ν) :=
+noncomputable def chamberMatIdem (F : ι → FullChamber Δ ν) : Matrix ι ι (GalleryAlgebra k Δ ν) :=
   Matrix.diagonal fun i => e (F i)
 
-theorem isIdempotentElem_chamberIdem (F : ι → FullChamber Δ ν) :
-    IsIdempotentElem (chamberIdem k F) := by
-  rw [IsIdempotentElem, chamberIdem, Matrix.diagonal_mul_diagonal]
+theorem isIdempotentElem_chamberMatIdem (F : ι → FullChamber Δ ν) :
+    IsIdempotentElem (chamberMatIdem k F) := by
+  rw [IsIdempotentElem, chamberMatIdem, Matrix.diagonal_mul_diagonal]
   congr 1
   funext i
   simp [e_mul_e]
 
 variable (k) in
 /-- The weighted KLR algebra on a family `F` of chambers, one idempotent per member of the
-family: the corner of `Matrix ι ι A` (`A` the gallery algebra) at `chamberIdem F`. Its `(j, i)`
+family: the corner of `Matrix ι ι A` (`A` the gallery algebra) at `chamberMatIdem F`. Its `(j, i)`
 entry lies in `e(F j) A e(F i)`. -/
 abbrev ChamberAlgebra (F : ι → FullChamber Δ ν) : Type _ :=
-  (isIdempotentElem_chamberIdem (k := k) F).Corner
+  (isIdempotentElem_chamberMatIdem (k := k) F).Corner
 
 variable {F : ι → FullChamber Δ ν}
 
@@ -94,15 +94,15 @@ theorem galleryRep_eq_of_e_mul (hΓ : Δ.PSymm) {x : GalleryAlgebra k Δ ν}
 
 theorem ChamberAlgebra.e_mul (x : ChamberAlgebra k F) (j i : ι) :
     e (F j) * x.1 j i = x.1 j i := by
-  have h := ((Subsemigroup.mem_corner_iff (isIdempotentElem_chamberIdem F)).1 x.2).1
+  have h := ((Subsemigroup.mem_corner_iff (isIdempotentElem_chamberMatIdem F)).1 x.2).1
   have := congrFun (congrFun h j) i
-  simpa [chamberIdem, Matrix.diagonal_mul] using this
+  simpa [chamberMatIdem, Matrix.diagonal_mul] using this
 
 theorem ChamberAlgebra.mul_e (x : ChamberAlgebra k F) (j i : ι) :
     x.1 j i * e (F i) = x.1 j i := by
-  have h := ((Subsemigroup.mem_corner_iff (isIdempotentElem_chamberIdem F)).1 x.2).2
+  have h := ((Subsemigroup.mem_corner_iff (isIdempotentElem_chamberMatIdem F)).1 x.2).2
   have := congrFun (congrFun h j) i
-  simpa [chamberIdem, Matrix.mul_diagonal] using this
+  simpa [chamberMatIdem, Matrix.mul_diagonal] using this
 
 variable (k F) in
 /-- The polynomial representation of the matrix algebra over the gallery algebra on
@@ -147,12 +147,12 @@ theorem chamberOp_smul (hΓ : Δ.PSymm) (a : k) (c : Matrix ι ι (GalleryAlgebr
   simp only [chamberOp_apply, LinearMap.smul_apply, Pi.smul_apply, Matrix.smul_apply, map_smul,
     Finset.smul_sum]
 
-theorem chamberOp_chamberIdem (hΓ : Δ.PSymm) : chamberOp k F hΓ (chamberIdem k F) = 1 := by
+theorem chamberOp_chamberMatIdem (hΓ : Δ.PSymm) : chamberOp k F hΓ (chamberMatIdem k F) = 1 := by
   refine LinearMap.ext fun g => funext fun j => ?_
   rw [chamberOp_apply, Finset.sum_eq_single j]
-  · simp [chamberIdem, galleryRep_e, blk_apply]
+  · simp [chamberMatIdem, galleryRep_e, blk_apply]
   · intro i _ hij
-    simp [chamberIdem, Matrix.diagonal_apply_ne _ (Ne.symm hij)]
+    simp [chamberMatIdem, Matrix.diagonal_apply_ne _ (Ne.symm hij)]
   · intro h
     exact absurd (Finset.mem_univ j) h
 
@@ -173,11 +173,11 @@ theorem chamberOp_mul (hΓ : Δ.PSymm) {c : Matrix ι ι (GalleryAlgebra k Δ ν
   exact Finset.sum_comm
 
 theorem chamberOp_sandwich (hΓ : Δ.PSymm) (c : Matrix ι ι (GalleryAlgebra k Δ ν)) :
-    chamberOp k F hΓ (chamberIdem k F * c * chamberIdem k F) = chamberOp k F hΓ c := by
+    chamberOp k F hΓ (chamberMatIdem k F * c * chamberMatIdem k F) = chamberOp k F hΓ c := by
   refine LinearMap.ext fun g => funext fun j => ?_
   rw [chamberOp_apply, chamberOp_apply]
   refine Finset.sum_congr rfl fun i _ => ?_
-  simp [chamberIdem, Matrix.mul_diagonal, Matrix.diagonal_mul, galleryRep_e, blk_apply]
+  simp [chamberMatIdem, Matrix.mul_diagonal, Matrix.diagonal_mul, galleryRep_e, blk_apply]
 
 theorem chamberOp_diagonal (hΓ : Δ.PSymm) (d : ι → GalleryAlgebra k Δ ν)
     (g : ι → PolyRing ν k) (j : ι) :
@@ -198,7 +198,7 @@ noncomputable def chamberRep (hΓ : Δ.PSymm) :
     { toFun := fun x => chamberOp k F hΓ x.1
       map_add' := fun x y => chamberOp_add hΓ x.1 y.1
       map_smul' := fun a x => chamberOp_smul hΓ a x.1 }
-    (chamberOp_chamberIdem hΓ)
+    (chamberOp_chamberMatIdem hΓ)
     (fun x y => chamberOp_mul hΓ (ChamberAlgebra.mul_e x) y.1)
 
 theorem chamberRep_apply (hΓ : Δ.PSymm) (x : ChamberAlgebra k F) :
@@ -207,10 +207,10 @@ theorem chamberRep_apply (hΓ : Δ.PSymm) (x : ChamberAlgebra k F) :
 variable (k F) in
 /-- The element `diag(e(F)) c diag(e(F))` of the corner. -/
 noncomputable def chamberElt (c : Matrix ι ι (GalleryAlgebra k Δ ν)) : ChamberAlgebra k F :=
-  ⟨chamberIdem k F * c * chamberIdem k F,
-    (Subsemigroup.mem_corner_iff (isIdempotentElem_chamberIdem F)).2
-      ⟨by rw [← mul_assoc, ← mul_assoc, (isIdempotentElem_chamberIdem F).eq],
-        by rw [mul_assoc, (isIdempotentElem_chamberIdem F).eq]⟩⟩
+  ⟨chamberMatIdem k F * c * chamberMatIdem k F,
+    (Subsemigroup.mem_corner_iff (isIdempotentElem_chamberMatIdem F)).2
+      ⟨by rw [← mul_assoc, ← mul_assoc, (isIdempotentElem_chamberMatIdem F).eq],
+        by rw [mul_assoc, (isIdempotentElem_chamberMatIdem F).eq]⟩⟩
 
 theorem chamberRep_chamberElt (hΓ : Δ.PSymm) (c : Matrix ι ι (GalleryAlgebra k Δ ν)) :
     chamberRep k F hΓ (chamberElt k F c) = chamberOp k F hΓ c :=

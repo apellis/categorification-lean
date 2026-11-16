@@ -41,55 +41,59 @@ variable {J : Type*} [DecidableEq J] {𝕜 : Type*} [Field 𝕜] [LinearOrder �
   {ι : Type*} [Fintype ι] [DecidableEq ι] {F : ι → FullChamber Δ ν}
 
 theorem chamberElt_mul_chamberElt (c c' : Matrix ι ι (GalleryAlgebra k Δ ν))
-    (hc : Commute c (chamberIdem k F)) :
+    (hc : Commute c (chamberMatIdem k F)) :
     chamberElt k F c * chamberElt k F c' = chamberElt k F (c * c') := by
   apply Subtype.ext
-  have he := (isIdempotentElem_chamberIdem (k := k) F).eq
-  change chamberIdem k F * c * chamberIdem k F * (chamberIdem k F * c' * chamberIdem k F) =
-    chamberIdem k F * (c * c') * chamberIdem k F
-  calc chamberIdem k F * c * chamberIdem k F * (chamberIdem k F * c' * chamberIdem k F)
-      = chamberIdem k F * (c * (chamberIdem k F * chamberIdem k F)) * c' * chamberIdem k F := by
+  have he := (isIdempotentElem_chamberMatIdem (k := k) F).eq
+  change chamberMatIdem k F * c * chamberMatIdem k F *
+      (chamberMatIdem k F * c' * chamberMatIdem k F) =
+    chamberMatIdem k F * (c * c') * chamberMatIdem k F
+  calc chamberMatIdem k F * c * chamberMatIdem k F *
+        (chamberMatIdem k F * c' * chamberMatIdem k F)
+      = chamberMatIdem k F * (c * (chamberMatIdem k F * chamberMatIdem k F)) * c' *
+          chamberMatIdem k F := by
         simp only [mul_assoc]
-    _ = chamberIdem k F * (chamberIdem k F * c) * c' * chamberIdem k F := by rw [he, hc.eq]
-    _ = chamberIdem k F * (c * c') * chamberIdem k F := by
+    _ = chamberMatIdem k F * (chamberMatIdem k F * c) * c' * chamberMatIdem k F := by rw [he, hc.eq]
+    _ = chamberMatIdem k F * (c * c') * chamberMatIdem k F := by
         rw [← mul_assoc, he]; simp only [mul_assoc]
 
 theorem chamberElt_add (c c' : Matrix ι ι (GalleryAlgebra k Δ ν)) :
     chamberElt k F (c + c') = chamberElt k F c + chamberElt k F c' :=
   Subtype.ext (by
-    change chamberIdem k F * (c + c') * chamberIdem k F =
-      chamberIdem k F * c * chamberIdem k F + chamberIdem k F * c' * chamberIdem k F
+    change chamberMatIdem k F * (c + c') * chamberMatIdem k F =
+      chamberMatIdem k F * c * chamberMatIdem k F + chamberMatIdem k F * c' * chamberMatIdem k F
     rw [mul_add, add_mul])
 
 theorem chamberElt_smul (r : k) (c : Matrix ι ι (GalleryAlgebra k Δ ν)) :
     chamberElt k F (r • c) = r • chamberElt k F c :=
   Subtype.ext (by
-    change chamberIdem k F * (r • c) * chamberIdem k F = r • (chamberIdem k F * c * chamberIdem k F)
+    change chamberMatIdem k F * (r • c) * chamberMatIdem k F =
+      r • (chamberMatIdem k F * c * chamberMatIdem k F)
     rw [mul_smul_comm, smul_mul_assoc])
 
 theorem chamberElt_zero : chamberElt k F (0 : Matrix ι ι (GalleryAlgebra k Δ ν)) = 0 :=
   Subtype.ext (by
-    change chamberIdem k F * 0 * chamberIdem k F = 0
+    change chamberMatIdem k F * 0 * chamberMatIdem k F = 0
     rw [mul_zero, zero_mul])
 
 theorem chamberElt_one : chamberElt k F (1 : Matrix ι ι (GalleryAlgebra k Δ ν)) = 1 :=
   Subtype.ext (by
-    change chamberIdem k F * 1 * chamberIdem k F = chamberIdem k F
-    rw [mul_one, (isIdempotentElem_chamberIdem F).eq])
+    change chamberMatIdem k F * 1 * chamberMatIdem k F = chamberMatIdem k F
+    rw [mul_one, (isIdempotentElem_chamberMatIdem F).eq])
 
 theorem chamberElt_val (x : ChamberAlgebra k F) : chamberElt k F x.1 = x := by
   apply Subtype.ext
-  change chamberIdem k F * x.1 * chamberIdem k F = x.1
-  have h := (Subsemigroup.mem_corner_iff (isIdempotentElem_chamberIdem F)).1 x.2
+  change chamberMatIdem k F * x.1 * chamberMatIdem k F = x.1
+  have h := (Subsemigroup.mem_corner_iff (isIdempotentElem_chamberMatIdem F)).1 x.2
   rw [h.1, h.2]
 
-theorem commute_val_chamberIdem (x : ChamberAlgebra k F) : Commute x.1 (chamberIdem k F) := by
-  have h := (Subsemigroup.mem_corner_iff (isIdempotentElem_chamberIdem F)).1 x.2
+theorem commute_val_chamberMatIdem (x : ChamberAlgebra k F) : Commute x.1 (chamberMatIdem k F) := by
+  have h := (Subsemigroup.mem_corner_iff (isIdempotentElem_chamberMatIdem F)).1 x.2
   exact h.2.trans h.1.symm
 
-theorem commute_diagonal_poly_chamberIdem (f : ι → PolyRing ν k) :
-    Commute (Matrix.diagonal fun j => poly (f j)) (chamberIdem k F) := by
-  rw [Commute, SemiconjBy, chamberIdem, Matrix.diagonal_mul_diagonal,
+theorem commute_diagonal_poly_chamberMatIdem (f : ι → PolyRing ν k) :
+    Commute (Matrix.diagonal fun j => poly (f j)) (chamberMatIdem k F) := by
+  rw [Commute, SemiconjBy, chamberMatIdem, Matrix.diagonal_mul_diagonal,
     Matrix.diagonal_mul_diagonal]
   congr 1
   funext j
@@ -170,7 +174,7 @@ noncomputable def stDot (hϖ : StrictMono ϖ) (hw0 : ∀ e, Γ.weight e = 0) :
       change chamberElt k _ (stDotMat ν k Γ Λ ϖ (p * q)) =
         chamberElt k _ (stDotMat ν k Γ Λ ϖ p) * chamberElt k _ (stDotMat ν k Γ Λ ϖ q)
       rw [map_mul, stDotMat_apply, stDotMat_apply,
-        chamberElt_mul_chamberElt _ _ (commute_diagonal_poly_chamberIdem _)])
+        chamberElt_mul_chamberElt _ _ (commute_diagonal_poly_chamberMatIdem _)])
 
 theorem stDot_apply (hϖ : StrictMono ϖ) (hw0 : ∀ e, Γ.weight e = 0)
     (p : MvPolynomial (Fin m) k) :
@@ -220,8 +224,8 @@ theorem stZeroDot_commute (hϖ : StrictMono ϖ) (hw0 : ∀ e, Γ.weight e = 0)
   rw [Commute, SemiconjBy, stZeroDot]
   conv_lhs => rw [← hy]
   conv_rhs => rw [← hy]
-  rw [chamberElt_mul_chamberElt _ _ (commute_diagonal_poly_chamberIdem _),
-    chamberElt_mul_chamberElt _ _ (commute_val_chamberIdem y), hc]
+  rw [chamberElt_mul_chamberElt _ _ (commute_diagonal_poly_chamberMatIdem _),
+    chamberElt_mul_chamberElt _ _ (commute_val_chamberMatIdem y), hc]
 
 variable (ν k Λ) in
 /-- The two-sided ideal generated by the dot on the `0`-strand. -/
@@ -239,8 +243,8 @@ theorem stDot_X_mul_fe (hϖ : StrictMono ϖ) (hw0 : ∀ e, Γ.weight e = 0) {i :
     stDot ν k Λ hϖ hw0 (X b) * stFreeHom ν k Λ hϖ hw0 (KLR.fe k μ i) =
       stZeroDot ν k Λ hϖ hw0 * stFreeHom ν k Λ hϖ hw0 (KLR.fe k μ i) := by
   rw [KLR.fe, stFreeHom_ι, stDot_apply, stZeroDot,
-    chamberElt_mul_chamberElt _ _ (commute_diagonal_poly_chamberIdem _),
-    chamberElt_mul_chamberElt _ _ (commute_diagonal_poly_chamberIdem _)]
+    chamberElt_mul_chamberElt _ _ (commute_diagonal_poly_chamberMatIdem _),
+    chamberElt_mul_chamberElt _ _ (commute_diagonal_poly_chamberMatIdem _)]
   congr 1
   simp only [stGenMat, Matrix.diagonal_mul_diagonal]
   congr 1

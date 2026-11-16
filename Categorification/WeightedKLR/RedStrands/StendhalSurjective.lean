@@ -42,13 +42,13 @@ variable {J : Type*} [DecidableEq J] {𝕜 : Type*} [Field 𝕜] [LinearOrder �
   [IsStrictOrderedRing 𝕜] {k : Type*} [CommRing k] {Δ : WeightedGraph J 𝕜 k} {ν : J →₀ ℕ}
   {ι : Type*} [Fintype ι] [DecidableEq ι] (F : ι → FullChamber Δ ν)
 
-theorem chamberIdem_mul_mul_apply (M : Matrix ι ι (GalleryAlgebra k Δ ν)) (l i : ι) :
-    (chamberIdem k F * M * chamberIdem k F) l i = e (F l) * M l i * e (F i) := by
-  simp [chamberIdem, Matrix.diagonal_mul, Matrix.mul_diagonal]
+theorem chamberMatIdem_mul_mul_apply (M : Matrix ι ι (GalleryAlgebra k Δ ν)) (l i : ι) :
+    (chamberMatIdem k F * M * chamberMatIdem k F) l i = e (F l) * M l i * e (F i) := by
+  simp [chamberMatIdem, Matrix.diagonal_mul, Matrix.mul_diagonal]
 
 theorem chamberElt_val_apply (M : Matrix ι ι (GalleryAlgebra k Δ ν)) (l i : ι) :
     (chamberElt k F M).1 l i = e (F l) * M l i * e (F i) :=
-  chamberIdem_mul_mul_apply F M l i
+  chamberMatIdem_mul_mul_apply F M l i
 
 /-- The element of the chamber algebra with `y` in the entry `(j, i)` (cut down by the
 idempotents of `F j` and `F i`) and zeros elsewhere. -/

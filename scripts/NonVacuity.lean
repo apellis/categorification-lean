@@ -314,6 +314,17 @@ example (ν ν' ν₁ : Fin 2 →₀ ℕ) (C D : WeightedKLR.FullChamber wkGraph
     wkGraph_dagger wkGraph_noZeroLoops wkGraph_pSymm (wkGraph_wallRegular _)
     (wkGraph_loopRegular _) ν' ν₁ D C (Set.sdiff_subset : Set.Iic μ \ {μ} ⊆ Set.Iic μ)
 
+/-- Any minimal gallery gives the basis element `b(g, m)` of Theorem 2.8 modulo shorter basis
+elements of the same step of the shuffle-type filtration. -/
+example (ν ν' ν₁ : Fin 2 →₀ ℕ) (C D : WeightedKLR.GalleryAlgebra.RankChamber wkGraph ν)
+    (μ : Fin 2 → ℕ) (g : WeightedKLR.ColPerm ν)
+    (hg : WeightedKLR.shuffleType ν' ν₁ g ∈ Set.Iic μ)
+    (w : List (WeightedKLR.Hyp wkGraph ν)) (hw : WeightedKLR.GoodWord C.1.1 w)
+    (he : C.1.flips w = g⁻¹ • D.1) (m : WeightedKLR.Strand ν →₀ ℕ) :=
+  WeightedKLR.GalleryAlgebra.r_mul_galList_mul_sub_cornerBasis_mem (k := ℚ)
+    (wkGraph_isChamberSegment _) wkGraph_dagger wkGraph_noZeroLoops wkGraph_pSymm
+    (wkGraph_wallRegular _) (wkGraph_loopRegular _) ν' ν₁ C.2 D.2 (isLowerSet_Iic μ) hg hw he m
+
 /-! ### Webster, weighted KLR algebras (arXiv:1209.2463v4), the grading of §2.1 -/
 
 /-- The grading of Webster's standing hypothesis (doubled normalization): a `ℤ`-grading of the

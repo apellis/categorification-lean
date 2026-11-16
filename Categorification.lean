@@ -889,6 +889,7 @@ import Categorification.WeightedKLR.Mackey.ShuffleExact
 import Categorification.WeightedKLR.Mackey.ShuffleFactor
 import Categorification.WeightedKLR.Mackey.ShuffleGallery
 import Categorification.WeightedKLR.Mackey.ShufflePattern
+import Categorification.WeightedKLR.Mackey.ShuffleRigidity
 import Categorification.WeightedKLR.Mackey.ShuffleSubquotient
 import Categorification.WeightedKLR.Mackey.ShuffleType
 import Categorification.WeightedKLR.Mackey.Subquotient

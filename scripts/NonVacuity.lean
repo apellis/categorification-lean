@@ -325,6 +325,72 @@ example (ν ν' ν₁ : Fin 2 →₀ ℕ) (C D : WeightedKLR.GalleryAlgebra.Rank
     (wkGraph_isChamberSegment _) wkGraph_dagger wkGraph_noZeroLoops wkGraph_pSymm
     (wkGraph_wallRegular _) (wkGraph_loopRegular _) ν' ν₁ C.2 D.2 (isLowerSet_Iic μ) hg hw he m
 
+/-- A juxtaposition is separated by the strands of the first factor, so it is the juxtaposition
+of its restrictions. -/
+example (ν' ν'' : Fin 2 →₀ ℕ) (C' : WeightedKLR.FullChamber wkGraph ν')
+    (C'' : WeightedKLR.FullChamber wkGraph ν'') :
+    WeightedKLR.Juxtapose.chamber C' C'' =
+      WeightedKLR.Juxtapose.chamber
+        ((WeightedKLR.Juxtapose.leftEmb ν' ν'').restrict (WeightedKLR.Juxtapose.chamber C' C''))
+        ((WeightedKLR.Juxtapose.rightEmb ν' ν'').restrict
+          (WeightedKLR.Juxtapose.chamber C' C'')) :=
+  WeightedKLR.Juxtapose.eq_chamber_of_isSeparated (WeightedKLR.Juxtapose.isSeparated_chamber _ _)
+
+/-- Minimal galleries through the shuffle chambers exist and concatenate to a minimal gallery
+from a juxtaposition `C` to a relabelled juxtaposition `g⁻¹ • D`. -/
+example (ν' ν'' : Fin 2 →₀ ℕ) (C' D' : WeightedKLR.FullChamber wkGraph ν')
+    (C'' D'' : WeightedKLR.FullChamber wkGraph ν'') (g : WeightedKLR.ColPerm (ν' + ν'')) :
+    ∃ w : List (WeightedKLR.Hyp wkGraph (ν' + ν'')),
+      WeightedKLR.GoodWord (WeightedKLR.Juxtapose.chamber C' C'').1 w ∧
+        (WeightedKLR.Juxtapose.chamber C' C'').flips w =
+          g⁻¹ • WeightedKLR.Juxtapose.chamber D' D'' := by
+  have hE := (WeightedKLR.Juxtapose.isSeparated_chamber D' D'').smul g⁻¹
+  obtain ⟨a, b, c, ha, hfa, hb, hfb, hc, hfc⟩ :=
+    WeightedKLR.FullChamber.exists_goodWord_shuffle wkGraph_dagger wkGraph_noZeroLoops
+      (fun t => decide (WeightedKLR.Strand.IsLeft ν' t)) _
+      (WeightedKLR.Juxtapose.chamber C' C'') (g⁻¹ • WeightedKLR.Juxtapose.chamber D' D'')
+  exact ⟨_, WeightedKLR.FullChamber.goodWord_shuffle
+    (WeightedKLR.Juxtapose.isSeparated_chamber C' C'') hE ha hfa hb hfb hc hfc⟩
+
+/-- Through the shuffle, the basis element `b(g, m)` of Theorem 2.8 is computed modulo shorter
+basis elements of the same step of the filtration, here for juxtaposed `C` and `D`. -/
+example (ν' ν'' : Fin 2 →₀ ℕ) (C' D' : WeightedKLR.FullChamber wkGraph ν')
+    (C'' D'' : WeightedKLR.FullChamber wkGraph ν'')
+    (hC : (WeightedKLR.Juxtapose.chamber C' C'').IsRankOrdered)
+    (hD : (WeightedKLR.Juxtapose.chamber D' D'').IsRankOrdered) (μ : Fin 2 → ℕ)
+    (g : WeightedKLR.ColPerm (ν' + ν'')) (hg : WeightedKLR.shuffleType ν' ν' g ∈ Set.Iic μ)
+    {a b c : List (WeightedKLR.Hyp wkGraph (ν' + ν''))}
+    (ha : WeightedKLR.GoodWord (WeightedKLR.Juxtapose.chamber C' C'').1 a)
+    (hfa : (WeightedKLR.Juxtapose.chamber C' C'').flips a =
+      WeightedKLR.FullChamber.shuffleBot (fun t => decide (WeightedKLR.Strand.IsLeft ν' t))
+        (fun t => decide (WeightedKLR.Strand.IsLeft ν' (g.1 t)))
+        (WeightedKLR.Juxtapose.chamber C' C''))
+    (hb : WeightedKLR.GoodWord (WeightedKLR.FullChamber.shuffleBot
+      (fun t => decide (WeightedKLR.Strand.IsLeft ν' t))
+      (fun t => decide (WeightedKLR.Strand.IsLeft ν' (g.1 t)))
+      (WeightedKLR.Juxtapose.chamber C' C'')).1 b)
+    (hfb : (WeightedKLR.FullChamber.shuffleBot
+      (fun t => decide (WeightedKLR.Strand.IsLeft ν' t))
+      (fun t => decide (WeightedKLR.Strand.IsLeft ν' (g.1 t)))
+      (WeightedKLR.Juxtapose.chamber C' C'')).flips b =
+        WeightedKLR.FullChamber.shuffleTop
+          (fun t => decide (WeightedKLR.Strand.IsLeft ν' (g.1 t)))
+          (WeightedKLR.Juxtapose.chamber C' C''))
+    (hc : WeightedKLR.GoodWord (WeightedKLR.FullChamber.shuffleTop
+      (fun t => decide (WeightedKLR.Strand.IsLeft ν' (g.1 t)))
+      (WeightedKLR.Juxtapose.chamber C' C'')).1 c)
+    (hfc : (WeightedKLR.FullChamber.shuffleTop
+      (fun t => decide (WeightedKLR.Strand.IsLeft ν' (g.1 t)))
+      (WeightedKLR.Juxtapose.chamber C' C'')).flips c =
+        g⁻¹ • WeightedKLR.Juxtapose.chamber D' D'')
+    (m : WeightedKLR.Strand (ν' + ν'') →₀ ℕ) :=
+  WeightedKLR.GalleryAlgebra.shuffle_sub_cornerBasis_mem (k := ℚ)
+    (wkGraph_isChamberSegment _) wkGraph_dagger wkGraph_noZeroLoops wkGraph_pSymm
+    (wkGraph_wallRegular _) (wkGraph_loopRegular _) ν' ν' hC hD
+    (WeightedKLR.Juxtapose.isSeparated_chamber C' C'')
+    (WeightedKLR.Juxtapose.isSeparated_chamber D' D'') (isLowerSet_Iic μ) hg ha hfa hb hfb hc
+    hfc m
+
 /-! ### Webster, weighted KLR algebras (arXiv:1209.2463v4), the grading of §2.1 -/
 
 /-- The grading of Webster's standing hypothesis (doubled normalization): a `ℤ`-grading of the

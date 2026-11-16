@@ -44,6 +44,9 @@ preserving the second block at the bottom, preserves the filtration (`mul_mem_ma
   increasing and exhausts `e D * A * e C`.
 * `GalleryAlgebra.mul_mem_mackeyFilt`, `GalleryAlgebra.mackeyFilt_mul_mem`: stability under
   multiplication by elements with parabolic relabellings.
+* `GalleryAlgebra.mackeyFilt_empty`, `GalleryAlgebra.finite_range_mackeyFilt`: the filtration
+  starts at zero and has finitely many distinct steps, since only the shuffle types of the
+  finitely many relabellings occur (`GalleryAlgebra.mackeyFilt_inter_range`).
 -/
 
 namespace Categorification.WeightedKLR

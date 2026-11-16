@@ -29,7 +29,8 @@ representative `e D ι(x) ψ_μ ι(y) e C` of the class of `x ⊗ y` in the subq
 (`GalleryAlgebra.typeInductionAux_mem_grade`). For the four-block layout `a b c d` this sum is
 `∑_{i, j} b_i c_j pairDeg i j` (`GradingDatum.shuffleDeg_middleLeft`).
 
-The statement is about representatives: no grading of the subquotient is constructed here.
+The statement is about representatives; the grading of the subquotient and the graded form of
+the corner isomorphism are in `Categorification/WeightedKLR/Mackey/MiddleGraded.lean`.
 
 ## Conventions
 

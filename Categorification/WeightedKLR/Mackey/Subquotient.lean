@@ -21,6 +21,11 @@ step of shuffle type `μ`.
 * `Module.Basis.quotientSpanImage b s`: the basis of `M ⧸ span (b '' s)` given by the classes of
   the remaining basis vectors.
 * `GalleryAlgebra.mackeySubquotientBasis`: the basis of a subquotient of the filtration.
+
+## Main results
+
+* `GalleryAlgebra.subsingleton_mackeySubquotient`: a subquotient `S / S'` vanishes when every
+  shuffle type of `S` that occurs lies in `S'`.
 -/
 
 namespace Module.Basis

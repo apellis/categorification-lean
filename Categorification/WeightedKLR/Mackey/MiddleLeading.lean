@@ -30,7 +30,10 @@ Theorem 2.8, modulo shorter corner basis vectors.
 * `Juxtapose.linearIndependent_middleTensorMap_middleCornerVec`: the images of the spanning family
   are independent in the subquotient `S / S'` when `c ∉ S'`.
 * `Juxtapose.middleCornerEquiv`: the juxtaposed corner of `MiddleTensor` is isomorphic to the
-  subquotient of the Mackey filtration of shuffle type `c` (Webster, Theorem 2.19).
+  subquotient of the Mackey filtration of shuffle type `c` (Webster, Theorem 2.19);
+  `Juxtapose.middleCornerEquivIic` is the case of the subquotient `Iic c / Iio c`. The graded
+  form is `Juxtapose.middleCornerGradedEquiv`, in
+  `Categorification/WeightedKLR/Mackey/MiddleGraded.lean`.
 -/
 
 namespace Module.Basis

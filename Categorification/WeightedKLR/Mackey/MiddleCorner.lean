@@ -234,5 +234,242 @@ theorem rankE_mul_cosetW {E : FullChamber Γ (ν' + ν'')} (hE : E.IsRankOrdered
 end Rep
 
 end GalleryAlgebra
+namespace Juxtapose
+
+variable {a b c d : I →₀ ℕ}
+
+section CornerMap
+
+variable (zL : WeightedKLRAlgebra k Γ (a + c) ⊗[k] WeightedKLRAlgebra k Γ (b + d))
+  (zR : WeightedKLRAlgebra k Γ (a + b) ⊗[k] WeightedKLRAlgebra k Γ (c + d))
+
+/-- Left multiplication by `z_L` on `MiddleTop`. -/
+noncomputable def middleTopMulLeft : MiddleTop k Γ a b c d →ₗ[k] MiddleTop k Γ a b c d where
+  toFun t := zL • t
+  map_add' := smul_add zL
+  map_smul' r t := Subtype.ext (by
+    show zL * (r • t.1) = r • (zL * t.1)
+    exact mul_smul_comm r zL t.1)
+
+/-- Right multiplication by `z_R` on `MiddleBot`. -/
+noncomputable def middleBotMulRight : MiddleBot k Γ a b c d →ₗ[k] MiddleBot k Γ a b c d where
+  toFun y := ⟨y.1 * zR, by rw [mem_middleBotSub, ← mul_assoc, mem_middleBotSub.1 y.2]⟩
+  map_add' y y' := Subtype.ext (add_mul _ _ _)
+  map_smul' r y := Subtype.ext (smul_mul_assoc _ _ _)
+
+theorem middleTopMulLeft_apply (t : MiddleTop k Γ a b c d) : middleTopMulLeft zL t = zL • t :=
+  rfl
+
+theorem coe_middleBotMulRight (y : MiddleBot k Γ a b c d) :
+    (middleBotMulRight zR y :
+      WeightedKLRAlgebra k Γ (a + b) ⊗[k] WeightedKLRAlgebra k Γ (c + d)) = y.1 * zR := rfl
+
+theorem middleBotMulRight_smul (w : MiddleAlg k Γ a b c d) (y : MiddleBot k Γ a b c d) :
+    middleBotMulRight zR (w • y) = w • middleBotMulRight zR y :=
+  Subtype.ext (mul_assoc _ _ _)
+
+/-- The corner map `t ⊗ y ↦ z_L t ⊗ y z_R` of `MiddleTensor`. For `z_L = e L' ⊗ e L''` and
+`z_R = e R' ⊗ e R''` its range is the juxtaposed corner, which the descended map
+`middleTensorMap` sends to the corner of `chamber L' L''` and `chamber R' R''` of the Mackey
+subquotient (`Juxtapose.middleTensorMap_tmul_corner`). -/
+noncomputable def middleCornerMap : MiddleTensor k Γ a b c d →ₗ[k] MiddleTensor k Γ a b c d :=
+  BalancedTensor.lift ((BalancedTensor.mkBil k _ _ _ _).compl₁₂ (middleTopMulLeft zL)
+    (middleBotMulRight zR)) fun t w y => by
+    simp only [LinearMap.compl₁₂_apply, BalancedTensor.mkBil_apply, middleTopMulLeft_apply,
+      middleBotMulRight_smul]
+    rw [← BalancedTensor.op_smul_tmul, smul_comm zL (op w) t]
+
+theorem middleCornerMap_tmul (t : MiddleTop k Γ a b c d) (y : MiddleBot k Γ a b c d) :
+    middleCornerMap zL zR (BalancedTensor.tmul t y) =
+      BalancedTensor.tmul (zL • t) (middleBotMulRight zR y) := rfl
+
+end CornerMap
+
+/-- `x ⊗ y` lies in `MiddleBot` if `x`, `y` lie under juxtapositions of rank-ordered chambers. -/
+theorem tmul_mem_middleBotSub {X' : FullChamber Γ a} {X'' : FullChamber Γ b}
+    {Y' : FullChamber Γ c} {Y'' : FullChamber Γ d} (hX : (chamber X' X'').IsRankOrdered)
+    (hY : (chamber Y' Y'').IsRankOrdered) {x : WeightedKLRAlgebra k Γ (a + b)}
+    {y : WeightedKLRAlgebra k Γ (c + d)} (hx : rankE k hX * x = x) (hy : rankE k hY * y = y) :
+    x ⊗ₜ y ∈ middleBotSub k Γ a b c d := by
+  rw [mem_middleBotSub, middleBot_one, Algebra.TensorProduct.tmul_mul_tmul,
+    inductionMap_one_mul hX hx, inductionMap_one_mul hY hy]
+
+variable {L' : FullChamber Γ (a + c)} {L'' : FullChamber Γ (b + d)}
+
+omit [DecidableEq I] in
+theorem isRankOrdered_botLeft (u₁ : ParabolicRep a L') (u₂ : ParabolicRep b L'') :
+    (chamber (repLeft u₁) (repLeft u₂)).IsRankOrdered :=
+  (isRankOrdered_chamber_iff _ _).2 ⟨isRankOrdered_repLeft u₁, isRankOrdered_repLeft u₂⟩
+
+omit [DecidableEq I] in
+theorem isRankOrdered_botRight (u₁ : ParabolicRep a L') (u₂ : ParabolicRep b L'') :
+    (chamber (repRight u₁) (repRight u₂)).IsRankOrdered :=
+  (isRankOrdered_chamber_iff _ _).2 ⟨isRankOrdered_repRight u₁, isRankOrdered_repRight u₂⟩
+
+variable (Γ L' L'') in
+/-- The index set of the spanning family of the juxtaposed corner: representatives `u₁`, `u₂`
+for `L'` and `L''`, and indices of the corner bases for `a + b` and `c + d`. -/
+abbrev MiddleCornerIdx : Type _ :=
+  (ParabolicRep a L' × ParabolicRep b L'') ×
+    ((ColPerm (a + b) × (Strand (a + b) →₀ ℕ)) × (ColPerm (c + d) × (Strand (c + d) →₀ ℕ)))
+
+variable {R' : FullChamber Γ (a + b)} {R'' : FullChamber Γ (c + d)}
+  {P₃ : FullChamber Γ (a + b) → FullChamber Γ (a + b) →
+    (Strand (a + b) → 𝕜) × (Strand (a + b) → 𝕜)}
+  (hP₃ : ∀ C E, IsChamberSegment C E (P₃ C E))
+  {P₄ : FullChamber Γ (c + d) → FullChamber Γ (c + d) →
+    (Strand (c + d) → 𝕜) × (Strand (c + d) → 𝕜)}
+  (hP₄ : ∀ C E, IsChamberSegment C E (P₄ C E)) (hD : Γ.Dagger) (hZ : Γ.NoZeroLoops)
+  (hΓ : Γ.PSymm) (hW₃ : ∀ w : Wall Γ (a + b), IsRegular (w.factor (k := k)))
+  (hW₄ : ∀ w : Wall Γ (c + d), IsRegular (w.factor (k := k)))
+  (hL₃ : ∀ (Q : MvPolynomial (Fin 2) k) (s t : Strand (a + b)), Γ.loop s.1 = some Q →
+    s ≠ t → s.1 = t.1 → IsRegular (loopFactor Q s t))
+  (hL₄ : ∀ (Q : MvPolynomial (Fin 2) k) (s t : Strand (c + d)), Γ.loop s.1 = some Q →
+    s ≠ t → s.1 = t.1 → IsRegular (loopFactor Q s t))
+  (hL' : L'.IsRankOrdered) (hL'' : L''.IsRankOrdered) (hR' : R'.IsRankOrdered)
+  (hR'' : R''.IsRankOrdered)
+
+/-- The bottom factor `b₁ ⊗ b₂` of a vector of the spanning family. -/
+noncomputable def middleCornerBot (i : MiddleCornerIdx Γ L' L'') : MiddleBot k Γ a b c d :=
+  ⟨cornerW k (isRankOrdered_botLeft i.1.1 i.1.2) hR'
+      (cornerBasis hP₃ hD hZ hΓ hW₃ hL₃ _ R' i.2.1) ⊗ₜ
+    cornerW k (isRankOrdered_botRight i.1.1 i.1.2) hR''
+      (cornerBasis hP₄ hD hZ hΓ hW₄ hL₄ _ R'' i.2.2),
+    tmul_mem_middleBotSub _ _ (rankE_mul_cornerW _ _ _) (rankE_mul_cornerW _ _ _)⟩
+
+/-- The spanning family of the juxtaposed corner: `(c_{u₁} ⊗ c_{u₂}) ⊗ (b₁ ⊗ b₂)`, `b₁` (resp.
+`b₂`) in the corner basis from the juxtaposition of the left (resp. right) restrictions of
+`G_{u₁}`, `G_{u₂}` to `R'` (resp. `R''`). -/
+noncomputable def middleCornerVec (i : MiddleCornerIdx Γ L' L'') : MiddleTensor k Γ a b c d :=
+  BalancedTensor.tmul (middleGen k hD hZ (⟨⟨L', hL'⟩, i.1.1⟩, ⟨⟨L'', hL''⟩, i.1.2⟩))
+    (middleCornerBot hP₃ hP₄ hD hZ hΓ hW₃ hW₄ hL₃ hL₄ hR' hR'' i)
+
+include hP₃ hP₄ hΓ hW₃ hW₄ hL₃ hL₄ in
+/-- The juxtaposed corner part of a generator `(c_{u₁} ⊗ c_{u₂}) ⊗ y z_R` is a combination of the
+spanning family. -/
+theorem tmul_middleGen_mem_span (u₁ : ParabolicRep a L') (u₂ : ParabolicRep b L'')
+    (y : MiddleBot k Γ a b c d) :
+    BalancedTensor.tmul (middleGen k hD hZ (⟨⟨L', hL'⟩, u₁⟩, ⟨⟨L'', hL''⟩, u₂⟩))
+        (middleBotMulRight (rankE k hR' ⊗ₜ rankE k hR'') y) ∈
+      Submodule.span k (Set.range
+        (middleCornerVec hP₃ hP₄ hD hZ hΓ hW₃ hW₄ hL₃ hL₄ hL' hL'' hR' hR'')) := by
+  set g := middleGen k hD hZ (⟨⟨L', hL'⟩, u₁⟩, ⟨⟨L'', hL''⟩, u₂⟩)
+  set w : MiddleAlg k Γ a b c d :=
+    (rankE k (isRankOrdered_repLeft u₁) ⊗ₜ rankE k (isRankOrdered_repLeft u₂)) ⊗ₜ
+      (rankE k (isRankOrdered_repRight u₁) ⊗ₜ rankE k (isRankOrdered_repRight u₂))
+  set E := rankE k (isRankOrdered_botLeft u₁ u₂) ⊗ₜ[k] rankE k (isRankOrdered_botRight u₁ u₂)
+  have hw : op w • g = g := Subtype.ext (by
+    rw [coe_op_smul_middleTop, unop_op, coe_middleGen, middleTop_tmul,
+      Algebra.TensorProduct.tmul_mul_tmul]
+    exact congrArg₂ _ (cosetW_mul_inductionMap_rankE hD hZ hL' u₁)
+      (cosetW_mul_inductionMap_rankE hD hZ hL'' u₂))
+  have hbot : middleBot k Γ a b c d w = E := by
+    rw [middleBot_tmul, inductionMap_rankE_tmul_rankE, inductionMap_rankE_tmul_rankE]
+  have hE : E * E = E := by
+    rw [Algebra.TensorProduct.tmul_mul_tmul, rankE_mul_rankE, rankE_mul_rankE]
+  have hEmem : ∀ z, E * z ∈ middleBotSub k Γ a b c d := fun z => by
+    rw [← hbot]; exact middleBot_mul_mem w z
+  let j : (WeightedKLRAlgebra k Γ (a + b) ⊗[k] WeightedKLRAlgebra k Γ (c + d)) →ₗ[k]
+      MiddleBot k Γ a b c d :=
+    LinearMap.codRestrict _ (LinearMap.mulLeft k E) hEmem
+  let F : (WeightedKLRAlgebra k Γ (a + b) ⊗[k] WeightedKLRAlgebra k Γ (c + d)) →ₗ[k]
+      MiddleTensor k Γ a b c d :=
+    { toFun := fun z => BalancedTensor.tmul g (j z)
+      map_add' := fun z z' => by rw [map_add, BalancedTensor.tmul_add]
+      map_smul' := fun r z => by rw [map_smul, BalancedTensor.tmul_smul]; rfl }
+  set q := E * y.1 * (rankE k hR' ⊗ₜ rankE k hR'')
+  have hq := tmul_mul_mul_tmul_mem_span hP₃ hP₄ hD hZ hΓ hW₃ hW₄ hL₃ hL₄
+    (isRankOrdered_botLeft u₁ u₂) hR' (isRankOrdered_botRight u₁ u₂) hR'' y.1
+  have hFq : BalancedTensor.tmul g (middleBotMulRight (rankE k hR' ⊗ₜ rankE k hR'') y) = F q := by
+    rw [← hw, BalancedTensor.op_smul_tmul]
+    show _ = BalancedTensor.tmul g (j q)
+    congr 1
+    refine Subtype.ext ?_
+    show middleBot k Γ a b c d w * (y.1 * _) = E * q
+    rw [hbot, ← mul_assoc, ← mul_assoc, ← mul_assoc, hE]
+  rw [hFq]
+  have hmem := Submodule.mem_map_of_mem (f := F) hq
+  rw [Submodule.map_span] at hmem
+  refine Submodule.span_le.2 ?_ hmem
+  rintro _ ⟨_, ⟨i, rfl⟩, rfl⟩
+  refine Submodule.subset_span ⟨((u₁, u₂), i), ?_⟩
+  show BalancedTensor.tmul g _ = BalancedTensor.tmul g (j _)
+  congr 1
+  refine Subtype.ext ?_
+  show _ = E * _
+  rw [Algebra.TensorProduct.tmul_mul_tmul, rankE_mul_cornerW, rankE_mul_cornerW]
+  rfl
+
+variable {P₁ : FullChamber Γ (a + c) → FullChamber Γ (a + c) →
+    (Strand (a + c) → 𝕜) × (Strand (a + c) → 𝕜)}
+  (hP₁ : ∀ C E, IsChamberSegment C E (P₁ C E))
+  {P₂ : FullChamber Γ (b + d) → FullChamber Γ (b + d) →
+    (Strand (b + d) → 𝕜) × (Strand (b + d) → 𝕜)}
+  (hP₂ : ∀ C E, IsChamberSegment C E (P₂ C E))
+  (hW₁ : ∀ w : Wall Γ (a + c), IsRegular (w.factor (k := k)))
+  (hW₂ : ∀ w : Wall Γ (b + d), IsRegular (w.factor (k := k)))
+  (hL₁ : ∀ (Q : MvPolynomial (Fin 2) k) (s t : Strand (a + c)), Γ.loop s.1 = some Q →
+    s ≠ t → s.1 = t.1 → IsRegular (loopFactor Q s t))
+  (hL₂ : ∀ (Q : MvPolynomial (Fin 2) k) (s t : Strand (b + d)), Γ.loop s.1 = some Q →
+    s ≠ t → s.1 = t.1 → IsRegular (loopFactor Q s t))
+
+include hP₁ hP₂ hW₁ hW₂ hL₁ hL₂ hP₃ hP₄ hΓ hW₃ hW₄ hL₃ hL₄ in
+/-- **A spanning family of the juxtaposed corner of the middle parabolic** (Webster,
+arXiv:1209.2463v4, Theorem 2.19, injectivity half; after Khovanov–Lauda, arXiv:0803.4121v2, proof
+of Proposition 2.18). The corner `(e L' ⊗ e L'') MiddleTensor (e R' ⊗ e R'')`, the range of
+`middleCornerMap`, is spanned by the tensors `(c_{u₁} ⊗ c_{u₂}) ⊗ (b₁ ⊗ b₂)`, `u₁`, `u₂`
+representatives for `L'`, `L''` and `b₁`, `b₂` in the corner bases of Webster, Theorem 2.8, from
+`chamber G'_{u₁} G'_{u₂}` to `R'` and from `chamber G''_{u₁} G''_{u₂}` to `R''`. The hypotheses of
+Theorem 2.8 enter for the four weights `a + c`, `b + d`, `a + b` and `c + d`. -/
+theorem range_middleCornerMap_le_span :
+    LinearMap.range (middleCornerMap (rankE k hL' ⊗ₜ rankE k hL'')
+        (rankE k hR' ⊗ₜ rankE k hR'')) ≤
+      Submodule.span k (Set.range
+        (middleCornerVec hP₃ hP₄ hD hZ hΓ hW₃ hW₄ hL₃ hL₄ hL' hL'' hR' hR'')) := by
+  rw [LinearMap.range_eq_map, ← span_tmul_middleGen_eq_top hP₁ hP₂ hD hZ hΓ hW₁ hW₂ hL₁ hL₂,
+    Submodule.map_span, Submodule.span_le]
+  rintro _ ⟨_, ⟨⟨⟨⟨⟨E₁, hE₁⟩, u₁⟩, ⟨⟨E₂, hE₂⟩, u₂⟩⟩, y⟩, rfl⟩, rfl⟩
+  rw [SetLike.mem_coe, middleCornerMap_tmul]
+  have hval : (((rankE k hL' ⊗ₜ[k] rankE k hL'') •
+      middleGen k hD hZ (⟨⟨E₁, hE₁⟩, u₁⟩, ⟨⟨E₂, hE₂⟩, u₂⟩) : MiddleTop k Γ a b c d) :
+        WeightedKLRAlgebra k Γ (a + c) ⊗[k] WeightedKLRAlgebra k Γ (b + d)) =
+      (if L' = E₁ then cosetW k hD hZ hE₁ u₁ else 0) ⊗ₜ[k]
+        (if L'' = E₂ then cosetW k hD hZ hE₂ u₂ else 0) := by
+    rw [Submodule.coe_smul, coe_middleGen, smul_eq_mul, Algebra.TensorProduct.tmul_mul_tmul]
+    exact congrArg₂ _ (rankE_mul_cosetW hD hZ hL' hE₁ u₁) (rankE_mul_cosetW hD hZ hL'' hE₂ u₂)
+  by_cases h : L' = E₁ ∧ L'' = E₂
+  · obtain ⟨rfl, rfl⟩ := h
+    have hg : (rankE k hL' ⊗ₜ[k] rankE k hL'') •
+        middleGen k hD hZ (⟨⟨L', hE₁⟩, u₁⟩, ⟨⟨L'', hE₂⟩, u₂⟩) =
+        middleGen k hD hZ (⟨⟨L', hE₁⟩, u₁⟩, ⟨⟨L'', hE₂⟩, u₂⟩) :=
+      Subtype.ext (by rw [hval, ite_eq_left rfl, ite_eq_left rfl]; rfl)
+    rw [hg]
+    exact tmul_middleGen_mem_span hP₃ hP₄ hD hZ hΓ hW₃ hW₄ hL₃ hL₄ hL' hL'' hR' hR'' u₁ u₂ y
+  · have hg : (rankE k hL' ⊗ₜ[k] rankE k hL'') •
+        middleGen k hD hZ (⟨⟨E₁, hE₁⟩, u₁⟩, ⟨⟨E₂, hE₂⟩, u₂⟩) = 0 := by
+      refine Subtype.ext ?_
+      rw [hval]
+      rcases not_and_or.1 h with h₁ | h₁ <;> simp [h₁]
+    rw [hg, BalancedTensor.zero_tmul]
+    exact Submodule.zero_mem _
+
+/-- Each vector of the spanning family lies in the juxtaposed corner. -/
+theorem middleCornerVec_mem_range (i : MiddleCornerIdx Γ L' L'') :
+    middleCornerVec hP₃ hP₄ hD hZ hΓ hW₃ hW₄ hL₃ hL₄ hL' hL'' hR' hR'' i ∈
+      LinearMap.range (middleCornerMap (rankE k hL' ⊗ₜ rankE k hL'')
+        (rankE k hR' ⊗ₜ rankE k hR'')) := by
+  refine ⟨middleCornerVec hP₃ hP₄ hD hZ hΓ hW₃ hW₄ hL₃ hL₄ hL' hL'' hR' hR'' i, ?_⟩
+  rw [middleCornerVec, middleCornerMap_tmul]
+  congr 1
+  · refine Subtype.ext ?_
+    rw [Submodule.coe_smul, coe_middleGen, smul_eq_mul, Algebra.TensorProduct.tmul_mul_tmul]
+    refine congrArg₂ _ ((rankE_mul_cosetW hD hZ hL' hL' i.1.1).trans (ite_eq_left rfl))
+      ((rankE_mul_cosetW hD hZ hL'' hL'' i.1.2).trans (ite_eq_left rfl))
+  · refine Subtype.ext ?_
+    rw [coe_middleBotMulRight]
+    show _ ⊗ₜ _ * _ = _ ⊗ₜ _
+    rw [Algebra.TensorProduct.tmul_mul_tmul, cornerW_mul_rankE, cornerW_mul_rankE]
+
+end Juxtapose
 
 end Categorification.WeightedKLR

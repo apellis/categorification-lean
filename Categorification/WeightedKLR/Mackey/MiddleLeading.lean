@@ -31,8 +31,6 @@ Theorem 2.8, modulo shorter corner basis vectors.
   are independent in the subquotient `S / S'` when `c ∉ S'`.
 * `Juxtapose.middleCornerEquiv`: the juxtaposed corner of `MiddleTensor` is isomorphic to the
   subquotient of the Mackey filtration of shuffle type `c` (Webster, Theorem 2.19).
-* `StrandEmbedding.isRegular_factor`, `StrandEmbedding.isRegular_loopFactor`: the regularity
-  hypotheses of Webster, Theorem 2.8, pass to the weights of a smaller set of strands.
 -/
 
 namespace Module.Basis
@@ -127,58 +125,6 @@ open scoped TensorProduct
 
 variable {I : Type*} [DecidableEq I] {𝕜 : Type*} [Field 𝕜] [LinearOrder 𝕜]
   [IsStrictOrderedRing 𝕜] {k : Type*} [CommRing k] {Γ : WeightedGraph I 𝕜 k}
-
-namespace StrandEmbedding
-
-open MvPolynomial
-
-variable {μ ν : I →₀ ℕ}
-
-omit [DecidableEq I] in
-theorem isRegular_of_isRegular_rename {σ τ : Type*} {f : σ → τ} (hf : Function.Injective f)
-    {p : MvPolynomial σ k} (h : IsRegular (rename f p)) : IsRegular p := by
-  refine ⟨fun x y hxy => rename_injective f hf (h.1 ?_), fun x y hxy => rename_injective f hf
-    (h.2 ?_)⟩
-  · simpa only [map_mul] using congrArg (rename f) hxy
-  · simpa only [map_mul] using congrArg (rename f) hxy
-
-omit [DecidableEq I] in
-theorem rename_aeval_cons {σ τ : Type*} (f : σ → τ) (s t : σ) (Q : MvPolynomial (Fin 2) k) :
-    rename f (aeval (Fin.cons (X s) (fun _ => X t) : Fin 2 → MvPolynomial σ k) Q) =
-      aeval (Fin.cons (X (f s)) (fun _ => X (f t)) : Fin 2 → MvPolynomial τ k) Q := by
-  rw [← AlgHom.comp_apply, MvPolynomial.comp_aeval]
-  congr 2
-  funext i
-  refine Fin.cases ?_ (fun _ => ?_) i <;> simp
-
-omit [DecidableEq I] [Field 𝕜] [LinearOrder 𝕜] [IsStrictOrderedRing 𝕜] in
-/-- The wall factors stay regular on a smaller set of strands: the hypothesis of Webster,
-arXiv:1209.2463v4, Theorem 2.8, on walls passes along a strand embedding. -/
-theorem isRegular_factor (j : StrandEmbedding μ ν)
-    (hW : ∀ w : Wall Γ ν, IsRegular (w.factor (k := k))) (w : Wall Γ μ) :
-    IsRegular (w.factor (k := k)) := by
-  refine isRegular_of_isRegular_rename j.injective ?_
-  have := hW ⟨(w.edge, j w.src, j w.tgt), by
-    refine ⟨?_, ?_, fun h => w.2.2.2 (j.injective h)⟩
-    · exact (j.colour _).trans w.2.1
-    · exact (j.colour _).trans w.2.2.1⟩
-  rw [Wall.factor, rename_aeval_cons]
-  exact this
-
-omit [DecidableEq I] [Field 𝕜] [LinearOrder 𝕜] [IsStrictOrderedRing 𝕜] in
-/-- The loop factors stay regular on a smaller set of strands: the hypothesis of Webster,
-arXiv:1209.2463v4, Theorem 2.8, on loops passes along a strand embedding. -/
-theorem isRegular_loopFactor (j : StrandEmbedding μ ν)
-    (hL : ∀ (Q : MvPolynomial (Fin 2) k) (s t : Strand ν), Γ.loop s.1 = some Q → s ≠ t →
-      s.1 = t.1 → IsRegular (loopFactor Q s t))
-    (Q : MvPolynomial (Fin 2) k) (s t : Strand μ) (hQ : Γ.loop s.1 = some Q) (hst : s ≠ t)
-    (h : s.1 = t.1) : IsRegular (loopFactor Q s t) := by
-  refine isRegular_of_isRegular_rename j.injective ?_
-  rw [loopFactor, rename_aeval_cons]
-  exact hL Q (j s) (j t) (by rw [j.colour]; exact hQ) (fun h' => hst (j.injective h'))
-    (j.fst_eq h)
-
-end StrandEmbedding
 
 namespace GalleryAlgebra
 
@@ -772,7 +718,7 @@ chambers `L'`, `L''` for `a + c`, `b + d` and `R'`, `R''` for `a + b`, `c + d`, 
 juxtaposed corner of `MiddleTensor` onto the subquotient `S / S'` of the Mackey filtration of the
 corner `e L A e R`, `L`, `R` the juxtaposed chambers. The hypotheses of Webster, Theorem 2.8, are
 those for the weight `a + b + c + d`; they imply those for `a + c`, `b + d`, `a + b` and `c + d`
-(`StrandEmbedding.isRegular_factor`, `StrandEmbedding.isRegular_loopFactor`). -/
+(`isRegular_factor_of_embedding`, `isRegular_loopFactor_of_embedding`). -/
 noncomputable def middleCornerEquiv (hL' : L'.IsRankOrdered) (hL'' : L''.IsRankOrdered)
     (hR' : R'.IsRankOrdered) (hR'' : R''.IsRankOrdered) {S' S : Set (I → ℕ)}
     (hS : IsLowerSet S) (hcS : ⇑c ∈ S) (hS' : Set.Iio ⇑c ⊆ S') (hcS' : ⇑c ∉ S')
@@ -799,14 +745,14 @@ noncomputable def middleCornerEquiv (hL' : L'.IsRankOrdered) (hL'' : L''.IsRankO
       choose P₄ hP₄ using fun C E : FullChamber Γ (c + d) => exists_isChamberSegment hD hZ C E
       have hW' := isRegular_factor_layout hW
       have hL'₀ := isRegular_loopFactor_layout hL
-      have hW₁ := StrandEmbedding.isRegular_factor (leftEmb (a + c) (b + d)) hW'
-      have hW₂ := StrandEmbedding.isRegular_factor (rightEmb (a + c) (b + d)) hW'
-      have hW₃ := StrandEmbedding.isRegular_factor (leftEmb (a + b) (c + d)) hW
-      have hW₄ := StrandEmbedding.isRegular_factor (rightEmb (a + b) (c + d)) hW
-      have hL₁ := StrandEmbedding.isRegular_loopFactor (leftEmb (a + c) (b + d)) hL'₀
-      have hL₂ := StrandEmbedding.isRegular_loopFactor (rightEmb (a + c) (b + d)) hL'₀
-      have hL₃ := StrandEmbedding.isRegular_loopFactor (leftEmb (a + b) (c + d)) hL
-      have hL₄ := StrandEmbedding.isRegular_loopFactor (rightEmb (a + b) (c + d)) hL
+      have hW₁ := isRegular_factor_of_embedding (leftEmb (a + c) (b + d)) hW'
+      have hW₂ := isRegular_factor_of_embedding (rightEmb (a + c) (b + d)) hW'
+      have hW₃ := isRegular_factor_of_embedding (leftEmb (a + b) (c + d)) hW
+      have hW₄ := isRegular_factor_of_embedding (rightEmb (a + b) (c + d)) hW
+      have hL₁ := isRegular_loopFactor_of_embedding (leftEmb (a + c) (b + d)) hL'₀
+      have hL₂ := isRegular_loopFactor_of_embedding (rightEmb (a + c) (b + d)) hL'₀
+      have hL₃ := isRegular_loopFactor_of_embedding (leftEmb (a + b) (c + d)) hL
+      have hL₄ := isRegular_loopFactor_of_embedding (rightEmb (a + b) (c + d)) hL
       have heq : LinearMap.range π = Submodule.span k (Set.range
           (middleCornerVec hP₃ hP₄ hD hZ hΓ hW₃ hW₄ hL₃ hL₄ hL' hL'' hR' hR'')) :=
         le_antisymm (range_middleCornerMap_le_span (hP₁ := hP₁) (hP₂ := hP₂) (hW₁ := hW₁)

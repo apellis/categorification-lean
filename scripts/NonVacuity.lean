@@ -1141,4 +1141,17 @@ example (ν' ν'' : Fin 2 →₀ ℕ) (C' : WeightedKLR.GalleryAlgebra.RankChamb
       (WeightedKLR.Juxtapose.rightEmb ν' ν'') (wkGraph_loopRegular _))
     ((WeightedKLR.Juxtapose.isRankOrdered_chamber_iff C'.1 C''.1).2 ⟨C'.2, C''.2⟩) D.2
 
+/-- The juxtaposed corner of `MiddleTensor` is the Mackey subquotient of shuffle type `c`
+(Webster, Theorem 2.19), for `S = {μ ≤ c}` and `S' = {μ < c}`. The regularity hypotheses for the
+four smaller weights are derived from those of `a + b + (c + d)`. -/
+example (a b c d : Fin 2 →₀ ℕ) (L' : WeightedKLR.GalleryAlgebra.RankChamber wkGraph (a + c))
+    (L'' : WeightedKLR.GalleryAlgebra.RankChamber wkGraph (b + d))
+    (R' : WeightedKLR.GalleryAlgebra.RankChamber wkGraph (a + b))
+    (R'' : WeightedKLR.GalleryAlgebra.RankChamber wkGraph (c + d)) :=
+  WeightedKLR.Juxtapose.middleCornerEquiv (k := ℚ) (wkGraph_isChamberSegment _) wkGraph_dagger
+    wkGraph_noZeroLoops wkGraph_pSymm (wkGraph_wallRegular _) (wkGraph_loopRegular _) L'.2 L''.2
+    R'.2 R''.2 (S' := Set.Iio ⇑c) (S := Set.Iic ⇑c) (isLowerSet_Iic _) (Set.mem_Iic.2 le_rfl)
+    subset_rfl (fun h => lt_irrefl _ (Set.mem_Iio.1 h))
+    (fun _ h h' => (Set.mem_Iic.1 h).eq_or_lt.resolve_right h')
+
 end NonVacuity

@@ -246,3 +246,109 @@ theorem chamberOp_commute_mulXOp {s₀ : Strand ν} (h₀ : ν s₀.1 = 1) (hΓ 
 end ChamberMatrix
 
 end Categorification.WeightedKLR
+
+namespace Categorification
+
+open MvPolynomial Equiv
+
+/-- Renaming the variables commutes with the divided difference `∂_{ab}` when the renaming
+commutes with the transposition of `a` and `b`; it need not be injective. -/
+theorem rename_ddiff_of_comm {k σ τ : Type*} [CommRing k] [DecidableEq σ] [DecidableEq τ]
+    {φ : σ → τ} {a b : σ} (hab : φ a ≠ φ b) (hc : ∀ c, φ (swap a b c) = swap (φ a) (φ b) (φ c))
+    (f : MvPolynomial σ k) : rename φ (ddiff a b f) = ddiff (φ a) (φ b) (rename φ f) := by
+  have hab' : a ≠ b := fun e => hab (by rw [e])
+  symm
+  apply ddiff_eq_of_mul hab
+  have h := congrArg (rename φ) (ddiff_spec hab' f)
+  simp only [map_mul, map_sub, rename_X, rename_rename] at h
+  rw [h, rename_rename, show φ ∘ swap a b = swap (φ a) (φ b) ∘ φ from funext hc]
+
+end Categorification
+
+namespace Categorification.Stendhal
+
+open Categorification.WeightedKLR Equiv MvPolynomial FullChamber GalleryAlgebra
+
+section Hom
+
+variable {I : Type} [DecidableEq I] {ℓ : ℕ} {ν : Multiset I}
+  {𝕜 : Type*} [Field 𝕜] [LinearOrder 𝕜] [IsStrictOrderedRing 𝕜] {k : Type*} [CommRing k]
+  {Γ : WeightedGraph I 𝕜 k} {Λ : Fin ℓ → I →₀ ℕ} {ϖ : Fin ℓ → 𝕜}
+
+local notation "μ" => Multiset.toFinsupp (stendhalWeight ℓ ν)
+local notation "ν̃" => WeightedGraph.redWeight (Multiset.toFinsupp ν)
+local notation "Γλ" => WeightedGraph.crawleyBoeveyIn Γ Λ ϖ
+local notation "m" => Multiset.card (stendhalWeight ℓ ν)
+
+noncomputable instance : Fintype (OrdSeq ℓ ν) := Fintype.ofFinite _
+
+variable (Γ Λ) in
+/-- The polynomials `Q` of the KLR algebra on the black and red strands for which the
+polynomial representation is that of `P₂ = stP`: `stQ a b (u, v) = P₂(b, a)(u, v) ·
+P₂(a, b)(v, u)`. Between black strands this is `Γ.klrQ`; for a black `a`-strand and the red
+strand `λ_r` it is `(v - u) ^ α_a^∨(λ_r)` (resp. `(u - v) ^ α_a^∨(λ_r)`), which agrees with
+Stendhal's `u ^ α_a^∨(λ_r)` (resp. `v ^ α_a^∨(λ_r)`) up to multiples of the variable of the red
+strand. -/
+noncomputable def stQ (a b : I ⊕ Fin ℓ) : MvPolynomial (Fin 2) k :=
+  stP Γ Λ b a * rename ![1, 0] (stP Γ Λ a b)
+
+/-- The renaming of the variables of a sequence to the strands of `ν̃`: a black strand to
+itself, a red strand to the `0`-strand. -/
+noncomputable def stRen (i : KLR.Seq (stendhalWeight ℓ ν)) :
+    MvPolynomial (Fin m) k →ₐ[k] PolyRing ν̃ k :=
+  rename fun a => toTilde (i.strandAt a)
+
+variable (ℓ ν k) in
+/-- The renaming on the components of red-ordered sequences. -/
+noncomputable def stRenOp :
+    KLR.PolyRep.Pol k (stendhalWeight ℓ ν) →ₗ[k] (OrdSeq ℓ ν → PolyRing ν̃ k) :=
+  LinearMap.pi fun j => (stRen j.1).toLinearMap ∘ₗ LinearMap.proj j.1
+
+@[simp] theorem stRenOp_apply (g : KLR.PolyRep.Pol k (stendhalWeight ℓ ν)) (j : OrdSeq ℓ ν) :
+    stRenOp ℓ ν k g j = stRen j.1 (g j.1) := rfl
+
+theorem toTilde_strandAt_ne {i : KLR.Seq (stendhalWeight ℓ ν)} {a b : Fin m}
+    (hb : (i.1 b).isLeft) (hab : a ≠ b) : toTilde (i.strandAt a) ≠ toTilde (i.strandAt b) :=
+  fun e => hab (i.strandAt_injective (eq_of_toTilde_eq hb e))
+
+omit [Field 𝕜] [LinearOrder 𝕜] [IsStrictOrderedRing 𝕜] in
+/-- **The crossings in the two polynomial representations**: renaming intertwines the KLR
+crossing for `P₂ = stP` (KL I, §2.3) with `stCrossOp`. -/
+theorem stCrossOp_stRen (t : KLR.Seq (stendhalWeight ℓ ν)) (n : ℕ) (h : n + 1 < m)
+    (g : MvPolynomial (Fin m) k) :
+    stCrossOp k Γ Λ t n h (stRen t g) =
+      stRen (TypeA.sadj m n • t) (KLR.PolyRep.crossComp (stP Γ Λ) n h t g) := by
+  by_cases hc : t.1 ⟨n, by omega⟩ = t.1 ⟨n + 1, h⟩
+  · have hu : (t.1 ⟨n, by omega⟩).isLeft := isLeft_of_eq h hc
+    have hv : (t.1 ⟨n + 1, h⟩).isLeft := hc ▸ hu
+    have hne : (⟨n, by omega⟩ : Fin m) ≠ ⟨n + 1, h⟩ := by simp [Fin.ext_iff]
+    have e1 : stCrossOp k Γ Λ t n h = ddiff (toTilde (t.strandAt ⟨n, by omega⟩))
+        (toTilde (t.strandAt ⟨n + 1, h⟩)) := by simp only [stCrossOp, hc, ↓reduceIte]
+    have e2 : KLR.PolyRep.crossComp (stP Γ Λ) n h t = ddiff ⟨n, by omega⟩ ⟨n + 1, h⟩ := by
+      simp only [KLR.PolyRep.crossComp, KLR.Seq.lbl, hc, ↓reduceIte]
+    rw [e1, e2, KLR.Seq.sadj_smul_of_eq t h hc]
+    symm
+    refine rename_ddiff_of_comm (φ := fun a => toTilde (t.strandAt a))
+      (toTilde_strandAt_ne hv hne) (fun c => ?_) g
+    by_cases h1 : c = ⟨n, by omega⟩
+    · subst h1; simp
+    by_cases h2 : c = ⟨n + 1, h⟩
+    · subst h2; simp
+    rw [swap_apply_of_ne_of_ne h1 h2, swap_apply_of_ne_of_ne
+      (toTilde_strandAt_ne hu h1) (toTilde_strandAt_ne hv h2)]
+  · have hσ := KLR.Seq.lt_sadj_iff t h hc
+    have hsm : ∀ a, (TypeA.sadj m n • t).strandAt (TypeA.sadj m n a) = t.strandAt a :=
+      KLR.Seq.strandAt_smul t _ hσ
+    simp only [stCrossOp, KLR.PolyRep.crossComp, KLR.Seq.lbl, hc, ↓reduceIte, stRen,
+      LinearMap.mulLeft_apply, LinearMap.comp_apply, AlgHom.toLinearMap_apply, map_mul,
+      rename_rename]
+    congr 1
+    · refine congrArg (fun φ => rename φ _) (funext fun c => ?_)
+      fin_cases c
+      · simp [← hsm ⟨n + 1, h⟩, TypeA.sadj_apply_right h]
+      · simp [← hsm ⟨n, by omega⟩, TypeA.sadj_apply_left h]
+    · exact congrArg (fun φ => rename φ g) (funext fun c => congrArg toTilde (hsm c).symm)
+
+end Hom
+
+end Categorification.Stendhal

@@ -31,6 +31,7 @@ import Categorification.Algebra.InductionAlong
 import Categorification.Algebra.InductionAlongEnd
 import Categorification.Algebra.InductionAlongLinear
 import Categorification.Algebra.InductionAlongRes
+import Categorification.Algebra.InductionAlongAssoc
 import Categorification.Algebra.InductionAlongTensor
 import Categorification.Algebra.InductionAlongTriple
 import Categorification.Algebra.K0FinDim

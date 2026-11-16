@@ -620,7 +620,11 @@ variable (Γ ν k Λ) in
 and red strands, with the polynomials `stQ`, maps to the weighted KLR algebra of the
 Crawley-Boevey graph on the family of Stendhal chambers. A red strand goes to a ghost of the
 `0`-strand; a black/red crossing with the black strand on the left is rescaled by
-`(-1)^{α_a^∨(λ_r)}`. -/
+`(-1)^{α_a^∨(λ_r)}`.
+
+The hypotheses `hE` (no edge from a vertex to itself) and `hl` (no loops) are needed only for the
+faithfulness of the polynomial representation used to check the relations; they are not among
+Webster's hypotheses. -/
 noncomputable def stKLRHom (hD : Γ.Dagger) (hE : ∀ e, Γ.head e ≠ Γ.tail e)
     (hl : ∀ c, Γ.loop c = none) (hϖ : StrictMono ϖ) (hw0 : ∀ e, Γ.weight e = 0)
     (hS : Γ.Standing) :

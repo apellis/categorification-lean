@@ -855,6 +855,10 @@ import Categorification.WeightedKLR.RedStrands.CrawleyBoevey
 import Categorification.WeightedKLR.RedStrands.CrawleyBoeveyIn
 import Categorification.WeightedKLR.RedStrands.Reduced
 import Categorification.WeightedKLR.RedStrands.Stendhal
+import Categorification.WeightedKLR.RedStrands.StendhalCrossing
+import Categorification.WeightedKLR.RedStrands.StendhalDescent
+import Categorification.WeightedKLR.RedStrands.StendhalHom
+import Categorification.WeightedKLR.RedStrands.StendhalLoadings
 /-!
 # Categorification
 

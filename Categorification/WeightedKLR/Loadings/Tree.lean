@@ -56,12 +56,9 @@ identity `1 = ∑ u_i f v_i` (so `R(ν) f R(ν) = R(ν)`).
   (`IsForest.dagger`), in particular for the shifted weighting `0`.
 * Webster's standing hypothesis on the `Q_e` (`WeightedGraph.Standing`), which does not involve
   the weighting.
-* The comparison with `R(ν)` is over a domain `k`. This is inherited from the injectivity half of
-  Proposition 2.14 (`spacedEquiv`, `spacedHom_injective`); it is a hypothesis of the current
-  proof route, not of the source (Webster fixes an arbitrary commutative ring), and is tracked
-  with Proposition 2.14. Over any commutative ring the weighted KLR algebra is a full corner of
-  the weighted KLR algebra on the evenly spaced loadings (`IsForest.exists_spacedCorner`), and
-  `R(ν)` maps onto the latter (`spacedHom_surjective`).
+* The ground ring `k` is an arbitrary commutative ring, as in the source: the weighted KLR
+  algebra is a full corner of the weighted KLR algebra on the evenly spaced loadings
+  (`IsForest.exists_spacedCorner`), which is isomorphic to `R(ν)` (`spacedEquiv`).
 
 ## Main results
 
@@ -568,10 +565,9 @@ KLR algebra `R` with `W ≅ f R f` and `1 = ∑_i u_i f v_i` in `R`.
 
 The hypotheses are Webster's standing hypothesis on the polynomials `Q_e` and his condition that
 no edge is a loop and there are no loop polynomials (part of `IsForest`); his condition (†)
-holds automatically on a forest (`IsForest.dagger`). `[IsDomain k]` is a hypothesis of the
-proof route only: it enters through the injectivity half of Proposition 2.14
-(`spacedEquiv`). -/
-theorem WeightedGraph.IsForest.exists_klrCorner [IsDomain k] (hΓ : Γ.IsForest)
+holds automatically on a forest (`IsForest.dagger`). The ground ring `k` is any commutative
+ring. -/
+theorem WeightedGraph.IsForest.exists_klrCorner (hΓ : Γ.IsForest)
     (hS : Γ.Standing) :
     ∃ f : KLR.KLRAlgebra k Γ.klrQ ν, ∃ hf : IsIdempotentElem f,
       Nonempty (WeightedKLRAlgebra k Γ ν' ≃+* hf.Corner) ∧
@@ -591,7 +587,7 @@ theorem WeightedGraph.IsForest.exists_klrCorner [IsDomain k] (hΓ : Γ.IsForest)
   simp only [map_mul]
 
 /-- Webster, arXiv:1209.2463v4, Corollary 2.16, for a tree (the printed case). -/
-theorem WeightedGraph.IsTree.exists_klrCorner [IsDomain k] (hΓ : Γ.IsTree) (hS : Γ.Standing) :
+theorem WeightedGraph.IsTree.exists_klrCorner (hΓ : Γ.IsTree) (hS : Γ.Standing) :
     ∃ f : KLR.KLRAlgebra k Γ.klrQ ν, ∃ hf : IsIdempotentElem f,
       Nonempty (WeightedKLRAlgebra k Γ ν' ≃+* hf.Corner) ∧
       ∃ u v : KLR.Seq ν → KLR.KLRAlgebra k Γ.klrQ ν, ∑ i, u i * f * v i = 1 :=

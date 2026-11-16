@@ -423,4 +423,54 @@ example (ν : Fin 2 →₀ ℕ) : ∃ (ι : Type) (_ : Module.Basis ι ℚ
   exact ⟨_, WeightedKLR.GalleryAlgebra.redReducedBasis ν hP wkGraph_dagger wkGraph_noZeroLoops
     wkGraph_standing hϖ, trivial⟩
 
+/-! Webster, Proposition 2.14 and Corollary 2.16 over a ring that is not a domain (`ZMod 4`). -/
+
+/-- `u - v` over `ZMod 4`, homogeneous of degree `1` with unit coefficients. -/
+theorem isUnitHomogeneous_X_sub_X_zmod4 :
+    WeightedKLR.WeightedGraph.IsUnitHomogeneous 1 1 1 1
+      (MvPolynomial.X 0 - MvPolynomial.X 1 : MvPolynomial (Fin 2) (ZMod 4)) := by
+  refine ⟨rfl, ?_, ?_, ?_⟩
+  · exact (MvPolynomial.isWeightedHomogeneous_X (ZMod 4) _ 0).sub
+      (MvPolynomial.isWeightedHomogeneous_X (ZMod 4) _ 1)
+  · simp [MvPolynomial.coeff_X, Finsupp.single_left_inj one_ne_zero]
+  · simp [MvPolynomial.coeff_X, Finsupp.single_left_inj one_ne_zero]
+
+/-- The graph `wkLooplessGraph` over `ZMod 4`. -/
+def wkLooplessGraphZMod4 : WeightedKLR.WeightedGraph (Fin 2) ℚ (ZMod 4) where
+  E := Unit
+  tail _ := 0
+  head _ := 1
+  weight _ := 1
+  Q _ := MvPolynomial.X 0 - MvPolynomial.X 1
+  loop _ := none
+
+theorem wkLooplessGraphZMod4_standing : wkLooplessGraphZMod4.Standing :=
+  ⟨fun _ => 1, fun _ => one_pos, fun _ => ⟨1, 1, isUnitHomogeneous_X_sub_X_zmod4⟩,
+    fun _ _ h => by simp [wkLooplessGraphZMod4] at h⟩
+
+theorem wkLooplessGraphZMod4_dagger : wkLooplessGraphZMod4.Dagger :=
+  ⟨fun _ _ _ _ _ => rfl, fun _ _ h₁ _ _ => by simp [wkLooplessGraphZMod4] at h₁⟩
+
+theorem wkLooplessGraphZMod4_isTree : wkLooplessGraphZMod4.IsTree := by
+  refine ⟨⟨fun _ => by simp [wkLooplessGraphZMod4], fun _ => rfl, fun _ _ _ => rfl,
+    SimpleGraph.IsAcyclic.of_card_le_two (by simp)⟩, ?_⟩
+  have h : wkLooplessGraphZMod4.simpleGraph.Adj 0 1 :=
+    WeightedKLR.WeightedGraph.edgeGraph_adj.2 ⟨by decide, Or.inr ⟨(), trivial, rfl, rfl⟩⟩
+  refine SimpleGraph.Connected.mk fun i j => ?_
+  fin_cases i <;> fin_cases j
+  · rfl
+  · exact h.reachable
+  · exact h.reachable.symm
+  · rfl
+
+/-- Webster, Proposition 2.14, over `ZMod 4`. -/
+noncomputable example (ν : Multiset (Fin 2)) :=
+  WeightedKLR.spacedEquiv (k := ZMod 4) (ν := ν) wkLooplessGraphZMod4_standing
+    wkLooplessGraphZMod4_dagger (fun _ => by simp [wkLooplessGraphZMod4]) (fun _ => rfl)
+
+/-- Webster, Corollary 2.16, over `ZMod 4`. -/
+example (ν : Multiset (Fin 2)) :=
+  wkLooplessGraphZMod4_isTree.exists_klrCorner (k := ZMod 4) (ν := ν)
+    wkLooplessGraphZMod4_standing
+
 end NonVacuity

@@ -331,6 +331,53 @@ theorem rename_galNum_galDen_of_isFourBlock {X Z : Strand ν → Bool} {B : Full
     exact key _ fun x hx =>
       (rename_stepNum_stepDen_of_isFourBlock hB hX ((hmem x).1 hx).1).2
 
+/-! ### Comparing two four-block chambers for the same blocks -/
+
+/-- Along a good word from a four-block chamber to its shuffle, the crossed hyperplanes are
+determined by the blocks. -/
+theorem mem_toFinset_iff_of_isFourBlock {X Z : Strand ν → Bool} {B : FullChamber Γ ν}
+    (hB : IsFourBlock X Z B) {w : List (Hyp Γ ν)} (hw : GoodWord B.1 w)
+    (hT : B.flips w = shuffleTop Z B) (x : Hyp Γ ν) :
+    x ∈ w ↔ X x.lo ≠ X x.hi ∧ Z x.lo ≠ Z x.hi ∧ X x.lo ≠ Z x.lo := by
+  rw [hw.mem_iff, hT, ne_comm]
+  exact IsFourBlock.ne_shuffleTop_iff hB x
+
+/-- **Two four-block shuffles for the same blocks have the same identity coefficient.** Let `B`
+and `B'` be four-block chambers for `X` and `Z`, and `w`, `w'` good words from them to their
+shuffles. Then `galNum` and `galDen` agree.
+
+A step of the proof of Webster, arXiv:1209.2463v4, Theorem 2.19. -/
+theorem galNum_galDen_eq_of_isFourBlock {X Z : Strand ν → Bool} {B B' : FullChamber Γ ν}
+    (hB : IsFourBlock X Z B) (hB' : IsFourBlock X Z B') {w w' : List (Hyp Γ ν)}
+    (hw : GoodWord B.1 w) (hw' : GoodWord B'.1 w') (hT : B.flips w = shuffleTop Z B)
+    (hT' : B'.flips w' = shuffleTop Z B') :
+    galNum k B w = galNum k B' w' ∧ galDen k B w = galDen k B' w' := by
+  classical
+  have hs : w.toFinset = w'.toFinset := by
+    ext x
+    rw [List.mem_toFinset, List.mem_toFinset, mem_toFinset_iff_of_isFourBlock hB hw hT,
+      mem_toFinset_iff_of_isFourBlock hB' hw' hT']
+  have hsign : ∀ x ∈ w.toFinset, B.1 x = B'.1 x := fun x hx => by
+    have h := ((mem_toFinset_iff_of_isFourBlock hB hw hT x).1 (List.mem_toFinset.1 hx)).1
+    rw [IsFourBlock.apply_of_ne hB h, IsFourBlock.apply_of_ne hB' h]
+  rw [galNum_eq_prod hw, galNum_eq_prod hw', galDen_eq_prod hw, galDen_eq_prod hw', ← hs]
+  exact ⟨Finset.prod_congr rfl fun x hx => stepNum_congr (hsign x hx),
+    Finset.prod_congr rfl fun x hx => stepDen_congr (hsign x hx)⟩
+
+omit [DecidableEq I] in
+/-- The relabelling rank-ordering the shuffle of one rank-ordered chamber rank-orders the shuffle
+of every other rank-ordered chamber, for the same block. -/
+theorem isRankOrdered_smul_shuffleTop_of_isRankOrdered {Z : Strand ν → Bool}
+    {B B' : FullChamber Γ ν} (hB : B.IsRankOrdered) (hB' : B'.IsRankOrdered) {ρ : ColPerm ν}
+    (hρ : (ρ • shuffleTop Z B).IsRankOrdered) : (ρ • shuffleTop Z B').IsRankOrdered := by
+  intro d
+  have key : ∀ e, (shuffleTop Z B').1 (Sum.inr e) = (shuffleTop Z B).1 (Sum.inr e) := fun e => by
+    rw [shuffleTop_apply, shuffleTop_apply, hB e, hB' e]
+  have h := hρ d
+  rw [FullChamber.smul_apply] at h ⊢
+  rw [show Hyp.comap ρ (Sum.inr d : Hyp Γ ν) = Sum.inr (d.comap ρ).1 from rfl, key] at *
+  exact h
+
 end GalleryAlgebra
 
 end Categorification.WeightedKLR

@@ -340,6 +340,17 @@ theorem eq_zero_of_blockSum_eq_zero
   · intro i _ hi; simp [Ne.symm hi]
   · intro h; exact absurd (Finset.mem_univ _) h
 
+/-- Under Webster's standing hypothesis, the polynomials `stBlackP` substituted into two distinct
+variables are non-zero-divisors. -/
+theorem isRegular_rename_stBlackP (hS : Γ.Standing) (a b : I ⊕ Fin ℓ) {σ : Type*} [Finite σ]
+    {f : Fin 2 → σ} (hf : Function.Injective f) :
+    IsRegular (rename f (stBlackP (k := k) Γ Λ a b)) := by
+  rcases a with a | r <;> rcases b with b | r'
+  · exact hS.isRegular_rename_edgeProd a b hf
+  · simp [stBlackP]
+  · simpa [stBlackP] using isRegular_one
+  · simpa [stBlackP] using isRegular_one
+
 end Faithful
 
 end Categorification.Stendhal

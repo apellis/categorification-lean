@@ -28,6 +28,11 @@ below `μ` (`GalleryAlgebra.exists_isTwisted_ren_opList_shuffleType_lt`).
   top chamber has shuffle type `μ` and sends `Z` into the first block.
 * `GalleryAlgebra.exists_isTwisted_ren_opList_shuffleType_lt`: the operator of a four-block
   shuffle has a single term of shuffle type `μ`, at `ρ`, with coefficient `ρ(galNum / galDen)`.
+* `GalleryAlgebra.rename_galNum_galDen_of_isFourBlock`: `galNum` and `galDen` are fixed by every
+  relabelling preserving the four blocks. Along a good word they are products over the crossed
+  hyperplanes (`GalleryAlgebra.galNum_eq_prod`), and the crossed hyperplanes are those joining
+  strands in different blocks of `X` and of `Z` in the two different orders
+  (`GalleryAlgebra.IsFourBlock.ne_shuffleTop_iff`), a set permuted by such relabellings.
 -/
 
 namespace Categorification.WeightedKLR
@@ -130,6 +135,201 @@ theorem exists_isTwisted_ren_opList_shuffleType_lt (hν' : ν' + ν'' = ν) (hν
     simp
   rw [e1, e2]
   exact hc
+
+/-! ### Invariance of the leading coefficient under relabellings inside the blocks -/
+
+omit [DecidableEq I] [IsStrictOrderedRing 𝕜] in
+/-- The numerator of the identity coefficient of a step depends only on the sign of the chamber
+on the crossed hyperplane. -/
+theorem stepNum_congr {C C' : FullChamber Γ ν} {h : Hyp Γ ν} (hC : C.1 h = C'.1 h) :
+    stepNum k C h = stepNum k C' h := by
+  rcases h with wl | d
+  · simp only [stepNum, hC]
+  · simp only [stepNum, Diag.left, Diag.right, hC]
+
+omit [DecidableEq I] [IsStrictOrderedRing 𝕜] in
+/-- The denominator of the identity coefficient of a step depends only on the sign of the
+chamber on the crossed hyperplane. -/
+theorem stepDen_congr {C C' : FullChamber Γ ν} {h : Hyp Γ ν} (hC : C.1 h = C'.1 h) :
+    stepDen k C h = stepDen k C' h := by
+  rcases h with wl | d
+  · rfl
+  · simp only [stepDen, Diag.left, Diag.right, hC]
+
+omit [IsStrictOrderedRing 𝕜] in
+/-- Along a good word, the numerator of the identity coefficient is the product of the step
+numerators computed at the start chamber, over the hyperplanes of the word. -/
+theorem galNum_eq_prod {C : FullChamber Γ ν} {w : List (Hyp Γ ν)} (hw : GoodWord C.1 w) :
+    galNum k C w = ∏ h ∈ w.toFinset, stepNum k C h := by
+  classical
+  induction w generalizing C with
+  | nil => simp [galNum]
+  | cons h w ih =>
+    obtain ⟨e, -, hw'⟩ := hw.cons
+    have hh : h ∉ w := (List.nodup_cons.1 hw.1).1
+    rw [galNum, ih hw', List.toFinset_cons, Finset.prod_insert (by simpa using hh)]
+    congr 1
+    refine Finset.prod_congr rfl fun x hx => stepNum_congr ?_
+    have hxh : x ≠ h := fun hx' => hh (hx' ▸ List.mem_toFinset.1 hx)
+    rw [e]
+    simp [flipSign, hxh]
+
+omit [IsStrictOrderedRing 𝕜] in
+/-- Along a good word, the denominator of the identity coefficient is the product of the step
+denominators computed at the start chamber, over the hyperplanes of the word. -/
+theorem galDen_eq_prod {C : FullChamber Γ ν} {w : List (Hyp Γ ν)} (hw : GoodWord C.1 w) :
+    galDen k C w = ∏ h ∈ w.toFinset, stepDen k C h := by
+  classical
+  induction w generalizing C with
+  | nil => simp [galDen]
+  | cons h w ih =>
+    obtain ⟨e, -, hw'⟩ := hw.cons
+    have hh : h ∉ w := (List.nodup_cons.1 hw.1).1
+    rw [galDen, ih hw', List.toFinset_cons, Finset.prod_insert (by simpa using hh)]
+    congr 1
+    refine Finset.prod_congr rfl fun x hx => stepDen_congr ?_
+    have hxh : x ≠ h := fun hx' => hh (hx' ▸ List.mem_toFinset.1 hx)
+    rw [e]
+    simp [flipSign, hxh]
+
+omit [DecidableEq I] in
+/-- In a four-block chamber, the sign on a hyperplane joining a strand of `X` with a strand
+outside `X` is given by `X`. -/
+theorem IsFourBlock.apply_of_ne {X Z : Strand ν → Bool} {B : FullChamber Γ ν}
+    (hB : IsFourBlock X Z B) {x : Hyp Γ ν} (hx : X x.lo ≠ X x.hi) : B.1 x = X x.lo := by
+  have := shuffleBot_apply X Z B x
+  rw [hB.2] at this
+  simpa [hx] using this
+
+omit [DecidableEq I] in
+/-- The hyperplanes crossed by the shuffle of a four-block chamber: those joining a strand of
+`X` with a strand outside `X`, and a strand of `Z` with a strand outside `Z`, in the two
+different orders. -/
+theorem IsFourBlock.ne_shuffleTop_iff {X Z : Strand ν → Bool} {B : FullChamber Γ ν}
+    (hB : IsFourBlock X Z B) (x : Hyp Γ ν) :
+    B.1 x ≠ (shuffleTop Z B).1 x ↔ X x.lo ≠ X x.hi ∧ Z x.lo ≠ Z x.hi ∧ X x.lo ≠ Z x.lo := by
+  have h1 := shuffleBot_apply X Z B x
+  rw [hB.2, shuffleTop_apply] at h1
+  rw [shuffleTop_apply]
+  revert h1
+  cases X x.lo <;> cases X x.hi <;> cases Z x.lo <;> cases Z x.hi <;> cases B.1 x <;> simp
+
+omit [DecidableEq I] in
+/-- **Relabelling a crossed hyperplane inside the blocks.** Let `B` be a four-block chamber for
+`X` and `Z`, and `g` a relabelling preserving `X`. For a hyperplane `x` joining a strand of `X`
+with a strand outside `X`, relabelling the step numerator and denominator at `x` by `g` gives
+those at the hyperplane `x.comap g⁻¹` on the relabelled strands. -/
+theorem rename_stepNum_stepDen_of_isFourBlock {X Z : Strand ν → Bool} {B : FullChamber Γ ν}
+    (hB : IsFourBlock X Z B) {g : ColPerm ν} (hX : ∀ t, X (g.1 t) = X t) {x : Hyp Γ ν}
+    (hx : X x.lo ≠ X x.hi) :
+    rename ⇑g.1 (stepNum k B x) = stepNum k B (x.comap g⁻¹) ∧
+      rename ⇑g.1 (stepDen k B x) = stepDen k B (x.comap g⁻¹) := by
+  have hinv : ∀ t, (g⁻¹).1⁻¹ t = g.1 t := fun t => by simp
+  rcases x with wl | d
+  · have hsrc : (wl.comap g⁻¹).src = g.1 wl.src := hinv _
+    have htgt : (wl.comap g⁻¹).tgt = g.1 wl.tgt := hinv _
+    have hs : B.1 (.inl (wl.comap g⁻¹)) = B.1 (.inl wl) := by
+      rw [IsFourBlock.apply_of_ne hB (x := .inl wl) hx, IsFourBlock.apply_of_ne hB (x := .inl (wl.comap g⁻¹))]
+      · show X (wl.comap g⁻¹).src = X wl.src
+        rw [hsrc]; exact hX _
+      · show X (wl.comap g⁻¹).src ≠ X (wl.comap g⁻¹).tgt
+        rw [hsrc, htgt, hX, hX]; exact hx
+    have hf : rename ⇑g.1 (wl.factor (k := k)) = (wl.comap g⁻¹).factor := by
+      have e := Wall.rename_factor_comap (k := k) g (wl.comap g⁻¹)
+      have e' : (wl.comap g⁻¹).comap g = wl :=
+        Sum.inl.inj (Hyp.comap_inv_comap (Γ := Γ) g (.inl wl))
+      rw [e'] at e
+      exact e
+    refine ⟨?_, by simp [stepDen, Hyp.comap]⟩
+    show rename ⇑g.1 (stepNum k B (.inl wl)) = stepNum k B (.inl (wl.comap g⁻¹))
+    simp only [stepNum, hs]
+    split_ifs
+    · exact hf
+    · exact map_one _
+  · have hB1 : B.1 (.inr d) = true := hB.1 d
+    have hXd : X d.fst = true := by
+      have := IsFourBlock.apply_of_ne hB (x := .inr d) hx
+      rw [hB1] at this
+      exact this.symm
+    have hspec : (d.comap g⁻¹).1.fst = g.1 d.fst ∧ (d.comap g⁻¹).1.snd = g.1 d.snd := by
+      rcases Diag.comap_spec g⁻¹ d with ⟨-, h₁, h₂⟩ | ⟨-, h₁, h₂⟩
+      · rw [h₁, h₂, hinv, hinv]; exact ⟨rfl, rfl⟩
+      · exfalso
+        have hx' : X (d.comap g⁻¹).1.fst ≠ X (d.comap g⁻¹).1.snd := by
+          rw [h₁, h₂, hinv, hinv, hX, hX]; exact fun e => hx e.symm
+        have := IsFourBlock.apply_of_ne hB (x := .inr (d.comap g⁻¹).1) hx'
+        rw [hB.1] at this
+        have h3 : X (d.comap g⁻¹).1.fst = true := this.symm
+        rw [h₁, hinv, hX] at h3
+        exact hx (by
+          show X d.fst = X d.snd
+          rw [hXd, h3])
+    have hB2 : B.1 (.inr (d.comap g⁻¹).1) = true := hB.1 _
+    have hl : Diag.left B (d.comap g⁻¹).1 = g.1 (Diag.left B d) := by
+      simp only [Diag.left, hB1, hB2, ↓reduceIte, hspec.1]
+    have hr : Diag.right B (d.comap g⁻¹).1 = g.1 (Diag.right B d) := by
+      simp only [Diag.right, hB1, hB2, ↓reduceIte, hspec.2]
+    have hc : (Diag.left B (d.comap g⁻¹).1).1 = (Diag.left B d).1 := by
+      rw [hl, colPerm_apply_fst]
+    show rename ⇑g.1 (stepNum k B (.inr d)) = stepNum k B (.inr (d.comap g⁻¹).1) ∧
+      rename ⇑g.1 (stepDen k B (.inr d)) = stepDen k B (.inr (d.comap g⁻¹).1)
+    simp only [stepNum, stepDen, hc]
+    constructor
+    · split
+      · exact map_one _
+      · rw [loopFactor_rename, hl, hr]
+    · split
+      · rw [map_sub, rename_X, rename_X, hl, hr]
+      · exact map_one _
+
+/-- **The identity coefficient of a four-block shuffle is invariant inside the blocks.** Let
+`B` be a four-block chamber for `X` and `Z`, `w` a good word from `B` to `shuffleTop Z B`, and
+`g` a relabelling preserving `X` and `Z`. Then `g` fixes `galNum B w` and `galDen B w`.
+
+A step of the proof of Webster, arXiv:1209.2463v4, Theorem 2.19. -/
+theorem rename_galNum_galDen_of_isFourBlock {X Z : Strand ν → Bool} {B : FullChamber Γ ν}
+    (hB : IsFourBlock X Z B) {w : List (Hyp Γ ν)} (hw : GoodWord B.1 w)
+    (hT : B.flips w = shuffleTop Z B) {g : ColPerm ν} (hX : ∀ t, X (g.1 t) = X t)
+    (hZ : ∀ t, Z (g.1 t) = Z t) :
+    rename ⇑g.1 (galNum k B w) = galNum k B w ∧ rename ⇑g.1 (galDen k B w) = galDen k B w := by
+  classical
+  have hinv : ∀ t, (g⁻¹).1⁻¹ t = g.1 t := fun t => by simp
+  have hX' : ∀ t, X (g.1⁻¹ t) = X t := fun t => by
+    conv_rhs => rw [← g.1.apply_symm_apply t]
+    exact (hX _).symm
+  have hZ' : ∀ t, Z (g.1⁻¹ t) = Z t := fun t => by
+    conv_rhs => rw [← g.1.apply_symm_apply t]
+    exact (hZ _).symm
+  have hmem : ∀ x, x ∈ w.toFinset ↔ X x.lo ≠ X x.hi ∧ Z x.lo ≠ Z x.hi ∧ X x.lo ≠ Z x.lo := by
+    intro x
+    rw [List.mem_toFinset, hw.mem_iff, hT, ne_comm]
+    exact IsFourBlock.ne_shuffleTop_iff hB x
+  have hcomap : ∀ x, x ∈ w.toFinset → x.comap g⁻¹ ∈ w.toFinset := by
+    intro x hx
+    rw [hmem] at hx ⊢
+    rw [Hyp.lo_comap, Hyp.hi_comap]
+    split_ifs <;> simp only [hinv, hX, hZ] <;> revert hx <;>
+      cases X x.lo <;> cases X x.hi <;> cases Z x.lo <;> cases Z x.hi <;> simp
+  have hcomap' : ∀ x, x ∈ w.toFinset → x.comap g ∈ w.toFinset := by
+    intro x hx
+    rw [hmem] at hx ⊢
+    rw [Hyp.lo_comap, Hyp.hi_comap]
+    split_ifs <;> simp only [hX', hZ'] <;> revert hx <;>
+      cases X x.lo <;> cases X x.hi <;> cases Z x.lo <;> cases Z x.hi <;> simp
+  have key : ∀ (f : Hyp Γ ν → PolyRing ν k),
+      (∀ x ∈ w.toFinset, rename ⇑g.1 (f x) = f (x.comap g⁻¹)) →
+      rename ⇑g.1 (∏ x ∈ w.toFinset, f x) = ∏ x ∈ w.toFinset, f x := by
+    intro f hf
+    rw [map_prod]
+    refine Finset.prod_nbij' (fun x => x.comap g⁻¹) (fun x => x.comap g) hcomap hcomap'
+      (fun x _ => Hyp.comap_inv_comap g x) (fun x _ => Hyp.comap_comap_inv g x) hf
+  refine ⟨?_, ?_⟩
+  · rw [galNum_eq_prod hw]
+    exact key _ fun x hx =>
+      (rename_stepNum_stepDen_of_isFourBlock hB hX ((hmem x).1 hx).1).1
+  · rw [galDen_eq_prod hw]
+    exact key _ fun x hx =>
+      (rename_stepNum_stepDen_of_isFourBlock hB hX ((hmem x).1 hx).1).2
 
 end GalleryAlgebra
 

@@ -683,6 +683,17 @@ example (ν₁ ν₂ ν₃ : Fin 2 →₀ ℕ) :=
     (And.intro (WeightedKLR.Juxtapose.indK0_one_left ν₁ x)
       (WeightedKLR.Juxtapose.indK0_one_right ν₁ x))
 
+/-- Webster, Theorem 2.19, the coproduct component on `K₀` (ungraded): restriction of a finitely
+generated projective module is finitely generated projective, and
+`Δ_{ν';ν''} [W] = [Res W]`. -/
+example (ν' ν'' : Fin 2 →₀ ℕ) :=
+  And.intro
+    (WeightedKLR.Juxtapose.res_projective wkGraph ν' ν'' wkGraph_dagger wkGraph_noZeroLoops
+      wkGraph_standing (WeightedKLR.GalleryAlgebra.WeightedKLRAlgebra ℚ wkGraph (ν' + ν'')))
+    (WeightedKLR.Juxtapose.resK0_of wkGraph_dagger wkGraph_noZeroLoops wkGraph_standing
+      (Categorification.FGProj.regular ℚ
+        (WeightedKLR.GalleryAlgebra.WeightedKLRAlgebra ℚ wkGraph (ν' + ν''))))
+
 /-- Webster, Proposition 2.18, on modules: coassociativity of restriction, for the regular module
 and its transport along `castW`. -/
 noncomputable example (ν₁ ν₂ ν₃ : Fin 2 →₀ ℕ) :=
@@ -1033,6 +1044,17 @@ noncomputable example (ν : Multiset (Fin 2)) :=
 example (ν : Multiset (Fin 2)) :=
   wkLooplessGraphZMod4_isTree.exists_klrCorner (k := ZMod 4) (ν := ν)
     wkLooplessGraphZMod4_standing
+
+/-- Webster, Theorem 2.19, the coproduct component on `K₀`, over `ZMod 4`: restriction of the
+regular module is finitely generated projective. -/
+example (ν' ν'' : Fin 2 →₀ ℕ) :=
+  And.intro
+    (WeightedKLR.Juxtapose.res_projective wkLooplessGraphZMod4 ν' ν'' wkLooplessGraphZMod4_dagger
+      (fun _ h _ => by simp [wkLooplessGraphZMod4] at h) wkLooplessGraphZMod4_standing
+      (WeightedKLR.GalleryAlgebra.WeightedKLRAlgebra (ZMod 4) wkLooplessGraphZMod4 (ν' + ν'')))
+    (WeightedKLR.Juxtapose.res_finite wkLooplessGraphZMod4 ν' ν'' wkLooplessGraphZMod4_dagger
+      (fun _ h _ => by simp [wkLooplessGraphZMod4] at h) wkLooplessGraphZMod4_standing
+      (WeightedKLR.GalleryAlgebra.WeightedKLRAlgebra (ZMod 4) wkLooplessGraphZMod4 (ν' + ν'')))
 /-- Webster, Theorem 2.8 for the Crawley-Boevey graph of `wkGraph` with the new edge directed
 into the new vertex (the orientation of Webster's Theorem 3.5). -/
 example (ν : Option (Fin 2) →₀ ℕ) := WeightedKLR.GalleryAlgebra.exists_redBasisIn (k := ℚ)

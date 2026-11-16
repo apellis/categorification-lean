@@ -878,6 +878,7 @@ import Categorification.WeightedKLR.Mackey.CrossingGallery
 import Categorification.WeightedKLR.Mackey.Degree
 import Categorification.WeightedKLR.Mackey.Dominance
 import Categorification.WeightedKLR.Mackey.Filtration
+import Categorification.WeightedKLR.Mackey.FourBlockBalanced
 import Categorification.WeightedKLR.Mackey.FourBlockChamber
 import Categorification.WeightedKLR.Mackey.FourBlockConj
 import Categorification.WeightedKLR.Mackey.FourBlockJuxtapose

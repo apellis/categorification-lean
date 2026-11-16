@@ -231,6 +231,36 @@ example (ν : Fin 2 →₀ ℕ) := WeightedKLR.GalleryAlgebra.cornerBasisOfStand
       (fun _ => Nat.succ_ne_zero _) (pt := fun C => C.2.choose) (fun C => C.2.choose_spec))
     wkGraph_dagger wkGraph_noZeroLoops wkGraph_standing
 
+/-! ### Webster, weighted KLR algebras (arXiv:1209.2463v4), the Mackey filtration of §2.4 -/
+
+/-- The shuffle-type filtration of a corner (proof of Webster's Theorem 2.19): for rank-ordered
+chambers and the lower set of shuffle types bounded by `μ`, the intrinsic description of the
+step by supports in the polynomial representation. -/
+example (ν ν' ν₁ : Fin 2 →₀ ℕ) (C D : WeightedKLR.GalleryAlgebra.RankChamber wkGraph ν) (μ : Fin 2 → ℕ)
+    (z : WeightedKLR.GalleryAlgebra ℚ wkGraph ν)
+    (hz : z ∈ WeightedKLR.GalleryAlgebra.cornerSpace ℚ D.1 C.1) :=
+  WeightedKLR.GalleryAlgebra.mem_mackeyFilt_iff (k := ℚ)
+    (WeightedKLR.GalleryAlgebra.isChamberSegment_straightSegment wkGraph_dagger
+      wkGraph_noZeroLoops (ρ := fun s => (Fintype.equivFin _ s).val + 1)
+      (fun _ _ h => (Fintype.equivFin _).injective (Fin.ext (by simpa using h)))
+      (fun _ => Nat.succ_ne_zero _) (pt := fun C => C.2.choose) (fun C => C.2.choose_spec))
+    wkGraph_dagger wkGraph_noZeroLoops
+    (fun i P h => by
+      simp only [wkGraph] at h
+      split_ifs at h
+      obtain rfl := Option.some_injective _ h
+      simp)
+    (fun w => by
+      refine IsRegular.of_ne_zero ?_
+      simp only [WeightedKLR.Wall.factor, wkGraph, map_sub, MvPolynomial.aeval_X]
+      simpa [sub_eq_zero, WeightedKLR.Wall.src, WeightedKLR.Wall.tgt] using w.2.2.2)
+    (fun P a b h _ _ => by
+      simp only [wkGraph] at h
+      split_ifs at h
+      obtain rfl := Option.some_injective _ h
+      simpa [WeightedKLR.loopFactor] using isRegular_one)
+    ν' ν₁ C.2 D.2 (isLowerSet_Iic μ) hz
+
 /-! ### Webster, weighted KLR algebras (arXiv:1209.2463v4), the grading of §2.1 -/
 
 /-- The grading of Webster's standing hypothesis (doubled normalization): a `ℤ`-grading of the

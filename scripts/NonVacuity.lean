@@ -315,6 +315,14 @@ noncomputable example (ν : Multiset (Fin 2)) :=
     (fun _ => by simp [wkWeightZeroGraph]) (fun _ => rfl) (fun _ _ h => Nat.cast_lt.mpr h)
     (fun _ => rfl) wkWeightZeroGraph_standing
 
+/-- Webster, proof of Theorem 3.5: the homomorphism from `T̃^λ` is injective, for the same data. -/
+example (ν : Multiset (Fin 2)) :=
+  Stendhal.stTildeHom_injective (ν := ν) (k := ℚ) (Γ := wkWeightZeroGraph)
+    (Λ := fun _ : Fin 2 => Finsupp.single 0 1)
+    (ϖ := fun r : Fin 2 => ((r : ℕ) : ℚ)) wkWeightZeroGraph_dagger
+    (fun _ => by simp [wkWeightZeroGraph]) (fun _ => rfl) (fun _ _ h => Nat.cast_lt.mpr h)
+    (fun _ => rfl) wkWeightZeroGraph_standing
+
 /-! ### Webster, §2, canonical deformations -/
 
 /-- Standing data for `wkGraph`, with `d = 1` and `c_e = c_ē = 1`. -/

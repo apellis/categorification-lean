@@ -253,6 +253,137 @@ theorem of_blk' (hχ : Function.Injective χ) (hχ' : Function.Injective χ') {q
 
 end IsConjOn
 
+variable (k) in
+/-- A weak form of `IsConjOn`: every nonzero block of `z` (resp. `z'`) either has both its
+chambers in the family `χ` (resp. `χ'`) or neither of them, and the block operators of `z'` at
+`χ'` are those of `z` at `χ` conjugated by the renaming along `ρ`. Unlike `IsConjOn` it allows
+blocks away from the family, so it is closed under sums of contributions supported on other
+chambers. -/
+def IsLocalConj (χ χ' : Q → FullChamber Γ ν) (ρ : ColPerm ν) (z' z : GalleryAlgebra k Γ ν) :
+    Prop :=
+  (∀ D C, blockOp k hΓ D C z ≠ 0 → ((∃ q, χ q = D) ↔ ∃ q, χ q = C)) ∧
+  (∀ D C, blockOp k hΓ D C z' ≠ 0 → ((∃ q, χ' q = D) ↔ ∃ q, χ' q = C)) ∧
+  ∀ q q', blockOp k hΓ (χ' q) (χ' q') z' = ren ρ ∘ₗ blockOp k hΓ (χ q) (χ q') z ∘ₗ ren ρ⁻¹
+
+namespace IsLocalConj
+
+variable {hΓ} {χ χ' : Q → FullChamber Γ ν} {ρ : ColPerm ν}
+
+theorem zero : IsLocalConj k hΓ χ χ' ρ 0 0 :=
+  ⟨fun _ _ h => absurd (by simp) h, fun _ _ h => absurd (by simp) h, fun _ _ => by simp⟩
+
+theorem add {z z' w w' : GalleryAlgebra k Γ ν} (h : IsLocalConj k hΓ χ χ' ρ z' z)
+    (h' : IsLocalConj k hΓ χ χ' ρ w' w) : IsLocalConj k hΓ χ χ' ρ (z' + w') (z + w) := by
+  refine ⟨fun D C hDC => ?_, fun D C hDC => ?_, fun q q' => ?_⟩
+  · rw [blockOp_add] at hDC
+    by_cases hz : blockOp k hΓ D C z = 0
+    · exact h'.1 D C fun hw => hDC (by rw [hz, hw, add_zero])
+    · exact h.1 D C hz
+  · rw [blockOp_add] at hDC
+    by_cases hz : blockOp k hΓ D C z' = 0
+    · exact h'.2.1 D C fun hw => hDC (by rw [hz, hw, add_zero])
+    · exact h.2.1 D C hz
+  · rw [blockOp_add, blockOp_add, h.2.2, h'.2.2, LinearMap.add_comp, LinearMap.comp_add]
+
+theorem smul {z z' : GalleryAlgebra k Γ ν} (h : IsLocalConj k hΓ χ χ' ρ z' z) (c : k) :
+    IsLocalConj k hΓ χ χ' ρ (c • z') (c • z) := by
+  refine ⟨fun D C hDC => ?_, fun D C hDC => ?_, fun q q' => ?_⟩
+  · rw [blockOp_smul] at hDC
+    exact h.1 D C fun hz => hDC (by rw [hz, smul_zero])
+  · rw [blockOp_smul] at hDC
+    exact h.2.1 D C fun hz => hDC (by rw [hz, smul_zero])
+  · rw [blockOp_smul, blockOp_smul, h.2.2, LinearMap.smul_comp, LinearMap.comp_smul]
+
+theorem sum {ι : Type*} (s : Finset ι) {z z' : ι → GalleryAlgebra k Γ ν}
+    (h : ∀ i ∈ s, IsLocalConj k hΓ χ χ' ρ (z' i) (z i)) :
+    IsLocalConj k hΓ χ χ' ρ (∑ i ∈ s, z' i) (∑ i ∈ s, z i) := by
+  classical
+  induction s using Finset.induction_on with
+  | empty => simpa using (zero : IsLocalConj k hΓ χ χ' ρ 0 0)
+  | insert i s hi ih =>
+    rw [Finset.sum_insert hi, Finset.sum_insert hi]
+    exact (h i (Finset.mem_insert_self i s)).add
+      (ih fun j hj => h j (Finset.mem_insert_of_mem hj))
+
+theorem sum_blockOp_comp [Fintype Q] (hχ : Function.Injective χ) {a z : GalleryAlgebra k Γ ν}
+    (ha : ∀ D C, blockOp k hΓ D C a ≠ 0 → ((∃ q, χ q = D) ↔ ∃ q, χ q = C)) (q : Q) (C) :
+    ∑ E, blockOp k hΓ (χ q) E a ∘ₗ blockOp k hΓ E C z =
+      ∑ p, blockOp k hΓ (χ q) (χ p) a ∘ₗ blockOp k hΓ (χ p) C z := by
+  classical
+  refine (Fintype.sum_of_injective χ hχ _ _ (fun E hE => ?_) fun p => rfl).symm
+  by_cases h0 : blockOp k hΓ (χ q) E a = 0
+  · rw [h0, LinearMap.zero_comp]
+  · exact absurd ((ha _ _ h0).1 ⟨q, rfl⟩) fun ⟨p, hp⟩ => hE ⟨p, hp⟩
+
+theorem mul [Fintype Q] (hχ : Function.Injective χ) (hχ' : Function.Injective χ')
+    {a a' z z' : GalleryAlgebra k Γ ν} (ha : IsLocalConj k hΓ χ χ' ρ a' a)
+    (hz : IsLocalConj k hΓ χ χ' ρ z' z) : IsLocalConj k hΓ χ χ' ρ (a' * z') (a * z) := by
+  refine ⟨fun D C hDC => ?_, fun D C hDC => ?_, fun q q' => ?_⟩
+  · rw [blockOp_mul_eq_sum] at hDC
+    obtain ⟨E, -, hE⟩ := Finset.exists_ne_zero_of_sum_ne_zero hDC
+    have h1 : blockOp k hΓ D E a ≠ 0 := fun h0 => hE (by rw [h0, LinearMap.zero_comp])
+    have h2 : blockOp k hΓ E C z ≠ 0 := fun h0 => hE (by rw [h0, LinearMap.comp_zero])
+    exact (ha.1 D E h1).trans (hz.1 E C h2)
+  · rw [blockOp_mul_eq_sum] at hDC
+    obtain ⟨E, -, hE⟩ := Finset.exists_ne_zero_of_sum_ne_zero hDC
+    have h1 : blockOp k hΓ D E a' ≠ 0 := fun h0 => hE (by rw [h0, LinearMap.zero_comp])
+    have h2 : blockOp k hΓ E C z' ≠ 0 := fun h0 => hE (by rw [h0, LinearMap.comp_zero])
+    exact (ha.2.1 D E h1).trans (hz.2.1 E C h2)
+  · rw [blockOp_mul_eq_sum, blockOp_mul_eq_sum, sum_blockOp_comp hχ ha.1,
+      sum_blockOp_comp hχ' ha.2.1]
+    refine LinearMap.ext fun f => ?_
+    simp only [LinearMap.sum_apply, LinearMap.comp_apply, map_sum]
+    refine Finset.sum_congr rfl fun p _ => ?_
+    rw [ha.2.2, hz.2.2]
+    simp only [LinearMap.comp_apply, ren_inv_apply_ren]
+
+end IsLocalConj
+
+/-- A strict conjugation on a subfamily `ξ, ξ'` of chambers gives a weak conjugation on the
+family `χ, χ'`, provided the two families match (`χ q = ξ p ↔ χ' q = ξ' p`) and the range of `ξ`
+lies either inside or outside the range of `χ`. -/
+theorem IsConjOn.isLocalConj {P : Type*} {χ χ' : Q → FullChamber Γ ν}
+    {ξ ξ' : P → FullChamber Γ ν} {ρ : ColPerm ν} {z z' : GalleryAlgebra k Γ ν}
+    (h : IsConjOn k hΓ ξ ξ' ρ z' z) (hmatch : ∀ q p, χ q = ξ p ↔ χ' q = ξ' p)
+    (hclosed : ∀ p p', (∃ q, χ q = ξ p) → ∃ q, χ q = ξ p') :
+    IsLocalConj k hΓ χ χ' ρ z' z := by
+  have hclosed' : ∀ p p', (∃ q, χ' q = ξ' p) → ∃ q, χ' q = ξ' p' := fun p p' ⟨q, hq⟩ =>
+    let ⟨q', hq'⟩ := hclosed p p' ⟨q, (hmatch q p).2 hq⟩
+    ⟨q', (hmatch q' p').1 hq'⟩
+  refine ⟨fun D C hDC => ?_, fun D C hDC => ?_, fun q q' => ?_⟩
+  · have hD : ∃ p, ξ p = D := by
+      by_contra hD
+      exact hDC (h.1 D C (Or.inl fun p hp => hD ⟨p, hp⟩))
+    have hC : ∃ p, ξ p = C := by
+      by_contra hC
+      exact hDC (h.1 D C (Or.inr fun p hp => hC ⟨p, hp⟩))
+    obtain ⟨pD, rfl⟩ := hD
+    obtain ⟨pC, rfl⟩ := hC
+    exact ⟨hclosed pD pC, hclosed pC pD⟩
+  · have hD : ∃ p, ξ' p = D := by
+      by_contra hD
+      exact hDC (h.2.1 D C (Or.inl fun p hp => hD ⟨p, hp⟩))
+    have hC : ∃ p, ξ' p = C := by
+      by_contra hC
+      exact hDC (h.2.1 D C (Or.inr fun p hp => hC ⟨p, hp⟩))
+    obtain ⟨pD, rfl⟩ := hD
+    obtain ⟨pC, rfl⟩ := hC
+    exact ⟨hclosed' pD pC, hclosed' pC pD⟩
+  · by_cases hq : ∃ p, χ q = ξ p
+    · by_cases hq' : ∃ p, χ q' = ξ p
+      · obtain ⟨p, hp⟩ := hq
+        obtain ⟨p', hp'⟩ := hq'
+        rw [hp, hp', (hmatch q p).1 hp, (hmatch q' p').1 hp']
+        exact h.2.2 p p'
+      · have h0 : ∀ p, ξ p ≠ χ q' := fun p hp => hq' ⟨p, hp.symm⟩
+        have h0' : ∀ p, ξ' p ≠ χ' q' := fun p hp => hq' ⟨p, (hmatch q' p).2 hp.symm⟩
+        rw [h.1 _ _ (Or.inr h0), h.2.1 _ _ (Or.inr h0')]
+        simp
+    · have h0 : ∀ p, ξ p ≠ χ q := fun p hp => hq ⟨p, hp.symm⟩
+      have h0' : ∀ p, ξ' p ≠ χ' q := fun p hp => hq ⟨p, (hmatch q p).2 hp.symm⟩
+      rw [h.1 _ _ (Or.inl h0), h.2.1 _ _ (Or.inl h0')]
+      simp
+
 theorem galleryRep_poly_mul_e (f : PolyRing ν k) (A : FullChamber Γ ν) :
     galleryRep k hΓ (poly f * e A) = blk k A A (LinearMap.mulLeft k f) := by
   rw [map_mul, galleryRep_poly, galleryRep_e, Module.End.mul_eq_comp, diagOp_comp_blk,
@@ -356,6 +487,20 @@ theorem isConjOn_galleryHom (hρ : ∀ s, J'.toFun s = ρ.1 (J.toFun s))
   | add a b ha hb =>
     rw [map_add, map_add, map_add]
     exact ha.add hb
+
+/-- **Sums over families of conjugate chamber embeddings.** Let `J x`, `J' x` be families of
+chamber embeddings with `J' x s = ρ (J x s)`, and let `χ`, `χ'` be chamber families matching the
+chambers of `J x` and `J' x`, with the chambers of each `J x` either all in the range of `χ` or
+none of them. Then `∑ x, J' x (y)` is weakly conjugate to `∑ x, J x (y)` along `ρ`. -/
+theorem isLocalConj_sum_toHom {X Q : Type*} [Fintype X] {J J' : X → ChamberEmbedding Γ ν₀ ν}
+    {χ χ' : Q → FullChamber Γ ν}
+    (hρ : ∀ x s, (J' x).toFun s = ρ.1 ((J x).toFun s))
+    (hmatch : ∀ x q C, χ q = (J x).chamber C ↔ χ' q = (J' x).chamber C)
+    (hclosed : ∀ x C C', (∃ q, χ q = (J x).chamber C) → ∃ q, χ q = (J x).chamber C')
+    (y : GalleryAlgebra k Γ ν₀) :
+    IsLocalConj k hΓ χ χ' ρ (∑ x, (J' x).toHom y) (∑ x, (J x).toHom y) :=
+  IsLocalConj.sum _ fun x _ =>
+    IsConjOn.isLocalConj hΓ ((J x).isConjOn_galleryHom hΓ (hρ x) y) (hmatch x) (hclosed x)
 
 end ChamberEmbedding
 

@@ -260,6 +260,48 @@ example (ν' ν'' : Fin 2 →₀ ℕ) :
     (Submodule.sum_mem _ fun C _ => wkGraph_standing.gradingDatum.e_mem_grade C)
     (Submodule.sum_mem _ fun C _ => wkGraph_standing.gradingDatum.e_mem_grade C)
 
+/-! ### Webster, weighted KLR algebras (arXiv:1209.2463v4), degree of the Mackey twist (§2.4) -/
+
+/-- An explicit grading datum for `wkGraph` (the values of Webster's standing grading with
+`d = 1`): dots of degree `2`, the wall of the edge of degree `1`, the diagonal of colour `0`
+(with its loop of weight `0` and `P = 1`) of degree `0`, that of colour `1` of degree `-2`. -/
+def wkGrading : WeightedKLR.GradingDatum wkGraph where
+  dot _ := 2
+  wall _ := 1
+  cross i := if i = 0 then 0 else -2
+  isWeightedHomogeneous_Q _ := by
+    have h0 := MvPolynomial.isWeightedHomogeneous_X ℚ ![(2 : ℤ), 2] 0
+    have h1 := MvPolynomial.isWeightedHomogeneous_X ℚ ![(2 : ℤ), 2] 1
+    simpa [wkGraph] using h0.sub h1
+  cross_of_loop_none i hi := by
+    have : i ≠ 0 := fun h => by simp [wkGraph, h] at hi
+    simp [this]
+  isWeightedHomogeneous_loop i P hP := by
+    simp only [wkGraph] at hP
+    split_ifs at hP with hi
+    obtain rfl := Option.some_injective _ hP
+    simpa [hi] using MvPolynomial.isWeightedHomogeneous_one ℚ ![(2 : ℤ), 2]
+
+/-- The exchange degree is symmetric: one strand of colour `0` past one of colour `1`, in either
+order, crosses the wall of the edge `0 → 1`, of degree `1`. The non-symmetric form `⟨j, i⟩` of
+Webster's §2.4 would give `0` in one of the two orders. -/
+example : wkGrading.pairDeg 0 1 = 1 ∧ wkGrading.pairDeg 1 0 = 1 := by
+  decide
+
+/-- Two strands of colour `1` cross one diagonal, of degree `-2 = -(α_1 · α_1)`. -/
+example : wkGrading.pairDeg 1 1 = -2 := by
+  simp [WeightedKLR.GradingDatum.pairDeg, wkGrading, wkGraph]
+
+/-- The degree of the exchange of two juxtaposed blocks (the twist of the Mackey filtration in
+the proof of Webster's Theorem 2.19). -/
+example (ν' ν'' : Fin 2 →₀ ℕ) (C' : WeightedKLR.FullChamber wkGraph ν')
+    (C'' : WeightedKLR.FullChamber wkGraph ν'') :=
+  WeightedKLR.Juxtapose.segDeg_chamber_swapChamber wkGrading
+    (fun C E => (WeightedKLR.GalleryAlgebra.exists_isChamberSegment wkGraph_dagger
+      wkGraph_noZeroLoops C E).choose)
+    (WeightedKLR.GalleryAlgebra.exists_isChamberSegment wkGraph_dagger wkGraph_noZeroLoops
+      (WeightedKLR.Juxtapose.chamber C' C'') (WeightedKLR.Juxtapose.swapChamber C' C'')).choose_spec
+
 /-! ### Webster, weighted KLR algebras (arXiv:1209.2463v4), Propositions 2.11, 2.12, 2.15 -/
 
 /-- The graph `wkGraph` with real weights, for Proposition 2.12. -/

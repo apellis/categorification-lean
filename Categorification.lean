@@ -870,6 +870,7 @@ import Categorification.WeightedKLR.Induction.K0
 import Categorification.WeightedKLR.Induction.ModuleMonoidal
 import Categorification.WeightedKLR.Induction.Monoidal
 import Categorification.WeightedKLR.Induction.TensorMap
+import Categorification.WeightedKLR.Mackey.BlockConjugate
 import Categorification.WeightedKLR.Mackey.BlockPieces
 import Categorification.WeightedKLR.Mackey.ConjugateEmbedding
 import Categorification.WeightedKLR.Mackey.CornerShuffle
@@ -877,7 +878,13 @@ import Categorification.WeightedKLR.Mackey.CrossingGallery
 import Categorification.WeightedKLR.Mackey.Degree
 import Categorification.WeightedKLR.Mackey.Dominance
 import Categorification.WeightedKLR.Mackey.Filtration
+import Categorification.WeightedKLR.Mackey.FourBlockBalanced
+import Categorification.WeightedKLR.Mackey.FourBlockChamber
+import Categorification.WeightedKLR.Mackey.FourBlockConj
+import Categorification.WeightedKLR.Mackey.FourBlockJuxtapose
+import Categorification.WeightedKLR.Mackey.FourBlockLayout
 import Categorification.WeightedKLR.Mackey.FourBlockShuffle
+import Categorification.WeightedKLR.Mackey.FourBlockSwap
 import Categorification.WeightedKLR.Mackey.FourBlockType
 import Categorification.WeightedKLR.Mackey.IdentityCoefficient
 import Categorification.WeightedKLR.Mackey.Intermediate

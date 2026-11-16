@@ -222,6 +222,26 @@ theorem iSup_range_typeInductionMap (hν' : ν' + ν'' = ν) (hν₁ : ν₁ + �
         (typeInductionMap k hP hD hZ hΓ hW hL hν' hν₁ hC hD' S' hS μ.2.2.1 μ.2.1))
     ⟨shuffleType ν' ν₁ g.1, ⟨g.1, rfl⟩, g.2.1, g.2.2⟩
 
+/-- **The subquotient of a single shuffle type is the image of its map** (the surjectivity half of
+the identification of the subquotients of the Mackey filtration with induced modules in the proof
+of B. Webster, arXiv:1209.2463v4, Theorem 2.19). If `μ` is the only shuffle type in `S` but not in
+`S'` (for instance `S' = S \ {μ}`), then the map `x ⊗ y ↦ [e D ι(x) ψ_μ ι(y) e C]` onto the
+quotient of the step `S` of the filtration of `e D * A * e C` by the step `S'` is surjective. -/
+theorem range_typeInductionMap_eq_top (hν' : ν' + ν'' = ν) (hν₁ : ν₁ + ν₂ = ν)
+    {D C : FullChamber Γ ν} (hC : C.IsRankOrdered) (hD' : D.IsRankOrdered)
+    (hCs : IsSeparated (fun t => decide (t.IsLeft ν')) C)
+    (hDs : IsSeparated (fun t => decide (t.IsLeft ν₁)) D) (S' : Set (I → ℕ)) {S : Set (I → ℕ)}
+    (hS : IsLowerSet S) {μ : I → ℕ} (hμS : μ ∈ S)
+    (hμ : μ ∈ Set.range (shuffleType (ν := ν) ν' ν₁))
+    (hS' : ∀ μ' ∈ S, μ' ∉ S' → μ' = μ) :
+    LinearMap.range (typeInductionMap k hP hD hZ hΓ hW hL hν' hν₁ hC hD' S' hS hμS hμ) = ⊤ := by
+  refine eq_top_iff.2 ?_
+  rw [← iSup_range_typeInductionMap hP hD hZ hΓ hW hL hν' hν₁ hC hD' hCs hDs S' hS]
+  refine iSup_le fun μ' => ?_
+  obtain ⟨μ', hμ', hμ'S, hμ'S'⟩ := μ'
+  obtain rfl := hS' μ' hμ'S hμ'S'
+  exact le_rfl
+
 end GalleryAlgebra
 
 end Categorification.WeightedKLR

@@ -895,6 +895,7 @@ import Categorification.WeightedKLR.Mackey.MinimalGallery
 import Categorification.WeightedKLR.Mackey.Parabolic
 import Categorification.WeightedKLR.Mackey.Separated
 import Categorification.WeightedKLR.Mackey.SeparatedJuxtapose
+import Categorification.WeightedKLR.Mackey.ShuffleDegree
 import Categorification.WeightedKLR.Mackey.ShuffleElement
 import Categorification.WeightedKLR.Mackey.ShuffleExact
 import Categorification.WeightedKLR.Mackey.ShuffleFactor

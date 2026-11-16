@@ -288,6 +288,33 @@ noncomputable example (ν : Multiset (Fin 2)) :=
   WeightedKLR.spacedEquiv (k := ℚ) (ν := ν) wkLooplessGraph_standing
     wkLooplessGraph_dagger (fun _ => by simp [wkLooplessGraph]) (fun _ => rfl)
 
+/-! ### Webster, weighted KLR algebras (arXiv:1209.2463v4), proof of Theorem 3.5 -/
+
+/-- A weighted graph without loops: one edge `0 → 1` of weight `0` with `Q_e = u - v`. -/
+def wkWeightZeroGraph : WeightedKLR.WeightedGraph (Fin 2) ℚ ℚ where
+  E := Unit
+  tail _ := 0
+  head _ := 1
+  weight _ := 0
+  Q _ := MvPolynomial.X 0 - MvPolynomial.X 1
+  loop _ := none
+
+theorem wkWeightZeroGraph_standing : wkWeightZeroGraph.Standing :=
+  ⟨fun _ => 1, fun _ => one_pos, fun _ => ⟨1, 1, isUnitHomogeneous_X_sub_X⟩,
+    fun _ _ h => by simp [wkWeightZeroGraph] at h⟩
+
+theorem wkWeightZeroGraph_dagger : wkWeightZeroGraph.Dagger :=
+  ⟨fun _ _ _ _ _ => rfl, fun _ _ h₁ _ _ => by simp [wkWeightZeroGraph] at h₁⟩
+
+/-- Webster, proof of Theorem 3.5: the homomorphism from `T̃^λ` to the chamber algebra of the
+Crawley-Boevey graph modulo the dot on the `0`-strand, for two red strands `λ_1 = λ_2 = ω_0`
+with weights `ϖ_1 = 0 < ϖ_2 = 1`. -/
+noncomputable example (ν : Multiset (Fin 2)) :=
+  Stendhal.stTildeHom ν ℚ wkWeightZeroGraph (fun _ : Fin 2 => Finsupp.single 0 1)
+    (ϖ := fun r : Fin 2 => ((r : ℕ) : ℚ)) wkWeightZeroGraph_dagger
+    (fun _ => by simp [wkWeightZeroGraph]) (fun _ => rfl) (fun _ _ h => Nat.cast_lt.mpr h)
+    (fun _ => rfl) wkWeightZeroGraph_standing
+
 /-! ### Webster, §2, canonical deformations -/
 
 /-- Standing data for `wkGraph`, with `d = 1` and `c_e = c_ē = 1`. -/

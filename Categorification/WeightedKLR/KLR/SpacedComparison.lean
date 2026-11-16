@@ -40,7 +40,8 @@ elements of the weighted KLR algebra from `B_s(i)` to `B_s(j)`.
   `B_s(i)`, the dot `x_a` to the dot on the strand at position `a`, and the crossing `ψ_n` to the
   straight gallery `crossElt` exchanging the strands at positions `n` and `n + 1`.
 * `spacedRep_spacedHom`: `spacedHom` intertwines the polynomial representations.
-* `spacedHom_injective`: `spacedHom` is injective (Proposition 2.14, injectivity).
+* `spacedHom_injective`: `spacedHom` is injective (Proposition 2.14, injectivity), over any
+  commutative ring.
 -/
 
 namespace IsIdempotentElem
@@ -399,6 +400,18 @@ theorem Standing.edgeProd_ne_zero [IsDomain k] (hS : Γ.Standing) (a b : I) :
     Γ.edgeProd a b ≠ 0 :=
   Finset.prod_ne_zero_iff.2 fun e _ => hS.Q_ne_zero e
 
+omit [Field 𝕜] [LinearOrder 𝕜] [IsStrictOrderedRing 𝕜] in
+/-- Under Webster's standing hypothesis, `∏_{e : a → b} Q_e`, substituted into two distinct
+variables of a polynomial ring in finitely many variables, is a non-zero-divisor, over any
+commutative ring. -/
+theorem Standing.isRegular_rename_edgeProd {σ : Type*} [Finite σ] (hS : Γ.Standing) (a b : I)
+    {f : Fin 2 → σ} (hf : Function.Injective f) : IsRegular (rename f (Γ.edgeProd a b)) := by
+  obtain ⟨d, hd, hQ, -⟩ := hS
+  rw [edgeProd, map_prod]
+  refine IsRegular.prod fun e _ => ?_
+  obtain ⟨c, c', hc⟩ := hQ e
+  exact isRegular_rename_of_isUnitHomogeneous hf (hd _) (hd _) hc
+
 end WeightedGraph
 
 theorem eq_of_comp_seqRenEquiv {A B : Module.End k (KLR.Seq ν → PolyRing ν' k)}
@@ -465,14 +478,18 @@ theorem spacedRep_spacedHom (hS : Γ.Standing) (hD : Γ.Dagger) (hE : ∀ e, Γ.
   refine (spacedRep_spacedFreeHom hS.psymm hD hl hE x).trans ?_
   exact congrArg (seqRenEquiv.toLinearMap ∘ₗ ·) h.symm
 
-/-- **Webster, Proposition 2.14** (injectivity): over a domain, the homomorphism `spacedHom` from
-the KLR algebra to the weighted KLR algebra on the evenly spaced loadings is injective. -/
-theorem spacedHom_injective [IsDomain k] (hS : Γ.Standing) (hD : Γ.Dagger)
+/-- **Webster, Proposition 2.14** (injectivity): the homomorphism `spacedHom` from the KLR
+algebra to the weighted KLR algebra on the evenly spaced loadings is injective, over any
+commutative ring. Since `spacedHom` intertwines the polynomial representations, this is the
+faithfulness of the polynomial representation of the KLR algebra (KL I, Corollary 2.6, over any
+commutative ring for `P = edgeProd Γ`, whose substitutions into two variables are
+non-zero-divisors by the standing hypothesis). -/
+theorem spacedHom_injective (hS : Γ.Standing) (hD : Γ.Dagger)
     (hE : ∀ e, Γ.head e ≠ Γ.tail e) (hl : ∀ c, Γ.loop c = none) :
     Function.Injective (spacedHom k hS hD hE hl (ν := ν)) := by
   intro x y hxy
-  apply KLR.polyRep_injective (P := Γ.edgeProd) (fun a b _ => rfl)
-    (fun a b _ => hS.edgeProd_ne_zero a b)
+  apply KLR.polyRep_injective_of_isRegular (P := Γ.edgeProd) (fun a b _ => rfl)
+    (fun a b _ f hf => hS.isRegular_rename_edgeProd a b hf)
   have hx := spacedRep_spacedHom hS hD hE hl x
   have hy := spacedRep_spacedHom hS hD hE hl y
   rw [hxy] at hx

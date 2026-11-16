@@ -9,23 +9,26 @@ import Categorification.Algebra.PermExpansion
 # Linear independence of the operators `ψ̂_w x^u 1_i` on `Pol_ν`
 
 This file proves the independence half of KL I (arXiv:0803.4121v2), Theorem 2.5 at the
-level of the polynomial representation: for an integral domain `k`, polynomials
-`P i j ≠ 0` (`i ≠ j`), and any choice `ρ w` of reduced words for the permutations `w`,
-the operators
+level of the polynomial representation: for a commutative ring `k`, polynomials `P i j`
+(`i ≠ j`) that are non-zero-divisors in any two distinct variables of `k[x_1, …, x_m]`
+(for instance `P i j ≠ 0` over an integral domain), and any choice `ρ w` of reduced words for
+the permutations `w`, the operators
 
   `ψ_{ρ w} ∘ x^u ∘ 1_i`, `i ∈ Seq ν`, `w ∈ S_m`, `u ∈ ℕ^m`
 
-acting on `Pol_ν` are linearly independent over `k` (`linearIndependent_opΨw`).
+acting on `Pol_ν` are linearly independent over `k` (`linearIndependent_opΨw_of_isRegular`;
+over a domain, `linearIndependent_opΨw`).
 
 ## Method
 
 Every operator involved maps the component `Pol_i` to a single component, and the
 component maps have expansions `∑_v g v · v` in the skew group ring `Frac(k[x]) ⋊ S_m`
+(`Frac` the total ring of fractions)
 (`Categorification.PermExpansion`): the crossing `ψ_j` on `Pol_t` has expansion
 `(x_j - x_{j+1})⁻¹ (1 - s_j)` if `t_j = t_{j+1}` and `P(x_j, x_{j+1}) s_j` otherwise
 (`hasExp_crossComp`). For a word `ρ` the expansion `wordExp P ρ i` of the component of
 `ψ_ρ` is supported on `{wordProd ρ} ∪ {v | ℓ(v) < |ρ|}` (`wordExp_support`), and if `ρ` is
-reduced its coefficient at `wordProd ρ` is nonzero (`wordExp_top_ne_zero`). Expansions
+reduced its coefficient at `wordProd ρ` is a unit (`wordExp_top_isUnit`). Expansions
 are unique (Dedekind), so in a vanishing linear combination the coefficient at a
 permutation `w₀` of maximal length only involves the terms with `w = w₀`, which forces
 their coefficients to vanish.
@@ -41,8 +44,9 @@ their coefficients to vanish.
 
 * `opΨw_single` : `opΨw P ρ` maps `Pol_i` to `Pol_{wordProd ρ • i}` via `wordComp`.
 * `hasExp_crossComp`, `hasExp_wordComp` : the expansions.
-* `wordExp_support`, `wordExp_top_ne_zero` : triangularity.
-* `opΨw_family_coeff_eq_zero`, `linearIndependent_opΨw` : linear independence.
+* `wordExp_support`, `wordExp_top_isUnit` : triangularity.
+* `opΨw_family_coeff_eq_zero`, `linearIndependent_opΨw_of_isRegular`,
+  `linearIndependent_opΨw` : linear independence.
 -/
 
 namespace Categorification.KLR.PolyRep
@@ -182,18 +186,17 @@ theorem opΨw_single (P : I → I → MvPolynomial (Fin 2) k) (ρ : List ℕ) (i
 
 section Expansion
 
-variable [IsDomain k]
-
 local notation "R" => MvPolynomial (Fin m) k
 local notation "K" => FractionRing (MvPolynomial (Fin m) k)
 
 /-- The expansion of `crossComp P j h t` in `Frac(k[x]) ⋊ S_m`:
-`(x_j - x_{j+1})⁻¹ (1 - s_j)` if `t_j = t_{j+1}`, and `P(x_j, x_{j+1}) s_j` otherwise. -/
+`(x_j - x_{j+1})⁻¹ (1 - s_j)` if `t_j = t_{j+1}`, and `P(x_j, x_{j+1}) s_j` otherwise. The
+inverse of the unit `x_j - x_{j+1}` is written `Ring.inverse`. -/
 noncomputable def crossExp (P : I → I → MvPolynomial (Fin 2) k) (j : ℕ) (h : j + 1 < m)
     (t : Seq ν) : Perm (Fin m) → K :=
   if t.lbl ⟨j, by omega⟩ = t.lbl ⟨j + 1, h⟩ then
-    Pi.single 1 (algebraMap R K (X ⟨j, by omega⟩ - X ⟨j + 1, h⟩))⁻¹ +
-      Pi.single (sadj m j) (-(algebraMap R K (X ⟨j, by omega⟩ - X ⟨j + 1, h⟩))⁻¹)
+    Pi.single 1 (Ring.inverse (algebraMap R K (X ⟨j, by omega⟩ - X ⟨j + 1, h⟩))) +
+      Pi.single (sadj m j) (-Ring.inverse (algebraMap R K (X ⟨j, by omega⟩ - X ⟨j + 1, h⟩)))
   else
     Pi.single (sadj m j) (algebraMap R K (rename ![(⟨j, by omega⟩ : Fin m), ⟨j + 1, h⟩]
       (P (t.lbl ⟨j, by omega⟩) (t.lbl ⟨j + 1, h⟩))))
@@ -215,22 +218,23 @@ theorem crossExp_support (P : I → I → MvPolynomial (Fin 2) k) (j : ℕ) (h :
   unfold crossExp
   split_ifs <;> simp [hc.1, hc.2]
 
-theorem crossExp_sadj_ne_zero {P : I → I → MvPolynomial (Fin 2) k}
-    (hP : ∀ a b, a ≠ b → P a b ≠ 0) (j : ℕ) (h : j + 1 < m) (t : Seq ν) :
-    crossExp P j h t (sadj m j) ≠ 0 := by
+theorem crossExp_sadj_isUnit {P : I → I → MvPolynomial (Fin 2) k}
+    (hP : ∀ a b, a ≠ b → ∀ f : Fin 2 → Fin m, Function.Injective f →
+      IsRegular (rename f (P a b)))
+    (j : ℕ) (h : j + 1 < m) (t : Seq ν) :
+    IsUnit (crossExp P j h t (sadj m j)) := by
   have hs : sadj m j ≠ 1 := sadj_ne_one h
   have hne : (⟨j, by omega⟩ : Fin m) ≠ ⟨j + 1, h⟩ := by simp [Fin.ext_iff]
   unfold crossExp
   split_ifs with hl
-  · simp only [Pi.add_apply, Pi.single_apply, ite_eq_right hs, ite_true, zero_add, ne_eq,
-      neg_eq_zero, inv_eq_zero]
-    exact algebraMap_ne_zero (k := k) (sub_ne_zero.mpr fun e => hne (X_injective e))
+  · simp only [Pi.add_apply, Pi.single_apply, ite_eq_right hs, ite_true, zero_add,
+      IsUnit.neg_iff]
+    exact (isUnit_algebraMap (isRegular_X_sub_X hne)).ringInverse
   · simp only [Pi.single_eq_same]
     have hinj : Function.Injective ![(⟨j, by omega⟩ : Fin m), ⟨j + 1, h⟩] := by
       intro x y hxy
       fin_cases x <;> fin_cases y <;> simp_all
-    refine algebraMap_ne_zero (k := k) fun e => hP _ _ hl (rename_injective _ hinj ?_)
-    rw [e, map_zero]
+    exact isUnit_algebraMap (hP _ _ hl _ hinj)
 
 /-- The expansion of `wordComp P ρ i`. -/
 noncomputable def wordExp (P : I → I → MvPolynomial (Fin 2) k) :
@@ -275,10 +279,12 @@ theorem wordExp_support (P : I → I → MvPolynomial (Fin 2) k) (ρ : List ℕ)
     · simp [wordExp, dite_eq_right h] at hv
 
 /-- For a reduced word `ρ`, the coefficient of `wordProd ρ` in the expansion of
-`wordComp P ρ i` is nonzero. -/
-theorem wordExp_top_ne_zero {P : I → I → MvPolynomial (Fin 2) k}
-    (hP : ∀ a b, a ≠ b → P a b ≠ 0) {ρ : List ℕ} (hρ : IsReduced m ρ) (i : Seq ν) :
-    wordExp P ρ i (wordProd m ρ) ≠ 0 := by
+`wordComp P ρ i` is a unit. -/
+theorem wordExp_top_isUnit {P : I → I → MvPolynomial (Fin 2) k}
+    (hP : ∀ a b, a ≠ b → ∀ f : Fin 2 → Fin m, Function.Injective f →
+      IsRegular (rename f (P a b)))
+    {ρ : List ℕ} (hρ : IsReduced m ρ) (i : Seq ν) :
+    IsUnit (wordExp P ρ i (wordProd m ρ)) := by
   induction ρ with
   | nil => simp [wordExp, wordProd]
   | cons j ρ ih =>
@@ -292,7 +298,7 @@ theorem wordExp_top_ne_zero {P : I → I → MvPolynomial (Fin 2) k}
       · exact sadj_ne_one h (mul_right_cancel (h1.trans (one_mul _).symm))
       · omega
     rw [conv_top (crossExp_support P j h _) hz]
-    exact mul_ne_zero (crossExp_sadj_ne_zero hP j h _) (act_ne_zero _ (ih hρ'))
+    exact (crossExp_sadj_isUnit hP j h _).mul ((ih hρ').map (act k (sadj m j)))
 
 /-! ### Linear independence -/
 
@@ -327,7 +333,9 @@ theorem hasExp_family (P : I → I → MvPolynomial (Fin 2) k) (ρ : List ℕ) (
 /-- **Linear independence, coefficient form.** If a finite `k`-linear combination of the
 operators `ψ_{ρ w} ∘ x^u ∘ 1_i` vanishes on `Pol_ν`, then all its coefficients vanish. -/
 theorem opΨw_family_coeff_eq_zero {P : I → I → MvPolynomial (Fin 2) k}
-    (hP : ∀ a b, a ≠ b → P a b ≠ 0) (ρ : Perm (Fin m) → List ℕ)
+    (hP : ∀ a b, a ≠ b → ∀ f : Fin 2 → Fin m, Function.Injective f →
+      IsRegular (rename f (P a b)))
+    (ρ : Perm (Fin m) → List ℕ)
     (hρ : ∀ w, IsReduced m (ρ w) ∧ wordProd m (ρ w) = w)
     (s : Finset (Seq ν × Perm (Fin m) × (Fin m →₀ ℕ)))
     (g : Seq ν × Perm (Fin m) × (Fin m →₀ ℕ) → k)
@@ -387,12 +395,10 @@ theorem opΨw_family_coeff_eq_zero {P : I → I → MvPolynomial (Fin 2) k}
   rw [Finset.sum_congr rfl hterm, ← Finset.sum_filter, ← Finset.mul_sum,
     ← act_sum, ← map_sum (algebraMap R K)] at hzero
   have hp : ∑ x ∈ s.filter (fun x => x.1 = i' ∧ x.2.1 = w₀), C (g x) * monomial x.2.2 1 = 0 := by
-    rcases mul_eq_zero.mp hzero with h | h
-    · have ht := wordExp_top_ne_zero hP (hρ w₀).1 i'
-      rw [(hρ w₀).2] at ht
-      exact absurd h ht
-    · have := act_eq_zero h
-      exact (map_eq_zero_iff _ (IsFractionRing.injective R K)).mp this
+    have ht := wordExp_top_isUnit hP (hρ w₀).1 i'
+    rw [(hρ w₀).2] at ht
+    have := act_eq_zero (ht.mul_right_eq_zero.mp hzero)
+    exact (map_eq_zero_iff _ (IsFractionRing.injective R K)).mp this
   have hc := congrArg (fun p : MvPolynomial (Fin m) k => p.coeff u₀) hp
   rw [coeff_sum, Finset.sum_eq_single_of_mem (i', w₀, u₀) (by simp [hx₀s])] at hc
   · simp [coeff_C_mul] at hc
@@ -403,15 +409,31 @@ theorem opΨw_family_coeff_eq_zero {P : I → I → MvPolynomial (Fin 2) k}
     have hu : u ≠ u₀ := fun e => hne (by rw [e])
     simp [coeff_C_mul, coeff_monomial, hu]
 
-/-- **Linear independence (KL I, Theorem 2.5, polynomial representation).** For an
-integral domain `k`, polynomials `P a b ≠ 0` for `a ≠ b`, and any choice `ρ w` of reduced
-words, the operators `ψ_{ρ w} ∘ x^u ∘ 1_i` on `Pol_ν` are linearly independent over `k`. -/
-theorem linearIndependent_opΨw {P : I → I → MvPolynomial (Fin 2) k}
-    (hP : ∀ a b, a ≠ b → P a b ≠ 0) (ρ : Perm (Fin m) → List ℕ)
+/-- **Linear independence (KL I, Theorem 2.5, polynomial representation)**, over any
+commutative ring. If each `P a b` (`a ≠ b`) is a non-zero-divisor in any two distinct variables
+of `k[x_1, …, x_m]`, then for any choice `ρ w` of reduced words the operators
+`ψ_{ρ w} ∘ x^u ∘ 1_i` on `Pol_ν` are linearly independent over `k`. KL I state the theorem
+over a field (and over `ℤ` for the data of a simple graph); the argument only needs the leading
+coefficients of the crossings to be non-zero-divisors. -/
+theorem linearIndependent_opΨw_of_isRegular {P : I → I → MvPolynomial (Fin 2) k}
+    (hP : ∀ a b, a ≠ b → ∀ f : Fin 2 → Fin m, Function.Injective f →
+      IsRegular (rename f (P a b)))
+    (ρ : Perm (Fin m) → List ℕ)
     (hρ : ∀ w, IsReduced m (ρ w) ∧ wordProd m (ρ w) = w) :
     LinearIndependent k (fun x : Seq ν × Perm (Fin m) × (Fin m →₀ ℕ) =>
       opΨw P (ρ x.2.1) ∘ₗ mulMono x.2.2 ∘ₗ opE x.1) :=
   linearIndependent_iff'.mpr fun s g hsum => opΨw_family_coeff_eq_zero hP ρ hρ s g hsum
+
+/-- **Linear independence (KL I, Theorem 2.5, polynomial representation).** For an
+integral domain `k`, polynomials `P a b ≠ 0` for `a ≠ b`, and any choice `ρ w` of reduced
+words, the operators `ψ_{ρ w} ∘ x^u ∘ 1_i` on `Pol_ν` are linearly independent over `k`. -/
+theorem linearIndependent_opΨw [IsDomain k] {P : I → I → MvPolynomial (Fin 2) k}
+    (hP : ∀ a b, a ≠ b → P a b ≠ 0) (ρ : Perm (Fin m) → List ℕ)
+    (hρ : ∀ w, IsReduced m (ρ w) ∧ wordProd m (ρ w) = w) :
+    LinearIndependent k (fun x : Seq ν × Perm (Fin m) × (Fin m →₀ ℕ) =>
+      opΨw P (ρ x.2.1) ∘ₗ mulMono x.2.2 ∘ₗ opE x.1) :=
+  linearIndependent_opΨw_of_isRegular (fun a b hab f hf => IsRegular.of_ne_zero fun h0 =>
+    hP a b hab (rename_injective f hf (by rw [h0, map_zero]))) ρ hρ
 
 end Expansion
 

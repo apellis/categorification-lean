@@ -35,7 +35,7 @@ the image of `R(ν)` by induction on the number of inversions of the permutation
   modulo elements with fewer steps.
 * `spacedHom_surjective`: `spacedHom` is surjective (Proposition 2.14, surjectivity). No
   hypothesis on `k` is needed.
-* `spacedEquiv`: over a domain, `spacedHom` is an isomorphism (Proposition 2.14).
+* `spacedEquiv`: `spacedHom` is an isomorphism (Proposition 2.14), over any commutative ring.
 -/
 
 namespace Categorification.WeightedKLR
@@ -699,17 +699,15 @@ theorem spacedHom_surjective (hS : Γ.Standing) (hD : Γ.Dagger) (hE : ∀ e, Γ
   exact (AlgHom.mem_range _).1 hx
 
 /-- B. Webster, *Weighted Khovanov–Lauda–Rouquier algebras*, arXiv:1209.2463v4, Proposition 2.14:
-the KLR algebra `R(ν)` is isomorphic to the weighted KLR algebra of the evenly spaced loadings.
-
-The hypothesis `[IsDomain k]` is not in the source; it is used by the current proof of
-injectivity (`spacedHom_injective`, through the faithful polynomial representation). -/
-noncomputable def spacedEquiv [IsDomain k] (hS : Γ.Standing) (hD : Γ.Dagger)
+the KLR algebra `R(ν)` is isomorphic to the weighted KLR algebra of the evenly spaced loadings,
+over any commutative ring. -/
+noncomputable def spacedEquiv (hS : Γ.Standing) (hD : Γ.Dagger)
     (hE : ∀ e, Γ.head e ≠ Γ.tail e) (hl : ∀ c, Γ.loop c = none) :
     KLR.KLRAlgebra k Γ.klrQ ν ≃ₐ[k] SpacedAlgebra k Γ ν :=
   AlgEquiv.ofBijective (spacedHom k hS hD hE hl)
     ⟨spacedHom_injective hS hD hE hl, spacedHom_surjective hS hD hE hl⟩
 
-theorem spacedEquiv_apply [IsDomain k] (hS : Γ.Standing) (hD : Γ.Dagger)
+theorem spacedEquiv_apply (hS : Γ.Standing) (hD : Γ.Dagger)
     (hE : ∀ e, Γ.head e ≠ Γ.tail e) (hl : ∀ c, Γ.loop c = none) (x : KLR.KLRAlgebra k Γ.klrQ ν) :
     spacedEquiv hS hD hE hl x = spacedHom k hS hD hE hl x := rfl
 

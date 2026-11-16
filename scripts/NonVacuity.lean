@@ -423,4 +423,97 @@ example (ν : Fin 2 →₀ ℕ) : ∃ (ι : Type) (_ : Module.Basis ι ℚ
   exact ⟨_, WeightedKLR.GalleryAlgebra.redReducedBasis ν hP wkGraph_dagger wkGraph_noZeroLoops
     wkGraph_standing hϖ, trivial⟩
 
+/-! Webster, Proposition 2.14 and Corollary 2.16 over a ring that is not a domain (`ZMod 4`). -/
+
+/-- `u - v` over `ZMod 4`, homogeneous of degree `1` with unit coefficients. -/
+theorem isUnitHomogeneous_X_sub_X_zmod4 :
+    WeightedKLR.WeightedGraph.IsUnitHomogeneous 1 1 1 1
+      (MvPolynomial.X 0 - MvPolynomial.X 1 : MvPolynomial (Fin 2) (ZMod 4)) := by
+  refine ⟨rfl, ?_, ?_, ?_⟩
+  · exact (MvPolynomial.isWeightedHomogeneous_X (ZMod 4) _ 0).sub
+      (MvPolynomial.isWeightedHomogeneous_X (ZMod 4) _ 1)
+  · simp [MvPolynomial.coeff_X, Finsupp.single_left_inj one_ne_zero]
+  · simp [MvPolynomial.coeff_X, Finsupp.single_left_inj one_ne_zero]
+
+/-- The graph `wkLooplessGraph` over `ZMod 4`. -/
+def wkLooplessGraphZMod4 : WeightedKLR.WeightedGraph (Fin 2) ℚ (ZMod 4) where
+  E := Unit
+  tail _ := 0
+  head _ := 1
+  weight _ := 1
+  Q _ := MvPolynomial.X 0 - MvPolynomial.X 1
+  loop _ := none
+
+theorem wkLooplessGraphZMod4_standing : wkLooplessGraphZMod4.Standing :=
+  ⟨fun _ => 1, fun _ => one_pos, fun _ => ⟨1, 1, isUnitHomogeneous_X_sub_X_zmod4⟩,
+    fun _ _ h => by simp [wkLooplessGraphZMod4] at h⟩
+
+theorem wkLooplessGraphZMod4_dagger : wkLooplessGraphZMod4.Dagger :=
+  ⟨fun _ _ _ _ _ => rfl, fun _ _ h₁ _ _ => by simp [wkLooplessGraphZMod4] at h₁⟩
+
+theorem wkLooplessGraphZMod4_isTree : wkLooplessGraphZMod4.IsTree := by
+  refine ⟨⟨fun _ => by simp [wkLooplessGraphZMod4], fun _ => rfl, fun _ _ _ => rfl,
+    SimpleGraph.IsAcyclic.of_card_le_two (by simp)⟩, ?_⟩
+  have h : wkLooplessGraphZMod4.simpleGraph.Adj 0 1 :=
+    WeightedKLR.WeightedGraph.edgeGraph_adj.2 ⟨by decide, Or.inr ⟨(), trivial, rfl, rfl⟩⟩
+  refine SimpleGraph.Connected.mk fun i j => ?_
+  fin_cases i <;> fin_cases j
+  · rfl
+  · exact h.reachable
+  · exact h.reachable.symm
+  · rfl
+
+/-- Webster, Proposition 2.14, over `ZMod 4`. -/
+noncomputable example (ν : Multiset (Fin 2)) :=
+  WeightedKLR.spacedEquiv (k := ZMod 4) (ν := ν) wkLooplessGraphZMod4_standing
+    wkLooplessGraphZMod4_dagger (fun _ => by simp [wkLooplessGraphZMod4]) (fun _ => rfl)
+
+/-- Webster, Corollary 2.16, over `ZMod 4`. -/
+example (ν : Multiset (Fin 2)) :=
+  wkLooplessGraphZMod4_isTree.exists_klrCorner (k := ZMod 4) (ν := ν)
+    wkLooplessGraphZMod4_standing
+/-- Webster, Theorem 2.8 for the Crawley-Boevey graph of `wkGraph` with the new edge directed
+into the new vertex (the orientation of Webster's Theorem 3.5). -/
+example (ν : Option (Fin 2) →₀ ℕ) := WeightedKLR.GalleryAlgebra.exists_redBasisIn (k := ℚ)
+  (Λ := fun _ : Fin 1 => Finsupp.single 0 1) (ϖ := fun _ => (2 : ℚ)) (ν := ν)
+  wkGraph_dagger wkGraph_noZeroLoops wkGraph_standing (fun _ _ _ => Subsingleton.elim _ _)
+
+/-- The basis of the reduced quotient for `ν̃ = ν + α_0`, new edges into the new vertex. -/
+example (ν : Fin 2 →₀ ℕ) : ∃ (ι : Type) (_ : Module.Basis ι ℚ
+    (WeightedKLR.GalleryAlgebra.ReducedQuotient ℚ
+      (wkGraph.crawleyBoeveyIn (fun _ : Fin 1 => Finsupp.single 0 1) fun _ => (2 : ℚ))
+      (WeightedKLR.WeightedGraph.redWeight ν) (WeightedKLR.GalleryAlgebra.zeroStrand ν))),
+    True := by
+  have hϖ : Function.Injective fun _ : Fin 1 => (2 : ℚ) := fun _ _ _ => Subsingleton.elim _ _
+  obtain ⟨P, hP, -⟩ := WeightedKLR.GalleryAlgebra.exists_span_segGallery (k := ℚ)
+    (ν := WeightedKLR.WeightedGraph.redWeight ν)
+    (WeightedKLR.WeightedGraph.crawleyBoeveyIn_dagger wkGraph_dagger hϖ)
+    (WeightedKLR.WeightedGraph.crawleyBoeveyIn_noZeroLoops
+      (Λ := fun _ : Fin 1 => Finsupp.single 0 1) (ϖ := fun _ => (2 : ℚ)) wkGraph_noZeroLoops)
+  exact ⟨_, WeightedKLR.GalleryAlgebra.redReducedBasisIn ν hP wkGraph_dagger wkGraph_noZeroLoops
+    wkGraph_standing hϖ, trivial⟩
+
+/-! ### Webster, arXiv:1309.3796v2, Definitions 4.5–4.7 (Stendhal diagrams) -/
+
+/-- The bigon relation (4.2) for one red strand `λ_1 = ϖ_0` over the vertices of `wkGraph`. -/
+example (ν : Multiset (Fin 2)) (j : ℕ) (h : j + 1 < Multiset.card (Stendhal.stendhalWeight 1 ν))
+    (s : KLR.Seq (Stendhal.stendhalWeight 1 ν))
+    (hi : s.lbl ⟨j, by omega⟩ = .inl 0) (hr : s.lbl ⟨j + 1, h⟩ = .inr 0) :=
+  Stendhal.StendhalAlgebraAllOrders.ψ_sq_black_red (k := ℚ) (Q := fun _ _ => 1)
+    (Λ := fun _ => Finsupp.single 0 1) j h s 0 0 hi hr
+
+/-- `T^λ` for one red strand: a `ℚ`-algebra. -/
+example (ν : Multiset (Fin 2)) : Algebra ℚ (Stendhal.TensorProductAlgebra ℚ
+    (fun _ _ : Fin 2 => (1 : MvPolynomial (Fin 2) ℚ)) (fun _ : Fin 1 => Finsupp.single 0 1) ν) :=
+  inferInstance
+
+/-! Webster §2.4: the juxtaposition map `ι_{ν';ν''}` on Webster's chambers. -/
+example (ν' ν'' : Fin 2 →₀ ℕ) :=
+  WeightedKLR.Juxtapose.inductionMap_one (k := ℚ) (Γ := wkGraph) (ν' := ν') (ν'' := ν'')
+
+example (ν' ν'' : Fin 2 →₀ ℕ) (c' : WeightedKLR.Chamber wkGraph ν')
+    (c'' : WeightedKLR.Chamber wkGraph ν'') :=
+  WeightedKLR.Juxtapose.inductionMap_e_tmul_e (k := ℚ) c'.toFull_isRankOrdered
+    c''.toFull_isRankOrdered
+
 end NonVacuity

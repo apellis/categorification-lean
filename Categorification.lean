@@ -889,9 +889,17 @@ import Categorification.WeightedKLR.RedStrands.StendhalViolating
 import Categorification.WeightedKLR.RedStrands.ViolatingComparison
 import Categorification.WeightedKLR.Twisted.Algebra
 import Categorification.WeightedKLR.Twisted.Arrangement
+import Categorification.WeightedKLR.Twisted.Basis
 import Categorification.WeightedKLR.Twisted.Blocks
+import Categorification.WeightedKLR.Twisted.DotsBottom
+import Categorification.WeightedKLR.Twisted.Flip
+import Categorification.WeightedKLR.Twisted.Gallery
+import Categorification.WeightedKLR.Twisted.Independence
+import Categorification.WeightedKLR.Twisted.Leading
+import Categorification.WeightedKLR.Twisted.Realize
 import Categorification.WeightedKLR.Twisted.Relabel
 import Categorification.WeightedKLR.Twisted.Rep
+import Categorification.WeightedKLR.Twisted.Spanning
 /-!
 # Categorification
 

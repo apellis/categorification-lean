@@ -535,6 +535,36 @@ example (ν : Fin 2 →₀ ℕ) := WeightedKLR.twGalleryRep ℚ (Γ := wkGraph) 
     obtain rfl := Option.some_injective _ h
     exact map_one _)
 
+/-! ### Webster, weighted KLR algebras (arXiv:1209.2463v4), §2.5, Proposition 2.20 (b) -/
+
+/-- Proposition 2.20 (b) for a graph with an edge from a vertex to itself. -/
+example (ν : Fin 2 →₀ ℕ) := WeightedKLR.TwGalleryAlgebra.exists_basis (k := ℚ)
+    (Γ := wkSelfEdgeGraph) (ν := ν)
+    (fun _ _ h => by simp [wkSelfEdgeGraph] at h)
+    (fun w => by
+      refine IsRegular.of_ne_zero ?_
+      simp only [WeightedKLR.Wall.factor, wkSelfEdgeGraph, map_sub, MvPolynomial.aeval_X]
+      simpa [sub_eq_zero, WeightedKLR.Wall.src, WeightedKLR.Wall.tgt] using w.2.2.2)
+    (fun _ _ _ h _ _ => by simp [wkSelfEdgeGraph] at h)
+
+/-- Proposition 2.20 (b) for the graph of Theorem 2.8, with a loop polynomial. -/
+example (ν : Fin 2 →₀ ℕ) := WeightedKLR.TwGalleryAlgebra.exists_basis (k := ℚ) (Γ := wkGraph)
+    (ν := ν)
+    (fun i P h => by
+      simp only [wkGraph] at h
+      split_ifs at h
+      obtain rfl := Option.some_injective _ h
+      exact map_one _)
+    (fun w => by
+      refine IsRegular.of_ne_zero ?_
+      simp only [WeightedKLR.Wall.factor, wkGraph, map_sub, MvPolynomial.aeval_X]
+      simpa [sub_eq_zero, WeightedKLR.Wall.src, WeightedKLR.Wall.tgt] using w.2.2.2)
+    (fun P a b h _ _ => by
+      simp only [wkGraph] at h
+      split_ifs at h
+      obtain rfl := Option.some_injective _ h
+      simpa [WeightedKLR.loopFactor] using isRegular_one)
+
 /-! ### Webster, weighted KLR algebras (arXiv:1209.2463v4), proof of Theorem 3.5 -/
 
 /-- A weighted graph without loops: one edge `0 → 1` of weight `0` with `Q_e = u - v`. -/

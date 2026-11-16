@@ -28,9 +28,11 @@ import Categorification.Algebra.Graded.TensorSimple
 import Categorification.Algebra.Graded.TwistTensor
 import Categorification.Algebra.IdempotentEquiv
 import Categorification.Algebra.InductionAlong
+import Categorification.Algebra.InductionAlongAssoc
 import Categorification.Algebra.InductionAlongEnd
 import Categorification.Algebra.InductionAlongLinear
 import Categorification.Algebra.InductionAlongRes
+import Categorification.Algebra.InductionAlongTensor
 import Categorification.Algebra.InductionAlongTriple
 import Categorification.Algebra.K0FinDim
 import Categorification.Algebra.ModuleCatLinear
@@ -860,6 +862,7 @@ import Categorification.WeightedKLR.Induction.Associativity
 import Categorification.WeightedKLR.Induction.Embedding
 import Categorification.WeightedKLR.Induction.Generation
 import Categorification.WeightedKLR.Induction.Juxtapose
+import Categorification.WeightedKLR.Induction.ModuleMonoidal
 import Categorification.WeightedKLR.Induction.Monoidal
 import Categorification.WeightedKLR.Induction.TensorMap
 import Categorification.WeightedKLR.RedStrands.StendhalBasis

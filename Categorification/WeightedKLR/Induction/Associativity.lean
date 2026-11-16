@@ -28,8 +28,9 @@ of the three chambers at positions `0`, `c` and `2c` for large `c`.
 * `castChamber_chamber_zero_right`, `castChamber_chamber_zero_left`: `C ∘ ∅ = C = ∅ ∘ C`.
 
 The same laws for the algebra map `ι_{ν';ν''}` are in `Induction/Monoidal.lean`, and the
-generation clause of Proposition 2.18 is in `Induction/Generation.lean`. The module-level
-associativity and unit isomorphisms for `ind`, and coassociativity of `res`, are not proved.
+generation clause of Proposition 2.18 is in `Induction/Generation.lean`, and the module-level
+associativity and unit isomorphisms for `ind` and coassociativity of `res` are in
+`Induction/ModuleMonoidal.lean`.
 -/
 
 namespace Categorification.WeightedKLR

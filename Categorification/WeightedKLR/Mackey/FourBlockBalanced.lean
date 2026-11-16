@@ -12,7 +12,9 @@ A step of the proof of B. Webster, *Weighted Khovanov–Lauda–Rouquier algebra
 arXiv:1209.2463v4, Theorem 2.19. The chambers `(A B)(C D)` of `(a + b) + (c + d)` with
 rank-ordered `A, B, C, D` are four-block chambers for the strands of `a + b` and the strands
 `middleLeft a b c d` of the blocks `a` and `c`, and the juxtaposed diagrams `(x_a x_b)(x_c x_d)`
-relabel strands only within these four blocks.
+relabel strands only within these four blocks. Together with the local conjugacy of the two
+layouts, this gives the balancedness of the four-block shuffle for the middle parabolic:
+`Juxtapose.fourShuffle_mul_sub_mul_fourShuffle_mem_mackeyFilt_middleSwap`.
 
 ## Main results
 
@@ -22,6 +24,8 @@ relabel strands only within these four blocks.
 * `Juxtapose.isBlockSupported_galleryTensorHom_fourBlock`: the juxtapositions
   `(x_a x_b)(x_c x_d)` relabel strands only within the four blocks.
 * `Juxtapose.shuffleType_middleSwap`: the middle swap has shuffle type `c`.
+* `Juxtapose.fourShuffle_mul_sub_mul_fourShuffle_mem_mackeyFilt_middleSwap`: the four-block
+  shuffle carries `(x_a x_b)(x_c x_d)` to `(x_a x_c)(x_b x_d)` up to lower shuffle types.
 * `Juxtapose.isRankOrdered_fourChamberSwap_iff`: `(A C)(B D)` is rank-ordered exactly when
   `(A B)(C D)` is.
 -/
@@ -286,6 +290,67 @@ theorem isBlockSupported_galleryTensorHom_fourBlock (xa : GalleryAlgebra k Γ a)
       (perm_mem_blockStab (x := false) (z := false)
         (fun s => decide_eq_false (not_isLeft_inrStrand (ν' := a + b) (inrStrand c d s)))
         (fun s => middleLeft_inr_inr s)) xd
+
+variable {P : FullChamber Γ (a + b + (c + d)) → FullChamber Γ (a + b + (c + d)) →
+    (Strand (a + b + (c + d)) → 𝕜) × (Strand (a + b + (c + d)) → 𝕜)}
+  (hP : ∀ C E, IsChamberSegment C E (P C E)) (hD : Γ.Dagger) (hZ : Γ.NoZeroLoops)
+  (hW : ∀ w : Wall Γ (a + b + (c + d)), IsRegular (w.factor (k := k)))
+  (hL : ∀ (Q : MvPolynomial (Fin 2) k) (s t : Strand (a + b + (c + d))), Γ.loop s.1 = some Q →
+    s ≠ t → s.1 = t.1 → IsRegular (loopFactor Q s t))
+
+/-- **Balancedness of the middle parabolic, up to lower shuffle types.** Let `A, B, C, D` and
+`A', B', C', D'` be rank-ordered chambers of `a, b, c, d`, and `x_a, x_b, x_c, x_d` diagrams of
+`a, b, c, d`. The four-block shuffle for the blocks `a` and `c` passes from the juxtaposition
+`(x_a x_b)(x_c x_d)` in the layout `a b c d`, cut down to the chambers `(A B)(C D)` and
+`(A' B')(C' D')`, to the juxtaposition `(x_a x_c)(x_b x_d)` in the layout `a c b d`, cut down to
+`(A C)(B D)` and `(A' C')(B' D')`, up to terms of shuffle type strictly below `c` (for the
+parabolics of `a + b` and `a + c`).
+
+A step of the proof of Webster, arXiv:1209.2463v4, Theorem 2.19. -/
+theorem fourShuffle_mul_sub_mul_fourShuffle_mem_mackeyFilt_middleSwap
+    {A A' : FullChamber Γ a} {B B' : FullChamber Γ b} {C C' : FullChamber Γ c}
+    {D D' : FullChamber Γ d} (hA : A.IsRankOrdered) (hB : B.IsRankOrdered)
+    (hC : C.IsRankOrdered) (hD₀ : D.IsRankOrdered) (hA' : A'.IsRankOrdered)
+    (hB' : B'.IsRankOrdered) (hC' : C'.IsRankOrdered) (hD' : D'.IsRankOrdered)
+    (xa : GalleryAlgebra k Γ a) (xb : GalleryAlgebra k Γ b) (xc : GalleryAlgebra k Γ c)
+    (xd : GalleryAlgebra k Γ d) :
+    fourShuffle k hD hZ (middleLeft a b c d) (chamber (chamber A B) (chamber C D)) *
+        (e (chamber (chamber A B) (chamber C D)) *
+          (galleryTensorHom k Γ (a + b) (c + d)
+            ((galleryTensorHom k Γ a b (xa ⊗ₜ xb)).1 ⊗ₜ
+              (galleryTensorHom k Γ c d (xc ⊗ₜ xd)).1)).1 *
+          e (chamber (chamber A' B') (chamber C' D'))) -
+      (e (castChamber (layout_eq a b c d) (chamber (chamber A C) (chamber B D))) *
+          castGallery k Γ (layout_eq a b c d) (galleryTensorHom k Γ (a + c) (b + d)
+            ((galleryTensorHom k Γ a c (xa ⊗ₜ xc)).1 ⊗ₜ
+              (galleryTensorHom k Γ b d (xb ⊗ₜ xd)).1)).1 *
+          e (castChamber (layout_eq a b c d) (chamber (chamber A' C') (chamber B' D')))) *
+        fourShuffle k hD hZ (middleLeft a b c d) (chamber (chamber A' B') (chamber C' D')) ∈
+      mackeyFilt k hP hD hZ hΓ hW hL (a + b) (a + c)
+        (castChamber (layout_eq a b c d) (chamber (chamber A C) (chamber B D)))
+        (chamber (chamber A' B') (chamber C' D')) (Set.Iio ⇑c) := by
+  let Q := {q : FullChamber Γ a × FullChamber Γ b × FullChamber Γ c × FullChamber Γ d //
+    (fourChamber a b c d q).IsRankOrdered}
+  have hrank : ∀ q : Q, q.1.1.IsRankOrdered ∧ q.1.2.1.IsRankOrdered ∧
+      q.1.2.2.1.IsRankOrdered ∧ q.1.2.2.2.IsRankOrdered := fun q => by
+    have h := q.2
+    simp only [fourChamber, isRankOrdered_chamber_iff] at h
+    exact ⟨h.1.1, h.1.2, h.2.1, h.2.2⟩
+  have key := fourShuffle_mul_sub_mul_fourShuffle_mem_mackeyFilt_of_blockOp (k := k) hΓ hP hD hZ
+    hW hL (ν' := a + b) (ν'' := c + d) (ν₁ := a + c) (ν₂ := b + d) rfl (layout_eq a b c d)
+    ⟨middleSwap a b c d, shuffleType_middleSwap⟩
+    (χ := fun q : Q => fourChamber a b c d q.1) (χ' := fun q : Q => fourChamberSwap a b c d q.1)
+    (fun q => isFourBlock_fourChamber (hrank q).1 (hrank q).2.1 (hrank q).2.2.1
+      (hrank q).2.2.2)
+    (ρ := middleSwap a b c d) (fun q => middleSwap_smul_shuffleTop a b c d _ _ _ _)
+    (fun q => (isRankOrdered_fourChamberSwap_iff q.1).2 q.2)
+    (isBlockSupported_galleryTensorHom_fourBlock hΓ xa xb xc xd)
+    (fun q q' => (isLocalConj_galleryTensorHom_fourBlock hΓ xa xb xc xd).2.2 q.1 q'.1)
+    ⟨(A, B, C, D), (isRankOrdered_chamber_iff _ _).2 ⟨(isRankOrdered_chamber_iff _ _).2 ⟨hA, hB⟩,
+      (isRankOrdered_chamber_iff _ _).2 ⟨hC, hD₀⟩⟩⟩
+    ⟨(A', B', C', D'), (isRankOrdered_chamber_iff _ _).2
+      ⟨(isRankOrdered_chamber_iff _ _).2 ⟨hA', hB'⟩, (isRankOrdered_chamber_iff _ _).2 ⟨hC', hD'⟩⟩⟩
+  exact key
 
 end Juxtapose
 

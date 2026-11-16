@@ -452,6 +452,32 @@ example (ν' ν'' : Fin 2 →₀ ℕ) (C' D' : WeightedKLR.FullChamber wkGraph �
     (WeightedKLR.Juxtapose.isSeparated_chamber C' C'')
     (WeightedKLR.Juxtapose.isSeparated_chamber D' D'') (isLowerSet_Iic μ) hg m
 
+/-- The same factorization with `x`, `y` in Webster's algebras `W ⊗ W` and the shuffle element
+`ψ^W_g` between rank-ordered chambers. -/
+example (ν' ν'' : Fin 2 →₀ ℕ) (C' D' : WeightedKLR.FullChamber wkGraph ν')
+    (C'' D'' : WeightedKLR.FullChamber wkGraph ν'')
+    (hC : (WeightedKLR.Juxtapose.chamber C' C'').IsRankOrdered)
+    (hD : (WeightedKLR.Juxtapose.chamber D' D'').IsRankOrdered) (μ : Fin 2 → ℕ)
+    (g : WeightedKLR.ColPerm (ν' + ν'')) (hg : WeightedKLR.shuffleType ν' ν' g ∈ Set.Iic μ)
+    (m : WeightedKLR.Strand (ν' + ν'') →₀ ℕ) :=
+  WeightedKLR.GalleryAlgebra.exists_cornerBasis_sub_rankShuffleElt_mem (k := ℚ)
+    (wkGraph_isChamberSegment _) wkGraph_dagger wkGraph_noZeroLoops wkGraph_pSymm
+    (wkGraph_wallRegular _) (wkGraph_loopRegular _) (ν'' := ν'') (ν₂ := ν'') rfl rfl hC hD
+    (WeightedKLR.Juxtapose.isSeparated_chamber C' C'')
+    (WeightedKLR.Juxtapose.isSeparated_chamber D' D'') (isLowerSet_Iic μ) hg m
+
+/-- The subquotient of shuffle type `μ` of the filtration of `e D * W * e C` is spanned by the
+images of the maps `x ⊗ y ↦ [e D ι(x) ψ^W_g ι(y) e C]`, `g` of shuffle type `μ`. -/
+example (ν' ν'' : Fin 2 →₀ ℕ) (C' D' : WeightedKLR.FullChamber wkGraph ν')
+    (C'' D'' : WeightedKLR.FullChamber wkGraph ν'')
+    (hC : (WeightedKLR.Juxtapose.chamber C' C'').IsRankOrdered)
+    (hD : (WeightedKLR.Juxtapose.chamber D' D'').IsRankOrdered) (μ : Fin 2 → ℕ) :=
+  WeightedKLR.GalleryAlgebra.iSup_range_shuffleInductionMap (k := ℚ)
+    (wkGraph_isChamberSegment _) wkGraph_dagger wkGraph_noZeroLoops wkGraph_pSymm
+    (wkGraph_wallRegular _) (wkGraph_loopRegular _) (ν'' := ν'') (ν₂ := ν'') rfl rfl hC hD
+    (WeightedKLR.Juxtapose.isSeparated_chamber C' C'')
+    (WeightedKLR.Juxtapose.isSeparated_chamber D' D'') (Set.Iio μ) (isLowerSet_Iic μ)
+
 /-! ### Webster, weighted KLR algebras (arXiv:1209.2463v4), the grading of §2.1 -/
 
 /-- The grading of Webster's standing hypothesis (doubled normalization): a `ℤ`-grading of the

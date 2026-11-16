@@ -288,6 +288,38 @@ noncomputable example (ν : Multiset (Fin 2)) :=
   WeightedKLR.spacedEquiv (k := ℚ) (ν := ν) wkLooplessGraph_standing
     wkLooplessGraph_dagger (fun _ => by simp [wkLooplessGraph]) (fun _ => rfl)
 
+/-! ### Webster, weighted KLR algebras (arXiv:1209.2463v4), §2.4, Proposition 2.18 -/
+
+/-- Webster, Proposition 2.18, on idempotents: juxtaposition of full chambers is associative. -/
+example (ν₁ ν₂ ν₃ : Fin 2 →₀ ℕ) (C₁ : WeightedKLR.FullChamber wkGraph ν₁)
+    (C₂ : WeightedKLR.FullChamber wkGraph ν₂) (C₃ : WeightedKLR.FullChamber wkGraph ν₃) :=
+  WeightedKLR.Juxtapose.castChamber_chamber_assoc C₁ C₂ C₃
+
+/-- Webster, Proposition 2.18, on algebras: the juxtaposition map `ι` is associative. -/
+example (ν₁ ν₂ ν₃ : Fin 2 →₀ ℕ) :=
+  WeightedKLR.Juxtapose.inductionMap_assoc (k := ℚ) (Γ := wkGraph) ν₁ ν₂ ν₃ 1 1 1
+
+open scoped TensorProduct in
+/-- Webster, Proposition 2.18, on algebras: `1 ∈ W_0` is a two-sided unit for `ι`. -/
+example (ν : Fin 2 →₀ ℕ) (a : WeightedKLR.GalleryAlgebra.WeightedKLRAlgebra ℚ wkGraph ν) :
+    WeightedKLR.castW ℚ wkGraph (add_zero ν) (WeightedKLR.Juxtapose.inductionMap ℚ wkGraph ν 0
+        (a ⊗ₜ 1)) = a ∧
+      WeightedKLR.castW ℚ wkGraph (zero_add ν) (WeightedKLR.Juxtapose.inductionMap ℚ wkGraph 0 ν
+        (1 ⊗ₜ a)) = a :=
+  ⟨WeightedKLR.Juxtapose.inductionMap_tmul_one a, WeightedKLR.Juxtapose.inductionMap_one_tmul a⟩
+
+/-- Webster, Proposition 2.18, generation clause: the iterated juxtaposition of the units of the
+one-strand algebras is the idempotent of the evenly spaced loading. -/
+example : WeightedKLR.juxtUnits ℚ wkGraph [0, 1, 1] =
+    WeightedKLR.spacedW ℚ wkGraph (KLR.Seq.ofList [0, 1, 1]) :=
+  WeightedKLR.juxtUnits_eq_spacedW [0, 1, 1]
+
+/-- Webster, Proposition 2.18, generation clause: induction of the projectives of evenly spaced
+loadings. -/
+noncomputable example (i : KLR.Seq ((([0] : List (Fin 2)) : Multiset (Fin 2))))
+    (j : KLR.Seq ((([1, 1] : List (Fin 2)) : Multiset (Fin 2)))) :=
+  WeightedKLR.indSpacedEquiv ℚ wkGraph i j
+
 /-! ### Webster, weighted KLR algebras (arXiv:1209.2463v4), proof of Theorem 3.5 -/
 
 /-- A weighted graph without loops: one edge `0 → 1` of weight `0` with `Q_e = u - v`. -/
@@ -618,5 +650,19 @@ example (ν' ν'' : Fin 2 →₀ ℕ) (c' : WeightedKLR.Chamber wkGraph ν')
     (c'' : WeightedKLR.Chamber wkGraph ν'') :=
   WeightedKLR.Juxtapose.inductionMap_e_tmul_e (k := ℚ) c'.toFull_isRankOrdered
     c''.toFull_isRankOrdered
+
+/-! Webster §2.4, Proposition 2.18 (chamber level): juxtaposition of chambers is associative and
+unital. -/
+example (ν₁ ν₂ ν₃ : Fin 2 →₀ ℕ) (c₁ : WeightedKLR.Chamber wkGraph ν₁)
+    (c₂ : WeightedKLR.Chamber wkGraph ν₂) (c₃ : WeightedKLR.Chamber wkGraph ν₃) :=
+  WeightedKLR.Juxtapose.castChamber_chamber_assoc c₁.toFull c₂.toFull c₃.toFull
+
+example (ν : Fin 2 →₀ ℕ) (c : WeightedKLR.Chamber wkGraph ν)
+    (c₀ : WeightedKLR.Chamber wkGraph 0) :=
+  WeightedKLR.Juxtapose.castChamber_chamber_zero_right c.toFull c₀.toFull
+
+example (ν : Fin 2 →₀ ℕ) (c : WeightedKLR.Chamber wkGraph ν)
+    (c₀ : WeightedKLR.Chamber wkGraph 0) :=
+  WeightedKLR.Juxtapose.castChamber_chamber_zero_left c₀.toFull c.toFull
 
 end NonVacuity

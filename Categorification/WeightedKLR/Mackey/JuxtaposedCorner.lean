@@ -37,6 +37,9 @@ So the map is not surjective (`GalleryAlgebra.typeInductionMap_not_surjective_of
   corners of `Res ∘ Ind`, with no separation hypothesis.
 * `GalleryAlgebra.typeInductionMap_not_surjective_of_not_isSeparated`: the separation hypotheses
   are needed for other corners.
+* `GalleryAlgebra.typeInductionMap_mul_corner`, `Juxtapose.middleTensorMap_tmul_corner`: the maps
+  only see the corner of `D` and `C`, so injectivity is a statement about that corner of the
+  balanced tensor product.
 -/
 
 namespace Categorification.WeightedKLR
@@ -184,6 +187,30 @@ theorem typeInductionMap_not_surjective_of_not_isSeparated [Nontrivial k] (hν' 
   obtain ⟨w, hw⟩ := hs z
   exact hz (hw ▸ LinearMap.zero_apply w)
 
+/-- **The map of a shuffle type only sees its corner**: if `ι(z_D) = e D` and `ι(z_C) = e C`,
+then `x ⊗ y` and `z_D x ⊗ y z_C` have the same image `[e D ι(x) ψ_μ ι(y) e C]`. So the map
+factors through the corner `(e_{D'} ⊗ e_{D''}) (W ⊗ W) ⊗ (W ⊗ W) (e_{C'} ⊗ e_{C''})` when `D`
+and `C` are juxtapositions (Webster, arXiv:1209.2463v4, Theorem 2.19). -/
+theorem typeInductionMap_mul_corner (hν' : ν' + ν'' = ν) (hν₁ : ν₁ + ν₂ = ν)
+    {D C : FullChamber Γ ν} (hC : C.IsRankOrdered) (hD' : D.IsRankOrdered) (S' : Set (I → ℕ))
+    {S : Set (I → ℕ)} (hS : IsLowerSet S) {μ : I → ℕ} (hμS : μ ∈ S)
+    (hμ : μ ∈ Set.range (shuffleType (ν := ν) ν' ν₁))
+    {zD : WeightedKLRAlgebra k Γ ν₁ ⊗[k] WeightedKLRAlgebra k Γ ν₂}
+    {zC : WeightedKLRAlgebra k Γ ν' ⊗[k] WeightedKLRAlgebra k Γ ν''}
+    (hzD : inductionVal k hν₁ zD = e D) (hzC : inductionVal k hν' zC = e C)
+    (x : WeightedKLRAlgebra k Γ ν₁ ⊗[k] WeightedKLRAlgebra k Γ ν₂)
+    (y : WeightedKLRAlgebra k Γ ν' ⊗[k] WeightedKLRAlgebra k Γ ν'') :
+    typeInductionMap k hP hD hZ hΓ hW hL hν' hν₁ hC hD' S' hS hμS hμ ((zD * x) ⊗ₜ (y * zC)) =
+      typeInductionMap k hP hD hZ hΓ hW hL hν' hν₁ hC hD' S' hS hμS hμ (x ⊗ₜ y) := by
+  rw [typeInductionMap_apply, typeInductionMap_apply]
+  congr 2
+  have hDD : e D * e D = (e D : GalleryAlgebra k Γ ν) := by rw [e_mul_e, ite_eq_left rfl]
+  have hCC : e C * e C = (e C : GalleryAlgebra k Γ ν) := by rw [e_mul_e, ite_eq_left rfl]
+  rw [typeInductionAux_tmul, typeInductionAux_tmul, inductionVal_mul, inductionVal_mul, hzD,
+    hzC]
+  simp only [← mul_assoc, hDD]
+  rw [mul_assoc _ (e C) (e C), hCC]
+
 /-- **The subquotient of a single shuffle type of a corner of `Res ∘ Ind` is a quotient of a
 balanced tensor product** (B. Webster, arXiv:1209.2463v4, Theorem 2.19, surjectivity half).
 This is `exists_layout_middleTensor_surjective` for the corners `e D W e C` of
@@ -233,6 +260,23 @@ theorem middleTensorMap_surjective_of_chamber {R' : FullChamber Γ (a + b)}
     Function.Surjective (middleTensorMap hP hD hZ hΓ hW hL hR hL' hS hcS hS') :=
   middleTensorMap_surjective hP hD hZ hΓ hW hL hR hL' hS hcS hS' (isSeparated_chamber R' R'')
     (isSeparated_castChamber_chamber (layout_eq a b c d) L' L'') hc
+
+/-- **The descended map only sees its corner**: if `ι(z_L) = e L` and `ι(z_R) = e R`, then
+`t ⊗ y` and `z_L t ⊗ y z_R` have the same image in the subquotient. -/
+theorem middleTensorMap_tmul_corner {R L : FullChamber Γ (a + b + (c + d))}
+    (hR : R.IsRankOrdered) (hL' : L.IsRankOrdered) {S' S : Set (I → ℕ)} (hS : IsLowerSet S)
+    (hcS : ⇑c ∈ S) (hS' : Set.Iio ⇑c ⊆ S')
+    {zL : WeightedKLRAlgebra k Γ (a + c) ⊗[k] WeightedKLRAlgebra k Γ (b + d)}
+    {zR : WeightedKLRAlgebra k Γ (a + b) ⊗[k] WeightedKLRAlgebra k Γ (c + d)}
+    (hzL : inductionVal k (layout_eq a b c d) zL = e L)
+    (hzR : inductionVal k (rfl : a + b + (c + d) = a + b + (c + d)) zR = e R)
+    (t : MiddleTop k Γ a b c d) (y : MiddleBot k Γ a b c d) :
+    middleTensorMap hP hD hZ hΓ hW hL hR hL' hS hcS hS'
+        (BalancedTensor.tmul (zL • t) ⟨y.1 * zR, by
+          rw [mem_middleBotSub, ← mul_assoc, (mem_middleBotSub.1 y.2)]⟩) =
+      middleTensorMap hP hD hZ hΓ hW hL hR hL' hS hcS hS' (BalancedTensor.tmul t y) := by
+  rw [middleTensorMap_tmul, middleTensorMap_tmul]
+  exact typeInductionMap_mul_corner hP hD hZ hΓ hW hL _ _ hR hL' S' hS hcS _ hzL hzR _ _
 
 end Juxtapose
 

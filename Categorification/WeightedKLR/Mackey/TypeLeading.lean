@@ -80,6 +80,52 @@ theorem isLeft_iff_blockLeft_of_isRankOrdered (hν' : ν' + ν'' = ν) (hν₁ :
     simp
   · rw [hρ', shuffleType_mul_of_image_left ν' ν₁ (image_leftStrands_of_mem hu), hyT]
 
+/-- **The four-block gallery has a single term of top shuffle type.** Let `μ` be a shuffle type,
+`Z = blockLeft ν' ν₁ μ`, `B` a four-block chamber for the strands of `ν'` and `Z`, `w` a good word
+from `B` to `shuffleTop Z B`, and `ρ` the relabelling rank-ordering `shuffleTop Z B`. In the
+polynomial representation `opList B w` is twisted with a non-zero-divisor denominator `M`, its
+identity coefficient is `M * galNum / galDen`, and every other relabelling `x` occurring in it
+has `ρ * x` of shuffle type strictly below `μ`.
+
+A step of the proof of Webster, arXiv:1209.2463v4, Theorem 2.19. -/
+theorem exists_isTwisted_opList_shuffleType_lt (hν' : ν' + ν'' = ν) (hν₁ : ν₁ + ν₂ = ν)
+    {μ : I → ℕ} (hμ : μ ∈ Set.range (shuffleType (ν := ν) ν' ν₁)) {B : FullChamber Γ ν}
+    (hB : IsFourBlock (fun t => decide (t.IsLeft ν')) (blockLeft ν' ν₁ μ) B)
+    {w : List (Hyp Γ ν)} (hw : GoodWord B.1 w) (hT : B.flips w = shuffleTop (blockLeft ν' ν₁ μ) B)
+    {ρ : ColPerm ν} (hρ : (ρ • shuffleTop (blockLeft ν' ν₁ μ) B).IsRankOrdered) :
+    ∃ (M : PolyRing ν k) (a : ColPerm ν → PolyRing ν k), IsRegular M ∧
+      IsTwisted (opList k Γ B w) M a ∧ a 1 * galDen k B w = M * galNum k B w ∧
+      ∀ x, a x ≠ 0 → x ≠ 1 → shuffleType ν' ν₁ (ρ * x) < μ := by
+  classical
+  obtain ⟨hZ, hρμ⟩ := isLeft_iff_blockLeft_of_isRankOrdered (k := k) hν' hν₁ hμ hB hρ
+  obtain ⟨M, a, hM, hTw, h1, hlt⟩ := exists_isTwisted_opList_shuffleTop (k := k) hB hw hT
+  refine ⟨M, a, hM, hTw, h1, fun x hax hx1 => ?_⟩
+  have hdom : IsDominated (shuffleTop (blockLeft ν' ν₁ μ) B) x := by
+    by_contra hnd
+    rw [← hT] at hnd
+    exact hax ((isSupported_opList_isDominated (k := k) hB.1 hw).coeff_eq_zero hTw hnd)
+  have hle := shuffleType_mul_le ν' ν₁ hρ (g := ρ) (x := x) (by rwa [inv_smul_smul])
+  obtain ⟨c, hc⟩ := hlt x hax hx1
+  refine Pi.lt_def.2 ⟨fun i => hρμ ▸ hle i, c.1, ?_⟩
+  have e1 : shuffleType ν' ν₁ (ρ * x) c.1 = (Finset.univ.filter fun t : Strand ν => t.1 = c ∧
+      decide (t.IsLeft ν') = false ∧ blockLeft ν' ν₁ μ (x.1 t) = true).card := by
+    unfold shuffleType
+    congr 1
+    refine Finset.filter_congr fun t _ => ?_
+    show _ ∧ _ ∧ (ρ.1 (x.1 t)).IsLeft ν₁ ↔ _
+    rw [hZ, Subtype.ext_iff]
+    simp
+  have e2 : μ c.1 = (Finset.univ.filter fun t : Strand ν => t.1 = c ∧
+      decide (t.IsLeft ν') = false ∧ blockLeft ν' ν₁ μ t = true).card := by
+    conv_lhs => rw [← hρμ]
+    unfold shuffleType
+    congr 1
+    refine Finset.filter_congr fun t _ => ?_
+    rw [hZ, Subtype.ext_iff]
+    simp
+  rw [e1, e2]
+  exact hc
+
 /-- **The four-block shuffle has a single term of top shuffle type.** Let `μ` be a shuffle type,
 `Z = blockLeft ν' ν₁ μ`, `B` a four-block chamber for the strands of `ν'` and `Z`, `w` a good word
 from `B` to `shuffleTop Z B`, and `ρ` the relabelling rank-ordering `shuffleTop Z B`. In the
@@ -97,44 +143,16 @@ theorem exists_isTwisted_ren_opList_shuffleType_lt (hν' : ν' + ν'' = ν) (hν
       IsTwisted (ren ρ ∘ₗ opList k Γ B w) M a ∧
       a ρ * rename ⇑ρ.1 (galDen k B w) = M * rename ⇑ρ.1 (galNum k B w) ∧
       ∀ x, a x ≠ 0 → x ≠ ρ → shuffleType ν' ν₁ x < μ := by
-  classical
-  obtain ⟨hZ, hρμ⟩ := isLeft_iff_blockLeft_of_isRankOrdered (k := k) hν' hν₁ hμ hB hρ
-  obtain ⟨M, a, hM, hTw, h1, hlt⟩ := exists_isTwisted_opList_shuffleTop (k := k) hB hw hT
+  obtain ⟨M, a, hM, hTw, h1, hlt⟩ :=
+    exists_isTwisted_opList_shuffleType_lt (k := k) hν' hν₁ hμ hB hw hT hρ
   refine ⟨rename ⇑ρ.1 M, fun y => rename ⇑ρ.1 (a (ρ⁻¹ * y)), isRegular_rename_colPerm hM ρ,
     hTw.rename ρ, ?_, fun x hx hxρ => ?_⟩
   · simp only [inv_mul_cancel]
     rw [← map_mul, h1, map_mul]
-  set x' := ρ⁻¹ * x with hx'
-  have hax : a x' ≠ 0 := fun h => hx (by simp only [← hx', h, map_zero])
-  have hx1 : x' ≠ 1 := fun h => hxρ (by rw [hx', inv_mul_eq_one] at h; exact h.symm)
-  have hxx : ρ * x' = x := mul_inv_cancel_left ρ x
-  have hdom : IsDominated (shuffleTop (blockLeft ν' ν₁ μ) B) x' := by
-    by_contra hnd
-    rw [← hT] at hnd
-    exact hax ((isSupported_opList_isDominated (k := k) hB.1 hw).coeff_eq_zero hTw hnd)
-  have hle := shuffleType_mul_le ν' ν₁ hρ (g := ρ) (x := x') (by rwa [inv_smul_smul])
-  rw [hxx] at hle
-  obtain ⟨c, hc⟩ := hlt x' hax hx1
-  refine Pi.lt_def.2 ⟨fun i => hρμ ▸ hle i, c.1, ?_⟩
-  have e1 : shuffleType ν' ν₁ x c.1 = (Finset.univ.filter fun t : Strand ν => t.1 = c ∧
-      decide (t.IsLeft ν') = false ∧ blockLeft ν' ν₁ μ (x'.1 t) = true).card := by
-    unfold shuffleType
-    congr 1
-    refine Finset.filter_congr fun t _ => ?_
-    rw [← hxx]
-    show _ ∧ _ ∧ (ρ.1 (x'.1 t)).IsLeft ν₁ ↔ _
-    rw [hZ, Subtype.ext_iff]
-    simp
-  have e2 : μ c.1 = (Finset.univ.filter fun t : Strand ν => t.1 = c ∧
-      decide (t.IsLeft ν') = false ∧ blockLeft ν' ν₁ μ t = true).card := by
-    conv_lhs => rw [← hρμ]
-    unfold shuffleType
-    congr 1
-    refine Finset.filter_congr fun t _ => ?_
-    rw [hZ, Subtype.ext_iff]
-    simp
-  rw [e1, e2]
-  exact hc
+  have hax : a (ρ⁻¹ * x) ≠ 0 := fun h => hx (by simp only [h, map_zero])
+  have hx1 : ρ⁻¹ * x ≠ 1 := fun h => hxρ (by rw [inv_mul_eq_one] at h; exact h.symm)
+  have := hlt _ hax hx1
+  rwa [mul_inv_cancel_left] at this
 
 /-! ### Invariance of the leading coefficient under relabellings inside the blocks -/
 

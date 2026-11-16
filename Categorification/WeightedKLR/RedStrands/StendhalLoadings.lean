@@ -303,7 +303,8 @@ theorem toTilde_inj {s s' : Strand μ} (hs : s.1.1.isLeft) (hs' : s'.1.1.isLeft)
 theorem not_isLeft_redStrand (r : Fin ℓ) : ¬ (redStrand ν r).1.1.isLeft := by
   simp [redStrand]
 
-theorem ofTilde_eq_none {t : Strand ν̃} (h : t.1.1 = none) : ofTilde t = (none : Option (Strand μ)) := by
+theorem ofTilde_eq_none {t : Strand ν̃} (h : t.1.1 = none) :
+    ofTilde t = (none : Option (Strand μ)) := by
   obtain ⟨⟨_ | a, ha⟩, n⟩ := t
   · rfl
   · simp at h
@@ -457,6 +458,214 @@ theorem isGeneric_stCfg (hϖ : StrictMono ϖ) (hw0 : ∀ e, Γ.weight e = 0) {M 
     have hab' : π a ≠ π b := fun h => hab (hπ.inj h)
     rw [Diag.val, stCfg_some ha, stCfg_some hb, sub_ne_zero]
     exact fun h => hab' (stPt_injOn hϖ _ (hπ.lt a) (hπ.lt b) h.symm)
+
+/-! ### Exchanging two neighbouring strands -/
+
+variable (ν) in
+/-- The strands of a Stendhal sequence compared by a hyperplane: `Lifts h a b` says that `h`
+compares the position of `a` with that of `b`, the red strand `λ_j` standing for the `0`-strand
+in a new wall of weight `ϖ_j`. -/
+def Lifts : Hyp Γλ ν̃ → Strand μ → Strand μ → Prop
+  | .inl w, a, b => (ofTilde w.src = some a ∨ ∃ c, w.edge = .inr c ∧ a = redStrand ν c.1) ∧
+      ofTilde w.tgt = some b
+  | .inr d, a, b => ofTilde d.fst = some a ∧ ofTilde d.snd = some b
+
+omit [Field 𝕜] [LinearOrder 𝕜] [IsStrictOrderedRing 𝕜] in
+theorem exists_lifts (h : Hyp Γλ ν̃) : ∃ a b, Lifts ν h a b := by
+  rcases h with w | d
+  · rcases he : w.edge with e | c
+    · obtain ⟨⟨a, ha⟩, ⟨b, hb⟩⟩ := exists_ofTilde_wall_inl w he
+      exact ⟨a, b, Or.inl ha, hb⟩
+    · obtain ⟨b, hb⟩ := exists_ofTilde_wall_inr w he
+      exact ⟨_, b, Or.inr ⟨c, he, rfl⟩, hb⟩
+  · obtain ⟨⟨a, ha⟩, ⟨b, hb⟩⟩ := exists_ofTilde_diag (ℓ := ℓ) d
+    exact ⟨a, b, ha, hb⟩
+
+omit [Field 𝕜] [LinearOrder 𝕜] [IsStrictOrderedRing 𝕜] in
+theorem ofTilde_src_ne_of_edge_inr (w : Wall Γλ ν̃) {c : WeightedGraph.RedEdge Λ}
+    (he : w.edge = .inr c) {a : Strand μ} : ofTilde w.src ≠ some a := by
+  rw [ofTilde_eq_none (src_none_of_edge_inr w he)]
+  exact (Option.some_ne_none a).symm
+
+/-- The side of a hyperplane in terms of the strands it compares. -/
+theorem pos_iff_of_lifts (hϖ : StrictMono ϖ) (hw0 : ∀ e, Γ.weight e = 0) {M : ℕ}
+    {π : Strand μ → ℕ} (hπ : IsAdm ν M π) {h : Hyp Γλ ν̃} {a b : Strand μ}
+    (hl : Lifts ν h a b) : 0 < h.val (stCfg ϖ M π) ↔ π a < π b := by
+  rcases h with w | d
+  · rw [Hyp.val_inl]
+    rcases hl with ⟨ha | ⟨c, hc, rfl⟩, hb⟩
+    · rcases he : w.edge with e | c
+      · exact oldWall_pos_iff hϖ hw0 hπ w he ha hb
+      · exact absurd ha (ofTilde_src_ne_of_edge_inr w he)
+    · exact newWall_pos_iff hϖ hπ w hc hb
+  · rw [Hyp.val_inr]
+    exact diag_pos_iff hϖ hπ d hl.1 hl.2
+
+omit [Field 𝕜] [LinearOrder 𝕜] [IsStrictOrderedRing 𝕜] in
+theorem lifts_unique {h : Hyp Γλ ν̃} {a b a' b' : Strand μ} (hl : Lifts ν h a b)
+    (hl' : Lifts ν h a' b') : a = a' ∧ b = b' := by
+  rcases h with w | d
+  · obtain ⟨ha, hb⟩ := hl
+    obtain ⟨ha', hb'⟩ := hl'
+    refine ⟨?_, Option.some_injective _ (hb.symm.trans hb')⟩
+    rcases ha with ha | ⟨c, hc, rfl⟩ <;> rcases ha' with ha' | ⟨c', hc', rfl⟩
+    · exact Option.some_injective _ (ha.symm.trans ha')
+    · exact absurd ha (ofTilde_src_ne_of_edge_inr w hc')
+    · exact absurd ha' (ofTilde_src_ne_of_edge_inr w hc)
+    · rw [Sum.inr_injective (hc.symm.trans hc')]
+  · exact ⟨Option.some_injective _ (hl.1.symm.trans hl'.1),
+      Option.some_injective _ (hl.2.symm.trans hl'.2)⟩
+
+omit [Field 𝕜] [LinearOrder 𝕜] [IsStrictOrderedRing 𝕜] in
+theorem isLeft_of_lifts {h : Hyp Γλ ν̃} {a b : Strand μ} (hl : Lifts ν h a b) :
+    b.1.1.isLeft := by
+  rcases h with w | d
+  · exact isLeft_of_ofTilde hl.2
+  · exact isLeft_of_ofTilde hl.2
+
+theorem toTilde_redStrand (r : Fin ℓ) :
+    toTilde (redStrand ν r) = GalleryAlgebra.zeroStrand (Multiset.toFinsupp ν) := rfl
+
+omit [Field 𝕜] [LinearOrder 𝕜] [IsStrictOrderedRing 𝕜] in
+theorem src_eq_zeroStrand (w : Wall Γλ ν̃) {c : WeightedGraph.RedEdge Λ}
+    (he : w.edge = .inr c) : w.src = GalleryAlgebra.zeroStrand (Multiset.toFinsupp ν) :=
+  GalleryAlgebra.eq_of_fst_eq (GalleryAlgebra.redWeight_zeroStrand _)
+    (Subtype.ext (src_none_of_edge_inr w he))
+
+omit [Field 𝕜] [LinearOrder 𝕜] [IsStrictOrderedRing 𝕜] in
+theorem joinsPair_of_lifts {h : Hyp Γλ ν̃} {a b : Strand μ} (hl : Lifts ν h a b) :
+    h.JoinsPair (toTilde a) (toTilde b) := by
+  rcases h with w | d
+  · obtain ⟨ha | ⟨c, hc, rfl⟩, hb⟩ := hl
+    · exact Or.inl ⟨(toTilde_of_ofTilde ha).symm, (toTilde_of_ofTilde hb).symm⟩
+    · exact Or.inl ⟨src_eq_zeroStrand w hc, (toTilde_of_ofTilde hb).symm⟩
+  · exact Or.inl ⟨(toTilde_of_ofTilde hl.1).symm, (toTilde_of_ofTilde hl.2).symm⟩
+
+variable (ν) in
+/-- The hyperplane `h` compares the strands `u` and `v`. -/
+def Crosses (u v : Strand μ) (h : Hyp Γλ ν̃) : Prop :=
+  ∃ a b, Lifts ν h a b ∧ ((a = u ∧ b = v) ∨ (a = v ∧ b = u))
+
+omit [Field 𝕜] [LinearOrder 𝕜] [IsStrictOrderedRing 𝕜] in
+theorem crosses_iff_of_lifts {u v : Strand μ} {h : Hyp Γλ ν̃} {a b : Strand μ}
+    (hl : Lifts ν h a b) : Crosses ν u v h ↔ ((a = u ∧ b = v) ∨ (a = v ∧ b = u)) := by
+  refine ⟨fun ⟨a', b', hl', h'⟩ => ?_, fun h' => ⟨a, b, hl, h'⟩⟩
+  obtain ⟨rfl, rfl⟩ := lifts_unique hl hl'
+  exact h'
+
+/-- **The hyperplanes crossed when two neighbouring strands are exchanged** are those comparing
+the two strands. -/
+theorem separates_stCfg_swap_iff (hϖ : StrictMono ϖ) (hw0 : ∀ e, Γ.weight e = 0) {M : ℕ}
+    {π : Strand μ → ℕ} (hπ : IsAdm ν M π) {u v : Strand μ} (hπ' : IsAdm ν M (π ∘ swap u v))
+    (huv : π v = π u + 1) (h : Hyp Γλ ν̃) :
+    Segment.Separates hypAff (stCfg ϖ M π) (stCfg ϖ M (π ∘ swap u v)) h ↔ Crosses ν u v h := by
+  obtain ⟨a, b, hl⟩ := exists_lifts h
+  simp only [Segment.Separates, hypAff_apply]
+  rw [pos_iff_of_lifts hϖ hw0 hπ hl, pos_iff_of_lifts hϖ hw0 hπ' hl, crosses_iff_of_lifts hl]
+  simp only [Function.comp_apply]
+  by_cases hj : (a = u ∧ b = v) ∨ (a = v ∧ b = u)
+  · simp only [hj, lt_comp_swap_iff_of_eq huv hj]; tauto
+  · simp only [hj, lt_comp_swap_iff hπ.inj huv hj]; tauto
+
+variable (ϖ) in
+/-- The weight `ϖ_r` of the red strand `λ_r`, and `0` on black strands. -/
+def redWt : Strand μ → 𝕜
+  | ⟨⟨.inl _, _⟩, _⟩ => 0
+  | ⟨⟨.inr r, _⟩, _⟩ => ϖ r
+
+omit [LinearOrder 𝕜] [IsStrictOrderedRing 𝕜] in
+theorem redWt_of_isLeft {a : Strand μ} (ha : a.1.1.isLeft) : redWt ϖ a = 0 := by
+  obtain ⟨⟨_ | _, _⟩, _⟩ := a
+  · rfl
+  · simp at ha
+
+omit [LinearOrder 𝕜] [IsStrictOrderedRing 𝕜] in
+theorem pairWeight_of_lifts (hw0 : ∀ e, Γ.weight e = 0) {h : Hyp Γλ ν̃} {a b : Strand μ}
+    (hl : Lifts ν h a b) : h.pairWeight (toTilde a) = redWt ϖ a ∧
+      h.pairWeight (toTilde b) = -redWt ϖ a := by
+  rcases h with w | d
+  · obtain ⟨ha | ⟨c, hc, rfl⟩, hb⟩ := hl
+    · rcases he : w.edge with e | c
+      · have hw : Γλ.weight w.edge = 0 := by rw [he]; exact hw0 e
+        simp only [Hyp.pairWeight, hw, neg_zero, ite_self, redWt_of_isLeft (isLeft_of_ofTilde ha),
+          and_self]
+      · exact absurd ha (ofTilde_src_ne_of_edge_inr w he)
+    · have hw : Γλ.weight w.edge = ϖ c.1 := by rw [hc]; rfl
+      have hs := src_eq_zeroStrand w hc
+      have ht := (toTilde_of_ofTilde hb).symm
+      have hne : w.src ≠ toTilde b := ht ▸ w.2.2.2
+      rw [hs] at hne
+      simp only [Hyp.pairWeight, hw, toTilde_redStrand, hs, hne, ite_true, ite_false]
+      exact ⟨rfl, rfl⟩
+  · simp [Hyp.pairWeight, redWt_of_isLeft (isLeft_of_ofTilde hl.1)]
+
+omit [LinearOrder 𝕜] [IsStrictOrderedRing 𝕜] in
+theorem pairWeight_of_crosses (hw0 : ∀ e, Γ.weight e = 0) {u v : Strand μ} {h : Hyp Γλ ν̃}
+    (hc : Crosses ν u v h) :
+    h.pairWeight (toTilde u) = if u.1.1.isLeft then -redWt ϖ v else redWt ϖ u := by
+  obtain ⟨a, b, hl, ⟨rfl, rfl⟩ | ⟨rfl, rfl⟩⟩ := hc
+  · rw [(pairWeight_of_lifts hw0 hl).1]
+    split_ifs with ha
+    · rw [redWt_of_isLeft ha, redWt_of_isLeft (isLeft_of_lifts hl), neg_zero]
+    · rfl
+  · rw [(pairWeight_of_lifts hw0 hl).2]
+    simp [isLeft_of_lifts hl]
+
+omit [Field 𝕜] [LinearOrder 𝕜] [IsStrictOrderedRing 𝕜] in
+theorem joinsPair_of_crosses {u v : Strand μ} {h : Hyp Γλ ν̃} (hc : Crosses ν u v h) :
+    h.JoinsPair (toTilde u) (toTilde v) := by
+  obtain ⟨a, b, hl, ⟨rfl, rfl⟩ | ⟨rfl, rfl⟩⟩ := hc
+  · exact joinsPair_of_lifts hl
+  · have := joinsPair_of_lifts hl
+    rcases h with w | d
+    · exact Or.comm.1 this
+    · exact Or.comm.1 this
+
+omit [LinearOrder 𝕜] [IsStrictOrderedRing 𝕜] in
+/-- At most one hyperplane compares two given strands. -/
+theorem eq_of_crosses (hD : Γ.Dagger) (hZ : Γ.NoZeroLoops) (hϖ : Function.Injective ϖ)
+    (hw0 : ∀ e, Γ.weight e = 0) {u v : Strand μ} {h g : Hyp Γλ ν̃} (hh : Crosses ν u v h)
+    (hg : Crosses ν u v g) : h = g :=
+  Hyp.eq_of_pairWeight_eq (WeightedGraph.crawleyBoeveyIn_dagger hD hϖ)
+    (WeightedGraph.crawleyBoeveyIn_noZeroLoops hZ) (joinsPair_of_crosses hh)
+    (joinsPair_of_crosses hg) (by rw [pairWeight_of_crosses hw0 hh, pairWeight_of_crosses hw0 hg])
+
+/-- **The segment exchanging two neighbouring strands is simple.** -/
+theorem simple_stCfg_swap (hD : Γ.Dagger) (hZ : Γ.NoZeroLoops) (hϖ : StrictMono ϖ)
+    (hw0 : ∀ e, Γ.weight e = 0) {M : ℕ} {π : Strand μ → ℕ} (hπ : IsAdm ν M π) {u v : Strand μ}
+    (hπ' : IsAdm ν M (π ∘ swap u v)) (huv : π v = π u + 1) :
+    Segment.Simple (hypAff (Γ := Γλ)) (stCfg ϖ M π) (stCfg ϖ M (π ∘ swap u v)) :=
+  ⟨isGeneric_stCfg hϖ hw0 hπ, isGeneric_stCfg hϖ hw0 hπ', fun h g hh hg hne _ =>
+    hne (eq_of_crosses hD hZ hϖ.injective hw0
+      ((separates_stCfg_swap_iff hϖ hw0 hπ hπ' huv h).1 hh)
+      ((separates_stCfg_swap_iff hϖ hw0 hπ hπ' huv g).1 hg))⟩
+
+theorem mem_word_stCfg_swap (hϖ : StrictMono ϖ) (hw0 : ∀ e, Γ.weight e = 0) {M : ℕ}
+    {π : Strand μ → ℕ} (hπ : IsAdm ν M π) {u v : Strand μ} (hπ' : IsAdm ν M (π ∘ swap u v))
+    (huv : π v = π u + 1) {x : Hyp Γλ ν̃} :
+    x ∈ Segment.word hypAff (stCfg ϖ M π) (stCfg ϖ M (π ∘ swap u v)) ↔ Crosses ν u v x := by
+  rw [Segment.word, List.mem_insertionSort, Finset.mem_toList, Finset.mem_filter,
+    separates_stCfg_swap_iff hϖ hw0 hπ hπ' huv]
+  simp
+
+/-- The word of the exchange segment: the hyperplane comparing the two strands, if any. -/
+theorem word_stCfg_swap_eq (hD : Γ.Dagger) (hZ : Γ.NoZeroLoops) (hϖ : StrictMono ϖ)
+    (hw0 : ∀ e, Γ.weight e = 0) {M : ℕ} {π : Strand μ → ℕ} (hπ : IsAdm ν M π) {u v : Strand μ}
+    (hπ' : IsAdm ν M (π ∘ swap u v)) (huv : π v = π u + 1) {h : Hyp Γλ ν̃}
+    (hh : Crosses ν u v h) :
+    Segment.word hypAff (stCfg ϖ M π) (stCfg ϖ M (π ∘ swap u v)) = [h] := by
+  refine List.eq_singleton_of_nodup ?_ ((mem_word_stCfg_swap hϖ hw0 hπ hπ' huv).2 hh)
+    fun x hx => eq_of_crosses hD hZ hϖ.injective hw0
+      ((mem_word_stCfg_swap hϖ hw0 hπ hπ' huv).1 hx) hh
+  rw [Segment.word]
+  exact (List.perm_insertionSort _ _).nodup_iff.2 (Finset.nodup_toList _)
+
+theorem word_stCfg_swap_eq_nil (hϖ : StrictMono ϖ) (hw0 : ∀ e, Γ.weight e = 0) {M : ℕ}
+    {π : Strand μ → ℕ} (hπ : IsAdm ν M π) {u v : Strand μ} (hπ' : IsAdm ν M (π ∘ swap u v))
+    (huv : π v = π u + 1) (hh : ∀ h : Hyp Γλ ν̃, ¬ Crosses ν u v h) :
+    Segment.word (hypAff (Γ := Γλ)) (stCfg ϖ M π) (stCfg ϖ M (π ∘ swap u v)) = [] :=
+  List.eq_nil_iff_forall_not_mem.2 fun x hx =>
+    hh x ((mem_word_stCfg_swap hϖ hw0 hπ hπ' huv).1 hx)
 
 end Config
 

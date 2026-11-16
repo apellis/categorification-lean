@@ -871,6 +871,7 @@ import Categorification.WeightedKLR.Induction.TensorMap
 import Categorification.WeightedKLR.Mackey.Degree
 import Categorification.WeightedKLR.Mackey.Dominance
 import Categorification.WeightedKLR.Mackey.Filtration
+import Categorification.WeightedKLR.Mackey.MinimalGallery
 import Categorification.WeightedKLR.Mackey.Parabolic
 import Categorification.WeightedKLR.Mackey.ShuffleType
 import Categorification.WeightedKLR.Mackey.Subquotient

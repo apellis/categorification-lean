@@ -548,6 +548,171 @@ theorem chamberLin_stCross_mem {i i' : OrdSeq ℓ ν} {n : ℕ} (h : n + 1 < m)
   have hm := chamberLin_mem_of_mem (chamberLin_e_mem hgen) (hgen (.cross n)) i' i
   simpa only [stGenMat, h, ↓reduceDIte, Matrix.of_apply, hi', ↓reduceIte] using hm
 
+/-- The induction on the inversions of the permutation of positions (proof of Theorem 3.5,
+surjectivity): if the entries of elements with fewer than `N` steps lie in `S`, then so does the
+entry `(j, i)` of `r g E * galList (stFull i) w` for a good word `w` of length at most `N` from
+`stFull i` to `E`, when `g • E = stFull j`. -/
+theorem chamberLin_r_galList_mem (hD : Γ.Dagger) (hZ : Γ.NoZeroLoops) {N : ℕ}
+    (hlow : ∀ M < N, ∀ y ∈ stepFilt k Γλ ν̃ M, ∀ j i,
+      chamberLin (stFull Λ hϖ hw0) j i y ∈ S) :
+    ∀ K (i j : OrdSeq ℓ ν) (g : ColPerm ν̃) (w : List (Hyp Γλ ν̃)),
+      TypeA.invCount m (posPerm i.1 j.1 g) = K → GoodWord (stFull Λ hϖ hw0 i).1 w →
+      w.length ≤ N → g • (stFull Λ hϖ hw0 i).flips w = stFull Λ hϖ hw0 j →
+      chamberLin (stFull Λ hϖ hw0) j i
+        (r g ((stFull Λ hϖ hw0 i).flips w) * galList k (stFull Λ hϖ hw0 i) w) ∈ S := by
+  have hD' := WeightedGraph.crawleyBoeveyIn_dagger (Λ := Λ) hD hϖ.injective
+  have hZ' := WeightedGraph.crawleyBoeveyIn_noZeroLoops (Λ := Λ) (ϖ := ϖ) hZ
+  intro K
+  induction K using Nat.strong_induction_on with
+  | _ K IH =>
+  intro i j g w hK hw hN hg
+  by_cases h1 : posPerm i.1 j.1 g = 1
+  · obtain ⟨hji, rfl⟩ := eq_of_posPerm_eq_one h1
+    obtain rfl : j = i := Subtype.ext hji
+    rw [one_smul] at hg
+    have hnil : w = [] := List.eq_nil_iff_forall_not_mem.2 fun x hx =>
+      (hw.mem_iff x).1 hx (by rw [hg])
+    subst hnil
+    rw [flips_nil, r_one, galList_nil, e_mul_e_self']
+    exact chamberLin_e_mem hgen j
+  obtain ⟨n, h, hdes⟩ := TypeA.exists_descent h1
+  have hlt : TypeA.invCount m (posPerm i.1 j.1 g * TypeA.sadj m n) < K := by
+    have := TypeA.invCount_mul_sadj_of_gt h hdes
+    omega
+  set u := i.1.strandAt ⟨n, by omega⟩ with hu_def
+  set v := i.1.strandAt ⟨n + 1, h⟩ with hv_def
+  have hπ := isAdm_posVal i.2
+  have huv : posVal i.1 v = posVal i.1 u + 1 := by
+    rw [hu_def, hv_def, posVal_strandAt, posVal_strandAt]
+  have hd : posVal j.1 (liftPerm g v) < posVal j.1 (liftPerm g u) := hdes
+  -- two red strands are never exchanged: their relative order is that of `λ`
+  have hb : (i.1.1 ⟨n, by omega⟩).isLeft ∨ (i.1.1 ⟨n + 1, h⟩).isLeft := by
+    rcases hlu : i.1.1 ⟨n, by omega⟩ with a | r
+    · exact Or.inl rfl
+    rcases hlv : i.1.1 ⟨n + 1, h⟩ with b | r'
+    · exact Or.inr rfl
+    exfalso
+    have eu : u = redStrand ν r := eq_redStrand (show u.1.1 = _ from hlu)
+    have ev : v = redStrand ν r' := eq_redStrand (show v.1.1 = _ from hlv)
+    have hrr : r < r' := (isAdm_posVal i.2).red.lt_iff_lt.1 (by
+      show posVal i.1 (redStrand ν r) < posVal i.1 (redStrand ν r')
+      rw [← eu, ← ev]
+      omega)
+    have h2 : posVal j.1 (redStrand ν r) < posVal j.1 (redStrand ν r') :=
+      (isAdm_posVal j.2).red hrr
+    rw [eu, ev, liftPerm_redStrand, liftPerm_redStrand] at hd
+    omega
+  have hi'R := isRedOrdered_sadj i.2 h hb
+  have hπ' : IsAdm ν m (posVal i.1 ∘ swap u v) := by
+    by_cases hc : i.1.1 ⟨n, by omega⟩ = i.1.1 ⟨n + 1, h⟩
+    · have hu : u.1.1.isLeft := isLeft_of_eq h hc
+      have hv : v.1.1.isLeft := by
+        show (i.1.1 ⟨n + 1, h⟩).isLeft
+        rw [← hc]
+        exact isLeft_of_eq h hc
+      exact hπ.comp_swap hu hv
+    · have := isAdm_posVal hi'R
+      rwa [posVal_sadj i.1 h hc] at this
+  have hmem := fun x => mem_word_stCfg_swap (Γ := Γ) (Λ := Λ) hϖ hw0 hπ hπ' huv (x := x)
+  obtain ⟨hcw, hcwf⟩ := goodWord_flips_word (C := stFull Λ hϖ hw0 i)
+    (simple_stCfg_swap hD hZ hϖ hw0 hπ hπ' huv) rfl
+  have hcw' : GoodWord (stFull Λ hϖ hw0 i).1 (stWord Γ Λ ϖ i.1 n h) := hcw
+  set E := (stFull Λ hϖ hw0 i).flips w with hEdef
+  set Fc := (stFull Λ hϖ hw0 i).flips (stWord Γ Λ ϖ i.1 n h) with hFdef
+  -- every hyperplane comparing the two strands separates `stFull i` from `E`
+  have hEne : ∀ x ∈ stWord Γ Λ ϖ i.1 n h, E.1 x ≠ (stFull Λ hϖ hw0 i).1 x := fun x hx =>
+    stFull_ne_of_descent hϖ hw0 hg (u := u) (v := v) (by omega) hd ((hmem x).1 hx)
+  obtain ⟨w', hw', hw'f⟩ := exists_goodWord hD' hZ' Fc E
+  have hdisj : ∀ x ∈ stWord Γ Λ ϖ i.1 n h, x ∉ w' := fun x hx hx' => by
+    have a1 := (hcw'.mem_iff x).1 hx
+    have a2 := (hw'.mem_iff x).1 hx'
+    have a3 := hEne x hx
+    rw [hw'f] at a2
+    revert a1 a2 a3
+    cases E.1 x <;> cases Fc.1 x <;> cases (stFull Λ hϖ hw0 i).1 x <;> decide
+  have hw₂ := hcw'.append_of hw' hdisj
+  have he : (stFull Λ hϖ hw0 i).flips w =
+      (stFull Λ hϖ hw0 i).flips (stWord Γ Λ ϖ i.1 n h ++ w') := by
+    rw [flips_append, hw'f]
+  obtain ⟨hlen, -, -⟩ := galList_sub_of_flips_eq (k := k) hD' hZ' hw hw₂ he
+  have hlen' : w'.length ≤ N := by
+    rw [List.length_append] at hlen
+    omega
+  refine chamberLin_mem_of_flips_eq hD' hZ' hlow hw hw₂ he hN (r_mem_stepFilt g E 0) ?_
+  rw [galList_append]
+  by_cases hc : i.1.1 ⟨n, by omega⟩ = i.1.1 ⟨n + 1, h⟩
+  · -- same colour: the crossing ends with the relabelling exchanging the two strands
+    have hu : u.1.1.isLeft := isLeft_of_eq h hc
+    have hv : v.1.1.isLeft := by
+      show (i.1.1 ⟨n + 1, h⟩).isLeft
+      rw [← hc]
+      exact isLeft_of_eq h hc
+    set d := stDiag i.1 n h hc with hd_def
+    have hlf : Lifts ν (.inr d : Hyp Γλ ν̃) u v :=
+      ⟨ofTilde_toTilde_inl hu, ofTilde_toTilde_inl hv⟩
+    have hw1 : stWord Γ Λ ϖ i.1 n h = [.inr d] :=
+      word_stCfg_swap_eq hD hZ hϖ hw0 hπ hπ' huv ⟨u, v, hlf, Or.inl ⟨rfl, rfl⟩⟩
+    obtain ⟨-, ha, -⟩ := (hw1 ▸ hcw').cons
+    have hC : d.refl • Fc = stFull Λ hϖ hw0 ⟨TypeA.sadj m n • i.1, hi'R⟩ := by
+      show d.refl • (stFull Λ hϖ hw0 i).flips (stWord Γ Λ ϖ i.1 n h) = _
+      rw [hw1, flips_cons, flips_nil, ← ha.refl_smul, smul_smul, Diag.refl_mul_refl, one_smul]
+      congr 1
+      exact Subtype.ext (KLR.Seq.sadj_smul_of_eq i.1 h hc).symm
+    have hcr : stCross k Λ hϖ hw0 i n h =
+        r d.refl Fc * galList k (stFull Λ hϖ hw0 i) (stWord Γ Λ ϖ i.1 n h) := by
+      simp only [stCross, hc, ↓reduceDIte]
+      rfl
+    obtain ⟨g1, g2, g3⟩ := goodWord_smul (k := k) d.refl hw'
+    rw [hw'f] at g2 g3
+    have hrg : (r g E : GalleryAlgebra k Γλ ν̃) =
+        r (g * d.refl) (d.refl • E) * r d.refl E := by
+      rw [r_mul_r, mul_assoc, Diag.refl_mul_refl, mul_one]
+    have key : r g E * (galList k Fc w' * galList k (stFull Λ hϖ hw0 i) (stWord Γ Λ ϖ i.1 n h)) =
+        r (g * d.refl) (d.refl • E) * galList k (d.refl • Fc) (w'.map (Hyp.comap d.refl⁻¹)) *
+          stCross k Λ hϖ hw0 i n h := by
+      rw [hcr, hrg, mul_assoc, ← mul_assoc (r d.refl E), ← g3]
+      simp only [mul_assoc]
+    rw [key, hC]
+    rw [hC] at g1 g2
+    rw [chamberLin_mul_of (j := ⟨TypeA.sadj m n • i.1, hi'R⟩)
+      (by rw [mul_assoc, galList_mul_e])]
+    refine S.mul_mem ?_ (chamberLin_stCross_mem hgen h rfl)
+    have := IH (TypeA.invCount m (posPerm (TypeA.sadj m n • i.1) j.1 (g * d.refl)))
+      (by rw [posPerm_smul_of_eq h hc g]; exact hlt) ⟨TypeA.sadj m n • i.1, hi'R⟩ j _ _ rfl g1
+      (by rw [List.length_map]; exact hlen')
+      (by rw [g2, smul_smul, mul_assoc, Diag.refl_mul_refl, mul_one]; exact hg)
+    rwa [g2] at this
+  · -- different colours: the crossing is the straight gallery, up to a sign
+    have hflip : Fc = stFull Λ hϖ hw0 ⟨TypeA.sadj m n • i.1, hi'R⟩ := by
+      refine Subtype.ext (hcwf.trans ?_)
+      show _ = fullSigns (stCfg ϖ m (posVal (TypeA.sadj m n • i.1)))
+      rw [posVal_sadj i.1 h hc]
+    have hcr : galList k (stFull Λ hϖ hw0 i) (stWord Γ Λ ϖ i.1 n h) =
+        crossSign k Λ (i.1.1 ⟨n, by omega⟩) (i.1.1 ⟨n + 1, h⟩) • stCross k Λ hϖ hw0 i n h := by
+      simp only [stCross, hc, ↓reduceDIte, smul_smul, crossSign_mul_self, one_smul]
+    rw [hflip] at hw' hw'f
+    rw [← mul_assoc, hcr, mul_smul_comm, map_smul, ← hFdef, hflip,
+      chamberLin_mul_of (j := ⟨TypeA.sadj m n • i.1, hi'R⟩) (by rw [mul_assoc, galList_mul_e])]
+    refine S.smul_mem (S.mul_mem ?_ (chamberLin_stCross_mem hgen h rfl)) _
+    have := IH (TypeA.invCount m (posPerm (TypeA.sadj m n • i.1) j.1 g))
+      (by rw [posPerm_smul_of_ne h hc g]; exact hlt) ⟨TypeA.sadj m n • i.1, hi'R⟩ j g w' rfl hw'
+      hlen' (by rw [hw'f]; exact hg)
+    rwa [hw'f] at this
+
+/-- **Generation of the chamber algebra of the Stendhal chambers.** A subalgebra containing the
+images of the generators of `T̃^λ` and the dot on the `0`-strand is everything. -/
+theorem eq_top_of_stGenMat_mem (hD : Γ.Dagger) (hZ : Γ.NoZeroLoops)
+    (hz : stZeroDot ν k Λ hϖ hw0 ∈ S) : S = ⊤ := by
+  have hD' := WeightedGraph.crawleyBoeveyIn_dagger (Λ := Λ) hD hϖ.injective
+  have hZ' := WeightedGraph.crawleyBoeveyIn_noZeroLoops (Λ := Λ) (ϖ := ϖ) hZ
+  have hall := chamberLin_mem_of_r_galList hD' hZ' (chamberLin_poly_mem hgen hz)
+    (fun N hlow i j g w hw hN hg => chamberLin_r_galList_mem hgen hD hZ hlow _ i j g w rfl hw hN hg)
+  refine eq_top_iff.2 fun x _ => ?_
+  rw [eq_sum_chamberLin x]
+  refine Subalgebra.sum_mem _ fun j _ => Subalgebra.sum_mem _ fun i _ => ?_
+  obtain ⟨N, hN⟩ := exists_mem_stepFilt (x.1 j i)
+  exact hall N _ hN j i
+
 end Generation
 
 end Categorification.Stendhal

@@ -854,10 +854,19 @@ import Categorification.WeightedKLR.Deformation
 import Categorification.WeightedKLR.RedStrands.CrawleyBoevey
 import Categorification.WeightedKLR.RedStrands.CrawleyBoeveyIn
 import Categorification.WeightedKLR.RedStrands.Reduced
+import Categorification.WeightedKLR.RedStrands.ReducedFaithful
 import Categorification.WeightedKLR.RedStrands.Stendhal
 import Categorification.WeightedKLR.Induction.Embedding
 import Categorification.WeightedKLR.Induction.Juxtapose
 import Categorification.WeightedKLR.Induction.TensorMap
+import Categorification.WeightedKLR.RedStrands.StendhalCrossing
+import Categorification.WeightedKLR.RedStrands.StendhalDescent
+import Categorification.WeightedKLR.RedStrands.StendhalHom
+import Categorification.WeightedKLR.RedStrands.StendhalInjective
+import Categorification.WeightedKLR.RedStrands.StendhalLoadings
+import Categorification.WeightedKLR.RedStrands.StendhalPolyRep
+import Categorification.WeightedKLR.RedStrands.StendhalSurjective
+import Categorification.WeightedKLR.RedStrands.StendhalViolating
 /-!
 # Categorification
 

@@ -288,6 +288,57 @@ noncomputable example (ν : Multiset (Fin 2)) :=
   WeightedKLR.spacedEquiv (k := ℚ) (ν := ν) wkLooplessGraph_standing
     wkLooplessGraph_dagger (fun _ => by simp [wkLooplessGraph]) (fun _ => rfl)
 
+/-! ### Webster, weighted KLR algebras (arXiv:1209.2463v4), proof of Theorem 3.5 -/
+
+/-- A weighted graph without loops: one edge `0 → 1` of weight `0` with `Q_e = u - v`. -/
+def wkWeightZeroGraph : WeightedKLR.WeightedGraph (Fin 2) ℚ ℚ where
+  E := Unit
+  tail _ := 0
+  head _ := 1
+  weight _ := 0
+  Q _ := MvPolynomial.X 0 - MvPolynomial.X 1
+  loop _ := none
+
+theorem wkWeightZeroGraph_standing : wkWeightZeroGraph.Standing :=
+  ⟨fun _ => 1, fun _ => one_pos, fun _ => ⟨1, 1, isUnitHomogeneous_X_sub_X⟩,
+    fun _ _ h => by simp [wkWeightZeroGraph] at h⟩
+
+theorem wkWeightZeroGraph_dagger : wkWeightZeroGraph.Dagger :=
+  ⟨fun _ _ _ _ _ => rfl, fun _ _ h₁ _ _ => by simp [wkWeightZeroGraph] at h₁⟩
+
+/-- Webster, proof of Theorem 3.5: the homomorphism from `T̃^λ` to the chamber algebra of the
+Crawley-Boevey graph modulo the dot on the `0`-strand, for two red strands `λ_1 = λ_2 = ω_0`
+with weights `ϖ_1 = 0 < ϖ_2 = 1`. -/
+noncomputable example (ν : Multiset (Fin 2)) :=
+  Stendhal.stTildeHom ν ℚ wkWeightZeroGraph (fun _ : Fin 2 => Finsupp.single 0 1)
+    (ϖ := fun r : Fin 2 => ((r : ℕ) : ℚ)) wkWeightZeroGraph_dagger
+    (fun _ => by simp [wkWeightZeroGraph]) (fun _ => rfl) (fun _ _ h => Nat.cast_lt.mpr h)
+    (fun _ => rfl) wkWeightZeroGraph_standing
+
+/-- Webster, proof of Theorem 3.5: the homomorphism from `T̃^λ` is injective, for the same data. -/
+example (ν : Multiset (Fin 2)) :=
+  Stendhal.stTildeHom_injective (ν := ν) (k := ℚ) (Γ := wkWeightZeroGraph)
+    (Λ := fun _ : Fin 2 => Finsupp.single 0 1)
+    (ϖ := fun r : Fin 2 => ((r : ℕ) : ℚ)) wkWeightZeroGraph_dagger
+    (fun _ => by simp [wkWeightZeroGraph]) (fun _ => rfl) (fun _ _ h => Nat.cast_lt.mpr h)
+    (fun _ => rfl) wkWeightZeroGraph_standing
+
+/-- Webster, Theorem 3.5: `T̃^λ` is isomorphic to the chamber algebra of the Crawley-Boevey graph
+modulo the dot on the `0`-strand, for the same data. -/
+noncomputable example (ν : Multiset (Fin 2)) :=
+  Stendhal.stTildeEquiv ν ℚ wkWeightZeroGraph (fun _ : Fin 2 => Finsupp.single 0 1)
+    (ϖ := fun r : Fin 2 => ((r : ℕ) : ℚ)) wkWeightZeroGraph_dagger
+    (fun _ => by simp [wkWeightZeroGraph]) (fun _ => rfl) (fun _ _ h => Nat.cast_lt.mpr h)
+    (fun _ => rfl) wkWeightZeroGraph_standing
+
+/-- Webster, Theorem 3.6: `T^λ` is isomorphic to that algebra modulo the idempotents of the
+chambers whose leftmost strand is black, for the same data. -/
+noncomputable example (ν : Multiset (Fin 2)) :=
+  Stendhal.stTensorEquiv ν ℚ wkWeightZeroGraph (fun _ : Fin 2 => Finsupp.single 0 1)
+    (ϖ := fun r : Fin 2 => ((r : ℕ) : ℚ)) wkWeightZeroGraph_dagger
+    (fun _ => by simp [wkWeightZeroGraph]) (fun _ => rfl) (fun _ _ h => Nat.cast_lt.mpr h)
+    (fun _ => rfl) wkWeightZeroGraph_standing
+
 /-! ### Webster, §2, canonical deformations -/
 
 /-- Standing data for `wkGraph`, with `d = 1` and `c_e = c_ē = 1`. -/
@@ -492,6 +543,35 @@ example (ν : Fin 2 →₀ ℕ) : ∃ (ι : Type) (_ : Module.Basis ι ℚ
       (Λ := fun _ : Fin 1 => Finsupp.single 0 1) (ϖ := fun _ => (2 : ℚ)) wkGraph_noZeroLoops)
   exact ⟨_, WeightedKLR.GalleryAlgebra.redReducedBasisIn ν hP wkGraph_dagger wkGraph_noZeroLoops
     wkGraph_standing hϖ, trivial⟩
+
+/-- Webster, §3.1: the reduced quotient for `ν̃ = ν + α_0`, new edges into the new vertex, acts
+faithfully on the polynomial representation with the dot on the new strand set to zero. -/
+example (ν : Fin 2 →₀ ℕ) : Function.Injective
+    (WeightedKLR.GalleryAlgebra.reducedRep (k := ℚ)
+      (WeightedKLR.WeightedGraph.crawleyBoeveyIn_psymm
+        (Λ := fun _ : Fin 1 => Finsupp.single 0 1) (ϖ := fun _ => (2 : ℚ))
+        wkGraph_standing.psymm)
+      (WeightedKLR.GalleryAlgebra.redWeight_zeroStrand ν)) := by
+  have hϖ : Function.Injective fun _ : Fin 1 => (2 : ℚ) := fun _ _ _ => Subsingleton.elim _ _
+  obtain ⟨P, hP, -⟩ := WeightedKLR.GalleryAlgebra.exists_span_segGallery (k := ℚ)
+    (ν := WeightedKLR.WeightedGraph.redWeight ν)
+    (WeightedKLR.WeightedGraph.crawleyBoeveyIn_dagger wkGraph_dagger hϖ)
+    (WeightedKLR.WeightedGraph.crawleyBoeveyIn_noZeroLoops
+      (Λ := fun _ : Fin 1 => Finsupp.single 0 1) (ϖ := fun _ => (2 : ℚ)) wkGraph_noZeroLoops)
+  exact WeightedKLR.GalleryAlgebra.redReducedRepIn_injective ν hP wkGraph_dagger
+    wkGraph_noZeroLoops wkGraph_standing hϖ
+
+/-- Webster, §3.1: the images of the reduced basis act by linearly independent operators. -/
+example (ν : Fin 2 →₀ ℕ) : True := by
+  have hϖ : Function.Injective fun _ : Fin 1 => (2 : ℚ) := fun _ _ _ => Subsingleton.elim _ _
+  obtain ⟨P, hP, -⟩ := WeightedKLR.GalleryAlgebra.exists_span_segGallery (k := ℚ)
+    (ν := WeightedKLR.WeightedGraph.redWeight ν)
+    (WeightedKLR.WeightedGraph.crawleyBoeveyIn_dagger wkGraph_dagger hϖ)
+    (WeightedKLR.WeightedGraph.crawleyBoeveyIn_noZeroLoops
+      (Λ := fun _ : Fin 1 => Finsupp.single 0 1) (ϖ := fun _ => (2 : ℚ)) wkGraph_noZeroLoops)
+  have := WeightedKLR.GalleryAlgebra.linearIndependent_redReducedRepIn ν hP wkGraph_dagger
+    wkGraph_noZeroLoops wkGraph_standing hϖ
+  trivial
 
 /-! ### Webster, arXiv:1309.3796v2, Definitions 4.5–4.7 (Stendhal diagrams) -/
 

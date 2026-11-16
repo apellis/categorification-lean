@@ -30,7 +30,10 @@ Theorem 2.8, modulo shorter corner basis vectors.
 * `Juxtapose.linearIndependent_middleTensorMap_middleCornerVec`: the images of the spanning family
   are independent in the subquotient `S / S'` when `c ∉ S'`.
 * `Juxtapose.middleCornerEquiv`: the juxtaposed corner of `MiddleTensor` is isomorphic to the
-  subquotient of the Mackey filtration of shuffle type `c` (Webster, Theorem 2.19).
+  subquotient of the Mackey filtration of shuffle type `c` (Webster, Theorem 2.19);
+  `Juxtapose.middleCornerEquivIic` is the case of the subquotient `Iic c / Iio c`. The graded
+  form is `Juxtapose.middleCornerGradedEquiv`, in
+  `Categorification/WeightedKLR/Mackey/MiddleGraded.lean`.
 -/
 
 namespace Module.Basis
@@ -767,6 +770,22 @@ noncomputable def middleCornerEquiv (hL' : L'.IsRankOrdered) (hL'' : L''.IsRankO
     · obtain ⟨x, rfl⟩ := middleTensorMap_surjective_of_chamber hP hD hZ hΓ hW hL hRc hLc hS hcS
         hS' hc q
       exact ⟨⟨π x, LinearMap.mem_range_self π x⟩, LinearMap.congr_fun hfπ x⟩
+
+include hP hΓ hW hL in
+/-- **Webster, Theorem 2.19, for the step of shuffle type `c`.** The juxtaposed corner
+`(e L' ⊗ e L'') MiddleTensor (e R' ⊗ e R'')` of the middle-parabolic balanced tensor product is
+isomorphic to the subquotient `Iic c / Iio c` of the Mackey filtration of
+`e (L' L'') * A * e (R' R'')`. This is `middleCornerEquiv` for `S = Iic c`, `S' = Iio c`. -/
+noncomputable def middleCornerEquivIic (hL' : L'.IsRankOrdered) (hL'' : L''.IsRankOrdered)
+    (hR' : R'.IsRankOrdered) (hR'' : R''.IsRankOrdered) :
+    LinearMap.range (middleCornerMap (rankE k hL' ⊗ₜ rankE k hL'')
+        (rankE k hR' ⊗ₜ rankE k hR'')) ≃ₗ[k]
+      MackeySubquotient k hP hD hZ hΓ hW hL (a + b) (a + c)
+        (castChamber (layout_eq a b c d) (chamber L' L'')) (chamber R' R'')
+        (Set.Iio ⇑c) (Set.Iic ⇑c) :=
+  middleCornerEquiv hP hD hZ hΓ hW hL hL' hL'' hR' hR'' (isLowerSet_Iic _)
+    (Set.mem_Iic.2 le_rfl) subset_rfl (fun h => lt_irrefl _ (Set.mem_Iio.1 h))
+    (fun _ h h' => (Set.mem_Iic.1 h).eq_or_lt.resolve_right h')
 
 end Isomorphism
 

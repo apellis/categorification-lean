@@ -44,6 +44,9 @@ preserving the second block at the bottom, preserves the filtration (`mul_mem_ma
   increasing and exhausts `e D * A * e C`.
 * `GalleryAlgebra.mul_mem_mackeyFilt`, `GalleryAlgebra.mackeyFilt_mul_mem`: stability under
   multiplication by elements with parabolic relabellings.
+* `GalleryAlgebra.mackeyFilt_empty`, `GalleryAlgebra.finite_range_mackeyFilt`: the filtration
+  starts at zero and has finitely many distinct steps, since only the shuffle types of the
+  finitely many relabellings occur (`GalleryAlgebra.mackeyFilt_inter_range`).
 -/
 
 namespace Categorification.WeightedKLR
@@ -255,6 +258,36 @@ theorem mackeyFilt_univ (ν' ν₁ : I →₀ ℕ) (D C : FullChamber Γ ν) :
   refine (Submodule.span_mono ?_) (this.2 hb)
   rintro _ ⟨i, rfl⟩
   exact ⟨⟨i, Set.mem_univ _⟩, rfl⟩
+
+/-- The bottom step of the filtration is zero. -/
+theorem mackeyFilt_empty (ν' ν₁ : I →₀ ℕ) (D C : FullChamber Γ ν) :
+    mackeyFilt k hP hD hZ hΓ hW hL ν' ν₁ D C ∅ = ⊥ := by
+  rw [mackeyFilt, Submodule.span_eq_bot]
+  rintro _ ⟨i, rfl⟩
+  exact i.2.elim
+
+/-- Only finitely many shuffle types occur: those of the finitely many relabellings. -/
+theorem finite_range_shuffleType (ν' ν₁ : I →₀ ℕ) :
+    (Set.range (shuffleType (ν := ν) ν' ν₁)).Finite :=
+  Set.finite_range _
+
+/-- A step of the filtration only depends on the shuffle types in `S` that occur. -/
+theorem mackeyFilt_inter_range (ν' ν₁ : I →₀ ℕ) (D C : FullChamber Γ ν) (S : Set (I → ℕ)) :
+    mackeyFilt k hP hD hZ hΓ hW hL ν' ν₁ D C (S ∩ Set.range (shuffleType (ν := ν) ν' ν₁)) =
+      mackeyFilt k hP hD hZ hΓ hW hL ν' ν₁ D C S := by
+  refine le_antisymm (mackeyFilt_mono hP hD hZ hΓ hW hL ν' ν₁ D C Set.inter_subset_left)
+    (Submodule.span_mono ?_)
+  rintro _ ⟨i, rfl⟩
+  exact ⟨⟨i.1, i.2, i.1.1, rfl⟩, rfl⟩
+
+/-- **The filtration is finite.** As `S` varies, the steps `mackeyFilt D C S` take only finitely
+many values. -/
+theorem finite_range_mackeyFilt (ν' ν₁ : I →₀ ℕ) (D C : FullChamber Γ ν) :
+    (Set.range (mackeyFilt k hP hD hZ hΓ hW hL ν' ν₁ D C)).Finite := by
+  refine (((finite_range_shuffleType (ν := ν) ν' ν₁).finite_subsets).image
+    (mackeyFilt k hP hD hZ hΓ hW hL ν' ν₁ D C)).subset ?_
+  rintro _ ⟨S, rfl⟩
+  exact ⟨_, Set.inter_subset_right, mackeyFilt_inter_range hP hD hZ hΓ hW hL ν' ν₁ D C S⟩
 
 /-- The basis of each step of the filtration: the basis elements of shuffle type in `S`. -/
 noncomputable def mackeyFiltBasis (ν' ν₁ : I →₀ ℕ) (D C : FullChamber Γ ν) (S : Set (I → ℕ)) :

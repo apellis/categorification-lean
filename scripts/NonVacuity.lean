@@ -1154,4 +1154,38 @@ example (a b c d : Fin 2 →₀ ℕ) (L' : WeightedKLR.GalleryAlgebra.RankChambe
     subset_rfl (fun h => lt_irrefl _ (Set.mem_Iio.1 h))
     (fun _ h h' => (Set.mem_Iic.1 h).eq_or_lt.resolve_right h')
 
+/-- The Iic/Iio form of the corner isomorphism of the Mackey filtration (Webster, Theorem 2.19). -/
+example (a b c d : Fin 2 →₀ ℕ) (L' : WeightedKLR.GalleryAlgebra.RankChamber wkGraph (a + c))
+    (L'' : WeightedKLR.GalleryAlgebra.RankChamber wkGraph (b + d))
+    (R' : WeightedKLR.GalleryAlgebra.RankChamber wkGraph (a + b))
+    (R'' : WeightedKLR.GalleryAlgebra.RankChamber wkGraph (c + d)) :=
+  WeightedKLR.Juxtapose.middleCornerEquivIic (k := ℚ) (wkGraph_isChamberSegment _)
+    wkGraph_dagger wkGraph_noZeroLoops wkGraph_pSymm (wkGraph_wallRegular _)
+    (wkGraph_loopRegular _) L'.2 L''.2 R'.2 R''.2
+
+/-- **Webster, Theorem 2.19, graded**: the juxtaposed corner shifted by
+`∑ b_i c_j pairDeg i j` is graded isomorphic to the Mackey subquotient of shuffle type `c`. -/
+example (a b c d : Fin 2 →₀ ℕ) (L' : WeightedKLR.GalleryAlgebra.RankChamber wkGraph (a + c))
+    (L'' : WeightedKLR.GalleryAlgebra.RankChamber wkGraph (b + d))
+    (R' : WeightedKLR.GalleryAlgebra.RankChamber wkGraph (a + b))
+    (R'' : WeightedKLR.GalleryAlgebra.RankChamber wkGraph (c + d)) :=
+  WeightedKLR.Juxtapose.middleCornerGradedEquivIic (k := ℚ) wkGrading
+    (wkGraph_isChamberSegment _) wkGraph_dagger wkGraph_noZeroLoops wkGraph_pSymm
+    (wkGraph_wallRegular _) (wkGraph_loopRegular _) L'.2 L''.2 R'.2 R''.2
+
+/-- The Mackey filtration has finitely many distinct steps. -/
+example (ν ν' ν₁ : Fin 2 →₀ ℕ) (D C : WeightedKLR.FullChamber wkGraph ν) :
+    (Set.range (WeightedKLR.GalleryAlgebra.mackeyFilt ℚ (wkGraph_isChamberSegment _)
+      wkGraph_dagger wkGraph_noZeroLoops wkGraph_pSymm (wkGraph_wallRegular _)
+      (wkGraph_loopRegular _) ν' ν₁ D C)).Finite :=
+  WeightedKLR.GalleryAlgebra.finite_range_mackeyFilt _ _ _ _ _ _ ν' ν₁ D C
+
+/-- A subquotient of the Mackey filtration whose occurring shuffle types all lie in `S'`
+vanishes; here for `S' = S = ∅`. -/
+example (ν ν' ν₁ : Fin 2 →₀ ℕ) (D C : WeightedKLR.FullChamber wkGraph ν) :=
+  WeightedKLR.GalleryAlgebra.subsingleton_mackeySubquotient (k := ℚ)
+    (wkGraph_isChamberSegment _) wkGraph_dagger wkGraph_noZeroLoops wkGraph_pSymm
+    (wkGraph_wallRegular _) (wkGraph_loopRegular _) ν' ν₁ D C (S' := ∅) (S := ∅) subset_rfl
+    Set.inter_subset_left
+
 end NonVacuity

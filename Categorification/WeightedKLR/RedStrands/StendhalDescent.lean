@@ -416,9 +416,11 @@ to the chamber algebra of `Γ_λ = crawleyBoeveyIn Γ Λ ϖ` modulo the dot on t
 `λ_1, …, λ_ℓ` goes to `0`, a red strand to a ghost of the `0`-strand, and the crossings of a
 black strand `a` to the left of a red strand `r` carry the sign `(-1)^{λ_r(a)}`.
 
-The hypotheses `hE` (no edge from a vertex to itself) and `hl` (no loops) are needed only for the
-faithfulness of the polynomial representation used to check the relations; they are not among
-Webster's hypotheses. -/
+The hypotheses `hE` (no edge from a vertex to itself) and `hl` (no loops) say together that `Γ`
+has no loops (an edge from a vertex to itself of weight `0` is a loop in Webster's encoding).
+This is the setting of Webster's Theorem 3.5: `T̃^λ` is built from the KLR algebra of a loop-free
+graph. They are not route hypotheses: with a loop the same-colour KLR relations fail in the
+faithful polynomial representation. -/
 noncomputable def stStendhalHom (hD : Γ.Dagger) (hE : ∀ e, Γ.head e ≠ Γ.tail e)
     (hl : ∀ c, Γ.loop c = none) (hϖ : StrictMono ϖ) (hw0 : ∀ e, Γ.weight e = 0)
     (hS : Γ.Standing) :

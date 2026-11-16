@@ -622,9 +622,11 @@ Crawley-Boevey graph on the family of Stendhal chambers. A red strand goes to a 
 `0`-strand; a black/red crossing with the black strand on the left is rescaled by
 `(-1)^{α_a^∨(λ_r)}`.
 
-The hypotheses `hE` (no edge from a vertex to itself) and `hl` (no loops) are needed only for the
-faithfulness of the polynomial representation used to check the relations; they are not among
-Webster's hypotheses. -/
+The hypotheses `hE` (no edge from a vertex to itself) and `hl` (no loops) say together that `Γ`
+has no loops (an edge from a vertex to itself of weight `0` is a loop in Webster's encoding).
+This is the setting of Webster's Theorem 3.5: `T̃^λ` is built from the KLR algebra of a loop-free
+graph. They are not route hypotheses: with a loop the same-colour KLR relations fail in the
+faithful polynomial representation. -/
 noncomputable def stKLRHom (hD : Γ.Dagger) (hE : ∀ e, Γ.head e ≠ Γ.tail e)
     (hl : ∀ c, Γ.loop c = none) (hϖ : StrictMono ϖ) (hw0 : ∀ e, Γ.weight e = 0)
     (hS : Γ.Standing) :

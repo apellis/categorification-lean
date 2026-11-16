@@ -366,8 +366,8 @@ homomorphism `stTildeHom` from `T̃^λ` to the chamber algebra of `Γ_λ = crawl
 modulo the dot on the `0`-strand is injective.
 
 The hypotheses `hE` (no edge from a vertex to itself) and `hl` (no loops) are those of
-`stTildeHom`; they are needed only to check the relations through the polynomial
-representation, and are not among Webster's hypotheses. -/
+`stTildeHom`: together they say that `Γ` has no loops, the setting in which `T̃^λ` is
+defined. -/
 theorem stTildeHom_injective (hD : Γ.Dagger) (hE : ∀ e, Γ.head e ≠ Γ.tail e)
     (hl : ∀ c, Γ.loop c = none) (hϖ : StrictMono ϖ) (hw0 : ∀ e, Γ.weight e = 0)
     (hS : Γ.Standing) : Function.Injective (stTildeHom ν k Γ Λ hD hE hl hϖ hw0 hS) := by

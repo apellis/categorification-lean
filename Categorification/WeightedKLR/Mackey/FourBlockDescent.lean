@@ -22,6 +22,13 @@ strictly below `c`.
   `(a b)(c d)` is the sum of the idempotents of the chambers `(A B)(C D)`.
 * `Juxtapose.castGallery_galleryTensorHom_splitIdem_splitIdem`: the idempotent of the parabolic
   `(a c)(b d)` is the sum of the idempotents of the chambers `(A C)(B D)`.
+* `Juxtapose.typeShuffle_balance_mem_mackeyFilt`: balancedness of `ψ_c` against the two
+  parabolic idempotents, summed over the chambers, up to lower shuffle types.
+* `Juxtapose.typeInductionAux_middle_sub_mem_mackeyFilt`: the same for the map of the shuffle
+  type `c` on `(W_{a+c} ⊗ W_{b+d}) ⊗ (W_{a+b} ⊗ W_{c+d})`.
+* `Juxtapose.typeInductionMap_middle_balance`: the map of the shuffle type `c` into a
+  subquotient of the Mackey filtration whose lower step contains the types below `c` is
+  balanced over `W_a ⊗ W_b ⊗ W_c ⊗ W_d`.
 -/
 
 namespace Categorification.WeightedKLR
@@ -227,6 +234,31 @@ theorem typeInductionAux_middle_sub_mem_mackeyFilt {L R : FullChamber Γ (a + b 
   convert typeShuffle_balance_mem_mackeyFilt hP hD hZ hΓ hW hL hL' hR x y xa.1 xb.1 xc.1 xd.1
     using 1
   simp only [mul_sub, sub_mul, mul_assoc]
+
+/-- **Balancedness of the map of the middle parabolic into a subquotient.** If the step `S'`
+contains all shuffle types strictly below `c`, the map `x ⊗ y ↦ [e L ι(x) ψ_c ι(y) e R]` of the
+shuffle type `c` into the quotient of the step `S` by the step `S'` takes the same value on
+`x ⊗ (ι(x_a ⊗ x_b) ⊗ ι(x_c ⊗ x_d)) y` and on `x (ι(x_a ⊗ x_c) ⊗ ι(x_b ⊗ x_d)) ⊗ y`
+(Webster, arXiv:1209.2463v4, Theorem 2.19). -/
+theorem typeInductionMap_middle_balance {L R : FullChamber Γ (a + b + (c + d))}
+    (hR : R.IsRankOrdered) (hL' : L.IsRankOrdered) {S' S : Set (I → ℕ)} (hS : IsLowerSet S)
+    (hcS : ⇑c ∈ S) (hS' : Set.Iio ⇑c ⊆ S')
+    (x : WeightedKLRAlgebra k Γ (a + c) ⊗[k] WeightedKLRAlgebra k Γ (b + d))
+    (y : WeightedKLRAlgebra k Γ (a + b) ⊗[k] WeightedKLRAlgebra k Γ (c + d))
+    (xa : WeightedKLRAlgebra k Γ a) (xb : WeightedKLRAlgebra k Γ b)
+    (xc : WeightedKLRAlgebra k Γ c) (xd : WeightedKLRAlgebra k Γ d) :
+    typeInductionMap k hP hD hZ hΓ hW hL (rfl : a + b + (c + d) = a + b + (c + d))
+        (layout_eq a b c d) hR hL' S' hS hcS
+        (Set.mem_range.2 ⟨middleSwap a b c d, shuffleType_middleSwap⟩)
+        (x ⊗ₜ ((inductionMap k Γ a b (xa ⊗ₜ xb) ⊗ₜ inductionMap k Γ c d (xc ⊗ₜ xd)) * y)) =
+      typeInductionMap k hP hD hZ hΓ hW hL (rfl : a + b + (c + d) = a + b + (c + d))
+        (layout_eq a b c d) hR hL' S' hS hcS
+        (Set.mem_range.2 ⟨middleSwap a b c d, shuffleType_middleSwap⟩)
+        ((x * (inductionMap k Γ a c (xa ⊗ₜ xc) ⊗ₜ inductionMap k Γ b d (xb ⊗ₜ xd))) ⊗ₜ y) := by
+  rw [typeInductionMap_apply, typeInductionMap_apply, Submodule.Quotient.eq,
+    Submodule.mem_comap, map_sub, Submodule.subtype_apply, Submodule.subtype_apply]
+  exact mackeyFilt_mono hP hD hZ hΓ hW hL (a + b) (a + c) L R hS'
+    (typeInductionAux_middle_sub_mem_mackeyFilt hP hD hZ hΓ hW hL hL' hR x y xa xb xc xd)
 
 end Juxtapose
 

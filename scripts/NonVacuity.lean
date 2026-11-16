@@ -261,6 +261,59 @@ example (ν ν' ν₁ : Fin 2 →₀ ℕ) (C D : WeightedKLR.GalleryAlgebra.Rank
       simpa [WeightedKLR.loopFactor] using isRegular_one)
     ν' ν₁ C.2 D.2 (isLowerSet_Iic μ) hz
 
+/-- The chamber segments of the filtration examples, for `wkGraph`. -/
+theorem wkGraph_isChamberSegment (ν : Fin 2 →₀ ℕ) (C E : WeightedKLR.FullChamber wkGraph ν) :
+    WeightedKLR.GalleryAlgebra.IsChamberSegment C E
+      (WeightedKLR.GalleryAlgebra.straightSegment (fun s => (Fintype.equivFin _ s).val + 1)
+        (fun C => C.2.choose) C E) :=
+  WeightedKLR.GalleryAlgebra.isChamberSegment_straightSegment wkGraph_dagger
+    wkGraph_noZeroLoops (ρ := fun s => (Fintype.equivFin _ s).val + 1)
+    (fun _ _ h => (Fintype.equivFin _).injective (Fin.ext (by simpa using h)))
+    (fun _ => Nat.succ_ne_zero _) (pt := fun C => C.2.choose) (fun C => C.2.choose_spec) C E
+
+/-- The regularity hypotheses of the filtration examples, for `wkGraph`. -/
+theorem wkGraph_pSymm : wkGraph.PSymm := fun i P h => by
+  simp only [wkGraph] at h
+  split_ifs at h
+  obtain rfl := Option.some_injective _ h
+  simp
+
+theorem wkGraph_wallRegular (ν : Fin 2 →₀ ℕ) (w : WeightedKLR.Wall wkGraph ν) :
+    IsRegular (w.factor (k := ℚ)) := by
+  refine IsRegular.of_ne_zero ?_
+  simp only [WeightedKLR.Wall.factor, wkGraph, map_sub, MvPolynomial.aeval_X]
+  simpa [sub_eq_zero, WeightedKLR.Wall.src, WeightedKLR.Wall.tgt] using w.2.2.2
+
+theorem wkGraph_loopRegular (ν : Fin 2 →₀ ℕ) (P : MvPolynomial (Fin 2) ℚ)
+    (a b : WeightedKLR.Strand ν) (h : wkGraph.loop a.1 = some P) (_ : a ≠ b)
+    (_ : a.1 = b.1) : IsRegular (WeightedKLR.loopFactor P a b) := by
+  simp only [wkGraph] at h
+  split_ifs at h
+  obtain rfl := Option.some_injective _ h
+  simpa [WeightedKLR.loopFactor] using isRegular_one
+
+open scoped TensorProduct in
+/-- The steps of the shuffle-type filtration are sub-bimodules for juxtaposed diagrams
+`ι_{ν₁;ν₂}(W_{ν₁} ⊗ W_{ν₂})` on the left and `ι_{ν';ν''}(W_{ν'} ⊗ W_{ν''})` on the right. -/
+example (ν₁ ν₂ ν' ν'' : Fin 2 →₀ ℕ) (h : ν₁ + ν₂ = ν' + ν'')
+    (C D C' D' : WeightedKLR.GalleryAlgebra.RankChamber wkGraph (ν' + ν'')) (μ : Fin 2 → ℕ)
+    (u : WeightedKLR.GalleryAlgebra.WeightedKLRAlgebra ℚ wkGraph ν₁ ⊗[ℚ]
+      WeightedKLR.GalleryAlgebra.WeightedKLRAlgebra ℚ wkGraph ν₂)
+    (w : WeightedKLR.GalleryAlgebra.WeightedKLRAlgebra ℚ wkGraph ν' ⊗[ℚ]
+      WeightedKLR.GalleryAlgebra.WeightedKLRAlgebra ℚ wkGraph ν'')
+    (z : WeightedKLR.GalleryAlgebra ℚ wkGraph (ν' + ν''))
+    (hz : z ∈ WeightedKLR.GalleryAlgebra.mackeyFilt ℚ (wkGraph_isChamberSegment _)
+      wkGraph_dagger wkGraph_noZeroLoops wkGraph_pSymm (wkGraph_wallRegular _)
+      (wkGraph_loopRegular _) ν' ν₁ D.1 C.1 (Set.Iic μ)) :=
+  WeightedKLR.GalleryAlgebra.inductionMap_mul_mul_mem_mackeyFilt _ _ _ _ _ _ h rfl
+    C.2 C'.2 D.2 D'.2 (isLowerSet_Iic μ) u w hz
+
+/-- The strict step of shuffle type `μ` of the filtration has a basis. -/
+example (ν ν' ν₁ : Fin 2 →₀ ℕ) (C D : WeightedKLR.FullChamber wkGraph ν) (μ : Fin 2 → ℕ) :=
+  WeightedKLR.GalleryAlgebra.mackeySubquotientBasis (k := ℚ) (wkGraph_isChamberSegment _)
+    wkGraph_dagger wkGraph_noZeroLoops wkGraph_pSymm (wkGraph_wallRegular _)
+    (wkGraph_loopRegular _) ν' ν₁ D C (Set.sdiff_subset : Set.Iic μ \ {μ} ⊆ Set.Iic μ)
+
 /-! ### Webster, weighted KLR algebras (arXiv:1209.2463v4), the grading of §2.1 -/
 
 /-- The grading of Webster's standing hypothesis (doubled normalization): a `ℤ`-grading of the

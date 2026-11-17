@@ -987,6 +987,9 @@ import Categorification.WeightedKLR.RouquierQ
 import Categorification.WeightedKLR.GradedK0.Idempotents
 import Categorification.WeightedKLR.GradedK0.SpacedGrading
 import Categorification.WeightedKLR.GradedK0.SpacedEntries
+import Categorification.KLR.Rouquier.K0Relations
+import Categorification.KLR.Rouquier.SerreGrading
+import Categorification.KLR.Rouquier.SerreSupports
 /-!
 # Categorification
 

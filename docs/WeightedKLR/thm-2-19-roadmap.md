@@ -16,7 +16,7 @@ instances; it does not replace `G` by the grading of the standing hypothesis.
 |---|---|---|
 | A0 | the fields `fdA`, `fdB`, `fdC` of `TensorK0Hyp` for `W_ν` (graded simple tops are finite-dimensional) | formalized under `Γ.Dagger`, `Γ.NoZeroLoops`, `Γ.Standing`; no loop-freeness assumption |
 | A | the fields `endA`, `endB` of `TensorK0Hyp` for `W_ν` (graded simple modules are absolutely irreducible) | proved for loop-free graphs over any field by the minimum-support local-chart argument; repeated colours and cycles are allowed |
-| B | the quantum Serre relations in graded `K_0` for every `Q` of Rouquier's form | polynomial conditions and leading-coefficient homotopy identities formalized; graded relation remains |
+| B | the quantum Serre relations in graded `K_0` for every `Q` of Rouquier's form | formalized over every commutative ring: `KLR.Rouquier.K0_serre_window` |
 | C | the integral divided-power quantum-group map to `K_0` for loop-free `Γ` | Cartan datum and graded corner-entry maps formalized; needs B and multiplicative assembly |
 | D | the antipode / Hopf structure in the braided category of `ℤ[I]`-graded modules | open |
 
@@ -186,8 +186,10 @@ Plan (in `Categorification/KLR/`, generic in `Q`):
 5. **Graded `K_0`.** A bounded contractible complex of graded finitely generated projective
    modules gives `∑ (-1)^a [P^a] = 0` (`ProjK0.of_eq_add_of_exact` and its graded form). With the
    divided-power normalization this is the quantum Serre relation.
-6. **Generalize `K0_serre_window`** from `klQ2` to `IsRouquierQ`, and record the KL II case as a
-   specialization.
+6. **Graded window (done).** `KLR.Rouquier.K0_serre_window` proves the graded alternating
+   relation for `IsRouquierQ`, with the canonical Cartan grading.
+   `KLR.Rouquier.serre_rel` supplies its contracting relation, so the final window theorem
+   has no additional homotopy or polynomial-shape hypothesis beyond `IsRouquierQ`.
 
 This holds over every commutative ring. Over a field it gives the Serre relations in `K_0` for
 every `Q` that Webster allows on a loop-free graph.

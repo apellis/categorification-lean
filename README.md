@@ -892,8 +892,9 @@ Theorem 2.19, quantum-group map: the supporting polynomial conditions
 `KLR.Rouquier.serre_A`, `serre_B`, `serre_C` hold over arbitrary commutative coefficients.
 Graded principal-projective induction (`GradingDatum.indK0_ofIdempotent`) and homogeneous
 sequence-corner maps (`GradingDatum.spacedEntryMap_mem_klrGrade`) provide the weighted
-transfer. The graded Serre relation and multiplicative quantum-group map remain to be
-assembled. The map to integral `K_0` uses the integral divided-power form; the generic
+transfer. The graded Serre relation is `KLR.Rouquier.K0_serre_window`, over every commutative
+ring with Rouquier parameters and the canonical Cartan grading. The multiplicative
+quantum-group map remains to be assembled. The map to integral `K_0` uses the integral divided-power form; the generic
 `ℚ(v)` form requires scalar extension of the target. Proposition 2.14 is implemented as
 a matrix loading-family corner, not necessarily a corner of the chamber algebra.
 Proposition 2.18 identifies the ordinary KLR subcategory and does not imply surjectivity

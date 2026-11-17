@@ -824,6 +824,7 @@ import Categorification.WeightedKLR.PolyRep
 import Categorification.WeightedKLR.Algebra
 import Categorification.WeightedKLR.GalleryRep
 import Categorification.WeightedKLR.Gallery
+import Categorification.WeightedKLR.CentralPolynomials
 import Categorification.WeightedKLR.Arrangement
 import Categorification.WeightedKLR.Reflection
 import Categorification.WeightedKLR.Relabel

@@ -125,6 +125,18 @@ def wkGraph : WeightedKLR.WeightedGraph (Fin 2) ℚ ℚ where
   Q _ := MvPolynomial.X 0 - MvPolynomial.X 1
   loop i := if i = 0 then some 1 else none
 
+-- Centrality of a nonconstant symmetric dot polynomial, including a vertex with a loop.
+example :
+    WeightedKLR.GalleryAlgebra.poly
+        (∑ s : WeightedKLR.Strand (Finsupp.single (0 : Fin 2) 2 + Finsupp.single 1 1),
+          MvPolynomial.X s : WeightedKLR.PolyRing _ ℚ) ∈
+      Subalgebra.center ℚ (WeightedKLR.GalleryAlgebra ℚ wkGraph
+        (Finsupp.single 0 2 + Finsupp.single 1 1)) := by
+  apply WeightedKLR.GalleryAlgebra.poly_mem_center
+  intro g
+  simp only [map_sum, MvPolynomial.rename_X]
+  exact Equiv.sum_comp g.1 (fun s => MvPolynomial.X s)
+
 example (ν : Fin 2 →₀ ℕ) := WeightedKLR.GalleryAlgebra.exists_basis (k := ℚ) (Γ := wkGraph)
     (ν := ν)
     ⟨fun _ _ _ _ _ => rfl, fun _ _ h₁ h₂ _ => by simp [wkGraph] at h₁⟩

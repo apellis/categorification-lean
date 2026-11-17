@@ -145,6 +145,13 @@ These statements do not involve the comparison map.
     `exists_coproductK0_indK0_eq_sum_graded` (next section). Open: the fields of `TensorK0Hyp`
     for weighted KLR algebras.
 
+A0 centrality is available for the gallery algebra as `GalleryAlgebra.poly_mem_center`
+(`WeightedKLR/CentralPolynomials.lean`), without additional graph hypotheses. This does not
+yet prove any field of `TensorK0Hyp`. The proposed loop-free absolute-irreducibility
+induction is blocked by simple modules annihilated by every single-colour right restriction;
+see the obstruction in `thm-2-19-roadmap.md` and issue #289. The comparison hypothesis is
+retained.
+
 ## Graded `K_0` (formalized)
 
 Files `WeightedKLR/GradedK0/Grading.lean`, `Induction.lean`, `TensorK0.lean`,

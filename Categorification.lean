@@ -911,6 +911,7 @@ import Categorification.WeightedKLR.Mackey.ParabolicSpan
 import Categorification.WeightedKLR.Mackey.ParabolicBasis
 import Categorification.WeightedKLR.Mackey.ResIndChain
 import Categorification.WeightedKLR.Mackey.ResIndFiltration
+import Categorification.WeightedKLR.Mackey.ResIndK0
 import Categorification.WeightedKLR.Mackey.ResIndPieceProjective
 import Categorification.WeightedKLR.Mackey.ResIndRestriction
 import Categorification.WeightedKLR.Mackey.Separated

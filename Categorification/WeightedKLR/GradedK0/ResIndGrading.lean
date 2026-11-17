@@ -3,7 +3,7 @@ Copyright (c) 2026 Alex Ellis. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Alex Ellis
 -/
-import Categorification.WeightedKLR.Mackey.ResIndFiltration
+import Categorification.WeightedKLR.Mackey.MiddleResIndEquiv
 import Categorification.WeightedKLR.Mackey.MiddleGraded
 import Categorification.WeightedKLR.GradedK0.Grading
 
@@ -24,11 +24,17 @@ Mackey filtration.
 * `resIndFiltGrading`, `resIndFiltProj`: the grading of a step and its degree projections.
 * `resIndSubquotientGrading`, `resIndSubquotientProj`: the induced grading of the subquotients
   `ResIndSubquotient S' S`, with degree projections.
+* `Juxtapose.middleAux_mem_grade`, `Juxtapose.middleResIndMap_mem_grading`: the comparison map
+  `t ⊗ y ↦ [ι(t) ψ_c ι(y)]` raises degrees by `middleShift`.
+* `Juxtapose.iSup_middleGrading`: the middle balanced tensor product is spanned by homogeneous
+  vectors.
+* `Juxtapose.middleResIndGradedEquiv`: the subquotient of shuffle type `c` is the middle balanced
+  tensor product shifted by `middleShift`, as a graded space.
 -/
 
 namespace Categorification.WeightedKLR
 
-open FullChamber GalleryAlgebra Juxtapose
+open FullChamber GalleryAlgebra Juxtapose _root_.Categorification.Graded
 
 open scoped TensorProduct
 
@@ -141,5 +147,125 @@ theorem iSup_resIndSubquotientGrading (hν' : ν' + ν'' = ν) (hν₁ : ν₁ +
     iSup_resIndFiltGrading hP hD hZ hΓ hW hL G hν' hν₁ S, Submodule.map_top, Submodule.range_mkQ]
 
 end GalleryAlgebra
+
+namespace Juxtapose
+
+variable {a b c d : I →₀ ℕ} (hD : Γ.Dagger) (hZ : Γ.NoZeroLoops) (G : GradingDatum Γ)
+
+/-- **`middleAux` raises degrees by `middleShift`**: for `t` of degree `i` and `y` of degree `j`,
+`ι(t) ψ_c ι(y)` has degree `i + middleShift + j` (Webster, arXiv:1209.2463v4, proof of
+Theorem 2.19). -/
+theorem middleAux_mem_grade {i j : ℤ}
+    {t : WeightedKLRAlgebra k Γ (a + c) ⊗[k] WeightedKLRAlgebra k Γ (b + d)}
+    (ht : t ∈ tensorGrading (G.klrGrade (a + c)) (G.klrGrade (b + d)) i)
+    {y : WeightedKLRAlgebra k Γ (a + b) ⊗[k] WeightedKLRAlgebra k Γ (c + d)}
+    (hy : y ∈ tensorGrading (G.klrGrade (a + b)) (G.klrGrade (c + d)) j) :
+    middleAux k hD hZ (t ⊗ₜ y) ∈
+      G.grade (a + b + (c + d)) (i + middleShift G a b c d + j) := by
+  have h := inductionVal_one_mul_middleAux hD hZ (t ⊗ₜ y)
+  have hz : middleAux k hD hZ (t ⊗ₜ y) = inductionVal k (layout_eq a b c d) 1 *
+      middleAux k hD hZ (t ⊗ₜ y) * inductionVal k (rfl : a + b + (c + d) = a + b + (c + d)) 1 := by
+    rw [h.1, h.2]
+  rw [hz, inductionVal_one_mul_mul_one]
+  refine Submodule.sum_mem _ fun _ _ => Submodule.sum_mem _ fun _ _ =>
+    Submodule.sum_mem _ fun _ _ => Submodule.sum_mem _ fun _ _ => ?_
+  rw [e_mul_middleAux_mul_e]
+  exact typeInductionAux_middle_mem_grade G hD hZ _ _ ht hy
+
+section Descent
+
+variable {P : FullChamber Γ (a + b + (c + d)) → FullChamber Γ (a + b + (c + d)) →
+    (Strand (a + b + (c + d)) → 𝕜) × (Strand (a + b + (c + d)) → 𝕜)}
+  (hP : ∀ C E, IsChamberSegment C E (P C E)) (hΓ : Γ.PSymm)
+  (hW : ∀ w : Wall Γ (a + b + (c + d)), IsRegular (w.factor (k := k)))
+  (hL : ∀ (Q : MvPolynomial (Fin 2) k) (s t : Strand (a + b + (c + d))), Γ.loop s.1 = some Q →
+    s ≠ t → s.1 = t.1 → IsRegular (loopFactor Q s t))
+  {S' S : Set (I → ℕ)} (hS : IsLowerSet S) (hcS : ⇑c ∈ S)
+
+/-- **The comparison map of the middle parabolic raises degrees by `middleShift`** (Webster,
+arXiv:1209.2463v4, proof of Theorem 2.19): `middleResIndMap` sends the degree `n` part of
+`MiddleTensor` into the degree `n + middleShift` part of the subquotient `S / S'` of the Mackey
+filtration of `Res ∘ Ind`. -/
+theorem middleResIndMap_mem_grading (hS' : Set.Iio ⇑c ⊆ S') {n : ℤ}
+    {x : MiddleTensor k Γ a b c d} (hx : x ∈ middleGrading G a b c d n) :
+    middleResIndMap hD hZ hP hΓ hW hL hS hcS hS' x ∈
+      resIndSubquotientGrading hP hD hZ hΓ hW hL G (rfl : a + b + (c + d) = a + b + (c + d))
+        (layout_eq a b c d) S' S (n + middleShift G a b c d) := by
+  refine balancedGrading_map_mem
+    (fun n' => resIndSubquotientGrading hP hD hZ hΓ hW hL G
+      (rfl : a + b + (c + d) = a + b + (c + d)) (layout_eq a b c d) S' S
+      (n' + middleShift G a b c d)) _ (fun i j t y ht hy => ?_) hx
+  rw [middleResIndMap_tmul]
+  refine Submodule.mem_map_of_mem (f := Submodule.mkQ _) ?_
+  have := middleAux_mem_grade hD hZ G ht hy
+  rwa [show i + middleShift G a b c d + j = i + j + middleShift G a b c d by ring] at this
+
+end Descent
+
+section Isomorphism
+
+variable {P : FullChamber Γ (a + b + (c + d)) → FullChamber Γ (a + b + (c + d)) →
+    (Strand (a + b + (c + d)) → 𝕜) × (Strand (a + b + (c + d)) → 𝕜)}
+  (hP : ∀ C E, IsChamberSegment C E (P C E)) (hΓ : Γ.PSymm)
+  (hW : ∀ w : Wall Γ (a + b + (c + d)), IsRegular (w.factor (k := k)))
+  (hL : ∀ (Q : MvPolynomial (Fin 2) k) (s t : Strand (a + b + (c + d))), Γ.loop s.1 = some Q →
+    s ≠ t → s.1 = t.1 → IsRegular (loopFactor Q s t))
+
+include hD hZ hΓ hW hL in
+/-- **The middle balanced tensor product is spanned by homogeneous vectors**: it is the sum of
+its juxtaposed corners, each of which is spanned by homogeneous vectors. -/
+theorem iSup_middleGrading : ⨆ n, middleGrading G a b c d n = ⊤ := by
+  classical
+  refine eq_top_iff.2 fun w _ => ?_
+  have key : ∀ (L' : {C : FullChamber Γ (a + c) // C.IsRankOrdered})
+      (L'' : {C : FullChamber Γ (b + d) // C.IsRankOrdered})
+      (R' : {C : FullChamber Γ (a + b) // C.IsRankOrdered})
+      (R'' : {C : FullChamber Γ (c + d) // C.IsRankOrdered}),
+      middleCornerMap (rankE k L'.2 ⊗ₜ rankE k L''.2) (rankE k R'.2 ⊗ₜ rankE k R''.2) w ∈
+        ⨆ n, middleGrading G a b c d n := by
+    intro L' L'' R' R''
+    set π := middleCornerMap (rankE k L'.2 ⊗ₜ rankE k L''.2) (rankE k R'.2 ⊗ₜ rankE k R''.2)
+    have hmem : (⟨π w, LinearMap.mem_range_self π w⟩ : LinearMap.range π) ∈
+        ⨆ n, middleCornerGrading G L'.2 L''.2 R'.2 R''.2 n := by
+      rw [iSup_middleCornerGrading G hD hZ hΓ hW hL]
+      exact Submodule.mem_top
+    have := Submodule.mem_map_of_mem (f := (LinearMap.range π).subtype) hmem
+    rw [Submodule.map_iSup] at this
+    exact iSup_mono (fun n => Submodule.map_comap_le _ _) this
+  have hw1 : w = middleCornerMap 1 1 w := by rw [middleCornerMap_one_one, LinearMap.id_apply]
+  rw [hw1, one_tensor_eq_sum (ν' := a + c) (ν'' := b + d),
+    one_tensor_eq_sum (ν' := a + b) (ν'' := c + d)]
+  simp only [middleCornerMap_sum_left, middleCornerMap_sum_right, LinearMap.sum_apply]
+  repeat refine Submodule.sum_mem _ fun _ _ => ?_
+  exact key _ _ _ _
+
+variable {S' S : Set (I → ℕ)} (hS : IsLowerSet S) (hcS : ⇑c ∈ S) (hS' : Set.Iio ⇑c ⊆ S')
+  (hS'l : IsLowerSet S') (hcS' : ⇑c ∉ S') (hc : ∀ μ' ∈ S, μ' ∉ S' → μ' = ⇑c)
+
+/-- **The subquotient of one shuffle type of the Mackey filtration of `Res ∘ Ind`, as a graded
+space** (B. Webster, arXiv:1209.2463v4, proof of Theorem 2.19): `middleResIndEquiv` is an
+isomorphism of graded spaces from the middle balanced tensor product, shifted by
+`middleShift G a b c d = ∑_{i, j} b_i c_j pairDeg i j`, onto the subquotient `S / S'`. In
+Webster's normalization of the grading (half of ours) the shift is `-(b · c)`. -/
+noncomputable def middleResIndGradedEquiv :
+    Graded.shift (middleGrading G a b c d) (middleShift G a b c d) ≃ᵍ[k]
+      resIndSubquotientGrading hP hD hZ hΓ hW hL G (rfl : a + b + (c + d) = a + b + (c + d))
+        (layout_eq a b c d) S' S :=
+  GradedEquiv.ofProjections
+    (middleResIndEquiv hD hZ hP hΓ hW hL hS hcS hS' hS'l hcS' hc)
+    (middleShift G a b c d)
+    (fun _ _ hx => middleResIndMap_mem_grading hD hZ G hP hΓ hW hL hS hcS hS' hx)
+    (iSup_middleGrading hD hZ G hΓ hW hL)
+    (resIndSubquotientProj hP hD hZ hΓ hW hL G _ _ S' S)
+    (resIndSubquotientProj_of_mem hP hD hZ hΓ hW hL G _ _ S' S)
+    (resIndSubquotientProj_of_mem_ne hP hD hZ hΓ hW hL G _ _ S' S)
+
+theorem middleResIndGradedEquiv_apply (x : MiddleTensor k Γ a b c d) :
+    middleResIndGradedEquiv hD hZ G hP hΓ hW hL hS hcS hS' hS'l hcS' hc x =
+      middleResIndMap hD hZ hP hΓ hW hL hS hcS hS' x := rfl
+
+end Isomorphism
+
+end Juxtapose
 
 end Categorification.WeightedKLR

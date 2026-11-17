@@ -308,6 +308,21 @@ private theorem emptyDiagonal (s : Seq (0 : Multiset I)) (d : ℤ) :
     change 0 = (Finsupp.single 0 1 : ℤ →₀ ℕ) d
     exact Eq.symm (Finsupp.single_eq_of_ne (b := (1 : ℕ)) hd)
 
+/-- In black content zero the cyclotomic quotient is the coefficient field
+concentrated in degree zero. -/
+theorem finrank_emptyGrade (d : ℤ) :
+    Module.finrank k (CycKLR.grade G Λ 0 d) = if d = 0 then 1 else 0 := by
+  have hc : CycKLR.corner k Q aΛ (default : Seq (0 : Multiset I)) default = ⊤ := by
+    apply top_unique
+    intro x _
+    refine ⟨x, ?_⟩
+    change CycKLR.mk k Q aΛ _ (e default) * (x * CycKLR.mk k Q aΛ _ (e default)) = x
+    simp [e_eq_one]
+  have h := emptyDiagonal G Λ default d
+  rw [hc,inf_top_eq] at h
+  change Module.finrank k _ = (Finsupp.single 0 1 : ℤ →₀ ℕ) d at h
+  simpa only [Finsupp.single_apply,eq_comm] using h
+
 /-- The geometric factor at a position of a multiplicity-free diagonal word.
 Its upper bound is Hu–Shi's prefix pairing `N^Λ(1,ν,t)` (arXiv:2108.05508v5,
 Definition 3.2), and each dot contributes degree `G.degX i`. -/

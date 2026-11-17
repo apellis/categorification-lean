@@ -200,6 +200,25 @@ private theorem oneArrowParameters :
     (fun a b _ => unfQ_leadingCoeff arr a b) (coverWeight arr)
     (fun _ _ h => unfQ_natDegree_eq_neg_pair arr h) hij
 
+/-- Two ordered red strands carry different fundamental colours in type A₂. -/
+private def twoRedWeights (r : Fin 2) : Bool →₀ ℕ := Finsupp.single (r == 0) 1
+
+example := Stendhal.blackLower_serre twoRedWeights (coverCartan arr) oneArrowParameters
+  (i := false) (j := true) (by decide)
+
+example := Stendhal.blackDividedLower_serre twoRedWeights (coverCartan arr) oneArrowParameters
+  (i := false) (j := true) (by decide)
+
+example := Stendhal.blackDividedLower_mul twoRedWeights (coverCartan arr) oneArrowParameters true 2 1
+
+example := Stendhal.FirstWeight.blackDividedLower_tensorWordProjectiveClass twoRedWeights (coverCartan arr)
+  oneArrowParameters (.red (.black (.red .empty) false 1)) true 2
+
+example := Stendhal.blackLower_pow_eq_qfact_smul twoRedWeights (coverCartan arr) oneArrowParameters true 2
+
+example := Stendhal.blackDividedLower_projection twoRedWeights (coverCartan arr) oneArrowParameters
+  true 2 ({false} : Multiset Bool) (Graded.K0.of (Graded.GProj.regular _))
+
 example := KLR.CycKLR.projectiveRepresentationX (fun _ => 1) (coverWeight arr) lam
   (fun _ => by rw [coverWeight_pair_iY]; rfl) oneArrowParameters
 
@@ -2100,6 +2119,8 @@ indecomposables. Their projectives stay distinct after any grading shift. -/
 example := Stendhal.FirstWeight.finrank_endZero_sequenceProj firstProjGrading firstProjDots
   firstProjMultiplicity middleWord
 
+example := Stendhal.FundamentalCorner.boundaryAt_last_homGdimPoly
+
 example := Stendhal.FirstWeight.coeff_endPoly_sequenceProj_eq_zero_of_neg firstProjGrading
   firstProjDots rrWord rrOrdered (by decide : (-2 : ℤ) < 0)
 
@@ -2236,6 +2257,23 @@ private theorem dominantTwo : ∀ i, ((2 : ℕ) : ℤ) = datum.pair (datum.iY i)
 
 /-- In type A₁ at level two, the regular projective of the empty block gives
 the highest vector of the three-dimensional representation. -/
+example := CycKLR.gdimPoly_repeated params.gradingDatum (fun _ => 2) () params.klrSymm
+  params.polyInY_leading datum 2 (dominantTwo ()) (params.polyInY_degree_pair datum ())
+  (by decide) 2
+
+/-- At level two, the two-strand divided projective has the Gaussian
+endomorphism polynomial for the top-dimensional Grassmannian index. -/
+example := CycKLR.homGdim_repeated_dividedProjective params.gradingDatum (fun _ => 2) ()
+  params.klrSymm params.polyInY_leading datum 2 (dominantTwo ())
+  (params.polyInY_degree_pair datum ()) (by decide)
+  (fun a b => congrArg Neg.neg ((CartanDatum.ofGraph (⊥ : SimpleGraph Unit)).symm a b))
+  (fun _ => rfl) 2
+
+example := CycKLR.homGrade_ind_res params.gradingDatum (fun _ => 2) () 0 params.klrSymm
+  params.polyInY_leading
+  (Graded.GProj.regular (CycKLR.grade params.gradingDatum (fun _ => 2) 0))
+  (Graded.GProj.regular (CycKLR.grade params.gradingDatum (fun _ => 2) ({()}+0))) 2
+
 example := CycKLR.projectiveHighestWeightEquiv_vacuum (fun _ => 2) datum 2 dominantTwo params regular
 
 example := CycKLR.projectiveHighestWeightEquiv_F (fun _ => 2) datum 2 dominantTwo params regular ()
@@ -2248,6 +2286,22 @@ example := CycKLR.projectiveIntegralEquiv_raise params (fun _ => 2) datum 2 domi
   (CycKLR.dividedWordClass params (fun _ => 2) [((), 2)])
 example := CycKLR.projectiveIntegralEquiv_lower params (fun _ => 2) datum 2 dominantTwo regular ()
   (CycKLR.dividedWordClass params (fun _ => 2) [((), 1)])
+
+private def dividedRedWord : Stendhal.FirstWeight.TensorWord Unit 2 :=
+  ((Stendhal.FirstWeight.TensorWord.empty.red.black () 2).red).black () 1
+
+private def twoTensorFactors : Fin 2 → LieLean.QuantumGroup.GrandLoop.Dom (CycKLR.projectiveRootDatum datum) :=
+  fun _ => ⟨datum.pair.flip 2, fun i => (dominantTwo i) ▸ by decide⟩
+
+example := Stendhal.FirstWeight.tensorWordProjective_factorial (fun _ : Fin 2 => Finsupp.single () 2)
+  (CartanDatum.ofGraph (⊥ : SimpleGraph Unit)) params dividedRedWord
+example := Stendhal.FirstWeight.tensorWordVector_factorial dividedRedWord twoTensorFactors
+example := Stendhal.FirstWeight.span_tensorWordProjective (fun _ : Fin 2 => Finsupp.single () 2)
+  (CartanDatum.ofGraph (⊥ : SimpleGraph Unit)) params (Multiset.replicate 3 ())
+
+
+example := Stendhal.FirstWeight.span_tensorWordProjectiveClass (fun _ : Fin 2 => Finsupp.single () 2)
+  (CartanDatum.ofGraph (⊥ : SimpleGraph Unit)) params
 
 end CyclotomicHighestWeight
 
@@ -2340,6 +2394,15 @@ factor here has highest weight zero and the second has highest weight two. -/
 example := span_tensorWordVector (![(⟨0, by simp⟩ : Dom sl2RootDatum), sl2HighestTwo])
 
 example := tensorWordVector (((TensorWord.empty.red.black () 2).red).black () 1) twoWeights
+
+/-- A divided lowering of multiplicity two on the first red factor followed by
+one lowering on the entire tensor product agree under the quasi-R equivalence. -/
+example := tensorCoproductEquiv_word sl2XRegular
+  (((TensorWord.empty.red.black () 2).red).black () 1) twoWeights
+
+example := barTensorWord_sum_eq_zero_iff sl2XRegular twoWeights (Finset.univ : Finset (Fin 2))
+  (fun j => LaurentPolynomial.T (j.val : ℤ))
+  (fun j => ((TensorWord.empty.red.black () j.val).red).black () (2 - j.val))
 example := span_tensorWordVector_content twoWeights sl2XRegular (Finsupp.single () 3)
 
 private def redLevelTwo : Fin 2 → Unit →₀ ℕ := fun _ => Finsupp.single () 2
@@ -2347,6 +2410,9 @@ private def redLevelTwo : Fin 2 → Unit →₀ ℕ := fun _ => Finsupp.single (
 private def redLevelTwoGrading :=
   Stendhal.stendhalGradingDatum redLevelTwo (KLR.klGradingDatum ℚ (⊥ : SimpleGraph Unit))
     (fun _ => 1) (fun _ => rfl)
+
+example := tensorWordSequenceProj_red redLevelTwoGrading (TensorWord.empty.red.black () 1)
+example := tensorWordSequenceProj_black redLevelTwoGrading TensorWord.empty.red.red ()
 
 private theorem redPos (r : Fin 2) : 0 < redLevelTwo r () := by simp [redLevelTwo]
 
@@ -2428,9 +2494,43 @@ example := regular_homGdimPoly_eq_shapovalov highestTwo xRegular () gradingTwo
 example := regular_shift_homGdimPoly_eq_shapovalov highestTwo xRegular () gradingTwo
   (by simp [highestTwo, levelTwo, LieLean.QuantumGroup.sl2RootDatum]) (by decide) (by simp [levelTwo]) 1 0
 
+attribute [local instance 1100] IsIdempotentElem.instAlgebraCorner_categorification
+local notation "Reg" => Categorification.Graded.GProj.regular (Stendhal.tensorProductGrade gradingTwo {()})
+
+/-- A sum of shifted projective classes paired with a virtual negative class. -/
+example := homForm_eq_shapovalov () gradingTwo highestTwo xRegular
+  (by simp [highestTwo, levelTwo, LieLean.QuantumGroup.sl2RootDatum]) (by decide) (by simp [levelTwo])
+  (Categorification.Graded.K0.of Reg + Categorification.Graded.K0.of ((Reg).shift 1))
+  (-Categorification.Graded.K0.of Reg)
+
 end OneRedEulerForm
 
+namespace TensorFormConvention
+
+open LieLean.QuantumGroup Stendhal.TensorPairing
+
+example := terminal_homGdimPoly_ne_printedForm
+example := printedForm_not_adjoint
+example := barCoproduct_loweredPair_norm
+example := Stendhal.TensorAdjointConvention.tau_barComul_F_ne_comul_tau_F
+example := Stendhal.TensorAdjointConvention.barComul_tau_F LieLean.QuantumGroup.sl2RootDatum ()
+
+private theorem rouquier : KLR.IsRouquierQ (CartanDatum.ofGraph (⊥ : SimpleGraph Unit))
+    (KLR.klQ (k := ℚ) (⊥ : SimpleGraph Unit)) := by
+  constructor <;> intro i j h <;> exact (h (Subsingleton.elim _ _)).elim
+
+private abbrev loading := Stendhal.FirstWeight.boundaryAt () 1 0
+
+/-- Appending a fundamental strand preserves the degree-two Hom dimension. -/
+example := Stendhal.finrank_homGrade_appendRed rouquier fundamentalGrading {()}
+  loading.1 loading.1 loading.2.1 loading.2.1 2
+
+end TensorFormConvention
+
 namespace LastRedLayerExample
+
+attribute [local instance 1100] IsIdempotentElem.instAlgebraCorner_categorification
+open scoped TensorProduct
 open Stendhal KLR
 
 private abbrev Q := fun _ _ : Fin 1 => (0 : MvPolynomial (Fin 2) ℚ)
@@ -2452,6 +2552,35 @@ example := suffixCyclotomic_mk Q Λ p h (by decide) (KLRAlgebra.x (⟨0,by decid
 example (z : TensorProductAlgebra ℚ Q Λ β) := sandwich_mem_range_suffixConcat Q Λ p h
   (by decide) rr (Seq.map Sum.inl b) rrb rrb (by unfold IsRedOrdered; decide)
   (by unfold IsRedOrdered; decide) rfl rfl rfl z
+
+example := lastRedLayerTensor_surjective Q Λ p h (by decide)
+
+/-- The vacuum representation of two red strands has a detecting split. -/
+example := exists_detecting_lastRedCorner (B := ℚ) (ℓ := 1) (Q := Q) (Λ := Λ) (ν := 0) (tensorProductAlgebraZeroEquiv Q Λ).toAlgHom
+
+example := exists_lastRedLayerIdem_mul_boundary Q Λ rrb (by unfold IsRedOrdered; decide) p rfl
+
+private def blackDegrees : GradingDatum Q where
+  degX _ := 2
+  degΨ _ _ := -2
+  degΨ_self _ := rfl
+  isWeightedHomogeneous i j hij := (hij (Subsingleton.elim i j)).elim
+
+private def diagramDegrees := stendhalGradingDatum Λ blackDegrees (fun _ => 1) (fun _ => rfl)
+
+example := lastRedLayerTensor_mem_grade Q Λ diagramDegrees p h (by decide)
+  (d := 0+0) (z := 1 ⊗ₜ 1)
+  (Categorification.Graded.tmul_mem_tensorGrading SetLike.GradedOne.one_mem SetLike.GradedOne.one_mem)
+
+private theorem parameters : IsRouquierQ (CartanDatum.ofGraph (⊥ : SimpleGraph (Fin 1))) Q where
+  symm _ _ h := (h (Subsingleton.elim _ _)).elim
+  homogeneous _ _ h := (h (Subsingleton.elim _ _)).elim
+  unit_coeff _ _ h := (h (Subsingleton.elim _ _)).elim
+
+example := lastRedLayerK0_surjective Q Λ diagramDegrees p h (by decide) parameters
+
+example := lastRedLayerSourceIndecClassEquiv parameters (Λ ∘ Fin.castSucc) (0 : Multiset (Fin 1))
+  (Λ 1) β (restrictRedGrading Q Λ diagramDegrees) (restrictBlackGrading Q Λ diagramDegrees)
 
 end LastRedLayerExample
 

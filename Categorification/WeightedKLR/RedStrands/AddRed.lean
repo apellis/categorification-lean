@@ -138,7 +138,8 @@ theorem addRedColor_injective (ℓ : ℕ) : Function.Injective (addRedColor (I :
 local notation "ν₀" => Multiset.map (addRedColor ℓ) (stendhalWeight ℓ ν)
 local notation "νᵣ" => ({Sum.inr (Fin.last ℓ)} : Multiset (I ⊕ Fin (ℓ + 1)))
 
-private theorem stendhalWeight_addRed : ν₀ + νᵣ = stendhalWeight (ℓ + 1) ν := by
+/-- Appending the new red label adds it once and retains all earlier labels. -/
+theorem stendhalWeight_addRed : ν₀ + νᵣ = stendhalWeight (ℓ + 1) ν := by
   simp only [stendhalWeight, Multiset.map_add, Multiset.map_map, Function.comp_def,
     addRedColor, Sum.map_inl, Sum.map_inr, id_eq]
   rw [Fin.univ_castSuccEmb ℓ, Finset.cons_val, Multiset.map_cons, Finset.map_val, Multiset.map_map]

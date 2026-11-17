@@ -1723,4 +1723,40 @@ example := wkMapG.antipodeComponent_of_degree_one wkMapD wkMapS wkMapNoLoopEdges
 example := Stendhal.tensorProductAlgebraZeroEquiv (k := ℚ) wkGraph.klrQ
   (fun i : Fin 2 => Finsupp.single i 1)
 
+
+
+section CyclotomicDimensions
+
+private noncomputable def singletonBlackGrading :=
+  KLR.klGradingDatum ℚ (⊥ : SimpleGraph (Fin 1))
+
+private noncomputable def twoRedGrading :=
+  Stendhal.stendhalGradingDatum (fun _ : Fin 2 => Finsupp.single (0 : Fin 1) 1)
+    singletonBlackGrading (fun _ => 1) (fun _ => rfl)
+
+/-- The basis count for two red fundamental weights and one black strand, in every degree. -/
+example (d : ℤ) :=
+  Stendhal.coeff_gdim_tensorProductGrade (ν := {(0 : Fin 1)})
+    (fun w => (TypeA.exists_reduced _ w).choose_spec) twoRedGrading
+    (by rintro (i | r) <;> exact (by decide : (0 : ℤ) < 2)) d
+
+/-- A single black strand with cyclotomic relation `x² = 0`, in every degree. -/
+example (d : ℤ) :=
+  let i := (KLR.Seq.uniqueOfForall (ν := {(0 : Fin 1)}) (i := 0) (by simp)).default
+  KLR.CycKLR.coeff_gdim_cornerGrade singletonBlackGrading (fun _ => 2) (by simp)
+    (fun a _ b _ hab => (hab (Subsingleton.elim a b)).elim)
+    (fun w => (TypeA.exists_reduced _ w).choose) (fun w => (TypeA.exists_reduced _ w).choose_spec)
+    i i 1 (one_smul _ _) d
+
+end CyclotomicDimensions
+
+example (x y : wkMapG.K0W) := wkMapG.totalCoproduct_mul wkMapD wkMapS
+  wkMapNoLoopEdges wkMapNoLoopPolynomials x y
+
+example (x : wkMapG.K0W) := wkMapG.counitK0_totalCoproduct_left wkMapD wkMapS
+  wkMapNoLoopEdges wkMapNoLoopPolynomials x
+
+example (x : wkMapG.K0W) := wkMapG.counitK0_totalCoproduct_right wkMapD wkMapS
+  wkMapNoLoopEdges wkMapNoLoopPolynomials x
+
 end NonVacuity

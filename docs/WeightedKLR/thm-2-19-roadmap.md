@@ -247,8 +247,12 @@ weights `(a,b)` recovers restriction of the weight `a+b` component
 (`component_totalCoproduct`). The Laurent-twisted tensor multiplication
 `GradingDatum.twMul` is associative with unit `1 ⊗ 1`.
 `GradingDatum.antipodeK0` is the endomorphism defined by the reduced recursion.
-It fixes the unit and negates one-strand classes. The Hopf assertion requires the
-two convolution identities for this endomorphism.
+It fixes the unit and negates one-strand classes. `GradingDatum.counitK0` projects
+onto the weight-zero Laurent summand, and `counitK0_totalCoproduct_left` and
+`counitK0_totalCoproduct_right` prove the two counit identities. The coproduct
+preserves the unit and the twisted multiplication (`totalCoproduct_one`,
+`totalCoproduct_mul`). The right convolution identity is `antipodeK0_right`.
+The Hopf assertion also requires coassociativity and the left convolution identity.
 
 In the displayed recursion in Webster’s proof, the operator on the tensor factors is
 `id ⊗ S`. Solving the right convolution identity removes the summand with first

@@ -274,6 +274,15 @@ example := Stendhal.blackDividedLower_mul twoRedWeights (coverCartan arr) oneArr
 example := Stendhal.FirstWeight.blackDividedLower_tensorWordProjectiveClass twoRedWeights (coverCartan arr)
   oneArrowParameters (.red (.black (.red .empty) false 1)) true 2
 
+private def dividedLevels (r : Fin 2) : Bool →₀ ℕ := Finsupp.single (r == 0) 2
+
+/-- The first level supports its length-two divided block. Right induction
+appends black of the second colour; last-red induction retains the block. -/
+example := Stendhal.FirstWeight.blackLower_tensorWordProjectiveClass (coverCartan arr)
+  oneArrowParameters dividedLevels (.red (.black (.red .empty) true 2)) false
+example := Stendhal.FirstWeight.totalLastRedIndK0_tensorWordProjectiveClass (coverCartan arr)
+  oneArrowParameters dividedLevels (.black (.red .empty) true 2)
+
 example := Stendhal.blackLower_pow_eq_qfact_smul twoRedWeights (coverCartan arr) oneArrowParameters true 2
 
 example := Stendhal.blackDividedLower_projection twoRedWeights (coverCartan arr) oneArrowParameters
@@ -2386,6 +2395,93 @@ private def dividedRedWord : Stendhal.FirstWeight.TensorWord Unit 2 :=
 private def twoTensorFactors : Fin 2 → LieLean.QuantumGroup.GrandLoop.Dom (CycKLR.projectiveRootDatum datum) :=
   fun _ => ⟨datum.pair.flip 2, fun i => (dominantTwo i) ▸ by decide⟩
 
+private abbrev prefixLevels : Fin 1 → Unit →₀ ℕ := fun _ => Finsupp.single () 2
+private abbrev prefixWeight : Fin 1 → LieLean.QuantumGroup.GrandLoop.Dom (CycKLR.projectiveRootDatum datum) :=
+  fun _ => twoTensorFactors 0
+private abbrev prefixCartan := CartanDatum.ofGraph (⊥ : SimpleGraph Unit)
+private abbrev prefixEmptyGrade := Stendhal.stendhalGradingDatum (prefixLevels ∘ Fin.castSucc)
+  params.gradingDatum (fun i => prefixCartan.dot i i / 2) (Stendhal.dotDegree prefixCartan params)
+private abbrev prefixEmptyBlock := Stendhal.tensorProductGrade prefixEmptyGrade (0 : Multiset Unit)
+
+private theorem prefixTop_nonempty : Nonempty (Graded.GProj.IndecClass prefixEmptyBlock) := by
+  let := Stendhal.tensorProductAlgebra_finite (prefixLevels ∘ Fin.castSucc) (0 : Multiset Unit) params
+  let := Graded.HasGdim.of_finiteDimensional prefixEmptyBlock
+  let B := Graded.K0.indecBasis prefixEmptyBlock
+  let H := Stendhal.tensorProductVacuumK0Equiv prefixEmptyGrade
+  have h : B.repr (H.symm 1) ≠ 0 := by
+    rw [B.repr.map_ne_zero_iff,H.symm.map_ne_zero_iff]
+    exact one_ne_zero
+  obtain ⟨b,_⟩ := Finsupp.ne_iff.mp h
+  exact ⟨b⟩
+
+private abbrev prefixPwt := (Stendhal.stendhalWeight 0 (0 : Multiset Unit)).map (Stendhal.addRedColor 0)
+private abbrev prefixDwt := ({Sum.inr (0 : Fin 1)} : Multiset (Unit ⊕ Fin 1))
+private def prefixOutput : Seq (prefixPwt + prefixDwt) := KLRAlgebra.Seq.ofList [.inr 0] (by decide)
+private abbrev prefixWord := (Stendhal.FirstWeight.TensorWord.empty : Stendhal.FirstWeight.TensorWord Unit 0).red
+private theorem prefixOutput_word : List.ofFn prefixOutput.1 = KLRAlgebra.expandDiv prefixWord.blocks := by
+  rw [prefixOutput,KLRAlgebra.Seq.ofFn_ofList]
+  rfl
+private abbrev prefixMask : Fin (Stendhal.FirstWeight.lastRedWord prefixWord).2.length → Bool := fun _ => false
+private theorem prefixMask_fits : Stendhal.FirstWeight.fitsLastRedContents
+    (α := prefixPwt) (β := prefixDwt) prefixWord prefixMask := by
+  constructor <;>
+    simp [Stendhal.FirstWeight.lastRedBlackTags,Stendhal.FirstWeight.lastRedWord,
+      Stendhal.FirstWeight.tagMask,Stendhal.FirstWeight.maskSubword,prefixWord,
+      Stendhal.FirstWeight.TensorWord.blocks,KLRAlgebra.expandDiv,prefixPwt,Stendhal.stendhalWeight,prefixDwt]
+
+/-- At one red strand and black content zero the surviving shuffle tests the
+nonzero simple of the empty prefix against its tensor-unit word. -/
+example := Stendhal.FirstWeight.prefixStandardTop_mask prefixLevels prefixCartan params prefixWeight regular
+  (Stendhal.FirstWeight.exists_emptyTensorWordEquiv prefixCartan params (fun j => prefixWeight (Fin.castSucc j))
+    (prefixLevels ∘ Fin.castSucc)).choose
+  (Stendhal.FirstWeight.exists_emptyTensorWordEquiv prefixCartan params (fun j => prefixWeight (Fin.castSucc j))
+    (prefixLevels ∘ Fin.castSucc)).choose_spec
+  0 (Classical.choice prefixTop_nonempty) prefixWord prefixOutput prefixOutput_word
+  ((Stendhal.FirstWeight.ordinaryShuffleEquiv prefixWord prefixOutput prefixOutput_word).symm
+    ⟨prefixMask,prefixMask_fits⟩)
+
+/-- In the empty tensor unit, the divided word with black multiplicities
+zero and two agrees with its projective image. -/
+example := (Stendhal.FirstWeight.exists_emptyTensorWordEquiv
+  (CartanDatum.ofGraph (⊥ : SimpleGraph Unit)) params (R := CycKLR.projectiveRootDatum datum)
+  Fin.elim0 Fin.elim0).choose_spec ((Stendhal.FirstWeight.TensorWord.empty.black () 0).black () 2)
+
+/-- The tensor exponent uses both red and black crossings for the tagged suffix. -/
+example := Stendhal.FirstWeight.lastRedCrossingSum_eq_suffixMaskExponent
+  (CartanDatum.ofGraph (⊥ : SimpleGraph Unit)) (R := CycKLR.projectiveRootDatum datum)
+  (Finsupp.single () 2) (datum.pair.flip (2 : ℤ)) (fun i => by cases i; rw [Finsupp.single_eq_same]; rfl)
+  [(.inr (0 : Fin 2) : Unit ⊕ Fin 2)] [((),true),((),false),((),false)]
+
+section EmptyInduction
+attribute [local instance 1100] IsIdempotentElem.instAlgebraCorner_categorification
+
+private abbrev noRedFactors : Fin 0 → LieLean.QuantumGroup.GrandLoop.Dom (CycKLR.projectiveRootDatum datum) :=
+  Fin.elim0
+private abbrev noRedLevels : Fin 0 → Unit →₀ ℕ := Fin.elim0
+
+private abbrev shiftInversion := (LaurentPolynomial.invert (R := ℤ)).toRingEquiv
+local instance : RingHomInvPair shiftInversion.toRingHom shiftInversion.toRingHom :=
+  RingHomInvPair.of_ringEquiv shiftInversion
+
+local notation "vacuumWords" => Stendhal.FirstWeight.exists_emptyTensorWordEquiv
+  (CartanDatum.ofGraph (⊥ : SimpleGraph Unit)) params noRedFactors noRedLevels
+
+/- With no red factors the comparison exists in all weights. Apply it to
+ordinary and divided induction from the nonzero vacuum class. -/
+open Stendhal.FirstWeight in
+example := map_blackLower _ params noRedLevels noRedFactors (vacuumWords).choose.toLinearMap
+  (vacuumWords).choose_spec () (tensorWordProjectiveClass noRedLevels _ params .empty)
+open Stendhal.FirstWeight in
+example := map_blackDividedLower _ params noRedLevels noRedFactors (vacuumWords).choose.toLinearMap
+  (vacuumWords).choose_spec () 2 (tensorWordProjectiveClass noRedLevels _ params .empty)
+
+open Stendhal.FirstWeight in
+/-- The rational span of the projective points contains the empty tensor vacuum. -/
+example := prefixBasisPoint_span noRedLevels _ params noRedFactors regular (vacuumWords).choose
+  (integralWordVector (C := CartanDatum.ofGraph (⊥ : SimpleGraph Unit)) noRedFactors .empty)
+
+end EmptyInduction
+
 /-- At level two the last red crossing has degree two. Crossing two black
 strands assigned to the last factor changes the exponent to minus two. -/
 example : (datum.pair.flip (2 : ℤ) - (([] : List Unit).map (CycKLR.projectiveRootDatum datum).root).sum)
@@ -2405,6 +2501,18 @@ example := Stendhal.FirstWeight.barDividedWordOp_append twoTensorFactors
 example := Stendhal.FirstWeight.finrank_le_lastRedPairs (fun _ : Fin 2 => Finsupp.single () 2)
   (CartanDatum.ofGraph (⊥ : SimpleGraph Unit)) params (Multiset.replicate 3 ())
 
+/-- Test the expanded loading for three black strands directly on its regular
+finite module. This specializes the ordinary idempotent character calculation. -/
+private abbrev shuffleLevels : Fin 2 → Unit →₀ ℕ := fun _ => Finsupp.single () 2
+private abbrev shuffleGrading := Stendhal.stendhalGradingDatum shuffleLevels params.gradingDatum
+  (fun i => (CartanDatum.ofGraph (⊥ : SimpleGraph Unit)).dot i i / 2)
+  (Stendhal.dotDegree (CartanDatum.ofGraph (⊥ : SimpleGraph Unit)) params)
+private def shuffleRegular : Graded.GFin (Stendhal.tensorProductGrade shuffleGrading dividedRedWord.content.toMultiset) :=
+  { toGMod := Graded.GMod.regular _
+    finiteDimensional := Stendhal.tensorProductAlgebra_finite shuffleLevels _ params }
+example := Stendhal.FirstWeight.ordinary_hom_eq_corner shuffleLevels (CartanDatum.ofGraph (⊥ : SimpleGraph Unit))
+  params dividedRedWord.content.toMultiset ⟨dividedRedWord,rfl⟩ shuffleRegular
+
 example := Stendhal.FirstWeight.tensorWordProjective_factorial (fun _ : Fin 2 => Finsupp.single () 2)
   (CartanDatum.ofGraph (⊥ : SimpleGraph Unit)) params dividedRedWord
 example := Stendhal.FirstWeight.tensorWordVector_factorial dividedRedWord twoTensorFactors
@@ -2419,6 +2527,242 @@ example := Stendhal.FirstWeight.exists_wordEquivAt_iff (fun _ : Fin 2 => Finsupp
   (CartanDatum.ofGraph (⊥ : SimpleGraph Unit)) params twoTensorFactors regular (Multiset.replicate 3 ())
 example := Stendhal.FirstWeight.exists_tensorWordEquiv_iff (fun _ : Fin 2 => Finsupp.single () 2)
   (CartanDatum.ofGraph (⊥ : SimpleGraph Unit)) params twoTensorFactors regular
+
+open Stendhal.FirstWeight
+private abbrev oneFactor : Fin 1 → LieLean.QuantumGroup.GrandLoop.Dom (CycKLR.projectiveRootDatum datum) :=
+  fun _ => twoTensorFactors 0
+private abbrev oneLevel : Fin 1 → Unit →₀ ℕ := fun _ => Finsupp.single () 2
+private abbrev oneBlack : Multiset Unit := {()}
+private abbrev oneGrade := Stendhal.stendhalGradingDatum oneLevel params.gradingDatum
+  (fun i => (CartanDatum.ofGraph (⊥ : SimpleGraph Unit)).dot i i / 2)
+  (Stendhal.dotDegree (CartanDatum.ofGraph (⊥ : SimpleGraph Unit)) params)
+private abbrev oneW := integralTensorWeight oneFactor regular oneBlack.toFinsupp
+
+/-- The full pair count fits the one-dimensional first weight of the
+single level-two factor after the empty red prefix. -/
+example : Nat.card (Σ u : Stendhal.LastRedWeightSplit oneBlack, Stendhal.LastRedFactorClasses oneLevel oneBlack oneGrade u)
+    ≤ Module.finrank (LaurentPolynomial ℤ) oneW := by
+  have e : oneW = tensorFirstLattice oneFactor () regular := by
+    ext x
+    change (_ ∧ tensorWeightProj oneFactor regular (_ - (CycKLR.projectiveRootDatum datum).rootSum oneBlack.toFinsupp) x = x) ↔ _
+    simp only [oneBlack,Multiset.toFinsupp_singleton,(CycKLR.projectiveRootDatum datum).rootSum_single,one_smul]
+    rfl
+  have : Module.Finite (LaurentPolynomial ℤ) oneW := by
+    rw [e]
+    apply Module.Finite.of_basis (pVectorBasis oneFactor () regular (fun _ => by change 0 < (1 : ℤ) * 2; decide))
+  apply lastRedFactorCount_le_of_prefixRelations (CartanDatum.ofGraph (⊥ : SimpleGraph Unit)) oneFactor regular oneLevel
+    params oneBlack (fun i => by cases i; change (↑((Finsupp.single () 2 : Unit →₀ ℕ) ()) : ℤ) = 1 * 2; simp)
+  apply (exists_tensorWordEquiv_iff _ _ _ _ regular).mp
+  exact exists_emptyTensorWordEquiv _ params _ _
+
+private abbrev oneFinalMatch : ∀ i, (oneLevel (Fin.last 0) i : ℤ) =
+    (oneFactor (Fin.last 0)).1 ((CycKLR.projectiveRootDatum datum).coroot i) := by
+  intro i
+  cases i
+  change (↑((Finsupp.single () 2 : Unit →₀ ℕ) ()) : ℤ) = 1 * 2
+  simp
+
+private abbrev initialWeights : Fin 0 → LieLean.QuantumGroup.GrandLoop.Dom (CycKLR.projectiveRootDatum datum) :=
+  fun j => oneFactor j.castSucc
+private abbrev initialLabels : Fin 0 → Unit →₀ ℕ := oneLevel ∘ Fin.castSucc
+private abbrev initialComparison :=
+  (exists_emptyTensorWordEquiv (CartanDatum.ofGraph (⊥ : SimpleGraph Unit)) params initialWeights initialLabels).choose
+private abbrev a1 := CartanDatum.ofGraph (⊥ : SimpleGraph Unit)
+
+/-- The simple-top tests separate the level-two first weight after the empty prefix. -/
+example := barWeightCoordinates_injective_of_factorTests a1 oneFactor regular oneBlack
+  (prefixBasisPoint initialLabels a1 params initialWeights regular initialComparison)
+  (cyclotomicBasisPoint a1 (oneLevel (Fin.last 0)) params (oneFactor (Fin.last 0)) oneFinalMatch regular)
+  (prefixTopTest initialLabels a1 params initialWeights regular initialComparison)
+  (cyclotomicTopTest a1 (oneLevel (Fin.last 0)) params (oneFactor (Fin.last 0)) oneFinalMatch regular)
+  (prefixBasisPoint_span initialLabels a1 params initialWeights regular initialComparison)
+  (span_cyclotomicBasisPoint a1 (oneLevel (Fin.last 0)) params (oneFactor (Fin.last 0)) oneFinalMatch regular)
+  (fun a i => by by_cases h : a = i <;> simpa [h] using
+    prefixTopTest_point initialLabels a1 params initialWeights regular initialComparison a i)
+  (fun a i => by by_cases h : a = i <;> simpa [h] using
+    cyclotomicTopTest_point a1 (oneLevel (Fin.last 0)) params (oneFactor (Fin.last 0)) oneFinalMatch regular a i)
+
+section CyclotomicTests
+
+open Stendhal Stendhal.FirstWeight Graded
+
+private abbrev testC := CartanDatum.ofGraph (⊥ : SimpleGraph Unit)
+private abbrev oneBlack : Multiset Unit := {()}
+
+private theorem finalWeightAgreement (i : Unit) :
+    (shuffleLevels 1 i : ℤ) = (twoTensorFactors 1).1 ((CycKLR.projectiveRootDatum datum).coroot i) := by
+  simpa [shuffleLevels, twoTensorFactors, CycKLR.projectiveRootDatum] using dominantTwo i
+
+private def oneBlackSimple : GProj.IndecClass (CycKLR.grade params.gradingDatum (shuffleLevels 1) oneBlack) := by
+  let := lastRedFinal_finite params (shuffleLevels 1) oneBlack
+  let g := CycKLR.grade params.gradingDatum (shuffleLevels 1) oneBlack
+  let := HasGdim.of_finiteDimensional g
+  let e := CycKLR.singleK0Equiv params.gradingDatum (shuffleLevels 1) () (by simp [shuffleLevels])
+  apply Classical.choice
+  by_contra hn
+  let : IsEmpty (GProj.IndecClass g) := not_nonempty_iff.mp hn
+  have hz : e.symm 1 = 0 := (K0.indecBasis g).repr.injective (Subsingleton.elim _ _)
+  exact one_ne_zero (e.symm.injective (hz.trans e.symm.map_zero.symm))
+
+/-- The level-two simple in the one-black block tests its basis point and both
+matching and different ordinary words. -/
+example := cyclotomicTopTest_point testC (shuffleLevels 1) params (twoTensorFactors 1)
+  finalWeightAgreement regular ⟨oneBlack,oneBlackSimple⟩ ⟨oneBlack,oneBlackSimple⟩
+example := cyclotomicTopTest_word testC (shuffleLevels 1) params (twoTensorFactors 1)
+  finalWeightAgreement regular [()] rfl oneBlackSimple
+example := cyclotomicTopTest_word_of_ne testC (shuffleLevels 1) params (twoTensorFactors 1)
+  finalWeightAgreement regular [] (by decide) oneBlackSimple
+example := span_cyclotomicBasisPoint testC (shuffleLevels 1) params (twoTensorFactors 1) finalWeightAgreement regular
+
+private abbrev finalWord : TensorWord Unit 2 := TensorWord.empty.red.red.black () 1
+private abbrev earlierContent := Multiset.map (addRedColor 1) (stendhalWeight 1 (0 : Multiset Unit))
+private abbrev finalContent := Multiset.map (Sum.map (id : Unit → Unit) (fun _ : Fin 1 => Fin.last 1))
+  (stendhalWeight 1 oneBlack)
+private def finalLoading : Seq (earlierContent + finalContent) :=
+  KLRAlgebra.Seq.ofList [.inr 0,.inr 1,.inl ()] (by decide)
+private theorem finalWord_labels : List.ofFn finalLoading.1 = KLRAlgebra.expandDiv finalWord.blocks :=
+  KLRAlgebra.Seq.ofFn_ofList _ _
+
+/-- At red-red-black the surviving mask assigns the black strand to the final
+factor. The opposite assignment vanishes in its one-black test. -/
+example := cyclotomicTopTest_mask shuffleLevels testC params 0 oneBlack twoTensorFactors
+  finalWeightAgreement regular oneBlackSimple finalWord finalLoading finalWord_labels
+  ((ordinaryShuffleEquiv finalWord finalLoading finalWord_labels).symm
+    ⟨fun _ => true, by
+      constructor
+      · apply (prefixMaskContent_iff finalWord 0 _).mpr
+        simp [finalWord,prefixMaskWord,lastRedWord,maskSubword,tagMask,appendOrdinaryBlack,TensorWord.content]
+      · apply (finalMaskContent_iff finalWord oneBlack _).mpr
+        simp [finalWord,oneBlack,finalMaskLetters,lastRedWord,maskSubword,tagMask]⟩)
+example := cyclotomicTopTest_mask_of_ne shuffleLevels testC params oneBlack twoTensorFactors
+  finalWeightAgreement regular oneBlackSimple finalWord (fun _ => false) (by
+    intro h
+    have hh := (finalMaskContent_iff finalWord oneBlack _).mp h
+    simp [finalWord,oneBlack,finalMaskLetters,lastRedWord,maskSubword,tagMask] at hh)
+
+end CyclotomicTests
+
+namespace TwoFundamentalLowerings
+
+open LieLean LieLean.QuantumGroup LieLean.QuantumGroup.GrandLoop Stendhal.FirstWeight
+attribute [local instance 1100] IsIdempotentElem.instAlgebraCorner_categorification
+private abbrev D := CartanDatum.ofGraph (⊥ : SimpleGraph Unit)
+private abbrev R := CycKLR.projectiveRootDatum datum
+private abbrev invLP := (LaurentPolynomial.invert (R := ℤ)).toRingEquiv
+local instance : RingHomInvPair invLP.toRingHom invLP.toRingHom := RingHomInvPair.of_ringEquiv invLP
+local notation "𝕍" => (RatFunc.X : RatFunc ℚ)
+local instance : NeZero 𝕍 := ⟨RatFunc.X_ne_zero⟩
+private abbrev level : Fin 2 → Unit →₀ ℕ := fun _ => Finsupp.single () 1
+private def omegaOne : Dom R := ⟨datum.pair.flip 1, fun i => by change 0 ≤ (1 : ℤ) * 1; decide⟩
+private abbrev factors (n : ℕ) : Fin n → Dom R := fun _ => omegaOne
+private theorem level_eq (r : Fin 2) (i : Unit) : (level r i : ℤ) = ((factors 2) r).1 (R.coroot i) := by
+  cases i
+  rw [Finsupp.single_eq_same]
+  rfl
+private abbrev h := IrreducibleModule.hwv R 𝕍 omegaOne.1
+private abbrev f := F R 𝕍 () • h
+private abbrev vacuum := tensorWordVector (TensorWord.empty (I := Unit)) (factors 0)
+private abbrev splitWord := (TensorWord.empty.red.black () 1).red.black () 1
+private abbrev dividedWord := TensorWord.empty.red.red.black () 2
+
+private theorem twice_on_factor : F R 𝕍 () • f = 0 := by
+  change F R 𝕍 () • (F R 𝕍 () • (Submodule.Quotient.mk (VermaModule.hwv R 𝕍 omegaOne.1))) = 0
+  rw [← mul_smul, ← pow_two, ← Submodule.Quotient.mk_smul, Submodule.Quotient.mk_eq_zero]
+  apply VermaModule.fPowSubmodule_le_maxSubmodule regular hvn_ratFunc omegaOne.2
+  apply Submodule.subset_span
+  exact ⟨(),rfl⟩
+
+private theorem quantum_one (x : LieLean.QuantumGroup R 𝕍) (q : RatFunc ℚ) :
+    qDivPow q 1 x = x := by simp [qDivPow,qFactorial,qInt]
+
+private theorem lower_empty (x : TensorSpace (factors 0)) : tensorRepresentation (factors 0) (F R 𝕍 ()) x = 0 := by
+  change (Algebra.ofId (RatFunc ℚ) (Module.End (RatFunc ℚ) (TensorSpace (factors 0)))) (counit R 𝕍 (F R 𝕍 ())) x = 0
+  simp
+
+private theorem lower_one_factor (m : IrreducibleModule R 𝕍 omegaOne.1) :
+    tensorRepresentation (factors 1) (F R 𝕍 ()) (appendTensor (factors 1) vacuum m) =
+      appendTensor (factors 1) vacuum (F R 𝕍 () • m) := by
+  rw [tensorRepresentation_F_append,lower_empty]
+  simp [appendTensor]
+
+private theorem splitWord_vector :
+    tensorWordVector splitWord (factors 2) = appendTensor (factors 2) (appendTensor (factors 1) vacuum f) f := by
+  change tensorRepresentation (factors 2) (qDivPow _ 1 _) (appendTensor _ (tensorRepresentation (factors 1)
+    (qDivPow _ 1 _) (appendTensor _ vacuum h)) h) = _
+  rw [quantum_one,lower_one_factor,tensorRepresentation_F_append,lower_one_factor,twice_on_factor]
+  simp [appendTensor]
+
+private theorem append_ne_zero {n : ℕ} {x : TensorSpace (factors n)} (hx : x ≠ 0)
+    {y : IrreducibleModule R 𝕍 omegaOne.1} (hy : y ≠ 0) : appendTensor (factors (n+1)) x y ≠ 0 := by
+  obtain ⟨φ,hφ⟩ := Module.Projective.exists_dual_eq_one (RatFunc ℚ) hy
+  intro e
+  have he := congrArg (fun z => (TensorProduct.rid (RatFunc ℚ) (TensorSpace (factors n)))
+    (φ.lTensor _ (tensorSplitLast (factors (n+1)) z))) e
+  exact hx (by simpa [appendTensor,hφ] using he)
+
+private theorem splitWord_vector_ne_zero : tensorWordVector splitWord (factors 2) ≠ 0 := by
+  have hvac : vacuum ≠ 0 := by
+    intro hz
+    have h := congrArg (PiTensorProduct.isEmptyEquiv (Fin 0)) hz
+    simp [vacuum, tensorWordVector, PiTensorProduct.isEmptyEquiv_apply_tprod] at h
+  have hf := Stendhal.SingleBlack.lower_ne_zero omegaOne () regular (by decide)
+  rw [splitWord_vector]
+  exact append_ne_zero (append_ne_zero hvac hf) hf
+
+private theorem divided_two_on_factor :
+    qDivPow (𝕍 ^ D.toLusztig.d ()) 2 (F R 𝕍 ()) • h = 0 := by
+  simp only [qDivPow, smul_assoc, pow_two, mul_smul, twice_on_factor, smul_zero]
+
+private theorem divided_two_on_prefix :
+    tensorRepresentation (factors 1) (qDivPow (𝕍 ^ D.toLusztig.d ()) 2 (F R 𝕍 ()))
+      (appendTensor (factors 1) vacuum h) = 0 := by
+  rw [qDivPow, map_smul, LinearMap.smul_apply, pow_two, map_mul, Module.End.mul_apply,
+    lower_one_factor,lower_one_factor,twice_on_factor]
+  simp [appendTensor]
+
+set_option maxHeartbeats 650000 in
+private theorem dividedWord_vector :
+    tensorWordVector dividedWord (factors 2) = tensorWordVector splitWord (factors 2) := by
+  change tensorRepresentation (factors 2) (qDivPow _ 2 _) (appendTensor _ (appendTensor _ vacuum h) h) = _
+  rw [tensorRepresentation_dividedF_append (factors 2) () 2 (appendTensor (factors 1) vacuum h) h (μ := omegaOne.1) (IrreducibleModule.hwv_mem_weightSpace (R := R)
+    (v := 𝕍) (Λ := omegaOne.1)),splitWord_vector]
+  rw [show Finset.HasAntidiagonal.antidiagonal (2 : ℕ) = {(0,2),(1,1),(2,0)} by decide]
+  have hc : dividedCoefficient (R := R) omegaOne.1 () 1 1 = 1 := by
+    change LaurentPolynomial.T (1 * (1 * 1) + 1 * (1 * -(1 : ℤ))) = (1 : LaurentPolynomial ℤ)
+    norm_num
+  simp [Finset.sum_insert, divided_two_on_factor, quantum_one, hc]
+  rw [divided_two_on_prefix,lower_one_factor]
+  simp [appendTensor]
+
+private abbrev identification := tensorModuleEquiv D params regular level (factors 2) level_eq
+
+/-- The two fundamental factors reach the same bottom vector by the separated
+lowerings and by the length-two divided block. This vector is nonzero. -/
+example : tensorWordProjectiveClass level D params dividedWord =
+    tensorWordProjectiveClass level D params splitWord := by
+  apply identification.injective
+  rw [tensorModuleEquiv_word,tensorModuleEquiv_word]
+  exact Subtype.ext dividedWord_vector
+
+example : tensorWordProjectiveClass level D params splitWord ≠ 0 := by
+  intro hz
+  have ht : integralWordVector (C := D) (factors 2) splitWord = 0 := by
+    rw [← tensorModuleEquiv_word D params regular level (factors 2) level_eq, hz, map_zero]
+  exact splitWord_vector_ne_zero (congrArg Subtype.val ht)
+
+/-- Ordinary right induction from RBR applies F a second time. Divided
+induction of multiplicity two applies F⁽²⁾ directly to the two-red vacuum. -/
+example := tensorModuleEquiv_F D params regular level (factors 2) level_eq ()
+  (tensorWordProjectiveClass level D params ((TensorWord.empty.red.black () 1).red))
+example := tensorModuleEquiv_dividedF D params regular level (factors 2) level_eq () 2
+  (tensorWordProjectiveClass level D params TensorWord.empty.red.red)
+
+example := tensorModuleEquiv_lastRed D params regular level (factors 2) level_eq
+  (tensorWordProjectiveClass (level ∘ Fin.castSucc) D params (TensorWord.empty.red.black () 1))
+example := tensorModuleEquiv_unique D params regular level (factors 2) level_eq identification.toLinearMap
+  (tensorModuleEquiv_word D params regular level (factors 2) level_eq)
+
+end TwoFundamentalLowerings
 
 end CyclotomicHighestWeight
 
@@ -2700,6 +3044,49 @@ private theorem parameters : IsRouquierQ (CartanDatum.ofGraph (⊥ : SimpleGraph
   homogeneous _ _ h := (h (Subsingleton.elim _ _)).elim
   unit_coeff _ _ h := (h (Subsingleton.elim _ _)).elim
 
+/-- In the output red-red-black-black, the final left-assigned black
+strand crosses the right red (+1) and the right black (−2). -/
+private abbrev shufflePrefixWt := Multiset.map (addRedColor 1) (stendhalWeight 1 β)
+private abbrev shuffleFinalWt := Multiset.map (Sum.map (id : Fin 1 → Fin 1)
+  (fun _ : Fin 1 => Fin.last 1)) (stendhalWeight 1 β)
+private def shuffleWord : KLR.Seq (shufflePrefixWt + shuffleFinalWt) :=
+  KLRAlgebra.Seq.ofList [.inr 0,.inr 1,.inl 0,.inl 0] (by decide)
+private def shuffleAssignment (j : Fin (shufflePrefixWt + shuffleFinalWt).card) : Bool :=
+  decide (j.val = 1 ∨ j.val = 2)
+private theorem shufflePair : ∃ u : KLRAlgebra.ShuffleOf shufflePrefixWt shuffleFinalWt shuffleWord,
+    u.mask = shuffleAssignment :=
+  KLRAlgebra.ShuffleOf.exists_mask_eq shuffleAssignment (by decide) (by decide)
+private def shuffleExample := shufflePair.choose
+private abbrev shuffleCartan := CartanDatum.ofGraph (⊥ : SimpleGraph (Fin 1))
+
+example :
+    (stendhalGradingDatum Λ parameters.gradingDatum (fun i => shuffleCartan.dot i i / 2)
+      (fun i => (QuantumGroup.UDot.two_mul_di shuffleCartan i).symm)).indShuffleDegree
+      shuffleExample.1 shuffleWord = -1 := by
+  have hm : shuffleExample.mask = shuffleAssignment := shufflePair.choose_spec
+  have hv : ¬ IsViolated shuffleExample.split.2 := by
+    rintro ⟨h,hh⟩
+    have hs := shuffleExample.ofFn_split_snd
+    rw [hm] at hs
+    have hx : FreeMonoid.toList (QuantumGroup.PreF.maskWord shuffleWord.1 shuffleAssignment true) =
+        [Sum.inr 1,Sum.inl (0 : Fin 1)] := by decide
+    rw [hx] at hs
+    have he := congrArg (fun l => l[0]?) hs
+    simp only [List.getElem?_ofFn,List.getElem?_cons_zero] at he
+    simp at he
+    obtain ⟨_,he⟩ := he
+    change (shuffleExample.split.2.1 ⟨0,h⟩).isLeft at hh
+    rw [he] at hh
+    contradiction
+  have he := lastRed_indShuffleDegree parameters Λ shuffleExample (by unfold IsRedOrdered; decide) hv
+  rw [hm] at he
+  apply he.trans
+  have hl : (List.ofFn fun j => (shuffleWord.lbl j,shuffleAssignment j)) =
+      [(.inr 0,false),(.inr 1,true),(.inl 0,true),(.inl 0,false)] := by decide
+  rw [hl]
+  norm_num [shuffleCrossingSum,lastRedCrossing,Λ]
+
+
 example := lastRedLayerK0_surjective Q Λ diagramDegrees p h (by decide) parameters
 
 example := lastRedLayerSourceIndecClassEquiv parameters (Λ ∘ Fin.castSucc) (0 : Multiset (Fin 1))
@@ -2813,6 +3200,21 @@ example := standardizationFixedEquiv Λ diagramDegrees 0 β parameters.symm regu
   (by unfold IsRedOrdered; decide)
 example := gdimPoly_standardization Λ diagramDegrees 0 β parameters.symm regularCut rawRRB
   (by unfold IsRedOrdered; decide)
+private def prefixRegular :
+    Graded.GFin (tensorProductGrade (restrictRedGrading Q Λ diagramDegrees) (0 : Multiset (Fin 1))) := by
+  let := tensorProductAlgebra_finite (Λ ∘ Fin.castSucc) (0 : Multiset (Fin 1)) parameters
+  exact {carrier := TensorProductAlgebra ℚ Q (Λ ∘ Fin.castSucc) (0 : Multiset (Fin 1)),
+         grading := tensorProductGrade (restrictRedGrading Q Λ diagramDegrees) 0}
+
+private def finalRegular : Graded.GFin (CycKLR.grade (restrictBlackGrading Q Λ diagramDegrees) (Λ 1) β) := by
+  let := CycKLR.module_finite (Q := Q) (ν := β) (fun i j hij => (hij (Subsingleton.elim i j)).elim)
+    (fun i => Polynomial.monic_X_pow (R := ℚ) (Λ 1 i))
+  exact {carrier := CycKLR ℚ Q (fun i => Polynomial.X ^ Λ 1 i) β,
+         grading := CycKLR.grade (restrictBlackGrading Q Λ diagramDegrees) (Λ 1) β}
+
+example := gdimPoly_standardization_extTensor Λ diagramDegrees 0 β parameters.symm prefixRegular finalRegular rawRRB
+  (by unfold IsRedOrdered; decide)
+
 end LastRedLayerExample
 
 namespace MixedBlackRestriction
@@ -2972,5 +3374,41 @@ example := factorTensorTest_separates (F := ℚ) (fun _ : Unit => (1 : ℚ)) (fu
   (fun a b => by simp [Subsingleton.elim a b]) (fun a b => by simp [Subsingleton.elim a b])
 
 end RationalFactorCoordinates
+
+namespace OrdinaryMaskExamples
+open Categorification KLR KLRAlgebra Stendhal Stendhal.FirstWeight LieLean
+open LieLean.QuantumGroup LieLean.QuantumGroup.GrandLoop
+
+private abbrev hd : Dom LieLean.QuantumGroup.sl2RootDatum :=
+  ⟨2 • AddMonoidHom.id ℤ, fun _ => by simp [LieLean.QuantumGroup.sl2RootDatum]⟩
+private def weights : Fin 2 → Dom LieLean.QuantumGroup.sl2RootDatum := fun _ => hd
+private abbrev word : TensorWord Unit 2 := ((TensorWord.empty.red.black () 1).red).black () 2
+
+example := barOrdinaryWord_eq_sum_masks weights word
+
+private abbrev pre := ([Sum.inr (0 : Fin 2),.inl ()] : List (Unit ⊕ Fin 2))
+private abbrev suf := ([Sum.inl (),.inl ()] : List (Unit ⊕ Fin 2))
+private abbrev lastR := (Sum.inr (1 : Fin 2) : Unit ⊕ Fin 2)
+private abbrev α : Multiset (Unit ⊕ Fin 2) := ↑(pre ++ [(Sum.inl () : Unit ⊕ Fin 2)] : List _)
+private abbrev β := (({lastR} : Multiset _) + {Sum.inl ()})
+private def output : Seq (α+β) := Seq.ofList (pre ++ lastR :: suf) (by decide)
+private theorem output_eq : List.ofFn output.1 = pre ++ lastR :: suf := by decide
+example := sum_lastRedShuffleMasks output pre lastR suf output_eq (by simp [pre,lastR]) (by simp [suf,lastR]) (fun _ => (1:ℤ))
+example := ordinaryShuffleEquiv word output (by exact output_eq)
+private def firstBit (j : Fin (lastRedWord word).2.length) := decide (j.val = 0)
+private def secondBit (j : Fin (lastRedWord word).2.length) := decide (j.val = 1)
+/-- Two equal suffix letters give two distinct permutations in the same pair of contents. -/
+example : fitsLastRedContents (α := α) (β := β) word firstBit := by
+  simp [fitsLastRedContents, word, lastRedBlackTags, lastRedWord, tagMask, maskSubword,
+    firstBit, TensorWord.blocks, expandDiv, List.ofFn_succ, α, β, pre, lastR,
+    addRedColor, Fin.last, Fin.castSucc]
+  rfl
+example : fitsLastRedContents (α := α) (β := β) word secondBit := by
+  simp [fitsLastRedContents, word, lastRedBlackTags, lastRedWord, tagMask, maskSubword,
+    secondBit, TensorWord.blocks, expandDiv, List.ofFn_succ, α, β, pre, lastR,
+    addRedColor, Fin.last, Fin.castSucc]
+  rfl
+example : firstBit ≠ secondBit := fun h => Bool.noConfusion (congrFun h ⟨0,by simp [lastRedWord,word]⟩)
+end OrdinaryMaskExamples
 
 end NonVacuity

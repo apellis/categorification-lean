@@ -36,7 +36,8 @@ local notation "singleRed" => (fun _ : Fin 1 => μ)
 local notation "σ" => SingleRed.cyclotomicEquiv Q singleRed β
 
 include hQ in
-private theorem final_finite : Module.Finite k B := by
+/-- The final cyclotomic factor is finite-dimensional over the parameter field. -/
+theorem lastRedFinal_finite : Module.Finite k B := by
   let := tensorProductAlgebra_finite singleRed β hQ
   exact Module.Finite.of_surjective (σ).symm.toLinearMap (σ).symm.surjective
 
@@ -44,7 +45,7 @@ include hQ in
 /-- The tensor-algebra source of the last-red layer is finite-dimensional. -/
 theorem lastRedLayerSource_finite : Module.Finite k (A ⊗[k] B) := by
   let := tensorProductAlgebra_finite Λ θ hQ
-  let := final_finite hQ μ β
+  let := lastRedFinal_finite hQ μ β
   infer_instance
 
 include hQ in
@@ -58,7 +59,8 @@ private theorem top_finite {D : Type*} [Ring D] [Algebra k D] [Module.Finite k D
     (fun x hx y => by rw [(Submodule.mem_bot k).mp hx,zero_smul])
 
 include hQ in
-private theorem final_scalar {M : Type*} [AddCommGroup M] [Module k M] [Module B M]
+/-- Every endomorphism of a simple module of the final cyclotomic factor is scalar. -/
+theorem lastRedFinal_scalar {M : Type*} [AddCommGroup M] [Module k M] [Module B M]
     [IsScalarTower k B M] [IsSimpleModule B M] (f : M →ₗ[B] M) :
     ∃ c : k, ∀ x, f x = c • x := by
   let T := TensorProductAlgebra k Q singleRed β
@@ -83,7 +85,7 @@ tensor algebra and the last-weight cyclotomic algebra (Webster,
 arXiv:1309.3796v2, proof of Theorem 4.38). -/
 def lastRedLayerSourceIndecClassEquiv : IndecClass 𝒜 ≃ IndecClass Earlier × IndecClass Final := by
   let := tensorProductAlgebra_finite Λ θ hQ
-  let := final_finite hQ μ β
+  let := lastRedFinal_finite hQ μ β
   let := lastRedLayerSource_finite hQ Λ θ μ β
   let := HasGdim.of_finiteDimensional Earlier
   let := HasGdim.of_finiteDimensional Final
@@ -97,7 +99,7 @@ def lastRedLayerSourceIndecClassEquiv : IndecClass 𝒜 ≃ IndecClass Earlier �
   · intro b f
     let := top_finite b
     let := (IndecClass.isGradedSimple_top b).isSimpleModule
-    obtain ⟨c,hc⟩ := final_scalar hQ μ β f
+    obtain ⟨c,hc⟩ := lastRedFinal_scalar hQ μ β f
     exact ⟨c,LinearMap.ext hc⟩
 
 end Categorification.Stendhal

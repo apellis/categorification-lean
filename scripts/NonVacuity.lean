@@ -309,10 +309,10 @@ open scoped TensorProduct in
 `ι_{ν₁;ν₂}(W_{ν₁} ⊗ W_{ν₂})` on the left and `ι_{ν';ν''}(W_{ν'} ⊗ W_{ν''})` on the right. -/
 example (ν₁ ν₂ ν' ν'' : Fin 2 →₀ ℕ) (h : ν₁ + ν₂ = ν' + ν'')
     (C D C' D' : WeightedKLR.GalleryAlgebra.RankChamber wkGraph (ν' + ν'')) (μ : Fin 2 → ℕ)
-    (u : WeightedKLR.GalleryAlgebra.WeightedKLRAlgebra ℚ wkGraph ν₁ ⊗[ℚ]
-      WeightedKLR.GalleryAlgebra.WeightedKLRAlgebra ℚ wkGraph ν₂)
-    (w : WeightedKLR.GalleryAlgebra.WeightedKLRAlgebra ℚ wkGraph ν' ⊗[ℚ]
-      WeightedKLR.GalleryAlgebra.WeightedKLRAlgebra ℚ wkGraph ν'')
+    (u : WeightedKLR.GalleryAlgebra.WeightedKLR.GalleryAlgebra.WeightedKLRAlgebra ℚ wkGraph ν₁ ⊗[ℚ]
+      WeightedKLR.GalleryAlgebra.WeightedKLR.GalleryAlgebra.WeightedKLRAlgebra ℚ wkGraph ν₂)
+    (w : WeightedKLR.GalleryAlgebra.WeightedKLR.GalleryAlgebra.WeightedKLRAlgebra ℚ wkGraph ν' ⊗[ℚ]
+      WeightedKLR.GalleryAlgebra.WeightedKLR.GalleryAlgebra.WeightedKLRAlgebra ℚ wkGraph ν'')
     (z : WeightedKLR.GalleryAlgebra ℚ wkGraph (ν' + ν''))
     (hz : z ∈ WeightedKLR.GalleryAlgebra.mackeyFilt ℚ (wkGraph_isChamberSegment _)
       wkGraph_dagger wkGraph_noZeroLoops wkGraph_pSymm (wkGraph_wallRegular _)
@@ -323,10 +323,10 @@ example (ν₁ ν₂ ν' ν'' : Fin 2 →₀ ℕ) (h : ν₁ + ν₂ = ν' + ν'
 open scoped TensorProduct in
 /-- The steps of the Mackey filtration of the whole algebra `W_ν` are sub-bimodules. -/
 example (ν₁ ν₂ ν' ν'' : Fin 2 →₀ ℕ) (h : ν₁ + ν₂ = ν' + ν'') (μ : Fin 2 → ℕ)
-    (u : WeightedKLR.GalleryAlgebra.WeightedKLRAlgebra ℚ wkGraph ν₁ ⊗[ℚ]
-      WeightedKLR.GalleryAlgebra.WeightedKLRAlgebra ℚ wkGraph ν₂)
-    (w : WeightedKLR.GalleryAlgebra.WeightedKLRAlgebra ℚ wkGraph ν' ⊗[ℚ]
-      WeightedKLR.GalleryAlgebra.WeightedKLRAlgebra ℚ wkGraph ν'')
+    (u : WeightedKLR.GalleryAlgebra.WeightedKLR.GalleryAlgebra.WeightedKLRAlgebra ℚ wkGraph ν₁ ⊗[ℚ]
+      WeightedKLR.GalleryAlgebra.WeightedKLR.GalleryAlgebra.WeightedKLRAlgebra ℚ wkGraph ν₂)
+    (w : WeightedKLR.GalleryAlgebra.WeightedKLR.GalleryAlgebra.WeightedKLRAlgebra ℚ wkGraph ν' ⊗[ℚ]
+      WeightedKLR.GalleryAlgebra.WeightedKLR.GalleryAlgebra.WeightedKLRAlgebra ℚ wkGraph ν'')
     (x : WeightedKLR.GalleryAlgebra.WeightedKLRAlgebra ℚ wkGraph (ν' + ν''))
     (hx : x ∈ WeightedKLR.GalleryAlgebra.bimoduleFilt ℚ (wkGraph_isChamberSegment _)
       wkGraph_dagger wkGraph_noZeroLoops wkGraph_pSymm (wkGraph_wallRegular _)
@@ -673,7 +673,7 @@ example (ν₁ ν₂ ν₃ : Fin 2 →₀ ℕ) :=
 
 open scoped TensorProduct in
 /-- Webster, Proposition 2.18, on algebras: `1 ∈ W_0` is a two-sided unit for `ι`. -/
-example (ν : Fin 2 →₀ ℕ) (a : WeightedKLR.GalleryAlgebra.WeightedKLRAlgebra ℚ wkGraph ν) :
+example (ν : Fin 2 →₀ ℕ) (a : WeightedKLR.GalleryAlgebra.WeightedKLR.GalleryAlgebra.WeightedKLRAlgebra ℚ wkGraph ν) :
     WeightedKLR.castW ℚ wkGraph (add_zero ν) (WeightedKLR.Juxtapose.inductionMap ℚ wkGraph ν 0
         (a ⊗ₜ 1)) = a ∧
       WeightedKLR.castW ℚ wkGraph (zero_add ν) (WeightedKLR.Juxtapose.inductionMap ℚ wkGraph 0 ν
@@ -696,24 +696,24 @@ noncomputable example (i : KLR.Seq ((([0] : List (Fin 2)) : Multiset (Fin 2))))
 modules. -/
 noncomputable example (ν₁ ν₂ ν₃ : Fin 2 →₀ ℕ) :=
   (WeightedKLR.Juxtapose.indAssocEquiv ℚ wkGraph ν₁ ν₂ ν₃
-      (WeightedKLR.GalleryAlgebra.WeightedKLRAlgebra ℚ wkGraph ν₁)
-      (WeightedKLR.GalleryAlgebra.WeightedKLRAlgebra ℚ wkGraph ν₂)
-      (WeightedKLR.GalleryAlgebra.WeightedKLRAlgebra ℚ wkGraph ν₃),
+      (WeightedKLR.GalleryAlgebra.WeightedKLR.GalleryAlgebra.WeightedKLRAlgebra ℚ wkGraph ν₁)
+      (WeightedKLR.GalleryAlgebra.WeightedKLR.GalleryAlgebra.WeightedKLRAlgebra ℚ wkGraph ν₂)
+      (WeightedKLR.GalleryAlgebra.WeightedKLR.GalleryAlgebra.WeightedKLRAlgebra ℚ wkGraph ν₃),
     WeightedKLR.Juxtapose.indUnitLeftEquiv ℚ wkGraph ν₁
-      (WeightedKLR.GalleryAlgebra.WeightedKLRAlgebra ℚ wkGraph ν₁),
+      (WeightedKLR.GalleryAlgebra.WeightedKLR.GalleryAlgebra.WeightedKLRAlgebra ℚ wkGraph ν₁),
     WeightedKLR.Juxtapose.indUnitRightEquiv ℚ wkGraph ν₁
-      (WeightedKLR.GalleryAlgebra.WeightedKLRAlgebra ℚ wkGraph ν₁))
+      (WeightedKLR.GalleryAlgebra.WeightedKLR.GalleryAlgebra.WeightedKLRAlgebra ℚ wkGraph ν₁))
 
 /-- Webster, Theorem 2.19, the algebra structure on `⊕_ν K₀(W_ν)` (ungraded, any commutative
 ring): associativity and units of `[P] [Q] = [Ind (P ⊠ Q)]`, on the classes of the regular
 modules. -/
 example (ν₁ ν₂ ν₃ : Fin 2 →₀ ℕ) :=
   let x := Categorification.ProjK0.of
-    (Categorification.FGProj.regular ℚ (WeightedKLR.GalleryAlgebra.WeightedKLRAlgebra ℚ wkGraph ν₁))
+    (Categorification.FGProj.regular ℚ (WeightedKLR.GalleryAlgebra.WeightedKLR.GalleryAlgebra.WeightedKLRAlgebra ℚ wkGraph ν₁))
   let y := Categorification.ProjK0.of
-    (Categorification.FGProj.regular ℚ (WeightedKLR.GalleryAlgebra.WeightedKLRAlgebra ℚ wkGraph ν₂))
+    (Categorification.FGProj.regular ℚ (WeightedKLR.GalleryAlgebra.WeightedKLR.GalleryAlgebra.WeightedKLRAlgebra ℚ wkGraph ν₂))
   let z := Categorification.ProjK0.of
-    (Categorification.FGProj.regular ℚ (WeightedKLR.GalleryAlgebra.WeightedKLRAlgebra ℚ wkGraph ν₃))
+    (Categorification.FGProj.regular ℚ (WeightedKLR.GalleryAlgebra.WeightedKLR.GalleryAlgebra.WeightedKLRAlgebra ℚ wkGraph ν₃))
   And.intro (WeightedKLR.Juxtapose.indK0_assoc ν₁ ν₂ ν₃ x y z)
     (And.intro (WeightedKLR.Juxtapose.indK0_one_left ν₁ x)
       (WeightedKLR.Juxtapose.indK0_one_right ν₁ x))
@@ -781,13 +781,13 @@ example (ν' ν'' : Fin 2 →₀ ℕ) :=
 `(P_a ⊠ P_b) ⊠ (Q_c ⊠ Q_d)`, here on the regular modules, and its form on classes. -/
 noncomputable example (a b c d : Fin 2 →₀ ℕ) :=
   let R := fun ν : Fin 2 →₀ ℕ =>
-    Categorification.FGProj.regular ℚ (WeightedKLR.GalleryAlgebra.WeightedKLRAlgebra ℚ wkGraph ν)
+    Categorification.FGProj.regular ℚ (WeightedKLR.GalleryAlgebra.WeightedKLR.GalleryAlgebra.WeightedKLRAlgebra ℚ wkGraph ν)
   WeightedKLR.Juxtapose.extIndIndEquiv (R a) (R b) (R c) (R d)
 
 /-- The class-level form of the previous example. -/
 example (a b c d : Fin 2 →₀ ℕ) :=
   let R := fun ν : Fin 2 →₀ ℕ =>
-    Categorification.FGProj.regular ℚ (WeightedKLR.GalleryAlgebra.WeightedKLRAlgebra ℚ wkGraph ν)
+    Categorification.FGProj.regular ℚ (WeightedKLR.GalleryAlgebra.WeightedKLR.GalleryAlgebra.WeightedKLRAlgebra ℚ wkGraph ν)
   WeightedKLR.Juxtapose.middleIndK0_extTensor (Categorification.ProjK0.of (R a))
     (Categorification.ProjK0.of (R b)) (Categorification.ProjK0.of (R c))
     (Categorification.ProjK0.of (R d))
@@ -797,7 +797,7 @@ open scoped TensorProduct in
 twisted induction under the comparison maps (unconditional), for any shuffle layout. -/
 example {ν' ν'' ν₁ ν₂ : Fin 2 →₀ ℕ} (L : WeightedKLR.ShuffleLayout ν' ν'' ν₁ ν₂) :=
   let R := fun ν : Fin 2 →₀ ℕ => Categorification.ProjK0.of
-    (Categorification.FGProj.regular ℚ (WeightedKLR.GalleryAlgebra.WeightedKLRAlgebra ℚ wkGraph ν))
+    (Categorification.FGProj.regular ℚ (WeightedKLR.GalleryAlgebra.WeightedKLR.GalleryAlgebra.WeightedKLRAlgebra ℚ wkGraph ν))
   WeightedKLR.ShuffleLayout.extTensorHom_twistedMulK0 L (R L.a ⊗ₜ[ℤ] R L.b) (R L.c ⊗ₜ[ℤ] R L.d)
 
 /-- Webster, Theorem 2.19, the Mackey formula for the coproduct on `K₀ ⊗_ℤ K₀` (ungraded). The
@@ -1397,6 +1397,38 @@ local instance wkHasGdim (μ : Fin 2 →₀ ℕ) :
     Graded.HasGdim (wkGraph_standing.gradingDatum.klrGrade μ) :=
   WeightedKLR.GalleryAlgebra.hasGdim_klrGrade (k := ℚ) (ν := μ) wkGraph_dagger
     wkGraph_noZeroLoops wkGraph_standing
+
+/-- The central finiteness input of A0, on the concrete weighted graph, for every weight. -/
+example (ν : Fin 2 →₀ ℕ) :
+    Module.Finite (WeightedKLR.GalleryAlgebra.colourSym ℚ ν)
+      (WeightedKLR.GalleryAlgebra.WeightedKLRAlgebra ℚ wkGraph ν) :=
+  WeightedKLR.GalleryAlgebra.finite_colourSym
+    wkGraph_dagger wkGraph_noZeroLoops wkGraph_standing
+
+/-- The finite-dimensional augmentation quotient used for A0, with all graph hypotheses proved. -/
+example (ν : Fin 2 →₀ ℕ) :
+    FiniteDimensional ℚ (WeightedKLR.GalleryAlgebra.WeightedKLRAlgebra ℚ wkGraph ν ⧸
+      augSubmodule (WeightedKLR.GalleryAlgebra.WeightedKLRAlgebra ℚ wkGraph ν)
+        (WeightedKLR.GalleryAlgebra.colourSymAug ℚ ν)) :=
+  WeightedKLR.GalleryAlgebra.finiteDimensional_quotient_colourSymAug
+    wkGraph_dagger wkGraph_noZeroLoops wkGraph_standing
+
+/-- A0 for Webster Theorem 2.19: every graded simple top of an indecomposable graded
+projective over the concrete weighted algebras is finite-dimensional. This supplies `fdA`, `fdB`. -/
+example (ν : Fin 2 →₀ ℕ)
+    (b : Graded.GProj.IndecClass (wkGraph_standing.gradingDatum.klrGrade ν)) :
+    FiniteDimensional ℚ b.top :=
+  WeightedKLR.GradingDatum.finiteDimensional_top
+    wkGraph_dagger wkGraph_noZeroLoops wkGraph_standing b
+
+/-- A0 for Webster Theorem 2.19: finite-dimensional graded simple tops of the tensor algebra,
+supplying `fdC` without an absolute-irreducibility assumption. -/
+example (ν μ : Fin 2 →₀ ℕ)
+    (c : Graded.GProj.IndecClass (Graded.tensorGrading
+      (wkGraph_standing.gradingDatum.klrGrade ν) (wkGraph_standing.gradingDatum.klrGrade μ))) :
+    FiniteDimensional ℚ c.top :=
+  WeightedKLR.GradingDatum.finiteDimensional_top_tensor
+    wkGraph_dagger wkGraph_noZeroLoops wkGraph_standing c
 
 /-- **Webster, Theorem 2.19, graded Mackey formula for the coproduct on `K₀ ⊗ K₀`**, for
 `(ν₁, ν₂) = (ν'', ν')`. The route hypothesis `TensorK0Hyp` (`hT`) cannot be instantiated here:

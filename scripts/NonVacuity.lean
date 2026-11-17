@@ -2582,7 +2582,7 @@ example := barWeightCoordinates_injective_of_factorTests a1 oneFactor regular on
   (fun a i => by by_cases h : a = i <;> simpa [h] using
     cyclotomicTopTest_point a1 (oneLevel (Fin.last 0)) params (oneFactor (Fin.last 0)) oneFinalMatch regular a i)
 
-section CyclotomicTests
+namespace CyclotomicTests
 
 open Stendhal Stendhal.FirstWeight Graded
 

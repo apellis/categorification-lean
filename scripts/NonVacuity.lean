@@ -738,6 +738,22 @@ example (ν₁ ν₂ ν₃ : Fin 2 →₀ ℕ) :=
     (Categorification.ProjK0.of (Categorification.FGProj.regular ℚ
       (WeightedKLR.GalleryAlgebra.WeightedKLRAlgebra ℚ wkGraph (ν₁ + ν₂ + ν₃))))
 
+/-- Webster, proof of Theorem 2.19, the Mackey identity on `K₀` (ungraded):
+`Δ_{ν₁;ν₂}(x · y)` is the sum over shuffle types of the classes of the Mackey pieces, here for
+`(ν₁, ν₂) = (ν', ν'')` and for `(ν₁, ν₂) = (ν'', ν')`. -/
+example (ν' ν'' : Fin 2 →₀ ℕ) :=
+  And.intro
+    (WeightedKLR.exists_resK0_indK0_eq_sum_tensorK0 (k := ℚ) wkGraph_dagger wkGraph_noZeroLoops
+      wkGraph_standing (rfl : ν' + ν'' = ν' + ν''))
+    (WeightedKLR.exists_resK0_indK0_eq_sum_tensorK0 (k := ℚ) wkGraph_dagger wkGraph_noZeroLoops
+      wkGraph_standing (add_comm ν'' ν'))
+
+/-- Webster, proof of Theorem 2.19, the Mackey identity on the classes `[P]`, `[Q]` of
+finitely generated projective modules. -/
+example (ν' ν'' : Fin 2 →₀ ℕ) :=
+  WeightedKLR.exists_resK0_indK0_eq_sum (k := ℚ) wkGraph_dagger wkGraph_noZeroLoops
+    wkGraph_standing (add_comm ν'' ν')
+
 /-! ### Webster, weighted KLR algebras (arXiv:1209.2463v4), §2.5, Proposition 2.20 (a) -/
 
 /-- A weighted graph with one edge `e : 0 → 0` from a vertex to itself, of weight `1`, with

@@ -2146,7 +2146,6 @@ noncomputable example := Stendhal.appendRedEquiv wkWeightZeroGraph
 end RedCornerEquivalence
 
 namespace RightBlackInduction
-.BlackInduction
 open Categorification KLR.Unfurling Stendhal
 attribute [local instance 1100] IsIdempotentElem.instAlgebraCorner_categorification
 

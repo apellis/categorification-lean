@@ -42,6 +42,44 @@ private theorem rootPower_idempotent {n : ℕ} (hn : n ≠ 0)
   · exact Or.inr (sub_eq_zero.mp (hz.one_sub.eq_zero_of_isNilpotent
       (nil_ker (1 - z) (by rw [map_sub, map_one, h, sub_self])))).symm
 
+variable {A : Type*} [Ring A] [Algebra k A] (𝒜 : ℤ → Submodule k A)
+  [GradedAlgebra 𝒜] {n : ℕ} (e : A ≃ₐ[k] AdjoinRoot (X ^ n : k[X]))
+
+include e in
+private theorem regular_isIndec_rootPower (hi : 0 < n) :
+    (GProj.regular 𝒜).IsIndec A := by
+  let ε := AdjoinRoot.lift (f := (X ^ n : k[X])) (RingHom.id k) (0 : k)
+    (by simp [hi.ne'])
+  let : Nontrivial A := (ε.comp e.toRingHom).domain_nontrivial
+  refine ⟨inferInstanceAs (Nontrivial A), ?_⟩
+  change ∀ f : Module.End A A, f ∈ endZero A 𝒜 → IsIdempotentElem f → f = 0 ∨ f = 1
+  intro f _ hf
+  have he := rootPower_idempotent hi.ne'
+    (((LinearMap.isIdempotentElem_map_one_iff (f := f)).2 hf).map e)
+  have h : f (1 : A) = 0 ∨ f (1 : A) = 1 :=
+    he.imp (fun h => e.injective (h.trans (map_zero e).symm))
+      (fun h => e.injective (h.trans (map_one e).symm))
+  have hf_apply (a : A) : f a = a • f (1 : A) := by rw [← f.map_smul]; simp
+  rcases h with h | h
+  · exact Or.inl (LinearMap.ext fun a => by simp [hf_apply a, h])
+  · exact Or.inr (LinearMap.ext fun a => by simp [hf_apply a, h])
+
+/-- The graded projective Grothendieck group of a truncated polynomial algebra of
+positive length, as in Webster, arXiv:1309.3796v2, Proposition 3.21 and Theorem 4.20. -/
+def truncatedPolynomialK0Equiv (hn : 0 < n) :
+    K0 𝒜 ≃ₗ[LaurentPolynomial ℤ] LaurentPolynomial ℤ := by
+  letI : FiniteDimensional k (AdjoinRoot (X ^ n : k[X])) := (monic_X_pow _).finite_adjoinRoot
+  letI : FiniteDimensional k A :=
+    FiniteDimensional.of_surjective e.symm.toLinearEquiv.toLinearMap e.symm.surjective
+  letI := HasGdim.of_finiteDimensional 𝒜
+  exact regularK0Equiv 𝒜 (regular_isIndec_rootPower 𝒜 e hn)
+
+@[simp] theorem truncatedPolynomialK0Equiv_regular (hn : 0 < n) :
+    truncatedPolynomialK0Equiv 𝒜 e hn (K0.of (GProj.regular 𝒜)) = 1 := by
+  apply (truncatedPolynomialK0Equiv 𝒜 e hn).symm.injective
+  rw [LinearEquiv.symm_apply_apply]
+  exact (one_smul (LaurentPolynomial ℤ) (K0.of (GProj.regular 𝒜))).symm
+
 variable {I : Type*} [DecidableEq I] {Q : I → I → MvPolynomial (Fin 2) k}
     (G : GradingDatum Q) (Λ : I → ℕ) (i : I)
 
@@ -63,38 +101,14 @@ theorem singleK0_eq_zero (hi : Λ i = 0) (x : K0 (grade G Λ {i})) : x = 0 := by
   | add _ _ hx hy => simp [hx, hy]
   | neg _ hx => simp [hx]
 
-private theorem regular_isIndec_single (hi : 0 < Λ i) :
-    (GProj.regular (grade G Λ {i})).IsIndec S := by
-  let e := cyclotomicSingleEquiv Q i aΛ
-  let ε := AdjoinRoot.lift (f := (X ^ Λ i : k[X])) (RingHom.id k) (0 : k)
-    (by simp [hi.ne'])
-  let : Nontrivial S := (ε.comp e.toRingHom).domain_nontrivial
-  refine ⟨inferInstanceAs (Nontrivial S), ?_⟩
-  change ∀ f : Module.End S S, f ∈ endZero S (grade G Λ {i}) → IsIdempotentElem f → f = 0 ∨ f = 1
-  intro f _ hf
-  have he := rootPower_idempotent hi.ne'
-    (((LinearMap.isIdempotentElem_map_one_iff (f := f)).2 hf).map e)
-  have h : f (1 : S) = 0 ∨ f (1 : S) = 1 :=
-    he.imp (fun h => e.injective (h.trans (map_zero e).symm))
-      (fun h => e.injective (h.trans (map_one e).symm))
-  have hf_apply (a : S) : f a = a • f (1 : S) := by rw [← f.map_smul]; simp
-  rcases h with h | h
-  · exact Or.inl (LinearMap.ext fun a => by simp [hf_apply a, h])
-  · exact Or.inr (LinearMap.ext fun a => by simp [hf_apply a, h])
-
 /-- The projective Grothendieck group of the first lowering block of Webster's
 Proposition 3.21 (arXiv:1309.3796v2) is free of rank one when `Λᵢ > 0`. -/
 def singleK0Equiv (hi : 0 < Λ i) :
-    K0 (grade G Λ {i}) ≃ₗ[LaurentPolynomial ℤ] LaurentPolynomial ℤ := by
-  let e := cyclotomicSingleFinEquiv Q i aΛ (monic_X_pow _)
-  letI : FiniteDimensional k S := FiniteDimensional.of_surjective e.toLinearMap e.surjective
-  letI := HasGdim.of_finiteDimensional (grade G Λ {i})
-  exact regularK0Equiv _ (regular_isIndec_single G Λ i hi)
+    K0 (grade G Λ {i}) ≃ₗ[LaurentPolynomial ℤ] LaurentPolynomial ℤ :=
+  truncatedPolynomialK0Equiv _ (cyclotomicSingleEquiv Q i aΛ) hi
 
 @[simp] theorem singleK0Equiv_regular (hi : 0 < Λ i) :
-    singleK0Equiv G Λ i hi (K0.of (GProj.regular (grade G Λ {i}))) = 1 := by
-  apply (singleK0Equiv G Λ i hi).symm.injective
-  rw [LinearEquiv.symm_apply_apply]
-  exact (one_smul (LaurentPolynomial ℤ) (K0.of (GProj.regular (grade G Λ {i})))).symm
+    singleK0Equiv G Λ i hi (K0.of (GProj.regular (grade G Λ {i}))) = 1 :=
+  truncatedPolynomialK0Equiv_regular _ (cyclotomicSingleEquiv Q i aΛ) hi
 
 end Categorification.KLR.CycKLR

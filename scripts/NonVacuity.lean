@@ -1327,4 +1327,27 @@ example (ν' ν'' : Fin 2 →₀ ℕ) (P : Graded.GProj (wkGraph_standing.gradin
     (P' : Graded.GProj (wkGraph_standing.gradingDatum.klrGrade ν'')) :=
   wkGraph_standing.gradingDatum.indK0Tensor_of ν' ν'' P P'
 
+
+/-- Graded restriction `Res_{ν';ν''}` on graded `K₀` (Theorem 2.19), on generators. -/
+example (ν' ν'' : Fin 2 →₀ ℕ)
+    (L : Graded.GProj (wkGraph_standing.gradingDatum.klrGrade (ν' + ν''))) :=
+  wkGraph_standing.gradingDatum.resK0_of (ν' := ν') (ν'' := ν'') wkGraph_dagger
+    wkGraph_noZeroLoops wkGraph_standing L
+
+/-- Additivity of graded `K₀` along a graded short exact sequence, applied to the split sequence
+`P → P ⊕ Q → Q` of graded projective `W_ν`-modules. -/
+example (ν : Fin 2 →₀ ℕ) (P Q : Graded.GProj (wkGraph_standing.gradingDatum.klrGrade ν)) :
+    Graded.K0.of (P.prod Q) = Graded.K0.of P + Graded.K0.of Q :=
+  Graded.K0.of_eq_add_of_exact P (P.prod Q) Q (LinearMap.inl _ _ _) (LinearMap.snd _ _ _)
+    (fun _ _ hx => Graded.mem_prod.2 ⟨hx, zero_mem _⟩) (fun _ _ hx => (Graded.mem_prod.1 hx).2)
+    LinearMap.inl_injective LinearMap.snd_surjective Function.Exact.inl_snd
+
+/-- The comparison map of the middle parabolic raises degrees by `middleShift`, and the Mackey
+subquotient of shuffle type `c` of `Res ∘ Ind` is the shifted middle tensor product as a graded
+space (Theorem 2.19). -/
+example (a b c d : Fin 2 →₀ ℕ) :=
+  WeightedKLR.Juxtapose.middleResIndGradedEquivIic (k := ℚ) (a := a) (b := b) (c := c) (d := d)
+    wkGraph_dagger wkGraph_noZeroLoops wkGrading (wkGraph_isChamberSegment _) wkGraph_pSymm
+    (wkGraph_wallRegular _) (wkGraph_loopRegular _)
+
 end NonVacuity

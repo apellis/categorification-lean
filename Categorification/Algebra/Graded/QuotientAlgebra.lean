@@ -66,4 +66,19 @@ theorem decompose_mem_twoSidedSpan {S : Set A} (hS : ∀ x ∈ S, ∃ j, x ∈ �
     rintro _ _ _ _ ⟨x, hx, rfl⟩ ⟨y, hy, rfl⟩
     exact ⟨x * y, SetLike.GradedMul.mul_mem hx hy, π.map_mul x y⟩
 
+/-- Rank-nullity on a finite-dimensional subspace, with the kernel expressed in the ambient space. -/
+theorem finrank_map_add_finrank_inf_ker {k X Y : Type*} [Field k] [AddCommGroup X] [AddCommGroup Y]
+    [Module k X] [Module k Y] (π : X →ₗ[k] Y) (V : Submodule k X) [FiniteDimensional k V] :
+    Module.finrank k (V.map π) + Module.finrank k (V ⊓ LinearMap.ker π : Submodule k X) =
+      Module.finrank k V := by
+  let f := π.comp V.subtype
+  have hker : (LinearMap.ker f).map V.subtype = V ⊓ LinearMap.ker π := by
+    rw [show LinearMap.ker f = (LinearMap.ker π).comap V.subtype from LinearMap.ker_comp ..,
+      Submodule.map_comap_subtype]
+  have hrange : LinearMap.range f = V.map π := by
+    rw [show LinearMap.range f = Submodule.map π (LinearMap.range V.subtype) from LinearMap.range_comp ..,
+      Submodule.range_subtype]
+  rw [← hrange, ← hker, Submodule.finrank_map_subtype_eq]
+  exact LinearMap.finrank_range_add_finrank_ker f
+
 end Categorification.Graded

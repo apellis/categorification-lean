@@ -17,8 +17,8 @@ crossing maps gives an alternating relation in graded projective `K₀`.
 The assembly uses the general idempotent zigzag lemma, as in KL II,
 arXiv:0804.2080v1, §3, Proposition 6 and Corollary 7.
 
-The initial criterion states the normalized contracting relation explicitly;
-it isolates the graded `K₀` argument from the polynomial calculations.
+The normalized contracting relation is isolated in an algebraic criterion.
+`K0_serre_window` discharges it using Rouquier's polynomial conditions.
 -/
 
 noncomputable section
@@ -169,8 +169,8 @@ structure SerreZigzagData (G : GradingDatum Q) (C : CartanDatum I) (u : kˣ)
   hGp : (serreGp u t p N N : A) = 0
 
 include hpN ht₀ ht in
-/-- The normalized contracting relation implies the graded Serre window.
-The displayed algebraic relation is an explicit intermediate hypothesis;
+/-- The normalized contracting relation gives a homogeneous sequence-supported
+zigzag. The displayed relation is an explicit intermediate hypothesis;
 the polynomial calculations supply it for Rouquier parameters. -/
 theorem serre_zigzag_data_of_relation (G : GradingDatum Q)
     (hX : ∀ c, G.degX c = C.dot c c) (hΨ : ∀ c d, G.degΨ c d = -C.dot c d)
@@ -275,6 +275,8 @@ theorem serre_zigzag_data_of_relation (G : GradingDatum Q)
         show a + 1 - 1 = a by omega, pow_succ, mul_neg_one, neg_smul, neg_neg]
 
 include hpN ht₀ ht in
+/-- An explicit normalized contracting relation implies the Serre equality in
+graded projective `K₀`. -/
 theorem K0_serre_window_of_relation (G : GradingDatum Q)
     (hX : ∀ c, G.degX c = C.dot c c) (hΨ : ∀ c d, G.degΨ c d = -C.dot c d)
     (hij : i ≠ j) (hN : N = C.dij i j + 1) (u : kˣ)

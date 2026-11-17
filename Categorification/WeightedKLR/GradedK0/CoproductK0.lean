@@ -23,6 +23,19 @@ given by induction and coproduct by restriction. This is the graded form of
   `GradingDatum.middleIndGProjExtIndIso`: it is an isomorphism of graded modules, with no shift.
 * `GradingDatum.middleIndK0_extTensor`: on graded `K₀`,
   `middleInd ((x_a ⊠ x_b) ⊠ (y_c ⊠ y_d)) = (x_a · y_c) ⊠ (x_b · y_d)`.
+* `GradingDatum.coproductK0`: `Δ_{ν₁,ν₂} : K₀(W_{ν₁+ν₂}) → K₀(W_{ν₁}) ⊗_{ℤ[q,q⁻¹]} K₀(W_{ν₂})`,
+  the restriction followed by the inverse of `GradingDatum.k0TensorEquiv`.
+* `ShuffleLayout.twistedMulK0Graded`: `(x_a ⊗ x_b) ⊗ (y_c ⊗ y_d) ↦ (x_a · y_c) ⊗ (x_b · y_d)`,
+  and `ShuffleLayout.k0TensorEquiv_twistedMulK0Graded` comparing it with
+  `ResIndPiece.twistK0Graded`.
+* `exists_coproductK0_indK0_eq_sum_graded`: **the graded Mackey formula**
+  `Δ_{ν₁,ν₂}(x · y) = ∑ᵢ q^{sᵢ} T_{Lᵢ}(Δ_{a,b} x ⊗ Δ_{c,d} y)`, over a field.
+
+## Route hypothesis
+
+`coproductK0` and the Mackey formula assume `TensorK0Hyp` (see `GradedK0/TensorK0.lean`): the
+identification `K₀(W_μ ⊗ W_{μ'}) ≅ K₀(W_μ) ⊗ K₀(W_{μ'})`, used without justification in the
+proof of Webster's Theorem 2.19. It is not proved here for weighted KLR algebras.
 -/
 
 noncomputable section
@@ -691,5 +704,233 @@ theorem middleIndK0_extTensor (xa : K0 (G.klrGrade a)) (xb : K0 (G.klrGrade b))
 end Field
 
 end GradingDatum
+
+end Categorification.WeightedKLR
+
+/-! ### Transport of external products, the graded coproduct and the Mackey formula -/
+
+namespace Categorification.Graded
+
+namespace K0
+
+open scoped TensorProduct
+
+variable {k : Type v} [Field k] {A B A' B' : Type u} [Ring A] [Algebra k A] [Ring B]
+  [Algebra k B] [Ring A'] [Algebra k A'] [Ring B'] [Algebra k B']
+  {𝒜 : ℤ → Submodule k A} {ℬ : ℤ → Submodule k B} {𝒜' : ℤ → Submodule k A'}
+  {ℬ' : ℤ → Submodule k B'}
+
+/-- Transport of external products of graded projective modules along graded isomorphisms of
+both factors. -/
+theorem map_congr_extTensor (σ : A ≃ₐ[k] A') (τ : B ≃ₐ[k] B')
+    (hσ : ∀ ⦃d : ℤ⦄ ⦃a : A'⦄, a ∈ 𝒜' d → σ.symm a ∈ 𝒜 d)
+    (hτ : ∀ ⦃d : ℤ⦄ ⦃b : B'⦄, b ∈ ℬ' d → τ.symm b ∈ ℬ d)
+    (hστ : ∀ ⦃d : ℤ⦄ ⦃t : A' ⊗[k] B'⦄, t ∈ tensorGrading 𝒜' ℬ' d →
+      (Algebra.TensorProduct.congr σ τ).symm t ∈ tensorGrading 𝒜 ℬ d)
+    (x : K0 𝒜) (y : K0 ℬ) :
+    map (Algebra.TensorProduct.congr σ τ) hστ (extTensor 𝒜 ℬ x y) =
+      extTensor 𝒜' ℬ' (map σ hσ x) (map τ hτ y) := by
+  induction x using induction_on with
+  | of P =>
+    induction y using induction_on with
+    | of Q =>
+      rw [extTensor_of, map_of σ hσ P, map_of τ hτ Q, extTensor_of]
+      refine map_of_semilinear _ _ _ ((GProj.restrict σ hσ P).extTensor (GProj.restrict τ hτ Q))
+        (AddEquiv.refl (ExtTensor k P.carrier Q.carrier)) (fun t x => ?_) (fun _ _ h => h)
+        (fun _ _ h => h)
+      induction t using TensorProduct.inductionOn with
+      | add t t' ht ht' =>
+        show ((t + t') • x : ExtTensor k P.carrier Q.carrier) =
+          (Algebra.TensorProduct.congr σ τ (t + t') • (show ExtTensor k (GProj.restrict σ hσ P).carrier
+            (GProj.restrict τ hτ Q).carrier from x))
+        rw [add_smul, map_add, add_smul]
+        exact congrArg₂ (· + ·) ht ht'
+      | tmul a b =>
+        show ((a ⊗ₜ[k] b) • x : ExtTensor k P.carrier Q.carrier) =
+          (Algebra.TensorProduct.congr σ τ (a ⊗ₜ[k] b) • (show ExtTensor k
+            (GProj.restrict σ hσ P).carrier (GProj.restrict τ hτ Q).carrier from x))
+        rw [Algebra.TensorProduct.congr_apply, Algebra.TensorProduct.map_tmul]
+        induction x using ExtTensor.induction_on with
+        | zero =>
+          show ((a ⊗ₜ[k] b) • (0 : ExtTensor k P.carrier Q.carrier) :
+              ExtTensor k P.carrier Q.carrier) = ((σ a ⊗ₜ[k] τ b) •
+            (0 : ExtTensor k (GProj.restrict σ hσ P).carrier (GProj.restrict τ hτ Q).carrier))
+          rw [smul_zero, smul_zero]; rfl
+        | tmul p q =>
+          show ExtTensor.tmul (a • p) (b • q) =
+            ExtTensor.tmul (σ.symm (σ a) • p) (τ.symm (τ b) • q)
+          rw [AlgEquiv.symm_apply_apply, AlgEquiv.symm_apply_apply]
+        | add x x' hx hx' =>
+          show ((a ⊗ₜ[k] b) • (x + x' : ExtTensor k P.carrier Q.carrier) :
+              ExtTensor k P.carrier Q.carrier) = ((σ a ⊗ₜ[k] τ b) •
+            ((show ExtTensor k (GProj.restrict σ hσ P).carrier (GProj.restrict τ hτ Q).carrier from x) +
+              (show ExtTensor k (GProj.restrict σ hσ P).carrier (GProj.restrict τ hτ Q).carrier from x')))
+          rw [smul_add, smul_add]
+          exact congrArg₂ (· + ·) hx hx'
+    | zero => simp
+    | add y y' hy hy' => simp only [map_add, hy, hy']
+    | neg y hy => simp only [map_neg, hy]
+  | zero => simp
+  | add x x' hx hx' => simp only [map_add, LinearMap.add_apply, hx, hx']
+  | neg x hx => simp only [map_neg, LinearMap.neg_apply, hx]
+
+end K0
+
+end Categorification.Graded
+
+namespace Categorification.WeightedKLR
+
+open Categorification.Graded Juxtapose
+open scoped TensorProduct
+
+variable {I : Type u} [DecidableEq I] {𝕜 : Type v} [Field 𝕜] [LinearOrder 𝕜]
+  [IsStrictOrderedRing 𝕜]
+
+namespace GradingDatum
+
+section Coproduct
+
+variable {k : Type w} [Field k] {Γ : WeightedGraph I 𝕜 k} (G : GradingDatum Γ)
+
+/-- The product of Webster's Theorem 2.19 on `K₀(W_μ) ⊗_{ℤ[q,q⁻¹]} K₀(W_{μ'})`, landing in
+`K₀(W_ν)` for `μ + μ' = ν` through `castW` (Webster, arXiv:1209.2463v4, §2.4). -/
+def indK0TensorCast (μ μ' ν : I →₀ ℕ) (h : μ + μ' = ν) :
+    K0 (G.klrGrade μ) ⊗[LaurentPolynomial ℤ] K0 (G.klrGrade μ') →ₗ[LaurentPolynomial ℤ]
+      K0 (G.klrGrade ν) :=
+  K0.map (castW k Γ h) (fun _ _ hx => G.castW_symm_mem_klrGrade h hx) ∘ₗ G.indK0Tensor μ μ'
+
+theorem indK0TensorCast_tmul {μ μ' ν : I →₀ ℕ} (h : μ + μ' = ν) (x : K0 (G.klrGrade μ))
+    (y : K0 (G.klrGrade μ')) :
+    G.indK0TensorCast μ μ' ν h (x ⊗ₜ y) =
+      K0.map (castW k Γ h) (fun _ _ hx => G.castW_symm_mem_klrGrade h hx) (G.indK0 μ μ' x y) := by
+  rw [indK0TensorCast, LinearMap.comp_apply, indK0Tensor_tmul]
+
+section Def
+
+variable (hD : Γ.Dagger) (hZ : Γ.NoZeroLoops) (hS : Γ.Standing) (ν₁ ν₂ : I →₀ ℕ)
+  [HasGdim (G.klrGrade ν₁)] [HasGdim (G.klrGrade ν₂)]
+
+/-- **The graded coproduct of Webster's Theorem 2.19 on `K₀ ⊗ K₀`** (arXiv:1209.2463v4, §2.4):
+`Δ_{ν₁,ν₂} : K₀(W_{ν₁+ν₂}) → K₀(W_{ν₁}) ⊗_{ℤ[q,q⁻¹]} K₀(W_{ν₂})`, `[L] ↦ [Res_{ν₁;ν₂} L]`
+followed by the inverse of `k0TensorEquiv`. It is defined under the route hypothesis
+`TensorK0Hyp (G.klrGrade ν₁) (G.klrGrade ν₂)`, which Webster's paper does not supply and which
+is not proved here for weighted KLR algebras (see `GradedK0/TensorK0.lean`). -/
+def coproductK0 (H : TensorK0Hyp (G.klrGrade ν₁) (G.klrGrade ν₂)) :
+    K0 (G.klrGrade (ν₁ + ν₂)) →ₗ[LaurentPolynomial ℤ]
+      K0 (G.klrGrade ν₁) ⊗[LaurentPolynomial ℤ] K0 (G.klrGrade ν₂) :=
+  (G.k0TensorEquiv ν₁ ν₂ H).symm.toLinearMap ∘ₗ G.resK0 ν₁ ν₂ hD hZ hS
+
+theorem k0TensorEquiv_coproductK0 (H : TensorK0Hyp (G.klrGrade ν₁) (G.klrGrade ν₂))
+    (x : K0 (G.klrGrade (ν₁ + ν₂))) :
+    G.k0TensorEquiv ν₁ ν₂ H (G.coproductK0 hD hZ hS ν₁ ν₂ H x) = G.resK0 ν₁ ν₂ hD hZ hS x :=
+  (G.k0TensorEquiv ν₁ ν₂ H).apply_symm_apply _
+
+end Def
+
+end Coproduct
+
+end GradingDatum
+
+namespace ShuffleLayout
+
+variable {k : Type w} [Field k] {Γ : WeightedGraph I 𝕜 k} (G : GradingDatum Γ)
+  {ν' ν'' ν₁ ν₂ : I →₀ ℕ} (L : ShuffleLayout ν' ν'' ν₁ ν₂)
+
+/-- **The graded twisted product of a shuffle layout** on `K₀ ⊗ K₀`:
+`(x_a ⊗ x_b) ⊗ (y_c ⊗ y_d) ↦ (x_a · y_c) ⊗ (x_b · y_d)`, from
+`(K₀(W_a) ⊗ K₀(W_b)) ⊗ (K₀(W_c) ⊗ K₀(W_d))` to `K₀(W_{ν₁}) ⊗ K₀(W_{ν₂})`, tensor products
+over `ℤ[q,q⁻¹]` (Webster, arXiv:1209.2463v4, Theorem 2.19). The power of `q` of the Mackey
+formula is not part of this map. -/
+def twistedMulK0Graded :
+    (K0 (G.klrGrade L.a) ⊗[LaurentPolynomial ℤ] K0 (G.klrGrade L.b)) ⊗[LaurentPolynomial ℤ]
+        (K0 (G.klrGrade L.c) ⊗[LaurentPolynomial ℤ] K0 (G.klrGrade L.d)) →ₗ[LaurentPolynomial ℤ]
+      K0 (G.klrGrade ν₁) ⊗[LaurentPolynomial ℤ] K0 (G.klrGrade ν₂) :=
+  TensorProduct.map (G.indK0TensorCast L.a L.c ν₁ L.hac) (G.indK0TensorCast L.b L.d ν₂ L.hbd) ∘ₗ
+    (TensorProduct.tensorTensorTensorComm (LaurentPolynomial ℤ) _ _ _ _).toLinearMap
+
+theorem twistedMulK0Graded_tmul (xa : K0 (G.klrGrade L.a)) (xb : K0 (G.klrGrade L.b))
+    (yc : K0 (G.klrGrade L.c)) (yd : K0 (G.klrGrade L.d)) :
+    L.twistedMulK0Graded G ((xa ⊗ₜ xb) ⊗ₜ (yc ⊗ₜ yd)) =
+      G.indK0TensorCast L.a L.c ν₁ L.hac (xa ⊗ₜ yc) ⊗ₜ
+        G.indK0TensorCast L.b L.d ν₂ L.hbd (xb ⊗ₜ yd) :=
+  rfl
+
+/-- The graded twisted product under the comparisons `k0TensorEquiv` is the twisted
+`Ind ∘ Res` of `ResIndPiece.twistK0Graded`: `[T_L (u ⊗ w)] =
+(Ind_{a;c} ⊗ Ind_{b;d}) ∘ (exchange) ([u] ⊠ [w])`, under `TensorK0Hyp` for the four pairs of
+factors (Webster, arXiv:1209.2463v4, Theorem 2.19). -/
+theorem k0TensorEquiv_twistedMulK0Graded
+    [HasGdim (G.klrGrade L.a)] [HasGdim (G.klrGrade L.b)] [HasGdim (G.klrGrade L.c)]
+    [HasGdim (G.klrGrade L.d)] [HasGdim (G.klrGrade ν₁)] [HasGdim (G.klrGrade ν₂)]
+    (Hab : TensorK0Hyp (G.klrGrade L.a) (G.klrGrade L.b))
+    (Hcd : TensorK0Hyp (G.klrGrade L.c) (G.klrGrade L.d))
+    (H₁₂ : TensorK0Hyp (G.klrGrade ν₁) (G.klrGrade ν₂))
+    (u : K0 (G.klrGrade L.a) ⊗[LaurentPolynomial ℤ] K0 (G.klrGrade L.b))
+    (w : K0 (G.klrGrade L.c) ⊗[LaurentPolynomial ℤ] K0 (G.klrGrade L.d)) :
+    G.k0TensorEquiv ν₁ ν₂ H₁₂ (L.twistedMulK0Graded G (u ⊗ₜ w)) =
+      K0.map (L.leftEquiv k Γ) (fun _ _ h => L.leftEquiv_symm_mem G h)
+        (G.middleIndK0 L.a L.b L.c L.d (K0.extTensor _ _ (G.k0TensorEquiv L.a L.b Hab u)
+          (G.k0TensorEquiv L.c L.d Hcd w))) := by
+  induction u using TensorProduct.inductionOn with
+  | add u u' hu hu' => simp only [TensorProduct.add_tmul, map_add, LinearMap.add_apply, hu, hu']
+  | tmul xa xb =>
+    induction w using TensorProduct.inductionOn with
+    | add w w' hw hw' => simp only [TensorProduct.tmul_add, map_add, hw, hw']
+    | tmul yc yd =>
+      rw [twistedMulK0Graded_tmul, GradingDatum.k0TensorEquiv_tmul,
+        GradingDatum.k0TensorEquiv_tmul, GradingDatum.k0TensorEquiv_tmul,
+        G.middleIndK0_extTensor, GradingDatum.indK0TensorCast_tmul,
+        GradingDatum.indK0TensorCast_tmul]
+      exact (K0.map_congr_extTensor (castW k Γ L.hac) (castW k Γ L.hbd)
+        (fun _ _ h => G.castW_symm_mem_klrGrade L.hac h)
+        (fun _ _ h => G.castW_symm_mem_klrGrade L.hbd h)
+        (fun _ _ h => L.leftEquiv_symm_mem G h) _ _).symm
+
+end ShuffleLayout
+
+section GradedMackey
+
+variable {k : Type w} [Field k] {Γ : WeightedGraph I 𝕜 k} {ν' ν'' ν₁ ν₂ : I →₀ ℕ}
+
+/-- **The graded Mackey formula for the coproduct on `K₀ ⊗ K₀`** (Webster, arXiv:1209.2463v4,
+Theorem 2.19). Over a field `k`, under Webster's standing hypothesis, for `ν₁ + ν₂ = ν' + ν''`
+there are shuffle layouts `L i`, one for each shuffle type of `(ν', ν''; ν₁, ν₂)`, with
+`Δ_{ν₁,ν₂}(x · y) = ∑ᵢ q^{sᵢ} T_{L i}(Δ_{a,b} x ⊗ Δ_{c,d} y)` for all `x ∈ K₀(W_{ν'})`,
+`y ∈ K₀(W_{ν''})`, where `sᵢ = middleShift G a b c d` for the blocks of `L i`, `T_L` is
+`ShuffleLayout.twistedMulK0Graded` and algebras of equal dimension vectors are identified by
+`castW`. **Route hypothesis:** `hT`, `TensorK0Hyp` for every pair of weighted KLR algebras
+(the identification `K₀(W_μ ⊗ W_{μ'}) ≅ K₀(W_μ) ⊗ K₀(W_{μ'})` that Webster uses without
+justification), not proved here for weighted KLR algebras (its conditions `endA`, `endB` are
+open); the graded dimensions of the `W_μ` are supplied for the grading of the standing
+hypothesis by `GalleryAlgebra.hasGdim_klrGrade`. -/
+theorem exists_coproductK0_indK0_eq_sum_graded (G : GradingDatum Γ) (hD : Γ.Dagger)
+    (hZ : Γ.NoZeroLoops) (hS : Γ.Standing) (hν : ν₁ + ν₂ = ν' + ν'')
+    [∀ μ : I →₀ ℕ, HasGdim (G.klrGrade μ)]
+    (hT : ∀ μ μ' : I →₀ ℕ, TensorK0Hyp (G.klrGrade μ) (G.klrGrade μ')) :
+    ∃ (n : ℕ) (L : Fin n → ShuffleLayout ν' ν'' ν₁ ν₂),
+      Function.Injective (fun i => ⇑(L i).c) ∧
+      Set.range (fun i => ⇑(L i).c) = Set.range (shuffleType (ν := ν' + ν'') ν' ν₁) ∧
+      ∀ (x : K0 (G.klrGrade ν')) (y : K0 (G.klrGrade ν'')),
+        G.coproductK0 hD hZ hS ν₁ ν₂ (hT ν₁ ν₂) (K0.map (castW k Γ hν.symm)
+            (fun _ _ h => G.castW_symm_mem_klrGrade hν.symm h) (G.indK0 ν' ν'' x y)) =
+          ∑ i, (LaurentPolynomial.T (middleShift G (L i).a (L i).b (L i).c (L i).d) :
+              LaurentPolynomial ℤ) •
+            (L i).twistedMulK0Graded G
+              (G.coproductK0 hD hZ hS (L i).a (L i).b (hT _ _)
+                  (K0.map (castW k Γ (L i).hab).symm
+                    (fun _ _ h => G.castW_mem_klrGrade (L i).hab h) x) ⊗ₜ
+                G.coproductK0 hD hZ hS (L i).c (L i).d (hT _ _)
+                  (K0.map (castW k Γ (L i).hcd).symm
+                    (fun _ _ h => G.castW_mem_klrGrade (L i).hcd h) y)) := by
+  obtain ⟨n, L, hinj, hrange, h⟩ :=
+    exists_resK0_indK0_eq_sum_twistK0Graded (k := k) G hD hZ hS hν
+  refine ⟨n, L, hinj, hrange, fun x y => (G.k0TensorEquiv ν₁ ν₂ (hT ν₁ ν₂)).injective ?_⟩
+  rw [GradingDatum.k0TensorEquiv_coproductK0, h, map_sum]
+  refine Finset.sum_congr rfl fun i _ => ?_
+  rw [map_smul, ShuffleLayout.k0TensorEquiv_twistedMulK0Graded G (L i) (hT _ _) (hT _ _),
+    GradingDatum.k0TensorEquiv_coproductK0, GradingDatum.k0TensorEquiv_coproductK0]
+  rfl
+
+end GradedMackey
 
 end Categorification.WeightedKLR

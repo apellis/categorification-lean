@@ -1371,4 +1371,29 @@ example (ν' ν'' : Fin 2 →₀ ℕ) :=
   WeightedKLR.exists_resK0_indK0_eq_sum_twistK0Graded (k := ℚ) wkGrading wkGraph_dagger
     wkGraph_noZeroLoops wkGraph_standing (add_comm ν'' ν')
 
+
+/-- Graded induction from the middle parabolic of an external product of external products
+(Theorem 2.19): `middleInd ((x_a ⊠ x_b) ⊠ (y_c ⊠ y_d)) = (x_a · y_c) ⊠ (x_b · y_d)`. -/
+example (a b c d : Fin 2 →₀ ℕ) := wkGrading.middleIndK0_extTensor (k := ℚ) a b c d
+
+/-- The graded twisted product of a shuffle layout on generators (Theorem 2.19). -/
+example {ν' ν'' ν₁ ν₂ : Fin 2 →₀ ℕ} (L : WeightedKLR.ShuffleLayout ν' ν'' ν₁ ν₂) :=
+  L.twistedMulK0Graded_tmul (k := ℚ) wkGrading
+
+/-- Graded dimensions of the `W_ν`, from Theorem 2.8, as a local instance. -/
+local instance wkHasGdim (μ : Fin 2 →₀ ℕ) :
+    Graded.HasGdim (wkGraph_standing.gradingDatum.klrGrade μ) :=
+  WeightedKLR.GalleryAlgebra.hasGdim_klrGrade (k := ℚ) (ν := μ) wkGraph_dagger
+    wkGraph_noZeroLoops wkGraph_standing
+
+/-- **Webster, Theorem 2.19, graded Mackey formula for the coproduct on `K₀ ⊗ K₀`**, for
+`(ν₁, ν₂) = (ν'', ν')`. The route hypothesis `TensorK0Hyp` (`hT`) cannot be instantiated here:
+its conditions `endA`, `endB` are not proved for weighted KLR algebras, so this example only
+checks that the remaining hypotheses (standing hypothesis, graded dimensions) are satisfied. -/
+example (ν' ν'' : Fin 2 →₀ ℕ)
+    (hT : ∀ μ μ' : Fin 2 →₀ ℕ, Graded.TensorK0Hyp (wkGraph_standing.gradingDatum.klrGrade μ)
+      (wkGraph_standing.gradingDatum.klrGrade μ')) :=
+  WeightedKLR.exists_coproductK0_indK0_eq_sum_graded (k := ℚ) wkGraph_standing.gradingDatum
+    wkGraph_dagger wkGraph_noZeroLoops wkGraph_standing (add_comm ν'' ν') hT
+
 end NonVacuity

@@ -1711,4 +1711,16 @@ example : wkMapS.quantumGroupMap wkMapD wkMapNoLoopEdges wkMapNoLoopPolynomials
     WeightedKLR.GradingDatum.spacedClsDiv wkMapS wkMapD wkMapNoLoopEdges wkMapNoLoopPolynomials [(0, 2)] :=
   wkMapS.quantumGroupMap_dpow wkMapD wkMapNoLoopEdges wkMapNoLoopPolynomials 0 2
 
+/-- The two components of total restriction with one strand in each block. -/
+example := wkMapG.component_totalCoproduct wkMapD wkMapS wkMapNoLoopEdges
+  wkMapNoLoopPolynomials (Finsupp.single 0 1) (Finsupp.single 1 1)
+
+/-- The antipode recursion negates every one-strand class. -/
+example := wkMapG.antipodeComponent_of_degree_one wkMapD wkMapS wkMapNoLoopEdges
+  wkMapNoLoopPolynomials (ν := Finsupp.single (0 : Fin 2) 1) (by simp)
+
+/-- The zero-black-strand block with two red strands is the coefficient field. -/
+example := Stendhal.tensorProductAlgebraZeroEquiv (k := ℚ) wkGraph.klrQ
+  (fun i : Fin 2 => Finsupp.single i 1)
+
 end NonVacuity

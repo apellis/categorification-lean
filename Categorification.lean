@@ -1004,6 +1004,10 @@ import Categorification.WeightedKLR.GradedK0.SpacedZigzag
 import Categorification.WeightedKLR.GradedK0.Serre
 import Categorification.WeightedKLR.GradedK0.QuantumRelations
 import Categorification.WeightedKLR.QuantumGroup
+import Categorification.WeightedKLR.GradedK0.TotalCoproduct
+import Categorification.WeightedKLR.GradedK0.TwistedMultiplication
+import Categorification.WeightedKLR.GradedK0.Antipode
+import Categorification.WeightedKLR.RedStrands.Vacuum
 /-!
 # Categorification
 

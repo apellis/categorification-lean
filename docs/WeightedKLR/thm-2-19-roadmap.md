@@ -242,4 +242,17 @@ of Rouquier v1, §4.1.2, p. 33, equation (5). The evident generator image is
 Open. Webster v4, proof of Theorem 2.19, p. 12 gives the counit and cites Xiao
 for an inductive antipode formula. Formalizing this construction is separate from the
 natural map in C; no surjectivity of that map is available or needed as a roadmap premise.
-No antipode result is included in the work on B and C.
+`GradingDatum.totalCoproduct` assembles all homogeneous restrictions. Projecting to
+weights `(a,b)` recovers restriction of the weight `a+b` component
+(`component_totalCoproduct`). The Laurent-twisted tensor multiplication
+`GradingDatum.twMul` is associative with unit `1 ⊗ 1`.
+`GradingDatum.antipodeK0` is the endomorphism defined by the reduced recursion.
+It fixes the unit and negates one-strand classes. The Hopf assertion requires the
+two convolution identities for this endomorphism.
+
+In the displayed recursion in Webster’s proof, the operator on the tensor factors is
+`id ⊗ S`. Solving the right convolution identity removes the summand with first
+weight zero, which contains `S(x)`. Excluding the second weight zero as printed
+retains that summand. The summands must also be multiplied after applying `id ⊗ S`.
+Separating both endpoints in positive weight gives `−x` minus the sum over
+splits into two positive weights. For one strand the latter sum is empty.

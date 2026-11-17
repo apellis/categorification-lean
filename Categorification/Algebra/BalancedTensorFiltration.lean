@@ -109,6 +109,43 @@ theorem exists_of_eq_sum_of_chain_surj {M : Type u} [AddCommGroup M] [Module B M
     rfl
   exact (Submodule.quotEquivOfEq _ _ hk).trans ((g i).quotKerEquivOfSurjective (hg i))
 
+/-- **Additivity along a filtration, indexed by `Fin n`.** As
+`exists_of_eq_sum_of_chain_surj`, with the surjections `g i : F (i + 1) → Q i` given only for
+`i < n`. -/
+theorem exists_of_eq_sum_of_chain_surj_fin {M : Type u} [AddCommGroup M] [Module B M]
+    [Module k M] [IsScalarTower k B M] (n : ℕ) (F : ℕ → Submodule B M) (hF : Monotone F)
+    (h0 : F 0 = ⊥) (hn : F n = ⊤) (Q : Fin n → FGProj k B)
+    (g : ∀ i : Fin n, F ((i : ℕ) + 1) →ₗ[B] Q i) (hg : ∀ i, Function.Surjective (g i))
+    (hker : ∀ (i : Fin n) (x : F ((i : ℕ) + 1)), g i x = 0 ↔ (x : M) ∈ F (i : ℕ)) :
+    ∃ (_ : Module.Finite B M) (_ : Module.Projective B M),
+      of (FGProj.of (k := k) (A := B) M) = ∑ i, of (Q i) := by
+  classical
+  have : Module.Free B PUnit.{u + 1} := Module.Free.of_subsingleton _ _
+  let Z : FGProj k B := FGProj.of (k := k) (A := B) PUnit.{u + 1}
+  let Q' : ℕ → FGProj k B := fun i => if h : i < n then Q ⟨i, h⟩ else Z
+  have isoOfEq : ∀ {P R : FGProj k B}, P = R → P.Iso R := fun h => h ▸ LinearEquiv.refl _ _
+  have e : ∀ i, (F (i + 1) ⧸ (F i).comap (F (i + 1)).subtype) ≃ₗ[B] Q' i := by
+    intro i
+    by_cases h : i < n
+    · have hk : (F i).comap (F (i + 1)).subtype = LinearMap.ker (g ⟨i, h⟩) := by
+        ext x
+        rw [Submodule.mem_comap, LinearMap.mem_ker, hker]
+        rfl
+      exact ((Submodule.quotEquivOfEq _ _ hk).trans
+        ((g ⟨i, h⟩).quotKerEquivOfSurjective (hg _))).trans
+          (isoOfEq (by simp only [Q', h, dite_true]))
+    · have hi : F i = ⊤ := top_unique (hn ▸ hF (not_lt.1 h))
+      have : Subsingleton (F (i + 1) ⧸ (F i).comap (F (i + 1)).subtype) := by
+        rw [hi, Submodule.comap_top]
+        exact Submodule.Quotient.subsingleton_iff.2 rfl
+      exact (LinearEquiv.ofSubsingleton (F (i + 1) ⧸ (F i).comap (F (i + 1)).subtype)
+        PUnit.{u + 1}).trans (isoOfEq (P := Z) (by simp only [Q', h, dite_false]))
+  obtain ⟨h1, h2, h3⟩ := exists_of_eq_sum_of_chain n F hF h0 hn Q' e
+  refine ⟨h1, h2, h3.trans ?_⟩
+  rw [Finset.sum_range (fun i => of (Q' i))]
+  refine Finset.sum_congr rfl fun i _ => ?_
+  simp only [Q', i.2, dite_true]
+
 end ProjK0
 
 /-! ### The class of a tensored filtered bimodule -/

@@ -1658,4 +1658,57 @@ example : ∑ a ∈ Finset.range (rqN + 1),
     (by intro a ha; rw [rqP, dite_eq_left ha])
 
 
+/-- Graded induction is associative on three nonzero-weight regular projectives. -/
+example := (wkParallelGraph_standing (ZMod 2)).gradingDatum.indK0_assoc
+  (Graded.K0.of (Graded.GProj.regular
+    ((wkParallelGraph_standing (ZMod 2)).gradingDatum.klrGrade (Finsupp.single 0 1))))
+  (Graded.K0.of (Graded.GProj.regular
+    ((wkParallelGraph_standing (ZMod 2)).gradingDatum.klrGrade (Finsupp.single 1 1))))
+  (Graded.K0.of (Graded.GProj.regular
+    ((wkParallelGraph_standing (ZMod 2)).gradingDatum.klrGrade (Finsupp.single 0 1))))
+
+example := (wkParallelGraph_standing (ZMod 2)).gradingDatum.indK0_one_left
+  (Graded.K0.of (Graded.GProj.regular
+    ((wkParallelGraph_standing (ZMod 2)).gradingDatum.klrGrade (Finsupp.single 0 1))))
+
+example := (wkParallelGraph_standing (ZMod 2)).gradingDatum.indK0_one_right
+  (Graded.K0.of (Graded.GProj.regular
+    ((wkParallelGraph_standing (ZMod 2)).gradingDatum.klrGrade (Finsupp.single 1 1))))
+
+/-- The nilHecke factorial decomposition transfers to weighted loading projectives. -/
+example := WeightedKLR.GradingDatum.K0_spacedProjSeq_expandDiv
+  (wkParallelGraph_standing (ZMod 2)) (wkParallelGraph_dagger (ZMod 2))
+  (wkParallelGraph_noLoops (ZMod 2)) (fun _ => rfl) [(0, 2), (1, 1)] rfl
+
+/-- The second divided-power factorial identity holds after scalar extension. -/
+example := WeightedKLR.GradingDatum.toK0Q_spacedClsDiv_factorial
+  (wkParallelGraph_standing (ZMod 2)) (wkParallelGraph_dagger (ZMod 2))
+  (wkParallelGraph_noLoops (ZMod 2)) (fun _ => rfl) 0 2
+
+/-- The normalized weighted Serre relation on the parallel-edge graph in characteristic two. -/
+example := WeightedKLR.GradingDatum.spacedClsDiv_serre_mul
+  (wkParallelGraph_standing (ZMod 2)) (wkParallelGraph_dagger (ZMod 2))
+  (wkParallelGraph_noLoops (ZMod 2)) (fun _ => rfl) (i := 0) (j := 1) (by decide)
+
+private abbrev wkMapS := wkParallelGraph_standing (ZMod 2)
+private abbrev wkMapG := wkMapS.gradingDatum
+private abbrev wkMapD := wkParallelGraph_dagger (ZMod 2)
+private abbrev wkMapNoLoopEdges := wkParallelGraph_noLoops (ZMod 2)
+private theorem wkMapNoLoopPolynomials : ∀ i, (wkParallelGraph (ZMod 2)).loop i = none := fun _ => rfl
+
+/-- Webster Theorem 2.19 on the parallel-edge graph over `ZMod 2`: the simple
+quantum generator maps to the regular one-strand projective class. -/
+example : wkMapS.quantumGroupMap wkMapD wkMapNoLoopEdges wkMapNoLoopPolynomials
+    ⟨PreF.π rqC.dot vQ rqC.c (PreF.θ 0), PreF.π_θ_mem_Af 0⟩ =
+    DirectSum.of wkMapG.K0fam (Finsupp.single 0 1)
+      (Graded.K0.of (Graded.GProj.regular (wkMapG.klrGrade (Finsupp.single 0 1)))) :=
+  wkMapS.quantumGroupMap_generator wkMapD wkMapNoLoopEdges wkMapNoLoopPolynomials 0
+
+/-- The second divided power has the weighted loading projective class in
+characteristic two. -/
+example : wkMapS.quantumGroupMap wkMapD wkMapNoLoopEdges wkMapNoLoopPolynomials
+    ⟨PreF.dpowF rqC.dot vQ rqC.c 0 2, PreF.dpowF_mem_Af 0 2⟩ =
+    WeightedKLR.GradingDatum.spacedClsDiv wkMapS wkMapD wkMapNoLoopEdges wkMapNoLoopPolynomials [(0, 2)] :=
+  wkMapS.quantumGroupMap_dpow wkMapD wkMapNoLoopEdges wkMapNoLoopPolynomials 0 2
+
 end NonVacuity

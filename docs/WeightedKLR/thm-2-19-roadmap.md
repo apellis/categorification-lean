@@ -17,7 +17,7 @@ instances; it does not replace `G` by the grading of the standing hypothesis.
 | A0 | the fields `fdA`, `fdB`, `fdC` of `TensorK0Hyp` for `W_ν` (graded simple tops are finite-dimensional) | formalized under `Γ.Dagger`, `Γ.NoZeroLoops`, `Γ.Standing`; no loop-freeness assumption |
 | A | the fields `endA`, `endB` of `TensorK0Hyp` for `W_ν` (graded simple modules are absolutely irreducible) | proved for loop-free graphs over any field by the minimum-support local-chart argument; repeated colours and cycles are allowed |
 | B | the quantum Serre relations in graded `K_0` for every `Q` of Rouquier's form | formalized over every commutative ring: `KLR.Rouquier.K0_serre_window` |
-| C | the integral divided-power quantum-group map to `K_0` for loop-free `Γ` | Cartan datum and graded corner-entry maps formalized; needs B and multiplicative assembly |
+| C | the integral divided-power quantum-group map to `K_0` for loop-free `Γ` | formalized for loop-free graphs over any field: `WeightedGraph.Standing.quantumGroupMap` |
 | D | the antipode / Hopf structure in the braided category of `ℤ[I]`-graded modules | open |
 
 The local-chart proof of A is a replacement argument. The right-restriction
@@ -200,7 +200,7 @@ Webster v4, §2.4, Theorem 2.19, p. 12 asserts a natural map, without a construc
 or an explicit loop-free restriction. The target integral Grothendieck group requires the
 integral divided-power form over `ℤ[q,q⁻¹]`; a map from the generic quantum group over
 `ℚ(v)` instead has target the scalar extension of `K_0`. This distinguishes the conventions
-of Rouquier v1, §4.1.2, p. 34 and §4.2.4, p. 46. The evident generator image is
+of Rouquier v1, §4.1.2, p. 33, equation (5). The evident generator image is
 `θ_i ↦ [W_{α_i}]`.
 
 1. **Cartan datum (done).** `WeightedGraph.Standing.cartanDatum` uses the symmetrizer and
@@ -215,19 +215,31 @@ of Rouquier v1, §4.1.2, p. 34 and §4.2.4, p. 46. The evident generator image i
    give homogeneous maps on individual sequence corners and preserve composable products.
    `GradingDatum.indIdemIso` and `GradingDatum.indK0_ofIdempotent` identify products of
    homogeneous principal-projective classes under juxtaposition.
-3. **Serre relations and descent.** Transfer B along the loading-family maps, check the
-   divided-power normalization and products, and descend to the integral form. The generic
-   quantum-group map is obtained after scalar extension.
+3. **Serre relations and descent (done).** `GradingDatum.K0_serre_window` transfers B
+   along the loading-family maps. `K0_spacedProjSeq_expandDiv` proves the nilHecke factorial
+   decomposition, `spacedClsDiv_append` identifies induction products, and
+   `spacedClsDiv_serre_mul` gives the normalized divided-power Serre relation.
+   `WeightedGraph.Standing.quantumGroupMap` maps the integral form into `G.K0W`;
+   `quantumGroupMap_generator`, `quantumGroupMap_dpow`, and `quantumGroupMap_smul`
+   identify generators, divided powers and Laurent scalars. `rationalQuantumGroupMap`
+   has target `G.K0Q`, with compatibility `embed_quantumGroupMap`.
+   The final maps assume only the coefficient field, standing data, (†), and both
+   loop-free conditions. The graded dimension instances and scalar injectivity are
+   supplied internally. The target uses the repository's doubled standing grading
+   (dot degree `2 d_i`), with Laurent parameter `q = v⁻¹` as in KL I §3.1.
+   `GradingDatum.indK0_assoc`, `indK0_one_left`, `indK0_one_right`, and the algebra
+   `G.K0W` hold more generally for every grading over every commutative coefficient ring.
 4. **No surjectivity assertion.** The earlier roadmap incorrectly read Proposition 2.18
-   as generation of all weighted projectives. That proposition (v4, p. 11) identifies the
-   ordinary KLR subcategory, and Theorem 2.19 does not assert surjectivity. In the parallel-edge
+   as generation of all weighted projectives. Its generation clause (v4, p. 11) identifies the
+   ordinary KLR subcategory; its first clause states monoidality and comonoidality.
+   Theorem 2.19 does not assert surjectivity. In the parallel-edge
    example described in A, both products of single-colour projectives at weight `α_a+α_b`
    pair to zero with the simple supported in the middle chamber, whereas its chamber
    projective pairs to one. Thus the generator image need not be all of weighted `K_0`.
 
 ## D. Antipode
 
-KL I constructs the antipode on `K_0(R)` from the bialgebra structure on `'f`. With C surjective,
-the same descent works when the map in C is an isomorphism; Webster states the Hopf structure
-without proof and `K_0(W)` may be larger than the image of `U_q^+` when `Γ` has loops. Plan to be
-written when A–C are done.
+Open. Webster v4, proof of Theorem 2.19, p. 12 gives the counit and cites Xiao
+for an inductive antipode formula. Formalizing this construction is separate from the
+natural map in C; no surjectivity of that map is available or needed as a roadmap premise.
+No antipode result is included in the work on B and C.

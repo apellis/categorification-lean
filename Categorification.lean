@@ -1,5 +1,6 @@
 import Categorification.Algebra.AugmentationQuotient
 import Categorification.Algebra.BalancedTensor
+import Categorification.Algebra.BalancedTensorExact
 import Categorification.Algebra.CoactionGrading
 import Categorification.Algebra.Coinvariant
 import Categorification.Algebra.CoinvariantGraded

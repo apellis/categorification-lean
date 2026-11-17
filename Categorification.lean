@@ -1029,6 +1029,13 @@ import Categorification.WeightedKLR.GradedK0.Coassociativity
 import Categorification.WeightedKLR.GradedK0.TotalCoassociativity
 import Categorification.WeightedKLR.GradedK0.Braiding
 import Categorification.WeightedKLR.GradedK0.Hopf
+import Categorification.KLR.CyclotomicDimension
+import Categorification.KLR.CyclotomicSingleK0
+import Categorification.KLR.CyclotomicGrothendieck
+import Categorification.KLR.CyclotomicGradedInduction
+import Categorification.WeightedKLR.RedStrands.Projectives
+import Categorification.WeightedKLR.RedStrands.SingleRed
+import Categorification.WeightedKLR.RedStrands.CyclotomicProjection
 /-!
 # Categorification
 

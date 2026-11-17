@@ -37,14 +37,19 @@ local notation "aΛ" => (fun i => Polynomial.X ^ Λ i : I → Polynomial k)
 noncomputable def grade : ℤ → Submodule k (CycKLR k Q aΛ ν) :=
   Graded.map (G.grade ν) (mk k Q aΛ ν).toLinearMap
 
-private theorem cycElt_homogeneous (i : Seq ν) :
-    ∃ j, cycElt Q aΛ i ∈ G.grade ν j := by
+/-- The degree of the cyclotomic relation at a sequence. At weight zero its
+generator vanishes, and we assign it degree zero. -/
+def cycEltDegree (i : Seq ν) : ℤ :=
+  if h : 0 < Multiset.card ν then Λ (i.lbl ⟨0, h⟩) • G.degX (i.lbl ⟨0, h⟩) else 0
+
+theorem cycElt_mem_grade (i : Seq ν) :
+    cycElt Q aΛ i ∈ G.grade ν (cycEltDegree G Λ ν i) := by
   by_cases h : 0 < Multiset.card ν
-  · rw [cycElt_of_pos _ _ _ h, map_pow, Polynomial.aeval_X]
+  · rw [cycElt_of_pos _ _ _ h, map_pow, Polynomial.aeval_X, cycEltDegree, dite_eq_left h]
     let p : Fin (Multiset.card ν) := ⟨0, h⟩
     have H := G.mk_mem_grade_of_homAt (G.homAt_fx_pow_mul p (G.homAt_fe i) (Λ (i.lbl p)))
-    rw [map_mul, map_pow] at H
-    exact ⟨_, H⟩
+    rw [map_mul, map_pow, add_zero] at H
+    exact H
   · simp [cycElt, h]
 
 /-- The cyclotomic ideal is homogeneous for all multiplicities and all Cartan types.
@@ -56,7 +61,7 @@ noncomputable instance gradedAlgebra : GradedAlgebra (grade G Λ ν) :=
       unfold cycIdeal at h ⊢
       apply Graded.decompose_mem_twoSidedSpan (G.grade ν) _ h n
       rintro _ ⟨i, rfl⟩
-      exact cycElt_homogeneous G Λ ν i
+      exact ⟨_, cycElt_mem_grade G Λ ν i⟩
 
 end Algebra
 

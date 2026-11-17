@@ -62,76 +62,34 @@ private theorem regular_isIndec_of_scalar : (GProj.regular 𝒜).IsIndec A := by
   · exact Or.inl (LinearMap.ext fun a => by simp [hf_apply a, h])
   · exact Or.inr (LinearMap.ext fun a => by simp [hf_apply a, h])
 
-private theorem exists_iso_regular_shift (P : GProj 𝒜)
-    (hP : P.IsIndec A) : ∃ a : ℤ, Nonempty (P.Iso ((GProj.regular 𝒜).shift a)) := by
+omit e in
+private theorem exists_iso_regular_shift [HasGdim 𝒜]
+    (hreg : (GProj.regular 𝒜).IsIndec A) (P : GProj 𝒜) (hP : P.IsIndec A) :
+    ∃ a : ℤ, Nonempty (P.Iso ((GProj.regular 𝒜).shift a)) := by
   let := hP.nontrivial
-  obtain ⟨a, x, hx, hx0⟩ := exists_mem_ne_zero P.grading
-  let s : P.grading a := ⟨x, hx⟩
-  obtain ⟨f, hf⟩ := Module.Projective.exists_dual_eq_one k (x := s)
-    (fun h => hx0 (congrArg Subtype.val h))
-  let π : P.carrier →ₗ[k] P.grading a :=
-    DirectSum.component k ℤ (fun d => P.grading d) a ∘ₗ (DirectSum.decomposeLinearEquiv P.grading).toLinearMap
-  let p : P.carrier →ₗ[k] P.carrier := (f ∘ₗ π).smulRight x
-  have hp (y : P.carrier) : p y = f (DirectSum.decompose P.grading y a) • x := rfl
-  have hpx : p x = x := by
-    rw [hp, DirectSum.decompose_of_mem P.grading hx, DirectSum.of_eq_same]
-    exact (congrArg (fun c : k => c • x) hf).trans (one_smul k x)
-  let pA : P.carrier →ₗ[A] P.carrier :=
-    { p.toAddHom with
-      map_smul' := fun b y => by
-        obtain ⟨c, rfl⟩ := e.surjective b
-        change p (e c • y) = e c • p y
-        rw [scalarEquiv_apply e, algebraMap_smul, algebraMap_smul, map_smul] }
-  have hgp : PreservesGrading P.grading P.grading pA := by
-    intro d y hy
-    change p y ∈ P.grading d
-    by_cases h : d = a
-    · subst d
-      rw [hp]
-      exact Submodule.smul_mem _ _ hx
-    · have hdecomp : DirectSum.decompose P.grading y a = 0 :=
-        Subtype.ext (DirectSum.decompose_of_mem_ne P.grading hy h)
-      rw [hp, hdecomp, map_zero, zero_smul]
-      exact zero_mem _
-  have hi : IsIdempotentElem pA := by
-    apply LinearMap.ext
-    intro y
-    change p (p y) = p y
-    conv_lhs => rw [hp y, map_smul, hpx]
-    rfl
-  have hp1 : pA = 1 := (hP.eq_zero_or_eq_one pA hgp hi).resolve_left fun h =>
-    hx0 (hpx.symm.trans (LinearMap.congr_fun h x))
-  let F : A →ₗ[A] P.carrier := LinearMap.toSpanSingleton A P.carrier x
-  have hF : Function.Bijective F := by
-    constructor
-    · intro b b' h
-      obtain ⟨c, rfl⟩ := e.surjective b
-      obtain ⟨c', rfl⟩ := e.surjective b'
-      have hcc : c • x = c' • x := by
-        simpa only [F, LinearMap.toSpanSingleton_apply, scalarEquiv_apply e,
-          algebraMap_smul] using h
-      exact congrArg e ((smul_left_injective k hx0) hcc)
-    · intro y
-      refine ⟨e (f (DirectSum.decompose P.grading y a)), ?_⟩
-      change e _ • x = y
-      rw [scalarEquiv_apply e, algebraMap_smul]
-      exact (hp y).symm.trans (LinearMap.congr_fun hp1 y)
-  have hFgr : PreservesGrading (shift 𝒜 a) P.grading F :=
-    fun d b hb => by
-      let : SetLike.GradedSMul 𝒜 P.grading := P.gradedSMul
-      have ht : b • x ∈ P.grading (d - a + a) := SetLike.GradedSMul.smul_mem (mem_shift.1 hb) hx
-      change b • x ∈ P.grading d
-      simpa only [sub_add_cancel] using ht
-  exact ⟨a, ⟨(GradedEquiv.ofPreserves (LinearEquiv.ofBijective F hF) hFgr).symm⟩⟩
+  obtain ⟨S, f, hS, hf, hf0, _⟩ := P.exists_isGradedSimple_quotient
+  let := hS.nontrivial
+  let := S.gradedSMul
+  obtain ⟨a, v, hv, hv0⟩ := exists_mem_ne_zero S.grading
+  let g := LinearMap.toSpanSingleton A S.carrier v
+  have hg : PreservesGrading (Graded.shift 𝒜 a) S.grading g := by
+    intro d b hb
+    have h : b • v ∈ S.grading (d - a + a) :=
+      SetLike.GradedSMul.smul_mem (mem_shift.1 hb) hv
+    simpa only [g, LinearMap.toSpanSingleton_apply, sub_add_cancel] using h
+  have hg0 : g ≠ 0 := fun h => hv0 (by simpa [g] using LinearMap.congr_fun h 1)
+  exact ⟨a, hP.nonempty_iso (hreg.shift a) hS hf hf0 hg hg0⟩
 
-/-- At weight zero the class of the regular projective freely generates the
-Grothendieck group over the Laurent-polynomial scalars. -/
-def scalarK0Equiv : K0 𝒜 ≃ₗ[R] R := by
-  letI := hasGdim_scalarGrade 𝒜 e
+omit e in
+/-- If the graded regular module is indecomposable, its class is a basis of graded
+projective `K₀`. Every simple quotient of an indecomposable projective also admits
+a quotient map from a shift of the regular module. -/
+def regularK0Equiv [HasGdim 𝒜] (hreg : (GProj.regular 𝒜).IsIndec A) :
+    K0 𝒜 ≃ₗ[R] R := by
   let b := K0.indecBasis 𝒜
   let f : R →ₗ[R] K0 𝒜 := LinearMap.toSpanSingleton R _ (K0.of (GProj.regular 𝒜))
   have hgen : ∀ i, b i ∈ LinearMap.range f := fun i => by
-    obtain ⟨a, ⟨e⟩⟩ := exists_iso_regular_shift 𝒜 e i.rep i.isIndec_rep
+    obtain ⟨a, ⟨e⟩⟩ := exists_iso_regular_shift 𝒜 hreg i.rep i.isIndec_rep
     exact ⟨LaurentPolynomial.T a, by
       change (LaurentPolynomial.T a : R) • (K0.of (GProj.regular 𝒜)) = b i
       rw [K0.T_smul_of, show b i = K0.of i.rep from K0.indecBasis_apply i]
@@ -142,7 +100,7 @@ def scalarK0Equiv : K0 𝒜 ≃ₗ[R] R := by
     rintro _ ⟨i, rfl⟩
     exact hgen i
   have hinj : Function.Injective f := by
-    obtain ⟨i, a, ⟨e⟩⟩ := GProj.IndecClass.exists_iso_rep_shift (regular_isIndec_of_scalar 𝒜 e)
+    obtain ⟨i, a, ⟨e⟩⟩ := GProj.IndecClass.exists_iso_rep_shift hreg
     have he : (K0.of (GProj.regular 𝒜)) = (LaurentPolynomial.T a : R) • b i := by
       rw [K0.indecBasis_apply, K0.T_smul_of]
       exact K0.of_eq_of_iso e
@@ -153,6 +111,16 @@ def scalarK0Equiv : K0 𝒜 ≃ₗ[R] R := by
     simp only [map_smul, Finsupp.coe_smul, Pi.smul_apply, Basis.repr_self, Finsupp.single_eq_same, smul_eq_mul, mul_one] at h
     exact (LaurentPolynomial.isUnit_T a).mul_left_inj.mp h
   exact (LinearEquiv.ofBijective f ⟨hinj, hsurj⟩).symm
+
+omit e in
+@[simp] theorem regularK0Equiv_symm_apply [HasGdim 𝒜] (hreg : (GProj.regular 𝒜).IsIndec A)
+    (p : R) : (regularK0Equiv 𝒜 hreg).symm p = p • K0.of (GProj.regular 𝒜) := rfl
+
+/-- At weight zero the class of the regular projective freely generates the
+Grothendieck group over the Laurent-polynomial scalars. -/
+def scalarK0Equiv : K0 𝒜 ≃ₗ[R] R := by
+  letI := hasGdim_scalarGrade 𝒜 e
+  exact regularK0Equiv 𝒜 (regular_isIndec_of_scalar 𝒜 e)
 
 @[simp] theorem scalarK0Equiv_symm_apply (p : R) : (scalarK0Equiv 𝒜 e).symm p = p • (K0.of (GProj.regular 𝒜)) :=
   rfl

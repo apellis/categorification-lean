@@ -1748,6 +1748,47 @@ example (d : ℤ) :=
     (fun w => (TypeA.exists_reduced _ w).choose) (fun w => (TypeA.exists_reduced _ w).choose_spec)
     i i 1 (one_smul _ _) d
 
+example := Stendhal.emptyTensorK0Equiv _
+  (Stendhal.stendhalGradingDatum (Fin.elim0 : Fin 0 → Fin 1 →₀ ℕ)
+    singletonBlackGrading (fun _ => 1) (fun _ => rfl))
+
+example := Stendhal.tensorProductVacuumK0Equiv_regular twoRedGrading
+
+example := KLR.CycKLR.singleK0Equiv_regular singletonBlackGrading (fun _ => 2) 0 (by decide)
+
+example := KLR.CycKLR.projectiveK0_free singletonBlackGrading (fun _ => 2)
+  (fun i j hij => (hij (Subsingleton.elim i j)).elim)
+
+example := KLR.CycKLR.singleK0_eq_zero singletonBlackGrading (fun _ => 0) 0 rfl
+
+/-- Repeated adjacent colours in type A₂: the corner from 010 to 100 in the
+cyclotomic algebra with level two at both colours. -/
+example (d : ℤ) :=
+  KLR.CycKLR.finrank_cornerGrade_eq_card_sub_rank
+    (KLR.klGradingDatum ℚ (⊤ : SimpleGraph (Fin 2))) (fun _ => 2)
+    (fun w => (TypeA.exists_reduced _ w).choose) (fun w => (TypeA.exists_reduced _ w).choose_spec)
+    (KLR.klQ_symm _) (fun _ => (by decide : (0 : ℤ) < 2)) (KLR.KL1.Remark.jii 0 1) (KLR.KL1.Remark.iji 0 1) d
+
+private noncomputable def oneRedGrading :=
+  Stendhal.stendhalGradingDatum (fun _ : Fin 1 => Finsupp.single (0 : Fin 1) 2)
+    singletonBlackGrading (fun _ => 1) (fun _ => rfl)
+
+example (d : ℤ) :=
+  let w := (KLR.Seq.uniqueOfForall (ν := {(0 : Fin 1)}) (i := 0) (by simp)).default
+  let s := Stendhal.SingleRed.insertWord {(0 : Fin 1)} w
+  Stendhal.finrank_homGrade_sequenceProj oneRedGrading (fun u => (TypeA.exists_reduced _ u).choose_spec)
+    (by rintro (i | r) <;> exact (by decide : (0 : ℤ) < 2)) s s
+    (Stendhal.SingleRed.ordered _ s) (Stendhal.SingleRed.ordered _ s) d
+
+example := Stendhal.SingleRed.cyclotomicProjection_surjective
+  (KLR.klQ (k := ℚ) (⊥ : SimpleGraph (Fin 1))) (fun _ : Fin 1 => Finsupp.single (0 : Fin 1) 2)
+  ({0, 0} : Multiset (Fin 1))
+
+example := KLR.CycKLR.indK0_vacuum singletonBlackGrading (fun _ => 2) 0
+
+example := KLR.CycKLR.lower_lof singletonBlackGrading (fun _ => 2) 0 ({0} : Multiset (Fin 1))
+  (Graded.K0.of (Graded.GProj.regular (KLR.CycKLR.grade singletonBlackGrading (fun _ => 2) {0})))
+
 end CyclotomicDimensions
 
 example (x y : wkMapG.K0W) := wkMapG.totalCoproduct_mul wkMapD wkMapS

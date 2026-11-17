@@ -106,6 +106,6 @@ theorem exists_coproductK0_indK0_eq_sum_graded (G : GradingDatum Γ) (hD : Γ.Da
                   (K0.map (castW k Γ (L i).hcd).symm
                     (fun _ _ h => G.castW_mem_klrGrade (L i).hcd h) y)) := by
   exact exists_coproductK0_indK0_eq_sum_graded_of_tensorK0Hyp G hD
-    (fun e he => (hne e he).elim) hS hν (G.tensorK0Hyp hD hS hne hl)
+    (fun e he => (hne e he).elim) hS hν (fun μ μ' => G.tensorK0Hyp hD hS hne hl μ μ')
 
 end Categorification.WeightedKLR

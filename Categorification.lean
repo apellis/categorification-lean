@@ -848,6 +848,7 @@ import Categorification.WeightedKLR.GalleryBasis.Standing
 import Categorification.WeightedKLR.Grading
 import Categorification.WeightedKLR.GalleryBasis.Graded
 import Categorification.WeightedKLR.GradedK0.Grading
+import Categorification.WeightedKLR.GradedK0.Induction
 import Categorification.WeightedKLR.KLR.Loadings
 import Categorification.WeightedKLR.KLR.Crossing
 import Categorification.WeightedKLR.KLR.Faithful

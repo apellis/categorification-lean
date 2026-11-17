@@ -2386,6 +2386,25 @@ private def dividedRedWord : Stendhal.FirstWeight.TensorWord Unit 2 :=
 private def twoTensorFactors : Fin 2 → LieLean.QuantumGroup.GrandLoop.Dom (CycKLR.projectiveRootDatum datum) :=
   fun _ => ⟨datum.pair.flip 2, fun i => (dominantTwo i) ▸ by decide⟩
 
+/-- At level two the last red crossing has degree two. Crossing two black
+strands assigned to the last factor changes the exponent to minus two. -/
+example : (datum.pair.flip (2 : ℤ) - (([] : List Unit).map (CycKLR.projectiveRootDatum datum).root).sum)
+    (LieLean.QuantumGroup.ktilde (CycKLR.projectiveRootDatum datum) ()) = 2 := by
+  rw [Stendhal.FirstWeight.shuffleExponent_eq_crossings]
+  decide
+example : (datum.pair.flip (2 : ℤ) - ([(),()].map (CycKLR.projectiveRootDatum datum).root).sum)
+    (LieLean.QuantumGroup.ktilde (CycKLR.projectiveRootDatum datum) ()) = -2 := by
+  rw [Stendhal.FirstWeight.shuffleExponent_eq_crossings]
+  decide
+
+example := Stendhal.FirstWeight.barDividedWordOp_append twoTensorFactors
+  (Stendhal.FirstWeight.tensorWordVector Stendhal.FirstWeight.TensorWord.empty.red
+    (fun j : Fin 1 => twoTensorFactors j.castSucc))
+  _ LieLean.QuantumGroup.IrreducibleModule.hwv_mem_weightSpace [((), 2), ((), 1)]
+
+example := Stendhal.FirstWeight.finrank_le_lastRedPairs (fun _ : Fin 2 => Finsupp.single () 2)
+  (CartanDatum.ofGraph (⊥ : SimpleGraph Unit)) params (Multiset.replicate 3 ())
+
 example := Stendhal.FirstWeight.tensorWordProjective_factorial (fun _ : Fin 2 => Finsupp.single () 2)
   (CartanDatum.ofGraph (⊥ : SimpleGraph Unit)) params dividedRedWord
 example := Stendhal.FirstWeight.tensorWordVector_factorial dividedRedWord twoTensorFactors
@@ -2653,6 +2672,12 @@ example (z : TensorProductAlgebra ℚ Q Λ β) := sandwich_mem_range_suffixConca
 
 example := lastRedLayerTensor_surjective Q Λ p h (by decide)
 
+/-- With two fundamental red strands and one black strand in each input,
+the unit of the two factor algebras lifts to a common parabolic diagram. -/
+example := lastRedLayerAction_exists_parabolicLift Q Λ
+  (ν := β+β) (θ := β) (β := β) ⟨2,by decide⟩ (by decide) (by decide)
+  (parabolicInputWeights_add (ℓ := 1) β β) 1
+
 /-- The vacuum representation of two red strands has a detecting split. -/
 example := exists_detecting_lastRedCorner (B := ℚ) (ℓ := 1) (Q := Q) (Λ := Λ) (ν := 0) (tensorProductAlgebraZeroEquiv Q Λ).toAlgHom
 
@@ -2683,6 +2708,84 @@ example := lastRedLayerSourceIndecClassEquiv parameters (Λ ∘ Fin.castSucc) (0
 example := lastRedRankEmbedding Λ β parameters diagramDegrees
 example := lastRedK0_rank_le Λ β parameters diagramDegrees
 
+/-- At the highest tensor weight both factors are nonzero scalar algebras. -/
+example := lastRedHeadEquiv Λ 0 diagramDegrees parameters (nonempty_lastRedInducedCut_zero Λ diagramDegrees)
+example := lastRedK0_rank_eq_of_inducedCut Λ 0 diagramDegrees parameters (nonempty_lastRedInducedCut_zero Λ diagramDegrees)
+
+section StandardCut
+
+open Categorification.Graded
+
+private theorem singleton_block_rank :
+    Module.rank (LaurentPolynomial ℤ) (K0 (tensorProductGrade diagramDegrees β)) = 2 := by
+  let basis := (FirstWeight.sequenceProjBasis (i := (0 : Fin 1)) diagramDegrees
+    (fun a => by cases a <;> exact (by decide : (0 : ℤ) < 2))
+    (fun _ => by simp [Λ])).reindex (FirstWeight.boundaryEquiv (0 : Fin 1) 2).symm
+  simpa using basis.mk_eq_rank.symm
+
+private abbrev grLast := restrictBlackGrading Q Λ diagramDegrees
+
+private def finalClass : GProj.IndecClass (CycKLR.grade grLast (Λ 1) β) := by
+  let Λ₁ := fun _ : Fin 1 => Λ 1
+  let := tensorProductAlgebra_finite Λ₁ β parameters
+  let e := (SingleRed.cyclotomicEquiv Q Λ₁ β).symm.toLinearEquiv
+  let := Module.Finite.of_surjective e.toLinearMap e.surjective
+  let g := CycKLR.grade grLast (Λ 1) β
+  let := HasGdim.of_finiteDimensional g
+  let c := CycKLR.singleK0Equiv grLast (Λ 1) 0 (by simp [Λ])
+  apply Classical.choice
+  by_contra hn
+  let : IsEmpty (GProj.IndecClass g) := not_nonempty_iff.mp hn
+  have hz : c.symm 1 = 0 := (K0.indecBasis g).repr.injective (Subsingleton.elim _ _)
+  exact one_ne_zero (c.symm.injective (hz.trans c.symm.map_zero.symm))
+
+private def earlierClass : GProj.IndecClass (tensorProductGrade (restrictRedGrading Q Λ diagramDegrees) β) :=
+  FirstWeight.sequenceProjIndecEquiv (i := (0 : Fin 1)) (restrictRedGrading Q Λ diagramDegrees)
+    (fun a => by cases a <;> exact (by decide : (0 : ℤ) < 2)) (fun r => by simp [Λ])
+    (FirstWeight.boundaryAt 0 1 0)
+
+private def splitClass : GProj.IndecClass
+    (lastRedFactorGrading Λ (β+β) diagramDegrees ⟨(β,β),rfl⟩) :=
+  (lastRedLayerSourceIndecClassEquiv parameters (Λ ∘ Fin.castSucc) β (Λ 1) β
+    (restrictRedGrading Q Λ diagramDegrees) grLast).symm (earlierClass, finalClass)
+
+/-- Both possible single-black cuts together contribute two projective shift classes. -/
+example : Cardinal.sum (fun u : LastRedWeightSplit β =>
+    Module.rank (LaurentPolynomial ℤ) (K0 (tensorProductGrade
+      (restrictRedGrading Q Λ diagramDegrees) u.1.1)) *
+    Module.rank (LaurentPolynomial ℤ) (K0 (CycKLR.grade grLast (Λ 1) u.1.2))) = 2 :=
+  (lastRedK0_rank_eq Λ β diagramDegrees parameters).symm.trans singleton_block_rank
+
+/-- Standardization and its simple head with one black strand in each factor. -/
+example := nonempty_lastRedInducedCut Λ (β+β) diagramDegrees parameters.klrSymm
+  ⟨(β,β),rfl⟩ splitClass
+
+example := lastRedStandardHeadEmbedding Λ (β+β) diagramDegrees parameters
+  ⟨⟨(β,β),rfl⟩, earlierClass, finalClass⟩
+
+example := lastRedStandardHeadEquiv Λ β diagramDegrees parameters
+
+end StandardCut
+
+example := tensorRepresentationLift_comp _ (tensorRepresentationRelations_projection (Q := Q) (Λ := Λ) (ν := β))
+
+/-- The one-dimensional regular module is generated on its full corner. -/
+private abbrev scalarBoundary := NonUnitalAlgHom.id ℚ ℚ
+private def fullScalarCut : ℚ ≃ₗ[ℚ] boundaryFixed scalarBoundary ℚ where
+  toFun x := ⟨x,one_smul _ _⟩
+  invFun := Subtype.val
+  left_inv _ := rfl
+  right_inv _ := rfl
+  map_add' _ _ := rfl
+  map_smul' _ _ := rfl
+private theorem fullScalarGen : Submodule.span ℚ {x : ℚ | scalarBoundary 1 • x = x} = ⊤ := by
+  apply Submodule.eq_top_iff'.mpr
+  exact fun x => Submodule.subset_span (one_smul ℚ x)
+
+example : IsSimpleModule ℚ (ℚ ⧸ cornerKernel (scalarBoundary 1) ℚ) := by
+  let := IsSimpleModule.congr fullScalarCut.symm
+  exact (eq_cornerKernel_iff_simpleQuotient ℚ scalarBoundary fullScalarGen _).mp rfl
+
 example := lastRedShuffle_eq_one (show 1+2=3 from rfl)
   ⟨1, TypeA.isShuffle_one _⟩ (by decide) (by decide)
 
@@ -2692,6 +2795,182 @@ private def swapTwo : TypeA.Shuffle (show 1+1=2 from rfl) :=
 example := shuffle_right_descent (show 1+1=2 from rfl) swapTwo (by decide : 0+1<2)
   (x := 0) (y := 0) (by decide) (by decide)
 
+private abbrev inputLeft := (stendhalWeight 1 (0 : Multiset (Fin 1))).map (addRedColor 1)
+private abbrev inputRight := (stendhalWeight 1 β).map (Sum.map (id : Fin 1 → Fin 1) (fun _ : Fin 1 => Fin.last 1))
+private def rawRRB : Seq (inputLeft+inputRight) := KLRAlgebra.Seq.ofList [.inr 0,.inr 1,.inl 0] (by decide)
+
+private def regularCut : Graded.GFin (Graded.tensorGrading
+    (tensorProductGrade (restrictRedGrading Q Λ diagramDegrees) (0 : Multiset (Fin 1)))
+    (CycKLR.grade (restrictBlackGrading Q Λ diagramDegrees) (Λ 1) β)) := by
+  let := lastRedLayerSource_finite parameters (Λ ∘ Fin.castSucc) (0 : Multiset (Fin 1)) (Λ 1) β
+  exact {
+    carrier := parabolicFactorAlgebra Q Λ (0 : Multiset (Fin 1)) β
+    grading := Graded.tensorGrading
+      (tensorProductGrade (restrictRedGrading Q Λ diagramDegrees) (0 : Multiset (Fin 1)))
+      (CycKLR.grade (restrictBlackGrading Q Λ diagramDegrees) (Λ 1) β)}
+
+example := standardizationFixedEquiv Λ diagramDegrees 0 β parameters.symm regularCut rawRRB
+  (by unfold IsRedOrdered; decide)
+example := gdimPoly_standardization Λ diagramDegrees 0 β parameters.symm regularCut rawRRB
+  (by unfold IsRedOrdered; decide)
 end LastRedLayerExample
+
+namespace MixedBlackRestriction
+
+open Categorification QuantumGroup KLR.Unfurling
+attribute [local instance 1100] IsIdempotentElem.instAlgebraCorner_categorification
+def arr : Bool → Bool → ℕ := fun a b => if a = false ∧ b = true then 1 else 0
+
+private theorem oneArrowParameters :
+    KLR.IsRouquierQ (coverCartan arr) (unfQ (k := ZMod 2) arr) where
+  symm i j hij := (unfQ_klrSymm arr i j hij).symm
+  homogeneous i j hij := by
+    rw [coverCartan_dot_self, coverCartan_dot_self, coverCartan_dot_of_ne arr hij]
+    have hh := (unfGrading (k := ZMod 2) arr).isWeightedHomogeneous i j hij
+    change (unfQ (k := ZMod 2) arr i j).IsWeightedHomogeneous ![(2 : ℤ), 2]
+      ((if i = j then -2 else 2 * (arr j i : ℤ)) + (if j = i then -2 else 2 * (arr i j : ℤ))) at hh
+    rw [ite_eq_right hij, ite_eq_right hij.symm] at hh
+    convert hh using 1
+    push_cast
+    ring
+  unit_coeff i j hij := KLR.isUnit_extremalCoeff _ (unfQ_klrSymm arr)
+    (fun a b _ => unfQ_leadingCoeff arr a b) (coverWeight arr)
+    (fun _ _ h => unfQ_natDegree_eq_neg_pair arr h) hij
+
+/-- Two ordered red strands carry different fundamental colours in type A₂. -/
+private def twoRedWeights (r : Fin 2) : Bool →₀ ℕ := Finsupp.single (r == 0) 1
+
+
+private def G := Stendhal.stendhalGradingDatum twoRedWeights (unfGrading (k := ZMod 2) arr)
+  (fun _ => 1) (fun _ => rfl)
+
+example := Stendhal.blackResVacuumProj true G (coverCartan arr) oneArrowParameters
+  (Graded.GProj.regular _)
+
+example := Stendhal.homGrade_blackInd_blackRes G true ({false} : Multiset Bool)
+  (Graded.GProj.regular _) (Graded.GMod.regular _) (-1)
+
+
+example := Stendhal.mem_range_mixedBlackMap_iff (Q := unfQ (k := ℚ) arr) twoRedWeights
+  ({true} : Multiset Bool) true false (unfQ_klrSymm arr) (by decide)
+  (Stendhal.mixedBlackCrossing twoRedWeights {true} true false)
+
+
+private abbrev lowerT := Stendhal.TensorProductAlgebra (ZMod 2) (unfQ arr) twoRedWeights ({false} : Multiset Bool)
+private abbrev leftT := Stendhal.TensorProductAlgebra (ZMod 2) (unfQ arr) twoRedWeights ({false} + {false})
+private abbrev rightT := Stendhal.TensorProductAlgebra (ZMod 2) (unfQ arr) twoRedWeights ({true} + {false})
+private abbrev appendL := Stendhal.appendBlack (unfQ (k := ZMod 2) arr) twoRedWeights false {false}
+private abbrev appendR := Stendhal.appendBlack (unfQ (k := ZMod 2) arr) twoRedWeights true {false}
+private abbrev mixedG := Stendhal.stendhalGradingDatum twoRedWeights oneArrowParameters.gradingDatum
+  (fun a => (coverCartan arr).dot a a / 2) (Stendhal.dotDegree _ oneArrowParameters)
+
+private def lastL : CornerTensor.Left appendL :=
+  ⟨appendL 1, by change appendL 1 * appendL 1 = _; rw [← map_mul, mul_one]⟩
+private def lastR : CornerTensor.Right appendR (AlgHom.id (ZMod 2) rightT) :=
+  ⟨appendR 1, by change appendR 1 * appendR 1 = _; rw [← map_mul, mul_one]⟩
+
+example := Stendhal.mixedBlackMap_tmul_mem_grade twoRedWeights {false} true false (coverCartan arr)
+  oneArrowParameters (by decide) lastL lastR (d := 0) (f := 0)
+  (Stendhal.appendBlack_mem_grade _ _ _ _ mixedG SetLike.GradedOne.one_mem)
+  (Stendhal.appendBlack_mem_grade _ _ _ _ mixedG SetLike.GradedOne.one_mem)
+
+end MixedBlackRestriction
+
+namespace ParabolicInputs
+
+open Categorification Categorification.KLR Categorification.Stendhal
+attribute [local instance 1100] IsIdempotentElem.instAlgebraCorner_categorification
+private def q := fun _ _ : Unit => (0 : MvPolynomial (Fin 2) ℚ)
+private def w := fun _ : Fin 2 => Finsupp.single () 1
+private abbrev β : Multiset Unit := {()}
+private def s : KLR.Seq (stendhalWeight 1 β) := KLRAlgebra.Seq.ofList [.inr 0, .inl ()] (by decide)
+private def bad : KLR.Seq (stendhalWeight 1 β) := KLRAlgebra.Seq.ofList [.inl (), .inr 0] (by decide)
+example := parabolicInputWeights_add (ℓ := 1) β β
+example := parabolicPrefixProjection_surjective q w β
+example := parabolicLastProjection_surjective q w β
+example := parabolicLastCyclotomic_surjective q w β
+example := redSubfamilyProjection_e q w Fin.castSucc (Fin.castSucc_injective 1) β s (SingleRed.ordered β s)
+example := redSubfamilyProjection_e_violated q w Fin.castSucc (Fin.castSucc_injective 1) β bad
+  ⟨by decide, by decide⟩
+example := redSubfamilyProjection_red_dot q w Fin.castSucc (Fin.castSucc_injective 1) β s
+  (⟨0, by decide⟩ : Fin (Multiset.card (stendhalWeight 1 β))) (by decide)
+example := parabolicLastCyclotomic_e q w β (KLRAlgebra.Seq.ofList [()] (by decide))
+example := parabolicLastCyclotomic_blackDot q w β ⟨0, by decide⟩
+private abbrev predMap := addRedColor (I := Unit) 1
+private abbrev lastMap := Sum.map (id : Unit → Unit) (fun _ : Fin 1 => Fin.last 1)
+example := parabolicPrefixProjection_e_violated q w β (Seq.map predMap bad) ⟨by decide, by decide⟩
+example := parabolicLastProjection_e_violated q w β (Seq.map lastMap bad) ⟨by decide, by decide⟩
+example := parabolicPrefixProjection_red_dot q w β (Seq.map predMap s) ⟨0, by decide⟩ (by decide)
+example := parabolicLastProjection_red_dot q w β (Seq.map lastMap s) ⟨0, by decide⟩ (by decide)
+example := parabolicPrefix_red_lt_last β (Seq.map predMap s) ⟨0, by decide⟩ (r := 0) (by decide)
+example := parabolicLast_red_eq_last β (Seq.map lastMap s) ⟨0, by decide⟩ (r := 1) (by decide)
+private def three := fun _ : Fin 3 => Finsupp.single () 1
+private def outOfOrder : KLR.Seq (stendhalWeight 2 (0 : Multiset Unit)) :=
+  KLRAlgebra.Seq.ofList [.inr 1, .inr 0] (by decide)
+example := parabolicPrefixProjection_e_unordered q three 0 (Seq.map (addRedColor 2) outOfOrder)
+  (by unfold IsRedOrdered; decide)
+example := parabolicLast_ordered β (Seq.map lastMap s)
+example := parabolicLastCyclotomic_concat_black q w β (KLRAlgebra.x (⟨0, by decide⟩ : Fin β.card))
+private abbrev twoBlack : Multiset Unit := {(), ()}
+example := parabolicLastCyclotomic_concat_black q w twoBlack (KLRAlgebra.ψ 0)
+
+private abbrev factors := parabolicFactorAlgebra q w (0 : Multiset Unit) β
+private theorem qsymm : KLRSymm q := fun _ _ hab => (hab (Subsingleton.elim _ _)).elim
+
+/-- At the cut before the only black strand, the two-factor algebra
+acts on the standardization of its regular module. -/
+example := parabolicStandardUnit_injective q w (0 : Multiset Unit) β factors qsymm
+example := parabolicStandardAction_concat_unit q w (0 : Multiset Unit) β factors qsymm 1 (1 : factors)
+example := parabolicStandardAction_concat_mem_range q w (0 : Multiset Unit) β factors qsymm 1
+  (parabolicStandardUnit q w (0 : Multiset Unit) β factors (1 : factors))
+example := parabolicStandardLayerAction_comp q w (0 : Multiset Unit) β factors qsymm ⟨1,by decide⟩
+  (by decide)
+example := parabolicStandardAction_other_concat_eq_zero q w (0 : Multiset Unit) β factors qsymm β
+  (0 : Multiset Unit) (by simp) (by decide) 1
+
+end ParabolicInputs
+
+namespace GradedParabolicShuffle
+
+open Categorification KLR KLRAlgebra Graded TypeA KLR.Unfurling
+
+/-- One arrow gives asymmetric crossing degrees for this choice of grading. -/
+private def arrow (a b : Bool) : ℕ := if a = false ∧ b = true then 1 else 0
+private abbrev Q := unfQ (k := ℚ) arrow
+private abbrev G := unfGrading (k := ℚ) arrow
+private abbrev hsingle (i : Bool) : ∀ a ∈ ({i} : Multiset Bool), a = i :=
+  fun _ h => Multiset.mem_singleton.1 h
+private def L (i : Bool) : GFin (G.grade ({i} : Multiset Bool)) where
+  carrier := KLRRep (hsingle i) Q
+  grading := klrGrading (hsingle i) Q G
+private abbrev α := ({true} : Multiset Bool)
+private abbrev β := ({false} : Multiset Bool)
+private def output : Seq (α + β) := ⟨![false, true], by decide⟩
+
+example := G.gdimPoly_ind_shuffle (unfQ_klrSymm arrow) ((L true).extTensor (L false)) output
+
+example := G.gdimPoly_ind_shuffle_extTensor (unfQ_klrSymm arrow) output (L true) (L false)
+
+private def crossing : Shuffle (Seq.card_add' α β) :=
+  ⟨Equiv.swap ⟨0, by decide⟩ ⟨1, by decide⟩, by
+    constructor <;> intro x y h <;> have hy : (y : ℕ) < 1 := y.isLt <;> exact False.elim (by omega)⟩
+
+example : G.indShuffleDegree crossing output = 2 := by
+  rw [G.indShuffleDegree_eq_maskInv]
+  decide
+
+end GradedParabolicShuffle
+
+namespace RationalFactorCoordinates
+
+open Categorification.Stendhal.FirstWeight
+private def scalarBasis : Module.Basis Unit ℚ (⊤ : Submodule ℚ ℚ) :=
+  (Module.Basis.singleton Unit ℚ).map (Submodule.topEquiv (R := ℚ) (M := ℚ)).symm
+example := exists_separatingLatticeCoordinates (K := ℚ) scalarBasis
+example := factorTensorTest_separates (F := ℚ) (fun _ : Unit => (1 : ℚ)) (fun _ : Unit => (1 : ℚ))
+  (fun _ => LinearMap.id) (fun _ => LinearMap.id) (Function.Embedding.refl (Unit × Unit))
+  (fun a b => by simp [Subsingleton.elim a b]) (fun a b => by simp [Subsingleton.elim a b])
+
+end RationalFactorCoordinates
 
 end NonVacuity

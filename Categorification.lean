@@ -289,6 +289,7 @@ import Categorification.KLR.Crystal.CrystalOps
 import Categorification.KLR.Crystal.Delta
 import Categorification.KLR.Crystal.GradedBridge
 import Categorification.KLR.Crystal.IndDecomp
+import Categorification.KLR.Crystal.GradedIndShuffle
 import Categorification.KLR.Crystal.IndNilpotent
 import Categorification.KLR.Crystal.Kleshchev
 import Categorification.KLR.Crystal.Lemma313
@@ -1069,6 +1070,8 @@ import Categorification.WeightedKLR.RedStrands.FundamentalCornerEuler
 import Categorification.WeightedKLR.RedStrands.FirstWeightLattice
 import Categorification.WeightedKLR.RedStrands.TensorWordInduction
 import Categorification.WeightedKLR.RedStrands.TensorWordRelations
+import Categorification.WeightedKLR.RedStrands.TensorShuffleCriterion
+import Categorification.WeightedKLR.RedStrands.TensorLatticeCoordinates
 import Categorification.WeightedKLR.RedStrands.SingleBlackEulerForm
 import Categorification.WeightedKLR.RedStrands.SingleBlackLattice
 import Categorification.WeightedKLR.RedStrands.SingleRedGrading
@@ -1081,12 +1084,20 @@ import Categorification.WeightedKLR.RedStrands.CornerSimple
 import Categorification.WeightedKLR.RedStrands.LastRedSupport
 import Categorification.WeightedKLR.RedStrands.LastRedLayerK0
 import Categorification.WeightedKLR.RedStrands.LastRedRank
+import Categorification.WeightedKLR.RedStrands.LastRedHeadVacuum
+import Categorification.WeightedKLR.RedStrands.LastRedStandardCut
+import Categorification.WeightedKLR.RedStrands.LastRedParabolicLift
+import Categorification.WeightedKLR.RedStrands.RepresentationLift
 import Categorification.WeightedKLR.RedStrands.LastRedShuffle
 import Categorification.WeightedKLR.RedStrands.LastRedPairing
 import Categorification.WeightedKLR.RedStrands.FirstWeightFormCounterexample
 import Categorification.WeightedKLR.RedStrands.TensorAdjointConvention
 import Categorification.WeightedKLR.RedStrands.TensorCoproductWords
+import Categorification.WeightedKLR.RedStrands.ParabolicShuffleLayer
+import Categorification.WeightedKLR.RedStrands.GradedStandardization
 import Categorification.WeightedKLR.RedStrands.BlackInduction
+import Categorification.WeightedKLR.RedStrands.BlackFrobenius
+import Categorification.WeightedKLR.RedStrands.BlackMixedCorner
 import Categorification.WeightedKLR.RedStrands.TensorWordBlackLower
 import Categorification.WeightedKLR.RedStrands.SingleRedInduction
 /-!

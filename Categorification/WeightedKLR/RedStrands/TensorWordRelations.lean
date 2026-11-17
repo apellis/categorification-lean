@@ -192,6 +192,15 @@ private theorem joinWeights_bijective : Function.Bijective (joinWeights C wt hR)
     rintro _ ⟨w,rfl⟩
     exact ⟨DirectSum.of Vs w.content.toMultiset (vectorWordAt C wt hR _ ⟨w,rfl⟩), joinWeights_of C wt hR _ _⟩
 
+/-- The sum over all black contents gives the whole integral tensor lattice
+(Webster §4.7, the weight decomposition used in Theorem 4.38). -/
+def tensorWeightSumEquiv : DirectSum (Multiset I) Vs ≃ₗ[LP] integralTensor wt :=
+  LinearEquiv.ofBijective _ (joinWeights_bijective C wt hR)
+
+@[simp] theorem tensorWeightSumEquiv_of (x : V) :
+    ((tensorWeightSumEquiv C wt hR (DirectSum.of Vs β x) : integralTensor wt) : TensorSpace wt) = x :=
+  congrArg Subtype.val (joinWeights_of C wt hR β x)
+
 private def sumWordEquiv
     (e : ∀ β : Multiset I, Ps β ≃ₛₗ[invLP.toRingHom] Vs β) :
     DirectSum (Multiset I) Ps ≃ₛₗ[invLP.toRingHom] DirectSum (Multiset I) Vs where

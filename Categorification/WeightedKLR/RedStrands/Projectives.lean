@@ -41,6 +41,10 @@ private theorem boundary_idem (i : Seq μ) (hi : IsRedOrdered i) :
   change StendhalAlgebraAllOrders.e i * StendhalAlgebraAllOrders.e i = (StendhalAlgebraAllOrders.e i : StendhalAlgebraAllOrders k Q Λ ν)
   simp [e_mul_e]
 
+/-- The boundary strand idempotent remains idempotent in the violating quotient. -/
+theorem isIdempotentElem_mk_e (i : Seq μ) (hi : IsRedOrdered i) :
+    IsIdempotentElem (TensorProductAlgebra.mk Q Λ ν (StendhalAlgebra.e i hi)) := boundary_idem i hi
+
 /-- The undivided projective at a red-ordered sequence in Webster, §4.7. -/
 def sequenceProj (i : Seq μ) (hi : IsRedOrdered i) : GProj (tensorProductGrade G ν) :=
   GProj.ofIdempotent _ (boundary_idem i hi) (mk_e_mem_tensorProductGrade G ν i hi)
@@ -105,7 +109,7 @@ private lemma range_boundary (i j : Seq μ) (hi : IsRedOrdered i) (hj : IsRedOrd
     simp only [hb, ite_true] at he
     refine ⟨⟨⟨B b, ?_⟩, Subtype.ext ?_⟩, rfl⟩
     · change B b * boundary i hi = B b
-      conv_lhs => rw [← he, mul_assoc _ (boundary i hi), (boundary_idem i hi).eq]
+      conv_lhs => rw [← he, mul_assoc _ (boundary i hi), (isIdempotentElem_mk_e i hi).eq]
       exact he
     · change boundary j hj * B b = B b
       conv_lhs => rw [← he, ← mul_assoc, ← mul_assoc, (boundary_idem j hj).eq]

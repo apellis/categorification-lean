@@ -80,7 +80,7 @@ private theorem append_pure (x : ∀ j : Fin ℓ, HW (wt j.castSucc)) (y : V₁)
   rw [appendTensor, LinearEquiv.apply_symm_apply, tensorSplitLast_tprod]
   simp
 
-private theorem append_mem_integralTensor {x : V₀} (hx : x ∈ integralTensor wt₀)
+theorem append_mem_integralTensor {x : V₀} (hx : x ∈ integralTensor wt₀)
     {y : V₁} (hy : y ∈ hwIntegral λ₁) : appendTensor wt x y ∈ integralTensor wt := by
   induction hx using Submodule.span_induction with
   | mem z hz =>

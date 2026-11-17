@@ -138,21 +138,15 @@ def lastRedRankEmbedding :
 
 
 include hQ in
-/-- The integral Laurent rank of the tensor block is bounded by the sum,
-over black-content splits, of the products of the earlier tensor-block rank
-and the final cyclotomic rank (Webster, arXiv:1309.3796v2, proof of Theorem
-4.38). -/
-theorem lastRedK0_rank_le : Module.rank (LaurentPolynomial ℤ) (K0 𝓐) ≤
+/-- The number of pairs of shift classes over all splits is the sum of the
+products of the two integral Laurent ranks. -/
+theorem lastRedFactorClasses_cardinal :
+    Cardinal.mk (Σ u : LastRedWeightSplit ν, LastRedFactorClasses Λ ν G u) =
     Cardinal.sum (fun u : LastRedWeightSplit ν =>
       Module.rank (LaurentPolynomial ℤ) (K0 (tensorProductGrade (restrictRedGrading Q Λ G) u.1.1)) *
       Module.rank (LaurentPolynomial ℤ) (K0 (CycKLR.grade (restrictBlackGrading Q Λ G)
         (Λ (Fin.last ℓ)) u.1.2))) := by
-  let := tensorProductAlgebra_finite Λ ν hQ
-  let := HasGdim.of_finiteDimensional 𝓐
   calc
-    _ = Cardinal.mk (IndecClass 𝓐) := (K0.indecBasis 𝓐).mk_eq_rank''.symm
-    _ ≤ Cardinal.mk (Σ u : LastRedWeightSplit ν, LastRedFactorClasses Λ ν G u) :=
-      Cardinal.mk_le_of_injective (lastRedRankEmbedding Λ ν hQ G).injective
     _ = Cardinal.sum (fun u : LastRedWeightSplit ν => Cardinal.mk (LastRedFactorClasses Λ ν G u)) :=
       Cardinal.mk_sigma _
     _ = _ := by
@@ -171,5 +165,23 @@ theorem lastRedK0_rank_le : Module.rank (LaurentPolynomial ℤ) (K0 𝓐) ≤
       rw [Cardinal.mk_prod]
       simp only [Cardinal.lift_id, (K0.indecBasis 𝓔).mk_eq_rank'', (K0.indecBasis 𝓕).mk_eq_rank'']
       rfl
+
+include hQ in
+/-- The integral Laurent rank of the tensor block is bounded by the sum,
+over black-content splits, of the products of the earlier tensor-block rank
+and the final cyclotomic rank (Webster, arXiv:1309.3796v2, proof of Theorem
+4.38). -/
+theorem lastRedK0_rank_le : Module.rank (LaurentPolynomial ℤ) (K0 𝓐) ≤
+    Cardinal.sum (fun u : LastRedWeightSplit ν =>
+      Module.rank (LaurentPolynomial ℤ) (K0 (tensorProductGrade (restrictRedGrading Q Λ G) u.1.1)) *
+      Module.rank (LaurentPolynomial ℤ) (K0 (CycKLR.grade (restrictBlackGrading Q Λ G)
+        (Λ (Fin.last ℓ)) u.1.2))) := by
+  let := tensorProductAlgebra_finite Λ ν hQ
+  let := HasGdim.of_finiteDimensional 𝓐
+  calc
+    _ = Cardinal.mk (IndecClass 𝓐) := (K0.indecBasis 𝓐).mk_eq_rank''.symm
+    _ ≤ Cardinal.mk (Σ u : LastRedWeightSplit ν, LastRedFactorClasses Λ ν G u) :=
+      Cardinal.mk_le_of_injective (lastRedRankEmbedding Λ ν hQ G).injective
+    _ = _ := lastRedFactorClasses_cardinal Λ ν hQ G
 
 end Categorification.Stendhal

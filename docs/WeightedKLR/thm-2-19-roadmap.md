@@ -19,8 +19,8 @@ State at the time of writing. Over a field, under the standing hypothesis with `
 | D | the antipode / Hopf structure in the braided category of `ℤ[I]`-graded modules | open |
 
 Items A and B are independent of each other and of the rest; either can be picked up
-separately. A and B are mathematically routine adaptations of published arguments, but
-neither argument is given for weighted KLR algebras in the source.
+separately. Neither argument is given for weighted KLR algebras in the source. The proposed
+adaptation for A has the obstruction below; a replacement proof is needed.
 
 ## A0. Finite-dimensional graded simple tops
 
@@ -125,7 +125,53 @@ not disprove absolute irreducibility. Regularity of the wall factors on the poly
 representation does not make them injective on dot-nilpotent simple modules. The
 obstruction and the question of a replacement route are recorded on
 [issue #289](https://github.com/apellis/categorification-lean/issues/289#issuecomment-6951906423).
-A replacement argument requires the maintainer's approval.
+A replacement argument is needed; the failure of this induction is not a counterexample
+to the scalar-endomorphism statement.
+
+### Other proof routes and their scope
+
+The following references do not establish A for every loop-free graph and every `Q` in
+the standing hypothesis:
+
+* Mathas–Tubbenhauer, *Cellularity and subdivision of KLR and weighted KLRW algebras*,
+  [arXiv:2111.12949v4](https://arxiv.org/pdf/2111.12949v4), abstract and §1A: the cellularity
+  results concern affine types A and C. The general structural and subdivision results
+  do not assert splitness for arbitrary graphs. The
+  [2024 correction](https://doi.org/10.1007/s00208-024-02818-8), Proposition 4D.4 and
+  Corollary 4D.5, corrects the subdivision placement for the cyclotomic quotient; it does
+  not extend the cellularity theorem to arbitrary graphs.
+* Mathas–Tubbenhauer, *Cellularity for weighted KLRW algebras of types B, A(2), D(2)*,
+  [arXiv:2201.01998](https://arxiv.org/abs/2201.01998), abstract: the stated types are
+  `B_{ℤ≥0}`, `A^{(2)}_{2e}` and `D^{(2)}_{e+1}`.
+* Mathas–Tubbenhauer, *Cellularity of KLR and wKLRW algebras via crystals*,
+  [arXiv:2309.13867v3](https://arxiv.org/pdf/2309.13867v3), Theorem 6H.4, p. 38, assumes
+  finite type. Section 3C, p. 7, fixes specific polynomials `u−v`, `u−v²`, `u−v³` and their
+  reversals. This does not provide arbitrary-graph, arbitrary-`Q` splitness. Moreover,
+  Proposition 8F.2, p. 55, gives noncellular cyclotomic examples in affine types D and E
+  in characteristic different from two. Thus ordinary cellularity cannot be assumed
+  uniformly; this does not disprove splitness or sandwich cellularity.
+
+A0 reduces the problem to graded simple modules over the finite-dimensional central
+augmentation quotient `W_ν / Z₊W_ν`. A sufficient replacement input is that its semisimple
+quotient is split over the coefficient field. No proof of this input at the required
+generality is recorded here. Two shortcuts do not supply it:
+
+* Ghost crossings do not automatically generate a nilpotent ideal. Divided differences
+  from same-colour crossings can lower the degree of the ghost factors; the mixed braid
+  corrections can be units. Thus positivity of the ghost factors alone does not give
+  a filtration with split strata.
+* The polynomial representation and finite central rank alone do not imply split simple
+  constituents after specialization. Even containing all multiplication operators of a
+  split local Frobenius algebra is insufficient. For example, over `ℝ`, let
+  `R = ℝ[x,y]/(x²,y²)` and decompose it by degrees as `ℝ ⊕ ℝ² ⊕ ℝ`. Inside `End_ℝ(R)`, take
+  all block lower-triangular matrices with diagonal blocks in `ℝ`, `ℂ ⊂ Mat₂(ℝ)`, `ℝ`
+  and arbitrary blocks below the diagonal. This algebra contains every multiplication
+  operator of `R`, but its middle simple factor has endomorphism ring `ℂ`. This is not
+  a weighted KLR counterexample; it identifies a missing step in that proposed argument.
+
+Repeated colours and their interaction with ghosts therefore still require a proof that
+uses the weighted relations. Neither the restriction obstruction nor this literature
+comparison proves that A is false. Item A and removal of `TensorK0Hyp` remain open.
 
 Output: `WeightedKLR.exists_eq_smul_of_isSimpleModule` (loop-free `Γ`) and an instance of
 `KLR.TensorK0Hyp (G.klrGrade μ) (G.klrGrade μ')`, removing the route hypothesis from

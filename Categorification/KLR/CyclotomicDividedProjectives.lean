@@ -117,6 +117,30 @@ theorem of_expanded_eq_factorial (C : CartanDatum I) (hX : ∀ i, G.degX i = C.d
   simp only [List.length_nil, List.nil_append] at hprod
   rw [hprod, dividedProjective, ← K0.T_smul_of, ← mul_smul, mul_comm]
 
+section Field
+
+variable {J F : Type*} [DecidableEq J] [Field F] {S : J → J → MvPolynomial (Fin 2) F}
+  (H : GradingDatum S) (hs' : ∀ i j, H.degΨ i j = H.degΨ j i) (C : CartanDatum J)
+  (β : Multiset J)
+
+/-- Divided-word projective classes span the affine algebra in each weight.
+Only the diagonal of the Cartan datum enters the shifts of the nilHecke blocks. -/
+theorem span_dividedProjective (hX : ∀ i, H.degX i = C.dot i i) (hsym : KLRSymm S)
+    (hQ : ∀ i j, i ≠ j → S i j ≠ 0) :
+    Submodule.span (LaurentPolynomial ℤ) {z | ∃ (d : List (J × ℕ))
+      (h : (expandDiv d : Multiset J) = β), z = K0.of (H.dividedProjective hs' C d h)} = ⊤ := by
+  have hpos (i) : 0 < H.degX i := (hX i).symm ▸ C.dot_self_pos i
+  let FH := symmP_factor S hsym
+  let FN := symmP_ne_zero S hQ
+  apply top_unique
+  rw [← (H.k0Basis FH FN hpos β).span_eq]
+  apply Submodule.span_le.mpr
+  rintro _ ⟨b, rfl⟩
+  exact H.k0Basis_mem_span_of_div FH FN hpos β (H.dividedProjective hs' C) (divQFact2 C)
+    (fun d h => H.of_expanded_eq_factorial hs' C hX d h) (KL2Gamma.evalOne_divQFact2 C) b
+
+end Field
+
 end Categorification.KLR.GradingDatum
 
 namespace Categorification.KLR.CycKLR
@@ -171,17 +195,7 @@ theorem span_dividedProjective (hX : ∀ i, G.degX i = C.dot i i) (hsym : KLRSym
     Submodule.span (LaurentPolynomial ℤ) {z | ∃ (d : List (I × ℕ))
       (h : (expandDiv d : Multiset I) = ν), z = K0.of (dividedProjective G hs C Λ ν d h)} = ⊤ := by
   have hpos (i) : 0 < G.degX i := (hX i).symm ▸ C.dot_self_pos i
-  let FH := symmP_factor Q hsym
-  let FN := symmP_ne_zero Q hQ
-  let gens := {z | ∃ (d : List (I × ℕ)) (h : (expandDiv d : Multiset I) = ν),
-    z = K0.of (G.dividedProjective hs C d h)}
-  have ha : Submodule.span (LaurentPolynomial ℤ) gens = ⊤ := by
-    apply top_unique
-    rw [← (G.k0Basis FH FN hpos ν).span_eq]
-    apply Submodule.span_le.mpr
-    rintro _ ⟨b, rfl⟩
-    exact G.k0Basis_mem_span_of_div FH FN hpos ν (G.dividedProjective hs C) (divQFact2 C)
-      (fun d h => G.of_expanded_eq_factorial hs C hX d h) (KL2Gamma.evalOne_divQFact2 C) b
+  have ha := G.span_dividedProjective hs C ν hX hsym hQ
   apply top_unique
   rw [← LinearMap.range_eq_top.mpr (quotientK0_surjective G Λ ν hsym hpos),
     ← Submodule.map_top, ← ha, Submodule.map_span]

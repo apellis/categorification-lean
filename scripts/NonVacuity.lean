@@ -1357,4 +1357,11 @@ example (ν' ν'' ν₁ ν₂ : Fin 2 →₀ ℕ) (h : ν₁ + ν₂ = ν' + ν'
     (wkGraph_isChamberSegment _) wkGraph_dagger wkGraph_noZeroLoops wkGraph_pSymm
     (wkGraph_wallRegular _) (wkGraph_loopRegular _) rfl h wkGrading
 
+/-- **Webster, Theorem 2.19, graded Mackey formula**: `Res_{ν₁;ν₂} [Ind (P ⊠ P')]` is the sum over
+shuffle types of `q^{middleShift}` times the class of the middle balanced tensor product, for
+`(ν₁, ν₂) = (ν'', ν')`. -/
+example (ν' ν'' : Fin 2 →₀ ℕ) :=
+  WeightedKLR.exists_resK0_indK0_eq_sum_graded (k := ℚ) wkGrading wkGraph_dagger
+    wkGraph_noZeroLoops wkGraph_standing (add_comm ν'' ν')
+
 end NonVacuity

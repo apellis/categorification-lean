@@ -137,20 +137,12 @@ These statements do not involve the comparison map.
       `Δ_{ν₁,ν₂}(x · y) = ∑_i T_{L i}(Δ_{a,b} x ⊗ Δ_{c,d} y)` for all `x`, `y` (ungraded).
       The bijectivity hypothesis is not proved for any weighted KLR algebra; see the next
       section.
-  * Open: the graded Mackey formula, with the shift `-(μ · μ')` of the term of shuffle type
-    `μ`, on graded `K_0`. Formalized so far (next section): graded restriction on
-    `Graded.GProj` and graded `K_0`; homogeneity of the steps of the Mackey filtration of
-    `Res ∘ Ind` and the induced gradings on the steps and subquotients; the graded isomorphism
-    from the shifted middle tensor product onto the Mackey subquotient
-    (`Juxtapose.middleResIndGradedEquiv`, shift `middleShift`); additivity of graded `K_0` on
-    graded short exact sequences and along homogeneous filtrations of graded bimodules
-    (`Graded.K0.exists_of_balancedTensor_eq_sum`); the graded pieces `ResIndPiece` with their
-    shift and the graded Mackey chain in graded `K_0`, over a field
-    (`GalleryAlgebra.exists_resInd_balancedTensor_eq_sum_graded`). Missing: a comparison of
-    graded induction `GradedInd` (a balanced tensor product over `k`) with `Juxtapose.ind`
-    (over `ℤ`); the graded analogues of `ResIndPiece.resTwistEquiv` and
-    `Juxtapose.extIndIndEquiv`; and the resulting formula on graded `K_0` and its transport
-    along `k0TensorEquiv`.
+  * The graded Mackey formula, with the shift `-(μ · μ')` (`middleShift`) of the term of
+    shuffle type `μ`, on graded `K_0`, over a field, under `Γ.Dagger`, `Γ.NoZeroLoops` and
+    `Γ.Standing`: `exists_resK0_indK0_eq_sum_graded` (next section). Open: the graded
+    analogues of `ResIndPiece.resTwistEquiv` and `Juxtapose.extIndIndEquiv` (each piece as
+    twisted induction of restrictions), and the transport of the formula along
+    `k0TensorEquiv` under `TensorK0Hyp`.
 
 ## Graded `K_0` (formalized)
 
@@ -185,6 +177,18 @@ Files `WeightedKLR/GradedK0/Grading.lean`, `Induction.lean`, `TensorK0.lean`,
   `N` such that all `ResIndPiece (L i) ⊗ N` are finitely generated projective, one term per
   shuffle type. Hypotheses: those of the ungraded `exists_resInd_balancedTensor_eq_sum`
   (Webster, Theorem 2.8, for `ν`), with a field instead of a commutative ring.
+* `resK0_map_indK0_eq` (`GradedK0/ResIndTensor.lean`): over a field, under `Γ.Dagger`,
+  `Γ.NoZeroLoops` and `Γ.Standing`, `Res_{ν₁;ν₂}` of graded induction, transported along
+  `castW`, is the class of the graded balanced tensor product of `Res Ind` with `P ⊠ P'`.
+  `Graded.K0.map` (`Algebra/Graded/K0Map.lean`) transports graded `K_0` along a graded
+  algebra isomorphism.
+* `exists_resK0_indK0_eq_sum_graded` (`GradedK0/ResIndK0.lean`): over a field, under
+  `Γ.Dagger`, `Γ.NoZeroLoops` and `Γ.Standing`, for `ν₁ + ν₂ = ν' + ν''`, one layout `L i` per
+  shuffle type with
+  `Res_{ν₁;ν₂}[Ind(P ⊠ P')] = ∑_i q^{middleShift (L i)} [ResIndPiece (L i) ⊗ (P ⊠ P')]`, the
+  piece carrying the unshifted grading of the middle tensor product
+  (`ResIndPiece.baseGrading`, `ResIndPiece.tensorGProj`). The shift is pulled out by
+  `Graded.K0.of_balancedTensorGProj_shift_left`.
 
 * `GradingDatum.instGradedAlgebraKlrGrade`: for every grading datum `G`, `W_ν` with
   `G.klrGrade ν` is a graded algebra (the corner of `A_ν` at the degree-zero idempotent
@@ -252,7 +256,8 @@ isomorphism given the following inputs.
 
 In short: over a field, the comparison is `GradingDatum.k0TensorEquiv`, under the explicit
 hypothesis `TensorK0Hyp` (finite-dimensionality of the graded simple tops, in addition to (2));
-the missing formal input for the coproduct is the Mackey identity in graded `K_0`.
+the graded Mackey identity is formalized; the missing formal input for the coproduct is its
+twisted-induction form and the transport along `k0TensorEquiv`.
 
 ## Restriction preserves finitely generated projectives
 
@@ -294,7 +299,7 @@ gives it, even over an algebraically closed field.
 
 So `Δ` with values in `K_0(W_{ν₁}) ⊗ K_0(W_{ν₂})` is formalized only under this hypothesis.
 The options for the maintainer: (a) the graded route: `HasGdim`, graded `K_0` and the
-comparison under `TensorK0Hyp` are now formalized; the graded Mackey identity and the fields
-of `TensorK0Hyp` remain; (b) keep
+comparison under `TensorK0Hyp` and the graded Mackey identity are now formalized; its
+twisted-induction form, the transport and the fields of `TensorK0Hyp` remain; (b) keep
 `ProjK0.ExtTensorBijective` as an explicit hypothesis of the ungraded statement (current
 state); (c) new theory for the ungraded comparison, which needs the maintainer's approval.

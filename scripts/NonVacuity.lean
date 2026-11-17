@@ -2046,7 +2046,7 @@ namespace FirstBlackLattice
 open LieLean.QuantumGroup LieLean.QuantumGroup.GrandLoop
 
 private def sl2HighestTwo : Dom sl2RootDatum :=
-  ⟨2 • AddMonoidHom.id ℤ, fun _ => by simp [sl2RootDatum]⟩
+  ⟨2 • AddMonoidHom.id ℤ, fun _ => by simp [LieLean.QuantumGroup.sl2RootDatum]⟩
 
 private theorem sl2XRegular : sl2RootDatum.IsXRegular := by
   change LinearIndependent ℤ sl2RootDatum.root
@@ -2062,10 +2062,10 @@ private def redLevelTwoGrading :=
     (fun _ => 1) (fun _ => rfl)
 
 example := Stendhal.SingleBlack.oneBlackLatticeEquiv_regular sl2HighestTwo () redLevelTwoGrading
-  sl2XRegular (by simp [sl2HighestTwo, redLevelTwo, sl2RootDatum]) (by simp [redLevelTwo])
+  sl2XRegular (by simp [sl2HighestTwo, redLevelTwo, LieLean.QuantumGroup.sl2RootDatum]) (by simp [redLevelTwo])
 
 example := Stendhal.SingleBlack.oneBlackLatticeEquiv_regular_shift sl2HighestTwo () redLevelTwoGrading
-  sl2XRegular (by simp [sl2HighestTwo, redLevelTwo, sl2RootDatum]) (by simp [redLevelTwo]) 1
+  sl2XRegular (by simp [sl2HighestTwo, redLevelTwo, LieLean.QuantumGroup.sl2RootDatum]) (by simp [redLevelTwo]) 1
 
 end FirstBlackLattice
 

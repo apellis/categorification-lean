@@ -1048,13 +1048,22 @@ import Categorification.KLR.CyclotomicPresentCommutatorK0
 import Categorification.KLR.CyclotomicProjectiveLift
 import Categorification.KLR.CyclotomicQuotientK0
 import Categorification.KLR.CyclotomicDividedProjectives
+import Categorification.KLR.CyclotomicSerreK0
+import Categorification.KLR.CyclotomicWordSpan
+import Categorification.WeightedKLR.RedStrands.DividedProjectives
+import Categorification.WeightedKLR.RedStrands.TensorFinite
+import Categorification.KLR.CyclotomicIntegrable
 import Categorification.WeightedKLR.RedStrands.AddRed
 import Categorification.WeightedKLR.RedStrands.BoundaryCharacters
 import Categorification.WeightedKLR.RedStrands.FirstWeightProjectives
+import Categorification.WeightedKLR.RedStrands.FirstWeightLattice
+import Categorification.WeightedKLR.RedStrands.SingleBlackShapovalov
 import Categorification.WeightedKLR.RedStrands.SingleBlackLattice
 import Categorification.WeightedKLR.RedStrands.SingleRedGrading
 import Categorification.KLR.CyclotomicQuantumCommutator
 import Categorification.WeightedKLR.RedStrands.AddRedInjective
+import Categorification.WeightedKLR.RedStrands.LastRedInduction
+import Categorification.WeightedKLR.RedStrands.LastRedTruncation
 import Categorification.WeightedKLR.RedStrands.BlackInduction
 /-!
 # Categorification

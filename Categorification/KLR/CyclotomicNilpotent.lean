@@ -142,6 +142,51 @@ theorem pol_rename_mul_e_eq (b : ℕ) (hb : b + 1 < m) (i : Seq ν)
   rw [this, ← mul_assoc, ← mul_assoc, mul_assoc _ (ψ b) (e i), ψ_mul_e, ← mul_assoc, ← hc]
   noncomm_ring
 
+/-- On an equal pair of adjacent labels the next dot has the same annihilating
+power, by Kang–Kashiwara, arXiv:1102.4677v4, Lemma 4.2. -/
+theorem next_pow_mem_annE_of_eq (b : ℕ) (hb : b + 1 < m) (N : ℕ)
+    (hN : ∀ v : M, (pol (MvPolynomial.X ⟨b, by omega⟩ ^ N) : KLRAlgebra k Q ν) • v = 0)
+    (i : Seq ν) (hi : i.lbl ⟨b, by omega⟩ = i.lbl ⟨b + 1, hb⟩) :
+    (MvPolynomial.X ⟨b+1, hb⟩ : MvPolynomial (Fin m) k) ^ N ∈ annE (Q := Q) M i := by
+  intro v
+  have := swap_smul_eq_zero (Q := Q) (M := M) b hb hi
+    (f := MvPolynomial.X ⟨b, by omega⟩ ^ N) (fun v => by rw [mul_smul, hN]) v
+  rwa [swapPol, map_pow, MvPolynomial.rename_X, swap_apply_left] at this
+
+/-- The explicit exponent in the distinct-label step of Brundan–Kleshchev,
+arXiv:0808.2032v3, Lemma 2.1. Here the degree of the pure second-variable
+term determines the bound for general KLR polynomials. -/
+theorem next_pow_mem_annE_of_ne (b : ℕ) (hb : b + 1 < m) (N : ℕ)
+    (hN : ∀ v : M, (pol (MvPolynomial.X ⟨b, by omega⟩ ^ N) : KLRAlgebra k Q ν) • v = 0)
+    (i : Seq ν) (hi : i.lbl ⟨b, by omega⟩ ≠ i.lbl ⟨b + 1, hb⟩)
+    (c : k) (d : ℕ) (hc : IsUnit c) (hQc :
+      MvPolynomial.aeval (![0, MvPolynomial.X 1] : Fin 2 → MvPolynomial (Fin 2) k)
+        (Q (i.lbl ⟨b, by omega⟩) (i.lbl ⟨b+1, hb⟩)) = MvPolynomial.C c * MvPolynomial.X 1 ^ d) :
+    (MvPolynomial.X ⟨b+1, hb⟩ : MvPolynomial (Fin m) k) ^ (N * (N + d)) ∈ annE (Q := Q) M i := by
+  obtain ⟨r, hr⟩ := exists_eq_eval_zero_add (Q (i.lbl ⟨b, by omega⟩) (i.lbl ⟨b + 1, hb⟩))
+  rw [hQc] at hr
+  let ι : Fin 2 → Fin m := ![⟨b, by omega⟩, ⟨b + 1, hb⟩]
+  set J := annE (Q := Q) M i
+  let π := Ideal.Quotient.mk J
+  have hπ : ∀ p, p ∈ J ↔ π p = 0 := fun p => Ideal.Quotient.eq_zero_iff_mem.symm
+  have hx : π (MvPolynomial.X ⟨b, by omega⟩) ^ N = 0 := by
+    rw [← map_pow, ← hπ]
+    intro v
+    rw [mul_smul, hN]
+  have hkey := pol_rename_mul_e_eq (Q := Q) b hb i hi (Polynomial.X ^ N : k[X])
+  have hy : π (MvPolynomial.X ⟨b + 1, hb⟩) ^ N *
+      (π (MvPolynomial.C c : MvPolynomial (Fin m) k) * π (MvPolynomial.X ⟨b + 1, hb⟩) ^ d +
+        π (MvPolynomial.X ⟨b, by omega⟩) * π (MvPolynomial.rename ι r)) = 0 := by
+    have hmem : MvPolynomial.rename ι (aeval (MvPolynomial.X 1 : MvPolynomial (Fin 2) k)
+        (Polynomial.X ^ N : k[X]) * Q (i.lbl ⟨b, by omega⟩) (i.lbl ⟨b + 1, hb⟩)) ∈ J := by
+      intro v
+      rw [hkey, mul_smul, mul_smul, map_pow, aeval_X, hN, smul_zero]
+    rw [hπ, map_mul, map_pow, aeval_X, hr] at hmem
+    simpa [ι, map_mul, map_add, map_pow, MvPolynomial.rename_X] using hmem
+  apply (hπ _).2
+  rw [map_pow]
+  exact pow_eq_zero_of_pow_mul_eq_zero ((hc.map (MvPolynomial.C (σ := Fin m) (R := k))).map π) hx hy
+
 /-- **Brundan–Kleshchev, Lemma 2.1**, induction step: if `x_b^N` kills `M`, then a power of
 `x_{b+1}` kills `M`, provided `Q_{ij}(0, v)` is a unit multiple of a power of `v` for `i ≠ j`. -/
 theorem exists_pow_next
@@ -157,34 +202,9 @@ theorem exists_pow_next
       (MvPolynomial.X ⟨b + 1, hb⟩ : MvPolynomial (Fin m) k) ^ n ∈ annE (Q := Q) M i := by
     intro i
     by_cases hi : i.lbl ⟨b, by omega⟩ = i.lbl ⟨b + 1, hb⟩
-    · refine ⟨N, fun v => ?_⟩
-      have := swap_smul_eq_zero (Q := Q) (M := M) b hb hi
-        (f := MvPolynomial.X ⟨b, by omega⟩ ^ N) (fun v => by rw [mul_smul, hN]) v
-      rwa [swapPol, map_pow, MvPolynomial.rename_X, swap_apply_left] at this
+    · exact ⟨N, next_pow_mem_annE_of_eq b hb N hN i hi⟩
     · obtain ⟨c, d, hc, hQc⟩ := hQ0 _ _ hi
-      obtain ⟨r, hr⟩ := exists_eq_eval_zero_add (Q (i.lbl ⟨b, by omega⟩) (i.lbl ⟨b + 1, hb⟩))
-      rw [hQc] at hr
-      let ι : Fin 2 → Fin m := ![⟨b, by omega⟩, ⟨b + 1, hb⟩]
-      set J := annE (Q := Q) M i
-      let π := Ideal.Quotient.mk J
-      have hπ : ∀ p, p ∈ J ↔ π p = 0 := fun p => Ideal.Quotient.eq_zero_iff_mem.symm
-      have hx : π (MvPolynomial.X ⟨b, by omega⟩) ^ N = 0 := by
-        rw [← map_pow, ← hπ]
-        intro v
-        rw [mul_smul, hN]
-      have hkey := pol_rename_mul_e_eq (Q := Q) b hb i hi (Polynomial.X ^ N : k[X])
-      have hy : π (MvPolynomial.X ⟨b + 1, hb⟩) ^ N *
-          (π (MvPolynomial.C c : MvPolynomial (Fin m) k) * π (MvPolynomial.X ⟨b + 1, hb⟩) ^ d +
-            π (MvPolynomial.X ⟨b, by omega⟩) * π (MvPolynomial.rename ι r)) = 0 := by
-        have hmem : MvPolynomial.rename ι (aeval (MvPolynomial.X 1 : MvPolynomial (Fin 2) k)
-            (Polynomial.X ^ N : k[X]) * Q (i.lbl ⟨b, by omega⟩) (i.lbl ⟨b + 1, hb⟩)) ∈ J := by
-          intro v
-          rw [hkey, mul_smul, mul_smul, map_pow, aeval_X, hN, smul_zero]
-        rw [hπ, map_mul, map_pow, aeval_X, hr] at hmem
-        simpa [ι, map_mul, map_add, map_pow, MvPolynomial.rename_X] using hmem
-      refine ⟨N * (N + d), (hπ _).2 ?_⟩
-      rw [map_pow]
-      exact pow_eq_zero_of_pow_mul_eq_zero ((hc.map (MvPolynomial.C (σ := Fin m) (R := k))).map π) hx hy
+      exact ⟨_, next_pow_mem_annE_of_ne b hb N hN i hi c d hc hQc⟩
   choose ns hns using hloc
   refine ⟨Finset.univ.sup ns, fun v => smul_eq_zero_of_mul_e _ (fun i v => ?_) v⟩
   have hle : ns i ≤ Finset.univ.sup ns := Finset.le_sup (Finset.mem_univ i)

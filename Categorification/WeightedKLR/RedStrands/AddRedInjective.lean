@@ -3,6 +3,7 @@ Copyright (c) 2026 Alex Ellis. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 -/
 import Categorification.WeightedKLR.RedStrands.AddRed
+import Categorification.WeightedKLR.RedStrands.StendhalParameters
 
 /-!
 # Injectivity of the terminal red strand map
@@ -157,37 +158,45 @@ private theorem appendRedStendhalValue_injective_of_independent
   have he : f ∘ oldB = newB ∘ appendTerm := funext (appendTerm_value (ν := ν) Q Λ)
   exact he ▸ hB.comp appendTerm appendTerm_injective
 
+/-- Target PBW independence, for any family of reduced expressions, suffices to
+detect the kernel of appending a red strand (Webster, arXiv:1309.3796v2,
+Propositions 4.16 and 4.18). Only spanning is needed on the shorter algebra. -/
+theorem appendRedStendhalValue_injective_of_stendhalTerm
+    (hB : ∀ (ρ : Perm (Fin m) → List ℕ) (hρ : ∀ w, IsReduced m (ρ w) ∧ wordProd m (ρ w) = w),
+      LinearIndependent k (stendhalTerm Q Λ (ν := ν) (fun w => (hρ w).2))) :
+    Function.Injective (appendRedStendhalValue Q Λ ν) :=
+  appendRedStendhalValue_injective_of_independent (ν := ν) Q Λ (hB _ extendedWord_spec)
+
 end Independence
 
-section Graph
+section Parameters
 
-open WeightedKLR
-variable [DecidableEq I] {k : Type*} [CommRing k] {𝕜 : Type*} [Field 𝕜] [LinearOrder 𝕜]
-  [IsStrictOrderedRing 𝕜] (Γ : WeightedGraph I 𝕜 k) (Λ : Fin (ℓ + 1) → I →₀ ℕ) (ν : Multiset I)
-  (hD : Γ.Dagger) (hE : ∀ e, Γ.head e ≠ Γ.tail e) (hl : ∀ c, Γ.loop c = none)
-  (hw : ∀ e, Γ.weight e = 0) (hS : Γ.Standing)
+variable [DecidableEq I] {k : Type*} [CommRing k] {C : QuantumGroup.CartanDatum I}
+  (Q : I → I → MvPolynomial (Fin 2) k) (Λ : Fin (ℓ + 1) → I →₀ ℕ) (ν : Multiset I)
+  (hQ : IsRouquierQ C Q)
 
-include hD hE hl hw hS in
-/-- The prequotient map in Webster, arXiv:1309.3796v2, Proposition 4.18 is injective
-for the graph parameters of the Stendhal basis theorem (Proposition 4.16). -/
+include hQ in
+/-- Before imposing the violating relation, appending the last red strand is
+injective for the crossing parameters of Webster, arXiv:1309.3796v2, §2.2
+and Propositions 4.16 and 4.18. -/
 theorem appendRedStendhalValue_injective :
-    Function.Injective (appendRedStendhalValue Γ.klrQ Λ ν) :=
-  appendRedStendhalValue_injective_of_independent (ν := ν) Γ.klrQ Λ
-    (linearIndependent_stendhalTerm hD hE hl hw hS extendedWord_spec)
+    Function.Injective (appendRedStendhalValue Q Λ ν) :=
+  appendRedStendhalValue_injective_of_stendhalTerm (ν := ν) Q Λ
+    (fun _ hρ => linearIndependent_stendhalTerm_of_rouquier Q ν Λ hQ hρ)
 
-include hD hE hl hw hS in
-/-- Appending the terminal red strand identifies Webster's violating quotient with
-the terminal-red corner (arXiv:1309.3796v2, Proposition 4.18). Independence uses
-the loopless, weight-zero graph hypotheses of Proposition 4.16 as formalized here. -/
+include hQ in
+/-- Appending the last red strand identifies the algebra for the shorter
+sequence of weights with the last-red corner for the longer sequence
+(Webster, arXiv:1309.3796v2, §4.3, Proposition 4.18). -/
 def appendRedEquiv :
-    TensorProductAlgebra k Γ.klrQ (Λ ∘ Fin.castSucc) ν ≃ₐ[k] TensorProductAlgebra.lastRedCorner Γ.klrQ Λ ν :=
-  AlgEquiv.ofBijective (appendRed Γ.klrQ Λ ν)
-    ⟨appendRed_injective_of_stendhal ν Γ.klrQ Λ (appendRedStendhalValue_injective Γ Λ ν hD hE hl hw hS),
-      appendRed_surjective Γ.klrQ Λ ν⟩
+    TensorProductAlgebra k Q (Λ ∘ Fin.castSucc) ν ≃ₐ[k] TensorProductAlgebra.lastRedCorner Q Λ ν :=
+  AlgEquiv.ofBijective (appendRed Q Λ ν)
+    ⟨appendRed_injective_of_stendhal ν Q Λ (appendRedStendhalValue_injective Q Λ ν hQ),
+      appendRed_surjective Q Λ ν⟩
 
-@[simp] theorem appendRedEquiv_apply (a : TensorProductAlgebra k Γ.klrQ (Λ ∘ Fin.castSucc) ν) :
-    appendRedEquiv Γ Λ ν hD hE hl hw hS a = appendRed Γ.klrQ Λ ν a := rfl
+@[simp] theorem appendRedEquiv_apply (a : TensorProductAlgebra k Q (Λ ∘ Fin.castSucc) ν) :
+    appendRedEquiv Q Λ ν hQ a = appendRed Q Λ ν a := rfl
 
-end Graph
+end Parameters
 
 end Categorification.Stendhal

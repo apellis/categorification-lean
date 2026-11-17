@@ -289,4 +289,35 @@ theorem oneBlackK0_eq_zero (hi : Λ 0 i = 0) (x : K0 (tensorProductGrade G {i}))
 
 end K0
 
+section Euler
+
+open Categorification.Graded
+
+variable {k : Type*} [Field k]
+  {Q : I → I → MvPolynomial (Fin 2) k} {Λ : Fin 1 → I →₀ ℕ}
+  (G : KLR.GradingDatum (stendhalQ Q Λ))
+
+local notation "ν" => (Singleton.singleton i : Multiset I)
+local notation "𝒜" => tensorProductGrade G ν
+local notation "deg" => G.degX (Sum.inl i)
+
+/-- The single surviving black dot has the degree of its color. -/
+theorem dot_mem_grade : dot i Q Λ ∈ 𝒜 deg := by
+  let a : Fin (Multiset.card μ) := ⟨1, by rw [card_eq]; decide⟩
+  have hd := G.x_mul_e_mem_grade (k := k) a (word i)
+  rw [show (word i).lbl a = .inl i from word_one i] at hd
+  have hm := Graded.mem_map_of_mem (G.grade μ) (ofKLR k Q Λ ν).toLinearMap hd
+  have hs : (SingleRed.orderedEquiv Q Λ ν)
+      (ofKLR k Q Λ ν (KLRAlgebra.x a * KLRAlgebra.e (word i))) ∈ stendhalGrade G ν deg := hm
+  have ht := Graded.mem_map_of_mem (stendhalGrade G ν) (TensorProductAlgebra.mk Q Λ ν).toLinearMap hs
+  have he : dot i Q Λ = SingleRed.mk Q Λ ν
+      (ofKLR k Q Λ ν (KLRAlgebra.x a * KLRAlgebra.e (word i))) := by
+    rw [map_mul, map_mul]
+    change _ = dot i Q Λ * SingleRed.mk Q Λ ν (e (word i))
+    rw [mk_e_word, mul_one]
+  rw [he]
+  exact ht
+
+end Euler
+
 end Categorification.Stendhal.SingleBlack

@@ -16,7 +16,7 @@ recorded in [the Theorem 2.19 roadmap](thm-2-19-roadmap.md).
   (`CycKLR.exists_gradePBWBasis`, `exists_cornerGradePBWBasis`,
   `exists_homogeneousPBWBasis`).
 * The standard terms in Webster, arXiv:1309.3796v2, Proposition 4.16 give a
-  basis before imposing the violating ideal. Their projections span the
+  basis before imposing the violating ideal. `Stendhal.tensorProductAlgebra_finite` proves finiteness over the coefficient ring for every Rouquier parameter family. Their projections span the
   quotient, and over a field one can select a homogeneous basis from them.
   `Stendhal.coeff_gdim_tensorProductGrade` counts the selected terms.
   `Stendhal.finrank_tensorProductGrade_eq_card_sub_rank` computes the dimension
@@ -45,6 +45,33 @@ corner this reverses the source and target endpoint arguments.
 |---|---|---|
 | Proposition 3.21, one-factor highest-weight representation | `CycKLR.projectiveK0Basis` gives a Laurent basis, and `CycKLR.lower` and `CycKLR.raise` give the lowering and raising operators by graded induction and shifted restriction. Its vacuum and first lowering are computed by `indK0_vacuum`, `singleK0Equiv_regular`, and `singleK0_eq_zero`. | The affine quotient surjects on projective classes (`totalQuotientK0_surjective`), and divided-word classes span for Rouquier parameters (`span_dividedProjective_of_rouquier`). The equal-colour commutator is `raise_lower_sub_lower_raise`. Complete the remaining relations for the normalized action and the integral highest-weight representation identification. |
 | Theorem 4.20, single-red algebra | `SingleRed.cyclotomicEquiv` identifies the one-red block with the monomial cyclotomic algebra for every black multiset over a commutative ring. | `SingleRed.totalCyclotomicK0Equiv` identifies the graded projective groups and `cyclotomicK0Equiv_sequenceProj` identifies each word projective. `Stendhal.blackLower` independently defines right black-strand induction for arbitrary red families. Compare it with the transported one-factor operator. |
-| Proposition 4.18, adding the last red strand | `appendRed_surjective` proves every element of the corner comes from the shorter algebra. `appendFirstRedEquiv` and `appendRedVacuumEquiv` prove the isomorphism in the two base cases. | `appendRedEquiv` proves the isomorphism for all black weights and red families under the loop-free, zero black edge weight hypotheses of the existing weighted PBW comparison. General parameters remain open. |
+| Proposition 4.18, adding the last red strand | `appendRedEquiv` identifies the shorter algebra with the terminal-red corner for the homogeneous parameters of §2.2. `appendRed_mem_grade` proves homogeneity. | `lastRedIndK0_sequenceProj` appends red on sequence projectives. `exists_lastRedIndK0_of_retract` gives the induced class of every graded retract of the terminal-red left ideal. |
 | Lemmas 4.35 and 4.36, projective decompositions and pairing | `Stendhal.finrank_homGrade_sequenceProj` computes the dimension of the homogeneous Hom between undivided sequence projectives from the quotient basis. | Match the graded projective decompositions with the quantum commutator and identify the Hom pairing with the tensor product pairing, including divided powers. |
-| Lemma 4.37 and Theorem 4.38 | `Stendhal.tensorProductVacuumK0Equiv_regular` identifies the vacuum class for every red family. `Stendhal.emptyTensorK0Equiv` accounts for every weight of the empty family. | At one black strand, `FirstWeight.sequenceProjBasis` gives a basis indexed by black positions when every red multiplicity at that colour and all dot degrees are positive. For one factor `SingleBlack.oneBlackLatticeEquiv_regular` identifies the regular class with Fᵢ applied to the highest vector. The general spanning theorem, representation identification, and pairing remain open. |
+| Lemma 4.37 and Theorem 4.38 | `Stendhal.tensorProductVacuumK0Equiv_regular` identifies the vacuum class for every red family. `Stendhal.emptyTensorK0Equiv` accounts for every weight of the empty family. | At one black strand, `FirstWeight.sequenceProjBasis` gives a basis indexed by black positions when every red multiplicity at that colour and all dot degrees are positive. For one factor `SingleBlack.oneBlackLatticeEquiv_regular` identifies the regular class with Fᵢ applied to the highest vector. `lastRed_boundary_mem_span` truncates a constant block after the last red via the boundary with one fewer black strand on its right. The general representation identification and pairing remain open. |
+
+
+**Lemma 4.37.** The integral generation statement holds for all red families
+and black weights over any field with Rouquier parameters.
+`Stendhal.span_dividedSequenceProj` uses the graded surjection
+`Stendhal.affineTensorProjection` from an ordinary KLR algebra with one strand
+of each red colour. Fitting decomposition in degree zero lifts idempotents to
+the affine algebra. Extending the affine nilHecke projectives gives precisely
+the shifted divided-word projectives in the violating quotient.
+
+**First lowering component of Theorem 4.38.**
+`FirstWeight.sequenceLatticeEquiv_boundary_shift` identifies every boundary
+projective with its prefix-lowering vector in the integral tensor product of
+the highest-weight modules. The current component proof assumes a finite
+X-regular root datum, positive multiplicity at the chosen colour for every
+factor and positive dot degrees. The one-factor first-weight Euler form is
+`SingleBlack.regular_homGdimPoly_eq_shapovalov`. Removing the positivity
+restriction and identifying the other weight spaces and their pairings
+remain part of the general theorem.
+
+**Compatibility of the pairing conventions.** In Proposition 4.33 the
+identity relating the bar-conjugate coproduct to the adjoint in (3.24) fails
+for the coproduct of §1.2. On two fundamental sl₂ modules, write h for the
+highest vector and f for Fh. For u = F, the two sides applied to h ⊗ f give
+h ⊗ h and q² h ⊗ h. The general pairing clause of Theorem 4.38 requires a
+choice of compatible conventions. The integral generation in Lemma 4.37
+holds independently. See [the calculation on issue #289](https://github.com/apellis/categorification-lean/issues/289#issuecomment-6961908142).

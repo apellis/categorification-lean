@@ -8,6 +8,8 @@ import Categorification.WeightedKLR.RedStrands.StendhalBasis
 import Categorification.TypeA.DoubleCoset
 import Categorification.KLR.Reindex
 import Categorification.KLR.CyclotomicEF
+import Categorification.KLR.CyclotomicSplit
+import Categorification.KLR.Induction
 import Categorification.KLR.ConcatAssoc
 import Mathlib.RingTheory.Idempotents
 
@@ -770,6 +772,66 @@ def appendRed : TensorProductAlgebra k Q Λ₀ ν →ₐ[k] TensorProductAlgebra
   rw [← TwoSidedIdeal.mem_ker, TwoSidedIdeal.ker_ringCon_mk']
   exact TwoSidedIdeal.subset_span
     ⟨_, _, (appendRedLoading_violated_iff s).2 hV, rfl⟩
+
+/-- The grading on the earlier red family obtained by omitting the final red
+colour (Webster, arXiv:1309.3796v2, Definition 4.4). -/
+def restrictRedGrading (G : GradingDatum S) : GradingDatum (stendhalQ Q Λ₀) where
+  degX a := G.degX (addRedColor ℓ a)
+  degΨ a b := G.degΨ (addRedColor ℓ a) (addRedColor ℓ b)
+  degΨ_self a := G.degΨ_self _
+  isWeightedHomogeneous a b hab := by
+    have h := G.isWeightedHomogeneous _ _ (fun he => hab (addRedColor_injective ℓ he))
+    cases a <;> cases b <;> exact h
+
+private theorem appendRedRelabel_coaction (G : GradingDatum S)
+    (z : KLRAlgebra k (stendhalQ Q Λ₀) μ) :
+    G.coaction (relabelHom (appendRedRelabel Q Λ ν) z) =
+      AddMonoidAlgebra.mapAlgHom ℤ (relabelHom (appendRedRelabel Q Λ ν))
+        ((restrictRedGrading Q Λ G).coaction z) := by
+  classical
+  let R := appendRedRelabel Q Λ ν
+  induction z using klr_induction with
+  | hr r => simp only [AlgHom.commutes]
+  | hadd x y h₁ h₂ => simp only [map_add, h₁, h₂]
+  | hmul x y h₁ h₂ => simp only [map_mul, h₁, h₂]
+  | he s => simp only [relabelHom_e, GradingDatum.coaction_e, AddMonoidAlgebra.mapAlgHom_single]
+  | hx a =>
+    simp only [relabelHom_x, GradingDatum.coaction_x, map_sum, AddMonoidAlgebra.mapAlgHom_single,
+      map_mul, relabelHom_e]
+    symm
+    apply Fintype.sum_equiv R.equiv
+    intro s
+    rfl
+  | hψ j =>
+    simp only [relabelHom_ψ, GradingDatum.coaction_ψ, map_sum, AddMonoidAlgebra.mapAlgHom_single,
+      map_mul, relabelHom_e]
+    symm
+    apply Fintype.sum_equiv R.equiv
+    intro s
+    congr 1
+    by_cases hj : j + 1 < Multiset.card μ
+    · have hj' : j + 1 < Multiset.card ν₀ := by simpa using hj
+      rw [GradingDatum.dψ_of_lt _ hj, G.dψ_of_lt hj']
+      rfl
+    · simp [GradingDatum.dψ, hj]
+
+/-- Appending the last red strand preserves diagram degrees on the violating
+quotient (Webster, arXiv:1309.3796v2, Definition 4.4 and Proposition 4.18). -/
+theorem appendRed_mem_grade (G : GradingDatum S) {d : ℤ} {x}
+    (hx : x ∈ tensorProductGrade (restrictRedGrading Q Λ G) ν d) :
+    (appendRed Q Λ ν x).val ∈ tensorProductGrade G ν d := by
+  obtain ⟨z, hz, rfl⟩ := Submodule.mem_map.mp hx
+  apply Graded.mem_map_of_mem (stendhalGrade G ν) (TensorProductAlgebra.mk Q Λ ν).toLinearMap
+  change (appendRedAllOrders Q Λ ν z.val).val ∈ allOrdersGrade G ν d
+  obtain ⟨a, ha, he⟩ := Submodule.mem_map.mp
+    (show z.val ∈ allOrdersGrade (restrictRedGrading Q Λ G) ν d from hz)
+  change StendhalAlgebraAllOrders.ofKLR k Q Λ₀ ν a = z.val at he
+  rw [← he, appendRedAllOrders_ofKLR, appendRedKLR_val]
+  apply Graded.mem_map_of_mem
+  apply G.castKLR_mem_grade
+  apply (blockL ν₀ νᵣ).valHom_mem_grade
+  rw [GradingDatum.mem_grade, appendRedRelabel_coaction, (restrictRedGrading Q Λ G).mem_grade.mp ha,
+    AddMonoidAlgebra.mapAlgHom_single]
 
 /-- The appending map on a boundary idempotent of the violating quotient. -/
 theorem appendRed_mk_e (s : Seq μ) (hs : IsRedOrdered s) :

@@ -65,7 +65,11 @@ These statements do not involve the comparison map.
   * Step (iii), the passage to `K_0`, is formalized generically: tensoring with a projective
     module is exact on bimodules (`BalancedTensor.mapLeftBimodule_exact`), and a finite filtration with
     finitely generated projective subquotients gives a finitely generated projective module whose
-    class is the sum of theirs (`ProjK0.exists_of_eq_sum_of_chain`).
+    class is the sum of theirs (`ProjK0.exists_of_eq_sum_of_chain`). The two are combined in
+    `ProjK0.exists_of_balancedTensor_eq_sum`: for a chain `0 = F 0 ≤ ⋯ ≤ F n = M` of sub-bimodules
+    (`SubBimodule`) of a `(B, A)`-bimodule, with surjective bimodule maps `F (i+1) → Y i` of kernel
+    `F i`, and a projective left `A`-module `N` with every `Y i ⊗_A N` finitely generated projective
+    over `B`, one has `[M ⊗_A N] = ∑_i [Y i ⊗_A N]` in `K_0(B)`.
   * Step (ii) is formalized per shuffle type, for arbitrary weights. `GalleryAlgebra.resIndFilt S`
     cuts the filtration down to `e_{ν₁;ν₂} W_ν e_{ν';ν''}`. Write `ν' = a + b`, `ν'' = c + d`,
     `ν₁ = a + c`, `ν₂ = b + d` and `μ = c`. Let `S` be a lower set whose only type outside a lower set
@@ -74,8 +78,10 @@ These statements do not involve the comparison map.
     `(W_{a+c} ⊗ W_{b+d}) e' ⊗_{W_a ⊗ W_b ⊗ W_c ⊗ W_d} e (W_{a+b} ⊗ W_{c+d})` to the subquotient `S / S'`.
     It intertwines the two bimodule actions; the layout form is `Juxtapose.middleResIndEquiv`.
     So the corner maps are balanced and Webster's bimodule claim holds as stated.
-  * Open: tensoring the filtration with `P ⊠ Q` (exactness: `BalancedTensor.mapLeftBimodule_exact`).
-    Also open: identifying `MiddleTensor ⊗ (P ⊠ Q)` with the twisted `Ind ⊗ Ind (Res P ⊠ Res Q)`, and
+  * Open: applying `ProjK0.exists_of_balancedTensor_eq_sum` to the Mackey filtration. This needs
+    `resIndFilt` as a chain of sub-bimodules of the corner `e_{ν₁;ν₂} W e_{ν';ν''}` (a linear order of
+    the shuffle types refining the dominance order), `Res Ind(P ⊠ Q) ≅ e_{ν₁;ν₂} W e_{ν';ν''} ⊗ (P ⊠ Q)`,
+    and the right `W_{a+b} ⊗ W_{c+d}`-module structure of `MiddleTensor`. Also open: identifying `MiddleTensor ⊗ (P ⊠ Q)` with the twisted `Ind ⊗ Ind (Res P ⊠ Res Q)`, and
     the identity in `K_0` itself. The graded statement, with the shift `-(μ · μ')`, is later work.
 
 ## What needs a field, and why

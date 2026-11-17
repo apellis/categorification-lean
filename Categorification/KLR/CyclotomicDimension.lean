@@ -13,7 +13,8 @@ of two ordinary basis terms with a cyclotomic generator inserted between them.
 Retaining the products in degree `d` gives a finite family. The degree-`d` dimension of
 the quotient is the number of ordinary basis terms in that degree minus the rank
 of these relations in the ordinary KLR algebra, including interacting and repeated
-colours. This calculation uses the undeformed cyclotomic polynomial `X ^ Λ i`.
+colours. Selecting a minimal spanning family modulo these affine relations yields a
+homogeneous basis consisting of quotient images of PBW diagrams. This calculation uses the undeformed cyclotomic polynomial `X ^ Λ i`.
 -/
 
 namespace Categorification.KLR.CycKLR
@@ -195,5 +196,222 @@ theorem finrank_cornerGrade_eq_card_sub_rank (hsym : KLRSymm Q) (hX : ∀ i, 0 <
   omega
 
 end Corners
+
+section Selection
+
+variable {A M J : Type*} [AddCommGroup A] [Module k A] [AddCommGroup M] [Module k M]
+
+/-- A finite PBW selection can be checked entirely in the affine algebra. Every
+candidate lies in the span of the selected terms and the relations, and each selected
+term is indispensable after adjoining the relations. -/
+def IsPBWSelection (v : J → A) (C : Set J) (W : Submodule k A) (s : Finset J) : Prop :=
+  (s : Set J) ⊆ C ∧
+  (∀ j ∈ C, v j ∈ Submodule.span k (v '' (s : Set J)) ⊔ W) ∧
+  ∀ j ∈ s, v j ∉ Submodule.span k (v '' ((s : Set J) \ {j})) ⊔ W
+
+/-- Delete redundant affine PBW diagrams until every remaining diagram is
+indispensable modulo the relation span. Each deletion strictly decreases the
+candidate count. The choice of a redundant diagram can change the basis. -/
+noncomputable def selectPBW (v : J → A) (W : Submodule k A) (S : Finset J) :
+    {s : Finset J // IsPBWSelection v (S : Set J) W s} := by
+  classical
+  by_cases h : ∃ j ∈ S, v j ∈ Submodule.span k (v '' ((S : Set J) \ {j})) ⊔ W
+  · let j := h.choose
+    have hj : j ∈ S := h.choose_spec.1
+    let B := selectPBW v W (S.erase j)
+    refine ⟨B.1, B.2.1.trans (by exact Finset.erase_subset j S), ?_, B.2.2.2⟩
+    intro i hi
+    by_cases he : i = j
+    · subst i
+      have hspan : Submodule.span k (v '' ((S.erase j : Finset J) : Set J)) ≤
+          Submodule.span k (v '' (B.1 : Set J)) ⊔ W :=
+        Submodule.span_le.mpr (by rintro _ ⟨u, hu, rfl⟩; exact B.2.2.1 u hu)
+      have hm : v j ∈ Submodule.span k (v '' ((S.erase j : Finset J) : Set J)) ⊔ W := by
+        rw [Finset.coe_erase]
+        exact h.choose_spec.2
+      exact (sup_le hspan le_sup_right) hm
+    · exact B.2.2.1 i (Finset.mem_erase.mpr ⟨he, hi⟩)
+  · refine ⟨S, Set.Subset.rfl, fun i hi => ?_, fun j hj hmem => h ⟨j, hj, hmem⟩⟩
+    exact (le_sup_left : Submodule.span k (v '' (S : Set J)) ≤ _) (Submodule.subset_span ⟨i, hi, rfl⟩)
+termination_by S.card
+decreasing_by
+  classical
+  exact Finset.card_erase_lt_of_mem hj
+
+private theorem map_mem_span_iff (f : A →ₗ[k] M) (v : J → A) {C T : Set J}
+    (hTC : T ⊆ C) {i : J} (hi : i ∈ C) :
+    (f ∘ v) i ∈ Submodule.span k ((f ∘ v) '' T) ↔
+      v i ∈ Submodule.span k (v '' T) ⊔ (Submodule.span k (v '' C) ⊓ LinearMap.ker f) := by
+  let U := Submodule.span k (v '' T)
+  let P := Submodule.span k (v '' C)
+  have hU : U ≤ P := Submodule.span_mono (Set.image_mono hTC)
+  have hv : v i ∈ P := Submodule.subset_span ⟨i, hi, rfl⟩
+  rw [Set.image_comp, Submodule.span_image]
+  constructor
+  · rintro ⟨x, hx, hfx⟩
+    refine Submodule.mem_sup.mpr ⟨x, hx, v i - x, ⟨P.sub_mem hv (hU hx), ?_⟩, by abel⟩
+    change f (v i - x) = 0
+    change f x = f (v i) at hfx
+    rw [map_sub, hfx, sub_self]
+  · intro h
+    obtain ⟨x, hx, y, ⟨_, hy⟩, he⟩ := Submodule.mem_sup.mp h
+    refine ⟨x, hx, ?_⟩
+    change f y = 0 at hy
+    change f x = f (v i)
+    rw [← he, map_add, hy, add_zero]
+
+/-- An affine PBW selection is equivalent to choosing an independent subfamily
+whose images span all the quotient images of the candidates. -/
+theorem isPBWSelection_iff (f : A →ₗ[k] M) (v : J → A) (C : Set J)
+    (W : Submodule k A) (hW : Submodule.span k (v '' C) ⊓ LinearMap.ker f = W)
+    (s : Finset J) :
+    IsPBWSelection v C W s ↔
+      (s : Set J) ⊆ C ∧ (f ∘ v) '' C ⊆ Submodule.span k ((f ∘ v) '' (s : Set J)) ∧
+        LinearIndepOn k (f ∘ v) (s : Set J) := by
+  rw [← hW, linearIndepOn_iff_notMem_span]
+  constructor
+  · rintro ⟨hs, hsp, hind⟩
+    refine ⟨hs, ?_, ?_⟩
+    · rintro _ ⟨j, hj, rfl⟩
+      exact (map_mem_span_iff f v hs hj).2 (hsp j hj)
+    · intro j hj h
+      exact hind j hj ((map_mem_span_iff f v (Set.sdiff_subset.trans hs) (hs hj)).1 h)
+  · rintro ⟨hs, hsp, hind⟩
+    refine ⟨hs, fun j hj => (map_mem_span_iff f v hs hj).1 (hsp ⟨j, hj, rfl⟩), ?_⟩
+    intro j hj h
+    exact hind j hj ((map_mem_span_iff f v (Set.sdiff_subset.trans hs) (hs hj)).2 h)
+
+/-- Any selection passing the affine span tests gives a basis of the specified
+image space with exactly those representatives. -/
+theorem IsPBWSelection.exists_basis {v : J → A} {C : Set J} {W : Submodule k A} {s : Finset J}
+    (hsel : IsPBWSelection v C W s) (f : A →ₗ[k] M) (P : Submodule k M)
+    (hW : Submodule.span k (v '' C) ⊓ LinearMap.ker f = W)
+    (hP : (Submodule.span k (v '' C)).map f = P) :
+    ∃ B : Module.Basis s k P, ∀ b, (B b : M) = f (v b) := by
+  obtain ⟨hT, hsp, hind⟩ := (isPBWSelection_iff f v C W hW s).1 hsel
+  have hspan : Submodule.span k ((f ∘ v) '' (s : Set J)) = P := by
+    rw [← hP, Submodule.map_span, ← Set.image_comp]
+    exact le_antisymm (Submodule.span_mono (Set.image_mono hT)) (Submodule.span_le.2 hsp)
+  have hli : LinearIndependent k (fun b : s => f (v b)) := hind
+  have he : Submodule.span k (Set.range fun b : s => f (v b)) = P := by
+    change Submodule.span k (Set.range ((s : Set J).domRestrict (f ∘ v))) = P
+    rw [Set.range_domRestrict, hspan]
+  refine ⟨(Module.Basis.span hli).map (LinearEquiv.ofEq _ _ he), fun b => ?_⟩
+  simp only [Module.Basis.map_apply, LinearEquiv.coe_ofEq_apply, Module.Basis.span_apply]
+
+private theorem exists_selection_basis (f : A →ₗ[k] M) (v : J → A) (C : Set J)
+    (hC : C.Finite) (W : Submodule k A) (P : Submodule k M)
+    (hW : Submodule.span k (v '' C) ⊓ LinearMap.ker f = W)
+    (hP : (Submodule.span k (v '' C)).map f = P) :
+    ∃ s : Finset J, IsPBWSelection v C W s ∧
+      ∃ B : Module.Basis s k P, ∀ b, (B b : M) = f (v b) := by
+  classical
+  let S := selectPBW v W hC.toFinset
+  have hsel : IsPBWSelection v C W S.1 :=
+    (congrArg (fun D => IsPBWSelection v D W S.1) hC.coe_toFinset).mp S.2
+  exact ⟨S.1, hsel, hsel.exists_basis f P hW hP⟩
+
+end Selection
+
+include hρ in
+/-- For the monomial quotient of Kang–Kashiwara, arXiv:1102.4677v4, Definition
+4.1, degreewise elimination in the affine PBW basis of Khovanov–Lauda I,
+arXiv:0803.4121v2, Theorem 2.5, selects homogeneous diagrams whose images form
+a basis. Both the candidates and the relations in the selection test are finite. -/
+theorem exists_gradePBWBasis (hsym : KLRSymm Q) (hX : ∀ i, 0 < G.degX i) (d : ℤ) :
+    ∃ s : Finset Std, IsPBWSelection (stdElt ρ : Std → R) {b | G.stdDeg ρ b = d}
+        (Submodule.span k (relationsInGrade G Λ ρ d)) s ∧
+      ∃ B : Module.Basis s k (grade G Λ ν d),
+        ∀ b, (B b : CycKLR k Q aΛ ν) = mk k Q aΛ ν (stdElt ρ b) := by
+  have hgrade := G.grade_eq_span hsym ρ hρ d
+  have hb : (⇑(basisOfSymm hsym ρ hρ) : Std → R) = stdElt ρ :=
+    funext fun b => basisOfSymm_apply hsym ρ hρ b
+  rw [hb] at hgrade
+  apply exists_selection_basis (mk k Q aΛ ν).toLinearMap _ _ (G.finite_stdDeg_eq ρ hX d)
+  · rw [← hgrade, grade_inf_ker_mk G Λ ρ hρ]
+  · rw [← hgrade]
+    rfl
+
+include hρ in
+/-- Degreewise PBW-image bases with prescribed source and target sequences in
+the monomial quotient (Kang–Kashiwara, arXiv:1102.4677v4, Definition 4.1).
+The selection uses the corner restrictions of the affine cyclotomic relations. -/
+theorem exists_cornerGradePBWBasis (hsym : KLRSymm Q) (hX : ∀ l, 0 < G.degX l)
+    (j i : Seq ν) (d : ℤ) :
+    ∃ s : Finset Std, IsPBWSelection (stdElt ρ : Std → R)
+        {b | (b.1 = i ∧ b.2.1 • i = j) ∧ G.stdDeg ρ b = d}
+        (Submodule.span k (cutToCorner (Q := Q) j i '' relationsInGrade G Λ ρ d)) s ∧
+      ∃ B : Module.Basis s k (grade G Λ ν d ⊓ corner k Q aΛ j i : Submodule k (CycKLR k Q aΛ ν)),
+        ∀ b, (B b : CycKLR k Q aΛ ν) = mk k Q aΛ ν (stdElt ρ b) := by
+  let F := ({i} : Finset (Seq ν)) ×ˢ Finset.univ.filter (fun w : Perm (Fin (Multiset.card ν)) => w • i = j)
+  have hc := inf_span_eq (G.grade ν) (G.stdDeg ρ) (G.basis_mem_grade hsym ρ hρ)
+    {b : Std | (b.1, b.2.1) ∈ F} d
+  change G.grade ν d ⊓ GradingDatum.spanF hsym ρ hρ F = _ at hc
+  rw [GradingDatum.spanF_corner hsym ρ hρ] at hc
+  have hb : (⇑(basisOfSymm hsym ρ hρ) : Std → R) = stdElt ρ :=
+    funext fun b => basisOfSymm_apply hsym ρ hρ b
+  simp only [hb, F, Set.mem_ofPred_eq, Finset.mem_product, Finset.mem_singleton,
+    Finset.mem_filter, Finset.mem_univ, true_and] at hc
+  apply exists_selection_basis (mk k Q aΛ ν).toLinearMap
+  · exact (G.finite_stdDeg_eq ρ hX d).subset fun _ h => h.2
+  · rw [← hc]
+    exact cornerGrade_inf_ker_mk G Λ ρ hρ j i d
+  · rw [← hc]
+    exact map_cornerGrade G Λ j i d
+
+include hρ in
+/-- Collecting these degreewise selections gives a homogeneous PBW-image basis of
+the entire cyclotomic algebra of Kang–Kashiwara, arXiv:1102.4677v4, Definition 4.1.
+The PBW labels in each degree satisfy the affine relation-span tests. -/
+theorem exists_homogeneousPBWBasis (hsym : KLRSymm Q) (hX : ∀ i, 0 < G.degX i) :
+    ∃ s : ℤ → Finset Std,
+      (∀ d, IsPBWSelection (stdElt ρ : Std → R) {b | G.stdDeg ρ b = d}
+        (Submodule.span k (relationsInGrade G Λ ρ d)) (s d)) ∧
+      ∃ B : Module.Basis (Σ d, ↥(s d)) k (CycKLR k Q aΛ ν),
+        ∀ b, B b = mk k Q aΛ ν (stdElt ρ b.2) := by
+  choose s hs Bs hBs using exists_gradePBWBasis G Λ ρ hρ hsym hX
+  refine ⟨s, hs, (DirectSum.Decomposition.isInternal (grade G Λ ν)).collectedBasis Bs, ?_⟩
+  intro b
+  rw [DirectSum.IsInternal.collectedBasis_coe]
+  exact hBs b.1 b.2
+
+private theorem hasGdim_image {A M : Type*} [AddCommGroup A] [Module k A]
+    [AddCommGroup M] [Module k M] (f : A →ₗ[k] M) (P : ℤ → Submodule k A) [HasGdim P] :
+    HasGdim (fun d => (P d).map f) where
+  finiteDimensional _ := inferInstance
+  bddBelow := by
+    obtain ⟨L, hL⟩ := HasGdim.bddBelow (ℳ := P)
+    refine ⟨L, fun d hd => hL ?_⟩
+    intro h
+    apply hd
+    rw [h, Submodule.map_bot]
+
+include hρ in
+/-- Coefficient of the Laurent series graded dimension of the monomial cyclotomic
+algebra (Kang–Kashiwara, arXiv:1102.4677v4, Definition 4.1), computed from the
+degreewise affine PBW count and the affine cyclotomic relation rank. -/
+theorem coeff_gdim_grade_eq_card_sub_rank (hsym : KLRSymm Q) (hX : ∀ i, 0 < G.degX i) (d : ℤ) :
+    (gdim (grade G Λ ν)).coeff d =
+      ((Nat.card {b : Std | G.stdDeg ρ b = d} -
+        Module.finrank k (Submodule.span k (relationsInGrade G Λ ρ d)) : ℕ) : ℤ) := by
+  let := G.hasGdim_grade (ν := ν) hsym ρ hρ hX
+  let : HasGdim (grade G Λ ν) := hasGdim_image (mk k Q aΛ ν).toLinearMap (G.grade ν)
+  rw [coeff_gdim, finrank_grade_eq_card_sub_rank G Λ ρ hρ hsym hX]
+
+include hρ in
+/-- The Laurent series coefficient in a prescribed sequence corner, using the rank
+of the relations projected onto those endpoints (Kang–Kashiwara, arXiv:1102.4677v4,
+Definition 4.1 and Khovanov–Lauda I, arXiv:0803.4121v2, Theorem 2.5). -/
+theorem coeff_gdim_cornerGrade_eq_card_sub_rank (hsym : KLRSymm Q) (hX : ∀ l, 0 < G.degX l)
+    (j i : Seq ν) (d : ℤ) :
+    (gdim (fun t => grade G Λ ν t ⊓ corner k Q aΛ j i : ℤ → Submodule k (CycKLR k Q aΛ ν))).coeff d =
+      ((Nat.card {b : Std | (b.1 = i ∧ b.2.1 • i = j) ∧ G.stdDeg ρ b = d} -
+        Module.finrank k (Submodule.span k (cutToCorner (Q := Q) j i '' relationsInGrade G Λ ρ d)) : ℕ) : ℤ) := by
+  let := G.hasGdim_cornerGrade hsym ρ hρ hX j i
+  have h := hasGdim_image (mk k Q aΛ ν).toLinearMap (G.cornerGrade j i)
+  simp_rw [map_cornerGrade] at h
+  let := h
+  rw [coeff_gdim]
+  exact_mod_cast finrank_cornerGrade_eq_card_sub_rank G Λ ρ hρ hsym hX j i d
 
 end Categorification.KLR.CycKLR

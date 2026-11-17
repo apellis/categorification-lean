@@ -103,6 +103,41 @@ example := KLR.CyclotomicAction.blockBoundary (k := ℚ) (Q := unfQ arr) (a := f
   (coverWeight arr) lam hΛ (fun _ _ h => unfQ_natDegree_eq_neg_pair arr h)
   false (β := 0) (by simp) rfl
 
+example (d : ℤ) := KLR.KLRAlgebra.AbsentColour.finrank_appendedCornerGrade
+  (unfGrading (k := ℚ) arr) (fun _ => 1) true ({false} : Multiset Bool)
+  (unfQ_klrSymm arr) (fun j l _ => unfQ_leadingCoeff arr j l)
+  (coverWeight arr) lam (by rw [coverWeight_pair_iY]; rfl)
+  (fun _ h => unfQ_natDegree_eq_neg_pair arr h) (by simp) default default d
+
+/-- On the two-strand mixed block a second raising of the true colour vanishes. -/
+example := KLR.CycKLR.raise_pow_lof_eq_zero (unfGrading (k := ℚ) arr) (fun _ => 1) true
+  (unfQ_klrSymm arr) (fun j l _ => unfQ_leadingCoeff arr j l) (coverCartan arr)
+  2 ({true, false} : Multiset Bool) (by decide)
+  (Graded.K0.of (Graded.GProj.regular (KLR.CycKLR.grade (unfGrading (k := ℚ) arr)
+    (fun _ => 1) {true, false})))
+
+open KLR.KLRAlgebra in
+example : Module.finrank ℚ ↥(KLR.CycKLR.grade (unfGrading (k := ℚ) arr) (fun _ => 1)
+    ([false, true] : List Bool) 2 ⊓ KLR.CycKLR.corner ℚ (unfQ arr)
+      (fun _ => Polynomial.X ^ (1 : ℕ)) (Seq.ofList [false, true] rfl)
+      (Seq.ofList [false, true] rfl)) = 1 := by
+  rw [AbsentColour.finrank_diagonalCornerGrade_of_nodup _ _ (coverWeight arr) lam
+    (unfQ_klrSymm arr) (fun j l _ => unfQ_leadingCoeff arr j l)
+    (fun _ => by rw [coverWeight_pair_iY]; rfl)
+    (fun _ _ h => unfQ_natDegree_eq_neg_pair arr h) _ (by decide) rfl]
+  let factor := AbsentColour.diagonalFactor (unfGrading (k := ℚ) arr) (coverWeight arr) lam
+  have hf (prior : List Bool) (i : Bool) (n : ℕ)
+      (hn : ((coverWeight arr).pair ((coverWeight arr).iY i)
+        (lam - (prior.map (coverWeight arr).iX).sum)).toNat = n) :
+      factor prior i = ∑ j : Fin n, LaurentPolynomial.T ((j : ℤ) * 2) := by
+    subst n
+    rfl
+  change (factor [] false * (factor [false] true * 1)).coeff 2 = 1
+  rw [hf [] false 1 (by rw [coverWeight_pair_iY]; rfl),
+    hf [false] true 2 (by rw [coverWeight_pair_iY]; rfl)]
+  simp [Fin.sum_univ_two]
+  exact Finsupp.single_eq_of_ne (by decide : (2 : ℤ) ≠ 0)
+
 end KangKashiwara
 
 /-! ### Cautis–Lauda, `(BB_w)` (strong `sl₂` 2-representation on `Gr(•,2)`) -/
@@ -1769,6 +1804,42 @@ example (d : ℤ) :=
     (fun w => (TypeA.exists_reduced _ w).choose) (fun w => (TypeA.exists_reduced _ w).choose_spec)
     (KLR.klQ_symm _) (fun _ => (by decide : (0 : ℤ) < 2)) (KLR.KL1.Remark.jii 0 1) (KLR.KL1.Remark.iji 0 1) d
 
+private noncomputable def adjacentPairGrading :=
+  KLR.klGradingDatum ℚ (⊤ : SimpleGraph (Fin 2))
+
+/-- Degreewise affine selection at weight twice the first root plus the adjacent root. -/
+example (d : ℤ) :=
+  KLR.CycKLR.exists_gradePBWBasis (ν := KLR.KL1.Remark.ν₃ 0 1) adjacentPairGrading
+    (fun _ => 2) (fun w => (TypeA.exists_reduced _ w).choose)
+    (fun w => (TypeA.exists_reduced _ w).choose_spec) (KLR.klQ_symm _)
+    (fun _ => (by decide : (0 : ℤ) < 2)) d
+
+/-- The selected homogeneous representatives also give a basis of the whole algebra. -/
+example :=
+  KLR.CycKLR.exists_homogeneousPBWBasis (ν := KLR.KL1.Remark.ν₃ 0 1) adjacentPairGrading
+    (fun _ => 2) (fun w => (TypeA.exists_reduced _ w).choose)
+    (fun w => (TypeA.exists_reduced _ w).choose_spec) (KLR.klQ_symm _)
+    (fun _ => (by decide : (0 : ℤ) < 2))
+
+/-- Representatives with the prescribed endpoints in the corner from 010 to 100. -/
+example (d : ℤ) :=
+  KLR.CycKLR.exists_cornerGradePBWBasis adjacentPairGrading (fun _ => 2)
+    (fun w => (TypeA.exists_reduced _ w).choose) (fun w => (TypeA.exists_reduced _ w).choose_spec)
+    (KLR.klQ_symm _) (fun _ => (by decide : (0 : ℤ) < 2))
+    (KLR.KL1.Remark.jii 0 1) (KLR.KL1.Remark.iji 0 1) d
+
+example (d : ℤ) :=
+  KLR.CycKLR.coeff_gdim_grade_eq_card_sub_rank (ν := KLR.KL1.Remark.ν₃ 0 1) adjacentPairGrading
+    (fun _ => 2) (fun w => (TypeA.exists_reduced _ w).choose)
+    (fun w => (TypeA.exists_reduced _ w).choose_spec) (KLR.klQ_symm _)
+    (fun _ => (by decide : (0 : ℤ) < 2)) d
+
+example (d : ℤ) :=
+  KLR.CycKLR.coeff_gdim_cornerGrade_eq_card_sub_rank adjacentPairGrading (fun _ => 2)
+    (fun w => (TypeA.exists_reduced _ w).choose) (fun w => (TypeA.exists_reduced _ w).choose_spec)
+    (KLR.klQ_symm _) (fun _ => (by decide : (0 : ℤ) < 2))
+    (KLR.KL1.Remark.jii 0 1) (KLR.KL1.Remark.iji 0 1) d
+
 private noncomputable def oneRedGrading :=
   Stendhal.stendhalGradingDatum (fun _ : Fin 1 => Finsupp.single (0 : Fin 1) 2)
     singletonBlackGrading (fun _ => 1) (fun _ => rfl)
@@ -1780,7 +1851,7 @@ example (d : ℤ) :=
     (by rintro (i | r) <;> exact (by decide : (0 : ℤ) < 2)) s s
     (Stendhal.SingleRed.ordered _ s) (Stendhal.SingleRed.ordered _ s) d
 
-example := Stendhal.SingleRed.cyclotomicProjection_surjective
+example := Stendhal.SingleRed.cyclotomicEquiv
   (KLR.klQ (k := ℚ) (⊥ : SimpleGraph (Fin 1))) (fun _ : Fin 1 => Finsupp.single (0 : Fin 1) 2)
   ({0, 0} : Multiset (Fin 1))
 
@@ -1788,6 +1859,16 @@ example := KLR.CycKLR.indK0_vacuum singletonBlackGrading (fun _ => 2) 0
 
 example := KLR.CycKLR.lower_lof singletonBlackGrading (fun _ => 2) 0 ({0} : Multiset (Fin 1))
   (Graded.K0.of (Graded.GProj.regular (KLR.CycKLR.grade singletonBlackGrading (fun _ => 2) {0})))
+
+example := Stendhal.SingleBlack.oneBlackOneRedEquiv_dot (0 : Fin 1)
+  (KLR.klQ (k := ℚ) (⊥ : SimpleGraph (Fin 1))) (fun _ : Fin 1 => Finsupp.single (0 : Fin 1) 2)
+
+example := Stendhal.SingleBlack.oneBlackK0Equiv_regular (0 : Fin 1) oneRedGrading
+  (by simp : 0 < Finsupp.single (0 : Fin 1) 2 (0 : Fin 1))
+
+example := Stendhal.SingleBlack.oneBlackK0_eq_zero (0 : Fin 1)
+  (Stendhal.stendhalGradingDatum (0 : Fin 1 → Fin 1 →₀ ℕ)
+    singletonBlackGrading (fun _ => 1) (fun _ => rfl)) rfl
 
 end CyclotomicDimensions
 

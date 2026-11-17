@@ -1036,6 +1036,12 @@ import Categorification.KLR.CyclotomicGradedInduction
 import Categorification.WeightedKLR.RedStrands.Projectives
 import Categorification.WeightedKLR.RedStrands.SingleRed
 import Categorification.WeightedKLR.RedStrands.CyclotomicProjection
+import Categorification.KLR.CyclotomicGradedCharacter
+import Categorification.KLR.CyclotomicFlip
+import Categorification.KLR.CyclotomicRestrictionProjective
+import Categorification.KLR.CyclotomicGradedRestriction
+import Categorification.WeightedKLR.RedStrands.EraseRed
+import Categorification.WeightedKLR.RedStrands.SingleBlack
 /-!
 # Categorification
 

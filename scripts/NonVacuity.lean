@@ -643,6 +643,52 @@ theorem wkLooplessGraph_standing : wkLooplessGraph.Standing :=
 theorem wkLooplessGraph_dagger : wkLooplessGraph.Dagger :=
   ⟨fun _ _ _ _ _ => rfl, fun _ _ h₁ _ _ => by simp [wkLooplessGraph] at h₁⟩
 
+/-- Parallel edges with weights `−1,+1`, over an arbitrary coefficient field.
+This is the loop-free graph whose bounded chamber obstructs right-tail detection. -/
+def wkParallelGraph (K : Type*) [Field K] : WeightedKLR.WeightedGraph (Fin 2) ℚ K where
+  E := Fin 2
+  tail _ := 0
+  head _ := 1
+  weight e := if e = 0 then -1 else 1
+  Q _ := MvPolynomial.X 0 - MvPolynomial.X 1
+  loop _ := none
+
+theorem wkParallelGraph_standing (K : Type*) [Field K] : (wkParallelGraph K).Standing := by
+  refine ⟨fun _ => 1, fun _ => one_pos, ?_, fun _ _ h => by simp [wkParallelGraph] at h⟩
+  intro e
+  refine ⟨1, 1, rfl, ?_, ?_, ?_⟩
+  · exact (MvPolynomial.isWeightedHomogeneous_X K _ 0).sub
+      (MvPolynomial.isWeightedHomogeneous_X K _ 1)
+  · simp [wkParallelGraph, MvPolynomial.coeff_X, Finsupp.single_left_inj one_ne_zero]
+  · simp [wkParallelGraph, MvPolynomial.coeff_X, Finsupp.single_left_inj one_ne_zero]
+
+theorem wkParallelGraph_dagger (K : Type*) [Field K] : (wkParallelGraph K).Dagger := by
+  constructor
+  · change ∀ e f : Fin 2, (0 : Fin 2) = 0 → (1 : Fin 2) = 1 →
+      (if e = 0 then (-1 : ℚ) else 1) = (if f = 0 then -1 else 1) → e = f
+    intro e f _ _ h
+    fin_cases e <;> fin_cases f <;> norm_num at *
+  · intro e f h _ _
+    change (0 : Fin 2) = 1 at h
+    exact (by decide : (0 : Fin 2) ≠ 1) h
+
+theorem wkParallelGraph_noLoops (K : Type*) [Field K] :
+    ∀ e, (wkParallelGraph K).head e ≠ (wkParallelGraph K).tail e := by
+  intro e
+  change (1 : Fin 2) ≠ 0
+  decide
+
+theorem wkParallelGraph_noZeroLoops (K : Type*) [Field K] :
+    (wkParallelGraph K).NoZeroLoops :=
+  fun e he => (wkParallelGraph_noLoops K e he).elim
+
+/-- Two strands of each colour, exercising repeated refined colours and diagonals. -/
+def wkParallelRepeatedWeight : Fin 2 →₀ ℕ :=
+  Finsupp.single 0 2 + Finsupp.single 1 2
+
+example : wkParallelRepeatedWeight 0 = 2 ∧ wkParallelRepeatedWeight 1 = 2 := by
+  simp [wkParallelRepeatedWeight]
+
 /-- Webster, Proposition 2.14: the injective homomorphism from the KLR algebra to the weighted
 KLR algebra on the evenly spaced loadings, for a graph without loops. -/
 example (ν : Multiset (Fin 2)) :=
@@ -1398,6 +1444,11 @@ local instance wkHasGdim (μ : Fin 2 →₀ ℕ) :
   WeightedKLR.GalleryAlgebra.hasGdim_klrGrade (k := ℚ) (ν := μ) wkGraph_dagger
     wkGraph_noZeroLoops wkGraph_standing
 
+local instance wkParallelHasGdim (K : Type*) [Field K] (μ : Fin 2 →₀ ℕ) :
+    Graded.HasGdim ((wkParallelGraph_standing K).gradingDatum.klrGrade μ) :=
+  WeightedKLR.GalleryAlgebra.hasGdim_klrGrade (k := K) (ν := μ)
+    (wkParallelGraph_dagger K) (wkParallelGraph_noZeroLoops K) (wkParallelGraph_standing K)
+
 /-- The central finiteness input of A0, on the concrete weighted graph, for every weight. -/
 example (ν : Fin 2 →₀ ℕ) :
     Module.Finite (WeightedKLR.GalleryAlgebra.colourSym ℚ ν)
@@ -1442,6 +1493,64 @@ example
     wkGraph_dagger wkGraph_noZeroLoops wkGraph_standing
     (by intro i; fin_cases i <;> simp) (Graded.GProj.IndecClass.isGradedSimple_top b) φ
 
+/-- The ungraded finite-simple scalar theorem on the parallel-edge graph over `ℚ`,
+with two strands of each colour. Finite dimension and nilpotent dots are proved
+for the simple top rather than assumed. -/
+example
+    (b : Graded.GProj.IndecClass ((wkParallelGraph_standing ℚ).gradingDatum.klrGrade
+      wkParallelRepeatedWeight))
+    (φ : b.top →ₗ[WeightedKLR.GalleryAlgebra.WeightedKLRAlgebra ℚ (wkParallelGraph ℚ)
+      wkParallelRepeatedWeight] b.top) : ∃ c : ℚ, ∀ m, φ m = c • m := by
+  have hM := Graded.GProj.IndecClass.isGradedSimple_top b
+  have : FiniteDimensional ℚ b.top :=
+    WeightedKLR.GradingDatum.finiteDimensional_top (wkParallelGraph_dagger ℚ)
+    (wkParallelGraph_noZeroLoops ℚ) (wkParallelGraph_standing ℚ) b
+  have := hM.isSimpleModule
+  exact WeightedKLR.exists_eq_smul_of_isSimpleModule (wkParallelGraph_dagger ℚ)
+    (wkParallelGraph_standing ℚ) (wkParallelGraph_noLoops ℚ) (fun _ => rfl)
+    (WeightedKLR.GradingDatum.smulNilpotent_reducedDot_of_isGradedSimple
+      (wkParallelGraph_dagger ℚ) (wkParallelGraph_noZeroLoops ℚ)
+      (wkParallelGraph_standing ℚ) hM) φ
+
+/-- The same finite-simple theorem in characteristic two, at the repeated weight. -/
+example
+    (b : Graded.GProj.IndecClass ((wkParallelGraph_standing (ZMod 2)).gradingDatum.klrGrade
+      wkParallelRepeatedWeight))
+    (φ : b.top →ₗ[WeightedKLR.GalleryAlgebra.WeightedKLRAlgebra (ZMod 2)
+      (wkParallelGraph (ZMod 2)) wkParallelRepeatedWeight] b.top) :
+    ∃ c : ZMod 2, ∀ m, φ m = c • m := by
+  have hM := Graded.GProj.IndecClass.isGradedSimple_top b
+  have : FiniteDimensional (ZMod 2) b.top :=
+    WeightedKLR.GradingDatum.finiteDimensional_top (wkParallelGraph_dagger (ZMod 2))
+    (wkParallelGraph_noZeroLoops (ZMod 2)) (wkParallelGraph_standing (ZMod 2)) b
+  have := hM.isSimpleModule
+  exact WeightedKLR.exists_eq_smul_of_isSimpleModule (wkParallelGraph_dagger (ZMod 2))
+    (wkParallelGraph_standing (ZMod 2)) (wkParallelGraph_noLoops (ZMod 2)) (fun _ => rfl)
+    (WeightedKLR.GradingDatum.smulNilpotent_reducedDot_of_isGradedSimple
+      (wkParallelGraph_dagger (ZMod 2)) (wkParallelGraph_noZeroLoops (ZMod 2))
+      (wkParallelGraph_standing (ZMod 2)) hM) φ
+
+/-- The graded-simple scalar theorem over `ℚ`, with parallel edges and repeated colours. -/
+example
+    (b : Graded.GProj.IndecClass ((wkParallelGraph_standing ℚ).gradingDatum.klrGrade
+      wkParallelRepeatedWeight))
+    (φ : b.top →ₗ[WeightedKLR.GalleryAlgebra.WeightedKLRAlgebra ℚ (wkParallelGraph ℚ)
+      wkParallelRepeatedWeight] b.top) : ∃ c : ℚ, ∀ m, φ m = c • m :=
+  WeightedKLR.GradingDatum.exists_eq_smul_of_isGradedSimple (wkParallelGraph_dagger ℚ)
+    (wkParallelGraph_standing ℚ) (wkParallelGraph_noLoops ℚ) (fun _ => rfl)
+    (Graded.GProj.IndecClass.isGradedSimple_top b) φ
+
+/-- The graded-simple scalar theorem in characteristic two, at the same repeated weight. -/
+example
+    (b : Graded.GProj.IndecClass ((wkParallelGraph_standing (ZMod 2)).gradingDatum.klrGrade
+      wkParallelRepeatedWeight))
+    (φ : b.top →ₗ[WeightedKLR.GalleryAlgebra.WeightedKLRAlgebra (ZMod 2)
+      (wkParallelGraph (ZMod 2)) wkParallelRepeatedWeight] b.top) :
+    ∃ c : ZMod 2, ∀ m, φ m = c • m :=
+  WeightedKLR.GradingDatum.exists_eq_smul_of_isGradedSimple (wkParallelGraph_dagger (ZMod 2))
+    (wkParallelGraph_standing (ZMod 2)) (wkParallelGraph_noLoops (ZMod 2)) (fun _ => rfl)
+    (Graded.GProj.IndecClass.isGradedSimple_top b) φ
+
 /-- All five tensor-comparison fields for two multiplicity-free weights. The supports
 overlap, so A0's tensor finiteness is used without assuming their sum multiplicity-free. -/
 example : Graded.TensorK0Hyp
@@ -1453,14 +1562,39 @@ example : Graded.TensorK0Hyp
     wkGraph_dagger wkGraph_noZeroLoops wkGraph_standing
     (by intro i; fin_cases i <;> simp) (by intro i; fin_cases i <;> simp)
 
-/-- **Webster, Theorem 2.19, graded Mackey formula for the coproduct on `K₀ ⊗ K₀`**, for
-`(ν₁, ν₂) = (ν'', ν')`. The route hypothesis `TensorK0Hyp` (`hT`) cannot be instantiated here:
-its conditions `endA`, `endB` are not proved for weighted KLR algebras, so this example only
-checks that the remaining hypotheses (standing hypothesis, graded dimensions) are satisfied. -/
+/-- All tensor-comparison fields at repeated weights on the loop-free parallel-edge
+graph over `ℚ`, with no multiplicity-free assumption. -/
+example : Graded.TensorK0Hyp
+    ((wkParallelGraph_standing ℚ).gradingDatum.klrGrade wkParallelRepeatedWeight)
+    ((wkParallelGraph_standing ℚ).gradingDatum.klrGrade wkParallelRepeatedWeight) :=
+  WeightedKLR.GradingDatum.tensorK0Hyp (wkParallelGraph_standing ℚ).gradingDatum
+    (wkParallelGraph_dagger ℚ) (wkParallelGraph_standing ℚ) (wkParallelGraph_noLoops ℚ)
+    (fun _ => rfl) wkParallelRepeatedWeight wkParallelRepeatedWeight
+
+/-- The same unrestricted tensor-comparison check in characteristic two. -/
+example : Graded.TensorK0Hyp
+    ((wkParallelGraph_standing (ZMod 2)).gradingDatum.klrGrade wkParallelRepeatedWeight)
+    ((wkParallelGraph_standing (ZMod 2)).gradingDatum.klrGrade wkParallelRepeatedWeight) :=
+  WeightedKLR.GradingDatum.tensorK0Hyp (wkParallelGraph_standing (ZMod 2)).gradingDatum
+    (wkParallelGraph_dagger (ZMod 2)) (wkParallelGraph_standing (ZMod 2))
+    (wkParallelGraph_noLoops (ZMod 2)) (fun _ => rfl)
+    wkParallelRepeatedWeight wkParallelRepeatedWeight
+
+/-- The conditional graded coproduct formula still applies to the graph with a recorded
+loop. Its tensor-comparison hypothesis is explicit in this example. -/
 example (ν' ν'' : Fin 2 →₀ ℕ)
     (hT : ∀ μ μ' : Fin 2 →₀ ℕ, Graded.TensorK0Hyp (wkGraph_standing.gradingDatum.klrGrade μ)
       (wkGraph_standing.gradingDatum.klrGrade μ')) :=
-  WeightedKLR.exists_coproductK0_indK0_eq_sum_graded (k := ℚ) wkGraph_standing.gradingDatum
+  WeightedKLR.exists_coproductK0_indK0_eq_sum_graded_of_tensorK0Hyp (k := ℚ)
+    wkGraph_standing.gradingDatum
     wkGraph_dagger wkGraph_noZeroLoops wkGraph_standing (add_comm ν'' ν') hT
+
+/-- Webster Theorem 2.19 on a loop-free graph with parallel edges: the graded coproduct
+formula discharges the tensor-comparison input internally, for arbitrary block weights. -/
+example (ν' ν'' : Fin 2 →₀ ℕ) :=
+  WeightedKLR.exists_coproductK0_indK0_eq_sum_graded (k := ℚ)
+    (wkParallelGraph_standing ℚ).gradingDatum (wkParallelGraph_dagger ℚ)
+    (wkParallelGraph_standing ℚ) (wkParallelGraph_noLoops ℚ) (fun _ => rfl)
+    (add_comm ν'' ν')
 
 end NonVacuity

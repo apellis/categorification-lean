@@ -28,14 +28,15 @@ given by induction and coproduct by restriction. This is the graded form of
 * `ShuffleLayout.twistedMulK0Graded`: `(x_a ⊗ x_b) ⊗ (y_c ⊗ y_d) ↦ (x_a · y_c) ⊗ (x_b · y_d)`,
   and `ShuffleLayout.k0TensorEquiv_twistedMulK0Graded` comparing it with
   `ResIndPiece.twistK0Graded`.
-* `exists_coproductK0_indK0_eq_sum_graded`: **the graded Mackey formula**
+* `exists_coproductK0_indK0_eq_sum_graded_of_tensorK0Hyp`: **the graded Mackey formula**
   `Δ_{ν₁,ν₂}(x · y) = ∑ᵢ q^{sᵢ} T_{Lᵢ}(Δ_{a,b} x ⊗ Δ_{c,d} y)`, over a field.
 
 ## Route hypothesis
 
 `coproductK0` and the Mackey formula assume `TensorK0Hyp` (see `GradedK0/TensorK0.lean`): the
 identification `K₀(W_μ ⊗ W_{μ'}) ≅ K₀(W_μ) ⊗ K₀(W_{μ'})`, used without justification in the
-proof of Webster's Theorem 2.19. It is not proved here for weighted KLR algebras.
+proof of Webster's Theorem 2.19. `WeightedKLR/TensorSimple.lean` supplies it for
+loop-free graphs and states the formula without this hypothesis.
 -/
 
 noncomputable section
@@ -900,10 +901,10 @@ there are shuffle layouts `L i`, one for each shuffle type of `(ν', ν''; ν₁
 `ShuffleLayout.twistedMulK0Graded` and algebras of equal dimension vectors are identified by
 `castW`. **Route hypothesis:** `hT`, `TensorK0Hyp` for every pair of weighted KLR algebras
 (the identification `K₀(W_μ ⊗ W_{μ'}) ≅ K₀(W_μ) ⊗ K₀(W_{μ'})` that Webster uses without
-justification), not proved here for weighted KLR algebras (its conditions `endA`, `endB` are
-open); the graded dimensions of the `W_μ` are supplied for the grading of the standing
+justification), discharged for loop-free graphs by `GradingDatum.tensorK0Hyp`
+(`WeightedKLR/TensorSimple.lean`); the graded dimensions of the `W_μ` are supplied for the grading of the standing
 hypothesis by `GalleryAlgebra.hasGdim_klrGrade`. -/
-theorem exists_coproductK0_indK0_eq_sum_graded (G : GradingDatum Γ) (hD : Γ.Dagger)
+theorem exists_coproductK0_indK0_eq_sum_graded_of_tensorK0Hyp (G : GradingDatum Γ) (hD : Γ.Dagger)
     (hZ : Γ.NoZeroLoops) (hS : Γ.Standing) (hν : ν₁ + ν₂ = ν' + ν'')
     [∀ μ : I →₀ ℕ, HasGdim (G.klrGrade μ)]
     (hT : ∀ μ μ' : I →₀ ℕ, TensorK0Hyp (G.klrGrade μ) (G.klrGrade μ')) :

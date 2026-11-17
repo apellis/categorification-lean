@@ -135,15 +135,16 @@ These statements do not involve the comparison map.
       over any commutative ring, if the comparison is bijective for all pairs `(μ, μ')`, then
       for `ν₁ + ν₂ = ν' + ν''` there are layouts `L i`, one per shuffle type, with
       `Δ_{ν₁,ν₂}(x · y) = ∑_i T_{L i}(Δ_{a,b} x ⊗ Δ_{c,d} y)` for all `x`, `y` (ungraded).
-      The bijectivity hypothesis is not proved for any weighted KLR algebra; see the next
-      section.
+      Bijectivity on ungraded projective `K_0` is not established in general; the graded
+      comparison below does not discharge this ungraded hypothesis.
   * The graded Mackey formula, with the shift `-(μ · μ')` (`middleShift`) of the term of
     shuffle type `μ`, on graded `K_0`, over a field, under `Γ.Dagger`, `Γ.NoZeroLoops` and
     `Γ.Standing`: `exists_resK0_indK0_eq_sum_graded`, and in twisted form
     `exists_resK0_indK0_eq_sum_twistK0Graded` (next section). On `K_0 ⊗_{ℤ[q^±]} K_0`, under
     the route hypothesis `TensorK0Hyp` for every pair `(μ, μ')`:
-    `exists_coproductK0_indK0_eq_sum_graded` (next section). A0 supplies the finite-dimensionality
-    fields of `TensorK0Hyp`; the absolute-irreducibility fields remain open.
+    `exists_coproductK0_indK0_eq_sum_graded_of_tensorK0Hyp` (next section). For loop-free
+    graphs, `GradingDatum.tensorK0Hyp` supplies this hypothesis and
+    `exists_coproductK0_indK0_eq_sum_graded` has no separate `hT` assumption.
 
 A0 centrality is available for the gallery algebra as `GalleryAlgebra.poly_mem_center`
 (`WeightedKLR/CentralPolynomials.lean`), without additional graph hypotheses. Under
@@ -151,10 +152,11 @@ A0 centrality is available for the gallery algebra as `GalleryAlgebra.poly_mem_c
 the central colour-symmetric dots and finite-dimensionality of the augmentation quotient;
 `Simple.lean` proves that graded simples of `W_ν` and `W_ν ⊗ W_μ` are finite-dimensional.
 The corollaries `GradingDatum.finiteDimensional_top` and `finiteDimensional_top_tensor`
-supply `fdA`, `fdB`, `fdC`, with no loop-freeness assumption. The proposed loop-free
-absolute-irreducibility induction is blocked by simple modules annihilated by every single-colour right restriction;
-see the obstruction in `thm-2-19-roadmap.md` and issue #289. The comparison hypothesis is
-retained.
+supply `fdA`, `fdB`, `fdC`, with no loop-freeness assumption. For loop-free graphs,
+`AbsoluteSimple.lean` supplies scalar endomorphisms by the minimum-support
+local-chart argument, and `TensorSimple.lean` assembles the complete `TensorK0Hyp`.
+The original induction by single-colour right restrictions remains obstructed; the
+replacement proof avoids it (see `thm-2-19-roadmap.md` and issue #289).
 
 ## Graded `K_0` (formalized)
 
@@ -218,18 +220,19 @@ Files `WeightedKLR/GradedK0/Grading.lean`, `Induction.lean`, `TensorK0.lean`,
   `middleInd ((x_a ⊠ x_b) ⊠ (y_c ⊠ y_d)) = (x_a · y_c) ⊠ (x_b · y_d)` in graded `K_0`. No
   hypothesis beyond those of graded induction.
 * `GradingDatum.coproductK0`, `ShuffleLayout.twistedMulK0Graded`,
-  `ShuffleLayout.k0TensorEquiv_twistedMulK0Graded`, `exists_coproductK0_indK0_eq_sum_graded`
+  `ShuffleLayout.k0TensorEquiv_twistedMulK0Graded`
   (`GradedK0/CoproductK0.lean`): over a field, `Δ_{ν₁,ν₂} = k0TensorEquiv⁻¹ ∘ resK0 :
   K_0(W_{ν₁+ν₂}) → K_0(W_{ν₁}) ⊗_{ℤ[q^±]} K_0(W_{ν₂})` and the twisted product
-  `T_L((x_a ⊗ x_b) ⊗ (y_c ⊗ y_d)) = (x_a · y_c) ⊗ (x_b · y_d)`. Under `Γ.Dagger`,
-  `Γ.NoZeroLoops`, `Γ.Standing`, graded dimensions of every `W_μ` (supplied by
-  `GalleryAlgebra.hasGdim_klrGrade` for the standing grading) and **the route hypothesis**
-  `TensorK0Hyp (klrGrade μ) (klrGrade μ')` for all `μ`, `μ'`:
-  `Δ_{ν₁,ν₂}(x · y) = ∑_i q^{middleShift (L i)} T_{L i}(Δ_{a,b} x ⊗ Δ_{c,d} y)`. `TensorK0Hyp`
-  is the identification `K_0(W_μ ⊗ W_{μ'}) ≅ K_0(W_μ) ⊗ K_0(W_{μ'})` that the proof of
-  Theorem 2.19 uses without justification; it is not proved for weighted KLR algebras
-  (`endA`, `endB` are open; A0 supplies `fdA`, `fdB`, `fdC`), so it cannot be
-  instantiated in the non-vacuity examples.
+  `T_L((x_a ⊗ x_b) ⊗ (y_c ⊗ y_d)) = (x_a · y_c) ⊗ (x_b · y_d)`.
+  `exists_coproductK0_indK0_eq_sum_graded_of_tensorK0Hyp` retains the general conditional
+  formula under `Γ.Dagger`, `Γ.NoZeroLoops`, `Γ.Standing`, `HasGdim` for every
+  `G.klrGrade μ`, and `TensorK0Hyp (G.klrGrade μ) (G.klrGrade μ')` for all pairs:
+  `Δ_{ν₁,ν₂}(x · y) = ∑_i q^{middleShift (L i)} T_{L i}(Δ_{a,b} x ⊗ Δ_{c,d} y)`.
+  `exists_coproductK0_indK0_eq_sum_graded` discharges the comparison for loop-free graphs
+  using `GradingDatum.tensorK0Hyp G hD hS hne hl μ μ'`; it keeps the arbitrary grading
+  datum `G` and its `HasGdim` assumptions and takes no extra `hT`. The loop-free conditions
+  are distinct head and tail on every edge and `Γ.loop i = none`. Neither result asserts
+  the quantum Serre relations, the map from `U_q^+`, or an antipode.
 
 * `GradingDatum.instGradedAlgebraKlrGrade`: for every grading datum `G`, `W_ν` with
   `G.klrGrade ν` is a graded algebra (the corner of `A_ν` at the degree-zero idempotent
@@ -248,22 +251,27 @@ Files `WeightedKLR/GradedK0/Grading.lean`, `Induction.lean`, `TensorK0.lean`,
   `K_0(W_{ν'}) ⊗_{ℤ[q^±]} K_0(W_{ν''}) → K_0(W_{ν'+ν''})`, `[P] ⊗ [P'] ↦ [Ind (P ⊠ P')]`, on
   graded `K_0`, `ℤ[q^±]`-bilinear. No hypothesis.
 * `GradingDatum.k0TensorEquiv`: over a field, given `HasGdim` for `W_{ν'}` and `W_{ν''}`
-  (supplied by `hasGdim_klrGrade`) and the explicit hypothesis
-  `TensorK0Hyp (G.klrGrade ν') (G.klrGrade ν'')`, the comparison
+  and a value of `TensorK0Hyp (G.klrGrade ν') (G.klrGrade ν'')`, the comparison
   `K_0(W_{ν'}) ⊗_{ℤ[q^±]} K_0(W_{ν''}) ≅ K_0(W_{ν'} ⊗ W_{ν''})`, `x ⊗ y ↦ x ⊠ y`
-  (`k0TensorEquiv_tmul`). `TensorK0Hyp` asks that the graded simple tops of `W_{ν'}` and
-  `W_{ν''}` be finite-dimensional (`fdA`, `fdB`) and absolutely irreducible (`endA`, `endB`),
-  and that the graded simple tops of `W_{ν'} ⊗ W_{ν''}` be finite-dimensional (`fdC`). The
-  source supplies none of these: the proof of Theorem 2.19 uses
-  `K⁰(W_{ν'} ⊗ W_{ν''}) = K⁰(W_{ν'}) ⊗ K⁰(W_{ν''})` without comment. For unweighted KLR
-  algebras they are proved (`Categorification.GradingDatum.tensorK0Hyp`, from KL I Prop. 2.12,
-  Cor. 3.19 and a central polynomial subalgebra of positive degree). The analogous
-  finite-dimensionality argument for `W_ν` is formalized in `CentralFinite.lean` and
-  `Simple.lean`, using the basis of Webster Theorem 2.8 and the graded Nakayama argument
-  of KL I Proposition 2.12. Absolute irreducibility is proved for multiplicity-free weights
-  by `GradingDatum.exists_eq_smul_of_isGradedSimple_multiplicityFree`, and
-  `GradingDatum.tensorK0Hyp_multiplicityFree` supplies the comparison hypotheses for two
-  such weights. Repeated colours remain open; the hypothesis for all weights is retained.
+  (`k0TensorEquiv_tmul`). `TensorK0Hyp` asks for finite-dimensional graded simple tops of
+  both factors (`fdA`, `fdB`) and their tensor product (`fdC`), and scalar endomorphisms
+  for the tops of both factors (`endA`, `endB`). Webster uses this identification without
+  supplying those inputs. `CentralFinite.lean` and `Simple.lean` provide the augmentation
+  argument for A0. `AbsoluteSimple.lean` proves the scalar statement for loop-free graphs
+  over any field, with arbitrary standing polynomials, cycles and colour multiplicities.
+  Its intermediate ungraded theorem assumes finite dimension and nilpotent dots; A0 and
+  positive dot degrees discharge these assumptions for graded simples.
+* `GradingDatum.wt_pos_of_hasGdim` (`SimpleGrading.lean`) shows that any grading datum `G`
+  with locally finite, bounded-below `G.klrGrade ν` has positive dot degrees. Independent
+  powers of a dot exclude degree zero; the lower bound excludes negative degree. Thus
+  the augmentation and nilpotence arguments also apply to the arbitrary admissible
+  grading datum in the coproduct statement.
+* `GradingDatum.tensorK0Hyp G hD hS hne hl ν μ` (`TensorSimple.lean`) supplies all five
+  fields for any two weights of a loop-free graph, under `HasGdim` for the chosen
+  grading. It uses `GradingDatum.exists_eq_smul_of_isGradedSimple_of_hasGdim` for the
+  absolute-irreducibility fields. The earlier multiplicity-free comparison remains a
+  separate useful result allowing loops; the new result removes restrictions on
+  colour multiplicities for loop-free graphs.
 
 ## What needs a field, and why
 
@@ -279,34 +287,37 @@ ring it is not.
 
 This is recorded as an erratum in the README.
 
-The corrected statement takes `k` to be a field, the setting of KL I. Over a field, `c` is an
-isomorphism given the following inputs.
+The corrected statement takes `k` to be a field, the setting of KL I. The graded
+comparison is supplied for loop-free graphs under the standing and (†) hypotheses.
+Its two inputs are:
 
-1. **A grading of `W_ν`.** It must have finite-dimensional graded pieces, vanishing in
-   sufficiently negative degree (`Graded.HasGdim`). This is now proved for the grading of the
-   standing hypothesis (`GalleryAlgebra.hasGdim_klrGrade`), and the graded `K_0` of `W_ν` is
-   set up (section "Graded `K_0`" above). The graded Krull–Schmidt theorem
-   (`Categorification/Algebra/Graded/KrullSchmidt.lean`, `KrullSchmidtUnique.lean`) makes it
-   free over `ℤ[q^±]` on the classes of the indecomposable graded projectives.
-2. **Absolute irreducibility.** Every graded simple `W_ν`-module must have endomorphism ring
-   `k`. Then the indecomposable graded projectives of `W_{ν'} ⊗ W_{ν''}` are exactly the
-   `P ⊠ Q`. This is the content of `KLR.TensorK0Hyp` and `KLR.TensorK0Hyp.extTensorEquiv`.
-   These are stated for graded algebras over a field and apply to `W_ν` once (1) is in place.
-3. **When (2) is known.** It holds over an algebraically closed field.
-   * For KLR algebras over any field, (2) is the corollary on absolute irreducibility in
-     KL I §3.2. That corollary uses the independence of characters of simples, proved through
-     the surjectivity of `γ`.
-   * The source gives no argument for weighted KLR algebras. Over a field that is not
-     algebraically closed, (2) is therefore an extra hypothesis of the corrected statement until
-     it is proved.
+1. **A grading of `W_ν`.** The graded pieces are finite-dimensional and vanish in
+   sufficiently negative degree (`Graded.HasGdim`). This is proved for the standing
+   grading by `GalleryAlgebra.hasGdim_klrGrade`; the coproduct theorem also accepts an
+   arbitrary grading datum `G` with these instances. The graded Krull–Schmidt theorem
+   makes graded `K_0` free over `ℤ[q^±]` on indecomposable graded projectives.
+2. **Finite-dimensional, absolutely irreducible graded simple tops.** These are the
+   fields of `KLR.TensorK0Hyp`. A0 supplies finite dimension. The local-chart replacement
+   proof supplies scalar endomorphisms for loop-free weighted KLR graphs over any field;
+   algebraic closure, a forest assumption and multiplicity-free weights are unnecessary.
 
-Over a field, the comparison is `GradingDatum.k0TensorEquiv`, under the explicit
-hypothesis `TensorK0Hyp` (A0 now supplies finite-dimensionality of the graded simple tops;
-(2) remains open). The graded Mackey identity, its twisted-induction form and the graded coproduct with its Mackey
-formula are formalized under this hypothesis (`exists_coproductK0_indK0_eq_sum_graded`). The plans
-for the remaining fields of `TensorK0Hyp` (absolute irreducibility; the proposed loop-free
-induction from KL I Cor. 3.19 has an obstruction) and for the remaining parts of the theorem are in
-`thm-2-19-roadmap.md`.
+The proof of the second input chooses a minimum squared-norm point in the closed support
+of a simple module. The incident chambers define a zero-weight local graph and a chart
+whose unit is the incident rank-ordered star idempotent. Stabilizing terms of Webster's
+basis lift to this chart. A moving permutation gives a strictly smaller midpoint, so an
+adapted basis gallery passes through an unsupported chamber and annihilates the module.
+Consequently the local algebra acts as the entire star corner. Its nonzero unit-fixed
+restriction is simple with nilpotent dots. The local zero-weight algebra is a full corner
+of an ordinary KLR algebra, so KL I arXiv:0803.4121v2, §3.2, Corollary 3.19 detects scalar
+endomorphisms. `AbsoluteSimple.lean` and `TensorSimple.lean` assemble these inputs.
+
+Thus `exists_coproductK0_indK0_eq_sum_graded` proves the graded coproduct Mackey formula
+for loop-free graphs without a separate tensor-comparison hypothesis. The conditional
+statement `exists_coproductK0_indK0_eq_sum_graded_of_tensorK0Hyp` remains available for graphs
+with loops or any independently supplied comparison. The obstruction to the earlier
+right-restriction induction is preserved in `thm-2-19-roadmap.md`; it does not affect this
+local proof. Quantum Serre relations, the map from `U_q^+`, and the antipode remain roadmap
+items B, C and D.
 
 ## Restriction preserves finitely generated projectives
 
@@ -346,11 +357,9 @@ gives it, even over an algebraically closed field.
 * Already for `W_0 = k[x]`-type factors, ungraded `K_0` is controlled by results such as
   Quillen–Suslin, which are not in Mathlib.
 
-So `Δ` with values in `K_0(W_{ν₁}) ⊗ K_0(W_{ν₂})` is formalized only under this hypothesis.
-The options for the maintainer: (a) the graded route: `HasGdim`, graded `K_0`, the
-comparison under `TensorK0Hyp`, the graded Mackey identity in twisted form and the graded
-coproduct on `K_0 ⊗ K_0` with its Mackey formula (under `TensorK0Hyp`) are now formalized;
-the absolute-irreducibility fields `endA`, `endB` of `TensorK0Hyp` for weighted KLR algebras
-remain; A0 supplies its finite-dimensionality fields; (b) keep
-`ProjK0.ExtTensorBijective` as an explicit hypothesis of the ungraded statement (current
-state); (c) new theory for the ungraded comparison, which needs the maintainer's approval.
+So the ungraded `Δ` with values in `K_0(W_{ν₁}) ⊗ K_0(W_{ν₂})` remains formalized under
+`ProjK0.ExtTensorBijective`. The completed graded comparison for loop-free graphs does not
+remove that ungraded hypothesis: it concerns graded projectives and cannot identify their
+classes with all ungraded projectives. The graded route supplies the coproduct and its Mackey
+formula without an extra comparison assumption in the loop-free field case. Extending the
+ungraded comparison would require a separate argument and maintainer approval.

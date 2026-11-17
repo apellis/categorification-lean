@@ -328,7 +328,7 @@ example (a b c d : Fin 2 →₀ ℕ) :=
   WeightedKLR.Juxtapose.middleResIndEquiv (k := ℚ) (a := a) (b := b) (c := c) (d := d)
     wkGraph_dagger wkGraph_noZeroLoops (wkGraph_isChamberSegment _) wkGraph_pSymm
     (wkGraph_wallRegular _) (wkGraph_loopRegular _) (isLowerSet_Iic (⇑c)) (Set.mem_Iic.2 le_rfl)
-    subset_rfl (isLowerSet_Iio (⇑c)) (lt_irrefl _)
+    subset_rfl (isLowerSet_Iio (⇑c)) (fun h => lt_irrefl _ (Set.mem_Iio.1 h))
     (fun _ h₁ h₂ => (lt_or_eq_of_le h₁).resolve_left h₂)
 
 /-- The strict step of shuffle type `μ` of the filtration has a basis. -/

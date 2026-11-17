@@ -48,11 +48,18 @@ private theorem finite_cyclotomic : Module.Finite k (CycKLR k Q
     exact hc.map Polynomial.C) (fun j => Polynomial.monic_X_pow (Λ 0 j))
 
 omit [Finite I] in
+include hP in
+/-- Every one-red tensor product algebra is finite dimensional, by the
+cyclotomic algebra isomorphism and Kang–Kashiwara, Corollary 4.4. -/
+theorem finite_singleRed : Module.Finite k (TensorProductAlgebra k Q Λ β) := by
+  let := finite_cyclotomic hP Λ β
+  exact FiniteDimensional.of_surjective (σ).toLinearEquiv.toLinearMap (σ).surjective
+
+omit [Finite I] in
 /-- The one-red grading of a cyclotomic quotient has finite-dimensional
 homogeneous pieces and is bounded below. -/
 theorem hasGdim_singleRed : HasGdim dst := by
-  let := finite_cyclotomic hP Λ β
-  let := FiniteDimensional.of_surjective (σ).toLinearEquiv.toLinearMap (σ).surjective
+  let := finite_singleRed hP Λ β
   exact HasGdim.of_finiteDimensional _
 
 private local instance : HasGdim dst := hasGdim_singleRed hP Λ β

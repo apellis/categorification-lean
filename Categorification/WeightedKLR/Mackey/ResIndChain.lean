@@ -350,4 +350,243 @@ end Bimodule
 
 end GalleryAlgebra
 
+namespace Juxtapose
+
+variable {a b c d : I →₀ ℕ}
+
+section CornerMapAlgebra
+
+theorem middleCornerMap_comp
+    (zL zL' : WeightedKLRAlgebra k Γ (a + c) ⊗[k] WeightedKLRAlgebra k Γ (b + d))
+    (zR zR' : WeightedKLRAlgebra k Γ (a + b) ⊗[k] WeightedKLRAlgebra k Γ (c + d)) :
+    middleCornerMap zL zR ∘ₗ middleCornerMap zL' zR' = middleCornerMap (zL * zL') (zR' * zR) :=
+  BalancedTensor.ext fun t y => by
+    rw [LinearMap.comp_apply, middleCornerMap_tmul, middleCornerMap_tmul, middleCornerMap_tmul,
+      mul_smul]
+    congr 1
+    exact Subtype.ext (mul_assoc _ _ _)
+
+theorem middleCornerMap_zero_right
+    (zL : WeightedKLRAlgebra k Γ (a + c) ⊗[k] WeightedKLRAlgebra k Γ (b + d)) :
+    middleCornerMap zL (0 : WeightedKLRAlgebra k Γ (a + b) ⊗[k] WeightedKLRAlgebra k Γ (c + d)) =
+      0 :=
+  BalancedTensor.ext fun t y => by
+    have hy : middleBotMulRight (0 : WeightedKLRAlgebra k Γ (a + b) ⊗[k] _) y = (0 : k) • y :=
+      Subtype.ext (by rw [coe_middleBotMulRight, mul_zero, Submodule.coe_smul, zero_smul])
+    rw [middleCornerMap_tmul, LinearMap.zero_apply, hy, BalancedTensor.tmul_smul, zero_smul]
+
+theorem middleCornerMap_smul_right
+    (zL : WeightedKLRAlgebra k Γ (a + c) ⊗[k] WeightedKLRAlgebra k Γ (b + d)) (r : k)
+    (zR : WeightedKLRAlgebra k Γ (a + b) ⊗[k] WeightedKLRAlgebra k Γ (c + d)) :
+    middleCornerMap zL (r • zR) = r • middleCornerMap zL zR :=
+  BalancedTensor.ext fun t y => by
+    have hy : middleBotMulRight (r • zR) y = r • middleBotMulRight zR y :=
+      Subtype.ext (by
+        rw [coe_middleBotMulRight, Submodule.coe_smul, coe_middleBotMulRight, mul_smul_comm])
+    rw [middleCornerMap_tmul, LinearMap.smul_apply, middleCornerMap_tmul, hy,
+      BalancedTensor.tmul_smul]
+
+/-- `middleCornerMap z_L 1` is the left action of `z_L`. -/
+theorem middleCornerMap_one_right_apply
+    (zL : WeightedKLRAlgebra k Γ (a + c) ⊗[k] WeightedKLRAlgebra k Γ (b + d))
+    (x : MiddleTensor k Γ a b c d) : middleCornerMap zL 1 x = zL • x := by
+  induction x using BalancedTensor.induction_on with
+  | zero => rw [map_zero, smul_zero]
+  | tmul t y =>
+    rw [middleCornerMap_tmul, BalancedTensor.smul_tmul']
+    congr 1
+    exact Subtype.ext (mul_one _)
+  | add x x' hx hx' => rw [map_add, hx, hx', smul_add]
+
+theorem middleCornerMap_zero_left
+    (zR : WeightedKLRAlgebra k Γ (a + b) ⊗[k] WeightedKLRAlgebra k Γ (c + d)) :
+    middleCornerMap (0 : WeightedKLRAlgebra k Γ (a + c) ⊗[k] WeightedKLRAlgebra k Γ (b + d)) zR =
+      0 :=
+  BalancedTensor.ext fun t y => by
+    rw [middleCornerMap_tmul, LinearMap.zero_apply, zero_smul, BalancedTensor.zero_tmul]
+
+theorem middleCornerMap_algebraMap_one (r : k) :
+    middleCornerMap
+      (algebraMap k (WeightedKLRAlgebra k Γ (a + c) ⊗[k] WeightedKLRAlgebra k Γ (b + d)) r)
+      (1 : WeightedKLRAlgebra k Γ (a + b) ⊗[k] WeightedKLRAlgebra k Γ (c + d)) =
+      algebraMap k (Module.End k (MiddleTensor k Γ a b c d)) r := by
+  rw [Algebra.algebraMap_eq_smul_one, Module.algebraMap_end_eq_smul_id, ← middleCornerMap_one_one]
+  exact BalancedTensor.ext fun t y => by
+    rw [middleCornerMap_tmul, LinearMap.smul_apply, middleCornerMap_tmul, smul_assoc, one_smul,
+      BalancedTensor.smul_tmul]
+
+theorem middleCornerMap_one_algebraMap (r : k) :
+    middleCornerMap (1 : WeightedKLRAlgebra k Γ (a + c) ⊗[k] WeightedKLRAlgebra k Γ (b + d))
+      (algebraMap k (WeightedKLRAlgebra k Γ (a + b) ⊗[k] WeightedKLRAlgebra k Γ (c + d)) r) =
+      algebraMap k (Module.End k (MiddleTensor k Γ a b c d)) r := by
+  rw [Algebra.algebraMap_eq_smul_one, middleCornerMap_smul_right, middleCornerMap_one_one,
+    Module.algebraMap_end_eq_smul_id]
+
+variable {B : Type*} [Ring B] [Algebra k B]
+
+/-- The left action of `B` on `MiddleTensor` through an algebra map
+`φ : B → W_{a+c} ⊗ W_{b+d}`: `u (t ⊗ y) = φ(u) t ⊗ y`. -/
+noncomputable def middleLeftAct
+    (φ : B →ₐ[k] WeightedKLRAlgebra k Γ (a + c) ⊗[k] WeightedKLRAlgebra k Γ (b + d)) :
+    B →ₐ[k] Module.End k (MiddleTensor k Γ a b c d) where
+  toFun u := middleCornerMap (φ u) 1
+  map_one' := by
+    rw [map_one, middleCornerMap_one_one, Module.End.one_eq_id]
+  map_mul' u u' := by
+    rw [map_mul, Module.End.mul_eq_comp, middleCornerMap_comp, mul_one]
+  map_zero' := by
+    rw [map_zero, middleCornerMap_zero_left]
+  map_add' u u' := by
+    rw [map_add, middleCornerMap_add_left]
+  commutes' r := by
+    rw [AlgHom.commutes, middleCornerMap_algebraMap_one]
+
+theorem middleLeftAct_apply
+    (φ : B →ₐ[k] WeightedKLRAlgebra k Γ (a + c) ⊗[k] WeightedKLRAlgebra k Γ (b + d)) (u : B) :
+    middleLeftAct φ u = middleCornerMap (φ u) 1 := rfl
+
+/-- The right action of `B` on `MiddleTensor` through an algebra map
+`ψ : B → W_{a+b} ⊗ W_{c+d}`: `(t ⊗ y) w = t ⊗ y ψ(w)`. -/
+noncomputable def middleRightAct
+    (ψ : B →ₐ[k] WeightedKLRAlgebra k Γ (a + b) ⊗[k] WeightedKLRAlgebra k Γ (c + d)) :
+    Bᵐᵒᵖ →ₐ[k] Module.End k (MiddleTensor k Γ a b c d) where
+  toFun w := middleCornerMap 1 (ψ w.unop)
+  map_one' := by
+    rw [MulOpposite.unop_one, map_one, middleCornerMap_one_one, Module.End.one_eq_id]
+  map_mul' w w' := by
+    rw [MulOpposite.unop_mul, map_mul, Module.End.mul_eq_comp, middleCornerMap_comp, mul_one]
+  map_zero' := by
+    rw [MulOpposite.unop_zero, map_zero, middleCornerMap_zero_right]
+  map_add' w w' := by
+    rw [MulOpposite.unop_add, map_add, middleCornerMap_add_right]
+  commutes' r := by
+    rw [MulOpposite.algebraMap_apply, MulOpposite.unop_op, AlgHom.commutes,
+      middleCornerMap_one_algebraMap]
+
+theorem middleRightAct_apply
+    (ψ : B →ₐ[k] WeightedKLRAlgebra k Γ (a + b) ⊗[k] WeightedKLRAlgebra k Γ (c + d)) (w : Bᵐᵒᵖ) :
+    middleRightAct ψ w = middleCornerMap 1 (ψ w.unop) := rfl
+
+theorem middleLeftAct_mul_middleRightAct {B' : Type*} [Ring B'] [Algebra k B']
+    (φ : B →ₐ[k] WeightedKLRAlgebra k Γ (a + c) ⊗[k] WeightedKLRAlgebra k Γ (b + d))
+    (ψ : B' →ₐ[k] WeightedKLRAlgebra k Γ (a + b) ⊗[k] WeightedKLRAlgebra k Γ (c + d))
+    (u : B) (w : B'ᵐᵒᵖ) :
+    middleLeftAct φ u * middleRightAct ψ w = middleRightAct ψ w * middleLeftAct φ u := by
+  rw [middleLeftAct_apply, middleRightAct_apply, Module.End.mul_eq_comp, Module.End.mul_eq_comp,
+    middleCornerMap_comp, middleCornerMap_comp, one_mul, mul_one, one_mul, mul_one]
+
+end CornerMapAlgebra
+
+end Juxtapose
+
+variable (ν' ν'' ν₁ ν₂ : I →₀ ℕ) in
+/-- **A four-block layout** `ν' = a + b`, `ν'' = c + d`, `ν₁ = a + c`, `ν₂ = b + d` (B. Webster,
+arXiv:1209.2463v4, proof of Theorem 2.19): the shape of a shuffle of type `c`. -/
+structure ShuffleLayout where
+  /-- The block of `ν'` staying in `ν₁`. -/
+  a : I →₀ ℕ
+  /-- The block of `ν'` moving to `ν₂`. -/
+  b : I →₀ ℕ
+  /-- The block of `ν''` moving to `ν₁`: the shuffle type. -/
+  c : I →₀ ℕ
+  /-- The block of `ν''` staying in `ν₂`. -/
+  d : I →₀ ℕ
+  hab : a + b = ν'
+  hcd : c + d = ν''
+  hac : a + c = ν₁
+  hbd : b + d = ν₂
+
+namespace ShuffleLayout
+
+variable {ν' ν'' ν₁ ν₂ : I →₀ ℕ} (L : ShuffleLayout ν' ν'' ν₁ ν₂)
+
+variable (k Γ) in
+/-- `W_{a+c} ⊗ W_{b+d} ≃ W_{ν₁} ⊗ W_{ν₂}`. -/
+noncomputable def leftEquiv :
+    (WeightedKLRAlgebra k Γ (L.a + L.c) ⊗[k] WeightedKLRAlgebra k Γ (L.b + L.d)) ≃ₐ[k]
+      (WeightedKLRAlgebra k Γ ν₁ ⊗[k] WeightedKLRAlgebra k Γ ν₂) :=
+  Algebra.TensorProduct.congr (castW k Γ L.hac) (castW k Γ L.hbd)
+
+variable (k Γ) in
+/-- `W_{a+b} ⊗ W_{c+d} ≃ W_{ν'} ⊗ W_{ν''}`. -/
+noncomputable def rightEquiv :
+    (WeightedKLRAlgebra k Γ (L.a + L.b) ⊗[k] WeightedKLRAlgebra k Γ (L.c + L.d)) ≃ₐ[k]
+      (WeightedKLRAlgebra k Γ ν' ⊗[k] WeightedKLRAlgebra k Γ ν'') :=
+  Algebra.TensorProduct.congr (castW k Γ L.hab) (castW k Γ L.hcd)
+
+end ShuffleLayout
+
+open Juxtapose in
+variable (k Γ) in
+/-- **The piece of a four-block layout**: the balanced tensor product
+`(W_{a+c} ⊗ W_{b+d}) e' ⊗_{W'} e (W_{a+b} ⊗ W_{c+d})` (`MiddleTensor`), as a
+`(W_{ν₁} ⊗ W_{ν₂}, W_{ν'} ⊗ W_{ν''})`-bimodule through `ShuffleLayout.leftEquiv` and
+`ShuffleLayout.rightEquiv`; the right action is `t ⊗ y ↦ t ⊗ y w` (B. Webster,
+arXiv:1209.2463v4, proof of Theorem 2.19). -/
+def ResIndPiece {ν' ν'' ν₁ ν₂ : I →₀ ℕ} (L : ShuffleLayout ν' ν'' ν₁ ν₂) : Type (max u w) :=
+  MiddleTensor k Γ L.a L.b L.c L.d
+
+namespace ResIndPiece
+
+open Juxtapose
+
+variable {ν' ν'' ν₁ ν₂ : I →₀ ℕ} (L : ShuffleLayout ν' ν'' ν₁ ν₂)
+
+noncomputable instance : AddCommGroup (ResIndPiece k Γ L) :=
+  inferInstanceAs (AddCommGroup (MiddleTensor k Γ L.a L.b L.c L.d))
+
+noncomputable instance : Module k (ResIndPiece k Γ L) :=
+  inferInstanceAs (Module k (MiddleTensor k Γ L.a L.b L.c L.d))
+
+/-- The left action `t ⊗ y ↦ u t ⊗ y`, through the inverse of `ShuffleLayout.leftEquiv`. -/
+noncomputable def leftAct :
+    WeightedKLRAlgebra k Γ ν₁ ⊗[k] WeightedKLRAlgebra k Γ ν₂ →ₐ[k]
+      Module.End k (MiddleTensor k Γ L.a L.b L.c L.d) :=
+  middleLeftAct (L.leftEquiv k Γ).symm.toAlgHom
+
+/-- The right action `t ⊗ y ↦ t ⊗ y w`, through the inverse of `ShuffleLayout.rightEquiv`. -/
+noncomputable def rightAct :
+    (WeightedKLRAlgebra k Γ ν' ⊗[k] WeightedKLRAlgebra k Γ ν'')ᵐᵒᵖ →ₐ[k]
+      Module.End k (MiddleTensor k Γ L.a L.b L.c L.d) :=
+  middleRightAct (L.rightEquiv k Γ).symm.toAlgHom
+
+noncomputable instance :
+    Module (WeightedKLRAlgebra k Γ ν₁ ⊗[k] WeightedKLRAlgebra k Γ ν₂) (ResIndPiece k Γ L) :=
+  Module.compHom (MiddleTensor k Γ L.a L.b L.c L.d) (ResIndPiece.leftAct L).toRingHom
+
+noncomputable instance :
+    Module (WeightedKLRAlgebra k Γ ν' ⊗[k] WeightedKLRAlgebra k Γ ν'')ᵐᵒᵖ (ResIndPiece k Γ L) :=
+  Module.compHom (MiddleTensor k Γ L.a L.b L.c L.d) (ResIndPiece.rightAct L).toRingHom
+
+theorem smul_left_def (u : WeightedKLRAlgebra k Γ ν₁ ⊗[k] WeightedKLRAlgebra k Γ ν₂)
+    (x : ResIndPiece k Γ L) :
+    u • x = ResIndPiece.leftAct L u x := rfl
+
+theorem smul_right_def (w : (WeightedKLRAlgebra k Γ ν' ⊗[k] WeightedKLRAlgebra k Γ ν'')ᵐᵒᵖ)
+    (x : ResIndPiece k Γ L) :
+    w • x = ResIndPiece.rightAct L w x := rfl
+
+theorem smul_k_def (r : k) (x : ResIndPiece k Γ L) :
+    r • x = (r • x : MiddleTensor k Γ L.a L.b L.c L.d) := rfl
+
+instance : IsScalarTower k (WeightedKLRAlgebra k Γ ν₁ ⊗[k] WeightedKLRAlgebra k Γ ν₂)
+    (ResIndPiece k Γ L) where
+  smul_assoc r u x := by
+    rw [smul_left_def, smul_left_def, map_smul]
+    rfl
+
+instance : IsScalarTower k (WeightedKLRAlgebra k Γ ν' ⊗[k] WeightedKLRAlgebra k Γ ν'')ᵐᵒᵖ
+    (ResIndPiece k Γ L) where
+  smul_assoc r w x := by
+    rw [smul_right_def, smul_right_def, map_smul]
+    rfl
+
+instance : SMulCommClass (WeightedKLRAlgebra k Γ ν₁ ⊗[k] WeightedKLRAlgebra k Γ ν₂)
+    (WeightedKLRAlgebra k Γ ν' ⊗[k] WeightedKLRAlgebra k Γ ν'')ᵐᵒᵖ (ResIndPiece k Γ L) where
+  smul_comm u w x := by
+    rw [smul_left_def, smul_right_def, smul_right_def, smul_left_def]
+    exact LinearMap.congr_fun (middleLeftAct_mul_middleRightAct _ _ u w) x
+
+end ResIndPiece
+
 end Categorification.WeightedKLR

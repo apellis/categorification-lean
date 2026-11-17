@@ -13,7 +13,7 @@ State at the time of writing. Over a field, under the standing hypothesis with `
 | Item | Content | Status |
 |---|---|---|
 | A0 | the fields `fdA`, `fdB`, `fdC` of `TensorK0Hyp` for `W_ν` (graded simple tops are finite-dimensional) | open, no new theory needed |
-| A | the fields `endA`, `endB` of `TensorK0Hyp` for `W_ν` (graded simple modules are absolutely irreducible) | open; plan below (KL I crystal argument) |
+| A | the fields `endA`, `endB` of `TensorK0Hyp` for `W_ν` (graded simple modules are absolutely irreducible) | blocked: right restrictions need not detect a nonzero simple; see obstruction below and #289 |
 | B | the quantum Serre relations in graded `K_0` for every `Q` of Rouquier's form | open; plan below (Rouquier) |
 | C | the algebra map `U_q^+(𝔤_Γ) → K_0` for loop-free `Γ` | open; needs B |
 | D | the antipode / Hopf structure in the braided category of `ℤ[I]`-graded modules | open |
@@ -39,6 +39,12 @@ argument applies:
    endomorphism, hence nilpotently, hence by zero (graded Schur). So a graded simple module is
    a quotient of `W_ν ⊗_Z k`, which is finite-dimensional.
 4. For `W_{ν'} ⊗ W_{ν''}` use `Z' ⊗ Z''`.
+
+Centrality in step 1 is formalized for the gallery algebra by
+`GalleryAlgebra.poly_mem_center` and `GalleryAlgebra.t_mul_poly_of_invariant`
+(`CentralPolynomials.lean`), directly from the defining relations. These supporting results
+need neither the standing hypothesis, (†), nor loop-freeness. Finiteness over the symmetric
+polynomials, positive-degree annihilation, and the fields `fdA`, `fdB`, `fdC` remain open.
 
 ## A. Absolute irreducibility: adapt KL I Corollary 3.19
 
@@ -94,6 +100,26 @@ producing extra polynomial factors that change Lemma 3.6's argument (the moves c
 edges at `i`; the bigon factors `Q_e` are non-zero-divisors under the standing hypothesis,
 `Standing.isRegular_rename_edgeProd`). If this fails, record the obstruction in #289 before
 building any replacement.
+
+### Obstruction to the induction
+
+The proposed induction also requires `ε_i(M) > 0` for some `i` whenever `M ≠ 0` has
+nonzero weight. This fails for weighted chambers. Take two vertices `a,b`, parallel edges
+`a → b` of weights `−1,+1`, no loops, and `Q_e(u,v)=u−v`, with all standing integers equal
+to `1`. These satisfy the standing hypothesis and (†). At weight `α_a+α_b`, the two walls
+bound a middle chamber `C`. There is a one-dimensional graded simple supported only on `C`:
+dots and all steps act by zero. There are no diagonals or nontrivial colour permutations;
+the ghost bigon relations evaluate to `Q_e(0,0)=0`. Both juxtaposed chambers with a
+single-colour right block lie outside the middle chamber, so every such right restriction
+vanishes. Thus every `ε_i(M)` is zero.
+
+This is a mathematical obstruction to the smaller-weight induction in `Cor319.lean`, even
+if the analogues of Lemmas 3.6–3.8 hold whenever a right restriction is nonzero. It does
+not disprove absolute irreducibility. Regularity of the wall factors on the polynomial
+representation does not make them injective on dot-nilpotent simple modules. The
+obstruction and the question of a replacement route are recorded on
+[issue #289](https://github.com/apellis/categorification-lean/issues/289#issuecomment-6951906423).
+A replacement argument requires the maintainer's approval.
 
 Output: `WeightedKLR.exists_eq_smul_of_isSimpleModule` (loop-free `Γ`) and an instance of
 `KLR.TensorK0Hyp (G.klrGrade μ) (G.klrGrade μ')`, removing the route hypothesis from

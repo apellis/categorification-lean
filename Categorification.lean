@@ -1042,6 +1042,20 @@ import Categorification.KLR.CyclotomicRestrictionProjective
 import Categorification.KLR.CyclotomicGradedRestriction
 import Categorification.WeightedKLR.RedStrands.EraseRed
 import Categorification.WeightedKLR.RedStrands.SingleBlack
+import Categorification.KLR.CyclotomicAbsentCommutatorK0
+import Categorification.KLR.CyclotomicCommutatorGrading
+import Categorification.KLR.CyclotomicPresentCommutatorK0
+import Categorification.KLR.CyclotomicProjectiveLift
+import Categorification.KLR.CyclotomicQuotientK0
+import Categorification.KLR.CyclotomicDividedProjectives
+import Categorification.WeightedKLR.RedStrands.AddRed
+import Categorification.WeightedKLR.RedStrands.BoundaryCharacters
+import Categorification.WeightedKLR.RedStrands.FirstWeightProjectives
+import Categorification.WeightedKLR.RedStrands.SingleBlackLattice
+import Categorification.WeightedKLR.RedStrands.SingleRedGrading
+import Categorification.KLR.CyclotomicQuantumCommutator
+import Categorification.WeightedKLR.RedStrands.AddRedInjective
+import Categorification.WeightedKLR.RedStrands.BlackInduction
 /-!
 # Categorification
 

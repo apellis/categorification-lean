@@ -1,4 +1,5 @@
 import Categorification
+import LieLean.Algebra.QuantumGroup.Sl2.SimpleModule
 
 /-!
 # Non-vacuity checks for the headline theorems
@@ -137,6 +138,37 @@ example : Module.finrank ℚ ↥(KLR.CycKLR.grade (unfGrading (k := ℚ) arr) (f
     hf [false] true 2 (by rw [coverWeight_pair_iY]; rfl)]
   simp [Fin.sum_univ_two]
   exact Finsupp.single_eq_of_ne (by decide : (2 : ℤ) ≠ 0)
+
+/-- On the single false strand, the true-colour commutator acts by [2]. -/
+example := KLR.CycKLR.raise_lower_sub_lower_raise_of_notMem (unfGrading (k := ℚ) arr)
+  (fun _ => 1) true ({false} : Multiset Bool) (unfQ_klrSymm arr)
+  (fun j l _ => unfQ_leadingCoeff arr j l) (coverWeight arr) lam
+  (by rw [coverWeight_pair_iY]; rfl) (fun _ h => unfQ_natDegree_eq_neg_pair arr h)
+  (by simp) (by decide)
+  (Graded.K0.of (Graded.GProj.regular (KLR.CycKLR.grade (unfGrading (k := ℚ) arr)
+    (fun _ => 1) {false})))
+
+/-- Both same-colour summands are compared on a present strand.  At
+level three the coroot pairing is one, and at level one it is minus one. -/
+example := KLR.CycKLR.positiveCommutatorK0 (unfGrading (k := ℚ) arr) (fun _ => 3)
+  true 0 (unfQ_klrSymm arr) (fun j l _ => unfQ_leadingCoeff arr j l) (coverWeight arr)
+  ((fun _ => 3), 0) (by rw [coverWeight_pair_iY]; rfl)
+  (fun _ h => unfQ_natDegree_eq_neg_pair arr h) (by simp only [add_zero, Multiset.map_singleton, Multiset.sum_singleton, map_sub,
+      coverWeight_pair_iY, coverWeight_iX, coverCartan_dot_self]; decide)
+  (Graded.K0.of (Graded.GProj.regular _))
+
+example := KLR.CycKLR.negativeCommutatorK0 (unfGrading (k := ℚ) arr) (fun _ => 1)
+  true 0 (unfQ_klrSymm arr) (fun j l _ => unfQ_leadingCoeff arr j l) (coverWeight arr)
+  lam (by rw [coverWeight_pair_iY]; rfl) (fun _ h => unfQ_natDegree_eq_neg_pair arr h)
+  (by simp only [add_zero, Multiset.map_singleton, Multiset.sum_singleton, map_sub,
+      coverWeight_pair_iY, coverWeight_iX, coverCartan_dot_self]; decide) (Graded.K0.of (Graded.GProj.regular _))
+
+/-- Equal-colour commutator on the regular class one step below level one. -/
+example := KLR.CycKLR.raise_lower_sub_lower_raise (unfGrading (k := ℚ) arr)
+  (fun _ => 1) true ({true} : Multiset Bool) (unfQ_klrSymm arr)
+  (fun j l _ => unfQ_leadingCoeff arr j l) (coverWeight arr) lam
+  (by rw [coverWeight_pair_iY]; rfl) (fun _ h => unfQ_natDegree_eq_neg_pair arr h)
+  (by decide) (Graded.K0.of (Graded.GProj.regular _))
 
 end KangKashiwara
 
@@ -1906,5 +1938,230 @@ example (d : ℤ) :=
       · change 0 < 2 * (wkWeightZeroGraph_standing.symm i : ℤ)
         exact mul_pos (by decide) (by exact_mod_cast wkWeightZeroGraph_standing.symm_pos i)
       · exact (by decide : (0 : ℤ) < 2)) d
+
+namespace LastRedCorner
+
+open Stendhal
+
+attribute [local instance 1100] IsIdempotentElem.instAlgebraCorner_categorification
+
+private def redCornerQ (_ _ : Unit) : MvPolynomial (Fin 2) ℚ := 0
+private def redCornerWeights {n : ℕ} (j : Fin n) : Unit →₀ ℕ :=
+  Finsupp.single () (j.val + 1)
+
+example : TensorProductAlgebra ℚ redCornerQ (redCornerWeights (n := 2) ∘ Fin.castSucc)
+      (0 : Multiset Unit) ≃ₐ[ℚ] TensorProductAlgebra.lastRedCorner redCornerQ (redCornerWeights (n := 2)) 0 :=
+  appendRedVacuumEquiv redCornerQ redCornerWeights
+
+example : TensorProductAlgebra ℚ redCornerQ (redCornerWeights (n := 1) ∘ Fin.castSucc)
+      ({()} : Multiset Unit) ≃ₐ[ℚ]
+    TensorProductAlgebra.lastRedCorner redCornerQ (redCornerWeights (n := 1)) {()} :=
+  appendFirstRedEquiv redCornerQ {()} redCornerWeights
+
+
+example : Function.Surjective
+    (appendRed redCornerQ (redCornerWeights (n := 2)) {()}) :=
+  appendRed_surjective redCornerQ redCornerWeights {()}
+
+
+example (x : StendhalAlgebra ℚ redCornerQ (redCornerWeights (n := 2)) {()}) :
+    ∃ v, appendRedStendhalValue redCornerQ redCornerWeights {()} v =
+      StendhalAlgebra.lastRedIdem redCornerQ redCornerWeights {()} * x *
+        StendhalAlgebra.lastRedIdem redCornerQ redCornerWeights {()} :=
+  exists_appendRedStendhalValue redCornerQ redCornerWeights {()} x
+
+end LastRedCorner
+
+namespace FirstBlackProjectives
+
+attribute [local instance 1100] IsIdempotentElem.instAlgebraCorner_categorification
+
+private def rbWord : KLR.Seq (Stendhal.stendhalWeight 2 {(0 : Fin 1)}) :=
+  KLR.KLRAlgebra.Seq.ofList [.inr 0, .inl 0, .inr 1] (by decide)
+
+private theorem rbOrdered : Stendhal.IsRedOrdered rbWord := by
+  unfold Stendhal.IsRedOrdered
+  decide
+
+private theorem rbSurvives : ¬ Stendhal.IsViolated rbWord := by
+  rintro ⟨h, hv⟩
+  exact Bool.noConfusion hv
+
+private def rrWord : KLR.Seq (Stendhal.stendhalWeight 2 {(0 : Fin 1)}) :=
+  KLR.KLRAlgebra.Seq.ofList [.inr 0, .inr 1, .inl 0] (by decide)
+
+private theorem rrOrdered : Stendhal.IsRedOrdered rrWord := by
+  unfold Stendhal.IsRedOrdered
+  decide
+
+private theorem rrSurvives : ¬ Stendhal.IsViolated rrWord := by
+  rintro ⟨h, hv⟩
+  exact Bool.noConfusion hv
+
+private noncomputable def firstProjGrading :=
+  Stendhal.stendhalGradingDatum (fun _ : Fin 2 => Finsupp.single (0 : Fin 1) 1)
+    (KLR.klGradingDatum ℚ (⊥ : SimpleGraph (Fin 1))) (fun _ => 1) (fun _ => rfl)
+
+private theorem firstProjDots (c : Fin 1 ⊕ Fin 2) : 0 < firstProjGrading.degX c := by
+  rcases c with x | r <;> exact (by decide : (0 : ℤ) < 2)
+
+private theorem firstProjMultiplicity (_r : Fin 2) : 0 < (Finsupp.single (0 : Fin 1) 1 : Fin 1 →₀ ℕ) 0 := by
+  simp
+
+private abbrev firstWords :=
+  {s : KLR.Seq (Stendhal.stendhalWeight 2 {(0 : Fin 1)}) // Stendhal.IsRedOrdered s ∧ ¬ Stendhal.IsViolated s}
+
+private def middleWord : firstWords := ⟨rbWord, rbOrdered, rbSurvives⟩
+private def rightWord : firstWords := ⟨rrWord, rrOrdered, rrSurvives⟩
+
+/-- Two fundamental red strands and one black strand. Both allowable positions give
+indecomposables. Their projectives stay distinct after any grading shift. -/
+example := Stendhal.FirstWeight.finrank_endZero_sequenceProj firstProjGrading firstProjDots
+  firstProjMultiplicity middleWord
+
+example := Stendhal.FirstWeight.sequenceProj_isIndec firstProjGrading firstProjDots
+  firstProjMultiplicity rightWord
+
+example (d : ℤ) : IsEmpty ((Stendhal.sequenceProj firstProjGrading middleWord.1 middleWord.2.1).Iso
+    ((Stendhal.sequenceProj firstProjGrading rightWord.1 rightWord.2.1).shift d)) := by
+  refine ⟨fun F => ?_⟩
+  have h := Stendhal.FirstWeight.eq_of_sequenceProj_iso_shift firstProjGrading
+    firstProjMultiplicity middleWord rightWord F
+  have he := congrArg (fun s : firstWords => s.1.lbl ⟨1, by decide⟩) h
+  change (Sum.inl (0 : Fin 1) : Fin 1 ⊕ Fin 2) = .inr 1 at he
+  contradiction
+
+example := Stendhal.FirstWeight.exists_iso_sequenceProj_shift firstProjGrading firstProjDots
+  firstProjMultiplicity (Stendhal.sequenceProj firstProjGrading middleWord.1 middleWord.2.1)
+  (Stendhal.FirstWeight.sequenceProj_isIndec firstProjGrading firstProjDots firstProjMultiplicity middleWord)
+
+example := Stendhal.FirstWeight.sequenceProjIndecEquiv firstProjGrading firstProjDots firstProjMultiplicity
+
+example := Stendhal.FirstWeight.sequenceProjBasis_apply firstProjGrading firstProjDots firstProjMultiplicity middleWord
+
+end FirstBlackProjectives
+
+namespace FirstBlackLattice
+
+open LieLean.QuantumGroup LieLean.QuantumGroup.GrandLoop
+
+private def sl2HighestTwo : Dom sl2RootDatum :=
+  ⟨2 • AddMonoidHom.id ℤ, fun _ => by simp [LieLean.QuantumGroup.sl2RootDatum]⟩
+
+private theorem sl2XRegular : sl2RootDatum.IsXRegular := by
+  change LinearIndependent ℤ sl2RootDatum.root
+  rw [linearIndependent_unique_iff]
+  intro h
+  have hh := congrArg (fun f : ℤ →+ ℤ => f 1) h
+  norm_num at hh
+
+private def redLevelTwo : Fin 1 → Unit →₀ ℕ := fun _ => Finsupp.single () 2
+
+private def redLevelTwoGrading :=
+  Stendhal.stendhalGradingDatum redLevelTwo (KLR.klGradingDatum ℚ (⊥ : SimpleGraph Unit))
+    (fun _ => 1) (fun _ => rfl)
+
+example := Stendhal.SingleBlack.oneBlackLatticeEquiv_regular sl2HighestTwo () redLevelTwoGrading
+  sl2XRegular (by simp [sl2HighestTwo, redLevelTwo, LieLean.QuantumGroup.sl2RootDatum]) (by simp [redLevelTwo])
+
+example := Stendhal.SingleBlack.oneBlackLatticeEquiv_regular_shift sl2HighestTwo () redLevelTwoGrading
+  sl2XRegular (by simp [sl2HighestTwo, redLevelTwo, LieLean.QuantumGroup.sl2RootDatum]) (by simp [redLevelTwo]) 1
+
+end FirstBlackLattice
+
+namespace OneRedEquivalence
+
+private abbrev G := KLR.klGradingDatum ℚ (⊥ : SimpleGraph (Fin 1))
+private abbrev Λ := fun _ : Fin 1 => Finsupp.single (0 : Fin 1) 2
+private abbrev β : Multiset (Fin 1) := {0, 0}
+example := Stendhal.SingleRed.cyclotomicK0Equiv_sequenceProj Λ G (fun _ => 1) (fun _ => rfl) β
+  ((KLR.Seq.uniqueOfForall (ν := β) (i := 0) (by simp [β])).default)
+example := Stendhal.SingleRed.indK0_cyclotomicK0Equiv Λ G (fun _ => 1) (fun _ => rfl) {0} 0
+  (Graded.K0.of (Graded.GProj.regular (KLR.CycKLR.grade G (Λ 0) {0})))
+example := Stendhal.SingleRed.totalCyclotomicK0Equiv_lof Λ G (fun _ => 1) (fun _ => rfl) β
+  (Graded.K0.of (Graded.GProj.regular (KLR.CycKLR.grade G (Λ 0) β)))
+example := Stendhal.SingleRed.indK0_vacuum Λ G (fun _ => 1) (fun _ => rfl) 0
+
+end OneRedEquivalence
+
+namespace CyclotomicLifting
+
+private abbrev G := KLR.klGradingDatum ℚ (⊥ : SimpleGraph (Fin 1))
+private abbrev β : Multiset (Fin 1) := {0, 0}
+private def s := (KLR.Seq.uniqueOfForall (ν := β) (i := 0) (by simp [β])).default
+example := KLR.CycKLR.quotientK0_ofIdempotent G (fun _ => 2) β
+  (KLR.KLRAlgebra.e_mul_self s) (G.e_mem_grade s)
+example := KLR.CycKLR.quotientK0_surjective G (fun _ => 2) β
+  (KLR.klQ_symm _) (fun _ => (by decide : (0 : ℤ) < 2))
+example := KLR.CycKLR.totalQuotientK0_surjective G (fun _ => 2)
+  (KLR.klQ_symm _) (fun _ => (by decide : (0 : ℤ) < 2))
+
+end CyclotomicLifting
+
+namespace CyclotomicDividedWords
+
+open Categorification.QuantumGroup MvPolynomial
+
+private def C₂ : CartanDatum (Fin 2) where
+  dot i j := if i = j then 2 else 0
+  symm := by decide
+  dot_self_pos := by decide
+  dot_self_even i := by fin_cases i <;> decide
+  dot_nonpos := by decide
+  dvd_two_mul i j := by fin_cases i <;> fin_cases j <;> decide
+private def params (i j : Fin 2) : MvPolynomial (Fin 2) ℚ := if i = j then 0 else C 2
+private theorem admissible : KLR.IsRouquierQ C₂ params where
+  symm i j h := by simp [params, h, h.symm]
+  homogeneous i j h := by
+    simpa [params, C₂, h] using (isWeightedHomogeneous_C ![(2 : ℤ), 2] (2 : ℚ))
+  unit_coeff i j h := by
+    simp [params, C₂, CartanDatum.dij, h]
+
+private abbrev blocks : List (Fin 2 × ℕ) := [(0, 2), (1, 1)]
+private abbrev β : Multiset (Fin 2) := KLR.KLRAlgebra.expandDiv blocks
+example := admissible.gradingDatum.of_expanded_eq_factorial (fun i j => congrArg Neg.neg (C₂.symm i j))
+  C₂ (fun _ => rfl) blocks (rfl : (KLR.KLRAlgebra.expandDiv blocks : Multiset _) = β)
+example := KLR.CycKLR.span_dividedProjective_of_rouquier C₂ (fun _ => 2) β admissible
+example := KLR.CycKLR.of_expanded_eq_factorial admissible.gradingDatum
+  (fun i j => congrArg Neg.neg (C₂.symm i j)) C₂ (fun _ => 2) β (fun _ => rfl) blocks rfl
+example := KLR.CycKLR.span_total_dividedProjective C₂ (fun _ => 2) admissible
+
+end CyclotomicDividedWords
+
+section RedCornerEquivalence
+
+attribute [local instance 1100] IsIdempotentElem.instAlgebraCorner_categorification
+
+/-- Adding a second red weight in a block with repeated and adjacent colours. -/
+example := Stendhal.appendRedStendhalValue_injective wkWeightZeroGraph
+  (fun _ : Fin 2 => Finsupp.single (0 : Fin 2) 2) ({0, 1, 0} : Multiset (Fin 2))
+  wkWeightZeroGraph_dagger (fun _ => by simp [wkWeightZeroGraph]) (fun _ => rfl)
+  (fun _ => rfl) wkWeightZeroGraph_standing
+
+noncomputable example := Stendhal.appendRedEquiv wkWeightZeroGraph
+  (fun _ : Fin 2 => Finsupp.single (0 : Fin 2) 2) ({0, 1, 0} : Multiset (Fin 2))
+  wkWeightZeroGraph_dagger (fun _ => by simp [wkWeightZeroGraph]) (fun _ => rfl)
+  (fun _ => rfl) wkWeightZeroGraph_standing
+
+end RedCornerEquivalence
+
+namespace RightBlackInduction
+open Categorification KLR.Unfurling Stendhal
+attribute [local instance 1100] IsIdempotentElem.instAlgebraCorner_categorification
+
+private noncomputable def mult : Fin 2 → Bool →₀ ℕ := fun _ => Finsupp.single true 1
+private def arrows (i j : Bool) : ℕ := if i = false ∧ j = true then 1 else 0
+private noncomputable def G := stendhalGradingDatum mult (unfGrading (k := ℚ) arrows)
+  (fun _ => 1) (fun _ => rfl)
+
+/-- The second right-black induction on the regular projective with one existing black strand
+and two red fundamental weights. -/
+example := blackIndK0_regular G true ({true} : Multiset Bool)
+
+example := blackLower_lof G true ({true} : Multiset Bool)
+  (Graded.K0.of (Graded.GProj.regular (tensorProductGrade G {true})))
+
+
+end RightBlackInduction
 
 end NonVacuity

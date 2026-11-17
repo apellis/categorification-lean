@@ -139,10 +139,10 @@ These statements do not involve the comparison map.
       section.
   * The graded Mackey formula, with the shift `-(μ · μ')` (`middleShift`) of the term of
     shuffle type `μ`, on graded `K_0`, over a field, under `Γ.Dagger`, `Γ.NoZeroLoops` and
-    `Γ.Standing`: `exists_resK0_indK0_eq_sum_graded` (next section). Open: the graded
-    analogues of `ResIndPiece.resTwistEquiv` and `Juxtapose.extIndIndEquiv` (each piece as
-    twisted induction of restrictions), and the transport of the formula along
-    `k0TensorEquiv` under `TensorK0Hyp`.
+    `Γ.Standing`: `exists_resK0_indK0_eq_sum_graded`, and in twisted form
+    `exists_resK0_indK0_eq_sum_twistK0Graded` (next section). Open: the graded analogue of
+    `Juxtapose.extIndIndEquiv` and the transport of the formula along `k0TensorEquiv` under
+    `TensorK0Hyp`.
 
 ## Graded `K_0` (formalized)
 
@@ -189,6 +189,14 @@ Files `WeightedKLR/GradedK0/Grading.lean`, `Induction.lean`, `TensorK0.lean`,
   piece carrying the unshifted grading of the middle tensor product
   (`ResIndPiece.baseGrading`, `ResIndPiece.tensorGProj`). The shift is pulled out by
   `Graded.K0.of_balancedTensorGProj_shift_left`.
+* `GradingDatum.middleIndK0`, `ResIndPiece.of_tensorGProj_eq_twistK0Graded`,
+  `exists_resK0_indK0_eq_sum_twistK0Graded` (`GradedK0/ResIndTwist.lean`): same hypotheses.
+  The graded piece `ResIndPiece L ⊗ (P ⊠ Q)` (unshifted grading) is, along
+  `W_{a+c} ⊗ W_{b+d} ≅ W_{ν₁} ⊗ W_{ν₂}`, the graded induction from the middle parabolic of
+  `Res_{a,b} P ⊠ Res_{c,d} Q`, with no further shift because `e = (ι_{a,b} ⊗ ι_{c,d})(1)` has
+  degree `0`. Hence
+  `Δ_{ν₁;ν₂}(x · y) = ∑_i q^{middleShift (L i)} (Ind_{a;c} ⊗ Ind_{b;d}) ∘ (exchange)
+  (Δ_{a;b} x ⊠ Δ_{c;d} y)` for all `x`, `y` in graded `K_0`.
 
 * `GradingDatum.instGradedAlgebraKlrGrade`: for every grading datum `G`, `W_ν` with
   `G.klrGrade ν` is a graded algebra (the corner of `A_ν` at the degree-zero idempotent

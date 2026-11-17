@@ -1364,4 +1364,11 @@ example (ν' ν'' : Fin 2 →₀ ℕ) :=
   WeightedKLR.exists_resK0_indK0_eq_sum_graded (k := ℚ) wkGrading wkGraph_dagger
     wkGraph_noZeroLoops wkGraph_standing (add_comm ν'' ν')
 
+/-- **Webster, Theorem 2.19, graded Mackey formula in twisted form**:
+`Res_{ν₁;ν₂}(x · y) = Σ q^{middleShift} (Ind ⊗ Ind)(exchange)(Res x ⊠ Res y)` on graded `K₀`,
+for `(ν₁, ν₂) = (ν'', ν')`. -/
+example (ν' ν'' : Fin 2 →₀ ℕ) :=
+  WeightedKLR.exists_resK0_indK0_eq_sum_twistK0Graded (k := ℚ) wkGrading wkGraph_dagger
+    wkGraph_noZeroLoops wkGraph_standing (add_comm ν'' ν')
+
 end NonVacuity

@@ -18,7 +18,7 @@ instances; it does not replace `G` by the grading of the standing hypothesis.
 | A | the fields `endA`, `endB` of `TensorK0Hyp` for `W_ν` (graded simple modules are absolutely irreducible) | proved for loop-free graphs over any field by the minimum-support local-chart argument; repeated colours and cycles are allowed |
 | B | the quantum Serre relations in graded `K_0` for every `Q` of Rouquier's form | formalized over every commutative ring: `KLR.Rouquier.K0_serre_window` |
 | C | the integral divided-power quantum-group map to `K_0` for loop-free `Γ` | formalized for loop-free graphs over any field: `WeightedGraph.Standing.quantumGroupMap` |
-| D | the antipode / Hopf structure in the braided category of `ℤ[I]`-graded modules | open |
+| D | the antipode / Hopf structure in the braided category of `ℤ[I]`-graded modules | done for loop-free graphs over a field, `WeightedGraph.Standing.braidedHopfK0` |
 
 The local-chart proof of A is a replacement argument. The right-restriction
 induction initially proposed from KL I has the obstruction recorded below; it is not used
@@ -239,7 +239,7 @@ of Rouquier v1, §4.1.2, p. 33, equation (5). The evident generator image is
 
 ## D. Antipode
 
-Open. Webster v4, proof of Theorem 2.19, p. 12 gives the counit and cites Xiao
+Done for loop-free graphs over a field under the standing and (†) hypotheses. Webster v4, proof of Theorem 2.19, p. 12 gives the counit and cites Xiao
 for an inductive antipode formula. Formalizing this construction is separate from the
 natural map in C; no surjectivity of that map is available or needed as a roadmap premise.
 `GradingDatum.totalCoproduct` assembles all homogeneous restrictions. Projecting to
@@ -252,7 +252,14 @@ onto the weight-zero Laurent summand, and `counitK0_totalCoproduct_left` and
 `counitK0_totalCoproduct_right` prove the two counit identities. The coproduct
 preserves the unit and the twisted multiplication (`totalCoproduct_one`,
 `totalCoproduct_mul`). The right convolution identity is `antipodeK0_right`.
-The Hopf assertion also requires coassociativity and the left convolution identity.
+The comparison of the two orders of graded triple restriction gives
+`GradingDatum.totalCoproduct_coassoc`. Convolution associativity and cancellation
+by the identity map then give `GradingDatum.antipodeK0_left`.
+`GradingDatum.weightBraiding` is the invertible flip on the total tensor square,
+with factor `T (−μ·ν)` in the standing grading. Its two scalar hexagons follow
+from additivity in the two weights. The tensor multiplication uses this flip
+on its middle factors. `WeightedGraph.Standing.braidedHopfK0` puts these laws
+on the induction algebra and obtains the graded-dimension hypotheses internally.
 
 In the displayed recursion in Webster’s proof, the operator on the tensor factors is
 `id ⊗ S`. Solving the right convolution identity removes the summand with first

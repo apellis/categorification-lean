@@ -1020,8 +1020,15 @@ import Categorification.WeightedKLR.GradedK0.Multiplicativity
 import Categorification.WeightedKLR.GradedK0.AntipodeConvolution
 import Categorification.WeightedKLR.RedStrands.StendhalGrading
 import Categorification.WeightedKLR.RedStrands.QuotientBasis
+import Categorification.WeightedKLR.RedStrands.QuotientDimension
 import Categorification.WeightedKLR.RedStrands.VacuumK0
 import Categorification.WeightedKLR.RedStrands.EmptyTensor
+import Categorification.WeightedKLR.GradedK0.RestrictionTensor
+import Categorification.WeightedKLR.GradedK0.TensorCoherence
+import Categorification.WeightedKLR.GradedK0.Coassociativity
+import Categorification.WeightedKLR.GradedK0.TotalCoassociativity
+import Categorification.WeightedKLR.GradedK0.Braiding
+import Categorification.WeightedKLR.GradedK0.Hopf
 /-!
 # Categorification
 

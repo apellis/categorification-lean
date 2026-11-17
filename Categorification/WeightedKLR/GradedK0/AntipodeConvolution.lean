@@ -91,7 +91,7 @@ private theorem rightTerm_antipode {a b ν : I →₀ ℕ} (h : a + b = ν) (x :
     rfl
   | add u v hu hv => simp only [map_add, hu, hv]
 
-private theorem mul_rTensor_total (F : Module.End L G.K0W) (ν : I →₀ ℕ) (x : G.K0fam ν) :
+private theorem mul_lTensor_total_lof (F : Module.End L G.K0W) (ν : I →₀ ℕ) (x : G.K0fam ν) :
     LinearMap.mul' L G.K0W (F.lTensor G.K0W (Δ (ι ν x))) =
       ∑ p ∈ (antidiagonal ν).attach,
         G.rightTerm F p.val.1 p.val.2 (Δs _ _ (mem_antidiagonal.mp p.property) x) := by
@@ -107,7 +107,7 @@ private theorem mul_rTensor_total (F : Module.End L G.K0W) (ν : I →₀ ℕ) (
 
 private theorem mul_lTensor_total_zero (F : Module.End L G.K0W) (x : G.K0fam 0) :
     LinearMap.mul' L G.K0W (F.lTensor G.K0W (Δ (ι 0 x))) = F (ι 0 x) := by
-  rw [mul_rTensor_total]
+  rw [mul_lTensor_total_lof]
   let zz : ↥(antidiagonal (0 : I →₀ ℕ)) := ⟨(0, 0), mem_antidiagonal.mpr (zero_add 0)⟩
   rw [Finset.sum_eq_single zz]
   · change G.rightTerm F 0 0 (Δs 0 0 _ x) = _
@@ -123,7 +123,7 @@ private theorem mul_lTensor_total_ne (F : Module.End L G.K0W) {ν : I →₀ ℕ
     LinearMap.mul' L G.K0W (F.lTensor G.K0W (Δ (ι ν x))) =
       F (ι ν x) + (ι ν x * F 1 + ∑ p ∈ (properSplits ν).attach,
         G.rightTerm F p.val.1 p.val.2 (Δs _ _ (mem_properSplits.mp p.property).1 x)) := by
-  rw [mul_rTensor_total, sum_splits hn (fun a b h => G.rightTerm F a b (Δs a b h x)),
+  rw [mul_lTensor_total_lof, sum_splits hn (fun a b h => G.rightTerm F a b (Δs a b h x)),
     G.splitCoproduct_zero_left, G.splitCoproduct_zero_right, rightTerm_tmul, rightTerm_tmul]
   change 1 * _ + _ = _
   rw [one_mul]
@@ -147,7 +147,10 @@ private theorem rightTerm_zero_of (F : Module.End L G.K0W) (a b : I →₀ ℕ)
   | tmul u v => rw [rightTerm_tmul, hb, mul_zero]
   | add u v hu hv => rw [map_add, hu, hv, add_zero]
 
-private theorem eq_zero_of_mul_lTensor_total (F : Module.End L G.K0W)
+/-- Left convolution with the identity has zero kernel. The endpoint at
+`(0,ν)` contributes the unknown in weight `ν`, and all the other right weights
+are smaller. Used for the second antipode identity in Webster's Theorem 2.19. -/
+theorem eq_zero_of_mul_lTensor_total (F : Module.End L G.K0W)
     (hf : LinearMap.mul' L G.K0W ∘ₗ F.lTensor G.K0W ∘ₗ Δ = 0) : F = 0 := by
   have hv (ν : I →₀ ℕ) (x : G.K0fam ν) :
       LinearMap.mul' L G.K0W (F.lTensor G.K0W (Δ (ι ν x))) = 0 :=
@@ -195,34 +198,5 @@ theorem antipodeK0_right :
     change S (DirectSum.of G.K0fam 0 x) = _
     rw [antipodeK0_of, antipodeComponent_zero, LinearMap.id_apply, K0W_of_zero_eq_algebraMap]
   · rw [G.mul_lTensor_antipode_ne hD hS hne hl hn, G.counitK0_of_ne hn, map_zero]
-
-/-- The left convolution identity follows from the right one in the convolution
-ring. This intermediate statement takes the coalgebra laws through the given
-instance and identifies its two structure maps with weighted restriction and
-the weight-zero counit. -/
-theorem antipodeK0_left_of_coalgebra [Coalgebra L G.K0W]
-    (hd : Coalgebra.comul (R := L) (A := G.K0W) = Δ)
-    (hcounit : Coalgebra.counit (R := L) (A := G.K0W) = G.counitK0) :
-    LinearMap.mul' L G.K0W ∘ₗ (S).rTensor G.K0W ∘ₗ Δ =
-      Algebra.linearMap L G.K0W ∘ₗ Coalgebra.counit := by
-  let e : WithConv (Module.End L G.K0W) := WithConv.toConv LinearMap.id
-  let t : WithConv (Module.End L G.K0W) := WithConv.toConv S
-  have het : e * t = 1 := by
-    apply WithConv.ext
-    change LinearMap.mul' L G.K0W ∘ₗ (S).lTensor G.K0W ∘ₗ Coalgebra.comul = _
-    rw [hd]
-    change _ = Algebra.linearMap L G.K0W ∘ₗ Coalgebra.counit
-    rw [hcounit, G.antipodeK0_right hD hS hne hl]
-  have hv : e * (t * e - 1) = 0 := calc
-    _ = e * (t * e) - e * 1 := mul_sub e (t * e) 1
-    _ = (e * t) * e - e := by rw [mul_assoc e t e, mul_one e]
-    _ = 0 := by rw [het, one_mul e, sub_self e]
-  have hc : (t * e - 1).ofConv = 0 := by
-    apply G.eq_zero_of_mul_lTensor_total hD hS hne hl
-    rw [← hd]
-    exact congrArg WithConv.ofConv hv
-  have hte : t * e = 1 := sub_eq_zero.mp (WithConv.ext hc)
-  rw [← hd]
-  exact congrArg WithConv.ofConv hte
 
 end Categorification.WeightedKLR.GradingDatum

@@ -24,9 +24,11 @@ noncomputable section
 
 namespace InductionAlong
 
-universe u w
+universe u v w
 
-variable {A : Type u} [Ring A] {B : Type u} [Ring B] (φ : A →ₙ+* B)
+section Restriction
+
+variable {A : Type u} [Ring A] {B : Type v} [Ring B] (φ : A →ₙ+* B)
 
 section Res
 
@@ -99,6 +101,10 @@ def map (f : M →ₗ[B] M') : Res φ M →ₗ[A] Res φ M' where
 end Res
 
 end Res
+
+end Restriction
+
+variable {A : Type u} [Ring A] {B : Type u} [Ring B] (φ : A →ₙ+* B)
 
 /-- Restriction along `φ` as a functor between module categories. -/
 def resFunctor : ModuleCat.{max u w} B ⥤ ModuleCat.{max u w} A where

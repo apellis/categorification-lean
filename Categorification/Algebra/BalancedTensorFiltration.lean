@@ -29,8 +29,9 @@ Khovanov–Lauda I, arXiv:0803.4121v2, proof of Proposition 3.18: `Res Ind (P �
 
 * `SubBimodule B A M`: a `B`-submodule of `M` stable under the right `A`-action, with its
   bimodule structure.
-* `ProjK0.exists_of_eq_sum_of_chain_surj`: additivity in `K₀` along a chain of submodules whose
-  successive quotients are given by surjections with prescribed kernels.
+* `ProjK0.exists_of_eq_sum_of_chain_surj`, `ProjK0.exists_of_eq_sum_of_chain_surj_fin`: additivity
+  in `K₀` along a chain of submodules whose successive quotients are given by surjections with
+  prescribed kernels.
 * `ProjK0.exists_of_balancedTensor_eq_sum`: the class of `M ⊗_A N` is the sum of the classes of
   the tensored subquotients.
 -/
@@ -109,6 +110,43 @@ theorem exists_of_eq_sum_of_chain_surj {M : Type u} [AddCommGroup M] [Module B M
     rfl
   exact (Submodule.quotEquivOfEq _ _ hk).trans ((g i).quotKerEquivOfSurjective (hg i))
 
+/-- **Additivity along a filtration, indexed by `Fin n`.** As
+`exists_of_eq_sum_of_chain_surj`, with the surjections `g i : F (i + 1) → Q i` given only for
+`i < n`. -/
+theorem exists_of_eq_sum_of_chain_surj_fin {M : Type u} [AddCommGroup M] [Module B M]
+    [Module k M] [IsScalarTower k B M] (n : ℕ) (F : ℕ → Submodule B M) (hF : Monotone F)
+    (h0 : F 0 = ⊥) (hn : F n = ⊤) (Q : Fin n → FGProj k B)
+    (g : ∀ i : Fin n, F ((i : ℕ) + 1) →ₗ[B] Q i) (hg : ∀ i, Function.Surjective (g i))
+    (hker : ∀ (i : Fin n) (x : F ((i : ℕ) + 1)), g i x = 0 ↔ (x : M) ∈ F (i : ℕ)) :
+    ∃ (_ : Module.Finite B M) (_ : Module.Projective B M),
+      of (FGProj.of (k := k) (A := B) M) = ∑ i, of (Q i) := by
+  classical
+  have : Module.Free B PUnit.{u + 1} := Module.Free.of_subsingleton _ _
+  let Z : FGProj k B := FGProj.of (k := k) (A := B) PUnit.{u + 1}
+  let Q' : ℕ → FGProj k B := fun i => if h : i < n then Q ⟨i, h⟩ else Z
+  have isoOfEq : ∀ {P R : FGProj k B}, P = R → P.Iso R := fun h => h ▸ LinearEquiv.refl _ _
+  have e : ∀ i, (F (i + 1) ⧸ (F i).comap (F (i + 1)).subtype) ≃ₗ[B] Q' i := by
+    intro i
+    by_cases h : i < n
+    · have hk : (F i).comap (F (i + 1)).subtype = LinearMap.ker (g ⟨i, h⟩) := by
+        ext x
+        rw [Submodule.mem_comap, LinearMap.mem_ker, hker]
+        rfl
+      exact ((Submodule.quotEquivOfEq _ _ hk).trans
+        ((g ⟨i, h⟩).quotKerEquivOfSurjective (hg _))).trans
+          (isoOfEq (by simp only [Q', h, dite_true]))
+    · have hi : F i = ⊤ := top_unique (hn ▸ hF (not_lt.1 h))
+      have : Subsingleton (F (i + 1) ⧸ (F i).comap (F (i + 1)).subtype) := by
+        rw [hi, Submodule.comap_top]
+        exact Submodule.Quotient.subsingleton_iff.2 rfl
+      exact (LinearEquiv.ofSubsingleton (F (i + 1) ⧸ (F i).comap (F (i + 1)).subtype)
+        PUnit.{u + 1}).trans (isoOfEq (P := Z) (by simp only [Q', h, dite_false]))
+  obtain ⟨h1, h2, h3⟩ := exists_of_eq_sum_of_chain n F hF h0 hn Q' e
+  refine ⟨h1, h2, h3.trans ?_⟩
+  rw [Finset.sum_range (fun i => of (Q' i))]
+  refine Finset.sum_congr rfl fun i _ => ?_
+  simp only [Q', i.2, dite_true]
+
 end ProjK0
 
 /-! ### The class of a tensored filtered bimodule -/
@@ -175,26 +213,27 @@ variable {M : Type u} [AddCommGroup M] [Module k M] [Module B M] [IsScalarTower 
   [Module Aᵐᵒᵖ M] [SMulCommClass B Aᵐᵒᵖ M] [IsScalarTower k Aᵐᵒᵖ M]
   {N : Type u} [AddCommGroup N] [Module k N] [Module A N] [IsScalarTower k A N]
   [Module.Projective A N]
-  {Y : ℕ → Type u} [∀ i, AddCommGroup (Y i)] [∀ i, Module k (Y i)] [∀ i, Module B (Y i)]
+  {n : ℕ} {Y : Fin n → Type u} [∀ i, AddCommGroup (Y i)] [∀ i, Module k (Y i)] [∀ i, Module B (Y i)]
   [∀ i, IsScalarTower k B (Y i)] [∀ i, Module Aᵐᵒᵖ (Y i)] [∀ i, SMulCommClass B Aᵐᵒᵖ (Y i)]
   [∀ i, IsScalarTower k Aᵐᵒᵖ (Y i)]
 
 /-- **The class of a tensored filtered bimodule.** Let `0 = F 0 ≤ F 1 ≤ ⋯ ≤ F n = M` be a chain
-of sub-bimodules of a `(B, A)`-bimodule `M`, and `π i : F (i + 1) → Y i` surjective bimodule maps
-with kernel `F i`. For a projective left `A`-module `N` such that every `Y i ⊗_A N` is a finitely
-generated projective `B`-module, `M ⊗_A N` is finitely generated projective and
+of sub-bimodules of a `(B, A)`-bimodule `M`, and `π i : F (i + 1) → Y i` (`i < n`) surjective
+bimodule maps with kernel `F i`. For a projective left `A`-module `N` such that every `Y i ⊗_A N`
+is a finitely generated projective `B`-module, `M ⊗_A N` is finitely generated projective and
 `[M ⊗_A N] = ∑_{i < n} [Y i ⊗_A N]` in `K₀(B)`. -/
-theorem exists_of_balancedTensor_eq_sum (n : ℕ) (F : ℕ → SubBimodule B A M)
+theorem exists_of_balancedTensor_eq_sum (F : ℕ → SubBimodule B A M)
     (hF : Monotone fun i => (F i).toSubmodule) (h0 : (F 0).toSubmodule = ⊥)
-    (hn : (F n).toSubmodule = ⊤) (π : ∀ i, (F (i + 1)).toSubmodule →ₗ[B] Y i)
+    (hn : (F n).toSubmodule = ⊤) (π : ∀ i : Fin n, (F ((i : ℕ) + 1)).toSubmodule →ₗ[B] Y i)
     (hπ : ∀ i, IsBimoduleHom (A := A) (π i)) (hπs : ∀ i, Function.Surjective (π i))
-    (hπk : ∀ i (x : (F (i + 1)).toSubmodule), π i x = 0 ↔ (x : M) ∈ (F i).toSubmodule)
+    (hπk : ∀ (i : Fin n) (x : (F ((i : ℕ) + 1)).toSubmodule),
+      π i x = 0 ↔ (x : M) ∈ (F (i : ℕ)).toSubmodule)
     [∀ i, Module.Finite B (BalancedTensor k B A (Y i) N)]
     [∀ i, Module.Projective B (BalancedTensor k B A (Y i) N)] :
     ∃ (_ : Module.Finite B (BalancedTensor k B A M N))
       (_ : Module.Projective B (BalancedTensor k B A M N)),
       of (FGProj.of (k := k) (A := B) (BalancedTensor k B A M N)) =
-        ∑ i ∈ Finset.range n, of (FGProj.of (k := k) (A := B) (BalancedTensor k B A (Y i) N)) := by
+        ∑ i, of (FGProj.of (k := k) (A := B) (BalancedTensor k B A (Y i) N)) := by
   set G : ℕ → Submodule B (BalancedTensor k B A M N) :=
     fun i => LinearMap.range (subBimoduleMap k N (F i)) with hG
   -- `F (i + 1) ⊗_A N ≃ G (i + 1)`.
@@ -205,9 +244,9 @@ theorem exists_of_balancedTensor_eq_sum (n : ℕ) (F : ℕ → SubBimodule B A M
       BalancedTensor k B A (F (i + 1)).toSubmodule N := fun i =>
     mapLeftBimodule k N (Submodule.inclusion (hF (Nat.le_succ i)))
       (SubBimodule.isBimoduleHom_inclusion (hF (Nat.le_succ i)))
-  let p : ∀ i, BalancedTensor k B A (F (i + 1)).toSubmodule N →ₗ[B]
+  let p : ∀ i : Fin n, BalancedTensor k B A (F ((i : ℕ) + 1)).toSubmodule N →ₗ[B]
       BalancedTensor k B A (Y i) N := fun i => mapLeftBimodule k N (π i) (hπ i)
-  have hex : ∀ i, Function.Exact (ι i) (p i) := fun i => by
+  have hex : ∀ i : Fin n, Function.Exact (ι i) (p i) := fun i => by
     refine mapLeftBimodule_exact _ _ fun x => ?_
     rw [hπk]
     constructor
@@ -215,23 +254,24 @@ theorem exists_of_balancedTensor_eq_sum (n : ℕ) (F : ℕ → SubBimodule B A M
       exact ⟨⟨x.1, hx⟩, rfl⟩
     · rintro ⟨y, rfl⟩
       exact y.2
-  refine exists_of_eq_sum_of_chain_surj n G
+  refine exists_of_eq_sum_of_chain_surj_fin n G
     (fun i j hij => range_subBimoduleMap_mono (hF hij)) (range_subBimoduleMap_of_eq_bot h0)
     (range_subBimoduleMap_of_eq_top hn)
     (fun i => FGProj.of (k := k) (A := B) (BalancedTensor k B A (Y i) N))
-    (fun i => (p i).comp (eG (i + 1)).symm.toLinearMap)
-    (fun i => (mapLeftBimodule_surjective (hπ i) (hπs i)).comp (eG (i + 1)).symm.surjective)
+    (fun i => (p i).comp (eG ((i : ℕ) + 1)).symm.toLinearMap)
+    (fun i => (mapLeftBimodule_surjective (hπ i) (hπs i)).comp
+      (eG ((i : ℕ) + 1)).symm.surjective)
     (fun i x => ?_)
-  obtain ⟨t, rfl⟩ := (eG (i + 1)).surjective x
-  change p i ((eG (i + 1)).symm (eG (i + 1) t)) = 0 ↔ _
+  obtain ⟨t, rfl⟩ := (eG ((i : ℕ) + 1)).surjective x
+  change p i ((eG ((i : ℕ) + 1)).symm (eG ((i : ℕ) + 1) t)) = 0 ↔ _
   rw [LinearEquiv.symm_apply_apply, hex i t]
   constructor
   · rintro ⟨s, rfl⟩
     refine ⟨s, ?_⟩
-    change subBimoduleMap k N (F i) s = subBimoduleMap k N (F (i + 1)) (ι i s)
+    change subBimoduleMap k N (F i) s = subBimoduleMap k N (F ((i : ℕ) + 1)) (ι i s)
     rw [← LinearMap.comp_apply, subBimoduleMap_comp_inclusion]
   · rintro ⟨s, hs⟩
-    refine ⟨s, subBimoduleMap_injective (F (i + 1)) ?_⟩
+    refine ⟨s, subBimoduleMap_injective (F ((i : ℕ) + 1)) ?_⟩
     rw [← LinearMap.comp_apply, subBimoduleMap_comp_inclusion, hs]
     rfl
 

@@ -71,7 +71,7 @@ private theorem reindex_coaction (z : KLRAlgebra k (fun a b => P (f a) (f b)) ν
     · simp [GradingDatum.dψ, hj]
 
 include hx hψ in
-private theorem reindex_mem_grade {n : ℤ} {z} (hz : z ∈ B.grade ν n) :
+theorem reindex_mem_grade {n : ℤ} {z} (hz : z ∈ B.grade ν n) :
     (ρ) z ∈ D.grade (ν.map f) n := by
   rw [GradingDatum.mem_grade, reindex_coaction ν hf D B hx hψ, B.mem_grade.mp hz,
     AddMonoidAlgebra.mapAlgHom_single]

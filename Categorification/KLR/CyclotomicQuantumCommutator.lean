@@ -18,7 +18,8 @@ namespace Categorification.KLR.CycKLR
 open KLRAlgebra KLRAlgebra.AbsentColour Categorification.Graded QuantumGroup QuantumGroup.UDot
 local notation "LP" => LaurentPolynomial ℤ
 
-private theorem qNatU_eq_qint (u : LPˣ) (n : ℕ) : LieLean.QuantumGroup.qNatU u n = qint u n := by
+/-- The two finite-sum conventions for the Laurent quantum integer agree. -/
+theorem qNatU_eq_qint (u : LPˣ) (n : ℕ) : LieLean.QuantumGroup.qNatU u n = qint u n := by
   rw [LieLean.QuantumGroup.qNatU, qint_eq_sum]
   refine Finset.sum_congr rfl fun r hr => ?_
   have hr := Finset.mem_range.mp hr

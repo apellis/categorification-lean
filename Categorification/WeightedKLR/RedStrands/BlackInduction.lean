@@ -244,6 +244,11 @@ private theorem appendBlackValue_smul (c : k) (z : StendhalAlgebraAllOrders k Q 
     c • (appendBlackAllOrders Q Λ i ν z).val
   rw [AlgHom.map_smul_of_tower, KLR.Corner.val_smul]
 
+/-- The all-orders right-black embedding is linear on diagram coefficients. -/
+theorem appendBlackAllOrders_smul (c : k) (z : StendhalAlgebraAllOrders k Q Λ ν) :
+    (appendBlackAllOrders Q Λ i ν (c • z)).val = c • (appendBlackAllOrders Q Λ i ν z).val :=
+  appendBlackValue_smul Q Λ i ν c z
+
 attribute [local instance 1100] IsIdempotentElem.instAlgebraCorner_categorification
 
 private theorem appendBlackValue_ordered :

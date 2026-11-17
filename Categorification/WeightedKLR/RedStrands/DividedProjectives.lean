@@ -5,6 +5,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 import Categorification.WeightedKLR.RedStrands.AffineCoverGrading
 import Categorification.WeightedKLR.RedStrands.TensorProjection
 import Categorification.KLR.CyclotomicDividedProjectives
+import Categorification.WeightedKLR.RedStrands.Projectives
 
 /-!
 # Integral generation by divided Stendhal projectives
@@ -31,7 +32,8 @@ local notation "T" => TensorProductAlgebra k Q Λ ν
 local notation "π" => affineTensorProjection (Q := Q) Λ ν
 local notation "di" => fun i => C.dot i i / 2
 omit [DecidableEq I] in
-private theorem dotDegree (i : I) : hQ.gradingDatum.degX i = 2 * (C.dot i i / 2) := by
+/-- The diagonal Cartan grading is twice the black symmetrizer in Definition 4.4. -/
+theorem dotDegree (i : I) : hQ.gradingDatum.degX i = 2 * (C.dot i i / 2) := by
   change C.dot i i = _
   obtain ⟨n, hn⟩ := C.dot_self_even i
   omega
@@ -44,7 +46,8 @@ local notation "C'" => affineCoverCartan C ℓ
 local notation "hs" => affineCoverGrading_cross_symm Λ hQ.gradingDatum di hdi
   (fun i j => congrArg Neg.neg (C.symm i j))
 
-private theorem projection_graded : PreservesGrading 𝓡 𝓣 (π).toLinearMap := by
+/-- The affine projection onto the ordered violating quotient preserves degrees. -/
+theorem projection_graded : PreservesGrading 𝓡 𝓣 (π).toLinearMap := by
   intro n x hx
   apply Graded.mem_map_of_mem
   change affineCover Q Λ ν x * redOrderedIdem k Q Λ ν ∈ allOrdersGrade G ν n
@@ -61,8 +64,15 @@ local instance : IsScalarTower k Affᵐᵒᵖ T where
     change x * π (c • r.unop) = c • (x * π r.unop)
     rw [map_smul, mul_smul_comm]
 
-private def projectionK0 : K0 𝓡 →ₗ[LaurentPolynomial ℤ] K0 𝓣 :=
+/-- Extension of graded projectives from the affine cover to the tensor product algebra. -/
+def projectionK0 : K0 𝓡 →ₗ[LaurentPolynomial ℤ] K0 𝓣 :=
   extensionK0 𝓡 𝓣 π (projection_graded Λ C hQ ν) (fun _ _ => rfl)
+
+/-- Extension of scalars projects the idempotent defining a homogeneous principal projective. -/
+theorem projectionK0_ofIdempotent {e : Aff} (he : IsIdempotentElem e) (he₀ : e ∈ 𝓡 0) :
+    projectionK0 Λ C hQ ν (K0.of (GProj.ofIdempotent e he he₀)) =
+      K0.of (GProj.ofIdempotent (𝒜 := 𝓣) (π e) (he.map (π)) (projection_graded Λ C hQ ν he₀)) :=
+  extensionK0_ofIdempotent 𝓡 𝓣 π (projection_graded Λ C hQ ν) (fun _ _ => rfl) he he₀
 
 /-- Webster's divided-word projective, obtained by applying the ordered
 violating quotient to the nilHecke idempotent and retaining its Cartan shift. -/
@@ -83,6 +93,27 @@ theorem projectionK0_dividedProjective (w : List ((I ⊕ Fin ℓ) × ℕ)) (hw :
   congr 1
   exact extensionK0_ofIdempotent 𝓡 𝓣 π (projection_graded Λ C hQ ν) (fun _ _ => rfl) _ _
 
+/-- Expanding divided black blocks replaces their shifted projective by
+the quantum factorial multiple in the Laurent Grothendieck group. -/
+theorem sequenceProj_eq_factorial (w : List ((I ⊕ Fin ℓ) × ℕ)) (hw : (expandDiv w : Multiset _) = μ)
+    (ho : IsRedOrdered (Seq.ofList _ hw)) :
+    K0.of (sequenceProj G (Seq.ofList _ hw) ho) =
+      KL2.divQFact2 C' w • K0.of (dividedSequenceProj Λ C hQ ν w hw) := by
+  let t := Seq.ofList _ hw
+  have he : π (KLRAlgebra.e t) = TensorProductAlgebra.mk Q Λ ν (StendhalAlgebra.e t ho) := by
+    apply congrArg (TensorProductAlgebra.mk Q Λ ν)
+    apply Subtype.ext
+    change affineCover Q Λ ν (KLRAlgebra.e t) * redOrderedIdem k Q Λ ν = StendhalAlgebraAllOrders.e t
+    simp [e_mul_redOrderedIdem, ho, t]
+  have hf := congrArg (projectionK0 Λ C hQ ν)
+    ((H).of_expanded_eq_factorial hs C'
+      (affineCoverGrading_dot Λ hQ.gradingDatum di hdi C (fun _ => rfl)) w hw)
+  rw [map_smul, projectionK0_dividedProjective] at hf
+  refine Eq.trans ?_ hf
+  refine Eq.trans ?_ (projectionK0_ofIdempotent Λ C hQ ν
+    (KLRAlgebra.e_mul_self (Q := affineCoverQ Q Λ) t) ((H).e_mem_grade t)).symm
+  exact K0.of_ofIdempotent_congr he.symm _ _ _ _
+
 /-- Webster, arXiv:1309.3796v2, Lemma 4.37. The shifted divided-word
 projectives span the graded projective Grothendieck group over the Laurent
 integers for every red family, black multiset and Rouquier parameter over a field. -/
@@ -101,5 +132,14 @@ theorem span_dividedSequenceProj :
   apply Submodule.span_le.mpr
   rintro _ ⟨_, ⟨w, hw, rfl⟩, rfl⟩
   exact Submodule.subset_span ⟨w, hw, projectionK0_dividedProjective Λ C hQ ν w hw⟩
+
+/-- Every integral graded projective class lifts along the affine projection (Webster,
+Lemma 4.37). -/
+theorem projectionK0_surjective : Function.Surjective (projectionK0 Λ C hQ ν) := by
+  apply LinearMap.range_eq_top.mp
+  rw [eq_top_iff, ← span_dividedSequenceProj Λ C hQ ν]
+  apply Submodule.span_le.mpr
+  rintro _ ⟨w, hw, rfl⟩
+  exact ⟨_, projectionK0_dividedProjective Λ C hQ ν w hw⟩
 
 end Categorification.Stendhal

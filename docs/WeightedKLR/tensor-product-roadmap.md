@@ -47,7 +47,7 @@ corner this reverses the source and target endpoint arguments.
 | Theorem 4.20, single-red algebra | `SingleRed.cyclotomicEquiv` identifies the one-red block with the monomial cyclotomic algebra for every black multiset over a commutative ring. | `SingleRed.totalCyclotomicK0Equiv` identifies the graded projective groups and `cyclotomicK0Equiv_sequenceProj` identifies each word projective. `Stendhal.blackLower` independently defines right black-strand induction for arbitrary red families. `SingleRed.blackLower_totalCyclotomicK0Equiv` identifies it with the transported one-factor operator on every projective class. |
 | Proposition 4.18, adding the last red strand | `appendRedEquiv` identifies the shorter algebra with the terminal-red corner for the homogeneous parameters of §2.2. `appendRed_mem_grade` proves homogeneity. | `lastRedIndK0_sequenceProj` appends red on sequence projectives. `exists_lastRedIndK0_of_retract` gives the induced class of every graded retract of the terminal-red left ideal. |
 | Lemmas 4.35 and 4.36, projective decompositions and pairing | `Stendhal.finrank_homGrade_sequenceProj` computes the dimension of the homogeneous Hom between undivided sequence projectives from the quotient basis. | Match the graded projective decompositions with the quantum commutator and identify the Hom pairing with the tensor product pairing, including divided powers. |
-| Lemma 4.37 and Theorem 4.38 | `Stendhal.tensorProductVacuumK0Equiv_regular` identifies the vacuum class for every red family. `Stendhal.emptyTensorK0Equiv` accounts for every weight of the empty family. | At one black strand, `FirstWeight.sequenceProjBasis` gives a basis indexed by black positions when every red multiplicity at that colour and all dot degrees are positive. For one factor `SingleBlack.oneBlackLatticeEquiv_regular` identifies the regular class with Fᵢ applied to the highest vector. `lastRed_boundary_mem_span` truncates a constant block after the last red via the boundary with one fewer black strand on its right. The general representation identification and pairing remain open. |
+| Lemma 4.37 and Theorem 4.38 | `Stendhal.tensorProductVacuumK0Equiv_regular` identifies the vacuum class for every red family. `Stendhal.emptyTensorK0Equiv` accounts for every weight of the empty family. | At one black strand, `FirstWeight.sequenceProjBasis` gives a basis indexed by black positions when every red multiplicity at that colour and all dot degrees are positive. For one factor `SingleBlack.oneBlackLatticeEquiv_regular` identifies the regular class with Fᵢ applied to the highest vector. `lastRed_boundary_mem_span` truncates a constant block after the last red via the boundary with one fewer black strand on its right. In the quotient by smaller suffixes, `sandwich_mem_range_suffixConcat` gives affine juxtaposition spanning and `lastRedLayerTensor_surjective` presents each fixed-weight layer corner as a quotient of the shorter tensor product algebra tensored with the final-weight cyclotomic algebra. `exists_lastRedLayerIdem_mul_boundary` covers every ordered loading and `lastRedLayerTensor_mem_grade` identifies the grading on the presentation. Over any field with Rouquier parameters, `lastRedLayerSourceIndecClassEquiv` indexes the source indecomposable classes by pairs of classes of its factors. The general module identification remains open. The printed pairing clause fails on the first lowering of two fundamental factors. |
 
 
 **Lemma 4.37.** The integral generation statement holds for all red families
@@ -63,10 +63,7 @@ the shifted divided-word projectives in the violating quotient.
 projective with its prefix-lowering vector in the integral tensor product of
 the highest-weight modules. The current component proof assumes a finite
 X-regular root datum, positive multiplicity at the chosen colour for every
-factor and positive dot degrees. The one-factor first-weight Euler form is
-`SingleBlack.regular_homGdimPoly_eq_shapovalov`. Removing the positivity
-restriction and identifying the other weight spaces and their pairings
-remain part of the general theorem.
+factor and positive dot degrees. For one red factor, `SingleRed.homForm_eq_shapovalov` identifies the Euler and normalized Shapovalov forms on every pair of virtual projectives in every black weight. Removing the positivity restriction and identifying the other weight spaces remain open.
 
 **Compatibility of the pairing conventions.** In Proposition 4.33 the
 identity relating the bar-conjugate coproduct to the adjoint in (3.24) fails
@@ -83,7 +80,8 @@ the adjoint of (3.24) and the intertwiner of §4.7,
 F(h ⊗ h) as 1 + q⁻². Adjointness would give 1 + q².
 `TensorPairing.terminal_homGdimPoly_ne_printedForm` compares the printed form
 with the terminal black-strand projective following two fundamental red
-strands over ℚ. Its graded endomorphisms vanish in degree −2. Thus the
+strands over ℚ. Its graded endomorphism polynomial is 1 + q² by
+`FundamentalCorner.terminal_homGdimPoly`. Thus the
 prescribed generators and the printed form in Theorem 4.38 already disagree
 on this diagonal entry. The comparison is independent of the passage between
 left and right projectives. The construction of a module identification
@@ -96,6 +94,17 @@ in terms of a divided lowering of a shorter word and smaller powers on the
 last factor. On the algebra side, `Stendhal.blocksK0Equiv` identifies the
 external product of two independent red blocks over any field with Rouquier
 parameters. This follows from finiteness and scalar endomorphisms of their
-simple modules. The kernel of the projection to the violating quotient
-still has to be accounted for when comparing multi-red projective classes
-with the prescribed tensor vectors.
+simple modules. `FirstWeight.span_tensorWordProjectiveClass` gives integral generation on
+the diagram side using the same ordered divided words. The map between
+the two groups still requires equality of the relations on these words.
+`FirstWeight.barTensorWord_sum_eq_zero_iff` compares relations for the
+two coproduct conventions on the representation side.
+
+
+**Support on a layer.** For a nonzero representation of a red block,
+`Stendhal.exists_detecting_lastRedCorner` produces a split of the black
+content and a last-red quotient through which the representation factors.
+The corresponding corner acts nontrivially. Its graded projective group is a quotient of that of the tensor product of the earlier red block and the final cyclotomic block by `Stendhal.lastRedLayerK0_surjective`. For a homogeneous boundary
+map whose image exhausts a corner, `Stendhal.boundaryClassEmbedding`
+injects the shift classes of the detected projectives into the shift
+classes for the source algebra.

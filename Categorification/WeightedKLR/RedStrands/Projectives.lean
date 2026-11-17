@@ -22,7 +22,9 @@ namespace Categorification.Stendhal
 
 open KLR TypeA Equiv Categorification.Graded StendhalAlgebraAllOrders
 
-variable {I : Type} [DecidableEq I] {k : Type*} [Field k] {ℓ : ℕ} {ν : Multiset I}
+section Principal
+
+variable {I : Type*} [DecidableEq I] {k : Type*} [Field k] {ℓ : ℕ} {ν : Multiset I}
     {Q : I → I → MvPolynomial (Fin 2) k} {Λ : Fin ℓ → I →₀ ℕ}
     (G : KLR.GradingDatum (stendhalQ Q Λ))
 
@@ -42,6 +44,15 @@ private theorem boundary_idem (i : Seq μ) (hi : IsRedOrdered i) :
 /-- The undivided projective at a red-ordered sequence in Webster, §4.7. -/
 def sequenceProj (i : Seq μ) (hi : IsRedOrdered i) : GProj (tensorProductGrade G ν) :=
   GProj.ofIdempotent _ (boundary_idem i hi) (mk_e_mem_tensorProductGrade G ν i hi)
+
+end Principal
+
+variable {I : Type} [DecidableEq I] {k : Type*} [Field k] {ℓ : ℕ} {ν : Multiset I}
+    {Q : I → I → MvPolynomial (Fin 2) k} {Λ : Fin ℓ → I →₀ ℕ}
+    (G : KLR.GradingDatum (stendhalQ Q Λ))
+
+local notation "A" => TensorProductAlgebra k Q Λ ν
+local notation "μ" => stendhalWeight ℓ ν
 
 variable {ρ : Perm (Fin (Multiset.card (stendhalWeight ℓ ν))) → List ℕ}
     (hρ : ∀ w, IsReduced (Multiset.card (stendhalWeight ℓ ν)) (ρ w) ∧ wordProd (Multiset.card (stendhalWeight ℓ ν)) (ρ w) = w)

@@ -78,10 +78,14 @@ These statements do not involve the comparison map.
     `(W_{a+c} ⊗ W_{b+d}) e' ⊗_{W_a ⊗ W_b ⊗ W_c ⊗ W_d} e (W_{a+b} ⊗ W_{c+d})` to the subquotient `S / S'`.
     It intertwines the two bimodule actions; the layout form is `Juxtapose.middleResIndEquiv`.
     So the corner maps are balanced and Webster's bimodule claim holds as stated.
-  * Open: applying `ProjK0.exists_of_balancedTensor_eq_sum` to the Mackey filtration. This needs
-    `resIndFilt` as a chain of sub-bimodules of the corner `e_{ν₁;ν₂} W e_{ν';ν''}` (a linear order of
-    the shuffle types refining the dominance order), `Res Ind(P ⊠ Q) ≅ e_{ν₁;ν₂} W e_{ν';ν''} ⊗ (P ⊠ Q)`,
-    and the right `W_{a+b} ⊗ W_{c+d}`-module structure of `MiddleTensor`. Also open: identifying `MiddleTensor ⊗ (P ⊠ Q)` with the twisted `Ind ⊗ Ind (Res P ⊠ Res Q)`, and
+  * Applied (`GalleryAlgebra.exists_resInd_balancedTensor_eq_sum`): the corner
+    `e_{ν₁;ν₂} W e_{ν';ν''}` is a bimodule (`ResIndBimodule`); the occurring shuffle types are
+    enumerated compatibly with dominance, the steps form a chain of sub-bimodules from `0` to the
+    corner, and each step maps onto the piece `ResIndPiece L` of its type with kernel the previous
+    step. So for projective `N` with each `ResIndPiece L ⊗ N` finitely generated projective,
+    `[ResIndBimodule ⊗ N] = ∑ [ResIndPiece L ⊗ N]` in `K_0(W_{ν₁} ⊗ W_{ν₂})`, one term per type.
+  * Open: `Res Ind(P ⊠ Q) ≅ ResIndBimodule ⊗ (P ⊠ Q)`; identifying `ResIndPiece L ⊗ (P ⊠ Q)` with
+    the twisted `Ind ⊗ Ind (Res P ⊠ Res Q)` (this also gives the hypotheses on the pieces); and
     the identity in `K_0` itself. The graded statement, with the shift `-(μ · μ')`, is later work.
 
 ## What needs a field, and why

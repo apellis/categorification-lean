@@ -748,6 +748,16 @@ example (ν' ν'' : Fin 2 →₀ ℕ) :=
     (WeightedKLR.exists_resK0_indK0_eq_sum_tensorK0 (k := ℚ) wkGraph_dagger wkGraph_noZeroLoops
       wkGraph_standing (add_comm ν'' ν'))
 
+/-- Webster, proof of Theorem 2.19, the Mackey identity on `K₀` (ungraded) with each piece
+written as twisted induction of restrictions, `(Ind_{a;c} ⊗ Ind_{b;d}) ∘ (exchange)
+(Δ_{a;b} x ⊠ Δ_{c;d} y)`, for `(ν₁, ν₂) = (ν', ν'')` and for `(ν₁, ν₂) = (ν'', ν')`. -/
+example (ν' ν'' : Fin 2 →₀ ℕ) :=
+  And.intro
+    (WeightedKLR.exists_resK0_indK0_eq_sum_twistK0 (k := ℚ) wkGraph_dagger wkGraph_noZeroLoops
+      wkGraph_standing (rfl : ν' + ν'' = ν' + ν''))
+    (WeightedKLR.exists_resK0_indK0_eq_sum_twistK0 (k := ℚ) wkGraph_dagger wkGraph_noZeroLoops
+      wkGraph_standing (add_comm ν'' ν'))
+
 /-- Webster, proof of Theorem 2.19, the Mackey identity on the classes `[P]`, `[Q]` of
 finitely generated projective modules. -/
 example (ν' ν'' : Fin 2 →₀ ℕ) :=

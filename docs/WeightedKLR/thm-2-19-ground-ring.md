@@ -95,9 +95,31 @@ These statements do not involve the comparison map.
     `ν₁ + ν₂ = ν' + ν''` and all `x`, `y`,
     `Δ_{ν₁;ν₂}(x · y) = ∑_L [ResIndPiece L ⊗ (x ⊠ y)]`, one layout `L` per shuffle type. The
     ungraded `K_0` needs no shift.
-  * Open: identifying `ResIndPiece L ⊗ (P ⊠ Q)` with the twisted `Ind ⊗ Ind (Res P ⊠ Res Q)`,
-    which puts the right side in the form of a twisted product of coproducts. The graded
-    statement, with the shift `-(μ · μ')`, is later work.
+  * The pieces as twisted products of coproducts (`WeightedKLR/Mackey/ResIndTwist.lean`).
+    For the layout `ν' = a + b`, `ν'' = c + d`, `ν₁ = a + c`, `ν₂ = b + d`,
+    `ResIndPiece.resTwistEquiv` is a `k`-linear isomorphism
+    `(W_{a+c} ⊗ W_{b+d}) e' ⊗_{(W_a ⊗ W_b) ⊗ (W_c ⊗ W_d)} (Res_{a,b} P ⊠ Res_{c,d} Q) ≅
+    ResIndPiece L ⊗_{W_{ν'} ⊗ W_{ν''}} (P ⊠ Q)`, semilinear along `L.leftEquiv`
+    (`resTwistEquiv_smul`). Here the middle algebra acts on `(W_{a+c} ⊗ W_{b+d}) e'` through
+    `(ι_{a,c} ⊗ ι_{b,d}) ∘ (exchange of W_b and W_c)` (`Juxtapose.middleTop`), and `P`, `Q` are
+    restricted along `castW` to `W_{a+b}`, `W_{c+d}`. On `K_0`: `ProjK0.extTensor`
+    (`[P], [Q] ↦ [P ⊠ Q]`, biadditive), `Juxtapose.middleIndK0` (induction along the twisted
+    map), the biadditive map `ResIndPiece.twistK0`,
+    `x, y ↦ (Ind_{a;c} ⊗ Ind_{b;d}) ∘ (exchange) (Δ_{a;b} x ⊠ Δ_{c;d} y)`, and
+    `ResIndPiece.tensorK0_eq_twistK0`. Combined: `exists_resK0_indK0_eq_sum_twistK0`, under
+    `Γ.Dagger`, `Γ.NoZeroLoops`, `Γ.Standing`, over any commutative ring, for
+    `ν₁ + ν₂ = ν' + ν''`: there are layouts `L i`, one per shuffle type (injective in `i`, with
+    range the occurring types), such that for all `x ∈ K_0(W_{ν'})`, `y ∈ K_0(W_{ν''})`,
+    `Δ_{ν₁;ν₂}(x · y) = ∑_i (Ind_{a;c} ⊗ Ind_{b;d}) ∘ (exchange) (Δ_{a;b} x ⊠ Δ_{c;d} y)`
+    in `K_0(W_{ν₁} ⊗ W_{ν₂})`, with `W_{ν'+ν''}` and `W_{ν₁+ν₂}` identified by `castW`.
+    The ungraded identity has no shift. The four-block layout agrees with the source's
+    (`a = ν₁ - μ`, `c = μ`, `b = μ'`, `d = ν₂ - μ'`); the exchange of the middle factors is
+    implicit in the printed formula.
+  * Open: the graded statement, with the shift `-(μ · μ')` of the term of shuffle type `μ`.
+    It needs a grading of the pieces compatible with the filtration
+    (`Juxtapose.segDeg_chamber_swapChamber` computes the degree of the exchange), a graded
+    `K_0` of `W_ν` (no `Graded.HasGdim` instance for `W_ν` exists), and graded versions of
+    `ProjK0.extTensor`, `resK0` and `middleIndK0`. None of these is formalized.
 
 ## What needs a field, and why
 

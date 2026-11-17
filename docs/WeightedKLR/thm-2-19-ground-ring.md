@@ -84,9 +84,20 @@ These statements do not involve the comparison map.
     corner, and each step maps onto the piece `ResIndPiece L` of its type with kernel the previous
     step. So for projective `N` with each `ResIndPiece L ⊗ N` finitely generated projective,
     `[ResIndBimodule ⊗ N] = ∑ [ResIndPiece L ⊗ N]` in `K_0(W_{ν₁} ⊗ W_{ν₂})`, one term per type.
-  * Open: `Res Ind(P ⊠ Q) ≅ ResIndBimodule ⊗ (P ⊠ Q)`; identifying `ResIndPiece L ⊗ (P ⊠ Q)` with
-    the twisted `Ind ⊗ Ind (Res P ⊠ Res Q)` (this also gives the hypotheses on the pieces); and
-    the identity in `K_0` itself. The graded statement, with the shift `-(μ · μ')`, is later work.
+  * Restriction of induction (`GalleryAlgebra.resIndTensorEquiv`): for every left
+    `W_{ν'} ⊗ W_{ν''}`-module `X`, `Res_{ν₁;ν₂} Ind X ≅ ResIndBimodule ⊗ X` as left
+    `W_{ν₁} ⊗ W_{ν₂}`-modules, with `W_{ν₁+ν₂}` acting through `castW`.
+  * The pieces (`ResIndPiece.balancedTensor_projective`, `ResIndPiece.balancedTensor_finite`):
+    under the standing hypothesis, `ResIndPiece L ⊗ N` is finitely generated projective for every
+    finitely generated projective `N`, since `e (W_{a+b} ⊗ W_{c+d}) ≅ Res W_{a+b} ⊠ Res W_{c+d}`.
+  * The identity in `K_0` (`exists_resK0_indK0_eq_sum_tensorK0`, on classes `[P]`, `[Q]`:
+    `exists_resK0_indK0_eq_sum`): under the standing hypothesis, over any commutative ring, for
+    `ν₁ + ν₂ = ν' + ν''` and all `x`, `y`,
+    `Δ_{ν₁;ν₂}(x · y) = ∑_L [ResIndPiece L ⊗ (x ⊠ y)]`, one layout `L` per shuffle type. The
+    ungraded `K_0` needs no shift.
+  * Open: identifying `ResIndPiece L ⊗ (P ⊠ Q)` with the twisted `Ind ⊗ Ind (Res P ⊠ Res Q)`,
+    which puts the right side in the form of a twisted product of coproducts. The graded
+    statement, with the shift `-(μ · μ')`, is later work.
 
 ## What needs a field, and why
 

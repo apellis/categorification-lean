@@ -28,7 +28,8 @@ ungraded Grothendieck groups, so the grading shift of each term does not appear.
 * `ProjK0.extTensor`: the external product `K₀(A) × K₀(B) → K₀(A ⊗ B)`, `[P], [Q] ↦ [P ⊠ Q]`.
 * `Juxtapose.middleIndK0`: induction `K₀((W_a ⊗ W_b) ⊗ (W_c ⊗ W_d)) → K₀(W_{a+c} ⊗ W_{b+d})`
   along `(ι_{a,c} ⊗ ι_{b,d}) ∘ (exchange)`.
-* `Juxtapose.resTwistEquiv`: `(W_{a+c} ⊗ W_{b+d}) e' ⊗ (Res P ⊠ Res Q) ≅ MiddleTensor ⊗ (P ⊠ Q)`.
+* `ResIndPiece.resTwistEquiv`: `(W_{a+c} ⊗ W_{b+d}) e' ⊗ (Res P ⊠ Res Q) ≅ ResIndPiece L ⊗ (P ⊠ Q)`,
+  semilinear along `L.leftEquiv` (`ResIndPiece.resTwistEquiv_smul`).
 * `ResIndPiece.twistK0`: `x, y ↦ (Ind ⊗ Ind)(exchange)(Δ_{a;b} x ⊠ Δ_{c;d} y)`.
 * `ResIndPiece.tensorK0_eq_twistK0`: the class of the piece is the twisted `Ind ∘ Res`.
 * `exists_resK0_indK0_eq_sum_twistK0`: the Mackey formula on Grothendieck groups.
@@ -555,9 +556,110 @@ theorem resTwistEquiv_smul
       BalancedTensor.smul_tmul', middleTopUnit_smul]
   | add x x' hx hx' => rw [smul_add, map_add, hx, hx', map_add, smul_add]
 
+
+/-- For `N ≅ Res_{a,b} P ⊠ Res_{c,d} Q`, the induced module `(W_{a+c} ⊗ W_{b+d}) e' ⊗ N` is
+the piece `ResIndPiece L ⊗ (P ⊠ Q)`. -/
+def middleIndPieceEquiv (N : FGProj k (MiddleAlg k Γ L.a L.b L.c L.d))
+    (eN : N.carrier ≃ₗ[MiddleAlg k Γ L.a L.b L.c L.d]
+      ExtTensor k (res k Γ L.a L.b (leftRes L P).carrier)
+        (res k Γ L.c L.d (rightRes L Q).carrier)) :
+    (middleIndProj L.a L.b L.c L.d N).carrier ≃+ pieceTensor L P Q :=
+  ((BalancedTensor.congrRight (k := k)
+    (B := WeightedKLRAlgebra k Γ (L.a + L.c) ⊗[k] WeightedKLRAlgebra k Γ (L.b + L.d))
+    (M := MiddleTop k Γ L.a L.b L.c L.d) eN).toAddEquiv.trans (resTwistEquiv L P Q).toAddEquiv)
+
+theorem middleIndPieceEquiv_smul (N : FGProj k (MiddleAlg k Γ L.a L.b L.c L.d))
+    (eN : N.carrier ≃ₗ[MiddleAlg k Γ L.a L.b L.c L.d]
+      ExtTensor k (res k Γ L.a L.b (leftRes L P).carrier)
+        (res k Γ L.c L.d (rightRes L Q).carrier))
+    (z : WeightedKLRAlgebra k Γ (L.a + L.c) ⊗[k] WeightedKLRAlgebra k Γ (L.b + L.d))
+    (x : (middleIndProj L.a L.b L.c L.d N).carrier) :
+    middleIndPieceEquiv L P Q N eN (z • x) = L.leftEquiv k Γ z • middleIndPieceEquiv L P Q N eN x :=
+  by
+  have h1 : BalancedTensor.congrRight (k := k)
+      (B := WeightedKLRAlgebra k Γ (L.a + L.c) ⊗[k] WeightedKLRAlgebra k Γ (L.b + L.d))
+      (M := MiddleTop k Γ L.a L.b L.c L.d) eN (z • x) =
+      z • BalancedTensor.congrRight (k := k)
+      (B := WeightedKLRAlgebra k Γ (L.a + L.c) ⊗[k] WeightedKLRAlgebra k Γ (L.b + L.d))
+      (M := MiddleTop k Γ L.a L.b L.c L.d) eN x := map_smul _ z x
+  have h2 := congrArg (resTwistEquiv L P Q) h1
+  rw [resTwistEquiv_smul] at h2
+  exact h2
+
+/-- The class of `(W_{a+c} ⊗ W_{b+d}) e' ⊗ N`, transported to `W_{ν₁} ⊗ W_{ν₂}`, is the class of
+any module isomorphic to the piece `ResIndPiece L ⊗ (P ⊠ Q)`. -/
+theorem map_of_middleIndProj (N : FGProj k (MiddleAlg k Γ L.a L.b L.c L.d))
+    (eN : N.carrier ≃ₗ[MiddleAlg k Γ L.a L.b L.c L.d]
+      ExtTensor k (res k Γ L.a L.b (leftRes L P).carrier)
+        (res k Γ L.c L.d (rightRes L Q).carrier))
+    (Y : FGProj k (WeightedKLRAlgebra k Γ ν₁ ⊗[k] WeightedKLRAlgebra k Γ ν₂))
+    (eY : pieceTensor L P Q ≃ₗ[WeightedKLRAlgebra k Γ ν₁ ⊗[k] WeightedKLRAlgebra k Γ ν₂]
+      Y.carrier) :
+    ProjK0.map (L.leftEquiv k Γ) (ProjK0.of (middleIndProj L.a L.b L.c L.d N)) = ProjK0.of Y :=
+  ProjK0.map_of_semilinear (L.leftEquiv k Γ) _ Y
+    ((middleIndPieceEquiv L P Q N eN).trans eY.toAddEquiv) fun z x => by
+      change eY (middleIndPieceEquiv L P Q N eN (z • x)) = _
+      rw [middleIndPieceEquiv_smul, map_smul]
+      rfl
+
 end Twist
 
+/-! ### The pieces on Grothendieck groups as twisted `Ind ∘ Res` -/
+
+section TwistK0
+
+variable {ν' ν'' ν₁ ν₂ : I →₀ ℕ} (L : ShuffleLayout ν' ν'' ν₁ ν₂)
+  (hD : Γ.Dagger) (hZ : Γ.NoZeroLoops) (hS : Γ.Standing)
+
+/-- **The twisted `Ind ∘ Res` on Grothendieck groups**, biadditive:
+`x, y ↦ (Ind_{a;c} ⊗ Ind_{b;d}) ∘ (exchange) (Δ_{a;b} x ⊠ Δ_{c;d} y)`, with `W_{ν'} = W_{a+b}`,
+`W_{ν''} = W_{c+d}` and `W_{a+c} ⊗ W_{b+d} = W_{ν₁} ⊗ W_{ν₂}` identified by `castW`. -/
+def twistK0 : ProjK0 k (WeightedKLRAlgebra k Γ ν') →+ ProjK0 k (WeightedKLRAlgebra k Γ ν'') →+
+    ProjK0 k (WeightedKLRAlgebra k Γ ν₁ ⊗[k] WeightedKLRAlgebra k Γ ν₂) :=
+  (((AddMonoidHom.compHom ((ProjK0.map (L.leftEquiv k Γ)).comp
+      (middleIndK0 k Γ L.a L.b L.c L.d))).comp ProjK0.extTensor).comp
+      ((resK0 L.a L.b hD hZ hS).comp (ProjK0.map (castW k Γ L.hab).symm))).compl₂
+    ((resK0 L.c L.d hD hZ hS).comp (ProjK0.map (castW k Γ L.hcd).symm))
+
+theorem twistK0_apply (x : ProjK0 k (WeightedKLRAlgebra k Γ ν'))
+    (y : ProjK0 k (WeightedKLRAlgebra k Γ ν'')) :
+    twistK0 L hD hZ hS x y = ProjK0.map (L.leftEquiv k Γ) (middleIndK0 k Γ L.a L.b L.c L.d
+      (ProjK0.extTensor (resK0 L.a L.b hD hZ hS (ProjK0.map (castW k Γ L.hab).symm x))
+        (resK0 L.c L.d hD hZ hS (ProjK0.map (castW k Γ L.hcd).symm y)))) := rfl
+
+/-- The class of a Mackey piece is the twisted `Ind ∘ Res` of `[P]` and `[Q]`:
+`[ResIndPiece L ⊗ (P ⊠ Q)] = (Ind_{a;c} ⊗ Ind_{b;d}) ∘ (exchange) (Δ_{a;b} [P] ⊠ Δ_{c;d} [Q])`
+(Webster, arXiv:1209.2463v4, proof of Theorem 2.19). -/
+theorem tensorK0_eq_twistK0 : tensorK0 L hD hZ hS = twistK0 L hD hZ hS :=
+  ProjK0.hom_ext fun P => ProjK0.hom_ext fun Q => by
+    rw [tensorK0_of, twistK0_apply, ProjK0.map_of, ProjK0.map_of, resK0_of, resK0_of,
+      ProjK0.extTensor_of, middleIndK0_of]
+    exact (map_of_middleIndProj L P Q _ (LinearEquiv.refl _ _) _ (LinearEquiv.refl _ _)).symm
+
+end TwistK0
+
 end ResIndPiece
+
+open Juxtapose in
+/-- **The Mackey formula on Grothendieck groups** (Webster, arXiv:1209.2463v4, proof of
+Theorem 2.19). For `ν₁ + ν₂ = ν' + ν''`, under the standing hypothesis and over any
+commutative ring `k`, there are shuffle layouts `L i` (`ν' = a + b`, `ν'' = c + d`,
+`ν₁ = a + c`, `ν₂ = b + d`), one for each shuffle type `c` of `(ν', ν''; ν₁, ν₂)`, with
+`Δ_{ν₁;ν₂}(x · y) = ∑ᵢ (Ind_{a;c} ⊗ Ind_{b;d}) ∘ (exchange) (Δ_{a;b} x ⊠ Δ_{c;d} y)`
+for all `x ∈ K₀(W_{ν'})`, `y ∈ K₀(W_{ν''})` (`ResIndPiece.twistK0_apply`). Here the weighted
+KLR algebras of equal dimension vectors are identified by `castW`. The identity is between
+ungraded Grothendieck groups: no grading shift appears. -/
+theorem exists_resK0_indK0_eq_sum_twistK0 (hD : Γ.Dagger) (hZ : Γ.NoZeroLoops)
+    (hS : Γ.Standing) (hν₁ : ν₁ + ν₂ = ν' + ν'') :
+    ∃ (n : ℕ) (L : Fin n → ShuffleLayout ν' ν'' ν₁ ν₂),
+      Function.Injective (fun i => ⇑(L i).c) ∧
+      Set.range (fun i => ⇑(L i).c) = Set.range (shuffleType (ν := ν' + ν'') ν' ν₁) ∧
+      ∀ (x : ProjK0 k (WeightedKLRAlgebra k Γ ν')) (y : ProjK0 k (WeightedKLRAlgebra k Γ ν'')),
+        resK0 ν₁ ν₂ hD hZ hS (ProjK0.map (castW k Γ hν₁.symm) (indK0 ν' ν'' x y)) =
+          ∑ i, ResIndPiece.twistK0 (L i) hD hZ hS x y := by
+  obtain ⟨n, L, hinj, hrange, h⟩ := exists_resK0_indK0_eq_sum_tensorK0 (k := k) hD hZ hS hν₁
+  refine ⟨n, L, hinj, hrange, fun x y => ?_⟩
+  simp only [h, ResIndPiece.tensorK0_eq_twistK0]
 
 end WeightedKLR
 

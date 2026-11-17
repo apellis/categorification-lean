@@ -914,6 +914,7 @@ import Categorification.WeightedKLR.Mackey.ResIndFiltration
 import Categorification.WeightedKLR.Mackey.ResIndK0
 import Categorification.WeightedKLR.Mackey.ResIndPieceProjective
 import Categorification.WeightedKLR.Mackey.ResIndRestriction
+import Categorification.WeightedKLR.Mackey.ResIndTwist
 import Categorification.WeightedKLR.Mackey.Separated
 import Categorification.WeightedKLR.Mackey.SeparatedJuxtapose
 import Categorification.WeightedKLR.Mackey.ShuffleDegree

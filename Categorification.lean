@@ -875,6 +875,7 @@ import Categorification.WeightedKLR.Induction.Monoidal
 import Categorification.WeightedKLR.Induction.Reflection
 import Categorification.WeightedKLR.Induction.Restriction
 import Categorification.WeightedKLR.Induction.TensorMap
+import Categorification.WeightedKLR.Mackey.BimoduleFiltration
 import Categorification.WeightedKLR.Mackey.BlockConjugate
 import Categorification.WeightedKLR.Mackey.BlockPieces
 import Categorification.WeightedKLR.Mackey.ConjugateEmbedding

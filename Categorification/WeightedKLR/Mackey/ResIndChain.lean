@@ -589,4 +589,148 @@ instance : SMulCommClass (WeightedKLRAlgebra k Γ ν₁ ⊗[k] WeightedKLRAlgebr
 
 end ResIndPiece
 
+namespace GalleryAlgebra
+
+variable {ν₁ ν₂ ν' ν'' : I →₀ ℕ}
+
+variable {P : FullChamber Γ ν → FullChamber Γ ν → (Strand ν → 𝕜) × (Strand ν → 𝕜)}
+  {hP : ∀ C E, IsChamberSegment C E (P C E)} {hD : Γ.Dagger} {hZ : Γ.NoZeroLoops}
+  {hΓ : Γ.PSymm} {hW : ∀ w : Wall Γ ν, IsRegular (w.factor (k := k))}
+  {hL : ∀ (Q : MvPolynomial (Fin 2) k) (a b : Strand ν), Γ.loop a.1 = some Q → a ≠ b →
+    a.1 = b.1 → IsRegular (loopFactor Q a b)}
+  {hν' : ν' + ν'' = ν} {hν₁ : ν₁ + ν₂ = ν}
+
+/-! ### The pieces of the chain -/
+
+/-- The underlying element of the gallery algebra, as a linear map. -/
+noncomputable def ResIndBimodule.valHom :
+    ResIndBimodule k hP hD hZ hΓ hW hL hν' hν₁ →ₗ[k] GalleryAlgebra k Γ ν where
+  toFun z := z.val
+  map_add' := ResIndBimodule.val_add hP hD hZ hΓ hW hL hν' hν₁
+  map_smul' := ResIndBimodule.val_smul hP hD hZ hΓ hW hL hν' hν₁
+
+/-- The quotient map of the step `S` onto the subquotient `S / S'`. -/
+noncomputable def resIndStepMk (S' : Set (I → ℕ)) {S : Set (I → ℕ)} (hS : IsLowerSet S) :
+    (resIndSubBimodule (hP := hP) (hD := hD) (hZ := hZ) (hΓ := hΓ) (hW := hW) (hL := hL)
+      (hν' := hν') (hν₁ := hν₁) hS).toSubmodule →ₗ[k]
+      ResIndSubquotient k hP hD hZ hΓ hW hL hν' hν₁ S' S :=
+  Submodule.mkQ _ ∘ₗ LinearMap.codRestrict _
+    (ResIndBimodule.valHom ∘ₗ (Submodule.subtype _).restrictScalars k) fun x => x.2
+
+theorem resIndStepMk_apply (S' : Set (I → ℕ)) {S : Set (I → ℕ)} (hS : IsLowerSet S)
+    (x : (resIndSubBimodule (hP := hP) (hD := hD) (hZ := hZ) (hΓ := hΓ) (hW := hW) (hL := hL)
+      (hν' := hν') (hν₁ := hν₁) hS).toSubmodule) :
+    resIndStepMk S' hS x =
+      Submodule.Quotient.mk ⟨(x : ResIndBimodule k hP hD hZ hΓ hW hL hν' hν₁).val, x.2⟩ :=
+  rfl
+
+theorem resIndStepMk_smul_left {S' S : Set (I → ℕ)} (hS' : IsLowerSet S') (hS : IsLowerSet S)
+    (u : WeightedKLRAlgebra k Γ ν₁ ⊗[k] WeightedKLRAlgebra k Γ ν₂)
+    (x : (resIndSubBimodule (hP := hP) (hD := hD) (hZ := hZ) (hΓ := hΓ) (hW := hW) (hL := hL)
+      (hν' := hν') (hν₁ := hν₁) hS).toSubmodule) :
+    resIndStepMk S' hS (u • x) =
+      resIndSubquotientMul hP hD hZ hΓ hW hL hν' hν₁ hS' hS u 1 (resIndStepMk S' hS x) :=
+  rfl
+
+theorem resIndStepMk_smul_right {S' S : Set (I → ℕ)} (hS' : IsLowerSet S') (hS : IsLowerSet S)
+    (w : (WeightedKLRAlgebra k Γ ν' ⊗[k] WeightedKLRAlgebra k Γ ν'')ᵐᵒᵖ)
+    (x : (resIndSubBimodule (hP := hP) (hD := hD) (hZ := hZ) (hΓ := hΓ) (hW := hW) (hL := hL)
+      (hν' := hν') (hν₁ := hν₁) hS).toSubmodule) :
+    resIndStepMk S' hS (w • x) =
+      resIndSubquotientMul hP hD hZ hΓ hW hL hν' hν₁ hS' hS 1 w.unop (resIndStepMk S' hS x) :=
+  rfl
+
+theorem resIndStepMk_surjective (S' : Set (I → ℕ)) {S : Set (I → ℕ)} (hS : IsLowerSet S) :
+    Function.Surjective (resIndStepMk (hP := hP) (hD := hD) (hZ := hZ) (hΓ := hΓ) (hW := hW)
+      (hL := hL) (hν' := hν') (hν₁ := hν₁) S' hS) := by
+  intro q
+  obtain ⟨z, rfl⟩ := Submodule.Quotient.mk_surjective _ q
+  let z' : ResIndBimodule k hP hD hZ hΓ hW hL hν' hν₁ :=
+    ⟨z.1, resIndFilt_mono hP hD hZ hΓ hW hL hν' hν₁ (Set.subset_univ S) z.2⟩
+  exact ⟨⟨z', z.2⟩, rfl⟩
+
+theorem resIndStepMk_eq_zero_iff (S' : Set (I → ℕ)) {S : Set (I → ℕ)} (hS : IsLowerSet S)
+    (x : (resIndSubBimodule (hP := hP) (hD := hD) (hZ := hZ) (hΓ := hΓ) (hW := hW) (hL := hL)
+      (hν' := hν') (hν₁ := hν₁) hS).toSubmodule) :
+    resIndStepMk S' hS x = 0 ↔
+      (x : ResIndBimodule k hP hD hZ hΓ hW hL hν' hν₁).val ∈
+        resIndFilt k hP hD hZ hΓ hW hL hν' hν₁ S' := by
+  rw [resIndStepMk_apply, Submodule.Quotient.mk_eq_zero]
+  rfl
+
+section PieceMap
+
+variable {S' S : Set (I → ℕ)} (hS' : IsLowerSet S') (hS : IsLowerSet S)
+  (L : ShuffleLayout ν' ν'' ν₁ ν₂)
+  (f : MiddleTensor k Γ L.a L.b L.c L.d ≃ₗ[k] ResIndSubquotient k hP hD hZ hΓ hW hL hν' hν₁ S' S)
+  (hf : ∀ zL zR, f.toLinearMap ∘ₗ middleCornerMap zL zR =
+    resIndSubquotientMul hP hD hZ hΓ hW hL hν' hν₁ hS' hS
+      (Algebra.TensorProduct.congr (castW k Γ L.hac) (castW k Γ L.hbd) zL)
+      (Algebra.TensorProduct.congr (castW k Γ L.hab) (castW k Γ L.hcd) zR) ∘ₗ f.toLinearMap)
+
+include hf in
+theorem symm_resIndSubquotientMul_eq (zL zR)
+    (q : ResIndSubquotient k hP hD hZ hΓ hW hL hν' hν₁ S' S) :
+    f.symm (resIndSubquotientMul hP hD hZ hΓ hW hL hν' hν₁ hS' hS
+      (Algebra.TensorProduct.congr (castW k Γ L.hac) (castW k Γ L.hbd) zL)
+      (Algebra.TensorProduct.congr (castW k Γ L.hab) (castW k Γ L.hcd) zR) q) =
+      middleCornerMap zL zR (f.symm q) := by
+  rw [LinearEquiv.symm_apply_eq]
+  have h := LinearMap.congr_fun (hf zL zR) (f.symm q)
+  simp only [LinearMap.comp_apply, LinearEquiv.coe_coe,
+    LinearEquiv.apply_symm_apply] at h
+  exact h.symm
+
+/-- **The projection of a step of the chain onto its piece**: `S → S / S' ≃ ResIndPiece L`, a
+`W_{ν₁} ⊗ W_{ν₂}`-linear map. -/
+noncomputable def resIndPieceMap :
+    (resIndSubBimodule (hP := hP) (hD := hD) (hZ := hZ) (hΓ := hΓ) (hW := hW) (hL := hL)
+      (hν' := hν') (hν₁ := hν₁) hS).toSubmodule →ₗ[WeightedKLRAlgebra k Γ ν₁ ⊗[k]
+        WeightedKLRAlgebra k Γ ν₂] ResIndPiece k Γ L where
+  toFun x := f.symm (resIndStepMk S' hS x)
+  map_add' x y := by
+    change f.symm (resIndStepMk S' hS (x + y)) =
+      f.symm (resIndStepMk S' hS x) + f.symm (resIndStepMk S' hS y)
+    rw [map_add, map_add]
+  map_smul' u x := by
+    rw [RingHom.id_apply]
+    change f.symm (resIndStepMk S' hS (u • x)) =
+      middleCornerMap ((L.leftEquiv k Γ).symm u) 1 (f.symm (resIndStepMk S' hS x))
+    rw [← symm_resIndSubquotientMul_eq hS' hS L f hf, map_one, resIndStepMk_smul_left hS' hS]
+    exact congrArg (fun z => f.symm (resIndSubquotientMul hP hD hZ hΓ hW hL hν' hν₁ hS' hS z 1
+      (resIndStepMk S' hS x))) ((L.leftEquiv k Γ).apply_symm_apply u).symm
+
+theorem resIndPieceMap_apply
+    (x : (resIndSubBimodule (hP := hP) (hD := hD) (hZ := hZ) (hΓ := hΓ) (hW := hW) (hL := hL)
+      (hν' := hν') (hν₁ := hν₁) hS).toSubmodule) :
+    resIndPieceMap hS' hS L f hf x = f.symm (resIndStepMk S' hS x) := rfl
+
+theorem isBimoduleHom_resIndPieceMap :
+    BalancedTensor.IsBimoduleHom (A := WeightedKLRAlgebra k Γ ν' ⊗[k] WeightedKLRAlgebra k Γ ν'')
+      (M := (resIndSubBimodule (hP := hP) (hD := hD) (hZ := hZ) (hΓ := hΓ) (hW := hW) (hL := hL)
+        (hν' := hν') (hν₁ := hν₁) hS).toSubmodule) (M' := ResIndPiece k Γ L)
+      (resIndPieceMap hS' hS L f hf) := by
+  intro w x
+  change f.symm (resIndStepMk S' hS (op w • x)) =
+    middleCornerMap 1 ((L.rightEquiv k Γ).symm (op w).unop) (f.symm (resIndStepMk S' hS x))
+  rw [← symm_resIndSubquotientMul_eq hS' hS L f hf, map_one, resIndStepMk_smul_right hS' hS]
+  exact congrArg (fun z => f.symm (resIndSubquotientMul hP hD hZ hΓ hW hL hν' hν₁ hS' hS 1 z
+    (resIndStepMk S' hS x))) ((L.rightEquiv k Γ).apply_symm_apply (op w).unop).symm
+
+theorem resIndPieceMap_surjective : Function.Surjective (resIndPieceMap hS' hS L f hf) :=
+  f.symm.surjective.comp (resIndStepMk_surjective S' hS)
+
+theorem resIndPieceMap_eq_zero_iff
+    (x : (resIndSubBimodule (hP := hP) (hD := hD) (hZ := hZ) (hΓ := hΓ) (hW := hW) (hL := hL)
+      (hν' := hν') (hν₁ := hν₁) hS).toSubmodule) :
+    resIndPieceMap hS' hS L f hf x = 0 ↔
+      (x : ResIndBimodule k hP hD hZ hΓ hW hL hν' hν₁).val ∈
+        resIndFilt k hP hD hZ hΓ hW hL hν' hν₁ S' := by
+  rw [resIndPieceMap_apply, ← resIndStepMk_eq_zero_iff]
+  exact f.symm.map_eq_zero_iff
+
+end PieceMap
+
+end GalleryAlgebra
+
 end Categorification.WeightedKLR

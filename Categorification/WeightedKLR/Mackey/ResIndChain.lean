@@ -137,6 +137,217 @@ theorem resIndFilt_congr (hν' : ν' + ν'' = ν) (hν₁ : ν₁ + ν₂ = ν) 
   simp only [mem_resIndFilt_iff, ← mackeyFilt_inter_range hP hD hZ hΓ hW hL ν' ν₁ _ _ S, h,
     mackeyFilt_inter_range]
 
+/-! ### The bimodule `Res_{ν₁;ν₂} Ind_{ν';ν''}` -/
+
+section Bimodule
+
+variable (hν' : ν' + ν'' = ν) (hν₁ : ν₁ + ν₂ = ν)
+
+theorem inductionVal_mul_inductionVal_one
+    (u : WeightedKLRAlgebra k Γ ν₁ ⊗[k] WeightedKLRAlgebra k Γ ν₂) :
+    inductionVal k hν₁ u * inductionVal k hν₁ 1 = inductionVal k hν₁ u := by
+  rw [← inductionVal_mul, mul_one]
+
+theorem inductionVal_one_mul_inductionVal
+    (u : WeightedKLRAlgebra k Γ ν₁ ⊗[k] WeightedKLRAlgebra k Γ ν₂) :
+    inductionVal k hν₁ 1 * inductionVal k hν₁ u = inductionVal k hν₁ u := by
+  rw [← inductionVal_mul, one_mul]
+
+theorem mul_inductionVal_mul_inductionVal (X : GalleryAlgebra k Γ ν)
+    (u u' : WeightedKLRAlgebra k Γ ν₁ ⊗[k] WeightedKLRAlgebra k Γ ν₂) :
+    X * inductionVal k hν₁ u * inductionVal k hν₁ u' = X * inductionVal k hν₁ (u * u') := by
+  rw [mul_assoc, inductionVal_mul]
+
+variable (k) in
+/-- **The bimodule `Res_{ν₁;ν₂} Ind_{ν';ν''}`** (B. Webster, arXiv:1209.2463v4, proof of
+Theorem 2.19): the elements `z` of the gallery algebra with `ι_{ν₁;ν₂}(1) z = z = z ι_{ν';ν''}(1)`,
+the top step of the Mackey filtration. -/
+def ResIndBimodule : Type (max u w) := resIndFilt k hP hD hZ hΓ hW hL hν' hν₁ Set.univ
+
+noncomputable instance : AddCommGroup (ResIndBimodule k hP hD hZ hΓ hW hL hν' hν₁) :=
+  inferInstanceAs (AddCommGroup (resIndFilt k hP hD hZ hΓ hW hL hν' hν₁ Set.univ))
+
+noncomputable instance : Module k (ResIndBimodule k hP hD hZ hΓ hW hL hν' hν₁) :=
+  inferInstanceAs (Module k (resIndFilt k hP hD hZ hΓ hW hL hν' hν₁ Set.univ))
+
+/-- The underlying element of the gallery algebra. -/
+def ResIndBimodule.val (z : ResIndBimodule k hP hD hZ hΓ hW hL hν' hν₁) :
+    GalleryAlgebra k Γ ν :=
+  (z : resIndFilt k hP hD hZ hΓ hW hL hν' hν₁ Set.univ).1
+
+theorem ResIndBimodule.val_injective :
+    Function.Injective (ResIndBimodule.val hP hD hZ hΓ hW hL hν' hν₁) :=
+  Subtype.val_injective
+
+@[simp] theorem ResIndBimodule.val_add (z z' : ResIndBimodule k hP hD hZ hΓ hW hL hν' hν₁) :
+    (z + z').val = z.val + z'.val := rfl
+
+@[simp] theorem ResIndBimodule.val_zero :
+    (0 : ResIndBimodule k hP hD hZ hΓ hW hL hν' hν₁).val = 0 := rfl
+
+@[simp] theorem ResIndBimodule.val_smul (r : k) (z : ResIndBimodule k hP hD hZ hΓ hW hL hν' hν₁) :
+    (r • z).val = r • z.val := rfl
+
+theorem resIndFilt_univ_one_mul (z : resIndFilt k hP hD hZ hΓ hW hL hν' hν₁ Set.univ) :
+    inductionVal k hν₁ 1 * z.1 = z.1 :=
+  z.2.1
+
+theorem resIndFilt_univ_mul_one (z : resIndFilt k hP hD hZ hΓ hW hL hν' hν₁ Set.univ) :
+    z.1 * inductionVal k hν' 1 = z.1 :=
+  z.2.2.1
+
+theorem ResIndBimodule.one_mul_val (z : ResIndBimodule k hP hD hZ hΓ hW hL hν' hν₁) :
+    inductionVal k hν₁ 1 * z.val = z.val :=
+  (z : resIndFilt k hP hD hZ hΓ hW hL hν' hν₁ Set.univ).2.1
+
+theorem ResIndBimodule.val_mul_one (z : ResIndBimodule k hP hD hZ hΓ hW hL hν' hν₁) :
+    z.val * inductionVal k hν' 1 = z.val :=
+  (z : resIndFilt k hP hD hZ hΓ hW hL hν' hν₁ Set.univ).2.2.1
+
+/-- The left action `z ↦ ι_{ν₁;ν₂}(u) z`, as a ring homomorphism. -/
+noncomputable def resIndLeftHom :
+    WeightedKLRAlgebra k Γ ν₁ ⊗[k] WeightedKLRAlgebra k Γ ν₂ →+*
+      Module.End k (ResIndBimodule k hP hD hZ hΓ hW hL hν' hν₁) where
+  toFun u := resIndFiltMul hP hD hZ hΓ hW hL hν' hν₁ isLowerSet_univ u 1
+  map_one' := LinearMap.ext fun z => ResIndBimodule.val_injective hP hD hZ hΓ hW hL hν' hν₁ (by
+    change inductionVal k hν₁ 1 * z.val * inductionVal k hν' 1 = z.val
+    rw [resIndFilt_univ_one_mul, resIndFilt_univ_mul_one])
+  map_mul' u u' := LinearMap.ext fun z =>
+    ResIndBimodule.val_injective hP hD hZ hΓ hW hL hν' hν₁ (by
+      change inductionVal k hν₁ (u * u') * z.val * inductionVal k hν' 1 =
+        inductionVal k hν₁ u * (inductionVal k hν₁ u' * z.val * inductionVal k hν' 1) *
+          inductionVal k hν' 1
+      rw [inductionVal_mul]
+      simp only [mul_assoc, inductionVal_mul_inductionVal_one hν' 1])
+  map_zero' := LinearMap.ext fun z => ResIndBimodule.val_injective hP hD hZ hΓ hW hL hν' hν₁ (by
+    change inductionVal k hν₁ 0 * z.val * inductionVal k hν' 1 = 0
+    rw [map_zero, zero_mul, zero_mul])
+  map_add' u u' := LinearMap.ext fun z =>
+    ResIndBimodule.val_injective hP hD hZ hΓ hW hL hν' hν₁ (by
+      change inductionVal k hν₁ (u + u') * z.val * inductionVal k hν' 1 =
+        inductionVal k hν₁ u * z.val * inductionVal k hν' 1 +
+          inductionVal k hν₁ u' * z.val * inductionVal k hν' 1
+      rw [map_add, add_mul, add_mul])
+
+/-- The right action `z ↦ z ι_{ν';ν''}(w)`, as a ring homomorphism from the opposite algebra. -/
+noncomputable def resIndRightHom :
+    (WeightedKLRAlgebra k Γ ν' ⊗[k] WeightedKLRAlgebra k Γ ν'')ᵐᵒᵖ →+*
+      Module.End k (ResIndBimodule k hP hD hZ hΓ hW hL hν' hν₁) where
+  toFun w := resIndFiltMul hP hD hZ hΓ hW hL hν' hν₁ isLowerSet_univ 1 w.unop
+  map_one' := LinearMap.ext fun z => ResIndBimodule.val_injective hP hD hZ hΓ hW hL hν' hν₁ (by
+    change inductionVal k hν₁ 1 * z.val * inductionVal k hν' 1 = z.val
+    rw [resIndFilt_univ_one_mul, resIndFilt_univ_mul_one])
+  map_mul' w w' := LinearMap.ext fun z =>
+    ResIndBimodule.val_injective hP hD hZ hΓ hW hL hν' hν₁ (by
+      change inductionVal k hν₁ 1 * z.val * inductionVal k hν' (w * w').unop =
+        inductionVal k hν₁ 1 * (inductionVal k hν₁ 1 * z.val * inductionVal k hν' w'.unop) *
+          inductionVal k hν' w.unop
+      rw [unop_mul, inductionVal_mul]
+      simp only [← mul_assoc, resIndFilt_univ_one_mul])
+  map_zero' := LinearMap.ext fun z => ResIndBimodule.val_injective hP hD hZ hΓ hW hL hν' hν₁ (by
+    change inductionVal k hν₁ 1 * z.val * inductionVal k hν' (0 : _ᵐᵒᵖ).unop = 0
+    rw [unop_zero, map_zero, mul_zero])
+  map_add' w w' := LinearMap.ext fun z =>
+    ResIndBimodule.val_injective hP hD hZ hΓ hW hL hν' hν₁ (by
+      change inductionVal k hν₁ 1 * z.val * inductionVal k hν' (w + w').unop =
+        inductionVal k hν₁ 1 * z.val * inductionVal k hν' w.unop +
+          inductionVal k hν₁ 1 * z.val * inductionVal k hν' w'.unop
+      rw [unop_add, map_add, mul_add])
+
+noncomputable instance :
+    Module (WeightedKLRAlgebra k Γ ν₁ ⊗[k] WeightedKLRAlgebra k Γ ν₂)
+      (ResIndBimodule k hP hD hZ hΓ hW hL hν' hν₁) :=
+  Module.compHom _ (resIndLeftHom hP hD hZ hΓ hW hL hν' hν₁)
+
+noncomputable instance :
+    Module (WeightedKLRAlgebra k Γ ν' ⊗[k] WeightedKLRAlgebra k Γ ν'')ᵐᵒᵖ
+      (ResIndBimodule k hP hD hZ hΓ hW hL hν' hν₁) :=
+  Module.compHom _ (resIndRightHom hP hD hZ hΓ hW hL hν' hν₁)
+
+theorem ResIndBimodule.val_smul_left
+    (u : WeightedKLRAlgebra k Γ ν₁ ⊗[k] WeightedKLRAlgebra k Γ ν₂)
+    (z : ResIndBimodule k hP hD hZ hΓ hW hL hν' hν₁) :
+    (u • z).val = inductionVal k hν₁ u * z.val * inductionVal k hν' 1 := rfl
+
+theorem ResIndBimodule.val_smul_right
+    (w : (WeightedKLRAlgebra k Γ ν' ⊗[k] WeightedKLRAlgebra k Γ ν'')ᵐᵒᵖ)
+    (z : ResIndBimodule k hP hD hZ hΓ hW hL hν' hν₁) :
+    (w • z).val = inductionVal k hν₁ 1 * z.val * inductionVal k hν' w.unop := rfl
+
+instance : SMulCommClass (WeightedKLRAlgebra k Γ ν₁ ⊗[k] WeightedKLRAlgebra k Γ ν₂)
+    (WeightedKLRAlgebra k Γ ν' ⊗[k] WeightedKLRAlgebra k Γ ν'')ᵐᵒᵖ
+    (ResIndBimodule k hP hD hZ hΓ hW hL hν' hν₁) where
+  smul_comm u w z := ResIndBimodule.val_injective hP hD hZ hΓ hW hL hν' hν₁ (by
+    rw [ResIndBimodule.val_smul_left, ResIndBimodule.val_smul_right,
+      ResIndBimodule.val_smul_right, ResIndBimodule.val_smul_left]
+    simp only [← mul_assoc, ← inductionVal_mul, mul_inductionVal_mul_inductionVal hν',
+      mul_one, one_mul])
+
+instance : IsScalarTower k (WeightedKLRAlgebra k Γ ν₁ ⊗[k] WeightedKLRAlgebra k Γ ν₂)
+    (ResIndBimodule k hP hD hZ hΓ hW hL hν' hν₁) where
+  smul_assoc r u z := ResIndBimodule.val_injective hP hD hZ hΓ hW hL hν' hν₁ (by
+    rw [ResIndBimodule.val_smul_left, ResIndBimodule.val_smul, ResIndBimodule.val_smul_left,
+      map_smul, smul_mul_assoc, smul_mul_assoc])
+
+instance : IsScalarTower k (WeightedKLRAlgebra k Γ ν' ⊗[k] WeightedKLRAlgebra k Γ ν'')ᵐᵒᵖ
+    (ResIndBimodule k hP hD hZ hΓ hW hL hν' hν₁) where
+  smul_assoc r w z := ResIndBimodule.val_injective hP hD hZ hΓ hW hL hν' hν₁ (by
+    rw [ResIndBimodule.val_smul_right, ResIndBimodule.val_smul, ResIndBimodule.val_smul_right,
+      unop_smul, map_smul, mul_smul_comm])
+
+/-! ### The steps as sub-bimodules -/
+
+variable {hP hD hZ hΓ hW hL hν' hν₁} in
+/-- **The step of a lower set `S` of shuffle types, as a sub-bimodule** of `Res Ind`. -/
+noncomputable def resIndSubBimodule {S : Set (I → ℕ)} (hS : IsLowerSet S) :
+    SubBimodule (WeightedKLRAlgebra k Γ ν₁ ⊗[k] WeightedKLRAlgebra k Γ ν₂)
+      (WeightedKLRAlgebra k Γ ν' ⊗[k] WeightedKLRAlgebra k Γ ν'')
+      (ResIndBimodule k hP hD hZ hΓ hW hL hν' hν₁) where
+  toSubmodule :=
+    { carrier := {z | z.val ∈ resIndFilt k hP hD hZ hΓ hW hL hν' hν₁ S}
+      add_mem' {x y} hx hy := by
+        change (x + y).val ∈ resIndFilt k hP hD hZ hΓ hW hL hν' hν₁ S
+        rw [ResIndBimodule.val_add]
+        exact Submodule.add_mem _ hx hy
+      zero_mem' := by
+        change (0 : ResIndBimodule k hP hD hZ hΓ hW hL hν' hν₁).val ∈
+          resIndFilt k hP hD hZ hΓ hW hL hν' hν₁ S
+        rw [ResIndBimodule.val_zero]
+        exact Submodule.zero_mem _
+      smul_mem' u _ hz :=
+        inductionVal_mul_mul_mem_resIndFilt hP hD hZ hΓ hW hL hν' hν₁ hS u 1 hz }
+  op_smul_mem w _ hz := inductionVal_mul_mul_mem_resIndFilt hP hD hZ hΓ hW hL hν' hν₁ hS 1 w hz
+
+theorem mem_resIndSubBimodule {S : Set (I → ℕ)} (hS : IsLowerSet S)
+    (z : ResIndBimodule k hP hD hZ hΓ hW hL hν' hν₁) :
+    z ∈ (resIndSubBimodule hS).toSubmodule ↔ z.val ∈ resIndFilt k hP hD hZ hΓ hW hL hν' hν₁ S :=
+  Iff.rfl
+
+theorem resIndSubBimodule_mono {S S' : Set (I → ℕ)} (hS : IsLowerSet S) (hS' : IsLowerSet S')
+    (h : S ⊆ S') :
+    (resIndSubBimodule (hP := hP) (hD := hD) (hZ := hZ) (hΓ := hΓ) (hW := hW) (hL := hL)
+      (hν' := hν') (hν₁ := hν₁) hS).toSubmodule ≤ (resIndSubBimodule hS').toSubmodule :=
+  fun _ hz => resIndFilt_mono hP hD hZ hΓ hW hL hν' hν₁ h hz
+
+theorem resIndSubBimodule_empty :
+    (resIndSubBimodule (hP := hP) (hD := hD) (hZ := hZ) (hΓ := hΓ) (hW := hW) (hL := hL)
+      (hν' := hν') (hν₁ := hν₁) isLowerSet_empty).toSubmodule = ⊥ := by
+  refine (Submodule.eq_bot_iff _).2 fun z hz =>
+    ResIndBimodule.val_injective hP hD hZ hΓ hW hL hν' hν₁ ?_
+  rw [mem_resIndSubBimodule, resIndFilt_empty, Submodule.mem_bot] at hz
+  exact hz
+
+theorem resIndSubBimodule_eq_top {S : Set (I → ℕ)} (hS : IsLowerSet S)
+    (h : Set.range (shuffleType (ν := ν) ν' ν₁) ⊆ S) :
+    (resIndSubBimodule (hP := hP) (hD := hD) (hZ := hZ) (hΓ := hΓ) (hW := hW) (hL := hL)
+      (hν' := hν') (hν₁ := hν₁) hS).toSubmodule = ⊤ := by
+  refine Submodule.eq_top_iff'.2 fun z => ?_
+  rw [mem_resIndSubBimodule, resIndFilt_congr hP hD hZ hΓ hW hL hν' hν₁ (S' := Set.univ)
+    (by rw [Set.univ_inter, Set.inter_eq_right.2 h])]
+  exact (z : resIndFilt k hP hD hZ hΓ hW hL hν' hν₁ Set.univ).2
+
+end Bimodule
+
 end GalleryAlgebra
 
 end Categorification.WeightedKLR

@@ -850,6 +850,7 @@ import Categorification.WeightedKLR.Standing
 import Categorification.WeightedKLR.GalleryBasis.Standing
 import Categorification.WeightedKLR.Grading
 import Categorification.WeightedKLR.GalleryBasis.Graded
+import Categorification.WeightedKLR.GradedK0.CoproductK0
 import Categorification.WeightedKLR.GradedK0.Grading
 import Categorification.WeightedKLR.GradedK0.Induction
 import Categorification.WeightedKLR.GradedK0.Restriction

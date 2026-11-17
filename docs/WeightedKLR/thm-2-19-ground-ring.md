@@ -140,14 +140,16 @@ These statements do not involve the comparison map.
   * The graded Mackey formula, with the shift `-(μ · μ')` (`middleShift`) of the term of
     shuffle type `μ`, on graded `K_0`, over a field, under `Γ.Dagger`, `Γ.NoZeroLoops` and
     `Γ.Standing`: `exists_resK0_indK0_eq_sum_graded`, and in twisted form
-    `exists_resK0_indK0_eq_sum_twistK0Graded` (next section). Open: the graded analogue of
-    `Juxtapose.extIndIndEquiv` and the transport of the formula along `k0TensorEquiv` under
-    `TensorK0Hyp`.
+    `exists_resK0_indK0_eq_sum_twistK0Graded` (next section). On `K_0 ⊗_{ℤ[q^±]} K_0`, under
+    the route hypothesis `TensorK0Hyp` for every pair `(μ, μ')`:
+    `exists_coproductK0_indK0_eq_sum_graded` (next section). Open: the fields of `TensorK0Hyp`
+    for weighted KLR algebras.
 
 ## Graded `K_0` (formalized)
 
 Files `WeightedKLR/GradedK0/Grading.lean`, `Induction.lean`, `TensorK0.lean`,
-`Restriction.lean`, `ResIndGrading.lean`, `ResIndChainGrading.lean`, and
+`Restriction.lean`, `ResIndGrading.lean`, `ResIndChainGrading.lean`, `ResIndTwist.lean`,
+`CoproductK0.lean`, and
 `Algebra/Graded/K0Exact.lean`, `K0Filtration.lean`.
 
 * `GradingDatum.resGProj`, `GradingDatum.resK0`, `resK0_of`: graded restriction from `W_ν`
@@ -197,6 +199,26 @@ Files `WeightedKLR/GradedK0/Grading.lean`, `Induction.lean`, `TensorK0.lean`,
   degree `0`. Hence
   `Δ_{ν₁;ν₂}(x · y) = ∑_i q^{middleShift (L i)} (Ind_{a;c} ⊗ Ind_{b;d}) ∘ (exchange)
   (Δ_{a;b} x ⊠ Δ_{c;d} y)` for all `x`, `y` in graded `K_0`.
+* `Juxtapose.middleIndExtIndEquiv`, `GradingDatum.middleIndGProjExtIndIso`,
+  `GradingDatum.middleIndK0_extTensor` (`GradedK0/CoproductK0.lean`): the graded analogue of
+  `Juxtapose.extIndIndEquiv`. Over any commutative ring,
+  `(W_{a+c} ⊗ W_{b+d}) e' ⊗ ((P_a ⊠ P_b) ⊠ (Q_c ⊠ Q_d)) ≅ Ind(P_a ⊠ Q_c) ⊠ Ind(P_b ⊠ Q_d)`;
+  over a field it preserves the gradings (no shift), so
+  `middleInd ((x_a ⊠ x_b) ⊠ (y_c ⊠ y_d)) = (x_a · y_c) ⊠ (x_b · y_d)` in graded `K_0`. No
+  hypothesis beyond those of graded induction.
+* `GradingDatum.coproductK0`, `ShuffleLayout.twistedMulK0Graded`,
+  `ShuffleLayout.k0TensorEquiv_twistedMulK0Graded`, `exists_coproductK0_indK0_eq_sum_graded`
+  (`GradedK0/CoproductK0.lean`): over a field, `Δ_{ν₁,ν₂} = k0TensorEquiv⁻¹ ∘ resK0 :
+  K_0(W_{ν₁+ν₂}) → K_0(W_{ν₁}) ⊗_{ℤ[q^±]} K_0(W_{ν₂})` and the twisted product
+  `T_L((x_a ⊗ x_b) ⊗ (y_c ⊗ y_d)) = (x_a · y_c) ⊗ (x_b · y_d)`. Under `Γ.Dagger`,
+  `Γ.NoZeroLoops`, `Γ.Standing`, graded dimensions of every `W_μ` (supplied by
+  `GalleryAlgebra.hasGdim_klrGrade` for the standing grading) and **the route hypothesis**
+  `TensorK0Hyp (klrGrade μ) (klrGrade μ')` for all `μ`, `μ'`:
+  `Δ_{ν₁,ν₂}(x · y) = ∑_i q^{middleShift (L i)} T_{L i}(Δ_{a,b} x ⊗ Δ_{c,d} y)`. `TensorK0Hyp`
+  is the identification `K_0(W_μ ⊗ W_{μ'}) ≅ K_0(W_μ) ⊗ K_0(W_{μ'})` that the proof of
+  Theorem 2.19 uses without justification; it is not proved for weighted KLR algebras
+  (`endA`, `endB` are open; `fdA`, `fdB`, `fdC` are not proved either), so it cannot be
+  instantiated in the non-vacuity examples.
 
 * `GradingDatum.instGradedAlgebraKlrGrade`: for every grading datum `G`, `W_ν` with
   `G.klrGrade ν` is a graded algebra (the corner of `A_ν` at the degree-zero idempotent
@@ -306,8 +328,9 @@ gives it, even over an algebraically closed field.
   Quillen–Suslin, which are not in Mathlib.
 
 So `Δ` with values in `K_0(W_{ν₁}) ⊗ K_0(W_{ν₂})` is formalized only under this hypothesis.
-The options for the maintainer: (a) the graded route: `HasGdim`, graded `K_0` and the
-comparison under `TensorK0Hyp` and the graded Mackey identity are now formalized; its
-twisted-induction form, the transport and the fields of `TensorK0Hyp` remain; (b) keep
+The options for the maintainer: (a) the graded route: `HasGdim`, graded `K_0`, the
+comparison under `TensorK0Hyp`, the graded Mackey identity in twisted form and the graded
+coproduct on `K_0 ⊗ K_0` with its Mackey formula (under `TensorK0Hyp`) are now formalized;
+the fields of `TensorK0Hyp` for weighted KLR algebras remain; (b) keep
 `ProjK0.ExtTensorBijective` as an explicit hypothesis of the ungraded statement (current
 state); (c) new theory for the ungraded comparison, which needs the maintainer's approval.

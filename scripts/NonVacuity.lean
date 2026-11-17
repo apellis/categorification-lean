@@ -109,6 +109,35 @@ example (d : ℤ) := KLR.KLRAlgebra.AbsentColour.finrank_appendedCornerGrade
   (coverWeight arr) lam (by rw [coverWeight_pair_iY]; rfl)
   (fun _ h => unfQ_natDegree_eq_neg_pair arr h) (by simp) default default d
 
+/-- On the two-strand mixed block a second raising of the true colour vanishes. -/
+example := KLR.CycKLR.raise_pow_lof_eq_zero (unfGrading (k := ℚ) arr) (fun _ => 1) true
+  (unfQ_klrSymm arr) (fun j l _ => unfQ_leadingCoeff arr j l) (coverCartan arr)
+  2 ({true, false} : Multiset Bool) (by decide)
+  (Graded.K0.of (Graded.GProj.regular (KLR.CycKLR.grade (unfGrading (k := ℚ) arr)
+    (fun _ => 1) {true, false})))
+
+open KLR.KLRAlgebra in
+example : Module.finrank ℚ ↥(KLR.CycKLR.grade (unfGrading (k := ℚ) arr) (fun _ => 1)
+    ([false, true] : List Bool) 2 ⊓ KLR.CycKLR.corner ℚ (unfQ arr)
+      (fun _ => Polynomial.X ^ (1 : ℕ)) (Seq.ofList [false, true] rfl)
+      (Seq.ofList [false, true] rfl)) = 1 := by
+  rw [AbsentColour.finrank_diagonalCornerGrade_of_nodup _ _ (coverWeight arr) lam
+    (unfQ_klrSymm arr) (fun j l _ => unfQ_leadingCoeff arr j l)
+    (fun _ => by rw [coverWeight_pair_iY]; rfl)
+    (fun _ _ h => unfQ_natDegree_eq_neg_pair arr h) _ (by decide) rfl]
+  let factor := AbsentColour.diagonalFactor (unfGrading (k := ℚ) arr) (coverWeight arr) lam
+  have hf (prior : List Bool) (i : Bool) (n : ℕ)
+      (hn : ((coverWeight arr).pair ((coverWeight arr).iY i)
+        (lam - (prior.map (coverWeight arr).iX).sum)).toNat = n) :
+      factor prior i = ∑ j : Fin n, LaurentPolynomial.T ((j : ℤ) * 2) := by
+    subst n
+    rfl
+  change (factor [] false * (factor [false] true * 1)).coeff 2 = 1
+  rw [hf [] false 1 (by rw [coverWeight_pair_iY]; rfl),
+    hf [false] true 2 (by rw [coverWeight_pair_iY]; rfl)]
+  simp [Fin.sum_univ_two]
+  exact Finsupp.single_eq_of_ne (by decide : (2 : ℤ) ≠ 0)
+
 end KangKashiwara
 
 /-! ### Cautis–Lauda, `(BB_w)` (strong `sl₂` 2-representation on `Gr(•,2)`) -/

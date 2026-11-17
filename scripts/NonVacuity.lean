@@ -1759,4 +1759,30 @@ example (x : wkMapG.K0W) := wkMapG.counitK0_totalCoproduct_left wkMapD wkMapS
 example (x : wkMapG.K0W) := wkMapG.counitK0_totalCoproduct_right wkMapD wkMapS
   wkMapNoLoopEdges wkMapNoLoopPolynomials x
 
+/-- Both antipode equations for the standing graph over the example field. -/
+example := (wkMapS.braidedHopfK0 wkMapD wkMapNoLoopEdges wkMapNoLoopPolynomials).antipode_left
+
+example := (wkMapS.braidedHopfK0 wkMapD wkMapNoLoopEdges wkMapNoLoopPolynomials).antipode_right
+
+example := wkMapS.braidedHopfK0_antipode_single wkMapD wkMapNoLoopEdges
+  wkMapNoLoopPolynomials 0 (Graded.K0.of (Graded.GProj.regular
+    (wkMapG.klrGrade (Finsupp.single 0 1))))
+
+private noncomputable def cutTestGrading :=
+  Stendhal.stendhalGradingDatum (fun _ : Fin 2 => Finsupp.single (0 : Fin 2) 1)
+    (wkWeightZeroGraph_standing.gradingDatum.toKLRGrading (fun _ => by simp [wkWeightZeroGraph]) (fun _ => rfl))
+    (fun i => wkWeightZeroGraph_standing.symm i) (fun _ => rfl)
+
+/-- At one black strand with two red fundamental weights, use the rank of cut
+products to compute the dimension of the violating quotient, in each degree. -/
+example (d : ℤ) :=
+  Stendhal.finrank_tensorProductGrade_eq_card_sub_rank (ν := {(0 : Fin 2)})
+    (fun w => (TypeA.exists_reduced _ w).choose_spec) cutTestGrading
+    wkWeightZeroGraph_dagger (fun _ => by simp [wkWeightZeroGraph]) (fun _ => rfl) (fun _ => rfl) wkWeightZeroGraph_standing
+    (by
+      rintro (i | r)
+      · change 0 < 2 * (wkWeightZeroGraph_standing.symm i : ℤ)
+        exact mul_pos (by decide) (by exact_mod_cast wkWeightZeroGraph_standing.symm_pos i)
+      · exact (by decide : (0 : ℤ) < 2)) d
+
 end NonVacuity

@@ -30,6 +30,7 @@ import Categorification.Algebra.Graded.Simple
 import Categorification.Algebra.Graded.Tensor
 import Categorification.Algebra.Graded.TensorGdim
 import Categorification.Algebra.Graded.TensorSimple
+import Categorification.Algebra.Graded.TensorSimpleFinite
 import Categorification.Algebra.Graded.TwistTensor
 import Categorification.Algebra.IdempotentEquiv
 import Categorification.Algebra.InductionAlong
@@ -825,6 +826,7 @@ import Categorification.WeightedKLR.Algebra
 import Categorification.WeightedKLR.GalleryRep
 import Categorification.WeightedKLR.Gallery
 import Categorification.WeightedKLR.CentralPolynomials
+import Categorification.WeightedKLR.CentralFinite
 import Categorification.WeightedKLR.Arrangement
 import Categorification.WeightedKLR.Reflection
 import Categorification.WeightedKLR.Relabel
@@ -959,6 +961,7 @@ import Categorification.WeightedKLR.RedStrands.StendhalPolyRep
 import Categorification.WeightedKLR.RedStrands.StendhalSurjective
 import Categorification.WeightedKLR.RedStrands.StendhalViolating
 import Categorification.WeightedKLR.RedStrands.ViolatingComparison
+import Categorification.WeightedKLR.Simple
 import Categorification.WeightedKLR.Twisted.Algebra
 import Categorification.WeightedKLR.Twisted.Arrangement
 import Categorification.WeightedKLR.Twisted.Basis

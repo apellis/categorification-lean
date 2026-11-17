@@ -142,13 +142,17 @@ These statements do not involve the comparison map.
     `Γ.Standing`: `exists_resK0_indK0_eq_sum_graded`, and in twisted form
     `exists_resK0_indK0_eq_sum_twistK0Graded` (next section). On `K_0 ⊗_{ℤ[q^±]} K_0`, under
     the route hypothesis `TensorK0Hyp` for every pair `(μ, μ')`:
-    `exists_coproductK0_indK0_eq_sum_graded` (next section). Open: the fields of `TensorK0Hyp`
-    for weighted KLR algebras.
+    `exists_coproductK0_indK0_eq_sum_graded` (next section). A0 supplies the finite-dimensionality
+    fields of `TensorK0Hyp`; the absolute-irreducibility fields remain open.
 
 A0 centrality is available for the gallery algebra as `GalleryAlgebra.poly_mem_center`
-(`WeightedKLR/CentralPolynomials.lean`), without additional graph hypotheses. This does not
-yet prove any field of `TensorK0Hyp`. The proposed loop-free absolute-irreducibility
-induction is blocked by simple modules annihilated by every single-colour right restriction;
+(`WeightedKLR/CentralPolynomials.lean`), without additional graph hypotheses. Under
+`Γ.Dagger`, `Γ.NoZeroLoops` and `Γ.Standing`, `CentralFinite.lean` proves finiteness over
+the central colour-symmetric dots and finite-dimensionality of the augmentation quotient;
+`Simple.lean` proves that graded simples of `W_ν` and `W_ν ⊗ W_μ` are finite-dimensional.
+The corollaries `GradingDatum.finiteDimensional_top` and `finiteDimensional_top_tensor`
+supply `fdA`, `fdB`, `fdC`, with no loop-freeness assumption. The proposed loop-free
+absolute-irreducibility induction is blocked by simple modules annihilated by every single-colour right restriction;
 see the obstruction in `thm-2-19-roadmap.md` and issue #289. The comparison hypothesis is
 retained.
 
@@ -224,7 +228,7 @@ Files `WeightedKLR/GradedK0/Grading.lean`, `Induction.lean`, `TensorK0.lean`,
   `Δ_{ν₁,ν₂}(x · y) = ∑_i q^{middleShift (L i)} T_{L i}(Δ_{a,b} x ⊗ Δ_{c,d} y)`. `TensorK0Hyp`
   is the identification `K_0(W_μ ⊗ W_{μ'}) ≅ K_0(W_μ) ⊗ K_0(W_{μ'})` that the proof of
   Theorem 2.19 uses without justification; it is not proved for weighted KLR algebras
-  (`endA`, `endB` are open; `fdA`, `fdB`, `fdC` are not proved either), so it cannot be
+  (`endA`, `endB` are open; A0 supplies `fdA`, `fdB`, `fdC`), so it cannot be
   instantiated in the non-vacuity examples.
 
 * `GradingDatum.instGradedAlgebraKlrGrade`: for every grading datum `G`, `W_ν` with
@@ -253,8 +257,10 @@ Files `WeightedKLR/GradedK0/Grading.lean`, `Induction.lean`, `TensorK0.lean`,
   source supplies none of these: the proof of Theorem 2.19 uses
   `K⁰(W_{ν'} ⊗ W_{ν''}) = K⁰(W_{ν'}) ⊗ K⁰(W_{ν''})` without comment. For unweighted KLR
   algebras they are proved (`Categorification.GradingDatum.tensorK0Hyp`, from KL I Prop. 2.12,
-  Cor. 3.19 and a central polynomial subalgebra of positive degree); no such argument is
-  formalized for `W_ν`.
+  Cor. 3.19 and a central polynomial subalgebra of positive degree). The analogous
+  finite-dimensionality argument for `W_ν` is formalized in `CentralFinite.lean` and
+  `Simple.lean`, using the basis of Webster Theorem 2.8 and the graded Nakayama argument
+  of KL I Proposition 2.12. The absolute-irreducibility argument remains open.
 
 ## What needs a field, and why
 
@@ -291,12 +297,12 @@ isomorphism given the following inputs.
      algebraically closed, (2) is therefore an extra hypothesis of the corrected statement until
      it is proved.
 
-In short: over a field, the comparison is `GradingDatum.k0TensorEquiv`, under the explicit
-hypothesis `TensorK0Hyp` (finite-dimensionality of the graded simple tops, in addition to (2));
-the graded Mackey identity, its twisted-induction form and the graded coproduct with its Mackey
+Over a field, the comparison is `GradingDatum.k0TensorEquiv`, under the explicit
+hypothesis `TensorK0Hyp` (A0 now supplies finite-dimensionality of the graded simple tops;
+(2) remains open). The graded Mackey identity, its twisted-induction form and the graded coproduct with its Mackey
 formula are formalized under this hypothesis (`exists_coproductK0_indK0_eq_sum_graded`). The plans
-for the fields of `TensorK0Hyp` (finite-dimensional tops; absolute irreducibility for loop-free
-`Γ` by adapting KL I Cor. 3.19) and for the remaining parts of the theorem are in
+for the remaining fields of `TensorK0Hyp` (absolute irreducibility; the proposed loop-free
+induction from KL I Cor. 3.19 has an obstruction) and for the remaining parts of the theorem are in
 `thm-2-19-roadmap.md`.
 
 ## Restriction preserves finitely generated projectives
@@ -341,6 +347,7 @@ So `Δ` with values in `K_0(W_{ν₁}) ⊗ K_0(W_{ν₂})` is formalized only un
 The options for the maintainer: (a) the graded route: `HasGdim`, graded `K_0`, the
 comparison under `TensorK0Hyp`, the graded Mackey identity in twisted form and the graded
 coproduct on `K_0 ⊗ K_0` with its Mackey formula (under `TensorK0Hyp`) are now formalized;
-the fields of `TensorK0Hyp` for weighted KLR algebras remain; (b) keep
+the absolute-irreducibility fields `endA`, `endB` of `TensorK0Hyp` for weighted KLR algebras
+remain; A0 supplies its finite-dimensionality fields; (b) keep
 `ProjK0.ExtTensorBijective` as an explicit hypothesis of the ungraded statement (current
 state); (c) new theory for the ungraded comparison, which needs the maintainer's approval.

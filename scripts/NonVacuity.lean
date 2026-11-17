@@ -1398,6 +1398,38 @@ local instance wkHasGdim (μ : Fin 2 →₀ ℕ) :
   WeightedKLR.GalleryAlgebra.hasGdim_klrGrade (k := ℚ) (ν := μ) wkGraph_dagger
     wkGraph_noZeroLoops wkGraph_standing
 
+/-- The central finiteness input of A0, on the concrete weighted graph, for every weight. -/
+example (ν : Fin 2 →₀ ℕ) :
+    Module.Finite (WeightedKLR.GalleryAlgebra.colourSym ℚ ν)
+      (WeightedKLR.GalleryAlgebra.WeightedKLRAlgebra ℚ wkGraph ν) :=
+  WeightedKLR.GalleryAlgebra.finite_colourSym
+    wkGraph_dagger wkGraph_noZeroLoops wkGraph_standing
+
+/-- The finite-dimensional augmentation quotient used for A0, with all graph hypotheses proved. -/
+example (ν : Fin 2 →₀ ℕ) :
+    FiniteDimensional ℚ (WeightedKLR.GalleryAlgebra.WeightedKLRAlgebra ℚ wkGraph ν ⧸
+      augSubmodule (WeightedKLR.GalleryAlgebra.WeightedKLRAlgebra ℚ wkGraph ν)
+        (WeightedKLR.GalleryAlgebra.colourSymAug ℚ ν)) :=
+  WeightedKLR.GalleryAlgebra.finiteDimensional_quotient_colourSymAug
+    wkGraph_dagger wkGraph_noZeroLoops wkGraph_standing
+
+/-- A0 for Webster Theorem 2.19: every graded simple top of an indecomposable graded
+projective over the concrete weighted algebras is finite-dimensional. This supplies `fdA`, `fdB`. -/
+example (ν : Fin 2 →₀ ℕ)
+    (b : Graded.GProj.IndecClass (wkGraph_standing.gradingDatum.klrGrade ν)) :
+    FiniteDimensional ℚ b.top :=
+  WeightedKLR.GradingDatum.finiteDimensional_top
+    wkGraph_dagger wkGraph_noZeroLoops wkGraph_standing b
+
+/-- A0 for Webster Theorem 2.19: finite-dimensional graded simple tops of the tensor algebra,
+supplying `fdC` without an absolute-irreducibility assumption. -/
+example (ν μ : Fin 2 →₀ ℕ)
+    (c : Graded.GProj.IndecClass (Graded.tensorGrading
+      (wkGraph_standing.gradingDatum.klrGrade ν) (wkGraph_standing.gradingDatum.klrGrade μ))) :
+    FiniteDimensional ℚ c.top :=
+  WeightedKLR.GradingDatum.finiteDimensional_top_tensor
+    wkGraph_dagger wkGraph_noZeroLoops wkGraph_standing c
+
 /-- **Webster, Theorem 2.19, graded Mackey formula for the coproduct on `K₀ ⊗ K₀`**, for
 `(ν₁, ν₂) = (ν'', ν')`. The route hypothesis `TensorK0Hyp` (`hT`) cannot be instantiated here:
 its conditions `endA`, `endB` are not proved for weighted KLR algebras, so this example only

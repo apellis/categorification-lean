@@ -322,6 +322,15 @@ example (ν₁ ν₂ ν' ν'' : Fin 2 →₀ ℕ) (h : ν₁ + ν₂ = ν' + ν'
   WeightedKLR.GalleryAlgebra.inductionMap_mul_mul_mem_bimoduleFilt _ _ _ _ _ _ h rfl
     (isLowerSet_Iic μ) u w hx
 
+/-- The subquotient of shuffle type `c` of the Mackey filtration of `Res ∘ Ind` is the middle
+balanced tensor product (Webster, proof of Theorem 2.19, step (ii)). -/
+example (a b c d : Fin 2 →₀ ℕ) :=
+  WeightedKLR.Juxtapose.middleResIndEquiv (k := ℚ) (a := a) (b := b) (c := c) (d := d)
+    wkGraph_dagger wkGraph_noZeroLoops (wkGraph_isChamberSegment _) wkGraph_pSymm
+    (wkGraph_wallRegular _) (wkGraph_loopRegular _) (isLowerSet_Iic (⇑c)) (Set.mem_Iic.2 le_rfl)
+    subset_rfl (isLowerSet_Iio (⇑c)) (fun h => lt_irrefl _ (Set.mem_Iio.1 h))
+    (fun _ h₁ h₂ => (lt_or_eq_of_le h₁).resolve_left h₂)
+
 /-- The strict step of shuffle type `μ` of the filtration has a basis. -/
 example (ν ν' ν₁ : Fin 2 →₀ ℕ) (C D : WeightedKLR.FullChamber wkGraph ν) (μ : Fin 2 → ℕ) :=
   WeightedKLR.GalleryAlgebra.mackeySubquotientBasis (k := ℚ) (wkGraph_isChamberSegment _)

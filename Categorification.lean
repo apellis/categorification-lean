@@ -901,11 +901,14 @@ import Categorification.WeightedKLR.Mackey.JuxtaposedCorner
 import Categorification.WeightedKLR.Mackey.MiddleCorner
 import Categorification.WeightedKLR.Mackey.MiddleGraded
 import Categorification.WeightedKLR.Mackey.MiddleLeading
+import Categorification.WeightedKLR.Mackey.MiddleResInd
+import Categorification.WeightedKLR.Mackey.MiddleResIndEquiv
 import Categorification.WeightedKLR.Mackey.MiddleSpan
 import Categorification.WeightedKLR.Mackey.MinimalGallery
 import Categorification.WeightedKLR.Mackey.Parabolic
 import Categorification.WeightedKLR.Mackey.ParabolicSpan
 import Categorification.WeightedKLR.Mackey.ParabolicBasis
+import Categorification.WeightedKLR.Mackey.ResIndFiltration
 import Categorification.WeightedKLR.Mackey.Separated
 import Categorification.WeightedKLR.Mackey.SeparatedJuxtapose
 import Categorification.WeightedKLR.Mackey.ShuffleDegree

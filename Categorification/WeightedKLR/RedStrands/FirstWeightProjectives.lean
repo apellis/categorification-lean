@@ -71,6 +71,49 @@ private theorem nontrivial_proj (hΛ : ∀ r, 0 < Λ r i) (s : S) :
     simp [e, E] at heval
   exact ⟨⟨(⟨e, (idem s.1 s.2.1).eq⟩ : leftIdeal e), 0, fun h => he (congrArg Subtype.val h)⟩⟩
 
+/-- In first black weight every endomorphism of negative homogeneous degree
+vanishes. A standard diagram from an ordered boundary to itself has identity
+permutation, since the black strand and every red strand have distinct labels. -/
+theorem finrank_end_sequenceProj_eq_zero_of_neg (hX : ∀ a, 0 < G.degX a)
+    (s : Seq μ) (hs : IsRedOrdered s) {d : ℤ} (hd : d < 0) :
+    Module.finrank k (homGrade 𝕋 (sequenceProj G s hs).grading
+      (sequenceProj G s hs).grading d) = 0 := by
+  rw [finrank_homGrade_sequenceProj G word_spec hX]
+  let : IsEmpty {b : tensorProductBasisIndices (ν := {i}) word_spec Q Λ |
+      hasEndpoints word_spec s s b ∧ G.stdDeg ρ b.1.1 = d} := by
+    constructor
+    rintro ⟨b, ⟨hbot, htop⟩, hdeg⟩
+    have hnodup : Multiset.Nodup μ := by
+      simp [stendhalWeight, List.nodup_ofFn, Sum.inr_injective]
+    have hw : b.1.1.2.1 = 1 :=
+      NonInteracting.smul_left_injective hnodup b.1.1.1 (by rw [one_smul, htop, hbot])
+    have hnil : ρ 1 = [] :=
+      List.length_eq_zero_iff.mp (by rw [length_canWord, length_one])
+    have h := G.degW_le_stdDeg ρ (fun a => (hX a).le) b.1.1
+    simp only [hw, hnil, GradingDatum.degW, hdeg] at h
+    exact hd.not_ge h
+  exact Nat.card_of_isEmpty
+
+/-- The graded endomorphism series of any first-weight sequence projective has
+zero coefficient in every negative degree. -/
+theorem coeff_end_sequenceProj_eq_zero_of_neg (hX : ∀ a, 0 < G.degX a)
+    (s : Seq μ) (hs : IsRedOrdered s) {d : ℤ} (hd : d < 0) :
+    (GProj.homGdim (sequenceProj G s hs) (sequenceProj G s hs)).coeff d = 0 := by
+  let := first_hasGdim G hX (i := i)
+  rw [GProj.homGdim, coeff_gdim, finrank_end_sequenceProj_eq_zero_of_neg G hX s hs hd,
+    Nat.cast_zero]
+
+/-- The Laurent polynomial of the first-weight endomorphisms has no term in
+negative degree. This also applies when the red multiplicities are zero. -/
+theorem coeff_endPoly_sequenceProj_eq_zero_of_neg (hX : ∀ a, 0 < G.degX a)
+    (s : Seq μ) (hs : IsRedOrdered s) {d : ℤ} (hd : d < 0) :
+    (gdimPoly (homGrade 𝕋 (sequenceProj G s hs).grading
+      (sequenceProj G s hs).grading)).coeff d = 0 := by
+  unfold gdimPoly
+  split
+  · simp [Finsupp.ofSupportFinite_coe, finrank_end_sequenceProj_eq_zero_of_neg G hX s hs hd]
+  · simp
+
 private theorem diagonal_hom_le (hX : ∀ a, 0 < G.degX a) (s : S) :
     Module.finrank k (homGrade 𝕋 (sequenceProj G s.1 s.2.1).grading
       (sequenceProj G s.1 s.2.1).grading 0) ≤ 1 := by

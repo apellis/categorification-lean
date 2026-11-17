@@ -1,0 +1,176 @@
+# Webster, Theorem 2.19: roadmap for the remaining parts
+
+Source: B. Webster, *Weighted Khovanov–Lauda–Rouquier algebras*, arXiv:1209.2463v4, §2.4,
+Theorem 2.19. Tracking issue: #289. The ground-ring question and the formalized parts are in
+`thm-2-19-ground-ring.md` and in the README row "§2.4, Theorem 2.19".
+
+State at the time of writing. Over a field, under the standing hypothesis with `Γ.Dagger`,
+`Γ.NoZeroLoops`, the graded coproduct `Δ = k0TensorEquiv⁻¹ ∘ resK0` and its Mackey formula
+`Δ(x · y) = ∑_i q^{s_i} T_{L i}(Δ x ⊗ Δ y)` are formalized
+(`WeightedKLR.exists_coproductK0_indK0_eq_sum_graded`), under the route hypothesis
+`KLR.TensorK0Hyp (G.klrGrade μ) (G.klrGrade μ')` for all `μ`, `μ'`. What remains:
+
+| Item | Content | Status |
+|---|---|---|
+| A0 | the fields `fdA`, `fdB`, `fdC` of `TensorK0Hyp` for `W_ν` (graded simple tops are finite-dimensional) | open, no new theory needed |
+| A | the fields `endA`, `endB` of `TensorK0Hyp` for `W_ν` (graded simple modules are absolutely irreducible) | open; plan below (KL I crystal argument) |
+| B | the quantum Serre relations in graded `K_0` for every `Q` of Rouquier's form | open; plan below (Rouquier) |
+| C | the algebra map `U_q^+(𝔤_Γ) → K_0` for loop-free `Γ` | open; needs B |
+| D | the antipode / Hopf structure in the braided category of `ℤ[I]`-graded modules | open |
+
+Items A and B are independent of each other and of the rest; either can be picked up
+separately. A and B are mathematically routine adaptations of published arguments, but
+neither argument is given for weighted KLR algebras in the source.
+
+## A0. Finite-dimensional graded simple tops
+
+`TensorK0Hyp` asks that the graded simple tops of `W_ν` and of `W_{ν'} ⊗ W_{ν''}` be
+finite-dimensional. For unweighted KLR algebras this is `Categorification.GradingDatum.tensorK0Hyp`
+(KL I Prop. 2.12 and a central polynomial subalgebra of positive degree). For `W_ν` the same
+argument applies:
+
+1. The symmetric polynomials in the dots of each colour are central in `W_ν` (the dot
+   relations across crossings and ghost crossings are symmetric in the strands of one colour).
+2. `W_ν` is a finitely generated module over this central subalgebra `Z`, from the basis
+   theorem (Theorem 2.8 for `ν`: the basis is `{ψ_w x^a e(C)}` and the polynomial ring is finite
+   over its symmetric part).
+3. `Z` is positively graded with `Z_0 = k` (dots have positive degree). A positive-degree
+   homogeneous central element acts on a graded simple module by a degree-shifting
+   endomorphism, hence nilpotently, hence by zero (graded Schur). So a graded simple module is
+   a quotient of `W_ν ⊗_Z k`, which is finite-dimensional.
+4. For `W_{ν'} ⊗ W_{ν''}` use `Z' ⊗ Z''`.
+
+## A. Absolute irreducibility: adapt KL I Corollary 3.19
+
+Goal: for `Γ` without loops, over any field `k` and for every `Q` satisfying the standing
+hypothesis, every endomorphism of a graded simple `W_ν`-module is a scalar. This gives `endA`
+and `endB`, and with A0 discharges `TensorK0Hyp` for loop-free `Γ`.
+
+Why not other routes. Cor. 2.16 (`WeightedGraph.IsForest.exists_klrCorner`) makes `W_ν` a full
+corner of the unweighted KLR algebra when `Γ` is a forest, so for forests A already follows
+from `KLRAlgebra.exists_eq_smul_of_isSimpleModule` (KL I Cor. 3.19). That loses every `Γ` with a
+cycle (`Â_n`, multiple edges, the Crawley-Boevey graphs `Γ_λ` used for `T^λ`). Webster's
+geometric description of `W_ν` (Ext algebras of pushforwards from quiver flag varieties)
+assumes `c_e = 1`, `Q_e = u - v` and characteristic zero, and needs the decomposition theorem;
+it is not available in Mathlib and is not pursued.
+
+The model is the formalized proof of KL I Cor. 3.19 (`Categorification/KLR/Cor319.lean`, with
+`Categorification/KLR/Crystal/`: `Delta.lean` for Lemma 3.5, `Kleshchev.lean` for Lemmas 3.6
+and 3.8, `Thm317.lean` for Lemma 3.7). It is an induction on `|ν|`:
+
+1. **Restriction to `i`-strands on the right.** For `ν = μ + nα_i`, let `e_{μ, n i}` be the
+   idempotent of the juxtaposed chambers with the last `n` strands of colour `i`, far to the
+   right of every other strand and ghost (`Juxtapose`). Then `Δ_{i^n} M = e_{μ, n i} M` is a
+   module over `W_μ ⊗ W_{nα_i}` (restriction `Res_{μ; nα_i}`, already formalized with
+   `Juxtapose.res_projective`). Set `ε_i(M) = max {n | Δ_{i^n} M ≠ 0}`.
+2. **The rank-one algebra.** If `i` carries no loop, `W_{nα_i}` is the nilHecke algebra on `n`
+   strands (one vertex is a tree, so Cor. 2.16 applies; with no edges there are no ghosts).
+   Its unique graded simple module `L(i^n)` and its properties are in the classical nilHecke
+   library. This is where loops are excluded: at a vertex with a loop, `W_{nα_i}` is not
+   nilHecke.
+3. **Analogue of KL I Lemma 3.5** (characters): `e(C) Δ_{i^n} M = e(C ∘ i^n) M` for chambers `C`
+   of `W_μ`. Here characters are indexed by chambers of the weighted arrangement, not by
+   sequences; the statement is the definition of `Res` read on idempotents.
+4. **Analogues of KL I Lemmas 3.6–3.8.** For `M` graded simple with `ε = ε_i(M) > 0`:
+   `Δ_{i^ε} M ≅ N ⊠ L(i^ε)` with `N` graded simple over `W_μ` and `ε_i(N) = 0` (Lemma 3.8); `M`
+   is the unique simple quotient of `Ind(N ⊠ L(i^ε))` (Lemma 3.7); Lemma 3.6 is the embedding
+   step used for Lemma 3.8. The KL I proofs use only: adjunction between `Ind` and `Res`, the
+   Mackey filtration of `Res_{μ'; nα_i} Ind_{μ; mα_i}` (formalized here as
+   `GalleryAlgebra.exists_resInd_balancedTensor_eq_sum` and its graded form), the nilHecke facts,
+   and the vanishing `ε_i(N) = 0`. Each use must be re-read with chambers in place of
+   sequences: the subquotients of the Mackey filtration are indexed by shuffle types
+   (`ShuffleLayout`), and the step "the `i`-strands of `N` cannot be moved to the right"
+   becomes "`e_{μ'', i} N = 0`".
+5. **The induction** (as in `Cor319.lean`): an endomorphism `φ` of `M` preserves
+   `N = HW(Δ_{i^ε} M)` (the vectors of `e_{μ, εi} M` killed by the crossings among the last
+   `ε` strands), acts on it by a scalar `c` by induction, so `φ - c` is not injective and is
+   zero by Schur's lemma.
+6. **Grading.** Run the argument for ungraded simple modules with nilpotent dots, as in KL I;
+   graded simple modules have nilpotent dots by A0, step 3. Conclude `END(S)_0 = k`.
+
+Risk: step 4 is the only place where ghosts could matter. In particular, check that every
+`i`-strand can be moved to the far right of the ghosts in the relevant chambers without
+producing extra polynomial factors that change Lemma 3.6's argument (the moves cross walls of
+edges at `i`; the bigon factors `Q_e` are non-zero-divisors under the standing hypothesis,
+`Standing.isRegular_rename_edgeProd`). If this fails, record the obstruction in #289 before
+building any replacement.
+
+Output: `WeightedKLR.exists_eq_smul_of_isSimpleModule` (loop-free `Γ`) and an instance of
+`KLR.TensorK0Hyp (G.klrGrade μ) (G.klrGrade μ')`, removing the route hypothesis from
+`exists_coproductK0_indK0_eq_sum_graded` for loop-free `Γ`. Graphs with loops stay under the
+hypothesis.
+
+## B. Quantum Serre relations: formalize Rouquier
+
+Goal: for distinct `s, t ∈ I`, in graded `K_0` of the unweighted KLR algebras `R(ν)`,
+`∑_{a+b = m+1} (-1)^a [E_s^{(a)} E_t E_s^{(b)}] = 0` with `m = m_{st}`, for every `Q` of
+Rouquier's form over every commutative ring. Then transport to `W_ν` (item C).
+
+What exists. The Serre relations are formalized only for KL's choices of `Q`: KL I `klQ`
+(`Categorification/KLR/KL1.lean`) and KL II/III `u^{d_ij} + v^{d_ji}` (`KLR.KL2.serre_rel`,
+`K0_serre_window`). Webster's `Γ.klrQ = ∏_e Q_e` is not of either form.
+
+Rouquier's form. R. Rouquier, *2-Kac–Moody algebras*, arXiv:0812.5023v1, works with
+`Q_{st}(u, v) = t_{st} u^{m_{st}} + ∑_{r < m_{st}, p < m_{ts}} t_{s,t,r,p} u^r v^p + t_{ts} v^{m_{ts}}`
+with `t_{st}`, `t_{ts}` units, over any commutative ring (the universal case is the ring
+generated by the coefficients with `t_{st}^{±1}` adjoined). He proves the categorified Serre
+relation there: in the section on the Serre relations, a lemma shows that a certain complex of
+graded projective `R(ν)`-modules is null-homotopic, and a proposition deduces the isomorphism
+`⊕_{a even} E_s^{(m+1-a)} E_t E_s^{(a)} ≅ ⊕_{a odd} E_s^{(m+1-a)} E_t E_s^{(a)}`, compatible with
+gradings. (Cite these by name and arXiv version; their numbers are not yet checked.)
+
+Webster's `Q` is of this form: under the standing hypothesis each `Q_e` is homogeneous for the
+grading `deg u = d_{h(e)}`, `deg v = d_{t(e)}` with unit coefficients on `u^c` and `v^{c'}`
+(`IsUnitHomogeneous`), so the product `Γ.klrQ s t` is homogeneous with unit coefficients on its
+pure powers `u^m`, `v^{m'}`, and every other monomial `u^r v^p` has `r < m` and `p < m'`.
+
+Plan (in `Categorification/KLR/`, generic in `Q`):
+
+1. **Hypothesis.** `KLR.IsRouquierQ Q`: for `s ≠ t`, `Q s t` has the shape above, `Q t s (v, u) =
+   Q s t (u, v)`, and is homogeneous for the grading. Prove `Γ.IsRouquierQ` for `Γ.klrQ` from
+   `Γ.Standing` (above).
+2. **Idempotents.** In `R(ν)`, `ν = (m+1)α_s + α_t`, for `a + b = m + 1` let `e_a` be the image of
+   `b_a ⊗ 1_t ⊗ b_b` under the parabolic inclusion of `R(aα_s) ⊗ R(α_t) ⊗ R(bα_s)`, where `b_a`
+   is the primitive nilHecke idempotent (classical nilHecke library). `P^a = R(ν) e_a` represents
+   `E_s^{(a)} E_t E_s^{(b)}` up to a grading shift.
+3. **The differential.** Maps `P^a → P^{a+1}` given by right multiplication by
+   `e_a τ_{…} e_{a+1}`, the crossings carrying one `s`-strand across the `t`-strand; and maps in the
+   opposite direction given by the reversed crossings times `(-1)^{a+m+1} t_{st}^{-1}` (sign and
+   scalar to be read off Rouquier's lemma and checked).
+4. **Null-homotopy.** Prove `d ∘ d = 0` and `h d + d h = id` on each `P^a`. This is a computation
+   in `R(ν)` with the KLR relations; the only place `Q` enters is the bigon `τ_s τ_t e(…st…) =
+   Q_{st}(x_s, x_t) e(…)`, and only through its leading terms, which is why the unit
+   `t_{st}` appears. Reduce the computation to the nilHecke algebra acting on symmetric
+   polynomials in the `s`-dots, where the lower terms of `Q` are killed by the idempotents
+   (degree bound `r < m`).
+5. **Graded `K_0`.** A bounded contractible complex of graded finitely generated projective
+   modules gives `∑ (-1)^a [P^a] = 0` (`ProjK0.of_eq_add_of_exact` and its graded form). With the
+   divided-power normalization this is the quantum Serre relation.
+6. **Generalize `K0_serre_window`** from `klQ2` to `IsRouquierQ`, and record the KL II case as a
+   specialization.
+
+This holds over every commutative ring. Over a field it gives the Serre relations in `K_0` for
+every `Q` that Webster allows on a loop-free graph.
+
+## C. The map `U_q^+(𝔤_Γ) → K_0` (needs B)
+
+The source asserts it without construction and without stating that `Γ` has no loops (for a
+loop, `𝔤_Γ` is not defined). The evident map is `θ_i ↦ [W_{α_i}]`.
+
+1. **Cartan datum.** For loop-free `Γ` with symmetrizer `d`, define `a_{ij}` from the degrees:
+   `d_i a_{ij} = -deg Γ.klrQ i j`; check that `m_{ij} = -a_{ij}` (the `u`-degree of the leading
+   term), so B gives the Serre relations for this Cartan matrix.
+2. **Factor through `R`.** By Prop. 2.14 (`spacedEquiv`), for the spaced idempotent `e`,
+   `e W_ν e ≅ R(ν)` with `Q = Γ.klrQ`. Induction `W_ν e ⊗_{R(ν)} -` is a map
+   `K_0(R(ν)) → K_0(W_ν)`; check that it is graded (degree of `e` is `0`) and compatible with the
+   products (`Ind` of juxtaposition on both sides). Then `θ_i ↦ [R(α_i)] ↦ [W_{α_i}]`.
+3. **Serre relations.** Compose with B for `R(ν)`.
+4. **Surjectivity.** By Prop. 2.18 the classes `[W_{α_{i_1}}] ⋯ [W_{α_{i_n}}]` generate `K_0`
+   (check which form is formalized; the graded form is needed).
+
+## D. Antipode
+
+KL I constructs the antipode on `K_0(R)` from the bialgebra structure on `'f`. With C surjective,
+the same descent works when the map in C is an isomorphism; Webster states the Hopf structure
+without proof and `K_0(W)` may be larger than the image of `U_q^+` when `Γ` has loops. Plan to be
+written when A–C are done.

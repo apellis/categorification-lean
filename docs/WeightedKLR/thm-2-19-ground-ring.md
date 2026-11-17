@@ -286,8 +286,11 @@ isomorphism given the following inputs.
 
 In short: over a field, the comparison is `GradingDatum.k0TensorEquiv`, under the explicit
 hypothesis `TensorK0Hyp` (finite-dimensionality of the graded simple tops, in addition to (2));
-the graded Mackey identity is formalized; the missing formal input for the coproduct is its
-twisted-induction form and the transport along `k0TensorEquiv`.
+the graded Mackey identity, its twisted-induction form and the graded coproduct with its Mackey
+formula are formalized under this hypothesis (`exists_coproductK0_indK0_eq_sum_graded`). The plans
+for the fields of `TensorK0Hyp` (finite-dimensional tops; absolute irreducibility for loop-free
+`Γ` by adapting KL I Cor. 3.19) and for the remaining parts of the theorem are in
+`thm-2-19-roadmap.md`.
 
 ## Restriction preserves finitely generated projectives
 

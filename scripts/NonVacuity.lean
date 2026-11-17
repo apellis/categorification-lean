@@ -1597,4 +1597,28 @@ example (ν' ν'' : Fin 2 →₀ ℕ) :=
     (wkParallelGraph_standing ℚ) (wkParallelGraph_noLoops ℚ) (fun _ => rfl)
     (add_comm ν'' ν')
 
+/-- The weighted polynomial conditions include a graph with a recorded loop;
+Cartan construction deletes that loop. -/
+example : KLR.IsRouquierQ wkGraph_standing.cartanDatum wkGraph.klrQ :=
+  wkGraph_standing.isRouquierQ
+
+/-- The parallel-edge product satisfies Rouquier's conditions in characteristic two. -/
+example : KLR.IsRouquierQ (wkParallelGraph_standing (ZMod 2)).cartanDatum
+    (wkParallelGraph (ZMod 2)).klrQ :=
+  (wkParallelGraph_standing (ZMod 2)).isRouquierQ
+
+/-- Graded principal-projective induction at two nonzero weights. -/
+example := wkGraph_standing.gradingDatum.indK0_ofIdempotent
+  (ν := Finsupp.single (0 : Fin 2) 1) (μ := Finsupp.single (1 : Fin 2) 1)
+  (e := 1) (e' := 1) isIdempotentElem_one isIdempotentElem_one
+  (SetLike.one_mem_graded _) (SetLike.one_mem_graded _)
+
+/-- The ordinary sequence idempotent transfers to a homogeneous weighted entry. -/
+example := (wkParallelGraph_standing ℚ).gradingDatum.spacedEntryMap_mem_klrGrade
+  (wkParallelGraph_standing ℚ) (wkParallelGraph_dagger ℚ)
+  (wkParallelGraph_noLoops ℚ) (fun _ => rfl)
+  (((wkParallelGraph_standing ℚ).gradingDatum.toKLRGrading
+    (wkParallelGraph_noLoops ℚ) (fun _ => rfl)).e_mem_grade (KLR.Seq.ofList [0, 1] rfl))
+  (KLR.Seq.ofList [0, 1] rfl) (KLR.Seq.ofList [0, 1] rfl)
+
 end NonVacuity

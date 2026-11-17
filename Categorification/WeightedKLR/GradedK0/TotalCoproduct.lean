@@ -36,6 +36,15 @@ def splitCoproduct {ν : I →₀ ℕ} (a b : I →₀ ℕ) (h : a + b = ν) :
   exact G.coproductK0 hD (fun e he => (hne e he).elim) hS a b
     (G.tensorK0Hyp hD hS hne hl a b)
 
+/-- A weight-sum equality transports the input before applying restriction. -/
+theorem splitCoproduct_apply {ν : I →₀ ℕ} (a b : I →₀ ℕ) (h : a + b = ν)
+    (x : G.K0fam ν) :
+    G.splitCoproduct hD hS hne hl a b h x =
+      G.coproductK0 hD (fun e he => (hne e he).elim) hS a b
+        (G.tensorK0Hyp hD hS hne hl a b) (G.K0cast h.symm x) := by
+  subst ν
+  rfl
+
 /-- The restriction coproduct on the direct sum in Webster's Theorem 2.19. -/
 def totalCoproduct : G.K0W →ₗ[L] G.K0W ⊗[L] G.K0W :=
   DirectSum.toModule L _ _ fun ν =>

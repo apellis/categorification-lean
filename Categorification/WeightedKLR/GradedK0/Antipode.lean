@@ -45,7 +45,8 @@ def properSplits (ν : I →₀ ℕ) : Finset ((I →₀ ℕ) × (I →₀ ℕ))
     p ∈ properSplits ν ↔ p.1 + p.2 = ν ∧ p.1 ≠ 0 ∧ p.2 ≠ 0 := by
   simp [properSplits]
 
-private theorem properSplits_degree_right {ν : I →₀ ℕ} {p : (I →₀ ℕ) × (I →₀ ℕ)}
+/-- A proper split has strictly fewer strands in its right factor. -/
+theorem properSplits_degree_right {ν : I →₀ ℕ} {p : (I →₀ ℕ) × (I →₀ ℕ)}
     (hp : p ∈ properSplits ν) : p.2.degree < ν.degree := by
   obtain ⟨he, h, _⟩ := mem_properSplits.mp hp
   rw [← he, map_add]

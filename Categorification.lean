@@ -1008,6 +1008,20 @@ import Categorification.WeightedKLR.GradedK0.TotalCoproduct
 import Categorification.WeightedKLR.GradedK0.TwistedMultiplication
 import Categorification.WeightedKLR.GradedK0.Antipode
 import Categorification.WeightedKLR.RedStrands.Vacuum
+import Categorification.Algebra.Graded.QuotientAlgebra
+import Categorification.Algebra.Graded.ScalarK0
+import Categorification.KLR.CyclotomicGrading
+import Categorification.WeightedKLR.GradedK0.ZeroAlgebra
+import Categorification.WeightedKLR.GradedK0.Counit
+import Categorification.WeightedKLR.GradedK0.CoproductUnits
+import Categorification.WeightedKLR.GradedK0.CounitLaws
+import Categorification.WeightedKLR.GradedK0.MackeyMultiplication
+import Categorification.WeightedKLR.GradedK0.Multiplicativity
+import Categorification.WeightedKLR.GradedK0.AntipodeConvolution
+import Categorification.WeightedKLR.RedStrands.StendhalGrading
+import Categorification.WeightedKLR.RedStrands.QuotientBasis
+import Categorification.WeightedKLR.RedStrands.VacuumK0
+import Categorification.WeightedKLR.RedStrands.EmptyTensor
 /-!
 # Categorification
 

@@ -1350,4 +1350,11 @@ example (a b c d : Fin 2 →₀ ℕ) :=
     wkGraph_dagger wkGraph_noZeroLoops wkGrading (wkGraph_isChamberSegment _) wkGraph_pSymm
     (wkGraph_wallRegular _) (wkGraph_loopRegular _)
 
+/-- The graded Mackey filtration of `Res_{ν₁;ν₂} Ind_{ν';ν''}` in graded `K₀`, with the pieces
+shifted by `middleShift` (Theorem 2.19). -/
+example (ν' ν'' ν₁ ν₂ : Fin 2 →₀ ℕ) (h : ν₁ + ν₂ = ν' + ν'') :=
+  WeightedKLR.GalleryAlgebra.exists_resInd_balancedTensor_eq_sum_graded (k := ℚ)
+    (wkGraph_isChamberSegment _) wkGraph_dagger wkGraph_noZeroLoops wkGraph_pSymm
+    (wkGraph_wallRegular _) (wkGraph_loopRegular _) rfl h wkGrading
+
 end NonVacuity

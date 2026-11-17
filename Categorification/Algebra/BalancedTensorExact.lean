@@ -9,11 +9,11 @@ import Categorification.Algebra.ProjK0
 # Exactness of tensoring with a projective module, and additivity of classes in `K₀`
 
 For a left `A`-module `N`, the balanced tensor product `M ↦ M ⊗_A N` is a functor on
-`(B, A)`-bimodules (`BalancedTensor.mapLeft`). When `N` is projective it is exact: it preserves
-injections (`BalancedTensor.mapLeft_injective`), surjections (`BalancedTensor.mapLeft_surjective`,
-for any `N`) and exactness in the middle (`BalancedTensor.mapLeft_exact`). The proof reduces to
+`(B, A)`-bimodules (`BalancedTensor.mapLeftBimodule`). When `N` is projective it is exact: it preserves
+injections (`BalancedTensor.mapLeftBimodule_injective`), surjections (`BalancedTensor.mapLeftBimodule_surjective`,
+for any `N`) and exactness in the middle (`BalancedTensor.mapLeftBimodule_exact`). The proof reduces to
 free modules `X →₀ A`, where `M ⊗_A (X →₀ A) ≅ X →₀ M` naturally in `M`
-(`BalancedTensor.finsuppRight_mapLeft`), via a retraction of `N` onto a free module.
+(`BalancedTensor.finsuppRight_mapLeftBimodule`), via a retraction of `N` onto a free module.
 
 A short exact sequence with projective cokernel splits (`ProjK0.nonempty_prod_equiv_of_exact`),
 so in `K₀` the class of the middle term is the sum of the classes of the outer terms
@@ -55,25 +55,25 @@ def IsBimoduleHom (f : M →ₗ[B] M') : Prop := ∀ (a : A) (m : M), f (op a �
 
 variable (k N) in
 /-- The map `M ⊗_A N → M' ⊗_A N` induced by a morphism of `(B, A)`-bimodules `f : M → M'`. -/
-def mapLeft (f : M →ₗ[B] M') (hf : IsBimoduleHom (A := A) f) :
+def mapLeftBimodule (f : M →ₗ[B] M') (hf : IsBimoduleHom (A := A) f) :
     BalancedTensor k B A M N →ₗ[B] BalancedTensor k B A M' N :=
   liftB ((mkBil k B A M' N).comp (f.restrictScalars k))
     (fun m a n => by simp [hf a m, op_smul_tmul]) (fun b m n => by simp [smul_tmul'])
 
 omit [SMulCommClass B Aᵐᵒᵖ M'] in
-@[simp] theorem mapLeft_tmul (f : M →ₗ[B] M') (hf : IsBimoduleHom (A := A) f) (m : M) (n : N) :
-    mapLeft k N f hf (tmul m n) = tmul (f m) n := rfl
+@[simp] theorem mapLeftBimodule_tmul (f : M →ₗ[B] M') (hf : IsBimoduleHom (A := A) f) (m : M) (n : N) :
+    mapLeftBimodule k N f hf (tmul m n) = tmul (f m) n := rfl
 
 omit [SMulCommClass B Aᵐᵒᵖ M''] in
-theorem mapLeft_comp (f : M →ₗ[B] M') (hf : IsBimoduleHom (A := A) f) (g : M' →ₗ[B] M'')
+theorem mapLeftBimodule_comp (f : M →ₗ[B] M') (hf : IsBimoduleHom (A := A) f) (g : M' →ₗ[B] M'')
     (hg : IsBimoduleHom (A := A) g) :
-    mapLeft k N (g.comp f) (fun a m => by simp [hf a m, hg a (f m)]) =
-      (mapLeft k N g hg).comp (mapLeft k N f hf) :=
+    mapLeftBimodule k N (g.comp f) (fun a m => by simp [hf a m, hg a (f m)]) =
+      (mapLeftBimodule k N g hg).comp (mapLeftBimodule k N f hf) :=
   extB fun _ _ => rfl
 
 omit [SMulCommClass B Aᵐᵒᵖ M'] in
-theorem mapLeft_surjective {f : M →ₗ[B] M'} (hf : IsBimoduleHom (A := A) f)
-    (hs : Function.Surjective f) : Function.Surjective (mapLeft k N f hf) := by
+theorem mapLeftBimodule_surjective {f : M →ₗ[B] M'} (hf : IsBimoduleHom (A := A) f)
+    (hs : Function.Surjective f) : Function.Surjective (mapLeftBimodule k N f hf) := by
   intro x
   induction x using induction_on with
   | zero => exact ⟨0, map_zero _⟩
@@ -88,10 +88,10 @@ theorem mapLeft_surjective {f : M →ₗ[B] M'} (hf : IsBimoduleHom (A := A) f)
 variable [Algebra k A] [IsScalarTower k A N]
   {N' : Type*} [AddCommGroup N'] [Module k N'] [Module A N'] [IsScalarTower k A N']
 
-/-- `mapLeft` commutes with `mapRight`. -/
-theorem mapLeft_mapRight (f : M →ₗ[B] M') (hf : IsBimoduleHom (A := A) f) (g : N →ₗ[A] N')
+/-- `mapLeftBimodule` commutes with `mapRight`. -/
+theorem mapLeftBimodule_mapRight (f : M →ₗ[B] M') (hf : IsBimoduleHom (A := A) f) (g : N →ₗ[A] N')
     (x : BalancedTensor k B A M N) :
-    mapLeft k N' f hf (mapRight g x) = mapRight g (mapLeft k N f hf x) := by
+    mapLeftBimodule k N' f hf (mapRight g x) = mapRight g (mapLeftBimodule k N f hf x) := by
   induction x using induction_on with
   | zero => simp
   | tmul m n => rfl
@@ -100,9 +100,9 @@ theorem mapLeft_mapRight (f : M →ₗ[B] M') (hf : IsBimoduleHom (A := A) f) (g
 variable [IsScalarTower k Aᵐᵒᵖ M] [IsScalarTower k Aᵐᵒᵖ M']
 
 /-- Naturality of `M ⊗_A (X →₀ A) ≅ X →₀ M` in the bimodule `M`. -/
-theorem finsuppRight_mapLeft (f : M →ₗ[B] M') (hf : IsBimoduleHom (A := A) f) (X : Type*)
+theorem finsuppRight_mapLeftBimodule (f : M →ₗ[B] M') (hf : IsBimoduleHom (A := A) f) (X : Type*)
     (x : BalancedTensor k B A M (X →₀ A)) :
-    finsuppRight k B A M' X (mapLeft k (X →₀ A) f hf x) =
+    finsuppRight k B A M' X (mapLeftBimodule k (X →₀ A) f hf x) =
       Finsupp.mapRange.linearMap f (finsuppRight k B A M X x) := by
   induction x using induction_on with
   | zero => simp
@@ -113,14 +113,14 @@ theorem finsuppRight_mapLeft (f : M →ₗ[B] M') (hf : IsBimoduleHom (A := A) f
   | add x y hx hy => simp only [map_add, hx, hy]
 
 /-- For a projective `N`, tensoring with `N` preserves injections of bimodules. -/
-theorem mapLeft_injective [Module.Projective A N] {f : M →ₗ[B] M'} (hf : IsBimoduleHom (A := A) f)
-    (hi : Function.Injective f) : Function.Injective (mapLeft k N f hf) := by
+theorem mapLeftBimodule_injective [Module.Projective A N] {f : M →ₗ[B] M'} (hf : IsBimoduleHom (A := A) f)
+    (hi : Function.Injective f) : Function.Injective (mapLeftBimodule k N f hf) := by
   obtain ⟨s, hs⟩ := Module.projective_def'.1 ‹Module.Projective A N›
-  have hfree : Function.Injective (mapLeft k (N →₀ A) f hf) := by
+  have hfree : Function.Injective (mapLeftBimodule k (N →₀ A) f hf) := by
     intro x y hxy
     apply (finsuppRight k B A M N).injective
     have := congrArg (finsuppRight k B A M' N) hxy
-    rw [finsuppRight_mapLeft, finsuppRight_mapLeft] at this
+    rw [finsuppRight_mapLeftBimodule, finsuppRight_mapLeftBimodule] at this
     exact Finsupp.mapRange_injective _ (map_zero f) hi this
   have hret : ∀ x : BalancedTensor k B A M N,
       mapRight (Finsupp.linearCombination A id) (mapRight s x) = x := fun x => by
@@ -129,14 +129,14 @@ theorem mapLeft_injective [Module.Projective A N] {f : M →ₗ[B] M'} (hf : IsB
   rw [← hret x, ← hret y]
   congr 1
   apply hfree
-  rw [mapLeft_mapRight, mapLeft_mapRight, hxy]
+  rw [mapLeftBimodule_mapRight, mapLeftBimodule_mapRight, hxy]
 
 /-- For a projective `N`, tensoring with `N` is exact in the middle: if `M → M' → M''` is exact,
 so is `M ⊗_A N → M' ⊗_A N → M'' ⊗_A N`. -/
-theorem mapLeft_exact [Module.Projective A N] [IsScalarTower k Aᵐᵒᵖ M'']
+theorem mapLeftBimodule_exact [Module.Projective A N] [IsScalarTower k Aᵐᵒᵖ M'']
     {f : M →ₗ[B] M'} (hf : IsBimoduleHom (A := A) f)
     {g : M' →ₗ[B] M''} (hg : IsBimoduleHom (A := A) g) (hfg : Function.Exact f g) :
-    Function.Exact (mapLeft k N f hf) (mapLeft k N g hg) := by
+    Function.Exact (mapLeftBimodule k N f hf) (mapLeftBimodule k N g hg) := by
   obtain ⟨s, hs⟩ := Module.projective_def'.1 ‹Module.Projective A N›
   have hret : ∀ x : BalancedTensor k B A M' N,
       mapRight (Finsupp.linearCombination A id) (mapRight s x) = x := fun x => by
@@ -144,9 +144,9 @@ theorem mapLeft_exact [Module.Projective A N] [IsScalarTower k Aᵐᵒᵖ M'']
   intro x
   constructor
   · intro hx
-    have h0 : finsuppRight k B A M'' N (mapLeft k (N →₀ A) g hg (mapRight s x)) = 0 := by
-      rw [mapLeft_mapRight, hx, map_zero, map_zero]
-    rw [finsuppRight_mapLeft] at h0
+    have h0 : finsuppRight k B A M'' N (mapLeftBimodule k (N →₀ A) g hg (mapRight s x)) = 0 := by
+      rw [mapLeftBimodule_mapRight, hx, map_zero, map_zero]
+    rw [finsuppRight_mapLeftBimodule] at h0
     have hmem : ∀ y, finsuppRight k B A M' N (mapRight s x) y ∈ Set.range f := fun y => by
       rw [← hfg]
       have := DFunLike.congr_fun h0 y
@@ -160,11 +160,11 @@ theorem mapLeft_exact [Module.Projective A N] [IsScalarTower k Aᵐᵒᵖ M'']
         intro h
         exact hy (by simp [h])
     refine ⟨mapRight (Finsupp.linearCombination A id) ((finsuppRight k B A M N).symm u), ?_⟩
-    rw [mapLeft_mapRight]
+    rw [mapLeftBimodule_mapRight]
     conv_rhs => rw [← hret x]
     congr 1
     apply (finsuppRight k B A M' N).injective
-    rw [finsuppRight_mapLeft, LinearEquiv.apply_symm_apply]
+    rw [finsuppRight_mapLeftBimodule, LinearEquiv.apply_symm_apply]
     ext y
     simp only [Finsupp.mapRange.linearMap_apply, Finsupp.mapRange_apply, u,
       Finsupp.onFinset_apply]
@@ -172,7 +172,7 @@ theorem mapLeft_exact [Module.Projective A N] [IsScalarTower k Aᵐᵒᵖ M'']
     · rw [h, map_zero]
     · exact hc y
   · rintro ⟨y, rfl⟩
-    rw [← LinearMap.comp_apply, ← mapLeft_comp]
+    rw [← LinearMap.comp_apply, ← mapLeftBimodule_comp]
     have : g.comp f = 0 := LinearMap.ext fun m => hfg.apply_apply_eq_zero m
     induction y using induction_on with
     | zero => simp

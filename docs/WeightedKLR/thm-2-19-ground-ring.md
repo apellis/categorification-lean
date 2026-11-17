@@ -63,7 +63,7 @@ These statements do not involve the comparison map.
     are those of `mackeyFilt` (chamber segments, `Γ.Dagger`, `Γ.NoZeroLoops`, `Γ.PSymm`, regular
     wall factors and loop factors), as at the corner level.
   * Step (iii), the passage to `K_0`, is formalized generically: tensoring with a projective
-    module is exact on bimodules (`BalancedTensor.mapLeft_exact`), and a finite filtration with
+    module is exact on bimodules (`BalancedTensor.mapLeftBimodule_exact`), and a finite filtration with
     finitely generated projective subquotients gives a finitely generated projective module whose
     class is the sum of theirs (`ProjK0.exists_of_eq_sum_of_chain`).
   * Open: step (ii) at the level of the whole bimodule (the subquotient of type `μ` is the twisted

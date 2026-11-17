@@ -308,6 +308,20 @@ example (ν₁ ν₂ ν' ν'' : Fin 2 →₀ ℕ) (h : ν₁ + ν₂ = ν' + ν'
   WeightedKLR.GalleryAlgebra.inductionMap_mul_mul_mem_mackeyFilt _ _ _ _ _ _ h rfl
     C.2 C'.2 D.2 D'.2 (isLowerSet_Iic μ) u w hz
 
+open scoped TensorProduct in
+/-- The steps of the Mackey filtration of the whole algebra `W_ν` are sub-bimodules. -/
+example (ν₁ ν₂ ν' ν'' : Fin 2 →₀ ℕ) (h : ν₁ + ν₂ = ν' + ν'') (μ : Fin 2 → ℕ)
+    (u : WeightedKLR.GalleryAlgebra.WeightedKLRAlgebra ℚ wkGraph ν₁ ⊗[ℚ]
+      WeightedKLR.GalleryAlgebra.WeightedKLRAlgebra ℚ wkGraph ν₂)
+    (w : WeightedKLR.GalleryAlgebra.WeightedKLRAlgebra ℚ wkGraph ν' ⊗[ℚ]
+      WeightedKLR.GalleryAlgebra.WeightedKLRAlgebra ℚ wkGraph ν'')
+    (x : WeightedKLR.GalleryAlgebra.WeightedKLRAlgebra ℚ wkGraph (ν' + ν''))
+    (hx : x ∈ WeightedKLR.GalleryAlgebra.bimoduleFilt ℚ (wkGraph_isChamberSegment _)
+      wkGraph_dagger wkGraph_noZeroLoops wkGraph_pSymm (wkGraph_wallRegular _)
+      (wkGraph_loopRegular _) ν' ν₁ (Set.Iic μ)) :=
+  WeightedKLR.GalleryAlgebra.inductionMap_mul_mul_mem_bimoduleFilt _ _ _ _ _ _ h rfl
+    (isLowerSet_Iic μ) u w hx
+
 /-- The strict step of shuffle type `μ` of the filtration has a basis. -/
 example (ν ν' ν₁ : Fin 2 →₀ ℕ) (C D : WeightedKLR.FullChamber wkGraph ν) (μ : Fin 2 → ℕ) :=
   WeightedKLR.GalleryAlgebra.mackeySubquotientBasis (k := ℚ) (wkGraph_isChamberSegment _)

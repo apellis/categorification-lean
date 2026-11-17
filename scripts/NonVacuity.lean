@@ -764,6 +764,41 @@ example (ν' ν'' : Fin 2 →₀ ℕ) :=
   WeightedKLR.exists_resK0_indK0_eq_sum (k := ℚ) wkGraph_dagger wkGraph_noZeroLoops
     wkGraph_standing (add_comm ν'' ν')
 
+/-- Webster, Theorem 2.19, multiplicativity of the coproduct, module step (any commutative ring):
+`Ind(P_a ⊠ Q_c) ⊠ Ind(P_b ⊠ Q_d)` is induction from the middle parabolic of
+`(P_a ⊠ P_b) ⊠ (Q_c ⊠ Q_d)`, here on the regular modules, and its form on classes. -/
+noncomputable example (a b c d : Fin 2 →₀ ℕ) :=
+  let R := fun ν : Fin 2 →₀ ℕ =>
+    Categorification.FGProj.regular ℚ (WeightedKLR.GalleryAlgebra.WeightedKLRAlgebra ℚ wkGraph ν)
+  WeightedKLR.Juxtapose.extIndIndEquiv (R a) (R b) (R c) (R d)
+
+/-- The class-level form of the previous example. -/
+example (a b c d : Fin 2 →₀ ℕ) :=
+  let R := fun ν : Fin 2 →₀ ℕ =>
+    Categorification.FGProj.regular ℚ (WeightedKLR.GalleryAlgebra.WeightedKLRAlgebra ℚ wkGraph ν)
+  WeightedKLR.Juxtapose.middleIndK0_extTensor (Categorification.ProjK0.of (R a))
+    (Categorification.ProjK0.of (R b)) (Categorification.ProjK0.of (R c))
+    (Categorification.ProjK0.of (R d))
+
+open scoped TensorProduct in
+/-- Webster, Theorem 2.19, the twisted product of a shuffle layout on `K₀ ⊗_ℤ K₀` agrees with
+twisted induction under the comparison maps (unconditional), for any shuffle layout. -/
+example {ν' ν'' ν₁ ν₂ : Fin 2 →₀ ℕ} (L : WeightedKLR.ShuffleLayout ν' ν'' ν₁ ν₂) :=
+  let R := fun ν : Fin 2 →₀ ℕ => Categorification.ProjK0.of
+    (Categorification.FGProj.regular ℚ (WeightedKLR.GalleryAlgebra.WeightedKLRAlgebra ℚ wkGraph ν))
+  WeightedKLR.ShuffleLayout.extTensorHom_twistedMulK0 L (R L.a ⊗ₜ[ℤ] R L.b) (R L.c ⊗ₜ[ℤ] R L.d)
+
+/-- Webster, Theorem 2.19, the Mackey formula for the coproduct on `K₀ ⊗_ℤ K₀` (ungraded). The
+standing hypotheses are discharged for `wkGraph`; the bijectivity of the comparison maps
+`K₀(W_μ) ⊗_ℤ K₀(W_{μ'}) → K₀(W_μ ⊗ W_{μ'})` is not proved in the library and stays a
+hypothesis of this example. -/
+example (ν' ν'' : Fin 2 →₀ ℕ)
+    (hT : ∀ μ μ' : Fin 2 →₀ ℕ, Categorification.ProjK0.ExtTensorBijective ℚ
+      (WeightedKLR.GalleryAlgebra.WeightedKLRAlgebra ℚ wkGraph μ)
+      (WeightedKLR.GalleryAlgebra.WeightedKLRAlgebra ℚ wkGraph μ')) :=
+  WeightedKLR.exists_coproductK0_indK0_eq_sum (k := ℚ) wkGraph_dagger wkGraph_noZeroLoops
+    wkGraph_standing (add_comm ν'' ν') hT
+
 /-! ### Webster, weighted KLR algebras (arXiv:1209.2463v4), §2.5, Proposition 2.20 (a) -/
 
 /-- A weighted graph with one edge `e : 0 → 0` from a vertex to itself, of weight `1`, with

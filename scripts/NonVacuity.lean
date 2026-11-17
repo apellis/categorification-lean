@@ -1597,4 +1597,65 @@ example (ν' ν'' : Fin 2 →₀ ℕ) :=
     (wkParallelGraph_standing ℚ) (wkParallelGraph_noLoops ℚ) (fun _ => rfl)
     (add_comm ν'' ν')
 
+/-- The weighted polynomial conditions include a graph with a recorded loop;
+Cartan construction deletes that loop. -/
+example : KLR.IsRouquierQ wkGraph_standing.cartanDatum wkGraph.klrQ :=
+  wkGraph_standing.isRouquierQ
+
+/-- The parallel-edge product satisfies Rouquier's conditions in characteristic two. -/
+example : KLR.IsRouquierQ (wkParallelGraph_standing (ZMod 2)).cartanDatum
+    (wkParallelGraph (ZMod 2)).klrQ :=
+  (wkParallelGraph_standing (ZMod 2)).isRouquierQ
+
+/-- Graded principal-projective induction at two nonzero weights. -/
+example := wkGraph_standing.gradingDatum.indK0_ofIdempotent
+  (ν := Finsupp.single (0 : Fin 2) 1) (μ := Finsupp.single (1 : Fin 2) 1)
+  (e := 1) (e' := 1) IsIdempotentElem.one IsIdempotentElem.one
+  (SetLike.one_mem_graded _) (SetLike.one_mem_graded _)
+
+/-- The ordinary sequence idempotent transfers to a homogeneous weighted entry. -/
+example := (wkParallelGraph_standing ℚ).gradingDatum.spacedEntryMap_mem_klrGrade
+  (wkParallelGraph_standing ℚ) (wkParallelGraph_dagger ℚ)
+  (wkParallelGraph_noLoops ℚ) (fun _ => rfl)
+  (((wkParallelGraph_standing ℚ).gradingDatum.toKLRGrading
+    (wkParallelGraph_noLoops ℚ) (fun _ => rfl)).e_mem_grade (KLR.KLRAlgebra.Seq.ofList [0, 1] rfl))
+  (KLR.KLRAlgebra.Seq.ofList [0, 1] rfl) (KLR.KLRAlgebra.Seq.ofList [0, 1] rfl)
+
+/-- A graded Serre window for the parallel-edge polynomial in characteristic two. -/
+private abbrev rqC := (wkParallelGraph_standing (ZMod 2)).cartanDatum
+private abbrev rqQ := (wkParallelGraph (ZMod 2)).klrQ
+private theorem rqHyp : KLR.IsRouquierQ rqC rqQ :=
+  (wkParallelGraph_standing (ZMod 2)).isRouquierQ
+private abbrev rqN := rqC.dij (0 : Fin 2) 1 + 1
+private abbrev rqWord : List (Fin 2) := 1 :: List.replicate rqN 0
+private abbrev rqWeight : Multiset (Fin 2) := rqWord
+private def rqSeq : KLR.Seq rqWeight := KLR.KLRAlgebra.Seq.ofList rqWord rfl
+private theorem rq_hp : 0 + rqN < rqWeight.card := by simp [rqWeight, rqWord]
+private theorem rq_ht0 : ∀ r : Fin rqWeight.card, (r : ℕ) = 0 → rqSeq.lbl r = 1 := by
+  intro r hr
+  change (KLR.KLRAlgebra.Seq.ofList rqWord rfl).lbl r = 1
+  rw [KLR.KLRAlgebra.Seq.ofList_lbl]
+  simp [rqWord, hr]
+private theorem rq_ht : ∀ r : Fin rqWeight.card,
+    (0 : ℕ) < r → (r : ℕ) ≤ 0 + rqN → rqSeq.lbl r = 0 := by
+  intro r hr _
+  change (KLR.KLRAlgebra.Seq.ofList rqWord rfl).lbl r = 0
+  rw [KLR.KLRAlgebra.Seq.ofList_lbl]
+  obtain ⟨n, hn⟩ : ∃ n : ℕ, (r : ℕ) = n + 1 := ⟨r - 1, by omega⟩
+  simp [rqWord, hn]
+private def rqShift (a : ℕ) : ℤ :=
+  ∑ b ∈ Finset.range a, KLR.Rouquier.serreDegree rqC 0 1 rqN b
+private def rqP (a : ℕ) : Graded.K0 (rqHyp.gradingDatum.grade rqWeight) :=
+  if ha : a ≤ rqN then Graded.K0.of (Graded.GProj.ofIdempotent
+    (KLR.KLRAlgebra.hflip (KLR.Rouquier.etop rqSeq 0 rqN a))
+    (KLR.Rouquier.isIdempotentElem_hflip_etop rq_hp rq_ht0 rq_ht ha)
+    (KLR.Rouquier.hflip_etop_mem_grade rq_hp rq_ht0 rq_ht rqHyp.gradingDatum
+      (fun _ _ => rfl) ha)) else 0
+example : ∑ a ∈ Finset.range (rqN + 1),
+    ((-1 : LaurentPolynomial ℤ) ^ a * LaurentPolynomial.T (-rqShift a)) • rqP a = 0 := by
+  exact KLR.Rouquier.K0_serre_window rq_hp rq_ht0 rq_ht rqHyp (by decide) rfl rqShift
+    (by intro a _; simp only [rqShift, Finset.sum_range_succ, KLR.Rouquier.serreDegree]) rqP
+    (by intro a ha; rw [rqP, dite_eq_left ha])
+
+
 end NonVacuity

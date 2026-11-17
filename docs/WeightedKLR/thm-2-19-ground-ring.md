@@ -138,19 +138,35 @@ These statements do not involve the comparison map.
       The bijectivity hypothesis is not proved for any weighted KLR algebra; see the next
       section.
   * Open: the graded Mackey formula, with the shift `-(μ · μ')` of the term of shuffle type
-    `μ`, on graded `K_0`. Available: the graded algebra `W_ν`, graded induction and the
-    product on graded `K_0` (next section), and the graded form of the corner isomorphism of
-    the Mackey subquotients (`Juxtapose.middleCornerGradedEquiv`, shifted by `middleShift`).
-    Missing: a graded restriction functor on `Graded.GProj`, the graded Mackey filtration of
-    `Res ∘ Ind (P ⊠ Q)` with graded subquotients (the ungraded `ResIndFiltration`,
-    `ResIndRestriction`, `ResIndK0` are stated for the ungraded `Juxtapose.ind`, a balanced
-    tensor product over `ℤ`, while graded induction `GradedInd` is over `k`), the graded
-    analogue of `ResIndPiece.resTwistEquiv` and `Juxtapose.extIndIndEquiv`, and additivity of
-    graded `K_0` along these filtrations. None of these is formalized.
+    `μ`, on graded `K_0`. Formalized so far (next section): graded restriction on
+    `Graded.GProj` and graded `K_0`; homogeneity of the steps of the Mackey filtration of
+    `Res ∘ Ind` and the induced gradings on the steps and subquotients; the graded isomorphism
+    from the shifted middle tensor product onto the Mackey subquotient
+    (`Juxtapose.middleResIndGradedEquiv`, shift `middleShift`); additivity of graded `K_0` on
+    graded short exact sequences. Missing: a graded form of the bimodule-level pieces
+    `ResIndPiece` / `resIndPieceMap` with their shift; the graded analogue of the filtration
+    argument `ProjK0.exists_of_balancedTensor_eq_sum`; a comparison of graded induction
+    `GradedInd` (a balanced tensor product over `k`) with `Juxtapose.ind` (over `ℤ`); the
+    graded analogues of `ResIndPiece.resTwistEquiv` and `Juxtapose.extIndIndEquiv`; and the
+    resulting formula on graded `K_0` and its transport along `k0TensorEquiv`.
 
 ## Graded `K_0` (formalized)
 
-Files `WeightedKLR/GradedK0/Grading.lean`, `Induction.lean`, `TensorK0.lean`.
+Files `WeightedKLR/GradedK0/Grading.lean`, `Induction.lean`, `TensorK0.lean`,
+`Restriction.lean`, `ResIndGrading.lean`, and `Algebra/Graded/K0Exact.lean`.
+
+* `GradingDatum.resGProj`, `GradingDatum.resK0`, `resK0_of`: graded restriction from `W_ν`
+  to `W_{ν'} ⊗ W_{ν''}` on graded finitely generated projective modules and the induced map
+  on graded `K_0`, under `Γ.Dagger`, `Γ.NoZeroLoops` and `Γ.Standing`.
+* `GalleryAlgebra.resIndFiltGrading`, `resIndSubquotientGrading` (with `iSup_*` and the
+  projections): the steps of the Mackey filtration of `Res ∘ Ind` are spanned by homogeneous
+  elements, so the steps and subquotients are graded.
+* `Juxtapose.middleResIndGradedEquiv` (and the case `S = {μ ≤ c}`, `S' = {μ < c}`,
+  `middleResIndGradedEquivIic`): the Mackey subquotient isomorphism is homogeneous of degree
+  `middleShift` (in the normalization of this library, twice Webster's degree; it is
+  `-(b · c)` in Webster's normalization).
+* `Graded.K0.of_eq_add_of_exact`: over a field, `[P] = [M] + [Q]` in graded `K_0` for a
+  short exact sequence of graded projective modules with degree-preserving maps.
 
 * `GradingDatum.instGradedAlgebraKlrGrade`: for every grading datum `G`, `W_ν` with
   `G.klrGrade ν` is a graded algebra (the corner of `A_ν` at the degree-zero idempotent

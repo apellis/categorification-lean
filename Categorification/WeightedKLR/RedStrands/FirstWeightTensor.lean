@@ -205,6 +205,25 @@ theorem tensorWeightProj_eq_self_iff (hR : R.IsXRegular) (μ : W) (x : TensorSpa
       exact ha (zpow_injective_of_not_root RatFunc.X_ne_zero hvn_ratFunc
         (smul_left_injective 𝕂 (Ne.symm hz) he))
 
+omit [Finite I] in
+/-- Projections to distinct total tensor weights are orthogonal. -/
+theorem tensorWeightProj_orthogonal (hR : R.IsXRegular) {μ ν : W} (hne : μ ≠ ν)
+    (x : TensorSpace weights) :
+    tensorWeightProj weights hR μ (tensorWeightProj weights hR ν x) = 0 := by
+  classical
+  let e := splitWeights weights hR
+  have hp (χ : W) (z) : e (tensorWeightProj weights hR χ z) =
+      (e z).filter (fun wt => ∑ j, wt j = χ) := e.apply_symm_apply _
+  apply e.injective
+  rw [hp, hp, map_zero]
+  ext wt
+  by_cases h : ∑ j, wt j = μ
+  · rw [DFinsupp.filter_apply_pos (p := fun w : Fin ℓ → W => ∑ r, w r = μ) _ h,
+      DFinsupp.filter_apply_neg (p := fun w : Fin ℓ → W => ∑ r, w r = ν) _ (fun h' => hne (h.symm.trans h'))]
+    rfl
+  · rw [DFinsupp.filter_apply_neg (p := fun w : Fin ℓ → W => ∑ r, w r = μ) _ h]
+    rfl
+
 variable (i : I)
 
 private def highestVector (j : Fin ℓ) : V j :=

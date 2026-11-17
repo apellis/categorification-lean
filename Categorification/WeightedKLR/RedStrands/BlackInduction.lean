@@ -210,6 +210,25 @@ theorem appendBlackAllOrders_e (s : Seq μ) :
       StendhalAlgebraAllOrders.e (appendBlackLoading i ν s) := by
   rw [StendhalAlgebraAllOrders.e, appendBlackAllOrders_ofKLR, appendBlackKLR_e]
 
+/-- Adjoining the rightmost strand preserves an old dot at its original position
+and cuts by the terminal idempotent in the upper block. -/
+theorem appendBlackAllOrders_x (a : Fin (Multiset.card μ)) :
+    (appendBlackAllOrders Q Λ i ν (StendhalAlgebraAllOrders.x a)).val =
+      StendhalAlgebraAllOrders.x
+        (⟨a.val, by simpa only [← stendhalWeight_addBlack i ν, Multiset.card_add,
+          Multiset.card_singleton] using Nat.lt_succ_of_lt a.isLt⟩ : Fin (stendhalWeight ℓ νᵢ).card) *
+        (appendBlackAllOrders Q Λ i ν 1).val := by
+  rw [StendhalAlgebraAllOrders.x, appendBlackAllOrders_ofKLR, appendBlackKLR_x, map_one]
+  rfl
+
+/-- Adjoining a rightmost straight strand preserves each old crossing, cut by the
+terminal idempotent in the upper block. -/
+theorem appendBlackAllOrders_ψ (j : ℕ) (hj : j + 1 < Multiset.card μ) :
+    (appendBlackAllOrders Q Λ i ν (StendhalAlgebraAllOrders.ψ j)).val =
+      StendhalAlgebraAllOrders.ψ j * (appendBlackAllOrders Q Λ i ν 1).val := by
+  rw [StendhalAlgebraAllOrders.ψ, appendBlackAllOrders_ofKLR, appendBlackKLR_ψ Q Λ i ν hj, map_one]
+  rfl
+
 private def appendBlackValue : StendhalAlgebraAllOrders k Q Λ ν →ₙ+* A :=
   (KLR.cornerVal (isIdempotentElem_terminalIdem Q Λ i ν)).comp
     (appendBlackAllOrders Q Λ i ν).toRingHom.toNonUnitalRingHom

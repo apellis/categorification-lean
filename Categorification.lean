@@ -1040,6 +1040,7 @@ import Categorification.KLR.CyclotomicGradedCharacter
 import Categorification.KLR.CyclotomicFlip
 import Categorification.KLR.CyclotomicRestrictionProjective
 import Categorification.KLR.CyclotomicGradedRestriction
+import Categorification.KLR.CyclotomicMixedCommutatorK0
 import Categorification.WeightedKLR.RedStrands.EraseRed
 import Categorification.WeightedKLR.RedStrands.SingleBlack
 import Categorification.KLR.CyclotomicAbsentCommutatorK0
@@ -1050,13 +1051,18 @@ import Categorification.KLR.CyclotomicQuotientK0
 import Categorification.KLR.CyclotomicDividedProjectives
 import Categorification.KLR.CyclotomicSerreK0
 import Categorification.KLR.CyclotomicWordSpan
+import Categorification.KLR.CyclotomicHighestWeight
+import Categorification.KLR.CyclotomicIntegralLattice
 import Categorification.WeightedKLR.RedStrands.DividedProjectives
 import Categorification.WeightedKLR.RedStrands.TensorFinite
+import Categorification.WeightedKLR.RedStrands.AbsoluteSimple
 import Categorification.KLR.CyclotomicIntegrable
+import Categorification.KLR.CyclotomicRepresentation
 import Categorification.WeightedKLR.RedStrands.AddRed
 import Categorification.WeightedKLR.RedStrands.BoundaryCharacters
 import Categorification.WeightedKLR.RedStrands.FirstWeightProjectives
 import Categorification.WeightedKLR.RedStrands.FirstWeightLattice
+import Categorification.WeightedKLR.RedStrands.TensorWordWeights
 import Categorification.WeightedKLR.RedStrands.SingleBlackShapovalov
 import Categorification.WeightedKLR.RedStrands.SingleBlackLattice
 import Categorification.WeightedKLR.RedStrands.SingleRedGrading
@@ -1064,7 +1070,12 @@ import Categorification.KLR.CyclotomicQuantumCommutator
 import Categorification.WeightedKLR.RedStrands.AddRedInjective
 import Categorification.WeightedKLR.RedStrands.LastRedInduction
 import Categorification.WeightedKLR.RedStrands.LastRedTruncation
+import Categorification.WeightedKLR.RedStrands.LastRedLayerCyclotomic
+import Categorification.WeightedKLR.RedStrands.LastRedPairing
+import Categorification.WeightedKLR.RedStrands.FirstWeightFormCounterexample
+import Categorification.WeightedKLR.RedStrands.TensorAdjointConvention
 import Categorification.WeightedKLR.RedStrands.BlackInduction
+import Categorification.WeightedKLR.RedStrands.SingleRedInduction
 /-!
 # Categorification
 

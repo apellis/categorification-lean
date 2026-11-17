@@ -66,11 +66,17 @@ These statements do not involve the comparison map.
     module is exact on bimodules (`BalancedTensor.mapLeftBimodule_exact`), and a finite filtration with
     finitely generated projective subquotients gives a finitely generated projective module whose
     class is the sum of theirs (`ProjK0.exists_of_eq_sum_of_chain`).
-  * Open: step (ii) at the level of the whole bimodule (the subquotient of type `μ` is the twisted
-    `Ind ⊗ Ind` of the juxtaposed corner bimodules; the corner-level maps exist but are not yet
-    shown to be balanced, README row on the shuffle-type filtration), its identification with
-    `Res P ⊠ Res Q` after tensoring, and the identity in `K_0` itself. The graded statement, with
-    the shift `-(μ · μ')`, is later work.
+  * Step (ii) is formalized per shuffle type, for arbitrary weights. `GalleryAlgebra.resIndFilt S`
+    cuts the filtration down to `e_{ν₁;ν₂} W_ν e_{ν';ν''}`. Write `ν' = a + b`, `ν'' = c + d`,
+    `ν₁ = a + c`, `ν₂ = b + d` and `μ = c`. Let `S` be a lower set whose only type outside a lower set
+    `S' ⊇ {μ' < μ}` is `μ`. Then `Juxtapose.exists_middleResInd_equiv` gives a linear isomorphism
+    from the balanced tensor product
+    `(W_{a+c} ⊗ W_{b+d}) e' ⊗_{W_a ⊗ W_b ⊗ W_c ⊗ W_d} e (W_{a+b} ⊗ W_{c+d})` to the subquotient `S / S'`.
+    It intertwines the two bimodule actions; the layout form is `Juxtapose.middleResIndEquiv`.
+    So the corner maps are balanced and Webster's bimodule claim holds as stated.
+  * Open: tensoring the filtration with `P ⊠ Q` (exactness: `BalancedTensor.mapLeftBimodule_exact`).
+    Also open: identifying `MiddleTensor ⊗ (P ⊠ Q)` with the twisted `Ind ⊗ Ind (Res P ⊠ Res Q)`, and
+    the identity in `K_0` itself. The graded statement, with the shift `-(μ · μ')`, is later work.
 
 ## What needs a field, and why
 

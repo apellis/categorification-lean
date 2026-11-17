@@ -303,6 +303,37 @@ theorem middleResIndEquiv_apply (x : MiddleTensor k Γ a b c d) :
     middleResIndEquiv hD hZ hP hΓ hW hL hS hcS hS' hS'l hcS' hc x =
       middleResIndMap hD hZ hP hΓ hW hL hS hcS hS' x := rfl
 
+/-- **The subquotient of one shuffle type of the Mackey filtration of `Res ∘ Ind` is the middle
+balanced tensor product, as a bimodule** (B. Webster, arXiv:1209.2463v4, proof of Theorem 2.19;
+after Khovanov–Lauda, arXiv:0803.4121v2, Proposition 2.18), for arbitrary weights: if
+`ν' = a + b`, `ν'' = c + d`, `ν₁ = a + c`, `ν₂ = b + d` and `μ = c`, and `S` is a lower set of
+shuffle types whose only type outside the lower set `S' ⊇ {μ' < μ}` is `μ`, there is a linear
+isomorphism `(W_{a+c} ⊗ W_{b+d}) e' ⊗_{W'} e (W_{a+b} ⊗ W_{c+d}) ≃ S / S'` intertwining
+`t ⊗ y ↦ z_L t ⊗ y z_R` with `[x] ↦ [ι(z_L) x ι(z_R)]`. The hypotheses `hP`, `hW`, `hL` are those
+of Webster, Theorem 2.8, for the weight `ν`. -/
+theorem exists_middleResInd_equiv {ν ν' ν'' ν₁ ν₂ : I →₀ ℕ}
+    {P : FullChamber Γ ν → FullChamber Γ ν → (Strand ν → 𝕜) × (Strand ν → 𝕜)}
+    (hP : ∀ C E, IsChamberSegment C E (P C E)) (hΓ : Γ.PSymm)
+    (hW : ∀ w : Wall Γ ν, IsRegular (w.factor (k := k)))
+    (hL : ∀ (Q : MvPolynomial (Fin 2) k) (s t : Strand ν), Γ.loop s.1 = some Q → s ≠ t →
+      s.1 = t.1 → IsRegular (loopFactor Q s t))
+    (hν' : ν' + ν'' = ν) (hν₁ : ν₁ + ν₂ = ν) {S' S : Set (I → ℕ)} (hS : IsLowerSet S)
+    (hS'l : IsLowerSet S') {μ : I → ℕ} (hμS : μ ∈ S) (hlow : Set.Iio μ ⊆ S') (hμS' : μ ∉ S')
+    (hone : ∀ μ' ∈ S, μ' ∉ S' → μ' = μ) (hab : a + b = ν') (hcd : c + d = ν'')
+    (hac : a + c = ν₁) (hbd : b + d = ν₂) (hμc : μ = ⇑c) :
+    ∃ f : MiddleTensor k Γ a b c d ≃ₗ[k]
+        ResIndSubquotient k hP hD hZ hΓ hW hL hν' hν₁ S' S,
+      ∀ zL zR, f.toLinearMap ∘ₗ middleCornerMap zL zR =
+        resIndSubquotientMul hP hD hZ hΓ hW hL hν' hν₁ hS'l hS
+            (Algebra.TensorProduct.congr (castW k Γ hac) (castW k Γ hbd) zL)
+            (Algebra.TensorProduct.congr (castW k Γ hab) (castW k Γ hcd) zR) ∘ₗ
+          f.toLinearMap := by
+  subst hab hcd hac hbd hμc hν'
+  refine ⟨middleResIndEquiv hD hZ hP hΓ hW hL hS hμS hlow hS'l hμS' hone, fun zL zR => ?_⟩
+  have h := middleResIndMap_comp_middleCornerMap hD hZ hP hΓ hW hL hS hμS hlow hS'l zL zR
+  simp only [castW, Algebra.TensorProduct.congr_refl]
+  exact h
+
 end Juxtapose
 
 end Categorification.WeightedKLR

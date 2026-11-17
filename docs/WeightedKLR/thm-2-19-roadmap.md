@@ -13,7 +13,7 @@ State at the time of writing. Over a field, under the standing hypothesis with `
 | Item | Content | Status |
 |---|---|---|
 | A0 | the fields `fdA`, `fdB`, `fdC` of `TensorK0Hyp` for `W_ν` (graded simple tops are finite-dimensional) | formalized under `Γ.Dagger`, `Γ.NoZeroLoops`, `Γ.Standing`; no loop-freeness assumption |
-| A | the fields `endA`, `endB` of `TensorK0Hyp` for `W_ν` (graded simple modules are absolutely irreducible) | blocked: right restrictions need not detect a nonzero simple; see obstruction below and #289 |
+| A | the fields `endA`, `endB` of `TensorK0Hyp` for `W_ν` (graded simple modules are absolutely irreducible) | proved for multiplicity-free weights; repeated colours remain open, and right restrictions need not detect a nonzero simple |
 | B | the quantum Serre relations in graded `K_0` for every `Q` of Rouquier's form | open; plan below (Rouquier) |
 | C | the algebra map `U_q^+(𝔤_Γ) → K_0` for loop-free `Γ` | open; needs B |
 | D | the antipode / Hopf structure in the braided category of `ℤ[I]`-graded modules | open |
@@ -57,6 +57,27 @@ remains explicit.
 Goal: for `Γ` without loops, over any field `k` and for every `Q` satisfying the standing
 hypothesis, every endomorphism of a graded simple `W_ν`-module is a scalar. This gives `endA`
 and `endB`, and with A0 discharges `TensorK0Hyp` for loop-free `Γ`.
+
+### Multiplicity-free intermediate result
+
+`GradingDatum.exists_eq_smul_of_isGradedSimple_multiplicityFree`
+(`MultiplicityFreeSimple.lean`) proves the scalar-endomorphism statement under the extra
+hypothesis `∀ i, ν i ≤ 1`. The coefficient field and standing polynomials remain arbitrary;
+cycles are allowed, and this intermediate result needs no loop-freeness assumption.
+The colour-permutation group is trivial, so Theorem 2.8 makes each diagonal chamber corner
+polynomial (`GalleryAlgebra.exists_poly_of_multiplicityFree`). Every dot is individually
+colour-symmetric and acts by its augmentation on a graded simple, by A0. A chamber
+idempotent with nonzero action therefore has a scalar corner. The reusable lemma
+`Categorification.exists_eq_smul_of_scalar_corner` then makes every module endomorphism
+a scalar.
+
+`GradingDatum.tensorK0Hyp_multiplicityFree` supplies all five fields of `TensorK0Hyp`
+when each of its two weights is multiplicity-free. Their supports may overlap: A0 supplies
+`fdC` without a restriction on the sum. This does not remove the hypothesis from the
+coproduct theorem, whose present statement uses the comparison for all weights.
+Removing the multiplicity-free hypotheses, including the interaction of same-colour
+crossings with ghosts, remains part of A. The comparison with KL I Corollary 3.19 and
+these extra hypotheses was recorded on #289 before the proofs.
 
 Why not other routes. Cor. 2.16 (`WeightedGraph.IsForest.exists_klrCorner`) makes `W_ν` a full
 corner of the unweighted KLR algebra when `Γ` is a forest, so for forests A already follows

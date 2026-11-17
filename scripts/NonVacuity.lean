@@ -1430,6 +1430,29 @@ example (ν μ : Fin 2 →₀ ℕ)
   WeightedKLR.GradingDatum.finiteDimensional_top_tensor
     wkGraph_dagger wkGraph_noZeroLoops wkGraph_standing c
 
+/-- The scalar-endomorphism intermediate result for A at a weight using both colours once.
+The graph and the simple-top hypotheses are supplied by proved declarations. -/
+example
+    (b : Graded.GProj.IndecClass (wkGraph_standing.gradingDatum.klrGrade
+      (Finsupp.single (0 : Fin 2) 1 + Finsupp.single 1 1)))
+    (φ : b.top →ₗ[WeightedKLR.GalleryAlgebra.WeightedKLRAlgebra ℚ wkGraph
+      (Finsupp.single (0 : Fin 2) 1 + Finsupp.single 1 1)] b.top) :
+    ∃ c : ℚ, ∀ m, φ m = c • m := by
+  exact WeightedKLR.GradingDatum.exists_eq_smul_of_isGradedSimple_multiplicityFree
+    wkGraph_dagger wkGraph_noZeroLoops wkGraph_standing
+    (by intro i; fin_cases i <;> simp) (Graded.GProj.IndecClass.isGradedSimple_top b) φ
+
+/-- All five tensor-comparison fields for two multiplicity-free weights. The supports
+overlap, so A0's tensor finiteness is used without assuming their sum multiplicity-free. -/
+example : Graded.TensorK0Hyp
+    (wkGraph_standing.gradingDatum.klrGrade
+      (Finsupp.single (0 : Fin 2) 1 + Finsupp.single 1 1))
+    (wkGraph_standing.gradingDatum.klrGrade
+      (Finsupp.single (0 : Fin 2) 1 + Finsupp.single 1 1)) := by
+  exact WeightedKLR.GradingDatum.tensorK0Hyp_multiplicityFree
+    wkGraph_dagger wkGraph_noZeroLoops wkGraph_standing
+    (by intro i; fin_cases i <;> simp) (by intro i; fin_cases i <;> simp)
+
 /-- **Webster, Theorem 2.19, graded Mackey formula for the coproduct on `K₀ ⊗ K₀`**, for
 `(ν₁, ν₂) = (ν'', ν')`. The route hypothesis `TensorK0Hyp` (`hT`) cannot be instantiated here:
 its conditions `endA`, `endB` are not proved for weighted KLR algebras, so this example only

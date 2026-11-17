@@ -260,7 +260,10 @@ Files `WeightedKLR/GradedK0/Grading.lean`, `Induction.lean`, `TensorK0.lean`,
   Cor. 3.19 and a central polynomial subalgebra of positive degree). The analogous
   finite-dimensionality argument for `W_ν` is formalized in `CentralFinite.lean` and
   `Simple.lean`, using the basis of Webster Theorem 2.8 and the graded Nakayama argument
-  of KL I Proposition 2.12. The absolute-irreducibility argument remains open.
+  of KL I Proposition 2.12. Absolute irreducibility is proved for multiplicity-free weights
+  by `GradingDatum.exists_eq_smul_of_isGradedSimple_multiplicityFree`, and
+  `GradingDatum.tensorK0Hyp_multiplicityFree` supplies the comparison hypotheses for two
+  such weights. Repeated colours remain open; the hypothesis for all weights is retained.
 
 ## What needs a field, and why
 

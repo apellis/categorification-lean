@@ -977,6 +977,16 @@ import Categorification.WeightedKLR.Twisted.Realize
 import Categorification.WeightedKLR.Twisted.Relabel
 import Categorification.WeightedKLR.Twisted.Rep
 import Categorification.WeightedKLR.Twisted.Spanning
+import Categorification.KLR.Rouquier.Polynomial
+import Categorification.KLR.Rouquier.Coefficient
+import Categorification.KLR.Rouquier.SerreMaps
+import Categorification.KLR.Rouquier.SerreBoundary
+import Categorification.KLR.Rouquier.SerreCorrection
+import Categorification.WeightedKLR.Cartan
+import Categorification.WeightedKLR.RouquierQ
+import Categorification.WeightedKLR.GradedK0.Idempotents
+import Categorification.WeightedKLR.GradedK0.SpacedGrading
+import Categorification.WeightedKLR.GradedK0.SpacedEntries
 /-!
 # Categorification
 

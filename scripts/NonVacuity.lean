@@ -1311,4 +1311,20 @@ example (ν ν' ν₁ : Fin 2 →₀ ℕ) (D C : WeightedKLR.FullChamber wkGraph
     (wkGraph_wallRegular _) (wkGraph_loopRegular _) ν' ν₁ D C (S' := ∅) (S := ∅) subset_rfl
     Set.inter_subset_left
 
+/-! ### Webster, weighted KLR algebras (arXiv:1209.2463v4), graded `K₀` (Theorem 2.19) -/
+
+/-- `W_ν` has a graded dimension for the grading of the standing hypothesis (Theorem 2.8). -/
+example (ν : Fin 2 →₀ ℕ) := WeightedKLR.GalleryAlgebra.hasGdim_klrGrade (k := ℚ) (ν := ν)
+  wkGraph_dagger wkGraph_noZeroLoops wkGraph_standing
+
+/-- Graded induction `Ind (P ⊠ P')` of graded projective modules (Definition 2.17). -/
+example (ν' ν'' : Fin 2 →₀ ℕ) (P : Graded.GProj (wkGraph_standing.gradingDatum.klrGrade ν'))
+    (P' : Graded.GProj (wkGraph_standing.gradingDatum.klrGrade ν'')) :=
+  wkGraph_standing.gradingDatum.indProj P P'
+
+/-- The product on `K₀(W_{ν'}) ⊗_{ℤ[q,q⁻¹]} K₀(W_{ν''})` on generators (Theorem 2.19). -/
+example (ν' ν'' : Fin 2 →₀ ℕ) (P : Graded.GProj (wkGraph_standing.gradingDatum.klrGrade ν'))
+    (P' : Graded.GProj (wkGraph_standing.gradingDatum.klrGrade ν'')) :=
+  wkGraph_standing.gradingDatum.indK0Tensor_of ν' ν'' P P'
+
 end NonVacuity

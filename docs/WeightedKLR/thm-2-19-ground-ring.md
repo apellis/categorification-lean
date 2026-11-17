@@ -137,11 +137,49 @@ These statements do not involve the comparison map.
       `Δ_{ν₁,ν₂}(x · y) = ∑_i T_{L i}(Δ_{a,b} x ⊗ Δ_{c,d} y)` for all `x`, `y` (ungraded).
       The bijectivity hypothesis is not proved for any weighted KLR algebra; see the next
       section.
-  * Open: the graded statement, with the shift `-(μ · μ')` of the term of shuffle type `μ`.
-    It needs a grading of the pieces compatible with the filtration
-    (`Juxtapose.segDeg_chamber_swapChamber` computes the degree of the exchange), a graded
-    `K_0` of `W_ν` (no `Graded.HasGdim` instance for `W_ν` exists), and graded versions of
-    `ProjK0.extTensor`, `resK0` and `middleIndK0`. None of these is formalized.
+  * Open: the graded Mackey formula, with the shift `-(μ · μ')` of the term of shuffle type
+    `μ`, on graded `K_0`. Available: the graded algebra `W_ν`, graded induction and the
+    product on graded `K_0` (next section), and the graded form of the corner isomorphism of
+    the Mackey subquotients (`Juxtapose.middleCornerGradedEquiv`, shifted by `middleShift`).
+    Missing: a graded restriction functor on `Graded.GProj`, the graded Mackey filtration of
+    `Res ∘ Ind (P ⊠ Q)` with graded subquotients (the ungraded `ResIndFiltration`,
+    `ResIndRestriction`, `ResIndK0` are stated for the ungraded `Juxtapose.ind`, a balanced
+    tensor product over `ℤ`, while graded induction `GradedInd` is over `k`), the graded
+    analogue of `ResIndPiece.resTwistEquiv` and `Juxtapose.extIndIndEquiv`, and additivity of
+    graded `K_0` along these filtrations. None of these is formalized.
+
+## Graded `K_0` (formalized)
+
+Files `WeightedKLR/GradedK0/Grading.lean`, `Induction.lean`, `TensorK0.lean`.
+
+* `GradingDatum.instGradedAlgebraKlrGrade`: for every grading datum `G`, `W_ν` with
+  `G.klrGrade ν` is a graded algebra (the corner of `A_ν` at the degree-zero idempotent
+  `rankIdem`, `Graded.cornerGradedAlgebra`). Any commutative ring.
+* `GalleryAlgebra.hasGdim_klrGrade` (and `hasGdim_grade` for `A_ν`): over a field, under
+  `Γ.Dagger`, `Γ.NoZeroLoops` and `Γ.Standing`, the graded pieces of `W_ν` for the grading of
+  the standing hypothesis are finite-dimensional and vanish in sufficiently negative degree
+  (`Graded.HasGdim`). Proof: the homogeneous basis of Theorem 2.8 (`basisOfSegments`); dots
+  have degree `2 d_i > 0` and there are finitely many pairs of chambers.
+* `GradingDatum.indProj G P P'`: for graded finitely generated projective `P`, `P'`,
+  `Ind (P ⊠ P') = W_{ν'+ν''} e_{ν';ν''} ⊗_{W_{ν'} ⊗ W_{ν''}} (P ⊠ P')` is a graded finitely
+  generated projective `W_{ν'+ν''}`-module, with no grading shift. It respects isomorphisms,
+  direct sums and shifts in each variable (`indProjCongr`, `indProjProdLeft`,
+  `indProjProdRight`, `indProjShiftLeft`, `indProjShiftRight`). Any commutative ring.
+* `GradingDatum.indK0`, `GradingDatum.indK0Tensor`: the product
+  `K_0(W_{ν'}) ⊗_{ℤ[q^±]} K_0(W_{ν''}) → K_0(W_{ν'+ν''})`, `[P] ⊗ [P'] ↦ [Ind (P ⊠ P')]`, on
+  graded `K_0`, `ℤ[q^±]`-bilinear. No hypothesis.
+* `GradingDatum.k0TensorEquiv`: over a field, given `HasGdim` for `W_{ν'}` and `W_{ν''}`
+  (supplied by `hasGdim_klrGrade`) and the explicit hypothesis
+  `TensorK0Hyp (G.klrGrade ν') (G.klrGrade ν'')`, the comparison
+  `K_0(W_{ν'}) ⊗_{ℤ[q^±]} K_0(W_{ν''}) ≅ K_0(W_{ν'} ⊗ W_{ν''})`, `x ⊗ y ↦ x ⊠ y`
+  (`k0TensorEquiv_tmul`). `TensorK0Hyp` asks that the graded simple tops of `W_{ν'}` and
+  `W_{ν''}` be finite-dimensional (`fdA`, `fdB`) and absolutely irreducible (`endA`, `endB`),
+  and that the graded simple tops of `W_{ν'} ⊗ W_{ν''}` be finite-dimensional (`fdC`). The
+  source supplies none of these: the proof of Theorem 2.19 uses
+  `K⁰(W_{ν'} ⊗ W_{ν''}) = K⁰(W_{ν'}) ⊗ K⁰(W_{ν''})` without comment. For unweighted KLR
+  algebras they are proved (`Categorification.GradingDatum.tensorK0Hyp`, from KL I Prop. 2.12,
+  Cor. 3.19 and a central polynomial subalgebra of positive degree); no such argument is
+  formalized for `W_ν`.
 
 ## What needs a field, and why
 
@@ -161,12 +199,11 @@ The corrected statement takes `k` to be a field, the setting of KL I. Over a fie
 isomorphism given the following inputs.
 
 1. **A grading of `W_ν`.** It must have finite-dimensional graded pieces, vanishing in
-   sufficiently negative degree (`Graded.HasGdim`). The weighted grading is
-   `WeightedKLR/Grading.lean`, but no `HasGdim` instance for `W_ν` exists yet.
-   Given the instance, the graded Krull–Schmidt theorem
-   (`Categorification/Algebra/Graded/KrullSchmidt.lean`, `KrullSchmidtUnique.lean`) makes the
-   graded `K_0(W_ν)` free over `ℤ[q^±]` on the classes of the indecomposable graded
-   projectives. No graded `K_0` of `W_ν` has been set up yet.
+   sufficiently negative degree (`Graded.HasGdim`). This is now proved for the grading of the
+   standing hypothesis (`GalleryAlgebra.hasGdim_klrGrade`), and the graded `K_0` of `W_ν` is
+   set up (section "Graded `K_0`" above). The graded Krull–Schmidt theorem
+   (`Categorification/Algebra/Graded/KrullSchmidt.lean`, `KrullSchmidtUnique.lean`) makes it
+   free over `ℤ[q^±]` on the classes of the indecomposable graded projectives.
 2. **Absolute irreducibility.** Every graded simple `W_ν`-module must have endomorphism ring
    `k`. Then the indecomposable graded projectives of `W_{ν'} ⊗ W_{ν''}` are exactly the
    `P ⊠ Q`. This is the content of `KLR.TensorK0Hyp` and `KLR.TensorK0Hyp.extTensorEquiv`.
@@ -179,9 +216,9 @@ isomorphism given the following inputs.
      algebraically closed, (2) is therefore an extra hypothesis of the corrected statement until
      it is proved.
 
-In short: over a field, the missing formal inputs are a `HasGdim` structure on `W_ν`, the graded
-`K_0` of `W_ν`, and the Mackey identity in graded
-`K_0`. The comparison then follows from `KLR.TensorK0Hyp.extTensorEquiv`, under hypothesis (2).
+In short: over a field, the comparison is `GradingDatum.k0TensorEquiv`, under the explicit
+hypothesis `TensorK0Hyp` (finite-dimensionality of the graded simple tops, in addition to (2));
+the missing formal input for the coproduct is the Mackey identity in graded `K_0`.
 
 ## Restriction preserves finitely generated projectives
 
@@ -212,9 +249,9 @@ generated projective modules, and assume that `c` is bijective there
 (`ProjK0.ExtTensorBijective`). This is not proved, and no result in the library or in Mathlib
 gives it, even over an algebraically closed field.
 
-* `W_ν` is infinite-dimensional and its grading is not bounded below in general, so neither
-  Krull–Schmidt for finite-dimensional algebras nor the graded Krull–Schmidt theorem applies
-  to ungraded modules.
+* `W_ν` is infinite-dimensional, so Krull–Schmidt for finite-dimensional algebras does not
+  apply, and the graded Krull–Schmidt theorem (available for the grading of the standing
+  hypothesis, `GalleryAlgebra.hasGdim_klrGrade`) does not apply to ungraded modules.
 * `KLR.TensorK0Hyp.extTensorEquiv` concerns the graded `K_0` of graded projective modules. A
   finitely generated projective `W_ν`-module need not be gradable, and no comparison between
   the ungraded `K_0` and the graded `K_0` (modulo `q = 1`) is formalized or given in the source.
@@ -222,8 +259,8 @@ gives it, even over an algebraically closed field.
   Quillen–Suslin, which are not in Mathlib.
 
 So `Δ` with values in `K_0(W_{ν₁}) ⊗ K_0(W_{ν₂})` is formalized only under this hypothesis.
-The options for the maintainer: (a) the graded route, with a `HasGdim` structure on `W_ν`, a
-graded `K_0` of `W_ν`, the graded Mackey identity and absolute irreducibility (items 1–3
-above), where `KLR.TensorK0Hyp.extTensorEquiv` gives the comparison; (b) keep
+The options for the maintainer: (a) the graded route: `HasGdim`, graded `K_0` and the
+comparison under `TensorK0Hyp` are now formalized; the graded Mackey identity and the fields
+of `TensorK0Hyp` remain; (b) keep
 `ProjK0.ExtTensorBijective` as an explicit hypothesis of the ungraded statement (current
 state); (c) new theory for the ungraded comparison, which needs the maintainer's approval.

@@ -901,6 +901,7 @@ import Categorification.WeightedKLR.Mackey.JuxtaposedCorner
 import Categorification.WeightedKLR.Mackey.MiddleCorner
 import Categorification.WeightedKLR.Mackey.MiddleGraded
 import Categorification.WeightedKLR.Mackey.MiddleLeading
+import Categorification.WeightedKLR.Mackey.MiddleResInd
 import Categorification.WeightedKLR.Mackey.MiddleSpan
 import Categorification.WeightedKLR.Mackey.MinimalGallery
 import Categorification.WeightedKLR.Mackey.Parabolic

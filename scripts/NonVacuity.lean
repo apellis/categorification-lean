@@ -2080,7 +2080,7 @@ namespace FirstBlackLattice
 open LieLean.QuantumGroup LieLean.QuantumGroup.GrandLoop
 
 private def sl2HighestTwo : Dom sl2RootDatum :=
-  ⟨2 • AddMonoidHom.id ℤ, fun _ => by simp [sl2RootDatum]⟩
+  ⟨2 • AddMonoidHom.id ℤ, fun _ => by simp [LieLean.QuantumGroup.sl2RootDatum]⟩
 
 private theorem sl2XRegular : sl2RootDatum.IsXRegular := by
   change LinearIndependent ℤ sl2RootDatum.root
@@ -2096,10 +2096,10 @@ private def redLevelTwoGrading :=
     (fun _ => 1) (fun _ => rfl)
 
 example := Stendhal.SingleBlack.oneBlackLatticeEquiv_regular sl2HighestTwo () redLevelTwoGrading
-  sl2XRegular (by simp [sl2HighestTwo, redLevelTwo, sl2RootDatum]) (by simp [redLevelTwo])
+  sl2XRegular (by simp [sl2HighestTwo, redLevelTwo, LieLean.QuantumGroup.sl2RootDatum]) (by simp [redLevelTwo])
 
 example := Stendhal.SingleBlack.oneBlackLatticeEquiv_regular_shift sl2HighestTwo () redLevelTwoGrading
-  sl2XRegular (by simp [sl2HighestTwo, redLevelTwo, sl2RootDatum]) (by simp [redLevelTwo]) 1
+  sl2XRegular (by simp [sl2HighestTwo, redLevelTwo, LieLean.QuantumGroup.sl2RootDatum]) (by simp [redLevelTwo]) 1
 
 end FirstBlackLattice
 
@@ -2227,7 +2227,7 @@ open Categorification.Stendhal.FirstWeight LusztigF
 
 
 private def sl2HighestTwo : Dom sl2RootDatum :=
-  ⟨2 • AddMonoidHom.id ℤ, fun _ => by simp [sl2RootDatum]⟩
+  ⟨2 • AddMonoidHom.id ℤ, fun _ => by simp [LieLean.QuantumGroup.sl2RootDatum]⟩
 
 private theorem sl2XRegular : sl2RootDatum.IsXRegular := by
   change LinearIndependent ℤ sl2RootDatum.root
@@ -2248,7 +2248,7 @@ private theorem redPos (r : Fin 2) : 0 < redLevelTwo r () := by simp [redLevelTw
 
 private theorem weightAgreement (r : Fin 2) :
     (twoWeights r).1 (sl2RootDatum.coroot ()) = (redLevelTwo r () : ℤ) := by
-  simp [twoWeights, sl2HighestTwo, redLevelTwo, sl2RootDatum]
+  simp [twoWeights, sl2HighestTwo, redLevelTwo, LieLean.QuantumGroup.sl2RootDatum]
 
 private theorem dotsPos (a : Unit ⊕ Fin 2) : 0 < redLevelTwoGrading.degX a := by
   cases a <;> exact (by decide : (0 : ℤ) < 2)
@@ -2303,7 +2303,7 @@ open Categorification LieLean.QuantumGroup LieLean.QuantumGroup.GrandLoop
 open Stendhal.SingleBlack
 
 private def highestTwo : Dom sl2RootDatum :=
-  ⟨2 • AddMonoidHom.id ℤ, fun _ => by simp [sl2RootDatum]⟩
+  ⟨2 • AddMonoidHom.id ℤ, fun _ => by simp [LieLean.QuantumGroup.sl2RootDatum]⟩
 
 private theorem xRegular : sl2RootDatum.IsXRegular := by
   change LinearIndependent ℤ sl2RootDatum.root
@@ -2319,10 +2319,10 @@ private def gradingTwo :=
     (fun _ => 1) (fun _ => rfl)
 
 example := regular_homGdimPoly_eq_shapovalov highestTwo xRegular () gradingTwo
-  (by simp [highestTwo, levelTwo, sl2RootDatum]) (by decide)
+  (by simp [highestTwo, levelTwo, LieLean.QuantumGroup.sl2RootDatum]) (by decide)
 
 example := regular_shift_homGdimPoly_eq_shapovalov highestTwo xRegular () gradingTwo
-  (by simp [highestTwo, levelTwo, sl2RootDatum]) (by decide) (by simp [levelTwo]) 1 0
+  (by simp [highestTwo, levelTwo, LieLean.QuantumGroup.sl2RootDatum]) (by decide) (by simp [levelTwo]) 1 0
 
 end OneRedEulerForm
 

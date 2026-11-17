@@ -990,6 +990,20 @@ import Categorification.WeightedKLR.GradedK0.SpacedEntries
 import Categorification.KLR.Rouquier.K0Relations
 import Categorification.KLR.Rouquier.SerreGrading
 import Categorification.KLR.Rouquier.SerreSupports
+import Categorification.KLR.Rouquier.IntegralMap
+import Categorification.WeightedKLR.GradedK0.ScalarComparison
+import Categorification.WeightedKLR.GradedK0.Associativity
+import Categorification.WeightedKLR.GradedK0.AssociatorTensors
+import Categorification.WeightedKLR.GradedK0.AssociatorGrading
+import Categorification.WeightedKLR.GradedK0.Units
+import Categorification.WeightedKLR.GradedK0.Algebra
+import Categorification.WeightedKLR.GradedK0.ScalarExtension
+import Categorification.WeightedKLR.GradedK0.DividedPowers
+import Categorification.WeightedKLR.GradedK0.SpacedClasses
+import Categorification.WeightedKLR.GradedK0.SpacedZigzag
+import Categorification.WeightedKLR.GradedK0.Serre
+import Categorification.WeightedKLR.GradedK0.QuantumRelations
+import Categorification.WeightedKLR.QuantumGroup
 /-!
 # Categorification
 

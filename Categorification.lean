@@ -850,6 +850,7 @@ import Categorification.WeightedKLR.GalleryBasis.Graded
 import Categorification.WeightedKLR.GradedK0.Grading
 import Categorification.WeightedKLR.GradedK0.Induction
 import Categorification.WeightedKLR.GradedK0.Restriction
+import Categorification.WeightedKLR.GradedK0.ResIndGrading
 import Categorification.WeightedKLR.GradedK0.TensorK0
 import Categorification.WeightedKLR.KLR.Loadings
 import Categorification.WeightedKLR.KLR.Crossing

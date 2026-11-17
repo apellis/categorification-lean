@@ -20,6 +20,7 @@ import Categorification.Algebra.Graded.IdempotentSplittingK0
 import Categorification.Algebra.Graded.K0
 import Categorification.Algebra.Graded.K0Exact
 import Categorification.Algebra.Graded.K0Filtration
+import Categorification.Algebra.Graded.K0Map
 import Categorification.Algebra.Graded.KrullSchmidt
 import Categorification.Algebra.Graded.KrullSchmidtUnique
 import Categorification.Algebra.Graded.Module
@@ -854,6 +855,9 @@ import Categorification.WeightedKLR.GradedK0.Induction
 import Categorification.WeightedKLR.GradedK0.Restriction
 import Categorification.WeightedKLR.GradedK0.ResIndChainGrading
 import Categorification.WeightedKLR.GradedK0.ResIndGrading
+import Categorification.WeightedKLR.GradedK0.ResIndK0
+import Categorification.WeightedKLR.GradedK0.ResIndTensor
+import Categorification.WeightedKLR.GradedK0.ResIndTwist
 import Categorification.WeightedKLR.GradedK0.TensorK0
 import Categorification.WeightedKLR.KLR.Loadings
 import Categorification.WeightedKLR.KLR.Crossing

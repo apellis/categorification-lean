@@ -417,6 +417,12 @@ theorem balancedGrading_shift_right {ι : Type*} [AddCommGroup ι] (ℳ : ι →
   rw [balancedGrading, tensorGrading_shift_right]
   rfl
 
+theorem balancedGrading_shift_left {ι : Type*} [AddCommGroup ι] (ℳ : ι → Submodule k M)
+    (𝒩 : ι → Submodule k N) (a : ι) :
+    balancedGrading B A (shift ℳ a) 𝒩 = shift (balancedGrading B A ℳ 𝒩) a := by
+  rw [balancedGrading, tensorGrading_shift_left]
+  rfl
+
 /-- `M ⊗_A g` is degree-preserving if `g` is. -/
 theorem mapRight_mem_balancedGrading [Algebra k A] [IsScalarTower k A N] [SMulCommClass B Aᵐᵒᵖ M]
     {N' : Type*} [AddCommGroup N'] [Module k N'] [Module A N'] [IsScalarTower k A N']

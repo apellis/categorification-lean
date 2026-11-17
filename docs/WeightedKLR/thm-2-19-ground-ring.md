@@ -56,6 +56,21 @@ These statements do not involve the comparison map.
   tensor products.
   * The degree shift is the symmetric pairing `-(μ · μ')`; see the notation note in the README.
   * The filtration and its subquotients are partly formalized (README, rows for §2.4).
+  * Step (i) of the proof, the steps are sub-bimodules, is formalized for the whole algebra:
+    `GalleryAlgebra.bimoduleFilt` assembles the corner filtrations `mackeyFilt D C S`, and
+    `GalleryAlgebra.inductionMap_mul_mul_mem_bimoduleFilt` gives stability under
+    `x ↦ ι_{ν₁;ν₂}(u) x ι_{ν';ν''}(w)` for every lower set `S` of shuffle types. The hypotheses
+    are those of `mackeyFilt` (chamber segments, `Γ.Dagger`, `Γ.NoZeroLoops`, `Γ.PSymm`, regular
+    wall factors and loop factors), as at the corner level.
+  * Step (iii), the passage to `K_0`, is formalized generically: tensoring with a projective
+    module is exact on bimodules (`BalancedTensor.mapLeft_exact`), and a finite filtration with
+    finitely generated projective subquotients gives a finitely generated projective module whose
+    class is the sum of theirs (`ProjK0.exists_of_eq_sum_of_chain`).
+  * Open: step (ii) at the level of the whole bimodule (the subquotient of type `μ` is the twisted
+    `Ind ⊗ Ind` of the juxtaposed corner bimodules; the corner-level maps exist but are not yet
+    shown to be balanced, README row on the shuffle-type filtration), its identification with
+    `Res P ⊠ Res Q` after tensoring, and the identity in `K_0` itself. The graded statement, with
+    the shift `-(μ · μ')`, is later work.
 
 ## What needs a field, and why
 

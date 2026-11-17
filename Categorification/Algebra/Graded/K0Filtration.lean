@@ -264,6 +264,31 @@ theorem K0.exists_of_balancedTensor_eq_sum [Module.Projective A N]
       rw [← LinearMap.comp_apply, subBimoduleMap_comp_inclusion, hs]
       rfl
 
+omit [GradedAlgebra ℬ] [IsScalarTower k A N] in
+variable (ℬ 𝒜 𝒩) in
+/-- Shifting the grading of the bimodule shifts the class of the tensor product:
+`[M{s} ⊗_A N] = q^s [M ⊗_A N]` in the graded `K₀` of `B`. -/
+theorem K0.of_balancedTensorGProj_shift_left
+    {M : Type u} [AddCommGroup M] [Module k M] [Module B M] [IsScalarTower k B M]
+    [Module Aᵐᵒᵖ M] [SMulCommClass B Aᵐᵒᵖ M] [IsScalarTower k Aᵐᵒᵖ M]
+    (ℳ : ℤ → Submodule k M) [Decomposition ℳ] [SetLike.GradedSMul ℬ ℳ] (s : ℤ)
+    [Decomposition (shift ℳ s)] [SetLike.GradedSMul ℬ (shift ℳ s)]
+    (hM : ∀ ⦃i l : ℤ⦄ ⦃m : M⦄ ⦃a : A⦄, m ∈ ℳ i → a ∈ 𝒜 l → op a • m ∈ ℳ (i + l))
+    (hM' : ∀ ⦃i l : ℤ⦄ ⦃m : M⦄ ⦃a : A⦄, m ∈ shift ℳ s i → a ∈ 𝒜 l →
+      op a • m ∈ shift ℳ s (i + l))
+    [Module.Finite B (BalancedTensor k B A M N)] [Module.Projective B (BalancedTensor k B A M N)] :
+    K0.of (balancedTensorGProj ℬ 𝒜 𝒩 M (shift ℳ s) hM') =
+      (LaurentPolynomial.T s : LaurentPolynomial ℤ) • K0.of (balancedTensorGProj ℬ 𝒜 𝒩 M ℳ hM) := by
+  rw [K0.T_smul_of]
+  refine K0.of_eq_of_iso (GradedEquiv.ofLinearMaps LinearMap.id LinearMap.id (fun _ => rfl)
+    (fun _ => rfl) (fun d y hy => ?_) (fun d y hy => ?_))
+  · change y ∈ balancedGrading B A (shift ℳ s) 𝒩 d at hy
+    rw [balancedGrading_shift_left] at hy
+    exact hy
+  · change y ∈ balancedGrading B A (shift ℳ s) 𝒩 d
+    rw [balancedGrading_shift_left]
+    exact hy
+
 end Balanced
 
 end Categorification.Graded

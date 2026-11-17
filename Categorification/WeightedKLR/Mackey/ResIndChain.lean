@@ -731,6 +731,87 @@ theorem resIndPieceMap_eq_zero_iff
 
 end PieceMap
 
+/-! ### The class of `Res Ind ⊗ N` in `K₀` -/
+
+variable (hP hD hZ hΓ hW hL hν' hν₁) in
+/-- **The Mackey filtration of `Res_{ν₁;ν₂} Ind_{ν';ν''}` in `K₀`** (B. Webster,
+arXiv:1209.2463v4, proof of Theorem 2.19, step (iii); after Khovanov–Lauda, arXiv:0803.4121v2,
+Proposition 2.18). There are four-block layouts `L 0, …, L (n - 1)` whose shuffle types `c` are
+exactly the shuffle types that occur, each once, such that for every projective left
+`W_{ν'} ⊗ W_{ν''}`-module `N` for which all `ResIndPiece L ⊗ N` are finitely generated projective,
+`ResIndBimodule ⊗ N` is finitely generated projective and
+`[ResIndBimodule ⊗ N] = ∑_i [ResIndPiece (L i) ⊗ N]` in `K₀(W_{ν₁} ⊗ W_{ν₂})`. The hypotheses
+`hP`, `hW`, `hL` are those of Webster, Theorem 2.8, for the weight `ν`. -/
+theorem exists_resInd_balancedTensor_eq_sum :
+    ∃ (n : ℕ) (L : Fin n → ShuffleLayout ν' ν'' ν₁ ν₂),
+      Function.Injective (fun i => ⇑(L i).c) ∧
+      Set.range (fun i => ⇑(L i).c) = Set.range (shuffleType (ν := ν) ν' ν₁) ∧
+      ∀ (N : Type (max u w)) [AddCommGroup N] [Module k N]
+        [Module (WeightedKLRAlgebra k Γ ν' ⊗[k] WeightedKLRAlgebra k Γ ν'') N]
+        [IsScalarTower k (WeightedKLRAlgebra k Γ ν' ⊗[k] WeightedKLRAlgebra k Γ ν'') N]
+        [Module.Projective (WeightedKLRAlgebra k Γ ν' ⊗[k] WeightedKLRAlgebra k Γ ν'') N]
+        [∀ i, Module.Finite (WeightedKLRAlgebra k Γ ν₁ ⊗[k] WeightedKLRAlgebra k Γ ν₂)
+          (BalancedTensor k (WeightedKLRAlgebra k Γ ν₁ ⊗[k] WeightedKLRAlgebra k Γ ν₂)
+            (WeightedKLRAlgebra k Γ ν' ⊗[k] WeightedKLRAlgebra k Γ ν'') (ResIndPiece k Γ (L i)) N)]
+        [∀ i, Module.Projective (WeightedKLRAlgebra k Γ ν₁ ⊗[k] WeightedKLRAlgebra k Γ ν₂)
+          (BalancedTensor k (WeightedKLRAlgebra k Γ ν₁ ⊗[k] WeightedKLRAlgebra k Γ ν₂)
+            (WeightedKLRAlgebra k Γ ν' ⊗[k] WeightedKLRAlgebra k Γ ν'') (ResIndPiece k Γ (L i)) N)],
+        ∃ (_ : Module.Finite (WeightedKLRAlgebra k Γ ν₁ ⊗[k] WeightedKLRAlgebra k Γ ν₂)
+            (BalancedTensor k (WeightedKLRAlgebra k Γ ν₁ ⊗[k] WeightedKLRAlgebra k Γ ν₂)
+              (WeightedKLRAlgebra k Γ ν' ⊗[k] WeightedKLRAlgebra k Γ ν'')
+              (ResIndBimodule k hP hD hZ hΓ hW hL hν' hν₁) N))
+          (_ : Module.Projective (WeightedKLRAlgebra k Γ ν₁ ⊗[k] WeightedKLRAlgebra k Γ ν₂)
+            (BalancedTensor k (WeightedKLRAlgebra k Γ ν₁ ⊗[k] WeightedKLRAlgebra k Γ ν₂)
+              (WeightedKLRAlgebra k Γ ν' ⊗[k] WeightedKLRAlgebra k Γ ν'')
+              (ResIndBimodule k hP hD hZ hΓ hW hL hν' hν₁) N)),
+          ProjK0.of (FGProj.of (k := k) (A := WeightedKLRAlgebra k Γ ν₁ ⊗[k] WeightedKLRAlgebra k Γ ν₂)
+            (BalancedTensor k (WeightedKLRAlgebra k Γ ν₁ ⊗[k] WeightedKLRAlgebra k Γ ν₂)
+              (WeightedKLRAlgebra k Γ ν' ⊗[k] WeightedKLRAlgebra k Γ ν'')
+              (ResIndBimodule k hP hD hZ hΓ hW hL hν' hν₁) N)) =
+            ∑ i, ProjK0.of (FGProj.of (k := k)
+              (A := WeightedKLRAlgebra k Γ ν₁ ⊗[k] WeightedKLRAlgebra k Γ ν₂)
+              (BalancedTensor k (WeightedKLRAlgebra k Γ ν₁ ⊗[k] WeightedKLRAlgebra k Γ ν₂)
+                (WeightedKLRAlgebra k Γ ν' ⊗[k] WeightedKLRAlgebra k Γ ν'')
+                (ResIndPiece k Γ (L i)) N)) := by
+  obtain ⟨n, f, hfi, hfr, hlt⟩ :=
+    Categorification.exists_enum_of_finite (finite_range_shuffleType (ν := ν) ν' ν₁)
+  have hlay : ∀ j : Fin n, ∃ L : ShuffleLayout ν' ν'' ν₁ ν₂, ⇑L.c = f j := fun j => by
+    obtain ⟨y, hy⟩ : f j ∈ Set.range (shuffleType (ν := ν) ν' ν₁) := hfr ▸ ⟨j, rfl⟩
+    obtain ⟨a, b, c, d, hab, hcd, hac, hbd, hc⟩ := exists_layout_of_shuffleType hν' hν₁ y
+    exact ⟨⟨a, b, c, d, hab, hcd, hac, hbd⟩, hc.trans hy⟩
+  choose L hLc using hlay
+  have hS' : ∀ j : Fin n, IsLowerSet (shuffleTypeStep f j ∪ Set.Iio (f j)) := fun j =>
+    (isLowerSet_shuffleTypeStep f j).union (isLowerSet_Iio (f j))
+  have heq := fun j : Fin n =>
+    exists_middleResInd_equiv hD hZ hP hΓ hW hL hν' hν₁ (isLowerSet_shuffleTypeStep f (j + 1))
+      (hS' j) (μ := f j) ⟨j, Nat.lt_succ_self _, le_rfl⟩ Set.subset_union_right
+      (fun h => h.elim (notMem_shuffleTypeStep hfi hlt j) (fun h => lt_irrefl (f j) (Set.mem_Iio.1 h)))
+      (fun _ hμ hμ' => eq_of_mem_shuffleTypeStep_succ j hμ hμ') (L j).hab (L j).hcd (L j).hac
+      (L j).hbd (hLc j).symm
+  choose e he using heq
+  have hcf : (fun i => ⇑(L i).c) = f := funext hLc
+  refine ⟨n, L, ?_, by rw [hcf, hfr], fun N _ _ _ _ _ _ _ => ?_⟩
+  · intro i j h
+    exact hfi ((hLc i).symm.trans (h.trans (hLc j)))
+  refine ProjK0.exists_of_balancedTensor_eq_sum
+    (fun i => resIndSubBimodule (hP := hP) (hD := hD) (hZ := hZ) (hΓ := hΓ) (hW := hW)
+      (hL := hL) (hν' := hν') (hν₁ := hν₁) (isLowerSet_shuffleTypeStep f i))
+    (fun i j hij => resIndSubBimodule_mono _ _ _ _ _ _ _ _ _ _ (shuffleTypeStep_mono f hij))
+    ?_ ?_
+    (fun i => resIndPieceMap (hS' i) (isLowerSet_shuffleTypeStep f (i + 1)) (L i) (e i) (he i))
+    (fun i => isBimoduleHom_resIndPieceMap _ _ _ _ _)
+    (fun i => resIndPieceMap_surjective _ _ _ _ _) fun i x => ?_
+  · refine (Submodule.eq_bot_iff _).2 fun z hz =>
+      ResIndBimodule.val_injective hP hD hZ hΓ hW hL hν' hν₁ ?_
+    rw [mem_resIndSubBimodule, shuffleTypeStep_zero, resIndFilt_empty, Submodule.mem_bot] at hz
+    exact hz
+  · refine resIndSubBimodule_eq_top _ _ _ _ _ _ _ _ _ ?_
+    rw [← hfr]
+    exact range_subset_shuffleTypeStep f
+  · rw [resIndPieceMap_eq_zero_iff, mem_resIndSubBimodule,
+      resIndFilt_congr hP hD hZ hΓ hW hL hν' hν₁ (S' := shuffleTypeStep f i)
+        (by rw [← hfr]; exact shuffleTypeStep_union_Iio_inter hlt i)]
+
 end GalleryAlgebra
 
 end Categorification.WeightedKLR

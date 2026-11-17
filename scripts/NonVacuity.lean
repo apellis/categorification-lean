@@ -708,6 +708,13 @@ noncomputable example (ν₁ ν₂ ν₃ : Fin 2 →₀ ℕ) :=
         (WeightedKLR.castW ℚ wkGraph (add_assoc ν₁ ν₂ ν₃) d) * l
       rw [AlgEquiv.symm_apply_apply])
 
+/-- Webster, Theorem 2.19, coassociativity of the coproduct on `K₀`, on the class of the regular
+module. -/
+example (ν₁ ν₂ ν₃ : Fin 2 →₀ ℕ) :=
+  WeightedKLR.Juxtapose.resK0_coassoc ν₁ ν₂ ν₃ wkGraph_dagger wkGraph_noZeroLoops wkGraph_standing
+    (Categorification.ProjK0.of (Categorification.FGProj.regular ℚ
+      (WeightedKLR.GalleryAlgebra.WeightedKLRAlgebra ℚ wkGraph (ν₁ + ν₂ + ν₃))))
+
 /-! ### Webster, weighted KLR algebras (arXiv:1209.2463v4), §2.5, Proposition 2.20 (a) -/
 
 /-- A weighted graph with one edge `e : 0 → 0` from a vertex to itself, of weight `1`, with
@@ -1055,6 +1062,16 @@ example (ν' ν'' : Fin 2 →₀ ℕ) :=
     (WeightedKLR.Juxtapose.res_finite wkLooplessGraphZMod4 ν' ν'' wkLooplessGraphZMod4_dagger
       (fun _ h _ => by simp [wkLooplessGraphZMod4] at h) wkLooplessGraphZMod4_standing
       (WeightedKLR.GalleryAlgebra.WeightedKLRAlgebra (ZMod 4) wkLooplessGraphZMod4 (ν' + ν'')))
+
+/-- Webster, Theorem 2.19, coassociativity of the coproduct on `K₀`, over `ZMod 4`, on the class
+of the regular module. -/
+example (ν₁ ν₂ ν₃ : Fin 2 →₀ ℕ) :=
+  WeightedKLR.Juxtapose.resK0_coassoc ν₁ ν₂ ν₃ wkLooplessGraphZMod4_dagger
+    (fun _ h _ => by simp [wkLooplessGraphZMod4] at h) wkLooplessGraphZMod4_standing
+    (Categorification.ProjK0.of (Categorification.FGProj.regular (ZMod 4)
+      (WeightedKLR.GalleryAlgebra.WeightedKLRAlgebra (ZMod 4) wkLooplessGraphZMod4
+        (ν₁ + ν₂ + ν₃))))
+
 /-- Webster, Theorem 2.8 for the Crawley-Boevey graph of `wkGraph` with the new edge directed
 into the new vertex (the orientation of Webster's Theorem 3.5). -/
 example (ν : Option (Fin 2) →₀ ℕ) := WeightedKLR.GalleryAlgebra.exists_redBasisIn (k := ℚ)

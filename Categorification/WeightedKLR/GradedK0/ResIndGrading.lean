@@ -28,7 +28,7 @@ Mackey filtration.
   `t ⊗ y ↦ [ι(t) ψ_c ι(y)]` raises degrees by `middleShift`.
 * `Juxtapose.iSup_middleGrading`: the middle balanced tensor product is spanned by homogeneous
   vectors.
-* `Juxtapose.middleResIndGradedEquiv`: the subquotient of shuffle type `c` is the middle balanced
+* `Juxtapose.middleResIndGradedEquiv`, `Juxtapose.middleResIndGradedEquivIic`: the subquotient of shuffle type `c` is the middle balanced
   tensor product shifted by `middleShift`, as a graded space.
 -/
 
@@ -263,6 +263,15 @@ noncomputable def middleResIndGradedEquiv :
 theorem middleResIndGradedEquiv_apply (x : MiddleTensor k Γ a b c d) :
     middleResIndGradedEquiv hD hZ G hP hΓ hW hL hS hcS hS' hS'l hcS' hc x =
       middleResIndMap hD hZ hP hΓ hW hL hS hcS hS' x := rfl
+
+/-- `middleResIndGradedEquiv` for the steps `S = {μ ≤ c}` and `S' = {μ < c}`. -/
+noncomputable def middleResIndGradedEquivIic :
+    Graded.shift (middleGrading G a b c d) (middleShift G a b c d) ≃ᵍ[k]
+      resIndSubquotientGrading hP hD hZ hΓ hW hL G (rfl : a + b + (c + d) = a + b + (c + d))
+        (layout_eq a b c d) (Set.Iio ⇑c) (Set.Iic ⇑c) :=
+  middleResIndGradedEquiv hD hZ G hP hΓ hW hL (isLowerSet_Iic _) (Set.mem_Iic.2 le_rfl)
+    subset_rfl (isLowerSet_Iio _) (fun h => lt_irrefl _ (Set.mem_Iio.1 h))
+    (fun _ h h' => (Set.mem_Iic.1 h).eq_or_lt.resolve_right h')
 
 end Isomorphism
 

@@ -40,9 +40,17 @@ These statements do not involve the comparison map.
   * `Juxtapose.res_projective`, `Juxtapose.res_finite`, `Juxtapose.resProj`,
     `Juxtapose.resK0` (`Δ_{ν';ν''}`, additive), `Juxtapose.resK0_of`;
   * see the last section for the proof; the KLR analogue is `KLR.KLRAlgebra.res_projective`.
-* **Coassociativity** of `Δ` in this form. The module-level isomorphism is
-  `Juxtapose.resCoassocEquiv`. The statement on `K_0` is not yet formalized: it needs `Res` along
-  `W_{ν₁} ⊗ W_{ν₂+ν₃} → W_{ν₁} ⊗ (W_{ν₂} ⊗ W_{ν₃})` to preserve projectives as well.
+* **Coassociativity** of `Δ` in this form. Formalized, ungraded, under the standing hypothesis:
+  * `Juxtapose.resK0_coassoc`: `α ∘ (Δ_{ν₁;ν₂} ⊗ id) ∘ Δ_{ν₁+ν₂;ν₃} = (id ⊗ Δ_{ν₂;ν₃}) ∘
+    Δ_{ν₁;ν₂+ν₃} ∘ castW`, with `α` the associator of `W_{ν₁} ⊗ W_{ν₂} ⊗ W_{ν₃}`;
+  * `Juxtapose.resLeftK0`, `Juxtapose.resRightK0`: `Δ ⊗ id` and `id ⊗ Δ`, restriction along
+    `ι ⊗ id` and `id ⊗ ι`;
+  * `InductionAlong.Res.tensorLeftEquiv` (`Res (φ ⊗ id) (B ⊗ C) ≅ Res φ B ⊠ C`),
+    `InductionAlong.Res.tensorLeft_projective`, `tensorLeft_finite` and their `tensorRight`
+    mirrors: restriction along `φ ⊗ id` and `id ⊗ φ` preserves finitely generated projectives
+    whenever `Res φ B` is finitely generated projective;
+  * the module-level isomorphism `Juxtapose.resCoassocEquiv`, transported to `K_0` with
+    `ProjK0.map_of_semilinear`.
 * **The Mackey identity.** The Mackey filtration of `Res ∘ Ind` gives an identity between
   `Δ(xy)` and the twisted product of `Δ(x)` and `Δ(y)`, written in `⊕ K_0` of the four-fold
   tensor products.

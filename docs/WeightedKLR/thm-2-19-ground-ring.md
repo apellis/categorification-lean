@@ -143,17 +143,20 @@ These statements do not involve the comparison map.
     `Res ∘ Ind` and the induced gradings on the steps and subquotients; the graded isomorphism
     from the shifted middle tensor product onto the Mackey subquotient
     (`Juxtapose.middleResIndGradedEquiv`, shift `middleShift`); additivity of graded `K_0` on
-    graded short exact sequences. Missing: a graded form of the bimodule-level pieces
-    `ResIndPiece` / `resIndPieceMap` with their shift; the graded analogue of the filtration
-    argument `ProjK0.exists_of_balancedTensor_eq_sum`; a comparison of graded induction
-    `GradedInd` (a balanced tensor product over `k`) with `Juxtapose.ind` (over `ℤ`); the
-    graded analogues of `ResIndPiece.resTwistEquiv` and `Juxtapose.extIndIndEquiv`; and the
-    resulting formula on graded `K_0` and its transport along `k0TensorEquiv`.
+    graded short exact sequences and along homogeneous filtrations of graded bimodules
+    (`Graded.K0.exists_of_balancedTensor_eq_sum`); the graded pieces `ResIndPiece` with their
+    shift and the graded Mackey chain in graded `K_0`, over a field
+    (`GalleryAlgebra.exists_resInd_balancedTensor_eq_sum_graded`). Missing: a comparison of
+    graded induction `GradedInd` (a balanced tensor product over `k`) with `Juxtapose.ind`
+    (over `ℤ`); the graded analogues of `ResIndPiece.resTwistEquiv` and
+    `Juxtapose.extIndIndEquiv`; and the resulting formula on graded `K_0` and its transport
+    along `k0TensorEquiv`.
 
 ## Graded `K_0` (formalized)
 
 Files `WeightedKLR/GradedK0/Grading.lean`, `Induction.lean`, `TensorK0.lean`,
-`Restriction.lean`, `ResIndGrading.lean`, and `Algebra/Graded/K0Exact.lean`.
+`Restriction.lean`, `ResIndGrading.lean`, `ResIndChainGrading.lean`, and
+`Algebra/Graded/K0Exact.lean`, `K0Filtration.lean`.
 
 * `GradingDatum.resGProj`, `GradingDatum.resK0`, `resK0_of`: graded restriction from `W_ν`
   to `W_{ν'} ⊗ W_{ν''}` on graded finitely generated projective modules and the induced map
@@ -167,6 +170,21 @@ Files `WeightedKLR/GradedK0/Grading.lean`, `Induction.lean`, `TensorK0.lean`,
   `-(b · c)` in Webster's normalization).
 * `Graded.K0.of_eq_add_of_exact`: over a field, `[P] = [M] + [Q]` in graded `K_0` for a
   short exact sequence of graded projective modules with degree-preserving maps.
+* `Graded.K0.exists_of_eq_sum_of_chain`, `Graded.K0.exists_of_balancedTensor_eq_sum`: over a
+  field, additivity of graded `K_0` along a chain of homogeneous submodules, and the class of
+  `M ⊗_A N` for a graded bimodule `M` with a chain of homogeneous sub-bimodules whose
+  successive quotients are graded bimodules `Y i` and a graded projective `N`:
+  `[M ⊗_A N] = ∑_i [Y i ⊗_A N]`.
+* `ResIndPiece.grading`, `GalleryAlgebra.resIndBimoduleGrading`: the pieces of the Mackey
+  chain carry the middle grading shifted by `middleShift`, and `Res ∘ Ind` the grading of
+  `W_ν`; all actions are graded and the steps of the chain are homogeneous
+  (`resIndSubBimodule_isHomogeneous`). `Juxtapose.exists_middleResInd_gradedEquiv`: the
+  bimodule isomorphism of `exists_middleResInd_equiv` is also a graded isomorphism.
+* `GalleryAlgebra.exists_resInd_balancedTensor_eq_sum_graded`: over a field, the Mackey chain
+  in graded `K_0`: `[Res Ind ⊗ N] = ∑_i [ResIndPiece (L i) ⊗ N]` for every graded projective
+  `N` such that all `ResIndPiece (L i) ⊗ N` are finitely generated projective, one term per
+  shuffle type. Hypotheses: those of the ungraded `exists_resInd_balancedTensor_eq_sum`
+  (Webster, Theorem 2.8, for `ν`), with a field instead of a commutative ring.
 
 * `GradingDatum.instGradedAlgebraKlrGrade`: for every grading datum `G`, `W_ν` with
   `G.klrGrade ν` is a graded algebra (the corner of `A_ν` at the degree-zero idempotent

@@ -880,6 +880,7 @@ import Categorification.WeightedKLR.Mackey.BimoduleFiltration
 import Categorification.WeightedKLR.Mackey.BlockConjugate
 import Categorification.WeightedKLR.Mackey.BlockPieces
 import Categorification.WeightedKLR.Mackey.ConjugateEmbedding
+import Categorification.WeightedKLR.Mackey.CoproductK0
 import Categorification.WeightedKLR.Mackey.CornerShuffle
 import Categorification.WeightedKLR.Mackey.CrossingGallery
 import Categorification.WeightedKLR.Mackey.Degree

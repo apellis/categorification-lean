@@ -115,6 +115,28 @@ These statements do not involve the comparison map.
     The ungraded identity has no shift. The four-block layout agrees with the source's
     (`a = ν₁ - μ`, `c = μ`, `b = μ'`, `d = ν₂ - μ'`); the exchange of the middle factors is
     implicit in the printed formula.
+  * The Mackey identity in `K_0 ⊗_ℤ K_0` (`WeightedKLR/Mackey/CoproductK0.lean`).
+    * Any commutative ring, no extra hypothesis: `Juxtapose.extIndIndEquiv` is an isomorphism
+      of `W_{a+c} ⊗ W_{b+d}`-modules
+      `Ind_{a;c}(P_a ⊠ Q_c) ⊠ Ind_{b;d}(P_b ⊠ Q_d) ≅
+      (W_{a+c} ⊗ W_{b+d}) e' ⊗_{(W_a ⊗ W_b) ⊗ (W_c ⊗ W_d)} ((P_a ⊠ P_b) ⊠ (Q_c ⊠ Q_d))`,
+      hence `Juxtapose.middleIndK0_extTensor`:
+      `middleInd((x_a ⊠ x_b) ⊠ (y_c ⊠ y_d)) = (x_a · y_c) ⊠ (x_b · y_d)` in
+      `K_0(W_{a+c} ⊗ W_{b+d})`. With the comparison map `ProjK0.extTensorHom`
+      (`c` above, ungraded, `[P] ⊗ [Q] ↦ [P ⊠ Q]`) and the twisted product
+      `ShuffleLayout.twistedMulK0`, `T_L((x_a ⊗ x_b) ⊗ (y_c ⊗ y_d)) =
+      (x_a · y_c) ⊗ (x_b · y_d)` (with `castW`), one has
+      `c(T_L(u ⊗ w)) = (Ind_{a;c} ⊗ Ind_{b;d}) ∘ (exchange) (c u ⊠ c w)`
+      (`ShuffleLayout.extTensorHom_twistedMulK0`).
+    * Under the explicit hypothesis `ProjK0.ExtTensorBijective` (the ungraded comparison
+      `K_0(W_μ) ⊗_ℤ K_0(W_{μ'}) → K_0(W_μ ⊗ W_{μ'})` is bijective): `coproductK0 ν₁ ν₂`,
+      `Δ_{ν₁,ν₂} = c⁻¹ ∘ resK0 : K_0(W_{ν₁+ν₂}) → K_0(W_{ν₁}) ⊗_ℤ K_0(W_{ν₂})`, and
+      `exists_coproductK0_indK0_eq_sum`: under `Γ.Dagger`, `Γ.NoZeroLoops`, `Γ.Standing`,
+      over any commutative ring, if the comparison is bijective for all pairs `(μ, μ')`, then
+      for `ν₁ + ν₂ = ν' + ν''` there are layouts `L i`, one per shuffle type, with
+      `Δ_{ν₁,ν₂}(x · y) = ∑_i T_{L i}(Δ_{a,b} x ⊗ Δ_{c,d} y)` for all `x`, `y` (ungraded).
+      The bijectivity hypothesis is not proved for any weighted KLR algebra; see the next
+      section.
   * Open: the graded statement, with the shift `-(μ · μ')` of the term of shuffle type `μ`.
     It needs a grading of the pieces compatible with the filtration
     (`Juxtapose.segDeg_chamber_swapChamber` computes the degree of the exchange), a graded
@@ -182,3 +204,26 @@ Hypotheses of `Juxtapose.res_projective`: `Γ.Standing` (§2.1 of the source; it
 symmetry of the loop polynomials, the source's reading of the degree-0 loop relation, used by
 the reflection), `Γ.Dagger` (the source's condition (†)) and `Γ.NoZeroLoops` (an encoding
 convention of the library), the hypotheses under which the gallery basis is formalized.
+
+### The ungraded comparison map
+
+`coproductK0` and `exists_coproductK0_indK0_eq_sum` use the ungraded `K_0` of all finitely
+generated projective modules, and assume that `c` is bijective there
+(`ProjK0.ExtTensorBijective`). This is not proved, and no result in the library or in Mathlib
+gives it, even over an algebraically closed field.
+
+* `W_ν` is infinite-dimensional and its grading is not bounded below in general, so neither
+  Krull–Schmidt for finite-dimensional algebras nor the graded Krull–Schmidt theorem applies
+  to ungraded modules.
+* `KLR.TensorK0Hyp.extTensorEquiv` concerns the graded `K_0` of graded projective modules. A
+  finitely generated projective `W_ν`-module need not be gradable, and no comparison between
+  the ungraded `K_0` and the graded `K_0` (modulo `q = 1`) is formalized or given in the source.
+* Already for `W_0 = k[x]`-type factors, ungraded `K_0` is controlled by results such as
+  Quillen–Suslin, which are not in Mathlib.
+
+So `Δ` with values in `K_0(W_{ν₁}) ⊗ K_0(W_{ν₂})` is formalized only under this hypothesis.
+The options for the maintainer: (a) the graded route, with a `HasGdim` structure on `W_ν`, a
+graded `K_0` of `W_ν`, the graded Mackey identity and absolute irreducibility (items 1–3
+above), where `KLR.TensorK0Hyp.extTensorEquiv` gives the comparison; (b) keep
+`ProjK0.ExtTensorBijective` as an explicit hypothesis of the ungraded statement (current
+state); (c) new theory for the ungraded comparison, which needs the maintainer's approval.

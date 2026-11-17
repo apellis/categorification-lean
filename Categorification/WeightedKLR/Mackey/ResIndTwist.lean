@@ -388,10 +388,11 @@ theorem extCast_smul (w : WeightedKLRAlgebra k Γ (L.a + L.b) ⊗[k] WeightedKLR
     | tmul p q =>
       change extCast L P Q ((x ⊗ₜ[k] y) • ExtTensor.tmul (toLeftRes L P p) (toRightRes L Q q)) =
         _ • extCast L P Q (ExtTensor.tmul (toLeftRes L P p) (toRightRes L Q q))
-      rw [ExtTensor.smul_tmul, smul_toLeftRes, smul_toRightRes, extCast_tmul, extCast_tmul,
-        ShuffleLayout.rightEquiv, Algebra.TensorProduct.congr_apply,
-        Algebra.TensorProduct.map_tmul, ExtTensor.smul_tmul]
-      rfl
+      rw [ExtTensor.smul_tmul, ShuffleLayout.rightEquiv, Algebra.TensorProduct.congr_apply,
+        Algebra.TensorProduct.map_tmul]
+      have h := (ExtTensor.smul_tmul (k := k) (P := P.carrier) (Q := Q.carrier)
+        (castW k Γ L.hab x) (castW k Γ L.hcd y) p q).symm
+      exact h
     | add v v' hv hv' => rw [smul_add, map_add, hv, hv', map_add, smul_add]
   | add w w' hw hw' => rw [add_smul, map_add, hw, hw', map_add, add_smul]
 

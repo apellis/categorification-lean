@@ -1043,6 +1043,7 @@ import Categorification.KLR.CyclotomicGradedRestriction
 import Categorification.KLR.CyclotomicGradedFrobenius
 import Categorification.KLR.CyclotomicRepeatedDimension
 import Categorification.KLR.CyclotomicDividedDimension
+import Categorification.KLR.CyclotomicCornerDimension
 import Categorification.KLR.CyclotomicMixedCommutatorK0
 import Categorification.WeightedKLR.RedStrands.EraseRed
 import Categorification.WeightedKLR.RedStrands.SingleBlack
@@ -1067,11 +1068,11 @@ import Categorification.WeightedKLR.RedStrands.FirstWeightProjectives
 import Categorification.WeightedKLR.RedStrands.FundamentalCornerEuler
 import Categorification.WeightedKLR.RedStrands.FirstWeightLattice
 import Categorification.WeightedKLR.RedStrands.TensorWordInduction
-import Categorification.WeightedKLR.RedStrands.TensorWordSpanning
+import Categorification.WeightedKLR.RedStrands.TensorWordRelations
 import Categorification.WeightedKLR.RedStrands.SingleBlackEulerForm
 import Categorification.WeightedKLR.RedStrands.SingleBlackLattice
 import Categorification.WeightedKLR.RedStrands.SingleRedGrading
-import Categorification.WeightedKLR.RedStrands.SingleRedHomForm
+import Categorification.WeightedKLR.RedStrands.SingleRedEulerPolynomial
 import Categorification.KLR.CyclotomicQuantumCommutator
 import Categorification.WeightedKLR.RedStrands.AddRedInjective
 import Categorification.WeightedKLR.RedStrands.LastRedInduction
@@ -1079,6 +1080,8 @@ import Categorification.WeightedKLR.RedStrands.LastRedTruncation
 import Categorification.WeightedKLR.RedStrands.CornerSimple
 import Categorification.WeightedKLR.RedStrands.LastRedSupport
 import Categorification.WeightedKLR.RedStrands.LastRedLayerK0
+import Categorification.WeightedKLR.RedStrands.LastRedRank
+import Categorification.WeightedKLR.RedStrands.LastRedShuffle
 import Categorification.WeightedKLR.RedStrands.LastRedPairing
 import Categorification.WeightedKLR.RedStrands.FirstWeightFormCounterexample
 import Categorification.WeightedKLR.RedStrands.TensorAdjointConvention

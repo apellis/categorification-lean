@@ -113,7 +113,8 @@ private theorem rationalize_smul (c : LP) (x : P) :
     smul_eq_mul, mul_one]
   rfl
 
-private theorem integralEval_invert (p : LP) :
+/-- The categorical Laurent parameter evaluates at the inverse of the tensor lattice parameter. -/
+theorem integralEval_invert (p : LP) :
     integralLaurentEval (LaurentPolynomial.invert p) = qToV p := by
   induction p using LaurentPolynomial.induction_on' with
   | add a b ha hb => simp only [map_add, ha, hb]

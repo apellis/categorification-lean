@@ -200,6 +200,66 @@ private theorem oneArrowParameters :
     (fun a b _ => unfQ_leadingCoeff arr a b) (coverWeight arr)
     (fun _ _ h => unfQ_natDegree_eq_neg_pair arr h) hij
 
+/-- Two distinct words in the same three-strand A₂ block, with a repeated
+colour and coefficients in characteristic two. -/
+example (d : ℤ) := KLR.CycKLR.finrank_cornerGrade_huShi oneArrowParameters (fun _ => 2)
+  (KLR.KLRAlgebra.Seq.ofList [false,true,false] rfl)
+  (KLR.KLRAlgebra.Seq.ofList [false,false,true] (by decide)) d
+
+example := KLR.CycKLR.gdimPoly_corner_permutationFormula oneArrowParameters (fun _ => 2)
+  (KLR.KLRAlgebra.Seq.ofList [false,true,false] rfl)
+  (KLR.KLRAlgebra.Seq.ofList [false,false,true] (by decide))
+
+example := KLR.CycKLR.finrank_corner_permutationFormula oneArrowParameters (fun _ => 2)
+  (KLR.KLRAlgebra.Seq.ofList [false,true,false] rfl)
+  (KLR.KLRAlgebra.Seq.ofList [false,false,true] (by decide))
+
+/-- At level one on both simple roots, the two choices of the repeated
+target occurrence cancel with opposite signed quantum integers. -/
+example : KLR.CycKLR.huShiPolynomial (coverCartan arr) (fun _ => 1)
+    [false,true,false] [false,false,true] = 0 := by
+  open KLR.CycKLR LieLean.QuantumGroup in
+    simp [huShiPolynomial,huShiFromRight,markedWords,prefixPair,di,A,coverCartan,arr,qIntU,qNatU]
+  left
+  change _ + (-(∑ s ∈ Finset.range 1, ↑KLR.qUnitLP ^ (0-s) * (↑KLR.qUnitLP⁻¹ : LaurentPolynomial ℤ)^s)) * _ = 0
+  simp
+
+open KLR KLR.CycKLR in
+private theorem mixedDegreeNegOne : (huShiPolynomial (coverCartan arr) (fun _ => 2)
+    [false,true,false] [false,false,true]).coeff (-1) = 1 := by
+  have h : huShiPolynomial (coverCartan arr) (fun _ => 2) [false,true,false] [false,false,true] =
+      (LieLean.QuantumGroup.qIntU qUnitLP 2 * (LaurentPolynomial.T 2 *
+        (LieLean.QuantumGroup.qIntU qUnitLP 3 * (LaurentPolynomial.T 1 * LieLean.QuantumGroup.qIntU qUnitLP 2)))) := by
+    simp [huShiPolynomial,huShiFromRight,markedWords,prefixPair,di,A,coverCartan,arr,
+      LieLean.QuantumGroup.qIntU,LieLean.QuantumGroup.qNatU]
+  rw [h]
+  have h2 : LieLean.QuantumGroup.qIntU qUnitLP 2 = LaurentPolynomial.T 1 + LaurentPolynomial.T (-1) := by
+    change LieLean.QuantumGroup.qNatU qUnitLP 2 = _
+    rw [qNatU_eq_qint,qint_qUnitLP,Finset.sum_range_succ,Finset.sum_range_succ,Finset.sum_range_zero,zero_add]
+    norm_num
+  have h3 : LieLean.QuantumGroup.qIntU qUnitLP 3 = LaurentPolynomial.T 2 + 1 + LaurentPolynomial.T (-2) := by
+    change LieLean.QuantumGroup.qNatU qUnitLP 3 = _
+    rw [qNatU_eq_qint,qint_qUnitLP,Finset.sum_range_succ,Finset.sum_range_succ,Finset.sum_range_succ,Finset.sum_range_zero,zero_add]
+    norm_num
+  rw [h2,h3]
+  simp only [add_mul,mul_add,one_mul,← LaurentPolynomial.T_add]
+  simp only [AddMonoidAlgebra.coeff_add,Finsupp.add_apply,LaurentPolynomial.T_apply]
+  decide
+
+/-- At level two the same mixed corner has a one-dimensional degree minus
+one component over the field with two elements. -/
+example :
+    let s := KLR.KLRAlgebra.Seq.ofList [false,true,false] rfl
+    let t := KLR.KLRAlgebra.Seq.ofList [false,false,true]
+      (show (([false,false,true] : List Bool) : Multiset Bool) = ([false,true,false] : List Bool) by decide)
+    Module.finrank (ZMod 2) ↥(KLR.CycKLR.grade oneArrowParameters.gradingDatum (fun _ => 2) _ (-1) ⊓
+      KLR.CycKLR.corner (ZMod 2) (unfQ arr) (fun _ => Polynomial.X ^ 2) s t) = 1 := by
+  have h := KLR.CycKLR.finrank_cornerGrade_huShi oneArrowParameters (fun _ => 2)
+    (KLR.KLRAlgebra.Seq.ofList [false,true,false] rfl)
+    (KLR.KLRAlgebra.Seq.ofList [false,false,true] (by decide)) (-1)
+  rw [KLR.KLRAlgebra.Seq.ofFn_ofList,KLR.KLRAlgebra.Seq.ofFn_ofList,mixedDegreeNegOne] at h
+  exact_mod_cast h
+
 /-- Two ordered red strands carry different fundamental colours in type A₂. -/
 private def twoRedWeights (r : Fin 2) : Bool →₀ ℕ := Finsupp.single (r == 0) 1
 
@@ -2287,6 +2347,39 @@ example := CycKLR.projectiveIntegralEquiv_raise params (fun _ => 2) datum 2 domi
 example := CycKLR.projectiveIntegralEquiv_lower params (fun _ => 2) datum 2 dominantTwo regular ()
   (CycKLR.dividedWordClass params (fun _ => 2) [((), 1)])
 
+private abbrev level : Fin 1 → Unit →₀ ℕ := fun _ => Finsupp.single () 2
+private abbrev bottom : Multiset Unit := {(), ()}
+private abbrev regularLower :=
+  Graded.K0.of (Graded.GProj.regular (CycKLR.grade params.gradingDatum (fun _ => 2) bottom))
+
+/-- In the bottom weight of the level-two representation, the all-weight
+Euler form computes a pairing with a shifted virtual regular class. -/
+example := CycKLR.homForm_eq_websterForm params (fun _ => 2) datum 2 dominantTwo regular bottom
+  regularLower (-(LaurentPolynomial.T 1 : LaurentPolynomial ℤ) • regularLower)
+
+attribute [local instance 1100] IsIdempotentElem.instAlgebraCorner_categorification
+
+private abbrev redGrade := Stendhal.tensorProductGrade
+  (Stendhal.stendhalGradingDatum level params.gradingDatum (di (CartanDatum.ofGraph (⊥ : SimpleGraph Unit)))
+    (fun i => (two_mul_di (CartanDatum.ofGraph (⊥ : SimpleGraph Unit)) i).symm)) bottom
+
+private abbrev redRegular : Graded.K0 redGrade :=
+  Graded.K0.of (𝒜 := redGrade) (Graded.GProj.regular redGrade)
+
+/-- The same comparison for the actual one-red, two-black Stendhal algebra. -/
+example := Stendhal.SingleRed.homForm_eq_shapovalov params level datum 2
+  (fun i => by simpa [level] using dominantTwo i) regular bottom redRegular redRegular
+
+/-- The bottom-weight Hom polynomial is determined even on virtual
+differences of shifted projectives. -/
+example := Stendhal.SingleRed.existsUnique_eulerPolynomial params level datum 2
+  (fun i => by simpa [level] using dominantTwo i) regular bottom
+  (redRegular - (LaurentPolynomial.T 1 : LaurentPolynomial ℤ) • redRegular) redRegular
+
+example := Stendhal.SingleRed.homGdimPoly_eq_shapovalov params level datum 2
+  (fun i => by simpa [level] using dominantTwo i) regular bottom
+  (Graded.GProj.regular redGrade) (Graded.GProj.regular redGrade)
+
 private def dividedRedWord : Stendhal.FirstWeight.TensorWord Unit 2 :=
   ((Stendhal.FirstWeight.TensorWord.empty.red.black () 2).red).black () 1
 
@@ -2302,6 +2395,11 @@ example := Stendhal.FirstWeight.span_tensorWordProjective (fun _ : Fin 2 => Fins
 
 example := Stendhal.FirstWeight.span_tensorWordProjectiveClass (fun _ : Fin 2 => Finsupp.single () 2)
   (CartanDatum.ofGraph (⊥ : SimpleGraph Unit)) params
+
+example := Stendhal.FirstWeight.exists_wordEquivAt_iff (fun _ : Fin 2 => Finsupp.single () 2)
+  (CartanDatum.ofGraph (⊥ : SimpleGraph Unit)) params twoTensorFactors regular (Multiset.replicate 3 ())
+example := Stendhal.FirstWeight.exists_tensorWordEquiv_iff (fun _ : Fin 2 => Finsupp.single () 2)
+  (CartanDatum.ofGraph (⊥ : SimpleGraph Unit)) params twoTensorFactors regular
 
 end CyclotomicHighestWeight
 
@@ -2581,6 +2679,18 @@ example := lastRedLayerK0_surjective Q Λ diagramDegrees p h (by decide) paramet
 
 example := lastRedLayerSourceIndecClassEquiv parameters (Λ ∘ Fin.castSucc) (0 : Multiset (Fin 1))
   (Λ 1) β (restrictRedGrading Q Λ diagramDegrees) (restrictBlackGrading Q Λ diagramDegrees)
+
+example := lastRedRankEmbedding Λ β parameters diagramDegrees
+example := lastRedK0_rank_le Λ β parameters diagramDegrees
+
+example := lastRedShuffle_eq_one (show 1+2=3 from rfl)
+  ⟨1, TypeA.isShuffle_one _⟩ (by decide) (by decide)
+
+private def swapTwo : TypeA.Shuffle (show 1+1=2 from rfl) :=
+  ⟨TypeA.sadj 2 0, fun _ _ h => (by omega : False).elim, fun _ _ h => (by omega : False).elim⟩
+
+example := shuffle_right_descent (show 1+1=2 from rfl) swapTwo (by decide : 0+1<2)
+  (x := 0) (y := 0) (by decide) (by decide)
 
 end LastRedLayerExample
 

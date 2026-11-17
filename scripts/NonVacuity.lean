@@ -1693,6 +1693,40 @@ private abbrev rqC := (wkParallelGraph_standing (ZMod 2)).cartanDatum
 private abbrev rqQ := (wkParallelGraph (ZMod 2)).klrQ
 private theorem rqHyp : KLR.IsRouquierQ rqC rqQ :=
   (wkParallelGraph_standing (ZMod 2)).isRouquierQ
+
+/-- Finiteness in a nonzero characteristic with two red strands and repeated black labels. -/
+example := Stendhal.tensorProductAlgebra_finite (fun r : Fin 2 => Finsupp.single r 2)
+  ({0, 1, 0} : Multiset (Fin 2)) rqHyp
+
+/-- Two red weights and repeated, interacting black colours in characteristic two. -/
+example := Stendhal.span_dividedSequenceProj
+  (fun r : Fin 2 => Finsupp.single r 2) rqC rqHyp ({0, 1, 0} : Multiset (Fin 2))
+
+/-- Three equal strands vanish at level two, and the third lowering kills the vacuum. -/
+example := KLR.CycKLR.subsingleton_replicate_of_lt rqQ (fun _ => 2) 0 3 (by decide)
+example := KLR.CycKLR.lower_pow_vacuum_eq_zero (fun _ => 2) rqHyp.gradingDatum 0
+  (Graded.K0.of (Graded.GProj.regular _))
+
+/-- Eventual vanishing in a two-colour block for the parallel-edge polynomial
+over the field of two elements. -/
+example := KLR.CycKLR.eventually_subsingleton_replicate_add (fun _ => 2)
+  rqHyp.aeval_zero_first 0 ({1} : Multiset (Fin 2))
+example := KLR.CycKLR.lower_locally_nilpotent (fun _ => 2) rqHyp.aeval_zero_first
+  rqHyp.gradingDatum 0 (DirectSum.lof (LaurentPolynomial ℤ) _ _ ({1} : Multiset (Fin 2))
+    (Graded.K0.of (Graded.GProj.regular _)))
+
+/-- The ordinary induction Serre relation and rational word span for the
+parallel-edge polynomial in characteristic two. -/
+example := KLR.CycKLR.affine_clsW_serre rqHyp (i := (0 : Fin 2)) (j := 1) (by decide)
+example := KLR.CycKLR.lower_serre rqHyp (fun _ => 2) (i := (0 : Fin 2)) (j := 1) (by decide)
+example := KLR.CycKLR.span_lowerWordQ rqHyp (fun _ => 2)
+
+/-- Two red weights and two black colours over the field of two elements. -/
+example := Stendhal.tensorProductAlgebra_finite
+  (fun _ : Fin 2 => Finsupp.single (0 : Fin 2) 2) ({0, 1} : Multiset (Fin 2)) rqHyp
+example := Stendhal.tensorProjection_dot_nilpotent
+  (fun _ : Fin 2 => Finsupp.single (0 : Fin 2) 2) ({0, 1} : Multiset (Fin 2)) rqHyp ⟨2, by decide⟩
+
 private abbrev rqN := rqC.dij (0 : Fin 2) 1 + 1
 private abbrev rqWord : List (Fin 2) := 1 :: List.replicate rqN 0
 private abbrev rqWeight : Multiset (Fin 2) := rqWord
@@ -2080,6 +2114,7 @@ example := Stendhal.SingleRed.indK0_cyclotomicK0Equiv Λ G (fun _ => 1) (fun _ =
   (Graded.K0.of (Graded.GProj.regular (KLR.CycKLR.grade G (Λ 0) {0})))
 example := Stendhal.SingleRed.totalCyclotomicK0Equiv_lof Λ G (fun _ => 1) (fun _ => rfl) β
   (Graded.K0.of (Graded.GProj.regular (KLR.CycKLR.grade G (Λ 0) β)))
+
 example := Stendhal.SingleRed.indK0_vacuum Λ G (fun _ => 1) (fun _ => rfl) 0
 
 end OneRedEquivalence
@@ -2097,6 +2132,27 @@ example := KLR.CycKLR.totalQuotientK0_surjective G (fun _ => 2)
   (KLR.klQ_symm _) (fun _ => (by decide : (0 : ℤ) < 2))
 
 end CyclotomicLifting
+
+namespace AffineCoverGrading
+
+open KLR Stendhal
+
+
+private abbrev G := klGradingDatum (ZMod 2) (⊥ : SimpleGraph Unit)
+private abbrev red : Fin 2 → Unit →₀ ℕ := fun _ => Finsupp.single () 1
+private abbrev H := affineCoverGrading red G (fun _ => 1) (fun _ => rfl)
+private abbrev μ := stendhalWeight 2 (0 : Multiset Unit)
+private def redPair : Seq μ := KLRAlgebra.Seq.ofList [Sum.inr 0, Sum.inr 1] (by decide)
+
+example : H.degΨ (Sum.inr 0) (Sum.inr 1) = 1 := by decide
+
+example := affineCover_mem_grade red G (fun _ => 1) (fun _ => rfl) (0 : Multiset Unit)
+  (H.ψ_mul_e_mem_grade' 0 redPair)
+
+example : affineCoverQ (klQ (k := ZMod 2) (⊥ : SimpleGraph Unit)) red (Sum.inr 0) (Sum.inr 1) ≠ 0 :=
+  affineCoverQ_ne_zero red (fun a b h => (h (Subsingleton.elim a b)).elim) _ _ (by decide)
+
+end AffineCoverGrading
 
 namespace CyclotomicDividedWords
 
@@ -2133,15 +2189,13 @@ section RedCornerEquivalence
 attribute [local instance 1100] IsIdempotentElem.instAlgebraCorner_categorification
 
 /-- Adding a second red weight in a block with repeated and adjacent colours. -/
-example := Stendhal.appendRedStendhalValue_injective wkWeightZeroGraph
+example := Stendhal.appendRedStendhalValue_injective wkWeightZeroGraph.klrQ
   (fun _ : Fin 2 => Finsupp.single (0 : Fin 2) 2) ({0, 1, 0} : Multiset (Fin 2))
-  wkWeightZeroGraph_dagger (fun _ => by simp [wkWeightZeroGraph]) (fun _ => rfl)
-  (fun _ => rfl) wkWeightZeroGraph_standing
+  wkWeightZeroGraph_standing.isRouquierQ
 
-noncomputable example := Stendhal.appendRedEquiv wkWeightZeroGraph
+noncomputable example := Stendhal.appendRedEquiv wkWeightZeroGraph.klrQ
   (fun _ : Fin 2 => Finsupp.single (0 : Fin 2) 2) ({0, 1, 0} : Multiset (Fin 2))
-  wkWeightZeroGraph_dagger (fun _ => by simp [wkWeightZeroGraph]) (fun _ => rfl)
-  (fun _ => rfl) wkWeightZeroGraph_standing
+  wkWeightZeroGraph_standing.isRouquierQ
 
 end RedCornerEquivalence
 
@@ -2162,6 +2216,114 @@ example := blackLower_lof G true ({true} : Multiset Bool)
   (Graded.K0.of (Graded.GProj.regular (tensorProductGrade G {true})))
 
 
+noncomputable example := lastRedIndK0 G ({true} : Multiset Bool)
+
 end RightBlackInduction
+
+namespace TwoRedFirstWeight
+
+open Categorification LieLean.QuantumGroup LieLean.QuantumGroup.GrandLoop
+open Categorification.Stendhal.FirstWeight LusztigF
+
+
+private def sl2HighestTwo : Dom sl2RootDatum :=
+  ⟨2 • AddMonoidHom.id ℤ, fun _ => by simp [sl2RootDatum]⟩
+
+private theorem sl2XRegular : sl2RootDatum.IsXRegular := by
+  change LinearIndependent ℤ sl2RootDatum.root
+  rw [linearIndependent_unique_iff]
+  intro h
+  have hh := congrArg (fun f : ℤ →+ ℤ => f 1) h
+  norm_num at hh
+
+private def twoWeights : Fin 2 → Dom sl2RootDatum := fun _ => sl2HighestTwo
+
+private def redLevelTwo : Fin 2 → Unit →₀ ℕ := fun _ => Finsupp.single () 2
+
+private def redLevelTwoGrading :=
+  Stendhal.stendhalGradingDatum redLevelTwo (KLR.klGradingDatum ℚ (⊥ : SimpleGraph Unit))
+    (fun _ => 1) (fun _ => rfl)
+
+private theorem redPos (r : Fin 2) : 0 < redLevelTwo r () := by simp [redLevelTwo]
+
+private theorem weightAgreement (r : Fin 2) :
+    (twoWeights r).1 (sl2RootDatum.coroot ()) = (redLevelTwo r () : ℤ) := by
+  simp [twoWeights, sl2HighestTwo, redLevelTwo, sl2RootDatum]
+
+private theorem dotsPos (a : Unit ⊕ Fin 2) : 0 < redLevelTwoGrading.degX a := by
+  cases a <;> exact (by decide : (0 : ℤ) < 2)
+
+example := sequenceLatticeEquiv_boundary () twoWeights redLevelTwoGrading
+  sl2XRegular weightAgreement dotsPos redPos (1 : Fin 2)
+
+example := sequenceLatticeEquiv_boundary_shift () twoWeights redLevelTwoGrading
+  sl2XRegular weightAgreement dotsPos redPos (0 : Fin 2) 1
+
+example : pVector twoWeights () (1 : Fin 2) =
+    (RatFunc.X : RatFunc ℚ) ^ (-2 : ℤ) • loweredPure twoWeights () (0 : Fin 2) +
+      loweredPure twoWeights () (1 : Fin 2) := by
+  have h : Finset.Iic (1 : Fin 2) = Finset.univ := by decide
+  rw [pVector_eq_sum, h, Fin.sum_univ_two, tensor_laurent_smul, tensor_laurent_smul]
+  have h₀ : prefixCoefficient twoWeights () (1 : Fin 2) (0 : Fin 2) = LaurentPolynomial.T (-2) := by
+    rw [prefixCoefficient, Fin.prod_univ_two]
+    change LaurentPolynomial.T 0 * LaurentPolynomial.T (-2) = _
+    simp
+  have h₁ : prefixCoefficient twoWeights () (1 : Fin 2) (1 : Fin 2) = LaurentPolynomial.T 0 := by
+    rw [prefixCoefficient, Fin.prod_univ_two]
+    change LaurentPolynomial.T 0 * LaurentPolynomial.T 0 = _
+    simp
+  rw [h₀, h₁, integralLaurentEval_T, integralLaurentEval_T, zpow_zero, one_smul]
+
+end TwoRedFirstWeight
+
+namespace LastRedSuffix
+
+
+open Stendhal KLR
+
+private def rrbb : Seq (stendhalWeight 2 ({0, 0} : Multiset (Fin 1))) :=
+  KLRAlgebra.Seq.ofList [.inr 0, .inr 1, .inl 0, .inl 0] (by decide)
+
+private theorem ordered : IsRedOrdered rrbb := by unfold IsRedOrdered; decide
+
+/-- With two fundamental red weights, the final pair of equal black strands
+factors through a loading with one black strand after the last red. -/
+example := lastRed_boundary_mem_span (fun _ _ : Fin 1 => (0 : MvPolynomial (Fin 2) ℚ))
+  (fun _ : Fin 2 => Finsupp.single (0 : Fin 1) 1) rrbb ordered 1 (by decide) 0
+  rfl rfl (by simp [stendhalWeight]) (by
+    simp only [Finsupp.single_eq_same]
+    unfold KLRAlgebra.IsConstOn
+    decide)
+
+end LastRedSuffix
+
+namespace OneRedEulerForm
+
+open Categorification LieLean.QuantumGroup LieLean.QuantumGroup.GrandLoop
+open Stendhal.SingleBlack
+
+private def highestTwo : Dom sl2RootDatum :=
+  ⟨2 • AddMonoidHom.id ℤ, fun _ => by simp [sl2RootDatum]⟩
+
+private theorem xRegular : sl2RootDatum.IsXRegular := by
+  change LinearIndependent ℤ sl2RootDatum.root
+  rw [linearIndependent_unique_iff]
+  intro h
+  have hh := congrArg (fun f : ℤ →+ ℤ => f 1) h
+  norm_num at hh
+
+private def levelTwo : Fin 1 → Unit →₀ ℕ := fun _ => Finsupp.single () 2
+
+private def gradingTwo :=
+  Stendhal.stendhalGradingDatum levelTwo (KLR.klGradingDatum ℚ (⊥ : SimpleGraph Unit))
+    (fun _ => 1) (fun _ => rfl)
+
+example := regular_homGdimPoly_eq_shapovalov highestTwo xRegular () gradingTwo
+  (by simp [highestTwo, levelTwo, sl2RootDatum]) (by decide)
+
+example := regular_shift_homGdimPoly_eq_shapovalov highestTwo xRegular () gradingTwo
+  (by simp [highestTwo, levelTwo, sl2RootDatum]) (by decide) (by simp [levelTwo]) 1 0
+
+end OneRedEulerForm
 
 end NonVacuity

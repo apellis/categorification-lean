@@ -1,5 +1,6 @@
 import Categorification.Algebra.AugmentationQuotient
 import Categorification.Algebra.BalancedTensor
+import Categorification.Algebra.BalancedTensorExact
 import Categorification.Algebra.CoactionGrading
 import Categorification.Algebra.Coinvariant
 import Categorification.Algebra.CoinvariantGraded
@@ -874,6 +875,7 @@ import Categorification.WeightedKLR.Induction.Monoidal
 import Categorification.WeightedKLR.Induction.Reflection
 import Categorification.WeightedKLR.Induction.Restriction
 import Categorification.WeightedKLR.Induction.TensorMap
+import Categorification.WeightedKLR.Mackey.BimoduleFiltration
 import Categorification.WeightedKLR.Mackey.BlockConjugate
 import Categorification.WeightedKLR.Mackey.BlockPieces
 import Categorification.WeightedKLR.Mackey.ConjugateEmbedding

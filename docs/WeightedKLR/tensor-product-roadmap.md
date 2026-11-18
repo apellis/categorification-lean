@@ -301,8 +301,22 @@ to a single local braid (`signedCapBlock_crossInside`). All admissible pairs sat
 of the relation ideals used in the local calculations. Reflection of the
 black KL III relations is explicit in its definition. In this presentation
 `capBlock_push_crossInside` resolves the interior crossing with an arbitrary
-continuation. The remaining
-successor cases include contractions of cups against the swept cap.
+continuation.
+
+In this presentation, `signedCapKL_downwardDiagramSpan_eq_top` gives
+entrywise spanning for any finite ordered family of dominant reds and
+any black content. Of the eight placements of a cup, the cup creating
+both legs of the cap closes to a bubble. Moving it to the far left in the
+violating quotient leaves a sum of dot diagrams. The other placements use
+interchange, the triangle identities, and curl and pitchfork reductions.
+Together with the dot and crossing cases these exhaust the terminal-cap induction.
+`signedCapKL_ordinaryToDownwardMatrix_surjective` gives the resulting matrix
+surjection over a commutative ring when the red exponents equal the coroot
+coordinates. For finitely many colours
+`signedCapKL_ordinaryToDownwardMatrix_ofWeights_surjective` takes the
+exponents directly from the weights. Extending the spanning result to
+unrestricted Webster black parameters requires comparing the black relations.
+The counterexample to faithfulness above applies independently.
 
 For a presentation with compatible pitchfork coefficients, impose the remaining relations in Definition
 4.24, straighten signed diagrams with all-down boundary into downward diagrams,

@@ -159,20 +159,21 @@ def GradedAntiInvolution.unopAlgEquiv : Aᵐᵒᵖ ≃ₐ[k] A where
     rw [Algebra.algebraMap_eq_smul_one, ψ.map_smul, ψ.map_one]
 
 omit [GradedAlgebra 𝒜] in
-theorem GradedAntiInvolution.isGradedAlgEquiv_unopAlgEquiv :
-    IsGradedAlgEquiv ψ.unopAlgEquiv (oppositeGrade 𝒜) 𝒜 := fun _ b =>
-  ⟨fun h => by
-    have h' := ψ.mem_grade h
-    change ψ (ψ b.unop) ∈ 𝒜 _ at h'
-    rw [ψ.invol] at h'
-    exact h', fun h => ψ.mem_grade h⟩
+theorem GradedAntiInvolution.unopAlgEquiv_mem (ψ : GradedAntiInvolution 𝒜) ⦃d : ℤ⦄
+    ⦃b : Aᵐᵒᵖ⦄ (h : b ∈ oppositeGrade 𝒜 d) : ψ.unopAlgEquiv b ∈ 𝒜 d :=
+  ψ.mem_grade h
 
-/-- The right twist of a graded module is its restriction along `op a ↦ ψ a`. -/
-def GMod.rightTwistRestrictIso (M : GMod 𝒜) :
-    (M.rightTwist ψ).Iso (M.restrict ψ.isGradedAlgEquiv_unopAlgEquiv) where
+omit [GradedAlgebra 𝒜] in
+theorem GradedAntiInvolution.unopAlgEquiv_symm_mem (ψ : GradedAntiInvolution 𝒜) ⦃d : ℤ⦄
+    ⦃a : A⦄ (h : a ∈ 𝒜 d) : ψ.unopAlgEquiv.symm a ∈ oppositeGrade 𝒜 d :=
+  ψ.mem_grade h
+
+/-- The right twist of a graded projective is its restriction along `a ↦ op (ψ a)`. -/
+def GProj.rightTwistRestrictIso (P : GProj 𝒜) :
+    (P.rightTwist ψ).Iso (GProj.restrict ψ.unopAlgEquiv.symm ψ.unopAlgEquiv_mem P) where
   toLinearEquiv :=
-    { toFun := fun m => (show M from m)
-      invFun := fun m => (show M from m)
+    { toFun := fun m => (show P.carrier from m)
+      invFun := fun m => (show P.carrier from m)
       left_inv := fun _ => rfl
       right_inv := fun _ => rfl
       map_add' := fun _ _ => rfl
@@ -195,16 +196,16 @@ namespace K0
 identifies the graded Grothendieck group of left graded projectives with that of right
 graded projectives, as `ℤ[q, q⁻¹]`-modules. -/
 def rightTwistEquiv : K0 𝒜 ≃ₗ[LaurentPolynomial ℤ] K0 (oppositeGrade 𝒜) :=
-  restrictEquiv ψ.isGradedAlgEquiv_unopAlgEquiv
+  restrictEquiv ψ.unopAlgEquiv.symm ψ.unopAlgEquiv_mem ψ.unopAlgEquiv_symm_mem
 
 @[simp] theorem rightTwistEquiv_of (P : GProj 𝒜) :
     rightTwistEquiv ψ (of P) = of (P.rightTwist ψ) :=
-  (of_eq_of_iso (P.toGMod.rightTwistRestrictIso ψ)).symm
+  (of_eq_of_iso (P.rightTwistRestrictIso ψ)).symm
 
 /-- Right twisting preserves the Euler form `([P], [Q]) ↦ gdim HOM(P, Q)`. -/
 theorem homForm_rightTwistEquiv [HasGdim 𝒜] (x y : K0 𝒜) :
     homForm (oppositeGrade 𝒜) (rightTwistEquiv ψ x) (rightTwistEquiv ψ y) = homForm 𝒜 x y :=
-  homForm_restrictEquiv _ x y
+  homForm_restrictEquiv _ _ _ x y
 
 end K0
 

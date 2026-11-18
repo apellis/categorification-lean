@@ -156,12 +156,36 @@ real and fake black bubbles (`bubble_eq_of_le`, `bubbleGrassmannian`). The READM
 records the corrections to (2.2a–b). For the cyclotomic action,
 `cyclotomicRedDownQuotient_tmul` computes the quotient crossing on a simple
 tensor and `cyclotomicRedDownQuotient_surjective` proves every component is onto.
-In singleton content `singletonRedDotCrossing_eval` gives the reverse
-crossing on polynomial representatives, and both composites are the added dot power.
+Across all black contents `cyclotomicRedDotCrossing_tmul` gives the reverse
+crossing on arbitrary lifts of the algebra factor. Multiplying the kernel of the
+cyclotomic projection by the last-dot power lands in the earlier-strand relations
+and the larger cyclotomic ideal (`redDot_cycIdeal_cut`). Balancing the tensor
+kills these terms. Both composites equal the prescribed dot powers as natural
+transformations. On the singleton block `singletonRedCrossing_trace` identifies
+the two crossings as adjoints for the Frobenius pairings. When the last colour
+is already present and both coroot weights are positive,
+`redProjection_positive_polynomial` compares the cap traces on the polynomial
+summand. The opposite mate on the entire induction corner remains open.
+
+For all-down boundaries `boundaryRightModuleDownEquiv` identifies the signed
+module with the principal right ideal at the diagonal idempotent. Precomposition
+acts by right matrix multiplication. The cup and cap relations, the red/up
+inverse relation, the downward bigon and the dot slide imply
+`ccwBubble_slide`: a real counterclockwise bubble with m dots immediately
+to the left of red equals one with m+d dots to its right, for red multiplicity d.
+
+The printed inverse-bubble bound forces the all-down corner to vanish whenever
+an exterior coroot weight is negative. With one fundamental sl₂ red and one
+black the ordinary block is ℚ and the far-right weight is −1. Theorem
+`printedBubble_no_injection_sl2` rules out even an injective comparison if the
+printed constant coefficient is imposed. The rest of this roadmap concerns
+the corrected inverse-series relation in the README.
 
 To finish Lemma 4.28 in general, impose the remaining relations in Definition
 4.24, straighten signed diagrams with all-down boundary into downward diagrams,
-and prove the ordinary map is faithful modulo the violating ideal. The
+and prove the ordinary map is faithful modulo the violating ideal. The cited
+tricolore basis is stated over ℂ[z]. The one-upward-colour proof in the revised
+Lemma 4.29 provides a route over arbitrary fields. [Webster, Unfurling, Theorem 5.11](https://arxiv.org/pdf/1603.06311#page=41) The
 identification of the corner is the remaining input for the ungraded Morita
 comparison with the ordinary algebra in Theorem 4.29.
 

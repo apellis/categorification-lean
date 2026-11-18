@@ -3713,6 +3713,8 @@ example := ordinaryToDownwardMatrix_ψ bubblePresentation blackQ redExponents (f
 
 example := ordinaryToDownwardMatrix_ofWeights bubblePresentation blackQ (fun _ _ => 1) (ν := content)
 
+example := boundaryRightModuleDownEquiv bubblePresentation content orderedRedTwoBlack
+
 end AllDownGenerators
 
 example : (DoubleDiagram.violatingFunctor bubblePresentation 3).map
@@ -3821,6 +3823,8 @@ private def diagramsA₂ : Presentation.{0, 0} (DoubleDiagram.signature (Flag.sl
   ⟨Empty, Empty.elim, Empty.elim, fun i => i.elim⟩
 example := DoubleDiagram.mixedBlack_ne (Flag.slRootDatum 2) weightA₂
   (fun i j => if i = j then 1 else -1) diagramsA₂ 0 [.inr 0] [] 0 1 (by decide)
+
+example := DoubleDiagram.printedBubble_no_injection_sl2 diagrams
 
 end MixedBlackExample
 
@@ -4085,5 +4089,123 @@ example := cyclotomicRedDownQuotient_counit q dvdX () edge
 example := singletonRedProjection_dotCrossing q () (fun _ => 1) (fun _ => 1) 1
 example := singletonRedDotCrossing_projection q () (fun _ => 1) (fun _ => 1) 1
 end CyclotomicRedCrossingExample
+
+namespace DoubleRedCup
+
+open CategoryTheory StringDiagrams
+open Categorification Categorification.Stendhal Categorification.Stendhal.DoubleDiagram
+open Categorification.QuantumGroup.UDot
+
+private def weights : Fin 2 → ℤ := fun r => (r.val : ℤ) + 2
+
+private def base : Presentation.{0, 0} (signature sl2RootDatum weights) ℚ where
+  Rel := Empty
+  dom e := e.elim
+  cod e := e.elim
+  rel e := e.elim
+
+private def exponents : Fin 2 → Unit →₀ ℕ := fun r => Finsupp.single () (r.val + 2)
+
+private def Q : Unit → Unit → MvPolynomial (Fin 2) ℚ := fun _ _ => 0
+
+private abbrev cupRelations := addRedCupRelations sl2RootDatum weights base
+
+example := redCup_slide sl2RootDatum weights base 0 [.inr 0] (false, ()) 1 []
+example := redCup_slide sl2RootDatum weights base 0 [.inr 0] (true, ()) 1 []
+
+example := redDown_bigon_redLeft sl2RootDatum weights Q exponents cupRelations
+  0 [.inr 0] 1 () [.inl (true, ())]
+
+example := redDown_bigon_blackLeft sl2RootDatum weights Q exponents cupRelations
+  0 [.inr 0] 1 () [.inl (true, ())]
+
+example := redDown_dot_slide_redLeft sl2RootDatum weights Q exponents cupRelations
+  0 [.inr 0] 1 () []
+
+example := redDown_dot_slide_blackLeft sl2RootDatum weights Q exponents cupRelations
+  0 [.inr 0] 1 () []
+
+end DoubleRedCup
+
+namespace DoubleRedBubble
+
+open Categorification Categorification.QuantumGroup.UDot Categorification.Stendhal
+  Categorification.Stendhal.DoubleDiagram CategoryTheory StringDiagrams
+
+private abbrev Λ : Fin 1 → ℤ := fun _ => 2
+
+private def exponents : Fin 1 → Unit →₀ ℕ := fun _ => Finsupp.single () 2
+
+private def Q : Unit → Unit → MvPolynomial (Fin 2) ℚ := fun _ _ => 0
+
+private def base : Presentation (signature sl2RootDatum Λ) ℚ where
+  Rel := Empty
+  dom := Empty.elim
+  cod := Empty.elim
+  rel i := nomatch i
+
+private abbrev pres :=
+  addDownRelations sl2RootDatum Λ (affineCoverQ Q exponents)
+    (addRedUpRelations sl2RootDatum Λ ℚ
+      (addRedCapRelations sl2RootDatum Λ (addRedCupRelations sl2RootDatum Λ base)))
+
+example :
+    pres.diag (ccwBubbleBeforeRed sl2RootDatum Λ (-1) [] () 0 [] 1) =
+      pres.diag (ccwBubbleAfterRed sl2RootDatum Λ (-1) [] () 0 [] 3) := by
+  have h := ccwBubble_slide sl2RootDatum Λ (-1) [] () 0 [] Q exponents base 1
+  have e : 1 + exponents 0 () = 3 := by norm_num [exponents]
+  rw [e] at h
+  exact h
+
+end DoubleRedBubble
+
+namespace RedPairingExample
+
+open Categorification KLR KLRAlgebra Stendhal Polynomial QuantumGroup.UDot
+
+private abbrev q : Unit → Unit → MvPolynomial (Fin 2) ℚ := fun _ _ => 0
+private abbrev small : Unit → Polynomial ℚ := fun _ => X ^ 3
+private abbrev large : Unit → Polynomial ℚ := fun _ => X ^ 5
+private theorem hab (j : Unit) : small j ∣ large j := ⟨X ^ 2, by ring⟩
+private theorem hs : KLRSymm q := by intro i j; simp [q]
+private theorem hQ : ∀ j l : Unit, j ≠ l → ∃ c : ℚ, IsUnit c ∧
+    (polyInY (q j l)).leadingCoeff = C c := fun j l h => (h (Subsingleton.elim j l)).elim
+
+example := singletonRedCrossing_trace q () (fun _ => 3) (fun _ => 2) 1 1
+example := redProjection_positive_polynomial q () hab 2 (by ring) hs hQ
+  (fun _ => monic_X_pow _) (fun _ => monic_X_pow _) 0 sl2RootDatum 3 5
+  (by norm_num [small, sl2RootDatum]) (by norm_num [large, sl2RootDatum])
+  (fun j h => (h (Subsingleton.elim _ _)).elim) (by decide) (by decide) 1
+
+end RedPairingExample
+
+namespace CyclotomicRedDotCrossingExample
+open Categorification Categorification.KLR Categorification.KLR.CyclotomicAction
+  Categorification.Stendhal InductionAlong Polynomial CategoryTheory
+
+private abbrev q : Unit → Unit → MvPolynomial (Fin 2) ℚ := fun _ _ => 0
+private abbrev a : Unit → Polynomial ℚ := fun _ => X ^ 2
+private abbrev b : Unit → Polynomial ℚ := fun _ => X ^ 3
+private theorem dvdX (j : Unit) : a j ∣ b j := ⟨X, by simp [a, b, pow_succ]⟩
+private theorem hi : b () = X ^ 1 * a () := by simp [a, b, pow_succ']
+private abbrev β : Multiset Unit := {()}
+private abbrev γ : Multiset Unit := {()} + β
+private abbrev M := ModuleCat.of (CycKLR ℚ q a β) (CycKLR ℚ q a β)
+
+example := cyclotomicRedDotCrossing.{0,0,0} q dvdX () (β := β) rfl 1 hi
+
+example (z : Corner (lastEmb q b () (β := β) rfl)) :
+    (cyclotomicRedDotCrossing q dvdX () (β := β) rfl 1 hi).app M
+        (Ind.tmul (N := M) (cyclotomicRedCornerProjection q dvdX () rfl z) (1 : CycKLR ℚ q a β)) =
+      Ind.tmul (N := (cyclotomicRedPullback q dvdX β).obj M)
+        ((z.val * dotElt q b () (β := β) rfl ^ 1) • unitGen (lastEmb q b () (β := β) rfl))
+        (1 : CycKLR ℚ q a β) :=
+  cyclotomicRedDotCrossing_tmul q dvdX () rfl 1 hi M z 1
+
+example := cyclotomicRedDotCrossing_downQuotient.{0,0,0} q dvdX () (β := β) rfl 1 hi
+example := cyclotomicRedDownQuotient_dotCrossing.{0,0,0} q dvdX () (β := β) rfl 1 hi
+example := cyclotomicRedDotCrossing_downQuotient.{0,0,0} q dvdX () (β := 0) rfl 1 hi
+
+end CyclotomicRedDotCrossingExample
 
 end NonVacuity

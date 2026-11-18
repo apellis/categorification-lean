@@ -4630,4 +4630,106 @@ example (x y : ℚ) :
 
 end RedBraidCoefficients
 
+
+namespace FundamentalRedSurjectivity
+open Categorification.Stendhal Categorification.Stendhal.DoubleDiagram
+
+open CategoryTheory QuantumGroup QuantumGroup.UDot StringDiagrams
+open scoped Classical
+attribute [local instance 1100] IsIdempotentElem.instAlgebraCorner_categorification
+
+private def dominant : Fin 1 → {x : ℤ // ∀ i, 0 ≤ sl2RootDatum.pair (sl2RootDatum.iY i) x} :=
+  fun _ => ⟨1, fun _ => by decide +revert⟩
+
+local notation "S" => signature sl2RootDatum (Subtype.val ∘ dominant)
+
+private def free : Presentation S ℚ :=
+  ⟨PEmpty, PEmpty.elim, PEmpty.elim, fun i => i.elim⟩
+
+local notation "B" => fundamentalSingleRedPresentation free
+local notation "ordQ" => (fun _ _ : Unit => (0 : MvPolynomial (Fin 2) ℚ))
+local notation "exponents" => (fun _ : Fin 1 => Finsupp.single () 1)
+
+example : Function.Surjective (algebraMap ℚ (End (fundamentalSingleRedObj free))) :=
+  fundamentalSingleRed_algebraMap_surjective free
+
+example : Function.Surjective (ordinaryToDownwardMatrix (Λ := dominant)
+    B ordQ exponents (fun _ _ => 1) (ν := ({()} : Multiset Unit))) :=
+  fundamentalSingleRed_ordinaryToDownwardMatrix_surjective free
+
+example : Nontrivial (TensorProductAlgebra ℚ ordQ exponents ({()} : Multiset Unit)) := by
+  have h : Nontrivial (AdjoinRoot (Polynomial.X ^ exponents 0 () : Polynomial ℚ)) :=
+    AdjoinRoot.nontrivial _ (by simp)
+  exact (SingleBlack.oneBlackOneRedEquiv () ordQ exponents).symm.injective.nontrivial
+
+
+end FundamentalRedSurjectivity
+
+namespace OneRedLoading
+open Categorification.Stendhal Categorification.Stendhal.DoubleDiagram
+open QuantumGroup QuantumGroup.UDot KL3.Diagram KLR KLRAlgebra
+
+private def w : List (Unit ⊕ Fin 1) := [.inr 0, .inl ()]
+private def red : Fin 1 → {x : ℤ // ∀ i, 0 ≤ sl2RootDatum.pair (sl2RootDatum.iY i) x} :=
+  fun _ => ⟨1, fun _ => by decide +revert⟩
+
+private theorem content : (w : Multiset _) = stendhalWeight 1 ({()} : Multiset Unit) := by
+  simp [w, stendhalWeight, Finset.univ_unique]
+  exact Multiset.cons_swap _ _ 0
+
+private def s : {s : Seq (stendhalWeight 1 ({()} : Multiset Unit)) // IsRedOrdered s} :=
+  ⟨Seq.ofList w content, by
+    apply (DoubleBoundary.pairwise_red_iff _).mp
+    change ((List.ofFn (Seq.ofList w content).1).filterMap Sum.getRight?).Pairwise _
+    rw [Seq.ofFn_ofList]; change List.Pairwise _ [0]; simp⟩
+
+example : ∃ (z : List Unit) (h : endWeight sl2RootDatum (Subtype.val ∘ red) 0
+      ([.inr 0] ++ blackWord (z.map dn) ++ []) = downRightWeight sl2RootDatum red {()}),
+    downTriple sl2RootDatum red s = singleRedTriple sl2RootDatum (z.map dn) h := by
+  apply downTriple_eq_singleRedTriple
+  rintro ⟨h,hb⟩
+  change ((Seq.ofList w content).lbl ⟨0,h⟩).isLeft at hb
+  rw [Seq.ofList_lbl] at hb
+  exact Bool.noConfusion hb
+
+end OneRedLoading
+
+namespace SingleRedSpanningExamples
+open CategoryTheory Categorification Categorification.Stendhal Categorification.Stendhal.DoubleDiagram
+  Categorification.QuantumGroup.UDot Categorification.KL3.Diagram StringDiagrams
+
+private def reds : Fin 1 → {x : ℤ // ∀ i, 0 ≤ sl2RootDatum.pair (sl2RootDatum.iY i) x} :=
+  fun _ => ⟨2, by decide +revert⟩
+private abbrev labels := Subtype.val ∘ reds
+private abbrev coeff : Fin 1 → Unit →₀ ℕ := fun _ => Finsupp.single () 2
+private abbrev Q := fun (_ _ : Unit) => (0 : MvPolynomial (Fin 2) ℚ)
+private def base : Presentation (signature sl2RootDatum labels) ℚ :=
+  ⟨Empty, Empty.elim, Empty.elim, fun i => i.elim⟩
+private theorem exponents_agree (i : Unit) :
+    (coeff 0 i : ℤ) = sl2RootDatum.pair (sl2RootDatum.iY i) (reds 0).val := by
+  cases i
+  simp [coeff, reds]
+  rfl
+
+private abbrev B := singleRedSpanningPresentation sl2RootDatum reds Q coeff base
+private abbrev cut := singleRedTriple (Λd := reds) (right := -2) sl2RootDatum (dns [(),()]) rfl
+private abbrev crossing : List (LayerData Unit) := [([], dnShape (.cross () ()), [])]
+private theorem crossChain : SChain (dns [(),()]) crossing (dns [(),()]) := ⟨rfl, rfl⟩
+
+example (f : End ((violatingFunctor B (-2)).obj cut)) :=
+  singleRed_span_downwardBlack sl2RootDatum reds Q coeff base exponents_agree [(),()] [(),()] rfl rfl f
+
+example := singleRed_span_downwardBlack sl2RootDatum reds Q coeff base exponents_agree
+  [(),()] [(),()] rfl rfl
+  (singleRedBlackEntry B (dns [(),()]) (dns [(),()]) rfl rfl
+    (LinDiagram.of (mkD sl2RootDatum _ crossing crossChain)))
+
+
+example : Function.Surjective (ordinaryToDownwardMatrix (Λ := reds)
+    (singleRedSpanningPresentation sl2RootDatum reds Q coeff base) Q coeff
+    (fun _ _ => 1) (ν := ({(), ()} : Multiset Unit))) :=
+  singleRed_ordinaryToDownwardMatrix_surjective base Q coeff (fun _ _ => 1) exponents_agree
+
+end SingleRedSpanningExamples
+
 end NonVacuity

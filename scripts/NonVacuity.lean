@@ -1698,7 +1698,7 @@ example
     (wkParallelGraph_noZeroLoops ℚ) (wkParallelGraph_standing ℚ) b
   have := hM.isSimpleModule
   exact WeightedKLR.exists_eq_smul_of_isSimpleModule (wkParallelGraph_dagger ℚ)
-    (wkParallelGraph_standing ℚ) (wkParallelGraph_noLoops ℚ) (fun _ => rfl)
+    (wkParallelGraph_standing ℚ) (wkParallelGraph_noZeroLoops ℚ) (fun _ => rfl)
     (WeightedKLR.GradingDatum.smulNilpotent_reducedDot_of_isGradedSimple
       (wkParallelGraph_dagger ℚ) (wkParallelGraph_noZeroLoops ℚ)
       (wkParallelGraph_standing ℚ) hM) φ
@@ -1716,7 +1716,7 @@ example
     (wkParallelGraph_noZeroLoops (ZMod 2)) (wkParallelGraph_standing (ZMod 2)) b
   have := hM.isSimpleModule
   exact WeightedKLR.exists_eq_smul_of_isSimpleModule (wkParallelGraph_dagger (ZMod 2))
-    (wkParallelGraph_standing (ZMod 2)) (wkParallelGraph_noLoops (ZMod 2)) (fun _ => rfl)
+    (wkParallelGraph_standing (ZMod 2)) (wkParallelGraph_noZeroLoops (ZMod 2)) (fun _ => rfl)
     (WeightedKLR.GradingDatum.smulNilpotent_reducedDot_of_isGradedSimple
       (wkParallelGraph_dagger (ZMod 2)) (wkParallelGraph_noZeroLoops (ZMod 2))
       (wkParallelGraph_standing (ZMod 2)) hM) φ
@@ -1728,7 +1728,7 @@ example
     (φ : b.top →ₗ[WeightedKLR.GalleryAlgebra.WeightedKLRAlgebra ℚ (wkParallelGraph ℚ)
       wkParallelRepeatedWeight] b.top) : ∃ c : ℚ, ∀ m, φ m = c • m :=
   WeightedKLR.GradingDatum.exists_eq_smul_of_isGradedSimple (wkParallelGraph_dagger ℚ)
-    (wkParallelGraph_standing ℚ) (wkParallelGraph_noLoops ℚ) (fun _ => rfl)
+    (wkParallelGraph_standing ℚ) (wkParallelGraph_noZeroLoops ℚ) (fun _ => rfl)
     (Graded.GProj.IndecClass.isGradedSimple_top b) φ
 
 /-- The graded-simple scalar theorem in characteristic two, at the same repeated weight. -/
@@ -1739,7 +1739,7 @@ example
       (wkParallelGraph (ZMod 2)) wkParallelRepeatedWeight] b.top) :
     ∃ c : ZMod 2, ∀ m, φ m = c • m :=
   WeightedKLR.GradingDatum.exists_eq_smul_of_isGradedSimple (wkParallelGraph_dagger (ZMod 2))
-    (wkParallelGraph_standing (ZMod 2)) (wkParallelGraph_noLoops (ZMod 2)) (fun _ => rfl)
+    (wkParallelGraph_standing (ZMod 2)) (wkParallelGraph_noZeroLoops (ZMod 2)) (fun _ => rfl)
     (Graded.GProj.IndecClass.isGradedSimple_top b) φ
 
 /-- All five tensor-comparison fields for two multiplicity-free weights. The supports
@@ -1759,7 +1759,7 @@ example : Graded.TensorK0Hyp
     ((wkParallelGraph_standing ℚ).gradingDatum.klrGrade wkParallelRepeatedWeight)
     ((wkParallelGraph_standing ℚ).gradingDatum.klrGrade wkParallelRepeatedWeight) :=
   WeightedKLR.GradingDatum.tensorK0Hyp (wkParallelGraph_standing ℚ).gradingDatum
-    (wkParallelGraph_dagger ℚ) (wkParallelGraph_standing ℚ) (wkParallelGraph_noLoops ℚ)
+    (wkParallelGraph_dagger ℚ) (wkParallelGraph_standing ℚ) (wkParallelGraph_noZeroLoops ℚ)
     (fun _ => rfl) wkParallelRepeatedWeight wkParallelRepeatedWeight
 
 /-- The same unrestricted tensor-comparison check in characteristic two. -/
@@ -1768,7 +1768,7 @@ example : Graded.TensorK0Hyp
     ((wkParallelGraph_standing (ZMod 2)).gradingDatum.klrGrade wkParallelRepeatedWeight) :=
   WeightedKLR.GradingDatum.tensorK0Hyp (wkParallelGraph_standing (ZMod 2)).gradingDatum
     (wkParallelGraph_dagger (ZMod 2)) (wkParallelGraph_standing (ZMod 2))
-    (wkParallelGraph_noLoops (ZMod 2)) (fun _ => rfl)
+    (wkParallelGraph_noZeroLoops (ZMod 2)) (fun _ => rfl)
     wkParallelRepeatedWeight wkParallelRepeatedWeight
 
 /-- The conditional graded coproduct formula still applies to the graph with a recorded
@@ -1785,7 +1785,7 @@ formula discharges the tensor-comparison input internally, for arbitrary block w
 example (ν' ν'' : Fin 2 →₀ ℕ) :=
   WeightedKLR.exists_coproductK0_indK0_eq_sum_graded (k := ℚ)
     (wkParallelGraph_standing ℚ).gradingDatum (wkParallelGraph_dagger ℚ)
-    (wkParallelGraph_standing ℚ) (wkParallelGraph_noLoops ℚ) (fun _ => rfl)
+    (wkParallelGraph_standing ℚ) (wkParallelGraph_noZeroLoops ℚ) (fun _ => rfl)
     (add_comm ν'' ν')
 
 /-- The weighted polynomial conditions include a graph with a recorded loop;
@@ -1930,6 +1930,7 @@ private abbrev wkMapS := wkParallelGraph_standing (ZMod 2)
 private abbrev wkMapG := wkMapS.gradingDatum
 private abbrev wkMapD := wkParallelGraph_dagger (ZMod 2)
 private abbrev wkMapNoLoopEdges := wkParallelGraph_noLoops (ZMod 2)
+private abbrev wkMapNoZeroLoops := wkParallelGraph_noZeroLoops (ZMod 2)
 private theorem wkMapNoLoopPolynomials : ∀ i, (wkParallelGraph (ZMod 2)).loop i = none := fun _ => rfl
 
 /-- Webster Theorem 2.19 on the parallel-edge graph over `ZMod 2`: the simple
@@ -1948,11 +1949,11 @@ example : wkMapS.quantumGroupMap wkMapD wkMapNoLoopEdges wkMapNoLoopPolynomials
   wkMapS.quantumGroupMap_dpow wkMapD wkMapNoLoopEdges wkMapNoLoopPolynomials 0 2
 
 /-- The two components of total restriction with one strand in each block. -/
-example := wkMapG.component_totalCoproduct wkMapD wkMapS wkMapNoLoopEdges
+example := wkMapG.component_totalCoproduct wkMapD wkMapS wkMapNoZeroLoops
   wkMapNoLoopPolynomials (Finsupp.single 0 1) (Finsupp.single 1 1)
 
 /-- The antipode recursion negates every one-strand class. -/
-example := wkMapG.antipodeComponent_of_degree_one wkMapD wkMapS wkMapNoLoopEdges
+example := wkMapG.antipodeComponent_of_degree_one wkMapD wkMapS wkMapNoZeroLoops
   wkMapNoLoopPolynomials (ν := Finsupp.single (0 : Fin 2) 1) (by simp)
 
 /-- The zero-black-strand block with two red strands is the coefficient field. -/
@@ -2104,20 +2105,20 @@ example := Stendhal.SingleBlack.oneBlackK0_eq_zero (0 : Fin 1)
 end CyclotomicDimensions
 
 example (x y : wkMapG.K0W) := wkMapG.totalCoproduct_mul wkMapD wkMapS
-  wkMapNoLoopEdges wkMapNoLoopPolynomials x y
+  wkMapNoZeroLoops wkMapNoLoopPolynomials x y
 
 example (x : wkMapG.K0W) := wkMapG.counitK0_totalCoproduct_left wkMapD wkMapS
-  wkMapNoLoopEdges wkMapNoLoopPolynomials x
+  wkMapNoZeroLoops wkMapNoLoopPolynomials x
 
 example (x : wkMapG.K0W) := wkMapG.counitK0_totalCoproduct_right wkMapD wkMapS
-  wkMapNoLoopEdges wkMapNoLoopPolynomials x
+  wkMapNoZeroLoops wkMapNoLoopPolynomials x
 
 /-- Both antipode equations for the standing graph over the example field. -/
-example := (wkMapS.braidedHopfK0 wkMapD wkMapNoLoopEdges wkMapNoLoopPolynomials).antipode_left
+example := (wkMapS.braidedHopfK0 wkMapD wkMapNoZeroLoops wkMapNoLoopPolynomials).antipode_left
 
-example := (wkMapS.braidedHopfK0 wkMapD wkMapNoLoopEdges wkMapNoLoopPolynomials).antipode_right
+example := (wkMapS.braidedHopfK0 wkMapD wkMapNoZeroLoops wkMapNoLoopPolynomials).antipode_right
 
-example := wkMapS.braidedHopfK0_antipode_single wkMapD wkMapNoLoopEdges
+example := wkMapS.braidedHopfK0_antipode_single wkMapD wkMapNoZeroLoops
   wkMapNoLoopPolynomials 0 (Graded.K0.of (Graded.GProj.regular
     (wkMapG.klrGrade (Finsupp.single 0 1))))
 

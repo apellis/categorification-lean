@@ -53,7 +53,7 @@ theorem properSplits_degree_right {ν : I →₀ ℕ} {p : (I →₀ ℕ) × (I 
   exact Nat.lt_add_of_pos_left (Nat.pos_of_ne_zero fun hz => h ((Finsupp.degree_eq_zero_iff _).mp hz))
 
 variable (G : GradingDatum Γ) (hD : Γ.Dagger) (hS : Γ.Standing)
-  (hne : ∀ e, Γ.head e ≠ Γ.tail e) (hl : ∀ i, Γ.loop i = none)
+  (hZ : Γ.NoZeroLoops) (hl : ∀ i, Γ.loop i = none)
   [∀ ν, HasGdim (G.klrGrade ν)]
 
 /-- Restriction to the two factors of a particular weight decomposition,
@@ -63,51 +63,51 @@ def convolutionTerm {a b ν : I →₀ ℕ} (h : a + b = ν)
     Module.End LP (G.K0fam ν) := by
   subst ν
   exact G.indK0Tensor a b ∘ₗ TensorProduct.map f g ∘ₗ
-    G.coproductK0 hD (fun e he => (hne e he).elim) hS a b (G.tensorK0Hyp hD hS hne hl a b)
+    G.coproductK0 hD hZ hS a b (G.tensorK0Hyp hD hS hZ hl a b)
 
 /-- Webster's antipode recursion, using only strictly smaller right weights in
 the reduced coproduct (arXiv:1209.2463v4, §2.4, proof of Theorem 2.19, p. 12). -/
 def antipodeComponent (ν : I →₀ ℕ) : Module.End LP (G.K0fam ν) :=
   if ν = 0 then LinearMap.id else
     -LinearMap.id - ∑ p ∈ (properSplits ν).attach,
-      G.convolutionTerm hD hS hne hl (mem_properSplits.mp p.property).1 LinearMap.id
+      G.convolutionTerm hD hS hZ hl (mem_properSplits.mp p.property).1 LinearMap.id
         (antipodeComponent p.val.2)
 termination_by ν.degree
 decreasing_by exact properSplits_degree_right p.property
 
 @[simp] theorem antipodeComponent_zero :
-    G.antipodeComponent hD hS hne hl 0 = LinearMap.id := by
+    G.antipodeComponent hD hS hZ hl 0 = LinearMap.id := by
   rw [antipodeComponent]
   simp
 
 /-- The induction formula in positive weight (Webster, Theorem 2.19, p. 12,
 with the endpoint and multiplication corrections documented above). -/
 theorem antipodeComponent_of_ne {ν : I →₀ ℕ} (hν : ν ≠ 0) :
-    G.antipodeComponent hD hS hne hl ν = -LinearMap.id - ∑ p ∈ (properSplits ν).attach,
-      G.convolutionTerm hD hS hne hl (mem_properSplits.mp p.property).1 LinearMap.id
-        (G.antipodeComponent hD hS hne hl p.val.2) := by
+    G.antipodeComponent hD hS hZ hl ν = -LinearMap.id - ∑ p ∈ (properSplits ν).attach,
+      G.convolutionTerm hD hS hZ hl (mem_properSplits.mp p.property).1 LinearMap.id
+        (G.antipodeComponent hD hS hZ hl p.val.2) := by
   rw [antipodeComponent, ite_eq_right hν]
 
 /-- The linear endomorphism of weighted graded `K₀` given by the corrected
 recursion of Webster, arXiv:1209.2463v4, §2.4, proof of Theorem 2.19. -/
 def antipodeK0 : Module.End LP G.K0W :=
   DirectSum.toModule LP _ _ fun ν =>
-    DirectSum.lof LP _ G.K0fam ν ∘ₗ G.antipodeComponent hD hS hne hl ν
+    DirectSum.lof LP _ G.K0fam ν ∘ₗ G.antipodeComponent hD hS hZ hl ν
 
 theorem antipodeK0_of (ν : I →₀ ℕ) (x : G.K0fam ν) :
-    G.antipodeK0 hD hS hne hl (DirectSum.of G.K0fam ν x) =
-      DirectSum.of G.K0fam ν (G.antipodeComponent hD hS hne hl ν x) := by
+    G.antipodeK0 hD hS hZ hl (DirectSum.of G.K0fam ν x) =
+      DirectSum.of G.K0fam ν (G.antipodeComponent hD hS hZ hl ν x) := by
   rw [antipodeK0, ← DirectSum.lof_eq_of LP, DirectSum.toModule_lof]
   rfl
 
 /-- On the unit class the recursion fixes `[W₀]`. -/
-@[simp] theorem antipodeK0_one : G.antipodeK0 hD hS hne hl 1 = 1 := by
+@[simp] theorem antipodeK0_one : G.antipodeK0 hD hS hZ hl 1 = 1 := by
   rw [G.K0W_one, antipodeK0_of, antipodeComponent_zero, LinearMap.id_apply]
 
 /-- Every one-strand class is negated. There is no proper decomposition of a
 weight with one strand. -/
 theorem antipodeComponent_of_degree_one {ν : I →₀ ℕ} (hν : ν.degree = 1) :
-    G.antipodeComponent hD hS hne hl ν = -LinearMap.id := by
+    G.antipodeComponent hD hS hZ hl ν = -LinearMap.id := by
   have hn : ν ≠ 0 := by rintro rfl; simp at hν
   have hempty : properSplits ν = ∅ := by
     apply Finset.eq_empty_iff_forall_notMem.mpr
@@ -115,7 +115,7 @@ theorem antipodeComponent_of_degree_one {ν : I →₀ ℕ} (hν : ν.degree = 1
     have hlt := properSplits_degree_right hp
     have hz : p.2.degree = 0 := by omega
     exact (mem_properSplits.mp hp).2.2 ((Finsupp.degree_eq_zero_iff _).mp hz)
-  rw [antipodeComponent_of_ne G hD hS hne hl hn]
+  rw [antipodeComponent_of_ne G hD hS hZ hl hn]
   rw [sub_eq_self]
   rw [Finset.attach_eq_empty_iff.mpr hempty, Finset.sum_empty]
 

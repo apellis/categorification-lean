@@ -57,14 +57,14 @@ private theorem sum_splits {M : Type*} [AddCommMonoid M] {ν : I →₀ ℕ} (h�
 variable {𝕜 : Type*} [Field 𝕜] [LinearOrder 𝕜] [IsStrictOrderedRing 𝕜]
   {k : Type*} [Field k] {Γ : WeightedGraph I 𝕜 k}
   (G : GradingDatum Γ) (hD : Γ.Dagger) (hS : Γ.Standing)
-  (hne : ∀ e, Γ.head e ≠ Γ.tail e) (hl : ∀ i, Γ.loop i = none)
+  (hZ : Γ.NoZeroLoops) (hl : ∀ i, Γ.loop i = none)
   [∀ ν : I →₀ ℕ, HasGdim (G.klrGrade ν)]
 
 local notation "L" => LaurentPolynomial ℤ
 local notation "ι" => DirectSum.lof L _ G.K0fam
-local notation "Δ" => G.totalCoproduct hD hS hne hl
-local notation "Δs" => G.splitCoproduct hD hS hne hl
-local notation "S" => G.antipodeK0 hD hS hne hl
+local notation "Δ" => G.totalCoproduct hD hS hZ hl
+local notation "Δs" => G.splitCoproduct hD hS hZ hl
+local notation "S" => G.antipodeK0 hD hS hZ hl
 
 private def rightTerm (F : Module.End L G.K0W) (a b : I →₀ ℕ) :
     G.K0fam a ⊗[L] G.K0fam b →ₗ[L] G.K0W :=
@@ -76,13 +76,13 @@ private theorem rightTerm_tmul (F : Module.End L G.K0W) (a b : I →₀ ℕ)
     G.rightTerm F a b (x ⊗ₜ y) = ι a x * F (ι b y) := rfl
 
 private theorem rightTerm_antipode {a b ν : I →₀ ℕ} (h : a + b = ν) (x : G.K0fam ν) :
-    G.rightTerm S a b (Δs a b h x) = ι ν (G.convolutionTerm hD hS hne hl h LinearMap.id
-      (G.antipodeComponent hD hS hne hl b) x) := by
+    G.rightTerm S a b (Δs a b h x) = ι ν (G.convolutionTerm hD hS hZ hl h LinearMap.id
+      (G.antipodeComponent hD hS hZ hl b) x) := by
   subst ν
   let z := Δs a b rfl x
   change G.rightTerm S a b z =
     ι (a + b) (G.indK0Tensor a b (TensorProduct.map LinearMap.id
-      (G.antipodeComponent hD hS hne hl b) z))
+      (G.antipodeComponent hD hS hZ hl b) z))
   induction z using TensorProduct.inductionOn with
   | tmul u v =>
     rw [rightTerm_tmul, TensorProduct.map_tmul, G.indK0Tensor_tmul]
@@ -131,10 +131,10 @@ private theorem mul_lTensor_total_ne (F : Module.End L G.K0W) {ν : I →₀ ℕ
 
 private theorem mul_lTensor_antipode_ne {ν : I →₀ ℕ} (hn : ν ≠ 0) (x : G.K0fam ν) :
     LinearMap.mul' L G.K0W ((S).lTensor G.K0W (Δ (ι ν x))) = 0 := by
-  rw [mul_lTensor_total_ne G hD hS hne hl S hn, G.antipodeK0_one, mul_one]
+  rw [mul_lTensor_total_ne G hD hS hZ hl S hn, G.antipodeK0_one, mul_one]
   simp_rw [rightTerm_antipode]
-  rw [show S (ι ν x) = ι ν (G.antipodeComponent hD hS hne hl ν x) from
-    G.antipodeK0_of hD hS hne hl ν x, antipodeComponent_of_ne G hD hS hne hl hn]
+  rw [show S (ι ν x) = ι ν (G.antipodeComponent hD hS hZ hl ν x) from
+    G.antipodeK0_of hD hS hZ hl ν x, antipodeComponent_of_ne G hD hS hZ hl hn]
   simp only [LinearMap.sub_apply, LinearMap.neg_apply, LinearMap.id_apply, LinearMap.sum_apply,
     map_sub, map_neg, map_sum]
   abel
@@ -156,7 +156,7 @@ theorem eq_zero_of_mul_lTensor_total (F : Module.End L G.K0W)
       LinearMap.mul' L G.K0W (F.lTensor G.K0W (Δ (ι ν x))) = 0 :=
     LinearMap.congr_fun hf (ι ν x)
   have hzero (x : G.K0fam 0) : F (ι 0 x) = 0 :=
-    (G.mul_lTensor_total_zero hD hS hne hl F x).symm.trans (hv 0 x)
+    (G.mul_lTensor_total_zero hD hS hZ hl F x).symm.trans (hv 0 x)
   have hone : F 1 = 0 := hzero G.K0one
   have allWeights : ∀ n (ν : I →₀ ℕ), ν.degree = n → ∀ x : G.K0fam ν, F (ι ν x) = 0 := by
     intro n
@@ -167,7 +167,7 @@ theorem eq_zero_of_mul_lTensor_total (F : Module.End L G.K0W)
       · subst ν
         exact hzero x
       · have h := hv ν x
-        rw [G.mul_lTensor_total_ne hD hS hne hl F hn, hone, mul_zero, zero_add] at h
+        rw [G.mul_lTensor_total_ne hD hS hZ hl F hn, hone, mul_zero, zero_add] at h
         have hz : ∀ p : ↥(properSplits ν), G.rightTerm F p.val.1 p.val.2
             (Δs _ _ (mem_properSplits.mp p.property).1 x) = 0 := by
           intro p
@@ -194,9 +194,9 @@ theorem antipodeK0_right :
     algebraMap L G.K0W (G.counitK0 (DirectSum.of G.K0fam ν x))
   by_cases hn : ν = 0
   · subst ν
-    rw [G.mul_lTensor_total_zero hD hS hne hl, G.counitK0_of_zero]
+    rw [G.mul_lTensor_total_zero hD hS hZ hl, G.counitK0_of_zero]
     change S (DirectSum.of G.K0fam 0 x) = _
     rw [antipodeK0_of, antipodeComponent_zero, LinearMap.id_apply, K0W_of_zero_eq_algebraMap]
-  · rw [G.mul_lTensor_antipode_ne hD hS hne hl hn, G.counitK0_of_ne hn, map_zero]
+  · rw [G.mul_lTensor_antipode_ne hD hS hZ hl hn, G.counitK0_of_ne hn, map_zero]
 
 end Categorification.WeightedKLR.GradingDatum

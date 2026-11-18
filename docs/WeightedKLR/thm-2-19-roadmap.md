@@ -15,15 +15,15 @@ instances; it does not replace `G` by the grading of the standing hypothesis.
 | Item | Content | Status |
 |---|---|---|
 | A0 | the fields `fdA`, `fdB`, `fdC` of `TensorK0Hyp` for `W_ν` (graded simple tops are finite-dimensional) | formalized under `Γ.Dagger`, `Γ.NoZeroLoops`, `Γ.Standing`; no loop-freeness assumption |
-| A | the fields `endA`, `endB` of `TensorK0Hyp` for `W_ν` (graded simple modules are absolutely irreducible) | proved for loop-free graphs over any field by the minimum-support local-chart argument; repeated colours and cycles are allowed |
+| A | the fields `endA`, `endB` of `TensorK0Hyp` for `W_ν` (graded simple modules are absolutely irreducible) | proved over any field for graphs without zero-weight loops (edge loops of nonzero weight allowed) by the minimum-support local-chart argument; repeated colours and cycles are allowed |
 | B | the quantum Serre relations in graded `K_0` for every `Q` of Rouquier's form | formalized over every commutative ring: `KLR.Rouquier.K0_serre_window` |
 | C | the integral divided-power quantum-group map to `K_0` for loop-free `Γ` | formalized for loop-free graphs over any field: `WeightedGraph.Standing.quantumGroupMap` |
-| D | the antipode / Hopf structure in the braided category of `ℤ[I]`-graded modules | done for loop-free graphs over a field, `WeightedGraph.Standing.braidedHopfK0` |
+| D | the antipode / Hopf structure in the braided category of `ℤ[I]`-graded modules | done over a field for graphs without zero-weight loops, `WeightedGraph.Standing.braidedHopfK0` |
 
 The local-chart proof of A is a replacement argument. The right-restriction
 induction initially proposed from KL I has the obstruction recorded below; it is not used
 by the replacement proof. The later sections give the proofs of B, C and D.
-The comparison for graphs with loops remains open.
+The comparison for graphs with zero-weight vertex loops remains open; edge loops of nonzero weight are covered, since the local charts have zero weights and no loops. C stays loop-free by the maintainer's decision (2026-11-18).
 
 For ordinary Stendhal quotients, `Stendhal.sequenceCornerPoly_eq_wordCornerPoly`
 computes graded corner dimensions from the boundary words. The projective
@@ -58,9 +58,9 @@ same augmentation and dot-nilpotence arguments for an arbitrary admissible `G`.
 
 `AbsoluteSimple.lean` proves
 `WeightedKLR.exists_eq_smul_of_isSimpleModule`: a finite-dimensional simple weighted KLR
-module with nilpotent dots has scalar endomorphisms when the graph is loop-free and satisfies
-`Γ.Dagger` and `Γ.Standing`. Both loop conditions are explicit: distinct head and tail on
-each edge, and `Γ.loop i = none`. The coefficient field and standing polynomials are
+module with nilpotent dots has scalar endomorphisms when the graph has no zero-weight loops and satisfies
+`Γ.Dagger` and `Γ.Standing`. Both loop conditions are explicit: `Γ.NoZeroLoops` (edge loops of
+nonzero weight are allowed) and `Γ.loop i = none`. The coefficient field and standing polynomials are
 arbitrary; cycles and repeated colours are allowed.
 
 `GradingDatum.exists_eq_smul_of_isGradedSimple` applies this to graded simples. Finite
@@ -107,10 +107,10 @@ The replacement argument is as follows.
    scalar endomorphisms of the original simple module (`Local/Endomorphisms.lean`).
 
 `TensorSimple.lean` packages A0 and A as
-`GradingDatum.tensorK0Hyp G hD hS hne hl ν μ`. It supplies all five fields of
+`GradingDatum.tensorK0Hyp G hD hS hZ hl ν μ`. It supplies all five fields of
 `KLR.TensorK0Hyp (G.klrGrade ν) (G.klrGrade μ)` for arbitrary weights, with `HasGdim` for
 the chosen grading. The coproduct theorem uses this construction for every pair of weights,
-removing the separate comparison hypothesis in the loop-free case. Graphs with loops retain
+removing the separate comparison hypothesis for graphs without zero-weight loops. Graphs with zero-weight vertex loops retain
 `exists_coproductK0_indK0_eq_sum_graded_of_tensorK0Hyp`.
 
 ### The multiplicity-free special case
@@ -246,7 +246,7 @@ of Rouquier v1, §4.1.2, p. 33, equation (5). The evident generator image is
 
 ## D. Antipode
 
-Done for loop-free graphs over a field under the standing and (†) hypotheses. Webster v4, proof of Theorem 2.19, p. 12 gives the counit and cites Xiao
+Done over a field for graphs without zero-weight loops under the standing and (†) hypotheses. Webster v4, proof of Theorem 2.19, p. 12 gives the counit and cites Xiao
 for an inductive antipode formula. Formalizing this construction is separate from the
 natural map in C; no surjectivity of that map is available or needed as a roadmap premise.
 `GradingDatum.totalCoproduct` assembles all homogeneous restrictions. Projecting to

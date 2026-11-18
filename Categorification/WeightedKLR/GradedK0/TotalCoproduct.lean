@@ -24,7 +24,7 @@ open scoped TensorProduct
 variable {I : Type*} [DecidableEq I] {𝕜 : Type*} [Field 𝕜] [LinearOrder 𝕜]
   [IsStrictOrderedRing 𝕜] {k : Type*} [Field k] {Γ : WeightedGraph I 𝕜 k}
   (G : GradingDatum Γ) (hD : Γ.Dagger) (hS : Γ.Standing)
-  (hne : ∀ e, Γ.head e ≠ Γ.tail e) (hl : ∀ i, Γ.loop i = none)
+  (hZ : Γ.NoZeroLoops) (hl : ∀ i, Γ.loop i = none)
   [∀ ν : I →₀ ℕ, HasGdim (G.klrGrade ν)]
 
 local notation "L" => LaurentPolynomial ℤ
@@ -33,15 +33,15 @@ local notation "L" => LaurentPolynomial ℤ
 def splitCoproduct {ν : I →₀ ℕ} (a b : I →₀ ℕ) (h : a + b = ν) :
     G.K0fam ν →ₗ[L] G.K0fam a ⊗[L] G.K0fam b := by
   subst ν
-  exact G.coproductK0 hD (fun e he => (hne e he).elim) hS a b
-    (G.tensorK0Hyp hD hS hne hl a b)
+  exact G.coproductK0 hD hZ hS a b
+    (G.tensorK0Hyp hD hS hZ hl a b)
 
 /-- A weight-sum equality transports the input before applying restriction. -/
 theorem splitCoproduct_apply {ν : I →₀ ℕ} (a b : I →₀ ℕ) (h : a + b = ν)
     (x : G.K0fam ν) :
-    G.splitCoproduct hD hS hne hl a b h x =
-      G.coproductK0 hD (fun e he => (hne e he).elim) hS a b
-        (G.tensorK0Hyp hD hS hne hl a b) (G.K0cast h.symm x) := by
+    G.splitCoproduct hD hS hZ hl a b h x =
+      G.coproductK0 hD hZ hS a b
+        (G.tensorK0Hyp hD hS hZ hl a b) (G.K0cast h.symm x) := by
   subst ν
   rfl
 
@@ -51,15 +51,15 @@ def totalCoproduct : G.K0W →ₗ[L] G.K0W ⊗[L] G.K0W :=
     ∑ s ∈ (Finset.HasAntidiagonal.antidiagonal ν).attach,
       TensorProduct.map (DirectSum.lof L _ G.K0fam s.1.1)
         (DirectSum.lof L _ G.K0fam s.1.2) ∘ₗ
-        G.splitCoproduct hD hS hne hl s.1.1 s.1.2 (Finset.HasAntidiagonal.mem_antidiagonal.mp s.2)
+        G.splitCoproduct hD hS hZ hl s.1.1 s.1.2 (Finset.HasAntidiagonal.mem_antidiagonal.mp s.2)
 
 /-- On a homogeneous class the total coproduct sums the finitely many restrictions. -/
 theorem totalCoproduct_lof (ν : I →₀ ℕ) (x : G.K0fam ν) :
-    G.totalCoproduct hD hS hne hl (DirectSum.lof L _ G.K0fam ν x) =
+    G.totalCoproduct hD hS hZ hl (DirectSum.lof L _ G.K0fam ν x) =
       ∑ s ∈ (Finset.HasAntidiagonal.antidiagonal ν).attach,
         TensorProduct.map (DirectSum.lof L _ G.K0fam s.1.1)
           (DirectSum.lof L _ G.K0fam s.1.2)
-          (G.splitCoproduct hD hS hne hl s.1.1 s.1.2
+          (G.splitCoproduct hD hS hZ hl s.1.1 s.1.2
             (Finset.HasAntidiagonal.mem_antidiagonal.mp s.2) x) := by
   simp only [totalCoproduct, DirectSum.toModule_lof, LinearMap.sum_apply, LinearMap.comp_apply]
 
@@ -67,8 +67,8 @@ theorem totalCoproduct_lof (ν : I →₀ ℕ) (x : G.K0fam ν) :
 theorem component_totalCoproduct_lof (a b : I →₀ ℕ) (x : G.K0fam (a + b)) :
     TensorProduct.map (DirectSum.component L _ G.K0fam a)
       (DirectSum.component L _ G.K0fam b)
-      (G.totalCoproduct hD hS hne hl (DirectSum.lof L _ G.K0fam (a + b) x)) =
-        G.splitCoproduct hD hS hne hl a b rfl x := by
+      (G.totalCoproduct hD hS hZ hl (DirectSum.lof L _ G.K0fam (a + b) x)) =
+        G.splitCoproduct hD hS hZ hl a b rfl x := by
   classical
   rw [totalCoproduct_lof, map_sum]
   let ab : ↥(Finset.HasAntidiagonal.antidiagonal (a + b)) :=
@@ -90,8 +90,8 @@ theorem component_totalCoproduct_lof (a b : I →₀ ℕ) (x : G.K0fam (a + b)) 
 of weight `a+b`. -/
 theorem component_totalCoproduct (a b : I →₀ ℕ) :
     TensorProduct.map (DirectSum.component L _ G.K0fam a)
-      (DirectSum.component L _ G.K0fam b) ∘ₗ G.totalCoproduct hD hS hne hl =
-      G.splitCoproduct hD hS hne hl a b rfl ∘ₗ DirectSum.component L _ G.K0fam (a + b) := by
+      (DirectSum.component L _ G.K0fam b) ∘ₗ G.totalCoproduct hD hS hZ hl =
+      G.splitCoproduct hD hS hZ hl a b rfl ∘ₗ DirectSum.component L _ G.K0fam (a + b) := by
   classical
   apply DirectSum.linearMap_ext
   intro ν

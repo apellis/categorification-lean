@@ -1177,6 +1177,7 @@ import Categorification.WeightedKLR.RedStrands.DoubleSignedCapBraidMixed
 import Categorification.WeightedKLR.RedStrands.DoubleSignedCapBraid
 import Categorification.WeightedKLR.RedStrands.DoubleCapCrossPositions
 import Categorification.WeightedKLR.RedStrands.DoubleCapDotPositions
+import Categorification.WeightedKLR.RedStrands.DoubleCapSurjectivity
 import Categorification.WeightedKLR.RedStrands.DoubleDownSpanQuotient
 import Categorification.WeightedKLR.RedStrands.DoubleSignedCapDot
 import Categorification.WeightedKLR.RedStrands.DoubleCapPushSnake

@@ -5111,6 +5111,60 @@ example := signedCapBlock_crossInside RD weights Pc 0 [.inr 0] [] [.inl (false, 
     [.inr 0, .inl (true, ())] (.inl (false, ())) (.inr 1) (false, ()) [.inl (false, ())] trivial)
 end CapBraidBound
 
+namespace AllDownwardMatrixExamples
+open Categorification Categorification.Stendhal Categorification.Stendhal.DoubleDiagram
+  Categorification.QuantumGroup.UDot StringDiagrams
+
+private def weights : Fin 2 → {x : ℤ // ∀ i, 0 ≤ sl2RootDatum.pair (sl2RootDatum.iY i) x} :=
+  fun _ => ⟨2, by decide +revert⟩
+private abbrev exponents : Fin 2 → Unit →₀ ℕ := fun _ => Finsupp.single () 2
+private theorem weight_eq (r : Fin 2) (i : Unit) :
+    (exponents r i : ℤ) = sl2RootDatum.pair (sl2RootDatum.iY i) (weights r).val := by
+  cases i
+  simp [exponents, weights]
+  rfl
+
+private def base (k : Type) [CommRing k] :
+    Presentation (signature sl2RootDatum (Subtype.val ∘ weights)) k :=
+  ⟨Empty, Empty.elim, Empty.elim, fun r => r.elim⟩
+private abbrev poly (k : Type) [CommRing k] : Unit → Unit → MvPolynomial (Fin 2) k :=
+  fun _ _ => 0
+
+-- Two red strands of weight two and two downward strands of the same colour.
+example : Function.Surjective (ordinaryToDownwardMatrix (Λ := weights)
+    (signedCapKLPresentation sl2RootDatum (Subtype.val ∘ weights) (base (ZMod 4))
+      (poly _) exponents (fun _ _ => 1)) (poly _) exponents (fun _ _ => 1)
+    (ν := ({(), ()} : Multiset Unit))) :=
+  signedCapKL_ordinaryToDownwardMatrix_surjective (base _) (poly _) exponents _
+    (fun _ _ => 1) weight_eq
+
+
+end AllDownwardMatrixExamples
+
+namespace DistinctRedWeightExamples
+open Categorification Categorification.Stendhal.DoubleDiagram CategoryTheory StringDiagrams Categorification.QuantumGroup.UDot
+
+private def weights : Fin 2 → {x : ℤ // ∀ i, 0 ≤ sl2RootDatum.pair (sl2RootDatum.iY i) x} :=
+  fun r => ⟨r.val + 1, by intro i; change 0 ≤ 1 * ((r.val : ℤ) + 1); omega⟩
+private abbrev lab := Subtype.val ∘ weights
+private def base : Presentation (signature sl2RootDatum lab) ℚ :=
+  ⟨Empty, Empty.elim, Empty.elim, fun r => r.elim⟩
+private abbrev poly : Unit → Unit → MvPolynomial (Fin 2) ℚ := fun _ _ => 0
+private abbrev exponents : Fin 2 → Unit →₀ ℕ := corootExponents (Λ := weights) (fun _ => Set.toFinite _)
+private abbrev scalars : Unit → Unit → ℚˣ := fun _ _ => 1
+private abbrev cap := signedCapKLPresentation sl2RootDatum lab base poly exponents (fun i j => (scalars i j : ℚ))
+private abbrev content : Multiset Unit := {()}
+
+example : Function.Surjective (ordinaryToDownwardMatrix_ofWeights cap poly scalars (ν := content)) :=
+  signedCapKL_ordinaryToDownwardMatrix_ofWeights_surjective base poly scalars
+
+example : (exponents 0 () : ℤ) = 1 ∧ (exponents 1 () : ℤ) = 2 := by
+  simp only [exponents,corootExponents_pair]
+  decide
+
+end DistinctRedWeightExamples
+
+
 namespace SignedCapSuccessorExamples
 open Categorification Categorification.QuantumGroup.UDot
   Categorification.Stendhal Categorification.Stendhal.DoubleDiagram StringDiagrams

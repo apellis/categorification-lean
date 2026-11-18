@@ -4,7 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 -/
 import Categorification.WeightedKLR.RedStrands.DoubleDiagram
 import StringDiagrams.Positional
-import StringDiagrams.Biadjunction.PivotalExtension
+import Categorification.WeightedKLR.RedStrands.DoublePresentationUnion
 
 /-!
 # Rewriting signed Stendhal layers in context
@@ -30,16 +30,9 @@ theorem lin_eq_addRels {S : Signature} (B : Presentation.{w, v} S k)
     {J : Type v} {dom cod : J → Obj S} {rel : ∀ j, LinDiagram k (dom j) (cod j)}
     {a b : Obj S} {f g : LinDiagram k a b} (h : B.lin f = B.lin g) :
     (B.addRels J dom cod rel).lin f = (B.addRels J dom cod rel).lin g := by
-  simp only [Presentation.lin_eq_iff] at h ⊢
-  refine Submodule.span_mono ?_ h
-  rintro _ ⟨x, l, r, hw, pre, post⟩
-  cases x with
-  | user j =>
-    exact Presentation.IdealGen.intro (P := B.addRels J dom cod rel)
-      (.user (Sum.inl j)) l r hw pre post
-  | interchange x hx =>
-    exact Presentation.IdealGen.intro (P := B.addRels J dom cod rel)
-      (.interchange x hx) l r hw pre post
+  have hB := (B.relationsHold_iff_ideal_le (B.addRels J dom cod rel)).mp
+    (B.relationsHold_addRels dom cod rel)
+  exact congrArg (B.extension (B.addRels J dom cod rel) hB).map h
 
 /-- Adjoining relations preserves equality of diagram classes. -/
 theorem diag_eq_addRels {S : Signature} (B : Presentation.{w, v} S k)

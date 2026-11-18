@@ -296,8 +296,12 @@ black and red strands. Its crossing count equals the length of that word.
 `pushesTerminalCaps_of_capBlock_steps` reduces the proof to adjoining
 one elementary move below this cap. A right-end entry lengthens the cap
 word (`capBlock_push_enterRight`), while a crossing in its interior reduces
-to a single local braid (`signedCapBlock_crossInside`). The two mixed
-red/black orders satisfy the required strict crossing bound. The remaining
+to a single local braid (`signedCapBlock_crossInside`). All admissible pairs satisfy the required bound in
+`signedCapKL_hasCapBraidBound`. The common presentation has exactly the sum
+of the relation ideals used in the local calculations. Reflection of the
+black KL III relations is explicit in its definition. In this presentation
+`capBlock_push_crossInside` resolves the interior crossing with an arbitrary
+continuation. The remaining
 successor cases include contractions of cups against the swept cap.
 
 For a presentation with compatible pitchfork coefficients, impose the remaining relations in Definition

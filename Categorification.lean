@@ -1174,6 +1174,7 @@ import Categorification.WeightedKLR.RedStrands.DoubleFirstRed
 import Categorification.WeightedKLR.RedStrands.DoubleSignedCapBlockInduction
 import Categorification.WeightedKLR.RedStrands.DoubleSignedCapInside
 import Categorification.WeightedKLR.RedStrands.DoubleSignedCapBraidMixed
+import Categorification.WeightedKLR.RedStrands.DoubleSignedCapBraid
 import Categorification.WeightedKLR.RedStrands.DoubleSignedCapDot
 import Categorification.WeightedKLR.RedStrands.DoubleCapPushSnake
 import Categorification.WeightedKLR.RedStrands.DoubleRedCapPass

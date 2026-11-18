@@ -5007,4 +5007,63 @@ example (o : BubbleOrientation) (d : ℕ) :
 
 end DoubleMarkedRedTransport
 
+
+namespace CommonCapPresentation
+open Categorification.Stendhal Categorification.Stendhal.DoubleDiagram
+open CategoryTheory QuantumGroup QuantumGroup.UDot KL3.Diagram StringDiagrams
+
+universe u v w
+variable {I : Type u} {ℓ : ℕ} {C : CartanDatum I} {X Y : Type v}
+  [AddCommGroup X] [AddCommGroup Y] (RD : WeightDatum C X Y) (Λ : Fin ℓ → X)
+  {k : Type w} [CommRing k] (P : Presentation.{w,max u v} (signature RD Λ) k)
+  (Q : I → I → MvPolynomial (Fin 2) k) (exponents : Fin ℓ → I →₀ ℕ) (t : I → I → k)
+  (μ : X) (L : List (DoubleStrand I ℓ)) (r : Fin ℓ) (l u : Letter I) (R : List (DoubleStrand I ℓ))
+
+local notation "K" => signedCapKLPresentation RD Λ P Q exponents t
+local notation "Braid" => signedCapBraidPresentation RD Λ P Q exponents t
+local notation "Pass" => signedCapPassPresentation RD Λ P Q exponents
+local notation "red" => (Sum.inr r : DoubleStrand I ℓ)
+local notation "black" => (Sum.inl u : DoubleStrand I ℓ)
+local notation "source" => L ++ [red, black, Sum.inl l] ++ R
+local notation "target" => L ++ [Sum.inl l, black, red] ++ R
+
+example (h : u.1 ≠ l.1) :
+    signedDg RD Λ (K) μ source target (signedCapBraidLeft L red black l R) -
+      signedDg RD Λ (K) μ source target (signedCapBraidRight L red black l R) ∈
+        signedCrossingSpan RD Λ (K) μ source target 2 :=
+  signedDg_sub_mem_signedCrossingSpan_of_ideal_le RD Λ (Braid) (K)
+    (fun a b => (signedCapBraid_ideal_le RD Λ P Q exponents t a b).trans
+      (signedCap_ideal_le_KL RD Λ P Q exponents t a b)) μ source target
+    (signedCapBraid_redBlack_mixed RD Λ P Q exponents t μ L r l u R h)
+
+example (i : I) :
+    (K).diag (capWithRedPassingLeft RD Λ μ L (false, i) r R) =
+      (K).diag (capKeepingRedLeft RD Λ μ L (false, i) r R) :=
+  congrArg ((Pass).extension (K) (fun a b =>
+    (signedCapPass_ideal_le RD Λ P Q exponents t a b).trans
+      (signedCap_ideal_le_KL RD Λ P Q exponents t a b))).map
+    (capWithRedPassingLeft_up RD Λ μ L r R Q exponents P i)
+
+
+end CommonCapPresentation
+
+namespace CapBraidBound
+open Categorification Categorification.QuantumGroup.UDot
+  Categorification.Stendhal Categorification.Stendhal.DoubleDiagram StringDiagrams
+
+private def weights : Fin 2 → ℤ := fun r => if r = 0 then 1 else 3
+private def exponents : Fin 2 → Unit →₀ ℕ := fun r => Finsupp.single () (if r = 0 then 1 else 3)
+private def base : Presentation (signature sl2RootDatum weights) ℚ :=
+  ⟨Empty, Empty.elim, Empty.elim, fun j => j.elim⟩
+private abbrev Q : Unit → Unit → MvPolynomial (Fin 2) ℚ := fun _ _ => 0
+private abbrev scalars : Unit → Unit → ℚ := fun _ _ => 1
+local notation "RD" => sl2RootDatum
+private abbrev Pc := signedCapKLPresentation RD weights base Q exponents scalars
+
+example := signedCapBlock_crossInside RD weights Pc 0 [.inr 0] [] [.inl (false, ())] []
+  (false, ()) 1 (x := .inl (false, ())) (y := .inr 1) trivial
+  (signedCapKL_hasCapBraidBound RD weights base Q exponents scalars 0
+    [.inr 0, .inl (true, ())] (.inl (false, ())) (.inr 1) (false, ()) [.inl (false, ())] trivial)
+end CapBraidBound
+
 end NonVacuity

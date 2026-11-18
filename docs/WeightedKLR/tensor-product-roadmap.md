@@ -54,9 +54,13 @@ identified with the tensor product of the integral highest-weight lattices.
 The canonical identification `FirstWeight.tensorModuleEquiv` sends the prescribed
 divided projectives to their tensor vectors. The additional claim about the
 graded pairing fails for two fundamental factors with the printed conventions,
-as computed below. The repository uses left projectives;
-Definition 4.34 uses right projectives. In the computation by a diagram
-corner this reverses the source and target endpoint arguments.
+as computed below. Webster uses graded right projectives. The proofs below
+use graded left projectives, and the headline statements are transported to
+right projectives (`FirstWeight.rightTensorModuleEquiv`,
+`rightTensorModuleEquiv_homForm`): twisting by horizontal reflection, a
+degree-preserving anti-involution, identifies left and right graded
+projectives and preserves shifts, direct sums and graded Hom spaces
+(`Graded.K0.rightTwistEquiv`, `K0.homForm_rightTwistEquiv`).
 
 | Source input | Formalization | Remaining identification |
 |---|---|---|
@@ -498,8 +502,10 @@ kernel bound `cyclotomicCoverResMap_ker_le` and projectivity descends.
 **The Euler form in Lemma 4.36 and Theorem 4.38.**
 For the canonical grading, `FirstWeight.tensorModuleEquiv_homGdimPoly`
 identifies the graded Hom polynomial from P to Q with the repaired ordered
-form on the images of Q and P. The argument order accounts for left
-projectives and the inversion of the grading parameter. Graded Frobenius
+form on the images of Q and P. The argument order comes from the repair
+of the form preceding Proposition 4.33 and the inversion of the grading
+parameter; it is the same for right projectives, since right twisting
+preserves graded Hom spaces (`FirstWeight.rightTensorModuleEquiv_homForm`). Graded Frobenius
 reciprocity removes a terminal black strand. Reflection of unshifted
 boundary diagrams allows the strand to be removed at either endpoint.
 Appending the same final red strand at both endpoints preserves the pairing.

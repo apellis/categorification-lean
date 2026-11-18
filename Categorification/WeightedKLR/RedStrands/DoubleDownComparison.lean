@@ -80,7 +80,8 @@ private theorem signedQuotient_map_diag {a b : Obj (signature RD labels)} (d : a
 local notation "F" => downPresentedFunctor RD labels R P 0 [] [] ⋙
   signedQuotientFunctor P Q exponents scalars
 
-private theorem downContextObj_word (s : Seq μ) :
+/-- With empty exterior contexts the translated loading is the usual all-down signed object. -/
+theorem downContextObj_word (s : Seq μ) :
     downContextObj RD labels 0 [] [] (ob (word s)) =
       obj RD labels 0 ((word s).map DoubleStrand.down) := by
   simp [downContextObj, ob]
@@ -203,6 +204,25 @@ def ordinaryToDownwardMatrix : TensorProductAlgebra k Q exponents ν →ₐ[k] d
 private theorem ordinaryToDownwardMatrix_comp : (ordinaryToDownwardMatrix P Q exponents scalars (ν := ν)).comp
     (affineTensorProjection exponents ν) = G :=
   allDownMap_comp_affine ..
+
+/-- The comparison of Webster, arXiv:1309.3796v2, Lemma 4.28 evaluated on an
+affine matrix of linear combinations of ordinary diagrams, at one pair of ordered loadings. -/
+theorem ordinaryToDownwardMatrix_raw_entries
+    (f : ∀ s t : Seq μ, LinDiagram k (ob (word s)) (ob (word t))) (s t : Ord) :
+    ordinaryToDownwardMatrix P Q exponents scalars
+      (affineTensorProjection exponents ν ((diagREquiv k R μ).symm
+        (fun a b => (KLR.Diagram.pres k R).lin (f a b)))) s t =
+      signedDownEntry (P₁) s t ((P₁).castHom (downContextObj_word s.val) (downContextObj_word t.val)
+        ((P₁).lin (downLinear RD labels k 0 [] [] (f s.val t.val)))) := by
+  let A : DiagR k R μ := fun a b => (KLR.Diagram.pres k R).lin (f a b)
+  change ordinaryToDownwardMatrix P Q exponents scalars
+    (affineTensorProjection exponents ν ((diagREquiv k R μ).symm A)) s t = _
+  rw [← AlgHom.comp_apply, ordinaryToDownwardMatrix_comp, downMatrixOfFunctor_apply,
+    AlgEquiv.apply_symm_apply]
+  change downFunctorEntry (P₁) R (F) (diagramObj P Q exponents scalars) s t
+    ((KLR.Diagram.pres k R).lin (f s.val t.val)) = _
+  rw [downFunctorEntry, Functor.comp_map, downPresentedFunctor_lin]
+  rfl
 
 /-- The ordinary comparison sends boundary identities to diagonal matrix units. -/
 theorem ordinaryToDownwardMatrix_e (s : Seq μ) :

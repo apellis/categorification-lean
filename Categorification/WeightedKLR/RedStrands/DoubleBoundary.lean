@@ -108,7 +108,8 @@ theorem rightWeight_eq {C : CartanDatum I} {X Y : Type*} [AddCommGroup X] [AddCo
   rw [rightWeight, h, b.redOrder]
   simp [List.ofFn_eq_map, add_assoc]
 
-private theorem pairwise_red_iff {μ : Multiset (I ⊕ Fin ℓ)} (s : Seq μ) :
+/-- The ordinary boundary order is equivalent to strict increase of its red subword. -/
+theorem pairwise_red_iff {μ : Multiset (I ⊕ Fin ℓ)} (s : Seq μ) :
     ((List.ofFn s.lbl).filterMap Sum.getRight?).Pairwise (· < ·) ↔ IsRedOrdered s := by
   rw [List.pairwise_filterMap, List.pairwise_iff_getElem]
   simp only [List.length_ofFn, List.getElem_ofFn, Sum.getRight?_eq_some_iff]

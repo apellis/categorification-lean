@@ -98,12 +98,18 @@ by a cap at the left edge gives zero (`DoubleDiagram.map_leftBubble_zero`).
 The quotient uses vertical composition. A strand to the left of the first
 red can cease to violate after adding a new red strand on the left.
 Equation (4.4e) gives the inverse red/up crossings in arbitrary contexts.
-In `DoubleDiagram.id_mem_allDownFactorSpan_of_mixed`, only the local
-mixed black identity factorization is assumed. Moving the first upward strand
-to the left, or deleting it together with a downward strand of the same
-colour, reduces the calculation to the all-down boundaries. The argument
-uses individual boundary identities, so it applies to an infinite set of
-signed words without forming an infinite sum.
+Relations (2.3c) and (2.4a) factor the mixed black identity through the
+swapped pair and, for equal colours, through the word with both strands
+deleted. In `DoubleDiagram.id_mem_allDownFactorSpan` these relations and
+(4.4e) move the first upward strand to the left or remove it together
+with a downward strand. Every surviving identity is a finite sum of
+composites through all-down boundaries. Splitting the resulting retracts gives
+`DoubleDiagram.allDownCompletionInclusion_isEquivalence_addRelations`
+on ungraded additive idempotent completions over a commutative ring.
+Both statements allow further local relations. In the fibre with no reds,
+`DoubleDiagram.vacuum_algebraMap_surjective` shows that scalars span the
+endomorphisms of the empty word. Every nonempty diagram starting there
+first crosses a violated cut.
 
 For the ordinary algebra, `Stendhal.ker_affineTensorProjection` gives the
 kernel of the affine presentation used to construct a map into the all-down
@@ -119,8 +125,17 @@ was corrected in the later account. [Webster v3, Lemma 4.29](https://arxiv.org/p
 To finish Lemma 4.28 in general, impose the remaining relations in
 Definition 4.24, verify the ordinary diagram map, straighten all-down
 boundary diagrams, and identify the intersection with the signed violating
-ideal. For Theorem 4.29 verify the black identity factorizations from
-(2.3c) and (2.4a) for that presentation, then pass to the all-down corner.
+ideal. This identification of the corner is the remaining input for the
+ungraded Morita comparison with the ordinary algebra in Theorem 4.29.
+
+For a comparison of the full black presentations, Cautis–Lauda §2.2
+assigns dual parameters to the downward KLR relations. For disconnected
+colours with both leading coefficients 2 over ℚ the downward bigon
+polynomial of that presentation is 1/2, whereas Webster (2.5e) gives 2.
+Transporting the black presentation by reflection requires also verifying
+the crossing normalization against the two pitchfork relations.
+[Cautis–Lauda, arXiv:1111.1431v3, p. 6](https://arxiv.org/pdf/1111.1431v3#page=6)
+· [Webster, arXiv:1309.3796v2, §2.2](https://arxiv.org/pdf/1309.3796v2#page=11)
 
 **Lemma 4.37.** The integral generation statement holds for all red families
 and black weights over any field with Rouquier parameters.

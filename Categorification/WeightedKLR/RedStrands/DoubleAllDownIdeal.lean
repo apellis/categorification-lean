@@ -1,0 +1,117 @@
+/-
+Copyright (c) 2026 Alex Ellis. All rights reserved.
+Released under Apache 2.0 license as described in the file LICENSE.
+Authors: Alex Ellis
+-/
+import Categorification.WeightedKLR.RedStrands.DoubleBoundaryIdeal
+import Categorification.WeightedKLR.RedStrands.DoubleMixedRelations
+
+/-!
+# The all-down ideal in the double Stendhal category
+
+Webster, *Knot invariants and higher representation theory*, arXiv:1309.3796v2,
+§4.5, proof of Theorem 4.29. The two mixed black relations give, in each weight
+fibre, a factorization through the swapped word or through the word obtained by
+deleting the two black strands. The red/up bigons and the violating quotient
+then imply generation by all-down identities.
+-/
+
+noncomputable section
+
+namespace Categorification.Stendhal.DoubleDiagram
+
+open CategoryTheory StringDiagrams QuantumGroup QuantumGroup.UDot KL3.Diagram
+
+universe w u v
+
+variable {I : Type u} {C : CartanDatum I} {X Y : Type v} [AddCommGroup X] [AddCommGroup Y]
+    {RD : WeightDatum C X Y} {ℓ : ℕ} {Λ : Fin ℓ → {x : X // ∀ i, 0 ≤ RD.pair (RD.iY i) x}}
+    {k : Type w} [CommRing k] (P : Presentation.{w, max u v} (signature RD (fun r => (Λ r).val)) k)
+    {right : X}
+
+local notation "T" => DoubleStendhalTriple RD Λ 0 right
+local notation "F" => violatingFunctor P right
+
+private def projectHom (a b : T) :
+    (tripleObj P a ⟶ tripleObj P b) →ₗ[k] ((F).obj a ⟶ (F).obj b) :=
+  { toFun := fun f => (F).map (InducedCategory.homMk f)
+    map_add' := fun f g => (F).map_add (f := InducedCategory.homMk f) (g := InducedCategory.homMk g)
+    map_smul' := fun r f => (F).map_smul r (InducedCategory.homMk f) }
+
+private theorem project_id_factorSpan (S : T → Prop) (a : T)
+    (h : 𝟙 (tripleObj P a) ∈ factorSpan k (tripleObj P) S a a) :
+    𝟙 ((F).obj a) ∈ factorSpan k (F).obj S a a := by
+  have le : factorSpan k (tripleObj P) S a a ≤ (factorSpan k (F).obj S a a).comap (projectHom P a a) := by
+    apply Submodule.span_le.mpr
+    rintro _ ⟨c, hc, u, v, rfl⟩
+    apply Submodule.subset_span
+    exact ⟨c, hc, projectHom P a c u, projectHom P c a v,
+      (F).map_comp (InducedCategory.homMk u) (InducedCategory.homMk v)⟩
+  have hi : projectHom P a a (𝟙 (tripleObj P a)) = 𝟙 ((F).obj a) := (F).map_id a
+  rw [← hi]
+  exact le h
+
+private abbrev blackObj (L R : List (DoubleStrand I ℓ)) (s : List (Letter I)) :=
+  P.obj (obj RD (fun r => (Λ r).val) 0 (L ++ blackWord s ++ R))
+
+private abbrev mixedSpan (L R : List (DoubleStrand I ℓ)) (i j : I) :=
+  factorSpan k (blackObj P L R) (fun s => s = [dn j, up i] ∨ j = i ∧ s = []) [up i, dn j] [up i, dn j]
+
+private theorem project_mixedSpan (L R : List (DoubleStrand I ℓ)) (i j : I)
+    (hlocal : 𝟙 (blackObj P L R [up i, dn j]) ∈ mixedSpan P L R i j)
+    (b : T) (hb : b.val.word = L ++ .inl (false, j) :: .inl (true, i) :: R) :
+    𝟙 ((F).obj b) ∈ factorSpan k (F).obj (fun d =>
+       d.val.word = L ++ .inl (true, i) :: .inl (false, j) :: R ∨ j = i ∧ d.val.word = L ++ R) b b := by
+  obtain ⟨⟨w, ho⟩, hw⟩ := b
+  change w = _ at hb
+  have hsrc : w = L ++ blackWord [up i, dn j] ++ R := by simpa [blackWord, List.append_assoc] using hb
+  clear hb
+  subst w
+  apply project_id_factorSpan
+  refine (Submodule.span_le.mpr ?_) hlocal
+  rintro _ ⟨s, hs, u, v, rfl⟩
+  obtain rfl | ⟨rfl, rfl⟩ := hs
+  · let c : T := ⟨⟨L ++ blackWord [dn j, up i] ++ R, by
+      simp only [List.filterMap_append] at ho ⊢
+      exact ho⟩, by
+      simpa [blackWord, DoubleBoundary.rightWeight, add_comm, add_left_comm, add_assoc] using hw⟩
+    exact Submodule.subset_span ⟨c, Or.inl (by simp [c, blackWord, List.append_assoc]), u, v, rfl⟩
+  · let c : T := ⟨⟨L ++ blackWord [] ++ R, by
+      simp only [List.filterMap_append] at ho ⊢
+      exact ho⟩, by
+      simpa [DoubleBoundary.rightWeight, blackWord, DoubleStrand.weight, sgn, add_assoc] using hw⟩
+    exact Submodule.subset_span ⟨c, Or.inr ⟨rfl, by simp [c, blackWord]⟩, u, v, rfl⟩
+
+variable (t : I → I → kˣ)
+
+local notation "Λ₀" => (fun r => Subtype.val (Λ r))
+local notation "Q" => addRedUpRelations RD Λ₀ k (addMixedBlackRelations RD Λ₀ k t P)
+
+private theorem id_mem_mixedSpan (L R : List (DoubleStrand I ℓ)) (i j : I) :
+    𝟙 (blackObj Q L R [up i, dn j]) ∈ mixedSpan Q L R i j := by
+  let η := endWeight RD Λ₀ 0 L
+  have swap : blackMorphism RD Λ₀ Q 0 L R (LinDiagram.of (crossl RD i j η)) ≫
+      blackMorphism RD Λ₀ Q 0 L R (LinDiagram.of (crossr RD i j η)) ∈ mixedSpan Q L R i j :=
+    Submodule.subset_span ⟨[dn j, up i], Or.inl rfl, _, _, rfl⟩
+  by_cases hij : i = j
+  · subst j
+    rw [mixedBlack_eq RD Λ₀ t P 0 L R i]
+    refine Submodule.add_mem _ (Submodule.neg_mem _ swap) (Submodule.sum_mem _ fun f _ =>
+      Submodule.sum_mem _ fun g _ => ?_)
+    exact Submodule.subset_span ⟨[], Or.inr ⟨rfl, rfl⟩, _, _, rfl⟩
+  · rw [mixedBlack_ne RD Λ₀ t P 0 L R i j hij] at swap
+    have h := (mixedSpan Q L R i j).smul_mem (↑(t j i)⁻¹ : k) swap
+    simpa only [smul_smul, Units.inv_mul, one_smul] using h
+
+/-- Every signed boundary identity in the fixed-weight violating quotient belongs to the
+ideal generated by all-down identities (Webster, arXiv:1309.3796v2, §4.5, ideal-generation
+step in the proof of Theorem 4.29). The presentation imposes (2.3c), (2.4a), and (4.4e)
+alongside any further local relations in `P`. -/
+theorem id_mem_allDownFactorSpan (b : T) :
+    let π := violatingFunctor Q right
+    𝟙 (π.obj b) ∈ factorSpan k π.obj (fun d => d.val.AllDown) b b := by
+  apply id_mem_allDownFactorSpan_of_mixed
+  intro L R i j d hd
+  exact project_mixedSpan Q L R i j (id_mem_mixedSpan P t L R i j) d hd
+
+end Categorification.Stendhal.DoubleDiagram

@@ -1133,6 +1133,11 @@ import Categorification.WeightedKLR.RedStrands.DoubleViolatingQuotient
 import Categorification.WeightedKLR.RedStrands.DoubleBoundaryIdeal
 import Categorification.WeightedKLR.RedStrands.DownwardCornerMap
 import Categorification.WeightedKLR.RedStrands.RedsFirstIdeal
+import Categorification.WeightedKLR.RedStrands.DoubleVacuum
+import Categorification.WeightedKLR.RedStrands.DoubleAllDownBoundary
+import Categorification.WeightedKLR.RedStrands.DoubleBlackDiagram
+import Categorification.WeightedKLR.RedStrands.DoubleAllDownIdeal
+import Categorification.WeightedKLR.RedStrands.DoubleMorita
 /-!
 # Categorification
 

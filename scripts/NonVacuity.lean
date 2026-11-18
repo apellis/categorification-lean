@@ -3651,6 +3651,70 @@ private def bubblePresentation :
   cod e := e.elim
   rel e := e.elim
 
+section AllDownGenerators
+
+open DoubleDiagram
+open scoped Classical
+
+local notation "content" => ({(), ()} : Multiset Unit)
+
+private def redTwoBlack : DoubleBoundary Unit 1 where
+  word := [.inr 0, .inl (false, ()), .inl (false, ())]
+  redOrder := rfl
+
+private theorem redTwoBlackContent : redTwoBlack.blackContent = content := by decide
+
+private def orderedRedTwoBlack : {s : KLR.Seq (stendhalWeight 1 content) // IsRedOrdered s} :=
+  ⟨redTwoBlack.toSeq redTwoBlackContent, redTwoBlack.isRedOrdered_toSeq redTwoBlackContent⟩
+
+private abbrev secondPos : Fin (stendhalWeight 1 content).card := ⟨1, by decide⟩
+private abbrev thirdPos : Fin (stendhalWeight 1 content).card := ⟨2, by decide⟩
+
+private theorem secondBlack : orderedRedTwoBlack.val.lbl secondPos = .inl () := by decide
+private theorem thirdBlack : orderedRedTwoBlack.val.lbl thirdPos = .inl () := by decide
+
+example : ¬ IsViolated orderedRedTwoBlack.val := by
+  rintro ⟨h, hv⟩
+  exact Bool.noConfusion hv
+
+example : downE bubblePresentation orderedRedTwoBlack.val orderedRedTwoBlack orderedRedTwoBlack =
+    𝟙 _ := by
+  simpa only [KLR.Diagram.MatEnd.single_apply_self] using
+    congrFun (congrFun (downE_of_ordered bubblePresentation orderedRedTwoBlack)
+      orderedRedTwoBlack) orderedRedTwoBlack
+
+example : downX bubblePresentation secondPos orderedRedTwoBlack orderedRedTwoBlack =
+    downBlackDot bubblePresentation orderedRedTwoBlack secondPos () secondBlack :=
+  (downX_apply_self bubblePresentation secondPos orderedRedTwoBlack).trans
+    (downDot_of_black bubblePresentation orderedRedTwoBlack secondPos () secondBlack)
+
+private theorem blackSwap : orderedRedTwoBlack.val =
+    TypeA.sadj (stendhalWeight 1 content).card 1 • orderedRedTwoBlack.val :=
+  (KLR.Diagram.sadj_smul_eq_self orderedRedTwoBlack.val (by decide)
+    (secondBlack.trans thirdBlack.symm)).symm
+
+example : downΨ bubblePresentation 1 orderedRedTwoBlack orderedRedTwoBlack =
+    downCrossLayer bubblePresentation orderedRedTwoBlack orderedRedTwoBlack 1 (by decide) blackSwap
+      (.black (.cross false () ())) (by rw [secondBlack, thirdBlack]; rfl) :=
+  downCross_of_move bubblePresentation orderedRedTwoBlack orderedRedTwoBlack 1 (by decide)
+    blackSwap (.black (.cross false () ())) (by rw [secondBlack, thirdBlack]; rfl)
+
+private abbrev blackQ : Unit → Unit → MvPolynomial (Fin 2) ℚ := fun _ _ => 0
+private abbrev redExponents : Fin 1 → Unit →₀ ℕ := fun _ => Finsupp.single () 3
+
+example := ordinaryToDownwardMatrix_e bubblePresentation blackQ redExponents (fun _ _ => 1)
+  orderedRedTwoBlack.val
+
+example := ordinaryToDownwardMatrix_x bubblePresentation blackQ redExponents (fun _ _ => 1)
+  (ν := content) secondPos
+
+example := ordinaryToDownwardMatrix_ψ bubblePresentation blackQ redExponents (fun _ _ => 1)
+  (ν := content) 1
+
+example := ordinaryToDownwardMatrix_ofWeights bubblePresentation blackQ (fun _ _ => 1) (ν := content)
+
+end AllDownGenerators
+
 example : (DoubleDiagram.violatingFunctor bubblePresentation 3).map
     (DoubleDiagram.leftCup bubblePresentation redOnly (true, ()) ≫
       DoubleDiagram.leftCap bubblePresentation redOnly (true, ())) = 0 :=
@@ -3784,5 +3848,72 @@ example : CL.qCL params.dual false true ≠ CL.qCL params false true := by
   rw [webster_square, cl_down_square, Ne, MvPolynomial.C_inj]
   norm_num
 end DoubleBlackScalarCheck
+
+namespace DoubleVacuumCharacterExample
+
+open Categorification Categorification.QuantumGroup.UDot
+  Categorification.Stendhal.DoubleDiagram CategoryTheory StringDiagrams
+
+private def noReds : Fin 0 → {x : ℤ // ∀ i, 0 ≤ sl2RootDatum.pair (sl2RootDatum.iY i) x} :=
+  Fin.elim0
+
+private def base : Presentation (signature sl2RootDatum (Subtype.val ∘ noReds)) ℚ where
+  Rel := Empty
+  dom := Empty.elim
+  cod := Empty.elim
+  rel i := nomatch i
+
+private instance : IsEmpty base.Rel := inferInstanceAs (IsEmpty Empty)
+
+private abbrev Q := fun _ _ : Unit ⊕ Fin 0 => (0 : MvPolynomial (Fin 2) ℚ)
+
+private abbrev signed := addRedUpRelations sl2RootDatum (Subtype.val ∘ noReds) ℚ
+  (addMixedBlackRelations sl2RootDatum (Subtype.val ∘ noReds) ℚ (fun _ _ => 1)
+    (addDownRelations sl2RootDatum (Subtype.val ∘ noReds) Q base))
+
+example : Function.Bijective (algebraMap ℚ (End (vacuumObj signed))) :=
+  vacuum_algebraMap_bijective base (fun _ _ => 1) Q
+
+example : algebraMap ℚ (End (vacuumObj signed)) 2 ≠ algebraMap ℚ (End (vacuumObj signed)) 3 :=
+  (vacuum_algebraMap_bijective base (fun _ _ => 1) Q).injective.ne (by norm_num)
+
+
+end DoubleVacuumCharacterExample
+
+namespace DoubleContentExample
+open Categorification Categorification.Stendhal Categorification.QuantumGroup.UDot CategoryTheory
+
+private def reds : Fin 1 → {x : ℤ // ∀ i, 0 ≤ sl2RootDatum.pair (sl2RootDatum.iY i) x} :=
+  fun _ => ⟨3, by intro i; cases i; decide⟩
+private abbrev labels := fun r => (reds r).val
+private def P : StringDiagrams.Presentation.{0,0} (DoubleDiagram.signature sl2RootDatum labels) ℚ :=
+  ⟨Empty, Empty.elim, Empty.elim, fun i => i.elim⟩
+private abbrev mixed := DoubleDiagram.addMixedBlackRelations sl2RootDatum labels ℚ (fun _ _ => 1) P
+private abbrev project :=
+  DoubleDiagram.violatingFunctor (Λ := reds) (DoubleDiagram.addRedUpRelations sl2RootDatum labels ℚ mixed) 1
+private def threeBlack : DoubleStendhalTriple sl2RootDatum reds 0 1 :=
+  ⟨⟨[.inr 0, .inl (false, ()), .inl (true, ()), .inl (false, ())], rfl⟩, by decide⟩
+
+/-- Two downward strands and one upward strand of the same colour factor through
+all-down words with exactly one black strand. -/
+example : threeBlack.val.blackContent.card = 3 ∧ 𝟙 (project.obj threeBlack) ∈
+    DoubleDiagram.factorSpan ℚ project.obj (fun d => d.val.AllDown ∧ d.val.blackContent = {()})
+      threeBlack threeBlack := by
+  refine ⟨by decide, DoubleDiagram.id_mem_allDownContentFactorSpan P (fun _ _ => 1) threeBlack {()} ?_⟩
+  let s := Finsupp.single () (1 : ℤ)
+  change 0 + (s + (-s + (s + 0))) = contentVector {()}
+  simp [s, contentVector]
+
+end DoubleContentExample
+
+namespace CyclotomicRedPullbackExample
+open Categorification Categorification.Stendhal Polynomial
+private abbrev q : Unit → Unit → MvPolynomial (Fin 2) ℚ := fun _ _ => 0
+private abbrev lowerPolynomial : Unit → Polynomial ℚ := fun _ => X
+private abbrev upperPolynomial : Unit → Polynomial ℚ := fun _ => X ^ 2
+private theorem divisibility (i : Unit) : lowerPolynomial i ∣ upperPolynomial i := ⟨X, by simp [lowerPolynomial, upperPolynomial, pow_two]⟩
+example := cyclotomicRedPullbackResIso.{0,0,0} q divisibility () (β := 0) rfl
+example := cyclotomicRedProjection_surjective q divisibility {()}
+end CyclotomicRedPullbackExample
 
 end NonVacuity

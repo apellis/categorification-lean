@@ -122,11 +122,29 @@ a tricolore basis. The proof about the size of the localized morphism spaces
 was corrected in the later account. [Webster v3, Lemma 4.29](https://arxiv.org/pdf/1309.3796v3#page=42)
 · [Webster, arXiv:1209.0051v5, p. 29](https://arxiv.org/pdf/1209.0051v5#page=29)
 
-To finish Lemma 4.28 in general, impose the remaining relations in
-Definition 4.24, verify the ordinary diagram map, straighten all-down
-boundary diagrams, and identify the intersection with the signed violating
-ideal. This identification of the corner is the remaining input for the
-ungraded Morita comparison with the ordinary algebra in Theorem 4.29.
+The ordinary map of Lemma 4.28 is `DoubleDiagram.ordinaryToDownwardMatrix`.
+It sends each idempotent, dot and crossing to its signed downward diagram and
+takes values in the same presentation as the all-down generation theorem.
+The physical red exponents are the coroot pairings. The current ordinary
+algebra encodes a red label by a finitely supported function of its black
+colour; `ordinaryToDownwardMatrix_ofWeights` supplies this support when
+the set of simple roots is finite. With no red or black boundary strands,
+`vacuum_algebraMap_bijective` computes the vacuum corner for these relations
+over the free signed base. With other boundaries,
+`id_mem_allDownContentFactorSpan` restricts factorizations to exactly the
+prescribed ordinary black multiset, even when simple roots are dependent.
+
+For the cyclotomic representation in Theorem 4.25, `cyclotomicRedProjection`
+is the quotient for an increase of highest weight, and
+`cyclotomicRedPullbackResIso` commutes pullback along it with right-black
+restriction on modules. The components act identically on underlying vectors.
+This gives the red/up crossing in that representation.
+
+To finish Lemma 4.28 in general, impose the remaining relations in Definition
+4.24, straighten signed diagrams with all-down boundary into downward diagrams,
+and prove the ordinary map is faithful modulo the violating ideal. The
+identification of the corner is the remaining input for the ungraded Morita
+comparison with the ordinary algebra in Theorem 4.29.
 
 For a comparison of the full black presentations, Cautis–Lauda §2.2
 assigns dual parameters to the downward KLR relations. For disconnected

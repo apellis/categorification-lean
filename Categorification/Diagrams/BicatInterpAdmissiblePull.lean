@@ -15,6 +15,8 @@ images of the boundary words (`admissibleMap_pull`). Unlike `freeLift_pull`, thi
 no zero objects in the target Hom categories, so it applies to `TwoRep.LinearCat`.
 -/
 
+set_option backward.isDefEq.respectTransparency false
+
 noncomputable section
 
 namespace Categorification.Diagrams.BicatInterp

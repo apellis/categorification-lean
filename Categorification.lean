@@ -1149,6 +1149,11 @@ import Categorification.WeightedKLR.RedStrands.DoubleRedCap
 import Categorification.WeightedKLR.RedStrands.DoubleDownLift
 import Categorification.WeightedKLR.RedStrands.DoubleEmptyCorner
 import Categorification.WeightedKLR.RedStrands.DoubleProjective
+import Categorification.WeightedKLR.RedStrands.CyclotomicRedDotCrossing
+import Categorification.WeightedKLR.RedStrands.CyclotomicRedPairing
+import Categorification.WeightedKLR.RedStrands.DoubleDownProjective
+import Categorification.WeightedKLR.RedStrands.DoublePrintedBubble
+import Categorification.WeightedKLR.RedStrands.DoubleRedBubble
 /-!
 # Categorification
 

@@ -22,10 +22,10 @@ instances; it does not replace `G` by the grading of the standing hypothesis.
 
 The local-chart proof of A is a replacement argument. The right-restriction
 induction initially proposed from KL I has the obstruction recorded below; it is not used
-by the replacement proof. Completing A does not settle B, C or D, or the comparison for
-graphs with loops.
+by the replacement proof. The later sections give the proofs of B, C and D.
+The comparison for graphs with loops remains open.
 
-The [tensor product roadmap](tensor-product-roadmap.md) records the separate Stendhal quotient-basis, graded-dimension and tensor categorification results, including the projective commutator of arXiv:1309.3796v2, Lemma 4.35.
+The [tensor product roadmap](tensor-product-roadmap.md) records the separate Stendhal quotient-basis, graded-dimension and tensor categorification results, including the projective commutator of arXiv:1309.3796v2, Lemma 4.35, and the counterexample to its signed corner input when the printed bubble bound is imposed (`DoubleDiagram.printedBubble_no_injection_sl2`).
 
 ## A0. Finite-dimensional graded simple tops
 

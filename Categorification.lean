@@ -32,6 +32,8 @@ import Categorification.Algebra.Graded.TensorGdim
 import Categorification.Algebra.Graded.TensorSimple
 import Categorification.Algebra.Graded.TensorSimpleFinite
 import Categorification.Algebra.Graded.TwistTensor
+import Categorification.Algebra.Graded.Restriction
+import Categorification.Algebra.Graded.RightTwist
 import Categorification.Algebra.IdempotentEquiv
 import Categorification.Algebra.InductionAlong
 import Categorification.Algebra.InductionAlongAssoc

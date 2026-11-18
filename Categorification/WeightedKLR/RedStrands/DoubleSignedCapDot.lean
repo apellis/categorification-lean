@@ -26,6 +26,30 @@ variable {I : Type u} {ℓ : ℕ} {C : CartanDatum I} {X Y : Type v}
   {k : Type w} [CommRing k] (P : Presentation.{w,max u v} (signature RD Λ) k)
   (μ : X) (L U : List (DoubleStrand I ℓ)) (l : Letter I) (R : List (DoubleStrand I ℓ))
 
+private theorem bareCap_chain (d : ℕ) :
+    signedChain ([Sum.inl l.dual] ++ U ++ [Sum.inl l]) (signedCapBlock [] U l [] d) U := by
+  simpa only [List.nil_append, List.append_nil] using signedCapBlock_chain [] U l [] d
+
+/-- An arbitrary signed block on the left commutes from below the cap to above it. -/
+theorem signedCapBlock_disjointLeft {a b : List (DoubleStrand I ℓ)} {F : List (SignedLayer I ℓ)}
+    (hF : signedChain a F b) (d : ℕ) :
+    signedDg RD Λ P μ (L ++ a ++ ([.inl l.dual] ++ U ++ [.inl l]) ++ R) (L ++ b ++ U ++ R)
+      (signedWhisk L (([.inl l.dual] ++ U ++ [.inl l]) ++ R) F ++ signedCapBlock (L ++ b) U l R d) =
+    signedDg RD Λ P μ (L ++ a ++ ([.inl l.dual] ++ U ++ [.inl l]) ++ R) (L ++ b ++ U ++ R)
+      (signedCapBlock (L ++ a) U l R d ++ signedWhisk L (U ++ R) F) := by
+  simpa only [signedCapBlock_whisk, List.append_nil, List.nil_append] using
+    signedDg_interchange RD Λ P μ L R hF (bareCap_chain U l d)
+
+/-- The same commutation with the moving signed block on the right. -/
+theorem signedCapBlock_disjointRight {a b : List (DoubleStrand I ℓ)} {F : List (SignedLayer I ℓ)}
+    (hF : signedChain a F b) (d : ℕ) :
+    signedDg RD Λ P μ (L ++ ([.inl l.dual] ++ U ++ [.inl l]) ++ a ++ R) (L ++ U ++ b ++ R)
+      (signedWhisk (L ++ ([.inl l.dual] ++ U ++ [.inl l])) R F ++ signedCapBlock L U l (b ++ R) d) =
+    signedDg RD Λ P μ (L ++ ([.inl l.dual] ++ U ++ [.inl l]) ++ a ++ R) (L ++ U ++ b ++ R)
+      (signedCapBlock L U l (a ++ R) d ++ signedWhisk (L ++ U) R F) := by
+  simpa only [signedCapBlock_whisk, List.append_nil, List.nil_append] using
+    (signedDg_interchange RD Λ P μ L R (bareCap_chain U l d) hF).symm
+
 /-- A dot on the stationary leg of a cap with arbitrary intervening strands
 becomes an additional dot on the cap. -/
 theorem signedCapBlock_dotLeft (d : ℕ) :

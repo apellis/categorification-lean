@@ -5066,4 +5066,28 @@ example := signedCapBlock_crossInside RD weights Pc 0 [.inr 0] [] [.inl (false, 
     [.inr 0, .inl (true, ())] (.inl (false, ())) (.inr 1) (false, ()) [.inl (false, ())] trivial)
 end CapBraidBound
 
+namespace SignedCapDotExamples
+open Categorification Categorification.QuantumGroup.UDot
+  Categorification.Stendhal Categorification.Stendhal.DoubleDiagram StringDiagrams
+
+private abbrev weights : Fin 2 → ℤ := fun r => if r = 0 then 1 else 3
+private abbrev exponents : Fin 2 → Unit →₀ ℕ := fun r => Finsupp.single () (if r = 0 then 1 else 3)
+private def base : Presentation (signature sl2RootDatum weights) ℚ :=
+  ⟨Empty, Empty.elim, Empty.elim, fun j => j.elim⟩
+private abbrev Q : Unit → Unit → MvPolynomial (Fin 2) ℚ := fun _ _ => 0
+private abbrev scalars : Unit → Unit → ℚ := fun _ _ => 1
+
+-- Equal-colour nilHecke dot correction with red strands before and after the dotted black.
+example := signedCapBlock_dotInside sl2RootDatum weights base Q exponents scalars 0 []
+  [.inr 0] [.inr 1] (false, ()) (false, ()) [] 2
+
+-- The moving leg crosses an upward black of the same colour and two red strands.
+example := signedCapBlock_dotRight sl2RootDatum weights base Q exponents scalars 0 []
+  [.inr 0, .inl (true, ()), .inr 1] (false, ()) [] 2
+
+example := signedCapBlock_dotRight_nil sl2RootDatum weights base Q exponents scalars 0
+  [.inr 0] (true, ()) [.inr 1] 2
+
+end SignedCapDotExamples
+
 end NonVacuity

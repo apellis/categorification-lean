@@ -287,6 +287,7 @@ import Categorification.KLR.ConcatAssoc
 import Categorification.KLR.Cor215
 import Categorification.KLR.Cor319
 import Categorification.KLR.Crystal.Cor312
+import Categorification.KLR.CrossingRescale
 import Categorification.KLR.Crystal.CrystalOps
 import Categorification.KLR.Crystal.Delta
 import Categorification.KLR.Crystal.GradedBridge

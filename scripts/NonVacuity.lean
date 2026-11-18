@@ -2971,6 +2971,9 @@ namespace TensorFormConvention
 open LieLean.QuantumGroup Stendhal.TensorPairing
 
 example := terminal_homGdimPoly_ne_printedForm
+example := correctedForm_adjoint sl2XRegular fundamental fundamental
+  (F sl2RootDatum (RatFunc.X : RatFunc ℚ) ()) highestPair loweredPair
+
 example := printedForm_not_adjoint
 example := barCoproduct_loweredPair_norm
 example := Stendhal.TensorAdjointConvention.tau_barComul_F_ne_comul_tau_F

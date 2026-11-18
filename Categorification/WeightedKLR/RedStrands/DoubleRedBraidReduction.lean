@@ -39,7 +39,8 @@ local notation "Pm" => addRedCapRelations RD Λ (addRedCupRelations RD Λ P)
 local notation "Pu" => addRedUpRelations RD Λ k (Pm)
 local notation "Pd" => addDownRelations RD Λ (affineCoverQ Q exponents) (Pu)
 
-private theorem signedDg_cup_mate (μ : X) (p q : List (DoubleStrand I ℓ))
+/-- The red cup slide expressed in signed layer order. -/
+theorem signedDg_cup_mate (μ : X) (p q : List (DoubleStrand I ℓ))
     (l : KL3.Diagram.Letter I) (r : Fin ℓ) :
     signedDg RD Λ (Pd) μ (p ++ [.inr r] ++ q) (p ++ [.inl l, .inr r, .inl l.dual] ++ q)
       [(p, .black (.cup l), .inr r :: q), (p ++ [.inl l], .blackRed l.dual r, q)] =
@@ -51,7 +52,8 @@ private theorem signedDg_cup_mate (μ : X) (p q : List (DoubleStrand I ℓ))
     (by simp [signedChain, Move.bottom, Move.top, List.append_assoc]) (redCupRight RD Λ μ p l r q) rfl]
   exact (Pd).diag_eq_of_rel (.inl (.inl (.inl (.inr ⟨μ, p, l, r, q⟩)))) rfl
 
-private theorem signedDg_cap_mate (μ : X) (p q : List (DoubleStrand I ℓ))
+/-- The red cap slide expressed in signed layer order. -/
+theorem signedDg_cap_mate (μ : X) (p q : List (DoubleStrand I ℓ))
     (l : KL3.Diagram.Letter I) (r : Fin ℓ) :
     signedDg RD Λ (Pd) μ (p ++ [.inl l.dual, .inr r, .inl l] ++ q) (p ++ [.inr r] ++ q)
       [(p ++ [.inl l.dual], .redBlack r l, q), (p, .black (.cap l), .inr r :: q)] =
@@ -63,7 +65,8 @@ private theorem signedDg_cap_mate (μ : X) (p q : List (DoubleStrand I ℓ))
     (by simp [signedChain, Move.bottom, Move.top, List.append_assoc]) (redCapRight RD Λ μ p l r q) rfl]
   exact (Pd).diag_eq_of_rel (.inl (.inl (.inr ⟨μ, p, l, r, q⟩))) rfl
 
-private theorem signedDg_up_cancel_right (μ : X) (p q : List (DoubleStrand I ℓ))
+/-- The opposite red/up crossings cancel on a red-up boundary. -/
+theorem signedDg_up_cancel_right (μ : X) (p q : List (DoubleStrand I ℓ))
     (i : I) (r : Fin ℓ) :
     signedDg RD Λ (Pd) μ (p ++ [.inr r, .inl (true, i)] ++ q) (p ++ [.inr r, .inl (true, i)] ++ q)
       [(p, .redBlack r (true, i), q), (p, .blackRed (true, i) r, q)] =
@@ -80,7 +83,8 @@ private theorem signedDg_up_cancel_right (μ : X) (p q : List (DoubleStrand I �
   rw [Presentation.diag_id, Presentation.diag_comp]
   exact (redUpCrossingIso RD Λ (Pm) μ p r i q).hom_inv_id
 
-private theorem signedDg_up_cancel_left (μ : X) (p q : List (DoubleStrand I ℓ))
+/-- The opposite red/up crossings cancel on an up-red boundary. -/
+theorem signedDg_up_cancel_left (μ : X) (p q : List (DoubleStrand I ℓ))
     (i : I) (r : Fin ℓ) :
     signedDg RD Λ (Pd) μ (p ++ [.inl (true, i), .inr r] ++ q) (p ++ [.inl (true, i), .inr r] ++ q)
       [(p, .blackRed (true, i) r, q), (p, .redBlack r (true, i), q)] =

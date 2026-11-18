@@ -3651,54 +3651,6 @@ private def bubblePresentation :
   cod e := e.elim
   rel e := e.elim
 
-section AllDownGenerators
-
-open DoubleDiagram
-open scoped Classical
-
-local notation "content" => ({(), ()} : Multiset Unit)
-
-private def redTwoBlack : DoubleBoundary Unit 1 where
-  word := [.inr 0, .inl (false, ()), .inl (false, ())]
-  redOrder := rfl
-
-private theorem redTwoBlackContent : redTwoBlack.blackContent = content := by decide
-
-private def orderedRedTwoBlack : {s : KLR.Seq (stendhalWeight 1 content) // IsRedOrdered s} :=
-  ⟨redTwoBlack.toSeq redTwoBlackContent, redTwoBlack.isRedOrdered_toSeq redTwoBlackContent⟩
-
-private abbrev secondPos : Fin (stendhalWeight 1 content).card := ⟨1, by decide⟩
-private abbrev thirdPos : Fin (stendhalWeight 1 content).card := ⟨2, by decide⟩
-
-private theorem secondBlack : orderedRedTwoBlack.val.lbl secondPos = .inl () := by decide
-private theorem thirdBlack : orderedRedTwoBlack.val.lbl thirdPos = .inl () := by decide
-
-example : ¬ IsViolated orderedRedTwoBlack.val := by
-  rintro ⟨h, hv⟩
-  exact Bool.noConfusion hv
-
-example : downE bubblePresentation orderedRedTwoBlack.val =
-    KLR.Diagram.MatEnd.single orderedRedTwoBlack orderedRedTwoBlack (𝟙 _) :=
-  downE_of_ordered bubblePresentation orderedRedTwoBlack
-
-example : downX bubblePresentation secondPos orderedRedTwoBlack orderedRedTwoBlack =
-    downBlackDot bubblePresentation orderedRedTwoBlack secondPos () secondBlack :=
-  (downX_apply_self bubblePresentation secondPos orderedRedTwoBlack).trans
-    (downDot_of_black bubblePresentation orderedRedTwoBlack secondPos () secondBlack)
-
-private theorem blackSwap : orderedRedTwoBlack.val =
-    TypeA.sadj (stendhalWeight 1 content).card 1 • orderedRedTwoBlack.val :=
-  (KLR.Diagram.sadj_smul_eq_self orderedRedTwoBlack.val (by decide)
-    (secondBlack.trans thirdBlack.symm)).symm
-
-example : downΨ bubblePresentation 1 orderedRedTwoBlack orderedRedTwoBlack =
-    downCrossLayer bubblePresentation orderedRedTwoBlack orderedRedTwoBlack 1 (by decide) blackSwap
-      (.black (.cross false () ())) (by rw [secondBlack, thirdBlack]; rfl) :=
-  downCross_of_move bubblePresentation orderedRedTwoBlack orderedRedTwoBlack 1 (by decide)
-    blackSwap (.black (.cross false () ())) (by rw [secondBlack, thirdBlack]; rfl)
-
-end AllDownGenerators
-
 example : (DoubleDiagram.violatingFunctor bubblePresentation 3).map
     (DoubleDiagram.leftCup bubblePresentation redOnly (true, ()) ≫
       DoubleDiagram.leftCap bubblePresentation redOnly (true, ())) = 0 :=

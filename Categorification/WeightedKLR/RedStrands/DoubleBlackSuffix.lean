@@ -27,17 +27,19 @@ variable {I : Type u} {C : CartanDatum I} {X Y : Type v} [AddCommGroup X] [AddCo
 
 local notation "T" => signature RD Λ
 local notation "ν" => endWeight RD Λ μ u
-local notation "tail" => colours RD Λ (endWeight RD Λ μ (u ++ blackWord s)) v
+variable {τ : X}
+local notation "cut" => (fun (w : List (Letter I)) => endWeight RD Λ μ (u ++ blackWord w))
+local notation "tail" => colours RD Λ τ v
 local notation "head" => (Obj.nil μ : Obj T)
 
-private theorem blackSuffix_ok :
+private theorem blackSuffix_ok (hs : cut s = τ) :
     (obj RD Λ μ (u ++ blackWord s ++ [])).WhiskerOK head tail := by
   refine ⟨trivial, rfl, ?_⟩
   change (T).ok ((T).endR μ (colours RD Λ μ (u ++ blackWord s ++ []))) tail
-  rw [colours_endR, List.append_nil]
+  rw [colours_endR, List.append_nil, ← hs]
   exact colours_ok ..
 
-private theorem blackSuffix_obj :
+private theorem blackSuffix_obj (hs : cut s = τ) :
     (obj RD Λ μ (u ++ blackWord s ++ [])).whisker head tail =
       obj RD Λ μ (u ++ blackWord s ++ v) := by
   apply Obj.ext (x := (obj RD Λ μ (u ++ blackWord s ++ [])).whisker head tail)
@@ -45,13 +47,14 @@ private theorem blackSuffix_obj :
   · rfl
   · change colours RD Λ μ (u ++ blackWord s ++ []) ++ tail =
       colours RD Λ μ (u ++ blackWord s ++ v)
-    rw [List.append_nil]
+    rw [List.append_nil, ← hs]
     exact (colours_append RD Λ μ (u ++ blackWord s) v).symm
 
-private theorem blackSuffix_diag (d : ob RD ν s ⟶ ob RD ν s) :
+private theorem blackSuffix_diag {t : List (Letter I)} (hs : cut s = τ) (ht : cut t = τ)
+    (d : ob RD ν s ⟶ ob RD ν t) :
     Diagram.cast (Diagram.whisker (blackDiagram RD Λ μ u [] d)
-      head tail (blackSuffix_ok RD Λ μ u v s)) (blackSuffix_obj RD Λ μ u v s)
-        (blackSuffix_obj RD Λ μ u v s) = blackDiagram RD Λ μ u v d := by
+      head tail (blackSuffix_ok RD Λ μ u v s hs)) (blackSuffix_obj RD Λ μ u v s hs)
+        (blackSuffix_obj RD Λ μ u v t ht) = blackDiagram RD Λ μ u v d := by
   obtain ⟨xs, h, rfl⟩ := exists_mkD RD ν d
   apply Diagram.ext
   rw [Diagram.layers_cast, Diagram.layers_whisker, layers_blackDiagram_mkD, layers_blackDiagram_mkD]
@@ -75,12 +78,13 @@ private theorem blackSuffix_diag (d : ob RD ν s ⟶ ob RD ν s) :
   · rfl
   · rfl
   · change colours RD Λ ρ (blackWord a ++ []) ++ tail = colours RD Λ ρ (blackWord a ++ v)
-    rw [List.append_nil, colours_append, hρ]
+    rw [List.append_nil, colours_append, hρ, ← hs]
 
-private theorem blackSuffix_linear (f : LinDiagram k (ob RD ν s) (ob RD ν s)) :
+private theorem blackSuffix_linear {t : List (Letter I)} (hs : cut s = τ) (ht : cut t = τ)
+    (f : LinDiagram k (ob RD ν s) (ob RD ν t)) :
     LinDiagram.cast (LinDiagram.whisker (blackLinear RD Λ k μ u [] f)
-      head tail (blackSuffix_ok RD Λ μ u v s)) (blackSuffix_obj RD Λ μ u v s)
-        (blackSuffix_obj RD Λ μ u v s) = blackLinear RD Λ k μ u v f := by
+      head tail (blackSuffix_ok RD Λ μ u v s hs)) (blackSuffix_obj RD Λ μ u v s hs)
+        (blackSuffix_obj RD Λ μ u v t ht) = blackLinear RD Λ k μ u v f := by
   induction f using Finsupp.induction_linear with
   | zero => simp [LinDiagram.cast, LinDiagram.whisker]
   | add f g hf hg =>
@@ -91,28 +95,55 @@ private theorem blackSuffix_linear (f : LinDiagram k (ob RD ν s) (ob RD ν s)) 
       rw [Finsupp.smul_single_one]
     rw [he, map_smul, map_smul, blackLinear_of, blackLinear_of,
       LinDiagram.whisker_smul, LinDiagram.whisker_of, LinDiagram.cast_smul, LinDiagram.cast_of,
-      blackSuffix_diag]
+      blackSuffix_diag RD Λ μ u v s hs ht]
+
+variable (P : Presentation.{w, max u v} (signature RD Λ) k)
+  (hP : ∀ r : (pres RD k).Rel, P.lin (blackMirrorLinear RD Λ ((pres RD k).rel r)) = 0)
+
+/-- Reflection of a black KL Hom between arbitrary signed prefix and suffix words.
+The cut weight `τ` fixes the region where the suffix starts. -/
+def blackRectangleHom (t : List (Letter I)) (hs : cut s = τ) (ht : cut t = τ) :
+    ((pres RD k).obj (ob RD ν s) ⟶ (pres RD k).obj (ob RD ν t)) →ₗ[k]
+      (P.obj (obj RD Λ μ (u ++ blackWord s ++ v)) ⟶ P.obj (obj RD Λ μ (u ++ blackWord t ++ v))) :=
+  (P.castLinearEquiv (blackSuffix_obj RD Λ μ u v s hs) (blackSuffix_obj RD Λ μ u v t ht)).toLinearMap.comp
+    ((P.whiskLinearMap _ _ head tail).comp (blackPrefixHom RD Λ μ u P hP))
+
+@[simp] theorem blackRectangleHom_lin (t : List (Letter I)) (hs : cut s = τ) (ht : cut t = τ)
+    (f : LinDiagram k (ob RD ν s) (ob RD ν t)) :
+    blackRectangleHom RD Λ μ u v s P hP t hs ht ((pres RD k).lin f) = P.lin (blackLinear RD Λ k μ u v f) := by
+  let e := blackSuffix_obj RD Λ μ u v (τ := τ)
+  change P.castHom (e s hs) (e t ht) (P.whisk (blackPrefixHom RD Λ μ u P hP ((pres RD k).lin f)) head tail) = _
+  rw [blackPrefixHom_lin, Presentation.whisk_lin, LinDiagram.whisk_of_ok _ (blackSuffix_ok RD Λ μ u v s hs)]
+  unfold Presentation.castHom
+  rw [← P.lin_cast _ (e s hs) (e t ht), blackSuffix_linear RD Λ μ u v s hs ht]
+
+theorem blackRectangleHom_comp (t z : List (Letter I)) (hs : cut s = τ) (ht : cut t = τ) (hz : cut z = τ)
+    (f : (pres RD k).obj (ob RD ν s) ⟶ (pres RD k).obj (ob RD ν t))
+    (g : (pres RD k).obj (ob RD ν t) ⟶ (pres RD k).obj (ob RD ν z)) :
+    blackRectangleHom RD Λ μ u v s P hP z hs hz (f ≫ g) =
+      blackRectangleHom RD Λ μ u v s P hP t hs ht f ≫ blackRectangleHom RD Λ μ u v t P hP z ht hz g := by
+  let e := blackSuffix_obj RD Λ μ u v (τ := τ)
+  change P.castHom (e s hs) (e z hz) (P.whisk (blackPrefixHom RD Λ μ u P hP (f ≫ g)) head tail) =
+    P.castHom (e s hs) (e t ht) (P.whisk (blackPrefixHom RD Λ μ u P hP f) head tail) ≫
+      P.castHom (e t ht) (e z hz) (P.whisk (blackPrefixHom RD Λ μ u P hP g) head tail)
+  rw [blackPrefixHom_comp, Presentation.whisk_comp, Presentation.castHom_comp]
+
+theorem blackRectangleHom_id (hs : cut s = τ) :
+    blackRectangleHom RD Λ μ u v s P hP s hs hs (𝟙 _) = 𝟙 _ := by
+  rw [← (pres RD k).diag_id, ← Presentation.lin_of, blackRectangleHom_lin, blackLinear_of,
+    Presentation.lin_of, blackDiagram_id, Presentation.diag_id]
 
 /-- A black KL endomorphism relation remains valid between arbitrary signed
 prefix and suffix words in Webster's convention. -/
 theorem blackContext_lin_eq_of_KL_eq_suffix
-    (P : Presentation.{w, max u v} T k) (f g : LinDiagram k (ob RD ν s) (ob RD ν s))
+    (base : Presentation.{w, max u v} T k) (f g : LinDiagram k (ob RD ν s) (ob RD ν s))
     (h : (pres RD k).lin f = (pres RD k).lin g) :
-    (addBlackKLRelations RD Λ P).lin (blackLinear RD Λ k μ u v f) =
-    (addBlackKLRelations RD Λ P).lin (blackLinear RD Λ k μ u v g) := by
-  let P₁ := addBlackKLRelations RD Λ P
-  let e := blackSuffix_obj RD Λ μ u v s
-  have he : P₁.lin (blackLinear RD Λ k μ u [] f) =
-      P₁.lin (blackLinear RD Λ k μ u [] g) := blackContext_lin_eq_of_KL_eq RD Λ μ u P f g h
-  have hh := congrArg (fun m => P₁.castHom e e (P₁.whisk m head tail)) he
-  change P₁.castHom e e (P₁.whisk (P₁.lin (blackLinear RD Λ k μ u [] f)) head tail) =
-    P₁.castHom e e (P₁.whisk (P₁.lin (blackLinear RD Λ k μ u [] g)) head tail) at hh
-  rw [Presentation.whisk_lin, Presentation.whisk_lin,
-    LinDiagram.whisk_of_ok _ (blackSuffix_ok RD Λ μ u v s),
-    LinDiagram.whisk_of_ok _ (blackSuffix_ok RD Λ μ u v s)] at hh
-  unfold Presentation.castHom at hh
-  rw [← P₁.lin_cast _ e e, ← P₁.lin_cast _ e e,
-    blackSuffix_linear, blackSuffix_linear] at hh
-  exact hh
+    (addBlackKLRelations RD Λ base).lin (blackLinear RD Λ k μ u v f) =
+    (addBlackKLRelations RD Λ base).lin (blackLinear RD Λ k μ u v g) := by
+  let B := addBlackKLRelations RD Λ base
+  have hB : ∀ r : (pres RD k).Rel, B.lin (blackMirrorLinear RD Λ ((pres RD k).rel r)) = 0 :=
+    fun r => B.lin_rel_self (.inr r)
+  simpa only [blackRectangleHom_lin] using
+    congrArg (blackRectangleHom RD Λ μ u v s B hB s rfl rfl) h
 
 end Categorification.Stendhal.DoubleDiagram

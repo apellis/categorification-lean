@@ -64,7 +64,8 @@ local notation "eⱼ" => (Sum.inl (true, j) : DoubleStrand I ℓ)
 local notation "fⱼ" => (Sum.inl (false, j) : DoubleStrand I ℓ)
 local notation "red" => (Sum.inr r : DoubleStrand I ℓ)
 
-private theorem upRedLeft :
+/-- Relation (4.4c) on the signed moves when red starts left of the two upward strands. -/
+theorem upRedLeft :
     signedDg RD Λ (T) μ (L ++ [red, eᵢ, eⱼ] ++ R) (L ++ [eⱼ, eᵢ, red] ++ R)
       [(L, .redBlack r (true, i), (eⱼ :: R)),
         ((L ++ [eᵢ]), .redBlack r (true, j), R),
@@ -81,7 +82,8 @@ private theorem upRedLeft :
   all_goals first | rfl | simp [signedChain, Move.bottom, Move.top, List.append_assoc, upBlackWord,
     signedLayers, redUpSlide, redThroughUpWord, upBlackMoveDiagram, UpBlackMove.shape, moveDiagram]
 
-private theorem upRedMiddle :
+/-- The signed move form of (4.4c) when red starts between the two upward strands. -/
+theorem upRedMiddle :
     signedDg RD Λ (T) μ (L ++ [eᵢ, red, eⱼ] ++ R) (L ++ [eⱼ, red, eᵢ] ++ R)
       [(L, .blackRed (true, i) r, (eⱼ :: R)),
         ((L ++ [red]), .black (.cross true i j), R),

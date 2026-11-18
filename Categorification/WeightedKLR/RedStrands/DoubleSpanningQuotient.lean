@@ -2,6 +2,7 @@
 Copyright (c) 2026 Alex Ellis. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 -/
+import Categorification.WeightedKLR.RedStrands.DoublePresentationUnion
 import Categorification.WeightedKLR.RedStrands.DoubleSingleRedReduction
 
 /-!
@@ -48,40 +49,19 @@ theorem violatingEntry_surjective (a b : Triple) : Function.Surjective (violatin
   obtain ⟨d, rfl⟩ := P.lin_surjective g
   exact ⟨d, rfl⟩
 
-private def presentedExtension : P.Presented ⥤ P'.Presented :=
-  CategoryTheory.Quotient.lift P.homRel P'.linFunctor fun a b f g hfg =>
-    (P'.lin_eq_iff f g).mpr (h a b hfg)
-
-private theorem lin_comp_presentedExtension :
-    P.linFunctor ⋙ presentedExtension P P' h = P'.linFunctor := rfl
-
-private instance : (presentedExtension P P' h).Additive := by
-  have : P.linFunctor.EssSurj := CategoryTheory.Quotient.essSurj_functor _
-  have : (P.linFunctor ⋙ presentedExtension P P' h).Additive := by
-    rw [lin_comp_presentedExtension]
-    infer_instance
-  exact Functor.additive_of_full_essSurj_comp P.linFunctor _
-
-private instance : (presentedExtension P P' h).Linear k := by
-  have : P.linFunctor.EssSurj := CategoryTheory.Quotient.essSurj_functor _
-  have : (P.linFunctor ⋙ presentedExtension P P' h).Linear k := by
-    rw [lin_comp_presentedExtension]
-    infer_instance
-  exact Functor.linear_of_full_essSurj_comp P.linFunctor _
-
 private def boundaryExtension : BoundaryCategory (Λ := Λ) P right ⥤
     BoundaryCategory (Λ := Λ) P' right where
   obj a := a
-  map f := InducedCategory.homMk ((presentedExtension P P' h).map f.hom)
-  map_id _ := InducedCategory.hom_ext ((presentedExtension P P' h).map_id _)
-  map_comp f g := InducedCategory.hom_ext ((presentedExtension P P' h).map_comp f.hom g.hom)
+  map f := InducedCategory.homMk ((P.extension P' h).map f.hom)
+  map_id _ := InducedCategory.hom_ext ((P.extension P' h).map_id _)
+  map_comp f g := InducedCategory.hom_ext ((P.extension P' h).map_comp f.hom g.hom)
 
 private instance : (boundaryExtension (right := right) P P' h).Additive where
   map_add {_ _} {f g} := InducedCategory.hom_ext
-    ((presentedExtension P P' h).map_add (f := f.hom) (g := g.hom))
+    ((P.extension P' h).map_add (f := f.hom) (g := g.hom))
 
 private instance : (boundaryExtension (right := right) P P' h).Linear k where
-  map_smul {_ _} f r := InducedCategory.hom_ext ((presentedExtension P P' h).map_smul r f.hom)
+  map_smul {_ _} f r := InducedCategory.hom_ext ((P.extension P' h).map_smul r f.hom)
 
 /-- Adjoining signed diagram relations induces a linear functor on the
 violating quotients, identity on the boundary indices. -/

@@ -4567,4 +4567,67 @@ example := disconnected_downward_quadratics
 
 end PitchforkCoefficient
 
+
+namespace DoubleRedBraidClosure
+
+open Categorification Categorification.QuantumGroup.UDot
+  Categorification.Stendhal.DoubleDiagram StringDiagrams
+
+private abbrev weights : Fin 1 → ℤ := fun _ => 4
+private def P : Presentation (signature sl2RootDatum weights) ℚ :=
+  ⟨Empty, Empty.elim, Empty.elim, fun i => i.elim⟩
+private abbrev Q : Unit → Unit → MvPolynomial (Fin 2) ℚ := fun _ _ => 0
+private def exponents : Fin 1 → Unit →₀ ℕ := fun _ => Finsupp.single () 4
+
+example := closeRedBraid_sub sl2RootDatum weights (-2) [] () 0 [] Q exponents P
+
+end DoubleRedBraidClosure
+
+namespace DoubleRedBraidReduction
+
+open CategoryTheory Categorification Categorification.QuantumGroup.UDot
+  Categorification.Stendhal Categorification.Stendhal.DoubleDiagram StringDiagrams
+
+private abbrev weights : Fin 1 → ℤ := fun _ => 4
+private def P : Presentation (signature sl2RootDatum weights) ℚ :=
+  ⟨Empty, Empty.elim, Empty.elim, fun i => i.elim⟩
+private abbrev Q : Unit → Unit → MvPolynomial (Fin 2) ℚ := fun _ _ => 0
+private def exponents : Fin 1 → Unit →₀ ℕ := fun _ => Finsupp.single () 4
+
+example := closeRedBraid_left_eq_zero_of_pos sl2RootDatum weights Q exponents P (-2) [] () 0 []
+  (by decide)
+
+example := closeRedBraid_right_eq_zero_of_neg sl2RootDatum weights Q exponents P (-2) [] () 0 []
+  (by decide)
+
+private abbrev B := addBlackKLRelations sl2RootDatum weights P
+private abbrev U := addRedUpRelations sl2RootDatum weights ℚ
+  (addRedCapRelations sl2RootDatum weights (addRedCupRelations sl2RootDatum weights B))
+private abbrev C := KLR.Diagram.pres ℚ (affineCoverQ Q exponents)
+private abbrev close := closeRedBraid sl2RootDatum weights (-2) [] () 0 [] Q exponents U
+private abbrev d : Unit ⊕ Fin 1 := .inl ()
+private abbrev r : Unit ⊕ Fin 1 := .inr 0
+
+example :
+    (∑ j ∈ Finset.range 4,
+      close (End.of (C.diag (KLR.Diagram.E0 d r d)) ^ j *
+        End.of (C.diag (KLR.Diagram.E2 d r d)) ^ (4 - 1 - j))) = 0 := by
+  simpa only [exponents, Finsupp.single_eq_same] using
+    closeRedBraid_correction_eq_zero sl2RootDatum weights Q exponents P (-2) [] () 0 []
+      (by decide) (by decide)
+
+end DoubleRedBraidReduction
+
+namespace RedBraidCoefficients
+open Categorification.Stendhal.DoubleDiagram
+
+example (x y : ℚ) :
+    (∑ a ∈ Finset.range 4, (if a = 0 then 0 else if a = 1 then 1 else x) *
+      (if 3 - a = 0 then 0 else if 3 - a = 1 then 1 else y)) = y + x := by
+  exact closedRedBraidCorrection_neg_two_four
+    (fun a => if a = 0 then 0 else if a = 1 then 1 else x)
+    (fun a => if a = 0 then 0 else if a = 1 then 1 else y) rfl rfl rfl rfl
+
+end RedBraidCoefficients
+
 end NonVacuity

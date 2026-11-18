@@ -238,6 +238,15 @@ identities, cyclicity of dots, curl expansions and opposite mixed-crossing
 identities in any red context (`blackSnakeLeft_eq`, `blackCup_dot_slide`,
 `blackCurlRight`, `mixedBlack_opposite_eq`).
 
+At a strict sign change from negative to positive coroot coordinate,
+`closeRedBraid_correction_eq_zero` kills the closed divided-difference
+correction of the downward black–red–black braid, using reflected KL III
+black relations. Each closed braid is zero by a black curl on the appropriate
+side of red. This gives a geometric relation beyond the two separate
+bubble-series inversions. The latter together with both real slides leave the
+first coefficient undetermined at −2 and +2, as shown by
+`realRedBubbleSlides_do_not_determine_degree_one`.
+
 For a presentation with compatible pitchfork coefficients, impose the remaining relations in Definition
 4.24, straighten signed diagrams with all-down boundary into downward diagrams,
 and prove the ordinary map is faithful modulo the violating ideal. The cited

@@ -5227,4 +5227,35 @@ example := capSuccessor_allCrossings sl2RootDatum weights base Q exponents scala
 
 end SignedCapSuccessorExamples
 
+noncomputable section CrossingRescaleExamples
+
+open MvPolynomial
+attribute [local instance 1100] IsIdempotentElem.instAlgebraCorner_categorification
+
+/-- Crossing scalars `2` between distinct colours of `Bool`. -/
+private def twoUnits (a b : Bool) : ℚˣ := if a = b then 1 else Units.mk0 2 (by norm_num)
+
+/-- KLR parameters `4` and `1` between distinct colours, related by `twoUnits`. -/
+private def fourQ (a b : Bool) : MvPolynomial (Fin 2) ℚ := if a = b then 0 else C 4
+private def oneQ (a b : Bool) : MvPolynomial (Fin 2) ℚ := if a = b then 0 else 1
+
+private theorem twoUnits_self (a : Bool) : twoUnits a a = 1 := by simp [twoUnits]
+
+private theorem fourQ_eq (a b : Bool) (h : a ≠ b) :
+    fourQ a b = C ((twoUnits a b * twoUnits b a : ℚˣ) : ℚ) * oneQ a b := by
+  simp only [fourQ, oneQ, twoUnits, h, Ne.symm h, ite_false, Units.val_mul, Units.val_mk0, mul_one]
+  norm_num
+
+example : KLR.KLRAlgebra ℚ fourQ ({false, true} : Multiset Bool) ≃ₐ[ℚ]
+    KLR.KLRAlgebra ℚ oneQ ({false, true} : Multiset Bool) :=
+  KLR.KLRAlgebra.rescale twoUnits_self fourQ_eq
+
+example : Stendhal.TensorProductAlgebra ℚ fourQ (fun _ : Fin 1 => Finsupp.single false 1)
+      ({true} : Multiset Bool) ≃ₐ[ℚ]
+    Stendhal.TensorProductAlgebra ℚ oneQ (fun _ : Fin 1 => Finsupp.single false 1)
+      ({true} : Multiset Bool) :=
+  Stendhal.tensorRescale _ _ twoUnits_self fourQ_eq
+
+end CrossingRescaleExamples
+
 end NonVacuity

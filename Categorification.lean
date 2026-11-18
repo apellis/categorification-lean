@@ -286,6 +286,7 @@ import Categorification.KLR.Concat
 import Categorification.KLR.ConcatAssoc
 import Categorification.KLR.Cor215
 import Categorification.KLR.Cor319
+import Categorification.KLR.CrossingRescale
 import Categorification.KLR.Crystal.Cor312
 import Categorification.KLR.Crystal.CrystalOps
 import Categorification.KLR.Crystal.Delta
@@ -1163,6 +1164,8 @@ import Categorification.WeightedKLR.RedStrands.CyclotomicRedCapSl2
 import Categorification.WeightedKLR.RedStrands.DoublePitchforkObstruction
 import Categorification.WeightedKLR.RedStrands.DoublePitchforkClosure
 import Categorification.WeightedKLR.RedStrands.DoubleDownScalars
+import Categorification.WeightedKLR.RedStrands.TensorRescale
+import Categorification.WeightedKLR.RedStrands.DoubleDownCLComparison
 import Categorification.WeightedKLR.RedStrands.CyclotomicCoverVacuumEvaluation
 import Categorification.WeightedKLR.RedStrands.DoubleRegularEvaluation
 import Categorification.WeightedKLR.RedStrands.OrdinaryRegularDiagram

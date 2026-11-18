@@ -121,7 +121,11 @@ with the terminal black-strand projective following two fundamental red
 strands over ℚ. Its graded endomorphism polynomial is 1 + q² by
 `FundamentalCorner.terminal_homGdimPoly`. Thus the
 prescribed generators and the printed form in Theorem 4.38 already disagree
-on this diagonal entry. The comparison is independent of the passage between
+on this diagonal entry. For the repaired form, `fundamental_prefix_homGdimPoly_eq_correctedForm`
+identifies all four entries in this weight. The earlier diagonal is 1
+and both off-diagonal entries are q. Nonvanishing of the two crossing
+maps follows from their composition, the nonzero terminal dot.
+The printed diagonal comparison is independent of the passage between
 left and right projectives. The underlying module comparison in all weights uses standard-module characters.
 
 **Tensor generators and the last-red filtration.** The prescribed tensor

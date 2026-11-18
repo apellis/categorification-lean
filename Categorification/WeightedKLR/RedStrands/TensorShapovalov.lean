@@ -171,7 +171,8 @@ theorem printedForm_loweredPair : Φ loweredPair loweredPair = 1 + q ^ (-2 : ℤ
 private theorem K_highest (m : ℤ) : K sl2RootDatum q m • v₀ = q ^ m • v₀ :=
   IrreducibleModule.hwv_mem_weightSpace m
 
-private theorem E_first : E₁ • (F₁ • v₀) = v₀ := by
+/-- The raising generator returns the first lowering of the fundamental vector to the highest line. -/
+theorem E_first : E₁ • (F₁ • v₀) = v₀ := by
   have he := (nodeSl2 sl2RootDatum q L hvn_ratFunc (isInt transcendental_ratFunc_X sl2XRegular fundamental) ()).E_F_sub
     (mem_nodeWt_of_mem (i := ()) (IrreducibleModule.hwv_mem_weightSpace (R := sl2RootDatum) (v := q)
       (Λ := fundamental.1)))
@@ -179,7 +180,8 @@ private theorem E_first : E₁ • (F₁ • v₀) = v₀ := by
   rwa [IrreducibleModule.E_smul_hwv, smul_zero, sub_zero, pow_one,
     qIntZ_one (sub_inv_ne_zero_of_pow_ne_one RatFunc.X_ne_zero hvn_ratFunc), one_smul] at he
 
-private theorem E_loweredPair : Δ E₁ loweredPair = (q⁻¹ + q) • highestPair := by
+/-- Raising the ordinary coproduct lowering of the two-fundamental highest tensor gives `q⁻¹ + q`. -/
+theorem E_loweredPair : Δ E₁ loweredPair = (q⁻¹ + q) • highestPair := by
   simp only [loweredPair, highestPair, TensorModule.act, AlgHom.comp_apply, comul_E, comul_F,
     map_add, LinearMap.add_apply, TensorModule.act_tmul, one_smul, Kt, sl2RootDatum_ktilde,
     K_highest, IrreducibleModule.E_smul_hwv, E_first, zero_tmul, zero_add,

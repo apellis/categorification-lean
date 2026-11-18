@@ -2762,6 +2762,9 @@ example := tensorModuleEquiv_lastRed D params regular level (factors 2) level_eq
 example := tensorModuleEquiv_unique D params regular level (factors 2) level_eq identification.toLinearMap
   (tensorModuleEquiv_word D params regular level (factors 2) level_eq)
 
+example := tensorModuleEquiv_E D params regular level (factors 2) level_eq ()
+  (tensorWordProjectiveClass level D params splitWord)
+
 end TwoFundamentalLowerings
 
 end CyclotomicHighestWeight

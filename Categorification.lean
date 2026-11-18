@@ -1073,6 +1073,7 @@ import Categorification.WeightedKLR.RedStrands.TensorWordInduction
 import Categorification.WeightedKLR.RedStrands.TensorWordRelations
 import Categorification.WeightedKLR.RedStrands.TensorWordIntertwining
 import Categorification.WeightedKLR.RedStrands.TensorModuleIdentification
+import Categorification.WeightedKLR.RedStrands.TensorModuleRaising
 import Categorification.WeightedKLR.RedStrands.TensorShuffleCriterion
 import Categorification.WeightedKLR.RedStrands.TensorFactorRank
 import Categorification.WeightedKLR.RedStrands.TensorFactorSeparation

@@ -62,6 +62,7 @@ import Categorification.Diagrams.BicatInterpAdmissible
 import Categorification.Diagrams.BicatInterpAdmissibleHorizontal
 import Categorification.Diagrams.BicatInterpAdmissibleDescent
 import Categorification.Diagrams.BicatInterpAdmissiblePseudo
+import Categorification.Diagrams.BicatInterpAdmissiblePull
 import Categorification.Diagrams.BicatInterpPull
 import Categorification.Diagrams.BicatInterpPseudo
 import Categorification.Diagrams.BicatInterpPush

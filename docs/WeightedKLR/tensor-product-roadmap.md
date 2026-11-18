@@ -178,7 +178,16 @@ transformations. On the singleton block `singletonRedCrossing_trace` identifies
 the two crossings as adjoints for the Frobenius pairings. When the last colour
 is already present and both coroot weights are positive,
 `redProjection_positive_polynomial` compares the cap traces on the polynomial
-summand. The opposite mate on the entire induction corner remains open.
+summand. On the entire induction corner, `Stendhal.redProjection_cyclotomicOppositeCap`
+compares the normalized cap with projection after inserting the red dot power.
+In the present-colour case a common positive shift expresses both caps by monic
+remainders of dotted affine representatives. In the absent-colour case the last
+coordinate of the finite dot basis is the same remainder trace. These arguments
+include weight zero. For type A₁, highest weights 3 and 5 with two preceding
+black strands give coroot weights −1 and +1. The common projected value on
+a crossing difference is a nonzero nilHecke commutator
+(`TypeA1Cap.strict_upper_projected_cap`, `strict_lower_cap_ne_zero`).
+Functor-level opposite biadjunction in all weights also needs the triangle identities.
 
 For all-down boundaries `boundaryRightModuleDownEquiv` identifies the signed
 module with the principal right ideal at the diagonal idempotent. Precomposition

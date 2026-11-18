@@ -4307,4 +4307,49 @@ example := sequenceCornerPoly_eq_wordCornerPoly cartan rational wt
 
 end CornerFieldComparison
 
+namespace RedAbsentCapExample
+
+open Categorification KLR KLRAlgebra Stendhal Polynomial QuantumGroup QuantumGroup.UDot
+open KLRAlgebra.AbsentColour
+
+private abbrev cartan := CartanDatum.ofGraph (⊥ : SimpleGraph Bool)
+private def datum : WeightDatum cartan (Bool → ℤ) ((Bool → ℤ) →+ ℤ) where
+  pair := AddMonoidHom.id _
+  iX j i := A cartan i j
+  iY i := {toFun := fun z => z i, map_zero' := rfl, map_add' := fun _ _ => rfl}
+  pair_iY_iX _ _ := rfl
+
+private abbrev Q (i j : Bool) : MvPolynomial (Fin 2) ℚ := if i = j then 0 else 1
+private abbrev a (_ : Bool) : Polynomial ℚ := X
+private abbrev b (i : Bool) : Polynomial ℚ := if i then X else X ^ 3
+private theorem hab (j : Bool) : a j ∣ b j := by
+  cases j
+  · exact ⟨X ^ 2, by change X ^ 3 = (X * X ^ 2 : Polynomial ℚ); ring⟩
+  · exact dvd_refl _
+private theorem sym : KLRSymm Q := by intro i j h; simp [Q, h, h.symm]
+private theorem unitCoeff (i j : Bool) (h : i ≠ j) :
+    ∃ c : ℚ, IsUnit c ∧ (polyInY (Q i j)).leadingCoeff = Polynomial.C c := by
+  exact ⟨1,isUnit_one,by simp [Q, h, polyInY]⟩
+private theorem hdeg (j : Bool) (h : j ≠ false) :
+    ((polyInY (Q j false)).natDegree : ℤ) = -datum.pair (datum.iY false) (datum.iX j) := by
+  cases j
+  · exact (h rfl).elim
+  · simp [Q, polyInY]
+    rfl
+private abbrev β : Multiset Bool := {true}
+private abbrev r : CycKLR ℚ Q b β := CycKLR.mk ℚ Q b β 1
+private abbrev z : Corner Q false b β := cornerEval Q false β b (C r)
+private theorem hb (j : Bool) : (b j).Monic := by cases j <;> first | exact monic_X | exact monic_X_pow _
+
+/-- The old block contains a true strand. Raising the false strand from level
+one to three inserts two dots into the trace on this nonempty corner. -/
+example := redProjection_cyclotomicOppositeCap Q false β hab sym unitCoeff (fun _ => monic_X) hb datum
+  (fun _ => 1) (fun _ => 3) (by norm_num [a, datum]) (by norm_num [b, datum]) hdeg
+  2 (by change X ^ 3 = (X ^ 2 * X : Polynomial ℚ); ring) z
+
+end RedAbsentCapExample
+
+example := Categorification.Stendhal.TypeA1Cap.strict_lower_cap_ne_zero
+example := Categorification.Stendhal.TypeA1Cap.strict_upper_projected_cap
+
 end NonVacuity

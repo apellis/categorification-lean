@@ -1155,6 +1155,8 @@ import Categorification.WeightedKLR.RedStrands.DoubleDownProjective
 import Categorification.WeightedKLR.RedStrands.DoublePrintedBubble
 import Categorification.WeightedKLR.RedStrands.DoubleRedBubble
 import Categorification.WeightedKLR.RedStrands.TensorCornerFormula
+import Categorification.WeightedKLR.RedStrands.CyclotomicRedAbsentCap
+import Categorification.WeightedKLR.RedStrands.CyclotomicRedCapSl2
 /-!
 # Categorification
 

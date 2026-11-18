@@ -19,7 +19,8 @@ noncomputable section
 namespace Categorification.KLR.KLRAlgebra.CornerTrace
 open Polynomial
 
-private theorem weighted_quotient_trace_zero {R : Type*} [Ring R]
+/-- The weighted remainder trace vanishes on the polynomial quotient relation. -/
+theorem weighted_quotient_trace_zero {R : Type*} [Ring R]
     (f s : Polynomial R) (hf : f.Monic) (hs : s.Monic)
     (hc : ∀ p, Commute p f) (hd : s.natDegree < f.natDegree) (p : Polynomial R) :
     MonicTrace.trace f (s * ((p * f) /ₘ s)) = 0 := by
@@ -42,7 +43,8 @@ private theorem weighted_quotient_trace_zero {R : Type*} [Ring R]
       exact_mod_cast (show s.natDegree ≤ f.natDegree - 1 by omega)))
   rw [hz, neg_zero]
 
-private theorem weighted_small_trace {R : Type*} [Ring R]
+/-- On polynomials below the degree gap, the weighted trace is their last coefficient. -/
+theorem weighted_small_trace {R : Type*} [Ring R]
     (f s : Polynomial R) (hf : f.Monic) (hs : s.Monic)
     (hd : s.natDegree < f.natDegree) (p : Polynomial R)
     (hp : p.degree < (f.natDegree - s.natDegree : ℕ)) :

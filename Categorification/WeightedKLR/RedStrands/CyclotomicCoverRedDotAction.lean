@@ -180,6 +180,17 @@ private theorem unique_position {c : C} (hc : β.count c = 1)
   have hf : (Finset.univ.filter (fun a => c = s.lbl a)).card ≤ 1 := hcnt
   exact Finset.card_le_one_iff.mp hf (by simp [ha]) (by simp [hb])
 
+/-- A colour occurring once, distinct from the inserted colour, satisfies the
+compatibility used to transport its central dot across induction and restriction. -/
+theorem lastEmb_cyclotomicColourDot_of_count (j c : C) (hjc : c ≠ j) (hβ : β.count c = 1) :
+    lastEmb S p j rfl (cyclotomicColourDot S p β c) =
+      cyclotomicColourDot S p ({j} + β) c * lastEmb S p j rfl 1 := by
+  have hβ' : ({j} + β : Multiset C).count c = 1 := by
+    simpa [Multiset.count_singleton, hjc] using hβ
+  exact lastEmb_cyclotomicColourDot S p j c rfl
+    (exists_position (Multiset.count_pos.mp (by omega : 0 < β.count c)))
+    (unique_position hβ) (unique_position hβ')
+
 /-- A signed context to the right of a unique red strand. Its induction
 and restriction steps may have any distinct colour. Indexing by block
 content omits the zero blocks produced by restriction at an absent colour. -/

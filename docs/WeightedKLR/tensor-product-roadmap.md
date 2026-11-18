@@ -38,18 +38,20 @@ recorded in [the Theorem 2.19 roadmap](thm-2-19-roadmap.md).
 The target is Webster, arXiv:1309.3796v2, Theorem 4.38. For a family of
 dominant weights the sum of the graded projective Grothendieck groups is
 identified with the tensor product of the integral highest-weight lattices.
-The identification specifies the images of the diagram projectives and
-identifies their graded pairing. The repository uses left projectives;
+The canonical identification `FirstWeight.tensorModuleEquiv` sends the prescribed
+divided projectives to their tensor vectors. The additional claim about the
+graded pairing fails for two fundamental factors with the printed conventions,
+as computed below. The repository uses left projectives;
 Definition 4.34 uses right projectives. In the computation by a diagram
 corner this reverses the source and target endpoint arguments.
 
 | Source input | Formalization | Remaining identification |
 |---|---|---|
-| Proposition 3.21, one-factor highest-weight representation | For Rouquier parameters over a field, a finite simple-root index set and an X-regular root datum, `CycKLR.projectiveIntegralEquiv` identifies the total cyclotomic projective group with the integral highest-weight lattice. It sends each divided projective word to its divided lowering word on the highest vector and intertwines induction and normalized restriction with F and E. | Transfer this one-factor identification to multiple red factors via the decompositions and pairing in §4.7. |
+| Proposition 3.21, one-factor highest-weight representation | For Rouquier parameters over a field, a finite simple-root index set and an X-regular root datum, `CycKLR.projectiveIntegralEquiv` identifies the total cyclotomic projective group with the integral highest-weight lattice. It sends each divided projective word to its divided lowering word on the highest vector and intertwines induction and normalized restriction with F and E. | The final-factor simple-top tests of this lattice enter the proof of the multi-factor identification. |
 | Theorem 4.20, single-red algebra | `SingleRed.cyclotomicEquiv` identifies the one-red block with the monomial cyclotomic algebra for every black multiset over a commutative ring. | `SingleRed.totalCyclotomicK0Equiv` identifies the graded projective groups and `cyclotomicK0Equiv_sequenceProj` identifies each word projective. `Stendhal.blackLower` independently defines right black-strand induction for arbitrary red families. `SingleRed.blackLower_totalCyclotomicK0Equiv` identifies it with the transported one-factor operator on every projective class. |
 | Proposition 4.18, adding the last red strand | `appendRedEquiv` identifies the shorter algebra with the terminal-red corner for the homogeneous parameters of §2.2. `appendRed_mem_grade` proves homogeneity. | `lastRedIndK0_sequenceProj` appends red on sequence projectives. `exists_lastRedIndK0_of_retract` gives the induced class of every graded retract of the terminal-red left ideal. |
 | Lemmas 4.35 and 4.36, projective decompositions and pairing | `Stendhal.finrank_homGrade_sequenceProj` computes the dimension of the homogeneous Hom between undivided sequence projectives from the quotient basis. | Match the graded projective decompositions with the quantum commutator and identify the Hom pairing with the tensor product pairing, including divided powers. |
-| Lemma 4.37 and Theorem 4.38 | `Stendhal.tensorProductVacuumK0Equiv_regular` identifies the vacuum class for every red family. `Stendhal.emptyTensorK0Equiv` accounts for every weight of the empty family. | At one black strand, `FirstWeight.sequenceProjBasis` gives a basis indexed by black positions when every red multiplicity at that colour and all dot degrees are positive. For one factor `SingleBlack.oneBlackLatticeEquiv_regular` identifies the regular class with Fᵢ applied to the highest vector. `lastRed_boundary_mem_span` truncates a constant block after the last red via the boundary with one fewer black strand on its right. In the quotient by smaller suffixes, `sandwich_mem_range_suffixConcat` gives affine juxtaposition spanning and `lastRedLayerTensor_surjective` presents each fixed-weight layer corner as a quotient of the shorter tensor product algebra tensored with the final-weight cyclotomic algebra. `exists_lastRedLayerIdem_mul_boundary` covers every ordered loading and `lastRedLayerTensor_mem_grade` identifies the grading on the presentation. Over any field with Rouquier parameters, `lastRedLayerSourceIndecClassEquiv` indexes the source indecomposable classes by pairs of classes of its factors. `lastRedStandardHeadEquiv` indexes the shift classes of the whole block by the split and its two factor classes. Consequently `lastRedK0_rank_eq` identifies its Laurent rank with the sum over splits of the products of the factor ranks. The general module identification remains open. The printed pairing clause fails on the first lowering of two fundamental factors. |
+| Lemma 4.37 and Theorem 4.38 | `Stendhal.tensorProductVacuumK0Equiv_regular` identifies the vacuum class for every red family. `Stendhal.emptyTensorK0Equiv` accounts for every weight of the empty family. | At one black strand, `FirstWeight.sequenceProjBasis` gives a basis indexed by black positions when every red multiplicity at that colour and all dot degrees are positive. For one factor `SingleBlack.oneBlackLatticeEquiv_regular` identifies the regular class with Fᵢ applied to the highest vector. `lastRed_boundary_mem_span` truncates a constant block after the last red via the boundary with one fewer black strand on its right. In the quotient by smaller suffixes, `sandwich_mem_range_suffixConcat` gives affine juxtaposition spanning and `lastRedLayerTensor_surjective` presents each fixed-weight layer corner as a quotient of the shorter tensor product algebra tensored with the final-weight cyclotomic algebra. `exists_lastRedLayerIdem_mul_boundary` covers every ordered loading and `lastRedLayerTensor_mem_grade` identifies the grading on the presentation. Over any field with Rouquier parameters, `lastRedLayerSourceIndecClassEquiv` indexes the source indecomposable classes by pairs of classes of its factors. `lastRedStandardHeadEquiv` indexes the shift classes of the whole block by the split and its two factor classes. Consequently `lastRedK0_rank_eq` identifies its Laurent rank with the sum over splits of the products of the factor ranks. `FirstWeight.exists_tensorWordEquiv` identifies the whole projective group with the integral tensor lattice and sends every divided word to its prescribed vector. The printed pairing clause fails on the first lowering of two fundamental factors. |
 
 
 **Lemma 4.37.** The integral generation statement holds for all red families
@@ -78,14 +80,22 @@ earlier tensor block tensored with the final cyclotomic block,
 `standardizationGFin` grades the ordered quotient of its affine parabolic
 induction. Projection identifies every ordered fixed space degree by
 degree. At each such loading, `gdimPoly_standardization` computes its
-Laurent character by the graded affine shuffle formula.
+Laurent character by the graded affine shuffle formula. On the final
+highest-weight factor, `cyclotomicTopTest_point` gives the rational
+coordinates dual to its projective shift classes. `cyclotomicTopTest_mask`
+evaluates each coordinate on the right-assigned black word as the graded
+dimension of the corresponding simple's loading space. A different
+black content gives zero by `cyclotomicTopTest_mask_of_ne`. For an external
+tensor product, `gdimPoly_standardization_extTensor` gives a sum over
+admissible shuffles of products of the earlier and final boundary
+characters.
 
 **First lowering component of Theorem 4.38.**
 `FirstWeight.sequenceLatticeEquiv_boundary_shift` identifies every boundary
 projective with its prefix-lowering vector in the integral tensor product of
 the highest-weight modules. The current component proof assumes a finite
 X-regular root datum, positive multiplicity at the chosen colour for every
-factor and positive dot degrees. For one red factor, `SingleRed.homForm_eq_shapovalov` identifies the Euler and normalized Shapovalov forms on every pair of virtual projectives in every black weight. Removing the positivity restriction and identifying the other weight spaces remain open.
+factor and positive dot degrees. For one red factor, `SingleRed.homForm_eq_shapovalov` identifies the Euler and normalized Shapovalov forms on every pair of virtual projectives in every black weight. The all-weight word comparison also covers zero red multiplicities.
 
 **Compatibility of the pairing conventions.** In Proposition 4.33 the
 identity relating the bar-conjugate coproduct to the adjoint in (3.24) fails
@@ -106,8 +116,7 @@ strands over ℚ. Its graded endomorphism polynomial is 1 + q² by
 `FundamentalCorner.terminal_homGdimPoly`. Thus the
 prescribed generators and the printed form in Theorem 4.38 already disagree
 on this diagonal entry. The comparison is independent of the passage between
-left and right projectives. The construction of a module identification
-in the other weights remains open.
+left and right projectives. The underlying module comparison in all weights uses standard-module characters.
 
 **Tensor generators and the last-red filtration.** The prescribed tensor
 vectors span the integral tensor lattice by `FirstWeight.span_tensorWordVector`.
@@ -117,8 +126,13 @@ last factor. On the algebra side, `Stendhal.blocksK0Equiv` identifies the
 external product of two independent red blocks over any field with Rouquier
 parameters. This follows from finiteness and scalar endomorphisms of their
 simple modules. `FirstWeight.span_tensorWordProjectiveClass` gives integral generation on
-the diagram side using the same ordered divided words. The map between
-the two groups still requires equality of the relations on these words.
+the diagram side using the same ordered divided words. For each pair of factor
+simple tops, `FirstWeight.standardizationTestAt_word` identifies the graded
+character of the standard module with the product of the two rational word
+coordinates. These coordinates separate the rational tensor space. Together with
+the rank bound they give equality of the integral word relations in every black
+content and hence the Laurent-semilinear isomorphism
+`FirstWeight.exists_tensorWordEquiv` by induction on the number of red factors.
 `FirstWeight.barTensorWord_sum_eq_zero_iff` compares relations for the
 two coproduct conventions on the representation side.
 

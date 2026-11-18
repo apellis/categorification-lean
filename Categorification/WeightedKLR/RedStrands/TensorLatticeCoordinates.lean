@@ -113,8 +113,7 @@ local notation "LP" => LaurentPolynomial ℤ
 local notation "𝕂" => RatFunc ℚ
 private abbrev inversion := (LaurentPolynomial.invert (R := ℤ)).toRingEquiv
 local instance : RingHomInvPair inversion.toRingHom inversion.toRingHom := RingHomInvPair.of_ringEquiv inversion
-local instance : Algebra LP 𝕂 := KLGamma.vAlgebra
-local instance : IsFractionRing LP 𝕂 := KLGamma.isFractionRing_vAlgebra
+attribute [local instance] KLGamma.vAlgebra KLGamma.isFractionRing_vAlgebra
 
 variable {k A U : Type*} [Field k] [Ring A] [Algebra k A] [Module.Finite k A]
     (𝒜 : ℤ → Submodule k A) [GradedAlgebra 𝒜] [HasGdim 𝒜]

@@ -99,7 +99,7 @@ private instance shuffleTargetDecomp :
     Decomposition (Graded.idem (G.indParabolicGFin hsym N).grading (e s : KLRAlgebra k Q (μ + ν))) :=
   idemDecomposition (G.indParabolicGFin hsym N).grading (G.e_mem_grade s)
 
-/-- The graded fixed-word decomposition of actual parabolic induction
+/-- The graded fixed-word decomposition of parabolic induction
 (Khovanov–Lauda I, arXiv:0803.4121v2, §2.6, Lemma 2.20). -/
 def indShuffleGradedEquiv :
     piGrading (fun u : S => shift (Graded.idem N.grading (concatIdem (Q := Q) (u.1 • s)))

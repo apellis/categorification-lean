@@ -70,7 +70,7 @@ private def homFromResBil (g : P.carrier →ₗ[T] Res) : Mc →ₗ[k] P.carrier
     (fun c z n => by
       rw [LinearMap.map_smul_of_tower, Submodule.coe_smul, smul_comm])
 
-/-- The inverse map descends `z ⊗ n ↦ z • g(n)` through actual right balancing. -/
+/-- The inverse map descends `z ⊗ n ↦ z • g(n)` through the right balancing relation. -/
 private def homFromRes (g : P.carrier →ₗ[T] Res) : Ind →ₗ[T'] V.carrier :=
   BalancedTensor.liftB (homFromResBil G i ν P V g)
     (fun z r n => by

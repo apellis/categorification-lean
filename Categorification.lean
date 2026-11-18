@@ -1124,6 +1124,9 @@ import Categorification.WeightedKLR.RedStrands.BlackFrobenius
 import Categorification.WeightedKLR.RedStrands.BlackMixedCorner
 import Categorification.WeightedKLR.RedStrands.TensorWordBlackLower
 import Categorification.WeightedKLR.RedStrands.SingleRedInduction
+import Categorification.WeightedKLR.RedStrands.OneUpwardProjectives
+import Categorification.WeightedKLR.RedStrands.ProjectiveCommutatorConvention
+import Categorification.WeightedKLR.RedStrands.RightSignedWordProjectives
 /-!
 # Categorification
 

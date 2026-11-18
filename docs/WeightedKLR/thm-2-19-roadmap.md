@@ -25,6 +25,8 @@ induction initially proposed from KL I has the obstruction recorded below; it is
 by the replacement proof. Completing A does not settle B, C or D, or the comparison for
 graphs with loops.
 
+The [tensor product roadmap](tensor-product-roadmap.md) records the separate Stendhal quotient-basis, graded-dimension and tensor categorification results, including the projective commutator of arXiv:1309.3796v2, Lemma 4.35.
+
 ## A0. Finite-dimensional graded simple tops
 
 `TensorK0Hyp` asks that the graded simple tops of `W_ν` and of `W_{ν'} ⊗ W_{ν''}` be

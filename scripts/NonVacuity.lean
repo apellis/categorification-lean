@@ -2183,6 +2183,9 @@ private abbrev firstWords :=
 private def middleWord : firstWords := ⟨rbWord, rbOrdered, rbSurvives⟩
 private def rightWord : firstWords := ⟨rrWord, rrOrdered, rrSurvives⟩
 
+example := Stendhal.sequenceProj_rightEquiv firstProjGrading
+  (by rintro (a | a) (b | b) <;> fin_cases a <;> fin_cases b <;> rfl) middleWord.1 middleWord.2.1
+
 /-- Two fundamental red strands and one black strand. Both allowable positions give
 indecomposables. Their projectives stay distinct after any grading shift. -/
 example := Stendhal.FirstWeight.finrank_endZero_sequenceProj firstProjGrading firstProjDots
@@ -3454,5 +3457,49 @@ example : fitsLastRedContents (α := α) (β := β) word secondBit := by
   rfl
 example : firstBit ≠ secondBit := fun h => Bool.noConfusion (congrFun h ⟨0,by simp [lastRedWord,word]⟩)
 end OrdinaryMaskExamples
+
+namespace ProjectiveCommutatorExamples
+
+open Categorification.Graded Stendhal Stendhal.FirstWeight
+
+attribute [local instance 1100] IsIdempotentElem.instAlgebraCorner_categorification
+
+private abbrev C := CyclotomicDividedWords.C₂
+private abbrev param := CyclotomicDividedWords.admissible
+private abbrev labels : Fin 1 → (Fin 2 →₀ ℕ) := fun _ =>
+  Finsupp.single 0 2 + Finsupp.single 1 1
+
+private theorem beforeSecond : blackBlockPairing C labels 0 {0} = 0 := by
+  simp [blackBlockPairing, labels, A, C, CyclotomicDividedWords.C₂]
+
+private theorem afterSecond : blackBlockPairing C labels 0 {0, 0} = -2 := by
+  simp [blackBlockPairing, labels, A, C, CyclotomicDividedWords.C₂]
+
+private abbrev twoLabels : Fin 2 → (Fin 2 →₀ ℕ) := fun _ => labels 0
+private def redInterval : RedRun labels twoLabels := .snoc twoLabels .nil
+
+private theorem afterRedInterval : blackBlockPairing C twoLabels 0 0 = 4 := by
+  simp [blackBlockPairing, twoLabels, labels]
+
+/-- The intervening red strand raises the pairing from two to four before the
+black crossing. All four shifted summands include the final black strand. -/
+private abbrev fourCopies := oneUpward_swap_of_nonneg C param 0 0 (GProj.regular _) redInterval
+  (.black .nil 1) (by rw [afterRedInterval]; decide)
+
+example := rightTwistWordDecomposition
+  (tensorReflection _ (by rintro (a | a) (b | b) <;> fin_cases a <;> fin_cases b <;> rfl)) fourCopies
+
+example := oneUpward_swap_of_nonneg C param 0 {0} (GProj.regular _) (RedRun.nil : RedRun labels labels)
+  .nil (by rw [beforeSecond])
+example := oneUpward_swap_of_nonpos C param 0 {0, 0} (GProj.regular _) (RedRun.nil : RedRun labels labels)
+  .nil (by rw [afterSecond]; decide)
+example := oneUpward_swap_ne C param 0 1 (by decide) {0} (GProj.regular _) redInterval
+  (.black .nil 0)
+
+/-- The up colour is absent in the empty prefix, on both sides of a different-colour crossing. -/
+example := oneUpward_swap_ne C param 0 1 (by decide) 0 (GProj.regular _)
+  (RedRun.nil : RedRun labels labels) .nil
+
+end ProjectiveCommutatorExamples
 
 end NonVacuity

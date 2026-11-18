@@ -50,9 +50,37 @@ corner this reverses the source and target endpoint arguments.
 | Proposition 3.21, one-factor highest-weight representation | For Rouquier parameters over a field, a finite simple-root index set and an X-regular root datum, `CycKLR.projectiveIntegralEquiv` identifies the total cyclotomic projective group with the integral highest-weight lattice. It sends each divided projective word to its divided lowering word on the highest vector and intertwines induction and normalized restriction with F and E. | The final-factor simple-top tests of this lattice enter the proof of the multi-factor identification. |
 | Theorem 4.20, single-red algebra | `SingleRed.cyclotomicEquiv` identifies the one-red block with the monomial cyclotomic algebra for every black multiset over a commutative ring. | `SingleRed.totalCyclotomicK0Equiv` identifies the graded projective groups and `cyclotomicK0Equiv_sequenceProj` identifies each word projective. `Stendhal.blackLower` independently defines right black-strand induction for arbitrary red families. `SingleRed.blackLower_totalCyclotomicK0Equiv` identifies it with the transported one-factor operator on every projective class. |
 | Proposition 4.18, adding the last red strand | `appendRedEquiv` identifies the shorter algebra with the terminal-red corner for the homogeneous parameters of §2.2. `appendRed_mem_grade` proves homogeneity. | `lastRedIndK0_sequenceProj` appends red on sequence projectives. `exists_lastRedIndK0_of_retract` gives the induced class of every graded retract of the terminal-red left ideal. |
-| Lemmas 4.35 and 4.36, projective decompositions and pairing | `Stendhal.finrank_homGrade_sequenceProj` computes the dimension of the homogeneous Hom between undivided sequence projectives from the quotient basis. | The repaired pairing is proved on all virtual projectives, including divided powers. The module-level decompositions in Lemma 4.35 remain open. |
+| Lemmas 4.35 and 4.36, projective decompositions and pairing | `Stendhal.finrank_homGrade_sequenceProj` computes the dimension of the homogeneous Hom between undivided sequence projectives from the quotient basis. | The repaired pairing is proved on all virtual projectives, including divided powers. The three corrected isomorphisms hold for induction and restriction words on projectives. Identification with the double Stendhal boundary ideals of Definition 4.34 remains open. |
 | Lemma 4.37 and Theorem 4.38 | `Stendhal.tensorProductVacuumK0Equiv_regular` identifies the vacuum class for every red family. `Stendhal.emptyTensorK0Equiv` accounts for every weight of the empty family. | At one black strand, `FirstWeight.sequenceProjBasis` gives a basis indexed by black positions when every red multiplicity at that colour and all dot degrees are positive. For one factor `SingleBlack.oneBlackLatticeEquiv_regular` identifies the regular class with Fᵢ applied to the highest vector. `lastRed_boundary_mem_span` truncates a constant block after the last red via the boundary with one fewer black strand on its right. In the quotient by smaller suffixes, `sandwich_mem_range_suffixConcat` gives affine juxtaposition spanning and `lastRedLayerTensor_surjective` presents each fixed-weight layer corner as a quotient of the shorter tensor product algebra tensored with the final-weight cyclotomic algebra. `exists_lastRedLayerIdem_mul_boundary` covers every ordered loading and `lastRedLayerTensor_mem_grade` identifies the grading on the presentation. Over any field with Rouquier parameters, `lastRedLayerSourceIndecClassEquiv` indexes the source indecomposable classes by pairs of classes of its factors. `lastRedStandardHeadEquiv` indexes the shift classes of the whole block by the split and its two factor classes. Consequently `lastRedK0_rank_eq` identifies its Laurent rank with the sum over splits of the products of the factor ranks. `FirstWeight.exists_tensorWordEquiv` identifies the whole projective group with the integral tensor lattice and sends every divided word to its prescribed vector. The printed pairing clause fails on the first lowering of two fundamental factors. The repaired form gives the Euler pairing on the entire direct sum. |
 
+
+**Projective decompositions in Lemma 4.35.** Over a field with Rouquier
+parameters and the canonical grading, `Stendhal.oneUpward_swap_ne`
+commutes distinct black colours across an intervening red word.
+For equal colours, write n for the coroot weight immediately before the
+lowering, including the intervening reds. The summand for deleting the
+two black strands occurs on the EF side for n ≥ 0 and on the FE side for
+n ≤ 0. Its |n| copies have shifts dᵢ(2t+1−|n|) for 0 ≤ t < |n|.
+Both isomorphisms survive any suffix of reds and downward black strands
+(`oneUpward_swap_of_nonneg`, `oneUpward_swap_of_nonpos`).
+The proof identifies classes using the tensor representation and lifts the
+equalities by graded Krull–Schmidt. It uses a finite set of simple roots.
+The auxiliary root datum realizes the given red labels without a separate
+weight-realization hypothesis. On the right-module side, `sequenceProj_rightEquiv`
+identifies the reflected left sequence ideal with the right sequence ideal,
+and `rightTwistWordDecomposition` preserves the shifts of its summands.
+The README records the corrections to the
+indices and the one-factor counterexample.
+
+To identify these module isomorphisms with the decomposition of the
+signed boundary ideals, construct the double Stendhal algebra, identify
+its all-down corner with the existing algebra (Lemma 4.28), and prove
+that the corner idempotent gives the Morita equivalence (Theorem 4.29).
+The upward boundary operation must then agree with normalized restriction.
+The diagrammatic crossing, cup and cap maps in the proof of Lemma 4.35
+and their 2-action relations are further targets. Extending the
+tensor-representation argument beyond finite simple-root index sets
+also remains open.
 
 **Lemma 4.37.** The integral generation statement holds for all red families
 and black weights over any field with Rouquier parameters.

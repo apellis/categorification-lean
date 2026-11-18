@@ -949,7 +949,9 @@ gives 8 id = 2 id. The ordinary one-black algebra is ℚ[x]/(x), hence
 `DoubleDiagram.printedPitchfork_no_injection` rules out an injection
 even with the corrected inverse-bubble bound. If c and d are the cup
 and cap coefficients on the indicated sides, this example requires
-c d = 1 to preserve that identity. A normalization for all colours
+c d = 1 to preserve that identity. Over any field the same necessary condition
+holds for equal nonzero bigon coefficients and unit bubble closures
+(`DoubleDiagram.pitchforkCoefficients_mul_eq_one`). A normalization for all colours
 and orientations remains open. [Webster v3, Definition 2.4](https://arxiv.org/html/1309.3796v3#S2.SS2)
 
 

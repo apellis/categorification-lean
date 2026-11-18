@@ -4543,4 +4543,28 @@ example := clockwiseBubble_slide sl2RootDatum weights 0 [] () 0 [.inl (false, ()
 
 end DoubleClockwiseRedBubble
 
+namespace PitchforkCoefficient
+open Categorification.Stendhal.DoubleDiagram
+
+private abbrev A := ModuleCat.of ℚ ℚ
+
+example : (2 : ℚ) * (1 / 2) = 1 := by
+  let e := 𝟙 A
+  have he : 𝟙 A ≠ 0 := by
+    intro h
+    have h' := congrArg (fun f : A ⟶ A => f.hom 1) h
+    exact one_ne_zero (α := ℚ) h'
+  apply pitchforkCoefficients_mul_eq_one (q := (2 : ℚ)) e e ((2 : ℚ) • e) e e ((2 : ℚ) • e) e e he
+  · norm_num
+  · simp [e, two_smul]
+  · simp only [e, Category.comp_id, smul_smul]
+    norm_num
+  · simp [e]
+  · simp [e]
+  · simp [e, two_smul]
+  · simp [e, two_smul]
+example := disconnected_downward_quadratics
+
+end PitchforkCoefficient
+
 end NonVacuity

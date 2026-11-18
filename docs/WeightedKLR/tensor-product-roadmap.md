@@ -252,6 +252,11 @@ colours with both leading coefficients 2 over ℚ the downward bigon
 polynomial of that presentation is 1/2, whereas Webster (2.5e) gives 2.
 Transporting the black presentation by reflection requires also verifying
 the crossing normalization against the two pitchfork relations.
+`rescaledDownward_qCL` computes the resulting downward polynomial and
+`rotCrossR_of_cupPitchfork` computes the right rotation by closing the cup
+pitchfork. In any linear category over a field with equal nonzero bigon
+coefficients and unit bubble closures, `pitchforkCoefficients_mul_eq_one`
+shows that a nonzero boundary forces reciprocal cup and cap coefficients.
 [Cautis–Lauda, arXiv:1111.1431v3, p. 6](https://arxiv.org/pdf/1111.1431v3#page=6)
 · [Webster, arXiv:1309.3796v2, §2.2](https://arxiv.org/pdf/1309.3796v2#page=11)
 

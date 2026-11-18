@@ -2,6 +2,7 @@
 Copyright (c) 2026 Alex Ellis. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 -/
+import Categorification.WeightedKLR.RedStrands.DoublePitchforkCoefficients
 import Categorification.WeightedKLR.RedStrands.DoubleNormalizationCounterexample
 import Categorification.WeightedKLR.RedStrands.DoubleAllDownBoundary
 import Categorification.WeightedKLR.RedStrands.DoubleBubbleRelations
@@ -104,19 +105,10 @@ theorem id_eq_zero_of_two_pitchforks {Cat : Type*} [Category* Cat] [Preadditive 
     (hAA : ac ≫ ac' = 𝟙 x) (hBB : bc ≫ bc' = 𝟙 x)
     (hDD : dc ≫ dc' = (2 : ℚ) • 𝟙 a) (hMM : mc ≫ mc' = (2 : ℚ) • 𝟙 b) :
     𝟙 x = 0 := by
-  have close {y : Cat} (c : x ⟶ y) (p : y ⟶ z) (p' : z ⟶ y) (c' : y ⟶ x)
-      (hc : c ≫ c' = 𝟙 x) (hp : p ≫ p' = (2 : ℚ) • 𝟙 y) :
-      (c ≫ p) ≫ (p' ≫ c') = (2 : ℚ) • 𝟙 x := by
-    calc
-      _ = c ≫ (p ≫ p') ≫ c' := by simp only [Category.assoc]
-      _ = _ := by rw [hp, Linear.smul_comp, Category.id_comp, Linear.comp_smul, hc]
-  have h := congrArg₂ (fun (f : x ⟶ z) (g : z ⟶ x) => f ≫ g) hCup hCap
-  rw [Linear.smul_comp, Linear.comp_smul, smul_smul,
-    close ac dc dc' ac' hAA hDD, close bc mc mc' bc' hBB hMM, smul_smul] at h
-  have h6 := sub_eq_zero.mpr h
-  rw [← sub_smul, show (2 : ℚ) * 2 * 2 - 2 = 6 by norm_num] at h6
-  have h1 := congrArg (fun f : x ⟶ x => ((6 : ℚ)⁻¹) • f) h6
-  simpa only [smul_smul, inv_mul_cancel₀ (by norm_num : (6 : ℚ) ≠ 0), one_smul, smul_zero] using h1
+  by_contra hid
+  have h := pitchforkCoefficients_mul_eq_one ac dc dc' ac' bc mc mc' bc' hid
+    (by norm_num : (2 : ℚ) ≠ 0) hCup hCap hAA hBB hDD hMM
+  norm_num at h
 
 section Fragment
 

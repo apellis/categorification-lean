@@ -477,3 +477,5 @@ weights, giving the total formula `FirstWeight.tensorModuleEquiv_homForm`.
 These statements use the finite-index, X-regular root datum and matched
 dominant weights of the module identification, over any field with
 Rouquier parameters.
+
+In the reflected KL III presentation, `capSuccessor_allDots` treats a dot before, on either leg of, inside, or after the terminal cap. The equal-colour passage uses the nilHecke dot correction. Once all downward-boundary entries are spanned, `ordinaryToDownwardMatrix_surjective_of_base_span` transfers that span to the target of the ordinary matrix map.

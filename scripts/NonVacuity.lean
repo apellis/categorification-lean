@@ -2765,6 +2765,18 @@ example := tensorModuleEquiv_unique D params regular level (factors 2) level_eq 
 example := tensorModuleEquiv_E D params regular level (factors 2) level_eq ()
   (tensorWordProjectiveClass level D params splitWord)
 
+/-- The target shift tests the argument order in the graded Hom comparison
+on the bottom projective of the two-fundamental tensor product. -/
+example := tensorModuleEquiv_homGdimPoly D params regular level (factors 2) level_eq
+  splitWord.content.toMultiset (tensorWordProjective level D params splitWord)
+  ((tensorWordProjective level D params splitWord).shift 1)
+
+/-- The full Euler form also pairs sums supported in different black contents. -/
+example := tensorModuleEquiv_homForm D params regular level (factors 2) level_eq
+  (tensorWordProjectiveClass level D params TensorWord.empty.red.red +
+    tensorWordProjectiveClass level D params splitWord)
+  (-tensorWordProjectiveClass level D params splitWord)
+
 end TwoFundamentalLowerings
 
 end CyclotomicHighestWeight

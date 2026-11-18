@@ -956,8 +956,24 @@ even with the corrected inverse-bubble bound. If c and d are the cup
 and cap coefficients on the indicated sides, this example requires
 c d = 1 to preserve that identity. Over any field the same necessary condition
 holds for equal nonzero bigon coefficients and unit bubble closures
-(`DoubleDiagram.pitchforkCoefficients_mul_eq_one`). A normalization for all colours
-and orientations remains open. [Webster v2, Definition 2.4](https://arxiv.org/pdf/1309.3796v2#page=8)
+(`DoubleDiagram.pitchforkCoefficients_mul_eq_one`). For unequal bigons the condition
+is c d p = q, with downward bigon p and sideways bigon q
+(`DoubleDiagram.pitchforkCoefficients_mul_bigon`). The printed pitchforks c = d = 2
+satisfy it for the dual downward parameters of Cautis–Lauda, arXiv:1111.1431v3, §2.2,
+which give p = 1/2 here. Corrected statement: Lemma 4.28 (v3: Lemma 4.29) and the
+results that depend on it are to be formalized with the printed pitchforks and with
+downward black relations given by the reflected Cautis–Lauda dual parameters
+(`DoubleDiagram.rescaledDownward_qCL`), in place of (2.5e). Faithfulness in this
+normalization remains open; a roadmap item tracks it.
+
+Paragraph for the author: in the definition of the diagrammatic tensor product
+category, the cup and cap pitchfork relations (2.2a) and the downward quadratic
+relation (2.5e) are not compatible for general Rouquier parameters. For two
+disconnected colours with Qᵢⱼ = Qⱼᵢ = 2, a red of weight (1,1) followed by one
+downward black strand has ordinary endomorphism algebra ℚ, but composing the two
+pitchforks gives 8·id = 2·id there. Taking the downward relations with the dual
+parameters of Cautis–Lauda (so the downward bigon is 1/2 in this example) restores
+compatibility. [Webster v2, Definition 2.4](https://arxiv.org/pdf/1309.3796v2#page=8)
 
 
 Webster, arXiv:1309.3796v2, §4.5, violation and the red/up crossing. The expression κ(0) > 1 before Definition 4.27 uses an index outside the domain in Definition 4.23. The accompanying geometric condition is that the first strand is black, of either orientation (`DoubleBoundary.IsViolated`). With at least one red this is κ(1) > 0. With no red it means the word is nonempty. The two red/up inverse identities used in the proof of Theorem 4.29 appear in (4.4e); the citation there is to (4.4d), a three-strand relation (`DoubleDiagram.redUpCrossingIso`).

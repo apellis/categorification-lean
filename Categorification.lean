@@ -1184,6 +1184,7 @@ import Categorification.WeightedKLR.RedStrands.DoubleRedCapPass
 import Categorification.WeightedKLR.RedStrands.DoubleMixedRedCorrection
 import Categorification.WeightedKLR.RedStrands.DoubleRedBraidBubbles
 import Categorification.WeightedKLR.RedStrands.DoubleNormalizedRedBubble
+import Categorification.WeightedKLR.RedStrands.DoubleViolatingBubbleSweep
 import Categorification.WeightedKLR.RedStrands.DoubleBlackCurls
 import Categorification.WeightedKLR.RedStrands.DoubleRedTriple
 import Categorification.WeightedKLR.RedStrands.DoubleRedUpThrough

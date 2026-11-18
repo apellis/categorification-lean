@@ -5066,7 +5066,7 @@ example := signedCapBlock_crossInside RD weights Pc 0 [.inr 0] [] [.inl (false, 
     [.inr 0, .inl (true, ())] (.inl (false, ())) (.inr 1) (false, ()) [.inl (false, ())] trivial)
 end CapBraidBound
 
-namespace SignedCapDotExamples
+namespace SignedCapSuccessorExamples
 open Categorification Categorification.QuantumGroup.UDot
   Categorification.Stendhal Categorification.Stendhal.DoubleDiagram StringDiagrams
 
@@ -5088,6 +5088,31 @@ example := signedCapBlock_dotRight sl2RootDatum weights base Q exponents scalars
 example := signedCapBlock_dotRight_nil sl2RootDatum weights base Q exponents scalars 0
   [.inr 0] (true, ()) [.inr 1] 2
 
-end SignedCapDotExamples
+-- A red crosses the stationary leg with another black in the sweep and two cap dots.
+example := signedCapKL_capBlock_enterLeft sl2RootDatum weights base 0 Q exponents scalars
+  [.inr 0] [.inl (false, ())] [] (.inr 1) (false, ()) 2
+
+-- The two sides of the sweep give a red/black bigon and an equal-colour black bigon.
+example := signedCapKL_capBlock_crossLast sl2RootDatum weights base 0 Q exponents scalars
+  [.inr 0] [.inl (false, ())] [] (false, ()) (.inr 1) 2
+
+example := signedCapKL_capBlock_crossFirst sl2RootDatum weights base 0 Q exponents scalars
+  [.inr 0] [.inl (false, ())] [.inr 1] (.inl (false, ())) (false, ()) 2
+
+-- The alternating black legs close to a dotted curl between the two reds.
+example := signedCapKL_capBlock_crossBoth sl2RootDatum weights base 0 Q exponents scalars
+  [.inr 0] [.inr 1] (true, ()) 2
+
+private abbrev crossingPresentation := signedCapKLPresentation sl2RootDatum weights base Q exponents scalars
+private abbrev crossingBoundary := obj sl2RootDatum weights (0 : ℤ) [.inr 0, .inr 1, .inl (false, ())]
+
+example := capSuccessor_allCrossings sl2RootDatum weights base Q exponents scalars
+  (LinearMap.id (R := ℚ) (M := crossingPresentation.obj crossingBoundary ⟶
+    crossingPresentation.obj crossingBoundary))
+  (.inl (true, ())) (.inr 1) trivial [.inr 0] [.inl (false, ()), .inl (false, ())]
+  [.inr 0, .inr 1] [.inl (false, ())] (false, ()) []
+  (by apply pairPlacement_of_eq; rfl)
+
+end SignedCapSuccessorExamples
 
 end NonVacuity

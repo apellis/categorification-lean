@@ -299,10 +299,14 @@ word (`capBlock_push_enterRight`), while a crossing in its interior reduces
 to a single local braid (`signedCapBlock_crossInside`). All admissible pairs satisfy the required bound in
 `signedCapKL_hasCapBraidBound`. The common presentation has exactly the sum
 of the relation ideals used in the local calculations. Reflection of the
-black KL III relations is explicit in its definition. In this presentation
-`capBlock_push_crossInside` resolves the interior crossing with an arbitrary
-continuation. The remaining
-successor cases include contractions of cups against the swept cap.
+black KL III relations is explicit in its definition.
+`capSuccessor_allCrossings` handles every placement of a crossing preceding
+a terminal cap in this presentation. Disjoint crossings interchange, and
+the right entrance extends the sweep. The left entrance uses the dotted
+cap pitchfork. A crossing at either interior edge produces a bigon, while
+crossing the two cap legs produces a dotted curl. The bigon and curl terms
+have strictly fewer crossings. The interior case uses the braid bound and
+commutes with an arbitrary continuation. Cup successors remain to be assembled.
 
 For a presentation with compatible pitchfork coefficients, impose the remaining relations in Definition
 4.24, straighten signed diagrams with all-down boundary into downward diagrams,

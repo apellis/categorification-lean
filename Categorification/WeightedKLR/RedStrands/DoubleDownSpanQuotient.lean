@@ -6,7 +6,7 @@ import Categorification.WeightedKLR.RedStrands.DoubleDownSpan
 import Categorification.WeightedKLR.RedStrands.DoubleSpanningQuotient
 
 /-! # Downward spanning descends to the ordinary comparison target
-Webster, arXiv:1309.3796v3, §4.6, Lemma 4.29.
+Webster, arXiv:1309.3796v2, §4.5, Lemma 4.28.
 -/
 noncomputable section
 namespace Categorification.Stendhal.DoubleDiagram

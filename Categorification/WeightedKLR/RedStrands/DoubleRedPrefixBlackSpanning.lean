@@ -10,7 +10,7 @@ import Categorification.WeightedKLR.RedStrands.DoubleSpanningQuotient
 /-!
 # Black rectangles after an initial word of dominant red strands
 
-Webster, arXiv:1309.3796v3, §4.6, proof of Lemma 4.29. In a rectangle with
+Webster, arXiv:1309.3796v2, §4.5, proof of Lemma 4.28. In a rectangle with
 only black strands, KL III straightening puts the bubble algebra in the
 outermost region, immediately after the red prefix in physical word order.
 Its positive generators vanish in the violating quotient. Throughout the
@@ -36,7 +36,7 @@ local notation "labels" => (Subtype.val ∘ weights)
 local notation "K" => pres RD k
 local notation "B₀" => addBlackKLRelations RD labels base
 
-/-- The signed presentation for the local black straightening in Webster v3, Lemma 4.29. -/
+/-- The signed presentation for the local black straightening in Webster v2, Lemma 4.28. -/
 abbrev redPrefixSpanningPresentation :=
   addDownRelations RD labels (affineCoverQ Q exponents)
     (addRedUpRelations RD labels k (addRedCapRelations RD labels (addRedCupRelations RD labels B₀)))
@@ -175,7 +175,7 @@ private theorem rectangle_bubbles_scalar (s : List (Letter I)) (hs : rectEnd s =
       rectangle_bubbleGen_zero RD weights Q exponents base rs v hr he, Limits.zero_comp, zero_smul]
 
 include he in
-/-- Webster, arXiv:1309.3796v3, §4.6, proof of Lemma 4.29, using KL III Lemma 3.9.
+/-- Webster, arXiv:1309.3796v2, §4.5, proof of Lemma 4.28, using KL III Lemma 3.9.
 A black diagram between an initial red word and any fixed signed suffix, with downward black
 endpoints, projects into the span of downward black dots and crossings in that rectangle. -/
 theorem redPrefixBlackEntry_mem_span (s t : List I)
@@ -202,7 +202,7 @@ theorem redPrefixBlackEntry_mem_span (s t : List I)
   | smul c z _ hz => rw [map_smul]; exact Submodule.smul_mem _ c hz
 
 include he in
-/-- The local straightening of Webster v3, Lemma 4.29, persists after adjoining
+/-- The local straightening of Webster v2, Lemma 4.28, persists after adjoining
 further relations to the signed presentation. -/
 theorem redPrefixBlackEntry_mem_span_of_ideal_le
     (P : Presentation.{w, w'} (signature RD labels) k)

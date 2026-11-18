@@ -186,7 +186,6 @@ private def mixedBil : ML →ₗ[k] MR →ₗ[k] U :=
     (fun x y z => by change _ * r ((y : R) + z) = _; rw [map_add, mul_add])
     (fun a x y => by change _ * r (a • (y : R)) = _; rw [map_smul, mul_smul_comm])
 
-set_option maxHeartbeats 1000000 in
 private theorem mixedBil_balanced (hsym : KLRSymm Q) (hij : i ≠ j)
     (x : ML) (a : TensorProductAlgebra k Q Λ ν) (y : MR) :
     mixedBil (Q := Q) Λ ν i j (op a • x) y = mixedBil (Q := Q) Λ ν i j x (a • y) := by

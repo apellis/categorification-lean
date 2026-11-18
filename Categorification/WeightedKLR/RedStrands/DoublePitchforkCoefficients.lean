@@ -8,7 +8,7 @@ import Mathlib.Algebra.Module.Torsion.Field
 
 /-! # Compatibility of the two pitchfork coefficients
 
-Webster, arXiv:1309.3796v3, §2.2, (2.2a), (2.5b), (2.6e).
+Webster, arXiv:1309.3796v2, §2.2, (2.1a), (2.4b), (2.5e).
 -/
 
 namespace Categorification.Stendhal.DoubleDiagram

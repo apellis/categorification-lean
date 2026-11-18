@@ -6,7 +6,7 @@ import Categorification.WeightedKLR.RedStrands.DoubleSignedCapDotSweep
 
 /-! # A dot between the stationary and swept cap legs
 
-Webster, arXiv:1309.3796v3, §4.6, proof of Lemma 4.29, using KL III
+Webster, arXiv:1309.3796v2, §4.5, proof of Lemma 4.28, using KL III
 Proposition 3.11. A dot in the interior passes through one potentially
 intersecting crossing, between two disjoint stages of the sweep.
 -/

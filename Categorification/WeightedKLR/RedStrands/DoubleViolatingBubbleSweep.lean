@@ -10,7 +10,7 @@ import Categorification.WeightedKLR.RedStrands.DoubleRedCutBubbles
 /-!
 # Evaluation of a signed bubble sweep in the violating quotient
 
-Webster, arXiv:1309.3796v3, §4.6, proof of Lemma 4.29. After moving a
+Webster, arXiv:1309.3796v2, §4.5, proof of Lemma 4.28. After moving a
 bubble to the far left, the violating quotient reduces it to a scalar.
 The resulting span of dot diagrams is preserved under composition with
 arbitrary exterior diagrams and subsequent linear evaluation.

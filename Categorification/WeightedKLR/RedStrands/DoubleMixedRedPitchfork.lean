@@ -8,7 +8,7 @@ import Categorification.WeightedKLR.RedStrands.DoubleBlackAdjunction
 /-!
 # The two half-mates of a black crossing
 
-Webster, arXiv:1309.3796v3, Definition 2.4, first cup pitchfork (2.2a)
+Webster, arXiv:1309.3796v2, Definition 2.4, first cup pitchfork (2.1a)
 and its vertical mirror. Capping either cup equation and cancelling a
 biadjunction triangle expresses the upward-defined sideways crossing as
 the downward-defined mate multiplied by the printed parameter tⱼᵢ.
@@ -83,7 +83,7 @@ private def mixedCupPitchforkRelation (t : I → I → k) (a : MixedCupPitchfork
   LinDiagram.of (Diagram.mk _ (chain_signedLayers RD Λ a.leftWeight h.2)) -
     t a.throughColour a.cupColour • LinDiagram.of (Diagram.mk _ (chain_signedLayers RD Λ a.leftWeight h.1))
 
-/-- Adjoin the first cup equation of Webster v3 (2.2a) and its mirror in signed contexts. -/
+/-- Adjoin the first cup equation of Webster v2 (2.1a) and its mirror in signed contexts. -/
 def addMixedCupPitchforkRelations (t : I → I → k) :
     Presentation.{w,max u v} (signature RD Λ) k :=
   P.addRels _ (MixedCupPitchfork.source RD Λ) (MixedCupPitchfork.target RD Λ)

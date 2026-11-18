@@ -9,8 +9,8 @@ import StringDiagrams.Transport
 /-!
 # Transferring black KL relations through reflection
 
-Webster, arXiv:1309.3796v3, Definitions 2.4 and 4.24 and the proof of
-Lemma 4.29. The black relations required by the straightening argument
+Webster, arXiv:1309.3796v2, Definitions 2.4 and 4.24 and the proof of
+Lemma 4.28. The black relations required by the straightening argument
 are read in physical word order after a vertical reflection. Here the
 reflected black presentation uses the KL III parameters. Its geometrical
 transport maps a whiskered relation to the relation whiskered on the

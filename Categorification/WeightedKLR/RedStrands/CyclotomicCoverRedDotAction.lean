@@ -15,6 +15,8 @@ central sum of all dots of that colour. A corner inclusion carrying the
 central sum to the upper central sum times the corner idempotent intertwines
 these actions on induction and on restriction. At the final tensor-product
 block, projection annihilates the red central sum.
+The cited injectivity argument is the one revised in version 3; arXiv:1309.3796v2,
+§4.5, Lemma 4.28, argues via Lemma 4.26 instead.
 -/
 
 noncomputable section

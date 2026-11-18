@@ -7,7 +7,7 @@ import Categorification.WeightedKLR.RedStrands.DoubleSignedCapBare
 
 /-! # Dots on the swept cap leg
 
-Webster, arXiv:1309.3796v3, §4.6, proof of Lemma 4.29, using KL III
+Webster, arXiv:1309.3796v2, §4.5, proof of Lemma 4.28, using KL III
 Proposition 3.11. At the end of the signed sweep, cyclicity transfers the
 dot from the moving leg to the decoration on the bare cap.
 -/

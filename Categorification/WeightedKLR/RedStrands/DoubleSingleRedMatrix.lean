@@ -9,7 +9,7 @@ import Categorification.WeightedKLR.RedStrands.DoubleSpanningQuotient
 
 /-! # Assembling the single-red downward corner
 
-Webster, arXiv:1309.3796v3, §4.6, Lemma 4.29. A pure black downward
+Webster, arXiv:1309.3796v2, §4.5, Lemma 4.28. A pure black downward
 generator to the right of a fixed red remains downward after reflection.
 -/
 
@@ -122,7 +122,7 @@ local notation "U" => singleRedSpanningPresentation RD Λ₁ Q exponents B
 local notation "V" => addRedUpRelations RD lab₁ k
   (addMixedBlackRelations RD lab₁ k scalars (addDownRelations RD lab₁ (affineCoverQ Q exponents) U))
 
-/-- Webster v3, Lemma 4.29, surjectivity for one red strand and arbitrary
+/-- Webster v2, Lemma 4.28, surjectivity for one red strand and arbitrary
 black content in the reflected KL III presentation. The red dot powers must
 agree with the coroot pairings of the dominant label. -/
 theorem singleRed_ordinaryToDownwardMatrix_surjective

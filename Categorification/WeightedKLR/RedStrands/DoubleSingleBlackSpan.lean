@@ -9,7 +9,7 @@ import Categorification.QuantumGroup.UDotKL3
 /-!
 # Black straightening at the fundamental rank-one boundary
 
-Webster, arXiv:1309.3796v3, Lemma 4.29, refers to KL III, Lemma 3.9 for
+Webster, arXiv:1309.3796v2, Lemma 4.28, refers to KL III, Lemma 3.9 for
 the reduction to downward dots and bubbles. At the fundamental rank-one
 boundary the existing upward spanning result transfers by the sign
 symmetry of KL III §3.3.2. The bubbles are on the right in KL order, next

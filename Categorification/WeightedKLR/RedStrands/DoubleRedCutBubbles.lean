@@ -9,8 +9,8 @@ import Categorification.WeightedKLR.RedStrands.DoublePresentationUnion
 
 /-! # Transport of arbitrary bubble polynomials past red
 
-In the bubble-elimination step of Webster, arXiv:1309.3796v3, §4.6,
-Lemma 4.29, the image of the empty black word endomorphism algebra is
+In the bubble-elimination step of Webster, arXiv:1309.3796v2, §4.5,
+Lemma 4.28, the image of the empty black word endomorphism algebra is
 independent of the choice of the adjacent cut at red.
 -/
 noncomputable section

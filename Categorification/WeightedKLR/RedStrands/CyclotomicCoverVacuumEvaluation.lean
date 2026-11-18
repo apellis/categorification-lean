@@ -17,6 +17,8 @@ ordinary Stendhal elements. This proves the vacuum detection calculation
 used in Webster, arXiv:1309.3796v3, §4.6, proof of Lemma 4.29, pp. 42–43,
 for the extended-Cartan cover. Identification of a signed diagram
 presentation with these operators requires a separate comparison of its relations.
+The cited injectivity argument is the one revised in version 3; arXiv:1309.3796v2,
+§4.5, Lemma 4.28, argues via Lemma 4.26 instead.
 -/
 
 noncomputable section

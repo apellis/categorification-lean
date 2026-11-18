@@ -26,7 +26,8 @@ open LieLean.QuantumGroup
 
 local notation "LP" => LaurentPolynomial ℤ
 local notation "T" => LaurentPolynomial.T (R := ℤ)
-private theorem qIntU_eval {d : ℤ} (hd : 0 < d) (n : ℤ) :
+/-- The Laurent quantum integer specializes at the grading-shift parameter. -/
+theorem qIntU_eval {d : ℤ} (hd : 0 < d) (n : ℤ) :
     qToV (qIntU (qUnitLP ^ d) n) = qIntZ (projectiveParameter ^ d) n := by
   let v := projectiveParameter ^ d
   have hv : v ≠ 0 := zpow_ne_zero _ (Units.ne_zero (vQ⁻¹ : (RatFunc ℚ)ˣ))

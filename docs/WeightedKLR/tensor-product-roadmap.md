@@ -170,7 +170,13 @@ polynomial from induction of the vacuum. For two fundamental sl₂ factors
 over ℚ, `fundamental_restriction_eq_E` identifies the normalized
 restriction with E on both first-weight boundary projectives. For all black contents, `projective_blackRes` proves preservation
 of projectives and `blackRaise` gives normalized restriction on graded K₀.
-Identifying it with the tensor operator E in all weights remains open.
+For the canonical grading, `FirstWeight.tensorModuleEquiv_E` identifies it
+with the raising generator of the ordered tensor product on every integral
+projective class. In a boundary word, an occurrence of colour i contributes
+its deletion with quantum integer given by the i-coroot weight of its prefix.
+Agreement of the two deletion sums passes to divided words by cancellation
+of their quantum factorials. The hypotheses on the root datum and labels
+are the same as for `FirstWeight.tensorModuleEquiv`.
 
 In the enlarged ordinary cyclotomic algebra, each red label has its own
 simple root. Setting red dots and unordered-red idempotents to zero gives

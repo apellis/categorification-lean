@@ -36,7 +36,8 @@ def markedWords : List I → List (List I × I × List I)
   | a::w => ([],a,w) :: (markedWords w).map (fun t => (a::t.1,t.2))
 
 omit [DecidableEq I] in
-private theorem markedWords_append (w : List I) (a : I) :
+/-- Appending one letter extends every old suffix and marks the new final letter. -/
+theorem markedWords_append (w : List I) (a : I) :
     markedWords (w++[a]) = (markedWords w).map (fun t => (t.1,t.2.1,t.2.2++[a])) ++ [(w,a,[])] := by
   induction w with
   | nil => rfl

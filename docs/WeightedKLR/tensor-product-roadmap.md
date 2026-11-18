@@ -101,8 +101,14 @@ factor and positive dot degrees. For one red factor, `SingleRed.homForm_eq_shapo
 identity relating the bar-conjugate coproduct to the adjoint in (3.24) fails
 for the coproduct of §1.2. On two fundamental sl₂ modules, write h for the
 highest vector and f for Fh. For u = F, the two sides applied to h ⊗ f give
-h ⊗ h and q² h ⊗ h. The general pairing clause of Theorem 4.38 requires a
-choice of compatible conventions. The integral generation in Lemma 4.37
+h ⊗ h and q² h ⊗ h. For two arbitrary dominant factors, `TensorPairing.correctedForm_adjoint`
+proves the adjunction of Proposition 4.33(2) with the ordinary coproduct
+and (3.24) by applying the printed intertwiner to the second argument of
+the factorwise form. The proof uses a finite simple-root index set and
+X-regular root datum. The form is bar-semilinear in the first argument
+and linear in the second. Its restriction along appending a highest
+vector is the one-factor form by `correctedForm_append_highest`.
+The all-weight comparison with graded Hom in Theorem 4.38 remains open. The integral generation in Lemma 4.37
 holds independently. See [the calculation on issue #289](https://github.com/apellis/categorification-lean/issues/289#issuecomment-6961908142).
 
 

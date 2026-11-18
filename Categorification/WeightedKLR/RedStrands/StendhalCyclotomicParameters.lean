@@ -2,6 +2,7 @@
 Copyright (c) 2026 Alex Ellis. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 -/
+import Categorification.QuantumGroup.UDotWords
 import Categorification.KLR.Rouquier.Polynomial
 import Categorification.WeightedKLR.RedStrands.Stendhal
 
@@ -200,5 +201,21 @@ theorem qbar_cyclotomicCoverQ_black [DecidableEq I] (i : I) (b : I ⊕ Fin ℓ) 
     · simp [cyclotomicCoverQ, stendhalQ, purePowers, h]
     · simp only [cyclotomicCoverQ, stendhalQ, purePowers, ite_eq_right h,
         qbar_X_pow_add_X_pow, StendhalAlgebraAllOrders.qbar_X_zero_pow]
+
+/-- In the enlarged Cartan datum a red letter contributes the corresponding
+dominant-weight multiplicity to the black coroot pairing of a prefix. -/
+theorem cover_black_red {C : CartanDatum I} (Λ : Fin ℓ → I →₀ ℕ) (i : I) (r : Fin ℓ) :
+    UDot.A (extendedCartanDatum C Λ) (.inl i) (.inr r) = -(Λ r i : ℤ) := by
+  change 2 * -(((C.dot i i / 2).toNat * Λ r i : ℕ) : ℤ) / C.dot i i = _
+  have hd := C.dot_self_pos i
+  have htwo := UDot.two_mul_di C i
+  unfold UDot.di at htwo
+  have hn : 0 ≤ C.dot i i / 2 := by omega
+  rw [Nat.cast_mul, Int.toNat_of_nonneg hn]
+  have he : 2 * -(C.dot i i / 2 * (Λ r i : ℤ)) = (-(Λ r i : ℤ)) * C.dot i i := by
+    calc
+      _ = (-(Λ r i : ℤ)) * (2 * (C.dot i i / 2)) := by ring
+      _ = _ := by rw [htwo]
+  rw [he, Int.mul_ediv_cancel _ hd.ne']
 
 end Categorification.Stendhal

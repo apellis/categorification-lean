@@ -2989,6 +2989,20 @@ private theorem rouquier : KLR.IsRouquierQ (CartanDatum.ofGraph (⊥ : SimpleGra
     (KLR.klQ (k := ℚ) (⊥ : SimpleGraph Unit)) := by
   constructor <;> intro i j h <;> exact (h (Subsingleton.elim _ _)).elim
 
+example := Stendhal.projective_blackRes_regular (Λ := fundamentalLabels) () {()}
+  (CartanDatum.ofGraph (⊥ : SimpleGraph Unit)) rouquier
+
+example := Stendhal.blackResProj fundamentalGrading () {()}
+  (CartanDatum.ofGraph (⊥ : SimpleGraph Unit)) rouquier
+  (Categorification.Graded.GProj.regular _)
+
+example := Stendhal.cyclotomicCoverQuotientEquiv
+  (Q := KLR.klQ (k := ℚ) (⊥ : SimpleGraph Unit)) fundamentalLabels {()}
+  (CartanDatum.ofGraph (⊥ : SimpleGraph Unit))
+
+example := Stendhal.cyclotomicCoverToTensor_preservesGrading fundamentalLabels
+  (CartanDatum.ofGraph (⊥ : SimpleGraph Unit)) rouquier {()}
+
 private abbrev loading := Stendhal.FirstWeight.boundaryAt () 1 0
 
 /-- Appending a fundamental strand preserves the degree-two Hom dimension. -/

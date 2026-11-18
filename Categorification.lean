@@ -1107,6 +1107,8 @@ import Categorification.WeightedKLR.RedStrands.RepresentationLift
 import Categorification.WeightedKLR.RedStrands.LastRedShuffle
 import Categorification.WeightedKLR.RedStrands.LastRedPairing
 import Categorification.WeightedKLR.RedStrands.TensorFormOrdered
+import Categorification.WeightedKLR.RedStrands.BlackRaising
+import Categorification.WeightedKLR.RedStrands.CyclotomicCoverGrading
 import Categorification.WeightedKLR.RedStrands.TensorFormAdjunction
 import Categorification.WeightedKLR.RedStrands.FirstWeightFormCounterexample
 import Categorification.WeightedKLR.RedStrands.TensorFormFundamental

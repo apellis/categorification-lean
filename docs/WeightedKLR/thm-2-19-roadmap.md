@@ -28,7 +28,8 @@ The comparison for graphs with loops remains open.
 For ordinary Stendhal quotients, `Stendhal.sequenceCornerPoly_eq_wordCornerPoly`
 computes graded corner dimensions from the boundary words. The projective
 commutator in arXiv:1309.3796v2, Lemma 4.35, and the signed corner counterexample
-for the printed bubble bound (`DoubleDiagram.printedBubble_no_injection_sl2`)
+for the printed bubble bound (`DoubleDiagram.printedBubble_no_injection_sl2`) and the independent pitchfork counterexample
+(`DoubleDiagram.printedPitchfork_no_injection`)
 are recorded in the [tensor product roadmap](tensor-product-roadmap.md).
 
 ## A0. Finite-dimensional graded simple tops

@@ -200,10 +200,17 @@ The printed inverse-bubble bound forces the all-down corner to vanish whenever
 an exterior coroot weight is negative. With one fundamental sl₂ red and one
 black the ordinary block is ℚ and the far-right weight is −1. Theorem
 `printedBubble_no_injection_sl2` rules out even an injective comparison if the
-printed constant coefficient is imposed. The rest of this roadmap concerns
-the corrected inverse-series relation in the README.
+printed constant coefficient is imposed. A second obstruction survives the inverse-series correction. With disconnected
+colours, leading coefficient 2 over ℚ, and one red of weight (1,1), the printed
+cup and cap pitchforks in v3 (2.2a) give 8 id = 2 id on the red-first one-black
+boundary. The two bigons have coefficient 2 and both closed i-bubbles have
+coroot coordinate 1. The ordinary idempotent is nonzero.
+`DoubleDiagram.printedPitchfork_no_injection` holds over any additional
+signed relations, including the corrected bubble relations. A revised
+pitchfork normalization must satisfy c d = 1 on this example; compatibility
+with the other relations still needs verification.
 
-To finish Lemma 4.28 in general, impose the remaining relations in Definition
+For a presentation with compatible pitchfork coefficients, impose the remaining relations in Definition
 4.24, straighten signed diagrams with all-down boundary into downward diagrams,
 and prove the ordinary map is faithful modulo the violating ideal. The cited
 tricolore basis is stated over ℂ[z]. The one-upward-colour proof in the revised

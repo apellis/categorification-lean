@@ -4352,4 +4352,27 @@ end RedAbsentCapExample
 example := Categorification.Stendhal.TypeA1Cap.strict_lower_cap_ne_zero
 example := Categorification.Stendhal.TypeA1Cap.strict_upper_projected_cap
 
+namespace PrintedPitchforks
+
+
+open Categorification.Stendhal Categorification.Stendhal.DoubleDiagram
+open DisconnectedCounterexample
+open StringDiagrams
+open scoped Classical
+attribute [local instance 1100] IsIdempotentElem.instAlgebraCorner_categorification
+
+local notation "weights" => (Subtype.val ∘ redWeights)
+local notation "S" => signature weightDatum weights
+
+private def free : Presentation S ℚ :=
+  ⟨PEmpty, PEmpty.elim, PEmpty.elim, fun i => i.elim⟩
+
+example : ¬ ∃ f : TensorProductAlgebra ℚ parameters exponents content →ₐ[ℚ]
+    downwardMatrix (Λ := redWeights)
+      (addPrintedPitchforkFragment (addBubbleRelations weightDatum weights ℚ free)) content,
+    Function.Injective f :=
+  printedPitchfork_no_injection (addBubbleRelations weightDatum weights ℚ free)
+
+end PrintedPitchforks
+
 end NonVacuity

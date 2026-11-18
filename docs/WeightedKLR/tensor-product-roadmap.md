@@ -82,6 +82,46 @@ and their 2-action relations are further targets. Extending the
 tensor-representation argument beyond finite simple-root index sets
 also remains open.
 
+**The all-down corner and fullness in §4.5.** `DoubleBoundary.allDownEquiv`
+identifies the all-down boundaries of fixed black content with the existing
+ordered KLR sequences. The inclusion preserves and reflects the violating
+condition. The region-labelled generator signature uses KL black layers and
+both red/black crossing orders. From any signed triple, every horizontal cut
+is a unique triple with the same ordered red family and exterior weights
+(`DoubleDiagram.existsUnique_triple_at_cut`).
+
+For an ambient presentation, fix the left weight at zero and fix the right
+weight. The kernel of projection on Hom is exactly the span of composites
+through violating boundaries in this fibre
+(`DoubleViolatingQuotient.ker_mapLinearMap`). In particular, a cup followed
+by a cap at the left edge gives zero (`DoubleDiagram.map_leftBubble_zero`).
+The quotient uses vertical composition. A strand to the left of the first
+red can cease to violate after adding a new red strand on the left.
+Equation (4.4e) gives the inverse red/up crossings in arbitrary contexts.
+In `DoubleDiagram.id_mem_allDownFactorSpan_of_mixed`, only the local
+mixed black identity factorization is assumed. Moving the first upward strand
+to the left, or deleting it together with a downward strand of the same
+colour, reduces the calculation to the all-down boundaries. The argument
+uses individual boundary identities, so it applies to an infinite set of
+signed words without forming an infinite sum.
+
+For the ordinary algebra, `Stendhal.ker_affineTensorProjection` gives the
+kernel of the affine presentation used to construct a map into the all-down
+corner. In the affine Stendhal algebra, `exists_redsFirst_compression`
+proves injectivity of the two shuffles that move reds to the left.
+`exists_redsFirst_tensor_ideal_element` detects every nonzero ideal after
+tensoring with a free coefficient algebra. The ambient signed comparison of
+Lemma 4.26 requires a further independence result. The revised proof uses
+a tricolore basis. The proof about the size of the localized morphism spaces
+was corrected in the later account. [Webster v3, Lemma 4.29](https://arxiv.org/pdf/1309.3796v3#page=42)
+· [Webster, arXiv:1209.0051v5, p. 29](https://arxiv.org/pdf/1209.0051v5#page=29)
+
+To finish Lemma 4.28 in general, impose the remaining relations in
+Definition 4.24, verify the ordinary diagram map, straighten all-down
+boundary diagrams, and identify the intersection with the signed violating
+ideal. For Theorem 4.29 verify the black identity factorizations from
+(2.3c) and (2.4a) for that presentation, then pass to the all-down corner.
+
 **Lemma 4.37.** The integral generation statement holds for all red families
 and black weights over any field with Rouquier parameters.
 `Stendhal.span_dividedSequenceProj` uses the graded surjection

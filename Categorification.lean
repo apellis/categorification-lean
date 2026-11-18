@@ -1127,6 +1127,12 @@ import Categorification.WeightedKLR.RedStrands.SingleRedInduction
 import Categorification.WeightedKLR.RedStrands.OneUpwardProjectives
 import Categorification.WeightedKLR.RedStrands.ProjectiveCommutatorConvention
 import Categorification.WeightedKLR.RedStrands.RightSignedWordProjectives
+import Categorification.WeightedKLR.RedStrands.DoubleDiagramCut
+import Categorification.WeightedKLR.RedStrands.DoubleRedUp
+import Categorification.WeightedKLR.RedStrands.DoubleViolatingQuotient
+import Categorification.WeightedKLR.RedStrands.DoubleBoundaryIdeal
+import Categorification.WeightedKLR.RedStrands.DownwardCornerMap
+import Categorification.WeightedKLR.RedStrands.RedsFirstIdeal
 /-!
 # Categorification
 

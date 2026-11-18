@@ -168,6 +168,17 @@ field with Rouquier parameters, `tensorProductVacuumK0Equiv_blackResVacuumProj`
 identifies the class of raw right-black restriction with the graded Hom
 polynomial from induction of the vacuum. For two fundamental sl₂ factors
 over ℚ, `fundamental_restriction_eq_E` identifies the normalized
-restriction with E on both first-weight boundary projectives. General
-black contents still require preservation of projectives and identification
-of the normalized action.
+restriction with E on both first-weight boundary projectives. For all black contents, `projective_blackRes` proves preservation
+of projectives and `blackRaise` gives normalized restriction on graded K₀.
+Identifying it with the tensor operator E in all weights remains open.
+
+In the enlarged ordinary cyclotomic algebra, each red label has its own
+simple root. Setting red dots and unordered-red idempotents to zero gives
+the Stendhal algebra by `cyclotomicCoverQuotientEquiv`; the map preserves
+the canonical grading by `cyclotomicCoverToTensor_preservesGrading`.
+A cyclotomic sequence projective restricts to a summand of a sum of shifted
+projectives obtained by deleting one black strand
+(`CycKLR.restriction_sequence_summand`). Thus restriction preserves the
+unordered-red ideal. The central dot sum for each red colour gives the
+corresponding assertion for the red-dot ideal. Together these give the
+kernel bound `cyclotomicCoverResMap_ker_le` and projectivity descends.

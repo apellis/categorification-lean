@@ -237,6 +237,43 @@ def coverFunctor (P : Presentation.{w, max u v} (signature RD Λ) k)
       exact (coverKernel W hC o Q σ).lin_rel_self ⟨_, _, ⟨(M).toLayerMap.lin (P.rel r), hP r⟩⟩) ⋙
     coverKernelFunctor W hC o Q σ
 
+section CoverLin
+
+omit [AddCommGroup Y] in
+/-- The linear extension of a functor, applied to the image of a linear
+combination under a layer map, is the linear extension of the composite. -/
+theorem freeLift_map_layerLin {S S' : Signature} {D : Type*} [Category D] [Preadditive D]
+    [Linear k D] (φ : LayerMap S S') (H : Obj S' ⥤ D) {a b : Obj S} (f : LinDiagram k a b) :
+    (freeLift k H).map (φ.lin f) = (freeLift k (φ.functor ⋙ H)).map f := by
+  induction f using Finsupp.induction_linear with
+  | zero => rw [LayerMap.lin, Finsupp.mapDomain_zero, Functor.map_zero, Functor.map_zero]
+  | add f g hf hg => rw [LayerMap.lin_add, Functor.map_add, Functor.map_add, hf, hg]
+  | single d r =>
+    rw [LayerMap.lin, Finsupp.mapDomain_single, freeLift_map_single, freeLift_map_single]
+    rfl
+
+variable (Q : Presentation.{w, v'} (psig W) k) (σ : Move I ℓ → k)
+
+theorem coverLin_comp {a b c : Obj (signature RD Λ)} (f : LinDiagram k a b)
+    (g : LinDiagram k b c) :
+    coverLin W hC o Q σ (f ≫ g) = coverLin W hC o Q σ f ≫ coverLin W hC o Q σ g := by
+  simp only [coverLin, freeLift_map_layerLin, Functor.map_comp]
+
+theorem coverLin_add {a b : Obj (signature RD Λ)} (f g : LinDiagram k a b) :
+    coverLin W hC o Q σ (f + g) = coverLin W hC o Q σ f + coverLin W hC o Q σ g := by
+  simp only [coverLin, freeLift_map_layerLin, Functor.map_add]
+
+theorem coverLin_smul {a b : Obj (signature RD Λ)} (r : k) (f : LinDiagram k a b) :
+    coverLin W hC o Q σ (r • f) = r • coverLin W hC o Q σ f := by
+  simp only [coverLin, freeLift_map_layerLin, Functor.map_smul]
+
+theorem coverLin_id (a : Obj (signature RD Λ)) :
+    coverLin W hC o Q σ (𝟙 (Free.of k a)) = 𝟙 _ := by
+  rw [coverLin, freeLift_map_layerLin]
+  exact (freeLift k _).map_id _
+
+end CoverLin
+
 section CoverFunctor
 
 theorem coverFunctor_obj

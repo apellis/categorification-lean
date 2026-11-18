@@ -83,18 +83,20 @@ local notation "L" => cyclotomicCoverHighest (I := I) (ℓ := ℓ)
 local notation "hS" => isRouquierQ_cyclotomicCoverQ C Λ Q hQ
 
 omit [DecidableEq I] in
-private theorem cover_monic (j : D) : (p j).Monic := by
+/-- The cyclotomic polynomials of the cover are monic. -/
+theorem cyclotomicCoverPolynomial_monic (j : D) : (p j).Monic := by
   cases j <;> simp [cyclotomicCoverPolynomial]
 
 omit [DecidableEq I] in
-private theorem cover_degree (j : D) : ((p j).natDegree : ℤ) = WeightDatum.pair Wgt (WeightDatum.iY Wgt j) L := by
+/-- The cyclotomic polynomial of a label has degree its coroot coordinate of the vacuum. -/
+theorem cyclotomicCoverPolynomial_natDegree (j : D) : ((p j).natDegree : ℤ) = WeightDatum.pair Wgt (WeightDatum.iY Wgt j) L := by
   cases j <;> simp [cyclotomicCoverPolynomial, cyclotomicCoverWeightDatum, cyclotomicCoverHighest]
 
 local notation "sym" => IsRouquierQ.klrSymm hS
 local notation "lead" => IsRouquierQ.polyInY_leading hS
 local notation "deg" => IsRouquierQ.polyInY_degree_pair hS Wgt
-local notation "monic" => cover_monic (k := k)
-local notation "topDeg" => cover_degree (k := k) Λ C
+local notation "monic" => cyclotomicCoverPolynomial_monic (k := k)
+local notation "topDeg" => cyclotomicCoverPolynomial_natDegree (k := k) Λ C
 local notation "wt₀" => blockWeight Wgt L 0
 set_option quotPrecheck false in
 set_option hygiene false in

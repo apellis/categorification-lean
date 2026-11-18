@@ -1106,6 +1106,7 @@ import Categorification.WeightedKLR.RedStrands.TensorModuleEquiv
 import Categorification.WeightedKLR.RedStrands.RepresentationLift
 import Categorification.WeightedKLR.RedStrands.LastRedShuffle
 import Categorification.WeightedKLR.RedStrands.LastRedPairing
+import Categorification.WeightedKLR.RedStrands.TensorFormOrdered
 import Categorification.WeightedKLR.RedStrands.TensorFormAdjunction
 import Categorification.WeightedKLR.RedStrands.FirstWeightFormCounterexample
 import Categorification.WeightedKLR.RedStrands.TensorAdjointConvention
@@ -1122,4 +1123,3 @@ import Categorification.WeightedKLR.RedStrands.SingleRedInduction
 
 Lean 4 formalizations of results in categorification.
 -/
-import Categorification.WeightedKLR.RedStrands.TensorFormOrdered

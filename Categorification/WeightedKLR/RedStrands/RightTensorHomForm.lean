@@ -42,7 +42,8 @@ Conventions.
 noncomputable section
 namespace Categorification.Stendhal.FirstWeight
 
-open KLR KLRAlgebra Categorification.Graded QuantumGroup LieLean LieLean.QuantumGroup
+open KLR KLRAlgebra KLGamma Categorification.Graded QuantumGroup QuantumGroup.UDot
+open LieLean LieLean.QuantumGroup LieLean.QuantumGroup.GrandLoop LusztigF
 open scoped RatFunc
 attribute [local instance 1100] IsIdempotentElem.instAlgebraCorner_categorification
 local notation "LP" => LaurentPolynomial ℤ
@@ -64,7 +65,7 @@ local notation "M" => DirectSum (Multiset I) (tensorProjectiveGroup C hQ Λ)
 local notation "η" => tensorModuleEquiv C hQ hR Λ wt hwt
 local notation "B" => TensorPairing.orderedForm hR wt
 
-omit [Finite I] in
+omit [DecidableEq I] [Finite I] in
 /-- The crossing degrees of the standard Stendhal grading are symmetric. -/
 theorem stendhalGradingDatum_degΨ_symm :
     ∀ a b, (G).degΨ a b = (G).degΨ b a := by
@@ -93,6 +94,11 @@ omit [Finite I] in
     tensorReflectionK0 C hQ Λ (DirectSum.lof LP _ K β x) =
       DirectSum.lof LP _ Kr β (K0.rightTwistEquiv (tensorReflectionG C hQ Λ β) x) :=
   DFinsupp.mapRange_single (hf := fun _ => map_zero _)
+
+omit [Finite I] in
+theorem tensorReflectionK0_apply (y : M) (β : Multiset I) :
+    tensorReflectionK0 C hQ Λ y β = K0.rightTwistEquiv (tensorReflectionG C hQ Λ β) (y β) :=
+  DFinsupp.mapRange_apply _ (fun _ => map_zero _) y β
 
 /-- The shifted divided-word projective of `w`, as a graded right projective: the right twist
 of the left word projective by horizontal reflection. -/
@@ -187,8 +193,7 @@ theorem rightTensorProjectiveHomForm_tensorReflectionK0 (x y : M) :
     change rightTensorProjectiveHomForm C hQ Λ (tensorReflectionK0 C hQ Λ
       (DirectSum.lof LP _ K β x)) _ = tensorProjectiveHomForm C hQ Λ (DirectSum.lof LP _ K β x) y
     rw [tensorReflectionK0_lof, rightHomForm_lof, leftHomForm_lof]
-    change K0.homForm _ _ (DFinsupp.mapRange _ _ y β) = _
-    rw [DFinsupp.mapRange_apply]
+    rw [tensorReflectionK0_apply]
     exact K0.homForm_rightTwistEquiv _ x (y β)
 
 /-- **Webster, arXiv:1309.3796v2, Theorem 4.38 and Lemma 4.36, for right projectives**, with

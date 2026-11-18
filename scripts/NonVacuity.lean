@@ -4476,6 +4476,71 @@ private abbrev vacuum : DoubleStendhalTriple sl2RootDatum reds 0 2 :=
 
 example := ccwBubble_afterRedPrefix_zero sl2RootDatum () (fun _ _ => (0 : MvPolynomial (Fin 2) ℚ))
   coeff reds base vacuum [0,1] [] rfl 0
+example := cwBubble_afterRedPrefix_zero sl2RootDatum () (fun _ _ => (0 : MvPolynomial (Fin 2) ℚ))
+  coeff reds base vacuum [0,1] [] rfl 0
+
 end RedPrefixBubble
+
+
+namespace DoubleBlackAdjunction
+
+open Categorification Categorification.QuantumGroup.UDot Categorification.KL3.Diagram
+  Categorification.Stendhal.DoubleDiagram CategoryTheory StringDiagrams
+
+private abbrev weights : Fin 1 → ℤ := fun _ => 1
+
+private def P : Presentation (signature sl2RootDatum weights) ℚ :=
+  ⟨Empty, Empty.elim, Empty.elim, fun i => i.elim⟩
+
+example := blackSnakeLeft_eq sl2RootDatum weights 0 [.inr 0] (false, ()) [] P
+example := blackSnakeRight_eq sl2RootDatum weights 0 [.inr 0, .inl (false, ())] (true, ()) [] P
+example := blackCup_dot_slide sl2RootDatum weights 0 [.inr 0] (false, ()) [] P
+example := blackCap_dot_slide sl2RootDatum weights 0 [.inr 0, .inl (false, ())] (true, ()) [] P
+
+end DoubleBlackAdjunction
+
+namespace DoubleBlackCurls
+
+open Categorification Categorification.QuantumGroup.UDot
+  Categorification.Stendhal.DoubleDiagram StringDiagrams
+
+private abbrev weights : Fin 1 → ℤ := fun _ => 1
+
+private def P : Presentation (signature sl2RootDatum weights) ℚ :=
+  ⟨Empty, Empty.elim, Empty.elim, fun i => i.elim⟩
+
+example := blackCurlLeft sl2RootDatum weights (fun _ _ => 1) P 0
+  [.inr 0, .inl (false, ())] [] ()
+example := blackCurlRight sl2RootDatum weights (fun _ _ => 1) P 0
+  [.inr 0, .inl (false, ())] [] ()
+example := mixedBlack_opposite_eq sl2RootDatum weights (fun _ _ => 1) P 0
+  [.inr 0, .inl (false, ())] [] ()
+
+private abbrev weightsA₂ : Fin 1 → Fin 2 → ℤ := fun _ _ => 1
+private def PA₂ : Presentation (signature (Flag.slRootDatum 2) weightsA₂) ℚ :=
+  ⟨Empty, Empty.elim, Empty.elim, fun i => i.elim⟩
+
+example := mixedBlack_opposite_ne (Flag.slRootDatum 2) weightsA₂
+  (fun i j => if i = j then 1 else -1) PA₂ 0 [.inr 0] [] 0 1 (by decide)
+
+end DoubleBlackCurls
+
+namespace DoubleClockwiseRedBubble
+
+open Categorification Categorification.QuantumGroup.UDot
+  Categorification.Stendhal.DoubleDiagram StringDiagrams
+
+private abbrev weights : Fin 1 → ℤ := fun _ => 1
+
+private def P : Presentation (signature sl2RootDatum weights) ℚ :=
+  ⟨Empty, Empty.elim, Empty.elim, fun i => i.elim⟩
+
+private abbrev Q : Unit → Unit → MvPolynomial (Fin 2) ℚ := fun _ _ => 0
+private def exponents : Fin 1 → Unit →₀ ℕ := fun _ => Finsupp.single () 1
+
+example := cwBubble_slide sl2RootDatum weights 0 [] () 0 [.inl (false, ())] Q exponents P 0
+example := clockwiseBubble_slide sl2RootDatum weights 0 [] () 0 [.inl (false, ())] Q exponents P 2
+
+end DoubleClockwiseRedBubble
 
 end NonVacuity

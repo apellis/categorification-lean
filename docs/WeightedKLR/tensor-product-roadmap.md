@@ -230,6 +230,13 @@ already lifts to an ordinary diagram (`exists_downDiagramLift_of_no_caps`).
 `middleRed_triplePoint` moves an intervening red through an upward crossing.
 `ccwBubble_afterRedPrefix_zero` removes the positive real counterclockwise
 bubbles after any initial red word by moving them to a violated cut.
+For the other orientation, `cwBubble_redWord` moves every real bubble to the
+left with an increase in dot count. Thus `cwBubble_afterRedPrefix_zero` holds
+at every natural dot count, including zero. The suffix can contain signed
+black strands. The signed presentation carries the reflected black snake
+identities, cyclicity of dots, curl expansions and opposite mixed-crossing
+identities in any red context (`blackSnakeLeft_eq`, `blackCup_dot_slide`,
+`blackCurlRight`, `mixedBlack_opposite_eq`).
 
 For a presentation with compatible pitchfork coefficients, impose the remaining relations in Definition
 4.24, straighten signed diagrams with all-down boundary into downward diagrams,

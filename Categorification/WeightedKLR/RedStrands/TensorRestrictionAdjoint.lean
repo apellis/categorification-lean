@@ -59,7 +59,8 @@ theorem tensorModuleEquiv_torus_block (ν : Multiset I) (x : tensorProjectiveGro
     rw [hx, smul_comm]
 
 omit [Finite I] in
-private theorem rootSum_coroot (ν : Multiset I) (i : I) :
+/-- The Cartan pairing of the sum of the roots in a black content. -/
+theorem rootSum_apply_coroot (ν : Multiset I) (i : I) :
     R.rootSum ν.toFinsupp (R.coroot i) = (ν.map (A C i)).sum := by
   induction ν using Multiset.induction_on with
   | empty => simp [LusztigCartanDatum.RootDatum.rootSum]
@@ -76,7 +77,7 @@ private theorem negative_torus_weight (ν : Multiset I) (i : I) :
       -(C.toLusztig.d i : ℤ) *
         ((∑ r, (Λ r i : ℤ)) - (ν.map (A C i)).sum) := by
   rw [map_neg, ktilde, map_nsmul, nsmul_eq_mul, AddMonoidHom.sub_apply,
-    rootSum_coroot C]
+    rootSum_apply_coroot C]
   simp only [AddMonoidHom.finsetSum_apply, ← hwt]
   ring
 

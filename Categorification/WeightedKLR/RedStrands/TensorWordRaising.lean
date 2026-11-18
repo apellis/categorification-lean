@@ -176,7 +176,8 @@ private theorem torus_loading (wts : J → Dom R) (s : List (I ⊕ J)) {n : ℕ}
           TensorProduct.smul_tmul', smul_smul, mul_comm]
         rw [← TensorProduct.smul_tmul', map_smul]
 
-private theorem commute_black (wt : Fin n → Dom R) (i j : I) (x : TensorSpace wt)
+/-- The Chevalley commutator on a tensor weight vector. -/
+theorem tensorRepresentation_commute_black (wt : Fin n → Dom R) (i j : I) (x : TensorSpace wt)
     (μ : Y →+ ℤ) (hx : ∀ a, tensorRepresentation wt (K R v a) x = v ^ μ a • x) :
     tensorRepresentation wt (E R v i) (tensorRepresentation wt (F R v j) x) =
       tensorRepresentation wt (F R v j) (tensorRepresentation wt (E R v i) x) +
@@ -215,7 +216,7 @@ private theorem raise_loading [DecidableEq J] (wts : J → Dom R) (i : I) (s : L
     | inl j =>
       have hs : s.filterMap Sum.getRight? = List.ofFn slot := by
         simpa [List.filterMap, Sum.getRight?] using hr
-      rw [read_black, commute_black _ _ _ _ (loadingWeight wts s) (torus_loading wts s slot hs),
+      rw [read_black, tensorRepresentation_commute_black _ _ _ _ (loadingWeight wts s) (torus_loading wts s slot hs),
         ih slot hs, map_list_sum, List.map_map]
       congr 1
       · apply congrArg List.sum

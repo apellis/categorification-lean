@@ -6,6 +6,7 @@ import Categorification.WeightedKLR.RedStrands.Projectives
 import Categorification.WeightedKLR.RedStrands.RepresentationLift
 import Categorification.WeightedKLR.RedStrands.StendhalTensorGrading
 import Categorification.KLR.GradingFlip
+import Categorification.Algebra.Graded.Duality
 
 /-!
 # Horizontal reflection of boundary Hom spaces
@@ -138,6 +139,23 @@ private def reflectLinear : T →ₗ[k] T where
     change (R (c • x)).unop = c • (R x).unop
     rw [map_smul]
     rfl
+
+/-- Horizontal reflection of the tensor product algebra, with the grading from
+Webster, arXiv:1309.3796v2, Definitions 4.5–4.7. -/
+def tensorReflection (G : GradingDatum S)
+    (hsymm : ∀ a b, G.degΨ a b = G.degΨ b a) :
+    GradedAntiInvolution (tensorProductGrade G ν) where
+  toLinearMap := reflectLinear
+  map_mul' := reflect_mul
+  map_one' := congrArg unop (map_one R)
+  invol' := reflect_reflect
+  mem_grade' := fun {_ _} ha => reflect_mem_grade G hsymm ha
+
+@[simp] theorem tensorReflection_e (G : GradingDatum S)
+    (hsymm : ∀ a b, G.degΨ a b = G.degΨ b a) (s : Seq μ) (hs : IsRedOrdered s) :
+    tensorReflection G hsymm (TensorProductAlgebra.mk Q Λ ν (StendhalAlgebra.e s hs)) =
+      TensorProductAlgebra.mk Q Λ ν (StendhalAlgebra.e s hs) :=
+  reflect_e s hs
 
 /-- In Webster, arXiv:1309.3796v2, Definitions 4.5–4.7 and Lemma 4.36,
 horizontal reflection exchanges the source and target of a sequence

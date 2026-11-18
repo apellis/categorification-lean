@@ -40,7 +40,8 @@ def vacuumSeq : Seq μ :=
     rw [← Multiset.map_map, Multiset.map_univ_val_equiv]
     simp [stendhalWeight]⟩
 
-private theorem vacuumSeq_ordered : IsRedOrdered (vacuumSeq (I := I) (ℓ := ℓ)) := by
+/-- The vacuum sequence is red ordered. -/
+theorem vacuumSeq_ordered : IsRedOrdered (vacuumSeq (I := I) (ℓ := ℓ)) := by
   rintro a b r s hab ha hb
   change Sum.inr (vacuumPos a) = (Sum.inr r : I ⊕ Fin ℓ) at ha
   change Sum.inr (vacuumPos b) = (Sum.inr s : I ⊕ Fin ℓ) at hb
@@ -85,6 +86,15 @@ private theorem redOrderedIdem_zeroWeight :
   refine Finset.sum_eq_single vacuumSeq (fun s hs hne => ?_) (fun h => ?_)
   · exact (hne (eq_vacuumSeq s (Finset.mem_filter.1 hs).2)).elim
   · exact (h (Finset.mem_filter.2 ⟨Finset.mem_univ _, vacuumSeq_ordered⟩)).elim
+
+/-- The unique ordered vacuum idempotent is the unit of the vacuum block. -/
+theorem vacuumSeq_mk_e :
+    TensorProductAlgebra.mk Q Λ (0 : Multiset I) (StendhalAlgebra.e vacuumSeq vacuumSeq_ordered) =
+      1 := by
+  rw [← map_one (TensorProductAlgebra.mk Q Λ (0 : Multiset I))]
+  apply congrArg (TensorProductAlgebra.mk Q Λ (0 : Multiset I))
+  apply Subtype.ext
+  exact (redOrderedIdem_zeroWeight Q Λ).symm
 
 /-- There are no violated idempotents when all strands are red. -/
 theorem violatedIdeal_zeroWeight : StendhalAlgebra.violatedIdeal k Q Λ (0 : Multiset I) = ⊥ := by

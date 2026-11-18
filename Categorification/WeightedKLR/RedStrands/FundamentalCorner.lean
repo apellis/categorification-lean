@@ -29,7 +29,8 @@ local notation "μ" => stendhalWeight 2 ({()} : Multiset Unit)
 local notation "M" => Matrix (Fin 3) (Fin 3) ℚ
 /-- The terminal sequence, with the black strand to the right of both reds. -/
 def terminal : Seq μ := KLRAlgebra.Seq.ofList [.inr 0,.inr 1,.inl ()] (by decide)
-private def middle : Seq μ := KLRAlgebra.Seq.ofList [.inr 0,.inl (),.inr 1] (by decide)
+/-- The black strand between the two fundamental red strands. -/
+def middle : Seq μ := KLRAlgebra.Seq.ofList [.inr 0,.inl (),.inr 1] (by decide)
 private def idemM (s : Seq μ) : M := if s = terminal then !![1,0,0;0,0,0;0,0,1]
     else if s = middle then !![0,0,0;0,1,0;0,0,0] else 0
 private def dotM (a : Fin (Multiset.card μ)) : M := if a.val = 2 then !![0,0,0;0,0,0;1,0,0] else 0
@@ -235,7 +236,8 @@ private theorem dot_comm (s : Seq μ) : Commute x₂ (e s) :=
   (show Commute (KLRAlgebra.x ⟨2,by decide⟩) (KLRAlgebra.e s :
     KLRAlgebra ℚ (stendhalQ Q wt) μ) from KLRAlgebra.x_mul_e _ _).map _
 
-private theorem x₁_zero : project (x₁ * e middle) = 0 := by
+/-- The dot between the two red strands factors through a violated sequence. -/
+theorem middle_dot_zero : project (x₁ * e middle) = 0 := by
   have h := ψ_sq_red_black (Q := Q) (Λ := wt) 0 (by decide) middle () 0 rfl rfl
   simp only [wt, Finsupp.single_eq_same, pow_one] at h
   rw [← h, mul_assoc, cross_e, map_mul, map_mul,kills_violated,zero_mul,mul_zero]
@@ -260,6 +262,6 @@ theorem dot_sq_zero : project (x₂ ^ 2 * e terminal) = 0 := by
         rw [← mul_assoc (ψ 1), h, ← mul_assoc, ← (dot_comm terminal).eq, mul_assoc, he]]
       rw [show (e middle * (ψ 1 * e terminal) : A) = ψ 1 * e terminal by
         rw [cross_e, hs, ← mul_assoc]; simp [e_mul_e]]
-    _ = 0 := by rw [hm, map_mul, map_mul, x₁_zero,mul_zero,zero_mul]
+    _ = 0 := by rw [hm, map_mul, map_mul, middle_dot_zero,mul_zero,zero_mul]
 
 end Categorification.Stendhal.FundamentalCorner

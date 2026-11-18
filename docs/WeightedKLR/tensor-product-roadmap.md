@@ -121,7 +121,11 @@ with the terminal black-strand projective following two fundamental red
 strands over ℚ. Its graded endomorphism polynomial is 1 + q² by
 `FundamentalCorner.terminal_homGdimPoly`. Thus the
 prescribed generators and the printed form in Theorem 4.38 already disagree
-on this diagonal entry. The comparison is independent of the passage between
+on this diagonal entry. For the repaired form, `fundamental_prefix_homGdimPoly_eq_correctedForm`
+identifies all four entries in this weight. The earlier diagonal is 1
+and both off-diagonal entries are q. Nonvanishing of the two crossing
+maps follows from their composition, the nonzero terminal dot.
+The printed diagonal comparison is independent of the passage between
 left and right projectives. The underlying module comparison in all weights uses standard-module characters.
 
 **Tensor generators and the last-red filtration.** The prescribed tensor
@@ -150,3 +154,12 @@ The corresponding corner acts nontrivially. Its graded projective group is a quo
 map whose image exhausts a corner, `Stendhal.boundaryClassEmbedding`
 injects the shift classes of the detected projectives into the shift
 classes for the source algebra.
+
+**Raising on the vacuum edge of Theorem 4.31.** For any red family over a
+field with Rouquier parameters, `tensorProductVacuumK0Equiv_blackResVacuumProj`
+identifies the class of raw right-black restriction with the graded Hom
+polynomial from induction of the vacuum. For two fundamental sl₂ factors
+over ℚ, `fundamental_restriction_eq_E` identifies the normalized
+restriction with E on both first-weight boundary projectives. General
+black contents still require preservation of projectives and identification
+of the normalized action.

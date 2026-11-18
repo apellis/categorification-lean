@@ -24,7 +24,7 @@ local notation "𝕋" => TensorProductAlgebra ℚ Q wt ({()} : Multiset Unit)
 local notation "S" => StendhalAlgebraAllOrders ℚ Q wt ({()} : Multiset Unit)
 private abbrev black : Fin (Multiset.card μ) := ⟨2,by decide⟩
 local notation "ρ" => canWord (Multiset.card μ)
-private theorem wordSpec (w : Perm (Fin (Multiset.card μ))) :
+theorem wordSpec (w : Perm (Fin (Multiset.card μ))) :
     IsReduced (Multiset.card μ) (ρ w) ∧ wordProd _ (ρ w) = w :=
   ⟨isReduced_canWord _ _, wordProd_canWord _ _⟩
 
@@ -45,7 +45,7 @@ private theorem pos (a : Unit ⊕ Fin 2) : 0 < grading.degX a := by
 private theorem nilWord : ρ 1 = [] :=
   List.length_eq_zero_iff.mp (by rw [length_canWord,length_one])
 
-private theorem project_of_term (b : Ixs) :
+theorem project_of_term (b : Ixs) :
     basisT b = project (ofKLR ℚ Q wt {()} (KLRAlgebra.stdElt ρ b.1.1)) := by
   rw [tensorProductBasis_apply]
   apply congrArg (TensorProductAlgebra.mk Q wt {()})

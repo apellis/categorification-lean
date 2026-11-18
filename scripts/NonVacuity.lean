@@ -2995,6 +2995,12 @@ private abbrev loading := Stendhal.FirstWeight.boundaryAt () 1 0
 example := Stendhal.finrank_homGrade_appendRed rouquier fundamentalGrading {()}
   loading.1 loading.1 loading.2.1 loading.2.1 2
 
+example := orderedForm_binary sl2XRegular twoFundamental
+  (Stendhal.FirstWeight.pVector twoFundamental () 0) (Stendhal.FirstWeight.pVector twoFundamental () 1)
+
+example := orderedForm_adjoint sl2XRegular twoFundamental (F sl2RootDatum (RatFunc.X : RatFunc ℚ) ())
+  (Stendhal.FirstWeight.pVector twoFundamental () 0) (Stendhal.FirstWeight.pVector twoFundamental () 1)
+
 end TensorFormConvention
 
 namespace LastRedLayerExample

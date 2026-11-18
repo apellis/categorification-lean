@@ -2064,6 +2064,36 @@ example := KLR.CycKLR.lower_lof singletonBlackGrading (fun _ => 2) 0 ({0} : Mult
 example := Stendhal.SingleBlack.oneBlackOneRedEquiv_dot (0 : Fin 1)
   (KLR.klQ (k := ℚ) (⊥ : SimpleGraph (Fin 1))) (fun _ : Fin 1 => Finsupp.single (0 : Fin 1) 2)
 
+section AffineTensorPresentation
+
+attribute [local instance 1100] IsIdempotentElem.instAlgebraCorner_categorification
+
+local notation "Q₁" => KLR.klQ (k := ℚ) (⊥ : SimpleGraph (Fin 1))
+local notation "Λ₁" => (fun _ : Fin 1 => Finsupp.single (0 : Fin 1) 2)
+local notation "ν₁" => ({0} : Multiset (Fin 1))
+local notation "π₁" => Stendhal.affineTensorProjection (Q := Q₁) Λ₁ ν₁
+local notation "eval₁" => AlgEquiv.toAlgHom (Stendhal.SingleBlack.oneBlackOneRedEquiv 0 Q₁ Λ₁)
+
+/-- The one-red, one-black block with black-dot relation `x² = 0`. -/
+example : TwoSidedIdeal.ker (π₁).toRingHom = Stendhal.affineTensorIdeal Q₁ Λ₁ ν₁ :=
+  Stendhal.ker_affineTensorProjection
+
+private theorem affineProjection_ideal :
+    Stendhal.affineTensorIdeal Q₁ Λ₁ ν₁ ≤ TwoSidedIdeal.ker (π₁).toRingHom :=
+  le_of_eq Stendhal.ker_affineTensorProjection.symm
+
+/-- The affine projection factors through the one-red, one-black block. -/
+example : (Stendhal.affineTensorLift π₁ affineProjection_ideal).comp π₁ = π₁ :=
+  Stendhal.affineTensorLift_comp _ _
+
+/-- Evaluating in `ℚ[x]/(x²)` detects the unit of the descended map. -/
+example : eval₁ (Stendhal.affineTensorLift π₁ affineProjection_ideal 1) ≠ 0 := by
+  have := AdjoinRoot.nontrivial ((Polynomial.X : Polynomial ℚ) ^ Λ₁ 0 0) (by simp)
+  rw [map_one, map_one]
+  exact one_ne_zero
+
+end AffineTensorPresentation
+
 example := Stendhal.SingleBlack.oneBlackK0Equiv_regular (0 : Fin 1) oneRedGrading
   (by simp : 0 < Finsupp.single (0 : Fin 1) 2 (0 : Fin 1))
 
@@ -3091,6 +3121,45 @@ private theorem parameters : IsRouquierQ (CartanDatum.ofGraph (⊥ : SimpleGraph
   homogeneous _ _ h := (h (Subsingleton.elim _ _)).elim
   unit_coeff _ _ h := (h (Subsingleton.elim _ _)).elim
 
+private def redBlackRed : Seq μ := KLRAlgebra.Seq.ofList [.inr 0,.inl 0,.inr 1] (by decide)
+private theorem redBlackRed_ordered : IsRedOrdered redBlackRed := by unfold IsRedOrdered; decide
+
+/-- The black strand crosses the second red on both sides of this affine corner. -/
+example : ¬ RedsFirst redBlackRed := by
+  intro h
+  exact (by decide : ¬ true ≤ false)
+    (h (show (⟨1, by decide⟩ : Fin μ.card) ≤ ⟨2, by decide⟩ by decide))
+
+example := exists_redsFirst_compression (Λ := Λ) parameters redBlackRed redBlackRed
+  redBlackRed_ordered redBlackRed_ordered
+
+private abbrev affine := StendhalAlgebra ℚ Q Λ β
+private def scalarAtMiddle : affine →ₐ[ℚ] ℚ :=
+  (FirstWeight.boundaryCharacter Q Λ (i := 0) (fun _ => by simp [Λ]) redBlackRed
+    redBlackRed_ordered (by unfold IsViolated; decide)).comp (TensorProductAlgebra.mk Q Λ β)
+
+example : scalarAtMiddle (StendhalAlgebra.e redBlackRed redBlackRed_ordered) = 1 := by
+  simp [scalarAtMiddle]
+
+example := exists_redsFirst_ideal_element parameters
+  (⊤ : TwoSidedIdeal affine) (by
+    let := scalarAtMiddle.toRingHom.domain_nontrivial
+    exact top_ne_bot)
+
+private def bubbleAtMiddle (a : ℚ) : Polynomial ℚ ⊗[ℚ] affine →ₐ[ℚ] ℚ :=
+  Algebra.TensorProduct.productMap (Polynomial.aeval a) scalarAtMiddle
+
+/-- The positive-degree bubble belongs to the zero-evaluation kernel and is
+detected by evaluation at one, so this ideal is nonzero and proper. -/
+example := exists_redsFirst_tensor_ideal_element parameters
+  (TwoSidedIdeal.ker (bubbleAtMiddle 0).toRingHom) (by
+    intro h
+    let y := (Polynomial.X : Polynomial ℚ) ⊗ₜ[ℚ] (1 : affine)
+    have hy (a : ℚ) : bubbleAtMiddle a y = a := by simp [bubbleAtMiddle, y]
+    have hm := (TwoSidedIdeal.mem_ker (bubbleAtMiddle 0).toRingHom).2 (hy 0)
+    rw [h, TwoSidedIdeal.mem_bot] at hm
+    exact one_ne_zero (α := ℚ) ((hy 1).symm.trans (hm ▸ map_zero (bubbleAtMiddle 1))))
+
 /-- In the output red-red-black-black, the final left-assigned black
 strand crosses the right red (+1) and the right black (−2). -/
 private abbrev shufflePrefixWt := Multiset.map (addRedColor 1) (stendhalWeight 1 β)
@@ -3501,5 +3570,133 @@ example := oneUpward_swap_ne C param 0 1 (by decide) 0 (GProj.regular _)
   (RedRun.nil : RedRun labels labels) .nil
 
 end ProjectiveCommutatorExamples
+
+namespace DoubleStendhalBoundaries
+
+open Categorification Categorification.Stendhal Categorification.QuantumGroup.UDot
+
+private def signedBoundary : DoubleBoundary Unit 1 where
+  word := [.inl (true, ()), .inr 0, .inl (false, ())]
+  redOrder := by decide
+
+private def redWeights :
+    Fin 1 → {x : ℤ // ∀ i, 0 ≤ sl2RootDatum.pair (sl2RootDatum.iY i) x} :=
+  fun _ => ⟨3, by intro i; cases i; decide⟩
+
+example : DoubleStendhalTriple sl2RootDatum redWeights 0 3 :=
+  ⟨signedBoundary, by decide⟩
+
+example : signedBoundary.word.scanl
+    (fun x s => x + DoubleStrand.weight sl2RootDatum (fun r => (redWeights r).1) s) 0 =
+    [0, 2, 5, 3] := by decide
+
+example : signedBoundary.IsViolated := ⟨(true, ()), rfl⟩
+
+example : ¬signedBoundary.AllDown := by
+  intro h
+  exact h () (by simp [signedBoundary])
+
+private def downwardBoundary : DoubleBoundary Unit 1 where
+  word := [.inr 0, .inl (false, ())]
+  redOrder := by decide
+
+private theorem downwardContent : downwardBoundary.blackContent = ({()} : Multiset Unit) :=
+  by decide
+
+private theorem downwardAll : downwardBoundary.AllDown := by
+  intro i hi
+  cases i
+  simp [downwardBoundary] at hi
+
+example :
+    ((DoubleBoundary.allDownEquiv ({()} : Multiset Unit))
+      ⟨downwardBoundary.toSeq downwardContent,
+        downwardBoundary.isRedOrdered_toSeq downwardContent⟩).1.word =
+      [.inr 0, .inl (false, ())] := by
+  change (List.ofFn (downwardBoundary.toSeq downwardContent).lbl).map DoubleStrand.down = _
+  rw [DoubleBoundary.list_toSeq]
+  rfl
+
+example : List.ofFn (((DoubleBoundary.allDownEquiv ({()} : Multiset Unit)).symm
+    ⟨downwardBoundary, downwardAll, downwardContent⟩).1.lbl) = [.inr 0, .inl ()] := by
+  change List.ofFn (downwardBoundary.toSeq downwardContent).lbl = _
+  rw [DoubleBoundary.list_toSeq]
+  rfl
+
+example : ¬downwardBoundary.IsViolated := by
+  rintro ⟨s, hs⟩
+  simp [downwardBoundary] at hs
+
+private def redOnly : DoubleStendhalTriple sl2RootDatum redWeights 0 3 :=
+  ⟨⟨[.inr 0], by decide⟩, by decide⟩
+
+example := DoubleDiagram.existsUnique_triple_at_cut sl2RootDatum redWeights redOnly
+  (DoubleDiagram.moveDiagram sl2RootDatum (fun r => (redWeights r).val) 0 []
+    (.black (.cup (true, ()))) [.inr 0])
+
+private abbrev twoReds : Fin 2 → ℤ := fun _ => 1
+private def diagrams : StringDiagrams.Presentation.{0, 0}
+    (DoubleDiagram.signature sl2RootDatum twoReds) ℚ :=
+  ⟨Empty, Empty.elim, Empty.elim, fun i => i.elim⟩
+
+example := DoubleDiagram.redUpCrossingIso sl2RootDatum twoReds diagrams 0
+  [.inr 0, .inl (false, ())] 1 () [.inl (false, ())]
+
+open CategoryTheory StringDiagrams
+
+private def bubblePresentation :
+    Presentation.{0, 0} (DoubleDiagram.signature sl2RootDatum (fun r => (redWeights r).val)) ℚ where
+  Rel := Empty
+  dom e := e.elim
+  cod e := e.elim
+  rel e := e.elim
+
+example : (DoubleDiagram.violatingFunctor bubblePresentation 3).map
+    (DoubleDiagram.leftCup bubblePresentation redOnly (true, ()) ≫
+      DoubleDiagram.leftCap bubblePresentation redOnly (true, ())) = 0 :=
+  DoubleDiagram.map_leftBubble_zero bubblePresentation redOnly (true, ())
+
+example :
+    LinearMap.ker ((DoubleDiagram.violatingFunctor bubblePresentation 3).mapLinearMap ℚ
+      (X := redOnly) (Y := redOnly)) =
+      DoubleViolatingQuotient.ideal ℚ (DoubleDiagram.tripleObj bubblePresentation) redOnly redOnly :=
+  DoubleViolatingQuotient.ker_mapLinearMap ℚ (DoubleDiagram.tripleObj bubblePresentation)
+    redOnly redOnly
+
+end DoubleStendhalBoundaries
+
+
+namespace DoubleCategoricalFactorExample
+open Categorification Categorification.Stendhal Categorification.QuantumGroup.UDot CategoryTheory
+
+private abbrev noReds : Fin 0 → {x : ℤ // ∀ i, 0 ≤ sl2RootDatum.pair (sl2RootDatum.iY i) x} :=
+  Fin.elim0
+private abbrev weight := fun r => (noReds r).val
+private def pres : StringDiagrams.Presentation.{0,0} (DoubleDiagram.signature sl2RootDatum weight) ℚ :=
+  ⟨Empty, Empty.elim, Empty.elim, fun i => i.elim⟩
+private abbrev rels := DoubleDiagram.addRedUpRelations sl2RootDatum weight ℚ pres
+private abbrev project := DoubleDiagram.violatingFunctor (Λ := noReds) rels 0
+private def downUp : DoubleStendhalTriple sl2RootDatum noReds 0 0 :=
+  ⟨⟨[.inl (false, ()), .inl (true, ())], rfl⟩, by decide⟩
+
+/-- In the empty red family for sl₂, every down/up pair, including in the empty
+context, is cut at a violated boundary. The example uses the mixed pair of total weight zero. -/
+example : 𝟙 (project.obj downUp) ∈
+    DoubleDiagram.factorSpan ℚ project.obj (fun d => d.val.AllDown) downUp downUp := by
+  apply DoubleDiagram.id_mem_allDownFactorSpan_of_mixed pres
+  intro L R i j b hb
+  have hviol : b.val.IsViolated := by
+    cases L with
+    | nil => exact ⟨(false, j), by simp [hb]⟩
+    | cons a L =>
+      cases a with
+      | inl s => exact ⟨s, by simp [hb]⟩
+      | inr r => exact Fin.elim0 r
+  have hzero : 𝟙 (project.obj b) = 0 :=
+    DoubleViolatingQuotient.id_eq_zero ℚ (DoubleDiagram.tripleObj rels) (x := b) hviol
+  rw [hzero]
+  exact Submodule.zero_mem _
+
+end DoubleCategoricalFactorExample
 
 end NonVacuity

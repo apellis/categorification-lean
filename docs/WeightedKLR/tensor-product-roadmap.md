@@ -124,6 +124,14 @@ prescribed generators and the printed form in Theorem 4.38 already disagree
 on this diagonal entry. The comparison is independent of the passage between
 left and right projectives. The underlying module comparison in all weights uses standard-module characters.
 
+**Ordered form of Proposition 4.33.** For any finite ordered family,
+`TensorPairing.orderedForm_adjoint` proves adjunction for the ordinary
+coproduct using the inverse normalized intertwiner on the second
+argument. The empty family gives the scalar bar pairing.
+`orderedForm_append_highest` preserves the prefix form and
+`orderedForm_binary` identifies the two-factor specialization with
+`correctedForm`.
+
 **Tensor generators and the last-red filtration.** The prescribed tensor
 vectors span the integral tensor lattice by `FirstWeight.span_tensorWordVector`.
 The divided coproduct expresses a pure tensor with a lowered last factor

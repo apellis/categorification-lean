@@ -1137,6 +1137,10 @@ import Categorification.WeightedKLR.RedStrands.DoubleVacuum
 import Categorification.WeightedKLR.RedStrands.DoubleAllDownBoundary
 import Categorification.WeightedKLR.RedStrands.DoubleBlackDiagram
 import Categorification.WeightedKLR.RedStrands.DoubleAllDownIdeal
+import Categorification.WeightedKLR.RedStrands.CyclotomicRedPullback
+import Categorification.WeightedKLR.RedStrands.DoubleDownComparison
+import Categorification.WeightedKLR.RedStrands.DoubleContent
+import Categorification.WeightedKLR.RedStrands.DoubleVacuumCharacter
 import Categorification.WeightedKLR.RedStrands.DoubleMorita
 /-!
 # Categorification

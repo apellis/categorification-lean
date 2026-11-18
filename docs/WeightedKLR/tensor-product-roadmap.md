@@ -267,8 +267,14 @@ first coefficient undetermined at −2 and +2, as shown by
 
 Identifying each closed monomial with the product of its two real bubbles
 gives the degree-one transport across every strict sign change
-(`normalizedBubble_degreeOne`). The reflected black relations give both
-half-mate equalities. Thus all six mixed red/black triple points hold for
+(`normalizedBubble_degreeOne`). With N extra dots the closed correction supplies the mixed
+coefficient of degree N+1 throughout the interval where neither orientation
+has real representatives on both sides. The two single-region Grassmannian
+equations and the real slides outside this interval give
+`normalizedBubble_slide` for every degree and either orientation. This
+uses the reflected KL III black relations, the red/up dot slide, and the
+red exponent given by the difference of the two coroot coordinates.
+The reflected black relations give both half-mate equalities. Thus all six mixed red/black triple points hold for
 distinct black colours (`mixedRed_triplePoint_ne`). For equal colours the
 middle-downward orders give the negative divided-difference correction in
 `mixedRed_triplePoint_correction`.

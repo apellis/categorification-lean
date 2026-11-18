@@ -162,6 +162,26 @@ private theorem layers_pow {S : Signature} {a : Obj S} (f : End a) : ∀ m : ℕ
     change Diagram.layers (f ≫ f ^ m) = _
     rw [Diagram.layers_comp, layers_pow f m, List.replicate_succ, List.flatten_cons]
 
+/-- The geometric clockwise loop on either side of red carries its dots on the downward leg. -/
+theorem layers_clockwiseBubbleBeforeRed (m : ℕ) :
+    Diagram.layers (clockwiseBubbleBeforeRed RD Λ μ L i r R m) =
+      [layer RD Λ μ L (.black (.cup (up i))) (λr :: R)] ++
+      List.replicate m (layer RD Λ μ (L ++ [upStrand]) (.black (.dot (dn i))) (λr :: R)) ++
+      [layer RD Λ μ L (.black (.cap (dn i))) (λr :: R)] := by
+  simp only [clockwiseBubbleBeforeRed, Diagram.layers_comp, layers_pow, leftCup, leftDot, leftCap,
+    redDownDotBlackLeft, moveDiagram, Diagram.layers_cast, Diagram.layers_layer, List.flatten_replicate_singleton]
+  rfl
+
+theorem layers_clockwiseBubbleAfterRed (m : ℕ) :
+    Diagram.layers (clockwiseBubbleAfterRed RD Λ μ L i r R m) =
+      [layer RD Λ μ (L ++ [λr]) (.black (.cup (up i))) R] ++
+      List.replicate m (layer RD Λ μ ((L ++ [λr]) ++ [upStrand]) (.black (.dot (dn i))) R) ++
+      [layer RD Λ μ (L ++ [λr]) (.black (.cap (dn i))) R] := by
+  simp only [clockwiseBubbleAfterRed, Diagram.layers_comp, layers_pow, rightCup, rightDot, rightCap,
+    moveDiagram, Diagram.layers_cast, Diagram.layers_layer, List.flatten_replicate_singleton,
+    List.append_assoc, List.singleton_append]
+  rfl
+
 private theorem left_bigon :
     (Pslide).diag (leftIn RD Λ μ L i r R ≫ leftOut RD Λ μ L i r R) =
       (Pslide).diag (leftDot RD Λ μ L i r R ^ exponents r i) := by

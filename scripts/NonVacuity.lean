@@ -4974,4 +4974,37 @@ example := signedCapBlock_crossInside RD weights Pc 0 [.inr 0] [] [.inl (false, 
     [.inr 0, .inl (false, ())] 1 (true, ()) (false, ()) [.inl (false, ())] (by decide))
 end CapInteriorExample
 
+namespace DoubleMarkedRedTransport
+
+open Categorification Categorification.QuantumGroup.UDot
+  Categorification.Stendhal.DoubleDiagram StringDiagrams
+
+private abbrev weights : Fin 1 → ℤ := fun _ => 4
+private def P : Presentation (signature sl2RootDatum weights) ℚ :=
+  ⟨Empty, Empty.elim, Empty.elim, fun i => i.elim⟩
+private abbrev Q : Unit → Unit → MvPolynomial (Fin 2) ℚ := fun _ _ => 0
+private def exponents : Fin 1 → Unit →₀ ℕ := fun _ => Finsupp.single () 4
+
+example := closePointedRedBraid_left_eq_zero sl2RootDatum weights Q exponents P (-2) [] () 0 []
+  1 (by decide)
+
+example := closePointedRedBraid_right_eq_zero sl2RootDatum weights Q exponents P (-2) [] () 0 []
+  1 (by decide)
+
+example := pointedRedBraid_convolution_zero sl2RootDatum weights Q exponents P (-2) [] () 0 []
+  1 (by decide) (by decide) (by rw [show exponents 0 () = 4 by simp [exponents]]; decide)
+
+example := pointedRedBraid_convolution_zero sl2RootDatum weights Q exponents P (-3) [] () 0 []
+  2 (by decide) (by decide) (by rw [show exponents 0 () = 4 by simp [exponents]]; decide)
+
+example (o : BubbleOrientation) (d : ℕ) :
+    normalizedBubbleBeforeRed sl2RootDatum weights (-2) [] () 0 [] Q exponents
+      (addRedUpSlideRelations sl2RootDatum weights P) o d =
+    normalizedBubbleAfterRed sl2RootDatum weights (-2) [] () 0 [] Q exponents
+      (addRedUpSlideRelations sl2RootDatum weights P) o d :=
+  normalizedBubble_slide sl2RootDatum weights Q exponents P (-2) [] () 0 []
+    (by rw [show exponents 0 () = 4 by simp [exponents]]; decide) o d
+
+end DoubleMarkedRedTransport
+
 end NonVacuity

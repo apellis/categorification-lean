@@ -403,6 +403,25 @@ private theorem dg_cwOpposite [DecidableEq I] (η : X) (i : I) (m : ℕ) :
   rw [he₀, he₁] at ho
   exact ho.symm
 
+/-- A clockwise bubble in physical order lifts to a black KL diagram with dots
+on its downward leg. KL cyclicity identifies it with the usual real bubble. -/
+def clockwiseDownLeg (ν : X) (i : I) (m : ℕ) : End (ob RD ν []) :=
+  mkD RD ν (cwOppositeLayers i m) (cwOpposite_chain i m)
+
+theorem lin_clockwiseDownLeg [DecidableEq I] (ν : X) (i : I) (m : ℕ) :
+    (pres RD k).lin (LinDiagram.of (clockwiseDownLeg RD ν i m)) =
+      (pres RD k).lin (LinDiagram.of (ccwReal RD ν i m)) := by
+  rw [lin_ccwReal, Presentation.lin_of, clockwiseDownLeg, ← dg_of (cwOpposite_chain i m)]
+  exact dg_cwOpposite RD (k := k) ν i m
+
+theorem layers_clockwiseDownLeg (u v : List (DoubleStrand I ℓ)) (i : I) (m : ℕ) :
+    Diagram.layers (blackDiagram RD Λ μ u v (clockwiseDownLeg RD (endWeight RD Λ μ u) i m)) =
+      [layer RD Λ μ u (.black (.cup (up i))) v] ++
+      List.replicate m (layer RD Λ μ (u ++ [.inl (up i)]) (.black (.dot (dn i))) v) ++
+      [layer RD Λ μ u (.black (.cap (dn i))) v] := by
+  rw [clockwiseDownLeg, layers_blackDiagram_mkD]
+  simp [cwOppositeLayers, blackWord, Sig.shape]
+
 private theorem leftLoop_chain (a : ℕ) :
     signedChain initial ([lc []] ++ List.replicate a (ld []) ++ [la []]) initial := by
   have hc : signedChain initial [lc []] openedL := by
@@ -488,14 +507,17 @@ local notation "dotCountL" => (Int.toNat (-nL - 1))
 local notation "dotCountR" => (Int.toNat (nR - 1))
 local notation "BObj" => (Presentation.obj (Pd) (obj RD Λ μ initial))
 
-private def reflectedBubble (u v : List (DoubleStrand I ℓ))
+/-- Insert a reflected black linear bubble in the specified region of the
+signed red boundary. -/
+def reflectedBubble (u v : List (DoubleStrand I ℓ))
     (e : obj RD Λ μ (u ++ blackWord [] ++ v) = obj RD Λ μ initial) :
     LEnd RD k (ob RD (endWeight RD Λ μ u) []) →ₗ[k] End BObj :=
   ((Pd).castLinearEquiv e e).toLinearMap.comp ((Pd).linFunctor.mapLinearMap k ∘ₗ
     blackLinear RD Λ k μ u v)
 
 omit [DecidableEq I] in
-private theorem reflectedBubble_preserves (u v : List (DoubleStrand I ℓ))
+/-- The insertion preserves equalities from the black KL presentation. -/
+theorem reflectedBubble_preserves (u v : List (DoubleStrand I ℓ))
     (e : obj RD Λ μ (u ++ blackWord [] ++ v) = obj RD Λ μ initial)
     (f g : LEnd RD k (ob RD (endWeight RD Λ μ u) []))
     (h : (pres RD k).lin f = (pres RD k).lin g) :
@@ -508,18 +530,21 @@ private theorem reflectedBubble_preserves (u v : List (DoubleStrand I ℓ))
   exact congrArg ((Pd).castHom e e) hq
 
 omit [DecidableEq I] in
-private theorem reflectedBubble_one (u v : List (DoubleStrand I ℓ))
+/-- Inserting the identity in a region leaves the signed boundary identity. -/
+theorem reflectedBubble_one (u v : List (DoubleStrand I ℓ))
     (e : obj RD Λ μ (u ++ blackWord [] ++ v) = obj RD Λ μ initial) :
     reflectedBubble RD Λ μ L r R Q exponents P u v e 1 = 1 := by
   change (Pd).castHom e e ((Pd).lin (blackLinear RD Λ k μ u v (LinDiagram.of (𝟙 _)))) = 𝟙 _
   rw [blackLinear_of, blackDiagram_id, Presentation.lin_of, Presentation.diag_id, Presentation.castHom_id]
 
 omit [DecidableEq I] in
-private theorem beforeEq : obj RD Λ μ (L ++ blackWord [] ++ rS :: R) = obj RD Λ μ initial := by
+/-- Inserting the empty black word before red preserves the boundary. -/
+theorem beforeEq : obj RD Λ μ (L ++ blackWord [] ++ rS :: R) = obj RD Λ μ initial := by
   simp [blackWord, List.append_assoc]
 
 omit [DecidableEq I] in
-private theorem afterEq : obj RD Λ μ ((L ++ [rS]) ++ blackWord [] ++ R) = obj RD Λ μ initial := by
+/-- Inserting the empty black word after red preserves the boundary. -/
+theorem afterEq : obj RD Λ μ ((L ++ [rS]) ++ blackWord [] ++ R) = obj RD Λ μ initial := by
   simp [blackWord]
 
 local notation "beforeMap" => reflectedBubble RD Λ μ L r R Q exponents P L (rS :: R) (beforeEq RD Λ μ L r R)

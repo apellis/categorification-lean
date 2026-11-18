@@ -55,7 +55,8 @@ private theorem recoverLabelledWord (x : X) (w : List (X × DoubleStrand I ℓ))
     obtain ⟨rfl, hw⟩ := hw
     exact congrArg ((t, a) :: ·) (ih _ hw)
 
-private theorem layer_eq_context (L : Layer T) (hv : L.Valid) :
+/-- Recover a valid signed layer from its unlabelled strand contexts and generator. -/
+theorem recover_signed_layer (L : Layer T) (hv : L.Valid) :
     layer RD Λ L.start (L.left.map Prod.snd) L.gen.2 (L.right.map Prod.snd) = L := by
   have hl := recoverLabelledWord RD Λ L.start L.left hv.left_ok
   have hgen : endWeight RD Λ L.start (L.left.map Prod.snd) = L.gen.1 := by
@@ -106,7 +107,7 @@ private theorem exists_downLayerLift {a : Obj S} (L : Layer T) (hv : L.Valid)
       congrArg (List.map DoubleStrand.erase) hsplit
   have hstart : L.start = μ := congrArg Obj.start ha
   have hKcod : L.cod = O K.cod := by
-    rw [← layer_eq_context RD Λ L hv, layer_cod]
+    rw [← recover_signed_layer RD Λ L hv, layer_cod]
     simp only [hstart, K, Layer.cod_word, KLR.Diagram.lay_left, KLR.Diagram.lay_gen,
       KLR.Diagram.lay_right, downContextObj, List.nil_append,
       List.append_nil, List.map_append, hp, hq, ← (downMove_words hg).2]
@@ -118,7 +119,7 @@ private theorem exists_downLayerLift {a : Obj S} (L : Layer T) (hv : L.Valid)
   simp only [Diagram.layers_cast, layers_downLayerDiagram, Diagram.layers_layer,
     K, KLR.Diagram.lay_left, KLR.Diagram.lay_right, List.nil_append, List.append_nil,
     hp, hq, ← hstart]
-  exact congrArg (fun M => [M]) (layer_eq_context RD Λ L hv)
+  exact congrArg (fun M => [M]) (recover_signed_layer RD Λ L hv)
 
 private theorem exists_downChainLift {a b : Obj S} {ls : List (Layer T)}
     (h : Chain (O a) ls (O b))

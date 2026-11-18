@@ -4918,4 +4918,60 @@ example := redPrefixBlackEntry_mem_span_of_ideal_le sl2RootDatum reds Q coeff ba
 
 end RedPrefixBlackSpanningExamples
 
+
+namespace SignedCapBlockExample
+open Categorification.Stendhal Categorification.Stendhal.DoubleDiagram
+open CategoryTheory QuantumGroup QuantumGroup.UDot KL3.Diagram StringDiagrams
+
+private abbrev Λ : Fin 2 → ℤ := fun r => r.val + 1
+private abbrev O := obj sl2RootDatum Λ 0
+private abbrev U : List (DoubleStrand Unit 2) := [.inr 0, .inl (dn ()), .inl (up ()), .inr 1]
+private abbrev s := O (U ++ [.inl (up ())])
+private abbrev t := O ([.inl (up ())] ++ U)
+
+example : ∃ d : s ⟶ t, ForwardPath s d ∧ crossingNumber d = 4 := by
+  have h := sweepBlackLeft_chain ([] : List (DoubleStrand Unit 2)) U (up ()) []
+  let d := Diagram.mk _ (chain_signedLayers sl2RootDatum Λ 0 h)
+  have he : Diagram.layers d = signedLayers sl2RootDatum Λ 0 (sweepBlackLeft [] U (up ()) []) := rfl
+  let d' : s ⟶ t := Diagram.cast d (by simp [s, O]) (by simp [t, O])
+  have he' : Diagram.layers d' = signedLayers sl2RootDatum Λ 0 (sweepBlackLeft [] U (up ()) []) := by
+    simpa [d'] using he
+  have hd := ForwardPath.sweepBlackLeft (a := s) (.nil : ForwardPath s (𝟙 s))
+    d' [] U (up ()) [] he'
+  refine ⟨d', by simpa using hd, ?_⟩
+  rw [crossingNumber_of_signedLayers sl2RootDatum Λ 0 d' _ he', sweepBlackLeft_crossings]
+  rfl
+
+example : signedCrossings (signedCapBlock [] U (up ()) [] 7) = 4 :=
+  signedCapBlock_crossings [] U (up ()) [] 7
+
+private def free : Presentation (signature sl2RootDatum Λ) ℚ :=
+  ⟨Empty, Empty.elim, Empty.elim, fun j => nomatch j⟩
+
+example := signedCapBlock_dotLeft sl2RootDatum Λ free 0 [] U (up ()) [] 7
+
+end SignedCapBlockExample
+
+namespace CapInteriorExample
+open Categorification Categorification.QuantumGroup.UDot
+  Categorification.Stendhal Categorification.Stendhal.DoubleDiagram StringDiagrams
+
+private def weights : Fin 2 → ℤ := fun r => if r = 0 then 1 else 3
+private def exponents : Fin 2 → Unit →₀ ℕ := fun r => Finsupp.single () (if r = 0 then 1 else 3)
+private def base : Presentation (signature sl2RootDatum weights) ℚ :=
+  ⟨Empty, Empty.elim, Empty.elim, fun j => j.elim⟩
+private abbrev Q : Unit → Unit → MvPolynomial (Fin 2) ℚ := fun _ _ => 0
+private abbrev scalars : Unit → Unit → ℚ := fun _ _ => 1
+local notation "RD" => sl2RootDatum
+private abbrev Pm := addRedUpRelations RD weights ℚ (addRedUpSlideRelations RD weights
+  (addRedCapRelations RD weights (addRedCupRelations RD weights base)))
+private abbrev Pf := addBlackAdjunctionRelations RD weights (addMixedCupPitchforkRelations RD weights Pm scalars)
+private abbrev Pc := addDownRelations RD weights (affineCoverQ Q exponents) Pf
+
+example := signedCapBlock_crossInside RD weights Pc 0 [.inr 0] [] [.inl (false, ())] []
+  (true, ()) 1 (x := .inr 1) (y := .inl (false, ())) trivial
+  (signedCapBraid_redBlack_mixed RD weights base Q exponents scalars 0
+    [.inr 0, .inl (false, ())] 1 (true, ()) (false, ()) [.inl (false, ())] (by decide))
+end CapInteriorExample
+
 end NonVacuity

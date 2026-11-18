@@ -284,8 +284,15 @@ height. The crossing-count induction
 `ordinaryToDownwardMatrix_surjective_of_terminalCaps` treats the sideways
 crossing as a single move. The equal-colour mixed corrections contain zero
 crossings in place of three, so they are lower terms in every surrounding
-diagram by `crossingFreeSpan_in_fewerCrossings`. General terminal-cap
-reduction still requires pushing through interleaved crossings.
+diagram by `crossingFreeSpan_in_fewerCrossings`. The signed cap in
+`signedCapBlock` sweeps one black leg across an arbitrary word of signed
+black and red strands. Its crossing count equals the length of that word.
+`pushesTerminalCaps_of_capBlock_steps` reduces the proof to adjoining
+one elementary move below this cap. A right-end entry lengthens the cap
+word (`capBlock_push_enterRight`), while a crossing in its interior reduces
+to a single local braid (`signedCapBlock_crossInside`). The two mixed
+red/black orders satisfy the required strict crossing bound. The remaining
+successor cases include contractions of cups against the swept cap.
 
 For a presentation with compatible pitchfork coefficients, impose the remaining relations in Definition
 4.24, straighten signed diagrams with all-down boundary into downward diagrams,

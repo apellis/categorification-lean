@@ -1197,6 +1197,7 @@ import Categorification.WeightedKLR.RedStrands.DoubleBlackCurls
 import Categorification.WeightedKLR.RedStrands.DoubleRedTriple
 import Categorification.WeightedKLR.RedStrands.DoubleRedUpThrough
 import Categorification.WeightedKLR.RedStrands.DoubleCLLocalMap
+import Categorification.WeightedKLR.RedStrands.DoubleCLCoordinate
 /-!
 # Categorification
 

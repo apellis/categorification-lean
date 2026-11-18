@@ -238,6 +238,16 @@ identities, cyclicity of dots, curl expansions and opposite mixed-crossing
 identities in any red context (`blackSnakeLeft_eq`, `blackCup_dot_slide`,
 `blackCurlRight`, `mixedBlack_opposite_eq`).
 
+For one dominant red, every surviving diagram is a black diagram on its
+right. The reflected KL III downward spanning theorem writes each black term
+as a downward diagram times a bubble polynomial. Each positive bubble
+generator vanishes at the red prefix. This proves
+`singleRed_ordinaryToDownwardMatrix_surjective` over a commutative ring,
+for all black contents and the red exponents given by the coroot pairings.
+The theorem uses the reflected KL III black relations. At one fundamental red
+and one black in type A₁ the remaining dot factors through the violated
+loading, giving `fundamentalSingleRed_algebraMap_surjective`.
+
 At a strict sign change from negative to positive coroot coordinate,
 `closeRedBraid_correction_eq_zero` kills the closed divided-difference
 correction of the downward black–red–black braid, using reflected KL III

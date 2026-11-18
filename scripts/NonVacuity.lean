@@ -2810,6 +2810,18 @@ example := tensorModuleEquiv_homForm D params regular level (factors 2) level_eq
     tensorWordProjectiveClass level D params splitWord)
   (-tensorWordProjectiveClass level D params splitWord)
 
+-- Theorem 4.38 and Lemma 4.36 for graded right projectives.
+example : rightTensorModuleEquiv D params regular level (factors 2) level_eq
+    (rightTensorWordProjectiveClass D params level splitWord) =
+      integralWordVector (C := D) (factors 2) splitWord :=
+  rightTensorModuleEquiv_word D params regular level (factors 2) level_eq splitWord
+example := rightTensorModuleEquiv_unique D params regular level (factors 2) level_eq
+  (rightTensorModuleEquiv D params regular level (factors 2) level_eq).toLinearMap
+  (rightTensorModuleEquiv_word D params regular level (factors 2) level_eq)
+example := rightTensorModuleEquiv_homForm D params regular level (factors 2) level_eq
+  (rightTensorWordProjectiveClass D params level TensorWord.empty.red.red)
+  (rightTensorWordProjectiveClass D params level splitWord)
+
 end TwoFundamentalLowerings
 
 end CyclotomicHighestWeight

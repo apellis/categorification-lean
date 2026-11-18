@@ -8,7 +8,7 @@ import Categorification.WeightedKLR.RedStrands.DoubleSingleRedReduction
 /-!
 # Spanning families under additional signed diagram relations
 
-Webster, arXiv:1309.3796v3, §4.6, proof of Lemma 4.29 uses spanning by
+Webster, arXiv:1309.3796v2, §4.5, proof of Lemma 4.28 uses spanning by
 classes of downward diagrams in the quotient of signed diagrams. A
 spanning family of raw diagram classes persists after adjoining relations
 with the same signed boundaries and rule for violating cuts.

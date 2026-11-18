@@ -15,6 +15,8 @@ idempotents at unordered red loadings. A black restriction preserves the
 span determined by the red subword, by the cyclotomic word-deletion
 formula of Hu–Shi, arXiv:2108.05508v5, §3, Proposition 3.3. This proves
 the corresponding vanishing on modules obtained from signed block paths.
+The cited injectivity argument is the one revised in version 3; arXiv:1309.3796v2,
+§4.5, Lemma 4.28, argues via Lemma 4.26 instead.
 -/
 
 noncomputable section

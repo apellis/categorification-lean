@@ -8,7 +8,7 @@ import Categorification.WeightedKLR.RedStrands.DoubleSingleRedReduction
 /-!
 # Downward spanning for one dominant red strand
 
-Webster, arXiv:1309.3796v3, §4.6, proof of Lemma 4.29, and Khovanov–Lauda
+Webster, arXiv:1309.3796v2, §4.5, proof of Lemma 4.28, and Khovanov–Lauda
 III, arXiv:0807.3250v1, Lemma 3.9. Every surviving diagram has its single
 red strand first. Black straightening moves all bubble factors next to that
 strand. At a dominant red weight the positive-degree generators of the
@@ -36,7 +36,7 @@ local notation "η" => endWeight RD labels 0 firstRed
 local notation "K" => pres RD k
 
 /-- A one-red presentation containing the reflected KL black relations
-and the red slides used in Webster v3, Lemma 4.29. -/
+and the red slides used in Webster v2, Lemma 4.28. -/
 abbrev singleRedSpanningPresentation :=
   redPrefixSpanningPresentation RD weights Q exponents base
 
@@ -60,7 +60,7 @@ def singleRedKLHom (s t : List (Letter I)) (hs : redEnd s = right) (ht : redEnd 
 variable (he : ∀ i, (exponents 0 i : ℤ) = RD.pair (RD.iY i) (weights 0).val)
 
 include he in
-/-- Webster, arXiv:1309.3796v3, §4.6, Lemma 4.29, for the entries with
+/-- Webster, arXiv:1309.3796v2, §4.5, Lemma 4.28, for the entries with
 one dominant red and arbitrary all-down black words. Every morphism in
 the violating quotient is a linear combination of downward diagrams. -/
 theorem singleRed_span_downwardBlack (s t : List I)

@@ -8,7 +8,7 @@ import Categorification.Diagrams.KL3.BubbleSlidesAll
 /-!
 # Normalized inverse bubble series on either side of red
 
-Webster, arXiv:1309.3796v3, §4.6, Lemma 4.29. In the reflected presentation,
+Webster, arXiv:1309.3796v2, §4.5, Lemma 4.28. In the reflected presentation,
 Khovanov–Lauda III, arXiv:0807.3250v1, Definition 3.1, equation
 `eq_infinite_Grass` gives the normalized series in either region adjacent
 to the red strand. The order of multiplication in the endomorphism ring

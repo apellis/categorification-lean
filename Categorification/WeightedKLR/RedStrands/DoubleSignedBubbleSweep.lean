@@ -8,7 +8,7 @@ import Categorification.WeightedKLR.RedStrands.DoubleSignedCapBlock
 /-!
 # Moving bubbles to the left boundary of a signed word
 
-Webster, arXiv:1309.3796v3, §4.6, proof of Lemma 4.29. Iteration of the black
+Webster, arXiv:1309.3796v2, §4.5, proof of Lemma 4.28. Iteration of the black
 slide and a red bubble transport moves a bubble algebra element to the far
 left. Any projection under which the far-left bubble is scalar then
 expresses the original bubble as a sum of dot diagrams.

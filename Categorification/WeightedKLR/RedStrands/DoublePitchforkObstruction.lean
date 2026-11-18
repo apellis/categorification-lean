@@ -12,8 +12,8 @@ import Categorification.Diagrams.KL3.SlideCalculus
 /-!
 # The printed pitchfork obstruction
 
-Webster, arXiv:1309.3796v3, Definition 2.4, (2.2a), (2.3a), (2.5a–b),
-and (2.6e), and Definition 4.24. Compose the vertical reflection of the first
+Webster, arXiv:1309.3796v2, Definition 2.4, (2.1a), (2.2a), (2.4a–b),
+and (2.5e), and Definition 4.24. Compose the vertical reflection of the first
 cup pitchfork with the second, cap pitchfork. The raw diagrams below use CL
 word order, opposite to the physical order in the source. Each pitchfork
 multiplies a downward crossing by `tⱼᵢ`. The other path uses a sideways
@@ -87,7 +87,8 @@ theorem printedPitchfork_bubble_coordinates :
   · exact DisconnectedCounterexample.pair_other_root
 
 /-- The bare clockwise bubbles in CL word order reflect to the degree-zero
-counterclockwise bubbles of Webster v3, (2.3a). -/
+counterclockwise bubbles of Webster v2, (2.2a), with the
+bound `j > 0` printed in v3, (2.3a). -/
 theorem printedPitchfork_degree_zero :
     BubbleOrientation.counterclockwise.degreeZeroDots (ip weightDatum false region) = 0 ∧
       BubbleOrientation.counterclockwise.degreeZeroDots
@@ -136,7 +137,7 @@ private def PrintedPitchforkRelation.cod : PrintedPitchforkRelation → Obj pSig
   | .downBigon => objAt bWord
   | .mixedBigon => objAt cWord
 
-/-- Reflected first (2.2a), original second (2.2a), the two indicated bigons and
+/-- Reflected first (2.1a), original second (2.1a), the two indicated bigons and
 the two degree-zero bubble relations, in their actual surrounding words. -/
 private def printedPitchforkRelation :
     (a : PrintedPitchforkRelation) → LinDiagram ℚ a.dom a.cod
@@ -269,7 +270,7 @@ theorem printedPitchfork_downwardMatrix_subsingleton :
     rw [← Category.id_comp m, hz, Limits.zero_comp]
   exact (hzero _).trans (hzero _).symm
 
-/-- Webster v3, Lemma 4.29, cannot hold with the literal pitchfork and bigon
+/-- Webster v2, Lemma 4.28, cannot hold with the literal pitchfork and bigon
 coefficients at these disconnected parameters. The obstruction uses no
 instance of the inverse-bubble relation. -/
 theorem printedPitchfork_no_injection :

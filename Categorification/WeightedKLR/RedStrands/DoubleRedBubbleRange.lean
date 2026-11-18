@@ -8,7 +8,7 @@ import Categorification.Diagrams.KL3.Lemma39
 /-!
 # Images of the bubble algebra at two weights
 
-Webster, arXiv:1309.3796v3, §4.6, proof of Lemma 4.29, transports bubbles
+Webster, arXiv:1309.3796v2, §4.5, proof of Lemma 4.28, transports bubbles
 across a red strand. By KL III, arXiv:0807.3250v1, (3.24)–(3.25) and
 Proposition 3.6, transport of the normalized generators in both orientations
 gives equality of the images of the entire bubble algebras.
@@ -56,7 +56,7 @@ theorem normalizedBubble_range_le
     rw [bubMap, MvPolynomial.aeval_X, bubGen_eq_normalized, ← h]
     exact ⟨_, rfl⟩
 
-/-- In Webster v3, Lemma 4.29, equality of normalized bubbles on both sides of a red
+/-- In Webster v2, Lemma 4.28, equality of normalized bubbles on both sides of a red
 strand gives equality of the image subalgebras of all empty-boundary black endomorphisms. -/
 theorem normalizedBubble_range_eq
     (h : ∀ i o d, FL (normalizedEndBubble RD k ηL i o d) = FR (normalizedEndBubble RD k ηR i o d)) :

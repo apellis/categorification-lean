@@ -7,7 +7,7 @@ import Categorification.WeightedKLR.RedStrands.DoubleRedBraidBubbles
 /-!
 # Transport of normalized real bubbles through a red strand
 
-Webster, arXiv:1309.3796v3, §2.2 and §4.6, proof of Lemma 4.29.
+Webster, arXiv:1309.3796v2, §2.2 and §4.5, proof of Lemma 4.28.
 The normalized degree index is preserved by sliding a real bubble through red.
 Clockwise bubbles start from the right, counterclockwise bubbles from the left.
 Cyclicity of the reflected black KL presentation moves the dots to the canonical
@@ -113,7 +113,7 @@ theorem cwBubble_slide_of_blackKL (m : ℕ) :
   rw [← right, ← left]
   exact clockwiseBubble_slide RD Λ μ L i r R Q exponents (Pb) m
 
-/-- Webster v3, Lemma 4.29. The clockwise slide preserves normalized degree
+/-- Webster v2, Lemma 4.28. The clockwise slide preserves normalized degree
 when its dot index on the right is nonnegative. -/
 theorem normalizedClockwise_slide_of_real (d : ℕ) (hδ : nR = nL + (exponents r i : ℤ))
     (h : 0 ≤ -nR - 1 + (d : ℤ)) :
@@ -125,7 +125,7 @@ theorem normalizedClockwise_slide_of_real (d : ℕ) (hδ : nR = nL + (exponents 
     (Pd).diag (cwBubbleAfterRed RD Λ μ L i r R ((-nR-1+d).toNat))
   rw [cwBubble_slide_of_blackKL, show (-nL-1+d).toNat = (-nR-1+d).toNat + exponents r i by omega]
 
-/-- Webster v3, Lemma 4.29. The counterclockwise slide preserves normalized degree
+/-- Webster v2, Lemma 4.28. The counterclockwise slide preserves normalized degree
 when its dot index on the left is nonnegative. -/
 theorem normalizedCounterclockwise_slide_of_real (d : ℕ) (hδ : nR = nL + (exponents r i : ℤ))
     (h : 0 ≤ nL - 1 + (d : ℤ)) :

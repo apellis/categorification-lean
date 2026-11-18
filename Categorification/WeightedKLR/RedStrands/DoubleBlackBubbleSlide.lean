@@ -9,8 +9,8 @@ import Categorification.WeightedKLR.RedStrands.DoubleDiagramRewriting
 # Bubble slides across a black boundary strand
 
 Khovanov--Lauda, arXiv:0807.3250v1, §3.1.2, Propositions 3.3 and 3.4 and
-their rotations, as used in §3.2.2, Lemma 3.9. Webster, arXiv:1309.3796v3,
-§4.6, proof of Lemma 4.29, uses the slides to move bubbles to the far left.
+their rotations, as used in §3.2.2, Lemma 3.9. Webster, arXiv:1309.3796v2,
+§4.5, proof of Lemma 4.28, uses the slides to move bubbles to the far left.
 Vertical reflection sends the KL III left-to-right slide to the physical
 right-to-left slide, for either orientation of the black strand.
 -/

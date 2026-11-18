@@ -7,7 +7,7 @@ import StringDiagrams.Biadjunction.PivotalInclusion
 /-!
 # Common presentations for the signed diagram relations
 
-Webster, arXiv:1309.3796v3, Definition 4.26 and the proof of Lemma 4.29.
+Webster, arXiv:1309.3796v2, Definition 4.27 and the proof of Lemma 4.28.
 Local reductions can be proved in separate presentations of the same diagram
 signature. The union presents their least common quotient and the projection
 to any common quotient keeps each raw diagram unchanged.

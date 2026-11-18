@@ -8,7 +8,7 @@ import Categorification.Diagrams.KL3.SymmetryOmega
 /-!
 # Downward black words with bubbles in the outer region
 
-Webster, arXiv:1309.3796v3, §4.6, proof of Lemma 4.29; Khovanov–Lauda III,
+Webster, arXiv:1309.3796v2, §4.5, proof of Lemma 4.28; Khovanov–Lauda III,
 arXiv:0807.3250v1, §3, Lemma 3.9 and the symmetry of §3.3.2. The symmetry
 reverses orientations and negates region weights. Its sign on equal-colour
 crossings multiplies each generator of the spanning submodule by a scalar.

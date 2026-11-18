@@ -13,6 +13,8 @@ step evaluates the signed action at the weight-zero identity. If the resulting
 operators are ordinary left multiplications on the generating diagrams, the
 entire ordinary action is left regular and evaluation at the unit detects its
 kernel. This criterion leaves the construction of the signed action as an input.
+The cited injectivity argument is the one revised in version 3; arXiv:1309.3796v2,
+§4.5, Lemma 4.28, argues via Lemma 4.26 instead.
 -/
 
 noncomputable section

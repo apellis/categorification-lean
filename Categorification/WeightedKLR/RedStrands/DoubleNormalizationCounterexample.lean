@@ -11,12 +11,12 @@ import Categorification.WeightedKLR.RedStrands.CyclotomicProjection
 /-!
 # An ordinary corner detecting the quadratic scalar obstruction
 
-Webster, arXiv:1309.3796v3, §4.3, Theorem 4.18 identifies the one-red block
+Webster, arXiv:1309.3796v2, §4.4, Theorem 4.20 identifies the one-red block
 with the cyclotomic KLR algebra. In the two-colour disconnected case with
 mixed parameter 2 and both coroot multiplicities 1, the ordinary red-left
 idempotent with one black strand is the unit in the quotient by the first
 dot. This detects the idempotent in the ordinary algebra for the comparison
-of Webster v3, §4.6, Lemma 4.29.
+of Webster v2, §4.5, Lemma 4.28.
 -/
 
 noncomputable section
@@ -30,7 +30,7 @@ attribute [local instance 1100] IsIdempotentElem.instAlgebraCorner_categorificat
 /-- The two colours are orthogonal. -/
 def cartan : CartanDatum Bool := CartanDatum.ofGraph (⊥ : SimpleGraph Bool)
 
-/-- The black quadratic parameter in Webster v3, Definition 2.4, for the example. -/
+/-- The black quadratic parameter in Webster v2, Definition 2.4, for the example. -/
 def parameters (i j : Bool) : MvPolynomial (Fin 2) ℚ :=
   if i = j then 0 else MvPolynomial.C 2
 

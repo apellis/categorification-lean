@@ -9,7 +9,7 @@ import Categorification.WeightedKLR.RedStrands.DoubleSignedCapDot
 /-!
 # Moving a black dot through a crossing of the cap sweep
 
-Webster, arXiv:1309.3796v3, §4.6, proof of Lemma 4.29, using KL III Proposition 3.11.
+Webster, arXiv:1309.3796v2, §4.5, proof of Lemma 4.28, using KL III Proposition 3.11.
 For two black strands, the dot crosses modulo a term with no crossings, including
 the equal-colour nilHecke correction. The signed exterior context is arbitrary.
 -/

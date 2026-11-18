@@ -9,8 +9,8 @@ import Categorification.WeightedKLR.RedStrands.DoubleBlackDiagram
 /-!
 # Downward crossing scalars in the all-down comparison
 
-Webster, *Knot invariants and higher representation theory*, arXiv:1309.3796v3,
-§2.2, Definition 2.4 and (2.6e), and §4.6, Lemma 4.29, use the original `Q`
+Webster, *Knot invariants and higher representation theory*, arXiv:1309.3796v2,
+§2.2, Definition 2.4 and (2.5e), and §4.5, Lemma 4.28, use the original `Q`
 on downward Stendhal diagrams. Cautis–Lauda, arXiv:1111.1431v3, Definition 1.1
 and §2.2, use their dual parameters for the normalized `F` crossings.
 The vertical-axis reflection used in `DoubleBlackDiagram` swaps the two
@@ -45,7 +45,7 @@ theorem reflectedDownward_qCL (S : CLScalars C k) (i j : I) :
   rw [rename_swap_qCL, qCL_dual, mul_inv_rev, mul_comm ((S.t j i)⁻¹)]
 
 /-- The product of the crossing rescalings converts the reflected CL quadratic
-coefficient to the coefficient in Webster v3, Definition 2.4, (2.6e). -/
+coefficient to the coefficient in Webster v2, Definition 2.4, (2.5e). -/
 theorem rescaledDownward_qCL (S : CLScalars C k) (i j : I) :
     MvPolynomial.C ((S.t i j * S.t j i : kˣ) : k) *
       rename ![(1 : Fin 2), 0] (qCL S.dual j i) = qCL S i j := by

@@ -14,6 +14,8 @@ In the last paragraph of Webster, arXiv:1309.3796v3, §4.6, Lemma 4.29, the
 operator attached to an ordinary diagram is left multiplication. At two
 individual boundary words this is a map between the corresponding right
 ideals. Evaluation on the source boundary idempotent recovers its coefficient.
+The cited injectivity argument is the one revised in version 3; arXiv:1309.3796v2,
+§4.5, Lemma 4.28, argues via Lemma 4.26 instead.
 -/
 
 noncomputable section

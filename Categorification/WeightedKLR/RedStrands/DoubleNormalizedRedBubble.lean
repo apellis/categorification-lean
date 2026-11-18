@@ -8,7 +8,7 @@ import Categorification.WeightedKLR.RedStrands.DoubleRedBubbleReal
 
 /-! # Normalized bubble transport across a red strand
 
-Webster, arXiv:1309.3796v3, §4.6, proof of Lemma 4.29.
+Webster, arXiv:1309.3796v2, §4.5, proof of Lemma 4.28.
 Closing the downward black–red–black braid supplies the coefficients in
 which neither orientation has a real representative on both sides.
 -/
@@ -64,7 +64,7 @@ private theorem normalized_eq_of_real_slides [DecidableEq I]
   | clockwise => exact hb.1
   | counterclockwise => exact hb.2
 
-/-- Webster v3, Lemma 4.29, the normalized bubble slide across red. In the
+/-- Webster v2, Lemma 4.28, the normalized bubble slide across red. In the
 reflected KL III presentation with red/up dot slides, real and fake bubbles
 pass a red strand in either orientation and every degree. The red exponent
 is the difference of the two coroot coordinates. -/

@@ -7,7 +7,7 @@ import Categorification.WeightedKLR.RedStrands.DoubleViolatedCut
 
 /-! # Bubbles beyond a prefix of red strands
 
-Webster, arXiv:1309.3796v3, §4.6, proof of Lemma 4.29.
+Webster, arXiv:1309.3796v2, §4.5, proof of Lemma 4.28.
 Transporting a real clockwise bubble across a list of red strands adds
 the sum of their multiplicities in the bubble colour to its dot count.
 -/
@@ -45,7 +45,7 @@ private theorem cwBubbleAt_step {w : List Str} (L : List Str) (r : Fin ℓ) (R :
   subst w
   exact cwBubble_slide RD Λ μ L i r R Q exponents P m
 
-/-- Webster v3, Lemma 4.29. A real clockwise bubble passes a red word
+/-- Webster v2, Lemma 4.28. A real clockwise bubble passes a red word
 with the sum of its multiplicities as the change in dot count. -/
 theorem cwBubble_redWord {w : List Str} (rs : List (Fin ℓ)) (L R : List Str)
     (h : L ++ rs.map Sum.inr ++ R = w) (m : ℕ) :

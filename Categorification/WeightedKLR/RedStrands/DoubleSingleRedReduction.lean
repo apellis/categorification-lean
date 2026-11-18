@@ -9,7 +9,7 @@ import StringDiagrams.Generation
 /-!
 # Reduction to black diagrams with one red strand
 
-Webster, arXiv:1309.3796v3, Definition 4.26 and Lemma 4.29. With one red
+Webster, arXiv:1309.3796v2, Definition 4.27 and Lemma 4.28. With one red
 strand a raw signed diagram either has a cut with a black strand at the
 far left, or has a fixed leftmost red strand and is a black KL diagram
 inserted to its right. This reduction precedes the black straightening

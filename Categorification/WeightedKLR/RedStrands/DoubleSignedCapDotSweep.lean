@@ -6,7 +6,7 @@ import Categorification.WeightedKLR.RedStrands.DoubleSignedCapDotCross
 
 /-! # Dot transport along a signed cap sweep
 
-Webster, arXiv:1309.3796v3, §4.6, proof of Lemma 4.29. The dot on a swept
+Webster, arXiv:1309.3796v2, §4.5, proof of Lemma 4.28. The dot on a swept
 leg crosses each strand in turn. Every correction loses at least one crossing.
 -/
 set_option backward.isDefEq.respectTransparency false

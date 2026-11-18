@@ -10,7 +10,7 @@ import Categorification.WeightedKLR.RedStrands.DoubleSpanningQuotient
 /-!
 # Common presentations for moving a signed cap
 
-Webster, arXiv:1309.3796v3, Definition 4.26 and the proof of Lemma 4.29.
+Webster, arXiv:1309.3796v2, Definition 4.27 and the proof of Lemma 4.28.
 The mixed red braid and passing a cap across red use overlapping families
 of local relations. Their union has exactly the
 sum of the two ideals. The extension with the reflected KL III relations

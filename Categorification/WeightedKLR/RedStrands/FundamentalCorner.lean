@@ -43,8 +43,6 @@ private def gen : Gen μ → M
 private noncomputable local instance enumSeq : Fintype (Seq μ) :=
   inferInstanceAs (Fintype {f : Fin (Multiset.card μ) → Unit ⊕ Fin 2 // Finset.univ.val.map f = μ})
 
-set_option maxRecDepth 10000
-set_option maxHeartbeats 2000000
 
 private theorem respects {x y : FreeAlgebra ℚ (Gen μ)} (h : Rel ℚ Q wt {()} x y) :
     FreeAlgebra.lift ℚ gen x = FreeAlgebra.lift ℚ gen y := by

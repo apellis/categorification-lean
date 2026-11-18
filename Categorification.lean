@@ -1170,6 +1170,7 @@ import Categorification.WeightedKLR.RedStrands.DoubleClockwisePrefixBubble
 import Categorification.WeightedKLR.RedStrands.DoubleRedBraidReduction
 import Categorification.WeightedKLR.RedStrands.DoubleSingleRedSurjectivity
 import Categorification.WeightedKLR.RedStrands.DoubleSingleRedMatrix
+import Categorification.WeightedKLR.RedStrands.DoubleFirstRed
 import Categorification.WeightedKLR.RedStrands.DoubleCapPushSnake
 import Categorification.WeightedKLR.RedStrands.DoubleRedCapPass
 import Categorification.WeightedKLR.RedStrands.DoubleMixedRedCorrection

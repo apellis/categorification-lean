@@ -4858,4 +4858,64 @@ example := capWithRedPassingRight_up sl2RootDatum weights 0 [] 0 [.inr 1] Q expo
 example := capWithRedPassingRight_down sl2RootDatum weights 0 [.inr 0] 1 [] Q exponents base ()
 end RedCapPassExample
 
+
+namespace FirstRedCutExample
+open CategoryTheory StringDiagrams Categorification Categorification.QuantumGroup.UDot
+  Categorification.Stendhal Categorification.Stendhal.DoubleDiagram Categorification.KL3.Diagram
+
+private def reds : Fin 2 → {x : ℤ // ∀ i, 0 ≤ sl2RootDatum.pair (sl2RootDatum.iY i) x} :=
+  fun _ => ⟨1, by decide +revert⟩
+private abbrev labels := Subtype.val ∘ reds
+private def P : Presentation (signature sl2RootDatum labels) ℚ :=
+  ⟨Empty, Empty.elim, Empty.elim, fun i => i.elim⟩
+private abbrev vac : DoubleStendhalTriple sl2RootDatum reds 0 2 :=
+  ⟨⟨[.inr 0, .inr 1], by decide⟩, by decide +kernel⟩
+private abbrev d := ccwBubbleAt sl2RootDatum labels 0 () [] vac.val.word (List.nil_append _) 2
+example : (violatingFunctor P 2).map (InducedCategory.homMk (X := vac) (Y := vac) (P.diag d)) = 0 := by
+  apply diagram_eq_zero_of_leftEmptyLayer P vac vac d (L := layer sl2RootDatum labels 0 []
+    (.black (.cup (dn ()))) vac.val.word)
+  · change _ ∈ Diagram.layers (Diagram.cast _ _ _)
+    rw [Diagram.layers_cast]
+    have hl := realBubble_layers sl2RootDatum labels 0 [] vac.val.word .counterclockwise () 2
+    rw [show Diagram.layers (blackDiagram sl2RootDatum labels 0 [] vac.val.word
+        (cwReal sl2RootDatum _ () 2)) = _ from hl]
+    simp [BubbleOrientation.cupLetter]
+  · rfl
+end FirstRedCutExample
+
+namespace RedPrefixBlackSpanningExamples
+open CategoryTheory Categorification Categorification.Stendhal Categorification.Stendhal.DoubleDiagram
+  Categorification.QuantumGroup.UDot Categorification.KL3.Diagram StringDiagrams
+
+private def reds : Fin 3 → {x : ℤ // ∀ i, 0 ≤ sl2RootDatum.pair (sl2RootDatum.iY i) x} :=
+  fun _ => ⟨2, by decide +revert⟩
+private abbrev labels := Subtype.val ∘ reds
+private abbrev coeff : Fin 3 → Unit →₀ ℕ := fun _ => Finsupp.single () 2
+private abbrev Q := fun (_ _ : Unit) => (0 : MvPolynomial (Fin 2) ℚ)
+private def base : Presentation (signature sl2RootDatum labels) ℚ :=
+  ⟨Empty, Empty.elim, Empty.elim, fun i => i.elim⟩
+private theorem exponents_agree (r : Fin 3) (i : Unit) :
+    (coeff r i : ℤ) = sl2RootDatum.pair (sl2RootDatum.iY i) (reds r).val := by
+  cases i
+  simp [coeff, reds]
+  rfl
+
+private abbrev suffix : List (DoubleStrand Unit 3) := [.inl (up ()), .inr 2, .inl (dn ())]
+private theorem order : [0, 1] ++ suffix.filterMap DoubleStrand.redLabel = List.finRange 3 := by decide
+
+example (d : LinDiagram ℚ (ob sl2RootDatum 4 (dns [(),()])) (ob sl2RootDatum 4 (dns [(),()]))) :=
+  redPrefixBlackEntry_mem_span sl2RootDatum reds Q coeff base [0,1] suffix order exponents_agree
+    (right := 2) [(),()] [(),()] rfl rfl d
+
+example := redPrefixBlackEntry_mem_span sl2RootDatum reds Q coeff base [0,1] suffix order exponents_agree
+  (right := 6) [] [] rfl rfl (LinDiagram.of (cwReal sl2RootDatum 4 () 4))
+
+private abbrev B := redPrefixSpanningPresentation sl2RootDatum reds Q coeff base
+
+example := redPrefixBlackEntry_mem_span_of_ideal_le sl2RootDatum reds Q coeff base [0,1] suffix order
+  exponents_agree B (fun _ _ => le_rfl) (right := 6) [] [] rfl rfl
+  (LinDiagram.of (cwReal sl2RootDatum 4 () 4))
+
+end RedPrefixBlackSpanningExamples
+
 end NonVacuity

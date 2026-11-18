@@ -248,6 +248,14 @@ The theorem uses the reflected KL III black relations. At one fundamental red
 and one black in type A₁ the remaining dot factors through the violated
 loading, giving `fundamentalSingleRed_algebraMap_surjective`.
 
+For a family of red strands, a surviving diagram keeps its leftmost strand
+as a spectator at every layer (`left_nonempty_of_diagram_ne_zero`). A black
+rectangle between an initial red word and a fixed signed suffix has the same
+downward spanning property (`redPrefixBlackEntry_mem_span`). Moving every
+positive bubble polynomial of the rectangle past the initial red prefix
+gives zero. The suffix is allowed to contain red strands or upward black
+strands. This result covers diagrams supported in such rectangles.
+
 At a strict sign change from negative to positive coroot coordinate,
 `closeRedBraid_correction_eq_zero` kills the closed divided-difference
 correction of the downward black–red–black braid, using reflected KL III

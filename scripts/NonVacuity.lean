@@ -3909,9 +3909,9 @@ end DoubleContentExample
 namespace CyclotomicRedPullbackExample
 open Categorification Categorification.Stendhal Polynomial
 private abbrev q : Unit → Unit → MvPolynomial (Fin 2) ℚ := fun _ _ => 0
-private abbrev λ₁ : Unit → Polynomial ℚ := fun _ => X
-private abbrev λ₂ : Unit → Polynomial ℚ := fun _ => X ^ 2
-private theorem divisibility (i : Unit) : λ₁ i ∣ λ₂ i := ⟨X, by simp [λ₁, λ₂, pow_two]⟩
+private abbrev lowerPolynomial : Unit → Polynomial ℚ := fun _ => X
+private abbrev upperPolynomial : Unit → Polynomial ℚ := fun _ => X ^ 2
+private theorem divisibility (i : Unit) : lowerPolynomial i ∣ upperPolynomial i := ⟨X, by simp [lowerPolynomial, upperPolynomial, pow_two]⟩
 example := cyclotomicRedPullbackResIso.{0,0,0} q divisibility () (β := 0) rfl
 example := cyclotomicRedProjection_surjective q divisibility {()}
 end CyclotomicRedPullbackExample

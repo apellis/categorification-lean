@@ -1167,6 +1167,7 @@ import Categorification.WeightedKLR.RedStrands.DoubleDownSpan
 import Categorification.WeightedKLR.RedStrands.DoubleCapElimination
 import Categorification.WeightedKLR.RedStrands.DoubleRedPrefixBubble
 import Categorification.WeightedKLR.RedStrands.DoubleClockwisePrefixBubble
+import Categorification.WeightedKLR.RedStrands.DoubleRedBraidReduction
 import Categorification.WeightedKLR.RedStrands.DoubleBlackCurls
 import Categorification.WeightedKLR.RedStrands.DoubleRedTriple
 import Categorification.WeightedKLR.RedStrands.DoubleRedUpThrough

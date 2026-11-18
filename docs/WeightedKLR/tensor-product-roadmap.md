@@ -360,6 +360,10 @@ the crossing normalization against the two pitchfork relations.
 pitchfork. In any linear category over a field with equal nonzero bigon
 coefficients and unit bubble closures, `pitchforkCoefficients_mul_eq_one`
 shows that a nonzero boundary forces reciprocal cup and cap coefficients.
+With unequal bigons, `pitchforkCoefficients_mul_bigon` gives the general
+constraint c d p = q, for downward bigon p and sideways bigon q. The printed
+pitchforks c = d = 2 of the disconnected example satisfy it for the dual
+downward bigon p = 1/2 of Cautis–Lauda, but not for p = 2 from (2.5e).
 [Cautis–Lauda, arXiv:1111.1431v3, p. 6](https://arxiv.org/pdf/1111.1431v3#page=6)
 · [Webster, arXiv:1309.3796v2, §2.2](https://arxiv.org/pdf/1309.3796v2#page=11)
 

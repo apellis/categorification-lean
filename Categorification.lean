@@ -1195,6 +1195,7 @@ import Categorification.WeightedKLR.RedStrands.DoubleViolatingBubbleSweep
 import Categorification.WeightedKLR.RedStrands.DoubleBlackCurls
 import Categorification.WeightedKLR.RedStrands.DoubleRedTriple
 import Categorification.WeightedKLR.RedStrands.DoubleRedUpThrough
+import Categorification.WeightedKLR.RedStrands.DoubleCLLocalMap
 /-!
 # Categorification
 

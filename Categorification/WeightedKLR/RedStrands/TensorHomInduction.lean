@@ -29,10 +29,11 @@ section LastBoundary
 variable {I : Type} {ℓ : ℕ} {ν : Multiset I}
 local notation "μ" => stendhalWeight ℓ ν
 
-private theorem cardinal_weight : Multiset.card μ = ν.card + ℓ := by
+theorem cardinal_weight : Multiset.card μ = ν.card + ℓ := by
   simp [stendhalWeight]
 
-private def terminalPos (h : 0 < ℓ + ν.card) : Fin (Multiset.card μ) :=
+/-- The position of the terminal strand of a nonempty ordinary loading. -/
+def terminalPos (h : 0 < ℓ + ν.card) : Fin (Multiset.card μ) :=
   ⟨Multiset.card μ - 1, by rw [cardinal_weight]; omega⟩
 
 private theorem exists_append_singleton {J : Type*} {δ : Multiset J} (c : J)
@@ -60,7 +61,7 @@ private theorem exists_append_singleton {J : Type*} {δ : Multiset J} (c : J)
     exact (KLR.Seq.append_posR _ _ a).trans ((Multiset.mem_singleton.mp ((default :
       KLR.Seq ({c} : Multiset J)).mem a)).trans (h a).symm)
 
-private theorem exists_appendBlack_terminal {i : I} {β : Multiset I}
+theorem exists_appendBlack_terminal {i : I} {β : Multiset I}
     (s : KLR.Seq (stendhalWeight ℓ (({i} : Multiset I) + β)))
     (h : s.lbl (terminalPos (ν := ({i} : Multiset I) + β) (ℓ := ℓ)
       (by simp)) = .inl i) (hs : IsRedOrdered s) :
@@ -88,7 +89,7 @@ private theorem exists_appendBlack_terminal {i : I} {β : Multiset I}
     rw [KLR.Seq.cast_apply, KLR.Seq.cast_apply, Fin.cast_cast, Fin.cast_eq_self]
   exact ⟨u, (appendBlackLoading_ordered_iff i β u).mp (he ▸ hs), he⟩
 
-private theorem terminal_red_last {n : ℕ} (s : KLR.Seq (stendhalWeight (n + 1) ν)) (hs : IsRedOrdered s)
+theorem terminal_red_last {n : ℕ} (s : KLR.Seq (stendhalWeight (n + 1) ν)) (hs : IsRedOrdered s)
     (r : Fin (n + 1)) (hr : s.lbl (lastRedPosition n ν) = .inr r) :
     HasLastRed s := by
   have hm : (Sum.inr (Fin.last n) : I ⊕ Fin (n + 1)) ∈ stendhalWeight (n + 1) ν :=
@@ -126,7 +127,7 @@ private abbrev inductionGrading {ℓ : ℕ} (Λ : Fin ℓ → I →₀ ℕ) :=
 
 
 omit [DecidableEq I] [Finite I] in
-private theorem zero_boundary_eq (s t : KLR.Seq (stendhalWeight 0 (0 : Multiset I))) : s = t := by
+theorem zero_boundary_eq (s t : KLR.Seq (stendhalWeight 0 (0 : Multiset I))) : s = t := by
   apply Subtype.ext
   funext j
   have := j.isLt

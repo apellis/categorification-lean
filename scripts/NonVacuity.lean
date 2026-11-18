@@ -4208,4 +4208,103 @@ example := cyclotomicRedDotCrossing_downQuotient.{0,0,0} q dvdX () (β := 0) rfl
 
 end CyclotomicRedDotCrossingExample
 
+namespace TwoRedCornerPolynomials
+
+open Categorification Categorification.KLR Categorification.Stendhal
+  Categorification.QuantumGroup LieLean.QuantumGroup LaurentPolynomial
+
+private abbrev C := CartanDatum.ofGraph (⊥ : SimpleGraph Unit)
+private abbrev fundamental : Unit →₀ ℕ := Finsupp.single () 1
+private abbrev Strand := Unit ⊕ (Unit →₀ ℕ)
+private abbrev red : Strand := Sum.inr fundamental
+private abbrev black : Strand := Sum.inl ()
+
+private theorem twoReds : cornerPolynomial C [red, red] [red, red] = 1 := by
+  change cornerPolynomial C ([red] ++ [.inr fundamental]) ([red] ++ [.inr fundamental]) = 1
+  rw [cornerPolynomial_terminalRed]
+  change cornerPolynomial C ([] ++ [.inr fundamental]) ([] ++ [.inr fundamental]) = 1
+  rw [cornerPolynomial_terminalRed, cornerPolynomial_empty]
+
+private abbrev deletionTerm (x : List Strand × Strand × List Strand) : LaurentPolynomial ℤ :=
+  if black = x.2.1 then
+    cornerDeletionCoeff C () [red, red] x.1 *
+      cornerPolynomial C [red, red] (x.1 ++ x.2.2) else 0
+
+private theorem terminalBlack_expand (w : List Strand) :
+    cornerPolynomial C [red, red, black] w = ((CycKLR.markedWords w).map deletionTerm).sum := by
+  change cornerPolynomial C ([red, red] ++ [.inl ()]) w = _
+  rw [cornerPolynomial_terminalBlack, List.attach_map_val (f := deletionTerm)]
+
+private theorem oneRedPair : cornerPrefixPair C () [red] = 1 := by
+  simp [cornerPrefixPair, red, fundamental]
+
+private theorem twoRedsPair : cornerPrefixPair C () [red, red] = 2 := by
+  norm_num [cornerPrefixPair, red, fundamental]
+
+/-- Both red strands precede the black strand at each endpoint. -/
+example : cornerPolynomial C [red, red, black] [red, red, black] = 1 + T 2 := by
+  rw [terminalBlack_expand]
+  simp [CycKLR.markedWords, deletionTerm, twoReds, black, red]
+  simp only [cornerDeletionCoeff, twoRedsPair]
+  have hd : UDot.di C () = 1 := rfl
+  rw [hd]
+  have h : qIntU qUnitLP 2 = T 1 + T (-1) := by
+    change qNatU qUnitLP (1 + 1) = _
+    rw [qNatU, Finset.sum_range_succ, Finset.sum_range_one]
+    norm_num [qUnitLP]
+  norm_num only [Int.reduceSub, zpow_one, mul_one]
+  rw [h, mul_add, ← T_add, ← T_add]
+  norm_num [add_comm]
+
+/-- At the second endpoint the black strand is between the two red strands. -/
+example : cornerPolynomial C [red, red, black] [red, black, red] = T 1 := by
+  rw [terminalBlack_expand]
+  simp [CycKLR.markedWords, deletionTerm, twoReds, black, red]
+  simp only [cornerDeletionCoeff, twoRedsPair, oneRedPair]
+  have hd : UDot.di C () = 1 := rfl
+  rw [hd]
+  norm_num [qIntU, qNatU]
+
+end TwoRedCornerPolynomials
+
+namespace CornerFieldComparison
+
+open Categorification Categorification.KLR Categorification.Stendhal Categorification.QuantumGroup
+
+open FundamentalCorner
+attribute [local instance 1100] IsIdempotentElem.instAlgebraCorner_categorification
+private abbrev cartan := CartanDatum.ofGraph (⊥ : SimpleGraph Unit)
+private theorem parameters (k : Type) [Field k] :
+    IsRouquierQ cartan (fun _ _ => (0 : MvPolynomial (Fin 2) k)) := by
+  constructor <;> intro i j h <;> exact (h (Subsingleton.elim i j)).elim
+private theorem rational : IsRouquierQ cartan Q := by
+  constructor <;> intro i j h <;> exact (h (Subsingleton.elim i j)).elim
+private abbrev t := FirstWeight.boundaryAt () 2 1
+private abbrev datum {k : Type} [Field k] {P : Unit → Unit → MvPolynomial (Fin 2) k}
+    (h : IsRouquierQ cartan P) :=
+  stendhalGradingDatum wt h.gradingDatum (fun i => cartan.dot i i / 2) (dotDegree cartan h)
+private theorem rational_degree_two : Module.finrank ℚ (sequenceCornerGrade (datum rational) t.1 t.2.1 t.1 t.2.1 2) = 1 := by
+  apply Int.ofNat_inj.mp
+  have h : sequenceCornerPoly grading t.1 t.2.1 t.1 t.2.1 = 1 + LaurentPolynomial.T 2 := by
+    rw [sequenceCornerPoly_eq_homGdimPoly]
+    exact boundaryAt_last_homGdimPoly
+  rw [← sequenceCornerPoly_coeff cartan rational wt t.1 t.2.1 t.1 t.2.1 2]
+  change (sequenceCornerPoly grading t.1 t.2.1 t.1 t.2.1).coeff 2 = _
+  rw [h]
+  simp
+  change (Finsupp.single (0 : ℤ) (1 : ℤ)) 2 = 0
+  exact Finsupp.single_eq_of_ne (by decide)
+
+/-- The terminal one-black corner for two fundamental reds has a degree-two
+line over the field of two elements. -/
+example : Module.finrank (ZMod 2) (sequenceCornerGrade (datum (parameters (ZMod 2)))
+    t.1 t.2.1 t.1 t.2.1 2) = 1 :=
+  (finrank_sequenceCornerGrade_eq_of_parameters cartan (parameters (ZMod 2)) rational
+    wt t.1 t.2.1 t.1 t.2.1 2).trans rational_degree_two
+
+example := sequenceCornerPoly_eq_wordCornerPoly cartan rational wt
+  (FirstWeight.boundaryAt () 2 0).1 (FirstWeight.boundaryAt () 2 0).2.1 t.1 t.2.1
+
+end CornerFieldComparison
+
 end NonVacuity

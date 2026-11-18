@@ -25,7 +25,11 @@ induction initially proposed from KL I has the obstruction recorded below; it is
 by the replacement proof. The later sections give the proofs of B, C and D.
 The comparison for graphs with loops remains open.
 
-The [tensor product roadmap](tensor-product-roadmap.md) records the separate Stendhal quotient-basis, graded-dimension and tensor categorification results, including the projective commutator of arXiv:1309.3796v2, Lemma 4.35, and the counterexample to its signed corner input when the printed bubble bound is imposed (`DoubleDiagram.printedBubble_no_injection_sl2`).
+For ordinary Stendhal quotients, `Stendhal.sequenceCornerPoly_eq_wordCornerPoly`
+computes graded corner dimensions from the boundary words. The projective
+commutator in arXiv:1309.3796v2, Lemma 4.35, and the signed corner counterexample
+for the printed bubble bound (`DoubleDiagram.printedBubble_no_injection_sl2`)
+are recorded in the [tensor product roadmap](tensor-product-roadmap.md).
 
 ## A0. Finite-dimensional graded simple tops
 

@@ -29,9 +29,22 @@ recorded in [the Theorem 2.19 roadmap](thm-2-19-roadmap.md).
   permutations matching the two boundary words, including repeated and
   interacting colours. Its specialization at 1 gives the ungraded
   dimension by `CycKLR.finrank_corner_permutationFormula`. Both formulas
-  hold over any field for homogeneous Rouquier parameters. The additional
-  red boundaries of the general Stendhal quotient use the degreewise
-  relation-rank formula above.
+  hold over any field for homogeneous Rouquier parameters.
+* For an arbitrary ordered family of reds, the coefficient of degree `d` in
+  `Stendhal.cornerPolynomial` gives the dimension of the homogeneous corner
+  with two prescribed boundary words (`sequenceCornerPoly_eq_wordCornerPoly`,
+  `sequenceCornerPoly_coeff`). A red letter carries its weight. For a prefix
+  `u`, let `pᵢ(u)` be the sum of its red multiplicities at `i` minus the sum
+  of the Cartan entries `aᵢⱼ` of its black letters. When the source ends in
+  black `i`, delete that letter and sum over all occurrences of black `i`
+  in the target. If `u` is the shortened source and `v` precedes the
+  target occurrence, multiply the smaller polynomial by
+  `qᵢ^(pᵢ(u)−1) [pᵢ(v)]ᵢ`. Reflection handles a terminal black on the
+  target and common final reds can be removed. The empty corner has
+  polynomial one. The result includes repeated and interacting colours.
+  In particular, `finrank_sequenceCornerGrade_eq_of_parameters` gives equal
+  dimensions in every degree over any two fields with homogeneous Rouquier
+  parameters for the same Cartan datum.
 
 ## Tensor product categorification
 

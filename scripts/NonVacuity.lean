@@ -3663,6 +3663,21 @@ example :
   DoubleViolatingQuotient.ker_mapLinearMap ℚ (DoubleDiagram.tripleObj bubblePresentation)
     redOnly redOnly
 
+private def redDownUp : DoubleStendhalTriple sl2RootDatum redWeights 0 3 :=
+  ⟨⟨[.inr 0, .inl (false, ()), .inl (true, ())], rfl⟩, by decide⟩
+
+/-- The red strand has weight three before the mixed black pair, so the
+positive-weight cup/cap terms occur. The boundary itself starts with red. -/
+example : ¬redDownUp.val.IsViolated ∧
+    (let mixed := DoubleDiagram.addMixedBlackRelations sl2RootDatum (fun r => (redWeights r).val) ℚ
+           (fun _ _ => 1) bubblePresentation
+     let π := DoubleDiagram.violatingFunctor
+           (DoubleDiagram.addRedUpRelations sl2RootDatum (fun r => (redWeights r).val) ℚ mixed) 3
+     𝟙 (π.obj redDownUp) ∈ DoubleDiagram.factorSpan ℚ π.obj (fun d => d.val.AllDown) redDownUp redDownUp) := by
+  refine ⟨?_, DoubleDiagram.id_mem_allDownFactorSpan bubblePresentation (fun _ _ => 1) redDownUp⟩
+  rintro ⟨s, hs⟩
+  simp [redDownUp] at hs
+
 end DoubleStendhalBoundaries
 
 
@@ -3698,5 +3713,76 @@ example : 𝟙 (project.obj downUp) ∈
   exact Submodule.zero_mem _
 
 end DoubleCategoricalFactorExample
+
+namespace DoubleStendhalVacuum
+
+open Categorification Categorification.QuantumGroup.UDot
+  Categorification.Stendhal.DoubleDiagram CategoryTheory StringDiagrams
+
+private def noReds : Fin 0 → {x : ℤ // ∀ i, 0 ≤ sl2RootDatum.pair (sl2RootDatum.iY i) x} :=
+  Fin.elim0
+
+private def sl2VacuumPresentation : Presentation (signature sl2RootDatum (Subtype.val ∘ noReds)) ℚ where
+  Rel := Empty
+  dom := Empty.elim
+  cod := Empty.elim
+  rel i := nomatch i
+
+example : Function.Surjective (algebraMap ℚ (End (vacuumObj sl2VacuumPresentation))) :=
+  vacuum_algebraMap_surjective sl2VacuumPresentation
+
+private abbrev relations :=
+  addRedUpRelations sl2RootDatum (Subtype.val ∘ noReds) ℚ
+    (addMixedBlackRelations sl2RootDatum (Subtype.val ∘ noReds) ℚ (fun _ _ => 1)
+      sl2VacuumPresentation)
+
+example : (allDownCompletionInclusion relations (right := (0 : ℤ))).IsEquivalence :=
+  allDownCompletionInclusion_isEquivalence_addRelations sl2VacuumPresentation (fun _ _ => 1)
+
+end DoubleStendhalVacuum
+
+namespace MixedBlackExample
+
+open Categorification Categorification.Stendhal Categorification.QuantumGroup StringDiagrams
+
+private abbrev weight : Fin 1 → ℤ := fun _ => 1
+private def diagrams : Presentation.{0, 0} (DoubleDiagram.signature UDot.sl2RootDatum weight) ℚ :=
+  ⟨Empty, Empty.elim, Empty.elim, fun i => i.elim⟩
+example := DoubleDiagram.mixedBlack_eq UDot.sl2RootDatum weight (fun _ _ => 1) diagrams
+  0 [.inr 0] [] ()
+example : (KL3.Diagram.ip UDot.sl2RootDatum ()
+    (DoubleDiagram.endWeight UDot.sl2RootDatum weight 0 [.inr 0])).toNat = 1 := by decide
+private abbrev weightA₂ : Fin 1 → Fin 2 → ℤ := fun _ _ => 1
+private def diagramsA₂ : Presentation.{0, 0} (DoubleDiagram.signature (Flag.slRootDatum 2) weightA₂) ℚ :=
+  ⟨Empty, Empty.elim, Empty.elim, fun i => i.elim⟩
+example := DoubleDiagram.mixedBlack_ne (Flag.slRootDatum 2) weightA₂
+  (fun i j => if i = j then 1 else -1) diagramsA₂ 0 [.inr 0] [] 0 1 (by decide)
+
+end MixedBlackExample
+
+open Categorification Categorification.QuantumGroup Categorification.KL3.Diagram
+namespace DoubleBlackScalarCheck
+private abbrev cartan := CartanDatum.ofGraph (⊥ : SimpleGraph Bool)
+private noncomputable def two : ℚˣ := Units.mk0 2 (by norm_num)
+private noncomputable def params : CL.CLScalars cartan ℚ where
+  t i j := if i = j then 1 else two
+  r _ := 1
+  s _ _ _ _ := 0
+  t_self _ := by simp
+  t_symm _ _ _ := by simp [eq_comm]
+  s_symm _ _ _ _ := rfl
+private theorem orthogonal : cartan.dot false true = 0 :=
+  CartanDatum.ofGraph_dot_of_not_adj _ (by decide) (by simp)
+private theorem webster_square : CL.qCL params false true = MvPolynomial.C 2 := by
+  rw [CL.qCL_of_dot_eq_zero params orthogonal]
+  rfl
+private theorem cl_down_square : CL.qCL params.dual false true = MvPolynomial.C (1/2) := by
+  rw [CL.qCL_of_dot_eq_zero params.dual orthogonal]
+  congr 1
+  norm_num [CL.CLScalars.dual, params, two]
+example : CL.qCL params.dual false true ≠ CL.qCL params false true := by
+  rw [webster_square, cl_down_square, Ne, MvPolynomial.C_inj]
+  norm_num
+end DoubleBlackScalarCheck
 
 end NonVacuity

@@ -21,7 +21,8 @@ open QuantumGroup QuantumGroup.UDot StringDiagrams CategoryTheory
 variable {I X Y : Type*} {C : CartanDatum I} [AddCommGroup X] [AddCommGroup Y]
   (RD : WeightDatum C X Y) {ℓ : ℕ} (Λ : Fin ℓ → X)
 
-private theorem forget_colours (μ : X) (w : List (DoubleStrand I ℓ)) :
+/-- Forgetting the region labels recovers the signed word. -/
+theorem forget_colours (μ : X) (w : List (DoubleStrand I ℓ)) :
     (colours RD Λ μ w).map Prod.snd = w := by
   induction w generalizing μ with
   | nil => rfl
@@ -36,25 +37,36 @@ private theorem recover_colours (μ : X) (w : List (X × DoubleStrand I ℓ))
     obtain ⟨rfl, hw⟩ := h
     exact congrArg ((t, a) :: ·) (ih _ hw)
 
+/-- An invariant of word moves in arbitrary contexts is preserved by every
+chain of layers. This applies to the red order and to signed black content. -/
+theorem chain_wordInvariant {A : Type*} (f : List (DoubleStrand I ℓ) → A)
+    (hmove : ∀ u (g : Move I ℓ) v, f (u ++ g.top ++ v) = f (u ++ g.bottom ++ v))
+    {a b : Obj (signature RD Λ)} {ls} (h : Chain a ls b) :
+    f (b.word.map Prod.snd) = f (a.word.map Prod.snd) := by
+  induction ls generalizing a with
+  | nil => cases h; rfl
+  | cons L ls ih =>
+    rw [ih h.2.2, ← h.2.1]
+    let l : List (X × DoubleStrand I ℓ) := L.left
+    let r : List (X × DoubleStrand I ℓ) := L.right
+    change f (((l ++ colours RD Λ L.gen.1 L.gen.2.top) ++ r).map Prod.snd) =
+      f (((l ++ colours RD Λ L.gen.1 L.gen.2.bottom) ++ r).map Prod.snd)
+    simp only [List.map_append, forget_colours]
+    exact hmove _ _ _
+
 private def readReds (a : Obj (signature RD Λ)) : List (Fin ℓ) :=
   (a.word.map Prod.snd).filterMap DoubleStrand.redLabel
 
-private theorem layer_redOrder (L : Layer (signature RD Λ)) :
-    readReds RD Λ L.cod = readReds RD Λ L.dom := by
-  let reds (v : List (X × DoubleStrand I ℓ)) := (v.map Prod.snd).filterMap DoubleStrand.redLabel
-  have append (l r : List (X × DoubleStrand I ℓ)) : reds (l ++ r) = reds l ++ reds r := by
-    simp [reds]
-  let l : List (X × DoubleStrand I ℓ) := L.left
-  let r : List (X × DoubleStrand I ℓ) := L.right
-  change reds ((l ++ colours RD Λ L.gen.1 L.gen.2.top) ++ r) =
-    reds ((l ++ colours RD Λ L.gen.1 L.gen.2.bottom) ++ r)
-  simp only [append, reds, forget_colours, L.gen.2.top_reds]
-
 private theorem chain_redOrder {a b : Obj (signature RD Λ)} {ls} (h : Chain a ls b) :
-    readReds RD Λ b = readReds RD Λ a := by
-  induction ls generalizing a with
-  | nil => cases h; rfl
-  | cons L ls ih => rw [ih h.2.2, layer_redOrder, h.2.1]
+    readReds RD Λ b = readReds RD Λ a :=
+  chain_wordInvariant RD Λ (·.filterMap DoubleStrand.redLabel)
+    (fun u g v => by simp [g.top_reds]) h
+
+/-- The ordered red list is constant along any raw signed diagram. -/
+theorem redList_eq_of_diagram {μ τ : X} {u v : List (DoubleStrand I ℓ)}
+    (d : obj RD Λ μ u ⟶ obj RD Λ τ v) :
+    v.filterMap DoubleStrand.redLabel = u.filterMap DoubleStrand.redLabel := by
+  simpa only [readReds, obj, forget_colours] using chain_redOrder RD Λ (Diagram.chain d)
 
 private theorem chain_ok {a b : Obj (signature RD Λ)} {ls} (h : Chain a ls b)
     (ha : (signature RD Λ).ok a.start a.word) : (signature RD Λ).ok b.start b.word := by

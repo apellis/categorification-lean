@@ -2977,6 +2977,9 @@ example := correctedForm_adjoint sl2XRegular fundamental fundamental
 example := fundamental_prefix_homGdimPoly_eq_correctedForm 0 1
 example := fundamental_prefix_homGdimPoly_eq_correctedForm 1 1
 
+example := fundamental_restriction_eq_E 0
+example := fundamental_restriction_eq_E 1
+
 example := printedForm_not_adjoint
 example := barCoproduct_loweredPair_norm
 example := Stendhal.TensorAdjointConvention.tau_barComul_F_ne_comul_tau_F

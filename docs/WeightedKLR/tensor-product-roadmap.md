@@ -154,3 +154,12 @@ The corresponding corner acts nontrivially. Its graded projective group is a quo
 map whose image exhausts a corner, `Stendhal.boundaryClassEmbedding`
 injects the shift classes of the detected projectives into the shift
 classes for the source algebra.
+
+**Raising on the vacuum edge of Theorem 4.31.** For any red family over a
+field with Rouquier parameters, `tensorProductVacuumK0Equiv_blackResVacuumProj`
+identifies the class of raw right-black restriction with the graded Hom
+polynomial from induction of the vacuum. For two fundamental sl₂ factors
+over ℚ, `fundamental_restriction_eq_E` identifies the normalized
+restriction with E on both first-weight boundary projectives. General
+black contents still require preservation of projectives and identification
+of the normalized action.

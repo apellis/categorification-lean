@@ -71,7 +71,8 @@ private theorem red_unique {δ : Multiset D} {ν' : Multiset I}
   exact Finset.card_le_one_iff.mp hcard (by simp [ha]) (by simp [hb])
 
 omit [DecidableEq I] in
-private theorem factor_parameters {T : D → D → MvPolynomial (Fin 2) k}
+/-- A total order on the colours factors Rouquier parameters for the polynomial representation. -/
+theorem exists_factorization_of_isRouquierQ {T : D → D → MvPolynomial (Fin 2) k}
     {E : CartanDatum D} (hT : IsRouquierQ E T) :
     ∃ P : D → D → MvPolynomial (Fin 2) k,
       (∀ a b, a ≠ b → T a b = P b a * rename ![1, 0] (P a b)) ∧
@@ -113,7 +114,7 @@ theorem cyclotomicCover_cut_mem_idealActionSpan (hQ : IsRouquierQ C Q) (z : W)
       cyclotomicCoverIdeal ({i} + ν) S) :
     z ∈ idealActionSpan J := by
   let hS := isRouquierQ_cyclotomicCoverQ C Λ Q hQ
-  obtain ⟨P, hSP, hP⟩ := factor_parameters hS
+  obtain ⟨P, hSP, hP⟩ := exists_factorization_of_isRouquierQ hS
   let red : Set D := {c | c.isRight}
   let extra : Set B := {d | ∃ s : KLR.Seq (σ + μ), ¬ IsRedOrdered s ∧ d = CycKLR.mk k S p _ (e s)}
   have hex : ∀ c ∈ red, ∀ s : KLR.Seq μ, ∃ a, s.lbl a = c := by

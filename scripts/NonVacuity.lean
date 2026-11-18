@@ -4375,4 +4375,54 @@ example : ¬ ∃ f : TensorProductAlgebra ℚ parameters exponents content →�
 
 end PrintedPitchforks
 
+namespace ProjectedCyclotomicCover
+
+open Categorification KLR Stendhal KLRAlgebra CyclotomicAction InductionAlong
+open FundamentalCorner
+
+private abbrev C := QuantumGroup.CartanDatum.ofGraph (⊥ : SimpleGraph Unit)
+
+private theorem hQ : IsRouquierQ C Q :=
+  ⟨fun _ _ h => (h (Subsingleton.elim _ _)).elim,
+   fun _ _ h => (h (Subsingleton.elim _ _)).elim,
+   fun _ _ h => (h (Subsingleton.elim _ _)).elim⟩
+
+/-- The terminal black dot survives with two fundamental red strands and has
+a nonzero operator in the extended-Cartan cover. -/
+example := exists_projectedCoverVacuumEntry_ne_zero.{0,0,0} wt {()} C hQ _ dot_ne_zero
+
+/-- The same dot is supported on at least one ordinary regular corner. -/
+example := exists_regular_corner_ne_zero Q wt {()} dot_ne_zero
+
+private abbrev oneWeight (_ : Fin 1) : Unit →₀ ℕ := Finsupp.single () 1
+private abbrev red : Unit ⊕ Fin 1 := .inr 0
+private abbrev black : Unit ⊕ Fin 1 := .inl ()
+
+private def mixedSuffix : ColourDotContext red ({red} + 0) (stendhalWeight 1 (0 : Multiset Unit)) := by
+  have t := ((ColourDotContext.nil (c := red) ({red} + 0)).ind black (by decide)).res (by decide)
+  convert t
+  decide
+
+/-- A red dot disappears after subsequent black induction and restriction. -/
+example (M : ModuleCat (CycKLR ℚ (cyclotomicCoverQ C oneWeight Q) cyclotomicCoverPolynomial 0)) :
+    (functor (cyclotomicCoverToTensor (Q := Q) oneWeight 0 C).toRingHom.toNonUnitalRingHom).map
+      ((mixedSuffix.eval _ _).map ((dot _ _ red (β := 0) rfl).app M)) = 0 :=
+  cyclotomicCover_project_signedRedDot oneWeight 0 C hQ 0 rfl mixedSuffix M
+
+private abbrev xs : List (DoubleStrand Unit 2) :=
+  [.inr 1, .inl (false, ()), .inl (true, ()), .inr 0]
+
+private def reversedWord : SignedCoverWord Unit 2 (stendhalWeight 2 0) xs := by
+  have t := ((((SignedCoverWord.nil (I := Unit) (ℓ := 2)).ind (.inr 1)).ind (.inl ())).res ()).ind (.inr 0)
+  convert t using 1 <;> decide
+
+/-- Reversed reds bound zero projected modules with black induction and
+restriction between them. -/
+example (M : ModuleCat (CycKLR ℚ (cyclotomicCoverQ C wt Q) cyclotomicCoverPolynomial 0))
+    (z : (functor (cyclotomicCoverToTensor (Q := Q) wt 0 C).toRingHom.toNonUnitalRingHom).obj
+      (reversedWord.eval _ _ M)) : z = 0 :=
+  cyclotomicCover_project_unorderedSignedWord wt 0 C hQ reversedWord (by decide) M z
+
+end ProjectedCyclotomicCover
+
 end NonVacuity

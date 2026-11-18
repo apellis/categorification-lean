@@ -210,6 +210,16 @@ signed relations, including the corrected bubble relations. A revised
 pitchfork normalization must satisfy c d = 1 on this example; compatibility
 with the other relations still needs verification.
 
+For the extended-Cartan cyclotomic cover, `exists_projectedCoverVacuumEntry_ne_zero`
+detects every nonzero ordinary element by a projected vacuum matrix entry, with
+the reflection `hflip ∘ σ`. The induction and restriction along a signed word
+preserve its ordered red subword. An unordered subword or an operator inserting
+a dot on a unique red strand gives zero after projection
+(`cyclotomicCover_project_unorderedSignedWord`, `cyclotomicCover_project_signedRedDot`).
+This supplies the vacuum calculation from the proof of v3 Lemma 4.29 in the cover.
+The printed pitchfork obstruction prevents interpreting it as an action of that
+signed presentation on the same ordinary algebra.
+
 For a presentation with compatible pitchfork coefficients, impose the remaining relations in Definition
 4.24, straighten signed diagrams with all-down boundary into downward diagrams,
 and prove the ordinary map is faithful modulo the violating ideal. The cited

@@ -1158,6 +1158,9 @@ import Categorification.WeightedKLR.RedStrands.TensorCornerFormula
 import Categorification.WeightedKLR.RedStrands.CyclotomicRedAbsentCap
 import Categorification.WeightedKLR.RedStrands.CyclotomicRedCapSl2
 import Categorification.WeightedKLR.RedStrands.DoublePitchforkObstruction
+import Categorification.WeightedKLR.RedStrands.CyclotomicCoverVacuumEvaluation
+import Categorification.WeightedKLR.RedStrands.DoubleRegularEvaluation
+import Categorification.WeightedKLR.RedStrands.OrdinaryRegularDiagram
 /-!
 # Categorification
 

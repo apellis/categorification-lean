@@ -24,7 +24,8 @@ variable {C k : Type*} [DecidableEq C] [CommRing k]
   {S P : C → C → MvPolynomial (Fin 2) k} {β : Multiset C}
 local notation "R" => KLRAlgebra k S β
 
-private def colourDotPol (c : C) : Pol k β := fun s =>
+/-- Sum of dot variables on strands of the chosen colour. -/
+def colourDotPol (c : C) : Pol k β := fun s =>
   ∑ a : Fin (Multiset.card β), if s.lbl a = c then X a else 0
 
 private theorem colourDotPol_sym (c : C) : colourDotPol (k := k) (β := β) c ∈ symNu k β := by
@@ -37,9 +38,11 @@ private theorem colourDotPol_sym (c : C) : colourDotPol (k := k) (β := β) c �
     rename w (if s.lbl (w.symm a) = c then X (w.symm a) else 0)
   split_ifs <;> simp
 
-private abbrev colourDot (c : C) : R := polNu (colourDotPol c)
+/-- The dot sum on strands of one colour in a KLR algebra. -/
+abbrev colourDot (c : C) : R := polNu (colourDotPol c)
 
-private theorem colourDot_mul_e (c : C) (s : Seq β) (a : Fin (Multiset.card β))
+/-- On a loading containing the colour once, the sum gives its single dot. -/
+theorem colourDot_mul_e (c : C) (s : Seq β) (a : Fin (Multiset.card β))
     (ha : s.lbl a = c) (hu : ∀ b, s.lbl b = c → b = a) :
     colourDot c * (e s : R) = x a * e s := by
   rw [polNu_mul_e]
@@ -47,7 +50,8 @@ private theorem colourDot_mul_e (c : C) (s : Seq β) (a : Fin (Multiset.card β)
   rw [Finset.sum_eq_single a (fun b _ hb => ite_eq_right (fun hm => hb (hu b hm)))
     (fun h => (h (Finset.mem_univ a)).elim), ite_eq_left ha, pol_X]
 
-private theorem colourDot_eq_sum (c : C) :
+/-- Expand the coloured dot sum in the sequence idempotents. -/
+theorem colourDot_eq_sum (c : C) :
     (colourDot c : R) = ∑ s : Seq β, ∑ a : Fin (Multiset.card β),
       if s.lbl a = c then x a * e s else 0 := by
   unfold colourDot
@@ -59,13 +63,15 @@ private theorem colourDot_eq_sum (c : C) :
   intro a _
   split_ifs <;> simp [pol_X]
 
-private theorem commute_colourDot [IsDomain k]
+/-- The sum of dots of a prescribed colour is central. -/
+theorem commute_colourDot [IsDomain k]
     (hSP : ∀ a b, a ≠ b → S a b = P b a * rename ![1, 0] (P a b))
     (hP : ∀ a b, a ≠ b → P a b ≠ 0) (c : C) (z : R) :
     Commute z (colourDot c) :=
   (Subalgebra.mem_center_iff.mp (polNu_mem_center hSP hP (colourDotPol_sym c))) z
 
-private theorem cL_colourDot (i c : C) (hex : ∀ s : Seq β, ∃ a, s.lbl a = c)
+/-- Appending a strand preserves a unique coloured dot in the terminal corner. -/
+theorem cL_colourDot (i c : C) (hex : ∀ s : Seq β, ∃ a, s.lbl a = c)
     (hlo : ∀ (s : Seq β) a b, s.lbl a = c → s.lbl b = c → a = b)
     (hhi : ∀ (s : Seq (Singleton.singleton i + β)) a b, s.lbl a = c → s.lbl b = c → a = b) :
     cL S i β (colourDot c) = colourDot c * cL S i β 1 := by

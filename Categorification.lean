@@ -1142,6 +1142,13 @@ import Categorification.WeightedKLR.RedStrands.DoubleDownComparison
 import Categorification.WeightedKLR.RedStrands.DoubleContent
 import Categorification.WeightedKLR.RedStrands.DoubleVacuumCharacter
 import Categorification.WeightedKLR.RedStrands.DoubleMorita
+import Categorification.WeightedKLR.RedStrands.CyclotomicRedCrossing
+import Categorification.WeightedKLR.RedStrands.CyclotomicRedSingleton
+import Categorification.WeightedKLR.RedStrands.DoubleBubbleRelations
+import Categorification.WeightedKLR.RedStrands.DoubleRedCap
+import Categorification.WeightedKLR.RedStrands.DoubleDownLift
+import Categorification.WeightedKLR.RedStrands.DoubleEmptyCorner
+import Categorification.WeightedKLR.RedStrands.DoubleProjective
 /-!
 # Categorification
 

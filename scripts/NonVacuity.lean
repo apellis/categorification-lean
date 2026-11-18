@@ -3916,4 +3916,174 @@ example := cyclotomicRedPullbackResIso.{0,0,0} q divisibility () (β := 0) rfl
 example := cyclotomicRedProjection_surjective q divisibility {()}
 end CyclotomicRedPullbackExample
 
+namespace DoubleEmptyCornerExample
+open CategoryTheory StringDiagrams Categorification Categorification.Stendhal.DoubleDiagram Categorification.QuantumGroup.UDot
+private def noRedWeights : Fin 0 → {x : ℤ // ∀ i, 0 ≤ sl2RootDatum.pair (sl2RootDatum.iY i) x} :=
+  Fin.elim0
+
+private def freeEmptyPresentation : Presentation.{0, 0}
+    (signature sl2RootDatum (Subtype.val ∘ noRedWeights)) ℚ :=
+  ⟨Empty, Empty.elim, Empty.elim, fun i => i.elim⟩
+
+private instance : IsEmpty freeEmptyPresentation.Rel := inferInstanceAs (IsEmpty Empty)
+
+example : Function.Bijective
+    (ordinaryToDownwardMatrix freeEmptyPresentation (fun _ _ => 0) Fin.elim0
+      (fun _ _ => 1) (ν := (0 : Multiset Unit))) :=
+  ordinaryToDownwardMatrix_bijective_empty_red freeEmptyPresentation _ _ _ 0
+
+example : Function.Bijective
+    (ordinaryToDownwardMatrix freeEmptyPresentation (fun _ _ => 0) Fin.elim0
+      (fun _ _ => 1) (ν := ({()} : Multiset Unit))) :=
+  ordinaryToDownwardMatrix_bijective_empty_red freeEmptyPresentation _ _ _ {()}
+end DoubleEmptyCornerExample
+
+namespace DoubleStendhalBubbles
+
+open Categorification Categorification.QuantumGroup.UDot Categorification.KL3.Diagram
+  Categorification.Stendhal.DoubleDiagram CategoryTheory StringDiagrams
+
+private def redWeight : Fin 1 → ℤ := fun _ => 2
+
+private def base : Presentation (signature sl2RootDatum redWeight) ℚ where
+  Rel := Empty
+  dom := Empty.elim
+  cod := Empty.elim
+  rel i := nomatch i
+
+private abbrev bubbles := addBubbleRelations sl2RootDatum redWeight ℚ base
+private abbrev placed := blackMorphism sl2RootDatum redWeight bubbles
+
+example : placed 0 [.inr 0] [] (LinDiagram.of (cwReal sl2RootDatum 2 () 0)) = 0 :=
+  realBubble_eq_of_le sl2RootDatum redWeight base 0 [.inr 0] [] .counterclockwise () 0 (by decide)
+
+example : placed 0 [.inr 0] [] (LinDiagram.of (cwReal sl2RootDatum 2 () 1)) = 𝟙 _ :=
+  realBubble_eq_of_le sl2RootDatum redWeight base 0 [.inr 0] [] .counterclockwise () 1 (by decide)
+
+example : placed (-4) [.inr 0] [] (LinDiagram.of
+    (ccwReal sl2RootDatum (endWeight sl2RootDatum redWeight (-4) [.inr 0]) () 1)) = 𝟙 _ :=
+  realBubble_eq_of_le sl2RootDatum redWeight base (-4) [.inr 0] [] .clockwise () 1 (by decide)
+
+example : placed 0 [.inr 0] [] (ccwL sl2RootDatum ℚ 2 () (-3)) = 𝟙 _ :=
+  bubble_eq_of_le sl2RootDatum redWeight base 0 [.inr 0] [] .clockwise () (-3) (by decide)
+
+example : placed 0 [.inr 0] [] (ccwL sl2RootDatum ℚ 2 () (-4)) = 0 :=
+  bubble_eq_of_le sl2RootDatum redWeight base 0 [.inr 0] [] .clockwise () (-4) (by decide)
+
+example :
+    ∑ a ∈ Finset.range 2,
+      placed 0 [.inr 0] [] (ccwL sl2RootDatum ℚ 2 () (-3 + a)) ≫
+        placed 0 [.inr 0] [] (cwL sl2RootDatum ℚ 2 () (1 + (1 - (a : ℤ)))) = 0 :=
+  bubbleGrassmannian sl2RootDatum redWeight base 0 [.inr 0] [] () 1
+
+end DoubleStendhalBubbles
+
+namespace DoubleRedCapAndDownLift
+
+open CategoryTheory StringDiagrams
+open Categorification Categorification.Stendhal Categorification.Stendhal.DoubleDiagram
+open Categorification.QuantumGroup.UDot
+
+private def weights : Fin 2 → ℤ := fun r => (r.val : ℤ) + 2
+
+private def base : Presentation.{0, 0} (signature sl2RootDatum weights) ℚ where
+  Rel := Empty
+  dom e := e.elim
+  cod e := e.elim
+  rel e := e.elim
+
+example :
+    (addRedCapRelations sl2RootDatum weights base).diag
+      (redCapLeft sl2RootDatum weights 0 [.inr 0] (false, ()) 1 []) =
+    (addRedCapRelations sl2RootDatum weights base).diag
+      (redCapRight sl2RootDatum weights 0 [.inr 0] (false, ()) 1 []) :=
+  redCap_slide sl2RootDatum weights base 0 [.inr 0] (false, ()) 1 []
+
+example :
+    (addRedCapRelations sl2RootDatum weights base).diag
+      (redCapLeft sl2RootDatum weights 0 [.inr 0] (true, ()) 1 []) =
+    (addRedCapRelations sl2RootDatum weights base).diag
+      (redCapRight sl2RootDatum weights 0 [.inr 0] (true, ()) 1 []) :=
+  redCap_slide sl2RootDatum weights base 0 [.inr 0] (true, ()) 1 []
+
+private def Q : Unit ⊕ Fin 2 → Unit ⊕ Fin 2 → MvPolynomial (Fin 2) ℚ :=
+  stendhalQ (fun _ _ => 0) (fun r => Finsupp.single () (r.val + 2))
+
+private def bottom : Obj (KLR.Diagram.sig (Unit ⊕ Fin 2)) :=
+  KLR.Diagram.ob [.inr 0, .inr 1, .inl ()]
+
+private def top : Obj (KLR.Diagram.sig (Unit ⊕ Fin 2)) :=
+  KLR.Diagram.ob [.inr 0, .inl (), .inr 1]
+
+private def crossing :
+    downContextObj sl2RootDatum weights 0 [] [] bottom ⟶
+    downContextObj sl2RootDatum weights 0 [] [] top :=
+  moveDiagram sl2RootDatum weights 0 [.inr 0] (.redBlack 1 (false, ())) []
+
+example : ∃ f : (KLR.Diagram.pres ℚ Q).obj bottom ⟶ (KLR.Diagram.pres ℚ Q).obj top,
+    (downPresentedFunctor sl2RootDatum weights Q base 0 [] []).map f =
+      (addDownRelations sl2RootDatum weights Q base).diag crossing := by
+  apply exists_downPresentedLift sl2RootDatum weights ℚ 0 Q base crossing
+  intro L hL
+  change L ∈ [layer sl2RootDatum weights 0 [.inr 0] (.redBlack 1 (false, ())) []] at hL
+  obtain rfl := List.mem_singleton.mp hL
+  exact ⟨.cross (.inr 1) (.inl ()), rfl⟩
+
+end DoubleRedCapAndDownLift
+
+namespace DoubleProjectiveExample
+open scoped Classical
+open Categorification Categorification.Stendhal Categorification.QuantumGroup.UDot CategoryTheory
+
+private def reds : Fin 1 → {x : ℤ // ∀ i, 0 ≤ sl2RootDatum.pair (sl2RootDatum.iY i) x} :=
+  fun _ => ⟨3, by intro i; cases i; decide⟩
+private abbrev labels := fun r => (reds r).val
+private def P : StringDiagrams.Presentation.{0,0} (DoubleDiagram.signature sl2RootDatum labels) ℚ :=
+  ⟨Empty, Empty.elim, Empty.elim, fun i => i.elim⟩
+private abbrev mixed := DoubleDiagram.addMixedBlackRelations sl2RootDatum labels ℚ (fun _ _ => 1) P
+private abbrev Q := DoubleDiagram.addRedUpRelations sl2RootDatum labels ℚ mixed
+private abbrev ν : Multiset Unit := {()}
+private def b : DoubleStendhalTriple sl2RootDatum reds 0 (DoubleDiagram.downRightWeight sl2RootDatum reds ν) :=
+  ⟨⟨[.inr 0, .inl (false, ()), .inl (true, ()), .inl (false, ())], rfl⟩, by decide⟩
+
+/-- The boundary has two downward and one upward black strands. Its module is finite
+projective over the all-down matrix ring for precisely one black strand. -/
+private theorem oneBlack : b.val.signedContent = contentVector ν := by
+  let s := Finsupp.single () (1 : ℤ)
+  change 0 + (s + (-s + (s + 0))) = contentVector {()}
+  simp [s, contentVector]
+
+example := DoubleDiagram.boundaryRightModule_finite_projective P ν (fun _ _ => 1) b oneBlack
+
+end DoubleProjectiveExample
+
+namespace CyclotomicRedCrossingExample
+open Categorification Categorification.KLR Categorification.KLR.CyclotomicAction
+  Categorification.Stendhal InductionAlong Polynomial CategoryTheory
+private abbrev q : Unit → Unit → MvPolynomial (Fin 2) ℚ := fun _ _ => 0
+private abbrev a : Unit → Polynomial ℚ := fun _ => X
+private abbrev b : Unit → Polynomial ℚ := fun _ => X ^ 2
+private theorem dvdX (i : Unit) : a i ∣ b i := ⟨X, by simp [a, b, pow_two]⟩
+private abbrev regular := ModuleCat.of (CycKLR ℚ q a 0) (CycKLR ℚ q a 0)
+private theorem edge : {()} + (0 : Multiset Unit) = {()} := by simp
+
+example : Function.Surjective ((cyclotomicRedDownQuotient q dvdX () edge).app regular) :=
+  cyclotomicRedDownQuotient_surjective q dvdX () edge regular
+
+example (z : Corner (lastEmb q b () edge)) :
+    ((cyclotomicRedDownQuotient q dvdX () edge).app regular)
+      (Ind.tmul (N := (cyclotomicRedPullback q dvdX 0).obj regular) z
+        (1 : CycKLR ℚ q a 0)) =
+    Ind.tmul (N := regular) (cyclotomicRedCornerProjection q dvdX () edge z)
+      (1 : CycKLR ℚ q a 0) :=
+  cyclotomicRedDownQuotient_tmul q dvdX () edge regular z 1
+
+example := cyclotomicRedDownQuotient_unit q dvdX () edge regular
+example := cyclotomicRedDownQuotient_counit q dvdX () edge
+  (ModuleCat.of (CycKLR ℚ q a {()}) (CycKLR ℚ q a {()}))
+
+example := singletonRedProjection_dotCrossing q () (fun _ => 1) (fun _ => 1) 1
+example := singletonRedDotCrossing_projection q () (fun _ => 1) (fun _ => 1) 1
+end CyclotomicRedCrossingExample
+
 end NonVacuity

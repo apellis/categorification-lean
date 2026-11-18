@@ -140,6 +140,25 @@ is the quotient for an increase of highest weight, and
 restriction on modules. The components act identically on underlying vectors.
 This gives the red/up crossing in that representation.
 
+For the empty red family, `ordinaryToDownwardMatrix_bijective_empty_red`
+proves bijectivity over a free base with the downward, mixed black and red/up
+relations: at nonzero black content both sides vanish, and at content zero
+the comparison fixes scalars. For an arbitrary red family the signed Hom
+from the finite all-down sum to a boundary of matching content is a finite
+projective right module over the all-down endomorphism ring
+(`boundaryRightModule_finite_projective`). Identifying this module with the
+ordinary graded module in Definition 4.34 requires the general corner theorem.
+
+`exists_downPresentedLift` lifts a diagram all of whose layers are downward
+to an ordinary diagram. The signed relations now include the straddled
+red/cap equation (`redCap_slide`) and the degree and inversion relations for
+real and fake black bubbles (`bubble_eq_of_le`, `bubbleGrassmannian`). The README
+records the corrections to (2.2a–b). For the cyclotomic action,
+`cyclotomicRedDownQuotient_tmul` computes the quotient crossing on a simple
+tensor and `cyclotomicRedDownQuotient_surjective` proves every component is onto.
+In singleton content `singletonRedDotCrossing_eval` gives the reverse
+crossing on polynomial representatives, and both composites are the added dot power.
+
 To finish Lemma 4.28 in general, impose the remaining relations in Definition
 4.24, straighten signed diagrams with all-down boundary into downward diagrams,
 and prove the ordinary map is faithful modulo the violating ideal. The

@@ -28,7 +28,9 @@ section Completion
 variable {D : Type*} [Category* D] [Preadditive D]
   {k : Type*} [CommRing k] [Linear k D] (S : ObjectProperty D)
 
-private theorem finiteFactorization {a b : D} {f : a ⟶ b}
+/-- A morphism in the span of composites through a family is a finite sum of such composites,
+with coefficients absorbed in the first factor. -/
+theorem finiteFactorization {a b : D} {f : a ⟶ b}
     (hf : f ∈ factorSpan k id S a b) :
     ∃ (n : ℕ) (c : Fin n → S.FullSubcategory)
       (u : ∀ i, a ⟶ (c i).obj) (v : ∀ i, (c i).obj ⟶ b), (∑ i, u i ≫ v i) = f := by

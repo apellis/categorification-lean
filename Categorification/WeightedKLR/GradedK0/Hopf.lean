@@ -18,7 +18,7 @@ in that tensor-square algebra, and a degree-preserving two-sided convolution
 inverse are the concrete braided Hopf structure. Dimension vectors index the
 nonnegative cone in `ℤ[I]`: all other weight components are zero.
 
-The final construction uses a coefficient field and a loop-free weighted graph
+The final construction uses a coefficient field and a weighted graph without zero-weight loops
 with the standing hypotheses. The graded dimensions and tensor comparisons
 come from the standing grading. The corrected recursion and its printed form
 are recorded in `GradedK0/Antipode.lean`.
@@ -84,57 +84,57 @@ structure BraidedHopfK0 extends Coalgebra L G.K0W where
     Algebra.linearMap L G.K0W ∘ₗ counit
 
 variable (hD : Γ.Dagger) (hS : Γ.Standing)
-  (hne : ∀ e, Γ.head e ≠ Γ.tail e) (hl : ∀ i, Γ.loop i = none)
+  (hZ : Γ.NoZeroLoops) (hl : ∀ i, Γ.loop i = none)
   [∀ ν : I →₀ ℕ, HasGdim (G.klrGrade ν)]
 
-local notation "Δ" => G.totalCoproduct hD hS hne hl
-local notation "S" => G.antipodeK0 hD hS hne hl
+local notation "Δ" => G.totalCoproduct hD hS hZ hl
+local notation "S" => G.antipodeK0 hD hS hZ hl
 
 /-- The restriction coproduct and its weight-zero counit give the ordinary
 underlying coalgebra of Webster, §2.4, Theorem 2.19. -/
 @[instance_reducible] def K0coalgebra : Coalgebra L G.K0W where
   comul := Δ
   counit := G.counitK0
-  coassoc := G.totalCoproduct_coassoc hD hS hne hl
+  coassoc := G.totalCoproduct_coassoc hD hS hZ hl
   rTensor_counit_comp_comul := by
     apply LinearMap.ext
     intro x
     apply (TensorProduct.lid L G.K0W).injective
-    exact (G.counitK0_totalCoproduct_left hD hS hne hl x).trans (one_smul L x).symm
+    exact (G.counitK0_totalCoproduct_left hD hS hZ hl x).trans (one_smul L x).symm
   lTensor_counit_comp_comul := by
     apply LinearMap.ext
     intro x
     apply (TensorProduct.rid L G.K0W).injective
-    exact (G.counitK0_totalCoproduct_right hD hS hne hl x).trans (one_smul L x).symm
+    exact (G.counitK0_totalCoproduct_right hD hS hZ hl x).trans (one_smul L x).symm
 
 /-- The left antipode identity for the weighted restriction coproduct of
 Webster, arXiv:1209.2463v4, §2.4, Theorem 2.19. -/
 theorem antipodeK0_left :
     LinearMap.mul' L G.K0W ∘ₗ (S).rTensor G.K0W ∘ₗ Δ =
       Algebra.linearMap L G.K0W ∘ₗ G.counitK0 := by
-  let _ := G.K0coalgebra hD hS hne hl
+  let _ := G.K0coalgebra hD hS hZ hl
   let e : WithConv (Module.End L G.K0W) := WithConv.toConv LinearMap.id
   let t : WithConv (Module.End L G.K0W) := WithConv.toConv S
-  have het : e * t = 1 := WithConv.ext (G.antipodeK0_right hD hS hne hl)
+  have het : e * t = 1 := WithConv.ext (G.antipodeK0_right hD hS hZ hl)
   have hv : e * (t * e - 1) = 0 := calc
     _ = e * (t * e) - e * 1 := mul_sub e (t * e) 1
     _ = (e * t) * e - e := by rw [mul_assoc e t e, mul_one e]
     _ = 0 := by rw [het, one_mul e, sub_self e]
   have hc : (t * e - 1).ofConv = 0 :=
-    G.eq_zero_of_mul_lTensor_total hD hS hne hl _ (congrArg WithConv.ofConv hv)
+    G.eq_zero_of_mul_lTensor_total hD hS hZ hl _ (congrArg WithConv.ofConv hv)
   have hte : t * e = 1 := sub_eq_zero.mp (WithConv.ext hc)
   exact congrArg WithConv.ofConv hte
 
 /-- The concrete braided Hopf structure on the weighted induction algebra
 for a grading with bounded-below, finite-dimensional graded pieces. -/
 def braidedHopfK0 : G.BraidedHopfK0 where
-  toCoalgebra := G.K0coalgebra hD hS hne hl
+  toCoalgebra := G.K0coalgebra hD hS hZ hl
   antipode := S
-  antipode_homogeneous ν x := ⟨_, G.antipodeK0_of hD hS hne hl ν x⟩
+  antipode_homogeneous ν x := ⟨_, G.antipodeK0_of hD hS hZ hl ν x⟩
   comul_homogeneous {a b ν} h x := by
     change TensorProduct.map (DirectSum.component L _ G.K0fam a)
       (DirectSum.component L _ G.K0fam b) (Δ (DirectSum.lof L _ G.K0fam ν x)) = 0
-    have he := LinearMap.congr_fun (G.component_totalCoproduct hD hS hne hl a b)
+    have he := LinearMap.congr_fun (G.component_totalCoproduct hD hS hZ hl a b)
       (DirectSum.lof L _ G.K0fam ν x)
     simpa only [LinearMap.comp_apply, DirectSum.component.of, dite_eq_right h, map_zero] using he
   counit_homogeneous h x := G.counitK0_of_ne h x
@@ -142,40 +142,40 @@ def braidedHopfK0 : G.BraidedHopfK0 where
   tensor_one_left := G.twMul_one_left
   tensor_one_right := G.twMul_one_right
   tensor_assoc := G.twMul_assoc
-  comul_one := G.totalCoproduct_one hD hS hne hl
-  comul_mul := G.totalCoproduct_mul hD hS hne hl
+  comul_one := G.totalCoproduct_one hD hS hZ hl
+  comul_mul := G.totalCoproduct_mul hD hS hZ hl
   counit_one := G.counitK0_one
   counit_mul := G.counitK0_mul
-  antipode_left := G.antipodeK0_left hD hS hne hl
-  antipode_right := G.antipodeK0_right hD hS hne hl
+  antipode_left := G.antipodeK0_left hD hS hZ hl
+  antipode_right := G.antipodeK0_right hD hS hZ hl
 
 end GradingDatum
 
 namespace WeightedGraph.Standing
 
-variable (hS : Γ.Standing) (hD : Γ.Dagger) (hne : ∀ e, Γ.head e ≠ Γ.tail e)
+variable (hS : Γ.Standing) (hD : Γ.Dagger) (hZ : Γ.NoZeroLoops)
   (hl : ∀ i, Γ.loop i = none)
 
 /-- **Webster, arXiv:1209.2463v4, §2.4, Theorem 2.19 (braided Hopf algebra).**
-Over a field the standing grading of a loop-free weighted graph yields a
+Over a field the standing grading of a weighted graph without zero-weight loops yields a
 braided Hopf algebra on the graded Grothendieck group of projectives, with
 induction multiplication, restriction coproduct, and the corrected recursive
 antipode. This requires no tensor-comparison or graded-dimension hypothesis. -/
 def braidedHopfK0 : hS.gradingDatum.BraidedHopfK0 := by
   letI : ∀ ν : I →₀ ℕ, HasGdim (hS.gradingDatum.klrGrade ν) := fun ν =>
-    GalleryAlgebra.hasGdim_klrGrade (ν := ν) hD (fun e he => (hne e he).elim) hS
-  exact hS.gradingDatum.braidedHopfK0 hD hS hne hl
+    GalleryAlgebra.hasGdim_klrGrade (ν := ν) hD hZ hS
+  exact hS.gradingDatum.braidedHopfK0 hD hS hZ hl
 
 /-- On a one-strand weight the antipode of the standing Hopf structure negates
 every projective class (Webster, §2.4, proof of Theorem 2.19). -/
 theorem braidedHopfK0_antipode_single (i : I) (x : hS.gradingDatum.K0fam (Finsupp.single i 1)) :
-    (hS.braidedHopfK0 hD hne hl).antipode
+    (hS.braidedHopfK0 hD hZ hl).antipode
         (DirectSum.of hS.gradingDatum.K0fam (Finsupp.single i 1) x) =
       -DirectSum.of hS.gradingDatum.K0fam (Finsupp.single i 1) x := by
   let _ : ∀ ν : I →₀ ℕ, HasGdim (hS.gradingDatum.klrGrade ν) := fun ν =>
-    GalleryAlgebra.hasGdim_klrGrade (ν := ν) hD (fun e he => (hne e he).elim) hS
-  change hS.gradingDatum.antipodeK0 hD hS hne hl _ = _
-  rw [GradingDatum.antipodeK0_of, hS.gradingDatum.antipodeComponent_of_degree_one hD hS hne hl
+    GalleryAlgebra.hasGdim_klrGrade (ν := ν) hD hZ hS
+  change hS.gradingDatum.antipodeK0 hD hS hZ hl _ = _
+  rw [GradingDatum.antipodeK0_of, hS.gradingDatum.antipodeComponent_of_degree_one hD hS hZ hl
     (Finsupp.degree_single i 1), LinearMap.neg_apply, LinearMap.id_apply, map_neg]
 
 end WeightedGraph.Standing

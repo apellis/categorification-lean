@@ -76,7 +76,7 @@ section Coproduct
 variable {I : Type*} [DecidableEq I] {𝕜 : Type*} [Field 𝕜] [LinearOrder 𝕜]
   [IsStrictOrderedRing 𝕜] {k : Type*} [Field k] {Γ : WeightedGraph I 𝕜 k}
   (G : GradingDatum Γ) (hD : Γ.Dagger) (hS : Γ.Standing)
-  (hne : ∀ e, Γ.head e ≠ Γ.tail e) (hl : ∀ i, Γ.loop i = none)
+  (hZ : Γ.NoZeroLoops) (hl : ∀ i, Γ.loop i = none)
   [∀ ν : I →₀ ℕ, HasGdim (G.klrGrade ν)]
 
 local notation "L" => LaurentPolynomial ℤ
@@ -91,30 +91,30 @@ private theorem component_cast {μ ν : I →₀ ℕ} (h : μ = ν) (x : G.K0W) 
 private theorem totalCoproduct_coassoc_of_components
     (hcoassoc : ∀ a b c (x : G.K0fam (a + b + c)),
       TensorProduct.assoc L _ _ _
-        (TensorProduct.map (G.splitCoproduct hD hS hne hl a b rfl) LinearMap.id
-          (G.splitCoproduct hD hS hne hl (a + b) c rfl x)) =
-        TensorProduct.map LinearMap.id (G.splitCoproduct hD hS hne hl b c rfl)
-          (G.splitCoproduct hD hS hne hl a (b + c) rfl (G.K0cast (add_assoc a b c) x))) :
+        (TensorProduct.map (G.splitCoproduct hD hS hZ hl a b rfl) LinearMap.id
+          (G.splitCoproduct hD hS hZ hl (a + b) c rfl x)) =
+        TensorProduct.map LinearMap.id (G.splitCoproduct hD hS hZ hl b c rfl)
+          (G.splitCoproduct hD hS hZ hl a (b + c) rfl (G.K0cast (add_assoc a b c) x))) :
     (TensorProduct.assoc L G.K0W G.K0W G.K0W).toLinearMap ∘ₗ
-        (G.totalCoproduct hD hS hne hl).rTensor G.K0W ∘ₗ G.totalCoproduct hD hS hne hl =
-      (G.totalCoproduct hD hS hne hl).lTensor G.K0W ∘ₗ G.totalCoproduct hD hS hne hl := by
+        (G.totalCoproduct hD hS hZ hl).rTensor G.K0W ∘ₗ G.totalCoproduct hD hS hZ hl =
+      (G.totalCoproduct hD hS hZ hl).lTensor G.K0W ∘ₗ G.totalCoproduct hD hS hZ hl := by
   apply LinearMap.ext
   intro x
   apply component_tensorDirectSumTriple G.K0fam G.K0fam G.K0fam
   intro a b c
   simp only [LinearMap.comp_apply, LinearEquiv.coe_coe, LinearMap.rTensor_def, LinearMap.lTensor_def,
     TensorProduct.map_map_assoc, TensorProduct.map_map, LinearMap.comp_id, component_totalCoproduct]
-  rw [← LinearMap.rTensor_map G.K0W (G.splitCoproduct hD hS hne hl a b rfl),
-    ← LinearMap.lTensor_map G.K0W (G.splitCoproduct hD hS hne hl b c rfl)]
+  rw [← LinearMap.rTensor_map G.K0W (G.splitCoproduct hD hS hZ hl a b rfl),
+    ← LinearMap.lTensor_map G.K0W (G.splitCoproduct hD hS hZ hl b c rfl)]
   simp only [LinearMap.rTensor_def, LinearMap.lTensor_def]
   rw [show TensorProduct.map (DirectSum.component L _ G.K0fam (a + b))
-      (DirectSum.component L _ G.K0fam c) (G.totalCoproduct hD hS hne hl x) =
-      G.splitCoproduct hD hS hne hl (a + b) c rfl (DirectSum.component L _ G.K0fam (a + b + c) x) from
-    LinearMap.congr_fun (G.component_totalCoproduct hD hS hne hl (a + b) c) x]
+      (DirectSum.component L _ G.K0fam c) (G.totalCoproduct hD hS hZ hl x) =
+      G.splitCoproduct hD hS hZ hl (a + b) c rfl (DirectSum.component L _ G.K0fam (a + b + c) x) from
+    LinearMap.congr_fun (G.component_totalCoproduct hD hS hZ hl (a + b) c) x]
   rw [show TensorProduct.map (DirectSum.component L _ G.K0fam a)
-      (DirectSum.component L _ G.K0fam (b + c)) (G.totalCoproduct hD hS hne hl x) =
-      G.splitCoproduct hD hS hne hl a (b + c) rfl (DirectSum.component L _ G.K0fam (a + (b + c)) x) from
-    LinearMap.congr_fun (G.component_totalCoproduct hD hS hne hl a (b + c)) x]
+      (DirectSum.component L _ G.K0fam (b + c)) (G.totalCoproduct hD hS hZ hl x) =
+      G.splitCoproduct hD hS hZ hl a (b + c) rfl (DirectSum.component L _ G.K0fam (a + (b + c)) x) from
+    LinearMap.congr_fun (G.component_totalCoproduct hD hS hZ hl a (b + c)) x]
   rw [G.component_cast (add_assoc a b c) x]
   exact hcoassoc a b c (DirectSum.component L _ G.K0fam (a + b + c) x)
 
@@ -122,13 +122,13 @@ private theorem totalCoproduct_coassoc_of_components
 (Webster, arXiv:1209.2463v4, §2.4, Proposition 2.18 and Theorem 2.19). -/
 theorem totalCoproduct_coassoc :
     (TensorProduct.assoc L G.K0W G.K0W G.K0W).toLinearMap ∘ₗ
-        (G.totalCoproduct hD hS hne hl).rTensor G.K0W ∘ₗ G.totalCoproduct hD hS hne hl =
-      (G.totalCoproduct hD hS hne hl).lTensor G.K0W ∘ₗ G.totalCoproduct hD hS hne hl := by
-  apply G.totalCoproduct_coassoc_of_components hD hS hne hl
+        (G.totalCoproduct hD hS hZ hl).rTensor G.K0W ∘ₗ G.totalCoproduct hD hS hZ hl =
+      (G.totalCoproduct hD hS hZ hl).lTensor G.K0W ∘ₗ G.totalCoproduct hD hS hZ hl := by
+  apply G.totalCoproduct_coassoc_of_components hD hS hZ hl
   intro a b c x
-  exact G.coproductK0_coassoc_of_tensorK0Hyp hD (fun e he => (hne e he).elim) hS a b c
-    (G.tensorK0Hyp hD hS hne hl a b) (G.tensorK0Hyp hD hS hne hl b c)
-    (G.tensorK0Hyp hD hS hne hl (a + b) c) (G.tensorK0Hyp hD hS hne hl a (b + c)) x
+  exact G.coproductK0_coassoc_of_tensorK0Hyp hD hZ hS a b c
+    (G.tensorK0Hyp hD hS hZ hl a b) (G.tensorK0Hyp hD hS hZ hl b c)
+    (G.tensorK0Hyp hD hS hZ hl (a + b) c) (G.tensorK0Hyp hD hS hZ hl a (b + c)) x
 
 end Coproduct
 

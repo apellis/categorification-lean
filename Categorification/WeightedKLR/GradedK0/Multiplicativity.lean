@@ -79,26 +79,26 @@ namespace GradingDatum
 variable {𝕜 : Type*} [Field 𝕜] [LinearOrder 𝕜] [IsStrictOrderedRing 𝕜]
   {k : Type*} [Field k] {Γ : WeightedGraph I 𝕜 k} (G : GradingDatum Γ)
   (hD : Γ.Dagger) (hS : Γ.Standing)
-  (hne : ∀ e, Γ.head e ≠ Γ.tail e) (hl : ∀ i, Γ.loop i = none)
+  (hZ : Γ.NoZeroLoops) (hl : ∀ i, Γ.loop i = none)
   [∀ ν : I →₀ ℕ, HasGdim (G.klrGrade ν)]
 
 local notation "L" => LaurentPolynomial ℤ
-local notation "Δ" => G.totalCoproduct hD hS hne hl
-local notation "δ" => G.splitCoproduct hD hS hne hl
+local notation "Δ" => G.totalCoproduct hD hS hZ hl
+local notation "δ" => G.splitCoproduct hD hS hZ hl
 
 private def splitTerm {ν : I →₀ ℕ} (x : G.K0fam ν) (s : WeightSplit ν) :
     G.K0W ⊗[L] G.K0W :=
   G.tensorLof s.1.1 s.1.2 (δ s.1.1 s.1.2 s.sum_eq x)
 
-local notation "R" => G.splitTerm hD hS hne hl
+local notation "R" => G.splitTerm hD hS hZ hl
 
 private theorem totalCoproduct_of_eq_sum {ν : I →₀ ℕ} (x : G.K0fam ν) :
     Δ (DirectSum.of G.K0fam ν x) = ∑ s : WeightSplit ν, R x s :=
-  G.totalCoproduct_lof hD hS hne hl ν x
+  G.totalCoproduct_lof hD hS hZ hl ν x
 
 private theorem splitCoproduct_eq_cast {μ a b : I →₀ ℕ} (h : a + b = μ) (x : G.K0fam μ) :
-    δ a b h x = G.coproductK0 hD (fun e he => (hne e he).elim) hS a b
-      (G.tensorK0Hyp hD hS hne hl a b)
+    δ a b h x = G.coproductK0 hD hZ hS a b
+      (G.tensorK0Hyp hD hS hZ hl a b)
       (K0.map (castW k Γ h).symm (fun _ _ hx => G.castW_mem_klrGrade h hx) x) := by
   subst μ
   unfold splitCoproduct
@@ -106,11 +106,11 @@ private theorem splitCoproduct_eq_cast {μ a b : I →₀ ℕ} (h : a + b = μ) 
   exact (G.map_castW_rfl x).symm
 
 private theorem splitCoproduct_eq_cast_symm {μ a b : I →₀ ℕ} (h : a + b = μ) (x : G.K0fam μ) :
-    δ a b h x = G.coproductK0 hD (fun e he => (hne e he).elim) hS a b
-      (G.tensorK0Hyp hD hS hne hl a b)
+    δ a b h x = G.coproductK0 hD hZ hS a b
+      (G.tensorK0Hyp hD hS hZ hl a b)
       (K0.map (castW k Γ h.symm) (fun _ _ hx => G.castW_symm_mem_klrGrade h.symm hx) x) := by
   subst μ
-  exact G.splitCoproduct_eq_cast hD hS hne hl rfl x
+  exact G.splitCoproduct_eq_cast hD hS hZ hl rfl x
 
 private theorem exists_splitTerm_indK0 {μ ν : I →₀ ℕ} (s : WeightSplit (μ + ν))
     (x : G.K0fam μ) (y : G.K0fam ν) :
@@ -121,7 +121,7 @@ private theorem exists_splitTerm_indK0 {μ ν : I →₀ ℕ} (s : WeightSplit (
         ∑ i, G.twMul (R x (layoutInputs (l i)).1) (R y (layoutInputs (l i)).2) := by
   classical
   obtain ⟨n, l, hi, hr, h⟩ :=
-    exists_coproductK0_indK0_eq_sum_graded G hD hS hne hl s.sum_eq
+    exists_coproductK0_indK0_eq_sum_graded G hD hS hZ hl s.sum_eq
   refine ⟨n, l, hi, hr, ?_⟩
   unfold splitTerm
   rw [splitCoproduct_eq_cast_symm, h x y, map_sum]
@@ -137,7 +137,7 @@ private theorem totalCoproduct_of_mul_of {μ ν : I →₀ ℕ} (x : G.K0fam μ)
       G.twMul (Δ (DirectSum.of G.K0fam μ x)) (Δ (DirectSum.of G.K0fam ν y)) := by
   classical
   choose n l hi hr h using fun s : WeightSplit (μ + ν) =>
-    G.exists_splitTerm_indK0 hD hS hne hl s x y
+    G.exists_splitTerm_indK0 hD hS hZ hl s x y
   let f (p : WeightSplit μ × WeightSplit ν) := G.twMul (R x p.1) (R y p.2)
   have reindex := (layoutInputs_bijective n l hi hr).sum_comp f
   rw [Fintype.sum_sigma, Fintype.sum_prod_type] at reindex
@@ -155,7 +155,7 @@ theorem totalCoproduct_mul (x y : G.K0W) :
     induction y using DirectSum.induction_on with
     | zero => simp
     | add y y' hy hy' => simp only [mul_add, map_add, hy, hy']
-    | of ν y => exact G.totalCoproduct_of_mul_of hD hS hne hl x y
+    | of ν y => exact G.totalCoproduct_of_mul_of hD hS hZ hl x y
 
 end GradingDatum
 end Categorification.WeightedKLR

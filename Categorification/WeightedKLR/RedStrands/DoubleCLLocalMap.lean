@@ -23,7 +23,9 @@ mixed crossings become upward or sideways crossings. Region weights `μ` become
 
 This file constructs the induced functor from any presentation on double
 diagrams into any presentation on the KL signature of `W`, given that the
-relations of the source map to zero. The relation checks for the Cautis–Lauda
+relations of the source map to zero. The image of each move may be rescaled by
+a scalar; `coverSign` is the rescaling by `-1` on same-colour black crossings
+used for the comparison with the Cautis–Lauda presentation. The relation checks for the Cautis–Lauda
 presentation are separate.
 -/
 
@@ -175,67 +177,84 @@ def coverMove (ν : X) : (m : Move I ℓ) → ob W ν (coverWord m.bottom) ⟶ o
 
 variable {k : Type w} [CommRing k]
 
-/-- The image of a reflected double move in a presentation on the KL signature. -/
-def coverImage (Q : Presentation.{w, v'} (psig W) k) (g : (coverSignature W hC o).Gen) :
+/-- The scalar attached to a double move by the comparison with the
+Cautis–Lauda presentation: `-1` on a crossing of two black strands of the same
+colour, `1` on every other move. Webster's black crossings and the reflected
+crossings of the enlarged 2-category differ by this sign on equal colours. -/
+def coverSign [DecidableEq I] : Move I ℓ → k
+  | .black (.cross _ i j) => if i = j then -1 else 1
+  | _ => 1
+
+@[simp] theorem coverSign_cross_self [DecidableEq I] (ε : Bool) (i : I) :
+    coverSign (k := k) (ℓ := ℓ) (.black (.cross ε i i)) = -1 := by simp [coverSign]
+
+theorem coverSign_cross_of_ne [DecidableEq I] (ε : Bool) {i j : I} (h : i ≠ j) :
+    coverSign (k := k) (ℓ := ℓ) (.black (.cross ε i j)) = 1 := by simp [coverSign, h]
+
+/-- The image of a reflected double move in a presentation on the KL signature,
+rescaled by the weight `σ` of the move. -/
+def coverImage (Q : Presentation.{w, v'} (psig W) k) (σ : Move I ℓ → k)
+    (g : (coverSignature W hC o).Gen) :
     Q.obj (LocalMap.genDom κ g) ⟶ Q.obj (LocalMap.genCod κ g) :=
-  eqToHom (congrArg Q.obj (genDom_cover W hC o g)) ≫ Q.diag (coverMove W (o - g.1) g.2) ≫
-    eqToHom (congrArg Q.obj (genCod_cover W hC o g)).symm
+  σ g.2 • (eqToHom (congrArg Q.obj (genDom_cover W hC o g)) ≫
+    Q.diag (coverMove W (o - g.1) g.2) ≫ eqToHom (congrArg Q.obj (genCod_cover W hC o g)).symm)
 
 /-- The relations of reflected double diagrams that hold after inserting the
 KL diagrams of the moves into `Q`. -/
-def coverKernel (Q : Presentation.{w, v'} (psig W) k) :
+def coverKernel (Q : Presentation.{w, v'} (psig W) k) (σ : Move I ℓ → k) :
     Presentation.{w, max u v w} (coverSignature W hC o) k where
   Rel := Σ (a b : Obj (coverSignature W hC o)), {f : LinDiagram k a b //
-    (freeLift k (LocalMap.ofGen κ (coverImage W hC o Q)).functor).map f = 0}
+    (freeLift k (LocalMap.ofGen κ (coverImage W hC o Q σ)).functor).map f = 0}
   dom r := r.1
   cod r := r.2.1
   rel r := r.2.2.1
 
 /-- The functor from reflected double diagrams to `Q` defined by the KL diagrams of the moves. -/
-def coverKernelFunctor (Q : Presentation.{w, v'} (psig W) k) :
-    (coverKernel W hC o Q).Presented ⥤ Q.Presented :=
-  LocalMap.liftGen κ (coverImage W hC o Q) (coverKernel W hC o Q)
-    (fun g => LocalMap.parity_of_isEven κ (coverImage W hC o Q) g) (fun r => r.2.2.2)
+def coverKernelFunctor (Q : Presentation.{w, v'} (psig W) k) (σ : Move I ℓ → k) :
+    (coverKernel W hC o Q σ).Presented ⥤ Q.Presented :=
+  LocalMap.liftGen κ (coverImage W hC o Q σ) (coverKernel W hC o Q σ)
+    (fun g => LocalMap.parity_of_isEven κ (coverImage W hC o Q σ) g) (fun r => r.2.2.2)
 
 local notation "M" => coverMirror W hC o
 
 /-- The image of a double linear combination in `Q`: reflect it, then insert
 the KL diagram of every move. -/
-abbrev coverLin (Q : Presentation.{w, v'} (psig W) k) {a b : Obj (signature RD Λ)}
+abbrev coverLin (Q : Presentation.{w, v'} (psig W) k) (σ : Move I ℓ → k)
+    {a b : Obj (signature RD Λ)}
     (f : LinDiagram k a b) : Q.obj ((coverColourMap W hC o).obj ((M).obj a)) ⟶
       Q.obj ((coverColourMap W hC o).obj ((M).obj b)) :=
-  (freeLift k (LocalMap.ofGen κ (coverImage W hC o Q)).functor).map ((M).toLayerMap.lin f)
+  (freeLift k (LocalMap.ofGen κ (coverImage W hC o Q σ)).functor).map ((M).toLayerMap.lin f)
 
 /-- **Double diagrams in the KL 2-category of the enlarged datum.** Reflection
 in a vertical axis followed by the KL diagrams of the moves defines a functor
 from any presentation `P` on double diagrams whose relations hold in `Q`. -/
 def coverFunctor (P : Presentation.{w, max u v} (signature RD Λ) k)
-    (Q : Presentation.{w, v'} (psig W) k) (hwf : P.WFDom)
-    (hP : ∀ r, coverLin W hC o Q (P.rel r) = 0) :
+    (Q : Presentation.{w, v'} (psig W) k) (σ : Move I ℓ → k) (hwf : P.WFDom)
+    (hP : ∀ r, coverLin W hC o Q σ (P.rel r) = 0) :
     P.Presented ⥤ Q.Presented :=
-  (M).lift P (Q := coverKernel W hC o Q) (χ := fun _ => 1) (fun _ => rfl) hwf (fun r => by
+  (M).lift P (Q := coverKernel W hC o Q σ) (χ := fun _ => 1) (fun _ => rfl) hwf (fun r => by
       rw [LayerMap.freeLift_toPresented_one]
-      exact (coverKernel W hC o Q).lin_rel_self ⟨_, _, ⟨(M).toLayerMap.lin (P.rel r), hP r⟩⟩) ⋙
-    coverKernelFunctor W hC o Q
+      exact (coverKernel W hC o Q σ).lin_rel_self ⟨_, _, ⟨(M).toLayerMap.lin (P.rel r), hP r⟩⟩) ⋙
+    coverKernelFunctor W hC o Q σ
 
 section CoverFunctor
 
 theorem coverFunctor_obj
     (P : Presentation.{w, max u v} (signature (blackDatum W hC) (redWeight W)) k)
-    (Q : Presentation.{w, v'} (psig W) k) (hwf : P.WFDom)
-    (hP : ∀ r, coverLin W hC o Q (P.rel r) = 0)
+    (Q : Presentation.{w, v'} (psig W) k) (σ : Move I ℓ → k) (hwf : P.WFDom)
+    (hP : ∀ r, coverLin W hC o Q σ (P.rel r) = 0)
     (a : Obj (signature (blackDatum W hC) (redWeight W))) :
-    (coverFunctor W hC o P Q hwf hP).obj (P.obj a) =
+    (coverFunctor W hC o P Q σ hwf hP).obj (P.obj a) =
       Q.obj ((coverColourMap W hC o).obj ((coverMirror W hC o).obj a)) := rfl
 
 /-- On a linear combination of diagrams the cover functor is the mirrored
 image followed by the generator images in `Q`. -/
 theorem coverFunctor_lin
     (P : Presentation.{w, max u v} (signature (blackDatum W hC) (redWeight W)) k)
-    (Q : Presentation.{w, v'} (psig W) k) (hwf : P.WFDom)
-    (hP : ∀ r, coverLin W hC o Q (P.rel r) = 0)
+    (Q : Presentation.{w, v'} (psig W) k) (σ : Move I ℓ → k) (hwf : P.WFDom)
+    (hP : ∀ r, coverLin W hC o Q σ (P.rel r) = 0)
     {a b : Obj (signature (blackDatum W hC) (redWeight W))} (f : LinDiagram k a b) :
-    (coverFunctor W hC o P Q hwf hP).map (P.lin f) = coverLin W hC o Q f := by
+    (coverFunctor W hC o P Q σ hwf hP).map (P.lin f) = coverLin W hC o Q σ f := by
   unfold coverFunctor coverKernelFunctor
   rw [Functor.comp_map, SigMirror.lift_lin, LayerMap.freeLift_toPresented_one,
     LocalMap.liftGen_lin]

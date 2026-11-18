@@ -5008,6 +5008,51 @@ example (o : BubbleOrientation) (d : ℕ) :
 end DoubleMarkedRedTransport
 
 
+namespace ViolatingBubbleSweep
+open CategoryTheory Categorification Categorification.QuantumGroup.UDot
+  Categorification.KL3.Diagram Categorification.Stendhal Categorification.Stendhal.DoubleDiagram StringDiagrams
+
+private def weights : Fin 1 → {x : ℤ // ∀ i, 0 ≤ sl2RootDatum.pair (sl2RootDatum.iY i) x} :=
+  fun _ => ⟨2, fun i => by cases i; decide⟩
+private abbrev labels : Fin 1 → ℤ := Subtype.val ∘ weights
+private def base : Presentation (signature sl2RootDatum labels) ℚ :=
+  ⟨Empty, Empty.elim, Empty.elim, fun i => i.elim⟩
+private abbrev Q : Unit → Unit → MvPolynomial (Fin 2) ℚ := fun _ _ => 0
+private def exponents : Fin 1 → Unit →₀ ℕ := fun _ => Finsupp.single () 2
+private abbrev t : Unit → Unit → ℚ := fun _ _ => 1
+private abbrev Cap := signedCapKLPresentation sl2RootDatum labels base Q exponents t
+private theorem hshift (r : Fin 1) (i : Unit) :
+    (exponents r i : ℤ) = ip sl2RootDatum i (labels r) := by
+  cases i
+  simp [exponents, ip, sl2RootDatum, Function.comp_def, weights]
+
+private abbrev loading : List (DoubleStrand Unit 1) := [.inr 0, .inl (dn ())]
+private def bd : BoundaryCategory (RD := sl2RootDatum) (Λ := weights) Cap 0 :=
+  ⟨⟨loading, by decide⟩, by decide⟩
+
+private abbrev kl := signedCapKL_reflectedBlack sl2RootDatum labels base Q exponents t
+
+private theorem slides : RedBubbleSlidesLeft sl2RootDatum labels Cap kl 0 loading :=
+  signedCapKL_redBubbleSlidesLeft sl2RootDatum labels base Q exponents t 0 loading hshift
+
+example := cutProjection_mem_signedDotSpan (RD := sl2RootDatum) (weights := weights) Cap kl bd
+  slides loading [] rfl
+  (cwU sl2RootDatum ℚ (endWeight sl2RootDatum labels 0 loading) () 1) (cwU_isBub () 1)
+
+private abbrev V := violatingFunctor (RD := sl2RootDatum) (Λ := weights) Cap 0
+
+example := cutProjection_exterior_mem_signedDotSpan (RD := sl2RootDatum) (weights := weights)
+  Cap kl bd slides bd bd (2 • 𝟙 ((V).obj bd) : End ((V).obj bd)) (𝟙 ((V).obj bd))
+  (LinearMap.id (R := ℚ) (M := End ((V).obj bd)))
+  loading [] rfl (cwU sl2RootDatum ℚ (endWeight sl2RootDatum labels 0 loading) () 1) (cwU_isBub () 1)
+
+example := farLeftBlackCut_project_comp_scalar (RD := sl2RootDatum) (weights := weights)
+  Cap kl bd bd bd (2 • 𝟙 bd : End bd) (𝟙 bd)
+  (LinearMap.id (R := ℚ) (M := End ((V).obj bd)))
+  (cwU sl2RootDatum ℚ (endWeight sl2RootDatum labels 0 []) () 1)
+
+end ViolatingBubbleSweep
+
 namespace CommonCapPresentation
 open Categorification.Stendhal Categorification.Stendhal.DoubleDiagram
 open CategoryTheory QuantumGroup QuantumGroup.UDot KL3.Diagram StringDiagrams

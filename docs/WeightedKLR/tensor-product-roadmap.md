@@ -274,6 +274,20 @@ equations and the real slides outside this interval give
 `normalizedBubble_slide` for every degree and either orientation. This
 uses the reflected KL III black relations, the red/up dot slide, and the
 red exponent given by the difference of the two coroot coordinates.
+
+The reflected KL III slides move each bubble algebra element across a black
+strand of either orientation, adding only dots on the strand
+(`blackCutBubble_mem_leftSpan`). The normalized red slides identify the
+images of the bubble algebras at the two cuts adjacent to red
+(`redBubbleSlidesLeft_of_ideal_le`). The common cap presentation contains
+these signed relations (`signedCapKL_redBubbleSlidesLeft`). Iterating the
+moves across a signed prefix and evaluating the far-left cut in the
+violating quotient reduces the projected bubble to the span of dot
+diagrams. These diagrams preserve forward paths and the crossing count.
+The reduction is valid after composing with exterior morphisms and
+applying a linear map to the quotient Hom
+(`cutProjection_exterior_mem_signedDotSpan`).
+
 The reflected black relations give both half-mate equalities. Thus all six mixed red/black triple points hold for
 distinct black colours (`mixedRed_triplePoint_ne`). For equal colours the
 middle-downward orders give the negative divided-difference correction in

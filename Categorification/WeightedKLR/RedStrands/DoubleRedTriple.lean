@@ -49,6 +49,22 @@ def middleRedViaRight : W [E i, red r, E j] ⟶ W [E j, red r, E i] :=
   D [E i] (.redBlack r (true, j)) [] ≫ D [] (.black (.cross true i j)) [red r] ≫
     D [E j] (.blackRed (true, i) r) []
 
+/-- Layers of the route taking the middle red to the left first. -/
+theorem layers_middleRedViaLeft :
+    Diagram.layers (middleRedViaLeft RD Λ μ u v r i j) =
+      [layer RD Λ μ u (.blackRed (true, i) r) (E j :: v),
+       layer RD Λ μ (u ++ [red r]) (.black (.cross true i j)) v,
+       layer RD Λ μ u (.redBlack r (true, j)) (E i :: v)] := by
+  simp [middleRedViaLeft, between, moveDiagram]
+
+/-- Layers of the route taking the middle red to the right first. -/
+theorem layers_middleRedViaRight :
+    Diagram.layers (middleRedViaRight RD Λ μ u v r i j) =
+      [layer RD Λ μ (u ++ [E i]) (.redBlack r (true, j)) v,
+       layer RD Λ μ u (.black (.cross true i j)) (red r :: v),
+       layer RD Λ μ (u ++ [E j]) (.blackRed (true, i) r) v] := by
+  simp [middleRedViaRight, between, moveDiagram]
+
 variable {k : Type w} [CommRing k] (P : Presentation.{w,max u v} (signature RD Λ) k)
 
 local notation "T" => addRedUpRelations RD Λ k (addRedUpSlideRelations RD Λ P)

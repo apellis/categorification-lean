@@ -4732,4 +4732,130 @@ example : Function.Surjective (ordinaryToDownwardMatrix (Λ := reds)
 
 end SingleRedSpanningExamples
 
+
+namespace CapPushExample
+open Categorification.Stendhal Categorification.Stendhal.DoubleDiagram
+
+open CategoryTheory QuantumGroup QuantumGroup.UDot StringDiagrams Presentation
+
+private def labels : Fin 1 → ℤ := fun _ => 1
+private abbrev S := signature sl2RootDatum labels
+private def base : Presentation S ℚ := ⟨Empty, Empty.elim, Empty.elim, fun j => nomatch j⟩
+private def down : KL3.Diagram.Letter Unit := (false, ())
+private abbrev O := obj sl2RootDatum labels 0
+private def c : List (SignedLayer Unit 1) := [([], .black (.cup down), [])]
+private def g : List (SignedLayer Unit 1) :=
+  [([], .blackRed down.dual 0, [.inl down]), ([.inr 0], .black (.cap down), [])]
+private abbrev F := signedLayers sl2RootDatum labels 0 c
+private abbrev G := signedLayers sl2RootDatum labels 0 g
+private abbrev a := O []
+private abbrev a' := O [.inl down, .inl down.dual]
+private abbrev b := O [.inl down.dual, .inr 0, .inl down]
+private abbrev b' := O [.inr 0]
+
+private theorem hc : Chain a F a' := chain_signedLayers _ _ _ (by
+  simp [c, signedChain, Move.bottom, Move.top, KL3.Diagram.Shape.dom, KL3.Diagram.Shape.cod])
+private theorem hg : Chain b G b' := chain_signedLayers _ _ _ (by
+  simp [g, signedChain, Move.bottom, Move.top, KL3.Diagram.Shape.dom, KL3.Diagram.Shape.cod])
+private theorem ok : SideBySideOK (O []) [] [] a b := ⟨by
+  exact colours_ok sl2RootDatum labels 0 [.inl down.dual, .inr 0, .inl down],
+  rfl, rfl⟩
+
+example : ∃ d : sbs (O []) [] [] a b ⟶ sbs (O []) [] [] a' b',
+    Diagram.layers d = leftLayers (O []) [] [] F b ++ rightLayers (O []) [] [] G a' ∧
+    base.diag d ∈ lowerCutSpan base _ _ 2 := by
+  let d := Diagram.mk _ ((chain_leftLayers hc ok).append
+    (chain_rightLayers hg (ok.chain (G := []) hc rfl)))
+  refine ⟨d, rfl, lower_disjoint_blocks base (O []) [] [] hc hg ok (by decide) (by decide) ?_ ?_ d rfl⟩
+  · intro L hL
+    simp [F, c, signedLayers] at hL
+    subst L; decide
+  · intro L hL
+    simp [G, g, signedLayers] at hL
+    rcases hL with rfl | rfl <;> decide
+
+example := cap_dots_collect base 0 [.inr 0] down [] [true, false, true]
+example : (addBlackAdjunctionRelations sl2RootDatum labels base).diag
+    (dottedSnakeLeft sl2RootDatum labels 0 [.inr 0] down [] 3) =
+    (addBlackAdjunctionRelations sl2RootDatum labels base).diag
+      (strandDot sl2RootDatum labels 0 [.inr 0] down [] ^ 3) :=
+  dottedSnakeLeft_eq sl2RootDatum labels 0 [.inr 0] down [] base 3
+
+end CapPushExample
+
+namespace MixedRedExamples
+open Categorification.Stendhal Categorification.Stendhal.DoubleDiagram
+
+open CategoryTheory StringDiagrams Categorification.Stendhal Categorification.Stendhal.DoubleDiagram
+open DisconnectedCounterexample
+private abbrev weights (_ : Fin 1) (i : Bool) : ℤ := if i then 0 else 2
+private def base : Presentation.{0,0} (signature weightDatum weights) ℚ where
+  Rel := Empty
+  dom e := e.elim
+  cod e := e.elim
+  rel e := e.elim
+private abbrev exponents (_ : Fin 1) : Bool →₀ ℕ := Finsupp.single false 2
+private abbrev Q (i j : Bool) : MvPolynomial (Fin 2) ℚ := if i=j then 0 else 1
+private abbrev t (_ _ : Bool) : ℚ := 1
+
+example := mixedBlack_halfMate_EF weightDatum weights base 0 [.inr 0] false true [] t
+example := mixedBlack_halfMate_FE weightDatum weights base 0 [] true true [.inr 0] t
+example := mixedRed_triplePoint_of_downOutside weightDatum weights base 0 [] 0 true false [] .ERF rfl
+example := mixedRed_triplePoint_of_ne weightDatum weights 0 [] 0 false true [] Q exponents base t
+  (by decide) .left
+example := mixedRed_triplePoint_ne weightDatum weights 0 [] 0 false true [] Q exponents base t .FER (by decide)
+example := mixedRed_triplePoint_correction weightDatum weights 0 [] 0 false [] Q exponents base t .right
+
+example := mixedRed_triplePoint_sub_mem_crossingFreeSpan weightDatum weights 0 [] 0 false []
+  Q exponents base t .right
+
+example := mixedRed_triplePoint_mod_crossingFree weightDatum weights 0 [.inr 0] 0 false []
+  Q exponents base t true .RFE
+
+private abbrev localReduction := mixedRed_triplePoint_mod_crossingFree weightDatum weights 0 []
+  0 false [] Q exponents base t false .EFR
+
+example := crossingFreeSpan_in_fewerCrossings weightDatum weights 0 _ (𝟙 _) (𝟙 _) (𝟙 _)
+  LinearMap.id localReduction
+
+end MixedRedExamples
+
+
+
+
+namespace DoubleRedBraidBubbles
+open Categorification.Stendhal Categorification.Stendhal.DoubleDiagram
+
+open Categorification Categorification.QuantumGroup.UDot
+  Categorification.Stendhal.DoubleDiagram StringDiagrams
+
+private abbrev weights : Fin 1 → ℤ := fun _ => 4
+private def P : Presentation (signature sl2RootDatum weights) ℚ :=
+  ⟨Empty, Empty.elim, Empty.elim, fun i => i.elim⟩
+private abbrev Q : Unit → Unit → MvPolynomial (Fin 2) ℚ := fun _ _ => 0
+private def exponents : Fin 1 → Unit →₀ ℕ := fun _ => Finsupp.single () 4
+
+example := closedDotMonomial_eq_bubbles sl2RootDatum weights (-2) [] () 0 [] Q exponents P 1 2
+
+example := normalizedBubble_degreeOne sl2RootDatum weights (-2) [] () 0 [] Q exponents P
+  (by decide) (by decide) (by rw [show exponents 0 () = 4 by simp [exponents]]; decide)
+
+end DoubleRedBraidBubbles
+
+namespace RedCapPassExample
+open Categorification Categorification.QuantumGroup.UDot
+  Categorification.Stendhal Categorification.Stendhal.DoubleDiagram StringDiagrams
+
+private def weights : Fin 2 → ℤ := fun r => if r = 0 then 1 else 3
+private def exponents : Fin 2 → Unit →₀ ℕ := fun r => Finsupp.single () (if r = 0 then 1 else 3)
+private def base : Presentation (signature sl2RootDatum weights) ℚ :=
+  ⟨Empty, Empty.elim, Empty.elim, fun j => j.elim⟩
+private abbrev Q : Unit → Unit → MvPolynomial (Fin 2) ℚ := fun _ _ => 0
+
+example := capWithRedPassingLeft_up sl2RootDatum weights 0 [] 0 [.inr 1] Q exponents base ()
+example := capWithRedPassingLeft_down sl2RootDatum weights 0 [.inr 0] 1 [] Q exponents base ()
+example := capWithRedPassingRight_up sl2RootDatum weights 0 [] 0 [.inr 1] Q exponents base ()
+example := capWithRedPassingRight_down sl2RootDatum weights 0 [.inr 0] 1 [] Q exponents base ()
+end RedCapPassExample
+
 end NonVacuity

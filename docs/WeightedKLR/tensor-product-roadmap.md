@@ -257,6 +257,28 @@ bubble-series inversions. The latter together with both real slides leave the
 first coefficient undetermined at −2 and +2, as shown by
 `realRedBubbleSlides_do_not_determine_degree_one`.
 
+Identifying each closed monomial with the product of its two real bubbles
+gives the degree-one transport across every strict sign change
+(`normalizedBubble_degreeOne`). The reflected black relations give both
+half-mate equalities. Thus all six mixed red/black triple points hold for
+distinct black colours (`mixedRed_triplePoint_ne`). For equal colours the
+middle-downward orders give the negative divided-difference correction in
+`mixedRed_triplePoint_correction`.
+
+For caps in arbitrary signed contexts, `capWithRedPassingLeft_down` and its
+three orientation variants pass red across both legs. Disjoint blocks commute
+and a dotted triangle contracts (`lower_disjoint_blocks`, `dottedSnakeLeft_eq`).
+The maximum number of upward strands and then the number of cuts attaining
+that maximum give `ordinaryToDownwardMatrix_surjective_of_lowering`.
+A general intersecting excursion may introduce a sideways black crossing,
+represented by a cup and a cap. Its expansion can return to the original
+height. The crossing-count induction
+`ordinaryToDownwardMatrix_surjective_of_terminalCaps` treats the sideways
+crossing as a single move. The equal-colour mixed corrections contain zero
+crossings in place of three, so they are lower terms in every surrounding
+diagram by `crossingFreeSpan_in_fewerCrossings`. General terminal-cap
+reduction still requires pushing through interleaved crossings.
+
 For a presentation with compatible pitchfork coefficients, impose the remaining relations in Definition
 4.24, straighten signed diagrams with all-down boundary into downward diagrams,
 and prove the ordinary map is faithful modulo the violating ideal. The cited

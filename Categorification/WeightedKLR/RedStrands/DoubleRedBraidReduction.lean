@@ -63,28 +63,6 @@ private theorem signedDg_cap_mate (μ : X) (p q : List (DoubleStrand I ℓ))
     (by simp [signedChain, Move.bottom, Move.top, List.append_assoc]) (redCapRight RD Λ μ p l r q) rfl]
   exact (Pd).diag_eq_of_rel (.inl (.inl (.inr ⟨μ, p, l, r, q⟩))) rfl
 
-/-- Equations between presented diagrams remain valid when relations are adjoined. -/
-theorem lin_eq_addRels {S : Signature} (B : Presentation.{w, v} S k)
-    {J : Type v} {dom cod : J → Obj S} {rel : ∀ j, LinDiagram k (dom j) (cod j)}
-    {a b : Obj S} {f g : LinDiagram k a b} (h : B.lin f = B.lin g) :
-    (B.addRels J dom cod rel).lin f = (B.addRels J dom cod rel).lin g := by
-  simp only [Presentation.lin_eq_iff] at h ⊢
-  refine Submodule.span_mono ?_ h
-  rintro _ ⟨x, l, r, hw, pre, post⟩
-  cases x with
-  | user j =>
-    exact Presentation.IdealGen.intro (P := B.addRels J dom cod rel)
-      (.user (Sum.inl j)) l r hw pre post
-  | interchange x hx =>
-    exact Presentation.IdealGen.intro (P := B.addRels J dom cod rel)
-      (.interchange x hx) l r hw pre post
-
-private theorem diag_eq_addRels {S : Signature} (B : Presentation.{w, v} S k)
-    {J : Type v} {dom cod : J → Obj S} {rel : ∀ j, LinDiagram k (dom j) (cod j)}
-    {a b : Obj S} {f g : a ⟶ b} (h : B.diag f = B.diag g) :
-    (B.addRels J dom cod rel).diag f = (B.addRels J dom cod rel).diag g :=
-  lin_eq_addRels B h
-
 private theorem signedDg_up_cancel_right (μ : X) (p q : List (DoubleStrand I ℓ))
     (i : I) (r : Fin ℓ) :
     signedDg RD Λ (Pd) μ (p ++ [.inr r, .inl (true, i)] ++ q) (p ++ [.inr r, .inl (true, i)] ++ q)

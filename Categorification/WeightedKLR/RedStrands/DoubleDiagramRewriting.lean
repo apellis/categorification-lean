@@ -4,6 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 -/
 import Categorification.WeightedKLR.RedStrands.DoubleDiagram
 import StringDiagrams.Positional
+import StringDiagrams.Biadjunction.PivotalExtension
 
 /-!
 # Rewriting signed Stendhal layers in context
@@ -23,6 +24,29 @@ open CategoryTheory StringDiagrams QuantumGroup QuantumGroup.UDot
 universe w u v
 variable {I : Type u} {C : CartanDatum I} {X Y : Type v} [AddCommGroup X] [AddCommGroup Y]
   (RD : WeightDatum C X Y) {ℓ : ℕ} (Λ : Fin ℓ → X) {k : Type w} [CommRing k]
+
+/-- Equations between presented diagrams remain valid when relations are adjoined. -/
+theorem lin_eq_addRels {S : Signature} (B : Presentation.{w, v} S k)
+    {J : Type v} {dom cod : J → Obj S} {rel : ∀ j, LinDiagram k (dom j) (cod j)}
+    {a b : Obj S} {f g : LinDiagram k a b} (h : B.lin f = B.lin g) :
+    (B.addRels J dom cod rel).lin f = (B.addRels J dom cod rel).lin g := by
+  simp only [Presentation.lin_eq_iff] at h ⊢
+  refine Submodule.span_mono ?_ h
+  rintro _ ⟨x, l, r, hw, pre, post⟩
+  cases x with
+  | user j =>
+    exact Presentation.IdealGen.intro (P := B.addRels J dom cod rel)
+      (.user (Sum.inl j)) l r hw pre post
+  | interchange x hx =>
+    exact Presentation.IdealGen.intro (P := B.addRels J dom cod rel)
+      (.interchange x hx) l r hw pre post
+
+/-- Adjoining relations preserves equality of diagram classes. -/
+theorem diag_eq_addRels {S : Signature} (B : Presentation.{w, v} S k)
+    {J : Type v} {dom cod : J → Obj S} {rel : ∀ j, LinDiagram k (dom j) (cod j)}
+    {a b : Obj S} {f g : a ⟶ b} (h : B.diag f = B.diag g) :
+    (B.addRels J dom cod rel).diag f = (B.addRels J dom cod rel).diag g :=
+  lin_eq_addRels B h
 
 /-- A signed generator with the words on its left and right. -/
 abbrev SignedLayer (I : Type u) (ℓ : ℕ) :=

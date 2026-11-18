@@ -220,6 +220,17 @@ This supplies the vacuum calculation from the proof of v3 Lemma 4.29 in the cove
 The printed pitchfork obstruction prevents interpreting it as an action of that
 signed presentation on the same ordinary algebra.
 
+For the surjectivity part alone, `ordinaryToDownwardMatrix_surjective_of_straightening`
+reduces the matrix statement to spanning individual entries. At each horizontal
+cut reached from a downward boundary the length is its initial length plus twice
+the number of upward strands (`cut_length_from_allDown`). Consequently the
+shorter-boundary remainder in cap elimination vanishes. A cap-free representative
+already lifts to an ordinary diagram (`exists_downDiagramLift_of_no_caps`).
+`redUpWordNaturalIso` moves a red through any upward black diagram, and
+`middleRed_triplePoint` moves an intervening red through an upward crossing.
+`ccwBubble_afterRedPrefix_zero` removes the positive real counterclockwise
+bubbles after any initial red word by moving them to a violated cut.
+
 For a presentation with compatible pitchfork coefficients, impose the remaining relations in Definition
 4.24, straighten signed diagrams with all-down boundary into downward diagrams,
 and prove the ordinary map is faithful modulo the violating ideal. The cited

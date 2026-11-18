@@ -1161,6 +1161,11 @@ import Categorification.WeightedKLR.RedStrands.DoublePitchforkObstruction
 import Categorification.WeightedKLR.RedStrands.CyclotomicCoverVacuumEvaluation
 import Categorification.WeightedKLR.RedStrands.DoubleRegularEvaluation
 import Categorification.WeightedKLR.RedStrands.OrdinaryRegularDiagram
+import Categorification.WeightedKLR.RedStrands.DoubleDownSpan
+import Categorification.WeightedKLR.RedStrands.DoubleCapElimination
+import Categorification.WeightedKLR.RedStrands.DoubleRedPrefixBubble
+import Categorification.WeightedKLR.RedStrands.DoubleRedTriple
+import Categorification.WeightedKLR.RedStrands.DoubleRedUpThrough
 /-!
 # Categorification
 

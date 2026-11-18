@@ -4425,4 +4425,57 @@ example (M : ModuleCat (CycKLR ℚ (cyclotomicCoverQ C wt Q) cyclotomicCoverPoly
 
 end ProjectedCyclotomicCover
 
+namespace DoubleRedTripleExamples
+open CategoryTheory StringDiagrams Categorification Categorification.Stendhal
+open Categorification.Stendhal.DoubleDiagram Categorification.QuantumGroup.UDot
+private def weights : Fin 2 → ℤ := fun r => (r.val : ℤ) + 2
+private def base : Presentation.{0, 0} (signature sl2RootDatum weights) ℚ where
+  Rel := Empty
+  dom e := e.elim
+  cod e := e.elim
+  rel e := e.elim
+
+example :
+    (addRedUpSlideRelations sl2RootDatum weights base).diag
+      (redUpSlideMirror sl2RootDatum weights (-1) [.inr 0] 1 (.dot ()) [.inl (false, ())] false) =
+    (addRedUpSlideRelations sl2RootDatum weights base).diag
+      (redUpSlideMirror sl2RootDatum weights (-1) [.inr 0] 1 (.dot ()) [.inl (false, ())] true) :=
+  redUp_slide_mirror sl2RootDatum weights base (-1) [.inr 0] 1 (.dot ()) [.inl (false, ())]
+
+private abbrev slides := addRedUpRelations sl2RootDatum weights ℚ (addRedUpSlideRelations sl2RootDatum weights base)
+example :
+    slides.diag (middleRedViaLeft sl2RootDatum weights 0 [.inr 0] [] 1 () ()) =
+    slides.diag (middleRedViaRight sl2RootDatum weights 0 [.inr 0] [] 1 () ()) :=
+  middleRed_triplePoint sl2RootDatum weights 0 [.inr 0] [] 1 () () base
+example := redUpWordIso sl2RootDatum weights base (-1) 1 [.inr 0] [(),(),()] [.inl (false, ())]
+example := redUp_enclosed_move sl2RootDatum weights base 0 1 [.inr 0] (.cross () ()) []
+example := (redUpWordNaturality sl2RootDatum weights base 0 1 [.inr 0] [.inl (false, ())]).app
+  (KLR.Diagram.ob [(),(),()])
+example := redThroughUpWord_move sl2RootDatum weights base 0 1 [.inr 0] [()] (.cross () ()) [(),()] []
+
+example (f : base.obj (obj sl2RootDatum weights 0
+    (([.inr 0,.inl (),.inr 1] : List (Unit ⊕ Fin 2)).map DoubleStrand.down)) ⟶
+    base.obj (obj sl2RootDatum weights 0 [.inr 0,.inr 1])) : f = 0 :=
+  hom_eq_zero_of_shorter_than_allDown sl2RootDatum weights base 0
+    [.inr 0,.inl (),.inr 1] (by decide) f
+
+end DoubleRedTripleExamples
+
+namespace RedPrefixBubble
+open Categorification Categorification.Stendhal Categorification.Stendhal.DoubleDiagram
+  Categorification.QuantumGroup.UDot StringDiagrams
+
+private def reds : Fin 2 → {x : ℤ // ∀ i, 0 ≤ sl2RootDatum.pair (sl2RootDatum.iY i) x} :=
+  fun _ => ⟨1, by decide +revert⟩
+private abbrev labels := Subtype.val ∘ reds
+private abbrev coeff : Fin 2 → Unit →₀ ℕ := fun _ => Finsupp.single () 1
+private def base : Presentation (signature sl2RootDatum labels) ℚ :=
+  ⟨Empty, Empty.elim, Empty.elim, fun i => i.elim⟩
+private abbrev vacuum : DoubleStendhalTriple sl2RootDatum reds 0 2 :=
+  ⟨⟨[.inr 0, .inr 1], by decide⟩, by decide +kernel⟩
+
+example := ccwBubble_afterRedPrefix_zero sl2RootDatum () (fun _ _ => (0 : MvPolynomial (Fin 2) ℚ))
+  coeff reds base vacuum [0,1] [] rfl 0
+end RedPrefixBubble
+
 end NonVacuity

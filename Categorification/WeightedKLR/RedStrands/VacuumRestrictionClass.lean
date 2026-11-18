@@ -82,6 +82,15 @@ private theorem vacuum_class_series [Module.Finite k A] [HasGdim src] (W : GProj
       exact (K0.map_smul_of_T (F := K0.homForm src (K0.of reg))
         (fun a x => K0.homForm_T_smul_right a (K0.of reg) x) v (K0.of reg)).symm
 
+/-- The regular vacuum projective has graded endomorphism series one. -/
+theorem vacuum_homForm_regular [Module.Finite k A] [HasGdim src] :
+    K0.homForm src (K0.of reg) (K0.of reg) = 1 := by
+  have h := (vacuum_class_series G reg).symm
+  rw [tensorProductVacuumK0Equiv_regular] at h
+  refine h.trans ?_
+  ext d
+  simp [← LaurentPolynomial.T_zero, HahnSeries.coeff_one, eq_comm]
+
 /-- The class of raw restriction to the vacuum is the Hom polynomial from the
 induced vacuum projective to the original projective. -/
 theorem tensorProductVacuumK0Equiv_blackResVacuumProj

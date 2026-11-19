@@ -296,6 +296,138 @@ omit [DecidableEq I] in
 @[simp] theorem val_gE [DecidableEq I] (s : Seq μ) :
     (gE c Λ' (Q := Q) s : C).val = e' (splitLoading c s) := rfl
 
+theorem e_mul_e_split (t u : Seq μ) :
+    e' (splitLoading c t) * e' (splitLoading c u) = if t = u then e' (splitLoading c t) else 0 := by
+  rw [StendhalAlgebraAllOrders.e_mul_e]
+  simp only [(splitLoading_injective c).eq_iff]
+
+theorem polTerm_mul (a b : MvPolynomial (Fin m') k) (t u : Seq μ) :
+    polA k Q Λ' ν a * e' (splitLoading c t) * (polA k Q Λ' ν b * e' (splitLoading c u)) =
+      if t = u then polA k Q Λ' ν (a * b) * e' (splitLoading c t) else 0 := by
+  rw [mul_assoc, ← mul_assoc (e' _), (e_commute_polA _ b).eq, mul_assoc, e_mul_e_split]
+  split_ifs <;> simp [map_mul, mul_assoc]
+
+theorem splitIdem_mul_polTerm (a : MvPolynomial (Fin m') k) (t : Seq μ) :
+    splitIdem c Q Λ' ν * (polA k Q Λ' ν a * e' (splitLoading c t)) =
+      polA k Q Λ' ν a * e' (splitLoading c t) := by
+  rw [← mul_assoc, (polA_commute_splitIdem c Λ' a).symm.eq, mul_assoc, splitIdem_mul_e]
+
+theorem polTerm_mul_splitIdem (a : MvPolynomial (Fin m') k) (t : Seq μ) :
+    polA k Q Λ' ν a * e' (splitLoading c t) * splitIdem c Q Λ' ν =
+      polA k Q Λ' ν a * e' (splitLoading c t) := by
+  rw [mul_assoc, e_mul_splitIdem]
+
+open KLR in
+/-- The image of the dots: on the split loading of `s`, the old strand at `a` sits at
+`splitPos c s a`. -/
+noncomputable def polSplit : MvPolynomial (Fin m) k →ₐ[k] C where
+  toFun p := Corner.mk (∑ t : Seq μ,
+      polA k Q Λ' ν (MvPolynomial.rename (splitPos c t) p) * e' (splitLoading c t)) (by
+    rw [Finset.mul_sum, Finset.sum_mul]
+    exact Finset.sum_congr rfl fun t _ => by
+      rw [splitIdem_mul_polTerm, polTerm_mul_splitIdem])
+  map_one' := Corner.ext (by
+    simp only [Corner.val_mk, Corner.val_one, map_one, one_mul]; rfl)
+  map_mul' p q := Corner.ext (by
+    simp only [Corner.val_mk, Corner.val_mul, Finset.sum_mul_sum, polTerm_mul, map_mul]
+    exact (Finset.sum_congr rfl fun t _ => by simp).symm)
+  map_zero' := Corner.ext (by simp)
+  map_add' p q := Corner.ext (by simp [add_mul, Finset.sum_add_distrib])
+  commutes' r := Corner.ext (by
+    simp only [Corner.val_algebraMap, splitIdem, Finset.mul_sum]
+    exact Finset.sum_congr rfl fun t _ => by rw [AlgHom.commutes, AlgHom.commutes])
+
+omit [DecidableEq I] in
+theorem val_polSplit [DecidableEq I] (p : MvPolynomial (Fin m) k) :
+    (polSplit c Λ' p : C).val = ∑ t : Seq μ,
+      polA k Q Λ' ν (MvPolynomial.rename (splitPos c t) p) * e' (splitLoading c t) := rfl
+
+open KLR in
+/-- The image of the crossing `ψ_j`. -/
+noncomputable def gΨ (j : ℕ) : C :=
+  if h : j + 1 < m then
+    Corner.mk (∑ t : Seq μ, W Q Λ' ν j (redPos c t) * e' (splitLoading c t)) (by
+      rw [Finset.mul_sum, Finset.sum_mul]
+      exact Finset.sum_congr rfl fun t _ => by
+        rw [mul_assoc, mul_assoc (W Q Λ' ν j _), e_mul_splitIdem, W_mul_e c Λ' j h,
+          ← mul_assoc, splitIdem_mul_e])
+  else 0
+
+/-! ### Relations among the generators -/
+
+open KLR
+
+theorem gE_mul_gE (s t : Seq μ) :
+    (gE c Λ' s : C) * gE c Λ' t = if s = t then gE c Λ' s else 0 :=
+  Corner.ext (by rw [Corner.val_mul, val_gE, val_gE, e_mul_e_split]; split_ifs <;> rfl)
+
+theorem sum_gE : ∑ s : Seq μ, (gE c Λ' s : C) = 1 :=
+  Corner.ext (by rw [Corner.val_sum]; rfl)
+
+theorem val_polSplit_mul_gE (p : MvPolynomial (Fin m) k) (t : Seq μ) :
+    (polSplit c Λ' p * gE c Λ' t : C).val =
+      polA k Q Λ' ν (MvPolynomial.rename (splitPos c t) p) * e' (splitLoading c t) := by
+  rw [Corner.val_mul, val_polSplit, val_gE, Finset.sum_mul]
+  simp_rw [mul_assoc, e_mul_e_split]
+  simp
+
+theorem val_gE_mul_polSplit (p : MvPolynomial (Fin m) k) (t : Seq μ) :
+    (gE c Λ' t * polSplit c Λ' p : C).val =
+      polA k Q Λ' ν (MvPolynomial.rename (splitPos c t) p) * e' (splitLoading c t) := by
+  rw [Corner.val_mul, val_polSplit, val_gE, Finset.mul_sum]
+  simp_rw [← mul_assoc, (e_commute_polA _ _).eq, mul_assoc, e_mul_e_split]
+  simp
+
+theorem polSplit_mul_gE (p : MvPolynomial (Fin m) k) (t : Seq μ) :
+    (polSplit c Λ' p * gE c Λ' t : C) = gE c Λ' t * polSplit c Λ' p :=
+  Corner.ext (by rw [val_polSplit_mul_gE, val_gE_mul_polSplit])
+
+theorem val_gΨ_mul_gE (j : ℕ) (hj : j + 1 < m) (t : Seq μ) :
+    (gΨ c Λ' j * gE c Λ' t : C).val = W Q Λ' ν j (redPos c t) * e' (splitLoading c t) := by
+  simp only [gΨ, hj, ↓reduceDIte]
+  rw [Corner.val_mul, Corner.val_mk, val_gE, Finset.sum_mul]
+  simp_rw [mul_assoc, e_mul_e_split]
+  simp
+
+theorem gΨ_mul_gE (j : ℕ) (t : Seq μ) :
+    (gΨ c Λ' j * gE c Λ' t : C) = gE c Λ' (sadj m j • t) * gΨ c Λ' j := by
+  by_cases hj : j + 1 < m
+  · apply Corner.ext
+    rw [val_gΨ_mul_gE c Λ' j hj]
+    simp only [gΨ, hj, ↓reduceDIte]
+    rw [Corner.val_mul, Corner.val_mk, val_gE, Finset.mul_sum]
+    simp_rw [W_mul_e c Λ' j hj, ← mul_assoc, e_mul_e_split]
+    simp
+  · simp [gΨ, hj]
+
+/-- Two elements of the corner agree if they agree after multiplication by every `e(s)`. -/
+theorem ext_gE {Y Z : C} (h : ∀ s, Y * gE c Λ' s = Z * gE c Λ' s) : Y = Z := by
+  rw [← mul_one Y, ← mul_one Z, ← sum_gE c Λ', Finset.mul_sum, Finset.mul_sum]
+  exact Finset.sum_congr rfl fun s _ => h s
+
+/-- Computing step by step: a dot on a diagram ending in the loading `u`. -/
+theorem val_polSplit_mul (p : MvPolynomial (Fin m) k) (u : Seq μ) {Y : C}
+    (hY : gE c Λ' u * Y = Y) :
+    (polSplit c Λ' p * Y).val =
+      polA k Q Λ' ν (MvPolynomial.rename (splitPos c u) p) * Y.val := by
+  rw [← hY, ← mul_assoc, Corner.val_mul, val_polSplit_mul_gE, mul_assoc, ← val_gE,
+    ← Corner.val_mul, hY]
+
+theorem gE_mul_polSplit_mul (p : MvPolynomial (Fin m) k) (u : Seq μ) {Y : C}
+    (hY : gE c Λ' u * Y = Y) : gE c Λ' u * (polSplit c Λ' p * Y) = polSplit c Λ' p * Y := by
+  rw [← mul_assoc, ← polSplit_mul_gE, mul_assoc, hY]
+
+/-- Computing step by step: a crossing on a diagram ending in the loading `u`. -/
+theorem val_gΨ_mul (j : ℕ) (hj : j + 1 < m) (u : Seq μ) {Y : C} (hY : gE c Λ' u * Y = Y) :
+    (gΨ c Λ' j * Y).val = W Q Λ' ν j (redPos c u) * Y.val := by
+  rw [← hY, ← mul_assoc, Corner.val_mul, val_gΨ_mul_gE c Λ' j hj, mul_assoc, ← val_gE,
+    ← Corner.val_mul, hY]
+
+theorem gE_mul_gΨ_mul (j : ℕ) (u : Seq μ) {Y : C} (hY : gE c Λ' u * Y = Y) :
+    gE c Λ' (sadj m j • u) * (gΨ c Λ' j * Y) = gΨ c Λ' j * Y := by
+  rw [← hY, ← mul_assoc (gΨ c Λ' j), gΨ_mul_gE, ← mul_assoc, ← mul_assoc, gE_mul_gE]
+  simp
+
 end Split
 
 end Categorification.Stendhal.SplitRed

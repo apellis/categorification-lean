@@ -111,6 +111,43 @@ def vacuumEval {s : I ⊕ Fin ℓ → ℤ} (hν : blockWeight Wgt L (stendhalWei
       Signature.IsEven.odd_eq_false ha hb φ).hom.app
         (coverVacuum.{u, v, w} Λ C hQ)) ⟨stendhalWeight ℓ ν, hν⟩)
 
+variable {Λ C hQ ν}
+
+/-- **Red-negligible morphisms evaluate to zero.** -/
+theorem vacuumEval_eq_zero {s : I ⊕ Fin ℓ → ℤ}
+    (hν : blockWeight Wgt L (stendhalWeight ℓ ν) = s) {c d : Obj (psig Wgt)}
+    (ha : Cond s wt₀ c) (hb : Cond s wt₀ d) {φ : (PCL).obj c ⟶ (PCL).obj d}
+    (h : CoverRedNegligible.{u, v, w} Λ C hQ hc φ) :
+    vacuumEval.{u, v, w} Λ C hQ ν hν ha hb φ = 0 :=
+  CoverRed.project_eq_zero (h ha hb) ν hν _
+
+theorem vacuumEval_comp {s : I ⊕ Fin ℓ → ℤ}
+    (hν : blockWeight Wgt L (stendhalWeight ℓ ν) = s) {c d e : Obj (psig Wgt)}
+    (ha : Cond s wt₀ c) (hb : Cond s wt₀ d) (he : Cond s wt₀ e)
+    (φ : (PCL).obj c ⟶ (PCL).obj d) (ψ : (PCL).obj d ⟶ (PCL).obj e) :
+    vacuumEval.{u, v, w} Λ C hQ ν hν ha he (φ ≫ ψ) =
+      vacuumEval.{u, v, w} Λ C hQ ν hν ha hb φ ≫ vacuumEval.{u, v, w} Λ C hQ ν hν hb he ψ := by
+  unfold vacuumEval
+  rw [admissibleQuotientMap_comp _ _ _ _ ha hb he]
+  exact Functor.map_comp _ _ _
+
+theorem vacuumEval_id {s : I ⊕ Fin ℓ → ℤ}
+    (hν : blockWeight Wgt L (stendhalWeight ℓ ν) = s) {c : Obj (psig Wgt)}
+    (ha : Cond s wt₀ c) :
+    vacuumEval.{u, v, w} Λ C hQ ν hν ha ha (𝟙 _) = 𝟙 _ := by
+  unfold vacuumEval
+  rw [admissibleQuotientMap_id]
+  exact CategoryTheory.Functor.map_id _ _
+
+theorem vacuumEval_add {s : I ⊕ Fin ℓ → ℤ}
+    (hν : blockWeight Wgt L (stendhalWeight ℓ ν) = s) {c d : Obj (psig Wgt)}
+    (ha : Cond s wt₀ c) (hb : Cond s wt₀ d) (φ ψ : (PCL).obj c ⟶ (PCL).obj d) :
+    vacuumEval.{u, v, w} Λ C hQ ν hν ha hb (φ + ψ) =
+      vacuumEval.{u, v, w} Λ C hQ ν hν ha hb φ + vacuumEval.{u, v, w} Λ C hQ ν hν ha hb ψ := by
+  unfold vacuumEval
+  rw [admissibleQuotientMap_add]
+  exact Functor.map_add _
+
 end Evaluation
 
 end Categorification.Stendhal

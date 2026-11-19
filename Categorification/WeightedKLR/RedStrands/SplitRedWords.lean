@@ -254,4 +254,87 @@ theorem isReduced_expandWord (s : Seq μ) {ρ : List ℕ} (hρ : IsReduced m ρ)
         splitPos_lt_splitPos_iff]
       exact hlt
 
+/-! ### Words exchanging no two red strands -/
+
+omit [DecidableEq I] in
+theorem noRedCross_append {ℓ₀ : ℕ} (α β : List ℕ) (i : Seq (stendhalWeight ℓ₀ ν)) :
+    NoRedCross (α ++ β) i ↔
+      NoRedCross α (wordProd (Multiset.card (stendhalWeight ℓ₀ ν)) β • i) ∧ NoRedCross β i := by
+  induction α with
+  | nil => simp [NoRedCross]
+  | cons j α ih =>
+    simp only [List.cons_append, NoRedCross, ih, wordProd_append, mul_smul]
+    tauto
+
+theorem isLeft_splitLoading_splitPos (t : Seq μ) (a : Fin m) :
+    ((splitLoading c t).1 (splitPos c t a)).isLeft = (t.1 a).isLeft := by
+  change ((splitLoading c t).lbl _).isLeft = _
+  rw [splitLoading_lbl_splitPos, splitColor_isLeft]
+
+theorem isLeft_splitLoading_newPos (t : Seq μ) :
+    ((splitLoading c t).1 (newPos c t)).isLeft = false := by
+  change ((splitLoading c t).lbl _).isLeft = _
+  rw [splitLoading_lbl_newPos]; rfl
+
+omit [DecidableEq I] in
+theorem smul_sadj_apply {κ : Multiset (I ⊕ Fin ℓ)} (u : Seq κ) (k : ℕ)
+    (b : Fin (Multiset.card κ)) : (sadj (Multiset.card κ) k • u).1 b = u.1 (sadj _ k b) := by
+  rw [Seq.smul_apply, ← Perm.inv_def, sadj_inv]
+
+theorem isLeft_redPos (t : Seq μ) : (t.1 (redPos c t)).isLeft = false := by
+  change (t.lbl _).isLeft = _
+  rw [lbl_redPos]; rfl
+
+/-- One crossing of two strands, not both red, gives crossings of strands, not both red. -/
+theorem noRedCross_wLetters (t : Seq μ) {j : ℕ} (hj : j + 1 < m)
+    (h : (t.1 ⟨j, by omega⟩).isLeft ∨ (t.1 ⟨j + 1, hj⟩).isLeft) :
+    NoRedCross (wLetters j (redPos c t)) (splitLoading c t) := by
+  have hm' := m'_eq (ν := ν) (ℓ := ℓ)
+  unfold wLetters
+  split_ifs with h1 h2 h3
+  · simp only [NoRedCross, wordProd_nil, one_smul, true_and]
+    intro _
+    rw [splitPos_eq_of_le c t (a := j) (by omega), splitPos_eq_of_le c t (a := j + 1) (by omega),
+      isLeft_splitLoading_splitPos, isLeft_splitLoading_splitPos]
+    exact h
+  · have hr : (t.1 ⟨j + 1, hj⟩).isLeft = false := by
+      rw [show (⟨j + 1, hj⟩ : Fin m) = redPos c t from Fin.ext h2]; exact isLeft_redPos c t
+    have hl : (t.1 ⟨j, by omega⟩).isLeft := by simpa [hr] using h
+    simp only [NoRedCross, wordProd_nil, one_smul, true_and, wordProd_cons, mul_one]
+    refine ⟨fun _ => ?_, fun _ => ?_⟩
+    · left
+      rw [splitPos_eq_of_le c t (a := j) (by omega), isLeft_splitLoading_splitPos]; exact hl
+    · left
+      rw [smul_sadj_apply, sadj_apply_right (by omega),
+        splitPos_eq_of_le c t (a := j) (by omega), isLeft_splitLoading_splitPos]; exact hl
+  · have hr : (t.1 ⟨j, by omega⟩).isLeft = false := by
+      rw [show (⟨j, by omega⟩ : Fin m) = redPos c t from Fin.ext h3]; exact isLeft_redPos c t
+    have hl : (t.1 ⟨j + 1, hj⟩).isLeft := by simpa [hr] using h
+    simp only [NoRedCross, wordProd_nil, one_smul, true_and, wordProd_cons, mul_one]
+    refine ⟨fun _ => ?_, fun _ => ?_⟩
+    · right
+      rw [splitPos_eq_of_lt c t (a := j + 1) (by omega) hj, isLeft_splitLoading_splitPos]
+      exact hl
+    · right
+      rw [smul_sadj_apply, sadj_apply_left (by omega),
+        splitPos_eq_of_lt c t (a := j + 1) (by omega) hj, isLeft_splitLoading_splitPos]
+      exact hl
+  · simp only [NoRedCross, wordProd_nil, one_smul, true_and]
+    intro _
+    rw [splitPos_eq_of_lt c t (a := j) (by omega) (by omega),
+      splitPos_eq_of_lt c t (a := j + 1) (by omega) hj,
+      isLeft_splitLoading_splitPos, isLeft_splitLoading_splitPos]
+    exact h
+
+/-- **Expanding a word that exchanges no two red strands gives such a word.** -/
+theorem noRedCross_expandWord (s : Seq μ) {ρ : List ℕ} (hv : ValidWord m ρ)
+    (hρ : NoRedCross ρ s) : NoRedCross (expandWord c s ρ) (splitLoading c s) := by
+  induction ρ with
+  | nil => trivial
+  | cons j ρ ih =>
+    rw [validWord_cons] at hv
+    obtain ⟨hρ', hj⟩ := hρ
+    rw [expandWord_cons, noRedCross_append, ← splitLoading_wordProd c s hv.2]
+    exact ⟨noRedCross_wLetters c _ hv.1 (hj hv.1), ih hv.2 hρ'⟩
+
 end Categorification.Stendhal.SplitRed

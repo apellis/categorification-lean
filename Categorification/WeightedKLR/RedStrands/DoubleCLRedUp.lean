@@ -131,4 +131,78 @@ theorem coverLin_redUpRel [DecidableEq I]
     erw [Category.id_comp, eqToHom_trans, eqToHom_refl]
     rfl
 
+section Rouquier
+open Diagrams.BicatInterp
+
+/-- An admissible evaluation that vanishes for one pair of boundary regions vanishes for every
+pair admitted by the same domain and codomain. -/
+theorem admissibleMap_eq_zero_transport {B : Type*} [Bicategory B]
+    [∀ a b : B, Preadditive (a ⟶ b)] [∀ a b : B, Linear k (a ⟶ b)] {M₀ : Model (psig W) B}
+    (G : GenImg M₀) {s t s' t' : X} {a b : Obj (psig W)}
+    (ha : Cond s t a) (hb : Cond s t b) (ha' : Cond s' t' a) (hb' : Cond s' t' b)
+    (f : LinDiagram k a b) (h : admissibleMap G ha' hb' f = 0) : admissibleMap G ha hb f = 0 := by
+  have hs : s = s' := ha.2.2.symm.trans ha'.2.2
+  subst s'
+  have ht : t = t' := ha.2.1.symm.trans ha'.2.1
+  subst t'
+  exact h
+
+variable {B : Type*} [Bicategory B] [∀ a b : B, Preadditive (a ⟶ b)] (S : RouqFamily (B := B) W)
+  [AdditiveWhiskering B] [∀ a b : B, Linear k (a ⟶ b)]
+  [∀ (a b c : B) (f : a ⟶ b), (Bicategory.precomp c f).Linear k]
+  [∀ (a b c : B) (g : b ⟶ c), (Bicategory.postcomp a g).Linear k]
+
+/-- **Red and black sideways crossings are mutually inverse.** In the presentation of all
+relations killed by a Rouquier family for `W` with Cautis–Lauda scalars, Brundan's upward
+relations and invertible mixed crossings, the Cautis–Lauda down-up relations with `t = 1`
+between a black and a red vertex make `crossr` and `crossl` inverse to each other. -/
+theorem kernel_cross_inverse (Sc : CL.CLScalars C' k)
+    (htr : ∀ (j : I) (r : Fin ℓ), Sc.t (.inl j) (.inr r) = 1)
+    (H : BrundanUpKLR S Sc) (Mi : BrundanMixedInversion S) (ν : X) (r : Fin ℓ) (j : I) :
+    (admissibleKernel (k := k) (S.genImg Sc)).diag
+        (crossr W (.inr r) (.inl j) ν ≫ crossl W (.inr r) (.inl j) ν) = 𝟙 _ ∧
+      (admissibleKernel (k := k) (S.genImg Sc)).diag
+        (crossl W (.inr r) (.inl j) ν ≫ crossr W (.inr r) (.inl j) ν) = 𝟙 _ := by
+  have hne : (Sum.inl j : I ⊕ Fin ℓ) ≠ Sum.inr r := Sum.inl_ne_inr
+  constructor
+  · let {a b c d : X} (hj : a + W.iX (.inr r) = b) (hi' : b + W.iX (.inl j) = d)
+        (hi : a + W.iX (.inl j) = c) (hj' : c + W.iX (.inr r) = d) :
+        IsIso (S.mixedSigma (.inl j) (.inr r) hj hi' hi hj') := Mi _ _ hne hj hi' hi hj'
+    have h := admissibleKernel_lin_eq_zero (S.genImg Sc)
+      (CL.relationCL W k Sc (.downupFE (.inl j) (.inr r) hne ν)) (fun s t ha hb =>
+        admissibleMap_eq_zero_transport W _ ha hb _ _ _
+          (S.mixed_downupFE_rel Sc H (.inl j) (.inr r) hne ν))
+    change (admissibleKernel (k := k) (S.genImg Sc)).lin
+      (LinDiagram.of (crossr W (.inr r) (.inl j) ν ≫ crossl W (.inr r) (.inl j) ν) -
+        (Sc.t (.inl j) (.inr r) : k) • LinDiagram.of (𝟙 _)) = 0 at h
+    rw [Presentation.lin_sub, Presentation.lin_smul, htr, Units.val_one, one_smul,
+      sub_eq_zero] at h
+    exact h.trans ((admissibleKernel (k := k) (S.genImg Sc)).diag_id _)
+  · let {a b c d : X} (hj : a + W.iX (.inr r) = b) (hi' : b + W.iX (.inl j) = d)
+        (hi : a + W.iX (.inl j) = c) (hj' : c + W.iX (.inr r) = d) :
+        IsIso (S.mixedSigma (.inl j) (.inr r) hj hi' hi hj') := Mi _ _ hne hj hi' hi hj'
+    have h := admissibleKernel_lin_eq_zero (S.genImg Sc)
+      (CL.relationCL W k Sc (.downupEF (.inr r) (.inl j) hne.symm ν)) (fun s t ha hb =>
+        admissibleMap_eq_zero_transport W _ ha hb _ _ _
+          (S.mixed_downupEF_rel Sc H (.inr r) (.inl j) hne.symm ν))
+    change (admissibleKernel (k := k) (S.genImg Sc)).lin
+      (LinDiagram.of (crossl W (.inr r) (.inl j) ν ≫ crossr W (.inr r) (.inl j) ν) -
+        (Sc.t (.inl j) (.inr r) : k) • LinDiagram.of (𝟙 _)) = 0 at h
+    rw [Presentation.lin_sub, Presentation.lin_smul, htr, Units.val_one, one_smul,
+      sub_eq_zero] at h
+    exact h.trans ((admissibleKernel (k := k) (S.genImg Sc)).diag_id _)
+
+include hC in
+/-- **The red/upward bigons hold after reflection** under a Rouquier family as in
+`kernel_cross_inverse`. -/
+theorem coverLin_redUpRel_kernel [DecidableEq I] (Sc : CL.CLScalars C' k)
+    (htr : ∀ (j : I) (r : Fin ℓ), Sc.t (.inl j) (.inr r) = 1)
+    (H : BrundanUpKLR S Sc) (Mi : BrundanMixedInversion S) (a : RedUpRelation X I ℓ) :
+    coverLin W hC o (admissibleKernel (k := k) (S.genImg Sc)) coverSign
+      (LinDiagram.of (bareBigon RD Λ a.leftWeight a.red a.up a.side) - LinDiagram.of (𝟙 _)) = 0 :=
+  coverLin_redUpRel W hC o _ (fun ν r j => (kernel_cross_inverse W S Sc htr H Mi ν r j).1)
+    (fun ν r j => (kernel_cross_inverse W S Sc htr H Mi ν r j).2) a
+
+end Rouquier
+
 end Categorification.Stendhal.DoubleDiagram

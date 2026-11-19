@@ -315,4 +315,40 @@ theorem coverRedNegligible_downCover_sub_upCover (μ : I ⊕ Fin ℓ → ℤ)
   intro s t hs ht
   exact key.1 hs ht
 
+theorem coverRedNegligible_of_sub {c d : Obj (psig Wgt)} {f g : (PCL).obj c ⟶ (PCL).obj d}
+    (h₁ : CoverRedNegligible.{u, v, w} Λ C hQ hc (f - g))
+    (h₂ : CoverRedNegligible.{u, v, w} Λ C hQ hc g) : CoverRedNegligible.{u, v, w} Λ C hQ hc f := by
+  have h : CoverRedNegligible.{u, v, w} Λ C hQ hc (f - g + g) := CoverRedNegligible.add h₁ h₂
+  rwa [sub_add_cancel] at h
+
+/-- **Downward KLR relations with at most one red strand**, given the comparison of scalars.
+If, on the reflected upward strands, the KLR relations with parameters `Qd` differ from those
+with the Cautis–Lauda parameters by a cover red-negligible morphism, then the downward KLR
+relations with parameters `Qd` and at most one red strand are cover red-negligible. -/
+theorem coverRedNegligible_downRelation_le_one
+    (Qd : I ⊕ Fin ℓ → I ⊕ Fin ℓ → MvPolynomial (Fin 2) k)
+    (hscal : ∀ (μ : I ⊕ Fin ℓ → ℤ) (r : KLR.Diagram.Rel (I ⊕ Fin ℓ)),
+      r.dom.word.countP (fun c => c.isRight) ≤ 1 →
+      CoverRedNegligible.{u, v, w} Λ C hQ hc ((freeLift k (upCover Λ C hQ o μ)).map
+        (KLR.Diagram.relation k Qd r - KLR.Diagram.relation k (CL.qCL Sc) r)))
+    (μ : I ⊕ Fin ℓ → ℤ) (r : KLR.Diagram.Rel (I ⊕ Fin ℓ))
+    (hr : r.dom.word.countP (fun c => c.isRight) ≤ 1) :
+    CoverRedNegligible.{u, v, w} Λ C hQ hc
+      (coverCL Λ C hQ o (downLinear (RDc) (redWeight Wgt) k μ [] []
+        (KLR.Diagram.relation k Qd r))) := by
+  rw [coverCL_downLinear]
+  have hcod : r.cod.word.countP (fun c => c.isRight) ≤ 1 := by
+    rw [(relCod_perm_dom r).countP_eq]; exact hr
+  have hG : (freeLift k (upCover Λ C hQ o μ)).map (KLR.Diagram.relation k Qd r) =
+      (freeLift k (upCover Λ C hQ o μ)).map
+        (KLR.Diagram.relation k Qd r - KLR.Diagram.relation k (CL.qCL Sc) r) := by
+    rw [Functor.map_sub, upCover_relation, sub_zero]
+  apply coverRedNegligible_of_sub
+  · exact coverRedNegligible_downCover_sub_upCover Λ C hQ hc o μ _
+      (Signature.ok_of_subsingleton _ _) (Signature.ok_of_subsingleton _ _) hr hcod
+  · apply CoverRedNegligible.comp_left
+    apply CoverRedNegligible.comp_right
+    rw [hG]
+    exact hscal μ r hr
+
 end Categorification.Stendhal

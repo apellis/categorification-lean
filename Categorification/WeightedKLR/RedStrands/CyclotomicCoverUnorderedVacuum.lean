@@ -81,7 +81,8 @@ theorem isZero_wordCell_unordered (t : Seq (stendhalWeight ℓ ν))
     (ht : ¬ IsRedOrdered t.rev) :
     IsZero ((functor (RingHom.toNonUnitalRingHom (AlgHom.toRingHom π))).obj
       (((RouqData.wordCell (Fam).toRouqData wt₀ t).obj.obj
-        (familyObj sym lead monic topDeg deg V)) (topBlk (RD := Wgt) (Λ := L) (μ := wt₀) rfl))) := by
+        (familyObj sym lead monic topDeg deg V))
+        (topBlk (RD := Wgt) (Λ := L) (μ := wt₀) rfl))) := by
   have he : RingHom.toNonUnitalRingHom (AlgHom.toRingHom π)
       (CycKLR.mk k S p _
         (e (wseq (wordL Wgt wt₀ t) (topBlk_eq (RD := Wgt) (Λ := L) (μ := wt₀) rfl t)))) = 0 := by

@@ -7,7 +7,7 @@ import Categorification.WeightedKLR.RedStrands.SplitRedWords
 import Categorification.WeightedKLR.RedStrands.StendhalParameters
 
 /-!
-# Splitting a red strand: injectivity before quotienting
+# Splitting a red strand before quotienting
 
 B. Webster, *Knot invariants and higher representation theory*, arXiv:1309.3796v3, §4.3,
 Proposition 4.21. Splitting the red strand `λ_c = λ'_c + λ'_{c+1}` sends a Stendhal term
@@ -21,6 +21,8 @@ gives injectivity of the splitting map on red-ordered diagrams.
 * `splitHom_word` : the value of the splitting map on `ψ_ρ x^u e(s)`.
 * `splitStendhalValue` : the splitting map on red-ordered diagrams, `T̃^λ → T̃^{λ'}`.
 * `splitStendhalValue_injective` : it is injective, for the crossing parameters of §2.2.
+* `e_mul_mul_e_mem_range_splitStendhalValue` : its image contains `e(t') T̃^{λ'} e(s')` for all
+  split loadings `s'`, `t'`.
 -/
 
 noncomputable section
@@ -194,6 +196,49 @@ theorem splitStendhalValue_e (s : Seq μ) (hs : IsRedOrdered s) :
   rw [splitHom_e]
   rfl
 
+/-! ### Expanded words exchanging no two red strands -/
+
+/-- The letters of one crossing exchange no two red strands only if the crossing exchanges no
+two red strands. -/
+theorem isLeft_of_noRedCross_wLetters (t : Seq μ) {j : ℕ} (hj : j + 1 < m)
+    (h : NoRedCross (wLetters j (redPos c t)) (splitLoading c t)) :
+    (t.1 ⟨j, by omega⟩).isLeft ∨ (t.1 ⟨j + 1, hj⟩).isLeft := by
+  have hm' := m'_eq (ν := ν) (ℓ := ℓ)
+  unfold wLetters at h
+  split_ifs at h with h1 h2 h3
+  · have h' := h.2 (by omega)
+    simp only [wordProd_nil, one_smul] at h'
+    rwa [splitPos_eq_of_le c t (a := j) (by omega), splitPos_eq_of_le c t (a := j + 1) (by omega),
+      isLeft_splitLoading_splitPos, isLeft_splitLoading_splitPos] at h'
+  · have h' := h.1.2 (by omega)
+    simp only [wordProd_nil, one_smul] at h'
+    rw [splitPos_eq_of_le c t (a := j) (by omega), splitPos_eq_of_le c t (a := j + 1) (by omega),
+      isLeft_splitLoading_splitPos, isLeft_splitLoading_splitPos] at h'
+    exact h'
+  · have h' := h.1.2 (by omega)
+    simp only [wordProd_nil, one_smul] at h'
+    rcases h' with h' | h'
+    · rw [show (splitLoading c t).1 ⟨j + 1, by omega⟩ = (splitLoading c t).1 (newPos c t) from
+        congrArg _ (Fin.ext (by rw [newPos_val]; show j + 1 = _; omega)), isLeft_splitLoading_newPos] at h'
+      exact absurd h' (by simp)
+    · right
+      rwa [splitPos_eq_of_lt c t (a := j + 1) (by omega) hj, isLeft_splitLoading_splitPos] at h'
+  · have h' := h.2 (by omega)
+    simp only [wordProd_nil, one_smul] at h'
+    rwa [splitPos_eq_of_lt c t (a := j) (by omega) (by omega),
+      splitPos_eq_of_lt c t (a := j + 1) (by omega) hj,
+      isLeft_splitLoading_splitPos, isLeft_splitLoading_splitPos] at h'
+
+/-- **An expanded word exchanges no two red strands only if the word does.** -/
+theorem noRedCross_of_expandWord (s : Seq μ) {ρ : List ℕ} (hv : ValidWord m ρ)
+    (h : NoRedCross (expandWord c s ρ) (splitLoading c s)) : NoRedCross ρ s := by
+  induction ρ with
+  | nil => trivial
+  | cons j ρ ih =>
+    rw [validWord_cons] at hv
+    rw [expandWord_cons, noRedCross_append, ← splitLoading_wordProd c s hv.2] at h
+    exact ⟨ih hv.2 h.2, fun hj => isLeft_of_noRedCross_wLetters c _ hj h.1⟩
+
 /-! ### Loading-dependent reduced words -/
 
 /-- The permutation of the split loading induced by `w`, through the expanded word. -/
@@ -218,6 +263,45 @@ private theorem gw_injective (s : Seq μ) : Function.Injective (gw c s) := by
   have := congrArg (fun g : Perm (Fin m') => (g (splitPos c s a) : ℕ)) h
   simp only [gw_apply_splitPos, splitPos_val, hr] at this
   split_ifs at this <;> omega
+
+/-- A permutation carrying one split loading to another comes from a permutation of the
+unsplit loadings. -/
+private theorem exists_gw (s t : Seq μ) (w : Perm (Fin m'))
+    (h : w • splitLoading c s = splitLoading c t) : ∃ v : Perm (Fin m), v • s = t ∧ gw c s v = w := by
+  have hlbl : ∀ b, (splitLoading c t).lbl (w b) = (splitLoading c s).lbl b := by
+    intro b
+    rw [← h]
+    simp [Seq.lbl]
+  have hnew : w (newPos c s) = newPos c t := by
+    rcases eq_newPos_or_splitPos c t (w (newPos c s)) with h' | ⟨a, ha⟩
+    · exact h'
+    · exfalso
+      have := hlbl (newPos c s)
+      rw [ha, splitLoading_lbl_splitPos, splitLoading_lbl_newPos] at this
+      exact splitColor_ne_new c _ this
+  have hsp : ∀ a, ∃ a', w (splitPos c s a) = splitPos c t a' := by
+    intro a
+    rcases eq_newPos_or_splitPos c t (w (splitPos c s a)) with h' | h'
+    · exact absurd (w.injective (h'.trans hnew.symm)) (splitPos_ne_newPos c s a)
+    · exact h'
+  choose f hf using hsp
+  have hfinj : Function.Injective f := fun a b hab =>
+    splitPos_injective c s (w.injective ((hf a).trans ((congrArg _ hab).trans (hf b).symm)))
+  let v : Perm (Fin m) := Equiv.ofBijective f hfinj.bijective_of_finite
+  have hvs : v • s = t := by
+    apply Subtype.ext
+    funext a'
+    obtain ⟨a, rfl⟩ := v.surjective a'
+    rw [Seq.smul_apply, v.symm_apply_apply]
+    apply splitColor_injective c
+    have := hlbl (splitPos c s a)
+    rw [hf a, splitLoading_lbl_splitPos, splitLoading_lbl_splitPos] at this
+    exact this.symm
+  refine ⟨v, hvs, Equiv.ext fun b => ?_⟩
+  rcases eq_newPos_or_splitPos c s b with rfl | ⟨a, rfl⟩
+  · rw [gw_apply_newPos, hvs, hnew]
+  · rw [gw_apply_splitPos, hvs, hf]
+    rfl
 
 /-- Reduced words for the permutations of the split loadings of `s`: expanded words on the image
 of `gw`, canonical words elsewhere. -/
@@ -351,6 +435,83 @@ theorem splitStendhalValue_injective {D : QuantumGroup.CartanDatum I} (hQ : IsRo
     Function.Injective (splitStendhalValue c Q Λ' ν) :=
   splitStendhalValue_injective_of_stendhalTerm c Λ'
     (fun _ hρ => linearIndependent_stendhalTerm_of_rouquier Q ν Λ' hQ hρ)
+
+/-- Every Stendhal term of `T̃^{λ'}` from one split loading to another is the split of a Stendhal
+term of `T̃^λ`. -/
+private theorem exists_stendhalTerm_eq (s t : Seq μ)
+    (b : {x // IsStendhalTerm (ν := ν) (ℓ := ℓ + 1) (ρs c s) x})
+    (hb1 : b.1.1 = splitLoading c s) (hb2 : b.1.2.1 • b.1.1 = splitLoading c t) :
+    ∃ b₀ : OldTerm, (newB s) b = splitStendhalValue c Q Λ' ν (oldB b₀) := by
+  classical
+  obtain ⟨⟨s', w, d⟩, hb⟩ := b
+  dsimp only at hb1 hb2
+  subst hb1
+  obtain ⟨hr1, hr2, hdot, hcross⟩ := hb
+  obtain ⟨v, hvs, rfl⟩ := exists_gw c s t w hb2
+  have hsupp : ↑d.support ⊆ Set.range (splitPosEmb c s) := by
+    intro x hx
+    rcases eq_newPos_or_splitPos c s x with rfl | ⟨a, rfl⟩
+    · have := hdot _ hx
+      rw [isLeft_splitLoading_newPos] at this
+      exact absurd this (by simp)
+    · exact ⟨a, rfl⟩
+  let d₀ : Fin m →₀ ℕ := d.comapDomain (splitPos c s) (splitPos_injective c s).injOn
+  have hd : Finsupp.embDomain (splitPosEmb c s) d₀ = d := Finsupp.embDomain_comapDomain hsupp
+  have h0 : IsStendhalTerm (ν := ν) (ℓ := ℓ) (canWord m) (s, v, d₀) := by
+    refine ⟨(isRedOrdered_splitLoading_iff c s).1 hr1, ?_, ?_, ?_⟩
+    · change IsRedOrdered (v • s)
+      rw [hvs, ← isRedOrdered_splitLoading_iff c t, ← hb2]
+      exact hr2
+    · intro a ha
+      have := hdot (splitPos c s a) (by simpa [d₀] using ha)
+      rwa [isLeft_splitLoading_splitPos] at this
+    · change NoRedCross (ρs c s (gw c s v)) (splitLoading c s) at hcross
+      rw [ρs_gw] at hcross
+      exact noRedCross_of_expandWord c s (validWord_canWord m v) hcross
+  refine ⟨⟨(s, v, d₀), h0⟩, ?_⟩
+  rw [splitTerm_value]
+  congr 1
+  apply Subtype.ext
+  change _ = (splitLoading c s, gw c s v, Finsupp.embDomain (splitPosEmb c s) d₀)
+  rw [hd]
+
+/-- **Splitting a red strand is onto the corner of the split idempotents** (Webster,
+arXiv:1309.3796v3, Proposition 4.21): `e(t') y e(s')` lies in the image of the splitting map
+for all split loadings `s'`, `t'` of red-ordered loadings. -/
+theorem e_mul_mul_e_mem_range_splitStendhalValue (s t : Seq μ) (hs : IsRedOrdered s)
+    (ht : IsRedOrdered t) (y : StendhalAlgebra k Q Λ' ν) :
+    StendhalAlgebra.e (splitLoading c t) ((isRedOrdered_splitLoading_iff c t).2 ht) * y *
+        StendhalAlgebra.e (splitLoading c s) ((isRedOrdered_splitLoading_iff c s).2 hs) ∈
+      Set.range (splitStendhalValue c Q Λ' ν) := by
+  classical
+  let f : StendhalAlgebra k Q (mergeWeights c Λ') ν →ₗ[k] StendhalAlgebra k Q Λ' ν :=
+    { toFun := splitStendhalValue c Q Λ' ν, map_add' := map_add _,
+      map_smul' := splitStendhalValue_smul c Λ' }
+  suffices hf : _ ∈ LinearMap.range f by
+    obtain ⟨z, hz⟩ := hf
+    exact ⟨z, hz⟩
+  have hy := span_stendhalTerm (Q := Q) (Λ := Λ') (ν := ν) (ρs_spec c s) (Submodule.mem_top (x := y))
+  refine Submodule.span_induction (p := fun y _ => StendhalAlgebra.e (splitLoading c t)
+      ((isRedOrdered_splitLoading_iff c t).2 ht) * y * StendhalAlgebra.e (splitLoading c s)
+      ((isRedOrdered_splitLoading_iff c s).2 hs) ∈ LinearMap.range f) ?_ ?_ ?_ ?_ hy
+  · rintro _ ⟨b, rfl⟩
+    rw [mul_assoc, stendhalTerm_mul_e]
+    split_ifs with h1
+    · rw [e_mul_stendhalTerm]
+      split_ifs with h2
+      · obtain ⟨b₀, hb₀⟩ := exists_stendhalTerm_eq c (k := k) (Q := Q) Λ' s t b h1 (h1 ▸ h2)
+        exact ⟨oldB b₀, hb₀.symm⟩
+      · exact Submodule.zero_mem _
+    · rw [mul_zero]
+      exact Submodule.zero_mem _
+  · rw [mul_zero, zero_mul]
+    exact Submodule.zero_mem _
+  · intro x z _ _ hx hz
+    rw [mul_add, add_mul]
+    exact Submodule.add_mem _ hx hz
+  · intro a x _ hx
+    rw [mul_smul_comm, smul_mul_assoc]
+    exact Submodule.smul_mem _ a hx
 
 end Independence
 

@@ -33,6 +33,7 @@ theorem obj_tensor_obj (μ : X) (w v : List (DoubleStrand I ℓ)) :
         (obj RD (fun r => (Λ r).val) (endWeight RD (fun r => (Λ r).val) μ w) v) =
       obj RD (fun r => (Λ r).val) μ (w ++ v) := by
   simp only [obj, Obj.tensor, colours_append]
+  rfl
 
 theorem obj_tensor_obj_of_eq {μ μ' : X} {w : List (DoubleStrand I ℓ)}
     (h : endWeight RD (fun r => (Λ r).val) μ w = μ') (v : List (DoubleStrand I ℓ)) :
@@ -131,7 +132,9 @@ instance {μ ν : X} (v : List (DoubleStrand I ℓ)) (hv : RedFree v)
     show eqToHom _ ≫ P.wRAt (0 : X) (f.hom + g.hom) _ rfl rfl ≫ eqToHom _ =
       (eqToHom _ ≫ P.wRAt (0 : X) f.hom _ rfl rfl ≫ eqToHom _) +
         (eqToHom _ ≫ P.wRAt (0 : X) g.hom _ rfl rfl ≫ eqToHom _)
-    rw [P.wRAt_add, Preadditive.add_comp, Preadditive.comp_add]
+    erw [P.wRAt_add]
+    rw [Preadditive.add_comp, Preadditive.comp_add]
+    rfl
 
 instance {μ ν : X} (v : List (DoubleStrand I ℓ)) (hv : RedFree v)
     (hν : endWeight RD (fun r => (Λ r).val) μ v = ν) :
@@ -140,7 +143,8 @@ instance {μ ν : X} (v : List (DoubleStrand I ℓ)) (hv : RedFree v)
     ext
     show eqToHom _ ≫ P.wRAt (0 : X) (a • f.hom) _ rfl rfl ≫ eqToHom _ =
       a • (eqToHom _ ≫ P.wRAt (0 : X) f.hom _ rfl rfl ≫ eqToHom _)
-    rw [P.wRAt_smul, Linear.smul_comp, Linear.comp_smul]
+    erw [P.wRAt_smul]
+    rw [Linear.smul_comp, Linear.comp_smul]
 
 /-- Right whiskering by a red-free word on the violating quotients. It is well defined
 because appending a word keeps the leftmost strand. -/
@@ -208,8 +212,11 @@ theorem whiskerLeft_comp {v'' : List (DoubleStrand I ℓ)} (hv'' : RedFree v'')
     whiskerLeft P hv hv'' hν hν'' (φ ≫ φ') =
       whiskerLeft P hv hv' hν hν' φ ≫ whiskerLeft P hv' hv'' hν' hν'' φ' := by
   ext x
-  rw [NatTrans.comp_app, InducedCategory.comp_hom, whiskerLeft_app_hom, whiskerLeft_app_hom,
-    whiskerLeft_app_hom, P.wL_comp]
+  show eqToHom _ ≫ P.wL (obj RD (fun r => (Λ r).val) 0 x.val.word) (φ ≫ φ') ≫ eqToHom _ =
+    (eqToHom _ ≫ P.wL (obj RD (fun r => (Λ r).val) 0 x.val.word) φ ≫ eqToHom _) ≫
+      (eqToHom _ ≫ P.wL (obj RD (fun r => (Λ r).val) 0 x.val.word) φ' ≫ eqToHom _)
+  simp only [P.wL_comp, Category.assoc]
+  erw [eqToHom_trans_assoc]
   simp
 
 /-- A diagram between red-free words gives a natural transformation between right
@@ -232,8 +239,10 @@ theorem violatingWhiskerLeft_comp {v'' : List (DoubleStrand I ℓ)} (hv'' : RedF
     violatingWhiskerLeft P hv hv'' hν hν'' (φ ≫ φ') =
       violatingWhiskerLeft P hv hv' hν hν' φ ≫
         violatingWhiskerLeft P hv' hv'' hν' hν'' φ' := by
-  rw [violatingWhiskerLeft, violatingWhiskerLeft, violatingWhiskerLeft,
-    CategoryTheory.Quotient.comp_natTransLift, whiskerLeft_comp, Functor.whiskerRight_comp]
+  rw [violatingWhiskerLeft, violatingWhiskerLeft, violatingWhiskerLeft]
+  erw [CategoryTheory.Quotient.comp_natTransLift]
+  rw [whiskerLeft_comp, Functor.whiskerRight_comp]
+  rfl
 
 end Natural
 

@@ -498,4 +498,119 @@ theorem hasCoverForm_upWordThroughRed (μ : X) (r : Fin ℓ) (u : List (DoubleSt
     (congrArg Q.obj (coverObj W hC o μ _)).symm, by
       rw [one_smul]; exact coverLin_upWordThroughRed W hC o Q μ r s u v _ _⟩
 
+section Slide
+
+variable (S : CLScalars C' k) {q : I ⊕ Fin ℓ → I ⊕ Fin ℓ → MvPolynomial (Fin 2) k}
+  (hK : KLRHolds (presCL W k S) q)
+include hK
+
+/-- **Relations (4.4c,d) after the cover functor.** Sliding an upward black dot or crossing
+through a red strand from left to right holds after reflection into the Cautis–Lauda
+presentation, by the dot and `KLR` slides through the sideways crossings. -/
+theorem coverLin_redUpSlideRel (μ : X) (u : List (DoubleStrand I ℓ)) (r : Fin ℓ)
+    (g : UpBlackMove I) (v : List (DoubleStrand I ℓ)) :
+    coverLin W hC o (presCL W k S) coverSign
+      (LinDiagram.of (redUpSlide RD Λ μ u r g v false) -
+        LinDiagram.of (redUpSlide RD Λ μ u r g v true)) = 0 := by
+  have hu := hasCoverForm_upBlackMoveDiagram W hC o (presCL W k S) coverSign μ
+  have hr := hasCoverForm_redThroughUpWord W hC o (presCL W k S) μ r
+  simp only [redUpSlide, Bool.false_eq_true, ↓reduceIte]
+  cases g with
+  | dot i =>
+    have hf := (hu (u ++ [(.inr r : DoubleStrand I ℓ)]) (.dot i) v).comp (hr u [i] v) (by
+      simp [upBlackWord, coverWord])
+    have hg := (hr u [i] v).comp ((hu u (.dot i) ((.inr r : DoubleStrand I ℓ) :: v)).cast
+      (show _ = obj RD Λ μ (u ++ upBlackWord [i] ++ [(.inr r : DoubleStrand I ℓ)] ++ v) by
+        simp [List.append_assoc])
+      (show _ = obj RD Λ μ (u ++ upBlackWord [i] ++ [(.inr r : DoubleStrand I ℓ)] ++ v) by
+        simp [List.append_assoc])) (by
+      simp [upBlackWord, coverWord])
+    refine HasCoverForm.coverLin_sub_eq_zero hf hg (by rw [mul_one, one_mul]) ?_ ?_ ?_
+    · simp [upBlackWord, coverWord]
+    · simp [upBlackWord, coverWord]
+    · exact dgC_step (presCL W k S) (o - μ) [] [] (coverWord v) (coverWord u)
+        (dgCL_dot_crossrL W k S hK _ (.inr r) (.inl i) Sum.inr_ne_inl)
+        (by simp [SChain, upBlackWord, coverWord, coverLetter])
+        (by simp [SChain, upBlackWord, coverWord, coverLetter])
+        (by simp [whL, redThroughL, coverMoveL, UpBlackMove.shape, upBlackWord, coverWord,
+          coverLetter])
+        (by simp [whL, redThroughL, coverMoveL, UpBlackMove.shape, upBlackWord, coverWord,
+          coverLetter])
+  | cross a b =>
+    have hf := (hu (u ++ [(.inr r : DoubleStrand I ℓ)]) (.cross a b) v).comp (hr u [b, a] v) (by
+      simp [upBlackWord, coverWord])
+    have hg := (hr u [a, b] v).comp ((hu u (.cross a b) ((.inr r : DoubleStrand I ℓ) :: v)).cast
+      (show _ = obj RD Λ μ (u ++ upBlackWord [a, b] ++ [(.inr r : DoubleStrand I ℓ)] ++ v) by
+        simp [List.append_assoc])
+      (show _ = obj RD Λ μ (u ++ upBlackWord [b, a] ++ [(.inr r : DoubleStrand I ℓ)] ++ v) by
+        simp [List.append_assoc])) (by
+      simp [upBlackWord, coverWord])
+    refine HasCoverForm.coverLin_sub_eq_zero hf hg (by rw [mul_one, one_mul]) ?_ ?_ ?_
+    · simp [upBlackWord, coverWord]
+    · simp [upBlackWord, coverWord]
+    · exact dgC_step (presCL W k S) (o - μ) [] [] (coverWord v) (coverWord u)
+        (dgCL_downCross_crossrL W k S hK _ (.inr r) (.inl b) (.inl a) Sum.inr_ne_inl)
+        (by simp [SChain, upBlackWord, coverWord, coverLetter])
+        (by simp [SChain, upBlackWord, coverWord, coverLetter])
+        (by simp [whL, redThroughL, coverMoveL, UpBlackMove.shape, upBlackWord, coverWord,
+          coverLetter])
+        (by simp [whL, redThroughL, coverMoveL, UpBlackMove.shape, upBlackWord, coverWord,
+          coverLetter])
+
+/-- **The mirrors of relations (4.4c,d) after the cover functor.** Sliding an upward black dot or
+crossing through a red strand from right to left holds after reflection into the Cautis–Lauda
+presentation. -/
+theorem coverLin_redUpSlideMirrorRel (μ : X) (u : List (DoubleStrand I ℓ)) (r : Fin ℓ)
+    (g : UpBlackMove I) (v : List (DoubleStrand I ℓ)) :
+    coverLin W hC o (presCL W k S) coverSign
+      (LinDiagram.of (redUpSlideMirror RD Λ μ u r g v false) -
+        LinDiagram.of (redUpSlideMirror RD Λ μ u r g v true)) = 0 := by
+  have hu := hasCoverForm_upBlackMoveDiagram W hC o (presCL W k S) coverSign μ
+  have hr := hasCoverForm_upWordThroughRed W hC o (presCL W k S) μ r
+  simp only [redUpSlideMirror, Bool.false_eq_true, ↓reduceIte]
+  cases g with
+  | dot i =>
+    have hf := ((hu u (.dot i) ((.inr r : DoubleStrand I ℓ) :: v)).cast
+      (show _ = obj RD Λ μ (u ++ upBlackWord [i] ++ [(.inr r : DoubleStrand I ℓ)] ++ v) by
+        simp [List.append_assoc])
+      (show _ = obj RD Λ μ (u ++ upBlackWord [i] ++ [(.inr r : DoubleStrand I ℓ)] ++ v) by
+        simp [List.append_assoc])).comp (hr u [i] v) (by
+      simp [upBlackWord, coverWord])
+    have hg := (hr u [i] v).comp (hu (u ++ [(.inr r : DoubleStrand I ℓ)]) (.dot i) v) (by
+      simp [upBlackWord, coverWord])
+    refine HasCoverForm.coverLin_sub_eq_zero hf hg (by rw [mul_one, one_mul]) ?_ ?_ ?_
+    · simp [upBlackWord, coverWord]
+    · simp [upBlackWord, coverWord]
+    · exact dgC_step (presCL W k S) (o - μ) [] [] (coverWord v) (coverWord u)
+        (dgCL_dot_crosslL W k S hK _ (.inr r) (.inl i) Sum.inr_ne_inl)
+        (by simp [SChain, upBlackWord, coverWord, coverLetter])
+        (by simp [SChain, upBlackWord, coverWord, coverLetter])
+        (by simp [whL, upThroughL, coverMoveL, UpBlackMove.shape, upBlackWord, coverWord,
+          coverLetter])
+        (by simp [whL, upThroughL, coverMoveL, UpBlackMove.shape, upBlackWord, coverWord,
+          coverLetter])
+  | cross a b =>
+    have hf := ((hu u (.cross a b) ((.inr r : DoubleStrand I ℓ) :: v)).cast
+      (show _ = obj RD Λ μ (u ++ upBlackWord [a, b] ++ [(.inr r : DoubleStrand I ℓ)] ++ v) by
+        simp [List.append_assoc])
+      (show _ = obj RD Λ μ (u ++ upBlackWord [b, a] ++ [(.inr r : DoubleStrand I ℓ)] ++ v) by
+        simp [List.append_assoc])).comp (hr u [b, a] v) (by
+      simp [upBlackWord, coverWord])
+    have hg := (hr u [a, b] v).comp (hu (u ++ [(.inr r : DoubleStrand I ℓ)]) (.cross a b) v) (by
+      simp [upBlackWord, coverWord])
+    refine HasCoverForm.coverLin_sub_eq_zero hf hg (by rw [mul_one, one_mul]) ?_ ?_ ?_
+    · simp [upBlackWord, coverWord]
+    · simp [upBlackWord, coverWord]
+    · exact dgC_step (presCL W k S) (o - μ) [] [] (coverWord v) (coverWord u)
+        ((dgCL_crosslL_downCross W k S hK _ (.inr r) (.inl b) (.inl a)
+          Sum.inr_ne_inl).symm)
+        (by simp [SChain, upBlackWord, coverWord, coverLetter])
+        (by simp [SChain, upBlackWord, coverWord, coverLetter])
+        (by simp [whL, upThroughL, coverMoveL, UpBlackMove.shape, upBlackWord, coverWord,
+          coverLetter])
+        (by simp [whL, upThroughL, coverMoveL, UpBlackMove.shape, upBlackWord, coverWord,
+          coverLetter])
+
+end Slide
+
 end Categorification.Stendhal.DoubleDiagram

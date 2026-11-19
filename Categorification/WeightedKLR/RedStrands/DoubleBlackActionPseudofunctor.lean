@@ -180,11 +180,11 @@ namespace Categorification.Stendhal.DoubleDiagram
 
 open CategoryTheory QuantumGroup QuantumGroup.UDot KL3.Diagram StringDiagrams
 
-universe u v
+universe u v w
 
 variable {I : Type u} {ℓ : ℕ} {C : CartanDatum I} {X Y : Type v}
   [AddCommGroup X] [AddCommGroup Y] {RD : WeightDatum C X Y}
-  {Λ : Fin ℓ → {x : X // ∀ i, 0 ≤ RD.pair (RD.iY i) x}} {k : Type*} [CommRing k]
+  {Λ : Fin ℓ → {x : X // ∀ i, 0 ≤ RD.pair (RD.iY i) x}} {k : Type w} [CommRing k]
   (P : Presentation (signature RD (fun r => (Λ r).val)) k)
   (hP : ∀ r : (pres RD k).Rel,
     P.lin (blackMirrorLinear RD (fun r => (Λ r).val) ((pres RD k).rel r)) = 0)
@@ -280,5 +280,61 @@ theorem homTr_comp (η : f ⟶ g) (θ : g ⟶ h) : homTr (η ≫ θ) = homTr η 
   exact congrArg _ (Category.assoc (obj := (pres RD k).Presented) _ _ _)
 
 end Bicat
+
+section Pseudofunctor
+
+/-- A composite of 1-morphisms acts by the composite of their actions, in the reverse order. -/
+theorem blackAct_homLetters_comp {l m n : (pres RD k).Bicat} (f : l ⟶ m) (g : m ⟶ n) :
+    blackAct P (homLetters (f ≫ g)) (homWt (f ≫ g)) =
+      blackAct P (homLetters g) (homWt g) ⋙ blackAct P (homLetters f) (homWt f) :=
+  (blackAct_congr P (homLetters_comp f g) _ (by rw [← homLetters_comp]; exact homWt _)).trans
+    (blackAct_append_eq P _ _ (homWt g) (homWt f) _)
+
+open Bicategory
+
+/-- The black action of the Khovanov–Lauda 2-category on the violating quotients, as a strict
+pseudofunctor from its 1-cell dual to `Cat` (Webster, arXiv:1309.3796v3, §4.5, Theorem 4.28):
+a region `μ` goes to the violating quotient with right weight `μ`, a word `s` to right
+whiskering by its mirror word, and a diagram to the action of its mirror diagram. -/
+def blackActionPseudofunctor :
+    StrictPseudofunctor (RevBicat (pres RD k).Bicat) Cat.{max u v w, u} :=
+  StrictPseudofunctor.mk''
+    { obj := fun a => Cat.of (ViolatingCategory P a.as.region)
+      map := fun {a b} f =>
+        (blackAct P (homLetters (f : b.as ⟶ a.as)) (homWt f)).toCatHom
+      map₂ := fun {_ _ f g} η => (blackMap P hP (homWt f) (homWt g) (homTr η)).toCatHom₂
+      map₂_id := fun f => by
+        ext1
+        exact (congrArg (blackMap P hP (homWt f) (homWt f)) (homTr_id f)).trans
+          (blackMap_id P hP (homWt f))
+      map₂_comp := fun {_ _ f g h} η θ => by
+        ext1
+        exact (congrArg (blackMap P hP (homWt f) (homWt h)) (homTr_comp η θ)).trans
+          (blackMap_comp P hP (homWt f) (homWt g) (homWt h) _ _)
+      map_id := fun a => congrArg Functor.toCatHom (blackAct_nil P (homWt (𝟙 a.as)))
+      map_comp := fun {a b c} f g => congrArg Functor.toCatHom
+        (blackAct_homLetters_comp P (g : c.as ⟶ b.as) f)
+      map₂_whisker_left := fun {a b c} f {g g'} η => by
+        ext1
+        simp only [Cat.Hom.toNatTrans_comp, Cat.Hom₂.eqToHom_toNatTrans,
+          Cat.whiskerLeft_toNatTrans, NatTrans.toCatHom₂_toNatTrans]
+        exact blackMap_wRAt_of_eq P hP (homObj_eq g) (homObj_eq g') (homObj_eq f) _ _ η
+          (homObj_eq ((g : c.as ⟶ b.as) ≫ (f : b.as ⟶ a.as)))
+          (homObj_eq ((g' : c.as ⟶ b.as) ≫ (f : b.as ⟶ a.as))) (homLetters_comp _ _)
+          (homLetters_comp _ _) (homWt f) (homWt g) (homWt g') _ _
+          (blackAct_homLetters_comp P (g : c.as ⟶ b.as) f)
+          (blackAct_homLetters_comp P (g' : c.as ⟶ b.as) f)
+      map₂_whisker_right := fun {a b c} {f f'} η g => by
+        ext1
+        simp only [Cat.Hom.toNatTrans_comp, Cat.Hom₂.eqToHom_toNatTrans,
+          Cat.whiskerRight_toNatTrans, NatTrans.toCatHom₂_toNatTrans]
+        exact blackMap_wL_of_eq P hP (homObj_eq g) (homObj_eq f) (homObj_eq f') η
+          (homObj_eq ((g : c.as ⟶ b.as) ≫ (f : b.as ⟶ a.as)))
+          (homObj_eq ((g : c.as ⟶ b.as) ≫ (f' : b.as ⟶ a.as))) (homLetters_comp _ _)
+          (homLetters_comp _ _) (homWt f) (homWt f') (homWt g) _ _
+          (blackAct_homLetters_comp P (g : c.as ⟶ b.as) f)
+          (blackAct_homLetters_comp P (g : c.as ⟶ b.as) f') }
+
+end Pseudofunctor
 
 end Categorification.Stendhal.DoubleDiagram

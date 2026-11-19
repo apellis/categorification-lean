@@ -10,7 +10,7 @@ import Categorification.Diagrams.KLR.MatEnd
 
 For a finite family `X : ι → D` and additive maps `τ i : End (X i) → End P`, the diagonal sum
 `trace τ M = ∑ i, τ i (M i i)` is an additive map on `MatEnd X`. If every `τ i` is nondegenerate
-against all objects (`IsNondegTrace`), the pairing `(M, N) ↦ trace τ (M * N)` kills no nonzero
+against the summands (`IsNondegTrace`), the pairing `(M, N) ↦ trace τ (M * N)` kills no nonzero
 matrix on either side. This is the step from the summands to the whole algebra in Webster,
 arXiv:1309.3796v3, proof of Theorem 3.18.
 -/
@@ -64,7 +64,7 @@ theorem trace_single_mul (τ : ∀ i, (X i ⟶ X i) →+ (P ⟶ P)) (N : MatEnd 
 /-- If every summand trace is nondegenerate, the diagonal trace pairing on `MatEnd X` is
 nondegenerate on both sides. -/
 theorem trace_nondegenerate (τ : ∀ i, (X i ⟶ X i) →+ (P ⟶ P))
-    (hτ : ∀ i, IsNondegTrace P (X i) (τ i)) :
+    (hτ : ∀ i, IsNondegTrace P (X i) (τ i) fun Y => ∃ j, X j = Y) :
     (∀ M : MatEnd X, M ≠ 0 → ∃ N, trace τ (M * N) ≠ 0) ∧
       ∀ N : MatEnd X, N ≠ 0 → ∃ M, trace τ (M * N) ≠ 0 := by
   refine ⟨fun M hM => ?_, fun N hN => ?_⟩
@@ -72,13 +72,13 @@ theorem trace_nondegenerate (τ : ∀ i, (X i ⟶ X i) →+ (P ⟶ P))
       by_contra h
       push Not at h
       exact hM (ext h)
-    obtain ⟨b, hb⟩ := (hτ i).2 (X j) (M j i) hji
+    obtain ⟨b, hb⟩ := (hτ i).2 (X j) ⟨j, rfl⟩ (M j i) hji
     exact ⟨single i j b, by rwa [trace_mul_single]⟩
   · obtain ⟨i, j, hij⟩ : ∃ i j, N i j ≠ 0 := by
       by_contra h
       push Not at h
       exact hN (ext h)
-    obtain ⟨a, ha⟩ := (hτ i).1 (X j) (N i j) hij
+    obtain ⟨a, ha⟩ := (hτ i).1 (X j) ⟨j, rfl⟩ (N i j) hij
     exact ⟨single j i a, by rwa [trace_single_mul]⟩
 
 end Categorification.KLR.Diagram.MatEnd

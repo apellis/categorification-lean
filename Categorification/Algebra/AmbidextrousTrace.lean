@@ -103,17 +103,17 @@ theorem exists_closeTrace_comp_ne_zero_right (P : C) (Y : D) {n : ℕ}
   rw [closeTrace_comp, Equiv.apply_symm_apply] at this
   exact this
 
-/-- An additive map `τ` on `End X` with values in `End P` is nondegenerate against every object
-`Y`: for nonzero `a : X ⟶ Y` some `τ (a ≫ b)` is nonzero, and for nonzero `b : Y ⟶ X` some
-`τ (a ≫ b)` is nonzero. -/
-def IsNondegTrace (P : C) (X : D) (τ : (X ⟶ X) →+ (P ⟶ P)) : Prop :=
-  (∀ (Y : D) (a : X ⟶ Y), a ≠ 0 → ∃ b : Y ⟶ X, τ (a ≫ b) ≠ 0) ∧
-    ∀ (Y : D) (b : Y ⟶ X), b ≠ 0 → ∃ a : X ⟶ Y, τ (a ≫ b) ≠ 0
+/-- An additive map `τ` on `End X` with values in `End P` is nondegenerate against the objects
+`Y` with `S Y`: for nonzero `a : X ⟶ Y` some `τ (a ≫ b)` is nonzero, and for nonzero
+`b : Y ⟶ X` some `τ (a ≫ b)` is nonzero. -/
+def IsNondegTrace (P : C) (X : D) (τ : (X ⟶ X) →+ (P ⟶ P)) (S : D → Prop) : Prop :=
+  (∀ (Y : D), S Y → ∀ a : X ⟶ Y, a ≠ 0 → ∃ b : Y ⟶ X, τ (a ≫ b) ≠ 0) ∧
+    ∀ (Y : D), S Y → ∀ b : Y ⟶ X, b ≠ 0 → ∃ a : X ⟶ Y, τ (a ≫ b) ≠ 0
 
 /-- A zero object carries the zero trace, vacuously nondegenerate. -/
-theorem isNondegTrace_zero_of_id_eq_zero (P : C) {X : D} (hX : 𝟙 X = 0) :
-    IsNondegTrace P X 0 := by
-  refine ⟨fun Y a ha => (ha ?_).elim, fun Y b hb => (hb ?_).elim⟩
+theorem isNondegTrace_zero_of_id_eq_zero (P : C) {X : D} (hX : 𝟙 X = 0) (S : D → Prop) :
+    IsNondegTrace P X 0 S := by
+  refine ⟨fun Y _ a ha => (ha ?_).elim, fun Y _ b hb => (hb ?_).elim⟩
   · rw [← Category.id_comp a, hX, Limits.zero_comp]
   · rw [← Category.comp_id b, hX, Limits.comp_zero]
 
@@ -124,19 +124,20 @@ def closeTraceIso [G.Additive] (P : C) {X : D} (e : F.obj P ≅ X) : (X ⟶ X) �
   map_add' a b := by simp [closeTrace, Preadditive.add_comp, Preadditive.comp_add]
 
 /-- **Frobenius property from an ambidextrous adjunction** (Webster, arXiv:1309.3796v3, proof
-of Theorem 3.18). If `F ⊣ G ⊣ F`, `X ≅ F P` and the identity of every object of `C` factors
-through finitely many copies of `P`, the closing trace on `End X` is nondegenerate. -/
+of Theorem 3.18). If `F ⊣ G ⊣ F`, `X ≅ F P` and the identity of `G Y` factors through finitely
+many copies of `P` whenever `S Y`, the closing trace on `End X` is nondegenerate against the
+objects `Y` with `S Y`. -/
 theorem isNondegTrace_closeTraceIso [G.Additive] (P : C) {X : D} (e : F.obj P ≅ X)
-    (hgen : ∀ Z : C, ∃ (n : ℕ) (π : Fin n → (Z ⟶ P)) (ι : Fin n → (P ⟶ Z)),
-      ∑ k, π k ≫ ι k = 𝟙 Z) :
-    IsNondegTrace P X (closeTraceIso adj₁ adj₂ P e) := by
-  refine ⟨fun Y a ha => ?_, fun Y b hb => ?_⟩
-  · obtain ⟨n, π, ι, h⟩ := hgen (G.obj Y)
+    (S : D → Prop) (hgen : ∀ Y : D, S Y → ∃ (n : ℕ) (π : Fin n → (G.obj Y ⟶ P))
+      (ι : Fin n → (P ⟶ G.obj Y)), ∑ k, π k ≫ ι k = 𝟙 (G.obj Y)) :
+    IsNondegTrace P X (closeTraceIso adj₁ adj₂ P e) S := by
+  refine ⟨fun Y hY a ha => ?_, fun Y hY b hb => ?_⟩
+  · obtain ⟨n, π, ι, h⟩ := hgen Y hY
     have ha' : e.hom ≫ a ≠ 0 := fun h0 => ha (by simpa using congrArg (e.inv ≫ ·) h0)
     obtain ⟨b, hb⟩ := exists_closeTrace_comp_ne_zero_left adj₁ adj₂ P Y ι π h _ ha'
     refine ⟨b ≫ e.hom, ?_⟩
     simpa [closeTraceIso] using hb
-  · obtain ⟨n, π, ι, h⟩ := hgen (G.obj Y)
+  · obtain ⟨n, π, ι, h⟩ := hgen Y hY
     have hb' : b ≫ e.inv ≠ 0 := fun h0 => hb (by simpa using congrArg (· ≫ e.hom) h0)
     obtain ⟨a, ha⟩ := exists_closeTrace_comp_ne_zero_right adj₁ adj₂ P Y ι π h _ hb'
     refine ⟨e.inv ≫ a, ?_⟩

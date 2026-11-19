@@ -2,6 +2,7 @@
 Copyright (c) 2026 Alex Ellis. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 -/
+import Mathlib.CategoryTheory.Bicategory.Adjunction.Basic
 import Mathlib.CategoryTheory.Bicategory.Basic
 import Mathlib.Tactic.CategoryTheory.Bicategory.Basic
 
@@ -99,6 +100,23 @@ theorem rightUnitor_hom_def (f : a ⟶ b) :
 
 theorem rightUnitor_inv_def (f : a ⟶ b) :
     (ρ_ f).inv = (@Bicategory.leftUnitor B _ b.as a.as f).inv := rfl
+
+/-- An adjunction `f ⊣ g` of `B` is an adjunction `g ⊣ f` of `RevBicat B`, with the same unit and
+counit. -/
+def adjunction {x y : B} {f : x ⟶ y} {g : y ⟶ x} (adj : f ⊣ g) :
+    Bicategory.Adjunction (B := RevBicat B) (a := ⟨x⟩) (b := ⟨y⟩) (of g) (of f) where
+  unit := adj.unit
+  counit := adj.counit
+  left_triangle := by
+    have h := adj.right_triangle
+    simp [rightZigzag, bicategoricalComp] at h
+    simp [leftZigzag, bicategoricalComp]
+    exact h
+  right_triangle := by
+    have h := adj.left_triangle
+    simp [leftZigzag, bicategoricalComp] at h
+    simp [rightZigzag, bicategoricalComp]
+    exact h
 
 end RevBicat
 

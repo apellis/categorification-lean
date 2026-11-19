@@ -1251,6 +1251,7 @@ import Categorification.WeightedKLR.RedStrands.DoubleRightWhisker
 import Categorification.WeightedKLR.RedStrands.DoubleRightWhiskerComp
 import Categorification.WeightedKLR.RedStrands.DoubleBlackAction
 import Categorification.WeightedKLR.RedStrands.DoubleBlackActionComp
+import Categorification.WeightedKLR.RedStrands.DoubleBlackActionWhisker
 import Categorification.WeightedKLR.RedStrands.DoubleBlackActionHorizontal
 import Categorification.WeightedKLR.RedStrands.DoubleRightWhiskerHorizontal
 /-!

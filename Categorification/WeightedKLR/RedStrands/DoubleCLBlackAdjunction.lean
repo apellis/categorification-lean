@@ -41,7 +41,8 @@ variable (ho : ∀ i, W.pair (W.iY (.inl i)) o = 0)
   [∀ (a b c : B) (f : a ⟶ b), (Bicategory.precomp c f).Linear k]
   [∀ (a b c : B) (g : b ⟶ c), (Bicategory.postcomp a g).Linear k]
   [DecidableEq I] (Sc : CL.CLScalars C' k)
-  (ht : ∀ i j, Sc.t (.inl i) (.inl j) = 1) (hs : ∀ i j p q, Sc.s (.inl i) (.inl j) p q = 0)
+  (ht : ∀ i j, Sc.t (.inl i) (.inl j) = 1)
+    (hs : ∀ i j p q, p < C.dij i j → q < C.dij j i → Sc.s (.inl i) (.inl j) p q = 0)
   (H : BrundanUpKLR S Sc) (Mi : BrundanMixedInversion S)
 
 include ho ht hs H Mi

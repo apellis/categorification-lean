@@ -200,7 +200,8 @@ for `W` with Brundan's upward relations and invertible mixed crossings, provided
 are those of Khovanov–Lauda on the image of the colour map. -/
 theorem omega_rel_restrict (Sc : CL.CLScalars C' k)
     (hdot : ∀ i j, C'.dot (D.e i) (D.e j) = C.dot i j) (ht : ∀ i j, Sc.t (D.e i) (D.e j) = 1)
-    (hs : ∀ i j p q, Sc.s (D.e i) (D.e j) p q = 0) (H : BrundanUpKLR S Sc)
+    (hs : ∀ i j p q, p < C.dij i j → q < C.dij j i → Sc.s (D.e i) (D.e j) p q = 0)
+    (H : BrundanUpKLR S Sc)
     (M : BrundanMixedInversion S) (r : (pres RD k).Rel) {s t : X}
     (ha : Cond (S := psig RD) s t ((omegaLayerMap RD).obj ((pres RD k).dom r)))
     (hb : Cond (S := psig RD) s t ((omegaLayerMap RD).obj ((pres RD k).cod r))) :

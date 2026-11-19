@@ -241,9 +241,11 @@ include ho in
 /-- **The black KL relations hold after reflection.** The image of a reflected black KL III
 relation under the KL diagrams of the moves is killed by every admissible evaluation of a
 Rouquier family for `W` with Cautis–Lauda scalars, Brundan's upward relations and invertible
-mixed crossings, provided `t = 1` and `s = 0` on the black vertices. -/
+mixed crossings, provided `t = 1` on the black vertices and `s` vanishes there in the degrees
+below the extremal ones. -/
 theorem coverLin_blackRel [DecidableEq I] (Sc : CL.CLScalars C' k)
-    (ht : ∀ i j, Sc.t (.inl i) (.inl j) = 1) (hs : ∀ i j p q, Sc.s (.inl i) (.inl j) p q = 0)
+    (ht : ∀ i j, Sc.t (.inl i) (.inl j) = 1)
+    (hs : ∀ i j p q, p < C.dij i j → q < C.dij j i → Sc.s (.inl i) (.inl j) p q = 0)
     (H : BrundanUpKLR S Sc) (Mi : BrundanMixedInversion S) (r : (pres RD k).Rel) :
     coverLin W hC o (admissibleKernel (S.genImg Sc)) coverSign
       (blackMirrorLinear RD Λ ((pres RD k).rel r)) = 0 := by

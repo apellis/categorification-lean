@@ -71,7 +71,7 @@ variable (o : I ⊕ Fin ℓ → ℤ)
     (cyclotomicCoverWeightDatum Λ C) (IsRouquierQ.polyInY_degree_pair
       (isRouquierQ_cyclotomicCoverQ C Λ Q hQ) (cyclotomicCoverWeightDatum Λ C))).t
       (Sum.inl i) (Sum.inl j) = 1)
-  (hs : ∀ (i j : I) (p q : ℕ), (cyclotomicScalars
+  (hs : ∀ (i j : I) (p q : ℕ), p < C.dij i j → q < C.dij j i → (cyclotomicScalars
     (IsRouquierQ.klrSymm (isRouquierQ_cyclotomicCoverQ C Λ Q hQ))
     (IsRouquierQ.polyInY_leading (isRouquierQ_cyclotomicCoverQ C Λ Q hQ))
     (cyclotomicCoverWeightDatum Λ C) (IsRouquierQ.polyInY_degree_pair

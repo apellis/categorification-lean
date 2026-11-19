@@ -404,6 +404,7 @@ import Categorification.KLR.CyclotomicAction.GlobalFamily
 import Categorification.KLR.CyclotomicAction.MixedComparison
 import Categorification.KLR.CyclotomicAction.GlobalMixed
 import Categorification.KLR.KKScalars
+import Categorification.KLR.KKScalarsStandard
 import Categorification.KLR.CyclotomicAction.PresCL
 import Categorification.KLR.CyclotomicAction.Unfiltered
 import Categorification.KLR.CyclotomicAction.Vacuum
@@ -1235,6 +1236,7 @@ import Categorification.WeightedKLR.RedStrands.DoubleCLDownKLR
 import Categorification.WeightedKLR.RedStrands.DoubleCLDownKLRUp
 import Categorification.WeightedKLR.RedStrands.DoubleCLDownUpVacuum
 import Categorification.WeightedKLR.RedStrands.DoubleCLDownInjective
+import Categorification.WeightedKLR.RedStrands.DoubleCLDownInjectiveOrdinary
 import Categorification.WeightedKLR.RedStrands.DoubleWFDom
 import Categorification.WeightedKLR.RedStrands.DoubleCLRelationFamilies
 import Categorification.WeightedKLR.RedStrands.DoubleCLMoveContext

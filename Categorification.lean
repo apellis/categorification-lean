@@ -1257,9 +1257,9 @@ import Categorification.WeightedKLR.RedStrands.DoubleBlackActionHorizontal
 import Categorification.WeightedKLR.RedStrands.DoubleBlackActionWhisker
 import Categorification.WeightedKLR.RedStrands.DoubleBlackActionPseudofunctor
 import Categorification.WeightedKLR.RedStrands.DoubleRightWhiskerHorizontal
+import Categorification.WeightedKLR.RedStrands.LastRedBlackSlide
 /-!
 # Categorification
 
 Lean 4 formalizations of results in categorification.
 -/
-import Categorification.WeightedKLR.RedStrands.LastRedBlackSlide

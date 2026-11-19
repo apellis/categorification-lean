@@ -545,7 +545,7 @@ private theorem appendRedValue_smul (c : k) (z : StendhalAlgebraAllOrders k Q Λ
 local instance : Fintype { s : Seq (stendhalWeight (ℓ + 1) ν) // IsRedOrdered s ∧ HasLastRed s } :=
   Fintype.ofFinite _
 
-private theorem lastRedIdem_val_eq_sum :
+theorem lastRedIdem_val_eq_sum :
     (StendhalAlgebra.lastRedIdem Q Λ ν).val =
       ∑ s : { s : Seq (stendhalWeight (ℓ + 1) ν) // IsRedOrdered s ∧ HasLastRed s },
         StendhalAlgebraAllOrders.e s.1 := by

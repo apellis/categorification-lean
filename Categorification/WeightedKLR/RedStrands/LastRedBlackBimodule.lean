@@ -115,6 +115,15 @@ theorem blackRedStendhal_mul_crossingStendhalCut (z : S₀) :
     redBlackStendhal_val, redBlackStendhal_val, slide_crossing, slide_crossing, mul_assoc,
     mul_assoc, ← redBlackValue_mul, ← redBlackValue_mul, h1, h2]
 
+/-- The crossing cut to red-ordered loadings is the crossing followed by "red strand, then
+black strand" at the bottom. -/
+theorem crossingStendhalCut_val :
+    (crossingStendhalCut Q Λ i ν).val =
+      StendhalAlgebraAllOrders.ψ N₀ * redBlackValue Q Λ i ν (1 : S₀).val := by
+  have h1 : (1 : S₀).val * (1 : S₀).val = (1 : S₀).val := KLR.Corner.E_mul_val 1
+  rw [crossingStendhalCut, val_mul_crossing, blackRedStendhal_val, redBlackStendhal_val,
+    slide_crossing, mul_assoc, ← redBlackValue_mul, h1]
+
 end Stendhal
 
 section Quotient

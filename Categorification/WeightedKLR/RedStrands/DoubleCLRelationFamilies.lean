@@ -5,7 +5,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 import Categorification.WeightedKLR.RedStrands.DoubleCLDownKLRUp
 import Categorification.WeightedKLR.RedStrands.DoubleCLBlackNegligible
 import Categorification.WeightedKLR.RedStrands.DoubleCLRedUpEvaluation
-import Categorification.WeightedKLR.RedStrands.DoubleCLRedCup
+import Categorification.WeightedKLR.RedStrands.DoubleCLRedCap
 
 /-!
 # Families of relations whose reflected images are red-negligible
@@ -99,6 +99,21 @@ theorem CoverRelsNegligible.addRedCupRelations
           LinDiagram.of (redCupRight (RDc) (redWeight Wgt) a.leftWeight a.left a.black a.red
             a.right)) = 0 from
       coverLin_redCupRel Wgt (extendedCartanDatum_dot_inl Λ C) o _ (CL.zigzags _ k _) a]
+    apply CoverRedNegligible.zero
+
+/-- Adjoining the red cap relations preserves `CoverRelsNegligible`: their reflected images
+vanish by the zigzag identities of the Cautis–Lauda presentation. -/
+theorem CoverRelsNegligible.addRedCapRelations
+    {P : Presentation.{v, u} (signature (RDc) (redWeight Wgt)) k}
+    (hP : CoverRelsNegligible.{u, v, w} Λ C hQ hc o P) :
+    CoverRelsNegligible.{u, v, w} Λ C hQ hc o (addRedCapRelations (RDc) (redWeight Wgt) P) :=
+  hP.addRels fun a => by
+    rw [show coverCL Λ C hQ o
+        (LinDiagram.of (redCapLeft (RDc) (redWeight Wgt) a.leftWeight a.left a.black a.red
+            a.right) -
+          LinDiagram.of (redCapRight (RDc) (redWeight Wgt) a.leftWeight a.left a.black a.red
+            a.right)) = 0 from
+      coverLin_redCapRel Wgt (extendedCartanDatum_dot_inl Λ C) o _ (CL.zigzags _ k _) a]
     apply CoverRedNegligible.zero
 
 section Black

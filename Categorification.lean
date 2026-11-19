@@ -1224,6 +1224,7 @@ import Categorification.WeightedKLR.RedStrands.DoubleDownContextIdeal
 import Categorification.WeightedKLR.RedStrands.DoubleDownRedRed
 import Categorification.WeightedKLR.RedStrands.DoubleCLDownKLR
 import Categorification.WeightedKLR.RedStrands.DoubleCLDownKLRUp
+import Categorification.WeightedKLR.RedStrands.DoubleCLRelationFamilies
 /-!
 # Categorification
 

@@ -92,4 +92,25 @@ theorem upCover_relation (μ : I ⊕ Fin ℓ → ℤ) (r : KLR.Diagram.Rel (I �
   change (CL.upFunctorC _ _ _ _).map (KSig.ksL _ _) = 0
   rw [h, Functor.map_zero]
 
+omit [DecidableEq I] in
+/-- The reflection of a downward word is the reversed upward word. -/
+theorem coverWord_map_down (w : List (I ⊕ Fin ℓ)) :
+    coverWord (w.map DoubleStrand.down) = ups w.reverse := by
+  rw [coverWord, ups, List.map_reverse, List.map_map]
+  congr 1
+  refine List.map_congr_left fun c _ => ?_
+  rcases c with c | c <;> rfl
+
+theorem downCover_obj (μ : I ⊕ Fin ℓ → ℤ) (a : Obj (KLR.Diagram.sig (I ⊕ Fin ℓ))) :
+    (downCover Λ C hQ o μ).obj a = (PCL).obj (ob Wgt (o - μ) (ups a.word.reverse)) := by
+  rw [← coverWord_map_down]
+  exact congrArg (PCL).obj (coverObj_move Wgt hC o μ (a.word.map DoubleStrand.down))
+
+theorem upCover_obj (μ : I ⊕ Fin ℓ → ℤ) (a : Obj (KLR.Diagram.sig (I ⊕ Fin ℓ))) :
+    (upCover Λ C hQ o μ).obj a = (PCL).obj (ob Wgt (o - μ) (ups a.word.reverse)) := rfl
+
+theorem downCover_obj_eq (μ : I ⊕ Fin ℓ → ℤ) (a : Obj (KLR.Diagram.sig (I ⊕ Fin ℓ))) :
+    (downCover Λ C hQ o μ).obj a = (upCover Λ C hQ o μ).obj a :=
+  (downCover_obj Λ C hQ o μ a).trans (upCover_obj Λ C hQ o μ a).symm
+
 end Categorification.Stendhal

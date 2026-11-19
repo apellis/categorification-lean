@@ -133,4 +133,112 @@ theorem exists_splitLoading_eq (t : Seq μ') (b : Fin m)
     rw [splitColor_mergeColor c (hne _)]
     congr 1; apply Fin.ext; rw [oldPos_val]; simp only; split_ifs <;> omega
 
+/-! ### Cutting a diagram from a split loading at a split loading -/
+
+local notation "m'" => Multiset.card μ'
+
+/-- The position of the red strand `c` in a split loading. -/
+private def oldRedPos (s : Seq μ) : Fin m' := splitPos c s (redPos c s)
+
+private theorem oldRedPos_val (s : Seq μ) : (oldRedPos c s : ℕ) = redPos c s := by
+  rw [oldRedPos, splitPos_val]; simp
+
+private theorem splitLoading_lbl_oldRedPos (s : Seq μ) :
+    (splitLoading c s).lbl (oldRedPos c s) = .inr c.castSucc := by
+  rw [oldRedPos, splitLoading_lbl_splitPos, lbl_redPos, splitColor_inr, succAbove_self]
+
+private theorem newPos_val_eq (s : Seq μ) : (newPos c s : ℕ) = oldRedPos c s + 1 := by
+  rw [newPos_val, oldRedPos_val]
+
+open Classical in
+/-- The permutation sorting the strands of a diagram out of the gap between the red strands
+`c` and `c + 1` at its top, when that gap is in the right order. -/
+def cutPerm (s : Seq μ) (w : Perm (Fin m')) : Perm (Fin m') :=
+  if h : w (oldRedPos c s) < w (newPos c s) then
+    (exists_gapSort w _ _ (newPos_val_eq c s) h).choose
+  else 1
+
+theorem length_cutPerm (s : Seq μ) (w : Perm (Fin m')) :
+    length m' w = length m' (cutPerm c s w) + length m' (cutPerm c s w * w) := by
+  unfold cutPerm
+  split_ifs with h
+  · exact (exists_gapSort w _ _ (newPos_val_eq c s) h).choose_spec.2.1
+  · simp [length_one]
+
+/-- The reduced word of a diagram from a split loading that first sorts the gap. -/
+def cutWord (s : Seq μ) (w : Perm (Fin m')) : List ℕ :=
+  canWord m' (cutPerm c s w)⁻¹ ++ canWord m' (cutPerm c s w * w)
+
+theorem cutWord_spec (s : Seq μ) (w : Perm (Fin m')) :
+    IsReduced m' (cutWord c s w) ∧ wordProd m' (cutWord c s w) = w := by
+  have hp : wordProd m' (cutWord c s w) = w := by
+    rw [cutWord, wordProd_append, wordProd_canWord, wordProd_canWord, ← mul_assoc,
+      inv_mul_cancel, one_mul]
+  refine ⟨IsReduced.append_of_length_eq (isReduced_canWord _ _) (isReduced_canWord _ _) ?_, hp⟩
+  rw [← cutWord, hp, wordProd_canWord, wordProd_canWord, length_inv]
+  exact length_cutPerm c s w
+
+/-- After sorting the gap, a red-ordered violated top of a diagram from a split loading becomes
+a red-ordered violated split loading. -/
+theorem exists_cut_splitLoading (s : Seq μ) (w : Perm (Fin m'))
+    (ho : IsRedOrdered (w • splitLoading c s)) (hV : IsViolated (w • splitLoading c s)) :
+    ∃ t : Seq μ, IsRedOrdered t ∧ IsViolated t ∧
+      splitLoading c t = (cutPerm c s w * w) • splitLoading c s := by
+  set v := w • splitLoading c s with hvdef
+  have hP : v.lbl (w (oldRedPos c s)) = .inr c.castSucc := by
+    change (splitLoading c s).lbl (w.symm (w (oldRedPos c s))) = _
+    rw [Equiv.symm_apply_apply]; exact splitLoading_lbl_oldRedPos c s
+  have hP' : v.lbl (w (newPos c s)) = .inr c.succ := by
+    change (splitLoading c s).lbl (w.symm (w (newPos c s))) = _
+    rw [Equiv.symm_apply_apply]; exact splitLoading_lbl_newPos c s
+  have hlt : w (oldRedPos c s) < w (newPos c s) := by
+    rcases lt_trichotomy (w (oldRedPos c s)) (w (newPos c s)) with h | h | h
+    · exact h
+    · exact absurd (w.injective h) (fun e => by
+        have := congrArg Fin.val e; rw [newPos_val_eq] at this; omega)
+    · exact absurd (ho _ _ _ _ h hP' hP) (fun h' => by
+        rw [Fin.lt_def] at h'; simp at h')
+  obtain ⟨hadj, -, hord, h0⟩ := (exists_gapSort w _ _ (newPos_val_eq c s) hlt).choose_spec
+  have hτ : cutPerm c s w = (exists_gapSort w _ _ (newPos_val_eq c s) hlt).choose := by
+    unfold cutPerm; simp only [hlt, ↓reduceDIte]
+  set τ := cutPerm c s w
+  rw [← hτ] at hadj hord h0
+  have htv : ∀ X, ((τ * w) • splitLoading c s).lbl (τ X) = v.lbl X := by
+    intro X
+    change (splitLoading c s).lbl ((τ * w).symm (τ X)) = (splitLoading c s).lbl (w.symm X)
+    congr 1
+    simp [Equiv.Perm.mul_def]
+  -- no red strand lies strictly inside the gap
+  have hout : ∀ X (r : Fin (ℓ + 1)), v.lbl X = .inr r → X ≤ w (oldRedPos c s) ∨ w (newPos c s) ≤ X := by
+    intro X r hX
+    by_contra hc
+    push Not at hc
+    have h1 := ho _ _ _ _ hc.1 hP hX
+    have h2 := ho _ _ _ _ hc.2 hX hP'
+    rw [Fin.lt_def] at h1 h2
+    simp at h1 h2
+    omega
+  have hcard := card_split ℓ ν
+  have hbm : (τ (w (oldRedPos c s)) : ℕ) < m := by have := (τ (w (newPos c s))).isLt; omega
+  obtain ⟨t, ht, -⟩ := exists_splitLoading_eq c ((τ * w) • splitLoading c s) ⟨_, hbm⟩
+    (by rw [show (⟨(τ (w (oldRedPos c s)) : ℕ), _⟩ : Fin m') = τ (w (oldRedPos c s)) from rfl, htv, hP])
+    (by rw [show (⟨(τ (w (oldRedPos c s)) : ℕ) + 1, _⟩ : Fin m') = τ (w (newPos c s)) from Fin.ext hadj, htv, hP'])
+  refine ⟨t, ?_, ?_, ht⟩
+  · rw [← isRedOrdered_splitLoading_iff c, ht]
+    intro X Y r r' hXY hX hY
+    obtain ⟨X, rfl⟩ := τ.surjective X
+    obtain ⟨Y, rfl⟩ := τ.surjective Y
+    rw [htv] at hX hY
+    exact ho _ _ _ _ ((hord X Y (hout X r hX) (hout Y r' hY)).1 hXY) hX hY
+  · rw [← isViolated_splitLoading_iff c, ht]
+    obtain ⟨hm, hl⟩ := hV
+    have hpos : (0 : ℕ) < w (oldRedPos c s) := by
+      rcases Nat.eq_zero_or_pos (w (oldRedPos c s) : ℕ) with h | h
+      · have : w (oldRedPos c s) = ⟨0, hm⟩ := Fin.ext h
+        rw [this] at hP; rw [hP] at hl; cases hl
+      · exact h
+    refine ⟨hm, ?_⟩
+    rw [← h0 hm hpos, htv]
+    exact hl
+
 end Categorification.Stendhal.SplitRed

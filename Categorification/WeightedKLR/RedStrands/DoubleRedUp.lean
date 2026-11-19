@@ -36,12 +36,14 @@ variable {I : Type u} {C : CartanDatum I} {X Y : Type v} [AddCommGroup X] [AddCo
 inductive RedUpSide
   | redLeft | upLeft
 
-private def RedUpSide.move (s : RedUpSide) (r : Fin ℓ) (i : I) : Move I ℓ :=
+/-- The crossing at the bottom of a red/upward bigon. -/
+def RedUpSide.move (s : RedUpSide) (r : Fin ℓ) (i : I) : Move I ℓ :=
   match s with
   | .redLeft => .redBlack r (true, i)
   | .upLeft => .blackRed (true, i) r
 
-private def RedUpSide.bigon (s : RedUpSide) (μ : X) (u : List (DoubleStrand I ℓ))
+/-- A red/upward bigon between two words of identity strands. -/
+def RedUpSide.bigon (s : RedUpSide) (μ : X) (u : List (DoubleStrand I ℓ))
     (r : Fin ℓ) (i : I) (v : List (DoubleStrand I ℓ)) :
     End (obj RD Λ μ (u ++ (s.move r i).bottom ++ v)) :=
   match s with
@@ -58,7 +60,8 @@ structure RedUpRelation (X : Type v) (I : Type u) (ℓ : ℕ) where
   up : I
   side : RedUpSide
 
-private def bareBigon (μ : X) (r : Fin ℓ) (i : I) (s : RedUpSide) :
+/-- A red/upward bigon with no surrounding strands. -/
+def bareBigon (μ : X) (r : Fin ℓ) (i : I) (s : RedUpSide) :
     End (obj RD Λ μ (s.move r i).bottom) := by
   cases s with
   | redLeft => exact RedUpSide.bigon RD Λ .redLeft μ [] r i []

@@ -711,6 +711,7 @@ import Categorification.TwoRep.RouqFullCL
 import Categorification.TwoRep.RouqUnfilteredSoundness
 import Categorification.TwoRep.RouqUnfilteredDescent
 import Categorification.TwoRep.RouqUpWords
+import Categorification.TwoRep.AdmissibleClosure
 import Categorification.TwoRep.RouqUpScalars
 import Categorification.TwoRep.RouqUpBubbles
 import Categorification.TwoRep.RouqCyclicDot
@@ -1205,6 +1206,11 @@ import Categorification.WeightedKLR.RedStrands.DoubleCLNegligible
 import Categorification.WeightedKLR.RedStrands.DoubleCLNegligibleWords
 import Categorification.WeightedKLR.RedStrands.DoubleCLBlackRelations
 import Categorification.WeightedKLR.RedStrands.DoubleCLBlackComparison
+import Categorification.WeightedKLR.RedStrands.DoubleCLBlackContext
+import Categorification.WeightedKLR.RedStrands.DoubleCLWhisker
+import Categorification.WeightedKLR.RedStrands.DoubleCLRedNegligibleIdeal
+import Categorification.WeightedKLR.RedStrands.DoubleCLRedUp
+import Categorification.WeightedKLR.RedStrands.DoubleCLRedUpEvaluation
 /-!
 # Categorification
 

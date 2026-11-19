@@ -1248,7 +1248,9 @@ import Categorification.WeightedKLR.RedStrands.DoubleCLVacuumFunctor
 import Categorification.WeightedKLR.RedStrands.DoubleCLVacuumUpWords
 import Categorification.WeightedKLR.RedStrands.DoubleCLVacuumViolated
 import Categorification.WeightedKLR.RedStrands.DoubleRightWhisker
+import Categorification.WeightedKLR.RedStrands.DoubleRightWhiskerComp
 import Categorification.WeightedKLR.RedStrands.DoubleBlackAction
+import Categorification.WeightedKLR.RedStrands.DoubleBlackActionComp
 /-!
 # Categorification
 

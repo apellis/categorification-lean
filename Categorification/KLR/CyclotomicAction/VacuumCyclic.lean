@@ -124,7 +124,8 @@ theorem exists_eq_mul_e_smul_vgen (hv : ∀ x : V ⟨0, h0⟩, ∃ z : CycKLR k 
     (hδ : δ.1 = ↑(L.map Prod.fst))
     (x : ((RouqData.wcell (S).toRouqData μ L μ' h).obj.obj V δ : Type _)) :
     ∃ z : CycKLR k Q a δ.1,
-      x = (z * CycKLR.mk k Q a δ.1 (e (wseq L hδ))) • vgen hQ hlead ha hΛ hdeg V h0 v₀ L μ' h δ hδ := by
+      x = (z * CycKLR.mk k Q a δ.1 (e (wseq L hδ))) •
+        vgen hQ hlead ha hΛ hdeg V h0 v₀ L μ' h δ hδ := by
   obtain ⟨z, rfl⟩ := exists_eq_smul_vgen hQ hlead ha hΛ hdeg V h0 v₀ hv L μ' h δ hδ x
   exact ⟨z, by rw [mul_smul, e_smul_vgen]⟩
 

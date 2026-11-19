@@ -8,6 +8,7 @@ import Categorification.WeightedKLR.RedStrands.DoubleCLRedUp
 import Categorification.WeightedKLR.RedStrands.DoubleCLRedDot
 import Categorification.Diagrams.CL.NoMix
 import Categorification.Diagrams.KL3.SymmetrySigmaSymm
+import Categorification.WeightedKLR.RedStrands.DoubleDownCLComparison
 
 /-!
 # Downward KLR relations with at most one red strand
@@ -350,5 +351,130 @@ theorem coverRedNegligible_downRelation_le_one
     apply CoverRedNegligible.comp_right
     rw [hG]
     exact hscal μ r hr
+
+omit [DecidableEq I] in
+theorem ncEval_C_mul_X_pow {A : Type*} [Ring A] [Algebra k A] (a : Fin 2 → A) (j : Fin 2)
+    (c : k) (n : ℕ) :
+    ncEval a (MvPolynomial.C c * MvPolynomial.X j ^ n : MvPolynomial (Fin 2) k) = c • a j ^ n := by
+  rw [MvPolynomial.C_mul_X_pow_eq_monomial, ncEval_monomial, Algebra.smul_def]
+  congr 1
+  fin_cases j <;> simp [List.ofFn_succ, Finsupp.single_apply]
+
+omit [DecidableEq I] in
+theorem lpoly_add {w : Obj (KLR.Diagram.sig (I ⊕ Fin ℓ))} (y : Fin 2 → (w ⟶ w))
+    (p q : MvPolynomial (Fin 2) k) :
+    KLR.Diagram.lpoly k y (p + q) = KLR.Diagram.lpoly k y p + KLR.Diagram.lpoly k y q :=
+  ncEval_add (A := End (Free.of k w)) _ _ _
+
+/-- **The Cautis–Lauda parameters of the cyclotomic scalars.** For distinct colours, the
+Cautis–Lauda polynomial of the scalars of the cover parameters is the cover parameter. -/
+theorem qCL_cyclotomicScalars {a b : I ⊕ Fin ℓ} (hab : a ≠ b) :
+    CL.qCL Sc a b = cyclotomicCoverQ C Λ Q a b := by
+  rw [← TwoRep.brundanQ_eq_qCL _ (kkScalars_s_eq_zero _ sym _ (hS).homogeneous)]
+  exact (eq_brundanQ _ sym _ (fun i j h p q hpq =>
+    coeff_eq_zero_of_lt_of_hom _ ((hS).homogeneous i j h) p q hpq) hab).symm
+
+/-- A scalar multiple of a positive power of a cover red-negligible dot, evaluated through the
+reflected upward strands, is cover red-negligible. -/
+theorem coverRedNegligible_lpoly_dot_pow (μ : I ⊕ Fin ℓ → ℤ) (a b : I ⊕ Fin ℓ) (j : Fin 2)
+    (c : k) (n : ℕ)
+    (hj : CoverRedNegligible.{u, v, w} Λ C hQ hc
+      ((upCover Λ C hQ o μ).map (![KLR.Diagram.D0 a b, KLR.Diagram.D1 a b] j))) :
+    CoverRedNegligible.{u, v, w} Λ C hQ hc ((freeLift k (upCover Λ C hQ o μ)).map
+      (KLR.Diagram.lpoly k ![KLR.Diagram.D0 a b, KLR.Diagram.D1 a b] (MvPolynomial.C c * MvPolynomial.X j ^ (n + 1)))) := by
+  rw [KLR.Diagram.lpoly, ncEval_C_mul_X_pow, Functor.map_smul]
+  refine CoverRedNegligible.smul.{u, v, w} _ ?_
+  rw [pow_succ, End.mul_def, Functor.map_comp]
+  apply CoverRedNegligible.comp_right
+  rw [freeLift_map_of]
+  exact hj
+
+/-- **Comparison of scalars for the affine cover parameters.** If the black parameters `Qb`
+agree with `Q` on distinct colours, then on the reflected upward strands the KLR relations with
+the affine cover parameters of `Qb` differ from those with the Cautis–Lauda parameters by a
+cover red-negligible morphism, on relations with at most one red strand. -/
+theorem coverRedNegligible_affineCover_scalars (Qb : I → I → MvPolynomial (Fin 2) k)
+    (hb : ∀ i j, i ≠ j → Qb i j = Q i j) (μ : I ⊕ Fin ℓ → ℤ) (r : KLR.Diagram.Rel (I ⊕ Fin ℓ))
+    (hr : r.dom.word.countP (fun c => c.isRight) ≤ 1) :
+    CoverRedNegligible.{u, v, w} Λ C hQ hc ((freeLift k (upCover Λ C hQ o μ)).map
+      (KLR.Diagram.relation k (affineCoverQ Qb Λ) r - KLR.Diagram.relation k (CL.qCL Sc) r)) := by
+  cases r
+  case sqNe c d h =>
+    simp only [KLR.Diagram.relation, sub_sub_sub_cancel_left]
+    rw [qCL_cyclotomicScalars Λ C hQ h]
+    rcases c with i | s <;> rcases d with j | t
+    · have hij : i ≠ j := fun e => h (congrArg Sum.inl e)
+      have e : cyclotomicCoverQ C Λ Q (.inl i) (.inl j) = affineCoverQ Qb Λ (.inl i) (.inl j) := by
+        simp [cyclotomicCoverQ, affineCoverQ, stendhalQ, hb i j hij]
+      rw [e, sub_self, Functor.map_zero]
+      apply CoverRedNegligible.zero
+    · obtain ⟨c, n, e⟩ := cyclotomicCoverQ_inl_inr_eq C Λ Q i t
+      have e' : affineCoverQ Qb Λ (.inl i) (.inr t) = stendhalQ Q Λ (.inl i) (.inr t) := by
+        simp [affineCoverQ, stendhalQ]
+      rw [e, e', lpoly_add, add_sub_cancel_left]
+      apply coverRedNegligible_lpoly_dot_pow Λ C hQ hc o μ (.inl i) (.inr t) 1 c n
+      exact coverRedNegligible_upCover_redDot Λ C hQ hc o μ (KLR.Diagram.lay [.inl i] (.dot (.inr t)) [])
+        (KLR.Diagram.lay_valid _ _ _) t rfl
+    · obtain ⟨c, n, e⟩ := cyclotomicCoverQ_inr_inl_eq C Λ Q s j
+      have e' : affineCoverQ Qb Λ (.inr s) (.inl j) = stendhalQ Q Λ (.inr s) (.inl j) := by
+        simp [affineCoverQ, stendhalQ]
+      rw [e, e', lpoly_add, add_sub_cancel_left]
+      apply coverRedNegligible_lpoly_dot_pow Λ C hQ hc o μ (.inr s) (.inl j) 0 c n
+      exact coverRedNegligible_upCover_redDot Λ C hQ hc o μ (KLR.Diagram.lay [] (.dot (.inr s)) [.inl j])
+        (KLR.Diagram.lay_valid _ _ _) s rfl
+    · exact absurd hr (by simp [KLR.Diagram.Rel.dom])
+  case braidQ c d h =>
+    rcases c with i | s
+    · have e : qbar (affineCoverQ Qb Λ (.inl i) d) = qbar (CL.qCL Sc (.inl i) d) := by
+        rw [qCL_cyclotomicScalars Λ C hQ h, qbar_cyclotomicCoverQ_black]
+        rcases d with j | t
+        · have hij : i ≠ j := fun e => h (congrArg Sum.inl e)
+          simp [affineCoverQ, stendhalQ, hb i j hij]
+        · rfl
+      simp only [KLR.Diagram.relation, e, sub_self, Functor.map_zero]
+      apply CoverRedNegligible.zero
+    · exact absurd hr (by simp [KLR.Diagram.Rel.dom])
+  all_goals
+    simp only [KLR.Diagram.relation, sub_self, Functor.map_zero]
+    apply CoverRedNegligible.zero
+
+/-- **Downward KLR relations in the empty context, affine cover parameters.** If the black
+parameters `Qb` agree with `Q` on distinct colours, then every downward KLR relation with the
+affine cover parameters of `Qb`, in the empty signed context, is cover red-negligible. -/
+theorem coverRedNegligible_downRelation_affineCover (Qb : I → I → MvPolynomial (Fin 2) k)
+    (hb : ∀ i j, i ≠ j → Qb i j = Q i j) (μ : I ⊕ Fin ℓ → ℤ)
+    (r : KLR.Diagram.Rel (I ⊕ Fin ℓ)) :
+    CoverRedNegligible.{u, v, w} Λ C hQ hc
+      (coverCL Λ C hQ o (downLinear (RDc) (redWeight Wgt) k μ [] []
+        (KLR.Diagram.relation k (affineCoverQ Qb Λ) r))) :=
+  coverRedNegligible_downRelation_empty_of_le_one Λ C hQ hc o (affineCoverQ Qb Λ)
+    (fun s t => by simp [affineCoverQ])
+    (fun μ r hr => coverRedNegligible_downRelation_le_one Λ C hQ hc o _
+      (fun μ r hr => coverRedNegligible_affineCover_scalars Λ C hQ hc o Qb hb μ r hr) μ r hr)
+    μ r
+
+omit [DecidableEq I] in
+/-- For the standard Khovanov–Lauda scalars, the Cautis–Lauda downward parameters are the
+upward ones. -/
+theorem clDownwardQ_kl (i j : I) :
+    DoubleDiagram.clDownwardQ (CL.CLScalars.kl : CL.CLScalars C k) i j =
+      CL.qCL (CL.CLScalars.kl : CL.CLScalars C k) i j := by
+  rw [DoubleDiagram.clDownwardQ, DoubleDiagram.reflectedDownward_qCL]
+  simp [CL.CLScalars.kl]
+
+/-- **Downward KLR relations at the standard Khovanov–Lauda scalars.** If the black
+parameters `Q` are those of the standard Khovanov–Lauda scalars on distinct colours, then
+every downward KLR relation with the affine cover of the Cautis–Lauda downward parameters,
+in the empty signed context, is cover red-negligible (Webster, arXiv:1309.3796v3, §4.6, proof
+of Lemma 4.29, for the KLR part). -/
+theorem coverRedNegligible_downRelation_kl
+    (hstd : ∀ i j, i ≠ j → Q i j = CL.qCL (CL.CLScalars.kl : CL.CLScalars C k) i j)
+    (μ : I ⊕ Fin ℓ → ℤ) (r : KLR.Diagram.Rel (I ⊕ Fin ℓ)) :
+    CoverRedNegligible.{u, v, w} Λ C hQ hc
+      (coverCL Λ C hQ o (downLinear (RDc) (redWeight Wgt) k μ [] []
+        (KLR.Diagram.relation k
+          (affineCoverQ (DoubleDiagram.clDownwardQ (CL.CLScalars.kl : CL.CLScalars C k)) Λ) r))) :=
+  coverRedNegligible_downRelation_affineCover Λ C hQ hc o _
+    (fun i j h => (clDownwardQ_kl (C := C) (k := k) i j).trans (hstd i j h).symm) μ r
 
 end Categorification.Stendhal

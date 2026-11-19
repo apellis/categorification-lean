@@ -1220,6 +1220,8 @@ import Categorification.WeightedKLR.RedStrands.DoubleCLKernelTransfer
 import Categorification.WeightedKLR.RedStrands.DoubleCLBlackNegligible
 import Categorification.WeightedKLR.RedStrands.DoubleDownContext
 import Categorification.WeightedKLR.RedStrands.DoubleCLRedDot
+import Categorification.WeightedKLR.RedStrands.DoubleDownContextIdeal
+import Categorification.WeightedKLR.RedStrands.DoubleCLDownKLR
 /-!
 # Categorification
 

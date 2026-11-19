@@ -163,12 +163,12 @@ Plan for Theorem 4.25 at the standard KL black parameters. The target is a
 pseudofunctor out of the presented 2-category of `clDownwardBlock`, built with
 `Diagrams.BicatInterp.presPseudofunctor` as for `cyclotomicPresCL`.
 1. Regions. In the coordinate datum a region weight `x : I ⊕ Fin ℓ → ℤ`
-   records the black content in its black coordinates. Its red coordinates
-   record which red lines lie to its left. So a region determines one
-   cyclotomic polynomial `a(x)` and one content `β(x)`. It goes to the
-   module category of `CycKLR k Q a(x) β(x)`. This is the summand of
-   Webster's `⊕_ν R^ν_μ`-mod that the boundary picks out, and it needs no
-   direct sum.
+   lists coroot pairings. Its red coordinates record which red lines lie to
+   its left, so they fix the highest weight `ν` and the cyclotomic
+   polynomials `a(x)`. The region goes to the weight-`x` category of the
+   cyclotomic family at `a(x)`: modules over `CycKLR k Q a(x) β` for all
+   blocks `β` of that weight. This is Webster's `⊕_ν R^ν_μ`-mod with `ν`
+   fixed by the boundary.
 2. Black strands, dots, crossings, cups and caps take their values from the
    cyclotomic family of Theorem 3.17. Red strands go to
    `cyclotomicRedPullback`. The red/up crossings `a`, `b` go to

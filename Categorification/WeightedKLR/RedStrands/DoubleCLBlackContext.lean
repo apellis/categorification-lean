@@ -4,6 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 -/
 import Categorification.WeightedKLR.RedStrands.DoubleCLBlackComparison
 import Categorification.WeightedKLR.RedStrands.DoubleBlackSuffix
+import Categorification.WeightedKLR.RedStrands.DoubleMixedRelations
 
 /-!
 # Black KL relations in a signed context, after the cover functor
@@ -95,6 +96,29 @@ theorem coverLin_blackLinear_eq_zero [DecidableEq I] (Sc : CL.CLScalars C' k)
   apply coverLin_eq_zero_of_coverZero W hC o Q coverSign
   have e := congrArg (blackRectangleHom RD Λ μ u v s P hP t hst htt) hf
   rwa [blackRectangleHom_lin, map_zero] at e
+
+include ho in
+/-- **The mixed black relations vanish after the cover functor.** With the KL scalars
+(`t = 1`, `r = 1`) the distinct-colour relation (2.4a) and the equal-colour relation (2.3c)
+of Webster, arXiv:1309.3796v3, in any surrounding signed word, are reflections of the KL III
+relations on `E_i F_j` and `E_i F_i`; so they are sent to zero in `admissibleKernel` of a
+Rouquier family as in `coverLin_blackRel`. -/
+theorem coverLin_mixedBlackRelation_eq_zero [DecidableEq I] (Sc : CL.CLScalars C' k)
+    (ht : ∀ i j, Sc.t (.inl i) (.inl j) = 1) (hs : ∀ i j p q, Sc.s (.inl i) (.inl j) p q = 0)
+    (H : BrundanUpKLR S Sc) (Mi : BrundanMixedInversion S) (a : MixedBlackRelation X I ℓ) :
+    coverLin W hC o (admissibleKernel (S.genImg Sc)) coverSign
+      (mixedBlackRelation RD Λ k (CL.CLScalars.kl : CL.CLScalars C k).t a) = 0 := by
+  cases a with
+  | distinct μ L R i j h =>
+    rw [mixedBlackRelation_distinct_CL]
+    refine coverLin_blackLinear_eq_zero W hC o ho S Sc ht hs H Mi μ L R _ _ rfl rfl _ ?_
+    rw [CL.relationCL_kl]
+    exact (pres RD k).lin_rel_self (.inr (.downupEF i j h _))
+  | equal μ L R i =>
+    rw [mixedBlackRelation_equal_CL RD Λ k CL.CLScalars.kl μ L R i (CL.CLScalars.kl_r i)]
+    refine coverLin_blackLinear_eq_zero W hC o ho S Sc ht hs H Mi μ L R _ _ rfl rfl _ ?_
+    rw [CL.relationCL_kl]
+    exact (pres RD k).lin_rel_self (.inr (.decompEF i _))
 
 end Rouquier
 

@@ -1262,3 +1262,4 @@ import Categorification.WeightedKLR.RedStrands.DoubleRightWhiskerHorizontal
 
 Lean 4 formalizations of results in categorification.
 -/
+import Categorification.WeightedKLR.RedStrands.LastRedBlackSlide

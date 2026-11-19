@@ -148,6 +148,21 @@ theorem vacuumEval_add {s : I ⊕ Fin ℓ → ℤ}
   rw [admissibleQuotientMap_add]
   exact Functor.map_add _
 
+theorem vacuumEval_smul {s : I ⊕ Fin ℓ → ℤ}
+    (hν : blockWeight Wgt L (stendhalWeight ℓ ν) = s) {c d : Obj (psig Wgt)}
+    (ha : Cond s wt₀ c) (hb : Cond s wt₀ d) (r : k) (φ : (PCL).obj c ⟶ (PCL).obj d) :
+    vacuumEval.{u, v, w} Λ C hQ ν hν ha hb (r • φ) =
+      r • vacuumEval.{u, v, w} Λ C hQ ν hν ha hb φ := by
+  unfold vacuumEval
+  rw [admissibleQuotientMap_smul]
+  have hπ : ScalarCompatible (k := k)
+      (RingHom.toNonUnitalRingHom (AlgHom.toRingHom π)) := fun c => by
+    change π (algebraMap k _ c) = _ * π 1
+    rw [AlgHom.commutes, map_one, mul_one]
+  have := functor_linear hπ
+  rw [← Functor.map_smul]
+  rfl
+
 /-- The reflection of a double boundary of the coordinate datum, at the vacuum region. -/
 abbrev coverObj (a : Obj (signature (coordinateDatum Λ C) (redWeight Wgt))) :
     Obj (psig Wgt) :=
@@ -178,6 +193,104 @@ def presentedVacuumEval {s : I ⊕ Fin ℓ → ℤ} (hν : blockWeight Wgt L (st
       rw [hadd, vacuumEval_add, hz, zero_add]
 
 end Presented
+
+section Laws
+
+variable {s : I ⊕ Fin ℓ → ℤ}
+  (hν : blockWeight (cyclotomicCoverWeightDatum Λ C) cyclotomicCoverHighest
+    (stendhalWeight ℓ ν) = s)
+  {P : Presentation.{v, v₁}
+    (signature (coordinateDatum Λ C) (redWeight (cyclotomicCoverWeightDatum Λ C))) k}
+  (hP : CoverRelsNegligible.{u, v, w} Λ C hQ hc
+    (blockWeight (cyclotomicCoverWeightDatum Λ C) cyclotomicCoverHighest 0) P)
+  (hwf : P.WFDom)
+  {a b e : Obj (signature (coordinateDatum Λ C) (redWeight (cyclotomicCoverWeightDatum Λ C)))}
+  (ha : Cond s
+    (blockWeight (cyclotomicCoverWeightDatum Λ C) cyclotomicCoverHighest 0 : I ⊕ Fin ℓ → ℤ)
+    (coverObj a))
+  (hb : Cond s
+    (blockWeight (cyclotomicCoverWeightDatum Λ C) cyclotomicCoverHighest 0 : I ⊕ Fin ℓ → ℤ)
+    (coverObj b))
+  (he : Cond s
+    (blockWeight (cyclotomicCoverWeightDatum Λ C) cyclotomicCoverHighest 0 : I ⊕ Fin ℓ → ℤ)
+    (coverObj e))
+
+theorem presentedVacuumEval_lin (g : LinDiagram k a b) :
+    presentedVacuumEval.{u, v, w} hc hν hP hwf ha hb (P.lin g) =
+      vacuumEval.{u, v, w} Λ C hQ ν hν ha hb (coverCL Λ C hQ wt₀ g) :=
+  rfl
+
+theorem presentedVacuumEval_comp (f : P.obj a ⟶ P.obj b) (g : P.obj b ⟶ P.obj e) :
+    presentedVacuumEval.{u, v, w} hc hν hP hwf ha he (f ≫ g) =
+      presentedVacuumEval.{u, v, w} hc hν hP hwf ha hb f ≫
+        presentedVacuumEval.{u, v, w} hc hν hP hwf hb he g := by
+  obtain ⟨f, rfl⟩ := P.lin_surjective f
+  obtain ⟨g, rfl⟩ := P.lin_surjective g
+  rw [← P.lin_comp, presentedVacuumEval_lin, presentedVacuumEval_lin, presentedVacuumEval_lin,
+    show coverCL Λ C hQ wt₀ (f ≫ g) = coverCL Λ C hQ wt₀ f ≫ coverCL Λ C hQ wt₀ g from
+      coverLin_comp _ _ _ _ _ _ _, vacuumEval_comp hν ha hb he]
+
+theorem presentedVacuumEval_id :
+    presentedVacuumEval.{u, v, w} hc hν hP hwf ha ha (𝟙 (P.obj a)) = 𝟙 _ := by
+  rw [← P.lin_id, presentedVacuumEval_lin,
+    show coverCL Λ C hQ wt₀ (𝟙 (Free.of k a)) = 𝟙 _ from coverLin_id _ _ _ _ _ _,
+    vacuumEval_id]
+
+theorem presentedVacuumEval_add (f g : P.obj a ⟶ P.obj b) :
+    presentedVacuumEval.{u, v, w} hc hν hP hwf ha hb (f + g) =
+      presentedVacuumEval.{u, v, w} hc hν hP hwf ha hb f +
+        presentedVacuumEval.{u, v, w} hc hν hP hwf ha hb g := by
+  obtain ⟨f, rfl⟩ := P.lin_surjective f
+  obtain ⟨g, rfl⟩ := P.lin_surjective g
+  rw [← P.lin_add, presentedVacuumEval_lin, presentedVacuumEval_lin, presentedVacuumEval_lin,
+    show coverCL Λ C hQ wt₀ (f + g) = coverCL Λ C hQ wt₀ f + coverCL Λ C hQ wt₀ g from
+      coverLin_add _ _ _ _ _ _ _, vacuumEval_add]
+
+theorem presentedVacuumEval_smul (r : k) (f : P.obj a ⟶ P.obj b) :
+    presentedVacuumEval.{u, v, w} hc hν hP hwf ha hb (r • f) =
+      r • presentedVacuumEval.{u, v, w} hc hν hP hwf ha hb f := by
+  obtain ⟨f, rfl⟩ := P.lin_surjective f
+  rw [← P.lin_smul, presentedVacuumEval_lin, presentedVacuumEval_lin,
+    show coverCL Λ C hQ wt₀ (r • f) = r • coverCL Λ C hQ wt₀ f from
+      coverLin_smul _ _ _ _ _ _ _, vacuumEval_smul]
+
+end Laws
+
+section Functor
+
+local notation "rt" => downRightWeight (coordinateDatum Λ C) (coordinateRedWeights Λ C) ν
+
+omit [DecidableEq I] in
+/-- **Regions of an all-down boundary.** The reflection of a boundary of the downward block of
+black content `ν` runs from the Stendhal block to the vacuum region. -/
+theorem cond_downBoundary
+    {P : Presentation.{v, v₁} (signature (coordinateDatum Λ C) (redWeight Wgt)) k}
+    (b : DoubleDiagram.BoundaryCategory (Λ := coordinateRedWeights Λ C) P rt) :
+    Cond (wt₀ - rt) wt₀ (coverObj (obj (coordinateDatum Λ C) (redWeight Wgt) 0 b.val.word)) :=
+  cond_cover Wgt (extendedCartanDatum_dot_inl Λ C) wt₀ b.property
+
+/-- **The vacuum evaluation functor of the downward block.** Each boundary of black content
+`ν` is sent to the projected Stendhal component of its reflected word applied to the cyclotomic
+vacuum of the extended datum, and each presented diagram acts by its Cautis–Lauda
+reflection. -/
+def downVacuumFunctor
+    {P : Presentation.{v, v₁} (signature (coordinateDatum Λ C) (redWeight Wgt)) k}
+    (hP : CoverRelsNegligible.{u, v, w} Λ C hQ hc wt₀ P) (hwf : P.WFDom) :
+    DoubleDiagram.BoundaryCategory (Λ := coordinateRedWeights Λ C) P rt ⥤
+      ModuleCat.{max u v w} (TensorProductAlgebra k Q Λ ν) where
+  obj b := (functor (RingHom.toNonUnitalRingHom (AlgHom.toRingHom π))).obj
+    ((((Fam).model.word (wt₀ - rt)
+      (coverObj (obj (coordinateDatum Λ C) (redWeight Wgt) 0 b.val.word)).word wt₀
+        (cond_downBoundary b).1 (cond_downBoundary b).2.1).obj.obj
+          (coverVacuum.{u, v, w} Λ C hQ)) ⟨stendhalWeight ℓ ν, blockWeight_stendhalWeight Λ C ν⟩)
+  map f := presentedVacuumEval.{u, v, w} hc (blockWeight_stendhalWeight Λ C ν) hP hwf
+    (cond_downBoundary _) (cond_downBoundary _) f.hom
+  map_id _ := presentedVacuumEval_id hc (blockWeight_stendhalWeight Λ C ν) hP hwf _
+  map_comp f g := presentedVacuumEval_comp hc (blockWeight_stendhalWeight Λ C ν) hP hwf _ _ _
+    f.hom g.hom
+
+end Functor
+
 
 end Evaluation
 

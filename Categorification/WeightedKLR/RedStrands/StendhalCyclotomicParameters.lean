@@ -161,6 +161,24 @@ theorem isRouquierQ_cyclotomicCoverQ (hQ : IsRouquierQ C Q) :
         rw [cover_dij C Λ h 1 (by simp [extendedCartanDatum, coverDot, hrs])]
         simp [cyclotomicCoverQ]
 
+/-- The extremal coefficient of a black/red parameter is one: the coefficient of
+`u^{d_ij}` in `u^{Λ_r(i)} + v^{…}` (or in `1` when `Λ_r(i) = 0`). -/
+theorem coeff_dij_cyclotomicCoverQ_inl_inr (i : I) (r : Fin ℓ) :
+    (cyclotomicCoverQ C Λ Q (.inl i) (.inr r)).coeff
+      (Finsupp.single 0 ((extendedCartanDatum C Λ).dij (.inl i) (.inr r))) = 1 := by
+  rw [cover_dij C Λ (show (Sum.inl i : I ⊕ Fin ℓ) ≠ .inr r from Sum.inl_ne_inr) (Λ r i)
+    (mixed_degree C Λ i r)]
+  by_cases h : Λ r i = 0
+  · simp [cyclotomicCoverQ, purePowers, h]
+  · have hb : halfLength C i * Λ r i ≠ 0 := Nat.mul_ne_zero (halfLength_pos C i).ne' h
+    have hne : (Finsupp.single 1 (halfLength C i * Λ r i) : Fin 2 →₀ ℕ) ≠ Finsupp.single 0 (Λ r i) := by
+      intro he
+      have := congrArg (fun f : Fin 2 →₀ ℕ => f 1) he
+      simp [hb] at this
+    simp only [cyclotomicCoverQ, purePowers, h, ite_false]
+    generalize halfLength C i * Λ r i = b at hne ⊢
+    simp [coeff_X_pow, hne]
+
 /-- Set the dot of each red label to zero in a two-strand parameter. -/
 def specializeRedDots (a b : I ⊕ Fin ℓ) :
     MvPolynomial (Fin 2) k →ₐ[k] MvPolynomial (Fin 2) k :=

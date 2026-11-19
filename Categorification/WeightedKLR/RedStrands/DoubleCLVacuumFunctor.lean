@@ -289,6 +289,17 @@ def downVacuumFunctor
   map_comp f g := presentedVacuumEval_comp hc (blockWeight_stendhalWeight Λ C ν) hP hwf _ _ _
     f.hom g.hom
 
+variable {P : Presentation.{v, v₁} (signature (coordinateDatum Λ C) (redWeight Wgt)) k}
+  (hP : CoverRelsNegligible.{u, v, w} Λ C hQ hc wt₀ P) (hwf : P.WFDom)
+
+instance : (downVacuumFunctor hc hP hwf).Additive where
+  map_add {_ _} {f g} :=
+    presentedVacuumEval_add hc (blockWeight_stendhalWeight Λ C ν) hP hwf _ _ f.hom g.hom
+
+instance : (downVacuumFunctor hc hP hwf).Linear k where
+  map_smul {_ _} f r :=
+    presentedVacuumEval_smul hc (blockWeight_stendhalWeight Λ C ν) hP hwf _ _ r f.hom
+
 end Functor
 
 

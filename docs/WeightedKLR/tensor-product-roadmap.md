@@ -568,7 +568,7 @@ after §4 because the single-red case of the §4 constructions gives the §3 one
 |---|---|---|
 | Lemmas 3.7, 3.8, Thm 3.9 | 2-functor `G^λ` from `𝒰ᵢ⁻` to bimodules | open |
 | Lemma 3.12, Props 3.13, 3.16 | `R^λ ≅ e₋ DᵢR^λ e₋`, Morita equivalence, action of `𝒰ᵢ⁻` | open |
-| Thm 3.17 | strict 2-functor `𝒰 → Cat`, `μ ↦ R^λ_μ-pmod` | open; planned as the one-red case of Thm 4.31 |
+| Thm 3.17 | strict 2-functor `𝒰 → Cat`, `μ ↦ R^λ_μ-pmod` | done at the standard KL black parameters over a field, as the one-red case of Thm 4.31 (`clBlackAction_cyclotomic`): the value at `λ - ν` is the completion of the all-down boundaries, whose sum has endomorphism ring `R^λ_ν` by Thm 4.18 (`SingleRed.cyclotomicEquiv`) |
 | Thm 3.18 | `tr^λ : R^λ → k` is a Frobenius trace | open |
 | Cor 3.20 | `p : R^λ → DR^λ` is a Morita equivalence | open |
 | Prop 3.21, Cor 3.22 | `K₀(R^λ) ≅ V^λ_ℤ`, Euler form = Shapovalov form | done |

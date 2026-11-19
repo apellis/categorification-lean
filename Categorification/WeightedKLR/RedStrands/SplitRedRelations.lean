@@ -242,7 +242,8 @@ theorem dotCrossLeft (j : ℕ) (h : j + 1 < m) (t : Seq μ) :
   have l2 : T.lbl ⟨j + 1 + 1, h'⟩ = splitColor c (t.lbl ⟨j + 1, h⟩) :=
     lbl_split_gt c t (j + 1) h (by omega) h'
   have l0 : T.lbl ⟨j, by omega⟩ = .inr c.castSucc := lbl_split_red c t (by omega) _
-  have s1 := slideL (k := k) (Q := Q) (Λ := Λ') (j + 1) h' T (by rw [l1, l2]; exact (splitColor_ne_new c _).symm) 1
+  have s1 := slideL (k := k) (Q := Q) (Λ := Λ') (j + 1) h' T
+    (by rw [l1, l2]; exact (splitColor_ne_new c _).symm) 1
   have s2 := aψ_mul_e (Q := Q) (Λ := Λ') (j + 1) T
   have s3 := slideL (k := k) (Q := Q) (Λ := Λ') j (by omega) (sadj m' (j + 1) • T) (by
     rw [lbl_sadj_smul T h', lbl_sadj_smul T h', lbl_congr T (swapNat_of_ne (by simp only; omega)
@@ -483,7 +484,8 @@ theorem crossSq (j : ℕ) (h : j + 1 < m) (t : Seq μ) :
     change T.lbl ⟨j + 1 + 1, h'⟩ = .inl i at l2
     have s2 := aψ_mul_e (Q := Q) (Λ := Λ') (j + 1) T
     have lj : (sadj m' (j + 1) • T).lbl ⟨j, by omega⟩ = .inr c.castSucc := by
-      rw [lbl_sadj_smul T h', lbl_congr T (swapNat_of_ne (by simp only; omega) (by simp only; omega)) _ (by omega),
+      rw [lbl_sadj_smul T h',
+        lbl_congr T (swapNat_of_ne (by simp only; omega) (by simp only; omega)) _ (by omega),
         l0]
     have lj1 : (sadj m' (j + 1) • T).lbl ⟨j + 1, by omega⟩ = .inl i := by
       rw [lbl_sadj_smul T h', lbl_congr T (swapNat_left (j + 1)) _ h', l2]

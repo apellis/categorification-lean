@@ -1258,6 +1258,7 @@ import Categorification.WeightedKLR.RedStrands.DoubleBlackActionWhisker
 import Categorification.WeightedKLR.RedStrands.DoubleBlackActionPseudofunctor
 import Categorification.WeightedKLR.RedStrands.DoubleRightWhiskerHorizontal
 import Categorification.WeightedKLR.RedStrands.LastRedBlackSlide
+import Categorification.WeightedKLR.RedStrands.LastRedBlackBimodule
 /-!
 # Categorification
 

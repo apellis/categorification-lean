@@ -34,6 +34,11 @@ theorem inducedCategory_eqToHom_hom {𝒞 : Type*} {𝒟 : Type*} [Category 𝒟
     (eqToHom h).hom = eqToHom (congrArg F h) := by
   subst h; rfl
 
+theorem inducedCategory_eq_eqToHom {𝒞 : Type*} {𝒟 : Type*} [Category 𝒟] {F : 𝒞 → 𝒟}
+    {x y : InducedCategory 𝒟 F} (f : x ⟶ y) (h : x = y)
+    (hf : f.hom = eqToHom (congrArg F h)) : f = eqToHom h := by
+  subst h; ext; exact hf
+
 /-- A morphism conjugated twice by transports is conjugated once. -/
 theorem eqToHom_conj_conj {D : Type*} [Category D] {a a₁ b c c₁ d : D} (g : b ⟶ c)
     (h₁ : a = a₁) (h₂ : a₁ = b) (h₃ : c = c₁) (h₄ : c₁ = d) (h₅ : a = b) (h₆ : c = d) :
@@ -82,7 +87,8 @@ theorem appendRight_nil (x : DoubleStendhalTriple RD Λ 0 μ) : appendRight [] h
 
 /-- Right whiskering by the empty word is the identity. -/
 theorem whiskerRight_nil_eq : whiskerRight P [] hv h = 𝟭 (BoundaryCategory P μ) := by
-  refine CategoryTheory.Functor.ext (h_obj := fun b => appendRight_nil hv h b) (h_map := fun x y f => ?_)
+  refine CategoryTheory.Functor.ext (h_obj := fun b => appendRight_nil hv h b)
+    (h_map := fun x y f => ?_)
   ext
   have hx : (obj RD (fun r => (Λ r).val) 0 x.val.word).endR = μ :=
     (colours_endR ..).trans (endWeight_word x)
@@ -99,5 +105,51 @@ theorem violatingWhiskerRight_nil_eq :
   rw [whiskerRight_nil_eq]; rfl
 
 end Nil
+
+section Words
+
+/-- The action of a word depends only on the word. -/
+theorem blackAct_congr {μ ν : X} {s s' : List (Letter I)} (h : s = s') (hs : wt RD μ s = ν)
+    (hs' : wt RD μ s' = ν) : blackAct P s hs = blackAct P s' hs' := by
+  subst h; rfl
+
+/-- The empty word acts by the identity functor. -/
+theorem blackAct_nil {μ : X} (h : wt RD μ [] = μ) :
+    blackAct P [] h = 𝟭 (ViolatingCategory P μ) :=
+  violatingWhiskerRight_nil_eq P _ _
+
+variable {μ ν₁ ν₂ : X} (s t : List (Letter I)) (ht : wt RD μ t = ν₁)
+  (hs : wt RD ν₁ s = ν₂) (hst : wt RD μ (s ++ t) = ν₂)
+
+/-- The action of `s ++ t` is the action of `t` followed by the action of `s`, as an equality
+of functors. -/
+theorem blackAct_append_eq :
+    blackAct P (s ++ t) hst = blackAct P t ht ⋙ blackAct P s hs :=
+  (violatingWhiskerRight_congr P (blackWord_append' s t) _
+      (redFree_append (blackWord_redFree t) (blackWord_redFree s)) _
+      (endWeight_append_of_eq ((endWeight_blackWord RD _ μ t).trans ht)
+        ((endWeight_blackWord RD _ ν₁ s).trans hs))).trans
+    (violatingWhiskerRight_append_eq P _ _ _ _)
+
+theorem blackActAppend_hom_eq :
+    (blackActAppend P s t ht hs hst).hom = eqToHom (blackAct_append_eq P s t ht hs hst) := by
+  ext ⟨x⟩
+  rw [eqToHom_app]
+  simp only [blackActAppend, violatingWhiskerRightAppend, Quotient.natIsoLift]
+  erw [Iso.trans_hom, NatTrans.comp_app, eqToIso.hom, eqToHom_app]
+  erw [Quotient.natTransLift_app, Functor.isoWhiskerRight_hom, Functor.whiskerRight_app]
+  have hx := whiskerRightAppend_hom_app_hom P (blackWord_redFree t) (blackWord_redFree s)
+    ((endWeight_blackWord RD _ μ t).trans ht) ((endWeight_blackWord RD _ ν₁ s).trans hs) x
+  erw [inducedCategory_eq_eqToHom _ (appendRight_append _ _ _ _ x) hx, eqToHom_map,
+    eqToHom_trans]
+
+theorem blackActAppend_inv_eq :
+    (blackActAppend P s t ht hs hst).inv =
+      eqToHom (blackAct_append_eq P s t ht hs hst).symm := by
+  have : blackActAppend P s t ht hs hst = eqToIso (blackAct_append_eq P s t ht hs hst) :=
+    Iso.ext (blackActAppend_hom_eq P s t ht hs hst)
+  rw [this]; rfl
+
+end Words
 
 end Categorification.Stendhal.DoubleDiagram

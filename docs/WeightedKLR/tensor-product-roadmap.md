@@ -162,13 +162,14 @@ This gives the red/up crossing in that representation.
 Plan for Theorem 4.25 at the standard KL black parameters. The target is a
 pseudofunctor out of the presented 2-category of `clDownwardBlock`, built with
 `Diagrams.BicatInterp.presPseudofunctor` as for `cyclotomicPresCL`.
-1. Regions. In the coordinate datum a region weight `x : I ⊕ Fin ℓ → ℤ`
-   lists coroot pairings. Its red coordinates record which red lines lie to
-   its left, so they fix the highest weight `ν` and the cyclotomic
-   polynomials `a(x)`. The region goes to the weight-`x` category of the
-   cyclotomic family at `a(x)`: modules over `CycKLR k Q a(x) β` for all
-   blocks `β` of that weight. This is Webster's `⊕_ν R^ν_μ`-mod with `ν`
-   fixed by the boundary.
+1. Regions. A region weight `x : I ⊕ Fin ℓ → ℤ` lists coroot pairings in
+   the coordinate datum. Its red coordinates do not always determine which
+   red lines lie to its left: the red block `3·1 - J` of the extended Cartan
+   matrix is singular when `ℓ = 3`. So, as in Webster, the region goes to
+   the product over highest weights `ν = Σ n_r Λ_r` of the weight-`x`
+   categories of the cyclotomic families at `ν`, i.e. modules over
+   `CycKLR k Q a_ν β` for the blocks `β` of weight `x`. A red line `r`
+   pulls back from the `ν + Λ_r` factor to the `ν` factor.
 2. Black strands, dots, crossings, cups and caps take their values from the
    cyclotomic family of Theorem 3.17. Red strands go to
    `cyclotomicRedPullback`. The red/up crossings `a`, `b` go to

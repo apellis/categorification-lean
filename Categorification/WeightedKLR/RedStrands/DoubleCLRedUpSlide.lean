@@ -97,6 +97,21 @@ theorem dgCL_downCross (j i : I) (μ : X) :
   rw [presCL_rotCrossR, smul_smul, ← Units.val_mul, inv_mul_cancel, Units.val_one, one_smul]
   rfl
 
+/-- The downward crossing is `t_{ji}⁻¹` times the upward crossing rotated by nested cups on the
+left and caps on the right (`rotCrossL`). -/
+theorem dgCL_downCrossL (j i : I) (μ : X) :
+    dgC (presCL RD k S) μ [dn j, dn i] [dn i, dn j] [([], .cross false j i, [])] =
+      (((S.t j i)⁻¹ : kˣ) : k) • dgC (presCL RD k S) μ [dn j, dn i] [dn i, dn j]
+        [([], .cup (dn i), [dn j, dn i]), ([dn i], .cup (dn j), [up i, dn j, dn i]),
+          ([dn i, dn j], .cross true j i, [dn j, dn i]), ([dn i, dn j, up i], .cap (dn j), [dn i]),
+          ([dn i, dn j], .cap (dn i), [])] := by
+  rw [dgC_of (by schain), dgC_of (by schain)]
+  have h := (presCL RD k S).lin_rel_self (.inr (.cycCrossL j i μ))
+  change (presCL RD k S).lin ((((S.t j i)⁻¹ : kˣ) : k) • LinDiagram.of (rotCrossL RD j i μ) -
+    LinDiagram.of (downCross RD j i μ)) = 0 at h
+  rw [lin_sub, lin_smul, lin_of, lin_of, sub_eq_zero] at h
+  exact h.symm
+
 variable {Q : I → I → MvPolynomial (Fin 2) k} (hK : KLRHolds (presCL RD k S) Q)
 include hK
 
@@ -159,5 +174,40 @@ theorem dgCL_downCross_crossrL (μ : X) (c j i : I) (hi : c ≠ i) :
   dswapC 7; dswapC 6
   datC 5 [dn j, up c] [dn i, dn j] (dgC_zigL' _ (zigzags RD k S) _ (up j))
   dswapC 4
+
+/-- An upward strand of colour `c` passes a downward crossing of colours `j`, `i` (`c ≠ j`)
+from right to left by the sideways crossings `crosslL`. -/
+theorem dgCL_crosslL_downCross (μ : X) (c j i : I) (hj : c ≠ j) :
+    dgC (presCL RD k S) μ [up c, dn j, dn i] [dn i, dn j, up c]
+      ((crosslL c j).map (whL [] [dn i]) ++ (crosslL c i).map (whL [dn j] []) ++
+        [([], .cross false j i, [up c])]) =
+    dgC (presCL RD k S) μ [up c, dn j, dn i] [dn i, dn j, up c]
+      ([([up c], .cross false j i, [])] ++ (crosslL c i).map (whL [] [dn j]) ++
+        (crosslL c j).map (whL [dn i] [])) := by
+  rw [dgC_stepL_at _ 6 [] [up c] (dgCL_downCrossL RD k S j i _) (by schain) (by schain) rfl,
+    map_smul, ctxLC_dg _ _ (by schain) (by schain)]
+  conv_rhs => rw [dgC_stepL_at _ 0 [up c] [] (dgCL_downCrossL RD k S j i _) (by schain)
+    (by schain) rfl, map_smul, ctxLC_dg _ _ (by schain) (by schain)]
+  congr 1
+  dnorm
+  dswapC 5; dswapC 4; dswapC 3; dswapC 2; dswapC 1; dswapC 0
+  dswapC 6; dswapC 5; dswapC 4; dswapC 3; dswapC 2; dswapC 1
+  dswapC 7; dswapC 6; dswapC 5; dswapC 4; dswapC 3; dswapC 2
+  dswapC 8; dswapC 7; dswapC 6; dswapC 5; dswapC 4
+  datC 3 [dn i, dn j, up i] [up c, dn j, dn i] (dgC_zigR' _ (zigzags RD k S) _ (dn j))
+  dswapC 7; dswapC 6
+  datC 5 [dn i, dn j] [up c, dn i] (dgC_zigR' _ (zigzags RD k S) _ (dn i))
+  dswapC 4
+  datC 2 [dn i, dn j] [dn j, dn i] (dgC_braid (hK := hK) _ j i c (fun h => hj h.1.symm))
+  symm
+  dswapC 4; dswapC 3; dswapC 2; dswapC 1; dswapC 0
+  dswapC 5; dswapC 4; dswapC 3; dswapC 2; dswapC 1
+  dswapC 6; dswapC 5; dswapC 4; dswapC 3
+  datC 2 [dn i, up c] [dn j, dn i] (dgC_zigR' _ (zigzags RD k S) _ (dn i))
+  dswapC 5; dswapC 4; dswapC 3; dswapC 2
+  dswapC 6; dswapC 5; dswapC 4; dswapC 3
+  dswapC 7; dswapC 6; dswapC 5
+  datC 4 [dn i, dn j, up c] [up i, dn j, dn i] (dgC_zigR' _ (zigzags RD k S) _ (dn j))
+  dswapC 1
 
 end Categorification.KL3.Diagram.CL

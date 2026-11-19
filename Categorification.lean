@@ -834,6 +834,7 @@ import Categorification.TwoRep.ModelQStrongGraded
 import Categorification.TwoRep.KernelExact
 import Categorification.TypeA.Basic
 import Categorification.TypeA.DoubleCoset
+import Categorification.TypeA.GapSort
 import Categorification.TypeA.Inversions
 import Categorification.TypeA.Length
 import Categorification.TypeA.Matsumoto
@@ -1267,6 +1268,15 @@ import Categorification.WeightedKLR.RedStrands.LastRedBlackEquiv
 import Categorification.WeightedKLR.RedStrands.AppendStrandReflection
 import Categorification.WeightedKLR.RedStrands.LastRedBlackGrading
 import Categorification.WeightedKLR.RedStrands.LastRedBlackMirror
+import Categorification.WeightedKLR.RedStrands.SplitRed
+import Categorification.WeightedKLR.RedStrands.SplitRedBraid
+import Categorification.WeightedKLR.RedStrands.SplitRedEquiv
+import Categorification.WeightedKLR.RedStrands.SplitRedHom
+import Categorification.WeightedKLR.RedStrands.SplitRedInjective
+import Categorification.WeightedKLR.RedStrands.SplitRedLoading
+import Categorification.WeightedKLR.RedStrands.SplitRedQuotient
+import Categorification.WeightedKLR.RedStrands.SplitRedRelations
+import Categorification.WeightedKLR.RedStrands.SplitRedWords
 /-!
 # Categorification
 

@@ -2882,6 +2882,12 @@ noncomputable example := Stendhal.appendRedEquiv wkWeightZeroGraph.klrQ
   (fun _ : Fin 2 => Finsupp.single (0 : Fin 2) 2) ({0, 1, 0} : Multiset (Fin 2))
   wkWeightZeroGraph_standing.isRouquierQ
 
+/-- Splitting the red weight `2ϖ₀` into `ϖ₀ + ϖ₀`, with repeated and adjacent colours
+(Webster, arXiv:1309.3796v3, Proposition 4.21). -/
+noncomputable example := Stendhal.SplitRed.splitRedEquiv (0 : Fin 1) wkWeightZeroGraph.klrQ
+  (fun _ : Fin 2 => Finsupp.single (0 : Fin 2) 1) (ν := ({0, 1, 0} : Multiset (Fin 2)))
+  wkWeightZeroGraph_standing.isRouquierQ
+
 end RedCornerEquivalence
 
 namespace RightBlackInduction

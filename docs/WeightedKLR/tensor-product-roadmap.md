@@ -553,7 +553,7 @@ after §4 because the single-red case of the §4 constructions gives the §3 one
 | Thm 4.31 | `𝒰` acts on `T^λ`-modules by `βᵤ = e₋ β′ᵤ e₋` | done at the standard KL black parameters over a field: the action of Thm 4.28 on the additive idempotent completions (`StrictPseudofunctor.completion`) for the presentation of Thm 4.30 (`clBlackAction`); its value at `λ - ν` is identified with the completion of the all-down boundaries, with endomorphism ring `T^λ_ν` (`clBlackAction_tensorProduct`). Graded modules and the formula `βᵤ = e₋ β′ᵤ e₋` on algebras are not separately stated |
 | Thm 4.25 | representation of the 2-category `𝒯`; red lines act by `I^λ` | open |
 | Prop 4.19 | `T^{λ⁻} ≅ e_ℓ T^λ e_ℓ` | done (v2 Prop 4.18, `appendRedEquiv`) |
-| Prop 4.21 | splitting a red strand, `T^{λ′} ≅ e_{λ′} T^λ e_{λ′}` | open |
+| Prop 4.21 | splitting a red strand, `T^{λ′} ≅ e_{λ′} T^λ e_{λ′}` | done (`SplitRed.splitRedEquiv`): with `λ'` splitting `λ_c = λ'_c + λ'_{c+1}`, `T^λ ≅ e T^{λ'} e` for `e` the sum of the idempotents of the loadings with red strands `c`, `c + 1` adjacent, for the crossing parameters of §2.2 (`IsRouquierQ`) |
 | Prop 4.32 | `IR^μ I^μ = id` and its commutation with `Eᵢ`, `Fᵢ` | done: `IR^μ Fᵢ I^μ ≅ Fᵢ` on bimodules (`lastRedBlackEquiv`); `IR^μ I^μ = id` is Prop 4.18 (`appendRedEquiv`); `IR^μ Eᵢ I^μ ≅ Eᵢ` over a field by reflection (`lastRedBlackMirrorEquiv`); both raise degrees by `degΨ(λ_ℓ, i)` (`lastRedBlackMap_mem_grade`, `lastRedBlackMirror_mem_grade`) |
 | Prop 4.33 | uniqueness of the sesquilinear forms | partial |
 | Prop 4.39 | `K₀(T̃^λ) ≅ U⁻_q ⊗ V^λ` | open |

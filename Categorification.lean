@@ -1238,6 +1238,7 @@ import Categorification.WeightedKLR.RedStrands.DoubleCLDownKLRUp
 import Categorification.WeightedKLR.RedStrands.DoubleCLDownUpVacuum
 import Categorification.WeightedKLR.RedStrands.DoubleCLDownInjective
 import Categorification.WeightedKLR.RedStrands.DoubleCLDownInjectiveOrdinary
+import Categorification.WeightedKLR.RedStrands.DoubleCLMorita
 import Categorification.WeightedKLR.RedStrands.DoubleWFDom
 import Categorification.WeightedKLR.RedStrands.DoubleCLRelationFamilies
 import Categorification.WeightedKLR.RedStrands.DoubleCLMoveContext

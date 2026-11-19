@@ -92,7 +92,9 @@ indices and the one-factor counterexample.
 To identify these module isomorphisms with the decomposition of the
 signed boundary ideals, construct the double Stendhal algebra, identify
 its all-down corner with the existing algebra (Lemma 4.28), and prove
-that the corner idempotent gives the Morita equivalence (Theorem 4.29).
+that the corner idempotent gives the Morita equivalence (Theorem 4.29;
+v3 Theorem 4.30). At the standard Khovanov–Lauda black parameters over a
+field, the Morita equivalence is `clTensorProduct_moritaEquivalent`.
 The upward boundary operation must then agree with normalized restriction.
 The diagrammatic crossing, cup and cap maps in the proof of Lemma 4.35
 and their 2-action relations are further targets. Extending the
@@ -346,8 +348,9 @@ For a presentation with compatible pitchfork coefficients, impose the remaining 
 and prove the ordinary map is faithful modulo the violating ideal. The cited
 tricolore basis is stated over ℂ[z]. The one-upward-colour proof in the revised
 Lemma 4.29 provides a route over arbitrary fields. [Webster, Unfurling, Theorem 5.11](https://arxiv.org/pdf/1603.06311#page=41) The
-identification of the corner is the remaining input for the ungraded Morita
-comparison with the ordinary algebra in Theorem 4.29.
+identification of the corner gives the Morita comparison with the ordinary
+algebra (v3 Theorem 4.30, `clTensorProduct_moritaEquivalent`) at the standard
+Khovanov–Lauda black parameters; general parameters follow Lemma 4.29 below.
 
 For a comparison of the full black presentations, Cautis–Lauda §2.2
 assigns dual parameters to the downward KLR relations. For disconnected

@@ -554,7 +554,7 @@ after §4 because the single-red case of the §4 constructions gives the §3 one
 | Thm 4.25 | representation of the 2-category `𝒯`; red lines act by `I^λ` | open |
 | Prop 4.19 | `T^{λ⁻} ≅ e_ℓ T^λ e_ℓ` | done (v2 Prop 4.18, `appendRedEquiv`) |
 | Prop 4.21 | splitting a red strand, `T^{λ′} ≅ e_{λ′} T^λ e_{λ′}` | open |
-| Prop 4.32 | `IR^μ I^μ = id` and its commutation with `Eᵢ`, `Fᵢ` | open |
+| Prop 4.32 | `IR^μ I^μ = id` and its commutation with `Eᵢ`, `Fᵢ` | partial: `IR^μ Fᵢ I^μ ≅ Fᵢ` on bimodules, without the grading shift (`lastRedBlackEquiv`); `Eᵢ` part and `IR^μ I^μ = id` open |
 | Prop 4.33 | uniqueness of the sesquilinear forms | partial |
 | Prop 4.39 | `K₀(T̃^λ) ≅ U⁻_q ⊗ V^λ` | open |
 

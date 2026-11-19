@@ -1837,6 +1837,10 @@ example := Stendhal.tensorProductAlgebra_finite (fun r : Fin 2 => Finsupp.single
 example := Stendhal.span_dividedSequenceProj
   (fun r : Fin 2 => Finsupp.single r 2) rqC rqHyp ({0, 1, 0} : Multiset (Fin 2))
 
+/-- Webster's Proposition 4.32 in characteristic two: two red strands, black labels `0, 1, 0`. -/
+example := Stendhal.lastRedBlackEquiv rqQ (fun r : Fin 2 => Finsupp.single r 2) (0 : Fin 2)
+  ({1, 0} : Multiset (Fin 2)) rqHyp
+
 /-- Three equal strands vanish at level two, and the third lowering kills the vacuum. -/
 example := KLR.CycKLR.subsingleton_replicate_of_lt rqQ (fun _ => 2) 0 3 (by decide)
 example := KLR.CycKLR.lower_pow_vacuum_eq_zero (fun _ => 2) rqHyp.gradingDatum 0

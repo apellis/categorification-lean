@@ -169,7 +169,8 @@ theorem upActP_comp_upFunctorC (Q : I → I → MvPolynomial (Fin 2) k) (hK : CL
   | dot a =>
     change S.upActP Sc P hrel μ ν (KL3.Diagram.matEndMap k (CL.upFunctorC P Q hK μ) _
       (KLR.Diagram.toDiagFree k Q ν (KLR.fx k ν a))) = S.klrActFree k μ ν (KLR.fx k ν a)
-    rw [KLR.Diagram.toDiagFree_fx, klrActFree_fx, KLR.Diagram.DiagR.X, map_sum, map_sum, wordX]
+    rw [KLR.Diagram.toDiagFree_fx, klrActFree_fx, KLR.Diagram.DiagR.X, map_sum, wordX]
+    erw [map_sum]
     refine Finset.sum_congr rfl fun i _ => ?_
     erw [KL3.Diagram.matEndMap_single, upActP_single, KLR.Diagram.dotE,
       CL.upFunctorC_diag]
@@ -177,7 +178,8 @@ theorem upActP_comp_upFunctorC (Q : I → I → MvPolynomial (Fin 2) k) (hK : CL
   | cross j =>
     change S.upActP Sc P hrel μ ν (KL3.Diagram.matEndMap k (CL.upFunctorC P Q hK μ) _
       (KLR.Diagram.toDiagFree k Q ν (KLR.fψ k ν j))) = S.klrActFree k μ ν (KLR.fψ k ν j)
-    rw [KLR.Diagram.toDiagFree_fψ, klrActFree_fψ, KLR.Diagram.DiagR.Ψ, map_sum, map_sum, wordΨ]
+    rw [KLR.Diagram.toDiagFree_fψ, klrActFree_fψ, KLR.Diagram.DiagR.Ψ, map_sum, wordΨ]
+    erw [map_sum]
     refine Finset.sum_congr rfl fun i _ => ?_
     erw [KL3.Diagram.matEndMap_single, upActP_single]
     by_cases hj : j + 1 < Multiset.card ν

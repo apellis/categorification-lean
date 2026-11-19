@@ -1212,6 +1212,7 @@ import Categorification.WeightedKLR.RedStrands.DoubleCLRedNegligibleIdeal
 import Categorification.WeightedKLR.RedStrands.DoubleCLRedUp
 import Categorification.WeightedKLR.RedStrands.DoubleCLRedUpEvaluation
 import Categorification.WeightedKLR.RedStrands.DoubleCLRepeatedRed
+import Categorification.WeightedKLR.RedStrands.DoubleCLRepeatedRedCover
 /-!
 # Categorification
 

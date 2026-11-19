@@ -306,6 +306,85 @@ theorem coverLin_eqToHom {a b : Obj (signature RD Λ)} (h : a = b) (σ : Move I 
   subst h
   exact coverLin_id W hC o Q σ a
 
+section CoverForm
+
+variable (σ : Move I ℓ → k)
+
+/-- The cover functor sends `f` to `c` times the normal-form diagram `L` between the words `s`
+and `t`, at the right weight `ν`. -/
+def HasCoverForm {a b : Obj (signature RD Λ)} (c : k) (f : a ⟶ b) (ν : X)
+    (s t : List (Letter (I ⊕ Fin ℓ))) (L : List (LayerData (I ⊕ Fin ℓ))) : Prop :=
+  SChain s L t ∧ ∃ (e₁ : Q.obj ((κ).obj ((CM).obj a)) = Q.obj (ob W ν s))
+    (e₂ : Q.obj (ob W ν t) = Q.obj ((κ).obj ((CM).obj b))),
+    coverLin W hC o Q σ (LinDiagram.of f) = c • (eqToHom e₁ ≫ dgC Q ν s t L ≫ eqToHom e₂)
+
+variable {W hC o Q σ}
+
+theorem HasCoverForm.congr {a b : Obj (signature RD Λ)} {c c' : k} {f : a ⟶ b} {ν : X}
+    {s t s' t' : List (Letter (I ⊕ Fin ℓ))} {L : List (LayerData (I ⊕ Fin ℓ))}
+    (h : HasCoverForm W hC o Q σ c f ν s t L) (hc : c = c') (hs : s = s') (ht : t = t') :
+    HasCoverForm W hC o Q σ c' f ν s' t' L := by
+  subst hc hs ht
+  exact h
+
+theorem HasCoverForm.comp {a b d : Obj (signature RD Λ)} {c c' : k} {f : a ⟶ b} {g : b ⟶ d}
+    {ν : X} {s t t' r : List (Letter (I ⊕ Fin ℓ))} {A B : List (LayerData (I ⊕ Fin ℓ))}
+    (hf : HasCoverForm W hC o Q σ c f ν s t A) (hg : HasCoverForm W hC o Q σ c' g ν t' r B)
+    (ht : t = t') : HasCoverForm W hC o Q σ (c * c') (f ≫ g) ν s r (A ++ B) := by
+  subst ht
+  obtain ⟨hA, e₁, e₂, hf⟩ := hf
+  obtain ⟨hB, e₃, e₄, hg⟩ := hg
+  refine ⟨hA.append hB, e₁, e₄, ?_⟩
+  rw [LinDiagram.of_comp, coverLin_comp, hf, hg, Linear.smul_comp, Linear.comp_smul, smul_smul]
+  congr 1
+  simp only [Category.assoc, eqToHom_trans_assoc, eqToHom_refl, Category.id_comp]
+  rw [← Category.assoc (dgC Q ν s t A), dgC_comp hA hB]
+
+theorem HasCoverForm.cast {a b a' b' : Obj (signature RD Λ)} {c : k} {f : a ⟶ b} {ν : X}
+    {s t : List (Letter (I ⊕ Fin ℓ))} {L : List (LayerData (I ⊕ Fin ℓ))}
+    (h : HasCoverForm W hC o Q σ c f ν s t L) (ha : a = a') (hb : b = b') :
+    HasCoverForm W hC o Q σ c (Diagram.cast f ha hb) ν s t L := by
+  subst ha hb
+  obtain ⟨hL, e₁, e₂, h⟩ := h
+  refine ⟨hL, e₁, e₂, ?_⟩
+  rw [coverLin_cast, h]
+  simp
+
+theorem HasCoverForm.coverLin_sub_eq_zero {a b : Obj (signature RD Λ)} {c c' : k}
+    {f g : a ⟶ b} {ν : X} {s t s' t' : List (Letter (I ⊕ Fin ℓ))}
+    {A B : List (LayerData (I ⊕ Fin ℓ))}
+    (hf : HasCoverForm W hC o Q σ c f ν s t A) (hg : HasCoverForm W hC o Q σ c' g ν s' t' B)
+    (hc : c = c') (hs : s = s') (ht : t = t') (h : dgC Q ν s t A = dgC Q ν s t B) :
+    coverLin W hC o Q σ (LinDiagram.of f - LinDiagram.of g) = 0 := by
+  subst hc hs ht
+  obtain ⟨-, e₁, e₂, hf⟩ := hf
+  obtain ⟨-, e₃, e₄, hg⟩ := hg
+  rw [show ∀ {a b} (f g : LinDiagram k a b), coverLin W hC o Q σ (f - g) =
+      coverLin W hC o Q σ f - coverLin W hC o Q σ g from fun f g => by
+    simp only [coverLin, freeLift_map_layerLin, Functor.map_sub], hf, hg, h, sub_self]
+
+variable (W hC o Q σ)
+
+theorem hasCoverForm_moveDiagram (μ : X) (u : List (DoubleStrand I ℓ)) (m : Move I ℓ)
+    (v : List (DoubleStrand I ℓ)) :
+    HasCoverForm W hC o Q σ (σ m) (moveDiagram RD Λ μ u m v) (o - μ)
+      (coverWord v ++ coverWord m.bottom ++ coverWord u)
+      (coverWord v ++ coverWord m.top ++ coverWord u)
+      ((coverMoveL m).map (whL (coverWord v) (coverWord u))) := by
+  obtain ⟨h, e₁, e₂, he⟩ := coverLin_moveDiagram_dgC W hC o Q σ μ u m v
+  exact ⟨h, e₁, e₂, he⟩
+
+theorem hasCoverForm_upBlackMoveDiagram (μ : X) (u : List (DoubleStrand I ℓ))
+    (g : UpBlackMove I) (v : List (DoubleStrand I ℓ)) :
+    HasCoverForm W hC o Q σ (σ (.black g.shape)) (upBlackMoveDiagram RD Λ μ u g v) (o - μ)
+      (coverWord v ++ coverWord (upBlackWord (ℓ := ℓ) g.bottom) ++ coverWord u)
+      (coverWord v ++ coverWord (upBlackWord (ℓ := ℓ) g.top) ++ coverWord u)
+      ((coverMoveL (.black g.shape)).map (whL (coverWord v) (coverWord u))) :=
+  ((hasCoverForm_moveDiagram W hC o Q σ μ u (.black g.shape) v).cast _ _).congr rfl
+    (by cases g <;> rfl) (by cases g <;> rfl)
+
+end CoverForm
+
 variable [DecidableEq I]
 
 /-- The cover functor on a red strand moving from left to right through upward black strands. -/
@@ -398,5 +477,25 @@ theorem coverLin_upWordThroughRed (μ : X) (r : Fin ℓ) (s : List I) :
       simp only [hc, upThroughL, List.map_append, List.map_map, coverWord_append]
       congr 1 <;> refine List.map_congr_left fun x _ => ?_ <;>
         simp [whL, coverWord, coverLetter]
+
+theorem hasCoverForm_redThroughUpWord (μ : X) (r : Fin ℓ) (u : List (DoubleStrand I ℓ))
+    (s : List I) (v : List (DoubleStrand I ℓ)) :
+    HasCoverForm W hC o Q coverSign 1 (redThroughUpWord RD Λ μ r u s v) (o - μ)
+      (coverWord (u ++ [(.inr r : DoubleStrand I ℓ)] ++ upBlackWord (ℓ := ℓ) s ++ v))
+      (coverWord (u ++ upBlackWord (ℓ := ℓ) s ++ [(.inr r : DoubleStrand I ℓ)] ++ v))
+      ((redThroughL r s).map (whL (coverWord v) (coverWord u))) :=
+  ⟨sChain_redThroughL_ctx r s u v, congrArg Q.obj (coverObj W hC o μ _),
+    (congrArg Q.obj (coverObj W hC o μ _)).symm, by
+      rw [one_smul]; exact coverLin_redThroughUpWord W hC o Q μ r s u v _ _⟩
+
+theorem hasCoverForm_upWordThroughRed (μ : X) (r : Fin ℓ) (u : List (DoubleStrand I ℓ))
+    (s : List I) (v : List (DoubleStrand I ℓ)) :
+    HasCoverForm W hC o Q coverSign 1 (upWordThroughRed RD Λ μ r u s v) (o - μ)
+      (coverWord (u ++ upBlackWord (ℓ := ℓ) s ++ [(.inr r : DoubleStrand I ℓ)] ++ v))
+      (coverWord (u ++ [(.inr r : DoubleStrand I ℓ)] ++ upBlackWord (ℓ := ℓ) s ++ v))
+      ((upThroughL r s).map (whL (coverWord v) (coverWord u))) :=
+  ⟨sChain_upThroughL_ctx r s u v, congrArg Q.obj (coverObj W hC o μ _),
+    (congrArg Q.obj (coverObj W hC o μ _)).symm, by
+      rw [one_smul]; exact coverLin_upWordThroughRed W hC o Q μ r s u v _ _⟩
 
 end Categorification.Stendhal.DoubleDiagram

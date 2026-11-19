@@ -209,7 +209,8 @@ theorem exists_cut_splitLoading (s : Seq μ) (w : Perm (Fin m'))
     congr 1
     simp [Equiv.Perm.mul_def]
   -- no red strand lies strictly inside the gap
-  have hout : ∀ X (r : Fin (ℓ + 1)), v.lbl X = .inr r → X ≤ w (oldRedPos c s) ∨ w (newPos c s) ≤ X := by
+  have hout : ∀ X (r : Fin (ℓ + 1)), v.lbl X = .inr r →
+      X ≤ w (oldRedPos c s) ∨ w (newPos c s) ≤ X := by
     intro X r hX
     by_contra hc
     push Not at hc
@@ -221,8 +222,12 @@ theorem exists_cut_splitLoading (s : Seq μ) (w : Perm (Fin m'))
   have hcard := card_split ℓ ν
   have hbm : (τ (w (oldRedPos c s)) : ℕ) < m := by have := (τ (w (newPos c s))).isLt; omega
   obtain ⟨t, ht, -⟩ := exists_splitLoading_eq c ((τ * w) • splitLoading c s) ⟨_, hbm⟩
-    (by rw [show (⟨(τ (w (oldRedPos c s)) : ℕ), _⟩ : Fin m') = τ (w (oldRedPos c s)) from rfl, htv, hP])
-    (by rw [show (⟨(τ (w (oldRedPos c s)) : ℕ) + 1, _⟩ : Fin m') = τ (w (newPos c s)) from Fin.ext hadj, htv, hP'])
+    (by
+      rw [show (⟨(τ (w (oldRedPos c s)) : ℕ), _⟩ : Fin m') = τ (w (oldRedPos c s)) from rfl,
+        htv, hP])
+    (by
+      rw [show (⟨(τ (w (oldRedPos c s)) : ℕ) + 1, _⟩ : Fin m') = τ (w (newPos c s)) from
+        Fin.ext hadj, htv, hP'])
   refine ⟨t, ?_, ?_, ht⟩
   · rw [← isRedOrdered_splitLoading_iff c, ht]
     intro X Y r r' hXY hX hY

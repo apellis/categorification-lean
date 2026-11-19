@@ -1270,6 +1270,7 @@ import Categorification.WeightedKLR.RedStrands.LastRedBlackGrading
 import Categorification.WeightedKLR.RedStrands.LastRedBlackMirror
 import Categorification.WeightedKLR.RedStrands.SplitRed
 import Categorification.WeightedKLR.RedStrands.SplitRedBraid
+import Categorification.WeightedKLR.RedStrands.SplitRedEquiv
 import Categorification.WeightedKLR.RedStrands.SplitRedHom
 import Categorification.WeightedKLR.RedStrands.SplitRedInjective
 import Categorification.WeightedKLR.RedStrands.SplitRedLoading

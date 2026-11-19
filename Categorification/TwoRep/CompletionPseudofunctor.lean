@@ -84,7 +84,8 @@ theorem matNatTrans_id (F : A ⥤ B) [F.Additive] : matNatTrans (𝟙 F) = 𝟙 
   rfl
 
 theorem matNatTrans_comp {F G H : A ⥤ B} [F.Additive] [G.Additive] [H.Additive]
-    (α : F ⟶ G) (β : G ⟶ H) : matNatTrans (α ≫ β) = matNatTrans α ≫ matNatTrans β := by
+    (α : F ⟶ G) (β : G ⟶ H) :
+    matNatTrans (α ≫ β) = matNatTrans α ≫ matNatTrans β := by
   ext M i k
   revert i k
   intro (i : M.ι) (k : M.ι)
@@ -182,7 +183,8 @@ section Pseudofunctor
 
 universe w₁ w₂ w₃ v u
 
-variable {𝔅 : Type w₁} [Bicategory.{w₂, w₃} 𝔅] [Bicategory.Strict 𝔅] (F : StrictPseudofunctor 𝔅 Cat.{v, u})
+variable {𝔅 : Type w₁} [Bicategory.{w₂, w₃} 𝔅] [Bicategory.Strict 𝔅]
+  (F : StrictPseudofunctor 𝔅 Cat.{v, u})
   [hpre : ∀ a, Preadditive (F.obj a)]
   [hadd : ∀ (a b : 𝔅) (f : a ⟶ b), (F.map f).toFunctor.Additive]
 

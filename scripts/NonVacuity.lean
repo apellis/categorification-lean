@@ -5329,6 +5329,13 @@ example (ν : Multiset Unit) :=
   (fun i j h => (h (Subsingleton.elim i j)).elim) (P := emptyP) (fun r => r.elim)
   (fun r => r.elim)
 
+/-- The categorical action on cyclotomic KLR algebras of Theorem 3.17 (Webster
+arXiv:1309.3796v3) in the same setting. -/
+example (ν : Multiset Unit) :=
+  clBlackAction_cyclotomic.{0, 0, 0} (hQ := rouq) Λ₁ ν
+  (fun i j h => (h (Subsingleton.elim i j)).elim) (P := emptyP) (fun r => r.elim)
+  (fun r => r.elim)
+
 end TensorCornerKL
 
 namespace BlackActionKL

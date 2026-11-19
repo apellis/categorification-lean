@@ -10,6 +10,7 @@ import Categorification.Diagrams.KL3.SymmetrySigmaMatrix
 import Categorification.KLR.KKScalarsStandard
 import Categorification.WeightedKLR.RedStrands.DoubleCapSurjectivity
 import Categorification.WeightedKLR.RedStrands.DoubleDownCLComparison
+import Categorification.WeightedKLR.RedStrands.CyclotomicCoverDotCentral
 
 /-!
 # Injectivity of the map from `T^λ` to the downward block
@@ -180,14 +181,13 @@ theorem clToDownwardMatrix_kl_injective (hc : CoverDotCentral Λ C Q)
 /-- **Webster, arXiv:1309.3796v3, Lemma 4.29, repaired**, at the standard Khovanov–Lauda
 parameters over a field: the comparison `clToDownwardMatrix`, from `T^λ` to the all-down
 block whose downward relations use the Cautis–Lauda dual parameters, is bijective. -/
-theorem clToDownwardMatrix_kl_bijective (hc : CoverDotCentral Λ C Q)
-    (hstd : ∀ i j, i ≠ j → Q i j = CL.qCL KL i j)
+theorem clToDownwardMatrix_kl_bijective (hstd : ∀ i j, i ≠ j → Q i j = CL.qCL KL i j)
     {P : Presentation.{v, u} (signature (RDc) (redWeight Wgt)) k}
-    (hP : CoverRelsNegligible.{u, v, w} Λ C hQ hc wt₀ P) (hwf : P.WFDom) :
+    (hP : CoverRelsNegligible.{u, v, w} Λ C hQ (coverDotCentral Λ C hQ) wt₀ P) (hwf : P.WFDom) :
     Function.Bijective (clToDownwardMatrix (Λ := coordinateRedWeights Λ C)
       (signedCapKLPresentation (RDc) (redWeight Wgt) P (clDownwardQ KL) Λ fun _ _ => 1)
       Λ (KL).t KL (ν := ν)) := by
-  refine ⟨clToDownwardMatrix_kl_injective hc hstd hP hwf, ?_⟩
+  refine ⟨clToDownwardMatrix_kl_injective _ hstd hP hwf, ?_⟩
   have hsurj := DoubleDiagram.signedCapKL_ordinaryToDownwardMatrix_surjective
     (weights := coordinateRedWeights Λ C) (ν := ν) P (clDownwardQ KL) Λ (fun _ _ => 1) (KL).t
     fun r i => (coordinateRedWeights_pair Λ C r i).symm
@@ -195,11 +195,10 @@ theorem clToDownwardMatrix_kl_bijective (hc : CoverDotCentral Λ C Q)
 
 /-- The algebra isomorphism of the repaired Lemma 4.29 (arXiv:1309.3796v3) between `T^λ` and
 the all-down block, at the standard Khovanov–Lauda parameters over a field. -/
-noncomputable def clToDownwardMatrixKLEquiv (hc : CoverDotCentral Λ C Q)
-    (hstd : ∀ i j, i ≠ j → Q i j = CL.qCL KL i j)
+noncomputable def clToDownwardMatrixKLEquiv (hstd : ∀ i j, i ≠ j → Q i j = CL.qCL KL i j)
     {P : Presentation.{v, u} (signature (RDc) (redWeight Wgt)) k}
-    (hP : CoverRelsNegligible.{u, v, w} Λ C hQ hc wt₀ P) (hwf : P.WFDom) :=
-  AlgEquiv.ofBijective _ (clToDownwardMatrix_kl_bijective (ν := ν) hc hstd hP hwf)
+    (hP : CoverRelsNegligible.{u, v, w} Λ C hQ (coverDotCentral Λ C hQ) wt₀ P) (hwf : P.WFDom) :=
+  AlgEquiv.ofBijective _ (clToDownwardMatrix_kl_bijective (ν := ν) hstd hP hwf)
 
 end Main
 

@@ -1205,6 +1205,7 @@ import Categorification.WeightedKLR.RedStrands.DoubleCLNegligible
 import Categorification.WeightedKLR.RedStrands.DoubleCLNegligibleWords
 import Categorification.WeightedKLR.RedStrands.DoubleCLBlackRelations
 import Categorification.WeightedKLR.RedStrands.DoubleCLBlackComparison
+import Categorification.WeightedKLR.RedStrands.DoubleCLBlackContext
 import Categorification.WeightedKLR.RedStrands.DoubleCLRedUp
 import Categorification.WeightedKLR.RedStrands.DoubleCLRedUpEvaluation
 /-!

@@ -20,7 +20,7 @@ namespace Categorification.Stendhal.DoubleDiagram
 
 open CategoryTheory QuantumGroup QuantumGroup.UDot KL3.Diagram StringDiagrams
 
-universe w u v
+universe w u v v₁
 variable {I : Type u} {C : CartanDatum I} {X Y : Type v} [AddCommGroup X] [AddCommGroup Y]
   (RD : WeightDatum C X Y) {ℓ : ℕ} (Λ : Fin ℓ → X) {k : Type w} [CommRing k]
   (μ : X) (u v : List (DoubleStrand I ℓ)) (s : List (Letter I))
@@ -97,7 +97,7 @@ private theorem blackSuffix_linear {t : List (Letter I)} (hs : cut s = τ) (ht :
       LinDiagram.whisker_smul, LinDiagram.whisker_of, LinDiagram.cast_smul, LinDiagram.cast_of,
       blackSuffix_diag RD Λ μ u v s hs ht]
 
-variable (P : Presentation.{w, max u v} (signature RD Λ) k)
+variable (P : Presentation.{w, v₁} (signature RD Λ) k)
   (hP : ∀ r : (pres RD k).Rel, P.lin (blackMirrorLinear RD Λ ((pres RD k).rel r)) = 0)
 
 /-- Reflection of a black KL Hom between arbitrary signed prefix and suffix words.

@@ -37,7 +37,7 @@ namespace Categorification.Stendhal.DoubleDiagram
 
 open CategoryTheory QuantumGroup QuantumGroup.UDot KL3.Diagram StringDiagrams
 
-universe w u v v'
+universe w u v v' v₁
 
 variable {I : Type u} {ℓ : ℕ} {C : CartanDatum I} {C' : CartanDatum (I ⊕ Fin ℓ)}
   {X Y : Type v} [AddCommGroup X] [AddCommGroup Y] (W : WeightDatum C' X Y)
@@ -228,7 +228,7 @@ abbrev coverLin (Q : Presentation.{w, v'} (psig W) k) (σ : Move I ℓ → k)
 /-- **Double diagrams in the KL 2-category of the enlarged datum.** Reflection
 in a vertical axis followed by the KL diagrams of the moves defines a functor
 from any presentation `P` on double diagrams whose relations hold in `Q`. -/
-def coverFunctor (P : Presentation.{w, max u v} (signature RD Λ) k)
+def coverFunctor (P : Presentation.{w, v₁} (signature RD Λ) k)
     (Q : Presentation.{w, v'} (psig W) k) (σ : Move I ℓ → k) (hwf : P.WFDom)
     (hP : ∀ r, coverLin W hC o Q σ (P.rel r) = 0) :
     P.Presented ⥤ Q.Presented :=
@@ -277,7 +277,7 @@ end CoverLin
 section CoverFunctor
 
 theorem coverFunctor_obj
-    (P : Presentation.{w, max u v} (signature (blackDatum W hC) (redWeight W)) k)
+    (P : Presentation.{w, v₁} (signature (blackDatum W hC) (redWeight W)) k)
     (Q : Presentation.{w, v'} (psig W) k) (σ : Move I ℓ → k) (hwf : P.WFDom)
     (hP : ∀ r, coverLin W hC o Q σ (P.rel r) = 0)
     (a : Obj (signature (blackDatum W hC) (redWeight W))) :
@@ -287,7 +287,7 @@ theorem coverFunctor_obj
 /-- On a linear combination of diagrams the cover functor is the mirrored
 image followed by the generator images in `Q`. -/
 theorem coverFunctor_lin
-    (P : Presentation.{w, max u v} (signature (blackDatum W hC) (redWeight W)) k)
+    (P : Presentation.{w, v₁} (signature (blackDatum W hC) (redWeight W)) k)
     (Q : Presentation.{w, v'} (psig W) k) (σ : Move I ℓ → k) (hwf : P.WFDom)
     (hP : ∀ r, coverLin W hC o Q σ (P.rel r) = 0)
     {a b : Obj (signature (blackDatum W hC) (redWeight W))} (f : LinDiagram k a b) :

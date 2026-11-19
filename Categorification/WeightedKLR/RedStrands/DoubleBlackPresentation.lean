@@ -25,7 +25,7 @@ namespace Categorification.Stendhal.DoubleDiagram
 
 open CategoryTheory QuantumGroup QuantumGroup.UDot KL3.Diagram StringDiagrams
 
-universe w u v
+universe w u v v₁
 
 variable {I : Type u} {C : CartanDatum I} {X Y : Type v}
   [AddCommGroup X] [AddCommGroup Y] (RD : WeightDatum C X Y)
@@ -145,7 +145,7 @@ def addBlackKLRelations (P : Presentation.{w, max u v} T k) : Presentation.{w, m
 
 local notation "M" => blackMirror RD Λ
 
-private theorem freeLift_mirror_map (P : Presentation.{w, max u v} T k)
+private theorem freeLift_mirror_map (P : Presentation.{w, v₁} T k)
     {a b : Obj S} (f : LinDiagram k a b) :
     (freeLift k ((M).toLayerMap.toPresented P (fun _ => 1))).map f =
       P.lin (blackMirrorLinear RD Λ f) := by
@@ -162,7 +162,7 @@ private theorem freeLift_mirror_map (P : Presentation.{w, max u v} T k)
 
 /-- Reflection from KL into any signed presentation satisfying the reflected
 local KL relations. Whiskerings and interchange are supplied by the signature map. -/
-def blackMirrorInto (P : Presentation.{w, max u v} T k)
+def blackMirrorInto (P : Presentation.{w, v₁} T k)
     (hP : ∀ r : (pres RD k).Rel, P.lin (blackMirrorLinear RD Λ ((pres RD k).rel r)) = 0) :
     (pres RD k).Presented ⥤ P.Presented :=
   (M).lift (pres RD k) (Q := P) (χ := fun _ => 1)
@@ -170,21 +170,21 @@ def blackMirrorInto (P : Presentation.{w, max u v} T k)
       rw [freeLift_mirror_map RD Λ P]
       exact hP r
 
-instance (P : Presentation.{w, max u v} T k) (hP) :
+instance (P : Presentation.{w, v₁} T k) (hP) :
     (blackMirrorInto RD Λ P hP).Additive := by
   unfold blackMirrorInto
   infer_instance
 
-instance (P : Presentation.{w, max u v} T k) (hP) :
+instance (P : Presentation.{w, v₁} T k) (hP) :
     (blackMirrorInto RD Λ P hP).Linear k := by
   unfold blackMirrorInto
   infer_instance
 
-@[simp] theorem blackMirrorInto_obj (P : Presentation.{w, max u v} T k) (hP)
+@[simp] theorem blackMirrorInto_obj (P : Presentation.{w, v₁} T k) (hP)
     (a : Obj S) :
     (blackMirrorInto RD Λ P hP).obj ((pres RD k).obj a) = P.obj ((M).obj a) := rfl
 
-@[simp] theorem blackMirrorInto_lin (P : Presentation.{w, max u v} T k) (hP)
+@[simp] theorem blackMirrorInto_lin (P : Presentation.{w, v₁} T k) (hP)
     {a b : Obj S} (f : LinDiagram k a b) :
     (blackMirrorInto RD Λ P hP).map ((pres RD k).lin f) = P.lin (blackMirrorLinear RD Λ f) := by
   unfold blackMirrorInto
@@ -258,7 +258,7 @@ private theorem mirror_whisker_linear {s t : List (Letter I)}
       LinDiagram.whisker_smul, LinDiagram.whisker_of]
     rw [LinDiagram.cast_smul, LinDiagram.cast_of, mirror_whisker_diagram]
 
-variable (P : Presentation.{w, max u v} (signature RD Λ) k)
+variable (P : Presentation.{w, v₁} (signature RD Λ) k)
   (hP : ∀ r : (pres RD k).Rel, P.lin (blackMirrorLinear RD Λ ((pres RD k).rel r)) = 0)
 
 /-- The black KL Hom map after reflecting to physical order and inserting a

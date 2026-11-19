@@ -1261,6 +1261,8 @@ import Categorification.WeightedKLR.RedStrands.LastRedBlackSlide
 import Categorification.WeightedKLR.RedStrands.LastRedBlackBimodule
 import Categorification.WeightedKLR.RedStrands.LastRedBlackSurjective
 import Categorification.WeightedKLR.RedStrands.LastRedBlackViolated
+import Categorification.WeightedKLR.RedStrands.StendhalDotInjective
+import Categorification.WeightedKLR.RedStrands.LastRedBlackInjective
 /-!
 # Categorification
 

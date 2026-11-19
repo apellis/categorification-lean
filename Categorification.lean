@@ -107,6 +107,7 @@ import Categorification.Diagrams.KL3.EndOne
 import Categorification.Diagrams.KL3.EndOneGraded
 import Categorification.Diagrams.KL3.FinDimHom
 import Categorification.Diagrams.KL3.FinDimHomUp
+import Categorification.Diagrams.KL3.FreeDiagMat
 import Categorification.Diagrams.KL3.GabberKacWrappers
 import Categorification.Diagrams.KL3.GammaAUD
 import Categorification.Diagrams.KL3.GammaAlgebra

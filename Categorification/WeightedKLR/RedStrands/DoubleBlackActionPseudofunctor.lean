@@ -3,6 +3,7 @@ Copyright (c) 2026 Alex Ellis. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 -/
 import Categorification.WeightedKLR.RedStrands.DoubleBlackActionWhisker
+import Categorification.Diagrams.KL3.SymmetryOmega
 import Categorification.Diagrams.RevBicat
 import Mathlib.CategoryTheory.Bicategory.Functor.StrictPseudofunctor
 import Mathlib.CategoryTheory.Category.Cat
@@ -151,5 +152,133 @@ theorem blackActAppend_inv_eq :
   rw [this]; rfl
 
 end Words
+
+end Categorification.Stendhal.DoubleDiagram
+
+namespace Categorification.RevBicat
+
+open CategoryTheory Bicategory
+
+universe w' v' u'
+
+variable {B : Type u'} [Bicategory.{w', v'} B]
+
+/-- The 1-cell dual of a strict bicategory is strict. -/
+instance [Bicategory.Strict B] : Bicategory.Strict (RevBicat B) where
+  id_comp f := Bicategory.Strict.comp_id (B := B) f
+  comp_id f := Bicategory.Strict.id_comp (B := B) f
+  assoc f g h := (Bicategory.Strict.assoc (B := B) h g f).symm
+  leftUnitor_eqToIso f := Bicategory.Strict.rightUnitor_eqToIso (B := B) f
+  rightUnitor_eqToIso f := Bicategory.Strict.leftUnitor_eqToIso (B := B) f
+  associator_eqToIso {a b c d} f g h := by
+    change (@Bicategory.associator B _ d.as c.as b.as a.as h g f).symm = _
+    rw [Bicategory.Strict.associator_eqToIso]; ext; simp
+
+end Categorification.RevBicat
+
+namespace Categorification.Stendhal.DoubleDiagram
+
+open CategoryTheory QuantumGroup QuantumGroup.UDot KL3.Diagram StringDiagrams
+
+universe u v
+
+variable {I : Type u} {ℓ : ℕ} {C : CartanDatum I} {X Y : Type v}
+  [AddCommGroup X] [AddCommGroup Y] {RD : WeightDatum C X Y}
+  {Λ : Fin ℓ → {x : X // ∀ i, 0 ≤ RD.pair (RD.iY i) x}} {k : Type*} [CommRing k]
+  (P : Presentation (signature RD (fun r => (Λ r).val)) k)
+  (hP : ∀ r : (pres RD k).Rel,
+    P.lin (blackMirrorLinear RD (fun r => (Λ r).val) ((pres RD k).rel r)) = 0)
+
+section Transport
+
+variable {μ ν₁ ν₂ : X} {s s' t t' u u' : List (Letter I)}
+
+/-- A diagram whiskered on the right, read through equalities of its boundary objects with
+objects `ob μ s`, acts by left whiskering (the generic form of `blackMap_wROb`). -/
+theorem blackMap_wRAt_of_eq {A A' B : Obj (psig RD)} (hA : A = ob RD ν₁ s)
+    (hA' : A' = ob RD ν₁ s') (hB : B = ob RD μ t) {r : X} (hr : A.start = r)
+    (hr' : A'.start = r) (η : (pres RD k).obj A ⟶ (pres RD k).obj A')
+    (hc : A.tensor B = ob RD μ u) (hc' : A'.tensor B = ob RD μ u') (hu : u = s ++ t)
+    (hu' : u' = s' ++ t) (ht : wt RD μ t = ν₁) (hs : wt RD ν₁ s = ν₂)
+    (hs' : wt RD ν₁ s' = ν₂) (hU : wt RD μ u = ν₂) (hU' : wt RD μ u' = ν₂)
+    (E : blackAct P u hU = blackAct P t ht ⋙ blackAct P s hs)
+    (E' : blackAct P u' hU' = blackAct P t ht ⋙ blackAct P s' hs') :
+    blackMap P hP hU hU' (eqToHom (congrArg (pres RD k).obj hc).symm ≫
+        (pres RD k).wRAt r η B hr hr' ≫ eqToHom (congrArg (pres RD k).obj hc')) =
+      eqToHom E ≫ Functor.whiskerLeft (blackAct P t ht)
+          (blackMap P hP hs hs' (eqToHom (congrArg (pres RD k).obj hA).symm ≫ η ≫
+            eqToHom (congrArg (pres RD k).obj hA'))) ≫ eqToHom E'.symm := by
+  subst hu hu' hA hA' hB hr hs
+  simp only [eqToHom_refl, Category.id_comp, Category.comp_id]
+  rw [← blackActAppend_hom_eq P s t ht rfl hU, ← blackActAppend_inv_eq P s' t ht hs' hU']
+  exact blackMap_wROb P hP ht rfl hs' η hU hU'
+
+/-- A diagram whiskered on the left, read through equalities of its boundary objects with
+objects `ob μ s`, acts by right whiskering (the generic form of `blackMap_wLOb`). -/
+theorem blackMap_wL_of_eq {A B B' : Obj (psig RD)} (hA : A = ob RD ν₁ s)
+    (hB : B = ob RD μ t) (hB' : B' = ob RD μ t')
+    (ψ : (pres RD k).obj B ⟶ (pres RD k).obj B')
+    (hc : A.tensor B = ob RD μ u) (hc' : A.tensor B' = ob RD μ u') (hu : u = s ++ t)
+    (hu' : u' = s ++ t') (ht : wt RD μ t = ν₁) (ht' : wt RD μ t' = ν₁)
+    (hs : wt RD ν₁ s = ν₂) (hU : wt RD μ u = ν₂) (hU' : wt RD μ u' = ν₂)
+    (E : blackAct P u hU = blackAct P t ht ⋙ blackAct P s hs)
+    (E' : blackAct P u' hU' = blackAct P t' ht' ⋙ blackAct P s hs) :
+    blackMap P hP hU hU' (eqToHom (congrArg (pres RD k).obj hc).symm ≫
+        (pres RD k).wL A ψ ≫ eqToHom (congrArg (pres RD k).obj hc')) =
+      eqToHom E ≫ Functor.whiskerRight
+          (blackMap P hP ht ht' (eqToHom (congrArg (pres RD k).obj hB).symm ≫ ψ ≫
+            eqToHom (congrArg (pres RD k).obj hB'))) (blackAct P s hs) ≫
+        eqToHom E'.symm := by
+  subst hu hu' hA hB hB'
+  simp only [eqToHom_refl, Category.id_comp, Category.comp_id]
+  rw [← blackActAppend_hom_eq P s t ht hs hU, ← blackActAppend_inv_eq P s t' ht' hs hU']
+  exact blackMap_wLOb P hP ht ht' ψ hs hU hU'
+
+end Transport
+
+section Bicat
+
+open Presentation
+
+variable {l m n : (pres RD k).Bicat}
+
+/-- The letters of a 1-morphism of the Khovanov–Lauda bicategory. -/
+def homLetters (f : l ⟶ m) : List (Letter I) := (Bicat.Hom.obj f).word.map Col.l
+
+theorem homObj_eq (f : l ⟶ m) : Bicat.Hom.obj f = ob RD m.region (homLetters f) := by
+  have he : Sig.eR (RD := RD) (Bicat.Hom.obj f).start (Bicat.Hom.obj f).word = m.region :=
+    Bicat.Hom.endR_eq f
+  exact (wf_eq_ob (Bicat.Hom.obj f) (Bicat.Hom.wf f)).trans
+    (congrArg (fun r => ob RD r (homLetters f)) he)
+
+theorem homWt (f : l ⟶ m) : wt RD m.region (homLetters f) = l.region :=
+  (congrArg Obj.start (homObj_eq f)).symm.trans (Bicat.Hom.start_eq f)
+
+theorem homLetters_comp (f : l ⟶ m) (g : m ⟶ n) :
+    homLetters (f ≫ g) = homLetters f ++ homLetters g := by
+  exact List.map_append ..
+
+theorem homLetters_id (l : (pres RD k).Bicat) : homLetters (𝟙 l) = [] := rfl
+
+variable {f g h : l ⟶ m}
+
+/-- A 2-morphism of the Khovanov–Lauda bicategory, as a diagram between objects `ob μ s`. -/
+def homTr (η : f ⟶ g) :
+    (pres RD k).obj (ob RD m.region (homLetters f)) ⟶
+      (pres RD k).obj (ob RD m.region (homLetters g)) :=
+  eqToHom (congrArg (pres RD k).obj (homObj_eq f)).symm ≫
+    (η : (pres RD k).obj (Bicat.Hom.obj f) ⟶ (pres RD k).obj (Bicat.Hom.obj g)) ≫
+      eqToHom (congrArg (pres RD k).obj (homObj_eq g))
+
+theorem homTr_id (f : l ⟶ m) : homTr (𝟙 f) = 𝟙 _ := by
+  simp only [homTr]
+  erw [Category.id_comp, eqToHom_trans, eqToHom_refl]
+
+theorem homTr_comp (η : f ⟶ g) (θ : g ⟶ h) : homTr (η ≫ θ) = homTr η ≫ homTr θ := by
+  simp only [homTr, Category.assoc]
+  erw [eqToHom_trans_assoc, eqToHom_refl, Category.id_comp]
+  exact congrArg _ (Category.assoc (obj := (pres RD k).Presented) _ _ _)
+
+end Bicat
 
 end Categorification.Stendhal.DoubleDiagram

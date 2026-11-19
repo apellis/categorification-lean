@@ -5287,6 +5287,13 @@ noncomputable example (ν : Multiset Unit) :=
   (fun i j h => (h (Subsingleton.elim i j)).elim) (P := emptyP) (fun r => r.elim)
   (fun r => r.elim)
 
+/-- The repaired Morita equivalence of Theorem 4.30 (Webster arXiv:1309.3796v3) in the same
+setting. -/
+example (ν : Multiset Unit) :=
+  clTensorProduct_moritaEquivalent.{0, 0, 0} (Λ := Λ₁) (hQ := rouq) ν
+  (fun i j h => (h (Subsingleton.elim i j)).elim) (P := emptyP) (fun r => r.elim)
+  (fun r => r.elim)
+
 end TensorCornerKL
 
 end NonVacuity

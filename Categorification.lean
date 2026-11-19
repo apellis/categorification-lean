@@ -1234,6 +1234,7 @@ import Categorification.WeightedKLR.RedStrands.DoubleDownRedRed
 import Categorification.WeightedKLR.RedStrands.DoubleCLDownKLR
 import Categorification.WeightedKLR.RedStrands.DoubleCLDownKLRUp
 import Categorification.WeightedKLR.RedStrands.DoubleCLDownUpVacuum
+import Categorification.WeightedKLR.RedStrands.DoubleCLDownInjective
 import Categorification.WeightedKLR.RedStrands.DoubleCLRelationFamilies
 import Categorification.WeightedKLR.RedStrands.DoubleCLMoveContext
 import Categorification.WeightedKLR.RedStrands.DoubleCLRedCup

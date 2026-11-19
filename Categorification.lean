@@ -107,6 +107,7 @@ import Categorification.Diagrams.KL3.EndOne
 import Categorification.Diagrams.KL3.EndOneGraded
 import Categorification.Diagrams.KL3.FinDimHom
 import Categorification.Diagrams.KL3.FinDimHomUp
+import Categorification.Diagrams.KL3.FreeDiagMat
 import Categorification.Diagrams.KL3.GabberKacWrappers
 import Categorification.Diagrams.KL3.GammaAUD
 import Categorification.Diagrams.KL3.GammaAlgebra
@@ -188,6 +189,9 @@ import Categorification.Diagrams.KL3.Symmetries
 import Categorification.Diagrams.KL3.SymmetryOmega
 import Categorification.Diagrams.KL3.SymmetryPsi
 import Categorification.Diagrams.KL3.SymmetrySigma
+import Categorification.Diagrams.KL3.SymmetrySigmaSymm
+import Categorification.Diagrams.KL3.SymmetrySigmaPresented
+import Categorification.Diagrams.KL3.SymmetrySigmaMatrix
 import Categorification.Diagrams.KL3.SymmetryTau
 import Categorification.Diagrams.KL3.Theorem13
 import Categorification.Diagrams.KL3.TopSummand
@@ -400,9 +404,12 @@ import Categorification.KLR.CyclotomicAction.GlobalFamily
 import Categorification.KLR.CyclotomicAction.MixedComparison
 import Categorification.KLR.CyclotomicAction.GlobalMixed
 import Categorification.KLR.KKScalars
+import Categorification.KLR.KKScalarsStandard
 import Categorification.KLR.CyclotomicAction.PresCL
 import Categorification.KLR.CyclotomicAction.Unfiltered
 import Categorification.KLR.CyclotomicAction.Vacuum
+import Categorification.KLR.CyclotomicAction.VacuumCyclic
+import Categorification.KLR.CyclotomicAction.VacuumSupport
 import Categorification.KLR.CyclotomicAction.VacuumProduct
 import Categorification.KLR.ReindexSymmetries
 import Categorification.KLR.Unfurling.VacuumCorner
@@ -711,6 +718,8 @@ import Categorification.TwoRep.RouqFullCL
 import Categorification.TwoRep.RouqUnfilteredSoundness
 import Categorification.TwoRep.RouqUnfilteredDescent
 import Categorification.TwoRep.RouqUpWords
+import Categorification.TwoRep.RouqUpWordsPresentation
+import Categorification.TwoRep.RouqUpWordsSigma
 import Categorification.TwoRep.AdmissibleClosure
 import Categorification.TwoRep.RouqUpScalars
 import Categorification.TwoRep.RouqUpBubbles
@@ -1119,6 +1128,7 @@ import Categorification.WeightedKLR.RedStrands.LastRedShuffle
 import Categorification.WeightedKLR.RedStrands.LastRedPairing
 import Categorification.WeightedKLR.RedStrands.TensorFormOrdered
 import Categorification.WeightedKLR.RedStrands.BlackRaising
+import Categorification.WeightedKLR.RedStrands.CyclotomicCoverDotCentral
 import Categorification.WeightedKLR.RedStrands.CyclotomicCoverGrading
 import Categorification.WeightedKLR.RedStrands.TensorFormAdjunction
 import Categorification.WeightedKLR.RedStrands.FirstWeightFormCounterexample
@@ -1169,6 +1179,7 @@ import Categorification.WeightedKLR.RedStrands.CyclotomicRedCapSl2
 import Categorification.WeightedKLR.RedStrands.DoublePitchforkObstruction
 import Categorification.WeightedKLR.RedStrands.DoublePitchforkClosure
 import Categorification.WeightedKLR.RedStrands.DoubleDownScalars
+import Categorification.WeightedKLR.RedStrands.TensorProjectionParameters
 import Categorification.WeightedKLR.RedStrands.TensorRescale
 import Categorification.WeightedKLR.RedStrands.DoubleDownCLComparison
 import Categorification.WeightedKLR.RedStrands.CyclotomicCoverVacuumEvaluation
@@ -1207,10 +1218,34 @@ import Categorification.WeightedKLR.RedStrands.DoubleCLNegligibleWords
 import Categorification.WeightedKLR.RedStrands.DoubleCLBlackRelations
 import Categorification.WeightedKLR.RedStrands.DoubleCLBlackComparison
 import Categorification.WeightedKLR.RedStrands.DoubleCLBlackContext
+import Categorification.WeightedKLR.RedStrands.DoubleCLBlackAdjunction
 import Categorification.WeightedKLR.RedStrands.DoubleCLWhisker
 import Categorification.WeightedKLR.RedStrands.DoubleCLRedNegligibleIdeal
 import Categorification.WeightedKLR.RedStrands.DoubleCLRedUp
 import Categorification.WeightedKLR.RedStrands.DoubleCLRedUpEvaluation
+import Categorification.WeightedKLR.RedStrands.DoubleCLRepeatedRed
+import Categorification.WeightedKLR.RedStrands.DoubleCLRepeatedRedCover
+import Categorification.WeightedKLR.RedStrands.DoubleCLLayerIdeal
+import Categorification.WeightedKLR.RedStrands.DoubleCLLayerIdealOn
+import Categorification.WeightedKLR.RedStrands.DoubleCLKernelTransfer
+import Categorification.WeightedKLR.RedStrands.DoubleCLBlackNegligible
+import Categorification.WeightedKLR.RedStrands.DoubleDownContext
+import Categorification.WeightedKLR.RedStrands.DoubleCLRedDot
+import Categorification.WeightedKLR.RedStrands.DoubleDownContextIdeal
+import Categorification.WeightedKLR.RedStrands.DoubleDownRedRed
+import Categorification.WeightedKLR.RedStrands.DoubleCLDownKLR
+import Categorification.WeightedKLR.RedStrands.DoubleCLDownKLRUp
+import Categorification.WeightedKLR.RedStrands.DoubleCLDownUpVacuum
+import Categorification.WeightedKLR.RedStrands.DoubleCLDownInjective
+import Categorification.WeightedKLR.RedStrands.DoubleCLDownInjectiveOrdinary
+import Categorification.WeightedKLR.RedStrands.DoubleWFDom
+import Categorification.WeightedKLR.RedStrands.DoubleCLRelationFamilies
+import Categorification.WeightedKLR.RedStrands.DoubleCLMoveContext
+import Categorification.WeightedKLR.RedStrands.DoubleCLRedCup
+import Categorification.WeightedKLR.RedStrands.DoubleCLRedCap
+import Categorification.WeightedKLR.RedStrands.DoubleCLVacuumFunctor
+import Categorification.WeightedKLR.RedStrands.DoubleCLVacuumUpWords
+import Categorification.WeightedKLR.RedStrands.DoubleCLVacuumViolated
 /-!
 # Categorification
 

@@ -79,7 +79,8 @@ linear combination `f` between the words `s` and `t` is zero in the KL III prese
 placement between the signed words `u` and `v` is sent to zero in `admissibleKernel` of a
 Rouquier family satisfying the hypotheses of `coverLin_blackRel`. -/
 theorem coverLin_blackLinear_eq_zero [DecidableEq I] (Sc : CL.CLScalars C' k)
-    (ht : ∀ i j, Sc.t (.inl i) (.inl j) = 1) (hs : ∀ i j p q, Sc.s (.inl i) (.inl j) p q = 0)
+    (ht : ∀ i j, Sc.t (.inl i) (.inl j) = 1)
+    (hs : ∀ i j p q, p < C.dij i j → q < C.dij j i → Sc.s (.inl i) (.inl j) p q = 0)
     (H : BrundanUpKLR S Sc) (Mi : BrundanMixedInversion S)
     (μ : X) (u v : List (DoubleStrand I ℓ)) {τ : X} (s t : List (Letter I))
     (hst : endWeight RD Λ μ (u ++ blackWord s) = τ) (htt : endWeight RD Λ μ (u ++ blackWord t) = τ)
@@ -104,7 +105,8 @@ of Webster, arXiv:1309.3796v3, in any surrounding signed word, are reflections o
 relations on `E_i F_j` and `E_i F_i`; so they are sent to zero in `admissibleKernel` of a
 Rouquier family as in `coverLin_blackRel`. -/
 theorem coverLin_mixedBlackRelation_eq_zero [DecidableEq I] (Sc : CL.CLScalars C' k)
-    (ht : ∀ i j, Sc.t (.inl i) (.inl j) = 1) (hs : ∀ i j p q, Sc.s (.inl i) (.inl j) p q = 0)
+    (ht : ∀ i j, Sc.t (.inl i) (.inl j) = 1)
+    (hs : ∀ i j p q, p < C.dij i j → q < C.dij j i → Sc.s (.inl i) (.inl j) p q = 0)
     (H : BrundanUpKLR S Sc) (Mi : BrundanMixedInversion S) (a : MixedBlackRelation X I ℓ) :
     coverLin W hC o (admissibleKernel (S.genImg Sc)) coverSign
       (mixedBlackRelation RD Λ k (CL.CLScalars.kl : CL.CLScalars C k).t a) = 0 := by

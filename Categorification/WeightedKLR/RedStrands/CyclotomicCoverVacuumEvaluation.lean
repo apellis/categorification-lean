@@ -3,6 +3,7 @@ Copyright (c) 2026 Alex Ellis. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 -/
 import Categorification.KLR.CyclotomicAction.Vacuum
+import Categorification.KLR.CyclotomicAction.VacuumSupport
 import Categorification.KLR.CyclotomicAction.PresCL
 import Categorification.WeightedKLR.RedStrands.CyclotomicCoverOrderAction
 import Categorification.WeightedKLR.RedStrands.DoubleDiagram
@@ -100,17 +101,17 @@ local notation "topDeg" => cyclotomicCoverPolynomial_natDegree (k := k) Λ C
 local notation "wt₀" => blockWeight Wgt L 0
 set_option quotPrecheck false in
 set_option hygiene false in
-local notation "V" => regularObj.{u,v,w} (Q := S) (a := p) (RD := Wgt) (Λ := L)
+local notation "V" => emptyBlockObj.{u,v,w} S p Wgt L
 set_option quotPrecheck false in
 set_option hygiene false in
 local notation "qAct" => cyclotomicFamily_upKLR.{u,v,w} sym lead monic Wgt L topDeg deg
 
-/-- The genuine CL action of the extended Cartan datum with the red/black
+/-- The CL action of the extended Cartan datum with the red/black
 cyclotomic exponents of the tensor-product cover. -/
 abbrev cyclotomicCoverCLAction :=
   cyclotomicPresCL.{u,v,w} sym lead monic Wgt L topDeg deg (IsRouquierQ.homogeneous hS)
 
-/-- An entry of the actual cyclotomic KLR action on the vacuum, followed by
+/-- An entry of the cyclotomic KLR action on the vacuum supported on the empty block, followed by
 extension of scalars to the ordinary tensor-product algebra. -/
 def projectedCoverVacuumEntry (r : KLRAlgebra k S μ) (t s : Seq μ) :=
   (functor (RingHom.toNonUnitalRingHom (AlgHom.toRingHom π))).map
@@ -122,9 +123,12 @@ class: if every projected entry vanishes, that class vanishes. -/
 theorem projectedCoverVacuum_detects (r : KLRAlgebra k S μ)
     (hr : ∀ t s : Seq μ, projectedCoverVacuumEntry.{u,v,w} Λ ν C hQ r t s = 0) :
     π (CycKLR.mk k S p μ (hflip (sigma sym r))) = 0 := by
-  let g := (ULift.moduleEquiv : ULift.{w} (CycKLR k S p 0) ≃ₗ[CycKLR k S p 0] _).toLinearMap
+  let g : (V ⟨0, rfl⟩ : Type _) →ₗ[CycKLR k S p 0] CycKLR k S p 0 :=
+    (ULift.moduleEquiv : ULift.{max (max u v) w} (CycKLR k S p 0) ≃ₗ[CycKLR k S p 0] _).toLinearMap
+      ∘ₗ LinearMap.proj (PLift.up rfl)
   have hs (t s : Seq μ) : π (CycKLR.mk k S p μ (hflip (sigma sym (e s * r * e t)))) = 0 := by
-    have hc := wcoord_klrAct_wgen sym lead monic topDeg deg V rfl (ULift.up 1) (Ψ₀ := g) rfl r t s
+    have hc := wcoord_klrAct_wgen sym lead monic topDeg deg V rfl
+      (fun _ => ULift.up 1) (Ψ₀ := g) rfl r t s
     rw [← hc]
     exact coordinate_eq_zero_of_extension (AlgHom.toRingHom π) _ (hr t s) _ _
   have he : r = ∑ s : Seq μ, ∑ t : Seq μ, e s * r * e t := by
@@ -135,7 +139,7 @@ theorem projectedCoverVacuum_detects (r : KLRAlgebra k S μ)
     exact Finset.sum_eq_zero fun t _ => hs t s
 
 /-- Every nonzero element of the ordinary tensor-product algebra is
-detected by a projected matrix entry of the genuine cover action. -/
+detected by a projected matrix entry of the cover action. -/
 theorem exists_projectedCoverVacuumEntry_ne_zero
     (x : TensorProductAlgebra k Q Λ ν) (hx : x ≠ 0) :
     ∃ (r : KLRAlgebra k S μ) (t s : Seq μ),

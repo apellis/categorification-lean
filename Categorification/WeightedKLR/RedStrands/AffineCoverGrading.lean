@@ -91,7 +91,7 @@ variable [DecidableEq I] (ν : Multiset I)
 local notation "μ" => stendhalWeight ℓ ν
 local notation "φ" => affineCover Q Λ ν
 
-private theorem affineCover_mk (a : FreeAlgebra k (Gen μ)) :
+theorem affineCover_mk (a : FreeAlgebra k (Gen μ)) :
     φ (KLRAlgebra.mk k _ μ a) = ofKLR k Q Λ ν (KLRAlgebra.mk k _ μ a) := by
   rw [ofKLR_mk]
   exact RingQuot.liftAlgHom_mkAlgHom_apply _ _ _ _

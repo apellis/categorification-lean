@@ -244,10 +244,17 @@ omit [∀ (a b c : B) (f : a ⟶ b), (precomp c f).Linear k]
 of `e` are the Khovanov–Lauda ones. -/
 theorem brundanQ_restrict (Sc : CL.CLScalars C' k)
     (hdot : ∀ i j, C'.dot (D.e i) (D.e j) = C.dot i j) (ht : ∀ i j, Sc.t (D.e i) (D.e j) = 1)
-    (hs : ∀ i j p q, Sc.s (D.e i) (D.e j) p q = 0) (i j : I) :
+    (hs : ∀ i j p q, p < C.dij i j → q < C.dij j i → Sc.s (D.e i) (D.e j) p q = 0) (i j : I) :
     brundanQ Sc (D.e i) (D.e j) = brundanQ (CL.CLScalars.kl : CL.CLScalars C k) i j := by
-  simp only [brundanQ, QuantumGroup.CartanDatum.dij, hdot, ht, hs, CL.CLScalars.kl_t,
-    CL.CLScalars.kl_s]
+  have hd (a b : I) : C'.dij (D.e a) (D.e b) = C.dij a b := by
+    simp only [QuantumGroup.CartanDatum.dij, hdot]
+  unfold brundanQ
+  rw [hdot, hd, hd, ht, ht]
+  split_ifs
+  · rfl
+  congr 1
+  refine Finset.sum_congr rfl fun p hp => Finset.sum_congr rfl fun q hq => ?_
+  rw [hs i j p q (Finset.mem_range.mp hp) (Finset.mem_range.mp hq), CL.CLScalars.kl_s]
 
 /-- **The relabelled KL III relations hold for `S`.** For a Rouquier family `S` for `W` with
 Brundan's upward relations and invertible mixed crossings, the admissible interpretation of `S`
@@ -255,7 +262,8 @@ with scalars `Sc` kills the relabelling along `D` of every defining relation of 
 `RD`, provided `Sc` has Khovanov–Lauda scalars on the image of `e`. -/
 theorem pres_rel_restrict (Sc : CL.CLScalars C' k)
     (hdot : ∀ i j, C'.dot (D.e i) (D.e j) = C.dot i j) (ht : ∀ i j, Sc.t (D.e i) (D.e j) = 1)
-    (hs : ∀ i j p q, Sc.s (D.e i) (D.e j) p q = 0) (H : BrundanUpKLR S Sc)
+    (hs : ∀ i j p q, p < C.dij i j → q < C.dij j i → Sc.s (D.e i) (D.e j) p q = 0)
+    (H : BrundanUpKLR S Sc)
     (M : BrundanMixedInversion S) (r : (pres RD k).Rel) {s t : X}
     (ha : Cond (S := psig RD) s t ((pres RD k).dom r))
     (hb : Cond (S := psig RD) s t ((pres RD k).cod r)) :

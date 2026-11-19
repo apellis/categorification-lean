@@ -220,6 +220,30 @@ theorem qbar_cyclotomicCoverQ_black [DecidableEq I] (i : I) (b : I ⊕ Fin ℓ) 
     · simp only [cyclotomicCoverQ, stendhalQ, purePowers, ite_eq_right h,
         qbar_X_pow_add_X_pow, StendhalAlgebraAllOrders.qbar_X_zero_pow]
 
+/-- A black/red parameter is Webster's crossing-square polynomial plus a multiple of a positive
+power of the red dot variable. -/
+theorem cyclotomicCoverQ_inl_inr_eq [DecidableEq I] (i : I) (r : Fin ℓ) :
+    ∃ (c : k) (n : ℕ), cyclotomicCoverQ C Λ Q (.inl i) (.inr r) =
+      stendhalQ Q Λ (.inl i) (.inr r) + MvPolynomial.C c * X 1 ^ (n + 1) := by
+  by_cases h : Λ r i = 0
+  · exact ⟨0, 0, by simp [cyclotomicCoverQ, stendhalQ, purePowers, h]⟩
+  · have hb : halfLength C i * Λ r i ≠ 0 := Nat.mul_ne_zero (halfLength_pos C i).ne' h
+    refine ⟨1, halfLength C i * Λ r i - 1, ?_⟩
+    rw [Nat.sub_add_cancel (Nat.one_le_iff_ne_zero.2 hb)]
+    simp [cyclotomicCoverQ, stendhalQ, purePowers, h]
+
+/-- A red/black parameter is Webster's crossing-square polynomial plus a multiple of a positive
+power of the red dot variable. -/
+theorem cyclotomicCoverQ_inr_inl_eq [DecidableEq I] (r : Fin ℓ) (i : I) :
+    ∃ (c : k) (n : ℕ), cyclotomicCoverQ C Λ Q (.inr r) (.inl i) =
+      stendhalQ Q Λ (.inr r) (.inl i) + MvPolynomial.C c * X 0 ^ (n + 1) := by
+  by_cases h : Λ r i = 0
+  · exact ⟨0, 0, by simp [cyclotomicCoverQ, stendhalQ, purePowers, h]⟩
+  · have hb : halfLength C i * Λ r i ≠ 0 := Nat.mul_ne_zero (halfLength_pos C i).ne' h
+    refine ⟨1, halfLength C i * Λ r i - 1, ?_⟩
+    rw [Nat.sub_add_cancel (Nat.one_le_iff_ne_zero.2 hb)]
+    simp [cyclotomicCoverQ, stendhalQ, purePowers, h, add_comm, (halfLength_pos C i).ne']
+
 /-- In the enlarged Cartan datum a red letter contributes the corresponding
 dominant-weight multiplicity to the black coroot pairing of a prefix. -/
 theorem cover_black_red {C : CartanDatum I} (Λ : Fin ℓ → I →₀ ℕ) (i : I) (r : Fin ℓ) :

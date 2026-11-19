@@ -185,4 +185,21 @@ theorem homGdimPoly_sequenceProj_symm (G : GradingDatum S)
   change polynomial _ = polynomial _
   exact congrArg polynomial (funext fun d => congrArg (fun n : ℕ => (n : ℤ)) (h d))
 
+/-- Horizontal reflection of the tensor product algebra, as an algebra homomorphism into the
+opposite algebra: the map induced by the horizontal flip `hflip` of the KLR algebra. -/
+def tensorReflect : T →ₐ[k] Tᵐᵒᵖ := R
+
+theorem tensorReflect_projection (a : A) :
+    tensorReflect (Q := Q) (Λ := Λ) (ν := ν) (π a) = op (π (hflip a)) :=
+  reflection_projection a
+
+theorem unop_tensorReflect_unop_tensorReflect (z : T) :
+    (tensorReflect (Q := Q) (Λ := Λ) (ν := ν)
+      (tensorReflect (Q := Q) (Λ := Λ) (ν := ν) z).unop).unop = z :=
+  reflect_reflect z
+
+theorem tensorReflect_injective :
+    Function.Injective (tensorReflect (Q := Q) (Λ := Λ) (ν := ν)) := fun x y h => by
+  rw [← unop_tensorReflect_unop_tensorReflect x, ← unop_tensorReflect_unop_tensorReflect y, h]
+
 end Categorification.Stendhal

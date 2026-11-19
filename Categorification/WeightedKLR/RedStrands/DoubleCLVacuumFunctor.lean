@@ -6,6 +6,7 @@ import Categorification.WeightedKLR.RedStrands.DoubleCLVacuumEvaluation
 import Categorification.WeightedKLR.RedStrands.DoubleCLDownwardBlock
 import Categorification.WeightedKLR.RedStrands.DoubleAllDownBoundary
 import Categorification.WeightedKLR.RedStrands.DoubleViolatingQuotient
+import Categorification.KLR.CyclotomicAction.VacuumSupport
 
 /-!
 # The vacuum evaluation functor of the downward block
@@ -95,9 +96,10 @@ local notation "Fam" => cyclotomicFamily.{u, v, w} sym lead monic Wgt L topDeg d
 local notation "PCL" => KL3.Diagram.CL.presCL Wgt k Sc
 set_option quotPrecheck false in
 set_option hygiene false in
-local notation "V" => regularObj.{u,v,w} (Q := S) (a := p) (RD := Wgt) (Λ := L)
+local notation "V" => emptyBlockObj.{u,v,w} S p Wgt L
 
-/-- The cyclotomic vacuum of the extended datum, as an object of its weight space. -/
+/-- The cyclotomic vacuum of the extended datum, as an object of its weight space: `R^Λ(∅)` on
+the empty block and zero on the other blocks of the vacuum weight. -/
 abbrev coverVacuum := familyObj sym lead monic topDeg deg V
 
 /-- **Projected vacuum evaluation.** A morphism of the Cautis–Lauda presentation of the

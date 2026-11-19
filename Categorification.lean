@@ -1232,6 +1232,7 @@ import Categorification.WeightedKLR.RedStrands.DoubleCLMoveContext
 import Categorification.WeightedKLR.RedStrands.DoubleCLRedCup
 import Categorification.WeightedKLR.RedStrands.DoubleCLRedCap
 import Categorification.WeightedKLR.RedStrands.DoubleCLVacuumFunctor
+import Categorification.WeightedKLR.RedStrands.DoubleCLVacuumViolated
 /-!
 # Categorification
 

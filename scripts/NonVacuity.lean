@@ -3094,6 +3094,17 @@ example := orderedForm_binary sl2XRegular twoFundamental
 example := orderedForm_adjoint sl2XRegular twoFundamental (F sl2RootDatum (RatFunc.X : RatFunc ℚ) ())
   (Stendhal.FirstWeight.pVector twoFundamental () 0) (Stendhal.FirstWeight.pVector twoFundamental () 1)
 
+/-- Webster, arXiv:1309.3796v3, Prop 4.33: nondegeneracy of the ordered form. -/
+example := Stendhal.TensorPairing.orderedForm_nondegenerate sl2XRegular twoFundamental
+
+/-- Webster, arXiv:1309.3796v3, Prop 4.33: uniqueness, applied to the ordered form itself. -/
+example := Stendhal.TensorPairing.orderedForm_unique sl2XRegular
+  (fun wt => Stendhal.TensorPairing.orderedForm sl2XRegular wt)
+  (fun wt x y => Stendhal.TensorPairing.orderedForm_empty sl2XRegular wt x y)
+  (fun wt u x y => Stendhal.TensorPairing.orderedForm_adjoint sl2XRegular wt u x y)
+  (fun wt x y => Stendhal.TensorPairing.orderedForm_append_highest sl2XRegular wt x y)
+  twoFundamental
+
 end TensorFormConvention
 
 namespace LastRedLayerExample

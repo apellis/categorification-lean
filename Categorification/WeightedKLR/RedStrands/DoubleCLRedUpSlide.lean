@@ -211,3 +211,138 @@ theorem dgCL_crosslL_downCross (μ : X) (c j i : I) (hj : c ≠ j) :
   dswapC 1
 
 end Categorification.KL3.Diagram.CL
+
+namespace Categorification.Stendhal.DoubleDiagram
+
+open CategoryTheory QuantumGroup QuantumGroup.UDot KL3.Diagram KL3.Diagram.CL StringDiagrams TwoRep
+
+universe w u v
+
+variable {I : Type u} {ℓ : ℕ} {C : CartanDatum I} {C' : CartanDatum (I ⊕ Fin ℓ)}
+  {X Y : Type v} [AddCommGroup X] [AddCommGroup Y] (W : WeightDatum C' X Y)
+  (hC : ∀ i j, C'.dot (.inl i) (.inl j) = C.dot i j) (o : X)
+  {k : Type w} [CommRing k]
+
+local notation "RD" => blackDatum W hC
+local notation "Λ" => redWeight W
+local notation "κ" => coverColourMap W hC o
+local notation "CM" => coverMirror W hC o
+
+/-- The reflected layers of a red strand moving from left to right through upward black
+strands of colours `s`: the red strand passes the reflected black strands one at a time by the
+sideways crossings `crossrL`. -/
+def redThroughL (r : Fin ℓ) : List I → List (LayerData (I ⊕ Fin ℓ))
+  | [] => []
+  | i :: t => (crossrL (.inr r) (.inl i)).map (whL (coverWord (upBlackWord (ℓ := ℓ) t)) []) ++
+      (redThroughL r t).map (whL [] [coverLetter (.inl (true, i))])
+
+/-- The reflected layers of a red strand moving from right to left through upward black
+strands of colours `s`, by the sideways crossings `crosslL`. -/
+def upThroughL (r : Fin ℓ) : List I → List (LayerData (I ⊕ Fin ℓ))
+  | [] => []
+  | i :: t => (upThroughL r t).map (whL [] [coverLetter (.inl (true, i))]) ++
+      (crosslL (.inr r) (.inl i)).map (whL (coverWord (upBlackWord (ℓ := ℓ) t)) [])
+
+theorem coverWord_upBlackWord_cons (i : I) (t : List I) :
+    coverWord (upBlackWord (ℓ := ℓ) (i :: t)) =
+      coverWord (upBlackWord (ℓ := ℓ) t) ++ [coverLetter (.inl (true, i))] := by
+  simp [upBlackWord, coverWord_cons]
+
+theorem sChain_redThroughL (r : Fin ℓ) (s : List I) :
+    SChain (coverWord (upBlackWord (ℓ := ℓ) s) ++ [(true, .inr r)]) (redThroughL r s)
+      ([(true, .inr r)] ++ coverWord (upBlackWord (ℓ := ℓ) s)) := by
+  induction s with
+  | nil => simp [redThroughL, upBlackWord, coverWord]
+  | cons i t ih =>
+    have h₁ := (show SChain [coverLetter (.inl (true, i)), (true, .inr r)]
+      (crossrL (.inr r) (.inl i)) [(true, .inr r), coverLetter (.inl (true, i))] by
+        simp [crossrL, SChain, coverLetter, Shape.dom, Shape.cod]).whisk
+          (coverWord (upBlackWord (ℓ := ℓ) t)) []
+    have h₂ := ih.whisk [] [coverLetter (.inl (true, i))]
+    simp only [redThroughL, coverWord_upBlackWord_cons]
+    simp only [List.append_assoc, List.nil_append, List.append_nil, List.cons_append] at h₁ h₂ ⊢
+    exact h₁.append h₂
+
+theorem sChain_upThroughL (r : Fin ℓ) (s : List I) :
+    SChain ([(true, .inr r)] ++ coverWord (upBlackWord (ℓ := ℓ) s)) (upThroughL r s)
+      (coverWord (upBlackWord (ℓ := ℓ) s) ++ [(true, .inr r)]) := by
+  induction s with
+  | nil => simp [upThroughL, upBlackWord, coverWord]
+  | cons i t ih =>
+    have h₂ := (show SChain [(true, .inr r), coverLetter (.inl (true, i))]
+      (crosslL (.inr r) (.inl i)) [coverLetter (.inl (true, i)), (true, .inr r)] by
+        simp [crosslL, SChain, coverLetter, Shape.dom, Shape.cod]).whisk
+          (coverWord (upBlackWord (ℓ := ℓ) t)) []
+    have h₁ := ih.whisk [] [coverLetter (.inl (true, i))]
+    simp only [upThroughL, coverWord_upBlackWord_cons]
+    simp only [List.append_assoc, List.nil_append, List.append_nil, List.cons_append] at h₁ h₂ ⊢
+    exact h₁.append h₂
+
+theorem sChain_redThroughL_ctx (r : Fin ℓ) (s : List I) (u v : List (DoubleStrand I ℓ)) :
+    SChain (coverWord (u ++ [(.inr r : DoubleStrand I ℓ)] ++ upBlackWord (ℓ := ℓ) s ++ v))
+      ((redThroughL r s).map (whL (coverWord v) (coverWord u)))
+      (coverWord (u ++ upBlackWord (ℓ := ℓ) s ++ [(.inr r : DoubleStrand I ℓ)] ++ v)) := by
+  have h := (sChain_redThroughL r s).whisk (coverWord v) (coverWord u)
+  simp only [coverWord_append, List.append_assoc] at h ⊢
+  simpa [coverWord, coverLetter] using h
+
+variable (Q : Presentation.{w, max u v} (psig W) k)
+
+theorem dgC_nil_eq {ν : X} {s t : List (Letter (I ⊕ Fin ℓ))} (h : s = t) :
+    dgC Q ν s t [] = eqToHom (by rw [h]) := by
+  subst h
+  exact dgC_nil ν s
+
+theorem coverLin_eqToHom {a b : Obj (signature RD Λ)} (h : a = b) (σ : Move I ℓ → k) :
+    coverLin W hC o Q σ (LinDiagram.of (eqToHom h)) = eqToHom (by rw [h]) := by
+  subst h
+  exact coverLin_id W hC o Q σ a
+
+variable [DecidableEq I]
+
+/-- The cover functor on a red strand moving from left to right through upward black strands. -/
+theorem coverLin_redThroughUpWord (μ : X) (r : Fin ℓ) (s : List I) :
+    ∀ (u v : List (DoubleStrand I ℓ))
+      (e₁ : Q.obj ((κ).obj ((CM).obj (obj RD Λ μ
+        (u ++ [(.inr r : DoubleStrand I ℓ)] ++ upBlackWord (ℓ := ℓ) s ++ v)))) =
+        Q.obj (ob W (o - μ)
+          (coverWord (u ++ [(.inr r : DoubleStrand I ℓ)] ++ upBlackWord (ℓ := ℓ) s ++ v))))
+      (e₂ : Q.obj (ob W (o - μ)
+          (coverWord (u ++ upBlackWord (ℓ := ℓ) s ++ [(.inr r : DoubleStrand I ℓ)] ++ v))) =
+        Q.obj ((κ).obj ((CM).obj (obj RD Λ μ
+          (u ++ upBlackWord (ℓ := ℓ) s ++ [(.inr r : DoubleStrand I ℓ)] ++ v))))),
+      coverLin W hC o Q coverSign (LinDiagram.of (redThroughUpWord RD Λ μ r u s v)) =
+        eqToHom e₁ ≫ dgC Q (o - μ)
+          (coverWord (u ++ [(.inr r : DoubleStrand I ℓ)] ++ upBlackWord (ℓ := ℓ) s ++ v))
+          (coverWord (u ++ upBlackWord (ℓ := ℓ) s ++ [(.inr r : DoubleStrand I ℓ)] ++ v))
+          ((redThroughL r s).map (whL (coverWord v) (coverWord u))) ≫ eqToHom e₂ := by
+  induction s with
+  | nil =>
+    intro u v e₁ e₂
+    rw [redThroughUpWord, coverLin_eqToHom]
+    simp only [redThroughL, List.map_nil]
+    rw [dgC_nil_eq W Q (by simp [upBlackWord, coverWord])]
+    simp
+  | cons i t ih =>
+    intro u v e₁ e₂
+    obtain ⟨h₁, x₁, x₂, he₁⟩ := coverLin_moveDiagram_dgC W hC o Q coverSign μ u
+      (.redBlack r (true, i)) (upBlackWord t ++ v)
+    simp only [redThroughUpWord]
+    rw [LinDiagram.of_comp, coverLin_comp, coverLin_cast, coverLin_cast, he₁, ih]
+    rotate_left
+    · exact congrArg Q.obj (coverObj W hC o μ _)
+    · exact (congrArg Q.obj (coverObj W hC o μ _)).symm
+    have hs : coverSign (k := k) (ℓ := ℓ) (.redBlack r (true, i)) = 1 := rfl
+    rw [hs, one_smul]
+    simp only [Category.assoc, eqToHom_trans_assoc, eqToHom_trans]
+    refine eqToHom_dgC_comp W Q ?_ ?_ rfl ?_ h₁ ?_ ?_ _ _ _ _ _
+    · simp [coverWord_append, coverWord_upBlackWord_cons, Move.bottom, coverWord_cons]
+    · simp [coverWord_append, Move.top, coverWord_cons]
+    · simp [coverWord_append, coverWord_upBlackWord_cons, coverWord_cons]
+    · exact sChain_redThroughL_ctx r t _ v
+    · have hc : coverMoveL (.redBlack r (true, i) : Move I ℓ) = crossrL (.inr r) (.inl i) := rfl
+      simp only [hc, redThroughL, List.map_append, List.map_map, coverWord_append]
+      congr 1 <;> refine List.map_congr_left fun x _ => ?_ <;>
+        simp [whL, coverWord, coverLetter]
+
+end Categorification.Stendhal.DoubleDiagram

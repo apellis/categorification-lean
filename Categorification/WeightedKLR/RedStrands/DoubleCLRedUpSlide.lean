@@ -286,6 +286,14 @@ theorem sChain_redThroughL_ctx (r : Fin ℓ) (s : List I) (u v : List (DoubleStr
   simp only [coverWord_append, List.append_assoc] at h ⊢
   simpa [coverWord, coverLetter] using h
 
+theorem sChain_upThroughL_ctx (r : Fin ℓ) (s : List I) (u v : List (DoubleStrand I ℓ)) :
+    SChain (coverWord (u ++ upBlackWord (ℓ := ℓ) s ++ [(.inr r : DoubleStrand I ℓ)] ++ v))
+      ((upThroughL r s).map (whL (coverWord v) (coverWord u)))
+      (coverWord (u ++ [(.inr r : DoubleStrand I ℓ)] ++ upBlackWord (ℓ := ℓ) s ++ v)) := by
+  have h := (sChain_upThroughL r s).whisk (coverWord v) (coverWord u)
+  simp only [coverWord_append, List.append_assoc] at h ⊢
+  simpa [coverWord, coverLetter] using h
+
 variable (Q : Presentation.{w, max u v} (psig W) k)
 
 theorem dgC_nil_eq {ν : X} {s t : List (Letter (I ⊕ Fin ℓ))} (h : s = t) :
@@ -342,6 +350,52 @@ theorem coverLin_redThroughUpWord (μ : X) (r : Fin ℓ) (s : List I) :
     · exact sChain_redThroughL_ctx r t _ v
     · have hc : coverMoveL (.redBlack r (true, i) : Move I ℓ) = crossrL (.inr r) (.inl i) := rfl
       simp only [hc, redThroughL, List.map_append, List.map_map, coverWord_append]
+      congr 1 <;> refine List.map_congr_left fun x _ => ?_ <;>
+        simp [whL, coverWord, coverLetter]
+
+/-- The cover functor on upward black strands moving from left to right through a red
+strand. -/
+theorem coverLin_upWordThroughRed (μ : X) (r : Fin ℓ) (s : List I) :
+    ∀ (u v : List (DoubleStrand I ℓ))
+      (e₁ : Q.obj ((κ).obj ((CM).obj (obj RD Λ μ
+        (u ++ upBlackWord (ℓ := ℓ) s ++ [(.inr r : DoubleStrand I ℓ)] ++ v)))) =
+        Q.obj (ob W (o - μ)
+          (coverWord (u ++ upBlackWord (ℓ := ℓ) s ++ [(.inr r : DoubleStrand I ℓ)] ++ v))))
+      (e₂ : Q.obj (ob W (o - μ)
+          (coverWord (u ++ [(.inr r : DoubleStrand I ℓ)] ++ upBlackWord (ℓ := ℓ) s ++ v))) =
+        Q.obj ((κ).obj ((CM).obj (obj RD Λ μ
+          (u ++ [(.inr r : DoubleStrand I ℓ)] ++ upBlackWord (ℓ := ℓ) s ++ v))))),
+      coverLin W hC o Q coverSign (LinDiagram.of (upWordThroughRed RD Λ μ r u s v)) =
+        eqToHom e₁ ≫ dgC Q (o - μ)
+          (coverWord (u ++ upBlackWord (ℓ := ℓ) s ++ [(.inr r : DoubleStrand I ℓ)] ++ v))
+          (coverWord (u ++ [(.inr r : DoubleStrand I ℓ)] ++ upBlackWord (ℓ := ℓ) s ++ v))
+          ((upThroughL r s).map (whL (coverWord v) (coverWord u))) ≫ eqToHom e₂ := by
+  induction s with
+  | nil =>
+    intro u v e₁ e₂
+    rw [upWordThroughRed, coverLin_eqToHom]
+    simp only [upThroughL, List.map_nil]
+    rw [dgC_nil_eq W Q (by simp [upBlackWord, coverWord])]
+    simp
+  | cons i t ih =>
+    intro u v e₁ e₂
+    obtain ⟨h₁, x₁, x₂, he₁⟩ := coverLin_moveDiagram_dgC W hC o Q coverSign μ u
+      (.blackRed (true, i) r) (upBlackWord t ++ v)
+    simp only [upWordThroughRed]
+    rw [LinDiagram.of_comp, coverLin_comp, coverLin_cast, coverLin_cast, he₁, ih]
+    rotate_left
+    · exact congrArg Q.obj (coverObj W hC o μ _)
+    · exact (congrArg Q.obj (coverObj W hC o μ _)).symm
+    have hs : coverSign (k := k) (ℓ := ℓ) (.blackRed (true, i) r) = 1 := rfl
+    rw [hs, one_smul]
+    simp only [Category.assoc, eqToHom_trans_assoc, eqToHom_trans]
+    refine eqToHom_dgC_comp W Q ?_ ?_ rfl ?_ ?_ h₁ ?_ _ _ _ _ _
+    · simp [coverWord_append, coverWord_upBlackWord_cons, coverWord_cons]
+    · simp [coverWord_append, Move.bottom, coverWord_cons]
+    · simp [coverWord_append, coverWord_upBlackWord_cons, Move.top, coverWord_cons]
+    · exact sChain_upThroughL_ctx r t _ v
+    · have hc : coverMoveL (.blackRed (true, i) r : Move I ℓ) = crosslL (.inr r) (.inl i) := rfl
+      simp only [hc, upThroughL, List.map_append, List.map_map, coverWord_append]
       congr 1 <;> refine List.map_congr_left fun x _ => ?_ <;>
         simp [whL, coverWord, coverLetter]
 

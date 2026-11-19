@@ -1272,6 +1272,7 @@ import Categorification.WeightedKLR.RedStrands.SplitRedBraid
 import Categorification.WeightedKLR.RedStrands.SplitRedHom
 import Categorification.WeightedKLR.RedStrands.SplitRedLoading
 import Categorification.WeightedKLR.RedStrands.SplitRedRelations
+import Categorification.WeightedKLR.RedStrands.SplitRedWords
 /-!
 # Categorification
 

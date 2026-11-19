@@ -1,3 +1,4 @@
+import Categorification.Algebra.AmbidextrousTrace
 import Categorification.Algebra.AugmentationQuotient
 import Categorification.Algebra.BalancedTensor
 import Categorification.Algebra.BalancedTensorExact
@@ -202,6 +203,7 @@ import Categorification.Diagrams.KLR.Comparison
 import Categorification.Diagrams.KLR.DiagR
 import Categorification.Diagrams.KLR.KL1
 import Categorification.Diagrams.KLR.MatEnd
+import Categorification.Diagrams.KLR.MatEndTrace
 import Categorification.Diagrams.KLR.Soundness
 import Categorification.Diagrams.NilHecke.Basic
 import Categorification.Diagrams.NilHecke.Comparison

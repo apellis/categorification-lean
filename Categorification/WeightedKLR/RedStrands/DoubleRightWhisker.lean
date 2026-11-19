@@ -187,6 +187,31 @@ def whiskerLeft : whiskerRight P v hv hν ⟶ whiskerRight P v' hv' hν' where
     erw [reassoc_of% (P.wRAt_comp_wL (r := (0 : X))
       (a' := obj RD (fun r => (Λ r).val) (0 : X) y.val.word) (composable P x v) f.hom φ rfl rfl)]
 
+@[simp] theorem whiskerLeft_app_hom (x : BoundaryCategory P μ) :
+    ((whiskerLeft P hv hv' hν hν' φ).app x).hom =
+      eqToHom (tripleObj_appendRight P v hv hν x) ≫
+        P.wL (obj RD (fun r => (Λ r).val) (0 : X) x.val.word) φ ≫
+          eqToHom (tripleObj_appendRight P v' hv' hν' x).symm :=
+  rfl
+
+theorem whiskerLeft_id :
+    whiskerLeft P hv hv hν hν (𝟙 _) = 𝟙 (whiskerRight P v hv hν) := by
+  ext x
+  rw [whiskerLeft_app_hom, P.wL_id_of_composable (composable P x v)]
+  simp
+  rfl
+
+theorem whiskerLeft_comp {v'' : List (DoubleStrand I ℓ)} (hv'' : RedFree v'')
+    (hν'' : endWeight RD (fun r => (Λ r).val) μ v'' = ν)
+    (φ' : P.obj (obj RD (fun r => (Λ r).val) μ v') ⟶
+      P.obj (obj RD (fun r => (Λ r).val) μ v'')) :
+    whiskerLeft P hv hv'' hν hν'' (φ ≫ φ') =
+      whiskerLeft P hv hv' hν hν' φ ≫ whiskerLeft P hv' hv'' hν' hν'' φ' := by
+  ext x
+  rw [NatTrans.comp_app, InducedCategory.comp_hom, whiskerLeft_app_hom, whiskerLeft_app_hom,
+    whiskerLeft_app_hom, P.wL_comp]
+  simp
+
 /-- A diagram between red-free words gives a natural transformation between right
 whiskerings on the violating quotients (Webster, arXiv:1309.3796v3, §4.5, before
 Theorem 4.28). -/
@@ -194,6 +219,21 @@ def violatingWhiskerLeft :
     violatingWhiskerRight P v hv hν ⟶ violatingWhiskerRight P v' hv' hν' :=
   CategoryTheory.Quotient.natTransLift _
     (Functor.whiskerRight (whiskerLeft P hv hv' hν hν' φ) (violatingFunctor P ν))
+
+theorem violatingWhiskerLeft_id :
+    violatingWhiskerLeft P hv hv hν hν (𝟙 _) = 𝟙 (violatingWhiskerRight P v hv hν) := by
+  rw [violatingWhiskerLeft, whiskerLeft_id, Functor.whiskerRight_id']
+  exact CategoryTheory.Quotient.natTransLift_id _ _
+
+theorem violatingWhiskerLeft_comp {v'' : List (DoubleStrand I ℓ)} (hv'' : RedFree v'')
+    (hν'' : endWeight RD (fun r => (Λ r).val) μ v'' = ν)
+    (φ' : P.obj (obj RD (fun r => (Λ r).val) μ v') ⟶
+      P.obj (obj RD (fun r => (Λ r).val) μ v'')) :
+    violatingWhiskerLeft P hv hv'' hν hν'' (φ ≫ φ') =
+      violatingWhiskerLeft P hv hv' hν hν' φ ≫
+        violatingWhiskerLeft P hv' hv'' hν' hν'' φ' := by
+  rw [violatingWhiskerLeft, violatingWhiskerLeft, violatingWhiskerLeft,
+    CategoryTheory.Quotient.comp_natTransLift, whiskerLeft_comp, Functor.whiskerRight_comp]
 
 end Natural
 

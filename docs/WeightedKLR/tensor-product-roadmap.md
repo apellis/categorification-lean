@@ -536,3 +536,90 @@ To remove this restriction, either extend the black-relation comparison
 (`coverLin_blackRel`) to arbitrary Cautis–Lauda scalars or transport
 the result along the crossing rescaling `tensorRescale` combined with a
 rescaling of the cover action.
+
+## The rest of arXiv:1309.3796v3
+
+Plan for formalizing the paper in full, with numbers checked against v3. Status
+key: **done**, **partial**, **open**. The order below is the working order. §3 comes
+after §4 because the single-red case of the §4 constructions gives the §3 ones
+(Theorem 4.18, `T^λ ≅ R^λ` for one red strand).
+
+### Phase A: the rest of §4
+
+| Result | Content | Status |
+|---|---|---|
+| Thm 4.28 | `𝒰` acts on the double tensor product algebras `DT^λ` | partial: right whiskering (`violatingWhiskerRight`), KL 2-morphisms act functorially (`blackMap_id`, `blackMap_comp`); pseudofunctor packaging open |
+| Thm 4.30 | `T^λ` and `DT^λ` are Morita equivalent | done (#420) |
+| Thm 4.31 | `𝒰` acts on `T^λ`-modules by `βᵤ = e₋ β′ᵤ e₋` | open |
+| Thm 4.25 | representation of the 2-category `𝒯`; red lines act by `I^λ` | open |
+| Props 4.19, 4.21 | idempotent truncations `e_ℓ`, `e_{λ′}` | open |
+| Prop 4.32 | `IR^μ I^μ = id` and its commutation with `Eᵢ`, `Fᵢ` | open |
+| Prop 4.33 | uniqueness of the sesquilinear forms | partial |
+| Prop 4.39 | `K₀(T̃^λ) ≅ U⁻_q ⊗ V^λ` | open |
+
+### Phase B: §3, cyclotomic quotients
+
+| Result | Content | Status |
+|---|---|---|
+| Lemmas 3.7, 3.8, Thm 3.9 | 2-functor `G^λ` from `𝒰ᵢ⁻` to bimodules | open |
+| Lemma 3.12, Props 3.13, 3.16 | `R^λ ≅ e₋ DᵢR^λ e₋`, Morita equivalence, action of `𝒰ᵢ⁻` | open |
+| Thm 3.17 | strict 2-functor `𝒰 → Cat`, `μ ↦ R^λ_μ-pmod` | open; planned as the one-red case of Thm 4.31 |
+| Thm 3.18 | `tr^λ : R^λ → k` is a Frobenius trace | open |
+| Cor 3.20 | `p : R^λ → DR^λ` is a Morita equivalence | open |
+| Prop 3.21, Cor 3.22 | `K₀(R^λ) ≅ V^λ_ℤ`, Euler form = Shapovalov form | done |
+| Def 3.24, Prop 3.25, Cors 3.26, 3.27 | universal categorification `Ř^λ`, flatness, universality | open |
+
+The proved nondegeneracy of the Khovanov–Lauda calculus (`gammaAlg_injective_of_calculusNondeg`,
+KL III Thm 1.2) is the input for the basis statements behind Thm 3.17 and Cor 3.26.
+
+### Phase C: §5, standard modules
+
+Standardization functors (Prop 5.3, Def 5.4, Props 5.6, 5.7); simples and crystals
+(Lemma 5.9, Props 5.11, 5.12, Thms 5.14, 5.15); stringy triples (Props 5.17, 5.18);
+standard stratification (Lemma 5.19, Prop 5.21, Cors 5.22, 5.24, Lemma 5.25,
+Prop 5.26, Cor 5.27: `V^λ` is a tensor product categorification); Thm 5.28 (finite
+projective resolutions, Lemma 5.29); self-dual projectives and double centralizer
+(Thm 5.30, Prop 5.31, Cor 5.32, Prop 5.33); Thm 5.34 (for `sl_n`, blocks of cyclotomic
+`q`-Schur algebras). All open.
+
+### Phase D: §6, braiding functors
+
+`w`-Stendhal diagrams and the bimodules `B_w` (Defs 6.1, 6.3, Prop 6.4, Lemma 6.5);
+the functors `𝔅_w` (Def 6.6, Prop 6.7, Cor 6.8, Lemma 6.9, Prop 6.10, Lemma 6.13);
+tilting modules (Thm 6.14); `𝔅_w` are equivalences (Thm 6.15); the braid group action
+(Def 6.16, Cor 6.18); Ringel duality (Cor 6.19); semi-orthogonal decompositions
+(Prop 6.20); the Serre functor (Prop 6.21). All open. These need derived categories of
+graded modules; the plan is Mathlib's `DerivedCategory`.
+
+### Phase E: §7, rigidity
+
+Coevaluation and evaluation for a pair (Def 7.1, Prop 7.2, Def 7.4, Props 7.5, 7.6,
+7.8, Cors 7.7, 7.9, 7.10); ribbon structure (Prop 7.11, Def 7.12, Prop 7.13); general
+coevaluation and quantum trace (Def 7.15, Lemmas 7.16, 7.17, 7.19, Def 7.18,
+Props 7.20, 7.21, 7.22). All open.
+
+### Phase F: §8, knot invariants
+
+Tangle functors and decategorification (Prop 8.1); finiteness for links (Thm 8.2) and
+minuscule tangles (Prop 8.3); the unknot for `sl₂` (Prop 8.4); independence of the
+projection (Thm 8.6, Lemma 8.7); ribbon elements (Prop 8.8); minuscule duality
+(Thm 8.11). All open.
+
+### Phase G: §9, comparisons
+
+Cyclotomic degenerate Hecke algebras and parabolic category `𝒪` (Defs 9.1, 9.2, 9.4,
+Lemma 9.3, Prop 9.6); the equivalence `𝒪^p_λ ≃ V^λ` (Props 9.9, 9.11–9.13), Koszulity
+and graded lift (Prop 9.14, Cor 9.15); the affine case (Thm 9.16); other knot
+homologies (Props 9.18, 9.20, 9.21). All open.
+
+### Inputs from other works (maintainer decisions)
+
+* Prop 9.6 and Thm 9.16 are the Brundan–Kleshchev isomorphism (arXiv:0808.2032),
+  which is not in the library. Options: formalize it, or take it as a stated
+  hypothesis of the §9 results.
+* Thm 5.34 and §9 compare with cyclotomic `q`-Schur algebras and category `𝒪`. On
+  2026-11-15 the maintainer excluded the Cherednik and `q`-Schur comparisons for
+  the weighted KLR work. This needs confirming for 1309.3796.
+* Prop 9.14 (Koszulity) and Props 9.18–9.21 rest on results of other papers (for
+  example Enright–Shelton equivalences). These are flagged in the same way when
+  they are reached.

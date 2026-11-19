@@ -194,6 +194,166 @@ theorem splitStendhalValue_e (s : Seq μ) (hs : IsRedOrdered s) :
   rw [splitHom_e]
   rfl
 
+/-! ### Loading-dependent reduced words -/
+
+/-- The permutation of the split loading induced by `w`, through the expanded word. -/
+private def gw (s : Seq μ) (w : Perm (Fin m)) : Perm (Fin m') :=
+  wordProd m' (expandWord c s (canWord m w))
+
+private theorem gw_apply_splitPos (s : Seq μ) (w : Perm (Fin m)) (a : Fin m) :
+    gw c s w (splitPos c s a) = splitPos c (w • s) (w a) := by
+  rw [gw, wordProd_expandWord_splitPos c s (validWord_canWord m w), wordProd_canWord]
+
+private theorem gw_apply_newPos (s : Seq μ) (w : Perm (Fin m)) :
+    gw c s w (newPos c s) = newPos c (w • s) := by
+  rw [gw, wordProd_expandWord_newPos c s (validWord_canWord m w), wordProd_canWord]
+
+private theorem gw_injective (s : Seq μ) : Function.Injective (gw c s) := by
+  intro w₁ w₂ h
+  have hr : (redPos c (w₁ • s) : ℕ) = redPos c (w₂ • s) := by
+    have := congrArg (fun g : Perm (Fin m') => (g (newPos c s) : ℕ)) h
+    simp only [gw_apply_newPos, newPos_val] at this
+    omega
+  refine Equiv.ext fun a => Fin.ext ?_
+  have := congrArg (fun g : Perm (Fin m') => (g (splitPos c s a) : ℕ)) h
+  simp only [gw_apply_splitPos, splitPos_val, hr] at this
+  split_ifs at this <;> omega
+
+/-- Reduced words for the permutations of the split loadings of `s`: expanded words on the image
+of `gw`, canonical words elsewhere. -/
+private def ρs (s : Seq μ) : Perm (Fin m') → List ℕ :=
+  Function.extend (gw c s) (fun w => expandWord c s (canWord m w)) (canWord m')
+
+private theorem ρs_gw (s : Seq μ) (w : Perm (Fin m)) :
+    ρs c s (gw c s w) = expandWord c s (canWord m w) :=
+  (gw_injective c s).extend_apply _ _ w
+
+private theorem ρs_spec (s : Seq μ) (w : Perm (Fin m')) :
+    IsReduced m' (ρs c s w) ∧ wordProd m' (ρs c s w) = w := by
+  classical
+  by_cases h : ∃ v, gw c s v = w
+  · obtain ⟨v, rfl⟩ := h
+    rw [ρs_gw]
+    exact ⟨isReduced_expandWord c s (isReduced_canWord m v), rfl⟩
+  · rw [ρs, Function.extend_apply' _ _ _ h]
+    exact ⟨isReduced_canWord m' w, wordProd_canWord m' w⟩
+
+/-! ### Stendhal terms -/
+
+local notation "OldTerm" => {b // IsStendhalTerm (ν := ν) (ℓ := ℓ) (canWord m) b}
+
+private def splitPosEmb (s : Seq μ) : Fin m ↪ Fin m' := ⟨splitPos c s, splitPos_injective c s⟩
+
+/-- The data of the split Stendhal term. -/
+private def splitData (b : Seq μ × Perm (Fin m) × (Fin m →₀ ℕ)) :
+    Seq (stendhalWeight (ℓ + 1) ν) × Perm (Fin m') × (Fin m' →₀ ℕ) :=
+  (splitLoading c b.1, gw c b.1 b.2.1, Finsupp.embDomain (splitPosEmb c b.1) b.2.2)
+
+private theorem isStendhalTerm_splitData (b : OldTerm) :
+    IsStendhalTerm (ν := ν) (ℓ := ℓ + 1) (ρs c b.1.1) (splitData c b.1) := by
+  obtain ⟨⟨s, w, d⟩, h1, h2, h3, h4⟩ := b
+  refine ⟨(isRedOrdered_splitLoading_iff c s).2 h1, ?_, ?_, ?_⟩
+  · change IsRedOrdered (gw c s w • splitLoading c s)
+    rw [gw, ← splitLoading_wordProd c s (validWord_canWord m w), wordProd_canWord]
+    exact (isRedOrdered_splitLoading_iff c _).2 h2
+  · intro a ha
+    obtain ⟨x, hx, rfl⟩ := Finset.mem_map.1 ha
+    change ((splitLoading c s).1 (splitPos c s x)).isLeft
+    rw [isLeft_splitLoading_splitPos]
+    exact h3 x hx
+  · change NoRedCross (ρs c s (gw c s w)) (splitLoading c s)
+    rw [ρs_gw]
+    exact noRedCross_expandWord c s (validWord_canWord m w) h4
+
+/-- The split Stendhal term of a Stendhal term with bottom loading `s`. -/
+private def splitTerm (s : Seq μ) (b : {b : OldTerm // b.1.1 = s}) :
+    {x // IsStendhalTerm (ν := ν) (ℓ := ℓ + 1) (ρs c s) x} :=
+  ⟨splitData c b.1.1, (congrArg (fun t => IsStendhalTerm (ν := ν) (ℓ := ℓ + 1) (ρs c t)
+    (splitData c b.1.1)) b.2).mp (isStendhalTerm_splitData c b.1)⟩
+
+private theorem splitTerm_injective (s : Seq μ) :
+    Function.Injective (splitTerm c (ν := ν) s) := by
+  intro x y h
+  obtain ⟨⟨⟨s₁, w₁, d₁⟩, h₁⟩, e₁⟩ := x
+  obtain ⟨⟨⟨s₂, w₂, d₂⟩, h₂⟩, e₂⟩ := y
+  dsimp only at e₁ e₂
+  subst e₁ e₂
+  have h' := congrArg (fun z => z.1) h
+  simp only [splitTerm, splitData, Prod.mk.injEq] at h'
+  obtain ⟨-, hw, hd⟩ := h'
+  obtain rfl := gw_injective c _ hw
+  obtain rfl := Finsupp.embDomain_injective _ hd
+  rfl
+
+section Independence
+
+attribute [local instance 1100] IsIdempotentElem.instAlgebraCorner_categorification
+
+set_option quotPrecheck false in
+local notation "oldB" => stendhalTerm Q (mergeWeights c Λ') (ν := ν) (wordProd_canWord m)
+set_option quotPrecheck false in
+local notation "newB" s => stendhalTerm Q Λ' (ν := ν) (fun w => (ρs_spec c s w).2)
+
+private theorem splitTerm_value (b : OldTerm) :
+    splitStendhalValue c Q Λ' ν (oldB b) = (newB b.1.1) (splitTerm c b.1.1 ⟨b, rfl⟩) := by
+  apply Subtype.ext
+  rw [splitStendhalValue_val, stendhalTerm_val, stendhalTerm_val, KLRAlgebra.stdElt,
+    (splitHom_word c Λ' b.1.1 (monomial b.1.2.2 1) (validWord_canWord m b.1.2.1)).2]
+  change _ = π' (KLRAlgebra.ψw (ρs c b.1.1 (gw c b.1.1 b.1.2.1)) *
+    KLRAlgebra.pol (monomial (Finsupp.embDomain (splitPosEmb c b.1.1) b.1.2.2) 1) *
+      KLRAlgebra.e (splitLoading c b.1.1))
+  rw [ρs_gw, rename_monomial, Finsupp.embDomain_eq_mapDomain]
+  rfl
+
+private theorem splitStendhalValue_injective_of_independent
+    (hB : ∀ s : Seq μ, LinearIndependent k (newB s)) :
+    Function.Injective (splitStendhalValue c Q Λ' ν) := by
+  classical
+  let f : StendhalAlgebra k Q (mergeWeights c Λ') ν →ₗ[k] StendhalAlgebra k Q Λ' ν :=
+    { toFun := splitStendhalValue c Q Λ' ν, map_add' := map_add _,
+      map_smul' := splitStendhalValue_smul c Λ' }
+  have hall := span_stendhalTerm (Q := Q) (Λ := mergeWeights c Λ') (ν := ν)
+    (fun w => ⟨isReduced_canWord m w, wordProd_canWord m w⟩)
+  apply LinearMap.injective_of_linearIndependent (f := f) (v := oldB) (top_unique hall)
+  have he : f ∘ oldB = fun b => (newB b.1.1) (splitTerm c b.1.1 ⟨b, rfl⟩) :=
+    funext (splitTerm_value c Λ')
+  rw [he]
+  let Pr : Seq μ → StendhalAlgebra k Q Λ' ν →ₗ[k] StendhalAlgebra k Q Λ' ν := fun s =>
+    if hs : IsRedOrdered s then
+      LinearMap.mulRight k
+        (StendhalAlgebra.e (splitLoading c s) ((isRedOrdered_splitLoading_iff c s).2 hs))
+    else 0
+  refine linearIndependent_of_projections _ (fun b : OldTerm => b.1.1) Pr
+    (fun s b => ?_) (fun s => ?_)
+  · by_cases hs : IsRedOrdered s
+    · simp only [Pr, hs, ↓reduceDIte, LinearMap.mulRight_apply]
+      rw [stendhalTerm_mul_e]
+      exact if_congr (splitLoading_injective c).eq_iff rfl rfl
+    · have hb : b.1.1 ≠ s := fun h => hs (h ▸ b.2.1)
+      simp only [Pr, hs, ↓reduceDIte, LinearMap.zero_apply, hb, ↓reduceIte]
+  · convert (hB s).comp _ (splitTerm_injective c s) using 1
+    funext ⟨i, hi⟩
+    subst hi
+    rfl
+
+/-- Target PBW independence, for any family of reduced expressions, detects the kernel of
+splitting a red strand on red-ordered diagrams (Webster, arXiv:1309.3796v3, Propositions 4.16
+and 4.21). -/
+theorem splitStendhalValue_injective_of_stendhalTerm
+    (hB : ∀ (ρ : Perm (Fin m') → List ℕ) (hρ : ∀ w, IsReduced m' (ρ w) ∧ wordProd m' (ρ w) = w),
+      LinearIndependent k (stendhalTerm Q Λ' (ν := ν) (fun w => (hρ w).2))) :
+    Function.Injective (splitStendhalValue c Q Λ' ν) :=
+  splitStendhalValue_injective_of_independent c Λ' (fun s => hB _ (ρs_spec c s))
+
+/-- **Splitting a red strand is injective on red-ordered diagrams** for the crossing parameters
+of Webster, arXiv:1309.3796v3, §2.2 (Propositions 4.16 and 4.21). -/
+theorem splitStendhalValue_injective {D : QuantumGroup.CartanDatum I} (hQ : IsRouquierQ D Q) :
+    Function.Injective (splitStendhalValue c Q Λ' ν) :=
+  splitStendhalValue_injective_of_stendhalTerm c Λ'
+    (fun _ hρ => linearIndependent_stendhalTerm_of_rouquier Q ν Λ' hQ hρ)
+
+end Independence
+
 end SplitRed
 
 end Categorification.Stendhal

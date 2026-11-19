@@ -1257,6 +1257,16 @@ import Categorification.WeightedKLR.RedStrands.DoubleBlackActionHorizontal
 import Categorification.WeightedKLR.RedStrands.DoubleBlackActionWhisker
 import Categorification.WeightedKLR.RedStrands.DoubleBlackActionPseudofunctor
 import Categorification.WeightedKLR.RedStrands.DoubleRightWhiskerHorizontal
+import Categorification.WeightedKLR.RedStrands.LastRedBlackSlide
+import Categorification.WeightedKLR.RedStrands.LastRedBlackBimodule
+import Categorification.WeightedKLR.RedStrands.LastRedBlackSurjective
+import Categorification.WeightedKLR.RedStrands.LastRedBlackViolated
+import Categorification.WeightedKLR.RedStrands.StendhalDotInjective
+import Categorification.WeightedKLR.RedStrands.LastRedBlackInjective
+import Categorification.WeightedKLR.RedStrands.LastRedBlackEquiv
+import Categorification.WeightedKLR.RedStrands.AppendStrandReflection
+import Categorification.WeightedKLR.RedStrands.LastRedBlackGrading
+import Categorification.WeightedKLR.RedStrands.LastRedBlackMirror
 /-!
 # Categorification
 

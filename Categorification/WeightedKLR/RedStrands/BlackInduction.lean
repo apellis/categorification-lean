@@ -57,6 +57,19 @@ private theorem oldPosition_of_red (s : Seq μ) (a : Fin (Multiset.card (stendha
     rw [Seq.append_apply_ge _ _ _ (le_of_not_gt hc)] at ha
     exact (Sum.inl_ne_inr (((Multiset.mem_singleton.mp ((default : Seq σᵢ).mem _))).symm.trans ha)).elim
 
+/-- Away from the new right boundary the appended loading keeps the old labels. -/
+theorem appendBlackLoading_lbl_of_lt (s : Seq μ) (a : Fin (Multiset.card (stendhalWeight ℓ νᵢ)))
+    (ha : a.val < Multiset.card μ) : (appendBlackLoading i ν s).lbl a = s.lbl ⟨a.val, ha⟩ := by
+  have h := appendBlackLoading_lbl i ν s ⟨a.val, ha⟩
+  rwa [show appendBlackPosition i ν ⟨a.val, ha⟩ = a from Fin.ext rfl] at h
+
+/-- The new right boundary strand carries the black label `i`. -/
+theorem appendBlackLoading_lbl_of_eq (s : Seq μ) (a : Fin (Multiset.card (stendhalWeight ℓ νᵢ)))
+    (ha : a.val = Multiset.card μ) : (appendBlackLoading i ν s).lbl a = .inl i := by
+  change (s.append (default : Seq σᵢ)).1 (Fin.cast _ a) = _
+  rw [Seq.append_apply_ge _ _ _ (by simp only [Fin.val_cast]; omega)]
+  exact Multiset.mem_singleton.mp ((default : Seq σᵢ).mem _)
+
 /-- The far-right black strand preserves the order of the red strands. -/
 theorem appendBlackLoading_ordered (s : Seq μ) (hs : IsRedOrdered s) :
     IsRedOrdered (appendBlackLoading i ν s) := by
@@ -286,14 +299,18 @@ private theorem appendBlackValue_corner (z : StendhalAlgebra k Q Λ ν) :
   exact ⟨by rw [← hl, ← mul_assoc]; exact congrArg (· * f z.val) (KLR.Corner.E_mul_val E),
     by rw [← hr, mul_assoc]; exact congrArg (f z.val * ·) (KLR.Corner.val_mul_E E)⟩
 
-private def appendBlackStendhal : StendhalAlgebra k Q Λ ν →ₙₐ[k] StendhalAlgebra k Q Λ νᵢ where
+/-- Appending the black strand on red-ordered diagrams, before imposing the violating ideal. -/
+def appendBlackStendhal : StendhalAlgebra k Q Λ ν →ₙₐ[k] StendhalAlgebra k Q Λ νᵢ where
   toFun z := ⟨appendBlackValue Q Λ i ν z.val, appendBlackValue_corner Q Λ i ν z⟩
   map_zero' := Subtype.ext (map_zero (appendBlackValue Q Λ i ν))
   map_add' x y := Subtype.ext (map_add (appendBlackValue Q Λ i ν) x.val y.val)
   map_mul' x y := Subtype.ext (map_mul (appendBlackValue Q Λ i ν) x.val y.val)
   map_smul' c z := Subtype.ext (appendBlackValue_smul Q Λ i ν c z.val)
 
-private theorem appendBlackStendhal_e (s : Seq μ) (hs : IsRedOrdered s) :
+theorem appendBlackStendhal_val (z : StendhalAlgebra k Q Λ ν) :
+    (appendBlackStendhal Q Λ i ν z).val = (appendBlackAllOrders Q Λ i ν z.val).val := rfl
+
+theorem appendBlackStendhal_e (s : Seq μ) (hs : IsRedOrdered s) :
     appendBlackStendhal Q Λ i ν (StendhalAlgebra.e s hs) =
       StendhalAlgebra.e (appendBlackLoading i ν s) (appendBlackLoading_ordered i ν s hs) :=
   Subtype.ext (appendBlackValue_e Q Λ i ν s)
@@ -326,6 +343,10 @@ def appendBlack : T →ₙₐ[k] T' where
   map_add' := by rintro ⟨x⟩ ⟨y⟩; exact map_add (intoQuotient Q Λ i ν) x y
   map_mul' := by rintro ⟨x⟩ ⟨y⟩; exact map_mul (intoQuotient Q Λ i ν) x y
   map_smul' := by rintro c ⟨x⟩; exact map_smul (intoQuotient Q Λ i ν) c x
+
+/-- The black-appending map is induced by `appendBlackStendhal`. -/
+theorem appendBlack_mk (z : StendhalAlgebra k Q Λ ν) :
+    appendBlack Q Λ i ν (π z) = π' (appendBlackStendhal Q Λ i ν z) := rfl
 
 /-- On an ordered boundary idempotent the map appends the black label to its sequence. -/
 theorem appendBlack_mk_e (s : Seq μ) (hs : IsRedOrdered s) :

@@ -506,6 +506,27 @@ theorem appendRedAllOrders_e (s : Seq μ) :
       StendhalAlgebraAllOrders.e (appendRedLoading s) := by
   rw [StendhalAlgebraAllOrders.e, appendRedAllOrders_ofKLR, appendRedKLR_e]
 
+/-- Appending the terminal red strand keeps an old dot at its position, cut by the
+terminal idempotent. -/
+theorem appendRedAllOrders_x (a : Fin (Multiset.card μ)) :
+    (appendRedAllOrders Q Λ ν (StendhalAlgebraAllOrders.x a)).val =
+      StendhalAlgebraAllOrders.x (appendRedPosition a) * (appendRedAllOrders Q Λ ν 1).val := by
+  rw [StendhalAlgebraAllOrders.x, appendRedAllOrders_ofKLR, appendRedKLR_x, map_one]
+  rfl
+
+/-- Appending the terminal red strand keeps an old crossing, cut by the terminal
+idempotent. -/
+theorem appendRedAllOrders_ψ (j : ℕ) (hj : j + 1 < Multiset.card μ) :
+    (appendRedAllOrders Q Λ ν (StendhalAlgebraAllOrders.ψ j)).val =
+      StendhalAlgebraAllOrders.ψ j * (appendRedAllOrders Q Λ ν 1).val := by
+  rw [StendhalAlgebraAllOrders.ψ, appendRedAllOrders_ofKLR, appendRedKLR_ψ Q Λ ν hj, map_one]
+  rfl
+
+/-- The all-orders terminal red embedding is linear on diagram coefficients. -/
+theorem appendRedAllOrders_smul (c : k) (z : StendhalAlgebraAllOrders k Q Λ₀ ν) :
+    (appendRedAllOrders Q Λ ν (c • z)).val = c • (appendRedAllOrders Q Λ ν z).val := by
+  rw [AlgHom.map_smul_of_tower, KLR.Corner.val_smul]
+
 private def appendRedValue : StendhalAlgebraAllOrders k Q Λ₀ ν →ₙ+* A :=
   (KLR.cornerVal (isIdempotentElem_terminalIdem Q Λ ν)).comp
     (appendRedAllOrders Q Λ ν).toRingHom.toNonUnitalRingHom
@@ -524,7 +545,7 @@ private theorem appendRedValue_smul (c : k) (z : StendhalAlgebraAllOrders k Q Λ
 local instance : Fintype { s : Seq (stendhalWeight (ℓ + 1) ν) // IsRedOrdered s ∧ HasLastRed s } :=
   Fintype.ofFinite _
 
-private theorem lastRedIdem_val_eq_sum :
+theorem lastRedIdem_val_eq_sum :
     (StendhalAlgebra.lastRedIdem Q Λ ν).val =
       ∑ s : { s : Seq (stendhalWeight (ℓ + 1) ν) // IsRedOrdered s ∧ HasLastRed s },
         StendhalAlgebraAllOrders.e s.1 := by
@@ -592,6 +613,11 @@ def appendRedStendhalValue : StendhalAlgebra k Q Λ₀ ν →ₙ+* StendhalAlgeb
   map_zero' := Subtype.ext (map_zero (appendRedValue Q Λ ν))
   map_add' x y := Subtype.ext (map_add (appendRedValue Q Λ ν) x.val y.val)
   map_mul' x y := Subtype.ext (map_mul (appendRedValue Q Λ ν) x.val y.val)
+
+/-- On red-ordered diagrams, appending before quotienting is the value of the
+all-orders map. -/
+theorem appendRedStendhalValue_val (z : StendhalAlgebra k Q Λ₀ ν) :
+    (appendRedStendhalValue Q Λ ν z).val = (appendRedAllOrders Q Λ ν z.val).val := rfl
 
 theorem appendRedStendhalValue_one :
     appendRedStendhalValue Q Λ ν 1 = StendhalAlgebra.lastRedIdem Q Λ ν :=
@@ -1049,13 +1075,13 @@ namespace Categorification.Stendhal
 
 open KLR KLRAlgebra TypeA Equiv
 
-private theorem reversed_reduced {ρ : List ℕ} {m : ℕ} (h : IsReduced m ρ) :
+theorem reversed_reduced {ρ : List ℕ} {m : ℕ} (h : IsReduced m ρ) :
     IsReduced m ρ.reverse :=
   ⟨validWord_reverse.2 h.1, by rw [List.length_reverse, wordProd_reverse, length_inv]; exact h.2⟩
 
 /-- A reduced expression first permutes all strands but the final strand, then
 moves that strand to its position in the target loading. -/
-private theorem exists_terminal_shuffle {m n : ℕ} (h : n + 1 = m) (w : Perm (Fin m)) :
+theorem exists_terminal_shuffle {m n : ℕ} (h : n + 1 = m) (w : Perm (Fin m)) :
     ∃ rest : List ℕ, ValidWord n rest ∧
       let a := (w (lastFin h)).val
       let ρ := (descRun a (n-a)).reverse ++ rest
@@ -1095,11 +1121,11 @@ private theorem exists_terminal_shuffle {m n : ℕ} (h : n + 1 = m) (w : Perm (F
 variable {I : Type} {ℓ : ℕ} {ν : Multiset I}
 local notation "M" => stendhalWeight (ℓ + 1) ν
 local notation "N₀" => ν.card + ℓ
-private theorem terminalCard : N₀ + 1 = Multiset.card M := by simp [stendhalWeight]; omega
+theorem terminalCard : N₀ + 1 = Multiset.card M := by simp [stendhalWeight]; omega
 
 /-- Moving the final red strand rightward through the black strands to its right
 keeps an originally violated slice violated. -/
-private theorem slide_terminal_loading (s : KLR.Seq M) (hs : IsRedOrdered s)
+theorem slide_terminal_loading (s : KLR.Seq M) (hs : IsRedOrdered s)
     (hV : IsViolated s) (a : Fin (Multiset.card M)) (ha : s.lbl a = .inr (Fin.last ℓ)) :
     let s' := (KLR.cycA (m := Multiset.card M) (n := N₀) a.val) • s
     IsRedOrdered s' ∧ HasLastRed s' ∧ IsViolated s' := by
@@ -1146,21 +1172,21 @@ private theorem slide_terminal_loading (s : KLR.Seq M) (hs : IsRedOrdered s)
       simp only [hap, ↓reduceIte]
     exact ⟨h0, by change (s.lbl (C.symm ⟨0, h0⟩)).isLeft; rwa [hc]⟩
 
-private def terminalRest (w : Perm (Fin (Multiset.card M))) : List ℕ :=
+def terminalRest (w : Perm (Fin (Multiset.card M))) : List ℕ :=
   (exists_terminal_shuffle terminalCard w).choose
 
-private def terminalPrefix (w : Perm (Fin (Multiset.card M))) : List ℕ :=
+def terminalPrefix (w : Perm (Fin (Multiset.card M))) : List ℕ :=
   let a := (w (lastFin (terminalCard (ℓ := ℓ) (ν := ν)))).val
   (descRun a (N₀ - a)).reverse
 
-private def terminalWord (w : Perm (Fin (Multiset.card M))) : List ℕ :=
+def terminalWord (w : Perm (Fin (Multiset.card M))) : List ℕ :=
   terminalPrefix w ++ terminalRest w
 
-private theorem terminalWord_spec (w : Perm (Fin (Multiset.card M))) :
+theorem terminalWord_spec (w : Perm (Fin (Multiset.card M))) :
     IsReduced (Multiset.card M) (terminalWord w) ∧ wordProd (Multiset.card M) (terminalWord w) = w :=
   (exists_terminal_shuffle terminalCard w).choose_spec.2
 
-private theorem terminalWord_prod (w : Perm (Fin (Multiset.card M))) :
+theorem terminalWord_prod (w : Perm (Fin (Multiset.card M))) :
     wordProd (Multiset.card M) (terminalWord w) = w := (terminalWord_spec w).2
 
 variable [DecidableEq I] {k : Type*} [CommRing k]
@@ -1215,7 +1241,7 @@ private theorem factor_through_terminal_violation (b : Term) (hs : HasLastRed b.
     ← map_mul π (KLRAlgebra.e t), hcut]
   simp only [map_mul, mul_assoc]
 
-private theorem exists_ambient_sandwich_preimage (z : A) :
+theorem exists_ambient_sandwich_preimage (z : A) :
     ∃ v : old, (Φ v).val = (E).val * z * (E).val := by
   have hP : P * P = P := StendhalAlgebraAllOrders.isIdempotentElem_redOrderedIdem.eq
   let x : StendhalAlgebra k Q Λ ν := ⟨P * z * P, (Subsemigroup.mem_corner_iff
@@ -1228,7 +1254,7 @@ private theorem exists_ambient_sandwich_preimage (z : A) :
     _ = ((E).val * P) * z * (P * (E).val) := by simp only [mul_assoc]
     _ = _ := by rw [KLR.Corner.val_mul_E, KLR.Corner.E_mul_val]
 
-private theorem exists_violated_preimage_of_terminal_cut (s : KLR.Seq M) (ho : IsRedOrdered s)
+theorem exists_violated_preimage_of_terminal_cut (s : KLR.Seq M) (ho : IsRedOrdered s)
     (hs : HasLastRed s) (hV : IsViolated s) (x y : A) :
     ∃ v ∈ J₀, (Φ v).val = (E).val * x * StendhalAlgebraAllOrders.e s * y * (E).val := by
   classical

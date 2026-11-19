@@ -6,6 +6,7 @@ import Categorification.WeightedKLR.RedStrands.DoubleCLDownKLRUp
 import Categorification.WeightedKLR.RedStrands.DoubleCLBlackNegligible
 import Categorification.WeightedKLR.RedStrands.DoubleCLRedUpEvaluation
 import Categorification.WeightedKLR.RedStrands.DoubleCLRedCap
+import Categorification.WeightedKLR.RedStrands.DoubleCLRedUpSlide
 import Categorification.WeightedKLR.RedStrands.DoublePresentationUnion
 
 /-!
@@ -125,6 +126,28 @@ theorem CoverRelsNegligible.addRedCapRelations
             a.right)) = 0 from
       coverLin_redCapRel Wgt (extendedCartanDatum_dot_inl Λ C) o _ (CL.zigzags _ k _) a]
     apply CoverRedNegligible.zero
+
+/-- Adjoining the red/upward slide relations (4.4c,d) and their mirrors preserves
+`CoverRelsNegligible`: their reflected images vanish by the dot and crossing slides through the
+sideways crossings of the Cautis–Lauda presentation. -/
+theorem CoverRelsNegligible.addRedUpSlideRelations
+    {P : Presentation.{v, u} (signature (RDc) (redWeight Wgt)) k}
+    (hP : CoverRelsNegligible.{u, v, w} Λ C hQ hc o P) :
+    CoverRelsNegligible.{u, v, w} Λ C hQ hc o (addRedUpSlideRelations (RDc) (redWeight Wgt) P) :=
+  hP.addRels fun ⟨μ, u, r, g, v, mirror⟩ => by
+    cases mirror
+    · rw [show coverCL Λ C hQ o
+          (LinDiagram.of (redUpSlide (RDc) (redWeight Wgt) μ u r g v false) -
+            LinDiagram.of (redUpSlide (RDc) (redWeight Wgt) μ u r g v true)) = 0 from
+        coverLin_redUpSlideRel Wgt (extendedCartanDatum_dot_inl Λ C) o _
+          (presCL_cover_klr Λ C hQ) μ u r g v]
+      apply CoverRedNegligible.zero
+    · rw [show coverCL Λ C hQ o
+          (LinDiagram.of (redUpSlideMirror (RDc) (redWeight Wgt) μ u r g v false) -
+            LinDiagram.of (redUpSlideMirror (RDc) (redWeight Wgt) μ u r g v true)) = 0 from
+        coverLin_redUpSlideMirrorRel Wgt (extendedCartanDatum_dot_inl Λ C) o _
+          (presCL_cover_klr Λ C hQ) μ u r g v]
+      apply CoverRedNegligible.zero
 
 section Black
 

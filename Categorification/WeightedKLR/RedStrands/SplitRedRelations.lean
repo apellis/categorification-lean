@@ -338,4 +338,175 @@ theorem dotCrossRight (j : ℕ) (h : j + 1 < m) (t : Seq μ) :
     lbl_split_gt c t j (by omega) hlt, lbl_split_gt c t (j + 1) h (by omega)]
   simp only [(splitColor_injective c).eq_iff]
 
+/-- Red strands do not cross. -/
+theorem redCross (j : ℕ) (h : j + 1 < m) (t : Seq μ) (h₁ : (t.lbl ⟨j, by omega⟩).isRight)
+    (h₂ : (t.lbl ⟨j + 1, h⟩).isRight) : (gΨ c Λ' j * gE c Λ' t : C) = 0 := by
+  have hm := card_split ℓ ν
+  have hq := (redPos c t).2
+  apply Corner.ext
+  rw [val_gΨ_mul_gE c Λ' j h, Corner.val_zero]
+  rcases lt_trichotomy (j + 1) (redPos c t) with hlt | heq | hgt
+  · rw [W_of_lt Λ' hlt]
+    apply StendhalAlgebraAllOrders.ψ_mul_e_of_red j (by omega)
+    · rw [lbl_split_le c t j (by omega) (by omega), splitColor_isRight]; exact h₁
+    · rw [lbl_split_le c t (j + 1) h (by omega), splitColor_isRight]; exact h₂
+  · rw [W_of_eq_succ Λ' heq, mul_assoc,
+      StendhalAlgebraAllOrders.ψ_mul_e_of_red j (by omega), mul_zero]
+    · rw [lbl_split_le c t j (by omega) (by omega), splitColor_isRight]; exact h₁
+    · rw [lbl_split_red c t heq]; rfl
+  rcases Nat.lt_or_ge (redPos c t) j with hgt' | hle
+  · rw [W_of_gt Λ' hgt']
+    apply StendhalAlgebraAllOrders.ψ_mul_e_of_red (j + 1) (by omega)
+    · rw [lbl_split_gt c t j (by omega) hgt', splitColor_isRight]; exact h₁
+    · rw [lbl_split_gt c t (j + 1) h (by omega), splitColor_isRight]; exact h₂
+  · rw [W_of_eq Λ' (by omega), mul_assoc,
+      StendhalAlgebraAllOrders.ψ_mul_e_of_red (j + 1) (by omega), mul_zero]
+    · rw [lbl_split_new c t (by omega)]; rfl
+    · rw [lbl_split_gt c t (j + 1) h (by omega), splitColor_isRight]; exact h₂
+
+theorem rename_splitPos_pair (t : Seq μ) (a b : Fin m) (P : MvPolynomial (Fin 2) k) :
+    rename (splitPos c t) (rename ![a, b] P) = rename ![splitPos c t a, splitPos c t b] P := by
+  rw [rename_rename]; congr 2; funext i; fin_cases i <;> rfl
+
+/-- The bigon relation `ψ_j² e(t) = Q_{t_j t_{j+1}}(x_j, x_{j+1}) e(t)` (zero for equal
+labels), for the merged weights. Across the split red strand the two bigons with `λ'_c` and
+`λ'_{c+1}` add up to the bigon with `λ'_c + λ'_{c+1}`. -/
+theorem crossSq (j : ℕ) (h : j + 1 < m) (t : Seq μ) :
+    (gΨ c Λ' j * gΨ c Λ' j * gE c Λ' t : C) =
+      if t.lbl ⟨j, by omega⟩ = t.lbl ⟨j + 1, h⟩ then 0 else
+        polSplit c Λ' (rename ![⟨j, by omega⟩, ⟨j + 1, h⟩]
+          (stendhalQ Q (mergeWeights c Λ') (t.lbl ⟨j, by omega⟩) (t.lbl ⟨j + 1, h⟩))) *
+          gE c Λ' t := by
+  have hm := card_split ℓ ν
+  have hq := (redPos c t).2
+  apply Corner.ext
+  have hval : (if t.lbl ⟨j, by omega⟩ = t.lbl ⟨j + 1, h⟩ then 0 else
+        polSplit c Λ' (rename ![⟨j, by omega⟩, ⟨j + 1, h⟩]
+          (stendhalQ Q (mergeWeights c Λ') (t.lbl ⟨j, by omega⟩) (t.lbl ⟨j + 1, h⟩))) *
+          gE c Λ' t : C).val =
+      if t.lbl ⟨j, by omega⟩ = t.lbl ⟨j + 1, h⟩ then 0 else
+        polA k Q Λ' ν (rename ![splitPos c t ⟨j, by omega⟩, splitPos c t ⟨j + 1, h⟩]
+          (stendhalQ Q (mergeWeights c Λ') (t.lbl ⟨j, by omega⟩) (t.lbl ⟨j + 1, h⟩))) *
+          e' (splitLoading c t) := by
+    split_ifs
+    · simp
+    · rw [val_polSplit_mul c Λ' _ t (gE_mul_self c Λ' t), rename_splitPos_pair, val_gE]
+  rw [hval, val_gΨ_gΨ_gE c Λ' j j h h t]
+  rcases lt_trichotomy (j + 1) (redPos c t) with hlt | heq | hgt
+  · have h' : j + 1 < m' := by omega
+    have hj0 : t.lbl ⟨j, by omega⟩ ≠ .inr c := by rw [Ne, lbl_eq_red_iff]; simp only; omega
+    have hj1 : t.lbl ⟨j + 1, h⟩ ≠ .inr c := by rw [Ne, lbl_eq_red_iff]; simp only; omega
+    rw [swapNat_of_ne (by omega) (by omega), W_of_lt Λ' hlt, ← mul_assoc,
+      aψ_sq j h' (splitLoading c t),
+      lbl_split_le c t j (by omega) (by omega), lbl_split_le c t (j + 1) h (by omega),
+      show splitPos c t ⟨j, by omega⟩ = ⟨j, by omega⟩ from Fin.ext (by
+        rw [splitPos_val]; simp only; split_ifs <;> omega),
+      show splitPos c t ⟨j + 1, h⟩ = ⟨j + 1, h'⟩ from Fin.ext (by
+        rw [splitPos_val]; simp only; split_ifs <;> omega),
+      stendhalQ_splitColor c Λ' _ _ hj0 hj1]
+    simp only [(splitColor_injective c).eq_iff]
+  · have h' : j + 1 + 1 < m' := by omega
+    have hb : t.lbl ⟨j, by omega⟩ ≠ .inr c := by rw [Ne, lbl_eq_red_iff]; simp only; omega
+    have hr : t.lbl ⟨j + 1, h⟩ = .inr c := (lbl_eq_red_iff c t _).2 heq
+    have hne : t.lbl ⟨j, by omega⟩ ≠ t.lbl ⟨j + 1, h⟩ := by rw [hr]; exact hb
+    simp only [hne, ↓reduceIte]
+    rw [show swapNat j (redPos c t) = j by rw [← heq]; exact swapNat_right j,
+      W_of_eq Λ' rfl, W_of_eq_succ Λ' heq, hr,
+      show splitPos c t ⟨j, by omega⟩ = ⟨j, by omega⟩ from Fin.ext (by
+        rw [splitPos_val]; simp only; split_ifs <;> omega)]
+    set T := splitLoading c t
+    have l0 : T.lbl ⟨j, by omega⟩ = splitColor c (t.lbl ⟨j, by omega⟩) :=
+      lbl_split_le c t j (by omega) (by omega) _
+    have l1 : T.lbl ⟨j + 1, by omega⟩ = .inr c.castSucc := lbl_split_red c t heq _
+    have l2 : T.lbl ⟨j + 1 + 1, h'⟩ = .inr c.succ := lbl_split_new c t (by omega) _
+    rcases ht : t.lbl ⟨j, by omega⟩ with i | r
+    · rw [ht] at l0
+      change T.lbl ⟨j, _⟩ = .inl i at l0
+      have hk : j + 1 < m' := by omega
+      have s2 := aψ_mul_e (Q := Q) (Λ := Λ') j T
+      have lj : (sadj m' j • T).lbl ⟨j, by omega⟩ = .inr c.castSucc := by
+        rw [lbl_sadj_smul T hk, lbl_congr T (swapNat_left j) _ (by omega), l1]
+      have lj1 : (sadj m' j • T).lbl ⟨j + 1, by omega⟩ = .inl i := by
+        rw [lbl_sadj_smul T hk, lbl_congr T (swapNat_right j) _ (by omega), l0]
+      have lj2 : (sadj m' j • T).lbl ⟨j + 1 + 1, h'⟩ = .inr c.succ := by
+        rw [lbl_sadj_smul T hk, lbl_congr T (swapNat_of_ne (by omega) (by omega)) _ h', l2]
+      have s4 := StendhalAlgebraAllOrders.ψ_sq_black_red (k := k) (Q := Q) (Λ := Λ') (j + 1) h'
+        (sadj m' j • T) i c.succ lj1 lj2
+      have s3 := slideL (k := k) (Q := Q) (Λ := Λ') j hk (sadj m' j • T)
+        (by rw [lj, lj1]; exact Sum.inr_ne_inl) (Λ' c.succ i)
+      have s5 := StendhalAlgebraAllOrders.ψ_sq_black_red (k := k) (Q := Q) (Λ := Λ') j hk T i
+        c.castSucc l0 l1
+      have s4' := fun Z => congrArg (· * Z) s4
+      have s3' := fun Z => congrArg (· * Z) s3
+      simp only [mul_assoc] at s3' s4' s5 ⊢
+      simp only [stendhalQ_inl_inr, mergeWeights_self, Finsupp.coe_add, Pi.add_apply, pow_add]
+      rw [s2, s4', s3', ← s2, s5]
+      simp only [map_pow, rename_X, Matrix.cons_val_zero, polA_X, ← mul_assoc, ← pow_add,
+        add_comm]
+    · have hz : (ψ' j * e' T) = 0 := StendhalAlgebraAllOrders.ψ_mul_e_of_red j (by omega) T
+        (by rw [l0, ht]; rfl) (by rw [l1]; rfl)
+      rw [show stendhalQ Q (mergeWeights c Λ') (.inr r) (.inr c) = 0 from rfl, map_zero,
+        map_zero, zero_mul]
+      simp only [mul_assoc]
+      rw [hz]; simp
+  rcases Nat.lt_or_ge (redPos c t) j with hgt' | hle
+  · have h' : j + 1 + 1 < m' := by omega
+    have hj0 : t.lbl ⟨j, by omega⟩ ≠ .inr c := by rw [Ne, lbl_eq_red_iff]; simp only; omega
+    have hj1 : t.lbl ⟨j + 1, h⟩ ≠ .inr c := by rw [Ne, lbl_eq_red_iff]; simp only; omega
+    rw [swapNat_of_ne (by omega) (by omega), W_of_gt Λ' hgt', ← mul_assoc,
+      aψ_sq (j + 1) h' (splitLoading c t),
+      lbl_split_gt c t j (by omega) hgt', lbl_split_gt c t (j + 1) h (by omega),
+      show splitPos c t ⟨j, by omega⟩ = ⟨j + 1, by omega⟩ from Fin.ext (by
+        rw [splitPos_val]; simp only; split_ifs <;> omega),
+      show splitPos c t ⟨j + 1, h⟩ = ⟨j + 1 + 1, h'⟩ from Fin.ext (by
+        rw [splitPos_val]; simp only; split_ifs <;> omega),
+      stendhalQ_splitColor c Λ' _ _ hj0 hj1]
+    simp only [(splitColor_injective c).eq_iff]
+  -- the strand at `j` is the red strand that splits
+  have hj : j = redPos c t := by omega
+  have h' : j + 1 + 1 < m' := by omega
+  have hr : t.lbl ⟨j, by omega⟩ = .inr c := (lbl_eq_red_iff c t _).2 hj
+  have hb : t.lbl ⟨j + 1, h⟩ ≠ .inr c := by rw [Ne, lbl_eq_red_iff]; simp only; omega
+  have hne : t.lbl ⟨j, by omega⟩ ≠ t.lbl ⟨j + 1, h⟩ := by rw [hr]; exact hb.symm
+  simp only [hne, ↓reduceIte]
+  rw [show swapNat j (redPos c t) = j + 1 by rw [← hj]; exact swapNat_left j,
+    W_of_eq_succ Λ' rfl, W_of_eq Λ' hj, hr,
+    show splitPos c t ⟨j + 1, h⟩ = ⟨j + 1 + 1, h'⟩ from Fin.ext (by
+      rw [splitPos_val]; simp only; split_ifs <;> omega)]
+  set T := splitLoading c t
+  have l0 : T.lbl ⟨j, by omega⟩ = .inr c.castSucc := lbl_split_red c t hj _
+  have l1 : T.lbl ⟨j + 1, by omega⟩ = .inr c.succ := lbl_split_new c t (by omega) _
+  have l2 : T.lbl ⟨j + 1 + 1, h'⟩ = splitColor c (t.lbl ⟨j + 1, h⟩) :=
+    lbl_split_gt c t (j + 1) h (by omega) h'
+  rcases ht : t.lbl ⟨j + 1, h⟩ with i | r
+  · rw [ht] at l2
+    change T.lbl ⟨j + 1 + 1, h'⟩ = .inl i at l2
+    have s2 := aψ_mul_e (Q := Q) (Λ := Λ') (j + 1) T
+    have lj : (sadj m' (j + 1) • T).lbl ⟨j, by omega⟩ = .inr c.castSucc := by
+      rw [lbl_sadj_smul T h', lbl_congr T (swapNat_of_ne (by simp only; omega) (by simp only; omega)) _ (by omega),
+        l0]
+    have lj1 : (sadj m' (j + 1) • T).lbl ⟨j + 1, by omega⟩ = .inl i := by
+      rw [lbl_sadj_smul T h', lbl_congr T (swapNat_left (j + 1)) _ h', l2]
+    have lj2 : (sadj m' (j + 1) • T).lbl ⟨j + 1 + 1, h'⟩ = .inr c.succ := by
+      rw [lbl_sadj_smul T h', lbl_congr T (swapNat_right (j + 1)) _ (by omega), l1]
+    have s4 := StendhalAlgebraAllOrders.ψ_sq_red_black (k := k) (Q := Q) (Λ := Λ') j
+      (by omega) (sadj m' (j + 1) • T) i c.castSucc lj lj1
+    have s3 := slideR (k := k) (Q := Q) (Λ := Λ') (j + 1) h' (sadj m' (j + 1) • T)
+      (by rw [lj1, lj2]; exact Sum.inl_ne_inr) (Λ' c.castSucc i)
+    have s5 := StendhalAlgebraAllOrders.ψ_sq_red_black (k := k) (Q := Q) (Λ := Λ') (j + 1) h'
+      T i c.succ l1 l2
+    have s4' := fun Z => congrArg (· * Z) s4
+    have s3' := fun Z => congrArg (· * Z) s3
+    simp only [mul_assoc] at s3' s4' s5 ⊢
+    simp only [stendhalQ_inr_inl, mergeWeights_self, Finsupp.coe_add, Pi.add_apply, pow_add]
+    rw [s2, s4', s3', ← s2, s5]
+    simp only [map_pow, rename_X, Matrix.cons_val_one, Matrix.cons_val_zero, polA_X,
+      ← mul_assoc, ← pow_add]
+  · have hz : (ψ' (j + 1) * e' T) = 0 := StendhalAlgebraAllOrders.ψ_mul_e_of_red (j + 1) h' T
+      (by rw [l1]; rfl) (by rw [l2, ht]; rfl)
+    rw [show stendhalQ Q (mergeWeights c Λ') (.inr c) (.inr r) = 0 from rfl, map_zero,
+      map_zero, zero_mul]
+    simp only [mul_assoc]
+    rw [hz]; simp
+
 end Categorification.Stendhal.SplitRed

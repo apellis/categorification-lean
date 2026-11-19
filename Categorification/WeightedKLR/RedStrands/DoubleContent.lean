@@ -34,6 +34,35 @@ strand contributing minus one to its colour. -/
 def DoubleBoundary.signedContent (b : DoubleBoundary I ℓ) : I →₀ ℤ :=
   (b.word.map DoubleStrand.multiplicity).sum
 
+/-- Signed black multiplicities of a word of strands. -/
+def wordContent (w : List (DoubleStrand I ℓ)) : I →₀ ℤ := (w.map DoubleStrand.multiplicity).sum
+
+theorem DoubleBoundary.signedContent_eq_wordContent (b : DoubleBoundary I ℓ) :
+    b.signedContent = wordContent b.word := rfl
+
+@[simp] theorem wordContent_red (r : Fin ℓ) : wordContent [(Sum.inr r : DoubleStrand I ℓ)] = 0 := by
+  simp [wordContent, DoubleStrand.multiplicity]
+
+@[simp] theorem wordContent_append (v w : List (DoubleStrand I ℓ)) :
+    wordContent (v ++ w) = wordContent v + wordContent w := by
+  simp [wordContent]
+
+@[simp] theorem wordContent_reverse (w : List (DoubleStrand I ℓ)) :
+    wordContent w.reverse = wordContent w := by
+  simp [wordContent, List.sum_reverse]
+
+/-- Reversing the orientations of black strands negates their signed multiplicities. -/
+theorem wordContent_map_dual (s : List (KL3.Diagram.Letter I)) :
+    wordContent ((s.map KL3.Diagram.Letter.dual).map (Sum.inl (β := Fin ℓ))) =
+      -wordContent (s.map (Sum.inl (β := Fin ℓ))) := by
+  induction s with
+  | nil => simp [wordContent]
+  | cons l s ih =>
+    obtain ⟨d, i⟩ := l
+    simp only [wordContent, List.map_cons, List.sum_cons] at ih ⊢
+    rw [ih, neg_add]
+    cases d <;> simp [KL3.Diagram.Letter.dual, DoubleStrand.multiplicity]
+
 /-- The integral multiplicities of an ordinary black multiset. -/
 def contentVector (ν : Multiset I) : I →₀ ℤ := (ν.map (fun i => Finsupp.single i (1 : ℤ))).sum
 

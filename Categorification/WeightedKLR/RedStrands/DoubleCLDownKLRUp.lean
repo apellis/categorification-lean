@@ -248,4 +248,71 @@ theorem coverRedNegligible_upCover_redDot (μ : I ⊕ Fin ℓ → ℤ)
   apply CoverRedNegligible.comp_right
   exact hd
 
+omit [Field k] [DecidableEq I] in
+/-- A boundary word of KLR diagrams for the extended datum with at most one red letter. -/
+abbrev AtMostOneRed (x : Obj (KLR.Diagram.sig (I ⊕ Fin ℓ))) : Prop :=
+  x.word.countP (fun c => c.isRight) ≤ 1
+
+/-- **The downward translation agrees with the reflected upward image up to red dots.** On
+diagrams between words with at most one red letter, the downward translation in the empty
+context followed by the cover functor differs from the signed reflection on upward strands by a
+cover red-negligible morphism. -/
+theorem coverRedNegligible_downCover_sub_upCover (μ : I ⊕ Fin ℓ → ℤ)
+    {a b : Obj (KLR.Diagram.sig (I ⊕ Fin ℓ))} (f : LinDiagram k a b) (ha : a.WF) (hb : b.WF)
+    (hpa : a.word.countP (fun c => c.isRight) ≤ 1) (hpb : b.word.countP (fun c => c.isRight) ≤ 1) :
+    CoverRedNegligible.{u, v, w} Λ C hQ hc
+      ((freeLift k (downCover Λ C hQ o μ)).map f -
+        eqToHom (freeLift_obj_eq_on (R := k) _ _ AtMostOneRed
+          (fun x _ _ => downCover_obj_eq Λ C hQ o μ x) a ha hpa) ≫
+          (freeLift k (upCover Λ C hQ o μ)).map f ≫
+          eqToHom (freeLift_obj_eq_on (R := k) _ _ AtMostOneRed
+            (fun x _ _ => downCover_obj_eq Λ C hQ o μ x) b hb hpb).symm) := by
+  -- The class is wrapped in a conjunction so that its unfolding to a family of statements
+  -- indexed by admissible boundaries does not interfere with elaboration.
+  let N : ∀ {x y : (PCL).Presented}, (x ⟶ y) → Prop := fun {x y} φ =>
+    CoverRedNegligible.{u, v, w} Λ C hQ hc (c := (PCL).toObj x) (d := (PCL).toObj y) φ ∧ True
+  have key : N ((freeLift k (downCover Λ C hQ o μ)).map f -
+      eqToHom (freeLift_obj_eq_on (R := k) _ _ AtMostOneRed
+        (fun x _ _ => downCover_obj_eq Λ C hQ o μ x) a ha hpa) ≫
+        (freeLift k (upCover Λ C hQ o μ)).map f ≫
+        eqToHom (freeLift_obj_eq_on (R := k) _ _ AtMostOneRed
+          (fun x _ _ => downCover_obj_eq Λ C hQ o μ x) b hb hpb).symm) := by
+    refine freeLift_map_sub_mem_of_layer_on (R := k) (downCover Λ C hQ o μ)
+      (upCover Λ C hQ o μ) AtMostOneRed ?_ (fun x _ _ => downCover_obj_eq Λ C hQ o μ x) N
+      ⟨CoverRedNegligible.zero, trivial⟩
+      (fun hf hg => ⟨CoverRedNegligible.add hf.1 hg.1, trivial⟩)
+      (fun {_ _} r {_} hf => ⟨CoverRedNegligible.smul r hf.1, trivial⟩)
+      (fun {_ _ _} h {_} hf => ⟨CoverRedNegligible.comp_left h hf.1, trivial⟩)
+      (fun {_ _ _} {_} h hf => ⟨CoverRedNegligible.comp_right h hf.1, trivial⟩) ?_ f ha hb hpa hpb
+    · intro L _ hL
+      change L.cod.word.countP _ ≤ 1
+      rw [(perm_cod_word L).countP_eq]
+      exact hL
+    · intro L hv hd
+      refine ⟨?_, trivial⟩
+      cases hg : downMove L.gen with
+      | some g =>
+        rw [downCover_map_ofLayer Λ C hQ o μ L hv hg, sub_self]
+        exact CoverRedNegligible.zero
+      | none =>
+        rw [downCover_map_ofLayer_of_none Λ C hQ o μ L hv hg, zero_sub, ← neg_one_smul k]
+        refine CoverRedNegligible.smul _ ?_
+        obtain ⟨st, lf, gen, rt⟩ := L
+        rcases gen with ⟨i | r⟩ | ⟨i | r, j | s⟩
+        · simp [downMove] at hg
+        · apply CoverRedNegligible.comp_left
+          apply CoverRedNegligible.comp_right
+          exact coverRedNegligible_upCover_redDot.{u, v, w} Λ C hQ hc o μ _ hv r rfl
+        · simp [downMove] at hg
+        · simp [downMove] at hg
+        · simp [downMove] at hg
+        · exfalso
+          have : 2 ≤ (lf ++ [Sum.inr r, Sum.inr s] ++ rt).countP Sum.isRight := by
+            simp [List.countP_append]; omega
+          exact absurd hd (by
+            change ¬ (lf ++ [Sum.inr r, Sum.inr s] ++ rt).countP Sum.isRight ≤ 1
+            omega)
+  intro s t hs ht
+  exact key.1 hs ht
+
 end Categorification.Stendhal

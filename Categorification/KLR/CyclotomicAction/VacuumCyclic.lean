@@ -46,6 +46,23 @@ theorem Ind.exists_eq_smul_tmul_unitGen {n₀ : N} (hn : ∀ n : N, ∃ c : A, n
     obtain ⟨b', rfl⟩ := ht
     exact ⟨b + b', (add_smul _ _ _).symm⟩
 
+/-- **Induction kills a module generated through a vanishing element**: if every element of
+`N` is `(c e) • n₀` and `φ e = 0`, then `Ind N φ = 0`. -/
+theorem Ind.eq_zero_of_forall_eq_mul_smul {n₀ : N} {e : A} (he : φ e = 0)
+    (hn : ∀ n : N, ∃ c : A, n = (c * e) • n₀) (t : Ind N φ) : t = 0 := by
+  induction t using Ind.induction_on with
+  | zero => rfl
+  | tmul z n =>
+    obtain ⟨c, rfl⟩ := hn n
+    rw [← Ind.op_smul_tmul]
+    have hz : MulOpposite.op (c * e) • z = 0 :=
+      Subtype.ext (by
+        change z.1 * φ (c * e) = 0
+        rw [map_mul, he, mul_zero, mul_zero])
+    rw [hz]
+    exact Ind.zero_tmul _
+  | add s t hs ht => rw [hs, ht, add_zero]
+
 end InductionAlong
 
 namespace KLR.CyclotomicAction
@@ -109,6 +126,17 @@ theorem exists_eq_mul_e_smul_vgen (hv : ∀ x : V ⟨0, h0⟩, ∃ z : CycKLR k 
       x = (z * CycKLR.mk k Q a δ.1 (e (wseq L hδ))) • vgen hQ hlead ha hΛ hdeg V h0 v₀ L μ' h δ hδ := by
   obtain ⟨z, rfl⟩ := exists_eq_smul_vgen hQ hlead ha hΛ hdeg V h0 v₀ hv L μ' h δ hδ x
   exact ⟨z, by rw [mul_smul, e_smul_vgen]⟩
+
+/-- **A word module over a cyclic vacuum vanishes after scalar extension** along a
+homomorphism killing the idempotent of the reversed word. -/
+theorem ind_word_eq_zero (hv : ∀ x : V ⟨0, h0⟩, ∃ z : CycKLR k Q a 0, x = z • v₀)
+    (L : List (I × X)) (μ' : X) (h : wValid RD μ L μ') (δ : WeightBlocks RD Λ μ')
+    (hδ : δ.1 = ↑(L.map Prod.fst)) {B : Type _} [Ring B] (φ : CycKLR k Q a δ.1 →ₙ+* B)
+    (he : φ (CycKLR.mk k Q a δ.1 (e (wseq L hδ))) = 0)
+    (t : InductionAlong.Ind ((RouqData.wcell (S).toRouqData μ L μ' h).obj.obj V δ : Type _) φ) :
+    t = 0 :=
+  InductionAlong.Ind.eq_zero_of_forall_eq_mul_smul he
+    (exists_eq_mul_e_smul_vgen hQ hlead ha hΛ hdeg V h0 v₀ hv L μ' h δ hδ) t
 
 end
 

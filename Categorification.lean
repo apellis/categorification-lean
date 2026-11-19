@@ -714,6 +714,7 @@ import Categorification.TwoRep.RouqFullCL
 import Categorification.TwoRep.RouqUnfilteredSoundness
 import Categorification.TwoRep.RouqUnfilteredDescent
 import Categorification.TwoRep.RouqUpWords
+import Categorification.TwoRep.RouqUpWordsPresentation
 import Categorification.TwoRep.AdmissibleClosure
 import Categorification.TwoRep.RouqUpScalars
 import Categorification.TwoRep.RouqUpBubbles

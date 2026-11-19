@@ -69,4 +69,66 @@ theorem coverLin_whisker {a b : Obj (signature RD Λ)} (f : LinDiagram k a b) (h
   simp only [Category.assoc, eqToHom_trans, eqToHom_trans_assoc] at e
   exact ⟨_, _, e.symm⟩
 
+/-- The colours of a cover word lie in the image of `coverColour`. -/
+theorem mem_range_coverColour_of_mem_word {w : List (signature RD Λ).Colour}
+    {x : (psig W).Colour} (hx : x ∈ (κ).word ((CM).word w)) :
+    x ∈ Set.range (coverColour (I := I) (ℓ := ℓ) o) := by
+  change x ∈ (w.map (coverColour o)).reverse at hx
+  simp only [List.mem_reverse, List.mem_map] at hx
+  obtain ⟨y, -, rfl⟩ := hx
+  exact ⟨y, rfl⟩
+
+theorem coverLin_zero {a b : Obj (signature RD Λ)} :
+    coverLin W hC o Q σ (0 : LinDiagram k a b) = 0 := by
+  simpa using coverLin_smul W hC o Q σ (0 : k) (0 : LinDiagram k a b)
+
+/-- **The cover functor on the tensor ideal.** Let `N` be a property of morphisms of `Q`
+closed under linear combinations, composition on either side with arbitrary morphisms, and
+whiskering by words of cover colours. If `N` holds for the images of the relations of a
+presentation `P` with well-formed domains, it holds for the images of every element of the
+tensor ideal of `P`. -/
+theorem coverLin_mem_of_mem_ideal (P : Presentation.{w, v₁} (signature RD Λ) k)
+    (hwf : P.WFDom) (N : ∀ {c d : Obj (psig W)}, (Q.obj c ⟶ Q.obj d) → Prop)
+    (hzero : ∀ {c d : Obj (psig W)}, N (0 : Q.obj c ⟶ Q.obj d))
+    (hadd : ∀ {c d : Obj (psig W)} {f g : Q.obj c ⟶ Q.obj d}, N f → N g → N (f + g))
+    (hsmul : ∀ {c d : Obj (psig W)} (r : k) {f : Q.obj c ⟶ Q.obj d}, N f → N (r • f))
+    (hpre : ∀ {c d e : Obj (psig W)} (g : Q.obj c ⟶ Q.obj d) {f : Q.obj d ⟶ Q.obj e},
+      N f → N (g ≫ f))
+    (hpost : ∀ {c d e : Obj (psig W)} {f : Q.obj c ⟶ Q.obj d} (g : Q.obj d ⟶ Q.obj e),
+      N f → N (f ≫ g))
+    (hwhisk : ∀ {c d : Obj (psig W)} {f : Q.obj c ⟶ Q.obj d} (U : Obj (psig W))
+      (V : List (psig W).Colour), N f →
+      (∀ x ∈ U.word, x ∈ Set.range (coverColour (I := I) (ℓ := ℓ) o)) →
+      (∀ x ∈ V, x ∈ Set.range (coverColour (I := I) (ℓ := ℓ) o)) → N (Q.whisk f U V))
+    (hrel : ∀ i, Nonempty (P.dom i ⟶ P.cod i) → N (coverLin W hC o Q σ (P.rel i)))
+    {a b : Obj (signature RD Λ)} {f : LinDiagram k a b} (hf : f ∈ P.ideal a b) :
+    N (coverLin W hC o Q σ f) := by
+  induction hf using Submodule.span_induction with
+  | mem g hg =>
+    obtain ⟨kk, u, v, hw, pre, post⟩ := hg
+    rw [coverLin_comp, coverLin_comp]
+    refine hpre _ (hpost _ ?_)
+    cases kk with
+    | user i =>
+      by_cases hb : Nonempty (P.dom i ⟶ P.cod i)
+      · obtain ⟨e₁, e₂, e⟩ := coverLin_whisker W hC o Q σ (P.rel i) (hwf i) hw hb
+        rw [show Presentation.AllRel.rel (Presentation.AllRel.user i : P.AllRel) = P.rel i
+          from rfl, e]
+        refine hpre _ (hpost _ (hwhisk _ _ (hrel i hb) ?_ ?_))
+        · intro x hx; exact mem_range_coverColour_of_mem_word W hC o hx
+        · intro x hx; exact mem_range_coverColour_of_mem_word W hC o hx
+      · have : IsEmpty (P.dom i ⟶ P.cod i) := not_nonempty_iff.mp hb
+        have h0 : P.rel i = 0 :=
+          Subsingleton.elim (α := (P.dom i ⟶ P.cod i) →₀ k) (P.rel i) 0
+        rw [show Presentation.AllRel.rel (Presentation.AllRel.user i : P.AllRel) = P.rel i
+          from rfl, h0, LinDiagram.whisker_zero, coverLin_zero]
+        exact hzero
+    | interchange x hx =>
+      erw [coverLin_eq_zero_of_coverZero W hC o Q σ _
+        ((coverZero W hC o Q σ).lin_interchange x hx u v hw)]
+      exact hzero
+  | zero => rw [coverLin_zero]; exact hzero
+  | add x y _ _ hx hy => rw [coverLin_add]; exact hadd hx hy
+  | smul r x _ hx => rw [coverLin_smul]; exact hsmul r hx
+
 end Categorification.Stendhal.DoubleDiagram

@@ -570,7 +570,7 @@ after §4 because the single-red case of the §4 constructions gives the §3 one
 | Lemma 3.12, Props 3.13, 3.16 | `R^λ ≅ e₋ DᵢR^λ e₋`, Morita equivalence, action of `𝒰ᵢ⁻` | open |
 | Thm 3.17 | strict 2-functor `𝒰 → Cat`, `μ ↦ R^λ_μ-pmod` | done at the standard KL black parameters over a field, as the one-red case of Thm 4.31 (`clBlackAction_cyclotomic`): the value at `λ - ν` is the completion of the all-down boundaries, whose sum has endomorphism ring `R^λ_ν` by Thm 4.18 (`SingleRed.cyclotomicEquiv`) |
 | Thm 3.18 | `tr^λ : R^λ → k` is a Frobenius trace | done at the standard KL black parameters over a field (`clCyclotomic_trace_nondegenerate`): an additive trace `R^λ_ν → k` whose pairing `tr (a b)` is nondegenerate on both sides, closing the black strands to the right with the biadjunction of Thm 3.17 (`AmbidextrousTrace`, `MatEnd.trace_nondegenerate`). `k`-linearity of the trace is not part of the statement |
-| Cor 3.20 | `p : R^λ → DR^λ` is a Morita equivalence | open |
+| Cor 3.20 | `p : R^λ → DR^λ` is a Morita equivalence | done at the standard KL black parameters over a field, as the one-red case of Thm 4.30 (`clBlackAction_cyclotomic`): with `DR^λ_ν` realized as `DT^λ_ν` for one red strand, the corner at the all-down boundaries is `R^λ_ν` and their inclusion is an equivalence of additive idempotent completions. Webster's black-only presentation of `DR^λ` (Def 3.1) is not separately compared with `DT^λ` |
 | Prop 3.21, Cor 3.22 | `K₀(R^λ) ≅ V^λ_ℤ`, Euler form = Shapovalov form | done |
 | Def 3.24, Prop 3.25, Cors 3.26, 3.27 | universal categorification `Ř^λ`, flatness, universality | open |
 

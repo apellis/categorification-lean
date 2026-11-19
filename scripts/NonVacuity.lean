@@ -5258,4 +5258,35 @@ example : Stendhal.TensorProductAlgebra ℚ fourQ (fun _ : Fin 1 => Finsupp.sing
 
 end CrossingRescaleExamples
 
+
+
+open Categorification QuantumGroup KLR StringDiagrams Stendhal DoubleDiagram
+
+namespace TensorCornerKL
+
+private abbrev C₁ := CartanDatum.ofGraph (⊥ : SimpleGraph Unit)
+private noncomputable abbrev Λ₁ : Fin 1 → Unit →₀ ℕ := fun _ => Finsupp.single () 2
+
+private theorem rouq : IsRouquierQ C₁ (fun _ _ => (0 : MvPolynomial (Fin 2) ℚ)) where
+  symm _ _ h := (h (Subsingleton.elim _ _)).elim
+  homogeneous _ _ h := (h (Subsingleton.elim _ _)).elim
+  unit_coeff _ _ h := (h (Subsingleton.elim _ _)).elim
+
+/-- The double-diagram presentation with no extra relations. -/
+private def emptyP : Presentation.{0, 0} (signature (coordinateDatum Λ₁ C₁)
+    (redWeight (cyclotomicCoverWeightDatum Λ₁ C₁))) ℚ where
+  Rel := Empty
+  dom r := r.elim
+  cod r := r.elim
+  rel r := r.elim
+
+/-- The repaired Lemma 4.29 isomorphism (Webster arXiv:1309.3796v3) in type A₁ with one red
+strand of level two. -/
+noncomputable example (ν : Multiset Unit) :=
+  clToDownwardMatrixKLEquiv (ν := ν) (Λ := Λ₁) (hQ := rouq)
+  (fun i j h => (h (Subsingleton.elim i j)).elim) (P := emptyP) (fun r => r.elim)
+  (fun r => r.elim)
+
+end TensorCornerKL
+
 end NonVacuity

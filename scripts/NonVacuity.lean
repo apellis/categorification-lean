@@ -5296,4 +5296,32 @@ example (ν : Multiset Unit) :=
 
 end TensorCornerKL
 
+namespace BlackActionKL
+
+open Categorification QuantumGroup QuantumGroup.UDot KL3.Diagram StringDiagrams Stendhal
+  DoubleDiagram
+
+/-- One red strand of label `1` for `sl₂`. -/
+private abbrev fund₁ : Fin 1 → {x : ℤ // ∀ i, 0 ≤ sl2RootDatum.pair (sl2RootDatum.iY i) x} :=
+  fun _ => ⟨1, fun _ => by decide +revert⟩
+
+/-- The signed presentation with no relations. -/
+private def emptySigned : Presentation.{0, 0}
+    (signature sl2RootDatum (fun r => (fund₁ r).val)) ℚ where
+  Rel := Empty
+  dom r := r.elim
+  cod r := r.elim
+  rel r := r.elim
+
+/-- The same presentation with the black Khovanov–Lauda relations imposed. -/
+private noncomputable abbrev blackSigned := addBlackKLRelations sl2RootDatum (fun r => (fund₁ r).val) emptySigned
+
+/-- The action of Theorem 4.28 (Webster arXiv:1309.3796v3) of the Khovanov–Lauda 2-category of
+`sl₂` on the double tensor product categories for one red strand. -/
+noncomputable example :=
+  blackActionPseudofunctor (RD := sl2RootDatum) (Λ := fund₁) blackSigned
+    (fun r => blackSigned.lin_rel_self (.inr r))
+
+end BlackActionKL
+
 end NonVacuity

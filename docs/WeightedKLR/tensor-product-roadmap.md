@@ -548,7 +548,7 @@ after §4 because the single-red case of the §4 constructions gives the §3 one
 
 | Result | Content | Status |
 |---|---|---|
-| Thm 4.28 | `𝒰` acts on the double tensor product algebras `DT^λ` | partial: right whiskering (`violatingWhiskerRight`), KL 2-morphisms act functorially (`blackMap_id`, `blackMap_comp`); pseudofunctor packaging open |
+| Thm 4.28 | `𝒰` acts on the double tensor product algebras `DT^λ` | done: strict pseudofunctor from the 1-cell dual of the KL 2-category to `Cat` (`blackActionPseudofunctor`), built from right whiskering (`violatingWhiskerRight`) and the functorial action of KL 2-morphisms (`blackMap_id`, `blackMap_comp`) |
 | Thm 4.30 | `T^λ` and `DT^λ` are Morita equivalent | done (#420) |
 | Thm 4.31 | `𝒰` acts on `T^λ`-modules by `βᵤ = e₋ β′ᵤ e₋` | open |
 | Thm 4.25 | representation of the 2-category `𝒯`; red lines act by `I^λ` | open |

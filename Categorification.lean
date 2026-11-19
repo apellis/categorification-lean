@@ -1267,6 +1267,7 @@ import Categorification.WeightedKLR.RedStrands.LastRedBlackEquiv
 import Categorification.WeightedKLR.RedStrands.AppendStrandReflection
 import Categorification.WeightedKLR.RedStrands.LastRedBlackGrading
 import Categorification.WeightedKLR.RedStrands.LastRedBlackMirror
+import Categorification.WeightedKLR.RedStrands.SplitRedLoading
 /-!
 # Categorification
 

@@ -131,6 +131,41 @@ theorem coverLin_redUpRel [DecidableEq I]
     erw [Category.id_comp, eqToHom_trans, eqToHom_refl]
     rfl
 
+/-- **Red and black sideways crossings are inverse in `presCL`** when `t = 1` between black and
+red vertices, by the Cautis–Lauda down-up relations. -/
+theorem presCL_cross_inverse (Sc : CL.CLScalars C' k)
+    (htr : ∀ (j : I) (r : Fin ℓ), Sc.t (.inl j) (.inr r) = 1) (ν : X) (r : Fin ℓ) (j : I) :
+    (CL.presCL W k Sc).diag
+        (crossr W (.inr r) (.inl j) ν ≫ crossl W (.inr r) (.inl j) ν) = 𝟙 _ ∧
+      (CL.presCL W k Sc).diag
+        (crossl W (.inr r) (.inl j) ν ≫ crossr W (.inr r) (.inl j) ν) = 𝟙 _ := by
+  have hne : (Sum.inl j : I ⊕ Fin ℓ) ≠ Sum.inr r := Sum.inl_ne_inr
+  constructor
+  · have h := (CL.presCL W k Sc).lin_rel_self (Sum.inr (.downupFE (.inl j) (.inr r) hne ν))
+    change (CL.presCL W k Sc).lin
+      (LinDiagram.of (crossr W (.inr r) (.inl j) ν ≫ crossl W (.inr r) (.inl j) ν) -
+        (Sc.t (.inl j) (.inr r) : k) • LinDiagram.of (𝟙 _)) = 0 at h
+    rw [Presentation.lin_sub, Presentation.lin_smul, htr, Units.val_one, one_smul,
+      sub_eq_zero] at h
+    exact h.trans ((CL.presCL W k Sc).diag_id _)
+  · have h := (CL.presCL W k Sc).lin_rel_self
+      (Sum.inr (.downupEF (.inr r) (.inl j) hne.symm ν))
+    change (CL.presCL W k Sc).lin
+      (LinDiagram.of (crossl W (.inr r) (.inl j) ν ≫ crossr W (.inr r) (.inl j) ν) -
+        (Sc.t (.inl j) (.inr r) : k) • LinDiagram.of (𝟙 _)) = 0 at h
+    rw [Presentation.lin_sub, Presentation.lin_smul, htr, Units.val_one, one_smul,
+      sub_eq_zero] at h
+    exact h.trans ((CL.presCL W k Sc).diag_id _)
+
+/-- **The red/upward bigons hold in `presCL`** after reflection, when `t = 1` between black and
+red vertices. -/
+theorem coverLin_redUpRel_presCL [DecidableEq I] (Sc : CL.CLScalars C' k)
+    (htr : ∀ (j : I) (r : Fin ℓ), Sc.t (.inl j) (.inr r) = 1) (a : RedUpRelation X I ℓ) :
+    coverLin W hC o (CL.presCL W k Sc) coverSign
+      (LinDiagram.of (bareBigon RD Λ a.leftWeight a.red a.up a.side) - LinDiagram.of (𝟙 _)) = 0 :=
+  coverLin_redUpRel W hC o _ (fun ν r j => (presCL_cross_inverse W Sc htr ν r j).1)
+    (fun ν r j => (presCL_cross_inverse W Sc htr ν r j).2) a
+
 section Rouquier
 open Diagrams.BicatInterp
 

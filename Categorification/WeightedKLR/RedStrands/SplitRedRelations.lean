@@ -256,4 +256,86 @@ theorem dotCrossLeft (j : ℕ) (h : j + 1 < m) (t : Seq μ) :
   conv_rhs => rw [← mul_assoc, ← mul_assoc, s3]
   simp only [mul_assoc]
 
+/-- The relation `(ψ_j x_j - x_{j+1} ψ_j) e(t) = [t_j = t_{j+1}] e(t)`. -/
+theorem dotCrossRight (j : ℕ) (h : j + 1 < m) (t : Seq μ) :
+    ((gΨ c Λ' j * polSplit c Λ' (X ⟨j, by omega⟩) -
+        polSplit c Λ' (X ⟨j + 1, h⟩) * gΨ c Λ' j) * gE c Λ' t : C) =
+      if t.lbl ⟨j, by omega⟩ = t.lbl ⟨j + 1, h⟩ then gE c Λ' t else 0 := by
+  have hm := card_split ℓ ν
+  have hq := (redPos c t).2
+  have hval : ((if t.lbl ⟨j, by omega⟩ = t.lbl ⟨j + 1, h⟩ then gE c Λ' t else 0 : C)).val =
+      if t.lbl ⟨j, by omega⟩ = t.lbl ⟨j + 1, h⟩ then e' (splitLoading c t) else 0 := by
+    split_ifs <;> simp
+  by_cases hq0 : j = redPos c t
+  · have hr : t.lbl ⟨j, by omega⟩ = .inr c := (lbl_eq_red_iff c t _).2 hq0
+    have hne : t.lbl ⟨j, by omega⟩ ≠ t.lbl ⟨j + 1, h⟩ := by
+      rw [hr, Ne, eq_comm, lbl_eq_red_iff]; simp only; omega
+    simp only [hne, ↓reduceIte]
+    rw [sub_mul, mul_assoc, X_mul_gE_of_red, mul_zero, mul_assoc, gΨ_mul_gE, ← mul_assoc,
+      X_mul_gE_of_red, zero_mul, sub_zero]
+    · rw [lbl_sadj_smul t h, lbl_congr t (swapNat_right j) _ (by omega), hr]; rfl
+    · rw [hr]; rfl
+  apply Corner.ext
+  rw [hval, sub_mul, Corner.val_sub, mul_assoc, mul_assoc,
+    val_gΨ_mul c Λ' j h t (gE_mul_polSplit_mul c Λ' _ t (gE_mul_self c Λ' t)),
+    val_X_mul c Λ' _ t (gE_mul_self c Λ' t),
+    val_X_mul c Λ' _ (sadj m j • t) (gE_mul_gΨ_mul c Λ' j t (gE_mul_self c Λ' t)),
+    val_gΨ_mul_gE c Λ' j h, val_gE]
+  rcases lt_trichotomy (j + 1) (redPos c t) with hlt | heq | hgt
+  · have h' : j + 1 < m' := by omega
+    rw [W_of_lt Λ' hlt,
+      show splitPos c t ⟨j, by omega⟩ = ⟨j, by omega⟩ from Fin.ext (by
+        rw [splitPos_val]; simp only; split_ifs <;> omega),
+      show splitPos c (sadj m j • t) ⟨j + 1, h⟩ = ⟨j + 1, h'⟩ from Fin.ext (by
+        rw [splitPos_val, redPos_sadj_val c t h]; simp only; unfold swapNat;
+        split_ifs <;> omega),
+      ← mul_assoc, ← mul_assoc, ← sub_mul, aDotCrossRight j h' (splitLoading c t),
+      lbl_split_le c t j (by omega) (by omega), lbl_split_le c t (j + 1) h (by omega)]
+    simp only [(splitColor_injective c).eq_iff]
+  · -- the dot slides past both red strands
+    have h' : j + 1 + 1 < m' := by omega
+    have hr : t.lbl ⟨j + 1, h⟩ = .inr c := (lbl_eq_red_iff c t _).2 heq
+    have hb : t.lbl ⟨j, by omega⟩ ≠ .inr c := by rw [Ne, lbl_eq_red_iff]; simp only; omega
+    have hne : t.lbl ⟨j, by omega⟩ ≠ t.lbl ⟨j + 1, h⟩ := by rw [hr]; exact hb
+    simp only [hne, ↓reduceIte]
+    rw [W_of_eq_succ Λ' heq,
+      show splitPos c t ⟨j, by omega⟩ = ⟨j, by omega⟩ from Fin.ext (by
+        rw [splitPos_val]; simp only; split_ifs <;> omega),
+      show splitPos c (sadj m j • t) ⟨j + 1, h⟩ = ⟨j + 1 + 1, h'⟩ from Fin.ext (by
+        rw [splitPos_val, redPos_sadj_val c t h]; simp only; unfold swapNat;
+        split_ifs <;> omega)]
+    set T := splitLoading c t
+    have l0 : T.lbl ⟨j, by omega⟩ = splitColor c (t.lbl ⟨j, by omega⟩) :=
+      lbl_split_le c t j (by omega) (by omega) _
+    have l1 : T.lbl ⟨j + 1, by omega⟩ = .inr c.castSucc := lbl_split_red c t heq _
+    have l2 : T.lbl ⟨j + 1 + 1, h'⟩ = .inr c.succ := lbl_split_new c t (by omega) _
+    have s1 := slideR (k := k) (Q := Q) (Λ := Λ') j (by omega) T (by
+      rw [l0, l1]; exact splitColor_ne_red c _ hb) 1
+    have s2 := aψ_mul_e (Q := Q) (Λ := Λ') j T
+    have s3 := slideR (k := k) (Q := Q) (Λ := Λ') (j + 1) h' (sadj m' j • T) (by
+      rw [lbl_sadj_smul T (show j + 1 < m' by omega),
+        lbl_sadj_smul T (show j + 1 < m' by omega),
+        lbl_congr T (swapNat_right j) _ (by omega),
+        lbl_congr T (swapNat_of_ne (by omega) (by omega)) _ h', l0, l2]
+      exact splitColor_ne_new c _) 1
+    simp only [pow_one] at s1 s3
+    rw [sub_eq_zero]
+    simp only [mul_assoc]
+    rw [← mul_assoc (ψ' j), s1]
+    simp only [mul_assoc]
+    rw [s2]
+    conv_lhs => rw [← mul_assoc, ← mul_assoc, s3]
+    simp only [mul_assoc]
+  have hlt : redPos c t < j := by omega
+  have h' : j + 1 + 1 < m' := by omega
+  rw [W_of_gt Λ' hlt,
+    show splitPos c t ⟨j, by omega⟩ = ⟨j + 1, by omega⟩ from Fin.ext (by
+      rw [splitPos_val]; simp only; split_ifs <;> omega),
+    show splitPos c (sadj m j • t) ⟨j + 1, h⟩ = ⟨j + 1 + 1, h'⟩ from Fin.ext (by
+      rw [splitPos_val, redPos_sadj_val c t h]; simp only; unfold swapNat;
+      split_ifs <;> omega),
+    ← mul_assoc, ← mul_assoc, ← sub_mul, aDotCrossRight (j + 1) h' (splitLoading c t),
+    lbl_split_gt c t j (by omega) hlt, lbl_split_gt c t (j + 1) h (by omega)]
+  simp only [(splitColor_injective c).eq_iff]
+
 end Categorification.Stendhal.SplitRed

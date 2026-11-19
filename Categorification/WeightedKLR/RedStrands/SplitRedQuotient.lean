@@ -241,4 +241,187 @@ theorem exists_cut_splitLoading (s : Seq μ) (w : Perm (Fin m'))
     rw [← h0 hm hpos, htv]
     exact hl
 
+/-! ### The violating ideal in the split corner -/
+
+section Violated
+
+attribute [local instance 1100] IsIdempotentElem.instAlgebraCorner_categorification
+
+variable {k : Type*} [CommRing k] {Q : I → I → MvPolynomial (Fin 2) k}
+  (Λ' : Fin (ℓ + 1) → I →₀ ℕ)
+
+local notation "π'" => StendhalAlgebraAllOrders.ofKLR k Q Λ' ν
+local notation "P'" => StendhalAlgebraAllOrders.redOrderedIdem k Q Λ' ν
+
+/-- The element `P' z P'` of `T̃^{λ'}`, for `P'` the unit of `T̃^{λ'}`. -/
+private def cornerOf (z : StendhalAlgebraAllOrders k Q Λ' ν) : StendhalAlgebra k Q Λ' ν :=
+  KLR.Corner.mk (P' * z * P') (by
+    have hP := (StendhalAlgebraAllOrders.isIdempotentElem_redOrderedIdem
+      (k := k) (Q := Q) (Λ := Λ') (ν := ν)).eq
+    have hP' : ∀ x, P' * (P' * x) = P' * x := fun x => by rw [← mul_assoc, hP]
+    simp only [mul_assoc, hP', hP])
+
+private theorem e_mul_redOrderedIdem_mul {j : Seq μ'} (hj : IsRedOrdered j)
+    (y : StendhalAlgebraAllOrders k Q Λ' ν) :
+    StendhalAlgebraAllOrders.e j * (P' * y) = StendhalAlgebraAllOrders.e j * y := by
+  classical
+  rw [← mul_assoc, StendhalAlgebraAllOrders.e_mul_redOrderedIdem]
+  simp [hj]
+
+private theorem redOrderedIdem_mul_e_mul {j : Seq μ'} (hj : IsRedOrdered j)
+    (y : StendhalAlgebraAllOrders k Q Λ' ν) :
+    P' * (StendhalAlgebraAllOrders.e j * y) = StendhalAlgebraAllOrders.e j * y := by
+  classical
+  rw [← mul_assoc, StendhalAlgebraAllOrders.redOrderedIdem_mul_e]
+  simp [hj]
+
+private theorem e_mul_e_mul (j : Seq μ') (y : StendhalAlgebraAllOrders k Q Λ' ν) :
+    StendhalAlgebraAllOrders.e j * (StendhalAlgebraAllOrders.e j * y) =
+      StendhalAlgebraAllOrders.e j * y := by
+  rw [← mul_assoc, StendhalAlgebraAllOrders.e_mul_e]
+  simp
+
+/-- A generator `T b T b'` of the violating ideal of `T̃^{λ'}` (`mem_violatedIdeal_iff`), cut
+between split loadings, is the split of an element of the violating ideal of `T̃^λ`: the word of
+`b'` first sorts the strands out of the gap between the red strands `c` and `c + 1`
+(`cutWord`), and the loading reached is a violated split loading (`exists_cut_splitLoading`). -/
+private theorem exists_violated_split_generator (s₀ t₀ : Seq μ) (hs : IsRedOrdered s₀)
+    (ht : IsRedOrdered t₀)
+    (b b' : {b // IsStendhalTerm (ν := ν) (ℓ := ℓ + 1) (cutWord c s₀) b})
+    (hv : IsViolated b.1.1) (hb : b.1.1 = b'.1.2.1 • b'.1.1) :
+    ∃ g ∈ StendhalAlgebra.violatedIdeal k Q (mergeWeights c Λ') ν,
+      splitStendhalValue c Q Λ' ν g =
+        StendhalAlgebra.e (splitLoading c t₀) ((isRedOrdered_splitLoading_iff c t₀).2 ht) *
+          (stendhalTerm Q Λ' (fun w => (cutWord_spec c s₀ w).2) b *
+            stendhalTerm Q Λ' (fun w => (cutWord_spec c s₀ w).2) b') *
+          StendhalAlgebra.e (splitLoading c s₀) ((isRedOrdered_splitLoading_iff c s₀).2 hs) := by
+  classical
+  by_cases h1 : b'.1.1 = splitLoading c s₀
+  swap
+  · refine ⟨0, zero_mem _, ?_⟩
+    rw [map_zero, mul_assoc, mul_assoc, stendhalTerm_mul_e]
+    simp [h1]
+  have ho : IsRedOrdered (b'.1.2.1 • splitLoading c s₀) := h1 ▸ b'.2.2.1
+  have hV : IsViolated (b'.1.2.1 • splitLoading c s₀) := by rw [← h1, ← hb]; exact hv
+  obtain ⟨t₁, ht₁, hv₁, hsplit⟩ := exists_cut_splitLoading c s₀ b'.1.2.1 ho hV
+  have ht₁' := (isRedOrdered_splitLoading_iff c t₁).2 ht₁
+  have hs₀' := (isRedOrdered_splitLoading_iff c s₀).2 hs
+  have ht₀' := (isRedOrdered_splitLoading_iff c t₀).2 ht
+  let X₀ : StendhalAlgebraAllOrders k Q Λ' ν :=
+    π' (KLRAlgebra.ψw (canWord m' (cutPerm c s₀ b'.1.2.1)⁻¹))
+  let Z₀ : StendhalAlgebraAllOrders k Q Λ' ν :=
+    π' (KLRAlgebra.ψw (canWord m' (cutPerm c s₀ b'.1.2.1 * b'.1.2.1)) *
+      KLRAlgebra.pol (MvPolynomial.monomial b'.1.2.2 1) * KLRAlgebra.e (splitLoading c s₀))
+  have hcut : (stendhalTerm Q Λ' (fun w => (cutWord_spec c s₀ w).2) b').val =
+      X₀ * StendhalAlgebraAllOrders.e (splitLoading c t₁) * Z₀ := by
+    have he : (KLRAlgebra.e (splitLoading c t₁) : KLRAlgebra k (stendhalQ Q Λ') μ') *
+        (KLRAlgebra.ψw (canWord m' (cutPerm c s₀ b'.1.2.1 * b'.1.2.1)) *
+          KLRAlgebra.pol (MvPolynomial.monomial b'.1.2.2 1) * KLRAlgebra.e (splitLoading c s₀)) =
+        KLRAlgebra.ψw (canWord m' (cutPerm c s₀ b'.1.2.1 * b'.1.2.1)) *
+          KLRAlgebra.pol (MvPolynomial.monomial b'.1.2.2 1) *
+            KLRAlgebra.e (splitLoading c s₀) := by
+      rw [KLRAlgebra.e_mul_gen, wordProd_canWord, hsplit, inv_smul_smul]
+      simp
+    rw [stendhalTerm_val, KLRAlgebra.stdElt, h1]
+    change π' (KLRAlgebra.ψw (canWord m' (cutPerm c s₀ b'.1.2.1)⁻¹ ++
+      canWord m' (cutPerm c s₀ b'.1.2.1 * b'.1.2.1)) * _ * _) = _
+    change _ = π' (KLRAlgebra.ψw (canWord m' (cutPerm c s₀ b'.1.2.1)⁻¹)) *
+      π' (KLRAlgebra.e (splitLoading c t₁)) * π' (KLRAlgebra.ψw
+        (canWord m' (cutPerm c s₀ b'.1.2.1 * b'.1.2.1)) *
+          KLRAlgebra.pol (MvPolynomial.monomial b'.1.2.2 1) * KLRAlgebra.e (splitLoading c s₀))
+    rw [mul_assoc (π' _) (π' (KLRAlgebra.e _)), ← map_mul π' (KLRAlgebra.e _), he, ← map_mul,
+      KLRAlgebra.ψw_append]
+    simp only [mul_assoc]
+  let y₁ := stendhalTerm Q Λ' (fun w => (cutWord_spec c s₀ w).2) b * cornerOf Λ' X₀
+  obtain ⟨g₁, hg₁⟩ := e_mul_mul_e_mem_range_splitStendhalValue c Λ' t₁ t₀ ht₁ ht y₁
+  obtain ⟨g₂, hg₂⟩ := e_mul_mul_e_mem_range_splitStendhalValue c Λ' s₀ t₁ hs ht₁
+    (cornerOf Λ' Z₀)
+  refine ⟨g₁ * StendhalAlgebra.e t₁ ht₁ * g₂, TwoSidedIdeal.mul_mem_right _ _ _
+    (TwoSidedIdeal.mul_mem_left _ _ _ (TwoSidedIdeal.subset_span ⟨t₁, ht₁, hv₁, rfl⟩)), ?_⟩
+  rw [map_mul, map_mul, hg₁, hg₂, splitStendhalValue_e]
+  apply Subtype.ext
+  change StendhalAlgebraAllOrders.e (splitLoading c t₀) *
+      ((stendhalTerm Q Λ' (fun w => (cutWord_spec c s₀ w).2) b).val * (P' * X₀ * P')) *
+      StendhalAlgebraAllOrders.e (splitLoading c t₁) * StendhalAlgebraAllOrders.e
+        (splitLoading c t₁) * (StendhalAlgebraAllOrders.e (splitLoading c t₁) * (P' * Z₀ * P') *
+      StendhalAlgebraAllOrders.e (splitLoading c s₀)) =
+    StendhalAlgebraAllOrders.e (splitLoading c t₀) *
+      ((stendhalTerm Q Λ' (fun w => (cutWord_spec c s₀ w).2) b).val *
+        (stendhalTerm Q Λ' (fun w => (cutWord_spec c s₀ w).2) b').val) *
+      StendhalAlgebraAllOrders.e (splitLoading c s₀)
+  have hTb : ∀ y, (stendhalTerm Q Λ' (fun w => (cutWord_spec c s₀ w).2) b).val * (P' * y) =
+      (stendhalTerm Q Λ' (fun w => (cutWord_spec c s₀ w).2) b).val * y := fun y => by
+    rw [← mul_assoc, KLR.Corner.val_mul_E]
+  rw [hcut]
+  simp only [mul_assoc, hTb, e_mul_redOrderedIdem_mul Λ' ht₁', redOrderedIdem_mul_e_mul Λ' ht₁',
+    e_mul_e_mul]
+  simp [StendhalAlgebraAllOrders.redOrderedIdem_mul_e, hs₀']
+
+/-- **The violating ideal of `T̃^{λ'}`, cut between split loadings, is the split of the violating
+ideal of `T̃^λ`** (Webster, arXiv:1309.3796v3, Proposition 4.21, proof). -/
+theorem exists_violated_splitStendhalValue (s₀ t₀ : Seq μ) (hs : IsRedOrdered s₀)
+    (ht : IsRedOrdered t₀) (x : StendhalAlgebra k Q Λ' ν)
+    (hx : x ∈ StendhalAlgebra.violatedIdeal k Q Λ' ν) :
+    ∃ g ∈ StendhalAlgebra.violatedIdeal k Q (mergeWeights c Λ') ν,
+      splitStendhalValue c Q Λ' ν g =
+        StendhalAlgebra.e (splitLoading c t₀) ((isRedOrdered_splitLoading_iff c t₀).2 ht) * x *
+          StendhalAlgebra.e (splitLoading c s₀) ((isRedOrdered_splitLoading_iff c s₀).2 hs) := by
+  classical
+  have h := (mem_violatedIdeal_iff (Q := Q) (Λ := Λ') (cutWord_spec c s₀) x).1 hx
+  clear hx
+  induction h using Submodule.span_induction with
+  | mem x hx =>
+    obtain ⟨b, b', hv, hb, rfl⟩ := hx
+    exact exists_violated_split_generator c Λ' s₀ t₀ hs ht b b' hv hb
+  | zero => exact ⟨0, zero_mem _, by rw [map_zero, mul_zero, zero_mul]⟩
+  | add x y _ _ hx hy =>
+    obtain ⟨u, hu, heu⟩ := hx
+    obtain ⟨v, hv, hev⟩ := hy
+    exact ⟨u + v, add_mem hu hv, by rw [map_add, heu, hev, mul_add, add_mul]⟩
+  | smul a x _ hx =>
+    obtain ⟨g, hg, he⟩ := hx
+    refine ⟨a • g, ?_, ?_⟩
+    · rw [Algebra.smul_def]
+      exact TwoSidedIdeal.mul_mem_left _ _ _ hg
+    · rw [splitStendhalValue_smul, he, mul_smul_comm, smul_mul_assoc]
+
+open Classical in
+/-- The unit of `T̃^λ` is the sum of the idempotents `e(s)`, `s` red-ordered. -/
+theorem stendhal_one_eq_sum :
+    (1 : StendhalAlgebra k Q (mergeWeights c Λ') ν) =
+      ∑ s : {s : Seq μ // IsRedOrdered s}, StendhalAlgebra.e s.1 s.2 := by
+  apply KLR.Corner.ext
+  rw [KLR.Corner.val_sum]
+  change StendhalAlgebraAllOrders.redOrderedIdem k Q (mergeWeights c Λ') ν =
+    ∑ s : {s : Seq μ // IsRedOrdered s}, StendhalAlgebraAllOrders.e s.1
+  rw [StendhalAlgebraAllOrders.redOrderedIdem]
+  exact Finset.sum_subtype _ (p := fun s : Seq μ => IsRedOrdered s) (fun x => by simp) _
+
+open Classical in
+/-- The split idempotent: the image of the unit of `T̃^λ`, the sum of the idempotents of the split
+loadings of red-ordered loadings. -/
+theorem splitStendhalValue_one :
+    splitStendhalValue c Q Λ' ν 1 = ∑ s : {s : Seq μ // IsRedOrdered s},
+      StendhalAlgebra.e (splitLoading c s.1) ((isRedOrdered_splitLoading_iff c s.1).2 s.2) := by
+  rw [stendhal_one_eq_sum c Λ', map_sum]
+  exact Finset.sum_congr rfl fun s _ => splitStendhalValue_e c Λ' s.1 s.2
+
+/-- The violating ideal of `T̃^{λ'}` in the corner of the split idempotent is the split of the
+violating ideal of `T̃^λ` (Webster, arXiv:1309.3796v3, Proposition 4.21, proof). -/
+theorem exists_violated_split (x : StendhalAlgebra k Q Λ' ν)
+    (hx : x ∈ StendhalAlgebra.violatedIdeal k Q Λ' ν) :
+    ∃ g ∈ StendhalAlgebra.violatedIdeal k Q (mergeWeights c Λ') ν,
+      splitStendhalValue c Q Λ' ν g =
+        splitStendhalValue c Q Λ' ν 1 * x * splitStendhalValue c Q Λ' ν 1 := by
+  classical
+  choose g hg he using fun (t s : {s : Seq μ // IsRedOrdered s}) =>
+    exists_violated_splitStendhalValue c Λ' s.1 t.1 s.2 t.2 x hx
+  refine ⟨∑ t, ∑ s, g t s, sum_mem fun t _ => sum_mem fun s _ => hg t s, ?_⟩
+  rw [splitStendhalValue_one, Finset.sum_mul, Finset.sum_mul, map_sum]
+  refine Finset.sum_congr rfl fun t _ => ?_
+  rw [map_sum, Finset.mul_sum]
+  exact Finset.sum_congr rfl fun s _ => he t s
+
+end Violated
+
 end Categorification.Stendhal.SplitRed

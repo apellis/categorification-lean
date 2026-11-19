@@ -121,6 +121,9 @@ it cross the new black strand `i` at the top. -/
 def lastRedBlackMirror : T₀' →ₗ[k] T' :=
   tensorFlip ∘ₗ lastRedBlackMap Q Λ i ν ∘ₗ tensorFlip
 
+theorem lastRedBlackMirror_eq_tensorFlip (g : T₀') :
+    lastRedBlackMirror Q Λ i ν g = tensorFlip (lastRedBlackMap Q Λ i ν (tensorFlip g)) := rfl
+
 theorem lastRedBlackMirror_apply (g : T₀') :
     lastRedBlackMirror Q Λ i ν g =
       tensorFlip (lastRedBlackCrossing Q Λ i ν) * (appendRed Q Λ νᵢ g).val := by

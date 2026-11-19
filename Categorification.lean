@@ -1216,6 +1216,7 @@ import Categorification.WeightedKLR.RedStrands.DoubleCLRepeatedRed
 import Categorification.WeightedKLR.RedStrands.DoubleCLRepeatedRedCover
 import Categorification.WeightedKLR.RedStrands.DoubleCLLayerIdeal
 import Categorification.WeightedKLR.RedStrands.DoubleCLKernelTransfer
+import Categorification.WeightedKLR.RedStrands.DoubleCLBlackNegligible
 /-!
 # Categorification
 

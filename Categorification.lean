@@ -622,6 +622,7 @@ import Categorification.TwoRep.AdjointWeightNegOne
 import Categorification.TwoRep.BBwDeprecated
 import Categorification.TwoRep.AdjointWeightZero
 import Categorification.TwoRep.BSum
+import Categorification.TwoRep.CompletionPseudofunctor
 import Categorification.TwoRep.Basic
 import Categorification.TwoRep.Biadjoint
 import Categorification.TwoRep.CLTwoFunctor
@@ -1239,6 +1240,7 @@ import Categorification.WeightedKLR.RedStrands.DoubleCLDownUpVacuum
 import Categorification.WeightedKLR.RedStrands.DoubleCLDownInjective
 import Categorification.WeightedKLR.RedStrands.DoubleCLDownInjectiveOrdinary
 import Categorification.WeightedKLR.RedStrands.DoubleCLMorita
+import Categorification.WeightedKLR.RedStrands.DoubleCLBlackAction
 import Categorification.WeightedKLR.RedStrands.DoubleWFDom
 import Categorification.WeightedKLR.RedStrands.DoubleCLRelationFamilies
 import Categorification.WeightedKLR.RedStrands.DoubleCLMoveContext
@@ -1253,6 +1255,7 @@ import Categorification.WeightedKLR.RedStrands.DoubleBlackAction
 import Categorification.WeightedKLR.RedStrands.DoubleBlackActionComp
 import Categorification.WeightedKLR.RedStrands.DoubleBlackActionHorizontal
 import Categorification.WeightedKLR.RedStrands.DoubleBlackActionWhisker
+import Categorification.WeightedKLR.RedStrands.DoubleBlackActionPseudofunctor
 import Categorification.WeightedKLR.RedStrands.DoubleRightWhiskerHorizontal
 /-!
 # Categorification

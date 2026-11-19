@@ -5,6 +5,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 import Categorification.WeightedKLR.RedStrands.DoubleCLBlackNegligible
 import Categorification.WeightedKLR.RedStrands.DoubleDownContextIdeal
 import Categorification.WeightedKLR.RedStrands.DoubleCLRepeatedRedCover
+import Categorification.WeightedKLR.RedStrands.DoubleDownRedRed
 
 /-!
 # Downward KLR relations under the cover functor
@@ -83,5 +84,94 @@ theorem coverRedNegligible_of_count_red {x : Obj (signature (RDc) (redWeight Wgt
     change col ∈ ((colours (RDc) (redWeight Wgt) ν w).map (coverColour o)).reverse at hcol
     obtain ⟨⟨_, (⟨_, _⟩ | _)⟩, _, rfl⟩ := List.mem_map.1 (List.mem_reverse.1 hcol) <;>
       simp [coverColour, coverLetter]
+
+/-- A downward KLR relation whose top word has a red colour twice is cover red-negligible. -/
+theorem coverRedNegligible_downRelation_of_count_red (μ : I ⊕ Fin ℓ → ℤ)
+    (r : KLR.Diagram.Rel (I ⊕ Fin ℓ)) (s : Fin ℓ) (h : 2 ≤ r.cod.word.countP (· = .inr s)) :
+    CoverRedNegligible.{u, v, w} Λ C hQ hc
+      (coverCL Λ C hQ o (downLinear (RDc) (redWeight Wgt) k μ [] []
+        (KLR.Diagram.relation k Qd r))) := by
+  refine coverRedNegligible_of_count_red Λ C hQ hc o
+    (w := [] ++ r.cod.word.map DoubleStrand.down ++ []) (ν := μ) _ s ?_
+  rw [List.nil_append, List.append_nil, List.countP_map]
+  refine le_trans h (le_of_eq (List.countP_congr fun c _ => ?_))
+  rcases c with c | c <;> simp [DoubleStrand.down]
+
+/-- **Reduction to relations with at most one red strand.** The downward KLR relations in
+the empty context are cover red-negligible provided those with at most one red strand are and
+the polynomials of two red colours have no constant term. Relations with a red colour twice
+are negligible by `coverRedNegligible_downRelation_of_count_red`; those in which two red
+strands cross translate to zero. -/
+theorem coverRedNegligible_downRelation_empty_of_le_one
+    (hQd : ∀ s t : Fin ℓ, MvPolynomial.constantCoeff (Qd (.inr s) (.inr t)) = 0)
+    (hone : ∀ (μ : I ⊕ Fin ℓ → ℤ) (r : KLR.Diagram.Rel (I ⊕ Fin ℓ)),
+      r.dom.word.countP (fun c => c.isRight) ≤ 1 →
+      CoverRedNegligible.{u, v, w} Λ C hQ hc
+        (coverCL Λ C hQ o (downLinear (RDc) (redWeight Wgt) k μ [] []
+          (KLR.Diagram.relation k Qd r))))
+    (μ : I ⊕ Fin ℓ → ℤ) (r : KLR.Diagram.Rel (I ⊕ Fin ℓ)) :
+    CoverRedNegligible.{u, v, w} Λ C hQ hc
+      (coverCL Λ C hQ o (downLinear (RDc) (redWeight Wgt) k μ [] []
+        (KLR.Diagram.relation k Qd r))) := by
+  have zero : ∀ r : KLR.Diagram.Rel (I ⊕ Fin ℓ),
+      downLinear (RDc) (redWeight Wgt) k μ [] [] (KLR.Diagram.relation k Qd r) = 0 →
+      CoverRedNegligible.{u, v, w} Λ C hQ hc
+        (coverCL Λ C hQ o (downLinear (RDc) (redWeight Wgt) k μ [] []
+          (KLR.Diagram.relation k Qd r))) := fun r h => by
+    rw [h, coverCL, coverLin_zero]; exact CoverRedNegligible.zero
+  have rep : ∀ (r : KLR.Diagram.Rel (I ⊕ Fin ℓ)) (s : Fin ℓ),
+      2 ≤ r.cod.word.countP (· = .inr s) →
+      CoverRedNegligible.{u, v, w} Λ C hQ hc
+        (coverCL Λ C hQ o (downLinear (RDc) (redWeight Wgt) k μ [] []
+          (KLR.Diagram.relation k Qd r))) :=
+    coverRedNegligible_downRelation_of_count_red Λ C hQ hc o Qd μ
+  cases r with
+  | sqEq c =>
+    rcases c with c | s
+    · exact @hone μ (.sqEq (.inl c)) (by simp [KLR.Diagram.Rel.dom])
+    · exact @rep (.sqEq (.inr s)) s (by simp [KLR.Diagram.Rel.cod])
+  | sqNe c d h =>
+    rcases c with c | s <;> rcases d with d | t
+    · exact @hone μ (.sqNe (.inl c) (.inl d) h) (by simp [KLR.Diagram.Rel.dom])
+    · exact @hone μ (.sqNe (.inl c) (.inr t) h) (by simp [KLR.Diagram.Rel.dom])
+    · exact @hone μ (.sqNe (.inr s) (.inl d) h) (by simp [KLR.Diagram.Rel.dom])
+    · exact @zero _ (downLinear_relation_sqNe_red (RDc) (redWeight Wgt) k μ [] [] Qd s t h
+        (hQd s t))
+  | slideLEq c =>
+    rcases c with c | s
+    · exact @hone μ (.slideLEq (.inl c)) (by simp [KLR.Diagram.Rel.dom])
+    · exact @rep (.slideLEq (.inr s)) s (by simp [KLR.Diagram.Rel.cod])
+  | slideLNe c d h =>
+    rcases c with c | s <;> rcases d with d | t
+    · exact @hone μ (.slideLNe (.inl c) (.inl d) h) (by simp [KLR.Diagram.Rel.dom])
+    · exact @hone μ (.slideLNe (.inl c) (.inr t) h) (by simp [KLR.Diagram.Rel.dom])
+    · exact @hone μ (.slideLNe (.inr s) (.inl d) h) (by simp [KLR.Diagram.Rel.dom])
+    · exact @zero _ (downLinear_relation_slideLNe_red (RDc) (redWeight Wgt) k μ [] [] Qd s t h)
+  | slideREq c =>
+    rcases c with c | s
+    · exact @hone μ (.slideREq (.inl c)) (by simp [KLR.Diagram.Rel.dom])
+    · exact @rep (.slideREq (.inr s)) s (by simp [KLR.Diagram.Rel.cod])
+  | slideRNe c d h =>
+    rcases c with c | s <;> rcases d with d | t
+    · exact @hone μ (.slideRNe (.inl c) (.inl d) h) (by simp [KLR.Diagram.Rel.dom])
+    · exact @hone μ (.slideRNe (.inl c) (.inr t) h) (by simp [KLR.Diagram.Rel.dom])
+    · exact @hone μ (.slideRNe (.inr s) (.inl d) h) (by simp [KLR.Diagram.Rel.dom])
+    · exact @zero _ (downLinear_relation_slideRNe_red (RDc) (redWeight Wgt) k μ [] [] Qd s t h)
+  | braid c d e h =>
+    rcases c with c | s <;> rcases d with d | t <;> rcases e with e | t'
+    · exact @hone μ (.braid (.inl c) (.inl d) (.inl e) h) (by simp [KLR.Diagram.Rel.dom])
+    · exact @hone μ (.braid (.inl c) (.inl d) (.inr t') h) (by simp [KLR.Diagram.Rel.dom])
+    · exact @hone μ (.braid (.inl c) (.inr t) (.inl e) h) (by simp [KLR.Diagram.Rel.dom])
+    · exact @zero _ (downLinear_relation_braid_red₂₃ (RDc) (redWeight Wgt) k μ [] [] Qd _ t t' h)
+    · exact @hone μ (.braid (.inr s) (.inl d) (.inl e) h) (by simp [KLR.Diagram.Rel.dom])
+    · exact @zero _ (downLinear_relation_braid_red₁₃ (RDc) (redWeight Wgt) k μ [] [] Qd s t' _ h)
+    · exact @zero _ (downLinear_relation_braid_red₁₂ (RDc) (redWeight Wgt) k μ [] [] Qd s t _ h)
+    · exact @zero _ (downLinear_relation_braid_red₁₂ (RDc) (redWeight Wgt) k μ [] [] Qd s t _ h)
+  | braidQ c d h =>
+    rcases c with c | s
+    · rcases d with d | t
+      · exact @hone μ (.braidQ (.inl c) (.inl d) h) (by simp [KLR.Diagram.Rel.dom])
+      · exact @hone μ (.braidQ (.inl c) (.inr t) h) (by simp [KLR.Diagram.Rel.dom])
+    · exact @rep (.braidQ (.inr s) d h) s (by simp [KLR.Diagram.Rel.cod])
 
 end Categorification.Stendhal

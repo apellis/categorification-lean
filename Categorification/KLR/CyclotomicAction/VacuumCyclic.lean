@@ -3,6 +3,7 @@ Copyright (c) 2026 Alex Ellis. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 -/
 import Categorification.KLR.CyclotomicAction.Vacuum
+import Categorification.KLR.CyclotomicAction.VacuumSupport
 
 /-!
 # Words applied to a cyclic vacuum are cyclic
@@ -126,6 +127,21 @@ theorem exists_eq_mul_e_smul_vgen (hv : ∀ x : V ⟨0, h0⟩, ∃ z : CycKLR k 
       x = (z * CycKLR.mk k Q a δ.1 (e (wseq L hδ))) • vgen hQ hlead ha hΛ hdeg V h0 v₀ L μ' h δ hδ := by
   obtain ⟨z, rfl⟩ := exists_eq_smul_vgen hQ hlead ha hΛ hdeg V h0 v₀ hv L μ' h δ hδ x
   exact ⟨z, by rw [mul_smul, e_smul_vgen]⟩
+
+/-- **Words applied to a vacuum supported on the empty block are supported on the block of the
+word**: the component at a block other than the multiset of the word's labels is zero. -/
+theorem isZero_wcell_of_ne (hV : ∀ β : WeightBlocks RD Λ μ, β.1 ≠ 0 → IsZero (V β)) :
+    ∀ (L : List (I × X)) (μ' : X) (h : wValid RD μ L μ') (δ : WeightBlocks RD Λ μ'),
+      δ.1 ≠ ↑(L.map Prod.fst) → IsZero ((RouqData.wcell (S).toRouqData μ L μ' h).obj.obj V δ)
+  | [], μ', h, δ, hδ => by
+    subst h
+    exact hV δ (by simpa using hδ)
+  | (c, ν) :: L, μ', h, δ, hδ =>
+    isZero_biproduct _ fun p => Functor.map_isZero _ (isZero_wcell_of_ne hV L ν h.1 p.1 (by
+      intro hp
+      apply hδ
+      rw [← blockSucc_eq RD Λ c p.2, hp]
+      simp))
 
 /-- **A word module over a cyclic vacuum vanishes after scalar extension** along a
 homomorphism killing the idempotent of the reversed word. -/

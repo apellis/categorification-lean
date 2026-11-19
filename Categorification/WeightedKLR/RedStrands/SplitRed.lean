@@ -158,4 +158,144 @@ theorem slideR (j : ℕ) (h : j + 1 < n) (s : Seq (stendhalWeight L ν))
 
 end Generic
 
+/-! ### The merged weights and the split idempotent -/
+
+section Split
+
+variable {I : Type} [DecidableEq I] {k : Type*} [CommRing k] {ℓ : ℕ} (c : Fin ℓ)
+  {Q : I → I → MvPolynomial (Fin 2) k} (Λ' : Fin (ℓ + 1) → I →₀ ℕ) {ν : Multiset I}
+
+/-- The weights `λ`: the weights `λ'` with `λ'_c` and `λ'_{c+1}` merged into
+`λ'_c + λ'_{c+1}`. -/
+def mergeWeights : Fin ℓ → I →₀ ℕ := fun r =>
+  if r = c then Λ' c.castSucc + Λ' c.succ else Λ' (c.succ.succAbove r)
+
+omit [DecidableEq I] in
+theorem mergeWeights_self : mergeWeights c Λ' c = Λ' c.castSucc + Λ' c.succ := by
+  simp [mergeWeights]
+
+omit [DecidableEq I] in
+theorem mergeWeights_of_ne {r : Fin ℓ} (h : r ≠ c) :
+    mergeWeights c Λ' r = Λ' (c.succ.succAbove r) := by
+  simp [mergeWeights, h]
+
+omit [DecidableEq I] in
+/-- Away from the red strand `λ_c`, the polynomials `Q` for `λ` and for `λ'` agree. -/
+theorem stendhalQ_splitColor (y z : I ⊕ Fin ℓ) (hy : y ≠ .inr c) (hz : z ≠ .inr c) :
+    stendhalQ Q (mergeWeights c Λ') y z = stendhalQ Q Λ' (splitColor c y) (splitColor c z) := by
+  rcases y with i | r <;> rcases z with j | r'
+  · rfl
+  · have : r' ≠ c := fun h => hz (by rw [h])
+    simp [mergeWeights_of_ne c Λ' this]
+  · have : r ≠ c := fun h => hy (by rw [h])
+    simp [mergeWeights_of_ne c Λ' this]
+  · rfl
+
+local notation "μ" => stendhalWeight ℓ ν
+local notation "m" => Multiset.card (stendhalWeight ℓ ν)
+local notation "m'" => Multiset.card (stendhalWeight (ℓ + 1) ν)
+local notation "A'" => StendhalAlgebraAllOrders k Q Λ' ν
+local notation "e'" => StendhalAlgebraAllOrders.e (k := k) (Q := Q) (Λ := Λ') (ν := ν)
+local notation "ψ'" => StendhalAlgebraAllOrders.ψ (k := k) (Q := Q) (Λ := Λ') (ν := ν)
+local notation "x'" => StendhalAlgebraAllOrders.x (k := k) (Q := Q) (Λ := Λ') (ν := ν)
+
+omit [DecidableEq I] in
+theorem splitLoading_lbl_eq_new_iff [DecidableEq I] (s : Seq μ) (b : Fin m') :
+    (splitLoading c s).lbl b = .inr c.succ ↔ b = newPos c s := by
+  constructor
+  · intro h
+    rcases eq_newPos_or_splitPos c s b with hb | ⟨a, rfl⟩
+    · exact hb
+    · rw [splitLoading_lbl_splitPos] at h
+      exact absurd h (splitColor_ne_new c _)
+  · rintro rfl
+    exact splitLoading_lbl_newPos c s
+
+theorem splitLoading_injective : Function.Injective (splitLoading (ν := ν) c) := by
+  intro s t h
+  have hq : redPos c s = redPos c t := by
+    have h1 := (splitLoading_lbl_eq_new_iff c t (newPos c s)).1
+      (by rw [← h]; exact splitLoading_lbl_newPos c s)
+    apply Fin.ext
+    have := congrArg Fin.val h1
+    simp only [newPos_val] at this
+    omega
+  apply Subtype.ext; funext a
+  have hp : splitPos c s a = splitPos c t a := by
+    apply Fin.ext; rw [splitPos_val, splitPos_val, hq]
+  have : (splitLoading c s).lbl (splitPos c s a) = (splitLoading c t).lbl (splitPos c s a) := by
+    rw [h]
+  rw [splitLoading_lbl_splitPos, hp, splitLoading_lbl_splitPos] at this
+  exact splitColor_injective c this
+
+variable (Q ν) in
+/-- The sum of the idempotents of the split loadings: the loadings in which the red strands
+`λ'_c`, `λ'_{c+1}` are adjacent, in this order. -/
+noncomputable def splitIdem : A' := ∑ s : Seq μ, e' (splitLoading c s)
+
+theorem e_mul_splitIdem (t : Seq μ) :
+    e' (splitLoading c t) * splitIdem c Q Λ' ν = e' (splitLoading c t) := by
+  rw [splitIdem, Finset.mul_sum]
+  simp_rw [StendhalAlgebraAllOrders.e_mul_e, (splitLoading_injective c).eq_iff]
+  simp
+
+theorem splitIdem_mul_e (t : Seq μ) :
+    splitIdem c Q Λ' ν * e' (splitLoading c t) = e' (splitLoading c t) := by
+  rw [splitIdem, Finset.sum_mul]
+  simp_rw [StendhalAlgebraAllOrders.e_mul_e, (splitLoading_injective c).eq_iff]
+  simp
+
+theorem isIdempotentElem_splitIdem : IsIdempotentElem (splitIdem c Q Λ' ν) := by
+  change splitIdem c Q Λ' ν * splitIdem c Q Λ' ν = splitIdem c Q Λ' ν
+  change (∑ s : Seq μ, e' (splitLoading c s)) * splitIdem c Q Λ' ν = _
+  rw [Finset.sum_mul, Finset.sum_congr rfl fun s _ => e_mul_splitIdem c Λ' s]
+  rfl
+
+theorem polA_commute_splitIdem (p : MvPolynomial (Fin m') k) :
+    Commute (polA k Q Λ' ν p) (splitIdem c Q Λ' ν) :=
+  Commute.sum_right _ _ _ fun _ _ => (e_commute_polA _ p).symm
+
+/-! ### The image of a crossing -/
+
+variable (Q ν) in
+/-- The image of the crossing `ψ_j` on a loading whose red strand `λ_c` is at position `q`:
+a crossing of two black strands, or a black strand crossing both red strands, or a red-red
+crossing (which vanishes). -/
+noncomputable def W (j q : ℕ) : A' :=
+  if j + 1 < q then ψ' j else if j + 1 = q then ψ' (j + 1) * ψ' j
+  else if j = q then ψ' j * ψ' (j + 1) else ψ' (j + 1)
+
+theorem W_mul_e (j : ℕ) (hj : j + 1 < m) (t : Seq μ) :
+    W Q Λ' ν j (redPos c t) * e' (splitLoading c t) =
+      e' (splitLoading c (sadj m j • t)) * W Q Λ' ν j (redPos c t) := by
+  unfold W
+  split_ifs with h1 h2 h3
+  · rw [splitLoading_sadj_left c t h1, aψ_mul_e]
+  · rw [splitLoading_sadj_cross_left c t h2, mul_assoc, aψ_mul_e, ← mul_assoc, aψ_mul_e,
+      mul_assoc]
+  · rw [splitLoading_sadj_cross_right c t h3 hj, mul_assoc, aψ_mul_e, ← mul_assoc, aψ_mul_e,
+      mul_assoc]
+  · rw [splitLoading_sadj_right c t (by omega) hj, aψ_mul_e]
+
+/-! ### The generators in the corner -/
+
+variable (Q ν) in
+/-- The corner cut out by the split idempotent. -/
+abbrev SplitCorner : Type _ := (isIdempotentElem_splitIdem c (Q := Q) Λ' (ν := ν)).Corner
+
+local notation "C" => SplitCorner c Q Λ' ν
+
+noncomputable local instance : Algebra k C := KLR.cornerAlgebra _
+
+open KLR in
+/-- The image of the idempotent `e(s)`. -/
+noncomputable def gE (s : Seq μ) : C :=
+  Corner.mk (e' (splitLoading c s)) (by rw [splitIdem_mul_e, e_mul_splitIdem])
+
+omit [DecidableEq I] in
+@[simp] theorem val_gE [DecidableEq I] (s : Seq μ) :
+    (gE c Λ' (Q := Q) s : C).val = e' (splitLoading c s) := rfl
+
+end Split
+
 end Categorification.Stendhal.SplitRed

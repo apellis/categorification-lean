@@ -89,6 +89,19 @@ def addMixedCupPitchforkRelations (t : I → I → k) :
   P.addRels _ (MixedCupPitchfork.source RD Λ) (MixedCupPitchfork.target RD Λ)
     (mixedCupPitchforkRelation RD Λ t)
 
+/-- The adjoined cup pitchfork relation is the bent branch minus `tⱼᵢ` times the straight
+branch. -/
+theorem addMixedCupPitchforkRelations_rel (t : I → I → k) (a : MixedCupPitchfork X I ℓ) :
+    ∃ d₁ d₂ : (addMixedCupPitchforkRelations RD Λ P t).dom (.inr a) ⟶
+        (addMixedCupPitchforkRelations RD Λ P t).cod (.inr a),
+      (addMixedCupPitchforkRelations RD Λ P t).rel (.inr a) =
+        LinDiagram.of d₁ - t a.throughColour a.cupColour • LinDiagram.of d₂ ∧
+      Diagram.layers d₁ = signedLayers RD Λ a.leftWeight
+        (mixedCupPitchforkLayers a.left a.cupColour a.throughColour a.right a.order) ∧
+      Diagram.layers d₂ = signedLayers RD Λ a.leftWeight
+        (downCupPitchforkLayers a.left a.cupColour a.throughColour a.right a.order) :=
+  ⟨_, _, rfl, rfl, rfl⟩
+
 variable (t : I → I → k)
 local notation "T" => addBlackAdjunctionRelations RD Λ (addMixedCupPitchforkRelations RD Λ P t)
 

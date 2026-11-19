@@ -7,6 +7,7 @@ import Categorification.WeightedKLR.RedStrands.DoubleCLBlackNegligible
 import Categorification.WeightedKLR.RedStrands.DoubleCLRedUpEvaluation
 import Categorification.WeightedKLR.RedStrands.DoubleCLRedCap
 import Categorification.WeightedKLR.RedStrands.DoubleCLRedUpSlide
+import Categorification.WeightedKLR.RedStrands.DoubleCLMixedPitchfork
 import Categorification.WeightedKLR.RedStrands.DoublePresentationUnion
 
 /-!
@@ -191,6 +192,15 @@ theorem CoverRelsNegligible.addBlackAdjunctionRelations
     CoverRelsNegligible.{u, v, w} Λ C hQ hc o
       (addBlackAdjunctionRelations (RDc) (redWeight Wgt) P) :=
   hP.addRels fun r => coverRedNegligible_blackAdjunction Λ C hQ hc o ho ht hs P r
+
+/-- Adjoining the cup pitchfork relations (Webster v2 (2.1a) and its mirror) at the scalars
+`tⱼᵢ = 1` preserves `CoverRelsNegligible`. -/
+theorem CoverRelsNegligible.addMixedCupPitchforkRelations
+    {P : Presentation.{v, u} (signature (RDc) (redWeight Wgt)) k}
+    (hP : CoverRelsNegligible.{u, v, w} Λ C hQ hc o P) :
+    CoverRelsNegligible.{u, v, w} Λ C hQ hc o
+      (addMixedCupPitchforkRelations (RDc) (redWeight Wgt) P fun _ _ => 1) :=
+  hP.addRels fun a => coverRedNegligible_mixedCupPitchfork Λ C hQ hc o ho ht hs P a
 
 end Black
 

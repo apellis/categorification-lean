@@ -198,4 +198,54 @@ theorem downCover_map_ofLayer (μ : I ⊕ Fin ℓ → ℤ) (L : Layer (KLR.Diagr
     erw [hs, Presentation.diag_cast]
     simp
 
+theorem downCover_map_ofLayer_of_none (μ : I ⊕ Fin ℓ → ℤ) (L : Layer (KLR.Diagram.sig (I ⊕ Fin ℓ)))
+    (hv : L.Valid) (hg : downMove L.gen = none) :
+    (downCover Λ C hQ o μ).map (Diagram.ofLayer L hv) = 0 := by
+  have hF := congrArg (freeLift k ((coverMirror Wgt hC o).toLayerMap.functor ⋙
+      (LocalMap.ofGen (coverColourMap Wgt hC o) (coverImage Wgt hC o PCL coverSign)).functor)).map
+    (Interpretation.functor_map_ofLayer (downInterpretation (RDc) (redWeight Wgt) k μ [] []) L hv)
+  refine hF.trans ?_
+  have h0 := downLinearLayer_of_none (RDc) (redWeight Wgt) k μ [] [] L hg
+  exact (congrArg _ h0).trans (Functor.map_zero _ _ _)
+
+omit [DecidableEq I] in
+/-- The colours of a word of upward strands are upward. -/
+theorem upward_of_mem_wd_ups (ν : I ⊕ Fin ℓ → ℤ) (t : List (I ⊕ Fin ℓ))
+    {c : (psig Wgt).Colour} (h : c ∈ wd Wgt ν (ups t)) : c.l.1 = true := by
+  induction t generalizing ν with
+  | nil => simp [ups] at h
+  | cons a t ih =>
+    rw [ups, List.map_cons, wd_cons, List.mem_cons] at h
+    rcases h with rfl | h
+    · rfl
+    · exact ih _ h
+
+/-- A dot on an upward red strand, placed on the reflected upward strands, is cover
+red-negligible. -/
+theorem coverRedNegligible_upCover_redDot (μ : I ⊕ Fin ℓ → ℤ)
+    (L : Layer (KLR.Diagram.sig (I ⊕ Fin ℓ))) (hv : L.Valid) (r : Fin ℓ)
+    (hg : L.gen = .dot (.inr r)) :
+    CoverRedNegligible.{u, v, w} Λ C hQ hc ((upCover Λ C hQ o μ).map (Diagram.ofLayer L hv)) := by
+  rw [upCover_map_ofLayer]
+  refine CoverRedNegligible.smul.{u, v, w} _ ?_
+  have hv' : (upLay Wgt (o - μ) (KSig.klay L)).Valid := lay_valid _ _ _ _ _
+  have h1 : (upLay Wgt (o - μ) (KSig.klay L)).dom =
+      ob Wgt (o - μ) (ups (KSig.kobj L.dom).word) := by rw [upLay_dom, KSig.klay_dom]
+  have h2 : (upLay Wgt (o - μ) (KSig.klay L)).cod =
+      ob Wgt (o - μ) (ups (KSig.kobj L.cod).word) := by rw [upLay_cod, KSig.klay_cod]
+  have e : upDiag Wgt (o - μ) (KSig.ksD (Diagram.ofLayer L hv)) =
+      Diagram.cast (Diagram.ofLayer _ hv') h1 h2 := Diagram.ext rfl
+  rw [e, Presentation.diag_cast]
+  have hd : CoverRedNegligible.{u, v, w} Λ C hQ hc ((PCL).diag (Diagram.ofLayer _ hv')) := by
+    refine coverRedNegligible_redDot.{u, v, w} Λ C hQ hc (upLay Wgt (o - μ) (KSig.klay L)) hv' r
+      (wt Wgt (o - μ) (ups (KSig.klay L).right)) ?_ ?_
+    · simp [upLay, lay, KSig.klay, KSig.kgen, hg, upShape, Shape.gen, up]
+    · intro c hc'
+      left
+      simp only [upLay, lay, KSig.klay] at hc'
+      exact upward_of_mem_wd_ups Λ C _ _ hc'
+  apply CoverRedNegligible.comp_left
+  apply CoverRedNegligible.comp_right
+  exact hd
+
 end Categorification.Stendhal

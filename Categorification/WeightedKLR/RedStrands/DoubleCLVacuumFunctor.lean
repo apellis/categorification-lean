@@ -25,7 +25,7 @@ namespace Categorification.Stendhal
 open CategoryTheory QuantumGroup QuantumGroup.UDot StringDiagrams KLR TwoRep CyclotomicAction
   DoubleDiagram KL3.Diagram Diagrams.BicatInterp InductionAlong
 
-universe u v w
+universe u v w v₁
 
 attribute [local instance 1100] IsIdempotentElem.instAlgebraCorner_categorification
 
@@ -147,6 +147,37 @@ theorem vacuumEval_add {s : I ⊕ Fin ℓ → ℤ}
   unfold vacuumEval
   rw [admissibleQuotientMap_add]
   exact Functor.map_add _
+
+/-- The reflection of a double boundary of the coordinate datum, at the vacuum region. -/
+abbrev coverObj (a : Obj (signature (coordinateDatum Λ C) (redWeight Wgt))) :
+    Obj (psig Wgt) :=
+  (coverColourMap Wgt (extendedCartanDatum_dot_inl Λ C) wt₀).obj
+    ((coverMirror Wgt (extendedCartanDatum_dot_inl Λ C) wt₀).obj a)
+
+section Presented
+/-- **Vacuum evaluation of presented double diagrams.** A morphism of the presented double
+diagram category, reflected into the Cautis–Lauda presentation of the extended datum, acts on
+the projected cyclotomic vacuum; the relations of `P` act by zero. -/
+def presentedVacuumEval {s : I ⊕ Fin ℓ → ℤ} (hν : blockWeight Wgt L (stendhalWeight ℓ ν) = s)
+    {P : Presentation.{v, v₁} (signature (coordinateDatum Λ C) (redWeight Wgt)) k}
+    (hP : CoverRelsNegligible.{u, v, w} Λ C hQ hc wt₀ P) (hwf : P.WFDom)
+    {a b : Obj (signature (coordinateDatum Λ C) (redWeight Wgt))}
+    (ha : Cond s wt₀ (coverObj a)) (hb : Cond s wt₀ (coverObj b)) (f : P.obj a ⟶ P.obj b) :=
+  Quot.liftOn f (fun g => vacuumEval.{u, v, w} Λ C hQ ν hν ha hb (coverCL Λ C hQ wt₀ g))
+    fun g g' h => by
+      have hm := (HomRel.compClosure_iff_self P.homRel g g').mp h
+      have hn : CoverRedNegligible.{u, v, w} Λ C hQ hc (coverCL Λ C hQ wt₀ (g - g')) :=
+        CoverRelsNegligible.mem_ideal hP hwf hm
+      have hz := vacuumEval_eq_zero hc hν ha hb hn
+      have hsplit : g = (g - g') + g' := (sub_add_cancel g g').symm
+      change vacuumEval.{u, v, w} Λ C hQ ν hν ha hb (coverCL Λ C hQ wt₀ g) = _
+      conv_lhs => rw [hsplit]
+      have hadd : coverCL Λ C hQ wt₀ (g - g' + g') =
+          coverCL Λ C hQ wt₀ (g - g') + coverCL Λ C hQ wt₀ g' :=
+        coverLin_add _ _ _ _ _ _ _
+      rw [hadd, vacuumEval_add, hz, zero_add]
+
+end Presented
 
 end Evaluation
 

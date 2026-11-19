@@ -522,3 +522,14 @@ dominant weights of the module identification, over any field with
 Rouquier parameters.
 
 In the reflected KL III presentation, `capSuccessor_allDots` treats a dot before, on either leg of, inside, or after the terminal cap. The equal-colour passage uses the nilHecke dot correction. Once all downward-boundary entries are spanned, `ordinaryToDownwardMatrix_surjective_of_base_span` transfers that span to the target of the ordinary matrix map.
+
+**Lemma 4.29 for general black parameters.** Injectivity of the repaired
+comparison (`clToDownwardMatrix_kl_injective`) is proved over a field when
+the black parameters agree with the standard Khovanov–Lauda ones off the
+diagonal. The vacuum evaluation uses the cyclotomic Cautis–Lauda action, whose
+black relations are compared with the presentation only for these scalars:
+`t = 1` on black vertices, and `s` vanishes in degrees `p < d_ij`, `q < d_ji`.
+To remove this restriction, either extend the black-relation comparison
+(`coverLin_blackRel`) to arbitrary Cautis–Lauda scalars or transport
+the result along the crossing rescaling `tensorRescale` combined with a
+rescaling of the cover action.

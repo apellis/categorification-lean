@@ -137,6 +137,25 @@ theorem admissibleMap_pull_eq_zero {s t : S.Region} {a b : Obj S} (ha : Cond s t
   rw [admissibleMap_pull φ G' ha hb f, hf]
   simp
 
+
+/-- Generator images over two models with the same objects and equal strand images: if they
+agree up to the identifications of the boundary words, a linear combination killed by one
+admissible interpretation is killed by the other. -/
+theorem genImg_eq_of_strand {obj : S.Region → C}
+    {s₁ s₂ : (c : S.Colour) → (x y : S.Region) → S.colourTgt c = x → S.colourSrc c = y →
+      (obj x ⟶ obj y)} (h : s₁ = s₂) {G₁ : GenImg (⟨obj, s₁⟩ : Model S C)}
+    {G₂ : GenImg (⟨obj, s₂⟩ : Model S C)}
+    (hG : ∀ g a b ha hb hd hde hc hce, G₁.gen g a b ha hb hd hde hc hce =
+      eqToHom (by subst h; rfl) ≫ G₂.gen g a b ha hb hd hde hc hce ≫ eqToHom (by subst h; rfl))
+    {s t : S.Region} {a b : Obj S} (ha : Cond s t a) (hb : Cond s t b) (f : LinDiagram R a b)
+    (hf : admissibleMap G₂ ha hb f = 0) : admissibleMap G₁ ha hb f = 0 := by
+  subst h
+  obtain rfl : G₁ = G₂ := by
+    cases G₁; cases G₂; congr
+    funext g a b ha hb hd hde hc hce
+    simpa using hG g a b ha hb hd hde hc hce
+  exact hf
+
 end Linear
 
 end Categorification.Diagrams.BicatInterp

@@ -506,6 +506,27 @@ theorem appendRedAllOrders_e (s : Seq μ) :
       StendhalAlgebraAllOrders.e (appendRedLoading s) := by
   rw [StendhalAlgebraAllOrders.e, appendRedAllOrders_ofKLR, appendRedKLR_e]
 
+/-- Appending the terminal red strand keeps an old dot at its position, cut by the
+terminal idempotent. -/
+theorem appendRedAllOrders_x (a : Fin (Multiset.card μ)) :
+    (appendRedAllOrders Q Λ ν (StendhalAlgebraAllOrders.x a)).val =
+      StendhalAlgebraAllOrders.x (appendRedPosition a) * (appendRedAllOrders Q Λ ν 1).val := by
+  rw [StendhalAlgebraAllOrders.x, appendRedAllOrders_ofKLR, appendRedKLR_x, map_one]
+  rfl
+
+/-- Appending the terminal red strand keeps an old crossing, cut by the terminal
+idempotent. -/
+theorem appendRedAllOrders_ψ (j : ℕ) (hj : j + 1 < Multiset.card μ) :
+    (appendRedAllOrders Q Λ ν (StendhalAlgebraAllOrders.ψ j)).val =
+      StendhalAlgebraAllOrders.ψ j * (appendRedAllOrders Q Λ ν 1).val := by
+  rw [StendhalAlgebraAllOrders.ψ, appendRedAllOrders_ofKLR, appendRedKLR_ψ Q Λ ν hj, map_one]
+  rfl
+
+/-- The all-orders terminal red embedding is linear on diagram coefficients. -/
+theorem appendRedAllOrders_smul (c : k) (z : StendhalAlgebraAllOrders k Q Λ₀ ν) :
+    (appendRedAllOrders Q Λ ν (c • z)).val = c • (appendRedAllOrders Q Λ ν z).val := by
+  rw [AlgHom.map_smul_of_tower, KLR.Corner.val_smul]
+
 private def appendRedValue : StendhalAlgebraAllOrders k Q Λ₀ ν →ₙ+* A :=
   (KLR.cornerVal (isIdempotentElem_terminalIdem Q Λ ν)).comp
     (appendRedAllOrders Q Λ ν).toRingHom.toNonUnitalRingHom
@@ -592,6 +613,11 @@ def appendRedStendhalValue : StendhalAlgebra k Q Λ₀ ν →ₙ+* StendhalAlgeb
   map_zero' := Subtype.ext (map_zero (appendRedValue Q Λ ν))
   map_add' x y := Subtype.ext (map_add (appendRedValue Q Λ ν) x.val y.val)
   map_mul' x y := Subtype.ext (map_mul (appendRedValue Q Λ ν) x.val y.val)
+
+/-- On red-ordered diagrams, appending before quotienting is the value of the
+all-orders map. -/
+theorem appendRedStendhalValue_val (z : StendhalAlgebra k Q Λ₀ ν) :
+    (appendRedStendhalValue Q Λ ν z).val = (appendRedAllOrders Q Λ ν z.val).val := rfl
 
 theorem appendRedStendhalValue_one :
     appendRedStendhalValue Q Λ ν 1 = StendhalAlgebra.lastRedIdem Q Λ ν :=

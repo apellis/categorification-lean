@@ -57,6 +57,19 @@ private theorem oldPosition_of_red (s : Seq μ) (a : Fin (Multiset.card (stendha
     rw [Seq.append_apply_ge _ _ _ (le_of_not_gt hc)] at ha
     exact (Sum.inl_ne_inr (((Multiset.mem_singleton.mp ((default : Seq σᵢ).mem _))).symm.trans ha)).elim
 
+/-- Away from the new right boundary the appended loading keeps the old labels. -/
+theorem appendBlackLoading_lbl_of_lt (s : Seq μ) (a : Fin (Multiset.card (stendhalWeight ℓ νᵢ)))
+    (ha : a.val < Multiset.card μ) : (appendBlackLoading i ν s).lbl a = s.lbl ⟨a.val, ha⟩ := by
+  have h := appendBlackLoading_lbl i ν s ⟨a.val, ha⟩
+  rwa [show appendBlackPosition i ν ⟨a.val, ha⟩ = a from Fin.ext rfl] at h
+
+/-- The new right boundary strand carries the black label `i`. -/
+theorem appendBlackLoading_lbl_of_eq (s : Seq μ) (a : Fin (Multiset.card (stendhalWeight ℓ νᵢ)))
+    (ha : a.val = Multiset.card μ) : (appendBlackLoading i ν s).lbl a = .inl i := by
+  change (s.append (default : Seq σᵢ)).1 (Fin.cast _ a) = _
+  rw [Seq.append_apply_ge _ _ _ (by simp only [Fin.val_cast]; omega)]
+  exact Multiset.mem_singleton.mp ((default : Seq σᵢ).mem _)
+
 /-- The far-right black strand preserves the order of the red strands. -/
 theorem appendBlackLoading_ordered (s : Seq μ) (hs : IsRedOrdered s) :
     IsRedOrdered (appendBlackLoading i ν s) := by

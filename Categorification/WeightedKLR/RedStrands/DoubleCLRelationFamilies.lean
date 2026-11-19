@@ -6,6 +6,7 @@ import Categorification.WeightedKLR.RedStrands.DoubleCLDownKLRUp
 import Categorification.WeightedKLR.RedStrands.DoubleCLBlackNegligible
 import Categorification.WeightedKLR.RedStrands.DoubleCLRedUpEvaluation
 import Categorification.WeightedKLR.RedStrands.DoubleCLRedCap
+import Categorification.WeightedKLR.RedStrands.DoublePresentationUnion
 
 /-!
 # Families of relations whose reflected images are red-negligible
@@ -54,6 +55,15 @@ theorem CoverRelsNegligible.addRels {P : Presentation.{v, v₁} (signature (RDc)
     CoverRelsNegligible.{u, v, w} Λ C hQ hc o (P.addRels ι dom cod rel)
   | .inl i => hP i
   | .inr i => h i
+
+/-- The union of two presentations whose relations have cover red-negligible images has the
+same property. -/
+theorem CoverRelsNegligible.union
+    {P P' : Presentation.{v, v₁} (signature (RDc) (redWeight Wgt)) k}
+    (hP : CoverRelsNegligible.{u, v, w} Λ C hQ hc o P)
+    (hP' : CoverRelsNegligible.{u, v, w} Λ C hQ hc o P') :
+    CoverRelsNegligible.{u, v, w} Λ C hQ hc o (P.union P') :=
+  hP.addRels hP'
 
 /-- A presentation all of whose relations have cover red-negligible images sends its whole
 tensor ideal to cover red-negligible maps. -/

@@ -119,6 +119,15 @@ theorem CoverRelsNegligible.addBlackKLRelations
     CoverRelsNegligible.{u, v, w} Λ C hQ hc o (addBlackKLRelations (RDc) (redWeight Wgt) P) :=
   hP.addRels fun r => coverRedNegligible_blackRel Λ C hQ hc o ho ht hs r
 
+/-- Adjoining the black biadjunction and dot cyclicity relations preserves
+`CoverRelsNegligible`. -/
+theorem CoverRelsNegligible.addBlackAdjunctionRelations
+    {P : Presentation.{v, u} (signature (RDc) (redWeight Wgt)) k}
+    (hP : CoverRelsNegligible.{u, v, w} Λ C hQ hc o P) :
+    CoverRelsNegligible.{u, v, w} Λ C hQ hc o
+      (addBlackAdjunctionRelations (RDc) (redWeight Wgt) P) :=
+  hP.addRels fun r => coverRedNegligible_blackAdjunction Λ C hQ hc o ho ht hs P r
+
 end Black
 
 end Categorification.Stendhal

@@ -4,6 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 -/
 import Categorification.WeightedKLR.RedStrands.DoubleCLKernelTransfer
 import Categorification.WeightedKLR.RedStrands.DoubleCLBlackContext
+import Categorification.WeightedKLR.RedStrands.DoubleCLBlackAdjunction
 
 /-!
 # Black and mixed black relations are cover red-negligible
@@ -109,5 +110,15 @@ theorem coverRedNegligible_mixedBlackRelation (a : MixedBlackRelation (I ⊕ Fin
   coverRedNegligible_of_coverLin_admissibleKernel Λ C hQ hc o _
     (coverLin_mixedBlackRelation_eq_zero Wgt hC o ho (Fam) (Sc) ht hs
       (cover_brundanUpKLR Λ C hQ) (cover_mixedInversion Λ C hQ) a)
+
+/-- **The black biadjunction and dot cyclicity relations are cover red-negligible.** -/
+theorem coverRedNegligible_blackAdjunction
+    (P : Presentation.{v, u} (signature (RDc) (redWeight Wgt)) k)
+    (r : BlackAdjunctionRelation (I ⊕ Fin ℓ → ℤ) I ℓ) :
+    CoverRedNegligible.{u, v, w} Λ C hQ hc
+      (coverCL Λ C hQ o ((addBlackAdjunctionRelations (RDc) (redWeight Wgt) P).rel (.inr r))) :=
+  coverRedNegligible_of_coverLin_admissibleKernel Λ C hQ hc o _
+    (coverLin_blackAdjunction_eq_zero Wgt hC o ho (Fam) (Sc) ht hs
+      (cover_brundanUpKLR Λ C hQ) (cover_mixedInversion Λ C hQ) P r)
 
 end Categorification.Stendhal

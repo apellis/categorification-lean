@@ -1208,6 +1208,7 @@ import Categorification.WeightedKLR.RedStrands.DoubleCLNegligibleWords
 import Categorification.WeightedKLR.RedStrands.DoubleCLBlackRelations
 import Categorification.WeightedKLR.RedStrands.DoubleCLBlackComparison
 import Categorification.WeightedKLR.RedStrands.DoubleCLBlackContext
+import Categorification.WeightedKLR.RedStrands.DoubleCLBlackAdjunction
 import Categorification.WeightedKLR.RedStrands.DoubleCLWhisker
 import Categorification.WeightedKLR.RedStrands.DoubleCLRedNegligibleIdeal
 import Categorification.WeightedKLR.RedStrands.DoubleCLRedUp

@@ -162,6 +162,19 @@ theorem ordinaryToDownwardMatrix_clDownward_injective (hc : CoverDotCentral Λ C
       rw [Categorification.KL3.Diagram.KSig.word_rev, List.reverse_reverse]
       rfl
 
+/-- **Injectivity of the repaired comparison of arXiv:1309.3796v3, Lemma 4.29**, at the
+standard Khovanov–Lauda parameters: `clToDownwardMatrix` is the crossing rescaling, an
+isomorphism, followed by `ordinaryToDownwardMatrix` at the Cautis–Lauda dual parameters. -/
+theorem clToDownwardMatrix_kl_injective (hc : CoverDotCentral Λ C Q)
+    (hstd : ∀ i j, i ≠ j → Q i j = CL.qCL KL i j)
+    {P : Presentation.{v, u} (signature (RDc) (redWeight Wgt)) k}
+    (hP : CoverRelsNegligible.{u, v, w} Λ C hQ hc wt₀ P) (hwf : P.WFDom) :
+    Function.Injective (clToDownwardMatrix (Λ := coordinateRedWeights Λ C)
+      (signedCapKLPresentation (RDc) (redWeight Wgt) P (clDownwardQ KL) Λ fun _ _ => 1)
+      Λ (KL).t KL (ν := ν)) :=
+  (ordinaryToDownwardMatrix_clDownward_injective hc hstd hP hwf).comp
+    (AlgEquiv.injective _)
+
 end Main
 
 end Categorification.Stendhal

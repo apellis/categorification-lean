@@ -20,7 +20,8 @@ open CategoryTheory CategoryTheory.Limits
 variable {D : Type*} [Category D] [Preadditive D] {X Y Z : D} {n : ℕ}
 
 /-- The component `f'` of an explicit inverse is determined by `f` and the `g m`. -/
-theorem SumInvTo.f'_eq {f : X ⟶ Y} {g : ℕ → (X ⟶ Z)} (S T : SumInvTo f g n) : S.f' = T.f' := by
+theorem SumInvTo.f'_eq {f : X ⟶ Y} {g : ℕ → (X ⟶ Z)} (S T : SumInvTo f g n) :
+    S.f' = T.f' := by
   calc S.f' = S.f' ≫ (f ≫ T.f' + ∑ m ∈ Finset.range n, g m ≫ T.g' m) := by
         rw [T.total, Category.comp_id]
     _ = T.f' := by

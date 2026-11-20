@@ -384,6 +384,65 @@ private theorem blackGH_e (t : Seq (rₗ + B₀)) : G (e t) = H (e t) := by
     rw [← concat_e_tmul_e, e_terminal]
     exact blackG_concat Q Λ p h ha hTot (e b)
 
+private theorem concat_one_tmul_x_mul {X Y : Multiset (I ⊕ Fin (ℓ+1))} (b : Fin Y.card)
+    (t : Seq Y) : concat S X Y (1 ⊗ₜ (x b * e t)) = x (Seq.posR X b) * concat S X Y (1 ⊗ₜ e t) := by
+  rw [show (1 : KLRAlgebra k S X) ⊗ₜ[k] (x b * e t) =
+      ((1 : KLRAlgebra k S X) ⊗ₜ[k] (x b : KLRAlgebra k S Y)) * (1 ⊗ₜ[k] e t) by
+      rw [Algebra.TensorProduct.tmul_mul_tmul, one_mul],
+    concat_mul, concat_one_tmul_x, mul_assoc, oneConcat_mul_concat]
+
+private theorem concat_one_tmul_ψ_mul {X Y : Multiset (I ⊕ Fin (ℓ+1))} {j : ℕ}
+    (hj : j + 1 < Y.card) (t : Seq Y) :
+    concat S X Y (1 ⊗ₜ (ψ j * e t)) = ψ (X.card + j) * concat S X Y (1 ⊗ₜ e t) := by
+  rw [show (1 : KLRAlgebra k S X) ⊗ₜ[k] (ψ j * e t) =
+      ((1 : KLRAlgebra k S X) ⊗ₜ[k] (ψ j : KLRAlgebra k S Y)) * (1 ⊗ₜ[k] e t) by
+      rw [Algebra.TensorProduct.tmul_mul_tmul, one_mul],
+    concat_mul, concat_one_tmul_ψ hj, mul_assoc, oneConcat_mul_concat]
+
+private theorem suffixConcat_red_dot (t : Seq Aₗ) (b : Fin (Aₗ).card) (hb : (t.1 b).isRight) :
+    suffixConcat Q Λ p hTot (1 ⊗ₜ (x b * e t)) = 0 := by
+  change q (τν (orderProjection Q Λ ν (πν (castKLR S hTot (concat S Aₚ Aₗ _))))) = 0
+  rw [concat_one_tmul_x_mul, concat_one_tmul_e, Finset.mul_sum, map_sum, map_sum,
+    Finset.sum_eq_zero fun i _ => ?_, map_zero, map_zero, map_zero]
+  rw [map_mul, castKLR_x, castKLR_e, map_mul]
+  exact StendhalAlgebraAllOrders.x_mul_e_of_red _ _ (by simpa [Seq.lbl] using hb)
+
+private theorem blackG_red_dot (a : Fin (rₗ + B₀).card) (t : Seq (rₗ + B₀))
+    (hr : (t.1 a).isRight) : G (x a * e t) = 0 := by
+  rw [blackG_apply, map_mul, castKLR_x, castKLR_e]
+  exact suffixConcat_red_dot Q Λ p hTot _ _
+    (by rw [Seq.cast_apply, Fin.cast_cast, Fin.cast_eq_self]; exact hr)
+
+private theorem blackH_red_dot (a : Fin (rₗ + B₀).card) (t : Seq (rₗ + B₀))
+    (hr : (t.1 a).isRight) : H (x a * e t) = 0 := by
+  rw [blackH_apply, map_mul, castKLR_x, castKLR_e, parabolicLastCyclotomic, AlgHom.comp_apply,
+    parabolicLastProjection_red_dot _ _ _ _ _
+      (by rw [Seq.lbl, Seq.cast_apply, Fin.cast_cast, Fin.cast_eq_self]; exact hr), map_zero,
+    TensorProduct.tmul_zero, map_zero]
+
+include ha in
+private theorem blackGH_violated (z : K) (t : Seq (rₗ + B₀)) (ht : IsViolated t) :
+    G (z * e t) = H (z * e t) := by
+  rw [show z * e t = z * e t * e t by rw [mul_assoc, e_mul_self], blackG_mul, blackH_mul,
+    blackG_e_violated Q Λ p ha hTot t ht, blackH_e_violated Q Λ p h ha t ht, mul_zero, mul_zero]
+
+include ha in
+private theorem blackGH_x (a : Fin (rₗ + B₀).card) (t : Seq (rₗ + B₀)) :
+    G (x a * e t) = H (x a * e t) := by
+  by_cases hr : (t.1 a).isRight
+  · rw [blackG_red_dot Q Λ p hTot a t hr, blackH_red_dot Q Λ p h ha a t hr]
+  by_cases ht : IsViolated t
+  · exact blackGH_violated Q Λ p h ha hTot _ t ht
+  have ha0 : a.val ≠ 0 := fun h0 => hr (by rw [terminal_first t ht a h0]; rfl)
+  obtain ⟨a₀, b, rfl⟩ := split_unviolated t ht
+  have := seq_terminal_subsingleton (I := I) (ℓ := ℓ)
+  have hlt : a.val - 1 < (B₀).card := by have := a.2; simp at this ⊢; omega
+  have hpa : Seq.posR rₗ (⟨a.val - 1, hlt⟩ : Fin (B₀).card) = a := Fin.ext (by simp; omega)
+  have hxe : x a * e (a₀.append b) = concat S rₗ B₀ (1 ⊗ₜ (x ⟨a.val - 1, hlt⟩ * e b)) := by
+    rw [concat_one_tmul_x_mul, concat_one_tmul_e, hpa, Fintype.sum_subsingleton _ a₀]
+  rw [hxe]
+  exact blackG_concat Q Λ p h ha hTot _
+
 end Factorization
 
 end Categorification.Stendhal

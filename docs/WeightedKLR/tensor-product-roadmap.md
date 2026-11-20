@@ -632,8 +632,11 @@ for induction along `appendBlack` of right `T^λ_ν`-modules, through the repair
 (`clBlackHomInd`, `clBlackHomInd_smul`). Dually (`RedStrands/DoubleBlackRestriction.lean`, Webster's
 `Eᵢ` after Thm 4.31), restricting `Hom(⊕ O_{i+ν}, M)` along the matrix map gives
 `Hom(⊕ O_ν, Eᵢ M)` (`blackHomRes`, `blackHomRes_smul`), and along `appendBlackOp` over `T^λ`
-at the standard Khovanov–Lauda parameters (`clBlackHomRes`, `clBlackHomRes_smul`). Prop 5.5's proof also uses the commutation relations of `𝒰` on modules, which come from
-Thm 4.31 on projectives through these adjunctions; Thm 5.8's proof uses the injectivity of
+at the standard Khovanov–Lauda parameters (`clBlackHomRes`, `clBlackHomRes_smul`). Prop 5.5's proof also uses the commutation relations of `𝒰` on modules. These are done on the
+all-down matrix ring (`RedStrands/BlackModuleSumDecomp.lean`): `Eᵢ Fᵢ M ≅ Fᵢ Eᵢ M ⊕ M^{⊕ n}` for
+`n = ⟨i, λ⟩ ≥ 0` and dually (`blackModuleEFEquiv`, `blackModuleFEEquiv`), for every right
+module `M`, from the module-functor descriptions `blackResIndModule`, `blackIndResModule` and
+the generic `MatEnd.resIndEquivIndResProd`; Thm 5.8's proof uses the injectivity of
 Prop 5.26 for `S(L) e_α ≅ L`.
 
 Standardization functors (Prop 5.3, Def 5.4, Props 5.6, 5.7); simples and crystals

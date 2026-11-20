@@ -42,6 +42,7 @@ import Categorification.Algebra.IdempotentEquiv
 import Categorification.Algebra.CommutingFamily
 import Categorification.Algebra.HomTensor
 import Categorification.Algebra.HomTensorComp
+import Categorification.Algebra.HomTensorDecomp
 import Categorification.Algebra.HomTensorNat
 import Categorification.Algebra.InductionAlong
 import Categorification.Algebra.InductionAlongAssoc

@@ -59,6 +59,7 @@ import Categorification.Algebra.PermExpansion
 import Categorification.Algebra.ProjK0
 import Categorification.Algebra.SplitK0
 import Categorification.Algebra.SymmetricFree
+import Categorification.Algebra.UniqueSimpleQuotient
 import Categorification.Diagrams.BicatInterp
 import Categorification.Diagrams.BicatInterpAdmissible
 import Categorification.Diagrams.BicatInterpAdmissibleHorizontal

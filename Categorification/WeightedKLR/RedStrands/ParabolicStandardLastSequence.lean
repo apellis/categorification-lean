@@ -29,7 +29,10 @@ Gradings are not modelled.
 * `IdempotentQuotient.descendLinearEquiv`: a linear isomorphism intertwining `p` and `q`
   induces `X / ker p ≃ M / ker q`.
 * `lastStandardTwo_injective`, `lastStandard_exact`, `lastStandardOne_surjective`.
-* `lastStandardMiddleEquiv`.
+* `lastStandardMiddleEquiv`: the middle term is the `1_{-,i}`-fixed part of `S N`, where
+  `1_{-,i}` (`lastBlackIdem`) acts through the tensor product algebra action.
+* `lastFixedTwo_injective`, `lastFixed_exact`, `lastFixedOne_surjective`: the sequence with
+  this middle term.
 -/
 
 noncomputable section
@@ -197,6 +200,73 @@ theorem lastStandard_exact :
     Function.Exact (lastStandardTwo Q Λ i θ₀ β₀ N) (lastStandardOne Q Λ i θ₀ β₀ N hQ) :=
   (lastDescend_exact (hP := eSum_idem _) (hc := commute_eSum_redOrderedSet_lastIdem Aₚ Aₗ i)
     (hsym := stendhalQ_swap_symm Q Λ hQ) (hP₂ := lastP₂_mul Q Λ i θ₀ β₀)).conj_linearEquiv _ _ _
+
+theorem lastShuffle_commute :
+    Commute (lastShuffleOrdered Q Λ θ β N) (lastShuffleIdem Q Λ i θ₀ β₀ N) := by
+  have h := (commute_eSum_redOrderedSet_lastIdem (Q := Q) (Λ := Λ) Aₚ Aₗ i).map
+    (castKLR S (lastShuffle_weight i θ₀ β₀))
+  rw [castKLR_eSum_redOrderedSet_eq_parabolicOrderedLoadings] at h
+  exact h.map _
+
+omit [IsScalarTower k (parabolicFactorAlgebra Q Λ ({i} + θ₀) ({i} + β₀)) N] in
+theorem lastShuffleIdem_idem : IsIdempotentElem (lastShuffleIdem Q Λ i θ₀ β₀ N) := by
+  unfold IsIdempotentElem
+  rw [lastShuffleIdem, ← map_mul, ← map_mul, lastIdem_mul_self]
+
+/-- The element `1_{-,i}` of the tensor product algebra `T(θ + β)`: the idempotent on which the
+last strand is a black strand labelled `i`. -/
+def lastBlackIdem : TensorProductAlgebra k Q Λ (θ + β) :=
+  TensorProductAlgebra.mk Q Λ (θ + β) (orderProjection Q Λ (θ + β)
+    (StendhalAlgebraAllOrders.ofKLR k Q Λ (θ + β)
+      (castKLR S (parabolicInputWeights_add (ℓ := ℓ) θ β)
+        (castKLR S (lastShuffle_weight i θ₀ β₀) e₁))))
+
+/-- On standardization, `1_{-,i}` acts by the operator induced by `e`. -/
+theorem lastInducedOp_eq :
+    (inducedOp _ _ (lastShuffle_commute Q Λ i θ₀ β₀ N) :
+        Module.End k (ParabolicStandard Q Λ θ β N)) =
+      parabolicStandardAction Q Λ θ β N hQ (lastBlackIdem Q Λ i θ₀ β₀) := by
+  rw [lastBlackIdem, parabolicStandardAction_affine]
+  exact Submodule.linearMap_qext _ (LinearMap.ext fun _ => rfl)
+
+/-- The `1_{-,i}`-fixed part of standardization `S N`. -/
+abbrev LastStandardFixed : Submodule k (ParabolicStandard Q Λ θ β N) :=
+  LinearMap.ker (parabolicStandardAction Q Λ θ β N hQ (lastBlackIdem Q Λ i θ₀ β₀) -
+    LinearMap.id)
+
+/-- **The middle term is the `1_{-,i}`-fixed part of `S N`.** -/
+def lastStandardMiddleEquiv :
+    (ParabolicShuffle Q Λ θ β N ⧸
+        LinearMap.ker (lastShuffleOrdered Q Λ θ β N * lastShuffleIdem Q Λ i θ₀ β₀ N)) ≃ₗ[k]
+      LastStandardFixed Q Λ i θ₀ β₀ N hQ :=
+  (rangeEquiv _ _ (lastShuffleIdem_idem Q Λ i θ₀ β₀ N) (lastShuffle_commute Q Λ i θ₀ β₀ N)).trans
+    (LinearEquiv.ofEq _ _ (congrArg (fun f => LinearMap.ker (f - LinearMap.id))
+      (lastInducedOp_eq Q Λ i θ₀ β₀ N hQ)))
+
+/-- **The inclusion** `S(₂E_i N) → (S N)^{1_{-,i}}`. -/
+def lastFixedTwo :
+    ParabolicStandard Q Λ θ β₀ Er →ₗ[k] LastStandardFixed Q Λ i θ₀ β₀ N hQ :=
+  (lastStandardMiddleEquiv Q Λ i θ₀ β₀ N hQ).toLinearMap ∘ₗ lastStandardTwo Q Λ i θ₀ β₀ N
+
+/-- **The projection** `(S N)^{1_{-,i}} → S(₁E_i N)`. -/
+def lastFixedOne :
+    LastStandardFixed Q Λ i θ₀ β₀ N hQ →ₗ[k] ParabolicStandard Q Λ θ₀ β El :=
+  lastStandardOne Q Λ i θ₀ β₀ N hQ ∘ₗ (lastStandardMiddleEquiv Q Λ i θ₀ β₀ N hQ).symm.toLinearMap
+
+theorem lastFixedTwo_injective : Function.Injective (lastFixedTwo Q Λ i θ₀ β₀ N hQ) :=
+  (lastStandardMiddleEquiv Q Λ i θ₀ β₀ N hQ).injective.comp
+    (lastStandardTwo_injective Q Λ i θ₀ β₀ N hQ)
+
+theorem lastFixedOne_surjective : Function.Surjective (lastFixedOne Q Λ i θ₀ β₀ N hQ) :=
+  (lastStandardOne_surjective Q Λ i θ₀ β₀ N hQ).comp
+    (lastStandardMiddleEquiv Q Λ i θ₀ β₀ N hQ).symm.surjective
+
+/-- **Webster, Prop 5.5, `E`-part (proof):** the sequence
+`0 → S(₂E_i N) → (S N)^{1_{-,i}} → S(₁E_i N) → 0` is exact. -/
+theorem lastFixed_exact :
+    Function.Exact (lastFixedTwo Q Λ i θ₀ β₀ N hQ) (lastFixedOne Q Λ i θ₀ β₀ N hQ) :=
+  (lastStandard_exact Q Λ i θ₀ β₀ N hQ).conj_linearEquiv (LinearEquiv.refl k _)
+    (lastStandardMiddleEquiv Q Λ i θ₀ β₀ N hQ) (LinearEquiv.refl k _)
 
 end Stendhal
 

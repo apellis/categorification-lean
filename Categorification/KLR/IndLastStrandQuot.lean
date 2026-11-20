@@ -415,6 +415,106 @@ theorem tmul_lastElt_mem_range (x : KLRAlgebra k Q (ν₀ + Si i + ν₀')) (n :
 
 end LowerStep
 
+/-! ### The map `Ψ : Ind_{ν₀,ν'} ₁N → Ind_{ν,ν'} N / Φ(Ind_{ν,ν₀'} ₂N)` -/
+
+section Quot
+
+variable (Q) (ν₀ ν₀' : Multiset I) (i : I)
+
+/-- `tensorAppendL` as a nonunital ring map. -/
+noncomputable abbrev tensorAppendLHom :
+    TensorKLR Q ν₀ (ν₀' + Si i) →ₙ+* TensorKLR Q (ν₀ + Si i) (ν₀' + Si i) :=
+  NonUnitalRingHomClass.toNonUnitalRingHom (tensorAppendL Q ν₀ (ν₀' + Si i) i)
+
+/-- **`₁N = (1_{ν₀,i} ⊗ 1) N`**, an `R(ν₀) ⊗ R(ν')`-module through `tensorAppendL`. -/
+abbrev ResLeft (N : Type*) [AddCommGroup N]
+    [Module (TensorKLR Q (ν₀ + Si i) (ν₀' + Si i)) N] : Type _ :=
+  InductionAlong.Res (tensorAppendLHom Q ν₀ ν₀' i) N
+
+variable {Q ν₀ ν₀' i}
+variable {N : Type*} [AddCommGroup N] [Module k N]
+  [Module (TensorKLR Q (ν₀ + ({i} : Multiset I)) (ν₀' + ({i} : Multiset I))) N]
+  [IsScalarTower k (TensorKLR Q (ν₀ + ({i} : Multiset I)) (ν₀' + ({i} : Multiset I))) N]
+
+noncomputable instance : Module k (ResLeft Q ν₀ ν₀' i N) :=
+  Module.compHom _ (algebraMap k (TensorKLR Q ν₀ (ν₀' + Si i)))
+
+instance : IsScalarTower k (TensorKLR Q ν₀ (ν₀' + Si i)) (ResLeft Q ν₀ ν₀' i N) where
+  smul_assoc c t n := by
+    change (c • t) • n = (algebraMap k (TensorKLR Q ν₀ (ν₀' + Si i)) c) • (t • n)
+    rw [Algebra.smul_def, mul_smul]
+
+theorem ResLeft.val_smul_k (c : k) (n : ResLeft Q ν₀ ν₀' i N) : (c • n).val = c • n.val := by
+  change tensorAppendL Q ν₀ (ν₀' + Si i) i (algebraMap k _ c) • n.val = c • n.val
+  rw [Algebra.algebraMap_eq_smul_one, map_smul, smul_assoc]
+  exact congrArg (c • ·) n.prop
+
+theorem lastElt_mul_botConcat (Y : KLRAlgebra k Q (ν₀ + Si i + ν₀' + Si i))
+    (T : TensorKLR Q (ν₀ + Si i) (ν₀' + Si i)) :
+    lastElt Q ν₀ ν₀' i (Y * botConcat Q (lastQuad_h ν₀ ν₀' i) T) =
+      op T • lastElt Q ν₀ ν₀' i Y := Subtype.ext (by
+  rw [coe_op_smul, unop_op, coe_lastElt, coe_lastElt, map_mul, castKLR_botConcat_lastQuad_h,
+    mul_assoc, concat_mul_oneConcat, mul_assoc, oneConcat_mul_concat])
+
+variable (Q ν₀ ν₀' i) in
+/-- The bimodule part of `Ψ`: `r ↦ ι(r ⊗ 1_i) ψ_d 1_{ν,ν'}`. -/
+noncomputable def lastBimod : IndBimod Q ν₀ (ν₀' + Si i) →ₗ[k] IndBimod Q (ν₀ + Si i) (ν₀' + Si i) where
+  toFun r := lastElt Q ν₀ ν₀' i
+    (appendR Q _ i (castKLR Q (lastQuad_h₁ ν₀ ν₀' i) (r : KLRAlgebra k Q (ν₀ + (ν₀' + Si i)))) *
+      lastψ Q ν₀ ν₀' i)
+  map_add' r r' := by rw [Submodule.coe_add, map_add, map_add, add_mul, map_add]
+  map_smul' c r := by
+    change lastElt Q ν₀ ν₀' i (appendR Q _ i (castKLR Q (lastQuad_h₁ ν₀ ν₀' i)
+      (c • (r : KLRAlgebra k Q (ν₀ + (ν₀' + Si i))))) * lastψ Q ν₀ ν₀' i) = c • _
+    rw [map_smul, map_smul, smul_mul_assoc, map_smul]
+
+theorem lastBimod_apply (r : IndBimod Q ν₀ (ν₀' + Si i)) :
+    lastBimod Q ν₀ ν₀' i r = lastElt Q ν₀ ν₀' i
+      (appendR Q _ i (castKLR Q (lastQuad_h₁ ν₀ ν₀' i) (r : KLRAlgebra k Q (ν₀ + (ν₀' + Si i)))) *
+        lastψ Q ν₀ ν₀' i) := rfl
+
+/-- `Ψ` on the bimodule is balanced up to the image of `Φ`. -/
+theorem tmul_lastBimod_op_smul_sub_mem (r : IndBimod Q ν₀ (ν₀' + Si i))
+    (t : TensorKLR Q ν₀ (ν₀' + Si i)) (n : N) :
+    (BalancedTensor.tmul (lastBimod Q ν₀ ν₀' i (op t • r)) n -
+        BalancedTensor.tmul (lastBimod Q ν₀ ν₀' i r) (tensorAppendL Q ν₀ (ν₀' + Si i) i t • n) :
+        Ind Q (ν₀ + Si i) (ν₀' + Si i) N) ∈
+      LinearMap.range (indAppend (Q := Q) (ν := ν₀ + Si i) (ν₀' := ν₀') (i := i) (N := N)) := by
+  rw [lastBimod_apply, coe_op_smul, unop_op, appendR_castKLR_mul_concat, map_add,
+    lastElt_mul_botConcat, BalancedTensor.add_tmul, BalancedTensor.op_smul_tmul, ← lastBimod_apply,
+    add_sub_cancel_right]
+  exact tmul_lastElt_mem_range _ n (quad_intertwine (lastQuad_h ν₀ ν₀' i) (lastQuad ν₀ ν₀' i) _)
+
+/-- The bilinear map `(r, n) ↦ [ι(r ⊗ 1_i) ψ_d ⊗ n]`. -/
+noncomputable def lastBil :
+    IndBimod Q ν₀ (ν₀' + Si i) →ₗ[k] ResLeft Q ν₀ ν₀' i N →ₗ[k]
+      (Ind Q (ν₀ + Si i) (ν₀' + Si i) N ⧸
+        LinearMap.range (indAppend (Q := Q) (ν := ν₀ + Si i) (ν₀' := ν₀') (i := i) (N := N))) :=
+  LinearMap.mk₂ k (fun r n => Submodule.Quotient.mk (BalancedTensor.tmul (lastBimod Q ν₀ ν₀' i r) n.val))
+    (fun r r' n => by rw [map_add, BalancedTensor.add_tmul, Submodule.Quotient.mk_add])
+    (fun c r n => by rw [map_smul, BalancedTensor.smul_tmul, Submodule.Quotient.mk_smul])
+    (fun r n n' => by
+      rw [InductionAlong.Res.val_add, BalancedTensor.tmul_add, Submodule.Quotient.mk_add])
+    (fun c r n => by
+      rw [ResLeft.val_smul_k, BalancedTensor.tmul_smul, Submodule.Quotient.mk_smul])
+
+/-- **The map `Ψ : Ind_{ν₀,ν'} ₁N → Ind_{ν,ν'} N / Φ(Ind_{ν,ν₀'} ₂N)`**,
+`r ⊗ n ↦ [ι(r ⊗ 1_i) ψ_d ⊗ n]`. -/
+noncomputable def indLast :
+    Ind Q ν₀ (ν₀' + Si i) (ResLeft Q ν₀ ν₀' i N) →ₗ[k]
+      (Ind Q (ν₀ + Si i) (ν₀' + Si i) N ⧸
+        LinearMap.range (indAppend (Q := Q) (ν := ν₀ + Si i) (ν₀' := ν₀') (i := i) (N := N))) :=
+  BalancedTensor.lift lastBil (fun r t n => by
+    change Submodule.Quotient.mk _ = Submodule.Quotient.mk _
+    rw [Submodule.Quotient.eq]
+    exact tmul_lastBimod_op_smul_sub_mem r t n.val)
+
+theorem indLast_tmul (r : IndBimod Q ν₀ (ν₀' + Si i)) (n : ResLeft Q ν₀ ν₀' i N) :
+    indLast (BalancedTensor.tmul r n) =
+      Submodule.Quotient.mk (BalancedTensor.tmul (lastBimod Q ν₀ ν₀' i r) n.val) := rfl
+
+end Quot
+
 end KLRAlgebra
 
 end Categorification.KLR

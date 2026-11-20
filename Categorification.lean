@@ -641,6 +641,7 @@ import Categorification.TwoRep.BBwDeprecated
 import Categorification.TwoRep.AdjointWeightZero
 import Categorification.TwoRep.BSum
 import Categorification.TwoRep.CompletionPseudofunctor
+import Categorification.TwoRep.CompletionSumDecomp
 import Categorification.TwoRep.Basic
 import Categorification.TwoRep.Biadjoint
 import Categorification.TwoRep.CLTwoFunctor

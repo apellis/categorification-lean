@@ -4,6 +4,8 @@ Released under Apache 2.0 license as described in the file LICENSE.
 -/
 import Categorification.WeightedKLR.RedStrands.DoubleDownBlackMatrix
 import Categorification.WeightedKLR.RedStrands.DoubleDownComparison
+import Categorification.WeightedKLR.RedStrands.DoubleDownCLComparison
+import Categorification.WeightedKLR.RedStrands.BlackRescale
 
 /-!
 # The matrix map of `Fᵢ` and adjoining a black strand
@@ -119,5 +121,31 @@ theorem ordinaryToDownwardMatrix_appendBlack (z : TensorProductAlgebra k Q expon
       blackMatrix (P₁) i (ordinaryToDownwardMatrix P Q exponents scalars (ν := ν) z) := by
   obtain ⟨x, rfl⟩ := affineTensorProjection_surjective (Q := Q) exponents ν z
   exact appendSide_eq P Q exponents scalars i ν x
+
+/-- The rescaled comparison of Lemma 4.28 intertwines adjoining a black strand with the matrix
+map of `Fᵢ`. -/
+theorem rescaledToDownwardMatrix_appendBlack (Qd : I → I → MvPolynomial (Fin 2) k)
+    {s : I → I → kˣ} (hs : ∀ a, s a a = 1)
+    (hQ : ∀ a b, a ≠ b → Q a b = MvPolynomial.C ((s a b * s b a : kˣ) : k) * Qd a b)
+    (z : TensorProductAlgebra k Q exponents ν) :
+    rescaledToDownwardMatrix P exponents scalars (ν := {i} + ν) Q Qd hs hQ
+        (appendBlack Q exponents i ν z) =
+      blackMatrix (addRedUpRelations RD labels k (addMixedBlackRelations RD labels k scalars
+          (addDownRelations RD labels (affineCoverQ Qd exponents) P))) i
+        (rescaledToDownwardMatrix P exponents scalars Q Qd hs hQ z) := by
+  simp only [rescaledToDownwardMatrix, AlgHom.comp_apply, AlgEquiv.coe_toAlgHom]
+  rw [tensorRescale_appendBlack, ordinaryToDownwardMatrix_appendBlack]
+
+/-- **The matrix map of `Fᵢ` and the repaired Lemma 4.29** (arXiv:1309.3796v3): the
+comparison at the Cautis–Lauda parameters intertwines adjoining a black strand to `T^λ` with
+the matrix map of `Fᵢ` on the all-down block. -/
+theorem clToDownwardMatrix_appendBlack (S : KL3.Diagram.CL.CLScalars C k)
+    (z : TensorProductAlgebra k (KL3.Diagram.CL.qCL S) exponents ν) :
+    clToDownwardMatrix P exponents scalars (ν := {i} + ν) S
+        (appendBlack (KL3.Diagram.CL.qCL S) exponents i ν z) =
+      blackMatrix (addRedUpRelations RD labels k (addMixedBlackRelations RD labels k scalars
+          (addDownRelations RD labels (affineCoverQ (clDownwardQ S) exponents) P))) i
+        (clToDownwardMatrix P exponents scalars S z) :=
+  rescaledToDownwardMatrix_appendBlack P (KL3.Diagram.CL.qCL S) exponents scalars i ν _ _ _ z
 
 end Categorification.Stendhal.DoubleDiagram

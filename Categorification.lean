@@ -1181,6 +1181,7 @@ import Categorification.WeightedKLR.RedStrands.DoubleRedBubble
 import Categorification.WeightedKLR.RedStrands.TensorCornerFormula
 import Categorification.WeightedKLR.RedStrands.CyclotomicRedAbsentCap
 import Categorification.WeightedKLR.RedStrands.CyclotomicRedCapSl2
+import Categorification.WeightedKLR.RedStrands.CyclotomicRedGlobal
 import Categorification.WeightedKLR.RedStrands.DoublePitchforkObstruction
 import Categorification.WeightedKLR.RedStrands.DoublePitchforkClosure
 import Categorification.WeightedKLR.RedStrands.DoubleDownScalars
@@ -1287,4 +1288,3 @@ import Categorification.WeightedKLR.RedStrands.SplitRedWords
 
 Lean 4 formalizations of results in categorification.
 -/
-import Categorification.WeightedKLR.RedStrands.CyclotomicRedGlobal

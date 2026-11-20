@@ -48,6 +48,19 @@ theorem SumInvFrom.eq_g' {D : Type*} [Category D] [Preadditive D] {X Y Z : D} {f
         · intro hkn
           exact False.elim (hkn (Finset.mem_range.mpr hk))
 
+/-- The main inverse component of `(f, g 0, …, g (n-1)) : X → Y ⊕ Z^{⊕ n}` is determined by its
+composites with the original components. -/
+theorem SumInvTo.eq_f' {D : Type*} [Category D] [Preadditive D] {X Y Z : D} {f : X ⟶ Y}
+    {g : ℕ → (X ⟶ Z)} {n : ℕ} (I : SumInvTo f g n) (c : Y ⟶ X) (hf : c ≫ f = 𝟙 Y)
+    (hg : ∀ m, m < n → c ≫ g m = 0) : c = I.f' := by
+  calc c = c ≫ (f ≫ I.f' + ∑ m ∈ Finset.range n, g m ≫ I.g' m) := by
+        rw [I.total, Category.comp_id]
+    _ = I.f' := by
+        rw [Preadditive.comp_add, Preadditive.comp_sum, ← Category.assoc, hf, Category.id_comp,
+          add_eq_left]
+        refine Finset.sum_eq_zero fun m hm => ?_
+        rw [← Category.assoc, hg m (Finset.mem_range.mp hm), Limits.zero_comp]
+
 end Categorification.TwoRep
 
 namespace Categorification.KLR.KLRAlgebra.PresentColour
@@ -76,6 +89,22 @@ theorem positiveEquiv_symm_tmul_snd
         z).2 d • n := by
   simp only [positiveEquiv, LinearEquiv.trans_symm, LinearEquiv.trans_apply,
     LinearEquiv.symm_symm, LinearEquiv.apply_symm_apply]
+  rfl
+
+/-- On a pure tensor of the middle corner, the nonpositive commutator inverse is the induced
+lower tensor of the inverse with zero dotted coordinates. -/
+theorem negativeEquiv_symm_tmul
+    (hwt : RD.pair (RD.iY i) (Λ - Multiset.sum (Multiset.map RD.iX ({i} + γ))) ≤ 0)
+    (z : MiddleCyclotomic Q i γ a) (n : N) :
+    (negativeEquiv Q i γ a N hsym hQ ha RD Λ hΛ hdeg hwt).symm
+        ((efMiddleEquiv Q i γ a N).symm (tmul z n), 0) =
+      lowerToFE Q i γ a N (tmul
+        ((cyclotomicNegativeCommutatorBimoduleEquiv Q i γ a hsym hQ ha RD Λ hΛ hdeg hwt).symm
+          (z, 0)) n) := by
+  simp only [negativeEquiv, LinearEquiv.trans_symm, LinearEquiv.trans_apply,
+    LinearEquiv.prodCongr_symm, LinearEquiv.prodCongr_apply, LinearEquiv.symm_symm,
+    LinearEquiv.apply_symm_apply, LinearEquiv.refl_symm, LinearEquiv.refl_apply]
+  rw [prodFin_symm_tmul]
   rfl
 
 end Categorification.KLR.KLRAlgebra.PresentColour
@@ -136,5 +165,55 @@ theorem capL_app_positive (hw : 0 < wt)
   have he : (- -wt - 1).toNat = (wt).toNat - 1 := by omega
   simp only [he]
   rfl
+
+/-- The main component of the inverse of `(σ, capD 0, …)` at nonnegative Rouquier weight is the
+explicit cyclotomic inverse crossing. -/
+theorem ip_f' (hw : wt ≤ 0) (hh : 0 ≤ -wt) :
+    ((loc.{u,v,w} Q i a β hsym hQ ha RD Λ hΛ hdeg).ip hh).f' =
+      ObjectProperty.homMk
+        (negativeInverseCrossing.{u,v,w} Q i a β hsym hQ ha RD Λ hΛ hdeg hw) := by
+  refine (SumInvTo.eq_f' _ _ ?_ ?_).symm
+  · apply ObjectProperty.hom_ext
+    erw [ObjectProperty.FullSubcategory.comp_hom, sigma_hom]
+    exact (actualSumInvTo.{u,v,w} Q i a β hsym hQ ha RD Λ hΛ hdeg hw).ff
+  · intro m hm
+    apply ObjectProperty.hom_ext
+    erw [ObjectProperty.FullSubcategory.comp_hom, cap_hom]
+    exact (actualSumInvTo.{u,v,w} Q i a β hsym hQ ha RD Λ hΛ hdeg hw).fg m hm
+
+/-- **The Rouquier leftward cap at nonpositive weight is the cyclotomic corner trace**: on a pure
+tensor `z ⊗ m` of the middle corner it is the dotted counit of the inverse crossing of `z`. -/
+theorem capL_app_nonpositive (hw : wt ≤ 0)
+    (M : ModuleCat.{max u v w} (CycKLR k Q a (Si + β)))
+    (z : MiddleCyclotomic Q i β a) (m : M) :
+    ((loc.{u,v,w} Q i a β hsym hQ ha RD Λ hΛ hdeg).capL.hom.app M).hom
+        ((PresentColour.efMiddleEquiv Q i β a M).symm (BalancedTensor.tmul z m)) =
+      CornerTrace.nonpositive Q i β a hsym hQ ha RD Λ hΛ hdeg hw z • m := by
+  have hh : 0 ≤ -wt := by omega
+  rw [RouqLoc.capL_of_nonneg hh, RouqLoc.sigL_of_nonneg hh,
+    ip_f' Q i a β hsym hQ ha RD Λ hΛ hdeg hw hh, Preadditive.neg_comp, neg_neg]
+  have hc : ((loc.{u,v,w} Q i a β hsym hQ ha RD Λ hΛ hdeg).capD (-wt).toNat).hom =
+      dottedCounit Q i a β (-wt).toNat := cap_hom Q i a β _
+  erw [ObjectProperty.FullSubcategory.comp_hom, hc]
+  change (dottedCounit Q i a β (-wt).toNat).app M
+    ((originalNegativeEquiv.{u,v,w} Q i a β hsym hQ ha RD Λ hΛ hdeg M hw).symm (_, 0)) = _
+  have hs : ∀ t, (originalNegativeEquiv.{u,v,w} Q i a β hsym hQ ha RD Λ hΛ hdeg M hw).symm t =
+      feRebase Q i a β M ((PresentColour.negativeEquiv Q i β a M hsym hQ ha RD Λ hΛ hdeg hw).symm
+        t) := fun t => rfl
+  have key := PresentColour.negativeEquiv_symm_tmul Q i β a M hsym hQ ha RD Λ hΛ hdeg hw z m
+  refine (congrArg _ ((hs _).trans (congrArg _ key))).trans ?_
+  exact dottedCounit_comparison Q i a β M _ _ m
+
+/-- **The Rouquier leftward cap is the cyclotomic corner trace** (Brundan (1.15), (1.17)): on a
+pure tensor `z ⊗ m` of the middle corner it is multiplication by the corner trace of `z`. -/
+theorem capL_app_tmul (M : ModuleCat.{max u v w} (CycKLR k Q a (Si + β)))
+    (z : MiddleCyclotomic Q i β a) (m : M) :
+    ((loc.{u,v,w} Q i a β hsym hQ ha RD Λ hΛ hdeg).capL.hom.app M).hom
+        ((PresentColour.efMiddleEquiv Q i β a M).symm (BalancedTensor.tmul z m)) =
+      CornerTrace.trace Q i β a hsym hQ ha RD Λ hΛ hdeg z • m := by
+  unfold CornerTrace.trace
+  split
+  · exact capL_app_positive Q i a β hsym hQ ha RD Λ hΛ hdeg _ M z m
+  · exact capL_app_nonpositive Q i a β hsym hQ ha RD Λ hΛ hdeg _ M z m
 
 end Categorification.KLR.KLRAlgebra.AbsentColour.ConcreteAdjunction

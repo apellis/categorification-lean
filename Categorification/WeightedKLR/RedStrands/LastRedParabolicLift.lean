@@ -262,6 +262,128 @@ private theorem blackG_concat (w : KLRAlgebra k S B₀) :
   exact congrArg (fun y => ψL ((1 : L) ⊗ₜ[k] y))
     (parabolicLastCyclotomic_concat_black Q Λ β v).symm
 
+omit [DecidableEq I] in
+private theorem violated_cast {X Y : Multiset (I ⊕ Fin (ℓ+1))} (hμ : X = Y) {t : Seq X}
+    (ht : IsViolated t) : IsViolated (Seq.cast hμ t) := by
+  subst hμ; exact ht
+
+omit [DecidableEq I] in
+private theorem terminal_red_mem (t : Seq Aₗ) : ∃ c, t.1 c = .inr (Fin.last ℓ) := by
+  have hmem : (Sum.inr (Fin.last ℓ) : I ⊕ Fin (ℓ+1)) ∈ Aₗ := by
+    simp [stendhalWeight]
+  rw [← t.2] at hmem
+  obtain ⟨c, _, hc⟩ := Multiset.mem_map.1 hmem
+  exact ⟨c, hc⟩
+
+private theorem suffixConcat_e_e (i : Seq Aₚ) (t : Seq Aₗ) :
+    suffixConcat Q Λ p hTot (e i ⊗ₜ e t) =
+      q (τν (orderProjection Q Λ ν (πν (e (Seq.cast hTot (i.append t)))))) := by
+  change q (τν (orderProjection Q Λ ν (πν (castKLR S hTot (concat S Aₚ Aₗ _))))) = _
+  rw [concat_e_tmul_e, castKLR_e]
+
+include ha in
+private theorem suffixConcat_e_violated (i : Seq Aₚ) (t : Seq Aₗ) (ht : IsViolated t) :
+    suffixConcat Q Λ p hTot (e i ⊗ₜ e t) = 0 := by
+  rw [suffixConcat_e_e]
+  set s := Seq.cast hTot (i.append t) with hsdef
+  by_cases hs : IsRedOrdered s
+  · have he : orderProjection Q Λ ν (πν (e s)) = StendhalAlgebra.e s hs :=
+      Subtype.ext ((StendhalAlgebraAllOrders.e_mul_redOrderedIdem s).trans (ite_eq_left hs))
+    rw [he]
+    obtain ⟨c, hc⟩ := terminal_red_mem t
+    obtain ⟨h0, hl0⟩ := ht
+    have hc0 : c.val ≠ 0 := by
+      intro hc0
+      have : c = ⟨0, h0⟩ := Fin.ext hc0
+      rw [this] at hc
+      simp [Seq.lbl, hc] at hl0
+    have hcard : (Aₚ).card = p.val := by
+      simp [stendhalWeight] at ha ⊢; omega
+    let a : Fin (stendhalWeight (ℓ+1) ν).card :=
+      Fin.cast (congrArg Multiset.card hTot) (Seq.posR Aₚ c)
+    have hpa : p < a := by
+      change p.val < (Aₚ).card + c.val
+      omega
+    have hl : s.lbl a = .inr (Fin.last ℓ) := by
+      change (Seq.cast hTot (i.append t)).1 a = _
+      simp [a, hc]
+    change (smallerSuffixIdeal Q Λ p).ringCon.mk' _ = 0
+    rw [← TwoSidedIdeal.mem_ker, TwoSidedIdeal.ker_ringCon_mk']
+    exact TwoSidedIdeal.subset_span ⟨s, hs, a, hpa, hl, rfl⟩
+  · have he : orderProjection Q Λ ν (πν (e s)) = 0 :=
+      Subtype.ext ((StendhalAlgebraAllOrders.e_mul_redOrderedIdem s).trans (ite_eq_right hs))
+    rw [he, map_zero, map_zero]
+
+include ha in
+private theorem blackG_e_violated (t : Seq (rₗ + B₀)) (ht : IsViolated t) : G (e t) = 0 := by
+  rw [blackG_apply, castKLR_e, ← sum_e (ν := Aₚ), TensorProduct.sum_tmul, map_sum]
+  exact Finset.sum_eq_zero fun i _ =>
+    suffixConcat_e_violated Q Λ p ha hTot i _ (violated_cast hB ht)
+
+private theorem blackH_e_violated (t : Seq (rₗ + B₀)) (ht : IsViolated t) : H (e t) = 0 := by
+  rw [blackH_apply, castKLR_e, parabolicLastCyclotomic, AlgHom.comp_apply,
+    parabolicLastProjection_e_violated _ _ _ _ (violated_cast hB ht), map_zero,
+    TensorProduct.tmul_zero, map_zero]
+
+omit [DecidableEq I] in
+private theorem seq_terminal_subsingleton : Subsingleton (Seq rₗ) :=
+  ⟨fun s t => Subtype.ext (funext fun a => by
+    rw [Multiset.mem_singleton.1 (s.mem a), Multiset.mem_singleton.1 (t.mem a)])⟩
+
+private theorem e_terminal (a : Seq rₗ) : (e a : KLRAlgebra k S rₗ) = 1 := by
+  have := seq_terminal_subsingleton (I := I) (ℓ := ℓ)
+  rw [← sum_e, Fintype.sum_subsingleton _ a]
+
+omit [DecidableEq I] in
+/-- In a diagram with a black leftmost terminus... a loading that is not violated starts with
+the terminal red strand. -/
+private theorem terminal_first (t : Seq (rₗ + B₀)) (ht : ¬ IsViolated t)
+    (c : Fin (rₗ + B₀).card) (hc : c.val = 0) : t.1 c = .inr (Fin.last ℓ) := by
+  have hpos : 0 < (rₗ + B₀).card := hc ▸ c.2
+  have hr : ¬ (t.lbl ⟨0, hpos⟩).isLeft := fun hl => ht ⟨hpos, hl⟩
+  have hceq : c = ⟨0, hpos⟩ := Fin.ext hc
+  rcases Multiset.mem_add.1 (t.mem c) with h1 | h1
+  · exact Multiset.mem_singleton.1 h1
+  · obtain ⟨z, _, hz⟩ := Multiset.mem_map.1 h1
+    subst hceq
+    rw [Seq.lbl, ← hz] at hr
+    simp at hr
+
+omit [DecidableEq I] in
+private theorem split_unviolated (t : Seq (rₗ + B₀)) (ht : ¬ IsViolated t) :
+    ∃ (a : Seq rₗ) (b : Seq B₀), a.append b = t := by
+  have hX : Finset.univ.val.map (t.1 ∘ Seq.posL B₀) = rₗ := by
+    have hrep : Finset.univ.val.map (t.1 ∘ Seq.posL B₀) =
+        Multiset.replicate 1 (Sum.inr (Fin.last ℓ)) := by
+      refine Multiset.eq_replicate.2 ⟨by simp, fun b hb => ?_⟩
+      obtain ⟨c, _, rfl⟩ := Multiset.mem_map.1 hb
+      have hc : c.val = 0 := by have := c.2; simp at this; omega
+      exact terminal_first t ht _ hc
+    simpa using hrep
+  have key : ∀ f : Fin (Multiset.card (rₗ + B₀)) → I ⊕ Fin (ℓ+1), Finset.univ.val.map f =
+      Finset.univ.val.map (f ∘ Seq.posL B₀) + Finset.univ.val.map (f ∘ Seq.posR rₗ) := by
+    intro f
+    conv_lhs => rw [← Multiset.map_univ_val_equiv (TypeA.blockEquiv (Seq.card_add' rₗ B₀))]
+    rw [Multiset.map_map, ← Finset.univ_disjSum_univ, Finset.val_disjSum, Multiset.disjSum,
+      Multiset.map_add, Multiset.map_map, Multiset.map_map]
+    rfl
+  have hmap := key t.1
+  rw [t.2, hX] at hmap
+  refine ⟨⟨t.1 ∘ Seq.posL B₀, hX⟩, ⟨t.1 ∘ Seq.posR rₗ, (add_left_cancel hmap).symm⟩, ?_⟩
+  apply Subtype.ext; funext a
+  obtain ⟨c, rfl⟩ := (TypeA.blockEquiv (Seq.card_add' rₗ B₀)).surjective a
+  cases c with
+  | inl x => exact Seq.append_posL _ _ x
+  | inr y => exact Seq.append_posR _ _ y
+
+include ha in
+private theorem blackGH_e (t : Seq (rₗ + B₀)) : G (e t) = H (e t) := by
+  by_cases ht : IsViolated t
+  · rw [blackG_e_violated Q Λ p ha hTot t ht, blackH_e_violated Q Λ p h ha t ht]
+  · obtain ⟨a, b, rfl⟩ := split_unviolated t ht
+    rw [← concat_e_tmul_e, e_terminal]
+    exact blackG_concat Q Λ p h ha hTot (e b)
+
 end Factorization
 
 end Categorification.Stendhal

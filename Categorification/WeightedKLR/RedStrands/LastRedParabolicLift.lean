@@ -205,4 +205,63 @@ theorem lastRedLayerAction_identityShuffle (hTot : Aₚ + Aₗ = stendhalWeight 
   obtain ⟨t,ht,he⟩ := lastRedLayerAction_exists_parabolicLift Q Λ p h ha hTot z
   rw [← he,hc,ht]
 
+section Factorization
+
+variable (hTot : Multiset.map (addRedColor ℓ) (stendhalWeight ℓ θ) +
+    Multiset.map (Sum.map (id : I → I) (fun _ : Fin 1 => Fin.last ℓ)) (stendhalWeight 1 β) =
+      stendhalWeight (ℓ+1) ν)
+local notation "hB" => lastRedBlackWeight (ℓ := ℓ) β
+local notation "K" => KLRAlgebra k S (rₗ + B₀)
+local notation "Cₚ" => RingCon.Quotient (TwoSidedIdeal.ringCon (smallerSuffixIdeal Q Λ p))
+local notation "q" => RingCon.mk' (TwoSidedIdeal.ringCon (smallerSuffixIdeal Q Λ p))
+local notation "τν" => TensorProductAlgebra.mk Q Λ ν
+local notation "πν" => StendhalAlgebraAllOrders.ofKLR k Q Λ ν
+
+/-- Juxtaposition and the last-red layer agree on a parabolic diagram whose
+second block is the terminal red strand followed by black strands. -/
+private theorem layer_parabolic (u : KLRAlgebra k S Aₚ) (v : KLRAlgebra k Q β) :
+    suffixConcat Q Λ p hTot
+        (u ⊗ₜ castKLR S hB (concat S rₗ B₀ (1 ⊗ₜ blackSuffixReindex Q Λ β v))) =
+      ψL (P₁ u ⊗ₜ CycKLR.mk k Q λf β v) := by
+  rw [layer_prefixLift Q Λ p h ha (P₁ u) (rawFirst u) (prefixLift_eq Q Λ u)]
+  change lastRedLayerProjection Q Λ p (StendhalAlgebraAllOrders.ofKLR k Q Λ ν
+      (castKLR S hTot (concat S Aₚ Aₗ (u ⊗ₜ _)))) =
+    lastRedLayerProjection Q Λ p (StendhalAlgebraAllOrders.ofKLR k Q Λ ν
+      (castKLR S h (concat S PWeight B₀ (rawFirst u ⊗ₜ _))))
+  exact congrArg _ (congrArg _ (assoc_cast_concat S stendhalWeight_addRed hB h hTot u _).symm)
+
+/-- Juxtaposition with the unit on the prefix. -/
+private def blackG : K →ₗ[k] Cₚ :=
+  (suffixConcat Q Λ p hTot).comp ((TensorProduct.mk k _ _ 1).comp (castKLR S hB).toLinearMap)
+
+/-- The last-red layer applied to the last input quotient. -/
+private def blackH : K →ₗ[k] Cₚ :=
+  ({ toFun := ψL, map_add' := map_add ψL, map_smul' := map_smul ψL } : _ →ₗ[k] Cₚ).comp
+    ((TensorProduct.mk k L R 1).comp
+    ((P₂).toLinearMap.comp (castKLR S hB).toLinearMap))
+
+local notation "G" => blackG Q Λ p hTot
+local notation "H" => blackH Q Λ p h ha
+
+private theorem blackG_apply (z : K) :
+    G z = suffixConcat Q Λ p hTot (1 ⊗ₜ castKLR S hB z) := rfl
+private theorem blackH_apply (z : K) : H z = ψL (1 ⊗ₜ P₂ (castKLR S hB z)) := rfl
+
+private theorem blackG_mul (a b : K) : G (a*b) = G a * G b := by
+  rw [blackG_apply, blackG_apply, blackG_apply, ← suffixConcat_mul,
+    Algebra.TensorProduct.tmul_mul_tmul, one_mul, map_mul]
+
+private theorem blackH_mul (a b : K) : H (a*b) = H a * H b := by
+  rw [blackH_apply, blackH_apply, blackH_apply, ← map_mul,
+    Algebra.TensorProduct.tmul_mul_tmul, one_mul, map_mul, map_mul]
+
+private theorem blackG_concat (w : KLRAlgebra k S B₀) :
+    G (concat S rₗ B₀ (1 ⊗ₜ w)) = H (concat S rₗ B₀ (1 ⊗ₜ w)) := by
+  obtain ⟨v,rfl⟩ := (blackSuffixReindex Q Λ β).surjective w
+  rw [blackG_apply, blackH_apply, layer_parabolic Q Λ p h ha hTot, map_one]
+  exact congrArg (fun y => ψL ((1 : L) ⊗ₜ[k] y))
+    (parabolicLastCyclotomic_concat_black Q Λ β v).symm
+
+end Factorization
+
 end Categorification.Stendhal

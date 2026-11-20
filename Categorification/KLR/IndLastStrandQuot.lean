@@ -303,6 +303,118 @@ theorem appendR_castKLR_mul_concat (r : KLRAlgebra k Q (ν₀ + (ν₀' + Si i))
 
 end LastQuad
 
+/-! ### The lower Mackey step lies in the image of `Φ` -/
+
+section LowerStep
+
+variable {ν₀ ν₀' : Multiset I} {i : I}
+variable {N : Type*} [AddCommGroup N] [Module k N]
+  [Module (TensorKLR Q (ν₀ + ({i} : Multiset I)) (ν₀' + ({i} : Multiset I))) N]
+  [IsScalarTower k (TensorKLR Q (ν₀ + ({i} : Multiset I)) (ν₀' + ({i} : Multiset I))) N]
+
+variable (Q ν₀ ν₀' i) in
+/-- `z ↦ z 1_{ν,ν'}`, `R(ν + ν₀' + i) → R(ν + ν') 1_{ν,ν'}`, reassociating. -/
+noncomputable def lastElt :
+    KLRAlgebra k Q (ν₀ + Si i + ν₀' + Si i) →ₗ[k] IndBimod Q (ν₀ + Si i) (ν₀' + Si i) where
+  toFun z := ⟨castKLR Q (add_assoc (ν₀ + Si i) ν₀' (Si i)) z * oneConcat Q _ _, by
+    rw [Graded.mem_leftIdeal, mul_assoc, oneConcat_idem.eq]⟩
+  map_add' z z' := Subtype.ext (by simp [add_mul])
+  map_smul' c z := Subtype.ext (by simp)
+
+theorem coe_lastElt (z : KLRAlgebra k Q (ν₀ + Si i + ν₀' + Si i)) :
+    (lastElt Q ν₀ ν₀' i z : KLRAlgebra k Q (ν₀ + Si i + (ν₀' + Si i))) =
+      castKLR Q (add_assoc (ν₀ + Si i) ν₀' (Si i)) z * oneConcat Q _ _ := rfl
+
+theorem castKLR_botConcat_lastQuad_h (t : TensorKLR Q (ν₀ + Si i) (ν₀' + Si i)) :
+    castKLR Q (add_assoc (ν₀ + Si i) ν₀' (Si i)) (botConcat Q (lastQuad_h ν₀ ν₀' i) t) =
+      concat Q (ν₀ + Si i) (ν₀' + Si i) t := by
+  rw [botConcat_apply, castAlg_eq_castKLR]
+  exact castKLR_castAlg_symm _ _
+
+theorem castKLR_botOne_lastQuad_h :
+    castKLR Q (add_assoc (ν₀ + Si i) ν₀' (Si i)) (botOne Q (lastQuad_h ν₀ ν₀' i)) =
+      oneConcat Q (ν₀ + Si i) (ν₀' + Si i) := by
+  rw [← botConcat_one, castKLR_botConcat_lastQuad_h, concat_one]
+
+/-- The generators of the Mackey step with fewer than `|ν'|` crossings lie in the image
+of `Φ`. -/
+theorem tmul_lastElt_mem_range_of_mem_filt (x : KLRAlgebra k Q (ν₀ + Si i + ν₀')) (n : N)
+    {w : KLRAlgebra k Q (ν₀ + Si i + ν₀' + Si i)}
+    (hw : w ∈ mackeyBimodFilt Q (lastQuad_h ν₀ ν₀' i) (Multiset.card ν₀')) :
+    (BalancedTensor.tmul (lastElt Q ν₀ ν₀' i (appendR Q _ i x * w)) n :
+        Ind Q (ν₀ + Si i) (ν₀' + Si i) N) ∈
+      LinearMap.range (indAppend (Q := Q) (ν := ν₀ + Si i) (ν₀' := ν₀') (i := i) (N := N)) := by
+  rw [mackeyBimodFilt_eq_span_crossings (lastQuad_h ν₀ ν₀' i) (canWord _)
+    (fun w => ⟨isReduced_canWord _ w, wordProd_canWord _ w⟩)] at hw
+  induction hw using Submodule.span_induction with
+  | zero => rw [mul_zero, map_zero, BalancedTensor.zero_tmul]; exact zero_mem _
+  | add w w' _ _ hw hw' =>
+    rw [mul_add, map_add, BalancedTensor.add_tmul]; exact add_mem hw hw'
+  | smul c w _ hw =>
+    rw [mul_smul_comm, map_smul, BalancedTensor.smul_tmul]; exact Submodule.smul_mem _ c hw
+  | mem w hw =>
+    obtain ⟨d, t₁, t', hd, hdc, rfl⟩ := hw
+    have hc : Multiset.card (ν₀' + Si i) = Multiset.card ν₀' + 1 := by simp
+    have h1 : d = 1 := IsDoubleShuffle.eq_one_of_crossCount_lt (Seq.card_add' _ _)
+      (by simp) (card_add_bot (lastQuad_h ν₀ ν₀' i)) hd (by omega)
+    subst h1
+    rw [canWord_one, ψw_nil, mul_one]
+    induction t₁ using TensorProduct.inductionOn with
+    | add s s' hs hs' => rw [map_add, add_mul, mul_add, map_add, BalancedTensor.add_tmul]
+                         exact add_mem hs hs'
+    | tmul a u =>
+      have hm : castKLR Q (add_assoc (ν₀ + Si i) ν₀' (Si i)) (appendR Q _ i (x * a)) *
+          concat Q (ν₀ + Si i) (ν₀' + Si i)
+            ((1 ⊗ₜ concat Q ν₀' (Si i) (1 ⊗ₜ u)) * t') ∈
+          Graded.leftIdeal (oneConcat Q (ν₀ + Si i) (ν₀' + Si i)) := by
+        rw [Graded.mem_leftIdeal, mul_assoc, concat_mul_oneConcat]
+      have heq : lastElt Q ν₀ ν₀' i (appendR Q _ i x *
+          (concat Q (ν₀ + Si i + ν₀') (Si i) (a ⊗ₜ u) * botConcat Q (lastQuad_h ν₀ ν₀' i) t')) =
+          ⟨_, hm⟩ := Subtype.ext (by
+        have hsplit : appendR Q _ i x * concat Q (ν₀ + Si i + ν₀') (Si i) (a ⊗ₜ u) =
+            appendR Q _ i (x * a) * concat Q (ν₀ + Si i + ν₀') (Si i) (1 ⊗ₜ u) := by
+          rw [appendR_apply, appendR_apply, ← concat_mul, ← concat_mul,
+            Algebra.TensorProduct.tmul_mul_tmul, Algebra.TensorProduct.tmul_mul_tmul,
+            mul_one, one_mul]
+        have hK := castKLR_concat_one_tmul_mul_oneConcat (Q := Q) (X := ν₀ + Si i) (Y := ν₀')
+          (Z := Si i) u
+        rw [coe_lastElt, ← mul_assoc, hsplit, map_mul, map_mul, castKLR_botConcat_lastQuad_h,
+          mul_assoc, mul_assoc, concat_mul_oneConcat, ← oneConcat_mul_concat t',
+          ← mul_assoc (castKLR Q _ (concat Q _ _ _)) (oneConcat Q _ _), hK, ← concat_mul])
+      rw [heq]
+      exact tmul_castKLR_appendR_mul_concat_mem_range _ _ _ hm
+
+/-- **The lower Mackey step lies in the image of `Φ`.** -/
+theorem tmul_lastElt_mem_range (x : KLRAlgebra k Q (ν₀ + Si i + ν₀')) (n : N)
+    {D : KLRAlgebra k Q (ν₀ + Si i + ν₀' + Si i)}
+    (hD : D ∈ mackeyLower k Q (ν₀ + Si i + ν₀' + Si i) (Multiset.card (ν₀ + Si i + ν₀'))
+      (Multiset.card (ν₀ + Si i)) (Multiset.card (ν₀' + Si i))) :
+    (BalancedTensor.tmul (lastElt Q ν₀ ν₀' i (appendR Q _ i x * D)) n :
+        Ind Q (ν₀ + Si i) (ν₀' + Si i) N) ∈
+      LinearMap.range (indAppend (Q := Q) (ν := ν₀ + Si i) (ν₀' := ν₀') (i := i) (N := N)) := by
+  set z := oneConcat Q (ν₀ + Si i + ν₀') (Si i) * D * botOne Q (lastQuad_h ν₀ ν₀' i)
+  have hc : Multiset.card (ν₀' + Si i) = Multiset.card ν₀' + 1 := by simp
+  have hz : z ∈ mackeyBimodFilt Q (lastQuad_h ν₀ ν₀' i) (Multiset.card ν₀') := by
+    rw [← mackeyLowerBimod_succ]
+    refine ⟨(mem_bimod _).2 ?_, ?_⟩
+    · simp only [z, ← mul_assoc, oneConcat_idem.eq]
+      rw [mul_assoc _ (botOne Q _), (botOne_idem _).eq]
+    · have h1 := mackeyLower_concat_mul 1 hD
+      have h2 := mackeyLower_mul_botConcat (lastQuad_h ν₀ ν₀' i) 1 h1
+      rw [concat_one, botConcat_one, hc] at h2
+      exact h2
+  have heq : lastElt Q ν₀ ν₀' i (appendR Q _ i x * D) =
+      lastElt Q ν₀ ν₀' i (appendR Q _ i x * z) := Subtype.ext (by
+    have hy : appendR Q (ν₀ + Si i + ν₀') i x =
+        appendR Q _ i x * oneConcat Q (ν₀ + Si i + ν₀') (Si i) := by
+      rw [← appendR_one, ← map_mul, mul_one]
+    rw [coe_lastElt, coe_lastElt, ← mul_assoc, ← mul_assoc, ← hy, map_mul _ _ (botOne Q _),
+      castKLR_botOne_lastQuad_h, mul_assoc, oneConcat_idem.eq])
+  rw [heq]
+  exact tmul_lastElt_mem_range_of_mem_filt x n hz
+
+end LowerStep
+
 end KLRAlgebra
 
 end Categorification.KLR

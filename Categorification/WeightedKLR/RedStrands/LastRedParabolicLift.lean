@@ -443,6 +443,105 @@ private theorem blackGH_x (a : Fin (rₗ + B₀).card) (t : Seq (rₗ + B₀)) :
   rw [hxe]
   exact blackG_concat Q Λ p h ha hTot _
 
+include ha in
+private theorem blackGH_ψ (j : ℕ) (t : Seq (rₗ + B₀)) :
+    G (ψ j * e t) = H (ψ j * e t) := by
+  by_cases hj : j + 1 < (rₗ + B₀).card
+  swap
+  · rw [ψ_eq_zero j (by omega), zero_mul, map_zero, map_zero]
+  by_cases ht : IsViolated t
+  · exact blackGH_violated Q Λ p h ha hTot _ t ht
+  obtain ⟨a₀, b, rfl⟩ := split_unviolated t ht
+  have := seq_terminal_subsingleton (I := I) (ℓ := ℓ)
+  rcases j with _ | j
+  · have hb : 0 < (B₀).card := by simp at hj ⊢; omega
+    have hs : IsViolated (TypeA.sadj (rₗ + B₀).card 0 • a₀.append b) := by
+      refine ⟨by omega, ?_⟩
+      rw [lbl_sadj_left hj]
+      have h1 : (⟨1, hj⟩ : Fin (rₗ + B₀).card) = Seq.posR rₗ ⟨0, hb⟩ := Fin.ext (by simp)
+      rw [Seq.lbl, h1, Seq.append_posR]
+      obtain ⟨z, _, hz⟩ := Multiset.mem_map.1 (b.mem ⟨0, hb⟩)
+      rw [← hz]; rfl
+    rw [ψ_mul_e, blackG_mul, blackH_mul, blackG_e_violated Q Λ p ha hTot _ hs,
+      blackH_e_violated Q Λ p h ha _ hs, zero_mul, zero_mul]
+  · have hj' : j + 1 < (B₀).card := by simp at hj ⊢; omega
+    have hψe : ψ (j + 1) * e (a₀.append b) = concat S rₗ B₀ (1 ⊗ₜ (ψ j * e b)) := by
+      rw [concat_one_tmul_ψ_mul Q Λ hj', concat_one_tmul_e, Fintype.sum_subsingleton _ a₀,
+        show Multiset.card rₗ + j = j + 1 by simp [Nat.add_comm]]
+    rw [hψe]
+    exact blackG_concat Q Λ p h ha hTot _
+
+include ha in
+private theorem blackGH_mul_e (z : K) : ∀ t, G (z * e t) = H (z * e t) := by
+  induction z using KLRAlgebra.klr_induction with
+  | hadd u v hu hv => intro t; rw [add_mul, map_add, map_add, hu, hv]
+  | hmul u v hu hv =>
+    intro t
+    have hs : u * v * e t = ∑ s, u * e s * (v * e t) := by
+      rw [← Finset.sum_mul, ← Finset.mul_sum, sum_e, mul_one, mul_assoc]
+    rw [hs, map_sum, map_sum]
+    exact Finset.sum_congr rfl fun s _ => by rw [blackG_mul, blackH_mul, hu, hv]
+  | hr r =>
+    intro t
+    rw [Algebra.algebraMap_eq_smul_one, smul_mul_assoc, one_mul, map_smul, map_smul,
+      blackGH_e Q Λ p h ha hTot t]
+  | he s =>
+    intro t
+    rw [e_mul_e]
+    split_ifs
+    · exact blackGH_e Q Λ p h ha hTot s
+    · rw [map_zero, map_zero]
+  | hx a => exact blackGH_x Q Λ p h ha hTot a
+  | hψ a => exact blackGH_ψ Q Λ p h ha hTot a
+
+include ha in
+/-- On the black block of the terminal red strand, juxtaposition with the unit on the prefix
+equals the last-red layer applied to the last input quotient. -/
+private theorem blackG_eq_blackH (z : K) : G z = H z := by
+  rw [← mul_one z, ← sum_e, Finset.mul_sum, map_sum, map_sum]
+  exact Finset.sum_congr rfl fun t _ => blackGH_mul_e Q Λ p h ha hTot z t
+
+include ha in
+private theorem suffixConcat_tmul_one (u : KLRAlgebra k S Aₚ) :
+    suffixConcat Q Λ p hTot (u ⊗ₜ 1) = ψL (P₁ u ⊗ₜ 1) := by
+  have hpar := layer_parabolic Q Λ p h ha hTot u 1
+  rw [map_one, map_one] at hpar
+  have hG1 : G 1 = G (concat S rₗ B₀ (1 ⊗ₜ 1)) := by
+    rw [blackG_eq_blackH Q Λ p h ha hTot, blackG_eq_blackH Q Λ p h ha hTot, blackH_apply,
+      blackH_apply, map_one, map_one]
+    have hc := parabolicLastCyclotomic_concat_black Q Λ β (1 : KLRAlgebra k Q β)
+    change P₂ (castKLR S hB (concat S rₗ B₀ (1 ⊗ₜ blackSuffixReindex Q Λ β 1))) =
+      CycKLR.mk k Q λf β 1 at hc
+    rw [map_one, map_one] at hc
+    rw [show P₂ (castKLR S hB (concat S rₗ B₀ (1 ⊗ₜ 1))) = 1 from hc]
+  calc suffixConcat Q Λ p hTot (u ⊗ₜ 1)
+      = suffixConcat Q Λ p hTot ((u ⊗ₜ 1) * (1 ⊗ₜ castKLR S hB 1)) := by
+        rw [map_one, Algebra.TensorProduct.tmul_mul_tmul, mul_one, mul_one]
+    _ = suffixConcat Q Λ p hTot (u ⊗ₜ 1) * G 1 := by rw [suffixConcat_mul]; rfl
+    _ = suffixConcat Q Λ p hTot (u ⊗ₜ 1) * G (concat S rₗ B₀ (1 ⊗ₜ 1)) := by rw [hG1]
+    _ = suffixConcat Q Λ p hTot (u ⊗ₜ castKLR S hB (concat S rₗ B₀ (1 ⊗ₜ 1))) := by
+        rw [blackG_apply, ← suffixConcat_mul, Algebra.TensorProduct.tmul_mul_tmul, mul_one,
+          one_mul]
+    _ = ψL (P₁ u ⊗ₜ 1) := hpar
+
+include ha in
+/-- Juxtaposition of a prefix diagram with a terminal-block diagram, followed by the
+quotient by smaller suffixes, factors through the last-red layer action
+(Webster, arXiv:1309.3796v3, proof of Prop 5.5). -/
+theorem suffixConcat_eq_lastRedLayerAction (t : TensorKLR S Aₚ Aₗ) :
+    suffixConcat Q Λ p hTot t = ψL (Algebra.TensorProduct.map (P₁) (P₂) t) := by
+  induction t using TensorProduct.inductionOn with
+  | add a b ha' hb' => rw [map_add, map_add, map_add, ha', hb']
+  | tmul u w =>
+    obtain ⟨z, rfl⟩ := (castKLR S hB).surjective w
+    have hsplit : u ⊗ₜ[k] castKLR S hB z = (u ⊗ₜ[k] 1) * (1 ⊗ₜ[k] castKLR S hB z) := by
+      rw [Algebra.TensorProduct.tmul_mul_tmul, mul_one, one_mul]
+    rw [Algebra.TensorProduct.map_tmul, hsplit, suffixConcat_mul,
+      suffixConcat_tmul_one Q Λ p h ha hTot,
+      show suffixConcat Q Λ p hTot (1 ⊗ₜ castKLR S hB z) = G z from rfl,
+      blackG_eq_blackH Q Λ p h ha hTot, blackH_apply, ← map_mul,
+      Algebra.TensorProduct.tmul_mul_tmul, mul_one, one_mul]
+
 end Factorization
 
 end Categorification.Stendhal

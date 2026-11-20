@@ -152,4 +152,96 @@ theorem lastIndQuotUnit_smul (a : KLRAlgebra k S (Aₚ + Aₗ)) (y : ParabolicSh
   rw [parabolicStandardAction_affine]
   rfl
 
+local notation "hD" => lastWeight_addBlack (ℓ := ℓ) i β
+
+/-- Juxtaposition of `ι(t ⊗ 1_i)` modulo smaller suffixes is the class of
+`ι(concat t ⊗ 1_i)`. -/
+theorem suffixConcat_tensorAppendR (t : TensorKLR S Aₚ Aₗ) :
+    suffixConcat Q Λ p′ (parabolicInputWeights_add (ℓ := ℓ) θ ((Si i) + β))
+        (castTensor S rfl hD (tensorAppendR S Aₚ Aₗ (Sum.inl i) t)) =
+      (I′).ringCon.mk' (parabolicAffine Q Λ θ ((Si i) + β)
+        (castKLR S (lastInd_weight i θ β) (appendR S (Aₚ + Aₗ) (Sum.inl i) (concat S Aₚ Aₗ t)))) := by
+  refine congrArg (fun x => (I′).ringCon.mk' (TensorProductAlgebra.mk Q Λ _
+    (orderProjection Q Λ _ (StendhalAlgebraAllOrders.ofKLR k Q Λ _ x)))) ?_
+  change castKLR S _ (concat S _ _ _) = castKLR S _ (castKLR S _ _)
+  rw [← castKLR_concat, ← castKLR_appendR_concat, castKLR_castKLR, castKLR_castKLR,
+    castKLR_castKLR]
+
+local notation "ψL′" => lastRedLayerAction Q Λ p′
+  (LastRedWeightSplit.content (θ + ((Si i) + β)) (lastIndSplit i θ β) ℓ)
+  (LastRedWeightSplit.length (θ + ((Si i) + β)) (lastIndSplit i θ β) ℓ)
+
+/-- The generators `[1 ⊗ (1 ⊗ n)]` of `F_i(S N) / O`. -/
+abbrev lastIndQuotGen (n : N) : LastIndQuot Q Λ i θ β N hQ :=
+  lastIndQuotUnit Q Λ i θ β N hQ
+    (BalancedTensor.tmul (oneBimod S Aₚ Aₗ) (show ParabolicInput Q Λ θ β N from n))
+
+/-- The layer quotient acts on the generators of `F_i(S N) / O` through `1 ⊗ cyclotomicLast`:
+`ψ(t ⊗ 1_i) [1 ⊗ (1 ⊗ n)] = [1 ⊗ (1 ⊗ t n)]`. -/
+theorem lastIndQuotLayerAction_appendRight (t : TensorKLR S Aₚ Aₗ) (n : N) :
+    lastIndQuotLayerAction Q Λ i θ β N hQ
+        (ψL′ (parabolicAppendRight Q Λ i β θ (parabolicInputMap Q Λ θ β t)))
+        (lastIndQuotGen Q Λ i θ β N hQ n) =
+      lastIndQuotGen Q Λ i θ β N hQ (parabolicInputMap Q Λ θ β t • n) := by
+  rw [← parabolicInputMap_castTensor_tensorAppendR,
+    show ψL′ (parabolicInputMap Q Λ θ ((Si i) + β) (castTensor S rfl hD
+        (tensorAppendR S Aₚ Aₗ (Sum.inl i) t))) = _ from
+      (suffixConcat_eq_lastRedLayerAction Q Λ p′ _ _
+        (parabolicInputWeights_add (ℓ := ℓ) θ ((Si i) + β)) _).symm,
+    suffixConcat_tensorAppendR, lastIndQuotLayerAction_mk]
+  change ((cst).symm _ : T′) • lastIndQuotGen Q Λ i θ β N hQ n = _
+  rw [← lastIndQuotUnit_smul, concat_smul_tmul_oneBimod]
+  rfl
+
+local notation "Fr" => LastIndRight Q Λ i θ β N
+local notation "ρM" => lastIndQuotLayerAction Q Λ i θ β N hQ
+
+theorem lastIndQuotGen_add (n n' : N) :
+    lastIndQuotGen Q Λ i θ β N hQ (n + n') =
+      lastIndQuotGen Q Λ i θ β N hQ n + lastIndQuotGen Q Λ i θ β N hQ n' := by
+  unfold lastIndQuotGen lastIndQuotUnit
+  dsimp only
+  erw [BalancedTensor.tmul_add, map_add, Ind.tmul_add, map_add]
+
+/-- **The map `₂F_i N → F_i(S N) / O`**, `z ⊗ n ↦ ψ(z) [1 ⊗ (1 ⊗ n)]`. -/
+def lastIndRightQuot :
+    Ind N (parabolicRightHom Q Λ i θ β) →+ LastIndQuot Q Λ i θ β N hQ :=
+  Ind.liftAdd (φ := parabolicRightHom Q Λ i θ β)
+    (fun z n => ρM (ψL′ z.1) (lastIndQuotGen Q Λ i θ β N hQ n))
+    (fun z z' n => by
+      change ρM (ψL′ (z.1 + z'.1)) _ = _
+      rw [map_add, map_add, LinearMap.add_apply])
+    (fun z n n' => by rw [lastIndQuotGen_add, map_add])
+    (fun z a n => by
+      obtain ⟨t, rfl⟩ := parabolicInputMap_surjective Q Λ θ β a
+      change ρM (ψL′ (z.1 * parabolicAppendRight Q Λ i β θ (parabolicInputMap Q Λ θ β t))) _ = _
+      rw [map_mul, map_mul, Module.End.mul_apply, lastIndQuotLayerAction_appendRight])
+
+theorem lastIndRightQuot_tmul (z : Corner (parabolicRightHom Q Λ i θ β)) (n : N) :
+    lastIndRightQuot Q Λ i θ β N hQ (Ind.tmul z n) =
+      ρM (ψL′ z.1) (lastIndQuotGen Q Λ i θ β N hQ n) := rfl
+
+/-- `lastIndRightQuot` intertwines the factor algebra with the layer action. -/
+theorem lastIndRightQuot_smul (d : parabolicFactorAlgebra Q Λ θ ((Si i) + β))
+    (y : Ind N (parabolicRightHom Q Λ i θ β)) :
+    lastIndRightQuot Q Λ i θ β N hQ (d • y) = ρM (ψL′ d) (lastIndRightQuot Q Λ i θ β N hQ y) := by
+  induction y using Ind.induction_on with
+  | zero => simp only [smul_zero, map_zero]
+  | tmul z n =>
+    rw [Ind.smul_tmul, lastIndRightQuot_tmul, lastIndRightQuot_tmul]
+    change ρM (ψL′ (d * z.1)) _ = _
+    rw [map_mul, map_mul, Module.End.mul_apply]
+  | add s t hs ht => rw [smul_add, map_add, map_add, hs, ht, map_add]
+
+theorem lastIndRightQuot_algebraMap_smul (c : k) (y : Fr) :
+    lastIndRightQuot Q Λ i θ β N hQ (show Ind N (parabolicRightHom Q Λ i θ β) from c • y) =
+      c • lastIndRightQuot Q Λ i θ β N hQ y := by
+  have h1 := lastIndRightQuot_smul Q Λ i θ β N hQ 1 y
+  erw [one_smul] at h1
+  rw [← IndK.algebraMap_smul]
+  dsimp only
+  erw [lastIndRightQuot_smul Q Λ i θ β N hQ _ y]
+  rw [Algebra.algebraMap_eq_smul_one, map_smul,
+    map_smul, LinearMap.smul_apply, ← h1]
+
 end Categorification.Stendhal

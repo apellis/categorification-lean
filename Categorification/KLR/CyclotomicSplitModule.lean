@@ -220,29 +220,29 @@ variable (h1 : 1 < Multiset.card ((Singleton.singleton i : Multiset I) + β))
 include hsym hQ ha hβ in
 /-- **`K_1 e(i, β) ⊗_{R(β)} N → K_0 e(β, i) ⊗_{R(β)} N` is injective.** -/
 theorem kkTensor_injective :
-    Function.Injective (mapLeft (A := Rb) R N (pE Q i β a h1) (pE_op_smul i β a h1)) :=
-  mapLeft_injective_of_leftInverse _ _ _ (splitE_op_smul i β a h1 hsym hQ ha hβ)
+    Function.Injective (mapLeftOp (A := Rb) R N (pE Q i β a h1) (pE_op_smul i β a h1)) :=
+  mapLeftOp_injective_of_leftInverse _ _ _ (splitE_op_smul i β a h1 hsym hQ ha hβ)
     (splitE_pE i β a h1 hsym hQ ha hβ)
 
 theorem kkTensor_surjective :
-    Function.Surjective (mapLeft (A := Rb) R N (piE Q i β a) (piE_op_smul i β a)) :=
-  mapLeft_surjective _ _ (piE_surjective i β a)
+    Function.Surjective (mapLeftOp (A := Rb) R N (piE Q i β a) (piE_op_smul i β a)) :=
+  mapLeftOp_surjective _ _ (piE_surjective i β a)
 
 include hsym hQ ha hβ in
 /-- **Exactness in the middle** of the tensored Kang–Kashiwara sequence. -/
 theorem kkTensor_exact {x : BalancedTensor k R Rb (K0E Q i β a) N}
-    (hx : mapLeft R N (piE Q i β a) (piE_op_smul i β a) x = 0) :
-    ∃ y, mapLeft R N (pE Q i β a h1) (pE_op_smul i β a h1) y = x :=
-  exists_mapLeft_eq_of_mapLeft_eq_zero _ _ _ (splitE_op_smul i β a h1 hsym hQ ha hβ)
+    (hx : mapLeftOp R N (piE Q i β a) (piE_op_smul i β a) x = 0) :
+    ∃ y, mapLeftOp R N (pE Q i β a h1) (pE_op_smul i β a h1) y = x :=
+  exists_mapLeftOp_eq_of_mapLeftOp_eq_zero _ _ _ (splitE_op_smul i β a h1 hsym hQ ha hβ)
     (splitE_pE i β a h1 hsym hQ ha hβ) _ _ (piE_surjective i β a)
     (fun _ hz => range_pE i β a h1 hz) hx
 
 theorem kkTensor_comp (y : BalancedTensor k R Rb (K1E Q i β a h1) N) :
-    mapLeft R N (piE Q i β a) (piE_op_smul i β a)
-      (mapLeft R N (pE Q i β a h1) (pE_op_smul i β a h1) y) = 0 := by
+    mapLeftOp R N (piE Q i β a) (piE_op_smul i β a)
+      (mapLeftOp R N (pE Q i β a h1) (pE_op_smul i β a h1) y) = 0 := by
   induction y using induction_on with
   | zero => rw [map_zero, map_zero]
-  | tmul m n => rw [mapLeft_tmul, mapLeft_tmul, piE_pE, zero_tmul]
+  | tmul m n => rw [mapLeftOp_tmul, mapLeftOp_tmul, piE_pE, zero_tmul]
   | add x y hx hy => rw [map_add, map_add, hx, hy, add_zero]
 
 end Tensor

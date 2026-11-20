@@ -864,8 +864,8 @@ import Categorification.TwoRep.KernelExact
 import Categorification.TypeA.Basic
 import Categorification.TypeA.DoubleCoset
 import Categorification.TypeA.GapSort
-import Categorification.TypeA.LastStrand
 import Categorification.TypeA.Inversions
+import Categorification.TypeA.LastStrand
 import Categorification.TypeA.Length
 import Categorification.TypeA.Matsumoto
 import Categorification.TypeA.NormalForm

@@ -1190,6 +1190,7 @@ import Categorification.WeightedKLR.RedStrands.StandardizationTensorCharacter
 import Categorification.WeightedKLR.RedStrands.BlackInduction
 import Categorification.WeightedKLR.RedStrands.ParabolicLastStrand
 import Categorification.WeightedKLR.RedStrands.ParabolicInputAppend
+import Categorification.WeightedKLR.RedStrands.ParabolicInputLastStrand
 import Categorification.WeightedKLR.RedStrands.BlackModuleFunctors
 import Categorification.WeightedKLR.RedStrands.BlackFrobenius
 import Categorification.WeightedKLR.RedStrands.BlackMixedCorner

@@ -17,6 +17,11 @@ the all-down boundaries, whose sum has endomorphism ring `T^λ_ν`, and by Theor
 Theorem 4.20, `SingleRed.cyclotomicEquiv`) this is the cyclotomic KLR algebra `R^λ_ν`. So the
 Khovanov–Lauda 2-category acts on the categories of projective `R^λ_ν`-modules.
 
+The same statement gives Corollary 3.20 in this realization: `DR^λ_ν` is `DT^λ_ν` for one red
+strand, the all-down boundaries correspond to Webster's idempotent `e₋`, the corner `e₋ DR^λ e₋`
+is `R^λ_ν`, and the inclusion of the all-down boundaries is an equivalence of additive idempotent
+completions, that is, a Morita equivalence between `R^λ_ν` and `DR^λ_ν`.
+
 Webster constructs the action directly from induction and restriction along the inclusions
 `R^λ_ν → R^λ_{ν+i}` (Lemmas 3.7, 3.8 and Theorem 3.9 for one colour). Here it is obtained
 from the action on tensor product algebras, as Webster's §4.6 indicates for general `λ`.
@@ -42,7 +47,7 @@ variable {I : Type u} {C : CartanDatum I} {k : Type v} [Field k]
 
 local notation "KL" => (CL.CLScalars.kl : CL.CLScalars C k)
 
-/-- **Webster, arXiv:1309.3796v3, Theorem 3.17**, at the standard Khovanov–Lauda parameters
+/-- **Webster, arXiv:1309.3796v3, Theorem 3.17 and Corollary 3.20**, at the standard Khovanov–Lauda parameters
 over a field. For one red strand of label `λ`, the Khovanov–Lauda 2-category acts by the strict
 pseudofunctor `clBlackAction` of Theorem 4.31. Its value at the weight `λ - ν` is the additive
 idempotent completion of `DT^λ_ν`; the all-down boundaries induce an equivalence onto it from the

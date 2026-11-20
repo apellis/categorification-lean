@@ -159,6 +159,30 @@ is the quotient for an increase of highest weight, and
 restriction on modules. The components act identically on underlying vectors.
 This gives the red/up crossing in that representation.
 
+Plan for Theorem 4.25 at the standard KL black parameters. The target is a
+pseudofunctor out of the presented 2-category of `clDownwardBlock`, built with
+`Diagrams.BicatInterp.presPseudofunctor` as for `cyclotomicPresCL`.
+1. Regions. A region weight `x : I ⊕ Fin ℓ → ℤ` lists coroot pairings in
+   the coordinate datum. Its red coordinates do not always determine which
+   red lines lie to its left: the red block `3·1 - J` of the extended Cartan
+   matrix is singular when `ℓ = 3`. So, as in Webster, the region goes to
+   the product over highest weights `ν = Σ n_r Λ_r` of the weight-`x`
+   categories of the cyclotomic families at `ν`, i.e. modules over
+   `CycKLR k Q a_ν β` for the blocks `β` of weight `x`. A red line `r`
+   pulls back from the `ν + Λ_r` factor to the `ν` factor.
+2. Black strands, dots, crossings, cups and caps take their values from the
+   cyclotomic family of Theorem 3.17. Red strands go to
+   `cyclotomicRedPullback`. The red/up crossings `a`, `b` go to
+   `cyclotomicRedPullbackResIso`. The red/down crossings go to
+   `cyclotomicRedDownQuotient` (`a′`) and `cyclotomicRedDotCrossing` (`b′`).
+3. Relations. The black relations hold by Theorem 3.17. (4.4a–e) hold because
+   `a` and `b` act by identities on vectors. (4.2) is the pair of bigon
+   identities `_downQuotient_dotCrossing` and `_dotCrossing_downQuotient`.
+   The remaining steps are (4.1a–c), the pitchfork relations, and the
+   opposite-cap relations of the signed cap part. Webster proves (4.1a–c) as
+   in Lemma 4.12. The cap comparisons above (`redProjection_cyclotomicOppositeCap`,
+   `singletonRedCrossing_trace`) are the inputs for the cap relations.
+
 For the empty red family, `ordinaryToDownwardMatrix_bijective_empty_red`
 proves bijectivity over a free base with the downward, mixed black and red/up
 relations: at nonzero black content both sides vanish, and at content zero
@@ -555,7 +579,7 @@ after §4 because the single-red case of the §4 constructions gives the §3 one
 | Thm 4.28 | `𝒰` acts on the double tensor product algebras `DT^λ` | done: strict pseudofunctor from the 1-cell dual of the KL 2-category to `Cat` (`blackActionPseudofunctor`), built from right whiskering (`violatingWhiskerRight`) and the functorial action of KL 2-morphisms (`blackMap_id`, `blackMap_comp`) |
 | Thm 4.30 | `T^λ` and `DT^λ` are Morita equivalent | done (#420) |
 | Thm 4.31 | `𝒰` acts on `T^λ`-modules by `βᵤ = e₋ β′ᵤ e₋` | done at the standard KL black parameters over a field: the action of Thm 4.28 on the additive idempotent completions (`StrictPseudofunctor.completion`) for the presentation of Thm 4.30 (`clBlackAction`); its value at `λ - ν` is identified with the completion of the all-down boundaries, with endomorphism ring `T^λ_ν` (`clBlackAction_tensorProduct`). Graded modules and the formula `βᵤ = e₋ β′ᵤ e₋` on algebras are not separately stated |
-| Thm 4.25 | representation of the 2-category `𝒯`; red lines act by `I^λ` | open |
+| Thm 4.25 | representation of the 2-category `𝒯`; red lines act by `I^λ` | open; plan in the red-strand section |
 | Prop 4.19 | `T^{λ⁻} ≅ e_ℓ T^λ e_ℓ` | done (v2 Prop 4.18, `appendRedEquiv`) |
 | Prop 4.21 | splitting a red strand, `T^{λ′} ≅ e_{λ′} T^λ e_{λ′}` | done (`SplitRed.splitRedEquiv`): with `λ'` splitting `λ_c = λ'_c + λ'_{c+1}`, `T^λ ≅ e T^{λ'} e` for `e` the sum of the idempotents of the loadings with red strands `c`, `c + 1` adjacent, for the crossing parameters of §2.2 (`IsRouquierQ`) |
 | Prop 4.32 | `IR^μ I^μ = id` and its commutation with `Eᵢ`, `Fᵢ` | done: `IR^μ Fᵢ I^μ ≅ Fᵢ` on bimodules (`lastRedBlackEquiv`); `IR^μ I^μ = id` is Prop 4.18 (`appendRedEquiv`); `IR^μ Eᵢ I^μ ≅ Eᵢ` over a field by reflection (`lastRedBlackMirrorEquiv`); both raise degrees by `degΨ(λ_ℓ, i)` (`lastRedBlackMap_mem_grade`, `lastRedBlackMirror_mem_grade`) |
@@ -570,7 +594,7 @@ after §4 because the single-red case of the §4 constructions gives the §3 one
 | Lemma 3.12, Props 3.13, 3.16 | `R^λ ≅ e₋ DᵢR^λ e₋`, Morita equivalence, action of `𝒰ᵢ⁻` | open |
 | Thm 3.17 | strict 2-functor `𝒰 → Cat`, `μ ↦ R^λ_μ-pmod` | done at the standard KL black parameters over a field, as the one-red case of Thm 4.31 (`clBlackAction_cyclotomic`): the value at `λ - ν` is the completion of the all-down boundaries, whose sum has endomorphism ring `R^λ_ν` by Thm 4.18 (`SingleRed.cyclotomicEquiv`) |
 | Thm 3.18 | `tr^λ : R^λ → k` is a Frobenius trace | done at the standard KL black parameters over a field (`clCyclotomic_trace_nondegenerate`): an additive trace `R^λ_ν → k` whose pairing `tr (a b)` is nondegenerate on both sides, closing the black strands to the right with the biadjunction of Thm 3.17 (`AmbidextrousTrace`, `MatEnd.trace_nondegenerate`). `k`-linearity of the trace is not part of the statement |
-| Cor 3.20 | `p : R^λ → DR^λ` is a Morita equivalence | open |
+| Cor 3.20 | `p : R^λ → DR^λ` is a Morita equivalence | done at the standard KL black parameters over a field, as the one-red case of Thm 4.30 (`clBlackAction_cyclotomic`): with `DR^λ_ν` realized as `DT^λ_ν` for one red strand, the corner at the all-down boundaries is `R^λ_ν` and their inclusion is an equivalence of additive idempotent completions. Webster's black-only presentation of `DR^λ` (Def 3.1) is not separately compared with `DT^λ` |
 | Prop 3.21, Cor 3.22 | `K₀(R^λ) ≅ V^λ_ℤ`, Euler form = Shapovalov form | done |
 | Def 3.24, Prop 3.25, Cors 3.26, 3.27 | universal categorification `Ř^λ`, flatness, universality | open |
 

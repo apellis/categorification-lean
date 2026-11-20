@@ -579,12 +579,12 @@ after §4 because the single-red case of the §4 constructions gives the §3 one
 | Thm 4.28 | `𝒰` acts on the double tensor product algebras `DT^λ` | done: strict pseudofunctor from the 1-cell dual of the KL 2-category to `Cat` (`blackActionPseudofunctor`), built from right whiskering (`violatingWhiskerRight`) and the functorial action of KL 2-morphisms (`blackMap_id`, `blackMap_comp`) |
 | Thm 4.30 | `T^λ` and `DT^λ` are Morita equivalent | done (#420) |
 | Thm 4.31 | `𝒰` acts on `T^λ`-modules by `βᵤ = e₋ β′ᵤ e₋` | done at the standard KL black parameters over a field: the action of Thm 4.28 on the additive idempotent completions (`StrictPseudofunctor.completion`) for the presentation of Thm 4.30 (`clBlackAction`); its value at `λ - ν` is identified with the completion of the all-down boundaries, with endomorphism ring `T^λ_ν` (`clBlackAction_tensorProduct`). Graded modules and the formula `βᵤ = e₋ β′ᵤ e₋` on algebras are not separately stated |
-| Thm 4.25 | representation of the 2-category `𝒯`; red lines act by `I^λ` | in progress: red/up iso, red/down quotient and dot crossings on weight spaces with both bigons (`globalRedPullbackResIso`, `globalRedDownQuotient`, `globalRedDotCrossing`, via `TwoRep.blockResCross`); generators and relations open |
+| Thm 4.25 | representation of the 2-category `𝒯`; red lines act by `I^λ` | in progress: region categories (`regionFamily`) with the black action (`regionPresCL`); red/up iso, red/down quotient and dot crossings with both bigons (`regionRedUpIso`, `regionRedDownQuotient`, `regionRedDownDot`); the opposite counit on interior blocks is the Kang–Kashiwara leftward cap (`globalLoc_capL_app`, `blockLoc_capL`) and slides along red pullback (`redPullback_capL_tmul`). Remaining: the red cup, cap and pitchfork relations and the assembly with `presPseudofunctor`. The action on `T^λ`-modules used in §5 is Thm 4.31, which does not depend on this |
 | Prop 4.19 | `T^{λ⁻} ≅ e_ℓ T^λ e_ℓ` | done (v2 Prop 4.18, `appendRedEquiv`) |
 | Prop 4.21 | splitting a red strand, `T^{λ′} ≅ e_{λ′} T^λ e_{λ′}` | done (`SplitRed.splitRedEquiv`): with `λ'` splitting `λ_c = λ'_c + λ'_{c+1}`, `T^λ ≅ e T^{λ'} e` for `e` the sum of the idempotents of the loadings with red strands `c`, `c + 1` adjacent, for the crossing parameters of §2.2 (`IsRouquierQ`) |
 | Prop 4.32 | `IR^μ I^μ = id` and its commutation with `Eᵢ`, `Fᵢ` | done: `IR^μ Fᵢ I^μ ≅ Fᵢ` on bimodules (`lastRedBlackEquiv`); `IR^μ I^μ = id` is Prop 4.18 (`appendRedEquiv`); `IR^μ Eᵢ I^μ ≅ Eᵢ` over a field by reflection (`lastRedBlackMirrorEquiv`); both raise degrees by `degΨ(λ_ℓ, i)` (`lastRedBlackMap_mem_grade`, `lastRedBlackMirror_mem_grade`) |
 | Prop 4.33 | uniqueness of the sesquilinear forms | done (`TensorPairing.orderedForm_unique`, `orderedForm_nondegenerate`): a system of forms that is `τ`-Hermitian and isometric along `V_{λ₁} ⊗ ⋯ ⊗ V_{λₙ₋₁} ⊗ v_{λₙ}` is `orderedForm`, which is nondegenerate in both arguments. Webster's conditions do not fix the form on the empty tensor product; the theorem takes the scalar form `x̄ y` there as a normalization |
-| Prop 4.39 | `K₀(T̃^λ) ≅ U⁻_q ⊗ V^λ` | open |
+| Prop 4.39 | `K₀(T̃^λ) ≅ U⁻_q ⊗ V^λ` | open; taken up after Cor 5.23, whose standard filtrations its proof uses |
 
 ### Phase B: §3, cyclotomic quotients
 
@@ -603,13 +603,26 @@ KL III Thm 1.2) is the input for the basis statements behind Thm 3.17 and Cor 3.
 
 ### Phase C: §5, standard modules
 
+Done (v3 numbering, `RedStrands/StandardModule.lean`): the preorder of Def 5.1, encoded by the
+number of black `i`-strands left of each red strand (`StendhalLE`, `StendhalLT`; the strict
+reading of "≥" in Def 5.1 is the one used); `P̃_s`, `U_s` and the standard module `S_s = P̃_s/U_s`
+(`seqProj`, `upperSubmodule`, `standardModule`); the cyclotomic step of Prop 5.3: a red strand
+followed by a black `i`-strand gives `y^{α_i^∨(λ)} e(s) ∈ U_s` (`dotPow_mem_upperSubmodule`), via
+the bigon through the strictly higher sequence (`StendhalAlgebraAllOrders.dotPow_e_eq`).
+`RedStrands/StandardAction.lean`: the idempotent `e_α` of a root function (`rootIdem`), `U_α`
+and `S_α` (`rootUpper`, `rootStandard`), and the action of the corner `e_α T̃^λ e_α` on `S_α`
+by right module endomorphisms (`rootAction`; generic form `cornerQuotientAction`), with the
+cyclotomic relations acting by zero (`sandwich_dotPow_mem_rootUpper`,
+`rootAction_eq_zero_of_mul_mem`). Open in Prop 5.3: the block embeddings `℘_j` of the KLR
+algebras into the corner and their descent to the cyclotomic quotients.
+
 Standardization functors (Prop 5.3, Def 5.4, Props 5.6, 5.7); simples and crystals
 (Lemma 5.9, Props 5.11, 5.12, Thms 5.14, 5.15); stringy triples (Props 5.17, 5.18);
 standard stratification (Lemma 5.19, Prop 5.21, Cors 5.22, 5.24, Lemma 5.25,
 Prop 5.26, Cor 5.27: `V^λ` is a tensor product categorification); Thm 5.28 (finite
 projective resolutions, Lemma 5.29); self-dual projectives and double centralizer
 (Thm 5.30, Prop 5.31, Cor 5.32, Prop 5.33); Thm 5.34 (for `sl_n`, blocks of cyclotomic
-`q`-Schur algebras). All open.
+`q`-Schur algebras). Open except as listed above.
 
 ### Phase D: §6, braiding functors
 

@@ -7,6 +7,7 @@ import Categorification.WeightedKLR.RedStrands.DoubleContent
 import Categorification.WeightedKLR.RedStrands.DoubleMorita
 import Mathlib.CategoryTheory.Preadditive.Yoneda.Basic
 import Categorification.Algebra.Generation
+import Categorification.Diagrams.KLR.MatEndCorner
 
 /-!
 # The signed boundary right module over the all-down corner
@@ -30,31 +31,6 @@ open scoped Classical
 section Sum
 
 variable {D : Type*} [Category* D] [Preadditive D] {ι : Type*} [Fintype ι]
-
-/-- A finite family as an object of the additive envelope. Its finite indexing type in
-`Mat_` is small even if the original family was indexed in a larger universe. -/
-private def familySum (X : ι → D) : Mat_ D :=
-  ⟨Fin (Fintype.card ι), fun i => X ((Fintype.equivFin ι).symm i)⟩
-
-private def familyMatrixEquiv (X : ι → D) : MatEnd X ≃+* End (familySum X) :=
-  let e := Fintype.equivFin ι
-  { (Equiv.piCongrLeft' (fun i => ∀ j, X i ⟶ X j) e).trans
-      (Equiv.piCongrRight fun i => Equiv.piCongrLeft' (fun j => X (e.symm i) ⟶ X j) e) with
-    map_add' := fun _ _ => rfl
-    map_mul' := fun f g => by
-      exact funext fun i => funext fun j =>
-        (Equiv.sum_comp e.symm (fun z => g (e.symm i) z ≫ f z (e.symm j))).symm }
-
-private def summandRetract (X : ι → D) (i : ι) :
-    Retract ((Mat_.embedding D).obj (X i)) (familySum X) := by
-  let M := familySum X
-  let j := Fintype.equivFin ι i
-  have h : X i = M.X j := congrArg X ((Fintype.equivFin ι).symm_apply_apply i).symm
-  let emb := Mat_.embedding D
-  let f := fun j => emb.obj (M.X j)
-  let r : Retract (f j) (⨁ f) := ⟨biproduct.ι f j, biproduct.π f j, biproduct.ι_π_self f j⟩
-  exact ((Retract.ofIso (eqToIso (congrArg emb.obj h))).trans r).trans
-    (Retract.ofIso (Mat_.isoBiproductEmbedding M).symm)
 
 private theorem hom_finite_projective {A B : D} {n : ℕ} (u : Fin n → (B ⟶ A))
     (v : Fin n → (A ⟶ B)) (h : ∑ i, u i ≫ v i = 𝟙 B) :
@@ -89,12 +65,12 @@ local notation "rightWt" => downRightWeight RD Λ ν
 local notation "T" => DoubleStendhalTriple RD Λ 0 rightWt
 
 /-- The sum of all ordered downward boundary objects with ordinary black multiset `ν`. -/
-def downSum : Mat_ (ViolatingCategory P rightWt) := familySum (downObj P (ν := ν))
+def downSum : Mat_ (ViolatingCategory P rightWt) := MatEnd.familySum (downObj P (ν := ν))
 
 /-- The endomorphisms of the all-down sum are precisely the matrices of morphisms between
 its summands. Matrix multiplication and categorical composition use the same order. -/
 def downwardMatrixEquivEnd : downwardMatrix P ν ≃+* End (downSum P ν) :=
-  familyMatrixEquiv (downObj P (ν := ν))
+  MatEnd.familyMatrixEquiv (downObj P (ν := ν))
 
 /-- The right module of a signed boundary: morphisms from the all-down sum, with the
 matrix ring acting by precomposition (Webster, arXiv:1309.3796v2, §4.7, Definition 4.34). -/
@@ -110,7 +86,7 @@ private theorem downSumRetract (d : T) (hd : d.val.AllDown ∧ d.val.blackConten
     congrArg (fun z : {x : DoubleBoundary I ℓ // x.AllDown ∧ x.blackContent = ν} => z.val) hs
   have htr : downTriple RD Λ s = d := Subtype.ext he
   cases htr
-  exact ⟨summandRetract (downObj P (ν := ν)) s⟩
+  exact ⟨MatEnd.summandRetract (downObj P (ν := ν)) s⟩
 
 variable (t : I → I → kˣ)
 local notation "Q" => addRedUpRelations RD (Subtype.val ∘ Λ) k

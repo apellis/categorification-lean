@@ -36,6 +36,7 @@ import Categorification.Algebra.Graded.TwistTensor
 import Categorification.Algebra.Graded.Restriction
 import Categorification.Algebra.Graded.RightTwist
 import Categorification.Algebra.IdempotentEquiv
+import Categorification.Algebra.CommutingFamily
 import Categorification.Algebra.InductionAlong
 import Categorification.Algebra.InductionAlongAssoc
 import Categorification.Algebra.InductionAlongEnd
@@ -58,6 +59,7 @@ import Categorification.Algebra.PermExpansion
 import Categorification.Algebra.ProjK0
 import Categorification.Algebra.SplitK0
 import Categorification.Algebra.SymmetricFree
+import Categorification.Algebra.UniqueSimpleQuotient
 import Categorification.Diagrams.BicatInterp
 import Categorification.Diagrams.BicatInterpAdmissible
 import Categorification.Diagrams.BicatInterpAdmissibleHorizontal
@@ -576,6 +578,8 @@ import Categorification.KLR.Unfurling.VacuumMixedDual
 import Categorification.KLR.Unfurling.VacuumPartialFractions
 import Categorification.KLR.Unfurling.VacuumRouqBubbles
 import Categorification.KLR.WindowBlock
+import Categorification.KLR.CornerHom
+import Categorification.KLR.BlockCommute
 import Categorification.QuantumGroup.Bar
 import Categorification.QuantumGroup.Cartan
 import Categorification.QuantumGroup.Coproduct
@@ -907,6 +911,9 @@ import Categorification.WeightedKLR.RedStrands.Reduced
 import Categorification.WeightedKLR.RedStrands.ReducedFaithful
 import Categorification.WeightedKLR.RedStrands.StandardAction
 import Categorification.WeightedKLR.RedStrands.StandardBlocks
+import Categorification.WeightedKLR.RedStrands.StandardBlockAction
+import Categorification.WeightedKLR.RedStrands.Standardization
+import Categorification.WeightedKLR.RedStrands.StandardBlockMaps
 import Categorification.WeightedKLR.RedStrands.StandardModule
 import Categorification.WeightedKLR.RedStrands.Stendhal
 import Categorification.WeightedKLR.Induction.Associativity
@@ -1151,6 +1158,7 @@ import Categorification.WeightedKLR.RedStrands.TensorCoproductWords
 import Categorification.WeightedKLR.RedStrands.ParabolicShuffleLayer
 import Categorification.WeightedKLR.RedStrands.StandardizationTensorCharacter
 import Categorification.WeightedKLR.RedStrands.BlackInduction
+import Categorification.WeightedKLR.RedStrands.BlackModuleFunctors
 import Categorification.WeightedKLR.RedStrands.BlackFrobenius
 import Categorification.WeightedKLR.RedStrands.BlackMixedCorner
 import Categorification.WeightedKLR.RedStrands.TensorWordBlackLower

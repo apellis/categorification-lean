@@ -84,6 +84,29 @@ noncomputable def BlockEmb.window [DecidableEq I] (T : Finset (Seq ν)) (o : ℕ
     · intro h a
       rw [sadj_smul_apply, ← h, sadj_smul_apply, sadj_windowPos o ho hj, TypeA.sadj_sadj_apply]
 
+/-- A crossing at positions `p`, `p + 1` outside the window fixes every position of the window. -/
+theorem sadj_windowPos_of_disjoint (o : ℕ) (ho : o + n₀ ≤ M) {p : ℕ} (hp : p + 1 < M)
+    (hpo : p + 1 < o ∨ o + n₀ ≤ p) (a : Fin n₀) :
+    sadj M p (windowPos o ho a) = windowPos o ho a := by
+  have := a.2
+  ext
+  rw [sadj_val_of_lt hp, windowPos]
+  unfold swapNat
+  simp only
+  split_ifs <;> omega
+
+/-- The fibres of the window block embedding are stable under a crossing outside the window
+that preserves `T`. -/
+theorem BlockEmb.window_F_sadj [DecidableEq I] (T : Finset (Seq ν)) (o : ℕ) (ho : o + n₀ ≤ M)
+    (hT : ∀ s ∈ T, Finset.univ.val.map (fun a => s.1 (windowPos o ho a)) = μ)
+    (hstab : ∀ j, j + 1 < n₀ → ∀ s, s ∈ T ↔ sadj M (o + j) • s ∈ T) (i : Seq μ) {p : ℕ}
+    (hp : p + 1 < M) (hpo : p + 1 < o ∨ o + n₀ ≤ p) (hTp : ∀ s, s ∈ T ↔ sadj M p • s ∈ T)
+    (s : Seq ν) :
+    s ∈ (BlockEmb.window T o ho hT hstab).F i ↔
+      sadj M p • s ∈ (BlockEmb.window T o ho hT hstab).F i := by
+  simp only [BlockEmb.window, Finset.mem_filter, sadj_smul_apply,
+    sadj_windowPos_of_disjoint o ho hp hpo, ← hTp s]
+
 end KLRAlgebra
 
 end Categorification.KLR

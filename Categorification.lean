@@ -12,6 +12,7 @@ import Categorification.Algebra.ExternalTensor
 import Categorification.Algebra.Generation
 import Categorification.Algebra.HomTensorInd
 import Categorification.Algebra.HomTensorIndModule
+import Categorification.Algebra.IdempotentQuotient
 import Categorification.Algebra.Graded.Dimension
 import Categorification.Algebra.Graded.Duality
 import Categorification.Algebra.Graded.G0
@@ -472,6 +473,8 @@ import Categorification.KLR.GradingFlip
 import Categorification.KLR.IndLastStrand
 import Categorification.KLR.IndLastStrandBij
 import Categorification.KLR.IndLastStrandExact
+import Categorification.KLR.IndLastStrandFirstFactor
+import Categorification.KLR.IndLastStrandOneSided
 import Categorification.KLR.IndLastStrandQuot
 import Categorification.KLR.Induction
 import Categorification.KLR.InductionAlgebra

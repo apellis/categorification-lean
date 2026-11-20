@@ -38,7 +38,7 @@ private theorem assoc_cast_concat {J k : Type*} [DecidableEq J] [CommRing k]
       castKLR S e.symm (castKLR S e x) = x := by subst b; rfl
   rw [← h,H]
 
-variable {I : Type} [DecidableEq I] {k : Type*} [Field k] {ℓ : ℕ}
+variable {I : Type} [DecidableEq I] {k : Type*} [CommRing k] {ℓ : ℕ}
   (Q : I → I → MvPolynomial (Fin 2) k) (Λ : Fin (ℓ+1) → I →₀ ℕ)
   {ν θ β : Multiset I}
 local notation "S" => stendhalQ Q Λ

@@ -575,6 +575,7 @@ import Categorification.KLR.Unfurling.VacuumMixed
 import Categorification.KLR.Unfurling.VacuumMixedDual
 import Categorification.KLR.Unfurling.VacuumPartialFractions
 import Categorification.KLR.Unfurling.VacuumRouqBubbles
+import Categorification.KLR.WindowBlock
 import Categorification.QuantumGroup.Bar
 import Categorification.QuantumGroup.Cartan
 import Categorification.QuantumGroup.Coproduct
@@ -905,6 +906,7 @@ import Categorification.WeightedKLR.RedStrands.CrawleyBoeveyIn
 import Categorification.WeightedKLR.RedStrands.Reduced
 import Categorification.WeightedKLR.RedStrands.ReducedFaithful
 import Categorification.WeightedKLR.RedStrands.StandardAction
+import Categorification.WeightedKLR.RedStrands.StandardBlocks
 import Categorification.WeightedKLR.RedStrands.StandardModule
 import Categorification.WeightedKLR.RedStrands.Stendhal
 import Categorification.WeightedKLR.Induction.Associativity

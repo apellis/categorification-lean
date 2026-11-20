@@ -624,7 +624,12 @@ standardization `S(M) = M ⊗_B S_α` of a right module over this algebra `B`, a
 `T̃^λ`-module, functorial in `M` (`Standardization`, `standardizationMap`). The functors `Eᵢ`,
 `Fᵢ` on right `T^λ`-modules, as restriction and induction along `appendBlack`, with `Fᵢ ⊣ Eᵢ`
 and exactness of `Eᵢ` (`RedStrands/BlackModuleFunctors.lean`), are the module-level functors of
-Prop 5.5. Its proof also uses the commutation relations of `𝒰` on modules, which come from
+Prop 5.5. On the all-down block these module functors are the categorical ones
+(`RedStrands/DoubleBlackInduction.lean`): for `M` in the completed block of content `ν`,
+inducing `Hom(⊕ O_ν, M)` along the matrix map of `Fᵢ` gives `Hom(⊕ O_{i+ν}, Fᵢ M)`
+(`blackHomInd`), and at the standard Khovanov–Lauda parameters over a field the same holds
+for induction along `appendBlack` of right `T^λ_ν`-modules, through the repaired Lemma 4.29
+(`clBlackHomInd`, `clBlackHomInd_smul`). Prop 5.5's proof also uses the commutation relations of `𝒰` on modules, which come from
 Thm 4.31 on projectives through these adjunctions; Thm 5.8's proof uses the injectivity of
 Prop 5.26 for `S(L) e_α ≅ L`.
 

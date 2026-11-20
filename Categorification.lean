@@ -42,6 +42,7 @@ import Categorification.Algebra.IdempotentEquiv
 import Categorification.Algebra.CommutingFamily
 import Categorification.Algebra.HomTensor
 import Categorification.Algebra.HomTensorComp
+import Categorification.Algebra.HomTensorDecomp
 import Categorification.Algebra.HomTensorNat
 import Categorification.Algebra.InductionAlong
 import Categorification.Algebra.InductionAlongAssoc
@@ -640,6 +641,7 @@ import Categorification.TwoRep.BBwDeprecated
 import Categorification.TwoRep.AdjointWeightZero
 import Categorification.TwoRep.BSum
 import Categorification.TwoRep.CompletionPseudofunctor
+import Categorification.TwoRep.CompletionSumDecomp
 import Categorification.TwoRep.Basic
 import Categorification.TwoRep.Biadjoint
 import Categorification.TwoRep.CLTwoFunctor
@@ -1288,6 +1290,7 @@ import Categorification.WeightedKLR.RedStrands.DoubleRightWhiskerComp
 import Categorification.WeightedKLR.RedStrands.DoubleBlackAction
 import Categorification.WeightedKLR.RedStrands.DoubleBlackActionAdditive
 import Categorification.WeightedKLR.RedStrands.BlackCommutation
+import Categorification.WeightedKLR.RedStrands.BlackModuleCommutation
 import Categorification.WeightedKLR.RedStrands.DoubleBlackActionComp
 import Categorification.WeightedKLR.RedStrands.DoubleBlackActionHorizontal
 import Categorification.WeightedKLR.RedStrands.DoubleBlackActionWhisker

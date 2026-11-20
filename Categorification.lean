@@ -1192,6 +1192,7 @@ import Categorification.WeightedKLR.RedStrands.ParabolicLastStrand
 import Categorification.WeightedKLR.RedStrands.ParabolicInputAppend
 import Categorification.WeightedKLR.RedStrands.ParabolicInputLastStrand
 import Categorification.WeightedKLR.RedStrands.ParabolicStandardLastStrand
+import Categorification.WeightedKLR.RedStrands.ParabolicStandardLastInput
 import Categorification.WeightedKLR.RedStrands.BlackModuleFunctors
 import Categorification.WeightedKLR.RedStrands.BlackFrobenius
 import Categorification.WeightedKLR.RedStrands.BlackMixedCorner

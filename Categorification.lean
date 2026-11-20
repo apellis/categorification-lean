@@ -1313,9 +1313,9 @@ import Categorification.WeightedKLR.RedStrands.SplitRedLoading
 import Categorification.WeightedKLR.RedStrands.SplitRedQuotient
 import Categorification.WeightedKLR.RedStrands.SplitRedRelations
 import Categorification.WeightedKLR.RedStrands.SplitRedWords
+import Categorification.WeightedKLR.RedStrands.DoubleBlackInduction
 /-!
 # Categorification
 
 Lean 4 formalizations of results in categorification.
 -/
-import Categorification.WeightedKLR.RedStrands.DoubleBlackInduction

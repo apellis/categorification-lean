@@ -13,7 +13,10 @@ additive envelopes and `E` a right adjoint of `F'`, restriction after induction 
 matrix map `φ` of `F` is the module functor of the composite `F' ⋙ E`: for every right
 `MatEnd X`-module `N`,
 
-`Res_φ (Ind N φ) ≅ (G_X ⟶ E (F' G_X)) ⊗_{End G_X} N`   (`resIndModuleEquiv`).
+`Res_φ (Ind N φ) ≅ (G_X ⟶ E (F' G_X)) ⊗_{End G_X} N`   (`resIndModuleEquiv`),
+and, when `E G_Y` is a summand of finitely many copies of `G_X`, for every right
+`MatEnd Y`-module `M`, `Ind (Res_φ M) φ ≅ (G_Y ⟶ F' (E G_Y)) ⊗_{End G_Y} M`
+(`indResModuleEquiv`).
 
 The composition step uses that `F' G_X` is a summand of `G_Y` (`karoubiSect_gen`). This is how
 the commutation relations of the categorical action pass to Webster's functors `Eᵢ Fⱼ` on all
@@ -100,6 +103,78 @@ theorem resIndModuleEquiv_smul (a : (MatEnd X)ᵐᵒᵖ)
   let _ := HomTensor.transferModule (karoubiMatrixOpY Y) (Ind N (mapEmbOp F he h))
   simp only [resIndModuleEquiv, LinearEquiv.trans_apply, resModuleEquiv_smul,
     LinearEquiv.restrictScalars_apply, LinearEquiv.map_smul]
+
+section IndRes
+
+variable (M : Type (max w v)) [AddCommGroup M] [Module (MatEnd Y)ᵐᵒᵖ M]
+
+/-- `resModuleEquiv` as a map of right `End G_X`-modules, for the module structure on the
+restricted module transferred along `karoubiMatrixOp`. -/
+def resModuleLinearEquiv :
+    letI := HomTensor.transferModule (karoubiMatrixOpY Y) M
+    letI := HomTensor.transferModule (karoubiMatrixOp X) (Res (mapEmbOp F he h) M)
+    Res (mapEmbOp F he h) M ≃ₗ[(End ((toKaroubi _).obj (familySum X)))ᵐᵒᵖ]
+      BalancedTensor ℤ (End ((toKaroubi _).obj (familySum X)))ᵐᵒᵖ
+      (End ((toKaroubi _).obj (familySum Y)))ᵐᵒᵖ
+      ((toKaroubi _).obj (familySum X) ⟶ E.obj ((toKaroubi _).obj (familySum Y))) M :=
+  letI := HomTensor.transferModule (karoubiMatrixOpY Y) M
+  letI := HomTensor.transferModule (karoubiMatrixOp X) (Res (mapEmbOp F he h) M)
+  { resModuleEquiv F he h adj M with
+    map_smul' := fun a x => by
+      change resModuleEquiv F he h adj M ((karoubiMatrixOp X).symm a • x) = a • _
+      rw [resModuleEquiv_smul, RingEquiv.apply_symm_apply]
+      rfl }
+
+variable {J : Type*} [Fintype J]
+  (π : J → (E.obj ((toKaroubi _).obj (familySum Y)) ⟶ (toKaroubi _).obj (familySum X)))
+  (ι' : J → ((toKaroubi _).obj (familySum X) ⟶ E.obj ((toKaroubi _).obj (familySum Y))))
+  (hπ : ∑ j, π j ≫ ι' j = 𝟙 _)
+
+/-- **Induction after restriction as a module functor**: when `E G_Y` is a summand of finitely
+many copies of `G_X`, `Ind (Res_φ M) φ ≅ (G_Y ⟶ F' (E G_Y)) ⊗_{End G_Y} M`. -/
+def indResModuleEquiv :
+    letI := HomTensor.transferModule (karoubiMatrixOpY Y) M
+    Ind (Res (mapEmbOp F he h) M) (mapEmbOp F he h) ≃ₗ[ℤ]
+      BalancedTensor ℤ (End ((toKaroubi _).obj (familySum Y)))ᵐᵒᵖ
+      (End ((toKaroubi _).obj (familySum Y)))ᵐᵒᵖ
+      ((toKaroubi _).obj (familySum Y) ⟶
+        (E ⋙ mapKaroubi F.mapMat_).obj ((toKaroubi _).obj (familySum Y))) M :=
+  letI := HomTensor.transferModule (karoubiMatrixOpY Y) M
+  letI := HomTensor.transferModule (karoubiMatrixOp X) (Res (mapEmbOp F he h) M)
+  letI := HomTensor.transferModule (karoubiMatrixOpY Y)
+    (Ind (Res (mapEmbOp F he h) M) (mapEmbOp F he h))
+  ((indModuleLinearEquiv F he h (Res (mapEmbOp F he h) M)).trans
+    ((BalancedTensor.congrRight (k := ℤ)
+      (B := (End ((toKaroubi _).obj (familySum Y)))ᵐᵒᵖ)
+      (M := (toKaroubi _).obj (familySum Y) ⟶
+        (mapKaroubi F.mapMat_).obj ((toKaroubi _).obj (familySum X)))
+      (resModuleLinearEquiv F he h adj M)).trans
+      (HomTensor.compModuleEquiv ℤ E (mapKaroubi F.mapMat_) _ _ _ π ι' hπ M))).restrictScalars
+    ℤ
+
+/-- `indResModuleEquiv` is semilinear along `karoubiMatrixOpY`. -/
+theorem indResModuleEquiv_smul (b : (MatEnd Y)ᵐᵒᵖ)
+    (x : Ind (Res (mapEmbOp F he h) M) (mapEmbOp F he h)) :
+    letI := HomTensor.transferModule (karoubiMatrixOpY Y) M
+    indResModuleEquiv F he h adj M π ι' hπ (b • x) =
+      karoubiMatrixOpY Y b • indResModuleEquiv F he h adj M π ι' hπ x := by
+  let _ := HomTensor.transferModule (karoubiMatrixOpY Y) M
+  let _ := HomTensor.transferModule (karoubiMatrixOp X) (Res (mapEmbOp F he h) M)
+  let _ := HomTensor.transferModule (karoubiMatrixOpY Y)
+    (Ind (Res (mapEmbOp F he h) M) (mapEmbOp F he h))
+  have : b • x = (karoubiMatrixOpY Y b) • x := by
+    change _ = (karoubiMatrixOpY Y).symm (karoubiMatrixOpY Y b) • x
+    rw [RingEquiv.symm_apply_apply]
+  rw [this]
+  exact LinearEquiv.map_smul (((indModuleLinearEquiv F he h (Res (mapEmbOp F he h) M)).trans
+    ((BalancedTensor.congrRight (k := ℤ)
+      (B := (End ((toKaroubi _).obj (familySum Y)))ᵐᵒᵖ)
+      (M := (toKaroubi _).obj (familySum Y) ⟶
+        (mapKaroubi F.mapMat_).obj ((toKaroubi _).obj (familySum X)))
+      (resModuleLinearEquiv F he h adj M)).trans
+      (HomTensor.compModuleEquiv ℤ E (mapKaroubi F.mapMat_) _ _ _ π ι' hπ M)))) _ _
+
+end IndRes
 
 end MatEnd
 

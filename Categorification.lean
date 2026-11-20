@@ -1287,3 +1287,4 @@ import Categorification.WeightedKLR.RedStrands.SplitRedWords
 
 Lean 4 formalizations of results in categorification.
 -/
+import Categorification.WeightedKLR.RedStrands.CyclotomicRedGlobal

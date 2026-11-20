@@ -37,6 +37,7 @@ import Categorification.Algebra.Graded.Restriction
 import Categorification.Algebra.Graded.RightTwist
 import Categorification.Algebra.IdempotentEquiv
 import Categorification.Algebra.CommutingFamily
+import Categorification.Algebra.HomTensor
 import Categorification.Algebra.InductionAlong
 import Categorification.Algebra.InductionAlongAssoc
 import Categorification.Algebra.InductionAlongEnd

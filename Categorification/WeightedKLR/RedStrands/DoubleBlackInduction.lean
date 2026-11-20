@@ -11,7 +11,7 @@ import Categorification.Algebra.InductionAlongTensor
 /-!
 # `Fᵢ` on the categorical side is Webster's `Fᵢ` on modules
 
-Webster, arXiv:1309.3796v3, §5, Proposition 5.3 and §4.6. Under the Morita equivalence of
+Webster, arXiv:1309.3796v3, §4.6, Theorem 4.31 and the paragraph after it. Under the Morita equivalence of
 Theorem 4.30, an object `M` of the completed block of `DT^λ` corresponds to the right
 `T^λ_ν`-module `Hom(⊕ O_ν, M)`, where `⊕ O_ν` is the sum of the all-down boundaries. The
 categorical action of `Fᵢ` (appending a downward black strand of colour `i`) corresponds to
@@ -65,8 +65,8 @@ abbrev blackMatrixOp :
 theorem blackMatrixOp_apply (f : (downwardMatrix (Q) ν)ᵐᵒᵖ) :
     blackMatrixOp P t i ν f = op (blackMatrix (Q) i f.unop) := rfl
 
-/-- **`Fᵢ` on the categorical side as an induction** (Webster, arXiv:1309.3796v3, §5,
-Proposition 5.3): for `M` in the completed block of content `ν`, morphisms from the all-down
+/-- **`Fᵢ` on the categorical side as an induction** (Webster, arXiv:1309.3796v3, §4.6,
+after Theorem 4.31): for `M` in the completed block of content `ν`, morphisms from the all-down
 sum to `Fᵢ M` are the induction of `Hom(⊕ O_ν, M)` along the matrix map of `Fᵢ`. -/
 def blackHomInd (M : Karoubi (Mat_ (Vc)))
     (hM : ∀ j, (M.X.X j).as.val.signedContent = contentVector ν) :
@@ -177,8 +177,8 @@ theorem clIndTransport_smul (M : Karoubi (Mat_ (Vc))) (b : (T ({i} + ν))ᵐᵒ�
     b x
   exact key
 
-/-- **Webster's `Fᵢ` is the categorical `Fᵢ`** (Webster, arXiv:1309.3796v3, §5,
-Proposition 5.3, with §4.6 and the repaired Lemma 4.29 and Theorem 4.30), at the standard
+/-- **Webster's `Fᵢ` is the categorical `Fᵢ`** (Webster, arXiv:1309.3796v3, §4.6,
+paragraph after Theorem 4.31, with the repaired Lemma 4.29 and Theorem 4.30), at the standard
 Khovanov–Lauda parameters over a field: for `M` in the completed block of content `ν`,
 Webster's `Fᵢ` applied to the right `T^λ_ν`-module `Hom(⊕ O_ν, M)` is
 `Hom(⊕ O_{ν+i}, Fᵢ M)`, semilinearly for `T^λ_{ν+i}` (`clBlackHomInd_smul`). -/

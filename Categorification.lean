@@ -10,6 +10,7 @@ import Categorification.Algebra.CoinvariantGraded
 import Categorification.Algebra.DividedDifference
 import Categorification.Algebra.ExternalTensor
 import Categorification.Algebra.Generation
+import Categorification.Algebra.HomTensorInd
 import Categorification.Algebra.Graded.Dimension
 import Categorification.Algebra.Graded.Duality
 import Categorification.Algebra.Graded.G0
@@ -210,6 +211,7 @@ import Categorification.Diagrams.KLR.Comparison
 import Categorification.Diagrams.KLR.DiagR
 import Categorification.Diagrams.KLR.KL1
 import Categorification.Diagrams.KLR.MatEnd
+import Categorification.Diagrams.KLR.MatEndCorner
 import Categorification.Diagrams.KLR.MatEndMap
 import Categorification.Diagrams.KLR.MatEndTrace
 import Categorification.Diagrams.KLR.Soundness
@@ -1311,6 +1313,7 @@ import Categorification.WeightedKLR.RedStrands.SplitRedLoading
 import Categorification.WeightedKLR.RedStrands.SplitRedQuotient
 import Categorification.WeightedKLR.RedStrands.SplitRedRelations
 import Categorification.WeightedKLR.RedStrands.SplitRedWords
+import Categorification.WeightedKLR.RedStrands.DoubleBlackInduction
 /-!
 # Categorification
 

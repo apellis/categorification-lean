@@ -10,7 +10,7 @@ import Categorification.WeightedKLR.RedStrands.BlackAffineProjection
 /-!
 # The matrix map of `Fᵢ` on the all-down block
 
-Webster, arXiv:1309.3796v3, §5, Proposition 5.3 and the module functors `Fᵢ`. The action of
+Webster, arXiv:1309.3796v3, §4.6, the module functors `Fᵢ` after Theorem 4.31. The action of
 the Khovanov–Lauda word `Fᵢ` sends the all-down boundary of a loading `s` to the all-down
 boundary of `s` followed by `i`. Applied entrywise, it gives a homomorphism of non-unital
 algebras from the all-down matrix algebra at black content `ν` to the one at `{i} + ν`
@@ -111,7 +111,7 @@ theorem appendDown_injective : Function.Injective (appendDown (ℓ := ℓ) i (ν
   exact Subtype.ext (appendBlackLoading_injective i ν (congrArg Subtype.val h))
 
 /-- The action of `Fᵢ` on the all-down matrix algebra, as a homomorphism of non-unital
-algebras (Webster, arXiv:1309.3796v3, §5, Proposition 5.3). -/
+algebras (Webster, arXiv:1309.3796v3, §4.6, after Theorem 4.31). -/
 def blackMatrix : downwardMatrix P ν →ₙₐ[k] downwardMatrix P ({i} + ν) :=
   MatEnd.mapEmbHom k F (appendDown_injective i) (blackAct_downObj P i)
 

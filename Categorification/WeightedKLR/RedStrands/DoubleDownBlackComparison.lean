@@ -10,7 +10,7 @@ import Categorification.WeightedKLR.RedStrands.BlackRescale
 /-!
 # The matrix map of `Fᵢ` and adjoining a black strand
 
-Webster, arXiv:1309.3796v3, §5, Proposition 5.3. On the all-down block, the matrix map of the
+Webster, arXiv:1309.3796v3, §4.6, after Theorem 4.31. On the all-down block, the matrix map of the
 word `Fᵢ` (`blackMatrix`) intertwines the map of Lemma 4.28 (`ordinaryToDownwardMatrix`) with
 Webster's map adjoining a black strand on the right of the tensor product algebra
 (`appendBlack`, §4.6 after Theorem 4.31).

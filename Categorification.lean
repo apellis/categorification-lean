@@ -217,6 +217,7 @@ import Categorification.Diagrams.KLR.KL1
 import Categorification.Diagrams.KLR.MatEnd
 import Categorification.Diagrams.KLR.MatEndCorner
 import Categorification.Diagrams.KLR.MatEndCornerRes
+import Categorification.Diagrams.KLR.MatEndModuleFunctor
 import Categorification.Diagrams.KLR.MatEndMap
 import Categorification.Diagrams.KLR.MatEndTrace
 import Categorification.Diagrams.KLR.Soundness

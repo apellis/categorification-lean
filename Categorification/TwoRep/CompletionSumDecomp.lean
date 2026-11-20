@@ -60,6 +60,14 @@ theorem completionMap₂_sum {ι : Type*} (s : Finset ι) (α : ι → (F ⟶ G)
   | empty => simp only [Finset.sum_empty, completionMap₂_zero]
   | insert j s hj ih => rw [Finset.sum_insert hj, Finset.sum_insert hj, completionMap₂_add, ih]
 
+/-- An isomorphism of additive functors induces an isomorphism on completions. -/
+@[simps]
+def completionIso (e : F ≅ G) : completionMap F ≅ completionMap G where
+  hom := completionMap₂ e.hom
+  inv := completionMap₂ e.inv
+  hom_inv_id := by rw [← completionMap₂_comp, e.hom_inv_id, completionMap₂_id]
+  inv_hom_id := by rw [← completionMap₂_comp, e.inv_hom_id, completionMap₂_id]
+
 variable {ι : Type} [Fintype ι] [DecidableEq ι] {Hs : ι → A ⥤ B} [∀ s, (Hs s).Additive]
 
 /-- **A decomposition of functors gives a decomposition on completions**: a `SumDecomp` of `F`

@@ -74,6 +74,14 @@ theorem natModuleHom_sum {ι : Type*} (s : Finset ι) (α : ι → (F ⟶ G)) :
   | empty => simp only [Finset.sum_empty, natModuleHom_zero]
   | insert j s hj ih => rw [Finset.sum_insert hj, Finset.sum_insert hj, natModuleHom_add, ih]
 
+/-- An isomorphism of functors gives an isomorphism of their module functors. -/
+@[simps]
+def natModuleIso (e : F ≅ G) : tensorObj O O' M F ≅ tensorObj O O' M G where
+  hom := natModuleHom O O' M e.hom
+  inv := natModuleHom O O' M e.inv
+  hom_inv_id := by rw [← natModuleHom_comp, e.hom_inv_id, natModuleHom_id]
+  inv_hom_id := by rw [← natModuleHom_comp, e.inv_hom_id, natModuleHom_id]
+
 variable {ι : Type} [Fintype ι] [DecidableEq ι] {Hs : ι → C ⥤ D} [∀ s, (Hs s).Additive]
 
 /-- **A decomposition of functors gives a decomposition of their module functors**: a

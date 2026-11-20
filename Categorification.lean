@@ -911,6 +911,7 @@ import Categorification.WeightedKLR.RedStrands.ReducedFaithful
 import Categorification.WeightedKLR.RedStrands.StandardAction
 import Categorification.WeightedKLR.RedStrands.StandardBlocks
 import Categorification.WeightedKLR.RedStrands.StandardBlockAction
+import Categorification.WeightedKLR.RedStrands.Standardization
 import Categorification.WeightedKLR.RedStrands.StandardBlockMaps
 import Categorification.WeightedKLR.RedStrands.StandardModule
 import Categorification.WeightedKLR.RedStrands.Stendhal

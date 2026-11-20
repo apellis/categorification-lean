@@ -8,9 +8,10 @@ import Categorification.Diagrams.KLR.MatEndModuleDecomp
 /-!
 # The commutation relation of `Eᵢ` and `Fᵢ` on all modules
 
-Webster, arXiv:1309.3796v3, Proposition 5.5, the relation between `Eᵢ Fᵢ` and `Fᵢ Eᵢ`. On the
-all-down matrix ring of content `i + ν`, with `λ` its right weight and `n = ⟨i, λ⟩`, Webster's
-functors `Eᵢ Fᵢ` (restriction after induction along the matrix map of `Fᵢ`) and `Fᵢ Eᵢ`
+The commutation relation of the categorical action (Webster, arXiv:1309.3796v3, Thm 4.31) on
+modules, an input of the proof of Proposition 5.5 there (the filtrations of `Eᵢ` and `Fᵢ` of a
+standardization), which is not formalized in this file. On the all-down matrix ring of
+content `i + ν`, with `λ` its right weight and `n = ⟨i, λ⟩`, Webster's functors `Eᵢ Fᵢ` (restriction after induction along the matrix map of `Fᵢ`) and `Fᵢ Eᵢ`
 (induction after restriction) satisfy, for every right module `M`,
 
 * `Eᵢ Fᵢ M ≅ Fᵢ Eᵢ M ⊕ M^{⊕ n}` when `n ≥ 0` (`blackModuleEFEquiv`),
@@ -55,7 +56,8 @@ variable {I : Type u} {C : CartanDatum I} {X Y : Type v} [AddCommGroup X] [AddCo
 local notation "Q" => addRedUpRelations RD (Subtype.val ∘ Λ) k
   (addMixedBlackRelations RD (Subtype.val ∘ Λ) k t P)
 
-/-- **Webster, Proposition 5.5, `Eᵢ Fᵢ` side** (arXiv:1309.3796v3): for `n = ⟨i, λ⟩ ≥ 0`,
+/-- **`Eᵢ Fᵢ` against `Fᵢ Eᵢ` on all modules** (Webster, arXiv:1309.3796v3, input of the proof
+of Proposition 5.5): for `n = ⟨i, λ⟩ ≥ 0`,
 with `λ` the right weight of content `i + ν`, `Eᵢ Fᵢ M ≅ Fᵢ Eᵢ M ⊕ M^{⊕ n}` for every right
 module `M` over the all-down matrix ring of content `i + ν`. -/
 def blackModuleEFEquiv (hP : ∀ r : (pres RD k).Rel,
@@ -83,7 +85,8 @@ def blackModuleEFEquiv (hP : ∀ r : (pres RD k).Rel,
     blackModuleSumDecompEF (Q) hP i (downRightWeight RD Λ ({i} + ν))
       ((toKaroubi _).obj (KLR.Diagram.MatEnd.familySum (downObj (Q) (ν := {i} + ν)))) M hn)
 
-/-- **Webster, Proposition 5.5, `Fᵢ Eᵢ` side** (arXiv:1309.3796v3): for `n = ⟨i, λ⟩ ≤ 0`,
+/-- **`Fᵢ Eᵢ` against `Eᵢ Fᵢ` on all modules** (Webster, arXiv:1309.3796v3, input of the proof
+of Proposition 5.5): for `n = ⟨i, λ⟩ ≤ 0`,
 with `λ` the right weight of content `i + ν`, `Fᵢ Eᵢ M ≅ Eᵢ Fᵢ M ⊕ M^{⊕ -n}` for every right
 module `M` over the all-down matrix ring of content `i + ν`. -/
 def blackModuleFEEquiv (hP : ∀ r : (pres RD k).Rel,

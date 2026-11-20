@@ -207,6 +207,38 @@ theorem blockResCrossRev_blockResCross_app
 
 end Bigons
 
+section Iso
+
+variable [∀ d' d h, (P' d' d h).Additive]
+
+/-- **The crossing is invertible** when the blockwise crossings are invertible and the map of
+fibres is bijective; the inverse is the reverse crossing. -/
+def blockResCrossIso
+    (hbij : ∀ d', Function.Bijective (fibreMap s s' r r' hc (d' := d')))
+    (e : ∀ (a' : A') (d' : Dd') (h : s' a' = d'),
+      P a' (r a') rfl ⋙ L' a' d' h ≅
+        L (r a') (r' d') ((hc a').trans (congrArg r' h)) ⋙ P' d' (r' d') rfl) :
+    blockRes r P ⋙ blockSum s' L' ≅ blockSum s L ⋙ blockRes r' P' where
+  hom := blockResCross s s' r r' hc L L' P P' fun a' d' h => (e a' d' h).hom
+  inv := blockResCrossRev s s' r r' hc L L' P P' fun a' d' h => (e a' d' h).inv
+  hom_inv_id := NatTrans.ext <| funext fun N => funext fun d' => by
+    change blockResCrossApp s s' r r' hc L L' P P' (fun a' d' h => (e a' d' h).hom) N d' ≫
+      blockResCrossRevApp s s' r r' hc L L' P P' (fun a' d' h => (e a' d' h).inv) N d' = 𝟙 _
+    rw [blockResCross_blockResCrossRev_app s s' r r' hc L L' P P' _ _
+      (fun d' => (hbij d').1) (fun _ _ _ => 𝟙 _) (fun a' d' h => (e a' d' h).hom_inv_id)]
+    exact biproduct.hom_ext _ _ fun p => by simp
+  inv_hom_id := NatTrans.ext <| funext fun N => funext fun d' => by
+    change blockResCrossRevApp s s' r r' hc L L' P P' (fun a' d' h => (e a' d' h).inv) N d' ≫
+      blockResCrossApp s s' r r' hc L L' P P' (fun a' d' h => (e a' d' h).hom) N d' = 𝟙 _
+    rw [blockResCrossRev_blockResCross_app s s' r r' hc L L' P P' _ _ hbij
+      (fun _ _ _ => 𝟙 _) (fun a' d' h => (e a' d' h).inv_hom_id.trans
+        (Functor.whiskerRight_id _).symm)]
+    rw [← (P' d' (r' d') rfl).map_id]
+    congr 1
+    exact biproduct.hom_ext _ _ fun p => by simp [blockSumMap]
+
+end Iso
+
 end
 
 end Categorification.TwoRep

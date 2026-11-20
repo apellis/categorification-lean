@@ -2,6 +2,7 @@
 Copyright (c) 2026 Alex Ellis. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 -/
+import Categorification.TwoRep.BlockSumCrossing
 import Categorification.TwoRep.PiBiproduct
 import Categorification.WeightedKLR.RedStrands.CyclotomicRedGlobal
 
@@ -169,5 +170,44 @@ without `r` (Webster, arXiv:1309.3796v3, Theorem 4.25, the functor `I^λ`). -/
 def regionRed (r : Fin ℓ) {μ μ₂ : X} (h : μ + lam r = μ₂) :
     region.{u, v, w} Q p RD lam μ₂ ⟶ region Q p RD lam μ :=
   LinearCat.LinFun.of (blockSum (fun ν => r ::ₘ ν) (redFactor Q p RD lam r h))
+
+/-! ### Red/black crossings -/
+
+/-- The red/up crossing for a red pullback into a highest weight `Λ'` equal to `Λ + δ`. -/
+def redPullbackAtResIso {a b : I → k[X]} (hab : ∀ i, a i ∣ b i) (Λ δ : X) {Λ' : X}
+    (hΛ : Λ + δ = Λ') (i : I) {x x₂ y y₂ : X} (hx : x + RD.iX i = x₂)
+    (hy : y + RD.iX i = y₂) (h : y + δ = x) (h₂ : y₂ + δ = x₂) :
+    redPullbackAt.{u, v, w} Q RD hab Λ δ hΛ h₂ ⋙ (globalF Q b RD Λ' i hy).obj ≅
+      (globalF Q a RD Λ i hx).obj ⋙ redPullbackAt Q RD hab Λ δ hΛ h := by
+  subst hΛ
+  exact (ObjectProperty.ι _).mapIso (globalRedPullbackResIso Q hab RD Λ δ i hx hy h h₂)
+
+section RedUp
+
+variable (r : Fin ℓ) (i : I) {μ μ₁ μ₂ μ₃ : X} (h₁ : μ + RD.iX i = μ₁)
+  (h₂ : μ + lam r = μ₂) (h₃ : μ₁ + lam r = μ₃) (h₄ : μ₂ + RD.iX i = μ₃)
+
+/-- The red/up crossing on the factor `ν`. -/
+def redFactorUpIso (ν : Multiset (Fin ℓ)) :
+    upFactor.{u, v, w} Q p RD lam i h₄ ν ν rfl ⋙ redFactor Q p RD lam r h₂ ν (r ::ₘ ν) rfl ≅
+      redFactor Q p RD lam r h₃ ν (r ::ₘ ν) rfl ⋙
+        upFactor Q p RD lam i h₁ (r ::ₘ ν) (r ::ₘ ν) rfl :=
+  (redPullbackAtResIso Q RD (regionPoly_dvd_cons p r ν) _ (lam r) (regionHighest_cons lam r ν)
+    i h₄ h₁ h₂ h₃).symm
+
+/-- **The red/up crossing on regions** (Webster, arXiv:1309.3796v3, §4.6, proof of
+Theorem 4.25): an upward black strand `i` passes through a red line `r`, by the isomorphisms
+`F_i I^λ ≅ I^λ F_i` on every factor containing `r`. -/
+def regionRedUpIso :
+    regionUp.{u, v, w} Q p RD lam i h₄ ≫ regionRed Q p RD lam r h₂ ≅
+      regionRed Q p RD lam r h₃ ≫ regionUp Q p RD lam i h₁ :=
+  ObjectProperty.isoMk _ (blockResCrossIso (fun ν => r ::ₘ ν) (fun ν => r ::ₘ ν) id id
+    (fun _ => rfl) (redFactor Q p RD lam r h₃) (redFactor Q p RD lam r h₂)
+    (upFactor Q p RD lam i h₄) (upFactor Q p RD lam i h₁)
+    (fun _ => ⟨fun _ _ _ => Subsingleton.elim _ _,
+      fun q => ⟨q, Subtype.ext rfl⟩⟩)
+    fun ν _ hν => by subst hν; exact redFactorUpIso Q p RD lam r i h₁ h₂ h₃ h₄ ν)
+
+end RedUp
 
 end Categorification.Stendhal

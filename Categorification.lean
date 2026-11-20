@@ -781,6 +781,7 @@ import Categorification.TwoRep.RouqSl2
 import Categorification.TwoRep.CyclotomicLocalCommutator
 import Categorification.TwoRep.AdditiveCat
 import Categorification.TwoRep.CyclotomicRouqAdjunction
+import Categorification.TwoRep.CyclotomicRouqCapTrace
 import Categorification.TwoRep.RouqBoundaryAdjunction
 import Categorification.TwoRep.CyclotomicAbsentAdjunction
 import Categorification.TwoRep.RouqLocTransport

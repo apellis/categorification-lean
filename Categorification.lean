@@ -210,6 +210,7 @@ import Categorification.Diagrams.KLR.Comparison
 import Categorification.Diagrams.KLR.DiagR
 import Categorification.Diagrams.KLR.KL1
 import Categorification.Diagrams.KLR.MatEnd
+import Categorification.Diagrams.KLR.MatEndMap
 import Categorification.Diagrams.KLR.MatEndTrace
 import Categorification.Diagrams.KLR.Soundness
 import Categorification.Diagrams.NilHecke.Basic
@@ -1287,6 +1288,9 @@ import Categorification.WeightedKLR.RedStrands.DoubleBlackActionHorizontal
 import Categorification.WeightedKLR.RedStrands.DoubleBlackActionWhisker
 import Categorification.WeightedKLR.RedStrands.DoubleBlackActionPseudofunctor
 import Categorification.WeightedKLR.RedStrands.DoubleDownBlackAppend
+import Categorification.WeightedKLR.RedStrands.BlackRescale
+import Categorification.WeightedKLR.RedStrands.DoubleDownBlackComparison
+import Categorification.WeightedKLR.RedStrands.DoubleDownBlackMatrix
 import Categorification.WeightedKLR.RedStrands.DoubleRightWhiskerHorizontal
 import Categorification.WeightedKLR.RedStrands.LastRedBlackSlide
 import Categorification.WeightedKLR.RedStrands.LastRedBlackBimodule

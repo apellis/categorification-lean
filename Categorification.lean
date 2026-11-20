@@ -469,6 +469,7 @@ import Categorification.KLR.GradedModules
 import Categorification.KLR.Grading
 import Categorification.KLR.GradeTransfer
 import Categorification.KLR.GradingFlip
+import Categorification.KLR.IndLastStrand
 import Categorification.KLR.Induction
 import Categorification.KLR.InductionAlgebra
 import Categorification.KLR.InductionFree
@@ -865,6 +866,7 @@ import Categorification.TypeA.Basic
 import Categorification.TypeA.DoubleCoset
 import Categorification.TypeA.GapSort
 import Categorification.TypeA.Inversions
+import Categorification.TypeA.LastStrand
 import Categorification.TypeA.Length
 import Categorification.TypeA.Matsumoto
 import Categorification.TypeA.NormalForm

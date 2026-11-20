@@ -82,7 +82,7 @@ private theorem cutShuffle_mem (u : Shuffle (Seq.card_add' μ ν)) (s : Seq (μ 
     op (concatIdem (Q := Q) (u.1 • s)) • hatWRevSub u ∈
       G.bimodGrading μ ν (G.indShuffleDegree u s) := by
   change (((op (concatIdem (Q := Q) (u.1 • s)) • hatWRevSub u : IndBimod Q μ ν) : KLRAlgebra k Q (μ + ν))) ∈ G.grade _ _
-  rw [coe_op_smul, unop_op, coe_hatWRevSub, hatWRev, mul_assoc, oneConcat_mul_concat,
+  rw [coe_op_smul, unop_op, coe_hatWRevSub, hatWRev_eq, mul_assoc, oneConcat_mul_concat,
     concat_concatIdem, ← mul_assoc]
   simpa only [add_zero, indShuffleDegree] using SetLike.GradedMul.mul_mem (A := G.grade (μ + ν))
     (G.ψw_mul_e_mem_grade (shufWord u).reverse (u.1 • s)) (G.oneConcat_mem_grade (ν := μ) (ν' := ν))

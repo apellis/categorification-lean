@@ -608,8 +608,13 @@ number of black `i`-strands left of each red strand (`StendhalLE`, `StendhalLT`;
 reading of "≥" in Def 5.1 is the one used); `P̃_s`, `U_s` and the standard module `S_s = P̃_s/U_s`
 (`seqProj`, `upperSubmodule`, `standardModule`); the cyclotomic step of Prop 5.3: a red strand
 followed by a black `i`-strand gives `y^{α_i^∨(λ)} e(s) ∈ U_s` (`dotPow_mem_upperSubmodule`), via
-the bigon through the strictly higher sequence (`StendhalAlgebraAllOrders.dotPow_e_eq`). Open
-in Prop 5.3: the isomorphism of `S_s` with the tensor product of cyclotomic modules.
+the bigon through the strictly higher sequence (`StendhalAlgebraAllOrders.dotPow_e_eq`).
+`RedStrands/StandardAction.lean`: the idempotent `e_α` of a root function (`rootIdem`), `U_α`
+and `S_α` (`rootUpper`, `rootStandard`), and the action of the corner `e_α T̃^λ e_α` on `S_α`
+by right module endomorphisms (`rootAction`; generic form `cornerQuotientAction`), with the
+cyclotomic relations acting by zero (`sandwich_dotPow_mem_rootUpper`,
+`rootAction_eq_zero_of_mul_mem`). Open in Prop 5.3: the block embeddings `℘_j` of the KLR
+algebras into the corner and their descent to the cyclotomic quotients.
 
 Standardization functors (Prop 5.3, Def 5.4, Props 5.6, 5.7); simples and crystals
 (Lemma 5.9, Props 5.11, 5.12, Thms 5.14, 5.15); stringy triples (Props 5.17, 5.18);

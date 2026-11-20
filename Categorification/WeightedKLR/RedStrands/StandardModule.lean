@@ -4,6 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Alex Ellis
 -/
 import Categorification.KLR.Symmetries
+import Categorification.WeightedKLR.RedStrands.RedOrder
 import Categorification.WeightedKLR.RedStrands.Stendhal
 
 /-!
@@ -148,28 +149,10 @@ theorem stendhalLT_sadj (h : j + 1 < m) (hr : s.lbl ⟨j, by omega⟩ = .inr r)
     exact absurd (this.2 ⟨j, by omega⟩ hr) (by simp [Fin.lt_def])
   exact absurd (hge r i) (by omega)
 
-omit [DecidableEq I] in
-/-- Exchanging a red strand with the black strand to its right keeps the red strands in
-order. -/
-theorem isRedOrdered_sadj (h : j + 1 < m)
-    (hi : s.lbl ⟨j + 1, h⟩ = .inl i)
-    (hs : IsRedOrdered s) : IsRedOrdered (TypeA.sadj m j • s) := by
-  intro a b r₁ r₂ hab ha hb
-  rw [lbl_sadj] at ha hb
-  refine hs _ _ r₁ r₂ ?_ ha hb
-  have haj : (TypeA.sadj m j a).val ≠ j + 1 := fun e => by
-    rw [lbl_eq_of_val s (b := ⟨j + 1, h⟩) e, hi] at ha; cases ha
-  have hbj : (TypeA.sadj m j b).val ≠ j + 1 := fun e => by
-    rw [lbl_eq_of_val s (b := ⟨j + 1, h⟩) e, hi] at hb; cases hb
-  rw [Fin.lt_def] at hab ⊢
-  rw [KLRAlgebra.sadj_apply_val h] at haj hbj ⊢
-  rw [KLRAlgebra.sadj_apply_val h]
-  split_ifs at haj hbj ⊢ <;> omega
-
 end Preorder
 
 /-- Each red label occurs at one position of a sequence of Stendhal strands. -/
-theorem eq_of_lbl_eq_inr {ν : Multiset I} {s : Seq (stendhalWeight ℓ ν)}
+theorem lbl_eq_inr_unique {ν : Multiset I} {s : Seq (stendhalWeight ℓ ν)}
     {a b : Fin (Multiset.card (stendhalWeight ℓ ν))} {r : Fin ℓ}
     (ha : s.lbl a = .inr r) (hb : s.lbl b = .inr r) : a = b := by
   classical
@@ -307,7 +290,7 @@ theorem dotPow_mem_upperSubmodule {j : ℕ} (h : j + 1 < m) (s : Seq μ) (hs : I
     (i : I) (r : Fin ℓ) (hr : s.lbl ⟨j, by omega⟩ = .inr r)
     (hi : s.lbl ⟨j + 1, h⟩ = .inl i) :
     sandwich s hs s hs (x ⟨j + 1, h⟩ ^ Λ r i) ∈ upperSubmodule Q Λ s hs := by
-  have hs' := isRedOrdered_sadj h hi hs
+  have hs' := isRedOrdered_sadj hs h (Or.inr (by change (s.lbl _).isLeft; simp [hi]))
   set s' := TypeA.sadj m j • s
   have heq : sandwich s hs s hs (x ⟨j + 1, h⟩ ^ Λ r i) =
       (e s hs : A) * sandwich s hs s' hs' (ψ j) * e s' hs' * sandwich s' hs' s hs (ψ j) := by
@@ -331,7 +314,7 @@ theorem dotPow_mem_upperSubmodule {j : ℕ} (h : j + 1 < m) (s : Seq μ) (hs : I
         ((e s hs : A) * sandwich s hs s' hs' (ψ j) * e s' hs') from
     (op_smul_eq_mul _ _).symm]
   exact Submodule.smul_mem _ _ (Submodule.subset_span
-    ⟨s', hs', _, stendhalLT_sadj h hr hi (fun d hd => eq_of_lbl_eq_inr hd hr), rfl⟩)
+    ⟨s', hs', _, stendhalLT_sadj h hr hi (fun d hd => lbl_eq_inr_unique hd hr), rfl⟩)
 
 end StendhalAlgebra
 

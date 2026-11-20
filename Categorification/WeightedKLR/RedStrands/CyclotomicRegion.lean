@@ -235,9 +235,9 @@ def redPullbackAtDotCrossing {a b : I → k[X]} (hab : ∀ i, a i ∣ b i) (Λ �
 the dot crossing followed by the quotient crossing is the `d`-th power of the dot on
 `E_i`, followed by the red pullback. -/
 theorem redPullbackAtDotCrossing_downQuotient {a b : I → k[X]} (hab : ∀ i, a i ∣ b i)
-    (Λ δ : X) {Λ' : X} (hΛ : Λ + δ = Λ') (i : I) {x x₂ y y₂ : X} (hx : x + RD.iX i = x₂)
-    (hy : y + RD.iX i = y₂) (h : y + δ = x) (h₂ : y₂ + δ = x₂) (d : ℕ)
-    (hi : b i = Polynomial.X ^ d * a i) :
+    (Λ δ : X) {Λ' : X} (hΛ : Λ + δ = Λ') (i : I) {x x₂ y y₂ : X}
+    (hx : x + RD.iX i = x₂) (hy : y + RD.iX i = y₂) (h : y + δ = x) (h₂ : y₂ + δ = x₂)
+    (d : ℕ) (hi : b i = Polynomial.X ^ d * a i) :
     redPullbackAtDotCrossing.{u, v, w} Q RD hab Λ δ hΛ i hx hy h h₂ d hi ≫
         redPullbackAtDownQuotient Q RD hab Λ δ hΛ i hx hy h h₂ =
       Functor.whiskerRight (blockSumMap (blockSucc RD Λ i hx) fun _ _ hβ =>
@@ -255,7 +255,8 @@ variable (r : Fin ℓ) (i : I) {μ μ₁ μ₂ μ₃ : X} (h₁ : μ + RD.iX i =
 
 /-- The red/down quotient crossing on the factor `ν`. -/
 def redFactorDownQuotient (ν ν' : Multiset (Fin ℓ)) (hν : r ::ₘ ν = ν') :
-    redFactor.{u, v, w} Q p RD lam r h₂ ν ν' hν ⋙ downFactor Q p RD lam i h₁ ν' ν' rfl ⟶
+    redFactor.{u, v, w} Q p RD lam r h₂ ν ν' hν ⋙
+        downFactor Q p RD lam i h₁ ν' ν' rfl ⟶
       downFactor Q p RD lam i h₄ ν ν rfl ⋙ redFactor Q p RD lam r h₃ ν ν' hν := by
   subst hν
   exact redPullbackAtDownQuotient Q RD (regionPoly_dvd_cons p r ν) _ (lam r)

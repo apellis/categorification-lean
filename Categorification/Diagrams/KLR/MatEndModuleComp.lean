@@ -4,6 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 -/
 import Categorification.Diagrams.KLR.MatEndModuleFunctor
 import Categorification.Algebra.HomTensorComp
+import Categorification.Algebra.HomTensorNat
 
 /-!
 # Restriction after induction along a matrix map as a module functor
@@ -25,6 +26,27 @@ arXiv:1309.3796v3, Proposition 5.5.
 -/
 
 noncomputable section
+
+namespace Categorification.HomTensor
+
+open CategoryTheory MulOpposite
+
+attribute [local instance] bimodule
+
+variable {C : Type*} [Category C] [Preadditive C] {D : Type*} [Category D] [Preadditive D]
+  (O : C) (O' : D) (M : Type*) [AddCommGroup M] [Module (End O)ᵐᵒᵖ M]
+  {F G : C ⥤ D} [F.Additive] [G.Additive]
+
+/-- An isomorphism of functors as an isomorphism of the module functors, as a linear
+equivalence of right `End O'`-modules. -/
+def natModuleEquiv (e : F ≅ G) :
+    BalancedTensor ℤ (End O')ᵐᵒᵖ (End O)ᵐᵒᵖ (O' ⟶ F.obj O) M ≃ₗ[(End O')ᵐᵒᵖ]
+      BalancedTensor ℤ (End O')ᵐᵒᵖ (End O)ᵐᵒᵖ (O' ⟶ G.obj O) M :=
+  LinearEquiv.ofLinearMap (natModuleMap ℤ O O' M e.hom) (natModuleMap ℤ O O' M e.inv)
+    (by rw [← natModuleMap_comp, e.inv_hom_id, natModuleMap_id])
+    (by rw [← natModuleMap_comp, e.hom_inv_id, natModuleMap_id])
+
+end Categorification.HomTensor
 
 namespace Categorification.KLR.Diagram
 
@@ -104,6 +126,31 @@ theorem resIndModuleEquiv_smul (a : (MatEnd X)ᵐᵒᵖ)
   simp only [resIndModuleEquiv, LinearEquiv.trans_apply, resModuleEquiv_smul,
     LinearEquiv.restrictScalars_apply, LinearEquiv.map_smul]
 
+variable {G : Karoubi (Mat_ C) ⥤ Karoubi (Mat_ C)} [G.Additive]
+  (eG : G ≅ mapKaroubi F.mapMat_ ⋙ E)
+
+/-- `resIndModuleEquiv` for a functor `G` isomorphic to `F' ⋙ E`:
+`Res_φ (Ind N φ) ≅ (G_X ⟶ G G_X) ⊗_{End G_X} N`. -/
+def resIndModuleEquivOfIso :
+    letI := HomTensor.transferModule (karoubiMatrixOp X) N
+    Res (mapEmbOp F he h) (Ind N (mapEmbOp F he h)) ≃ₗ[ℤ]
+      BalancedTensor ℤ (End ((toKaroubi _).obj (familySum X)))ᵐᵒᵖ
+      (End ((toKaroubi _).obj (familySum X)))ᵐᵒᵖ
+      ((toKaroubi _).obj (familySum X) ⟶ G.obj ((toKaroubi _).obj (familySum X))) N :=
+  letI := HomTensor.transferModule (karoubiMatrixOp X) N
+  (resIndModuleEquiv F he h N adj).trans
+    ((HomTensor.natModuleEquiv _ _ N eG.symm).restrictScalars ℤ)
+
+/-- `resIndModuleEquivOfIso` is semilinear along `karoubiMatrixOp`. -/
+theorem resIndModuleEquivOfIso_smul (a : (MatEnd X)ᵐᵒᵖ)
+    (m : Res (mapEmbOp F he h) (Ind N (mapEmbOp F he h))) :
+    letI := HomTensor.transferModule (karoubiMatrixOp X) N
+    resIndModuleEquivOfIso F he h N adj eG (a • m) =
+      karoubiMatrixOp X a • resIndModuleEquivOfIso F he h N adj eG m := by
+  let _ := HomTensor.transferModule (karoubiMatrixOp X) N
+  simp only [resIndModuleEquivOfIso, LinearEquiv.trans_apply, resIndModuleEquiv_smul,
+    LinearEquiv.restrictScalars_apply, LinearEquiv.map_smul]
+
 section IndRes
 
 variable (M : Type (max w v)) [AddCommGroup M] [Module (MatEnd Y)ᵐᵒᵖ M]
@@ -173,6 +220,31 @@ theorem indResModuleEquiv_smul (b : (MatEnd Y)ᵐᵒᵖ)
         (mapKaroubi F.mapMat_).obj ((toKaroubi _).obj (familySum X)))
       (resModuleLinearEquiv F he h adj M)).trans
       (HomTensor.compModuleEquiv ℤ E (mapKaroubi F.mapMat_) _ _ _ π ι' hπ M)))) _ _
+
+variable {G' : Karoubi (Mat_ D) ⥤ Karoubi (Mat_ D)} [G'.Additive]
+  (eG' : G' ≅ E ⋙ mapKaroubi F.mapMat_)
+
+/-- `indResModuleEquiv` for a functor `G'` isomorphic to `E ⋙ F'`:
+`Ind (Res_φ M) φ ≅ (G_Y ⟶ G' G_Y) ⊗_{End G_Y} M`. -/
+def indResModuleEquivOfIso :
+    letI := HomTensor.transferModule (karoubiMatrixOpY Y) M
+    Ind (Res (mapEmbOp F he h) M) (mapEmbOp F he h) ≃ₗ[ℤ]
+      BalancedTensor ℤ (End ((toKaroubi _).obj (familySum Y)))ᵐᵒᵖ
+      (End ((toKaroubi _).obj (familySum Y)))ᵐᵒᵖ
+      ((toKaroubi _).obj (familySum Y) ⟶ G'.obj ((toKaroubi _).obj (familySum Y))) M :=
+  letI := HomTensor.transferModule (karoubiMatrixOpY Y) M
+  (indResModuleEquiv F he h adj M π ι' hπ).trans
+    ((HomTensor.natModuleEquiv _ _ M eG'.symm).restrictScalars ℤ)
+
+/-- `indResModuleEquivOfIso` is semilinear along `karoubiMatrixOpY`. -/
+theorem indResModuleEquivOfIso_smul (b : (MatEnd Y)ᵐᵒᵖ)
+    (x : Ind (Res (mapEmbOp F he h) M) (mapEmbOp F he h)) :
+    letI := HomTensor.transferModule (karoubiMatrixOpY Y) M
+    indResModuleEquivOfIso F he h adj M π ι' hπ eG' (b • x) =
+      karoubiMatrixOpY Y b • indResModuleEquivOfIso F he h adj M π ι' hπ eG' x := by
+  let _ := HomTensor.transferModule (karoubiMatrixOpY Y) M
+  simp only [indResModuleEquivOfIso, LinearEquiv.trans_apply, indResModuleEquiv_smul,
+    LinearEquiv.restrictScalars_apply, LinearEquiv.map_smul]
 
 end IndRes
 

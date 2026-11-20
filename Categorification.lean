@@ -1295,6 +1295,7 @@ import Categorification.WeightedKLR.RedStrands.DoubleBlackAction
 import Categorification.WeightedKLR.RedStrands.DoubleBlackActionAdditive
 import Categorification.WeightedKLR.RedStrands.BlackCommutation
 import Categorification.WeightedKLR.RedStrands.BlackModuleCommutation
+import Categorification.WeightedKLR.RedStrands.BlackModuleTensor
 import Categorification.WeightedKLR.RedStrands.DoubleBlackActionComp
 import Categorification.WeightedKLR.RedStrands.DoubleBlackActionHorizontal
 import Categorification.WeightedKLR.RedStrands.DoubleBlackActionWhisker

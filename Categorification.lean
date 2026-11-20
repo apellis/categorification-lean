@@ -719,6 +719,7 @@ import Categorification.TwoRep.RouqUpEqual
 import Categorification.TwoRep.RouqSoundness
 import Categorification.TwoRep.RouqDescent
 import Categorification.TwoRep.RouqFullCL
+import Categorification.TwoRep.RouqFamilyPi
 import Categorification.TwoRep.RouqUnfilteredSoundness
 import Categorification.TwoRep.RouqUnfilteredDescent
 import Categorification.TwoRep.RouqUpWords

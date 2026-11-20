@@ -681,9 +681,18 @@ from which the full one is obtained by iterating):
   rank formula `lastRedK0_rank_eq`. These files cite v2; in v3 the statements are Thm 5.8 and
   Lemma 5.9.
 
+* Prop 5.5, `Eᵢ`-part, two-piece form (`RedStrands/ParabolicStandardLast*.lean`), for all left
+  modules over a field: for `θ = i + θ₀`, `β = i + β₀`, the last-strand Mackey layers give the
+  short exact sequence `0 → S(₂Eᵢ N) → Eᵢ S(N) → S(₁Eᵢ N) → 0` (`lastBlackResTwo_injective`,
+  `lastBlackRes_exact`, `lastBlackResOne_surjective`), where `Eᵢ` is restriction along
+  Webster's idempotent `appendBlack 1` (`castTensorProductAlgebra_appendBlack_one`). When `i`
+  occurs in only one block the sequence degenerates to an isomorphism: `Eᵢ S(N) ≅ S(₂Eᵢ N)` for
+  `i ∉ θ` (`rightBlackResEquiv`) and `Eᵢ S(N) ≅ S(₁Eᵢ N)` for `i ∉ β` (`leftBlackResEquiv`).
+  Gradings (the shift `⟨αᵢ, λ_j − α(j)⟩`) are not modelled.
+
 Open: the comparison of the induced model with Def 5.4 (right modules over `T̃^λ` and the block
 algebra of all `ℓ + 1` blocks; the induced model uses left modules, which the vertical flip
-`tensorFlip` converts), Prop 5.5, Prop 5.6, and the results listed below.
+`tensorFlip` converts), the `Fᵢ`-part of Prop 5.5, Prop 5.6, and the results listed below.
 
 Standardization functors (Prop 5.3, Def 5.4, Props 5.6, 5.7); simples and crystals
 (Lemma 5.9, Props 5.11, 5.12, Thms 5.14, 5.15); stringy triples (Props 5.17, 5.18);

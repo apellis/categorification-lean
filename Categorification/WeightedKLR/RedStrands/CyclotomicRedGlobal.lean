@@ -58,13 +58,15 @@ abbrev redPullbackBlock {x y : X} (h : y + δ = x) (β : WeightBlocks RD (Λ + �
   exact cyclotomicRedPullback.{u, v, w} Q hab β.1
 
 instance redPullbackBlock_additive {x y : X} (h : y + δ = x)
-    (β : WeightBlocks RD (Λ + δ) y) (γ : WeightBlocks RD Λ x) (hγ : redBlock RD Λ δ h β = γ) :
+    (β : WeightBlocks RD (Λ + δ) y) (γ : WeightBlocks RD Λ x)
+    (hγ : redBlock RD Λ δ h β = γ) :
     (redPullbackBlock.{u, v, w} Q hab RD Λ δ h β γ hγ).Additive := by
   subst hγ
   exact inferInstanceAs (cyclotomicRedPullback.{u, v, w} Q hab β.1).Additive
 
 instance redPullbackBlock_linear {x y : X} (h : y + δ = x)
-    (β : WeightBlocks RD (Λ + δ) y) (γ : WeightBlocks RD Λ x) (hγ : redBlock RD Λ δ h β = γ) :
+    (β : WeightBlocks RD (Λ + δ) y) (γ : WeightBlocks RD Λ x)
+    (hγ : redBlock RD Λ δ h β = γ) :
     (redPullbackBlock.{u, v, w} Q hab RD Λ δ h β γ hγ).Linear k := by
   subst hγ
   exact cyclotomicRedPullback_linear Q hab β.1
@@ -142,7 +144,8 @@ def globalRedDotCrossing :
     (redBlock RD Λ δ h) (redBlock RD Λ δ h₂) (blockSucc_redBlock RD Λ δ i hx hy h h₂)
     (indBlock Q a RD Λ i hx) (indBlock Q b RD (Λ + δ) i hy)
     (redPullbackBlock Q hab RD Λ δ h) (redPullbackBlock Q hab RD Λ δ h₂)
-    fun _ _ hβ => cyclotomicRedDotCrossing.{u, v, w} Q hab i (blockSucc_eq RD (Λ + δ) i hβ) d hi)
+    fun _ _ hβ =>
+      cyclotomicRedDotCrossing.{u, v, w} Q hab i (blockSucc_eq RD (Λ + δ) i hβ) d hi)
 
 /-- **Bigon on the higher-weight side** (Webster, arXiv:1309.3796v3, (4.2)): the quotient
 crossing followed by the dot crossing is the `d`-th power of the dot on `E_i I^δ`, block by

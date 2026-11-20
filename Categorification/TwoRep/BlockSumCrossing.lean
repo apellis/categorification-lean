@@ -32,7 +32,8 @@ universe u₁ u₂ u₃ u₄ v₁ v₂ v₃ v₄ w₁ w₂ w₃ w₄
 variable {A : Type w₁} {Dd : Type w₂} {A' : Type w₃} {Dd' : Type w₄}
   (s : A → Dd) (s' : A' → Dd') (r : A' → A) (r' : Dd' → Dd)
   (hc : ∀ a', s (r a') = r' (s' a'))
-  {C : A → Type u₁} [∀ a, Category.{v₁} (C a)] {D : Dd → Type u₂} [∀ d, Category.{v₂} (D d)]
+  {C : A → Type u₁} [∀ a, Category.{v₁} (C a)]
+  {D : Dd → Type u₂} [∀ d, Category.{v₂} (D d)]
   {C' : A' → Type u₃} [∀ a, Category.{v₃} (C' a)]
   {D' : Dd' → Type u₄} [∀ d, Category.{v₄} (D' d)]
   [∀ d, Finite {a // s a = d}] [∀ d, Preadditive (D d)] [∀ d, HasFiniteBiproducts (D d)]
@@ -81,7 +82,8 @@ def blockResCross : blockRes r P ⋙ blockSum s' L' ⟶ blockSum s L ⋙ blockRe
     exact (α p.1 d' p.2).naturality_assoc (f (r p.1)) _
 
 theorem blockResCross_app (N : ∀ a, C a) (d' : Dd') :
-    (blockResCross s s' r r' hc L L' P P' α).app N d' = blockResCrossApp s s' r r' hc L L' P P' α N d' :=
+    (blockResCross s s' r r' hc L L' P P' α).app N d' =
+      blockResCrossApp s s' r r' hc L L' P P' α N d' :=
   rfl
 
 end Cross
@@ -165,7 +167,8 @@ theorem blockResCross_blockResCrossRev_app
     (γ : ∀ (a' : A') (d' : Dd') (h : s' a' = d'),
       P a' (r a') rfl ⋙ L' a' d' h ⟶ P a' (r a') rfl ⋙ L' a' d' h)
     (hγ : ∀ a' d' h, α a' d' h ≫ β a' d' h = γ a' d' h) (N : ∀ a, C a) (d' : Dd') :
-    blockResCrossApp s s' r r' hc L L' P P' α N d' ≫ blockResCrossRevApp s s' r r' hc L L' P P' β N d' =
+    blockResCrossApp s s' r r' hc L L' P P' α N d' ≫
+      blockResCrossRevApp s s' r r' hc L L' P P' β N d' =
       biproduct.map fun p : {a' // s' a' = d'} => (γ p.1 d' p.2).app (N (r p.1)) := by
   refine biproduct.hom_ext' _ _ fun p => biproduct.hom_ext _ _ fun q => ?_
   simp only [Category.assoc]
@@ -192,7 +195,8 @@ theorem blockResCrossRev_blockResCross_app
       Functor.whiskerRight (γ' (r a') (r' d') ((hc a').trans (congrArg r' h)))
         (P' d' (r' d') rfl))
     (N : ∀ a, C a) (d' : Dd') :
-    blockResCrossRevApp s s' r r' hc L L' P P' β N d' ≫ blockResCrossApp s s' r r' hc L L' P P' α N d' =
+    blockResCrossRevApp s s' r r' hc L L' P P' β N d' ≫
+      blockResCrossApp s s' r r' hc L L' P P' α N d' =
       (P' d' (r' d') rfl).map ((blockSumMap s γ').app N (r' d')) := by
   refine map_biproduct_hom_ext (P' d' (r' d') rfl) _ fun q => ?_
   obtain ⟨p, rfl⟩ := (hbij d').2 q

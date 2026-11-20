@@ -1198,6 +1198,7 @@ import Categorification.WeightedKLR.RedStrands.ParabolicStandardLastOuter
 import Categorification.WeightedKLR.RedStrands.ParabolicStandardLastSequence
 import Categorification.WeightedKLR.RedStrands.BlackIdempotent
 import Categorification.WeightedKLR.RedStrands.ParabolicStandardLastBlack
+import Categorification.WeightedKLR.RedStrands.ParabolicStandardLastRight
 import Categorification.WeightedKLR.RedStrands.BlackModuleFunctors
 import Categorification.WeightedKLR.RedStrands.BlackFrobenius
 import Categorification.WeightedKLR.RedStrands.BlackMixedCorner

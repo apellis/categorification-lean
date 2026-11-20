@@ -660,6 +660,31 @@ standard bimodule `S_α`:
    is projective as a left `B`-module and standardization is exact for all modules (Prop 5.7);
    Prop 5.5 from the last-strand Mackey layers of `Z_α`; Prop 5.6 from Prop 5.5.
 
+Status of §5 in the induced model (two pieces: the first `ℓ` red strands, and the last red strand
+with the black strands to its right; this is Webster's partial standardization `S^{λ';(λ_ℓ)}`,
+from which the full one is obtained by iterating):
+
+* `RedStrands/ParabolicShuffleDescent.lean`: the standardization `ParabolicStandard N` of a left
+  module `N` over `T^{λ'} ⊗ R^{λ_ℓ}(β)`, a left `T^λ`-module (`parabolicStandardAction`).
+* Prop 5.7 (`RedStrands/ParabolicStandardExact.lean`): standardization is a functor
+  (`parabolicStandardMap`, `parabolicStandardMap_action`) which preserves injections,
+  surjections and exactness in the middle (`parabolicStandardMap_injective`,
+  `parabolicStandardMap_surjective`, `parabolicStandardMap_exact`), for all modules over every
+  commutative ring, from the shuffle decomposition of affine induction.
+* Lemma 5.9: `existsUnique_isCoatom_of_idempotent` (`Algebra/UniqueSimpleQuotient.lean`) and
+  `eq_cornerKernel_iff_simpleQuotient` (`RedStrands/CornerHead.lean`).
+* Thm 5.8, two-piece graded form, over a field at Rouquier parameters
+  (`RedStrands/LastRedStandardCut.lean`): standardization recovers the factor simple on its
+  maximal cut (`nonempty_lastRedInducedCut`), and taking heads of standard modules is a bijection
+  from pairs of factor classes, summed over the last-red weight splits, onto the graded
+  indecomposable projective classes of `T^λ` (`lastRedStandardHeadEquiv`), with the resulting
+  rank formula `lastRedK0_rank_eq`. These files cite v2; in v3 the statements are Thm 5.8 and
+  Lemma 5.9.
+
+Open: the comparison of the induced model with Def 5.4 (right modules over `T̃^λ` and the block
+algebra of all `ℓ + 1` blocks; the induced model uses left modules, which the vertical flip
+`tensorFlip` converts), Prop 5.5, Prop 5.6, and the results listed below.
+
 Standardization functors (Prop 5.3, Def 5.4, Props 5.6, 5.7); simples and crystals
 (Lemma 5.9, Props 5.11, 5.12, Thms 5.14, 5.15); stringy triples (Props 5.17, 5.18);
 standard stratification (Lemma 5.19, Prop 5.21, Cors 5.22, 5.24, Lemma 5.25,

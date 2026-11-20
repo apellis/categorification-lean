@@ -478,6 +478,7 @@ import Categorification.KLR.IndLastStrandDescent
 import Categorification.KLR.IndLastStrandExact
 import Categorification.KLR.IndLastStrandFirstFactor
 import Categorification.KLR.IndLastStrandOneSided
+import Categorification.KLR.IndLastStrandOneSidedDescent
 import Categorification.KLR.IndLastStrandQuot
 import Categorification.KLR.Induction
 import Categorification.KLR.InductionAlgebra

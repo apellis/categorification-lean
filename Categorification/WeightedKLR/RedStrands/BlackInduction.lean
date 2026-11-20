@@ -23,6 +23,7 @@ noncomputable section
 namespace Categorification.Stendhal
 
 open KLR KLRAlgebra
+open scoped TensorProduct
 variable {I : Type*} {ℓ : ℕ}
 section Loadings
 variable (i : I) (ν : Multiset I)
@@ -31,7 +32,8 @@ local notation "μ" => stendhalWeight ℓ ν
 local notation "σᵢ" => (Singleton.singleton (Sum.inl i) : Multiset (I ⊕ Fin ℓ))
 local notation "νᵢ" => ((Singleton.singleton i : Multiset I) + ν)
 
-private theorem stendhalWeight_addBlack : μ + σᵢ = stendhalWeight ℓ νᵢ := by
+/-- Adjoining a black strand coloured `i` to the Stendhal weight. -/
+theorem stendhalWeight_addBlack : μ + σᵢ = stendhalWeight ℓ νᵢ := by
   simp only [stendhalWeight, Multiset.map_add, Multiset.map_singleton]
   ac_rfl
 
@@ -222,6 +224,17 @@ theorem appendBlackAllOrders_e (s : Seq μ) :
     (appendBlackAllOrders Q Λ i ν (StendhalAlgebraAllOrders.e s)).val =
       StendhalAlgebraAllOrders.e (appendBlackLoading i ν s) := by
   rw [StendhalAlgebraAllOrders.e, appendBlackAllOrders_ofKLR, appendBlackKLR_e]
+
+/-- On a KLR diagram, appending the black strand is concatenation with a
+straight strand coloured `i`. -/
+theorem appendBlackAllOrders_ofKLR_val (z : KLRAlgebra k (stendhalQ Q Λ) μ) :
+    (appendBlackAllOrders Q Λ i ν (StendhalAlgebraAllOrders.ofKLR k Q Λ ν z)).val =
+      StendhalAlgebraAllOrders.ofKLR k Q Λ νᵢ
+        (castKLR S (stendhalWeight_addBlack i ν) (concat S μ σᵢ (z ⊗ₜ 1))) := by
+  rw [appendBlackAllOrders_ofKLR]
+  change appendBlackAmbient Q Λ i ν (((blockL μ σᵢ).hom S z).val) = _
+  rw [concat_tmul, map_one, Corner.val_one, Corner.val_mul_E]
+  rfl
 
 /-- Adjoining the rightmost strand preserves an old dot at its original position
 and cuts by the terminal idempotent in the upper block. -/

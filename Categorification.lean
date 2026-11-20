@@ -471,6 +471,7 @@ import Categorification.KLR.GradeTransfer
 import Categorification.KLR.GradingFlip
 import Categorification.KLR.IndLastStrand
 import Categorification.KLR.IndLastStrandBij
+import Categorification.KLR.IndLastStrandExact
 import Categorification.KLR.IndLastStrandQuot
 import Categorification.KLR.Induction
 import Categorification.KLR.InductionAlgebra

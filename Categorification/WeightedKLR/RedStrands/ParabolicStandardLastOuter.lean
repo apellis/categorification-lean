@@ -109,8 +109,9 @@ def lastResRightEquiv :
   left_inv _ := Res.ext rfl
   right_inv _ := Res.ext rfl
   map_add' _ _ := Res.ext rfl
-  map_smul' c m := Res.ext ((tensorAppendR_smul_lastInput Q Λ i θ₀ β₀ N (algebraMap k _ c) m.val).trans
-    (by rw [AlgEquiv.commutes, AlgHom.commutes]; rfl))
+  map_smul' c m := Res.ext
+    ((tensorAppendR_smul_lastInput Q Λ i θ₀ β₀ N (algebraMap k _ c) m.val).trans
+      (by rw [AlgEquiv.commutes, AlgHom.commutes]; rfl))
 
 omit [Module k N]
   [IsScalarTower k (parabolicFactorAlgebra Q Λ ({i} + θ₀) ({i} + β₀)) N] in
@@ -134,8 +135,9 @@ def lastResLeftEquiv :
   left_inv _ := Res.ext rfl
   right_inv _ := Res.ext rfl
   map_add' _ _ := Res.ext rfl
-  map_smul' c m := Res.ext ((tensorAppendL_smul_lastInput Q Λ i θ₀ β₀ N (algebraMap k _ c) m.val).trans
-    (by rw [AlgEquiv.commutes, AlgHom.commutes]; rfl))
+  map_smul' c m := Res.ext
+    ((tensorAppendL_smul_lastInput Q Λ i θ₀ β₀ N (algebraMap k _ c) m.val).trans
+      (by rw [AlgEquiv.commutes, AlgHom.commutes]; rfl))
 
 omit [Module k N]
   [IsScalarTower k (parabolicFactorAlgebra Q Λ ({i} + θ₀) ({i} + β₀)) N] in

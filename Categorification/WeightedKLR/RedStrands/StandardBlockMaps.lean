@@ -126,6 +126,76 @@ theorem commute_blockHom (hb : blockPrefix b (ℓ + 1) = ν) {j j' : ℕ} (hj : 
     exact KLRAlgebra.BlockEmb.window_F_sadj _ _ _ _ _ i (p := blockStart b j + l)
       (by omega) (Or.inl (by omega)) (sadj_mem_rootSet_iff hb hj hl) s
 
+/-- The value of a block map on a dot power at the first strand of the block followed by an
+idempotent: a sum of `e(s) x_p^n e(s)` over the sequences of `T_α` restricting to the given
+labels on the block. -/
+theorem val_val_blockHom_x_pow_mul_e (hb : blockPrefix b (ℓ + 1) = ν) (j : ℕ) (hj : j < ℓ + 1)
+    (c : Fin (Multiset.card (b ⟨j, hj⟩))) (n : ℕ) (i : Seq (b ⟨j, hj⟩)) :
+    (blockHom Q Λ hb j hj (KLRAlgebra.x c ^ n * KLRAlgebra.e i)).val.val =
+      ∑ s ∈ (blockEmb hb j hj).F (Seq.map Sum.inl i),
+        StendhalAlgebraAllOrders.e s *
+          StendhalAlgebraAllOrders.x ((blockEmb hb j hj).pos
+            (Fin.cast (Multiset.card_map _ _).symm c)) ^ n *
+          StendhalAlgebraAllOrders.e s := by
+  have h : KLRAlgebra.reindexEquiv Sum.inl_injective (stendhalQ Q Λ) (b ⟨j, hj⟩)
+      (KLRAlgebra.x c ^ n * KLRAlgebra.e i :
+        KLRAlgebra k (fun a a' => stendhalQ Q Λ (Sum.inl a) (Sum.inl a')) (b ⟨j, hj⟩)) =
+      KLRAlgebra.x (Fin.cast (Multiset.card_map _ _).symm c) ^ n *
+        KLRAlgebra.e (Seq.map Sum.inl i) := by
+    rw [map_mul, map_pow, KLRAlgebra.reindexEquiv_x, KLRAlgebra.reindexEquiv_e]
+  rw [val_val_blockHom]
+  erw [h]
+  rw [BlockEmb.val_hom_x_pow_mul_e, map_sum]
+  simp only [map_mul, map_pow]
+  rfl
+
+/-- **The cyclotomic relation on a block** (arXiv:1309.3796v3, proof of Proposition 5.3): on the
+block immediately to the right of the red strand `λ_r`, the dot on the first black strand,
+raised to the power `⟨α_i^∨, λ_r⟩` of its label, acts by zero on the standard module `S_α`. -/
+theorem rootAction_blockHom_cycElt (hb : blockPrefix b (ℓ + 1) = ν) (r : Fin ℓ)
+    (i : Seq (b ⟨r.val + 1, by omega⟩)) :
+    rootAction Q Λ (blockRoot b) (blockHom Q Λ hb (r.val + 1) (by omega)
+      (cycElt Q (fun i => Polynomial.X ^ Λ r i) i)) = 0 := by
+  classical
+  have hj : r.val + 1 < ℓ + 1 := by omega
+  by_cases h0 : 0 < Multiset.card (b ⟨r.val + 1, hj⟩)
+  swap
+  · simp [cycElt, h0]
+  rw [KLRAlgebra.cycElt_of_pos _ _ _ h0, map_pow, Polynomial.aeval_X]
+  apply rootAction_eq_zero_of_mul_mem
+  rw [Corner.val_mul_E]
+  set B := blockEmb hb (r.val + 1) hj
+  set n := Λ r (i.lbl ⟨0, h0⟩)
+  have key : (blockHom Q Λ hb (r.val + 1) hj
+      (KLRAlgebra.x ⟨0, h0⟩ ^ n * KLRAlgebra.e i)).val =
+      ∑ s ∈ (B.F (Seq.map Sum.inl i)).attach,
+        sandwich s.1 (mem_rootSet.1 (B.mem_T s.1 |>.2 ⟨_, s.2⟩)).1
+          s.1 (mem_rootSet.1 (B.mem_T s.1 |>.2 ⟨_, s.2⟩)).1
+          (StendhalAlgebraAllOrders.x (B.pos (Fin.cast (Multiset.card_map _ _).symm ⟨0, h0⟩)) ^
+            n) := by
+    refine Corner.ext ?_
+    rw [val_val_blockHom_x_pow_mul_e, Corner.val_sum, ← Finset.sum_attach]
+    refine Finset.sum_congr rfl fun s _ => ?_
+    rw [coe_sandwich]
+  rw [key]
+  refine Submodule.sum_mem _ fun s _ => ?_
+  obtain ⟨hs, hα⟩ := mem_rootSet.1 (B.mem_T s.1 |>.2 ⟨_, s.2⟩)
+  have hp : (B.pos (Fin.cast (Multiset.card_map _ _).symm ⟨0, h0⟩)).val =
+      (redPos s.1 r).val + 1 := by
+    rw [B.pos_val]
+    exact blockStart_succ_eq_redPos hs hα r
+  have hlt : (redPos s.1 r).val + 1 < Multiset.card μ := hp ▸ (B.pos _).2
+  have hpos : B.pos (Fin.cast (Multiset.card_map _ _).symm ⟨0, h0⟩) =
+      ⟨(redPos s.1 r).val + 1, hlt⟩ := Fin.ext hp
+  have hi : s.1.lbl ⟨(redPos s.1 r).val + 1, hlt⟩ = .inl (i.lbl ⟨0, h0⟩) := by
+    rw [← hpos]
+    exact B.lbl _ s.1 s.2 _
+  have hr : s.1.lbl ⟨(redPos s.1 r).val, by omega⟩ = .inr r := lbl_redPos s.1 r
+  have := sandwich_dotPow_mem_rootUpper (Q := Q) (Λ := Λ) hlt s.1 hs (i.lbl ⟨0, h0⟩) r hr hi
+  rw [hα] at this
+  rw [hpos]
+  exact this
+
 end StendhalAlgebra
 
 end Categorification.Stendhal

@@ -73,6 +73,18 @@ theorem BlockEmb.commute_hom (B : BlockEmb μ ν T) (B' : BlockEmb μ' ν T)
     refine B.gψ_mul_gψ' B' l l' fun hl _ => ?_
     omega
 
+/-- A power of a dot on the block, followed by an idempotent of the block: the image is the sum
+over the fibre of `e(s) x_{pos a}^n e(s)`. -/
+theorem BlockEmb.val_hom_x_pow_mul_e (B : BlockEmb μ ν T) (a : Fin (Multiset.card μ)) (n : ℕ)
+    (i : Seq μ) :
+    (B.hom Q (x a ^ n * e i)).val = ∑ s ∈ B.F i, e s * x (B.pos a) ^ n * e s := by
+  rw [map_mul, map_pow, BlockEmb.hom_x, BlockEmb.hom_e, Corner.val_mul, ← map_pow,
+    val_polCorner, BlockEmb.val_gE, mul_assoc, BlockEmb.E_mul_eF, map_pow, pol_X,
+    BlockEmb.eF, eSum, Finset.mul_sum]
+  refine Finset.sum_congr rfl fun s _ => ?_
+  rw [mul_assoc, ← mul_assoc (e s), ← (Commute.pow_left (x_mul_e (B.pos a) s) n).eq, mul_assoc,
+    e_mul_self]
+
 end KLRAlgebra
 
 end Categorification.KLR

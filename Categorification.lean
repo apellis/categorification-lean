@@ -36,6 +36,7 @@ import Categorification.Algebra.Graded.TwistTensor
 import Categorification.Algebra.Graded.Restriction
 import Categorification.Algebra.Graded.RightTwist
 import Categorification.Algebra.IdempotentEquiv
+import Categorification.Algebra.CommutingFamily
 import Categorification.Algebra.InductionAlong
 import Categorification.Algebra.InductionAlongAssoc
 import Categorification.Algebra.InductionAlongEnd
@@ -909,6 +910,7 @@ import Categorification.WeightedKLR.RedStrands.Reduced
 import Categorification.WeightedKLR.RedStrands.ReducedFaithful
 import Categorification.WeightedKLR.RedStrands.StandardAction
 import Categorification.WeightedKLR.RedStrands.StandardBlocks
+import Categorification.WeightedKLR.RedStrands.StandardBlockAction
 import Categorification.WeightedKLR.RedStrands.StandardBlockMaps
 import Categorification.WeightedKLR.RedStrands.StandardModule
 import Categorification.WeightedKLR.RedStrands.Stendhal

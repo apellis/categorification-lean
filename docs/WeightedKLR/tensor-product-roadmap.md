@@ -613,8 +613,20 @@ the bigon through the strictly higher sequence (`StendhalAlgebraAllOrders.dotPow
 and `S_α` (`rootUpper`, `rootStandard`), and the action of the corner `e_α T̃^λ e_α` on `S_α`
 by right module endomorphisms (`rootAction`; generic form `cornerQuotientAction`), with the
 cyclotomic relations acting by zero (`sandwich_dotPow_mem_rootUpper`,
-`rootAction_eq_zero_of_mul_mem`). Open in Prop 5.3: the block embeddings `℘_j` of the KLR
-algebras into the corner and their descent to the cyclotomic quotients.
+`rootAction_eq_zero_of_mul_mem`).
+
+Prop 5.3 is done (`RedStrands/StandardBlockAction.lean`): the block maps `R(b_j) → e_α T̃^λ e_α`
+act on `S_α` (`rootBlockAction`), the cyclotomic ideal of `λ_r` acts by zero on the block right of
+the red strand `λ_r` (`cycBlockAction`), and the commuting actions assemble into the algebra map
+`R(b_0) ⊗ R^{λ_0}(b_1) ⊗ ⋯ ⊗ R^{λ_{ℓ-1}}(b_ℓ) → End_{T̃^λ}(S_α)` (`blockAction`; the generic
+`PiTensorProduct.liftCommuting`). Def 5.4 is done (`RedStrands/Standardization.lean`): the
+standardization `S(M) = M ⊗_B S_α` of a right module over this algebra `B`, a right
+`T̃^λ`-module, functorial in `M` (`Standardization`, `standardizationMap`). The functors `Eᵢ`,
+`Fᵢ` on right `T^λ`-modules, as restriction and induction along `appendBlack`, with `Fᵢ ⊣ Eᵢ`
+and exactness of `Eᵢ` (`RedStrands/BlackModuleFunctors.lean`), are the module-level functors of
+Prop 5.5. Its proof also uses the commutation relations of `𝒰` on modules, which come from
+Thm 4.31 on projectives through these adjunctions; Thm 5.8's proof uses the injectivity of
+Prop 5.26 for `S(L) e_α ≅ L`.
 
 Standardization functors (Prop 5.3, Def 5.4, Props 5.6, 5.7); simples and crystals
 (Lemma 5.9, Props 5.11, 5.12, Thms 5.14, 5.15); stringy triples (Props 5.17, 5.18);

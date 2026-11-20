@@ -639,6 +639,27 @@ module `M`, from the module-functor descriptions `blackResIndModule`, `blackIndR
 the generic `MatEnd.resIndEquivIndResProd`; Thm 5.8's proof uses the injectivity of
 Prop 5.26 for `S(L) e_α ≅ L`.
 
+Route for Props 5.5, 5.7 and the stratification results (chosen 2026-11-20). Webster's printed
+proofs work over a field with finite-dimensional graded modules and count dimensions. The route
+here works for all right modules over every commutative ring, through an induced model of the
+standard bimodule `S_α`:
+
+1. Induced model. Let `R(μ)` be the KLR algebra of `stendhalQ`, `P_α ⊂ R(μ)` the parabolic
+   subalgebra of the blocks `b_0 | λ_1 b_1 | ⋯ | λ_ℓ b_ℓ` of `α` (each red strand grouped with
+   the black strands to its right), `D` the block algebra of Prop 5.3 (a quotient of `P_α`, the
+   one-red factors identified with cyclotomic quotients by Thm 4.18,
+   `SingleRed.cyclotomicEquiv`) and `e_F` the sum of the red-ordered idempotents. Set
+   `Z_α = D ⊗_{P_α} e_α R(μ) e_F`. A minimal coset representative keeps the order of the strands
+   inside each block, so no black strand crosses a red strand to its left.
+2. Action. The red dots slide to the top and die in `D`, and a path through a sequence with the
+   red strands out of order acts by zero (as in `parabolicShuffle_returns` for the last red
+   strand), so `T̃^λ` acts on the right of `Z_α`.
+3. Comparison. `Z_α ≅ S_α` as `(B, T̃^λ)`-bimodules: `[a] ↦ [1 ⊗ e_α] a` is defined because
+   `Z_α e(t) = 0` when the root function of `t` is above `α`, and `d ⊗ a ↦ d [a]` is its inverse.
+4. Consequences. `e_α R(μ)` is free as a left `P_α`-module (KL I Prop 2.16, iterated), so `S_α`
+   is projective as a left `B`-module and standardization is exact for all modules (Prop 5.7);
+   Prop 5.5 from the last-strand Mackey layers of `Z_α`; Prop 5.6 from Prop 5.5.
+
 Standardization functors (Prop 5.3, Def 5.4, Props 5.6, 5.7); simples and crystals
 (Lemma 5.9, Props 5.11, 5.12, Thms 5.14, 5.15); stringy triples (Props 5.17, 5.18);
 standard stratification (Lemma 5.19, Prop 5.21, Cors 5.22, 5.24, Lemma 5.25,

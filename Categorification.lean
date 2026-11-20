@@ -470,6 +470,7 @@ import Categorification.KLR.Grading
 import Categorification.KLR.GradeTransfer
 import Categorification.KLR.GradingFlip
 import Categorification.KLR.IndLastStrand
+import Categorification.KLR.IndLastStrandQuot
 import Categorification.KLR.Induction
 import Categorification.KLR.InductionAlgebra
 import Categorification.KLR.InductionFree

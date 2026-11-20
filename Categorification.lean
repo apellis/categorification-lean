@@ -4,6 +4,7 @@ import Categorification.Algebra.BalancedTensor
 import Categorification.Algebra.BalancedTensorAssoc
 import Categorification.Algebra.BalancedTensorExact
 import Categorification.Algebra.BalancedTensorFiltration
+import Categorification.Algebra.BalancedTensorSplit
 import Categorification.Algebra.CoactionGrading
 import Categorification.Algebra.Coinvariant
 import Categorification.Algebra.CoinvariantGraded
@@ -69,6 +70,7 @@ import Categorification.Algebra.NilHeckeDemazure
 import Categorification.Algebra.ParabolicSymmetricFree
 import Categorification.Algebra.PermExpansion
 import Categorification.Algebra.ProjK0
+import Categorification.Algebra.RightActionImage
 import Categorification.Algebra.SplitK0
 import Categorification.Algebra.SumDecompLinear
 import Categorification.Algebra.SymmetricFree
@@ -349,6 +351,7 @@ import Categorification.KLR.CyclotomicDiv
 import Categorification.KLR.CyclotomicSplit
 import Categorification.KLR.CyclotomicK0
 import Categorification.KLR.CyclotomicProjective
+import Categorification.KLR.CyclotomicSplitModule
 import Categorification.KLR.CyclotomicMirror
 import Categorification.KLR.CyclotomicPhi
 import Categorification.KLR.CyclotomicEF

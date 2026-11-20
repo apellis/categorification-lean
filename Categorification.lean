@@ -1,6 +1,7 @@
 import Categorification.Algebra.AmbidextrousTrace
 import Categorification.Algebra.AugmentationQuotient
 import Categorification.Algebra.BalancedTensor
+import Categorification.Algebra.BalancedTensorAssoc
 import Categorification.Algebra.BalancedTensorExact
 import Categorification.Algebra.BalancedTensorFiltration
 import Categorification.Algebra.CoactionGrading
@@ -8,6 +9,7 @@ import Categorification.Algebra.Coinvariant
 import Categorification.Algebra.CoinvariantGraded
 import Categorification.Algebra.DividedDifference
 import Categorification.Algebra.ExternalTensor
+import Categorification.Algebra.Generation
 import Categorification.Algebra.Graded.Dimension
 import Categorification.Algebra.Graded.Duality
 import Categorification.Algebra.Graded.G0
@@ -37,6 +39,9 @@ import Categorification.Algebra.Graded.Restriction
 import Categorification.Algebra.Graded.RightTwist
 import Categorification.Algebra.IdempotentEquiv
 import Categorification.Algebra.CommutingFamily
+import Categorification.Algebra.HomTensor
+import Categorification.Algebra.HomTensorComp
+import Categorification.Algebra.HomTensorNat
 import Categorification.Algebra.InductionAlong
 import Categorification.Algebra.InductionAlongAssoc
 import Categorification.Algebra.InductionAlongEnd
@@ -1276,6 +1281,7 @@ import Categorification.WeightedKLR.RedStrands.DoubleCLVacuumViolated
 import Categorification.WeightedKLR.RedStrands.DoubleRightWhisker
 import Categorification.WeightedKLR.RedStrands.DoubleRightWhiskerComp
 import Categorification.WeightedKLR.RedStrands.DoubleBlackAction
+import Categorification.WeightedKLR.RedStrands.DoubleBlackActionAdditive
 import Categorification.WeightedKLR.RedStrands.DoubleBlackActionComp
 import Categorification.WeightedKLR.RedStrands.DoubleBlackActionHorizontal
 import Categorification.WeightedKLR.RedStrands.DoubleBlackActionWhisker

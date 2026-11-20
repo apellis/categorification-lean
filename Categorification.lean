@@ -662,6 +662,7 @@ import Categorification.TwoRep.LinFunBiproduct
 import Categorification.TwoRep.PiLinear
 import Categorification.TwoRep.BlockSum
 import Categorification.TwoRep.BlockSumCross
+import Categorification.TwoRep.BlockSumCrossing
 import Categorification.TwoRep.BlockSumGen
 import Categorification.TwoRep.BlockSumTriple
 import Categorification.TwoRep.MatKarFunctor

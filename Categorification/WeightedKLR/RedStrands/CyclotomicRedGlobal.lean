@@ -3,7 +3,8 @@ Copyright (c) 2026 Alex Ellis. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 -/
 import Categorification.KLR.CyclotomicAction.Global
-import Categorification.WeightedKLR.RedStrands.CyclotomicRedPullback
+import Categorification.TwoRep.BlockSumCrossing
+import Categorification.WeightedKLR.RedStrands.CyclotomicRedDotCrossing
 
 /-!
 # Red pullback on the weight spaces of the cyclotomic action
@@ -32,7 +33,7 @@ variable {I : Type u} [DecidableEq I] {k : Type v} [CommRing k]
 
 omit [DecidableEq I] in
 /-- A block of weight `y` for `Λ + δ` is a block of weight `x` for `Λ` when `y + δ = x`. -/
-def redBlock {x y : X} (h : y + δ = x) (β : WeightBlocks RD (Λ + δ) y) :
+abbrev redBlock {x y : X} (h : y + δ = x) (β : WeightBlocks RD (Λ + δ) y) :
     WeightBlocks RD Λ x :=
   ⟨β.1, by
     obtain ⟨β, hβ⟩ := β
@@ -89,5 +90,108 @@ def globalRedPullbackResIso (i : I) {x x₂ y y₂ : X} (hx : x + RD.iX i = x₂
     (fun f => by
       funext β
       exact (cyclotomicRedPullbackResIso.{u, v, w} Q hab i rfl).hom.naturality _))
+
+
+section Crossings
+
+variable (i : I) {x x₂ y y₂ : X} (hx : x + RD.iX i = x₂) (hy : y + RD.iX i = y₂)
+  (h : y + δ = x) (h₂ : y₂ + δ = x₂)
+
+omit [DecidableEq I] in
+theorem blockSucc_redBlock (β : WeightBlocks RD (Λ + δ) y) :
+    blockSucc RD Λ i hx (redBlock RD Λ δ h β) =
+      redBlock RD Λ δ h₂ (blockSucc RD (Λ + δ) i hy β) :=
+  Subtype.ext rfl
+
+omit [DecidableEq I] in
+/-- Each block of `Λ` below `redBlock δ'` comes from a block of `Λ + δ` below `δ'`. -/
+theorem fibreMap_redBlock_bijective (δ' : WeightBlocks RD (Λ + δ) y₂) :
+    Function.Bijective (fibreMap (blockSucc RD Λ i hx) (blockSucc RD (Λ + δ) i hy)
+      (redBlock RD Λ δ h) (redBlock RD Λ δ h₂) (blockSucc_redBlock RD Λ δ i hx hy h h₂)
+      (d' := δ')) := by
+  refine ⟨fun _ _ _ => Subsingleton.elim _ _, fun p => ?_⟩
+  refine ⟨⟨⟨p.1.1, ?_⟩, Subtype.ext ?_⟩, Subtype.ext (Subtype.ext rfl)⟩
+  · obtain ⟨⟨β, hβ⟩, -⟩ := p
+    subst hβ
+    simp only [blockWeight] at h ⊢
+    rw [sub_add_eq_sub_sub, ← h]
+    abel
+  · exact (show {i} + p.1.1 = (redBlock RD Λ δ h₂ δ').1 from congrArg Subtype.val p.2)
+
+/-- **The red/down quotient crossing on weight spaces** (Webster, arXiv:1309.3796v3, §4.6,
+Theorem 4.25): the transformation `I^δ E_i ⟶ E_i I^δ` given on each block by the cyclotomic
+quotient `cyclotomicRedDownQuotient`. -/
+def globalRedDownQuotient :
+    globalRedPullback.{u, v, w} Q hab RD Λ δ h ≫ globalE Q b RD (Λ + δ) i hy ⟶
+      globalE Q a RD Λ i hx ≫ globalRedPullback Q hab RD Λ δ h₂ :=
+  ObjectProperty.homMk (blockResCross (blockSucc RD Λ i hx) (blockSucc RD (Λ + δ) i hy)
+    (redBlock RD Λ δ h) (redBlock RD Λ δ h₂) (blockSucc_redBlock RD Λ δ i hx hy h h₂)
+    (indBlock Q a RD Λ i hx) (indBlock Q b RD (Λ + δ) i hy)
+    (redPullbackBlock Q hab RD Λ δ h) (redPullbackBlock Q hab RD Λ δ h₂)
+    fun _ _ hβ => cyclotomicRedDownQuotient.{u, v, w} Q hab i (blockSucc_eq RD (Λ + δ) i hβ))
+
+variable (d : ℕ) (hi : b i = Polynomial.X ^ d * a i)
+
+/-- **The red/down dot crossing on weight spaces** (Webster, arXiv:1309.3796v3, §4.6,
+Theorem 4.25): the transformation `E_i I^δ ⟶ I^δ E_i` given on each block by
+`cyclotomicRedDotCrossing`, for `b i = X ^ d * a i`. -/
+def globalRedDotCrossing :
+    globalE.{u, v, w} Q a RD Λ i hx ≫ globalRedPullback Q hab RD Λ δ h₂ ⟶
+      globalRedPullback Q hab RD Λ δ h ≫ globalE Q b RD (Λ + δ) i hy :=
+  ObjectProperty.homMk (blockResCrossRev (blockSucc RD Λ i hx) (blockSucc RD (Λ + δ) i hy)
+    (redBlock RD Λ δ h) (redBlock RD Λ δ h₂) (blockSucc_redBlock RD Λ δ i hx hy h h₂)
+    (indBlock Q a RD Λ i hx) (indBlock Q b RD (Λ + δ) i hy)
+    (redPullbackBlock Q hab RD Λ δ h) (redPullbackBlock Q hab RD Λ δ h₂)
+    fun _ _ hβ => cyclotomicRedDotCrossing.{u, v, w} Q hab i (blockSucc_eq RD (Λ + δ) i hβ) d hi)
+
+/-- **Bigon on the higher-weight side** (Webster, arXiv:1309.3796v3, (4.2)): the quotient
+crossing followed by the dot crossing is the `d`-th power of the dot on `E_i I^δ`, block by
+block. -/
+theorem globalRedDownQuotient_dotCrossing_app (N : weightSpace.{u, v, w} Q a RD Λ x)
+    (δ' : WeightBlocks RD (Λ + δ) y₂) :
+    (globalRedDownQuotient Q hab RD Λ δ i hx hy h h₂).hom.app N δ' ≫
+        (globalRedDotCrossing Q hab RD Λ δ i hx hy h h₂ d hi).hom.app N δ' =
+      (blockSumMap (blockSucc RD (Λ + δ) i hy) (fun _ _ hβ =>
+        (End.of (dot.{u, v, w} Q b i (blockSucc_eq RD (Λ + δ) i hβ)) ^ d :
+          End (ind Q b i (blockSucc_eq RD (Λ + δ) i hβ))))).app
+        ((blockRes (redBlock RD Λ δ h) (redPullbackBlock Q hab RD Λ δ h)).obj N) δ' :=
+  blockResCross_blockResCrossRev_app (blockSucc RD Λ i hx) (blockSucc RD (Λ + δ) i hy)
+    (redBlock RD Λ δ h) (redBlock RD Λ δ h₂) (blockSucc_redBlock RD Λ δ i hx hy h h₂)
+    (indBlock Q a RD Λ i hx) (indBlock Q b RD (Λ + δ) i hy)
+    (redPullbackBlock Q hab RD Λ δ h) (redPullbackBlock Q hab RD Λ δ h₂)
+    (fun _ _ hβ => cyclotomicRedDownQuotient.{u, v, w} Q hab i (blockSucc_eq RD (Λ + δ) i hβ))
+    (fun _ _ hβ => cyclotomicRedDotCrossing.{u, v, w} Q hab i
+      (blockSucc_eq RD (Λ + δ) i hβ) d hi)
+    (fun d' => (fibreMap_redBlock_bijective RD Λ δ i hx hy h h₂ d').1)
+    (fun a' _ hβ => Functor.whiskerLeft (cyclotomicRedPullback.{u, v, w} Q hab a'.1)
+      (End.of (dot.{u, v, w} Q b i (blockSucc_eq RD (Λ + δ) i hβ)) ^ d))
+    (fun _ _ hβ => cyclotomicRedDownQuotient_dotCrossing.{u, v, w} Q hab i
+      (blockSucc_eq RD (Λ + δ) i hβ) d hi) N δ'
+
+/-- **Bigon on the lower-weight side** (Webster, arXiv:1309.3796v3, (4.2)): the dot crossing
+followed by the quotient crossing is the `d`-th power of the dot on `I^δ E_i`, block by
+block. -/
+theorem globalRedDotCrossing_downQuotient_app (N : weightSpace.{u, v, w} Q a RD Λ x)
+    (δ' : WeightBlocks RD (Λ + δ) y₂) :
+    (globalRedDotCrossing Q hab RD Λ δ i hx hy h h₂ d hi).hom.app N δ' ≫
+        (globalRedDownQuotient Q hab RD Λ δ i hx hy h h₂).hom.app N δ' =
+      (cyclotomicRedPullback.{u, v, w} Q hab δ'.1).map
+        ((blockSumMap (blockSucc RD Λ i hx) (fun _ _ hβ =>
+          (End.of (dot.{u, v, w} Q a i (blockSucc_eq RD Λ i hβ)) ^ d :
+            End (ind Q a i (blockSucc_eq RD Λ i hβ))))).app N (redBlock RD Λ δ h₂ δ')) :=
+  blockResCrossRev_blockResCross_app (blockSucc RD Λ i hx) (blockSucc RD (Λ + δ) i hy)
+    (redBlock RD Λ δ h) (redBlock RD Λ δ h₂) (blockSucc_redBlock RD Λ δ i hx hy h h₂)
+    (indBlock Q a RD Λ i hx) (indBlock Q b RD (Λ + δ) i hy)
+    (redPullbackBlock Q hab RD Λ δ h) (redPullbackBlock Q hab RD Λ δ h₂)
+    (fun _ _ hβ => cyclotomicRedDownQuotient.{u, v, w} Q hab i (blockSucc_eq RD (Λ + δ) i hβ))
+    (fun _ _ hβ => cyclotomicRedDotCrossing.{u, v, w} Q hab i
+      (blockSucc_eq RD (Λ + δ) i hβ) d hi)
+    (fibreMap_redBlock_bijective RD Λ δ i hx hy h h₂)
+    (fun _ _ hβ => (End.of (dot.{u, v, w} Q a i (blockSucc_eq RD Λ i hβ)) ^ d :
+      End (ind Q a i (blockSucc_eq RD Λ i hβ))))
+    (fun _ _ hβ => cyclotomicRedDotCrossing_downQuotient.{u, v, w} Q hab i
+      (blockSucc_eq RD (Λ + δ) i hβ) d hi) N δ'
+
+end Crossings
 
 end Categorification.Stendhal

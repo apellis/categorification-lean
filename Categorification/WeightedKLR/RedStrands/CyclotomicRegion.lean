@@ -189,7 +189,8 @@ variable (r : Fin ℓ) (i : I) {μ μ₁ μ₂ μ₃ : X} (h₁ : μ + RD.iX i =
 
 /-- The red/up crossing on the factor `ν`. -/
 def redFactorUpIso (ν : Multiset (Fin ℓ)) :
-    upFactor.{u, v, w} Q p RD lam i h₄ ν ν rfl ⋙ redFactor Q p RD lam r h₂ ν (r ::ₘ ν) rfl ≅
+    upFactor.{u, v, w} Q p RD lam i h₄ ν ν rfl ⋙
+        redFactor Q p RD lam r h₂ ν (r ::ₘ ν) rfl ≅
       redFactor Q p RD lam r h₃ ν (r ::ₘ ν) rfl ⋙
         upFactor Q p RD lam i h₁ (r ::ₘ ν) (r ::ₘ ν) rfl :=
   (redPullbackAtResIso Q RD (regionPoly_dvd_cons p r ν) _ (lam r) (regionHighest_cons lam r ν)
@@ -209,5 +210,127 @@ def regionRedUpIso :
     fun ν _ hν => by subst hν; exact redFactorUpIso Q p RD lam r i h₁ h₂ h₃ h₄ ν)
 
 end RedUp
+
+/-- The red/down quotient crossing for a red pullback into a highest weight `Λ' = Λ + δ`. -/
+def redPullbackAtDownQuotient {a b : I → k[X]} (hab : ∀ i, a i ∣ b i) (Λ δ : X) {Λ' : X}
+    (hΛ : Λ + δ = Λ') (i : I) {x x₂ y y₂ : X} (hx : x + RD.iX i = x₂)
+    (hy : y + RD.iX i = y₂) (h : y + δ = x) (h₂ : y₂ + δ = x₂) :
+    redPullbackAt.{u, v, w} Q RD hab Λ δ hΛ h ⋙ (globalE Q b RD Λ' i hy).obj ⟶
+      (globalE Q a RD Λ i hx).obj ⋙ redPullbackAt Q RD hab Λ δ hΛ h₂ := by
+  subst hΛ
+  exact (globalRedDownQuotient Q hab RD Λ δ i hx hy h h₂).hom
+
+/-- The red/down dot crossing for a red pullback into a highest weight `Λ' = Λ + δ`, for
+`b i = X ^ d * a i`. -/
+def redPullbackAtDotCrossing {a b : I → k[X]} (hab : ∀ i, a i ∣ b i) (Λ δ : X) {Λ' : X}
+    (hΛ : Λ + δ = Λ') (i : I) {x x₂ y y₂ : X} (hx : x + RD.iX i = x₂)
+    (hy : y + RD.iX i = y₂) (h : y + δ = x) (h₂ : y₂ + δ = x₂) (d : ℕ)
+    (hi : b i = Polynomial.X ^ d * a i) :
+    (globalE.{u, v, w} Q a RD Λ i hx).obj ⋙ redPullbackAt Q RD hab Λ δ hΛ h₂ ⟶
+      redPullbackAt Q RD hab Λ δ hΛ h ⋙ (globalE Q b RD Λ' i hy).obj := by
+  subst hΛ
+  exact (globalRedDotCrossing Q hab RD Λ δ i hx hy h h₂ d hi).hom
+
+/-- **Bigon on the lower-weight side for a red pullback** (Webster, arXiv:1309.3796v3, (4.2)):
+the dot crossing followed by the quotient crossing is the `d`-th power of the dot on
+`E_i`, followed by the red pullback. -/
+theorem redPullbackAtDotCrossing_downQuotient {a b : I → k[X]} (hab : ∀ i, a i ∣ b i)
+    (Λ δ : X) {Λ' : X} (hΛ : Λ + δ = Λ') (i : I) {x x₂ y y₂ : X} (hx : x + RD.iX i = x₂)
+    (hy : y + RD.iX i = y₂) (h : y + δ = x) (h₂ : y₂ + δ = x₂) (d : ℕ)
+    (hi : b i = Polynomial.X ^ d * a i) :
+    redPullbackAtDotCrossing.{u, v, w} Q RD hab Λ δ hΛ i hx hy h h₂ d hi ≫
+        redPullbackAtDownQuotient Q RD hab Λ δ hΛ i hx hy h h₂ =
+      Functor.whiskerRight (blockSumMap (blockSucc RD Λ i hx) fun _ _ hβ =>
+          (End.of (dot.{u, v, w} Q a i (blockSucc_eq RD Λ i hβ)) ^ d :
+            End (ind Q a i (blockSucc_eq RD Λ i hβ))))
+        (redPullbackAt Q RD hab Λ δ hΛ h₂) := by
+  subst hΛ
+  refine NatTrans.ext (funext fun N => funext fun δ' => ?_)
+  exact globalRedDotCrossing_downQuotient_app Q hab RD Λ δ i hx hy h h₂ d hi N δ'
+
+section RedDown
+
+variable (r : Fin ℓ) (i : I) {μ μ₁ μ₂ μ₃ : X} (h₁ : μ + RD.iX i = μ₁)
+  (h₂ : μ + lam r = μ₂) (h₃ : μ₁ + lam r = μ₃) (h₄ : μ₂ + RD.iX i = μ₃)
+
+/-- The red/down quotient crossing on the factor `ν`. -/
+def redFactorDownQuotient (ν ν' : Multiset (Fin ℓ)) (hν : r ::ₘ ν = ν') :
+    redFactor.{u, v, w} Q p RD lam r h₂ ν ν' hν ⋙ downFactor Q p RD lam i h₁ ν' ν' rfl ⟶
+      downFactor Q p RD lam i h₄ ν ν rfl ⋙ redFactor Q p RD lam r h₃ ν ν' hν := by
+  subst hν
+  exact redPullbackAtDownQuotient Q RD (regionPoly_dvd_cons p r ν) _ (lam r)
+    (regionHighest_cons lam r ν) i h₄ h₁ h₂ h₃
+
+/-- **The red/down quotient crossing on regions** (Webster, arXiv:1309.3796v3, §4.6, proof of
+Theorem 4.25): on every factor containing `r`, the cyclotomic quotient `I^λ E_i ⟶ E_i I^λ`. -/
+def regionRedDownQuotient :
+    regionRed.{u, v, w} Q p RD lam r h₂ ≫ regionDown Q p RD lam i h₁ ⟶
+      regionDown Q p RD lam i h₄ ≫ regionRed Q p RD lam r h₃ :=
+  ObjectProperty.homMk (blockResCrossRev (fun ν => r ::ₘ ν) (fun ν => r ::ₘ ν) id id
+    (fun _ => rfl) (redFactor Q p RD lam r h₂) (redFactor Q p RD lam r h₃)
+    (downFactor Q p RD lam i h₄) (downFactor Q p RD lam i h₁)
+    (redFactorDownQuotient Q p RD lam r i h₁ h₂ h₃ h₄))
+
+variable (d : ℕ) (hp : p r i = Polynomial.X ^ d)
+
+omit [DecidableEq I] in
+include hp in
+theorem regionPoly_cons_eq (ν : Multiset (Fin ℓ)) :
+    regionPoly p (r ::ₘ ν) i = Polynomial.X ^ d * regionPoly p ν i := by
+  rw [regionPoly_cons, hp]
+
+/-- The red/down dot crossing on the factor `ν`, for `p r i = X ^ d`. -/
+def redFactorDownDot (ν ν' : Multiset (Fin ℓ)) (hν : r ::ₘ ν = ν') :
+    downFactor.{u, v, w} Q p RD lam i h₄ ν ν rfl ⋙ redFactor Q p RD lam r h₃ ν ν' hν ⟶
+      redFactor Q p RD lam r h₂ ν ν' hν ⋙ downFactor Q p RD lam i h₁ ν' ν' rfl := by
+  subst hν
+  exact redPullbackAtDotCrossing Q RD (regionPoly_dvd_cons p r ν) _ (lam r)
+    (regionHighest_cons lam r ν) i h₄ h₁ h₂ h₃ d (regionPoly_cons_eq p r i d hp ν)
+
+/-- **The red/down dot crossing on regions** (Webster, arXiv:1309.3796v3, §4.6, proof of
+Theorem 4.25), for `p r i = X ^ d`: on every factor containing `r`, the crossing
+`E_i I^λ ⟶ I^λ E_i`. -/
+def regionRedDownDot :
+    regionDown.{u, v, w} Q p RD lam i h₄ ≫ regionRed Q p RD lam r h₃ ⟶
+      regionRed Q p RD lam r h₂ ≫ regionDown Q p RD lam i h₁ :=
+  ObjectProperty.homMk (blockResCross (fun ν => r ::ₘ ν) (fun ν => r ::ₘ ν) id id
+    (fun _ => rfl) (redFactor Q p RD lam r h₂) (redFactor Q p RD lam r h₃)
+    (downFactor Q p RD lam i h₄) (downFactor Q p RD lam i h₁)
+    (redFactorDownDot Q p RD lam r i h₁ h₂ h₃ h₄ d hp))
+
+/-- The `d`-th power of the dot on the down strand, followed by the red line, on the factor
+`ν`. -/
+def redFactorDownDotPow (ν ν' : Multiset (Fin ℓ)) (hν : r ::ₘ ν = ν') :
+    downFactor.{u, v, w} Q p RD lam i h₄ ν ν rfl ⋙ redFactor Q p RD lam r h₃ ν ν' hν ⟶
+      downFactor Q p RD lam i h₄ ν ν rfl ⋙ redFactor Q p RD lam r h₃ ν ν' hν := by
+  subst hν
+  exact Functor.whiskerRight (blockSumMap (blockSucc RD (regionHighest lam ν) i h₄)
+    fun _ _ hβ => (End.of (dot.{u, v, w} Q (regionPoly p ν) i
+      (blockSucc_eq RD (regionHighest lam ν) i hβ)) ^ d :
+        End (ind Q (regionPoly p ν) i (blockSucc_eq RD (regionHighest lam ν) i hβ)))) _
+
+/-- **Bigon on the lower-weight side on regions** (Webster, arXiv:1309.3796v3, (4.2)): the dot
+crossing followed by the quotient crossing is, on every factor, the `d`-th power of the dot
+on the downward strand. -/
+theorem regionRedDownDot_quotient_app (N : region.{u, v, w} Q p RD lam μ₂)
+    (ν' : Multiset (Fin ℓ)) :
+    (regionRedDownDot Q p RD lam r i h₁ h₂ h₃ h₄ d hp).hom.app N ν' ≫
+        (regionRedDownQuotient Q p RD lam r i h₁ h₂ h₃ h₄).hom.app N ν' =
+      Limits.biproduct.map fun q : {ν // r ::ₘ ν = ν'} =>
+        (redFactorDownDotPow Q p RD lam r i h₃ h₄ d q.1 ν' q.2).app (N q.1) :=
+  blockResCross_blockResCrossRev_app (fun ν => r ::ₘ ν) (fun ν => r ::ₘ ν) id id
+    (fun _ => rfl) (redFactor Q p RD lam r h₂) (redFactor Q p RD lam r h₃)
+    (downFactor Q p RD lam i h₄) (downFactor Q p RD lam i h₁)
+    (redFactorDownDot Q p RD lam r i h₁ h₂ h₃ h₄ d hp)
+    (redFactorDownQuotient Q p RD lam r i h₁ h₂ h₃ h₄)
+    (fun _ _ _ _ => Subsingleton.elim _ _)
+    (redFactorDownDotPow Q p RD lam r i h₃ h₄ d)
+    (fun ν _ hν => by
+      subst hν
+      exact redPullbackAtDotCrossing_downQuotient Q RD (regionPoly_dvd_cons p r ν) _ (lam r)
+        (regionHighest_cons lam r ν) i h₄ h₁ h₂ h₃ d (regionPoly_cons_eq p r i d hp ν))
+    N ν'
+
+end RedDown
 
 end Categorification.Stendhal

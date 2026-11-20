@@ -149,6 +149,70 @@ theorem canWord_quadPerm_lastQuad :
 
 end LastPerm
 
+/-! ### `Ψ` on the shuffle basis -/
+
+section ShuffleBasis
+
+variable {ν₀ ν₀' : Multiset I} {i : I}
+
+/-- The intertwining property of `ψ_d` on the idempotent `ι(1_{ν₀,ν'} ⊗ 1_i)`. -/
+theorem appendR_castKLR_oneConcat_mul_lastψ :
+    appendR Q _ i (castKLR Q (lastQuad_h₁ ν₀ ν₀' i) (oneConcat Q ν₀ (ν₀' + Si i))) *
+        lastψ Q ν₀ ν₀' i =
+      lastψ Q ν₀ ν₀' i *
+        botConcat Q (lastQuad_h ν₀ ν₀' i) (tensorAppendL Q ν₀ (ν₀' + Si i) i 1) := by
+  have h := concat_quadTop_one_mul_ψD (Q := Q) (lastQuad_h ν₀ ν₀' i) (lastQuad ν₀ ν₀' i)
+  rw [Algebra.TensorProduct.one_def (A := TensorKLR Q ν₀ (ν₀' + Si i)), quadTop_lastQuad,
+    quadBot_lastQuad, concat_one, ← appendR_apply] at h
+  exact h
+
+/-- **`Ψ` on the shuffle basis, bimodule level**: `ι(ŵ_v^* ⊗ 1_i) ψ_d 1_{ν,ν'}` is
+`ŵ_{d⁻¹(v ⊕ 1)}^*` times `ι(1_{ν₀,i} ⊗ 1_{ν'})`. -/
+theorem lastBimod_hatWRevSub (v₀ : Shuffle (Seq.card_add' ν₀ (ν₀' + Si i))) :
+    lastBimod Q ν₀ ν₀' i (hatWRevSub v₀) =
+      op (tensorAppendL Q ν₀ (ν₀' + Si i) i 1) • hatWRevSubOf (lastStrandWord ν₀ ν₀' i)
+        (lastShuffles ν₀ ν₀' i
+          (Sum.inr (shuffleCongr (Seq.card_add' ν₀ (ν₀' + Si i)) (lastTop_card ν₀ ν₀' i) v₀))) := by
+  have hα : ValidWord (Multiset.card (ν₀ + Si i + ν₀')) (shufWord v₀).reverse := by
+    rw [validWord_reverse, ← lastQuad_h₁ ν₀ ν₀' i]
+    exact validWord_canWord _ _
+  have hE := appendR_castKLR_oneConcat_mul_lastψ (Q := Q) (ν₀ := ν₀) (ν₀' := ν₀') (i := i)
+  have hO : oneConcat Q (ν₀ + Si i + ν₀') (Si i) * (lastψ Q ν₀ ν₀' i *
+      botConcat Q (lastQuad_h ν₀ ν₀' i) (tensorAppendL Q ν₀ (ν₀' + Si i) i 1)) =
+      lastψ Q ν₀ ν₀' i *
+        botConcat Q (lastQuad_h ν₀ ν₀' i) (tensorAppendL Q ν₀ (ν₀' + Si i) i 1) := by
+    rw [← hE, ← mul_assoc, ← appendR_one, ← map_mul, one_mul]
+  have hY : appendR Q _ i (castKLR Q (lastQuad_h₁ ν₀ ν₀' i)
+      (hatWRev v₀ : KLRAlgebra k Q (ν₀ + (ν₀' + Si i)))) * lastψ Q ν₀ ν₀' i =
+      ψw (shufWord v₀).reverse * lastψ Q ν₀ ν₀' i *
+        botConcat Q (lastQuad_h ν₀ ν₀' i) (tensorAppendL Q ν₀ (ν₀' + Si i) i 1) := by
+    rw [hatWRev_eq, map_mul, map_mul, mul_assoc, hE, castKLR_ψw', appendR_ψw hα, mul_assoc, hO,
+      mul_assoc]
+  rw [lastBimod_apply, coe_hatWRevSub, hY, lastElt_mul_botConcat]
+  congr 1
+  apply Subtype.ext
+  rw [coe_lastElt, coe_hatWRevSubOf, hatWRevOf, lastStrandWord_top, List.reverse_append,
+    List.reverse_reverse, ψw_append, map_mul, castKLR_ψw', lastψ, castKLR_ψw',
+    canWord_quadPerm_lastQuad, canWord_shuffleCongr]
+  rfl
+
+variable {N : Type*} [AddCommGroup N] [Module k N]
+  [Module (TensorKLR Q (ν₀ + ({i} : Multiset I)) (ν₀' + ({i} : Multiset I))) N]
+  [IsScalarTower k (TensorKLR Q (ν₀ + ({i} : Multiset I)) (ν₀' + ({i} : Multiset I))) N]
+
+/-- **`Ψ` on the shuffle basis**: `Ψ(ŵ_v^* ⊗ n) = [ŵ_{d⁻¹(v ⊕ 1)}^* ⊗ n]`. -/
+theorem indLast_tmul_hatWRevSub (v₀ : Shuffle (Seq.card_add' ν₀ (ν₀' + Si i)))
+    (n : ResLeft Q ν₀ ν₀' i N) :
+    indLast (BalancedTensor.tmul (hatWRevSub (k := k) (Q := Q) v₀) n) =
+      Submodule.Quotient.mk (BalancedTensor.tmul (hatWRevSubOf (lastStrandWord ν₀ ν₀' i)
+        (lastShuffles ν₀ ν₀' i
+          (Sum.inr (shuffleCongr (Seq.card_add' ν₀ (ν₀' + Si i)) (lastTop_card ν₀ ν₀' i) v₀))))
+        n.val) := by
+  rw [indLast_tmul, lastBimod_hatWRevSub, BalancedTensor.op_smul_tmul]
+  exact congrArg (fun m => Submodule.Quotient.mk (BalancedTensor.tmul _ m)) n.prop
+
+end ShuffleBasis
+
 end KLRAlgebra
 
 end Categorification.KLR

@@ -101,6 +101,20 @@ local notation "Si" => (Singleton.singleton i : Multiset I)
 local notation "Pb" => MvPolynomial (Fin (Multiset.card β)) k
 
 variable (Q) in
+/-- The hypothesis on `Q` used by the splitting of Kang–Kashiwara Theorem 4.5 for the colour
+`i`: for every colour `j ≠ i`, the leading coefficient of `Q_{j,i}(x, t)` in `t` is a unit
+constant. It follows from the same condition for all pairs of distinct colours
+(`leadUnitAt_of`), and it also holds when `Q_{j,i}` is a power of `t` for some `j`. -/
+def LeadUnitAt (i : I) : Prop :=
+  ∀ j : I, j ≠ i → ∃ c : k, IsUnit c ∧ (polyInY (Q j i)).leadingCoeff = Polynomial.C c
+
+omit [DecidableEq I] in
+theorem leadUnitAt_of
+    (hQ : ∀ a b : I, a ≠ b →
+      ∃ c : k, IsUnit c ∧ (polyInY (Q a b)).leadingCoeff = Polynomial.C c) :
+    LeadUnitAt Q i := fun j h => hQ j i h
+
+variable (Q) in
 /-- The leading coefficient in `t` of the factor of `F_n` at a strand of colour `j`:
 `−1` if `j = i`, else that of `Q_{j,i}(x, t)`. -/
 noncomputable def lcFac (j : I) : k :=
@@ -174,7 +188,7 @@ theorem lead_aeval_C_X [Nontrivial k] {q : MvPolynomial (Fin 2) k}
 /-- The `t`-degree and leading coefficient of the factor of `F_n` at strand `b + 1`. -/
 theorem lead_fSplit_cycFac_succ [Nontrivial k]
     (hsym : KLRSymm Q)
-    (hQ : ∀ a b : I, a ≠ b → ∃ c : k, IsUnit c ∧ (polyInY (Q a b)).leadingCoeff = Polynomial.C c)
+    (hQ : LeadUnitAt Q i)
     (s : Seq β) (b : ℕ) (hb : b + 1 < Multiset.card (Si + β)) :
     (fSplit (k := k) i β (cycFac Q (cons1 i β s) (b + 1))).leadingCoeff =
         MvPolynomial.C (lcFac Q i (s.1 ⟨b, by rw [card_single_add] at hb; omega⟩)) ∧
@@ -183,14 +197,14 @@ theorem lead_fSplit_cycFac_succ [Nontrivial k]
   rw [fSplit_cycFac_succ i β hsym s b hb, lcFac, degFac]
   split_ifs with h
   · simp
-  · exact lead_aeval_C_X β (hQ _ _ h) _
+  · exact lead_aeval_C_X β (hQ _ h) _
 
-theorem isUnit_lcFac (hQ : ∀ a b : I, a ≠ b → ∃ c : k, IsUnit c ∧ (polyInY (Q a b)).leadingCoeff = Polynomial.C c) (j : I) :
+theorem isUnit_lcFac (hQ : LeadUnitAt Q i) (j : I) :
     IsUnit (lcFac Q i j) := by
   rw [lcFac]
   split_ifs with h
   · exact isUnit_one.neg
-  · exact (lc_coeff_zero_of_isUnit (hQ _ _ h)).2
+  · exact (lc_coeff_zero_of_isUnit (hQ _ h)).2
 
 omit [DecidableEq I] in
 theorem prod_seq_map {M : Type*} [CommMonoid M] (f : I → M) (s : Seq β) :
@@ -212,7 +226,7 @@ variable (Q) in
 /-- The `t`-degree of `θ(A)`. -/
 noncomputable def degA : ℕ := (a i).natDegree + (β.map (degFac Q i)).sum
 
-theorem isUnit_lamA (hQ : ∀ a b : I, a ≠ b → ∃ c : k, IsUnit c ∧ (polyInY (Q a b)).leadingCoeff = Polynomial.C c) :
+theorem isUnit_lamA (hQ : LeadUnitAt Q i) :
     IsUnit (lamA Q i β) := by
   rw [lamA]
   induction β using Multiset.induction_on with
@@ -231,7 +245,7 @@ theorem fSplit_gPol_eq (s : Seq β) :
   rw [h0, map_one, mul_one]
 
 theorem lead_fSplit_gPol [Nontrivial k] (hsym : KLRSymm Q)
-    (hQ : ∀ a b : I, a ≠ b → ∃ c : k, IsUnit c ∧ (polyInY (Q a b)).leadingCoeff = Polynomial.C c) (ha : (a i).Monic)
+    (hQ : LeadUnitAt Q i) (ha : (a i).Monic)
     (s : Seq β) :
     (fSplit (k := k) i β (gPol Q i β a s)).leadingCoeff = MvPolynomial.C (lamA Q i β) ∧
       (fSplit (k := k) i β (gPol Q i β a s)).natDegree = degA Q i β a := by
@@ -328,13 +342,13 @@ theorem coeff_theta_aPrime (n : ℕ) :
   rw [Polynomial.coeff_mul_C, Polynomial.coeff_map]
   rfl
 
-theorem theta_aPrime_eq_smul (hQ : ∀ a b : I, a ≠ b → ∃ c : k, IsUnit c ∧ (polyInY (Q a b)).leadingCoeff = Polynomial.C c) :
+theorem theta_aPrime_eq_smul (hQ : LeadUnitAt Q i) :
     theta Q i β (aPrime Q i β a) = lamA Q i β • aMonic Q i β a := by
   rw [aMonic, smul_smul, Ring.mul_inverse_cancel _ (isUnit_lamA i β hQ), one_smul]
 
 /-- The coefficients above the expected degree vanish, before taking the cyclotomic quotient. -/
 theorem degree_aMonic_le [Nontrivial k] (hsym : KLRSymm Q)
-    (hQ : ∀ a b : I, a ≠ b → ∃ c : k, IsUnit c ∧ (polyInY (Q a b)).leadingCoeff = Polynomial.C c) (ha : (a i).Monic) :
+    (hQ : LeadUnitAt Q i) (ha : (a i).Monic) :
     (aMonic Q i β a).degree ≤ degA Q i β a := by
   have hl := lead_fSplit_gPol (Q := Q) i β a hsym hQ ha
   rw [Polynomial.degree_le_iff_coeff_zero]
@@ -346,7 +360,7 @@ theorem degree_aMonic_le [Nontrivial k] (hsym : KLRSymm Q)
 
 /-- The coefficient at the expected degree is one. -/
 theorem coeff_aMonic_degA [Nontrivial k] (hsym : KLRSymm Q)
-    (hQ : ∀ a b : I, a ≠ b → ∃ c : k, IsUnit c ∧ (polyInY (Q a b)).leadingCoeff = Polynomial.C c) (ha : (a i).Monic) :
+    (hQ : LeadUnitAt Q i) (ha : (a i).Monic) :
     (aMonic Q i β a).coeff (degA Q i β a) = 1 := by
   have hl := lead_fSplit_gPol (Q := Q) i β a hsym hQ ha
   rw [aMonic, Polynomial.coeff_smul, coeff_theta_aPrime]
@@ -358,7 +372,7 @@ theorem coeff_aMonic_degA [Nontrivial k] (hsym : KLRSymm Q)
 
 /-- `M = λ⁻¹ θ(A)` is monic. -/
 theorem monic_aMonic (hsym : KLRSymm Q)
-    (hQ : ∀ a b : I, a ≠ b → ∃ c : k, IsUnit c ∧ (polyInY (Q a b)).leadingCoeff = Polynomial.C c) (ha : (a i).Monic) :
+    (hQ : LeadUnitAt Q i) (ha : (a i).Monic) :
     (aMonic Q i β a).Monic := by
   rcases subsingleton_or_nontrivial k with hk | hk
   · have : Subsingleton Rb := (algebraMap k Rb).codomain_trivial

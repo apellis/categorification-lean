@@ -133,7 +133,7 @@ theorem eiA_eq_small (hwt : 0 ≤ wt) (p r : Polynomial Rl)
     (hr : r.degree < (wt).toNat) (he : eiA Q i γ a hsym p = r) : p = 0 ∧ r = 0 := by
   rcases subsingleton_or_nontrivial Rl with h | h
   · exact ⟨Subsingleton.elim _ _, Subsingleton.elim _ _⟩
-  · obtain ⟨c, hc⟩ := isUnit_lamA (Q := Q) i β hQ
+  · obtain ⟨c, hc⟩ := isUnit_lamA (Q := Q) i β (leadUnitAt_of i hQ)
     obtain ⟨hlow, hhigh⟩ := aMap_phi_spec i β a hsym
       (zero_lt_card_single_add i γ) hQ ha (by simp)
     rw [← hc, Ring.inverse_unit] at hhigh

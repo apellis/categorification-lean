@@ -243,7 +243,7 @@ section Proj
 
 variable (i : I) (β : Multiset I) (a : I → Polynomial k)
   (hsym : KLRSymm Q)
-  (hQ : ∀ a b : I, a ≠ b → ∃ c : k, IsUnit c ∧ (polyInY (Q a b)).leadingCoeff = Polynomial.C c) (ha : (a i).Monic)
+  (hQ : LeadUnitAt Q i) (ha : (a i).Monic)
   (hβ : 0 < Multiset.card β)
 
 local notation "Si" => (Singleton.singleton i : Multiset I)

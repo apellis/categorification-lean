@@ -22,7 +22,8 @@ Khovanov–Lauda–Rouquier algebras*, arXiv:1102.4677v4, §4.2. For `ν = {i} +
   `h = Q`, using KK Thm. 4.15 `Q ∘ P = A`). Hence `0 → K_1 e(i, β) → K_0 → F^Λ → 0`
   (`range_pMap`) splits as a sequence of right `R(β)`-modules.
 
-Any commutative ring `k`, `KLRSymm Q` with unit constant leading coefficients of the `Q_{ab}`,
+Any commutative ring `k`, `KLRSymm Q` with unit constant leading coefficients in `t` of the
+`Q_{j,i}(x, t)` for `j ≠ i` (`LeadUnitAt`; KK assume this for all pairs of distinct colours),
 monic `a_i` (as for KK's Lemma 4.16).
 -/
 
@@ -463,13 +464,13 @@ noncomputable def aMonicL : Polynomial Rl :=
   Polynomial.mapAlgHom (CycKLR.mk k Q a β) (aMonic Q i β a)
 
 theorem monic_aMonicL (hsym : KLRSymm Q)
-    (hQ : ∀ a b : I, a ≠ b → ∃ c : k, IsUnit c ∧ (polyInY (Q a b)).leadingCoeff = Polynomial.C c) (ha : (a i).Monic) :
+    (hQ : LeadUnitAt Q i) (ha : (a i).Monic) :
     (aMonicL Q i β a).Monic := by
   rw [aMonicL, Polynomial.coe_mapAlgHom]; exact (monic_aMonic i β a hsym hQ ha).map _
 
 /-- The degree bound survives even when the cyclotomic quotient is the zero ring. -/
 theorem degree_aMonicL_le (hsym : KLRSymm Q)
-    (hQ : ∀ a b : I, a ≠ b → ∃ c : k, IsUnit c ∧ (polyInY (Q a b)).leadingCoeff = Polynomial.C c) (ha : (a i).Monic) :
+    (hQ : LeadUnitAt Q i) (ha : (a i).Monic) :
     (aMonicL Q i β a).degree ≤ degA Q i β a := by
   rcases subsingleton_or_nontrivial k with hk | hk
   · have : Subsingleton (CycKLR k Q a β) := (algebraMap k (CycKLR k Q a β)).codomain_trivial
@@ -480,7 +481,7 @@ theorem degree_aMonicL_le (hsym : KLRSymm Q)
 
 /-- The top coefficient is one in the cyclotomic quotient, including the zero ring. -/
 theorem coeff_aMonicL_degA (hsym : KLRSymm Q)
-    (hQ : ∀ a b : I, a ≠ b → ∃ c : k, IsUnit c ∧ (polyInY (Q a b)).leadingCoeff = Polynomial.C c) (ha : (a i).Monic) :
+    (hQ : LeadUnitAt Q i) (ha : (a i).Monic) :
     (aMonicL Q i β a).coeff (degA Q i β a) = 1 := by
   rcases subsingleton_or_nontrivial k with hk | hk
   · have : Subsingleton (CycKLR k Q a β) := (algebraMap k (CycKLR k Q a β)).codomain_trivial
@@ -491,7 +492,7 @@ theorem coeff_aMonicL_degA (hsym : KLRSymm Q)
 /-- Exact degree requires a nonzero cyclotomic quotient; monicity alone does not. -/
 theorem natDegree_aMonicL [Nontrivial Rl]
     (hsym : KLRSymm Q)
-    (hQ : ∀ a b : I, a ≠ b → ∃ c : k, IsUnit c ∧ (polyInY (Q a b)).leadingCoeff = Polynomial.C c) (ha : (a i).Monic) :
+    (hQ : LeadUnitAt Q i) (ha : (a i).Monic) :
     (aMonicL Q i β a).natDegree = degA Q i β a := by
   apply Polynomial.natDegree_eq_of_le_of_coeff_ne_zero
     (Polynomial.natDegree_le_of_degree_le (degree_aMonicL_le i β a hsym hQ ha))
@@ -505,7 +506,7 @@ theorem aMonicL_comm (q : Polynomial Rl) : Commute q (aMonicL Q i β a) := by
   rw [aMonicL, Polynomial.coe_mapAlgHom]
   exact (aMonic_comm i β a hsym q').map (Polynomial.mapRingHom (CycKLR.mk k Q a β : Rb →+* Rl))
 
-theorem thetaL_aPrime (hQ : ∀ a b : I, a ≠ b → ∃ c : k, IsUnit c ∧ (polyInY (Q a b)).leadingCoeff = Polynomial.C c) :
+theorem thetaL_aPrime (hQ : LeadUnitAt Q i) :
     thetaL Q i β a (aPrime Q i β a) = lamA Q i β • aMonicL Q i β a := by
   rw [thetaL, AlgHom.comp_apply, theta_aPrime_eq_smul i β a hQ, map_smul, aMonicL]
 
@@ -522,7 +523,7 @@ variable (Q) in
 /-- **The splitting of `P`** (KK Lemma 4.19 with `h = Q`): `Q`, then coordinates, then
 division by `M̄`. -/
 noncomputable def splitMap (hsym : KLRSymm Q)
-    (hQ : ∀ a b : I, a ≠ b → ∃ c : k, IsUnit c ∧ (polyInY (Q a b)).leadingCoeff = Polynomial.C c) (ha : (a i).Monic)
+    (hQ : LeadUnitAt Q i) (ha : (a i).Monic)
     (h1 : 1 < Multiset.card (Si + β)) (hβ : 0 < Multiset.card β) :
     KZero Q (Si + β) a (zero_lt_card_single_add i β) →ₗ[k] KOne Q (Si + β) a h1 :=
   embK Q hsym i β a h1 hβ ∘ₗ divK Q i β a (monic_aMonicL i β a hsym hQ ha) ∘ₗ
@@ -532,7 +533,7 @@ noncomputable def splitMap (hsym : KLRSymm Q)
 
 /-- **KK Lemma 4.19 / Theorem 4.5 (splitting)**: `splitMap ∘ P = id` on `K_1 e(i, β)`. -/
 theorem splitMap_pMap (hsym : KLRSymm Q)
-    (hQ : ∀ a b : I, a ≠ b → ∃ c : k, IsUnit c ∧ (polyInY (Q a b)).leadingCoeff = Polynomial.C c) (ha : (a i).Monic)
+    (hQ : LeadUnitAt Q i) (ha : (a i).Monic)
     (h1 : 1 < Multiset.card (Si + β)) (hβ : 0 < Multiset.card β) (y : R) :
     splitMap Q i β a hsym hQ ha h1 hβ
         (pMap a (zero_lt_card_single_add i β) h1 (Multiset.card β) (card_single_add i β).symm
@@ -588,7 +589,7 @@ theorem embK_mul_C (h1 : 1 < Multiset.card (Si + β)) (hβ : 0 < Multiset.card �
 /-- **The splitting is right `R(β)`-linear**, so `P : K_1 e(i, β) → K_0` splits as a map of
 right `R(β)`-modules (KK Theorem 4.5). -/
 theorem splitMap_act (hsym : KLRSymm Q)
-    (hQ : ∀ a b : I, a ≠ b → ∃ c : k, IsUnit c ∧ (polyInY (Q a b)).leadingCoeff = Polynomial.C c) (ha : (a i).Monic)
+    (hQ : LeadUnitAt Q i) (ha : (a i).Monic)
     (h1 : 1 < Multiset.card (Si + β)) (hβ : 0 < Multiset.card β) (b : Rb)
     (z : KZero Q (Si + β) a (zero_lt_card_single_add i β)) :
     splitMap Q i β a hsym hQ ha h1 hβ (act0 Q i β a b z) =

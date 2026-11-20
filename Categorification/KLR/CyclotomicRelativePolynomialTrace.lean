@@ -44,30 +44,30 @@ include hsym hQ ha
 
 theorem trace_C_mul (r : R) (p : Polynomial R) :
     trace i β a (C r * p) = r * trace i β a p :=
-  MonicTrace.trace_C_mul _ (monic_aMonicL i β a hsym hQ ha)
+  MonicTrace.trace_C_mul _ (monic_aMonicL i β a hsym (leadUnitAt_of i hQ) ha)
     (aMonicL_comm hsym i β a) r p
 
 theorem trace_mul_C (p : Polynomial R) (r : R) :
     trace i β a (p * C r) = trace i β a p * r :=
-  MonicTrace.trace_mul_C _ (monic_aMonicL i β a hsym hQ ha) p r
+  MonicTrace.trace_mul_C _ (monic_aMonicL i β a hsym (leadUnitAt_of i hQ) ha) p r
 
 theorem dual_basis (p : Polynomial R) :
     ∑ j : Fin (aMonicL Q i β a).natDegree,
       monomial j (trace i β a (MonicTrace.dual (aMonicL Q i β a)
         ((aMonicL Q i β a).natDegree - 1 - j) * p)) = p %ₘ aMonicL Q i β a :=
-  MonicTrace.dual_basis _ (monic_aMonicL i β a hsym hQ ha)
+  MonicTrace.dual_basis _ (monic_aMonicL i β a hsym (leadUnitAt_of i hQ) ha)
     (aMonicL_comm hsym i β a) p
 
 theorem dual_basis_swapped (p : Polynomial R) :
     (∑ j : Fin (aMonicL Q i β a).natDegree,
       MonicTrace.dual (aMonicL Q i β a) ((aMonicL Q i β a).natDegree - 1 - j) *
         C (trace i β a (X ^ (j : ℕ) * p))) %ₘ aMonicL Q i β a = p %ₘ aMonicL Q i β a :=
-  MonicTrace.dual_basis_swapped _ (monic_aMonicL i β a hsym hQ ha)
+  MonicTrace.dual_basis_swapped _ (monic_aMonicL i β a hsym (leadUnitAt_of i hQ) ha)
     (aMonicL_comm hsym i β a) p
 
 theorem trace_nondegenerate (p : Polynomial R) (hp : ∀ q, trace i β a (q * p) = 0) :
     p %ₘ aMonicL Q i β a = 0 :=
-  MonicTrace.trace_nondegenerate _ (monic_aMonicL i β a hsym hQ ha)
+  MonicTrace.trace_nondegenerate _ (monic_aMonicL i β a hsym (leadUnitAt_of i hQ) ha)
     (aMonicL_comm hsym i β a) p hp
 
 end Categorification.KLR.KLRAlgebra.RelativePolynomialTrace

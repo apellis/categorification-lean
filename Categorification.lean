@@ -11,6 +11,7 @@ import Categorification.Algebra.DividedDifference
 import Categorification.Algebra.ExternalTensor
 import Categorification.Algebra.Generation
 import Categorification.Algebra.HomTensorInd
+import Categorification.Algebra.HomTensorIndModule
 import Categorification.Algebra.Graded.Dimension
 import Categorification.Algebra.Graded.Duality
 import Categorification.Algebra.Graded.G0
@@ -47,6 +48,7 @@ import Categorification.Algebra.HomTensorNat
 import Categorification.Algebra.InductionAlong
 import Categorification.Algebra.InductionAlongAssoc
 import Categorification.Algebra.InductionAlongBimodule
+import Categorification.Algebra.InductionAlongResTensor
 import Categorification.Algebra.InductionAlongEnd
 import Categorification.Algebra.InductionAlongLinear
 import Categorification.Algebra.InductionAlongRes

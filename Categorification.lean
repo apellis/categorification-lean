@@ -45,6 +45,7 @@ import Categorification.Algebra.HomTensorComp
 import Categorification.Algebra.HomTensorNat
 import Categorification.Algebra.InductionAlong
 import Categorification.Algebra.InductionAlongAssoc
+import Categorification.Algebra.InductionAlongBimodule
 import Categorification.Algebra.InductionAlongEnd
 import Categorification.Algebra.InductionAlongLinear
 import Categorification.Algebra.InductionAlongRes

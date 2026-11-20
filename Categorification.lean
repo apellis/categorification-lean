@@ -1315,6 +1315,7 @@ import Categorification.WeightedKLR.RedStrands.SplitRedQuotient
 import Categorification.WeightedKLR.RedStrands.SplitRedRelations
 import Categorification.WeightedKLR.RedStrands.SplitRedWords
 import Categorification.WeightedKLR.RedStrands.DoubleBlackInduction
+import Categorification.WeightedKLR.RedStrands.DoubleBlackRestriction
 /-!
 # Categorification
 

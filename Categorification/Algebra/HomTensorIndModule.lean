@@ -6,6 +6,7 @@ Authors: Alex Ellis
 import Categorification.Algebra.HomTensorInd
 import Categorification.Algebra.HomTensorDecomp
 import Categorification.Algebra.BalancedTensorTransport
+import Categorification.Algebra.InductionAlongResTensor
 
 /-!
 # Induction along a ring map as a module functor
@@ -16,7 +17,10 @@ Let `F : C ⥤ D` be additive, `O` an object of `C`, `O'` an object of `D`, and 
 identifies induction `Ind N φ = Corner φ ⊗_A N` with the module functor
 `(O' ⟶ F O) ⊗_{End O} N'` of `F` (`HomTensor.tensorObj`), for every `A`-module `N` and every
 right `End O`-module `N'` identified with `N` along `σ` (`indTensorEquiv`). The identification
-is semilinear along `τ : B ≃+* (End O')ᵐᵒᵖ` when `c` is (`indTensorEquiv_smul`).
+is semilinear along `τ : B ≃+* (End O')ᵐᵒᵖ` when `c` is (`indTensorEquiv_smul`). Dually, for
+`ψ : A' →ₙ+* A` and an additive isomorphism `r : Res ψ A ≃+ (O' ⟶ F O)` intertwining the right
+actions, restriction `Res_ψ N` is the module functor of `F` (`resTensorEquiv`). Every `A`-module
+is a right `End O`-module along `σ` (`transferModule`).
 
 This extends `HomTensor.indEquiv`, which treats the modules `O ⟶ X`, to arbitrary modules, so
 that the module-level decompositions of `HomTensor.sumDecompModule` apply to Webster's
@@ -56,6 +60,58 @@ theorem indTensorEquiv_smul (τ : B ≃+* (End O')ᵐᵒᵖ)
     (hτ : ∀ (b : B) (z : Corner φ), c (b • z) = (τ b).unop ≫ c z) (b : B) (x : Ind N φ) :
     indTensorEquiv c hc g hg (b • x) = τ b • indTensorEquiv c hc g hg x :=
   BalancedTensor.changeRingEquiv_smul σ c.toIntLinearEquiv g.toIntLinearEquiv hc hg τ hτ b x
+
+/-- An `A`-module as a right `End O`-module along `σ`. -/
+abbrev transferModule (σ : A ≃+* (End O)ᵐᵒᵖ) (N : Type w) [AddCommGroup N] [Module A N] :
+    Module (End O)ᵐᵒᵖ N :=
+  Module.compHom N σ.symm.toRingHom
+
+omit [AddCommGroup N'] [Module (End O)ᵐᵒᵖ N'] in
+theorem transferModule_smul (a : A) (n : N) :
+    letI := transferModule σ N
+    σ a • n = a • n := by
+  let _ := transferModule σ N
+  change σ.symm (σ a) • n = a • n
+  rw [σ.symm_apply_apply]
+
+section Res
+
+variable {A' : Type u} [Ring A'] {ψ : A' →ₙ+* A}
+  (r : Res ψ A ≃+ (O' ⟶ F.obj O))
+  (hr : ∀ (a : A) (x : Res ψ A), r (op a • x) = r x ≫ F.map (σ a).unop)
+  (M : Type u) [AddCommGroup M] [Module A M]
+
+/-- **Restriction as a module functor**: `Res_ψ M ≅ (O' ⟶ F O) ⊗_{End O} M`, with `M` a right
+`End O`-module along `σ`. -/
+def resTensorEquiv :
+    letI := transferModule σ M
+    Res ψ M ≃ₗ[ℤ] BalancedTensor ℤ (End O')ᵐᵒᵖ (End O)ᵐᵒᵖ (O' ⟶ F.obj O) M :=
+  letI := transferModule σ M
+  (resTensor ψ M).toAddEquiv.toIntLinearEquiv.trans
+    (BalancedTensor.changeRingEquiv σ r.toIntLinearEquiv (LinearEquiv.refl ℤ M) hr
+      (fun a n => (transferModule_smul a n).symm))
+
+theorem resTensorEquiv_apply (m : Res ψ M) :
+    letI := transferModule σ M
+    resTensorEquiv r hr M m = BalancedTensor.tmul (r (resUnit ψ)) m.val :=
+  rfl
+
+theorem resTensorEquiv_eq (m : Res ψ M) :
+    letI := transferModule σ M
+    resTensorEquiv r hr M m = BalancedTensor.changeRingEquiv σ r.toIntLinearEquiv
+      (LinearEquiv.refl ℤ M) hr (fun a n => (transferModule_smul a n).symm) (resTensor ψ M m) :=
+  rfl
+
+/-- The identification of `resTensorEquiv` is semilinear along `τ : A' ≃+* (End O')ᵐᵒᵖ`. -/
+theorem resTensorEquiv_smul (τ : A' ≃+* (End O')ᵐᵒᵖ)
+    (hτ : ∀ (a : A') (x : Res ψ A), r (a • x) = (τ a).unop ≫ r x) (a : A') (m : Res ψ M) :
+    letI := transferModule σ M
+    resTensorEquiv r hr M (a • m) = τ a • resTensorEquiv r hr M m := by
+  let _ := transferModule σ M
+  rw [resTensorEquiv_eq, resTensorEquiv_eq, (resTensor ψ M).map_smul]
+  exact BalancedTensor.changeRingEquiv_smul σ _ _ hr _ τ hτ a _
+
+end Res
 
 end
 

@@ -244,4 +244,104 @@ theorem lastIndRightQuot_algebraMap_smul (c : k) (y : Fr) :
   rw [Algebra.algebraMap_eq_smul_one, map_smul,
     map_smul, LinearMap.smul_apply, ← h1]
 
+local notation "Aₗ'" => Multiset.map (Sum.map (id : I → I) (fun _ : Fin 1 => Fin.last ℓ))
+  (stendhalWeight 1 ((Si i) + β))
+local notation "PI'" => ParabolicInput Q Λ θ ((Si i) + β) Fr
+local notation "H′" => parabolicInputWeights_add (ℓ := ℓ) θ ((Si i) + β)
+
+/-- Diagrams on the parabolic weight of `θ + (i + β)` acting on `F_i(S N) / O`. -/
+def lastIndKLRAction :
+    KLRAlgebra k S (Aₚ + Aₗ') →ₐ[k] Module.End k (LastIndQuot Q Λ i θ β N hQ) :=
+  (lastIndQuotAction Q Λ i θ β N hQ).comp ((TensorProductAlgebra.mk Q Λ (θ + ((Si i) + β))).comp
+    ((orderProjection Q Λ (θ + ((Si i) + β))).comp
+      ((StendhalAlgebraAllOrders.ofKLR k Q Λ (θ + ((Si i) + β))).comp (castKLR S H′).toAlgHom)))
+
+local notation "κ" => lastIndKLRAction Q Λ i θ β N hQ
+
+theorem lastIndKLRAction_apply (a : KLRAlgebra k S (Aₚ + Aₗ')) :
+    κ a = lastIndQuotAction Q Λ i θ β N hQ (parabolicAffine Q Λ θ ((Si i) + β) a) := rfl
+
+/-- Juxtaposition acts on `F_i(S N) / O` through the layer action of the factor algebra. -/
+theorem lastIndKLRAction_concat (t : TensorKLR S Aₚ Aₗ') :
+    κ (concat S Aₚ Aₗ' t) = ρM (ψL′ (parabolicInputMap Q Λ θ ((Si i) + β) t)) := by
+  rw [show ψL′ (parabolicInputMap Q Λ θ ((Si i) + β) t) = _ from
+    (suffixConcat_eq_lastRedLayerAction Q Λ p′ _ _ H′ t).symm]
+  rfl
+
+omit [Module k N] [IsScalarTower k (parabolicFactorAlgebra Q Λ θ β) N] in
+theorem orderProjection_ofKLR_eSum_redOrderedSet (ν : Multiset I) :
+    orderProjection Q Λ ν (StendhalAlgebraAllOrders.ofKLR k Q Λ ν
+      (eSum S (redOrderedSet (stendhalWeight (ℓ+1) ν)))) = 1 := by
+  have h : StendhalAlgebraAllOrders.ofKLR k Q Λ ν (eSum S (redOrderedSet (stendhalWeight (ℓ+1) ν)))
+      = StendhalAlgebraAllOrders.redOrderedIdem k Q Λ ν := by
+    rw [eSum, map_sum]
+    rfl
+  rw [h]
+  exact Subtype.ext (StendhalAlgebraAllOrders.isIdempotentElem_redOrderedIdem).eq
+
+/-- The red-ordered idempotent acts as the identity on `F_i(S N) / O`. -/
+theorem lastIndKLRAction_eSum :
+    κ (eSum S (parabolicOrderedLoadings (ℓ := ℓ) θ ((Si i) + β))) = 1 := by
+  rw [lastIndKLRAction_apply, parabolicOrderedLoadings_eq_redOrderedSet, parabolicAffine,
+    castKLR_eSum_redOrderedSet, orderProjection_ofKLR_eSum_redOrderedSet, map_one, map_one]
+
+/-- `lastIndRightQuot` as a `k`-linear map on the input module. -/
+def lastIndRightQuotK : PI' →ₗ[k] LastIndQuot Q Λ i θ β N hQ where
+  toFun y := lastIndRightQuot Q Λ i θ β N hQ y
+  map_add' y y' := map_add (lastIndRightQuot Q Λ i θ β N hQ) y y'
+  map_smul' c y := lastIndRightQuot_algebraMap_smul Q Λ i θ β N hQ c y
+
+local notation "Ψ" => lastIndRightQuotK Q Λ i θ β N hQ
+
+theorem lastIndRightQuotK_smul (t : TensorKLR S Aₚ Aₗ') (y : PI') :
+    Ψ (t • y) = κ (concat S Aₚ Aₗ' t) (Ψ y) := by
+  rw [lastIndKLRAction_concat]
+  exact lastIndRightQuot_smul Q Λ i θ β N hQ (parabolicInputMap Q Λ θ ((Si i) + β) t) y
+
+/-- The bilinear map `(r, y) ↦ κ(r) Ψ(y)`. -/
+def lastIndInvBil :
+    IndBimod S Aₚ Aₗ' →ₗ[k] PI' →ₗ[k] LastIndQuot Q Λ i θ β N hQ :=
+  LinearMap.mk₂ k (fun r y => κ r.1 (Ψ y))
+    (fun r r' y => by rw [Submodule.coe_add, map_add, LinearMap.add_apply])
+    (fun c r y => by
+      change κ (c • r.1) (Ψ y) = _
+      rw [map_smul, LinearMap.smul_apply])
+    (fun r y y' => by rw [map_add, map_add])
+    (fun c r y => by rw [map_smul, map_smul])
+
+/-- **The map `S(₂F_i N)`-shuffle module `→ F_i(S N) / O`**, `r ⊗ y ↦ κ(r) Ψ(y)`. -/
+def lastIndInvShuffle :
+    ParabolicShuffle Q Λ θ ((Si i) + β) Fr →ₗ[k] LastIndQuot Q Λ i θ β N hQ :=
+  BalancedTensor.lift (lastIndInvBil Q Λ i θ β N hQ) (fun r a y => by
+    change κ (r.1 * concat S Aₚ Aₗ' a) (Ψ y) = κ r.1 (Ψ (a • y))
+    rw [map_mul, Module.End.mul_apply, lastIndRightQuotK_smul])
+
+theorem lastIndInvShuffle_tmul (r : IndBimod S Aₚ Aₗ') (y : PI') :
+    lastIndInvShuffle Q Λ i θ β N hQ (BalancedTensor.tmul r y) = κ r.1 (Ψ y) := rfl
+
+theorem lastIndInvShuffle_smul (b : KLRAlgebra k S (Aₚ + Aₗ'))
+    (x : ParabolicShuffle Q Λ θ ((Si i) + β) Fr) :
+    lastIndInvShuffle Q Λ i θ β N hQ (b • x) = κ b (lastIndInvShuffle Q Λ i θ β N hQ x) := by
+  induction x using BalancedTensor.induction_on with
+  | zero => rw [smul_zero, map_zero, map_zero]
+  | tmul r y =>
+    rw [BalancedTensor.smul_tmul', lastIndInvShuffle_tmul, lastIndInvShuffle_tmul]
+    change κ (b * r.1) _ = _
+    rw [map_mul, Module.End.mul_apply]
+  | add x y hx hy => rw [smul_add, map_add, map_add, hx, hy, map_add]
+
+/-- **The inverse map `S(₂F_i N) → F_i(S N) / O`.** -/
+def lastIndInv : LastIndStandardT Q Λ i θ β N hQ →ₗ[k] LastIndQuot Q Λ i θ β N hQ :=
+  (excludedSpace (parabolicShuffleAction Q Λ θ ((Si i) + β) Fr)
+    (parabolicOrderedLoadings (ℓ := ℓ) θ ((Si i) + β))).liftQ
+    (lastIndInvShuffle Q Λ i θ β N hQ) (fun x hx => by
+      rw [LinearMap.mem_ker]
+      have hx' : eSum S (parabolicOrderedLoadings (ℓ := ℓ) θ ((Si i) + β)) • x = 0 := hx
+      rw [← Module.End.one_apply (R := k) (lastIndInvShuffle Q Λ i θ β N hQ x),
+        ← lastIndKLRAction_eSum, ← lastIndInvShuffle_smul, hx', map_zero])
+
+theorem lastIndInv_mk (x : ParabolicShuffle Q Λ θ ((Si i) + β) Fr) :
+    lastIndInv Q Λ i θ β N hQ (lastIndMk Q Λ i θ β N hQ x) =
+      lastIndInvShuffle Q Λ i θ β N hQ x := rfl
+
 end Categorification.Stendhal

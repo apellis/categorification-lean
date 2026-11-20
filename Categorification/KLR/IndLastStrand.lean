@@ -275,23 +275,32 @@ variable {N : Type*} [AddCommGroup N] [Module k N]
   [Module (TensorKLR Q ν (ν₀' + ({i} : Multiset I))) N]
   [IsScalarTower k (TensorKLR Q ν (ν₀' + ({i} : Multiset I))) N]
 
-/-- **`Φ` on the shuffle basis**: `Φ(ŵ_v^* ⊗ n) = ŵ_{v ⊕ 1}^* ⊗ n`. -/
-theorem indAppend_tmul_hatWRevSub (v : Shuffle (Seq.card_add' ν ν₀'))
+variable (σ : Shuffle (Seq.card_add' ν (ν₀' + ({i} : Multiset I))) → List ℕ)
+  (hσ : ∀ u, IsReduced (Multiset.card (ν + (ν₀' + ({i} : Multiset I)))) (σ u) ∧
+    wordProd (Multiset.card (ν + (ν₀' + ({i} : Multiset I)))) (σ u) = u.1)
+  (hext : ∀ v : Shuffle (Seq.card_add' ν ν₀'), σ (extShuffle
+    (Seq.card_add' ν (ν₀' + ({i} : Multiset I))) (card_add_singleton_eq (i := i))
+    (Seq.card_add' ν ν₀') v) = canWord _ v.1)
+
+include hext in
+/-- **`Φ` on the shuffle basis**: `Φ(ŵ_v^* ⊗ n) = ŵ_{v ⊕ 1}^* ⊗ n`, for any choice of words `σ`
+that uses the canonical word of `v` at `v ⊕ 1`. -/
+theorem indAppend_tmul_hatWRevSubOf (v : Shuffle (Seq.card_add' ν ν₀'))
     (n : ResRight Q ν ν₀' i N) :
     indAppend (BalancedTensor.tmul (hatWRevSub (k := k) (Q := Q) v) n) =
-      BalancedTensor.tmul (hatWRevSubOf (k := k) (Q := Q) lastWord (extShuffle
+      BalancedTensor.tmul (hatWRevSubOf (k := k) (Q := Q) σ (extShuffle
         (Seq.card_add' ν (ν₀' + ({i} : Multiset I))) (card_add_singleton_eq (i := i))
         (Seq.card_add' ν ν₀') v)) n.val := by
   rw [indAppend_tmul]
   have hα : ValidWord (Multiset.card (ν + ν₀')) (shufWord v).reverse :=
     validWord_reverse.2 (validWord_canWord _ _)
   have key : indAppendBimod (i := i) (hatWRevSub (k := k) (Q := Q) v) =
-      op (tensorAppendR Q ν ν₀' i 1) • hatWRevSubOf lastWord (extShuffle
+      op (tensorAppendR Q ν ν₀' i 1) • hatWRevSubOf σ (extShuffle
         (Seq.card_add' ν (ν₀' + ({i} : Multiset I))) (card_add_singleton_eq (i := i))
         (Seq.card_add' ν ν₀') v) := by
     apply Subtype.ext
     rw [coe_indAppendBimod, coe_op_smul, unop_op, coe_hatWRevSub, hatWRev_eq,
-      coe_hatWRevSubOf, hatWRevOf, lastWord_extShuffle, mul_assoc, oneConcat_mul_concat,
+      coe_hatWRevSubOf, hatWRevOf, hext, mul_assoc, oneConcat_mul_concat,
       ← concat_one, map_mul, map_mul, castKLR_appendR_concat, appendR_ψw hα, map_mul,
       castKLR_ψw', mul_assoc, ← castKLR_appendR_concat, ← appendR_one, ← map_mul, ← map_mul,
       one_mul]
@@ -299,39 +308,51 @@ theorem indAppend_tmul_hatWRevSub (v : Shuffle (Seq.card_add' ν ν₀'))
   rw [key, BalancedTensor.op_smul_tmul]
   exact congrArg _ n.prop
 
+/-- **`Φ` on the shuffle basis** for the words `lastWord`. -/
+theorem indAppend_tmul_hatWRevSub (v : Shuffle (Seq.card_add' ν ν₀'))
+    (n : ResRight Q ν ν₀' i N) :
+    indAppend (BalancedTensor.tmul (hatWRevSub (k := k) (Q := Q) v) n) =
+      BalancedTensor.tmul (hatWRevSubOf (k := k) (Q := Q) lastWord (extShuffle
+        (Seq.card_add' ν (ν₀' + ({i} : Multiset I))) (card_add_singleton_eq (i := i))
+        (Seq.card_add' ν ν₀') v)) n.val :=
+  indAppend_tmul_hatWRevSubOf lastWord lastWord_extShuffle v n
+
 variable (hsym : KLRSymm Q)
 
+include hext in
 /-- **`Φ` in shuffle coordinates**: the coordinates of `Φ x` are those of `x`, placed at the
 shuffles `v ⊕ 1`. -/
 theorem indDecompOf_indAppend (x : Ind Q ν ν₀' (ResRight Q ν ν₀' i N)) :
-    indDecompOf lastWord hsym lastWord_spec N (indAppend x) =
+    indDecompOf σ hsym hσ N (indAppend x) =
       ∑ v, Pi.single (extShuffle (Seq.card_add' ν (ν₀' + ({i} : Multiset I)))
         (card_add_singleton_eq (i := i)) (Seq.card_add' ν ν₀') v)
           (indDecomp hsym (ResRight Q ν ν₀' i N) x v).val := by
   conv_lhs => rw [← (indDecomp hsym (ResRight Q ν ν₀' i N)).symm_apply_apply x]
   rw [indDecomp_symm_apply, map_sum, map_sum]
-  simp only [indAppend_tmul_hatWRevSub, indDecompOf_tmul_hatWRevSubOf]
+  simp only [indAppend_tmul_hatWRevSubOf σ hext, indDecompOf_tmul_hatWRevSubOf]
 
+include hext in
 /-- The coordinate of `Φ x` at a shuffle `v ⊕ 1` fixing the last strand. -/
 theorem indDecompOf_indAppend_ext (x : Ind Q ν ν₀' (ResRight Q ν ν₀' i N))
     (v : Shuffle (Seq.card_add' ν ν₀')) :
-    indDecompOf lastWord hsym lastWord_spec N (indAppend x)
+    indDecompOf σ hsym hσ N (indAppend x)
         (extShuffle (Seq.card_add' ν (ν₀' + ({i} : Multiset I)))
           (card_add_singleton_eq (i := i)) (Seq.card_add' ν ν₀') v) =
       (indDecomp hsym (ResRight Q ν ν₀' i N) x v).val := by
-  rw [indDecompOf_indAppend, Finset.sum_apply, Finset.sum_eq_single v]
+  rw [indDecompOf_indAppend σ hσ hext, Finset.sum_apply, Finset.sum_eq_single v]
   · exact Pi.single_eq_same _ _
   · intro v' _ hv'
     exact Pi.single_eq_of_ne (fun he => hv' (extShuffle_injective _ _ _ he).symm) _
   · intro hv; exact absurd (Finset.mem_univ v) hv
 
+include hext in
 /-- The coordinates of `Φ x` vanish at the shuffles moving the last strand. -/
 theorem indDecompOf_indAppend_top (x : Ind Q ν ν₀' (ResRight Q ν ν₀' i N))
     (u : Shuffle (Seq.card_add' ν (ν₀' + ({i} : Multiset I))))
     (hu : u.1 (lastPos (card_add_singleton_eq (i := i))) ≠
       lastPos (card_add_singleton_eq (i := i))) :
-    indDecompOf lastWord hsym lastWord_spec N (indAppend x) u = 0 := by
-  rw [indDecompOf_indAppend, Finset.sum_apply]
+    indDecompOf σ hsym hσ N (indAppend x) u = 0 := by
+  rw [indDecompOf_indAppend σ hσ hext, Finset.sum_apply]
   refine Finset.sum_eq_zero fun v _ => Pi.single_eq_of_ne (fun he => hu ?_) _
   rw [he, extShuffle_val]
   exact extPerm_last _ v.1
@@ -344,7 +365,8 @@ theorem indAppend_injective :
   apply (indDecomp hsym (ResRight Q ν ν₀' i N)).injective
   funext v
   apply InductionAlong.Res.ext
-  rw [← indDecompOf_indAppend_ext hsym, ← indDecompOf_indAppend_ext hsym, hxy]
+  rw [← indDecompOf_indAppend_ext lastWord lastWord_spec lastWord_extShuffle hsym,
+    ← indDecompOf_indAppend_ext lastWord lastWord_spec lastWord_extShuffle hsym, hxy]
 
 end Coordinates
 

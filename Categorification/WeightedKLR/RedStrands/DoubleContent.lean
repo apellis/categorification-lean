@@ -43,6 +43,14 @@ theorem DoubleBoundary.signedContent_eq_wordContent (b : DoubleBoundary I ℓ) :
 @[simp] theorem wordContent_red (r : Fin ℓ) : wordContent [(Sum.inr r : DoubleStrand I ℓ)] = 0 := by
   simp [wordContent, DoubleStrand.multiplicity]
 
+@[simp] theorem wordContent_up (i : I) :
+    wordContent [(Sum.inl (true, i) : DoubleStrand I ℓ)] = -Finsupp.single i 1 := by
+  simp [wordContent, DoubleStrand.multiplicity]
+
+@[simp] theorem wordContent_down (i : I) :
+    wordContent [(Sum.inl (false, i) : DoubleStrand I ℓ)] = Finsupp.single i 1 := by
+  simp [wordContent, DoubleStrand.multiplicity]
+
 @[simp] theorem wordContent_append (v w : List (DoubleStrand I ℓ)) :
     wordContent (v ++ w) = wordContent v + wordContent w := by
   simp [wordContent]

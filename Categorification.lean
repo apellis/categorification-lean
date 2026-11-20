@@ -11,6 +11,7 @@ import Categorification.Algebra.DividedDifference
 import Categorification.Algebra.ExternalTensor
 import Categorification.Algebra.Generation
 import Categorification.Algebra.HomTensorInd
+import Categorification.Algebra.HomTensorIndModule
 import Categorification.Algebra.Graded.Dimension
 import Categorification.Algebra.Graded.Duality
 import Categorification.Algebra.Graded.G0
@@ -47,6 +48,7 @@ import Categorification.Algebra.HomTensorNat
 import Categorification.Algebra.InductionAlong
 import Categorification.Algebra.InductionAlongAssoc
 import Categorification.Algebra.InductionAlongBimodule
+import Categorification.Algebra.InductionAlongResTensor
 import Categorification.Algebra.InductionAlongEnd
 import Categorification.Algebra.InductionAlongLinear
 import Categorification.Algebra.InductionAlongRes
@@ -215,6 +217,8 @@ import Categorification.Diagrams.KLR.KL1
 import Categorification.Diagrams.KLR.MatEnd
 import Categorification.Diagrams.KLR.MatEndCorner
 import Categorification.Diagrams.KLR.MatEndCornerRes
+import Categorification.Diagrams.KLR.MatEndModuleComp
+import Categorification.Diagrams.KLR.MatEndModuleFunctor
 import Categorification.Diagrams.KLR.MatEndMap
 import Categorification.Diagrams.KLR.MatEndTrace
 import Categorification.Diagrams.KLR.Soundness
@@ -1291,6 +1295,7 @@ import Categorification.WeightedKLR.RedStrands.DoubleBlackAction
 import Categorification.WeightedKLR.RedStrands.DoubleBlackActionAdditive
 import Categorification.WeightedKLR.RedStrands.BlackCommutation
 import Categorification.WeightedKLR.RedStrands.BlackModuleCommutation
+import Categorification.WeightedKLR.RedStrands.BlackModuleTensor
 import Categorification.WeightedKLR.RedStrands.DoubleBlackActionComp
 import Categorification.WeightedKLR.RedStrands.DoubleBlackActionHorizontal
 import Categorification.WeightedKLR.RedStrands.DoubleBlackActionWhisker

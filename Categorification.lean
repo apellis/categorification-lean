@@ -1157,6 +1157,7 @@ import Categorification.WeightedKLR.RedStrands.TensorCoproductWords
 import Categorification.WeightedKLR.RedStrands.ParabolicShuffleLayer
 import Categorification.WeightedKLR.RedStrands.StandardizationTensorCharacter
 import Categorification.WeightedKLR.RedStrands.BlackInduction
+import Categorification.WeightedKLR.RedStrands.BlackModuleFunctors
 import Categorification.WeightedKLR.RedStrands.BlackFrobenius
 import Categorification.WeightedKLR.RedStrands.BlackMixedCorner
 import Categorification.WeightedKLR.RedStrands.TensorWordBlackLower

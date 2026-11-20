@@ -128,7 +128,7 @@ theorem lastIdem_smul_indAppend
   exact h.symm
 
 /-- **The image of `Ψ` lies in the image of `E(Ind_{ν,ν'} N)`.** -/
-theorem exists_lastIdem_smul_indLast_eq (x : Ind Q ν₀ (ν₀' + Si i) (ResLeft Q ν₀ ν₀' i N)) :
+theorem exists_lastIdem_smul_indLast_eq (x : Ind Q ν₀ (ν₀' + Si i) (ResAppendL Q ν₀ ν₀' i N)) :
     ∃ y : Ind Q (ν₀ + Si i) (ν₀' + Si i) N,
       lastIdem Q ν₀ ν₀' i • y = y ∧ indLast x = Submodule.Quotient.mk y := by
   induction x using BalancedTensor.induction_on with
@@ -243,7 +243,7 @@ include hsym in
 /-- **`Ψ` is onto `E(Ind_{ν,ν'} N)` modulo the image of `Φ`.** -/
 theorem exists_indLast_eq {y : Ind Q (ν₀ + Si i) (ν₀' + Si i) N}
     (hy : lastIdem Q ν₀ ν₀' i • y = y) :
-    ∃ x : Ind Q ν₀ (ν₀' + Si i) (ResLeft Q ν₀ ν₀' i N),
+    ∃ x : Ind Q ν₀ (ν₀' + Si i) (ResAppendL Q ν₀ ν₀' i N),
       indLast x = Submodule.Quotient.mk y := by
   have hyg : y = (lastDecomp hsym).symm (lastDecomp hsym y) :=
     ((lastDecomp hsym).symm_apply_apply y).symm
@@ -283,8 +283,8 @@ include hsym in
 theorem indLast_injective :
     Function.Injective (indLast (Q := Q) (ν₀ := ν₀) (ν₀' := ν₀') (i := i) (N := N)) := by
   refine (injective_iff_map_eq_zero _).2 fun x hx => ?_
-  set g := indDecomp hsym (ResLeft Q ν₀ ν₀' i N) x with hg
-  have hxg : x = (indDecomp hsym (ResLeft Q ν₀ ν₀' i N)).symm g :=
+  set g := indDecomp hsym (ResAppendL Q ν₀ ν₀' i N) x with hg
+  have hxg : x = (indDecomp hsym (ResAppendL Q ν₀ ν₀' i N)).symm g :=
     ((indDecomp hsym _).symm_apply_apply x).symm
   rw [indDecomp_symm_apply] at hxg
   rw [hxg, map_sum] at hx

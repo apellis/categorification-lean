@@ -202,7 +202,7 @@ variable {N : Type*} [AddCommGroup N] [Module k N]
 
 /-- **`Ψ` on the shuffle basis**: `Ψ(ŵ_v^* ⊗ n) = [ŵ_{d⁻¹(v ⊕ 1)}^* ⊗ n]`. -/
 theorem indLast_tmul_hatWRevSub (v₀ : Shuffle (Seq.card_add' ν₀ (ν₀' + Si i)))
-    (n : ResLeft Q ν₀ ν₀' i N) :
+    (n : ResAppendL Q ν₀ ν₀' i N) :
     indLast (BalancedTensor.tmul (hatWRevSub (k := k) (Q := Q) v₀) n) =
       Submodule.Quotient.mk (BalancedTensor.tmul (hatWRevSubOf (lastStrandWord ν₀ ν₀' i)
         (lastShuffles ν₀ ν₀' i

@@ -68,6 +68,7 @@ import Categorification.Algebra.ParabolicSymmetricFree
 import Categorification.Algebra.PermExpansion
 import Categorification.Algebra.ProjK0
 import Categorification.Algebra.SplitK0
+import Categorification.Algebra.SumDecompLinear
 import Categorification.Algebra.SymmetricFree
 import Categorification.Algebra.UniqueSimpleQuotient
 import Categorification.Diagrams.BicatInterp
@@ -218,6 +219,7 @@ import Categorification.Diagrams.KLR.MatEnd
 import Categorification.Diagrams.KLR.MatEndCorner
 import Categorification.Diagrams.KLR.MatEndCornerRes
 import Categorification.Diagrams.KLR.MatEndModuleComp
+import Categorification.Diagrams.KLR.MatEndModuleDecomp
 import Categorification.Diagrams.KLR.MatEndModuleFunctor
 import Categorification.Diagrams.KLR.MatEndMap
 import Categorification.Diagrams.KLR.MatEndTrace
@@ -1295,6 +1297,7 @@ import Categorification.WeightedKLR.RedStrands.DoubleBlackAction
 import Categorification.WeightedKLR.RedStrands.DoubleBlackActionAdditive
 import Categorification.WeightedKLR.RedStrands.BlackCommutation
 import Categorification.WeightedKLR.RedStrands.BlackModuleCommutation
+import Categorification.WeightedKLR.RedStrands.BlackModuleSumDecomp
 import Categorification.WeightedKLR.RedStrands.BlackModuleTensor
 import Categorification.WeightedKLR.RedStrands.DoubleBlackActionComp
 import Categorification.WeightedKLR.RedStrands.DoubleBlackActionHorizontal

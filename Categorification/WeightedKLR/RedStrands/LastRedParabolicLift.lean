@@ -83,6 +83,31 @@ private theorem orderProjection_val {m : ℕ} {wts : Fin m → I →₀ ℕ} {θ
     (z : StendhalAlgebra k Q wts θ') : orderProjection Q wts θ' z.val = z :=
   Subtype.ext (KLR.Corner.val_mul_E z)
 
+/-- Appending the terminal red strand commutes with cutting by the red-ordered
+idempotents. -/
+theorem appendRedAllOrders_orderProjection (w : StendhalAlgebraAllOrders k Q (old) θ) :
+    orderProjection Q Λ θ (appendRedAllOrders Q Λ θ w).val =
+      appendRedStendhalValue Q Λ θ (orderProjection Q (old) θ w) := by
+  classical
+  apply Subtype.ext
+  rw [appendRedStendhalValue_val]
+  change (appendRedAllOrders Q Λ θ w).val * StendhalAlgebraAllOrders.redOrderedIdem k Q Λ θ =
+    (appendRedAllOrders Q Λ θ (w * StendhalAlgebraAllOrders.redOrderedIdem k Q (old) θ)).val
+  have hE : (appendRedAllOrders Q Λ θ
+      (StendhalAlgebraAllOrders.redOrderedIdem k Q (old) θ)).val =
+      (appendRedAllOrders Q Λ θ 1).val * StendhalAlgebraAllOrders.redOrderedIdem k Q Λ θ := by
+    have h1 : (1 : StendhalAlgebraAllOrders k Q (old) θ) = ∑ s : Seq μ,
+        StendhalAlgebraAllOrders.e s := by
+      rw [← map_one (StendhalAlgebraAllOrders.ofKLR k Q (old) θ), ← sum_e, map_sum]
+      rfl
+    rw [h1, StendhalAlgebraAllOrders.redOrderedIdem, map_sum, map_sum, KLR.Corner.val_sum,
+      KLR.Corner.val_sum, Finset.sum_mul, Finset.sum_filter]
+    refine Finset.sum_congr rfl fun s _ => ?_
+    rw [appendRedAllOrders_e, StendhalAlgebraAllOrders.e_mul_redOrderedIdem]
+    exact if_congr (appendRedLoading_ordered_iff s).symm rfl rfl
+  rw [map_mul, KLR.Corner.val_mul, hE, ← mul_assoc, map_one, KLR.Corner.val_one,
+    KLR.Corner.val_mul_E]
+
 private theorem exists_prefixLift (x : L) : ∃ u : KLRAlgebra k S Aₚ,
     P₁ u = x ∧ γ (rawFirst u) = (appendRed Q Λ θ x).val := by
   obtain ⟨z,rfl⟩ := (show Function.Surjective (TensorProductAlgebra.mk Q (old) θ) from RingCon.mkₐ_surjective _) x
@@ -95,6 +120,15 @@ private theorem exists_prefixLift (x : L) : ∃ u : KLRAlgebra k S Aₚ,
     rw [← append_all_raw Q Λ v,hv]
     change τ (orderProjection Q Λ θ (appendRedStendhalValue Q Λ θ z).val) = τ (appendRedStendhalValue Q Λ θ z)
     rw [orderProjection_val]
+
+private theorem prefixLift_eq (u : KLRAlgebra k S Aₚ) :
+    γ (rawFirst u) = (appendRed Q Λ θ (P₁ u)).val := by
+  obtain ⟨v,rfl⟩ := (relabelEquiv (relabelEarlier Q Λ θ)).surjective u
+  change τ (orderProjection Q Λ θ (π (rawFirst (relabelEquiv (relabelEarlier Q Λ θ) v)))) =
+    (appendRed Q Λ θ (TensorProductAlgebra.mk Q (old) θ (orderProjection Q (old) θ
+      (π₀ ((relabelEquiv (relabelEarlier Q Λ θ)).symm (relabelEquiv (relabelEarlier Q Λ θ) v)))))).val
+  rw [AlgEquiv.symm_apply_apply, ← append_all_raw Q Λ v, appendRedAllOrders_orderProjection]
+  rfl
 
 variable (p : Fin (stendhalWeight (ℓ+1) ν).card)
     (h : stendhalWeight (ℓ+1) θ + Multiset.map (Sum.inl : I → I ⊕ Fin (ℓ+1)) β = stendhalWeight (ℓ+1) ν)

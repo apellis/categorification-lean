@@ -323,7 +323,6 @@ import Categorification.KLR.Crystal.CrystalOps
 import Categorification.KLR.Crystal.Delta
 import Categorification.KLR.Crystal.GradedBridge
 import Categorification.KLR.Crystal.IndDecomp
-import Categorification.KLR.Crystal.IndExact
 import Categorification.KLR.Crystal.GradedIndShuffle
 import Categorification.KLR.Crystal.IndNilpotent
 import Categorification.KLR.Crystal.Kleshchev

@@ -365,6 +365,7 @@ import Categorification.KLR.Crystal.Thm317
 import Categorification.KLR.Crystal.Thm317Graded
 import Categorification.KLR.Crystal.Tops
 import Categorification.KLR.BaseChange
+import Categorification.KLR.ExtendScalars
 import Categorification.KLR.Cyclotomic
 import Categorification.KLR.CyclotomicMultFree
 import Categorification.KLR.CyclotomicFinite
@@ -470,6 +471,8 @@ import Categorification.KLR.CyclotomicAction.VacuumTrace
 import Categorification.KLR.CyclotomicAction.VacuumUpward
 import Categorification.KLR.CyclotomicAction.VacuumEval
 import Categorification.KLR.CyclotomicAction.VacuumEvalIdeal
+import Categorification.KLR.CyclotomicAction.VacuumFakeBubbles
+import Categorification.KLR.CyclotomicAction.VacuumFakeValues
 import Categorification.KLR.CyclotomicAction.VacuumBubbleEval
 import Categorification.KLR.CyclotomicAction.VacuumBubbleScaling
 import Categorification.KLR.CyclotomicAction.VacuumCoeffMul

@@ -235,7 +235,9 @@ def zeroMatrixEquiv : downwardMatrix P' (0 : Multiset I) ≃+ (redObj P' ⟶ red
 theorem zeroMatrixEquiv_symm_smul (c : k) (f : redObj P' ⟶ redObj P') :
     (zeroMatrixEquiv P').symm (c • f) = c • (zeroMatrixEquiv P').symm f := by
   refine KLR.Diagram.MatEnd.ext fun i j => ?_
-  change eqToHom _ ≫ (c • f) ≫ eqToHom _ = c • (eqToHom _ ≫ f ≫ eqToHom _)
+  rw [KLR.Diagram.MatEnd.smul_apply]
+  change eqToHom (downObj_zero P' i) ≫ (c • f) ≫ eqToHom (downObj_zero P' j).symm =
+    c • (eqToHom (downObj_zero P' i) ≫ f ≫ eqToHom (downObj_zero P' j).symm)
   rw [Linear.smul_comp, Linear.comp_smul]
 
 end Zero
@@ -286,23 +288,12 @@ theorem exists_summand_trace
   let x := wordHomOf (k := k) (RD := RD) (downRightWeight RD Λ 0) (downRightWeight RD Λ ν)
     (blackLetters b.val) (wt_blackLetters b hnv)
   let 𝔽 := blackActionPseudofunctor Q hQ
-  let _ : Preadditive (𝔽.obj ⟨wtObj RD k (downRightWeight RD Λ ν)⟩) :=
-    inferInstanceAs (Preadditive (ViolatingCategory Q (downRightWeight RD Λ ν)))
-  let _ : Preadditive (𝔽.obj ⟨wtObj RD k (downRightWeight RD Λ 0)⟩) :=
-    inferInstanceAs (Preadditive (ViolatingCategory Q (downRightWeight RD Λ 0)))
-  let _ : Linear k (𝔽.obj ⟨wtObj RD k (downRightWeight RD Λ ν)⟩) :=
-    inferInstanceAs (Linear k (ViolatingCategory Q (downRightWeight RD Λ ν)))
-  let _ : Linear k (𝔽.obj ⟨wtObj RD k (downRightWeight RD Λ 0)⟩) :=
-    inferInstanceAs (Linear k (ViolatingCategory Q (downRightWeight RD Λ 0)))
-  let adj₁ := Adjunction.ofCat (𝔽.mapAdjunction (RevBicat.adjunction (biadjWord RD k x).right))
-  let adj₂ := Adjunction.ofCat (𝔽.mapAdjunction (RevBicat.adjunction (biadjWord RD k x).left))
-  have : (𝔽.map (RevBicat.of
-      ((pres RD k).dualHom (inv RD).toColourDuality.pivotal x))).toFunctor.Additive :=
-    blackAct_additive Q _ (homWt _)
-  have : (𝔽.map (RevBicat.of
-      ((pres RD k).dualHom (inv RD).toColourDuality.pivotal x))).toFunctor.Linear k :=
-    blackAct_linear Q _ (homWt _)
-  have hF : (𝔽.map (RevBicat.of x)).toFunctor.obj (redObj Q) = downObj Q s := by
+  let y := (pres RD k).dualHom (inv RD).toColourDuality.pivotal x
+  let adj₁ : blackAct Q _ (homWt (RevBicat.of x)) ⊣ blackAct Q _ (homWt (RevBicat.of y)) :=
+    Adjunction.ofCat (𝔽.mapAdjunction (RevBicat.adjunction (biadjWord RD k x).right))
+  let adj₂ : blackAct Q _ (homWt (RevBicat.of y)) ⊣ blackAct Q _ (homWt (RevBicat.of x)) :=
+    Adjunction.ofCat (𝔽.mapAdjunction (RevBicat.adjunction (biadjWord RD k x).left))
+  have hF : (blackAct Q _ (homWt (RevBicat.of x))).obj (redObj Q) = downObj Q s := by
     refine (blackAct_obj_violatingFunctor Q _ (homWt (RevBicat.of x)) redTriple).trans ?_
     congr 1
     refine Subtype.ext (DoubleBoundary.ext ?_)
@@ -325,7 +316,6 @@ theorem exists_summand_trace
       DoubleBoundary.blackContent_ofDown j.val j.property
     rw [← DoubleBoundary.signedContent_eq_wordContent, DoubleBoundary.signedContent_of_allDown
       (downTriple RD Λ j).val (DoubleBoundary.allDown_ofDown j.val j.property), hcj]
-  let y := (pres RD k).dualHom (inv RD).toColourDuality.pivotal x
   refine exists_retract_redObj P t (appendRight (blackWord (homLetters (RevBicat.of y)))
     (blackWord_redFree _) ((endWeight_blackWord RD _ _ _).trans (homWt (RevBicat.of y)))
     (downTriple RD Λ j)) ?_
@@ -356,6 +346,8 @@ end DoubleDiagram
 section CL
 
 open DoubleDiagram TwoRep CyclotomicAction KLR.KLRAlgebra
+
+attribute [local instance 1100] IsIdempotentElem.instAlgebraCorner_categorification
 
 variable {I : Type u} {C : CartanDatum I} {k : Type v} [Field k]
   {Q : I → I → MvPolynomial (Fin 2) k} {hQ : IsRouquierQ C Q}

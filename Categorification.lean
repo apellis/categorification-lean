@@ -224,6 +224,7 @@ import Categorification.Diagrams.KLR.MatEnd
 import Categorification.Diagrams.KLR.MatEndCorner
 import Categorification.Diagrams.KLR.MatEndCornerRes
 import Categorification.Diagrams.KLR.MatEndModuleComp
+import Categorification.Diagrams.KLR.MatEndModuleCross
 import Categorification.Diagrams.KLR.MatEndModuleDecomp
 import Categorification.Diagrams.KLR.MatEndModuleFunctor
 import Categorification.Diagrams.KLR.MatEndMap
@@ -1342,6 +1343,7 @@ import Categorification.WeightedKLR.RedStrands.BlackCommutation
 import Categorification.WeightedKLR.RedStrands.BlackModuleCommutation
 import Categorification.WeightedKLR.RedStrands.BlackModuleSumDecomp
 import Categorification.WeightedKLR.RedStrands.BlackModuleEFTransport
+import Categorification.WeightedKLR.RedStrands.BlackModuleCross
 import Categorification.WeightedKLR.RedStrands.BlackModuleTensor
 import Categorification.WeightedKLR.RedStrands.DoubleBlackActionComp
 import Categorification.WeightedKLR.RedStrands.DoubleBlackActionHorizontal

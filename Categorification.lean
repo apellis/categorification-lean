@@ -48,6 +48,7 @@ import Categorification.Algebra.HomTensor
 import Categorification.Algebra.HomTensorComp
 import Categorification.Algebra.HomTensorDecomp
 import Categorification.Algebra.HomTensorNat
+import Categorification.Algebra.HomTensorNaturality
 import Categorification.Algebra.InductionAlong
 import Categorification.Algebra.InductionAlongExact
 import Categorification.Algebra.InductionAlongAssoc
@@ -76,6 +77,7 @@ import Categorification.Algebra.ProjK0
 import Categorification.Algebra.RightActionImage
 import Categorification.Algebra.SplitK0
 import Categorification.Algebra.SumDecompLinear
+import Categorification.Algebra.SumDecompNaturality
 import Categorification.Algebra.SymmetricFree
 import Categorification.Algebra.UniqueSimpleQuotient
 import Categorification.Diagrams.BicatInterp
@@ -228,7 +230,9 @@ import Categorification.Diagrams.KLR.MatEndCornerRes
 import Categorification.Diagrams.KLR.MatEndModuleComp
 import Categorification.Diagrams.KLR.MatEndModuleCross
 import Categorification.Diagrams.KLR.MatEndModuleDecomp
+import Categorification.Diagrams.KLR.MatEndModuleDecompNaturality
 import Categorification.Diagrams.KLR.MatEndModuleFunctor
+import Categorification.Diagrams.KLR.MatEndModuleNaturality
 import Categorification.Diagrams.KLR.MatEndMap
 import Categorification.Diagrams.KLR.MatEndTrace
 import Categorification.Diagrams.KLR.Soundness

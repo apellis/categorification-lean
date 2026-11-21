@@ -5,6 +5,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 import Mathlib.CategoryTheory.Adjunction.Basic
 import Mathlib.CategoryTheory.Limits.Preserves.Shapes.Zero
 import Mathlib.CategoryTheory.Preadditive.AdditiveFunctor
+import Mathlib.CategoryTheory.Linear.LinearFunctor
 
 /-!
 # Traces from ambidextrous adjunctions
@@ -18,7 +19,8 @@ endomorphism ring is the ground field, and the trace closes a diagram on the rig
 The trace of a composite is a composite of the two adjunction transposes
 (`closeTrace_comp`). If every object `G Y` is a retract of a finite family of copies of `P`,
 the pairing `(a, b) ↦ closeTrace (a ≫ b)` kills no nonzero morphism on either side
-(`exists_closeTrace_comp_ne_zero_left`, `exists_closeTrace_comp_ne_zero_right`). Webster
+(`exists_closeTrace_comp_ne_zero_left`, `exists_closeTrace_comp_ne_zero_right`). The trace is
+linear over any ring over which `G` is linear (`closeTraceIso_smul`). Webster
 derives Theorem 3.18 in the same way, from biadjointness of `E` and `F`.
 -/
 
@@ -122,6 +124,13 @@ def closeTraceIso [G.Additive] (P : C) {X : D} (e : F.obj P ≅ X) : (X ⟶ X) �
   toFun a := closeTrace adj₁ adj₂ P (e.hom ≫ a ≫ e.inv)
   map_zero' := by simp [closeTrace]
   map_add' a b := by simp [closeTrace, Preadditive.add_comp, Preadditive.comp_add]
+
+/-- The closing trace is linear over every ring `R` over which `G` is linear. -/
+theorem closeTraceIso_smul {R : Type*} [Semiring R] [Linear R C] [Linear R D] [G.Additive]
+    [G.Linear R] (P : C) {X : D} (e : F.obj P ≅ X) (c : R) (a : X ⟶ X) :
+    closeTraceIso adj₁ adj₂ P e (c • a) = c • closeTraceIso adj₁ adj₂ P e a := by
+  simp only [closeTraceIso, closeTrace, AddMonoidHom.coe_mk, ZeroHom.coe_mk, Linear.smul_comp,
+    Linear.comp_smul, Functor.map_smul]
 
 /-- **Frobenius property from an ambidextrous adjunction** (Webster, arXiv:1309.3796v3, proof
 of Theorem 3.18). If `F ⊣ G ⊣ F`, `X ≅ F P` and the identity of `G Y` factors through finitely

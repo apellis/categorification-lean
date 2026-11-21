@@ -4,6 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 -/
 import Categorification.WeightedKLR.RedStrands.CyclotomicBlackAction
 import Categorification.WeightedKLR.RedStrands.DoubleProjective
+import Categorification.WeightedKLR.RedStrands.DoubleDownBlackMatrix
 import Categorification.Diagrams.KLR.MatEndTrace
 import Categorification.KLR.CyclotomicAbsentColour
 import Mathlib.CategoryTheory.Bicategory.Adjunction.Cat
@@ -21,12 +22,11 @@ form the ground field.
 * `DoubleBoundary.word_eq_of_blackContent_eq_zero`, `DoubleBoundary.word_eq_of_not_isViolated`:
   the words of one red strand used in the proof.
 * `downwardMatrix_trace_nondegenerate`: the diagonal closing trace on the all-down matrix ring
-  is nondegenerate on both sides, for every presentation of the form used in Theorem 4.29.
+  is `k`-linear and nondegenerate on both sides, for every presentation of the form used in
+  Theorem 4.29.
 * `clCyclotomic_trace_nondegenerate`: Theorem 3.18 at the standard Khovanov–Lauda parameters
-  over a field.
-
-The trace constructed here is additive. Webster's trace is `k`-linear; linearity is not
-part of the statement here.
+  over a field: a `k`-linear trace `R^λ_ν → k` whose pairing is nondegenerate, that is, a
+  linear map killing no nonzero left (or right) ideal.
 -/
 
 noncomputable section
@@ -232,6 +232,12 @@ def zeroMatrixEquiv : downwardMatrix P' (0 : Multiset I) ≃+ (redObj P' ⟶ red
     map_add' := fun M N => by
       simp [Preadditive.add_comp, Preadditive.comp_add] }
 
+theorem zeroMatrixEquiv_symm_smul (c : k) (f : redObj P' ⟶ redObj P') :
+    (zeroMatrixEquiv P').symm (c • f) = c • (zeroMatrixEquiv P').symm f := by
+  refine KLR.Diagram.MatEnd.ext fun i j => ?_
+  change eqToHom _ ≫ (c • f) ≫ eqToHom _ = c • (eqToHom _ ≫ f ≫ eqToHom _)
+  rw [Linear.smul_comp, Linear.comp_smul]
+
 end Zero
 
 /-- Every boundary of signed content zero is a retract of finitely many copies of the red
@@ -269,9 +275,11 @@ theorem exists_summand_trace
       (Q).lin (blackMirrorLinear RD (Subtype.val ∘ Λ) ((pres RD k).rel r)) = 0) {ν : Multiset I}
     (s : {s : Seq (stendhalWeight 1 ν) // IsRedOrdered s}) :
     ∃ τ : (downObj Q s ⟶ downObj Q s) →+ (redObj Q ⟶ redObj Q),
-      IsNondegTrace (redObj Q) (downObj Q s) τ (fun Y => ∃ j, downObj Q j = Y) := by
+      IsNondegTrace (redObj Q) (downObj Q s) τ (fun Y => ∃ j, downObj Q j = Y) ∧
+        ∀ (c : k) a, τ (c • a) = c • τ a := by
   by_cases hs : Stendhal.IsViolated s.val
-  · exact ⟨0, isNondegTrace_zero_of_id_eq_zero _ (downObj_id_eq_zero Q s hs) _⟩
+  · exact ⟨0, isNondegTrace_zero_of_id_eq_zero _ (downObj_id_eq_zero Q s hs) _,
+      fun c a => by simp⟩
   have hnv : ¬ (downTriple RD Λ s).val.IsViolated := fun h =>
     hs ((DoubleBoundary.isViolated_ofDown_iff s.val s.property).mp h)
   let b := downTriple RD Λ s
@@ -282,11 +290,18 @@ theorem exists_summand_trace
     inferInstanceAs (Preadditive (ViolatingCategory Q (downRightWeight RD Λ ν)))
   let _ : Preadditive (𝔽.obj ⟨wtObj RD k (downRightWeight RD Λ 0)⟩) :=
     inferInstanceAs (Preadditive (ViolatingCategory Q (downRightWeight RD Λ 0)))
+  let _ : Linear k (𝔽.obj ⟨wtObj RD k (downRightWeight RD Λ ν)⟩) :=
+    inferInstanceAs (Linear k (ViolatingCategory Q (downRightWeight RD Λ ν)))
+  let _ : Linear k (𝔽.obj ⟨wtObj RD k (downRightWeight RD Λ 0)⟩) :=
+    inferInstanceAs (Linear k (ViolatingCategory Q (downRightWeight RD Λ 0)))
   let adj₁ := Adjunction.ofCat (𝔽.mapAdjunction (RevBicat.adjunction (biadjWord RD k x).right))
   let adj₂ := Adjunction.ofCat (𝔽.mapAdjunction (RevBicat.adjunction (biadjWord RD k x).left))
   have : (𝔽.map (RevBicat.of
       ((pres RD k).dualHom (inv RD).toColourDuality.pivotal x))).toFunctor.Additive :=
     blackAct_additive Q _ (homWt _)
+  have : (𝔽.map (RevBicat.of
+      ((pres RD k).dualHom (inv RD).toColourDuality.pivotal x))).toFunctor.Linear k :=
+    blackAct_linear Q _ (homWt _)
   have hF : (𝔽.map (RevBicat.of x)).toFunctor.obj (redObj Q) = downObj Q s := by
     refine (blackAct_obj_violatingFunctor Q _ (homWt (RevBicat.of x)) redTriple).trans ?_
     congr 1
@@ -295,7 +310,8 @@ theorem exists_summand_trace
     rw [homLetters_wordHomOf]
     exact (word_eq_red_append b.val hnv).symm
   refine ⟨closeTraceIso adj₁ adj₂ (redObj Q) (eqToIso hF),
-    isNondegTrace_closeTraceIso adj₁ adj₂ (redObj Q) (eqToIso hF) _ ?_⟩
+    isNondegTrace_closeTraceIso adj₁ adj₂ (redObj Q) (eqToIso hF) _ ?_,
+    fun c a => closeTraceIso_smul adj₁ adj₂ (redObj Q) (eqToIso hF) c a⟩
   rintro _ ⟨j, rfl⟩
   have hbc : wordContent (blackWord (ℓ := 1) (blackLetters b.val)) = contentVector ν := by
     have hcb : b.val.blackContent = ν := DoubleBoundary.blackContent_ofDown s.val s.property
@@ -320,17 +336,20 @@ theorem exists_summand_trace
 
 /-- **Webster, arXiv:1309.3796v3, Theorem 3.18, matrix form.** For one red strand, the
 diagonal closing trace on the all-down matrix ring, with values in the endomorphisms of the
-red strand alone, has a pairing `(M, N) ↦ τ (M * N)` that is nondegenerate on both sides. -/
+red strand alone, is `k`-linear and has a pairing `(M, N) ↦ τ (M * N)` that is nondegenerate
+on both sides. -/
 theorem downwardMatrix_trace_nondegenerate
     (hQ : ∀ r : (pres RD k).Rel,
       (Q).lin (blackMirrorLinear RD (Subtype.val ∘ Λ) ((pres RD k).rel r)) = 0)
     (ν : Multiset I) :
     ∃ τ : downwardMatrix Q ν →+ (redObj Q ⟶ redObj Q),
       (∀ M : downwardMatrix Q ν, M ≠ 0 → ∃ N : downwardMatrix Q ν, τ (M * N) ≠ 0) ∧
-        ∀ N : downwardMatrix Q ν, N ≠ 0 → ∃ M : downwardMatrix Q ν, τ (M * N) ≠ 0 := by
+        (∀ N : downwardMatrix Q ν, N ≠ 0 → ∃ M : downwardMatrix Q ν, τ (M * N) ≠ 0) ∧
+        ∀ (c : k) M, τ (c • M) = c • τ M := by
   classical
-  choose τ hτ using fun s => exists_summand_trace P t hQ (ν := ν) s
-  exact ⟨KLR.Diagram.MatEnd.trace τ, KLR.Diagram.MatEnd.trace_nondegenerate τ hτ⟩
+  choose τ hτ hlin using fun s => exists_summand_trace P t hQ (ν := ν) s
+  obtain ⟨h₁, h₂⟩ := KLR.Diagram.MatEnd.trace_nondegenerate τ hτ
+  exact ⟨KLR.Diagram.MatEnd.trace τ, h₁, h₂, KLR.Diagram.MatEnd.trace_smul τ hlin⟩
 
 end DoubleDiagram
 
@@ -344,9 +363,10 @@ variable {I : Type u} {C : CartanDatum I} {k : Type v} [Field k]
 local notation "KL" => (CL.CLScalars.kl : CL.CLScalars C k)
 
 /-- **Webster, arXiv:1309.3796v3, Theorem 3.18**, at the standard Khovanov–Lauda parameters
-over a field. For one red strand of label `λ`, the cyclotomic KLR algebra `R^λ_ν` carries an
-additive trace `tr : R^λ_ν → k` whose pairing `(a, b) ↦ tr (a b)` is nondegenerate on both
-sides. The trace closes the black strands of each all-down boundary to the right with the
+over a field. For one red strand of label `λ`, the cyclotomic KLR algebra `R^λ_ν` carries a
+`k`-linear trace `tr : R^λ_ν → k` whose pairing `(a, b) ↦ tr (a b)` is nondegenerate on both
+sides; that is, `tr` is a Frobenius trace: it kills no nonzero left ideal (and no nonzero right
+ideal). The trace closes the black strands of each all-down boundary to the right with the
 biadjunction of Theorem 3.17, landing in the endomorphisms of the red strand alone, that is in
 `R^λ_0 = k`. -/
 theorem clCyclotomic_trace_nondegenerate (Λ : Fin 1 → I →₀ ℕ) (ν : Multiset I)
@@ -357,25 +377,31 @@ theorem clCyclotomic_trace_nondegenerate (Λ : Fin 1 → I →₀ ℕ) (ν : Mul
       (blockWeight (cyclotomicCoverWeightDatum Λ C)
         (cyclotomicCoverHighest (I := I) (ℓ := 1)) 0) P)
     (hwf : P.WFDom) :
-    ∃ tr : CycKLR k (CL.qCL KL) (fun i => Polynomial.X ^ Λ 0 i) ν →+ k,
+    ∃ tr : CycKLR k (CL.qCL KL) (fun i => Polynomial.X ^ Λ 0 i) ν →ₗ[k] k,
       (∀ a, a ≠ 0 → ∃ b, tr (a * b) ≠ 0) ∧
         ∀ b, b ≠ 0 → ∃ a, tr (a * b) ≠ 0 := by
-  obtain ⟨-, ⟨e⟩, -⟩ := clBlackAction_cyclotomic Λ ν hstd hP hwf
-  obtain ⟨-, ⟨e₀⟩, -⟩ := clBlackAction_cyclotomic Λ 0 hstd hP hwf
   let B := clDownwardBlock Λ C P
-  let f := e.trans (downwardMatrixEquivEnd B ν).symm
-  obtain ⟨τ, h₁, h₂⟩ := downwardMatrix_trace_nondegenerate _ (KL).t
+  let f := (SingleRed.cyclotomicEquiv (CL.qCL KL) Λ ν).trans
+    (clToDownwardMatrixKLEquiv (ν := ν) hstd hP hwf)
+  let f₀ := (SingleRed.cyclotomicEquiv (CL.qCL KL) Λ 0).trans
+    (clToDownwardMatrixKLEquiv (ν := 0) hstd hP hwf)
+  obtain ⟨τ, h₁, h₂, hlin⟩ := downwardMatrix_trace_nondegenerate _ (KL).t
     (clDownwardBlock_reflectedBlack P) ν
-  let ψ : (redObj B ⟶ redObj B) ≃+ k := (zeroMatrixEquiv B).symm.trans
-    ((downwardMatrixEquivEnd B 0).toAddEquiv.trans
-      (e₀.symm.toAddEquiv.trans (cyclotomicZeroEquiv _ _).toAddEquiv))
-  have hψ : ∀ g, g ≠ 0 → ψ g ≠ 0 := fun g hg h =>
-    hg (ψ.injective (h.trans ψ.map_zero.symm))
-  refine ⟨ψ.toAddMonoidHom.comp (τ.comp f.toAddMonoidHom), fun a ha => ?_, fun b hb => ?_⟩
-  · obtain ⟨N, hN⟩ := h₁ (f a) (fun h => ha (f.injective (h.trans f.map_zero.symm)))
+  let cZ := cyclotomicZeroEquiv (CL.qCL KL) (fun i => Polynomial.X ^ Λ 0 i)
+  have hψ : ∀ g : redObj B ⟶ redObj B, g ≠ 0 → cZ (f₀.symm ((zeroMatrixEquiv B).symm g)) ≠ 0 :=
+    fun g hg h => hg <| by
+      have h1 := cZ.injective (h.trans (map_zero cZ).symm)
+      have h2 := f₀.symm.injective (h1.trans (map_zero f₀.symm).symm)
+      exact (zeroMatrixEquiv B).symm.injective (h2.trans (map_zero _).symm)
+  refine ⟨{ toFun := fun a => cZ (f₀.symm ((zeroMatrixEquiv B).symm (τ (f a))))
+            map_add' := fun a b => by simp only [map_add]
+            map_smul' := fun c a => by
+              simp only [map_smul, hlin, zeroMatrixEquiv_symm_smul, RingHom.id_apply] },
+    fun a ha => ?_, fun b hb => ?_⟩
+  · obtain ⟨N, hN⟩ := h₁ (f a) (fun h => ha (f.injective (h.trans (map_zero f).symm)))
     refine ⟨f.symm N, hψ _ ?_⟩
     simpa [map_mul] using hN
-  · obtain ⟨M, hM⟩ := h₂ (f b) (fun h => hb (f.injective (h.trans f.map_zero.symm)))
+  · obtain ⟨M, hM⟩ := h₂ (f b) (fun h => hb (f.injective (h.trans (map_zero f).symm)))
     refine ⟨f.symm M, hψ _ ?_⟩
     simpa [map_mul] using hM
 

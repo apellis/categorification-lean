@@ -11,7 +11,8 @@ import Categorification.Diagrams.KLR.MatEnd
 For a finite family `X : ι → D` and additive maps `τ i : End (X i) → End P`, the diagonal sum
 `trace τ M = ∑ i, τ i (M i i)` is an additive map on `MatEnd X`. If every `τ i` is nondegenerate
 against the summands (`IsNondegTrace`), the pairing `(M, N) ↦ trace τ (M * N)` kills no nonzero
-matrix on either side. This is the step from the summands to the whole algebra in Webster,
+matrix on either side, and the trace is `k`-linear when every `τ i` is (`trace_smul`). This is
+the step from the summands to the whole algebra in Webster,
 arXiv:1309.3796v3, proof of Theorem 3.18.
 -/
 
@@ -30,6 +31,14 @@ def trace (τ : ∀ i, (X i ⟶ X i) →+ (P ⟶ P)) : MatEnd X →+ (P ⟶ P) w
   toFun M := ∑ i, τ i (M i i)
   map_zero' := by simp
   map_add' M N := by simp [Finset.sum_add_distrib]
+
+/-- The diagonal trace is `k`-linear when every summand trace is. -/
+theorem trace_smul [Linear k C] (τ : ∀ i, (X i ⟶ X i) →+ (P ⟶ P))
+    (hτ : ∀ i (c : k) (a : X i ⟶ X i), τ i (c • a) = c • τ i a) (c : k) (M : MatEnd X) :
+    trace τ (c • M) = c • trace τ M := by
+  change ∑ i, τ i (c • M i i) = c • ∑ i, τ i (M i i)
+  rw [Finset.smul_sum]
+  exact Finset.sum_congr rfl fun i _ => hτ i c (M i i)
 
 theorem trace_mul_single (τ : ∀ i, (X i ⟶ X i) →+ (P ⟶ P)) (M : MatEnd X) (i j : ι)
     (b : X i ⟶ X j) : trace τ (M * single i j b) = τ i (b ≫ M j i) := by

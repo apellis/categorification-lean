@@ -48,10 +48,12 @@ import Categorification.Algebra.HomTensor
 import Categorification.Algebra.HomTensorComp
 import Categorification.Algebra.HomTensorDecomp
 import Categorification.Algebra.HomTensorNat
+import Categorification.Algebra.HomTensorNaturality
 import Categorification.Algebra.InductionAlong
 import Categorification.Algebra.InductionAlongExact
 import Categorification.Algebra.InductionAlongAssoc
 import Categorification.Algebra.InductionAlongTransportEquiv
+import Categorification.Algebra.InductionAlongTransportNaturality
 import Categorification.Algebra.InductionAlongBimodule
 import Categorification.Algebra.InductionAlongResTensor
 import Categorification.Algebra.InductionAlongEnd
@@ -76,6 +78,7 @@ import Categorification.Algebra.ProjK0
 import Categorification.Algebra.RightActionImage
 import Categorification.Algebra.SplitK0
 import Categorification.Algebra.SumDecompLinear
+import Categorification.Algebra.SumDecompNaturality
 import Categorification.Algebra.SymmetricFree
 import Categorification.Algebra.UniqueSimpleQuotient
 import Categorification.Diagrams.BicatInterp
@@ -228,7 +231,9 @@ import Categorification.Diagrams.KLR.MatEndCornerRes
 import Categorification.Diagrams.KLR.MatEndModuleComp
 import Categorification.Diagrams.KLR.MatEndModuleCross
 import Categorification.Diagrams.KLR.MatEndModuleDecomp
+import Categorification.Diagrams.KLR.MatEndModuleDecompNaturality
 import Categorification.Diagrams.KLR.MatEndModuleFunctor
+import Categorification.Diagrams.KLR.MatEndModuleNaturality
 import Categorification.Diagrams.KLR.MatEndMap
 import Categorification.Diagrams.KLR.MatEndTrace
 import Categorification.Diagrams.KLR.Soundness
@@ -1344,7 +1349,9 @@ import Categorification.WeightedKLR.RedStrands.DoubleBlackActionAdditive
 import Categorification.WeightedKLR.RedStrands.BlackCommutation
 import Categorification.WeightedKLR.RedStrands.BlackModuleCommutation
 import Categorification.WeightedKLR.RedStrands.BlackModuleSumDecomp
+import Categorification.WeightedKLR.RedStrands.BlackModuleNaturality
 import Categorification.WeightedKLR.RedStrands.BlackModuleEFTransport
+import Categorification.WeightedKLR.RedStrands.BlackModuleEFTransportNaturality
 import Categorification.WeightedKLR.RedStrands.BlackModuleCross
 import Categorification.WeightedKLR.RedStrands.BlackInductionExact
 import Categorification.WeightedKLR.RedStrands.BlackModuleCrossTransport

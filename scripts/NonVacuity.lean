@@ -5410,5 +5410,13 @@ example := KLR.CyclotomicAction.UnivCyc.free (lam := fun _ => 2) rqHyp
 noncomputable example := KLR.CyclotomicAction.univCyclotomicPresCL (lam := fun _ => 2) rqHyp
   coordDatum (fun _ => 2) (fun _ => by simp [coordDatum])
 
+/-- Webster arXiv:1309.3796v2, Definition 3.23: the identity strongly equivariant functor of the
+universal categorification, and Webster's condition for it. -/
+noncomputable example := CategoryTheory.Pseudofunctor.StrongTrans.id
+  (KLR.CyclotomicAction.univCyclotomicPresCL (lam := fun _ => 2) rqHyp coordDatum (fun _ => 2)
+    (fun _ => by simp [coordDatum]))
+
+example := @TwoRep.StronglyEquivariant.webster_condition
+
 end NonVacuity.CyclotomicFrobeniusRouquier
 

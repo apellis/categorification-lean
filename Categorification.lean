@@ -809,6 +809,7 @@ import Categorification.TwoRep.FurledCorner
 import Categorification.TwoRep.FurledEvaluation
 import Categorification.TwoRep.RouqDottedCurls
 import Categorification.TwoRep.RouqDual
+import Categorification.TwoRep.StronglyEquivariant
 import Categorification.TwoRep.SumInvBiprod
 import Categorification.TwoRep.BiprodDecomp
 import Categorification.TwoRep.SumInvPointwise

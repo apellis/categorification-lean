@@ -104,6 +104,7 @@ import Categorification.Diagrams.CL.Scalars
 import Categorification.Diagrams.CL.Sigma
 import Categorification.Diagrams.CL.Specialize
 import Categorification.Diagrams.CL.SlideCalculusC
+import Categorification.Diagrams.CL.SpanningDefs
 import Categorification.Diagrams.CL.KilledColours
 import Categorification.Diagrams.CL.NoMix
 import Categorification.Diagrams.CL.UnfilteredPresentation

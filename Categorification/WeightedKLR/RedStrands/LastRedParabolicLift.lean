@@ -121,7 +121,9 @@ private theorem exists_prefixLift (x : L) : ∃ u : KLRAlgebra k S Aₚ,
     change τ (orderProjection Q Λ θ (appendRedStendhalValue Q Λ θ z).val) = τ (appendRedStendhalValue Q Λ θ z)
     rw [orderProjection_val]
 
-private theorem prefixLift_eq (u : KLRAlgebra k S Aₚ) :
+/-- Juxtaposing a diagram on the first `ℓ` red strands with the last red strand is appending the
+red strand to its image in `T^{λ'}`. -/
+theorem tensorOfKLR_concat_one_eq_appendRed (u : KLRAlgebra k S Aₚ) :
     γ (rawFirst u) = (appendRed Q Λ θ (P₁ u)).val := by
   obtain ⟨v,rfl⟩ := (relabelEquiv (relabelEarlier Q Λ θ)).surjective u
   change τ (orderProjection Q Λ θ (π (rawFirst (relabelEquiv (relabelEarlier Q Λ θ) v)))) =
@@ -223,7 +225,8 @@ private theorem layer_parabolic (u : KLRAlgebra k S Aₚ) (v : KLRAlgebra k Q β
     suffixConcat Q Λ p hTot
         (u ⊗ₜ castKLR S hB (concat S rₗ B₀ (1 ⊗ₜ blackSuffixReindex Q Λ β v))) =
       ψL (P₁ u ⊗ₜ CycKLR.mk k Q λf β v) := by
-  rw [layer_prefixLift Q Λ p h ha (P₁ u) (rawFirst u) (prefixLift_eq Q Λ u)]
+  rw [layer_prefixLift Q Λ p h ha (P₁ u) (rawFirst u)
+    (tensorOfKLR_concat_one_eq_appendRed Q Λ u)]
   change lastRedLayerProjection Q Λ p (StendhalAlgebraAllOrders.ofKLR k Q Λ ν
       (castKLR S hTot (concat S Aₚ Aₗ (u ⊗ₜ _)))) =
     lastRedLayerProjection Q Λ p (StendhalAlgebraAllOrders.ofKLR k Q Λ ν

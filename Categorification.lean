@@ -858,6 +858,7 @@ import Categorification.TwoRep.RouqDottedCurls
 import Categorification.TwoRep.RouqDual
 import Categorification.TwoRep.DenseFamily
 import Categorification.TwoRep.GeneratedEquivariant
+import Categorification.TwoRep.GeneratedModification
 import Categorification.TwoRep.StronglyEquivariant
 import Categorification.TwoRep.SumInvBiprod
 import Categorification.TwoRep.BiprodDecomp

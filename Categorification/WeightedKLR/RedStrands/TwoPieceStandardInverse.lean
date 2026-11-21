@@ -20,6 +20,10 @@ product algebra `T^{λ'}` of the first `ℓ` red strands.
 * `twoPiecePrefixAction`: the action of the prefix diagrams on `S_{t λ_{ℓ+1} u}`.
 * `concatLeftHom`: juxtaposition with the identity on a right block, as a non-unital map.
 * `twoPiecePrefixAction_relations`: the prefix action satisfies the red relations.
+* `exists_twoPiecePrefixAction_factor`: it factors through `T^{λ'}`.
+* `twoPieceLastAction`: the action of the last red strand and the black strands to its right.
+* `exists_twoPieceLastAction_factor`: it factors through the cyclotomic quotient
+  `R^{λ_{ℓ+1}}`; the cyclotomic relation holds by equation (4.2) (`twoPiece_lastRed_dot_pow`).
 -/
 
 noncomputable section
@@ -61,6 +65,14 @@ theorem leftStandardAllOrders_cast_ψ_mul_e (w : Seq X) (j : ℕ) (hj : j + 1 < 
 theorem leftStandardAllOrders_cast_e (w : Seq X) :
     Ω (ι (castKLR (stendhalQ Q Λ) h (e w))) = Ω (StendhalAlgebraAllOrders.e (Seq.cast h w)) := by
   rw [castKLR_e]; rfl
+
+theorem leftStandardAllOrders_cast_x_pow_mul_e (w : Seq X) (b : Fin (Multiset.card X)) (n : ℕ) :
+    Ω (ι (castKLR (stendhalQ Q Λ) h (x b ^ n * e w))) =
+      Ω (StendhalAlgebraAllOrders.x (Fin.cast (congrArg Multiset.card h) b) ^ n *
+        StendhalAlgebraAllOrders.e (Seq.cast h w)) := by
+  subst h
+  rw [castKLR_rfl, map_mul, map_pow]
+  rfl
 
 end Kill
 
@@ -144,6 +156,14 @@ theorem concat_e_tmul_x_pow_mul_e {J : Type*} [DecidableEq J]
   simpa [ψw, TypeA.shiftWord, pol_X] using concat_pol_ψw_e (Q := P) (1 : MvPolynomial _ k)
     (MvPolynomial.X z ^ d) (α := []) (α' := []) (by simp) (by simp) a b
 
+theorem concat_one_tmul_x_pow_mul_e {J : Type*} [DecidableEq J]
+    (P : J → J → MvPolynomial (Fin 2) k) {α β : Multiset J} (b : Seq β)
+    (z : Fin β.card) (d : ℕ) :
+    concat P α β (1 ⊗ₜ (x z ^ d * e b)) =
+      ∑ a : Seq α, x (Seq.posR α z) ^ d * e (a.append b) := by
+  rw [← sum_e, TensorProduct.sum_tmul, map_sum]
+  exact Finset.sum_congr rfl fun a _ => concat_e_tmul_x_pow_mul_e P a b z d
+
 /-- Juxtaposition `z ↦ e(w) ⊗ z` on the right block, next to a fixed idempotent of the left
 block, followed by an algebra map out of the concatenated weight. -/
 def concatRightHom (G : KLRAlgebra k Q' (μ + μ') →ₐ[k] C) (w : Seq μ) :
@@ -171,6 +191,21 @@ theorem concatRightHom_x_mul_e (G : KLRAlgebra k Q' (μ + μ') →ₐ[k] C) (w :
     (b : Fin (Multiset.card μ')) (d : Seq μ') :
     concatRightHom Q' μ μ' G w (x b * e d) = G (x (Seq.posR μ b) * e (w.append d)) := by
   rw [concatRightHom_apply, ← pow_one (x b), concat_e_tmul_x_pow_mul_e, pow_one]
+
+theorem concatRightHom_x_pow_mul_e (G : KLRAlgebra k Q' (μ + μ') →ₐ[k] C) (w : Seq μ)
+    (b : Fin (Multiset.card μ')) (n : ℕ) (d : Seq μ') :
+    concatRightHom Q' μ μ' G w (x b ^ n * e d) =
+      G (x (Seq.posR μ b) ^ n * e (w.append d)) := by
+  rw [concatRightHom_apply, concat_e_tmul_x_pow_mul_e]
+
+theorem concatRightHom_cast_x_pow_mul_e (G : KLRAlgebra k Q' (μ + μ') →ₐ[k] C) (w : Seq μ)
+    {ν : Multiset I} (h : ν = μ') (b : Fin (Multiset.card ν)) (n : ℕ) (d : Seq ν) :
+    concatRightHom Q' μ μ' G w (castKLR Q' h (x b ^ n * e d)) =
+      G (x (Seq.posR μ (Fin.cast (congrArg Multiset.card h) b)) ^ n *
+        e (w.append (Seq.cast h d))) := by
+  subst h
+  rw [castKLR_rfl, concatRightHom_x_pow_mul_e]
+  rfl
 
 end Juxtapose
 
@@ -289,6 +324,80 @@ theorem twoPieceLastAction_red_dot (a : Fin (rₗ + B₀).card) (d : Seq (rₗ +
   refine leftStandardAllOrders_cast_x_mul_e htp H _ _ ?_
   rw [Seq.lbl, Seq.append_posR, Seq.cast_apply]
   rwa [Fin.cast_cast, Fin.cast_eq_self]
+
+/-- A dot power at the first black strand after the last red kills `S_{t λ_{ℓ+1} u}` on loadings
+above `t λ_{ℓ+1} u`: by equation (4.2) it factors through a strictly higher loading. -/
+theorem twoPiece_lastRed_dot_pow (s : Seq (stendhalWeight (ℓ+1) (θ + β))) (j : ℕ)
+    (h : j + 1 < Multiset.card (stendhalWeight (ℓ+1) (θ + β))) (i : I)
+    (hr : s.lbl ⟨j, by omega⟩ = .inr (Fin.last ℓ)) (hi : s.lbl ⟨j+1, h⟩ = .inl i)
+    (hle : StendhalLE tp s) :
+    leftStandardAllOrders Q Λ tp htp (StendhalAlgebraAllOrders.x ⟨j+1, h⟩ ^ Λ (Fin.last ℓ) i *
+      StendhalAlgebraAllOrders.e s) = 0 := by
+  have hlt := stendhalLT_sadj h hr hi fun d hd => lbl_eq_inr_unique hd hr
+  have hlt' : StendhalLT tp (TypeA.sadj _ j • s) :=
+    ⟨fun R i => le_trans (hle R i) (hlt.1 R i),
+      fun hc => hlt.2 fun R i => le_trans (hc R i) (hle R i)⟩
+  rw [lastRed_dot_pow_factor Q Λ s j h i hr hi, map_mul, map_mul,
+    leftStandardAllOrders_e htp hlt', mul_zero, zero_mul]
+
+theorem twoPieceLastAction_cyc (b : Seq β) :
+    twoPieceLastAction Q Λ ht u (concat S rₗ B₀ (1 ⊗ₜ blackSuffixReindex Q Λ β
+      (cycElt Q (fun i : I => (Polynomial.X : Polynomial k) ^ Λ (Fin.last ℓ) i) b))) = 0 := by
+  by_cases hb : 0 < β.card
+  · let z : Fin β.card := ⟨0, hb⟩
+    have hx : blackSuffixReindex Q Λ β (x z) =
+        x (Fin.cast (Multiset.card_map Sum.inl β).symm z) := reindexEquiv_x _ z
+    have he : blackSuffixReindex Q Λ β (e b) = e (Seq.map Sum.inl b) := reindexEquiv_e _ b
+    rw [cycElt_of_pos _ _ _ hb, map_pow, Polynomial.aeval_X, map_mul, map_pow, hx, he,
+      concat_one_tmul_x_pow_mul_e, map_sum]
+    refine Finset.sum_eq_zero fun a _ => ?_
+    change concatRightHom S α δ κ _ (castKLR S hB (_ * _)) = 0
+    rw [concatRightHom_cast_x_pow_mul_e, twoPieceDescAction_apply Q Λ ht,
+      leftStandardAllOrders_cast_x_pow_mul_e]
+    have hα : Multiset.card α = Multiset.card (stendhalWeight ℓ θ) := Multiset.card_map _ _
+    have hm : Multiset.card α + 1 < Multiset.card (stendhalWeight (ℓ+1) (θ + β)) := by
+      have h1 := congrArg Multiset.card H
+      have h2 := congrArg Multiset.card hB
+      simp only [Multiset.card_add, Multiset.card_singleton, Multiset.card_map] at h1 h2 ⊢
+      omega
+    have hc : Fin.cast (congrArg Multiset.card H) (Seq.posR α (Fin.cast
+        (congrArg Multiset.card hB) (Seq.posR rₗ (Fin.cast
+          (Multiset.card_map Sum.inl β).symm z)))) = ⟨Multiset.card α + 1, hm⟩ := by
+      ext
+      simp only [Fin.val_cast, Seq.posR_val, z, Multiset.card_singleton]
+    rw [hc]
+    refine twoPiece_lastRed_dot_pow Q Λ ht u _ _ hm _ ?_ ?_
+      (stendhalLE_twoPiece_concatLoading u (fun _ _ => le_rfl) _)
+    · have ha : a.1 ⟨0, by simp⟩ = .inr (Fin.last ℓ) := by
+        have hm := Multiset.mem_map_of_mem a.1 (Finset.mem_univ_val (⟨0, by simp⟩ : Fin (Multiset.card rₗ)))
+        rw [a.2] at hm
+        exact Multiset.mem_singleton.1 hm
+      rw [Seq.lbl, Seq.cast_apply,
+        show Fin.cast _ (⟨Multiset.card α, _⟩ : Fin _) = Seq.posR α ⟨0, by simp [stendhalWeight]⟩ from
+          Fin.ext (by simp), Seq.append_posR, Seq.cast_apply]
+      exact (Seq.append_posL a (Seq.map Sum.inl b) ⟨0, by simp⟩).trans ha
+    · rw [← hc, Seq.lbl, Seq.cast_apply, Fin.cast_cast, Fin.cast_eq_self, Seq.append_posR,
+        Seq.cast_apply, Fin.cast_cast, Fin.cast_eq_self, Seq.append_posR]
+      rfl
+  · have h0 : cycElt Q (fun i : I => (Polynomial.X : Polynomial k) ^ Λ (Fin.last ℓ) i) b = 0 :=
+      dite_eq_right hb
+    simp only [h0, map_zero, TensorProduct.tmul_zero]
+
+/-- The prefix action factors through the tensor product algebra `T^{λ'}` of the first `ℓ` red
+strands. -/
+theorem exists_twoPiecePrefixAction_factor :
+    ∃ G' : TensorProductAlgebra k Q (Λ ∘ Fin.castSucc) θ →ₙₐ[k] Module.End k Z,
+      ∀ z, twoPiecePrefixAction Q Λ ht u z =
+        G' (redSubfamilyProjection Q Λ Fin.castSucc (Fin.castSucc_injective ℓ) θ z) :=
+  exists_redSubfamilyProjection_factor _ (twoPiecePrefixAction_relations Q Λ ht u)
+
+/-- The last-block action factors through the cyclotomic quotient `R^{λ_{ℓ+1}}`. -/
+theorem exists_twoPieceLastAction_factor :
+    ∃ G' : CycKLR k Q (fun i : I => (Polynomial.X : Polynomial k) ^ Λ (Fin.last ℓ) i) β
+        →ₙₐ[k] Module.End k Z,
+      ∀ z, twoPieceLastAction Q Λ ht u z = G' (parabolicLastCyclotomic Q Λ β (castKLR S hB z)) :=
+  exists_lastRedBlack_factor _ (twoPieceLastAction_violated Q Λ ht u)
+    (twoPieceLastAction_red_dot Q Λ ht u) (twoPieceLastAction_cyc Q Λ ht u)
 
 end Prefix
 

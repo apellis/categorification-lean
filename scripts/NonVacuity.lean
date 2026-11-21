@@ -5375,7 +5375,7 @@ end BlackActionKL
 
 end NonVacuity
 
-namespace CyclotomicFrobeniusRouquier
+namespace NonVacuity.CyclotomicFrobeniusRouquier
 
 open Categorification QuantumGroup QuantumGroup.UDot
 
@@ -5393,4 +5393,4 @@ example := KLR.IsRouquierQ.cyclotomic_frobenius rqHyp coordDatum (fun _ => 2)
   (a := fun _ => Polynomial.X ^ 2) (fun _ => Polynomial.monic_X_pow 2)
   (fun _ => by simp [coordDatum]) ({0, 1, 0} : Multiset (Fin 2))
 
-end CyclotomicFrobeniusRouquier
+end NonVacuity.CyclotomicFrobeniusRouquier

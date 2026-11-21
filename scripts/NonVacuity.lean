@@ -5374,3 +5374,23 @@ noncomputable example :=
 end BlackActionKL
 
 end NonVacuity
+
+namespace NonVacuity.CyclotomicFrobeniusRouquier
+
+open Categorification QuantumGroup QuantumGroup.UDot
+
+/-- The coordinate weight datum `X = ℤ^I`, `Y = Hom(X, ℤ)` of the parallel-edge Cartan datum. -/
+private def coordDatum : WeightDatum rqC (Fin 2 → ℤ) ((Fin 2 → ℤ) →+ ℤ) where
+  pair := AddMonoidHom.id _
+  iX j i := A rqC i j
+  iY i := { toFun := fun x => x i, map_zero' := rfl, map_add' := fun _ _ => rfl }
+  pair_iY_iX _ _ := rfl
+
+/-- Webster arXiv:1309.3796v2, Theorem 3.18, for Rouquier parameters in characteristic two: two
+interacting colours with a double edge, the cyclotomic quotient of weight `(2, 2)` with
+`a_i = u²`, black labels `0, 1, 0`. -/
+example := KLR.IsRouquierQ.cyclotomic_frobenius rqHyp coordDatum (fun _ => 2)
+  (a := fun _ => Polynomial.X ^ 2) (fun _ => Polynomial.monic_X_pow 2)
+  (fun _ => by simp [coordDatum]) ({0, 1, 0} : Multiset (Fin 2))
+
+end NonVacuity.CyclotomicFrobeniusRouquier

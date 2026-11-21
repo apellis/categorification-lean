@@ -1379,6 +1379,9 @@ import Categorification.WeightedKLR.RedStrands.SplitRedRelations
 import Categorification.WeightedKLR.RedStrands.SplitRedWords
 import Categorification.WeightedKLR.RedStrands.DoubleBlackInduction
 import Categorification.WeightedKLR.RedStrands.DoubleBlackRestriction
+import Categorification.Algebra.AmbidextrousTraceSeparating
+import Categorification.TwoRep.WordAdjunction
+import Categorification.KLR.CyclotomicAction.Frobenius
 /-!
 # Categorification
 

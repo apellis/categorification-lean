@@ -5423,6 +5423,11 @@ over `k`, for `λ = (2, 2)`. -/
 noncomputable example := KLR.CyclotomicAction.univCyclotomicPresCLk (lam := fun _ => 2) rqHyp
   coordDatum (fun _ => 2) (fun _ => by simp [coordDatum])
 
+/-- Webster arXiv:1309.3796v2, §3.4: `Ř^λ-pmod` as a module category over the presentation
+over `k`, for `λ = (2, 2)`. -/
+noncomputable example := KLR.CyclotomicAction.univCyclotomicPresCLPmod (lam := fun _ => 2) rqHyp
+  coordDatum (fun _ => 2) (fun _ => by simp [coordDatum])
+
 end NonVacuity.CyclotomicFrobeniusRouquier
 
 namespace NonVacuity.CLSpanning

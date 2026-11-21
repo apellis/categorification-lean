@@ -35,12 +35,14 @@ The identification of these layers with the modules `T^λ e(s', λ_ℓ, w)` and 
 * `FactorModule`: a module over `T^{λ'}_θ ⊗ R^{λ_ℓ}_β`.
 * `StdLayer`: a standard layer of black weight `ν`; `stdLayerModule` its module `S(N)`.
 * `StdLayer.first`, `StdLayer.last`: the layers `₁Fᵢ N` and `₂Fᵢ N`.
-* `blackIndModule`: `Fᵢ` on modules over `T(ν)`.
+* `blackIndModule`, `blackWordModule`: `Fᵢ` and `F_w` on modules over `T(ν)`.
+* `AllDeltaInjective`: the route hypothesis for every layer.
 
 ## Main results
 
 * `hasFiltration_blackInd_stdLayer`: `Fᵢ S(N)` is filtered by `S(₂Fᵢ N)` over `S(₁Fᵢ N)`.
 * `HasFiltration.blackInd`: `Fᵢ` refines filtrations by standard layers.
+* `HasFiltration.blackWord`, `hasFiltration_blackWord_stdLayer`: the same for words `F_w`.
 -/
 
 set_option backward.isDefEq.respectTransparency false
@@ -216,5 +218,56 @@ theorem HasFiltration.blackInd (C : QuantumGroup.CartanDatum I) (hR : IsRouquier
       (appendBlack_ind_map_injective C hR hf) (appendBlack_ind_map_exact C hR hfg)
       (Ind.map_surjective hg) hX
     simpa [StdLayer.blackIndLayers] using this
+
+variable (Q Λ hQ) in
+/-- The route hypothesis `FirstIndDeltaInjective` for every layer. -/
+def AllDeltaInjective : Prop :=
+  ∀ (i : I) (θ β : Multiset I) (M : FactorModule Q Λ θ β),
+    FirstIndDeltaInjective Q Λ i θ β M.carrier hQ
+
+/-- The black weight after applying the word `w`. -/
+def wordWt : List I → Multiset I → Multiset I
+  | [], ν => ν
+  | j :: w, ν => (Si j) + wordWt w ν
+
+variable (Q Λ) in
+/-- `F_w = F_{j₁} ∘ ⋯ ∘ F_{jₙ}` for `w = [j₁, …, jₙ]` (the last letter acts first). -/
+def blackWordModule {ν : Multiset I} :
+    (w : List I) → ModuleCat.{0} (TensorProductAlgebra k Q Λ ν) →
+      ModuleCat.{0} (TensorProductAlgebra k Q Λ (wordWt w ν))
+  | [], X => X
+  | j :: w, X => blackIndModule Q Λ j (blackWordModule w X)
+
+variable (Q Λ) in
+/-- The layers of `F_w S(N)`. -/
+def StdLayer.wordLayers {ν : Multiset I} :
+    (w : List I) → StdLayer Q Λ ν → List (StdLayer Q Λ (wordWt w ν))
+  | [], c => [c]
+  | j :: w, c => (StdLayer.wordLayers w c).flatMap (StdLayer.blackIndLayers Q Λ j)
+
+/-- **`F_w` refines filtrations by standard layers** (Webster, arXiv:1309.3796v3, proof of
+Proposition 5.21), given the route hypothesis `FirstIndDeltaInjective` for every layer. -/
+theorem HasFiltration.blackWord (C : QuantumGroup.CartanDatum I) (hR : IsRouquierQ C Q)
+    (hall : AllDeltaInjective Q Λ hQ) (w : List I) {ν : Multiset I}
+    {m : List (StdLayer Q Λ ν)} {X : ModuleCat.{0} (TensorProductAlgebra k Q Λ ν)}
+    (h : HasFiltration (stdLayerModule Q Λ hQ) m X) :
+    HasFiltration (stdLayerModule Q Λ hQ) (m.flatMap (StdLayer.wordLayers Q Λ w))
+      (blackWordModule Q Λ w X) := by
+  induction w with
+  | nil => simpa [StdLayer.wordLayers, blackWordModule] using h
+  | cons j w ih =>
+    have := HasFiltration.blackInd j C hR ih (fun c _ => hall j c.θ c.β c.M)
+    simpa [StdLayer.wordLayers, blackWordModule, List.flatMap_assoc] using this
+
+/-- **`F_w S(N)` has a filtration by standardizations** (Webster, arXiv:1309.3796v3, proof of
+Proposition 5.21, black strands to the right of all red strands), given the route hypothesis
+`FirstIndDeltaInjective` for every layer. -/
+theorem hasFiltration_blackWord_stdLayer (C : QuantumGroup.CartanDatum I)
+    (hR : IsRouquierQ C Q) (hall : AllDeltaInjective Q Λ hQ) (w : List I) {ν : Multiset I}
+    (c : StdLayer Q Λ ν) :
+    HasFiltration (stdLayerModule Q Λ hQ) (c.wordLayers Q Λ w)
+      (blackWordModule Q Λ w (stdLayerModule Q Λ hQ c)) := by
+  simpa using HasFiltration.blackWord C hR hall w (HasFiltration.single
+    (L := stdLayerModule Q Λ hQ) (LinearEquiv.refl _ (stdLayerModule Q Λ hQ c)))
 
 end Categorification.Stendhal

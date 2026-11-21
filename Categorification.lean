@@ -49,6 +49,7 @@ import Categorification.Algebra.HomTensorComp
 import Categorification.Algebra.HomTensorDecomp
 import Categorification.Algebra.HomTensorNat
 import Categorification.Algebra.InductionAlong
+import Categorification.Algebra.InductionAlongExact
 import Categorification.Algebra.InductionAlongAssoc
 import Categorification.Algebra.InductionAlongTransportEquiv
 import Categorification.Algebra.InductionAlongBimodule
@@ -1344,6 +1345,7 @@ import Categorification.WeightedKLR.RedStrands.BlackModuleCommutation
 import Categorification.WeightedKLR.RedStrands.BlackModuleSumDecomp
 import Categorification.WeightedKLR.RedStrands.BlackModuleEFTransport
 import Categorification.WeightedKLR.RedStrands.BlackModuleCross
+import Categorification.WeightedKLR.RedStrands.BlackInductionExact
 import Categorification.WeightedKLR.RedStrands.BlackModuleCrossTransport
 import Categorification.WeightedKLR.RedStrands.BlackModuleTensor
 import Categorification.WeightedKLR.RedStrands.DoubleBlackActionComp

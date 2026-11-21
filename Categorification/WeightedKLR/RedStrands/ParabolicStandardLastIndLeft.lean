@@ -6,6 +6,7 @@ import Categorification.WeightedKLR.RedStrands.ParabolicStandardLastKernel
 import Categorification.WeightedKLR.RedStrands.ParabolicStandardLastIndLayer
 import Categorification.WeightedKLR.RedStrands.ParabolicStandardLastLeft
 import Categorification.KLR.IndFirstSlide
+import Categorification.KLR.MackeyInj
 
 /-!
 # The first-factor layer of `F_i(S N)`
@@ -168,5 +169,97 @@ theorem firstIndUnit_smul (a : KLRAlgebra k S (Aₚ + Aₗ)) (y : ParabolicShuff
     (Submodule.mkQ _ y)
   rw [parabolicStandardAction_affine]
   rfl
+
+/-- An idempotent of the parabolic weight whose last red strand lies after position `|α|` kills
+`S N`. -/
+theorem parabolicAffine_e_smul_standard (s : Seq (Aₚ + Aₗ)) (q : Fin (Multiset.card (Aₚ + Aₗ)))
+    (hq : s.lbl q = .inr (Fin.last ℓ)) (hlt : (Aₚ).card < q.val)
+    (m : ParabolicStandardT Q Λ θ β N hQ) :
+    parabolicAffine Q Λ θ β (KLRAlgebra.e s) • m = 0 := by
+  have h := affineTensorProjection_e_smul_standard Q Λ θ β N hQ
+    (Seq.cast (parabolicInputWeights_add (ℓ := ℓ) θ β) s)
+    (Fin.cast (congrArg Multiset.card (parabolicInputWeights_add (ℓ := ℓ) θ β)) q) hq hlt m
+  change TensorProductAlgebra.mk Q Λ _ (orderProjection Q Λ _ (affineCover Q Λ _ _)) • m = 0 at h
+  rw [affineCover_e] at h
+  change TensorProductAlgebra.mk Q Λ _ (orderProjection Q Λ _
+    (StendhalAlgebraAllOrders.ofKLR k Q Λ _ (castKLR S _ (KLRAlgebra.e s)))) • m = 0
+  rw [castKLR_e]
+  exact h
+
+/-- `ι(1_s a ⊗ 1_i)` kills the unit generators of `F_i(S N)` when the last red strand of `s`
+lies after position `|α|`. -/
+theorem firstIndAffine_appendR_e_mul_smul (s : Seq (Aₚ + Aₗ))
+    (q : Fin (Multiset.card (Aₚ + Aₗ))) (hq : s.lbl q = .inr (Fin.last ℓ))
+    (hlt : (Aₚ).card < q.val) (x : KLRAlgebra k S (Aₚ + Aₗ)) (y : ParabolicShuffle Q Λ θ β N) :
+    affT (appendR S (Aₚ + Aₗ) (Sum.inl i) (KLRAlgebra.e s * x)) •
+      (Ind.tmul (unitGen (appendBlackHom Q Λ i θ β))
+        (show ParabolicStandardT Q Λ θ β N hQ from Submodule.mkQ _ y) :
+          FirstIndF Q Λ i θ β N hQ) = 0 := by
+  rw [← firstIndUnit_smul, mul_smul]
+  have h : (show ParabolicStandardT Q Λ θ β N hQ from
+      Submodule.mkQ _ ((KLRAlgebra.e s : KLRAlgebra k S (Aₚ + Aₗ)) • (x • y))) =
+      parabolicAffine Q Λ θ β (KLRAlgebra.e s) •
+        (show ParabolicStandardT Q Λ θ β N hQ from Submodule.mkQ _ (x • y)) := by
+    change _ = parabolicStandardAction Q Λ θ β N hQ (parabolicAffine Q Λ θ β _)
+      (Submodule.mkQ _ (x • y))
+    rw [parabolicStandardAction_affine]
+    rfl
+  rw [h, parabolicAffine_e_smul_standard Q Λ θ β N hQ s q hq hlt]
+  exact Ind.tmul_zero _
+
+omit [DecidableEq I] in
+theorem lastRed_mem_lastWeight : (Sum.inr (Fin.last ℓ) : I ⊕ Fin (ℓ + 1)) ∈ Aₗ := by
+  simp [stendhalWeight]
+
+/-- **The idempotents of the slide hypothesis kill the unit generators**: if `s` ends with `i`
+and lies in the block set of `(α + i, β')`, then `1_s ι(T)` kills `[1 ⊗ m]`. -/
+theorem firstIndAffine_e_concat_smul (s : Seq (Aₚ + Aₗ + {(Sum.inl i : I ⊕ Fin (ℓ + 1))}))
+    (hs : s ∈ concatSet (Aₚ + Aₗ) {(Sum.inl i : I ⊕ Fin (ℓ + 1))})
+    (hs' : s ∈ botSet (firstQuad_h Aₚ Aₗ (Sum.inl i : I ⊕ Fin (ℓ + 1))))
+    (T : TensorKLR S (Aₚ + Aₗ) {(Sum.inl i : I ⊕ Fin (ℓ + 1))})
+    (y : ParabolicShuffle Q Λ θ β N) :
+    affT (KLRAlgebra.e s * concat S (Aₚ + Aₗ) {(Sum.inl i : I ⊕ Fin (ℓ + 1))} T) •
+      (Ind.tmul (unitGen (appendBlackHom Q Λ i θ β))
+        (show ParabolicStandardT Q Λ θ β N hQ from Submodule.mkQ _ y) :
+          FirstIndF Q Λ i θ β N hQ) = 0 := by
+  obtain ⟨s'', b, rfl⟩ := mem_concatSet.1 hs
+  obtain ⟨s₃, s₄, hs₄⟩ := (mem_botSet_iff _).1 hs'
+  obtain ⟨c, -, hc⟩ := Multiset.mem_map.1
+    (show (Sum.inr (Fin.last ℓ) : I ⊕ Fin (ℓ + 1)) ∈ Finset.univ.val.map s₄.1 from
+      s₄.2.symm ▸ lastRed_mem_lastWeight (ℓ := ℓ) β)
+  have hcA : Multiset.card (Aₚ + {(Sum.inl i : I ⊕ Fin (ℓ + 1))}) = (Aₚ).card + 1 := by simp
+  have hcT : Multiset.card (Aₚ + Aₗ + {(Sum.inl i : I ⊕ Fin (ℓ + 1))}) =
+      (Aₚ).card + (Aₗ).card + 1 := by simp
+  have hc4 := c.2
+  have hP : (Aₚ).card + 1 + c.val < Multiset.card (Aₚ + Aₗ + {(Sum.inl i : I ⊕ Fin (ℓ + 1))}) :=
+    by omega
+  have h1 : (seqCast (firstQuad_h Aₚ Aₗ (Sum.inl i : I ⊕ Fin (ℓ + 1)))
+      (s₃.append s₄)).1 ⟨(Aₚ).card + 1 + c.val, hP⟩ =
+      (s''.append b).1 ⟨(Aₚ).card + 1 + c.val, hP⟩ := by rw [hs₄]
+  rw [seqCast_append_apply_ge _ _ _ _ (by simp only [hcA]; omega)] at h1
+  have h2 : (s''.append b).1 ⟨(Aₚ).card + 1 + c.val, hP⟩ = .inr (Fin.last ℓ) := by
+    rw [← h1]
+    exact (Seq.apply_congr s₄ (b := c) (by simp only [hcA]; omega)).trans hc
+  clear h1
+  have hlt : (Aₚ).card + 1 + c.val < Multiset.card (Aₚ + Aₗ) := by
+    by_contra hge
+    push Not at hge
+    rw [Seq.append_apply_ge _ _ _ hge] at h2
+    have hb := b.mem ⟨(Aₚ).card + 1 + c.val - Multiset.card (Aₚ + Aₗ), by
+      have := hP; simp only [Multiset.card_add, Multiset.card_singleton] at this ⊢; omega⟩
+    rw [h2, Multiset.mem_singleton] at hb
+    exact Sum.inr_ne_inl hb
+  rw [Seq.append_apply_lt _ _ _ hlt] at h2
+  induction T using TensorProduct.inductionOn with
+  | add T T' hT hT' => rw [map_add, mul_add, map_add, add_smul, hT, hT', add_zero]
+  | tmul x z =>
+    rw [← concat_e_tmul_e, ← concat_mul, Algebra.TensorProduct.tmul_mul_tmul,
+      show (KLRAlgebra.e s'' * x) ⊗ₜ[k] (KLRAlgebra.e b * z) =
+        ((1 : KLRAlgebra k S (Aₚ + Aₗ)) ⊗ₜ[k] (KLRAlgebra.e b * z)) *
+          ((KLRAlgebra.e s'' * x) ⊗ₜ[k] (1 : KLRAlgebra k S {(Sum.inl i : I ⊕ Fin (ℓ + 1))})) by
+        rw [Algebra.TensorProduct.tmul_mul_tmul, one_mul, mul_one],
+      concat_mul, ← appendR_apply, map_mul, mul_smul,
+      firstIndAffine_appendR_e_mul_smul Q Λ i θ β N hQ s'' ⟨_, hlt⟩ h2 (by simp only; omega),
+      smul_zero]
 
 end Categorification.Stendhal

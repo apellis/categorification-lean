@@ -476,6 +476,7 @@ import Categorification.KLR.GradeTransfer
 import Categorification.KLR.GradingFlip
 import Categorification.KLR.IndCast
 import Categorification.KLR.IndFirstSlide
+import Categorification.KLR.IndFirstSlideQuad
 import Categorification.KLR.IndLastStrand
 import Categorification.KLR.IndLastStrandBij
 import Categorification.KLR.IndLastStrandDescent

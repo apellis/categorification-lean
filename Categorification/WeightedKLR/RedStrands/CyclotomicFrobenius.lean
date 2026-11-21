@@ -385,17 +385,25 @@ theorem clCyclotomic_trace_nondegenerate (Λ : Fin 1 → I →₀ ℕ) (ν : Mul
       have h1 := cZ.injective (h.trans (map_zero cZ).symm)
       have h2 := f₀.symm.injective (h1.trans (map_zero f₀.symm).symm)
       exact (zeroMatrixEquiv B).symm.injective (h2.trans (map_zero _).symm)
-  refine ⟨{ toFun := fun a => cZ (f₀.symm ((zeroMatrixEquiv B).symm (τ (f a))))
-            map_add' := fun a b => by simp only [map_add]
-            map_smul' := fun c a => by
-              simp only [map_smul, hlin, zeroMatrixEquiv_symm_smul, RingHom.id_apply] },
-    fun a ha => ?_, fun b hb => ?_⟩
+  let tr : CycKLR k (CL.qCL KL) (fun i => Polynomial.X ^ Λ 0 i) ν →ₗ[k] k :=
+    { toFun := fun a => cZ (f₀.symm ((zeroMatrixEquiv B).symm (τ (f a))))
+      map_add' := fun a b => by
+        rw [map_add f, map_add τ, map_add (zeroMatrixEquiv B).symm, map_add f₀.symm, map_add cZ]
+      map_smul' := fun c a => by
+        rw [map_smul f, hlin, zeroMatrixEquiv_symm_smul, map_smul f₀.symm, map_smul cZ,
+          RingHom.id_apply] }
+  have htr : ∀ a, tr a = cZ (f₀.symm ((zeroMatrixEquiv B).symm (τ (f a)))) := fun _ => rfl
+  refine ⟨tr, fun a ha => ?_, fun b hb => ?_⟩
   · obtain ⟨N, hN⟩ := h₁ (f a) (fun h => ha (f.injective (h.trans (map_zero f).symm)))
-    refine ⟨f.symm N, hψ _ ?_⟩
-    simpa [map_mul] using hN
+    refine ⟨f.symm N, ?_⟩
+    rw [htr]
+    refine hψ _ ?_
+    rwa [map_mul f, AlgEquiv.apply_symm_apply]
   · obtain ⟨M, hM⟩ := h₂ (f b) (fun h => hb (f.injective (h.trans (map_zero f).symm)))
-    refine ⟨f.symm M, hψ _ ?_⟩
-    simpa [map_mul] using hM
+    refine ⟨f.symm M, ?_⟩
+    rw [htr]
+    refine hψ _ ?_
+    rwa [map_mul f, AlgEquiv.apply_symm_apply]
 
 end CL
 

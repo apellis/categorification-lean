@@ -5393,4 +5393,22 @@ example := KLR.IsRouquierQ.cyclotomic_frobenius rqHyp coordDatum (fun _ => 2)
   (a := fun _ => Polynomial.X ^ 2) (fun _ => Polynomial.monic_X_pow 2)
   (fun _ => by simp [coordDatum]) ({0, 1, 0} : Multiset (Fin 2))
 
+/-- Kang–Kashiwara projectivity over the base ring in characteristic two, for the parallel-edge
+Rouquier parameters and `a_i = u²`. -/
+example := KLR.CycKLR.projective_base (fun _ => Polynomial.X ^ 2) rqHyp.klrSymm
+  rqHyp.polyInY_leading (fun _ => Polynomial.monic_X_pow 2) ({0, 1, 0} : Multiset (Fin 2))
+
+/-- Webster arXiv:1309.3796v2, Corollary 3.26 (flatness), for `λ = (2, 2)`. -/
+example := KLR.CyclotomicAction.UnivCyc.flat (lam := fun _ => 2) rqHyp
+  ({0, 1, 0} : Multiset (Fin 2))
+
+/-- Webster arXiv:1309.3796v2, Corollary 3.26 (freeness), for `λ = (2, 2)` over `𝔽₂`. -/
+example := KLR.CyclotomicAction.UnivCyc.free (lam := fun _ => 2) rqHyp
+  ({0, 1, 0} : Multiset (Fin 2))
+
+/-- Webster arXiv:1309.3796v2, Proposition 3.25 (the action), for `λ = (2, 2)`. -/
+noncomputable example := KLR.CyclotomicAction.univCyclotomicPresCL (lam := fun _ => 2) rqHyp
+  coordDatum (fun _ => 2) (fun _ => by simp [coordDatum])
+
 end NonVacuity.CyclotomicFrobeniusRouquier
+

@@ -71,12 +71,20 @@ private def feEquivCorner : FE Q i β a ≃ₗ[Rlᵐᵒᵖ] Mc := by
     (quotientEquiv a (Si + β)).apply_symm_apply _]
   exact z.2
 
+/-- **Kang–Kashiwara, arXiv:1102.4677v4, Theorem 4.5**, in corner form: the one-sided
+corner `R^Λ({i} + β) e(β, i)` is a projective right `R^Λ(β)`-module, for `β ≠ 0`. -/
+theorem projective_indCorner
+    (hsym : KLRSymm Q)
+    (hQ : ∀ s t : I, s ≠ t → ∃ c : k, IsUnit c ∧ (polyInY (Q s t)).leadingCoeff = Polynomial.C c)
+    (ha : (a i).Monic) (hβ : 0 < β.card) : Module.Projective Rlᵐᵒᵖ Mc :=
+  let := projective_FE i β a hsym (leadUnitAt_of i hQ) ha hβ
+  Module.Projective.of_equiv (feEquivCorner a β i)
+
 private theorem projective_res_regular_of_pos
     (hsym : KLRSymm Q)
     (hQ : ∀ s t : I, s ≠ t → ∃ c : k, IsUnit c ∧ (polyInY (Q s t)).leadingCoeff = Polynomial.C c)
     (ha : (a i).Monic) (hβ : 0 < β.card) : Module.Projective Rl (Res Q i a β Su) := by
-  let := projective_FE i β a hsym (leadUnitAt_of i hQ) ha hβ
-  let : Module.Projective Rlᵐᵒᵖ Mc := Module.Projective.of_equiv (feEquivCorner a β i)
+  let : Module.Projective Rlᵐᵒᵖ Mc := projective_indCorner a β i hsym hQ ha hβ
   let φ : Rl →ₙ+* Su := cyclotomicLast Q i a β
   have : Module.Projective Rlᵐᵒᵖ (InductionAlong.Corner φ) :=
     Module.Projective.of_equiv' (show Mc ≃ₗ[Rlᵐᵒᵖ] InductionAlong.Corner φ from

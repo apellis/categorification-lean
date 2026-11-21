@@ -1390,6 +1390,11 @@ import Categorification.WeightedKLR.RedStrands.DoubleBlackRestriction
 import Categorification.Algebra.AmbidextrousTraceSeparating
 import Categorification.TwoRep.WordAdjunction
 import Categorification.KLR.CyclotomicAction.Frobenius
+import Categorification.KLR.CyclotomicBaseProjective
+import Categorification.KLR.CyclotomicAction.Universal
+import Categorification.KLR.CyclotomicAction.UniversalFlat
+import Categorification.KLR.CyclotomicAction.UniversalGrading
+import Categorification.Algebra.Graded.FreeOfProjective
 /-!
 # Categorification
 

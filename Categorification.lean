@@ -58,6 +58,7 @@ import Categorification.Algebra.InductionAlongEnd
 import Categorification.Algebra.InductionAlongLinear
 import Categorification.Algebra.InductionAlongRes
 import Categorification.Algebra.InductionAlongTensor
+import Categorification.Algebra.InductionAlongTensorFactor
 import Categorification.Algebra.InductionAlongTriple
 import Categorification.Algebra.K0FinDim
 import Categorification.Algebra.ModuleCatLinear

@@ -16,7 +16,7 @@ counterclockwise bubbles, which act by `vacTrace` (`univPres_ccwReal_vacuum`), s
 `vacFakeVal j n = (-1)^n e_n(p_j)` (`grassInv_vacTrace`).
 
 * `vacEval`, `vacEvalLin`: evaluation at `P_∅`, as ring homomorphisms;
-* `vacScalar`: the scalars of `Ř^λ_λ` acting on `P_∅`;
+* `vacScalarHom`: the scalars of `Ř^λ_λ` acting on `P_∅`;
 * `vacEvalLin_cwL`: the clockwise bubble of colour `j` with label `n - λ^j - 1`, `n ≤ λ^j`,
   acts on `P_∅` by `vacFakeVal j n`.
 -/
@@ -69,7 +69,7 @@ def vacEval :
     rfl
 
 /-- Scalars of `Ř^λ_λ` acting on `P_∅`. -/
-def vacScalar : UnivCycRing k lam →+* End (vacObj.{u, v, w} hQ RD Λ hΛ) where
+def vacScalarHom : UnivCycRing k lam →+* End (vacObj.{u, v, w} hQ RD Λ hΛ) where
   toFun c := c • 𝟙 _
   map_one' := one_smul _ _
   map_mul' c d := by
@@ -92,7 +92,7 @@ def vacEvalLin : LEnd RD k (ob RD (vacWt RD Λ) []) →+* End (vacObj.{u, v, w} 
 /-- Counterclockwise bubbles act on `P_∅` by `vacTrace` (`univPres_ccwReal_vacuum`). -/
 theorem vacEvalLin_ccwR (i : I) (m : ℕ) :
     vacEvalLin hQ RD Λ hΛ (ccwR RD k (vacWt RD Λ) i m) =
-      vacScalar hQ RD Λ hΛ (vacTrace k lam i m) := by
+      vacScalarHom hQ RD Λ hΛ (vacTrace k lam i m) := by
   rw [ccwR, ite_eq_left (Int.natCast_nonneg m), Int.toNat_natCast]
   exact univPres_ccwReal_vacuum hQ RD Λ hΛ i m
 
@@ -101,7 +101,7 @@ include hΛ in
 `n - λ^i - 1`, `n ≤ λ^i`, acts on `P_∅` by `vacFakeVal i n = (-1)^n e_n(p_i)`. -/
 theorem vacEvalLin_cwL (i : I) (n : ℕ) (hn : n ≤ lam i) :
     vacEvalLin hQ RD Λ hΛ (cwL RD k (vacWt RD Λ) i ((n : ℤ) - lam i - 1)) =
-      vacScalar hQ RD Λ hΛ (vacFakeVal k lam i n) := by
+      vacScalarHom hQ RD Λ hΛ (vacFakeVal k lam i n) := by
   have hi := ip_vacWt RD Λ hΛ i
   rw [cwL, ite_eq_right (by omega : ¬ (0 : ℤ) ≤ (n : ℤ) - lam i - 1),
     ite_eq_left (by omega : (0 : ℤ) ≤ (n : ℤ) - lam i - 1 + 1 - ip RD i (vacWt RD Λ)),

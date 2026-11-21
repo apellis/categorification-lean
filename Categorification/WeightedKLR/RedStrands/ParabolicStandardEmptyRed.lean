@@ -10,19 +10,20 @@ import Categorification.KLR.CyclotomicAbsentColour
 
 B. Webster, *Knot invariants and higher representation theory*, arXiv:1309.3796v3, proof of
 Proposition 5.5. When the last block is empty (`β = ∅`), the factor algebra is
-`T^{λ'} ⊗ R^{λ_ℓ}_0 ≅ T^{λ'}`, and standardization of a module `N` is a quotient of the induction
-of `N` along the map `T^{λ'} → T^λ` adding a red strand on the right
-(`Prop 4.18`). This file constructs the surjection.
+`T^{λ'} ⊗ R^{λ_ℓ}_0 ≅ T^{λ'}`, and standardization of a module `N` is the induction of `N`
+along the map `T^{λ'} → T^λ` adding a red strand on the right (`Prop 4.18`). The inverse is
+`z ⊗ n ↦ z · (1 ⊗ n)`, so in this case no dimension count is needed.
 
 ## Main definitions
 
 * `emptyFactorToOld`: the factor algebra at `β = ∅` is `T^{λ'}`.
 * `EmptyRedInd`: the induction of `N` along `appendRed`.
-* `emptyRedStandard`: the map `S(N) → EmptyRedInd N`.
+* `emptyRedStandard`: the map `S(N) → EmptyRedInd N`, and `emptyRedInv` its inverse.
+* `emptyRedStandardEquiv`: `S(N) ≅ EmptyRedInd N` as `T^λ`-modules.
 
 ## Main results
 
-* `emptyRedStandard_surjective`.
+* `emptyRedStandard_surjective`, `emptyRedStandard_injective`.
 -/
 
 noncomputable section
@@ -386,6 +387,104 @@ theorem emptyRedStandard_surjective : Function.Surjective (emptyRedStandard Q Λ
   · obtain ⟨a, rfl⟩ := hs
     obtain ⟨b, rfl⟩ := ht
     exact ⟨a + b, map_add _ _ _⟩
+
+/-- `N` as a module of the factor algebra again. -/
+def emptyOut (n : N₁) : ParabolicInput Q Λ θ 0 N := n
+
+omit [Module k N] [IsScalarTower k (parabolicFactorAlgebra Q Λ θ 0) N] in
+theorem emptyOut_add (n n' : N₁) :
+    emptyOut Q Λ θ N (n + n') = emptyOut Q Λ θ N n + emptyOut Q Λ θ N n' := rfl
+
+/-- The generator `1 ⊗ n` of `S(N)`. -/
+def emptyStdGen (n : N₁) : ParabolicStandardT Q Λ θ 0 N hQ :=
+  emptyStdMk Q Λ θ N hQ (BalancedTensor.tmul (oneBimod S Aₚ A₀) (emptyOut Q Λ θ N n))
+
+omit [IsScalarTower k (parabolicFactorAlgebra Q Λ θ 0) N] in
+theorem emptyStdGen_add (n n' : N₁) :
+    emptyStdGen Q Λ θ N hQ (n + n') = emptyStdGen Q Λ θ N hQ n + emptyStdGen Q Λ θ N hQ n' := by
+  rw [emptyStdGen, emptyStdGen, emptyStdGen, emptyOut_add, BalancedTensor.tmul_add]
+  exact map_add (Submodule.mkQ _) _ _
+
+/-- Adding the last red strand to `a ∈ T^{λ'}` acts on the generator through `a`. -/
+theorem emptyStdGen_smul (a : L₀) (n : N₁) :
+    emptyRedHom Q Λ θ a • emptyStdGen Q Λ θ N hQ n = emptyStdGen Q Λ θ N hQ (a • n) := by
+  obtain ⟨t, ht⟩ := parabolicInputMap_surjective Q Λ θ 0 ((emptyFactorToOld Q Λ θ).symm a)
+  have ha : a = emptyFactorToOld Q Λ θ (parabolicInputMap Q Λ θ 0 t) := by
+    rw [ht, AlgEquiv.apply_symm_apply]
+  subst ha
+  have h1 : emptyFactorToOld Q Λ θ (parabolicInputMap Q Λ θ 0 t) • n =
+      emptyIn Q Λ θ N (t • emptyOut Q Λ θ N n) :=
+    (emptyIn_smul Q Λ θ N t (emptyOut Q Λ θ N n)).symm
+  rw [h1, ← emptyG_apply, ← emptyF_eq_emptyG]
+  change emptyAffine Q Λ θ (concat S Aₚ A₀ t) • _ = _
+  rw [emptyStdGen, emptyStdMk_smul, BalancedTensor.smul_tmul', concat_smul_oneBimod,
+    BalancedTensor.op_smul_tmul]
+  rfl
+
+/-- **The inverse map `Ind N → S(N)`**, `z ⊗ n ↦ z · (1 ⊗ n)`. -/
+def emptyRedInv : J →ₗ[T₀] ParabolicStandardT Q Λ θ 0 N hQ :=
+  Ind.lift (fun z n => z.1 • emptyStdGen Q Λ θ N hQ n)
+    (fun z z' n => by rw [Submodule.coe_add, add_smul])
+    (fun z n n' => by rw [emptyStdGen_add, smul_add])
+    (fun z a n => by
+      change (z.1 * emptyRedHom Q Λ θ a) • _ = _
+      rw [mul_smul, emptyStdGen_smul])
+    (fun b z n => by
+      change (b * z.1) • _ = _
+      rw [mul_smul])
+
+theorem emptyRedInv_tmul (z : InductionAlong.Corner (emptyRedHom Q Λ θ)) (n : N₁) :
+    emptyRedInv Q Λ θ N hQ (Ind.tmul z n) = z.1 • emptyStdGen Q Λ θ N hQ n := rfl
+
+theorem emptyRedStandard_emptyRedInv (y : J) :
+    emptyRedStandardT Q Λ θ N hQ (emptyRedInv Q Λ θ N hQ y) = y := by
+  refine Ind.induction_on (motive := fun y : J =>
+    emptyRedStandardT Q Λ θ N hQ (emptyRedInv Q Λ θ N hQ y) = y) y
+    (by erw [map_zero]; rfl) (fun z n => ?_) (fun s t hs ht => by
+      erw [map_add, map_add, hs, ht]; rfl)
+  rw [emptyRedInv_tmul, map_smul]
+  change z.1 • emptyRedStandard Q Λ θ N hQ (emptyStdMk Q Λ θ N hQ
+    (BalancedTensor.tmul (oneBimod S Aₚ A₀) (emptyOut Q Λ θ N n))) = _
+  rw [emptyRedStandard_mk_one]
+  exact (Ind.smul_tmul _ _ _).trans (congrArg (fun w => Ind.tmul w n) (Subtype.ext z.2))
+
+omit [IsScalarTower k (parabolicFactorAlgebra Q Λ θ 0) N] in
+theorem emptyStdMk_zero : emptyStdMk Q Λ θ N hQ 0 = 0 := map_zero (Submodule.mkQ _)
+
+omit [IsScalarTower k (parabolicFactorAlgebra Q Λ θ 0) N] in
+theorem emptyStdMk_add (x y : ParabolicShuffle Q Λ θ 0 N) :
+    emptyStdMk Q Λ θ N hQ (x + y) = emptyStdMk Q Λ θ N hQ x + emptyStdMk Q Λ θ N hQ y :=
+  map_add (Submodule.mkQ _) x y
+
+theorem emptyRedInv_emptyRedStandard (m : ParabolicStandardT Q Λ θ 0 N hQ) :
+    emptyRedInv Q Λ θ N hQ (emptyRedStandardT Q Λ θ N hQ m) = m := by
+  obtain ⟨x, rfl⟩ := Submodule.mkQ_surjective (excludedSpace
+    (parabolicShuffleAction Q Λ θ 0 N) (parabolicOrderedLoadings (ℓ := ℓ) θ 0)) m
+  change emptyRedInv Q Λ θ N hQ (emptyRedStandard Q Λ θ N hQ (emptyStdMk Q Λ θ N hQ x)) =
+    emptyStdMk Q Λ θ N hQ x
+  induction x using BalancedTensor.induction_on with
+  | zero => rw [emptyStdMk_zero, map_zero, map_zero]
+  | tmul r y =>
+    rw [emptyRedStandard_mk, emptyStdShuffle_tmul, map_smul, emptyRedGen_apply]
+    change emptyAffine Q Λ θ r.1 • ((unitGen (emptyRedHom Q Λ θ)).1 •
+      emptyStdGen Q Λ θ N hQ (emptyIn Q Λ θ N y)) = _
+    rw [unitGen, emptyStdGen_smul, one_smul, emptyStdGen, emptyStdMk_smul,
+      BalancedTensor.smul_tmul']
+    congr 2
+    exact Subtype.ext r.2
+  | add x y hx hy =>
+    rw [emptyStdMk_add, map_add, map_add, hx, hy]
+
+/-- **`S(N) ≅ Ind N`**: for an empty last block, standardization is the induction of `N`
+along `T^{λ'} → T^λ`, adding the last red strand (Webster, arXiv:1309.3796v3, proof of
+Prop 5.5, `β = ∅`). -/
+def emptyRedStandardEquiv : ParabolicStandardT Q Λ θ 0 N hQ ≃ₗ[T₀] J :=
+  LinearEquiv.ofLinearMap (emptyRedStandardT Q Λ θ N hQ) (emptyRedInv Q Λ θ N hQ)
+    (LinearMap.ext (emptyRedStandard_emptyRedInv Q Λ θ N hQ))
+    (LinearMap.ext (emptyRedInv_emptyRedStandard Q Λ θ N hQ))
+
+theorem emptyRedStandard_injective : Function.Injective (emptyRedStandard Q Λ θ N hQ) :=
+  (emptyRedStandardEquiv Q Λ θ N hQ).injective
 
 end Induced
 

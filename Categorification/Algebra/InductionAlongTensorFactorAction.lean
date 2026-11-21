@@ -61,8 +61,7 @@ variable {k : Type*} [CommRing k] {A : Type u} [Ring A] [Algebra k A] {C : Type 
 
 section CAct
 
-variable {N : Type w} [AddCommGroup N] [Module k N] [Module (A ⊗[k] C) N]
-  [IsScalarTower k (A ⊗[k] C) N]
+variable {N : Type w} [AddCommGroup N] [Module (A ⊗[k] C) N]
 
 /-- The action of `1 ⊗ c` on `N|_A`, an `A`-linear map. -/
 def leftFactorCAct (c : C) : LeftFactorRes k A C N →ₗ[A] LeftFactorRes k A C N where
@@ -74,13 +73,11 @@ def leftFactorCAct (c : C) : LeftFactorRes k A C N →ₗ[A] LeftFactorRes k A C
     rw [← mul_smul, ← mul_smul, Algebra.TensorProduct.tmul_mul_tmul,
       Algebra.TensorProduct.tmul_mul_tmul, one_mul, mul_one, one_mul, mul_one]
 
-omit [Module k N] [IsScalarTower k (A ⊗[k] C) N] in
 theorem leftFactorCAct_apply (c : C) (x : LeftFactorRes k A C N) :
     leftFactorCAct c x = (show N from ((1 : A) ⊗ₜ[k] c) • (show N from x)) := rfl
 
-variable {X Y : Type w} [AddCommGroup X] [Module k X] [Module (A ⊗[k] C) X]
-  [IsScalarTower k (A ⊗[k] C) X] [AddCommGroup Y] [Module k Y] [Module (A ⊗[k] C) Y]
-  [IsScalarTower k (A ⊗[k] C) Y]
+variable {X Y : Type w} [AddCommGroup X] [Module (A ⊗[k] C) X] [AddCommGroup Y]
+  [Module (A ⊗[k] C) Y]
 
 /-- **An isomorphism of first factors commuting with the second factor**: an `A`-linear
 isomorphism `X|_A ≅ Y|_A` commuting with the actions of `C` is `A ⊗ C`-linear. -/
@@ -106,8 +103,6 @@ def linearEquivOfLeftFactor (e : LeftFactorRes k A C X ≃ₗ[A] LeftFactorRes k
   left_inv x := e.symm_apply_apply x
   right_inv y := e.apply_symm_apply y
 
-omit [Module k X] [IsScalarTower k (A ⊗[k] C) X] [Module k Y]
-  [IsScalarTower k (A ⊗[k] C) Y] in
 theorem linearEquivOfLeftFactor_apply (e : LeftFactorRes k A C X ≃ₗ[A] LeftFactorRes k A C Y)
     (he : ∀ (c : C) (x : LeftFactorRes k A C X),
       e (leftFactorCAct c x) = leftFactorCAct c (e x)) (x : X) :
@@ -265,8 +260,7 @@ variable {k : Type*} [CommRing k] {A : Type u} [Ring A] [Algebra k A] {C : Type 
 
 section CAct
 
-variable {N : Type w} [AddCommGroup N] [Module k N] [Module (C ⊗[k] A) N]
-  [IsScalarTower k (C ⊗[k] A) N]
+variable {N : Type w} [AddCommGroup N] [Module (C ⊗[k] A) N]
 
 /-- The action of `c ⊗ 1` on `N|_A`, an `A`-linear map. -/
 def rightFactorCAct (c : C) : RightFactorRes k A C N →ₗ[A] RightFactorRes k A C N where
@@ -278,13 +272,11 @@ def rightFactorCAct (c : C) : RightFactorRes k A C N →ₗ[A] RightFactorRes k 
     rw [← mul_smul, ← mul_smul, Algebra.TensorProduct.tmul_mul_tmul,
       Algebra.TensorProduct.tmul_mul_tmul, one_mul, mul_one, one_mul, mul_one]
 
-omit [Module k N] [IsScalarTower k (C ⊗[k] A) N] in
 theorem rightFactorCAct_apply (c : C) (x : RightFactorRes k A C N) :
     rightFactorCAct c x = (show N from (c ⊗ₜ[k] (1 : A)) • (show N from x)) := rfl
 
-variable {X Y : Type w} [AddCommGroup X] [Module k X] [Module (C ⊗[k] A) X]
-  [IsScalarTower k (C ⊗[k] A) X] [AddCommGroup Y] [Module k Y] [Module (C ⊗[k] A) Y]
-  [IsScalarTower k (C ⊗[k] A) Y]
+variable {X Y : Type w} [AddCommGroup X] [Module (C ⊗[k] A) X] [AddCommGroup Y]
+  [Module (C ⊗[k] A) Y]
 
 /-- **An isomorphism of second factors commuting with the first factor**: an `A`-linear
 isomorphism `X|_A ≅ Y|_A` commuting with the actions of `C` is `C ⊗ A`-linear. -/
@@ -310,8 +302,6 @@ def linearEquivOfRightFactor (e : RightFactorRes k A C X ≃ₗ[A] RightFactorRe
   left_inv x := e.symm_apply_apply x
   right_inv y := e.apply_symm_apply y
 
-omit [Module k X] [IsScalarTower k (C ⊗[k] A) X] [Module k Y]
-  [IsScalarTower k (C ⊗[k] A) Y] in
 theorem linearEquivOfRightFactor_apply (e : RightFactorRes k A C X ≃ₗ[A] RightFactorRes k A C Y)
     (he : ∀ (c : C) (x : RightFactorRes k A C X),
       e (rightFactorCAct c x) = rightFactorCAct c (e x)) (x : X) :

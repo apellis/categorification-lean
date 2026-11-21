@@ -54,6 +54,7 @@ import Categorification.Algebra.HomTensorNaturality
 import Categorification.Algebra.InductionAlong
 import Categorification.Algebra.InductionAlongExact
 import Categorification.Algebra.InductionAlongAssoc
+import Categorification.Algebra.InductionAlongCrossTransportNaturality
 import Categorification.Algebra.InductionAlongTransportEquiv
 import Categorification.Algebra.InductionAlongTransportNaturality
 import Categorification.Algebra.InductionAlongBimodule
@@ -232,6 +233,7 @@ import Categorification.Diagrams.KLR.MatEndCorner
 import Categorification.Diagrams.KLR.MatEndCornerRes
 import Categorification.Diagrams.KLR.MatEndModuleComp
 import Categorification.Diagrams.KLR.MatEndModuleCross
+import Categorification.Diagrams.KLR.MatEndModuleCrossNaturality
 import Categorification.Diagrams.KLR.MatEndModuleDecomp
 import Categorification.Diagrams.KLR.MatEndModuleDecompNaturality
 import Categorification.Diagrams.KLR.MatEndModuleFunctor
@@ -1364,6 +1366,7 @@ import Categorification.WeightedKLR.RedStrands.BlackModuleCross
 import Categorification.WeightedKLR.RedStrands.BlackInductionExact
 import Categorification.WeightedKLR.RedStrands.BlackModuleCrossTransport
 import Categorification.WeightedKLR.RedStrands.BlackModuleCrossLeft
+import Categorification.WeightedKLR.RedStrands.BlackModuleCrossNaturality
 import Categorification.WeightedKLR.RedStrands.BlackModuleTensor
 import Categorification.WeightedKLR.RedStrands.DoubleBlackActionComp
 import Categorification.WeightedKLR.RedStrands.DoubleBlackActionHorizontal

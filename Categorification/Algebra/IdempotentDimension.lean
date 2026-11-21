@@ -212,36 +212,45 @@ end Invariance
 
 section Restriction
 
-variable {B : Type*} [Ring B] [Algebra k B] (φ : A →ₙₐ[k] B) (M : Type*) [AddCommGroup M]
-  [Module B M] [Module k M] [IsScalarTower k B M]
-  [Module k (Res (φ : A →ₙ+* B) M)] [IsScalarTower k A (Res (φ : A →ₙ+* B) M)]
+/-- The scalars `k` on a restriction, through `algebraMap k A`; a local instance. -/
+@[reducible] def Res.moduleK {B : Type*} [Ring B] (φ : A →ₙ+* B) (M : Type*) [AddCommGroup M]
+    [Module B M] : Module k (Res φ M) :=
+  Module.compHom (Res φ M) (algebraMap k A)
 
-/-- **Pieces of a restriction**: `a (Res φ M) ≅ φ(a) M`. -/
+theorem Res.isScalarTowerK {B : Type*} [Ring B] (φ : A →ₙ+* B) (M : Type*) [AddCommGroup M]
+    [Module B M] : letI := Res.moduleK k φ M; IsScalarTower k A (Res φ M) :=
+  letI := Res.moduleK k φ M
+  ⟨fun c a m => by
+    change (c • a) • m = algebraMap k A c • a • m
+    rw [Algebra.smul_def, mul_smul]⟩
+
+variable {B : Type*} [Ring B] [Algebra k B] (φ : A →ₙ+* B)
+  (hφ : ∀ c : k, φ (algebraMap k A c) = algebraMap k B c * φ 1) (M : Type*) [AddCommGroup M]
+  [Module B M] [Module k M] [IsScalarTower k B M]
+  [Module k (Res φ M)] [IsScalarTower k A (Res φ M)]
+
+include hφ in
+/-- **Pieces of a restriction**: `a (Res φ M) ≅ φ(a) M`, for a nonunital ring map `φ`
+compatible with the scalars `k`. -/
 theorem pieceDim_res (a : A) :
-    pieceDim k (Res (φ : A →ₙ+* B) M) a = pieceDim k M (φ a) := by
+    pieceDim k (Res φ M) a = pieceDim k M (φ a) := by
   have h1 : ∀ x : M, φ 1 • φ a • x = φ a • x := fun x => by
     rw [smul_smul, ← map_mul, one_mul]
-  have hval : ∀ (c : k) (x : Res (φ : A →ₙ+* B) M), (c • x).val = c • x.val := by
+  have hval : ∀ (c : k) (x : Res φ M), (c • x).val = c • x.val := by
     intro c x
-    rw [← algebraMap_smul A c x, Res.val_smul, ← algebraMap_smul B c x.val]
-    change φ (algebraMap k A c) • x.val = _
-    rw [Algebra.algebraMap_eq_smul_one, map_smul, smul_assoc, Algebra.algebraMap_eq_smul_one,
-      smul_assoc, one_smul]
-    congr 1
-    exact x.prop
-  let F : idemPiece k (Res (φ : A →ₙ+* B) M) a ≃ₗ[k] idemPiece k M (φ a) :=
-    { toFun := fun x => ⟨(x : Res (φ : A →ₙ+* B) M).val, by
+    rw [← algebraMap_smul A c x, Res.val_smul, ← algebraMap_smul B c x.val, hφ, mul_smul,
+      x.prop]
+  let F : idemPiece k (Res φ M) a ≃ₗ[k] idemPiece k M (φ a) :=
+    { toFun := fun x => ⟨(x : Res φ M).val, by
           obtain ⟨y, hy⟩ := x.2
           exact ⟨y.val, (Res.val_smul a y).symm.trans (congrArg Res.val hy)⟩⟩
       invFun := fun x => ⟨Res.mk (x : M) (by
           obtain ⟨y, hy⟩ := x.2
-          change φ 1 • (x : M) = _
           rw [← hy]; exact h1 y), by
         obtain ⟨y, hy⟩ := x.2
         have h11 : (φ 1 * φ 1 : B) = φ 1 := by rw [← map_mul, one_mul]
         have ha1 : (φ a * φ 1 : B) = φ a := by rw [← map_mul, mul_one]
         refine ⟨Res.mk (φ 1 • y) (by
-          change φ 1 • φ 1 • y = φ 1 • y
           rw [smul_smul, h11]), Res.ext ?_⟩
         change φ a • φ 1 • y = _
         rw [smul_smul, ha1]

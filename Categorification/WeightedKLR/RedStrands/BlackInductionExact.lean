@@ -110,7 +110,8 @@ noncomputable abbrev appendBlackNU : T →ₙ+* T' :=
 /-- The corner `T^λ_{ν+i} e'` of induction of left modules along `appendBlack` is, through the
 horizontal reflection, the right black cut of the regular module. -/
 noncomputable def blackCornerFlipEquiv :
-    BlackRes (Q := Q) (Λ := Λ) i ν T' ≃ₛₗ[((tensorFlipRingEquiv (Q := Q) (Λ := Λ) ν : T ≃+* Tᵐᵒᵖ) : T →+* Tᵐᵒᵖ)]
+    BlackRes (Q := Q) (Λ := Λ) i ν T'
+      ≃ₛₗ[((tensorFlipRingEquiv (Q := Q) (Λ := Λ) ν : T ≃+* Tᵐᵒᵖ) : T →+* Tᵐᵒᵖ)]
       Corner (appendBlackNU (Q := Q) (Λ := Λ) i ν) where
   toFun w := ⟨tensorFlip w.1, by
     rw [mem_lIdeal]

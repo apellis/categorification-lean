@@ -170,4 +170,50 @@ theorem twoPieceFactor_formula (w : KLRAlgebra k S α) (z : KLRAlgebra k S δ) :
   exact (congrArg (fun f : Module.End k Z => f z₀) (map_mul κ _ _)).symm.trans
     (congrArg (fun a => κ a z₀) h3.symm)
 
+theorem twoPieceAction_concat_mul (a w : KLRAlgebra k S α) (c z : KLRAlgebra k S δ) :
+    κ (concat S α δ (a ⊗ₜ c)) (κ (concat S α δ ((w * e (Seq.map (addRedColor ℓ) t)) ⊗ₜ z)) z₀) =
+      κ (concat S α δ (((a * w) * e (Seq.map (addRedColor ℓ) t)) ⊗ₜ (c * z))) z₀ := by
+  have h3 : concat S α δ (((a * w) * e (Seq.map (addRedColor ℓ) t)) ⊗ₜ (c * z)) =
+      concat S α δ (a ⊗ₜ c) * concat S α δ ((w * e (Seq.map (addRedColor ℓ) t)) ⊗ₜ z) := by
+    rw [← concat_mul, Algebra.TensorProduct.tmul_mul_tmul, mul_assoc]
+  exact (congrArg (fun f : Module.End k Z => f z₀) (map_mul κ _ _)).symm.trans
+    (congrArg (fun a => κ a z₀) h3.symm)
+
+/-- The two block actions on `[a] ⊗ [c]`. -/
+theorem twoPiecePrefixMap_smul_lastVec_smul (a : KLRAlgebra k S α) (c : KLRAlgebra k S δ)
+    (w' : lIdeal (seqIdem Q (Λ ∘ Fin.castSucc) t ht)) (y : KMod (k := k) Y) :
+    twoPiecePrefixMap Q Λ ht u ((P a) • (Submodule.Quotient.mk w' : St))
+        (twoPieceLastVec Q Λ ht u ((plc c) • y)) =
+      κ (concat S α δ (a ⊗ₜ c)) (twoPiecePrefixMap Q Λ ht u (Submodule.Quotient.mk w' : St)
+        (twoPieceLastVec Q Λ ht u y)) := by
+  have hw0 : ∃ w, P w = w'.1 :=
+    redSubfamilyProjection_surjective Q Λ Fin.castSucc (Fin.castSucc_injective ℓ) θ _
+  obtain ⟨w, hw⟩ := hw0
+  have hz0 : ∃ z, plc z = cycVal Q Λ u y := parabolicLastCyclotomic_surjective Q Λ β _
+  obtain ⟨z, hz⟩ := hz0
+  have hL : twoPiecePrefixMap Q Λ ht u ((P a) • (Submodule.Quotient.mk w' : St)) =
+      twoPiecePrefixFactor Q Λ ht u (P (a * w)) := by
+    rw [← Submodule.Quotient.mk_smul, twoPiecePrefixMap_mk]
+    change twoPiecePrefixFactor Q Λ ht u (P a * w'.1) = _
+    exact congrArg _ ((congrArg (P a * ·) hw.symm).trans (map_mul P a w).symm)
+  have hR : twoPieceLastVec Q Λ ht u ((plc c) • y) =
+      twoPieceLastFactor Q Λ ht u (plc (c * z)) z₀ := by
+    rw [twoPieceLastVec_apply]
+    change twoPieceLastFactor Q Λ ht u (plc c * cycVal Q Λ u y) z₀ = _
+    exact congrArg (fun x => twoPieceLastFactor Q Λ ht u x z₀)
+      ((congrArg (plc c * ·) hz.symm).trans (map_mul plc c z).symm)
+  have hM0 : twoPiecePrefixMap Q Λ ht u (Submodule.Quotient.mk w' : St) =
+      twoPiecePrefixFactor Q Λ ht u (P w) := by
+    rw [twoPiecePrefixMap_mk]
+    exact congrArg _ hw.symm
+  have hM1 : twoPieceLastVec Q Λ ht u y = twoPieceLastFactor Q Λ ht u (plc z) z₀ := by
+    rw [twoPieceLastVec_apply]
+    exact congrArg (fun x => twoPieceLastFactor Q Λ ht u x z₀) hz.symm
+  have hl := (congrArg₂ (fun (f : Module.End k Z) v => f v) hL hR).trans
+    (twoPieceFactor_formula Q Λ ht u (a * w) (c * z))
+  have hr := (congrArg₂ (fun (f : Module.End k Z) v => f v) hM0 hM1).trans
+    (twoPieceFactor_formula Q Λ ht u w z)
+  exact (hl.trans (twoPieceAction_concat_mul Q Λ ht u a w c z).symm).trans
+    (congrArg (κ (concat S α δ (a ⊗ₜ c))) hr.symm)
+
 end Categorification.Stendhal

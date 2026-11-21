@@ -13,6 +13,7 @@ import Categorification.Algebra.ExternalTensor
 import Categorification.Algebra.Generation
 import Categorification.Algebra.HomTensorInd
 import Categorification.Algebra.HomTensorIndModule
+import Categorification.Algebra.IdempotentDimension
 import Categorification.Algebra.IdempotentQuotient
 import Categorification.Algebra.IdempotentQuotientExact
 import Categorification.Algebra.Graded.Dimension

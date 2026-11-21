@@ -240,6 +240,16 @@ theorem zeroMatrixEquiv_symm_smul (c : k) (f : redObj P' ⟶ redObj P') :
     c • (eqToHom (downObj_zero P' i) ≫ f ≫ eqToHom (downObj_zero P' j).symm)
   rw [Linear.smul_comp, Linear.comp_smul]
 
+/-- `zeroMatrixEquiv` as an isomorphism of `k`-modules, from the red-strand endomorphisms. -/
+def zeroMatrixLinearEquiv :
+    (redObj P' ⟶ redObj P') ≃ₗ[k] downwardMatrix P' (0 : Multiset I) where
+  toFun := (zeroMatrixEquiv P').symm
+  invFun := zeroMatrixEquiv P'
+  left_inv := (zeroMatrixEquiv P').apply_symm_apply
+  right_inv := (zeroMatrixEquiv P').symm_apply_apply
+  map_add' := map_add (zeroMatrixEquiv P').symm
+  map_smul' := zeroMatrixEquiv_symm_smul P'
+
 end Zero
 
 /-- Every boundary of signed content zero is a retract of finitely many copies of the red
@@ -356,44 +366,31 @@ local notation "KL" => (CL.CLScalars.kl : CL.CLScalars C k)
 
 section Assembly
 
-variable (Λ : Fin 1 → I →₀ ℕ) (hstd : ∀ i j, i ≠ j → Q i j = CL.qCL KL i j)
-  {P : Presentation.{v, u} (signature (coordinateDatum Λ C)
-    (redWeight (cyclotomicCoverWeightDatum Λ C))) k}
-  (hP : CoverRelsNegligible.{u, v, w} Λ C hQ (coverDotCentral Λ C hQ)
-    (blockWeight (cyclotomicCoverWeightDatum Λ C)
-      (cyclotomicCoverHighest (I := I) (ℓ := 1)) 0) P)
-  (hwf : P.WFDom)
-
 /-- The cyclotomic KLR algebra `R^λ_ν` and the all-down matrix ring, as `k`-modules: the
 one-red isomorphism of Theorem 4.18 followed by the repaired Lemma 4.29. -/
-def clCycMatrixLinearEquiv (ν : Multiset I) :
-    CycKLR k (CL.qCL KL) (fun i => Polynomial.X ^ Λ 0 i) ν ≃ₗ[k]
+def clCycMatrixLinearEquiv (Λ : Fin 1 → I →₀ ℕ) (hstd : ∀ i j, i ≠ j → Q i j = CL.qCL KL i j)
+    {P : Presentation.{v, u} (signature (coordinateDatum Λ C)
+      (redWeight (cyclotomicCoverWeightDatum Λ C))) k}
+    (hP : CoverRelsNegligible.{u, v, w} Λ C hQ (coverDotCentral Λ C hQ)
+      (blockWeight (cyclotomicCoverWeightDatum Λ C)
+        (cyclotomicCoverHighest (I := I) (ℓ := 1)) 0) P)
+    (hwf : P.WFDom) (ν : Multiset I) :
+    CycKLR k (CL.qCL KL) (fun i => Polynomial.X ^ Λ 0 i) ν ≃ₐ[k]
       downwardMatrix (clDownwardBlock Λ C P) ν :=
-  (SingleRed.cyclotomicEquiv (CL.qCL KL) Λ ν).toLinearEquiv.trans
-    (clToDownwardMatrixKLEquiv (hQ := hQ) (ν := ν) hstd hP hwf).toLinearEquiv
-
-theorem clCycMatrixLinearEquiv_mul (ν : Multiset I)
-    (a b : CycKLR k (CL.qCL KL) (fun i => Polynomial.X ^ Λ 0 i) ν) :
-    clCycMatrixLinearEquiv (hQ := hQ) Λ hstd hP hwf ν (a * b) =
-      clCycMatrixLinearEquiv (hQ := hQ) Λ hstd hP hwf ν a *
-        clCycMatrixLinearEquiv (hQ := hQ) Λ hstd hP hwf ν b := by
-  change (clToDownwardMatrixKLEquiv (hQ := hQ) (ν := ν) hstd hP hwf)
-      ((SingleRed.cyclotomicEquiv (CL.qCL KL) Λ ν) (a * b)) =
-    (clToDownwardMatrixKLEquiv (hQ := hQ) (ν := ν) hstd hP hwf)
-        ((SingleRed.cyclotomicEquiv (CL.qCL KL) Λ ν) a) *
-      (clToDownwardMatrixKLEquiv (hQ := hQ) (ν := ν) hstd hP hwf)
-        ((SingleRed.cyclotomicEquiv (CL.qCL KL) Λ ν) b)
-  rw [map_mul (SingleRed.cyclotomicEquiv (CL.qCL KL) Λ ν),
-    map_mul (clToDownwardMatrixKLEquiv (hQ := hQ) (ν := ν) hstd hP hwf)]
+  (SingleRed.cyclotomicEquiv (CL.qCL KL) Λ ν).trans
+    (clToDownwardMatrixKLEquiv (Λ := Λ) (hQ := hQ) (ν := ν) hstd hP hwf)
 
 /-- The red-strand endomorphisms as `R^λ_0 = k`. -/
-def clRedEndLinearEquiv :
+def clRedEndLinearEquiv (Λ : Fin 1 → I →₀ ℕ) (hstd : ∀ i j, i ≠ j → Q i j = CL.qCL KL i j)
+    {P : Presentation.{v, u} (signature (coordinateDatum Λ C)
+      (redWeight (cyclotomicCoverWeightDatum Λ C))) k}
+    (hP : CoverRelsNegligible.{u, v, w} Λ C hQ (coverDotCentral Λ C hQ)
+      (blockWeight (cyclotomicCoverWeightDatum Λ C)
+        (cyclotomicCoverHighest (I := I) (ℓ := 1)) 0) P)
+    (hwf : P.WFDom) :
     (redObj (clDownwardBlock Λ C P) ⟶ redObj (clDownwardBlock Λ C P)) ≃ₗ[k] k :=
-  ({ (zeroMatrixEquiv (clDownwardBlock Λ C P)).symm with
-      map_smul' := zeroMatrixEquiv_symm_smul (clDownwardBlock Λ C P) } :
-      (redObj (clDownwardBlock Λ C P) ⟶ redObj (clDownwardBlock Λ C P)) ≃ₗ[k]
-        downwardMatrix (clDownwardBlock Λ C P) (0 : Multiset I)).trans
-    ((clCycMatrixLinearEquiv (hQ := hQ) Λ hstd hP hwf 0).symm.trans
+  (zeroMatrixLinearEquiv (clDownwardBlock Λ C P)).trans
+    ((clCycMatrixLinearEquiv (hQ := hQ) Λ hstd hP hwf 0).symm.toLinearEquiv.trans
       (cyclotomicZeroEquiv (CL.qCL KL) (fun i => Polynomial.X ^ Λ 0 i)).toLinearEquiv)
 
 end Assembly
@@ -418,23 +415,26 @@ theorem clCyclotomic_trace_nondegenerate (Λ : Fin 1 → I →₀ ℕ) (ν : Mul
         ∀ b, b ≠ 0 → ∃ a, tr (a * b) ≠ 0 := by
   obtain ⟨τ, h₁, h₂, hlin⟩ := downwardMatrix_trace_nondegenerate _ (KL).t
     (clDownwardBlock_reflectedBlack P) ν
-  let F := clCycMatrixLinearEquiv (hQ := hQ) Λ hstd hP hwf ν
+  let F := (clCycMatrixLinearEquiv (hQ := hQ) Λ hstd hP hwf ν).toLinearEquiv
   let ψ := clRedEndLinearEquiv (hQ := hQ) Λ hstd hP hwf
   let τl : downwardMatrix (clDownwardBlock Λ C P) ν →ₗ[k]
       (redObj (clDownwardBlock Λ C P) ⟶ redObj (clDownwardBlock Λ C P)) :=
     { τ with map_smul' := hlin }
-  have hmul := clCycMatrixLinearEquiv_mul Λ hstd hP hwf ν
-  refine ⟨ψ.toLinearMap ∘ₗ τl ∘ₗ F.toLinearMap, fun a ha => ?_, fun b hb => ?_⟩
+  have hmul : ∀ a b, F (a * b) = F a * F b := fun a b =>
+    map_mul (clCycMatrixLinearEquiv (hQ := hQ) Λ hstd hP hwf ν) a b
+  let tr := ψ.toLinearMap ∘ₗ τl ∘ₗ F.toLinearMap
+  have htr : ∀ x, tr x = ψ (τ (F x)) := fun _ => rfl
+  refine ⟨tr, fun a ha => ?_, fun b hb => ?_⟩
   · obtain ⟨N, hN⟩ := h₁ (F a) (fun h => ha (F.injective (h.trans F.map_zero.symm)))
     refine ⟨F.symm N, fun h => hN (ψ.injective ?_)⟩
-    rw [map_zero, ← h]
-    change ψ (τ (F a * N)) = ψ (τ (F (a * F.symm N)))
-    rw [hmul, F.apply_symm_apply]
+    have hF : F (a * F.symm N) = F a * N := by rw [hmul, F.apply_symm_apply]
+    exact ((congrArg (fun m => ψ (τ m)) hF).symm.trans ((htr _).symm.trans h)).trans
+      ψ.map_zero.symm
   · obtain ⟨M, hM⟩ := h₂ (F b) (fun h => hb (F.injective (h.trans F.map_zero.symm)))
     refine ⟨F.symm M, fun h => hM (ψ.injective ?_)⟩
-    rw [map_zero, ← h]
-    change ψ (τ (M * F b)) = ψ (τ (F (F.symm M * b)))
-    rw [hmul, F.apply_symm_apply]
+    have hF : F (F.symm M * b) = M * F b := by rw [hmul, F.apply_symm_apply]
+    exact ((congrArg (fun m => ψ (τ m)) hF).symm.trans ((htr _).symm.trans h)).trans
+      ψ.map_zero.symm
 
 end CL
 

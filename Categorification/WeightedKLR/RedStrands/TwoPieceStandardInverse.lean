@@ -369,11 +369,13 @@ theorem twoPieceLastAction_cyc (b : Seq β) :
     refine twoPiece_lastRed_dot_pow Q Λ ht u _ _ hm _ ?_ ?_
       (stendhalLE_twoPiece_concatLoading u (fun _ _ => le_rfl) _)
     · have ha : a.1 ⟨0, by simp⟩ = .inr (Fin.last ℓ) := by
-        have hm := Multiset.mem_map_of_mem a.1 (Finset.mem_univ_val (⟨0, by simp⟩ : Fin (Multiset.card rₗ)))
+        have hm := Multiset.mem_map_of_mem a.1
+          (Finset.mem_univ_val (⟨0, by simp⟩ : Fin (Multiset.card rₗ)))
         rw [a.2] at hm
         exact Multiset.mem_singleton.1 hm
       rw [Seq.lbl, Seq.cast_apply,
-        show Fin.cast _ (⟨Multiset.card α, _⟩ : Fin _) = Seq.posR α ⟨0, by simp [stendhalWeight]⟩ from
+        show Fin.cast _ (⟨Multiset.card α, _⟩ : Fin _) =
+            Seq.posR α ⟨0, by simp [stendhalWeight]⟩ from
           Fin.ext (by simp), Seq.append_posR, Seq.cast_apply]
       exact (Seq.append_posL a (Seq.map Sum.inl b) ⟨0, by simp⟩).trans ha
     · rw [← hc, Seq.lbl, Seq.cast_apply, Fin.cast_cast, Fin.cast_eq_self, Seq.append_posR,

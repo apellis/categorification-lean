@@ -485,6 +485,7 @@ import Categorification.KLR.CyclotomicAction.VacuumFactor
 import Categorification.KLR.CyclotomicAction.VacuumSpanning
 import Categorification.KLR.CyclotomicAction.VacuumCurl
 import Categorification.KLR.CyclotomicAction.VacuumQuotient
+import Categorification.KLR.CyclotomicAction.VacuumMorita
 import Categorification.KLR.ReindexSymmetries
 import Categorification.KLR.Unfurling.VacuumCorner
 import Categorification.KLR.Unfurling.VacuumEvaluation

@@ -1358,6 +1358,7 @@ import Categorification.WeightedKLR.RedStrands.BlackModuleSumDecomp
 import Categorification.WeightedKLR.RedStrands.BlackModuleNaturality
 import Categorification.WeightedKLR.RedStrands.BlackModuleEFTransport
 import Categorification.WeightedKLR.RedStrands.BlackModuleEFLeft
+import Categorification.WeightedKLR.RedStrands.BlackModuleEFLeftNaturality
 import Categorification.WeightedKLR.RedStrands.BlackModuleEFTransportNaturality
 import Categorification.WeightedKLR.RedStrands.BlackModuleCross
 import Categorification.WeightedKLR.RedStrands.BlackInductionExact

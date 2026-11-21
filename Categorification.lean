@@ -709,6 +709,8 @@ import Categorification.TwoRep.LemMainNeg
 import Categorification.TwoRep.LemXind
 import Categorification.TwoRep.LinearCat
 import Categorification.TwoRep.LinearCatRestrict
+import Categorification.TwoRep.SubPseudofunctor
+import Categorification.TwoRep.PresentedClosure
 import Categorification.TwoRep.LinFunBiproduct
 import Categorification.TwoRep.PiLinear
 import Categorification.TwoRep.BlockSum

@@ -7,10 +7,11 @@ import Categorification.WeightedKLR.RedStrands.TwoPieceStandardIso
 /-!
 # Standardization of `S_t ⊠ R e(u)` is a standard module
 
-B. Webster, *Knot invariants and higher representation theory*, arXiv:1309.3796v3,
-Proposition 5.21. For a red-ordered loading `t` of the first `ℓ` red strands and a black
-sequence `u`, the standardization `S(S_t ⊠ R^{λ_{ℓ+1}} e(u))` is isomorphic, as a module over
-`T^λ`, to the standard module `S_{t λ_{ℓ+1} u}` of Definition 5.1.
+B. Webster, *Knot invariants and higher representation theory*, arXiv:1309.3796v3, step in
+the proof of Proposition 5.21 (identifying the layers of the filtration of projectives). For a
+red-ordered loading `t` of the first `ℓ` red strands and a black sequence `u`, the
+standardization `S(S_t ⊠ R^{λ_{ℓ+1}} e(u))` is isomorphic, as a module over `T^λ`, to the
+standard module `S_{t λ_{ℓ+1} u}` of Definition 5.1.
 
 The map `S(S_t ⊠ R e(u)) → S_{t λ_{ℓ+1} u}` extends the input map through the universal property
 of standardization (`parabolicDesc`). The inverse sends the generator `[e(t λ_{ℓ+1} u)]` to
@@ -19,7 +20,7 @@ standardization (`parabolicStandardAction_upper_eq_zero`).
 
 ## Main results
 
-* `twoPieceStandardEquiv`: the isomorphism of Proposition 5.21.
+* `twoPieceStandardEquiv`: the isomorphism `S(S_t ⊠ R e(u)) ≅ S_{t λ_{ℓ+1} u}`.
 * `twoPieceStandardEquiv_symm_unit`: it matches the two unit vectors.
 -/
 
@@ -292,9 +293,9 @@ theorem twoPieceStandardFrom_to (v : V) :
       (LinearMap.map_add (twoPieceStandardFrom Q Λ ht u hQ) _ _).trans <|
       (congrArg₂ (· + ·) hx hy).trans h.symm
 
-/-- **Webster, arXiv:1309.3796v3, Proposition 5.21.** For a red-ordered loading `t` of the
-first `ℓ` red strands and a black sequence `u`, the standardization of `S_t ⊠ R^{λ_{ℓ+1}} e(u)`
-is the standard module `S_{t λ_{ℓ+1} u}` of the two-piece loading. -/
+/-- **Webster, arXiv:1309.3796v3, step in the proof of Proposition 5.21.** For a red-ordered
+loading `t` of the first `ℓ` red strands and a black sequence `u`, the standardization of
+`S_t ⊠ R^{λ_{ℓ+1}} e(u)` is the standard module `S_{t λ_{ℓ+1} u}` of the two-piece loading. -/
 def twoPieceStandardEquiv : V ≃ₗ[T] Z :=
   { twoPieceStandardTo Q Λ ht u hQ with
     invFun := twoPieceStandardFrom Q Λ ht u hQ

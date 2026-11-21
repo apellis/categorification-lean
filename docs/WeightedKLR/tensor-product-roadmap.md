@@ -722,7 +722,7 @@ from which the full one is obtained by iterating):
   inverse `z ⊗ n ↦ z · (1 ⊗ n)`; the key identity is that the parabolic affine image of a
   concatenation equals `appendRed` after the factor isomorphism (`emptyF_eq_emptyG`).
 
-* Prop 5.21 (`RedStrands/TwoPieceStandardEquiv.lean`): for a red-ordered loading `t` of the
+* Step in the proof of Prop 5.21 (`RedStrands/TwoPieceStandardEquiv.lean`): for a red-ordered loading `t` of the
   first `ℓ` red strands and a black sequence `u`, the standardization of `S_t ⊠ R e(u)` is the
   standard module `S_{t λ_{ℓ+1} u}` of Def 5.1, `S(S_t ⊠ R e(u)) ≅ S_{tλu}` as `T^λ`-modules
   (`twoPieceStandardEquiv`, `twoPieceStandardEquiv_symm_unit`), for `KLRSymm Q`. The map out of
@@ -735,7 +735,7 @@ algebra of all `ℓ + 1` blocks; the induced model uses left modules, which the 
 
 Standardization functors (Prop 5.3, Def 5.4, Props 5.6, 5.7); simples and crystals
 (Lemma 5.9, Props 5.11, 5.12, Thms 5.14, 5.15); stringy triples (Props 5.17, 5.18);
-standard stratification (Lemma 5.19, Cors 5.22, 5.24, Lemma 5.25,
+standard stratification (Lemma 5.19, Prop 5.21 itself, Cors 5.22, 5.24, Lemma 5.25,
 Prop 5.26, Cor 5.27: `V^λ` is a tensor product categorification); Thm 5.28 (finite
 projective resolutions, Lemma 5.29); self-dual projectives and double centralizer
 (Thm 5.30, Prop 5.31, Cor 5.32, Prop 5.33); Thm 5.34 (for `sl_n`, blocks of cyclotomic

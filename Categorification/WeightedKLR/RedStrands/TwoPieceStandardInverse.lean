@@ -137,6 +137,41 @@ theorem concatLeftHom_ψ_mul_e (G : KLRAlgebra k Q' (μ + μ') →ₐ[k] C) {j :
   rw [concatLeftHom_apply, concat_tmul_one_mul, KLR.KLRAlgebra.concat_ψ_tmul_one hj, mul_assoc,
     oneConcat_mul_concat, concat_e_tmul_one, Finset.mul_sum, map_sum]
 
+theorem concat_e_tmul_x_pow_mul_e {J : Type*} [DecidableEq J]
+    (P : J → J → MvPolynomial (Fin 2) k) {α β : Multiset J} (a : Seq α) (b : Seq β)
+    (z : Fin β.card) (d : ℕ) :
+    concat P α β (e a ⊗ₜ (x z ^ d * e b)) = x (Seq.posR α z) ^ d * e (a.append b) := by
+  simpa [ψw, TypeA.shiftWord, pol_X] using concat_pol_ψw_e (Q := P) (1 : MvPolynomial _ k)
+    (MvPolynomial.X z ^ d) (α := []) (α' := []) (by simp) (by simp) a b
+
+/-- Juxtaposition `z ↦ e(w) ⊗ z` on the right block, next to a fixed idempotent of the left
+block, followed by an algebra map out of the concatenated weight. -/
+def concatRightHom (G : KLRAlgebra k Q' (μ + μ') →ₐ[k] C) (w : Seq μ) :
+    KLRAlgebra k Q' μ' →ₙₐ[k] C where
+  toFun z := G (concat Q' μ μ' (e w ⊗ₜ z))
+  map_add' a b := by rw [TensorProduct.tmul_add, map_add, map_add]
+  map_smul' c a := by
+    change G (concat Q' μ μ' (e w ⊗ₜ (c • a))) = c • G (concat Q' μ μ' (e w ⊗ₜ a))
+    rw [TensorProduct.tmul_smul, LinearMap.map_smul, map_smul]
+  map_zero' := by rw [TensorProduct.tmul_zero, map_zero, map_zero]
+  map_mul' a b := by
+    change G (concat Q' μ μ' (e w ⊗ₜ (a * b))) =
+      G (concat Q' μ μ' (e w ⊗ₜ a)) * G (concat Q' μ μ' (e w ⊗ₜ b))
+    rw [← map_mul, ← concat_mul, Algebra.TensorProduct.tmul_mul_tmul, e_mul_e, ite_eq_left rfl]
+
+theorem concatRightHom_apply (G : KLRAlgebra k Q' (μ + μ') →ₐ[k] C) (w : Seq μ)
+    (z : KLRAlgebra k Q' μ') :
+    concatRightHom Q' μ μ' G w z = G (concat Q' μ μ' (e w ⊗ₜ z)) := rfl
+
+theorem concatRightHom_e (G : KLRAlgebra k Q' (μ + μ') →ₐ[k] C) (w : Seq μ) (d : Seq μ') :
+    concatRightHom Q' μ μ' G w (e d) = G (e (w.append d)) := by
+  rw [concatRightHom_apply, concat_e_tmul_e]
+
+theorem concatRightHom_x_mul_e (G : KLRAlgebra k Q' (μ + μ') →ₐ[k] C) (w : Seq μ)
+    (b : Fin (Multiset.card μ')) (d : Seq μ') :
+    concatRightHom Q' μ μ' G w (x b * e d) = G (x (Seq.posR μ b) * e (w.append d)) := by
+  rw [concatRightHom_apply, ← pow_one (x b), concat_e_tmul_x_pow_mul_e, pow_one]
+
 end Juxtapose
 
 section Prefix
@@ -225,6 +260,35 @@ theorem twoPiecePrefixAction_relations :
   red_cross := twoPiecePrefixAction_red_cross Q Λ ht u
   unordered := twoPiecePrefixAction_unordered Q Λ ht u
   violated s _ := twoPiecePrefixAction_violated Q Λ ht u s
+
+local notation "rₗ" => ({Sum.inr (Fin.last ℓ)} : Multiset (I ⊕ Fin (ℓ+1)))
+local notation "B₀" => Multiset.map (Sum.inl : I → I ⊕ Fin (ℓ+1)) β
+local notation "hB" => lastRedBlackWeight (ℓ := ℓ) β
+
+/-- **The last-block action** on `S_{t λ_{ℓ+1} u}`: a diagram `z` on the last red strand and the
+black strands to its right acts as the juxtaposition `e(t) ⊗ z`. -/
+def twoPieceLastAction : KLRAlgebra k S (rₗ + B₀) →ₙₐ[k] Module.End k Z :=
+  (concatRightHom S α δ κ (Seq.map (addRedColor ℓ) t)).comp
+    (castKLR S hB).toAlgHom.toNonUnitalAlgHom
+
+theorem twoPieceLastAction_apply (z : KLRAlgebra k S (rₗ + B₀)) :
+    twoPieceLastAction Q Λ ht u z =
+      κ (concat S α δ (e (Seq.map (addRedColor ℓ) t) ⊗ₜ castKLR S hB z)) := rfl
+
+theorem twoPieceLastAction_violated (d : Seq (rₗ + B₀)) (hd : IsViolated d) :
+    twoPieceLastAction Q Λ ht u (e d) = 0 := by
+  change concatRightHom S α δ κ _ (castKLR S hB (e d)) = 0
+  rw [castKLR_e, concatRightHom_e, twoPieceDescAction_apply Q Λ ht, leftStandardAllOrders_cast_e]
+  exact leftStandardAllOrders_e htp
+    (stendhalLT_twoPiece_concatLoading_violated t u (isViolated_seqCast hB hd))
+
+theorem twoPieceLastAction_red_dot (a : Fin (rₗ + B₀).card) (d : Seq (rₗ + B₀))
+    (ha : (d.1 a).isRight) : twoPieceLastAction Q Λ ht u (x a * e d) = 0 := by
+  change concatRightHom S α δ κ _ (castKLR S hB (x a * e d)) = 0
+  rw [map_mul, castKLR_x, castKLR_e, concatRightHom_x_mul_e]
+  refine leftStandardAllOrders_cast_x_mul_e htp H _ _ ?_
+  rw [Seq.lbl, Seq.append_posR, Seq.cast_apply]
+  rwa [Fin.cast_cast, Fin.cast_eq_self]
 
 end Prefix
 

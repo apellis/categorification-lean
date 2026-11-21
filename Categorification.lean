@@ -472,6 +472,7 @@ import Categorification.KLR.CyclotomicAction.VacuumEval
 import Categorification.KLR.CyclotomicAction.VacuumEvalIdeal
 import Categorification.KLR.CyclotomicAction.VacuumBubbleEval
 import Categorification.KLR.CyclotomicAction.VacuumBubbleScaling
+import Categorification.KLR.CyclotomicAction.VacuumCoeffMul
 import Categorification.KLR.CyclotomicAction.VacuumBubble
 import Categorification.KLR.CyclotomicAction.VacuumIdeal
 import Categorification.KLR.CyclotomicAction.VacuumBubbleReduction

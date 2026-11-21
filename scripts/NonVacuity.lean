@@ -5453,3 +5453,23 @@ weight `1` and degree `2`. -/
 example := CLQ.grassmannian_all UDot.sl2RootDatum ℚ CL.CLScalars.kl (1 : ℤ) () 2
 
 end NonVacuity.CLQGrassmannian
+
+namespace NonVacuity.CLQSpanning
+
+open Categorification Categorification.QuantumGroup Categorification.KL3.Diagram
+
+/-- Cautis–Lauda scalars for `sl₃` with nonzero `s`-terms and `r ≠ 1`. -/
+private def sl3Scalars : CL.CLScalars (Flag.slCartan 2) ℚ where
+  t _ _ := 1
+  s _ _ _ _ := 1
+  r _ := -1
+  t_self _ := rfl
+  t_symm _ _ _ := rfl
+  s_symm _ _ _ _ := rfl
+
+/-- KL III Prop. 3.10 (upward strands) for `U_Q(sl₃)` with these scalars, for strands of both
+colours. -/
+example : CL.Prop310UpC (Flag.slRootDatum 2) ℚ sl3Scalars 0 {0, 1} :=
+  CL.prop310UpC sl3Scalars 0 {0, 1}
+
+end NonVacuity.CLQSpanning

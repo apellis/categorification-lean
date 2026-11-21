@@ -115,6 +115,7 @@ import Categorification.Diagrams.CLQ.BubbleSlidesQ
 import Categorification.Diagrams.CLQ.EndOne
 import Categorification.Diagrams.CLQ.Grading
 import Categorification.Diagrams.CLQ.Pitchfork
+import Categorification.Diagrams.CLQ.SpanningGeneral
 import Categorification.Diagrams.CL.Specialize
 import Categorification.Diagrams.CL.SlideCalculusC
 import Categorification.Diagrams.CL.SpanningDefs

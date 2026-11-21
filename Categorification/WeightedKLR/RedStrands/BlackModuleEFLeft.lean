@@ -156,6 +156,39 @@ def clLeftBlackModuleFEEquiv (hn : ip (RDc) i
     (toFlipView (CL.qCL KL) Λ (Si + ν) M) (toFlipView_smul (CL.qCL KL) Λ (Si + ν) M) _
     (clBlackModuleFEEquiv hstd hP hwf i ν FV hn)
 
+local notation "T₁" => TensorProductAlgebra k (CL.qCL KL) Λ (Si + ν)
+local notation "nᵢ" => ip (RDc) i (downRightWeight (RDc) (coordinateRedWeights Λ C) (Si + ν))
+local notation "EF" => InductionAlong.Res (appendBlackNU (Q := CL.qCL KL) (Λ := Λ) i (Si + ν))
+  (InductionAlong.Ind M (appendBlackNU (Q := CL.qCL KL) (Λ := Λ) i (Si + ν)))
+local notation "FE" => InductionAlong.Ind
+  (InductionAlong.Res (appendBlackNU (Q := CL.qCL KL) (Λ := Λ) i ν) M)
+  (appendBlackNU (Q := CL.qCL KL) (Λ := Λ) i ν)
+
+include hstd hP hwf in
+/-- **The dimension form of the `Eᵢ`/`Fᵢ` commutation relation** on finite-dimensional left
+`T^λ`-modules (Webster, arXiv:1309.3796v3, input of the dimension count in the proof of
+Proposition 5.5): `dim Eᵢ Fᵢ M = dim Fᵢ Eᵢ M + n dim M` with `n = ⟨i, λ⟩`, in both signs of `n`,
+dimensions over `k`. -/
+theorem finrank_clLeftEF_eq
+    [FiniteDimensional k (RestrictScalars k T₁ EF)]
+    [FiniteDimensional k (RestrictScalars k T₁ FE)]
+    [FiniteDimensional k (RestrictScalars k T₁ M)] :
+    (Module.finrank k (RestrictScalars k T₁ EF) : ℤ) =
+      Module.finrank k (RestrictScalars k T₁ FE) +
+        nᵢ * Module.finrank k (RestrictScalars k T₁ M) := by
+  rcases le_total 0 nᵢ with h | h
+  · have e := finrank_restrictScalars_eq_of_equiv_prod (k := k)
+      (clLeftBlackModuleEFEquiv hstd hP hwf i ν M h)
+    rw [e, Fintype.card_fin]
+    push_cast
+    rw [Int.toNat_of_nonneg h]
+  · have e := congrArg (Nat.cast : ℕ → ℤ) (finrank_restrictScalars_eq_of_equiv_prod (k := k)
+      (clLeftBlackModuleFEEquiv hstd hP hwf i ν M h))
+    rw [Fintype.card_fin] at e
+    push_cast at e
+    rw [Int.toNat_of_nonneg (by omega)] at e
+    linear_combination -e
+
 end CL
 
 end Categorification.Stendhal

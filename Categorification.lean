@@ -9,6 +9,7 @@ import Categorification.Algebra.CoactionGrading
 import Categorification.Algebra.Coinvariant
 import Categorification.Algebra.CoinvariantGraded
 import Categorification.Algebra.DividedDifference
+import Categorification.Algebra.ExactDimension
 import Categorification.Algebra.ExternalTensor
 import Categorification.Algebra.Generation
 import Categorification.Algebra.HomTensorInd
@@ -1228,6 +1229,7 @@ import Categorification.WeightedKLR.RedStrands.ParabolicStandardLastIndLeft
 import Categorification.WeightedKLR.RedStrands.ParabolicStandardLastIndWords
 import Categorification.WeightedKLR.RedStrands.ParabolicStandardLastIndImage
 import Categorification.WeightedKLR.RedStrands.ParabolicStandardLastIndSurj
+import Categorification.WeightedKLR.RedStrands.ParabolicStandardLastIndShortExact
 import Categorification.WeightedKLR.RedStrands.LastStrandDecomposition
 import Categorification.WeightedKLR.RedStrands.ParabolicStandardLastRed
 import Categorification.WeightedKLR.RedStrands.ParabolicStandardLastRedVanish

@@ -1344,6 +1344,7 @@ import Categorification.WeightedKLR.RedStrands.BlackModuleCommutation
 import Categorification.WeightedKLR.RedStrands.BlackModuleSumDecomp
 import Categorification.WeightedKLR.RedStrands.BlackModuleEFTransport
 import Categorification.WeightedKLR.RedStrands.BlackModuleCross
+import Categorification.WeightedKLR.RedStrands.BlackModuleCrossTransport
 import Categorification.WeightedKLR.RedStrands.BlackModuleTensor
 import Categorification.WeightedKLR.RedStrands.DoubleBlackActionComp
 import Categorification.WeightedKLR.RedStrands.DoubleBlackActionHorizontal

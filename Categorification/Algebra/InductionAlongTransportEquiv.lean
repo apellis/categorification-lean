@@ -88,4 +88,52 @@ def indResEquivTransport (ι : Type*)
 
 end
 
+section Cross
+
+variable {A₀ A A₂ B A₀' A' A₂' B' : Type u} [Ring A₀] [Ring A] [Ring A₂] [Ring B] [Ring A₀']
+  [Ring A'] [Ring A₂'] [Ring B']
+  {φ₂ : A₀ →ₙ+* A} {φ₁ : A →ₙ+* B} {ψ₂ : A₀ →ₙ+* A₂} {ψ₁ : A₂ →ₙ+* B}
+  {φ₂' : A₀' →ₙ+* A'} {φ₁' : A' →ₙ+* B'} {ψ₂' : A₀' →ₙ+* A₂'} {ψ₁' : A₂' →ₙ+* B'}
+  (a₀ : A₀ ≃+* A₀') (a : A ≃+* A') (a₂ : A₂ ≃+* A₂') (b : B ≃+* B')
+  (hφ₂ : ∀ t, φ₂' (a₀ t) = a (φ₂ t)) (hφ₁ : ∀ t, φ₁' (a t) = b (φ₁ t))
+  (hψ₂ : ∀ t, ψ₂' (a₀ t) = a₂ (ψ₂ t)) (hψ₁ : ∀ t, ψ₁' (a₂ t) = b (ψ₁ t))
+  {M M' : Type w} [AddCommGroup M] [Module A M] [AddCommGroup M'] [Module A' M']
+  (e : M ≃+ M') (he : ∀ (t : A) m, e (t • m) = a t • e m)
+
+/-- The transport `Res Ind M ≃ Res Ind M'` (induction along `φ₁`, restriction along `ψ₁`). -/
+def resIndCrossTransport : Res ψ₁ (Ind M φ₁) ≃+ Res ψ₁' (Ind M' φ₁') :=
+  Res.transport a₂ b hψ₁ (Ind.transport a b hφ₁ e he) (Ind.transport_smul a b hφ₁ e he)
+
+theorem resIndCrossTransport_smul (t : A₂) (x : Res ψ₁ (Ind M φ₁)) :
+    resIndCrossTransport a a₂ b hφ₁ hψ₁ e he (t • x) =
+      a₂ t • resIndCrossTransport a a₂ b hφ₁ hψ₁ e he x :=
+  Res.transport_smul a₂ b hψ₁ _ _ t x
+
+/-- The transport `Ind Res M ≃ Ind Res M'` (restriction along `φ₂`, induction along `ψ₂`). -/
+def indResCrossTransport : Ind (Res φ₂ M) ψ₂ ≃+ Ind (Res φ₂' M') ψ₂' :=
+  Ind.transport a₀ a₂ hψ₂ (Res.transport a₀ a hφ₂ e he) (Res.transport_smul a₀ a hφ₂ e he)
+
+theorem indResCrossTransport_smul (t : A₂) (x : Ind (Res φ₂ M) ψ₂) :
+    indResCrossTransport a₀ a a₂ hφ₂ hψ₂ e he (t • x) =
+      a₂ t • indResCrossTransport a₀ a a₂ hφ₂ hψ₂ e he x :=
+  Ind.transport_smul a₀ a₂ hψ₂ _ _ t x
+
+/-- **Transport of `Res Ind M ≃ Ind Res M`** (the two composites through different
+intermediate rings) along ring isomorphisms intertwining the four nonunital maps and a
+semilinear isomorphism `M ≃ M'`. -/
+def resIndCrossEquivTransport
+    (L : Res ψ₁' (Ind M' φ₁') ≃ₗ[A₂'] Ind (Res φ₂' M') ψ₂') :
+    Res ψ₁ (Ind M φ₁) ≃ₗ[A₂] Ind (Res φ₂ M) ψ₂ :=
+  { ((resIndCrossTransport a a₂ b hφ₁ hψ₁ e he).trans L.toAddEquiv).trans
+      (indResCrossTransport a₀ a a₂ hφ₂ hψ₂ e he).symm with
+    map_smul' := fun t x => by
+      change (indResCrossTransport a₀ a a₂ hφ₂ hψ₂ e he).symm
+          (L (resIndCrossTransport a a₂ b hφ₁ hψ₁ e he (t • x))) =
+        t • (indResCrossTransport a₀ a a₂ hφ₂ hψ₂ e he).symm
+          (L (resIndCrossTransport a a₂ b hφ₁ hψ₁ e he x))
+      rw [resIndCrossTransport_smul, L.map_smul]
+      exact symm_smul_of_semilinear a₂ _ (indResCrossTransport_smul a₀ a a₂ hφ₂ hψ₂ e he) t _ }
+
+end Cross
+
 end Categorification.InductionAlong

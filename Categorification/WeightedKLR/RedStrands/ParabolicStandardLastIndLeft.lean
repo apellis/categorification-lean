@@ -120,4 +120,53 @@ theorem firstIndLayerAction_mk (a : T₁) :
     firstIndLayerAction Q Λ i θ β N hQ ((I₁).ringCon.mk' a) =
       firstIndAction Q Λ i θ β N hQ a := rfl
 
+local notation "S" => stendhalQ Q Λ
+local notation "Aₗ" => Multiset.map (Sum.map (id : I → I) (fun _ : Fin 1 => Fin.last ℓ))
+  (stendhalWeight 1 β)
+local notation "cst" => castTensorProductAlgebra Q Λ (lastInd_blackWeight i θ β)
+
+omit [DecidableEq I] in
+theorem firstInd_klrWeight :
+    Aₚ + Aₗ + {(Sum.inl i : I ⊕ Fin (ℓ + 1))} = μ₁ :=
+  ((lastInd_weight i θ β).trans (parabolicInputWeights_add (ℓ := ℓ) θ ((Si i) + β))).trans
+    (congrArg (stendhalWeight (ℓ+1)) (lastInd_blackWeight i θ β).symm)
+
+/-- Diagrams on the parabolic weight of `θ + β` with a black strand `i` on the right, read in
+`T(i + (θ + β))`. -/
+def firstIndAffine :
+    KLRAlgebra k S (Aₚ + Aₗ + {(Sum.inl i : I ⊕ Fin (ℓ + 1))}) →ₐ[k] T′ :=
+  (TensorProductAlgebra.mk Q Λ ((Si i) + (θ + β))).comp
+    ((orderProjection Q Λ ((Si i) + (θ + β))).comp
+      ((StendhalAlgebraAllOrders.ofKLR k Q Λ ((Si i) + (θ + β))).comp
+        (castKLR S (firstInd_klrWeight i θ β)).toAlgHom))
+
+local notation "affT" => firstIndAffine Q Λ i θ β
+
+theorem firstIndAffine_apply (a : KLRAlgebra k S (Aₚ + Aₗ + {(Sum.inl i : I ⊕ Fin (ℓ + 1))})) :
+    affT a = tensorOfKLR Q Λ ((Si i) + (θ + β)) (castKLR S (firstInd_klrWeight i θ β) a) := rfl
+
+theorem appendBlack_parabolicAffine (a : KLRAlgebra k S (Aₚ + Aₗ)) :
+    appendBlack Q Λ i (θ + β) (parabolicAffine Q Λ θ β a) =
+      affT (appendR S (Aₚ + Aₗ) (Sum.inl i) a) := by
+  apply (cst).injective
+  refine (castTensorProductAlgebra_appendBlack_affine Q Λ i θ β a).trans ?_
+  rw [firstIndAffine_apply, castTensorProductAlgebra_mk, castKLR_castKLR, castKLR_castKLR]
+
+/-- `[1 ⊗ a m] = ι(a ⊗ 1_i) [1 ⊗ m]` in `F_i(S N)`. -/
+theorem firstIndUnit_smul (a : KLRAlgebra k S (Aₚ + Aₗ)) (y : ParabolicShuffle Q Λ θ β N) :
+    (Ind.tmul (unitGen (appendBlackHom Q Λ i θ β))
+        (show ParabolicStandardT Q Λ θ β N hQ from Submodule.mkQ _ (a • y)) :
+          FirstIndF Q Λ i θ β N hQ) =
+      affT (appendR S (Aₚ + Aₗ) (Sum.inl i) a) •
+        (Ind.tmul (unitGen (appendBlackHom Q Λ i θ β))
+          (show ParabolicStandardT Q Λ θ β N hQ from Submodule.mkQ _ y) :
+            FirstIndF Q Λ i θ β N hQ) := by
+  rw [← appendBlack_parabolicAffine, Ind.smul_tmul, ← op_smul_unitGen_appendBlack,
+    Ind.op_smul_tmul]
+  congr 1
+  change _ = parabolicStandardAction Q Λ θ β N hQ (parabolicAffine Q Λ θ β a)
+    (Submodule.mkQ _ y)
+  rw [parabolicStandardAction_affine]
+  rfl
+
 end Categorification.Stendhal

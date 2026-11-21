@@ -50,6 +50,22 @@ theorem botOne_mul_hflip_firstψ_appendR :
   rw [hflip_mul, hflip_mul, hflip_appendR, hflip_oneConcat, hflip_botConcat] at h
   rw [h, ← mul_assoc, botOne_mul_botConcat]
 
+/-- `ψ_d^* 1_{ν₀ + ν', i} ι(1 ⊗ d) ι(1_{ν₀,ν'} ⊗ 1_i) = G ι(ι_T(1 ⊗ (d ⊗ 1)))`. -/
+theorem hflip_firstψ_mul_concat_appendR (d : KLRAlgebra k Q (Si i)) :
+    hflip (firstψ Q ν₀ ν' i) * oneConcat Q (ν₀ + ν') (Si i) *
+        concat Q (ν₀ + ν') (Si i) (1 ⊗ₜ d) * appendR Q _ i (oneConcat Q ν₀ ν') =
+      firstG Q ν₀ ν' i * concat Q (ν₀ + ν') (Si i)
+        (quadTop (firstQuad ν₀ ν' i) (1 ⊗ₜ (d ⊗ₜ 1))) := by
+  have e1 : concat Q (ν₀ + ν') (Si i) (oneConcat Q ν₀ ν' ⊗ₜ d) =
+      appendR Q _ i (oneConcat Q ν₀ ν') * concat Q (ν₀ + ν') (Si i) (1 ⊗ₜ d) := by
+    rw [appendR_apply, ← concat_mul, Algebra.TensorProduct.tmul_mul_tmul, mul_one, one_mul]
+  have e2 : concat Q (ν₀ + ν') (Si i) (1 ⊗ₜ d) * appendR Q _ i (oneConcat Q ν₀ ν') =
+      concat Q (ν₀ + ν') (Si i) (oneConcat Q ν₀ ν' ⊗ₜ d) := by
+    rw [appendR_apply, ← concat_mul, Algebra.TensorProduct.tmul_mul_tmul, mul_one, one_mul]
+  rw [quadTop_firstQuad_tmul, concat_one, firstG, mul_assoc _ (oneConcat Q _ _),
+    oneConcat_mul_concat, mul_assoc, e2, mul_assoc, oneConcat_mul_concat, e1, ← mul_assoc,
+    ← mul_assoc, mul_assoc (botOne Q _), botOne_mul_hflip_firstψ_appendR]
+
 end Categorification.KLR.KLRAlgebra
 
 namespace Categorification.Stendhal
@@ -88,5 +104,50 @@ theorem firstIndGen_mem_range (n : N) :
       (rfl : _ = parabolicAppendLeft Q Λ i θ β 1).trans
         (congrArg _ (map_one (parabolicInputMap Q Λ θ β)).symm),
     firstIndLayerAction_appendLeft, map_one, one_smul]
+
+/-- The unit generators are fixed by `ι(1_{α,β'} ⊗ 1_i)`. -/
+theorem firstIndUnitGen_eq (n : N) :
+    firstIndUnitGen Q Λ i θ β N hQ n =
+      affT (appendR S (Aₚ + Aₗ) (Sum.inl i) (oneConcat S Aₚ Aₗ)) •
+        firstIndUnitGen Q Λ i θ β N hQ n := by
+  have hm : oneConcat S Aₚ Aₗ • (BalancedTensor.tmul (oneBimod S Aₚ Aₗ)
+      (show ParabolicInput Q Λ θ β N from n) : ParabolicShuffle Q Λ θ β N) =
+      BalancedTensor.tmul (oneBimod S Aₚ Aₗ) (show ParabolicInput Q Λ θ β N from n) := by
+    refine (congrArg (fun a => a • (BalancedTensor.tmul (oneBimod S Aₚ Aₗ)
+      (show ParabolicInput Q Λ θ β N from n) : ParabolicShuffle Q Λ θ β N))
+        (concat_one (Q := S) (ν := Aₚ) (ν' := Aₗ)).symm).trans ?_
+    rw [concat_smul_tmul_oneBimod, one_smul]
+  refine Eq.trans ?_ (firstIndUnit_smul Q Λ i θ β N hQ _ _)
+  rw [hm]
+
+/-- **The core step**: `x ψ_d^* 1_{α + β', i} ι(1 ⊗ d) [1 ⊗ (1 ⊗ n)]` lies in the image of `δ₁`. -/
+theorem firstIndCore_mem (x : KLRAlgebra k S (Aₚ + Aₗ + {(Sum.inl i : I ⊕ Fin (ℓ + 1))}))
+    (d : KLRAlgebra k S {(Sum.inl i : I ⊕ Fin (ℓ + 1))}) (n : N) :
+    affT (x * hflip (firstψ S Aₚ Aₗ (Sum.inl i : I ⊕ Fin (ℓ + 1))) *
+        oneConcat S (Aₚ + Aₗ) {(Sum.inl i : I ⊕ Fin (ℓ + 1))} *
+        concat S (Aₚ + Aₗ) {(Sum.inl i : I ⊕ Fin (ℓ + 1))} (1 ⊗ₜ d)) •
+      firstIndUnitGen Q Λ i θ β N hQ n ∈ Rg := by
+  have h : affT (firstG S Aₚ Aₗ (Sum.inl i : I ⊕ Fin (ℓ + 1)) *
+        concat S (Aₚ + Aₗ) {(Sum.inl i : I ⊕ Fin (ℓ + 1))}
+          (quadTop (firstQuad Aₚ Aₗ (Sum.inl i : I ⊕ Fin (ℓ + 1))) (1 ⊗ₜ (d ⊗ₜ 1)))) •
+        firstIndUnitGen Q Λ i θ β N hQ n =
+      affT (botConcat S (firstQuad_h Aₚ Aₗ (Sum.inl i : I ⊕ Fin (ℓ + 1)))
+          (quadBot (firstQuad Aₚ Aₗ (Sum.inl i : I ⊕ Fin (ℓ + 1))) (1 ⊗ₜ (d ⊗ₜ 1))) *
+        firstG S Aₚ Aₗ (Sum.inl i : I ⊕ Fin (ℓ + 1))) •
+        firstIndUnitGen Q Λ i θ β N hQ n := by
+    let _ : Module (KLRAlgebra k S (Aₚ + Aₗ + {(Sum.inl i : I ⊕ Fin (ℓ + 1))}))
+        (FirstIndF Q Λ i θ β N hQ) := Module.compHom _ (firstIndAffine Q Λ i θ β).toRingHom
+    have _ : IsScalarTower k (KLRAlgebra k S (Aₚ + Aₗ + {(Sum.inl i : I ⊕ Fin (ℓ + 1))}))
+        (FirstIndF Q Λ i θ β N hQ) := ⟨fun c a x => by
+      change affT (c • a) • x = c • (affT a • x)
+      rw [map_smul, smul_assoc]⟩
+    exact KLRAlgebra.firstG_mul_concat_quadTop_smul
+      (u := firstIndUnitGen Q Λ i θ β N hQ n)
+      (fun s hs hs' T => firstIndAffine_e_concat_smul Q Λ i θ β N hQ s hs hs' T _) _
+  have e : ∀ a b c d e : KLRAlgebra k S (Aₚ + Aₗ + {(Sum.inl i : I ⊕ Fin (ℓ + 1))}),
+      a * b * c * d * e = a * (b * c * d * e) := fun _ _ _ _ _ => by simp only [mul_assoc]
+  rw [firstIndUnitGen_eq, ← mul_smul, ← map_mul, e, hflip_firstψ_mul_concat_appendR, map_mul,
+    mul_smul, h, map_mul, mul_smul]
+  exact Submodule.smul_mem _ _ (Submodule.smul_mem _ _ (firstIndGen_mem_range Q Λ i θ β N hQ n))
 
 end Categorification.Stendhal

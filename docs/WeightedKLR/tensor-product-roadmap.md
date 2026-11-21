@@ -701,24 +701,17 @@ from which the full one is obtained by iterating):
   (`lastIndKernel_le_range`, `ker_lastIndQuotientMap`). Injectivity of the first map is open.
   The short exact sequence is stated with injectivity as the explicit route hypothesis
   `FirstIndDeltaInjective` (`firstIndDeltaT_shortExact`, `ParabolicStandardLastIndShortExact.lean`;
-  decision 2026-11-21: Props 5.6 onward may use it while the count continues). **Roadmap item:
-  remove `FirstIndDeltaInjective`.** It is equivalent to
-  `dim Fᵢ S(N) = dim S(₁Fᵢ N) + dim S(₂Fᵢ N)` (`firstIndDeltaInjective_iff_finrank`).
-  Webster deduces it by a dimension count; the planned route (finite-dimensional `N`, over a
-  field at Rouquier parameters) is strong induction on `|θ| + |β|`, splitting
-  `dim Y = Σⱼ dim Eⱼ Y + dim R(Y)` with `R` the part whose last strand is red: the `Eⱼ`-parts
-  follow from exactness of `Fᵢ`, the `Eᵢ`-part above and the `EF`/`FE` commutation relations of
-  `T^λ` and of the factor algebra (dimension form), and the red part vanishes for `β ≠ ∅` and is
-  Prop 4.32 with Prop 4.18 for `β = ∅`. Done for the count: the red part vanishes for `β ≠ ∅`
-  (`lastRedIdem_smul_parabolicStandardT`); the `EF`/`FE` and `EⱼFᵢ` relations on left
-  `T^λ`-modules (`clLeftBlackModuleEFEquiv`, `clLeftBlackModuleFEEquiv`,
-  `clLeftBlackModuleCrossEquiv`), natural in the module, and their lifts to modules over the
-  factor algebra (`factorCrossEquiv`, `factorEFEquiv`, `factorFEEquiv`,
-  `RedStrands/BlackModuleFactorCommutation.lean`). Remaining for the count: dimension form of
-  the `Eⱼ`-parts (`pieceDim_res` with `lastStrandIdem_some`), the commutation of restriction
-  along the first factor with induction along the second, the `EF`/`FE` relations on the
-  cyclotomic factor, the `EF` relation when `i` is not in the content, the red part for
-  `β = ∅`, and the induction itself.
+  decision 2026-11-21: Props 5.6 onward may use it while the count continues). At the standard
+  Khovanov–Lauda scalars `Q = CL.qCL KL` (decision 2026-11-21) the hypothesis is discharged for
+  finite-dimensional `N`: Webster's count `dim Fᵢ S(N) = dim S(₁Fᵢ N) + dim S(₂Fᵢ N)`
+  (`finrank_firstIndF_eq_add`), proved by strong induction on `|θ| + |β|` from the last-strand
+  splitting into a red part and colour pieces (`RedStrands/Prop55Dimension*.lean`), gives
+  `firstIndDeltaInjective_std` and `allFiniteDeltaInjective_std`, hence the black-word
+  filtrations (`hasFiltration_loadingProj_std`; the finite-dimensional form
+  `AllFiniteDeltaInjective` suffices, `ParabolicStandardFiniteFiltration.lean`). These carry, as
+  hypotheses on the choice of presentation, `CoverRelsNegligible` and well-foundedness for the
+  cover data of `Λ`, `Λ ∘ Fin.castSucc` and the last red strand. **Roadmap items:** remove these
+  presentation hypotheses; extend the count to general scalars `Q`.
 
 * Prop 5.5, empty last block (`RedStrands/ParabolicStandardEmptyRed.lean`): for `β = ∅` the
   factor algebra is `T^{λ'}` (`emptyFactorToOld`) and standardization is the induction along

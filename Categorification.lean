@@ -1297,6 +1297,7 @@ import Categorification.WeightedKLR.RedStrands.ParabolicStandardTensorProj
 import Categorification.WeightedKLR.RedStrands.LeftStandardModule
 import Categorification.WeightedKLR.RedStrands.BlackCountTransport
 import Categorification.WeightedKLR.RedStrands.TwoPieceLoading
+import Categorification.WeightedKLR.RedStrands.ParabolicStandardUpper
 import Categorification.WeightedKLR.RedStrands.LastStrandDecomposition
 import Categorification.WeightedKLR.RedStrands.LastStrandPieceDimension
 import Categorification.WeightedKLR.RedStrands.ParabolicStandardLastRed

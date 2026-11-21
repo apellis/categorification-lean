@@ -1348,6 +1348,7 @@ import Categorification.WeightedKLR.RedStrands.DoubleBlackActionAdditive
 import Categorification.WeightedKLR.RedStrands.BlackCommutation
 import Categorification.WeightedKLR.RedStrands.BlackModuleCommutation
 import Categorification.WeightedKLR.RedStrands.BlackModuleSumDecomp
+import Categorification.WeightedKLR.RedStrands.BlackModuleNaturality
 import Categorification.WeightedKLR.RedStrands.BlackModuleEFTransport
 import Categorification.WeightedKLR.RedStrands.BlackModuleCross
 import Categorification.WeightedKLR.RedStrands.BlackInductionExact

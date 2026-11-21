@@ -5443,3 +5443,13 @@ example : CL.Prop310UpC UDot.sl2RootDatum ℚ CL.CLScalars.kl (1 : ℤ) {(), ()}
   CL.prop310UpC_kl 1 {(), ()}
 
 end NonVacuity.CLSpanning
+
+namespace NonVacuity.CLQGrassmannian
+
+open Categorification Categorification.QuantumGroup Categorification.KL3.Diagram
+
+/-- The infinite Grassmannian relation in `U_Q(sl_2)` with Cautis–Lauda scalars (`r = 1`), at the
+weight `1` and degree `2`. -/
+example := CLQ.grassmannian_all UDot.sl2RootDatum ℚ CL.CLScalars.kl (1 : ℤ) () 2
+
+end NonVacuity.CLQGrassmannian

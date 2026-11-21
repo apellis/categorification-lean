@@ -5471,6 +5471,23 @@ example := KLR.CyclotomicAction.vacuum_homTensorMap_bijective.{0, 0, 0} rqHyp co
 
 end NonVacuity.CyclotomicFrobeniusRouquier
 
+namespace NonVacuity.WebsterLocalization
+
+open Categorification Categorification.QuantumGroup
+
+/-- Webster arXiv:1309.3796v2, Definition 3.28, for `sl₂` over `ℚ`: in `U′` the inverse dot is
+a two-sided inverse of the downward dot, and the honest bubbles with negative dot counts are the
+images of the fake bubbles. -/
+example := KL3.Diagram.invDot_comp_downDot UDot.sl2RootDatum ℚ () 0
+
+example := KL3.Diagram.downDot_comp_invDot UDot.sl2RootDatum ℚ () 0
+
+example := KL3.Diagram.cwNegHonest_eq UDot.sl2RootDatum ℚ 0 () 0
+
+example := KL3.Diagram.ccwNegHonest_eq UDot.sl2RootDatum ℚ 0 () 0
+
+end NonVacuity.WebsterLocalization
+
 namespace NonVacuity.CLSpanning
 
 open Categorification Categorification.QuantumGroup Categorification.KL3.Diagram

@@ -4,6 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 -/
 import Categorification.KLR.CyclotomicAction.VacuumIdealBubbles
 import Categorification.Diagrams.CL.SpanningDefs
+import Categorification.Diagrams.CLQ.BubbleSlidesAll
 
 /-!
 # Bubbles at the vacuum modulo the ideal `I`
@@ -23,9 +24,9 @@ cyclotomic quotient.
 * `vacReduced`: the subalgebra of the `x` with `x - a ∈ I` for some `a ∈ vacFakeAlg`;
 * `mem_vacReduced_of_isBubC`: every element of the bubble algebra at `λ` lies in `vacReduced`.
 
-The infinite Grassmannian relation in all degrees is a hypothesis of the last statement
-(`VacGrassmannian`); it is a relation of the Cautis–Lauda 2-category and holds for every choice
-of scalars.
+The infinite Grassmannian relation in all degrees at `λ` (`VacGrassmannian`) holds for the
+scalars of `Q` (`vacGrassmannian`, from the Grassmannian relation for general Cautis–Lauda scalars,
+`CLQ.grassmannian_all`; the scalars of `Q` have `r = 1`).
 -/
 
 namespace Categorification.KLR.CyclotomicAction
@@ -125,16 +126,21 @@ def VacGrassmannian : Prop :=
         (cwL RD k (vacWt RD Λ) i (ip RD i (vacWt RD Λ) - 1 + ((d : ℤ) - j))) =
     if d = 0 then 𝟙 _ else 0
 
+/-- The infinite Grassmannian relation holds at the region of `P_∅` (`CLQ.grassmannian_all`;
+the scalars `univScalars hQ RD` have `r_i = 1`, so they agree with their normalization). -/
+theorem vacGrassmannian : VacGrassmannian (k := k) hQ RD Λ := fun i d =>
+  KL3.Diagram.CLQ.grassmannian_all RD k (univScalars hQ RD) (vacWt RD Λ) i d
+
 include hΛ in
 /-- **Counterclockwise bubbles at the vacuum reduce**: by the infinite Grassmannian relation,
 modulo `I` every counterclockwise bubble is a polynomial in the fake clockwise bubbles. -/
-theorem ccwL_mem_vacReduced (hG : VacGrassmannian hQ RD Λ) (i : I) (d : ℕ) :
+theorem ccwL_mem_vacReduced (i : I) (d : ℕ) :
     (CL.presCL RD k (univScalars hQ RD)).lin
         (ccwL RD k (vacWt RD Λ) i (-ip RD i (vacWt RD Λ) - 1 + d)) ∈
       vacReduced hQ RD Λ := by
   induction d using Nat.strong_induction_on with
   | _ d ih =>
-    have h := hG i d
+    have h := vacGrassmannian hQ RD Λ i d
     rw [Finset.sum_range_succ, sub_self, add_zero, cwL_vacWt_ip_sub_one hQ RD Λ hΛ,
       Category.comp_id, ← eq_sub_iff_add_eq'] at h
     rw [h]
@@ -148,7 +154,7 @@ include hΛ in
 /-- **The bubble algebra at the vacuum, modulo `I`** (Webster, arXiv:1309.3796v2, proof of
 Proposition 3.25): every element of the bubble algebra at the region of `P_∅` is congruent
 modulo `I` to a polynomial in the fake clockwise bubbles. -/
-theorem mem_vacReduced_of_isBubC (hG : VacGrassmannian hQ RD Λ)
+theorem mem_vacReduced_of_isBubC
     {x : End ((CL.presCL RD k (univScalars hQ RD)).obj (ob RD (vacWt RD Λ) []))}
     (hx : CL.IsBubC (CL.presCL RD k (univScalars hQ RD)) (vacWt RD Λ) x) :
     x ∈ vacReduced hQ RD Λ := by
@@ -163,7 +169,7 @@ theorem mem_vacReduced_of_isBubC (hG : VacGrassmannian hQ RD Λ)
     exact cwReal_mem_vacIdeal hQ RD Λ i _
   · have e : -ip RD i (vacWt RD Λ) - 1 + ((n + 1 : ℕ) : ℤ) =
         (((-ip RD i (vacWt RD Λ)).toNat + n : ℕ) : ℤ) := by omega
-    have := ccwL_mem_vacReduced hQ RD Λ hΛ hG i (n + 1)
+    have := ccwL_mem_vacReduced hQ RD Λ hΛ i (n + 1)
     rw [e, ccwL, ite_eq_left (Int.natCast_nonneg _), Int.toNat_natCast,
       Presentation.lin_of] at this
     rw [CL.dgC_of (sChain_ccwLs i _)]

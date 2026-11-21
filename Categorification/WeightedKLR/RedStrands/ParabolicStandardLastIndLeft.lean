@@ -262,4 +262,40 @@ theorem firstIndAffine_e_concat_smul (s : Seq (Aₚ + Aₗ + {(Sum.inl i : I ⊕
       firstIndAffine_appendR_e_mul_smul Q Λ i θ β N hQ s'' ⟨_, hlt⟩ h2 (by simp only; omega),
       smul_zero]
 
+/-- The unit generators `[1 ⊗ (1 ⊗ n)]` of `F_i(S N)`. -/
+abbrev firstIndUnitGen (n : N) : FirstIndF Q Λ i θ β N hQ :=
+  Ind.tmul (unitGen (appendBlackHom Q Λ i θ β))
+    (show ParabolicStandardT Q Λ θ β N hQ from Submodule.mkQ _
+      (BalancedTensor.tmul (oneBimod S Aₚ Aₗ) (show ParabolicInput Q Λ θ β N from n)))
+
+/-- The generators `G [1 ⊗ (1 ⊗ n)]` of the image of `₁F_i N` in `F_i(S N)`. -/
+abbrev firstIndGen (n : N) : FirstIndF Q Λ i θ β N hQ :=
+  affT (firstG S Aₚ Aₗ (Sum.inl i : I ⊕ Fin (ℓ + 1))) • firstIndUnitGen Q Λ i θ β N hQ n
+
+/-- **The slide on generators**: `G [1 ⊗ (1 ⊗ t n)] = ι(t ⊗_α 1_i) G [1 ⊗ (1 ⊗ n)]`. -/
+theorem firstIndGen_slide (t : TensorKLR S Aₚ Aₗ) (n : N) :
+    firstIndGen Q Λ i θ β N hQ (parabolicInputMap Q Λ θ β t • n) =
+      affT (botConcat S (firstQuad_h Aₚ Aₗ (Sum.inl i : I ⊕ Fin (ℓ + 1)))
+        (tensorAppendL S Aₚ Aₗ (Sum.inl i) t)) • firstIndGen Q Λ i θ β N hQ n := by
+  have h : affT (firstG S Aₚ Aₗ (Sum.inl i : I ⊕ Fin (ℓ + 1)) *
+        appendR S (Aₚ + Aₗ) (Sum.inl i) (concat S Aₚ Aₗ t)) • firstIndUnitGen Q Λ i θ β N hQ n =
+      affT (botConcat S (firstQuad_h Aₚ Aₗ (Sum.inl i : I ⊕ Fin (ℓ + 1)))
+        (tensorAppendL S Aₚ Aₗ (Sum.inl i) t) * firstG S Aₚ Aₗ (Sum.inl i : I ⊕ Fin (ℓ + 1))) •
+        firstIndUnitGen Q Λ i θ β N hQ n := by
+    let _ : Module (KLRAlgebra k S (Aₚ + Aₗ + {(Sum.inl i : I ⊕ Fin (ℓ + 1))}))
+        (FirstIndF Q Λ i θ β N hQ) := Module.compHom _ (firstIndAffine Q Λ i θ β).toRingHom
+    have _ : IsScalarTower k (KLRAlgebra k S (Aₚ + Aₗ + {(Sum.inl i : I ⊕ Fin (ℓ + 1))}))
+        (FirstIndF Q Λ i θ β N hQ) := ⟨fun c a x => by
+      change affT (c • a) • x = c • (affT a • x)
+      rw [map_smul, smul_assoc]⟩
+    exact KLRAlgebra.firstG_mul_appendR_concat_smul
+      (u := firstIndUnitGen Q Λ i θ β N hQ n)
+      (fun s hs hs' T => firstIndAffine_e_concat_smul Q Λ i θ β N hQ s hs hs' T _) t
+  rw [map_mul, map_mul, mul_smul, mul_smul] at h
+  rw [firstIndGen, firstIndGen, ← h]
+  congr 1
+  refine Eq.trans ?_ (firstIndUnit_smul Q Λ i θ β N hQ _ _)
+  rw [concat_smul_tmul_oneBimod]
+  rfl
+
 end Categorification.Stendhal

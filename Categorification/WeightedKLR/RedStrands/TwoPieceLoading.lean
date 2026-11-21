@@ -34,7 +34,7 @@ variable {I : Type*} [DecidableEq I] {ℓ : ℕ} (θ β : Multiset I)
 local notation "lastColour" => Sum.map (id : I → I) (fun _ : Fin 1 => Fin.last ℓ)
 
 omit [DecidableEq I] in
-theorem isRedOrdered_cast {μ μ' : Multiset (I ⊕ Fin ℓ)} (h : μ = μ') {s : Seq μ}
+theorem isRedOrdered_seqCast {μ μ' : Multiset (I ⊕ Fin ℓ)} (h : μ = μ') {s : Seq μ}
     (hs : IsRedOrdered s) : IsRedOrdered (Seq.cast h s) := by
   subst h
   exact hs
@@ -124,7 +124,7 @@ theorem blackCount_twoPieceLoading_last (t : Seq (stendhalWeight ℓ θ)) (u : S
 omit [DecidableEq I] in
 theorem isRedOrdered_concatLoading {c : Seq (stendhalWeight ℓ θ)} (hc : IsRedOrdered c)
     (d : Seq ((stendhalWeight 1 β).map lastColour)) : IsRedOrdered (concatLoading θ β c d) :=
-  isRedOrdered_cast _ (parabolic_isRedOrdered_append θ β
+  isRedOrdered_seqCast _ (parabolic_isRedOrdered_append θ β
     (isRedOrdered_map_of_strictMono Fin.castSucc θ Fin.strictMono_castSucc c hc)
     (parabolicLast_ordered β _))
 

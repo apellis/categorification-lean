@@ -5428,6 +5428,12 @@ over `k`, for `λ = (2, 2)`. -/
 noncomputable example := KLR.CyclotomicAction.univCyclotomicPresCLPmod (lam := fun _ => 2) rqHyp
   coordDatum (fun _ => 2) (fun _ => by simp [coordDatum])
 
+/-- Webster arXiv:1309.3796v2, Proposition 3.25 (the quotient by `I` at the vacuum), for
+`λ = (2, 2)` and `ν = α_0 + α_1 + α_0`. -/
+noncomputable example :=
+  KLR.CyclotomicAction.vacQuotientEquiv.{0, 0, 0, 0} (lam := fun _ => 2) rqHyp coordDatum
+    (fun _ => 2) (fun _ => by simp [coordDatum]) ({0, 1, 0} : Multiset (Fin 2))
+
 end NonVacuity.CyclotomicFrobeniusRouquier
 
 namespace NonVacuity.CLSpanning

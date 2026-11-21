@@ -22,6 +22,43 @@ in `θ + (i + β)`.
 
 noncomputable section
 
+namespace Categorification.TypeA
+open Equiv
+variable {n n' m : ℕ} (h : n + n' = m)
+
+/-- If every position of the second block comes after the `q`-th position of the first block
+under `u⁻¹`, then that position is at most `q`. -/
+theorem shuffle_inl_le_of_inr_gt (u : Shuffle h) (q : Fin n)
+    (hr : ∀ y : Fin n', u.1⁻¹ (blockEquiv h (Sum.inl q)) < u.1⁻¹ (blockEquiv h (Sum.inr y))) :
+    (u.1⁻¹ (blockEquiv h (Sum.inl q))).val ≤ q.val := by
+  set f := u.1⁻¹ (blockEquiv h (Sum.inl q))
+  let φ : Fin m → Fin n ⊕ Fin n' := fun x => (blockEquiv h).symm (u.1 x)
+  have hφ : Function.Injective φ := fun x y hxy =>
+    u.1.injective ((blockEquiv h).symm.injective hxy)
+  have hsub : (Finset.univ.filter (fun x : Fin m => x < f)).image φ ⊆
+      (Finset.univ.filter (fun q' : Fin n => q' < q)).map Function.Embedding.inl := by
+    intro z hz
+    obtain ⟨x, hx, rfl⟩ := Finset.mem_image.1 hz
+    have hx : x < f := (Finset.mem_filter.1 hx).2
+    rcases hφx : φ x with q' | y
+    · refine Finset.mem_map.2 ⟨q', ?_, rfl⟩
+      have hxq : x = u.1⁻¹ (blockEquiv h (Sum.inl q')) := by
+        rw [← hφx]; simp [φ, Perm.inv_def]
+      rw [hxq] at hx
+      exact Finset.mem_filter.2 ⟨Finset.mem_univ _, u.2.1.lt_iff_lt.1 hx⟩
+    · have hxy : x = u.1⁻¹ (blockEquiv h (Sum.inr y)) := by
+        rw [← hφx]; simp [φ, Perm.inv_def]
+      exact absurd (hxy ▸ hx) (not_lt.2 (hr y).le)
+  have h1 := Finset.card_le_card hsub
+  rw [Finset.card_image_of_injective _ hφ, Finset.card_map] at h1
+  have h3 : (Finset.univ.filter (fun x : Fin m => x < f)).card = f.val := by
+    rw [Finset.filter_gt_eq_Iio]; exact Fin.card_Iio f
+  have h4 : (Finset.univ.filter (fun q' : Fin n => q' < q)).card = q.val := by
+    rw [Finset.filter_gt_eq_Iio]; exact Fin.card_Iio q
+  omega
+
+end Categorification.TypeA
+
 namespace Categorification.KLR.KLRAlgebra
 
 open scoped TensorProduct

@@ -708,6 +708,7 @@ import Categorification.TwoRep.LemMain
 import Categorification.TwoRep.LemMainNeg
 import Categorification.TwoRep.LemXind
 import Categorification.TwoRep.LinearCat
+import Categorification.TwoRep.LinearCatRestrict
 import Categorification.TwoRep.LinFunBiproduct
 import Categorification.TwoRep.PiLinear
 import Categorification.TwoRep.BlockSum
@@ -1393,6 +1394,7 @@ import Categorification.TwoRep.WordAdjunction
 import Categorification.KLR.CyclotomicAction.Frobenius
 import Categorification.KLR.CyclotomicBaseProjective
 import Categorification.KLR.CyclotomicAction.Universal
+import Categorification.KLR.CyclotomicAction.UniversalScalars
 import Categorification.KLR.CyclotomicAction.UniversalFlat
 import Categorification.KLR.CyclotomicAction.UniversalGrading
 import Categorification.Algebra.Graded.FreeOfProjective

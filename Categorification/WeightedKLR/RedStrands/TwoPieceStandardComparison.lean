@@ -52,6 +52,28 @@ def leftStandardAllOrders (s : Seq (stendhalWeight ℓ ν)) (hs : IsRedOrdered s
   (Algebra.lsmul k k (leftStandard Q Λ s hs)).comp
     ((TensorProductAlgebra.mk Q Λ ν).comp (orderProjection Q Λ ν))
 
+/-- An idempotent which is not red-ordered acts by zero. -/
+theorem leftStandardAllOrders_e_unordered {s c : Seq (stendhalWeight ℓ ν)} (hs : IsRedOrdered s)
+    (hc : ¬IsRedOrdered c) :
+    leftStandardAllOrders Q Λ s hs (StendhalAlgebraAllOrders.e c) = 0 := by
+  have he : orderProjection Q Λ ν (StendhalAlgebraAllOrders.e c) = 0 :=
+    Subtype.ext ((StendhalAlgebraAllOrders.e_mul_redOrderedIdem c).trans (ite_eq_right hc))
+  simp [leftStandardAllOrders, he]
+
+/-- A violated idempotent acts by zero. -/
+theorem leftStandardAllOrders_e_violated {s c : Seq (stendhalWeight ℓ ν)} (hs : IsRedOrdered s)
+    (hv : IsViolated c) :
+    leftStandardAllOrders Q Λ s hs (StendhalAlgebraAllOrders.e c) = 0 := by
+  by_cases hc : IsRedOrdered c
+  · have he : orderProjection Q Λ ν (StendhalAlgebraAllOrders.e c) = StendhalAlgebra.e c hc :=
+      Subtype.ext ((StendhalAlgebraAllOrders.e_mul_redOrderedIdem c).trans (ite_eq_left hc))
+    have hz : TensorProductAlgebra.mk Q Λ ν (StendhalAlgebra.e c hc) = 0 := by
+      change (StendhalAlgebra.violatedIdeal k Q Λ ν).ringCon.mk' _ = 0
+      rw [← TwoSidedIdeal.mem_ker, TwoSidedIdeal.ker_ringCon_mk']
+      exact TwoSidedIdeal.subset_span ⟨c, hc, hv, rfl⟩
+    simp [leftStandardAllOrders, he, hz]
+  · exact leftStandardAllOrders_e_unordered hs hc
+
 /-- An idempotent strictly above `s`, of any red order, kills `S_s`. -/
 theorem leftStandardAllOrders_e {s c : Seq (stendhalWeight ℓ ν)} (hs : IsRedOrdered s)
     (hlt : StendhalLT s c) :

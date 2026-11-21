@@ -370,28 +370,30 @@ def clCycMatrixLinearEquiv (ν : Multiset I) :
     CycKLR k (CL.qCL KL) (fun i => Polynomial.X ^ Λ 0 i) ν ≃ₗ[k]
       downwardMatrix (clDownwardBlock Λ C P) ν :=
   (SingleRed.cyclotomicEquiv (CL.qCL KL) Λ ν).toLinearEquiv.trans
-    (clToDownwardMatrixKLEquiv (ν := ν) hstd hP hwf).toLinearEquiv
+    (clToDownwardMatrixKLEquiv (hQ := hQ) (ν := ν) hstd hP hwf).toLinearEquiv
 
 theorem clCycMatrixLinearEquiv_mul (ν : Multiset I)
     (a b : CycKLR k (CL.qCL KL) (fun i => Polynomial.X ^ Λ 0 i) ν) :
-    clCycMatrixLinearEquiv Λ hstd hP hwf ν (a * b) =
-      clCycMatrixLinearEquiv Λ hstd hP hwf ν a * clCycMatrixLinearEquiv Λ hstd hP hwf ν b := by
-  change (clToDownwardMatrixKLEquiv (ν := ν) hstd hP hwf)
+    clCycMatrixLinearEquiv (hQ := hQ) Λ hstd hP hwf ν (a * b) =
+      clCycMatrixLinearEquiv (hQ := hQ) Λ hstd hP hwf ν a *
+        clCycMatrixLinearEquiv (hQ := hQ) Λ hstd hP hwf ν b := by
+  change (clToDownwardMatrixKLEquiv (hQ := hQ) (ν := ν) hstd hP hwf)
       ((SingleRed.cyclotomicEquiv (CL.qCL KL) Λ ν) (a * b)) =
-    (clToDownwardMatrixKLEquiv (ν := ν) hstd hP hwf)
+    (clToDownwardMatrixKLEquiv (hQ := hQ) (ν := ν) hstd hP hwf)
         ((SingleRed.cyclotomicEquiv (CL.qCL KL) Λ ν) a) *
-      (clToDownwardMatrixKLEquiv (ν := ν) hstd hP hwf)
+      (clToDownwardMatrixKLEquiv (hQ := hQ) (ν := ν) hstd hP hwf)
         ((SingleRed.cyclotomicEquiv (CL.qCL KL) Λ ν) b)
   rw [map_mul (SingleRed.cyclotomicEquiv (CL.qCL KL) Λ ν),
-    map_mul (clToDownwardMatrixKLEquiv (ν := ν) hstd hP hwf)]
+    map_mul (clToDownwardMatrixKLEquiv (hQ := hQ) (ν := ν) hstd hP hwf)]
 
 /-- The red-strand endomorphisms as `R^λ_0 = k`. -/
-def clRedEndLinearEquiv : (redObj (clDownwardBlock Λ C P) ⟶ redObj (clDownwardBlock Λ C P)) ≃ₗ[k] k :=
+def clRedEndLinearEquiv :
+    (redObj (clDownwardBlock Λ C P) ⟶ redObj (clDownwardBlock Λ C P)) ≃ₗ[k] k :=
   ({ (zeroMatrixEquiv (clDownwardBlock Λ C P)).symm with
       map_smul' := zeroMatrixEquiv_symm_smul (clDownwardBlock Λ C P) } :
       (redObj (clDownwardBlock Λ C P) ⟶ redObj (clDownwardBlock Λ C P)) ≃ₗ[k]
         downwardMatrix (clDownwardBlock Λ C P) (0 : Multiset I)).trans
-    ((clCycMatrixLinearEquiv Λ hstd hP hwf 0).symm.trans
+    ((clCycMatrixLinearEquiv (hQ := hQ) Λ hstd hP hwf 0).symm.trans
       (cyclotomicZeroEquiv (CL.qCL KL) (fun i => Polynomial.X ^ Λ 0 i)).toLinearEquiv)
 
 end Assembly
@@ -416,8 +418,8 @@ theorem clCyclotomic_trace_nondegenerate (Λ : Fin 1 → I →₀ ℕ) (ν : Mul
         ∀ b, b ≠ 0 → ∃ a, tr (a * b) ≠ 0 := by
   obtain ⟨τ, h₁, h₂, hlin⟩ := downwardMatrix_trace_nondegenerate _ (KL).t
     (clDownwardBlock_reflectedBlack P) ν
-  let F := clCycMatrixLinearEquiv Λ hstd hP hwf ν
-  let ψ := clRedEndLinearEquiv Λ hstd hP hwf
+  let F := clCycMatrixLinearEquiv (hQ := hQ) Λ hstd hP hwf ν
+  let ψ := clRedEndLinearEquiv (hQ := hQ) Λ hstd hP hwf
   let τl : downwardMatrix (clDownwardBlock Λ C P) ν →ₗ[k]
       (redObj (clDownwardBlock Λ C P) ⟶ redObj (clDownwardBlock Λ C P)) :=
     { τ with map_smul' := hlin }

@@ -53,6 +53,7 @@ import Categorification.Algebra.InductionAlong
 import Categorification.Algebra.InductionAlongExact
 import Categorification.Algebra.InductionAlongAssoc
 import Categorification.Algebra.InductionAlongTransportEquiv
+import Categorification.Algebra.InductionAlongTransportNaturality
 import Categorification.Algebra.InductionAlongBimodule
 import Categorification.Algebra.InductionAlongResTensor
 import Categorification.Algebra.InductionAlongEnd

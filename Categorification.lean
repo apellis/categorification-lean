@@ -466,6 +466,7 @@ import Categorification.KLR.CyclotomicAction.VacuumTrace
 import Categorification.KLR.CyclotomicAction.VacuumUpward
 import Categorification.KLR.CyclotomicAction.VacuumEval
 import Categorification.KLR.CyclotomicAction.VacuumEvalIdeal
+import Categorification.KLR.CyclotomicAction.VacuumBubbleEval
 import Categorification.KLR.CyclotomicAction.VacuumBubble
 import Categorification.KLR.CyclotomicAction.VacuumIdeal
 import Categorification.KLR.CyclotomicAction.VacuumBubbleReduction
@@ -806,6 +807,7 @@ import Categorification.TwoRep.RouqUpWordsSigma
 import Categorification.TwoRep.AdmissibleClosure
 import Categorification.TwoRep.RouqUpScalars
 import Categorification.TwoRep.RouqUpBubbles
+import Categorification.TwoRep.RouqUpBubblesPresentation
 import Categorification.TwoRep.RouqCyclicDot
 import Categorification.TwoRep.RouqCurl
 import Categorification.TwoRep.CoproductCRT

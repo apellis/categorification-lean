@@ -40,7 +40,9 @@ variable (G : GenImg M) (P : Presentation S k)
     (hb : Cond s t (P.cod i)), admissibleMap G ha hb (P.rel i) = 0)
   (heven : ∀ g, S.odd g = false)
 
-private theorem quotientMap_bubble_whisk {s t : S.Region} (u : Obj S) (hu : Cond s t u)
+/-- An endomorphism of an empty word, whiskered to the right of an admissible word `u`, evaluates
+to the right whiskering of its evaluation, conjugated by the left unitor. -/
+theorem quotientMap_bubble_whisk {s t : S.Region} (u : Obj S) (hu : Cond s t u)
     (a : Obj S) (ha : Cond t t a) (he : a.word = [])
     (e : a.whisker u [] = u) (β : End (P.obj a)) :
     admissibleQuotientMap G P hrel heven hu hu
@@ -89,7 +91,8 @@ private theorem eqToHom_sandwich {D : Type*} [Category D]
       eqToHom t ≫ g ≫ eqToHom u := by
   simp
 
-private theorem iso_conj_rightBubble {D : Type*} [Bicategory D] {a b : D}
+/-- Conjugating a right-whiskered bubble by a 2-isomorphism of the whiskered 1-morphism. -/
+theorem iso_conj_rightBubble {D : Type*} [Bicategory D] {a b : D}
     {f g : a ⟶ b} (e : f ≅ g) (β : End (𝟙 a)) :
     e.inv ≫ ((λ_ f).inv ≫ β ▷ f ≫ (λ_ f).hom) ≫ e.hom =
       (λ_ g).inv ≫ β ▷ g ≫ (λ_ g).hom := by

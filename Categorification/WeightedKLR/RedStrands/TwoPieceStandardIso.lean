@@ -216,4 +216,93 @@ theorem twoPiecePrefixMap_smul_lastVec_smul (a : KLRAlgebra k S α) (c : KLRAlge
   exact (hl.trans (twoPieceAction_concat_mul Q Λ ht u a w c z).symm).trans
     (congrArg (κ (concat S α δ (a ⊗ₜ c))) hr.symm)
 
+
+local notation "Nf" => FactorModule.carrier (tensorFactor Q Λ (ModuleCat.of Told St) (cycProj Q Λ β u))
+
+theorem twoPieceFactorMap_smul_tmul (a : KLRAlgebra k S α) (c : KLRAlgebra k S δ)
+    (x : ExtTensor k (KMod (k := k) X) (KMod (k := k) Y)) :
+    twoPieceFactorMap Q Λ ht u
+        (((P a ⊗ₜ[k] plc c : parabolicFactorAlgebra Q Λ θ β)) • x) =
+      κ (concat S α δ (a ⊗ₜ c)) (twoPieceFactorMap Q Λ ht u x) := by
+  induction x using ExtTensor.induction_on with
+  | zero =>
+    exact ((congrArg _ (smul_zero _)).trans (LinearMap.map_zero _)).trans
+      ((LinearMap.map_zero _).symm.trans (congrArg _ (LinearMap.map_zero _).symm))
+  | tmul m y =>
+    rw [ExtTensor.smul_tmul]
+    have hm0 : ∃ w', (Submodule.Quotient.mk w' : St) = m := Submodule.Quotient.mk_surjective _ m
+    obtain ⟨w', hw'⟩ := hm0
+    subst hw'
+    exact twoPiecePrefixMap_smul_lastVec_smul Q Λ ht u a c w' y
+  | add x y hx hy =>
+    exact (((congrArg _ (smul_add _ x y)).trans (LinearMap.map_add _ _ _)).trans
+      (congrArg₂ (· + ·) hx hy)).trans
+      ((LinearMap.map_add _ _ _).symm.trans (congrArg _ (LinearMap.map_add _ _ _).symm))
+
+/-- The factor map, as a map out of the input module of standardization. -/
+def twoPieceInputMap : ParabolicInput Q Λ θ β Nf →ₗ[k] Z := twoPieceFactorMap Q Λ ht u
+
+theorem twoPieceInputMap_smul (b : TensorKLR (stendhalQ Q Λ) α δ)
+    (n : ParabolicInput Q Λ θ β Nf) :
+    twoPieceInputMap Q Λ ht u (b • n) =
+      Algebra.lsmul k k Z (parabolicAffine Q Λ θ β (concat (stendhalQ Q Λ) _ _ b))
+        (twoPieceInputMap Q Λ ht u n) := by
+  induction b using TensorProduct.inductionOn with
+  | tmul a c =>
+    have h1 : parabolicInputMap Q Λ θ β (a ⊗ₜ c) = P a ⊗ₜ[k] plc c :=
+      Algebra.TensorProduct.map_tmul _ _ _ _
+    exact (congrArg (fun d : parabolicFactorAlgebra Q Λ θ β =>
+      twoPieceFactorMap Q Λ ht u (d • (show Nf from n))) h1).trans
+      (twoPieceFactorMap_smul_tmul Q Λ ht u a c n)
+  | add x y hx hy =>
+    have hr : κ (concat S α δ (x + y)) (twoPieceInputMap Q Λ ht u n) =
+        κ (concat S α δ x) (twoPieceInputMap Q Λ ht u n) +
+          κ (concat S α δ y) (twoPieceInputMap Q Λ ht u n) :=
+      (congrArg (fun a => κ a (twoPieceInputMap Q Λ ht u n)) (map_add (concat S α δ) x y)).trans
+        ((congrArg (fun f : Module.End k Z => f (twoPieceInputMap Q Λ ht u n))
+          (map_add κ _ _)).trans (LinearMap.add_apply _ _ _))
+    exact (((congrArg _ (add_smul x y n)).trans (LinearMap.map_add _ _ _)).trans
+      (congrArg₂ (· + ·) hx hy)).trans hr.symm
+
+local notation "lc" => Sum.map (id : I → I) (fun _ : Fin 1 => Fin.last ℓ)
+
+/-- The unit vector `[e(u)]` of `R^{λ_{ℓ+1}} e(u)`. -/
+def cycUnit : KMod (k := k) Y :=
+  (⟨CycKLR.mk k Q (fun i : I => (Polynomial.X : Polynomial k) ^ Λ (Fin.last ℓ) i) β (e u),
+    isIdempotentElem_cyc_e Q Λ β u⟩ :
+      lIdeal (CycKLR.mk k Q (fun i : I => (Polynomial.X : Polynomial k) ^ Λ (Fin.last ℓ) i) β
+        (e u)))
+
+/-- The idempotent of the two-piece loading fixes `[e(t λ_{ℓ+1} u)]`. -/
+theorem twoPiece_e_unit :
+    κ (e ((Seq.map (addRedColor ℓ) t).append
+      (Seq.map lc (SingleRed.insertWord β u)))) z₀ = z₀ := by
+  rw [twoPieceDescAction_apply Q Λ ht, leftStandardAllOrders_cast_e]
+  have he : orderProjection Q Λ (θ + β) (StendhalAlgebraAllOrders.e tp) =
+      StendhalAlgebra.e tp htp :=
+    Subtype.ext ((StendhalAlgebraAllOrders.e_mul_redOrderedIdem _).trans (ite_eq_left htp))
+  change TensorProductAlgebra.mk Q Λ (θ + β) (orderProjection Q Λ (θ + β)
+    (StendhalAlgebraAllOrders.e tp)) • z₀ = z₀
+  rw [he, leftStandardUnit, ← Submodule.Quotient.mk_smul]
+  exact congrArg _ (Subtype.ext (seqIdem_mul_self Q Λ tp htp))
+
+theorem twoPieceFactorMap_unit :
+    twoPieceFactorMap Q Λ ht u (ExtTensor.tmul (leftStandardUnit Q (Λ ∘ Fin.castSucc) t ht : St)
+      (cycUnit Q Λ u)) = z₀ := by
+  have h1 : twoPiecePrefixMap Q Λ ht u (leftStandardUnit Q (Λ ∘ Fin.castSucc) t ht) =
+      twoPiecePrefixFactor Q Λ ht u (P (e (Seq.map (addRedColor ℓ) t))) := by
+    rw [leftStandardUnit, twoPiecePrefixMap_mk]
+    exact congrArg _ (redSubfamilyProjection_e Q Λ Fin.castSucc (Fin.castSucc_injective ℓ) θ
+      t ht).symm
+  have h2 : twoPieceLastVec Q Λ ht u (cycUnit Q Λ u) = twoPieceLastFactor Q Λ ht u
+      (plc (e (Seq.map lc (SingleRed.insertWord β u)))) z₀ := by
+    rw [twoPieceLastVec_apply]
+    exact congrArg (fun x => twoPieceLastFactor Q Λ ht u x z₀)
+      (parabolicLastCyclotomic_e Q Λ β u).symm
+  have h3 := (congrArg₂ (fun (f : Module.End k Z) v => f v) h1 h2).trans
+    (twoPieceFactor_formula Q Λ ht u _ _)
+  refine (twoPieceFactorMap_tmul Q Λ ht u _ _).trans (h3.trans ?_)
+  rw [e_mul_self, concat_e_tmul_e]
+  exact twoPiece_e_unit Q Λ ht u
+
 end Categorification.Stendhal

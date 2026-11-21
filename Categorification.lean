@@ -86,6 +86,7 @@ import Categorification.Diagrams.BicatInterpAdmissible
 import Categorification.Diagrams.BicatInterpAdmissibleHorizontal
 import Categorification.Diagrams.BicatInterpAdmissibleDescent
 import Categorification.Diagrams.BicatInterpAdmissiblePseudo
+import Categorification.Diagrams.BicatInterpAdmissibleLinear
 import Categorification.Diagrams.BicatInterpAdmissiblePull
 import Categorification.Diagrams.BicatInterpPull
 import Categorification.Diagrams.BicatInterpPseudo
@@ -449,6 +450,7 @@ import Categorification.KLR.CyclotomicAction.VacuumSupport
 import Categorification.KLR.CyclotomicAction.VacuumProduct
 import Categorification.KLR.CyclotomicAction.VacuumTrace
 import Categorification.KLR.CyclotomicAction.VacuumBubble
+import Categorification.KLR.CyclotomicAction.VacuumIdeal
 import Categorification.KLR.ReindexSymmetries
 import Categorification.KLR.Unfurling.VacuumCorner
 import Categorification.KLR.Unfurling.VacuumEvaluation
@@ -704,6 +706,7 @@ import Categorification.TwoRep.GradedHomAdjunction
 import Categorification.TwoRep.KarRealize
 import Categorification.TwoRep.KrullSchmidt
 import Categorification.TwoRep.LeftAdjunction
+import Categorification.TwoRep.FactorVanishing
 import Categorification.TwoRep.FixedAdjunction
 import Categorification.TwoRep.LemAprime
 import Categorification.TwoRep.LemAprimeScalar

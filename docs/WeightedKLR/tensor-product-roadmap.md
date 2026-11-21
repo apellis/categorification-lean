@@ -709,7 +709,13 @@ from which the full one is obtained by iterating):
   Prop 4.32 with Prop 4.18 for `β = ∅`. Done for the count: the red part vanishes for `β ≠ ∅`
   (`lastRedIdem_smul_parabolicStandardT`); the `EF`/`FE` and `EⱼFᵢ` relations on left
   `T^λ`-modules (`clLeftBlackModuleEFEquiv`, `clLeftBlackModuleFEEquiv`,
-  `clLeftBlackModuleCrossEquiv`).
+  `clLeftBlackModuleCrossEquiv`), natural in the module, and their lifts to modules over the
+  factor algebra (`factorCrossEquiv`, `factorEFEquiv`, `factorFEEquiv`,
+  `RedStrands/BlackModuleFactorCommutation.lean`). Remaining for the count: dimension form of
+  the `Eⱼ`-parts (`pieceDim_res` with `lastStrandIdem_some`), the commutation of restriction
+  along the first factor with induction along the second, the `EF`/`FE` relations on the
+  cyclotomic factor, the `EF` relation when `i` is not in the content, the red part for
+  `β = ∅`, and the induction itself.
 
 * Prop 5.5, empty last block (`RedStrands/ParabolicStandardEmptyRed.lean`): for `β = ∅` the
   factor algebra is `T^{λ'}` (`emptyFactorToOld`) and standardization is the induction along

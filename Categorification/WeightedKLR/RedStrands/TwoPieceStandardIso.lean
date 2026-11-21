@@ -217,7 +217,8 @@ theorem twoPiecePrefixMap_smul_lastVec_smul (a : KLRAlgebra k S α) (c : KLRAlge
     (congrArg (κ (concat S α δ (a ⊗ₜ c))) hr.symm)
 
 
-local notation "Nf" => FactorModule.carrier (tensorFactor Q Λ (ModuleCat.of Told St) (cycProj Q Λ β u))
+local notation "Nf" =>
+  FactorModule.carrier (tensorFactor Q Λ (ModuleCat.of Told St) (cycProj Q Λ β u))
 
 theorem twoPieceFactorMap_smul_tmul (a : KLRAlgebra k S α) (c : KLRAlgebra k S δ)
     (x : ExtTensor k (KMod (k := k) X) (KMod (k := k) Y)) :

@@ -75,7 +75,7 @@ instance : Algebra k (EndOne RD k sc lam) :=
 
 namespace EndOne
 
-variable {RD k lam}
+variable {RD k sc lam}
 
 /-- View an endomorphism of `1_λ` as an element of `EndOne`. -/
 def of (x : End ((pres RD k sc).obj (ob RD lam []))) : EndOne RD k sc lam := x
@@ -150,7 +150,7 @@ def bubMap : PiLam I k →ₐ[k] EndOne RD k sc lam :=
 def IsBub (x : End ((pres RD k sc).obj (ob RD lam []))) : Prop :=
   EndOne.of x ∈ (bubMap RD k sc lam).range
 
-variable {RD k lam}
+variable {RD k sc lam}
 
 theorem IsBub.zero : IsBub RD k sc lam 0 := Subalgebra.zero_mem _
 
@@ -187,7 +187,7 @@ theorem isBub_bubGen (i : I) (α : ℕ) : IsBub RD k sc lam (bubGen RD k sc lam 
     · rw [Nat.cast_zero, add_zero, ccwU_deg0]; exact IsBub.id
   · exact ⟨MvPolynomial.X (i, n), by simp [bubMap]⟩
 
-variable (RD k lam)
+variable (RD k sc lam)
 
 /-- The span of `IsBub` as a submodule of `End`. -/
 def bubSubmodule : Submodule k (End ((pres RD k sc).obj (ob RD lam []))) where
@@ -196,7 +196,7 @@ def bubSubmodule : Submodule k (End ((pres RD k sc).obj (ob RD lam []))) where
   zero_mem' := IsBub.zero
   smul_mem' r _ hx := IsBub.smul r hx
 
-variable {RD k lam}
+variable {RD k sc lam}
 
 theorem isBub_iff_mem_bubSubmodule (x : End ((pres RD k sc).obj (ob RD lam []))) :
     IsBub RD k sc lam x ↔ x ∈ bubSubmodule RD k sc lam := Iff.rfl
@@ -212,7 +212,7 @@ theorem isBub_cw_ccw (i : I) :
       intro m
       by_cases h1 : m + 1 - ip RD i lam < 0
       · rw [cwU_eq_zero RD k sc lam i m h1]; exact IsBub.zero
-      · have := isBub_bubGen (RD := RD) (k := k) (lam := lam) i (m + 1 - ip RD i lam).toNat
+      · have := isBub_bubGen (RD := RD) (k := k) (sc := sc) (lam := lam) i (m + 1 - ip RD i lam).toNat
         unfold bubGen at this
         rw [ite_eq_left h0, show ip RD i lam - 1 + (((m + 1 - ip RD i lam).toNat : ℕ) : ℤ) = m by omega] at this
         exact this
@@ -237,7 +237,7 @@ theorem isBub_cw_ccw (i : I) :
       intro m
       by_cases h1 : m + 1 + ip RD i lam < 0
       · rw [ccwU_eq_zero RD k sc lam i m h1]; exact IsBub.zero
-      · have := isBub_bubGen (RD := RD) (k := k) (lam := lam) i (m + 1 + ip RD i lam).toNat
+      · have := isBub_bubGen (RD := RD) (k := k) (sc := sc) (lam := lam) i (m + 1 + ip RD i lam).toNat
         unfold bubGen at this
         rw [ite_eq_right h0, show -ip RD i lam - 1 + (((m + 1 + ip RD i lam).toNat : ℕ) : ℤ) = m by omega] at this
         exact this

@@ -90,7 +90,7 @@ theorem dg_closeLsL_peel {s s' t : List (Letter I)} (L M : List (LayerData I))
     (hL : SChain s L s') (hM : SChain ([up j] ++ s') M ([up j] ++ t)) (e : ℕ) :
     dg RD k sc μ s t (closeLsL j s t (L.map (whL [up j] []) ++ M) e) =
       dg RD k sc μ s s' L ≫ dg RD k sc μ s' t (closeLsL j s' t M e) := by
-  have ei := dg_interchange (RD := RD) (k := k) (μ := μ) (S := s) (T := t) []
+  have ei := dg_interchange (RD := RD) (k := k) (sc := sc) (μ := μ) (S := s) (T := t) []
     (M.map (whL [dn j] []) ++ List.replicate e ([dn j], .dot (up j), t) ++ [([], .cap (up j), t)])
     (A := [([], .cup (dn j), [])]) (s := []) (s' := [dn j, up j]) (by schain) hL
   rw [dg_comp hL (sChain_closeLsL hM e)]
@@ -103,7 +103,7 @@ theorem dg_closeLsL_peel_top {s t t' : List (Letter I)} (M P : List (LayerData I
     (hM : SChain ([up j] ++ s) M ([up j] ++ t')) (hP : SChain t' P t) :
     dg RD k sc μ s t (closeLsL j s t (M ++ P.map (whL [up j] [])) 0) =
       dg RD k sc μ s t' (closeLsL j s t' M 0) ≫ dg RD k sc μ t' t P := by
-  have ei := dg_interchange (RD := RD) (k := k) (μ := μ) (S := s) (T := t)
+  have ei := dg_interchange (RD := RD) (k := k) (sc := sc) (μ := μ) (S := s) (T := t)
     ([([], .cup (dn j), s)] ++ M.map (whL [dn j] [])) []
     (A := [([], .cap (up j), [])]) (s := [dn j, up j]) (s' := []) (by schain) hP
   rw [dg_comp (sChain_closeLsL hM 0) hP]
@@ -130,7 +130,7 @@ theorem dg_closeLsL_rotate {s t : List (Letter I)} (M : List (LayerData I))
     [] s (dg_dot_cupDn RD k sc j (wt RD μ s)) (by simp)
     (by simpa using (hM'.append hdots).append hcap) (by simp [whL]) rfl).trans ?_
   -- past the layers of `M`
-  have ei := dg_interchange (RD := RD) (k := k) (μ := μ) (S := s) (T := t)
+  have ei := dg_interchange (RD := RD) (k := k) (sc := sc) (μ := μ) (S := s) (T := t)
     [([], .cup (dn j), s)] (List.replicate e ([dn j], .dot (up j), t) ++ [([], .cap (up j), t)])
     (A := [([], .dot (dn j), [])]) (s := [dn j]) (s' := [dn j]) (by schain) hM
   wnf at ei ⊢
@@ -163,7 +163,7 @@ theorem dg_closeLsL_curl (s₁ : List (Letter I)) (e : ℕ) :
   simp [closeLsL, curlLLs, whL]
 
 theorem dotsU_mem_slideSetL (ν : X) (l : Letter I) (a : ℕ) : dotsU RD k sc ν l a ∈ slideSetL RD k sc ν l := by
-  have := mem_slideSetL (RD := RD) (k := k) (μ := ν) (l := l) (a := a) IsBub.id
+  have := mem_slideSetL (RD := RD) (k := k) (sc := sc) (μ := ν) (l := l) (a := a) IsBub.id
   rwa [bubLU_id, Category.comp_id] at this
 
 /-- The counterclockwise bubble with `e` dots to the left of `E_j`. -/
@@ -211,8 +211,8 @@ theorem curlL_mem_slideSetL (ν : X) (e : ℕ) :
         simp [curlLLs]
       rw [e2]
       exact slideSetL_comp (dotsU_mem_slideSetL RD k sc ν _ 1) ih
-    · have hm := mem_slideSetL_bub (RD := RD) (k := k) (μ := ν) (l := up j)
-        (ccwU_isBub (RD := RD) (k := k) (lam := wt RD ν [up j]) j e)
+    · have hm := mem_slideSetL_bub (RD := RD) (k := k) (sc := sc) (μ := ν) (l := up j)
+        (ccwU_isBub (RD := RD) (k := k) (sc := sc) (lam := wt RD ν [up j]) j e)
       rw [← dg_ccw_left] at hm
       exact hm
 
@@ -501,7 +501,7 @@ theorem ptrFirst_bubAt {s t : List (Letter I)} (A : List (LayerData I))
   have hBt : SChain t (B.map (whL t [])) t := by simpa using hB.whisk t []
   rw [bubAt_dg, bubAt_dg, dg_comp hA hB1]
   rw [ptrFirst_dg, ptrFirst_dg, dg_comp (sChain_closeLsL hA 0) hBt]
-  have e := dg_closed_left (RD := RD) (k := k) μ (S := s) (T := t)
+  have e := dg_closed_left (RD := RD) (k := k) (sc := sc) μ (S := s) (T := t)
     ([([], .cup (dn j), s)] ++ A.map (whL [dn j] [])) [] (s := [dn j, up j] ++ t) (s' := t) []
     hB (A := [([], .cap (up j), t)]) ⟨by simp, by simp⟩
   unfold closeLsL
@@ -516,8 +516,8 @@ theorem ptrFirst_mem_upSpan (a b : List I) {f}
   induction hf using Submodule.span_induction with
   | mem f hf =>
     obtain ⟨A, γ, hA, h, hγ, rfl⟩ := hf
-    rw [ptrFirst_bubAt (RD := RD) (k := k) μ j A h γ]
-    have hM := ptrFirst_upward_mem_upSpan (RD := RD) (k := k) μ j a b hA h
+    rw [ptrFirst_bubAt (RD := RD) (k := k) (sc := sc) μ j A h γ]
+    have hM := ptrFirst_upward_mem_upSpan (RD := RD) (k := k) (sc := sc) μ j a b hA h
     generalize ptrFirst RD k sc μ (ups a) (ups b) j
       (dg RD k sc (wt RD μ []) ([up j] ++ ups a) ([up j] ++ ups b) A) = F at hM ⊢
     induction hM using Submodule.span_induction with

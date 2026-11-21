@@ -162,24 +162,32 @@ theorem dg_dots_cupDn (i : I) (μ : X) (m : ℕ) :
 nested caps on the left (`rotCrossR`). -/
 theorem dg_cycCrossR (j i : I) (μ : X) :
     dg RD k sc μ [dn j, dn i] [dn i, dn j] [([], .cross false j i, [])] =
-      dg RD k sc μ [dn j, dn i] [dn i, dn j]
+      ((((sc.t i j))⁻¹ : kˣ) : k) • dg RD k sc μ [dn j, dn i] [dn i, dn j]
         [([dn j, dn i], .cup (up j), []), ([dn j, dn i, up j], .cup (up i), [dn j]),
           ([dn j, dn i], .cross true j i, [dn i, dn j]), ([dn j], .cap (up i), [up j, dn i, dn j]),
           ([], .cap (up j), [dn i, dn j])] := by
   rw [dg_of (by schain), dg_of (by schain)]
-  exact ((pres RD k sc).diag_eq_of_rel (.inr (.cycCrossR j i μ)) rfl).symm
+  have key : (pres RD k sc).lin ((((((sc.t i j))⁻¹ : kˣ) : k) • LinDiagram.of (rotCrossR RD j i μ)) -
+      LinDiagram.of (downCross RD j i μ)) = 0 := lin_relationCL RD k sc (.cycCrossR j i μ)
+  rw [Presentation.lin_sub, Presentation.lin_smul, Presentation.lin_of, Presentation.lin_of,
+    sub_eq_zero] at key
+  exact key.symm
 
 /-- **KL III `eq_cyclic_cross-gen`**, second equality, in normal form: the downward crossing is
 the upward crossing rotated by nested cups on the left and nested caps on the right
 (`rotCrossL`). -/
 theorem dg_cycCrossL (j i : I) (μ : X) :
     dg RD k sc μ [dn j, dn i] [dn i, dn j] [([], .cross false j i, [])] =
-      dg RD k sc μ [dn j, dn i] [dn i, dn j]
+      ((((sc.t j i))⁻¹ : kˣ) : k) • dg RD k sc μ [dn j, dn i] [dn i, dn j]
         [([], .cup (dn i), [dn j, dn i]), ([dn i], .cup (dn j), [up i, dn j, dn i]),
           ([dn i, dn j], .cross true j i, [dn j, dn i]), ([dn i, dn j, up i], .cap (dn j), [dn i]),
           ([dn i, dn j], .cap (dn i), [])] := by
   rw [dg_of (by schain), dg_of (by schain)]
-  exact ((pres RD k sc).diag_eq_of_rel (.inr (.cycCrossL j i μ)) rfl).symm
+  have key : (pres RD k sc).lin ((((((sc.t j i))⁻¹ : kˣ) : k) • LinDiagram.of (rotCrossL RD j i μ)) -
+      LinDiagram.of (downCross RD j i μ)) = 0 := lin_relationCL RD k sc (.cycCrossL j i μ)
+  rw [Presentation.lin_sub, Presentation.lin_smul, Presentation.lin_of, Presentation.lin_of,
+    sub_eq_zero] at key
+  exact key.symm
 
 /-- **Pitchfork move for a downward strand** (uses the cyclicity of the crossing): the cup
 `1 ⟶ E_j F_j` to the left of `F_i` followed by the downward crossing of its leg `F_j` with `F_i`
@@ -188,9 +196,13 @@ with its leg `E_j`. -/
 theorem dg_pf_cupUp_down (i j : I) (μ : X) :
     dg RD k sc μ [dn i] [up j, dn i, dn j]
         [([], .cup (up j), [dn i]), ([up j], .cross false j i, [])] =
-      dg RD k sc μ [dn i] [up j, dn i, dn j]
-        ([([dn i], .cup (up j), [])] ++ (crossrL j i).map (whL [] [dn j])) := by
-  datQ 1 [up j] [] (dg_cycCrossR RD k sc j i _)
+      (((sc.t i j)⁻¹ : kˣ) : k) •
+          dg RD k sc μ [dn i] [up j, dn i, dn j]
+            ([([dn i], .cup (up j), [])] ++ (crossrL j i).map (whL [] [dn j])) := by
+  refine Eq.trans (dg_step_at_smul _ 1 [up j] [] _ (dg_cycCrossR RD k sc j i _)
+    (by (try dnorm); schain) (by (try dnorm); schain) (by dnorm)) ?_
+  try dnorm
+  congr 1
   dswapQ 0; dswapQ 1; dswapQ 2; dswapQ 3
   datQ 4 [] [dn i, dn j] (dg_zigL' RD k sc _ (up j))
 

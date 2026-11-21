@@ -105,7 +105,7 @@ theorem bubGen_mem_HDe (i : I) (α : ℕ) :
 
 theorem bubMap_X_mem (x : I × ℕ) : bubMap RD k sc lam (MvPolynomial.X x) ∈ HDo RD k sc lam (wPi C x) := by
   simp only [bubMap, MvPolynomial.aeval_X, mem_HDo, EndOne.val_of, wPi]
-  have := bubGen_mem_HDe (RD := RD) (k := k) lam x.1 (x.2 + 1)
+  have := bubGen_mem_HDe (RD := RD) (k := k) (sc := sc) lam x.1 (x.2 + 1)
   simpa using this
 
 theorem bubMap_monomial_mem (s : (I × ℕ) →₀ ℕ) (c : k) :
@@ -124,19 +124,19 @@ theorem bubMap_mem_HDe {p : PiLam I k} {d : ℤ} (hp : p.IsWeightedHomogeneous (
     (bubMap RD k sc lam p).val ∈ HDe RD k sc lam d := by
   rw [← mem_HDo, p.as_sum, map_sum]
   refine Submodule.sum_mem _ fun s hs => ?_
-  have := bubMap_monomial_mem (RD := RD) (k := k) lam s (p.coeff s)
+  have := bubMap_monomial_mem (RD := RD) (k := k) (sc := sc) lam s (p.coeff s)
   rwa [hp (MvPolynomial.mem_support_iff.1 hs)] at this
 
 
 /-- `bubMap` commutes with the projections onto homogeneous components. -/
 theorem homogeneousComponent_bubMap (d : ℤ) (p : PiLam I k) :
-    homogeneousComponent (pres_isHomogeneous (RD := RD) (k := k)) d (bubMap RD k sc lam p).val =
+    homogeneousComponent (pres_isHomogeneous (RD := RD) (k := k) (sc := sc)) d (bubMap RD k sc lam p).val =
       (bubMap RD k sc lam (MvPolynomial.weightedHomogeneousComponent (wPi C) d p)).val := by
   classical
   induction p using MvPolynomial.induction_on' with
   | monomial s c =>
     rw [weightedHomogeneousComponent_monomial]
-    have hm := bubMap_monomial_mem (RD := RD) (k := k) lam s c
+    have hm := bubMap_monomial_mem (RD := RD) (k := k) (sc := sc) lam s c
     split_ifs with h
     · rw [← h]; exact homogeneousComponent_of_mem _ (mem_HDo.1 hm)
     · rw [map_zero, EndOne.val_zero]; exact homogeneousComponent_of_mem_of_ne _ (mem_HDo.1 hm) h
@@ -186,7 +186,7 @@ theorem isBub_HDe_zero {x : End ((pres RD k sc).obj (ob RD lam []))} (hx : IsBub
   rw [this, MvPolynomial.algHom_C, EndOne.val_algebraMap, MvPolynomial.coeff_C, ite_eq_left rfl]
 
 
-variable (RD k lam) in
+variable (RD k sc lam) in
 /-- The bubble monomial of exponent `s`, as an endomorphism of `1_λ`. -/
 def bubMon (s : (I × ℕ) →₀ ℕ) : End ((pres RD k sc).obj (ob RD lam [])) :=
   (bubMap RD k sc lam (MvPolynomial.monomial s 1)).val

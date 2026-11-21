@@ -172,7 +172,7 @@ theorem core_RL_dg (μ : X) {s : List (Letter I)} {a b d c : List I}
     (B.map (whL (D ++ ups c ++ b') E) ++ (capA E).map (whL (D ++ ups c) [])) D E hE.symm
     (by simpa using (hcD.append hcb).append hAw) (by simpa using hBw.append hcap) rfl rfl
   -- (ii) the closed diagram `B` moves below the bent form of `M`
-  have h2 := dg_closed_left (RD := RD) (k := k) μ (S := s) (T := D ++ ups c)
+  have h2 := dg_closed_left (RD := RD) (k := k) (sc := sc) μ (S := s) (T := D ++ ups c)
     ((cupA D).map (whL [] s) ++ (cupA b').map (whL (D ++ d' ++ s) []) ++ A.map (whL (D ++ d') E))
     ((capA E).map (whL (D ++ ups c) [])) (s := D ++ d' ++ ups a) (s' := D ++ ups c ++ b') E hB
     (A := (sharpL D E (ups a) (ups c) M).map (whL D [])) (by simpa using hsh.whisk D [])
@@ -186,7 +186,7 @@ theorem core_RL_dg (μ : X) {s : List (Letter I)} {a b d c : List I}
     have x3 : SChain (ups a ++ E) (B.map (whL (ups a) E)) (ups a ++ E) := by
       simpa using hB.whisk (ups a) E
     exact (x1.append x2).append x3
-  have h3 := dg_interchange (RD := RD) (k := k) (μ := μ) (S := s) (T := D ++ ups c) []
+  have h3 := dg_interchange (RD := RD) (k := k) (sc := sc) (μ := μ) (S := s) (T := D ++ ups c) []
     ((sharpL D E (ups a) (ups c) M).map (whL D E) ++ (capA E).map (whL (D ++ ups c) []))
     (sChain_cupA D) hX
   -- (iv) unbending the bent form of `M` gives `M`
@@ -265,12 +265,12 @@ theorem core_LR_dg (μ : X) {s : List (Letter I)} {d a c b : List I}
     have y2 : SChain (D ++ rd D ++ s) (B.map (whL D [])) (D ++ ups a) := by
       simpa using hB.whisk D []
     exact y1.append y2
-  have h2 := dg_interchange (RD := RD) (k := k) (μ := μ) (S := s) (T := ups c ++ E) []
+  have h2 := dg_interchange (RD := RD) (k := k) (sc := sc) (μ := μ) (S := s) (T := ups c ++ E) []
     ((flatL (rd D) (rd E) (ups a) (ups c) M).map (whL D E) ++
       (capA (rd D)).map (whL [] (ups c ++ E))) hY (B := cupA (rd E)) (t := []) (t' := rd E ++ E)
     (by simpa [rd_rd] using sChain_cupA (rd E))
   -- (iii) unbending the bent form of `M` gives `M`
-  have hf := dg_unbend_flat (RD := RD) (k := k) (rd D) (rd E) (ups a) (ups c) hM' (wt RD μ [])
+  have hf := dg_unbend_flat (RD := RD) (k := k) (sc := sc) (rd D) (rd E) (ups a) (ups c) hM' (wt RD μ [])
   rw [rd_rd, rd_rd] at hf
   have h3 := dg_step RD k sc μ (s₀ := s) (t₀ := ups c ++ E)
     ((cupA D).map (whL [] s) ++ B.map (whL D [])) [] [] [] hf (by simpa using hY) (by simp) rfl rfl
@@ -311,7 +311,7 @@ theorem goodR_comp [DecidableEq I] {μ : X} {s : List (Letter I)}
     (hs : Positive s) {a b d c : List I} {M : List (LayerData I)} (hM : AllSh Shape.isRL M)
     (hMc : SChain (ups a ++ dns b) M (dns d ++ ups c)) {f} (hf : f ∈ GoodR RD k sc μ s a b) :
     f ≫ dg RD k sc μ (ups a ++ dns b) (dns d ++ ups c) M ∈ GoodL RD k sc μ s d c := by
-  obtain ⟨A', hA'u, hA'c, hE⟩ := straightenRL (RD := RD) (k := k)
+  obtain ⟨A', hA'u, hA'c, hE⟩ := straightenRL (RD := RD) (k := k) (sc := sc)
     (s := rd (dns d) ++ ups a) (t := ups c ++ rd (dns b))
     (positive_append.2 ⟨positive_rd_dns d, positive_ups a⟩)
     (positive_append.2 ⟨positive_ups c, positive_rd_dns b⟩)
@@ -418,7 +418,7 @@ theorem goodL_comp [DecidableEq I] {μ : X} {s : List (Letter I)}
     g ≫ dg RD k sc μ (dns d ++ ups a) (ups c ++ dns b) M ∈ GoodR RD k sc μ s c b := by
   have hM' : SChain (rd (rd (dns d)) ++ ups a) M (ups c ++ rd (rd (dns b))) := by
     simpa [rd_rd] using hMc
-  obtain ⟨A'', hA''u, hA''c, hE⟩ := straightenLR (RD := RD) (k := k)
+  obtain ⟨A'', hA''u, hA''c, hE⟩ := straightenLR (RD := RD) (k := k) (sc := sc)
     (s := ups a ++ rd (dns b)) (t := rd (dns d) ++ ups c)
     (positive_append.2 ⟨positive_ups a, positive_rd_dns b⟩)
     (positive_append.2 ⟨positive_rd_dns d, positive_ups c⟩)
@@ -480,9 +480,9 @@ theorem good_base {μ : X} {s : List (Letter I)} (hs : Positive s) {a b : List I
       (capA (rd (dns b))).map (whL (ups a) [])) :=
     (hP.map_whL _ _).append ((allSh_capA _ (fun l hl => by
       simp [Shape.isLR, positive_rd_dns b l hl])).map_whL _ _)
-  obtain ⟨A, hAu, hAc, hE⟩ := straightenLR (RD := RD) (k := k) (s := s ++ rd (dns b))
+  obtain ⟨A, hAu, hAc, hE⟩ := straightenLR (RD := RD) (k := k) (sc := sc) (s := s ++ rd (dns b))
     (t := ups a) (positive_append.2 ⟨hs, positive_rd_dns b⟩) (positive_ups a) hZs hZ
-  have h := dg_unbendR_bendR (RD := RD) (k := k) (rd (dns b)) s (ups a) (P := P)
+  have h := dg_unbendR_bendR (RD := RD) (k := k) (sc := sc) (rd (dns b)) s (ups a) (P := P)
     (by simpa [rd_rd] using hPc) μ
   rw [rd_rd] at h
   have key : dg RD k sc μ s (ups a ++ dns b) P = unbendR RD k sc μ b s (ups a)
@@ -567,7 +567,7 @@ theorem inv_step [DecidableEq I] {μ : X} {s : List (Letter I)}
             simp only [Preadditive.add_comp, Preadditive.comp_add]; exact Submodule.add_mem _ h₁ h₂
           | smul r e _ h =>
             simp only [Linear.smul_comp, Linear.comp_smul]; exact Submodule.smul_mem _ r h
-        have := hΨ _ (decL (RD := RD) (k := k) μ _ w' (Nat.lt_succ_self _))
+        have := hΨ _ (decL (RD := RD) (k := k) (sc := sc) μ _ w' (Nat.lt_succ_self _))
         simpa only [Category.id_comp, Category.assoc] using this
       · -- the layer is of type `LR`: sort its source to the left
         have hΨ : ∀ e' ∈ decLSet RD k sc μ w, f ≫ bubAt RD k sc μ w δ ≫
@@ -595,14 +595,14 @@ theorem inv_step [DecidableEq I] {μ : X} {s : List (Letter I)}
             simp only [Preadditive.add_comp, Preadditive.comp_add]; exact Submodule.add_mem _ h₁ h₂
           | smul r e _ h =>
             simp only [Linear.smul_comp, Linear.comp_smul]; exact Submodule.smul_mem _ r h
-        have := hΨ _ (decL (RD := RD) (k := k) μ _ w (Nat.lt_succ_self _))
+        have := hΨ _ (decL (RD := RD) (k := k) (sc := sc) μ _ w (Nat.lt_succ_self _))
         simpa only [Category.id_comp, Category.assoc] using this
     | zero => simp
     | add e₁ e₂ _ _ h₁ h₂ =>
       simp only [Preadditive.add_comp, Preadditive.comp_add]; exact Submodule.add_mem _ h₁ h₂
     | smul r e _ h =>
       simp only [Linear.smul_comp, Linear.comp_smul]; exact Submodule.smul_mem _ r h
-  have := hΦ _ (decR (RD := RD) (k := k) μ _ w (Nat.lt_succ_self _))
+  have := hΦ _ (decR (RD := RD) (k := k) (sc := sc) μ _ w (Nat.lt_succ_self _))
   simpa only [Category.id_comp, Category.assoc] using this
 
 /-! ## Main results -/

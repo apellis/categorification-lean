@@ -134,6 +134,18 @@ theorem dg_stepL_at {μ : X} {s₀ t₀ : List (Letter I)} (L : List (LayerData 
 
 
 
+/-- One step of a certificate chain at a position, with a scalar multiple of a normal-form
+diagram on the right-hand side. -/
+theorem dg_step_at_smul {μ : X} {s₀ t₀ : List (Letter I)} (L : List (LayerData I)) (n : ℕ)
+    (u v : List (Letter I)) {s t : List (Letter I)} {A B : List (LayerData I)} (c : k)
+    (E : dg RD k sc (wt RD μ v) s t A = c • dg RD k sc (wt RD μ v) s t B)
+    (hpre : SChain s₀ (L.take n) (u ++ s ++ v))
+    (hpost : SChain (u ++ t ++ v) (L.drop (n + A.length)) t₀)
+    (hL : (L.drop n).take A.length = A.map (whL u v)) :
+    dg RD k sc μ s₀ t₀ L =
+      c • dg RD k sc μ s₀ t₀ (L.take n ++ B.map (whL u v) ++ L.drop (n + A.length)) := by
+  rw [dg_stepL_at L n u v E hpre hpost hL, map_smul, ctxL_dg RD k sc μ hpre hpost]
+
 /-- `dswapQ n`: exchange the layers `n` and `n + 1` of the left-hand side `dg μ s t L` of the
 goal by the interchange law. -/
 macro "dswapQ " n:term:max : tactic => `(tactic| (

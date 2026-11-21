@@ -185,7 +185,7 @@ abbrev τsame (e : ℕ) : End ((pres RD k sc).obj (ob RD lam [up i])) :=
   (e + 1) • dotsU RD k sc lam (up i) e
 
 theorem slideA_same_real (α : ℕ) (hα : 0 ≤ -ip RD i lam - 1 + α) :
-    cRs RD k sc lam i (up i) α = sconv (cLs RD k sc lam i (up i)) (τsame RD k lam i) α := by
+    cRs RD k sc lam i (up i) α = sconv (cLs RD k sc lam i (up i)) (τsame RD k sc lam i) α := by
   have h := prop33_ccw_same RD k sc lam i α hα
   rw [lin_bubR_eq] at h
   rw [cRs, h, sconv]
@@ -195,7 +195,7 @@ theorem slideA_same_real (α : ℕ) (hα : 0 ≤ -ip RD i lam - 1 + α) :
     show α + 1 - ℓ = α - ℓ + 1 by omega]
 
 theorem slideB_same_real (β : ℕ) (hβ : 0 ≤ ip RD i (wt RD lam [up i]) - 1 + β) :
-    wLs RD k sc lam i (up i) β = sconv (τsame RD k lam i) (wRs RD k sc lam i (up i)) β := by
+    wLs RD k sc lam i (up i) β = sconv (τsame RD k sc lam i) (wRs RD k sc lam i (up i)) β := by
   have h := prop33_cw_same RD k sc lam i β hβ
   rw [lin_bubL_eq] at h
   rw [wLs, h, sconv, ← Finset.sum_range_reflect]
@@ -205,15 +205,15 @@ theorem slideB_same_real (β : ℕ) (hβ : 0 ≤ ip RD i (wt RD lam [up i]) - 1 
     show β - (β - ℓ) = ℓ by omega, show β + 1 - (β - ℓ) = ℓ + 1 by omega]
 
 theorem slides_same (lam : X) (i : I) :
-    (∀ α, cRs RD k sc lam i (up i) α = sconv (cLs RD k sc lam i (up i)) (τsame RD k lam i) α) ∧
-      ∀ β, wLs RD k sc lam i (up i) β = sconv (τsame RD k lam i) (wRs RD k sc lam i (up i)) β := by
+    (∀ α, cRs RD k sc lam i (up i) α = sconv (cLs RD k sc lam i (up i)) (τsame RD k sc lam i) α) ∧
+      ∀ β, wLs RD k sc lam i (up i) β = sconv (τsame RD k sc lam i) (wRs RD k sc lam i (up i)) β := by
   have hN : ip RD i (wt RD lam [up i]) = 2 + ip RD i lam := by rw [ip_wt_up, A_self]
   by_cases hn : 0 ≤ ip RD i lam
-  · have hB : ∀ β, wLs RD k sc lam i (up i) β = sconv (τsame RD k lam i) (wRs RD k sc lam i (up i)) β :=
+  · have hB : ∀ β, wLs RD k sc lam i (up i) β = sconv (τsame RD k sc lam i) (wRs RD k sc lam i (up i)) β :=
       fun β => slideB_same_real RD k sc lam i β (by omega)
     exact ⟨transfer_left _ _ _ _ _ (sconv_cRs_wRs RD k sc lam i (up i)) (sconv_cLs_wLs RD k sc lam i (up i))
       hB (wRs_zero RD k sc lam i (up i)), hB⟩
-  · have hA : ∀ α, cRs RD k sc lam i (up i) α = sconv (cLs RD k sc lam i (up i)) (τsame RD k lam i) α :=
+  · have hA : ∀ α, cRs RD k sc lam i (up i) α = sconv (cLs RD k sc lam i (up i)) (τsame RD k sc lam i) α :=
       fun α => slideA_same_real RD k sc lam i α (by omega)
     exact ⟨hA, transfer_right _ _ _ _ _ (sconv_cRs_wRs RD k sc lam i (up i))
       (sconv_cLs_wLs RD k sc lam i (up i)) hA (cLs_zero RD k sc lam i (up i))⟩
@@ -259,107 +259,13 @@ section Adj
 
 variable (lam : X) (i j : I)
 
-/-- The coefficients of `1 + x t` (dots on the strand `j`). -/
-abbrev τadj (e : ℕ) : End ((pres RD k sc).obj (ob RD lam [up j])) :=
-  if e = 0 then 1 else if e = 1 then dotsU RD k sc lam (up j) 1 else 0
 
-theorem slideA_adj_real (hij : C.dot i j = -1) (α : ℕ) (hα : 0 ≤ -ip RD i lam - 1 + α) :
-    cRs RD k sc lam i (up j) α = sconv (cLs RD k sc lam i (up j)) (τadj RD k lam j) α := by
-  have hn : ip RD i (wt RD lam [up j]) = -1 + ip RD i lam := by
-    rw [ip_wt_up, A_of_dot_neg_one hij]
-  have h := prop33_ccw_adj RD k sc lam i j hij α hα
-  rw [lin_bubR_eq, lin_bubL_eq, lin_bubL_eq] at h
-  rw [cRs, h]; unfold τadj; rw [sconv_two_right, mul_one]
-  congr 1
-  split_ifs with h0
-  · subst h0
-    rw [Nat.cast_zero, add_zero, lin_ccwL_eq_zero RD k sc _ i _ (by omega)]
-    rw [bubLU_zero, Limits.zero_comp]
-  · rw [End.mul_def, ← bubLU_comm]
-    congr 3
-    push_cast [Nat.cast_sub (by omega : 1 ≤ α)]; ring_nf
 
-theorem slideB_adj_real (hij : C.dot i j = -1) (β : ℕ)
-    (hβ : 0 ≤ ip RD i (wt RD lam [up j]) - 1 + β) :
-    wLs RD k sc lam i (up j) β = sconv (τadj RD k lam j) (wRs RD k sc lam i (up j)) β := by
-  have hn : ip RD i (wt RD lam [up j]) = -1 + ip RD i lam := by
-    rw [ip_wt_up, A_of_dot_neg_one hij]
-  have h := prop33_cw_adj RD k sc lam i j hij β hβ
-  rw [lin_bubL_eq, lin_bubR_eq, lin_bubR_eq] at h
-  rw [wLs, h]; unfold τadj; rw [sconv_two_left, one_mul, add_comm]
-  congr 1
-  split_ifs with h0
-  · subst h0
-    rw [Nat.cast_zero, add_zero, lin_cwL_eq_zero RD k sc _ i _ (by omega)]
-    rw [bubRU_zero, Limits.zero_comp]
-  · rw [End.mul_def]
-    congr 3
-    push_cast [Nat.cast_sub (by omega : 1 ≤ β)]; ring_nf
 
-theorem slides_adj (hij : C.dot i j = -1) :
-    (∀ α, cRs RD k sc lam i (up j) α = sconv (cLs RD k sc lam i (up j)) (τadj RD k lam j) α) ∧
-      ∀ β, wLs RD k sc lam i (up j) β = sconv (τadj RD k lam j) (wRs RD k sc lam i (up j)) β := by
-  have hn : ip RD i (wt RD lam [up j]) = -1 + ip RD i lam := by
-    rw [ip_wt_up, A_of_dot_neg_one hij]
-  by_cases h1 : 1 ≤ ip RD i lam
-  · have hB : ∀ β, wLs RD k sc lam i (up j) β = sconv (τadj RD k lam j) (wRs RD k sc lam i (up j)) β := by
-      intro β
-      rcases β with _ | β
-      · unfold τadj; simp [sconv_two_left, wLs_zero, wRs_zero]
-      · exact slideB_adj_real RD k sc lam i j hij _ (by push_cast; omega)
-    exact ⟨transfer_left _ _ _ _ _ (sconv_cRs_wRs RD k sc lam i (up j))
-      (sconv_cLs_wLs RD k sc lam i (up j)) hB (wRs_zero RD k sc lam i (up j)), hB⟩
-  · have hA : ∀ α, cRs RD k sc lam i (up j) α = sconv (cLs RD k sc lam i (up j)) (τadj RD k lam j) α := by
-      intro α
-      rcases α with _ | α
-      · unfold τadj; simp [sconv_two_right, cRs_zero, cLs_zero]
-      · exact slideA_adj_real RD k sc lam i j hij _ (by push_cast; omega)
-    exact ⟨hA, transfer_right _ _ _ _ _ (sconv_cRs_wRs RD k sc lam i (up j))
-      (sconv_cLs_wLs RD k sc lam i (up j)) hA (cLs_zero RD k sc lam i (up j))⟩
 
 end Adj
 
-/-- **KL III Proposition 3.3, first display, `i · j = -1`, all degrees**: for every `α ≥ 0`,
-`ccw_{-⟨i,λ⟩-1+α} ⊗ E_j = E_j ⊗ ccw_{-⟨i,λ+j_X⟩-1+α} + (E_j ⊗ ccw_{-⟨i,λ+j_X⟩-2+α}) x_j`. -/
-theorem prop33_ccw_adj_all (lam : X) (i j : I) (hij : C.dot i j = -1) (α : ℕ) :
-    (pres RD k sc).lin (bubR RD k lam [up j] (ccwL RD k lam i (-ip RD i lam - 1 + α))) =
-      (pres RD k sc).lin (bubL RD k lam [up j]
-          (ccwL RD k (wt RD lam [up j]) i (-ip RD i (wt RD lam [up j]) - 1 + α))) +
-        (pres RD k sc).lin (bubL RD k lam [up j]
-            (ccwL RD k (wt RD lam [up j]) i (-ip RD i (wt RD lam [up j]) - 2 + α))) ≫
-          dotsU RD k sc lam (up j) 1 := by
-  rw [lin_bubR_eq, lin_bubL_eq, lin_bubL_eq]
-  refine ((slides_adj RD k sc lam i j hij).1 α).trans ?_
-  unfold τadj; rw [sconv_two_right, mul_one]
-  congr 1
-  split_ifs with h0
-  · subst h0
-    rw [Nat.cast_zero, add_zero, lin_ccwL_eq_zero RD k sc _ i _ (by omega)]
-    rw [bubLU_zero, Limits.zero_comp]
-  · rw [End.mul_def, ← bubLU_comm]
-    congr 3
-    omega
 
-/-- **KL III Proposition 3.3, second display, `i · j = -1`, all degrees**: for every `α ≥ 0`,
-`E_j ⊗ cw_{⟨i,λ+j_X⟩-1+α} = (cw_{⟨i,λ⟩-1+α-1} ⊗ E_j) x_j + cw_{⟨i,λ⟩-1+α} ⊗ E_j`. -/
-theorem prop33_cw_adj_all (lam : X) (i j : I) (hij : C.dot i j = -1) (α : ℕ) :
-    (pres RD k sc).lin (bubL RD k lam [up j]
-        (cwL RD k (wt RD lam [up j]) i (ip RD i (wt RD lam [up j]) - 1 + α))) =
-      (pres RD k sc).lin (bubR RD k lam [up j] (cwL RD k lam i (ip RD i lam - 1 + α - 1))) ≫
-          dotsU RD k sc lam (up j) 1 +
-        (pres RD k sc).lin (bubR RD k lam [up j] (cwL RD k lam i (ip RD i lam - 1 + α))) := by
-  rw [lin_bubL_eq, lin_bubR_eq, lin_bubR_eq]
-  refine ((slides_adj RD k sc lam i j hij).2 α).trans ?_
-  unfold τadj; rw [sconv_two_left, one_mul, add_comm]
-  congr 1
-  split_ifs with h0
-  · subst h0
-    rw [Nat.cast_zero, add_zero, lin_cwL_eq_zero RD k sc _ i _ (by omega)]
-    rw [bubRU_zero, Limits.zero_comp]
-  · rw [End.mul_def]
-    simp only [wRs]
-    congr 3
-    omega
 
 /-! ## The case `i · j = 0` -/
 
@@ -367,73 +273,13 @@ section Orth
 
 variable (lam : X) (i j : I)
 
-/-- The coefficients of the unit series. -/
-abbrev τorth (e : ℕ) : End ((pres RD k sc).obj (ob RD lam [up j])) :=
-  if e = 0 then 1 else if e = 1 then 0 else 0
 
-theorem sconv_τorth_right (u : ℕ → End ((pres RD k sc).obj (ob RD lam [up j]))) (α : ℕ) :
-    sconv u (τorth RD k lam j) α = u α := by
-  unfold τorth; rw [sconv_two_right]; simp
 
-theorem sconv_τorth_left (w : ℕ → End ((pres RD k sc).obj (ob RD lam [up j]))) (β : ℕ) :
-    sconv (τorth RD k lam j) w β = w β := by
-  unfold τorth; rw [sconv_two_left]; simp
 
-theorem slides_orth (hij : C.dot i j = 0) :
-    (∀ α, cRs RD k sc lam i (up j) α = cLs RD k sc lam i (up j) α) ∧
-      ∀ β, wLs RD k sc lam i (up j) β = wRs RD k sc lam i (up j) β := by
-  have hn : ip RD i (wt RD lam [up j]) = ip RD i lam := by
-    rw [ip_wt_up, A_of_dot_zero hij, zero_add]
-  by_cases h1 : 1 ≤ ip RD i lam
-  · have hB : ∀ β, wLs RD k sc lam i (up j) β = sconv (τorth RD k lam j) (wRs RD k sc lam i (up j)) β := by
-      intro β
-      rw [sconv_τorth_left, wLs, wRs, hn]
-      have h := prop33_cw_orth RD k sc lam i j hij β (by omega)
-      rw [lin_bubL_eq, lin_bubR_eq] at h
-      exact h
-    have hA := transfer_left _ _ _ _ _ (sconv_cRs_wRs RD k sc lam i (up j))
-      (sconv_cLs_wLs RD k sc lam i (up j)) hB (wRs_zero RD k sc lam i (up j))
-    exact ⟨fun α => (hA α).trans (sconv_τorth_right RD k lam j _ α),
-      fun β => (hB β).trans (sconv_τorth_left RD k lam j _ β)⟩
-  · have hA : ∀ α, cRs RD k sc lam i (up j) α = sconv (cLs RD k sc lam i (up j)) (τorth RD k lam j) α := by
-      intro α
-      rw [sconv_τorth_right]
-      rcases α with _ | α
-      · rw [cRs_zero, cLs_zero]
-      · rw [cRs, cLs, hn]
-        have h := prop33_ccw_orth RD k sc lam i j hij (α + 1) (by push_cast; omega)
-        rw [lin_bubL_eq, lin_bubR_eq] at h
-        exact h
-    have hB := transfer_right _ _ _ _ _ (sconv_cRs_wRs RD k sc lam i (up j))
-      (sconv_cLs_wLs RD k sc lam i (up j)) hA (cLs_zero RD k sc lam i (up j))
-    exact ⟨fun α => (hA α).trans (sconv_τorth_right RD k lam j _ α),
-      fun β => (hB β).trans (sconv_τorth_left RD k lam j _ β)⟩
 
 end Orth
 
-/-- **KL III Proposition 3.3, first display, `i · j = 0`, all degrees**: for every `α ≥ 0`,
-`ccw_{-⟨i,λ⟩-1+α} ⊗ E_j = E_j ⊗ ccw_{-⟨i,λ⟩-1+α}`. -/
-theorem prop33_ccw_orth_all (lam : X) (i j : I) (hij : C.dot i j = 0) (α : ℕ) :
-    (pres RD k sc).lin (bubR RD k lam [up j] (ccwL RD k lam i (-ip RD i lam - 1 + α))) =
-      (pres RD k sc).lin (bubL RD k lam [up j] (ccwL RD k (wt RD lam [up j]) i (-ip RD i lam - 1 + α))) := by
-  have hn : ip RD i (wt RD lam [up j]) = ip RD i lam := by
-    rw [ip_wt_up, A_of_dot_zero hij, zero_add]
-  have h := (slides_orth RD k sc lam i j hij).1 α
-  rw [cRs, cLs, hn] at h
-  rw [lin_bubR_eq, lin_bubL_eq]
-  exact h
 
-/-- **KL III Proposition 3.3, second display, `i · j = 0`, all degrees**: for every `α ≥ 0`,
-`E_j ⊗ cw_{⟨i,λ⟩-1+α} = cw_{⟨i,λ⟩-1+α} ⊗ E_j`. -/
-theorem prop33_cw_orth_all (lam : X) (i j : I) (hij : C.dot i j = 0) (α : ℕ) :
-    (pres RD k sc).lin (bubL RD k lam [up j] (cwL RD k (wt RD lam [up j]) i (ip RD i lam - 1 + α))) =
-      (pres RD k sc).lin (bubR RD k lam [up j] (cwL RD k lam i (ip RD i lam - 1 + α))) := by
-  have hn : ip RD i (wt RD lam [up j]) = ip RD i lam := by
-    rw [ip_wt_up, A_of_dot_zero hij, zero_add]
-  have h := (slides_orth RD k sc lam i j hij).2 α
-  rw [wLs, wRs, hn] at h
-  rw [lin_bubR_eq, lin_bubL_eq]
-  exact h
 
 /-! ## Proposition 3.4 in all degrees -/
 
@@ -519,69 +365,6 @@ theorem prop34_ccw_same_all (lam : X) (i : I) (α : ℕ) :
   simp only [Nat.sub_self, dotsU_zero, Category.comp_id] at h
   rw [lin_bubL_eq, h.symm]
 
-/-- **KL III Proposition 3.4, first display, `i · j = -1`, all degrees**: for every `α ≥ 0`,
-`cw_{⟨i,λ⟩-1+α} ⊗ E_j = ∑_{f=0}^{α} (-1)^f (E_j ⊗ cw_{⟨i,λ+j_X⟩-1+(α-f)}) x_j^f`. -/
-theorem prop34_cw_adj_all (lam : X) (i j : I) (hij : C.dot i j = -1) (α : ℕ) :
-    (pres RD k sc).lin (bubR RD k lam [up j] (cwL RD k lam i (ip RD i lam - 1 + α))) =
-      ∑ f ∈ Finset.range (α + 1), ((-1 : ℤ) ^ f) •
-        ((pres RD k sc).lin (bubL RD k lam [up j]
-            (cwL RD k (wt RD lam [up j]) i (ip RD i (wt RD lam [up j]) - 1 + ((α - f : ℕ) : ℤ)))) ≫
-          dotsU RD k sc lam (up j) f) := by
-  induction α with
-  | zero =>
-    have h := prop33_cw_adj_all RD k sc lam i j hij 0
-    rw [show ip RD i lam - 1 + ((0 : ℕ) : ℤ) - 1 = ip RD i lam - 2 by push_cast; ring,
-      lin_bubR_eq RD k sc lam (up j) (cwL RD k lam i (ip RD i lam - 2)),
-      lin_cwL_eq_zero RD k sc lam i _ (by omega), bubRU_zero, Limits.zero_comp, zero_add] at h
-    rw [Finset.sum_range_succ, Finset.sum_range_zero, zero_add, pow_zero, one_smul, dotsU_zero,
-      Category.comp_id, Nat.sub_zero]
-    exact h.symm
-  | succ α ih =>
-    have h := prop33_cw_adj_all RD k sc lam i j hij (α + 1)
-    have e : ip RD i lam - 1 + ((α + 1 : ℕ) : ℤ) - 1 = ip RD i lam - 1 + (α : ℤ) := by push_cast; ring
-    rw [e, ih] at h
-    rw [eq_sub_of_add_eq' h.symm, Preadditive.sum_comp, Finset.sum_range_succ' _ (α + 1),
-      pow_zero, one_smul, Nat.sub_zero, dotsU_zero, Category.comp_id, sub_eq_add_neg,
-      ← Finset.sum_neg_distrib, add_comm (∑ _ ∈ _, _)]
-    congr 1
-    refine Finset.sum_congr rfl fun f hf => ?_
-    have := Finset.mem_range.1 hf
-    rw [Linear.smul_comp, Category.assoc, dotsU_add, pow_succ, mul_neg_one, neg_smul]
-    rw [show α + 1 - (f + 1) = α - f by omega]
 
-/-- **KL III Proposition 3.4, second display, `i · j = -1`, all degrees**: for every `α ≥ 0`,
-`E_j ⊗ ccw_{-⟨i,λ+j_X⟩-1+α} = ∑_{f=0}^{α} (-1)^f (ccw_{-⟨i,λ⟩-1+(α-f)} ⊗ E_j) x_j^f`. -/
-theorem prop34_ccw_adj_all (lam : X) (i j : I) (hij : C.dot i j = -1) (α : ℕ) :
-    (pres RD k sc).lin (bubL RD k lam [up j]
-        (ccwL RD k (wt RD lam [up j]) i (-ip RD i (wt RD lam [up j]) - 1 + α))) =
-      ∑ f ∈ Finset.range (α + 1), ((-1 : ℤ) ^ f) •
-        ((pres RD k sc).lin (bubR RD k lam [up j]
-            (ccwL RD k lam i (-ip RD i lam - 1 + ((α - f : ℕ) : ℤ)))) ≫
-          dotsU RD k sc lam (up j) f) := by
-  have hn' : ip RD i (wt RD lam [up j]) = -1 + ip RD i lam := by
-    rw [ip_wt_up, A_of_dot_neg_one hij]
-  induction α with
-  | zero =>
-    have h := prop33_ccw_adj_all RD k sc lam i j hij 0
-    rw [show -ip RD i (wt RD lam [up j]) - 2 + ((0 : ℕ) : ℤ) = -ip RD i (wt RD lam [up j]) - 2 by
-        push_cast; ring,
-      lin_bubL_eq RD k sc lam (up j) (ccwL RD k _ i (-ip RD i (wt RD lam [up j]) - 2)),
-      lin_ccwL_eq_zero RD k sc _ i _ (by omega), bubLU_zero, Limits.zero_comp, add_zero] at h
-    rw [Finset.sum_range_succ, Finset.sum_range_zero, zero_add, pow_zero, one_smul, dotsU_zero,
-      Category.comp_id, Nat.sub_zero]
-    exact h.symm
-  | succ α ih =>
-    have h := prop33_ccw_adj_all RD k sc lam i j hij (α + 1)
-    have e : -ip RD i (wt RD lam [up j]) - 2 + ((α + 1 : ℕ) : ℤ) =
-        -ip RD i (wt RD lam [up j]) - 1 + (α : ℤ) := by push_cast; ring
-    rw [e, ih] at h
-    rw [eq_sub_of_add_eq h.symm, Preadditive.sum_comp, Finset.sum_range_succ' _ (α + 1),
-      pow_zero, one_smul, Nat.sub_zero, dotsU_zero, Category.comp_id, sub_eq_add_neg,
-      ← Finset.sum_neg_distrib, add_comm (∑ _ ∈ _, _)]
-    congr 1
-    refine Finset.sum_congr rfl fun f hf => ?_
-    have := Finset.mem_range.1 hf
-    rw [Linear.smul_comp, Category.assoc, dotsU_add, pow_succ, mul_neg_one, neg_smul]
-    rw [show α + 1 - (f + 1) = α - f by omega]
 
 end Categorification.KL3.Diagram.CLQ

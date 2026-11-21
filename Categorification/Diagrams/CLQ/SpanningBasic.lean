@@ -2,7 +2,7 @@
 Copyright (c) 2026 Alex Ellis. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 -/
-import Categorification.Diagrams.CLQ.BubbleSlidesGen
+import Categorification.Diagrams.KL3.BubbleSlidesGen
 import Categorification.Diagrams.CLQ.EndOne
 import Categorification.Diagrams.CLQ.Pitchfork
 import Categorification.Diagrams.KL3.SpanningBasic
@@ -113,7 +113,7 @@ theorem dg_closed_right (μ : X) {S T : List (Letter I)} (pre post : List (Layer
     (hD : SChain [] D []) (hA : SChain t A t') :
     dg RD k sc μ S T (pre ++ D.map (whL u t) ++ A.map (whL u []) ++ post) =
       dg RD k sc μ S T (pre ++ A.map (whL u []) ++ D.map (whL u t') ++ post) := by
-  have h := dg_interchange (RD := RD) (k := k) (μ := μ) (S := S) (T := T) pre post
+  have h := dg_interchange (RD := RD) (k := k) (sc := sc) (μ := μ) (S := S) (T := T) pre post
     (hD.whisk u []) hA
   simp only [List.map_map, Function.comp_def, whL, List.append_nil, List.nil_append] at h ⊢
   exact h
@@ -125,7 +125,7 @@ theorem dg_closed_left (μ : X) {S T : List (Letter I)} (pre post : List (LayerD
     (hD : SChain [] D []) (hA : SChain s A s') :
     dg RD k sc μ S T (pre ++ A.map (whL [] v) ++ D.map (whL s' v) ++ post) =
       dg RD k sc μ S T (pre ++ D.map (whL s v) ++ A.map (whL [] v) ++ post) := by
-  have h := dg_interchange (RD := RD) (k := k) (μ := μ) (S := S) (T := T) pre post
+  have h := dg_interchange (RD := RD) (k := k) (sc := sc) (μ := μ) (S := S) (T := T) pre post
     hA (hD.whisk [] v)
   simp only [List.map_map, Function.comp_def, whL, List.append_nil, List.nil_append] at h ⊢
   exact h
@@ -148,7 +148,7 @@ def slideSetL : Submodule k (End ((pres RD k sc).obj (ob RD μ [l]))) :=
   Submodule.span k {f | ∃ (a : ℕ) (γ : End ((pres RD k sc).obj (ob RD (wt RD μ [l]) []))),
     IsBub RD k sc (wt RD μ [l]) γ ∧ f = dotsU RD k sc μ l a ≫ bubLU RD k sc μ l γ}
 
-variable {RD k μ l}
+variable {RD k sc μ l}
 
 theorem mem_slideSetR {a : ℕ} {γ : End ((pres RD k sc).obj (ob RD μ []))} (hγ : IsBub RD k sc μ γ) :
     dotsU RD k sc μ l a ≫ bubRU RD k sc μ l γ ∈ slideSetR RD k sc μ l :=
@@ -256,7 +256,7 @@ theorem bubRU_mem_of_gen
       show bubRU RD k sc μ l (a • 𝟙 _) = a • bubRU RD k sc μ l (𝟙 _) from LinearMap.map_smul _ a _,
       bubRU_id]
     refine Submodule.smul_mem _ a ?_
-    have := mem_slideSetL (l := l) (a := 0) (μ := μ) (IsBub.id (RD := RD) (k := k))
+    have := mem_slideSetL (l := l) (a := 0) (μ := μ) (IsBub.id (RD := RD) (k := k) (sc := sc))
     rwa [bubLU_id, dotsU_zero, Category.comp_id] at this
   | add p q hp hq =>
     rw [map_add, EndOne.val_add, show ∀ x y : End ((pres RD k sc).obj (ob RD μ [])),
@@ -277,11 +277,11 @@ section UpSlides
 variable (μ : X)
 
 theorem dotsU_mem_slideSetR' (l : Letter I) (a : ℕ) : dotsU RD k sc μ l a ∈ slideSetR RD k sc μ l := by
-  have := mem_slideSetR (RD := RD) (k := k) (μ := μ) (l := l) (a := a) IsBub.id
+  have := mem_slideSetR (RD := RD) (k := k) (sc := sc) (μ := μ) (l := l) (a := a) IsBub.id
   rwa [bubRU_id, Category.comp_id] at this
 
 theorem dotsU_mem_slideSetL' (l : Letter I) (a : ℕ) : dotsU RD k sc μ l a ∈ slideSetL RD k sc μ l := by
-  have := mem_slideSetL (RD := RD) (k := k) (μ := μ) (l := l) (a := a) IsBub.id
+  have := mem_slideSetL (RD := RD) (k := k) (sc := sc) (μ := μ) (l := l) (a := a) IsBub.id
   rwa [bubLU_id, Category.comp_id] at this
 
 /-- A clockwise bubble moves from the left to the right of an upward strand (KL III
@@ -304,7 +304,7 @@ theorem cw_slideR_up (i j : I) (α : ℕ) :
         rw [ip_wt_up, A_of_dot_zero h0, zero_add]
       rw [lin_bubL_eq, lin_bubR_eq] at h
       rw [hn, h]; exact mem_slideSetR_bub (cwU_isBub _ _)
-    · have h := (slides_gen RD k sc μ hij h0).2 α
+    · have h := (slides_gen RD k μ hij h0).2 α
       rw [sconv_gen_left _ _ (dij_pos hij h0)] at h
       change wLs RD k sc μ i (up j) α ∈ _
       rw [h]
@@ -334,7 +334,7 @@ theorem ccw_slideR_up (i j : I) (α : ℕ) :
     · change cLs RD k sc μ i (up j) α ∈ _
       induction α using Nat.strong_induction_on with
       | _ α ih =>
-      have h := (slides_gen RD k sc μ hij h0).1 α
+      have h := (slides_gen RD k μ hij h0).1 α
       rw [sconv_gen_right _ _ (dij_pos hij h0), ← sub_eq_iff_eq_add] at h
       rw [← h]
       refine Submodule.sub_mem _ (mem_slideSetR_bub (ccwU_isBub _ _)) ?_
@@ -362,7 +362,7 @@ theorem cw_slideL_up (i j : I) (α : ℕ) :
     · change wRs RD k sc μ i (up j) α ∈ _
       induction α using Nat.strong_induction_on with
       | _ α ih =>
-      have h := (slides_gen RD k sc μ hij h0).2 α
+      have h := (slides_gen RD k μ hij h0).2 α
       rw [sconv_gen_left _ _ (dij_pos hij h0), eq_comm, ← eq_sub_iff_add_eq] at h
       rw [h]
       refine Submodule.sub_mem _ (mem_slideSetL_bub (cwU_isBub _ _)) ?_
@@ -388,7 +388,7 @@ theorem ccw_slideL_up (i j : I) (α : ℕ) :
     · have h := prop33_ccw_orth_all RD k sc μ i j h0 α
       rw [lin_bubL_eq, lin_bubR_eq] at h
       rw [h]; exact mem_slideSetL_bub (ccwU_isBub _ _)
-    · have h := (slides_gen RD k sc μ hij h0).1 α
+    · have h := (slides_gen RD k μ hij h0).1 α
       rw [sconv_gen_right _ _ (dij_pos hij h0)] at h
       change cRs RD k sc μ i (up j) α ∈ _
       rw [h]
@@ -442,7 +442,7 @@ theorem IsBub.wtTransport {x y : X} (h : x = y) {β : End ((pres RD k sc).obj (o
 
 section Rotation
 
-variable (RD k μ) (j : I)
+variable (RD k sc μ) (j : I)
 
 /-- Rotation of an endomorphism of the upward strand `E_j` (right region `μ - j_X`) into an
 endomorphism of the downward strand `F_j` (right region `μ`): the cup `1 → F E` on the left and
@@ -490,7 +490,7 @@ theorem rotT_bubRU (β : End ((pres RD k sc).obj (ob RD (wt RD μ [dn j]) []))) 
   erw [e₀, e₀', rotT_dg RD k sc μ j _ (by simpa using hB.whisk [up j] [])]
   wnf
   -- move the closed diagram below the cup
-  have e₁ := dg_closed_left (RD := RD) (k := k) μ (S := [dn j]) (T := [dn j]) []
+  have e₁ := dg_closed_left (RD := RD) (k := k) (sc := sc) μ (S := [dn j]) (T := [dn j]) []
     [([dn j], .cap (dn j), [])] (s := []) (s' := [dn j, up j]) [dn j] hB
     (A := [([], .cup (dn j), [])]) (by schain)
   wnf at e₁
@@ -525,7 +525,7 @@ theorem rotT_dots_bubLU (a : ℕ)
     ((rotT RD k sc μ j).comp ((Linear.leftComp k _ (dotsU RD k sc (wt RD μ [dn j]) (up j) a)).comp
       (plcL RD k sc (wt RD μ [dn j]) [] [up j] [] [])))
     ((Linear.leftComp k _ (dotsU RD k sc μ (dn j) a)).comp
-      ((plcL RD k sc μ [dn j] [] [] []).comp (wtTransportL (RD := RD) (k := k) hμ))) (fun D hD => ?_)
+      ((plcL RD k sc μ [dn j] [] [] []).comp (wtTransportL (RD := RD) (k := k) (sc := sc) hμ))) (fun D hD => ?_)
   · exact LinearMap.congr_fun key δ
   change rotT RD k sc μ j (dotsU RD k sc (wt RD μ [dn j]) (up j) a ≫ plcL RD k sc (wt RD μ [dn j]) [] [up j] [] []
       (dg RD k sc (wt RD (wt RD μ [dn j]) [up j]) [] [] D)) =
@@ -547,7 +547,7 @@ theorem rotT_dots_bubLU (a : ℕ)
   rw [dotsU, dotsU, dg_comp hrep hD₁, dg_comp hrep' hD₂,
     rotT_dg RD k sc μ j _ (hrep.append hD₁)]
   wnf
-  have e₂ := dg_closed_right (RD := RD) (k := k) μ (S := [dn j]) (T := [dn j])
+  have e₂ := dg_closed_right (RD := RD) (k := k) (sc := sc) μ (S := [dn j]) (T := [dn j])
     ([([], .cup (dn j), [dn j])] ++ List.replicate a ([dn j], .dot (up j), [dn j])) [] [dn j]
     (t := [up j, dn j]) (t' := []) hD (A := [([], .cap (dn j), [])]) (by schain)
   wnf at e₂

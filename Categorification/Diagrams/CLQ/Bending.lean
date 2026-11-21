@@ -68,7 +68,7 @@ theorem dg_zigA : ∀ (w : List (Letter I)) (μ : X),
   | [] => fun μ => rfl
   | l :: w => fun μ => by
     have hc := (sChain_cupA w).whisk [l] []
-    have ei := dg_interchange (RD := RD) (k := k) (μ := μ) (S := l :: w) (T := l :: w)
+    have ei := dg_interchange (RD := RD) (k := k) (sc := sc) (μ := μ) (S := l :: w) (T := l :: w)
       [([], .cup l, l :: w)] ((capA w).map (whL (l :: w) []))
       (A := (cupA w).map (whL [l] [])) (s := [l]) (s' := [l] ++ (w ++ rd w))
       (by simpa using hc) (B := [([], .cap l, w)]) (t := [l.dual, l] ++ w) (t' := w)
@@ -105,7 +105,7 @@ theorem dg_zigB : ∀ (w : List (Letter I)) (μ : X),
   | [] => fun μ => rfl
   | l :: w => fun μ => by
     have hc := (sChain_cupA w).whisk [] [l.dual]
-    have ei := dg_interchange (RD := RD) (k := k) (μ := μ) (S := rd w ++ [l.dual])
+    have ei := dg_interchange (RD := RD) (k := k) (sc := sc) (μ := μ) (S := rd w ++ [l.dual])
       (T := rd w ++ [l.dual]) [(rd w ++ [l.dual], .cup l, [])]
       ((capA w).map (whL [] (rd w ++ [l.dual])))
       (A := [(rd w, .cap l, [])]) (s := rd w ++ [l.dual, l]) (s' := rd w) ⟨by simp, by simp⟩
@@ -170,7 +170,7 @@ theorem upSpan_ctxL {μ : X} {s₀ t₀ u S T : List (Letter I)} {pre post : Lis
     have hBt : SChain t₀ (B.map (whL t₀ [])) t₀ := by simpa using hB.whisk t₀ []
     erw [bubAt_dg, bubAt_dg, dg_comp hc hBT, dg_comp hc' hBt,
       ctxL_dg RD k sc μ hpre hpost]
-    have e := dg_closed_left (RD := RD) (k := k) μ (S := s₀) (T := t₀)
+    have e := dg_closed_left (RD := RD) (k := k) (sc := sc) μ (S := s₀) (T := t₀)
       (pre ++ A.map (whL u [])) [] (s := u ++ T) (s' := t₀) [] hB (by simpa using hpost)
     simp only [List.map_append, map_whL_whL, List.append_assoc, map_whL_nil_nil,
       List.append_nil] at e ⊢
@@ -371,14 +371,14 @@ theorem dg_unbend_sharp (p q x y : List (Letter I)) {M : List (LayerData I)}
     refine (show SChain (p ++ rd p ++ (x ++ q)) (M.map (whL (p ++ rd p) [])) (p ++ rd p ++ p ++ y)
       by simpa using hM.whisk (p ++ rd p) []).append ?_
     simpa using (sChain_capA p).whisk p y
-  have ei1 := dg_interchange (RD := RD) (k := k) (μ := μ) (S := x ++ q) (T := p ++ y)
+  have ei1 := dg_interchange (RD := RD) (k := k) (sc := sc) (μ := μ) (S := x ++ q) (T := p ++ y)
     ((cupA p).map (whL [] (x ++ q)) ++ (cupA q).map (whL (p ++ rd p ++ x) q)) [] hA
     (B := capA q) (t := rd q ++ q) (t' := []) (sChain_capA q)
   have hz1 := dg_step RD k sc μ (s₀ := x ++ q) (t₀ := p ++ y) ((cupA p).map (whL [] (x ++ q)))
     (M.map (whL (p ++ rd p) []) ++ (capA p).map (whL p y)) (p ++ rd p ++ x) []
     (dg_zigA q (wt RD μ []))
     (by simpa using (sChain_cupA p).whisk [] (x ++ q)) (by simpa using hA) rfl rfl
-  have ei2 := dg_interchange (RD := RD) (k := k) (μ := μ) (S := x ++ q) (T := p ++ y)
+  have ei2 := dg_interchange (RD := RD) (k := k) (sc := sc) (μ := μ) (S := x ++ q) (T := p ++ y)
     [] ((capA p).map (whL p y)) (sChain_cupA p) (B := M) (t := x ++ q) (t' := p ++ y) hM
   have hz2 := dg_step RD k sc μ (s₀ := x ++ q) (t₀ := p ++ y) M [] [] y (dg_zigA p (wt RD μ y))
     (by simpa using hM) (by simp) rfl rfl
@@ -414,14 +414,14 @@ theorem dg_unbend_flat (p q x y : List (Letter I)) {M : List (LayerData I)}
     refine (show SChain (rd p ++ x) ((cupA p).map (whL (rd p) x)) (rd p ++ p ++ (rd p ++ x))
       by simpa using (sChain_cupA p).whisk (rd p) x).append ?_
     simpa using hM.whisk (rd p ++ p) []
-  have ei1 := dg_interchange (RD := RD) (k := k) (μ := μ) (S := rd p ++ x) (T := y ++ rd q)
+  have ei1 := dg_interchange (RD := RD) (k := k) (sc := sc) (μ := μ) (S := rd p ++ x) (T := y ++ rd q)
     [] ((capA q).map (whL (rd p ++ p ++ y) (rd q)) ++ (capA p).map (whL [] (y ++ rd q))) hA
     (B := cupA q) (t := []) (t' := q ++ rd q) (sChain_cupA q)
   have hz1 := dg_step RD k sc μ (s₀ := rd p ++ x) (t₀ := y ++ rd q)
     ((cupA p).map (whL (rd p) x) ++ M.map (whL (rd p ++ p) []))
     ((capA p).map (whL [] (y ++ rd q))) (rd p ++ p ++ y) [] (dg_zigB q (wt RD μ []))
     (by simpa using hA) (by simpa using (sChain_capA p).whisk [] (y ++ rd q)) rfl rfl
-  have ei2 := dg_interchange (RD := RD) (k := k) (μ := μ) (S := rd p ++ x) (T := y ++ rd q)
+  have ei2 := dg_interchange (RD := RD) (k := k) (sc := sc) (μ := μ) (S := rd p ++ x) (T := y ++ rd q)
     ((cupA p).map (whL (rd p) x)) [] (sChain_capA p) (B := M) (t := rd p ++ x) (t' := y ++ rd q) hM
   have hz2 := dg_step RD k sc μ (s₀ := rd p ++ x) (t₀ := y ++ rd q) [] M [] x (dg_zigB p (wt RD μ x))
     (by simp) (by simpa using hM) rfl rfl
@@ -453,7 +453,7 @@ theorem dg_unbendR_bendR (q s a : List (Letter I)) {P : List (LayerData I)}
     dg RD k sc μ s (a ++ rd q) ((cupA q).map (whL s []) ++
       (P.map (whL [] q) ++ (capA q).map (whL a [])).map (whL [] (rd q))) =
       dg RD k sc μ s (a ++ rd q) P := by
-  have ei := dg_interchange (RD := RD) (k := k) (μ := μ) (S := s) (T := a ++ rd q)
+  have ei := dg_interchange (RD := RD) (k := k) (sc := sc) (μ := μ) (S := s) (T := a ++ rd q)
     [] ((capA q).map (whL a (rd q))) hP (B := cupA q) (t := []) (t' := q ++ rd q) (sChain_cupA q)
   have hz := dg_step RD k sc μ (s₀ := s) (t₀ := a ++ rd q) (P.map (whL [] [])) [] a []
     (dg_zigB q (wt RD μ [])) (by simpa using hP) (by simp) rfl rfl

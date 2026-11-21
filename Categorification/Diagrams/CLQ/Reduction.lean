@@ -103,7 +103,7 @@ theorem dg_cupUp_eq_closeRight (rest : List (LayerData I)) (h : SChain [up i, dn
     dg RD k sc lam [up i, dn i] [] _
   rw [dg_comp hA' (by schain), dg_comp (by schain) (hA'.append (by schain))]
   -- move the final cap below `rest` (interchange law), then straighten the zigzag
-  have e := dg_interchange (RD := RD) (k := k) (μ := lam) (S := []) (T := [])
+  have e := dg_interchange (RD := RD) (k := k) (sc := sc) (μ := lam) (S := []) (T := [])
     [([], .cup (up i), []), ([up i], .cup (dn i), [dn i])] [] h
     (B := [([], .cap (dn i), [])]) (t := [up i, dn i]) (t' := []) (by schain)
   wnf at e
@@ -129,7 +129,7 @@ theorem dg_cupDn_eq_closeLeft (rest : List (LayerData I)) (h : SChain [dn i, up 
     dg RD k sc lam [dn i, up i] [] _
   rw [dg_comp hA' (by schain), dg_comp (by schain) (hA'.append (by schain))]
   -- move the final cap below `rest` (interchange law), then straighten the zigzag
-  have e := dg_interchange (RD := RD) (k := k) (μ := lam) (S := []) (T := [])
+  have e := dg_interchange (RD := RD) (k := k) (sc := sc) (μ := lam) (S := []) (T := [])
     [([], .cup (dn i), []), ([dn i], .cup (up i), [up i])] []
     (A := [([], .cap (up i), [])]) (s := [dn i, up i]) (s' := []) (by schain) h
   wnf at e
@@ -155,7 +155,7 @@ theorem slideSetR_le_slideSetL_up (μ : X) (j : I) :
   refine Submodule.span_le.mpr ?_
   rintro _ ⟨a, γ, hγ, rfl⟩
   have hd : dotsU RD k sc μ (up j) a ∈ slideSetL RD k sc μ (up j) := by
-    have := mem_slideSetL (RD := RD) (k := k) (μ := μ) (l := up j) (a := a) (IsBub.id)
+    have := mem_slideSetL (RD := RD) (k := k) (sc := sc) (μ := μ) (l := up j) (a := a) (IsBub.id)
     rwa [bubLU_id, Category.comp_id] at this
   exact slideSetL_comp hd (bubRU_up_mem_gen μ j hγ)
 

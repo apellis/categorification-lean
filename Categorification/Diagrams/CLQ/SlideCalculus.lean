@@ -629,7 +629,7 @@ syntax "dstepQ " term:max term:max term:max term:max term:max : tactic
 
 macro_rules
   | `(tactic| dstepQ $pre $post $u $v $E) =>
-    `(tactic| refine (dg_step _ _ _ $pre $post $u $v $E (by schain) (by schain)
+    `(tactic| refine (dg_step _ _ _ _ $pre $post $u $v $E (by schain) (by schain)
       (by simp [whL, List.replicate_succ]) rfl).trans ?_)
 
 /-- `dg` for endomorphisms, as an element of the endomorphism ring. -/

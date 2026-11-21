@@ -116,7 +116,7 @@ theorem slideOutAny (μ : X) :
     change _ = dg RD k sc μ S T (pre ++ post) ≫ bubAt RD k sc μ T (dg RD k sc μ [] [] B)
     have hBT : SChain T (B.map (whL T [])) T := by simpa using hB.whisk T []
     rw [bubAt_dg, dg_comp hpp hBT]
-    have e := dg_closed_left (RD := RD) (k := k) μ (S := S) (T := T) pre [] (s := u) (s' := T) []
+    have e := dg_closed_left (RD := RD) (k := k) (sc := sc) μ (S := S) (T := T) pre [] (s := u) (s' := T) []
       hB (by simpa using hpost)
     wnf at e
     wnf
@@ -303,7 +303,7 @@ theorem decR (μ : X) :
         [] [] u v (A := []) (L := []) (rfl : dg RD k sc (wt RD μ v) [dn i, up i] [dn i, up i] [] = _)
         (by simp) (by simp) (by simp)
       rw [dg_decompFE, map_add, map_neg, map_sum, ctxL_dg RD k sc μ (by simp) (by simp)] at E
-      rw [← dg_nil (RD := RD) (k := k) μ, E]
+      rw [← dg_nil (RD := RD) (k := k) (sc := sc) μ, E]
       refine Submodule.add_mem _ (Submodule.neg_mem _ ?_)
         (Submodule.sum_mem _ fun f _ => ?_)
       · rw [List.map_append, List.nil_append, List.append_nil, ← dg_comp hcr hcl]
@@ -334,7 +334,7 @@ theorem decR (μ : X) :
     · have E := dg_step RD k sc μ (s₀ := u ++ dn j :: up i :: v) (t₀ := u ++ dn j :: up i :: v)
         [] [] u v (dg_downupFE RD k sc j i (Ne.symm hij) (wt RD μ v)).symm (by simp) (by simp)
         (L := []) (by simp) rfl
-      rw [← dg_nil (RD := RD) (k := k) μ, E, List.nil_append, List.append_nil, List.map_append,
+      rw [← dg_nil (RD := RD) (k := k) (sc := sc) μ, E, List.nil_append, List.append_nil, List.map_append,
         ← dg_comp hcr hcl]
       exact T1
 
@@ -374,7 +374,7 @@ theorem decL (μ : X) :
         [] [] u v (A := []) (L := []) (rfl : dg RD k sc (wt RD μ v) [up i, dn i] [up i, dn i] [] = _)
         (by simp) (by simp) (by simp)
       rw [dg_decompEF, map_add, map_neg, map_sum, ctxL_dg RD k sc μ (by simp) (by simp)] at E
-      rw [← dg_nil (RD := RD) (k := k) μ, E]
+      rw [← dg_nil (RD := RD) (k := k) (sc := sc) μ, E]
       refine Submodule.add_mem _ (Submodule.neg_mem _ ?_)
         (Submodule.sum_mem _ fun f _ => ?_)
       · rw [List.map_append, List.nil_append, List.append_nil, ← dg_comp hcl hcr]
@@ -405,7 +405,7 @@ theorem decL (μ : X) :
     · have E := dg_step RD k sc μ (s₀ := u ++ up i :: dn j :: v) (t₀ := u ++ up i :: dn j :: v)
         [] [] u v (dg_downupEF RD k sc i j hij (wt RD μ v)).symm (by simp) (by simp)
         (L := []) (by simp) rfl
-      rw [← dg_nil (RD := RD) (k := k) μ, E, List.nil_append, List.append_nil, List.map_append,
+      rw [← dg_nil (RD := RD) (k := k) (sc := sc) μ, E, List.nil_append, List.append_nil, List.map_append,
         ← dg_comp hcl hcr]
       exact T1
 

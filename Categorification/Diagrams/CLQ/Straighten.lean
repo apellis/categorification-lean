@@ -101,7 +101,7 @@ theorem Sep.dg_eq {j : I} {L R : List (Letter I)} {B : List (LayerData I)}
       refine List.perm_middle.trans ?_
       simpa using hp
     · have e := hd μ S T (pre ++ [(L ++ dn j :: u, g, v)]) post
-      have ei := dg_interchange (RD := RD) (k := k) (μ := μ) (S := S) (T := T) pre
+      have ei := dg_interchange (RD := RD) (k := k) (sc := sc) (μ := μ) (S := S) (T := T) pre
         (BR.map (whL (L' ++ [dn j]) []) ++ post) hL
         (B := [(dn j :: u, g, v)]) (t := dn j :: (u ++ g.dom ++ v))
         (t' := dn j :: (u ++ g.cod ++ v)) ⟨by simp, by simp⟩
@@ -151,7 +151,7 @@ theorem elimRL : ∀ (n : ℕ) (ls : List (LayerData I)) {s t : List (Letter I)}
       simpa using h'.2
     have hlsR : AllSh Shape.isRLu R := allSh_of_mem hls (fun y hy => by simp [hy])
     obtain ⟨B, L₁, R', C, rfl, hS, hC⟩ := findPartnerRL j R w₁ (up j :: w₂) hlsR ht hR
-    obtain ⟨BL, BR, hBL, hBR, hp, hd⟩ := hS.dg_eq (RD := RD) (k := k)
+    obtain ⟨BL, BR, hBL, hBR, hp, hd⟩ := hS.dg_eq (RD := RD) (k := k) (sc := sc)
     have hB : AllSh Shape.isRLu B := allSh_of_mem hls (fun y hy => by simp [hy])
     have hBLR : AllSh Shape.isRLu (BL ++ BR) := AllSh.of_perm hp hB
     have hls' : AllSh Shape.isRLu (A₀ ++ BL.map (whL [] w₂) ++ BR.map (whL L₁ []) ++ C) := by
@@ -172,10 +172,10 @@ theorem elimRL : ∀ (n : ℕ) (ls : List (LayerData I)) {s t : List (Letter I)}
     obtain ⟨A, hAu, hA, hE⟩ := ih _ hn' hls' hs ht h'
     refine ⟨A, hAu, hA, fun μ => ?_⟩
     rw [← hE μ]
-    have ei1 := dg_interchange (RD := RD) (k := k) (μ := μ) (S := s) (T := t) A₀
+    have ei1 := dg_interchange (RD := RD) (k := k) (sc := sc) (μ := μ) (S := s) (T := t) A₀
       (BR.map (whL (L₁ ++ [up j] ++ [dn j]) []) ++ ([(L₁, .cap (dn j), R')] ++ C)) hBL
       (B := [([], .cup (dn j), w₂)]) (t := w₂) (t' := dn j :: up j :: w₂) ⟨by simp, by simp⟩
-    have ei2 := dg_interchange (RD := RD) (k := k) (μ := μ) (S := s) (T := t)
+    have ei2 := dg_interchange (RD := RD) (k := k) (sc := sc) (μ := μ) (S := s) (T := t)
       (A₀ ++ BL.map (whL [] w₂) ++ [(L₁ ++ [up j], .cup (dn j), w₂)]) C
       (A := [(L₁, .cap (dn j), [])]) (s := L₁ ++ [up j, dn j]) (s' := L₁)
       ⟨by simp, by simp⟩ hBR
@@ -218,7 +218,7 @@ theorem elimLR : ∀ (n : ℕ) (ls : List (LayerData I)) {s t : List (Letter I)}
       simpa using h'.2
     have hlsR : AllSh Shape.isLRu R := allSh_of_mem hls (fun y hy => by simp [hy])
     obtain ⟨B, L', R₁, C, rfl, hS, hC⟩ := findPartnerLR j R (w₁ ++ [up j]) w₂ hlsR ht hR
-    obtain ⟨BL, BR, hBL, hBR, hp, hd⟩ := hS.dg_eq (RD := RD) (k := k)
+    obtain ⟨BL, BR, hBL, hBR, hp, hd⟩ := hS.dg_eq (RD := RD) (k := k) (sc := sc)
     have hB : AllSh Shape.isLRu B := allSh_of_mem hls (fun y hy => by simp [hy])
     have hBLR : AllSh Shape.isLRu (BL ++ BR) := AllSh.of_perm hp hB
     have hls' : AllSh Shape.isLRu (A₀ ++ BR.map (whL w₁ []) ++ BL.map (whL [] R₁) ++ C) := by
@@ -239,15 +239,15 @@ theorem elimLR : ∀ (n : ℕ) (ls : List (LayerData I)) {s t : List (Letter I)}
     obtain ⟨A, hAu, hA, hE⟩ := ih _ hn' hls' hs ht h'
     refine ⟨A, hAu, hA, fun μ => ?_⟩
     rw [← hE μ]
-    have ei1 := dg_interchange (RD := RD) (k := k) (μ := μ) (S := s) (T := t)
+    have ei1 := dg_interchange (RD := RD) (k := k) (sc := sc) (μ := μ) (S := s) (T := t)
       (A₀ ++ [(w₁, .cup (up j), w₂)]) ([(L', .cap (up j), R₁)] ++ C) hBL
       (B := BR.map (whL [dn j] [])) (t := dn j :: w₂) (t' := dn j :: up j :: R₁)
       (by simpa using hBR.whisk [dn j] [])
-    have ei2 := dg_interchange (RD := RD) (k := k) (μ := μ) (S := s) (T := t) A₀
+    have ei2 := dg_interchange (RD := RD) (k := k) (sc := sc) (μ := μ) (S := s) (T := t) A₀
       (BL.map (whL [] (dn j :: up j :: R₁)) ++ ([(L', .cap (up j), R₁)] ++ C))
       (A := [(w₁, .cup (up j), [])]) (s := w₁) (s' := w₁ ++ [up j, dn j])
       ⟨by simp, by simp⟩ hBR
-    have ei3 := dg_interchange (RD := RD) (k := k) (μ := μ) (S := s) (T := t)
+    have ei3 := dg_interchange (RD := RD) (k := k) (sc := sc) (μ := μ) (S := s) (T := t)
       (A₀ ++ BR.map (whL w₁ []) ++ [(w₁, .cup (up j), up j :: R₁)]) C hBL
       (B := [([], .cap (up j), R₁)]) (t := dn j :: up j :: R₁) (t' := R₁) ⟨by simp, by simp⟩
     have hz := dg_step RD k sc μ (s₀ := s) (t₀ := t) (A₀ ++ BR.map (whL w₁ []))
@@ -360,8 +360,8 @@ theorem straightenRL {s t : List (Letter I)} (hs : Positive s) (ht : Positive t)
     {ls : List (LayerData I)} (hls : AllSh Shape.isRL ls) (h : SChain s ls t) :
     ∃ A : List (LayerData I), Upward A ∧ SChain s A t ∧
       ∀ μ : X, dg RD k sc μ s t ls = dg RD k sc μ s t A := by
-  obtain ⟨h1, h2⟩ := rotAll_dg (RD := RD) (k := k) rotRL (fun x _ _ hx => rotRL_dg x hx) ls h
-  obtain ⟨A, hA, hc, he⟩ := elimRL (RD := RD) (k := k) _ (rotAll rotRL ls) (Nat.lt_succ_self _)
+  obtain ⟨h1, h2⟩ := rotAll_dg (RD := RD) (k := k) (sc := sc) rotRL (fun x _ _ hx => rotRL_dg x hx) ls h
+  obtain ⟨A, hA, hc, he⟩ := elimRL (RD := RD) (k := k) (sc := sc) _ (rotAll rotRL ls) (Nat.lt_succ_self _)
     (allSh_rotAll rotRL allSh_rotRL ls hls) hs ht h1
   exact ⟨A, hA, hc, fun μ => (h2 μ).trans (he μ)⟩
 
@@ -371,8 +371,8 @@ theorem straightenLR {s t : List (Letter I)} (hs : Positive s) (ht : Positive t)
     {ls : List (LayerData I)} (hls : AllSh Shape.isLR ls) (h : SChain s ls t) :
     ∃ A : List (LayerData I), Upward A ∧ SChain s A t ∧
       ∀ μ : X, dg RD k sc μ s t ls = dg RD k sc μ s t A := by
-  obtain ⟨h1, h2⟩ := rotAll_dg (RD := RD) (k := k) rotLR (fun x _ _ hx => rotLR_dg x hx) ls h
-  obtain ⟨A, hA, hc, he⟩ := elimLR (RD := RD) (k := k) _ (rotAll rotLR ls) (Nat.lt_succ_self _)
+  obtain ⟨h1, h2⟩ := rotAll_dg (RD := RD) (k := k) (sc := sc) rotLR (fun x _ _ hx => rotLR_dg x hx) ls h
+  obtain ⟨A, hA, hc, he⟩ := elimLR (RD := RD) (k := k) (sc := sc) _ (rotAll rotLR ls) (Nat.lt_succ_self _)
     (allSh_rotAll rotLR allSh_rotLR ls hls) hs ht h1
   exact ⟨A, hA, hc, fun μ => (h2 μ).trans (he μ)⟩
 
@@ -383,14 +383,14 @@ theorem dg_upward_mem_upSpan {μ : X} {s t : List (Letter I)} {A : List (LayerDa
 theorem straightenRL_mem_upSpan (μ : X) {s t : List (Letter I)} (hs : Positive s)
     (ht : Positive t) {ls : List (LayerData I)} (hls : AllSh Shape.isRL ls) (h : SChain s ls t) :
     dg RD k sc μ s t ls ∈ upSpan RD k sc μ s t := by
-  obtain ⟨A, hA, hc, he⟩ := straightenRL (RD := RD) (k := k) hs ht hls h
+  obtain ⟨A, hA, hc, he⟩ := straightenRL (RD := RD) (k := k) (sc := sc) hs ht hls h
   rw [he μ]
   exact dg_upward_mem_upSpan hA hc
 
 theorem straightenLR_mem_upSpan (μ : X) {s t : List (Letter I)} (hs : Positive s)
     (ht : Positive t) {ls : List (LayerData I)} (hls : AllSh Shape.isLR ls) (h : SChain s ls t) :
     dg RD k sc μ s t ls ∈ upSpan RD k sc μ s t := by
-  obtain ⟨A, hA, hc, he⟩ := straightenLR (RD := RD) (k := k) hs ht hls h
+  obtain ⟨A, hA, hc, he⟩ := straightenLR (RD := RD) (k := k) (sc := sc) hs ht hls h
   rw [he μ]
   exact dg_upward_mem_upSpan hA hc
 

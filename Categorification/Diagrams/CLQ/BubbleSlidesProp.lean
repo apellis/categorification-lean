@@ -114,62 +114,8 @@ variable {RD}
 
 end Adjacent
 
-/-- **KL III Proposition 3.3, first display, `i · j = -1`** (real bubble on the left-hand side):
-for `α` with `-⟨i,λ⟩ - 1 + α ≥ 0`,
-`ccw_{-⟨i,λ⟩-1+α} ⊗ E_j = E_j ⊗ ccw_{-⟨i,λ+j_X⟩-1+α} + (E_j ⊗ ccw_{-⟨i,λ+j_X⟩-2+α}) x_j`. -/
-theorem prop33_ccw_adj (lam : X) (i j : I) (hij : C.dot i j = -1) (α : ℕ)
-    (hα : 0 ≤ -ip RD i lam - 1 + α) :
-    (pres RD k sc).lin (bubR RD k lam [up j] (ccwL RD k lam i (-ip RD i lam - 1 + α))) =
-      (pres RD k sc).lin (bubL RD k lam [up j]
-          (ccwL RD k (wt RD lam [up j]) i (-ip RD i (wt RD lam [up j]) - 1 + α))) +
-        (pres RD k sc).lin (bubL RD k lam [up j]
-            (ccwL RD k (wt RD lam [up j]) i (-ip RD i (wt RD lam [up j]) - 2 + α))) ≫
-          dotsU RD k sc lam (up j) 1 := by
-  have hn : ip RD i (wt RD lam [up j]) = -1 + ip RD i lam := by
-    rw [ip_wt_up, A_of_dot_neg_one hij]
-  have hji : C.dot j i = -1 := by rw [C.symm]; exact hij
-  rw [ccwL_of_nonneg RD k lam i hα, bubble_slide_ccw_ne RD k sc lam i j (ne_of_dot_neg_one hij),
-    ite_eq_right (by omega), dij_of_dot_neg_one hij, dij_of_dot_neg_one hji,
-    ccwL_of_nonneg RD k _ i (by omega), ccwL_of_nonneg RD k _ i (by omega)]
-  congr 5
-  · omega
-  · congr 1; omega
 
-/-- **KL III Proposition 3.3, second display, `i · j = -1`** (real bubble on the left-hand side):
-for `α` with `⟨i,λ+j_X⟩ - 1 + α ≥ 0`,
-`E_j ⊗ cw_{⟨i,λ+j_X⟩-1+α} = (cw_{⟨i,λ⟩-1+α-1} ⊗ E_j) x_j + cw_{⟨i,λ⟩-1+α} ⊗ E_j`. -/
-theorem prop33_cw_adj (lam : X) (i j : I) (hij : C.dot i j = -1) (α : ℕ)
-    (hα : 0 ≤ ip RD i (wt RD lam [up j]) - 1 + α) :
-    (pres RD k sc).lin (bubL RD k lam [up j]
-        (cwL RD k (wt RD lam [up j]) i (ip RD i (wt RD lam [up j]) - 1 + α))) =
-      (pres RD k sc).lin (bubR RD k lam [up j] (cwL RD k lam i (ip RD i lam - 1 + α - 1))) ≫
-          dotsU RD k sc lam (up j) 1 +
-        (pres RD k sc).lin (bubR RD k lam [up j] (cwL RD k lam i (ip RD i lam - 1 + α))) := by
-  have hn : ip RD i (wt RD lam [up j]) = -1 + ip RD i lam := by
-    rw [ip_wt_up, A_of_dot_neg_one hij]
-  have hji : C.dot j i = -1 := by rw [C.symm]; exact hij
-  rw [cwL_of_nonneg RD k _ i hα, bubble_slide_cw_ne RD k sc lam i j (ne_of_dot_neg_one hij),
-    ite_eq_right (by omega), dij_of_dot_neg_one hij, dij_of_dot_neg_one hji,
-    cwL_of_nonneg RD k _ i (by omega), cwL_of_nonneg RD k _ i (by omega), add_comm]
-  congr 5
-  all_goals first | omega | (congr 1; omega)
 
-/-- **KL III Proposition 3.3, first display, `i · j = 0`** (real bubble): for
-`-⟨i,λ⟩ - 1 + α ≥ 0`, `ccw_{-⟨i,λ⟩-1+α} ⊗ E_j = E_j ⊗ ccw_{-⟨i,λ⟩-1+α}`. -/
-theorem prop33_ccw_orth (lam : X) (i j : I) (hij : C.dot i j = 0) (α : ℕ)
-    (hα : 0 ≤ -ip RD i lam - 1 + α) :
-    (pres RD k sc).lin (bubR RD k lam [up j] (ccwL RD k lam i (-ip RD i lam - 1 + α))) =
-      (pres RD k sc).lin (bubL RD k lam [up j] (ccwL RD k (wt RD lam [up j]) i (-ip RD i lam - 1 + α))) := by
-  rw [ccwL_of_nonneg RD k lam i hα, bubble_slide_ccw_ne RD k sc lam i j (ne_of_dot_zero hij),
-    ite_eq_left hij, ccwL_of_nonneg RD k _ i hα]
 
-/-- **KL III Proposition 3.3, second display, `i · j = 0`** (real bubble): for
-`⟨i,λ⟩ - 1 + α ≥ 0`, `E_j ⊗ cw_{⟨i,λ⟩-1+α} = cw_{⟨i,λ⟩-1+α} ⊗ E_j`. -/
-theorem prop33_cw_orth (lam : X) (i j : I) (hij : C.dot i j = 0) (α : ℕ)
-    (hα : 0 ≤ ip RD i lam - 1 + α) :
-    (pres RD k sc).lin (bubL RD k lam [up j] (cwL RD k (wt RD lam [up j]) i (ip RD i lam - 1 + α))) =
-      (pres RD k sc).lin (bubR RD k lam [up j] (cwL RD k lam i (ip RD i lam - 1 + α))) := by
-  rw [cwL_of_nonneg RD k _ i hα, bubble_slide_cw_ne RD k sc lam i j (ne_of_dot_zero hij),
-    ite_eq_left hij, cwL_of_nonneg RD k _ i hα]
 
 end Categorification.KL3.Diagram.CLQ

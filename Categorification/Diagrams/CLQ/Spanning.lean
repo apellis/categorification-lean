@@ -261,7 +261,7 @@ theorem slideOut : ∀ (v u : List (Letter I)) (pre post : List (LayerData I)),
     rw [ctxL_dg RD k sc lam (by simpa using hpre) (by simpa using hpost)]
     change _ = dg RD k sc lam [] [] B ≫ dg RD k sc lam [] [] (pre ++ post)
     rw [dg_comp hB hpp]
-    have e := dg_closed_left (RD := RD) (k := k) lam (S := []) (T := []) [] post (s := [])
+    have e := dg_closed_left (RD := RD) (k := k) (sc := sc) lam (S := []) (T := []) [] post (s := [])
       (s' := u) [] hB (by simpa using hpre)
     wnf at e
     wnf
@@ -338,7 +338,7 @@ theorem sink (K : ℕ)
         have hB : SChain (c ++ l.dual :: l :: v)
             (List.replicate m (c, .dot l.dual, l :: v) ++ [(c, .cap l, v)]) (c ++ v) := by
           simpa using sChain_block (u := c) (v := v) (l := l) m
-        have e := dg_interchange_one (RD := RD) (k := k) (μ := lam) (S := []) (T := []) pre' post
+        have e := dg_interchange_one (RD := RD) (k := k) (sc := sc) (μ := lam) (S := []) (T := []) pre' post
           a [] (.dot l') hB
         have h := ih m (a ++ l' :: c) v l ((a, .dot l', c ++ v) :: post) hcap' hcr'
           (by
@@ -374,7 +374,7 @@ theorem sink (K : ℕ)
         have hA : SChain (u ++ [l.dual, l]) (List.replicate m (u, .dot l.dual, [l]) ++
             [(u, .cap l, [])]) u := by
           simpa using sChain_block (u := u) (v := []) (l := l) m
-        have e := dg_interchange (RD := RD) (k := k) (μ := lam) (S := []) (T := []) pre' post
+        have e := dg_interchange (RD := RD) (k := k) (sc := sc) (μ := lam) (S := []) (T := []) pre' post
           hA (B := [(c, .dot l', b)]) (t := c ++ l' :: b) (t' := c ++ l' :: b) ⟨by simp, by simp⟩
         have h := ih m u (c ++ l' :: b) l ((u ++ c, .dot l', b) :: post) hcap' hcr'
           (by
@@ -396,7 +396,7 @@ theorem sink (K : ℕ)
         have hB : SChain (c ++ l.dual :: l :: v)
             (List.replicate m (c, .dot l.dual, l :: v) ++ [(c, .cap l, v)]) (c ++ v) := by
           simpa using sChain_block (u := c) (v := v) (l := l) m
-        have e := dg_interchange_one (RD := RD) (k := k) (μ := lam) (S := []) (T := []) pre' post
+        have e := dg_interchange_one (RD := RD) (k := k) (sc := sc) (μ := lam) (S := []) (T := []) pre' post
           a [] (.cup l') hB
         have h := ih m (a ++ c) v l ((a, .cup l', c ++ v) :: post) hcap' hcr'
           (by
@@ -457,7 +457,7 @@ theorem sink (K : ℕ)
         have hA : SChain (u ++ [l.dual, l]) (List.replicate m (u, .dot l.dual, [l]) ++
             [(u, .cap l, [])]) u := by
           simpa using sChain_block (u := u) (v := []) (l := l) m
-        have e := dg_interchange (RD := RD) (k := k) (μ := lam) (S := []) (T := []) pre' post
+        have e := dg_interchange (RD := RD) (k := k) (sc := sc) (μ := lam) (S := []) (T := []) pre' post
           hA (B := [(c, .cup l', b)]) (t := c ++ b) (t' := c ++ l' :: l'.dual :: b)
           ⟨by simp, by simp⟩
         have h := ih m u (c ++ b) l ((u ++ c, .cup l', b) :: post) hcap' hcr'

@@ -4,6 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 -/
 import Categorification.Diagrams.CLQ.Presentation
 import Categorification.Diagrams.KL3.Grading
+import Categorification.Diagrams.CL.Homogeneous
 
 /-!
 # The grading of `U`
@@ -90,32 +91,12 @@ local notation "HD" => LinDiagram.homDeg k (deg RD)
 
 /-! ### The `R(ν)`-relations -/
 
-section KLR
-
-open KLR.Diagram MvPolynomial
-
-variable {S : Signature} (deg' : S.Gen → ℤ)
-
-local notation "HD'" => LinDiagram.homDeg k deg'
-
-
-
-
-
-
-local notation "HK" => LinDiagram.homDeg k (degK (I := I) (C := C))
-
-
-
 theorem pres_isHomogeneous : (pres RD k sc).IsHomogeneous (deg RD) :=
   CL.presCL_isHomogeneous RD sc.withRone
 
-/-- Every Hom-space of `U` is the direct sum of its homogeneous components: the grading of
-KL III's 2-morphisms. -/
+/-- Every Hom-space of `U` is the direct sum of its homogeneous components. -/
 theorem isInternal_homDeg (a b : Obj (psig RD)) :
     DirectSum.IsInternal ((pres RD k sc).homDeg (deg RD) a b) :=
-  Presentation.isInternal_homDeg (pres_isHomogeneous (RD := RD) (k := k) (sc := sc)) a b
-
-end All
+  Presentation.isInternal_homDeg pres_isHomogeneous a b
 
 end Categorification.KL3.Diagram.CLQ

@@ -119,7 +119,7 @@ variable (μ : X) (j : I)
 
 
 theorem dotsU_mem_slideSetR (l : Letter I) (a : ℕ) : dotsU RD k sc μ l a ∈ slideSetR RD k sc μ l := by
-  have := mem_slideSetR (RD := RD) (k := k) (μ := μ) (l := l) (a := a) IsBub.id
+  have := mem_slideSetR (RD := RD) (k := k) (sc := sc) (μ := μ) (l := l) (a := a) IsBub.id
   rwa [bubRU_id, Category.comp_id] at this
 
 /-- A clockwise bubble with `e` dots on its upward strand, to the right of `E_j`. -/
@@ -166,8 +166,8 @@ theorem curl_mem_slideSetR (e : ℕ) :
         simp [curlLs]
       rw [e2]
       exact slideSetR_comp (dotsU_mem_slideSetR RD k sc μ _ 1) ih
-    · have hm := mem_slideSetR_bub (RD := RD) (k := k) (μ := μ) (l := up j)
-        (cwU_isBub (RD := RD) (k := k) (lam := μ) j e)
+    · have hm := mem_slideSetR_bub (RD := RD) (k := k) (sc := sc) (μ := μ) (l := up j)
+        (cwU_isBub (RD := RD) (k := k) (sc := sc) (lam := μ) j e)
       rw [← dg_cwE_right] at hm
       exact hm
 
@@ -254,7 +254,7 @@ theorem dg_closeLs_peel {s s' t : List (Letter I)} (L M : List (LayerData I))
     (hL : SChain s L s') (hM : SChain (s' ++ [up j]) M (t ++ [up j])) (e : ℕ) :
     dg RD k sc μ s t (closeLs j s t (L.map (whL [] [up j]) ++ M) e) =
       dg RD k sc μ s s' L ≫ dg RD k sc μ s' t (closeLs j s' t M e) := by
-  have ei := dg_interchange (RD := RD) (k := k) (μ := μ) (S := s) (T := t) []
+  have ei := dg_interchange (RD := RD) (k := k) (sc := sc) (μ := μ) (S := s) (T := t) []
     (M.map (whL [] [dn j]) ++ List.replicate e (t, .dot (up j), [dn j]) ++ [(t, .cap (dn j), [])])
     hL (B := [([], .cup (up j), [])]) (t := []) (t' := [up j, dn j]) (by schain)
   rw [dg_comp hL (sChain_closeLs hM e)]
@@ -267,7 +267,7 @@ theorem dg_closeLs_peel_top {s t t' : List (Letter I)} (M P : List (LayerData I)
     (hM : SChain (s ++ [up j]) M (t' ++ [up j])) (hP : SChain t' P t) :
     dg RD k sc μ s t (closeLs j s t (M ++ P.map (whL [] [up j])) 0) =
       dg RD k sc μ s t' (closeLs j s t' M 0) ≫ dg RD k sc μ t' t P := by
-  have ei := dg_interchange (RD := RD) (k := k) (μ := μ) (S := s) (T := t)
+  have ei := dg_interchange (RD := RD) (k := k) (sc := sc) (μ := μ) (S := s) (T := t)
     ([(s, .cup (up j), [])] ++ M.map (whL [] [dn j])) [] hP (B := [([], .cap (dn j), [])])
     (t := [up j, dn j]) (t' := []) (by schain)
   rw [dg_comp (sChain_closeLs hM 0) hP]
@@ -296,7 +296,7 @@ theorem dg_closeLs_rotate {s t : List (Letter I)} (M : List (LayerData I))
     s [] (dg_dot_cupUp RD k sc j (wt RD μ [])).symm (by simp)
     (by simpa using (hM'.append hdots).append hcap) (by simp [whL]) rfl).trans ?_
   -- past the layers of `M`
-  have ei := dg_interchange (RD := RD) (k := k) (μ := μ) (S := s) (T := t)
+  have ei := dg_interchange (RD := RD) (k := k) (sc := sc) (μ := μ) (S := s) (T := t)
     [(s, .cup (up j), [])] (List.replicate e (t, .dot (up j), [dn j]) ++ [(t, .cap (dn j), [])])
     hM (B := [([], .dot (dn j), [])]) (t := [dn j]) (t' := [dn j]) (by schain)
   wnf at ei ⊢
@@ -424,7 +424,7 @@ theorem toUEnd_ψw_apply (σ : List ℕ) (hσ : TypeA.ValidWord (Multiset.card �
     have hσ' : TypeA.ValidWord (Multiset.card ν) σ := fun x hx => hσ x (List.mem_cons_of_mem _ hx)
     rw [KLR.KLRAlgebra.ψw_cons, map_mul, mul_apply,
       Finset.sum_eq_single (TypeA.wordProd (Multiset.card ν) σ • i)]
-    · rw [ih hσ', ite_eq_left rfl, toUEnd_ψ_apply RD k μ t ht, TypeA.wordProd_cons, mul_smul]
+    · rw [ih hσ', ite_eq_left rfl, toUEnd_ψ_apply RD k sc μ t ht, TypeA.wordProd_cons, mul_smul]
       split_ifs with h₁
       · subst h₁
         have hw := word_wordProd_smul σ i
@@ -521,7 +521,7 @@ theorem upward_mem_span_nf (ρ : Equiv.Perm (Fin (Multiset.card ν)) → List �
   show toUEnd RD k sc μ ν (KLR.KLRAlgebra.ψw (ρ w) * KLR.KLRAlgebra.pol (MvPolynomial.monomial u 1) *
     KLR.KLRAlgebra.e i) i j = _
   rw [mul_assoc, map_mul, eD, mul_apply, Finset.sum_eq_single i, single_apply_self,
-    toUEnd_ψw_apply RD k μ _ (hρ w).1.1, (hρ w).2, ite_eq_left hw.symm]
+    toUEnd_ψw_apply RD k sc μ _ (hρ w).1.1, (hρ w).2, ite_eq_left hw.symm]
   · intro l _ hl
     rw [single_apply_of_ne _ (fun h' => hl h'.2), Limits.zero_comp]
   · simp

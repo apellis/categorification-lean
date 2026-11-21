@@ -166,29 +166,6 @@ theorem dg_slide_rep (ν : X) (i j : I) (h : i ≠ j) (m : ℕ) :
       (dg_slideRNe RD k sc ν i j h).symm (by schain) (by schain) (by simp [whL]) rfl).trans ?_
     simp [whL, List.replicate_succ']
 
-/-- The upward computation in the `i ≠ j` bubble slide: a crossing `E_i E_j ⟶ E_j E_i`, `m`
-dots on the `i` strand, and the crossing back equal `x_i^m Q_ij(x_i, x_j)`. -/
-theorem dg_cross_dots_cross (ν : X) (i j : I) (h : i ≠ j) (m : ℕ) :
-    dg RD k sc ν [up i, up j] [up i, up j]
-        ([([], .cross true i j, [])] ++ List.replicate m ([up j], .dot (up i), []) ++
-          [([], .cross true j i, [])]) =
-      if C.dot i j = 0 then
-        dg RD k sc ν [up i, up j] [up i, up j] (List.replicate m ([], .dot (up i), [up j]))
-      else dg RD k sc ν [up i, up j] [up i, up j]
-          (List.replicate (m + C.dij i j) ([], .dot (up i), [up j])) +
-        dg RD k sc ν [up i, up j] [up i, up j]
-          (List.replicate m ([], .dot (up i), [up j]) ++
-            List.replicate (C.dij j i) ([up i], .dot (up j), [])) := by
-  refine (dg_step RD k sc ν [] [([], .cross true j i, [])] [] [] (dg_slide_rep RD k sc ν i j h m)
-    (by schain) (by schain) (by simp [whL]) rfl).trans ?_
-  refine (dg_stepL RD k sc ν (List.replicate m ([], .dot (up i), [up j])) [] [] []
-    (dg_sqNe RD k sc ν i j h) (by schain) (by schain) (by simp [whL])).trans ?_
-  split_ifs
-  · rw [ctxL_dg_nil RD k sc ν (by schain) (by schain)]
-    simp
-  · rw [map_add, ctxL_dg_nil RD k sc ν (by schain) (by schain),
-      ctxL_dg_nil RD k sc ν (by schain) (by schain)]
-    simp only [whL, List.map_replicate, List.nil_append, List.append_nil, List.replicate_add]
 
 /-- Dots on the upper left strand of the crossing `E_j E_i ⟶ E_i E_j` (`i ≠ j`) slide down to
 the lower right strand (KL III `eq_dot_slide_ij-gen`, iterated). -/
@@ -207,31 +184,6 @@ theorem dg_slide_rep' (ν : X) (i j : I) (h : i ≠ j) (m : ℕ) :
       (dg_slideLNe RD k sc ν j i h.symm) (by schain) (by schain) (by simp [whL]) rfl).trans ?_
     simp [whL, List.replicate_succ']
 
-/-- The upward computation in the clockwise `i ≠ j` bubble slide: a crossing
-`E_j E_i ⟶ E_i E_j`, `m` dots on the `i` strand, and the crossing back equal
-`x_i^m Q_ij(x_i, x_j)`. -/
-theorem dg_cross_dots_cross' (ν : X) (i j : I) (h : i ≠ j) (m : ℕ) :
-    dg RD k sc ν [up j, up i] [up j, up i]
-        ([([], .cross true j i, [])] ++ List.replicate m ([], .dot (up i), [up j]) ++
-          [([], .cross true i j, [])]) =
-      if C.dot i j = 0 then
-        dg RD k sc ν [up j, up i] [up j, up i] (List.replicate m ([up j], .dot (up i), []))
-      else dg RD k sc ν [up j, up i] [up j, up i]
-          (List.replicate (m + C.dij i j) ([up j], .dot (up i), [])) +
-        dg RD k sc ν [up j, up i] [up j, up i]
-          (List.replicate m ([up j], .dot (up i), []) ++
-            List.replicate (C.dij j i) ([], .dot (up j), [up i])) := by
-  refine (dg_step RD k sc ν [] [([], .cross true i j, [])] [] [] (dg_slide_rep' RD k sc ν i j h m)
-    (by schain) (by schain) (by simp [whL]) rfl).trans ?_
-  refine (dg_stepL RD k sc ν (List.replicate m ([up j], .dot (up i), [])) [] [] []
-    (dg_sqNe RD k sc ν j i h.symm) (by schain) (by schain) (by simp [whL])).trans ?_
-  rw [C.symm j i]
-  split_ifs
-  · rw [ctxL_dg_nil RD k sc ν (by schain) (by schain)]
-    simp
-  · rw [map_add, ctxL_dg_nil RD k sc ν (by schain) (by schain),
-      ctxL_dg_nil RD k sc ν (by schain) (by schain), add_comm]
-    simp only [whL, List.map_replicate, List.nil_append, List.append_nil, List.replicate_add]
 
 /-! ## Bubble slides for `i ≠ j` -/
 
@@ -299,53 +251,6 @@ theorem dg_pull_ccw (lam : X) (i j : I) (m : ℕ) :
     (dg_zigR' RD k sc lam (dn i))
   lnf
 
-set_option maxHeartbeats 1000000 in
-/-- **Bubble slide, counterclockwise, `i ≠ j`** (KL III Proposition 3.3, first display, cases
-`i · j = -1` and `i · j = 0`, for an arbitrary Cartan datum): a counterclockwise `i`-bubble with
-`m` dots to the right of an upward `j`-strand (outer region `λ`) equals, with `Q_ij` the KL II
-polynomial, the bubble with `m + d_ij` dots to the left of the strand plus the bubble with `m`
-dots to the left and `d_ji` dots on the strand (if `i · j ≠ 0`), resp. the bubble with `m` dots
-to the left of the strand (if `i · j = 0`).
-
-Proof (KL III, proof of Proposition 3.3): insert `1 = crossr ∘ crossl` (`eq_downup_ij-gen`)
-between the strand and the bubble, pull the strand through the bubble by the interchange law and
-two zigzag relations, and evaluate the resulting double crossing of upward strands with the dot
-slide and `eq_r2_ij-gen`. -/
-theorem dg_ccw_slide_ne (lam : X) (i j : I) (h : i ≠ j) (m : ℕ) :
-    dg RD k sc lam [up j] [up j]
-        ([([up j], .cup (dn i), [])] ++ List.replicate m ([up j, dn i], .dot (up i), []) ++
-          [([up j], .cap (up i), [])]) =
-      if C.dot i j = 0 then
-        dg RD k sc lam [up j] [up j]
-          ([([], .cup (dn i), [up j])] ++ List.replicate m ([dn i], .dot (up i), [up j]) ++
-            [([], .cap (up i), [up j])])
-      else
-        dg RD k sc lam [up j] [up j]
-          ([([], .cup (dn i), [up j])] ++
-            List.replicate (m + C.dij i j) ([dn i], .dot (up i), [up j]) ++
-            [([], .cap (up i), [up j])]) +
-        dg RD k sc lam [up j] [up j]
-          ([([], .cup (dn i), [up j])] ++ List.replicate m ([dn i], .dot (up i), [up j]) ++
-            [([], .cap (up i), [up j])] ++ List.replicate (C.dij j i) ([], .dot (up j), [])) := by
-  -- 1. insert `1 = crossr ∘ crossl` (eq_downup_ij-gen) between the strand and the bubble
-  dstepQ ([([up j], .cup (dn i), [])] ++ List.replicate m ([up j, dn i], .dot (up i), []))
-    [([up j], .cap (up i), [])] [] [up i]
-    (dg_downupEF RD k sc j i h.symm (wt RD lam [up i])).symm
-  rw [dg_pull_ccw]
-  -- 11. the upward double crossing with dots
-  refine (dg_stepL RD k sc lam [([], .cup (dn i), [up j])] [([], .cap (up i), [up j])] [dn i] []
-    (dg_cross_dots_cross RD k sc lam i j h m) (by schain) (by schain) (by simp [whL])).trans ?_
-  split_ifs
-  · rw [ctxL_dg_nil RD k sc lam (by schain) (by schain)]
-    simp [whL]
-  · rw [map_add, ctxL_dg_nil RD k sc lam (by schain) (by schain),
-      ctxL_dg_nil RD k sc lam (by schain) (by schain)]
-    congr 1
-    · simp [whL]
-    -- 12. move the dots on the `j` strand above the cap of the bubble
-    dstepQ ([([], .cup (dn i), [up j])] ++ List.replicate m ([dn i], .dot (up i), [up j])) [] [] []
-      (dg_swap_rep RD k sc lam [] [] [] (.cap (up i)) (.dot (up j)) rfl (C.dij j i))
-    simp [whL]
 
 set_option maxHeartbeats 1000000 in
 /-- **Pulling a strand through a clockwise bubble.** After inserting `crossl ∘ crossr` between
@@ -411,78 +316,7 @@ theorem dg_pull_cw (lam : X) (i j : I) (m : ℕ) :
     (dg_zigL' RD k sc (wt RD lam [up j, dn i]) (up i))
   lnf
 
-set_option maxHeartbeats 1000000 in
-/-- **Bubble slide, clockwise, `i ≠ j`**, with the dots on the upward strand of the bubble: a
-clockwise `i`-bubble with `m` dots to the left of an upward `j`-strand (outer region `λ` to the
-right of the strand) equals the bubble with `m + d_ij` dots to the right of the strand plus the
-bubble with `m` dots to the right and `d_ji` dots on the strand (if `i · j ≠ 0`), resp. the
-bubble with `m` dots to the right of the strand (if `i · j = 0`). -/
-theorem dg_cw_slide_ne_up (lam : X) (i j : I) (h : i ≠ j) (m : ℕ) :
-    dg RD k sc lam [up j] [up j]
-        ([([], .cup (up i), [up j])] ++ List.replicate m ([], .dot (up i), [dn i, up j]) ++
-          [([], .cap (dn i), [up j])]) =
-      if C.dot i j = 0 then
-        dg RD k sc lam [up j] [up j]
-          ([([up j], .cup (up i), [])] ++ List.replicate m ([up j], .dot (up i), [dn i]) ++
-            [([up j], .cap (dn i), [])])
-      else
-        dg RD k sc lam [up j] [up j]
-          ([([up j], .cup (up i), [])] ++
-            List.replicate (m + C.dij i j) ([up j], .dot (up i), [dn i]) ++
-            [([up j], .cap (dn i), [])]) +
-        dg RD k sc lam [up j] [up j]
-          ([([up j], .cup (up i), [])] ++ List.replicate m ([up j], .dot (up i), [dn i]) ++
-            [([up j], .cap (dn i), [])] ++ List.replicate (C.dij j i) ([], .dot (up j), [])) := by
-  -- 1. insert `1 = crossl ∘ crossr` (eq_downup_ij-gen) between the bubble and the strand
-  dstepQ ([([], .cup (up i), [up j])] ++ List.replicate m ([], .dot (up i), [dn i, up j]))
-    [([], .cap (dn i), [up j])] [up i] []
-    (dg_downupFE RD k sc i j h lam).symm
-  rw [dg_pull_cw]
-  -- 11. the upward double crossing with dots
-  refine (dg_stepL RD k sc lam [([up j], .cup (up i), [])] [([up j], .cap (dn i), [])] [] [dn i]
-    (dg_cross_dots_cross' RD k sc (wt RD lam [dn i]) i j h m) (by schain) (by schain)
-    (by simp [whL])).trans ?_
-  split_ifs
-  · rw [ctxL_dg RD k sc lam (by schain) (by schain)]
-    simp [whL]
-  · rw [map_add, ctxL_dg RD k sc lam (by schain) (by schain),
-      ctxL_dg RD k sc lam (by schain) (by schain)]
-    congr 1
-    · simp [whL]
-    -- 12. move the dots on the `j` strand above the cap of the bubble
-    dstepQ ([([up j], .cup (up i), [])] ++ List.replicate m ([up j], .dot (up i), [dn i])) [] [] []
-      (dg_swap_rep' RD k sc lam [] [] [] (.cap (dn i)) (.dot (up j)) rfl (C.dij j i))
-    simp [whL]
 
-/-- **Bubble slide, clockwise, `i ≠ j`**, in the normal form of `cwReal` (dots on the downward
-strand of the bubble). -/
-theorem dg_cw_slide_ne (lam : X) (i j : I) (h : i ≠ j) (m : ℕ) :
-    dg RD k sc lam [up j] [up j]
-        ([([], .cup (up i), [up j])] ++ List.replicate m ([up i], .dot (dn i), [up j]) ++
-          [([], .cap (dn i), [up j])]) =
-      if C.dot i j = 0 then
-        dg RD k sc lam [up j] [up j]
-          ([([up j], .cup (up i), [])] ++ List.replicate m ([up j, up i], .dot (dn i), []) ++
-            [([up j], .cap (dn i), [])])
-      else
-        dg RD k sc lam [up j] [up j]
-          ([([up j], .cup (up i), [])] ++
-            List.replicate (m + C.dij i j) ([up j, up i], .dot (dn i), []) ++
-            [([up j], .cap (dn i), [])]) +
-        dg RD k sc lam [up j] [up j]
-          ([([up j], .cup (up i), [])] ++ List.replicate m ([up j, up i], .dot (dn i), []) ++
-            [([up j], .cap (dn i), [])] ++ List.replicate (C.dij j i) ([], .dot (up j), [])) := by
-  dstepQ [] [] [] [up j] (dg_cw_dots RD k sc (wt RD lam [up j]) i m)
-  refine ((congrArg _ (by simp [whL])).trans (dg_cw_slide_ne_up RD k sc lam i j h m)).trans ?_
-  split_ifs
-  · dstepQ [] [] [up j] [] (dg_cw_dots RD k sc lam i m).symm
-    simp [whL]
-  · congr 1
-    · dstepQ [] [] [up j] [] (dg_cw_dots RD k sc lam i (m + C.dij i j)).symm
-      simp [whL]
-    · dstepQ [] (List.replicate (C.dij j i) ([], .dot (up j), [])) [up j] []
-        (dg_cw_dots RD k sc lam i m).symm
-      simp [whL]
 
 /-! ## Proposition 3.3 for `i ≠ j`, real bubbles -/
 
@@ -520,41 +354,6 @@ theorem lin_bubL_cwReal (μ : X) (l : Letter I) (i : I) (m : ℕ) :
   show dg RD k sc μ [l] [l] _ = _
   congr 1; lnf
 
-/-- **KL III Proposition 3.3 (first display), `i ≠ j`, real bubbles.** For `i ≠ j`, a
-counterclockwise `i`-bubble with `m ≥ 0` dots to the right of an upward `j`-strand, in the
-region `λ`, slides to the left of the strand (region `λ + j_X`):
-`ccw_m ⊗ 1 = 1 ⊗ ccw_{m + d_ij} + (1 ⊗ ccw_m) x_j^{d_ji}` if `i · j ≠ 0`, and
-`ccw_m ⊗ 1 = 1 ⊗ ccw_m` if `i · j = 0`. For `i · j = -1` (`d_ij = d_ji = 1`) this is the printed
-case `i · j = -1` (with label `-⟨i,λ⟩-1+α = m`, since `⟨i, λ+j_X⟩ = ⟨i,λ⟩ - 1`). -/
-theorem bubble_slide_ccw_ne (lam : X) (i j : I) (h : i ≠ j) (m : ℕ) :
-    (pres RD k sc).lin (bubR RD k lam [up j] (LinDiagram.of (ccwReal RD lam i m))) =
-      if C.dot i j = 0 then
-        (pres RD k sc).lin (bubL RD k lam [up j] (LinDiagram.of (ccwReal RD (wt RD lam [up j]) i m)))
-      else
-        (pres RD k sc).lin (bubL RD k lam [up j]
-            (LinDiagram.of (ccwReal RD (wt RD lam [up j]) i (m + C.dij i j)))) +
-          (pres RD k sc).lin (bubL RD k lam [up j]
-            (LinDiagram.of (ccwReal RD (wt RD lam [up j]) i m))) ≫
-            dotsU RD k sc lam (up j) (C.dij j i) := by
-  simp only [lin_bubR_ccwReal, lin_bubL_ccwReal, dotsU]
-  rw [dg_comp (by schain) (by schain)]
-  exact dg_ccw_slide_ne RD k sc lam i j h m
 
-/-- **KL III Proposition 3.3 (second display), `i ≠ j`, real bubbles.** For `i ≠ j`, a
-clockwise `i`-bubble with `m ≥ 0` dots to the left of an upward `j`-strand (region `λ + j_X`)
-slides to the right of the strand (region `λ`):
-`1 ⊗ cw_m = cw_{m + d_ij} ⊗ 1 + (cw_m ⊗ 1) x_j^{d_ji}` if `i · j ≠ 0`, and
-`1 ⊗ cw_m = cw_m ⊗ 1` if `i · j = 0`. -/
-theorem bubble_slide_cw_ne (lam : X) (i j : I) (h : i ≠ j) (m : ℕ) :
-    (pres RD k sc).lin (bubL RD k lam [up j] (LinDiagram.of (cwReal RD (wt RD lam [up j]) i m))) =
-      if C.dot i j = 0 then
-        (pres RD k sc).lin (bubR RD k lam [up j] (LinDiagram.of (cwReal RD lam i m)))
-      else
-        (pres RD k sc).lin (bubR RD k lam [up j] (LinDiagram.of (cwReal RD lam i (m + C.dij i j)))) +
-          (pres RD k sc).lin (bubR RD k lam [up j] (LinDiagram.of (cwReal RD lam i m))) ≫
-            dotsU RD k sc lam (up j) (C.dij j i) := by
-  simp only [lin_bubL_cwReal, lin_bubR_cwReal, dotsU]
-  rw [dg_comp (by schain) (by schain)]
-  exact dg_cw_slide_ne RD k sc lam i j h m
 
 end Categorification.KL3.Diagram.CLQ

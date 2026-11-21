@@ -78,7 +78,7 @@ theorem bubAt_comm_dg {s t : List (Letter I)} (β : End ((pres RD k sc).obj (ob 
   have hBs : SChain s (B.map (whL s [])) s := by simpa using hB.whisk s []
   have hBt : SChain t (B.map (whL t [])) t := by simpa using hB.whisk t []
   rw [bubAt_dg, bubAt_dg, dg_comp hBs hA, dg_comp hA hBt]
-  have e := dg_closed_left (RD := RD) (k := k) μ (S := s) (T := t) [] [] (s := s) (s' := t) []
+  have e := dg_closed_left (RD := RD) (k := k) (sc := sc) μ (S := s) (T := t) [] [] (s := s) (s' := t) []
     hB hA
   wnf at e
   exact e.symm
@@ -94,7 +94,7 @@ theorem bubAt_comm {s t : List (Letter I)} (β : End ((pres RD k sc).obj (ob RD 
   exact LinearMap.congr_fun key f
 
 theorem bubAt_id (s : List (Letter I)) : bubAt RD k sc μ s (𝟙 _) = 𝟙 _ := by
-  rw [← dg_nil (RD := RD) (k := k) μ [], bubAt_dg RD k sc μ s [], List.map_nil, dg_nil]
+  rw [← dg_nil (RD := RD) (k := k) (sc := sc) μ [], bubAt_dg RD k sc μ s [], List.map_nil, dg_nil]
 
 theorem bubAt_comp (s : List (Letter I)) (β γ : End ((pres RD k sc).obj (ob RD μ []))) :
     bubAt RD k sc μ s (β ≫ γ) = bubAt RD k sc μ s β ≫ bubAt RD k sc μ s γ := by
@@ -157,7 +157,7 @@ theorem slideOutUp : ∀ (v u : List (Letter I)) {S T : List (Letter I)}
     change _ = dg RD k sc μ S T (pre ++ post) ≫ bubAt RD k sc μ T (dg RD k sc μ [] [] B)
     have hBT : SChain T (B.map (whL T [])) T := by simpa using hB.whisk T []
     rw [bubAt_dg, dg_comp hpp hBT]
-    have e := dg_closed_left (RD := RD) (k := k) μ (S := S) (T := T) pre [] (s := u) (s' := T) []
+    have e := dg_closed_left (RD := RD) (k := k) (sc := sc) μ (S := S) (T := T) pre [] (s := u) (s' := T) []
       hB (by simpa using hpost)
     wnf at e
     wnf

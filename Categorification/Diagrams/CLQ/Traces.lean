@@ -108,7 +108,7 @@ theorem ctxL_outer_eq {s t : List (Letter I)} (pre : List (LayerData I))
     simp only [List.append_nil]; exact hcap
   rw [ctxL_dg_nil RD k sc μ (u := t ++ [up j] ++ [dn j]) (s := []) (t := []) hpre' hcap', bubAt_dg,
     dg_comp (hpre.append hcap) hBt]
-  have e := dg_closed_left (RD := RD) (k := k) μ (S := s) (T := t) pre [] (s := t ++ [up j] ++ [dn j])
+  have e := dg_closed_left (RD := RD) (k := k) (sc := sc) μ (S := s) (T := t) pre [] (s := t ++ [up j] ++ [dn j])
     (s' := t) [] hB (A := [([], .cap (dn j), [])].map (whL t [])) (by simp)
   wnf at e ⊢
   exact e.symm

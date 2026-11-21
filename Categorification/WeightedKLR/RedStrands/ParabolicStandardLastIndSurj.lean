@@ -18,6 +18,8 @@ in `θ + (i + β)`.
 ## Main results
 
 * `firstIndGen_mem_range`: the generators `G [1 ⊗ (1 ⊗ n)]` lie in the image of `δ₁`.
+* `lastIndKernel_le_range`: every element of `O` lies in the image of `δ₁`.
+* `mem_lastIndKernel_iff`: the image of `δ₁` is exactly `O`.
 -/
 
 noncomputable section
@@ -186,5 +188,251 @@ theorem firstIndCore_mem (x : KLRAlgebra k S (Aₚ + Aₗ + {(Sum.inl i : I ⊕ 
   rw [firstIndUnitGen_eq, ← mul_smul, ← map_mul, e, hflip_firstψ_mul_concat_appendR, map_mul,
     mul_smul, h, map_mul, mul_smul]
   exact Submodule.smul_mem _ _ (Submodule.smul_mem _ _ (firstIndGen_mem_range Q Λ i θ β N hQ n))
+
+
+open TypeA
+
+local notation "Bₛ" => ({(Sum.inl i : I ⊕ Fin (ℓ + 1))} : Multiset (I ⊕ Fin (ℓ + 1)))
+
+theorem count_lastRed_le :
+    (Aₚ + Aₗ).count (Sum.inr (Fin.last ℓ) : I ⊕ Fin (ℓ + 1)) ≤ 1 := by
+  rw [Multiset.count_add]
+  have h0 : (Aₚ).count (Sum.inr (Fin.last ℓ) : I ⊕ Fin (ℓ + 1)) = 0 := by
+    rw [Multiset.count_eq_zero]
+    simp [stendhalWeight, addRedColor, Fin.castSucc_ne_last]
+  have h1 : (Aₗ).count (Sum.inr (Fin.last ℓ) : I ⊕ Fin (ℓ + 1)) ≤ 1 := by
+    simp [stendhalWeight]
+  omega
+
+theorem count_lastRed_le' :
+    (Aₚ + Aₗ + Bₛ).count (Sum.inr (Fin.last ℓ) : I ⊕ Fin (ℓ + 1)) ≤ 1 := by
+  rw [Multiset.count_add, Multiset.count_singleton]
+  have := count_lastRed_le (ℓ := ℓ) θ β
+  simp only [reduceCtorEq, ite_false, add_zero]
+  exact this
+
+theorem unique_lastRed {β' : Multiset (I ⊕ Fin (ℓ + 1))}
+    (hc : β'.count (Sum.inr (Fin.last ℓ)) ≤ 1) (s : Seq β') (x y : Fin β'.card)
+    (hx : s.lbl x = .inr (Fin.last ℓ)) (hy : s.lbl y = .inr (Fin.last ℓ)) : x = y := by
+  rw [← s.2, Multiset.count_map] at hc
+  have hf : (Finset.univ.filter (fun x => Sum.inr (Fin.last ℓ) = s.lbl x)).card ≤ 1 := hc
+  exact Finset.card_le_one_iff.mp hf (by simp [hx]) (by simp [hy])
+
+local notation "σ₁" => firstSlideWord Aₚ Aₗ (Sum.inl i : I ⊕ Fin (ℓ + 1))
+
+/-- The unit-generator image `[1 ⊗ m]` of an element `m` of the shuffle module. -/
+abbrev firstIndUnitOf (w : ParabolicShuffle Q Λ θ β N) : FirstIndF Q Λ i θ β N hQ :=
+  Ind.tmul (unitGen (appendBlackHom Q Λ i θ β))
+    (show ParabolicStandardT Q Λ θ β N hQ from Submodule.mkQ _ w)
+
+theorem concat_tmul_eq_mul_appendR (y : KLRAlgebra k S (Aₚ + Aₗ)) (d : KLRAlgebra k S Bₛ) :
+    concat S (Aₚ + Aₗ) Bₛ (y ⊗ₜ d) =
+      concat S (Aₚ + Aₗ) Bₛ (1 ⊗ₜ d) * appendR S (Aₚ + Aₗ) (Sum.inl i) y := by
+  rw [appendR_apply, ← concat_mul, Algebra.TensorProduct.tmul_mul_tmul, one_mul, mul_one]
+
+/-- A shuffle term whose left idempotent has its last red strand at the cut and whose new strand
+ends at most at position `|α|` lies in the image of `δ₁`. -/
+theorem firstIndTerm_mem_of_le (a : Seq (Aₚ + Aₗ))
+    (hle : ∀ p : Fin (Aₚ + Aₗ).card, a.lbl p = .inr (Fin.last ℓ) → (Aₚ).card ≤ p.val)
+    (u : Shuffle (Seq.card_add' (Aₚ + Aₗ) Bₛ)) (z : Fin (Multiset.card Bₛ))
+    (hr : (u.1⁻¹ (blockEquiv (Seq.card_add' (Aₚ + Aₗ) Bₛ) (Sum.inr z))).val ≤ (Aₚ).card)
+    (x : KLRAlgebra k S (Aₚ + Aₗ)) (d : KLRAlgebra k S Bₛ) (w : ParabolicShuffle Q Λ θ β N) :
+    affT (hatWRevOf σ₁ u * concat S (Aₚ + Aₗ) Bₛ ((KLRAlgebra.e a * x) ⊗ₜ d)) •
+      firstIndUnitOf Q Λ i θ β N hQ w ∈ Rg := by
+  obtain ⟨n'', hn⟩ := parabolicShuffle_e_smul_mem_unit Q Λ θ β N hQ a hle (x • w)
+  obtain ⟨_, -, hw⟩ := exists_hatWRevOf_firstSlideWord (Q := S) u z hr
+  have hu : firstIndUnitOf Q Λ i θ β N hQ ((KLRAlgebra.e a * x) • w) =
+      firstIndUnitGen Q Λ i θ β N hQ n'' := by
+    rw [mul_smul]
+    exact congrArg (fun m => firstIndUnitOf Q Λ i θ β N hQ m) hn
+  rw [concat_tmul_eq_mul_appendR, ← mul_assoc, map_mul, mul_smul,
+    show affT (appendR S (Aₚ + Aₗ) (Sum.inl i) (KLRAlgebra.e a * x)) •
+      firstIndUnitOf Q Λ i θ β N hQ w = firstIndUnitOf Q Λ i θ β N hQ ((KLRAlgebra.e a * x) • w)
+      from (firstIndUnit_smul Q Λ i θ β N hQ _ _).symm, hu, hw]
+  exact firstIndCore_mem Q Λ i θ β N hQ _ d n''
+
+/-- Every shuffle term of `1_s` applied to a unit generator lies in the image of `δ₁` when the last
+red strand of `s` lies strictly after the cut `|α|`. -/
+theorem firstIndTerm_mem (s : Seq (Aₚ + Aₗ + Bₛ)) (a0 : Fin (Aₚ + Aₗ + Bₛ).card)
+    (ha0 : s.lbl a0 = .inr (Fin.last ℓ)) (hgt : (Aₚ).card < a0.val)
+    (u : Shuffle (Seq.card_add' (Aₚ + Aₗ) Bₛ)) (t : TensorKLR S (Aₚ + Aₗ) Bₛ)
+    (w : ParabolicShuffle Q Λ θ β N) :
+    affT (hatWRevOf σ₁ u * concat S (Aₚ + Aₗ) Bₛ (concatIdem (u.1 • s) * t)) •
+      firstIndUnitOf Q Λ i θ β N hQ w ∈ Rg := by
+  classical
+  by_cases hm : u.1 • s ∈ concatSet (Aₚ + Aₗ) Bₛ
+  swap
+  · rw [concatIdem_of_not_mem hm, zero_mul, map_zero, mul_zero, map_zero, zero_smul]
+    exact zero_mem _
+  obtain ⟨a, b, hab⟩ := mem_concatSet.mp hm
+  have hmem : (Sum.inr (Fin.last ℓ) : I ⊕ Fin (ℓ + 1)) ∈ Multiset.map a.1 Finset.univ.val := by
+    rw [a.2]; exact Multiset.mem_add.mpr (Or.inr (lastRed_mem_lastWeight (ℓ := ℓ) β))
+  obtain ⟨q, -, hq⟩ := Multiset.mem_map.mp hmem
+  have hsq : s.lbl (u.1⁻¹ (Seq.posL Bₛ q)) = .inr (Fin.last ℓ) := by
+    have h := congrArg (fun r : Seq (Aₚ + Aₗ + Bₛ) => r.1 (Seq.posL Bₛ q)) hab
+    simp only [Seq.append_posL, Seq.smul_apply] at h
+    rw [← hq, h]; rfl
+  have ha0q : u.1⁻¹ (Seq.posL Bₛ q) = a0 :=
+    unique_lastRed (count_lastRed_le' (ℓ := ℓ) (i := i) (θ := θ) (β := β)) s _ _ hsq ha0
+  rw [← hab, concatIdem_append]
+  induction t using TensorProduct.inductionOn with
+  | add x y hx hy => rw [mul_add, map_add, mul_add, map_add, add_smul]; exact add_mem hx hy
+  | tmul x d =>
+    rw [Algebra.TensorProduct.tmul_mul_tmul]
+    by_cases hlt : (Aₚ).card < q.val
+    · have h1 : affT (appendR S (Aₚ + Aₗ) (Sum.inl i) (KLRAlgebra.e a * x)) •
+          firstIndUnitOf Q Λ i θ β N hQ w = 0 :=
+        firstIndAffine_appendR_e_mul_smul Q Λ i θ β N hQ a q hq hlt x w
+      rw [concat_tmul_eq_mul_appendR, ← mul_assoc, map_mul, mul_smul, h1, smul_zero]
+      exact zero_mem _
+    · have hB : Multiset.card Bₛ = 1 := by simp
+      have hsh := shuffle_inl_le (Seq.card_add' (Aₚ + Aₗ) Bₛ) u q
+      change (u.1⁻¹ (Seq.posL Bₛ q)).val ≤ q.val + Multiset.card Bₛ at hsh
+      rw [ha0q, hB] at hsh
+      have hqv : q.val = (Aₚ).card := by omega
+      have hle : ∀ p : Fin (Aₚ + Aₗ).card, a.lbl p = .inr (Fin.last ℓ) → (Aₚ).card ≤ p.val :=
+        fun p hp => by
+          rw [unique_lastRed (count_lastRed_le (ℓ := ℓ) θ β) a p q hp hq, hqv]
+      let z : Fin (Multiset.card Bₛ) := ⟨0, by rw [hB]; omega⟩
+      have hz : ∀ y : Fin (Multiset.card Bₛ), y = z := fun y => Fin.ext (by
+        have : y.val < 1 := by simpa using y.2
+        simp [z]; omega)
+      have hr : (u.1⁻¹ (blockEquiv (Seq.card_add' (Aₚ + Aₗ) Bₛ) (Sum.inr z))).val ≤
+          (Aₚ).card := by
+        by_contra hc
+        have hne : u.1⁻¹ (blockEquiv (Seq.card_add' (Aₚ + Aₗ) Bₛ) (Sum.inr z)) ≠ a0 := by
+          rw [← ha0q]; intro he
+          exact absurd ((blockEquiv _).injective (u.1⁻¹.injective he)) (by simp)
+        have hgt' : ∀ y : Fin (Multiset.card Bₛ),
+            u.1⁻¹ (blockEquiv (Seq.card_add' (Aₚ + Aₗ) Bₛ) (Sum.inl q)) <
+              u.1⁻¹ (blockEquiv (Seq.card_add' (Aₚ + Aₗ) Bₛ) (Sum.inr y)) := by
+          intro y
+          obtain rfl : y = z := hz y
+          change u.1⁻¹ (Seq.posL Bₛ q) < _
+          rw [ha0q, Fin.lt_def]
+          have : (u.1⁻¹ (blockEquiv (Seq.card_add' (Aₚ + Aₗ) Bₛ) (Sum.inr z))).val ≠ a0.val :=
+            fun h => hne (Fin.ext h)
+          omega
+        have h2 := shuffle_inl_le_of_inr_gt (Seq.card_add' (Aₚ + Aₗ) Bₛ) u q hgt'
+        change (u.1⁻¹ (Seq.posL Bₛ q)).val ≤ q.val at h2
+        rw [ha0q] at h2
+        omega
+      exact firstIndTerm_mem_of_le Q Λ i θ β N hQ a hle u z hr x (KLRAlgebra.e b * d) w
+
+
+theorem firstIndAffine_surjective : Function.Surjective affT :=
+  (show Function.Surjective (TensorProductAlgebra.mk Q Λ ((Si i) + (θ + β))) from
+    RingCon.mkₐ_surjective _).comp ((orderProjection_surjective Q Λ _).comp
+      (StendhalAlgebraAllOrders.ofKLR_surjective.comp (castKLR S _).surjective))
+
+/-- `ι(1_{α + β'} ⊗ 1_i)` acts on `F_i(S N)` as `φ(1)`. -/
+theorem firstIndAffine_oneConcat :
+    affT (oneConcat S (Aₚ + Aₗ) Bₛ) = appendBlackHom Q Λ i θ β 1 := by
+  change _ = appendBlack Q Λ i (θ + β) 1
+  have h1 : parabolicAffine Q Λ θ β 1 = 1 := by simp only [parabolicAffine, map_one]
+  rw [← h1, appendBlack_parabolicAffine, appendR_apply,
+    ← Algebra.TensorProduct.one_def, concat_one]
+
+/-- An idempotent whose last red strand lies strictly right of the cut maps `F_i(S N)` into the
+image of `δ₁`. -/
+theorem firstIndE_smul_mem (s : Seq (Aₚ + Aₗ + Bₛ)) (a0 : Fin (Aₚ + Aₗ + Bₛ).card)
+    (ha0 : s.lbl a0 = .inr (Fin.last ℓ)) (hgt : (Aₚ).card < a0.val)
+    (y : FirstIndF Q Λ i θ β N hQ) : affT (KLRAlgebra.e s) • y ∈ Rg := by
+  induction y using Ind.induction_on with
+  | zero =>
+    have h := zero_mem (Rg)
+    rw [← smul_zero (affT (KLRAlgebra.e s))] at h
+    exact h
+  | add y y' hy hy' =>
+    exact (congrArg (· ∈ Rg) (smul_add (affT (KLRAlgebra.e s))
+      (show FirstIndF Q Λ i θ β N hQ from y) y')).mpr (add_mem hy hy')
+  | tmul z m =>
+    obtain ⟨w, rfl⟩ := Submodule.Quotient.mk_surjective _ m
+    obtain ⟨X, hX⟩ := firstIndAffine_surjective Q Λ i θ β z.1
+    have hz : (Ind.tmul z (Submodule.Quotient.mk w) : FirstIndF Q Λ i θ β N hQ) =
+        affT (X * oneConcat S (Aₚ + Aₗ) Bₛ) • firstIndUnitOf Q Λ i θ β N hQ w := by
+      refine Eq.trans ?_ (Ind.smul_tmul (affT (X * oneConcat S (Aₚ + Aₗ) Bₛ)) (unitGen _)
+        (show ParabolicStandardT Q Λ θ β N hQ from Submodule.Quotient.mk w)).symm
+      congr 1
+      refine Subtype.ext ?_
+      change z.1 = affT (X * oneConcat S (Aₚ + Aₗ) Bₛ) * appendBlackHom Q Λ i θ β 1
+      rw [map_mul, firstIndAffine_oneConcat, mul_assoc, unit_mul_unit, hX]
+      exact z.2.symm
+    rw [hz, ← mul_smul, ← map_mul]
+    obtain ⟨g, hg⟩ := exists_rightFreeMapOf_eq (stendhalQ_swap_symm Q Λ hQ)
+      (firstSlideWord_spec Aₚ Aₗ (Sum.inl i : I ⊕ Fin (ℓ + 1)))
+      (r := X * oneConcat S (Aₚ + Aₗ) Bₛ) (by rw [mul_assoc, oneConcat_idem.eq])
+    rw [← hg, rightFreeMapOf_apply, Finsupp.mul_sum, Finsupp.sum, map_sum, Finset.sum_smul]
+    refine Submodule.sum_mem _ fun u _ => ?_
+    rw [← mul_assoc, e_mul_hatWRevOf _ (firstSlideWord_spec Aₚ Aₗ (Sum.inl i : I ⊕ Fin (ℓ + 1))),
+      mul_assoc, ← concat_mul]
+    exact firstIndTerm_mem Q Λ i θ β N hQ s a0 ha0 hgt u _ w
+
+local notation "T′" => TensorProductAlgebra k Q Λ ((Si i) + (θ + β))
+local notation "cst" => castTensorProductAlgebra Q Λ (lastInd_blackWeight i θ β)
+local notation "p′" => LastRedWeightSplit.position (θ + ((Si i) + β)) (lastIndSplit i θ β) ℓ
+local notation "I′" => smallerSuffixIdeal Q Λ p′
+local notation "O" => lastIndKernel Q Λ i θ β N hQ
+
+/-- The generators of the ideal of smaller suffixes, read in `T(i + (θ + β))`, are idempotents
+whose last red strand lies strictly right of the cut. -/
+theorem cst_symm_mk_e_eq (s : Seq (stendhalWeight (ℓ + 1) (θ + ((Si i) + β))))
+    (hs : IsRedOrdered s) (a : Fin (stendhalWeight (ℓ + 1) (θ + ((Si i) + β))).card)
+    (hpa : p′ < a) (hred : s.lbl a = .inr (Fin.last ℓ)) :
+    ∃ (s'' : Seq (Aₚ + Aₗ + Bₛ)) (a0 : Fin (Aₚ + Aₗ + Bₛ).card),
+      s''.lbl a0 = .inr (Fin.last ℓ) ∧ (Aₚ).card < a0.val ∧
+      (cst).symm (TensorProductAlgebra.mk Q Λ _ (StendhalAlgebra.e s hs)) =
+        affT (KLRAlgebra.e s'') := by
+  have h2 : stendhalWeight (ℓ + 1) (θ + ((Si i) + β)) = stendhalWeight (ℓ + 1) ((Si i) + (θ + β)) :=
+    congrArg (stendhalWeight (ℓ + 1)) (lastInd_blackWeight i θ β).symm
+  refine ⟨Seq.cast (firstInd_klrWeight i θ β).symm (Seq.cast h2 s),
+    Fin.cast (congrArg Multiset.card (h2.trans (firstInd_klrWeight i θ β).symm)) a,
+    ?_, ?_, ?_⟩
+  · simp only [Seq.lbl, Seq.cast_apply, Fin.cast_cast, Fin.cast_eq_self] at hred ⊢
+    exact hred
+  · have : (p′).val < a.val := hpa
+    rw [lastIndPosition_val] at this
+    change (Aₚ).card < a.val
+    simpa using this
+  · rw [← tensorOfKLR_e_of_ordered, castTensorProductAlgebra_symm', castTensorProductAlgebra_mk,
+      castKLR_e, firstIndAffine_apply, castKLR_e, Seq.cast_cast_symm]
+
+/-- Every element of the ideal of smaller suffixes maps `F_i(S N)` into the image of `δ₁`. -/
+theorem smallerSuffix_smul_mem (x : TensorProductAlgebra k Q Λ (θ + ((Si i) + β))) (hx : x ∈ I′)
+    (y : FirstIndF Q Λ i θ β N hQ) : (cst).symm x • y ∈ Rg := by
+  let f := (Module.toAddMonoidEnd T′ (FirstIndF Q Λ i θ β N hQ ⧸ Rg)).comp
+    (cst).symm.toRingEquiv.toRingHom
+  have hle : I′ ≤ TwoSidedIdeal.ker f := by
+    refine TwoSidedIdeal.span_le.mpr ?_
+    rintro _ ⟨s, hs, a, hpa, hred, rfl⟩
+    rw [SetLike.mem_coe, TwoSidedIdeal.mem_ker]
+    refine AddMonoidHom.ext fun q => ?_
+    obtain ⟨y, rfl⟩ := Submodule.mkQ_surjective (Rg) q
+    obtain ⟨s'', a0, h0, hgt, he⟩ := cst_symm_mk_e_eq Q Λ i θ β s hs a hpa hred
+    change (cst).symm _ • Submodule.mkQ (Rg) y = (0 : FirstIndF Q Λ i θ β N hQ ⧸ Rg)
+    rw [he, ← map_smul, Submodule.mkQ_apply, Submodule.Quotient.mk_eq_zero]
+    exact firstIndE_smul_mem Q Λ i θ β N hQ s'' a0 h0 hgt y
+  have h := (TwoSidedIdeal.mem_ker f).mp (hle hx)
+  have h' := congrArg (fun g : AddMonoid.End (FirstIndF Q Λ i θ β N hQ ⧸ Rg) =>
+    g (Submodule.mkQ _ y)) h
+  change (cst).symm x • Submodule.mkQ (Rg) y = (0 : FirstIndF Q Λ i θ β N hQ ⧸ Rg) at h'
+  rwa [← map_smul, Submodule.mkQ_apply, Submodule.Quotient.mk_eq_zero] at h'
+
+/-- **`O` lies in the image of `δ₁`.** -/
+theorem lastIndKernel_le_range (x : LastIndF Q Λ i θ β N hQ) (hx : x ∈ O) :
+    (show FirstIndF Q Λ i θ β N hQ from x) ∈ Rg := by
+  induction hx using Submodule.span_induction with
+  | mem x hx =>
+    obtain ⟨a, ha, y, rfl⟩ := hx
+    exact smallerSuffix_smul_mem Q Λ i θ β N hQ a ha y
+  | zero => exact zero_mem _
+  | add x y _ _ hx hy => exact add_mem hx hy
+  | smul c x _ hx => exact Submodule.smul_mem _ c hx
+
+/-- **The image of `δ₁` is `O`** (Webster, proof of Proposition 5.5). -/
+theorem mem_lastIndKernel_iff (x : LastIndF Q Λ i θ β N hQ) :
+    x ∈ O ↔ ∃ m, firstIndDeltaT Q Λ i θ β N hQ m = x :=
+  ⟨fun hx => lastIndKernel_le_range Q Λ i θ β N hQ x hx,
+    fun ⟨m, hm⟩ => hm ▸ firstIndDelta_mem Q Λ i θ β N hQ m⟩
 
 end Categorification.Stendhal

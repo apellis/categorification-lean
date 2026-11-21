@@ -486,6 +486,8 @@ import Categorification.KLR.CyclotomicAction.VacuumSpanning
 import Categorification.KLR.CyclotomicAction.VacuumCurl
 import Categorification.KLR.CyclotomicAction.VacuumQuotient
 import Categorification.KLR.CyclotomicAction.VacuumMorita
+import Categorification.KLR.CyclotomicAction.VacuumDense
+import Categorification.KLR.CyclotomicAction.VacuumUniversal
 import Categorification.KLR.ReindexSymmetries
 import Categorification.KLR.Unfurling.VacuumCorner
 import Categorification.KLR.Unfurling.VacuumEvaluation
@@ -854,6 +856,8 @@ import Categorification.TwoRep.FurledCorner
 import Categorification.TwoRep.FurledEvaluation
 import Categorification.TwoRep.RouqDottedCurls
 import Categorification.TwoRep.RouqDual
+import Categorification.TwoRep.DenseFamily
+import Categorification.TwoRep.GeneratedEquivariant
 import Categorification.TwoRep.StronglyEquivariant
 import Categorification.TwoRep.SumInvBiprod
 import Categorification.TwoRep.BiprodDecomp

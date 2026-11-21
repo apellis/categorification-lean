@@ -68,6 +68,7 @@ import Categorification.Algebra.InductionAlongTensor
 import Categorification.Algebra.InductionAlongTensorFactor
 import Categorification.Algebra.InductionAlongTensorFactorAction
 import Categorification.Algebra.InductionAlongTensorFactorLift
+import Categorification.Algebra.InductionAlongTensorFactorLiftRight
 import Categorification.Algebra.InductionAlongTriple
 import Categorification.Algebra.K0FinDim
 import Categorification.Algebra.ModuleCatLinear
@@ -1387,6 +1388,7 @@ import Categorification.WeightedKLR.RedStrands.BlackModuleEFTransport
 import Categorification.WeightedKLR.RedStrands.BlackModuleEFLeft
 import Categorification.WeightedKLR.RedStrands.BlackModuleEFLeftNaturality
 import Categorification.WeightedKLR.RedStrands.BlackModuleFactorCommutation
+import Categorification.WeightedKLR.RedStrands.BlackModuleSecondFactorCommutation
 import Categorification.WeightedKLR.RedStrands.BlackModuleEFTransportNaturality
 import Categorification.WeightedKLR.RedStrands.BlackModuleCross
 import Categorification.WeightedKLR.RedStrands.BlackInductionExact

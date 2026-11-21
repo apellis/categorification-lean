@@ -150,11 +150,12 @@ end Generic
 /-! ### Sums of morphisms factoring through `F_s P_∅` -/
 
 /-- An endomorphism of an object of `Ř^λ-pmod` is a *vacuum sum* if it is a finite sum of
-composites through modules `F_s P_∅` obtained by applying 1-morphisms out of the region of
+composites through modules `F_s P_∅` obtained by applying upward words `s` out of the region of
 `P_∅` to `P_∅`. -/
 def IsVacSum {a : RevBicat (CL.presCL RD k (univScalars hQ RD)).Bicat}
     {M N : (univCyclotomicPresCLPmod.{u, v, w} hQ RD Λ hΛ).obj a} (φ : M ⟶ N) : Prop :=
   ∃ (ι : Type u) (_ : Fintype ι) (g : ι → (vacRegion hQ RD Λ ⟶ a))
+    (_ : ∀ i, ∃ t : List I, (LinearCat.revHom (g i)).obj = ob RD (vacWt RD Λ) (ups t))
     (q : ∀ i, M ⟶ ((univCyclotomicPresCLPmod.{u, v, w} hQ RD Λ hΛ).map (g i)).obj.obj
       (univVacuum hQ RD Λ hΛ))
     (p : ∀ i, ((univCyclotomicPresCLPmod.{u, v, w} hQ RD Λ hΛ).map (g i)).obj.obj
@@ -164,16 +165,18 @@ variable {hQ RD Λ hΛ} in
 theorem isVacSum_zero {a : RevBicat (CL.presCL RD k (univScalars hQ RD)).Bicat}
     (M N : (univCyclotomicPresCLPmod.{u, v, w} hQ RD Λ hΛ).obj a) :
     IsVacSum hQ RD Λ hΛ (0 : M ⟶ N) :=
-  ⟨PEmpty, inferInstance, PEmpty.elim, fun i => i.elim, fun i => i.elim, by simp⟩
+  ⟨PEmpty, inferInstance, PEmpty.elim, fun i => i.elim, fun i => i.elim, fun i => i.elim,
+    by simp⟩
 
 variable {hQ RD Λ hΛ} in
 theorem IsVacSum.add {a : RevBicat (CL.presCL RD k (univScalars hQ RD)).Bicat}
     {M N : (univCyclotomicPresCLPmod.{u, v, w} hQ RD Λ hΛ).obj a} {φ ψ : M ⟶ N}
     (hφ : IsVacSum hQ RD Λ hΛ φ) (hψ : IsVacSum hQ RD Λ hΛ ψ) :
     IsVacSum hQ RD Λ hΛ (φ + ψ) := by
-  obtain ⟨ι, _, g, q, p, rfl⟩ := hφ
-  obtain ⟨ι', _, g', q', p', rfl⟩ := hψ
+  obtain ⟨ι, _, g, hg, q, p, rfl⟩ := hφ
+  obtain ⟨ι', _, g', hg', q', p', rfl⟩ := hψ
   refine ⟨ι ⊕ ι', inferInstance, Sum.elim g g', fun i => match i with
+    | .inl i => hg i | .inr i => hg' i, fun i => match i with
     | .inl i => q i | .inr i => q' i, fun i => match i with
     | .inl i => p i | .inr i => p' i, ?_⟩
   rw [Fintype.sum_sum_type]
@@ -252,7 +255,7 @@ theorem isVacSum_piSingle {c : X}
     moduleCat_sum_comp_eq_id Nt x f (fun t => CycKLR.mk _ _ _ β.1 (e t))
       (by rw [← map_sum, KLRAlgebra.sum_e, map_one]) (fun t => (hf t).trans (by rw [Seq.rev_rev]))
       m sd hs
-  refine ⟨Fin n × KLR.Seq β.1, inferInstance, fun i => g' i.2,
+  refine ⟨Fin n × KLR.Seq β.1, inferInstance, fun i => g' i.2, fun _ => ⟨_, rfl⟩,
     fun i => ObjectProperty.homMk (piSingleHom β (Fq i)),
     fun i => ObjectProperty.homMk (piSingleHom β (Fp i)), ?_⟩
   apply ObjectProperty.hom_ext
@@ -301,6 +304,29 @@ theorem isVacSum_id {c : (psig RD).Region}
     (isVacSum_sum _ _ fun β _ => isVacSum_piSingle M β)
 
 /-- **Every finitely generated projective `Ř^λ`-module is a retract of a sum of modules
+`F_s P_∅`, `s` upward** (Webster, arXiv:1309.3796v2, Prop. 3.25, the density statement used in
+Cor. 3.27): for every region `a` and every `M ∈ Ř^λ-pmod` at `a` there are finitely many
+1-morphisms `g i` out of the region of the vacuum module `P_∅`, each an upward word, and
+morphisms `q i : M ⟶ g i (P_∅)`, `p i : g i (P_∅) ⟶ M` with `∑ i, q i ≫ p i = 𝟙 M`. -/
+theorem exists_vacuum_up_retract (a : RevBicat (CL.presCL RD k (univScalars hQ RD)).Bicat)
+    (M : (univCyclotomicPresCLPmod.{u, v, w} hQ RD Λ hΛ).obj a) :
+    ∃ (n : ℕ) (g : Fin n → (vacRegion hQ RD Λ ⟶ a))
+      (_ : ∀ i, ∃ t : List I, (LinearCat.revHom (g i)).obj = ob RD (vacWt RD Λ) (ups t))
+      (q : ∀ i, M ⟶ ((univCyclotomicPresCLPmod.{u, v, w} hQ RD Λ hΛ).map (g i)).obj.obj
+        (univVacuum hQ RD Λ hΛ))
+      (p : ∀ i, ((univCyclotomicPresCLPmod.{u, v, w} hQ RD Λ hΛ).map (g i)).obj.obj
+        (univVacuum hQ RD Λ hΛ) ⟶ M), ∑ i, q i ≫ p i = 𝟙 M := by
+  have hid : IsVacSum hQ RD Λ hΛ (𝟙 M) := by
+    obtain ⟨⟨c⟩⟩ := a
+    exact isVacSum_id M
+  obtain ⟨ι, _, g, hg, q, p, hs⟩ := hid
+  let eι := Fintype.equivFin ι
+  refine ⟨Fintype.card ι, fun i => g (eι.symm i), fun i => hg (eι.symm i),
+    fun i => q (eι.symm i), fun i => p (eι.symm i), ?_⟩
+  rw [← hs]
+  exact Equiv.sum_comp eι.symm (fun i => q i ≫ p i)
+
+/-- **Every finitely generated projective `Ř^λ`-module is a retract of a sum of modules
 `F_s P_∅`** (Webster, arXiv:1309.3796v2, Prop. 3.25, the density statement used in
 Cor. 3.27): for every region `a` and every `M ∈ Ř^λ-pmod` at `a` there are finitely many
 1-morphisms `g i` out of the region of the vacuum module `P_∅` and morphisms
@@ -312,15 +338,8 @@ theorem exists_vacuum_retract (a : RevBicat (CL.presCL RD k (univScalars hQ RD))
         (univVacuum hQ RD Λ hΛ))
       (p : ∀ i, ((univCyclotomicPresCLPmod.{u, v, w} hQ RD Λ hΛ).map (g i)).obj.obj
         (univVacuum hQ RD Λ hΛ) ⟶ M), ∑ i, q i ≫ p i = 𝟙 M := by
-  have hid : IsVacSum hQ RD Λ hΛ (𝟙 M) := by
-    obtain ⟨⟨c⟩⟩ := a
-    exact isVacSum_id M
-  obtain ⟨ι, _, g, q, p, hs⟩ := hid
-  let eι := Fintype.equivFin ι
-  refine ⟨Fintype.card ι, fun i => g (eι.symm i), fun i => q (eι.symm i),
-    fun i => p (eι.symm i), ?_⟩
-  rw [← hs]
-  exact Equiv.sum_comp eι.symm (fun i => q i ≫ p i)
+  obtain ⟨n, g, -, q, p, h⟩ := exists_vacuum_up_retract hQ RD Λ hΛ a M
+  exact ⟨n, g, q, p, h⟩
 
 end
 end Categorification.KLR.CyclotomicAction

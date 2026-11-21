@@ -5463,6 +5463,12 @@ noncomputable example :=
 /-- Webster arXiv:1309.3796v2, Corollary 3.27 (1), existence. -/
 example := @KLR.CyclotomicAction.vacuumFunctor
 
+/-- Webster arXiv:1309.3796v2, Corollary 3.27 (2), applied to the identity of `Ř^λ-pmod` for
+`λ = (2, 2)`. -/
+example := KLR.CyclotomicAction.vacuum_homTensorMap_bijective.{0, 0, 0} rqHyp coordDatum _ coordHΛ
+  (CategoryTheory.Pseudofunctor.StrongTrans.id
+    (KLR.CyclotomicAction.univCyclotomicPresCLPmod rqHyp coordDatum _ coordHΛ))
+
 end NonVacuity.CyclotomicFrobeniusRouquier
 
 namespace NonVacuity.CLSpanning

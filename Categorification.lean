@@ -488,6 +488,7 @@ import Categorification.KLR.CyclotomicAction.VacuumQuotient
 import Categorification.KLR.CyclotomicAction.VacuumMorita
 import Categorification.KLR.CyclotomicAction.VacuumDense
 import Categorification.KLR.CyclotomicAction.VacuumUniversal
+import Categorification.KLR.CyclotomicAction.VacuumHomTensor
 import Categorification.KLR.ReindexSymmetries
 import Categorification.KLR.Unfurling.VacuumCorner
 import Categorification.KLR.Unfurling.VacuumEvaluation

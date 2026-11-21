@@ -1412,6 +1412,7 @@ import Categorification.WeightedKLR.RedStrands.LastRedBlackInjective
 import Categorification.WeightedKLR.RedStrands.LastRedBlackEquiv
 import Categorification.WeightedKLR.RedStrands.Prop55CountCorner
 import Categorification.WeightedKLR.RedStrands.Prop55CountRed
+import Categorification.WeightedKLR.RedStrands.Prop55CountRedEmpty
 import Categorification.WeightedKLR.RedStrands.AppendStrandReflection
 import Categorification.WeightedKLR.RedStrands.LastRedBlackGrading
 import Categorification.WeightedKLR.RedStrands.LastRedBlackMirror

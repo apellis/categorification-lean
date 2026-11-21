@@ -36,11 +36,12 @@ attribute [local instance] ScalarRestriction.linearCatHom ScalarRestriction.prec
   ScalarRestriction.postcompLinear
 
 /-- The generator of the vacuum `P_∅` in its empty block. -/
-def vacGen : emptyBlockObj.{u, max u v, w} (cycQ k lam Q) (univCycPoly k lam) RD Λ
+def univVacGen : emptyBlockObj.{u, max u v, w} (cycQ k lam Q) (univCycPoly k lam) RD Λ
     ⟨0, rfl⟩ := fun _ => ULift.up 1
 
 /-- The coordinate of the vacuum `P_∅` in its empty block. -/
-def vacCoord : emptyBlockObj.{u, max u v, w} (cycQ k lam Q) (univCycPoly k lam) RD Λ ⟨0, rfl⟩
+def univVacCoord :
+    emptyBlockObj.{u, max u v, w} (cycQ k lam Q) (univCycPoly k lam) RD Λ ⟨0, rfl⟩
     →ₗ[CycKLR (UnivCycRing k lam) (cycQ k lam Q) (univCycPoly k lam) 0]
       CycKLR (UnivCycRing k lam) (cycQ k lam Q) (univCycPoly k lam) 0 where
   toFun f := (f ⟨rfl⟩).down
@@ -48,7 +49,8 @@ def vacCoord : emptyBlockObj.{u, max u v, w} (cycQ k lam Q) (univCycPoly k lam) 
   map_smul' _ _ := rfl
 
 omit [Nontrivial k] in
-theorem vacCoord_vacGen : vacCoord.{u, v, w} (Q := Q) (lam := lam) RD Λ (vacGen RD Λ) = 1 := rfl
+theorem univVacCoord_univVacGen :
+    univVacCoord.{u, v, w} (Q := Q) (lam := lam) RD Λ (univVacGen RD Λ) = 1 := rfl
 
 /-- **The vacuum entry of a matrix of upward 2-morphisms**: the `(t, s)` entry in `Ř^λ(ν)` of the
 evaluation of `φ` at `P_∅` through the cyclotomic Rouquier family. -/
@@ -61,13 +63,13 @@ def vacCoeff (ν : Multiset I)
   wcoord hQ.cycQ.klrSymm hQ.cycQ.polyInY_leading (univCycPoly_monic k lam)
       (univCycPoly_natDegree_pair RD Λ hΛ) (fun i j hji => hQ.cycQ.polyInY_degree_pair RD i j hji)
       (emptyBlockObj.{u, max u v, w} (cycQ k lam Q) (univCycPoly k lam) RD Λ) rfl
-      (vacCoord RD Λ) s
+      (univVacCoord RD Λ) s
     ((((univFamily hQ RD Λ hΛ).upActP (univScalars hQ RD)
         (KL3.Diagram.CL.presCL RD k (univScalars hQ RD)) (univPres_rel hQ RD Λ hΛ) (vacWt RD Λ) ν
         φ t s).hom.app (familyObj _ _ _ _ _ _) (topBlk rfl)).hom
       (wgen hQ.cycQ.klrSymm hQ.cycQ.polyInY_leading (univCycPoly_monic k lam)
         (univCycPoly_natDegree_pair RD Λ hΛ)
-        (fun i j hji => hQ.cycQ.polyInY_degree_pair RD i j hji) _ rfl (vacGen RD Λ) t))
+        (fun i j hji => hQ.cycQ.polyInY_degree_pair RD i j hji) _ rfl (univVacGen RD Λ) t))
 
 /-- **Upward KLR diagrams at the vacuum** (Webster, arXiv:1309.3796v2, proof of Prop. 3.25): the
 vacuum entry of `vacUpHom r` is the class of `hflip (σ (e(s) r e(t)))` in `Ř^λ(ν)`, for the image
@@ -79,4 +81,4 @@ theorem vacCoeff_vacUpHom (ν : Multiset I) (r : KLRAlgebra k (KL3.Diagram.CL.qC
         (hflip (sigma hQ.cycQ.klrSymm (e s * vacKLRMap hQ RD ν r * e t))) := by
   unfold vacCoeff
   rw [upActP_vacUpHom]
-  exact wcoord_klrAct_wgen _ _ _ _ _ _ rfl _ (vacCoord_vacGen RD Λ) _ t s
+  exact wcoord_klrAct_wgen _ _ _ _ _ _ rfl _ (univVacCoord_univVacGen RD Λ) _ t s

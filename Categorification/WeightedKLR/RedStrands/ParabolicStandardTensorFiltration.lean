@@ -24,6 +24,7 @@ This file shows that the two layers of `Fᵢ S(X ⊠ Y)` (Proposition 5.5, `F`-p
   `lastIndTensorEquiv`: `Ind (X ⊠ Y) ≅ X ⊠ Ind Y` along `id ⊗ cyclotomicLast`.
 * `StdLayer.TensorForm`, `StdLayer.TensorForm.wordLayers`: every layer of `F_w` applied to a
   layer of tensor form has tensor form, for classes of modules closed under induction.
+-/
 
 set_option backward.isDefEq.respectTransparency false
 

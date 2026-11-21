@@ -94,7 +94,7 @@ theorem weighted_trace_aMap (hw : 0 < wt) (p : Polynomial R) :
     MonicTrace.trace F (S * Amap p) = 0 := by
   rcases subsingleton_or_nontrivial (CycKLR k Q a (Si + γ)) with h | h
   · exact Subsingleton.elim _ _
-  have hf := monic_aMonicL (Q := Q) i β a hsym hQ (ha i)
+  have hf := monic_aMonicL (Q := Q) i β a hsym (leadUnitAt_of i hQ) (ha i)
   have hc := aMonicL_comm hsym i β a
   have hd := aMonicL_degree_gap i β a RD Λ hsym hQ (ha i) hΛ hdeg
   induction p using Polynomial.induction_on' with
@@ -110,7 +110,7 @@ theorem weighted_trace_aMap (hw : 0 < wt) (p : Polynomial R) :
 /-- The signed actual relation is killed as well. -/
 theorem weighted_trace_eiA (hw : 0 < wt) (p : Polynomial R) :
     MonicTrace.trace F (S * eiA Q i γ a hsym p) = 0 := by
-  have hf := monic_aMonicL (Q := Q) i β a hsym hQ (ha i)
+  have hf := monic_aMonicL (Q := Q) i β a hsym (leadUnitAt_of i hQ) (ha i)
   change MonicTrace.trace F (S * (((-1 : k)^Multiset.card β) • Amap p)) = 0
   rw [mul_smul_comm, smul_eq_mul_C_algebraMap, MonicTrace.trace_mul_C _ hf,
     weighted_trace_aMap Q i γ a hsym hQ ha RD Λ hΛ hdeg hw, zero_mul]
@@ -121,7 +121,7 @@ theorem positive_representative (hw : 0 < wt) (z : EIKZero Q i β a) :
       RelativePolynomialTrace.trace i β a (S * eiC Q i γ a hsym z) := by
   rcases subsingleton_or_nontrivial (CycKLR k Q a (Si + γ)) with h | h
   · exact Subsingleton.elim _ _
-  have hf := monic_aMonicL (Q := Q) i β a hsym hQ (ha i)
+  have hf := monic_aMonicL (Q := Q) i β a hsym (leadUnitAt_of i hQ) (ha i)
   have hd := aMonicL_degree_gap i β a RD Λ hsym hQ (ha i) hΛ hdeg
   obtain ⟨p,hp⟩ := eiA_exists_small_remainder Q i γ a hsym hQ ha RD Λ hΛ hdeg hw.le
     (eiC Q i γ a hsym z)

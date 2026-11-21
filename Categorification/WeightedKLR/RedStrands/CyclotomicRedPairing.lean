@@ -83,11 +83,11 @@ theorem redProjection_weighted_trace (β : Multiset I) (p : Polynomial (CycKLR k
   let π := (cyclotomicRedProjection Q hab β).toRingHom
   unfold RelativePolynomialTrace.trace
   change π _ = _
-  rw [redTrace_map π _ _ (monic_aMonicL i β b hsym hQ (hb i)),
+  rw [redTrace_map π _ _ (monic_aMonicL i β b hsym (leadUnitAt_of i hQ) (hb i)),
     cyclotomicRedProjection_aMonicL Q hab i β e hfactor, Polynomial.map_mul, Polynomial.map_mul,
     Polynomial.map_pow, Polynomial.map_X, cyclotomicRedProjection_sPoly, ← mul_assoc,
     ← (commute_X_pow (sPoly (Q := Q) i β a) e).eq, mul_assoc,
-    redTrace_mul_X_pow _ (monic_aMonicL i β a hsym hQ (ha i))]
+    redTrace_mul_X_pow _ (monic_aMonicL i β a hsym (leadUnitAt_of i hQ) (ha i))]
 
 variable (γ : Multiset I)
   {C : QuantumGroup.CartanDatum I} {X' Y : Type*} [AddCommGroup X'] [AddCommGroup Y]

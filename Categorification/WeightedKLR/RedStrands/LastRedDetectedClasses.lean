@@ -20,6 +20,34 @@ open KLR Categorification.Graded
 open scoped TensorProduct
 attribute [local instance 1100] IsIdempotentElem.instAlgebraCorner_categorification
 
+section CommRing
+
+variable {I : Type} [DecidableEq I] {k : Type*} [CommRing k] {ℓ : ℕ}
+  (Q : I → I → MvPolynomial (Fin 2) k) (Λ : Fin (ℓ+1) → I →₀ ℕ)
+  {ν θ β : Multiset I}
+  (p : Fin (stendhalWeight (ℓ+1) ν).card)
+  (h : stendhalWeight (ℓ+1) θ + β.map Sum.inl = stendhalWeight (ℓ+1) ν)
+  (ha : (stendhalWeight (ℓ+1) θ).card = p.val+1)
+local notation "L" => TensorProductAlgebra k Q (Λ ∘ Fin.castSucc) θ
+local notation "Rfin" => CycKLR k Q (fun i => (Polynomial.X : Polynomial k) ^ Λ (Fin.last ℓ) i) β
+local notation "B" => (L ⊗[k] Rfin)
+local notation "Layer" => IsIdempotentElem.Corner (lastRedLayerIdem_idem Q Λ p h)
+local instance detectedCornerRing₀ : Ring Layer := _root_.instRingCorner _ _
+local notation "φ" => lastRedLayerTensor Q Λ p h ha
+local notation "Cₚ" => RingCon.Quotient (TwoSidedIdeal.ringCon (smallerSuffixIdeal Q Λ p))
+
+/-- Juxtaposition viewed in the entire quotient by smaller suffixes. Its
+image is the corner cut out by the fixed split of the black content. -/
+def lastRedLayerAction : B →ₙₐ[k] Cₚ where
+  toFun z := (φ z).1
+  map_zero' := congrArg Subtype.val (map_zero (φ))
+  map_add' a b := congrArg Subtype.val (map_add (φ) a b)
+  map_mul' a b := congrArg Subtype.val (map_mul (φ) a b)
+  map_smul' c a := (congrArg Subtype.val (map_smul (φ) c a)).trans
+    ((IsIdempotentElem.cornerVal (R := k) (lastRedLayerIdem_idem Q Λ p h)).map_smul _ _)
+
+end CommRing
+
 variable {I : Type} [DecidableEq I] {k : Type*} [Field k] {ℓ : ℕ}
   (Q : I → I → MvPolynomial (Fin 2) k) (Λ : Fin (ℓ+1) → I →₀ ℕ)
   {ν θ β : Multiset I} (G : GradingDatum (stendhalQ Q Λ))
@@ -37,16 +65,6 @@ local notation "𝓑" => tensorGrading (tensorProductGrade (restrictRedGrading Q
 local notation "Cₚ" => RingCon.Quotient (TwoSidedIdeal.ringCon (smallerSuffixIdeal Q Λ p))
 local notation "Eₚ" => lastRedLayerIdem Q Λ p h
 local notation "𝓒" => lastRedLayerGrade Q Λ G p
-
-/-- Juxtaposition viewed in the entire quotient by smaller suffixes. Its
-image is the corner cut out by the fixed split of the black content. -/
-def lastRedLayerAction : B →ₙₐ[k] Cₚ where
-  toFun z := (φ z).1
-  map_zero' := congrArg Subtype.val (map_zero (φ))
-  map_add' a b := congrArg Subtype.val (map_add (φ) a b)
-  map_mul' a b := congrArg Subtype.val (map_mul (φ) a b)
-  map_smul' c a := (congrArg Subtype.val (map_smul (φ) c a)).trans
-    ((IsIdempotentElem.cornerVal (R := k) (lastRedLayerIdem_idem Q Λ p h)).map_smul _ _)
 
 local notation "ψ" => lastRedLayerAction Q Λ p h ha
 

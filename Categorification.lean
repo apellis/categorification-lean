@@ -4,6 +4,7 @@ import Categorification.Algebra.BalancedTensor
 import Categorification.Algebra.BalancedTensorAssoc
 import Categorification.Algebra.BalancedTensorExact
 import Categorification.Algebra.BalancedTensorFiltration
+import Categorification.Algebra.BalancedTensorSplit
 import Categorification.Algebra.CoactionGrading
 import Categorification.Algebra.Coinvariant
 import Categorification.Algebra.CoinvariantGraded
@@ -48,13 +49,16 @@ import Categorification.Algebra.HomTensorComp
 import Categorification.Algebra.HomTensorDecomp
 import Categorification.Algebra.HomTensorNat
 import Categorification.Algebra.InductionAlong
+import Categorification.Algebra.InductionAlongExact
 import Categorification.Algebra.InductionAlongAssoc
+import Categorification.Algebra.InductionAlongTransportEquiv
 import Categorification.Algebra.InductionAlongBimodule
 import Categorification.Algebra.InductionAlongResTensor
 import Categorification.Algebra.InductionAlongEnd
 import Categorification.Algebra.InductionAlongLinear
 import Categorification.Algebra.InductionAlongRes
 import Categorification.Algebra.InductionAlongTensor
+import Categorification.Algebra.InductionAlongTensorFactor
 import Categorification.Algebra.InductionAlongTriple
 import Categorification.Algebra.K0FinDim
 import Categorification.Algebra.ModuleCatLinear
@@ -69,6 +73,7 @@ import Categorification.Algebra.NilHeckeDemazure
 import Categorification.Algebra.ParabolicSymmetricFree
 import Categorification.Algebra.PermExpansion
 import Categorification.Algebra.ProjK0
+import Categorification.Algebra.RightActionImage
 import Categorification.Algebra.SplitK0
 import Categorification.Algebra.SumDecompLinear
 import Categorification.Algebra.SymmetricFree
@@ -221,6 +226,7 @@ import Categorification.Diagrams.KLR.MatEnd
 import Categorification.Diagrams.KLR.MatEndCorner
 import Categorification.Diagrams.KLR.MatEndCornerRes
 import Categorification.Diagrams.KLR.MatEndModuleComp
+import Categorification.Diagrams.KLR.MatEndModuleCross
 import Categorification.Diagrams.KLR.MatEndModuleDecomp
 import Categorification.Diagrams.KLR.MatEndModuleFunctor
 import Categorification.Diagrams.KLR.MatEndMap
@@ -349,6 +355,7 @@ import Categorification.KLR.CyclotomicDiv
 import Categorification.KLR.CyclotomicSplit
 import Categorification.KLR.CyclotomicK0
 import Categorification.KLR.CyclotomicProjective
+import Categorification.KLR.CyclotomicSplitModule
 import Categorification.KLR.CyclotomicMirror
 import Categorification.KLR.CyclotomicPhi
 import Categorification.KLR.CyclotomicEF
@@ -472,6 +479,8 @@ import Categorification.KLR.Grading
 import Categorification.KLR.GradeTransfer
 import Categorification.KLR.GradingFlip
 import Categorification.KLR.IndCast
+import Categorification.KLR.IndFirstSlide
+import Categorification.KLR.IndFirstSlideQuad
 import Categorification.KLR.IndLastStrand
 import Categorification.KLR.IndLastStrandBij
 import Categorification.KLR.IndLastStrandDescent
@@ -480,6 +489,7 @@ import Categorification.KLR.IndLastStrandFirstFactor
 import Categorification.KLR.IndLastStrandOneSided
 import Categorification.KLR.IndLastStrandOneSidedDescent
 import Categorification.KLR.IndLastStrandQuot
+import Categorification.KLR.IndPrefixVanish
 import Categorification.KLR.Induction
 import Categorification.KLR.InductionAlgebra
 import Categorification.KLR.InductionFree
@@ -1023,6 +1033,7 @@ import Categorification.WeightedKLR.RedStrands.StendhalCrossing
 import Categorification.WeightedKLR.RedStrands.StendhalDescent
 import Categorification.WeightedKLR.RedStrands.StendhalHom
 import Categorification.WeightedKLR.RedStrands.StendhalInjective
+import Categorification.WeightedKLR.RedStrands.StendhalLeadUnit
 import Categorification.WeightedKLR.RedStrands.StendhalLoadings
 import Categorification.WeightedKLR.RedStrands.StendhalPolyRep
 import Categorification.WeightedKLR.RedStrands.StendhalSurjective
@@ -1198,8 +1209,19 @@ import Categorification.WeightedKLR.RedStrands.ParabolicStandardLastOuter
 import Categorification.WeightedKLR.RedStrands.ParabolicStandardLastSequence
 import Categorification.WeightedKLR.RedStrands.BlackIdempotent
 import Categorification.WeightedKLR.RedStrands.ParabolicStandardLastBlack
+import Categorification.WeightedKLR.RedStrands.ParabolicStandardLastIndMap
+import Categorification.WeightedKLR.RedStrands.ParabolicStandardLastIndLayer
+import Categorification.WeightedKLR.RedStrands.ParabolicShufflePrefix
+import Categorification.WeightedKLR.RedStrands.ParabolicStandardLastKernel
+import Categorification.WeightedKLR.RedStrands.ParabolicStandardLastInduction
 import Categorification.WeightedKLR.RedStrands.ParabolicStandardLastRight
 import Categorification.WeightedKLR.RedStrands.ParabolicStandardLastLeft
+import Categorification.WeightedKLR.RedStrands.ParabolicStandardLastIndLeft
+import Categorification.WeightedKLR.RedStrands.ParabolicStandardLastIndWords
+import Categorification.WeightedKLR.RedStrands.ParabolicStandardLastIndImage
+import Categorification.WeightedKLR.RedStrands.ParabolicStandardLastIndSurj
+import Categorification.WeightedKLR.RedStrands.LastStrandDecomposition
+import Categorification.WeightedKLR.RedStrands.ParabolicStandardLastRed
 import Categorification.WeightedKLR.RedStrands.BlackModuleFunctors
 import Categorification.WeightedKLR.RedStrands.BlackFrobenius
 import Categorification.WeightedKLR.RedStrands.BlackMixedCorner
@@ -1322,6 +1344,10 @@ import Categorification.WeightedKLR.RedStrands.DoubleBlackActionAdditive
 import Categorification.WeightedKLR.RedStrands.BlackCommutation
 import Categorification.WeightedKLR.RedStrands.BlackModuleCommutation
 import Categorification.WeightedKLR.RedStrands.BlackModuleSumDecomp
+import Categorification.WeightedKLR.RedStrands.BlackModuleEFTransport
+import Categorification.WeightedKLR.RedStrands.BlackModuleCross
+import Categorification.WeightedKLR.RedStrands.BlackInductionExact
+import Categorification.WeightedKLR.RedStrands.BlackModuleCrossTransport
 import Categorification.WeightedKLR.RedStrands.BlackModuleTensor
 import Categorification.WeightedKLR.RedStrands.DoubleBlackActionComp
 import Categorification.WeightedKLR.RedStrands.DoubleBlackActionHorizontal

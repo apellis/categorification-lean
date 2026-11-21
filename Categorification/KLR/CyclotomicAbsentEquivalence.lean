@@ -267,7 +267,7 @@ theorem range_eq_small_zero (r : Polynomial Rl) (hr : r.degree < ((wt).toNat : �
   rcases subsingleton_or_nontrivial Rl with h | h
   · exact Subsingleton.elim _ _
   · obtain ⟨p, hp⟩ := he
-    obtain ⟨c, hc⟩ := isUnit_lamA (Q := Q) i β hQ
+    obtain ⟨c, hc⟩ := isUnit_lamA (Q := Q) i β (leadUnitAt_of i hQ)
     obtain ⟨hlow, hhigh⟩ := aMap_phi_spec i β a hsym hβ hQ ha h1
     rw [← hc, Ring.inverse_unit] at hhigh
     have hd := aMonicL_degree_gap i β a RD Λ hsym hQ (ha i) hΛ hdeg

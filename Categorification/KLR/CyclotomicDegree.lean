@@ -94,7 +94,8 @@ theorem aMonicL_degree_gap [Nontrivial (CycKLR k Q a β)]
       -RD.pair (RD.iY i) (RD.iX j)) :
     ((aMonicL Q i β a).natDegree : ℤ) - (sPoly (Q := Q) i β a).natDegree =
       RD.pair (RD.iY i) (Λ - (β.map RD.iX).sum) := by
-  rw [natDegree_aMonicL i β a hsym hQ ha, sPoly_natDegree, Nat.cast_mul, Nat.cast_ofNat]
+  rw [natDegree_aMonicL i β a hsym (leadUnitAt_of i hQ) ha, sPoly_natDegree, Nat.cast_mul,
+    Nat.cast_ofNat]
   exact degA_sub_count_eq_pair i β a RD Λ hΛ hdeg
 
 section ActualMap

@@ -146,7 +146,7 @@ include hQ ha in
 theorem aMap_sPoly_mul_X_pow_monic (d : ℕ) :
     aMap i β a h1 hβ hsym (sPoly (Q := Q) i β a * Polynomial.X ^ d) =
       lamA Q i β • (aMonicL Q i β a * Polynomial.X ^ d) := by
-  rw [aMap_sPoly_mul_X_pow i β a hsym hβ hQ ha h1, thetaL_aPrime i β a hQ,
+  rw [aMap_sPoly_mul_X_pow i β a hsym hβ hQ ha h1, thetaL_aPrime i β a (leadUnitAt_of i hQ),
     smul_mul_assoc]
 
 theorem sPoly_mul_C_e (s : Seq β) :

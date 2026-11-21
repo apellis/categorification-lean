@@ -61,7 +61,7 @@ theorem cornerModulus_monic : (cornerModulus Q i β a).Monic := by
   unfold cornerModulus
   split
   · exact (ha i).map _
-  · exact monic_aMonicL i β a hsym hQ (ha i)
+  · exact monic_aMonicL i β a hsym (leadUnitAt_of i hQ) (ha i)
 
 private theorem zeroCornerEval (p : Polynomial (CycKLR k Q a 0)) :
     zeroCornerEquiv Q i a (cornerEval Q i 0 a p) =
@@ -106,7 +106,8 @@ private theorem cornerEval_mod (hi : i ∉ β) (p : Polynomial R) :
         rw [← C_mul_X_pow_eq_monomial, ← X_pow_mul_C, aMap_mul_C, h, smul_mul_assoc, mul_assoc]
     refine ⟨-(Ring.inverse (lamA Q i β) • (p /ₘ F)), ?_⟩
     change A _ = _
-    rw [map_neg, map_smul, he, smul_smul, Ring.inverse_mul_cancel _ (isUnit_lamA i β hQ),
+    rw [map_neg, map_smul, he, smul_smul,
+      Ring.inverse_mul_cancel _ (isUnit_lamA i β (leadUnitAt_of i hQ)),
       one_smul, modByMonic_eq_sub_mul_div]
     abel
 

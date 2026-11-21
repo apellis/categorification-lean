@@ -109,7 +109,8 @@ theorem redProjection_oppositeCap (d : ℕ) (hi : b i = X ^ d * a i)
     CornerTrace.trace_eq_dotted Q i γ b hsym hQ hb RD upper hu hdeg N hupper,
     CornerTrace.trace_eq_dotted Q i γ a hsym hQ ha RD lower hl hdeg (N+d) hlower]
   change (π).toRingHom _ = _
-  rw [redTrace_map _ _ _ ((monic_X_pow N).mul (monic_aMonicL i β b hsym hQ (hb i))),
+  rw [redTrace_map _ _ _
+      ((monic_X_pow N).mul (monic_aMonicL i β b hsym (leadUnitAt_of i hQ) (hb i))),
     Polynomial.map_mul, Polynomial.map_mul, Polynomial.map_pow, Polynomial.map_X,
     cyclotomicRedProjection_aMonicL Q hab i β d hi, cyclotomicRedProjection_sPoly,
     redProjection_dottedCapPolynomial Q hab i γ hsym N d r, ← mul_assoc, ← pow_add]

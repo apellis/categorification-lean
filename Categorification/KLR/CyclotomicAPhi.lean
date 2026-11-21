@@ -35,7 +35,7 @@ include hQ ha in
 /-- **KK Lemma 5.5** for the actual map `A`: its values are polynomial quotients. -/
 theorem aMap_X_pow_eq_div (d : ℕ) :
     A (Polynomial.X ^ d) = lamA Q i β • ((Polynomial.X ^ d * F) /ₘ S) := by
-  obtain ⟨c, hc⟩ := isUnit_lamA (Q := Q) i β hQ
+  obtain ⟨c, hc⟩ := isUnit_lamA (Q := Q) i β (leadUnitAt_of i hQ)
   have hAS (j : ℕ) : A (Polynomial.X ^ j * S) = (c : k) • (Polynomial.X ^ j * F) := by
     rw [(Polynomial.commute_X_pow S j).eq,
       aMap_sPoly_mul_X_pow_monic i β a hsym hβ hQ ha h1,
@@ -48,7 +48,7 @@ include hQ ha in
 theorem aMap_X_pow_normalized (d : ℕ) :
     Ring.inverse (lamA Q i β) • A (Polynomial.X ^ d) = (Polynomial.X ^ d * F) /ₘ S := by
   rw [aMap_X_pow_eq_div i β a hsym hβ hQ ha h1, smul_smul,
-    Ring.inverse_mul_cancel _ (isUnit_lamA i β hQ), one_smul]
+    Ring.inverse_mul_cancel _ (isUnit_lamA i β (leadUnitAt_of i hQ)), one_smul]
 
 include hQ ha in
 /-- **KK Proposition 5.3**, with the concrete degree gap in place of its Cartan-pairing expression. -/
@@ -59,7 +59,7 @@ theorem aMap_phi_spec [Nontrivial Rl] :
         (Ring.inverse (lamA Q i β) • A (Polynomial.X ^ j)).natDegree =
           j - ((S).natDegree - (F).natDegree) + ((F).natDegree - (S).natDegree)) := by
   have hS := sPoly_monic (Q := Q) i β a
-  have hF := monic_aMonicL (Q := Q) i β a hsym hQ (ha i)
+  have hF := monic_aMonicL (Q := Q) i β a hsym (leadUnitAt_of i hQ) (ha i)
   have hm (j : ℕ) : (Polynomial.X ^ j * F).Monic := (Polynomial.monic_X_pow j).mul hF
   have hmd (j : ℕ) : (Polynomial.X ^ j * F).natDegree = j + (F).natDegree := by
     rw [(Polynomial.monic_X_pow j).natDegree_mul hF, Polynomial.natDegree_X_pow]
@@ -79,7 +79,7 @@ include hQ ha in
 /-- The actual polynomial kernel consists exactly of degrees below the negative degree gap. -/
 theorem aMap_eq_zero_iff [Nontrivial Rl] (p : Polynomial Rl) :
     A p = 0 ↔ p.degree < ((S).natDegree - (F).natDegree : ℕ) := by
-  obtain ⟨c, hc⟩ := isUnit_lamA (Q := Q) i β hQ
+  obtain ⟨c, hc⟩ := isUnit_lamA (Q := Q) i β (leadUnitAt_of i hQ)
   obtain ⟨hlow, hhigh⟩ := aMap_phi_spec i β a hsym hβ hQ ha h1
   rw [← hc, Ring.inverse_unit] at hhigh
   simpa only [LinearMap.toAddMonoidHom_coe] using
@@ -91,7 +91,7 @@ include hQ ha in
 /-- The actual polynomial cokernel has representatives below the positive degree gap. -/
 theorem aMap_exists_remainder [Nontrivial Rl] (q : Polynomial Rl) :
     ∃ p, (q - A p).degree < ((F).natDegree - (S).natDegree : ℕ) := by
-  obtain ⟨c, hc⟩ := isUnit_lamA (Q := Q) i β hQ
+  obtain ⟨c, hc⟩ := isUnit_lamA (Q := Q) i β (leadUnitAt_of i hQ)
   obtain ⟨hlow, hhigh⟩ := aMap_phi_spec i β a hsym hβ hQ ha h1
   rw [← hc, Ring.inverse_unit] at hhigh
   simpa only [LinearMap.toAddMonoidHom_coe] using

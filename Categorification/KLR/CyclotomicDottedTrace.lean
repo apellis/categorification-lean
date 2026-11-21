@@ -37,7 +37,7 @@ local notation "Amap" => aMap i β a (by simp) H hsym
 
 include hsym hQ ha in
 private theorem shiftedMonic (N : ℕ) : (X ^ N * F).Monic :=
-  (monic_X_pow _).mul (monic_aMonicL i β a hsym hQ (ha i))
+  (monic_X_pow _).mul (monic_aMonicL i β a hsym (leadUnitAt_of i hQ) (ha i))
 
 /-- Evaluate the dotted coordinate using the shifted modulus and the squared-difference polynomial. -/
 def dottedTrace (N : ℕ) : EIKZero Q i β a →+ R where
@@ -51,7 +51,8 @@ local notation "P" => dottedCapPolynomial Q i γ a hsym
 include hsym hQ ha hΛ hdeg in
 private theorem shiftedDegree [Nontrivial R] (N : ℕ) :
     ((X ^ N * F).natDegree : ℤ) - (S).natDegree = wt + N := by
-  rw [(monic_X_pow N).natDegree_mul (monic_aMonicL i β a hsym hQ (ha i)), natDegree_X_pow, Nat.cast_add]
+  rw [(monic_X_pow N).natDegree_mul (monic_aMonicL i β a hsym (leadUnitAt_of i hQ) (ha i)),
+    natDegree_X_pow, Nat.cast_add]
   have hd := aMonicL_degree_gap i β a RD Λ hsym hQ (ha i) hΛ hdeg
   omega
 

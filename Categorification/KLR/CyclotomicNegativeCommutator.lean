@@ -344,7 +344,8 @@ theorem cyclotomicDotCounit_offDiagonal_X_pow_antidiagonal (d j : ℕ)
       Polynomial.eq_one_of_monic_natDegree_zero hm hd0
     have hv : Amap (Polynomial.X ^ (j + (d + 1))) = lamA Q i β • (1 : Polynomial Rl) := by
       have he' := congrArg (fun p : Polynomial Rl => lamA Q i β • p) he
-      simpa only [smul_smul, Ring.mul_inverse_cancel _ (isUnit_lamA i β hQ), one_smul] using he'
+      simpa only [smul_smul, Ring.mul_inverse_cancel _ (isUnit_lamA i β (leadUnitAt_of i hQ)),
+        one_smul] using he'
     change (sgn • Amap (Polynomial.X ^ (j + (d + 1)))).coeff 0 = _
     rw [hv, smul_smul, Polynomial.coeff_smul, Polynomial.coeff_one_zero]
 
@@ -411,7 +412,7 @@ def negativeKernelFinEquiv : LinearMap.ker (eiA Q i γ a hsym) ≃ₗ[k]
 include hQ in
 /-- The actual anti-diagonal scalar is a unit of the base ring, without division hypotheses. -/
 theorem isUnit_negativeCounitScalar : IsUnit (sgn * lamA Q i β) :=
-  (isUnit_neg_one.pow _).mul (isUnit_lamA i β hQ)
+  (isUnit_neg_one.pow _).mul (isUnit_lamA i β (leadUnitAt_of i hQ))
 
 /-- The actual recurrence is right-linear in each coefficient. -/
 theorem cyclotomicDotCounit_offDiagonal_monomial (d j : ℕ) (b : Rl) :

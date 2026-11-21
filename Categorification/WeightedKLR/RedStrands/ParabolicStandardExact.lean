@@ -14,9 +14,9 @@ strands and the cyclotomic quotient of the last one) is modelled by the quotient
 `ParabolicStandard N` of affine parabolic induction by the subspace supported on the loadings
 whose red strands are out of order (`Stendhal.ParabolicStandard`).
 
-* `KLR.KLRAlgebra.indDecomp_mapRight`: in the decomposition `Ind N ≅ ⊕_u N`, induction of a
-  map acts coordinatewise.
-* `KLR.KLRAlgebra.mapRight_exact`: induction `Ind = R(ν + ν') 1_{ν,ν'} ⊗ -` is exact.
+* `KLR.KLRAlgebra.indDecomp_mapRight_apply`: in the decomposition `Ind N ≅ ⊕_u N`, induction
+  of a map acts coordinatewise.
+* `KLR.KLRAlgebra.indMapRight_exact`: induction `Ind = R(ν + ν') 1_{ν,ν'} ⊗ -` is exact.
 * `Stendhal.kerQuotientMap_exact`: passing to the quotient by the kernel of an idempotent
   that commutes with the maps preserves exactness.
 * `Stendhal.parabolicStandardMap`: the map of standardizations induced by a map of modules
@@ -50,7 +50,7 @@ variable {I : Type*} [DecidableEq I] {k : Type*} [CommRing k]
 
 include hsym in
 /-- In the decomposition `Ind N ≅ ⊕_u N`, induction of a map acts on each coordinate. -/
-theorem indDecomp_mapRight (g : N →ₗ[TensorKLR Q ν ν'] N') (y : Ind Q ν ν' N)
+theorem indDecomp_mapRight_apply (g : N →ₗ[TensorKLR Q ν ν'] N') (y : Ind Q ν ν' N)
     (u : Shuffle (Seq.card_add' ν ν')) :
     indDecomp hsym N' (BalancedTensor.mapRight (k := k) g y) u = g (indDecomp hsym N y u) := by
   induction y using BalancedTensor.induction_on with
@@ -61,7 +61,7 @@ theorem indDecomp_mapRight (g : N →ₗ[TensorKLR Q ν ν'] N') (y : Ind Q ν �
 
 include hsym in
 /-- **Induction is exact.** -/
-theorem mapRight_exact (f : N →ₗ[TensorKLR Q ν ν'] N') (g : N' →ₗ[TensorKLR Q ν ν'] N'')
+theorem indMapRight_exact (f : N →ₗ[TensorKLR Q ν ν'] N') (g : N' →ₗ[TensorKLR Q ν ν'] N'')
     (h : Function.Exact f g) :
     Function.Exact (BalancedTensor.mapRight (k := k) (B := KLRAlgebra k Q (ν + ν'))
         (M := IndBimod Q ν ν') f)
@@ -72,18 +72,18 @@ theorem mapRight_exact (f : N →ₗ[TensorKLR Q ν ν'] N') (g : N' →ₗ[Tens
   · intro hy
     have hc (u : Shuffle (Seq.card_add' ν ν')) : ∃ n, f n = indDecomp hsym N' y u := by
       refine (h _).1 ?_
-      rw [← indDecomp_mapRight hsym g y u, hy, map_zero, Pi.zero_apply]
+      rw [← indDecomp_mapRight_apply hsym g y u, hy, map_zero, Pi.zero_apply]
     choose n hn using hc
     refine ⟨(indDecomp hsym N).symm n, (indDecomp hsym N').injective (funext fun u => ?_)⟩
-    rw [indDecomp_mapRight, LinearEquiv.apply_symm_apply, hn]
+    rw [indDecomp_mapRight_apply, LinearEquiv.apply_symm_apply, hn]
   · rintro ⟨x, rfl⟩
     apply (indDecomp hsym N'').injective
     funext u
-    rw [indDecomp_mapRight, indDecomp_mapRight, map_zero, Pi.zero_apply]
+    rw [indDecomp_mapRight_apply, indDecomp_mapRight_apply, map_zero, Pi.zero_apply]
     exact (h _).2 ⟨_, rfl⟩
 
 include hsym in
-theorem mapRight_injective (f : N →ₗ[TensorKLR Q ν ν'] N') (hf : Function.Injective f) :
+theorem indMapRight_injective (f : N →ₗ[TensorKLR Q ν ν'] N') (hf : Function.Injective f) :
     Function.Injective (BalancedTensor.mapRight (k := k) (B := KLRAlgebra k Q (ν + ν'))
       (M := IndBimod Q ν ν') f) := by
   intro y z he
@@ -91,16 +91,16 @@ theorem mapRight_injective (f : N →ₗ[TensorKLR Q ν ν'] N') (hf : Function.
   funext u
   apply hf
   have := congrArg (fun w => indDecomp hsym N' w u) he
-  simpa only [indDecomp_mapRight] using this
+  simpa only [indDecomp_mapRight_apply] using this
 
 include hsym in
-theorem mapRight_surjective (f : N →ₗ[TensorKLR Q ν ν'] N') (hf : Function.Surjective f) :
+theorem indMapRight_surjective (f : N →ₗ[TensorKLR Q ν ν'] N') (hf : Function.Surjective f) :
     Function.Surjective (BalancedTensor.mapRight (k := k) (B := KLRAlgebra k Q (ν + ν'))
       (M := IndBimod Q ν ν') f) := by
   intro y
   choose n hn using fun u => hf (indDecomp hsym N' y u)
   refine ⟨(indDecomp hsym N).symm n, (indDecomp hsym N').injective (funext fun u => ?_)⟩
-  rw [indDecomp_mapRight, LinearEquiv.apply_symm_apply, hn]
+  rw [indDecomp_mapRight_apply, LinearEquiv.apply_symm_apply, hn]
 
 end KLR.KLRAlgebra
 
@@ -234,7 +234,7 @@ theorem parabolicStandardMap_mk (g : N →ₗ[D] N') (y : ParabolicShuffle Q Λ 
 variable (hQ : KLRSymm Q)
 
 /-- Every element of the tensor product algebra comes from the affine KLR algebra. -/
-theorem parabolicAffine_surjective (t : T) :
+theorem parabolicStandardAffine_surjective (t : T) :
     ∃ a : KLRAlgebra k S (α + δ), TensorProductAlgebra.mk Q Λ (θ + β)
       (orderProjection Q Λ (θ + β) (StendhalAlgebraAllOrders.ofKLR k Q Λ (θ + β)
         (castKLR S (parabolicInputWeights_add (ℓ := ℓ) θ β) a))) = t := by
@@ -251,7 +251,7 @@ theorem parabolicStandardMap_action (g : N →ₗ[D] N') (t : T)
     (z : ParabolicStandard Q Λ θ β N) :
     parabolicStandardMap Q Λ θ β g (parabolicStandardAction Q Λ θ β N hQ t z) =
       parabolicStandardAction Q Λ θ β N' hQ t (parabolicStandardMap Q Λ θ β g z) := by
-  obtain ⟨a, rfl⟩ := parabolicAffine_surjective Q Λ θ β t
+  obtain ⟨a, rfl⟩ := parabolicStandardAffine_surjective Q Λ θ β t
   obtain ⟨y, rfl⟩ := Submodule.mkQ_surjective _ z
   rw [parabolicStandardAction_affine, parabolicStandardAction_affine]
   exact congrArg Submodule.Quotient.mk ((parabolicShuffleMap Q Λ θ β g).map_smul a y)
@@ -264,7 +264,7 @@ theorem parabolicStandardMap_exact (f : N →ₗ[D] N') (g : N' →ₗ[D] N'')
     (h : Function.Exact f g) :
     Function.Exact (parabolicStandardMap Q Λ θ β f) (parabolicStandardMap Q Λ θ β g) :=
   kerQuotientMap_exact ((eSum_idem (Q := S) F).map (parabolicShuffleAction Q Λ θ β N')) _ _ _ _
-    (mapRight_exact (stendhalQ_swap_symm Q Λ hQ) (parabolicInputHom Q Λ θ β f)
+    (indMapRight_exact (stendhalQ_swap_symm Q Λ hQ) (parabolicInputHom Q Λ θ β f)
       (parabolicInputHom Q Λ θ β g) h)
 
 include hQ in
@@ -272,14 +272,14 @@ include hQ in
 theorem parabolicStandardMap_injective (f : N →ₗ[D] N') (hf : Function.Injective f) :
     Function.Injective (parabolicStandardMap Q Λ θ β f) :=
   kerQuotientMap_injective _ _
-    (mapRight_injective (stendhalQ_swap_symm Q Λ hQ) (parabolicInputHom Q Λ θ β f) hf)
+    (indMapRight_injective (stendhalQ_swap_symm Q Λ hQ) (parabolicInputHom Q Λ θ β f) hf)
 
 include hQ in
 /-- Standardization preserves surjections. -/
 theorem parabolicStandardMap_surjective (f : N →ₗ[D] N') (hf : Function.Surjective f) :
     Function.Surjective (parabolicStandardMap Q Λ θ β f) :=
   kerQuotientMap_surjective _ _
-    (mapRight_surjective (stendhalQ_swap_symm Q Λ hQ) (parabolicInputHom Q Λ θ β f) hf)
+    (indMapRight_surjective (stendhalQ_swap_symm Q Λ hQ) (parabolicInputHom Q Λ θ β f) hf)
 
 end Stendhal
 

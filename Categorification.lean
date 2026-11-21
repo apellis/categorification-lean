@@ -464,6 +464,7 @@ import Categorification.KLR.CyclotomicAction.VacuumProduct
 import Categorification.KLR.CyclotomicAction.VacuumTrace
 import Categorification.KLR.CyclotomicAction.VacuumUpward
 import Categorification.KLR.CyclotomicAction.VacuumEval
+import Categorification.KLR.CyclotomicAction.VacuumEvalIdeal
 import Categorification.KLR.CyclotomicAction.VacuumBubble
 import Categorification.KLR.CyclotomicAction.VacuumIdeal
 import Categorification.KLR.CyclotomicAction.VacuumBubbleReduction

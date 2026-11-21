@@ -5434,6 +5434,35 @@ noncomputable example :=
   KLR.CyclotomicAction.vacQuotientEquiv.{0, 0, 0, 0} (lam := fun _ => 2) rqHyp coordDatum
     (fun _ => 2) (fun _ => by simp [coordDatum]) ({0, 1, 0} : Multiset (Fin 2))
 
+private theorem coordHΛ :
+    ∀ i : Fin 2, (((fun _ => 2) : Fin 2 → ℕ) i : ℤ) =
+      coordDatum.pair (coordDatum.iY i) (fun _ => 2) :=
+  fun _ => by simp [coordDatum]
+
+/-- Webster arXiv:1309.3796v2, Corollary 3.27 (1), inputs: evaluation at `P_∅` is full, the
+images of `P_∅` are dense in `Ř^λ-pmod`, and `P_∅` itself, killed by every `E_i`, satisfies the
+kernel condition, for `λ = (2, 2)`. -/
+example := KLR.CyclotomicAction.vacuum_full.{0, 0, 0} rqHyp coordDatum _ coordHΛ
+
+example := KLR.CyclotomicAction.vacuum_isDenseFamily.{0, 0, 0} rqHyp coordDatum _ coordHΛ
+
+example := KLR.CyclotomicAction.vacuum_kerLe.{0, 0, 0} rqHyp coordDatum _ coordHΛ _
+  (KLR.CyclotomicAction.univPmod_map₂Linear rqHyp coordDatum _ coordHΛ)
+  (KLR.CyclotomicAction.univVacuum rqHyp coordDatum _ coordHΛ)
+  (fun _ e i r h => KLR.CyclotomicAction.isZero_univPmod_map_vacuum rqHyp coordDatum _ coordHΛ
+    e i r h)
+
+/-- Webster arXiv:1309.3796v2, Corollary 3.27 (1), uniqueness, applied to the identity of
+`Ř^λ-pmod` for `λ = (2, 2)`. -/
+noncomputable example :=
+  KLR.CyclotomicAction.vacuumFunctorIso.{0, 0, 0} rqHyp coordDatum _ coordHΛ
+    (β := CategoryTheory.Pseudofunctor.StrongTrans.id
+      (KLR.CyclotomicAction.univCyclotomicPresCLPmod rqHyp coordDatum _ coordHΛ))
+    (β' := CategoryTheory.Pseudofunctor.StrongTrans.id _) (CategoryTheory.Iso.refl _)
+
+/-- Webster arXiv:1309.3796v2, Corollary 3.27 (1), existence. -/
+example := @KLR.CyclotomicAction.vacuumFunctor
+
 end NonVacuity.CyclotomicFrobeniusRouquier
 
 namespace NonVacuity.CLSpanning

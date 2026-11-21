@@ -110,6 +110,11 @@ import Categorification.Diagrams.CL.RescaleR
 import Categorification.Diagrams.CL.Rotate
 import Categorification.Diagrams.CL.Scalars
 import Categorification.Diagrams.CL.Sigma
+import Categorification.Diagrams.CLQ.BubbleSlidesAll
+import Categorification.Diagrams.CLQ.BubbleSlidesQ
+import Categorification.Diagrams.CLQ.EndOne
+import Categorification.Diagrams.CLQ.Grading
+import Categorification.Diagrams.CLQ.Pitchfork
 import Categorification.Diagrams.CL.Specialize
 import Categorification.Diagrams.CL.SlideCalculusC
 import Categorification.Diagrams.CL.SpanningDefs

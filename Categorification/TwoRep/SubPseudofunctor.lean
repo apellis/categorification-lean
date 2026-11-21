@@ -9,7 +9,7 @@ import Categorification.TwoRep.LinearCat
 
 Given a pseudofunctor `ℵ : B ⥤ LinearCat k` and, for every object `a`, a property `P a` of the
 objects of `ℵ(a)` preserved by every functor `ℵ(f)`, the full subcategories `P a` form again a
-pseudofunctor `ℵ.restrict P hP : B ⥤ LinearCat k`, with the functors, 2-morphisms and constraints
+pseudofunctor `ℵ.fullSub P hP : B ⥤ LinearCat k`, with the functors, 2-morphisms and constraints
 of `ℵ` restricted.
 
 This is how the category of finitely generated projective `Ř^λ`-modules is a module category
@@ -31,28 +31,28 @@ variable {k : Type w} [CommRing k] {B : Type u₁} [Bicategory.{w₁, v₁} B]
   (hP : ∀ {a b : B} (f : a ⟶ b) (X : ℵ.obj a), P a X → P b ((ℵ.map f).obj.obj X))
 
 /-- The full subcategory `P a` of `ℵ(a)` as an object of `LinearCat k`. -/
-abbrev restrictObj (a : B) : LinearCat.{w, v, u} k := LinearCat.of k (P a).FullSubcategory
+abbrev fullSubObj (a : B) : LinearCat.{w, v, u} k := LinearCat.of k (P a).FullSubcategory
 
 /-- The functor `ℵ(f)` restricted to the full subcategories. -/
-abbrev restrictFunctor {a b : B} (f : a ⟶ b) :
+abbrev fullSubFunctor {a b : B} (f : a ⟶ b) :
     (P a).FullSubcategory ⥤ (P b).FullSubcategory :=
   (P b).lift ((P a).ι ⋙ (ℵ.map f).obj) fun X => hP f X.obj X.property
 
-instance {a b : B} (f : a ⟶ b) : (restrictFunctor ℵ P hP f).Additive where
+instance {a b : B} (f : a ⟶ b) : (fullSubFunctor ℵ P hP f).Additive where
   map_add := by
     intro X Y φ ψ
     apply ObjectProperty.hom_ext
     exact (ℵ.map f).obj.map_add
 
-instance {a b : B} (f : a ⟶ b) : (restrictFunctor ℵ P hP f).Linear k where
+instance {a b : B} (f : a ⟶ b) : (fullSubFunctor ℵ P hP f).Linear k where
   map_smul φ r := by
     apply ObjectProperty.hom_ext
     exact (ℵ.map f).obj.map_smul r φ.hom
 
 /-- The natural transformation `ℵ(η)` restricted to the full subcategories. -/
 @[simps]
-def restrictNatTrans {a b : B} {f g : a ⟶ b} (η : f ⟶ g) :
-    restrictFunctor ℵ P hP f ⟶ restrictFunctor ℵ P hP g where
+def fullSubNatTrans {a b : B} {f g : a ⟶ b} (η : f ⟶ g) :
+    fullSubFunctor ℵ P hP f ⟶ fullSubFunctor ℵ P hP g where
   app X := ObjectProperty.homMk ((ℵ.map₂ η).hom.app X.obj)
   naturality X Y φ := by
     apply ObjectProperty.hom_ext
@@ -65,10 +65,10 @@ abbrev isoApp {C D : LinearCat.{w, v, u} k} {F G : C ⟶ D} (e : F ≅ G) (X : C
 
 /-- The restriction of the pseudofunctor `ℵ` to the full subcategories `P a`, for properties `P`
 preserved by every `ℵ(f)`. -/
-def restrict : Pseudofunctor B (LinearCat.{w, v, u} k) where
-  obj a := restrictObj ℵ P a
-  map f := LinFun.of (restrictFunctor ℵ P hP f)
-  map₂ η := ObjectProperty.homMk (restrictNatTrans ℵ P hP η)
+def fullSub : Pseudofunctor B (LinearCat.{w, v, u} k) where
+  obj a := fullSubObj ℵ P a
+  map f := LinFun.of (fullSubFunctor ℵ P hP f)
+  map₂ η := ObjectProperty.homMk (fullSubNatTrans ℵ P hP η)
   mapId a := ObjectProperty.isoMk _
     (NatIso.ofComponents (fun X => ObjectProperty.isoMk _ (isoApp (ℵ.mapId a) X.obj))
       fun φ => by
@@ -99,13 +99,13 @@ def restrict : Pseudofunctor B (LinearCat.{w, v, u} k) where
     apply ObjectProperty.hom_ext; ext X
     exact congrArg (fun θ => θ.hom.app X.obj) (ℵ.map₂_right_unitor f)
 
-@[simp] theorem restrict_obj (a : B) : (restrict ℵ P hP).obj a = restrictObj ℵ P a := rfl
+@[simp] theorem fullSub_obj (a : B) : (fullSub ℵ P hP).obj a = fullSubObj ℵ P a := rfl
 
-@[simp] theorem restrict_map_obj {a b : B} (f : a ⟶ b) :
-    ((restrict ℵ P hP).map f).obj = restrictFunctor ℵ P hP f := rfl
+@[simp] theorem fullSub_map_obj {a b : B} (f : a ⟶ b) :
+    ((fullSub ℵ P hP).map f).obj = fullSubFunctor ℵ P hP f := rfl
 
 /-- The inclusion functors of the full subcategories commute with the action. -/
-theorem restrict_map_obj_comp_ι {a b : B} (f : a ⟶ b) :
-    ((restrict ℵ P hP).map f).obj ⋙ (P b).ι = (P a).ι ⋙ (ℵ.map f).obj := rfl
+theorem fullSub_map_obj_comp_ι {a b : B} (f : a ⟶ b) :
+    ((fullSub ℵ P hP).map f).obj ⋙ (P b).ι = (P a).ι ⋙ (ℵ.map f).obj := rfl
 
 end Categorification.TwoRep.LinearCat

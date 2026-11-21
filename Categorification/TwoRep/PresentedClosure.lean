@@ -13,7 +13,7 @@ For a pseudofunctor `F : RevBicat P.Bicat ⥤ LinearCat k` out of a presented 2-
 properties `Pr a` of the objects of `F(a)` closed under isomorphisms, if every `F(x)` with `x` a
 one-letter word preserves the properties, then so does `F(x)` for every 1-morphism `x`: every
 1-morphism is a composite of one-letter words, and `F` preserves composites up to isomorphism.
-This is the closure hypothesis of `LinearCat.restrict`.
+This is the closure hypothesis of `LinearCat.fullSub`.
 -/
 
 noncomputable section

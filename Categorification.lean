@@ -1395,10 +1395,13 @@ import Categorification.Algebra.AmbidextrousTraceSeparating
 import Categorification.TwoRep.WordAdjunction
 import Categorification.KLR.CyclotomicAction.Frobenius
 import Categorification.KLR.CyclotomicBaseProjective
+import Categorification.KLR.CyclotomicRestrictionProjectiveRing
 import Categorification.KLR.CyclotomicAction.Universal
 import Categorification.KLR.CyclotomicAction.UniversalScalars
 import Categorification.KLR.CyclotomicAction.UniversalFlat
 import Categorification.KLR.CyclotomicAction.UniversalGrading
+import Categorification.KLR.CyclotomicAction.Projective
+import Categorification.KLR.CyclotomicAction.ProjectiveModules
 import Categorification.Algebra.Graded.FreeOfProjective
 /-!
 # Categorification

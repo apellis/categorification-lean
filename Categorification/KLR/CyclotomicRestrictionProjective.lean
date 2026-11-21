@@ -80,7 +80,9 @@ theorem projective_indCorner
   let := projective_FE i β a hsym (leadUnitAt_of i hQ) ha hβ
   Module.Projective.of_equiv (feEquivCorner a β i)
 
-private theorem projective_res_regular_of_pos
+/-- Restriction of the regular module is projective, for `β ≠ 0` (Kang–Kashiwara,
+arXiv:1102.4677v4, Theorem 4.5, reflected horizontally), over any commutative ring. -/
+theorem projective_res_regular_of_pos
     (hsym : KLRSymm Q)
     (hQ : ∀ s t : I, s ≠ t → ∃ c : k, IsUnit c ∧ (polyInY (Q s t)).leadingCoeff = Polynomial.C c)
     (ha : (a i).Monic) (hβ : 0 < β.card) : Module.Projective Rl (Res Q i a β Su) := by

@@ -17,6 +17,8 @@ kills the ideal of 2-morphisms factoring through `E_i 1_λ` (Prop. 3.25).
 
 * `factorIdeal K f g`: for a property `K` of 1-morphisms out of `a`, the span of the
   2-morphisms `f ⟶ g` that factor through a composite `e ≫ w` with `K e`;
+* `comp_mem_factorIdeal`, `mem_factorIdeal_comp`: the factor ideal is a two-sided ideal for
+  vertical composition;
 * `map₂_app_eq_zero_of_mem_factorIdeal`: if every such `e` kills `C` and `F` is additive and
   `k`-linear on 2-morphisms at `C`, every element of the ideal acts on `C` by zero.
 -/
@@ -56,6 +58,30 @@ def factorIdeal {a c : B} (K : ∀ ⦃b : B⦄, (a ⟶ b) → Prop) (f g : a ⟶
     Submodule k (f ⟶ g) :=
   Submodule.span k {φ | ∃ (b : B) (e : a ⟶ b) (w' : b ⟶ c) (α : f ⟶ e ≫ w')
     (β : e ≫ w' ⟶ g), K e ∧ α ≫ β = φ}
+
+/-- The factor ideal is closed under precomposition. -/
+theorem comp_mem_factorIdeal {a c : B} {K : ∀ ⦃b : B⦄, (a ⟶ b) → Prop} {f' f g : a ⟶ c}
+    (γ : f' ⟶ f) {φ : f ⟶ g} (hφ : φ ∈ factorIdeal (k := k) K f g) :
+    γ ≫ φ ∈ factorIdeal (k := k) K f' g := by
+  induction hφ using Submodule.span_induction with
+  | mem φ h =>
+    obtain ⟨b, e, w', α, β, he, rfl⟩ := h
+    exact Submodule.subset_span ⟨b, e, w', γ ≫ α, β, he, Category.assoc _ _ _⟩
+  | zero => rw [Limits.comp_zero]; exact zero_mem _
+  | add φ ψ _ _ hφ hψ => rw [Preadditive.comp_add]; exact add_mem hφ hψ
+  | smul r φ _ hφ => rw [Linear.comp_smul]; exact Submodule.smul_mem _ r hφ
+
+/-- The factor ideal is closed under postcomposition. -/
+theorem mem_factorIdeal_comp {a c : B} {K : ∀ ⦃b : B⦄, (a ⟶ b) → Prop} {f g g' : a ⟶ c}
+    {φ : f ⟶ g} (hφ : φ ∈ factorIdeal (k := k) K f g) (δ : g ⟶ g') :
+    φ ≫ δ ∈ factorIdeal (k := k) K f g' := by
+  induction hφ using Submodule.span_induction with
+  | mem φ h =>
+    obtain ⟨b, e, w', α, β, he, rfl⟩ := h
+    exact Submodule.subset_span ⟨b, e, w', α, β ≫ δ, he, (Category.assoc _ _ _).symm⟩
+  | zero => rw [Limits.zero_comp]; exact zero_mem _
+  | add φ ψ _ _ hφ hψ => rw [Preadditive.add_comp]; exact add_mem hφ hψ
+  | smul r φ _ hφ => rw [Linear.smul_comp]; exact Submodule.smul_mem _ r hφ
 
 /-- **Every element of the factor ideal acts by zero on an object killed by `K`**, for a
 pseudofunctor additive and `k`-linear on 2-morphisms at `C`. -/

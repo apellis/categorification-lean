@@ -857,6 +857,7 @@ import Categorification.TwoRep.FurledEvaluation
 import Categorification.TwoRep.RouqDottedCurls
 import Categorification.TwoRep.RouqDual
 import Categorification.TwoRep.DenseFamily
+import Categorification.TwoRep.GeneratedAdjunction
 import Categorification.TwoRep.GeneratedEquivariant
 import Categorification.TwoRep.GeneratedModification
 import Categorification.TwoRep.StronglyEquivariant

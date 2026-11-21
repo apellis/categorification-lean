@@ -20,6 +20,7 @@ in `θ + (i + β)`.
 * `firstIndGen_mem_range`: the generators `G [1 ⊗ (1 ⊗ n)]` lie in the image of `δ₁`.
 * `lastIndKernel_le_range`: every element of `O` lies in the image of `δ₁`.
 * `mem_lastIndKernel_iff`: the image of `δ₁` is exactly `O`.
+* `firstIndDeltaT_exact`: `S(₁Fᵢ N) → Fᵢ S(N) → S(₂Fᵢ N) → 0` is exact.
 -/
 
 noncomputable section
@@ -434,5 +435,15 @@ theorem mem_lastIndKernel_iff (x : LastIndF Q Λ i θ β N hQ) :
     x ∈ O ↔ ∃ m, firstIndDeltaT Q Λ i θ β N hQ m = x :=
   ⟨fun hx => lastIndKernel_le_range Q Λ i θ β N hQ x hx,
     fun ⟨m, hm⟩ => hm ▸ firstIndDelta_mem Q Λ i θ β N hQ m⟩
+
+/-- **Right exactness of the `Fᵢ`-part** (Webster, proof of Proposition 5.5):
+`S(₁Fᵢ N) → Fᵢ S(N) → S(₂Fᵢ N)` is exact, and the second map is surjective
+(`lastIndQuotientMap_surjective`). -/
+theorem firstIndDeltaT_exact :
+    Function.Exact (firstIndDeltaT Q Λ i θ β N hQ) (lastIndQuotientMap Q Λ i θ β N hQ) := by
+  intro x
+  have h := congrArg (x ∈ ·) (ker_lastIndQuotientMap Q Λ i θ β N hQ)
+  exact ((LinearMap.mem_ker (f := lastIndQuotientMap Q Λ i θ β N hQ)).symm.trans h.to_iff).trans
+    (mem_lastIndKernel_iff Q Λ i θ β N hQ x)
 
 end Categorification.Stendhal

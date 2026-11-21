@@ -5425,3 +5425,16 @@ noncomputable example := KLR.CyclotomicAction.univCyclotomicPresCLk (lam := fun 
 
 end NonVacuity.CyclotomicFrobeniusRouquier
 
+namespace NonVacuity.CLSpanning
+
+open Categorification Categorification.QuantumGroup Categorification.KL3.Diagram
+
+/-- KL III Prop 3.10 for `U_Q(sl_2)` with the KL scalars, downward and upward strands, at the
+weight `1` and `ν = 2 · i`. -/
+example : CL.Prop310C UDot.sl2RootDatum ℚ CL.CLScalars.kl (1 : ℤ) {(), ()} :=
+  CL.prop310C_kl 1 {(), ()}
+
+example : CL.Prop310UpC UDot.sl2RootDatum ℚ CL.CLScalars.kl (1 : ℤ) {(), ()} :=
+  CL.prop310UpC_kl 1 {(), ()}
+
+end NonVacuity.CLSpanning

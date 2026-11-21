@@ -706,6 +706,12 @@ from which the full one is obtained by iterating):
   `T^λ` and of the factor algebra (dimension form), and the red part vanishes for `β ≠ ∅` and is
   Prop 4.32 with Prop 4.18 for `β = ∅`.
 
+* Prop 5.5, empty last block (`RedStrands/ParabolicStandardEmptyRed.lean`): for `β = ∅` the
+  factor algebra is `T^{λ'}` (`emptyFactorToOld`) and standardization is the induction along
+  `appendRed`, `S(N) ≅ T^λ ⊗_{T^{λ'}} N` as `T^λ`-modules (`emptyRedStandardEquiv`), with
+  inverse `z ⊗ n ↦ z · (1 ⊗ n)`; the key identity is that the parabolic affine image of a
+  concatenation equals `appendRed` after the factor isomorphism (`emptyF_eq_emptyG`).
+
 Open: the comparison of the induced model with Def 5.4 (right modules over `T̃^λ` and the block
 algebra of all `ℓ + 1` blocks; the induced model uses left modules, which the vertical flip
 `tensorFlip` converts), injectivity in the `Fᵢ`-part of Prop 5.5, Prop 5.6, and the results listed below.

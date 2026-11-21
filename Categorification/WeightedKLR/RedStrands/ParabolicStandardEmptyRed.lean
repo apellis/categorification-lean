@@ -216,4 +216,177 @@ theorem emptyF_eq_emptyG : emptyF Q Λ θ = emptyG Q Λ θ := by
     rw [Algebra.TensorProduct.tmul_mul_tmul, mul_one, one_mul], emptyF_mul, emptyG_mul,
     emptyF_tmul_one, emptyF_one_tmul, emptyG_one_tmul, emptyF_tmul_one, ← emptyF_tmul_one]
 
+
+/-! ### The induced module and the map from standardization -/
+
+/-- A module of the factor algebra at `β = ∅`, viewed as a `T^{λ'}`-module. -/
+def EmptyRedInput (N : Type*) [AddCommGroup N] [Module (parabolicFactorAlgebra Q Λ θ 0) N] :=
+  N
+
+section Induced
+
+variable (N : Type*) [AddCommGroup N] [Module k N] [Module (parabolicFactorAlgebra Q Λ θ 0) N]
+  [IsScalarTower k (parabolicFactorAlgebra Q Λ θ 0) N] (hQ : KLRSymm Q)
+
+local notation "N₁" => EmptyRedInput Q Λ θ N
+
+instance : AddCommGroup N₁ := inferInstanceAs (AddCommGroup N)
+instance : Module k N₁ := inferInstanceAs (Module k N)
+instance : Module L₀ N₁ :=
+  Module.compHom N (emptyFactorToOld Q Λ θ).symm.toAlgHom.toRingHom
+instance : IsScalarTower k L₀ N₁ := ⟨fun c t n => by
+  change ((emptyFactorToOld Q Λ θ).symm (c • t)) • (show N from n) =
+    c • (((emptyFactorToOld Q Λ θ).symm t) • (show N from n))
+  rw [map_smul, smul_assoc]⟩
+
+/-- **The induction of `N` along `T^{λ'} → T^λ`**, adding the last red strand
+(Webster, arXiv:1309.3796v3, Prop 4.18). -/
+abbrev EmptyRedInd := InductionAlong.IndK k N₁ (emptyRedHom Q Λ θ)
+
+local notation "J" => EmptyRedInd Q Λ θ N
+
+instance : SMulCommClass T₀ k J := ⟨fun a c x => by
+  change a • (algebraMap k T₀ c • x) = algebraMap k T₀ c • (a • x)
+  rw [← mul_smul, ← mul_smul, Algebra.commutes]⟩
+
+theorem emptyRedHom_smul (c : k) (t : L₀) :
+    emptyRedHom Q Λ θ (c • t) = c • emptyRedHom Q Λ θ t :=
+  (emptyRedLin Q Λ θ).map_smul c t
+
+/-- `N` as a `T^{λ'}`-module. -/
+def emptyIn (n : ParabolicInput Q Λ θ 0 N) : N₁ := n
+
+omit [Module k N] [IsScalarTower k (parabolicFactorAlgebra Q Λ θ 0) N] in
+theorem emptyIn_smul (t : TensorKLR S Aₚ A₀) (y : ParabolicInput Q Λ θ 0 N) :
+    emptyIn Q Λ θ N (t • y) =
+      (emptyFactorToOld Q Λ θ (parabolicInputMap Q Λ θ 0 t)) • emptyIn Q Λ θ N y := by
+  change _ = (emptyFactorToOld Q Λ θ).symm (emptyFactorToOld Q Λ θ _) • (show N from y)
+  rw [AlgEquiv.symm_apply_apply]
+  rfl
+
+/-- The generator map `n ↦ 1 ⊗ n`. -/
+def emptyRedGen : ParabolicInput Q Λ θ 0 N →ₗ[k] J where
+  toFun n := InductionAlong.IndK.tmul (unitGen (emptyRedHom Q Λ θ)) (emptyIn Q Λ θ N n)
+  map_add' n n' := Ind.tmul_add _ (emptyIn Q Λ θ N n) (emptyIn Q Λ θ N n')
+  map_smul' c n :=
+    Ind.tmul_algebraMap_smul k (emptyRedHom_smul Q Λ θ) (unitGen _) c (emptyIn Q Λ θ N n)
+
+theorem emptyRedGen_apply (n : ParabolicInput Q Λ θ 0 N) :
+    emptyRedGen Q Λ θ N n = Ind.tmul (unitGen (emptyRedHom Q Λ θ)) (emptyIn Q Λ θ N n) := rfl
+
+theorem emptyRedGen_smul (t : TensorKLR S Aₚ A₀) (y : ParabolicInput Q Λ θ 0 N) :
+    emptyRedGen Q Λ θ N (t • y) = emptyF Q Λ θ t • emptyRedGen Q Λ θ N y := by
+  rw [emptyRedGen_apply, emptyRedGen_apply, emptyIn_smul, ← Ind.op_smul_tmul, emptyF_eq_emptyG]
+  refine (congrArg (fun w => Ind.tmul w (emptyIn Q Λ θ N y)) ?_).trans
+    (Ind.smul_tmul (emptyG Q Λ θ t) _ _).symm
+  apply Subtype.ext
+  change emptyRedHom Q Λ θ 1 * emptyRedHom Q Λ θ _ = emptyG Q Λ θ t * emptyRedHom Q Λ θ 1
+  rw [emptyG_apply, ← map_mul, ← map_mul, one_mul, mul_one]
+  rfl
+
+/-- The bilinear map `(r, y) ↦ r · (1 ⊗ y)`. -/
+def emptyStdBil : IndBimod S Aₚ A₀ →ₗ[k] ParabolicInput Q Λ θ 0 N →ₗ[k] J :=
+  LinearMap.mk₂ k (fun r y => emptyAffine Q Λ θ r.1 • emptyRedGen Q Λ θ N y)
+    (fun r r' y => by rw [Submodule.coe_add, map_add, add_smul])
+    (fun c r y => by
+      change emptyAffine Q Λ θ (c • r.1) • _ = _
+      rw [map_smul, smul_assoc])
+    (fun r y y' => by rw [map_add, smul_add])
+    (fun c r y => by rw [map_smul, smul_comm])
+
+/-- The map from the shuffle module, `r ⊗ y ↦ r · (1 ⊗ y)`. -/
+def emptyStdShuffle : ParabolicShuffle Q Λ θ 0 N →ₗ[k] J :=
+  BalancedTensor.lift (emptyStdBil Q Λ θ N) (fun r a y => by
+    change emptyAffine Q Λ θ (r.1 * concat S Aₚ A₀ a) • _ =
+      emptyAffine Q Λ θ r.1 • emptyRedGen Q Λ θ N (a • y)
+    rw [emptyRedGen_smul, map_mul, mul_smul]
+    rfl)
+
+theorem emptyStdShuffle_tmul (r : IndBimod S Aₚ A₀) (y : ParabolicInput Q Λ θ 0 N) :
+    emptyStdShuffle Q Λ θ N (BalancedTensor.tmul r y) =
+      emptyAffine Q Λ θ r.1 • emptyRedGen Q Λ θ N y := rfl
+
+theorem emptyStdShuffle_smul (b : KLRAlgebra k S (Aₚ + A₀)) (x : ParabolicShuffle Q Λ θ 0 N) :
+    emptyStdShuffle Q Λ θ N (b • x) = emptyAffine Q Λ θ b • emptyStdShuffle Q Λ θ N x := by
+  induction x using BalancedTensor.induction_on with
+  | zero => rw [smul_zero, map_zero, smul_zero]
+  | tmul r y =>
+    rw [BalancedTensor.smul_tmul', emptyStdShuffle_tmul, emptyStdShuffle_tmul]
+    change emptyAffine Q Λ θ (b * r.1) • _ = _
+    rw [map_mul, mul_smul]
+  | add x y hx hy => rw [smul_add, map_add, map_add, hx, hy, smul_add]
+
+theorem emptyAffine_eSum :
+    emptyAffine Q Λ θ (eSum S (parabolicOrderedLoadings (ℓ := ℓ) θ 0)) = 1 := by
+  rw [emptyAffine_apply, parabolicOrderedLoadings_eq_redOrderedSet, parabolicAffine,
+    castKLR_eSum_redOrderedSet, orderProjection_ofKLR_eSum_redOrderedSet, map_one]
+
+/-- **The map `S(N) → Ind N`** from standardization to the induction along the last red
+strand, for an empty last block. -/
+def emptyRedStandard : ParabolicStandardT Q Λ θ 0 N hQ →ₗ[k] J :=
+  (excludedSpace (parabolicShuffleAction Q Λ θ 0 N)
+    (parabolicOrderedLoadings (ℓ := ℓ) θ 0)).liftQ
+    (emptyStdShuffle Q Λ θ N) (fun x hx => by
+      rw [LinearMap.mem_ker]
+      have hx' : eSum S (parabolicOrderedLoadings (ℓ := ℓ) θ 0) • x = 0 := hx
+      rw [← one_smul T₀ (emptyStdShuffle Q Λ θ N x), ← emptyAffine_eSum,
+        ← emptyStdShuffle_smul, hx', map_zero])
+
+/-- The class of `x` in `S(N)`. -/
+def emptyStdMk (x : ParabolicShuffle Q Λ θ 0 N) : ParabolicStandardT Q Λ θ 0 N hQ :=
+  Submodule.mkQ _ x
+
+theorem emptyRedStandard_mk (x : ParabolicShuffle Q Λ θ 0 N) :
+    emptyRedStandard Q Λ θ N hQ (emptyStdMk Q Λ θ N hQ x) = emptyStdShuffle Q Λ θ N x := rfl
+
+theorem emptyStdMk_smul (a : KLRAlgebra k S (Aₚ + A₀)) (x : ParabolicShuffle Q Λ θ 0 N) :
+    emptyAffine Q Λ θ a • emptyStdMk Q Λ θ N hQ x = emptyStdMk Q Λ θ N hQ (a • x) := by
+  change parabolicStandardAction Q Λ θ 0 N hQ _ _ = _
+  rw [emptyAffine_apply, parabolicAffine, parabolicStandardAction_affine]
+  rfl
+
+/-- `emptyRedStandard` is `T^λ`-linear. -/
+theorem emptyRedStandard_smul (t : T₀) (m : ParabolicStandardT Q Λ θ 0 N hQ) :
+    emptyRedStandard Q Λ θ N hQ (t • m) = t • emptyRedStandard Q Λ θ N hQ m := by
+  obtain ⟨a, rfl⟩ := parabolicAffine_surjective Q Λ θ 0 t
+  obtain ⟨x, rfl⟩ := Submodule.mkQ_surjective (excludedSpace
+    (parabolicShuffleAction Q Λ θ 0 N) (parabolicOrderedLoadings (ℓ := ℓ) θ 0)) m
+  change emptyRedStandard Q Λ θ N hQ (emptyAffine Q Λ θ a • emptyStdMk Q Λ θ N hQ x) =
+    emptyAffine Q Λ θ a • emptyRedStandard Q Λ θ N hQ (emptyStdMk Q Λ θ N hQ x)
+  rw [emptyStdMk_smul, emptyRedStandard_mk, emptyRedStandard_mk, emptyStdShuffle_smul]
+
+/-- `emptyRedStandard` as a map of `T^λ`-modules. -/
+def emptyRedStandardT : ParabolicStandardT Q Λ θ 0 N hQ →ₗ[T₀] J where
+  toFun := emptyRedStandard Q Λ θ N hQ
+  map_add' := map_add _
+  map_smul' := emptyRedStandard_smul Q Λ θ N hQ
+
+theorem emptyRedStandard_mk_one (n : ParabolicInput Q Λ θ 0 N) :
+    emptyRedStandard Q Λ θ N hQ
+        (emptyStdMk Q Λ θ N hQ (BalancedTensor.tmul (oneBimod S Aₚ A₀) n)) =
+      emptyRedGen Q Λ θ N n := by
+  rw [emptyRedStandard_mk, emptyStdShuffle_tmul]
+  change emptyAffine Q Λ θ (oneConcat S Aₚ A₀) • _ = _
+  rw [← concat_one]
+  change emptyF Q Λ θ 1 • _ = _
+  rw [emptyF_eq_emptyG, emptyG_apply, map_one, map_one, emptyRedGen_apply]
+  exact (Ind.smul_tmul _ _ _).trans
+    (congrArg (fun w => Ind.tmul w _) (Subtype.ext (unit_mul_unit (emptyRedHom Q Λ θ))))
+
+/-- **`S(N)` maps onto the induction of `N` along the last red strand** (Webster,
+arXiv:1309.3796v3, proof of Prop 5.5, `β = ∅`). -/
+theorem emptyRedStandard_surjective : Function.Surjective (emptyRedStandard Q Λ θ N hQ) := by
+  intro y
+  refine Ind.induction_on (motive := fun y : J => ∃ m, emptyRedStandard Q Λ θ N hQ m = y) y
+    ⟨0, map_zero _⟩ (fun z n => ?_) (fun s t hs ht => ?_)
+  · refine ⟨z.1 • emptyStdMk Q Λ θ N hQ
+      (BalancedTensor.tmul (oneBimod S Aₚ A₀) (show ParabolicInput Q Λ θ 0 N from n)), ?_⟩
+    rw [emptyRedStandard_smul, emptyRedStandard_mk_one]
+    exact (Ind.smul_tmul _ _ _).trans (congrArg (fun w => Ind.tmul w n) (Subtype.ext z.2))
+  · obtain ⟨a, rfl⟩ := hs
+    obtain ⟨b, rfl⟩ := ht
+    exact ⟨a + b, map_add _ _ _⟩
+
+end Induced
+
 end Categorification.Stendhal

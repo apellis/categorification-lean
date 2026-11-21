@@ -1306,6 +1306,7 @@ import Categorification.WeightedKLR.RedStrands.DoubleCLDownInjectiveOrdinary
 import Categorification.WeightedKLR.RedStrands.DoubleCLMorita
 import Categorification.WeightedKLR.RedStrands.DoubleCLBlackAction
 import Categorification.WeightedKLR.RedStrands.CyclotomicBlackAction
+import Categorification.WeightedKLR.RedStrands.CyclotomicBlackModules
 import Categorification.WeightedKLR.RedStrands.CyclotomicFrobenius
 import Categorification.WeightedKLR.RedStrands.DoubleWFDom
 import Categorification.WeightedKLR.RedStrands.DoubleCLRelationFamilies

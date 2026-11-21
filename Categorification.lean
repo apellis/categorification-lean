@@ -1300,6 +1300,7 @@ import Categorification.WeightedKLR.RedStrands.TwoPieceLoading
 import Categorification.WeightedKLR.RedStrands.ParabolicStandardUpper
 import Categorification.WeightedKLR.RedStrands.ConcatLoadingOrder
 import Categorification.WeightedKLR.RedStrands.LastRedBlackDescent
+import Categorification.WeightedKLR.RedStrands.PrefixProjectionDescent
 import Categorification.WeightedKLR.RedStrands.LastStrandDecomposition
 import Categorification.WeightedKLR.RedStrands.LastStrandPieceDimension
 import Categorification.WeightedKLR.RedStrands.ParabolicStandardLastRed

@@ -127,7 +127,8 @@ theorem redSubfamilyProjection_e_violated_ambient (t : Seq ((μ).map c)) (ht : I
   simpa only [Seq.map_lbl, Sum.isLeft_map, Fin.cast_mk] using hr
 
 omit [DecidableEq I] in
-private theorem redOrdered_map (hmono : StrictMono f) (s : Seq μ) (hs : IsRedOrdered s) :
+/-- Recolouring the red strands along an increasing map keeps a loading red-ordered. -/
+theorem isRedOrdered_map_of_strictMono (hmono : StrictMono f) (s : Seq μ) (hs : IsRedOrdered s) :
     IsRedOrdered (Seq.map c s) := by
   intro a b r r' hab ha hb
   rw [Seq.map_lbl] at ha hb
@@ -143,7 +144,7 @@ theorem redSubfamilyProjection_e_unordered_ambient (hmono : StrictMono f)
   apply redSubfamilyProjection_e_unordered Q Λ f hf ν s
   intro hs
   apply ht
-  exact redOrdered_map f ν hmono s hs
+  exact isRedOrdered_map_of_strictMono f ν hmono s hs
 
 /-- On any ambient loading the dot vanishes at a red position. -/
 theorem redSubfamilyProjection_red_dot_ambient (t : Seq ((μ).map c)) (a : Fin ((μ).map c).card)
@@ -210,7 +211,7 @@ of the last factor is red-ordered. -/
 theorem parabolicLast_ordered (t : Seq Aₗ) : IsRedOrdered t := by
   have hf := Sum.map_injective.mpr ⟨Function.injective_id (α := I), finalIndex_injective ℓ⟩
   obtain ⟨s, rfl⟩ := (Seq.map_bijective hf (stendhalWeight 1 θ)).surjective t
-  exact redOrdered_map last θ (fun a b hab => (hab.ne (Subsingleton.elim a b)).elim) s (SingleRed.ordered θ s)
+  exact isRedOrdered_map_of_strictMono last θ (fun a b hab => (hab.ne (Subsingleton.elim a b)).elim) s (SingleRed.ordered θ s)
 
 theorem parabolicLastProjection_e_unordered (t : Seq Aₗ) (ht : ¬ IsRedOrdered t) :
     parabolicLastProjection Q wt θ (e t) = 0 := (ht (parabolicLast_ordered θ t)).elim

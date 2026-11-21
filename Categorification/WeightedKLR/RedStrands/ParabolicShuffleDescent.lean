@@ -105,7 +105,8 @@ theorem parabolicStandardAction_affine (a : KLRAlgebra k S (α+δ)) :
 
 
 omit [DecidableEq I] in
-private theorem ordered_inputs {a : Seq α} {b : Seq δ} (ha : IsRedOrdered a)
+/-- The concatenation of red-ordered prefix and last-red loadings is red-ordered. -/
+theorem parabolic_isRedOrdered_append {a : Seq α} {b : Seq δ} (ha : IsRedOrdered a)
     (hb : IsRedOrdered b) : IsRedOrdered (a.append b) := by
   intro x y r t hxy hx hy
   obtain ⟨x|x,rfl⟩ := (blockEquiv (Seq.card_add' α δ)).surjective x <;>
@@ -133,7 +134,7 @@ private theorem indUnit_ordered (n : N) : ρ (eSum S F) (unitI n) = unitI n := b
     simpa only [shufOne, one_smul] using h
   obtain ⟨a,b,he,ha,hb,_,_⟩ := parabolicShuffle_supported_input Q Λ θ β N s shufOne h'
   simp only [shufOne, one_smul] at he
-  exact hs' (by simpa [parabolicOrderedLoadings, he] using ordered_inputs θ β ha hb)
+  exact hs' (by simpa [parabolicOrderedLoadings, he] using parabolic_isRedOrdered_append θ β ha hb)
 
 /-- The identity-shuffle inclusion of the factor module into its
 standardization. -/

@@ -5718,3 +5718,29 @@ noncomputable example (ν : Multiset Unit) :=
   redFirstCornerEquiv rfQ rfRouquier ν (fun _ : Fin 2 => Finsupp.single () 1)
 
 end NonVacuity.RedFirstCorner
+
+namespace NonVacuity.RedBlackCrossing
+
+open Categorification Categorification.KLR Categorification.Stendhal Categorification.KL3.Diagram
+
+private noncomputable abbrev rbC := CartanDatum.ofGraph (⊥ : SimpleGraph Unit)
+
+private theorem rbRouquier :
+    KLR.IsRouquierQ rbC (CL.qCL (CL.CLScalars.kl : CL.CLScalars rbC ℚ)) where
+  symm _ _ h := (h (Subsingleton.elim _ _)).elim
+  homogeneous _ _ h := (h (Subsingleton.elim _ _)).elim
+  unit_coeff _ _ h := (h (Subsingleton.elim _ _)).elim
+
+private theorem rbSymm : KLRSymm (CL.qCL (CL.CLScalars.kl : CL.CLScalars rbC ℚ)) :=
+  fun _ _ h => (h (Subsingleton.elim _ _)).elim
+
+private def rbEmpty : Seq (stendhalWeight 0 ((0 : Multiset Unit) + 0)) :=
+  KLRAlgebra.Seq.ofList [] (by decide)
+
+/-- Webster, arXiv:1309.3796v2, Lemma 5.23, for one red strand crossing one black strand of
+`sl₂`. -/
+example := (IsRedBlackCrossing.crossing (Q := CL.qCL (CL.CLScalars.kl : CL.CLScalars rbC ℚ))
+  (fun _ : Fin 1 => Finsupp.single () 1) () 0 rbEmpty (by unfold IsRedOrdered; decide)).eq_zero
+  rbRouquier rbSymm
+
+end NonVacuity.RedBlackCrossing

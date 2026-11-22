@@ -101,6 +101,7 @@ import Categorification.Algebra.ParabolicSymmetricFree
 import Categorification.Algebra.PermExpansion
 import Categorification.Algebra.ProjK0
 import Categorification.Algebra.RightActionImage
+import Categorification.Algebra.SelfDualInjective
 import Categorification.Algebra.SplitK0
 import Categorification.Algebra.SumDecompLinear
 import Categorification.Algebra.SumDecompNaturality
@@ -1576,7 +1577,11 @@ import Categorification.KLR.CyclotomicStringParametrization
 import Categorification.WeightedKLR.RedStrands.StringyLoading
 import Categorification.WeightedKLR.RedStrands.StringyClassification
 import Categorification.WeightedKLR.RedStrands.StandardSplitting
+import Categorification.WeightedKLR.RedStrands.RedFirstBaseCrossing
 import Categorification.WeightedKLR.RedStrands.RedFirstCorner
+import Categorification.WeightedKLR.RedStrands.RedFirstInjective
+import Categorification.WeightedKLR.RedStrands.RedFirstReach
+import Categorification.WeightedKLR.RedStrands.RedFirstTrace
 import Categorification.WeightedKLR.RedStrands.RedBlackCrossingInjective
 import Categorification.WeightedKLR.RedStrands.RedBlackCrossingStandard
 import Categorification.WeightedKLR.RedStrands.RedBlackCrossingTransport

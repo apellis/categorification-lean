@@ -5743,4 +5743,9 @@ example := (IsRedBlackCrossing.crossing (Q := CL.qCL (CL.CLScalars.kl : CL.CLSca
   (fun _ : Fin 1 => Finsupp.single () 1) () 0 rbEmpty (by unfold IsRedOrdered; decide)).eq_zero
   rbRouquier rbSymm
 
+/-- Webster, arXiv:1309.3796v2, Thm. 5.27 (3) ⇒ (1), for `sl₂`, two red strands of weight `ω`,
+and every black weight: the red-first projective `P⁰` is injective. -/
+example (ν : Multiset Unit) :=
+  injective_redFirstProjective rbRouquier rbSymm (fun _ : Fin 2 => Finsupp.single () 1) ν
+
 end NonVacuity.RedBlackCrossing

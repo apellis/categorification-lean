@@ -5789,3 +5789,26 @@ noncomputable example (ν : Multiset Unit)
 end RedFirstEnd
 
 end NonVacuity.RedBlackCrossing
+
+namespace NonVacuity.BraidedStendhal
+
+open Categorification Categorification.KLR Categorification.Stendhal
+
+private noncomputable abbrev bsQ : Unit → Unit → MvPolynomial (Fin 2) ℚ := fun _ _ => 0
+
+private theorem bsSymm : KLRSymm bsQ := fun _ _ _ => rfl
+
+/-- Webster, arXiv:1309.3796v2, Prop. 6.4, for `sl₂`, two red strands of weight `ω` that may
+cross, and every black weight. -/
+noncomputable example (ν : Multiset Unit) :=
+  BraidedStendhalAlgebra.basis (Λ := fun _ : Fin 2 => Finsupp.single () 1) (ν := ν) bsSymm
+    (fun w => (TypeA.exists_reduced _ w).choose) (fun w => (TypeA.exists_reduced _ w).choose_spec)
+
+/-- Webster, arXiv:1309.3796v2, Prop. 6.4 for the bimodule `B̃_w` of the crossing of the two red
+strands, for `sl₂` and every black weight. -/
+noncomputable example (ν : Multiset Unit) :=
+  BraidedStendhalAlgebra.cornerBasis (Λ := fun _ : Fin 2 => Finsupp.single () 1) (ν := ν) bsSymm
+    (fun w => (TypeA.exists_reduced _ w).choose) (fun w => (TypeA.exists_reduced _ w).choose_spec)
+    [1, 0] [0, 1]
+
+end NonVacuity.BraidedStendhal

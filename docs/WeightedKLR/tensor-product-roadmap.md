@@ -831,11 +831,16 @@ projective resolutions); self-dual projectives and double centralizer
 
 ### Phase D: §6, braiding functors
 
-`w`-Stendhal diagrams and the bimodules `B_w` (Defs 6.1, 6.3, Prop 6.4, Lemma 6.5);
+Defs 6.1–6.3 and Prop 6.4 are proved (`RedStrands/BraidedStendhal.lean`):
+`Stendhal.BraidedStendhalAlgebra` holds the `w`-Stendhal diagrams for all `w` at once, with basis
+`BraidedStendhalAlgebra.basis`, and `B̃_w` is the corner `cornerSpace` with basis `cornerBasis`.
+The grading is deferred (a red/red crossing has degree `-⟨λ_a, λ_b⟩`, not given by the KLR data).
+
+The bimodules `B_w` and Lemma 6.5;
 the functors `𝔅_w` (Def 6.6, Prop 6.7, Cor 6.8, Lemma 6.9, Prop 6.10, Lemma 6.13);
 tilting modules (Thm 6.14); `𝔅_w` are equivalences (Thm 6.15); the braid group action
 (Def 6.16, Cor 6.18); Ringel duality (Cor 6.19); semi-orthogonal decompositions
-(Prop 6.20); the Serre functor (Prop 6.21). All open. These need derived categories of
+(Prop 6.20); the Serre functor (Prop 6.21). Open. These need derived categories of
 graded modules; the plan is Mathlib's `DerivedCategory`.
 
 ### Phase E: §7, rigidity

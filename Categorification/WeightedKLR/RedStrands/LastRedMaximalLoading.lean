@@ -4,6 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 -/
 import Categorification.WeightedKLR.RedStrands.LastRedHeadEmbedding
 import Categorification.WeightedKLR.RedStrands.TwoPieceStandardEquiv
+import Categorification.KLR.ExtTensorTopSmul
 
 /-!
 # The last red strand of a maximal loading
@@ -148,5 +149,31 @@ theorem HeadAtCut.twoPiece_smul_ne_zero_iff {b : IndecClass (lastRedFactorGradin
     redSubfamilyProjection_e Q Λ Fin.castSucc (Fin.castSucc_injective ℓ) θ t ht,
     parabolicLastCyclotomic_e Q Λ β w] at h
   exact h
+
+variable {Λ G} in
+/-- A two-piece loading acts nonzero on the head at its own cut exactly when the prefix loading
+acts nonzero on the top of the first factor class and the black block acts nonzero on the top of
+the second factor class. -/
+theorem HeadAtCut.twoPiece_smul_ne_zero_iff_factors (hQ : IsRouquierQ D Q)
+    {b : IndecClass (lastRedFactorGrading Λ (θ + β) G (twoPieceCut θ β))}
+    {s : IndecClass (tensorProductGrade G (θ + β))}
+    (hs : HeadAtCut Λ (θ + β) G (twoPieceCut θ β) b s)
+    {t : Seq (stendhalWeight ℓ θ)} (ht : IsRedOrdered t) (w : Seq β) :
+    (∃ x : s.top, seqIdem Q Λ (twoPieceLoading θ β t w) (isRedOrdered_twoPieceLoading ht w) • x
+        ≠ 0) ↔
+      (∃ m : (lastRedFactorEquiv Λ (θ + β) G hQ (twoPieceCut θ β) b).1.top,
+          TensorProductAlgebra.mk Q (Λ ∘ Fin.castSucc) θ (StendhalAlgebra.e t ht) • m ≠ 0) ∧
+        ∃ n : (lastRedFactorEquiv Λ (θ + β) G hQ (twoPieceCut θ β) b).2.top,
+          CycKLR.mk k Q (fun i => (Polynomial.X : Polynomial k) ^ Λ (Fin.last ℓ) i) β (e w) • n
+            ≠ 0 := by
+  rw [hs.twoPiece_smul_ne_zero_iff ht w]
+  let := tensorProductAlgebra_finite (Λ ∘ Fin.castSucc) θ hQ
+  let := lastRedFinal_finite hQ (Λ (Fin.last ℓ)) β
+  let := HasGdim.of_finiteDimensional (tensorProductGrade (restrictRedGrading Q Λ G) θ)
+  let := HasGdim.of_finiteDimensional
+    (CycKLR.grade (restrictBlackGrading Q Λ G) (Λ (Fin.last ℓ)) β)
+  exact (lastRedLayerSource_tensorK0Hyp hQ (Λ ∘ Fin.castSucc) θ (Λ (Fin.last ℓ)) β
+    (restrictRedGrading Q Λ G) (restrictBlackGrading Q Λ G)).exists_tmul_smul_top_ne_zero_iff
+      b _ _
 
 end Categorification.Stendhal

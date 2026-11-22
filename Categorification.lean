@@ -1574,3 +1574,4 @@ import Categorification.WeightedKLR.RedStrands.LastRedMaximalLoading
 
 Lean 4 formalizations of results in categorification.
 -/
+import Categorification.KLR.ExtTensorTopSmul

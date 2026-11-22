@@ -8,6 +8,7 @@ import Categorification.Algebra.BalancedTensorSplit
 import Categorification.Algebra.CoactionGrading
 import Categorification.Algebra.Coinvariant
 import Categorification.Algebra.CoinvariantGraded
+import Categorification.Algebra.CoinvariantPartialSocle
 import Categorification.Algebra.DividedDifference
 import Categorification.Algebra.ExactDimension
 import Categorification.Algebra.ExternalTensor

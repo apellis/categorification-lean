@@ -18,6 +18,7 @@ anti-automorphism of `T^λ` reflecting diagrams.
 
 * `TwistDual.isSimpleModule`: if `τ` is an involution and `M` is finite-dimensional and
   simple, then so is its twisted dual.
+* `TwistDual.doubleDualEquiv`: for an involution `τ`, `M ≅ M⋆⋆` for finite-dimensional `M`.
 * `TwistDual.finrank_idemSubspace`: for an idempotent `e` fixed by `τ`, the subspaces `e M⋆`
   and `e M` have the same dimension.
 -/
@@ -104,7 +105,8 @@ theorem isSimpleModule (hτ : ∀ a, (τ (τ a).unop).unop = a) [IsSimpleModule 
     obtain ⟨m, hm⟩ := exists_ne (0 : M)
     obtain ⟨f, hf⟩ := not_forall.mp
       ((Module.forall_dual_apply_eq_zero_iff k m).not.mpr hm)
-    exact ⟨⟨(toDual τ).symm f, 0, fun h => hf (by simpa using congrArg (toDual τ · m) h)⟩⟩
+    exact ⟨⟨(toDual τ).symm f, 0,
+      fun h => hf (by simpa using congrArg (toDual τ · m) h)⟩⟩
   refine { toNontrivial := (Submodule.nontrivial_iff A).mpr this, eq_bot_or_eq_top := ?_ }
   intro N
   rcases IsSimpleOrder.eq_bot_or_eq_top (coann τ hτ N) with h | h
@@ -131,6 +133,20 @@ theorem isSimpleModule (hτ : ∀ a, (τ (τ a).unop).unop = a) [IsSimpleModule 
     refine (Submodule.mem_bot A).mpr (ext τ fun m => ?_)
     have : m ∈ coann τ hτ N := h ▸ Submodule.mem_top
     exact this f hf
+
+/-- The twisted dual of a finite-dimensional module is finite-dimensional. -/
+instance : FiniteDimensional k (TwistDual τ M) :=
+  inferInstanceAs (FiniteDimensional k (Module.Dual k M))
+
+/-- **Double duality.** If `τ` is an involution, a finite-dimensional module is isomorphic to
+its twisted double dual by evaluation. -/
+noncomputable def doubleDualEquiv (hτ : ∀ a, (τ (τ a).unop).unop = a) :
+    M ≃ₗ[A] TwistDual τ (TwistDual τ M) where
+  __ := (Module.evalEquiv k M).trans
+    ((LinearEquiv.refl k (Module.Dual k M)).dualMap.trans (toDual τ (M := TwistDual τ M)).symm)
+  map_smul' a m := ext τ fun f => by
+    change toDual τ f (a • m) = toDual τ (((τ a).unop) • f) m
+    rw [smul_apply, hτ]
 
 end Simple
 

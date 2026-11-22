@@ -5565,3 +5565,29 @@ example : CL.Prop310UpC (Flag.slRootDatum 2) ℚ sl3Scalars 0 {0, 1} :=
   CL.prop310UpC sl3Scalars 0 {0, 1}
 
 end NonVacuity.CLQSpanning
+
+namespace NonVacuity.SelfDualSimple
+
+attribute [local instance 1100] IsIdempotentElem.instAlgebraCorner_categorification
+
+private noncomputable abbrev sdQ : Unit → Unit → MvPolynomial (Fin 2) ℚ := fun _ _ => 0
+private noncomputable abbrev sdΛ : Fin 1 → Unit →₀ ℕ := fun _ => Finsupp.single () 1
+private noncomputable abbrev sdT := Stendhal.TensorProductAlgebra ℚ sdQ sdΛ 0
+
+private theorem sdRouquier :
+    KLR.IsRouquierQ (CartanDatum.ofGraph (⊥ : SimpleGraph Unit)) sdQ where
+  symm _ _ h := (h (Subsingleton.elim _ _)).elim
+  homogeneous _ _ h := (h (Subsingleton.elim _ _)).elim
+  unit_coeff _ _ h := (h (Subsingleton.elim _ _)).elim
+
+/-- With no black strands the tensor product algebra is `ℚ`, a simple module over itself. -/
+private instance : IsSimpleModule sdT sdT := by
+  let e := Stendhal.tensorProductAlgebraZeroEquiv (k := ℚ) sdQ sdΛ
+  refine isSimpleModule_self_iff_isUnit.mpr ⟨e.toEquiv.nontrivial, fun x hx => ?_⟩
+  have : e x ≠ 0 := (map_ne_zero_iff e e.injective).mpr hx
+  exact (MulEquiv.isUnit_map e.toMulEquiv).mp (isUnit_iff_ne_zero.mpr this)
+
+/-- Webster, arXiv:1309.3796v2, Prop. 5.11, for the vacuum block. -/
+example := Stendhal.nonempty_equiv_twistDual (L := sdT) sdΛ 0 sdRouquier
+
+end NonVacuity.SelfDualSimple

@@ -1241,6 +1241,7 @@ import Categorification.WeightedKLR.RedStrands.TensorFinite
 import Categorification.WeightedKLR.RedStrands.TensorIntegrable
 import Categorification.WeightedKLR.RedStrands.TensorIdempotentPieces
 import Categorification.WeightedKLR.RedStrands.AbsoluteSimple
+import Categorification.WeightedKLR.RedStrands.SelfDualSimple
 import Categorification.KLR.CyclotomicIntegrable
 import Categorification.KLR.CyclotomicRepresentation
 import Categorification.WeightedKLR.RedStrands.AddRed

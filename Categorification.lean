@@ -11,6 +11,7 @@ import Categorification.Algebra.CoinvariantGraded
 import Categorification.Algebra.DividedDifference
 import Categorification.Algebra.ExactDimension
 import Categorification.Algebra.ExternalTensor
+import Categorification.Algebra.ExternalTensorExact
 import Categorification.Algebra.Generation
 import Categorification.Algebra.HomTensorInd
 import Categorification.Algebra.HomTensorIndModule
@@ -1306,6 +1307,7 @@ import Categorification.WeightedKLR.RedStrands.ParabolicStandardDesc
 import Categorification.WeightedKLR.RedStrands.TwoPieceStandardComparison
 import Categorification.WeightedKLR.RedStrands.TwoPieceStandardEquiv
 import Categorification.WeightedKLR.RedStrands.LoadingDecomposition
+import Categorification.WeightedKLR.RedStrands.TensorLayerFiltration
 import Categorification.WeightedKLR.RedStrands.TwoPieceStandardInverse
 import Categorification.WeightedKLR.RedStrands.TwoPieceStandardIso
 import Categorification.WeightedKLR.RedStrands.LastStrandDecomposition

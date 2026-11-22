@@ -1491,6 +1491,7 @@ import Categorification.WeightedKLR.RedStrands.BlackModuleTensor
 import Categorification.WeightedKLR.RedStrands.BlackModuleAdjunction
 import Categorification.WeightedKLR.RedStrands.BlackModuleResIndAdjunction
 import Categorification.WeightedKLR.RedStrands.BlackModuleTower
+import Categorification.WeightedKLR.RedStrands.BlackModuleTowerFinite
 import Categorification.WeightedKLR.RedStrands.DoubleBlackActionComp
 import Categorification.WeightedKLR.RedStrands.DoubleBlackActionHorizontal
 import Categorification.WeightedKLR.RedStrands.DoubleBlackActionWhisker

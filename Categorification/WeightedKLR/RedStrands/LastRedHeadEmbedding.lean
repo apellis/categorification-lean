@@ -77,6 +77,15 @@ theorem lastRedCutConcat_exists_lift (u : Cut) :
     (lastRedCutWeight (ℓ := ℓ) ν u) 1
   exact ⟨t,ht⟩
 
+/-- Modulo smaller suffixes, a concatenation at a cut acts through the last-red layer on the
+images of its two pieces in the factor algebras. -/
+theorem lastRedCutConcat_layer (u : Cut) (t : lastRedCutKLR (Q := Q) Λ ν u) :
+    (q) u (lastRedCutConcat (Q := Q) Λ ν u t) = (ψ) u (Algebra.TensorProduct.map
+      (parabolicPrefixProjection Q Λ u.1.1) (parabolicLastCyclotomic Q Λ u.1.2) t) :=
+  suffixConcat_eq_lastRedLayerAction Q Λ (LastRedWeightSplit.position ν u ℓ)
+    (LastRedWeightSplit.content ν u ℓ) (LastRedWeightSplit.length ν u ℓ)
+    (lastRedCutWeight (ℓ := ℓ) ν u) t
+
 /-- The representation-theoretic inputs for the standard-module head in
 Webster, Theorem 5.8. The maximal cut recovers the specified factor simple.
 Every cut whose prefix is outside its dominance bound has a lift of its
@@ -138,6 +147,38 @@ theorem HeadAtCut.le {u v : Cut} {b : IndecClass ((𝓑) u)} {c : IndecClass ((�
   have h := f.intertwines _ 1 ht x
   rw [one_smul,hz] at h
   exact hx (f.injective (h.symm.trans f.incl.map_zero.symm))
+
+/-- An idempotent concatenation at the cut of a head acts nonzero on its top exactly when its
+image in the factor algebra acts nonzero on the top of the factor class. -/
+theorem HeadAtCut.exists_smul_ne_zero_iff {u : Cut} {b : IndecClass ((𝓑) u)}
+    {s : IndecClass 𝓐} (hs : HeadAtCut Λ ν G u b s) (X : lastRedCutKLR (Q := Q) Λ ν u)
+    (hX : IsIdempotentElem (lastRedCutConcat Λ ν u X)) :
+    (∃ x : s.top, lastRedCutConcat Λ ν u X • x ≠ 0) ↔
+      ∃ y : b.top, Algebra.TensorProduct.map (parabolicPrefixProjection Q Λ u.1.1)
+        (parabolicLastCyclotomic Q Λ u.1.2) X • y ≠ 0 := by
+  let F := hs.1.some
+  have hq := lastRedCutConcat_layer (Q := Q) Λ ν u X
+  constructor
+  · rintro ⟨x,hx⟩
+    obtain ⟨t₀,ht₀⟩ := lastRedCutConcat_exists_lift (Q := Q) Λ ν u
+    set a := lastRedCutConcat Λ ν u X
+    set c := lastRedCutConcat Λ ν u t₀
+    have hmem : c * a - a ∈ (J) u := by
+      have h0 : (q) u (c * a - a) = 0 := by
+        rw [map_sub, map_mul, ht₀, hq, ← map_mul, one_mul, sub_self]
+      have := RingCon.eq _ |>.1 (h0.trans (map_zero ((q) u)).symm)
+      simpa using (TwoSidedIdeal.rel_iff _ _ _).1 this
+    have hfix : c • (a • x) = a • x := by
+      rw [smul_smul, ← sub_eq_zero, ← sub_smul]
+      exact hs.2.2 _ hmem x
+    obtain ⟨y,hy⟩ := F.fixed c ht₀ _ hfix
+    refine ⟨y,fun h0 => hx ?_⟩
+    have h := F.intertwines a _ hq y
+    rw [h0, map_zero, hy, smul_smul, hX.eq] at h
+    exact h
+  · rintro ⟨y,hy⟩
+    refine ⟨F.incl y,fun h0 => hy (F.injective ?_)⟩
+    rw [← F.intertwines _ _ hq y, h0, map_zero]
 
 private theorem headAtCut_cut_eq {u v : Cut} {b : IndecClass ((𝓑) u)}
     {c : IndecClass ((𝓑) v)} {s : IndecClass 𝓐} (hb : HeadAtCut Λ ν G u b s)

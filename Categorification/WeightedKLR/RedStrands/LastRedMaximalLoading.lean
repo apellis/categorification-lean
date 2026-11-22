@@ -121,4 +121,32 @@ theorem HeadAtCut.prefix_eq_of_maximal (hQ : IsRouquierQ D Q)
   apply F.injective
   rw [map_zero, ← hfix, ← hv, ← map_smul, hzero, map_zero]
 
+omit [DecidableEq I] in
+/-- A cut of `θ + β` with black prefix `θ` is the two-piece cut. -/
+theorem eq_twoPieceCut {u : LastRedWeightSplit (θ + β)} (hu : u.1.1 = θ) :
+    u = twoPieceCut θ β := by
+  apply Subtype.ext
+  apply Prod.ext hu
+  exact add_left_cancel (show θ + u.1.2 = θ + β from (hu ▸ u.2 :))
+
+variable {Λ G} in
+/-- A two-piece loading acts nonzero on the head at its own cut exactly when the tensor of its
+two pieces acts nonzero on the top of the factor class. -/
+theorem HeadAtCut.twoPiece_smul_ne_zero_iff {b : IndecClass (lastRedFactorGrading Λ (θ + β) G
+      (twoPieceCut θ β))} {s : IndecClass (tensorProductGrade G (θ + β))}
+    (hs : HeadAtCut Λ (θ + β) G (twoPieceCut θ β) b s)
+    {t : Seq (stendhalWeight ℓ θ)} (ht : IsRedOrdered t) (w : Seq β) :
+    (∃ x : s.top, seqIdem Q Λ (twoPieceLoading θ β t w) (isRedOrdered_twoPieceLoading ht w) • x
+        ≠ 0) ↔
+      ∃ y : b.top, (TensorProductAlgebra.mk Q (Λ ∘ Fin.castSucc) θ (StendhalAlgebra.e t ht) ⊗ₜ[k]
+        CycKLR.mk k Q (fun i => (Polynomial.X : Polynomial k) ^ Λ (Fin.last ℓ) i) β (e w)) •
+          y ≠ 0 := by
+  have h := HeadAtCut.exists_smul_ne_zero_iff Λ (θ + β) G hs
+    (e (Seq.map (addRedColor ℓ) t) ⊗ₜ e (Seq.map lc (SingleRed.insertWord β w)))
+    (by rw [lastRedCutConcat_twoPiece Λ ht w]; exact seqIdem_mul_self Q Λ _ _)
+  rw [lastRedCutConcat_twoPiece Λ ht w, Algebra.TensorProduct.map_tmul,
+    redSubfamilyProjection_e Q Λ Fin.castSucc (Fin.castSucc_injective ℓ) θ t ht,
+    parabolicLastCyclotomic_e Q Λ β w] at h
+  exact h
+
 end Categorification.Stendhal

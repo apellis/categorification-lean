@@ -50,7 +50,7 @@ def trustedBase (env : Environment) (root : Name) : Except String (Array Name) :
   let mut seen : NameSet := {}
   let mut out : Array Name := #[]
   while todo.size > 0 do
-    let c := todo.back
+    let c := todo.back!
     todo := todo.pop
     if seen.contains c then continue
     seen := seen.insert c

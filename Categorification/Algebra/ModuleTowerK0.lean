@@ -4,7 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 -/
 import Categorification.Algebra.CompositionFactors
 import Categorification.Algebra.ModuleTower
-import Categorification.Sl2Categorification.WeakCategorification
+import Categorification.Sl2Categorification.K0Exact
 import Mathlib.Algebra.Category.ModuleCat.Simple
 import Mathlib.CategoryTheory.Preadditive.Schur
 
@@ -442,6 +442,30 @@ def k0Data : Sl2.K0Data (FGTower A) (K0Index A) (K0Index A →₀ ℚ) where
   cls_mem_cone X j := by
     simp
   cls_int X j := ⟨clsN A N X j, by simp⟩
+
+include hN in
+lemma isZero_of_clsN_eq_zero (X : FGTower A) (h : clsN A N X = 0) : IsZero X := by
+  rw [isZero_iff]
+  intro n
+  by_cases hn : N ≤ n
+  · have : Subsingleton (A n) := hN n hn
+    have : Subsingleton (X.obj n) := Module.subsingleton (A n) _
+    exact ModuleCat.isZero_of_subsingleton _
+  · have hz := (Finset.sum_eq_zero_iff.mp h) n (Finset.mem_range.mpr (not_le.mp hn))
+    rw [← Finsupp.mapDomain_zero (f := Sigma.mk n)] at hz
+    have h0 := Finsupp.mapDomain_injective sigma_mk_injective hz
+    have := Module.subsingleton_of_compositionFactors_eq_zero (isFiniteLength_obj X n) h0
+    exact ModuleCat.isZero_of_subsingleton _
+
+include hN in
+/-- Every object of `FGTower A` is artinian, for a tower of noetherian and artinian rings
+vanishing from level `N` on. -/
+theorem isArtinianObject (X : FGTower A) : IsArtinianObject X := by
+  refine (k0Data A hN).isArtinianObject_of_cls (fun Y hY => ?_) X
+  refine isZero_of_clsN_eq_zero hN Y ?_
+  ext j
+  have := congrArg (fun f => f j) hY
+  simpa [k0Data] using this
 
 end K0
 

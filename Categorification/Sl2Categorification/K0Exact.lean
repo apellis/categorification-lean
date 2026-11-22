@@ -55,6 +55,66 @@ lemma cls_simple_iso (S : C) (hS : Simple S) :
     Nonempty (S ≅ K.simple (K.idx S hS)) :=
   K.iso_of_idx_eq S _ hS (K.simple_simple _) (K.idx_simple _).symm
 
+lemma exists_tot_cls_eq (X : C) : ∃ n : ℕ, K.tot (K.cls X) = n := by
+  classical
+  choose g hg using K.cls_int X
+  refine ⟨∑ j ∈ (K.B.repr (K.cls X)).support, g j, ?_⟩
+  simp only [tot, LinearMap.coe_comp, Function.comp_apply, LinearEquiv.coe_coe,
+    Finsupp.linearCombination_apply, Finsupp.sum, smul_eq_mul, mul_one, Nat.cast_sum]
+  exact Finset.sum_congr rfl fun j _ => hg j
+
+lemma eq_zero_of_tot_eq_zero {v : V} (hv : v ∈ cone K.B) (h : K.tot v = 0) : v = 0 := by
+  simp only [tot, LinearMap.coe_comp, Function.comp_apply, LinearEquiv.coe_coe,
+    Finsupp.linearCombination_apply, Finsupp.sum, smul_eq_mul, mul_one] at h
+  have h0 := (Finset.sum_eq_zero_iff_of_nonneg fun j _ => hv j).mp h
+  have : K.B.repr v = 0 := by
+    ext j
+    by_cases hj : j ∈ (K.B.repr v).support
+    · exact h0 j hj
+    · simpa using hj
+  simpa using this
+
+/-- If classes detect zero objects, a nonzero object has total multiplicity at least one. -/
+lemma one_le_tot_cls (hdet : ∀ X : C, K.cls X = 0 → IsZero X) {X : C} (hX : ¬ IsZero X) :
+    1 ≤ K.tot (K.cls X) := by
+  obtain ⟨n, hn⟩ := K.exists_tot_cls_eq X
+  rcases n with _ | n
+  · exact absurd (hdet X (K.eq_zero_of_tot_eq_zero (K.cls_mem_cone X) (by simpa using hn))) hX
+  · rw [hn]; exact_mod_cast Nat.succ_pos n
+
+/-- If classes detect zero objects, every object is artinian: classes of a strictly decreasing
+chain of subobjects have strictly decreasing total multiplicity. -/
+theorem isArtinianObject_of_cls (hdet : ∀ X : C, K.cls X = 0 → IsZero X) (X : C) :
+    IsArtinianObject X := by
+  rw [isArtinianObject_iff_not_strictAnti]
+  intro f hf
+  have step : ∀ n, K.tot (K.cls (f (n + 1) : C)) + 1 ≤ K.tot (K.cls (f n : C)) := by
+    intro n
+    have hle : f (n + 1) ≤ f n := (hf (Nat.lt_succ_self n)).le
+    let s := Subobject.ofLE _ _ hle
+    have hS : (ShortComplex.mk s (cokernel.π s) (cokernel.condition s)).ShortExact :=
+      ShortComplex.ShortExact.mk' (ShortComplex.exact_of_g_is_cokernel _ (cokernelIsCokernel s))
+        inferInstance inferInstance
+    have hc : ¬ IsZero (cokernel s) := by
+      intro hz
+      have : Epi s := Preadditive.epi_of_isZero_cokernel s hz
+      have : IsIso s := isIso_of_mono_of_epi s
+      refine (hf (Nat.lt_succ_self n)).ne (le_antisymm hle (Subobject.le_of_comm (inv s) ?_))
+      rw [IsIso.inv_comp_eq, Subobject.ofLE_arrow]
+    have := K.cls_add _ hS
+    simp only at this
+    rw [this, map_add]
+    linarith [K.one_le_tot_cls hdet hc]
+  have key : ∀ n : ℕ, K.tot (K.cls (f n : C)) + n ≤ K.tot (K.cls (f 0 : C)) := by
+    intro n
+    induction n with
+    | zero => simp
+    | succ n ih => push_cast; linarith [step n]
+  have := key (⌈K.tot (K.cls (f 0 : C))⌉₊ + 1)
+  have h0 := K.tot_nonneg (K.cls_mem_cone (f (⌈K.tot (K.cls (f 0 : C))⌉₊ + 1) : C))
+  push_cast at this
+  linarith [Nat.le_ceil (K.tot (K.cls (f 0 : C)))]
+
 /-- The linear map induced on classes by an exact endofunctor. -/
 noncomputable def clsMap (G : C ⥤ C) : Module.End ℚ V :=
   K.B.constr ℚ fun j => K.cls (G.obj (K.simple j))

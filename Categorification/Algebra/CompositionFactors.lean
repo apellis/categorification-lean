@@ -134,6 +134,29 @@ lemma compositionFactors_of_subsingleton [Subsingleton M] : compositionFactors R
   simp [seriesFactors]
 
 
+/-- A module of finite length without composition factors is zero. -/
+lemma subsingleton_of_compositionFactors_eq_zero (h : IsFiniteLength R M)
+    (h0 : compositionFactors R M = 0) : Subsingleton M := by
+  obtain ⟨s, hb, hl⟩ := isFiniteLength_iff_exists_compositionSeries.mp h
+  rw [compositionFactors_eq s hb hl] at h0
+  have hlen : s.length = 0 := by
+    by_contra hne
+    let i : Fin s.length := ⟨0, Nat.pos_of_ne_zero hne⟩
+    have := congrArg (fun f => f (stepClass (s.step i))) h0
+    simp only [seriesFactors, Finsupp.coe_finsetSum, Finset.sum_apply,
+      Finsupp.coe_zero, Pi.zero_apply] at this
+    have hle := Finset.single_le_sum (f := fun j : Fin s.length =>
+      Finsupp.single (stepClass (s.step j)) 1 (stepClass (s.step i)))
+      (fun _ _ => Nat.zero_le _) (Finset.mem_univ i)
+    simp only [Finsupp.single_eq_same] at hle
+    omega
+  have hbt : (⊥ : Submodule R M) = ⊤ := by
+    rw [← hb, ← hl, RelSeries.head, RelSeries.last]
+    congr 1
+    ext
+    simp [hlen]
+  exact (Submodule.subsingleton_iff R).mp (subsingleton_of_bot_eq_top hbt)
+
 /-- A simple module has itself as its only composition factor. -/
 lemma compositionFactors_of_isSimpleModule [IsSimpleModule R M] :
     compositionFactors R M = Finsupp.single (SimpleClass.mk (R := R) M) 1 := by

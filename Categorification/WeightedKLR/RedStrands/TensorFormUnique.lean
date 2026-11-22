@@ -9,7 +9,7 @@ import Categorification.WeightedKLR.RedStrands.TensorFactorSeparation
 /-!
 # Uniqueness of the form on ordered tensor products
 
-B. Webster, *Knot invariants and higher representation theory*, arXiv:1309.3796v3,
+B. Webster, *Knot invariants and higher representation theory*, arXiv:1309.3796v2,
 Proposition 4.33, uniqueness. A system of sesquilinear forms on the ordered tensor products
 `V_{λ₁} ⊗ ⋯ ⊗ V_{λₙ}` which is `τ`-Hermitian and isometric along
 `V_{λ₁} ⊗ ⋯ ⊗ V_{λₙ₋₁} ⊗ {v_{λₙ}} ↪ V_{λ₁} ⊗ ⋯ ⊗ V_{λₙ}` is the form `orderedForm`.
@@ -156,7 +156,7 @@ theorem eq_of_adjoint_of_append [Finite I] (hR : R.IsXRegular) (wt : Fin (m + 1)
   refine LinearMap.ext fun y => ?_
   rw [hz, hB, hB', h₁]
 
-/-- **Webster, arXiv:1309.3796v3, Proposition 4.33, uniqueness.** A system of sesquilinear
+/-- **Webster, arXiv:1309.3796v2, Proposition 4.33, uniqueness.** A system of sesquilinear
 forms on the ordered tensor products of the `V_λ` which is `τ`-Hermitian, isometric along
 `V_{λ₁} ⊗ ⋯ ⊗ V_{λₙ₋₁} ⊗ {v_{λₙ}} ↪ V_{λ₁} ⊗ ⋯ ⊗ V_{λₙ}`, and normalized on the empty tensor
 product (Webster's conditions leave this scalar form free) is the form `orderedForm`. -/
@@ -305,7 +305,7 @@ private theorem orderedFactorwise_separating : ∀ {n : ℕ} (wt : Fin n → Dom
       separatingRight_of_tmul (tensorSplitLast wt) _ _ _ hP ih.2
         (websterForm_separatingRight hR _)⟩
 
-/-- **Webster, arXiv:1309.3796v3, Proposition 4.33, nondegeneracy.** The form `orderedForm`
+/-- **Webster, arXiv:1309.3796v2, Proposition 4.33, nondegeneracy.** The form `orderedForm`
 on `V_{λ₁} ⊗ ⋯ ⊗ V_{λₙ}` is nondegenerate in both arguments. -/
 theorem orderedForm_nondegenerate {n : ℕ} (wt : Fin n → Dom R) :
     (∀ x, (∀ y, orderedForm hR wt x y = 0) → x = 0) ∧

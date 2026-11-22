@@ -9,8 +9,8 @@ import Categorification.Algebra.ModuleFiltrationMap
 /-!
 # Standardization of `X ⊠ Y` transports filtrations of `X`
 
-B. Webster, *Knot invariants and higher representation theory*, arXiv:1309.3796v3, proof of
-Proposition 5.21: the induction on the number of red strands filters a module `X` over
+B. Webster, *Knot invariants and higher representation theory*, arXiv:1309.3796v2, proof of
+Proposition 5.20: the induction on the number of red strands filters a module `X` over
 `T^{λ'}` (the first `ℓ` red strands) and then passes this filtration through exterior tensor
 product with a module `Y` over `R^{λ_ℓ}` and standardization. Both operations are exact (over
 the field `k`, and Proposition 5.7 for standardization), so a filtration of `X` by modules `L c`
@@ -50,7 +50,7 @@ def tensorFactorMapLeft {θ β : Multiset I} {X X' : ModuleCat.{0} (Told θ)}
 variable (hQ : KLRSymm Q)
 
 /-- **Standardization of `X ⊠ Y` transports filtrations of `X`** (Webster,
-arXiv:1309.3796v3, proof of Proposition 5.21): a filtration of `X` by modules `L c` gives a
+arXiv:1309.3796v2, proof of Proposition 5.20): a filtration of `X` by modules `L c` gives a
 filtration of `S(X ⊠ Y)` by the modules `S(L c ⊠ Y)`, with the same labels. -/
 theorem hasFiltration_tensorLayer {ι : Type} {θ β ν : Multiset I} (h : θ + β = ν)
     (Y : ModuleCat.{0} (Cyc β)) {L : ι → ModuleCat.{0} (Told θ)} {m : List ι}

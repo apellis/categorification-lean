@@ -12,7 +12,7 @@ import Categorification.WeightedKLR.RedStrands.ParabolicStandardDimension
 /-!
 # Black-last pieces of standardization in the dimension count of Proposition 5.5
 
-Webster, arXiv:1309.3796v3, proof of Proposition 5.5. The dimension count (5.14)–(5.15) splits
+Webster, arXiv:1309.3796v2, proof of Proposition 5.5. The dimension count (5.13)–(5.14) splits
 `S(N)`, `S(₁Fᵢ N)` and `S(₂Fᵢ N)` according to the last strand. This file computes the piece
 where the last strand is black of colour `j`, for contents given by equalities
 `j + θ₀ = θ'` and `j + β₀ = β'`, and the induction `Fᵢ E_j S(N)` when `j` occurs in both
@@ -81,7 +81,7 @@ attribute [local instance] resFactorModuleK resFactor_isScalarTower
 
 include hR in
 /-- **The black-last piece of `S N`, `j` in both blocks**, for contents given by equalities
-(Webster, arXiv:1309.3796v3, proof of Proposition 5.5): for `j + θ₀ = θ'` and `j + β₀ = β'`,
+(Webster, arXiv:1309.3796v2, proof of Proposition 5.5): for `j + θ₀ = θ'` and `j + β₀ = β'`,
 the piece of `S N` whose last strand is black of colour `j` has dimension
 `dim S(₁E_j N) + dim S(₂E_j N)`. -/
 theorem finrank_fixSub_lastStrandIdem_parabolicStandardT_of_eq (j : I)
@@ -107,7 +107,7 @@ theorem finrank_fixSub_lastStrandIdem_parabolicStandardT_of_eq (j : I)
   exact h
 
 /-- **The black-last piece of `S N`, `j` in the first block only** (Webster,
-arXiv:1309.3796v3, proof of Proposition 5.5): for `j + θ₀ = θ'` and `j ∉ β`, the piece of
+arXiv:1309.3796v2, proof of Proposition 5.5): for `j + θ₀ = θ'` and `j ∉ β`, the piece of
 `S N` whose last strand is black of colour `j` has dimension `dim S(₁E_j N)`. -/
 theorem finrank_fixSub_lastStrandIdem_parabolicStandardT_left_of_eq (j : I)
     {θ₀ θ' β : Multiset I} (hθ : {j} + θ₀ = θ') (hj : j ∉ β) (M : Type)
@@ -120,7 +120,7 @@ theorem finrank_fixSub_lastStrandIdem_parabolicStandardT_left_of_eq (j : I)
   exact h
 
 /-- **The black-last piece of `S N`, `j` in the second block only** (Webster,
-arXiv:1309.3796v3, proof of Proposition 5.5): for `j + β₀ = β'` and `j ∉ θ`, the piece of
+arXiv:1309.3796v2, proof of Proposition 5.5): for `j + β₀ = β'` and `j ∉ θ`, the piece of
 `S N` whose last strand is black of colour `j` has dimension `dim S(₂E_j N)`. -/
 theorem finrank_fixSub_lastStrandIdem_parabolicStandardT_right_of_eq (j : I)
     {θ β₀ β' : Multiset I} (hβ : {j} + β₀ = β') (hj : j ∉ θ) (M : Type)
@@ -235,7 +235,7 @@ theorem finiteDimensional_indK_lastBlackTwoT (i j : I) (θ₀ β₀ : Multiset I
     (lastBlackTwoEquiv (Λ := Λ) hQ j θ₀ β₀ N) fun _ _ => rfl
 
 include hR in
-/-- **`Fᵢ E_j S(N)` when `j` occurs in both blocks** (Webster, arXiv:1309.3796v3, proof of
+/-- **`Fᵢ E_j S(N)` when `j` occurs in both blocks** (Webster, arXiv:1309.3796v2, proof of
 Proposition 5.5): `Fᵢ` applied to `0 → S(₂E_j N) → E_j S(N) → S(₁E_j N) → 0` gives
 `dim Fᵢ E_j S(N) = dim Fᵢ S(₁E_j N) + dim Fᵢ S(₂E_j N)`. -/
 theorem finrank_indK_blackRes_lastStandardT (i j : I) (θ₀ β₀ : Multiset I) (N : Type)

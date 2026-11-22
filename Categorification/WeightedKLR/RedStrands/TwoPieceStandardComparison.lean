@@ -13,8 +13,8 @@ import Categorification.WeightedKLR.RedStrands.LastRedTruncation
 /-!
 # Standardization of a two-piece standard module
 
-B. Webster, *Knot invariants and higher representation theory*, arXiv:1309.3796v3, proof of
-Proposition 5.21. For a red-ordered loading `t` of the first `ℓ` red strands and a black
+B. Webster, *Knot invariants and higher representation theory*, arXiv:1309.3796v2, proof of
+Proposition 5.20. For a red-ordered loading `t` of the first `ℓ` red strands and a black
 sequence `u`, the standardization `S(S_t ⊠ R e(u))` is the standard module `S_{t λ_{ℓ+1} u}` of
 Definition 5.1, where `t λ_{ℓ+1} u` is the two-piece loading.
 

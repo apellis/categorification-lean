@@ -9,7 +9,7 @@ import Categorification.WeightedKLR.RedStrands.BlackModuleSecondFactorCommutatio
 /-!
 # Black-last pieces of `S(₂Fᵢ N)` in the dimension count of Proposition 5.5
 
-Webster, arXiv:1309.3796v3, proof of Proposition 5.5, (5.14)–(5.15). For the parameters
+Webster, arXiv:1309.3796v2, proof of Proposition 5.5, (5.13)–(5.14). For the parameters
 `Q = CL.qCL KL` and a finite-dimensional module `N` over the parabolic factor algebra `D_{θ, β}`,
 the piece of `S(₂Fᵢ N)` whose last strand is black of colour `j` is computed from the
 restrictions `₁E_j ₂Fᵢ N` and `₂E_j ₂Fᵢ N` of the module `₂Fᵢ N` over `D_{θ, i+β}`. These are
@@ -100,7 +100,7 @@ variable (i j : I) (θ₀ β₀ : Multiset I) (N : Type) [AddCommGroup N] [Modul
 
 include hP hwf hQs in
 /-- **The black-last piece of `S(₂Fᵢ N)` of colour `j ≠ i`, `j` in both blocks** (Webster,
-arXiv:1309.3796v3, proof of Proposition 5.5): it has dimension
+arXiv:1309.3796v2, proof of Proposition 5.5): it has dimension
 `dim S(₂Fᵢ ₁E_j N) + dim S(₂Fᵢ ₂E_j N)`. -/
 theorem finrank_fixSub_lastIndStandardT_cross_both (hji : j ≠ i) [FiniteDimensional k N] :
     Module.finrank k (fixSub k (LastIndStandardT QL Λ i ((Si j) + θ₀) ((Si j) + β₀) N hQs)
@@ -131,7 +131,7 @@ variable (i j : I) (θ₀ β : Multiset I) (N : Type) [AddCommGroup N] [Module k
     (({j} : Multiset I) + θ₀) β) N]
 
 /-- **The black-last piece of `S(₂Fᵢ N)` of colour `j ≠ i`, `j` in the first block only**
-(Webster, arXiv:1309.3796v3, proof of Proposition 5.5): it has dimension
+(Webster, arXiv:1309.3796v2, proof of Proposition 5.5): it has dimension
 `dim S(₂Fᵢ ₁E_j N)`. -/
 theorem finrank_fixSub_lastIndStandardT_cross_left (hji : j ≠ i) (hj : j ∉ β) :
     Module.finrank k (fixSub k (LastIndStandardT QL Λ i ((Si j) + θ₀) β N hQs)
@@ -157,7 +157,7 @@ variable (i j : I) (θ β₀ : Multiset I) (N : Type) [AddCommGroup N] [Module k
 
 include hP hwf hQs in
 /-- **The black-last piece of `S(₂Fᵢ N)` of colour `j ≠ i`, `j` in the second block only**
-(Webster, arXiv:1309.3796v3, proof of Proposition 5.5): it has dimension
+(Webster, arXiv:1309.3796v2, proof of Proposition 5.5): it has dimension
 `dim S(₂Fᵢ ₂E_j N)`. -/
 theorem finrank_fixSub_lastIndStandardT_cross_right (hji : j ≠ i) (hj : j ∉ θ) :
     Module.finrank k (fixSub k (LastIndStandardT QL Λ i θ ((Si j) + β₀) N hQs)
@@ -180,7 +180,7 @@ variable (i : I) (θ ν : Multiset I) (N : Type) [AddCommGroup N] [Module k N]
     θ (({i} : Multiset I) + ν)) N]
 
 include hP hwf hQs in
-/-- **Standardization of `₂Eᵢ ₂Fᵢ N`** (Webster, arXiv:1309.3796v3, Theorem 4.31 on the second
+/-- **Standardization of `₂Eᵢ ₂Fᵢ N`** (Webster, arXiv:1309.3796v2, Theorem 4.31 on the second
 factor, in the proof of Proposition 5.5): `dim S(₂Eᵢ ₂Fᵢ N) = dim S(₂Fᵢ ₂Eᵢ N) + n₂ dim S(N)`,
 `n₂ = ⟨i, λ₂⟩` for the cyclotomic second factor of content `i + ν`, in both signs of `n₂`. -/
 theorem finrank_parabolicStandard_secondFactorEF [FiniteDimensional k N] :
@@ -229,7 +229,7 @@ variable (i : I) (θ β : Multiset I) (N : Type) [AddCommGroup N] [Module k N]
     θ β) N]
 
 include hP hwf hQs in
-/-- **Standardization of `₂Eᵢ ₂Fᵢ N` for `i ∉ β`** (Webster, arXiv:1309.3796v3, Theorem 4.31
+/-- **Standardization of `₂Eᵢ ₂Fᵢ N` for `i ∉ β`** (Webster, arXiv:1309.3796v2, Theorem 4.31
 on the second factor with `₂Eᵢ N = 0`, in the proof of Proposition 5.5):
 `dim S(₂Eᵢ ₂Fᵢ N) = n₂ dim S(N)`, `n₂ = ⟨i, λ₂⟩` for the cyclotomic second factor of
 content `β`. -/
@@ -257,7 +257,7 @@ variable (i : I) (θ₀ β₀ : Multiset I) (N : Type) [AddCommGroup N] [Module 
 
 include hP hwf hQs in
 /-- **The black-last piece of `S(₂Fᵢ N)` of colour `i`, `i` in both blocks** (Webster,
-arXiv:1309.3796v3, proof of Proposition 5.5): it has dimension
+arXiv:1309.3796v2, proof of Proposition 5.5): it has dimension
 `dim S(₂Fᵢ ₁Eᵢ N) + dim S(₂Fᵢ ₂Eᵢ N) + n₂ dim S(N)`, `n₂ = ⟨i, λ₂⟩` for the cyclotomic second
 factor of content `i + β₀`. -/
 theorem finrank_fixSub_lastIndStandardT_self_both [FiniteDimensional k N] :
@@ -308,7 +308,7 @@ variable (i : I) (θ₀ β : Multiset I) (N : Type) [AddCommGroup N] [Module k N
 
 include hP hwf hQs in
 /-- **The black-last piece of `S(₂Fᵢ N)` of colour `i`, `i` in the first block only**
-(Webster, arXiv:1309.3796v3, proof of Proposition 5.5): it has dimension
+(Webster, arXiv:1309.3796v2, proof of Proposition 5.5): it has dimension
 `dim S(₂Fᵢ ₁Eᵢ N) + n₂ dim S(N)`, `n₂ = ⟨i, λ₂⟩` for the cyclotomic second factor of
 content `β`. -/
 theorem finrank_fixSub_lastIndStandardT_self_left (hi : i ∉ β) [FiniteDimensional k N] :
@@ -348,7 +348,7 @@ variable (i : I) (θ β₀ : Multiset I) (N : Type) [AddCommGroup N] [Module k N
 
 include hP hwf hQs in
 /-- **The black-last piece of `S(₂Fᵢ N)` of colour `i`, `i` in the second block only**
-(Webster, arXiv:1309.3796v3, proof of Proposition 5.5): it has dimension
+(Webster, arXiv:1309.3796v2, proof of Proposition 5.5): it has dimension
 `dim S(₂Fᵢ ₂Eᵢ N) + n₂ dim S(N)`, `n₂ = ⟨i, λ₂⟩` for the cyclotomic second factor of
 content `i + β₀`. -/
 theorem finrank_fixSub_lastIndStandardT_self_right (hi : i ∉ θ) [FiniteDimensional k N] :
@@ -375,7 +375,7 @@ variable (i : I) (θ β : Multiset I) (N : Type) [AddCommGroup N] [Module k N]
 
 include hP hwf hQs in
 /-- **The black-last piece of `S(₂Fᵢ N)` of colour `i ∉ θ + β`** (Webster,
-arXiv:1309.3796v3, proof of Proposition 5.5): it has dimension `n₂ dim S(N)`,
+arXiv:1309.3796v2, proof of Proposition 5.5): it has dimension `n₂ dim S(N)`,
 `n₂ = ⟨i, λ₂⟩` for the cyclotomic second factor of content `β`. -/
 theorem finrank_fixSub_lastIndStandardT_self_of_notMem (hi : i ∉ θ + β)
     [FiniteDimensional k N] :

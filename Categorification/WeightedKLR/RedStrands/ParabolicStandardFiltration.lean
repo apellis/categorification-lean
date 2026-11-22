@@ -9,8 +9,8 @@ import Categorification.WeightedKLR.RedStrands.BlackInductionExact
 /-!
 # `Fᵢ` refines filtrations by standardizations
 
-B. Webster, *Knot invariants and higher representation theory*, arXiv:1309.3796v3, step of the
-proof of Proposition 5.21 (and of Corollary 5.22) that applies `Fᵢ` to a filtration whose
+B. Webster, *Knot invariants and higher representation theory*, arXiv:1309.3796v2, step of the
+proof of Proposition 5.20 (and of Corollary 5.21) that applies `Fᵢ` to a filtration whose
 subquotients are standardizations. A *standard layer* of black weight `ν` is a module `N` over
 `T^{λ'} ⊗ R^{λ_ℓ}_β` together with a split `θ + β = ν`; its module is the standardization
 `S(N)`, a module over `T(ν)` (`stdLayerModule`). Proposition 5.5, `F`-part
@@ -28,7 +28,7 @@ required for every layer; the roadmap (`docs/WeightedKLR/tensor-product-roadmap.
 its removal by Webster's dimension count.
 
 The identification of these layers with the modules `T^λ e(s', λ_ℓ, w)` and with the quotients
-`P^{≥φ}/P^{>φ}` of Proposition 5.21 is not part of this file.
+`P^{≥φ}/P^{>φ}` of Proposition 5.20 is not part of this file.
 
 ## Main definitions
 
@@ -137,7 +137,7 @@ def StdLayer.DeltaInjective {ν : Multiset I} (c : StdLayer Q Λ ν) : Prop :=
 
 variable {Q Λ hQ}
 
-/-- **`Fᵢ S(N)` is filtered by `S(₂Fᵢ N)` over `S(₁Fᵢ N)`** (Webster, arXiv:1309.3796v3,
+/-- **`Fᵢ S(N)` is filtered by `S(₂Fᵢ N)` over `S(₁Fᵢ N)`** (Webster, arXiv:1309.3796v2,
 Proposition 5.5, `F`-part, given the route hypothesis `FirstIndDeltaInjective`). -/
 theorem hasFiltration_blackInd_stdLayer {ν : Multiset I} (c : StdLayer Q Λ ν)
     (hc : StdLayer.DeltaInjective Q Λ hQ i c) :
@@ -190,8 +190,8 @@ theorem subsingleton_ind {A B : Type} [Ring A] [Ring B] {φ : A →ₙ+* B} {N :
     | add s t hs ht => rw [hs, ht, add_zero]
   rw [h0 a, h0 b]
 
-/-- **`Fᵢ` refines filtrations by standard layers** (Webster, arXiv:1309.3796v3, proof of
-Proposition 5.21): if `X` has a filtration by standardizations with layers `m`, then `Fᵢ X` has
+/-- **`Fᵢ` refines filtrations by standard layers** (Webster, arXiv:1309.3796v2, proof of
+Proposition 5.20): if `X` has a filtration by standardizations with layers `m`, then `Fᵢ X` has
 one whose layers replace each `c ∈ m` by `S(₂Fᵢ c)` over `S(₁Fᵢ c)`. Uses the route
 hypothesis `FirstIndDeltaInjective` for the layers of `m`, and exactness of `Fᵢ`
 (Theorem 4.31). -/
@@ -245,8 +245,8 @@ def StdLayer.wordLayers {ν : Multiset I} :
   | [], c => [c]
   | j :: w, c => (StdLayer.wordLayers w c).flatMap (StdLayer.blackIndLayers Q Λ j)
 
-/-- **`F_w` refines filtrations by standard layers** (Webster, arXiv:1309.3796v3, proof of
-Proposition 5.21), given the route hypothesis `FirstIndDeltaInjective` for every layer. -/
+/-- **`F_w` refines filtrations by standard layers** (Webster, arXiv:1309.3796v2, proof of
+Proposition 5.20), given the route hypothesis `FirstIndDeltaInjective` for every layer. -/
 theorem HasFiltration.blackWord (C : QuantumGroup.CartanDatum I) (hR : IsRouquierQ C Q)
     (hall : AllDeltaInjective Q Λ hQ) (w : List I) {ν : Multiset I}
     {m : List (StdLayer Q Λ ν)} {X : ModuleCat.{0} (TensorProductAlgebra k Q Λ ν)}
@@ -259,8 +259,8 @@ theorem HasFiltration.blackWord (C : QuantumGroup.CartanDatum I) (hR : IsRouquie
     have := HasFiltration.blackInd j C hR ih (fun c _ => hall j c.θ c.β c.M)
     simpa [StdLayer.wordLayers, blackWordModule, List.flatMap_assoc] using this
 
-/-- **`F_w S(N)` has a filtration by standardizations** (Webster, arXiv:1309.3796v3, proof of
-Proposition 5.21, black strands to the right of all red strands), given the route hypothesis
+/-- **`F_w S(N)` has a filtration by standardizations** (Webster, arXiv:1309.3796v2, proof of
+Proposition 5.20, black strands to the right of all red strands), given the route hypothesis
 `FirstIndDeltaInjective` for every layer. -/
 theorem hasFiltration_blackWord_stdLayer (C : QuantumGroup.CartanDatum I)
     (hR : IsRouquierQ C Q) (hall : AllDeltaInjective Q Λ hQ) (w : List I) {ν : Multiset I}

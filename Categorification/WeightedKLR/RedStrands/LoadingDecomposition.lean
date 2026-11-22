@@ -8,8 +8,8 @@ import Categorification.WeightedKLR.RedStrands.TensorHomInduction
 /-!
 # Decomposition of red-ordered loadings at the last red strand
 
-B. Webster, *Knot invariants and higher representation theory*, arXiv:1309.3796v3, the
-induction in the proofs of Lemma 5.19 and Proposition 5.21. Every red-ordered loading of
+B. Webster, *Knot invariants and higher representation theory*, arXiv:1309.3796v2, the
+induction in the proof of Proposition 5.20. Every red-ordered loading of
 `T^λ_ν` with `ℓ + 1` red strands has the form `(s, λ_{ℓ+1}, w)`: a red-ordered loading `s` of
 the first `ℓ` red strands, the last red strand, and a word `w` of black strands to its right.
 
@@ -36,7 +36,7 @@ private theorem cast_appendRedLoading {a b : Multiset I} (h : a = b)
   rfl
 
 /-- **Decomposition of red-ordered loadings at the last red strand** (Webster,
-arXiv:1309.3796v3, the induction in the proofs of Lemma 5.19 and Proposition 5.21): every
+arXiv:1309.3796v2, the induction in the proof of Proposition 5.20): every
 red-ordered loading of `T^λ_ν` with `ℓ + 1` red strands is `(s₀, λ_{ℓ+1}, w)`, the last red
 strand appended to a red-ordered loading `s₀` of the first `ℓ` red strands, followed by a word
 `w` of black strands. -/

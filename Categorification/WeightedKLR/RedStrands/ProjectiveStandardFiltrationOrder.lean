@@ -8,13 +8,13 @@ import Categorification.WeightedKLR.RedStrands.ConcatLoadingOrder
 /-!
 # The order of the standard filtration of a projective
 
-B. Webster, *Knot invariants and higher representation theory*, arXiv:1309.3796v3, proof of
-Corollary 5.22. The standard filtration of `T^λ e(s)` built in the proof of Proposition 5.21
+B. Webster, *Knot invariants and higher representation theory*, arXiv:1309.3796v2, proof of
+Corollary 5.21. The standard filtration of `T^λ e(s)` built in the proof of Proposition 5.20
 (`hasStandardFiltrations`) has a standard module `S_{s'}` with `s'` equivalent to `s` (equal
 black counts) as its top quotient, and all its other subquotients are standard modules `S_t`
 with `t` strictly above `s` in Webster's order (`StendhalLT s t`).
 
-The proof follows the induction of Proposition 5.21. For `s = (s₀, λ_{ℓ+1}, w)`, the top layer
+The proof follows the induction of Proposition 5.20. For `s = (s₀, λ_{ℓ+1}, w)`, the top layer
 of the filtration of `T^λ e(s)` by `F_w` is `S(T^{λ'} e(t) ⊠ R e(u))` with the same first factor
 weight `θ` as `s₀` and `t` equivalent to `s₀`; every other layer has strictly larger first factor
 weight, and its first factor is `T^{λ'} e(t)` with `t` equivalent to `s₀`
@@ -25,7 +25,7 @@ weight, and its first factor is `T^{λ'} e(t)` with `t` equivalent to `s₀`
 * `HasOrderedStandardFiltrations Q Λ`: every `T^λ e(s)` has a standard filtration with top
   quotient `S_{s'}`, `s'` equivalent to `s`, and the other subquotients `S_t` with `t > s`.
 * `hasOrderedStandardFiltrations`: this holds, given the route hypothesis
-  `AllFiniteDeltaInjective` of Proposition 5.21.
+  `AllFiniteDeltaInjective` of Proposition 5.20.
 -/
 
 set_option backward.isDefEq.respectTransparency false
@@ -137,7 +137,7 @@ end Counts
 variable {I : Type} [DecidableEq I] {k : Type} [Field k]
   (Q : I → I → MvPolynomial (Fin 2) k)
 
-/-- **Ordered standard filtrations** (Webster, arXiv:1309.3796v3, proof of Corollary 5.22):
+/-- **Ordered standard filtrations** (Webster, arXiv:1309.3796v2, proof of Corollary 5.21):
 every projective `T^λ e(s)` has a standard filtration whose top quotient is `S_{s'}` with `s'`
 equivalent to `s` (equal black counts), and whose other subquotients are standard modules `S_t`
 with `t` strictly above `s`. -/
@@ -192,7 +192,7 @@ theorem StdLayer.wordLayers_head (w : List I) {ν : Multiset I} (c : StdLayer Q 
     · exact hr e' he'
     · exact hfirst e' (hr e' he').1
 
-/-- The modules over `T^{λ'}` of the recursion of Proposition 5.21 that start from
+/-- The modules over `T^{λ'}` of the recursion of Proposition 5.20 that start from
 `T^{λ'} e(s₀)`: the projectives `T^{λ'} e(t)` with `t` equivalent to `s₀`. -/
 def OldGenCount {θ₀ : Multiset I} (s₀ : Seq (stendhalWeight ℓ θ₀)) :
     ∀ θ : Multiset I, ModuleCat.{0} (Told θ) → Prop :=
@@ -208,8 +208,8 @@ theorem OldGenCount.ind {θ₀ : Multiset I} (s₀ : Seq (stendhalWeight ℓ θ�
 
 variable (hQ : KLRSymm Q)
 
-/-- **The layers of Proposition 5.21, with black counts** (Webster, arXiv:1309.3796v3, proof
-of Corollary 5.22): every layer of the filtration of `T^λ e(s₀, λ_{ℓ+1}, w)` by `F_w` is
+/-- **The layers of Proposition 5.20, with black counts** (Webster, arXiv:1309.3796v2, proof
+of Corollary 5.21): every layer of the filtration of `T^λ e(s₀, λ_{ℓ+1}, w)` by `F_w` is
 `S(T^{λ'} e(t) ⊠ R^{λ_{ℓ+1}} e(u))` with `t` equivalent to `s₀`. -/
 theorem exists_stdLayerModule_equiv_tensorLayer_count (w : List I) {θ : Multiset I}
     (s₀ : Seq (stendhalWeight ℓ (θ + 0))) (hs₀ : IsRedOrdered s₀) :
@@ -245,7 +245,7 @@ theorem blackCount_twoPieceLabel_last {θ β ν : Multiset I} (h : θ + β = ν)
 
 variable {C : QuantumGroup.CartanDatum I}
 
-/-- **Induction step** (Webster, arXiv:1309.3796v3, proof of Corollary 5.22). Route hypothesis:
+/-- **Induction step** (Webster, arXiv:1309.3796v2, proof of Corollary 5.21). Route hypothesis:
 `AllFiniteDeltaInjective` (Proposition 5.5, `F`-part). -/
 theorem hasOrderedStandardFiltrations_succ (hR : IsRouquierQ C Q)
     (hall : AllFiniteDeltaInjective Q Λ hQ) (hold : HasOrderedStandardFiltrations Q (old)) :
@@ -328,8 +328,8 @@ theorem hasOrderedStandardFiltrations_succ (hR : IsRouquierQ C Q)
     exact fun r i => (((hcmp d u y').2.1 hge).1 r i).trans (hcount r i).symm.le
   · exact hP y hy
 
-/-- **Ordered standard filtrations of projectives** (Webster, arXiv:1309.3796v3, proof of
-Corollary 5.22): every `T^λ e(s)` has a standard filtration with top quotient `S_{s'}`, `s'`
+/-- **Ordered standard filtrations of projectives** (Webster, arXiv:1309.3796v2, proof of
+Corollary 5.21): every `T^λ e(s)` has a standard filtration with top quotient `S_{s'}`, `s'`
 equivalent to `s`, and all other subquotients `S_t` with `t > s`. Route hypothesis:
 `AllFiniteDeltaInjective` (Proposition 5.5, `F`-part) at every number of red strands. -/
 theorem hasOrderedStandardFiltrations (hR : IsRouquierQ C Q)

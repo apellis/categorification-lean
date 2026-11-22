@@ -7,8 +7,8 @@ import Categorification.WeightedKLR.RedStrands.ParabolicStandardTensorFiltration
 /-!
 # The base case of the tensor-form recursion
 
-In the proof of Proposition 5.21 of B. Webster, *Knot invariants and higher representation
-theory*, arXiv:1309.3796v3, the projective `T^λ e(s, λ_ℓ, w)` is filtered by standardizations
+In the proof of Proposition 5.20 of B. Webster, *Knot invariants and higher representation
+theory*, arXiv:1309.3796v2, the projective `T^λ e(s, λ_ℓ, w)` is filtered by standardizations
 `S(X ⊠ Y)`, starting from the red layer `T^{λ'} e(s) ⊠ R^{λ_ℓ}_0` and applying `F_w`. This file
 proves the base case and records which modules occur.
 
@@ -161,7 +161,7 @@ theorem FactorModule.TensorForm.zero
 
 end Zero
 
-/-- The modules over `T^{λ'}` that occur as first factors in the recursion of Proposition 5.21:
+/-- The modules over `T^{λ'}` that occur as first factors in the recursion of Proposition 5.20:
 the projectives `T^{λ'} e(s)` (as restrictions of the red factor modules) and their black
 inductions. -/
 inductive OldGen : ∀ θ : Multiset I, ModuleCat.{0} (Told θ) → Prop
@@ -171,15 +171,15 @@ inductive OldGen : ∀ θ : Multiset I, ModuleCat.{0} (Told θ) → Prop
       OldGen θ X → OldGen ((Si j) + θ) (oldIndModule Q Λ j X)
 
 /-- The modules over the cyclotomic quotients `R^{λ_ℓ}` that occur as second factors in the
-recursion of Proposition 5.21: `R^{λ_ℓ}_0` and its black inductions. -/
+recursion of Proposition 5.20: `R^{λ_ℓ}_0` and its black inductions. -/
 inductive CycGen : ∀ β : Multiset I, ModuleCat.{0} (Cyc β) → Prop
   | base : CycGen 0 (ModuleCat.of (Cyc 0) (Cyc 0))
   | ind (j : I) {β : Multiset I} (Y : ModuleCat.{0} (Cyc β)) :
       CycGen β Y → CycGen ((Si j) + β) (cycIndModule Q Λ j Y)
 
 /-- Every layer of `F_w T^λ e(s)`'s standard filtration has the form `S(X ⊠ Y)` with `X` an
-induction of `T^{λ'} e(s)` and `Y` an induction of `R^{λ_ℓ}_0` (Webster, arXiv:1309.3796v3,
-proof of Proposition 5.21). -/
+induction of `T^{λ'} e(s)` and `Y` an induction of `R^{λ_ℓ}_0` (Webster, arXiv:1309.3796v2,
+proof of Proposition 5.20). -/
 theorem tensorForm_redLayer_wordLayers (w : List I) {θ : Multiset I}
     (s : Seq (stendhalWeight ℓ (θ + 0))) (hs : IsRedOrdered s) :
     ∀ c ∈ (redLayer Q Λ θ s hs).wordLayers Q Λ w, c.TensorForm Q Λ (OldGen Q Λ) (CycGen Q Λ) :=

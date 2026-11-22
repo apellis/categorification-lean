@@ -11,7 +11,7 @@ A module `Y` *has a filtration by* a family of modules `L : ι → ModuleCat A` 
 labels `m` if there is a finite chain of submodules `0 = Y₀ ⊆ Y₁ ⊆ ⋯ ⊆ Yₙ = Y` whose successive
 quotients are isomorphic to the modules `L c`, `c ∈ m`, each label counted with its multiplicity.
 This is the notion used for standard filtrations, e.g. in Webster, *Knot invariants and higher
-representation theory*, arXiv:1309.3796v3, Proposition 5.21 and Corollary 5.22.
+representation theory*, arXiv:1309.3796v2, Proposition 5.20 and Corollary 5.21.
 
 We encode it inductively by the top step: `Y` has a filtration with labels `c :: m` if it is an
 extension `0 → X → Y → Z → 0` of a module `Z ≅ L c` by a module `X` with a filtration with labels

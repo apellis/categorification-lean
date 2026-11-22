@@ -9,7 +9,7 @@ import Categorification.WeightedKLR.RedStrands.ParabolicStandardLastOneBlockLine
 /-!
 # Black-last pieces of `Fᵢ S(N)` in the dimension count of Proposition 5.5
 
-Webster, arXiv:1309.3796v3, proof of Proposition 5.5, (5.14)–(5.15). For Cyclotomic Lie
+Webster, arXiv:1309.3796v2, proof of Proposition 5.5, (5.13)–(5.14). For Cyclotomic Lie
 parameters and a finite-dimensional module `N` over the parabolic factor algebra, the piece of
 `Fᵢ S(N)` whose last strand is black of colour `j` is computed from `Fᵢ E_j S(N)` (Theorem 4.31)
 and the description of `E_j S(N)` by the restrictions of `N`:
@@ -91,7 +91,7 @@ theorem finrank_fixSub_firstIndF_lastStandardT (b : Option I) :
 
 include hP hwf in
 /-- **The black-last piece of `Fᵢ S(N)` of colour `j ≠ i`, `j` in both blocks** (Webster,
-arXiv:1309.3796v3, proof of Proposition 5.5): it has dimension
+arXiv:1309.3796v2, proof of Proposition 5.5): it has dimension
 `dim Fᵢ S(₁E_j N) + dim Fᵢ S(₂E_j N)`. -/
 theorem finrank_fixSub_firstIndF_cross_both (hji : j ≠ i) [FiniteDimensional k N] :
     Module.finrank k (fixSub k (FirstIndF QL Λ i ((Si j) + θ₀) ((Si j) + β₀) N hQs)
@@ -117,7 +117,7 @@ variable (i : I) (θ₀ β₀ : Multiset I) (N : Type) [AddCommGroup N] [Module 
 
 include hP hwf in
 /-- **The black-last piece of `Fᵢ S(N)` of colour `i`, `i` in both blocks** (Webster,
-arXiv:1309.3796v3, proof of Proposition 5.5): it has dimension
+arXiv:1309.3796v2, proof of Proposition 5.5): it has dimension
 `dim Fᵢ S(₁Eᵢ N) + dim Fᵢ S(₂Eᵢ N) + n dim S(N)`, `n = ⟨i, λ⟩`. -/
 theorem finrank_fixSub_firstIndF_self_both [FiniteDimensional k N] :
     (Module.finrank k (fixSub k (FirstIndF QL Λ i ((Si i) + θ₀) ((Si i) + β₀) N hQs)
@@ -176,7 +176,7 @@ theorem finrank_fixSub_firstIndF_leftStandardT (b : Option I) :
 
 include hP hwf in
 /-- **The black-last piece of `Fᵢ S(N)` of colour `j ≠ i`, `j` in the first block only**
-(Webster, arXiv:1309.3796v3, proof of Proposition 5.5): it has dimension `dim Fᵢ S(₁E_j N)`. -/
+(Webster, arXiv:1309.3796v2, proof of Proposition 5.5): it has dimension `dim Fᵢ S(₁E_j N)`. -/
 theorem finrank_fixSub_firstIndF_cross_left (hji : j ≠ i) (hj : j ∉ β) :
     Module.finrank k (fixSub k (FirstIndF QL Λ i ((Si j) + θ₀) β N hQs)
         (lastStrandIdem QL Λ ((Si i) + (((Si j) + θ₀) + β)) (some j))) =
@@ -206,7 +206,7 @@ variable (i : I) (θ₀ β : Multiset I) (N : Type) [AddCommGroup N] [Module k N
 
 include hP hwf in
 /-- **The black-last piece of `Fᵢ S(N)` of colour `i`, `i` in the first block only** (Webster,
-arXiv:1309.3796v3, proof of Proposition 5.5): it has dimension `dim Fᵢ S(₁Eᵢ N) + n dim S(N)`,
+arXiv:1309.3796v2, proof of Proposition 5.5): it has dimension `dim Fᵢ S(₁Eᵢ N) + n dim S(N)`,
 `n = ⟨i, λ⟩`. -/
 theorem finrank_fixSub_firstIndF_self_left (hi : i ∉ β) [FiniteDimensional k N] :
     (Module.finrank k (fixSub k (FirstIndF QL Λ i ((Si i) + θ₀) β N hQs)
@@ -269,7 +269,7 @@ theorem finrank_fixSub_firstIndF_rightStandardT (b : Option I) :
 
 include hP hwf in
 /-- **The black-last piece of `Fᵢ S(N)` of colour `j ≠ i`, `j` in the second block only**
-(Webster, arXiv:1309.3796v3, proof of Proposition 5.5): it has dimension `dim Fᵢ S(₂E_j N)`. -/
+(Webster, arXiv:1309.3796v2, proof of Proposition 5.5): it has dimension `dim Fᵢ S(₂E_j N)`. -/
 theorem finrank_fixSub_firstIndF_cross_right (hji : j ≠ i) (hj : j ∉ θ) :
     Module.finrank k (fixSub k (FirstIndF QL Λ i θ ((Si j) + β₀) N hQs)
         (lastStrandIdem QL Λ ((Si i) + (θ + ((Si j) + β₀))) (some j))) =
@@ -299,7 +299,7 @@ variable (i : I) (θ β₀ : Multiset I) (N : Type) [AddCommGroup N] [Module k N
 
 include hP hwf in
 /-- **The black-last piece of `Fᵢ S(N)` of colour `i`, `i` in the second block only** (Webster,
-arXiv:1309.3796v3, proof of Proposition 5.5): it has dimension `dim Fᵢ S(₂Eᵢ N) + n dim S(N)`,
+arXiv:1309.3796v2, proof of Proposition 5.5): it has dimension `dim Fᵢ S(₂Eᵢ N) + n dim S(N)`,
 `n = ⟨i, λ⟩`. -/
 theorem finrank_fixSub_firstIndF_self_right (hi : i ∉ θ) [FiniteDimensional k N] :
     (Module.finrank k (fixSub k (FirstIndF QL Λ i θ ((Si i) + β₀) N hQs)
@@ -346,7 +346,7 @@ variable (i : I) (θ β : Multiset I) (N : Type) [AddCommGroup N] [Module k N]
     θ β) N]
 
 include hP hwf in
-/-- **The black-last piece of `Fᵢ S(N)` of colour `i ∉ θ + β`** (Webster, arXiv:1309.3796v3,
+/-- **The black-last piece of `Fᵢ S(N)` of colour `i ∉ θ + β`** (Webster, arXiv:1309.3796v2,
 proof of Proposition 5.5): it has dimension `n dim S(N)`, `n = ⟨i, λ⟩`. -/
 theorem finrank_fixSub_firstIndF_self_of_notMem (hi : i ∉ θ + β) [FiniteDimensional k N] :
     (Module.finrank k (fixSub k (FirstIndF QL Λ i θ β N hQs)

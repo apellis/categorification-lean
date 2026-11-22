@@ -10,8 +10,8 @@ import Categorification.Algebra.ModuleFiltration
 An operation on modules that sends injections to injections, surjections to surjections and short
 exact sequences to sequences exact in the middle sends a module with a
 filtration by `L` to a module with a filtration by its values on `L`, with the same labels. This
-is the step of Webster, *Knot invariants and higher representation theory*, arXiv:1309.3796v3,
-proof of Proposition 5.21, where a standard filtration of a tensor factor is transported through
+is the step of Webster, *Knot invariants and higher representation theory*, arXiv:1309.3796v2,
+proof of Proposition 5.20, where a standard filtration of a tensor factor is transported through
 exterior tensor product and standardization. Zero modules go to zero modules automatically: the
 identity of a zero module is injective, surjective and exact at its middle term.
 

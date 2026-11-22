@@ -7,8 +7,8 @@ import Categorification.WeightedKLR.RedStrands.TwoPieceStandardInverse
 /-!
 # Standardization of `S_t ⊠ R e(u)` is a standard module
 
-B. Webster, *Knot invariants and higher representation theory*, arXiv:1309.3796v3, proof of
-Proposition 5.21. For a red-ordered loading `t` of the first `ℓ` red strands and a black
+B. Webster, *Knot invariants and higher representation theory*, arXiv:1309.3796v2, proof of
+Proposition 5.20. For a red-ordered loading `t` of the first `ℓ` red strands and a black
 sequence `u`, the standardization `S(S_t ⊠ R^{λ_{ℓ+1}} e(u))` is isomorphic to the standard
 module `S_{t λ_{ℓ+1} u}` of Definition 5.1.
 

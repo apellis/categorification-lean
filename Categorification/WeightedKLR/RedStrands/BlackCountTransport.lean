@@ -9,10 +9,10 @@ import Categorification.WeightedKLR.RedStrands.StandardBlocks
 /-!
 # Black counts of transported and concatenated loadings
 
-B. Webster, *Knot invariants and higher representation theory*, arXiv:1309.3796v3, §5.1. The
+B. Webster, *Knot invariants and higher representation theory*, arXiv:1309.3796v2, §5.1. The
 preorder of Definition 5.1 compares the numbers `blackCount s r i` of black `i`-strands left of
 the red strand `λ_r`. The comparison of the iterated two-piece standard modules of
-Proposition 5.21 with the standard modules of Definition 5.1 computes these numbers for
+Proposition 5.20 with the standard modules of Definition 5.1 computes these numbers for
 loadings built by recolouring and concatenation; this file collects those computations.
 
 ## Main results

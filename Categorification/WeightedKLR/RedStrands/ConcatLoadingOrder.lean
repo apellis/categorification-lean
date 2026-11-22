@@ -7,8 +7,8 @@ import Categorification.WeightedKLR.RedStrands.TwoPieceLoading
 /-!
 # Concatenated loadings above a two-piece loading
 
-B. Webster, *Knot invariants and higher representation theory*, arXiv:1309.3796v3, proof of
-Proposition 5.21. The comparison of the standardization `S(S_t ⊠ R e(u))` with the standard
+B. Webster, *Knot invariants and higher representation theory*, arXiv:1309.3796v2, proof of
+Proposition 5.20. The comparison of the standardization `S(S_t ⊠ R e(u))` with the standard
 module `S_{t λ_{ℓ+1} u}` of Definition 5.1 needs to know which concatenations `c d` lie strictly
 above the two-piece loading `t λ_{ℓ+1} u` in Webster's preorder: those with `c` strictly above
 `t`, and those with `d` violated (a black strand left of the last red strand).

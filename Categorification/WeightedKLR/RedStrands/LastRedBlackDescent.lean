@@ -7,8 +7,8 @@ import Categorification.WeightedKLR.RedStrands.LastRedParabolicLift
 /-!
 # Maps out of the last red strand followed by black strands
 
-B. Webster, *Knot invariants and higher representation theory*, arXiv:1309.3796v3, proof of
-Proposition 5.21. The block `λ_{ℓ+1} β` of one red strand followed by black strands carries the
+B. Webster, *Knot invariants and higher representation theory*, arXiv:1309.3796v2, proof of
+Proposition 5.20. The block `λ_{ℓ+1} β` of one red strand followed by black strands carries the
 quotient map `P₂` onto the cyclotomic quotient `R^{λ_{ℓ+1}}_β` (violated idempotents and red dots
 die, and the black diagrams act through the cyclotomic quotient). This file proves the universal
 property of `P₂` among multiplicative maps: a multiplicative linear map `G` killing violated

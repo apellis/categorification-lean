@@ -7,8 +7,8 @@ import Categorification.WeightedKLR.RedStrands.ParabolicStandardLastKernel
 /-!
 # Maps out of a standardization
 
-B. Webster, *Knot invariants and higher representation theory*, arXiv:1309.3796v3, §5
-(standardization, Definition 5.3, as used in the proof of Proposition 5.21). Standardization
+B. Webster, *Knot invariants and higher representation theory*, arXiv:1309.3796v2, §5
+(standardization, Definition 5.4, as used in the proof of Proposition 5.20). Standardization
 `S(N)` is the ordered quotient of parabolic induction. A `k`-linear map `φ : N → Z` into a
 module `Z` over the tensor product algebra `T^λ_{θ+β}`, which intertwines the action of the
 juxtaposed diagrams `a ⊗ b` on `N` (through the factor algebras) with their action on `Z`,

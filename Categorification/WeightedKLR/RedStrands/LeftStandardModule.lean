@@ -9,8 +9,8 @@ import Categorification.Algebra.IdempotentEquiv
 /-!
 # Standard modules as left modules over `T^λ`
 
-B. Webster, *Knot invariants and higher representation theory*, arXiv:1309.3796v3,
-Definition 5.1, in the left-module form used by the filtrations of Proposition 5.21. For a
+B. Webster, *Knot invariants and higher representation theory*, arXiv:1309.3796v2,
+Definition 5.1, in the left-module form used by the filtrations of Proposition 5.20. For a
 red-ordered loading `s`, the projective `T^λ e(s)` is the left ideal `lIdeal (e s)`; its
 submodule `U_s` is the left ideal spanned by the elements `e(t) a e(s)` with `t` strictly above
 `s` (`StendhalLT s t`, dominance of black counts), the images of the maps
@@ -67,7 +67,7 @@ theorem leftUpper_le_lIdeal (s : Seq μ) (hs : IsRedOrdered s) :
   change _ * _ = _
   rw [mul_assoc, seqIdem_mul_self]
 
-/-- **The left standard module** `S_s = T^λ e(s) / U_s` (Webster, arXiv:1309.3796v3,
+/-- **The left standard module** `S_s = T^λ e(s) / U_s` (Webster, arXiv:1309.3796v2,
 Definition 5.1, as a left `T^λ`-module). -/
 abbrev leftStandard (s : Seq μ) (hs : IsRedOrdered s) : Type :=
   lIdeal (seqIdem Q Λ s hs) ⧸

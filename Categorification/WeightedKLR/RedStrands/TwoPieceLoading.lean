@@ -8,8 +8,8 @@ import Categorification.WeightedKLR.RedStrands.ParabolicShuffleDescent
 /-!
 # The loading of a two-piece standard module
 
-B. Webster, *Knot invariants and higher representation theory*, arXiv:1309.3796v3, proof of
-Proposition 5.21. The layers of the filtration of `T^λ e` are the standardizations
+B. Webster, *Knot invariants and higher representation theory*, arXiv:1309.3796v2, proof of
+Proposition 5.20. The layers of the filtration of `T^λ e` are the standardizations
 `S(T^{λ'} e(t) ⊠ R^{λ_ℓ} e(u))` of a loading `t` of the first `ℓ` red strands and a black word
 `u`. The corresponding loading of all `ℓ + 1` red strands is `t` followed by the last red strand
 and then `u` (`twoPieceLoading`). Its black counts are those of `t` for the first `ℓ` red

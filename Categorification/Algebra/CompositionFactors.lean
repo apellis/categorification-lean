@@ -271,4 +271,48 @@ lemma compositionFactors_iso {X Y : ModuleCat.{v} R} (e : X ≅ Y) :
 
 end ModuleCat
 
+section Finiteness
+
+variable {P : Type v} [AddCommGroup P] [Module R P]
+
+/-- A simple module has finite length. -/
+lemma isFiniteLength_of_isSimpleModule [IsSimpleModule R P] : IsFiniteLength R P := by
+  by_contra h
+  have := compositionFactors_of_isSimpleModule (R := R) (M := P)
+  rw [compositionFactors_of_not h] at this
+  exact Finsupp.single_ne_zero.mpr one_ne_zero this.symm
+
+/-- A simple quotient of a module of finite length is one of its composition factors. -/
+lemma compositionFactors_pos_of_surjective [IsSimpleModule R P] (g : M →ₗ[R] P)
+    (hg : Function.Surjective g) (hM : IsFiniteLength R M) :
+    0 < compositionFactors R M (SimpleClass.mk P) := by
+  have hk : IsFiniteLength R (LinearMap.ker g) := by
+    obtain ⟨_, _⟩ := isFiniteLength_iff_isNoetherian_isArtinian.mp hM
+    exact isFiniteLength_iff_isNoetherian_isArtinian.mpr ⟨inferInstance, inferInstance⟩
+  rw [compositionFactors_eq_of_exact (LinearMap.ker g).subtype g Subtype.val_injective hg
+    (LinearMap.exact_subtype_ker_map g) hk isFiniteLength_of_isSimpleModule,
+    compositionFactors_of_isSimpleModule (M := P)]
+  simp
+
+end Finiteness
+
+/-- A ring that is noetherian and artinian (as a left module over itself) has finitely many
+isomorphism classes of simple modules: each is a quotient of the ring, hence a composition
+factor of it. -/
+theorem finite_simpleClass (R : Type u) [Ring R] [IsNoetherianRing R] [IsArtinianRing R] :
+    Finite (SimpleClass.{u, u} R) := by
+  have hR : IsFiniteLength R R :=
+    isFiniteLength_iff_isNoetherian_isArtinian.mpr ⟨inferInstance, inferInstance⟩
+  refine Set.finite_univ_iff.mp ((compositionFactors R R).support.finite_toSet.subset ?_)
+  rintro c -
+  induction c using Quotient.inductionOn with
+  | h S =>
+    obtain ⟨S, hS⟩ := S
+    have : Nontrivial S := IsSimpleModule.nontrivial R S
+    obtain ⟨s, hs⟩ := exists_ne (0 : S)
+    have h := compositionFactors_pos_of_surjective (LinearMap.toSpanSingleton R S s)
+      (IsSimpleModule.toSpanSingleton_surjective R hs) hR
+    exact Finsupp.mem_support_iff.mpr h.ne'
+
+
 end Module

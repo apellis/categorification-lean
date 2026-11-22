@@ -467,6 +467,25 @@ theorem isArtinianObject (X : FGTower A) : IsArtinianObject X := by
   have := congrArg (fun f => f j) hY
   simpa [k0Data] using this
 
+include hN in
+/-- There are finitely many simple classes along a tower of noetherian and artinian rings
+vanishing from level `N` on. -/
+theorem finite_k0Index : Finite (K0Index A) := by
+  have : ∀ m, Finite (Module.SimpleClass.{u, u} (A m)) := fun m =>
+    Module.finite_simpleClass (A m)
+  refine Finite.of_surjective
+    (fun x : Σ m : Fin N, Module.SimpleClass.{u, u} (A m) => (⟨x.1, x.2⟩ : K0Index A)) ?_
+  rintro ⟨m, c⟩
+  by_cases hm : m < N
+  · exact ⟨⟨⟨m, hm⟩, c⟩, rfl⟩
+  · have : Subsingleton (A m) := hN m (not_lt.mp hm)
+    induction c using Quotient.inductionOn with
+    | h S =>
+      obtain ⟨S, hS⟩ := S
+      have : Subsingleton S := Module.subsingleton (A m) S
+      have : Nontrivial S := IsSimpleModule.nontrivial (A m) S
+      exact (not_subsingleton S ‹_›).elim
+
 end K0
 
 end Categorification.ModuleTower

@@ -1507,6 +1507,7 @@ import Categorification.WeightedKLR.RedStrands.DoubleDownBlackComparison
 import Categorification.WeightedKLR.RedStrands.DoubleDownBlackMatrix
 import Categorification.WeightedKLR.RedStrands.DoubleRightWhiskerHorizontal
 import Categorification.WeightedKLR.RedStrands.LastRedBlackSlide
+import Categorification.WeightedKLR.RedStrands.BlackNilHecke
 import Categorification.WeightedKLR.RedStrands.LastRedBlackBimodule
 import Categorification.WeightedKLR.RedStrands.LastRedBlackSurjective
 import Categorification.WeightedKLR.RedStrands.LastRedBlackViolated

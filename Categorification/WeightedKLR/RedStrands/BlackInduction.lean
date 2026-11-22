@@ -255,16 +255,17 @@ theorem appendBlackAllOrders_ψ (j : ℕ) (hj : j + 1 < Multiset.card μ) :
   rw [StendhalAlgebraAllOrders.ψ, appendBlackAllOrders_ofKLR, appendBlackKLR_ψ Q Λ i ν hj, map_one]
   rfl
 
-private def appendBlackValue : StendhalAlgebraAllOrders k Q Λ ν →ₙ+* A :=
+/-- `appendBlackAllOrders` as a non-unital ring map into the ambient all-orders algebra. -/
+def appendBlackValue : StendhalAlgebraAllOrders k Q Λ ν →ₙ+* A :=
   (KLR.cornerVal (isIdempotentElem_terminalIdem Q Λ i ν)).comp
     (appendBlackAllOrders Q Λ i ν).toRingHom.toNonUnitalRingHom
 
-private theorem appendBlackValue_e (s : Seq μ) :
+theorem appendBlackValue_e (s : Seq μ) :
     appendBlackValue Q Λ i ν (StendhalAlgebraAllOrders.e s) =
       StendhalAlgebraAllOrders.e (appendBlackLoading i ν s) :=
   appendBlackAllOrders_e Q Λ i ν s
 
-private theorem appendBlackValue_smul (c : k) (z : StendhalAlgebraAllOrders k Q Λ ν) :
+theorem appendBlackValue_smul (c : k) (z : StendhalAlgebraAllOrders k Q Λ ν) :
     appendBlackValue Q Λ i ν (c • z) = c • appendBlackValue Q Λ i ν z := by
   change (appendBlackAllOrders Q Λ i ν (c • z)).val =
     c • (appendBlackAllOrders Q Λ i ν z).val
@@ -277,7 +278,8 @@ theorem appendBlackAllOrders_smul (c : k) (z : StendhalAlgebraAllOrders k Q Λ �
 
 attribute [local instance 1100] IsIdempotentElem.instAlgebraCorner_categorification
 
-private theorem appendBlackValue_ordered :
+/-- The image of the red-ordered idempotent lies in the red-ordered corner. -/
+theorem appendBlackValue_ordered :
     appendBlackValue Q Λ i ν (StendhalAlgebraAllOrders.redOrderedIdem k Q Λ ν) ∈
       Subsemigroup.corner (StendhalAlgebraAllOrders.redOrderedIdem k Q Λ νᵢ) := by
   classical

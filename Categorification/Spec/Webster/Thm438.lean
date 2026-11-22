@@ -51,7 +51,7 @@ open scoped RatFunc
 attribute [local instance 1100] IsIdempotentElem.instAlgebraCorner_categorification
 
 /-- The ring involution `q ↦ q⁻¹` of `ℤ[q, q⁻¹]`. -/
-abbrev inversion := (LaurentPolynomial.invert (R := ℤ)).toRingEquiv
+noncomputable abbrev inversion := (LaurentPolynomial.invert (R := ℤ)).toRingEquiv
 
 instance : RingHomInvPair inversion.toRingHom inversion.toRingHom :=
   RingHomInvPair.of_ringEquiv inversion

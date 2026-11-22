@@ -49,6 +49,7 @@ import Categorification.Algebra.IdempotentEquiv
 import Categorification.Algebra.CommutingFamily
 import Categorification.Algebra.HomTensor
 import Categorification.Algebra.HomTensorAdjunction
+import Categorification.Algebra.LinearMapRingEquiv
 import Categorification.Algebra.HomTensorComp
 import Categorification.Algebra.HomTensorDecomp
 import Categorification.Algebra.HomTensorNat
@@ -256,6 +257,7 @@ import Categorification.Diagrams.KLR.MatEndModuleCross
 import Categorification.Diagrams.KLR.MatEndModuleCrossNaturality
 import Categorification.Diagrams.KLR.MatEndModuleDecomp
 import Categorification.Diagrams.KLR.MatEndModuleDecompNaturality
+import Categorification.Diagrams.KLR.MatEndModuleAdjunction
 import Categorification.Diagrams.KLR.MatEndModuleFunctor
 import Categorification.Diagrams.KLR.MatEndModuleNaturality
 import Categorification.Diagrams.KLR.MatEndMap
@@ -1462,6 +1464,7 @@ import Categorification.WeightedKLR.RedStrands.BlackModuleCrossTransport
 import Categorification.WeightedKLR.RedStrands.BlackModuleCrossLeft
 import Categorification.WeightedKLR.RedStrands.BlackModuleCrossNaturality
 import Categorification.WeightedKLR.RedStrands.BlackModuleTensor
+import Categorification.WeightedKLR.RedStrands.BlackModuleAdjunction
 import Categorification.WeightedKLR.RedStrands.DoubleBlackActionComp
 import Categorification.WeightedKLR.RedStrands.DoubleBlackActionHorizontal
 import Categorification.WeightedKLR.RedStrands.DoubleBlackActionWhisker

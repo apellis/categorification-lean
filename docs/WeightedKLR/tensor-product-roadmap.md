@@ -729,13 +729,22 @@ from which the full one is obtained by iterating):
   the standardization is `parabolicDesc`; the inverse is the lift of the unit of `S_{tλu}`,
   using that loadings above `tλu` act by zero (`parabolicStandardAction_upper_eq_zero`).
 
+* Prop 5.21, filtration form (`RedStrands/ProjectiveStandardFiltration.lean`): every `T^λ e(s)`
+  has a finite filtration by standard modules (`hasStandardFiltrations`), by induction on the
+  number of red strands: loading decomposition `(s₀, λ_{ℓ+1}, w)`
+  (`exists_blackWordLoading_appendRed`), the filtration of Prop 5.5's proof, exactness of `⊠`
+  over a field (`hasFiltration_tensorLayer`) and `twoPieceStandardEquiv`. Differences from the
+  printed statement: existence of a standard filtration rather than the specific `Φ`-indexed
+  filtration `P_{≥φ}/P_{>φ} ≅ S^{κφ}_{iφ}`; route hypothesis `AllFiniteDeltaInjective` for every
+  sequence of highest weights (removal tracked with Prop 5.5).
+
 Open: the comparison of the induced model with Def 5.4 (right modules over `T̃^λ` and the block
 algebra of all `ℓ + 1` blocks; the induced model uses left modules, which the vertical flip
 `tensorFlip` converts), injectivity in the `Fᵢ`-part of Prop 5.5, Prop 5.6, and the results listed below.
 
 Standardization functors (Prop 5.3, Def 5.4, Props 5.6, 5.7); simples and crystals
 (Lemma 5.9, Props 5.11, 5.12, Thms 5.14, 5.15); stringy triples (Props 5.17, 5.18);
-standard stratification (Lemma 5.19, Prop 5.21 itself, Cors 5.22, 5.24, Lemma 5.25,
+standard stratification (Lemma 5.19, Prop 5.21 in printed `Φ`-indexed form, Cors 5.22, 5.24, Lemma 5.25,
 Prop 5.26, Cor 5.27: `V^λ` is a tensor product categorification); Thm 5.28 (finite
 projective resolutions, Lemma 5.29); self-dual projectives and double centralizer
 (Thm 5.30, Prop 5.31, Cor 5.32, Prop 5.33); Thm 5.34 (for `sl_n`, blocks of cyclotomic

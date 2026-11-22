@@ -18,6 +18,8 @@ identity of a zero module is injective, surjective and exact at its middle term.
 ## Main results
 
 * `HasFiltration.map`.
+* `HasFiltration.relabel`: a filtration by `L ∘ f` is one by `L` with the labels mapped by `f`.
+* `HasFiltration.exists_refine`: refining each subquotient by some filtration of it.
 -/
 
 universe u u' v v' w
@@ -58,6 +60,27 @@ theorem map (F : ModuleCat.{v} A → ModuleCat.{v'} B)
     exact .cons (Fm f) (Fm g) m c (hinj f hf) (hex f g hf hfg hg) (hsurj g hg) ih
       ⟨LinearEquiv.ofBijective (Fm e.toLinearMap)
         ⟨hinj _ e.injective, hsurj _ e.surjective⟩⟩
+
+/-- A filtration by `L ∘ f` is a filtration by `L`, with the labels mapped by `f`. -/
+theorem relabel {ι' : Type*} {L : ι' → ModuleCat.{v} A} (f : ι → ι') {m : List ι}
+    {Y : ModuleCat.{v} A} (h : HasFiltration (fun c => L (f c)) m Y) :
+    HasFiltration L (m.map f) Y := by
+  induction h with
+  | zero hY => exact .zero hY
+  | cons f' g m c hf hfg hg _ hZ ih => exact .cons f' g _ (f c) hf hfg hg ih hZ
+
+/-- Refining a filtration: if every subquotient `L c` with `c ∈ m` has some filtration by `L'`,
+then so has `Y`. -/
+theorem exists_refine {ι' : Type*} {L : ι → ModuleCat.{v} A} {L' : ι' → ModuleCat.{v} A}
+    {m : List ι} {Y : ModuleCat.{v} A} (h : HasFiltration L m Y)
+    (hL : ∀ c ∈ m, ∃ l, HasFiltration L' l (L c)) : ∃ l, HasFiltration L' l Y := by
+  induction h with
+  | zero hY => exact ⟨[], .zero hY⟩
+  | cons f g m c hf hfg hg _ hZ ih =>
+    obtain ⟨e⟩ := hZ
+    obtain ⟨l₁, h₁⟩ := hL c List.mem_cons_self
+    obtain ⟨l₂, h₂⟩ := ih fun d hd => hL d (List.mem_cons_of_mem _ hd)
+    exact ⟨l₁ ++ l₂, (h₁.of_equiv e.symm).extension f g hf hfg hg h₂⟩
 
 end HasFiltration
 

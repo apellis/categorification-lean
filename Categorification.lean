@@ -75,6 +75,7 @@ import Categorification.Algebra.InductionAlongLinear
 import Categorification.Algebra.InductionAlongCornerRes
 import Categorification.Algebra.InductionAlongCornerSelf
 import Categorification.Algebra.InductionAlongRes
+import Categorification.Algebra.ResTowerNilHecke
 import Categorification.Algebra.InductionAlongTensor
 import Categorification.Algebra.InductionAlongFinite
 import Categorification.Algebra.InductionAlongTensorFactor

@@ -186,6 +186,7 @@ import Categorification.Diagrams.KL3.Lemma39
 import Categorification.Diagrams.KL3.LocalFiltration
 import Categorification.Diagrams.KL3.Localization
 import Categorification.Diagrams.KL3.LocalizationSpanning
+import Categorification.Diagrams.KL3.LocalizationShiftEquivalence
 import Categorification.Diagrams.KL3.Markov
 import Categorification.Diagrams.KL3.MarkovLeft
 import Categorification.Diagrams.KL3.MatEndBlock

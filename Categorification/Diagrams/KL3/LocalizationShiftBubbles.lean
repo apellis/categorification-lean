@@ -52,7 +52,7 @@ theorem zdot_neg_nat (ν : X) (u : List (Letter I)) (i : I) (v : List (Letter I)
 
 variable (RD k) in
 /-- `diag` commutes with iterated composition. -/
-theorem diag_iterComp {a : Obj (lsig RD)} (f : a ⟶ a) (n : ℕ) :
+theorem diag_iterComp_lsig {a : Obj (lsig RD)} (f : a ⟶ a) (n : ℕ) :
     (presLoc RD k).diag (iterComp f n) = iterComp ((presLoc RD k).diag f) n := by
   induction n with
   | zero => exact (presLoc RD k).diag_id _
@@ -77,7 +77,7 @@ theorem zcw_eq (ν : X) (i : I) (n : ℤ) :
     rfl
   | negSucc m =>
     have e := cwNegHonest_eq RD k ν i m
-    rw [cwNegHonest, Presentation.diag_comp, Presentation.diag_comp, diag_iterComp,
+    rw [cwNegHonest, Presentation.diag_comp, Presentation.diag_comp, diag_iterComp_lsig,
       ← zdot_neg_one, ← zdot_neg_nat] at e
     rw [zcw, Int.negSucc_eq, ← Nat.cast_succ, ldg_of RD k hc, ldg_of RD k hk]
     exact e
@@ -104,7 +104,7 @@ theorem zccw_eq (ν : X) (i : I) (n : ℤ) :
     rfl
   | negSucc m =>
     have e := ccwNegHonest_eq RD k ν i m
-    rw [ccwNegHonest, Presentation.diag_comp, Presentation.diag_comp, diag_iterComp,
+    rw [ccwNegHonest, Presentation.diag_comp, Presentation.diag_comp, diag_iterComp_lsig,
       ← zdot_neg_one, ← zdot_neg_nat] at e
     rw [zccw, Int.negSucc_eq, ← Nat.cast_succ, ldg_of RD k hc, ldg_of RD k hk]
     exact e

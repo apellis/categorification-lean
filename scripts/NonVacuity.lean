@@ -5811,4 +5811,10 @@ noncomputable example (ν : Multiset Unit) :=
     (fun w => (TypeA.exists_reduced _ w).choose) (fun w => (TypeA.exists_reduced _ w).choose_spec)
     [1, 0] [0, 1]
 
+/-- Webster, arXiv:1309.3796v2, Prop. 4.16 for symmetric `Q`: the Stendhal terms form a basis of
+`T̃^λ`, for `sl₂`, two red strands of weight `ω` and every black weight. -/
+noncomputable example (ν : Multiset Unit) :=
+  stendhalBasisOfSymm bsQ (fun _ : Fin 2 => Finsupp.single () 1) (ν := ν) bsSymm
+    (fun w => (TypeA.exists_reduced _ w).choose) (fun w => (TypeA.exists_reduced _ w).choose_spec)
+
 end NonVacuity.BraidedStendhal

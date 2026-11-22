@@ -835,6 +835,10 @@ Defs 6.1–6.3 and Prop 6.4 are proved (`RedStrands/BraidedStendhal.lean`):
 `Stendhal.BraidedStendhalAlgebra` holds the `w`-Stendhal diagrams for all `w` at once, with basis
 `BraidedStendhalAlgebra.basis`, and `B̃_w` is the corner `cornerSpace` with basis `cornerBasis`.
 The grading is deferred (a red/red crossing has degree `-⟨λ_a, λ_b⟩`, not given by the KLR data).
+For symmetric `Q`, Prop 4.16 holds over every commutative ring with no further hypothesis
+(`RedStrands/StendhalBasisSymm.lean`, `Stendhal.stendhalBasisOfSymm`): the algebra with all red
+orders maps to the KLR algebra of `stendhalQ Q Λ`, killing red dots and red/red crossings, and the
+Stendhal terms go to KLR basis elements.
 
 The bimodules `B_w` and Lemma 6.5;
 the functors `𝔅_w` (Def 6.6, Prop 6.7, Cor 6.8, Lemma 6.9, Prop 6.10, Lemma 6.13);

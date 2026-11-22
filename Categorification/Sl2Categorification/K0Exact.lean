@@ -5,6 +5,7 @@ Authors: Alex Ellis
 -/
 import Categorification.Sl2Categorification.WeakCategorification
 import Mathlib.CategoryTheory.Limits.Preserves.Finite
+import Mathlib.CategoryTheory.Subobject.NoetherianObject
 
 /-!
 # Classes of exact functors on Grothendieck-group data
@@ -114,6 +115,38 @@ theorem isArtinianObject_of_cls (hdet : ∀ X : C, K.cls X = 0 → IsZero X) (X 
   have h0 := K.tot_nonneg (K.cls_mem_cone (f (⌈K.tot (K.cls (f 0 : C))⌉₊ + 1) : C))
   push_cast at this
   linarith [Nat.le_ceil (K.tot (K.cls (f 0 : C)))]
+
+/-- If classes detect zero objects, every object is noetherian: classes of a strictly increasing
+chain of subobjects have strictly increasing total multiplicity, bounded by that of the object. -/
+theorem isNoetherianObject_of_cls (hdet : ∀ X : C, K.cls X = 0 → IsZero X) (X : C) :
+    IsNoetherianObject X := by
+  rw [isNoetherianObject_iff_not_strictMono]
+  intro f hf
+  have step : ∀ n, K.tot (K.cls (f n : C)) + 1 ≤ K.tot (K.cls (f (n + 1) : C)) := by
+    intro n
+    have hle : f n ≤ f (n + 1) := (hf (Nat.lt_succ_self n)).le
+    let s := Subobject.ofLE _ _ hle
+    have hc : ¬ IsZero (cokernel s) := by
+      intro hz
+      have : Epi s := Preadditive.epi_of_isZero_cokernel s hz
+      have : IsIso s := isIso_of_mono_of_epi s
+      refine (hf (Nat.lt_succ_self n)).ne (le_antisymm hle (Subobject.le_of_comm (inv s) ?_))
+      rw [IsIso.inv_comp_eq, Subobject.ofLE_arrow]
+    rw [K.cls_add_of_mono s, map_add]
+    linarith [K.one_le_tot_cls hdet hc]
+  have key : ∀ n : ℕ, K.tot (K.cls (f 0 : C)) + n ≤ K.tot (K.cls (f n : C)) := by
+    intro n
+    induction n with
+    | zero => simp
+    | succ n ih => push_cast; linarith [step n]
+  have hX : ∀ n, K.tot (K.cls (f n : C)) ≤ K.tot (K.cls X) := by
+    intro n
+    rw [K.cls_add_of_mono (f n).arrow, map_add]
+    linarith [K.tot_nonneg (K.cls_mem_cone (cokernel (f n).arrow))]
+  have := key (⌈K.tot (K.cls X)⌉₊ + 1)
+  have h0 := K.tot_nonneg (K.cls_mem_cone (f 0 : C))
+  push_cast at this
+  linarith [Nat.le_ceil (K.tot (K.cls X)), hX (⌈K.tot (K.cls X)⌉₊ + 1)]
 
 /-- The linear map induced on classes by an exact endofunctor. -/
 noncomputable def clsMap (G : C ⥤ C) : Module.End ℚ V :=

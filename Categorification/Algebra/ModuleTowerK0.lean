@@ -468,6 +468,16 @@ theorem isArtinianObject (X : FGTower A) : IsArtinianObject X := by
   simpa [k0Data] using this
 
 include hN in
+/-- Every object of `FGTower A` is noetherian, for a tower of noetherian and artinian rings
+vanishing from level `N` on. -/
+theorem isNoetherianObject (X : FGTower A) : IsNoetherianObject X := by
+  refine (k0Data A hN).isNoetherianObject_of_cls (fun Y hY => ?_) X
+  refine isZero_of_clsN_eq_zero hN Y ?_
+  ext j
+  have := congrArg (fun f => f j) hY
+  simpa [k0Data] using this
+
+include hN in
 /-- There are finitely many simple classes along a tower of noetherian and artinian rings
 vanishing from level `N` on. -/
 theorem finite_k0Index : Finite (K0Index A) := by

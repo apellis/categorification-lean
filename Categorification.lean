@@ -892,6 +892,7 @@ import Categorification.TwoRep.CyclotomicLocalCommutator
 import Categorification.Sl2Categorification.Strings
 import Categorification.Sl2Categorification.PositiveBasis
 import Categorification.Sl2Categorification.NilHeckeAction
+import Categorification.Sl2Categorification.DualNilHecke
 import Categorification.Sl2Categorification.WeakCategorification
 import Categorification.Sl2Categorification.WeakCategorificationOp
 import Categorification.Sl2Categorification.DLayers

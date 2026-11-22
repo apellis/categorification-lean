@@ -1596,6 +1596,7 @@ import Categorification.WeightedKLR.RedStrands.RedBlackCrossingStandard
 import Categorification.WeightedKLR.RedStrands.RedBlackCrossingTransport
 import Categorification.WeightedKLR.RedStrands.RedBlackCrossingChain
 import Categorification.WeightedKLR.RedStrands.BraidedStendhal
+import Categorification.WeightedKLR.RedStrands.StendhalBasisSymm
 
 /-!
 # Categorification

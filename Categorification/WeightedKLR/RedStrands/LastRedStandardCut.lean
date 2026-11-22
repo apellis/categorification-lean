@@ -57,32 +57,17 @@ variable {I : Type} [DecidableEq I] {k : Type w} [Field k] {ℓ : ℕ}
     {Q : I → I → MvPolynomial (Fin 2) k} {D : QuantumGroup.CartanDatum I}
     (Λ : Fin (ℓ+1) → I →₀ ℕ) (ν : Multiset I) (G : GradingDatum (stendhalQ Q Λ))
 
-local notation "S" => stendhalQ Q Λ
 local notation "T" => TensorProductAlgebra k Q Λ ν
 local notation "cut" => LastRedWeightSplit ν
-local notation "A₁" => fun θ : Multiset I => Multiset.map (addRedColor ℓ) (stendhalWeight ℓ θ)
-local notation "A₂" => fun β : Multiset I => Multiset.map (Sum.map (id : I → I)
-  (fun _ : Fin 1 => Fin.last ℓ)) (stendhalWeight 1 β)
-
-omit [DecidableEq I] in
-private theorem cutParabolicWeight (u : cut) :
-    (A₁) u.1.1 + (A₂) u.1.2 = stendhalWeight (ℓ+1) ν :=
-  (parabolicInputWeights_add (ℓ := ℓ) u.1.1 u.1.2).trans (congrArg (stendhalWeight (ℓ+1)) u.2)
-
-local notation "H" => cutParabolicWeight (ℓ := ℓ) ν
+local notation "H" => lastRedCutWeight (ℓ := ℓ) ν
 local notation "p" => fun u : cut => LastRedWeightSplit.position ν u ℓ
 local notation "J" => fun u : cut => smallerSuffixIdeal Q Λ ((p) u)
 local notation "ψ" => fun u : cut => lastRedLayerAction Q Λ ((p) u)
   (LastRedWeightSplit.content ν u ℓ) (LastRedWeightSplit.length ν u ℓ)
 private abbrev cutProjection (u : cut) := ((J) u).ringCon.mkₐ k
 local notation "q" => cutProjection (Q := Q) Λ ν
-private abbrev cutTensorKLR (u : cut) := TensorKLR S ((A₁) u.1.1) ((A₂) u.1.2)
-local notation "A" => cutTensorKLR (Q := Q) Λ ν
-
-private def cutConcat (u : cut) : (A) u →ₗ[k] T :=
-  (TensorProductAlgebra.mk Q Λ ν).toLinearMap ∘ₗ (orderProjection Q Λ ν).toLinearMap ∘ₗ
-    (StendhalAlgebraAllOrders.ofKLR k Q Λ ν).toLinearMap ∘ₗ (castKLR S ((H) u)).toLinearMap ∘ₗ
-      concat S ((A₁) u.1.1) ((A₂) u.1.2)
+local notation "A" => lastRedCutKLR (Q := Q) Λ ν
+local notation "cutConcat" => lastRedCutConcat
 
 private theorem standardCut_of_shuffle (u : cut) (b : IndecClass (lastRedFactorGrading Λ ν G u))
     (V : Type w) [AddCommGroup V] [Module k V] (ρ : ((J) u).ringCon.Quotient →ₐ[k] Module.End k V)
@@ -104,10 +89,7 @@ private theorem standardCut_of_shuffle (u : cut) (b : IndecClass (lastRedFactorG
     intro z
     rw [← ht]
     exact himage t z
-  · intro v hv
-    obtain ⟨t, _, ht⟩ := lastRedLayerAction_exists_parabolicLift Q Λ ((p) v)
-      (LastRedWeightSplit.content ν v ℓ) (LastRedWeightSplit.length ν v ℓ) ((H) v) 1
-    exact ⟨cutConcat Λ ν v t, ht, hzero v hv t⟩
+  · exact hzero
 
 /-- Standardization recovers each factor simple on its maximal cut and kills the
 sector outside its black-prefix support (Webster, arXiv:1309.3796v2,

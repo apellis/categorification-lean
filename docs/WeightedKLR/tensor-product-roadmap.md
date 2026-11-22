@@ -761,13 +761,42 @@ from which the full one is obtained by iterating):
   of `Ext` in large degrees (Mathlib's `HasProjectiveDimensionLT`). Same route hypothesis as
   Prop 5.21.
 
+Weak `𝔰𝔩₂`-categorification along an `i`-string (input to Prop 5.12): `fgStringWeakSl2`
+(Chuang–Rouquier §5.1.1 structure on finitely generated `T^λ`-modules along `ν₀ + m i`, `i ∉ ν₀`),
+from the module-tower constructor `ModuleTower.weakSl2` and the class identity
+`fgString_compositionFactors_EF_sub_FE`.
+
+* Prop 5.12 (`RedStrands/BlackModuleSimpleHead.lean`): for `U` simple, any two simple quotients
+  of `Eᵢ U` (resp. `Fᵢ U`) are isomorphic compatibly with the quotient maps
+  (`fgString_head_E`, `fgString_head_F`), by Chuang–Rouquier Prop 5.20 applied to
+  `fgStringWeakSl2`. Inputs: `k`-linearity of `Eᵢ`, `Fᵢ` (`fgStringE_linear`,
+  `fgStringF_linear`), the nil-Hecke action of the newest black dot with uniform nilpotency
+  exponent (`fgStringNilHecke`, `exists_fgStringNilHecke_X_pow_eq_zero`), and `End(S) = k` for
+  simples (`fgString_finrank_end_simple`, via the `k`-dual left module). Hypotheses: standard
+  Khovanov–Lauda black scalars and Rouquier scalars; the base presentation of the cyclotomic
+  cover taken by `fgStringWeakSl2` is instantiated with `noRelations`, so no presentation
+  hypothesis remains.
+
 Open: the comparison of the induced model with Def 5.4 (right modules over `T̃^λ` and the block
 algebra of all `ℓ + 1` blocks; the induced model uses left modules, which the vertical flip
 `tensorFlip` converts), injectivity in the `Fᵢ`-part of Prop 5.5, Prop 5.6, and the results listed below.
 
+Prop 5.17 (stringy loadings classify indecomposable projectives) is proved:
+`Stendhal.maxLoadClassification` (`RedStrands/StringyClassification.lean`). Prop 5.18 (summands
+of `T^λ e(s)` surject onto `S_s`, a product of standard quotients) is proved for every orthogonal
+idempotent decomposition of `e(s)`: `Stendhal.IsSeqDecomp.leftStandardEquiv`,
+`Stendhal.IsSeqDecomp.lIdeal_le_sup` (`RedStrands/StandardSplitting.lean`).
+
+Prop 5.28 of v2 (`End(P⁰) ≅ T^{λ̲} ≅ R^{λ̲}` for `P⁰ = e⁰ T^λ`, `e⁰` the red-first loadings) is
+proved as a ring isomorphism of the corner `e⁰ T^λ e⁰` with the cyclotomic KLR algebra of the
+total weight, for the crossing parameters of §2.2: `Stendhal.redFirstCornerEquiv`
+(`RedStrands/RedFirstCorner.lean`), by repeated red-strand splitting (Cor 4.21 of v2,
+`splitRedEquiv`) down to one red strand (Prop 4.20). Deferred: the printed `Φ`-indexed form of
+Prop 5.21 (the specific filtration `P_{≥φ}/P_{>φ} ≅ S^{κφ}_{iφ}`), which strengthens the
+filtration form above.
+
 Standardization functors (Prop 5.3, Def 5.4, Props 5.6, 5.7); simples and crystals
-(Lemma 5.9, Props 5.11, 5.12, Thms 5.14, 5.15); stringy triples (Props 5.17, 5.18);
-standard stratification (Lemma 5.19, Prop 5.21 in printed `Φ`-indexed form, Lemma 5.25,
+(Lemma 5.9, Prop 5.11, Thms 5.14, 5.15); standard stratification (Lemma 5.19, Prop 5.21 in printed `Φ`-indexed form, Lemma 5.25,
 Prop 5.26, Cor 5.27: `V^λ` is a tensor product categorification); Thm 5.28 (finite
 projective resolutions); self-dual projectives and double centralizer
 (Thm 5.30, Prop 5.31, Cor 5.32, Prop 5.33); Thm 5.34 (for `sl_n`, blocks of cyclotomic

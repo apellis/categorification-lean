@@ -198,6 +198,13 @@ theorem unop_tensorReflect_unop_tensorReflect (z : T) :
       (tensorReflect (Q := Q) (Λ := Λ) (ν := ν) z).unop).unop = z :=
   reflect_reflect z
 
+/-- The reflection fixes the idempotents `e(s)` of red-ordered sequences. -/
+theorem unop_tensorReflect_e (s : Seq μ) (hs : IsRedOrdered s) :
+    (tensorReflect (Q := Q) (Λ := Λ) (ν := ν)
+      (TensorProductAlgebra.mk Q Λ ν (StendhalAlgebra.e s hs))).unop =
+      TensorProductAlgebra.mk Q Λ ν (StendhalAlgebra.e s hs) :=
+  reflect_e s hs
+
 theorem tensorReflect_injective :
     Function.Injective (tensorReflect (Q := Q) (Λ := Λ) (ν := ν)) := fun x y h => by
   rw [← unop_tensorReflect_unop_tensorReflect x, ← unop_tensorReflect_unop_tensorReflect y, h]

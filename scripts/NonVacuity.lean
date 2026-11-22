@@ -5565,3 +5565,156 @@ example : CL.Prop310UpC (Flag.slRootDatum 2) ℚ sl3Scalars 0 {0, 1} :=
   CL.prop310UpC sl3Scalars 0 {0, 1}
 
 end NonVacuity.CLQSpanning
+
+namespace NonVacuity.SelfDualSimple
+
+attribute [local instance 1100] IsIdempotentElem.instAlgebraCorner_categorification
+
+private noncomputable abbrev sdQ : Unit → Unit → MvPolynomial (Fin 2) ℚ := fun _ _ => 0
+private noncomputable abbrev sdΛ : Fin 1 → Unit →₀ ℕ := fun _ => Finsupp.single () 1
+private noncomputable abbrev sdT := Stendhal.TensorProductAlgebra ℚ sdQ sdΛ 0
+
+private theorem sdRouquier :
+    KLR.IsRouquierQ (CartanDatum.ofGraph (⊥ : SimpleGraph Unit)) sdQ where
+  symm _ _ h := (h (Subsingleton.elim _ _)).elim
+  homogeneous _ _ h := (h (Subsingleton.elim _ _)).elim
+  unit_coeff _ _ h := (h (Subsingleton.elim _ _)).elim
+
+/-- With no black strands the tensor product algebra is `ℚ`, a simple module over itself. -/
+private instance : IsSimpleModule sdT sdT := by
+  let e := Stendhal.tensorProductAlgebraZeroEquiv (k := ℚ) sdQ sdΛ
+  refine isSimpleModule_self_iff_isUnit.mpr ⟨e.toEquiv.nontrivial, fun x hx => ?_⟩
+  have : e x ≠ 0 := (map_ne_zero_iff e e.injective).mpr hx
+  exact (MulEquiv.isUnit_map e.toMulEquiv).mp (isUnit_iff_ne_zero.mpr this)
+
+/-- Webster, arXiv:1309.3796v2, Prop. 5.11, for the vacuum block. -/
+example := Stendhal.nonempty_equiv_twistDual (L := sdT) sdΛ 0 sdRouquier
+
+end NonVacuity.SelfDualSimple
+
+namespace NonVacuity.PerfectBasis
+
+open Categorification Categorification.KL3.Diagram
+
+private noncomputable abbrev pbC := CartanDatum.ofGraph (⊥ : SimpleGraph Unit)
+private noncomputable abbrev pbΛ : Fin 1 → Unit →₀ ℕ := fun _ => Finsupp.single () 1
+
+private theorem pbRouquier :
+    KLR.IsRouquierQ pbC (CL.qCL (CL.CLScalars.kl : CL.CLScalars pbC ℚ)) where
+  symm _ _ h := (h (Subsingleton.elim _ _)).elim
+  homogeneous _ _ h := (h (Subsingleton.elim _ _)).elim
+  unit_coeff _ _ h := (h (Subsingleton.elim _ _)).elim
+
+section
+attribute [local instance 1100] IsIdempotentElem.instAlgebraCorner_categorification
+attribute [local instance 2000] Classical.propDecidable
+
+/-- Webster, arXiv:1309.3796v2, Thm. 5.14, along the `()`-string from the empty sequence for
+`sl₂` with one red strand. -/
+example : True := by
+  have := fun m => Stendhal.isNoetherianRing_stringAlg pbΛ pbRouquier () 0 m
+  have := fun m => Stendhal.isArtinianRing_stringAlg pbΛ pbRouquier () 0 m
+  exact (Stendhal.fgString_isPerfectBasis (k := ℚ) (Λ := pbΛ) () 0 pbRouquier
+    (Multiset.notMem_zero ())).elim fun _ _ => trivial
+
+end
+
+end NonVacuity.PerfectBasis
+
+namespace NonVacuity.StringParametrization
+
+open Categorification Categorification.KLR
+
+/-- The alternating colour sequence on `Bool` meets every colour infinitely often. -/
+theorem alt_hσ : ∀ (a : Bool) (m : ℕ), ∃ r, m ≤ r ∧ decide (r % 2 = 0) = a := by
+  intro a m
+  rcases Nat.mod_two_eq_zero_or_one m with h | h <;> cases a
+  · exact ⟨m + 1, by omega, by simp; omega⟩
+  · exact ⟨m, le_rfl, by simp [h]⟩
+  · exact ⟨m, le_rfl, by simp; omega⟩
+  · exact ⟨m + 1, by omega, by simp; omega⟩
+
+example : Function.Injective (strKey (fun r : ℕ => decide (r % 2 = 0))) :=
+  strKey_injective alt_hσ
+
+example (ν : Multiset Bool) (L : Type) [AddCommGroup L] [Module ℚ L]
+    [Module (KLRAlgebra ℚ (fun _ _ : Bool => (1 : MvPolynomial (Fin 2) ℚ)) ν) L]
+    [IsScalarTower ℚ (KLRAlgebra ℚ (fun _ _ : Bool => (1 : MvPolynomial (Fin 2) ℚ)) ν) L]
+    [FiniteDimensional ℚ L]
+    [IsSimpleModule (KLRAlgebra ℚ (fun _ _ : Bool => (1 : MvPolynomial (Fin 2) ℚ)) ν) L]
+    (hnil : ∀ a, SmulNilpotent
+      (KLRAlgebra.x a : KLRAlgebra ℚ (fun _ _ : Bool => (1 : MvPolynomial (Fin 2) ℚ)) ν) L)
+    (s : Seq ν) (hs : KLRAlgebra.IsStrMax (fun _ _ : Bool => (1 : MvPolynomial (Fin 2) ℚ))
+      (fun r => decide (r % 2 = 0)) ν L s) :
+    KLRAlgebra.dimCh (fun _ _ : Bool => (1 : MvPolynomial (Fin 2) ℚ)) ν L s = KLRAlgebra.runsFact s :=
+  (KLRAlgebra.isStrMax_aux (P := fun _ _ => 1) (fun _ _ _ => by simp) (fun _ _ _ => one_ne_zero)
+    _ ν rfl _ alt_hσ L hnil s hs).1
+
+end NonVacuity.StringParametrization
+
+namespace NonVacuity.StringyClassification
+
+private noncomputable abbrev scQ : Unit → Unit → MvPolynomial (Fin 2) ℚ := fun _ _ => 0
+private noncomputable abbrev scΛ : Fin 1 → Unit →₀ ℕ := fun _ => Finsupp.single () 1
+
+private theorem scRouquier :
+    KLR.IsRouquierQ (CartanDatum.ofGraph (⊥ : SimpleGraph Unit)) scQ where
+  symm _ _ h := (h (Subsingleton.elim _ _)).elim
+  homogeneous _ _ h := (h (Subsingleton.elim _ _)).elim
+  unit_coeff _ _ h := (h (Subsingleton.elim _ _)).elim
+
+/-- The standard grading of the `sl₂` KLR algebra with zero crossing parameter. -/
+private def scGrading : KLR.GradingDatum scQ where
+  degX _ := 2
+  degΨ _ _ := -2
+  degΨ_self _ := rfl
+  isWeightedHomogeneous _ _ h := (h (Subsingleton.elim _ _)).elim
+
+private noncomputable def scG : KLR.GradingDatum (Stendhal.stendhalQ scQ scΛ) :=
+  Stendhal.stendhalGradingDatum scΛ scGrading (fun _ => 1) (fun _ => rfl)
+
+/-- Webster, arXiv:1309.3796v2, Prop. 5.17, for `sl₂`, one red strand of weight `ω`, and every
+black weight. -/
+example (ν : Multiset Unit) :=
+  Stendhal.maxLoadClassification (k := ℚ) scRouquier (σ := fun _ => ())
+    (fun _ m => ⟨m, le_rfl, rfl⟩) scΛ scG ν
+
+example (ν : Multiset Unit) (p : KLR.Seq (Stendhal.stendhalWeight 1 ν))
+    (hp : Stendhal.IsStringy ℚ scQ (fun _ => ()) 1 scΛ ν p) :=
+  Stendhal.existsUnique_isMaxLoad_of_isStringy scRouquier (fun _ m => ⟨m, le_rfl, rfl⟩) scΛ scG hp
+
+end NonVacuity.StringyClassification
+
+namespace NonVacuity.StandardSplitting
+
+open Categorification Categorification.Stendhal
+
+/-- Webster, arXiv:1309.3796v2, Prop. 5.18, for the trivial decomposition `e(s) = e(s)` of a
+red-ordered loading with one red strand of weight `ω` and one black strand. -/
+noncomputable example (s : KLR.Seq (stendhalWeight 1 ({()} : Multiset Unit))) (hs : IsRedOrdered s) :=
+  IsSeqDecomp.leftStandardEquiv
+    (show IsSeqDecomp (Q := fun _ _ : Unit => (0 : MvPolynomial (Fin 2) ℚ))
+        (Λ := fun _ : Fin 1 => Finsupp.single () 1) s hs (fun _ : Unit => seqIdem _ _ s hs) from
+      ⟨fun _ => seqIdem_mul_self _ _ s hs, fun i j h => (h (Subsingleton.elim i j)).elim,
+        by simp⟩)
+
+end NonVacuity.StandardSplitting
+
+namespace NonVacuity.RedFirstCorner
+
+open Categorification Categorification.Stendhal
+
+private noncomputable abbrev rfQ : Unit → Unit → MvPolynomial (Fin 2) ℚ := fun _ _ => 0
+
+private theorem rfRouquier :
+    KLR.IsRouquierQ (CartanDatum.ofGraph (⊥ : SimpleGraph Unit)) rfQ where
+  symm _ _ h := (h (Subsingleton.elim _ _)).elim
+  homogeneous _ _ h := (h (Subsingleton.elim _ _)).elim
+  unit_coeff _ _ h := (h (Subsingleton.elim _ _)).elim
+
+/-- Webster, arXiv:1309.3796v2, Prop. 5.28, for `sl₂`, two red strands of weight `ω`, and every
+black weight. -/
+noncomputable example (ν : Multiset Unit) :=
+  redFirstCornerEquiv rfQ rfRouquier ν (fun _ : Fin 2 => Finsupp.single () 1)
+
+end NonVacuity.RedFirstCorner

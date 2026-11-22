@@ -146,7 +146,9 @@ theorem exists_uniform_dot_pow (S : Finset I) :
 
 end Dots
 
-private theorem exists_long_constant_block (L : ℕ → ℕ) (i : I) (t : ℕ) :
+/-- A word with at most `t` letters different from `i` and at least `B` letters
+has a constant block of length `L p + 1` starting at some position `p`. -/
+theorem exists_long_constant_block (L : ℕ → ℕ) (i : I) (t : ℕ) :
     ∃ B : ℕ, ∀ {ν : Multiset I} (s : Seq ν),
       (ν.filter (· ≠ i)).card ≤ t → B ≤ ν.card →
       ∃ p : ℕ, p + (L p + 1) ≤ ν.card ∧ IsConstOn s p (L p + 1) := by

@@ -79,17 +79,15 @@ theorem lastRedFinal_scalar {M : Type*} [AddCommGroup M] [Module k M] [Module B 
   exact exists_scalar_of_simple singleRed β hQ g
 
 include hQ in
-/-- The shift classes of indecomposable graded projectives of the tensor
-algebra presenting a layer are indexed by the shift classes for the shorter
-tensor algebra and the last-weight cyclotomic algebra (Webster,
-arXiv:1309.3796v2, proof of Theorem 4.38). -/
-def lastRedLayerSourceIndecClassEquiv : IndecClass 𝒜 ≃ IndecClass Earlier × IndecClass Final := by
+/-- The graded simple tops of the shorter tensor algebra and of the last-weight cyclotomic
+algebra are finite-dimensional and absolutely irreducible, and so are those of their tensor
+product. -/
+theorem lastRedLayerSource_tensorK0Hyp : TensorK0Hyp Earlier Final := by
   let := tensorProductAlgebra_finite Λ θ hQ
   let := lastRedFinal_finite hQ μ β
   let := lastRedLayerSource_finite hQ Λ θ μ β
   let := HasGdim.of_finiteDimensional Earlier
   let := HasGdim.of_finiteDimensional Final
-  apply TensorK0Hyp.indecClassEquiv
   refine ⟨fun b => top_finite b, fun b => top_finite b, ?_, ?_, fun b => top_finite b⟩
   · intro b f
     let := top_finite b
@@ -101,5 +99,17 @@ def lastRedLayerSourceIndecClassEquiv : IndecClass 𝒜 ≃ IndecClass Earlier �
     let := (IndecClass.isGradedSimple_top b).isSimpleModule
     obtain ⟨c,hc⟩ := lastRedFinal_scalar hQ μ β f
     exact ⟨c,LinearMap.ext hc⟩
+
+include hQ in
+/-- The shift classes of indecomposable graded projectives of the tensor
+algebra presenting a layer are indexed by the shift classes for the shorter
+tensor algebra and the last-weight cyclotomic algebra (Webster,
+arXiv:1309.3796v2, proof of Theorem 4.38). -/
+def lastRedLayerSourceIndecClassEquiv : IndecClass 𝒜 ≃ IndecClass Earlier × IndecClass Final := by
+  let := tensorProductAlgebra_finite Λ θ hQ
+  let := lastRedFinal_finite hQ μ β
+  let := HasGdim.of_finiteDimensional Earlier
+  let := HasGdim.of_finiteDimensional Final
+  exact (lastRedLayerSource_tensorK0Hyp hQ Λ θ μ β G H).indecClassEquiv
 
 end Categorification.Stendhal

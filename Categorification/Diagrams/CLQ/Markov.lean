@@ -88,7 +88,7 @@ end CrossLs
 
 /-- The span of the classes of lists of dots, as endomorphisms of `E_s 1_μ`. -/
 def dotSpan (μ : X) (s : List (Letter I)) : Submodule k (End ((pres RD k sc).obj (ob RD μ s))) :=
-  Submodule.span k {f | ∃ D, DotsOnly D ∧ SChain s D s ∧ f = dg RD k sc μ s s D}
+  Submodule.span k {f | ∃ D, DotsOnly D ∧ SChain s D s ∧ f = NF.dg (pres RD k sc) μ s s D}
 
 variable {RD k sc} in
 theorem dotSpan_comp {μ : X} {s : List (Letter I)} {f g : End ((pres RD k sc).obj (ob RD μ s))}
@@ -99,7 +99,7 @@ theorem dotSpan_comp {μ : X} {s : List (Letter I)} {f g : End ((pres RD k sc).o
     induction hg using Submodule.span_induction with
     | mem g hg =>
       obtain ⟨E, hE, hEs, rfl⟩ := hg
-      exact Submodule.subset_span ⟨D ++ E, hD.append hE, hDs.append hEs, dg_comp hDs hEs⟩
+      exact Submodule.subset_span ⟨D ++ E, hD.append hE, hDs.append hEs, NF.dg_comp hDs hEs⟩
     | zero => rw [Limits.comp_zero]; exact Submodule.zero_mem _
     | add x y _ _ hx hy => rw [Preadditive.comp_add]; exact Submodule.add_mem _ hx hy
     | smul r x _ hx => rw [Linear.comp_smul]; exact Submodule.smul_mem _ r hx
@@ -108,7 +108,7 @@ theorem dotSpan_comp {μ : X} {s : List (Letter I)} {f g : End ((pres RD k sc).o
   | smul r x _ hx => rw [Linear.smul_comp]; exact Submodule.smul_mem _ r hx
 
 theorem id_mem_dotSpan (μ : X) (s : List (Letter I)) : 𝟙 _ ∈ dotSpan RD k sc μ s :=
-  Submodule.subset_span ⟨[], fun _ h => by simp at h, rfl, (dg_nil μ s).symm⟩
+  Submodule.subset_span ⟨[], fun _ h => by simp at h, rfl, (NF.dg_nil μ s).symm⟩
 
 /-! ## The right curl with dots on its loop -/
 
@@ -118,22 +118,22 @@ variable (μ : X) (j : I)
 
 
 
-theorem dotsU_mem_slideSetR (l : Letter I) (a : ℕ) : dotsU RD k sc μ l a ∈ slideSetR RD k sc μ l := by
+theorem dotsU_mem_slideSetR (l : Letter I) (a : ℕ) : NF.dotsU (pres RD k sc) μ l a ∈ slideSetR RD k sc μ l := by
   have := mem_slideSetR (RD := RD) (k := k) (sc := sc) (μ := μ) (l := l) (a := a) IsBub.id
   rwa [bubRU_id, Category.comp_id] at this
 
 /-- A clockwise bubble with `e` dots on its upward strand, to the right of `E_j`. -/
 theorem dg_cwE_right (e : ℕ) :
-    dg RD k sc μ [up j] [up j] ([([up j], .cup (up j), [])] ++
+    NF.dg (pres RD k sc) μ [up j] [up j] ([([up j], .cup (up j), [])] ++
         List.replicate e ([up j], .dot (up j), [dn j]) ++ [([up j], .cap (dn j), [])]) =
-      bubRU RD k sc μ (up j) (cwU RD k sc μ j e) := by
-  rw [cwU_of_nonneg, cwLs, dg_cw_dots, bubRU, plcL_dg_nil]
+      NF.bubRU (pres RD k sc) μ (up j) (NF.cwU (pres RD k sc) μ j e) := by
+  rw [NF.cwU_of_nonneg, cwLs, dg_cw_dots, NF.bubRU, NF.plcL_dg_nil]
   simp [whL]
 
 /-- **The right curl with dots on its loop** is a linear combination of dots on the strand
 times bubbles to its right (the curl relation and the nilHecke relation). -/
 theorem curl_mem_slideSetR (e : ℕ) :
-    dg RD k sc μ [up j] [up j] (curlLs j e) ∈ slideSetR RD k sc μ (up j) := by
+    NF.dg (pres RD k sc) μ [up j] [up j] (curlLs j e) ∈ slideSetR RD k sc μ (up j) := by
   induction e with
   | zero =>
     have h := dg_curlR RD k sc j μ
@@ -141,28 +141,28 @@ theorem curl_mem_slideSetR (e : ℕ) :
       ([up j], .cap (dn j), [])] from rfl, h]
     refine neg_mem (Submodule.sum_mem _ fun f _ => mem_slideSetR' (cwU_isBub _ _))
   | succ e ih =>
-    have E : dg RD k sc (wt RD μ [dn j]) [up j, up j] [up j, up j]
+    have E : NF.dg (pres RD k sc) (wt RD μ [dn j]) [up j, up j] [up j, up j]
         [([], .cross true j j, []), ([up j], .dot (up j), [])] =
-        dg RD k sc (wt RD μ [dn j]) [up j, up j] [up j, up j]
+        NF.dg (pres RD k sc) (wt RD μ [dn j]) [up j, up j] [up j, up j]
           [([], .dot (up j), [up j]), ([], .cross true j j, [])] -
-        dg RD k sc (wt RD μ [dn j]) [up j, up j] [up j, up j] [] := by
+        NF.dg (pres RD k sc) (wt RD μ [dn j]) [up j, up j] [up j, up j] [] := by
       rw [dg_slideREq]; abel
-    have key := dg_stepL RD k sc μ (s₀ := [up j]) (t₀ := [up j]) [([up j], .cup (up j), [])]
+    have key := NF.dg_stepL (pres RD k sc) μ (s₀ := [up j]) (t₀ := [up j]) [([up j], .cup (up j), [])]
       (List.replicate e ([up j], .dot (up j), [dn j]) ++ [([up j], .cap (dn j), [])]) [] [dn j]
       (L := curlLs j (e + 1)) E (by schain) (by schain) (by simp [curlLs, whL, List.replicate_succ])
-    rw [key, map_sub, ctxL_dg RD k sc μ (by schain) (by schain),
-      ctxL_dg RD k sc μ (by schain) (by schain)]
+    rw [key, map_sub, NF.ctxL_dg (pres RD k sc) μ (by schain) (by schain),
+      NF.ctxL_dg (pres RD k sc) μ (by schain) (by schain)]
     simp only [whL, List.map_cons, List.map_nil, List.cons_append, List.nil_append,
       List.append_nil]
     refine sub_mem ?_ ?_
-    · have e2 : dg RD k sc μ [up j] [up j] (([up j], .cup (up j), []) ::
+    · have e2 : NF.dg (pres RD k sc) μ [up j] [up j] (([up j], .cup (up j), []) ::
           ([], .dot (up j), [up j, dn j]) :: ([], .cross true j j, [dn j]) ::
             (List.replicate e ([up j], .dot (up j), [dn j]) ++ [([up j], .cap (dn j), [])])) =
-          dotsU RD k sc μ (up j) 1 ≫ dg RD k sc μ [up j] [up j] (curlLs j e) := by
-        rw [dotsU, dg_comp (by schain) (sChain_curlLs j e)]
+          NF.dotsU (pres RD k sc) μ (up j) 1 ≫ NF.dg (pres RD k sc) μ [up j] [up j] (curlLs j e) := by
+        rw [NF.dotsU, NF.dg_comp (by schain) (sChain_curlLs j e)]
         dstepQ [] (([], .cross true j j, [dn j]) ::
             (List.replicate e ([up j], .dot (up j), [dn j]) ++ [([up j], .cap (dn j), [])])) [] []
-          (dg_swap' RD k sc (wt RD μ []) [] [] [] (.dot (up j)) (.cup (up j))).symm
+          (NF.dg_swap' (pres RD k sc) (wt RD μ []) [] [] [] (.dot (up j)) (.cup (up j))).symm
         simp [curlLs]
       rw [e2]
       exact slideSetR_comp (dotsU_mem_slideSetR RD k sc μ _ 1) ih
@@ -178,19 +178,19 @@ end Curl
 /-- Dots and bubble monomials placed to the right of the upward strands `u` lie in `upSpan`. -/
 theorem plcL_slideSetR_mem_upSpan (μ : X) (u : List (Letter I)) (c : I)
     {f : End ((pres RD k sc).obj (ob RD μ [up c]))} (hf : f ∈ slideSetR RD k sc μ (up c)) :
-    plcL RD k sc μ u [] [up c] [up c] f ∈ upSpan RD k sc μ (u ++ [up c] ++ []) (u ++ [up c] ++ []) := by
+    NF.plcL (pres RD k sc) μ u [] [up c] [up c] f ∈ upSpan RD k sc μ (u ++ [up c] ++ []) (u ++ [up c] ++ []) := by
   induction hf using Submodule.span_induction with
   | mem f hf =>
     obtain ⟨a, γ, hγ, rfl⟩ := hf
     have key := hom_ext_dg RD k sc μ (s := []) (t := [])
-      ((plcL RD k sc μ u [] [up c] [up c]).comp ((Linear.leftComp k _ (dotsU RD k sc μ (up c) a)).comp
-        (plcL RD k sc μ [up c] [] [] [])))
-      ((Linear.leftComp k _ (dg RD k sc μ (u ++ [up c] ++ []) (u ++ [up c] ++ [])
+      ((NF.plcL (pres RD k sc) μ u [] [up c] [up c]).comp ((Linear.leftComp k _ (NF.dotsU (pres RD k sc) μ (up c) a)).comp
+        (NF.plcL (pres RD k sc) μ [up c] [] [] [])))
+      ((Linear.leftComp k _ (NF.dg (pres RD k sc) μ (u ++ [up c] ++ []) (u ++ [up c] ++ [])
         ((List.replicate a ([], .dot (up c), [])).map (whL u [])))).comp
           (bubAt RD k sc μ (u ++ [up c] ++ [])))
       (fun B hB => ?_)
-    · have e : plcL RD k sc μ u [] [up c] [up c] (dotsU RD k sc μ (up c) a ≫ bubRU RD k sc μ (up c) γ) =
-          dg RD k sc μ (u ++ [up c] ++ []) (u ++ [up c] ++ [])
+    · have e : NF.plcL (pres RD k sc) μ u [] [up c] [up c] (NF.dotsU (pres RD k sc) μ (up c) a ≫ NF.bubRU (pres RD k sc) μ (up c) γ) =
+          NF.dg (pres RD k sc) μ (u ++ [up c] ++ []) (u ++ [up c] ++ [])
             ((List.replicate a ([], .dot (up c), [])).map (whL u [])) ≫
             bubAt RD k sc μ (u ++ [up c] ++ []) γ := LinearMap.congr_fun key γ
       rw [e]
@@ -201,23 +201,23 @@ theorem plcL_slideSetR_mem_upSpan (μ : X) (u : List (Letter I)) (c : I)
         rw [List.eq_of_mem_replicate hx]; rfl
       · rw [List.map_replicate]
         exact SChain.replicate_of ⟨by simp [whL], by simp [whL]⟩ a
-    · change plcL RD k sc μ u [] [up c] [up c] (dotsU RD k sc μ (up c) a ≫
-          plcL RD k sc μ [up c] [] [] [] (dg RD k sc μ [] [] B)) =
-        dg RD k sc μ (u ++ [up c] ++ []) (u ++ [up c] ++ [])
+    · change NF.plcL (pres RD k sc) μ u [] [up c] [up c] (NF.dotsU (pres RD k sc) μ (up c) a ≫
+          NF.plcL (pres RD k sc) μ [up c] [] [] [] (NF.dg (pres RD k sc) μ [] [] B)) =
+        NF.dg (pres RD k sc) μ (u ++ [up c] ++ []) (u ++ [up c] ++ [])
             ((List.replicate a ([], .dot (up c), [])).map (whL u [])) ≫
-          bubAt RD k sc μ (u ++ [up c] ++ []) (dg RD k sc μ [] [] B)
+          bubAt RD k sc μ (u ++ [up c] ++ []) (NF.dg (pres RD k sc) μ [] [] B)
       have hrep : SChain [up c] (List.replicate a ([], .dot (up c), [])) [up c] :=
         SChain.replicate_of (by schain) a
       have hB' : SChain [up c] (B.map (whL [up c] [])) [up c] := by simpa using hB.whisk [up c] []
       have hrep' := hrep.whisk u []
       have hB'' := hB.whisk (u ++ [up c] ++ []) []
       simp only [List.append_nil] at hB''
-      rw [plcL_dg_nil]
-      show plcL RD k sc μ u [] [up c] [up c] (dg RD k sc μ [up c] [up c] _ ≫
-        dg RD k sc μ [up c] [up c] (B.map (whL [up c] []))) = _
-      rw [dg_comp hrep hB', plcL_dg_nil, bubAt_dg]
+      rw [NF.plcL_dg_nil]
+      show NF.plcL (pres RD k sc) μ u [] [up c] [up c] (NF.dg (pres RD k sc) μ [up c] [up c] _ ≫
+        NF.dg (pres RD k sc) μ [up c] [up c] (B.map (whL [up c] []))) = _
+      rw [NF.dg_comp hrep hB', NF.plcL_dg_nil, bubAt_dg]
       rw [show u ++ [up c] ++ [] = u ++ [up c] from List.append_nil _] at hrep' ⊢
-      rw [dg_comp hrep' hB'']
+      rw [NF.dg_comp hrep' hB'']
       simp only [whL, List.map_map, Function.comp_def, List.map_replicate, List.append_nil,
         List.map_append]
       congr 2
@@ -252,12 +252,12 @@ variable (μ : X) (j : I)
 /-- Upward layers below the closed strand leave the closure. -/
 theorem dg_closeLs_peel {s s' t : List (Letter I)} (L M : List (LayerData I))
     (hL : SChain s L s') (hM : SChain (s' ++ [up j]) M (t ++ [up j])) (e : ℕ) :
-    dg RD k sc μ s t (closeLs j s t (L.map (whL [] [up j]) ++ M) e) =
-      dg RD k sc μ s s' L ≫ dg RD k sc μ s' t (closeLs j s' t M e) := by
-  have ei := dg_interchange (RD := RD) (k := k) (sc := sc) (μ := μ) (S := s) (T := t) []
+    NF.dg (pres RD k sc) μ s t (closeLs j s t (L.map (whL [] [up j]) ++ M) e) =
+      NF.dg (pres RD k sc) μ s s' L ≫ NF.dg (pres RD k sc) μ s' t (closeLs j s' t M e) := by
+  have ei := NF.dg_interchange (P := pres RD k sc) (μ := μ) (S := s) (T := t) []
     (M.map (whL [] [dn j]) ++ List.replicate e (t, .dot (up j), [dn j]) ++ [(t, .cap (dn j), [])])
     hL (B := [([], .cup (up j), [])]) (t := []) (t' := [up j, dn j]) (by schain)
-  rw [dg_comp hL (sChain_closeLs hM e)]
+  rw [NF.dg_comp hL (sChain_closeLs hM e)]
   unfold closeLs
   wnf at ei ⊢
   rw [← ei]
@@ -265,12 +265,12 @@ theorem dg_closeLs_peel {s s' t : List (Letter I)} (L M : List (LayerData I))
 /-- Upward layers above the closed strand leave the closure. -/
 theorem dg_closeLs_peel_top {s t t' : List (Letter I)} (M P : List (LayerData I))
     (hM : SChain (s ++ [up j]) M (t' ++ [up j])) (hP : SChain t' P t) :
-    dg RD k sc μ s t (closeLs j s t (M ++ P.map (whL [] [up j])) 0) =
-      dg RD k sc μ s t' (closeLs j s t' M 0) ≫ dg RD k sc μ t' t P := by
-  have ei := dg_interchange (RD := RD) (k := k) (sc := sc) (μ := μ) (S := s) (T := t)
+    NF.dg (pres RD k sc) μ s t (closeLs j s t (M ++ P.map (whL [] [up j])) 0) =
+      NF.dg (pres RD k sc) μ s t' (closeLs j s t' M 0) ≫ NF.dg (pres RD k sc) μ t' t P := by
+  have ei := NF.dg_interchange (P := pres RD k sc) (μ := μ) (S := s) (T := t)
     ([(s, .cup (up j), [])] ++ M.map (whL [] [dn j])) [] hP (B := [([], .cap (dn j), [])])
     (t := [up j, dn j]) (t' := []) (by schain)
-  rw [dg_comp (sChain_closeLs hM 0) hP]
+  rw [NF.dg_comp (sChain_closeLs hM 0) hP]
   unfold closeLs
   simp only [List.replicate_zero, List.append_nil] at ei ⊢
   wnf at ei ⊢
@@ -279,8 +279,8 @@ theorem dg_closeLs_peel_top {s t t' : List (Letter I)} (M P : List (LayerData I)
 /-- A dot on the closed strand at the bottom moves around the closure to the top. -/
 theorem dg_closeLs_rotate {s t : List (Letter I)} (M : List (LayerData I))
     (hM : SChain (s ++ [up j]) M (t ++ [up j])) (e : ℕ) :
-    dg RD k sc μ s t (closeLs j s t ((s, .dot (up j), []) :: M) e) =
-      dg RD k sc μ s t (closeLs j s t M (e + 1)) := by
+    NF.dg (pres RD k sc) μ s t (closeLs j s t ((s, .dot (up j), []) :: M) e) =
+      NF.dg (pres RD k sc) μ s t (closeLs j s t M (e + 1)) := by
   have hM' : SChain (s ++ [up j, dn j]) (M.map (whL [] [dn j])) (t ++ [up j, dn j]) := by
     simpa using hM.whisk [] [dn j]
   have hdots : SChain (t ++ [up j, dn j]) (List.replicate e (t, .dot (up j), [dn j]))
@@ -291,12 +291,12 @@ theorem dg_closeLs_rotate {s t : List (Letter I)} (M : List (LayerData I))
     ⟨by simp, by simp⟩
   unfold closeLs
   -- the dot moves from the upward leg of the cup to its downward leg
-  refine (dg_step RD k sc μ (s₀ := s) (t₀ := t) []
+  refine (NF.dg_step (pres RD k sc) μ (s₀ := s) (t₀ := t) []
     (M.map (whL [] [dn j]) ++ List.replicate e (t, .dot (up j), [dn j]) ++ [(t, .cap (dn j), [])])
     s [] (dg_dot_cupUp RD k sc j (wt RD μ [])).symm (by simp)
     (by simpa using (hM'.append hdots).append hcap) (by simp [whL]) rfl).trans ?_
   -- past the layers of `M`
-  have ei := dg_interchange (RD := RD) (k := k) (sc := sc) (μ := μ) (S := s) (T := t)
+  have ei := NF.dg_interchange (P := pres RD k sc) (μ := μ) (S := s) (T := t)
     [(s, .cup (up j), [])] (List.replicate e (t, .dot (up j), [dn j]) ++ [(t, .cap (dn j), [])])
     hM (B := [([], .dot (dn j), [])]) (t := [dn j]) (t' := [dn j]) (by schain)
   wnf at ei ⊢
@@ -304,27 +304,27 @@ theorem dg_closeLs_rotate {s t : List (Letter I)} (M : List (LayerData I))
   -- past the dots on the closed strand
   have hpre : SChain s ((s, .cup (up j), []) :: M.map (whL [] [dn j])) (t ++ [up j, dn j]) :=
     (show SChain s [(s, .cup (up j), [])] (s ++ [up j, dn j]) from ⟨by simp, by simp⟩).append hM'
-  refine (dg_step RD k sc μ (s₀ := s) (t₀ := t) ((s, .cup (up j), []) :: M.map (whL [] [dn j]))
-    [(t, .cap (dn j), [])] t [] (dg_swap_dots RD k sc (wt RD μ []) [] [] [] (up j) (dn j) 1 e)
+  refine (NF.dg_step (pres RD k sc) μ (s₀ := s) (t₀ := t) ((s, .cup (up j), []) :: M.map (whL [] [dn j]))
+    [(t, .cap (dn j), [])] t [] (NF.dg_swap_dots (pres RD k sc) (wt RD μ []) [] [] [] (up j) (dn j) 1 e)
     (by simpa using hpre) (by simp) (by simp [whL]) rfl).trans ?_
   -- around the cap
-  refine (dg_step RD k sc μ (s₀ := s) (t₀ := t) ((s, .cup (up j), []) :: M.map (whL [] [dn j]) ++
+  refine (NF.dg_step (pres RD k sc) μ (s₀ := s) (t₀ := t) ((s, .cup (up j), []) :: M.map (whL [] [dn j]) ++
     List.replicate e (t, .dot (up j), [dn j])) [] t [] (dg_dot_cap_dn RD k sc (wt RD μ []) j)
     (by simp only [List.append_nil]; exact hpre.append hdots) (by simp) (by simp [whL]) rfl).trans ?_
   simp [whL, List.replicate_succ']
 
 /-- The closure of dots on the closed strand only is a dotted clockwise bubble on the right. -/
 theorem dg_closeLs_nil (s : List (Letter I)) (e : ℕ) :
-    dg RD k sc μ s s (closeLs j s s [] e) = bubAt RD k sc μ s (cwU RD k sc μ j e) := by
-  rw [cwU_of_nonneg, cwLs, dg_cw_dots, bubAt_dg]
+    NF.dg (pres RD k sc) μ s s (closeLs j s s [] e) = bubAt RD k sc μ s (NF.cwU (pres RD k sc) μ j e) := by
+  rw [NF.cwU_of_nonneg, cwLs, dg_cw_dots, bubAt_dg]
   simp [closeLs, whL]
 
 /-- The closure with one crossing of two strands `E_j` is a placed dotted curl. -/
 theorem dg_closeLs_curl (s₁ : List (Letter I)) (e : ℕ) :
-    dg RD k sc μ (s₁ ++ [up j] ++ []) (s₁ ++ [up j] ++ [])
+    NF.dg (pres RD k sc) μ (s₁ ++ [up j] ++ []) (s₁ ++ [up j] ++ [])
       (closeLs j (s₁ ++ [up j]) (s₁ ++ [up j]) [(s₁, .cross true j j, [])] e) =
-      plcL RD k sc μ s₁ [] [up j] [up j] (dg RD k sc μ [up j] [up j] (curlLs j e)) := by
-  rw [plcL_dg_nil]
+      NF.plcL (pres RD k sc) μ s₁ [] [up j] [up j] (NF.dg (pres RD k sc) μ [up j] [up j] (curlLs j e)) := by
+  rw [NF.plcL_dg_nil]
   simp [closeLs, curlLs, whL]
 
 end Close
@@ -337,11 +337,11 @@ variable {RD k sc}
 
 theorem upSpan_comp_left {μ : X} {s s' t : List (Letter I)} {L : List (LayerData I)}
     (hL : Upward L) (hLs : SChain s L s') {f} (hf : f ∈ upSpan RD k sc μ s' t) :
-    dg RD k sc μ s s' L ≫ f ∈ upSpan RD k sc μ s t := by
+    NF.dg (pres RD k sc) μ s s' L ≫ f ∈ upSpan RD k sc μ s t := by
   induction hf using Submodule.span_induction with
   | mem f hf =>
     obtain ⟨A, γ, hA, h, hγ, rfl⟩ := hf
-    rw [← Category.assoc, dg_comp hLs h]
+    rw [← Category.assoc, NF.dg_comp hLs h]
     exact Submodule.subset_span ⟨L ++ A, γ, hL.append hA, hLs.append h, hγ, rfl⟩
   | zero => rw [Limits.comp_zero]; exact Submodule.zero_mem _
   | add x y _ _ hx hy => rw [Preadditive.comp_add]; exact Submodule.add_mem _ hx hy
@@ -349,11 +349,11 @@ theorem upSpan_comp_left {μ : X} {s s' t : List (Letter I)} {L : List (LayerDat
 
 theorem upSpan_comp_right {μ : X} {s t t' : List (Letter I)} {P : List (LayerData I)}
     (hP : Upward P) (hPs : SChain t P t') {f} (hf : f ∈ upSpan RD k sc μ s t) :
-    f ≫ dg RD k sc μ t t' P ∈ upSpan RD k sc μ s t' := by
+    f ≫ NF.dg (pres RD k sc) μ t t' P ∈ upSpan RD k sc μ s t' := by
   induction hf using Submodule.span_induction with
   | mem f hf =>
     obtain ⟨A, γ, hA, h, hγ, rfl⟩ := hf
-    rw [Category.assoc, bubAt_comm, ← Category.assoc, dg_comp h hPs]
+    rw [Category.assoc, bubAt_comm, ← Category.assoc, NF.dg_comp h hPs]
     exact Submodule.subset_span ⟨A ++ P, γ, hA.append hP, h.append hPs, hγ, rfl⟩
   | zero => rw [Limits.zero_comp]; exact Submodule.zero_mem _
   | add x y _ _ hx hy => rw [Preadditive.add_comp]; exact Submodule.add_mem _ hx hy
@@ -375,7 +375,7 @@ variable [DecidableEq I] (μ : X) {ν : Multiset I}
 omit [DecidableEq I] in
 theorem upFunctor_crossE (i : KLR.Seq ν) {t : ℕ} (h : t + 1 < Multiset.card ν) :
     (upFunctor RD k sc μ).map (crossE k (CL.qCL sc) i t) =
-      dg RD k sc μ (ups (word i)) (ups (word (TypeA.sadj (Multiset.card ν) t • i)))
+      NF.dg (pres RD k sc) μ (ups (word i)) (ups (word (TypeA.sadj (Multiset.card ν) t • i)))
         (crossAt (word i) t) := by
   rw [crossE_def _ h, upFunctor_diag, upDiag_eq_dg, crossAt_eq (drop_word i h)]
   rfl
@@ -383,7 +383,7 @@ theorem upFunctor_crossE (i : KLR.Seq ν) {t : ℕ} (h : t + 1 < Multiset.card �
 omit [DecidableEq I] in
 theorem upFunctor_dotE (i : KLR.Seq ν) (a : Fin (Multiset.card ν)) :
     (upFunctor RD k sc μ).map (dotE k (CL.qCL sc) i a) =
-      dg RD k sc μ (ups (word i)) (ups (word i))
+      NF.dg (pres RD k sc) μ (ups (word i)) (ups (word i))
         [(ups ((word i).take a), .dot (up (i.1 a)), ups ((word i).drop (a + 1)))] := by
   rw [dotE, upFunctor_diag, upDiag_eq_dg]
   rfl
@@ -391,7 +391,7 @@ theorem upFunctor_dotE (i : KLR.Seq ν) (a : Fin (Multiset.card ν)) :
 theorem toUEnd_ψ_apply (t : ℕ) (h : t + 1 < Multiset.card ν) (j j' : KLR.Seq ν) :
     toUEnd RD k sc μ ν (KLR.KLRAlgebra.ψ t) j j' =
       if j' = TypeA.sadj (Multiset.card ν) t • j then
-        dg RD k sc μ (ups (word j)) (ups (word j')) (crossAt (word j) t) else 0 := by
+        NF.dg (pres RD k sc) μ (ups (word j)) (ups (word j')) (crossAt (word j) t) else 0 := by
   rw [toUEnd_ψ, MatEnd.sum_apply, Finset.sum_eq_single j]
   · rw [single_apply]
     split_ifs with h₁ h₂ h₂
@@ -409,13 +409,13 @@ theorem toUEnd_ψw_apply (σ : List ℕ) (hσ : TypeA.ValidWord (Multiset.card �
     (i j : KLR.Seq ν) :
     toUEnd RD k sc μ ν (KLR.KLRAlgebra.ψw σ) i j =
       if j = TypeA.wordProd (Multiset.card ν) σ • i then
-        dg RD k sc μ (ups (word i)) (ups (word j)) (crossLs (word i) σ.reverse) else 0 := by
+        NF.dg (pres RD k sc) μ (ups (word i)) (ups (word j)) (crossLs (word i) σ.reverse) else 0 := by
   induction σ generalizing j with
   | nil =>
     rw [KLR.KLRAlgebra.ψw_nil, map_one, one_apply]
     simp only [TypeA.wordProd_nil, one_smul, List.reverse_nil, crossLs_nil]
     split_ifs with h₁ h₂ h₂
-    · subst h₁; simp [dg_nil]
+    · subst h₁; simp [NF.dg_nil]
     · exact absurd h₁.symm h₂
     · exact absurd h₂.symm h₁
     · rfl
@@ -428,7 +428,7 @@ theorem toUEnd_ψw_apply (σ : List ℕ) (hσ : TypeA.ValidWord (Multiset.card �
       split_ifs with h₁
       · subst h₁
         have hw := word_wordProd_smul σ i
-        rw [dg_comp (by rw [hw]; exact sChain_crossLs _ _)
+        rw [NF.dg_comp (by rw [hw]; exact sChain_crossLs _ _)
           (by rw [word_sadj_smul, hw]; exact sChain_crossAt _ _)]
         congr 1
         rw [List.reverse_cons, crossLs_append, hw]
@@ -492,11 +492,11 @@ theorem upward_mem_span_nf (ρ : Equiv.Perm (Fin (Multiset.card ν)) → List �
     (hρ : ∀ w, TypeA.IsReduced (Multiset.card ν) (ρ w) ∧ TypeA.wordProd (Multiset.card ν) (ρ w) = w)
     (i j : KLR.Seq ν) {A : List (LayerData I)} (hA : Upward A)
     (h : SChain (ups (word i)) A (ups (word j))) :
-    dg RD k sc μ (ups (word i)) (ups (word j)) A ∈ Submodule.span k
+    NF.dg (pres RD k sc) μ (ups (word i)) (ups (word j)) A ∈ Submodule.span k
       {f | ∃ (w : Equiv.Perm (Fin (Multiset.card ν)))
         (D : End ((pres RD k sc).obj (ob RD μ (ups (word i))))),
         w • i = j ∧ D ∈ dotSpan RD k sc μ (ups (word i)) ∧
-        f = D ≫ dg RD k sc μ (ups (word i)) (ups (word j)) (crossLs (word i) (ρ w).reverse)} := by
+        f = D ≫ NF.dg (pres RD k sc) μ (ups (word i)) (ups (word j)) (crossLs (word i) (ρ w).reverse)} := by
   obtain ⟨d, hd⟩ := dg_upward_eq RD k sc μ h hA
   rw [hd, ← upFunctor_diag]
   set F := (KLR.Diagram.pres k (CL.qCL sc)).diag d
@@ -530,10 +530,10 @@ theorem upward_mem_span_nf' (ρ : Equiv.Perm (Fin (Multiset.card ν)) → List �
     (hρ : ∀ w, TypeA.IsReduced (Multiset.card ν) (ρ w) ∧ TypeA.wordProd (Multiset.card ν) (ρ w) = w)
     (i j : KLR.Seq ν) {S T : List (Letter I)} (hS : ups (word i) = S) (hT : ups (word j) = T)
     {A : List (LayerData I)} (hA : Upward A) (h : SChain S A T) :
-    dg RD k sc μ S T A ∈ Submodule.span k
+    NF.dg (pres RD k sc) μ S T A ∈ Submodule.span k
       {f | ∃ (w : Equiv.Perm (Fin (Multiset.card ν))) (D : End ((pres RD k sc).obj (ob RD μ S))),
         w • i = j ∧ D ∈ dotSpan RD k sc μ S ∧
-        f = D ≫ dg RD k sc μ S T (crossLs (word i) (ρ w).reverse)} := by
+        f = D ≫ NF.dg (pres RD k sc) μ S T (crossLs (word i) (ρ w).reverse)} := by
   subst hS hT
   exact upward_mem_span_nf RD k sc μ ρ hρ i j hA h
 
@@ -548,9 +548,9 @@ variable (μ : X) (j : I)
 /-- Dots at the bottom of a closure leave it (or move around it to the top). -/
 theorem closeLs_dots_mem {s t : List (Letter I)} (N : List (LayerData I))
     (hN : SChain (s ++ [up j]) N (t ++ [up j]))
-    (hbase : ∀ e, dg RD k sc μ s t (closeLs j s t N e) ∈ upSpan RD k sc μ s t) :
+    (hbase : ∀ e, NF.dg (pres RD k sc) μ s t (closeLs j s t N e) ∈ upSpan RD k sc μ s t) :
     ∀ (Dl : List (LayerData I)), DotsOnly Dl → SChain (s ++ [up j]) Dl (s ++ [up j]) →
-      ∀ e, dg RD k sc μ s t (closeLs j s t (Dl ++ N) e) ∈ upSpan RD k sc μ s t := by
+      ∀ e, NF.dg (pres RD k sc) μ s t (closeLs j s t (Dl ++ N) e) ∈ upSpan RD k sc μ s t := by
   intro Dl
   induction Dl with
   | nil => intro _ _ e; exact hbase e
@@ -590,19 +590,19 @@ theorem closeLs_dots_mem {s t : List (Letter I)} (N : List (LayerData I))
       rw [List.mem_singleton.1 hx]; exact hl
 
 theorem closeLs_nil_mem (s : List (Letter I)) (e : ℕ) :
-    dg RD k sc μ s s (closeLs j s s [] e) ∈ upSpan RD k sc μ s s := by
+    NF.dg (pres RD k sc) μ s s (closeLs j s s [] e) ∈ upSpan RD k sc μ s s := by
   rw [dg_closeLs_nil]
-  refine Submodule.subset_span ⟨[], cwU RD k sc μ j e, fun _ h => by simp at h, rfl,
+  refine Submodule.subset_span ⟨[], NF.cwU (pres RD k sc) μ j e, fun _ h => by simp at h, rfl,
     cwU_isBub _ _, ?_⟩
-  rw [dg_nil, Category.id_comp]
+  rw [NF.dg_nil, Category.id_comp]
 
 theorem dg_mem_upSpan_congr {S S' T T' : List (Letter I)} (hS : S = S') (hT : T = T')
-    {L : List (LayerData I)} (h : dg RD k sc μ S T L ∈ upSpan RD k sc μ S T) :
-    dg RD k sc μ S' T' L ∈ upSpan RD k sc μ S' T' := by
+    {L : List (LayerData I)} (h : NF.dg (pres RD k sc) μ S T L ∈ upSpan RD k sc μ S T) :
+    NF.dg (pres RD k sc) μ S' T' L ∈ upSpan RD k sc μ S' T' := by
   subst hS hT; exact h
 
 theorem closeLs_run_mem (x y' : List I) (e : ℕ) :
-    dg RD k sc μ (ups (x ++ [j] ++ y')) (ups (x ++ y' ++ [j]))
+    NF.dg (pres RD k sc) μ (ups (x ++ [j] ++ y')) (ups (x ++ y' ++ [j]))
       (closeLs j (ups (x ++ [j] ++ y')) (ups (x ++ y' ++ [j])) (runLs x j (y' ++ [j])) e) ∈
       upSpan RD k sc μ (ups (x ++ [j] ++ y')) (ups (x ++ y' ++ [j])) := by
   have hrun := sChain_runLs x j y'
@@ -630,25 +630,25 @@ def ptrLast (a b : List (Letter I)) (j : I) :
     ((pres RD k sc).obj (ob RD (wt RD μ [dn j]) (a ++ [up j])) ⟶
       (pres RD k sc).obj (ob RD (wt RD μ [dn j]) (b ++ [up j]))) →ₗ[k]
       ((pres RD k sc).obj (ob RD μ a) ⟶ (pres RD k sc).obj (ob RD μ b)) where
-  toFun f := dg RD k sc μ a ([] ++ (a ++ [up j]) ++ [dn j]) [(a, .cup (up j), [])] ≫
-    plcL RD k sc μ [] [dn j] (a ++ [up j]) (b ++ [up j]) f ≫
-      dg RD k sc μ ([] ++ (b ++ [up j]) ++ [dn j]) b [(b, .cap (dn j), [])]
+  toFun f := NF.dg (pres RD k sc) μ a ([] ++ (a ++ [up j]) ++ [dn j]) [(a, .cup (up j), [])] ≫
+    NF.plcL (pres RD k sc) μ [] [dn j] (a ++ [up j]) (b ++ [up j]) f ≫
+      NF.dg (pres RD k sc) μ ([] ++ (b ++ [up j]) ++ [dn j]) b [(b, .cap (dn j), [])]
   map_add' f g := by rw [map_add, Preadditive.add_comp, Preadditive.comp_add]
   map_smul' r f := by rw [map_smul, Linear.smul_comp, Linear.comp_smul]; rfl
 
 theorem ptrLast_dg (a b : List (Letter I)) (j : I) (A : List (LayerData I)) :
-    ptrLast RD k sc μ a b j (dg RD k sc (wt RD μ [dn j]) (a ++ [up j]) (b ++ [up j]) A) =
-      dg RD k sc μ a b (closeLs j a b A 0) := by
-  show dg RD k sc μ a _ _ ≫ plcL RD k sc μ [] [dn j] _ _ (dg RD k sc (wt RD μ [dn j]) _ _ A) ≫ _ = _
-  rw [plcL_dg]
+    ptrLast RD k sc μ a b j (NF.dg (pres RD k sc) (wt RD μ [dn j]) (a ++ [up j]) (b ++ [up j]) A) =
+      NF.dg (pres RD k sc) μ a b (closeLs j a b A 0) := by
+  show NF.dg (pres RD k sc) μ a _ _ ≫ NF.plcL (pres RD k sc) μ [] [dn j] _ _ (NF.dg (pres RD k sc) (wt RD μ [dn j]) _ _ A) ≫ _ = _
+  rw [NF.plcL_dg]
   have h1 : SChain a [(a, .cup (up j), [])] ([] ++ (a ++ [up j]) ++ [dn j]) := ⟨by simp, by simp⟩
   have h3 : SChain ([] ++ (b ++ [up j]) ++ [dn j]) [(b, .cap (dn j), [])] b :=
     ⟨by simp, by simp⟩
   by_cases hA : SChain (a ++ [up j]) A (b ++ [up j])
   · have h2 := hA.whisk [] [dn j]
-    rw [dg_comp h2 h3, dg_comp h1 (h2.append h3)]
+    rw [NF.dg_comp h2 h3, NF.dg_comp h1 (h2.append h3)]
     simp [closeLs]
-  · rw [dg_of_not (fun h => hA h.of_whisk), Limits.zero_comp, Limits.comp_zero, dg_of_not]
+  · rw [NF.dg_of_not (fun h => hA h.of_whisk), Limits.zero_comp, Limits.comp_zero, NF.dg_of_not]
     intro h
     unfold closeLs at h
     simp only [List.replicate_zero, List.append_nil] at h
@@ -668,7 +668,7 @@ involving the last position leave the closure, dots on the closed strand move ar
 what remains is a right curl with dots on its loop (`curl_mem_slideSetR`) or a dotted bubble. -/
 theorem ptrLast_upward_mem_upSpan (a b : List I) (j : I) {A : List (LayerData I)} (hA : Upward A)
     (h : SChain (ups a ++ [up j]) A (ups b ++ [up j])) :
-    ptrLast RD k sc μ (ups a) (ups b) j (dg RD k sc (wt RD μ [dn j]) (ups a ++ [up j]) (ups b ++ [up j]) A) ∈
+    ptrLast RD k sc μ (ups a) (ups b) j (NF.dg (pres RD k sc) (wt RD μ [dn j]) (ups a ++ [up j]) (ups b ++ [up j]) A) ∈
       upSpan RD k sc μ (ups a) (ups b) := by
   have hperm : (a ++ [j]).Perm (b ++ [j]) :=
     upward_perm hA (by simpa [ups] using h)
@@ -723,7 +723,7 @@ theorem ptrLast_upward_mem_upSpan (a b : List I) (j : I) {A : List (LayerData I)
   -- the closed part
   have hclosed : ∀ (Dl : List (LayerData I)), DotsOnly Dl →
       SChain (ups a ++ [up j]) Dl (ups a ++ [up j]) →
-      dg RD k sc μ (ups a) (ups (x ++ y)) (closeLs j (ups a) (ups (x ++ y)) (Dl ++ runLs x j y) 0) ∈
+      NF.dg (pres RD k sc) μ (ups a) (ups (x ++ y)) (closeLs j (ups a) (ups (x ++ y)) (Dl ++ runLs x j y) 0) ∈
         upSpan RD k sc μ (ups a) (ups (x ++ y)) := by
     have hN : SChain (ups a ++ [up j]) (runLs x j y) (ups (x ++ y) ++ [up j]) := by
       rw [hS]; simpa [ups] using sChain_runLs x j y
@@ -758,7 +758,7 @@ theorem ptrLast_upward_mem_upSpan (a b : List I) (j : I) {A : List (LayerData I)
     have hC : SChain (ups a ++ [up j])
         (crossLs (KLR.Diagram.word i) (TypeA.canWord (Multiset.card ν) w).reverse)
         (ups b ++ [up j]) := by rw [hcross]; exact hR.append hP'
-    rw [dg_comp hDlc hC, ptrLast_dg, hcross, ← List.append_assoc,
+    rw [NF.dg_comp hDlc hC, ptrLast_dg, hcross, ← List.append_assoc,
       dg_closeLs_peel_top RD k sc μ j _ _ (hDlc.append hR) hP]
     exact upSpan_comp_right (upward_crossLs _ _) hP (hclosed Dl hDl hDlc)
   | zero => rw [Limits.zero_comp, map_zero]; exact Submodule.zero_mem _

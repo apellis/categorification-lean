@@ -55,17 +55,8 @@ theorem dg_swap_rep (μ : X) (a m b : List (Letter I)) (g h : Shape I) (hh : h.d
     dg RD k μ (a ++ g.dom ++ m ++ h.dom ++ b) (a ++ g.cod ++ m ++ h.cod ++ b)
         (List.replicate n (a ++ g.dom ++ m, h, b) ++ [(a, g, m ++ h.cod ++ b)]) =
       dg RD k μ (a ++ g.dom ++ m ++ h.dom ++ b) (a ++ g.cod ++ m ++ h.cod ++ b)
-        ([(a, g, m ++ h.dom ++ b)] ++ List.replicate n (a ++ g.cod ++ m, h, b)) := by
-  induction n with
-  | zero => simp [hh]
-  | succ n ih =>
-    refine (dg_step RD k μ [(a ++ g.dom ++ m, h, b)] [] [] [] ih
-      (by simp [hh]) (by simp) (by simp [whL, List.replicate_succ]) rfl).trans ?_
-    refine (dg_step RD k μ [] (List.replicate n (a ++ g.cod ++ m, h, b)) [] []
-      (dg_swap' RD k μ a m b g h).symm (by simp) (by
-        simp only [List.nil_append, List.append_nil]
-        exact SChain.replicate_of (by simp [hh]) n) (by simp [whL, hh]) rfl).trans ?_
-    simp [whL, List.replicate_succ, hh]
+        ([(a, g, m ++ h.dom ++ b)] ++ List.replicate n (a ++ g.cod ++ m, h, b)) :=
+  NF.dg_swap_rep (P := pres RD k) μ a m b g h hh n
 
 /-- A block of `n` copies of a generator `h` with equal source and target (a dot) to the left
 of a generator `g` slides below `g`. -/
@@ -74,35 +65,16 @@ theorem dg_swap_rep' (μ : X) (a m b : List (Letter I)) (g h : Shape I) (hh : h.
     dg RD k μ (a ++ h.dom ++ m ++ g.dom ++ b) (a ++ h.cod ++ m ++ g.cod ++ b)
         (List.replicate n (a, h, m ++ g.dom ++ b) ++ [(a ++ h.cod ++ m, g, b)]) =
       dg RD k μ (a ++ h.dom ++ m ++ g.dom ++ b) (a ++ h.cod ++ m ++ g.cod ++ b)
-        ([(a ++ h.dom ++ m, g, b)] ++ List.replicate n (a, h, m ++ g.cod ++ b)) := by
-  induction n with
-  | zero => simp [hh]
-  | succ n ih =>
-    refine (dg_step RD k μ [(a, h, m ++ g.dom ++ b)] [] [] [] ih
-      (by simp [hh]) (by simp) (by simp [whL, List.replicate_succ]) rfl).trans ?_
-    refine (dg_step RD k μ [] (List.replicate n (a, h, m ++ g.cod ++ b)) [] []
-      (dg_swap' RD k μ a m b h g) (by simp) (by
-        simp only [List.nil_append, List.append_nil]
-        exact SChain.replicate_of (by simp [hh]) n) (by simp [whL, hh]) rfl).trans ?_
-    simp [whL, List.replicate_succ, hh]
+        ([(a ++ h.dom ++ m, g, b)] ++ List.replicate n (a, h, m ++ g.cod ++ b)) :=
+  NF.dg_swap_rep' (P := pres RD k) μ a m b g h hh n
 
 /-- Two blocks of dots on different strands commute. -/
 theorem dg_swap_dots (μ : X) (a m b : List (Letter I)) (l l' : Letter I) (p q : ℕ) :
     dg RD k μ (a ++ [l] ++ m ++ [l'] ++ b) (a ++ [l] ++ m ++ [l'] ++ b)
         (List.replicate p (a ++ [l] ++ m, .dot l', b) ++ List.replicate q (a, .dot l, m ++ [l'] ++ b)) =
       dg RD k μ (a ++ [l] ++ m ++ [l'] ++ b) (a ++ [l] ++ m ++ [l'] ++ b)
-        (List.replicate q (a, .dot l, m ++ [l'] ++ b) ++ List.replicate p (a ++ [l] ++ m, .dot l', b)) := by
-  induction q with
-  | zero => simp
-  | succ q ih =>
-    rw [List.replicate_succ]
-    refine (dg_step RD k μ [] (List.replicate q (a, .dot l, m ++ [l'] ++ b)) [] []
-      (dg_swap_rep RD k μ a m b (.dot l) (.dot l') rfl p) (by simp) (by
-        simp only [List.nil_append, List.append_nil]
-        exact SChain.replicate_of (by simp) q) (by simp [whL]) rfl).trans ?_
-    refine (dg_step RD k μ [(a, .dot l, m ++ [l'] ++ b)] [] [] [] ih (by simp) (by simp)
-      (by simp [whL]) rfl).trans ?_
-    simp [whL]
+        (List.replicate q (a, .dot l, m ++ [l'] ++ b) ++ List.replicate p (a ++ [l] ++ m, .dot l', b)) :=
+  NF.dg_swap_dots (P := pres RD k) μ a m b l l' p q
 
 /-! ## Dots around caps -/
 
@@ -234,7 +206,6 @@ theorem dg_cross_dots_cross' (ν : X) (i j : I) (h : i ≠ j) (m : ℕ) :
 
 /-! ## Bubble slides for `i ≠ j` -/
 
-set_option maxHeartbeats 1000000 in
 /-- **Pulling a strand through a counterclockwise bubble.** After inserting `crossr ∘ crossl`
 between an upward `j`-strand and a counterclockwise `i`-bubble on its right, the interchange law
 and two zigzag relations turn the diagram into the left closure of `ψ_{ji} x^m ψ_{ij}` (the
@@ -246,57 +217,8 @@ theorem dg_pull_ccw (lam : X) (i j : I) (m : ℕ) :
       dg RD k lam [up j] [up j]
         ([([], .cup (dn i), [up j]), ([dn i], .cross true i j, [])] ++
           List.replicate m ([dn i, up j], .dot (up i), []) ++
-          [([dn i], .cross true j i, []), ([], .cap (up i), [up j])]) := by
-  simp only [crosslL, crossrL]
-  -- 2., 3. interchange: move the bubble's cap below the crossing of `crossr`
-  dstep ([([up j], .cup (dn i), [])] ++ List.replicate m ([up j, dn i], .dot (up i), []) ++
-      [([], .cup (dn i), [up j, dn i, up i]), ([dn i], .cross true i j, [dn i, up i]),
-        ([dn i, up j], .cap (dn i), [up i]), ([dn i, up j], .cup (up i), [up i]),
-        ([dn i], .cross true j i, [dn i, up i])]) [] [] []
-    (dg_swap' RD k lam [] [up j] [] (.cap (up i)) (.cap (up i)))
-  dstep ([([up j], .cup (dn i), [])] ++ List.replicate m ([up j, dn i], .dot (up i), []) ++
-      [([], .cup (dn i), [up j, dn i, up i]), ([dn i], .cross true i j, [dn i, up i]),
-        ([dn i, up j], .cap (dn i), [up i]), ([dn i, up j], .cup (up i), [up i])])
-    [([], .cap (up i), [up j])] [] []
-    (dg_swap' RD k lam [dn i] [] [] (.cross true j i) (.cap (up i)))
-  -- 4. zigzag
-  dstep ([([up j], .cup (dn i), [])] ++ List.replicate m ([up j, dn i], .dot (up i), []) ++
-      [([], .cup (dn i), [up j, dn i, up i]), ([dn i], .cross true i j, [dn i, up i]),
-        ([dn i, up j], .cap (dn i), [up i])])
-    [([dn i], .cross true j i, []), ([], .cap (up i), [up j])] [dn i, up j] []
-    (dg_zigL' RD k lam (up i))
-  -- 5. slide the cup of `crossl` below the dots of the bubble
-  dstep [([up j], .cup (dn i), [])]
-    [([dn i], .cross true i j, [dn i, up i]), ([dn i, up j], .cap (dn i), [up i]),
-      ([dn i], .cross true j i, []), ([], .cap (up i), [up j])] [] []
-    (dg_swap_rep RD k lam [] [up j, dn i] [] (.cup (dn i)) (.dot (up i)) rfl m)
-  -- 6. and below the cup of the bubble
-  dstep [] (List.replicate m ([dn i, up i, up j, dn i], .dot (up i), []) ++
-      [([dn i], .cross true i j, [dn i, up i]), ([dn i, up j], .cap (dn i), [up i]),
-        ([dn i], .cross true j i, []), ([], .cap (up i), [up j])]) [] []
-    (dg_swap' RD k lam [] [up j] [] (.cup (dn i)) (.cup (dn i))).symm
-  -- 7. slide the crossing of `crossl` below the dots
-  dstep [([], .cup (dn i), [up j]), ([dn i, up i, up j], .cup (dn i), [])]
-    [([dn i, up j], .cap (dn i), [up i]), ([dn i], .cross true j i, []),
-      ([], .cap (up i), [up j])] [] []
-    (dg_swap_rep RD k lam [dn i] [dn i] [] (.cross true i j) (.dot (up i)) rfl m)
-  -- 8. and below the cup of the bubble
-  dstep [([], .cup (dn i), [up j])]
-    (List.replicate m ([dn i, up j, up i, dn i], .dot (up i), []) ++
-      [([dn i, up j], .cap (dn i), [up i]), ([dn i], .cross true j i, []),
-        ([], .cap (up i), [up j])]) [] []
-    (dg_swap' RD k lam [dn i] [] [] (.cross true i j) (.cup (dn i))).symm
-  -- 9. slide the cap of `crossl` below the dots
-  dstep [([], .cup (dn i), [up j]), ([dn i], .cross true i j, []),
-      ([dn i, up j, up i], .cup (dn i), [])]
-    [([dn i], .cross true j i, []), ([], .cap (up i), [up j])] [] []
-    (dg_swap_rep RD k lam [dn i, up j] [] [] (.cap (dn i)) (.dot (up i)) rfl m)
-  -- 10. zigzag
-  dstep [([], .cup (dn i), [up j]), ([dn i], .cross true i j, [])]
-    (List.replicate m ([dn i, up j], .dot (up i), []) ++
-      [([dn i], .cross true j i, []), ([], .cap (up i), [up j])]) [dn i, up j] []
-    (dg_zigR' RD k lam (dn i))
-  lnf
+          [([dn i], .cross true j i, []), ([], .cap (up i), [up j])]) :=
+  NF.dg_pull_ccw (P := pres RD k) lam i j m
 
 set_option maxHeartbeats 1000000 in
 /-- **Bubble slide, counterclockwise, `i ≠ j`** (KL III Proposition 3.3, first display, cases
@@ -346,7 +268,6 @@ theorem dg_ccw_slide_ne (lam : X) (i j : I) (h : i ≠ j) (m : ℕ) :
       (dg_swap_rep RD k lam [] [] [] (.cap (up i)) (.dot (up j)) rfl (C.dij j i))
     simp [whL]
 
-set_option maxHeartbeats 1000000 in
 /-- **Pulling a strand through a clockwise bubble.** After inserting `crossl ∘ crossr` between
 a clockwise `i`-bubble (dots on its upward strand) and an upward `j`-strand on its right, the
 interchange law and two zigzag relations turn the diagram into the right closure of
@@ -358,57 +279,8 @@ theorem dg_pull_cw (lam : X) (i j : I) (m : ℕ) :
       dg RD k lam [up j] [up j]
         ([([up j], .cup (up i), []), ([], .cross true j i, [dn i])] ++
           List.replicate m ([], .dot (up i), [up j, dn i]) ++
-          [([], .cross true i j, [dn i]), ([up j], .cap (dn i), [])]) := by
-  simp only [crosslL, crossrL]
-  -- 2., 3. interchange: move the bubble's cap below the crossing of `crossl`
-  dstep ([([], .cup (up i), [up j])] ++ List.replicate m ([], .dot (up i), [dn i, up j]) ++
-      [([up i, dn i, up j], .cup (up i), []), ([up i, dn i], .cross true j i, [dn i]),
-        ([up i], .cap (up i), [up j, dn i]), ([up i], .cup (dn i), [up j, dn i]),
-        ([up i, dn i], .cross true i j, [dn i])]) [] [] []
-    (dg_swap' RD k lam [] [up j] [] (.cap (dn i)) (.cap (dn i))).symm
-  dstep ([([], .cup (up i), [up j])] ++ List.replicate m ([], .dot (up i), [dn i, up j]) ++
-      [([up i, dn i, up j], .cup (up i), []), ([up i, dn i], .cross true j i, [dn i]),
-        ([up i], .cap (up i), [up j, dn i]), ([up i], .cup (dn i), [up j, dn i])])
-    [([up j], .cap (dn i), [])] [] []
-    (dg_swap' RD k lam [] [] [dn i] (.cap (dn i)) (.cross true i j)).symm
-  -- 4. zigzag
-  dstep ([([], .cup (up i), [up j])] ++ List.replicate m ([], .dot (up i), [dn i, up j]) ++
-      [([up i, dn i, up j], .cup (up i), []), ([up i, dn i], .cross true j i, [dn i]),
-        ([up i], .cap (up i), [up j, dn i])])
-    [([], .cross true i j, [dn i]), ([up j], .cap (dn i), [])] [] [up j, dn i]
-    (dg_zigR' RD k (wt RD lam [up j, dn i]) (dn i))
-  -- 5. slide the cup of `crossr` below the dots of the bubble
-  dstep [([], .cup (up i), [up j])]
-    [([up i, dn i], .cross true j i, [dn i]), ([up i], .cap (up i), [up j, dn i]),
-      ([], .cross true i j, [dn i]), ([up j], .cap (dn i), [])] [] []
-    (dg_swap_rep' RD k lam [] [dn i, up j] [] (.cup (up i)) (.dot (up i)) rfl m)
-  -- 6. and below the cup of the bubble
-  dstep [] (List.replicate m ([], .dot (up i), [dn i, up j, up i, dn i]) ++
-      [([up i, dn i], .cross true j i, [dn i]), ([up i], .cap (up i), [up j, dn i]),
-        ([], .cross true i j, [dn i]), ([up j], .cap (dn i), [])]) [] []
-    (dg_swap' RD k lam [] [up j] [] (.cup (up i)) (.cup (up i)))
-  -- 7. slide the crossing of `crossr` below the dots
-  dstep [([up j], .cup (up i), []), ([], .cup (up i), [up j, up i, dn i])]
-    [([up i], .cap (up i), [up j, dn i]), ([], .cross true i j, [dn i]),
-      ([up j], .cap (dn i), [])] [] []
-    (dg_swap_rep' RD k lam [] [dn i] [dn i] (.cross true j i) (.dot (up i)) rfl m)
-  -- 8. and below the cup of the bubble
-  dstep [([up j], .cup (up i), [])]
-    (List.replicate m ([], .dot (up i), [dn i, up i, up j, dn i]) ++
-      [([up i], .cap (up i), [up j, dn i]), ([], .cross true i j, [dn i]),
-        ([up j], .cap (dn i), [])]) [] []
-    (dg_swap' RD k lam [] [] [dn i] (.cup (up i)) (.cross true j i))
-  -- 9. slide the cap of `crossr` below the dots
-  dstep [([up j], .cup (up i), []), ([], .cross true j i, [dn i]),
-      ([], .cup (up i), [up i, up j, dn i])]
-    [([], .cross true i j, [dn i]), ([up j], .cap (dn i), [])] [] []
-    (dg_swap_rep' RD k lam [] [] [up j, dn i] (.cap (up i)) (.dot (up i)) rfl m)
-  -- 10. zigzag
-  dstep [([up j], .cup (up i), []), ([], .cross true j i, [dn i])]
-    (List.replicate m ([], .dot (up i), [up j, dn i]) ++
-      [([], .cross true i j, [dn i]), ([up j], .cap (dn i), [])]) [] [up j, dn i]
-    (dg_zigL' RD k (wt RD lam [up j, dn i]) (up i))
-  lnf
+          [([], .cross true i j, [dn i]), ([up j], .cap (dn i), [])]) :=
+  NF.dg_pull_cw (P := pres RD k) lam i j m
 
 set_option maxHeartbeats 1000000 in
 /-- **Bubble slide, clockwise, `i ≠ j`**, with the dots on the upward strand of the bubble: a
@@ -485,39 +357,29 @@ theorem dg_cw_slide_ne (lam : X) (i j : I) (h : i ≠ j) (m : ℕ) :
 
 /-! ## Proposition 3.3 for `i ≠ j`, real bubbles -/
 
-
-
 theorem lin_bubR_ccwReal (lam : X) (l : Letter I) (i : I) (m : ℕ) :
     (pres RD k).lin (bubR RD k lam [l] (LinDiagram.of (ccwReal RD lam i m))) =
       dg RD k lam [l] [l] ([([l], .cup (dn i), [])] ++ List.replicate m ([l, dn i], .dot (up i), []) ++
-        [([l], .cap (up i), [])]) := by
-  rw [lin_bubR, ccwReal, lin_of_mkD, plcL_dg_nil]
-  show dg RD k lam [l] [l] _ = _
-  congr 1; lnf
+        [([l], .cap (up i), [])]) :=
+  NF.lin_bubR_ccwReal (P := pres RD k) lam l i m
 
 theorem lin_bubL_ccwReal (μ : X) (l : Letter I) (i : I) (m : ℕ) :
     (pres RD k).lin (bubL RD k μ [l] (LinDiagram.of (ccwReal RD (wt RD μ [l]) i m))) =
       dg RD k μ [l] [l] ([([], .cup (dn i), [l])] ++ List.replicate m ([dn i], .dot (up i), [l]) ++
-        [([], .cap (up i), [l])]) := by
-  rw [lin_bubL, ccwReal, lin_of_mkD, plcL_dg]
-  show dg RD k μ [l] [l] _ = _
-  congr 1; lnf
+        [([], .cap (up i), [l])]) :=
+  NF.lin_bubL_ccwReal (P := pres RD k) μ l i m
 
 theorem lin_bubR_cwReal (lam : X) (l : Letter I) (i : I) (m : ℕ) :
     (pres RD k).lin (bubR RD k lam [l] (LinDiagram.of (cwReal RD lam i m))) =
       dg RD k lam [l] [l] ([([l], .cup (up i), [])] ++ List.replicate m ([l, up i], .dot (dn i), []) ++
-        [([l], .cap (dn i), [])]) := by
-  rw [lin_bubR, cwReal, lin_of_mkD, plcL_dg_nil]
-  show dg RD k lam [l] [l] _ = _
-  congr 1; lnf
+        [([l], .cap (dn i), [])]) :=
+  NF.lin_bubR_cwReal (P := pres RD k) lam l i m
 
 theorem lin_bubL_cwReal (μ : X) (l : Letter I) (i : I) (m : ℕ) :
     (pres RD k).lin (bubL RD k μ [l] (LinDiagram.of (cwReal RD (wt RD μ [l]) i m))) =
       dg RD k μ [l] [l] ([([], .cup (up i), [l])] ++ List.replicate m ([up i], .dot (dn i), [l]) ++
-        [([], .cap (dn i), [l])]) := by
-  rw [lin_bubL, cwReal, lin_of_mkD, plcL_dg]
-  show dg RD k μ [l] [l] _ = _
-  congr 1; lnf
+        [([], .cap (dn i), [l])]) :=
+  NF.lin_bubL_cwReal (P := pres RD k) μ l i m
 
 /-- **KL III Proposition 3.3 (first display), `i ≠ j`, real bubbles.** For `i ≠ j`, a
 counterclockwise `i`-bubble with `m ≥ 0` dots to the right of an upward `j`-strand, in the

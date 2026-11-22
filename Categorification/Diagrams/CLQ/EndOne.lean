@@ -138,8 +138,8 @@ end EndOne
 bubble with label `⟨i,λ⟩ - 1 + α` if `⟨i,λ⟩ ≥ 0`, the counterclockwise bubble with label
 `-⟨i,λ⟩ - 1 + α` if `⟨i,λ⟩ < 0`. For `α = 0` it is `1`, for `α > 0` a real bubble. -/
 def bubGen (i : I) (α : ℕ) : End ((pres RD k sc).obj (ob RD lam [])) :=
-  if 0 ≤ ip RD i lam then cwU RD k sc lam i (ip RD i lam - 1 + α)
-  else ccwU RD k sc lam i (-ip RD i lam - 1 + α)
+  if 0 ≤ ip RD i lam then NF.cwU (pres RD k sc) lam i (ip RD i lam - 1 + α)
+  else NF.ccwU (pres RD k sc) lam i (-ip RD i lam - 1 + α)
 
 /-- **KL III eq. (3.25)**: the homomorphism `Π_λ → HOM_U(1_λ, 1_λ)` interpreting the variable
 `(i, n)` as the bubble `bubGen λ i (n + 1)`. -/
@@ -204,11 +204,11 @@ theorem isBub_iff_mem_bubSubmodule (x : End ((pres RD k sc).obj (ob RD lam [])))
 /-! ## All bubbles lie in the image of `Π_λ` -/
 
 theorem isBub_cw_ccw (i : I) :
-    (∀ m : ℤ, IsBub RD k sc lam (cwU RD k sc lam i m)) ∧ ∀ m : ℤ, IsBub RD k sc lam (ccwU RD k sc lam i m) := by
+    (∀ m : ℤ, IsBub RD k sc lam (NF.cwU (pres RD k sc) lam i m)) ∧ ∀ m : ℤ, IsBub RD k sc lam (NF.ccwU (pres RD k sc) lam i m) := by
   have G := grassmannian_all RD k sc lam i
   by_cases h0 : 0 ≤ ip RD i lam
   · -- the clockwise bubbles are the generators
-    have hcw : ∀ m : ℤ, IsBub RD k sc lam (cwU RD k sc lam i m) := by
+    have hcw : ∀ m : ℤ, IsBub RD k sc lam (NF.cwU (pres RD k sc) lam i m) := by
       intro m
       by_cases h1 : m + 1 - ip RD i lam < 0
       · rw [cwU_eq_zero RD k sc lam i m h1]; exact IsBub.zero
@@ -233,7 +233,7 @@ theorem isBub_cw_ccw (i : I) :
           have := Finset.mem_range.1 hj
           exact IsBub.comp (ih j (by omega) (by omega)) (hcw _)
   · -- the counterclockwise bubbles are the generators
-    have hccw : ∀ m : ℤ, IsBub RD k sc lam (ccwU RD k sc lam i m) := by
+    have hccw : ∀ m : ℤ, IsBub RD k sc lam (NF.ccwU (pres RD k sc) lam i m) := by
       intro m
       by_cases h1 : m + 1 + ip RD i lam < 0
       · rw [ccwU_eq_zero RD k sc lam i m h1]; exact IsBub.zero
@@ -264,16 +264,16 @@ theorem isBub_cw_ccw (i : I) :
 
 /-- Every clockwise bubble (real or fake, any label) with outer region `λ` lies in the image of
 `Π_λ`. -/
-theorem cwU_isBub (i : I) (m : ℤ) : IsBub RD k sc lam (cwU RD k sc lam i m) := (isBub_cw_ccw i).1 m
+theorem cwU_isBub (i : I) (m : ℤ) : IsBub RD k sc lam (NF.cwU (pres RD k sc) lam i m) := (isBub_cw_ccw i).1 m
 
 /-- Every counterclockwise bubble (real or fake, any label) with outer region `λ` lies in the
 image of `Π_λ`. -/
-theorem ccwU_isBub (i : I) (m : ℤ) : IsBub RD k sc lam (ccwU RD k sc lam i m) := (isBub_cw_ccw i).2 m
+theorem ccwU_isBub (i : I) (m : ℤ) : IsBub RD k sc lam (NF.ccwU (pres RD k sc) lam i m) := (isBub_cw_ccw i).2 m
 
-theorem dg_cwLs_isBub (i : I) (m : ℕ) : IsBub RD k sc lam (dg RD k sc lam [] [] (cwLs i m)) := by
-  rw [← cwU_of_nonneg]; exact cwU_isBub i m
+theorem dg_cwLs_isBub (i : I) (m : ℕ) : IsBub RD k sc lam (NF.dg (pres RD k sc) lam [] [] (cwLs i m)) := by
+  rw [← NF.cwU_of_nonneg]; exact cwU_isBub i m
 
-theorem dg_ccwLs_isBub (i : I) (m : ℕ) : IsBub RD k sc lam (dg RD k sc lam [] [] (ccwLs i m)) := by
-  rw [← ccwU_of_nonneg]; exact ccwU_isBub i m
+theorem dg_ccwLs_isBub (i : I) (m : ℕ) : IsBub RD k sc lam (NF.dg (pres RD k sc) lam [] [] (ccwLs i m)) := by
+  rw [← NF.ccwU_of_nonneg]; exact ccwU_isBub i m
 
 end Categorification.KL3.Diagram.CLQ

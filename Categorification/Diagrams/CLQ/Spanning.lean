@@ -103,78 +103,78 @@ variable (ν : X)
 /-- A dot on the right strand of a cap below a block of dots on its left strand joins the block
 (cyclicity of dots, KL III (3.3)). -/
 theorem dg_dotR_cap (l : Letter I) (m : ℕ) :
-    dg RD k sc ν [l.dual, l] [] ([([l.dual], .dot l, [])] ++
+    NF.dg (pres RD k sc) ν [l.dual, l] [] ([([l.dual], .dot l, [])] ++
         List.replicate m ([], .dot l.dual, [l]) ++ [([], .cap l, [])]) =
-      dg RD k sc ν [l.dual, l] [] (List.replicate (m + 1) ([], .dot l.dual, [l]) ++
+      NF.dg (pres RD k sc) ν [l.dual, l] [] (List.replicate (m + 1) ([], .dot l.dual, [l]) ++
         [([], .cap l, [])]) := by
   obtain ⟨b, i⟩ := l
   cases b
   · -- `l = F_i`, cap `E_i F_i → 1`
-    show dg RD k sc ν [up i, dn i] [] ([([up i], .dot (dn i), [])] ++
+    show NF.dg (pres RD k sc) ν [up i, dn i] [] ([([up i], .dot (dn i), [])] ++
         List.replicate m ([], .dot (up i), [dn i]) ++ [([], .cap (dn i), [])]) =
-      dg RD k sc ν [up i, dn i] [] (List.replicate (m + 1) ([], .dot (up i), [dn i]) ++
+      NF.dg (pres RD k sc) ν [up i, dn i] [] (List.replicate (m + 1) ([], .dot (up i), [dn i]) ++
         [([], .cap (dn i), [])])
-    dstepQ [] [([], .cap (dn i), [])] [] [] (dg_swap_dots RD k sc ν [] [] [] (up i) (dn i) 1 m)
+    dstepQ [] [([], .cap (dn i), [])] [] [] (NF.dg_swap_dots (pres RD k sc) ν [] [] [] (up i) (dn i) 1 m)
     dstepQ (List.replicate m ([], .dot (up i), [dn i])) [] [] [] (dg_dot_cap_dn RD k sc ν i)
     simp [List.replicate_succ']
   · -- `l = E_i`, cap `F_i E_i → 1`
-    show dg RD k sc ν [dn i, up i] [] ([([dn i], .dot (up i), [])] ++
+    show NF.dg (pres RD k sc) ν [dn i, up i] [] ([([dn i], .dot (up i), [])] ++
         List.replicate m ([], .dot (dn i), [up i]) ++ [([], .cap (up i), [])]) =
-      dg RD k sc ν [dn i, up i] [] (List.replicate (m + 1) ([], .dot (dn i), [up i]) ++
+      NF.dg (pres RD k sc) ν [dn i, up i] [] (List.replicate (m + 1) ([], .dot (dn i), [up i]) ++
         [([], .cap (up i), [])])
-    dstepQ [] [([], .cap (up i), [])] [] [] (dg_swap_dots RD k sc ν [] [] [] (dn i) (up i) 1 m)
+    dstepQ [] [([], .cap (up i), [])] [] [] (NF.dg_swap_dots (pres RD k sc) ν [] [] [] (dn i) (up i) 1 m)
     dstepQ (List.replicate m ([], .dot (dn i), [up i])) [] [] [] (dg_dot_cap_up RD k sc ν i).symm
     simp [List.replicate_succ']
 
 /-- The first zigzag with dots on its middle segment is a strand with dots. -/
 theorem dg_zig₁ (l : Letter I) (m : ℕ) :
-    dg RD k sc ν [l] [l] ([([], .cup l, [l])] ++ List.replicate m ([l], .dot l.dual, [l]) ++
+    NF.dg (pres RD k sc) ν [l] [l] ([([], .cup l, [l])] ++ List.replicate m ([l], .dot l.dual, [l]) ++
         [([l], .cap l, [])]) =
-      dg RD k sc ν [l] [l] (List.replicate m ([], .dot l, [])) := by
+      NF.dg (pres RD k sc) ν [l] [l] (List.replicate m ([], .dot l, [])) := by
   obtain ⟨b, i⟩ := l
   cases b
-  · show dg RD k sc ν [dn i] [dn i] ([([], .cup (dn i), [dn i])] ++
+  · show NF.dg (pres RD k sc) ν [dn i] [dn i] ([([], .cup (dn i), [dn i])] ++
         List.replicate m ([dn i], .dot (up i), [dn i]) ++ [([dn i], .cap (dn i), [])]) =
-      dg RD k sc ν [dn i] [dn i] (List.replicate m ([], .dot (dn i), []))
+      NF.dg (pres RD k sc) ν [dn i] [dn i] (List.replicate m ([], .dot (dn i), []))
     dstepQ [] [([dn i], .cap (dn i), [])] [] [dn i] (dg_dots_cupDn RD k sc i (wt RD ν [dn i]) m)
     dstepQ [([], .cup (dn i), [dn i])] [] [] []
-      (dg_swap_rep' RD k sc ν [] [] [] (.cap (dn i)) (.dot (dn i)) rfl m)
-    dstepQ [] (List.replicate m ([], .dot (dn i), [])) [] [] (dg_zigL' RD k sc ν (dn i))
+      (NF.dg_swap_rep' (pres RD k sc) ν [] [] [] (.cap (dn i)) (.dot (dn i)) rfl m)
+    dstepQ [] (List.replicate m ([], .dot (dn i), [])) [] [] (NF.dg_zigL' (pres RD k sc) ν (dn i))
     simp
-  · show dg RD k sc ν [up i] [up i] ([([], .cup (up i), [up i])] ++
+  · show NF.dg (pres RD k sc) ν [up i] [up i] ([([], .cup (up i), [up i])] ++
         List.replicate m ([up i], .dot (dn i), [up i]) ++ [([up i], .cap (up i), [])]) =
-      dg RD k sc ν [up i] [up i] (List.replicate m ([], .dot (up i), []))
+      NF.dg (pres RD k sc) ν [up i] [up i] (List.replicate m ([], .dot (up i), []))
     dstepQ [] [([up i], .cap (up i), [])] [] [up i] (dg_dots_cupUp RD k sc i (wt RD ν [up i]) m)
     dstepQ [([], .cup (up i), [up i])] [] [] []
-      (dg_swap_rep' RD k sc ν [] [] [] (.cap (up i)) (.dot (up i)) rfl m)
-    dstepQ [] (List.replicate m ([], .dot (up i), [])) [] [] (dg_zigL' RD k sc ν (up i))
+      (NF.dg_swap_rep' (pres RD k sc) ν [] [] [] (.cap (up i)) (.dot (up i)) rfl m)
+    dstepQ [] (List.replicate m ([], .dot (up i), [])) [] [] (NF.dg_zigL' (pres RD k sc) ν (up i))
     simp
 
 /-- The second zigzag, with dots on the strand below it, is a strand with dots. -/
 theorem dg_zig₂ (l : Letter I) (m : ℕ) :
-    dg RD k sc ν [l.dual] [l.dual] ([([l.dual], .cup l, [])] ++
+    NF.dg (pres RD k sc) ν [l.dual] [l.dual] ([([l.dual], .cup l, [])] ++
         List.replicate m ([], .dot l.dual, [l, l.dual]) ++ [([], .cap l, [l.dual])]) =
-      dg RD k sc ν [l.dual] [l.dual] (List.replicate m ([], .dot l.dual, [])) := by
+      NF.dg (pres RD k sc) ν [l.dual] [l.dual] (List.replicate m ([], .dot l.dual, [])) := by
   dstepQ [] [([], .cap l, [l.dual])] [] []
-    (dg_swap_rep' RD k sc ν [] [] [] (.cup l) (.dot l.dual) rfl m).symm
-  dstepQ (List.replicate m ([], .dot l.dual, [])) [] [] [] (dg_zigR' RD k sc ν l)
+    (NF.dg_swap_rep' (pres RD k sc) ν [] [] [] (.cup l) (.dot l.dual) rfl m).symm
+  dstepQ (List.replicate m ([], .dot l.dual, [])) [] [] [] (NF.dg_zigR' (pres RD k sc) ν l)
   simp
 
 /-- A cup, dots on its left leg and a cap form a dotted bubble, which lies in the image of
 `Π_ν`. -/
 theorem isBub_bubLs (l : Letter I) (m : ℕ) :
-    IsBub RD k sc ν (dg RD k sc ν [] [] ([([], .cup l.dual, [])] ++
+    IsBub RD k sc ν (NF.dg (pres RD k sc) ν [] [] ([([], .cup l.dual, [])] ++
       List.replicate m ([], .dot l.dual, [l]) ++ [([], .cap l, [])])) := by
   obtain ⟨b, i⟩ := l
   cases b
-  · have e : dg RD k sc ν [] [] ([([], .cup (up i), [])] ++
+  · have e : NF.dg (pres RD k sc) ν [] [] ([([], .cup (up i), [])] ++
         List.replicate m ([], .dot (up i), [dn i]) ++ [([], .cap (dn i), [])]) =
-        dg RD k sc ν [] [] (cwLs i m) := by
+        NF.dg (pres RD k sc) ν [] [] (cwLs i m) := by
       rw [cwLs, dg_cw_dots]
     exact e ▸ dg_cwLs_isBub i m
-  · have e : dg RD k sc ν [] [] ([([], .cup (dn i), [])] ++
+  · have e : NF.dg (pres RD k sc) ν [] [] ([([], .cup (dn i), [])] ++
         List.replicate m ([], .dot (dn i), [up i]) ++ [([], .cap (up i), [])]) =
-        dg RD k sc ν [] [] (ccwLs i m) := by
+        NF.dg (pres RD k sc) ν [] [] (ccwLs i m) := by
       rw [ccwLs]
       dstepQ [([], .cup (dn i), [])] [] [] [] (dg_dots_cap_up RD k sc ν i m)
       simp
@@ -191,52 +191,52 @@ variable (lam : X)
 theorem ctxL_cons {S T : List (Letter I)} {pre post : List (LayerData I)} {u v' : List (Letter I)}
     {l : Letter I} (hpre : SChain S pre (u ++ l :: v')) (hpost : SChain (u ++ l :: v') post T)
     (β : End ((pres RD k sc).obj (ob RD (wt RD lam (l :: v')) []))) :
-    ctxL RD k sc lam S T pre u (l :: v') post [] [] β =
-      ctxL RD k sc lam S T pre u v' post [l] [l] (bubLU RD k sc (wt RD lam v') l β) := by
+    NF.ctxL (pres RD k sc) lam S T pre u (l :: v') post [] [] β =
+      NF.ctxL (pres RD k sc) lam S T pre u v' post [l] [l] (NF.bubLU (pres RD k sc) (wt RD lam v') l β) := by
   have key := hom_ext_dg RD k sc (wt RD lam (l :: v')) (s := []) (t := [])
-    (ctxL RD k sc lam S T pre u (l :: v') post [] [])
-    ((ctxL RD k sc lam S T pre u v' post [l] [l]).comp (plcL RD k sc (wt RD lam v') [] [l] [] []))
+    (NF.ctxL (pres RD k sc) lam S T pre u (l :: v') post [] [])
+    ((NF.ctxL (pres RD k sc) lam S T pre u v' post [l] [l]).comp (NF.plcL (pres RD k sc) (wt RD lam v') [] [l] [] []))
     (fun B hB => ?_)
   · exact LinearMap.congr_fun key β
-  have e : plcL RD k sc (wt RD lam v') [] [l] [] [] (dg RD k sc (wt RD lam (l :: v')) [] [] B) =
-      dg RD k sc (wt RD lam v') [l] [l] (B.map (whL [] [l])) := plcL_dg RD k sc (wt RD lam v') [] [l] [] [] B
-  change ctxL RD k sc lam S T pre u (l :: v') post [] [] (dg RD k sc (wt RD lam (l :: v')) [] [] B) =
-    ctxL RD k sc lam S T pre u v' post [l] [l]
-      (plcL RD k sc (wt RD lam v') [] [l] [] [] (dg RD k sc (wt RD lam (l :: v')) [] [] B))
-  rw [e, ctxL_dg RD k sc lam (by simpa using hpre) (by simpa using hpost),
-    ctxL_dg RD k sc lam (by simpa using hpre) (by simpa using hpost)]
+  have e : NF.plcL (pres RD k sc) (wt RD lam v') [] [l] [] [] (NF.dg (pres RD k sc) (wt RD lam (l :: v')) [] [] B) =
+      NF.dg (pres RD k sc) (wt RD lam v') [l] [l] (B.map (whL [] [l])) := NF.plcL_dg (pres RD k sc) (wt RD lam v') [] [l] [] [] B
+  change NF.ctxL (pres RD k sc) lam S T pre u (l :: v') post [] [] (NF.dg (pres RD k sc) (wt RD lam (l :: v')) [] [] B) =
+    NF.ctxL (pres RD k sc) lam S T pre u v' post [l] [l]
+      (NF.plcL (pres RD k sc) (wt RD lam v') [] [l] [] [] (NF.dg (pres RD k sc) (wt RD lam (l :: v')) [] [] B))
+  rw [e, NF.ctxL_dg (pres RD k sc) lam (by simpa using hpre) (by simpa using hpost),
+    NF.ctxL_dg (pres RD k sc) lam (by simpa using hpre) (by simpa using hpost)]
   wnf
 
 theorem ctxL_dots_bubRU {S T : List (Letter I)} {pre post : List (LayerData I)}
     {u v' : List (Letter I)} {l : Letter I} (hpre : SChain S pre (u ++ l :: v'))
     (hpost : SChain (u ++ l :: v') post T) (a : ℕ)
     (γ : End ((pres RD k sc).obj (ob RD (wt RD lam v') []))) :
-    ctxL RD k sc lam S T pre u v' post [l] [l]
-        (dotsU RD k sc (wt RD lam v') l a ≫ bubRU RD k sc (wt RD lam v') l γ) =
-      ctxL RD k sc lam S T (pre ++ List.replicate a (u, .dot l, v')) (u ++ [l]) v' post [] [] γ := by
+    NF.ctxL (pres RD k sc) lam S T pre u v' post [l] [l]
+        (NF.dotsU (pres RD k sc) (wt RD lam v') l a ≫ NF.bubRU (pres RD k sc) (wt RD lam v') l γ) =
+      NF.ctxL (pres RD k sc) lam S T (pre ++ List.replicate a (u, .dot l, v')) (u ++ [l]) v' post [] [] γ := by
   have key := hom_ext_dg RD k sc (wt RD lam v') (s := []) (t := [])
-    ((ctxL RD k sc lam S T pre u v' post [l] [l]).comp
-      ((Linear.leftComp k _ (dotsU RD k sc (wt RD lam v') l a)).comp
-        (plcL RD k sc (wt RD lam v') [l] [] [] [])))
-    (ctxL RD k sc lam S T (pre ++ List.replicate a (u, .dot l, v')) (u ++ [l]) v' post [] [])
+    ((NF.ctxL (pres RD k sc) lam S T pre u v' post [l] [l]).comp
+      ((Linear.leftComp k _ (NF.dotsU (pres RD k sc) (wt RD lam v') l a)).comp
+        (NF.plcL (pres RD k sc) (wt RD lam v') [l] [] [] [])))
+    (NF.ctxL (pres RD k sc) lam S T (pre ++ List.replicate a (u, .dot l, v')) (u ++ [l]) v' post [] [])
     (fun G hG => ?_)
   · exact LinearMap.congr_fun key γ
-  have e : plcL RD k sc (wt RD lam v') [l] [] [] [] (dg RD k sc (wt RD lam v') [] [] G) =
-      dg RD k sc (wt RD lam v') [l] [l] (G.map (whL [l] [])) := plcL_dg RD k sc (wt RD lam v') [l] [] [] [] G
+  have e : NF.plcL (pres RD k sc) (wt RD lam v') [l] [] [] [] (NF.dg (pres RD k sc) (wt RD lam v') [] [] G) =
+      NF.dg (pres RD k sc) (wt RD lam v') [l] [l] (G.map (whL [l] [])) := NF.plcL_dg (pres RD k sc) (wt RD lam v') [l] [] [] [] G
   have hrep : SChain [l] (List.replicate a ([], .dot l, [])) [l] := SChain.replicate_of (by schain) a
   have hG' : SChain [l] (G.map (whL [l] [])) [l] := by simpa using hG.whisk [l] []
   have hrep' : SChain (u ++ l :: v') (List.replicate a (u, .dot l, v')) (u ++ l :: v') :=
     SChain.replicate_of ⟨by simp, by simp⟩ a
-  change ctxL RD k sc lam S T pre u v' post [l] [l]
-      (dotsU RD k sc (wt RD lam v') l a ≫ plcL RD k sc (wt RD lam v') [l] [] [] []
-        (dg RD k sc (wt RD lam v') [] [] G)) = _
-  rw [e, dotsU, dg_comp hrep hG', ctxL_dg RD k sc lam (by simpa using hpre) (by simpa using hpost),
-    ctxL_dg RD k sc lam (by simpa using hpre.append hrep') (by simpa using hpost)]
+  change NF.ctxL (pres RD k sc) lam S T pre u v' post [l] [l]
+      (NF.dotsU (pres RD k sc) (wt RD lam v') l a ≫ NF.plcL (pres RD k sc) (wt RD lam v') [l] [] [] []
+        (NF.dg (pres RD k sc) (wt RD lam v') [] [] G)) = _
+  rw [e, NF.dotsU, NF.dg_comp hrep hG', NF.ctxL_dg (pres RD k sc) lam (by simpa using hpre) (by simpa using hpost),
+    NF.ctxL_dg (pres RD k sc) lam (by simpa using hpre.append hrep') (by simpa using hpost)]
   wnf
 
 variable (M : ℕ)
   (IH : ∀ ls : List (LayerData I), ncc ls ≤ M → CrossFree ls → SChain [] ls [] →
-    IsBub RD k sc lam (dg RD k sc lam [] [] ls))
+    IsBub RD k sc lam (NF.dg (pres RD k sc) lam [] [] ls))
 include IH
 
 /-- **A bubble monomial placed anywhere in a closed crossingless diagram can be moved to the
@@ -247,20 +247,20 @@ of the image of `Π` inserted in one of its regions. -/
 theorem slideOut : ∀ (v u : List (Letter I)) (pre post : List (LayerData I)),
     SChain [] pre (u ++ v) → SChain (u ++ v) post [] → CrossFree pre → CrossFree post →
     ncc pre + ncc post ≤ M → ∀ β : End ((pres RD k sc).obj (ob RD (wt RD lam v) [])),
-    IsBub RD k sc (wt RD lam v) β → IsBub RD k sc lam (ctxL RD k sc lam [] [] pre u v post [] [] β) := by
+    IsBub RD k sc (wt RD lam v) β → IsBub RD k sc lam (NF.ctxL (pres RD k sc) lam [] [] pre u v post [] [] β) := by
   intro v
   induction v with
   | nil =>
     intro u pre post hpre hpost hcpre hcpost hn β hβ
     have hpp : SChain [] (pre ++ post) [] := hpre.append hpost
     have key := hom_ext_dg RD k sc (wt RD lam []) (s := []) (t := [])
-      (ctxL RD k sc lam [] [] pre u [] post [] [])
-      (Linear.rightComp k _ (dg RD k sc lam [] [] (pre ++ post))) (fun B hB => ?_)
+      (NF.ctxL (pres RD k sc) lam [] [] pre u [] post [] [])
+      (Linear.rightComp k _ (NF.dg (pres RD k sc) lam [] [] (pre ++ post))) (fun B hB => ?_)
     · rw [LinearMap.congr_fun key β]
       exact IsBub.comp hβ (IH _ (by simpa using hn) (hcpre.append hcpost) hpp)
-    rw [ctxL_dg RD k sc lam (by simpa using hpre) (by simpa using hpost)]
-    change _ = dg RD k sc lam [] [] B ≫ dg RD k sc lam [] [] (pre ++ post)
-    rw [dg_comp hB hpp]
+    rw [NF.ctxL_dg (pres RD k sc) lam (by simpa using hpre) (by simpa using hpost)]
+    change _ = NF.dg (pres RD k sc) lam [] [] B ≫ NF.dg (pres RD k sc) lam [] [] (pre ++ post)
+    rw [NF.dg_comp hB hpp]
     have e := dg_closed_left (RD := RD) (k := k) (sc := sc) lam (S := []) (T := []) [] post (s := [])
       (s' := u) [] hB (by simpa using hpre)
     wnf at e
@@ -270,7 +270,7 @@ theorem slideOut : ∀ (v u : List (Letter I)) (pre post : List (LayerData I)),
     intro u pre post hpre hpost hcpre hcpost hn β hβ
     rw [ctxL_cons RD k sc lam hpre hpost]
     have hmem := bubLU_mem_slideSetR_gen (wt RD lam v') l (β := β) hβ
-    generalize bubLU RD k sc (wt RD lam v') l β = f at hmem ⊢
+    generalize NF.bubLU (pres RD k sc) (wt RD lam v') l β = f at hmem ⊢
     induction hmem using Submodule.span_induction with
     | mem f hf =>
       obtain ⟨a, γ, hγ, rfl⟩ := hf
@@ -302,12 +302,12 @@ in the image of `Π_λ`. Then every closed crossingless diagram consisting of cu
 layers `post`, with at most `K - 1` cups and caps, lies in the image of `Π_λ`. -/
 theorem sink (K : ℕ)
     (IH : ∀ ls : List (LayerData I), ncc ls + 2 ≤ K → CrossFree ls → SChain [] ls [] →
-      IsBub RD k sc lam (dg RD k sc lam [] [] ls)) :
+      IsBub RD k sc lam (NF.dg (pres RD k sc) lam [] [] ls)) :
     ∀ (pre : List (LayerData I)) (m : ℕ) (u v : List (Letter I)) (l : Letter I)
       (post : List (LayerData I)), CapFree pre → CrossFree pre → CrossFree post →
       ncc pre + ncc post + 2 ≤ K → SChain [] pre (u ++ [l.dual, l] ++ v) →
       SChain (u ++ v) post [] →
-      IsBub RD k sc lam (dg RD k sc lam [] [] (pre ++ List.replicate m (u, .dot l.dual, l :: v) ++
+      IsBub RD k sc lam (NF.dg (pres RD k sc) lam [] [] (pre ++ List.replicate m (u, .dot l.dual, l :: v) ++
         [(u, .cap l, v)] ++ post)) := by
   intro pre
   induction pre using List.reverseRecOn with
@@ -338,7 +338,7 @@ theorem sink (K : ℕ)
         have hB : SChain (c ++ l.dual :: l :: v)
             (List.replicate m (c, .dot l.dual, l :: v) ++ [(c, .cap l, v)]) (c ++ v) := by
           simpa using sChain_block (u := c) (v := v) (l := l) m
-        have e := dg_interchange_one (RD := RD) (k := k) (sc := sc) (μ := lam) (S := []) (T := []) pre' post
+        have e := NF.dg_interchange_one (P := pres RD k sc) (μ := lam) (S := []) (T := []) pre' post
           a [] (.dot l') hB
         have h := ih m (a ++ l' :: c) v l ((a, .dot l', c ++ v) :: post) hcap' hcr'
           (by
@@ -362,7 +362,7 @@ theorem sink (K : ℕ)
         subst a l' v
         have h := ih (m + 1) u b l post hcap' hcr' hcpost (by simpa [Shape.isCupCap] using hn')
           (by simpa using hpre') hpost
-        have e := dg_step RD k sc lam (s₀ := []) (t₀ := []) pre' post u b
+        have e := NF.dg_step (pres RD k sc) lam (s₀ := []) (t₀ := []) pre' post u b
           (dg_dotR_cap RD k sc (wt RD lam b) l m) (by simpa using hpre')
           (by simpa using hpost) (L := pre' ++ [(u ++ [l.dual], .dot l, b)] ++
             List.replicate m (u, .dot l.dual, l :: b) ++ [(u, .cap l, b)] ++ post)
@@ -374,7 +374,7 @@ theorem sink (K : ℕ)
         have hA : SChain (u ++ [l.dual, l]) (List.replicate m (u, .dot l.dual, [l]) ++
             [(u, .cap l, [])]) u := by
           simpa using sChain_block (u := u) (v := []) (l := l) m
-        have e := dg_interchange (RD := RD) (k := k) (sc := sc) (μ := lam) (S := []) (T := []) pre' post
+        have e := NF.dg_interchange (P := pres RD k sc) (μ := lam) (S := []) (T := []) pre' post
           hA (B := [(c, .dot l', b)]) (t := c ++ l' :: b) (t' := c ++ l' :: b) ⟨by simp, by simp⟩
         have h := ih m u (c ++ l' :: b) l ((u ++ c, .dot l', b) :: post) hcap' hcr'
           (by
@@ -396,7 +396,7 @@ theorem sink (K : ℕ)
         have hB : SChain (c ++ l.dual :: l :: v)
             (List.replicate m (c, .dot l.dual, l :: v) ++ [(c, .cap l, v)]) (c ++ v) := by
           simpa using sChain_block (u := c) (v := v) (l := l) m
-        have e := dg_interchange_one (RD := RD) (k := k) (sc := sc) (μ := lam) (S := []) (T := []) pre' post
+        have e := NF.dg_interchange_one (P := pres RD k sc) (μ := lam) (S := []) (T := []) pre' post
           a [] (.cup l') hB
         have h := ih m (a ++ c) v l ((a, .cup l', c ++ v) :: post) hcap' hcr'
           (by
@@ -414,7 +414,7 @@ theorem sink (K : ℕ)
         have hl' : l' = l := by
           have := congrArg Letter.dual hl; simpa using this
         subst l
-        have e := dg_step RD k sc lam (s₀ := []) (t₀ := []) pre' post a v
+        have e := NF.dg_step (pres RD k sc) lam (s₀ := []) (t₀ := []) pre' post a v
           (dg_zig₁ RD k sc (wt RD lam v) l' m) (by simpa using hpre') (by simpa using hpost)
           (L := pre' ++ [(a, .cup l', l' :: v)] ++
             List.replicate m (a ++ [l'], .dot l'.dual, l' :: v) ++ [(a ++ [l'], .cap l', v)] ++ post)
@@ -429,7 +429,7 @@ theorem sink (K : ℕ)
       · -- the cup creates both strands of the cap: a bubble
         subst u v l'
         have hbub := isBub_bubLs RD k sc (wt RD lam b) l m
-        have e := ctxL_dg RD k sc lam (s₀ := []) (t₀ := []) (pre := pre') (post := post) (u := a)
+        have e := NF.ctxL_dg (pres RD k sc) lam (s₀ := []) (t₀ := []) (pre := pre') (post := post) (u := a)
           (v := b) (s := []) (t := []) (by simpa using hpre') (by simpa using hpost)
           ([([], .cup l.dual, [])] ++ List.replicate m ([], .dot l.dual, [l]) ++ [([], .cap l, [])])
         have h := slideOut RD k sc lam (ncc pre' + ncc post) (fun ls hls hcls hch =>
@@ -440,7 +440,7 @@ theorem sink (K : ℕ)
         exact h
       · -- zigzag: the left leg of the cup is the right strand of the cap
         subst a l' v
-        have e := dg_step RD k sc lam (s₀ := []) (t₀ := []) pre' post u b
+        have e := NF.dg_step (pres RD k sc) lam (s₀ := []) (t₀ := []) pre' post u b
           (dg_zig₂ RD k sc (wt RD lam b) l m) (by simpa using hpre') (by simpa using hpost)
           (L := pre' ++ [(u ++ [l.dual], .cup l, b)] ++
             List.replicate m (u, .dot l.dual, l :: l.dual :: b) ++ [(u, .cap l, l.dual :: b)] ++
@@ -457,7 +457,7 @@ theorem sink (K : ℕ)
         have hA : SChain (u ++ [l.dual, l]) (List.replicate m (u, .dot l.dual, [l]) ++
             [(u, .cap l, [])]) u := by
           simpa using sChain_block (u := u) (v := []) (l := l) m
-        have e := dg_interchange (RD := RD) (k := k) (sc := sc) (μ := lam) (S := []) (T := []) pre' post
+        have e := NF.dg_interchange (P := pres RD k sc) (μ := lam) (S := []) (T := []) pre' post
           hA (B := [(c, .cup l', b)]) (t := c ++ b) (t' := c ++ l' :: l'.dual :: b)
           ⟨by simp, by simp⟩
         have h := ih m u (c ++ b) l ((u ++ c, .cup l', b) :: post) hcap' hcr'
@@ -489,7 +489,7 @@ every Cartan datum, every closed normal-form diagram of `U` with outer region `�
 layers are dots, cups and caps is a linear combination of bubble monomials, i.e. lies in the
 image of `Π_λ → END_U(1_λ)`. -/
 theorem crossFree_isBub (ls : List (LayerData I)) (hc : CrossFree ls) :
-    IsBub RD k sc lam (dg RD k sc lam [] [] ls) := by
+    IsBub RD k sc lam (NF.dg (pres RD k sc) lam [] [] ls) := by
   induction hn : ncc ls using Nat.strong_induction_on generalizing ls with
   | _ n ihn =>
     by_cases hch : SChain [] ls []
@@ -510,8 +510,8 @@ theorem crossFree_isBub (ls : List (LayerData I)) (hc : CrossFree ls) :
       · push Not at hcap
         have : ls = [] := capFree_closed_nil (fun x hx => by simpa using hcap x hx) hc hch
         subst this
-        rw [dg_nil]; exact IsBub.id
-    · rw [dg_of_not hch]; exact IsBub.zero
+        rw [NF.dg_nil]; exact IsBub.id
+    · rw [NF.dg_of_not hch]; exact IsBub.zero
 
 /-- **KL III Proposition 3.6 for crossingless diagrams**, for arbitrary diagrams of the presented
 2-category: every closed diagram of `U` with outer region `λ` none of whose generators is a
@@ -520,7 +520,7 @@ theorem crossFree_diag_isBub (d : ob RD lam [] ⟶ ob RD lam [])
     (hd : ∀ L ∈ Diagram.layers d, ∀ ε i j ν, L.gen ≠ .gen (.cross ε i j ν)) :
     IsBub RD k sc lam ((pres RD k sc).diag d) := by
   obtain ⟨ls, h, rfl⟩ := exists_mkD RD lam d
-  rw [← dg_of h]
+  rw [← NF.dg_of h]
   refine crossFree_isBub RD k sc lam ls fun x hx => ?_
   obtain ⟨a, g, b⟩ := x
   cases g with
@@ -539,10 +539,10 @@ def Prop36 (lam : X) : Prop := Function.Surjective (bubMap RD k sc lam)
 /-- Proposition 3.6 holds iff every closed normal-form diagram with outer region `λ` lies in the
 image of `Π_λ`. -/
 theorem prop36_iff_dg (lam : X) :
-    Prop36 RD k sc lam ↔ ∀ ls, SChain [] ls [] → IsBub RD k sc lam (dg RD k sc lam [] [] ls) := by
+    Prop36 RD k sc lam ↔ ∀ ls, SChain [] ls [] → IsBub RD k sc lam (NF.dg (pres RD k sc) lam [] [] ls) := by
   constructor
   · intro h ls _
-    obtain ⟨p, hp⟩ := h (EndOne.of (dg RD k sc lam [] [] ls))
+    obtain ⟨p, hp⟩ := h (EndOne.of (NF.dg (pres RD k sc) lam [] [] ls))
     exact ⟨p, hp⟩
   · intro h y
     have hy : IsBub RD k sc lam y.val := by
@@ -558,8 +558,8 @@ theorem prop36_iff_dg (lam : X) :
 `crossFree_isBub` it suffices to reduce closed diagrams with crossings to closed crossingless
 diagrams modulo the image of `Π_λ` (step 1 of KL III's proof). -/
 theorem prop36_of_reduction (lam : X)
-    (hred : ∀ ls, SChain [] ls [] → dg RD k sc lam [] [] ls ∈
-      Submodule.span k {x | ∃ ls', CrossFree ls' ∧ x = dg RD k sc lam [] [] ls'}) :
+    (hred : ∀ ls, SChain [] ls [] → NF.dg (pres RD k sc) lam [] [] ls ∈
+      Submodule.span k {x | ∃ ls', CrossFree ls' ∧ x = NF.dg (pres RD k sc) lam [] [] ls'}) :
     Prop36 RD k sc lam := by
   rw [prop36_iff_dg]
   intro ls hls

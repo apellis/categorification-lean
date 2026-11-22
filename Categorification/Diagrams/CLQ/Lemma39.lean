@@ -136,13 +136,13 @@ theorem core_RL_dg (μ : X) {s : List (Letter I)} {a b d c : List I}
     {A M A' B : List (LayerData I)} (hA : SChain (s ++ rd (dns b)) A (ups a))
     (hM : SChain (ups a ++ dns b) M (dns d ++ ups c))
     (c₀ : k)
-    (hE : dg RD k sc (wt RD μ (dns b)) (rd (dns d) ++ ups a) (ups c ++ rd (dns b))
+    (hE : NF.dg (pres RD k sc) (wt RD μ (dns b)) (rd (dns d) ++ ups a) (ups c ++ rd (dns b))
       (sharpL (dns d) (dns b) (ups a) (ups c) M) =
-        c₀ • dg RD k sc (wt RD μ (dns b)) (rd (dns d) ++ ups a) (ups c ++ rd (dns b)) A')
+        c₀ • NF.dg (pres RD k sc) (wt RD μ (dns b)) (rd (dns d) ++ ups a) (ups c ++ rd (dns b)) A')
     (hB : SChain [] B []) :
-    dg RD k sc μ s (dns d ++ ups c) ((cupA (rd (dns b))).map (whL s []) ++
+    NF.dg (pres RD k sc) μ s (dns d ++ ups c) ((cupA (rd (dns b))).map (whL s []) ++
         (A ++ B.map (whL (ups a) [])).map (whL [] (dns b)) ++ M) =
-      c₀ • dg RD k sc μ s (dns d ++ ups c) ((cupA (dns d)).map (whL [] s) ++
+      c₀ • NF.dg (pres RD k sc) μ s (dns d ++ ups c) ((cupA (dns d)).map (whL [] s) ++
         ((cupA (rd (dns b))).map (whL (rd (dns d) ++ s) []) ++
           (A.map (whL (rd (dns d)) []) ++ A' ++ B.map (whL (ups c ++ rd (dns b)) [])).map
             (whL [] (dns b)) ++ (capA (dns b)).map (whL (ups c) [])).map (whL (dns d) [])) := by
@@ -187,36 +187,36 @@ theorem core_RL_dg (μ : X) {s : List (Letter I)} {a b d c : List I}
     have x3 : SChain (ups a ++ E) (B.map (whL (ups a) E)) (ups a ++ E) := by
       simpa using hB.whisk (ups a) E
     exact (x1.append x2).append x3
-  have h3 := dg_interchange (RD := RD) (k := k) (sc := sc) (μ := μ) (S := s) (T := D ++ ups c) []
+  have h3 := NF.dg_interchange (P := pres RD k sc) (μ := μ) (S := s) (T := D ++ ups c) []
     ((sharpL D E (ups a) (ups c) M).map (whL D E) ++ (capA E).map (whL (D ++ ups c) []))
     (sChain_cupA D) hX
   -- (iv) unbending the bent form of `M` gives `M`
-  have h4 := dg_step RD k sc μ (s₀ := s) (t₀ := D ++ ups c)
+  have h4 := NF.dg_step (pres RD k sc) μ (s₀ := s) (t₀ := D ++ ups c)
     ((cupA b').map (whL s []) ++ A.map (whL [] E) ++ B.map (whL (ups a) E)) [] [] []
     (dg_unbend_sharp D E (ups a) (ups c) hM (wt RD μ [])) (by simpa using hX) (by simp) rfl rfl
-  have key : dg RD k sc μ s (D ++ ups c) (((cupA D).map (whL [] s) ++
+  have key : NF.dg (pres RD k sc) μ s (D ++ ups c) (((cupA D).map (whL [] s) ++
       (cupA b').map (whL (D ++ d' ++ s) []) ++ A.map (whL (D ++ d') E)) ++
         (sharpL D E (ups a) (ups c) M).map (whL D E) ++
           (B.map (whL (D ++ ups c ++ b') E) ++ (capA E).map (whL (D ++ ups c) []))) =
-      dg RD k sc μ s (D ++ ups c) ((cupA b').map (whL s []) ++
+      NF.dg (pres RD k sc) μ s (D ++ ups c) ((cupA b').map (whL s []) ++
           (A ++ B.map (whL (ups a) [])).map (whL [] E) ++ M) := by
-   calc _ = dg RD k sc μ s (D ++ ups c) (((cupA D).map (whL [] s) ++
+   calc _ = NF.dg (pres RD k sc) μ s (D ++ ups c) (((cupA D).map (whL [] s) ++
           (cupA b').map (whL (D ++ d' ++ s) []) ++ A.map (whL (D ++ d') E)) ++
           ((sharpL D E (ups a) (ups c) M).map (whL D [])).map (whL [] E) ++
             B.map (whL (D ++ ups c ++ b') E) ++ (capA E).map (whL (D ++ ups c) [])) :=
         dg_list_eq (by laysimp)
     _ = _ := h2
-    _ = dg RD k sc μ s (D ++ ups c) ([] ++ (cupA D).map (whL [] s) ++
+    _ = NF.dg (pres RD k sc) μ s (D ++ ups c) ([] ++ (cupA D).map (whL [] s) ++
           ((cupA b').map (whL s []) ++ A.map (whL [] E) ++ B.map (whL (ups a) E)).map
             (whL (D ++ d') []) ++ ((sharpL D E (ups a) (ups c) M).map (whL D E) ++
               (capA E).map (whL (D ++ ups c) []))) := dg_list_eq (by laysimp)
     _ = _ := h3
-    _ = dg RD k sc μ s (D ++ ups c) (((cupA b').map (whL s []) ++ A.map (whL [] E) ++
+    _ = NF.dg (pres RD k sc) μ s (D ++ ups c) (((cupA b').map (whL s []) ++ A.map (whL [] E) ++
           B.map (whL (ups a) E)) ++ ((cupA D).map (whL [] (ups a ++ E)) ++
             (sharpL D E (ups a) (ups c) M).map (whL D E) ++ (capA E).map (whL (D ++ ups c) [])).map
               (whL [] []) ++ []) := dg_list_eq (by laysimp)
     _ = _ := h4
-    _ = dg RD k sc μ s (D ++ ups c) ((cupA b').map (whL s []) ++
+    _ = NF.dg (pres RD k sc) μ s (D ++ ups c) ((cupA b').map (whL s []) ++
           (A ++ B.map (whL (ups a) [])).map (whL [] E) ++ M) := dg_list_eq (by laysimp)
   rw [← key, h1]
   congr 1
@@ -229,11 +229,11 @@ theorem core_LR_dg (μ : X) {s : List (Letter I)} {d a c b : List I}
     {B M A'' : List (LayerData I)} (hB : SChain (rd (dns d) ++ s) B (ups a))
     (hM : SChain (dns d ++ ups a) M (ups c ++ dns b))
     (c₀ : k)
-    (hE : dg RD k sc (wt RD μ (dns b)) (ups a ++ rd (dns b)) (rd (dns d) ++ ups c)
+    (hE : NF.dg (pres RD k sc) (wt RD μ (dns b)) (ups a ++ rd (dns b)) (rd (dns d) ++ ups c)
       (flatL (rd (dns d)) (rd (dns b)) (ups a) (ups c) M) =
-        c₀ • dg RD k sc (wt RD μ (dns b)) (ups a ++ rd (dns b)) (rd (dns d) ++ ups c) A'') :
-    dg RD k sc μ s (ups c ++ dns b) ((cupA (dns d)).map (whL [] s) ++ B.map (whL (dns d) []) ++ M) =
-      c₀ • dg RD k sc μ s (ups c ++ dns b) ((cupA (rd (dns b))).map (whL s []) ++
+        c₀ • NF.dg (pres RD k sc) (wt RD μ (dns b)) (ups a ++ rd (dns b)) (rd (dns d) ++ ups c) A'') :
+    NF.dg (pres RD k sc) μ s (ups c ++ dns b) ((cupA (dns d)).map (whL [] s) ++ B.map (whL (dns d) []) ++ M) =
+      c₀ • NF.dg (pres RD k sc) μ s (ups c ++ dns b) ((cupA (rd (dns b))).map (whL s []) ++
         ((cupA (dns d)).map (whL [] (s ++ rd (dns b))) ++
           (B.map (whL [] (rd (dns b))) ++ A'').map (whL (dns d) []) ++
             (capA (rd (dns d))).map (whL [] (ups c))).map (whL [] (dns b))) := by
@@ -267,32 +267,32 @@ theorem core_LR_dg (μ : X) {s : List (Letter I)} {d a c b : List I}
     have y2 : SChain (D ++ rd D ++ s) (B.map (whL D [])) (D ++ ups a) := by
       simpa using hB.whisk D []
     exact y1.append y2
-  have h2 := dg_interchange (RD := RD) (k := k) (sc := sc) (μ := μ) (S := s) (T := ups c ++ E) []
+  have h2 := NF.dg_interchange (P := pres RD k sc) (μ := μ) (S := s) (T := ups c ++ E) []
     ((flatL (rd D) (rd E) (ups a) (ups c) M).map (whL D E) ++
       (capA (rd D)).map (whL [] (ups c ++ E))) hY (B := cupA (rd E)) (t := []) (t' := rd E ++ E)
     (by simpa [rd_rd] using sChain_cupA (rd E))
   -- (iii) unbending the bent form of `M` gives `M`
   have hf := dg_unbend_flat (RD := RD) (k := k) (sc := sc) (rd D) (rd E) (ups a) (ups c) hM' (wt RD μ [])
   rw [rd_rd, rd_rd] at hf
-  have h3 := dg_step RD k sc μ (s₀ := s) (t₀ := ups c ++ E)
+  have h3 := NF.dg_step (pres RD k sc) μ (s₀ := s) (t₀ := ups c ++ E)
     ((cupA D).map (whL [] s) ++ B.map (whL D [])) [] [] [] hf (by simpa using hY) (by simp) rfl rfl
-  have key : dg RD k sc μ s (ups c ++ E) (((cupA (rd E)).map (whL s []) ++
+  have key : NF.dg (pres RD k sc) μ s (ups c ++ E) (((cupA (rd E)).map (whL s []) ++
       (cupA D).map (whL [] (s ++ rd E ++ E)) ++ B.map (whL D (rd E ++ E))) ++
         (flatL (rd D) (rd E) (ups a) (ups c) M).map (whL D E) ++
           (capA (rd D)).map (whL [] (ups c ++ E))) =
-      dg RD k sc μ s (ups c ++ E) ((cupA D).map (whL [] s) ++ B.map (whL D []) ++ M) := by
-   calc _ = dg RD k sc μ s (ups c ++ E) ([] ++ (cupA (rd E)).map (whL s []) ++
+      NF.dg (pres RD k sc) μ s (ups c ++ E) ((cupA D).map (whL [] s) ++ B.map (whL D []) ++ M) := by
+   calc _ = NF.dg (pres RD k sc) μ s (ups c ++ E) ([] ++ (cupA (rd E)).map (whL s []) ++
           ((cupA D).map (whL [] s) ++ B.map (whL D [])).map (whL [] (rd E ++ E)) ++
             ((flatL (rd D) (rd E) (ups a) (ups c) M).map (whL D E) ++
               (capA (rd D)).map (whL [] (ups c ++ E)))) := dg_list_eq (by laysimp)
     _ = _ := h2.symm
-    _ = dg RD k sc μ s (ups c ++ E) (((cupA D).map (whL [] s) ++ B.map (whL D [])) ++
+    _ = NF.dg (pres RD k sc) μ s (ups c ++ E) (((cupA D).map (whL [] s) ++ B.map (whL D [])) ++
           ((cupA (rd E)).map (whL (D ++ ups a) []) ++
             (flatL (rd D) (rd E) (ups a) (ups c) M).map (whL D E) ++
               (capA (rd D)).map (whL [] (ups c ++ E))).map (whL [] []) ++ []) :=
         dg_list_eq (by laysimp)
     _ = _ := h3
-    _ = dg RD k sc μ s (ups c ++ E) ((cupA D).map (whL [] s) ++ B.map (whL D []) ++ M) :=
+    _ = NF.dg (pres RD k sc) μ s (ups c ++ E) ((cupA D).map (whL [] s) ++ B.map (whL D []) ++ M) :=
         dg_list_eq (by laysimp)
   rw [← key, h1]
   congr 1
@@ -311,7 +311,7 @@ type `RL` into a word sorted to the left, is good. -/
 theorem goodR_comp [DecidableEq I] {μ : X} {s : List (Letter I)}
     (hs : Positive s) {a b d c : List I} {M : List (LayerData I)} (hM : AllSh Shape.isRL M)
     (hMc : SChain (ups a ++ dns b) M (dns d ++ ups c)) {f} (hf : f ∈ GoodR RD k sc μ s a b) :
-    f ≫ dg RD k sc μ (ups a ++ dns b) (dns d ++ ups c) M ∈ GoodL RD k sc μ s d c := by
+    f ≫ NF.dg (pres RD k sc) μ (ups a ++ dns b) (dns d ++ ups c) M ∈ GoodL RD k sc μ s d c := by
   obtain ⟨A', hA'u, hA'c, c₀, hE⟩ := straightenRL (RD := RD) (k := k) (sc := sc)
     (s := rd (dns d) ++ ups a) (t := ups c ++ rd (dns b))
     (positive_append.2 ⟨positive_rd_dns d, positive_ups a⟩)
@@ -330,24 +330,24 @@ theorem goodR_comp [DecidableEq I] {μ : X} {s : List (Letter I)}
         refine (show SChain ((rd (dns d) ++ s) ++ rd (dns b)) (A.map (whL (rd (dns d)) []))
           (rd (dns d) ++ ups a) by simpa using hAc.whisk (rd (dns d)) []).append hA'c
       have key := hom_ext_dg RD k sc (wt RD μ (dns b)) (s := []) (t := [])
-        ((Linear.rightComp k _ (dg RD k sc μ (ups a ++ dns b) (dns d ++ ups c) M)).comp
+        ((Linear.rightComp k _ (NF.dg (pres RD k sc) μ (ups a ++ dns b) (dns d ++ ups c) M)).comp
           ((unbendR RD k sc μ b s (ups a)).comp
-            ((Linear.leftComp k _ (dg RD k sc (wt RD μ (dns b)) (s ++ rd (dns b)) (ups a) A)).comp
+            ((Linear.leftComp k _ (NF.dg (pres RD k sc) (wt RD μ (dns b)) (s ++ rd (dns b)) (ups a) A)).comp
               (bubAt RD k sc (wt RD μ (dns b)) (ups a)))))
         (c₀ • (unbendL RD k sc μ d s (ups c)).comp
           ((ptrRL RD k sc μ b (rd (dns d) ++ s) (ups c) ((rd (dns d) ++ s) ++ rd (dns b))
             (ups c ++ rd (dns b))).comp
-            ((Linear.leftComp k _ (dg RD k sc (wt RD μ (dns b)) ((rd (dns d) ++ s) ++ rd (dns b))
+            ((Linear.leftComp k _ (NF.dg (pres RD k sc) (wt RD μ (dns b)) ((rd (dns d) ++ s) ++ rd (dns b))
               (ups c ++ rd (dns b)) (A.map (whL (rd (dns d)) []) ++ A'))).comp
               (bubAt RD k sc (wt RD μ (dns b)) (ups c ++ rd (dns b))))))
         (fun B hB => ?_)
       · have e := LinearMap.congr_fun key γ
-        change unbendR RD k sc μ b s (ups a) (dg RD k sc (wt RD μ (dns b)) (s ++ rd (dns b)) (ups a) A ≫
+        change unbendR RD k sc μ b s (ups a) (NF.dg (pres RD k sc) (wt RD μ (dns b)) (s ++ rd (dns b)) (ups a) A ≫
             bubAt RD k sc (wt RD μ (dns b)) (ups a) γ) ≫
-              dg RD k sc μ (ups a ++ dns b) (dns d ++ ups c) M =
+              NF.dg (pres RD k sc) μ (ups a ++ dns b) (dns d ++ ups c) M =
           c₀ • unbendL RD k sc μ d s (ups c) (ptrRL RD k sc μ b (rd (dns d) ++ s) (ups c)
             ((rd (dns d) ++ s) ++ rd (dns b)) (ups c ++ rd (dns b))
-            (dg RD k sc (wt RD μ (dns b)) ((rd (dns d) ++ s) ++ rd (dns b)) (ups c ++ rd (dns b))
+            (NF.dg (pres RD k sc) (wt RD μ (dns b)) ((rd (dns d) ++ s) ++ rd (dns b)) (ups c ++ rd (dns b))
               (A.map (whL (rd (dns d)) []) ++ A') ≫
                 bubAt RD k sc (wt RD μ (dns b)) (ups c ++ rd (dns b)) γ)) at e
         rw [e]
@@ -355,15 +355,15 @@ theorem goodR_comp [DecidableEq I] {μ : X} {s : List (Letter I)}
         refine Submodule.subset_span ⟨𝟙 _, _, IsBub.id, ?_, by rw [bubAt_id, Category.id_comp]⟩
         exact ptrRL_mem_upSpan b μ (positive_append.2 ⟨positive_rd_dns d, hs⟩) (positive_ups c)
           rfl rfl (Submodule.subset_span ⟨_, γ, (hAu.map_whL _ _).append hA'u, hA2, hγ, rfl⟩)
-      change unbendR RD k sc μ b s (ups a) (dg RD k sc (wt RD μ (dns b)) (s ++ rd (dns b)) (ups a) A ≫
-            bubAt RD k sc (wt RD μ (dns b)) (ups a) (dg RD k sc (wt RD μ (dns b)) [] [] B)) ≫
-            dg RD k sc μ (ups a ++ dns b) (dns d ++ ups c) M =
+      change unbendR RD k sc μ b s (ups a) (NF.dg (pres RD k sc) (wt RD μ (dns b)) (s ++ rd (dns b)) (ups a) A ≫
+            bubAt RD k sc (wt RD μ (dns b)) (ups a) (NF.dg (pres RD k sc) (wt RD μ (dns b)) [] [] B)) ≫
+            NF.dg (pres RD k sc) μ (ups a ++ dns b) (dns d ++ ups c) M =
           c₀ • unbendL RD k sc μ d s (ups c) (ptrRL RD k sc μ b (rd (dns d) ++ s) (ups c)
             ((rd (dns d) ++ s) ++ rd (dns b)) (ups c ++ rd (dns b))
-            (dg RD k sc (wt RD μ (dns b)) ((rd (dns d) ++ s) ++ rd (dns b)) (ups c ++ rd (dns b))
+            (NF.dg (pres RD k sc) (wt RD μ (dns b)) ((rd (dns d) ++ s) ++ rd (dns b)) (ups c ++ rd (dns b))
               (A.map (whL (rd (dns d)) []) ++ A') ≫
                 bubAt RD k sc (wt RD μ (dns b)) (ups c ++ rd (dns b))
-                  (dg RD k sc (wt RD μ (dns b)) [] [] B)))
+                  (NF.dg (pres RD k sc) (wt RD μ (dns b)) [] [] B)))
       have hBa : SChain (ups a) (B.map (whL (ups a) [])) (ups a) := by
         simpa using hB.whisk (ups a) []
       have hBc : SChain (ups c ++ rd (dns b)) (B.map (whL (ups c ++ rd (dns b)) []))
@@ -373,7 +373,7 @@ theorem goodR_comp [DecidableEq I] {μ : X} {s : List (Letter I)}
         refine (show SChain s ((cupA (rd (dns b))).map (whL s [])) (s ++ rd (dns b) ++ dns b) by
           simpa [rd_rd] using (sChain_cupA (rd (dns b))).whisk s []).append ?_
         simpa using (hAc.append hBa).whisk [] (dns b)
-      rw [bubAt_dg, bubAt_dg, dg_comp hAc hBa, dg_comp hA2 hBc, unbendR_dg, dg_comp hU hMc,
+      rw [bubAt_dg, bubAt_dg, NF.dg_comp hAc hBa, NF.dg_comp hA2 hBc, unbendR_dg, NF.dg_comp hU hMc,
         ptrRL_dg μ b rfl rfl]
       erw [unbendL_dg]
       exact (core_RL_dg μ hAc hMc c₀ (hE (wt RD μ (dns b))) hB).trans
@@ -388,20 +388,20 @@ theorem goodR_comp [DecidableEq I] {μ : X} {s : List (Letter I)}
 /-- Unbending on the left commutes with bubble monomials on the far right. -/
 theorem unbendL_dg_bubAt (μ : X) (d : List I) (s c : List (Letter I)) {B : List (LayerData I)}
     (hBc : SChain (rd (dns d) ++ s) B c) (γ : End ((pres RD k sc).obj (ob RD (wt RD μ []) []))) :
-    unbendL RD k sc μ d s c (dg RD k sc (wt RD μ []) (rd (dns d) ++ s) c B ≫
+    unbendL RD k sc μ d s c (NF.dg (pres RD k sc) (wt RD μ []) (rd (dns d) ++ s) c B ≫
         bubAt RD k sc (wt RD μ []) c γ) =
-      unbendL RD k sc μ d s c (dg RD k sc (wt RD μ []) (rd (dns d) ++ s) c B) ≫
+      unbendL RD k sc μ d s c (NF.dg (pres RD k sc) (wt RD μ []) (rd (dns d) ++ s) c B) ≫
         bubAt RD k sc μ (dns d ++ c) γ := by
   have key := hom_ext_dg RD k sc (wt RD μ []) (s := []) (t := [])
-    ((unbendL RD k sc μ d s c).comp ((Linear.leftComp k _ (dg RD k sc (wt RD μ []) (rd (dns d) ++ s) c
+    ((unbendL RD k sc μ d s c).comp ((Linear.leftComp k _ (NF.dg (pres RD k sc) (wt RD μ []) (rd (dns d) ++ s) c
       B)).comp (bubAt RD k sc (wt RD μ []) c)))
-    ((Linear.leftComp k _ (unbendL RD k sc μ d s c (dg RD k sc (wt RD μ []) (rd (dns d) ++ s) c B))).comp
+    ((Linear.leftComp k _ (unbendL RD k sc μ d s c (NF.dg (pres RD k sc) (wt RD μ []) (rd (dns d) ++ s) c B))).comp
       (bubAt RD k sc μ (dns d ++ c))) (fun Bb hBb => ?_)
   · exact LinearMap.congr_fun key γ
-  change unbendL RD k sc μ d s c (dg RD k sc (wt RD μ []) (rd (dns d) ++ s) c B ≫
-      bubAt RD k sc (wt RD μ []) c (dg RD k sc (wt RD μ []) [] [] Bb)) =
-    unbendL RD k sc μ d s c (dg RD k sc (wt RD μ []) (rd (dns d) ++ s) c B) ≫
-      bubAt RD k sc μ (dns d ++ c) (dg RD k sc μ [] [] Bb)
+  change unbendL RD k sc μ d s c (NF.dg (pres RD k sc) (wt RD μ []) (rd (dns d) ++ s) c B ≫
+      bubAt RD k sc (wt RD μ []) c (NF.dg (pres RD k sc) (wt RD μ []) [] [] Bb)) =
+    unbendL RD k sc μ d s c (NF.dg (pres RD k sc) (wt RD μ []) (rd (dns d) ++ s) c B) ≫
+      bubAt RD k sc μ (dns d ++ c) (NF.dg (pres RD k sc) μ [] [] Bb)
   have h1 : SChain c (Bb.map (whL c [])) c := by simpa using hBb.whisk c []
   have h2 : SChain (dns d ++ c) (Bb.map (whL (dns d ++ c) [])) (dns d ++ c) := by
     simpa using hBb.whisk (dns d ++ c) []
@@ -409,7 +409,7 @@ theorem unbendL_dg_bubAt (μ : X) (d : List I) (s c : List (Letter I)) {B : List
     refine (show SChain s ((cupA (dns d)).map (whL [] s)) (dns d ++ (rd (dns d) ++ s)) by
       simpa using (sChain_cupA (dns d)).whisk [] s).append ?_
     simpa using hBc.whisk (dns d) []
-  rw [bubAt_dg, bubAt_dg, dg_comp hBc h1, unbendL_dg, unbendL_dg, dg_comp h3 h2]
+  rw [bubAt_dg, bubAt_dg, NF.dg_comp hBc h1, unbendL_dg, unbendL_dg, NF.dg_comp h3 h2]
   exact dg_list_eq (by laysimp)
 
 /-- **L → R**: a good 2-morphism into a word sorted to the left, followed by a monotone diagram of
@@ -417,7 +417,7 @@ type `LR` into a word sorted to the right, is good. -/
 theorem goodL_comp [DecidableEq I] {μ : X} {s : List (Letter I)}
     (hs : Positive s) {d a c b : List I} {M : List (LayerData I)} (hM : AllSh Shape.isLR M)
     (hMc : SChain (dns d ++ ups a) M (ups c ++ dns b)) {g} (hg : g ∈ GoodL RD k sc μ s d a) :
-    g ≫ dg RD k sc μ (dns d ++ ups a) (ups c ++ dns b) M ∈ GoodR RD k sc μ s c b := by
+    g ≫ NF.dg (pres RD k sc) μ (dns d ++ ups a) (ups c ++ dns b) M ∈ GoodR RD k sc μ s c b := by
   have hM' : SChain (rd (rd (dns d)) ++ ups a) M (ups c ++ rd (rd (dns b))) := by
     simpa [rd_rd] using hMc
   obtain ⟨A'', hA''u, hA''c, c₀, hE⟩ := straightenLR (RD := RD) (k := k) (sc := sc)
@@ -439,18 +439,18 @@ theorem goodL_comp [DecidableEq I] {μ : X} {s : List (Letter I)}
           (rd (dns d) ++ ups c) := by
         refine (show SChain (rd (dns d) ++ (s ++ rd (dns b))) (B.map (whL [] (rd (dns b))))
           (ups a ++ rd (dns b)) by simpa using hBc.whisk [] (rd (dns b))).append hA''c
-      have e : unbendL RD k sc μ d s (ups a) (dg RD k sc (wt RD μ []) (rd (dns d) ++ s) (ups a) B) ≫
-          dg RD k sc μ (dns d ++ ups a) (ups c ++ dns b) M =
+      have e : unbendL RD k sc μ d s (ups a) (NF.dg (pres RD k sc) (wt RD μ []) (rd (dns d) ++ s) (ups a) B) ≫
+          NF.dg (pres RD k sc) μ (dns d ++ ups a) (ups c ++ dns b) M =
           c₀ • unbendR RD k sc μ b s (ups c) (ptrLL RD k sc (wt RD μ (dns b)) d (s ++ rd (dns b)) (ups c)
             (rd (dns d) ++ (s ++ rd (dns b))) (rd (dns d) ++ ups c)
-            (dg RD k sc (wt RD (wt RD μ (dns b)) []) (rd (dns d) ++ (s ++ rd (dns b)))
+            (NF.dg (pres RD k sc) (wt RD (wt RD μ (dns b)) []) (rd (dns d) ++ (s ++ rd (dns b)))
               (rd (dns d) ++ ups c) (B.map (whL [] (rd (dns b))) ++ A''))) := by
         have hU : SChain s ((cupA (dns d)).map (whL [] s) ++ B.map (whL (dns d) []))
             (dns d ++ ups a) := by
           refine (show SChain s ((cupA (dns d)).map (whL [] s)) (dns d ++ (rd (dns d) ++ s)) by
             simpa using (sChain_cupA (dns d)).whisk [] s).append ?_
           simpa using hBc.whisk (dns d) []
-        rw [unbendL_dg, dg_comp hU hMc, ptrLL_dg (wt RD μ (dns b)) d rfl rfl]
+        rw [unbendL_dg, NF.dg_comp hU hMc, ptrLL_dg (wt RD μ (dns b)) d rfl rfl]
         erw [unbendR_dg]
         exact core_LR_dg μ hBc hMc c₀ (hE (wt RD μ (dns b)))
       rw [e]
@@ -473,7 +473,7 @@ theorem goodL_comp [DecidableEq I] {μ : X} {s : List (Letter I)}
 right is good. -/
 theorem good_base {μ : X} {s : List (Letter I)} (hs : Positive s) {a b : List I}
     {P : List (LayerData I)} (hP : AllSh Shape.isLR P) (hPc : SChain s P (ups a ++ dns b)) :
-    dg RD k sc μ s (ups a ++ dns b) P ∈ GoodR RD k sc μ s a b := by
+    NF.dg (pres RD k sc) μ s (ups a ++ dns b) P ∈ GoodR RD k sc μ s a b := by
   have hZ : SChain (s ++ rd (dns b)) (P.map (whL [] (rd (dns b))) ++
       (capA (rd (dns b))).map (whL (ups a) [])) (ups a) := by
     refine (show SChain (s ++ rd (dns b)) (P.map (whL [] (rd (dns b))))
@@ -488,8 +488,8 @@ theorem good_base {μ : X} {s : List (Letter I)} (hs : Positive s) {a b : List I
   have h := dg_unbendR_bendR (RD := RD) (k := k) (sc := sc) (rd (dns b)) s (ups a) (P := P)
     (by simpa [rd_rd] using hPc) μ
   rw [rd_rd] at h
-  have key : dg RD k sc μ s (ups a ++ dns b) P = unbendR RD k sc μ b s (ups a)
-      (dg RD k sc (wt RD μ (dns b)) (s ++ rd (dns b)) (ups a) (P.map (whL [] (rd (dns b))) ++
+  have key : NF.dg (pres RD k sc) μ s (ups a ++ dns b) P = unbendR RD k sc μ b s (ups a)
+      (NF.dg (pres RD k sc) (wt RD μ (dns b)) (s ++ rd (dns b)) (ups a) (P.map (whL [] (rd (dns b))) ++
         (capA (rd (dns b))).map (whL (ups a) []))) := by
     rw [unbendR_dg]
     exact h.symm
@@ -527,16 +527,16 @@ to the right. -/
 def LayerInv (μ : X) (s w : List (Letter I))
     (f : (pres RD k sc).obj (ob RD μ s) ⟶ (pres RD k sc).obj (ob RD μ w)) : Prop :=
   ∀ (a b : List I) (P : List (LayerData I)), AllSh Shape.isLR P → SChain w P (ups a ++ dns b) →
-    f ≫ dg RD k sc μ w (ups a ++ dns b) P ∈ GoodR RD k sc μ s a b
+    f ≫ NF.dg (pres RD k sc) μ w (ups a ++ dns b) P ∈ GoodR RD k sc μ s a b
 
 
 /-- **One layer**: the invariant is preserved by composing with any layer. -/
 theorem inv_step [DecidableEq I] {μ : X} {s : List (Letter I)}
     (hs : Positive s) {w w' : List (Letter I)} {f} (hf : LayerInv RD k sc μ s w f) {x : LayerData I}
-    (hx : SChain w [x] w') : LayerInv RD k sc μ s w' (f ≫ dg RD k sc μ w w' [x]) := by
+    (hx : SChain w [x] w') : LayerInv RD k sc μ s w' (f ≫ NF.dg (pres RD k sc) μ w w' [x]) := by
   intro a' b' P' hP' hcP'
-  have hΦ : ∀ e ∈ decRSet RD k sc μ w, f ≫ e ≫ dg RD k sc μ w w' [x] ≫
-      dg RD k sc μ w' (ups a' ++ dns b') P' ∈ GoodR RD k sc μ s a' b' := by
+  have hΦ : ∀ e ∈ decRSet RD k sc μ w, f ≫ e ≫ NF.dg (pres RD k sc) μ w w' [x] ≫
+      NF.dg (pres RD k sc) μ w' (ups a' ++ dns b') P' ∈ GoodR RD k sc μ s a' b' := by
     intro e he
     induction he using Submodule.span_induction with
     | mem e he =>
@@ -546,8 +546,8 @@ theorem inv_step [DecidableEq I] {μ : X} {s : List (Letter I)}
       rcases hxs with hxs | hxs
       · -- the layer is of type `RL`: sort its target to the left
         have hΨ : ∀ e' ∈ decLSet RD k sc μ w', f ≫ bubAt RD k sc μ w δ ≫
-            dg RD k sc μ w (ups a ++ dns b) P ≫ dg RD k sc μ (ups a ++ dns b) w Q ≫
-              dg RD k sc μ w w' [x] ≫ e' ≫ dg RD k sc μ w' (ups a' ++ dns b') P' ∈
+            NF.dg (pres RD k sc) μ w (ups a ++ dns b) P ≫ NF.dg (pres RD k sc) μ (ups a ++ dns b) w Q ≫
+              NF.dg (pres RD k sc) μ w w' [x] ≫ e' ≫ NF.dg (pres RD k sc) μ w' (ups a' ++ dns b') P' ∈
                 GoodR RD k sc μ s a' b' := by
           intro e' he'
           induction he' using Submodule.span_induction with
@@ -559,9 +559,9 @@ theorem inv_step [DecidableEq I] {μ : X} {s : List (Letter I)}
             have h2 := goodL_comp hs (M := Q'' ++ P') (hQ''.append hP') (hcQ''.append hcP') h1
             have h3 := goodR_bub hδ (goodR_bub hδ' h2)
             convert h3 using 1
-            rw [← dg_comp (hcQ.append hx) hcP'', ← dg_comp hcQ hx, ← dg_comp hcQ'' hcP']
-            have hb := bubAt_comm RD k sc μ δ' (f ≫ dg RD k sc μ w (ups a ++ dns b) P ≫
-              dg RD k sc μ (ups a ++ dns b) w Q ≫ dg RD k sc μ w w' [x])
+            rw [← NF.dg_comp (hcQ.append hx) hcP'', ← NF.dg_comp hcQ hx, ← NF.dg_comp hcQ'' hcP']
+            have hb := bubAt_comm RD k sc μ δ' (f ≫ NF.dg (pres RD k sc) μ w (ups a ++ dns b) P ≫
+              NF.dg (pres RD k sc) μ (ups a ++ dns b) w Q ≫ NF.dg (pres RD k sc) μ w w' [x])
             have hb' := bubAt_comm RD k sc μ δ f
             simp only [Category.assoc] at hb hb' ⊢
             rw [← reassoc_of% hb', ← reassoc_of% hb]
@@ -574,8 +574,8 @@ theorem inv_step [DecidableEq I] {μ : X} {s : List (Letter I)}
         simpa only [Category.id_comp, Category.assoc] using this
       · -- the layer is of type `LR`: sort its source to the left
         have hΨ : ∀ e' ∈ decLSet RD k sc μ w, f ≫ bubAt RD k sc μ w δ ≫
-            dg RD k sc μ w (ups a ++ dns b) P ≫ dg RD k sc μ (ups a ++ dns b) w Q ≫ e' ≫
-              dg RD k sc μ w w' [x] ≫ dg RD k sc μ w' (ups a' ++ dns b') P' ∈
+            NF.dg (pres RD k sc) μ w (ups a ++ dns b) P ≫ NF.dg (pres RD k sc) μ (ups a ++ dns b) w Q ≫ e' ≫
+              NF.dg (pres RD k sc) μ w w' [x] ≫ NF.dg (pres RD k sc) μ w' (ups a' ++ dns b') P' ∈
                 GoodR RD k sc μ s a' b' := by
           intro e' he'
           induction he' using Submodule.span_induction with
@@ -587,9 +587,9 @@ theorem inv_step [DecidableEq I] {μ : X} {s : List (Letter I)}
               ((hcQ''.append hx).append hcP') h1
             have h3 := goodR_bub hδ (goodR_bub hδ' h2)
             convert h3 using 1
-            rw [← dg_comp hcQ hcP'', ← dg_comp (hcQ''.append hx) hcP', ← dg_comp hcQ'' hx]
-            have hb := bubAt_comm RD k sc μ δ' (f ≫ dg RD k sc μ w (ups a ++ dns b) P ≫
-              dg RD k sc μ (ups a ++ dns b) w Q)
+            rw [← NF.dg_comp hcQ hcP'', ← NF.dg_comp (hcQ''.append hx) hcP', ← NF.dg_comp hcQ'' hx]
+            have hb := bubAt_comm RD k sc μ δ' (f ≫ NF.dg (pres RD k sc) μ w (ups a ++ dns b) P ≫
+              NF.dg (pres RD k sc) μ (ups a ++ dns b) w Q)
             have hb' := bubAt_comm RD k sc μ δ f
             simp only [Category.assoc] at hb hb' ⊢
             rw [← reassoc_of% hb', ← reassoc_of% hb]
@@ -620,24 +620,24 @@ theorem upSpanDiag [DecidableEq I] (μ : X) :
     rw [Category.id_comp]; exact good_base hs hP hPc
   have hall : ∀ (ls : List (LayerData I)) {w₀ w : List (Letter I)}
       (f : (pres RD k sc).obj (ob RD μ s) ⟶ (pres RD k sc).obj (ob RD μ w₀)),
-      LayerInv RD k sc μ s w₀ f → SChain w₀ ls w → LayerInv RD k sc μ s w (f ≫ dg RD k sc μ w₀ w ls) := by
+      LayerInv RD k sc μ s w₀ f → SChain w₀ ls w → LayerInv RD k sc μ s w (f ≫ NF.dg (pres RD k sc) μ w₀ w ls) := by
     intro ls
     induction ls with
     | nil =>
       intro w₀ w f hf hc
       obtain rfl : w₀ = w := hc
-      rw [dg_nil, Category.comp_id]
+      rw [NF.dg_nil, Category.comp_id]
       exact hf
     | cons x ls ih =>
       intro w₀ w f hf hc
       have hx : SChain w₀ [x] (x.1 ++ x.2.1.cod ++ x.2.2) := ⟨hc.1, rfl⟩
       have := ih _ (inv_step hs hf hx) hc.2
-      rw [Category.assoc, dg_comp hx hc.2] at this
+      rw [Category.assoc, NF.dg_comp hx hc.2] at this
       exact this
   have hI := hall ls (𝟙 _) hbase h
   obtain ⟨a, rfl⟩ : ∃ a, t = ups a ++ dns [] := ⟨t.map Prod.snd, by simp [ups_map_snd ht]⟩
   have hm := hI a [] [] (fun x hx => by simp at hx) rfl
-  rw [dg_nil, Category.comp_id, Category.id_comp] at hm
+  rw [NF.dg_nil, Category.comp_id, Category.id_comp] at hm
   exact goodR_nil_le μ s a hm
 
 /-- **The one-strand case of KL III Lemma 3.9**: every endomorphism of `E_i 1_μ`

@@ -63,7 +63,7 @@ theorem hom_eq_zero_of_sCnt_ne (μ : X) {s t : List (Letter I)} (i : I)
     (h : sCnt i s ≠ sCnt i t)
     (f : (pres RD k sc).obj (ob RD μ s) ⟶ (pres RD k sc).obj (ob RD μ t)) : f = 0 := by
   have hf := mem_span_dg RD k sc μ f
-  have : {g | ∃ ls, SChain s ls t ∧ g = dg RD k sc μ s t ls} = ∅ :=
+  have : {g | ∃ ls, SChain s ls t ∧ g = NF.dg (pres RD k sc) μ s t ls} = ∅ :=
     Set.eq_empty_iff_forall_notMem.2 fun g ⟨ls, hls, _⟩ => h (sCnt_of_sChain i hls)
   rwa [this, Submodule.span_empty, Submodule.mem_bot] at hf
 
@@ -528,8 +528,8 @@ theorem mem_vacIdeal_of_vacEvW_eq_zero {s s' : List (Letter I)} {c : X}
       · intro y _
         have := comp_mem_vacIdeal_of_dn' hQ RD Λ hs hs' rfl hb (SChain.wt_eq RD (vacWt RD Λ) hcP)
           (CLQ.bubAt RD k (univScalars hQ RD) (vacWt RD Λ) s δ ≫
-              CLQ.dg RD k (univScalars hQ RD) (vacWt RD Λ) s _ P)
-          (CLQ.dg RD k (univScalars hQ RD) (vacWt RD Λ) _ s Q ≫ φ' ≫ y)
+              NF.dg (CLQ.pres RD k (univScalars hQ RD)) (vacWt RD Λ) s _ P)
+          (NF.dg (CLQ.pres RD k (univScalars hQ RD)) (vacWt RD Λ) _ s Q ≫ φ' ≫ y)
         simpa only [Category.assoc] using this
       push Not at hb
       subst hb
@@ -547,31 +547,31 @@ theorem mem_vacIdeal_of_vacEvW_eq_zero {s s' : List (Letter I)} {c : X}
         · have := comp_mem_vacIdeal_of_dn' hQ RD Λ hs hs' rfl hb'
             ((SChain.wt_eq RD (vacWt RD Λ) hcP').trans (hs'.trans hs.symm))
             ((CLQ.bubAt RD k (univScalars hQ RD) (vacWt RD Λ) s δ ≫
-                CLQ.dg RD k (univScalars hQ RD) (vacWt RD Λ) s (ups a ++ dns []) P ≫
-              CLQ.dg RD k (univScalars hQ RD) (vacWt RD Λ) (ups a ++ dns []) s Q) ≫ φ' ≫
+                NF.dg (CLQ.pres RD k (univScalars hQ RD)) (vacWt RD Λ) s (ups a ++ dns []) P ≫
+              NF.dg (CLQ.pres RD k (univScalars hQ RD)) (vacWt RD Λ) (ups a ++ dns []) s Q) ≫ φ' ≫
               CLQ.bubAt RD k (univScalars hQ RD) (vacWt RD Λ) s' δ' ≫
-              CLQ.dg RD k (univScalars hQ RD) (vacWt RD Λ) s' _ P')
-            (CLQ.dg RD k (univScalars hQ RD) (vacWt RD Λ) _ s' Q')
+              NF.dg (CLQ.pres RD k (univScalars hQ RD)) (vacWt RD Λ) s' _ P')
+            (NF.dg (CLQ.pres RD k (univScalars hQ RD)) (vacWt RD Λ) _ s' Q')
           simpa only [Category.assoc] using this
         push Not at hb'
         subst hb'
-        have e1 := vacEvW_comp hQ RD Λ hΛ hz hs hz' (CLQ.dg RD k (univScalars hQ RD)
+        have e1 := vacEvW_comp hQ RD Λ hΛ hz hs hz' (NF.dg (CLQ.pres RD k (univScalars hQ RD))
             (vacWt RD Λ) _ s Q)
           (φ ≫ CLQ.bubAt RD k (univScalars hQ RD) (vacWt RD Λ) s' δ' ≫
-            CLQ.dg RD k (univScalars hQ RD) (vacWt RD Λ) s' _ P')
+            NF.dg (CLQ.pres RD k (univScalars hQ RD)) (vacWt RD Λ) s' _ P')
         have e2 := vacEvW_comp hQ RD Λ hΛ hs hs' hz' φ
           (CLQ.bubAt RD k (univScalars hQ RD) (vacWt RD Λ) s' δ' ≫
-              CLQ.dg RD k (univScalars hQ RD) (vacWt RD Λ) s' _ P')
+              NF.dg (CLQ.pres RD k (univScalars hQ RD)) (vacWt RD Λ) s' _ P')
         erw [e2] at e1
         rw [h, Limits.zero_comp, Limits.comp_zero] at e1
         have hm := up_kernel_W hQ RD Λ hΛ (a := a) (a' := a') (by simp) (by simp) hz hz' _ e1
         have := comp_comp_mem_vacIdeal hQ RD Λ hs hz hz' hs'
           (CLQ.bubAt RD k (univScalars hQ RD) (vacWt RD Λ) s δ ≫
-              CLQ.dg RD k (univScalars hQ RD) (vacWt RD Λ) s _ P)
-          (CLQ.dg RD k (univScalars hQ RD) (vacWt RD Λ) _ s Q ≫ φ' ≫
+              NF.dg (CLQ.pres RD k (univScalars hQ RD)) (vacWt RD Λ) s _ P)
+          (NF.dg (CLQ.pres RD k (univScalars hQ RD)) (vacWt RD Λ) _ s Q ≫ φ' ≫
             CLQ.bubAt RD k (univScalars hQ RD) (vacWt RD Λ) s' δ' ≫
-            CLQ.dg RD k (univScalars hQ RD) (vacWt RD Λ) s' _ P')
-          (CLQ.dg RD k (univScalars hQ RD) (vacWt RD Λ) _ s' Q') hm
+            NF.dg (CLQ.pres RD k (univScalars hQ RD)) (vacWt RD Λ) s' _ P')
+          (NF.dg (CLQ.pres RD k (univScalars hQ RD)) (vacWt RD Λ) _ s' Q') hm
         simpa only [Category.assoc] using this
   have h1 := CLQ.decR (RD := RD) (k := k) (sc := univScalars hQ RD) (vacWt RD Λ) _ s
       (Nat.lt_succ_self _)
@@ -674,8 +674,8 @@ theorem exists_vacEvQ_eq {s s' : List (Letter I)} {c : X}
         refine ⟨0, ?_⟩
         have := comp_mem_vacIdeal_of_dn' hQ RD Λ hs hs rfl hb (SChain.wt_eq RD _ hcP)
           (CLQ.bubAt RD k (univScalars hQ RD) (vacWt RD Λ) s δ ≫
-            CLQ.dg RD k (univScalars hQ RD) (vacWt RD Λ) s _ P)
-          (CLQ.dg RD k (univScalars hQ RD) (vacWt RD Λ) _ s Q)
+            NF.dg (CLQ.pres RD k (univScalars hQ RD)) (vacWt RD Λ) s _ P)
+          (NF.dg (CLQ.pres RD k (univScalars hQ RD)) (vacWt RD Λ) _ s Q)
         rw [Category.assoc] at this
         rw [vacEvQ_zero, vacEvQ_eq_zero hQ RD Λ hΛ hs hs this, Limits.zero_comp]
       push Not at hb
@@ -699,20 +699,20 @@ theorem exists_vacEvQ_eq {s s' : List (Letter I)} {c : X}
         · refine ⟨0, ?_⟩
           have := comp_mem_vacIdeal_of_dn' hQ RD Λ hs' hs' rfl hb' (SChain.wt_eq RD _ hcP')
             (CLQ.bubAt RD k (univScalars hQ RD) (vacWt RD Λ) s' δ' ≫
-              CLQ.dg RD k (univScalars hQ RD) (vacWt RD Λ) s' _ P')
-            (CLQ.dg RD k (univScalars hQ RD) (vacWt RD Λ) _ s' Q')
+              NF.dg (CLQ.pres RD k (univScalars hQ RD)) (vacWt RD Λ) s' _ P')
+            (NF.dg (CLQ.pres RD k (univScalars hQ RD)) (vacWt RD Λ) _ s' Q')
           rw [Category.assoc] at this
           rw [vacEvQ_zero, vacEvQ_eq_zero hQ RD Λ hΛ hs' hs' this, Limits.comp_zero,
             Limits.comp_zero]
         push Not at hb'
         subst hb'
         obtain ⟨m, hm⟩ := up_surj_Q hQ RD Λ hΛ (a := a) (a' := a') (by simp) (by simp) hz hz'
-          (vacEvQ hQ RD Λ hΛ hz hs (CLQ.dg RD k (univScalars hQ RD) (vacWt RD Λ) _ s Q) ≫ g ≫
+          (vacEvQ hQ RD Λ hΛ hz hs (NF.dg (CLQ.pres RD k (univScalars hQ RD)) (vacWt RD Λ) _ s Q) ≫ g ≫
             vacEvQ hQ RD Λ hΛ hs' hz' (CLQ.bubAt RD k (univScalars hQ RD) (vacWt RD Λ) s' δ' ≫
-              CLQ.dg RD k (univScalars hQ RD) (vacWt RD Λ) s' (ups a' ++ dns []) P'))
+              NF.dg (CLQ.pres RD k (univScalars hQ RD)) (vacWt RD Λ) s' (ups a' ++ dns []) P'))
         refine ⟨(CLQ.bubAt RD k (univScalars hQ RD) (vacWt RD Λ) s δ ≫
-          CLQ.dg RD k (univScalars hQ RD) (vacWt RD Λ) s (ups a ++ dns []) P) ≫ m ≫
-          CLQ.dg RD k (univScalars hQ RD) (vacWt RD Λ) _ s' Q', ?_⟩
+          NF.dg (CLQ.pres RD k (univScalars hQ RD)) (vacWt RD Λ) s (ups a ++ dns []) P) ≫ m ≫
+          NF.dg (CLQ.pres RD k (univScalars hQ RD)) (vacWt RD Λ) _ s' Q', ?_⟩
         rw [vacEvQ_comp hQ RD Λ hΛ hs hz hs', vacEvQ_comp hQ RD Λ hΛ hz hz' hs', hm,
           ← Category.assoc (CLQ.bubAt RD k (univScalars hQ RD) (vacWt RD Λ) s δ),
           vacEvQ_comp hQ RD Λ hΛ hs hz hs,

@@ -54,77 +54,77 @@ variable {I : Type u} {C : CartanDatum I} {X Y : Type v} [AddCommGroup X] [AddCo
 `crossr_{ij}` (the strand `E_i` crossing the leg `F_j`) equals the cup to the right of `E_i`
 followed by the upward crossing `ψ_{ij}` (the strand `E_i` crossing the leg `E_j`). -/
 theorem dg_pf_cupUp (i j : I) (μ : X) :
-    dg RD k sc μ [up i] [up j, up i, dn j]
+    NF.dg (pres RD k sc) μ [up i] [up j, up i, dn j]
         ([([], .cup (up j), [up i])] ++ (crossrL i j).map (whL [up j] [])) =
-      dg RD k sc μ [up i] [up j, up i, dn j]
+      NF.dg (pres RD k sc) μ [up i] [up j, up i, dn j]
         [([up i], .cup (up j), []), ([], .cross true i j, [dn j])] := by
   dnorm
   dswapQ 0; dswapQ 1
-  datQ 2 [] [up i, dn j] (dg_zigL' RD k sc _ (up j))
+  datQ 2 [] [up i, dn j] (NF.dg_zigL' (pres RD k sc) _ (up j))
 
 /-- **Pitchfork through the cap `F_j E_j ⟶ 1`**: `crossr_{ij}` on the left two strands of
 `F_j E_i E_j`, followed by the cap on the right two strands, equals the upward crossing `ψ_{ij}`
 on the right two strands followed by the cap on the left two strands. -/
 theorem dg_pf_capUp (i j : I) (μ : X) :
-    dg RD k sc μ [dn j, up i, up j] [up i]
+    NF.dg (pres RD k sc) μ [dn j, up i, up j] [up i]
         ((crossrL i j).map (whL [] [up j]) ++ [([up i], .cap (up j), [])]) =
-      dg RD k sc μ [dn j, up i, up j] [up i]
+      NF.dg (pres RD k sc) μ [dn j, up i, up j] [up i]
         [([dn j], .cross true i j, []), ([], .cap (up j), [up i])] := by
   dnorm
   dswapQ 2; dswapQ 1
-  datQ 0 [dn j, up i] [] (dg_zigL' RD k sc _ (up j))
+  datQ 0 [dn j, up i] [] (NF.dg_zigL' (pres RD k sc) _ (up j))
 
 /-- **Pitchfork through the cap `E_j F_j ⟶ 1`**: `crossl_{ij}` on the right two strands of
 `E_j E_i F_j`, followed by the cap on the left two strands, equals the upward crossing `ψ_{ji}`
 on the left two strands followed by the cap on the right two strands. -/
 theorem dg_pf_capDn (i j : I) (μ : X) :
-    dg RD k sc μ [up j, up i, dn j] [up i]
+    NF.dg (pres RD k sc) μ [up j, up i, dn j] [up i]
         ((crosslL i j).map (whL [up j] []) ++ [([], .cap (dn j), [up i])]) =
-      dg RD k sc μ [up j, up i, dn j] [up i]
+      NF.dg (pres RD k sc) μ [up j, up i, dn j] [up i]
         [([], .cross true j i, [dn j]), ([up i], .cap (dn j), [])] := by
   dnorm
   dswapQ 2; dswapQ 1
-  datQ 0 [] [up i, dn j] (dg_zigR' RD k sc _ (dn j))
+  datQ 0 [] [up i, dn j] (NF.dg_zigR' (pres RD k sc) _ (dn j))
 
 /-- **Pitchfork through the cup `1 ⟶ F_j E_j`**: the cup to the right of `E_i` followed by
 `crossl_{ij}` (the strand `E_i` crossing the leg `F_j`) equals the cup to the left of `E_i`
 followed by the upward crossing `ψ_{ji}` (the leg `E_j` crossing the strand `E_i`). -/
 theorem dg_pf_cupDn (i j : I) (μ : X) :
-    dg RD k sc μ [up i] [dn j, up i, up j]
+    NF.dg (pres RD k sc) μ [up i] [dn j, up i, up j]
         ([([up i], .cup (dn j), [])] ++ (crosslL i j).map (whL [] [up j])) =
-      dg RD k sc μ [up i] [dn j, up i, up j]
+      NF.dg (pres RD k sc) μ [up i] [dn j, up i, up j]
         [([], .cup (dn j), [up i]), ([dn j], .cross true j i, [])] := by
   dnorm
   dswapQ 0; dswapQ 1
-  datQ 2 [dn j, up i] [] (dg_zigR' RD k sc _ (dn j))
+  datQ 2 [dn j, up i] [] (NF.dg_zigR' (pres RD k sc) _ (dn j))
 
 /-! ## Dots on cups -/
 
 /-- A downward dot on the right leg of the cup `1 ⟶ E_i F_i` equals an upward dot on its left
 leg (KL III (3.3) and a zigzag relation). -/
 theorem dg_dot_cupUp (i : I) (μ : X) :
-    dg RD k sc μ [] [up i, dn i] [([], .cup (up i), []), ([up i], .dot (dn i), [])] =
-      dg RD k sc μ [] [up i, dn i] [([], .cup (up i), []), ([], .dot (up i), [dn i])] := by
+    NF.dg (pres RD k sc) μ [] [up i, dn i] [([], .cup (up i), []), ([up i], .dot (dn i), [])] =
+      NF.dg (pres RD k sc) μ [] [up i, dn i] [([], .cup (up i), []), ([], .dot (up i), [dn i])] := by
   datQ 1 [up i] [] (dg_cycDotR RD k sc i _)
   dswapQ 0; dswapQ 1
-  datQ 2 [] [dn i] (dg_zigL' RD k sc _ (up i))
+  datQ 2 [] [dn i] (NF.dg_zigL' (pres RD k sc) _ (up i))
 
 /-- An upward dot on the right leg of the cup `1 ⟶ F_i E_i` equals a downward dot on its left
 leg (KL III (3.3) and a zigzag relation). -/
 theorem dg_dot_cupDn (i : I) (μ : X) :
-    dg RD k sc μ [] [dn i, up i] [([], .cup (dn i), []), ([dn i], .dot (up i), [])] =
-      dg RD k sc μ [] [dn i, up i] [([], .cup (dn i), []), ([], .dot (dn i), [up i])] := by
+    NF.dg (pres RD k sc) μ [] [dn i, up i] [([], .cup (dn i), []), ([dn i], .dot (up i), [])] =
+      NF.dg (pres RD k sc) μ [] [dn i, up i] [([], .cup (dn i), []), ([], .dot (dn i), [up i])] := by
   symm
   datQ 1 [] [up i] (dg_cycDotL RD k sc i _)
   dswapQ 0; dswapQ 1
-  datQ 2 [dn i] [] (dg_zigR' RD k sc _ (dn i))
+  datQ 2 [dn i] [] (NF.dg_zigR' (pres RD k sc) _ (dn i))
 
 /-- `m` downward dots on the right leg of the cup `1 ⟶ E_i F_i` equal `m` upward dots on its
 left leg. -/
 theorem dg_dots_cupUp (i : I) (μ : X) (m : ℕ) :
-    dg RD k sc μ [] [up i, dn i]
+    NF.dg (pres RD k sc) μ [] [up i, dn i]
         ([([], .cup (up i), [])] ++ List.replicate m ([up i], .dot (dn i), [])) =
-      dg RD k sc μ [] [up i, dn i]
+      NF.dg (pres RD k sc) μ [] [up i, dn i]
         ([([], .cup (up i), [])] ++ List.replicate m ([], .dot (up i), [dn i])) := by
   induction m with
   | zero => rfl
@@ -132,7 +132,7 @@ theorem dg_dots_cupUp (i : I) (μ : X) (m : ℕ) :
     rw [List.replicate_succ, List.replicate_succ']
     dstepQ [] (List.replicate m ([up i], .dot (dn i), [])) [] [] (dg_dot_cupUp RD k sc i μ)
     dstepQ [([], .cup (up i), [])] [] [] []
-      (dg_swap_dots RD k sc μ [] [] [] (up i) (dn i) m 1).symm
+      (NF.dg_swap_dots (pres RD k sc) μ [] [] [] (up i) (dn i) m 1).symm
     lnf
     dstepQ [] [([], .dot (up i), [dn i])] [] [] ih
     lnf
@@ -140,9 +140,9 @@ theorem dg_dots_cupUp (i : I) (μ : X) (m : ℕ) :
 /-- `m` upward dots on the right leg of the cup `1 ⟶ F_i E_i` equal `m` downward dots on its
 left leg. -/
 theorem dg_dots_cupDn (i : I) (μ : X) (m : ℕ) :
-    dg RD k sc μ [] [dn i, up i]
+    NF.dg (pres RD k sc) μ [] [dn i, up i]
         ([([], .cup (dn i), [])] ++ List.replicate m ([dn i], .dot (up i), [])) =
-      dg RD k sc μ [] [dn i, up i]
+      NF.dg (pres RD k sc) μ [] [dn i, up i]
         ([([], .cup (dn i), [])] ++ List.replicate m ([], .dot (dn i), [up i])) := by
   induction m with
   | zero => rfl
@@ -150,7 +150,7 @@ theorem dg_dots_cupDn (i : I) (μ : X) (m : ℕ) :
     rw [List.replicate_succ, List.replicate_succ']
     dstepQ [] (List.replicate m ([dn i], .dot (up i), [])) [] [] (dg_dot_cupDn RD k sc i μ)
     dstepQ [([], .cup (dn i), [])] [] [] []
-      (dg_swap_dots RD k sc μ [] [] [] (dn i) (up i) m 1).symm
+      (NF.dg_swap_dots (pres RD k sc) μ [] [] [] (dn i) (up i) m 1).symm
     lnf
     dstepQ [] [([], .dot (dn i), [up i])] [] [] ih
     lnf
@@ -161,12 +161,12 @@ theorem dg_dots_cupDn (i : I) (μ : X) (m : ℕ) :
 `F_j F_i 1_μ ⟶ F_i F_j 1_μ` is the upward crossing rotated by nested cups on the right and
 nested caps on the left (`rotCrossR`). -/
 theorem dg_cycCrossR (j i : I) (μ : X) :
-    dg RD k sc μ [dn j, dn i] [dn i, dn j] [([], .cross false j i, [])] =
-      ((((sc.t i j))⁻¹ : kˣ) : k) • dg RD k sc μ [dn j, dn i] [dn i, dn j]
+    NF.dg (pres RD k sc) μ [dn j, dn i] [dn i, dn j] [([], .cross false j i, [])] =
+      ((((sc.t i j))⁻¹ : kˣ) : k) • NF.dg (pres RD k sc) μ [dn j, dn i] [dn i, dn j]
         [([dn j, dn i], .cup (up j), []), ([dn j, dn i, up j], .cup (up i), [dn j]),
           ([dn j, dn i], .cross true j i, [dn i, dn j]), ([dn j], .cap (up i), [up j, dn i, dn j]),
           ([], .cap (up j), [dn i, dn j])] := by
-  rw [dg_of (by schain), dg_of (by schain)]
+  rw [NF.dg_of (by schain), NF.dg_of (by schain)]
   have key : (pres RD k sc).lin ((((((sc.t i j))⁻¹ : kˣ) : k) • LinDiagram.of (rotCrossR RD j i μ)) -
       LinDiagram.of (downCross RD j i μ)) = 0 := lin_relationCL RD k sc (.cycCrossR j i μ)
   rw [Presentation.lin_sub, Presentation.lin_smul, Presentation.lin_of, Presentation.lin_of,
@@ -177,12 +177,12 @@ theorem dg_cycCrossR (j i : I) (μ : X) :
 the upward crossing rotated by nested cups on the left and nested caps on the right
 (`rotCrossL`). -/
 theorem dg_cycCrossL (j i : I) (μ : X) :
-    dg RD k sc μ [dn j, dn i] [dn i, dn j] [([], .cross false j i, [])] =
-      ((((sc.t j i))⁻¹ : kˣ) : k) • dg RD k sc μ [dn j, dn i] [dn i, dn j]
+    NF.dg (pres RD k sc) μ [dn j, dn i] [dn i, dn j] [([], .cross false j i, [])] =
+      ((((sc.t j i))⁻¹ : kˣ) : k) • NF.dg (pres RD k sc) μ [dn j, dn i] [dn i, dn j]
         [([], .cup (dn i), [dn j, dn i]), ([dn i], .cup (dn j), [up i, dn j, dn i]),
           ([dn i, dn j], .cross true j i, [dn j, dn i]), ([dn i, dn j, up i], .cap (dn j), [dn i]),
           ([dn i, dn j], .cap (dn i), [])] := by
-  rw [dg_of (by schain), dg_of (by schain)]
+  rw [NF.dg_of (by schain), NF.dg_of (by schain)]
   have key : (pres RD k sc).lin ((((((sc.t j i))⁻¹ : kˣ) : k) • LinDiagram.of (rotCrossL RD j i μ)) -
       LinDiagram.of (downCross RD j i μ)) = 0 := lin_relationCL RD k sc (.cycCrossL j i μ)
   rw [Presentation.lin_sub, Presentation.lin_smul, Presentation.lin_of, Presentation.lin_of,
@@ -194,16 +194,16 @@ theorem dg_cycCrossL (j i : I) (μ : X) :
 equals the cup to the right of `F_i` followed by the sideways crossing `crossr_{ji}` of `F_i`
 with its leg `E_j`. -/
 theorem dg_pf_cupUp_down (i j : I) (μ : X) :
-    dg RD k sc μ [dn i] [up j, dn i, dn j]
+    NF.dg (pres RD k sc) μ [dn i] [up j, dn i, dn j]
         [([], .cup (up j), [dn i]), ([up j], .cross false j i, [])] =
       (((sc.t i j)⁻¹ : kˣ) : k) •
-          dg RD k sc μ [dn i] [up j, dn i, dn j]
+          NF.dg (pres RD k sc) μ [dn i] [up j, dn i, dn j]
             ([([dn i], .cup (up j), [])] ++ (crossrL j i).map (whL [] [dn j])) := by
-  refine Eq.trans (dg_step_at_smul _ 1 [up j] [] _ (dg_cycCrossR RD k sc j i _)
+  refine Eq.trans (NF.dg_step_at_smul _ 1 [up j] [] _ (dg_cycCrossR RD k sc j i _)
     (by (try dnorm); schain) (by (try dnorm); schain) (by dnorm)) ?_
   try dnorm
   congr 1
   dswapQ 0; dswapQ 1; dswapQ 2; dswapQ 3
-  datQ 4 [] [dn i, dn j] (dg_zigL' RD k sc _ (up j))
+  datQ 4 [] [dn i, dn j] (NF.dg_zigL' (pres RD k sc) _ (up j))
 
 end Categorification.KL3.Diagram.CLQ

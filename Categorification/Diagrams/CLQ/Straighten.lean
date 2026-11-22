@@ -81,8 +81,8 @@ theorem Sep.dg_eq {j : I} {L R : List (Letter I)} {B : List (LayerData I)}
     ∃ BL BR : List (LayerData I), SChain L BL L' ∧ SChain R BR R' ∧
       List.Perm ((BL ++ BR).map (·.2.1)) (B.map (·.2.1)) ∧
       ∀ (μ : X) (S T : List (Letter I)) (pre post : List (LayerData I)),
-        dg RD k sc μ S T (pre ++ B ++ post) =
-          dg RD k sc μ S T (pre ++ BL.map (whL [] (dn j :: R)) ++
+        NF.dg (pres RD k sc) μ S T (pre ++ B ++ post) =
+          NF.dg (pres RD k sc) μ S T (pre ++ BL.map (whL [] (dn j :: R)) ++
             BR.map (whL (L' ++ [dn j]) []) ++ post) := by
   induction hS with
   | nil L R => exact ⟨[], [], rfl, rfl, by simp, fun μ S T pre post => by simp⟩
@@ -102,7 +102,7 @@ theorem Sep.dg_eq {j : I} {L R : List (Letter I)} {B : List (LayerData I)}
       refine List.perm_middle.trans ?_
       simpa using hp
     · have e := hd μ S T (pre ++ [(L ++ dn j :: u, g, v)]) post
-      have ei := dg_interchange (RD := RD) (k := k) (sc := sc) (μ := μ) (S := S) (T := T) pre
+      have ei := NF.dg_interchange (P := pres RD k sc) (μ := μ) (S := S) (T := T) pre
         (BR.map (whL (L' ++ [dn j]) []) ++ post) hL
         (B := [(dn j :: u, g, v)]) (t := dn j :: (u ++ g.dom ++ v))
         (t' := dn j :: (u ++ g.cod ++ v)) ⟨by simp, by simp⟩
@@ -128,7 +128,7 @@ theorem Sep.dg_eq {j : I} {L R : List (Letter I)} {B : List (LayerData I)}
 /-! ## Removing a downward strand -/
 
 theorem dg_list_eq {μ : X} {s t : List (Letter I)} {L L' : List (LayerData I)} (h : L = L') :
-    dg RD k sc μ s t L = dg RD k sc μ s t L' := by rw [h]
+    NF.dg (pres RD k sc) μ s t L = NF.dg (pres RD k sc) μ s t L' := by rw [h]
 
 
 /-- **Elimination of downward strands** (type `RL`): a rotated monotone diagram of type `RL`
@@ -139,7 +139,7 @@ the cup and the cap cancel by a zigzag relation. -/
 theorem elimRL : ∀ (n : ℕ) (ls : List (LayerData I)) {s t : List (Letter I)}, ncc ls < n →
     AllSh Shape.isRLu ls → Positive s → Positive t → SChain s ls t →
     ∃ A : List (LayerData I), Upward A ∧ SChain s A t ∧
-      ∀ μ : X, dg RD k sc μ s t ls = dg RD k sc μ s t A := by
+      ∀ μ : X, NF.dg (pres RD k sc) μ s t ls = NF.dg (pres RD k sc) μ s t A := by
   intro n
   induction n with
   | zero => intro ls s t hn; exact absurd hn (Nat.not_lt_zero _)
@@ -173,32 +173,32 @@ theorem elimRL : ∀ (n : ℕ) (ls : List (LayerData I)) {s t : List (Letter I)}
     obtain ⟨A, hAu, hA, hE⟩ := ih _ hn' hls' hs ht h'
     refine ⟨A, hAu, hA, fun μ => ?_⟩
     rw [← hE μ]
-    have ei1 := dg_interchange (RD := RD) (k := k) (sc := sc) (μ := μ) (S := s) (T := t) A₀
+    have ei1 := NF.dg_interchange (P := pres RD k sc) (μ := μ) (S := s) (T := t) A₀
       (BR.map (whL (L₁ ++ [up j] ++ [dn j]) []) ++ ([(L₁, .cap (dn j), R')] ++ C)) hBL
       (B := [([], .cup (dn j), w₂)]) (t := w₂) (t' := dn j :: up j :: w₂) ⟨by simp, by simp⟩
-    have ei2 := dg_interchange (RD := RD) (k := k) (sc := sc) (μ := μ) (S := s) (T := t)
+    have ei2 := NF.dg_interchange (P := pres RD k sc) (μ := μ) (S := s) (T := t)
       (A₀ ++ BL.map (whL [] w₂) ++ [(L₁ ++ [up j], .cup (dn j), w₂)]) C
       (A := [(L₁, .cap (dn j), [])]) (s := L₁ ++ [up j, dn j]) (s' := L₁)
       ⟨by simp, by simp⟩ hBR
-    have hz := dg_step RD k sc μ (s₀ := s) (t₀ := t) (A₀ ++ BL.map (whL [] w₂))
-      (BR.map (whL L₁ []) ++ C) L₁ w₂ (dg_zigR' RD k sc (wt RD μ w₂) (dn j))
+    have hz := NF.dg_step (pres RD k sc) μ (s₀ := s) (t₀ := t) (A₀ ++ BL.map (whL [] w₂))
+      (BR.map (whL L₁ []) ++ C) L₁ w₂ (NF.dg_zigR' (pres RD k sc) (wt RD μ w₂) (dn j))
       (by simpa using hA₀.append h1) (by simpa using h2.append hC) rfl rfl
-    calc dg RD k sc μ s t (A₀ ++ (w₁, Shape.cup (dn j), w₂) :: (B ++ (L₁, Shape.cap (dn j), R') :: C))
-        = dg RD k sc μ s t ((A₀ ++ [(w₁, .cup (dn j), w₂)]) ++ B ++
+    calc NF.dg (pres RD k sc) μ s t (A₀ ++ (w₁, Shape.cup (dn j), w₂) :: (B ++ (L₁, Shape.cap (dn j), R') :: C))
+        = NF.dg (pres RD k sc) μ s t ((A₀ ++ [(w₁, .cup (dn j), w₂)]) ++ B ++
             ([(L₁, .cap (dn j), R')] ++ C)) := dg_list_eq (by simp)
-      _ = dg RD k sc μ s t ((A₀ ++ [(w₁, .cup (dn j), w₂)]) ++
+      _ = NF.dg (pres RD k sc) μ s t ((A₀ ++ [(w₁, .cup (dn j), w₂)]) ++
             BL.map (whL [] (dn j :: up j :: w₂)) ++ BR.map (whL (L₁ ++ [up j] ++ [dn j]) []) ++
               ([(L₁, .cap (dn j), R')] ++ C)) := hd μ s t _ _
-      _ = dg RD k sc μ s t (A₀ ++ BL.map (whL [] w₂) ++
+      _ = NF.dg (pres RD k sc) μ s t (A₀ ++ BL.map (whL [] w₂) ++
             [([], Shape.cup (dn j), w₂)].map (whL (L₁ ++ [up j]) []) ++
               (BR.map (whL (L₁ ++ [up j] ++ [dn j]) []) ++ ([(L₁, .cap (dn j), R')] ++ C))) :=
           (dg_list_eq (by simp)).trans ei1.symm
-      _ = dg RD k sc μ s t (A₀ ++ BL.map (whL [] w₂) ++ [(L₁ ++ [up j], .cup (dn j), w₂)] ++
+      _ = NF.dg (pres RD k sc) μ s t (A₀ ++ BL.map (whL [] w₂) ++ [(L₁ ++ [up j], .cup (dn j), w₂)] ++
             [(L₁, Shape.cap (dn j), [])].map (whL [] (up j :: w₂)) ++ BR.map (whL L₁ []) ++ C) :=
           (dg_list_eq (by simp)).trans ei2.symm
-      _ = dg RD k sc μ s t (A₀ ++ BL.map (whL [] w₂) ++ [].map (whL L₁ w₂) ++
+      _ = NF.dg (pres RD k sc) μ s t (A₀ ++ BL.map (whL [] w₂) ++ [].map (whL L₁ w₂) ++
             (BR.map (whL L₁ []) ++ C)) := (dg_list_eq (by simp)).trans hz
-      _ = dg RD k sc μ s t (A₀ ++ BL.map (whL [] w₂) ++ BR.map (whL L₁ []) ++ C) :=
+      _ = NF.dg (pres RD k sc) μ s t (A₀ ++ BL.map (whL [] w₂) ++ BR.map (whL L₁ []) ++ C) :=
           dg_list_eq (by simp)
 
 /-- **Elimination of downward strands** (type `LR`), the mirror of `elimRL`: the partner cap is
@@ -206,7 +206,7 @@ theorem elimRL : ∀ (n : ℕ) (ls : List (LayerData I)) {s t : List (Letter I)}
 theorem elimLR : ∀ (n : ℕ) (ls : List (LayerData I)) {s t : List (Letter I)}, ncc ls < n →
     AllSh Shape.isLRu ls → Positive s → Positive t → SChain s ls t →
     ∃ A : List (LayerData I), Upward A ∧ SChain s A t ∧
-      ∀ μ : X, dg RD k sc μ s t ls = dg RD k sc μ s t A := by
+      ∀ μ : X, NF.dg (pres RD k sc) μ s t ls = NF.dg (pres RD k sc) μ s t A := by
   intro n
   induction n with
   | zero => intro ls s t hn; exact absurd hn (Nat.not_lt_zero _)
@@ -240,49 +240,49 @@ theorem elimLR : ∀ (n : ℕ) (ls : List (LayerData I)) {s t : List (Letter I)}
     obtain ⟨A, hAu, hA, hE⟩ := ih _ hn' hls' hs ht h'
     refine ⟨A, hAu, hA, fun μ => ?_⟩
     rw [← hE μ]
-    have ei1 := dg_interchange (RD := RD) (k := k) (sc := sc) (μ := μ) (S := s) (T := t)
+    have ei1 := NF.dg_interchange (P := pres RD k sc) (μ := μ) (S := s) (T := t)
       (A₀ ++ [(w₁, .cup (up j), w₂)]) ([(L', .cap (up j), R₁)] ++ C) hBL
       (B := BR.map (whL [dn j] [])) (t := dn j :: w₂) (t' := dn j :: up j :: R₁)
       (by simpa using hBR.whisk [dn j] [])
-    have ei2 := dg_interchange (RD := RD) (k := k) (sc := sc) (μ := μ) (S := s) (T := t) A₀
+    have ei2 := NF.dg_interchange (P := pres RD k sc) (μ := μ) (S := s) (T := t) A₀
       (BL.map (whL [] (dn j :: up j :: R₁)) ++ ([(L', .cap (up j), R₁)] ++ C))
       (A := [(w₁, .cup (up j), [])]) (s := w₁) (s' := w₁ ++ [up j, dn j])
       ⟨by simp, by simp⟩ hBR
-    have ei3 := dg_interchange (RD := RD) (k := k) (sc := sc) (μ := μ) (S := s) (T := t)
+    have ei3 := NF.dg_interchange (P := pres RD k sc) (μ := μ) (S := s) (T := t)
       (A₀ ++ BR.map (whL w₁ []) ++ [(w₁, .cup (up j), up j :: R₁)]) C hBL
       (B := [([], .cap (up j), R₁)]) (t := dn j :: up j :: R₁) (t' := R₁) ⟨by simp, by simp⟩
-    have hz := dg_step RD k sc μ (s₀ := s) (t₀ := t) (A₀ ++ BR.map (whL w₁ []))
-      (BL.map (whL [] R₁) ++ C) w₁ R₁ (dg_zigL' RD k sc (wt RD μ R₁) (up j))
+    have hz := NF.dg_step (pres RD k sc) μ (s₀ := s) (t₀ := t) (A₀ ++ BR.map (whL w₁ []))
+      (BL.map (whL [] R₁) ++ C) w₁ R₁ (NF.dg_zigL' (pres RD k sc) (wt RD μ R₁) (up j))
       (by simpa using hA₀.append h1) (by simpa using h2.append hC) rfl rfl
-    calc dg RD k sc μ s t (A₀ ++ (w₁, Shape.cup (up j), w₂) :: (B ++ (L', Shape.cap (up j), R₁) :: C))
-        = dg RD k sc μ s t ((A₀ ++ [(w₁, .cup (up j), w₂)]) ++ B ++
+    calc NF.dg (pres RD k sc) μ s t (A₀ ++ (w₁, Shape.cup (up j), w₂) :: (B ++ (L', Shape.cap (up j), R₁) :: C))
+        = NF.dg (pres RD k sc) μ s t ((A₀ ++ [(w₁, .cup (up j), w₂)]) ++ B ++
             ([(L', .cap (up j), R₁)] ++ C)) := dg_list_eq (by simp)
-      _ = dg RD k sc μ s t ((A₀ ++ [(w₁, .cup (up j), w₂)]) ++
+      _ = NF.dg (pres RD k sc) μ s t ((A₀ ++ [(w₁, .cup (up j), w₂)]) ++
             BL.map (whL [] (dn j :: w₂)) ++ BR.map (whL (L' ++ [dn j]) []) ++
               ([(L', .cap (up j), R₁)] ++ C)) := hd μ s t _ _
-      _ = dg RD k sc μ s t ((A₀ ++ [(w₁, .cup (up j), w₂)]) ++
+      _ = NF.dg (pres RD k sc) μ s t ((A₀ ++ [(w₁, .cup (up j), w₂)]) ++
             (BR.map (whL [dn j] [])).map (whL (w₁ ++ [up j]) []) ++
               BL.map (whL [] (dn j :: up j :: R₁)) ++ ([(L', .cap (up j), R₁)] ++ C)) :=
           (dg_list_eq (by simp)).trans ei1
-      _ = dg RD k sc μ s t (A₀ ++ [(w₁, Shape.cup (up j), [])].map (whL [] w₂) ++
+      _ = NF.dg (pres RD k sc) μ s t (A₀ ++ [(w₁, Shape.cup (up j), [])].map (whL [] w₂) ++
             BR.map (whL (w₁ ++ [up j, dn j]) []) ++
               (BL.map (whL [] (dn j :: up j :: R₁)) ++ ([(L', .cap (up j), R₁)] ++ C))) :=
           dg_list_eq (by simp)
-      _ = dg RD k sc μ s t (A₀ ++ BR.map (whL w₁ []) ++
+      _ = NF.dg (pres RD k sc) μ s t (A₀ ++ BR.map (whL w₁ []) ++
             [(w₁, Shape.cup (up j), [])].map (whL [] (up j :: R₁)) ++
               (BL.map (whL [] (dn j :: up j :: R₁)) ++ ([(L', .cap (up j), R₁)] ++ C))) := ei2
-      _ = dg RD k sc μ s t ((A₀ ++ BR.map (whL w₁ []) ++ [(w₁, .cup (up j), up j :: R₁)]) ++
+      _ = NF.dg (pres RD k sc) μ s t ((A₀ ++ BR.map (whL w₁ []) ++ [(w₁, .cup (up j), up j :: R₁)]) ++
             BL.map (whL [] (dn j :: up j :: R₁)) ++ [([], Shape.cap (up j), R₁)].map (whL L' []) ++
               C) := dg_list_eq (by simp)
-      _ = dg RD k sc μ s t ((A₀ ++ BR.map (whL w₁ []) ++ [(w₁, .cup (up j), up j :: R₁)]) ++
+      _ = NF.dg (pres RD k sc) μ s t ((A₀ ++ BR.map (whL w₁ []) ++ [(w₁, .cup (up j), up j :: R₁)]) ++
             [([], Shape.cap (up j), R₁)].map (whL (w₁ ++ [up j]) []) ++ BL.map (whL [] R₁) ++
               C) := ei3
-      _ = dg RD k sc μ s t (A₀ ++ BR.map (whL w₁ []) ++
+      _ = NF.dg (pres RD k sc) μ s t (A₀ ++ BR.map (whL w₁ []) ++
             [([], Shape.cup (up j), [up j]), ([up j], Shape.cap (up j), [])].map (whL w₁ R₁) ++
               (BL.map (whL [] R₁) ++ C)) := dg_list_eq (by simp)
-      _ = dg RD k sc μ s t (A₀ ++ BR.map (whL w₁ []) ++ [].map (whL w₁ R₁) ++
+      _ = NF.dg (pres RD k sc) μ s t (A₀ ++ BR.map (whL w₁ []) ++ [].map (whL w₁ R₁) ++
             (BL.map (whL [] R₁) ++ C)) := hz
-      _ = dg RD k sc μ s t (A₀ ++ BR.map (whL w₁ []) ++ BL.map (whL [] R₁) ++ C) :=
+      _ = NF.dg (pres RD k sc) μ s t (A₀ ++ BR.map (whL w₁ []) ++ BL.map (whL [] R₁) ++ C) :=
           dg_list_eq (by simp)
 
 
@@ -292,21 +292,21 @@ theorem elimLR : ∀ (n : ℕ) (ls : List (LayerData I)) {s t : List (Letter I)}
 
 
 
-/-- One rewriting step with a scalar: if `dg A = c • dg B` then the same holds in any
-context (`dg_step`). -/
+/-- One rewriting step with a scalar: if `NF.dg A = c • NF.dg B` then the same holds in any
+context (`NF.dg_step`). -/
 theorem dg_step_smul (μ : X) {s₀ t₀ : List (Letter I)} (pre post : List (LayerData I))
     (u v : List (Letter I)) {s t : List (Letter I)} {A B L L' : List (LayerData I)} (c : k)
-    (E : dg RD k sc (wt RD μ v) s t A = c • dg RD k sc (wt RD μ v) s t B)
+    (E : NF.dg (pres RD k sc) (wt RD μ v) s t A = c • NF.dg (pres RD k sc) (wt RD μ v) s t B)
     (hpre : SChain s₀ pre (u ++ s ++ v)) (hpost : SChain (u ++ t ++ v) post t₀)
     (hL : L = pre ++ A.map (whL u v) ++ post) (hL' : L' = pre ++ B.map (whL u v) ++ post) :
-    dg RD k sc μ s₀ t₀ L = c • dg RD k sc μ s₀ t₀ L' := by
-  rw [hL, hL', ← ctxL_dg RD k sc μ hpre hpost A, E, map_smul, ctxL_dg RD k sc μ hpre hpost B]
+    NF.dg (pres RD k sc) μ s₀ t₀ L = c • NF.dg (pres RD k sc) μ s₀ t₀ L' := by
+  rw [hL, hL', ← NF.ctxL_dg (pres RD k sc) μ hpre hpost A, E, map_smul, NF.ctxL_dg (pres RD k sc) μ hpre hpost B]
 
 /-- Rotating one layer of type `RL`: equal up to a scalar (a power of a `t_ij⁻¹`, from the
 cyclicity of the crossing in Cautis–Lauda's normalization). -/
 theorem rotRL_dg (x : LayerData I) {s t : List (Letter I)} (h : SChain s [x] t) :
     SChain s (rotRL x) t ∧
-      ∃ c : k, ∀ μ : X, dg RD k sc μ s t [x] = c • dg RD k sc μ s t (rotRL x) := by
+      ∃ c : k, ∀ μ : X, NF.dg (pres RD k sc) μ s t [x] = c • NF.dg (pres RD k sc) μ s t (rotRL x) := by
   obtain ⟨u, g, v⟩ := x
   obtain ⟨rfl, rfl⟩ := h
   cases g with
@@ -315,7 +315,7 @@ theorem rotRL_dg (x : LayerData I) {s t : List (Letter I)} (h : SChain s [x] t) 
     cases b
     · refine ⟨by simp [rotRL], 1, fun μ => ?_⟩
       rw [one_smul]
-      exact dg_step RD k sc μ [] [] u v (dg_cycDotL RD k sc i (wt RD μ v)) (by simp) (by simp)
+      exact NF.dg_step (pres RD k sc) μ [] [] u v (dg_cycDotL RD k sc i (wt RD μ v)) (by simp) (by simp)
         (by simp) (by simp [rotRL])
     · exact ⟨by simp [rotRL], 1, fun μ => by rw [one_smul]; simp [rotRL]⟩
   | cross ε a c =>
@@ -330,7 +330,7 @@ theorem rotRL_dg (x : LayerData I) {s t : List (Letter I)} (h : SChain s [x] t) 
 /-- Rotating one layer of type `LR`: equal up to a scalar. -/
 theorem rotLR_dg (x : LayerData I) {s t : List (Letter I)} (h : SChain s [x] t) :
     SChain s (rotLR x) t ∧
-      ∃ c : k, ∀ μ : X, dg RD k sc μ s t [x] = c • dg RD k sc μ s t (rotLR x) := by
+      ∃ c : k, ∀ μ : X, NF.dg (pres RD k sc) μ s t [x] = c • NF.dg (pres RD k sc) μ s t (rotLR x) := by
   obtain ⟨u, g, v⟩ := x
   obtain ⟨rfl, rfl⟩ := h
   cases g with
@@ -339,7 +339,7 @@ theorem rotLR_dg (x : LayerData I) {s t : List (Letter I)} (h : SChain s [x] t) 
     cases b
     · refine ⟨by simp [rotLR], 1, fun μ => ?_⟩
       rw [one_smul]
-      exact dg_step RD k sc μ [] [] u v (dg_cycDotR RD k sc i (wt RD μ v)) (by simp) (by simp)
+      exact NF.dg_step (pres RD k sc) μ [] [] u v (dg_cycDotR RD k sc i (wt RD μ v)) (by simp) (by simp)
         (by simp) (by simp [rotLR])
     · exact ⟨by simp [rotLR], 1, fun μ => by rw [one_smul]; simp [rotLR]⟩
   | cross ε a c =>
@@ -353,10 +353,10 @@ theorem rotLR_dg (x : LayerData I) {s t : List (Letter I)} (h : SChain s [x] t) 
 
 theorem rotAll_dg (r : LayerData I → List (LayerData I))
     (hr : ∀ (x : LayerData I) {s t : List (Letter I)}, SChain s [x] t →
-      SChain s (r x) t ∧ ∃ c : k, ∀ μ : X, dg RD k sc μ s t [x] = c • dg RD k sc μ s t (r x)) :
+      SChain s (r x) t ∧ ∃ c : k, ∀ μ : X, NF.dg (pres RD k sc) μ s t [x] = c • NF.dg (pres RD k sc) μ s t (r x)) :
     ∀ (ls : List (LayerData I)) {s t : List (Letter I)}, SChain s ls t →
       SChain s (rotAll r ls) t ∧
-        ∃ c : k, ∀ μ : X, dg RD k sc μ s t ls = c • dg RD k sc μ s t (rotAll r ls) := by
+        ∃ c : k, ∀ μ : X, NF.dg (pres RD k sc) μ s t ls = c • NF.dg (pres RD k sc) μ s t (rotAll r ls) := by
   intro ls
   induction ls with
   | nil => intro s t h; exact ⟨h, 1, fun μ => (one_smul _ _).symm⟩
@@ -366,8 +366,8 @@ theorem rotAll_dg (r : LayerData I → List (LayerData I))
     obtain ⟨hr1, c₁, hr2⟩ := hr x hx
     obtain ⟨hi1, c₂, hi2⟩ := ih h.2
     refine ⟨hr1.append hi1, c₁ * c₂, fun μ => ?_⟩
-    rw [show x :: ls = [x] ++ ls from rfl, ← dg_comp hx h.2, hr2 μ, hi2 μ, Linear.smul_comp,
-      Linear.comp_smul, smul_smul, dg_comp hr1 hi1]
+    rw [show x :: ls = [x] ++ ls from rfl, ← NF.dg_comp hx h.2, hr2 μ, hi2 μ, Linear.smul_comp,
+      Linear.comp_smul, smul_smul, NF.dg_comp hr1 hi1]
     rfl
 
 
@@ -378,7 +378,7 @@ cups are `1 → F_j E_j` and all caps `E_j F_j → 1` (dots and crossings arbitr
 theorem straightenRL {s t : List (Letter I)} (hs : Positive s) (ht : Positive t)
     {ls : List (LayerData I)} (hls : AllSh Shape.isRL ls) (h : SChain s ls t) :
     ∃ A : List (LayerData I), Upward A ∧ SChain s A t ∧
-      ∃ c : k, ∀ μ : X, dg RD k sc μ s t ls = c • dg RD k sc μ s t A := by
+      ∃ c : k, ∀ μ : X, NF.dg (pres RD k sc) μ s t ls = c • NF.dg (pres RD k sc) μ s t A := by
   obtain ⟨h1, c, h2⟩ := rotAll_dg (RD := RD) (k := k) (sc := sc) rotRL (fun x _ _ hx => rotRL_dg x hx) ls h
   obtain ⟨A, hA, hc, he⟩ := elimRL (RD := RD) (k := k) (sc := sc) _ (rotAll rotRL ls) (Nat.lt_succ_self _)
     (allSh_rotAll rotRL allSh_rotRL ls hls) hs ht h1
@@ -389,26 +389,26 @@ cups are `1 → E_j F_j` and all caps `F_j E_j → 1` (dots and crossings arbitr
 theorem straightenLR {s t : List (Letter I)} (hs : Positive s) (ht : Positive t)
     {ls : List (LayerData I)} (hls : AllSh Shape.isLR ls) (h : SChain s ls t) :
     ∃ A : List (LayerData I), Upward A ∧ SChain s A t ∧
-      ∃ c : k, ∀ μ : X, dg RD k sc μ s t ls = c • dg RD k sc μ s t A := by
+      ∃ c : k, ∀ μ : X, NF.dg (pres RD k sc) μ s t ls = c • NF.dg (pres RD k sc) μ s t A := by
   obtain ⟨h1, c, h2⟩ := rotAll_dg (RD := RD) (k := k) (sc := sc) rotLR (fun x _ _ hx => rotLR_dg x hx) ls h
   obtain ⟨A, hA, hc, he⟩ := elimLR (RD := RD) (k := k) (sc := sc) _ (rotAll rotLR ls) (Nat.lt_succ_self _)
     (allSh_rotAll rotLR allSh_rotLR ls hls) hs ht h1
   exact ⟨A, hA, hc, c, fun μ => by rw [h2 μ, he μ]⟩
 
 theorem dg_upward_mem_upSpan {μ : X} {s t : List (Letter I)} {A : List (LayerData I)}
-    (hA : Upward A) (h : SChain s A t) : dg RD k sc μ s t A ∈ upSpan RD k sc μ s t :=
+    (hA : Upward A) (h : SChain s A t) : NF.dg (pres RD k sc) μ s t A ∈ upSpan RD k sc μ s t :=
   Submodule.subset_span ⟨A, 𝟙 _, hA, h, IsBub.id, by rw [bubAt_id, Category.comp_id]⟩
 
 theorem straightenRL_mem_upSpan (μ : X) {s t : List (Letter I)} (hs : Positive s)
     (ht : Positive t) {ls : List (LayerData I)} (hls : AllSh Shape.isRL ls) (h : SChain s ls t) :
-    dg RD k sc μ s t ls ∈ upSpan RD k sc μ s t := by
+    NF.dg (pres RD k sc) μ s t ls ∈ upSpan RD k sc μ s t := by
   obtain ⟨A, hA, hc, c, he⟩ := straightenRL (RD := RD) (k := k) (sc := sc) hs ht hls h
   rw [he μ]
   exact Submodule.smul_mem _ _ (dg_upward_mem_upSpan hA hc)
 
 theorem straightenLR_mem_upSpan (μ : X) {s t : List (Letter I)} (hs : Positive s)
     (ht : Positive t) {ls : List (LayerData I)} (hls : AllSh Shape.isLR ls) (h : SChain s ls t) :
-    dg RD k sc μ s t ls ∈ upSpan RD k sc μ s t := by
+    NF.dg (pres RD k sc) μ s t ls ∈ upSpan RD k sc μ s t := by
   obtain ⟨A, hA, hc, c, he⟩ := straightenLR (RD := RD) (k := k) (sc := sc) hs ht hls h
   rw [he μ]
   exact Submodule.smul_mem _ _ (dg_upward_mem_upSpan hA hc)

@@ -48,12 +48,12 @@ variable {I : Type u} {C : CartanDatum I} {X Y : Type v} [AddCommGroup X] [AddCo
 
 
 theorem lin_bubL_eq (lam : X) (l : Letter I) (b : LEnd RD k (ob RD (wt RD lam [l]) [])) :
-    (pres RD k sc).lin (bubL RD k lam [l] b) = bubLU RD k sc lam l ((pres RD k sc).lin b) :=
-  lin_bubL RD k sc lam l b
+    (pres RD k sc).lin (bubL RD k lam [l] b) = NF.bubLU (pres RD k sc) lam l ((pres RD k sc).lin b) :=
+  NF.lin_bubL (pres RD k sc) lam l b
 
 theorem lin_bubR_eq (lam : X) (l : Letter I) (b : LEnd RD k (ob RD lam [])) :
-    (pres RD k sc).lin (bubR RD k lam [l] b) = bubRU RD k sc lam l ((pres RD k sc).lin b) :=
-  lin_bubR RD k sc lam l b
+    (pres RD k sc).lin (bubR RD k lam [l] b) = NF.bubRU (pres RD k sc) lam l ((pres RD k sc).lin b) :=
+  NF.lin_bubR (pres RD k sc) lam l b
 
 
 
@@ -65,8 +65,8 @@ theorem prop33_ccw_same (lam : X) (i : I) (α : ℕ) (hα : 0 ≤ -ip RD i lam -
       ∑ ℓ ∈ Finset.range (α + 1), (α + 1 - ℓ) •
         ((pres RD k sc).lin (bubL RD k lam [up i]
             (ccwL RD k (wt RD lam [up i]) i (-ip RD i (wt RD lam [up i]) - 1 + ℓ))) ≫
-          dotsU RD k sc lam (up i) (α - ℓ)) := by
-  rw [ccwL_of_nonneg RD k lam i hα, lin_bubR_ccwReal, dg_ccw_slide_eq]
+          NF.dotsU (pres RD k sc) lam (up i) (α - ℓ)) := by
+  rw [ccwL_of_nonneg RD k lam i hα, NF.lin_bubR_ccwReal, dg_ccw_slide_eq]
   have hN : ip RD i (wt RD lam [up i]) = 2 + ip RD i lam := by
     rw [ip_wt_up, A_self]
   have e : (((-ip RD i lam - 1 + α).toNat : ℕ) : ℤ) + ip RD i (wt RD lam [up i]) = α + 1 := by
@@ -76,7 +76,7 @@ theorem prop33_ccw_same (lam : X) (i : I) (α : ℕ) (hα : 0 ≤ -ip RD i lam -
   have := Finset.mem_range.1 hℓ
   rw [lin_bubL_eq, show ((α : ℤ) + 1 - ℓ).toNat = α + 1 - ℓ by omega]
   congr 2
-  show dotsU RD k sc lam (up i) _ = dotsU RD k sc lam (up i) _
+  show NF.dotsU (pres RD k sc) lam (up i) _ = NF.dotsU (pres RD k sc) lam (up i) _
   congr 1; omega
 
 /-- **KL III Proposition 3.3, second display, `i = j`** (real bubble on the left-hand side): for
@@ -88,8 +88,8 @@ theorem prop33_cw_same (lam : X) (i : I) (α : ℕ)
         (cwL RD k (wt RD lam [up i]) i (ip RD i (wt RD lam [up i]) - 1 + α))) =
       ∑ ℓ ∈ Finset.range (α + 1), (α + 1 - ℓ) •
         ((pres RD k sc).lin (bubR RD k lam [up i] (cwL RD k lam i (ip RD i lam - 1 + ℓ))) ≫
-          dotsU RD k sc lam (up i) (α - ℓ)) := by
-  rw [cwL_of_nonneg RD k _ i hα, lin_bubL_cwReal, dg_cw_slide_eq]
+          NF.dotsU (pres RD k sc) lam (up i) (α - ℓ)) := by
+  rw [cwL_of_nonneg RD k _ i hα, NF.lin_bubL_cwReal, dg_cw_slide_eq]
   have hN : ip RD i (wt RD lam [up i]) = 2 + ip RD i lam := by
     rw [ip_wt_up, A_self]
   have e : (((ip RD i (wt RD lam [up i]) - 1 + α).toNat : ℕ) : ℤ) + -ip RD i lam = α + 1 := by
@@ -99,7 +99,7 @@ theorem prop33_cw_same (lam : X) (i : I) (α : ℕ)
   have := Finset.mem_range.1 hℓ
   rw [lin_bubR_eq, show ((α : ℤ) + 1 - ℓ).toNat = α + 1 - ℓ by omega]
   congr 2
-  show dotsU RD k sc lam (up i) _ = dotsU RD k sc lam (up i) _
+  show NF.dotsU (pres RD k sc) lam (up i) _ = NF.dotsU (pres RD k sc) lam (up i) _
   congr 1; omega
 
 section Adjacent

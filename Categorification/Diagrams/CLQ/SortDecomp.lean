@@ -75,7 +75,7 @@ def dotBubSpan (μ : X) (S T : List (Letter I)) (pre post : List (LayerData I))
     Submodule k ((pres RD k sc).obj (ob RD μ S) ⟶ (pres RD k sc).obj (ob RD μ T)) :=
   Submodule.span k {f | ∃ (D : List (LayerData I)) (δ : End ((pres RD k sc).obj (ob RD μ []))),
     AllSh Shape.isDot D ∧ SChain v D v ∧ IsBub RD k sc μ δ ∧
-      f = dg RD k sc μ S T (pre ++ D.map (whL u []) ++ post) ≫ bubAt RD k sc μ T δ}
+      f = NF.dg (pres RD k sc) μ S T (pre ++ D.map (whL u []) ++ post) ≫ bubAt RD k sc μ T δ}
 
 theorem dotBubSpan_mono (μ : X) (S T : List (Letter I)) (pre post : List (LayerData I))
     (u v' : List (Letter I)) (l : Letter I) (a : ℕ) :
@@ -100,22 +100,22 @@ theorem slideOutAny (μ : X) :
     ∀ (v u : List (Letter I)) {S T : List (Letter I)} (pre post : List (LayerData I)),
       SChain S pre (u ++ v) → SChain (u ++ v) post T →
       ∀ β : End ((pres RD k sc).obj (ob RD (wt RD μ v) [])), IsBub RD k sc (wt RD μ v) β →
-        ctxL RD k sc μ S T pre u v post [] [] β ∈ dotBubSpan RD k sc μ S T pre post u v := by
+        NF.ctxL (pres RD k sc) μ S T pre u v post [] [] β ∈ dotBubSpan RD k sc μ S T pre post u v := by
   intro v
   induction v with
   | nil =>
     intro u S T pre post hpre hpost β hβ
     have hpp : SChain S (pre ++ post) T := by simpa using hpre.append hpost
     have key := hom_ext_dg RD k sc (wt RD μ []) (s := []) (t := [])
-      (ctxL RD k sc μ S T pre u [] post [] [])
-      (Linear.leftComp k _ (dg RD k sc μ S T (pre ++ post)) ∘ₗ bubAt RD k sc μ T) (fun B hB => ?_)
+      (NF.ctxL (pres RD k sc) μ S T pre u [] post [] [])
+      (Linear.leftComp k _ (NF.dg (pres RD k sc) μ S T (pre ++ post)) ∘ₗ bubAt RD k sc μ T) (fun B hB => ?_)
     · rw [LinearMap.congr_fun key β]
       exact Submodule.subset_span ⟨[], β, fun x hx => by simp at hx, rfl, hβ,
         by simp only [List.map_nil, List.append_nil]; rfl⟩
-    rw [ctxL_dg RD k sc μ (by simpa using hpre) (by simpa using hpost)]
-    change _ = dg RD k sc μ S T (pre ++ post) ≫ bubAt RD k sc μ T (dg RD k sc μ [] [] B)
+    rw [NF.ctxL_dg (pres RD k sc) μ (by simpa using hpre) (by simpa using hpost)]
+    change _ = NF.dg (pres RD k sc) μ S T (pre ++ post) ≫ bubAt RD k sc μ T (NF.dg (pres RD k sc) μ [] [] B)
     have hBT : SChain T (B.map (whL T [])) T := by simpa using hB.whisk T []
-    rw [bubAt_dg, dg_comp hpp hBT]
+    rw [bubAt_dg, NF.dg_comp hpp hBT]
     have e := dg_closed_left (RD := RD) (k := k) (sc := sc) μ (S := S) (T := T) pre [] (s := u) (s' := T) []
       hB (by simpa using hpost)
     wnf at e
@@ -125,7 +125,7 @@ theorem slideOutAny (μ : X) :
     intro u S T pre post hpre hpost β hβ
     rw [ctxL_cons RD k sc μ hpre hpost]
     have hmem := bubLU_mem_slideSetR_gen (wt RD μ v') l (β := β) hβ
-    generalize bubLU RD k sc (wt RD μ v') l β = f at hmem ⊢
+    generalize NF.bubLU (pres RD k sc) (wt RD μ v') l β = f at hmem ⊢
     induction hmem using Submodule.span_induction with
     | mem f hf =>
       obtain ⟨a, γ, hγ, rfl⟩ := hf
@@ -144,22 +144,22 @@ theorem ctxL_sandwich (μ : X) (u v s t : List (Letter I)) {s₀ t₀ : List (Le
     (hs₀ : s₀ = u ++ s ++ v) (ht₀ : t₀ = u ++ t ++ v) {P Q : List (LayerData I)}
     (hP : SChain s P []) (hQ : SChain [] Q t)
     (γ : End ((pres RD k sc).obj (ob RD (wt RD μ v) []))) :
-    ctxL RD k sc μ s₀ t₀ [] u v [] s t
-        (dg RD k sc (wt RD μ v) s [] P ≫ γ ≫ dg RD k sc (wt RD μ v) [] t Q) =
-      ctxL RD k sc μ s₀ t₀ (P.map (whL u v)) u v (Q.map (whL u v)) [] [] γ := by
+    NF.ctxL (pres RD k sc) μ s₀ t₀ [] u v [] s t
+        (NF.dg (pres RD k sc) (wt RD μ v) s [] P ≫ γ ≫ NF.dg (pres RD k sc) (wt RD μ v) [] t Q) =
+      NF.ctxL (pres RD k sc) μ s₀ t₀ (P.map (whL u v)) u v (Q.map (whL u v)) [] [] γ := by
   subst hs₀ ht₀
   have key := hom_ext_dg RD k sc (wt RD μ v) (s := []) (t := [])
-    ((ctxL RD k sc μ (u ++ s ++ v) (u ++ t ++ v) [] u v [] s t).comp
-      (Linear.rightComp k _ (dg RD k sc (wt RD μ v) [] t Q) ∘ₗ
-        Linear.leftComp k _ (dg RD k sc (wt RD μ v) s [] P)))
-    (ctxL RD k sc μ (u ++ s ++ v) (u ++ t ++ v) (P.map (whL u v)) u v (Q.map (whL u v)) [] [])
+    ((NF.ctxL (pres RD k sc) μ (u ++ s ++ v) (u ++ t ++ v) [] u v [] s t).comp
+      (Linear.rightComp k _ (NF.dg (pres RD k sc) (wt RD μ v) [] t Q) ∘ₗ
+        Linear.leftComp k _ (NF.dg (pres RD k sc) (wt RD μ v) s [] P)))
+    (NF.ctxL (pres RD k sc) μ (u ++ s ++ v) (u ++ t ++ v) (P.map (whL u v)) u v (Q.map (whL u v)) [] [])
     (fun B hB => ?_)
   · have e := LinearMap.congr_fun key γ
     simpa [Category.assoc] using e
   simp only [LinearMap.comp_apply, Linear.leftComp_apply, Linear.rightComp_apply]
-  rw [dg_comp hP hB, dg_comp (hP.append hB) hQ,
-    ctxL_dg RD k sc μ (SChain.nil' _) (SChain.nil' _),
-    ctxL_dg RD k sc μ (by simpa using hP.whisk u v) (by simpa using hQ.whisk u v)]
+  rw [NF.dg_comp hP hB, NF.dg_comp (hP.append hB) hQ,
+    NF.ctxL_dg (pres RD k sc) μ (SChain.nil' _) (SChain.nil' _),
+    NF.ctxL_dg (pres RD k sc) μ (by simpa using hP.whisk u v) (by simpa using hQ.whisk u v)]
   exact dg_list_eq (by simp [List.append_assoc])
 
 /-! ## Decompositions of identities -/
@@ -172,7 +172,7 @@ def decRSet (μ : X) (w : List (Letter I)) :
   Submodule.span k {f | ∃ (a b : List I) (P Q : List (LayerData I))
     (δ : End ((pres RD k sc).obj (ob RD μ []))), AllSh Shape.isLR P ∧ SChain w P (ups a ++ dns b) ∧
       AllSh Shape.isRL Q ∧ SChain (ups a ++ dns b) Q w ∧ IsBub RD k sc μ δ ∧
-        f = bubAt RD k sc μ w δ ≫ dg RD k sc μ w (ups a ++ dns b) P ≫ dg RD k sc μ (ups a ++ dns b) w Q}
+        f = bubAt RD k sc μ w δ ≫ NF.dg (pres RD k sc) μ w (ups a ++ dns b) P ≫ NF.dg (pres RD k sc) μ (ups a ++ dns b) w Q}
 
 variable (RD k sc) in
 /-- Composites `E_w → F_{d} E_{c} → E_w` of a monotone diagram of type `RL` and one of type `LR`,
@@ -182,30 +182,30 @@ def decLSet (μ : X) (w : List (Letter I)) :
   Submodule.span k {f | ∃ (d c : List I) (P Q : List (LayerData I))
     (δ : End ((pres RD k sc).obj (ob RD μ []))), AllSh Shape.isRL P ∧ SChain w P (dns d ++ ups c) ∧
       AllSh Shape.isLR Q ∧ SChain (dns d ++ ups c) Q w ∧ IsBub RD k sc μ δ ∧
-        f = bubAt RD k sc μ w δ ≫ dg RD k sc μ w (dns d ++ ups c) P ≫ dg RD k sc μ (dns d ++ ups c) w Q}
+        f = bubAt RD k sc μ w δ ≫ NF.dg (pres RD k sc) μ w (dns d ++ ups c) P ≫ NF.dg (pres RD k sc) μ (dns d ++ ups c) w Q}
 
 theorem decRSet_conj (μ : X) {w w' : List (Letter I)} {L₁ L₂ : List (LayerData I)}
     (h₁ : AllSh Shape.isLR L₁) (hc₁ : SChain w L₁ w') (h₂ : AllSh Shape.isRL L₂)
     (hc₂ : SChain w' L₂ w) {δ : End ((pres RD k sc).obj (ob RD μ []))} (hδ : IsBub RD k sc μ δ)
     {x} (hx : x ∈ decRSet RD k sc μ w') :
-    bubAt RD k sc μ w δ ≫ dg RD k sc μ w w' L₁ ≫ x ≫ dg RD k sc μ w' w L₂ ∈ decRSet RD k sc μ w := by
+    bubAt RD k sc μ w δ ≫ NF.dg (pres RD k sc) μ w w' L₁ ≫ x ≫ NF.dg (pres RD k sc) μ w' w L₂ ∈ decRSet RD k sc μ w := by
   induction hx using Submodule.span_induction with
   | mem f hf =>
     obtain ⟨a, b, P, Q, δ', hP, hcP, hQ, hcQ, hδ', rfl⟩ := hf
     refine Submodule.subset_span ⟨a, b, L₁ ++ P, Q ++ L₂, δ ≫ δ', h₁.append hP, hc₁.append hcP,
       hQ.append h₂, hcQ.append hc₂, hδ.comp hδ', ?_⟩
-    have e : dg RD k sc μ w w' L₁ ≫ bubAt RD k sc μ w' δ' = bubAt RD k sc μ w δ' ≫ dg RD k sc μ w w' L₁ :=
+    have e : NF.dg (pres RD k sc) μ w w' L₁ ≫ bubAt RD k sc μ w' δ' = bubAt RD k sc μ w δ' ≫ NF.dg (pres RD k sc) μ w w' L₁ :=
       (bubAt_comm RD k sc μ δ' _).symm
-    calc bubAt RD k sc μ w δ ≫ dg RD k sc μ w w' L₁ ≫ (bubAt RD k sc μ w' δ' ≫
-          dg RD k sc μ w' (ups a ++ dns b) P ≫
-          dg RD k sc μ (ups a ++ dns b) w' Q) ≫ dg RD k sc μ w' w L₂
-        = bubAt RD k sc μ w δ ≫ (dg RD k sc μ w w' L₁ ≫ bubAt RD k sc μ w' δ') ≫
-          dg RD k sc μ w' (ups a ++ dns b) P ≫
-          dg RD k sc μ (ups a ++ dns b) w' Q ≫ dg RD k sc μ w' w L₂ := by simp only [Category.assoc]
-      _ = bubAt RD k sc μ w δ ≫ (bubAt RD k sc μ w δ' ≫ dg RD k sc μ w w' L₁) ≫
-          dg RD k sc μ w' (ups a ++ dns b) P ≫
-          dg RD k sc μ (ups a ++ dns b) w' Q ≫ dg RD k sc μ w' w L₂ := by rw [e]
-      _ = _ := by rw [bubAt_comp, ← dg_comp hc₁ hcP, ← dg_comp hcQ hc₂]; simp only [Category.assoc]
+    calc bubAt RD k sc μ w δ ≫ NF.dg (pres RD k sc) μ w w' L₁ ≫ (bubAt RD k sc μ w' δ' ≫
+          NF.dg (pres RD k sc) μ w' (ups a ++ dns b) P ≫
+          NF.dg (pres RD k sc) μ (ups a ++ dns b) w' Q) ≫ NF.dg (pres RD k sc) μ w' w L₂
+        = bubAt RD k sc μ w δ ≫ (NF.dg (pres RD k sc) μ w w' L₁ ≫ bubAt RD k sc μ w' δ') ≫
+          NF.dg (pres RD k sc) μ w' (ups a ++ dns b) P ≫
+          NF.dg (pres RD k sc) μ (ups a ++ dns b) w' Q ≫ NF.dg (pres RD k sc) μ w' w L₂ := by simp only [Category.assoc]
+      _ = bubAt RD k sc μ w δ ≫ (bubAt RD k sc μ w δ' ≫ NF.dg (pres RD k sc) μ w w' L₁) ≫
+          NF.dg (pres RD k sc) μ w' (ups a ++ dns b) P ≫
+          NF.dg (pres RD k sc) μ (ups a ++ dns b) w' Q ≫ NF.dg (pres RD k sc) μ w' w L₂ := by rw [e]
+      _ = _ := by rw [bubAt_comp, ← NF.dg_comp hc₁ hcP, ← NF.dg_comp hcQ hc₂]; simp only [Category.assoc]
   | zero => simp
   | add x y _ _ hx hy =>
     simp only [Preadditive.add_comp, Preadditive.comp_add]; exact Submodule.add_mem _ hx hy
@@ -215,24 +215,24 @@ theorem decLSet_conj (μ : X) {w w' : List (Letter I)} {L₁ L₂ : List (LayerD
     (h₁ : AllSh Shape.isRL L₁) (hc₁ : SChain w L₁ w') (h₂ : AllSh Shape.isLR L₂)
     (hc₂ : SChain w' L₂ w) {δ : End ((pres RD k sc).obj (ob RD μ []))} (hδ : IsBub RD k sc μ δ)
     {x} (hx : x ∈ decLSet RD k sc μ w') :
-    bubAt RD k sc μ w δ ≫ dg RD k sc μ w w' L₁ ≫ x ≫ dg RD k sc μ w' w L₂ ∈ decLSet RD k sc μ w := by
+    bubAt RD k sc μ w δ ≫ NF.dg (pres RD k sc) μ w w' L₁ ≫ x ≫ NF.dg (pres RD k sc) μ w' w L₂ ∈ decLSet RD k sc μ w := by
   induction hx using Submodule.span_induction with
   | mem f hf =>
     obtain ⟨d, c, P, Q, δ', hP, hcP, hQ, hcQ, hδ', rfl⟩ := hf
     refine Submodule.subset_span ⟨d, c, L₁ ++ P, Q ++ L₂, δ ≫ δ', h₁.append hP, hc₁.append hcP,
       hQ.append h₂, hcQ.append hc₂, hδ.comp hδ', ?_⟩
-    have e : dg RD k sc μ w w' L₁ ≫ bubAt RD k sc μ w' δ' = bubAt RD k sc μ w δ' ≫ dg RD k sc μ w w' L₁ :=
+    have e : NF.dg (pres RD k sc) μ w w' L₁ ≫ bubAt RD k sc μ w' δ' = bubAt RD k sc μ w δ' ≫ NF.dg (pres RD k sc) μ w w' L₁ :=
       (bubAt_comm RD k sc μ δ' _).symm
-    calc bubAt RD k sc μ w δ ≫ dg RD k sc μ w w' L₁ ≫ (bubAt RD k sc μ w' δ' ≫
-          dg RD k sc μ w' (dns d ++ ups c) P ≫
-          dg RD k sc μ (dns d ++ ups c) w' Q) ≫ dg RD k sc μ w' w L₂
-        = bubAt RD k sc μ w δ ≫ (dg RD k sc μ w w' L₁ ≫ bubAt RD k sc μ w' δ') ≫
-          dg RD k sc μ w' (dns d ++ ups c) P ≫
-          dg RD k sc μ (dns d ++ ups c) w' Q ≫ dg RD k sc μ w' w L₂ := by simp only [Category.assoc]
-      _ = bubAt RD k sc μ w δ ≫ (bubAt RD k sc μ w δ' ≫ dg RD k sc μ w w' L₁) ≫
-          dg RD k sc μ w' (dns d ++ ups c) P ≫
-          dg RD k sc μ (dns d ++ ups c) w' Q ≫ dg RD k sc μ w' w L₂ := by rw [e]
-      _ = _ := by rw [bubAt_comp, ← dg_comp hc₁ hcP, ← dg_comp hcQ hc₂]; simp only [Category.assoc]
+    calc bubAt RD k sc μ w δ ≫ NF.dg (pres RD k sc) μ w w' L₁ ≫ (bubAt RD k sc μ w' δ' ≫
+          NF.dg (pres RD k sc) μ w' (dns d ++ ups c) P ≫
+          NF.dg (pres RD k sc) μ (dns d ++ ups c) w' Q) ≫ NF.dg (pres RD k sc) μ w' w L₂
+        = bubAt RD k sc μ w δ ≫ (NF.dg (pres RD k sc) μ w w' L₁ ≫ bubAt RD k sc μ w' δ') ≫
+          NF.dg (pres RD k sc) μ w' (dns d ++ ups c) P ≫
+          NF.dg (pres RD k sc) μ (dns d ++ ups c) w' Q ≫ NF.dg (pres RD k sc) μ w' w L₂ := by simp only [Category.assoc]
+      _ = bubAt RD k sc μ w δ ≫ (bubAt RD k sc μ w δ' ≫ NF.dg (pres RD k sc) μ w w' L₁) ≫
+          NF.dg (pres RD k sc) μ w' (dns d ++ ups c) P ≫
+          NF.dg (pres RD k sc) μ (dns d ++ ups c) w' Q ≫ NF.dg (pres RD k sc) μ w' w L₂ := by rw [e]
+      _ = _ := by rw [bubAt_comp, ← NF.dg_comp hc₁ hcP, ← NF.dg_comp hcQ hc₂]; simp only [Category.assoc]
   | zero => simp
   | add x y _ _ hx hy =>
     simp only [Preadditive.add_comp, Preadditive.comp_add]; exact Submodule.add_mem _ hx hy
@@ -248,7 +248,7 @@ theorem dotBubSpan_le_decRSet (μ : X) {w u v : List (Letter I)} {pre post : Lis
   have hm := decRSet_conj μ (L₁ := pre ++ D.map (whL u [])) (L₂ := post)
     (h₁.append (AllSh.map_whL (p := Shape.isLR) (fun x hx => Shape.isLR_of_isDot (hD x hx)) u []))
     (hpre.append hD') h₂ hpost hδ IH
-  rw [Category.id_comp, dg_comp (hpre.append hD') hpost, bubAt_comm] at hm
+  rw [Category.id_comp, NF.dg_comp (hpre.append hD') hpost, bubAt_comm] at hm
   exact hm
 
 theorem dotBubSpan_le_decLSet (μ : X) {w u v : List (Letter I)} {pre post : List (LayerData I)}
@@ -261,7 +261,7 @@ theorem dotBubSpan_le_decLSet (μ : X) {w u v : List (Letter I)} {pre post : Lis
   have hm := decLSet_conj μ (L₁ := pre ++ D.map (whL u [])) (L₂ := post)
     (h₁.append (AllSh.map_whL (p := Shape.isRL) (fun x hx => Shape.isRL_of_isDot (hD x hx)) u []))
     (hpre.append hD') h₂ hpost hδ IH
-  rw [Category.id_comp, dg_comp (hpre.append hD') hpost, bubAt_comm] at hm
+  rw [Category.id_comp, NF.dg_comp (hpre.append hD') hpost, bubAt_comm] at hm
   exact hm
 
 
@@ -278,7 +278,7 @@ theorem decR (μ : X) :
     · obtain ⟨a, b, rfl⟩ := invR_eq_zero w h0
       refine Submodule.subset_span ⟨a, b, [], [], 𝟙 _, fun x hx => by simp at hx, rfl,
         fun x hx => by simp at hx, rfl, IsBub.id, ?_⟩
-      rw [bubAt_id, dg_nil, Category.id_comp, Category.id_comp]
+      rw [bubAt_id, NF.dg_nil, Category.id_comp, Category.id_comp]
     obtain ⟨u, v, j, i, rfl⟩ := invR_pos w h0
     have hcr : SChain (u ++ dn j :: up i :: v) ((crossrL i j).map (whL u v))
         (u ++ up i :: dn j :: v) := by
@@ -288,9 +288,9 @@ theorem decR (μ : X) :
       simpa using (show SChain [up i, dn j] (crosslL i j) [dn j, up i] by schain).whisk u v
     have IH1 : 𝟙 _ ∈ decRSet RD k sc μ (u ++ up i :: dn j :: v) :=
       decR μ n _ (by have := invR_swap i j v u; omega)
-    have T1 : dg RD k sc μ (u ++ dn j :: up i :: v) (u ++ up i :: dn j :: v)
+    have T1 : NF.dg (pres RD k sc) μ (u ++ dn j :: up i :: v) (u ++ up i :: dn j :: v)
         ((crossrL i j).map (whL u v)) ≫
-        dg RD k sc μ (u ++ up i :: dn j :: v) (u ++ dn j :: up i :: v) ((crosslL i j).map (whL u v)) ∈
+        NF.dg (pres RD k sc) μ (u ++ up i :: dn j :: v) (u ++ dn j :: up i :: v) ((crosslL i j).map (whL u v)) ∈
           decRSet RD k sc μ (u ++ dn j :: up i :: v) := by
       have := decRSet_conj μ ((allSh_crossrL_LR i j).map_whL u v) hcr
         ((allSh_crosslL_RL i j).map_whL u v) hcl IsBub.id IH1
@@ -299,14 +299,14 @@ theorem decR (μ : X) :
     · subst hij
       have IH2 : 𝟙 _ ∈ decRSet RD k sc μ (u ++ v) :=
         decR μ n _ (by have := invR_del i i v u; omega)
-      have E := dg_stepL RD k sc μ (s₀ := u ++ dn i :: up i :: v) (t₀ := u ++ dn i :: up i :: v)
-        [] [] u v (A := []) (L := []) (rfl : dg RD k sc (wt RD μ v) [dn i, up i] [dn i, up i] [] = _)
+      have E := NF.dg_stepL (pres RD k sc) μ (s₀ := u ++ dn i :: up i :: v) (t₀ := u ++ dn i :: up i :: v)
+        [] [] u v (A := []) (L := []) (rfl : NF.dg (pres RD k sc) (wt RD μ v) [dn i, up i] [dn i, up i] [] = _)
         (by simp) (by simp) (by simp)
-      rw [dg_decompFE, map_add, map_neg, map_sum, ctxL_dg RD k sc μ (by simp) (by simp)] at E
-      rw [← dg_nil (RD := RD) (k := k) (sc := sc) μ, E]
+      rw [dg_decompFE, map_add, map_neg, map_sum, NF.ctxL_dg (pres RD k sc) μ (by simp) (by simp)] at E
+      rw [← NF.dg_nil (P := pres RD k sc) μ, E]
       refine Submodule.add_mem _ (Submodule.neg_mem _ ?_)
         (Submodule.sum_mem _ fun f _ => ?_)
-      · rw [List.map_append, List.nil_append, List.append_nil, ← dg_comp hcr hcl]
+      · rw [List.map_append, List.nil_append, List.append_nil, ← NF.dg_comp hcr hcl]
         exact T1
       rw [map_sum]
       refine Submodule.sum_mem _ fun g _ => ?_
@@ -331,15 +331,15 @@ theorem decR (μ : X) :
         rcases hx with rfl | hx
         · rfl
         · rw [List.eq_of_mem_replicate hx]; rfl
-    · have E0 : dg RD k sc (wt RD μ v) [dn j, up i] [dn j, up i] [] =
-          (((sc.t j i)⁻¹ : kˣ) : k) • dg RD k sc (wt RD μ v) [dn j, up i] [dn j, up i]
+    · have E0 : NF.dg (pres RD k sc) (wt RD μ v) [dn j, up i] [dn j, up i] [] =
+          (((sc.t j i)⁻¹ : kˣ) : k) • NF.dg (pres RD k sc) (wt RD μ v) [dn j, up i] [dn j, up i]
             (crossrL i j ++ crosslL i j) := by
         rw [dg_downupFE RD k sc j i (Ne.symm hij), smul_smul, ← Units.val_mul, inv_mul_cancel,
           Units.val_one, one_smul]
       have E := dg_step_smul μ (s₀ := u ++ dn j :: up i :: v) (t₀ := u ++ dn j :: up i :: v)
         [] [] u v _ E0 (by simp) (by simp) (L := []) (by simp) rfl
-      rw [← dg_nil (RD := RD) (k := k) (sc := sc) μ, E, List.nil_append, List.append_nil,
-        List.map_append, ← dg_comp hcr hcl]
+      rw [← NF.dg_nil (P := pres RD k sc) μ, E, List.nil_append, List.append_nil,
+        List.map_append, ← NF.dg_comp hcr hcl]
       exact Submodule.smul_mem _ _ T1
 
 /-- **Decomposition of identities through words sorted to the left**: the identity
@@ -353,7 +353,7 @@ theorem decL (μ : X) :
     · obtain ⟨d, c, rfl⟩ := invL_eq_zero w h0
       refine Submodule.subset_span ⟨d, c, [], [], 𝟙 _, fun x hx => by simp at hx, rfl,
         fun x hx => by simp at hx, rfl, IsBub.id, ?_⟩
-      rw [bubAt_id, dg_nil, Category.id_comp, Category.id_comp]
+      rw [bubAt_id, NF.dg_nil, Category.id_comp, Category.id_comp]
     obtain ⟨u, v, i, j, rfl⟩ := invL_pos w h0
     have hcl : SChain (u ++ up i :: dn j :: v) ((crosslL i j).map (whL u v))
         (u ++ dn j :: up i :: v) := by
@@ -363,9 +363,9 @@ theorem decL (μ : X) :
       simpa using (show SChain [dn j, up i] (crossrL i j) [up i, dn j] by schain).whisk u v
     have IH1 : 𝟙 _ ∈ decLSet RD k sc μ (u ++ dn j :: up i :: v) :=
       decL μ n _ (by have := invL_swap i j v u; omega)
-    have T1 : dg RD k sc μ (u ++ up i :: dn j :: v) (u ++ dn j :: up i :: v)
+    have T1 : NF.dg (pres RD k sc) μ (u ++ up i :: dn j :: v) (u ++ dn j :: up i :: v)
         ((crosslL i j).map (whL u v)) ≫
-        dg RD k sc μ (u ++ dn j :: up i :: v) (u ++ up i :: dn j :: v) ((crossrL i j).map (whL u v)) ∈
+        NF.dg (pres RD k sc) μ (u ++ dn j :: up i :: v) (u ++ up i :: dn j :: v) ((crossrL i j).map (whL u v)) ∈
           decLSet RD k sc μ (u ++ up i :: dn j :: v) := by
       have := decLSet_conj μ ((allSh_crosslL_RL i j).map_whL u v) hcl
         ((allSh_crossrL_LR i j).map_whL u v) hcr IsBub.id IH1
@@ -374,14 +374,14 @@ theorem decL (μ : X) :
     · subst hij
       have IH2 : 𝟙 _ ∈ decLSet RD k sc μ (u ++ v) :=
         decL μ n _ (by have := invL_del i i v u; omega)
-      have E := dg_stepL RD k sc μ (s₀ := u ++ up i :: dn i :: v) (t₀ := u ++ up i :: dn i :: v)
-        [] [] u v (A := []) (L := []) (rfl : dg RD k sc (wt RD μ v) [up i, dn i] [up i, dn i] [] = _)
+      have E := NF.dg_stepL (pres RD k sc) μ (s₀ := u ++ up i :: dn i :: v) (t₀ := u ++ up i :: dn i :: v)
+        [] [] u v (A := []) (L := []) (rfl : NF.dg (pres RD k sc) (wt RD μ v) [up i, dn i] [up i, dn i] [] = _)
         (by simp) (by simp) (by simp)
-      rw [dg_decompEF, map_add, map_neg, map_sum, ctxL_dg RD k sc μ (by simp) (by simp)] at E
-      rw [← dg_nil (RD := RD) (k := k) (sc := sc) μ, E]
+      rw [dg_decompEF, map_add, map_neg, map_sum, NF.ctxL_dg (pres RD k sc) μ (by simp) (by simp)] at E
+      rw [← NF.dg_nil (P := pres RD k sc) μ, E]
       refine Submodule.add_mem _ (Submodule.neg_mem _ ?_)
         (Submodule.sum_mem _ fun f _ => ?_)
-      · rw [List.map_append, List.nil_append, List.append_nil, ← dg_comp hcl hcr]
+      · rw [List.map_append, List.nil_append, List.append_nil, ← NF.dg_comp hcl hcr]
         exact T1
       rw [map_sum]
       refine Submodule.sum_mem _ fun g _ => ?_
@@ -406,15 +406,15 @@ theorem decL (μ : X) :
         rcases hx with rfl | hx
         · rfl
         · rw [List.eq_of_mem_replicate hx]; rfl
-    · have E0 : dg RD k sc (wt RD μ v) [up i, dn j] [up i, dn j] [] =
-          (((sc.t j i)⁻¹ : kˣ) : k) • dg RD k sc (wt RD μ v) [up i, dn j] [up i, dn j]
+    · have E0 : NF.dg (pres RD k sc) (wt RD μ v) [up i, dn j] [up i, dn j] [] =
+          (((sc.t j i)⁻¹ : kˣ) : k) • NF.dg (pres RD k sc) (wt RD μ v) [up i, dn j] [up i, dn j]
             (crosslL i j ++ crossrL i j) := by
         rw [dg_downupEF RD k sc i j hij, smul_smul, ← Units.val_mul, inv_mul_cancel,
           Units.val_one, one_smul]
       have E := dg_step_smul μ (s₀ := u ++ up i :: dn j :: v) (t₀ := u ++ up i :: dn j :: v)
         [] [] u v _ E0 (by simp) (by simp) (L := []) (by simp) rfl
-      rw [← dg_nil (RD := RD) (k := k) (sc := sc) μ, E, List.nil_append, List.append_nil,
-        List.map_append, ← dg_comp hcl hcr]
+      rw [← NF.dg_nil (P := pres RD k sc) μ, E, List.nil_append, List.append_nil,
+        List.map_append, ← NF.dg_comp hcl hcr]
       exact Submodule.smul_mem _ _ T1
 
 end Categorification.KL3.Diagram.CLQ

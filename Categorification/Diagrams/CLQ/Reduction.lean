@@ -74,7 +74,7 @@ variable {I : Type u} {C : CartanDatum I} {X Y : Type v} [AddCommGroup X] [AddCo
 diagrams followed by bubble monomials on the far right. -/
 def UpSpanDiag (μ : X) : Prop :=
   ∀ (s t : List (Letter I)) (ls : List (LayerData I)), Positive s → Positive t → SChain s ls t →
-    dg RD k sc μ s t ls ∈ upSpan RD k sc μ s t
+    NF.dg (pres RD k sc) μ s t ls ∈ upSpan RD k sc μ s t
 
 /-- The one-strand case of Lemma 3.9: every endomorphism of `E_i 1_μ` is a linear combination of
 dots on the strand times bubble monomials to its right. -/
@@ -91,53 +91,53 @@ variable (lam : X) (i : I)
 downward leg of the first cup up to the top (a second cup and the zigzag relation) exhibits it
 as the clockwise closure of an endomorphism of `E_i`. -/
 theorem dg_cupUp_eq_closeRight (rest : List (LayerData I)) (h : SChain [up i, dn i] rest []) :
-    dg RD k sc lam [] [] (([], .cup (up i), []) :: rest) =
-      closeRight RD k sc lam i (dg RD k sc (wt RD lam [dn i]) [up i] [up i]
+    NF.dg (pres RD k sc) lam [] [] (([], .cup (up i), []) :: rest) =
+      closeRight RD k sc lam i (NF.dg (pres RD k sc) (wt RD lam [dn i]) [up i] [up i]
         (([up i], .cup (dn i), []) :: rest.map (whL [] [up i]))) := by
   have hA : SChain [up i] (([up i], .cup (dn i), []) :: rest.map (whL [] [up i])) [up i] :=
     ⟨rfl, by simpa using h.whisk [] [up i]⟩
   have hA' := hA.whisk [] [dn i]
   simp only [List.nil_append, List.singleton_append] at hA'
-  rw [closeRight_apply, plcL_dg]
-  show _ = dg RD k sc lam [] [up i, dn i] _ ≫ dg RD k sc lam [up i, dn i] [up i, dn i] _ ≫
-    dg RD k sc lam [up i, dn i] [] _
-  rw [dg_comp hA' (by schain), dg_comp (by schain) (hA'.append (by schain))]
+  rw [closeRight_apply, NF.plcL_dg]
+  show _ = NF.dg (pres RD k sc) lam [] [up i, dn i] _ ≫ NF.dg (pres RD k sc) lam [up i, dn i] [up i, dn i] _ ≫
+    NF.dg (pres RD k sc) lam [up i, dn i] [] _
+  rw [NF.dg_comp hA' (by schain), NF.dg_comp (by schain) (hA'.append (by schain))]
   -- move the final cap below `rest` (interchange law), then straighten the zigzag
-  have e := dg_interchange (RD := RD) (k := k) (sc := sc) (μ := lam) (S := []) (T := [])
+  have e := NF.dg_interchange (P := pres RD k sc) (μ := lam) (S := []) (T := [])
     [([], .cup (up i), []), ([up i], .cup (dn i), [dn i])] [] h
     (B := [([], .cap (dn i), [])]) (t := [up i, dn i]) (t' := []) (by schain)
   wnf at e
   wnf
   rw [e]
   symm
-  refine (dg_step RD k sc lam [([], .cup (up i), [])] rest [up i] []
-    (dg_zigL' RD k sc (wt RD lam []) (dn i)) (by schain) h (by simp [whL]) rfl).trans ?_
+  refine (NF.dg_step (pres RD k sc) lam [([], .cup (up i), [])] rest [up i] []
+    (NF.dg_zigL' (pres RD k sc) (wt RD lam []) (dn i)) (by schain) h (by simp [whL]) rfl).trans ?_
   simp
 
 /-- **A closed diagram beginning with the cup `1 → F_i E_i` is a left closure**: the
 counterclockwise closure of an endomorphism of `E_i`. -/
 theorem dg_cupDn_eq_closeLeft (rest : List (LayerData I)) (h : SChain [dn i, up i] rest []) :
-    dg RD k sc lam [] [] (([], .cup (dn i), []) :: rest) =
-      closeLeft RD k sc lam i (dg RD k sc lam [up i] [up i]
+    NF.dg (pres RD k sc) lam [] [] (([], .cup (dn i), []) :: rest) =
+      closeLeft RD k sc lam i (NF.dg (pres RD k sc) lam [up i] [up i]
         (([], .cup (up i), [up i]) :: rest.map (whL [up i] []))) := by
   have hA : SChain [up i] (([], .cup (up i), [up i]) :: rest.map (whL [up i] [])) [up i] :=
     ⟨rfl, by simpa using h.whisk [up i] []⟩
   have hA' := hA.whisk [dn i] []
   simp only [List.append_nil, List.singleton_append] at hA'
-  rw [closeLeft_apply, plcL_dg_nil]
-  show _ = dg RD k sc lam [] [dn i, up i] _ ≫ dg RD k sc lam [dn i, up i] [dn i, up i] _ ≫
-    dg RD k sc lam [dn i, up i] [] _
-  rw [dg_comp hA' (by schain), dg_comp (by schain) (hA'.append (by schain))]
+  rw [closeLeft_apply, NF.plcL_dg_nil]
+  show _ = NF.dg (pres RD k sc) lam [] [dn i, up i] _ ≫ NF.dg (pres RD k sc) lam [dn i, up i] [dn i, up i] _ ≫
+    NF.dg (pres RD k sc) lam [dn i, up i] [] _
+  rw [NF.dg_comp hA' (by schain), NF.dg_comp (by schain) (hA'.append (by schain))]
   -- move the final cap below `rest` (interchange law), then straighten the zigzag
-  have e := dg_interchange (RD := RD) (k := k) (sc := sc) (μ := lam) (S := []) (T := [])
+  have e := NF.dg_interchange (P := pres RD k sc) (μ := lam) (S := []) (T := [])
     [([], .cup (dn i), []), ([dn i], .cup (up i), [up i])] []
     (A := [([], .cap (up i), [])]) (s := [dn i, up i]) (s' := []) (by schain) h
   wnf at e
   wnf
   rw [← e]
   symm
-  refine (dg_step RD k sc lam [([], .cup (dn i), [])] rest [] [up i]
-    (dg_zigR' RD k sc (wt RD lam [up i]) (up i)) (by schain) h (by simp [whL]) rfl).trans ?_
+  refine (NF.dg_step (pres RD k sc) lam [([], .cup (dn i), [])] rest [] [up i]
+    (NF.dg_zigR' (pres RD k sc) (wt RD lam [up i]) (up i)) (by schain) h (by simp [whL]) rfl).trans ?_
   simp
 
 end Bend
@@ -154,7 +154,7 @@ theorem slideSetR_le_slideSetL_up (μ : X) (j : I) :
     slideSetR RD k sc μ (up j) ≤ slideSetL RD k sc μ (up j) := by
   refine Submodule.span_le.mpr ?_
   rintro _ ⟨a, γ, hγ, rfl⟩
-  have hd : dotsU RD k sc μ (up j) a ∈ slideSetL RD k sc μ (up j) := by
+  have hd : NF.dotsU (pres RD k sc) μ (up j) a ∈ slideSetL RD k sc μ (up j) := by
     have := mem_slideSetL (RD := RD) (k := k) (sc := sc) (μ := μ) (l := up j) (a := a) (IsBub.id)
     rwa [bubLU_id, Category.comp_id] at this
   exact slideSetL_comp hd (bubRU_up_mem_gen μ j hγ)
@@ -171,7 +171,7 @@ theorem isBub_closeRight {g : End ((pres RD k sc).obj (ob RD (wt RD lam [dn i]) 
   induction hg' using Submodule.span_induction with
   | mem f hf =>
     obtain ⟨a, γ, hγ, rfl⟩ := hf
-    rw [← bubLU_comm, closeRight_bubLU]
+    rw [← NF.bubLU_comm, closeRight_bubLU]
     exact IsBub.comp (IsBub.wtTransport _ hγ) (cwU_isBub _ _)
   | zero => rw [map_zero]; exact IsBub.zero
   | add x y _ _ hx hy => rw [map_add]; exact IsBub.add hx hy
@@ -185,7 +185,7 @@ theorem isBub_closeLeft {g : End ((pres RD k sc).obj (ob RD lam [up i]))}
   induction hg using Submodule.span_induction with
   | mem f hf =>
     obtain ⟨a, γ, hγ, rfl⟩ := hf
-    rw [← bubRU_comm, closeLeft_bubRU]
+    rw [← NF.bubRU_comm, closeLeft_bubRU]
     exact IsBub.comp hγ (ccwU_isBub _ _)
   | zero => rw [map_zero]; exact IsBub.zero
   | add x y _ _ hx hy => rw [map_add]; exact IsBub.add hx hy
@@ -206,7 +206,7 @@ theorem prop36_of_endUpSpan (H : ∀ (μ : X) (i : I), EndUpSpan RD k sc μ i)
   rw [prop36_iff_dg]
   intro ls hls
   cases ls with
-  | nil => rw [dg_nil]; exact IsBub.id
+  | nil => rw [NF.dg_nil]; exact IsBub.id
   | cons x rest =>
     obtain ⟨a, g, b⟩ := x
     obtain ⟨h₀, h⟩ := hls
@@ -236,11 +236,11 @@ variable (RD k sc)
 
 /-- Bubbles placed on the far right of a single strand. -/
 theorem bubAt_single (μ : X) (l : Letter I) (γ : End ((pres RD k sc).obj (ob RD μ []))) :
-    bubAt RD k sc μ [l] γ = bubRU RD k sc μ l γ := by
-  have key := hom_ext_dg RD k sc μ (s := []) (t := []) (bubAt RD k sc μ [l]) (plcL RD k sc μ [l] [] [] [])
+    bubAt RD k sc μ [l] γ = NF.bubRU (pres RD k sc) μ l γ := by
+  have key := hom_ext_dg RD k sc μ (s := []) (t := []) (bubAt RD k sc μ [l]) (NF.plcL (pres RD k sc) μ [l] [] [] [])
     (fun B _ => ?_)
   · exact LinearMap.congr_fun key γ
-  exact (bubAt_dg RD k sc μ [l] B).trans (plcL_dg RD k sc μ [l] [] [] [] B).symm
+  exact (bubAt_dg RD k sc μ [l] B).trans (NF.plcL_dg (pres RD k sc) μ [l] [] [] [] B).symm
 
 /-- Upward diagrams on a single strand followed by bubble monomials are dots times bubble
 monomials. -/

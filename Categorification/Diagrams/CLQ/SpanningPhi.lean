@@ -58,26 +58,26 @@ variable (μ : X)
 /-- An endomorphism of `1_μ` placed to the right of the strands `s` (rightmost region `μ`). -/
 def bubAt (s : List (Letter I)) :
     End ((pres RD k sc).obj (ob RD μ [])) →ₗ[k] End ((pres RD k sc).obj (ob RD μ s)) :=
-  ctxL RD k sc μ s s [] s [] [] [] []
+  NF.ctxL (pres RD k sc) μ s s [] s [] [] [] []
 
 theorem bubAt_dg (s : List (Letter I)) (B : List (LayerData I)) :
-    bubAt RD k sc μ s (dg RD k sc μ [] [] B) = dg RD k sc μ s s (B.map (whL s [])) := by
-  have := ctxL_dg RD k sc μ (s₀ := s) (t₀ := s) (pre := []) (u := s) (v := []) (post := [])
+    bubAt RD k sc μ s (NF.dg (pres RD k sc) μ [] [] B) = NF.dg (pres RD k sc) μ s s (B.map (whL s [])) := by
+  have := NF.ctxL_dg (pres RD k sc) μ (s₀ := s) (t₀ := s) (pre := []) (u := s) (v := []) (post := [])
     (s := []) (t := []) (show s = s ++ [] ++ [] by simp) (show s ++ [] ++ [] = s by simp) B
   convert this using 1 <;> first | rfl | simp
 
 theorem bubAt_comm_dg {s t : List (Letter I)} (β : End ((pres RD k sc).obj (ob RD μ [])))
     (A : List (LayerData I)) (hA : SChain s A t) :
-    bubAt RD k sc μ s β ≫ dg RD k sc μ s t A = dg RD k sc μ s t A ≫ bubAt RD k sc μ t β := by
+    bubAt RD k sc μ s β ≫ NF.dg (pres RD k sc) μ s t A = NF.dg (pres RD k sc) μ s t A ≫ bubAt RD k sc μ t β := by
   have key := hom_ext_dg RD k sc μ (s := []) (t := [])
-    ((Linear.rightComp k _ (dg RD k sc μ s t A)).comp (bubAt RD k sc μ s))
-    ((Linear.leftComp k _ (dg RD k sc μ s t A)).comp (bubAt RD k sc μ t)) (fun B hB => ?_)
+    ((Linear.rightComp k _ (NF.dg (pres RD k sc) μ s t A)).comp (bubAt RD k sc μ s))
+    ((Linear.leftComp k _ (NF.dg (pres RD k sc) μ s t A)).comp (bubAt RD k sc μ t)) (fun B hB => ?_)
   · exact LinearMap.congr_fun key β
-  change bubAt RD k sc μ s (dg RD k sc μ [] [] B) ≫ dg RD k sc μ s t A =
-    dg RD k sc μ s t A ≫ bubAt RD k sc μ t (dg RD k sc μ [] [] B)
+  change bubAt RD k sc μ s (NF.dg (pres RD k sc) μ [] [] B) ≫ NF.dg (pres RD k sc) μ s t A =
+    NF.dg (pres RD k sc) μ s t A ≫ bubAt RD k sc μ t (NF.dg (pres RD k sc) μ [] [] B)
   have hBs : SChain s (B.map (whL s [])) s := by simpa using hB.whisk s []
   have hBt : SChain t (B.map (whL t [])) t := by simpa using hB.whisk t []
-  rw [bubAt_dg, bubAt_dg, dg_comp hBs hA, dg_comp hA hBt]
+  rw [bubAt_dg, bubAt_dg, NF.dg_comp hBs hA, NF.dg_comp hA hBt]
   have e := dg_closed_left (RD := RD) (k := k) (sc := sc) μ (S := s) (T := t) [] [] (s := s) (s' := t) []
     hB hA
   wnf at e
@@ -94,7 +94,7 @@ theorem bubAt_comm {s t : List (Letter I)} (β : End ((pres RD k sc).obj (ob RD 
   exact LinearMap.congr_fun key f
 
 theorem bubAt_id (s : List (Letter I)) : bubAt RD k sc μ s (𝟙 _) = 𝟙 _ := by
-  rw [← dg_nil (RD := RD) (k := k) (sc := sc) μ [], bubAt_dg RD k sc μ s [], List.map_nil, dg_nil]
+  rw [← NF.dg_nil (P := pres RD k sc) μ [], bubAt_dg RD k sc μ s [], List.map_nil, NF.dg_nil]
 
 theorem bubAt_comp (s : List (Letter I)) (β γ : End ((pres RD k sc).obj (ob RD μ []))) :
     bubAt RD k sc μ s (β ≫ γ) = bubAt RD k sc μ s β ≫ bubAt RD k sc μ s γ := by
@@ -102,18 +102,18 @@ theorem bubAt_comp (s : List (Letter I)) (β γ : End ((pres RD k sc).obj (ob RD
     ((bubAt RD k sc μ s).comp (Linear.rightComp k _ γ))
     ((Linear.rightComp k _ (bubAt RD k sc μ s γ)).comp (bubAt RD k sc μ s)) (fun B hB => ?_)
   · exact LinearMap.congr_fun key β
-  change bubAt RD k sc μ s (dg RD k sc μ [] [] B ≫ γ) = bubAt RD k sc μ s (dg RD k sc μ [] [] B) ≫ _
+  change bubAt RD k sc μ s (NF.dg (pres RD k sc) μ [] [] B ≫ γ) = bubAt RD k sc μ s (NF.dg (pres RD k sc) μ [] [] B) ≫ _
   have key' := hom_ext_dg RD k sc μ (s := []) (t := [])
-    ((bubAt RD k sc μ s).comp (Linear.leftComp k _ (dg RD k sc μ [] [] B)))
-    ((Linear.leftComp k _ (bubAt RD k sc μ s (dg RD k sc μ [] [] B))).comp (bubAt RD k sc μ s))
+    ((bubAt RD k sc μ s).comp (Linear.leftComp k _ (NF.dg (pres RD k sc) μ [] [] B)))
+    ((Linear.leftComp k _ (bubAt RD k sc μ s (NF.dg (pres RD k sc) μ [] [] B))).comp (bubAt RD k sc μ s))
     (fun G hG => ?_)
   · exact LinearMap.congr_fun key' γ
-  change bubAt RD k sc μ s (dg RD k sc μ [] [] B ≫ dg RD k sc μ [] [] G) =
-    bubAt RD k sc μ s (dg RD k sc μ [] [] B) ≫ bubAt RD k sc μ s (dg RD k sc μ [] [] G)
+  change bubAt RD k sc μ s (NF.dg (pres RD k sc) μ [] [] B ≫ NF.dg (pres RD k sc) μ [] [] G) =
+    bubAt RD k sc μ s (NF.dg (pres RD k sc) μ [] [] B) ≫ bubAt RD k sc μ s (NF.dg (pres RD k sc) μ [] [] G)
   have hBs : SChain s (B.map (whL s [])) s := by simpa using hB.whisk s []
   have hGs : SChain s (G.map (whL s [])) s := by simpa using hG.whisk s []
-  rw [dg_comp hB hG, bubAt_dg RD k sc μ s _, bubAt_dg RD k sc μ s _,
-    bubAt_dg RD k sc μ s _, dg_comp hBs hGs, List.map_append]
+  rw [NF.dg_comp hB hG, bubAt_dg RD k sc μ s _, bubAt_dg RD k sc μ s _,
+    bubAt_dg RD k sc μ s _, NF.dg_comp hBs hGs, List.map_append]
 
 end BubAt
 
@@ -131,7 +131,7 @@ variable (μ : X)
 def upSpan (S T : List (Letter I)) :
     Submodule k ((pres RD k sc).obj (ob RD μ S) ⟶ (pres RD k sc).obj (ob RD μ T)) :=
   Submodule.span k {f | ∃ (A : List (LayerData I)) (γ : End ((pres RD k sc).obj (ob RD μ []))),
-    Upward A ∧ SChain S A T ∧ IsBub RD k sc μ γ ∧ f = dg RD k sc μ S T A ≫ bubAt RD k sc μ T γ}
+    Upward A ∧ SChain S A T ∧ IsBub RD k sc μ γ ∧ f = NF.dg (pres RD k sc) μ S T A ≫ bubAt RD k sc μ T γ}
 
 
 /-- **Bubbles slide to the far right of upward diagrams** (KL III, proof of Lemma 3.9: "Bubble
@@ -142,21 +142,21 @@ theorem slideOutUp : ∀ (v u : List (Letter I)) {S T : List (Letter I)}
     (pre post : List (LayerData I)), SChain S pre (u ++ v) → SChain (u ++ v) post T →
     Upward pre → Upward post → Positive v →
     ∀ β : End ((pres RD k sc).obj (ob RD (wt RD μ v) [])), IsBub RD k sc (wt RD μ v) β →
-      ctxL RD k sc μ S T pre u v post [] [] β ∈ upSpan RD k sc μ S T := by
+      NF.ctxL (pres RD k sc) μ S T pre u v post [] [] β ∈ upSpan RD k sc μ S T := by
   intro v
   induction v with
   | nil =>
     intro u S T pre post hpre hpost hupre hupost _ β hβ
     have hpp : SChain S (pre ++ post) T := hpre.append hpost
     have key := hom_ext_dg RD k sc (wt RD μ []) (s := []) (t := [])
-      (ctxL RD k sc μ S T pre u [] post [] [])
-      (Linear.leftComp k _ (dg RD k sc μ S T (pre ++ post)) ∘ₗ bubAt RD k sc μ T) (fun B hB => ?_)
+      (NF.ctxL (pres RD k sc) μ S T pre u [] post [] [])
+      (Linear.leftComp k _ (NF.dg (pres RD k sc) μ S T (pre ++ post)) ∘ₗ bubAt RD k sc μ T) (fun B hB => ?_)
     · rw [LinearMap.congr_fun key β]
       exact Submodule.subset_span ⟨pre ++ post, β, hupre.append hupost, hpp, hβ, rfl⟩
-    rw [ctxL_dg RD k sc μ (by simpa using hpre) (by simpa using hpost)]
-    change _ = dg RD k sc μ S T (pre ++ post) ≫ bubAt RD k sc μ T (dg RD k sc μ [] [] B)
+    rw [NF.ctxL_dg (pres RD k sc) μ (by simpa using hpre) (by simpa using hpost)]
+    change _ = NF.dg (pres RD k sc) μ S T (pre ++ post) ≫ bubAt RD k sc μ T (NF.dg (pres RD k sc) μ [] [] B)
     have hBT : SChain T (B.map (whL T [])) T := by simpa using hB.whisk T []
-    rw [bubAt_dg, dg_comp hpp hBT]
+    rw [bubAt_dg, NF.dg_comp hpp hBT]
     have e := dg_closed_left (RD := RD) (k := k) (sc := sc) μ (S := S) (T := T) pre [] (s := u) (s' := T) []
       hB (by simpa using hpost)
     wnf at e
@@ -166,7 +166,7 @@ theorem slideOutUp : ∀ (v u : List (Letter I)) {S T : List (Letter I)}
     intro u S T pre post hpre hpost hupre hupost hv β hβ
     rw [ctxL_cons RD k sc μ hpre hpost]
     have hmem := bubLU_mem_slideSetR_gen (wt RD μ v') l (β := β) hβ
-    generalize bubLU RD k sc (wt RD μ v') l β = f at hmem ⊢
+    generalize NF.bubLU (pres RD k sc) (wt RD μ v') l β = f at hmem ⊢
     induction hmem using Submodule.span_induction with
     | mem f hf =>
       obtain ⟨a, γ, hγ, rfl⟩ := hf
@@ -270,7 +270,7 @@ omit [DecidableEq I] in
 theorem dg_upward_eq {w₁ w₂ : List I} {A : List (LayerData I)} (h : SChain (ups w₁) A (ups w₂))
     (hA : Upward A) :
     ∃ d : KLR.Diagram.ob w₁ ⟶ KLR.Diagram.ob w₂,
-      dg RD k sc μ (ups w₁) (ups w₂) A = (pres RD k sc).diag (upDiag RD μ d) := by
+      NF.dg (pres RD k sc) μ (ups w₁) (ups w₂) A = (pres RD k sc).diag (upDiag RD μ d) := by
   have hpos : Positive (ups w₁) := by simp [Positive, ups]
   obtain ⟨hc, hm⟩ := chain_toKLR h hA hpos
   have e₁ : (ups w₁).map Prod.snd = w₁ := by simp [ups, Function.comp_def]
@@ -293,7 +293,7 @@ theorem single_upFunctor_eq (i j : KLR.Seq ν)
 theorem single_dg_bubAt_mem_range (i j : KLR.Seq ν) {A : List (LayerData I)}
     (h : SChain (ups (word i)) A (ups (word j))) (hA : Upward A)
     {γ : End ((pres RD k sc).obj (ob RD μ []))} (hγ : IsBub RD k sc μ γ) :
-    single i j (dg RD k sc μ (ups (word i)) (ups (word j)) A ≫ bubAt RD k sc μ (ups (word j)) γ) ∈
+    single i j (NF.dg (pres RD k sc) μ (ups (word i)) (ups (word j)) A ≫ bubAt RD k sc μ (ups (word j)) γ) ∈
       (phi RD k sc μ ν).range := by
   obtain ⟨p, hp⟩ := hγ
   obtain ⟨d, hd⟩ := dg_upward_eq RD k sc μ h hA
@@ -328,7 +328,7 @@ theorem lem39_bubbles (i j : KLR.Seq ν) {pre post : List (LayerData I)}
     (hpost : SChain (u ++ v) post (ups (word j))) (hupre : Upward pre) (hupost : Upward post)
     (hv : Positive v) {β : End ((pres RD k sc).obj (ob RD (wt RD μ v) []))}
     (hβ : IsBub RD k sc (wt RD μ v) β) :
-    single i j (ctxL RD k sc μ _ _ pre u v post [] [] β) ∈ (phi RD k sc μ ν).range :=
+    single i j (NF.ctxL (pres RD k sc) μ _ _ pre u v post [] [] β) ∈ (phi RD k sc μ ν).range :=
   single_upSpan_mem_range RD k sc μ ν i j
     (slideOutUp RD k sc μ v u pre post hpre hpost hupre hupost hv β hβ)
 

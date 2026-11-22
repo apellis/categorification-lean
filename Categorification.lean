@@ -198,6 +198,7 @@ import Categorification.Diagrams.KL3.KaroubiKLR
 import Categorification.Diagrams.KL3.KaroubiTransfer
 import Categorification.Diagrams.KL3.KrullSchmidtCat
 import Categorification.Diagrams.KL3.KrullSchmidtU
+import Categorification.Diagrams.KL3.Layers
 import Categorification.Diagrams.KL3.Lemma39
 import Categorification.Diagrams.KL3.LocalFiltration
 import Categorification.Diagrams.KL3.Localization
@@ -212,6 +213,7 @@ import Categorification.Diagrams.KL3.MixedR3Sl2
 import Categorification.Diagrams.KL3.MoreBubbleSlides
 import Categorification.Diagrams.KL3.NestedCups
 import Categorification.Diagrams.KL3.NondegPositive
+import Categorification.Diagrams.KL3.NormalForm
 import Categorification.Diagrams.KL3.Pitchfork
 import Categorification.Diagrams.KL3.Presentation
 import Categorification.Diagrams.KL3.Prop328

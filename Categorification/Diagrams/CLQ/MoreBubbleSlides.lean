@@ -39,17 +39,17 @@ terms of `F_ℓ = cw_{n-1+ℓ} x^{α-ℓ}`: for `c ≤ 2` with `n + 1 + α - c �
 theorem cw_left_expand (lam : X) (i : I) (α c : ℕ) (hc : 0 ≤ ip RD i lam + 1 + ((α : ℤ) - c)) :
     (pres RD k sc).lin (bubL RD k lam [up i]
         (cwL RD k (wt RD lam [up i]) i (ip RD i lam + 1 + ((α : ℤ) - c)))) ≫
-        dotsU RD k sc lam (up i) c =
+        NF.dotsU (pres RD k sc) lam (up i) c =
       ∑ ℓ ∈ Finset.range (α + 1 - c), (α + 1 - c - ℓ) •
-        (bubRU RD k sc lam (up i) (cwU RD k sc lam i (ip RD i lam - 1 + ℓ)) ≫
-          dotsU RD k sc lam (up i) (α - ℓ)) := by
-  rw [cwL_of_nonneg RD k _ i hc, lin_bubL_cwReal, dg_cw_slide_eq, Preadditive.sum_comp]
+        (NF.bubRU (pres RD k sc) lam (up i) (NF.cwU (pres RD k sc) lam i (ip RD i lam - 1 + ℓ)) ≫
+          NF.dotsU (pres RD k sc) lam (up i) (α - ℓ)) := by
+  rw [cwL_of_nonneg RD k _ i hc, NF.lin_bubL_cwReal, dg_cw_slide_eq, Preadditive.sum_comp]
   have e : (((ip RD i lam + 1 + ((α : ℤ) - c)).toNat : ℕ) : ℤ) + -ip RD i lam = α + 1 - c := by
     rw [Int.toNat_of_nonneg hc]; ring
   rw [e, show ((α : ℤ) + 1 - c).toNat = α + 1 - c by omega]
   refine Finset.sum_congr rfl fun ℓ hℓ => ?_
   have := Finset.mem_range.1 hℓ
-  rw [Linear.smul_comp, Category.assoc, dotsU_add, show ((α : ℤ) + 1 - c - ℓ).toNat = α + 1 - c - ℓ by
+  rw [Linear.smul_comp, Category.assoc, NF.dotsU_add, show ((α : ℤ) + 1 - c - ℓ).toNat = α + 1 - c - ℓ by
     omega]
   congr 3
   omega
@@ -61,40 +61,40 @@ theorem prop34_cw_same (lam : X) (i : I) (α : ℕ) (hα : 0 ≤ ip RD i lam - 1
     (pres RD k sc).lin (bubR RD k lam [up i] (cwL RD k lam i (ip RD i lam - 1 + α))) =
       (pres RD k sc).lin (bubL RD k lam [up i]
           (cwL RD k (wt RD lam [up i]) i (ip RD i lam + 1 + ((α : ℤ) - 2)))) ≫
-          dotsU RD k sc lam (up i) 2 -
+          NF.dotsU (pres RD k sc) lam (up i) 2 -
         2 • ((pres RD k sc).lin (bubL RD k lam [up i]
           (cwL RD k (wt RD lam [up i]) i (ip RD i lam + 1 + ((α : ℤ) - 1)))) ≫
-          dotsU RD k sc lam (up i) 1) +
+          NF.dotsU (pres RD k sc) lam (up i) 1) +
         (pres RD k sc).lin (bubL RD k lam [up i]
           (cwL RD k (wt RD lam [up i]) i (ip RD i lam + 1 + α))) := by
   have h₀ := cw_left_expand RD k sc lam i α 0 (by push_cast; omega)
-  simp only [Nat.cast_zero, sub_zero, dotsU_zero, Category.comp_id, Nat.sub_zero] at h₀
+  simp only [Nat.cast_zero, sub_zero, NF.dotsU_zero, Category.comp_id, Nat.sub_zero] at h₀
   have h₂ := cw_left_expand RD k sc lam i α 2 (by push_cast; omega)
   have h₁ := cw_left_expand RD k sc lam i α 1 (by push_cast; omega)
   simp only [Nat.cast_ofNat, Nat.cast_one] at h₂ h₁
   rw [h₂, h₁, h₀, show α + 1 - 2 = α - 1 by omega, show α + 1 - 1 = α by omega]
-  have h := second_difference (fun ℓ => bubRU RD k sc lam (up i) (cwU RD k sc lam i (ip RD i lam - 1 + ℓ)) ≫
-    dotsU RD k sc lam (up i) (α - ℓ)) α
-  simp only [Nat.sub_self, dotsU_zero, Category.comp_id] at h
+  have h := second_difference (fun ℓ => NF.bubRU (pres RD k sc) lam (up i) (NF.cwU (pres RD k sc) lam i (ip RD i lam - 1 + ℓ)) ≫
+    NF.dotsU (pres RD k sc) lam (up i) (α - ℓ)) α
+  simp only [Nat.sub_self, NF.dotsU_zero, Category.comp_id] at h
   rw [lin_bubR_eq, h.symm]
 
 /-- A counterclockwise real bubble to the right of `E_i`, slid to the left with
 `dg_ccw_slide_eq`, in terms of `F_j = ccw'_{-N-1+j} x^{α-j}` (`N = ⟨i, λ+i_X⟩`). -/
 theorem ccw_right_expand (lam : X) (i : I) (α c : ℕ) (hc : 0 ≤ -ip RD i lam - 1 + ((α : ℤ) - c)) :
     (pres RD k sc).lin (bubR RD k lam [up i] (ccwL RD k lam i (-ip RD i lam - 1 + ((α : ℤ) - c)))) ≫
-        dotsU RD k sc lam (up i) c =
+        NF.dotsU (pres RD k sc) lam (up i) c =
       ∑ j ∈ Finset.range (α + 1 - c), (α + 1 - c - j) •
-        (bubLU RD k sc lam (up i) (ccwU RD k sc (wt RD lam [up i]) i
-            (-ip RD i (wt RD lam [up i]) - 1 + j)) ≫ dotsU RD k sc lam (up i) (α - j)) := by
+        (NF.bubLU (pres RD k sc) lam (up i) (NF.ccwU (pres RD k sc) (wt RD lam [up i]) i
+            (-ip RD i (wt RD lam [up i]) - 1 + j)) ≫ NF.dotsU (pres RD k sc) lam (up i) (α - j)) := by
   have hN : ip RD i (wt RD lam [up i]) = 2 + ip RD i lam := by rw [ip_wt_up, A_self]
-  rw [ccwL_of_nonneg RD k _ i hc, lin_bubR_ccwReal, dg_ccw_slide_eq, Preadditive.sum_comp]
+  rw [ccwL_of_nonneg RD k _ i hc, NF.lin_bubR_ccwReal, dg_ccw_slide_eq, Preadditive.sum_comp]
   have e : (((-ip RD i lam - 1 + ((α : ℤ) - c)).toNat : ℕ) : ℤ) + ip RD i (wt RD lam [up i]) =
       α + 1 - c := by
     rw [Int.toNat_of_nonneg hc, hN]; ring
   rw [e, show ((α : ℤ) + 1 - c).toNat = α + 1 - c by omega]
   refine Finset.sum_congr rfl fun j hj => ?_
   have := Finset.mem_range.1 hj
-  rw [Linear.smul_comp, Category.assoc, dotsU_add, show ((α : ℤ) + 1 - c - j).toNat = α + 1 - c - j by
+  rw [Linear.smul_comp, Category.assoc, NF.dotsU_add, show ((α : ℤ) + 1 - c - j).toNat = α + 1 - c - j by
     omega]
   congr 3
   omega
@@ -106,19 +106,19 @@ theorem prop34_ccw_same (lam : X) (i : I) (α : ℕ) (hα : 0 ≤ -ip RD i lam -
     (pres RD k sc).lin (bubL RD k lam [up i]
         (ccwL RD k (wt RD lam [up i]) i (-ip RD i (wt RD lam [up i]) - 1 + α))) =
       (pres RD k sc).lin (bubR RD k lam [up i] (ccwL RD k lam i (-ip RD i lam - 1 + ((α : ℤ) - 2)))) ≫
-          dotsU RD k sc lam (up i) 2 -
+          NF.dotsU (pres RD k sc) lam (up i) 2 -
         2 • ((pres RD k sc).lin (bubR RD k lam [up i]
-          (ccwL RD k lam i (-ip RD i lam - 1 + ((α : ℤ) - 1)))) ≫ dotsU RD k sc lam (up i) 1) +
+          (ccwL RD k lam i (-ip RD i lam - 1 + ((α : ℤ) - 1)))) ≫ NF.dotsU (pres RD k sc) lam (up i) 1) +
         (pres RD k sc).lin (bubR RD k lam [up i] (ccwL RD k lam i (-ip RD i lam - 1 + α))) := by
   have h₀ := ccw_right_expand RD k sc lam i α 0 (by push_cast; omega)
-  simp only [Nat.cast_zero, sub_zero, dotsU_zero, Category.comp_id, Nat.sub_zero] at h₀
+  simp only [Nat.cast_zero, sub_zero, NF.dotsU_zero, Category.comp_id, Nat.sub_zero] at h₀
   have h₂ := ccw_right_expand RD k sc lam i α 2 (by push_cast; omega)
   have h₁ := ccw_right_expand RD k sc lam i α 1 (by push_cast; omega)
   simp only [Nat.cast_ofNat, Nat.cast_one] at h₂ h₁
   rw [h₂, h₁, h₀, show α + 1 - 2 = α - 1 by omega, show α + 1 - 1 = α by omega]
-  have h := second_difference (fun j => bubLU RD k sc lam (up i) (ccwU RD k sc (wt RD lam [up i]) i
-    (-ip RD i (wt RD lam [up i]) - 1 + j)) ≫ dotsU RD k sc lam (up i) (α - j)) α
-  simp only [Nat.sub_self, dotsU_zero, Category.comp_id] at h
+  have h := second_difference (fun j => NF.bubLU (pres RD k sc) lam (up i) (NF.ccwU (pres RD k sc) (wt RD lam [up i]) i
+    (-ip RD i (wt RD lam [up i]) - 1 + j)) ≫ NF.dotsU (pres RD k sc) lam (up i) (α - j)) α
+  simp only [Nat.sub_self, NF.dotsU_zero, Category.comp_id] at h
   rw [lin_bubL_eq, h.symm]
 
 

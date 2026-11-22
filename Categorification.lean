@@ -102,6 +102,7 @@ import Categorification.Algebra.SumDecompNaturality
 import Categorification.Algebra.SymmetricFree
 import Categorification.Algebra.UniqueSimpleQuotient
 import Categorification.CategoryTheory.PiAbelian
+import Categorification.CategoryTheory.PiShift
 import Categorification.Diagrams.BicatInterp
 import Categorification.Diagrams.BicatInterpAdmissible
 import Categorification.Diagrams.BicatInterpAdmissibleHorizontal
@@ -1488,6 +1489,7 @@ import Categorification.WeightedKLR.RedStrands.BlackModuleCrossNaturality
 import Categorification.WeightedKLR.RedStrands.BlackModuleTensor
 import Categorification.WeightedKLR.RedStrands.BlackModuleAdjunction
 import Categorification.WeightedKLR.RedStrands.BlackModuleResIndAdjunction
+import Categorification.WeightedKLR.RedStrands.BlackModuleTower
 import Categorification.WeightedKLR.RedStrands.DoubleBlackActionComp
 import Categorification.WeightedKLR.RedStrands.DoubleBlackActionHorizontal
 import Categorification.WeightedKLR.RedStrands.DoubleBlackActionWhisker

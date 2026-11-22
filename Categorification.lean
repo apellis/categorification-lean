@@ -894,6 +894,7 @@ import Categorification.Sl2Categorification.PositiveBasis
 import Categorification.Sl2Categorification.NilHeckeAction
 import Categorification.Sl2Categorification.WeakCategorification
 import Categorification.Sl2Categorification.WeakCategorificationOp
+import Categorification.Sl2Categorification.DLayers
 import Categorification.TwoRep.AdditiveCat
 import Categorification.TwoRep.CyclotomicRouqAdjunction
 import Categorification.TwoRep.CyclotomicRouqCapTrace

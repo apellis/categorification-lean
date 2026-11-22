@@ -151,7 +151,7 @@ local notation "m" => Multiset.card (stendhalWeight ℓ ν)
 
 omit [DecidableEq I] in
 /-- Each red label occurs once. -/
-theorem eq_of_lbl_eq_inr (i : Seq μ) {a b : Fin m} (r : Fin ℓ) (ha : i.lbl a = .inr r)
+theorem lbl_inj_of_inr (i : Seq μ) {a b : Fin m} (r : Fin ℓ) (ha : i.lbl a = .inr r)
     (hb : i.lbl b = .inr r) : a = b := by
   classical
   have hred : Multiset.count (Sum.inr r : I ⊕ Fin ℓ) (ν.map Sum.inl) = 0 :=
@@ -172,7 +172,7 @@ theorem eq_of_lbl_eq_of_isRight (i : Seq μ) {a b : Fin m} (h : i.lbl a = i.lbl 
     rcases hl : i.lbl a with _ | r
     · simp [hl] at hr
     · exact ⟨r, rfl⟩
-  exact eq_of_lbl_eq_inr i r hr' (h ▸ hr')
+  exact lbl_inj_of_inr i r hr' (h ▸ hr')
 
 end labels
 

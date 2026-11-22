@@ -787,6 +787,14 @@ of `T^λ e(s)` surject onto `S_s`, a product of standard quotients) is proved fo
 idempotent decomposition of `e(s)`: `Stendhal.IsSeqDecomp.leftStandardEquiv`,
 `Stendhal.IsSeqDecomp.lIdeal_le_sup` (`RedStrands/StandardSplitting.lean`).
 
+Prop 5.28 of v2 (`End(P⁰) ≅ T^{λ̲} ≅ R^{λ̲}` for `P⁰ = e⁰ T^λ`, `e⁰` the red-first loadings) is
+proved as a ring isomorphism of the corner `e⁰ T^λ e⁰` with the cyclotomic KLR algebra of the
+total weight, for the crossing parameters of §2.2: `Stendhal.redFirstCornerEquiv`
+(`RedStrands/RedFirstCorner.lean`), by repeated red-strand splitting (Cor 4.21 of v2,
+`splitRedEquiv`) down to one red strand (Prop 4.20). Deferred: the printed `Φ`-indexed form of
+Prop 5.21 (the specific filtration `P_{≥φ}/P_{>φ} ≅ S^{κφ}_{iφ}`), which strengthens the
+filtration form above.
+
 Standardization functors (Prop 5.3, Def 5.4, Props 5.6, 5.7); simples and crystals
 (Lemma 5.9, Prop 5.11, Thms 5.14, 5.15); standard stratification (Lemma 5.19, Prop 5.21 in printed `Φ`-indexed form, Lemma 5.25,
 Prop 5.26, Cor 5.27: `V^λ` is a tensor product categorification); Thm 5.28 (finite

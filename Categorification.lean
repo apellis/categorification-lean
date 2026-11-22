@@ -79,7 +79,6 @@ import Categorification.Algebra.InductionAlongCornerSelf
 import Categorification.Algebra.InductionAlongRes
 import Categorification.Algebra.ResTowerNilHecke
 import Categorification.Algebra.InductionAlongTensor
-import Categorification.Algebra.InductionAlongFinite
 import Categorification.Algebra.InductionAlongTensorFactor
 import Categorification.Algebra.InductionAlongTensorFactorAction
 import Categorification.Algebra.InductionAlongTensorFactorLift
@@ -1569,14 +1568,16 @@ import Categorification.KLR.CyclotomicAction.Projective
 import Categorification.KLR.CyclotomicAction.ProjectiveModules
 import Categorification.Algebra.Graded.FreeOfProjective
 import Categorification.WeightedKLR.RedStrands.LastRedMaximalLoading
-/-!
-# Categorification
-
-Lean 4 formalizations of results in categorification.
--/
 import Categorification.KLR.ExtTensorTopSmul
 import Categorification.WeightedKLR.RedStrands.TwoPieceDecomposition
 import Categorification.KLR.CyclotomicStringParametrization
 import Categorification.WeightedKLR.RedStrands.StringyLoading
 import Categorification.WeightedKLR.RedStrands.StringyClassification
 import Categorification.WeightedKLR.RedStrands.StandardSplitting
+import Categorification.WeightedKLR.RedStrands.RedFirstCorner
+
+/-!
+# Categorification
+
+Lean 4 formalizations of results in categorification.
+-/

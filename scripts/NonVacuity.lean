@@ -5594,6 +5594,8 @@ end NonVacuity.SelfDualSimple
 
 namespace NonVacuity.PerfectBasis
 
+open Categorification Categorification.KL3.Diagram
+
 private noncomputable abbrev pbC := CartanDatum.ofGraph (⊥ : SimpleGraph Unit)
 private noncomputable abbrev pbΛ : Fin 1 → Unit →₀ ℕ := fun _ => Finsupp.single () 1
 
@@ -5697,3 +5699,22 @@ noncomputable example (s : KLR.Seq (stendhalWeight 1 ({()} : Multiset Unit))) (h
         by simp⟩)
 
 end NonVacuity.StandardSplitting
+
+namespace NonVacuity.RedFirstCorner
+
+open Categorification Categorification.Stendhal
+
+private noncomputable abbrev rfQ : Unit → Unit → MvPolynomial (Fin 2) ℚ := fun _ _ => 0
+
+private theorem rfRouquier :
+    KLR.IsRouquierQ (CartanDatum.ofGraph (⊥ : SimpleGraph Unit)) rfQ where
+  symm _ _ h := (h (Subsingleton.elim _ _)).elim
+  homogeneous _ _ h := (h (Subsingleton.elim _ _)).elim
+  unit_coeff _ _ h := (h (Subsingleton.elim _ _)).elim
+
+/-- Webster, arXiv:1309.3796v2, Prop. 5.28, for `sl₂`, two red strands of weight `ω`, and every
+black weight. -/
+noncomputable example (ν : Multiset Unit) :=
+  redFirstCornerEquiv rfQ rfRouquier ν (fun _ : Fin 2 => Finsupp.single () 1)
+
+end NonVacuity.RedFirstCorner

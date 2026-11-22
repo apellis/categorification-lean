@@ -34,6 +34,8 @@ set_option backward.isDefEq.respectTransparency false
 
 noncomputable section
 
+universe u
+
 namespace Categorification.Stendhal
 
 open StendhalAlgebraAllOrders MulOpposite Categorification.Sl2 Categorification.InductionAlong
@@ -96,7 +98,7 @@ theorem mixed_right {R : Type*} [Ring R] {c d x E F D : R} (hcE : Commute c E)
     _ = (c * x - d * c) * E := by rw [hD]; noncomm_ring
     _ = E := hrel
 
-variable {I : Type} {ℓ : ℕ} [DecidableEq I] {k : Type} [CommRing k]
+variable {I : Type u} {ℓ : ℕ} [DecidableEq I] {k : Type u} [CommRing k]
   (Q : I → I → MvPolynomial (Fin 2) k) (Λ : Fin ℓ → I →₀ ℕ) (i : I) (ν : Multiset I)
 
 local notation "n" => Multiset.card (stendhalWeight ℓ ν)

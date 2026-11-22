@@ -27,7 +27,7 @@ namespace Categorification.Stendhal
 
 open KLR KLRAlgebra TypeA Equiv
 
-variable {I : Type} {ℓ : ℕ}
+variable {I : Type*} {ℓ : ℕ}
 
 section Loadings
 

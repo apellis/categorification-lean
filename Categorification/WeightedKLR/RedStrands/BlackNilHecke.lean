@@ -23,7 +23,7 @@ namespace Categorification.Stendhal
 
 open KLR
 
-variable {I : Type} {ℓ : ℕ} [DecidableEq I] {k : Type*} [CommRing k]
+variable {I : Type*} {ℓ : ℕ} [DecidableEq I] {k : Type*} [CommRing k]
   {Q : I → I → MvPolynomial (Fin 2) k} {Λ : Fin ℓ → I →₀ ℕ}
 
 namespace StendhalAlgebraAllOrders

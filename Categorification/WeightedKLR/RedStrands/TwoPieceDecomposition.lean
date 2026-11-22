@@ -82,7 +82,8 @@ local notation "lastColour" => Sum.map (id : I → I) (fun _ : Fin 1 => Fin.last
 /-- The word of the two-piece loading `t λ_{ℓ+1} w`. -/
 theorem ofFn_twoPieceLoading {θ β : Multiset I} (t : Seq (stendhalWeight ℓ θ)) (w : Seq β) :
     List.ofFn (twoPieceLoading θ β t w).lbl =
-      (List.ofFn t.lbl).map (addRedColor ℓ) ++ .inr (Fin.last ℓ) :: (List.ofFn w.lbl).map .inl := by
+      (List.ofFn t.lbl).map (addRedColor ℓ) ++
+        .inr (Fin.last ℓ) :: (List.ofFn w.lbl).map .inl := by
   rw [twoPieceLoading, concatLoading, ofFn_seq_cast, KLR.ofFn_append, ofFn_seq_map,
     ofFn_seq_map, SingleRed.insertWord, ofFn_seq_cast, KLR.ofFn_append, ofFn_seq_singleton,
     ofFn_seq_map]

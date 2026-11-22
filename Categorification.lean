@@ -9,6 +9,7 @@ import Categorification.Algebra.CoactionGrading
 import Categorification.Algebra.Coinvariant
 import Categorification.Algebra.CoinvariantGraded
 import Categorification.Algebra.CoinvariantPartialSocle
+import Categorification.Algebra.CompositionFactors
 import Categorification.Algebra.NilHeckeModuleRecognition
 import Categorification.Algebra.DividedDifference
 import Categorification.Algebra.ExactDimension
@@ -98,6 +99,7 @@ import Categorification.Algebra.SumDecompLinear
 import Categorification.Algebra.SumDecompNaturality
 import Categorification.Algebra.SymmetricFree
 import Categorification.Algebra.UniqueSimpleQuotient
+import Categorification.CategoryTheory.PiAbelian
 import Categorification.Diagrams.BicatInterp
 import Categorification.Diagrams.BicatInterpAdmissible
 import Categorification.Diagrams.BicatInterpAdmissibleHorizontal

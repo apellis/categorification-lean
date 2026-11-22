@@ -8,8 +8,8 @@ import Categorification.WeightedKLR.RedStrands.RepresentationLift
 /-!
 # Maps out of a red subfamily through the tensor product algebra
 
-B. Webster, *Knot invariants and higher representation theory*, arXiv:1309.3796v3,
-Definitions 4.5–4.7, as used in the proof of Proposition 5.21. The projection of the affine
+B. Webster, *Knot invariants and higher representation theory*, arXiv:1309.3796v2,
+Definitions 4.5–4.7, as used in the proof of Proposition 5.20. The projection of the affine
 KLR algebra of a red subfamily onto the tensor product algebra `T^{λ'}` is universal among
 multiplicative maps: a multiplicative linear map killing red dots, crossings of two red strands,
 unordered idempotents and violated idempotents factors through it. The map need not be unital;
@@ -115,7 +115,7 @@ private def cornerValAlg {A : Type*} [Ring A] [Algebra k A] {E : A} (idem : IsId
 
 variable {Q Λ f hf ν}
 
-/-- **Universal property of the red-subfamily projection** (Webster, arXiv:1309.3796v3,
+/-- **Universal property of the red-subfamily projection** (Webster, arXiv:1309.3796v2,
 Definitions 4.5–4.7). A multiplicative linear map out of the ambient KLR algebra of a red
 subfamily which satisfies the red relations factors through the projection onto the tensor
 product algebra. -/

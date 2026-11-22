@@ -18,8 +18,8 @@ statement, with induction along the second factor and restriction along the firs
 `resIndCrossFactorEquivRight`.
 
 These give the cross-factor commutations `₂Eⱼ ₁Fᵢ ≅ ₁Fᵢ ₂Eⱼ` and `₁Eⱼ ₂Fᵢ ≅ ₂Fᵢ ₁Eⱼ` of B. Webster,
-*Knot invariants and higher representation theory*, arXiv:1309.3796v3, used in the dimension
-count (5.14) of the proof of Proposition 5.5.
+*Knot invariants and higher representation theory*, arXiv:1309.3796v2, used in the dimension
+count (5.13) of the proof of Proposition 5.5.
 
 ## Main definitions
 
@@ -300,7 +300,7 @@ theorem resIndCrossLeftFactorEquiv_cAct (c : C₀)
 /-- **Induction along the first factor commutes with restriction along the second**:
 `Res_{A₁ ⊗ χ} Ind_{φ ⊗ C₁} N ≅ Ind_{φ ⊗ C₀} Res_{A₀ ⊗ χ} N` as `A₁ ⊗ C₀`-modules, for every
 `A₀ ⊗ C₁`-module `N`. This is the cross-factor commutation `₂Eⱼ ₁Fᵢ ≅ ₁Fᵢ ₂Eⱼ` of Webster,
-arXiv:1309.3796v3, (5.14). -/
+arXiv:1309.3796v2, (5.13). -/
 def resIndCrossFactorEquiv :
     Res ρ₁ (IndK k N ψ₁) ≃ₗ[A₁ ⊗[k] C₀] IndK k (Res ρ₀ N) ψ₀ :=
   linearEquivOfLeftFactor (resIndCrossLeftFactorEquiv φ hφ ψ₀ hψ₀ ψ₁ hψ₁ χ ρ₀ hρ₀ ρ₁ hρ₁ N)
@@ -467,7 +467,7 @@ theorem resIndCrossRightFactorEquiv_cAct (c : C₀)
 /-- **Induction along the second factor commutes with restriction along the first**:
 `Res_{χ ⊗ A₁} Ind_{C₁ ⊗ φ} N ≅ Ind_{C₀ ⊗ φ} Res_{χ ⊗ A₀} N` as `C₀ ⊗ A₁`-modules, for every
 `C₁ ⊗ A₀`-module `N`. This is the cross-factor commutation `₁Eⱼ ₂Fᵢ ≅ ₂Fᵢ ₁Eⱼ` of Webster,
-arXiv:1309.3796v3, (5.14). -/
+arXiv:1309.3796v2, (5.13). -/
 def resIndCrossFactorEquivRight :
     Res ρ₁ (IndK k N ψ₁) ≃ₗ[C₀ ⊗[k] A₁] IndK k (Res ρ₀ N) ψ₀ :=
   linearEquivOfRightFactor (resIndCrossRightFactorEquiv φ hφ ψ₀ hψ₀ ψ₁ hψ₁ χ ρ₀ hρ₀ ρ₁ hρ₁ N)

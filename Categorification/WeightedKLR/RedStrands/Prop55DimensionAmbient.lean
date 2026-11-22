@@ -9,7 +9,7 @@ import Categorification.WeightedKLR.RedStrands.BlackModuleSecondFactorCommutatio
 /-!
 # Black-last pieces of `Fᵢ` in the dimension count of Proposition 5.5
 
-Webster, arXiv:1309.3796v3, proof of Proposition 5.5. In the dimension count (5.14)–(5.15) the
+Webster, arXiv:1309.3796v2, proof of Proposition 5.5. In the dimension count (5.13)–(5.14) the
 module `Fᵢ S(N)` over `T(i + ν)` is split according to the last strand. This file computes the
 piece whose last strand is black of colour `j`, for Cyclotomic Lie parameters, in terms of
 `Fᵢ E_j`:
@@ -83,7 +83,7 @@ variable {P : Presentation.{0, 0}
 
 
 include hP hwf in
-/-- **The black-last piece of `Fᵢ X` of colour `j ≠ i`** (Webster, arXiv:1309.3796v3, Theorem
+/-- **The black-last piece of `Fᵢ X` of colour `j ≠ i`** (Webster, arXiv:1309.3796v2, Theorem
 4.31, in the proof of Proposition 5.5): for a `T(j + ρ)`-module `X`, the piece of `Fᵢ X` whose
 last strand is black of colour `j` has the dimension of `Fᵢ E_j X`. -/
 theorem finrank_fixSub_lastStrandIdem_indK_cross (i j : I) (ρ : Multiset I) (hji : j ≠ i)
@@ -115,7 +115,7 @@ set_option hygiene false in
 local notation "iρ" => (({i} : Multiset I) + ρ)
 
 include hP hwf in
-/-- **The black-last piece of `Fᵢ X` of colour `i`** (Webster, arXiv:1309.3796v3, Theorem
+/-- **The black-last piece of `Fᵢ X` of colour `i`** (Webster, arXiv:1309.3796v2, Theorem
 4.31, in the proof of Proposition 5.5): for a finite-dimensional `T(i + ρ)`-module `X`, the piece
 of `Fᵢ X` whose last strand is black of colour `i` has dimension `dim Fᵢ Eᵢ X + n dim X`, with
 `n = ⟨i, λ⟩` for the right weight `λ` of content `i + ρ`. -/
@@ -179,7 +179,7 @@ theorem finrank_fixSub_lastStrandIdem_indK_self (i : I) (ρ : Multiset I)
   linarith
 
 include hP hwf in
-/-- **The black-last piece of `Fᵢ X` of colour `i ∉ ν`** (Webster, arXiv:1309.3796v3, Theorem
+/-- **The black-last piece of `Fᵢ X` of colour `i ∉ ν`** (Webster, arXiv:1309.3796v2, Theorem
 4.31 with `Eᵢ X = 0`, in the proof of Proposition 5.5): for a finite-dimensional `T(ν)`-module
 `X`, the piece of `Fᵢ X` whose last strand is black of colour `i` has dimension `n dim X`, with
 `n = ⟨i, λ⟩` for the right weight `λ` of content `ν`. -/

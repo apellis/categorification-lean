@@ -7,8 +7,8 @@ import Categorification.WeightedKLR.RedStrands.ProjectiveStandardFiltrationOrder
 /-!
 # Standard stratification of `T^λ`
 
-B. Webster, *Knot invariants and higher representation theory*, arXiv:1309.3796v3,
-Corollary 5.22, in the following form: for every red-ordered loading `s`, the kernel `U_s` of the
+B. Webster, *Knot invariants and higher representation theory*, arXiv:1309.3796v2,
+Corollary 5.21, in the following form: for every red-ordered loading `s`, the kernel `U_s` of the
 quotient map `T^λ e(s) → S_s` has a finite filtration whose subquotients are standard modules
 `S_t` with `t` strictly above `s` in Webster's order (`StendhalLT s t`, dominance of black
 counts). This is the condition on projectives in the definition of a standardly stratified
@@ -27,7 +27,7 @@ vectors `e(t) y` with `t > s`, and it contains `U_s` because `e(t)` kills `S_{s'
   the vectors `e(t) z`, `t` a label of the filtration.
 * `exists_hasFiltration_leftUpper`: the kernel `U_s` has a standard filtration with labels
   strictly above `s`. Route hypothesis: `AllFiniteDeltaInjective` (Proposition 5.5, `F`-part),
-  as for Proposition 5.21.
+  as for Proposition 5.20.
 -/
 
 set_option backward.isDefEq.respectTransparency false
@@ -98,7 +98,7 @@ end Generation
 
 variable {C : QuantumGroup.CartanDatum I} (hQ : KLRSymm Q)
 
-/-- **Standard stratification of `T^λ`** (Webster, arXiv:1309.3796v3, Corollary 5.22, condition
+/-- **Standard stratification of `T^λ`** (Webster, arXiv:1309.3796v2, Corollary 5.21, condition
 on projectives): for every red-ordered loading `s`, the kernel `U_s` of `T^λ e(s) → S_s` has a
 finite filtration by standard modules `S_t` with `t` strictly above `s`. Route hypothesis:
 `AllFiniteDeltaInjective` (Proposition 5.5, `F`-part) at every number of red strands. -/

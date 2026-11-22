@@ -5769,4 +5769,23 @@ of weight `ω`, and every black weight: `T^λ` acts faithfully on `P⁰`. -/
 example (ν : Multiset Unit) :=
   eq_zero_of_mul_redFirstProjective rbRouquier rbSymm (fun _ : Fin 2 => Finsupp.single () 1) ν
 
+section RedFirstEnd
+
+attribute [local instance 2000] Classical.propDecidable
+
+/-- Webster, arXiv:1309.3796v2, proof of Prop. 5.30, for `sl₂`, two red strands of weight `ω`,
+and every black weight: left multiplication by `θ̇_s` is injective on `e(s) T^λ`. -/
+example (ν : Multiset Unit) (s : TensorProductAlgebra.OrderedLoading (ℓ := 2) ν) :=
+  redShuffleDual_mul_injective rbRouquier rbSymm (baseCrossing_std rbRouquier rbSymm)
+    (fun _ : Fin 2 => Finsupp.single () 1) s.1 s.2
+
+/-- Webster, arXiv:1309.3796v2, Prop. 5.30, for `sl₂`, two red strands of weight `ω`, and every
+black weight, under the route hypothesis `HasCornerCopresentation e⁰` of Cor. 5.29. -/
+noncomputable example (ν : Multiset Unit)
+    (hK : HasCornerCopresentation (redFirstIdem (CL.qCL (CL.CLScalars.kl : CL.CLScalars rbC ℚ))
+      (fun _ : Fin 2 => Finsupp.single () 1) ν)) :=
+  redFirstEndEquiv rbRouquier rbSymm (fun _ : Fin 2 => Finsupp.single () 1) ν hK
+
+end RedFirstEnd
+
 end NonVacuity.RedBlackCrossing

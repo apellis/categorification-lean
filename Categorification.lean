@@ -10,6 +10,7 @@ import Categorification.Algebra.Coinvariant
 import Categorification.Algebra.CoinvariantGraded
 import Categorification.Algebra.CoinvariantPartialSocle
 import Categorification.Algebra.CompositionFactors
+import Categorification.Algebra.CornerEndomorphism
 import Categorification.Algebra.ModuleTower
 import Categorification.Algebra.ModuleTowerK0
 import Categorification.Algebra.ModuleTowerSl2
@@ -1585,9 +1586,11 @@ import Categorification.WeightedKLR.RedStrands.StandardSplitting
 import Categorification.WeightedKLR.RedStrands.RedFirstBaseCrossing
 import Categorification.WeightedKLR.RedStrands.RedFirstCorner
 import Categorification.WeightedKLR.RedStrands.RedFirstDoubleCentralizer
+import Categorification.WeightedKLR.RedStrands.RedFirstEndomorphism
 import Categorification.WeightedKLR.RedStrands.RedFirstInjective
 import Categorification.WeightedKLR.RedStrands.RedFirstReach
 import Categorification.WeightedKLR.RedStrands.RedFirstTrace
+import Categorification.WeightedKLR.RedStrands.RedShuffleFactor
 import Categorification.WeightedKLR.RedStrands.RedBlackCrossingInjective
 import Categorification.WeightedKLR.RedStrands.RedBlackCrossingStandard
 import Categorification.WeightedKLR.RedStrands.RedBlackCrossingTransport

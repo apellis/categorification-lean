@@ -5682,3 +5682,18 @@ example (ν : Multiset Unit) (p : KLR.Seq (Stendhal.stendhalWeight 1 ν))
   Stendhal.existsUnique_isMaxLoad_of_isStringy scRouquier (fun _ m => ⟨m, le_rfl, rfl⟩) scΛ scG hp
 
 end NonVacuity.StringyClassification
+
+namespace NonVacuity.StandardSplitting
+
+open Categorification Categorification.Stendhal
+
+/-- Webster, arXiv:1309.3796v2, Prop. 5.18, for the trivial decomposition `e(s) = e(s)` of a
+red-ordered loading with one red strand of weight `ω` and one black strand. -/
+noncomputable example (s : KLR.Seq (stendhalWeight 1 ({()} : Multiset Unit))) (hs : IsRedOrdered s) :=
+  IsSeqDecomp.leftStandardEquiv
+    (show IsSeqDecomp (Q := fun _ _ : Unit => (0 : MvPolynomial (Fin 2) ℚ))
+        (Λ := fun _ : Fin 1 => Finsupp.single () 1) s hs (fun _ : Unit => seqIdem _ _ s hs) from
+      ⟨fun _ => seqIdem_mul_self _ _ s hs, fun i j h => (h (Subsingleton.elim i j)).elim,
+        by simp⟩)
+
+end NonVacuity.StandardSplitting

@@ -782,11 +782,13 @@ algebra of all `ℓ + 1` blocks; the induced model uses left modules, which the 
 `tensorFlip` converts), injectivity in the `Fᵢ`-part of Prop 5.5, Prop 5.6, and the results listed below.
 
 Prop 5.17 (stringy loadings classify indecomposable projectives) is proved:
-`Stendhal.maxLoadClassification` (`RedStrands/StringyClassification.lean`).
+`Stendhal.maxLoadClassification` (`RedStrands/StringyClassification.lean`). Prop 5.18 (summands
+of `T^λ e(s)` surject onto `S_s`, a product of standard quotients) is proved for every orthogonal
+idempotent decomposition of `e(s)`: `Stendhal.IsSeqDecomp.leftStandardEquiv`,
+`Stendhal.IsSeqDecomp.lIdeal_le_sup` (`RedStrands/StandardSplitting.lean`).
 
 Standardization functors (Prop 5.3, Def 5.4, Props 5.6, 5.7); simples and crystals
-(Lemma 5.9, Prop 5.11, Thms 5.14, 5.15); stringy triples (Prop 5.18);
-standard stratification (Lemma 5.19, Prop 5.21 in printed `Φ`-indexed form, Lemma 5.25,
+(Lemma 5.9, Prop 5.11, Thms 5.14, 5.15); standard stratification (Lemma 5.19, Prop 5.21 in printed `Φ`-indexed form, Lemma 5.25,
 Prop 5.26, Cor 5.27: `V^λ` is a tensor product categorification); Thm 5.28 (finite
 projective resolutions); self-dual projectives and double centralizer
 (Thm 5.30, Prop 5.31, Cor 5.32, Prop 5.33); Thm 5.34 (for `sl_n`, blocks of cyclotomic

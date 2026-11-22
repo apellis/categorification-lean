@@ -88,6 +88,15 @@ jobs:
         if: steps.scope.outputs.docs_only != 'true'
         run: lake env lean -DwarningAsError=true scripts/NonVacuity.lean
 
+      # Trusted bases of the specification files and the sanity checks of the definition cards.
+      - name: Faithfulness checks
+        if: steps.scope.outputs.docs_only != 'true'
+        run: |
+          for f in scripts/Faithfulness/*.lean; do
+            echo "== $f"
+            lake env lean -DwarningAsError=true "$f"
+          done
+
       # Only master builds write the cache, so pull requests cannot evict it.
       - name: Save build cache
         if: github.event_name != 'pull_request' && steps.scope.outputs.docs_only != 'true'

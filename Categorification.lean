@@ -891,6 +891,7 @@ import Categorification.TwoRep.RouqSl2
 import Categorification.TwoRep.CyclotomicLocalCommutator
 import Categorification.Sl2Categorification.Strings
 import Categorification.Sl2Categorification.PositiveBasis
+import Categorification.Sl2Categorification.NilHeckeAction
 import Categorification.TwoRep.AdditiveCat
 import Categorification.TwoRep.CyclotomicRouqAdjunction
 import Categorification.TwoRep.CyclotomicRouqCapTrace

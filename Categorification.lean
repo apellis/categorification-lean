@@ -48,6 +48,7 @@ import Categorification.Algebra.Graded.RightTwist
 import Categorification.Algebra.IdempotentEquiv
 import Categorification.Algebra.CommutingFamily
 import Categorification.Algebra.HomTensor
+import Categorification.Algebra.HomTensorAdjunction
 import Categorification.Algebra.HomTensorComp
 import Categorification.Algebra.HomTensorDecomp
 import Categorification.Algebra.HomTensorNat

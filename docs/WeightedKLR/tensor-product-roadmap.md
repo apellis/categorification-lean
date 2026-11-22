@@ -805,6 +805,14 @@ at least two with respect to `P⁰` (`Ext¹(L, T^λ) = 0` for simples `L` killed
 obtains this from Mazorchuk–Stroppel, J. Reine Angew. Math. 616 (2008), Cor. 2.6, whose proof
 uses Ringel duality for standardly stratified algebras.
 
+Prop 5.30 of v2 (v3: Prop 5.33) is proved under the same route hypothesis, which it inherits
+from Cor 5.29: `Stendhal.redFirstEndEquiv` (`RedStrands/RedFirstEndomorphism.lean`) identifies
+`T^λ` with the endomorphism algebra of the right module `⊕_s y_s B` over `B = e⁰ T^λ e⁰`,
+`y_s = θ̇_s θ_s`, with `a ↦ (θ̇_s e_s x ↦ θ̇_s e_s a x)` (`redFirstEndEquiv_apply`). The generic
+step is `Categorification.CornerEndomorphism.ringEquiv` (`Algebra/CornerEndomorphism.lean`); the
+inputs are the shuffle factorization `e_s T^λ e⁰ = θ_s B` (`exists_eq_redShuffle_mul`) and
+injectivity of `θ̇_s` on `e_s T^λ` (`redShuffleDual_mul_injective`, Lemma 5.23).
+
 Prop 5.6 of v2, character form, is proved: the iterated standardization of cyclotomic word
 projectives has the word character of the tensor product of the factors
 (`Stendhal.FirstWeight.iteratedStandard_word`, `RedStrands/IteratedStandardCharacter.lean`), from

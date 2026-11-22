@@ -12,6 +12,7 @@ import Categorification.Algebra.CoinvariantPartialSocle
 import Categorification.Algebra.CompositionFactors
 import Categorification.Algebra.ModuleTower
 import Categorification.Algebra.ModuleTowerK0
+import Categorification.Algebra.ModuleTowerSl2
 import Categorification.Algebra.NilHeckeModuleRecognition
 import Categorification.Algebra.DividedDifference
 import Categorification.Algebra.ExactDimension

@@ -1021,6 +1021,21 @@ Erratum (Webster, arXiv:1209.2463v4, Theorem 2.19, ground ring). §2.1 fixes an 
 
 Notation note (Webster, arXiv:1209.2463v4, proof of Theorem 2.19, grading shift). The proof states that the subquotients of the Mackey filtration of `Res ∘ Ind` are shifted by the inner product `-⟨μ, μ'⟩`. The shift is the degree of the diagram exchanging a block of strands of dimension vector `μ` with one of dimension vector `μ'`, and this degree is `-(μ · μ')` for the symmetric form `i · j = ⟨i, j⟩ + ⟨j, i⟩`, as in KL I Prop. 2.18: the exchange crosses each hyperplane joining the two blocks exactly once, and a strand of colour `i` and one of colour `j` contribute the walls of the edges between `i` and `j` in both directions (`WeightedKLR.Juxtapose.segDeg_chamber_swapChamber`, `WeightedKLR.GradingDatum.pairDeg_comm`). So the printed shift is correct when `⟨-, -⟩` is read as the symmetric pairing of roots of §2.1 (where `⟨α_i, α_i⟩` is the degree of a dot), and wrong for the non-symmetric form `⟨j, i⟩ = d_i δ_{ij} - ∑_{e : j → i} d_i c_e` defined just before in §2.4. For one edge `e : 0 → 1` with `d = c_e = 1`, exchanging one strand of each colour crosses one wall of degree `1` in both orders, while the §2.4 form gives `⟨α_1, α_0⟩ = 0`. The twisted product on `K_0` in the statement of Theorem 2.19 uses the symmetric form, so only the reading of the proof is affected. For the authors: in the proof of Theorem 2.19, the shift `-⟨μ, μ'⟩` of the Mackey subquotients refers to the symmetric pairing of §2.1, not to the form `⟨j, i⟩` of §2.4; writing `-(μ · μ')` would avoid the clash.
 
+### Weak `sl₂`-categorifications (Chuang–Rouquier, arXiv:math/0407205v2, §5)
+
+Input for Webster's §5 (arXiv:1309.3796v2, Props. 5.11–5.18). A weak `sl₂`-categorification
+(`Sl2.WeakSl2`, §5.1.1) is an abelian category with an adjoint pair `E ⊣ F ⊣ E` whose classes act
+on a ℚ-vector space with the basis of simple classes as a locally finite `sl₂`-representation;
+§5.1.1 also asks that every object have finite length (artinian and noetherian) and that
+`End(S) = k` for simple `S`. NilHecke actions on `E^n` and `F^n` (§5.2.1) are `Sl2.NilHeckeData`,
+with nilpotent dot.
+
+| Result | Statement | Declarations | Hypotheses | Status |
+|---|---|---|---|---|
+| Lemma 5.13 | `E^n M ≅ n! · E^{(n)} M`, and `[E^n M] = n! [E^{(n)} M]` | `Sl2.NilHeckeData.exists_iso_biproduct_divObj`, `Sl2.NilHeckeData.cls_Epow` | NilHecke action over a domain | Proved |
+| Prop. 5.20 (b), socle part | For `U` simple with `F U = 0` and `i ≤ h₊([U])`, `Hom(S, E^{(i)} U)` is finite-dimensional of dimension at most one for every simple `S` | `Sl2.WeakSl2.finiteDimensional_hom_divObj`, `Sl2.WeakSl2.finrank_hom_divObj_le_one` | Artinian objects; field `k`, `End(S) = k`; nilpotent dot on `E` | Proved (head part open) |
+| Prop. 5.20 (a) | For `S` simple and `n = h₊([S])`, `E^{(n)} S` is simple | `Sl2.WeakSl2.simple_divObj_top`, `Sl2.WeakSl2.simple_divObj_top_of_F_eq_zero` | Artinian and noetherian objects; field `k`, `End(S) = k`; nilpotent dot on `F` | Proved |
+
 ### Lusztig's algebra `f` (Lusztig, *Introduction to quantum groups*, Ch. 1; KL I §3.1)
 
 For a symmetric Cartan datum (`QuantumGroup.CartanDatum`, including the simply-laced datum of a

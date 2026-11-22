@@ -62,10 +62,10 @@ theorem cls_biproduct : ∀ (m : ℕ) {J : Type} [Fintype J] [DecidableEq J] (f 
     rfl
 
 /-- If `1 ∈ End Y` splits through copies of `e` (`b_i a_j = δ_{ij} e`, `∑ a_j b_j = 1`), then
-`Y ≅ (image e)^{⊕ ι}`, so `[Y] = card ι • [image e]`. -/
-theorem cls_eq_card_smul_of_isSplitting {Y : C} {J : Type} [Fintype J] [DecidableEq J]
+`Y ≅ (image e)^{⊕ ι}`. -/
+noncomputable def isoOfIsSplitting {Y : C} {J : Type} [Fintype J] [DecidableEq J]
     {e : End Y} {a b : J → End Y} (h : Graded.IsSplitting 1 (fun _ => e) a b) :
-    K.cls Y = Fintype.card J • K.cls (image e) := by
+    (⨁ fun _ : J => image e) ≅ Y := by
   have heb : ∀ j, e * b j = b j := fun j => by
     conv_rhs => rw [← mul_one (b j), ← h.sum_eq, Finset.mul_sum]
     simp_rw [← mul_assoc, h.mul_eq, ite_mul, zero_mul, Finset.sum_ite_eq, Finset.mem_univ,
@@ -99,8 +99,14 @@ theorem cls_eq_card_smul_of_isSplitting {Y : C} {J : Type} [Fintype J] [Decidabl
       rfl
     simp_rw [this]
     exact h.sum_eq
-  rw [K.cls_of_iso (biproduct.uniqueUpToIso _ (isBilimitOfTotal B total)),
-    K.cls_biproduct _ _ rfl, Finset.sum_const, Finset.card_univ]
+  exact (biproduct.uniqueUpToIso _ (isBilimitOfTotal B total)).symm
+
+/-- If `1 ∈ End Y` splits through copies of `e`, then `[Y] = card ι • [image e]`. -/
+theorem cls_eq_card_smul_of_isSplitting {Y : C} {J : Type} [Fintype J] [DecidableEq J]
+    {e : End Y} {a b : J → End Y} (h : Graded.IsSplitting 1 (fun _ => e) a b) :
+    K.cls Y = Fintype.card J • K.cls (image e) := by
+  rw [← K.cls_of_iso (isoOfIsSplitting h), K.cls_biproduct _ _ rfl, Finset.sum_const,
+    Finset.card_univ]
 
 end K0Data
 
@@ -131,6 +137,15 @@ theorem cls_Epow {ι V : Type*} [AddCommGroup V] [Module ℚ V] (K : K0Data C ι
   rw [map_one, map_one] at h
   rw [K.cls_eq_card_smul_of_isSplitting h, hc]
   rfl
+
+/-- **Chuang–Rouquier, Lemma 5.13**: `E^n M ≅ n! · E^{(n)} M`. -/
+theorem exists_iso_biproduct_divObj (n : ℕ) (M : C) :
+    ∃ (J : Type) (_ : Fintype J) (_ : DecidableEq J), Fintype.card J = n.factorial ∧
+      Nonempty ((⨁ fun _ : J => D.divObj k n M) ≅ (Epow E n).obj M) := by
+  obtain ⟨J, _, _, a, b, hc, hS⟩ := NilHecke.exists_isSplitting_one_idemNH k n
+  have h := (hS.map (D.γ (k := k) n)).map (evalEnd (Epow E n) M)
+  rw [map_one, map_one] at h
+  exact ⟨J, inferInstance, inferInstance, hc, ⟨K0Data.isoOfIsSplitting h⟩⟩
 
 end NilHeckeData
 

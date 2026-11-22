@@ -343,12 +343,12 @@ variable [E.Linear k]
 
 /-- **Socle bound** (core of Chuang–Rouquier, Proposition 5.20 (b)): if `End(E^{(i+m)} U) = k`,
 the dot is nilpotent, `S` is simple and there is a nonzero map `E^{(i+m)} U ⟶ E^m S`, then
-`dim Hom(S, E^{(i)} U) ≤ 1`. -/
-theorem finrank_hom_divObj_le_one_of_ne_zero [E.PreservesMonomorphisms]
+`Hom(S, E^{(i)} U)` is finite-dimensional of dimension at most `1`. -/
+theorem finiteDimensional_hom_divObj_of_ne_zero [E.PreservesMonomorphisms]
     (hX : ∀ M, IsNilpotent (R := End (E.obj M)) (D.X.app M)) {U S : C} [Simple S] {i m : ℕ}
     (hT : finrank k (D.divObj k (i + m) U ⟶ D.divObj k (i + m) U) = 1)
     {z₀ : D.divObj k (i + m) U ⟶ (Epow E m).obj S} (hz₀ : z₀ ≠ 0) :
-    finrank k (S ⟶ D.divObj k i U) ≤ 1 := by
+    FiniteDimensional k (S ⟶ D.divObj k i U) ∧ finrank k (S ⟶ D.divObj k i U) ≤ 1 := by
   set T := D.divObj k (i + m) U
   -- a nonzero `z : T ⟶ E^m S` killed by the dots of `E^m`
   obtain ⟨z, hz, hzx⟩ := exists_ne_zero_forall_eq_zero (Finset.range m)
@@ -433,6 +433,7 @@ theorem finrank_hom_divObj_le_one_of_ne_zero [E.PreservesMonomorphisms]
         hzx c (Finset.mem_range.2 hcm), zero_comp]
   let Φ' := Φ.codRestrict (k ∙ u₀) hmem
   have hΦ' : Function.Injective Φ' := fun a b h => hΦ (congrArg Subtype.val h)
+  refine ⟨Module.Finite.of_injective Φ' hΦ', ?_⟩
   calc finrank k (S ⟶ D.divObj k i U) ≤ finrank k (k ∙ u₀) :=
         LinearMap.finrank_le_finrank_of_injective hΦ'
     _ ≤ 1 := (finrank_span_le_card ({u₀} : Set _)).trans (by simp)
@@ -512,19 +513,21 @@ variable [A.E.Additive] (DE : NilHeckeData A.E) (k : Type*) [Field k] [Linear k 
 `F U = 0` and `i ≤ h₊([U])`, then `dim Hom(S, E^{(i)} U) ≤ 1` for every simple `S`.
 
 The hypothesis `hX` is the nilpotence of the dot (Chuang–Rouquier, §5.2.1, eigenvalue `0`), and
-`hEnd` is the condition `End(S) = k` for simple `S` (Chuang–Rouquier, §5.1.1). -/
-theorem finrank_hom_divObj_le_one [A.F.Additive] [A.E.Linear k] (DF : NilHeckeData A.F)
+`hEnd` is the condition `End(S) = k` for simple `S` (Chuang–Rouquier, §5.1.1). The space
+`Hom(S, E^{(i)} U)` is moreover finite-dimensional. -/
+theorem finiteDimensional_hom_divObj [A.F.Additive] [A.E.Linear k] (DF : NilHeckeData A.F)
     (hX : ∀ M, IsNilpotent (R := End (A.E.obj M)) (DE.X.app M))
     (hEnd : ∀ S : C, Simple S → finrank k (S ⟶ S) = 1)
     {U : C} (hU : Simple U) (hFU : IsZero (A.F.obj U)) {i : ℕ} (hi : i ≤ hPlus A.e (A.cls U))
-    (S : C) [hS : Simple S] : finrank k (S ⟶ DE.divObj k i U) ≤ 1 := by
+    (S : C) [hS : Simple S] :
+    FiniteDimensional k (S ⟶ DE.divObj k i U) ∧ finrank k (S ⟶ DE.divObj k i U) ≤ 1 := by
   classical
   have : A.E.IsRightAdjoint := A.adjFE.isRightAdjoint
   obtain ⟨m, hN⟩ := Nat.exists_eq_add_of_le hi
   by_cases h0 : ∀ φ : S ⟶ DE.divObj k i U, φ = 0
   · have : Subsingleton (S ⟶ DE.divObj k i U) := ⟨fun a b => (h0 a).trans (h0 b).symm⟩
     rw [finrank_zero_of_subsingleton]
-    exact zero_le_one
+    exact ⟨inferInstance, zero_le_one⟩
   push Not at h0
   obtain ⟨φ, hφ⟩ := h0
   have : Mono φ := mono_of_nonzero_from_simple hφ
@@ -563,7 +566,16 @@ theorem finrank_hom_divObj_le_one [A.F.Additive] [A.E.Linear k] (DF : NilHeckeDa
     intro h
     apply hs'
     rw [← IsIso.hom_inv_id_assoc (w ≫ y ≫ DE.divπ k (i + m) U) s', h, comp_zero]
-  exact DE.finrank_hom_divObj_le_one_of_ne_zero hX (hEnd _ hT) hz₀
+  exact DE.finiteDimensional_hom_divObj_of_ne_zero hX (hEnd _ hT) hz₀
+
+/-- **Chuang–Rouquier, Proposition 5.20 (b)**, socle part, for `E`: if `U` is simple with
+`F U = 0` and `i ≤ h₊([U])`, then `dim Hom(S, E^{(i)} U) ≤ 1` for every simple `S`. -/
+theorem finrank_hom_divObj_le_one [A.F.Additive] [A.E.Linear k] (DF : NilHeckeData A.F)
+    (hX : ∀ M, IsNilpotent (R := End (A.E.obj M)) (DE.X.app M))
+    (hEnd : ∀ S : C, Simple S → finrank k (S ⟶ S) = 1)
+    {U : C} (hU : Simple U) (hFU : IsZero (A.F.obj U)) {i : ℕ} (hi : i ≤ hPlus A.e (A.cls U))
+    (S : C) [Simple S] : finrank k (S ⟶ DE.divObj k i U) ≤ 1 :=
+  (A.finiteDimensional_hom_divObj DE k DF hX hEnd hU hFU hi S).2
 
 end WeakSl2
 

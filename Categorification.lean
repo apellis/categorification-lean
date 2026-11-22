@@ -902,6 +902,7 @@ import Categorification.Sl2Categorification.DLayers
 import Categorification.Sl2Categorification.DividedPowers
 import Categorification.Sl2Categorification.TopDividedPower
 import Categorification.Sl2Categorification.DividedPowerSocle
+import Categorification.Sl2Categorification.TopDividedPowerSimple
 import Categorification.TwoRep.AdditiveCat
 import Categorification.TwoRep.CyclotomicRouqAdjunction
 import Categorification.TwoRep.CyclotomicRouqCapTrace

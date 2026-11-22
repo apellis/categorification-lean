@@ -139,7 +139,7 @@ lemma compositionFactors_of_isSimpleModule [IsSimpleModule R M] :
     compositionFactors R M = Finsupp.single (SimpleClass.mk (R := R) M) 1 := by
   have hc : (⊥ : Submodule R M) ⋖ ⊤ := bot_covBy_top
   let s : CompositionSeries (Submodule R M) := (RelSeries.singleton _ ⊥).snoc ⊤ hc
-  rw [compositionFactors_eq s rfl (by simp [s])]
+  rw [compositionFactors_eq s rfl (RelSeries.last_snoc _ _ _)]
   have hs : s.length = 1 := rfl
   simp only [seriesFactors]
   rw [Fintype.sum_eq_single ⟨0, by simp [hs]⟩ (fun i hi => (hi (Fin.ext (by omega))).elim)]

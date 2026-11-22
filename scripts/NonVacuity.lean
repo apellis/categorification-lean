@@ -5494,6 +5494,20 @@ example := KL3.Diagram.cwNegHonest_eq UDot.sl2RootDatum ℚ 0 () 0
 
 example := KL3.Diagram.ccwNegHonest_eq UDot.sl2RootDatum ℚ 0 () 0
 
+/-- Webster arXiv:1309.3796v2, Lemma 3.29, for `sl₂` over `ℚ`: `B′` spans the 2-morphisms of `U′`
+between `E E^∨ 1_λ` and itself at `λ = 1`. -/
+example : Submodule.span ℚ (Set.range (KL3.Diagram.twoBL UDot.sl2RootDatum ℚ (1 : ℤ)
+    [(true, ()), (false, ())] [(true, ()), (false, ())])) = ⊤ :=
+  KL3.Diagram.span_twoBL_eq_top _ _ _
+
+/-- The elements of `B′` with nonnegative exponents are the images of the elements of `B`. -/
+example (x : KL3.Diagram.SpanIdx [(true, ())] [(true, ())]) :
+    KL3.Diagram.twoBL UDot.sl2RootDatum (ZMod 2) (0 : ℤ) [(true, ())] [(true, ())]
+        ⟨x.1, fun a => (x.2.1 a : ℤ), x.2.2⟩ =
+      (KL3.Diagram.toLoc UDot.sl2RootDatum (ZMod 2)).map
+        (KL3.Diagram.twoB UDot.sl2RootDatum (ZMod 2) 0 [(true, ())] [(true, ())] x) :=
+  KL3.Diagram.twoBL_of_nonneg _ _ _ _
+
 end NonVacuity.WebsterLocalization
 
 namespace NonVacuity.CLSpanning

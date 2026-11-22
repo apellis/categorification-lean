@@ -30,7 +30,9 @@ local notation "δ" => Multiset.map f (stendhalWeight 1 β)
 local notation "μ" => Λ (Fin.last ℓ)
 
 omit [DecidableEq I] in
-private theorem lastInput_labels (p : Seq β) :
+/-- The labels of the final input of a surviving shuffle: the last red strand followed by
+the black word. -/
+theorem lastInput_labels (p : Seq β) :
     List.ofFn (Seq.map f (SingleRed.insertWord β p)).1 = last :: (List.ofFn p.1).map ι := by
   apply List.ext_getElem
   · simp [stendhalWeight, add_comm]

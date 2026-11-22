@@ -1290,6 +1290,7 @@ import Categorification.WeightedKLR.RedStrands.CyclotomicMaskTests
 import Categorification.WeightedKLR.RedStrands.StandardizationMaskComparison
 import Categorification.WeightedKLR.RedStrands.StandardizationWordTests
 import Categorification.WeightedKLR.RedStrands.StandardizationProductTest
+import Categorification.WeightedKLR.RedStrands.StandardizationWordCharacter
 import Categorification.WeightedKLR.RedStrands.TensorModuleEquiv
 import Categorification.WeightedKLR.RedStrands.RepresentationLift
 import Categorification.WeightedKLR.RedStrands.LastRedShuffle

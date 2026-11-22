@@ -35,7 +35,12 @@ Thus KL III Thm. 1.2 has no remaining nondegeneracy premise in
 `gammaUA'_bijective_unconditional` and `gammaAlg_injective_unconditional`;
 `gammaAlgEquiv_unconditional` supplies the categorification equivalence.
 Along the way:
-Prop. 3.20 in a form that does not need `Γ` finite (`KLR.KLGamma.prop_3_20`), and
+Prop. 3.20 in a form that does not need `Γ` finite (`KLR.KLGamma.prop_3_20`),
+the string parametrization of simples along any colour sequence meeting every colour
+infinitely often (KL I §3.2, as used before Webster arXiv:1309.3796v2 Def. 5.16: the
+lexicographically largest string vector in the character determines the simple; defined with the
+highest-weight spaces `HWSpace`, which KL Lemma 3.13 identifies with `ẽ`;
+`KLR.KLRAlgebra.isStrMax_aux`, `KLR.strKey_injective`), and
 Cor. 3.19 as `End(S) = 𝕜` for every simple `R(ν)`-module (`KLR.KLRAlgebra.exists_eq_smul_of_isSimpleModule`),
 so the bases of `K_0` and `G_0` are exactly dual (`KLR.GradingDatum.pairing_k0Basis_g0Basis_eq`).
 

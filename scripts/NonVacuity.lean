@@ -5618,3 +5618,34 @@ example : True := by
 end
 
 end NonVacuity.PerfectBasis
+
+namespace NonVacuity.StringParametrization
+
+open Categorification Categorification.KLR
+
+/-- The alternating colour sequence on `Bool` meets every colour infinitely often. -/
+theorem alt_hσ : ∀ (a : Bool) (m : ℕ), ∃ r, m ≤ r ∧ decide (r % 2 = 0) = a := by
+  intro a m
+  rcases Nat.mod_two_eq_zero_or_one m with h | h <;> cases a
+  · exact ⟨m + 1, by omega, by simp; omega⟩
+  · exact ⟨m, le_rfl, by simp [h]⟩
+  · exact ⟨m, le_rfl, by simp; omega⟩
+  · exact ⟨m + 1, by omega, by simp; omega⟩
+
+example : Function.Injective (strKey (fun r : ℕ => decide (r % 2 = 0))) :=
+  strKey_injective alt_hσ
+
+example (ν : Multiset Bool) (L : Type) [AddCommGroup L] [Module ℚ L]
+    [Module (KLRAlgebra ℚ (fun _ _ : Bool => (1 : MvPolynomial (Fin 2) ℚ)) ν) L]
+    [IsScalarTower ℚ (KLRAlgebra ℚ (fun _ _ : Bool => (1 : MvPolynomial (Fin 2) ℚ)) ν) L]
+    [FiniteDimensional ℚ L]
+    [IsSimpleModule (KLRAlgebra ℚ (fun _ _ : Bool => (1 : MvPolynomial (Fin 2) ℚ)) ν) L]
+    (hnil : ∀ a, SmulNilpotent
+      (KLRAlgebra.x a : KLRAlgebra ℚ (fun _ _ : Bool => (1 : MvPolynomial (Fin 2) ℚ)) ν) L)
+    (s : Seq ν) (hs : KLRAlgebra.IsStrMax (fun _ _ : Bool => (1 : MvPolynomial (Fin 2) ℚ))
+      (fun r => decide (r % 2 = 0)) ν L s) :
+    KLRAlgebra.dimCh (fun _ _ : Bool => (1 : MvPolynomial (Fin 2) ℚ)) ν L s = KLRAlgebra.runsFact s :=
+  (KLRAlgebra.isStrMax_aux (P := fun _ _ => 1) (fun _ _ _ => by simp) (fun _ _ _ => one_ne_zero)
+    _ ν rfl _ alt_hσ L hnil s hs).1
+
+end NonVacuity.StringParametrization

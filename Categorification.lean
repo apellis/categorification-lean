@@ -60,6 +60,7 @@ import Categorification.Algebra.HomTensorNat
 import Categorification.Algebra.HomTensorNaturality
 import Categorification.Algebra.InductionAlong
 import Categorification.Algebra.InductionAlongExact
+import Categorification.Algebra.InductionAlongFinite
 import Categorification.Algebra.InductionAlongAssoc
 import Categorification.Algebra.InductionAlongCrossTransportNaturality
 import Categorification.Algebra.InductionAlongTransportEquiv

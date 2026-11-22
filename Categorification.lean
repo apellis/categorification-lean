@@ -1268,6 +1268,7 @@ import Categorification.WeightedKLR.RedStrands.TensorLatticeCoordinates
 import Categorification.WeightedKLR.RedStrands.PrefixTensorTests
 import Categorification.WeightedKLR.RedStrands.PrefixStandardCharacter
 import Categorification.WeightedKLR.RedStrands.CyclotomicTopTests
+import Categorification.WeightedKLR.RedStrands.CyclotomicWordCharacter
 import Categorification.WeightedKLR.RedStrands.SingleBlackEulerForm
 import Categorification.WeightedKLR.RedStrands.SingleBlackLattice
 import Categorification.WeightedKLR.RedStrands.SingleRedGrading

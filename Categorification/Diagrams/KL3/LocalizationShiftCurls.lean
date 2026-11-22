@@ -16,7 +16,7 @@ Infrastructure for the curl relations in the proof that the weight shift of the 
 
 * `Cz_succ`: the image of a right curl with `z + 1` dots on the downward strand is a dot times
   the curl with `z` dots, minus a whiskered clockwise bubble with `z` dots.
-* `toLoc_plcL`, `whisk_toLoc`: placing a morphism of `U` in context agrees with whiskering in `U′`.
+* `toLoc_plcL_whisk`, `whisk_toLoc`: placing a morphism of `U` in context agrees with whiskering in `U′`.
 * `Bz_eq`: the whiskered clockwise bubble is the image of `bubRU`.
 -/
 
@@ -140,7 +140,7 @@ section Whisk
 variable (RD k)
 
 /-- The localization of a placed 2-morphism is the placed localization. -/
-theorem toLoc_plcL (μ : X) (u v s t : List (Letter I))
+theorem toLoc_plcL_whisk (μ : X) (u v s t : List (Letter I))
     (hst : wt RD (wt RD μ v) t = wt RD (wt RD μ v) s)
     (f : (pres RD k).obj (ob RD (wt RD μ v) s) ⟶ (pres RD k).obj (ob RD (wt RD μ v) t)) :
     (toLoc RD k).map (plcL RD k μ u v s t f) =
@@ -163,7 +163,7 @@ theorem whisk_toLoc (μ : X) (u v s t : List (Letter I))
         (toLoc RD k).map (plcL RD k μ u v s t f) ≫
           eqToHom (congrArg (presLoc RD k).obj (hU ▸ lob_whisker' RD μ u v s t hst)).symm := by
   subst hU
-  rw [toLoc_plcL RD k μ u v s t hst]
+  rw [toLoc_plcL_whisk RD k μ u v s t hst]
   simp
 
 /-- The whiskered clockwise bubble of `U′` is the image of the whiskered bubble of `U`. -/
@@ -173,7 +173,7 @@ theorem Bz_eq (ν : X) (i : I) (z : ℤ) :
   have hk : SChain [up i, dn i] [([], .cap (dn i), [])] [] := ⟨rfl, rfl⟩
   have e : lU RD ν [up i] [] [] = lU RD ν [up i] [] [up i, dn i] :=
     congrArg (fun w => (incl RD).obj (ob RD w [up i])) (hc.wt_eq RD _).symm
-  rw [bubRU, toLoc_plcL RD k ν [up i] [] [] [] rfl, ← zcw_eq, zcw, Presentation.whisk_comp,
+  rw [bubRU, toLoc_plcL_whisk RD k ν [up i] [] [] [] rfl, ← zcw_eq, zcw, Presentation.whisk_comp,
     Presentation.whisk_comp, ldg, ldg,
     whisk_toLoc RD k ν [up i] [] [] [up i, dn i] (hc.wt_eq RD _) _ _ rfl,
     whisk_toLoc RD k ν [up i] [] [up i, dn i] [] (hk.wt_eq RD _) _ _ e]

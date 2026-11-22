@@ -109,7 +109,7 @@ theorem BLz_eq (z : ℤ) :
   have hk : SChain [dn i, up i] [([], .cap (up i), [])] [] := ⟨rfl, rfl⟩
   have e : lU RD ν [] [up i] [] = lU RD ν [] [up i] [dn i, up i] :=
     congrArg (fun w => (incl RD).obj (ob RD w [])) (hc.wt_eq RD _).symm
-  rw [bubLU, toLoc_plcL RD k ν [] [up i] [] [] rfl, ← zccw_eq, zccw, Presentation.whisk_comp,
+  rw [bubLU, toLoc_plcL_whisk RD k ν [] [up i] [] [] rfl, ← zccw_eq, zccw, Presentation.whisk_comp,
     Presentation.whisk_comp, ldg, ldg,
     whisk_toLoc RD k ν [] [up i] [] [dn i, up i] (hc.wt_eq RD _) _ _ rfl,
     whisk_toLoc RD k ν [] [up i] [dn i, up i] [] (hk.wt_eq RD _) _ _ e]
@@ -225,7 +225,7 @@ theorem shift_bubL (lam : X) (i : I) (β : LEnd RD k (ob RD (wt RD lam [up i]) [
     (show (shiftMap RD δ).obj ((incl RD).obj (ob RD (wt RD lam [up i]) [])) =
       lU RD (lam + δ) [] [up i] [] from (shiftMap_ob RD δ _ []).trans hw)
     (shiftMap_word_wd RD δ lam [up i])]
-  rw [bubLU, toLoc_plcL RD k (lam + δ) [] [up i] [] [] rfl]
+  rw [bubLU, toLoc_plcL_whisk RD k (lam + δ) [] [up i] [] [] rfl]
   simp only [Category.assoc, eqToHom_trans, eqToHom_trans_assoc]
   rfl
 

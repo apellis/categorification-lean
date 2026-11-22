@@ -5508,6 +5508,18 @@ example (x : KL3.Diagram.SpanIdx [(true, ())] [(true, ())]) :
         (KL3.Diagram.twoB UDot.sl2RootDatum (ZMod 2) 0 [(true, ())] [(true, ())] x) :=
   KL3.Diagram.twoBL_of_nonneg _ _ _ _
 
+/-- Webster arXiv:1309.3796v2, Proposition 3.30, for `sl₂`: the trivial shift and the shift by
+`δ = 2` with `a = 0`, `b = 2` (so `a i - b i = -⟨i, δ⟩`) are equivalences of `U′`, and the second
+restricts to `U′(0, -2) ≌ U′(2, 0)` over `ZMod 3`. -/
+noncomputable example := KL3.Diagram.shiftEquivalence UDot.sl2RootDatum ℚ 0 (fun _ => 0)
+  (fun _ => 0) (fun _ => by simp [KL3.Diagram.ip])
+
+noncomputable example := KL3.Diagram.shiftEquivalence UDot.sl2RootDatum ℚ 2 (fun _ => 0)
+  (fun _ => 2) (fun _ => by simp [KL3.Diagram.ip, UDot.sl2RootDatum])
+
+noncomputable example := KL3.Diagram.shiftHomEquivalence UDot.sl2RootDatum (ZMod 3) 2
+  (fun _ => 0) (fun _ => 2) (fun _ => by simp [KL3.Diagram.ip, UDot.sl2RootDatum]) 0 (-2)
+
 end NonVacuity.WebsterLocalization
 
 namespace NonVacuity.CLSpanning

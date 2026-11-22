@@ -1,9 +1,9 @@
 import Categorification.WeightedKLR.RedStrands.ParabolicStandardTensorBase
 
 /-!
-# Projective factors of the standard layers (Webster, arXiv:1309.3796v3, Prop. 5.21)
+# Projective factors of the standard layers (Webster, arXiv:1309.3796v2, Prop. 5.20)
 
-In the proof of Prop. 5.21 the layers of the filtration of a projective `T^λ e` are standard
+In the proof of Prop. 5.20 the layers of the filtration of a projective `T^λ e` are standard
 modules `S(X ⊠ Y)` attached to a pair of projectives: `X` over the algebra `T^{λ'}` of the first
 `ℓ` red strands and `Y` over the cyclotomic quotient `R^{λ_ℓ}` of the last one. The recursion of
 `ParabolicStandardTensorBase` produces these factors through the classes `OldGen` and `CycGen`
@@ -175,8 +175,8 @@ def tensorFactorCongr {θ β : Multiset I} {X X' : ModuleCat.{0} (Told θ)}
 
 variable (hQ : KLRSymm Q)
 
-/-- **The layers of the filtration of Proposition 5.21 are standardizations of projectives**
-(Webster, arXiv:1309.3796v3, proof of Proposition 5.21): every layer of the filtration of
+/-- **The layers of the filtration of Proposition 5.20 are standardizations of projectives**
+(Webster, arXiv:1309.3796v2, proof of Proposition 5.20): every layer of the filtration of
 `T^λ e(s, λ_ℓ, w)` by `(redLayer s).wordLayers w` is isomorphic to `S(T^{λ'} e(t) ⊠ R^{λ_ℓ} e(u))`
 for some red-ordered `t` and some `u`. -/
 theorem exists_stdLayerModule_equiv_tensorLayer (w : List I) {θ : Multiset I}

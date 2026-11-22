@@ -10,8 +10,8 @@ import Categorification.WeightedKLR.Induction.Generation
 /-!
 # Projectives filtered by standardizations
 
-B. Webster, *Knot invariants and higher representation theory*, arXiv:1309.3796v3, the
-induction in the proofs of Lemma 5.19 and Proposition 5.21, at the last red strand. Every
+B. Webster, *Knot invariants and higher representation theory*, arXiv:1309.3796v2, the
+induction in the proof of Proposition 5.20, at the last red strand. Every
 red-ordered loading of `T^λ_ν` has the form `(s, λ_ℓ, w)`: a loading `s` of `T^{λ'}`, the last
 red strand, and a word `w` of black strands to its right. Its projective
 `P = T^λ e(s, λ_ℓ, w)` is built in two steps.
@@ -25,11 +25,12 @@ red strand, and a word `w` of black strands to its right. Its projective
 
 By `hasFiltration_blackWord_stdLayer`, `P` is therefore filtered by the standardizations
 `StdLayer.wordLayers w (redLayer s)` (`hasFiltration_loadingProj`): this is the categorical
-form of the recursion of Lemma 5.19 in the last red strand. It uses the route hypothesis
+form, in the last red strand, of the recursion behind the identity for `v_i^κ` in the
+proof of Proposition 5.20 (v3: Lemma 5.19). It uses the route hypothesis
 `FirstIndDeltaInjective` of Proposition 5.5 for every layer.
 
 The layers are two-piece standardizations `S_{λ_ℓ}(N)` of modules `N` over
-`T^{λ'} ⊗ R^{λ_ℓ}`. Webster's standard modules `S^κ_i` of Proposition 5.21 are obtained by
+`T^{λ'} ⊗ R^{λ_ℓ}`. Webster's standard modules `S^κ_i` of Proposition 5.20 are obtained by
 standardizing again in `T^{λ'}`; that iteration, and the comparison with the submodules
 `P^{≥φ}` and `P^{>φ}`, are not part of this file.
 
@@ -75,7 +76,7 @@ def loadingProj {ν : Multiset I} (s : Seq (stendhalWeight (ℓ + 1) ν)) (hs : 
   ModuleCat.of _ (lIdeal (loadingIdem Q Λ s hs))
 
 /-- **`T^λ e(t, i) ≅ Fᵢ T^λ e(t)`**: appending a black strand on the right is induction along
-`appendBlack` (Webster, arXiv:1309.3796v3, §4.6, after Theorem 4.31). -/
+`appendBlack` (Webster, arXiv:1309.3796v2, §4.6, after Theorem 4.31). -/
 def loadingProjBlackEquiv (i : I) {ν : Multiset I} (s : Seq (stendhalWeight (ℓ + 1) ν))
     (hs : IsRedOrdered s) :
     loadingProj Q Λ (appendBlackLoading i ν s) (appendBlackLoading_ordered i ν s hs) ≃ₗ[
@@ -179,7 +180,7 @@ def emptyLayerEquiv (M : FactorModule Q Λ θ 0) :
 
 /-- **`T^λ e(s, λ_ℓ) ≅ S(T^{λ'} e(s))`**: the projective of a loading ending in the last red
 strand is the standardization of `T^{λ'} e(s)` with empty last block (Webster,
-arXiv:1309.3796v3, Proposition 4.18 and the case `β = ∅` of the proof of Proposition 5.5). -/
+arXiv:1309.3796v2, Proposition 4.18 and the case `β = ∅` of the proof of Proposition 5.5). -/
 def loadingProjRedEquiv (s : Seq (stendhalWeight ℓ (θ + 0))) (hs : IsRedOrdered s) :
     loadingProj Q Λ (appendRedLoading s) ((appendRedLoading_ordered_iff s).2 hs) ≃ₗ[
       TensorProductAlgebra k Q Λ (θ + 0)] stdLayerModule Q Λ hQ (redLayer Q Λ θ s hs) :=
@@ -208,9 +209,9 @@ def blackWordMapEquiv {ν : Multiset I} :
 variable (hQ : KLRSymm Q)
 
 /-- **Projectives with black strands right of the last red strand are filtered by
-standardizations** (Webster, arXiv:1309.3796v3, the recursion of Lemma 5.19 and the proof of
-Proposition 5.21): for a red-ordered loading `s` of `T^{λ'}` and a black word `w`, the projective
-`T^λ e(s, λ_ℓ, w) ≅ F_w S(T^{λ'} e(s))` has a filtration whose layers are the
+standardizations** (Webster, arXiv:1309.3796v2, proof of Proposition 5.20, the recursion behind
+the identity for `v_i^κ`): for a red-ordered loading `s` of `T^{λ'}` and a black word `w`, the
+projective `T^λ e(s, λ_ℓ, w) ≅ F_w S(T^{λ'} e(s))` has a filtration whose layers are the
 standardizations `S(N)` produced by `F_w` from `T^{λ'} e(s)`. This uses the route hypothesis
 `FirstIndDeltaInjective` for every layer (`AllDeltaInjective`). -/
 theorem hasFiltration_loadingProj (C : QuantumGroup.CartanDatum I) (hR : IsRouquierQ C Q)

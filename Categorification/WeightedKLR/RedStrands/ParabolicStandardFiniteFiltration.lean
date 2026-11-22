@@ -8,8 +8,8 @@ import Categorification.WeightedKLR.RedStrands.ParabolicStandardFinite
 /-!
 # Filtrations by standardizations with finite-dimensional layers
 
-B. Webster, *Knot invariants and higher representation theory*, arXiv:1309.3796v3, proof of
-Proposition 5.21. The filtration of `F_w S(N)` by standardizations
+B. Webster, *Knot invariants and higher representation theory*, arXiv:1309.3796v2, proof of
+Proposition 5.20. The filtration of `F_w S(N)` by standardizations
 (`hasFiltration_blackWord_stdLayer`) uses injectivity of `δ₁` in Proposition 5.5 for every
 layer it meets. Webster's dimension count proves this injectivity for finite-dimensional
 input modules. This file checks that only finite-dimensional layers occur: for Rouquier
@@ -53,7 +53,7 @@ section Finite
 
 variable (Λ) in
 /-- **`T^{λ'}_θ ⊗ R^{λ_ℓ}_β` is finite-dimensional** for Rouquier parameters (Webster,
-arXiv:1309.3796v3, Theorem 4.38 for `T^{λ'}`; Kang–Kashiwara, Corollary 4.4 for the
+arXiv:1309.3796v2, Theorem 4.38 for `T^{λ'}`; Kang–Kashiwara, Corollary 4.4 for the
 cyclotomic factor). -/
 theorem parabolicFactorAlgebra_finite (hR : IsRouquierQ C Q) (θ β : Multiset I) :
     Module.Finite k (parabolicFactorAlgebra Q Λ θ β) :=
@@ -130,7 +130,7 @@ theorem StdLayer.isFiniteDim_of_mem_blackIndLayers (i : I) {ν : Multiset I}
   · exact StdLayer.isFiniteDim_first hR i hc
 
 /-- **The layers of `F_w S(N)` are finite-dimensional when `N` is** (Webster,
-arXiv:1309.3796v3, proof of Proposition 5.21). -/
+arXiv:1309.3796v2, proof of Proposition 5.20). -/
 theorem StdLayer.isFiniteDim_of_mem_wordLayers (w : List I) {ν : Multiset I}
     {c : StdLayer Q Λ ν} (hc : c.IsFiniteDim Q Λ) {c' : StdLayer Q Λ (wordWt w ν)}
     (h : c' ∈ c.wordLayers Q Λ w) : c'.IsFiniteDim Q Λ := by
@@ -156,7 +156,7 @@ theorem isFiniteDim_redLayer (hR : IsRouquierQ C Q) (θ : Multiset I)
 variable {hQ : KLRSymm Q}
 
 /-- **`F_w` refines filtrations by finite-dimensional standard layers** (Webster,
-arXiv:1309.3796v3, proof of Proposition 5.21), given the route hypothesis
+arXiv:1309.3796v2, proof of Proposition 5.20), given the route hypothesis
 `FirstIndDeltaInjective` for finite-dimensional layers only. -/
 theorem HasFiltration.blackWord_of_finite (hall : AllFiniteDeltaInjective Q Λ hQ)
     (w : List I) {ν : Multiset I} {m : List (StdLayer Q Λ ν)}
@@ -174,7 +174,7 @@ theorem HasFiltration.blackWord_of_finite (hall : AllFiniteDeltaInjective Q Λ h
     simpa [StdLayer.wordLayers, blackWordModule, List.flatMap_assoc] using this
 
 /-- **`F_w S(N)` has a filtration by standardizations for finite-dimensional `N`** (Webster,
-arXiv:1309.3796v3, proof of Proposition 5.21), given the route hypothesis
+arXiv:1309.3796v2, proof of Proposition 5.20), given the route hypothesis
 `FirstIndDeltaInjective` for finite-dimensional layers only. -/
 theorem hasFiltration_blackWord_stdLayer_of_finite (hall : AllFiniteDeltaInjective Q Λ hQ)
     (w : List I) {ν : Multiset I} (c : StdLayer Q Λ ν) (hc : c.IsFiniteDim Q Λ) :
@@ -184,8 +184,8 @@ theorem hasFiltration_blackWord_stdLayer_of_finite (hall : AllFiniteDeltaInjecti
     (L := stdLayerModule Q Λ hQ) (LinearEquiv.refl _ (stdLayerModule Q Λ hQ c)))
     (by simpa using hc)
 
-/-- **Filtration of `T^λ e(s, λ_ℓ, w)` by standardizations** (Webster, arXiv:1309.3796v3,
-proof of Proposition 5.21), given the route hypothesis `FirstIndDeltaInjective` for
+/-- **Filtration of `T^λ e(s, λ_ℓ, w)` by standardizations** (Webster, arXiv:1309.3796v2,
+proof of Proposition 5.20), given the route hypothesis `FirstIndDeltaInjective` for
 finite-dimensional layers only. -/
 theorem hasFiltration_loadingProj_of_finite (hall : AllFiniteDeltaInjective Q Λ hQ)
     (w : List I) {θ : Multiset I} (s : Seq (stendhalWeight ℓ (θ + 0))) (hs : IsRedOrdered s) :

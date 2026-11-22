@@ -12,7 +12,7 @@ import Categorification.Algebra.InductionAlongFinite
 /-!
 # Black-last pieces of `S(₁Fᵢ N)` in the dimension count of Proposition 5.5
 
-Webster, arXiv:1309.3796v3, proof of Proposition 5.5, (5.14)–(5.15). For the parameters
+Webster, arXiv:1309.3796v2, proof of Proposition 5.5, (5.13)–(5.14). For the parameters
 `Q = CL.qCL KL` and a finite-dimensional module `N` over the parabolic factor algebra `D_{θ, β}`,
 the piece of `S(₁Fᵢ N)` whose last strand is black of colour `j` is computed from the
 restrictions `₁E_j ₁Fᵢ N` and `₂E_j ₁Fᵢ N` of the module `₁Fᵢ N` over `D_{i+θ, β}`. These are
@@ -89,7 +89,7 @@ variable {I k : Type*} [Field k] {ℓ : ℕ}
 
 include hQ in
 /-- `dim S(X ⊕ N^{⊕ n}) = dim S X + n dim S N`, with finiteness of `S X` derived from that of
-`S(X ⊕ N^{⊕ n})` (Webster, arXiv:1309.3796v3, proof of Proposition 5.5). -/
+`S(X ⊕ N^{⊕ n})` (Webster, arXiv:1309.3796v2, proof of Proposition 5.5). -/
 theorem finrank_parabolicStandard_prod_pi_of_finiteDimensional {n : ℕ}
     (hXN : FiniteDimensional k (ParabolicStandard Q Λ θ β (X × (Fin n → N))))
     [FiniteDimensional k (ParabolicStandard Q Λ θ β N)] :
@@ -165,7 +165,7 @@ variable (i j : I) (θ₀ β₀ : Multiset I) (N : Type) [AddCommGroup N] [Modul
 
 include hP hwf hQs in
 /-- **The black-last piece of `S(₁Fᵢ N)` of colour `j ≠ i`, `j` in both blocks** (Webster,
-arXiv:1309.3796v3, proof of Proposition 5.5): it has dimension
+arXiv:1309.3796v2, proof of Proposition 5.5): it has dimension
 `dim S(₁Fᵢ ₁E_j N) + dim S(₁Fᵢ ₂E_j N)`. -/
 theorem finrank_fixSub_firstIndStandardT_cross_both (hji : j ≠ i) [FiniteDimensional k N] :
     Module.finrank k (fixSub k (FirstIndStandardT QL Λ i ((Si j) + θ₀) ((Si j) + β₀) N hQs)
@@ -197,7 +197,7 @@ variable (i j : I) (θ₀ β : Multiset I) (N : Type) [AddCommGroup N] [Module k
 
 include hP hwf hQs in
 /-- **The black-last piece of `S(₁Fᵢ N)` of colour `j ≠ i`, `j` in the first block only**
-(Webster, arXiv:1309.3796v3, proof of Proposition 5.5): it has dimension
+(Webster, arXiv:1309.3796v2, proof of Proposition 5.5): it has dimension
 `dim S(₁Fᵢ ₁E_j N)`. -/
 theorem finrank_fixSub_firstIndStandardT_cross_left (hji : j ≠ i) (hj : j ∉ β) :
     Module.finrank k (fixSub k (FirstIndStandardT QL Λ i ((Si j) + θ₀) β N hQs)
@@ -220,7 +220,7 @@ variable (i j : I) (θ β₀ : Multiset I) (N : Type) [AddCommGroup N] [Module k
     θ (({j} : Multiset I) + β₀)) N]
 
 /-- **The black-last piece of `S(₁Fᵢ N)` of colour `j ≠ i`, `j` in the second block only**
-(Webster, arXiv:1309.3796v3, proof of Proposition 5.5): it has dimension
+(Webster, arXiv:1309.3796v2, proof of Proposition 5.5): it has dimension
 `dim S(₁Fᵢ ₂E_j N)`. -/
 theorem finrank_fixSub_firstIndStandardT_cross_right (hji : j ≠ i) (hj : j ∉ θ) :
     Module.finrank k (fixSub k (FirstIndStandardT QL Λ i θ ((Si j) + β₀) N hQs)
@@ -245,7 +245,7 @@ variable (i : I) (ν β : Multiset I) (N : Type) [AddCommGroup N] [Module k N]
     (({i} : Multiset I) + ν) β) N]
 
 include hP hwf hQs in
-/-- **Standardization of `₁Eᵢ ₁Fᵢ N`** (Webster, arXiv:1309.3796v3, Theorem 4.31 on the first
+/-- **Standardization of `₁Eᵢ ₁Fᵢ N`** (Webster, arXiv:1309.3796v2, Theorem 4.31 on the first
 factor, in the proof of Proposition 5.5): `dim S(₁Eᵢ ₁Fᵢ N) = dim S(₁Fᵢ ₁Eᵢ N) + n₁ dim S(N)`,
 `n₁ = ⟨i, λ₁⟩` for the first factor of content `i + ν`, in both signs of `n₁`. -/
 theorem finrank_parabolicStandard_factorEF [FiniteDimensional k N] :
@@ -294,7 +294,7 @@ variable (i : I) (θ β : Multiset I) (N : Type) [AddCommGroup N] [Module k N]
     θ β) N]
 
 include hP hwf hQs in
-/-- **Standardization of `₁Eᵢ ₁Fᵢ N` for `i ∉ θ`** (Webster, arXiv:1309.3796v3, Theorem 4.31
+/-- **Standardization of `₁Eᵢ ₁Fᵢ N` for `i ∉ θ`** (Webster, arXiv:1309.3796v2, Theorem 4.31
 on the first factor with `₁Eᵢ N = 0`, in the proof of Proposition 5.5):
 `dim S(₁Eᵢ ₁Fᵢ N) = n₁ dim S(N)`, `n₁ = ⟨i, λ₁⟩` for the first factor of content `θ`. -/
 theorem finrank_parabolicStandard_factorEF_of_notMem (hi : i ∉ θ) [FiniteDimensional k N] :
@@ -320,7 +320,7 @@ variable (i : I) (θ₀ β₀ : Multiset I) (N : Type) [AddCommGroup N] [Module 
 
 include hP hwf hQs in
 /-- **The black-last piece of `S(₁Fᵢ N)` of colour `i`, `i` in both blocks** (Webster,
-arXiv:1309.3796v3, proof of Proposition 5.5): it has dimension
+arXiv:1309.3796v2, proof of Proposition 5.5): it has dimension
 `dim S(₁Fᵢ ₁Eᵢ N) + dim S(₁Fᵢ ₂Eᵢ N) + n₁ dim S(N)`, `n₁ = ⟨i, λ₁⟩` for the first factor of
 content `i + θ₀`. -/
 theorem finrank_fixSub_firstIndStandardT_self_both [FiniteDimensional k N] :
@@ -369,7 +369,7 @@ variable (i : I) (θ₀ β : Multiset I) (N : Type) [AddCommGroup N] [Module k N
 
 include hP hwf hQs in
 /-- **The black-last piece of `S(₁Fᵢ N)` of colour `i`, `i` in the first block only**
-(Webster, arXiv:1309.3796v3, proof of Proposition 5.5): it has dimension
+(Webster, arXiv:1309.3796v2, proof of Proposition 5.5): it has dimension
 `dim S(₁Fᵢ ₁Eᵢ N) + n₁ dim S(N)`, `n₁ = ⟨i, λ₁⟩` for the first factor of content `i + θ₀`. -/
 theorem finrank_fixSub_firstIndStandardT_self_left (hi : i ∉ β) [FiniteDimensional k N] :
     (Module.finrank k (fixSub k (FirstIndStandardT QL Λ i ((Si i) + θ₀) β N hQs)
@@ -395,7 +395,7 @@ variable (i : I) (θ β₀ : Multiset I) (N : Type) [AddCommGroup N] [Module k N
 
 include hP hwf hQs in
 /-- **The black-last piece of `S(₁Fᵢ N)` of colour `i`, `i` in the second block only**
-(Webster, arXiv:1309.3796v3, proof of Proposition 5.5): it has dimension
+(Webster, arXiv:1309.3796v2, proof of Proposition 5.5): it has dimension
 `dim S(₁Fᵢ ₂Eᵢ N) + n₁ dim S(N)`, `n₁ = ⟨i, λ₁⟩` for the first factor of content `θ`. -/
 theorem finrank_fixSub_firstIndStandardT_self_right (hi : i ∉ θ) [FiniteDimensional k N] :
     (Module.finrank k (fixSub k (FirstIndStandardT QL Λ i θ ((Si i) + β₀) N hQs)
@@ -434,7 +434,7 @@ variable (i : I) (θ β : Multiset I) (N : Type) [AddCommGroup N] [Module k N]
 
 include hP hwf hQs in
 /-- **The black-last piece of `S(₁Fᵢ N)` of colour `i ∉ θ + β`** (Webster,
-arXiv:1309.3796v3, proof of Proposition 5.5): it has dimension `n₁ dim S(N)`,
+arXiv:1309.3796v2, proof of Proposition 5.5): it has dimension `n₁ dim S(N)`,
 `n₁ = ⟨i, λ₁⟩` for the first factor of content `θ`. -/
 theorem finrank_fixSub_firstIndStandardT_self_of_notMem (hi : i ∉ θ + β)
     [FiniteDimensional k N] :

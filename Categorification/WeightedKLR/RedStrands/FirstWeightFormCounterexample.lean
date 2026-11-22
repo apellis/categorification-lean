@@ -87,9 +87,13 @@ local notation "T" => TensorProductAlgebra ℚ (KLR.klQ (k := ℚ) (⊥ : Simple
 private theorem dots_positive (a : Unit ⊕ Fin 2) : 0 < fundamentalGrading.degX a := by
   cases a <;> exact (by decide : (0 : ℤ) < 2)
 
-/-- Counterexample to the printed identification in Webster, arXiv:1309.3796v2,
-Lemma 4.36. The characteristic-zero example uses the terminal projective itself
-and the prefix-lowering vector of the same loading. -/
+/-- Webster, arXiv:1309.3796v2, Lemma 4.36 fails for the form as printed before
+Proposition 4.33. With the intertwiner applied to the first argument, the printed form
+takes the value `1 + q⁻²` on the prefix-lowering vector of two fundamental `sl₂` factors,
+while the graded endomorphism polynomial of the terminal projective of the same loading is
+`1 + q²`; the two differ by `q ↦ q⁻¹`. The repaired form (`correctedForm`, intertwiner on
+the second argument) agrees with the graded Hom dimensions (`tensorModuleEquiv_homForm`).
+See the erratum in `ERRATA.md`. -/
 theorem terminal_homGdimPoly_ne_printedForm :
     integralLaurentEval (gdimPoly (homGrade T (P).grading (P).grading)) ≠
       Φ (binaryEquiv (pVector twoFundamental () 1)) (binaryEquiv (pVector twoFundamental () 1)) := by

@@ -10,7 +10,7 @@ import Categorification.Algebra.ExternalTensor
 Over a field `k`, the external tensor product `- ⊠ Q` with a fixed module `Q` over `B` is exact:
 it preserves injections, surjections and exactness at the middle of a short exact sequence. This
 is the exactness of `⊠` used in B. Webster, *Knot invariants and higher representation theory*,
-arXiv:1309.3796v3, proof of Proposition 5.21.
+arXiv:1309.3796v2, proof of Proposition 5.20.
 
 ## Main results
 

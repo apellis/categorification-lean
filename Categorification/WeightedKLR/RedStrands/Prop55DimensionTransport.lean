@@ -9,7 +9,7 @@ import Categorification.WeightedKLR.RedStrands.BlackModuleCrossLeft
 /-!
 # Transport of dimensions along equalities of black weights
 
-Webster, arXiv:1309.3796v3, proof of Proposition 5.5. The dimension count (5.14)–(5.15) compares
+Webster, arXiv:1309.3796v2, proof of Proposition 5.5. The dimension count (5.13)–(5.14) compares
 pieces of modules over tensor product algebras `T(ν)` and `T(ν')` for black weights `ν = ν'`
 that are equal but not syntactically equal. This file records the transport statements used
 there.
@@ -134,7 +134,7 @@ theorem finrank_fixSub_indK_transport (i : I) {ν ν' : Multiset I} (h : ν = ν
   exact (fixSubLinearCongr E _).finrank_eq.symm
 
 /-- **The black-last piece as a restriction**, for a black weight given by an equality
-`h : j + μ = ν` (Webster, arXiv:1309.3796v3, proof of Proposition 5.5). -/
+`h : j + μ = ν` (Webster, arXiv:1309.3796v2, proof of Proposition 5.5). -/
 theorem finrank_fixSub_lastStrandIdem_eq_res (j : I) {μ ν : Multiset I}
     (h : (Singleton.singleton j : Multiset I) + μ = ν) (Y : Type*) [AddCommGroup Y] [Module k Y]
     [Module (TensorProductAlgebra k Q Λ ν) Y] [IsScalarTower k (TensorProductAlgebra k Q Λ ν) Y] :

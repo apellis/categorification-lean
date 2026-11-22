@@ -8,8 +8,8 @@ import Categorification.WeightedKLR.RedStrands.TwoPieceLoading
 /-!
 # Loadings above a two-piece loading act by zero on a standardization
 
-B. Webster, *Knot invariants and higher representation theory*, arXiv:1309.3796v3, proof of
-Proposition 5.21. Let `N` be a module over `T^{λ'}_θ ⊗ R^{λ_{ℓ+1}}_β` on which `e(c) ⊗ 1` acts
+B. Webster, *Knot invariants and higher representation theory*, arXiv:1309.3796v2, proof of
+Proposition 5.20. Let `N` be a module over `T^{λ'}_θ ⊗ R^{λ_{ℓ+1}}_β` on which `e(c) ⊗ 1` acts
 by zero for every red-ordered loading `c` strictly above `t` (for instance `S_t ⊠ R e(u)`).
 Then on the standardization `S(N)` the idempotent `e(s)` acts by zero for every red-ordered
 loading `s` strictly above the two-piece loading `t λ_{ℓ+1} u`.
@@ -116,8 +116,8 @@ private theorem proj_ordered' (s : Seq μ) (hs : IsRedOrdered s) :
     orderProjection Q Λ (θ+β) (q (e s)) = StendhalAlgebra.e s hs :=
   Subtype.ext ((StendhalAlgebraAllOrders.e_mul_redOrderedIdem s).trans (ite_eq_left hs))
 
-/-- **Loadings above a two-piece loading act by zero** (Webster, arXiv:1309.3796v3, proof of
-Prop. 5.21). If `e(c) ⊗ 1` kills `N` for every red-ordered `c` strictly above `t`, then `e(s)`
+/-- **Loadings above a two-piece loading act by zero** (Webster, arXiv:1309.3796v2, proof of
+Prop. 5.20). If `e(c) ⊗ 1` kills `N` for every red-ordered `c` strictly above `t`, then `e(s)`
 kills the standardization of `N` for every red-ordered `s` strictly above `t λ_{ℓ+1} u`. -/
 theorem parabolicStandardAction_upper_eq_zero (t : Seq (stendhalWeight ℓ θ)) (u : Seq β)
     (hN : ∀ (c : Seq (stendhalWeight ℓ θ)) (hc : IsRedOrdered c), StendhalLT t c → ∀ n : N,

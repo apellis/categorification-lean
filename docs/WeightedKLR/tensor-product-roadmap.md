@@ -601,8 +601,9 @@ after §4 because the single-red case of the §4 constructions gives the §3 one
 | Def 3.23 | strongly equivariant functors | done: strong transformations of module categories (`TwoRep.StronglyEquivariant`, Webster's condition `StronglyEquivariant.webster_condition`), with the unit and composition axioms of Rouquier's morphisms of 2-representations, which Webster's printed definition leaves out and his "unique up to unique isomorphism" uses; morphisms are modifications |
 | Cor 3.27 | universality of `Ř^λ-pmod`; `φ'_C` fully faithful | (1) done: `vacuumFunctor` (existence, for targets with `k`-linear 2-morphism maps, finite biproducts and idempotent completeness, in the universes of `Ř^λ-pmod`), `vacuumFunctorIso`, `vacuumFunctor_modification_ext` (uniqueness), via `Generated.strongTrans` (density `vacuum_isDenseFamily` from `exists_vacuum_retract`, fullness `vacuum_full`, kernel condition `vacuum_kerLe`). (2) done, as the Hom–tensor bijection (maintainer decision): `vacuum_homTensorMap_bijective` (`Hom(M, N) ⊗_{Ř^λ_λ} End(φ_C P_∅) ≅ Hom(φ_C M, φ_C N)` for every strongly equivariant `φ_C`), via the generic `Generated.homTensorMap_bijective`; inputs `univVacuum_smul_id_bijective` (`End(P_∅) = Ř^λ_λ`), `exists_vacuum_up_retract` (retracts of sums of upward images of `P_∅`) and `isZero_vacImg_vacDual` (downward images of `P_∅` vanish) |
 | Def 3.28 (v2 only) | the localization `U′`: invert `y` on `F_i`, identify honest bubbles with negative dot counts with fake bubbles | done: `presLoc` (signature `lsig` with inverse downward dots `invDot`, relations `LocRel`), the localization functor `toLoc`, the inverse relations `invDot_comp_downDot`, `downDot_comp_invDot`, and the bubble identifications `cwNegHonest_eq`, `ccwNegHonest_eq`. §3.6 is absent from v3 (arXiv:1309.3796v3, August 2015) |
-| Lemma 3.29, Prop 3.30 (v2 only) | `B′` spans `U′`; weight-shift functors | open |
-| Prop 3.31 (v2 only) | `B′` is a basis of `U′` | open; the printed proof does not hold as written: it claims that `Ř^λ` is a `U′`-representation, but for `sl₂`, `λ = 1`, one strand, at region weight `-1`, the honest bubble with `-1` dots acts on `Ř^λ` by `-1/z ≠ 0`, while in `U′` it equals the fake bubble of negative degree, which is `0`. How to proceed is a pending maintainer decision; the statement itself is neither proved nor refuted (it needs `U → U′` faithful) |
+| Lemma 3.29 (v2 only) | `B′` spans `U′` | done: `span_twoBL_eq_top` (and one-sided `span_oneBL_eq_top`), for `k` a field and every Cartan datum, the hypotheses of KL III Prop 3.11 (`isSpanFamily_twoB`). `B′` = `twoBL`: KL's spanning set with an integer exponent on each strand, placed at the left end of its arc as in `twoB` (negative exponents are inverse dots); `twoBL_of_nonneg` identifies the nonnegative part with the image of `B`. Route: generation of `U′` by `U` and inverse dots (`loc_mem_of_layers`), every 2-morphism is a `U`-morphism up to dots (`mem_coreSet`, cap lemma via KL 3.11 refined by crossing number, `canonSpanLe`), then dots moved to left ends by triangularity |
+| Prop 3.30 (v2 only) | weight-shift equivalences of `U′` | done: under Webster's condition `a_i − b_i = α_i^∨(μ − μ′)` (`∀ i, a i - b i = -ip RD i δ`), every relation of `U′` holds under the shift (`shiftRelations`), giving `shiftFunctorOf`; the reverse shift is inverse up to `eqToHom` components (`shiftCompIso`), so `shiftEquivalence` (whole `U′`) and `shiftHomEquivalence` (`U′(μ, μ′) ≌ U′(μ + δ, μ′ + δ)`) |
+| Prop 3.31 (v2 only) | `B′` is a basis of `U′` | open; the printed proof does not hold as written: it claims that `Ř^λ` is a `U′`-representation, but for `sl₂`, `λ = 1`, one strand, at region weight `-1`, the honest bubble with `-1` dots acts on `Ř^λ` by `-1/z ≠ 0`, while in `U′` it equals the fake bubble of negative degree, which is `0`. Maintainer decision (2026-11-21): formalize Def 3.28, Lemma 3.29 and Prop 3.30, and record 3.31 as an erratum (README, Webster §3.6 erratum). Roadmap item: prove or refute Prop 3.31; the statement is neither proved nor refuted (a proof needs `U → U′` faithful on Hom spaces) |
 | Cor 3.32 (v2 only) | `γ : U̇_ℤ → K₀(𝒰)` is an isomorphism | done (KL III Thm 1.2 for every Cartan datum: `gammaAlgEquiv_unconditional`, `gammaAlg_injective_unconditional`) |
 
 The proved nondegeneracy of the Khovanov–Lauda calculus (`gammaAlg_injective_of_calculusNondeg`,
@@ -711,10 +712,11 @@ from which the full one is obtained by iterating):
   splitting into a red part and colour pieces (`RedStrands/Prop55Dimension*.lean`), gives
   `firstIndDeltaInjective_std` and `allFiniteDeltaInjective_std`, hence the black-word
   filtrations (`hasFiltration_loadingProj_std`; the finite-dimensional form
-  `AllFiniteDeltaInjective` suffices, `ParabolicStandardFiniteFiltration.lean`). These carry, as
-  hypotheses on the choice of presentation, `CoverRelsNegligible` and well-foundedness for the
-  cover data of `Λ`, `Λ ∘ Fin.castSucc` and the last red strand. **Roadmap items:** remove these
-  presentation hypotheses; extend the count to general scalars `Q`.
+  `AllFiniteDeltaInjective` suffices, `ParabolicStandardFiniteFiltration.lean`). The
+  intermediate lemmas take a base presentation with `CoverRelsNegligible` and well-founded
+  domain; the presentation with no relations (`noRelations`) satisfies both vacuously, so the
+  headline results carry no presentation hypothesis. **Roadmap item:** extend the count to
+  general scalars `Q`.
 
 * Prop 5.5, empty last block (`RedStrands/ParabolicStandardEmptyRed.lean`): for `β = ∅` the
   factor algebra is `T^{λ'}` (`emptyFactorToOld`) and standardization is the induction along
@@ -749,16 +751,13 @@ from which the full one is obtained by iterating):
 
 * Prop 5.21 and Cor 5.22 at the standard Khovanov–Lauda scalars
   (`RedStrands/StandardStratificationStd.lean`): `AllFiniteDeltaInjective` is discharged by the
-  dimension count (`allFiniteDeltaInjective_of_coverPresentations`), leaving `CoverPresentations`:
-  a presentation of each cyclotomic cover with `CoverRelsNegligible` and well-founded domain.
-  These are hypotheses on the presentation used for Theorem 4.31; their removal is tracked with
-  the dimension count.
+  dimension count (`allFiniteDeltaInjective_std`), with no further hypothesis.
 
 * Lemma 5.29 and Cor 5.24 (`RedStrands/StandardProjectiveDimension.lean`): projective dimension
   `< n` passes from the subquotients of a finite filtration to the module
   (`HasFiltration.hasProjectiveDimensionLT`), and every standard module has finite projective
-  dimension (`exists_hasProjectiveDimensionLT_stdModule`; `_std` at the standard scalars, under
-  `CoverPresentations`). Webster's "finite length projective resolution" is stated as vanishing
+  dimension (`exists_hasProjectiveDimensionLT_stdModule`; `_std` at the standard scalars, with
+  no route hypothesis). Webster's "finite length projective resolution" is stated as vanishing
   of `Ext` in large degrees (Mathlib's `HasProjectiveDimensionLT`). Same route hypothesis as
   Prop 5.21.
 

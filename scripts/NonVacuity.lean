@@ -3376,7 +3376,7 @@ example := gdimPoly_standardization_extTensor Λ diagramDegrees 0 β parameters.
 private def oneRed : Seq (stendhalWeight 1 (0 : Multiset (Fin 1))) :=
   KLRAlgebra.Seq.ofList [.inr 0] (by decide)
 
-/-- Webster, arXiv:1309.3796v3, step in the proof of Prop 5.21, at one red strand followed by the final red
+/-- Webster, arXiv:1309.3796v2, step in the proof of Prop 5.20, at one red strand followed by the final red
 strand and one black strand: `S(S_t ⊠ R e(u)) ≅ S_{t λ_2 u}`. -/
 example := twoPieceStandardEquiv Q Λ (θ := 0) (t := oneRed) (by unfold IsRedOrdered; decide) b
   parameters.symm
@@ -5493,6 +5493,32 @@ example := KL3.Diagram.downDot_comp_invDot UDot.sl2RootDatum ℚ () 0
 example := KL3.Diagram.cwNegHonest_eq UDot.sl2RootDatum ℚ 0 () 0
 
 example := KL3.Diagram.ccwNegHonest_eq UDot.sl2RootDatum ℚ 0 () 0
+
+/-- Webster arXiv:1309.3796v2, Lemma 3.29, for `sl₂` over `ℚ`: `B′` spans the 2-morphisms of `U′`
+between `E E^∨ 1_λ` and itself at `λ = 1`. -/
+example : Submodule.span ℚ (Set.range (KL3.Diagram.twoBL UDot.sl2RootDatum ℚ (1 : ℤ)
+    [(true, ()), (false, ())] [(true, ()), (false, ())])) = ⊤ :=
+  KL3.Diagram.span_twoBL_eq_top _ _ _
+
+/-- The elements of `B′` with nonnegative exponents are the images of the elements of `B`. -/
+example (x : KL3.Diagram.SpanIdx [(true, ())] [(true, ())]) :
+    KL3.Diagram.twoBL UDot.sl2RootDatum (ZMod 2) (0 : ℤ) [(true, ())] [(true, ())]
+        ⟨x.1, fun a => (x.2.1 a : ℤ), x.2.2⟩ =
+      (KL3.Diagram.toLoc UDot.sl2RootDatum (ZMod 2)).map
+        (KL3.Diagram.twoB UDot.sl2RootDatum (ZMod 2) 0 [(true, ())] [(true, ())] x) :=
+  KL3.Diagram.twoBL_of_nonneg _ _ _ _
+
+/-- Webster arXiv:1309.3796v2, Proposition 3.30, for `sl₂`: the trivial shift and the shift by
+`δ = 2` with `a = 0`, `b = 2` (so `a i - b i = -⟨i, δ⟩`) are equivalences of `U′`, and the second
+restricts to `U′(0, -2) ≌ U′(2, 0)` over `ZMod 3`. -/
+noncomputable example := KL3.Diagram.shiftEquivalence UDot.sl2RootDatum ℚ 0 (fun _ => 0)
+  (fun _ => 0) (fun _ => by simp [KL3.Diagram.ip])
+
+noncomputable example := KL3.Diagram.shiftEquivalence UDot.sl2RootDatum ℚ 2 (fun _ => 0)
+  (fun _ => 2) (fun _ => by simp [KL3.Diagram.ip, UDot.sl2RootDatum])
+
+noncomputable example := KL3.Diagram.shiftHomEquivalence UDot.sl2RootDatum (ZMod 3) 2
+  (fun _ => 0) (fun _ => 2) (fun _ => by simp [KL3.Diagram.ip, UDot.sl2RootDatum]) 0 (-2)
 
 end NonVacuity.WebsterLocalization
 

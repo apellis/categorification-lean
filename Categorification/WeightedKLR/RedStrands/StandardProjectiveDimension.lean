@@ -8,25 +8,25 @@ import Mathlib.CategoryTheory.Abelian.Projective.Dimension
 /-!
 # Standard modules have finite projective dimension
 
-B. Webster, *Knot invariants and higher representation theory*, arXiv:1309.3796v3,
-Lemma 5.29 and Corollary 5.24.
+B. Webster, *Knot invariants and higher representation theory*, arXiv:1309.3796v2,
+Lemma 5.26 and Corollary 5.22.
 
-Lemma 5.29 is stated there for modules with a standard filtration whose subquotients have
+Lemma 5.26 is stated there for modules with a standard filtration whose subquotients have
 finite projective dimension; we prove it for any finite filtration (`HasFiltration`): if every
 subquotient has projective dimension `< n`, so does the filtered module.
 
-Corollary 5.24 asserts that every standard module `S_s` has a finite-length projective
+Corollary 5.22 asserts that every standard module `S_s` has a finite-length projective
 resolution. We state finite projective dimension in Mathlib's sense
 (`HasProjectiveDimensionLT`, vanishing of `Ext` in large degrees). The proof is Webster's:
 descending induction on `s` in Webster's order, using the short exact sequence
 `0 → U_s → T^λ e(s) → S_s → 0`, projectivity of `T^λ e(s)`, and the standard filtration of `U_s`
-by modules `S_t` with `t > s` (Corollary 5.22, `exists_hasFiltration_leftUpper`).
+by modules `S_t` with `t > s` (Corollary 5.21, `exists_hasFiltration_leftUpper`).
 
 ## Main results
 
-* `ModuleFiltration.HasFiltration.hasProjectiveDimensionLT`: Lemma 5.29 for finite filtrations.
-* `exists_hasProjectiveDimensionLT_stdModule`: Corollary 5.24. Route hypothesis:
-  `AllFiniteDeltaInjective` (Proposition 5.5, `F`-part), as for Proposition 5.21.
+* `ModuleFiltration.HasFiltration.hasProjectiveDimensionLT`: Lemma 5.26 for finite filtrations.
+* `exists_hasProjectiveDimensionLT_stdModule`: Corollary 5.22. Route hypothesis:
+  `AllFiniteDeltaInjective` (Proposition 5.5, `F`-part), as for Proposition 5.20.
 -/
 
 set_option backward.isDefEq.respectTransparency false
@@ -53,7 +53,7 @@ theorem shortExact_of_linearMaps {X Y Z : ModuleCat.{0} A} (f : X →ₗ[A] Y) (
 
 variable {ι : Type*} {L : ι → ModuleCat.{0} A}
 
-/-- **Lemma 5.29** (Webster, arXiv:1309.3796v3), for finite filtrations: if every subquotient
+/-- **Lemma 5.26** (Webster, arXiv:1309.3796v2), for finite filtrations: if every subquotient
 of a finite filtration of `Y` has projective dimension `< n`, so does `Y`. -/
 theorem HasFiltration.hasProjectiveDimensionLT {m : List ι} {Y : ModuleCat.{0} A}
     (h : HasFiltration L m Y) (n : ℕ) (hL : ∀ c ∈ m, HasProjectiveDimensionLT (L c) n) :
@@ -101,10 +101,10 @@ end Projective
 
 variable {C : QuantumGroup.CartanDatum I} (hQ : KLRSymm Q)
 
-/-- **Standard modules have finite projective dimension** (Webster, arXiv:1309.3796v3,
-Corollary 5.24): for every red-ordered loading `s`, the standard module `S_s` has finite
+/-- **Standard modules have finite projective dimension** (Webster, arXiv:1309.3796v2,
+Corollary 5.22): for every red-ordered loading `s`, the standard module `S_s` has finite
 projective dimension. Route hypothesis: `AllFiniteDeltaInjective` (Proposition 5.5, `F`-part) at
-every number of red strands, as for Proposition 5.21. -/
+every number of red strands, as for Proposition 5.20. -/
 theorem exists_hasProjectiveDimensionLT_stdModule (hR : IsRouquierQ C Q)
     (hall : ∀ (n : ℕ) (Λ' : Fin (n + 1) → I →₀ ℕ), AllFiniteDeltaInjective Q Λ' hQ)
     {n : ℕ} (Λ : Fin n → I →₀ ℕ) (ν : Multiset I)

@@ -8,8 +8,8 @@ import Categorification.WeightedKLR.RedStrands.TwoPieceStandardComparison
 /-!
 # The prefix action on a two-piece standard module
 
-B. Webster, *Knot invariants and higher representation theory*, arXiv:1309.3796v3, proof of
-Proposition 5.21. For a red-ordered loading `t` of the first `ℓ` red strands and a black
+B. Webster, *Knot invariants and higher representation theory*, arXiv:1309.3796v2, proof of
+Proposition 5.20. For a red-ordered loading `t` of the first `ℓ` red strands and a black
 sequence `u`, the diagrams on the first `ℓ` red strands act on the standard module
 `S_{t λ_{ℓ+1} u}` of Definition 5.1 by juxtaposition with the identity on the last block. This
 action satisfies the red relations of Definitions 4.5–4.7, so it factors through the tensor

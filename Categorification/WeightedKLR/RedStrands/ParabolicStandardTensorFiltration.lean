@@ -9,8 +9,8 @@ import Categorification.WeightedKLR.RedStrands.ParabolicStandardExact
 /-!
 # Standard layers of tensor form and `Fᵢ`
 
-The recursion in the proof of Proposition 5.21 of B. Webster, *Knot invariants and higher
-representation theory*, arXiv:1309.3796v3, filters a projective over `T^λ` by
+The recursion in the proof of Proposition 5.20 of B. Webster, *Knot invariants and higher
+representation theory*, arXiv:1309.3796v2, filters a projective over `T^λ` by
 standardizations `S(X ⊠ Y)` of external tensor products of a module `X` over `T^{λ'}` (the
 algebra of the first `ℓ` red strands) and a module `Y` over the cyclotomic quotient `R^{λ_ℓ}`.
 This file shows that the two layers of `Fᵢ S(X ⊠ Y)` (Proposition 5.5, `F`-part,

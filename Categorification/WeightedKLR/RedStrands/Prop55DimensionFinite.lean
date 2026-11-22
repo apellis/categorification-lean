@@ -8,7 +8,7 @@ import Categorification.WeightedKLR.RedStrands.ParabolicStandardFinite
 /-!
 # Finiteness of the modules of the dimension count of Proposition 5.5
 
-Webster, arXiv:1309.3796v3, proof of Proposition 5.5. The dimension count (5.14)–(5.15) applies
+Webster, arXiv:1309.3796v2, proof of Proposition 5.5. The dimension count (5.13)–(5.14) applies
 additivity of dimensions to restrictions and inductions of finite-dimensional modules. This file
 records that these modules stay finite-dimensional.
 

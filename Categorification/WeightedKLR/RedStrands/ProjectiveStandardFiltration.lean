@@ -11,14 +11,14 @@ import Categorification.Algebra.ModuleFiltrationMap
 /-!
 # Projectives of `T^λ` have standard filtrations
 
-B. Webster, *Knot invariants and higher representation theory*, arXiv:1309.3796v3,
-Proposition 5.21, in filtration form: for every red-ordered loading `s`, the projective
+B. Webster, *Knot invariants and higher representation theory*, arXiv:1309.3796v2,
+Proposition 5.20, in filtration form: for every red-ordered loading `s`, the projective
 `T^λ e(s)` has a finite filtration whose successive quotients are standard modules `S_t`
 (Definition 5.1) of red-ordered loadings `t`.
 
-Webster states Proposition 5.21 for the particular filtration `P_{>φ} ⊆ P_{≥φ}` of `T^λ`
+Webster states Proposition 5.20 for the particular filtration `P_{>φ} ⊆ P_{≥φ}` of `T^λ`
 indexed by the set `Φ`, with `P_{≥φ}/P_{>φ} ≅ S_{iφ}^{κφ}`, and proves it by a surjection and a
-dimension count (Lemma 5.19). We prove the existence of a filtration of each `T^λ e(s)` by
+dimension count (the identity for `v_i^κ` in the proof; v3: Lemma 5.19). We prove the existence of a filtration of each `T^λ e(s)` by
 standard modules, by Webster's induction on the number of red strands:
 
 * with no red strands, Webster's order is trivial, so `S_s = T^λ e(s)`
@@ -32,8 +32,7 @@ standard modules, by Webster's induction on the number of red strands:
 
 The step uses the route hypothesis `AllFiniteDeltaInjective` of Proposition 5.5 (the
 `F`-part of Proposition 5.5 for finite-dimensional modules) at every number of red strands; it
-holds at the standard Khovanov–Lauda parameters under hypotheses on the choice of presentation
-of the cyclotomic cover (`allFiniteDeltaInjective_std`).
+is proved only at the standard Khovanov–Lauda parameters (`allFiniteDeltaInjective_std`).
 
 ## Main definitions and results
 
@@ -59,7 +58,7 @@ abbrev stdModule {n : ℕ} (Λ : Fin n → I →₀ ℕ) (ν : Multiset I)
     ModuleCat (TensorProductAlgebra k Q Λ ν) :=
   ModuleCat.of (TensorProductAlgebra k Q Λ ν) (leftStandard Q Λ c.1 c.2)
 
-/-- **Projectives have standard filtrations** (Webster, arXiv:1309.3796v3, Proposition 5.21,
+/-- **Projectives have standard filtrations** (Webster, arXiv:1309.3796v2, Proposition 5.20,
 filtration form): for every red-ordered loading `s`, the projective `T^λ e(s)` has a finite
 filtration whose subquotients are standard modules `S_t` of red-ordered loadings `t`. -/
 def HasStandardFiltrations {n : ℕ} (Λ : Fin n → I →₀ ℕ) : Prop :=
@@ -111,7 +110,7 @@ def twoPieceLabel {θ β ν : Multiset I} (h : θ + β = ν) (u : Seq β)
 
 variable {C : QuantumGroup.CartanDatum I}
 
-/-- **Induction step** (Webster, arXiv:1309.3796v3, proof of Proposition 5.21): if the
+/-- **Induction step** (Webster, arXiv:1309.3796v2, proof of Proposition 5.20): if the
 projectives of the first `ℓ` red strands have standard filtrations, so have those of `T^λ`.
 Route hypothesis: `AllFiniteDeltaInjective` (Proposition 5.5, `F`-part). -/
 theorem hasStandardFiltrations_succ (hR : IsRouquierQ C Q)
@@ -137,8 +136,8 @@ theorem hasStandardFiltrations_succ (hR : IsRouquierQ C Q)
   exact ⟨_, (HasFiltration.relabel (L := stdModule Q Λ _) (twoPieceLabel c.h u) h₂).of_equiv
     e.symm⟩
 
-/-- **Projectives of `T^λ` have standard filtrations** (Webster, arXiv:1309.3796v3,
-Proposition 5.21, filtration form), by induction on the number of red strands. Route
+/-- **Projectives of `T^λ` have standard filtrations** (Webster, arXiv:1309.3796v2,
+Proposition 5.20, filtration form), by induction on the number of red strands. Route
 hypothesis: `AllFiniteDeltaInjective` (Proposition 5.5, `F`-part) for every sequence of
 highest weights. -/
 theorem hasStandardFiltrations (hR : IsRouquierQ C Q)

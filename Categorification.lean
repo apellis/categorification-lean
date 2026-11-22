@@ -1568,6 +1568,7 @@ import Categorification.KLR.CyclotomicAction.UniversalGrading
 import Categorification.KLR.CyclotomicAction.Projective
 import Categorification.KLR.CyclotomicAction.ProjectiveModules
 import Categorification.Algebra.Graded.FreeOfProjective
+import Categorification.WeightedKLR.RedStrands.LastRedMaximalLoading
 /-!
 # Categorification
 

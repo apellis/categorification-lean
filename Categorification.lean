@@ -923,6 +923,7 @@ import Categorification.Sl2Categorification.DividedPowerSocle
 import Categorification.Sl2Categorification.TopDividedPowerSimple
 import Categorification.Sl2Categorification.SimpleSocle
 import Categorification.Sl2Categorification.SimpleHead
+import Categorification.Sl2Categorification.PerfectBasis
 import Categorification.Sl2Categorification.NilHeckeLift
 import Categorification.TwoRep.AdditiveCat
 import Categorification.TwoRep.CyclotomicRouqAdjunction
@@ -1520,6 +1521,7 @@ import Categorification.WeightedKLR.RedStrands.BlackNilHecke
 import Categorification.WeightedKLR.RedStrands.BlackNilHeckeTower
 import Categorification.WeightedKLR.RedStrands.BlackNilHeckeNilpotent
 import Categorification.WeightedKLR.RedStrands.BlackModuleSimpleHead
+import Categorification.WeightedKLR.RedStrands.BlackModulePerfectBasis
 import Categorification.WeightedKLR.RedStrands.LastRedBlackBimodule
 import Categorification.WeightedKLR.RedStrands.LastRedBlackSurjective
 import Categorification.WeightedKLR.RedStrands.LastRedBlackViolated

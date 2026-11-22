@@ -5591,3 +5591,30 @@ private instance : IsSimpleModule sdT sdT := by
 example := Stendhal.nonempty_equiv_twistDual (L := sdT) sdΛ 0 sdRouquier
 
 end NonVacuity.SelfDualSimple
+
+namespace NonVacuity.PerfectBasis
+
+private noncomputable abbrev pbC := CartanDatum.ofGraph (⊥ : SimpleGraph Unit)
+private noncomputable abbrev pbΛ : Fin 1 → Unit →₀ ℕ := fun _ => Finsupp.single () 1
+
+private theorem pbRouquier :
+    KLR.IsRouquierQ pbC (CL.qCL (CL.CLScalars.kl : CL.CLScalars pbC ℚ)) where
+  symm _ _ h := (h (Subsingleton.elim _ _)).elim
+  homogeneous _ _ h := (h (Subsingleton.elim _ _)).elim
+  unit_coeff _ _ h := (h (Subsingleton.elim _ _)).elim
+
+section
+attribute [local instance 1100] IsIdempotentElem.instAlgebraCorner_categorification
+attribute [local instance 2000] Classical.propDecidable
+
+/-- Webster, arXiv:1309.3796v2, Thm. 5.14, along the `()`-string from the empty sequence for
+`sl₂` with one red strand. -/
+example : True := by
+  have := fun m => Stendhal.isNoetherianRing_stringAlg pbΛ pbRouquier () 0 m
+  have := fun m => Stendhal.isArtinianRing_stringAlg pbΛ pbRouquier () 0 m
+  exact (Stendhal.fgString_isPerfectBasis (k := ℚ) (Λ := pbΛ) () 0 pbRouquier
+    (Multiset.notMem_zero ())).elim fun _ _ => trivial
+
+end
+
+end NonVacuity.PerfectBasis

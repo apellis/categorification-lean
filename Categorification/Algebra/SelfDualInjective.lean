@@ -170,4 +170,11 @@ theorem injective_lIdeal_of_pairing [FiniteDimensional k A]
     Module.Injective A (lIdeal e) :=
   (Module.Baer.lIdeal_of_pairing hnd hdim).injective
 
+/-- A retract of a Baer module is a Baer module. -/
+theorem Module.Baer.of_retract {R M N : Type*} [Ring R] [AddCommGroup M] [Module R M]
+    [AddCommGroup N] [Module R N] (i : N →ₗ[R] M) (r : M →ₗ[R] N) (hri : ∀ x, r (i x) = x)
+    (h : Module.Baer R M) : Module.Baer R N := fun J g => by
+  obtain ⟨g', hg'⟩ := h J (i ∘ₗ g)
+  exact ⟨r ∘ₗ g', fun x hx => by simp [hg' x hx, hri]⟩
+
 end Categorification

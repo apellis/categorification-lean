@@ -26,14 +26,14 @@ open KLR KLRAlgebra InductionAlong
 variable {I : Type} [DecidableEq I] {k : Type} [Field k] (Q : I → I → MvPolynomial (Fin 2) k)
 
 /-- The image in `T^λ` of the idempotent of a red-ordered loading. -/
-abbrev seqIdem {m : ℕ} (Λ : Fin m → I →₀ ℕ) (ν : Multiset I)
+abbrev redLoadingIdem {m : ℕ} (Λ : Fin m → I →₀ ℕ) (ν : Multiset I)
     (s : Seq (stendhalWeight m ν)) (hs : IsRedOrdered s) : TensorProductAlgebra k Q Λ ν :=
   TensorProductAlgebra.mk Q Λ ν (StendhalAlgebra.e s hs)
 
-theorem isIdempotentElem_seqIdem {m : ℕ} (Λ : Fin m → I →₀ ℕ) (ν : Multiset I)
+theorem isIdempotentElem_redLoadingIdem {m : ℕ} (Λ : Fin m → I →₀ ℕ) (ν : Multiset I)
     (s : Seq (stendhalWeight m ν)) (hs : IsRedOrdered s) :
-    IsIdempotentElem (seqIdem Q Λ ν s hs) := by
-  unfold IsIdempotentElem seqIdem
+    IsIdempotentElem (redLoadingIdem Q Λ ν s hs) := by
+  unfold IsIdempotentElem redLoadingIdem
   rw [← map_mul, StendhalAlgebra.e_mul_e, ite_eq_left rfl]
 
 /-- `s ⟶ t`: an element `c` with `c e(t) = c` such that `x ↦ x c` is injective on
@@ -41,8 +41,8 @@ theorem isIdempotentElem_seqIdem {m : ℕ} (Λ : Fin m → I →₀ ℕ) (ν : M
 def CrossPair {m : ℕ} (Λ : Fin m → I →₀ ℕ) (ν : Multiset I)
     (s t : Seq (stendhalWeight m ν)) : Prop :=
   ∃ (hs : IsRedOrdered s) (ht : IsRedOrdered t) (c : TensorProductAlgebra k Q Λ ν),
-    (∀ x, x * seqIdem Q Λ ν s hs = x → x * c = 0 → x = 0) ∧
-      c * seqIdem Q Λ ν t ht = c
+    (∀ x, x * redLoadingIdem Q Λ ν s hs = x → x * c = 0 → x = 0) ∧
+      c * redLoadingIdem Q Λ ν t ht = c
 
 /-- A chain of crossings from `s` to a red-first loading. -/
 def Reach {m : ℕ} (Λ : Fin m → I →₀ ℕ) (ν : Multiset I) (s : Seq (stendhalWeight m ν)) :
@@ -71,13 +71,13 @@ theorem crossPair_appendBlack (hQ : IsRouquierQ C Q) {ℓ : ℕ} (Λ : Fin ℓ �
   refine ⟨appendBlackLoading_ordered i ν s hs, appendBlackLoading_ordered i ν t ht,
     appendBlackNU (Q := Q) (Λ := Λ) i ν c, fun x hx h0 => ?_, ?_⟩
   · refine eq_zero_of_mul_map (appendBlackNU (Q := Q) (Λ := Λ) i ν)
-      (isIdempotentElem_seqIdem Q Λ ν s hs) c
+      (isIdempotentElem_redLoadingIdem Q Λ ν s hs) c
       (appendBlack_ind_map_injective C hQ (rmulLIdeal_injective hinj)) x ?_ h0
-    change x * appendBlack Q Λ i ν (seqIdem Q Λ ν s hs) = x
+    change x * appendBlack Q Λ i ν (redLoadingIdem Q Λ ν s hs) = x
     rw [appendBlack_mk_e]; exact hx
   · change appendBlack Q Λ i ν c * _ = _
-    rw [show seqIdem Q Λ ({i} + ν) (appendBlackLoading i ν t) _ =
-      appendBlack Q Λ i ν (seqIdem Q Λ ν t ht) from (appendBlack_mk_e Q Λ i ν t ht).symm,
+    rw [show redLoadingIdem Q Λ ({i} + ν) (appendBlackLoading i ν t) _ =
+      appendBlack Q Λ i ν (redLoadingIdem Q Λ ν t ht) from (appendBlack_mk_e Q Λ i ν t ht).symm,
       ← map_mul, hc]
     rfl
 
@@ -90,11 +90,11 @@ theorem crossPair_appendRed (hQs : KLRSymm Q) {ℓ : ℕ} (Λ : Fin (ℓ + 1) �
   refine ⟨(appendRedLoading_ordered_iff s).2 hs, (appendRedLoading_ordered_iff t).2 ht,
     emptyRedHom Q Λ θ c, fun x hx h0 => ?_, ?_⟩
   · refine eq_zero_of_mul_map (emptyRedHom Q Λ θ)
-      (isIdempotentElem_seqIdem Q _ _ s hs) c
+      (isIdempotentElem_redLoadingIdem Q _ _ s hs) c
       (emptyRed_lIdeal_ind_map_injective Q Λ θ hQs (rmulLIdeal_injective hinj)) x ?_ h0
     rw [emptyRedHom_apply, appendRed_mk_e]; exact hx
-  · rw [emptyRedHom_apply, show seqIdem Q Λ (θ + 0) (appendRedLoading t) _ =
-      (appendRed Q Λ (θ + 0) (seqIdem Q _ _ t ht)).val from (appendRed_mk_e Q Λ _ t ht).symm]
+  · rw [emptyRedHom_apply, show redLoadingIdem Q Λ (θ + 0) (appendRedLoading t) _ =
+      (appendRed Q Λ (θ + 0) (redLoadingIdem Q _ _ t ht)).val from (appendRed_mk_e Q Λ _ t ht).symm]
     change (appendRed Q Λ (θ + 0) c * appendRed Q Λ (θ + 0) _).val = _
     rw [← map_mul, hc]
 
@@ -190,10 +190,10 @@ theorem mem_of_lbl_eq_inl {ℓ : ℕ} {ν : Multiset I} (s : Seq (stendhalWeight
   simpa [stendhalWeight] using hm
 
 open Classical in
-theorem seqIdem_mul_redFirstIdem {ℓ : ℕ} (Λ : Fin ℓ → I →₀ ℕ) (ν : Multiset I)
+theorem redLoadingIdem_mul_redFirstIdem {ℓ : ℕ} (Λ : Fin ℓ → I →₀ ℕ) (ν : Multiset I)
     (t : Seq (stendhalWeight ℓ ν)) (ht : IsRedOrdered t) (htf : IsRedFirst t) :
-    seqIdem Q Λ ν t ht * redFirstIdem Q Λ ν = seqIdem Q Λ ν t ht := by
-  unfold seqIdem redFirstIdem redFirstStendhalIdem
+    redLoadingIdem Q Λ ν t ht * redFirstIdem Q Λ ν = redLoadingIdem Q Λ ν t ht := by
+  unfold redLoadingIdem redFirstIdem redFirstStendhalIdem
   rw [← map_mul, Finset.mul_sum, Finset.sum_eq_single_of_mem
     (⟨t, ht, htf⟩ : RedFirstLoading (ℓ := ℓ) ν) (Finset.mem_univ _)]
   · rw [StendhalAlgebra.e_mul_e, ite_eq_left rfl]
@@ -282,12 +282,12 @@ in the proof of Theorem 5.27): if `x e(s) = x` and `x ≠ 0` for a red-ordered `
 with `c e⁰ = c` and `x c ≠ 0`. -/
 theorem exists_mul_redFirstIdem_ne_zero {ℓ : ℕ} (Λ : Fin ℓ → I →₀ ℕ) (ν : Multiset I)
     (s : Seq (stendhalWeight ℓ ν)) (hs : IsRedOrdered s) (x : TensorProductAlgebra k Q Λ ν)
-    (hx : x * seqIdem Q Λ ν s hs = x) (h0 : x ≠ 0) :
+    (hx : x * redLoadingIdem Q Λ ν s hs = x) (h0 : x ≠ 0) :
     ∃ c, c * redFirstIdem Q Λ ν = c ∧ x * c ≠ 0 := by
   obtain ⟨t, ht, htf, hch⟩ := reach_of_isRedOrdered hQ hQs hbase _ Λ ν rfl s hs
   induction hch using Relation.ReflTransGen.head_induction_on generalizing x with
   | refl =>
-    refine ⟨seqIdem Q Λ ν t ht, seqIdem_mul_redFirstIdem Q Λ ν t ht htf, ?_⟩
+    refine ⟨redLoadingIdem Q Λ ν t ht, redLoadingIdem_mul_redFirstIdem Q Λ ν t ht htf, ?_⟩
     rwa [hx]
   | head hst _ ih =>
     obtain ⟨hs₁, hs', c₁, hinj, hc⟩ := hst

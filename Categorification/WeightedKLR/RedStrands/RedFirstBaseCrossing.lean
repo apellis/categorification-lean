@@ -83,7 +83,7 @@ theorem castTensorProductAlgebra_cast_symm {m : ℕ} (Λ' : Fin m → I →₀ �
   subst h; rfl
 
 theorem redCrossIdem_eq :
-    redCrossIdem Q Λ i θ s hs = seqIdem Q Λ ({i} + (θ + 0))
+    redCrossIdem Q Λ i θ s hs = redLoadingIdem Q Λ ({i} + (θ + 0))
       (appendRedLoading (appendBlackLoading i (θ + 0) s))
       ((appendRedLoading_ordered_iff _).2 (appendBlackLoading_ordered i (θ + 0) s hs)) := by
   have h := appendBlackOld_emptyFactorToOld Q Λ i θ
@@ -117,7 +117,7 @@ local notation "Aₗ" => Multiset.map (Sum.map (id : I → I) (fun _ : Fin 1 => 
 theorem firstIndAffine_e_cast (β : Multiset I) (t : Seq (stendhalWeight (ℓ + 1) ({i} + (θ + β))))
     (ht : IsRedOrdered t) :
     firstIndAffine Q Λ i θ β (e (Seq.cast (firstInd_klrWeight i θ β).symm t)) =
-      seqIdem Q Λ _ t ht := by
+      redLoadingIdem Q Λ _ t ht := by
   rw [firstIndAffine_apply, castKLR_e, Seq.cast_cast_symm, tensorOfKLR_e_of_ordered _ _ ht]
 
 omit [DecidableEq I] in
@@ -198,14 +198,14 @@ theorem crossPair_base_std {ℓ : ℕ} (Λ : Fin (ℓ + 1) → I →₀ ℕ) (i 
   set G := firstG (stendhalQ QL Λ) (Multiset.map (addRedColor ℓ) (stendhalWeight ℓ θ))
     (Multiset.map (Sum.map (id : I → I) (fun _ : Fin 1 => Fin.last ℓ))
       (stendhalWeight 1 (0 : Multiset I))) (Sum.inl i : I ⊕ Fin (ℓ + 1)) with hG
-  refine ⟨hsrc, htgt, seqIdem QL Λ _ _ hsrc * firstIndAffine QL Λ i θ 0 G, ?_, ?_⟩
+  refine ⟨hsrc, htgt, redLoadingIdem QL Λ _ _ hsrc * firstIndAffine QL Λ i θ 0 G, ?_, ?_⟩
   · intro x hx h0
     have := finiteDimensional_redFactorModule _ hR Λ θ s hs
     refine redCross_eq_zero _ Λ i θ s hs hQs (firstIndDeltaInjective_std hR hQs i θ 0 _) x ?_ ?_
     · rw [redCrossIdem_eq]
       exact hx
     · calc x * firstIndAffine QL Λ i θ 0 G
-          = x * seqIdem QL Λ _ _ hsrc * firstIndAffine QL Λ i θ 0 G := by rw [hx]
+          = x * redLoadingIdem QL Λ _ _ hsrc * firstIndAffine QL Λ i θ 0 G := by rw [hx]
         _ = 0 := by rw [mul_assoc]; exact h0
   · have hdw := congrArg (Seq.cast (firstInd_klrWeight i θ 0).symm)
       (cast_quadPerm_smul_base i θ s)

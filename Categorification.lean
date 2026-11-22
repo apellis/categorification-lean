@@ -1577,6 +1577,7 @@ import Categorification.WeightedKLR.RedStrands.StringyClassification
 import Categorification.WeightedKLR.RedStrands.StandardSplitting
 import Categorification.WeightedKLR.RedStrands.RedFirstBaseCrossing
 import Categorification.WeightedKLR.RedStrands.RedFirstCorner
+import Categorification.WeightedKLR.RedStrands.RedFirstInjective
 import Categorification.WeightedKLR.RedStrands.RedFirstReach
 import Categorification.WeightedKLR.RedStrands.RedFirstTrace
 import Categorification.WeightedKLR.RedStrands.RedBlackCrossingInjective

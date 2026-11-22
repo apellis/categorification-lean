@@ -437,8 +437,134 @@ theorem finrank_hom_divObj_le_one_of_ne_zero [E.PreservesMonomorphisms]
         LinearMap.finrank_le_finrank_of_injective hΦ'
     _ ≤ 1 := (finrank_span_le_card ({u₀} : Set _)).trans (by simp)
 
+omit [E.Linear k] in
+/-- A nonzero map into `E^N U` has a nonzero component into `E^{(N)} U`, since `1 ∈ NH_N` splits
+through copies of the idempotent defining `E^{(N)}`. -/
+theorem exists_comp_divπ_ne_zero {X U : C} {N : ℕ} {w : X ⟶ (Epow E N).obj U} (hw : w ≠ 0) :
+    ∃ y : (Epow E N).obj U ⟶ (Epow E N).obj U, w ≫ y ≫ D.divπ k N U ≠ 0 := by
+  obtain ⟨J, _, _, a, b, -, hS⟩ := exists_isSplitting_one_idemNH k N
+  by_contra! h
+  apply hw
+  have hb : ∀ j, (D.γ (k := k) N (b j)).app U =
+      (D.γ (k := k) N (b j)).app U ≫ D.divπ k N U ≫ D.divι k N U := by
+    intro j
+    have h1 := congrArg (fun t => (D.γ (k := k) N t).app U) (hS.b_mul_right j)
+    simp only [mul_one, map_mul, End.mul_def, NatTrans.comp_app] at h1
+    rw [D.divπ_divι]
+    exact h1
+  have h1 := congrArg (fun t => (D.γ (k := k) N t).app U) hS.sum_eq
+  simp only [map_sum, map_one, map_mul, End.mul_def, End.one_def, NatTrans.id_app] at h1
+  rw [← Category.comp_id w, ← h1]
+  erw [NatTrans.app_sum, Preadditive.comp_sum]
+  refine Finset.sum_eq_zero fun j _ => ?_
+  rw [NatTrans.comp_app, hb j]
+  simp only [← Category.assoc]
+  rw [Category.assoc w, h, zero_comp, zero_comp]
+
 end Socle
 
 end NilHeckeData
+
+/-! ### The socle bound in a weak categorification -/
+
+namespace WeakSl2
+
+variable [Abelian C] {ι V : Type*} [AddCommGroup V] [Module ℚ V] (A : WeakSl2 C ι V)
+variable [∀ X : C, IsArtinianObject X]
+
+/-- Every simple subobject of `E^j U`, for `U` simple with `F U = 0`, has `d ≥ h₊([U]) + 1`
+(Chuang–Rouquier, Lemma 5.11, iterated). -/
+theorem le_dS_of_mono_Epow {U : C} (hU : Simple U) (hFU : IsZero (A.F.obj U)) :
+    ∀ (j : ℕ) (S : C) (hS : Simple S) (s : S ⟶ (Epow A.E j).obj U), Mono s →
+      hPlus A.e (A.cls U) + 1 ≤ A.dS S hS
+  | 0, S, hS, s, hs => by
+    have hs0 : s ≠ 0 := fun h ↦ id_nonzero S ((cancel_mono s).1 (by rw [h, comp_zero, comp_zero]))
+    have : Simple ((Epow A.E 0).obj U) := hU
+    have : Mono s := hs
+    have hiso : IsIso s := isIso_of_mono_of_nonzero hs0
+    have hcls : A.B (A.idx S hS) = A.cls U := by
+      rw [← A.cls_simple S hS]; exact A.cls_of_iso (@asIso _ _ _ _ s hiso)
+    have hf : hPlus A.f (A.cls U) = 0 := Nat.le_zero.mp (hPlus_le (by
+      rw [zero_add, pow_one, ← A.cls_F]; exact A.toK0Data.cls_eq_zero_of_isZero hFU))
+    unfold dS dOf
+    rw [hcls, hf]
+  | j + 1, S, hS, s, hs => by
+    let t : S ⟶ A.E.obj ((Epow A.E j).obj U) := s
+    have : Mono t := hs
+    exact A.dOf_le_of_mono_E (fun S' hS' s' hs' ↦ le_dS_of_mono_Epow hU hFU j S' hS' s' hs') hS t
+
+omit [∀ X : C, IsArtinianObject X] in
+/-- A simple subobject of `E^j U`, for `U` simple with `F U = 0`, has weight `-h₊([U]) + 2j`. -/
+theorem wt_of_mono_Epow {U : C} (hU : Simple U) (hFU : IsZero (A.F.obj U)) (j : ℕ) {S : C}
+    (hS : Simple S) (s : S ⟶ (Epow A.E j).obj U) [Mono s] :
+    A.wt (A.idx S hS) = -(hPlus A.e (A.cls U) : ℤ) + 2 * j := by
+  have hclsU : A.cls U = A.B (A.idx U hU) := A.cls_simple U hU
+  have hfb : A.f (A.B (A.idx U hU)) = 0 := by
+    rw [← hclsU, ← A.cls_F]; exact A.toK0Data.cls_eq_zero_of_isZero hFU
+  have hpos := A.repr_cls_pos_of_mono_of_epi (𝟙 _) s
+  rw [A.toK0Data.cls_Epow_obj A.cls_E, hclsU] at hpos
+  rw [A.posBasis.wt_eq_of_repr_ne_zero (A.posBasis.hOp_pow_e_basis _ j) hpos.ne',
+    A.posBasis.wt_of_f_eq_zero hfb, hclsU]
+
+variable [A.E.Additive] (DE : NilHeckeData A.E) (k : Type*) [Field k] [Linear k C]
+
+/-- **Chuang–Rouquier, Proposition 5.20 (b)**, socle part, for `E`: if `U` is simple with
+`F U = 0` and `i ≤ h₊([U])`, then `dim Hom(S, E^{(i)} U) ≤ 1` for every simple `S`.
+
+The hypothesis `hX` is the nilpotence of the dot (Chuang–Rouquier, §5.2.1, eigenvalue `0`), and
+`hEnd` is the condition `End(S) = k` for simple `S` (Chuang–Rouquier, §5.1.1). -/
+theorem finrank_hom_divObj_le_one [A.F.Additive] [A.E.Linear k] (DF : NilHeckeData A.F)
+    (hX : ∀ M, IsNilpotent (R := End (A.E.obj M)) (DE.X.app M))
+    (hEnd : ∀ S : C, Simple S → finrank k (S ⟶ S) = 1)
+    {U : C} (hU : Simple U) (hFU : IsZero (A.F.obj U)) {i : ℕ} (hi : i ≤ hPlus A.e (A.cls U))
+    (S : C) [hS : Simple S] : finrank k (S ⟶ DE.divObj k i U) ≤ 1 := by
+  classical
+  have : A.E.IsRightAdjoint := A.adjFE.isRightAdjoint
+  obtain ⟨m, hN⟩ := Nat.exists_eq_add_of_le hi
+  by_cases h0 : ∀ φ : S ⟶ DE.divObj k i U, φ = 0
+  · have : Subsingleton (S ⟶ DE.divObj k i U) := ⟨fun a b => (h0 a).trans (h0 b).symm⟩
+    rw [finrank_zero_of_subsingleton]
+    exact zero_le_one
+  push Not at h0
+  obtain ⟨φ, hφ⟩ := h0
+  have : Mono φ := mono_of_nonzero_from_simple hφ
+  have hT : Simple (DE.divObj k (i + m) U) := by
+    have := A.simple_divObj_top_of_F_eq_zero DE k DF hU hFU
+    rwa [hN] at this
+  -- the weight and `d` of `S` force `E^m S ≠ 0`
+  have hwt := A.wt_of_mono_Epow hU hFU i hS (φ ≫ DE.divι k i U)
+  have hd := A.le_dS_of_mono_Epow hU hFU i S hS (φ ≫ DE.divι k i U) inferInstance
+  obtain ⟨hstr, hne, -⟩ := A.posBasis.strings (A.idx S hS)
+  have hm : m ≤ hPlus A.e (A.B (A.idx S hS)) := by
+    unfold dS dOf at hd
+    rw [hN] at hd hwt
+    omega
+  have hem : (A.e ^ m) (A.B (A.idx S hS)) ≠ 0 := by
+    intro h
+    apply hne
+    rw [show hPlus A.e (A.B (A.idx S hS)) = (hPlus A.e (A.B (A.idx S hS)) - m) + m by omega,
+      pow_add,
+      Module.End.mul_apply, h, map_zero]
+  have hES : ¬IsZero ((Epow A.E m).obj S) := by
+    intro h
+    apply hem
+    rw [← A.cls_simple S hS, ← A.toK0Data.cls_Epow_obj A.cls_E]
+    exact A.toK0Data.cls_eq_zero_of_isZero h
+  -- a simple `S' ⊆ E^m S`, which is isomorphic to `E^{(i+m)} U`
+  set s' := simpleSubobjectArrow hES
+  set w := s' ≫ liftMap (φ ≫ DE.divι k i U) m
+  have : Mono (liftMap (E := A.E) (φ ≫ DE.divι k i U) m) := mono_liftMap _ m
+  have hw : w ≠ 0 := fun h ↦ id_nonzero _ ((cancel_mono w).1 (by rw [h, comp_zero, comp_zero]))
+  obtain ⟨y, hy⟩ := DE.exists_comp_divπ_ne_zero (k := k) hw
+  have : Mono (w ≫ y ≫ DE.divπ k (i + m) U) := mono_of_nonzero_from_simple hy
+  have : IsIso (w ≫ y ≫ DE.divπ k (i + m) U) := isIso_of_mono_of_nonzero hy
+  have hs' : s' ≠ 0 := fun h ↦ id_nonzero _ ((cancel_mono s').1 (by rw [h, comp_zero, comp_zero]))
+  have hz₀ : inv (w ≫ y ≫ DE.divπ k (i + m) U) ≫ s' ≠ 0 := by
+    intro h
+    apply hs'
+    rw [← IsIso.hom_inv_id_assoc (w ≫ y ≫ DE.divπ k (i + m) U) s', h, comp_zero]
+  exact DE.finrank_hom_divObj_le_one_of_ne_zero hX (hEnd _ hT) hz₀
+
+end WeakSl2
 
 end Categorification.Sl2

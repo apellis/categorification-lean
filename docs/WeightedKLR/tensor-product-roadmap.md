@@ -739,15 +739,39 @@ from which the full one is obtained by iterating):
   filtration `P_{≥φ}/P_{>φ} ≅ S^{κφ}_{iφ}`; route hypothesis `AllFiniteDeltaInjective` for every
   sequence of highest weights (removal tracked with Prop 5.5).
 
+* Cor 5.22, condition on projectives (`RedStrands/StandardStratification.lean`): the kernel
+  `U_s` of `T^λ e(s) → S_s` has a finite filtration by `S_t` with `t > s` in Webster's dominance
+  order on black counts (`exists_hasFiltration_leftUpper`). It comes from the ordered form of the
+  filtration of Prop 5.21 (`RedStrands/ProjectiveStandardFiltrationOrder.lean`,
+  `hasOrderedStandardFiltrations`: top quotient `S_{s'}` with `s'` equivalent to `s`, other
+  labels strictly above `s`). Difference from the printed statement: Webster states that `T^λ`
+  is standardly stratified; the formal statement is the condition on projectives of that
+  definition. Same route hypothesis as Prop 5.21.
+
+* Prop 5.21 and Cor 5.22 at the standard Khovanov–Lauda scalars
+  (`RedStrands/StandardStratificationStd.lean`): `AllFiniteDeltaInjective` is discharged by the
+  dimension count (`allFiniteDeltaInjective_of_coverPresentations`), leaving `CoverPresentations`:
+  a presentation of each cyclotomic cover with `CoverRelsNegligible` and well-founded domain.
+  These are hypotheses on the presentation used for Theorem 4.31; their removal is tracked with
+  the dimension count.
+
+* Lemma 5.29 and Cor 5.24 (`RedStrands/StandardProjectiveDimension.lean`): projective dimension
+  `< n` passes from the subquotients of a finite filtration to the module
+  (`HasFiltration.hasProjectiveDimensionLT`), and every standard module has finite projective
+  dimension (`exists_hasProjectiveDimensionLT_stdModule`; `_std` at the standard scalars, under
+  `CoverPresentations`). Webster's "finite length projective resolution" is stated as vanishing
+  of `Ext` in large degrees (Mathlib's `HasProjectiveDimensionLT`). Same route hypothesis as
+  Prop 5.21.
+
 Open: the comparison of the induced model with Def 5.4 (right modules over `T̃^λ` and the block
 algebra of all `ℓ + 1` blocks; the induced model uses left modules, which the vertical flip
 `tensorFlip` converts), injectivity in the `Fᵢ`-part of Prop 5.5, Prop 5.6, and the results listed below.
 
 Standardization functors (Prop 5.3, Def 5.4, Props 5.6, 5.7); simples and crystals
 (Lemma 5.9, Props 5.11, 5.12, Thms 5.14, 5.15); stringy triples (Props 5.17, 5.18);
-standard stratification (Lemma 5.19, Prop 5.21 in printed `Φ`-indexed form, Cors 5.22, 5.24, Lemma 5.25,
+standard stratification (Lemma 5.19, Prop 5.21 in printed `Φ`-indexed form, Lemma 5.25,
 Prop 5.26, Cor 5.27: `V^λ` is a tensor product categorification); Thm 5.28 (finite
-projective resolutions, Lemma 5.29); self-dual projectives and double centralizer
+projective resolutions); self-dual projectives and double centralizer
 (Thm 5.30, Prop 5.31, Cor 5.32, Prop 5.33); Thm 5.34 (for `sl_n`, blocks of cyclotomic
 `q`-Schur algebras). Open except as listed above.
 

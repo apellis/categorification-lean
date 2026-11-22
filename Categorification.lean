@@ -1576,3 +1576,5 @@ Lean 4 formalizations of results in categorification.
 -/
 import Categorification.KLR.ExtTensorTopSmul
 import Categorification.WeightedKLR.RedStrands.TwoPieceDecomposition
+import Categorification.KLR.CyclotomicStringParametrization
+import Categorification.WeightedKLR.RedStrands.StringyLoading

@@ -795,6 +795,16 @@ total weight, for the crossing parameters of §2.2: `Stendhal.redFirstCornerEqui
 Prop 5.21 (the specific filtration `P_{≥φ}/P_{>φ} ≅ S^{κφ}_{iφ}`), which strengthens the
 filtration form above.
 
+Cor 5.29 of v2 (v3: Cor 5.32, double centralizer of `P⁰`) is proved under the route hypothesis
+`HasCornerCopresentation e⁰`: `Stendhal.existsUnique_eq_mul_left_redFirst`
+(`RedStrands/RedFirstDoubleCentralizer.lean`), from the module-theoretic step
+`Categorification.exists_eq_mul_left_of_hasCornerCopresentation`
+(`Algebra/SelfDualDoubleCentralizer.lean`); uniqueness (faithfulness, Lemma 5.23) is
+unconditional. Roadmap item: remove the hypothesis, i.e. show that `T^λ` has dominant dimension
+at least two with respect to `P⁰` (`Ext¹(L, T^λ) = 0` for simples `L` killed by `e⁰`). Webster
+obtains this from Mazorchuk–Stroppel, J. Reine Angew. Math. 616 (2008), Cor. 2.6, whose proof
+uses Ringel duality for standardly stratified algebras.
+
 Standardization functors (Prop 5.3, Def 5.4, Props 5.6, 5.7); simples and crystals
 (Lemma 5.9, Prop 5.11, Thms 5.14, 5.15); standard stratification (Lemma 5.19, Prop 5.21 in printed `Φ`-indexed form, Lemma 5.25,
 Prop 5.26, Cor 5.27: `V^λ` is a tensor product categorification); Thm 5.28 (finite

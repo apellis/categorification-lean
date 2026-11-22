@@ -5748,4 +5748,9 @@ and every black weight: the red-first projective `P⁰` is injective. -/
 example (ν : Multiset Unit) :=
   injective_redFirstProjective rbRouquier rbSymm (fun _ : Fin 2 => Finsupp.single () 1) ν
 
+/-- Webster, arXiv:1309.3796v2, Lemma 5.23 (uniqueness in Cor. 5.29), for `sl₂`, two red strands
+of weight `ω`, and every black weight: `T^λ` acts faithfully on `P⁰`. -/
+example (ν : Multiset Unit) :=
+  eq_zero_of_mul_redFirstProjective rbRouquier rbSymm (fun _ : Fin 2 => Finsupp.single () 1) ν
+
 end NonVacuity.RedBlackCrossing

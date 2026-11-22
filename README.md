@@ -1035,6 +1035,7 @@ with nilpotent dot.
 | Lemma 5.13 | `E^n M ≅ n! · E^{(n)} M`, and `[E^n M] = n! [E^{(n)} M]` | `Sl2.NilHeckeData.exists_iso_biproduct_divObj`, `Sl2.NilHeckeData.cls_Epow` | NilHecke action over a domain | Proved |
 | Prop. 5.20 (b), socle part | For `U` simple with `F U = 0` and `i ≤ h₊([U])`, `Hom(S, E^{(i)} U)` is finite-dimensional of dimension at most one for every simple `S` | `Sl2.WeakSl2.finiteDimensional_hom_divObj`, `Sl2.WeakSl2.finrank_hom_divObj_le_one` | Artinian objects; field `k`, `End(S) = k`; nilpotent dot on `E` | Proved (head part open) |
 | Prop. 5.20 (a) | For `S` simple and `n = h₊([S])`, `E^{(n)} S` is simple | `Sl2.WeakSl2.simple_divObj_top`, `Sl2.WeakSl2.simple_divObj_top_of_F_eq_zero` | Artinian and noetherian objects; field `k`, `End(S) = k`; nilpotent dot on `F` | Proved |
+| Prop. 5.20 (b), socle part, every simple `U` | For `U` simple and `i ≤ h₊([U])`, `dim Hom(S, E^{(i)} U) ≤ 1` for every simple `S`, and any two simple subobjects of `E^{(i)} U` are equal; Lemma 5.12 (`h₊([S]) + j = h₊([U])` for simple `S ⊆ E^j U`) along the way | `Sl2.WeakSl2.finrank_hom_divObj_le_one_of_simple`, `Sl2.WeakSl2.subobject_mk_eq_of_simple`, `Sl2.WeakSl2.hPlus_add_of_mono_Epow` | Artinian and noetherian objects; field `k`, `End(S) = k`; nilpotent dots on `E` and `F` | Proved (head part open) |
 
 ### Lusztig's algebra `f` (Lusztig, *Introduction to quantum groups*, Ch. 1; KL I §3.1)
 

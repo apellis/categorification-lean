@@ -341,25 +341,19 @@ theorem iterate_comp {X Y : C} (x : End Y) :
 
 variable [E.Linear k]
 
-/-- **Socle bound** (core of Chuang–Rouquier, Proposition 5.20 (b)): if `End(E^{(i+m)} U) = k`,
-the dot is nilpotent, `S` is simple and there is a nonzero map `E^{(i+m)} U ⟶ E^m S`, then
-`Hom(S, E^{(i)} U)` is finite-dimensional of dimension at most `1`. -/
-theorem finiteDimensional_hom_divObj_of_ne_zero [E.PreservesMonomorphisms]
-    (hX : ∀ M, IsNilpotent (R := End (E.obj M)) (D.X.app M)) {U S : C} [Simple S] {i m : ℕ}
-    (hT : finrank k (D.divObj k (i + m) U ⟶ D.divObj k (i + m) U) = 1)
-    {z₀ : D.divObj k (i + m) U ⟶ (Epow E m).obj S} (hz₀ : z₀ ≠ 0) :
-    FiniteDimensional k (S ⟶ D.divObj k i U) ∧ finrank k (S ⟶ D.divObj k i U) ≤ 1 := by
+omit [E.Linear k] in
+/-- **The line** of Chuang–Rouquier, Proposition 5.20 (b): if `End(E^{(i+m)} U) = k` and the
+dot is nilpotent, there is `u₀ : E^{(i+m)} U ⟶ E^{i+m} U` such that `z ≫ E^m(φ) ∈ k u₀` for
+every object `X`, every map `φ : X ⟶ E^{(i)} U` and every `z : E^{(i+m)} U ⟶ E^m X` killed by
+the dots of `E^m`. -/
+theorem exists_forall_lift_mem_span
+    (hX : ∀ M, IsNilpotent (R := End (E.obj M)) (D.X.app M)) {U : C} {i m : ℕ}
+    (hT : finrank k (D.divObj k (i + m) U ⟶ D.divObj k (i + m) U) = 1) :
+    ∃ u₀ : D.divObj k (i + m) U ⟶ (Epow E (i + m)).obj U,
+      ∀ {X : C} (z : D.divObj k (i + m) U ⟶ (Epow E m).obj X),
+        (∀ c < m, z ≫ (D.xE m c).app X = 0) → ∀ φ : X ⟶ D.divObj k i U,
+          z ≫ liftMap (φ ≫ D.divι k i U) m ∈ k ∙ u₀ := by
   set T := D.divObj k (i + m) U
-  -- a nonzero `z : T ⟶ E^m S` killed by the dots of `E^m`
-  obtain ⟨z, hz, hzx⟩ := exists_ne_zero_forall_eq_zero (Finset.range m)
-    (fun c (ψ : T ⟶ (Epow E m).obj S) => ψ ≫ (D.xE m c).app S) (fun _ => zero_comp)
-    (fun a b ψ => by
-      have h := congr_app (D.xE_comm m a b) S
-      simp only [End.mul_def, NatTrans.comp_app] at h
-      simp only [Category.assoc, h])
-    (fun a ψ => by
-      obtain ⟨p, hp⟩ := D.isNilpotent_xE_app hX m a S
-      exact ⟨p, by rw [iterate_comp, hp, comp_zero]⟩) hz₀
   -- the representation `R = Hom(T, E^N U)` of `NH_N`
   set N := i + m
   let ρ := D.postγ (k := k) N T U
@@ -402,8 +396,48 @@ theorem finiteDimensional_hom_divObj_of_ne_zero [E.PreservesMonomorphisms]
       map_pow (evalEnd (Epow E N) U) (D.xE N a) p
     rw [this, evalEnd_apply, hp, comp_zero, LinearMap.zero_apply]
   obtain ⟨u₀, hu₀⟩ := exists_forall_mem_span_of_idemNHAt ρ hR hnil (Nat.le_add_right i m)
+  refine ⟨u₀, fun {X} z hzx φ => ?_⟩
+  apply hu₀
+  · change (z ≫ liftMap (φ ≫ D.divι k i U) m) ≫
+        (D.γ (k := k) N (idemNHAt k N i)).app U = z ≫ liftMap (φ ≫ D.divι k i U) m
+    rw [Category.assoc, D.lifts_idemNHAt U i m, Category.assoc, D.divι_idem]
+  · intro b hb
+    obtain ⟨c, hc⟩ := Nat.exists_eq_add_of_le hb
+    have hcm : c < m := by have := b.isLt; omega
+    change (z ≫ liftMap (φ ≫ D.divι k i U) m) ≫ (D.γ (k := k) N _).app U = 0
+    rw [D.γ_mulX, hc, Category.assoc, liftMap_xE_outer D _ m c hcm, ← Category.assoc,
+      hzx c hcm, zero_comp]
+
+omit [E.Linear k] in
+/-- A nonzero map `z₀ : T ⟶ E^m S` gives a nonzero map `T ⟶ E^m S` killed by the dots of `E^m`,
+if the dot is nilpotent. -/
+theorem exists_ne_zero_comp_xE_eq_zero
+    (hX : ∀ M, IsNilpotent (R := End (E.obj M)) (D.X.app M)) {T S : C} {m : ℕ}
+    {z₀ : T ⟶ (Epow E m).obj S} (hz₀ : z₀ ≠ 0) :
+    ∃ z : T ⟶ (Epow E m).obj S, z ≠ 0 ∧ ∀ c < m, z ≫ (D.xE m c).app S = 0 := by
+  obtain ⟨z, hz, hzx⟩ := exists_ne_zero_forall_eq_zero (Finset.range m)
+    (fun c (ψ : T ⟶ (Epow E m).obj S) => ψ ≫ (D.xE m c).app S) (fun _ => zero_comp)
+    (fun a b ψ => by
+      have h := congr_app (D.xE_comm m a b) S
+      simp only [End.mul_def, NatTrans.comp_app] at h
+      simp only [Category.assoc, h])
+    (fun a ψ => by
+      obtain ⟨p, hp⟩ := D.isNilpotent_xE_app hX m a S
+      exact ⟨p, by rw [iterate_comp, hp, comp_zero]⟩) hz₀
+  exact ⟨z, hz, fun c hc => hzx c (Finset.mem_range.2 hc)⟩
+
+/-- **Socle bound** (core of Chuang–Rouquier, Proposition 5.20 (b)): if `End(E^{(i+m)} U) = k`,
+the dot is nilpotent, `S` is simple and there is a nonzero map `E^{(i+m)} U ⟶ E^m S`, then
+`Hom(S, E^{(i)} U)` is finite-dimensional of dimension at most `1`. -/
+theorem finiteDimensional_hom_divObj_of_ne_zero [E.PreservesMonomorphisms]
+    (hX : ∀ M, IsNilpotent (R := End (E.obj M)) (D.X.app M)) {U S : C} [Simple S] {i m : ℕ}
+    (hT : finrank k (D.divObj k (i + m) U ⟶ D.divObj k (i + m) U) = 1)
+    {z₀ : D.divObj k (i + m) U ⟶ (Epow E m).obj S} (hz₀ : z₀ ≠ 0) :
+    FiniteDimensional k (S ⟶ D.divObj k i U) ∧ finrank k (S ⟶ D.divObj k i U) ≤ 1 := by
+  obtain ⟨z, hz, hzx⟩ := D.exists_ne_zero_comp_xE_eq_zero hX hz₀
+  obtain ⟨u₀, hu₀⟩ := D.exists_forall_lift_mem_span hX hT
   -- the injective map `φ ↦ z ≫ E^m(φ)`
-  let Φ : (S ⟶ D.divObj k i U) →ₗ[k] (T ⟶ (Epow E N).obj U) :=
+  let Φ : (S ⟶ D.divObj k i U) →ₗ[k] (D.divObj k (i + m) U ⟶ (Epow E (i + m)).obj U) :=
     { toFun := fun φ => z ≫ liftMap (φ ≫ D.divι k i U) m
       map_add' := fun φ ψ => by
         rw [Preadditive.add_comp, liftMap_add, Preadditive.comp_add]
@@ -419,19 +453,7 @@ theorem finiteDimensional_hom_divObj_of_ne_zero [E.PreservesMonomorphisms]
     apply hz
     rw [← cancel_mono (liftMap (E := E) (φ ≫ D.divι k i U) m), zero_comp]
     exact hφ
-  have hmem : ∀ φ, Φ φ ∈ k ∙ u₀ := by
-    intro φ
-    apply hu₀
-    · change (z ≫ liftMap (φ ≫ D.divι k i U) m) ≫
-          (D.γ (k := k) N (idemNHAt k N i)).app U = z ≫ liftMap (φ ≫ D.divι k i U) m
-      rw [Category.assoc, D.lifts_idemNHAt U i m, Category.assoc, D.divι_idem]
-    · intro b hb
-      obtain ⟨c, hc⟩ := Nat.exists_eq_add_of_le hb
-      have hcm : c < m := by have := b.isLt; omega
-      change (z ≫ liftMap (φ ≫ D.divι k i U) m) ≫ (D.γ (k := k) N _).app U = 0
-      rw [D.γ_mulX, hc, Category.assoc, liftMap_xE_outer D _ m c hcm, ← Category.assoc,
-        hzx c (Finset.mem_range.2 hcm), zero_comp]
-  let Φ' := Φ.codRestrict (k ∙ u₀) hmem
+  let Φ' := Φ.codRestrict (k ∙ u₀) fun φ => hu₀ z hzx φ
   have hΦ' : Function.Injective Φ' := fun a b h => hΦ (congrArg Subtype.val h)
   refine ⟨Module.Finite.of_injective Φ' hΦ', ?_⟩
   calc finrank k (S ⟶ D.divObj k i U) ≤ finrank k (k ∙ u₀) :=

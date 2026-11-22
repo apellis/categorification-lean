@@ -712,10 +712,11 @@ from which the full one is obtained by iterating):
   splitting into a red part and colour pieces (`RedStrands/Prop55Dimension*.lean`), gives
   `firstIndDeltaInjective_std` and `allFiniteDeltaInjective_std`, hence the black-word
   filtrations (`hasFiltration_loadingProj_std`; the finite-dimensional form
-  `AllFiniteDeltaInjective` suffices, `ParabolicStandardFiniteFiltration.lean`). These carry, as
-  hypotheses on the choice of presentation, `CoverRelsNegligible` and well-foundedness for the
-  cover data of `Λ`, `Λ ∘ Fin.castSucc` and the last red strand. **Roadmap items:** remove these
-  presentation hypotheses; extend the count to general scalars `Q`.
+  `AllFiniteDeltaInjective` suffices, `ParabolicStandardFiniteFiltration.lean`). The
+  intermediate lemmas take a base presentation with `CoverRelsNegligible` and well-founded
+  domain; the presentation with no relations (`noRelations`) satisfies both vacuously, so the
+  headline results carry no presentation hypothesis. **Roadmap item:** extend the count to
+  general scalars `Q`.
 
 * Prop 5.5, empty last block (`RedStrands/ParabolicStandardEmptyRed.lean`): for `β = ∅` the
   factor algebra is `T^{λ'}` (`emptyFactorToOld`) and standardization is the induction along
@@ -750,16 +751,13 @@ from which the full one is obtained by iterating):
 
 * Prop 5.21 and Cor 5.22 at the standard Khovanov–Lauda scalars
   (`RedStrands/StandardStratificationStd.lean`): `AllFiniteDeltaInjective` is discharged by the
-  dimension count (`allFiniteDeltaInjective_of_coverPresentations`), leaving `CoverPresentations`:
-  a presentation of each cyclotomic cover with `CoverRelsNegligible` and well-founded domain.
-  These are hypotheses on the presentation used for Theorem 4.31; their removal is tracked with
-  the dimension count.
+  dimension count (`allFiniteDeltaInjective_std`), with no further hypothesis.
 
 * Lemma 5.29 and Cor 5.24 (`RedStrands/StandardProjectiveDimension.lean`): projective dimension
   `< n` passes from the subquotients of a finite filtration to the module
   (`HasFiltration.hasProjectiveDimensionLT`), and every standard module has finite projective
-  dimension (`exists_hasProjectiveDimensionLT_stdModule`; `_std` at the standard scalars, under
-  `CoverPresentations`). Webster's "finite length projective resolution" is stated as vanishing
+  dimension (`exists_hasProjectiveDimensionLT_stdModule`; `_std` at the standard scalars, with
+  no route hypothesis). Webster's "finite length projective resolution" is stated as vanishing
   of `Ext` in large degrees (Mathlib's `HasProjectiveDimensionLT`). Same route hypothesis as
   Prop 5.21.
 

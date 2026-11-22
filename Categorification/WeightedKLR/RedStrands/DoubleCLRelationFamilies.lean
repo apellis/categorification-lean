@@ -204,4 +204,31 @@ theorem CoverRelsNegligible.addMixedCupPitchforkRelations
 
 end Black
 
+section NoRelations
+
+universe u₀ u₁ u₂ w₀
+
+/-- The presentation with no relations. Taken as the base presentation `P`, the presentation
+`DoubleDiagram.signedCapKLPresentation` of the downward matrix algebra imposes exactly the
+families of relations adjoined to `P` (Webster, arXiv:1309.3796v2, Definition 4.27). -/
+def noRelations (S : Signature.{u₀, u₁, u₂}) (R : Type w₀) [CommRing R] :
+    Presentation.{w₀, v₁} S R where
+  Rel := PEmpty
+  dom r := r.elim
+  cod r := r.elim
+  rel r := r.elim
+
+/-- The presentation with no relations has a well-founded domain, vacuously. -/
+theorem wfDom_noRelations (S : Signature.{u₀, u₁, u₂}) (R : Type w₀) [CommRing R] :
+    (noRelations S R : Presentation.{w₀, v₁} S R).WFDom :=
+  fun r => PEmpty.elim r
+
+/-- The presentation with no relations satisfies `CoverRelsNegligible`, vacuously. -/
+theorem coverRelsNegligible_noRelations :
+    CoverRelsNegligible.{u, v, w} Λ C hQ hc o
+      (noRelations (signature (RDc) (redWeight Wgt)) k : Presentation.{v, v₁} _ k) :=
+  fun r => PEmpty.elim r
+
+end NoRelations
+
 end Categorification.Stendhal

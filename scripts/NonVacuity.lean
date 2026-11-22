@@ -2835,6 +2835,16 @@ example := rightTensorModuleEquiv_homForm D params regular level (factors 2) lev
   (rightTensorWordProjectiveClass D params level TensorWord.empty.red.red)
   (rightTensorWordProjectiveClass D params level splitWord)
 
+/-- Webster, arXiv:1309.3796v2, Cor. 3.22, for the word projective `R^ω e(i)` of `sl₂`. -/
+example := cyclotomicWordModule_word D (Finsupp.single () 1) params omegaOne
+  (fun i => level_eq 0 i) regular [()] [()] rfl rfl
+
+/-- Webster, arXiv:1309.3796v2, Prop. 5.6 (word characters), for two red strands of weight `ω`
+of `sl₂`, each followed by one black strand. -/
+example (ν : Multiset Unit) (w : TensorWordAt 2 ν) :=
+  iteratedStandard_word D params regular 2 level (fun _ => [()]) (factors 2)
+    (fun j i => (level_eq j i).symm) ν w
+
 end TwoFundamentalLowerings
 
 end CyclotomicHighestWeight

@@ -805,6 +805,12 @@ at least two with respect to `P⁰` (`Ext¹(L, T^λ) = 0` for simples `L` killed
 obtains this from Mazorchuk–Stroppel, J. Reine Angew. Math. 616 (2008), Cor. 2.6, whose proof
 uses Ringel duality for standardly stratified algebras.
 
+Prop 5.6 of v2, character form, is proved: the iterated standardization of cyclotomic word
+projectives has the word character of the tensor product of the factors
+(`Stendhal.FirstWeight.iteratedStandard_word`, `RedStrands/IteratedStandardCharacter.lean`), from
+Cor 3.22 for word projectives (`cyclotomicWordModule_word`) and the product test of Thm 4.38
+(`standardizationTestAt_word_of_wordCharacters`). Open: the resulting identification of `K₀` classes.
+
 Standardization functors (Prop 5.3, Def 5.4, Props 5.6, 5.7); simples and crystals
 (Lemma 5.9, Prop 5.11, Thms 5.14, 5.15); standard stratification (Lemma 5.19, Prop 5.21 in printed `Φ`-indexed form, Lemma 5.25,
 Prop 5.26, Cor 5.27: `V^λ` is a tensor product categorification); Thm 5.28 (finite

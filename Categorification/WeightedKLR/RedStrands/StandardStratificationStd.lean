@@ -2,7 +2,7 @@
 Copyright (c) 2026 Alex Ellis. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 -/
-import Categorification.WeightedKLR.RedStrands.StandardStratification
+import Categorification.WeightedKLR.RedStrands.StandardProjectiveDimension
 import Categorification.WeightedKLR.RedStrands.Prop55DimensionCount
 
 /-!
@@ -27,6 +27,7 @@ here take such a presentation for every cyclotomic datum (`CoverPresentations`).
   strands.
 * `hasStandardFiltrations_std`: Proposition 5.21 (filtration form).
 * `exists_hasFiltration_leftUpper_std`: Corollary 5.22 (condition on projectives).
+* `exists_hasProjectiveDimensionLT_stdModule_std`: Corollary 5.24 (finite projective dimension).
 -/
 
 set_option backward.isDefEq.respectTransparency false
@@ -93,5 +94,16 @@ theorem exists_hasFiltration_leftUpper_std (hP : CoverPresentations hR)
             (lIdeal (seqIdem (CL.qCL (CL.CLScalars.kl : CL.CLScalars C k)) Λ s hs)).subtype)) :=
   exists_hasFiltration_leftUpper _ hQs hR (allFiniteDeltaInjective_of_coverPresentations hP hQs)
     Λ ν s hs
+
+/-- **Standard modules have finite projective dimension at the standard Khovanov–Lauda
+parameters** (Webster, arXiv:1309.3796v3, Corollary 5.24), given the presentation hypotheses
+`CoverPresentations` of the dimension count. -/
+theorem exists_hasProjectiveDimensionLT_stdModule_std (hP : CoverPresentations hR)
+    (hQs : KLRSymm (CL.qCL (CL.CLScalars.kl : CL.CLScalars C k))) {n : ℕ}
+    (Λ : Fin n → I →₀ ℕ) (ν : Multiset I) (s : {t : Seq (stendhalWeight n ν) // IsRedOrdered t}) :
+    ∃ N : ℕ, CategoryTheory.HasProjectiveDimensionLT
+      (stdModule (CL.qCL (CL.CLScalars.kl : CL.CLScalars C k)) Λ ν s) N :=
+  exists_hasProjectiveDimensionLT_stdModule _ hQs hR
+    (allFiniteDeltaInjective_of_coverPresentations hP hQs) Λ ν s
 
 end Categorification.Stendhal

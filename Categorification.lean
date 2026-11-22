@@ -72,6 +72,8 @@ import Categorification.Algebra.InductionAlongBimodule
 import Categorification.Algebra.InductionAlongResTensor
 import Categorification.Algebra.InductionAlongEnd
 import Categorification.Algebra.InductionAlongLinear
+import Categorification.Algebra.DualRightModule
+import Categorification.Algebra.ModuleTowerEnd
 import Categorification.Algebra.InductionAlongCornerRes
 import Categorification.Algebra.InductionAlongCornerSelf
 import Categorification.Algebra.InductionAlongRes
@@ -107,6 +109,7 @@ import Categorification.Algebra.SymmetricFree
 import Categorification.Algebra.UniqueSimpleQuotient
 import Categorification.CategoryTheory.PiAbelian
 import Categorification.CategoryTheory.PiShift
+import Categorification.CategoryTheory.PiShiftLinear
 import Categorification.Diagrams.BicatInterp
 import Categorification.Diagrams.BicatInterpAdmissible
 import Categorification.Diagrams.BicatInterpAdmissibleHorizontal
@@ -916,6 +919,7 @@ import Categorification.Sl2Categorification.DividedPowerSocle
 import Categorification.Sl2Categorification.TopDividedPowerSimple
 import Categorification.Sl2Categorification.SimpleSocle
 import Categorification.Sl2Categorification.SimpleHead
+import Categorification.Sl2Categorification.NilHeckeLift
 import Categorification.TwoRep.AdditiveCat
 import Categorification.TwoRep.CyclotomicRouqAdjunction
 import Categorification.TwoRep.CyclotomicRouqCapTrace
@@ -1509,6 +1513,8 @@ import Categorification.WeightedKLR.RedStrands.DoubleRightWhiskerHorizontal
 import Categorification.WeightedKLR.RedStrands.LastRedBlackSlide
 import Categorification.WeightedKLR.RedStrands.BlackNilHecke
 import Categorification.WeightedKLR.RedStrands.BlackNilHeckeTower
+import Categorification.WeightedKLR.RedStrands.BlackNilHeckeNilpotent
+import Categorification.WeightedKLR.RedStrands.BlackModuleSimpleHead
 import Categorification.WeightedKLR.RedStrands.LastRedBlackBimodule
 import Categorification.WeightedKLR.RedStrands.LastRedBlackSurjective
 import Categorification.WeightedKLR.RedStrands.LastRedBlackViolated

@@ -772,9 +772,10 @@ from the module-tower constructor `ModuleTower.weakSl2` and the class identity
   `fgStringWeakSl2`. Inputs: `k`-linearity of `Eᵢ`, `Fᵢ` (`fgStringE_linear`,
   `fgStringF_linear`), the nil-Hecke action of the newest black dot with uniform nilpotency
   exponent (`fgStringNilHecke`, `exists_fgStringNilHecke_X_pow_eq_zero`), and `End(S) = k` for
-  simples (`fgString_finrank_end_simple`, via the `k`-dual left module). Same hypotheses as
-  `fgStringWeakSl2` (standard Khovanov–Lauda black scalars, a presentation of the cyclotomic
-  cover with `CoverRelsNegligible` and `WFDom`).
+  simples (`fgString_finrank_end_simple`, via the `k`-dual left module). Hypotheses: standard
+  Khovanov–Lauda black scalars and Rouquier scalars; the base presentation of the cyclotomic
+  cover taken by `fgStringWeakSl2` is instantiated with `noRelations`, so no presentation
+  hypothesis remains.
 
 Open: the comparison of the induced model with Def 5.4 (right modules over `T̃^λ` and the block
 algebra of all `ℓ + 1` blocks; the induced model uses left modules, which the vertical flip

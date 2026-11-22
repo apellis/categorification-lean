@@ -168,16 +168,6 @@ variable {I : Type u} {ℓ : ℕ} (i : I) (ν₀ : Multiset I) {Λ : Fin ℓ →
 local notation "KL" => (CL.CLScalars.kl : CL.CLScalars C k)
 local notation "Str" => StringAlg (k := k) (Q := CL.qCL KL) Λ i ν₀
 
-variable (hstd : ∀ i j, i ≠ j → Q i j = CL.qCL (CL.CLScalars.kl : CL.CLScalars C k) i j)
-  {P : Presentation.{u, u}
-    (signature (coordinateDatum Λ C) (redWeight (cyclotomicCoverWeightDatum Λ C))) k}
-  (hP : CoverRelsNegligible.{u, u, u} Λ C hQ (coverDotCentral Λ C hQ)
-    (blockWeight (cyclotomicCoverWeightDatum Λ C)
-      (cyclotomicCoverHighest (I := I) (ℓ := ℓ)) 0 :
-      I ⊕ Fin ℓ → ℤ) P)
-  (hwf : P.WFDom)
-
-include hstd hP hwf in
 /-- **Webster, arXiv:1309.3796v2, Proposition 5.12, for `Eᵢ`**: for `U` simple, any two simple
 quotients of `Eᵢ U` are isomorphic compatibly with the quotient maps, so the head of `Eᵢ U` is
 simple. This is Chuang–Rouquier, arXiv:math/0407205v2, Proposition 5.20, for the weak
@@ -190,6 +180,13 @@ theorem fgString_head_E (hR : KLR.IsRouquierQ C (CL.qCL KL))
     (q₂ : (fgStringE Λ hR i ν₀).obj U ⟶ S₂)
     [Epi q₁] [Epi q₂] :
     ∃ e : S₁ ≅ S₂, q₁ ≫ e.hom = q₂ := by
+  have hP := coverRelsNegligible_noRelations.{u, u, u} (Λ := Λ) (C := C) (hQ := hR)
+    (hc := coverDotCentral Λ C hR)
+    (o := (blockWeight (cyclotomicCoverWeightDatum Λ C)
+      (cyclotomicCoverHighest (I := I) (ℓ := ℓ)) 0 : I ⊕ Fin ℓ → ℤ))
+  have hwf := wfDom_noRelations.{u, u, u, u, u}
+    (signature (coordinateDatum Λ C) (redWeight (cyclotomicCoverWeightDatum Λ C))) k
+  have hstd : ∀ i j, i ≠ j → CL.qCL KL i j = CL.qCL KL i j := fun _ _ _ => rfl
   let A := fgStringWeakSl2 i ν₀ hstd hP hwf hR hi
   have : A.E.Additive := fgStringE_additive Λ hR i ν₀
   have : A.F.Additive := fgStringF_additive (k := k) (Q := CL.qCL KL) Λ i ν₀
@@ -207,7 +204,6 @@ theorem fgString_head_E (hR : KLR.IsRouquierQ C (CL.qCL KL))
       (Sl2.NilHeckeData.dual_X_pow_eq_zero DE adj hN))
     (fun S _ => fgString_finrank_end_simple Λ hR i ν₀ S) hU q₁ q₂
 
-include hstd hP hwf in
 /-- **Webster, arXiv:1309.3796v2, Proposition 5.12, for `Fᵢ`**: for `U` simple, any two simple
 quotients of `Fᵢ U` are isomorphic compatibly with the quotient maps, so the head of `Fᵢ U` is
 simple (Chuang–Rouquier, arXiv:math/0407205v2, Proposition 5.20). -/
@@ -219,6 +215,13 @@ theorem fgString_head_F (hR : KLR.IsRouquierQ C (CL.qCL KL))
     (q₂ : (fgStringF (k := k) (Q := CL.qCL KL) Λ i ν₀).obj U ⟶ S₂)
     [Epi q₁] [Epi q₂] :
     ∃ e : S₁ ≅ S₂, q₁ ≫ e.hom = q₂ := by
+  have hP := coverRelsNegligible_noRelations.{u, u, u} (Λ := Λ) (C := C) (hQ := hR)
+    (hc := coverDotCentral Λ C hR)
+    (o := (blockWeight (cyclotomicCoverWeightDatum Λ C)
+      (cyclotomicCoverHighest (I := I) (ℓ := ℓ)) 0 : I ⊕ Fin ℓ → ℤ))
+  have hwf := wfDom_noRelations.{u, u, u, u, u}
+    (signature (coordinateDatum Λ C) (redWeight (cyclotomicCoverWeightDatum Λ C))) k
+  have hstd : ∀ i j, i ≠ j → CL.qCL KL i j = CL.qCL KL i j := fun _ _ _ => rfl
   let A := fgStringWeakSl2 i ν₀ hstd hP hwf hR hi
   have : A.E.Additive := fgStringE_additive Λ hR i ν₀
   have : A.F.Additive := fgStringF_additive (k := k) (Q := CL.qCL KL) Λ i ν₀

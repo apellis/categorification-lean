@@ -30,7 +30,8 @@ local notation "T" => TensorProductAlgebra k Q Λ ν
 local notation "π" => affineTensorProjection (Q := Q) Λ ν
 local notation "q" => affineCoverQ Q Λ
 
-private theorem projection_red_dot (s : Seq μ) (a : Fin m) (h : (s.lbl a).isRight) :
+/-- A dot on a red strand maps to zero in Webster's tensor product algebra. -/
+theorem affineTensorProjection_x_mul_e_of_red (s : Seq μ) (a : Fin m) (h : (s.lbl a).isRight) :
     π (x a * e s) = 0 := by
   have hred : affineCover Q Λ ν (x a * e s) = 0 := by
     rw [map_mul, affineCover_e, affineCover_x]
@@ -38,7 +39,9 @@ private theorem projection_red_dot (s : Seq μ) (a : Fin m) (h : (s.lbl a).isRig
   change TensorProductAlgebra.mk Q Λ ν (orderProjection Q Λ ν (affineCover Q Λ ν (x a * e s))) = 0
   rw [hred, map_zero, map_zero]
 
-private theorem projection_violated (s : Seq μ) (hs : IsViolated s) : π (e s) = 0 := by
+/-- The idempotent of a violating sequence maps to zero in Webster's tensor product
+algebra (Webster, arXiv:1309.3796v2, Definition 4.7). -/
+theorem affineTensorProjection_e_of_violated (s : Seq μ) (hs : IsViolated s) : π (e s) = 0 := by
   let J := StendhalAlgebra.violatedIdeal k Q Λ ν
   change J.ringCon.mk' (orderProjection Q Λ ν (affineCover Q Λ ν (e s))) = 0
   rw [affineCover_e, ← TwoSidedIdeal.mem_ker, TwoSidedIdeal.ker_ringCon_mk']
@@ -63,8 +66,10 @@ private theorem first_dot (h : 0 < m) (v : T) :
   change π (pol _ * e s) * w = 0
   rw [pow_one, pol_X]
   cases hc : s.lbl ⟨0,h⟩ with
-  | inl i => rw [map_mul, projection_violated Λ ν s ⟨h, by simp [hc]⟩, mul_zero, zero_mul]
-  | inr r => rw [projection_red_dot Λ ν s _ (by simp [hc]), zero_mul]
+  | inl i =>
+    rw [map_mul, affineTensorProjection_e_of_violated Λ ν s ⟨h, by simp [hc]⟩, mul_zero,
+      zero_mul]
+  | inr r => rw [affineTensorProjection_x_mul_e_of_red Λ ν s _ (by simp [hc]), zero_mul]
 
 variable {C : QuantumGroup.CartanDatum I} (hQ : IsRouquierQ C Q)
 
@@ -81,7 +86,7 @@ private theorem next_dot (b N : ℕ) (hb : b+1 < m)
     | inr r =>
       refine ⟨1, fun v => ?_⟩
       change π (pol _ * e s) * v = 0
-      rw [pow_one, pol_X, projection_red_dot Λ ν s _ (by simp [hj]), zero_mul]
+      rw [pow_one, pol_X, affineTensorProjection_x_mul_e_of_red Λ ν s _ (by simp [hj]), zero_mul]
     | inl j =>
       have hc : ∃ (c : k) (d : ℕ), IsUnit c ∧
           aeval (![0, X 1] : Fin 2 → MvPolynomial (Fin 2) k)

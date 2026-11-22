@@ -1221,6 +1221,7 @@ import Categorification.KLR.CyclotomicHighestWeight
 import Categorification.KLR.CyclotomicIntegralLattice
 import Categorification.WeightedKLR.RedStrands.DividedProjectives
 import Categorification.WeightedKLR.RedStrands.TensorFinite
+import Categorification.WeightedKLR.RedStrands.TensorIntegrable
 import Categorification.WeightedKLR.RedStrands.TensorIdempotentPieces
 import Categorification.WeightedKLR.RedStrands.AbsoluteSimple
 import Categorification.KLR.CyclotomicIntegrable

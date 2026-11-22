@@ -1578,3 +1578,4 @@ import Categorification.KLR.ExtTensorTopSmul
 import Categorification.WeightedKLR.RedStrands.TwoPieceDecomposition
 import Categorification.KLR.CyclotomicStringParametrization
 import Categorification.WeightedKLR.RedStrands.StringyLoading
+import Categorification.WeightedKLR.RedStrands.StringyClassification

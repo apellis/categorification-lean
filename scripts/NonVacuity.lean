@@ -5649,3 +5649,36 @@ example (ν : Multiset Bool) (L : Type) [AddCommGroup L] [Module ℚ L]
     _ ν rfl _ alt_hσ L hnil s hs).1
 
 end NonVacuity.StringParametrization
+
+namespace NonVacuity.StringyClassification
+
+private noncomputable abbrev scQ : Unit → Unit → MvPolynomial (Fin 2) ℚ := fun _ _ => 0
+private noncomputable abbrev scΛ : Fin 1 → Unit →₀ ℕ := fun _ => Finsupp.single () 1
+
+private theorem scRouquier :
+    KLR.IsRouquierQ (CartanDatum.ofGraph (⊥ : SimpleGraph Unit)) scQ where
+  symm _ _ h := (h (Subsingleton.elim _ _)).elim
+  homogeneous _ _ h := (h (Subsingleton.elim _ _)).elim
+  unit_coeff _ _ h := (h (Subsingleton.elim _ _)).elim
+
+/-- The standard grading of the `sl₂` KLR algebra with zero crossing parameter. -/
+private def scGrading : KLR.GradingDatum scQ where
+  degX _ := 2
+  degΨ _ _ := -2
+  degΨ_self _ := rfl
+  isWeightedHomogeneous _ _ h := (h (Subsingleton.elim _ _)).elim
+
+private noncomputable def scG : KLR.GradingDatum (Stendhal.stendhalQ scQ scΛ) :=
+  Stendhal.stendhalGradingDatum scΛ scGrading (fun _ => 1) (fun _ => rfl)
+
+/-- Webster, arXiv:1309.3796v2, Prop. 5.17, for `sl₂`, one red strand of weight `ω`, and every
+black weight. -/
+example (ν : Multiset Unit) :=
+  Stendhal.maxLoadClassification (k := ℚ) scRouquier (σ := fun _ => ())
+    (fun _ m => ⟨m, le_rfl, rfl⟩) scΛ scG ν
+
+example (ν : Multiset Unit) (p : KLR.Seq (Stendhal.stendhalWeight 1 ν))
+    (hp : Stendhal.IsStringy ℚ scQ (fun _ => ()) 1 scΛ ν p) :=
+  Stendhal.existsUnique_isMaxLoad_of_isStringy scRouquier (fun _ m => ⟨m, le_rfl, rfl⟩) scΛ scG hp
+
+end NonVacuity.StringyClassification

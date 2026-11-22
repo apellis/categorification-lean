@@ -10,7 +10,7 @@ source statement. "README" refers to the erratum and status rows of the reposito
 |---|---|---|---|---|---|
 | T1 | Side of modules | right projectives `P^κ_i = e(i,κ)T^λ` | right projectives (left word projectives twisted by horizontal reflection) | identical | card word-projectives |
 | T2 | Grading shift and `q` | `q` acts on `K₀` and on `V^λ_ℤ` | `η` is semilinear for `q ↦ q⁻¹`, from the shift convention `(M{a})_d = M_{d−a}` | convention | card graded-k0 |
-| T3 | Form | `⟨v, w⟩ = ⟨Θ v, w⟩_Ш`, intertwined with the Euler form | Euler form `Hom(x, y)` equals `B(η y, η x)` with `B` the form with the inverse intertwiner on the second argument | erratum-corrected | README erratum row for Prop. 4.33, Lemma 4.36, Thm. 4.38; card ordered-form. The printed form gives `1 + q⁻²` where the graded Hom gives `1 + q²`. The swap of slots is forced: the Euler form is linear in its first argument while the printed form is antilinear there, under either shift convention. Only the remaining `1 + q^{±2}` discrepancy depends on the sign convention for `dim_q` (T2) |
+| T3 | Form | `⟨v, w⟩ = ⟨Θ v, w⟩_Ш`, intertwined with the Euler form | Euler form `Hom(x, y)` equals `B(η y, η x)` with `B` the form with the inverse intertwiner on the second argument | erratum-corrected | ERRATA.md entry 10 (form before Prop. 4.33, Lemma 4.36); card ordered-form. The printed form gives `1 + q⁻²` where the graded Hom gives `1 + q²`. The swap of slots is forced: the Euler form is linear in its first argument while the printed form is antilinear there, under either shift convention. Only the remaining `1 + q^{±2}` discrepancy depends on the sign convention for `dim_q` (T2) |
 | T4 | Divided powers | Def. 4.34 allows divided powers in `i` | all words with divided-power blocks | identical | card word-projectives |
 | T5 | Strands | double Stendhal triples, `DT^λ e₋ = T^λ` | only downward black strands | identical | card word-projectives |
 | T6 | `V^λ_ℤ` | tensor product over `ℤ[q,q⁻¹]` of Lusztig integral forms | `ℤ[v,v⁻¹]`-span of pure integral tensors in the rational tensor product | convention | card integral-tensor |
@@ -56,7 +56,7 @@ hypothesis-by-hypothesis review of the spec against the source and the trusted b
 
 | # | Result | Finding | Class | Status |
 |---|---|---|---|---|
-| T13 | Thm. 4.38 | `TensorFormUnique.lean` cites arXiv v3 locators, not v2 | citation note | open |
+| T13 | Thm. 4.38 | `TensorFormUnique.lean` cited arXiv v3 locators | citation note | fixed (v2 locators) |
 | P10 | Prop. 5.5 | the spec compares `Module.finrank`, which is `0` on an infinite-dimensional module; nothing in the statement says `F_i S(N)`, `S(₁F_i N)`, `S(₂F_i N)` are finite-dimensional. The library proves they are (`firstIndF_restrict_finite` and its siblings) but the spec does not bind it | scope restriction (statement weaker than intended) | open: add the finiteness conjuncts to the spec |
 | P11 | Prop. 5.5 | the spec is weaker than the source's own step (5.14), which holds for each `Hom(P, −)` separately; the sum over idempotents loses this | scope restriction (declared in P3; recorded here as weaker than the proof step) | open |
 | C10 | Cor. 5.21 | the filtration is proved for `T^λ e(s)`, which is in general decomposable (divided powers, repeated labels). The source's statement is about indecomposable projectives and their standard quotients. Passing from `T^λ e(s)` to each indecomposable summand is an argument the spec neither states nor proves | scope restriction (significant; C2 records only the indexing) | open |

@@ -897,6 +897,7 @@ import Categorification.Sl2Categorification.DualNilHecke
 import Categorification.Sl2Categorification.WeakCategorification
 import Categorification.Sl2Categorification.WeakCategorificationOp
 import Categorification.Sl2Categorification.DLayers
+import Categorification.Sl2Categorification.DividedPowers
 import Categorification.TwoRep.AdditiveCat
 import Categorification.TwoRep.CyclotomicRouqAdjunction
 import Categorification.TwoRep.CyclotomicRouqCapTrace

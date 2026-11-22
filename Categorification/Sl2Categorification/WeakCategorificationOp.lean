@@ -75,6 +75,7 @@ def op : K0Data Cᵒᵖ ι V where
   simple_simple i := (simple_op_iff _).mpr (K.simple_simple i)
   idx_simple i := K.idx_simple i
   cls_mem_cone X := K.cls_mem_cone X.unop
+  cls_int X := K.cls_int X.unop
 
 end K0Data
 

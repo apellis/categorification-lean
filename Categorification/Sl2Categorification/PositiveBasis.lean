@@ -174,6 +174,34 @@ section Lowest
 
 variable {W : Type*} [AddCommGroup W] [Module ℚ W] {e f : Module.End ℚ W}
 
+/-- On a vector `y` of weight `-a` killed by `f`, `f^j e^j y = (a!/(a-j)!) j! y` for `j ≤ a`. -/
+lemma pow_f_pow_e_eq (t : IsSl2Pair e f) {a : ℕ} {y : W} (hy : f y = 0)
+    (hν : hOp e f y = ((-(a : ℤ) : ℤ) : ℚ) • y) {j : ℕ} (hj : j ≤ a) :
+    (f ^ j) ((e ^ j) y) = ((a.descFactorial j * j.factorial : ℕ) : ℚ) • y := by
+  have hb : y ∈ block e f a := by
+    rw [mem_block_iff, casimir_apply, hν, map_smul, hν]
+    have hfe : f (e y) = -hOp e f y := by rw [hOp_apply, hy, map_zero, zero_sub, neg_neg]
+    rw [hfe, hν]
+    push_cast
+    simp only [smul_neg, neg_neg, neg_smul]
+    module
+  have step : ∀ k < a, f ((e ^ (k + 1)) y) = ((((a : ℤ) - k) * (k + 1) : ℤ) : ℚ) • (e ^ k) y := by
+    intro k hk
+    have h4 := four_f_e (pow_e_mem_block t hb k) (hOp_pow_e t hν k)
+    rw [pow_succ', Module.End.mul_apply]
+    have h4' : (4 : ℚ) • f (e ((e ^ k) y)) =
+        (4 : ℚ) • ((((a : ℤ) - k) * (k + 1) : ℤ) : ℚ) • (e ^ k) y := by
+      rw [h4, smul_smul]; push_cast; ring_nf
+    exact smul_right_injective W (by norm_num : (4 : ℚ) ≠ 0) h4'
+  induction j with
+  | zero => simp
+  | succ j ih =>
+    rw [pow_succ f, Module.End.mul_apply, step j (by omega), map_smul, ih (by omega), smul_smul,
+      Nat.descFactorial_succ, Nat.factorial_succ]
+    congr 1
+    push_cast [Nat.cast_sub (show j ≤ a by omega)]
+    ring
+
 /-- On a vector `y` of weight `-a` killed by `f`, `f^j e^j y` is a positive multiple of `y` for
 `j ≤ a` (in fact `(j!)² binom(a, j)² ...`; only positivity is used). -/
 lemma exists_pow_f_pow_e (t : IsSl2Pair e f) {a : ℕ} {y : W} (hy : f y = 0)

@@ -22,7 +22,8 @@ classes of simple objects are weight vectors.
 Here the Grothendieck group enters as data (`K0Data`): a map `cls` from objects to a
 `ℚ`-vector space `V`, additive on short exact sequences, sending the simple objects to a basis
 (indexed by the isomorphism classes of simple objects) and every object into the cone spanned
-by that basis. The actual Grothendieck group with its basis of simple classes is such data.
+by that basis, with integer coordinates. The actual Grothendieck group with its basis of simple
+classes is such data.
 
 ## Main results
 
@@ -61,6 +62,8 @@ structure K0Data (ι V : Type*) [AddCommGroup V] [Module ℚ V] where
   simple_simple : ∀ i, Simple (simple i)
   idx_simple : ∀ i, idx (simple i) (simple_simple i) = i
   cls_mem_cone : ∀ X, cls X ∈ cone B
+  /-- Classes have integer coordinates (multiplicities of composition factors). -/
+  cls_int : ∀ X j, ∃ m : ℕ, B.repr (cls X) j = m
 
 variable {C}
 

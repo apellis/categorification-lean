@@ -9,6 +9,9 @@ import Categorification.Diagrams.KL3.SlideCalculus
 
 M. Khovanov, A. Lauda, *A categorification of quantum `sl(n)`*, arXiv:0807.3250v1, §3.1.
 
+The statements of this file other than `dg_braid` are the specializations to `pres RD k` of
+those of `Categorification.Diagrams.KL3.NormalForm`.
+
 Certificate chains in `Categorification.Diagrams.KL3.SlideCalculus` (`dg_step`, `dstep`) name the
 layers below and above a rewritten subdiagram explicitly. This file adds a positional front end
 in which only the position of the subdiagram in the list of layers is given; the surrounding
@@ -49,42 +52,10 @@ theorem dg_congr_ctx {μ : X} {A B : List (LayerData I)}
     (hc : ∀ s t, SChain s A t → SChain s B t) (hc' : ∀ s t, SChain s B t → SChain s A t)
     (hd : ∀ s t, SChain s A t → dg RD k μ s t A = dg RD k μ s t B)
     (s₀ t₀ : List (Letter I)) (pre post : List (LayerData I)) :
-    dg RD k μ s₀ t₀ (pre ++ A ++ post) = dg RD k μ s₀ t₀ (pre ++ B ++ post) := by
-  by_cases h : SChain s₀ (pre ++ A ++ post) t₀
-  · obtain ⟨b, h₁, h₂⟩ := SChain.split h
-    obtain ⟨a, h₃, h₄⟩ := SChain.split h₁
-    rw [← dg_comp h₁ h₂, ← dg_comp h₃ h₄, hd a b h₄, dg_comp h₃ (hc a b h₄),
-      dg_comp (h₃.append (hc a b h₄)) h₂]
-  · rw [dg_of_not h, dg_of_not]
-    intro h'
-    obtain ⟨b, h₁, h₂⟩ := SChain.split h'
-    obtain ⟨a, h₃, h₄⟩ := SChain.split h₁
-    exact h ((h₃.append (hc' a b h₄)).append h₂)
-
-theorem list_split_at (L : List (LayerData I)) (n : ℕ) (x y : LayerData I)
-    (rest : List (LayerData I)) (hL : L.drop n = x :: y :: rest) :
-    L = L.take n ++ [x, y] ++ rest := by
-  rw [List.append_assoc, List.cons_append, List.cons_append, List.nil_append, ← hL,
-    List.take_append_drop]
+    dg RD k μ s₀ t₀ (pre ++ A ++ post) = dg RD k μ s₀ t₀ (pre ++ B ++ post) :=
+  NF.dg_congr_ctx (P := pres RD k) hc hc' hd s₀ t₀ pre post
 
 /-! ## The interchange law at a position -/
-
-/-- Exchange of the layers `x` (below) and `y` (above), the generator of `x` being to the left of
-that of `y`: the strands between the two generators are computed from the layers. -/
-def swapLR (x y : LayerData I) : List (LayerData I) :=
-  [(x.1 ++ x.2.1.dom ++ y.1.drop (x.1.length + x.2.1.cod.length), y.2.1, y.2.2),
-    (x.1, x.2.1, y.1.drop (x.1.length + x.2.1.cod.length) ++ y.2.1.cod ++ y.2.2)]
-
-/-- Exchange of the layers `x` (below) and `y` (above), the generator of `x` being to the right
-of that of `y`. -/
-def swapRL (x y : LayerData I) : List (LayerData I) :=
-  [(y.1, y.2.1, x.1.drop (y.1.length + y.2.1.dom.length) ++ x.2.1.dom ++ x.2.2),
-    (y.1 ++ y.2.1.cod ++ x.1.drop (y.1.length + y.2.1.dom.length), x.2.1, x.2.2)]
-
-theorem sChain_swap_iff (a m b : List (Letter I)) (g h : Shape I) (s t : List (Letter I)) :
-    SChain s [(a, g, m ++ h.dom ++ b), (a ++ g.cod ++ m, h, b)] t ↔
-      SChain s [(a ++ g.dom ++ m, h, b), (a, g, m ++ h.cod ++ b)] t := by
-  simp only [sChain_cons, sChain_nil, List.append_assoc, true_and]
 
 /-- **The interchange law at the position `n`**: the layers `n` (generator on the left) and
 `n + 1` (generator on the right) of a normal-form diagram are exchanged. -/
@@ -92,16 +63,8 @@ theorem dg_swapLR_at {μ : X} {s t : List (Letter I)} (L : List (LayerData I)) (
     (x y : LayerData I) (rest : List (LayerData I)) (hL : L.drop n = x :: y :: rest)
     (hx : x.2.2 = y.1.drop (x.1.length + x.2.1.cod.length) ++ y.2.1.dom ++ y.2.2)
     (hy : y.1 = x.1 ++ x.2.1.cod ++ y.1.drop (x.1.length + x.2.1.cod.length)) :
-    dg RD k μ s t L = dg RD k μ s t (L.take n ++ swapLR x y ++ rest) := by
-  rw [congrArg (dg RD k μ s t) (list_split_at L n x y rest hL)]
-  obtain ⟨a, g, r⟩ := x
-  obtain ⟨p, h, b⟩ := y
-  simp only [swapLR] at hx hy ⊢
-  generalize p.drop (a.length + g.cod.length) = m at hx hy ⊢
-  subst hx hy
-  exact dg_congr_ctx (fun s t => (sChain_swap_iff a m b g h s t).1)
-    (fun s t => (sChain_swap_iff a m b g h s t).2) (fun s t _ => dg_swap RD k μ s t a m b g h)
-    s t _ _
+    dg RD k μ s t L = dg RD k μ s t (L.take n ++ swapLR x y ++ rest) :=
+  NF.dg_swapLR_at (P := pres RD k) L n x y rest hL hx hy
 
 /-- **The interchange law at the position `n`**: the layers `n` (generator on the right) and
 `n + 1` (generator on the left) of a normal-form diagram are exchanged. -/
@@ -109,22 +72,10 @@ theorem dg_swapRL_at {μ : X} {s t : List (Letter I)} (L : List (LayerData I)) (
     (x y : LayerData I) (rest : List (LayerData I)) (hL : L.drop n = x :: y :: rest)
     (hx : x.1 = y.1 ++ y.2.1.dom ++ x.1.drop (y.1.length + y.2.1.dom.length))
     (hy : y.2.2 = x.1.drop (y.1.length + y.2.1.dom.length) ++ x.2.1.cod ++ x.2.2) :
-    dg RD k μ s t L = dg RD k μ s t (L.take n ++ swapRL x y ++ rest) := by
-  rw [congrArg (dg RD k μ s t) (list_split_at L n x y rest hL)]
-  obtain ⟨p, h, b⟩ := x
-  obtain ⟨a, g, r⟩ := y
-  simp only [swapRL] at hx hy ⊢
-  generalize p.drop (a.length + g.dom.length) = m at hx hy ⊢
-  subst hx hy
-  exact dg_congr_ctx (fun s t => (sChain_swap_iff a m b g h s t).2)
-    (fun s t => (sChain_swap_iff a m b g h s t).1)
-    (fun s t _ => (dg_swap RD k μ s t a m b g h).symm) s t _ _
+    dg RD k μ s t L = dg RD k μ s t (L.take n ++ swapRL x y ++ rest) :=
+  NF.dg_swapRL_at (P := pres RD k) L n x y rest hL hx hy
 
 /-! ## Local rewriting at a position -/
-
-theorem list_split_at' (L : List (LayerData I)) (n l : ℕ) :
-    L = L.take n ++ (L.drop n).take l ++ L.drop (n + l) := by
-  rw [List.append_assoc, ← List.drop_drop, List.take_append_drop, List.take_append_drop]
 
 /-- **One step of a certificate chain at a position**: if `dg ν s t A = dg ν s t B`
 (`ν = μ + v_X`) and the layers `n, …, n + |A| - 1` of `L` are `A` placed between the strands `u`
@@ -137,7 +88,7 @@ theorem dg_step_at {μ : X} {s₀ t₀ : List (Letter I)} (L : List (LayerData I
     (hL : (L.drop n).take A.length = A.map (whL u v)) :
     dg RD k μ s₀ t₀ L =
       dg RD k μ s₀ t₀ (L.take n ++ B.map (whL u v) ++ L.drop (n + A.length)) :=
-  dg_step RD k μ _ _ u v E hpre hpost (by rw [← hL]; exact list_split_at' L n A.length) rfl
+  NF.dg_step_at (P := pres RD k) L n u v E hpre hpost hL
 
 /-- One step of a certificate chain at a position, with a linear combination on the right-hand
 side (`dg_stepL`). -/
@@ -150,21 +101,7 @@ theorem dg_stepL_at {μ : X} {s₀ t₀ : List (Letter I)} (L : List (LayerData 
     (hL : (L.drop n).take A.length = A.map (whL u v)) :
     dg RD k μ s₀ t₀ L =
       ctxL RD k μ s₀ t₀ (L.take n) u v (L.drop (n + A.length)) s t F :=
-  dg_stepL RD k μ _ _ u v E hpre hpost (by rw [← hL]; exact list_split_at' L n A.length)
-
-@[simp] theorem Letter.dual_up (i : I) : Letter.dual (up i) = dn i := rfl
-
-@[simp] theorem Letter.dual_dn (i : I) : Letter.dual (dn i) = up i := rfl
-
-/-- Normalizes the lists of layers produced by `dswap` and `dat`. -/
-macro "dnorm" : tactic => `(tactic| simp only [swapLR, swapRL, whL, crosslL, crossrL,
-  List.take_succ_cons, List.length_map,
-  List.take_zero, List.take_nil, List.drop_succ_cons, List.drop_zero, List.drop_nil,
-  List.length_cons, List.length_nil, List.length_append, Shape.dom_dot, Shape.dom_cross,
-  Shape.dom_cup, Shape.dom_cap, Shape.cod_dot, Shape.cod_cross, Shape.cod_cup, Shape.cod_cap,
-  Letter.dual_up, Letter.dual_dn, List.map_cons, List.map_nil, List.cons_append,
-  List.nil_append, List.append_nil, List.singleton_append, List.append_assoc, Nat.add_zero,
-  Nat.zero_add, Nat.reduceAdd])
+  NF.dg_stepL_at (P := pres RD k) L n u v E hpre hpost hL
 
 /-- `dswap n`: exchange the layers `n` and `n + 1` of the left-hand side `dg μ s t L` of the
 goal by the interchange law. -/
@@ -208,28 +145,8 @@ theorem dg_interchange_one {μ : X} {S T : List (Letter I)} (pre post : List (La
     (a b : List (Letter I)) (g : Shape I) {t₀ t₁ : List (Letter I)} {B : List (LayerData I)}
     (hB : SChain t₀ B t₁) :
     dg RD k μ S T (pre ++ [(a, g, b ++ t₀)] ++ B.map (whL (a ++ g.cod ++ b) []) ++ post) =
-      dg RD k μ S T (pre ++ B.map (whL (a ++ g.dom ++ b) []) ++ [(a, g, b ++ t₁)] ++ post) := by
-  induction B generalizing pre t₀ with
-  | nil =>
-    cases hB
-    simp
-  | cons y B ih =>
-    obtain ⟨c, h, d⟩ := y
-    obtain ⟨rfl, hB'⟩ := hB
-    have e₁ : pre ++ [(a, g, b ++ (c ++ h.dom ++ d))] ++
-        List.map (whL (a ++ g.cod ++ b) []) ((c, h, d) :: B) ++ post =
-        pre ++ [(a, g, (b ++ c) ++ h.dom ++ d), (a ++ g.cod ++ (b ++ c), h, d)] ++
-          (List.map (whL (a ++ g.cod ++ b) []) B ++ post) := by
-      simp [whL, List.append_assoc]
-    have e₂ : pre ++ [(a ++ g.dom ++ (b ++ c), h, d), (a, g, (b ++ c) ++ h.cod ++ d)] ++
-        (List.map (whL (a ++ g.cod ++ b) []) B ++ post) =
-        (pre ++ [(a ++ g.dom ++ b ++ c, h, d)]) ++ [(a, g, b ++ (c ++ h.cod ++ d))] ++
-          List.map (whL (a ++ g.cod ++ b) []) B ++ post := by
-      simp [List.append_assoc]
-    rw [e₁, dg_congr_ctx (fun s t => (sChain_swap_iff a (b ++ c) d g h s t).1)
-      (fun s t => (sChain_swap_iff a (b ++ c) d g h s t).2)
-      (fun s t _ => dg_swap RD k μ s t a (b ++ c) d g h) S T pre _, e₂, ih _ hB']
-    simp [whL, List.append_assoc]
+      dg RD k μ S T (pre ++ B.map (whL (a ++ g.dom ++ b) []) ++ [(a, g, b ++ t₁)] ++ post) :=
+  NF.dg_interchange_one (P := pres RD k) pre post a b g hB
 
 /-- **The interchange law for blocks of layers**: a diagram `A` (from `s` to `s'`) on the left
 and a diagram `B` (from `t` to `t'`) on the right can be exchanged, in any context. -/
@@ -237,23 +154,7 @@ theorem dg_interchange {μ : X} {S T : List (Letter I)} (pre post : List (LayerD
     {s s' t t' : List (Letter I)} {A B : List (LayerData I)} (hA : SChain s A s')
     (hB : SChain t B t') :
     dg RD k μ S T (pre ++ A.map (whL [] t) ++ B.map (whL s' []) ++ post) =
-      dg RD k μ S T (pre ++ B.map (whL s []) ++ A.map (whL [] t') ++ post) := by
-  induction A generalizing pre s with
-  | nil =>
-    cases hA
-    simp
-  | cons x A ih =>
-    obtain ⟨a, g, b⟩ := x
-    obtain ⟨rfl, hA'⟩ := hA
-    have e₁ : pre ++ List.map (whL [] t) ((a, g, b) :: A) ++ B.map (whL s' []) ++ post =
-        (pre ++ [(a, g, b ++ t)]) ++ A.map (whL [] t) ++ B.map (whL s' []) ++ post := by
-      simp [whL, List.append_assoc]
-    have e₂ : (pre ++ [(a, g, b ++ t)]) ++ B.map (whL (a ++ g.cod ++ b) []) ++
-        A.map (whL [] t') ++ post =
-        pre ++ [(a, g, b ++ t)] ++ B.map (whL (a ++ g.cod ++ b) []) ++
-          (A.map (whL [] t') ++ post) := by
-      simp [List.append_assoc]
-    rw [e₁, ih _ hA', e₂, dg_interchange_one _ _ a b g hB]
-    simp [whL, List.append_assoc]
+      dg RD k μ S T (pre ++ B.map (whL s []) ++ A.map (whL [] t') ++ post) :=
+  NF.dg_interchange (P := pres RD k) pre post hA hB
 
 end Categorification.KL3.Diagram

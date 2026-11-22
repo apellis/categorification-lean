@@ -36,28 +36,28 @@ variable {I : Type u} {C : CartanDatum I} {X Y : Type v} [AddCommGroup X] [AddCo
 /-- A downward dot on the left strand of the cap `F_i E_i ⟶ 1` equals an upward dot on its
 right strand (KL III (3.3) and a zigzag relation). -/
 theorem dg_dot_cap_up (ν : X) (i : I) :
-    dg RD k sc ν [dn i, up i] [] [([], .dot (dn i), [up i]), ([], .cap (up i), [])] =
-      dg RD k sc ν [dn i, up i] [] [([dn i], .dot (up i), []), ([], .cap (up i), [])] := by
+    NF.dg (pres RD k sc) ν [dn i, up i] [] [([], .dot (dn i), [up i]), ([], .cap (up i), [])] =
+      NF.dg (pres RD k sc) ν [dn i, up i] [] [([dn i], .dot (up i), []), ([], .cap (up i), [])] := by
   dstepQ [] [([], .cap (up i), [])] [] [up i] (dg_cycDotR RD k sc i (wt RD ν [up i]))
   dstepQ [([dn i], .cup (up i), [up i]), ([dn i], .dot (up i), [dn i, up i])] [] [] []
-    (dg_swap' RD k sc ν [] [] [] (.cap (up i)) (.cap (up i)))
+    (NF.dg_swap' (pres RD k sc) ν [] [] [] (.cap (up i)) (.cap (up i)))
   dstepQ [([dn i], .cup (up i), [up i])] [([], .cap (up i), [])] [] []
-    (dg_swap' RD k sc ν [dn i] [] [] (.dot (up i)) (.cap (up i)))
+    (NF.dg_swap' (pres RD k sc) ν [dn i] [] [] (.dot (up i)) (.cap (up i)))
   dstepQ [] [([dn i], .dot (up i), []), ([], .cap (up i), [])] [dn i] []
-    (dg_zigL' RD k sc ν (up i))
+    (NF.dg_zigL' (pres RD k sc) ν (up i))
   lnf
 
 /-- `m` downward dots on the left strand of the cap `F_i E_i ⟶ 1` equal `m` upward dots on its
 right strand. -/
 theorem dg_dots_cap_up (ν : X) (i : I) (m : ℕ) :
-    dg RD k sc ν [dn i, up i] [] (List.replicate m ([], .dot (dn i), [up i]) ++ [([], .cap (up i), [])]) =
-      dg RD k sc ν [dn i, up i] [] (List.replicate m ([dn i], .dot (up i), []) ++ [([], .cap (up i), [])]) := by
+    NF.dg (pres RD k sc) ν [dn i, up i] [] (List.replicate m ([], .dot (dn i), [up i]) ++ [([], .cap (up i), [])]) =
+      NF.dg (pres RD k sc) ν [dn i, up i] [] (List.replicate m ([dn i], .dot (up i), []) ++ [([], .cap (up i), [])]) := by
   induction m with
   | zero => rfl
   | succ m ih =>
     dstepQ [([], .dot (dn i), [up i])] [] [] [] ih
     dstepQ [] [([], .cap (up i), [])] [] []
-      (dg_swap_rep RD k sc ν [] [] [] (.dot (dn i)) (.dot (up i)) rfl m).symm
+      (NF.dg_swap_rep (pres RD k sc) ν [] [] [] (.dot (dn i)) (.dot (up i)) rfl m).symm
     lnf
     dstepQ (List.replicate m ([dn i], .dot (up i), [])) [] [] [] (dg_dot_cap_up RD k sc ν i)
     simp [whL, List.replicate_succ']
@@ -70,30 +70,30 @@ variable (ν : X) (i : I)
 
 /-- `n` dots on the left strand of `E_i E_i 1_ν`. -/
 abbrev nhDotL (n : ℕ) : End ((pres RD k sc).obj (ob RD ν [up i, up i])) :=
-  dg RD k sc ν [up i, up i] [up i, up i] (List.replicate n ([], .dot (up i), [up i]))
+  NF.dg (pres RD k sc) ν [up i, up i] [up i, up i] (List.replicate n ([], .dot (up i), [up i]))
 
 /-- `n` dots on the right strand of `E_i E_i 1_ν`. -/
 abbrev nhDotR (n : ℕ) : End ((pres RD k sc).obj (ob RD ν [up i, up i])) :=
-  dg RD k sc ν [up i, up i] [up i, up i] (List.replicate n ([up i], .dot (up i), []))
+  NF.dg (pres RD k sc) ν [up i, up i] [up i, up i] (List.replicate n ([up i], .dot (up i), []))
 
 /-- The crossing of `E_i E_i 1_ν`. -/
 abbrev nhCross : End ((pres RD k sc).obj (ob RD ν [up i, up i])) :=
-  dg RD k sc ν [up i, up i] [up i, up i] [([], .cross true i i, [])]
+  NF.dg (pres RD k sc) ν [up i, up i] [up i, up i] [([], .cross true i i, [])]
 
 theorem nhDotL_add (a b : ℕ) : nhDotL RD k sc ν i a ≫ nhDotL RD k sc ν i b = nhDotL RD k sc ν i (a + b) := by
-  simp only [nhDotL]; rw [dg_comp (by schain) (by schain), List.replicate_add]
+  simp only [nhDotL]; rw [NF.dg_comp (by schain) (by schain), List.replicate_add]
 
 theorem nhDotR_add (a b : ℕ) : nhDotR RD k sc ν i a ≫ nhDotR RD k sc ν i b = nhDotR RD k sc ν i (a + b) := by
-  simp only [nhDotR]; rw [dg_comp (by schain) (by schain), List.replicate_add]
+  simp only [nhDotR]; rw [NF.dg_comp (by schain) (by schain), List.replicate_add]
 
-theorem nhDotL_zero : nhDotL RD k sc ν i 0 = 𝟙 _ := by simp only [nhDotL]; rw [List.replicate_zero, dg_nil]
+theorem nhDotL_zero : nhDotL RD k sc ν i 0 = 𝟙 _ := by simp only [nhDotL]; rw [List.replicate_zero, NF.dg_nil]
 
-theorem nhDotR_zero : nhDotR RD k sc ν i 0 = 𝟙 _ := by simp only [nhDotR]; rw [List.replicate_zero, dg_nil]
+theorem nhDotR_zero : nhDotR RD k sc ν i 0 = 𝟙 _ := by simp only [nhDotR]; rw [List.replicate_zero, NF.dg_nil]
 
 theorem nhDotR_nhDotL_one (n : ℕ) : nhDotR RD k sc ν i n ≫ nhDotL RD k sc ν i 1 = nhDotL RD k sc ν i 1 ≫ nhDotR RD k sc ν i n := by
   simp only [nhDotR, nhDotL]
-  rw [dg_comp (by schain) (by schain), dg_comp (by schain) (by schain)]
-  exact dg_swap_rep RD k sc ν [] [] [] (.dot (up i)) (.dot (up i)) rfl n
+  rw [NF.dg_comp (by schain) (by schain), NF.dg_comp (by schain) (by schain)]
+  exact NF.dg_swap_rep (pres RD k sc) ν [] [] [] (.dot (up i)) (.dot (up i)) rfl n
 
 theorem nhDotR_nhDotL (a b : ℕ) : nhDotR RD k sc ν i b ≫ nhDotL RD k sc ν i a = nhDotL RD k sc ν i a ≫ nhDotR RD k sc ν i b := by
   induction a with
@@ -105,12 +105,12 @@ theorem nhDotR_nhDotL (a b : ℕ) : nhDotR RD k sc ν i b ≫ nhDotL RD k sc ν 
 /-- `eq_nil_dotslide`: `x₁ ψ = ψ x₂ + 1`. -/
 theorem nhDotL_nhCross : nhDotL RD k sc ν i 1 ≫ nhCross RD k sc ν i = nhCross RD k sc ν i ≫ nhDotR RD k sc ν i 1 + 𝟙 _ := by
   simp only [nhDotL, nhCross, nhDotR]
-  rw [dg_comp (by schain) (by schain), dg_comp (by schain) (by schain), ← dg_nil]
+  rw [NF.dg_comp (by schain) (by schain), NF.dg_comp (by schain) (by schain), ← NF.dg_nil]
   exact dg_slideREq RD k sc ν i
 
 /-- `eq_nil_rels`: `ψ² = 0`. -/
 theorem nhCross_nhCross : nhCross RD k sc ν i ≫ nhCross RD k sc ν i = 0 := by
-  simp only [nhCross]; rw [dg_comp (by schain) (by schain)]
+  simp only [nhCross]; rw [NF.dg_comp (by schain) (by schain)]
   exact dg_sqEq RD k sc ν i
 
 /-- **Induction formula** (Lauda, Proposition 5.2): `ψ x₂^m = x₁^m ψ - ∑_{a<m} x₁^a x₂^{m-1-a}`. -/
@@ -145,7 +145,7 @@ theorem nhCross_nhDotR_nhCross (m : ℕ) :
 /-- `eq_nil_dotslide`: `ψ x₁ = x₂ ψ + 1`. -/
 theorem nhCross_nhDotL : nhCross RD k sc ν i ≫ nhDotL RD k sc ν i 1 = nhDotR RD k sc ν i 1 ≫ nhCross RD k sc ν i + 𝟙 _ := by
   simp only [nhDotL, nhCross, nhDotR]
-  rw [dg_comp (by schain) (by schain), dg_comp (by schain) (by schain), ← dg_nil]
+  rw [NF.dg_comp (by schain) (by schain), NF.dg_comp (by schain) (by schain), ← NF.dg_nil]
   exact dg_slideLEq RD k sc ν i
 
 /-- **Induction formula**, mirror form: `ψ x₁^m = x₂^m ψ + ∑_{a<m} x₂^a x₁^{m-1-a}`. -/
@@ -186,33 +186,33 @@ variable (ν : X) (i : I)
 
 /-- Closing the left strand of `E_i E_i 1_ν` to the left (a counterclockwise loop). -/
 def ptrL : End ((pres RD k sc).obj (ob RD ν [up i, up i])) →ₗ[k] End ((pres RD k sc).obj (ob RD ν [up i])) where
-  toFun f := dg RD k sc ν [up i] [dn i, up i, up i] [([], .cup (dn i), [up i])] ≫
-    plcL RD k sc ν [dn i] [] [up i, up i] [up i, up i] f ≫
-      dg RD k sc ν [dn i, up i, up i] [up i] [([], .cap (up i), [up i])]
+  toFun f := NF.dg (pres RD k sc) ν [up i] [dn i, up i, up i] [([], .cup (dn i), [up i])] ≫
+    NF.plcL (pres RD k sc) ν [dn i] [] [up i, up i] [up i, up i] f ≫
+      NF.dg (pres RD k sc) ν [dn i, up i, up i] [up i] [([], .cap (up i), [up i])]
   map_add' f g := by rw [map_add, Preadditive.add_comp, Preadditive.comp_add]
   map_smul' r f := by rw [map_smul, Linear.smul_comp, Linear.comp_smul]; rfl
 
 theorem ptrL_apply (f : End ((pres RD k sc).obj (ob RD ν [up i, up i]))) :
-    ptrL RD k sc ν i f = dg RD k sc ν [up i] [dn i, up i, up i] [([], .cup (dn i), [up i])] ≫
-      plcL RD k sc ν [dn i] [] [up i, up i] [up i, up i] f ≫
-        dg RD k sc ν [dn i, up i, up i] [up i] [([], .cap (up i), [up i])] := rfl
+    ptrL RD k sc ν i f = NF.dg (pres RD k sc) ν [up i] [dn i, up i, up i] [([], .cup (dn i), [up i])] ≫
+      NF.plcL (pres RD k sc) ν [dn i] [] [up i, up i] [up i, up i] f ≫
+        NF.dg (pres RD k sc) ν [dn i, up i, up i] [up i] [([], .cap (up i), [up i])] := rfl
 
 theorem ptrL_dg (A : List (LayerData I)) :
-    ptrL RD k sc ν i (dg RD k sc ν [up i, up i] [up i, up i] A) =
-      dg RD k sc ν [up i] [up i] ([([], .cup (dn i), [up i])] ++ A.map (whL [dn i] []) ++
+    ptrL RD k sc ν i (NF.dg (pres RD k sc) ν [up i, up i] [up i, up i] A) =
+      NF.dg (pres RD k sc) ν [up i] [up i] ([([], .cup (dn i), [up i])] ++ A.map (whL [dn i] []) ++
         [([], .cap (up i), [up i])]) := by
-  rw [ptrL_apply, plcL_dg_nil]
-  show dg RD k sc ν [up i] [dn i, up i, up i] _ ≫ dg RD k sc ν [dn i, up i, up i] [dn i, up i, up i] _ ≫
-    dg RD k sc ν [dn i, up i, up i] [up i] _ = _
+  rw [ptrL_apply, NF.plcL_dg_nil]
+  show NF.dg (pres RD k sc) ν [up i] [dn i, up i, up i] _ ≫ NF.dg (pres RD k sc) ν [dn i, up i, up i] [dn i, up i, up i] _ ≫
+    NF.dg (pres RD k sc) ν [dn i, up i, up i] [up i] _ = _
   by_cases hA : SChain [up i, up i] A [up i, up i]
   · have hA' : SChain [dn i, up i, up i] (A.map (whL [dn i] [])) [dn i, up i, up i] :=
       hA.whisk [dn i] []
-    rw [dg_comp hA' (by schain), dg_comp (by schain) (hA'.append (by schain))]
+    rw [NF.dg_comp hA' (by schain), NF.dg_comp (by schain) (hA'.append (by schain))]
     simp only [List.append_assoc]
   · have h0 : ¬ SChain [dn i, up i, up i] (A.map (whL [dn i] [])) [dn i, up i, up i] :=
       fun h => hA (SChain.of_whisk (u := [dn i]) (v := []) (s := [up i, up i])
         (t := [up i, up i]) h)
-    rw [dg_of_not h0, Limits.zero_comp, Limits.comp_zero, dg_of_not]
+    rw [NF.dg_of_not h0, Limits.zero_comp, Limits.comp_zero, NF.dg_of_not]
     intro h
     obtain ⟨a, h₁, h₂⟩ := SChain.split h
     obtain ⟨b, h₃, h₄⟩ := SChain.split h₁
@@ -221,51 +221,51 @@ theorem ptrL_dg (A : List (LayerData I)) :
     exact hA (SChain.of_whisk (u := [dn i]) (v := []) (by simpa using h₄))
 
 theorem plcL_nhDotR (b : ℕ) :
-    plcL RD k sc ν [dn i] [] [up i, up i] [up i, up i] (nhDotR RD k sc ν i b) =
-      dg RD k sc ν [dn i, up i, up i] [dn i, up i, up i]
+    NF.plcL (pres RD k sc) ν [dn i] [] [up i, up i] [up i, up i] (nhDotR RD k sc ν i b) =
+      NF.dg (pres RD k sc) ν [dn i, up i, up i] [dn i, up i, up i]
         (List.replicate b ([dn i, up i], .dot (up i), [])) := by
-  simp only [nhDotR]; rw [plcL_dg_nil]; lnf
+  simp only [nhDotR]; rw [NF.plcL_dg_nil]; lnf
 
 /-- Dots on the right (unclosed) strand below the left closure come out of it. -/
 theorem ptrL_nhDotR_comp (b : ℕ) (f : End ((pres RD k sc).obj (ob RD ν [up i, up i]))) :
-    ptrL RD k sc ν i (nhDotR RD k sc ν i b ≫ f) = dotsU RD k sc ν (up i) b ≫ ptrL RD k sc ν i f := by
-  have E : dg RD k sc ν [up i] [dn i, up i, up i] [([], .cup (dn i), [up i])] ≫
-      dg RD k sc ν [dn i, up i, up i] [dn i, up i, up i]
+    ptrL RD k sc ν i (nhDotR RD k sc ν i b ≫ f) = NF.dotsU (pres RD k sc) ν (up i) b ≫ ptrL RD k sc ν i f := by
+  have E : NF.dg (pres RD k sc) ν [up i] [dn i, up i, up i] [([], .cup (dn i), [up i])] ≫
+      NF.dg (pres RD k sc) ν [dn i, up i, up i] [dn i, up i, up i]
         (List.replicate b ([dn i, up i], .dot (up i), [])) =
-      dotsU RD k sc ν (up i) b ≫ dg RD k sc ν [up i] [dn i, up i, up i] [([], .cup (dn i), [up i])] := by
-    rw [dotsU, dg_comp (by schain) (by schain), dg_comp (by schain) (by schain)]
-    exact (dg_swap_rep RD k sc ν [] [] [] (.cup (dn i)) (.dot (up i)) rfl b).symm
-  rw [ptrL_apply, ptrL_apply, ← plcL_comp RD k sc ν [dn i] [] rfl rfl, plcL_nhDotR]
+      NF.dotsU (pres RD k sc) ν (up i) b ≫ NF.dg (pres RD k sc) ν [up i] [dn i, up i, up i] [([], .cup (dn i), [up i])] := by
+    rw [NF.dotsU, NF.dg_comp (by schain) (by schain), NF.dg_comp (by schain) (by schain)]
+    exact (NF.dg_swap_rep (pres RD k sc) ν [] [] [] (.cup (dn i)) (.dot (up i)) rfl b).symm
+  rw [ptrL_apply, ptrL_apply, ← NF.plcL_comp (pres RD k sc) ν [dn i] [] rfl rfl, plcL_nhDotR]
   simp only [Category.assoc]
-  rw [← Category.assoc (dg RD k sc ν [up i] [dn i, up i, up i] _), E, Category.assoc]
+  rw [← Category.assoc (NF.dg (pres RD k sc) ν [up i] [dn i, up i, up i] _), E, Category.assoc]
 
 /-- Dots on the right (unclosed) strand above the left closure come out of it. -/
 theorem ptrL_comp_nhDotR (b : ℕ) (f : End ((pres RD k sc).obj (ob RD ν [up i, up i]))) :
-    ptrL RD k sc ν i (f ≫ nhDotR RD k sc ν i b) = ptrL RD k sc ν i f ≫ dotsU RD k sc ν (up i) b := by
-  have E : dg RD k sc ν [dn i, up i, up i] [dn i, up i, up i]
+    ptrL RD k sc ν i (f ≫ nhDotR RD k sc ν i b) = ptrL RD k sc ν i f ≫ NF.dotsU (pres RD k sc) ν (up i) b := by
+  have E : NF.dg (pres RD k sc) ν [dn i, up i, up i] [dn i, up i, up i]
         (List.replicate b ([dn i, up i], .dot (up i), [])) ≫
-      dg RD k sc ν [dn i, up i, up i] [up i] [([], .cap (up i), [up i])] =
-      dg RD k sc ν [dn i, up i, up i] [up i] [([], .cap (up i), [up i])] ≫ dotsU RD k sc ν (up i) b := by
-    rw [dotsU, dg_comp (by schain) (by schain), dg_comp (by schain) (by schain)]
-    exact dg_swap_rep RD k sc ν [] [] [] (.cap (up i)) (.dot (up i)) rfl b
-  rw [ptrL_apply, ptrL_apply, ← plcL_comp RD k sc ν [dn i] [] rfl rfl, plcL_nhDotR]
+      NF.dg (pres RD k sc) ν [dn i, up i, up i] [up i] [([], .cap (up i), [up i])] =
+      NF.dg (pres RD k sc) ν [dn i, up i, up i] [up i] [([], .cap (up i), [up i])] ≫ NF.dotsU (pres RD k sc) ν (up i) b := by
+    rw [NF.dotsU, NF.dg_comp (by schain) (by schain), NF.dg_comp (by schain) (by schain)]
+    exact NF.dg_swap_rep (pres RD k sc) ν [] [] [] (.cap (up i)) (.dot (up i)) rfl b
+  rw [ptrL_apply, ptrL_apply, ← NF.plcL_comp (pres RD k sc) ν [dn i] [] rfl rfl, plcL_nhDotR]
   simp only [Category.assoc]
   rw [E]
 
 /-- The left closure of `x₁^a` is a counterclockwise bubble to the left of the strand. -/
 theorem ptrL_nhDotL (a : ℕ) :
-    ptrL RD k sc ν i (nhDotL RD k sc ν i a) = bubLU RD k sc ν (up i) (ccwU RD k sc (wt RD ν [up i]) i a) := by
+    ptrL RD k sc ν i (nhDotL RD k sc ν i a) = NF.bubLU (pres RD k sc) ν (up i) (NF.ccwU (pres RD k sc) (wt RD ν [up i]) i a) := by
   simp only [nhDotL]
-  rw [ptrL_dg, ccwU_of_nonneg, bubLU, plcL_dg]
-  show _ = dg RD k sc ν [up i] [up i] _
+  rw [ptrL_dg, NF.ccwU_of_nonneg, NF.bubLU, NF.plcL_dg]
+  show _ = NF.dg (pres RD k sc) ν [up i] [up i] _
   congr 1; simp only [ccwLs]; lnf
 
 /-- The left closure of the crossing is the left curl (KL III, curl relation). -/
 theorem ptrL_nhCross :
     ptrL RD k sc ν i (nhCross RD k sc ν i) =
       ∑ g ∈ Finset.range (ip RD i (wt RD ν [up i]) + 1).toNat,
-        bubLU RD k sc ν (up i) (ccwU RD k sc (wt RD ν [up i]) i (-ip RD i (wt RD ν [up i]) - 1 + g)) ≫
-          dotsU RD k sc ν (up i) (ip RD i (wt RD ν [up i]) - g).toNat := by
+        NF.bubLU (pres RD k sc) ν (up i) (NF.ccwU (pres RD k sc) (wt RD ν [up i]) i (-ip RD i (wt RD ν [up i]) - 1 + g)) ≫
+          NF.dotsU (pres RD k sc) ν (up i) (ip RD i (wt RD ν [up i]) - g).toNat := by
   simp only [nhCross]
   rw [ptrL_dg, ← dg_curlL]
   congr 1
@@ -276,8 +276,8 @@ strand, `N = ⟨i, ν + i_X⟩`; fake bubbles occur for `j ≤ N`). -/
 theorem ptrL_nhDotL_nhCross (a : ℕ) :
     ptrL RD k sc ν i (nhDotL RD k sc ν i a ≫ nhCross RD k sc ν i) =
       ∑ j ∈ Finset.range (a + ip RD i (wt RD ν [up i]) + 1).toNat,
-        bubLU RD k sc ν (up i) (ccwU RD k sc (wt RD ν [up i]) i (-ip RD i (wt RD ν [up i]) - 1 + j)) ≫
-          dotsU RD k sc ν (up i) (a + ip RD i (wt RD ν [up i]) - j).toNat := by
+        NF.bubLU (pres RD k sc) ν (up i) (NF.ccwU (pres RD k sc) (wt RD ν [up i]) i (-ip RD i (wt RD ν [up i]) - 1 + j)) ≫
+          NF.dotsU (pres RD k sc) ν (up i) (a + ip RD i (wt RD ν [up i]) - j).toNat := by
   induction a with
   | zero =>
     rw [nhDotL_zero, Category.id_comp, ptrL_nhCross]
@@ -292,7 +292,7 @@ theorem ptrL_nhDotL_nhCross (a : ℕ) :
       rw [hr, Finset.sum_range_succ]
       congr 1
       · refine Finset.sum_congr rfl fun j hj => ?_
-        rw [Category.assoc, dotsU_add]
+        rw [Category.assoc, NF.dotsU_add]
         have := Finset.mem_range.1 hj
         congr 2
         push_cast; omega
@@ -303,10 +303,10 @@ theorem ptrL_nhDotL_nhCross (a : ℕ) :
         have h0 : ((↑(a + 1) : ℤ) + ip RD i (wt RD ν [up i]) -
             ((((a : ℤ) + ip RD i (wt RD ν [up i]) + 1).toNat : ℕ) : ℤ)).toNat = 0 := by
           rw [Int.toNat_of_nonneg ha]; push_cast; omega
-        rw [h0, dotsU_zero, Category.comp_id]
+        rw [h0, NF.dotsU_zero, Category.comp_id]
     · have h₁ : ((a : ℤ) + ip RD i (wt RD ν [up i]) + 1).toNat = 0 := by omega
       have h₂ : ((↑(a + 1) : ℤ) + ip RD i (wt RD ν [up i]) + 1).toNat = 0 := by push_cast; omega
-      rw [h₁, h₂, Finset.sum_range_zero, Finset.sum_range_zero, zero_add, ccwU_of_nonneg,
+      rw [h₁, h₂, Finset.sum_range_zero, Finset.sum_range_zero, zero_add, NF.ccwU_of_nonneg,
         dg_ccwNeg RD k sc _ i a (by omega)]
       exact map_zero _
 end ClosureL
@@ -320,68 +320,67 @@ variable (lam : X) (i : I)
 /-- A counterclockwise bubble with `m` dots to the right of `E_i`, whose left strand is closed
 off by the cap with `p` dots of the `E F` decomposition: `p + m` dots on the strand. -/
 theorem dg_bubble_dotCap (m p : ℕ) :
-    dg RD k sc lam [up i] [up i]
+    NF.dg (pres RD k sc) lam [up i] [up i]
         ([([up i], .cup (dn i), [])] ++ List.replicate m ([up i, dn i], .dot (up i), []) ++
-          (dotCapEFLs i p).map (whL [] [up i])) = dotsU RD k sc lam (up i) (p + m) := by
+          (dotCapEFLs i p).map (whL [] [up i])) = NF.dotsU (pres RD k sc) lam (up i) (p + m) := by
   simp only [dotCapEFLs]
   dstepQ [([up i], .cup (dn i), [])] [([], .cap (dn i), [up i])] [] []
-    (dg_swap_dots RD k sc lam [] [dn i] [] (up i) (up i) m p)
+    (NF.dg_swap_dots (pres RD k sc) lam [] [dn i] [] (up i) (up i) m p)
   dstepQ [] (List.replicate m ([up i, dn i], .dot (up i), []) ++ [([], .cap (dn i), [up i])]) [] []
-    (dg_swap_rep' RD k sc lam [] [] [] (.cup (dn i)) (.dot (up i)) rfl p).symm
+    (NF.dg_swap_rep' (pres RD k sc) lam [] [] [] (.cup (dn i)) (.dot (up i)) rfl p).symm
   dstepQ (List.replicate p ([], .dot (up i), []) ++ [([up i], .cup (dn i), [])]) [] [] []
-    (dg_swap_rep RD k sc lam [] [] [] (.cap (dn i)) (.dot (up i)) rfl m)
+    (NF.dg_swap_rep (pres RD k sc) lam [] [] [] (.cap (dn i)) (.dot (up i)) rfl m)
   dstepQ (List.replicate p ([], .dot (up i), [])) (List.replicate m ([], .dot (up i), [])) [] []
-    (dg_zigR' RD k sc lam (dn i))
-  rw [dotsU, List.replicate_add]
+    (NF.dg_zigR' (pres RD k sc) lam (dn i))
+  rw [NF.dotsU, List.replicate_add]
   lnf
 
 /-- The cup with `q` dots of the `E F` decomposition, closed off by the cap of a
 counterclockwise bubble to the right of `E_i`: `q` dots on the strand. -/
 theorem dg_cupDot_bubble (q : ℕ) :
-    dg RD k sc lam [up i] [up i]
+    NF.dg (pres RD k sc) lam [up i] [up i]
         ((cupDotEFLs i q).map (whL [] [up i]) ++ [([up i], .cap (up i), [])]) =
-      dotsU RD k sc lam (up i) q := by
+      NF.dotsU (pres RD k sc) lam (up i) q := by
   simp only [cupDotEFLs]
   dstepQ [([], .cup (up i), [up i])] [] [up i] [] (dg_dots_cap_up RD k sc lam i q)
   dstepQ [] [([up i], .cap (up i), [])] [] []
-    (dg_swap_rep RD k sc lam [] [] [] (.cup (up i)) (.dot (up i)) rfl q).symm
-  dstepQ (List.replicate q ([], .dot (up i), [])) [] [] [] (dg_zigL' RD k sc lam (up i))
-  rw [dotsU]
+    (NF.dg_swap_rep (pres RD k sc) lam [] [] [] (.cup (up i)) (.dot (up i)) rfl q).symm
+  dstepQ (List.replicate q ([], .dot (up i), [])) [] [] [] (NF.dg_zigL' (pres RD k sc) lam (up i))
+  rw [NF.dotsU]
   lnf
 
 /-- A term `(cap with p dots) β (cup with q dots)` of the decomposition of `1_{E F}`, inserted
 between the strand `E_i` and the left strand of a counterclockwise bubble with `m` dots on its
 right, equals `β` to the left of the strand with `p + m + q` dots on the strand. -/
 theorem ctxL_decompTerm (m p q : ℕ) (β : End ((pres RD k sc).obj (ob RD (wt RD lam [up i]) []))) :
-    ctxL RD k sc lam [up i] [up i]
+    NF.ctxL (pres RD k sc) lam [up i] [up i]
         ([([up i], .cup (dn i), [])] ++ List.replicate m ([up i, dn i], .dot (up i), [])) [] [up i]
         [([up i], .cap (up i), [])] [up i, dn i] [up i, dn i]
-        (dg RD k sc (wt RD lam [up i]) [up i, dn i] [] (dotCapEFLs i p) ≫ β ≫
-          dg RD k sc (wt RD lam [up i]) [] [up i, dn i] (cupDotEFLs i q)) =
-      bubLU RD k sc lam (up i) β ≫ dotsU RD k sc lam (up i) (p + m + q) := by
+        (NF.dg (pres RD k sc) (wt RD lam [up i]) [up i, dn i] [] (dotCapEFLs i p) ≫ β ≫
+          NF.dg (pres RD k sc) (wt RD lam [up i]) [] [up i, dn i] (cupDotEFLs i q)) =
+      NF.bubLU (pres RD k sc) lam (up i) β ≫ NF.dotsU (pres RD k sc) lam (up i) (p + m + q) := by
   have hw : wt RD (wt RD lam [up i]) [up i, dn i] = wt RD (wt RD lam [up i]) [] := by simp
-  show dg RD k sc lam [up i] ([] ++ [up i, dn i] ++ [up i]) _ ≫ plcL RD k sc lam [] [up i] _ _ _ ≫
-    dg RD k sc lam ([] ++ [up i, dn i] ++ [up i]) [up i] _ = _
-  rw [← plcL_comp RD k sc lam [] [up i] hw.symm hw, ← plcL_comp RD k sc lam [] [up i] rfl hw,
-    plcL_dg, plcL_dg]
-  have E1 : dg RD k sc lam [up i] [up i]
+  show NF.dg (pres RD k sc) lam [up i] ([] ++ [up i, dn i] ++ [up i]) _ ≫ NF.plcL (pres RD k sc) lam [] [up i] _ _ _ ≫
+    NF.dg (pres RD k sc) lam ([] ++ [up i, dn i] ++ [up i]) [up i] _ = _
+  rw [← NF.plcL_comp (pres RD k sc) lam [] [up i] hw.symm hw, ← NF.plcL_comp (pres RD k sc) lam [] [up i] rfl hw,
+    NF.plcL_dg, NF.plcL_dg]
+  have E1 : NF.dg (pres RD k sc) lam [up i] [up i]
       ([([up i], .cup (dn i), [])] ++ List.replicate m ([up i, dn i], .dot (up i), []) ++
-        (dotCapEFLs i p).map (whL [] [up i])) = dotsU RD k sc lam (up i) (p + m) :=
+        (dotCapEFLs i p).map (whL [] [up i])) = NF.dotsU (pres RD k sc) lam (up i) (p + m) :=
     dg_bubble_dotCap RD k sc lam i m p
-  have E2 : dg RD k sc lam [up i] [up i]
+  have E2 : NF.dg (pres RD k sc) lam [up i] [up i]
       ((cupDotEFLs i q).map (whL [] [up i]) ++ [([up i], .cap (up i), [])]) =
-      dotsU RD k sc lam (up i) q := dg_cupDot_bubble RD k sc lam i q
+      NF.dotsU (pres RD k sc) lam (up i) q := dg_cupDot_bubble RD k sc lam i q
   simp only [Category.assoc]
-  rw [← Category.assoc (dg RD k sc lam [up i] _ _), dg_comp (by schain) (by schain),
-    dg_comp (by schain) (by schain)]
+  rw [← Category.assoc (NF.dg (pres RD k sc) lam [up i] _ _), NF.dg_comp (by schain) (by schain),
+    NF.dg_comp (by schain) (by schain)]
   erw [E1, E2]
-  rw [← Category.assoc, ← bubLU_comm, Category.assoc, dotsU_add]
+  rw [← Category.assoc, ← NF.bubLU_comm, Category.assoc, NF.dotsU_add]
 
 end DecompTerms
 
 /-! ## The bubble slide for `i = j` -/
 
-set_option maxHeartbeats 1000000 in
 /-- **Bubble slide, counterclockwise, `i = j`** (KL III Proposition 3.3, first display, case
 `i = j`; Lauda, Proposition 5.6, (5.26)), for a real bubble with `m ≥ 0` dots: with
 `λ' = λ + i_X` the region to the left of the strand and `N = ⟨i, λ'⟩`,
@@ -390,61 +389,61 @@ the bubbles on the right being in the region `λ` and those on the left in `λ'`
 bubbles). With the printed label `m = -⟨i,λ⟩-1+α` one has `m + N - 1 = α` (as `N = ⟨i,λ⟩+2`),
 so the right-hand side is `∑_{ℓ=0}^{α} (α+1-ℓ) ccw_{-⟨i,λ+i_X⟩-1+ℓ} x^{α-ℓ}`. -/
 theorem dg_ccw_slide_eq (lam : X) (i : I) (m : ℕ) :
-    dg RD k sc lam [up i] [up i]
+    NF.dg (pres RD k sc) lam [up i] [up i]
         ([([up i], .cup (dn i), [])] ++ List.replicate m ([up i, dn i], .dot (up i), []) ++
           [([up i], .cap (up i), [])]) =
       ∑ j ∈ Finset.range ((m : ℤ) + ip RD i (wt RD lam [up i])).toNat,
         ((m : ℤ) + ip RD i (wt RD lam [up i]) - j).toNat •
-          (bubLU RD k sc lam (up i)
-              (ccwU RD k sc (wt RD lam [up i]) i (-ip RD i (wt RD lam [up i]) - 1 + j)) ≫
-            dotsU RD k sc lam (up i) ((m : ℤ) + ip RD i (wt RD lam [up i]) - 1 - j).toNat) := by
+          (NF.bubLU (pres RD k sc) lam (up i)
+              (NF.ccwU (pres RD k sc) (wt RD lam [up i]) i (-ip RD i (wt RD lam [up i]) - 1 + j)) ≫
+            NF.dotsU (pres RD k sc) lam (up i) ((m : ℤ) + ip RD i (wt RD lam [up i]) - 1 - j).toNat) := by
   -- the identity decomposition of `1_{E F}` (eq_ident_decomp) between the strand and the bubble
-  refine (dg_stepL RD k sc lam ([([up i], .cup (dn i), [])] ++
+  refine (NF.dg_stepL (pres RD k sc) lam ([([up i], .cup (dn i), [])] ++
       List.replicate m ([up i, dn i], .dot (up i), [])) [([up i], .cap (up i), [])] [] [up i]
     (dg_decompEF RD k sc i (wt RD lam [up i])) (by schain) (by schain) (by lnf)).trans ?_
-  rw [map_add, map_neg, ctxL_dg RD k sc lam (by schain) (by schain), dg_pull_ccw, map_sum]
+  rw [map_add, map_neg, NF.ctxL_dg (pres RD k sc) lam (by schain) (by schain), NF.dg_pull_ccw, map_sum]
   simp only [map_sum, ctxL_decompTerm]
   -- the crossing term: the left closure of `ψ x₂^m ψ`
-  have hS : dg RD k sc lam [up i] [up i]
+  have hS : NF.dg (pres RD k sc) lam [up i] [up i]
       ([([], .cup (dn i), [up i]), ([dn i], .cross true i i, [])] ++
         List.replicate m ([dn i, up i], .dot (up i), []) ++
         [([dn i], .cross true i i, []), ([], .cap (up i), [up i])]) =
       ptrL RD k sc lam i (nhCross RD k sc lam i ≫ nhDotR RD k sc lam i m ≫ nhCross RD k sc lam i) := by
     simp only [nhCross, nhDotR]
-    rw [dg_comp (by schain) (by schain), dg_comp (by schain) (by schain), ptrL_dg]
+    rw [NF.dg_comp (by schain) (by schain), NF.dg_comp (by schain) (by schain), ptrL_dg]
     congr 1; lnf
   rw [hS, nhCross_nhDotR_nhCross, map_neg, neg_neg, map_sum]
   have hT : ∀ a ∈ Finset.range m, ptrL RD k sc lam i (nhDotL RD k sc lam i a ≫ nhDotR RD k sc lam i (m - 1 - a) ≫
       nhCross RD k sc lam i) = ∑ j ∈ Finset.range ((a : ℤ) + ip RD i (wt RD lam [up i]) + 1).toNat,
-        bubLU RD k sc lam (up i)
-            (ccwU RD k sc (wt RD lam [up i]) i (-ip RD i (wt RD lam [up i]) - 1 + j)) ≫
-          dotsU RD k sc lam (up i) ((m : ℤ) + ip RD i (wt RD lam [up i]) - 1 - j).toNat := by
+        NF.bubLU (pres RD k sc) lam (up i)
+            (NF.ccwU (pres RD k sc) (wt RD lam [up i]) i (-ip RD i (wt RD lam [up i]) - 1 + j)) ≫
+          NF.dotsU (pres RD k sc) lam (up i) ((m : ℤ) + ip RD i (wt RD lam [up i]) - 1 - j).toNat := by
     intro a ha
     have ha' := Finset.mem_range.1 ha
     rw [← Category.assoc, ← nhDotR_nhDotL, Category.assoc, ptrL_nhDotR_comp, ptrL_nhDotL_nhCross,
       Preadditive.comp_sum]
     refine Finset.sum_congr rfl fun j hj => ?_
     have hj' := Finset.mem_range.1 hj
-    rw [← Category.assoc, ← bubLU_comm, Category.assoc, dotsU_add]
+    rw [← Category.assoc, ← NF.bubLU_comm, Category.assoc, NF.dotsU_add]
     congr 2
     omega
   rw [Finset.sum_congr rfl hT]
   have hD : ∀ f ∈ Finset.range (ip RD i (wt RD lam [up i])).toNat, ∀ g ∈ Finset.range (f + 1),
-      bubLU RD k sc lam (up i)
-          (ccwU RD k sc (wt RD lam [up i]) i (-ip RD i (wt RD lam [up i]) - 1 + g)) ≫
-        dotsU RD k sc lam (up i) (f - g + m + ((ip RD i (wt RD lam [up i])).toNat - 1 - f)) =
-      bubLU RD k sc lam (up i)
-          (ccwU RD k sc (wt RD lam [up i]) i (-ip RD i (wt RD lam [up i]) - 1 + g)) ≫
-        dotsU RD k sc lam (up i) ((m : ℤ) + ip RD i (wt RD lam [up i]) - 1 - g).toNat := by
+      NF.bubLU (pres RD k sc) lam (up i)
+          (NF.ccwU (pres RD k sc) (wt RD lam [up i]) i (-ip RD i (wt RD lam [up i]) - 1 + g)) ≫
+        NF.dotsU (pres RD k sc) lam (up i) (f - g + m + ((ip RD i (wt RD lam [up i])).toNat - 1 - f)) =
+      NF.bubLU (pres RD k sc) lam (up i)
+          (NF.ccwU (pres RD k sc) (wt RD lam [up i]) i (-ip RD i (wt RD lam [up i]) - 1 + g)) ≫
+        NF.dotsU (pres RD k sc) lam (up i) ((m : ℤ) + ip RD i (wt RD lam [up i]) - 1 - g).toNat := by
     intro f hf g hg
     have hf' := Finset.mem_range.1 hf
     have hg' := Finset.mem_range.1 hg
     congr 2
     omega
   rw [Finset.sum_congr rfl fun f hf => Finset.sum_congr rfl (hD f hf)]
-  exact sum_slide_identity (fun j => bubLU RD k sc lam (up i)
-      (ccwU RD k sc (wt RD lam [up i]) i (-ip RD i (wt RD lam [up i]) - 1 + j)) ≫
-        dotsU RD k sc lam (up i) ((m : ℤ) + ip RD i (wt RD lam [up i]) - 1 - j).toNat) m _
+  exact sum_slide_identity (fun j => NF.bubLU (pres RD k sc) lam (up i)
+      (NF.ccwU (pres RD k sc) (wt RD lam [up i]) i (-ip RD i (wt RD lam [up i]) - 1 + j)) ≫
+        NF.dotsU (pres RD k sc) lam (up i) ((m : ℤ) + ip RD i (wt RD lam [up i]) - 1 - j).toNat) m _
 
 /-! ## Closing the right strand of `E_i E_i` -/
 
@@ -456,33 +455,33 @@ variable (lam : X) (i : I)
 result is an endomorphism of `E_i 1_λ`. -/
 def ptrR : End ((pres RD k sc).obj (ob RD (wt RD lam [dn i]) [up i, up i])) →ₗ[k]
     End ((pres RD k sc).obj (ob RD lam [up i])) where
-  toFun f := dg RD k sc lam [up i] [up i, up i, dn i] [([up i], .cup (up i), [])] ≫
-    plcL RD k sc lam [] [dn i] [up i, up i] [up i, up i] f ≫
-      dg RD k sc lam [up i, up i, dn i] [up i] [([up i], .cap (dn i), [])]
+  toFun f := NF.dg (pres RD k sc) lam [up i] [up i, up i, dn i] [([up i], .cup (up i), [])] ≫
+    NF.plcL (pres RD k sc) lam [] [dn i] [up i, up i] [up i, up i] f ≫
+      NF.dg (pres RD k sc) lam [up i, up i, dn i] [up i] [([up i], .cap (dn i), [])]
   map_add' f g := by rw [map_add, Preadditive.add_comp, Preadditive.comp_add]
   map_smul' r f := by rw [map_smul, Linear.smul_comp, Linear.comp_smul]; rfl
 
 theorem ptrR_apply (f : End ((pres RD k sc).obj (ob RD (wt RD lam [dn i]) [up i, up i]))) :
-    ptrR RD k sc lam i f = dg RD k sc lam [up i] [up i, up i, dn i] [([up i], .cup (up i), [])] ≫
-      plcL RD k sc lam [] [dn i] [up i, up i] [up i, up i] f ≫
-        dg RD k sc lam [up i, up i, dn i] [up i] [([up i], .cap (dn i), [])] := rfl
+    ptrR RD k sc lam i f = NF.dg (pres RD k sc) lam [up i] [up i, up i, dn i] [([up i], .cup (up i), [])] ≫
+      NF.plcL (pres RD k sc) lam [] [dn i] [up i, up i] [up i, up i] f ≫
+        NF.dg (pres RD k sc) lam [up i, up i, dn i] [up i] [([up i], .cap (dn i), [])] := rfl
 
 theorem ptrR_dg (A : List (LayerData I)) :
-    ptrR RD k sc lam i (dg RD k sc (wt RD lam [dn i]) [up i, up i] [up i, up i] A) =
-      dg RD k sc lam [up i] [up i] ([([up i], .cup (up i), [])] ++ A.map (whL [] [dn i]) ++
+    ptrR RD k sc lam i (NF.dg (pres RD k sc) (wt RD lam [dn i]) [up i, up i] [up i, up i] A) =
+      NF.dg (pres RD k sc) lam [up i] [up i] ([([up i], .cup (up i), [])] ++ A.map (whL [] [dn i]) ++
         [([up i], .cap (dn i), [])]) := by
-  rw [ptrR_apply, plcL_dg]
-  show dg RD k sc lam [up i] [up i, up i, dn i] _ ≫ dg RD k sc lam [up i, up i, dn i] [up i, up i, dn i] _ ≫
-    dg RD k sc lam [up i, up i, dn i] [up i] _ = _
+  rw [ptrR_apply, NF.plcL_dg]
+  show NF.dg (pres RD k sc) lam [up i] [up i, up i, dn i] _ ≫ NF.dg (pres RD k sc) lam [up i, up i, dn i] [up i, up i, dn i] _ ≫
+    NF.dg (pres RD k sc) lam [up i, up i, dn i] [up i] _ = _
   by_cases hA : SChain [up i, up i] A [up i, up i]
   · have hA' : SChain [up i, up i, dn i] (A.map (whL [] [dn i])) [up i, up i, dn i] :=
       hA.whisk [] [dn i]
-    rw [dg_comp hA' (by schain), dg_comp (by schain) (hA'.append (by schain))]
+    rw [NF.dg_comp hA' (by schain), NF.dg_comp (by schain) (hA'.append (by schain))]
     simp only [List.append_assoc]
   · have h0 : ¬ SChain [up i, up i, dn i] (A.map (whL [] [dn i])) [up i, up i, dn i] :=
       fun h => hA (SChain.of_whisk (u := []) (v := [dn i]) (s := [up i, up i])
         (t := [up i, up i]) h)
-    rw [dg_of_not h0, Limits.zero_comp, Limits.comp_zero, dg_of_not]
+    rw [NF.dg_of_not h0, Limits.zero_comp, Limits.comp_zero, NF.dg_of_not]
     intro h
     obtain ⟨a, h₁, h₂⟩ := SChain.split h
     obtain ⟨b, h₃, h₄⟩ := SChain.split h₁
@@ -491,53 +490,53 @@ theorem ptrR_dg (A : List (LayerData I)) :
     exact hA (SChain.of_whisk (u := []) (v := [dn i]) (by simpa using h₄))
 
 theorem plcL_nhDotL (b : ℕ) :
-    plcL RD k sc lam [] [dn i] [up i, up i] [up i, up i] (nhDotL RD k sc (wt RD lam [dn i]) i b) =
-      dg RD k sc lam [up i, up i, dn i] [up i, up i, dn i]
+    NF.plcL (pres RD k sc) lam [] [dn i] [up i, up i] [up i, up i] (nhDotL RD k sc (wt RD lam [dn i]) i b) =
+      NF.dg (pres RD k sc) lam [up i, up i, dn i] [up i, up i, dn i]
         (List.replicate b ([], .dot (up i), [up i, dn i])) := by
-  simp only [nhDotL]; rw [plcL_dg]; lnf
+  simp only [nhDotL]; rw [NF.plcL_dg]; lnf
 
 /-- Dots on the left (unclosed) strand below the right closure come out of it. -/
 theorem ptrR_nhDotL_comp (b : ℕ) (f : End ((pres RD k sc).obj (ob RD (wt RD lam [dn i]) [up i, up i]))) :
     ptrR RD k sc lam i (nhDotL RD k sc (wt RD lam [dn i]) i b ≫ f) =
-      dotsU RD k sc lam (up i) b ≫ ptrR RD k sc lam i f := by
-  have E : dg RD k sc lam [up i] [up i, up i, dn i] [([up i], .cup (up i), [])] ≫
-      dg RD k sc lam [up i, up i, dn i] [up i, up i, dn i]
+      NF.dotsU (pres RD k sc) lam (up i) b ≫ ptrR RD k sc lam i f := by
+  have E : NF.dg (pres RD k sc) lam [up i] [up i, up i, dn i] [([up i], .cup (up i), [])] ≫
+      NF.dg (pres RD k sc) lam [up i, up i, dn i] [up i, up i, dn i]
         (List.replicate b ([], .dot (up i), [up i, dn i])) =
-      dotsU RD k sc lam (up i) b ≫ dg RD k sc lam [up i] [up i, up i, dn i] [([up i], .cup (up i), [])] := by
-    rw [dotsU, dg_comp (by schain) (by schain), dg_comp (by schain) (by schain)]
-    exact (dg_swap_rep' RD k sc lam [] [] [] (.cup (up i)) (.dot (up i)) rfl b).symm
-  rw [ptrR_apply, ptrR_apply, ← plcL_comp RD k sc lam [] [dn i] rfl rfl, plcL_nhDotL]
+      NF.dotsU (pres RD k sc) lam (up i) b ≫ NF.dg (pres RD k sc) lam [up i] [up i, up i, dn i] [([up i], .cup (up i), [])] := by
+    rw [NF.dotsU, NF.dg_comp (by schain) (by schain), NF.dg_comp (by schain) (by schain)]
+    exact (NF.dg_swap_rep' (pres RD k sc) lam [] [] [] (.cup (up i)) (.dot (up i)) rfl b).symm
+  rw [ptrR_apply, ptrR_apply, ← NF.plcL_comp (pres RD k sc) lam [] [dn i] rfl rfl, plcL_nhDotL]
   simp only [Category.assoc]
-  rw [← Category.assoc (dg RD k sc lam [up i] [up i, up i, dn i] _), E, Category.assoc]
+  rw [← Category.assoc (NF.dg (pres RD k sc) lam [up i] [up i, up i, dn i] _), E, Category.assoc]
 
 /-- Dots on the left (unclosed) strand above the right closure come out of it. -/
 theorem ptrR_comp_nhDotL (b : ℕ) (f : End ((pres RD k sc).obj (ob RD (wt RD lam [dn i]) [up i, up i]))) :
     ptrR RD k sc lam i (f ≫ nhDotL RD k sc (wt RD lam [dn i]) i b) =
-      ptrR RD k sc lam i f ≫ dotsU RD k sc lam (up i) b := by
-  have E : dg RD k sc lam [up i, up i, dn i] [up i, up i, dn i]
+      ptrR RD k sc lam i f ≫ NF.dotsU (pres RD k sc) lam (up i) b := by
+  have E : NF.dg (pres RD k sc) lam [up i, up i, dn i] [up i, up i, dn i]
         (List.replicate b ([], .dot (up i), [up i, dn i])) ≫
-      dg RD k sc lam [up i, up i, dn i] [up i] [([up i], .cap (dn i), [])] =
-      dg RD k sc lam [up i, up i, dn i] [up i] [([up i], .cap (dn i), [])] ≫ dotsU RD k sc lam (up i) b := by
-    rw [dotsU, dg_comp (by schain) (by schain), dg_comp (by schain) (by schain)]
-    exact dg_swap_rep' RD k sc lam [] [] [] (.cap (dn i)) (.dot (up i)) rfl b
-  rw [ptrR_apply, ptrR_apply, ← plcL_comp RD k sc lam [] [dn i] rfl rfl, plcL_nhDotL]
+      NF.dg (pres RD k sc) lam [up i, up i, dn i] [up i] [([up i], .cap (dn i), [])] =
+      NF.dg (pres RD k sc) lam [up i, up i, dn i] [up i] [([up i], .cap (dn i), [])] ≫ NF.dotsU (pres RD k sc) lam (up i) b := by
+    rw [NF.dotsU, NF.dg_comp (by schain) (by schain), NF.dg_comp (by schain) (by schain)]
+    exact NF.dg_swap_rep' (pres RD k sc) lam [] [] [] (.cap (dn i)) (.dot (up i)) rfl b
+  rw [ptrR_apply, ptrR_apply, ← NF.plcL_comp (pres RD k sc) lam [] [dn i] rfl rfl, plcL_nhDotL]
   simp only [Category.assoc]
   rw [E]
 
 /-- The right closure of `x₂^a` is a clockwise bubble to the right of the strand. -/
 theorem ptrR_nhDotR (a : ℕ) :
-    ptrR RD k sc lam i (nhDotR RD k sc (wt RD lam [dn i]) i a) = bubRU RD k sc lam (up i) (cwU RD k sc lam i a) := by
+    ptrR RD k sc lam i (nhDotR RD k sc (wt RD lam [dn i]) i a) = NF.bubRU (pres RD k sc) lam (up i) (NF.cwU (pres RD k sc) lam i a) := by
   simp only [nhDotR]
-  rw [ptrR_dg, cwU_of_nonneg, bubRU, cwLs, dg_cw_dots, plcL_dg_nil]
-  show _ = dg RD k sc lam [up i] [up i] _
+  rw [ptrR_dg, NF.cwU_of_nonneg, NF.bubRU, cwLs, dg_cw_dots, NF.plcL_dg_nil]
+  show _ = NF.dg (pres RD k sc) lam [up i] [up i] _
   congr 1; lnf
 
 /-- The right closure of the crossing is the right curl (KL III, curl relation). -/
 theorem ptrR_nhCross :
     ptrR RD k sc lam i (nhCross RD k sc (wt RD lam [dn i]) i) =
       -∑ f ∈ Finset.range (-ip RD i lam + 1).toNat,
-        bubRU RD k sc lam (up i) (cwU RD k sc lam i (ip RD i lam - 1 + f)) ≫
-          dotsU RD k sc lam (up i) (-ip RD i lam - f).toNat := by
+        NF.bubRU (pres RD k sc) lam (up i) (NF.cwU (pres RD k sc) lam i (ip RD i lam - 1 + f)) ≫
+          NF.dotsU (pres RD k sc) lam (up i) (-ip RD i lam - f).toNat := by
   simp only [nhCross]
   rw [ptrR_dg, ← dg_curlR]
   congr 1
@@ -548,8 +547,8 @@ strand, `n = ⟨i, λ⟩`; fake bubbles occur for `ℓ ≤ -n`). -/
 theorem ptrR_nhDotR_nhCross (a : ℕ) :
     ptrR RD k sc lam i (nhDotR RD k sc (wt RD lam [dn i]) i a ≫ nhCross RD k sc (wt RD lam [dn i]) i) =
       -∑ ℓ ∈ Finset.range (a + -ip RD i lam + 1).toNat,
-        bubRU RD k sc lam (up i) (cwU RD k sc lam i (ip RD i lam - 1 + ℓ)) ≫
-          dotsU RD k sc lam (up i) (a + -ip RD i lam - ℓ).toNat := by
+        NF.bubRU (pres RD k sc) lam (up i) (NF.cwU (pres RD k sc) lam i (ip RD i lam - 1 + ℓ)) ≫
+          NF.dotsU (pres RD k sc) lam (up i) (a + -ip RD i lam - ℓ).toNat := by
   induction a with
   | zero =>
     rw [nhDotR_zero, Category.id_comp, ptrR_nhCross]
@@ -565,7 +564,7 @@ theorem ptrR_nhDotR_nhCross (a : ℕ) :
       rw [hr, Finset.sum_range_succ, add_comm]
       congr 1
       · refine Finset.sum_congr rfl fun j hj => ?_
-        rw [Category.assoc, dotsU_add]
+        rw [Category.assoc, NF.dotsU_add]
         have := Finset.mem_range.1 hj
         congr 2
         push_cast; omega
@@ -575,10 +574,10 @@ theorem ptrR_nhDotR_nhCross (a : ℕ) :
         have h0 : ((↑(a + 1) : ℤ) + -ip RD i lam -
             ((((a : ℤ) + -ip RD i lam + 1).toNat : ℕ) : ℤ)).toNat = 0 := by
           rw [Int.toNat_of_nonneg ha]; push_cast; omega
-        rw [h0, dotsU_zero, Category.comp_id]
+        rw [h0, NF.dotsU_zero, Category.comp_id]
     · have h₁ : ((a : ℤ) + -ip RD i lam + 1).toNat = 0 := by omega
       have h₂ : ((↑(a + 1) : ℤ) + -ip RD i lam + 1).toNat = 0 := by push_cast; omega
-      rw [h₁, h₂, Finset.sum_range_zero, Finset.sum_range_zero, add_zero, cwU_of_nonneg,
+      rw [h₁, h₂, Finset.sum_range_zero, Finset.sum_range_zero, add_zero, NF.cwU_of_nonneg,
         dg_cwNeg RD k sc _ i a (by omega)]
       exact map_zero _
 
@@ -586,67 +585,66 @@ theorem ptrR_nhDotR_nhCross (a : ℕ) :
 strand is closed off by the cap with `p` dots of the `F E` decomposition: `p + m` dots on the
 strand. -/
 theorem dg_bubble_dotCapFE (m p : ℕ) :
-    dg RD k sc lam [up i] [up i]
+    NF.dg (pres RD k sc) lam [up i] [up i]
         ([([], .cup (up i), [up i])] ++ List.replicate m ([], .dot (up i), [dn i, up i]) ++
-          (dotCapFELs i p).map (whL [up i] [])) = dotsU RD k sc lam (up i) (p + m) := by
+          (dotCapFELs i p).map (whL [up i] [])) = NF.dotsU (pres RD k sc) lam (up i) (p + m) := by
   simp only [dotCapFELs]
   dstepQ ([([], .cup (up i), [up i])] ++ List.replicate m ([], .dot (up i), [dn i, up i])) [] [up i] []
     (dg_dots_cap_up RD k sc lam i p)
   dstepQ [([], .cup (up i), [up i])] [([up i], .cap (up i), [])] [] []
-    (dg_swap_dots RD k sc lam [] [dn i] [] (up i) (up i) p m).symm
+    (NF.dg_swap_dots (pres RD k sc) lam [] [dn i] [] (up i) (up i) p m).symm
   dstepQ [] (List.replicate m ([], .dot (up i), [dn i, up i]) ++ [([up i], .cap (up i), [])]) [] []
-    (dg_swap_rep RD k sc lam [] [] [] (.cup (up i)) (.dot (up i)) rfl p).symm
+    (NF.dg_swap_rep (pres RD k sc) lam [] [] [] (.cup (up i)) (.dot (up i)) rfl p).symm
   dstepQ (List.replicate p ([], .dot (up i), []) ++ [([], .cup (up i), [up i])]) [] [] []
-    (dg_swap_rep' RD k sc lam [] [] [] (.cap (up i)) (.dot (up i)) rfl m)
+    (NF.dg_swap_rep' (pres RD k sc) lam [] [] [] (.cap (up i)) (.dot (up i)) rfl m)
   dstepQ (List.replicate p ([], .dot (up i), [])) (List.replicate m ([], .dot (up i), [])) [] []
-    (dg_zigL' RD k sc lam (up i))
-  rw [dotsU, List.replicate_add]
+    (NF.dg_zigL' (pres RD k sc) lam (up i))
+  rw [NF.dotsU, List.replicate_add]
   lnf
 
 /-- The cup with `q` dots of the `F E` decomposition, closed off by the cap of a clockwise bubble
 to the left of `E_i`: `q` dots on the strand. -/
 theorem dg_cupDotFE_bubble (q : ℕ) :
-    dg RD k sc lam [up i] [up i]
+    NF.dg (pres RD k sc) lam [up i] [up i]
         ((cupDotFELs i q).map (whL [up i] []) ++ [([], .cap (dn i), [up i])]) =
-      dotsU RD k sc lam (up i) q := by
+      NF.dotsU (pres RD k sc) lam (up i) q := by
   simp only [cupDotFELs]
   dstepQ [([up i], .cup (dn i), [])] [] [] []
-    (dg_swap_rep RD k sc lam [] [] [] (.cap (dn i)) (.dot (up i)) rfl q)
-  dstepQ [] (List.replicate q ([], .dot (up i), [])) [] [] (dg_zigR' RD k sc lam (dn i))
-  rw [dotsU]
+    (NF.dg_swap_rep (pres RD k sc) lam [] [] [] (.cap (dn i)) (.dot (up i)) rfl q)
+  dstepQ [] (List.replicate q ([], .dot (up i), [])) [] [] (NF.dg_zigR' (pres RD k sc) lam (dn i))
+  rw [NF.dotsU]
   lnf
 
 /-- A term `(cap with p dots) β (cup with q dots)` of the decomposition of `1_{F E}`, inserted
 between the right strand of a clockwise bubble with `m` dots and the strand `E_i` on its right,
 equals `β` to the right of the strand with `p + m + q` dots on the strand. -/
 theorem ctxL_decompTermFE (m p q : ℕ) (β : End ((pres RD k sc).obj (ob RD lam []))) :
-    ctxL RD k sc lam [up i] [up i]
+    NF.ctxL (pres RD k sc) lam [up i] [up i]
         ([([], .cup (up i), [up i])] ++ List.replicate m ([], .dot (up i), [dn i, up i])) [up i] []
         [([], .cap (dn i), [up i])] [dn i, up i] [dn i, up i]
-        (dg RD k sc lam [dn i, up i] [] (dotCapFELs i p) ≫ β ≫
-          dg RD k sc lam [] [dn i, up i] (cupDotFELs i q)) =
-      bubRU RD k sc lam (up i) β ≫ dotsU RD k sc lam (up i) (p + m + q) := by
+        (NF.dg (pres RD k sc) lam [dn i, up i] [] (dotCapFELs i p) ≫ β ≫
+          NF.dg (pres RD k sc) lam [] [dn i, up i] (cupDotFELs i q)) =
+      NF.bubRU (pres RD k sc) lam (up i) β ≫ NF.dotsU (pres RD k sc) lam (up i) (p + m + q) := by
   have hw : wt RD (wt RD lam []) [dn i, up i] = wt RD (wt RD lam []) [] := by simp
-  show dg RD k sc lam [up i] ([up i] ++ [dn i, up i] ++ []) _ ≫ plcL RD k sc lam [up i] [] _ _ _ ≫
-    dg RD k sc lam ([up i] ++ [dn i, up i] ++ []) [up i] _ = _
-  rw [← plcL_comp RD k sc lam [up i] [] hw.symm hw, ← plcL_comp RD k sc lam [up i] [] rfl hw,
-    plcL_dg_nil, plcL_dg_nil]
-  have E1 : dg RD k sc lam [up i] [up i]
+  show NF.dg (pres RD k sc) lam [up i] ([up i] ++ [dn i, up i] ++ []) _ ≫ NF.plcL (pres RD k sc) lam [up i] [] _ _ _ ≫
+    NF.dg (pres RD k sc) lam ([up i] ++ [dn i, up i] ++ []) [up i] _ = _
+  rw [← NF.plcL_comp (pres RD k sc) lam [up i] [] hw.symm hw, ← NF.plcL_comp (pres RD k sc) lam [up i] [] rfl hw,
+    NF.plcL_dg_nil, NF.plcL_dg_nil]
+  have E1 : NF.dg (pres RD k sc) lam [up i] [up i]
       ([([], .cup (up i), [up i])] ++ List.replicate m ([], .dot (up i), [dn i, up i]) ++
-        (dotCapFELs i p).map (whL [up i] [])) = dotsU RD k sc lam (up i) (p + m) :=
+        (dotCapFELs i p).map (whL [up i] [])) = NF.dotsU (pres RD k sc) lam (up i) (p + m) :=
     dg_bubble_dotCapFE RD k sc lam i m p
-  have E2 : dg RD k sc lam [up i] [up i]
+  have E2 : NF.dg (pres RD k sc) lam [up i] [up i]
       ((cupDotFELs i q).map (whL [up i] []) ++ [([], .cap (dn i), [up i])]) =
-      dotsU RD k sc lam (up i) q := dg_cupDotFE_bubble RD k sc lam i q
+      NF.dotsU (pres RD k sc) lam (up i) q := dg_cupDotFE_bubble RD k sc lam i q
   simp only [Category.assoc]
-  rw [← Category.assoc (dg RD k sc lam [up i] _ _), dg_comp (by schain) (by schain),
-    dg_comp (by schain) (by schain)]
+  rw [← Category.assoc (NF.dg (pres RD k sc) lam [up i] _ _), NF.dg_comp (by schain) (by schain),
+    NF.dg_comp (by schain) (by schain)]
   erw [E1, E2]
-  rw [← Category.assoc, ← bubRU_comm, Category.assoc, dotsU_add]
+  rw [← Category.assoc, ← NF.bubRU_comm, Category.assoc, NF.dotsU_add]
 
 end ClosureR
 
-set_option maxHeartbeats 1000000 in
 /-- **Bubble slide, clockwise, `i = j`** (KL III Proposition 3.3, second display, case `i = j`;
 Lauda, Proposition 5.6, (5.27)), for a real bubble with `m ≥ 0` dots: with `n = ⟨i, λ⟩` (`λ`
 the region to the right of the strand, `λ + i_X` the region of the bubble on the left),
@@ -654,37 +652,37 @@ the region to the right of the strand, `λ + i_X` the region of the bubble on th
 (the bubbles on the right may be fake). With the printed label `m = ⟨i,λ+i_X⟩-1+α = n+1+α`
 this is `∑_{ℓ=0}^{α} (α+1-ℓ) x^{α-ℓ} cw_{n-1+ℓ}`. -/
 theorem dg_cw_slide_eq (lam : X) (i : I) (m : ℕ) :
-    dg RD k sc lam [up i] [up i]
+    NF.dg (pres RD k sc) lam [up i] [up i]
         ([([], .cup (up i), [up i])] ++ List.replicate m ([up i], .dot (dn i), [up i]) ++
           [([], .cap (dn i), [up i])]) =
       ∑ ℓ ∈ Finset.range ((m : ℤ) + -ip RD i lam).toNat,
         ((m : ℤ) + -ip RD i lam - ℓ).toNat •
-          (bubRU RD k sc lam (up i) (cwU RD k sc lam i (ip RD i lam - 1 + ℓ)) ≫
-            dotsU RD k sc lam (up i) ((m : ℤ) + -ip RD i lam - 1 - ℓ).toNat) := by
+          (NF.bubRU (pres RD k sc) lam (up i) (NF.cwU (pres RD k sc) lam i (ip RD i lam - 1 + ℓ)) ≫
+            NF.dotsU (pres RD k sc) lam (up i) ((m : ℤ) + -ip RD i lam - 1 - ℓ).toNat) := by
   -- move the dots of the bubble to its upward strand
   dstepQ [] [] [] [up i] (dg_cw_dots RD k sc (wt RD lam [up i]) i m)
   -- the identity decomposition of `1_{F E}` (eq_ident_decomp) between the bubble and the strand
-  refine (dg_stepL RD k sc lam ([([], .cup (up i), [up i])] ++
+  refine (NF.dg_stepL (pres RD k sc) lam ([([], .cup (up i), [up i])] ++
       List.replicate m ([], .dot (up i), [dn i, up i])) [([], .cap (dn i), [up i])] [up i] []
     (dg_decompFE RD k sc i lam) (by schain) (by schain) (by lnf)).trans ?_
-  rw [map_add, map_neg, ctxL_dg_nil RD k sc lam (by schain) (by schain), dg_pull_cw, map_sum]
+  rw [map_add, map_neg, NF.ctxL_dg_nil (pres RD k sc) lam (by schain) (by schain), NF.dg_pull_cw, map_sum]
   simp only [map_sum, ctxL_decompTermFE]
   -- the crossing term: the right closure of `ψ x₁^m ψ`
-  have hS : dg RD k sc lam [up i] [up i]
+  have hS : NF.dg (pres RD k sc) lam [up i] [up i]
       ([([up i], .cup (up i), []), ([], .cross true i i, [dn i])] ++
         List.replicate m ([], .dot (up i), [up i, dn i]) ++
         [([], .cross true i i, [dn i]), ([up i], .cap (dn i), [])]) =
       ptrR RD k sc lam i (nhCross RD k sc (wt RD lam [dn i]) i ≫ nhDotL RD k sc (wt RD lam [dn i]) i m ≫
         nhCross RD k sc (wt RD lam [dn i]) i) := by
     simp only [nhCross, nhDotL]
-    rw [dg_comp (by schain) (by schain), dg_comp (by schain) (by schain), ptrR_dg]
+    rw [NF.dg_comp (by schain) (by schain), NF.dg_comp (by schain) (by schain), ptrR_dg]
     congr 1; lnf
   rw [hS, nhCross_nhDotL_nhCross, map_sum]
   have hT : ∀ a ∈ Finset.range m, ptrR RD k sc lam i (nhDotR RD k sc (wt RD lam [dn i]) i a ≫
       nhDotL RD k sc (wt RD lam [dn i]) i (m - 1 - a) ≫ nhCross RD k sc (wt RD lam [dn i]) i) =
       -∑ ℓ ∈ Finset.range ((a : ℤ) + -ip RD i lam + 1).toNat,
-        bubRU RD k sc lam (up i) (cwU RD k sc lam i (ip RD i lam - 1 + ℓ)) ≫
-          dotsU RD k sc lam (up i) ((m : ℤ) + -ip RD i lam - 1 - ℓ).toNat := by
+        NF.bubRU (pres RD k sc) lam (up i) (NF.cwU (pres RD k sc) lam i (ip RD i lam - 1 + ℓ)) ≫
+          NF.dotsU (pres RD k sc) lam (up i) ((m : ℤ) + -ip RD i lam - 1 - ℓ).toNat := by
     intro a ha
     have ha' := Finset.mem_range.1 ha
     rw [← Category.assoc, nhDotR_nhDotL, Category.assoc, ptrR_nhDotL_comp, ptrR_nhDotR_nhCross,
@@ -692,22 +690,22 @@ theorem dg_cw_slide_eq (lam : X) (i : I) (m : ℕ) :
     congr 1
     refine Finset.sum_congr rfl fun j hj => ?_
     have hj' := Finset.mem_range.1 hj
-    rw [← Category.assoc, ← bubRU_comm, Category.assoc, dotsU_add]
+    rw [← Category.assoc, ← NF.bubRU_comm, Category.assoc, NF.dotsU_add]
     congr 2
     omega
   rw [Finset.sum_congr rfl hT, Finset.sum_neg_distrib, neg_neg]
   have hD : ∀ f ∈ Finset.range (-ip RD i lam).toNat, ∀ g ∈ Finset.range (f + 1),
-      bubRU RD k sc lam (up i) (cwU RD k sc lam i (ip RD i lam - 1 + g)) ≫
-        dotsU RD k sc lam (up i) (f - g + m + ((-ip RD i lam).toNat - 1 - f)) =
-      bubRU RD k sc lam (up i) (cwU RD k sc lam i (ip RD i lam - 1 + g)) ≫
-        dotsU RD k sc lam (up i) ((m : ℤ) + -ip RD i lam - 1 - g).toNat := by
+      NF.bubRU (pres RD k sc) lam (up i) (NF.cwU (pres RD k sc) lam i (ip RD i lam - 1 + g)) ≫
+        NF.dotsU (pres RD k sc) lam (up i) (f - g + m + ((-ip RD i lam).toNat - 1 - f)) =
+      NF.bubRU (pres RD k sc) lam (up i) (NF.cwU (pres RD k sc) lam i (ip RD i lam - 1 + g)) ≫
+        NF.dotsU (pres RD k sc) lam (up i) ((m : ℤ) + -ip RD i lam - 1 - g).toNat := by
     intro f hf g hg
     have hf' := Finset.mem_range.1 hf
     have hg' := Finset.mem_range.1 hg
     congr 2
     omega
   rw [Finset.sum_congr rfl fun f hf => Finset.sum_congr rfl (hD f hf)]
-  exact sum_slide_identity (fun ℓ => bubRU RD k sc lam (up i) (cwU RD k sc lam i (ip RD i lam - 1 + ℓ)) ≫
-    dotsU RD k sc lam (up i) ((m : ℤ) + -ip RD i lam - 1 - ℓ).toNat) m _
+  exact sum_slide_identity (fun ℓ => NF.bubRU (pres RD k sc) lam (up i) (NF.cwU (pres RD k sc) lam i (ip RD i lam - 1 + ℓ)) ≫
+    NF.dotsU (pres RD k sc) lam (up i) ((m : ℤ) + -ip RD i lam - 1 - ℓ).toNat) m _
 
 end Categorification.KL3.Diagram.CLQ

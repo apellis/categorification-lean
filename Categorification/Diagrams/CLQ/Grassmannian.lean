@@ -35,14 +35,14 @@ variable {I : Type u} {C : CartanDatum I} {X Y : Type v} [AddCommGroup X] [AddCo
 
 theorem plcL_diag (μ : X) (u v s t : List (Letter I))
     (d : ob RD (wt RD μ v) s ⟶ ob RD (wt RD μ v) t) :
-    plcL RD k sc μ u v s t ((pres RD k sc).diag d) =
+    NF.plcL (pres RD k sc) μ u v s t ((pres RD k sc).diag d) =
       (pres RD k sc).diag (Diagram.cast (Diagram.whisker d (ob RD (wt RD (wt RD μ v) s) u) (wd RD μ v)
         (whiskerOK_ob RD μ u v s)) (ob_whisker RD μ u v s s rfl)
         (ob_whisker RD μ u v s t (Diagram.chain d).start_eq)) := by
   have hst : wt RD (wt RD μ v) t = wt RD (wt RD μ v) s := (Diagram.chain d).start_eq
-  simp only [plcL]
+  simp only [NF.plcL]
   rw [dite_eq_left hst]
-  simp only [plc, LinearMap.coe_mk, AddHom.coe_mk]
+  simp only [NF.plc, LinearMap.coe_mk, AddHom.coe_mk]
   rw [Presentation.whisk_diag _ _ _ _ (whiskerOK_ob RD μ u v s), Presentation.diag_cast]
 
 /-- Transport an equality of classes of diagrams along equalities of boundary objects and of
@@ -89,9 +89,9 @@ section Nested
 variable (ρ : X) (i : I)
 
 theorem plcL_bubLU_dn (β : End ((pres RD k sc).obj (ob RD (wt RD (wt RD ρ [dn i]) [up i]) []))) :
-    plcL RD k sc ρ [] [dn i] [up i] [up i] (bubLU RD k sc (wt RD ρ [dn i]) (up i) β) =
-      plcL RD k sc ρ [] [up i, dn i] [] [] β := by
-  diag_inductionQ β [bubLU] =>
+    NF.plcL (pres RD k sc) ρ [] [dn i] [up i] [up i] (NF.bubLU (pres RD k sc) (wt RD ρ [dn i]) (up i) β) =
+      NF.plcL (pres RD k sc) ρ [] [up i, dn i] [] [] β := by
+  diag_inductionQ β [NF.bubLU] =>
     rw [plcL_diag, plcL_diag, plcL_diag]
     exact (pres RD k sc).diag_eq_of_layers_eq (by
       simp only [Diagram.layers_cast, Diagram.layers_whisker, List.map_map, Function.comp_def,
@@ -99,9 +99,9 @@ theorem plcL_bubLU_dn (β : End ((pres RD k sc).obj (ob RD (wt RD (wt RD ρ [dn 
       rfl)
 
 theorem plcL_bubRU_dn (γ : End ((pres RD k sc).obj (ob RD ρ []))) :
-    plcL RD k sc ρ [dn i] [] [up i] [up i] (bubRU RD k sc ρ (up i) γ) =
-      plcL RD k sc ρ [dn i, up i] [] [] [] γ := by
-  diag_inductionQ γ [bubRU] =>
+    NF.plcL (pres RD k sc) ρ [dn i] [] [up i] [up i] (NF.bubRU (pres RD k sc) ρ (up i) γ) =
+      NF.plcL (pres RD k sc) ρ [dn i, up i] [] [] [] γ := by
+  diag_inductionQ γ [NF.bubRU] =>
     rw [plcL_diag, plcL_diag, plcL_diag]
     exact (pres RD k sc).diag_eq_of_layers_eq (by
       simp only [Diagram.layers_cast, Diagram.layers_whisker, List.map_map, Function.comp_def,
@@ -109,9 +109,9 @@ theorem plcL_bubRU_dn (γ : End ((pres RD k sc).obj (ob RD ρ []))) :
       rfl)
 
 theorem plcL_plcL_dnL (f : End ((pres RD k sc).obj (ob RD (wt RD ρ [dn i]) [up i, up i]))) :
-    plcL RD k sc ρ [] [dn i] [dn i, up i, up i] [dn i, up i, up i]
-        (plcL RD k sc (wt RD ρ [dn i]) [dn i] [] [up i, up i] [up i, up i] f) =
-      plcL RD k sc ρ [dn i] [dn i] [up i, up i] [up i, up i] f := by
+    NF.plcL (pres RD k sc) ρ [] [dn i] [dn i, up i, up i] [dn i, up i, up i]
+        (NF.plcL (pres RD k sc) (wt RD ρ [dn i]) [dn i] [] [up i, up i] [up i, up i] f) =
+      NF.plcL (pres RD k sc) ρ [dn i] [dn i] [up i, up i] [up i, up i] f := by
   diag_inductionQ f [plcL_diag] =>
     exact (pres RD k sc).diag_eq_of_layers_eq (by
       simp only [Diagram.layers_cast, Diagram.layers_whisker, List.map_map, Function.comp_def,
@@ -119,9 +119,9 @@ theorem plcL_plcL_dnL (f : End ((pres RD k sc).obj (ob RD (wt RD ρ [dn i]) [up 
       rfl)
 
 theorem plcL_plcL_dnR (f : End ((pres RD k sc).obj (ob RD (wt RD ρ [dn i]) [up i, up i]))) :
-    plcL RD k sc ρ [dn i] [] [up i, up i, dn i] [up i, up i, dn i]
-        (plcL RD k sc ρ [] [dn i] [up i, up i] [up i, up i] f) =
-      plcL RD k sc ρ [dn i] [dn i] [up i, up i] [up i, up i] f := by
+    NF.plcL (pres RD k sc) ρ [dn i] [] [up i, up i, dn i] [up i, up i, dn i]
+        (NF.plcL (pres RD k sc) ρ [] [dn i] [up i, up i] [up i, up i] f) =
+      NF.plcL (pres RD k sc) ρ [dn i] [dn i] [up i, up i] [up i, up i] f := by
   diag_inductionQ f [plcL_diag] =>
     exact (pres RD k sc).diag_eq_of_layers_eq (by
       simp only [Diagram.layers_cast, Diagram.layers_whisker, List.map_map, Function.comp_def,
@@ -175,7 +175,7 @@ theorem wtTransport_diag {x y : X} (h : x = y) (d : ob RD x [] ⟶ ob RD x []) :
   subst h; simp [wtTransport]
 
 theorem wtTransport_ccwU {x y : X} (h : x = y) (i : I) (m : ℤ) :
-    wtTransport RD k sc h (ccwU RD k sc x i m) = ccwU RD k sc y i m := by
+    wtTransport RD k sc h (NF.ccwU (pres RD k sc) x i m) = NF.ccwU (pres RD k sc) y i m := by
   subst h; simp [wtTransport]
 
 theorem wtTransport_add {x y : X} (h : x = y)
@@ -195,13 +195,13 @@ theorem wtTransport_zero {x y : X} (h : x = y) :
 /-- An endomorphism of `1` placed to the left of the strands of the cup `1 ⟶ E F` can be moved
 below the cup. -/
 theorem cupUp_plcL (β : End ((pres RD k sc).obj (ob RD (wt RD (wt RD ρ [dn i]) [up i]) []))) :
-    dg RD k sc ρ [] [up i, dn i] [([], .cup (up i), [])] ≫ plcL RD k sc ρ [] [up i, dn i] [] [] β =
+    NF.dg (pres RD k sc) ρ [] [up i, dn i] [([], .cup (up i), [])] ≫ NF.plcL (pres RD k sc) ρ [] [up i, dn i] [] [] β =
       wtTransport RD k sc (by simp : wt RD (wt RD ρ [dn i]) [up i] = ρ) β ≫
-        dg RD k sc ρ [] [up i, dn i] [([], .cup (up i), [])] := by
+        NF.dg (pres RD k sc) ρ [] [up i, dn i] [([], .cup (up i), [])] := by
   diag_inductionQ β [wtTransport_add, wtTransport_smul, wtTransport_zero, Preadditive.add_comp, Preadditive.comp_add,
       Linear.smul_comp, Linear.comp_smul, Limits.zero_comp, Limits.comp_zero] =>
     rename_i d _
-    rw [plcL_diag, wtTransport_diag, dg_of (by schain), ← Presentation.diag_comp, ← Presentation.diag_comp]
+    rw [plcL_diag, wtTransport_diag, NF.dg_of (by schain), ← Presentation.diag_comp, ← Presentation.diag_comp]
     have hc : (ob RD ρ []).Composable (ob RD ρ []) := ⟨ob_wf RD _ _, rfl, ob_wf RD _ _⟩
     have hρ : ob RD (wt RD (wt RD ρ [dn i]) [up i]) [] = ob RD ρ [] := by simp [ob]
     have key := (pres RD k sc).diag_interchange_of_composable (a := ob RD ρ []) (b := ob RD ρ [])
@@ -233,12 +233,12 @@ theorem cupUp_plcL (β : End ((pres RD k sc).obj (ob RD (wt RD (wt RD ρ [dn i])
 /-- An endomorphism of `1_ρ` placed to the right of the strands of the cup `1 ⟶ F E` can be
 moved below the cup. -/
 theorem cupDn_plcL (γ : End ((pres RD k sc).obj (ob RD ρ []))) :
-    dg RD k sc ρ [] [dn i, up i] [([], .cup (dn i), [])] ≫ plcL RD k sc ρ [dn i, up i] [] [] [] γ =
-      γ ≫ dg RD k sc ρ [] [dn i, up i] [([], .cup (dn i), [])] := by
+    NF.dg (pres RD k sc) ρ [] [dn i, up i] [([], .cup (dn i), [])] ≫ NF.plcL (pres RD k sc) ρ [dn i, up i] [] [] [] γ =
+      γ ≫ NF.dg (pres RD k sc) ρ [] [dn i, up i] [([], .cup (dn i), [])] := by
   diag_inductionQ γ [Preadditive.add_comp, Preadditive.comp_add,
       Linear.smul_comp, Linear.comp_smul, Limits.zero_comp, Limits.comp_zero] =>
     rename_i d _
-    rw [plcL_diag, dg_of (by schain), ← Presentation.diag_comp, ← Presentation.diag_comp]
+    rw [plcL_diag, NF.dg_of (by schain), ← Presentation.diag_comp, ← Presentation.diag_comp]
     have hc : (ob RD ρ []).Composable (ob RD ρ []) := ⟨ob_wf RD _ _, rfl, ob_wf RD _ _⟩
     have key := (pres RD k sc).diag_interchange_of_composable (a := ob RD ρ [])
       (a' := ob RD ρ [dn i, up i]) (b := ob RD ρ []) (b' := ob RD ρ [])
@@ -276,52 +276,52 @@ variable (ρ : X) (i : I)
 clockwise loop in the region `ρ`. -/
 def closeRight : End ((pres RD k sc).obj (ob RD (wt RD ρ [dn i]) [up i])) →ₗ[k]
     End ((pres RD k sc).obj (ob RD ρ [])) where
-  toFun g := dg RD k sc ρ [] [up i, dn i] [([], .cup (up i), [])] ≫
-    plcL RD k sc ρ [] [dn i] [up i] [up i] g ≫ dg RD k sc ρ [up i, dn i] [] [([], .cap (dn i), [])]
+  toFun g := NF.dg (pres RD k sc) ρ [] [up i, dn i] [([], .cup (up i), [])] ≫
+    NF.plcL (pres RD k sc) ρ [] [dn i] [up i] [up i] g ≫ NF.dg (pres RD k sc) ρ [up i, dn i] [] [([], .cap (dn i), [])]
   map_add' f g := by rw [map_add, Preadditive.add_comp, Preadditive.comp_add]
   map_smul' r f := by rw [map_smul, Linear.smul_comp, Linear.comp_smul]; rfl
 
 /-- Closing an upward strand `E_i` (with the region `ρ` on its right) to the left: a
 counterclockwise loop in the region `ρ`. -/
 def closeLeft : End ((pres RD k sc).obj (ob RD ρ [up i])) →ₗ[k] End ((pres RD k sc).obj (ob RD ρ [])) where
-  toFun g := dg RD k sc ρ [] [dn i, up i] [([], .cup (dn i), [])] ≫
-    plcL RD k sc ρ [dn i] [] [up i] [up i] g ≫ dg RD k sc ρ [dn i, up i] [] [([], .cap (up i), [])]
+  toFun g := NF.dg (pres RD k sc) ρ [] [dn i, up i] [([], .cup (dn i), [])] ≫
+    NF.plcL (pres RD k sc) ρ [dn i] [] [up i] [up i] g ≫ NF.dg (pres RD k sc) ρ [dn i, up i] [] [([], .cap (up i), [])]
   map_add' f g := by rw [map_add, Preadditive.add_comp, Preadditive.comp_add]
   map_smul' r f := by rw [map_smul, Linear.smul_comp, Linear.comp_smul]; rfl
 
 theorem closeRight_apply (g : End ((pres RD k sc).obj (ob RD (wt RD ρ [dn i]) [up i]))) :
-    closeRight RD k sc ρ i g = dg RD k sc ρ [] [up i, dn i] [([], .cup (up i), [])] ≫
-      plcL RD k sc ρ [] [dn i] [up i] [up i] g ≫ dg RD k sc ρ [up i, dn i] [] [([], .cap (dn i), [])] :=
+    closeRight RD k sc ρ i g = NF.dg (pres RD k sc) ρ [] [up i, dn i] [([], .cup (up i), [])] ≫
+      NF.plcL (pres RD k sc) ρ [] [dn i] [up i] [up i] g ≫ NF.dg (pres RD k sc) ρ [up i, dn i] [] [([], .cap (dn i), [])] :=
   rfl
 
 theorem closeLeft_apply (g : End ((pres RD k sc).obj (ob RD ρ [up i]))) :
-    closeLeft RD k sc ρ i g = dg RD k sc ρ [] [dn i, up i] [([], .cup (dn i), [])] ≫
-      plcL RD k sc ρ [dn i] [] [up i] [up i] g ≫ dg RD k sc ρ [dn i, up i] [] [([], .cap (up i), [])] :=
+    closeLeft RD k sc ρ i g = NF.dg (pres RD k sc) ρ [] [dn i, up i] [([], .cup (dn i), [])] ≫
+      NF.plcL (pres RD k sc) ρ [dn i] [] [up i] [up i] g ≫ NF.dg (pres RD k sc) ρ [dn i, up i] [] [([], .cap (up i), [])] :=
   rfl
 
 /-- The right closure of dots is a clockwise bubble. -/
-theorem closeRight_dots (n : ℕ) : closeRight RD k sc ρ i (dotsU RD k sc (wt RD ρ [dn i]) (up i) n) = cwU RD k sc ρ i n := by
-  rw [closeRight_apply, dotsU, plcL_dg, cwU_of_nonneg, cwLs, dg_cw_dots]
-  show dg RD k sc ρ [] [up i, dn i] _ ≫ dg RD k sc ρ [up i, dn i] [up i, dn i] _ ≫
-    dg RD k sc ρ [up i, dn i] [] _ = _
-  rw [dg_comp (by schain) (by schain), dg_comp (by schain) (by schain)]
+theorem closeRight_dots (n : ℕ) : closeRight RD k sc ρ i (NF.dotsU (pres RD k sc) (wt RD ρ [dn i]) (up i) n) = NF.cwU (pres RD k sc) ρ i n := by
+  rw [closeRight_apply, NF.dotsU, NF.plcL_dg, NF.cwU_of_nonneg, cwLs, dg_cw_dots]
+  show NF.dg (pres RD k sc) ρ [] [up i, dn i] _ ≫ NF.dg (pres RD k sc) ρ [up i, dn i] [up i, dn i] _ ≫
+    NF.dg (pres RD k sc) ρ [up i, dn i] [] _ = _
+  rw [NF.dg_comp (by schain) (by schain), NF.dg_comp (by schain) (by schain)]
   congr 1; lnf
 
 /-- The left closure of dots is a counterclockwise bubble. -/
-theorem closeLeft_dots (n : ℕ) : closeLeft RD k sc ρ i (dotsU RD k sc ρ (up i) n) = ccwU RD k sc ρ i n := by
-  rw [closeLeft_apply, dotsU, plcL_dg_nil, ccwU_of_nonneg, ccwLs]
-  show dg RD k sc ρ [] [dn i, up i] _ ≫ dg RD k sc ρ [dn i, up i] [dn i, up i] _ ≫
-    dg RD k sc ρ [dn i, up i] [] _ = _
-  rw [dg_comp (by schain) (by schain), dg_comp (by schain) (by schain)]
+theorem closeLeft_dots (n : ℕ) : closeLeft RD k sc ρ i (NF.dotsU (pres RD k sc) ρ (up i) n) = NF.ccwU (pres RD k sc) ρ i n := by
+  rw [closeLeft_apply, NF.dotsU, NF.plcL_dg_nil, NF.ccwU_of_nonneg, ccwLs]
+  show NF.dg (pres RD k sc) ρ [] [dn i, up i] _ ≫ NF.dg (pres RD k sc) ρ [dn i, up i] [dn i, up i] _ ≫
+    NF.dg (pres RD k sc) ρ [dn i, up i] [] _ = _
+  rw [NF.dg_comp (by schain) (by schain), NF.dg_comp (by schain) (by schain)]
   congr 1; lnf
 
 /-- Closing to the right a strand with bubbles on its left: the bubbles come out (transported to
 the region `ρ`). -/
 theorem closeRight_bubLU (β : End ((pres RD k sc).obj (ob RD (wt RD (wt RD ρ [dn i]) [up i]) [])))
     (n : ℕ) :
-    closeRight RD k sc ρ i (bubLU RD k sc (wt RD ρ [dn i]) (up i) β ≫ dotsU RD k sc (wt RD ρ [dn i]) (up i) n) =
-      wtTransport RD k sc (by simp : wt RD (wt RD ρ [dn i]) [up i] = ρ) β ≫ cwU RD k sc ρ i n := by
-  rw [closeRight_apply, ← plcL_comp RD k sc ρ [] [dn i] rfl rfl, plcL_bubLU_dn]
+    closeRight RD k sc ρ i (NF.bubLU (pres RD k sc) (wt RD ρ [dn i]) (up i) β ≫ NF.dotsU (pres RD k sc) (wt RD ρ [dn i]) (up i) n) =
+      wtTransport RD k sc (by simp : wt RD (wt RD ρ [dn i]) [up i] = ρ) β ≫ NF.cwU (pres RD k sc) ρ i n := by
+  rw [closeRight_apply, ← NF.plcL_comp (pres RD k sc) ρ [] [dn i] rfl rfl, plcL_bubLU_dn]
   simp only [← Category.assoc]
   rw [cupUp_plcL]
   simp only [Category.assoc]
@@ -329,8 +329,8 @@ theorem closeRight_bubLU (β : End ((pres RD k sc).obj (ob RD (wt RD (wt RD ρ [
 
 /-- Closing to the left a strand with bubbles on its right: the bubbles come out. -/
 theorem closeLeft_bubRU (γ : End ((pres RD k sc).obj (ob RD ρ []))) (n : ℕ) :
-    closeLeft RD k sc ρ i (bubRU RD k sc ρ (up i) γ ≫ dotsU RD k sc ρ (up i) n) = γ ≫ ccwU RD k sc ρ i n := by
-  rw [closeLeft_apply, ← plcL_comp RD k sc ρ [dn i] [] rfl rfl, plcL_bubRU_dn]
+    closeLeft RD k sc ρ i (NF.bubRU (pres RD k sc) ρ (up i) γ ≫ NF.dotsU (pres RD k sc) ρ (up i) n) = γ ≫ NF.ccwU (pres RD k sc) ρ i n := by
+  rw [closeLeft_apply, ← NF.plcL_comp (pres RD k sc) ρ [dn i] [] rfl rfl, plcL_bubRU_dn]
   simp only [← Category.assoc]
   rw [cupDn_plcL]
   simp only [Category.assoc]
@@ -343,34 +343,34 @@ theorem closeRight_ptrL (f : End ((pres RD k sc).obj (ob RD (wt RD ρ [dn i]) [u
     closeRight RD k sc ρ i (ptrL RD k sc (wt RD ρ [dn i]) i f) = closeLeft RD k sc ρ i (ptrR RD k sc ρ i f) := by
   have h₁ : wt RD (wt RD ρ [dn i]) [dn i, up i, up i] = wt RD (wt RD ρ [dn i]) [up i] := by simp
   have h₂ : wt RD (wt RD ρ []) [up i, up i, dn i] = wt RD (wt RD ρ []) [up i] := by simp
-  rw [closeRight_apply, ptrL_apply, ← plcL_comp RD k sc ρ [] [dn i] h₁ h₁.symm,
-    ← plcL_comp RD k sc ρ [] [dn i] rfl h₁.symm, plcL_dg, plcL_plcL_dnL, plcL_dg,
-    closeLeft_apply, ptrR_apply, ← plcL_comp RD k sc ρ [dn i] [] h₂ h₂.symm,
-    ← plcL_comp RD k sc ρ [dn i] [] rfl h₂.symm, plcL_dg_nil, plcL_plcL_dnR, plcL_dg_nil]
-  show dg RD k sc ρ [] [up i, dn i] _ ≫
-      (dg RD k sc ρ [up i, dn i] [dn i, up i, up i, dn i] _ ≫
-        plcL RD k sc ρ [dn i] [dn i] [up i, up i] [up i, up i] f ≫
-          dg RD k sc ρ [dn i, up i, up i, dn i] [up i, dn i] _) ≫
-      dg RD k sc ρ [up i, dn i] [] _ =
-    dg RD k sc ρ [] [dn i, up i] _ ≫
-      (dg RD k sc ρ [dn i, up i] [dn i, up i, up i, dn i] _ ≫
-        plcL RD k sc ρ [dn i] [dn i] [up i, up i] [up i, up i] f ≫
-          dg RD k sc ρ [dn i, up i, up i, dn i] [dn i, up i] _) ≫
-      dg RD k sc ρ [dn i, up i] [] _
+  rw [closeRight_apply, ptrL_apply, ← NF.plcL_comp (pres RD k sc) ρ [] [dn i] h₁ h₁.symm,
+    ← NF.plcL_comp (pres RD k sc) ρ [] [dn i] rfl h₁.symm, NF.plcL_dg, plcL_plcL_dnL, NF.plcL_dg,
+    closeLeft_apply, ptrR_apply, ← NF.plcL_comp (pres RD k sc) ρ [dn i] [] h₂ h₂.symm,
+    ← NF.plcL_comp (pres RD k sc) ρ [dn i] [] rfl h₂.symm, NF.plcL_dg_nil, plcL_plcL_dnR, NF.plcL_dg_nil]
+  show NF.dg (pres RD k sc) ρ [] [up i, dn i] _ ≫
+      (NF.dg (pres RD k sc) ρ [up i, dn i] [dn i, up i, up i, dn i] _ ≫
+        NF.plcL (pres RD k sc) ρ [dn i] [dn i] [up i, up i] [up i, up i] f ≫
+          NF.dg (pres RD k sc) ρ [dn i, up i, up i, dn i] [up i, dn i] _) ≫
+      NF.dg (pres RD k sc) ρ [up i, dn i] [] _ =
+    NF.dg (pres RD k sc) ρ [] [dn i, up i] _ ≫
+      (NF.dg (pres RD k sc) ρ [dn i, up i] [dn i, up i, up i, dn i] _ ≫
+        NF.plcL (pres RD k sc) ρ [dn i] [dn i] [up i, up i] [up i, up i] f ≫
+          NF.dg (pres RD k sc) ρ [dn i, up i, up i, dn i] [dn i, up i] _) ≫
+      NF.dg (pres RD k sc) ρ [dn i, up i] [] _
   simp only [Category.assoc]
-  rw [← Category.assoc (dg RD k sc ρ [] [up i, dn i] _), dg_comp (by schain) (by schain),
-    dg_comp (by schain) (by schain), ← Category.assoc (dg RD k sc ρ [] [dn i, up i] _),
-    dg_comp (by schain) (by schain), dg_comp (by schain) (by schain)]
-  have hcup : dg RD k sc ρ [] [dn i, up i, up i, dn i]
+  rw [← Category.assoc (NF.dg (pres RD k sc) ρ [] [up i, dn i] _), NF.dg_comp (by schain) (by schain),
+    NF.dg_comp (by schain) (by schain), ← Category.assoc (NF.dg (pres RD k sc) ρ [] [dn i, up i] _),
+    NF.dg_comp (by schain) (by schain), NF.dg_comp (by schain) (by schain)]
+  have hcup : NF.dg (pres RD k sc) ρ [] [dn i, up i, up i, dn i]
       [([], .cup (dn i), []), ([dn i, up i], .cup (up i), [])] =
-      dg RD k sc ρ [] [dn i, up i, up i, dn i]
+      NF.dg (pres RD k sc) ρ [] [dn i, up i, up i, dn i]
       [([], .cup (up i), []), ([], .cup (dn i), [up i, dn i])] :=
-    dg_swap' RD k sc ρ [] [] [] (.cup (dn i)) (.cup (up i))
-  have hcap : dg RD k sc ρ [dn i, up i, up i, dn i] []
+    NF.dg_swap' (pres RD k sc) ρ [] [] [] (.cup (dn i)) (.cup (up i))
+  have hcap : NF.dg (pres RD k sc) ρ [dn i, up i, up i, dn i] []
       [([], .cap (up i), [up i, dn i]), ([], .cap (dn i), [])] =
-      dg RD k sc ρ [dn i, up i, up i, dn i] []
+      NF.dg (pres RD k sc) ρ [dn i, up i, up i, dn i] []
       [([dn i, up i], .cap (dn i), []), ([], .cap (up i), [])] :=
-    dg_swap' RD k sc ρ [] [] [] (.cap (up i)) (.cap (dn i))
+    NF.dg_swap' (pres RD k sc) ρ [] [] [] (.cap (up i)) (.cap (dn i))
   lnf
   rw [← hcup, hcap]
 
@@ -378,17 +378,17 @@ end Close
 
 /-! ## Vanishing of bubbles of negative degree -/
 
-theorem ccwU_eq_zero (ν : X) (i : I) (m : ℤ) (h : m + 1 + ip RD i ν < 0) : ccwU RD k sc ν i m = 0 := by
+theorem ccwU_eq_zero (ν : X) (i : I) (m : ℤ) (h : m + 1 + ip RD i ν < 0) : NF.ccwU (pres RD k sc) ν i m = 0 := by
   by_cases hm : 0 ≤ m
   · obtain ⟨m', rfl⟩ := Int.eq_ofNat_of_zero_le hm
-    rw [ccwU_of_nonneg, dg_ccwNeg RD k sc ν i m' (by omega)]
-  · rw [ccwU, ccwL, ite_eq_right hm, ite_eq_right (by omega), Presentation.lin_zero]
+    rw [NF.ccwU_of_nonneg, dg_ccwNeg RD k sc ν i m' (by omega)]
+  · rw [NF.ccwU, ccwL, ite_eq_right hm, ite_eq_right (by omega), Presentation.lin_zero]
 
-theorem cwU_eq_zero (ν : X) (i : I) (m : ℤ) (h : m + 1 - ip RD i ν < 0) : cwU RD k sc ν i m = 0 := by
+theorem cwU_eq_zero (ν : X) (i : I) (m : ℤ) (h : m + 1 - ip RD i ν < 0) : NF.cwU (pres RD k sc) ν i m = 0 := by
   by_cases hm : 0 ≤ m
   · obtain ⟨m', rfl⟩ := Int.eq_ofNat_of_zero_le hm
-    rw [cwU_of_nonneg, dg_cwNeg RD k sc ν i m' (by omega)]
-  · rw [cwU, cwL, ite_eq_right hm, ite_eq_right (by omega), Presentation.lin_zero]
+    rw [NF.cwU_of_nonneg, dg_cwNeg RD k sc ν i m' (by omega)]
+  · rw [NF.cwU, cwL, ite_eq_right hm, ite_eq_right (by omega), Presentation.lin_zero]
 
 /-! ## A reindexing identity -/
 
@@ -405,28 +405,28 @@ consequence of the defining relations of `U`, proved here by evaluating the figu
 with the right curl relation. -/
 theorem grassmannian (ρ : X) (i : I) (d : ℕ) (hd : 1 ≤ d) :
     ∑ j ∈ Finset.range (d + 1),
-      ccwU RD k sc ρ i (-ip RD i ρ - 1 + j) ≫ cwU RD k sc ρ i (ip RD i ρ - 1 + (d - j)) = 0 := by
+      NF.ccwU (pres RD k sc) ρ i (-ip RD i ρ - 1 + j) ≫ NF.cwU (pres RD k sc) ρ i (ip RD i ρ - 1 + (d - j)) = 0 := by
   obtain ⟨m, rfl⟩ : ∃ m, d = m + 1 := ⟨d - 1, by omega⟩
   have key := closeRight_ptrL RD k sc ρ i (nhDotR RD k sc (wt RD ρ [dn i]) i m ≫ nhCross RD k sc (wt RD ρ [dn i]) i)
   rw [ptrL_nhDotR_comp, ptrL_nhCross, ptrR_nhDotR_nhCross, Preadditive.comp_sum, map_sum, map_neg, map_sum] at key
   have hN : ip RD i (wt RD (wt RD ρ [dn i]) [up i]) = ip RD i ρ := by simp
   have hA : ∀ g ∈ Finset.range (ip RD i (wt RD (wt RD ρ [dn i]) [up i]) + 1).toNat,
-      closeRight RD k sc ρ i (dotsU RD k sc (wt RD ρ [dn i]) (up i) m ≫
-        bubLU RD k sc (wt RD ρ [dn i]) (up i) (ccwU RD k sc (wt RD (wt RD ρ [dn i]) [up i]) i
+      closeRight RD k sc ρ i (NF.dotsU (pres RD k sc) (wt RD ρ [dn i]) (up i) m ≫
+        NF.bubLU (pres RD k sc) (wt RD ρ [dn i]) (up i) (NF.ccwU (pres RD k sc) (wt RD (wt RD ρ [dn i]) [up i]) i
           (-ip RD i (wt RD (wt RD ρ [dn i]) [up i]) - 1 + g)) ≫
-        dotsU RD k sc (wt RD ρ [dn i]) (up i) (ip RD i (wt RD (wt RD ρ [dn i]) [up i]) - g).toNat) =
-      ccwU RD k sc ρ i (-ip RD i ρ - 1 + g) ≫ cwU RD k sc ρ i (ip RD i ρ - 1 + ((↑(m + 1) : ℤ) - g)) := by
+        NF.dotsU (pres RD k sc) (wt RD ρ [dn i]) (up i) (ip RD i (wt RD (wt RD ρ [dn i]) [up i]) - g).toNat) =
+      NF.ccwU (pres RD k sc) ρ i (-ip RD i ρ - 1 + g) ≫ NF.cwU (pres RD k sc) ρ i (ip RD i ρ - 1 + ((↑(m + 1) : ℤ) - g)) := by
     intro g hg
     have hg' := Finset.mem_range.1 hg
-    rw [← Category.assoc, ← bubLU_comm, Category.assoc, dotsU_add, closeRight_bubLU, wtTransport_ccwU, hN]
+    rw [← Category.assoc, ← NF.bubLU_comm, Category.assoc, NF.dotsU_add, closeRight_bubLU, wtTransport_ccwU, hN]
     congr 2
     rw [hN] at hg'
     push_cast; omega
   have hB : ∀ ℓ ∈ Finset.range ((m : ℤ) + -ip RD i ρ + 1).toNat,
-      closeLeft RD k sc ρ i (bubRU RD k sc ρ (up i) (cwU RD k sc ρ i (ip RD i ρ - 1 + ℓ)) ≫
-        dotsU RD k sc ρ (up i) ((m : ℤ) + -ip RD i ρ - ℓ).toNat) =
-      ccwU RD k sc ρ i (-ip RD i ρ - 1 + ((↑(m + 1) : ℤ) - ℓ)) ≫
-        cwU RD k sc ρ i (ip RD i ρ - 1 + ((↑(m + 1) : ℤ) - ((↑(m + 1) : ℤ) - ℓ))) := by
+      closeLeft RD k sc ρ i (NF.bubRU (pres RD k sc) ρ (up i) (NF.cwU (pres RD k sc) ρ i (ip RD i ρ - 1 + ℓ)) ≫
+        NF.dotsU (pres RD k sc) ρ (up i) ((m : ℤ) + -ip RD i ρ - ℓ).toNat) =
+      NF.ccwU (pres RD k sc) ρ i (-ip RD i ρ - 1 + ((↑(m + 1) : ℤ) - ℓ)) ≫
+        NF.cwU (pres RD k sc) ρ i (ip RD i ρ - 1 + ((↑(m + 1) : ℤ) - ((↑(m + 1) : ℤ) - ℓ))) := by
     intro ℓ hℓ
     have hℓ' := Finset.mem_range.1 hℓ
     rw [closeLeft_bubRU, endEmpty_comm]
@@ -434,8 +434,8 @@ theorem grassmannian (ρ : X) (i : I) (d : ℕ) (hd : 1 ≤ d) :
     · push_cast; omega
     · ring
   rw [Finset.sum_congr rfl hA, Finset.sum_congr rfl hB, hN, eq_neg_iff_add_eq_zero] at key
-  have := sum_split_reflect (fun j : ℤ => ccwU RD k sc ρ i (-ip RD i ρ - 1 + j) ≫
-    cwU RD k sc ρ i (ip RD i ρ - 1 + ((↑(m + 1) : ℤ) - j))) (m + 1) ?_ (ip RD i ρ + 1)
+  have := sum_split_reflect (fun j : ℤ => NF.ccwU (pres RD k sc) ρ i (-ip RD i ρ - 1 + j) ≫
+    NF.cwU (pres RD k sc) ρ i (ip RD i ρ - 1 + ((↑(m + 1) : ℤ) - j))) (m + 1) ?_ (ip RD i ρ + 1)
   · rw [show ((↑(m + 1) : ℤ) + 1 - (ip RD i ρ + 1)).toNat = ((m : ℤ) + -ip RD i ρ + 1).toNat by
       push_cast; omega, key] at this
     exact this.symm

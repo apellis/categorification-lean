@@ -44,7 +44,7 @@ variable {I : Type u} {C : CartanDatum I} {X Y : Type v} [AddCommGroup X] [AddCo
   {RD : WeightDatum C X Y} {k : Type w} [CommRing k] {sc : CL.CLScalars C k}
 
 theorem dg_eq_dgC (μ : X) (s t : List (Letter I)) (ls : List (LayerData I)) :
-    dg RD k sc μ s t ls = CL.dgC (pres RD k sc) μ s t ls := rfl
+    NF.dg (pres RD k sc) μ s t ls = CL.dgC (pres RD k sc) μ s t ls := rfl
 
 theorem bubAt_eq_bubAtC (μ : X) (s : List (Letter I)) :
     bubAt RD k sc μ s = CL.bubAtC (pres RD k sc) μ s := rfl
@@ -54,9 +54,9 @@ theorem bubGenC_pres (lam : X) (i : I) (n : ℕ) :
   unfold CL.bubGenC bubGen
   split_ifs with h
   · rw [← dg_eq_dgC, show ip RD i lam - 1 + ((n + 1 : ℕ) : ℤ) =
-      (((ip RD i lam).toNat + n : ℕ) : ℤ) by push_cast; omega, cwU_of_nonneg]
+      (((ip RD i lam).toNat + n : ℕ) : ℤ) by push_cast; omega, NF.cwU_of_nonneg]
   · rw [← dg_eq_dgC, show -ip RD i lam - 1 + ((n + 1 : ℕ) : ℤ) =
-      (((-ip RD i lam).toNat + n : ℕ) : ℤ) by push_cast; omega, ccwU_of_nonneg]
+      (((-ip RD i lam).toNat + n : ℕ) : ℤ) by push_cast; omega, NF.ccwU_of_nonneg]
 
 theorem isBubC_pres {lam : X} {x : End ((pres RD k sc).obj (ob RD lam []))}
     (hx : IsBub RD k sc lam x) : CL.IsBubC (pres RD k sc) lam x := by

@@ -116,36 +116,36 @@ end Poly
 
 /-- `eq_r2_ij-gen` as a sum over the monomials of `Q_cd`. -/
 theorem dg_sqNe_sum (μ : X) (c d : I) (h : c ≠ d) :
-    dg RD k sc μ [up c, up d] [up c, up d] [([], .cross true c d, []), ([], .cross true d c, [])] =
+    NF.dg (pres RD k sc) μ [up c, up d] [up c, up d] [([], .cross true c d, []), ([], .cross true d c, [])] =
       ∑ s ∈ (CL.qCL sc c d).support, (CL.qCL sc c d).coeff s •
-        dg RD k sc μ [up c, up d] [up c, up d]
+        NF.dg (pres RD k sc) μ [up c, up d] [up c, up d]
           (List.replicate (s 0) ([], .dot (up c), [up d]) ++
             List.replicate (s 1) ([up c], .dot (up d), [])) := by
   rw [dg_sqNe RD k sc μ c d h, ncEval_two_eq_sum]
   refine Finset.sum_congr rfl fun s _ => ?_
   congr 1
   simp only [Matrix.cons_val_zero, Matrix.cons_val_one]
-  rw [dgE_pow_single RD k sc μ _ _ (by schain), dgE_pow_single RD k sc μ _ _ (by schain),
-    End.mul_def, dgE, dgE, dg_comp (by schain) (by schain)]
-  exact dg_swap_dots RD k sc μ [] [] [] (up c) (up d) _ _
+  rw [NF.dgE_pow_single (pres RD k sc) μ _ _ (by schain), NF.dgE_pow_single (pres RD k sc) μ _ _ (by schain),
+    End.mul_def, NF.dgE, NF.dgE, NF.dg_comp (by schain) (by schain)]
+  exact NF.dg_swap_dots (pres RD k sc) μ [] [] [] (up c) (up d) _ _
 
 /-- The upward computation in the `i ≠ j` bubble slide: a crossing `E_i E_j ⟶ E_j E_i`, `m`
 dots on the `i` strand, and the crossing back equal `x_i^m Q_ij(x_i, x_j)`. -/
 theorem dg_cross_dots_cross_sum (ν : X) (i j : I) (h : i ≠ j) (m : ℕ) :
-    dg RD k sc ν [up i, up j] [up i, up j]
+    NF.dg (pres RD k sc) ν [up i, up j] [up i, up j]
         ([([], .cross true i j, [])] ++ List.replicate m ([up j], .dot (up i), []) ++
           [([], .cross true j i, [])]) =
       ∑ s ∈ (CL.qCL sc i j).support, (CL.qCL sc i j).coeff s •
-        dg RD k sc ν [up i, up j] [up i, up j]
+        NF.dg (pres RD k sc) ν [up i, up j] [up i, up j]
           (List.replicate (m + s 0) ([], .dot (up i), [up j]) ++
             List.replicate (s 1) ([up i], .dot (up j), [])) := by
-  refine (dg_step RD k sc ν [] [([], .cross true j i, [])] [] [] (dg_slide_rep RD k sc ν i j h m)
+  refine (NF.dg_step (pres RD k sc) ν [] [([], .cross true j i, [])] [] [] (dg_slide_rep RD k sc ν i j h m)
     (by schain) (by schain) (by simp [whL]) rfl).trans ?_
-  refine (dg_stepL RD k sc ν (List.replicate m ([], .dot (up i), [up j])) [] [] []
+  refine (NF.dg_stepL (pres RD k sc) ν (List.replicate m ([], .dot (up i), [up j])) [] [] []
     (dg_sqNe_sum RD k sc ν i j h) (by schain) (by schain) (by simp [whL])).trans ?_
   rw [map_sum]
   refine Finset.sum_congr rfl fun s _ => ?_
-  rw [map_smul, ctxL_dg_nil RD k sc ν (by schain) (by schain)]
+  rw [map_smul, NF.ctxL_dg_nil (pres RD k sc) ν (by schain) (by schain)]
   simp only [whL, List.map_replicate, List.map_append, List.nil_append, List.append_nil,
     List.replicate_add, List.append_assoc]
 
@@ -166,105 +166,103 @@ theorem sum_qCL_swap {M : Type*} [AddCommMonoid M] [Module k M] (i j : I) (f : �
 /-- The upward computation for the clockwise slide: a crossing `E_j E_i ⟶ E_i E_j`, `m` dots on
 the `i` strand, and the crossing back. -/
 theorem dg_cross_dots_cross_sum' (ν : X) (i j : I) (h : i ≠ j) (m : ℕ) :
-    dg RD k sc ν [up j, up i] [up j, up i]
+    NF.dg (pres RD k sc) ν [up j, up i] [up j, up i]
         ([([], .cross true j i, [])] ++ List.replicate m ([], .dot (up i), [up j]) ++
           [([], .cross true i j, [])]) =
       ∑ s ∈ (CL.qCL sc i j).support, (CL.qCL sc i j).coeff s •
-        dg RD k sc ν [up j, up i] [up j, up i]
+        NF.dg (pres RD k sc) ν [up j, up i] [up j, up i]
           (List.replicate (m + s 0) ([up j], .dot (up i), []) ++
             List.replicate (s 1) ([], .dot (up j), [up i])) := by
-  refine (dg_step RD k sc ν [] [([], .cross true i j, [])] [] [] (dg_slide_rep' RD k sc ν i j h m)
+  refine (NF.dg_step (pres RD k sc) ν [] [([], .cross true i j, [])] [] [] (dg_slide_rep' RD k sc ν i j h m)
     (by schain) (by schain) (by simp [whL]) rfl).trans ?_
-  refine (dg_stepL RD k sc ν (List.replicate m ([up j], .dot (up i), [])) [] [] []
+  refine (NF.dg_stepL (pres RD k sc) ν (List.replicate m ([up j], .dot (up i), [])) [] [] []
     (dg_sqNe_sum RD k sc ν j i h.symm) (by schain) (by schain) (by simp [whL])).trans ?_
   rw [map_sum]
-  refine Eq.trans ?_ (sum_qCL_swap k sc i j (fun a b => dg RD k sc ν [up j, up i] [up j, up i]
+  refine Eq.trans ?_ (sum_qCL_swap k sc i j (fun a b => NF.dg (pres RD k sc) ν [up j, up i] [up j, up i]
     (List.replicate (m + a) ([up j], .dot (up i), []) ++
       List.replicate b ([], .dot (up j), [up i]))))
   refine Finset.sum_congr rfl fun s _ => ?_
-  rw [map_smul, ctxL_dg_nil RD k sc ν (by schain) (by schain)]
+  rw [map_smul, NF.ctxL_dg_nil (pres RD k sc) ν (by schain) (by schain)]
   congr 1
   simp only [whL, List.map_replicate, List.map_append, List.nil_append, List.append_nil]
   dstepQ (List.replicate m ([up j], .dot (up i), [])) [] [] []
-    (dg_swap_dots RD k sc ν [] [] [] (up j) (up i) (s 1) (s 0)).symm
+    (NF.dg_swap_dots (pres RD k sc) ν [] [] [] (up j) (up i) (s 1) (s 0)).symm
   simp only [whL, List.map_replicate, List.map_append, List.replicate_add, List.append_assoc,
     List.nil_append, List.append_nil]
 
-set_option maxHeartbeats 1000000 in
 /-- **Bubble slide, counterclockwise, `i ≠ j`** (KL III Proposition 3.3, first display, with
 Cautis–Lauda scalars): `t_ij` times a counterclockwise `i`-bubble with `m` dots to the right of an
 upward `j`-strand equals `∑_s c_s` times the bubble with `m + s_0` dots to the left of the strand
 and `s_1` dots on the strand, the sum over the monomials `u^{s_0} v^{s_1}` of `Q_ij`. -/
 theorem dg_ccw_slide_sum (lam : X) (i j : I) (h : i ≠ j) (m : ℕ) :
-    (sc.t i j : k) • dg RD k sc lam [up j] [up j]
+    (sc.t i j : k) • NF.dg (pres RD k sc) lam [up j] [up j]
         ([([up j], .cup (dn i), [])] ++ List.replicate m ([up j, dn i], .dot (up i), []) ++
           [([up j], .cap (up i), [])]) =
       ∑ s ∈ (CL.qCL sc i j).support, (CL.qCL sc i j).coeff s •
-        dg RD k sc lam [up j] [up j]
+        NF.dg (pres RD k sc) lam [up j] [up j]
           ([([], .cup (dn i), [up j])] ++ List.replicate (m + s 0) ([dn i], .dot (up i), [up j]) ++
             [([], .cap (up i), [up j])] ++ List.replicate (s 1) ([], .dot (up j), [])) := by
-  have e := dg_stepL RD k sc lam (s₀ := [up j]) (t₀ := [up j])
+  have e := NF.dg_stepL (pres RD k sc) lam (s₀ := [up j]) (t₀ := [up j])
     ([([up j], .cup (dn i), [])] ++ List.replicate m ([up j, dn i], .dot (up i), []))
     [([up j], .cap (up i), [])] [] [up i] (dg_downupEF RD k sc j i h.symm (wt RD lam [up i]))
     (by schain) (by schain) rfl
-  rw [dg_pull_ccw, map_smul, ctxL_dg RD k sc lam (by schain) (by schain)] at e
+  rw [NF.dg_pull_ccw, map_smul, NF.ctxL_dg (pres RD k sc) lam (by schain) (by schain)] at e
   simp only [List.map_nil, List.append_nil] at e
   rw [← e]
-  refine (dg_stepL RD k sc lam [([], .cup (dn i), [up j])] [([], .cap (up i), [up j])] [dn i] []
+  refine (NF.dg_stepL (pres RD k sc) lam [([], .cup (dn i), [up j])] [([], .cap (up i), [up j])] [dn i] []
     (dg_cross_dots_cross_sum RD k sc lam i j h m) (by schain) (by schain) (by simp [whL])).trans ?_
   rw [map_sum]
   refine Finset.sum_congr rfl fun s _ => ?_
-  rw [map_smul, ctxL_dg_nil RD k sc lam (by schain) (by schain)]
+  rw [map_smul, NF.ctxL_dg_nil (pres RD k sc) lam (by schain) (by schain)]
   congr 1
   dstepQ ([([], .cup (dn i), [up j])] ++ List.replicate (m + s 0) ([dn i], .dot (up i), [up j]))
-    [] [] [] (dg_swap_rep RD k sc lam [] [] [] (.cap (up i)) (.dot (up j)) rfl (s 1))
+    [] [] [] (NF.dg_swap_rep (pres RD k sc) lam [] [] [] (.cap (up i)) (.dot (up j)) rfl (s 1))
   simp [whL]
 
-set_option maxHeartbeats 1000000 in
 /-- **Bubble slide, clockwise, `i ≠ j`**, with the dots on the upward strand of the bubble:
 `t_ij` times a clockwise `i`-bubble with `m` dots to the left of an upward `j`-strand equals
 `∑_s c_s` times the bubble with `m + s_0` dots to the right of the strand and `s_1` dots on the
 strand. -/
 theorem dg_cw_slide_sum_up (lam : X) (i j : I) (h : i ≠ j) (m : ℕ) :
-    (sc.t i j : k) • dg RD k sc lam [up j] [up j]
+    (sc.t i j : k) • NF.dg (pres RD k sc) lam [up j] [up j]
         ([([], .cup (up i), [up j])] ++ List.replicate m ([], .dot (up i), [dn i, up j]) ++
           [([], .cap (dn i), [up j])]) =
       ∑ s ∈ (CL.qCL sc i j).support, (CL.qCL sc i j).coeff s •
-        dg RD k sc lam [up j] [up j]
+        NF.dg (pres RD k sc) lam [up j] [up j]
           ([([up j], .cup (up i), [])] ++ List.replicate (m + s 0) ([up j], .dot (up i), [dn i]) ++
             [([up j], .cap (dn i), [])] ++ List.replicate (s 1) ([], .dot (up j), [])) := by
-  have e := dg_stepL RD k sc lam (s₀ := [up j]) (t₀ := [up j])
+  have e := NF.dg_stepL (pres RD k sc) lam (s₀ := [up j]) (t₀ := [up j])
     ([([], .cup (up i), [up j])] ++ List.replicate m ([], .dot (up i), [dn i, up j]))
     [([], .cap (dn i), [up j])] [up i] [] (dg_downupFE RD k sc i j h lam)
     (by schain) (by schain) rfl
-  rw [dg_pull_cw, map_smul, ctxL_dg_nil RD k sc lam (by schain) (by schain)] at e
+  rw [NF.dg_pull_cw, map_smul, NF.ctxL_dg_nil (pres RD k sc) lam (by schain) (by schain)] at e
   simp only [List.map_nil, List.append_nil] at e
   rw [← e]
-  refine (dg_stepL RD k sc lam [([up j], .cup (up i), [])] [([up j], .cap (dn i), [])] [] [dn i]
+  refine (NF.dg_stepL (pres RD k sc) lam [([up j], .cup (up i), [])] [([up j], .cap (dn i), [])] [] [dn i]
     (dg_cross_dots_cross_sum' RD k sc (wt RD lam [dn i]) i j h m) (by schain) (by schain)
     (by simp [whL])).trans ?_
   rw [map_sum]
   refine Finset.sum_congr rfl fun s _ => ?_
-  rw [map_smul, ctxL_dg RD k sc lam (by schain) (by schain)]
+  rw [map_smul, NF.ctxL_dg (pres RD k sc) lam (by schain) (by schain)]
   congr 1
   dstepQ ([([up j], .cup (up i), [])] ++ List.replicate (m + s 0) ([up j], .dot (up i), [dn i]))
-    [] [] [] (dg_swap_rep' RD k sc lam [] [] [] (.cap (dn i)) (.dot (up j)) rfl (s 1))
+    [] [] [] (NF.dg_swap_rep' (pres RD k sc) lam [] [] [] (.cap (dn i)) (.dot (up j)) rfl (s 1))
   simp [whL]
 
 /-- **Bubble slide, clockwise, `i ≠ j`**, in the normal form of `cwReal` (dots on the downward
 strand of the bubble). -/
 theorem dg_cw_slide_sum (lam : X) (i j : I) (h : i ≠ j) (m : ℕ) :
-    (sc.t i j : k) • dg RD k sc lam [up j] [up j]
+    (sc.t i j : k) • NF.dg (pres RD k sc) lam [up j] [up j]
         ([([], .cup (up i), [up j])] ++ List.replicate m ([up i], .dot (dn i), [up j]) ++
           [([], .cap (dn i), [up j])]) =
       ∑ s ∈ (CL.qCL sc i j).support, (CL.qCL sc i j).coeff s •
-        dg RD k sc lam [up j] [up j]
+        NF.dg (pres RD k sc) lam [up j] [up j]
           ([([up j], .cup (up i), [])] ++ List.replicate (m + s 0) ([up j, up i], .dot (dn i), []) ++
             [([up j], .cap (dn i), [])] ++ List.replicate (s 1) ([], .dot (up j), [])) := by
-  have e1 : dg RD k sc lam [up j] [up j]
+  have e1 : NF.dg (pres RD k sc) lam [up j] [up j]
       ([([], .cup (up i), [up j])] ++ List.replicate m ([up i], .dot (dn i), [up j]) ++
         [([], .cap (dn i), [up j])]) =
-      dg RD k sc lam [up j] [up j]
+      NF.dg (pres RD k sc) lam [up j] [up j]
         ([([], .cup (up i), [up j])] ++ List.replicate m ([], .dot (up i), [dn i, up j]) ++
           [([], .cap (dn i), [up j])]) := by
     dstepQ [] [] [] [up j] (dg_cw_dots RD k sc (wt RD lam [up j]) i m)

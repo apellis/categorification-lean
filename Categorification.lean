@@ -905,6 +905,7 @@ import Categorification.Sl2Categorification.PositiveBasis
 import Categorification.Sl2Categorification.NilHeckeAction
 import Categorification.Sl2Categorification.DualNilHecke
 import Categorification.Sl2Categorification.WeakCategorification
+import Categorification.Sl2Categorification.K0Exact
 import Categorification.Sl2Categorification.WeakCategorificationOp
 import Categorification.Sl2Categorification.DLayers
 import Categorification.Sl2Categorification.DividedPowers

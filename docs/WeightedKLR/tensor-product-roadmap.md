@@ -809,7 +809,10 @@ Prop 5.6 of v2, character form, is proved: the iterated standardization of cyclo
 projectives has the word character of the tensor product of the factors
 (`Stendhal.FirstWeight.iteratedStandard_word`, `RedStrands/IteratedStandardCharacter.lean`), from
 Cor 3.22 for word projectives (`cyclotomicWordModule_word`) and the product test of Thm 4.38
-(`standardizationTestAt_word_of_wordCharacters`). Open: the resulting identification of `K₀` classes.
+(`standardizationTestAt_word_of_wordCharacters`). On the projective group, the Hom functional of
+the standard module is the form with `s` composed with `η` (`iteratedStandardTest_eq`,
+`RedStrands/IteratedStandardK0.lean`); this determines its class. Open, only if a later result
+needs it: a formal Grothendieck group of finite-dimensional modules with the dual map `η`.
 
 Standardization functors (Prop 5.3, Def 5.4, Props 5.6, 5.7); simples and crystals
 (Lemma 5.9, Prop 5.11, Thms 5.14, 5.15); standard stratification (Lemma 5.19, Prop 5.21 in printed `Φ`-indexed form, Lemma 5.25,

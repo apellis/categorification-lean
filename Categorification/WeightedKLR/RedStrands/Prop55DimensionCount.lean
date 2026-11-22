@@ -10,7 +10,7 @@ import Categorification.WeightedKLR.RedStrands.ParabolicStandardFiniteFiltration
 /-!
 # The dimension count of Proposition 5.5
 
-Webster, arXiv:1309.3796v3, proof of Proposition 5.5, (5.14)–(5.15). For the standard
+Webster, arXiv:1309.3796v2, proof of Proposition 5.5, (5.13)–(5.14). For the standard
 Khovanov–Lauda parameters `Q = CL.qCL KL` and a finite-dimensional module `N` over the parabolic
 factor algebra `D_{θ, β}`,
 `dim Fᵢ S(N) = dim S(₁Fᵢ N) + dim S(₂Fᵢ N)`.
@@ -27,17 +27,18 @@ strand fewer (plus `n dim S(N)` for `j = i`), matched term by term by the pieces
 * `firstIndDeltaInjective_std`: injectivity of `δ₁ : S(₁Fᵢ N) → Fᵢ S(N)` for finite-dimensional
   `N`.
 * `allFiniteDeltaInjective_std`: the route hypothesis `AllFiniteDeltaInjective` holds.
-* `hasFiltration_loadingProj_std`: Webster's Proposition 5.21 filtration of `T^λ e(s, λ_ℓ, w)`
+* `hasFiltration_loadingProj_std`: Webster's Proposition 5.20 filtration of `T^λ e(s, λ_ℓ, w)`
   by standardizations, without route hypothesis.
 
 ## Hypotheses
 
-Besides the Rouquier condition `hR`, the symmetry `hQs : KLRSymm QL` and the standard scalars,
-the statements take, for each of the three cyclotomic data that occur (the weights `Λ`, the
-first factor `Λ ∘ Fin.castSucc` and the one-colour datum `Λ (Fin.last ℓ)`), a presentation `P`
-of the cyclotomic cover with `CoverRelsNegligible` and well-founded domain (`P.WFDom`). These are
-hypotheses on the choice of presentation used to prove Theorem 4.31 (`Eᵢ Fᵢ ≅ Fᵢ Eᵢ ⊕ id^n`), not
-hypotheses of Webster's statement.
+The intermediate lemmas take, for each of the three cyclotomic data that occur (the weights `Λ`,
+the first factor `Λ ∘ Fin.castSucc` and the one-colour datum `Λ (Fin.last ℓ)`), a base
+presentation `P` of the cyclotomic cover with `CoverRelsNegligible` and well-founded domain
+(`P.WFDom`), to which the relation families of Theorem 4.31 are adjoined. The presentation with
+no base relations (`noRelations`) satisfies both conditions vacuously, so the main results take
+no such hypothesis: besides the standard scalars they assume only the Rouquier condition `hR`
+and the symmetry `hQs : KLRSymm QL`.
 -/
 
 set_option backward.isDefEq.respectTransparency false
@@ -119,7 +120,7 @@ variable (i : I) (θ β : Multiset I) (N : Type) [AddCommGroup N] [Module k N]
     θ β) N]
 
 include hP hwf hP₁ hwf₁ hP₂ hwf₂ in
-/-- **The colour-`j` step of the dimension count, `j ≠ i`** (Webster, arXiv:1309.3796v3, proof
+/-- **The colour-`j` step of the dimension count, `j ≠ i`** (Webster, arXiv:1309.3796v2, proof
 of Proposition 5.5): given the dimension count for fewer black strands, the black-last pieces of
 colour `j` of `Fᵢ S(N)`, `S(₁Fᵢ N)` and `S(₂Fᵢ N)` satisfy the dimension count. -/
 theorem finrank_fixSub_firstIndF_split_of_ne (j : I) (hji : j ≠ i) (hj : j ∈ θ + β)
@@ -168,7 +169,7 @@ theorem finrank_fixSub_firstIndF_split_of_ne (j : I) (hji : j ≠ i) (hj : j ∈
   · exact absurd hj (by rw [Multiset.mem_add]; tauto)
 
 include hP hwf hP₁ hwf₁ hP₂ hwf₂ in
-/-- **The colour-`i` step of the dimension count** (Webster, arXiv:1309.3796v3, proof of
+/-- **The colour-`i` step of the dimension count** (Webster, arXiv:1309.3796v2, proof of
 Proposition 5.5): given the dimension count for fewer black strands, the black-last pieces of
 colour `i` of `Fᵢ S(N)`, `S(₁Fᵢ N)` and `S(₂Fᵢ N)` satisfy the dimension count; the extra
 terms `n dim S(N)`, `n₁ dim S(N)` and `n₂ dim S(N)` match by `n = n₁ + n₂`. -/
@@ -286,8 +287,8 @@ variable (i : I) (θ β : Multiset I) (N : Type) [AddCommGroup N] [Module k N]
     θ β) N]
 
 include hP hwf hP₁ hwf₁ hP₂ hwf₂ in
-/-- **The induction step of the dimension count** (Webster, arXiv:1309.3796v3, proof of
-Proposition 5.5, (5.14)–(5.15)): given the dimension count for fewer black strands, it holds
+/-- **The induction step of the dimension count** (Webster, arXiv:1309.3796v2, proof of
+Proposition 5.5, (5.13)–(5.14)): given the dimension count for fewer black strands, it holds
 for `N`. Both sides are split by the last strand (`finrank_eq_lastRed_add_sum`). -/
 theorem finrank_firstIndF_eq_add_of_lt [FiniteDimensional k N]
     (IH : ∀ θ' β' : Multiset I, Multiset.card θ' + Multiset.card β' <
@@ -330,15 +331,13 @@ theorem finrank_firstIndF_eq_add_of_lt [FiniteDimensional k N]
     finrank_lastRed_firstIndF_eq_add QL Λ i θ β N hQs hR, hsum, Finset.sum_add_distrib]
   ring
 
-include hP hwf hP₁ hwf₁ hP₂ hwf₂ in
-/-- **The dimension count of Proposition 5.5** (Webster, arXiv:1309.3796v3, proof of
-Proposition 5.5, (5.14)–(5.15)): for the standard Khovanov–Lauda parameters and a
+variable (hR) in
+include hR in
+/-- **The dimension count of Proposition 5.5** (Webster, arXiv:1309.3796v2, proof of
+Proposition 5.5, (5.13)–(5.14)): for the standard Khovanov–Lauda parameters and a
 finite-dimensional module `N` over `D_{θ, β}`,
-`dim Fᵢ S(N) = dim S(₁Fᵢ N) + dim S(₂Fᵢ N)`. Proved by strong induction on `|θ| + |β|`.
-
-Besides `hR` and `hQs`, the hypotheses `hP, hwf` (weights `Λ`), `hP₁, hwf₁` (first factor
-`Λ ∘ Fin.castSucc`) and `hP₂, hwf₂` (one-colour datum `Λ (Fin.last ℓ)`) are hypotheses on the
-choice of presentation of the cyclotomic cover used for Theorem 4.31. -/
+`dim Fᵢ S(N) = dim S(₁Fᵢ N) + dim S(₂Fᵢ N)`. Proved by strong induction on `|θ| + |β|`, with
+the presentation of the cyclotomic cover having no base relations (`noRelations`). -/
 theorem finrank_firstIndF_eq_add [FiniteDimensional k N] :
     Module.finrank k (FirstIndF QL Λ i θ β N hQs) =
       Module.finrank k (FirstIndStandardT QL Λ i θ β N hQs) +
@@ -349,44 +348,44 @@ theorem finrank_firstIndF_eq_add [FiniteDimensional k N] :
   induction n using Nat.strong_induction_on with
   | _ n ih =>
     intro θ β hn i N _ _ _ _ _
-    exact finrank_firstIndF_eq_add_of_lt hP hwf hP₁ hwf₁ hP₂ hwf₂ hQs i θ β N
+    exact finrank_firstIndF_eq_add_of_lt.{0, 0, 0} (hR := hR)
+      (P := noRelations _ k) (P₁ := noRelations _ k) (P₂ := noRelations _ k)
+      (fun r => PEmpty.elim r) (fun r => PEmpty.elim r) (fun r => PEmpty.elim r)
+      (fun r => PEmpty.elim r) (fun r => PEmpty.elim r) (fun r => PEmpty.elim r) hQs i θ β N
       (fun θ' β' h => ih _ (hn ▸ h) θ' β' rfl)
 
-include hP hwf hP₁ hwf₁ hP₂ hwf₂ in
+variable (hR) in
+include hR in
 /-- **Injectivity of `δ₁ : S(₁Fᵢ N) → Fᵢ S(N)` for finite-dimensional `N`** (Webster,
-arXiv:1309.3796v3, proof of Proposition 5.5), at the standard Khovanov–Lauda parameters, from
-the dimension count `finrank_firstIndF_eq_add`. The hypotheses `hP, hwf, hP₁, hwf₁, hP₂, hwf₂`
-are hypotheses on the choice of presentation of the cyclotomic cover (see
-`finrank_firstIndF_eq_add`). -/
+arXiv:1309.3796v2, proof of Proposition 5.5), at the standard Khovanov–Lauda parameters, from
+the dimension count `finrank_firstIndF_eq_add`. -/
 theorem firstIndDeltaInjective_std [FiniteDimensional k N] :
     FirstIndDeltaInjective QL Λ i θ β N hQs := by
   rw [firstIndDeltaInjective_iff_finrank_of_finite QL Λ i θ β N hQs hR,
     finrank_restrictScalars_of_tower, finrank_restrictScalars_of_tower,
     finrank_restrictScalars_of_tower]
-  exact finrank_firstIndF_eq_add hP hwf hP₁ hwf₁ hP₂ hwf₂ hQs i θ β N
+  exact finrank_firstIndF_eq_add hR hQs i θ β N
 
 end Count
 
-include hP hwf hP₁ hwf₁ hP₂ hwf₂ in
+variable (hR) in
+include hR in
 /-- **The route hypothesis of Proposition 5.5 holds at the standard Khovanov–Lauda
-parameters** (Webster, arXiv:1309.3796v3, proof of Proposition 5.5): `δ₁` is injective for
-every finite-dimensional module. The hypotheses `hP, hwf, hP₁, hwf₁, hP₂, hwf₂` are hypotheses
-on the choice of presentation of the cyclotomic cover (see `finrank_firstIndF_eq_add`). -/
+parameters** (Webster, arXiv:1309.3796v2, proof of Proposition 5.5): `δ₁` is injective for
+every finite-dimensional module. -/
 theorem allFiniteDeltaInjective_std : AllFiniteDeltaInjective QL Λ hQs :=
-  fun i θ β M _ => firstIndDeltaInjective_std hP hwf hP₁ hwf₁ hP₂ hwf₂ hQs i θ β M.carrier
+  fun i θ β M _ => firstIndDeltaInjective_std hR hQs i θ β M.carrier
 
-include hP hwf hP₁ hwf₁ hP₂ hwf₂ in
+variable (hR) in
+include hR in
 /-- **Filtration of `T^λ e(s, λ_ℓ, w)` by standardizations at the standard Khovanov–Lauda
-parameters** (Webster, arXiv:1309.3796v3, Proposition 5.21, recursion in its proof), with no
-route hypothesis: `hasFiltration_loadingProj_of_finite` with `allFiniteDeltaInjective_std`.
-The hypotheses `hP, hwf, hP₁, hwf₁, hP₂, hwf₂` are hypotheses on the choice of presentation of
-the cyclotomic cover (see `finrank_firstIndF_eq_add`). -/
+parameters** (Webster, arXiv:1309.3796v2, Proposition 5.20, recursion in its proof), with no
+route hypothesis: `hasFiltration_loadingProj_of_finite` with `allFiniteDeltaInjective_std`. -/
 theorem hasFiltration_loadingProj_std (w : List I) {θ : Multiset I}
     (s : Seq (stendhalWeight ℓ (θ + 0))) (hs : IsRedOrdered s) :
     HasFiltration (stdLayerModule QL Λ hQs) ((redLayer QL Λ θ s hs).wordLayers QL Λ w)
       (loadingProj QL Λ (blackWordLoading w (appendRedLoading s))
         (blackWordLoading_ordered w _ ((appendRedLoading_ordered_iff s).2 hs))) :=
-  hasFiltration_loadingProj_of_finite hR (allFiniteDeltaInjective_std hP hwf hP₁ hwf₁ hP₂ hwf₂ hQs)
-    w s hs
+  hasFiltration_loadingProj_of_finite hR (allFiniteDeltaInjective_std hR hQs) w s hs
 
 end Categorification.Stendhal

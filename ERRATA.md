@@ -2,8 +2,7 @@
 
 Errors found while formalizing the sources of this library. Each entry gives the printed
 statement, the corrected statement, the declarations that refute the printed version and prove
-the corrected one, the roadmap item where one is open, and a short paragraph that can be sent to
-the authors as is. Locators refer to the cited arXiv version.
+the corrected one, and the roadmap item where one is open. Locators refer to the cited arXiv version.
 
 Contents:
 
@@ -39,10 +38,6 @@ sides). Corrected: `Categorification.Flag.lemma_5_4_iii`.
 
 **Roadmap.** None open: the corrected lemma and Corollary 5.5 are proved.
 
-**For the authors.** In Lemma 5.4 (iii), eq. (5.45), the index `i+1` on `x(k)` should be `i`.
-As printed the identity fails already for `N = 2`, `k = (0, 1, 2)`; the proof from part (i) and
-the application in Corollary 5.5 both concern `x(k)_{i,·}`.
-
 ## Webster, arXiv:1209.2463v4 (weighted KLR algebras)
 
 ### 2. Proposition 2.15, sign of the coboundary
@@ -60,9 +55,6 @@ paper (the ghost moves right by `η_{t(e)}`) uses the corrected sign.
 is the same statement with the strands moved by `-η`.
 
 **Roadmap.** None open.
-
-**For the authors.** In Proposition 2.15 the coboundary should read `ϑ_e + η_{t(e)} - η_{h(e)}`
-(or the strands should move left by `η_i`); the proof is unaffected.
 
 ### 3. §2.1, degree function
 
@@ -87,10 +79,6 @@ a step across a wall of `e` degree `d_{h(e)} c_e`, a same-colour crossing `-2d_i
 `WeightedKLR.GradingDatum.gradedAlgebra` (the graded algebra with this datum).
 
 **Roadmap.** None open.
-
-**For the authors.** In §2.1 the degree of a ghost crossing should be taken edge by edge
-(`½ d_{h(e)} c_e` for the ghost of the edge `e`, including loops of nonzero weight), and at a
-loop of weight `0` the crossing of two `i`-strands should have the degree of `P_e`.
 
 ### 4. Theorem 2.19
 
@@ -118,10 +106,6 @@ Corrected: `DoubleDiagram.bubble_eq_of_le`, `DoubleDiagram.bubbleGrassmannian` (
 nonpositive degrees and convolution).
 
 **Roadmap.** None open beyond entry 6.
-
-**For the authors.** In (2.2a) the vanishing of negative-degree bubbles should be stated for
-`j > 0`, and in (2.2b) the upper bound of the sum should be `j − n + 1`; with `j + n + 1` the
-sum is empty for `n = j = −2`.
 
 ### 6. (2.2a) and (2.5e), pitchfork and downward relations
 
@@ -154,14 +138,6 @@ bubble closures, over any field). Corrected: `DoubleDiagram.rescaledDownward_qCL
 **Roadmap.** [Tensor product roadmap](docs/WeightedKLR/tensor-product-roadmap.md), pitchfork
 compatibility and faithfulness in the Cautis–Lauda normalization (open).
 
-**For the authors.** In the definition of the diagrammatic tensor product category, the cup and
-cap pitchfork relations (2.2a) and the downward quadratic relation (2.5e) are not compatible for
-general Rouquier parameters. For two disconnected colours with `Q_{ij} = Q_{ji} = 2`, a red of
-weight `(1, 1)` followed by one downward black strand has ordinary endomorphism algebra ℚ, but
-composing the two pitchforks gives `8·id = 2·id` there. Taking the downward relations with the
-dual parameters of Cautis–Lauda (so the downward bigon is `1/2` in this example) restores
-compatibility.
-
 ### 7. Proposition 3.31, proof gap
 
 **Printed.** The set `B′` (the spanning set of Lemma 3.29, with integer dot exponents) is a basis
@@ -187,11 +163,6 @@ proved for every Cartan datum.
 **Roadmap.** [Tensor product roadmap](docs/WeightedKLR/tensor-product-roadmap.md), Phase B,
 Prop 3.31: prove or refute.
 
-**For the authors.** In the proof of Proposition 3.31, `Ř^λ` is not a `U′`-representation: for
-sl₂, `λ = 1`, one strand and weight `−1`, the honest bubble with `−1` dots acts by `−1/z ≠ 0`,
-while `U′` sets it equal to a fake bubble of negative degree, which is `0`. Linear independence
-of `B′` needs another argument, for instance a faithful representation of `U′` itself.
-
 ### 8. §4.5, κ(0) and the citation of (4.4d)
 
 **Printed.** The violation condition before Definition 4.27 is `κ(0) > 1`, and the proof of
@@ -206,9 +177,6 @@ identities are (4.4e); (4.4d) is a three-strand relation. Both are misprints.
 `Categorification.Stendhal.DoubleDiagram.redUpCrossingIso`.
 
 **Roadmap.** None open.
-
-**For the authors.** Before Definition 4.27, `κ(0) > 1` should read `κ(1) > 0` (the first strand
-is black); in the proof of Theorem 4.29 the reference (4.4d) should be (4.4e).
 
 ### 9. Lemma 4.35, insertion and deletion conditions
 
@@ -230,11 +198,6 @@ and `FEh = 0`. For `n < 0` the summand on the `FE` side has graded multiplicity 
 
 **Roadmap.** [Tensor product roadmap](docs/WeightedKLR/tensor-product-roadmap.md), Lemmas 4.35
 and 4.36 (identification with the boundary ideals of Definition 4.34 is open).
-
-**For the authors.** In Lemma 4.35 the conditions should read `κ(m) ≥ j` for insertion and
-`κ(m) > j` for deletion; with the printed conditions a single fundamental red followed by one
-black strand gives the deletion coordinate `−1`; the coroot coordinate of the commutator is the one at
-`µ(j+1) + α_i`.
 
 ### 10. The form before Proposition 4.33, and Lemma 4.36
 
@@ -265,9 +228,3 @@ and all black contents, for right and left projectives alike.
 
 **Roadmap.** None open for the form; the identification with the boundary ideals of
 Definition 4.34 is open (entry 9).
-
-**For the authors.** The form defined before Proposition 4.33 should apply `Θ` to the second
-argument. As printed its values are the bar conjugates of the graded Hom dimensions: for two
-fundamental sl₂ factors it gives `‖F(h ⊗ h)‖² = 1 + q⁻²`, while the graded endomorphism ring of the
-corresponding projective has dimension `1 + q²`. With `Θ` on the second argument, Proposition
-4.33(2), Lemma 4.36 and the pairing in Theorem 4.38 hold.

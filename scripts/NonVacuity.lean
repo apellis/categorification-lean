@@ -3373,6 +3373,14 @@ private def finalRegular : Graded.GFin (CycKLR.grade (restrictBlackGrading Q Λ 
 example := gdimPoly_standardization_extTensor Λ diagramDegrees 0 β parameters.symm prefixRegular finalRegular rawRRB
   (by unfold IsRedOrdered; decide)
 
+private def oneRed : Seq (stendhalWeight 1 (0 : Multiset (Fin 1))) :=
+  KLRAlgebra.Seq.ofList [.inr 0] (by decide)
+
+/-- Webster, arXiv:1309.3796v3, step in the proof of Prop 5.21, at one red strand followed by the final red
+strand and one black strand: `S(S_t ⊠ R e(u)) ≅ S_{t λ_2 u}`. -/
+example := twoPieceStandardEquiv Q Λ (θ := 0) (t := oneRed) (by unfold IsRedOrdered; decide) b
+  parameters.symm
+
 end LastRedLayerExample
 
 namespace MixedBlackRestriction

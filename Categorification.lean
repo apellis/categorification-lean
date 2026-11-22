@@ -11,6 +11,7 @@ import Categorification.Algebra.CoinvariantGraded
 import Categorification.Algebra.DividedDifference
 import Categorification.Algebra.ExactDimension
 import Categorification.Algebra.ExternalTensor
+import Categorification.Algebra.ExternalTensorExact
 import Categorification.Algebra.Generation
 import Categorification.Algebra.HomTensorInd
 import Categorification.Algebra.HomTensorIndModule
@@ -75,6 +76,7 @@ import Categorification.Algebra.InductionAlongTriple
 import Categorification.Algebra.K0FinDim
 import Categorification.Algebra.ModuleCatLinear
 import Categorification.Algebra.ModuleFiltration
+import Categorification.Algebra.ModuleFiltrationMap
 import Categorification.Algebra.MonicTrace
 import Categorification.Algebra.NilHecke
 import Categorification.Algebra.NilHeckeIdempotent
@@ -1294,6 +1296,21 @@ import Categorification.WeightedKLR.RedStrands.ParabolicStandardFiniteFiltration
 import Categorification.WeightedKLR.RedStrands.ParabolicStandardTensorFiltration
 import Categorification.WeightedKLR.RedStrands.ParabolicStandardTensorBase
 import Categorification.WeightedKLR.RedStrands.ParabolicStandardTensorProj
+import Categorification.WeightedKLR.RedStrands.LeftStandardModule
+import Categorification.WeightedKLR.RedStrands.BlackCountTransport
+import Categorification.WeightedKLR.RedStrands.TwoPieceLoading
+import Categorification.WeightedKLR.RedStrands.ParabolicStandardUpper
+import Categorification.WeightedKLR.RedStrands.ConcatLoadingOrder
+import Categorification.WeightedKLR.RedStrands.LastRedBlackDescent
+import Categorification.WeightedKLR.RedStrands.PrefixProjectionDescent
+import Categorification.WeightedKLR.RedStrands.ParabolicStandardDesc
+import Categorification.WeightedKLR.RedStrands.TwoPieceStandardComparison
+import Categorification.WeightedKLR.RedStrands.TwoPieceStandardEquiv
+import Categorification.WeightedKLR.RedStrands.LoadingDecomposition
+import Categorification.WeightedKLR.RedStrands.TensorLayerFiltration
+import Categorification.WeightedKLR.RedStrands.ProjectiveStandardFiltration
+import Categorification.WeightedKLR.RedStrands.TwoPieceStandardInverse
+import Categorification.WeightedKLR.RedStrands.TwoPieceStandardIso
 import Categorification.WeightedKLR.RedStrands.LastStrandDecomposition
 import Categorification.WeightedKLR.RedStrands.LastStrandPieceDimension
 import Categorification.WeightedKLR.RedStrands.ParabolicStandardLastRed

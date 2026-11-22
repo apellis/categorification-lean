@@ -384,6 +384,7 @@ import Categorification.KLR.Crystal.Lemma314
 import Categorification.KLR.Crystal.Lemma314Graded
 import Categorification.KLR.Crystal.Lemma39
 import Categorification.KLR.Crystal.SimpleTensor
+import Categorification.KLR.Crystal.ProportionalCharacter
 import Categorification.KLR.Crystal.Socle
 import Categorification.KLR.Crystal.Thm317
 import Categorification.KLR.Crystal.Thm317Graded

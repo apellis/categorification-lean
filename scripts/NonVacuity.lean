@@ -2845,6 +2845,12 @@ example (ν : Multiset Unit) (w : TensorWordAt 2 ν) :=
   iteratedStandard_word D params regular 2 level (fun _ => [()]) (factors 2)
     (fun j i => (level_eq j i).symm) ν w
 
+/-- Webster, arXiv:1309.3796v2, Prop. 5.6 (on the projective group), for the same standard
+module. -/
+example (ν : Multiset Unit) (x : tensorProjectiveGroup D params level ν) :=
+  iteratedStandardTest_eq D params regular 2 level (fun _ => [()]) (factors 2)
+    (fun j i => level_eq j i) ν x
+
 end TwoFundamentalLowerings
 
 end CyclotomicHighestWeight

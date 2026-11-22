@@ -1270,6 +1270,7 @@ import Categorification.WeightedKLR.RedStrands.PrefixStandardCharacter
 import Categorification.WeightedKLR.RedStrands.CyclotomicTopTests
 import Categorification.WeightedKLR.RedStrands.CyclotomicWordCharacter
 import Categorification.WeightedKLR.RedStrands.IteratedStandardCharacter
+import Categorification.WeightedKLR.RedStrands.IteratedStandardK0
 import Categorification.WeightedKLR.RedStrands.SingleBlackEulerForm
 import Categorification.WeightedKLR.RedStrands.SingleBlackLattice
 import Categorification.WeightedKLR.RedStrands.SingleRedGrading

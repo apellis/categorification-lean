@@ -92,7 +92,8 @@ theorem bijective_cornerPairing_dual [FiniteDimensional k A]
   rw [this]
   exact (E.dualMap.toEquiv.bijective).comp (evalEquiv k _).bijective
 
-theorem cornerPairing_dual_apply [FiniteDimensional k A] (b : rightCorner (k := k) e) (a : leftCorner (k := k) e) :
+theorem cornerPairing_dual_apply [FiniteDimensional k A] (b : rightCorner (k := k) e)
+    (a : leftCorner (k := k) e) :
     ((cornerPairing τ e).dualMap ∘ₗ (evalEquiv k (rightCorner (k := k) e)).toLinearMap) b a =
       τ (a.1 * b.1) := rfl
 

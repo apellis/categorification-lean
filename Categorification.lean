@@ -1575,7 +1575,9 @@ import Categorification.KLR.CyclotomicStringParametrization
 import Categorification.WeightedKLR.RedStrands.StringyLoading
 import Categorification.WeightedKLR.RedStrands.StringyClassification
 import Categorification.WeightedKLR.RedStrands.StandardSplitting
+import Categorification.WeightedKLR.RedStrands.RedFirstBaseCrossing
 import Categorification.WeightedKLR.RedStrands.RedFirstCorner
+import Categorification.WeightedKLR.RedStrands.RedFirstReach
 import Categorification.WeightedKLR.RedStrands.RedFirstTrace
 import Categorification.WeightedKLR.RedStrands.RedBlackCrossingInjective
 import Categorification.WeightedKLR.RedStrands.RedBlackCrossingStandard

@@ -9,6 +9,8 @@ import Mathlib.CategoryTheory.Limits.Pi
 import Mathlib.CategoryTheory.Limits.Preserves.Shapes.AbelianImages
 import Mathlib.CategoryTheory.Linear.LinearFunctor
 import Mathlib.CategoryTheory.Preadditive.AdditiveFunctor
+import Mathlib.CategoryTheory.Abelian.Exact
+import Mathlib.Algebra.Homology.ShortComplex.ShortExact
 
 /-!
 # Products of abelian categories
@@ -27,6 +29,8 @@ arXiv:math/0407205v2, §5.1.1).
 * `CategoryTheory.Pi.preadditive`, `CategoryTheory.Pi.abelian`, `CategoryTheory.Pi.linear`.
 * `CategoryTheory.Pi.preservesLimit_eval`, `CategoryTheory.Pi.preservesColimit_eval`:
   evaluation at a coordinate preserves the componentwise limits and colimits.
+* `CategoryTheory.Pi.preservesHomology_eval`: evaluation at a coordinate is exact; in
+  particular it preserves monomorphisms, epimorphisms and short exact sequences.
 -/
 
 noncomputable section
@@ -148,14 +152,16 @@ lemma hasColimit_of_hasColimit_comp_eval (F : J ⥤ ∀ i, C i)
 instance preservesLimit_eval (F : J ⥤ ∀ i, C i) [∀ i, HasLimit (F ⋙ eval C i)] (i : I) :
     PreservesLimit F (eval C i) :=
   preservesLimit_of_preserves_limit_cone (coneOfConeEvalIsLimit fun _ => limit.isLimit _)
-    (IsLimit.ofIsoLimit (limit.isLimit (F ⋙ eval C i)) (Cone.ext (Iso.refl _)))
+    (IsLimit.ofIsoLimit (limit.isLimit (F ⋙ eval C i)) (Cone.ext (Iso.refl _)
+      fun _ => (Category.id_comp _).symm))
 
 /-- Evaluation at a coordinate preserves colimits that exist componentwise. -/
 instance preservesColimit_eval (F : J ⥤ ∀ i, C i) [∀ i, HasColimit (F ⋙ eval C i)]
     (i : I) : PreservesColimit F (eval C i) :=
   preservesColimit_of_preserves_colimit_cocone
     (coconeOfCoconeEvalIsColimit fun _ => colimit.isColimit _)
-    (IsColimit.ofIsoColimit (colimit.isColimit (F ⋙ eval C i)) (Cocone.ext (Iso.refl _)))
+    (IsColimit.ofIsoColimit (colimit.isColimit (F ⋙ eval C i))
+      (Cocone.ext (Iso.refl _) fun _ => Category.comp_id _))
 
 end Limits
 
@@ -190,6 +196,23 @@ instance isIso_coimageImageComparison {X Y : ∀ i, C i} (f : X ⟶ Y) :
 /-- The product of abelian categories is abelian. -/
 instance abelian : Abelian (∀ i, C i) :=
   Abelian.ofCoimageImageComparisonIsIso
+
+instance preservesMonomorphisms_eval (i : I) : (eval C i).PreservesMonomorphisms :=
+  NormalEpiCategory.preservesMonomorphisms_of_preservesKernels (eval C i)
+
+instance preservesEpimorphisms_eval (i : I) : (eval C i).PreservesEpimorphisms :=
+  NormalMonoCategory.preservesEpimorphisms_of_preservesCokernels (eval C i)
+
+/-- Evaluation at a coordinate preserves homology. -/
+instance preservesHomology_eval (i : I) : (eval C i).PreservesHomology :=
+  Functor.preservesHomology_of_preservesMonos_and_cokernels (eval C i)
+
+/-- A short exact sequence in the product is short exact in each coordinate. -/
+theorem shortExact_eval {S : ShortComplex (∀ i, C i)} (hS : S.ShortExact) (i : I) :
+    (S.map (eval C i)).ShortExact := by
+  have := hS.mono_f
+  have := hS.epi_g
+  exact hS.map (eval C i)
 
 end Abelian
 

@@ -762,6 +762,11 @@ from which the full one is obtained by iterating):
   of `Ext` in large degrees (Mathlib's `HasProjectiveDimensionLT`). Same route hypothesis as
   Prop 5.21.
 
+Weak `𝔰𝔩₂`-categorification along an `i`-string (input to Prop 5.12): `fgStringWeakSl2`
+(Chuang–Rouquier §5.1.1 structure on finitely generated `T^λ`-modules along `ν₀ + m i`, `i ∉ ν₀`),
+from the module-tower constructor `ModuleTower.weakSl2` and the class identity
+`fgString_compositionFactors_EF_sub_FE`.
+
 Open: the comparison of the induced model with Def 5.4 (right modules over `T̃^λ` and the block
 algebra of all `ℓ + 1` blocks; the induced model uses left modules, which the vertical flip
 `tensorFlip` converts), injectivity in the `Fᵢ`-part of Prop 5.5, Prop 5.6, and the results listed below.

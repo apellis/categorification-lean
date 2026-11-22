@@ -294,6 +294,27 @@ lemma compositionFactors_pos_of_surjective [IsSimpleModule R P] (g : M →ₗ[R]
     compositionFactors_of_isSimpleModule (M := P)]
   simp
 
+/-- Composition factors of a product are the sum of those of the factors. -/
+lemma compositionFactors_prod (hM : IsFiniteLength R M) (hP : IsFiniteLength R P) :
+    compositionFactors R (M × P) = compositionFactors R M + compositionFactors R P :=
+  compositionFactors_eq_of_exact (LinearMap.inl R M P) (LinearMap.snd R M P)
+    LinearMap.inl_injective LinearMap.snd_surjective Function.Exact.inl_snd hM hP
+
+/-- Composition factors of `M^n` are `n` times those of `M`. -/
+lemma compositionFactors_pi_fin [IsNoetherian R M] [IsArtinian R M] (n : ℕ) :
+    compositionFactors R (Fin n → M) = n • compositionFactors R M := by
+  induction n with
+  | zero =>
+    have : Subsingleton (Fin 0 → M) := inferInstance
+    rw [compositionFactors_of_subsingleton, zero_smul]
+  | succ n ih =>
+    have hM : IsFiniteLength R M :=
+      isFiniteLength_iff_isNoetherian_isArtinian.mpr ⟨inferInstance, inferInstance⟩
+    have hMn : IsFiniteLength R (Fin n → M) :=
+      isFiniteLength_iff_isNoetherian_isArtinian.mpr ⟨inferInstance, inferInstance⟩
+    rw [compositionFactors_congr (Fin.consLinearEquiv R fun _ : Fin (n + 1) => M),
+      compositionFactors_prod hM hMn, ih, succ_nsmul']
+
 end Finiteness
 
 /-- A ring that is noetherian and artinian (as a left module over itself) has finitely many

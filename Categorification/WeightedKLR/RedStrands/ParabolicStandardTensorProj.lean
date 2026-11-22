@@ -38,9 +38,10 @@ theorem exists_castTensorProductAlgebra_e {I k : Type*} [DecidableEq I]
     [CommRing k] {m : ℕ} {Q : I → I → MvPolynomial (Fin 2) k} {Λ' : Fin m → I →₀ ℕ}
     {ν ν' : Multiset I} (h : ν = ν') (s : Seq (stendhalWeight m ν)) (hs : IsRedOrdered s) :
     ∃ (t : Seq (stendhalWeight m ν')) (ht : IsRedOrdered t),
+      t = Seq.cast (congrArg (stendhalWeight m) h) s ∧
       castTensorProductAlgebra Q Λ' h (TensorProductAlgebra.mk Q Λ' ν (StendhalAlgebra.e s hs)) =
         TensorProductAlgebra.mk Q Λ' ν' (StendhalAlgebra.e t ht) := by
-  subst h; exact ⟨s, hs, rfl⟩
+  subst h; exact ⟨s, hs, rfl, rfl⟩
 
 variable {I : Type} {k : Type} [DecidableEq I] [Field k] {ℓ : ℕ}
   (Q : I → I → MvPolynomial (Fin 2) k) (Λ : Fin (ℓ + 1) → I →₀ ℕ)
@@ -64,9 +65,11 @@ abbrev cycProj (β : Multiset I) (u : Seq β) : ModuleCat.{0} (Cyc β) :=
 theorem nonempty_zeroRestrict_redFactorModule_equiv (θ : Multiset I)
     (s : Seq (stendhalWeight ℓ (θ + 0))) (hs : IsRedOrdered s) :
     ∃ (t : Seq (stendhalWeight ℓ θ)) (ht : IsRedOrdered t),
+      t = Seq.cast (congrArg (stendhalWeight ℓ) (add_zero θ)) s ∧
       Nonempty (zeroRestrict Q Λ (redFactorModule Q Λ θ s hs) ≃ₗ[Told θ] oldProj Q Λ θ t ht) := by
-  obtain ⟨t, ht, he⟩ := exists_castTensorProductAlgebra_e (Q := Q) (Λ' := old) (add_zero θ) s hs
-  refine ⟨t, ht, ⟨?_⟩⟩
+  obtain ⟨t, ht, hts, he⟩ :=
+    exists_castTensorProductAlgebra_e (Q := Q) (Λ' := old) (add_zero θ) s hs
+  refine ⟨t, ht, hts, ⟨?_⟩⟩
   exact
   { toFun := fun x => ⟨castTensorProductAlgebra Q (old) (add_zero θ)
         (x : lIdeal (oldIdem Q Λ θ s hs)).1, by
@@ -145,7 +148,9 @@ theorem OldGen.exists_equiv {θ : Multiset I} {X : ModuleCat.{0} (Told θ)}
     ∃ (t : Seq (stendhalWeight ℓ θ)) (ht : IsRedOrdered t),
       Nonempty (X ≃ₗ[Told θ] oldProj Q Λ θ t ht) := by
   induction hX with
-  | base s hs => exact nonempty_zeroRestrict_redFactorModule_equiv Q Λ _ s hs
+  | base s hs =>
+    obtain ⟨t, ht, -, he⟩ := nonempty_zeroRestrict_redFactorModule_equiv Q Λ _ s hs
+    exact ⟨t, ht, he⟩
   | ind j X _ ih =>
     obtain ⟨t, ht, ⟨g⟩⟩ := ih
     exact ⟨_, _, ⟨(Ind.congr g).trans (oldProjIndEquiv Q Λ j _ t ht)⟩⟩

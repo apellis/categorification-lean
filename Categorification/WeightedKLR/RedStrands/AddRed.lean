@@ -146,11 +146,12 @@ theorem stendhalWeight_addRed : ν₀ + νᵣ = stendhalWeight (ℓ + 1) ν := b
   rw [add_assoc, add_comm _ νᵣ]
   rfl
 
-private def singletonRedSeq (ℓ : ℕ) :
+/-- The loading of the last red strand alone. -/
+def singletonRedSeq (ℓ : ℕ) :
     Seq ({Sum.inr (Fin.last ℓ)} : Multiset (I ⊕ Fin (ℓ + 1))) :=
   ⟨fun _ => .inr (Fin.last ℓ), by simp⟩
 
-private theorem singletonRedSeq_lbl (a : Fin (Multiset.card νᵣ)) :
+theorem singletonRedSeq_lbl (a : Fin (Multiset.card νᵣ)) :
     (singletonRedSeq (I := I) ℓ).lbl a = .inr (Fin.last ℓ) :=
   Multiset.mem_singleton.mp (Seq.mem _ a)
 

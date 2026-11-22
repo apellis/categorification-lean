@@ -43,13 +43,14 @@ local notation "J" => Σ γ : Multiset I, IndecClass (D γ)
 local notation "V" => IrreducibleModule R v (Subtype.val wt)
 local notation "ι" => DirectSum.lof LP _ (fun γ => K0 (D γ))
 
-private def finalWeightDatum : WeightDatum C (Y →+ ℤ) Y where
+/-- The weight datum on the coroot lattice: weights are additive maps on `Y`. -/
+def cyclotomicWeightDatum : WeightDatum C (Y →+ ℤ) Y where
   pair := (AddMonoidHom.id (Y →+ ℤ)).flip
   iX := R.root
   iY := R.coroot
   pair_iY_iX := R.root_coroot
 
-local notation "RD" => finalWeightDatum C (R := R)
+local notation "RD" => cyclotomicWeightDatum C (R := R)
 
 /-- The one-factor integral comparison for a dominant weight given on the coroot lattice. -/
 abbrev cyclotomicLatticeEquiv : CycKLR.projectiveK0 G μ ≃ₛₗ[inversion.toRingHom] hwIntegral wt :=
@@ -186,7 +187,8 @@ private theorem suffixOp_snoc {M : Type*} [AddCommGroup M] [Module L M]
   | nil => simp [ordinarySuffixOp]
   | cons _ s ih => simp only [List.cons_append, ordinarySuffixOp, ih, mul_assoc]
 
-private theorem word_image (s : List I) : (E (word s)).val = ordinarySuffixOp act s highest := by
+/-- The integral comparison sends an ordinary word class to the lowered highest-weight vector. -/
+theorem cyclotomicWord_image (s : List I) : (E (word s)).val = ordinarySuffixOp act s highest := by
   induction s using List.reverseRecOn with
   | nil =>
     have hv := CycKLR.projectiveIntegralEquiv_val hQ μ RD wt.1 hwt hR (word [])
@@ -198,13 +200,15 @@ private theorem word_image (s : List I) : (E (word s)).val = ordinarySuffixOp ac
     exact (CycKLR.projectiveIntegralEquiv_lower hQ μ RD wt.1 hwt hR i (word s)).trans
       (congrArg (fun x : V => F R v i • x) ih)
 
-private abbrev wordProjective {γ : Multiset I} (s : Seq γ) : GProj (D γ) :=
+/-- The cyclotomic projective of a sequence idempotent. -/
+abbrev cyclotomicWordProjective {γ : Multiset I} (s : Seq γ) : GProj (D γ) :=
   GProj.ofIdempotent (π γ (e s)) ((show IsIdempotentElem (e (Q := Q) s) from e_mul_self s).map (π γ))
     (Graded.mem_map_of_mem _ (π γ).toLinearMap ((G).e_mem_grade s))
 
 omit [Finite I] in
-private theorem sequenceClass_at (s : List I) {γ : Multiset I} (h : (s : Multiset I) = γ) :
-    word s = ι γ (K0.of (wordProjective C μ hQ (Seq.ofList s h))) := by
+/-- The ordinary word class is the class of the cyclotomic word projective in its block. -/
+theorem cyclotomicSequenceClass_at (s : List I) {γ : Multiset I} (h : (s : Multiset I) = γ) :
+    word s = ι γ (K0.of (cyclotomicWordProjective C μ hQ (Seq.ofList s h))) := by
   subst γ
   change CycKLR.totalQuotientK0 G μ ((G).clsW s) = _
   rw [show CycKLR.totalQuotientK0 G μ ((G).clsW s) =
@@ -219,7 +223,8 @@ theorem cyclotomicTopTest_word (s : List I) {γ : Multiset I} (h : (s : Multiset
     test ⟨γ,j⟩ (ordinarySuffixOp act s highest) =
       integralLaurentEval (gdimPoly (idem j.top.grading (π γ (e (Seq.ofList s h))))) := by
   let := lastRedFinal_finite hQ μ γ
-  rw [← word_image C μ hQ wt hwt hR, cyclotomicTopTest_hom, cyclotomicTopPolynomial, sequenceClass_at C μ hQ s h,
+  rw [← cyclotomicWord_image C μ hQ wt hwt hR, cyclotomicTopTest_hom, cyclotomicTopPolynomial,
+    cyclotomicSequenceClass_at C μ hQ s h,
     DirectSum.lof_eq_of, DirectSum.of_eq_same]
   apply congrArg integralLaurentEval
   exact projectiveHomPolynomial_ofIdempotent (D γ) (cyclotomicSimpleTop C μ hQ γ j)
@@ -229,7 +234,8 @@ theorem cyclotomicTopTest_word (s : List I) {γ : Multiset I} (h : (s : Multiset
 /-- Every ordinary lowering word from a different black content pairs to zero. -/
 theorem cyclotomicTopTest_word_of_ne (s : List I) {γ : Multiset I} (h : (s : Multiset I) ≠ γ)
     (j : IndecClass (D γ)) : test ⟨γ,j⟩ (ordinarySuffixOp act s highest) = 0 := by
-  rw [← word_image C μ hQ wt hwt hR, cyclotomicTopTest_hom, sequenceClass_at C μ hQ s rfl,
+  rw [← cyclotomicWord_image C μ hQ wt hwt hR, cyclotomicTopTest_hom,
+    cyclotomicSequenceClass_at C μ hQ s rfl,
     DirectSum.lof_eq_of, DirectSum.of_eq_of_ne _ _ _ (Ne.symm h), map_zero, map_zero]
 
 end Categorification.Stendhal.FirstWeight

@@ -2835,6 +2835,16 @@ example := rightTensorModuleEquiv_homForm D params regular level (factors 2) lev
   (rightTensorWordProjectiveClass D params level TensorWord.empty.red.red)
   (rightTensorWordProjectiveClass D params level splitWord)
 
+/-- Webster, arXiv:1309.3796v2, Cor. 3.22, for the word projective `R^ω e(i)` of `sl₂`. -/
+example := cyclotomicWordModule_word D (Finsupp.single () 1) params omegaOne
+  (fun i => level_eq 0 i) regular [()] [()] rfl rfl
+
+/-- Webster, arXiv:1309.3796v2, Prop. 5.6 (word characters), for two red strands of weight `ω`
+of `sl₂`, each followed by one black strand. -/
+example (ν : Multiset Unit) (w : TensorWordAt 2 ν) :=
+  iteratedStandard_word D params regular 2 level (fun _ => [()]) (factors 2)
+    (fun j i => (level_eq j i).symm) ν w
+
 end TwoFundamentalLowerings
 
 end CyclotomicHighestWeight
@@ -5747,5 +5757,10 @@ example := (IsRedBlackCrossing.crossing (Q := CL.qCL (CL.CLScalars.kl : CL.CLSca
 and every black weight: the red-first projective `P⁰` is injective. -/
 example (ν : Multiset Unit) :=
   injective_redFirstProjective rbRouquier rbSymm (fun _ : Fin 2 => Finsupp.single () 1) ν
+
+/-- Webster, arXiv:1309.3796v2, Lemma 5.23 (uniqueness in Cor. 5.29), for `sl₂`, two red strands
+of weight `ω`, and every black weight: `T^λ` acts faithfully on `P⁰`. -/
+example (ν : Multiset Unit) :=
+  eq_zero_of_mul_redFirstProjective rbRouquier rbSymm (fun _ : Fin 2 => Finsupp.single () 1) ν
 
 end NonVacuity.RedBlackCrossing

@@ -101,6 +101,7 @@ import Categorification.Algebra.ParabolicSymmetricFree
 import Categorification.Algebra.PermExpansion
 import Categorification.Algebra.ProjK0
 import Categorification.Algebra.RightActionImage
+import Categorification.Algebra.SelfDualDoubleCentralizer
 import Categorification.Algebra.SelfDualInjective
 import Categorification.Algebra.SplitK0
 import Categorification.Algebra.SumDecompLinear
@@ -1267,6 +1268,8 @@ import Categorification.WeightedKLR.RedStrands.TensorLatticeCoordinates
 import Categorification.WeightedKLR.RedStrands.PrefixTensorTests
 import Categorification.WeightedKLR.RedStrands.PrefixStandardCharacter
 import Categorification.WeightedKLR.RedStrands.CyclotomicTopTests
+import Categorification.WeightedKLR.RedStrands.CyclotomicWordCharacter
+import Categorification.WeightedKLR.RedStrands.IteratedStandardCharacter
 import Categorification.WeightedKLR.RedStrands.SingleBlackEulerForm
 import Categorification.WeightedKLR.RedStrands.SingleBlackLattice
 import Categorification.WeightedKLR.RedStrands.SingleRedGrading
@@ -1289,6 +1292,7 @@ import Categorification.WeightedKLR.RedStrands.CyclotomicMaskTests
 import Categorification.WeightedKLR.RedStrands.StandardizationMaskComparison
 import Categorification.WeightedKLR.RedStrands.StandardizationWordTests
 import Categorification.WeightedKLR.RedStrands.StandardizationProductTest
+import Categorification.WeightedKLR.RedStrands.StandardizationWordCharacter
 import Categorification.WeightedKLR.RedStrands.TensorModuleEquiv
 import Categorification.WeightedKLR.RedStrands.RepresentationLift
 import Categorification.WeightedKLR.RedStrands.LastRedShuffle
@@ -1579,6 +1583,7 @@ import Categorification.WeightedKLR.RedStrands.StringyClassification
 import Categorification.WeightedKLR.RedStrands.StandardSplitting
 import Categorification.WeightedKLR.RedStrands.RedFirstBaseCrossing
 import Categorification.WeightedKLR.RedStrands.RedFirstCorner
+import Categorification.WeightedKLR.RedStrands.RedFirstDoubleCentralizer
 import Categorification.WeightedKLR.RedStrands.RedFirstInjective
 import Categorification.WeightedKLR.RedStrands.RedFirstReach
 import Categorification.WeightedKLR.RedStrands.RedFirstTrace

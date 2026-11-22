@@ -41,11 +41,10 @@ variable {k : Type*} [Field k] {N : ℕ}
 
 /-! ### Dimension count from a splitting -/
 
-theorem finrank_eq_card_mul_finrank_range_of_isSplitting {R : Type*} [AddCommGroup R]
-    [Module k R] [FiniteDimensional k R] {ι : Type*} [Fintype ι] [DecidableEq ι]
-    {E : Module.End k R} {a b : ι → Module.End k R}
-    (h : Graded.IsSplitting 1 (fun _ => E) a b) :
-    finrank k R = Fintype.card ι * finrank k (LinearMap.range E) := by
+/-- If `1 ∈ End R` splits through copies of `E`, then `R ≅ (range E)^ι`. -/
+noncomputable def splittingEquiv {R : Type*} [AddCommGroup R] [Module k R] {ι : Type*}
+    [Fintype ι] [DecidableEq ι] {E : Module.End k R} {a b : ι → Module.End k R}
+    (h : Graded.IsSplitting 1 (fun _ => E) a b) : R ≃ₗ[k] (ι → LinearMap.range E) := by
   have hEb : ∀ j, E * b j = b j := fun j => by
     conv_rhs => rw [← mul_one (b j), ← h.sum_eq, Finset.mul_sum]
     simp_rw [← mul_assoc, h.mul_eq, ite_mul, zero_mul, Finset.sum_ite_eq, Finset.mem_univ,
@@ -79,9 +78,23 @@ theorem finrank_eq_card_mul_finrank_range_of_isSplitting {R : Type*} [AddCommGro
       rw [← Module.End.mul_apply, h.mul_ne (Ne.symm hj), LinearMap.zero_apply])
       (fun hi => absurd (Finset.mem_univ i) hi), ← Module.End.mul_apply, h.mul_self]
     exact hfix i _ (u i).2
-  let e : R ≃ₗ[k] (ι → LinearMap.range E) :=
-    LinearEquiv.ofLinearMap (f := F) (g := G) hFG hGF
-  rw [e.finrank_eq, Module.finrank_pi_fintype, Finset.sum_const, Finset.card_univ, smul_eq_mul]
+  exact LinearEquiv.ofLinearMap (f := F) (g := G) hFG hGF
+
+theorem finrank_eq_card_mul_finrank_range_of_isSplitting {R : Type*} [AddCommGroup R]
+    [Module k R] [FiniteDimensional k R] {ι : Type*} [Fintype ι] [DecidableEq ι]
+    {E : Module.End k R} {a b : ι → Module.End k R}
+    (h : Graded.IsSplitting 1 (fun _ => E) a b) :
+    finrank k R = Fintype.card ι * finrank k (LinearMap.range E) := by
+  have : FiniteDimensional k (LinearMap.range E) := inferInstance
+  rw [(splittingEquiv h).finrank_eq, Module.finrank_pi_fintype, Finset.sum_const,
+    Finset.card_univ, smul_eq_mul]
+
+/-- If `1 ∈ End R` splits through copies of `E` and `E R` is finite-dimensional, so is `R`. -/
+theorem finiteDimensional_of_isSplitting {R : Type*} [AddCommGroup R] [Module k R] {ι : Type*}
+    [Fintype ι] [DecidableEq ι] {E : Module.End k R} {a b : ι → Module.End k R}
+    (h : Graded.IsSplitting 1 (fun _ => E) a b) [FiniteDimensional k (LinearMap.range E)] :
+    FiniteDimensional k R :=
+  LinearEquiv.finiteDimensional (splittingEquiv h).symm
 
 variable {R : Type*} [AddCommGroup R] [Module k R] [FiniteDimensional k R]
 

@@ -877,8 +877,16 @@ part for `E` transported along the top–bottom flip, an anti-automorphism of `B
 quotient (`flip`, `violFlip`, `violFlip_appendViol`, `RedStrands/BraidedAppendFlip.lean`): over
 the opposite algebras, `violMk_mult_injective_append_op`, `violMk_mult_surjective_append_op`
 (transport lemmas `TensorAlong.mult_injective_of_bijective`,
-`TensorAlong.mult_surjective_of_surjective'`). Webster deduces it by biadjunction. Open: the
-derived form.
+`TensorAlong.mult_surjective_of_surjective'`). Webster deduces it by biadjunction.
+
+Prop 6.7 for `𝔈_i`, derived form (`RedStrands/BraidedAppendDerived.lean`): `appendFunctor κ` is
+`- ⊗ᴸ E_κ` with the corner `E_κ` of the induction along `φ`, and
+`braidingFunctorCompAppendFunctorIso` gives `𝔈_i ∘ 𝔅(κ', κ) ≅ 𝔅(κ', κ) ∘ 𝔈_i` for symmetric
+Rouquier `Q` and `κ'` an ordering of the red labels. Both composite bimodules are the corner
+`e_{κ'} V φ(e_κ)` (`firstEquiv`, `secondEquiv`, `compDGEquiv`), and projectivity of `E_κ` on both
+sides (`appendCorner_projective_left`, `appendCorner_projective_right`) makes the derived
+composites underived (`derivedTensorCompIsoOfProjective`, `dgDerivedTensorCompIso`,
+`dgDerivedTensorIsoOfEquiv`). Open: the derived form for `𝔉_i`.
 
 Def 6.6 is done in ungraded, unbounded form: `braidingFunctor κ' κ`
 (`RedStrands/BraidingFunctor.lean`) is the derived tensor product `- ⊗ᴸ B(κ', κ)` on right
@@ -888,7 +896,7 @@ modules over rings in degree `0`, computed on K-projective resolutions (`derived
 `cornerBimodule`, `Algebra/CornerBimodule.lean`). Webster uses graded modules and `D⁻`; the
 graded version and the restriction to `D⁻` are open roadmap items.
 
-Open: Prop 6.7 derived, Lemma 6.8, Prop 6.9, Cor 6.10, Lemma 6.11, Def 6.12, Cor 6.13,
+Open: Prop 6.7 derived for `𝔉_i`, Lemma 6.8, Prop 6.9, Cor 6.10, Lemma 6.11, Def 6.12, Cor 6.13,
 Lemma 6.14; tilting modules (Thm 6.15); `𝔅_σ` are equivalences (Thm 6.16); the braid group
 action (Cor 6.17); Ringel duality (Cor 6.18); semi-orthogonal decompositions (Prop 6.19); the
 Serre functor (Prop 6.20).

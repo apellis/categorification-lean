@@ -5920,6 +5920,35 @@ noncomputable example (ν : Multiset Unit) :=
   BraidedStendhalAlgebra.braidingFunctor ℚ bsQ (fun _ : Fin 2 => Finsupp.single () 1) ν
     [0, 1] [1, 0]
 
+private theorem bsRouquier :
+    KLR.IsRouquierQ (QuantumGroup.CartanDatum.ofGraph (⊥ : SimpleGraph Unit)) bsQ where
+  symm _ _ h := (h (Subsingleton.elim _ _)).elim
+  homogeneous _ _ h := (h (Subsingleton.elim _ _)).elim
+  unit_coeff _ _ h := (h (Subsingleton.elim _ _)).elim
+
+open scoped DG.DegreeZero in
+/-- Webster, arXiv:1309.3796v2, Proposition 6.7 for `𝔈_i`: `𝔈_i ∘ 𝔅(κ', κ) ≅ 𝔅(κ', κ) ∘ 𝔈_i`,
+for `sl₂`, two red strands of weight `ω` in either order, and every black weight. -/
+noncomputable example (ν : Multiset Unit) :=
+  letI := DG.HasDerivedCategory.standard
+    (BraidedStendhalAlgebra.isIdempotentElem_violMk_redProj ℚ bsQ
+      (fun _ : Fin 2 => Finsupp.single () 1) ({()} + ν) [0, 1]).Cornerᵐᵒᵖ
+  letI := DG.HasDerivedCategory.standard
+    (BraidedStendhalAlgebra.isIdempotentElem_violMk_redProj ℚ bsQ
+      (fun _ : Fin 2 => Finsupp.single () 1) ({()} + ν) [1, 0]).Cornerᵐᵒᵖ
+  letI := DG.HasDerivedCategory.standard
+    (BraidedStendhalAlgebra.isIdempotentElem_violMk_redProj ℚ bsQ
+      (fun _ : Fin 2 => Finsupp.single () 1) ν [0, 1]).Cornerᵐᵒᵖ
+  letI := DG.HasDerivedCategory.standard
+    (BraidedStendhalAlgebra.isIdempotentElem_violMk_redProj ℚ bsQ
+      (fun _ : Fin 2 => Finsupp.single () 1) ν [1, 0]).Cornerᵐᵒᵖ
+  BraidedStendhalAlgebra.braidingFunctorCompAppendFunctorIso
+    (Λ := fun _ : Fin 2 => Finsupp.single () 1) (i := ()) (ν := ν) (κ' := [1, 0]) (κ := [0, 1])
+    (ρ := fun w => (TypeA.exists_reduced _ w).choose)
+    (ρ' := fun w => (TypeA.exists_reduced _ w).choose) bsSymm
+    (fun w => (TypeA.exists_reduced _ w).choose_spec)
+    (fun w => (TypeA.exists_reduced _ w).choose_spec) _ bsRouquier (by decide)
+
 open scoped DG.DegreeZero in
 /-- The derived tensor product with an ordinary bimodule (Webster, arXiv:1309.3796v2,
 Definition 6.6), for `ℤ` acting on itself. -/

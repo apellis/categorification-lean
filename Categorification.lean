@@ -1607,13 +1607,13 @@ import Categorification.WeightedKLR.RedStrands.BraidedFactorization
 import Categorification.WeightedKLR.RedStrands.BraidedFactorizationBasis
 import Categorification.WeightedKLR.RedStrands.BraidedFactorizationGeneral
 import Categorification.WeightedKLR.RedStrands.BraidedFactorizationLength
-import Categorification.WeightedKLR.RedStrands.BraidedViolatedPush
 import Categorification.WeightedKLR.RedStrands.BraidedFactorizationCancel
 import Categorification.WeightedKLR.RedStrands.BraidedFactorizationExits
 import Categorification.WeightedKLR.RedStrands.BraidedFactorizationSpan
 import Categorification.WeightedKLR.RedStrands.BraidedIdentity
 import Categorification.WeightedKLR.RedStrands.BraidedRedOrder
 import Categorification.WeightedKLR.RedStrands.BraidedStendhal
+import Categorification.WeightedKLR.RedStrands.BraidedViolatedPush
 import Categorification.WeightedKLR.RedStrands.StendhalBasisSymm
 
 /-!

@@ -5932,4 +5932,24 @@ noncomputable example :=
   dgDerivedTensorCompIso (A := ℚ) (B := ℚ) (C := ℚ) (InDegreeZero ℚ)
     (InDegreeZero.isKProjective (A := ℚ) (M := ℚ))
 
+open scoped DG.DegreeZero in
+/-- Tensoring with a projective module in degree zero preserves acyclicity (input to Webster,
+arXiv:1309.3796v2, proof of Proposition 6.7), over the zero ring, where every dg module is
+acyclic. -/
+example : DG.IsAcyclic
+    (DG.TensorProductOver (ZMod 1) (InDegreeZero (ZMod 1)) (InDegreeZero (ZMod 1))) :=
+  InDegreeZero.isAcyclic_tensorProductOver (B := ZMod 1) (P := ZMod 1)
+    (fun n => ⟨fun a b => by
+      induction a using DG.cohomology.induction_on with | h x =>
+      induction b using DG.cohomology.induction_on with | h y =>
+      rw [Subtype.ext (Subsingleton.elim (α := ZMod 1) x.1 y.1)]⟩)
+
+open scoped DG.DegreeZero in
+/-- Tensoring with a projective module in degree zero preserves quasi-isomorphisms (input to
+Webster, arXiv:1309.3796v2, proof of Proposition 6.7), for the identity of `ℚ`. -/
+example : (DG.DGModuleHom.lTensor ℚ (InDegreeZero ℚ)
+    (DG.DGModuleHom.id : InDegreeZero ℚ →ᵈᵍ[ℚ] InDegreeZero ℚ)).IsQuasiIso :=
+  haveI : Module.Free ℚᵐᵒᵖ ℚ := Module.Free.of_equiv (MulOpposite.opLinearEquiv ℚᵐᵒᵖ).symm
+  InDegreeZero.isQuasiIso_lTensor (A := ℚ) (B := ℚ) (P := ℚ) DG.DGModuleHom.isQuasiIso_id
+
 end NonVacuity.BraidedStendhal

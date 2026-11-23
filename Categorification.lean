@@ -18,6 +18,7 @@ import Categorification.Algebra.CornerTensorQuotient
 import Categorification.Algebra.DerivedTensor
 import Categorification.Algebra.DerivedTensorComp
 import Categorification.Algebra.ProjectiveKProjective
+import Categorification.Algebra.ProjectiveFlat
 import Categorification.Algebra.ModuleTower
 import Categorification.Algebra.ModuleTowerK0
 import Categorification.Algebra.ModuleTowerSl2

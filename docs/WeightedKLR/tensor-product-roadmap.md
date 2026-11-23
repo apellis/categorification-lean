@@ -973,15 +973,25 @@ and localizing on the target gives the ambient derived tensor, with no condition
 K-projectivity of the braid's output slices. `figureFiveBraidDerivedTensorObjIso` computes
 its value on the lower exterior standardization as the ordinary categorical coend.
 
-The remaining endpoint comparison is from that coend to the graded loading cut, via the
-retract of the source representable. The target piece at `n + c` must then be read at
-`n + c + ⟨λ₀ − α, λ₁⟩` in the unshifted upper exterior object. A restriction of the functor to
-Webster's `D⁻` is a distinct obligation, not implied by a calculation on this projective.
+The comparison `figureFiveBraidCoendCutIso` sends the lower inclusion through the coend tensor,
+then evaluates the source representable at weight zero by `CatTensorProduct.rid`. On a pure
+coend tensor it multiplies the included lower diagram on the left of the braid diagram. Its
+image is fixed by the lower loading idempotent, hence in the loading cut. Its inverse sends a
+cut diagram `y` to `y ⊗ g`, where `g` is the projection of the regular unit to the lower
+standardization; balancing gives the first round trip and `e(s)y = y` gives the second.
+
+The right-linear comparison `figureFiveExteriorToCut` identifies that cut with the shifted
+upper exterior standardization. At weight coordinate `n` the unshifted upper piece is at
+`n + c + ⟨λ₀ − α, λ₁⟩`, all in cochain degree zero. Localizing gives
+`figureFiveBraidDerivedExteriorIso`, the ambient derived evaluation for the two-red Figure 5
+input. It does not establish the restriction of the functor to all of Webster's `D⁻` or
+replace the reduction by Lemma 6.8.
 
 Open, in working order: Lemma 6.8 (needs block standardization in the braided algebra; standard
 modules exist only in `StendhalAlgebraAllOrders`, `RedStrands/StandardAction.lean`, and partial
 standardization only for the last red strand), then Prop 6.9 for general `ℓ` by reduction to two
-red strands, the graded forms of Def 6.6 and Props 6.7, 6.9, Cor 6.10, Lemma 6.11, Def 6.12, Cor 6.13,
+red strands, the graded bounded-above functor of Def 6.6 and its equivariance (Prop 6.7),
+Cor 6.10, Lemma 6.11, Def 6.12, Cor 6.13,
 Lemma 6.14; tilting modules (Thm 6.15); `𝔅_σ` are equivalences (Thm 6.16); the braid group
 action (Cor 6.17); Ringel duality (Cor 6.18); semi-orthogonal decompositions (Prop 6.19); the
 Serre functor (Prop 6.20).

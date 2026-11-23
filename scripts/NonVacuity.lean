@@ -6115,6 +6115,46 @@ noncomputable example :=
   figureFiveBraidDerivedTensorObjIso (Λ := fracΛ) sl₂ hRouquier hρ
     (weightPairing sl₂ realization) fracWeight blackWord
 
+/-- The two-red derived braid on the lower projective is the shifted upper exterior standard. -/
+noncomputable example :=
+  figureFiveBraidDerivedExteriorIso (Λ := fracΛ) sl₂ hRouquier hρ
+    (weightPairing sl₂ realization) fracWeight realization
+    (fun i w => weightPairing_root sl₂ realization w i) fracWeight_coroot
+    (weightPairing_isSymm sl₂ realization) blackWord
+
+/-- After the upper diagram map, the pure coend tensor is evaluated by diagram multiplication. -/
+example :=
+  figureFiveBraidCoendExteriorIso_hom_tmul (Λ := fracΛ) sl₂ hRouquier hρ
+    (weightPairing sl₂ realization) fracWeight realization
+    (fun i w => weightPairing_root sl₂ realization w i) fracWeight_coroot
+    (weightPairing_isSymm sl₂ realization) blackWord
+
+private theorem fracWeight_pair :
+    weightPairing sl₂ realization (fracWeight 1) (fracWeight 0) = (3 / 2 : ℂ) := by
+  have hd : UDot.di sl₂ () = 1 := rfl
+  rw [fracWeight, map_smul, LinearMap.smul_apply, weightPairing_root, fracWeight_coroot, hd]
+  norm_num [fracΛ, smul_eq_mul]
+
+open scoped DG.DegreeZero in
+/-- Internal coordinate `1` of the braid output has degree `3/2`. After the shift `-3/2`
+it reads the unshifted degree-zero exterior piece. -/
+example :
+    (figureFiveShiftedUpperWeightModule (Λ := fracΛ) sl₂ hRouquier hρ
+      (weightPairing sl₂ realization) fracWeight realization
+      (fun i w => weightPairing_root sl₂ realization w i) fracWeight_coroot
+      (weightPairing_isSymm sl₂ realization) blackWord).obj ⟨1⟩ =
+      ↥((figureFiveUpperExteriorGrade (Λ := fracΛ) sl₂ hRouquier hρ blackWord 0).restrictScalars ℤ) := by
+  refine (figureFiveShiftedUpperWeightModule_obj (Λ := fracΛ) sl₂ hRouquier hρ
+    (weightPairing sl₂ realization) fracWeight realization
+    (fun i w => weightPairing_root sl₂ realization w i) fracWeight_coroot
+    (weightPairing_isSymm sl₂ realization) blackWord ⟨1⟩).trans ?_
+  have h : ((1 : ℤ) : ℂ) + (2 - weightPairing sl₂ realization (fracWeight 1) (fracWeight 0)) +
+      weightPairing sl₂ realization (fracWeight 0 - (ν.map realization.root).sum) (fracWeight 1) = 0 := by
+    rw [fracWeight_pair, fracWeight_shift]
+    norm_num
+  exact congrArg (fun z : ℂ =>
+    ↥((figureFiveUpperExteriorGrade (Λ := fracΛ) sl₂ hRouquier hρ blackWord z).restrictScalars ℤ)) h
+
 end NonVacuity.WebsterFigureFive
 
 namespace NonVacuity.BraidedStendhal

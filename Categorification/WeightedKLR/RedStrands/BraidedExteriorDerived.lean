@@ -14,7 +14,10 @@ Webster, arXiv:1309.3796v2, §6.1, Definitions 6.2 and 6.6 and the proof of Prop
 Use the integer weight categories of the two opposing orders. The source has internal coset
 `ℤ`; the target has coset `c + ℤ`, where `c = 2 − ⟨λ₁, λ₀⟩`. The lower exterior standardization
 is K-projective in the source, so its derived tensor with the braid is computed by the
-ordinary categorical coend, without K-projectivity of the braid's output slices.
+ordinary categorical coend, without K-projectivity of the braid's output slices. Evaluation at
+the source representable at zero identifies this coend with the loading cut. The Figure 5
+comparison then reads the cut at coordinate `n` as the upper exterior standardization at its
+intrinsic degree `n + c + ⟨λ₀ − α, λ₁⟩`, in cochain degree zero.
 -/
 
 noncomputable section
@@ -233,6 +236,86 @@ private def derivedTensorObjIso (P : CatModule.{0} C) (hP : CatModule.IsKProject
 
 end DerivedTensor
 
+section CoendSummand
+open CatModule CatTensorProduct
+
+variable {C D : Type} [Category.{0} C] [Category.{0} D] [Preadditive C] [Preadditive D]
+  [∀ X Y : C, DGAddCommGroup (X ⟶ Y)] [∀ X Y : D, DGAddCommGroup (X ⟶ Y)]
+  [DGCategory C] (B : CatBimodule.{0} D C) (X : C)
+  {L : CatModule.{0} C} {T : CatModule.{0} D}
+
+private theorem rid_tmul_ract (Y : D) (Z : C) (b : B.obj Y Z) (a : X ⟶ Z) :
+    CatTensorProduct.rid (B.right Y) X (tmul Z b a) = B.ract a b :=
+  (CatTensorProduct.rid_tmul (N := B.right Y) X Z b a).trans (B.right_ract Y a b)
+
+private def representableEval : B.tensorObj (representable X) ⟶ B.left X where
+  app Y := (CatTensorProduct.rid (B.right Y) X).toAddEquiv.toAddMonoidHom
+  map_mem' h := (CatTensorProduct.rid _ X).map_mem h
+  map_d' t := (CatTensorProduct.rid _ X).map_d t
+  map_smul' {Y Y'} f t := by
+    change CatTensorProduct.rid (B.right Y') X (B.tensorAct (representable X) f t) =
+      B.lact f (CatTensorProduct.rid (B.right Y) X t)
+    induction t using CatTensorProduct.induction_on with
+    | zero => simp only [map_zero]
+    | add t t' h h' => simp only [map_add, h, h']
+    | tmul Z b a =>
+        rw [CatBimodule.tensorAct_tmul]
+        exact (rid_tmul_ract B X Y' Z (B.lact f b) a).trans
+          ((B.lact_ract' f a b).symm.trans (congrArg (B.lact f) (rid_tmul_ract B X Y Z b a).symm))
+
+private def summandEval (i : L ⟶ representable X) (p : B.left X ⟶ T) : B.tensorObj L ⟶ T :=
+  B.tensorFunctor.map i ≫ representableEval B X ≫ p
+
+private theorem summandEval_tmul (i : L ⟶ representable X) (p : B.left X ⟶ T)
+    (Y : D) (Z : C) (b : B.obj Y Z) (x : L.obj Z) :
+    (summandEval B X i p).app Y (tmul Z b x) = p.app Y (B.ract (i.app Z x) b) := by
+  change p.app Y (CatTensorProduct.rid (B.right Y) X ((B.tensorMap i).app Y (tmul Z b x))) = _
+  rw [CatBimodule.tensorMap_tmul]
+  exact congrArg (p.app Y) (rid_tmul_ract B X Y Z b (i.app Z x))
+
+-- Co-Yoneda sends the tensor of a representable summand to the corresponding cut.
+private def coendSummandIso (i : L ⟶ representable X) (g : L.obj X)
+    (p : B.left X ⟶ T) (j : ∀ Y, T.obj Y →+ B.obj Y X)
+    (hg : ∀ Z (x : L.obj Z), L.act (i.app Z x) g = x)
+    (hj : ∀ Y y, p.app Y (j Y y) = y)
+    (hp : ∀ Y b, j Y (p.app Y b) = B.ract (i.app X g) b) : B.tensorObj L ≅ T := by
+  let f := summandEval B X i p
+  let inv (Y : D) : (T.obj Y) →+ (B.tensorObj L).obj Y :=
+    ((tmulAddHom (B.right Y) L X).flip g).comp (j Y)
+  have hleft (Y : D) : (inv Y).comp (f.app Y) = AddMonoidHom.id _ := by
+    apply CatTensorProduct.addHom_ext
+    intro Z b x
+    change tmul X (j Y ((summandEval B X i p).app Y (tmul Z b x))) g = tmul Z b x
+    rw [summandEval_tmul]
+    have hh : (i.app X g : X ⟶ X) ≫ (i.app Z x : X ⟶ Z) = i.app Z x :=
+      (i.map_smul (i.app Z x) g).symm.trans (congrArg (i.app Z) (hg Z x))
+    have hfix := (hp Y (B.ract (i.app Z x) b)).trans
+      ((B.ract_comp' (i.app X g) (i.app Z x) b).symm.trans (congrArg (fun a => B.ract a b) hh))
+    exact (congrArg (fun k => tmul X k g) (hfix.trans (B.right_ract Y (i.app Z x) b).symm)).trans
+      ((ract_tmul (N := B.right Y) (M := L) (i.app Z x) b g).trans (congrArg (tmul Z b) (hg Z x)))
+  have hright (Y : D) (y : T.obj Y) : f.app Y (inv Y y) = y := by
+    change (summandEval B X i p).app Y (tmul X (j Y y) g) = y
+    rw [summandEval_tmul]
+    exact (congrArg (p.app Y) (hp Y (j Y y)).symm).trans
+      ((congrArg (fun t => p.app Y (j Y t)) (hj Y y)).trans (hj Y y))
+  let a (Y : D) : (B.tensorObj L).obj Y ≃+ T.obj Y :=
+    { f.app Y with invFun := inv Y, left_inv := DFunLike.congr_fun (hleft Y), right_inv := hright Y }
+  exact CatModule.isoMk a
+    (fun {Y _ _} => ⟨fun h => mem_grading_of_injective (f.app Y) f.map_mem (a Y).injective h, f.map_mem⟩)
+    (fun {_} => f.map_d) (fun f' t => f.map_smul f' t)
+
+private theorem coendSummandIso_hom_app_tmul (i : L ⟶ representable X) (g : L.obj X)
+    (p : B.left X ⟶ T) (j : ∀ Y, T.obj Y →+ B.obj Y X) (hg hj hp)
+    (Y : D) (Z : C) (b : B.obj Y Z) (x : L.obj Z) :
+    (coendSummandIso B X i g p j hg hj hp).hom.app Y (tmul Z b x) = p.app Y (B.ract (i.app Z x) b) :=
+  summandEval_tmul B X i p Y Z b x
+
+private theorem coendSummandIso_inv_app (i : L ⟶ representable X) (g : L.obj X)
+    (p : B.left X ⟶ T) (j : ∀ Y, T.obj Y →+ B.obj Y X) (hg hj hp) (Y : D) (y : T.obj Y) :
+    (coendSummandIso B X i g p j hg hj hp).inv.app Y y = tmul X (j Y y) g := rfl
+
+end CoendSummand
+
 end FigureFiveWeight
 
 section WeightEvaluation
@@ -327,6 +410,235 @@ def figureFiveBraidDerivedTensorObjIso (u : Seq ν) :
         (figureFiveLowerWeightModule (Λ := Λ) C hR hρ u)) :=
   FigureFiveWeight.derivedTensorObjIso (C := CLo) («D» := CUp) _ _
     (figureFiveLowerWeightModule_isKProjective (Λ := Λ) C hR hρ u)
+
+section CoendCut
+open CatModule CatTensorProduct
+
+local notation "Y" u:arg => violCorner k Q Λ ν (figureFiveLower u) [1, 0]
+local notation "e" u:arg => violMk k Q Λ ν (ofKLR k Q Λ ν (KLRAlgebra.e (figureFiveLower u)))
+local notation "In" u:arg => figureFiveLowerExteriorInclusion (Λ := Λ) C hR hρ u
+local notation "Pr" u:arg => figureFiveLowerExteriorProjection (Λ := Λ) C hR hρ u
+local notation "NN" u:arg => figureFiveLowerWeightModule (Λ := Λ) C hR hρ u
+local notation "BBim" => figureFiveBraidWeightBimodule (Λ := Λ) (ν := ν) C hR B η
+local notation "Z" => (⟨0⟩ : CLo)
+local notation "CutGrade" u:arg => figureFiveCutGrade (Λ := Λ) C hR B η (figureFiveLower u) 1 0
+local notation "CutPieces" u:arg => (fun n : ℤ => Submodule.restrictScalars ℤ ((CutGrade u) ((n : ℂ) + c)))
+
+private theorem lowerInclusion_mem (u : Seq ν) (m : CLo) (x : (NN u).obj m) :
+    (In u) x.val ∈ LA (m.as - 0) := by
+  have hx : x.val ∈ figureFiveLowerExteriorGrade (Λ := Λ) C hR hρ u (m.as : ℂ) := by
+    rw [figureFiveLowerExteriorGrade_int]
+    exact x.2
+  rw [sub_zero, ← figureFiveLowerOrderGrade_int]
+  exact (figureFiveLowerExterior_graded_retract (Λ := Λ) C hR hρ u).1 hx
+
+private def lowerWeightInclusion (u : Seq ν) : NN u ⟶ representable Z where
+  app m := AddMonoidHom.mk' (fun x => ⟨(In u) x.val, lowerInclusion_mem C hR hρ u m x⟩)
+    (fun x y => Subtype.ext ((In u).map_add x.val y.val))
+  map_mem' {_ _ _} hx := (FigureFiveWeight.hom_mem_degreeZero_iff LA).2
+    (FigureFiveWeight.map_mem_degreeZero _ hx)
+  map_d' x := by
+    apply Subtype.ext
+    change (In u) 0 = 0
+    exact map_zero _
+  map_smul' f x := Subtype.ext ((In u).map_smul f.val x.val)
+
+/-- The degree-zero generator of the lower summand, obtained by projecting the regular unit. -/
+def figureFiveLowerWeightGenerator (u : Seq ν) : (NN u).obj Z :=
+  ⟨(Pr u) 1, by
+    change (Pr u) 1 ∈ (NE u) 0
+    rw [← figureFiveLowerExteriorGrade_int]
+    apply (figureFiveLowerExterior_graded_retract (Λ := Λ) C hR hρ u).2.1
+    rw [figureFiveLowerOrderGrade_int]
+    exact SetLike.GradedOne.one_mem⟩
+
+private theorem lowerWeightGenerator_act (u : Seq ν) (m : CLo) (x : (NN u).obj m) :
+    (NN u).act ((lowerWeightInclusion C hR hρ u).app m x)
+      (figureFiveLowerWeightGenerator (Λ := Λ) C hR hρ u) = x := by
+  apply Subtype.ext
+  change (In u) x.val • (Pr u) 1 = x.val
+  calc
+    _ = (Pr u) ((In u) x.val * 1) := ((Pr u).map_smul ((In u) x.val) 1).symm
+    _ = x.val := by
+      rw [mul_one]
+      exact (figureFiveLowerExterior_graded_retract (Λ := Λ) C hR hρ u).2.2 x.val
+
+/-- The cut of the Figure 5 braid at the lower loading, in cochain degree zero. -/
+def figureFiveBraidCutWeightModule (u : Seq ν) : CatModule.{0} CUp :=
+  FigureFiveWeight.weightModule UD (CutPieces u)
+    (fun {_ _ _ _} ha hy => figureFiveBraidCut_smul_mem_grade C hR B η u ha hy)
+
+local notation "Cut" u:arg => figureFiveBraidCutWeightModule (Λ := Λ) C hR B η u
+local notation "Coend" u:arg => CatBimodule.tensorObj BBim (NN u)
+
+private def cutBraidPiece (u : Seq ν) (n : CUp) (y : (Cut u).obj n) : (BBim).obj n Z :=
+  ⟨figureFiveBraidCutInclusion u y.val, by
+    change figureFiveBraidCutInclusion u y.val ∈ BG (n.as - 0)
+    apply (show BG n.as ≤ BG (n.as - 0) by rw [sub_zero])
+    exact (figureFiveBraidCut_mem_grade_iff C hR B η u n.as y.val _ rfl).1 y.2⟩
+
+private def cutInclusion (u : Seq ν) (n : CUp) : (Cut u).obj n →+ (BBim).obj n Z :=
+  AddMonoidHom.mk' (cutBraidPiece C hR B η u n) (fun _ _ => Subtype.ext (Subtype.ext rfl))
+
+private theorem cutIdem (u : Seq ν) : (e u) * (e u) = e u := by
+  rw [← map_mul, ← map_mul, KLRAlgebra.e_mul_e, ite_eq_left rfl]
+
+private def cutProjectionPiece (u : Seq ν) (n : CUp) (b : (BBim).obj n Z) : (Cut u).obj n := by
+  let g := figureFiveLowerWeightGenerator (Λ := Λ) C hR hρ u
+  let b' := (BBim).ract ((lowerWeightInclusion C hR hρ u).app Z g) b
+  have hb' : b'.val.val = e u * b.val.val :=
+    congrArg (fun a => a * b.val.val) (figureFiveLowerExteriorInclusion_projection_one C hR hρ u)
+  let y : Y u := ⟨e u * b.val.val, mem_violCorner_iff.2 ⟨by
+    rw [← mul_assoc, cutIdem (k := k) (Q := Q) (Λ := Λ) u],
+    by rw [mul_assoc, (mem_cornerBimodule.1 b.val.2).2]⟩⟩
+  have hb : b'.val ∈ BG n.as := (show BG (n.as - 0) ≤ BG n.as by rw [sub_zero]) b'.2
+  exact ⟨y, (figureFiveBraidCut_mem_grade_iff C hR B η u n.as y b'.val hb'.symm).2 hb⟩
+
+private def cutProjection (u : Seq ν) : (BBim).left Z ⟶ Cut u where
+  app n := AddMonoidHom.mk' (cutProjectionPiece C hR hρ B η u n)
+    (fun b b' => Subtype.ext (Subtype.ext (mul_add (e u) b.val.val b'.val.val)))
+  map_mem' {_ _ _} h := FigureFiveWeight.map_mem_degreeZero _ h
+  map_d' _ := Subtype.ext (Subtype.ext (mul_zero _))
+  map_smul' f b := Subtype.ext (Subtype.ext (mul_assoc (e u) b.val.val f.val.unop.val).symm)
+
+private theorem cutProjection_inclusion (u : Seq ν) (n : CUp) (y : (Cut u).obj n) :
+    (cutProjection C hR hρ B η u).app n (cutInclusion C hR B η u n y) = y :=
+  Subtype.ext (Subtype.ext (mem_violCorner_iff.1 y.val.2).1)
+
+private theorem cutInclusion_projection (u : Seq ν) (n : CUp) (b : (BBim).obj n Z) :
+    cutInclusion C hR B η u n ((cutProjection C hR hρ B η u).app n b) =
+      (BBim).ract ((lowerWeightInclusion C hR hρ u).app Z
+        (figureFiveLowerWeightGenerator (Λ := Λ) C hR hρ u)) b :=
+  Subtype.ext (Subtype.ext (congrArg (fun a => a * b.val.val)
+    (figureFiveLowerExteriorInclusion_projection_one C hR hρ u).symm))
+
+/-- Webster, arXiv:1309.3796v2, §6.1, proof of Proposition 6.9, Figure 5. The ordinary
+categorical coend on the lower exterior projective is the loading cut. Its forward map
+applies the inclusion into the source representable at zero and then co-Yoneda. Its inverse
+sends a cut element `y` to `y ⊗ g`, where `g` is the projected regular unit. -/
+def figureFiveBraidCoendCutIso (u : Seq ν) : Coend u ≅ Cut u :=
+  FigureFiveWeight.coendSummandIso (BBim) Z (lowerWeightInclusion C hR hρ u)
+    (figureFiveLowerWeightGenerator (Λ := Λ) C hR hρ u) (cutProjection C hR hρ B η u)
+    (cutInclusion C hR B η u) (lowerWeightGenerator_act C hR hρ u)
+    (cutProjection_inclusion C hR hρ B η u) (cutInclusion_projection C hR hρ B η u)
+
+/-- On a pure coend tensor, evaluation is multiplication by the included lower diagram. -/
+theorem figureFiveBraidCoendCutIso_hom_tmul (u : Seq ν) (n : CUp) (m : CLo)
+    (b : (BBim).obj n m) (x : (NN u).obj m) :
+    ((figureFiveBraidCoendCutIso (Λ := Λ) C hR hρ B η u).hom.app n
+      (tmul (N := (BBim).right n) («M» := NN u) m b x)).val.val =
+      ((In u) x.val).unop.val * b.val.val := by
+  have h := FigureFiveWeight.coendSummandIso_hom_app_tmul (BBim) Z (lowerWeightInclusion C hR hρ u)
+    (figureFiveLowerWeightGenerator (Λ := Λ) C hR hρ u) (cutProjection C hR hρ B η u)
+    (cutInclusion C hR B η u) (lowerWeightGenerator_act C hR hρ u)
+    (cutProjection_inclusion C hR hρ B η u) (cutInclusion_projection C hR hρ B η u) n m b x
+  refine (congrArg (fun y : (Cut u).obj n => y.val.val) h).trans ?_
+  change e u * (((In u) x.val).unop.val * b.val.val) = _
+  rw [← mul_assoc, figureFiveLowerExteriorInclusion_fixed C hR hρ u x.val]
+
+/-- The inverse to the multiplication map inserts the weight-zero generator. -/
+theorem figureFiveBraidCoendCutIso_inv_apply (u : Seq ν) (n : CUp) (y : (Cut u).obj n) :
+    (figureFiveBraidCoendCutIso (Λ := Λ) C hR hρ B η u).inv.app n y =
+      tmul (N := (BBim).right n) («M» := NN u) Z (cutBraidPiece C hR B η u n y)
+        (figureFiveLowerWeightGenerator (Λ := Λ) C hR hρ u) :=
+  FigureFiveWeight.coendSummandIso_inv_app (BBim) Z (lowerWeightInclusion C hR hρ u)
+    (figureFiveLowerWeightGenerator (Λ := Λ) C hR hρ u) (cutProjection C hR hρ B η u)
+    (cutInclusion C hR B η u) (lowerWeightGenerator_act C hR hρ u)
+    (cutProjection_inclusion C hR hρ B η u) (cutInclusion_projection C hR hρ B η u) n y
+
+section ShiftedUpper
+variable [Fintype I] (P : Matrix.Realization (UDot.A C) ℂ H)
+  (hB : ∀ i x, B (P.root i) x = (UDot.di C i : ℂ) * x (P.coroot i))
+  (hΛ : ∀ j i, η j (P.coroot i) = (Λ j i : ℂ)) (hSym : B.IsSymm)
+
+local notation "shift" => B (η 0 - Multiset.sum (Multiset.map (Matrix.Realization.root P) ν)) (η 1)
+local notation "Std" u:arg => figureFiveExteriorToCut (Λ := Λ) C hR hρ P B η hB hΛ hSym u
+local notation "UpperPieces" u:arg => (fun n : ℤ => Submodule.restrictScalars ℤ
+  (figureFiveUpperExteriorGrade (Λ := Λ) C hR hρ u (((n : ℂ) + c) + shift)))
+
+include hB hΛ hSym in
+private theorem shiftedUpper_smul_mem (u : Seq ν) {i j : ℤ} {a : D} {x : _}
+    (ha : a ∈ UD i) (hx : x ∈ (UpperPieces u) j) : a • x ∈ (UpperPieces u) (i + j) := by
+  have hx' := (figureFiveExteriorToCut_mem_grade_iff C hR hρ P B η hB hΛ hSym u ((j : ℂ) + c) x).2 hx
+  have h := figureFiveBraidCut_smul_mem_grade C hR B η u ha hx'
+  apply (figureFiveExteriorToCut_mem_grade_iff C hR hρ P B η hB hΛ hSym u
+    (((i + j : ℤ) : ℂ) + c) (a • x)).1
+  change (Std u) (a • x) ∈ _
+  rw [(Std u).map_smul]
+  exact h
+
+/-- The upper exterior standardization in cochain degree zero, with the internal shift of
+Webster, arXiv:1309.3796v2, §6.1, Proposition 6.9. Its coordinate `n` is the intrinsic
+upper piece in degree `(n : ℂ) + c + ⟨λ₀ − α, λ₁⟩`, where `c = 2 − ⟨λ₁, λ₀⟩`. -/
+def figureFiveShiftedUpperWeightModule (u : Seq ν) : CatModule.{0} CUp :=
+  FigureFiveWeight.weightModule UD (UpperPieces u)
+    (fun {_ _ _ _} ha hx => shiftedUpper_smul_mem C hR hρ B η P hB hΛ hSym u ha hx)
+
+local notation "Upper" u:arg => figureFiveShiftedUpperWeightModule (Λ := Λ) C hR hρ B η P hB hΛ hSym u
+
+/-- The output weight coordinate reads the intrinsic upper degree after Webster's shift. -/
+theorem figureFiveShiftedUpperWeightModule_obj (u : Seq ν) (n : CUp) :
+    (Upper u).obj n = ↥((UpperPieces u) n.as) := rfl
+
+/-- The upper weight module is concentrated in cochain degree zero at each internal weight. -/
+theorem figureFiveShiftedUpperWeightModule_mem_grading_iff (u : Seq ν) (n : CUp) (j : ℤ) (x : (Upper u).obj n) :
+    x ∈ DG.grading j ↔ j = 0 ∨ x = 0 := mem_degreeZeroGrading_iff _
+
+private def cutUpperPieceEquiv (u : Seq ν) (n : CUp) : (Cut u).obj n ≃+ (Upper u).obj n := by
+  let ev := Std u
+  have h (x) : ev x ∈ (CutPieces u) n.as ↔ x ∈ (UpperPieces u) n.as :=
+    figureFiveExteriorToCut_mem_grade_iff C hR hρ P B η hB hΛ hSym u ((n.as : ℂ) + c) x
+  refine
+    { toFun := fun y => ⟨ev.symm y.val, (h _).1 ?_⟩
+      invFun := fun x => ⟨ev x.val, (h _).2 x.2⟩
+      left_inv := fun y => Subtype.ext (ev.apply_symm_apply y.val)
+      right_inv := fun x => Subtype.ext (ev.symm_apply_apply x.val)
+      map_add' := fun y y' => Subtype.ext (ev.symm.map_add y.val y'.val) }
+  rw [ev.apply_symm_apply]
+  exact y.2
+
+private def cutUpperHom (u : Seq ν) : Cut u ⟶ Upper u where
+  app n := (cutUpperPieceEquiv C hR hρ B η P hB hΛ hSym u n).toAddMonoidHom
+  map_mem' {_ _ _} h := FigureFiveWeight.map_mem_degreeZero _ h
+  map_d' {n} _ := (cutUpperPieceEquiv C hR hρ B η P hB hΛ hSym u n).map_zero
+  map_smul' f y := Subtype.ext ((Std u).symm.map_smul f.val y.val)
+
+private def cutUpperIso (u : Seq ν) : Cut u ≅ Upper u := by
+  let f := cutUpperHom C hR hρ B η P hB hΛ hSym u
+  letI : IsIso f := CatModule.isIso_of_bijective f fun n =>
+    (cutUpperPieceEquiv C hR hρ B η P hB hΛ hSym u n).bijective
+  exact asIso f
+
+/-- The ordinary coend comparison, followed by the inverse of the shifted Figure 5 map. -/
+def figureFiveBraidCoendExteriorIso (u : Seq ν) : Coend u ≅ Upper u :=
+  figureFiveBraidCoendCutIso C hR hρ B η u ≪≫ cutUpperIso C hR hρ B η P hB hΛ hSym u
+
+/-- After the Figure 5 diagram map out of the upper standard, the coend comparison of a pure
+tensor is the product of the lower inclusion and braid diagram in the violated quotient. -/
+theorem figureFiveBraidCoendExteriorIso_hom_tmul (u : Seq ν) (n : CUp) (m : CLo)
+    (b : (BBim).obj n m) (x : (NN u).obj m) :
+    ((Std u) ((figureFiveBraidCoendExteriorIso (Λ := Λ) C hR hρ B η P hB hΛ hSym u).hom.app n
+      (tmul (N := (BBim).right n) («M» := NN u) m b x)).val).val = ((In u) x.val).unop.val * b.val.val := by
+  let y := (figureFiveBraidCoendCutIso (Λ := Λ) C hR hρ B η u).hom.app n
+    (tmul (N := (BBim).right n) («M» := NN u) m b x)
+  change ((Std u) ((Std u).symm y.val)).val = _
+  exact (congrArg Subtype.val ((Std u).apply_symm_apply y.val)).trans
+    (figureFiveBraidCoendCutIso_hom_tmul C hR hρ B η u n m b x)
+
+/-- Webster, arXiv:1309.3796v2, §6.1, proof of Proposition 6.9, Figure 5. For two red
+strands, the derived braid of the lower exterior projective in degree zero is the shifted
+upper exterior standardization in degree zero. The comparison is in the ambient derived
+categories of the two cosets; it does not assert a restriction of the functor to `D⁻` or the
+reduction from more than two red strands. -/
+def figureFiveBraidDerivedExteriorIso (u : Seq ν) :
+    (figureFiveBraidDerivedTensor (Λ := Λ) (ν := ν) C hR B η).obj
+      (CatModule.DerivedCategory.Q.obj (NN u)) ≅ CatModule.DerivedCategory.Q.obj (Upper u) :=
+  figureFiveBraidDerivedTensorObjIso (Λ := Λ) C hR hρ B η u ≪≫
+    CatModule.DerivedCategory.Q.mapIso (figureFiveBraidCoendExteriorIso (Λ := Λ) C hR hρ B η P hB hΛ hSym u)
+
+end ShiftedUpper
+
+end CoendCut
 
 end WeightEvaluation
 

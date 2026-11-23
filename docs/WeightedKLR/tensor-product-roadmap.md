@@ -924,8 +924,11 @@ last-factor vacuum: all strictly higher loadings are violated, so the lower stan
 loading projective. `loadingStandardEquivExteriorStandardization` identifies the upper loading
 standard with the standardization with first-factor vacuum. The comparisons are right-linear
 over the respective corners, using red relabelling and horizontal reflection to read the existing
-left standardization there. Composing the comparisons with the derived loading calculation and
-recovering the internal grading shift remain open here.
+left standardization there. The inverse cyclic rotation relates the two canonical two-piece
+loadings, so `braidingFunctorObjFigureFiveStandardizationIso` composes both comparisons with
+`braidingFunctorObjFigureFiveIso`. Thus the ungraded two-red braid sends
+`S(P_u ⊠ P_∅)` to `S(P_∅ ⊠ P_u)` in cohomological degree zero. The internal grading shift
+and the general adjacent-block reduction remain open.
 
 Open, in working order: Lemma 6.8 (needs block standardization in the braided algebra; standard
 modules exist only in `StendhalAlgebraAllOrders`, `RedStrands/StandardAction.lean`, and partial

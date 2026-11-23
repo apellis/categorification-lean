@@ -5862,6 +5862,14 @@ noncomputable example :=
   loadingStandardEquivExteriorStandardization (Λ₂ := Λ) (σ₂ := Equiv.swap 0 1)
     (hQ := hQ) (hρ₂ := hρ) (zero_add ν) (SingleRed.insertWord 0 vacuumWord) blackWord
 
+open scoped DG.DegreeZero in
+/-- The two-red derived braid interchanges the exterior standardizations for unequal weights
+and one black strand, with vacuum last before braiding and first afterward. -/
+noncomputable example :=
+  letI := DG.HasDerivedCategory.standard (ViolOrderCorner (k := ℚ) (Q := Q) (Λ := Λ) (ν := ν) [0, 1])ᵐᵒᵖ
+  letI := DG.HasDerivedCategory.standard (ViolOrderCorner (k := ℚ) (Q := Q) (Λ := Λ) (ν := ν) [1, 0])ᵐᵒᵖ
+  braidingFunctorObjFigureFiveStandardizationIso (Λ₂ := Λ) hQ hρ blackWord
+
 end NonVacuity.WebsterFigureFive
 
 namespace NonVacuity.BraidedStendhal

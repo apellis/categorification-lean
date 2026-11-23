@@ -2,10 +2,12 @@
 Copyright (c) 2026 Alex Ellis. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 -/
+import Mathlib.Logic.Equiv.Fin.Rotate
 import Categorification.WeightedKLR.RedStrands.BraidedStandardDerived
 import Categorification.WeightedKLR.RedStrands.BraidedRelabel
 import Categorification.WeightedKLR.RedStrands.BlackCountTransport
 import Categorification.WeightedKLR.RedStrands.ParabolicStandardTensorProj
+import Categorification.WeightedKLR.RedStrands.TwoPieceDecomposition
 import Categorification.WeightedKLR.RedStrands.TwoPieceStandardEquiv
 
 /-!
@@ -14,7 +16,9 @@ import Categorification.WeightedKLR.RedStrands.TwoPieceStandardEquiv
 Webster, arXiv:1309.3796v2, §5.1, Definitions 5.1 and 5.4, and §6.1, proof of Proposition 6.9.
 We compare the right loading models used by the braid with the left-module calculations of
 standardization. Relabelling red strands identifies the corner with the tensor product algebra,
-and horizontal reflection converts the right action to the left action.
+and horizontal reflection converts the right action to the left action. With the internal
+grading forgotten, the two endpoint comparisons compose with Definition 6.6 evaluated on the
+Figure 5 loading projective.
 -/
 
 noncomputable section
@@ -340,5 +344,179 @@ def loadingProjectiveEquivExteriorStandardization {θ : Multiset I}
       (e.symm.trans (twoRedProjectiveStandardizationEquiv hQ Ω₂ x hx u).symm))
 
 end TwoRed
+
+local notation "swapRed" => Equiv.swap (0 : Fin 2) 1
+
+section FigureFiveGeometry
+
+variable {I : Type} {ν : Multiset I}
+
+private def emptyBlack : Seq (0 : Multiset I) := KLRAlgebra.Seq.ofList [] (by simp)
+
+local notation "vacuum" => SingleRed.insertWord 0 (emptyBlack (I := I))
+local notation "m₂" => Multiset.card (stendhalWeight 2 ν)
+
+private def figureFiveLower (u : Seq ν) : Seq (stendhalWeight 2 ν) :=
+  Seq.redPerm 1 (Seq.cast (congrArg (stendhalWeight 2) (add_zero ν))
+    (twoPieceLoading ν 0 (SingleRed.insertWord ν u) emptyBlack))
+
+private def figureFiveUpper (u : Seq ν) : Seq (stendhalWeight 2 ν) :=
+  Seq.redPerm swapRed (Seq.cast (congrArg (stendhalWeight 2) (zero_add ν))
+    (twoPieceLoading 0 ν vacuum u))
+
+private theorem ofFn_cast {J : Type} {a b : Multiset J} (h : a = b) (u : Seq a) :
+    List.ofFn (Seq.cast h u).lbl = List.ofFn u.lbl := by
+  subst b
+  rfl
+
+private theorem ofFn_insertWord (u : Seq ν) :
+    List.ofFn (SingleRed.insertWord ν u).lbl = .inr 0 :: (List.ofFn u.lbl).map .inl := by
+  let z := SingleRed.insertWord ν u
+  have hc : (stendhalWeight 1 ν).card = ν.card + 1 := by simp [stendhalWeight]
+  have h₀ : z.lbl (Fin.cast hc.symm (0 : Fin (ν.card + 1))) = .inr 0 :=
+    SingleRed.insertWord_head ν u
+  have h₁ (i : Fin ν.card) : z.lbl (Fin.cast hc.symm i.succ) = .inl (u.lbl i) :=
+    SingleRed.insertWord_black ν u i
+  change List.ofFn z.lbl = _
+  rw [List.ofFn_congr hc z.lbl, List.ofFn_succ, ← List.ofFn_comp']
+  exact congrArg₂ List.cons h₀ (congrArg List.ofFn (funext h₁))
+
+private theorem ofFn_emptyBlack : List.ofFn (emptyBlack (I := I)).lbl = [] :=
+  List.ofFn_zero
+
+private theorem figureFive_lower_word (u : Seq ν) :
+    List.ofFn (figureFiveLower u).lbl = (.inr 0 :: (List.ofFn u.lbl).map .inl) ++ [.inr 1] := by
+  rw [figureFiveLower, Seq.redPerm_one, ofFn_cast, ofFn_twoPieceLoading, ofFn_insertWord,
+    ofFn_emptyBlack]
+  simp [addRedColor, Function.comp_def]
+
+private theorem figureFive_upper_word (u : Seq ν) :
+    List.ofFn (figureFiveUpper u).lbl = .inr 1 :: .inr 0 :: (List.ofFn u.lbl).map .inl := by
+  rw [figureFiveUpper]
+  change List.ofFn (fun i => Sum.map id swapRed
+    ((Seq.cast (congrArg (stendhalWeight 2) (zero_add ν))
+      (twoPieceLoading 0 ν vacuum u)).lbl i)) = _
+  rw [List.ofFn_comp', ofFn_cast, ofFn_twoPieceLoading, ofFn_insertWord, ofFn_emptyBlack]
+  change .inr 1 :: .inr 0 :: ((List.ofFn u.lbl).map .inl).map (Sum.map id swapRed) = _
+  simp [Function.comp_def]
+
+private theorem figureFive_card : m₂ = ν.card + 2 := by simp [stendhalWeight]
+
+private theorem figureFive_one_lt : 1 < m₂ := by rw [figureFive_card]; omega
+
+private theorem figureFive_pos : 0 < m₂ := by rw [figureFive_card]; omega
+
+private theorem figureFive_upper_zero (u : Seq ν) :
+    (figureFiveUpper u).lbl ⟨0, figureFive_pos⟩ = .inr 1 := by
+  simpa only [figureFive_upper_word, List.getElem_cons_zero] using
+    (List.getElem_ofFn (f := (figureFiveUpper u).lbl) (i := 0)
+      (by simpa only [List.length_ofFn] using (figureFive_pos (ν := ν)))).symm
+
+private theorem figureFive_upper_one (u : Seq ν) :
+    (figureFiveUpper u).lbl ⟨1, figureFive_one_lt⟩ = .inr 0 := by
+  simpa only [figureFive_upper_word, List.getElem_cons_succ, List.getElem_cons_zero] using
+    (List.getElem_ofFn (f := (figureFiveUpper u).lbl) (i := 1)
+      (by simpa only [List.length_ofFn] using (figureFive_one_lt (ν := ν)))).symm
+
+private theorem ofFn_rotate {J : Type} {n : ℕ} (f : Fin n → J) (hn : 0 < n) :
+    List.ofFn (fun j => f (finRotate n j)) = (List.ofFn f).drop 1 ++ [f ⟨0, hn⟩] := by
+  obtain ⟨p, rfl⟩ := Nat.exists_eq_succ_of_ne_zero hn.ne'
+  have hs (i : Fin p) : finRotate (p + 1) i.castSucc = i.succ :=
+    Fin.ext (coe_finRotate_of_ne_last (Fin.castSucc_ne_last i))
+  rw [List.ofFn_succ' (f := fun j => f (finRotate (p + 1) j)), List.concat_eq_append]
+  rw [List.ofFn_succ (f := f)]
+  simp only [hs, finRotate_last, List.drop_succ_cons, List.drop_zero]
+  rfl
+
+private theorem figureFive_edge (u : Seq ν) :
+    EdgeBraid figureFive_pos 1 (finRotate m₂)⁻¹ (figureFiveLower u) (figureFiveUpper u) := by
+  have hmove : (finRotate m₂)⁻¹ • figureFiveUpper u = figureFiveLower u := by
+    apply Subtype.ext
+    apply List.ofFn_injective
+    have hlabels : ((finRotate m₂)⁻¹ • figureFiveUpper u).lbl =
+        fun j => (figureFiveUpper u).lbl (finRotate m₂ j) := by
+      funext j
+      rw [lbl_smul, inv_inv]
+    change List.ofFn ((finRotate m₂)⁻¹ • figureFiveUpper u : KLR.Seq (stendhalWeight 2 ν)).lbl =
+      List.ofFn (figureFiveLower u).lbl
+    rw [hlabels, ofFn_rotate _ figureFive_pos, figureFive_upper_zero, figureFive_upper_word,
+      figureFive_lower_word]
+    simp only [List.drop_succ_cons, List.drop_zero]
+  have hlast {n : ℕ} (hn : 0 < n) : finRotate n ⟨n - 1, by omega⟩ = ⟨0, hn⟩ := by
+    obtain ⟨p, rfl⟩ := Nat.exists_eq_succ_of_ne_zero hn.ne'
+    exact finRotate_last'
+  refine ⟨hmove, ?_, ?_⟩
+  · rw [← hmove, lbl_smul, inv_inv, hlast (figureFive_pos (ν := ν))]
+    exact figureFive_upper_zero u
+  · intro j hj
+    have hshift {n : ℕ} (hn : 0 < n) (i : Fin n) (hi : i.val ≠ n - 1) :
+        (finRotate n i).val = i.val + 1 := by
+      obtain ⟨p, rfl⟩ := Nat.exists_eq_succ_of_ne_zero hn.ne'
+      exact coe_finRotate_of_ne_last (fun h => hi (congrArg Fin.val h))
+    rw [inv_inv]
+    exact hshift figureFive_pos j hj
+
+end FigureFiveGeometry
+
+section DerivedFigureFive
+
+open CategoryTheory DG
+open scoped DG.DegreeZero
+
+universe w
+
+variable {I k : Type} [DecidableEq I] [Field k]
+  {Q : I → I → MvPolynomial (Fin 2) k} {ν : Multiset I} (hQ : KLRSymm Q)
+  {Λ₂ : Fin 2 → I →₀ ℕ}
+  {ρ₂ : Perm (Fin (Multiset.card (stendhalWeight 2 ν))) → List ℕ}
+  (hρ₂ : TypeA.IsReducedChoice ρ₂)
+
+local notation "vacuum" => SingleRed.insertWord 0 (emptyBlack (I := I))
+
+private def inDegreeZeroIso {A M N : Type} [Ring A] [AddCommGroup M] [Module A M]
+    [AddCommGroup N] [Module A N] (e : M ≃ₗ[A] N) :
+    DGModuleCat.of A (InDegreeZero M) ≅ DGModuleCat.of A (InDegreeZero N) :=
+  DGModuleCat.isoOfDGModuleEquiv (DGModuleEquiv.ofDegreeZero
+    (show InDegreeZero M ≃ₗ[A] InDegreeZero N from e)
+    (fun hx hn => ((InDegreeZero.mem_grading_iff _).1 hx).resolve_left hn)
+    (InDegreeZero.d_apply _) InDegreeZero.mem_grading_zero (InDegreeZero.d_apply _))
+
+private abbrev moduleInDegreeZero {A : Type} [Ring A] (M : ModuleCat.{0} A) : DGModuleCat A :=
+  DGModuleCat.of A (InDegreeZero M)
+
+local notation "R₀" => (ViolOrderCorner (k := k) (Q := Q) (Λ := Λ₂) (ν := ν) [0, 1])ᵐᵒᵖ
+local notation "R₁" => (ViolOrderCorner (k := k) (Q := Q) (Λ := Λ₂) (ν := ν) [1, 0])ᵐᵒᵖ
+local notation "P₀" u:arg => exteriorStandardizationRight (Λ₂ := Λ₂) (σ₂ := 1) hQ hρ₂
+  (add_zero ν) (SingleRed.insertWord ν u) emptyBlack
+local notation "P₁" u:arg => exteriorStandardizationRight (Λ₂ := Λ₂) (σ₂ := swapRed) hQ hρ₂
+  (zero_add ν) vacuum u
+
+/-- Webster, arXiv:1309.3796v2, §6.1, Proposition 6.9, Figure 5, for two red strands
+and with the internal grading forgotten. The braiding functor of Definition 6.6 takes
+`S(P_u ⊠ P_∅)` to `S(P_∅ ⊠ P_u)` in cohomological degree zero, with each
+standardization read as a right module over its own red-order corner. -/
+def braidingFunctorObjFigureFiveStandardizationIso (u : Seq ν)
+    [HasDerivedCategory.{w} R₀] [HasDerivedCategory.{w} R₁] :
+    (braidingFunctor.{w} k Q Λ₂ ν [0, 1] [1, 0]).obj
+        (DG.DerivedCategory.Q.obj (moduleInDegreeZero (A := R₀) (P₀ u))) ≅
+      DG.DerivedCategory.Q.obj (moduleInDegreeZero (A := R₁) (P₁ u)) := by
+  have hs := (figureFive_edge u).redWord_source_twoRed figureFive_one_lt
+    (figureFive_upper_zero u) (figureFive_upper_one u)
+  let L := rIdeal (violLoadingIdem (k := k) (Q := Q) (Λ := Λ₂) hs)
+  let U := ViolLoadingStandard (k := k) (Q := Q) (Λ := Λ₂) (figureFiveUpper u) [1, 0]
+  let X₀ : ModuleCat.{0} R₀ := P₀ u
+  let X₁ : ModuleCat.{0} R₁ := P₁ u
+  let eₛ := inDegreeZeroIso (A := R₀) (M := ↥L) (N := ↥X₀)
+    (loadingProjectiveEquivExteriorStandardization (Λ₂ := Λ₂) (σ₂ := 1)
+      hQ hρ₂ (add_zero ν) (SingleRed.insertWord ν u) emptyBlack)
+  let eₜ := inDegreeZeroIso (A := R₁) (M := U) (N := ↥X₁)
+    (loadingStandardEquivExteriorStandardization (Λ₂ := Λ₂) (σ₂ := swapRed)
+      hQ hρ₂ (zero_add ν) vacuum u)
+  exact (braidingFunctor.{w} k Q Λ₂ ν [0, 1] [1, 0]).mapIso (DG.DerivedCategory.Q.mapIso eₛ.symm) ≪≫
+    braidingFunctorObjFigureFiveIso hρ₂ hQ figureFive_one_lt (figureFive_upper_zero u)
+      (figureFive_upper_one u) (figureFive_edge u) ≪≫
+    DG.DerivedCategory.Q.mapIso eₜ
+
+end DerivedFigureFive
 
 end Categorification.Stendhal.BraidedStendhalAlgebra

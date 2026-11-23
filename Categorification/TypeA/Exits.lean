@@ -668,4 +668,139 @@ theorem eqvGen_setPerm_erase (hqp : q < p) (hT : (q, p) ∈ invSet m τ)
 
 end Hexagon
 
+section Connected
+
+variable {τ R q p}
+
+theorem IsValid.erase_max {A A' : Finset (Fin m)} (hA : IsValid τ R q p A)
+    (hA' : IsValid τ R q p A') (hne : (A \ A').Nonempty) :
+    IsValid τ R q p (A.erase ((A \ A').max' hne)) := by
+  have hβ := Finset.mem_sdiff.1 ((A \ A').max'_mem hne)
+  refine ⟨fun h => hA.q_notMem (Finset.mem_of_mem_erase h),
+    fun h => hA.p_notMem (Finset.mem_of_mem_erase h), fun u v huv hbad hv => ?_⟩
+  have huA : u ∈ A :=
+    hA.closed u v huv hbad (hv.imp_left Finset.mem_of_mem_erase)
+  refine Finset.mem_erase.2 ⟨fun hu => ?_, huA⟩
+  rcases hv with hv | hv
+  · by_cases hvA' : v ∈ A'
+    · exact hβ.2 (hu ▸ hA'.closed u v huv hbad (Or.inl hvA'))
+    · have := (A \ A').le_max' v (Finset.mem_sdiff.2 ⟨Finset.mem_of_mem_erase hv, hvA'⟩)
+      rw [← hu] at this
+      exact absurd huv (not_lt.2 this)
+  · exact hβ.2 (hu ▸ hA'.closed u v huv hbad (Or.inr hv))
+
+/-- The exits attached to nested valid sets are connected. -/
+theorem eqvGen_setPerm_of_subset (hqp : q < p) (hT : (q, p) ∈ invSet m τ)
+    {A A' : Finset (Fin m)} (hA : IsValid τ R q p A) (hA' : IsValid τ R q p A')
+    (hsub : A' ⊆ A) :
+    Relation.EqvGen (ExitRel τ R q p) (setPerm q p A) (setPerm q p A') := by
+  induction hn : (A \ A').card using Nat.strong_induction_on generalizing A with
+  | _ n ih =>
+    by_cases hne : (A \ A').Nonempty
+    · have hβ := Finset.mem_sdiff.1 ((A \ A').max'_mem hne)
+      have hB := hA.erase_max hA' hne
+      have hBsub : A' ⊆ A.erase ((A \ A').max' hne) := fun x hx =>
+        Finset.mem_erase.2 ⟨fun h => hβ.2 (h ▸ hx), hsub hx⟩
+      have hcard : (A.erase ((A \ A').max' hne) \ A').card < n := by
+        rw [← hn]
+        refine Finset.card_lt_card (Finset.ssubset_iff_of_subset
+          (Finset.sdiff_subset_sdiff (Finset.erase_subset _ _) le_rfl) |>.2
+            ⟨_, (A \ A').max'_mem hne, fun h => ?_⟩)
+        simp at h
+      exact (eqvGen_setPerm_erase hqp hT hA hβ.1 hB).trans _ _ _
+        (ih _ hcard hB hBsub rfl)
+    · have : A = A' := Finset.Subset.antisymm
+        (Finset.sdiff_eq_empty_iff_subset.1 (Finset.not_nonempty_iff_eq_empty.1 hne)) hsub
+      subst this
+      exact Relation.EqvGen.refl _
+
+/-- **Connectivity of exits.** Any two exits are connected by square and hexagon moves. -/
+theorem exitRel_connected (hqp : q < p) (hT : (q, p) ∈ invSet m τ) {e e' : Perm (Fin m)}
+    (he : IsExit τ R q p e) (he' : IsExit τ R q p e') :
+    Relation.EqvGen (ExitRel τ R q p) e e' := by
+  have hL := he.isValid_leftSet hqp
+  have hL' := he'.isValid_leftSet hqp
+  have hI := hL.inter hL'
+  exact ((he.eqvGen_setPerm_leftSet hqp).symm _ _).trans _ _ _
+    ((eqvGen_setPerm_of_subset hqp hT hL hI Finset.inter_subset_left).trans _ _ _
+      (((eqvGen_setPerm_of_subset hqp hT hL' hI Finset.inter_subset_right).symm _ _).trans
+        _ _ _ (he'.eqvGen_setPerm_leftSet hqp)))
+
+end Connected
+
+section Existence
+
+variable (τ R q p)
+
+/-- `u` precedes `v` and the pair may not cross in an exit. -/
+def Prec (u v : Fin m) : Prop := u < v ∧ Bad τ R q p u v
+
+open Classical in
+/-- The smallest valid set: the strands from which a chain of bad pairs leads to `q` or `p`. -/
+noncomputable def minSet : Finset (Fin m) :=
+  Finset.univ.filter fun s => s ≠ q ∧ s ≠ p ∧
+    (Relation.TransGen (Prec τ R q p) s q ∨ Relation.TransGen (Prec τ R q p) s p)
+
+variable {τ R q p}
+
+theorem lt_of_transGen_prec {u v : Fin m} (h : Relation.TransGen (Prec τ R q p) u v) : u < v := by
+  induction h with
+  | single h => exact h.1
+  | tail _ h ih => exact ih.trans h.1
+
+theorem not_transGen_prec (hT : (q, p) ∈ invSet m τ)
+    (hcons : ∀ t ∈ R, q < t → t < p → False) : ¬ Relation.TransGen (Prec τ R q p) q p := by
+  have key : ∀ {v}, Relation.TransGen (Prec τ R q p) q v → v ≤ p → τ q < τ v := by
+    intro v h
+    induction h with
+    | single h =>
+      intro hv
+      rcases h.2.1 with h' | h'
+      · rw [mem_invSet] at h'
+        exact lt_of_le_of_ne (not_lt.1 fun h'' => h' ⟨h.1, h''⟩)
+          (fun e => h.1.ne (τ.injective e))
+      · rcases hv.lt_or_eq with hv | rfl
+        · exact (hcons _ h'.2 h.1 hv).elim
+        · exact (h.2.2 ⟨rfl, rfl⟩).elim
+    | tail h₁ h ih =>
+      intro hv
+      have hw := lt_of_transGen_prec h₁
+      have := ih (h.1.le.trans hv)
+      rcases h.2.1 with h' | h'
+      · rw [mem_invSet] at h'
+        exact this.trans (lt_of_le_of_ne (not_lt.1 fun h'' => h' ⟨h.1, h''⟩)
+          (fun e => h.1.ne (τ.injective e)))
+      · exact (hcons _ h'.1 hw (h.1.trans_le hv)).elim
+  intro h
+  exact absurd (key h le_rfl) (not_lt.2 (mem_invSet.1 hT).2.le)
+
+theorem isValid_minSet (hqp : q < p) (hT : (q, p) ∈ invSet m τ)
+    (hcons : ∀ t ∈ R, q < t → t < p → False) : IsValid τ R q p (minSet τ R q p) := by
+  classical
+  refine ⟨by simp [minSet], by simp [minSet], fun u v huv hbad hv => ?_⟩
+  have hP : Prec τ R q p u v := ⟨huv, hbad⟩
+  have hchain : Relation.TransGen (Prec τ R q p) u q ∨ Relation.TransGen (Prec τ R q p) u p := by
+    rcases hv with hv | rfl | rfl
+    · simp only [minSet, Finset.mem_filter, Finset.mem_univ, true_and] at hv
+      exact hv.2.2.imp (Relation.TransGen.head hP) (Relation.TransGen.head hP)
+    · exact Or.inl (Relation.TransGen.single hP)
+    · exact Or.inr (Relation.TransGen.single hP)
+  simp only [minSet, Finset.mem_filter, Finset.mem_univ, true_and]
+  refine ⟨fun hu => ?_, fun hu => ?_, hchain⟩
+  · subst hu
+    rcases hchain with h | h
+    · exact lt_irrefl _ (lt_of_transGen_prec h)
+    · exact not_transGen_prec hT hcons h
+  · subst hu
+    rcases hchain with h | h
+    · exact absurd hqp (not_lt.2 (lt_of_transGen_prec h).le)
+    · exact lt_irrefl _ (lt_of_transGen_prec h)
+
+/-- **Existence of exits.** -/
+theorem exists_isExit (hqp : q < p) (hT : (q, p) ∈ invSet m τ)
+    (hcons : ∀ t ∈ R, q < t → t < p → False) : ∃ e, IsExit τ R q p e :=
+  ⟨_, isExit_setPerm hqp hT (isValid_minSet hqp hT hcons)⟩
+
+end Existence
+
 end Categorification.TypeA

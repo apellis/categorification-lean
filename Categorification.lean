@@ -1635,6 +1635,7 @@ import Categorification.WeightedKLR.RedStrands.BraidedIdentity
 import Categorification.WeightedKLR.RedStrands.BraidedRedOrder
 import Categorification.WeightedKLR.RedStrands.BraidedRelabel
 import Categorification.WeightedKLR.RedStrands.BraidedRelabelAppend
+import Categorification.WeightedKLR.RedStrands.BraidedStandardDerived
 import Categorification.WeightedKLR.RedStrands.BraidedStandardInjective
 import Categorification.WeightedKLR.RedStrands.BraidedStandardIso
 import Categorification.WeightedKLR.RedStrands.BraidedStandardModule

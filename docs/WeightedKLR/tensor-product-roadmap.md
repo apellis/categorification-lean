@@ -911,8 +911,14 @@ by a black strand) into the violated ideal (`e_mul_mul_e_mem_violIdeal`); every 
 `throughMap`). Together they give the isomorphism of Figure 5,
 `e(t) (A / U_r) e_{r :: L} ≃ e(s) (A / A e_viol A) e_{r :: L}` (`braidCornerEquiv`).
 `violLoadingStandardEquivBraidCorner` identifies the swapped loading standard with the cut
-of the braid bimodule as a right module over the swapped-order corner. The comparison with
-standardization of the exterior projectives, the derived calculation and the internal shift remain open.
+of the braid bimodule as a right module over the swapped-order corner.
+`BraidedStandardDerived.lean` evaluates Definition 6.6 on the loading projective `e(s) T`
+(`braidingFunctorObjLoadingProjectiveIso`). The projective in degree zero is K-projective and
+multiplication identifies its ordinary balanced tensor with `e(s) B`. The Figure 5 comparison
+then gives `braidingFunctorObjFigureFiveIso`: the two-red braid applied to the lower loading
+projective is `S_t` in cohomological degree zero over the swapped corner. Identifying these
+loading models with the two standardizations of the exterior projectives, and recovering the
+internal grading shift, remain open here.
 
 Open, in working order: Lemma 6.8 (needs block standardization in the braided algebra; standard
 modules exist only in `StendhalAlgebraAllOrders`, `RedStrands/StandardAction.lean`, and partial

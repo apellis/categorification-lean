@@ -5921,7 +5921,15 @@ noncomputable example :=
 
 open scoped DG.DegreeZero in
 /-- A projective module in degree zero is K-projective (input to Webster, arXiv:1309.3796v2,
-proof of Proposition 6.7), for `ℤ` over itself. -/
-example : DG.IsKProjective.{0} ℤ (InDegreeZero ℤ) := InDegreeZero.isKProjective
+proof of Proposition 6.7), for `ℚ` over itself. -/
+example : DG.IsKProjective.{0} ℚ (InDegreeZero ℚ) := InDegreeZero.isKProjective (A := ℚ)
+
+open scoped DG.DegreeZero in
+/-- Derived tensor products compose when the inner bimodule is K-projective over its target
+(input to Webster, arXiv:1309.3796v2, proof of Proposition 6.7), for `ℚ` acting on itself. -/
+noncomputable example :=
+  letI := DG.HasDerivedCategory.standard ℚ
+  dgDerivedTensorCompIso (A := ℚ) (B := ℚ) (C := ℚ) (InDegreeZero ℚ)
+    (InDegreeZero.isKProjective (A := ℚ) (M := ℚ))
 
 end NonVacuity.BraidedStendhal

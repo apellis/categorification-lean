@@ -11,6 +11,7 @@ import Categorification.Algebra.CoinvariantGraded
 import Categorification.Algebra.CoinvariantPartialSocle
 import Categorification.Algebra.CompositionFactors
 import Categorification.Algebra.CornerEndomorphism
+import Categorification.Algebra.CornerTensor
 import Categorification.Algebra.ModuleTower
 import Categorification.Algebra.ModuleTowerK0
 import Categorification.Algebra.ModuleTowerSl2

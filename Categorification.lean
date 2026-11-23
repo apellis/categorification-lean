@@ -11,6 +11,8 @@ import Categorification.Algebra.CoinvariantGraded
 import Categorification.Algebra.CoinvariantPartialSocle
 import Categorification.Algebra.CompositionFactors
 import Categorification.Algebra.CornerEndomorphism
+import Categorification.Algebra.CornerTensor
+import Categorification.Algebra.CornerTensorFactor
 import Categorification.Algebra.ModuleTower
 import Categorification.Algebra.ModuleTowerK0
 import Categorification.Algebra.ModuleTowerSl2
@@ -989,7 +991,9 @@ import Categorification.TwoRep.ModelQStrongCL
 import Categorification.TwoRep.ModelQStrongGraded
 import Categorification.TwoRep.KernelExact
 import Categorification.TypeA.Basic
+import Categorification.TypeA.Cancellation
 import Categorification.TypeA.DoubleCoset
+import Categorification.TypeA.Exits
 import Categorification.TypeA.GapSort
 import Categorification.TypeA.Inversions
 import Categorification.TypeA.LastStrand
@@ -997,6 +1001,8 @@ import Categorification.TypeA.Length
 import Categorification.TypeA.Matsumoto
 import Categorification.TypeA.NormalForm
 import Categorification.TypeA.Parabolic
+import Categorification.TypeA.SwapConnected
+import Categorification.TypeA.WeakOrder
 import Categorification.WeightedKLR.Loading
 import Categorification.WeightedKLR.PolyRep
 import Categorification.WeightedKLR.Algebra
@@ -1595,7 +1601,15 @@ import Categorification.WeightedKLR.RedStrands.RedBlackCrossingInjective
 import Categorification.WeightedKLR.RedStrands.RedBlackCrossingStandard
 import Categorification.WeightedKLR.RedStrands.RedBlackCrossingTransport
 import Categorification.WeightedKLR.RedStrands.RedBlackCrossingChain
+import Categorification.WeightedKLR.RedStrands.BraidedFactorization
+import Categorification.WeightedKLR.RedStrands.BraidedFactorizationBasis
+import Categorification.WeightedKLR.RedStrands.BraidedFactorizationGeneral
+import Categorification.WeightedKLR.RedStrands.BraidedFactorizationLength
+import Categorification.WeightedKLR.RedStrands.BraidedFactorizationCancel
+import Categorification.WeightedKLR.RedStrands.BraidedFactorizationExits
+import Categorification.WeightedKLR.RedStrands.BraidedFactorizationSpan
 import Categorification.WeightedKLR.RedStrands.BraidedIdentity
+import Categorification.WeightedKLR.RedStrands.BraidedRedOrder
 import Categorification.WeightedKLR.RedStrands.BraidedStendhal
 import Categorification.WeightedKLR.RedStrands.StendhalBasisSymm
 

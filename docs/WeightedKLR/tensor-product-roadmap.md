@@ -844,8 +844,18 @@ For `w = e`, `B̃_e ≃ T̃^λ` (`RedStrands/BraidedIdentity.lean`,
 vanishing of red crossings: a reduced word between red-ordered sequences crosses no two red
 strands (`noRedCross_of_isRedOrdered`), so the bases of Props 6.4 and 4.16 correspond.
 
-The bimodules `B_w` and Lemma 6.5;
-the functors `𝔅_w` (Def 6.6, Prop 6.7, Cor 6.8, Lemma 6.9, Prop 6.10, Lemma 6.13);
+Lemma 6.5 is proved for the bimodules `B̃_w` (`RedStrands/BraidedFactorization*.lean`):
+multiplication `B̃(κ₂, κ₁) ⊗ B̃(κ₁, κ₀) → B̃(κ₂, κ₀)` over the middle corner is an isomorphism
+(`BraidedStendhalAlgebra.tensorMultEquivOfPath`) when `κ₁` is reached from `κ₀` by adjacent red
+crossings that `κ₂` still reads crossed (`RedCrossingPath`, the length condition
+`ℓ(ww') = ℓ(w) + ℓ(w')`). The one-crossing case (`tensorMult_bijective`) compares frame classes
+with the basis of Prop 6.4; the general case follows by induction through the refinement lemma
+`CornerTensor.mult_injective_of_factor`. The length condition in inversion-set form (every pair
+of labels crossed from `κ₀` to `κ₁` is still crossed in `κ₂`, for `κ₀` without repeated labels)
+gives such a path by bubble sort (`redCrossingPath_of_inversions`,
+`tensorMult_bijective_of_inversions`). Still open: the quotient bimodules `B_w`.
+
+The functors `𝔅_w` (Def 6.6, Prop 6.7, Cor 6.8, Lemma 6.9, Prop 6.10, Lemma 6.13);
 tilting modules (Thm 6.14); `𝔅_w` are equivalences (Thm 6.15); the braid group action
 (Def 6.16, Cor 6.18); Ringel duality (Cor 6.19); semi-orthogonal decompositions
 (Prop 6.20); the Serre functor (Prop 6.21). Open. These need derived categories of

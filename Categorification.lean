@@ -998,6 +998,7 @@ import Categorification.TypeA.Matsumoto
 import Categorification.TypeA.NormalForm
 import Categorification.TypeA.Parabolic
 import Categorification.TypeA.WeakOrder
+import Categorification.TypeA.Exits
 import Categorification.WeightedKLR.Loading
 import Categorification.WeightedKLR.PolyRep
 import Categorification.WeightedKLR.Algebra

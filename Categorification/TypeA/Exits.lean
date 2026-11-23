@@ -434,4 +434,238 @@ theorem IsExit.eqvGen_setPerm_leftSet (hqp : q < p) {e : Perm (Fin m)}
 
 end LeftSet
 
+
+section Hexagon
+
+variable {τ R q p}
+
+/-- The classes `B`, `q`, `p`, `β`, rest, numbered `0, …, 4`. -/
+def hexClass (B : Finset (Fin m)) (q p β : Fin m) (s : Fin m) : ℕ :=
+  if s ∈ B then 0 else if s = q then 1 else if s = p then 2 else if s = β then 3 else 4
+
+/-- Merging the class of `β` into `B`. -/
+def hexA (n : ℕ) : ℕ := if n = 3 then 0 else n
+
+/-- Merging the class of `β` into the rest. -/
+def hexB (n : ℕ) : ℕ := if n = 3 then 4 else n
+
+/-- Moving the class of `β` below `q` and `p`. -/
+def hexSwap (n : ℕ) : ℕ := if n = 1 then 2 else if n = 2 then 3 else if n = 3 then 1 else n
+
+variable {A : Finset (Fin m)} {β : Fin m}
+
+private structure HexData (A : Finset (Fin m)) (q p β : Fin m) : Prop where
+  hq : q ∉ A
+  hp : p ∉ A
+  hβ : β ∈ A
+  hqp : q ≠ p
+
+private theorem hexClass_le (s : Fin m) : hexClass (A.erase β) q p β s ≤ 4 := by
+  unfold hexClass; split_ifs <;> omega
+
+private theorem hexClass_eq_one {s : Fin m} (hs : hexClass (A.erase β) q p β s = 1) : s = q := by
+  unfold hexClass at hs; split_ifs at hs <;> simp_all
+
+private theorem hexClass_eq_two {s : Fin m} (hs : hexClass (A.erase β) q p β s = 2) : s = p := by
+  unfold hexClass at hs; split_ifs at hs <;> simp_all
+
+private theorem hexClass_eq_three {s : Fin m} (hs : hexClass (A.erase β) q p β s = 3) : s = β := by
+  unfold hexClass at hs; split_ifs at hs <;> simp_all
+
+private theorem hexClass_other {s : Fin m} (hq : s ≠ q) (hp : s ≠ p) (hβ : s ≠ β) :
+    hexClass (A.erase β) q p β s = 0 ∨ hexClass (A.erase β) q p β s = 4 := by
+  unfold hexClass; split_ifs <;> simp_all
+
+private theorem setClass_erase_hexB (s : Fin m) :
+    setClass q p (A.erase β) s = hexB (hexClass (A.erase β) q p β s) := by
+  unfold setClass hexClass hexB
+  split_ifs <;> simp_all
+
+namespace HexData
+
+variable (h : HexData A q p β)
+include h
+
+private theorem βq : β ≠ q := fun e => h.hq (e ▸ h.hβ)
+private theorem βp : β ≠ p := fun e => h.hp (e ▸ h.hβ)
+
+private theorem c_q : hexClass (A.erase β) q p β q = 1 := by
+  simp [hexClass, h.hq]
+
+private theorem c_p : hexClass (A.erase β) q p β p = 2 := by
+  simp [hexClass, h.hp, h.hqp.symm]
+
+private theorem c_β : hexClass (A.erase β) q p β β = 3 := by
+  simp [hexClass, h.βq, h.βp]
+
+private theorem setClass_eq (s : Fin m) :
+    setClass q p A s = hexA (hexClass (A.erase β) q p β s) := by
+  unfold setClass hexClass hexA
+  by_cases hs : s = β
+  · subst hs; simp [h.hβ, h.βq, h.βp]
+  simp only [Finset.mem_erase, hs, ne_eq, not_false_eq_true, true_and]
+  split_ifs <;> simp_all
+
+end HexData
+
+/-- Removing the last strand of `A` that may be removed: the exits of `A` and of `A.erase β`
+are connected by squares and one hexagon. -/
+theorem eqvGen_setPerm_erase (hqp : q < p) (hT : (q, p) ∈ invSet m τ)
+    (hA : IsValid τ R q p A) (hβ : β ∈ A) (hB : IsValid τ R q p (A.erase β)) :
+    Relation.EqvGen (ExitRel τ R q p) (setPerm q p A) (setPerm q p (A.erase β)) := by
+  have h : HexData A q p β := ⟨hA.q_notMem, hA.p_notMem, hβ, hqp.ne⟩
+  set c := hexClass (A.erase β) q p β with hc
+  have hσA : setPerm q p A = classPerm fun s => hexA (c s) := by
+    rw [setPerm]; congr 1; funext s; exact h.setClass_eq s
+  have hσB : setPerm q p (A.erase β) = classPerm fun s => hexB (c s) := by
+    rw [setPerm]; congr 1; funext s; exact setClass_erase_hexB s
+  have heA := isExit_setPerm hqp hT hA
+  have heB := isExit_setPerm hqp hT hB
+  rw [hσA] at heA ⊢
+  rw [hσB] at heB ⊢
+  set e1 := classPerm c with he1
+  set e2 := classPerm fun s => hexSwap (c s) with he2
+  have hcq : c q = 1 := h.c_q
+  have hcp : c p = 2 := h.c_p
+  have hcβ : c β = 3 := h.c_β
+  have cle : ∀ t, c t ≤ 4 := hexClass_le
+  have c1 : ∀ {t}, c t = 1 → t = q := hexClass_eq_one
+  have c2 : ∀ {t}, c t = 2 → t = p := hexClass_eq_two
+  have c3 : ∀ {t}, c t = 3 → t = β := hexClass_eq_three
+  have cother : ∀ {t}, t ≠ q → t ≠ p → t ≠ β → c t = 0 ∨ c t = 4 := hexClass_other
+  -- the two new exits
+  have hexit : ∀ {w : Perm (Fin m)}, (w p : ℕ) = w q + 1 →
+      invSet m w ⊆ invSet m (classPerm fun s => hexA (c s)) ∪
+        invSet m (classPerm fun s => hexB (c s)) → IsExit τ R q p w := by
+    intro w hadj hsub
+    refine ⟨fun a b hab => ?_, hadj, fun x hx => ?_⟩
+    · rcases Finset.mem_union.1 (hsub hab) with h' | h'
+      · exact heA.redFree a b h'
+      · exact heB.redFree a b h'
+    · rcases Finset.mem_union.1 (hsub hx) with h' | h'
+      · exact heA.le h'
+      · exact heB.le h'
+  have he1x : IsExit τ R q p e1 := by
+    refine hexit (classPerm_succ c (by omega) fun t htq htp => ?_)
+      (invSet_classPerm_subset_union fun a b _ hab => ?_)
+    · have h1 : c t ≠ 1 := fun e => htq (c1 e)
+      have h2 : c t ≠ 2 := fun e => htp (c2 e)
+      have := cle t
+      omega
+    · have := cle a
+      have := cle b
+      simp only [hexA, hexB]
+      split_ifs <;> omega
+  have he2x : IsExit τ R q p e2 := by
+    refine hexit (classPerm_succ _ (by simp [hcq, hcp, hexSwap]) fun t htq htp => ?_)
+      (invSet_classPerm_subset_union fun a b _ hab => ?_)
+    · have h1 : c t ≠ 1 := fun e => htq (c1 e)
+      have h2 : c t ≠ 2 := fun e => htp (c2 e)
+      have := cle t
+      simp only [hcq, hcp, hexSwap]
+      split_ifs <;> omega
+    · have := cle a
+      have := cle b
+      simp only [hexA, hexB, hexSwap] at hab ⊢
+      split_ifs at hab ⊢ <;> omega
+  -- values
+  set x : ℕ := (e1 q : ℕ) with hx
+  have hx1 : (e1 p : ℕ) = x + 1 := he1x.adj
+  have hx2 : (e1 β : ℕ) = x + 2 := by
+    have : (e1 β : ℕ) = e1 p + 1 := classPerm_succ c (by omega) fun t htp htβ => by
+      have h2 : c t ≠ 2 := fun e => htp (c2 e)
+      have h3 : c t ≠ 3 := fun e => htβ (c3 e)
+      have := cle t
+      omega
+    omega
+  have hy0 : (e2 β : ℕ) = x := by
+    refine (classPerm_val_eq _ _ fun t => ?_).symm
+    rw [hcq, hcβ]
+    have := cle t
+    rcases (by omega : c t = 0 ∨ c t = 1 ∨ c t = 2 ∨ c t = 3 ∨ c t = 4) with
+      e | e | e | e | e
+    · simp [e, hexSwap]
+    · rw [e, c1 e]; simp [hexSwap]
+    · simp [e, hexSwap]
+    · rw [e, c3 e]; simp [hexSwap]
+    · simp [e, hexSwap]
+  have hy1 : (e2 q : ℕ) = x + 1 := by
+    rw [← hy0]
+    refine classPerm_succ _ (by simp [hcq, hcβ, hexSwap]) fun t htβ htq => ?_
+    have h1 : c t ≠ 1 := fun e => htq (c1 e)
+    have h3 : c t ≠ 3 := fun e => htβ (c3 e)
+    have := cle t
+    simp only [hcq, hcβ, hexSwap]
+    split_ifs <;> omega
+  have hy2 : (e2 p : ℕ) = x + 2 := by rw [he2x.adj, hy1]
+  have hoth : ∀ s, s ≠ q → s ≠ p → s ≠ β → (e2 s : ℕ) = e1 s := fun s hsq hsp hsβ => by
+    refine classPerm_val_eq _ _ fun t => ?_
+    have := cle t
+    rcases cother hsq hsp hsβ with ev | ev <;>
+    rcases (by omega : c t = 0 ∨ c t = 1 ∨ c t = 2 ∨ c t = 3 ∨ c t = 4) with
+      e | e | e | e | e <;> simp [e, ev, hexSwap]
+  have hxm : x + 2 < m := by rw [← hx2]; exact (e1 β).2
+  have hmove : sadj m x * sadj m (x + 1) * e1 = e2 := by
+    ext s
+    rw [Perm.mul_apply, Perm.mul_apply, sadj_val_of_lt (by omega),
+      sadj_val_of_lt (by omega : x + 1 + 1 < m)]
+    by_cases hsq : s = q
+    · subst hsq; rw [hy1, ← hx]; unfold swapNat; split_ifs <;> omega
+    by_cases hsp : s = p
+    · subst hsp; rw [hy2, hx1]; unfold swapNat; split_ifs <;> omega
+    by_cases hsβ : s = β
+    · subst hsβ; rw [hy0, hx2]; unfold swapNat; split_ifs <;> omega
+    rw [hoth s hsq hsp hsβ]
+    have n1 : (e1 s : ℕ) ≠ x := fun e => hsq (e1.injective (Fin.ext e))
+    have n2 : (e1 s : ℕ) ≠ x + 1 := fun e => hsp (e1.injective (Fin.ext (e.trans hx1.symm)))
+    have n3 : (e1 s : ℕ) ≠ x + 2 := fun e => hsβ (e1.injective (Fin.ext (e.trans hx2.symm)))
+    have := swapNat_cases (x + 1) (e1 s)
+    have := swapNat_cases x (swapNat (x + 1) (e1 s))
+    omega
+  have hhex : ExitRel τ R q p e1 e2 := by
+    refine ⟨he1x, he2x, ?_⟩
+    have := ExitMove.hexagon (q := q) e1 (by rw [← hx]; exact hxm)
+    rwa [← hx, hmove] at this
+  -- squares on either side
+  have hsqA : Relation.EqvGen (ExitRel τ R q p) (classPerm fun s => hexA (c s)) e2 := by
+    refine eqvGen_exitRel_of_invSet_subset heA he2x
+      (invSet_classPerm_mono fun a b _ hab => ?_) fun a b hab hab' => ?_
+    · have := cle a
+      have := cle b
+      simp only [hexA, hexSwap] at hab ⊢
+      split_ifs at hab ⊢ <;> omega
+    · rw [mem_invSet_classPerm] at hab hab'
+      have hn : ¬ hexA (c b) < hexA (c a) := fun e => hab' ⟨hab.1, e⟩
+      have := cle a
+      have := cle b
+      have key : c a ≠ 1 ∧ c a ≠ 2 ∧ c b ≠ 1 ∧ c b ≠ 2 := by
+        have h2 := hab.2
+        simp only [hexA, hexSwap] at hn h2
+        refine ⟨?_, ?_, ?_, ?_⟩ <;> intro e <;> rw [e] at hn h2 <;> split_ifs at hn h2 <;>
+          omega
+      exact ⟨fun e => key.1 (by rw [e, hcq]), fun e => key.2.1 (by rw [e, hcp]),
+        fun e => key.2.2.1 (by rw [e, hcq]), fun e => key.2.2.2 (by rw [e, hcp])⟩
+  have hsqB : Relation.EqvGen (ExitRel τ R q p) (classPerm fun s => hexB (c s)) e1 := by
+    refine eqvGen_exitRel_of_invSet_subset heB he1x
+      (invSet_classPerm_mono fun a b _ hab => ?_) fun a b hab hab' => ?_
+    · have := cle a
+      have := cle b
+      simp only [hexB] at hab
+      split_ifs at hab <;> omega
+    · rw [mem_invSet_classPerm] at hab hab'
+      have hn : ¬ hexB (c b) < hexB (c a) := fun e => hab' ⟨hab.1, e⟩
+      have := cle a
+      have := cle b
+      have key : c a ≠ 1 ∧ c a ≠ 2 ∧ c b ≠ 1 ∧ c b ≠ 2 := by
+        have h2 := hab.2
+        simp only [hexB] at hn
+        refine ⟨?_, ?_, ?_, ?_⟩ <;> intro e <;> rw [e] at hn h2 <;> split_ifs at hn <;>
+          omega
+      exact ⟨fun e => key.1 (by rw [e, hcq]), fun e => key.2.1 (by rw [e, hcp]),
+        fun e => key.2.2.1 (by rw [e, hcq]), fun e => key.2.2.2 (by rw [e, hcp])⟩
+  exact hsqA.trans _ _ _ ((Relation.EqvGen.rel _ _ hhex).symm _ _ |>.trans _ _ _
+    (hsqB.symm _ _))
+
+end Hexagon
+
 end Categorification.TypeA

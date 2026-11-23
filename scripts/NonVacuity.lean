@@ -5848,6 +5848,19 @@ example := crossingStack_cut bsQ Λ bsSymm L M pair β weight cross 1
 example := crossingCut_slide bsQ Λ bsSymm L M pair β weight cross
   (orderedIdem bsQ Λ (fun _ => 1) Bs) 1 (orderedInclusion_one bsQ Λ bsSymm _ Bs).symm 1
 example := crossingStack_surjective bsQ Λ bsSymm L M pair β weight
+
+/-- The violation is strictly between two arbitrary diagrams, and its red order is not
+that of the uncrossed bottom. The witness is zero in the balanced tensor itself. -/
+example (y z : KLRAlgebra ℚ (stendhalQ bsQ Λ) (stendhalWeight 4 (β + β))) :=
+  let i : Seq (stendhalWeight 4 (β + β)) := KLRAlgebra.Seq.ofList
+    [.inl (), .inr 3, .inr 2, .inl (), .inr 1, .inr 0] (by decide)
+  exists_zero_crossingSeamClass_of_quotient bsQ Λ bsSymm L M pair β weight
+    (y := y * KLRAlgebra.e i * z) (by
+      have hi : IsViolated i := ⟨by decide, rfl⟩
+      simp only [map_mul, AlgHom.comp_apply, BraidedStendhalAlgebra.violMk_e hi, mul_zero,
+        zero_mul, map_zero])
+
+example := ker_crossingStack_eq_map_ker_boundaryStack bsQ Λ bsSymm L M pair β weight
 end AdjacentRow
 
 /-- Webster, arXiv:1309.3796v2, Prop. 6.4, for `sl₂`, two red strands of weight `ω` that may

@@ -1637,7 +1637,7 @@ import Categorification.WeightedKLR.RedStrands.BraidedRelabel
 import Categorification.WeightedKLR.RedStrands.BraidedRelabelAppend
 import Categorification.WeightedKLR.RedStrands.AdjacentBlockTensor
 import Categorification.WeightedKLR.RedStrands.OrderedBlockAction
-import Categorification.WeightedKLR.RedStrands.BlockCrossingDiagramCut
+import Categorification.WeightedKLR.RedStrands.BlockCrossingRelations
 import Categorification.WeightedKLR.RedStrands.BraidedStandardInjective
 import Categorification.WeightedKLR.RedStrands.BraidedStandardIso
 import Categorification.WeightedKLR.RedStrands.BraidedStandardTwo

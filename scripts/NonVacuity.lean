@@ -5806,6 +5806,37 @@ example :=
   BraidedStendhalAlgebra.blockTensorEquiv ℚ bsQ
     (fun _ : Fin 4 => Finsupp.single () 1) [0] [3] 2 1 t (by decide)
 
+namespace AdjacentRow
+open RedBlock
+private abbrev Λ : Fin 4 → Unit →₀ ℕ := fun _ => Finsupp.single () 1
+private def pair : Fin 2 ↪ Fin 4 :=
+  ⟨fun i => ⟨i.val + 1, by omega⟩, fun i j h => Fin.ext (by have := congrArg Fin.val h; dsimp at this; omega)⟩
+private abbrev β : Multiset Unit := {()}
+private abbrev L : List (Fin 4 × Multiset Unit) := [(0,β)]
+private abbrev M : List (Fin 4 × Multiset Unit) := [(3,0)]
+private abbrev Bs := adjacentRow L M pair β
+private theorem weight : weightSum Bs = stendhalWeight 4 (β + β) := by decide
+private def top : Loadings Bs :=
+  ⟨KLRAlgebra.Seq.ofList [.inr 0,.inl ()] (by decide),
+   KLRAlgebra.Seq.ofList [.inr 1,.inl (),.inr 0] (by decide),
+   KLRAlgebra.Seq.ofList [.inr 0] (by decide), PUnit.unit⟩
+private def bad : Loadings Bs :=
+  ⟨top.1,KLRAlgebra.Seq.ofList [.inl (),.inr 1,.inr 0] (by decide),top.2.2⟩
+
+/-- The internal cut is not imposed: the paired reds in exchanged order enclose a black. -/
+example := blockTensorLoadingEquiv bsQ Λ L M pair β weight top
+  (by rintro (⟨_,h⟩ | ⟨_,h⟩ | ⟨_,h⟩ | h) <;> contradiction) (by decide)
+
+/-- Moving that black left of both paired reds violates the block, not the global loading.
+It annihilates the entire bottom-order column. -/
+example : ¬ IsViolated (Seq.cast weight (place Bs bad)) := by rintro ⟨_,h⟩; contradiction
+example (z : blockColumn bsQ Λ L M pair β weight) :=
+  stackBlocks_violated_mul bsQ Λ L M pair β weight bad (.inr (.inl ⟨by decide,rfl⟩)) z
+
+example := orderedBlockAction bsQ Λ bsSymm (fun _ => 1) L M pair β weight
+example := orderedColumn_smulCommClass bsQ Λ bsSymm (fun _ => Fin.revPerm) L M pair β weight
+end AdjacentRow
+
 /-- Webster, arXiv:1309.3796v2, Prop. 6.4, for `sl₂`, two red strands of weight `ω` that may
 cross, and every black weight. -/
 noncomputable example (ν : Multiset Unit) :=

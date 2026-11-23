@@ -52,6 +52,9 @@ private def diagonalValue : T →ₙₐ[k] ViolQuotient k Q Λ ν where
   map_zero' := congrArg Subtype.val (map_zero (diagonalEquiv Q Λ hQ ν).symm)
   map_smul' c x := congrArg Subtype.val (map_smul (diagonalEquiv Q Λ hQ ν).symm c x)
 
+private theorem diagonalValue_one : diagonalValue Q Λ hQ ν 1 = violMk k Q Λ ν P :=
+  congrArg Subtype.val (map_one (diagonalEquiv Q Λ hQ ν).symm)
+
 end Diagonal
 
 variable (σ : (B : RedBlock I ℓ) → Equiv.Perm (Fin B.size))
@@ -85,6 +88,22 @@ def orderedInclusion : (Bs : List (RedBlock I ℓ)) → orderedProduct Q Λ σ B
         change l (x*y) ⊗ₜ r (z*w) = (l x*l y) ⊗ₜ (r z*r w)
         rw [map_mul, map_mul]
 
+/-- The tensor of the prescribed local red-order projectors, before imposing violations. -/
+def orderedIdem : (Bs : List (RedBlock I ℓ)) → diagrams Q Λ Bs
+  | [] => 1
+  | B :: Bs => redProj k Q (Λ ∘ B.label) B.black ((List.finRange B.size).map (σ B)) ⊗ₜ orderedIdem Bs
+
+theorem orderedInclusion_one : ∀ Bs, orderedInclusion Q Λ hQ σ Bs 1 =
+    projection Q Λ Bs (orderedIdem Q Λ σ Bs)
+  | [] => rfl
+  | B :: Bs => by
+    change TensorProduct.map _ _ ((1 : TensorProductAlgebra k Q ((Λ ∘ B.label) ∘ σ B) B.black) ⊗ₜ
+      (1 : orderedProduct Q Λ σ Bs)) = _
+    rw [TensorProduct.map_tmul, orderedIdem, projection, Algebra.TensorProduct.map_tmul]
+    change violRedPermEquiv (Λ := Λ ∘ B.label) (σ B) (fun _ => rfl) (diagonalValue Q _ hQ B.black 1) ⊗ₜ
+      orderedInclusion Q Λ hQ σ Bs 1 = _
+    rw [diagonalValue_one, violRedPermEquiv_violMk, redPermAlgEquiv_redProj, orderedInclusion_one Bs]
+
 variable (L M : List (Fin ℓ × Multiset I)) (f : Fin 2 ↪ Fin ℓ) (β : Multiset I) {ν : Multiset I}
 local notation "Bs" => adjacentRow L M f β
 variable (h : weightSum (adjacentRow L M f β) = stendhalWeight ℓ ν)
@@ -95,6 +114,12 @@ local notation "A" => NonUnitalAlgHom.comp (AlgHom.toNonUnitalAlgHom (blockProdu
 
 /-- The summand of the block column with the specified internal red order. -/
 def orderedColumn : Submodule k N := LinearMap.range (A 1)
+
+/-- The ordered column is the image of stacking the tensor of the local red-order projectors. -/
+theorem orderedColumn_eq : orderedColumn Q Λ hQ σ L M f β h = LinearMap.range
+    (blockProductAction Q Λ L M f β h (projection Q Λ Bs (orderedIdem Q Λ σ Bs))) := by
+  change LinearMap.range (blockProductAction Q Λ L M f β h (orderedInclusion Q Λ hQ σ Bs 1)) = _
+  rw [orderedInclusion_one]
 
 private def onUnitRange {R E : Type*} [Ring R] [Algebra k R] [AddCommGroup E] [Module k E]
     (g : R →ₙₐ[k] Module.End k E) : R →ₐ[k] Module.End k (LinearMap.range (g 1)) where
@@ -130,5 +155,29 @@ def orderedBlockAction : D →ₐ[k] Module.End k (orderedColumn Q Λ hQ σ L M 
 theorem orderedBlockAction_apply (x : D) (z : orderedColumn Q Λ hQ σ L M f β h) :
     (orderedBlockAction Q Λ hQ σ L M f β h x z).1 =
       blockProductAction Q Λ L M f β h (orderedInclusion Q Λ hQ σ Bs x) z.1 := rfl
+
+local notation "R" => IsIdempotentElem.Corner (bottomIdempotent Q Λ L M f (ν := ν))
+local notation "S" => orderedColumn Q Λ hQ σ L M f β h
+
+private def orderedRightSubmodule : Submodule Rᵐᵒᵖ N where
+  carrier := S
+  zero_mem' := (S).zero_mem
+  add_mem' := (S).add_mem
+  smul_mem' b _ hz := by
+    obtain ⟨v,rfl⟩ := hz
+    exact ⟨b • v, blockProductAction_right Q Λ L M f β h _ b v⟩
+
+instance orderedRightModule : Module Rᵐᵒᵖ S :=
+  inferInstanceAs (Module Rᵐᵒᵖ (orderedRightSubmodule Q Λ hQ σ L M f β h))
+
+instance orderedLeftModule : Module D S := Module.compHom _ (orderedBlockAction Q Λ hQ σ L M f β h).toRingHom
+
+/-- Top juxtaposition and bottom stacking make each ordered column a bimodule
+(Webster, arXiv:1309.3796v2, §5.1 after Definition 5.4 and the ordinary step of
+Lemma 6.8). Matching red orders give the partial-standardization column; the exchanged
+top order gives the crossing column, not an identification of the two tensor functors. -/
+instance orderedColumn_smulCommClass : SMulCommClass D Rᵐᵒᵖ S where
+  smul_comm x b z := Subtype.ext (blockProductAction_right Q Λ L M f β h
+    (orderedInclusion Q Λ hQ σ Bs x) b z.1)
 
 end Categorification.Stendhal.RedBlock

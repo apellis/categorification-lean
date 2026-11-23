@@ -64,9 +64,6 @@ private def stackEnd (x : diagrams Q Λ Bs) : Module.End k N :=
     rw [← map_mul, mul_assoc (F x) v p, ← mul_assoc (F 1) (F x), ← mul_assoc (F x) (F 1),
       ← map_mul, ← map_mul, one_mul, mul_one]
 
-private theorem stackEnd_apply (x : diagrams Q Λ Bs) (z : N) :
-    (stackEnd Q Λ L M f β h x z).1 = q (F x) * z.1 := rfl
-
 private def stackAction : diagrams Q Λ Bs →ₐ[k] Module.End k N where
   toFun := stackEnd Q Λ L M f β h
   map_one' := by
@@ -111,6 +108,12 @@ private theorem stackAction_violated (s : Loadings Bs) (hv : Violated Bs s) :
       (TwoSidedIdeal.subset_span ⟨t,ho,hu,rfl⟩))
   · exact higher_loading_mul_order_mem ho hu _
 
+/-- A locally violated loading acts by zero even when its juxtaposition has no black strand
+to the left of the first global red (Webster, §5.1 and the slide in Lemma 6.8). -/
+theorem stackBlocks_violated_mul (s : Loadings Bs) (hv : Violated Bs s) (z : N) :
+    q (F (loadingIdem Q Λ Bs s)) * z.1 = 0 :=
+  congrArg Subtype.val (LinearMap.congr_fun (stackAction_violated Q Λ L M f β h s hv) z)
+
 /-- **The action by horizontal juxtaposition** (Webster, arXiv:1309.3796v2, proof of
 Lemma 6.8). A local violation in either order of the two-red block acts by zero on the
 ordinary column; the relation in the opposite order is moved to the bottom by the slide. -/
@@ -123,6 +126,45 @@ theorem blockProductAction_projection (x : diagrams Q Λ Bs) (z : N) :
     (blockProductAction Q Λ L M f β h (projection Q Λ Bs x) z).1 = q (F x) * z.1 := by
   rw [blockProductAction, (exists_factor (C := Module.End k N) Q Λ Bs _ (stackAction_violated Q Λ L M f β h)).choose_spec]
   rfl
+
+/-- The idempotent of the ordered bottom of the block column. -/
+theorem bottomIdempotent : IsIdempotentElem p := (isIdempotentElem_redProj κ₀).map _
+local notation "hp" => bottomIdempotent (k := k) Q Λ L M f (ν := ν)
+
+/-- The right action of the bottom-order corner on partial standardization (Webster,
+arXiv:1309.3796v2, §5.1, Definition 5.4). It is stacking at the bottom, in the same
+quotient as the external action, not a right action transported by a vector-space isomorphism. -/
+instance columnRightModule : Module (hp).Cornerᵐᵒᵖ N where
+  smul b z := ⟨z.1 * q b.unop.1, by
+    obtain ⟨v,hv⟩ := z.2
+    refine ⟨v * b.unop.1, ?_⟩
+    rw [← hv]
+    change q (F 1 * (v * b.unop.1 * p)) = q (F 1 * (v * p)) * q b.unop.1
+    obtain ⟨hl,hr⟩ := (Subsemigroup.mem_corner_iff hp).1 b.unop.2
+    rw [← map_mul, mul_assoc v, hr, mul_assoc, mul_assoc, hl]⟩
+  one_smul z := Subtype.ext (by
+    obtain ⟨v,hv⟩ := z.2
+    change z.1 * q p = z.1
+    rw [← hv]; change q (F 1 * (v*p)) * q p = q (F 1 * (v*p))
+    rw [← map_mul, mul_assoc, mul_assoc, (hp).eq])
+  mul_smul b c z := Subtype.ext (by
+    change z.1 * q (c.unop.1 * b.unop.1) = z.1 * q c.unop.1 * q b.unop.1
+    rw [map_mul, mul_assoc])
+  smul_zero b := Subtype.ext (zero_mul _)
+  smul_add b x y := Subtype.ext (add_mul _ _ _)
+  zero_smul z := Subtype.ext (by change z.1 * q 0 = 0; rw [map_zero (q), mul_zero])
+  add_smul b c z := Subtype.ext (by
+    change z.1 * q (b.unop.1 + c.unop.1) = z.1 * q b.unop.1 + z.1 * q c.unop.1
+    rw [map_add, mul_add])
+
+/-- Juxtaposing on top commutes with the right action of the full bottom-order algebra. -/
+theorem blockProductAction_right (x : quotients Q Λ Bs) (b : (hp).Cornerᵐᵒᵖ) (z : N) :
+    blockProductAction Q Λ L M f β h x (b • z) = b • blockProductAction Q Λ L M f β h x z := by
+  obtain ⟨y,rfl⟩ := projection_surjective Q Λ Bs x
+  apply Subtype.ext
+  change _ = (blockProductAction Q Λ L M f β h _ z).1 * q b.unop.1
+  rw [blockProductAction_projection, blockProductAction_projection]
+  exact (mul_assoc _ _ _).symm
 
 /-- The loading summand cut out by the *external* tensor of local idempotents. -/
 def loadingSummand (s : Loadings Bs) : Submodule k (J).ringCon.Quotient :=

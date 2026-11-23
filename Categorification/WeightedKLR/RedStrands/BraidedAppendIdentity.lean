@@ -22,7 +22,7 @@ every red order with Webster's `𝔈_i`.
 
 * `BraidedStendhalAlgebra.toAllOrders_appendBlackAlg`: imposing the vanishing of red crossings
   commutes with appending a black strand.
-* `BraidedStendhalAlgebra.appendViol_mem_corner`: appending preserves the identity corner.
+* `BraidedStendhalAlgebra.appendViol_mem_corner`: appending preserves the corner at every red order.
 * `BraidedStendhalAlgebra.violCornerEquiv_appendViol`: the square with `Stendhal.appendBlack`
   commutes.
 -/
@@ -58,30 +58,32 @@ theorem toAllOrders_appendBlackAlg (z : BraidedStendhalAlgebra k Q Λ ν) :
   rw [appendBlackAlg_ofKLR, toAllOrders_ofKLR, toAllOrders_ofKLR]
   exact (appendBlackAllOrders_ofKLR_val Q Λ i ν z).symm
 
-local notation "P" => redProj k Q Λ ν (List.finRange ℓ)
-local notation "P'" => redProj k Q Λ νᵢ (List.finRange ℓ)
+variable (κ : List (Fin ℓ))
 
-/-- Appending a black strand preserves the corner at the red order `λ_1, …, λ_ℓ`. -/
+local notation "P" => redProj k Q Λ ν κ
+local notation "P'" => redProj k Q Λ νᵢ κ
+
+/-- Appending a black strand preserves the corner at a red order `κ`. -/
 theorem appendBlackAlg_mem_corner {x : BraidedStendhalAlgebra k Q Λ ν}
     (hx : x ∈ Subsemigroup.corner P) :
     appendBlackAlg Q Λ i ν x ∈ Subsemigroup.corner P' := by
   obtain ⟨r, rfl⟩ := hx
   refine ⟨appendIdem Q Λ i ν * appendBlackAlg Q Λ i ν r * appendIdem Q Λ i ν, ?_⟩
   simp only [map_mul, appendBlackAlg_apply, appendBlackValue_redProj]
-  have hc := redProj_commute_appendIdem Q Λ i ν (List.finRange ℓ)
+  have hc := redProj_commute_appendIdem Q Λ i ν κ
   calc P' * (appendIdem Q Λ i ν * appendBlackValue Q Λ i ν r * appendIdem Q Λ i ν) * P' =
       P' * appendIdem Q Λ i ν * appendBlackValue Q Λ i ν r * (appendIdem Q Λ i ν * P') := by
         simp only [mul_assoc]
     _ = _ := by rw [← hc.eq]
 
-/-- Appending a black strand preserves the corner of the quotient by violated idempotents at the
-red order `λ_1, …, λ_ℓ`. -/
+/-- Appending a black strand preserves the corner of the quotient by violated idempotents at a
+red order `κ`. -/
 theorem appendViol_mem_corner {x : ViolQuotient k Q Λ ν}
     (hx : x ∈ Subsemigroup.corner (violMk k Q Λ ν P)) :
     appendViol Q Λ i ν x ∈ Subsemigroup.corner (violMk k Q Λ νᵢ P') := by
   obtain ⟨r, rfl⟩ := hx
   obtain ⟨r, rfl⟩ := violMk_surjective (k := k) (Q := Q) (Λ := Λ) (ν := ν) r
-  obtain ⟨w, hw⟩ := appendBlackAlg_mem_corner Q Λ i ν (x := P * r * P) ⟨r, rfl⟩
+  obtain ⟨w, hw⟩ := appendBlackAlg_mem_corner Q Λ i ν κ (x := P * r * P) ⟨r, rfl⟩
   refine ⟨violMk k Q Λ νᵢ w, ?_⟩
   change violMk k Q Λ νᵢ P' * violMk k Q Λ νᵢ w * violMk k Q Λ νᵢ P' =
     appendViol Q Λ i ν (violMk k Q Λ ν P * violMk k Q Λ ν r * violMk k Q Λ ν P)
@@ -102,13 +104,14 @@ variable {Q Λ i ν}
 `Stendhal.appendBlack`. -/
 theorem violCornerEquiv_appendViol
     (x : (isIdempotentElem_violRedProj k Q Λ ν).Corner) :
-    violCornerEquiv hρ' hQ ⟨appendViol Q Λ i ν x.1, appendViol_mem_corner Q Λ i ν x.2⟩ =
+    violCornerEquiv hρ' hQ ⟨appendViol Q Λ i ν x.1, appendViol_mem_corner Q Λ i ν _ x.2⟩ =
       Stendhal.appendBlack Q Λ i ν (violCornerEquiv hρ hQ x) := by
   obtain ⟨y, rfl⟩ := violCornerHom_surjective x
   have hy : (⟨appendViol Q Λ i ν (violCornerHom k Q Λ ν y).1,
-      appendViol_mem_corner Q Λ i ν (violCornerHom k Q Λ ν y).2⟩ :
+      appendViol_mem_corner Q Λ i ν _ (violCornerHom k Q Λ ν y).2⟩ :
         (isIdempotentElem_violRedProj k Q Λ νᵢ).Corner) =
-      violCornerHom k Q Λ νᵢ ⟨appendBlackAlg Q Λ i ν y.1, appendBlackAlg_mem_corner Q Λ i ν y.2⟩ :=
+      violCornerHom k Q Λ νᵢ
+        ⟨appendBlackAlg Q Λ i ν y.1, appendBlackAlg_mem_corner Q Λ i ν _ y.2⟩ :=
     Subtype.ext rfl
   rw [hy, violCornerEquiv_violCornerHom, violCornerEquiv_violCornerHom, Stendhal.appendBlack_mk]
   congr 1

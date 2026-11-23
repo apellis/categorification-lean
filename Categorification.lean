@@ -85,6 +85,7 @@ import Categorification.Algebra.InductionAlongEnd
 import Categorification.Algebra.InductionAlongLinear
 import Categorification.Algebra.DualRightModule
 import Categorification.Algebra.ModuleTowerEnd
+import Categorification.Algebra.InductionAlongCornerProjective
 import Categorification.Algebra.InductionAlongCornerRes
 import Categorification.Algebra.InductionAlongCornerSelf
 import Categorification.Algebra.InductionAlongRes

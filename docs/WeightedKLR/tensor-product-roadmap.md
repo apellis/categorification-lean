@@ -900,7 +900,7 @@ modules over rings in degree `0`, computed on K-projective resolutions (`derived
 `cornerBimodule`, `Algebra/CornerBimodule.lean`). Webster uses graded modules and `D⁻`; the
 graded version and the restriction to `D⁻` are open roadmap items.
 
-Prop 6.9 for two red strands, done (`RedStrands/BraidedStandardTwo.lean`,
+The ungraded Figure 5 right-module map for Prop 6.9 (`RedStrands/BraidedStandardTwo.lean`,
 `RedStrands/BraidedStandardInjective.lean`, `RedStrands/BraidedStandardIso.lean`). Let the leftmost strand of `t` be `λ_r` and let `g`
 carry it to the right edge, `g • t = s` (`EdgeBraid`). The braiding diagram `ψ_g` sends the
 generators of the ideal `U_r` (violated idempotents, and idempotents starting with `λ_r` followed
@@ -910,6 +910,9 @@ by a black strand) into the violated ideal (`e_mul_mul_e_mem_violIdeal`); every 
 `e(t) x e_{r :: L}` lies in `U_r` (`mem_edgeIdeal_of_mem_violIdeal`, through the left inverse
 `throughMap`). Together they give the isomorphism of Figure 5,
 `e(t) (A / U_r) e_{r :: L} ≃ e(s) (A / A e_viol A) e_{r :: L}` (`braidCornerEquiv`).
+`violLoadingStandardEquivBraidCorner` identifies the swapped loading standard with the cut
+of the braid bimodule as a right module over the swapped-order corner. The comparison with
+standardization of the exterior projectives, the derived calculation and the internal shift remain open.
 
 Lemma 6.8, ordinary tensor at a fixed top loading: `adjacentBlockRoot` measures the cuts
 of `λ(j)`. A reduced diagram for the adjacent red swap factors through the swapped red

@@ -5790,6 +5790,48 @@ end RedFirstEnd
 
 end NonVacuity.RedBlackCrossing
 
+namespace NonVacuity.WebsterFigureFive
+
+open Categorification Categorification.KLR Categorification.Stendhal
+open Categorification.Stendhal.BraidedStendhalAlgebra Equiv MvPolynomial
+
+private abbrev ν : Multiset Unit := {()}
+private abbrev μ := stendhalWeight 2 ν
+private def t : Seq μ := KLRAlgebra.Seq.ofList [.inr 1, .inr 0, .inl ()] (by decide)
+private def s : Seq μ := KLRAlgebra.Seq.ofList [.inr 0, .inl (), .inr 1] (by decide)
+private def g : Perm (Fin 3) := Equiv.swap 0 1 * Equiv.swap 0 2
+private noncomputable abbrev Q : Unit → Unit → MvPolynomial (Fin 2) ℚ := fun _ _ => 0
+private noncomputable abbrev Λ : Fin 2 → Unit →₀ ℕ := fun j => Finsupp.single () (j.val + 2)
+private noncomputable def ρ (w : Perm (Fin μ.card)) := (TypeA.exists_reduced _ w).choose
+private theorem hρ : TypeA.IsReducedChoice ρ := fun w => (TypeA.exists_reduced _ w).choose_spec
+private theorem hQ : KLRSymm Q := fun _ _ _ => rfl
+private theorem hb : EdgeBraid (by decide : 0 < μ.card) 1 g s t where
+  smul_eq := by
+    apply Subtype.ext
+    funext x
+    change Fin 3 at x
+    fin_cases x <;> rfl
+  last := rfl
+  shift := by
+    intro x hx
+    change Fin 3 at x
+    fin_cases x
+    · rfl
+    · rfl
+    · exact False.elim (hx rfl)
+
+private theorem h1 : 1 < μ.card := by decide
+
+private noncomputable def figure5LoadingEquiv :=
+  violLoadingStandardEquivBraidCorner (Λ₂ := Λ) (d := 0) hρ hQ h1 rfl rfl hb
+
+example (x : violCorner ℚ Q Λ ν t [1, 0]) :
+    (figure5LoadingEquiv (Submodule.Quotient.mk x)).1 =
+      violMk ℚ Q Λ ν (ofKLR ℚ Q Λ ν (KLRAlgebra.ψw (ρ g) * KLRAlgebra.e t)) * x.1 :=
+  violLoadingStandardEquivBraidCorner_mk hρ hQ h1 rfl rfl hb x
+
+end NonVacuity.WebsterFigureFive
+
 namespace NonVacuity.BraidedStendhal
 
 open Categorification Categorification.KLR Categorification.Stendhal

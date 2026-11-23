@@ -1606,6 +1606,7 @@ import Categorification.WeightedKLR.RedStrands.RedBlackCrossingTransport
 import Categorification.WeightedKLR.RedStrands.RedBlackCrossingChain
 import Categorification.WeightedKLR.RedStrands.BraidedAppendBlack
 import Categorification.WeightedKLR.RedStrands.BraidedAppendBasis
+import Categorification.WeightedKLR.RedStrands.BraidedAppendCoset
 import Categorification.WeightedKLR.RedStrands.BraidedFactorization
 import Categorification.WeightedKLR.RedStrands.BraidedFactorizationBasis
 import Categorification.WeightedKLR.RedStrands.BraidedFactorizationGeneral

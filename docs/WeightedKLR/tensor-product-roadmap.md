@@ -853,7 +853,11 @@ with the basis of Prop 6.4; the general case follows by induction through the re
 `CornerTensor.mult_injective_of_factor`. The length condition in inversion-set form (every pair
 of labels crossed from `κ₀` to `κ₁` is still crossed in `κ₂`, for `κ₀` without repeated labels)
 gives such a path by bubble sort (`redCrossingPath_of_inversions`,
-`tensorMult_bijective_of_inversions`). Still open: the quotient bimodules `B_w`.
+`tensorMult_bijective_of_inversions`). The same holds for the quotient bimodules `B_w` by the
+violated idempotents (`violMk_mult_injective`, `violMk_mult_surjective`): a violated diagram is
+pushed through red crossings by frames that fix the strands left of the crossing
+(`redProj_mul_mul_e_mem`), and injectivity passes to the quotient
+(`CornerTensor.mult_injective_of_ker`).
 
 The functors `𝔅_w` (Def 6.6, Prop 6.7, Cor 6.8, Lemma 6.9, Prop 6.10, Lemma 6.13);
 tilting modules (Thm 6.14); `𝔅_w` are equivalences (Thm 6.15); the braid group action

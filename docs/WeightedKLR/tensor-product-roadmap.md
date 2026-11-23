@@ -866,7 +866,16 @@ ring `B̃_e ≃ T̃^λ` is `identityCornerEquiv`, and the two ideals correspond
 `λ_1, …, λ_ℓ` one crossing at a time (`redProj_mul_e_mem_violSpan`). So each `B_w` is a
 `T^{wλ}`–`T^λ` bimodule.
 
-The functors `𝔅_w` (Def 6.6, Prop 6.7, Cor 6.8, Lemma 6.9, Prop 6.10, Lemma 6.13);
+Prop 6.7, part for `E`, at the level of bimodules: appending a black strand at the right is a
+non-unital algebra map `φ = βE_i` (`appendBlackAlg`, `RedStrands/BraidedAppendBasis.lean`), and
+multiplication `e_{κ'}B(νᵢ)φ(e_{κ'}) ⊗ e_{κ'}B(ν)e_κ → e_{κ'}B(νᵢ)φ(e_κ)` is bijective, for `B̃`
+(`mult_injective_append`, `mult_surjective_append`, `RedStrands/BraidedAppendTensor.lean`) and for
+the quotients by violated idempotents (`violMk_mult_injective_append`,
+`violMk_mult_surjective_append`, `RedStrands/BraidedAppendViolated.lean`). The reduced words go
+through the last coset (`lastCosetWord`), as in Webster's proof. Open: the part for `F`
+(Webster: by biadjunction) and the derived form.
+
+The functors `𝔅_w` (Def 6.6, Prop 6.7 derived, Cor 6.8, Lemma 6.9, Prop 6.10, Lemma 6.13);
 tilting modules (Thm 6.14); `𝔅_w` are equivalences (Thm 6.15); the braid group action
 (Def 6.16, Cor 6.18); Ringel duality (Cor 6.19); semi-orthogonal decompositions
 (Prop 6.20); the Serre functor (Prop 6.21). Open. These need derived categories of

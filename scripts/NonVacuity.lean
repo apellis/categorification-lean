@@ -5860,6 +5860,22 @@ example (ν : Multiset Unit) :=
     (fun w => (TypeA.exists_reduced _ w).choose_spec) bsSymm
     (κ₂ := [2, 1, 0]) (κ₁ := [1, 0, 2]) (κ₀ := [0, 1, 2]) (by decide) (by decide) (by decide)
 
+/-- Webster, arXiv:1309.3796v2, Proposition 6.7 (the part for `E`, at the level of bimodules over
+the quotients by violated diagrams), for `sl₂`, two red strands of weight `ω` and every black
+weight: multiplication `βE ⊗ B_w → B_w βE` along the append map is injective. -/
+example (ν : Multiset Unit) :=
+  BraidedStendhalAlgebra.violMk_mult_injective_append (k := ℚ) bsQ
+    (fun _ : Fin 2 => Finsupp.single () 1) () ν bsSymm
+    (fun w => (TypeA.exists_reduced _ w).choose)
+    (fun w => (TypeA.exists_reduced _ w).choose_spec) [1, 0] [0, 1]
+
+/-- The same, surjectivity. -/
+example (ν : Multiset Unit) :=
+  BraidedStendhalAlgebra.violMk_mult_surjective_append (k := ℚ) bsQ
+    (fun _ : Fin 2 => Finsupp.single () 1) () ν bsSymm
+    (fun w => (TypeA.exists_reduced _ w).choose)
+    (fun w => (TypeA.exists_reduced _ w).choose_spec) [1, 0] [0, 1]
+
 /-- Webster, arXiv:1309.3796v2, §6: the quotient bimodule `B_e` is the tensor product algebra
 `T^λ` (Definitions 4.6 and 4.7) as rings, for `sl₂`, two red strands of weight `ω` and every
 black weight. -/

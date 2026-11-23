@@ -909,10 +909,12 @@ by a black strand) into the violated ideal (`e_mul_mul_e_mem_violIdeal`); every 
 (`exists_e_mul_mul_redProj_sub_mem_of_last`); and if `ψ_g e(t) x e_{r :: L}` is violated then
 `e(t) x e_{r :: L}` lies in `U_r` (`mem_edgeIdeal_of_mem_violIdeal`, through the left inverse
 `throughMap`). Together they give the isomorphism of Figure 5,
-`e(t) (A / U_r) e_{r :: L} ≃ e(s) (A / A e_viol A) e_{r :: L}` (`braidCornerEquiv`). Open: the
-reduction of general `ℓ` to two red strands through Lemma 6.8, and the graded form.
+`e(t) (A / U_r) e_{r :: L} ≃ e(s) (A / A e_viol A) e_{r :: L}` (`braidCornerEquiv`).
 
-Open: Lemma 6.8, Prop 6.9 for general `ℓ`, Cor 6.10, Lemma 6.11, Def 6.12, Cor 6.13,
+Open, in working order: Lemma 6.8 (needs block standardization in the braided algebra; standard
+modules exist only in `StendhalAlgebraAllOrders`, `RedStrands/StandardAction.lean`, and partial
+standardization only for the last red strand), then Prop 6.9 for general `ℓ` by reduction to two
+red strands, the graded forms of Def 6.6 and Props 6.7, 6.9, Cor 6.10, Lemma 6.11, Def 6.12, Cor 6.13,
 Lemma 6.14; tilting modules (Thm 6.15); `𝔅_σ` are equivalences (Thm 6.16); the braid group
 action (Cor 6.17); Ringel duality (Cor 6.18); semi-orthogonal decompositions (Prop 6.19); the
 Serre functor (Prop 6.20).

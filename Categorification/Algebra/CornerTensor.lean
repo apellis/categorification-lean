@@ -119,6 +119,12 @@ theorem tmul_balance (x c y : A) :
     Submodule.Quotient.mk_eq_zero]
   exact Submodule.subset_span (Or.inr ⟨x, c, y, rfl⟩)
 
+/-- Balancing for an element of the corner algebra given with its corner property. -/
+theorem tmul_balance_of {c : A} (hc : e₁ * c * e₁ = c) (x y : A) :
+    (tmul (x * c) y : CornerTensor k A e₂ e₁ e₀) = tmul x (c * y) := by
+  have h := tmul_balance (k := k) (A := A) (e₂ := e₂) (e₁ := e₁) (e₀ := e₀) x c y
+  rwa [hc] at h
+
 theorem mkQ_surjective : Function.Surjective (mkQ k A e₂ e₁ e₀) :=
   Submodule.mkQ_surjective _
 

@@ -13,6 +13,7 @@ import Categorification.Algebra.CompositionFactors
 import Categorification.Algebra.CornerEndomorphism
 import Categorification.Algebra.CornerTensor
 import Categorification.Algebra.CornerTensorFactor
+import Categorification.Algebra.CornerTensorQuotient
 import Categorification.Algebra.ModuleTower
 import Categorification.Algebra.ModuleTowerK0
 import Categorification.Algebra.ModuleTowerSl2
@@ -1606,6 +1607,7 @@ import Categorification.WeightedKLR.RedStrands.BraidedFactorization
 import Categorification.WeightedKLR.RedStrands.BraidedFactorizationBasis
 import Categorification.WeightedKLR.RedStrands.BraidedFactorizationGeneral
 import Categorification.WeightedKLR.RedStrands.BraidedFactorizationLength
+import Categorification.WeightedKLR.RedStrands.BraidedViolatedPush
 import Categorification.WeightedKLR.RedStrands.BraidedFactorizationCancel
 import Categorification.WeightedKLR.RedStrands.BraidedFactorizationExits
 import Categorification.WeightedKLR.RedStrands.BraidedFactorizationSpan

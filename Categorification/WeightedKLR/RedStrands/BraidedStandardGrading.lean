@@ -390,4 +390,148 @@ theorem figureFive_mem_cutGrade
 
 end FigureFive
 
+section LoadingComparison
+
+variable {I : Type} {k : Type*} [DecidableEq I] [CommRing k]
+  {Q : I → I → MvPolynomial (Fin 2) k} {Λ : Fin 2 → I →₀ ℕ} {ν : Multiset I}
+
+local notation "μ" => stendhalWeight 2 ν
+local notation "m" => Multiset.card (stendhalWeight 2 ν)
+local notation "Right" κ:arg => (ViolOrderCorner (k := k) (Q := Q) (Λ := Λ) (ν := ν) κ)ᵐᵒᵖ
+local notation "V" => ViolQuotient k Q Λ ν
+
+attribute [local instance 1100] IsIdempotentElem.instAlgebraCorner_categorification
+
+local instance violOrderCornerRing (κ : List (Fin 2)) :
+    Ring (ViolOrderCorner (k := k) (Q := Q) (Λ := Λ) (ν := ν) κ) := _root_.instRingCorner _ _
+
+private instance violCornerRightScalarTower (t : Seq μ) (κ : List (Fin 2)) :
+    IsScalarTower k (Right κ) (violCorner k Q Λ ν t κ) where
+  smul_assoc c a x := Subtype.ext <| by
+    rw [violCorner_smul_val, Submodule.coe_smul_of_tower, violCorner_smul_val]
+    change x.1 * (c • a.unop.val) = c • (x.1 * a.unop.val)
+    rw [mul_smul_comm]
+
+private instance violLoadingModule (t : Seq μ) (κ : List (Fin 2)) :
+    Module k (ViolLoadingStandard (k := k) (Q := Q) (Λ := Λ) t κ) :=
+  Submodule.Quotient.module' (violStandardUpper t κ)
+
+variable (C : CartanDatum I) (hQ : IsRouquierQ C Q)
+
+local notation "G" => stendhalGradingDatum Λ hQ.gradingDatum (UDot.di C) (cartanDotDegree C hQ)
+local notation "Δ" r:arg => Multiset.sum (Multiset.map (fun i => UDot.di C i * (Λ r i : ℤ)) ν)
+local notation "Agrade" => violAuxiliaryGrade (ν := ν) G
+
+private def loadingMkQ (t : Seq μ) (κ : List (Fin 2)) :
+    violCorner k Q Λ ν t κ →ₗ[k] ViolLoadingStandard (k := k) (Q := Q) (Λ := Λ) t κ :=
+  (violStandardUpper (k := k) (Q := Q) (Λ := Λ) t κ).mkQ.restrictScalars k
+
+private def loadingAuxiliaryGrade (t : Seq μ) (κ : List (Fin 2)) :
+    ℤ → Submodule k (ViolLoadingStandard (k := k) (Q := Q) (Λ := Λ) t κ) :=
+  Graded.map (violCornerAuxiliaryGrade C hQ t κ) (loadingMkQ (Λ := Λ) t κ)
+
+/-- The degree-`n` piece is the image of the degree-`n` piece of the same-order projective.
+Complex indices outside the integers have zero piece. -/
+def violLoadingGrade (t : Seq μ) (κ : List (Fin 2)) :
+    ℂ → Submodule k (ViolLoadingStandard (k := k) (Q := Q) (Λ := Λ) t κ) :=
+  Function.extend (fun n : ℤ => (n : ℂ)) (loadingAuxiliaryGrade C hQ t κ) ⊥
+
+private theorem isInternal_loadingAuxiliaryGrade {s t : Seq μ} {κ : List (Fin 2)}
+    {a : V} {D : ℤ} (ha : a ∈ Agrade D)
+    (e : ViolLoadingStandard (k := k) (Q := Q) (Λ := Λ) t κ ≃ₗ[Right κ] violCorner k Q Λ ν s κ)
+    (he : ∀ y, (e (loadingMkQ (Λ := Λ) t κ y)).1 = a * y.1) :
+    DirectSum.IsInternal (loadingAuxiliaryGrade (Λ := Λ) C hQ t κ) := by
+  let f := loadingMkQ (k := k) (Q := Q) (Λ := Λ) t κ
+  let 𝒯 := violCornerAuxiliaryGrade (Λ := Λ) C hQ t κ
+  have hsub : PreservesGrading 𝒯 Agrade (violCorner k Q Λ ν t κ).subtype := by
+    intro n x hx
+    exact hx
+  have hmul : PreservesGrading Agrade (Graded.shift Agrade (-D)) (LinearMap.mulLeft k a) := by
+    intro n x hx
+    change a * x ∈ Agrade (n - -D)
+    rw [show n - -D = D + n by abel]
+    exact SetLike.GradedMul.mul_mem ha hx
+  have hker : ∀ x, f x = 0 → ∀ n, f (decompose 𝒯 x n) = 0 := by
+    intro x hx n
+    have hzero : a * x.1 = 0 := by
+      rw [← he, show loadingMkQ (Λ := Λ) t κ x = 0 from hx, map_zero]
+      rfl
+    apply e.injective
+    apply Subtype.ext
+    rw [show e (f (decompose 𝒯 x n)) = e (loadingMkQ (Λ := Λ) t κ (decompose 𝒯 x n)) from rfl,
+      he, map_zero]
+    change a * (violCorner k Q Λ ν t κ).subtype (decompose 𝒯 x n) = 0
+    rw [← Graded.decompose_map hsub x n]
+    have hm := (Graded.decompose_map hmul x.1 n).symm
+    change a * (decompose Agrade x.1 n : V) = _ at hm
+    rw [show (LinearMap.mulLeft k a) x.1 = 0 from hzero, decompose_zero] at hm
+    simpa using hm
+  let _ : Decomposition (loadingAuxiliaryGrade (Λ := Λ) C hQ t κ) :=
+    Graded.mapDecomposition (π := f) (𝒳 := 𝒯)
+      (Submodule.mkQ_surjective (violStandardUpper (k := k) (Q := Q) (Λ := Λ) t κ)) hker
+  exact Decomposition.isInternal _
+
+/-- Webster, arXiv:1309.3796v2, §6.1 Proposition 6.9, Figure 5, at the loading endpoints.
+The shift on the standard is `+⟨λ_d - α, λ_r⟩` in Webster's notation, i.e. its negative in
+`Graded.shift`. This is the existing right-module comparison, with its internal grading. -/
+def figureFiveGradedLoadingEquiv
+    {ρ : Perm (Fin m) → List ℕ} (hρ : IsReducedChoice ρ) (hS : KLRSymm Q)
+    {s t : Seq μ} {r d : Fin 2} {g : Perm (Fin m)} (h1 : 1 < m)
+    (ht₀ : t.lbl ⟨0, Nat.zero_lt_one.trans h1⟩ = .inr r) (ht₁ : t.lbl ⟨1, h1⟩ = .inr d)
+    (hb : EdgeBraid (Nat.zero_lt_one.trans h1) r g s t)
+    {H : Type*} [AddCommGroup H] [Module ℂ H] [Fintype I]
+    (P : Matrix.Realization (UDot.A C) ℂ H)
+    (B : LinearMap.BilinForm ℂ (Module.Dual ℂ H)) (η : Fin 2 → Module.Dual ℂ H)
+    (hB : ∀ i x, B (P.root i) x = (UDot.di C i : ℂ) * x (P.coroot i))
+    (hΛ : ∀ j i, η j (P.coroot i) = (Λ j i : ℂ)) (hSym : B.IsSymm) :
+    Graded.shift (violLoadingGrade (Λ := Λ) C hQ t [r, d]) (-B (η d - (ν.map P.root).sum) (η r))
+      ≃ᵍ[Right [r, d]] figureFiveCutGrade (Λ := Λ) C hQ B η s r d := by
+  let e := violLoadingStandardEquivBraidCorner (k := k) (Q := Q) (Λ₂ := Λ)
+    (ν := ν) (s := s) (t := t) (r := r) (d := d) hρ hS h1 ht₀ ht₁ hb
+  let a : V := violMk k Q Λ ν (ofKLR k Q Λ ν (KLRAlgebra.ψw (ρ g) * KLRAlgebra.e t))
+  have ha : a ∈ Agrade (Δ r - 2) := figureFive_mem_violAuxiliaryGrade C hQ hρ _ ht₀ hb
+  have he (y : violCorner k Q Λ ν t [r, d]) : (e (loadingMkQ (Λ := Λ) t [r, d] y)).1 = a * y.1 :=
+    violLoadingStandardEquivBraidCorner_mk hρ hS h1 ht₀ ht₁ hb y
+  letI : Decomposition (violLoadingGrade (Λ := Λ) C hQ t [r, d]) :=
+    (isInternal_extend_bot _ Int.cast_injective _
+      (isInternal_loadingAuxiliaryGrade C hQ ha e he)).chooseDecomposition
+  letI := (isInternal_figureFiveCutGrade (Λ := Λ) C hQ B η s r d).chooseDecomposition
+  apply GradedEquiv.ofPreserves e
+  intro z x hx
+  change x ∈ Function.extend (fun n : ℤ => (n : ℂ))
+    (loadingAuxiliaryGrade (Λ := Λ) C hQ t [r, d]) ⊥ (z - -B (η d - (ν.map P.root).sum) (η r)) at hx
+  by_cases hz : ∃ n : ℤ, (n : ℂ) = z - -B (η d - (ν.map P.root).sum) (η r)
+  · obtain ⟨n, hn⟩ := hz
+    rw [← hn, (Int.cast_injective (α := ℂ)).extend_apply] at hx
+    obtain ⟨y, hy, rfl⟩ := hx
+    have hz' : z = (((Δ r - 2) + n : ℤ) : ℂ) + (2 - B (η r) (η d)) := by
+      rw [map_sub, LinearMap.sub_apply, weightPairing_blackContent C B η P hB hΛ] at hn
+      rw [Int.cast_add, Int.cast_sub, Int.cast_two, hSym.eq (η r) (η d)]
+      linear_combination -hn
+    rw [hz', figureFiveCutGrade, (intCast_add_injective _).extend_apply]
+    change (e (loadingMkQ (Λ := Λ) t [r, d] y)).1 ∈ Agrade (Δ r - 2 + n)
+    rw [he]
+    exact SetLike.GradedMul.mul_mem ha (show y.1 ∈ Agrade n from hy)
+  · rw [Function.extend_apply' _ _ _ hz] at hx
+    change x ∈ (⊥ : Submodule k (ViolLoadingStandard (k := k) (Q := Q) (Λ := Λ) t [r, d])) at hx
+    rw [Submodule.mem_bot] at hx
+    change e x ∈ _
+    rw [hx, map_zero]
+    exact zero_mem _
+
+@[simp] theorem figureFiveGradedLoadingEquiv_toLinearEquiv
+    {ρ : Perm (Fin m) → List ℕ} (hρ : IsReducedChoice ρ) (hS : KLRSymm Q)
+    {s t : Seq μ} {r d : Fin 2} {g : Perm (Fin m)} (h1 : 1 < m)
+    (ht₀ : t.lbl ⟨0, Nat.zero_lt_one.trans h1⟩ = .inr r) (ht₁ : t.lbl ⟨1, h1⟩ = .inr d)
+    (hb : EdgeBraid (Nat.zero_lt_one.trans h1) r g s t)
+    {H : Type*} [AddCommGroup H] [Module ℂ H] [Fintype I]
+    (P : Matrix.Realization (UDot.A C) ℂ H)
+    (B : LinearMap.BilinForm ℂ (Module.Dual ℂ H)) (η : Fin 2 → Module.Dual ℂ H)
+    (hB : ∀ i x, B (P.root i) x = (UDot.di C i : ℂ) * x (P.coroot i))
+    (hΛ : ∀ j i, η j (P.coroot i) = (Λ j i : ℂ)) (hSym : B.IsSymm) :
+    (figureFiveGradedLoadingEquiv C hQ hρ hS h1 ht₀ ht₁ hb P B η hB hΛ hSym).toLinearEquiv =
+      violLoadingStandardEquivBraidCorner (Λ₂ := Λ) hρ hS h1 ht₀ ht₁ hb := rfl
+
+end LoadingComparison
+
 end Categorification.Stendhal.BraidedStendhalAlgebra

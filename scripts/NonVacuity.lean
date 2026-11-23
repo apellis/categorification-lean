@@ -5918,6 +5918,22 @@ example : ∃ y : violCorner ℚ Q fracΛ ν (figureFiveLower blackWord) [1, 0],
   rw [fracWeight_shift, neg_div, neg_neg] at h
   exact h
 
+open Categorification.Graded in
+/-- The Figure 5 loading comparison in the same `sl₂` example, with internal shift `−3/2`
+in Webster's convention and `+3/2` in `Graded.shift`. -/
+noncomputable example :
+    Categorification.Graded.shift (violLoadingGrade (Λ := fracΛ) sl₂ hRouquier
+        (figureFiveUpper blackWord) [1, 0]) (3 / 2 : ℂ)
+      ≃ᵍ[(ViolOrderCorner (k := ℚ) (Q := Q) (Λ := fracΛ) (ν := ν) [1, 0])ᵐᵒᵖ]
+      figureFiveCutGrade (Λ := fracΛ) sl₂ hRouquier (weightPairing sl₂ realization)
+        fracWeight (figureFiveLower blackWord) 1 0 := by
+  have e := figureFiveGradedLoadingEquiv_word (Λ := fracΛ) sl₂ hRouquier realization
+    (weightPairing sl₂ realization) fracWeight
+    (fun i w => weightPairing_root sl₂ realization w i) fracWeight_coroot
+    (weightPairing_isSymm sl₂ realization) hρ blackWord
+  rw [fracWeight_shift, neg_div, neg_neg] at e
+  exact e
+
 end NonVacuity.WebsterFigureFive
 
 namespace NonVacuity.BraidedStendhal

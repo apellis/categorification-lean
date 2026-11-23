@@ -480,6 +480,25 @@ theorem figureFive_mem_cutGrade_word {k : Type*} [CommRing k] [DecidableEq I] [F
   figureFive_mem_cutGrade C hQ B η P hB hΛ hSym hρ figureFive_one_lt
     (figureFive_upper_zero u) (figureFive_upper_one u) (figureFive_edge u)
 
+open QuantumGroup Categorification.Graded in
+/-- Webster, arXiv:1309.3796v2, §6.1 Proposition 6.9, Figure 5, on the two loading models.
+For every black word, the shifted upper loading standard is graded-isomorphic to the cut
+of the braid at the lower loading, by left multiplication by the Figure 5 diagram. -/
+def figureFiveGradedLoadingEquiv_word {k : Type*} [CommRing k] [DecidableEq I] [Fintype I]
+    {Q : I → I → MvPolynomial (Fin 2) k} {Λ : Fin 2 → I →₀ ℕ}
+    (C : CartanDatum I) (hQ : IsRouquierQ C Q) {H : Type*} [AddCommGroup H] [Module ℂ H]
+    (P : Matrix.Realization (UDot.A C) ℂ H) (B : LinearMap.BilinForm ℂ (Module.Dual ℂ H))
+    (η : Fin 2 → Module.Dual ℂ H)
+    (hB : ∀ i x, B (P.root i) x = (UDot.di C i : ℂ) * x (P.coroot i))
+    (hΛ : ∀ j i, η j (P.coroot i) = (Λ j i : ℂ)) (hSym : B.IsSymm)
+    {ρ : Perm (Fin m₂) → List ℕ} (hρ : TypeA.IsReducedChoice ρ) (u : Seq ν) :
+    Categorification.Graded.shift (violLoadingGrade (Λ := Λ) C hQ (figureFiveUpper u) [1, 0])
+        (-B (η 0 - (ν.map P.root).sum) (η 1))
+      ≃ᵍ[(ViolOrderCorner (k := k) (Q := Q) (Λ := Λ) (ν := ν) [1, 0])ᵐᵒᵖ]
+      figureFiveCutGrade (Λ := Λ) C hQ B η (figureFiveLower u) 1 0 :=
+  figureFiveGradedLoadingEquiv C hQ hρ (fun i j hij => (hQ.symm i j hij).symm) figureFive_one_lt
+    (figureFive_upper_zero u) (figureFive_upper_one u) (figureFive_edge u) P B η hB hΛ hSym
+
 end FigureFiveGeometry
 
 section DerivedFigureFive

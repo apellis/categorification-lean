@@ -886,7 +886,11 @@ Rouquier `Q` and `κ'` an ordering of the red labels. Both composite bimodules a
 `e_{κ'} V φ(e_κ)` (`firstEquiv`, `secondEquiv`, `compDGEquiv`), and projectivity of `E_κ` on both
 sides (`appendCorner_projective_left`, `appendCorner_projective_right`) makes the derived
 composites underived (`derivedTensorCompIsoOfProjective`, `dgDerivedTensorCompIso`,
-`dgDerivedTensorIsoOfEquiv`). Open: the derived form for `𝔉_i`.
+`dgDerivedTensorIsoOfEquiv`). The derived form for `𝔉_i`
+(`braidingFunctorCompAppendFunctorOpIso`) works with right modules: the top–bottom flip
+identifies the corner of `𝔉_i` with that of `𝔈_i` over the opposite corners, giving left
+projectivity (`appendCornerOp_projective_left`), and the bimodule part for `F` identifies both
+composites with `φ(e_{κ'}) V e_κ` (`compDGEquivF`).
 
 Def 6.6 is done in ungraded, unbounded form: `braidingFunctor κ' κ`
 (`RedStrands/BraidingFunctor.lean`) is the derived tensor product `- ⊗ᴸ B(κ', κ)` on right
@@ -896,7 +900,7 @@ modules over rings in degree `0`, computed on K-projective resolutions (`derived
 `cornerBimodule`, `Algebra/CornerBimodule.lean`). Webster uses graded modules and `D⁻`; the
 graded version and the restriction to `D⁻` are open roadmap items.
 
-Open: Prop 6.7 derived for `𝔉_i`, Lemma 6.8, Prop 6.9, Cor 6.10, Lemma 6.11, Def 6.12, Cor 6.13,
+Open: Lemma 6.8, Prop 6.9, Cor 6.10, Lemma 6.11, Def 6.12, Cor 6.13,
 Lemma 6.14; tilting modules (Thm 6.15); `𝔅_σ` are equivalences (Thm 6.16); the braid group
 action (Cor 6.17); Ringel duality (Cor 6.18); semi-orthogonal decompositions (Prop 6.19); the
 Serre functor (Prop 6.20).

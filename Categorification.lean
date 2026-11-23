@@ -1610,6 +1610,7 @@ import Categorification.WeightedKLR.RedStrands.RedBlackCrossingChain
 import Categorification.WeightedKLR.RedStrands.BraidedAppendBlack
 import Categorification.WeightedKLR.RedStrands.BraidedAppendBasis
 import Categorification.WeightedKLR.RedStrands.BraidedAppendCoset
+import Categorification.WeightedKLR.RedStrands.BraidedAppendFlip
 import Categorification.WeightedKLR.RedStrands.BraidedAppendFree
 import Categorification.WeightedKLR.RedStrands.BraidedAppendTensor
 import Categorification.WeightedKLR.RedStrands.BraidedAppendViolated

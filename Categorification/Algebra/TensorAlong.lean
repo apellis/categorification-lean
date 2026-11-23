@@ -29,7 +29,8 @@ homomorphism `φ` adds a black strand at the right.
   `g_c φ(y_c)` with `y_c ∈ e₁ C e₀` are independent and fill `e₂ A φ(e₀)`, multiplication is a
   bijection onto `e₂ A φ(e₀)`.
 * `TensorAlong.map` : the map along quotients `x ⊗ y ↦ π x ⊗ π₀ y`, with
-  `TensorAlong.mult_injective_of_ker` and `TensorAlong.mult_surjective_of_surjective`.
+  `TensorAlong.mult_injective_of_ker` and `TensorAlong.mult_surjective_of_surjective`, and their
+  forms along bijections, `TensorAlong.mult_injective_of_bijective`.
 -/
 
 namespace Categorification
@@ -317,6 +318,29 @@ theorem mult_surjective_of_surjective (hA : Function.Surjective π)
   obtain ⟨x, rfl⟩ := hA z
   obtain ⟨t, ht⟩ := hsurj x
   exact ⟨map π π₀ hπ t, by rw [mult_map π π₀ hπ h₂ h₁ h₀, ht, ← hπ]; simp⟩
+
+/-- **Injectivity along a bijection.** If `π` is bijective, `π₀` is surjective and they carry the
+idempotents to `e₂', e₁', e₀'`, injectivity of multiplication transfers. -/
+theorem mult_injective_of_bijective {e₂' : A'} {e₁' e₀' : C'} (h₂' : IsIdempotentElem e₂')
+    (h₁' : IsIdempotentElem e₁') (h₀' : IsIdempotentElem e₀') (he₂ : π e₂ = e₂')
+    (he₁ : π₀ e₁ = e₁') (he₀ : π₀ e₀ = e₀') (hA : Function.Bijective π)
+    (hC : Function.Surjective π₀)
+    (hinj : Function.Injective (mult h₂ h₁ h₀ : TensorAlong k A C φ e₂ e₁ e₀ →ₗ[k] A)) :
+    Function.Injective (mult h₂' h₁' h₀' : TensorAlong k A' C' φ' e₂' e₁' e₀' →ₗ[k] A') := by
+  subst he₂ he₁ he₀
+  refine mult_injective_of_ker π π₀ hπ h₂ h₁ h₀ hA.2 hC hinj fun z hz => ?_
+  rw [hA.1 (hz.trans (map_zero π).symm), mul_zero, zero_mul]
+  exact zero_mem _
+
+/-- **Surjectivity along a surjection** carrying the idempotents to `e₂', e₁', e₀'`. -/
+theorem mult_surjective_of_surjective' {e₂' : A'} {e₁' e₀' : C'} (h₂' : IsIdempotentElem e₂')
+    (h₁' : IsIdempotentElem e₁') (h₀' : IsIdempotentElem e₀') (he₂ : π e₂ = e₂')
+    (he₁ : π₀ e₁ = e₁') (he₀ : π₀ e₀ = e₀') (hA : Function.Surjective π)
+    (hsurj : ∀ z, ∃ t, mult h₂ h₁ h₀ (t : TensorAlong k A C φ e₂ e₁ e₀) = e₂ * z * φ e₀)
+    (z : A') : ∃ t, mult h₂' h₁' h₀' (t : TensorAlong k A' C' φ' e₂' e₁' e₀') =
+      e₂' * z * φ' e₀' := by
+  subst he₂ he₁ he₀
+  exact mult_surjective_of_surjective π π₀ hπ h₂ h₁ h₀ hA hsurj z
 
 end Map
 

@@ -872,8 +872,13 @@ multiplication `e_{κ'}B(νᵢ)φ(e_{κ'}) ⊗ e_{κ'}B(ν)e_κ → e_{κ'}B(ν�
 (`mult_injective_append`, `mult_surjective_append`, `RedStrands/BraidedAppendTensor.lean`) and for
 the quotients by violated idempotents (`violMk_mult_injective_append`,
 `violMk_mult_surjective_append`, `RedStrands/BraidedAppendViolated.lean`). The reduced words go
-through the last coset (`lastCosetWord`), as in Webster's proof. Open: the part for `F`
-(Webster: by biadjunction) and the derived form.
+through the last coset (`lastCosetWord`), as in Webster's proof. The part for `F` is the
+part for `E` transported along the top–bottom flip, an anti-automorphism of `B̃` and of the
+quotient (`flip`, `violFlip`, `violFlip_appendViol`, `RedStrands/BraidedAppendFlip.lean`): over
+the opposite algebras, `violMk_mult_injective_append_op`, `violMk_mult_surjective_append_op`
+(transport lemmas `TensorAlong.mult_injective_of_bijective`,
+`TensorAlong.mult_surjective_of_surjective'`). Webster deduces it by biadjunction. Open: the
+derived form.
 
 Def 6.6 is done in ungraded, unbounded form: `braidingFunctor κ' κ`
 (`RedStrands/BraidingFunctor.lean`) is the derived tensor product `- ⊗ᴸ B(κ', κ)` on right
@@ -883,10 +888,10 @@ modules over rings in degree `0`, computed on K-projective resolutions (`derived
 `cornerBimodule`, `Algebra/CornerBimodule.lean`). Webster uses graded modules and `D⁻`; the
 graded version and the restriction to `D⁻` are open roadmap items.
 
-Open: Prop 6.7 derived, Cor 6.8, Lemma 6.9, Prop 6.10, Lemma 6.13; tilting modules
-(Thm 6.14); `𝔅_w` are equivalences (Thm 6.15); the braid group action (Def 6.16, Cor 6.18);
-Ringel duality (Cor 6.19); semi-orthogonal decompositions (Prop 6.20); the Serre functor
-(Prop 6.21).
+Open: Prop 6.7 derived, Lemma 6.8, Prop 6.9, Cor 6.10, Lemma 6.11, Def 6.12, Cor 6.13,
+Lemma 6.14; tilting modules (Thm 6.15); `𝔅_σ` are equivalences (Thm 6.16); the braid group
+action (Cor 6.17); Ringel duality (Cor 6.18); semi-orthogonal decompositions (Prop 6.19); the
+Serre functor (Prop 6.20).
 
 ### Phase E: §7, rigidity
 

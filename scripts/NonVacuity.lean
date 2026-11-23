@@ -5876,6 +5876,21 @@ example (ν : Multiset Unit) :=
     (fun w => (TypeA.exists_reduced _ w).choose)
     (fun w => (TypeA.exists_reduced _ w).choose_spec) [1, 0] [0, 1]
 
+/-- Webster, arXiv:1309.3796v2, Proposition 6.7 for `𝔉_i` (injectivity, over the opposite
+algebras), for `sl₂`, two red strands of weight `ω` and every black weight. -/
+example (ν : Multiset Unit) :=
+  BraidedStendhalAlgebra.violMk_mult_injective_append_op (k := ℚ) bsQ
+    (fun _ : Fin 2 => Finsupp.single () 1) () ν bsSymm
+    (fun w => (TypeA.exists_reduced _ w).choose)
+    (fun w => (TypeA.exists_reduced _ w).choose_spec) [1, 0] [0, 1]
+
+/-- The same, surjectivity. -/
+example (ν : Multiset Unit) :=
+  BraidedStendhalAlgebra.violMk_mult_surjective_append_op (k := ℚ) bsQ
+    (fun _ : Fin 2 => Finsupp.single () 1) () ν bsSymm
+    (fun w => (TypeA.exists_reduced _ w).choose)
+    (fun w => (TypeA.exists_reduced _ w).choose_spec) [1, 0] [0, 1]
+
 /-- Webster, arXiv:1309.3796v2, §6: the quotient bimodule `B_e` is the tensor product algebra
 `T^λ` (Definitions 4.6 and 4.7) as rings, for `sl₂`, two red strands of weight `ω` and every
 black weight. -/

@@ -5861,6 +5861,56 @@ example (y z : KLRAlgebra ℚ (stendhalQ bsQ Λ) (stendhalWeight 4 (β + β))) :
         zero_mul, map_zero])
 
 example := ker_crossingStack_eq_map_ker_boundaryStack bsQ Λ bsSymm L M pair β weight
+
+/-- Read back the balanced tensor of the local crossing with the standard column, with
+a black in the pair and another in a spectator. The forward map here is stacking. -/
+example (y : BraidedStendhalAlgebra.ViolQuotient ℚ bsQ Λ (β + β)) :
+    let t := crossingCut bsQ Λ bsSymm L M pair β weight (TensorProduct.tmul ℚ cross y)
+    (crossingStackEquiv bsQ Λ bsSymm L M pair β weight).symm
+      (crossingStack bsQ Λ bsSymm L M pair β weight t) = t := by
+  intro t; exact (crossingStackEquiv bsQ Λ bsSymm L M pair β weight).symm_apply_apply t
+
+/-- The original unmarked cut kills a violation strictly between arbitrary diagrams. -/
+example (y z : BraidedStendhalAlgebra ℚ bsQ Λ (β + β)) :
+    let i : Seq (stendhalWeight 4 (β + β)) := KLRAlgebra.Seq.ofList
+      [.inl (), .inr 3, .inr 2, .inl (), .inr 1, .inr 0] (by decide)
+    crossingDiagramCut bsQ Λ bsSymm L M pair β weight
+      (y * BraidedStendhalAlgebra.ofKLR ℚ bsQ Λ (β + β) (KLRAlgebra.e i) * z) = 0 := by
+  intro i
+  have hi : IsViolated i := ⟨by decide, rfl⟩
+  refine Eq.trans ?_ (crossingDiagramCut bsQ Λ bsSymm L M pair β weight).map_zero
+  rw [crossingDiagramCut_eq_inverse, crossingDiagramCut_eq_inverse]
+  apply congrArg; apply congrArg
+  simp only [map_mul, BraidedStendhalAlgebra.violMk_e hi, mul_zero, zero_mul, map_zero]
+
+private abbrev q₄ : Unit → Unit → MvPolynomial (Fin 2) (ZMod 4) := fun _ _ => 0
+private theorem symm₄ : KLRSymm q₄ := fun _ _ _ => rfl
+private def higher : Loadings Bs :=
+  ⟨top.1, KLRAlgebra.Seq.ofList [.inl (), .inr 0, .inr 1] (by decide), top.2.2⟩
+
+/-- Over a ring with zero divisors, the cut also kills an interior *higher* loading:
+the paired block starts with a black, but the global diagram starts with a red. -/
+example (y z : BraidedStendhalAlgebra (ZMod 4) q₄ Λ (β + β)) :
+    let i := Seq.cast weight (place Bs higher)
+    crossingDiagramCut q₄ Λ symm₄ L M pair β weight
+      (y * BraidedStendhalAlgebra.ofKLR (ZMod 4) q₄ Λ (β + β) (KLRAlgebra.e i) * z) = 0 := by
+  intro i
+  let J := BraidedStendhalAlgebra.blockUpperIdeal (ZMod 4) q₄ Λ (β + β) (pair 0) (pair 1)
+    (fun r c => boundaryCount (cut (pair 0) (pair 1) r) c Bs) (L.map Prod.fst ++ pair 0 :: pair 1 :: M.map Prod.fst)
+  let q := RingCon.mkₐ (ZMod 4) J.ringCon
+  let v := BraidedStendhalAlgebra.violMk (ZMod 4) q₄ Λ (β + β)
+  let e := BraidedStendhalAlgebra.ofKLR (ZMod 4) q₄ Λ (β + β) (KLRAlgebra.e i)
+  have hz : q (v e) = 0 := by
+    change J.ringCon.mk' _ = 0
+    rw [← TwoSidedIdeal.mem_ker, TwoSidedIdeal.ker_ringCon_mk']
+    apply TwoSidedIdeal.subset_span
+    exact ⟨i, by decide, root_lt_of_violated weight (aligned_adjacent L M pair β (by decide)) higher
+      (.inr (.inl ⟨by decide, rfl⟩)), rfl⟩
+  refine Eq.trans ?_ (crossingDiagramCut q₄ Λ symm₄ L M pair β weight).map_zero
+  rw [crossingDiagramCut_eq_inverse, crossingDiagramCut_eq_inverse]; apply congrArg
+  apply Subtype.ext; apply Subtype.ext; rw [orderedColumnRep_val, orderedColumnRep_val]
+  change q (_ * (v (y*e*z) * _)) = q (_ * (v 0 * _))
+  simp only [map_mul v, map_mul q, hz, map_zero v, map_zero q, mul_zero, zero_mul]
 end AdjacentRow
 
 /-- Webster, arXiv:1309.3796v2, Prop. 6.4, for `sl₂`, two red strands of weight `ω` that may

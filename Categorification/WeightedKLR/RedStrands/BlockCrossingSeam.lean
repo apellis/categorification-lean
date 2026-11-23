@@ -67,7 +67,8 @@ private theorem loading_mem_seam (s : Loadings Bs) (i : Seq μ) (hi : redWord i 
   rw [(hw w).2, ← ht, inv_smul_smul, ite_eq_left rfl] at H
   simpa only [ht, ρ, ψw_append, mul_assoc] using H
 
-private theorem unit_mem_loadingSpan : ∀ row, (1 : diagrams Q Λ row) ∈
+/-- The unit on a row is spanned by the tuple-loading idempotents. -/
+theorem unit_mem_loadingSpan : ∀ row, (1 : diagrams Q Λ row) ∈
     Submodule.span k (Set.range (loadingIdem Q Λ row))
   | [] => Submodule.subset_span ⟨PUnit.unit,rfl⟩
   | B :: row => by

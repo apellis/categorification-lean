@@ -944,11 +944,18 @@ natural under maps of right input modules.
 so `crossingStack` is surjective. The cut kills violated and higher bottom endpoints.
 For interior relations, `exists_zero_crossingSeamClass_of_quotient` gives a *marked*
 representative of the same affine column diagram whose class is zero before restacking.
-It does not assert that the basis-selected cut kills that diagram. Push a violation to
-the bottom red order, cut the upper part using adapted words, and reattach the lower tail.
+For this lift, push a violation to the bottom red order, cut the upper part using adapted
+words, and reattach the lower tail.
 Consequently `ker_crossingStack_eq_map_ker_boundaryStack` identifies the ordinary kernel
-with the balanced classes of affine relations among marked stacks. It remains to prove
-that affine changes of seam preserve the balanced class. Separately, prove the higher-homology vanishing in (6.21),
+with the balanced classes of affine relations among marked stacks. Successive parabolic
+PBW coordinates (`exists_blockStack_coordinates`) read those stacks linearly over the
+juxtaposed upper diagrams. In the lower column the two boundary red orders agree, so
+`insert_uncrossed_order` allows the same order to be inserted between a coefficient and
+its tail. The ordered coefficient slides by balancing. Hence every affine relation has
+zero balanced class: `crossingStack_injective` and `crossingStackEquiv` give the ordinary
+comparison for arbitrary spectators and black contents. `crossingDiagramCut_eq_inverse`
+identifies the original basis cut on every representative with the inverse on its class.
+Still open for Lemma 6.8: the higher-homology vanishing in (6.21),
 including injectivity after tensoring the kernel inclusion, then Prop 6.9
 for general `ℓ` by reduction to two
 red strands, the graded forms of Def 6.6 and Props 6.7, 6.9, Cor 6.10, Lemma 6.11, Def 6.12, Cor 6.13,

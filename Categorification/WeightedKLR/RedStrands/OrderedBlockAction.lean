@@ -63,10 +63,50 @@ variable (σ : (B : RedBlock I ℓ) → Equiv.Perm (Fin B.size))
 abbrev orderedProduct := external (fun B : RedBlock I ℓ => AlgCat.of k
   (TensorProductAlgebra k Q ((Λ ∘ B.label) ∘ σ B) B.black))
 
-private def orderedValue (B : RedBlock I ℓ) :
+/-- A local ordered diagram in the violated quotient, after relabelling its red strands. -/
+def orderedValue (B : RedBlock I ℓ) :
     TensorProductAlgebra k Q ((Λ ∘ B.label) ∘ σ B) B.black →ₙₐ[k] quotientAlgebra Q Λ B :=
   (violRedPermEquiv (Λ := Λ ∘ B.label) (σ B) (fun _ => rfl)).toAlgHom.toNonUnitalAlgHom.comp
     (diagonalValue Q _ hQ B.black)
+
+theorem orderedValue_one (B : RedBlock I ℓ) : orderedValue Q Λ hQ σ B 1 =
+    violMk k Q (Λ ∘ B.label) B.black
+      (redProj k Q (Λ ∘ B.label) B.black ((List.finRange B.size).map (σ B))) := by
+  change violRedPermEquiv _ _ (diagonalValue Q _ hQ B.black 1) = _
+  rw [diagonalValue_one, violRedPermEquiv_violMk, redPermAlgEquiv_redProj]
+
+/-- Cut a diagram down to its diagonal ordered algebra, retaining both order projectors. -/
+def orderedRetraction (B : RedBlock I ℓ) : quotientAlgebra Q Λ B →ₗ[k]
+    TensorProductAlgebra k Q ((Λ ∘ B.label) ∘ σ B) B.black := by
+  let W := (Λ ∘ B.label) ∘ σ B
+  let p := violMk k Q W B.black (redProj k Q W B.black (List.finRange B.size))
+  let hp : IsIdempotentElem p := (isIdempotentElem_redProj _).map _
+  let cut : ViolQuotient k Q W B.black →ₗ[k] hp.Corner :=
+    { toFun := fun x => ⟨p * x * p, x, rfl⟩
+      map_add' := fun x y => Subtype.ext (by simp only [mul_add, add_mul]; rfl)
+      map_smul' := fun c x => Subtype.ext (by simp only [mul_smul_comm, smul_mul_assoc]; rfl) }
+  exact (diagonalEquiv Q W hQ B.black).toLinearMap ∘ₗ cut ∘ₗ
+    (violRedPermEquiv (Λ := Λ ∘ B.label) (σ B) (fun _ => rfl)).symm.toLinearMap
+
+theorem orderedValue_retraction (B : RedBlock I ℓ) (x : quotientAlgebra Q Λ B) :
+    orderedValue Q Λ hQ σ B (orderedRetraction Q Λ hQ σ B x) =
+      orderedValue Q Λ hQ σ B 1 * x * orderedValue Q Λ hQ σ B 1 := by
+  let g := violRedPermEquiv (Λ := Λ ∘ B.label) (σ B) (fun _ => rfl) (Q := Q) (ν := B.black)
+  let d := diagonalEquiv Q ((Λ ∘ B.label) ∘ σ B) hQ B.black
+  change g ((d.symm (d _)).1) = g (d.symm 1).1 * x * g (d.symm 1).1
+  rw [AlgEquiv.symm_apply_apply, map_one d.symm]
+  change g (_ * g.symm x * _) = _
+  rw [map_mul, map_mul, AlgEquiv.apply_symm_apply]
+  rfl
+
+theorem orderedRetraction_value (B : RedBlock I ℓ) (x) :
+    orderedRetraction Q Λ hQ σ B (orderedValue Q Λ hQ σ B x) = x := by
+  let g := violRedPermEquiv (Λ := Λ ∘ B.label) (σ B) (fun _ => rfl) (Q := Q) (ν := B.black)
+  let d := diagonalEquiv Q ((Λ ∘ B.label) ∘ σ B) hQ B.black
+  have hi : Function.Injective (orderedValue Q Λ hQ σ B) := fun _ _ he =>
+    d.symm.injective (Subtype.ext (g.injective he))
+  apply hi
+  rw [orderedValue_retraction, ← map_mul, one_mul, ← map_mul, mul_one]
 
 /-- Include every tensor factor in its prescribed red order. -/
 def orderedInclusion : (Bs : List (RedBlock I ℓ)) → orderedProduct Q Λ σ Bs →ₙₐ[k] quotients Q Λ Bs

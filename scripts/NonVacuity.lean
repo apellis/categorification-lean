@@ -6028,6 +6028,75 @@ example (x : fracUpperExterior) : fracExteriorToCut.toEquiv x ∈
   rw [hbot]
   exact Submodule.mem_bot ℚ
 
+open scoped DG.DegreeZero in
+/-- For one black `sl₂` strand and weights `ω`, `3ω`, over `ℚ`, the Figure 5 diagram
+lifts to a balanced tensor of internal degree `3/2` and cochain degree zero. Its image in the
+unshifted upper exterior standardization has internal degree zero. -/
+example : ∃ x : FigureFiveExteriorTensor (Λ := fracΛ) sl₂ hRouquier hρ blackWord,
+    x ∈ figureFiveExteriorTensorGrade (Λ := fracΛ) sl₂ hRouquier hρ
+      (weightPairing sl₂ realization) fracWeight blackWord (3 / 2) ∧
+    (figureFiveExteriorTensorEquivCut (Λ := fracΛ) sl₂ hRouquier hρ blackWord x).val =
+      violMk ℚ Q fracΛ ν (ofKLR ℚ Q fracΛ ν
+        (KLRAlgebra.ψw (ρ (finRotate μ.card)⁻¹) * KLRAlgebra.e (figureFiveUpper blackWord))) ∧
+    (figureFiveExteriorTensorEquiv (Λ := fracΛ) sl₂ hRouquier hρ
+      (weightPairing sl₂ realization) fracWeight realization
+      (fun i w => weightPairing_root sl₂ realization w i) fracWeight_coroot
+      (weightPairing_isSymm sl₂ realization) blackWord).toLinearEquiv x ∈
+      figureFiveUpperExteriorGrade (Λ := fracΛ) sl₂ hRouquier hρ blackWord 0 ∧
+    x ∈ DG.grading (0 : ℤ) := by
+  let ev := figureFiveExteriorTensorEquivCut (Λ := fracΛ) sl₂ hRouquier hρ blackWord
+  let gr := figureFiveExteriorTensorEquiv (Λ := fracΛ) sl₂ hRouquier hρ
+    (weightPairing sl₂ realization) fracWeight realization
+    (fun i w => weightPairing_root sl₂ realization w i) fracWeight_coroot
+    (weightPairing_isSymm sl₂ realization) blackWord
+  obtain ⟨y, hy, hg⟩ := figureFive_mem_cutGrade_word (Λ := fracΛ) sl₂ hRouquier realization
+    (weightPairing sl₂ realization) fracWeight
+    (fun i w => weightPairing_root sl₂ realization w i) fracWeight_coroot
+    (weightPairing_isSymm sl₂ realization) hρ blackWord
+  have hy' : ev (ev.symm y) = y := ev.apply_symm_apply y
+  have hx := (figureFiveExteriorTensorEquivCut_mem_grade_iff (Λ := fracΛ) sl₂ hRouquier hρ
+    (weightPairing sl₂ realization) fracWeight blackWord (3 / 2) (ev.symm y)).1 (by
+      change ev (ev.symm y) ∈ _
+      rw [hy']; rwa [fracWeight_shift, neg_div, neg_neg] at hg)
+  refine ⟨ev.symm y, hx, (congrArg Subtype.val hy').trans hy, ?_,
+    figureFiveExteriorTensor_mem_cochain_zero sl₂ hRouquier hρ blackWord (ev.symm y)⟩
+  have h := gr.map_mem' hx
+  have hs : (3 / 2 : ℂ) + weightPairing sl₂ realization
+      (fracWeight 0 - (ν.map realization.root).sum) (fracWeight 1) = 0 := by
+    rw [fracWeight_shift]; ring
+  change gr.toLinearEquiv (ev.symm y) ∈ figureFiveUpperExteriorGrade (Λ := fracΛ) sl₂ hRouquier hρ
+    blackWord ((3 / 2 : ℂ) + weightPairing sl₂ realization (fracWeight 0 - (ν.map realization.root).sum)
+      (fracWeight 1)) at h
+  rwa [hs] at h
+
+/-- Degree zero is outside the shifted integral coset of this balanced tensor. -/
+example : figureFiveExteriorTensorGrade (Λ := fracΛ) sl₂ hRouquier hρ
+    (weightPairing sl₂ realization) fracWeight blackWord 0 = ⊥ := by
+  let gr := figureFiveExteriorTensorEquiv (Λ := fracΛ) sl₂ hRouquier hρ
+    (weightPairing sl₂ realization) fracWeight realization
+    (fun i w => weightPairing_root sl₂ realization w i) fracWeight_coroot
+    (weightPairing_isSymm sl₂ realization) blackWord
+  have hn : ¬ ∃ n : ℤ, (n : ℂ) = -3 / 2 := by
+    rintro ⟨n, hn⟩
+    have h₂ : ((2 * n : ℤ) : ℂ) = (-3 : ℂ) := by
+      push_cast
+      linear_combination 2 * hn
+    have h₂' : 2 * n = (-3 : ℤ) := by exact_mod_cast h₂
+    omega
+  have hbot : figureFiveUpperExteriorGrade (Λ := fracΛ) sl₂ hRouquier hρ blackWord (-3 / 2) = ⊥ :=
+    Function.extend_apply' (f := fun n : ℤ => (n : ℂ)) _ ⊥ _ hn
+  refine eq_bot_iff.2 fun x hx => (Submodule.mem_bot ℤ).2 (gr.toLinearEquiv.injective ?_)
+  let y := gr.toLinearEquiv x
+  have h := gr.map_mem' hx
+  change y ∈ figureFiveUpperExteriorGrade (Λ := fracΛ) sl₂ hRouquier hρ blackWord
+    ((0 : ℂ) + weightPairing sl₂ realization (fracWeight 0 - (ν.map realization.root).sum)
+      (fracWeight 1)) at h
+  rw [zero_add, fracWeight_shift, hbot] at h
+  exact ((Submodule.mem_bot ℚ).1 h).trans gr.toLinearEquiv.map_zero.symm
+
+/-- The lower exterior standardization used by this tensor is projective. -/
+example := figureFiveLowerExterior_projective (Λ := fracΛ) sl₂ hRouquier hρ blackWord
+
 end NonVacuity.WebsterFigureFive
 
 namespace NonVacuity.BraidedStendhal

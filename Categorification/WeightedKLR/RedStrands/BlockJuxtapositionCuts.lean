@@ -17,7 +17,8 @@ The cut is before the entire two-red block, independently of its internal red or
 namespace Categorification.Stendhal
 open KLR
 
-variable {I : Type*} {ℓ : ℕ}
+universe u
+variable {I : Type u} {ℓ : ℕ}
 
 /-- A block of red weights in the alphabet of the full diagram, with fixed black content. -/
 structure RedBlock (I : Type*) (ℓ : ℕ) where
@@ -37,7 +38,7 @@ abbrev weightSum : List (RedBlock I ℓ) → Multiset (I ⊕ Fin ℓ)
   | B :: Bs => B.weight + weightSum Bs
 
 /-- One local loading per block, in horizontal order. -/
-abbrev Loadings : List (RedBlock I ℓ) → Type _
+abbrev Loadings : List (RedBlock I ℓ) → Type u
   | [] => PUnit
   | B :: Bs => Seq B.localWeight × Loadings Bs
 

@@ -104,7 +104,10 @@ private theorem push_higher {s : Seq μ} (hs : redWord s = L ++ a :: b :: M)
   have h := kill_higher_cut F (fun _ ht hlt => upperMk_e _ ht hlt) hs hlt w
   simpa only [F, AlgHom.comp_apply, map_mul, redProj] using h
 
-private theorem pull_higher {s : Seq μ} (hs : redWord s = L ++ b :: a :: M)
+/-- A higher loading in the exchanged order, followed by any diagram with the prescribed
+bottom order, already factors through bottom-order higher loadings (Webster, proof of
+Lemma 6.8). No condition on the top of the diagram below the loading is needed. -/
+theorem higher_loading_mul_order_mem {s : Seq μ} (hs : redWord s = L ++ b :: a :: M)
     (hlt : α < adjacentBlockRoot a b s) (w : V) :
     π (E s) * w * (P (L ++ a :: b :: M)) ∈ J (L ++ a :: b :: M) := by
   obtain ⟨w, rfl⟩ := violMk_surjective w
@@ -153,7 +156,7 @@ theorem mem_blockUpperIdeal_iff {z : V} (ht : (P (L ++ b :: a :: M)) * z = z)
       obtain ⟨_, ⟨c, -, _, ⟨s, hs, hlt, rfl⟩, rfl⟩, d, -, rfl⟩ := hx
       change c * π (E s) * d * P (L ++ a :: b :: M) ∈ _
       simpa only [mul_assoc] using
-        TwoSidedIdeal.mul_mem_left _ c _ (pull_higher hs hlt d)
+        TwoSidedIdeal.mul_mem_left _ c _ (higher_loading_mul_order_mem hs hlt d)
     | zero => rw [zero_mul]; exact zero_mem _
     | add _ _ _ _ hu hv => rw [add_mul]; exact add_mem hu hv
     | neg _ _ hu => rw [neg_mul]; exact neg_mem hu

@@ -1608,6 +1608,7 @@ import Categorification.WeightedKLR.RedStrands.BraidedAppendBlack
 import Categorification.WeightedKLR.RedStrands.BraidedAppendBasis
 import Categorification.WeightedKLR.RedStrands.BraidedAppendCoset
 import Categorification.WeightedKLR.RedStrands.BraidedAppendFree
+import Categorification.WeightedKLR.RedStrands.BraidedAppendTensor
 import Categorification.WeightedKLR.RedStrands.BraidedFactorization
 import Categorification.WeightedKLR.RedStrands.BraidedFactorizationBasis
 import Categorification.WeightedKLR.RedStrands.BraidedFactorizationGeneral

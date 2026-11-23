@@ -5935,8 +5935,8 @@ noncomputable example :
   exact e
 
 open Categorification.Graded in
-/-- The lower map in Webster, arXiv:1309.3796v2, §6.1, Figure 5, preserves degree zero
-on the loading idempotent for one `sl₂` black strand and weights `ω`, `3ω`. -/
+/-- At the lower endpoint in Webster, arXiv:1309.3796v2, §6.1, Figure 5, the whole degree-zero
+piece is respected by the projective comparison, in particular on the loading idempotent. -/
 noncomputable example :=
   let v := figureFiveLower blackWord
   let h : redWord v = List.map (1 : Perm (Fin 2)) (List.finRange 2) := by
@@ -5950,8 +5950,7 @@ noncomputable example :=
   have hp : p.val.val ∈ violAuxiliaryGrade G 0 :=
     mem_map_of_mem _ (violMk ℚ Q fracΛ ν).toLinearMap
       (mem_map_of_mem _ (ofKLR ℚ Q fracΛ ν).toLinearMap (G.e_mem_grade v))
-  loadingProjectiveEquivExteriorStandardization_mem_grade hRouquier hQ 1 hρ
-    (add_zero ν) (SingleRed.insertWord ν blackWord) vacuumWord p hp
+  (figureFiveLowerProjective_mem_grade_iff (Λ := fracΛ) sl₂ hRouquier hρ blackWord 0 p).2 hp
 
 open Categorification.Graded in
 /-- The upper map in Webster, arXiv:1309.3796v2, §6.1, Figure 5, preserves degree zero
@@ -5976,6 +5975,58 @@ noncomputable example :=
       (mem_map_of_mem _ (ofKLR ℚ Q fracΛ ν).toLinearMap (G.e_mem_grade v))
   loadingStandardEquivExteriorStandardization_mk_mem_grade hRouquier hQ σ hρ
     (zero_add ν) x blackWord p hp
+
+private noncomputable abbrev fracUpperExterior : ModuleCat.{0}
+    (ViolOrderCorner (k := ℚ) (Q := Q) (Λ := fracΛ) (ν := ν) [1, 0])ᵐᵒᵖ :=
+  exteriorStandardizationRight (Λ₂ := fracΛ) (σ₂ := Equiv.swap 0 1) hQ hρ
+    (zero_add ν) (SingleRed.insertWord 0 vacuumWord) blackWord
+
+private noncomputable def fracExteriorToCut :=
+  figureFiveExteriorToCut (Λ := fracΛ) sl₂ hRouquier hρ realization
+    (weightPairing sl₂ realization) fracWeight
+    (fun i w => weightPairing_root sl₂ realization w i) fracWeight_coroot
+    (weightPairing_isSymm sl₂ realization) blackWord
+
+/-- The Figure 5 cut at degree `3/2` identifies with degree zero in the intrinsic exterior
+standardization, over `ℚ`, for one black strand and red weights `ω`, `3ω`. -/
+example (x : fracUpperExterior) : fracExteriorToCut.toEquiv x ∈
+    figureFiveCutGrade (Λ := fracΛ) sl₂ hRouquier (weightPairing sl₂ realization) fracWeight
+      (figureFiveLower blackWord) 1 0 (3 / 2) ↔
+    x ∈ figureFiveUpperExteriorGrade (Λ := fracΛ) sl₂ hRouquier hρ blackWord 0 := by
+  have h := figureFiveExteriorToCut_mem_grade_iff (Λ := fracΛ) sl₂ hRouquier hρ realization
+    (weightPairing sl₂ realization) fracWeight
+    (fun i w => weightPairing_root sl₂ realization w i) fracWeight_coroot
+    (weightPairing_isSymm sl₂ realization) blackWord (3 / 2) x
+  have hs : (3 / 2 : ℂ) + weightPairing sl₂ realization
+      (fracWeight 0 - (ν.map realization.root).sum) (fracWeight 1) = 0 := by
+    rw [fracWeight_shift]
+    ring
+  rwa [hs] at h
+
+/-- In the same example, degree zero is outside the shifted integral coset of the cut. -/
+example (x : fracUpperExterior) : fracExteriorToCut.toEquiv x ∈
+    figureFiveCutGrade (Λ := fracΛ) sl₂ hRouquier (weightPairing sl₂ realization) fracWeight
+      (figureFiveLower blackWord) 1 0 0 ↔ x = 0 := by
+  have h := figureFiveExteriorToCut_mem_grade_iff (Λ := fracΛ) sl₂ hRouquier hρ realization
+    (weightPairing sl₂ realization) fracWeight
+    (fun i w => weightPairing_root sl₂ realization w i) fracWeight_coroot
+    (weightPairing_isSymm sl₂ realization) blackWord 0 x
+  have hs : (0 : ℂ) + weightPairing sl₂ realization
+      (fracWeight 0 - (ν.map realization.root).sum) (fracWeight 1) = -3 / 2 := by
+    rw [zero_add, fracWeight_shift]
+  rw [hs] at h
+  refine h.trans ?_
+  have hn : ¬ ∃ n : ℤ, (n : ℂ) = -3 / 2 := by
+    rintro ⟨n, hn⟩
+    have h₂ : ((2 * n : ℤ) : ℂ) = (-3 : ℂ) := by
+      push_cast
+      linear_combination 2 * hn
+    have h₂' : 2 * n = (-3 : ℤ) := by exact_mod_cast h₂
+    omega
+  have hbot : figureFiveUpperExteriorGrade (Λ := fracΛ) sl₂ hRouquier hρ blackWord (-3 / 2) = ⊥ :=
+    Function.extend_apply' (f := fun n : ℤ => (n : ℂ)) _ ⊥ _ hn
+  rw [hbot]
+  exact Submodule.mem_bot ℚ
 
 end NonVacuity.WebsterFigureFive
 

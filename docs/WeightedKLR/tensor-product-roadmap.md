@@ -936,9 +936,17 @@ The identity-shuffle tensor of loading idempotents has degree zero. In
 `loadingStandardEquivExteriorStandardization_mk_mem_grade` show that the two endpoint maps
 preserve degree on homogeneous diagram representatives. Relabelling and horizontal reflection
 preserve diagram degrees, and the standardization map identifies the degree-zero generators.
-The shift `⟨λ₀ − α, λ₁⟩` in Webster's convention is established on the loading-standard comparison
-with the cut, but that graded comparison is not yet assembled on the exterior standardization.
-The graded derived comparison also remains open.
+`BraidedExteriorGrading.lean` identifies the whole pieces under those same maps. A homogeneous
+upper exterior element lifts to a homogeneous corner representative: take the corresponding
+component of any lift, using uniqueness of the intrinsic direct sum. At the lower endpoint the
+same-order cut consists of the diagrams of the loading right ideal, and its intrinsic comap
+provides the homogeneous components. The lower identification has no shift
+(`figureFiveLowerProjective_mem_grade_iff`). The upper exterior grading includes `ℤ` into `ℂ`,
+with zero pieces off the integers. Composing with the shifted loading comparison identifies its
+piece at `z + ⟨λ₀ − α, λ₁⟩` with the cut at `z`, for every complex `z`
+(`figureFiveExteriorToCut_mem_grade_iff`). Both sides vanish outside the shifted integral coset.
+The graded derived comparison still needs the graded version of Definition 6.6 and graded
+evaluation of its tensor on the lower projective.
 
 Open, in working order: Lemma 6.8 (needs block standardization in the braided algebra; standard
 modules exist only in `StendhalAlgebraAllOrders`, `RedStrands/StandardAction.lean`, and partial

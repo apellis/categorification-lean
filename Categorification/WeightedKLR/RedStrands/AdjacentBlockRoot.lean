@@ -30,7 +30,7 @@ local notation "μ" => stendhalWeight ℓ ν
 local notation "m" => Multiset.card (stendhalWeight ℓ ν)
 
 /-- The black `i`-strands before every red strand of the block `C`. -/
-def blockBlackCount (s : Seq μ) (C : Finset (Fin ℓ)) (i : I) : ℕ :=
+def blockBlackCount {β : Multiset (I ⊕ Fin ℓ)} (s : Seq β) (C : Finset (Fin ℓ)) (i : I) : ℕ :=
   (Finset.univ.filter fun x => s.lbl x = .inl i ∧
     ∀ y r, r ∈ C → s.lbl y = .inr r → x < y).card
 

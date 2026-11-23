@@ -471,6 +471,93 @@ theorem secondEquiv_val (t : secondTensor (k := k) Q Λ i ν κ' κ) :
 
 end Bijective
 
+section Linear
+
+open TensorProductOver.RightAction
+
+variable {Q Λ i ν κ' κ}
+
+theorem firstMult_smul (a : (Sc κ)ᵐᵒᵖ) (t : firstTensor (k := k) Q Λ i ν κ' κ) :
+    firstMult Q Λ i ν κ' κ (a • t) = firstMult Q Λ i ν κ' κ t * φ a.unop.1 :=
+  DFunLike.congr_fun (TensorProductOver.addHom_ext
+    (f := (firstMult Q Λ i ν κ' κ).comp (DistribSMul.toAddMonoidHom _ a))
+    (g := (AddMonoidHom.mulRight (φ a.unop.1)).comp (firstMult Q Λ i ν κ' κ))
+    fun _ _ => (mul_assoc _ _ _).symm) t
+
+theorem secondMult_smul (a : (Sc κ)ᵐᵒᵖ) (t : secondTensor (k := k) Q Λ i ν κ' κ) :
+    secondMult Q Λ i ν κ' κ (a • t) = secondMult Q Λ i ν κ' κ t * φ a.unop.1 :=
+  DFunLike.congr_fun (TensorProductOver.addHom_ext
+    (f := (secondMult Q Λ i ν κ' κ).comp (DistribSMul.toAddMonoidHom _ a))
+    (g := (AddMonoidHom.mulRight (φ a.unop.1)).comp (secondMult Q Λ i ν κ' κ))
+    fun _ _ => by
+      change _ * φ (_ * _) = _ * φ _ * φ _
+      rw [map_mul, mul_assoc]) t
+
+theorem firstMult_op_smul (c : (Rc κ')ᵐᵒᵖᵐᵒᵖ) (t : firstTensor (k := k) Q Λ i ν κ' κ) :
+    firstMult Q Λ i ν κ' κ (c • t) = c.unop.unop.1 * firstMult Q Λ i ν κ' κ t :=
+  DFunLike.congr_fun (TensorProductOver.addHom_ext
+    (f := (firstMult Q Λ i ν κ' κ).comp (DistribSMul.toAddMonoidHom _ c))
+    (g := (AddMonoidHom.mulLeft c.unop.unop.1).comp (firstMult Q Λ i ν κ' κ))
+    fun _ _ => mul_assoc _ _ _) t
+
+theorem secondMult_op_smul (c : (Rc κ')ᵐᵒᵖᵐᵒᵖ) (t : secondTensor (k := k) Q Λ i ν κ' κ) :
+    secondMult Q Λ i ν κ' κ (c • t) = c.unop.unop.1 * secondMult Q Λ i ν κ' κ t :=
+  DFunLike.congr_fun (TensorProductOver.addHom_ext
+    (f := (secondMult Q Λ i ν κ' κ).comp (DistribSMul.toAddMonoidHom _ c))
+    (g := (AddMonoidHom.mulLeft c.unop.unop.1).comp (secondMult Q Λ i ν κ' κ))
+    fun _ _ => mul_assoc _ _ _) t
+
+end Linear
+
+section Comparison
+
+open TensorProductOver.RightAction
+
+variable {Q Λ i ν} (hQ : KLRSymm Q)
+  {ρ : Perm (Fin (Multiset.card (stendhalWeight ℓ ν))) → List ℕ} (hρ : IsReducedChoice ρ)
+
+/-- The two composite bimodules agree, both being the corner `e_κ' V φ(e_κ)`. -/
+noncomputable def compAddEquiv :
+    firstTensor (k := k) Q Λ i ν κ' κ ≃+ secondTensor (k := k) Q Λ i ν κ' κ :=
+  (firstEquiv Q Λ i ν κ' κ).trans (secondEquiv κ' κ hQ hρ).symm
+
+theorem secondMult_compAddEquiv (t : firstTensor (k := k) Q Λ i ν κ' κ) :
+    secondMult Q Λ i ν κ' κ (compAddEquiv κ' κ hQ hρ t) = firstMult Q Λ i ν κ' κ t :=
+  congrArg Subtype.val ((secondEquiv κ' κ hQ hρ).apply_symm_apply (firstEquiv Q Λ i ν κ' κ t))
+
+theorem compAddEquiv_smul (a : (Sc κ)ᵐᵒᵖ) (t : firstTensor (k := k) Q Λ i ν κ' κ) :
+    compAddEquiv κ' κ hQ hρ (a • t) = a • compAddEquiv κ' κ hQ hρ t :=
+  secondMult_injective κ' κ hQ hρ (by
+    rw [secondMult_compAddEquiv, firstMult_smul, secondMult_smul, secondMult_compAddEquiv])
+
+theorem compAddEquiv_op_smul (c : (Rc κ')ᵐᵒᵖᵐᵒᵖ) (t : firstTensor (k := k) Q Λ i ν κ' κ) :
+    compAddEquiv κ' κ hQ hρ (c • t) = c • compAddEquiv κ' κ hQ hρ t :=
+  secondMult_injective κ' κ hQ hρ (by
+    rw [secondMult_compAddEquiv, firstMult_op_smul, secondMult_op_smul,
+      secondMult_compAddEquiv])
+
+/-- The comparison as a linear isomorphism of left `(Sc κ)ᵐᵒᵖ`-modules. -/
+noncomputable def compLinearEquiv :
+    firstTensor (k := k) Q Λ i ν κ' κ ≃ₗ[(Sc κ)ᵐᵒᵖ] secondTensor (k := k) Q Λ i ν κ' κ where
+  __ := compAddEquiv κ' κ hQ hρ
+  map_smul' := compAddEquiv_smul κ' κ hQ hρ
+
+/-- The comparison as an isomorphism of dg modules concentrated in degree `0`. -/
+noncomputable def compDGEquiv :
+    firstTensor (k := k) Q Λ i ν κ' κ ≃ᵈᵍ[(Sc κ)ᵐᵒᵖ] secondTensor (k := k) Q Λ i ν κ' κ :=
+  DGModuleEquiv.ofDegreeZero (compLinearEquiv κ' κ hQ hρ)
+    (fun hx hn => TensorProductOver.eq_zero_of_mem_grading_inDegreeZero hn hx)
+    TensorProductOver.d_inDegreeZero TensorProductOver.mem_grading_zero_inDegreeZero
+    TensorProductOver.d_inDegreeZero
+
+theorem compDGEquiv_op_smul (b : (Rc κ')ᵐᵒᵖ) (t : firstTensor (k := k) Q Λ i ν κ' κ) :
+    compDGEquiv (Λ := Λ) (i := i) κ' κ hQ hρ (MulOpposite.op b • t) =
+      MulOpposite.op b • compDGEquiv (Λ := Λ) (i := i) κ' κ hQ hρ t :=
+  compAddEquiv_op_smul κ' κ hQ hρ _ t
+
+end Comparison
+
+
 end Second
 
 end BraidedStendhalAlgebra

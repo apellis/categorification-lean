@@ -342,4 +342,96 @@ theorem IsValid.inter {A A' : Finset (Fin m)} (hA : IsValid τ R q p A)
 
 end SetPerm
 
+
+section ClassMono
+
+theorem invSet_classPerm_mono {c c' : Fin m → ℕ} (h : ∀ a b, a < b → c b < c a → c' b < c' a) :
+    invSet m (classPerm c) ⊆ invSet m (classPerm c') :=
+  invSet_classPerm_subset c fun a b hab hc =>
+    (classPerm_lt_iff c').2 (Or.inl (h a b hab hc))
+
+theorem invSet_classPerm_subset_union {c c' c'' : Fin m → ℕ}
+    (h : ∀ a b, a < b → c b < c a → c' b < c' a ∨ c'' b < c'' a) :
+    invSet m (classPerm c) ⊆ invSet m (classPerm c') ∪ invSet m (classPerm c'') := by
+  intro ⟨a, b⟩ hab
+  rw [mem_invSet_classPerm] at hab
+  rw [Finset.mem_union, mem_invSet_classPerm, mem_invSet_classPerm]
+  rcases h a b hab.1 hab.2 with h' | h'
+  · exact Or.inl ⟨hab.1, h'⟩
+  · exact Or.inr ⟨hab.1, h'⟩
+
+end ClassMono
+
+section LeftSet
+
+variable {τ R q p}
+
+/-- The strands ending below `q` in `e`. -/
+def leftSet (q : Fin m) (e : Perm (Fin m)) : Finset (Fin m) :=
+  Finset.univ.filter fun s => e s < e q
+
+/-- The classes of `setPerm (leftSet e)` read off from the values of `e`. -/
+def valueClass (x v : ℕ) : ℕ := if v < x then 0 else if v = x then 1 else if v = x + 1 then 2 else 4
+
+theorem setClass_leftSet {e : Perm (Fin m)} (he : IsExit τ R q p e) (s : Fin m) :
+    setClass q p (leftSet q e) s = valueClass (e q) (e s) := by
+  have hadj := he.adj
+  have hqp : q ≠ p := fun h => by rw [h] at hadj; omega
+  simp only [setClass, leftSet, Finset.mem_filter, Finset.mem_univ, true_and, Fin.lt_def,
+    valueClass]
+  by_cases h1 : s = q
+  · subst h1; simp
+  by_cases h2 : s = p
+  · subst h2; simp [h1, hadj]
+  have h3 : (e s : ℕ) ≠ e q := fun h => h1 (e.injective (Fin.ext h))
+  have h4 : (e s : ℕ) ≠ e p := fun h => h2 (e.injective (Fin.ext h))
+  simp only [h1, h2, ite_false]
+  split_ifs <;> omega
+
+theorem IsExit.leftSet_notMem_q {e : Perm (Fin m)} : q ∉ leftSet q e := by
+  simp [leftSet]
+
+theorem IsExit.leftSet_notMem_p {e : Perm (Fin m)} (he : IsExit τ R q p e) :
+    p ∉ leftSet q e := by
+  have := he.adj
+  simp only [leftSet, Finset.mem_filter, Finset.mem_univ, true_and, Fin.lt_def, not_lt]
+  omega
+
+theorem IsExit.invSet_setPerm_leftSet_subset {e : Perm (Fin m)} (he : IsExit τ R q p e) :
+    invSet m (setPerm q p (leftSet q e)) ⊆ invSet m e := by
+  refine invSet_classPerm_subset _ fun a b _ hc => ?_
+  rw [setClass_leftSet he, setClass_leftSet he, valueClass, valueClass] at hc
+  rw [Fin.lt_def]
+  split_ifs at hc <;> omega
+
+theorem IsExit.isExit_setPerm_leftSet (hqp : q < p) {e : Perm (Fin m)}
+    (he : IsExit τ R q p e) : IsExit τ R q p (setPerm q p (leftSet q e)) :=
+  ⟨fun a b hab => he.redFree a b (he.invSet_setPerm_leftSet_subset hab),
+    setPerm_adj hqp.ne IsExit.leftSet_notMem_q he.leftSet_notMem_p,
+    he.invSet_setPerm_leftSet_subset.trans he.le⟩
+
+theorem IsExit.isValid_leftSet (hqp : q < p) {e : Perm (Fin m)} (he : IsExit τ R q p e) :
+    IsValid τ R q p (leftSet q e) :=
+  isValid_of_isExit hqp IsExit.leftSet_notMem_q he.leftSet_notMem_p
+    (he.isExit_setPerm_leftSet hqp)
+
+/-- Every exit is connected by squares to the exit listing the strands that end below `q`. -/
+theorem IsExit.eqvGen_setPerm_leftSet (hqp : q < p) {e : Perm (Fin m)}
+    (he : IsExit τ R q p e) :
+    Relation.EqvGen (ExitRel τ R q p) (setPerm q p (leftSet q e)) e := by
+  refine eqvGen_exitRel_of_invSet_subset (he.isExit_setPerm_leftSet hqp) he
+    he.invSet_setPerm_leftSet_subset fun a b hab hab' => ?_
+  rw [setPerm, mem_invSet_classPerm, setClass_leftSet he, setClass_leftSet he] at hab'
+  have hab'' : a < b ∧ e b < e a := mem_invSet.1 hab
+  have hlt : (e b : ℕ) < e a := hab''.2
+  have hadj := he.adj
+  have key : ¬ (valueClass (e q) (e b) < valueClass (e q) (e a)) := fun h => hab' ⟨hab''.1, h⟩
+  have hv : (e a : ℕ) ≠ e q ∧ (e a : ℕ) ≠ e p ∧ (e b : ℕ) ≠ e q ∧ (e b : ℕ) ≠ e p := by
+    simp only [valueClass] at key
+    refine ⟨?_, ?_, ?_, ?_⟩ <;> intro h <;> apply key <;> split_ifs <;> omega
+  exact ⟨fun h => hv.1 (by rw [h]), fun h => hv.2.1 (by rw [h]),
+    fun h => hv.2.2.1 (by rw [h]), fun h => hv.2.2.2 (by rw [h])⟩
+
+end LeftSet
+
 end Categorification.TypeA

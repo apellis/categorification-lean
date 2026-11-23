@@ -179,17 +179,64 @@ theorem throughFrame_le (g τ : Perm (Fin m)) : invSet m (throughFrame g τ) ⊆
   · exact h
   · exact invSet_one_subset τ
 
+variable (k Q Λ ν) in
+/-- The left ideal spanned by the products `w e(j)` with `e(j)` violated: the diagrams whose
+bottom is a violated idempotent. -/
+noncomputable def violBottom : Submodule k (BraidedStendhalAlgebra k Q Λ ν) :=
+  Submodule.span k {y | ∃ (w : BraidedStendhalAlgebra k Q Λ ν) (j : Seq μ), IsViolated j ∧
+    y = w * ofKLR k Q Λ ν (KLRAlgebra.e j)}
+
+theorem mul_e_mem_violBottom (w : BraidedStendhalAlgebra k Q Λ ν) {j : Seq μ}
+    (hj : IsViolated j) : w * ofKLR k Q Λ ν (KLRAlgebra.e j) ∈ violBottom k Q Λ ν :=
+  Submodule.subset_span ⟨w, j, hj, rfl⟩
+
+theorem mul_mem_violBottom (a : BraidedStendhalAlgebra k Q Λ ν)
+    {y : BraidedStendhalAlgebra k Q Λ ν}
+    (hy : y ∈ violBottom k Q Λ ν) : a * y ∈ violBottom k Q Λ ν := by
+  induction hy using Submodule.span_induction with
+  | mem y hy =>
+    obtain ⟨w, j, hj, rfl⟩ := hy
+    rw [← mul_assoc]; exact mul_e_mem_violBottom _ hj
+  | zero => rw [mul_zero]; exact zero_mem _
+  | add y y' _ _ hy hy' => rw [mul_add]; exact add_mem hy hy'
+  | smul c y _ hy => rw [mul_smul_comm]; exact Submodule.smul_mem _ c hy
+
+theorem mem_violIdeal_of_mem_violBottom {y : BraidedStendhalAlgebra k Q Λ ν}
+    (hy : y ∈ violBottom k Q Λ ν) : y ∈ violIdeal k Q Λ ν := by
+  induction hy using Submodule.span_induction with
+  | mem y hy =>
+    obtain ⟨w, j, hj, rfl⟩ := hy
+    exact TwoSidedIdeal.mul_mem_left _ _ _ (TwoSidedIdeal.subset_span ⟨j, hj, rfl⟩)
+  | zero => exact zero_mem _
+  | add y y' _ _ hy hy' => exact add_mem hy hy'
+  | smul c y _ hy =>
+    rw [Algebra.smul_def]; exact TwoSidedIdeal.mul_mem_left _ _ _ hy
+
+/-- A diagram with violated bottom is killed by a non-violated idempotent. -/
+theorem mul_e_eq_zero_of_mem_violBottom {y : BraidedStendhalAlgebra k Q Λ ν}
+    (hy : y ∈ violBottom k Q Λ ν) {t : Seq μ} (ht : ¬ IsViolated t) :
+    y * ofKLR k Q Λ ν (KLRAlgebra.e t) = 0 := by
+  induction hy using Submodule.span_induction with
+  | mem y hy =>
+    obtain ⟨w, j, hj, rfl⟩ := hy
+    have hne : j ≠ t := by rintro rfl; exact ht hj
+    rw [mul_assoc, ← map_mul, KLRAlgebra.e_mul_e, ite_eq_right hne, map_zero, mul_zero]
+  | zero => rw [zero_mul]
+  | add y y' _ _ hy hy' => rw [add_mul, hy, hy', add_zero]
+  | smul c y _ hy => rw [smul_mul_assoc, hy, smul_zero]
+
 include hρ hQ in
 /-- **Factoring through a fixed diagram modulo violated idempotents.** Let `g • t = s`, and
 suppose that every diagram `τ` from a non-violated `j` of red order `κ` to `s` factors through
-`g` with lengths adding. Then `e(s) w e_κ` is `ψ_{ρ(g)} e(t) x` modulo violated idempotents. -/
+`g` with lengths adding. Then `e(s) w e_κ` is `ψ_{ρ(g)} e(t) x` modulo diagrams with violated
+bottom. -/
 theorem exists_e_mul_mul_redProj_sub_mem {s t : Seq μ} {κ : List (Fin ℓ)} (g : Perm (Fin m))
     (hgt : g • t = s)
     (hg : ∀ (j : Seq μ) (τ : Perm (Fin m)), τ • j = s → redWord j = κ → ¬ IsViolated j →
       invSet m (g⁻¹ * τ) ⊆ invSet m τ)
     (w : BraidedStendhalAlgebra k Q Λ ν) :
     ∃ x, ofKLR k Q Λ ν (KLRAlgebra.e s) * w * redProj k Q Λ ν κ -
-      ofKLR k Q Λ ν (KLRAlgebra.ψw (ρ g) * KLRAlgebra.e t) * x ∈ violIdeal k Q Λ ν := by
+      ofKLR k Q Λ ν (KLRAlgebra.ψw (ρ g) * KLRAlgebra.e t) * x ∈ violBottom k Q Λ ν := by
   set ρ' := fun τ => ρ (τ * (throughFrame g τ)⁻¹) ++ ρ (throughFrame g τ)
   have hρ' : IsReducedChoice ρ' := isReducedChoice_frame hρ _ (throughFrame_le g)
   induction (basis hQ ρ' hρ').mem_span w using Submodule.span_induction with
@@ -203,9 +250,8 @@ theorem exists_e_mul_mul_redProj_sub_mem {s t : Seq μ} {κ : List (Fin ℓ)} (g
   | smul c x _ hx =>
     obtain ⟨x', hx'⟩ := hx
     refine ⟨c • x', ?_⟩
-    have := TwoSidedIdeal.mul_mem_left _ (algebraMap k _ c) _ hx'
-    convert this using 1
-    simp only [mul_sub, ← Algebra.smul_def, mul_smul_comm, smul_mul_assoc]
+    convert Submodule.smul_mem _ c hx' using 1
+    simp only [smul_sub, mul_smul_comm, smul_mul_assoc]
   | mem x hx =>
     obtain ⟨⟨⟨j, τ, u⟩, hu⟩, rfl⟩ := hx
     rw [basis_apply, redProj, ← map_mul, ← map_mul]
@@ -224,7 +270,7 @@ theorem exists_e_mul_mul_redProj_sub_mem {s t : Seq μ} {κ : List (Fin ℓ)} (g
     by_cases hv : IsViolated j
     · refine ⟨0, ?_⟩
       rw [mul_zero, sub_zero, map_mul]
-      exact TwoSidedIdeal.mul_mem_left _ _ _ (TwoSidedIdeal.subset_span ⟨j, hv, rfl⟩)
+      exact mul_e_mem_violBottom _ hv
     have hle := hg j τ hτ.symm hκ hv
     have hf : throughFrame g τ = g⁻¹ * τ := by simp [throughFrame, hle]
     have hρτ : ρ' τ = ρ g ++ ρ (g⁻¹ * τ) := by simp only [ρ', hf, mul_inv_rev, inv_inv,
@@ -246,13 +292,13 @@ include hρ hQ in
 /-- **Surjectivity step of Proposition 6.9** (arXiv:1309.3796v2, two red strands). If the last
 strand of `s` is the red strand `λ_r`, `g • t = s`, and `g⁻¹` moves every position other than
 the last one by one step to the right, then for the red order `r :: L` every element
-`e(s) w e_{r :: L}` is `ψ_{ρ(g)} e(t) x` modulo violated idempotents. -/
+`e(s) w e_{r :: L}` is `ψ_{ρ(g)} e(t) x` modulo diagrams with violated bottom. -/
 theorem exists_e_mul_mul_redProj_sub_mem_of_last {s t : Seq μ} {r : Fin ℓ} {L : List (Fin ℓ)}
     (h0 : 0 < m) (g : Perm (Fin m)) (hgt : g • t = s) (hs : s.lbl ⟨m - 1, by omega⟩ = .inr r)
     (hc : ∀ x : Fin m, (x : ℕ) ≠ m - 1 → (g⁻¹ x : ℕ) = x + 1)
     (w : BraidedStendhalAlgebra k Q Λ ν) :
     ∃ x, ofKLR k Q Λ ν (KLRAlgebra.e s) * w * redProj k Q Λ ν (r :: L) -
-      ofKLR k Q Λ ν (KLRAlgebra.ψw (ρ g) * KLRAlgebra.e t) * x ∈ violIdeal k Q Λ ν := by
+      ofKLR k Q Λ ν (KLRAlgebra.ψw (ρ g) * KLRAlgebra.e t) * x ∈ violBottom k Q Λ ν := by
   refine exists_e_mul_mul_redProj_sub_mem hρ hQ g hgt (fun j τ hτ hκ hv => ?_) w
   have hj0 := lbl_zero_of_not_isViolated h0 hv hκ
   have hτ0 : τ ⟨0, h0⟩ = ⟨m - 1, by omega⟩ := by

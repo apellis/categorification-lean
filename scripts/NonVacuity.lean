@@ -5899,6 +5899,14 @@ noncomputable example (ν : Multiset Unit) :=
     (k := ℚ) (Q := bsQ) (ρ := fun w => (TypeA.exists_reduced _ w).choose)
     (fun w => (TypeA.exists_reduced _ w).choose_spec) bsSymm
 
+/-- Webster, arXiv:1309.3796v2, §6.1: the corner of `B` at the reversed red order
+`λ_2, λ_1` is the tensor product algebra of the reordered sequence, for `sl₂`, two red strands of
+weight `ω` and every black weight. -/
+noncomputable example (ν : Multiset Unit) :=
+  BraidedStendhalAlgebra.violCornerRedPermTensorEquiv (Λ₀ := fun _ : Fin 2 => Finsupp.single () 1)
+    (ν₀ := ν) (k := ℚ) (Q₀ := bsQ) (ρ := fun w => (TypeA.exists_reduced _ w).choose)
+    (fun w => (TypeA.exists_reduced _ w).choose_spec) bsSymm (Equiv.swap 0 1)
+
 open scoped DG.DegreeZero in
 /-- Webster, arXiv:1309.3796v2, Definition 6.6: the braiding functor `- ⊗ᴸ B(κ', κ)` for
 `sl₂`, two red strands of weight `ω` in either order, and every black weight. -/

@@ -252,4 +252,94 @@ theorem eqvGen_exitRel_of_invSet_subset {e e' : Perm (Fin m)} (he : IsExit τ R 
 
 end Exits
 
+
+section SetPerm
+
+variable (τ : Perm (Fin m)) (R : Finset (Fin m)) (q p : Fin m)
+
+/-- The class function of `A`: the points of `A`, then `q`, then `p`, then the rest. -/
+def setClass (A : Finset (Fin m)) (s : Fin m) : ℕ :=
+  if s ∈ A then 0 else if s = q then 1 else if s = p then 2 else 4
+
+/-- The permutation listing the points of `A`, then `q`, then `p`, then the rest. -/
+noncomputable def setPerm (A : Finset (Fin m)) : Perm (Fin m) := classPerm (setClass q p A)
+
+/-- A pair that may not cross in an exit: either it does not cross in `τ` or both strands are
+red. The pair `(q, p)` is excluded. -/
+def Bad (u v : Fin m) : Prop := ((u, v) ∉ invSet m τ ∨ (u ∈ R ∧ v ∈ R)) ∧ ¬ (u = q ∧ v = p)
+
+/-- `A` lists the strands to the left of `q` in an exit: it avoids `q` and `p` and is closed
+under bad predecessors of its points, of `q` and of `p`. -/
+structure IsValid (A : Finset (Fin m)) : Prop where
+  q_notMem : q ∉ A
+  p_notMem : p ∉ A
+  closed : ∀ u v, u < v → Bad τ R q p u v → (v ∈ A ∨ v = q ∨ v = p) → u ∈ A
+
+variable {τ R q p}
+
+theorem setPerm_adj {A : Finset (Fin m)} (hqp : q ≠ p) (hq : q ∉ A) (hp : p ∉ A) :
+    (setPerm q p A p : ℕ) = setPerm q p A q + 1 := by
+  refine classPerm_succ _ (by simp [setClass, hq, hp, Ne.symm hqp]) fun t htq htp => ?_
+  simp only [setClass, hq, hp, ite_true, ite_false, htq, htp]
+  split_ifs <;> simp_all
+
+theorem setPerm_inv_not_bad {A : Finset (Fin m)} (hA : IsValid τ R q p A) {a b : Fin m}
+    (hab : (a, b) ∈ invSet m (setPerm q p A)) : ¬ Bad τ R q p a b := by
+  rw [setPerm, mem_invSet_classPerm] at hab
+  obtain ⟨hab, hc⟩ := hab
+  intro hbad
+  have hb : b ∈ A ∨ b = q ∨ b = p := by
+    by_contra h
+    simp only [not_or] at h
+    simp only [setClass, h.1, h.2.1, h.2.2, ite_false] at hc
+    split_ifs at hc <;> omega
+  have ha := hA.closed a b hab hbad hb
+  simp only [setClass, ha, ite_true] at hc
+  omega
+
+theorem isExit_setPerm (hqp : q < p) (hT : (q, p) ∈ invSet m τ) {A : Finset (Fin m)}
+    (hA : IsValid τ R q p A) : IsExit τ R q p (setPerm q p A) := by
+  refine ⟨fun a b hab hR => ?_, setPerm_adj hqp.ne hA.q_notMem hA.p_notMem, fun ⟨a, b⟩ hab => ?_⟩
+  · refine setPerm_inv_not_bad hA hab ⟨Or.inr hR, ?_⟩
+    rintro ⟨rfl, rfl⟩
+    rw [setPerm, mem_invSet_classPerm] at hab
+    simp [setClass, hA.q_notMem, hA.p_notMem, hqp.ne'] at hab
+  · by_contra h
+    refine setPerm_inv_not_bad hA hab ⟨Or.inl h, ?_⟩
+    rintro ⟨rfl, rfl⟩
+    exact h hT
+
+theorem isValid_of_isExit {A : Finset (Fin m)} (hqp : q < p) (hq : q ∉ A) (hp : p ∉ A)
+    (he : IsExit τ R q p (setPerm q p A)) : IsValid τ R q p A := by
+  refine ⟨hq, hp, fun u v huv hbad hv => ?_⟩
+  by_contra hu
+  have hinv : (u, v) ∈ invSet m (setPerm q p A) := by
+    rw [setPerm, mem_invSet_classPerm]
+    refine ⟨huv, ?_⟩
+    have hqp' := hqp.ne
+    rcases hv with hv | rfl | rfl
+    · have hvq : v ≠ q := fun h => hq (h ▸ hv)
+      simp only [setClass, hv, hu, ite_true, ite_false]
+      (try split_ifs) <;> omega
+    · have : u ≠ p := fun h => absurd (h ▸ huv) (not_lt.2 hqp.le)
+      simp only [setClass, hq, hu, ite_true, ite_false, huv.ne, this]
+      omega
+    · have : u ≠ q := fun h => hbad.2 ⟨h, rfl⟩
+      simp only [setClass, hp, hu, hqp'.symm, ite_true, ite_false, huv.ne, this]
+      omega
+  rcases hbad.1 with h | h
+  · exact h (he.le hinv)
+  · exact he.redFree u v hinv h
+
+theorem IsValid.inter {A A' : Finset (Fin m)} (hA : IsValid τ R q p A)
+    (hA' : IsValid τ R q p A') : IsValid τ R q p (A ∩ A') := by
+  refine ⟨fun h => hA.q_notMem (Finset.mem_inter.1 h).1,
+    fun h => hA.p_notMem (Finset.mem_inter.1 h).1, fun u v huv hbad hv => ?_⟩
+  simp only [Finset.mem_inter] at hv ⊢
+  rcases hv with hv | hv
+  · exact ⟨hA.closed u v huv hbad (Or.inl hv.1), hA'.closed u v huv hbad (Or.inl hv.2)⟩
+  · exact ⟨hA.closed u v huv hbad (Or.inr hv), hA'.closed u v huv hbad (Or.inr hv)⟩
+
+end SetPerm
+
 end Categorification.TypeA

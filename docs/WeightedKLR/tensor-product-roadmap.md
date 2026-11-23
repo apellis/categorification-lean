@@ -929,9 +929,21 @@ algebras on the summand selected by their red-order projectors, commuting with b
 multiplication. At a nonviolated exchanged loading, `RedBlock.blockTensorLoadingEquiv`
 identifies the ordinary quotient tensor above with the external loading idempotent's image.
 
-Open, in working order: Lemma 6.8 (identify the balanced tensor of the local crossing
-bimodule and the spectator regular bimodules with partial standardization as the same
-diagram column, establish naturality, then prove the higher-homology vanishing in (6.21)), then Prop 6.9
+For the other ordinary composite, `RedBlock.crossingProduct` tensors the spectator regular
+bimodules with the local corner of red orders `[1,0]` and `[0,1]`. Writing `D₀` for the
+external ordered algebra before the crossing and `S₀` for its standardization column,
+`RedBlock.crossingStack` maps `crossingProduct ⊗_{D₀} S₀` to the exchanged-top column.
+`crossingCut` takes a juxtaposed upper diagram `x` and a global lower representative `y`
+to a balanced class. It is onto this tensor, and moving an ordered block diagram between
+the halves gives the same class. Stacking the cut gives the exchanged-top projection of
+`F(x) F(e₀) y`, where `F` juxtaposes diagrams and `e₀` fixes the seam order. The map is
+linear over the exchanged block algebra, commutes with global bottom stacking, and is
+natural under maps of right input modules.
+
+Open, in working order: Lemma 6.8 (cut every exchanged-top global diagram and show that
+equal unmarked diagrams have the same balanced cut; the surjectivity of `crossingCut`
+is not surjectivity of `crossingStack`). Then prove the higher-homology vanishing in (6.21),
+including injectivity after tensoring the kernel inclusion, then Prop 6.9
 for general `ℓ` by reduction to two
 red strands, the graded forms of Def 6.6 and Props 6.7, 6.9, Cor 6.10, Lemma 6.11, Def 6.12, Cor 6.13,
 Lemma 6.14; tilting modules (Thm 6.15); `𝔅_σ` are equivalences (Thm 6.16); the braid group

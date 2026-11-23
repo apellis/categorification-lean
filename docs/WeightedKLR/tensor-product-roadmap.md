@@ -866,11 +866,58 @@ ring `B̃_e ≃ T̃^λ` is `identityCornerEquiv`, and the two ideals correspond
 `λ_1, …, λ_ℓ` one crossing at a time (`redProj_mul_e_mem_violSpan`). So each `B_w` is a
 `T^{wλ}`–`T^λ` bimodule.
 
-The functors `𝔅_w` (Def 6.6, Prop 6.7, Cor 6.8, Lemma 6.9, Prop 6.10, Lemma 6.13);
-tilting modules (Thm 6.14); `𝔅_w` are equivalences (Thm 6.15); the braid group action
-(Def 6.16, Cor 6.18); Ringel duality (Cor 6.19); semi-orthogonal decompositions
-(Prop 6.20); the Serre functor (Prop 6.21). Open. These need derived categories of
-graded modules; the plan is Mathlib's `DerivedCategory`.
+Prop 6.7, part for `E`, at the level of bimodules: appending a black strand at the right is a
+non-unital algebra map `φ = βE_i` (`appendBlackAlg`, `RedStrands/BraidedAppendBasis.lean`), and
+multiplication `e_{κ'}B(νᵢ)φ(e_{κ'}) ⊗ e_{κ'}B(ν)e_κ → e_{κ'}B(νᵢ)φ(e_κ)` is bijective, for `B̃`
+(`mult_injective_append`, `mult_surjective_append`, `RedStrands/BraidedAppendTensor.lean`) and for
+the quotients by violated idempotents (`violMk_mult_injective_append`,
+`violMk_mult_surjective_append`, `RedStrands/BraidedAppendViolated.lean`). The reduced words go
+through the last coset (`lastCosetWord`), as in Webster's proof. The part for `F` is the
+part for `E` transported along the top–bottom flip, an anti-automorphism of `B̃` and of the
+quotient (`flip`, `violFlip`, `violFlip_appendViol`, `RedStrands/BraidedAppendFlip.lean`): over
+the opposite algebras, `violMk_mult_injective_append_op`, `violMk_mult_surjective_append_op`
+(transport lemmas `TensorAlong.mult_injective_of_bijective`,
+`TensorAlong.mult_surjective_of_surjective'`). Webster deduces it by biadjunction.
+
+Prop 6.7 for `𝔈_i`, derived form (`RedStrands/BraidedAppendDerived.lean`): `appendFunctor κ` is
+`- ⊗ᴸ E_κ` with the corner `E_κ` of the induction along `φ`, and
+`braidingFunctorCompAppendFunctorIso` gives `𝔈_i ∘ 𝔅(κ', κ) ≅ 𝔅(κ', κ) ∘ 𝔈_i` for symmetric
+Rouquier `Q` and `κ'` an ordering of the red labels. Both composite bimodules are the corner
+`e_{κ'} V φ(e_κ)` (`firstEquiv`, `secondEquiv`, `compDGEquiv`), and projectivity of `E_κ` on both
+sides (`appendCorner_projective_left`, `appendCorner_projective_right`) makes the derived
+composites underived (`derivedTensorCompIsoOfProjective`, `dgDerivedTensorCompIso`,
+`dgDerivedTensorIsoOfEquiv`). The derived form for `𝔉_i`
+(`braidingFunctorCompAppendFunctorOpIso`) works with right modules: the top–bottom flip
+identifies the corner of `𝔉_i` with that of `𝔈_i` over the opposite corners, giving left
+projectivity (`appendCornerOp_projective_left`), and the bimodule part for `F` identifies both
+composites with `φ(e_{κ'}) V e_κ` (`compDGEquivF`).
+
+Def 6.6 is done in ungraded, unbounded form: `braidingFunctor κ' κ`
+(`RedStrands/BraidingFunctor.lean`) is the derived tensor product `- ⊗ᴸ B(κ', κ)` on right
+modules over the corners of the violated quotient, built on dg-lean's derived categories of dg
+modules over rings in degree `0`, computed on K-projective resolutions (`derivedTensor`,
+`derivedRightTensor`, `Algebra/DerivedTensor.lean`; the bimodule `e A e'` is
+`cornerBimodule`, `Algebra/CornerBimodule.lean`). Webster uses graded modules and `D⁻`; the
+graded version and the restriction to `D⁻` are open roadmap items.
+
+Prop 6.9 for two red strands, done (`RedStrands/BraidedStandardTwo.lean`,
+`RedStrands/BraidedStandardInjective.lean`, `RedStrands/BraidedStandardIso.lean`). Let the leftmost strand of `t` be `λ_r` and let `g`
+carry it to the right edge, `g • t = s` (`EdgeBraid`). The braiding diagram `ψ_g` sends the
+generators of the ideal `U_r` (violated idempotents, and idempotents starting with `λ_r` followed
+by a black strand) into the violated ideal (`e_mul_mul_e_mem_violIdeal`); every element of
+`e(s) A e_{r :: L}` is `ψ_g e(t) x` modulo diagrams with violated bottom
+(`exists_e_mul_mul_redProj_sub_mem_of_last`); and if `ψ_g e(t) x e_{r :: L}` is violated then
+`e(t) x e_{r :: L}` lies in `U_r` (`mem_edgeIdeal_of_mem_violIdeal`, through the left inverse
+`throughMap`). Together they give the isomorphism of Figure 5,
+`e(t) (A / U_r) e_{r :: L} ≃ e(s) (A / A e_viol A) e_{r :: L}` (`braidCornerEquiv`).
+
+Open, in working order: Lemma 6.8 (needs block standardization in the braided algebra; standard
+modules exist only in `StendhalAlgebraAllOrders`, `RedStrands/StandardAction.lean`, and partial
+standardization only for the last red strand), then Prop 6.9 for general `ℓ` by reduction to two
+red strands, the graded forms of Def 6.6 and Props 6.7, 6.9, Cor 6.10, Lemma 6.11, Def 6.12, Cor 6.13,
+Lemma 6.14; tilting modules (Thm 6.15); `𝔅_σ` are equivalences (Thm 6.16); the braid group
+action (Cor 6.17); Ringel duality (Cor 6.18); semi-orthogonal decompositions (Prop 6.19); the
+Serre functor (Prop 6.20).
 
 ### Phase E: §7, rigidity
 

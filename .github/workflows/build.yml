@@ -66,6 +66,7 @@ jobs:
             .lake/build
             .lake/packages/LieLean/.lake/build
             .lake/packages/StringDiagrams/.lake/build
+            .lake/packages/DG/.lake/build
           key: ${{ steps.key.outputs.prefix }}-${{ github.sha }}
           restore-keys: |
             ${{ steps.key.outputs.prefix }}-
@@ -97,4 +98,5 @@ jobs:
             .lake/build
             .lake/packages/LieLean/.lake/build
             .lake/packages/StringDiagrams/.lake/build
+            .lake/packages/DG/.lake/build
           key: ${{ steps.key.outputs.prefix }}-${{ github.sha }}

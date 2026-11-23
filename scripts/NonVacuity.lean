@@ -5860,6 +5860,37 @@ example (ν : Multiset Unit) :=
     (fun w => (TypeA.exists_reduced _ w).choose_spec) bsSymm
     (κ₂ := [2, 1, 0]) (κ₁ := [1, 0, 2]) (κ₀ := [0, 1, 2]) (by decide) (by decide) (by decide)
 
+/-- Webster, arXiv:1309.3796v2, Proposition 6.7 (the part for `E`, at the level of bimodules over
+the quotients by violated diagrams), for `sl₂`, two red strands of weight `ω` and every black
+weight: multiplication `βE ⊗ B_w → B_w βE` along the append map is injective. -/
+example (ν : Multiset Unit) :=
+  BraidedStendhalAlgebra.violMk_mult_injective_append (k := ℚ) bsQ
+    (fun _ : Fin 2 => Finsupp.single () 1) () ν bsSymm
+    (fun w => (TypeA.exists_reduced _ w).choose)
+    (fun w => (TypeA.exists_reduced _ w).choose_spec) [1, 0] [0, 1]
+
+/-- The same, surjectivity. -/
+example (ν : Multiset Unit) :=
+  BraidedStendhalAlgebra.violMk_mult_surjective_append (k := ℚ) bsQ
+    (fun _ : Fin 2 => Finsupp.single () 1) () ν bsSymm
+    (fun w => (TypeA.exists_reduced _ w).choose)
+    (fun w => (TypeA.exists_reduced _ w).choose_spec) [1, 0] [0, 1]
+
+/-- Webster, arXiv:1309.3796v2, Proposition 6.7 for `𝔉_i` (injectivity, over the opposite
+algebras), for `sl₂`, two red strands of weight `ω` and every black weight. -/
+example (ν : Multiset Unit) :=
+  BraidedStendhalAlgebra.violMk_mult_injective_append_op (k := ℚ) bsQ
+    (fun _ : Fin 2 => Finsupp.single () 1) () ν bsSymm
+    (fun w => (TypeA.exists_reduced _ w).choose)
+    (fun w => (TypeA.exists_reduced _ w).choose_spec) [1, 0] [0, 1]
+
+/-- The same, surjectivity. -/
+example (ν : Multiset Unit) :=
+  BraidedStendhalAlgebra.violMk_mult_surjective_append_op (k := ℚ) bsQ
+    (fun _ : Fin 2 => Finsupp.single () 1) () ν bsSymm
+    (fun w => (TypeA.exists_reduced _ w).choose)
+    (fun w => (TypeA.exists_reduced _ w).choose_spec) [1, 0] [0, 1]
+
 /-- Webster, arXiv:1309.3796v2, §6: the quotient bimodule `B_e` is the tensor product algebra
 `T^λ` (Definitions 4.6 and 4.7) as rings, for `sl₂`, two red strands of weight `ω` and every
 black weight. -/
@@ -5867,5 +5898,136 @@ noncomputable example (ν : Multiset Unit) :=
   BraidedStendhalAlgebra.violCornerEquiv (Λ := fun _ : Fin 2 => Finsupp.single () 1) (ν := ν)
     (k := ℚ) (Q := bsQ) (ρ := fun w => (TypeA.exists_reduced _ w).choose)
     (fun w => (TypeA.exists_reduced _ w).choose_spec) bsSymm
+
+/-- Webster, arXiv:1309.3796v2, §6.1: the corner of `B` at the reversed red order
+`λ_2, λ_1` is the tensor product algebra of the reordered sequence, for `sl₂`, two red strands of
+weight `ω` and every black weight. -/
+noncomputable example (ν : Multiset Unit) :=
+  BraidedStendhalAlgebra.violCornerRedPermTensorEquiv (Λ₀ := fun _ : Fin 2 => Finsupp.single () 1)
+    (ν₀ := ν) (k := ℚ) (Q₀ := bsQ) (ρ := fun w => (TypeA.exists_reduced _ w).choose)
+    (fun w => (TypeA.exists_reduced _ w).choose_spec) bsSymm (Equiv.swap 0 1)
+
+open scoped DG.DegreeZero in
+/-- Webster, arXiv:1309.3796v2, Definition 6.6: the braiding functor `- ⊗ᴸ B(κ', κ)` for
+`sl₂`, two red strands of weight `ω` in either order, and every black weight. -/
+noncomputable example (ν : Multiset Unit) :=
+  letI := DG.HasDerivedCategory.standard
+    (BraidedStendhalAlgebra.isIdempotentElem_violMk_redProj ℚ bsQ
+      (fun _ : Fin 2 => Finsupp.single () 1) ν [0, 1]).Cornerᵐᵒᵖ
+  letI := DG.HasDerivedCategory.standard
+    (BraidedStendhalAlgebra.isIdempotentElem_violMk_redProj ℚ bsQ
+      (fun _ : Fin 2 => Finsupp.single () 1) ν [1, 0]).Cornerᵐᵒᵖ
+  BraidedStendhalAlgebra.braidingFunctor ℚ bsQ (fun _ : Fin 2 => Finsupp.single () 1) ν
+    [0, 1] [1, 0]
+
+private theorem bsRouquier :
+    KLR.IsRouquierQ (QuantumGroup.CartanDatum.ofGraph (⊥ : SimpleGraph Unit)) bsQ where
+  symm _ _ h := (h (Subsingleton.elim _ _)).elim
+  homogeneous _ _ h := (h (Subsingleton.elim _ _)).elim
+  unit_coeff _ _ h := (h (Subsingleton.elim _ _)).elim
+
+open scoped DG.DegreeZero in
+/-- Webster, arXiv:1309.3796v2, Proposition 6.7 for `𝔈_i`: `𝔈_i ∘ 𝔅(κ', κ) ≅ 𝔅(κ', κ) ∘ 𝔈_i`,
+for `sl₂`, two red strands of weight `ω` in either order, and every black weight. -/
+noncomputable example (ν : Multiset Unit) :=
+  letI := DG.HasDerivedCategory.standard
+    (BraidedStendhalAlgebra.isIdempotentElem_violMk_redProj ℚ bsQ
+      (fun _ : Fin 2 => Finsupp.single () 1) ({()} + ν) [0, 1]).Cornerᵐᵒᵖ
+  letI := DG.HasDerivedCategory.standard
+    (BraidedStendhalAlgebra.isIdempotentElem_violMk_redProj ℚ bsQ
+      (fun _ : Fin 2 => Finsupp.single () 1) ({()} + ν) [1, 0]).Cornerᵐᵒᵖ
+  letI := DG.HasDerivedCategory.standard
+    (BraidedStendhalAlgebra.isIdempotentElem_violMk_redProj ℚ bsQ
+      (fun _ : Fin 2 => Finsupp.single () 1) ν [0, 1]).Cornerᵐᵒᵖ
+  letI := DG.HasDerivedCategory.standard
+    (BraidedStendhalAlgebra.isIdempotentElem_violMk_redProj ℚ bsQ
+      (fun _ : Fin 2 => Finsupp.single () 1) ν [1, 0]).Cornerᵐᵒᵖ
+  BraidedStendhalAlgebra.braidingFunctorCompAppendFunctorIso
+    (Λ := fun _ : Fin 2 => Finsupp.single () 1) (i := ()) (ν := ν) (κ' := [1, 0]) (κ := [0, 1])
+    (ρ := fun w => (TypeA.exists_reduced _ w).choose)
+    (ρ' := fun w => (TypeA.exists_reduced _ w).choose) bsSymm
+    (fun w => (TypeA.exists_reduced _ w).choose_spec)
+    (fun w => (TypeA.exists_reduced _ w).choose_spec) _ bsRouquier (by decide)
+
+open scoped DG.DegreeZero in
+/-- Webster, arXiv:1309.3796v2, Proposition 6.7 for `𝔉_i`: `𝔉_i ∘ 𝔅(κ', κ) ≅ 𝔅(κ', κ) ∘ 𝔉_i`,
+for `sl₂`, two red strands of weight `ω` in either order, and every black weight. -/
+noncomputable example (ν : Multiset Unit) :=
+  letI := DG.HasDerivedCategory.standard
+    (BraidedStendhalAlgebra.isIdempotentElem_violMk_redProj ℚ bsQ
+      (fun _ : Fin 2 => Finsupp.single () 1) ({()} + ν) [0, 1]).Cornerᵐᵒᵖ
+  letI := DG.HasDerivedCategory.standard
+    (BraidedStendhalAlgebra.isIdempotentElem_violMk_redProj ℚ bsQ
+      (fun _ : Fin 2 => Finsupp.single () 1) ({()} + ν) [1, 0]).Cornerᵐᵒᵖ
+  letI := DG.HasDerivedCategory.standard
+    (BraidedStendhalAlgebra.isIdempotentElem_violMk_redProj ℚ bsQ
+      (fun _ : Fin 2 => Finsupp.single () 1) ν [0, 1]).Cornerᵐᵒᵖ
+  letI := DG.HasDerivedCategory.standard
+    (BraidedStendhalAlgebra.isIdempotentElem_violMk_redProj ℚ bsQ
+      (fun _ : Fin 2 => Finsupp.single () 1) ν [1, 0]).Cornerᵐᵒᵖ
+  BraidedStendhalAlgebra.braidingFunctorCompAppendFunctorOpIso
+    (Λ := fun _ : Fin 2 => Finsupp.single () 1) (i := ()) (ν := ν) (κ' := [1, 0]) (κ := [0, 1])
+    (ρ := fun w => (TypeA.exists_reduced _ w).choose)
+    (ρ' := fun w => (TypeA.exists_reduced _ w).choose) bsSymm
+    (fun w => (TypeA.exists_reduced _ w).choose_spec)
+    (fun w => (TypeA.exists_reduced _ w).choose_spec) _ bsRouquier (by decide)
+
+open scoped DG.DegreeZero in
+/-- The derived tensor product with an ordinary bimodule (Webster, arXiv:1309.3796v2,
+Definition 6.6), for `ℤ` acting on itself. -/
+noncomputable example :=
+  letI := DG.HasDerivedCategory.standard ℤ
+  derivedTensor ℤ ℤ ℤ
+
+open scoped DG.DegreeZero in
+/-- A projective module in degree zero is K-projective (input to Webster, arXiv:1309.3796v2,
+proof of Proposition 6.7), for `ℚ` over itself. -/
+example : DG.IsKProjective.{0} ℚ (InDegreeZero ℚ) := InDegreeZero.isKProjective (A := ℚ)
+
+open scoped DG.DegreeZero in
+/-- Derived tensor products compose when the inner bimodule is K-projective over its target
+(input to Webster, arXiv:1309.3796v2, proof of Proposition 6.7), for `ℚ` acting on itself. -/
+noncomputable example :=
+  letI := DG.HasDerivedCategory.standard ℚ
+  dgDerivedTensorCompIso (A := ℚ) (B := ℚ) (C := ℚ) (InDegreeZero ℚ)
+    (InDegreeZero.isKProjective (A := ℚ) (M := ℚ))
+
+open scoped DG.DegreeZero in
+/-- Tensoring with a projective module in degree zero preserves acyclicity (input to Webster,
+arXiv:1309.3796v2, proof of Proposition 6.7), over the zero ring, where every dg module is
+acyclic. -/
+example : DG.IsAcyclic
+    (DG.TensorProductOver (ZMod 1) (InDegreeZero (ZMod 1)) (InDegreeZero (ZMod 1))) :=
+  InDegreeZero.isAcyclic_tensorProductOver (B := ZMod 1) (P := ZMod 1)
+    (fun n => ⟨fun a b => by
+      induction a using DG.cohomology.induction_on with | h x =>
+      induction b using DG.cohomology.induction_on with | h y =>
+      rw [Subtype.ext (Subsingleton.elim (α := ZMod 1) x.1 y.1)]⟩)
+
+open scoped DG.DegreeZero in
+/-- Tensoring with a projective module in degree zero preserves quasi-isomorphisms (input to
+Webster, arXiv:1309.3796v2, proof of Proposition 6.7), for the identity of `ℚ`. -/
+example : (DG.DGModuleHom.lTensor ℚ (InDegreeZero ℚ)
+    (DG.DGModuleHom.id : InDegreeZero ℚ →ᵈᵍ[ℚ] InDegreeZero ℚ)).IsQuasiIso :=
+  haveI : Module.Free ℚᵐᵒᵖ ℚ := Module.Free.of_equiv (MulOpposite.opLinearEquiv ℚᵐᵒᵖ).symm
+  InDegreeZero.isQuasiIso_lTensor (A := ℚ) (B := ℚ) (P := ℚ) DG.DGModuleHom.isQuasiIso_id
+
+open scoped DG.DegreeZero in
+/-- The derived tensor product with a bimodule projective over its source is computed without
+resolutions (input to Webster, arXiv:1309.3796v2, proof of Proposition 6.7), for `ℚ` acting on
+itself. -/
+noncomputable example :=
+  letI := DG.HasDerivedCategory.standard ℚ
+  haveI : Module.Free ℚᵐᵒᵖ ℚ := Module.Free.of_equiv (MulOpposite.opLinearEquiv ℚᵐᵒᵖ).symm
+  QCompDerivedTensorIso ℚ ℚ ℚ
+
+open scoped DG.DegreeZero in
+/-- Derived tensor products compose without a second resolution when the outer bimodule is
+projective over its source (input to Webster, arXiv:1309.3796v2, proof of Proposition 6.7), for
+`ℚ` acting on itself. -/
+noncomputable example :=
+  letI := DG.HasDerivedCategory.standard ℚ
+  haveI : Module.Free ℚᵐᵒᵖ ℚ := Module.Free.of_equiv (MulOpposite.opLinearEquiv ℚᵐᵒᵖ).symm
+  derivedTensorCompIsoOfProjective (A := ℚ) (B := ℚ) (C := ℚ) ℚ ℚ
 
 end NonVacuity.BraidedStendhal

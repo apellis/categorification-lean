@@ -1613,6 +1613,7 @@ import Categorification.WeightedKLR.RedStrands.BraidedFactorizationSpan
 import Categorification.WeightedKLR.RedStrands.BraidedIdentity
 import Categorification.WeightedKLR.RedStrands.BraidedRedOrder
 import Categorification.WeightedKLR.RedStrands.BraidedStendhal
+import Categorification.WeightedKLR.RedStrands.BraidedViolatedIdentity
 import Categorification.WeightedKLR.RedStrands.BraidedViolatedPush
 import Categorification.WeightedKLR.RedStrands.BraidedViolatedQuotient
 import Categorification.WeightedKLR.RedStrands.StendhalBasisSymm

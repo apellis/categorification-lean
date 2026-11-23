@@ -859,6 +859,13 @@ pushed through red crossings by frames that fix the strands left of the crossing
 (`redProj_mul_mul_e_mem`), and injectivity passes to the quotient
 (`CornerTensor.mult_injective_of_ker`).
 
+For `w = e` the quotient bimodule is the tensor product algebra: `B_e ≃ T^λ` as rings
+(`BraidedStendhalAlgebra.violCornerEquiv`, `RedStrands/BraidedViolatedIdentity.lean`). The
+ring `B̃_e ≃ T̃^λ` is `identityCornerEquiv`, and the two ideals correspond
+(`val_mem_violIdeal_iff`): a violated idempotent of any red order is pushed to the order
+`λ_1, …, λ_ℓ` one crossing at a time (`redProj_mul_e_mem_violSpan`). So each `B_w` is a
+`T^{wλ}`–`T^λ` bimodule.
+
 The functors `𝔅_w` (Def 6.6, Prop 6.7, Cor 6.8, Lemma 6.9, Prop 6.10, Lemma 6.13);
 tilting modules (Thm 6.14); `𝔅_w` are equivalences (Thm 6.15); the braid group action
 (Def 6.16, Cor 6.18); Ringel duality (Cor 6.19); semi-orthogonal decompositions

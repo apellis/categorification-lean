@@ -5860,4 +5860,12 @@ example (ν : Multiset Unit) :=
     (fun w => (TypeA.exists_reduced _ w).choose_spec) bsSymm
     (κ₂ := [2, 1, 0]) (κ₁ := [1, 0, 2]) (κ₀ := [0, 1, 2]) (by decide) (by decide) (by decide)
 
+/-- Webster, arXiv:1309.3796v2, §6: the quotient bimodule `B_e` is the tensor product algebra
+`T^λ` (Definitions 4.6 and 4.7) as rings, for `sl₂`, two red strands of weight `ω` and every
+black weight. -/
+noncomputable example (ν : Multiset Unit) :=
+  BraidedStendhalAlgebra.violCornerEquiv (Λ := fun _ : Fin 2 => Finsupp.single () 1) (ν := ν)
+    (k := ℚ) (Q := bsQ) (ρ := fun w => (TypeA.exists_reduced _ w).choose)
+    (fun w => (TypeA.exists_reduced _ w).choose_spec) bsSymm
+
 end NonVacuity.BraidedStendhal

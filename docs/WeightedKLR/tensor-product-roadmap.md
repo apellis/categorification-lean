@@ -940,9 +940,10 @@ the halves gives the same class. Stacking the cut gives the exchanged-top projec
 linear over the exchanged block algebra, commutes with global bottom stacking, and is
 natural under maps of right input modules.
 
-Open, in working order: Lemma 6.8 (cut every exchanged-top global diagram and show that
-equal unmarked diagrams have the same balanced cut; the surjectivity of `crossingCut`
-is not surjectivity of `crossingStack`). Then prove the higher-homology vanishing in (6.21),
+`crossingStack_diagramCut` restacks the linear cut of an unmarked diagram to its projection,
+so `crossingStack` is surjective. The cut kills violated and higher bottom endpoints.
+Open for Lemma 6.8: descend the cut through such relations at arbitrary interior heights
+and show that cutting after stacking is the identity on the balanced tensor. Then prove the higher-homology vanishing in (6.21),
 including injectivity after tensoring the kernel inclusion, then Prop 6.9
 for general `ℓ` by reduction to two
 red strands, the graded forms of Def 6.6 and Props 6.7, 6.9, Cor 6.10, Lemma 6.11, Def 6.12, Cor 6.13,

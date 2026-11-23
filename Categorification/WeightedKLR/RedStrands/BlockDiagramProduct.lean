@@ -65,14 +65,6 @@ private theorem zero_on_one {C : Type*} [AddCommGroup C] [Module k C] :
     intro s _
     exact zero_on_one Bs (g ∘ₗ TensorProduct.mk k _ _ _) (fun t => hg (s,t))
 
-/-- The juxtaposed top projector is spanned by the individual loading projectors. -/
-theorem one_mem_span_loadingIdem (Bs : List (RedBlock I ℓ)) :
-    (1 : diagrams Q Λ Bs) ∈ Submodule.span k (Set.range (loadingIdem Q Λ Bs)) := by
-  let U := Submodule.span k (Set.range (loadingIdem Q Λ Bs))
-  apply (Submodule.Quotient.mk_eq_zero U).1
-  exact zero_on_one Q Λ Bs U.mkQ (fun s => (Submodule.Quotient.mk_eq_zero U).2
-    (Submodule.subset_span ⟨s,rfl⟩))
-
 /-- Descent from the actual local violated ideals, using their loading generators. -/
 theorem exists_factor {C : Type*} [Ring C] [Algebra k C] :
     ∀ Bs (F : diagrams Q Λ Bs →ₐ[k] C),

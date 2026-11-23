@@ -135,4 +135,60 @@ theorem exists_orderedBlock_word_cast (Bs : List (RedBlock I ℓ)) {μ : Multise
   rw [mem_invSet_pair] at hij ⊢
   exact ⟨hij.1,hv i j hij.1 hij.2⟩
 
+variable (L M : List (Fin ℓ × Multiset I)) (f : Fin 2 ↪ Fin ℓ) (β : Multiset I) {ν : Multiset I}
+    (h : weightSum (adjacentRow L M f β) = stendhalWeight ℓ ν)
+local notation "Bs" => adjacentRow L M f β
+local notation "κ₀" => L.map Prod.fst ++ f 0 :: f 1 :: M.map Prod.fst
+local notation "μ" => stendhalWeight ℓ ν
+local notation "m" => Multiset.card (stendhalWeight ℓ ν)
+local notation "π" => AlgHom.comp (violMk k Q Λ ν) (ofKLR k Q Λ ν)
+local notation "F" => stackBlocks Q Λ L M f β h
+local notation "E₀" => orderedIdem Q Λ botOrd Bs
+
+omit [DecidableEq I] in
+private theorem localRedOrder (i : Seq μ) (hi : redWord i = κ₀) : ∀ B ∈ Bs, ∀ a b : Fin B.size,
+    (∃ p q, i.lbl p = .inr (B.label a) ∧ i.lbl q = .inr (B.label b) ∧ p < q) → a < b := by
+  intro B hB a b ⟨p,q,hp,hq,hpq⟩
+  have hne : a ≠ b := by rintro rfl; exact hpq.ne (lbl_inj_of_inr i _ hp hq)
+  rcases List.mem_append.1 hB with hB | hB
+  · obtain ⟨s,_,rfl⟩ := List.mem_map.1 hB; exact (hne (Subsingleton.elim ..)).elim
+  rcases List.mem_cons.1 hB with rfl | hB
+  · by_contra! hab
+    have hba : b < a := lt_of_le_of_ne hab hne.symm
+    have ha2 : a.val < 2 := a.isLt
+    have hb2 : b.val < 2 := b.isLt
+    have ha : a = 1 := Fin.ext (by change (a : ℕ) = 1; omega)
+    have hb : b = 0 := Fin.ext (by change (b : ℕ) = 0; omega)
+    subst a; subst b
+    exact hpq.not_gt (lt_of_redWord_eq_append hi hq hp)
+  · obtain ⟨s,_,rfl⟩ := List.mem_map.1 hB; exact (hne (Subsingleton.elim ..)).elim
+
+/-- Reduced representatives whose upper word is an ordered local diagram whenever the
+end loadings match (Webster, arXiv:1309.3796v2, proof of Lemma 6.8). -/
+theorem exists_reduced_crossing_cut (s : Loadings Bs) (i : Seq μ) (hi : redWord i = κ₀) (w : Perm (Fin m)) :
+    ∃ A D, (IsReduced m (A ++ D) ∧ wordProd m (A ++ D) = w) ∧
+      (w • i = Seq.cast h (place Bs s) → ∃ x : diagrams Q Λ Bs, x * E₀ = x ∧
+        F x = π (e (Seq.cast h (place Bs s)) * ψw A)) := by
+  by_cases hw : w • i = Seq.cast h (place Bs s)
+  swap
+  · exact ⟨[],canWord m w,⟨isReduced_canWord _ _,wordProd_canWord _ _⟩,fun he => (hw he).elim⟩
+  let rel := fun a b : Fin ℓ => ∃ p q, i.lbl p = .inr a ∧ i.lbl q = .inr b ∧ p < q
+  have ho : OrderedBy (Seq.cast h (place Bs s)) (fun j => (w⁻¹ j).val) rel := by
+    rw [← hw]; intro a b r r' hab ha hb
+    exact ⟨_,_,ha,hb,hab⟩
+  obtain ⟨A,hA,hv,x,hx,hX⟩ := exists_orderedBlock_word_cast Q Λ Bs h s w rel ho
+    (localRedOrder L M f β i hi)
+  let u := wordProd m A
+  have hl : length m (u⁻¹ * w) + length m u = length m w := by
+    have H := length_add_of_invSet_subset hv
+    rw [inv_inv, ← length_inv (w⁻¹ * wordProd m A), mul_inv_rev, inv_inv, length_inv, length_inv] at H
+    exact H
+  let D := canWord m (u⁻¹ * w)
+  have hD : wordProd m D = u⁻¹ * w := wordProd_canWord _ _
+  have hprod : wordProd m (A ++ D) = w := by rw [wordProd_append,hD]; exact mul_inv_cancel_left u w
+  refine ⟨A,D,⟨⟨validWord_append.2 ⟨hA.1, validWord_canWord _ _⟩,?_⟩,hprod⟩,
+    fun _ => ⟨x,hx,congrArg π hX⟩⟩
+  rw [List.length_append, hprod, hA.2, show D.length = length m (u⁻¹ * w) from length_canWord _ _, Nat.add_comm]
+  exact hl
+
 end Categorification.Stendhal.RedBlock

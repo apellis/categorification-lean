@@ -2,7 +2,8 @@
 Copyright (c) 2026 Alex Ellis. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 -/
-import Categorification.WeightedKLR.RedStrands.BlockCrossingSpan
+import Categorification.WeightedKLR.RedStrands.BlockCrossingWords
+import Categorification.WeightedKLR.RedStrands.BlockCrossingCut
 
 /-!
 # Cutting a global braided diagram before the standard quotient
@@ -187,6 +188,14 @@ theorem crossingStack_diagramCut (y : Braid) : stk (crossingDiagramCut Q Λ hQ L
   have H (u : diagrams Q Λ Bs) : F u * ((F 1 * (mk y * π p)) * π p) = F u * (mk y * π p) := by
     rw [mul_assoc (F 1), mul_assoc (mk y), hp, ← mul_assoc, ← map_mul, mul_one]
   exact congrArg _ (H _)
+
+/-- **Surjectivity of ordinary stacking** (Webster, arXiv:1309.3796v2, proof of Lemma 6.8).
+Every exchanged-top column class is obtained by cutting a braided representative. -/
+theorem crossingStack_surjective : Function.Surjective stk := by
+  intro z
+  obtain ⟨v,rfl⟩ := orderedColumnRep_surjective Q Λ hQ L M f β h topOrd z
+  obtain ⟨y,rfl⟩ := violMk_surjective v
+  exact ⟨crossingDiagramCut Q Λ hQ L M f β h y, crossingStack_diagramCut Q Λ hQ L M f β h y⟩
 
 /-- A violated or higher idempotent at the *bottom endpoint* is killed by the cut itself,
 not merely by restacking it. This does not put the idempotent at an arbitrary interior height. -/

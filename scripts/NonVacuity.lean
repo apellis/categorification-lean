@@ -5847,6 +5847,7 @@ private noncomputable def cross : diagrams bsQ Λ Bs :=
 example := crossingStack_cut bsQ Λ bsSymm L M pair β weight cross 1
 example := crossingCut_slide bsQ Λ bsSymm L M pair β weight cross
   (orderedIdem bsQ Λ (fun _ => 1) Bs) 1 (orderedInclusion_one bsQ Λ bsSymm _ Bs).symm 1
+example := crossingStack_surjective bsQ Λ bsSymm L M pair β weight
 end AdjacentRow
 
 /-- Webster, arXiv:1309.3796v2, Prop. 6.4, for `sl₂`, two red strands of weight `ω` that may

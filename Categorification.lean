@@ -994,6 +994,7 @@ import Categorification.TypeA.Basic
 import Categorification.TypeA.Cancellation
 import Categorification.TypeA.DoubleCoset
 import Categorification.TypeA.Exits
+import Categorification.TypeA.ExitsPrefix
 import Categorification.TypeA.GapSort
 import Categorification.TypeA.Inversions
 import Categorification.TypeA.LastStrand

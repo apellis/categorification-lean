@@ -911,9 +911,18 @@ by a black strand) into the violated ideal (`e_mul_mul_e_mem_violIdeal`); every 
 `throughMap`). Together they give the isomorphism of Figure 5,
 `e(t) (A / U_r) e_{r :: L} ≃ e(s) (A / A e_viol A) e_{r :: L}` (`braidCornerEquiv`).
 
-Open, in working order: Lemma 6.8 (needs block standardization in the braided algebra; standard
-modules exist only in `StendhalAlgebraAllOrders`, `RedStrands/StandardAction.lean`, and partial
-standardization only for the last red strand), then Prop 6.9 for general `ℓ` by reduction to two
+Lemma 6.8, ordinary tensor at a fixed top loading: `adjacentBlockRoot` measures the cuts
+of `λ(j)`. A reduced diagram for the adjacent red swap factors through the swapped red
+order without decreasing any of these counts (`exists_adjacentBlock_frame`). Hence in the
+quotient by violated diagrams, factoring through higher loadings in the bottom or the top
+order gives the same subspace of the crossing bimodule (`mem_blockUpperIdeal_iff`). For a
+projective at `t`, `ker_blockTensorMult` identifies exactly which classes of the ordinary
+tensor are killed by the bottom-order higher relations, and `blockTensorEquiv` identifies the
+quotient tensor with the fixed-top corner modulo those relations.
+
+Open, in working order: Lemma 6.8 (construct the external block-algebra action, identify both
+ordinary composites naturally and prove the higher-homology vanishing in (6.21)), then Prop 6.9
+for general `ℓ` by reduction to two
 red strands, the graded forms of Def 6.6 and Props 6.7, 6.9, Cor 6.10, Lemma 6.11, Def 6.12, Cor 6.13,
 Lemma 6.14; tilting modules (Thm 6.15); `𝔅_σ` are equivalences (Thm 6.16); the braid group
 action (Cor 6.17); Ringel duality (Cor 6.18); semi-orthogonal decompositions (Prop 6.19); the

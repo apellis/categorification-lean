@@ -5798,6 +5798,14 @@ private noncomputable abbrev bsQ : Unit → Unit → MvPolynomial (Fin 2) ℚ :=
 
 private theorem bsSymm : KLRSymm bsQ := fun _ _ _ => rfl
 
+/-- The fixed-top ordinary comparison of Webster, arXiv:1309.3796v2, Lemma 6.8. The
+middle pair has a black strand between its members, and a singleton block on either side. -/
+example :=
+  let t : Seq (stendhalWeight 4 ({()} : Multiset Unit)) :=
+    KLRAlgebra.Seq.ofList [.inr 0, .inr 1, .inl (), .inr 2, .inr 3] (by decide)
+  BraidedStendhalAlgebra.blockTensorEquiv ℚ bsQ
+    (fun _ : Fin 4 => Finsupp.single () 1) [0] [3] 2 1 t (by decide)
+
 /-- Webster, arXiv:1309.3796v2, Prop. 6.4, for `sl₂`, two red strands of weight `ω` that may
 cross, and every black weight. -/
 noncomputable example (ν : Multiset Unit) :=

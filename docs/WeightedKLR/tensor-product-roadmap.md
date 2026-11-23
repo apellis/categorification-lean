@@ -927,8 +927,18 @@ over the respective corners, using red relabelling and horizontal reflection to 
 left standardization there. The inverse cyclic rotation relates the two canonical two-piece
 loadings, so `braidingFunctorObjFigureFiveStandardizationIso` composes both comparisons with
 `braidingFunctorObjFigureFiveIso`. Thus the ungraded two-red braid sends
-`S(P_u ⊠ P_∅)` to `S(P_∅ ⊠ P_u)` in cohomological degree zero. The internal grading shift
-and the general adjacent-block reduction remain open.
+`S(P_u ⊠ P_∅)` to `S(P_∅ ⊠ P_u)` in cohomological degree zero.
+
+For the internal grading, `ExteriorStandardGrading.lean` grades `stdLayerModule` using the two
+projective factors, their exterior tensor, affine balanced induction, and the ordered quotient.
+The identity-shuffle tensor of loading idempotents has degree zero. In
+`BraidedStandardization.lean`, `loadingProjectiveEquivExteriorStandardization_mem_grade` and
+`loadingStandardEquivExteriorStandardization_mk_mem_grade` show that the two endpoint maps
+preserve degree on homogeneous diagram representatives. Relabelling and horizontal reflection
+preserve diagram degrees, and the standardization map identifies the degree-zero generators.
+The shift `⟨λ₀ − α, λ₁⟩` in Webster's convention is established on the loading-standard comparison
+with the cut, but that graded comparison is not yet assembled on the exterior standardization.
+The graded derived comparison also remains open.
 
 Open, in working order: Lemma 6.8 (needs block standardization in the braided algebra; standard
 modules exist only in `StendhalAlgebraAllOrders`, `RedStrands/StandardAction.lean`, and partial

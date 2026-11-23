@@ -5934,6 +5934,49 @@ noncomputable example :
   rw [fracWeight_shift, neg_div, neg_neg] at e
   exact e
 
+open Categorification.Graded in
+/-- The lower map in Webster, arXiv:1309.3796v2, §6.1, Figure 5, preserves degree zero
+on the loading idempotent for one `sl₂` black strand and weights `ω`, `3ω`. -/
+noncomputable example :=
+  let v := figureFiveLower blackWord
+  let h : redWord v = List.map (1 : Perm (Fin 2)) (List.finRange 2) := by
+    exact (redWord_redPerm (1 : Perm (Fin 2)) _).trans (congrArg (List.map (1 : Perm (Fin 2)))
+      ((redWord_eq_finRange_iff _).2 (isRedOrdered_seqCast _
+        (isRedOrdered_twoPieceLoading (SingleRed.ordered ν _) vacuumWord))))
+  let f := violLoadingIdem (k := ℚ) (Q := Q) (Λ := fracΛ) h
+  let p : rIdeal f := ⟨f, (isIdempotentElem_violLoadingIdem (Λ := fracΛ) h).eq⟩
+  let G := stendhalGradingDatum fracΛ hRouquier.gradingDatum (UDot.di sl₂)
+    (fun i => (hRouquier.gradingDatum_degX i).trans (UDot.two_mul_di sl₂ i).symm)
+  have hp : p.val.val ∈ violAuxiliaryGrade G 0 :=
+    mem_map_of_mem _ (violMk ℚ Q fracΛ ν).toLinearMap
+      (mem_map_of_mem _ (ofKLR ℚ Q fracΛ ν).toLinearMap (G.e_mem_grade v))
+  loadingProjectiveEquivExteriorStandardization_mem_grade hRouquier hQ 1 hρ
+    (add_zero ν) (SingleRed.insertWord ν blackWord) vacuumWord p hp
+
+open Categorification.Graded in
+/-- The upper map in Webster, arXiv:1309.3796v2, §6.1, Figure 5, preserves degree zero
+on the class of the upper loading idempotent for the same one-strand example. -/
+noncomputable example :=
+  let σ := Equiv.swap (0 : Fin 2) 1
+  let x := SingleRed.insertWord 0 vacuumWord
+  let v := figureFiveUpper blackWord
+  let κ := List.map σ (List.finRange 2)
+  let h : redWord v = κ :=
+    (redWord_redPerm σ _).trans (congrArg (List.map σ) ((redWord_eq_finRange_iff _).2
+      (isRedOrdered_seqCast (congrArg (stendhalWeight 2) (zero_add ν))
+        (isRedOrdered_twoPieceLoading (SingleRed.ordered 0 x) blackWord))))
+  let f := violLoadingIdem (k := ℚ) (Q := Q) (Λ := fracΛ) h
+  let p : violCorner ℚ Q fracΛ ν v κ := ⟨f.val, mem_violCorner_iff.2
+    ⟨congrArg Subtype.val (isIdempotentElem_violLoadingIdem (Λ := fracΛ) h).eq,
+      CornerEndomorphism.corner_mul_right (isIdempotentElem_violMk_redProj ℚ Q fracΛ ν κ) f⟩⟩
+  let G := stendhalGradingDatum fracΛ hRouquier.gradingDatum (UDot.di sl₂)
+    (fun i => (hRouquier.gradingDatum_degX i).trans (UDot.two_mul_di sl₂ i).symm)
+  have hp : p.val ∈ violAuxiliaryGrade G 0 :=
+    mem_map_of_mem _ (violMk ℚ Q fracΛ ν).toLinearMap
+      (mem_map_of_mem _ (ofKLR ℚ Q fracΛ ν).toLinearMap (G.e_mem_grade v))
+  loadingStandardEquivExteriorStandardization_mk_mem_grade hRouquier hQ σ hρ
+    (zero_add ν) x blackWord p hp
+
 end NonVacuity.WebsterFigureFive
 
 namespace NonVacuity.BraidedStendhal

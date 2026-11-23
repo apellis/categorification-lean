@@ -1603,6 +1603,7 @@ import Categorification.WeightedKLR.RedStrands.RedBlackCrossingChain
 import Categorification.WeightedKLR.RedStrands.BraidedFactorization
 import Categorification.WeightedKLR.RedStrands.BraidedFactorizationCancel
 import Categorification.WeightedKLR.RedStrands.BraidedFactorizationExits
+import Categorification.WeightedKLR.RedStrands.BraidedFactorizationSpan
 import Categorification.WeightedKLR.RedStrands.BraidedIdentity
 import Categorification.WeightedKLR.RedStrands.BraidedRedOrder
 import Categorification.WeightedKLR.RedStrands.BraidedStendhal

@@ -13,6 +13,7 @@ import Categorification.Algebra.CompositionFactors
 import Categorification.Algebra.CornerEndomorphism
 import Categorification.Algebra.CornerTensor
 import Categorification.Algebra.CornerTensorFactor
+import Categorification.Algebra.CornerTensorQuotient
 import Categorification.Algebra.ModuleTower
 import Categorification.Algebra.ModuleTowerK0
 import Categorification.Algebra.ModuleTowerSl2
@@ -994,6 +995,7 @@ import Categorification.TypeA.Basic
 import Categorification.TypeA.Cancellation
 import Categorification.TypeA.DoubleCoset
 import Categorification.TypeA.Exits
+import Categorification.TypeA.ExitsPrefix
 import Categorification.TypeA.GapSort
 import Categorification.TypeA.Inversions
 import Categorification.TypeA.LastStrand
@@ -1611,6 +1613,8 @@ import Categorification.WeightedKLR.RedStrands.BraidedFactorizationSpan
 import Categorification.WeightedKLR.RedStrands.BraidedIdentity
 import Categorification.WeightedKLR.RedStrands.BraidedRedOrder
 import Categorification.WeightedKLR.RedStrands.BraidedStendhal
+import Categorification.WeightedKLR.RedStrands.BraidedViolatedPush
+import Categorification.WeightedKLR.RedStrands.BraidedViolatedQuotient
 import Categorification.WeightedKLR.RedStrands.StendhalBasisSymm
 
 /-!

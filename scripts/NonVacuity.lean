@@ -5843,4 +5843,21 @@ example (ν : Multiset Unit) :=
     (fun w => (TypeA.exists_reduced _ w).choose_spec) bsSymm
     (κ₂ := [2, 1, 0]) (κ₁ := [1, 0, 2]) (κ₀ := [0, 1, 2]) (by decide) (by decide) (by decide)
 
+/-- Webster, arXiv:1309.3796v2, Lemma 6.5 for the quotients `B_w` by violated diagrams, in the
+same data: multiplication `B_w ⊗ B_{w'} → B_{ww'}` is injective. -/
+example (ν : Multiset Unit) :=
+  BraidedStendhalAlgebra.violMk_mult_injective
+    (Λ := fun _ : Fin 3 => Finsupp.single () 1) (ν := ν) (k := ℚ) (Q := bsQ)
+    (ρ := fun w => (TypeA.exists_reduced _ w).choose)
+    (fun w => (TypeA.exists_reduced _ w).choose_spec) bsSymm
+    (κ₂ := [2, 1, 0]) (κ₁ := [1, 0, 2]) (κ₀ := [0, 1, 2]) (by decide) (by decide) (by decide)
+
+/-- The same, surjectivity. -/
+example (ν : Multiset Unit) :=
+  BraidedStendhalAlgebra.violMk_mult_surjective
+    (Λ := fun _ : Fin 3 => Finsupp.single () 1) (ν := ν) (k := ℚ) (Q := bsQ)
+    (ρ := fun w => (TypeA.exists_reduced _ w).choose)
+    (fun w => (TypeA.exists_reduced _ w).choose_spec) bsSymm
+    (κ₂ := [2, 1, 0]) (κ₁ := [1, 0, 2]) (κ₀ := [0, 1, 2]) (by decide) (by decide) (by decide)
+
 end NonVacuity.BraidedStendhal

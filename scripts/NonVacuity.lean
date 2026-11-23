@@ -5961,6 +5961,83 @@ tensor vanishes in the bottom component with consecutive exchanged reds. -/
 example := blockKernelColumnInclusion_injective q₄ weights src (pair 0) (pair 1)
   (TypeA.sadj _ 2 • uncrossedBottom) symm₄ [0] [3] (by decide) uncrossedBottom (by decide)
   2 (by decide) (by decide) (by decide) rfl
+private abbrev between := Seq.cast weight (place Bs top)
+private abbrev leftExit := TypeA.wordProd (stendhalWeight 4 (β+β)).card [3,2] • between
+private abbrev rightExit := TypeA.wordProd (stendhalWeight 4 (β+β)).card [2,3] • between
+private abbrev root := adjacentBlockRoot (pair 0) (pair 1) (ν := β+β)
+
+private theorem higherLeft : root src < root leftExit := by
+  refine lt_of_le_of_ne ?_ ?_
+  · intro r i; fin_cases r <;> cases i <;> decide
+  · intro h; have bad : (1 : ℕ) = 2 := congrFun (congrFun h (pair 0)) (); contradiction
+
+/-- A mark on the left exit need not extend to the bare right exit or joint. The
+correction in this example is a cube, not `1`. -/
+example : ¬IsViolated leftExit ∧ root rightExit = root src ∧ weights (pair 0) () = 3 := by
+  refine ⟨by rintro ⟨_,h⟩; contradiction, ?_, by simp [weights]⟩
+  funext r i; fin_cases r <;> cases i <;> decide
+
+example (y : BraidedStendhalAlgebra (ZMod 4) q₄ weights (β+β)) :=
+  blockKernelBigon_slide q₄ weights src (pair 0) (pair 1) [0,2,1,3] between 2 (by decide)
+    (blockHigherMark q₄ weights src (pair 0) (pair 1) leftExit (by decide) higherLeft
+      (ofKLR (ZMod 4) q₄ weights (β+β) (KLRAlgebra.ψ 2))) () (by decide) (by decide) (by decide) (by decide) y
+
+private def lowTop : Seq (stendhalWeight 4 (β+β)) :=
+  KLRAlgebra.Seq.ofList [.inr 0,.inr 1,.inl (),.inr 2,.inl (),.inr 3] (by decide)
+
+/-- Here the *right* exit is strictly higher. Both cut classes are re-marked by
+the theorem; there is no higher-ideal premise on either exterior diagram. -/
+example (z y : BraidedStendhalAlgebra (ZMod 4) q₄ weights (β+β)) :=
+  blockKernelHigherExit_slide q₄ weights lowTop (pair 0) (pair 1) [0,2,1,3] between 2 (by decide)
+    () (by decide) (by decide) (by decide) (by decide) (by
+      refine lt_of_le_of_ne ?_ ?_
+      · intro r i; fin_cases r <;> cases i <;> decide
+      · intro h; have bad : (0 : ℕ) = 1 := congrFun (congrFun h (pair 0)) (); contradiction) z y
+
+section TwoBlackColours
+private abbrev colors : Multiset (Fin 2) := {0,1}
+private abbrev param : Fin 2 → Fin 2 → MvPolynomial (Fin 2) (ZMod 4) := fun _ _ => 0
+private abbrev wt : Fin 4 → Fin 2 →₀ ℕ := fun r => if r = pair 0 then
+  Finsupp.single 0 2 + Finsupp.single 1 3 else Finsupp.single 0 4 + Finsupp.single 1 4
+private def before : Seq (stendhalWeight 4 colors) :=
+  KLRAlgebra.Seq.ofList [.inr 0,.inr 1,.inr 2,.inl 0,.inl 1,.inr 3] (by decide)
+private def afterPair : Seq (stendhalWeight 4 colors) :=
+  KLRAlgebra.Seq.ofList [.inr 0,.inr 2,.inl 0,.inl 1,.inr 1,.inr 3] (by decide)
+private abbrev atLeft := TypeA.wordProd (stendhalWeight 4 colors).card [3,2,1] • afterPair
+private abbrev powers (z : ℕ) : ℕ := if z=0 then 2 else 3
+
+/-- Separate black colours give square and cube at the two positions of the left
+exit. The upper representative actually takes these blacks past the paired reds. -/
+example (y : BraidedStendhalAlgebra (ZMod 4) param wt colors) :=
+  blockKernelIntervalBigon_slide param wt before (pair 0) (pair 1) [0,2,1,3]
+    (blockHigherMark param wt before (pair 0) (pair 1) atLeft (by decide) (by
+      refine lt_of_le_of_ne ?_ ?_
+      · intro r i; fin_cases r <;> fin_cases i <;> decide
+      · intro h; have bad : (0 : ℕ) = 1 := congrFun (congrFun h (pair 0)) 0; contradiction)
+      (ofKLR (ZMod 4) param wt colors (KLRAlgebra.ψw [2,3,1,2])))
+    1 2 (by decide) afterPair (by decide) (by decide) powers (by
+      intro z hz; rcases (show z=0 ∨ z=1 by omega) with rfl | rfl
+      · exact ⟨0,by decide +revert,by simp [powers, wt]⟩
+      · exact ⟨1,by decide +revert,by simp [powers, wt]⟩) y
+
+/-- The same exponents annihilate every kernel class at the interleaved bottom,
+now on positions 2 and 3 rather than positions 1 and 2. -/
+example := ker_blockKernelColumnInclusion_le_ker_dots param wt before (pair 0) (pair 1)
+  (fun _ _ _ => rfl) [0] [3] (by decide) before rfl 1 2 (by decide) (by decide) (by decide)
+  afterPair (by decide) (by decide) powers (by
+    intro z hz; rcases (show z=0 ∨ z=1 by omega) with rfl | rfl
+    · exact ⟨0,by decide +revert,by simp [powers, wt]⟩
+    · exact ⟨1,by decide +revert,by simp [powers, wt]⟩)
+
+/-- Set only the red moved left to weight zero. The other red and both spectators
+still pair positively; the bottom has *two* intervening black strands. -/
+example := blockKernelColumnInclusion_injective_of_zero_pairings param (fun r => if r = pair 0 then 0 else wt r)
+  before (pair 0) (pair 1) (fun _ _ _ => rfl) [0] [3] (by decide) before rfl 1 2 (by decide)
+  (by decide) (by decide) afterPair (by decide) (by decide) (by
+    intro z hz; rcases (show z=0 ∨ z=1 by omega) with rfl | rfl
+    · exact ⟨0,by decide +revert,by decide⟩
+    · exact ⟨1,by decide +revert,by decide⟩)
+end TwoBlackColours
 end KernelTensor
 end AdjacentRow
 

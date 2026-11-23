@@ -6105,6 +6105,16 @@ example (z : ℂ) (x : figureFiveLowerExterior (Λ := fracΛ) sl₂ hRouquier h�
   obtain ⟨hi, -, hsplit⟩ := figureFiveLowerExterior_graded_retract (Λ := fracΛ) sl₂ hRouquier hρ blackWord
   exact ⟨hi hx, hsplit x⟩
 
+open scoped DG.DegreeZero in
+/-- The same one-black lower exterior standardization is K-projective in its weight category. -/
+example : DG.CatModule.IsKProjective (figureFiveLowerWeightModule (Λ := fracΛ) sl₂ hRouquier hρ blackWord) :=
+  figureFiveLowerWeightModule_isKProjective (Λ := fracΛ) sl₂ hRouquier hρ blackWord
+
+/-- The derived braid on this projective agrees with the ordinary categorical coend. -/
+noncomputable example :=
+  figureFiveBraidDerivedTensorObjIso (Λ := fracΛ) sl₂ hRouquier hρ
+    (weightPairing sl₂ realization) fracWeight blackWord
+
 end NonVacuity.WebsterFigureFive
 
 namespace NonVacuity.BraidedStendhal

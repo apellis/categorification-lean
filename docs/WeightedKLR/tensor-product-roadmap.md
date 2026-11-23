@@ -964,20 +964,19 @@ retraction multiplies on the left by the loading idempotent and then applies the
 isomorphism. The diagram idempotent has internal degree zero, so both maps preserve every
 complex degree, and their composite on the exterior object is the identity.
 
-This does not yet give a graded derived functor comparison. The pinned `dg-lean` has integer
-internal weights via `DG.WeightCategory`, independent of the cochain grading. For this fixed
-braid, one can use the source coset `ℤ` and target coset `c + ℤ`, where
-`c = 2 − ⟨λ₁, λ₀⟩` is the correction to the auxiliary diagram degree. The bimodule of the two
-weight categories must use the piece at `n − m + c` between source `m` and target `n + c`.
-A comparison is needed between the coend tensor there and the graded balanced tensor here;
-the target piece at `n + c` must then be read at `n + c + ⟨λ₀ − α, λ₁⟩` in the unshifted
-upper exterior object. The pinned tensor–Hom derived tensor requires K-projective output
-slices of the braid. For the left-derived tensor alone this premise is unnecessary: descend
-along homotopy with `CatBimodule.homotopic_tensorMap`, then compose with the inverse of the
-source K-projective equivalence before tensoring and localize on the target. The remaining
-comparison must use the graded retract of the source representable and retain the internal
-coset; the ungraded derived comparison cannot supply it. Webster's `D⁻` also requires a
-bounded-above restriction, distinct from the fact that this projective is in cochain degree zero.
+`BraidedExteriorDerived.lean` uses `DG.WeightCategory` on the source coset `ℤ` and target
+coset `c + ℤ`, where `c = 2 − ⟨λ₁, λ₀⟩`. Between source `m` and target `n`, the braid piece
+is at internal degree `n − m + c`, independently of the cochain degree. The lower grading
+retract gives a corner generator at weight zero, hence `figureFiveLowerWeightModule_isKProjective`.
+The tensor descends through homotopy; applying it to a source K-projective representative
+and localizing on the target gives the ambient derived tensor, with no condition on the
+K-projectivity of the braid's output slices. `figureFiveBraidDerivedTensorObjIso` computes
+its value on the lower exterior standardization as the ordinary categorical coend.
+
+The remaining endpoint comparison is from that coend to the graded loading cut, via the
+retract of the source representable. The target piece at `n + c` must then be read at
+`n + c + ⟨λ₀ − α, λ₁⟩` in the unshifted upper exterior object. A restriction of the functor to
+Webster's `D⁻` is a distinct obligation, not implied by a calculation on this projective.
 
 Open, in working order: Lemma 6.8 (needs block standardization in the braided algebra; standard
 modules exist only in `StendhalAlgebraAllOrders`, `RedStrands/StandardAction.lean`, and partial

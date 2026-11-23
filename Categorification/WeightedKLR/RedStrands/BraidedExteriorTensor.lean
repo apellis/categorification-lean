@@ -644,4 +644,92 @@ def figureFiveExteriorTensorEquiv (u : Seq ν) :
 
 end ExteriorEvaluation
 
+section WeightCoordinates
+variable {I k : Type} [DecidableEq I] [Field k]
+  {Q : I → I → MvPolynomial (Fin 2) k} {Λ : Fin 2 → I →₀ ℕ} {ν : Multiset I}
+  {ρ : Perm (Fin (Multiset.card (stendhalWeight 2 ν))) → List ℕ}
+  (C : CartanDatum I) (hR : IsRouquierQ C Q) (hρ : TypeA.IsReducedChoice ρ)
+
+local notation "T" κ:arg => ViolOrderCorner (k := k) (Q := Q) (Λ := Λ) (ν := ν) κ
+local notation "A" => (T [0, 1])ᵐᵒᵖ
+local notation "D" => (T [1, 0])ᵐᵒᵖ
+local notation "𝒱" => violAuxiliaryGrade (ν := ν) (diagramDatum C hR Λ)
+attribute [local instance] lowerCornerRing upperCornerRing lowerCornerAddGroup upperCornerAddGroup
+  lowerOrderAuxDecomposition
+
+/-- The diagram grading on the lower opposite corner, in its integer coordinates. -/
+abbrev figureFiveLowerOrderPieces : ℤ → Submodule ℤ A := lowerOrderAux C hR
+
+/-- The diagram grading on the upper opposite corner, in its integer coordinates. -/
+abbrev figureFiveUpperOrderPieces : ℤ → Submodule ℤ D := upperOrderAux C hR
+
+/-- The intrinsic lower exterior grading in integer coordinates. -/
+abbrev figureFiveLowerExteriorPieces (u : Seq ν) := lowerExteriorAux (Λ := Λ) C hR hρ u
+
+/-- The lower order grading restricts to its original pieces at integer degrees. -/
+theorem figureFiveLowerOrderGrade_int (n : ℤ) :
+    figureFiveLowerOrderGrade (Λ := Λ) (ν := ν) C hR (n : ℂ) =
+      figureFiveLowerOrderPieces C hR n := by
+  change complexGrade (lowerOrderAux C hR) 0 (n : ℂ) = lowerOrderAux C hR n
+  simpa only [add_zero] using complexGrade_apply (lowerOrderAux (Λ := Λ) (ν := ν) C hR) 0 n
+
+/-- The upper order grading restricts to its original pieces at integer degrees. -/
+theorem figureFiveUpperOrderGrade_int (n : ℤ) :
+    figureFiveUpperOrderGrade (Λ := Λ) (ν := ν) C hR (n : ℂ) =
+      figureFiveUpperOrderPieces C hR n := by
+  change complexGrade (upperOrderAux C hR) 0 (n : ℂ) = upperOrderAux C hR n
+  simpa only [add_zero] using complexGrade_apply (upperOrderAux (Λ := Λ) (ν := ν) C hR) 0 n
+
+/-- The lower exterior grading restricts to its original pieces at integer degrees. -/
+theorem figureFiveLowerExteriorGrade_int (u : Seq ν) (n : ℤ) :
+    figureFiveLowerExteriorGrade (Λ := Λ) C hR hρ u (n : ℂ) =
+      figureFiveLowerExteriorPieces C hR hρ u n := by
+  change complexGrade (lowerExteriorAux C hR hρ u) 0 (n : ℂ) = lowerExteriorAux C hR hρ u n
+  simpa only [add_zero] using complexGrade_apply (lowerExteriorAux (Λ := Λ) C hR hρ u) 0 n
+
+instance figureFiveLowerOrderPiecesDecomposition :
+    Decomposition (figureFiveLowerOrderPieces (Λ := Λ) (ν := ν) C hR) := inferInstance
+
+instance figureFiveUpperOrderPiecesDecomposition :
+    Decomposition (figureFiveUpperOrderPieces (Λ := Λ) (ν := ν) C hR) :=
+  (isInternal_diagramGrade C hR (upperOrderVal (Λ := Λ) (ν := ν))
+    (fun _ _ h => unop_injective (Subtype.ext h)) (projector_mem_zero C hR [1, 0])
+    (projector_mem_zero C hR [1, 0])
+    (fun a => (Subsemigroup.mem_corner_iff (isIdempotentElem_violMk_redProj k Q Λ ν [1, 0])).1 a.unop.2)
+    (fun _ hl hr => ⟨op ⟨_, (Subsemigroup.mem_corner_iff
+      (isIdempotentElem_violMk_redProj k Q Λ ν [1, 0])).2 ⟨hl, hr⟩⟩, rfl⟩)).chooseDecomposition
+
+instance figureFiveLowerOrderPiecesGradedMonoid :
+    SetLike.GradedMonoid (figureFiveLowerOrderPieces (Λ := Λ) (ν := ν) C hR) where
+  one_mem := projector_mem_zero C hR [0, 1]
+  mul_mem {i j a b} ha hb := by
+    change b.unop.val * a.unop.val ∈ 𝒱 (i + j)
+    rw [add_comm]
+    exact SetLike.GradedMul.mul_mem («A» := 𝒱) hb ha
+
+instance figureFiveUpperOrderPiecesGradedMonoid :
+    SetLike.GradedMonoid (figureFiveUpperOrderPieces (Λ := Λ) (ν := ν) C hR) where
+  one_mem := projector_mem_zero C hR [1, 0]
+  mul_mem {i j a b} ha hb := by
+    change b.unop.val * a.unop.val ∈ 𝒱 (i + j)
+    rw [add_comm]
+    exact SetLike.GradedMul.mul_mem («A» := 𝒱) hb ha
+
+/-- The lower corner acts on the lower standardization by adding integer degrees. -/
+theorem figureFiveLowerExteriorPieces_smul (u : Seq ν) {i j : ℤ} {a : A}
+    {x : InDegreeZero (figureFiveLowerExterior (Λ := Λ) C hR hρ u)}
+    (ha : a ∈ figureFiveLowerOrderPieces C hR i) (hx : x ∈ figureFiveLowerExteriorPieces C hR hρ u j) :
+    a • x ∈ figureFiveLowerExteriorPieces C hR hρ u (i + j) := by
+  rw [← figureFiveLowerOrderGrade_int] at ha
+  rw [← figureFiveLowerExteriorGrade_int] at hx ⊢
+  push_cast
+  exact lowerExterior_smul_mem C hR hρ u ha hx
+
+/-- The two opposite corners act on the braid by commuting diagram concatenations. -/
+theorem figureFiveBraidActionsCommute : SMulCommClass D Aᵐᵒᵖ
+    (InDegreeZero (OpBimodule (T [0, 1]) (braidingBimodule k Q Λ ν [0, 1] [1, 0]))) :=
+  figureFiveBraidComm
+
+end WeightCoordinates
+
 end Categorification.Stendhal.BraidedStendhalAlgebra

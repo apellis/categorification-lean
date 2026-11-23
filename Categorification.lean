@@ -990,6 +990,7 @@ import Categorification.TwoRep.ModelQStrongCL
 import Categorification.TwoRep.ModelQStrongGraded
 import Categorification.TwoRep.KernelExact
 import Categorification.TypeA.Basic
+import Categorification.TypeA.Cancellation
 import Categorification.TypeA.DoubleCoset
 import Categorification.TypeA.Exits
 import Categorification.TypeA.GapSort

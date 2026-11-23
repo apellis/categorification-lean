@@ -327,10 +327,9 @@ theorem length_eq_of_braidEquiv {ρ σ : List ℕ} (h : BraidEquiv ρ σ) :
   | symm _ _ _ ih => exact ih.symm
   | trans _ _ _ _ _ ih₁ ih₂ => exact ih₁.trans ih₂
 
-/-- A single braid move changes `ψw ρ * y` only by terms of lower filtration degree. -/
-theorem sub_mem_of_braidStep {ρ σ : List ℕ} (h : BraidStep ρ σ) {n : ℕ}
+private theorem sub_mem_of_braidStep_drop_three {ρ σ : List ℕ} (h : BraidStep ρ σ) {n : ℕ}
     {y : KLRAlgebra k Q ν} (hy : y ∈ 𝓕 n) :
-    ψw ρ * y - ψw σ * y ∈ 𝓕 (ρ.length - 1 + n) := by
+    ψw ρ * y - ψw σ * y ∈ 𝓕 (ρ.length - 3 + n) := by
   cases h with
   | comm α β hab =>
     simp only [ψw_append, ψw_cons, ψw_nil, mul_one]
@@ -343,12 +342,13 @@ theorem sub_mem_of_braidStep {ρ σ : List ℕ} (h : BraidStep ρ σ) {n : ℕ}
     rw [this]
     exact filt_mono (by simp; omega) (ψw_mul_mem α (braidDiff_mul_mem a (ψw_mul_mem β hy)))
 
-/-- Braid-equivalent words agree modulo terms of lower filtration degree. -/
-theorem sub_mem_of_braidEquiv {ρ σ : List ℕ} (h : BraidEquiv ρ σ) {n : ℕ}
+/-- A change of reduced word contributes terms with three fewer crossings.
+Commutation is exact, and the length-three braid correction is a dot polynomial. -/
+theorem sub_mem_of_braidEquiv_drop_three {ρ σ : List ℕ} (h : BraidEquiv ρ σ) {n : ℕ}
     {y : KLRAlgebra k Q ν} (hy : y ∈ 𝓕 n) :
-    ψw ρ * y - ψw σ * y ∈ 𝓕 (ρ.length - 1 + n) := by
+    ψw ρ * y - ψw σ * y ∈ 𝓕 (ρ.length - 3 + n) := by
   induction h with
-  | rel _ _ h => exact sub_mem_of_braidStep h hy
+  | rel _ _ h => exact sub_mem_of_braidStep_drop_three h hy
   | refl => rw [sub_self]; exact zero_mem _
   | symm _ _ h ih =>
     rw [← length_eq_of_braidEquiv h, ← neg_sub]
@@ -357,6 +357,18 @@ theorem sub_mem_of_braidEquiv {ρ σ : List ℕ} (h : BraidEquiv ρ σ) {n : ℕ
     rw [← length_eq_of_braidEquiv h₁] at ih₂
     have := add_mem ih₁ ih₂
     rwa [sub_add_sub_cancel] at this
+
+/-- A single braid move changes `ψw ρ * y` only by terms of lower filtration degree. -/
+theorem sub_mem_of_braidStep {ρ σ : List ℕ} (h : BraidStep ρ σ) {n : ℕ}
+    {y : KLRAlgebra k Q ν} (hy : y ∈ 𝓕 n) :
+    ψw ρ * y - ψw σ * y ∈ 𝓕 (ρ.length - 1 + n) :=
+  filt_mono (by omega) (sub_mem_of_braidStep_drop_three h hy)
+
+/-- Braid-equivalent words agree modulo terms of lower filtration degree. -/
+theorem sub_mem_of_braidEquiv {ρ σ : List ℕ} (h : BraidEquiv ρ σ) {n : ℕ}
+    {y : KLRAlgebra k Q ν} (hy : y ∈ 𝓕 n) :
+    ψw ρ * y - ψw σ * y ∈ 𝓕 (ρ.length - 1 + n) :=
+  filt_mono (by omega) (sub_mem_of_braidEquiv_drop_three h hy)
 
 /-- A word with two equal adjacent letters lies in lower filtration degree. -/
 theorem mul_mem_of_hasRepeat {ρ : List ℕ} (h : HasRepeat ρ) {n : ℕ}

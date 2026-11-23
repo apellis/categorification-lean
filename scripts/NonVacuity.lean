@@ -5847,6 +5847,29 @@ noncomputable example :=
   letI := DG.HasDerivedCategory.standard (ViolOrderCorner (k := ℚ) (Q := Q) (Λ := Λ) (ν := ν) [1, 0])ᵐᵒᵖ
   braidingFunctorObjFigureFiveIso (Λ₂ := Λ) (d := 0) hρ hQ h1 rfl rfl hb
 
+private def blackWord : Seq ν := KLRAlgebra.Seq.ofList [()] (by decide)
+private def vacuumWord : Seq (0 : Multiset Unit) := KLRAlgebra.Seq.ofList [] (by decide)
+
+/-- The lower loading projective is the exterior-projective standardization with last-factor
+vacuum, over the right corner of the order `[0, 1]`. -/
+noncomputable example :=
+  loadingProjectiveEquivExteriorStandardization (Λ₂ := Λ) (σ₂ := 1) (hQ := hQ) (hρ₂ := hρ)
+    (add_zero ν) (SingleRed.insertWord ν blackWord) vacuumWord
+
+/-- The upper loading standard is the exterior-projective standardization with first-factor
+vacuum, over the right corner of the order `[1, 0]`. -/
+noncomputable example :=
+  loadingStandardEquivExteriorStandardization (Λ₂ := Λ) (σ₂ := Equiv.swap 0 1)
+    (hQ := hQ) (hρ₂ := hρ) (zero_add ν) (SingleRed.insertWord 0 vacuumWord) blackWord
+
+open scoped DG.DegreeZero in
+/-- The two-red derived braid interchanges the exterior standardizations for unequal weights
+and one black strand, with vacuum last before braiding and first afterward. -/
+noncomputable example :=
+  letI := DG.HasDerivedCategory.standard (ViolOrderCorner (k := ℚ) (Q := Q) (Λ := Λ) (ν := ν) [0, 1])ᵐᵒᵖ
+  letI := DG.HasDerivedCategory.standard (ViolOrderCorner (k := ℚ) (Q := Q) (Λ := Λ) (ν := ν) [1, 0])ᵐᵒᵖ
+  braidingFunctorObjFigureFiveStandardizationIso (Λ₂ := Λ) hQ hρ blackWord
+
 end NonVacuity.WebsterFigureFive
 
 namespace NonVacuity.BraidedStendhal

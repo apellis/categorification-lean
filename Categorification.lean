@@ -1640,6 +1640,7 @@ import Categorification.WeightedKLR.RedStrands.BraidedStandardInjective
 import Categorification.WeightedKLR.RedStrands.BraidedStandardIso
 import Categorification.WeightedKLR.RedStrands.BraidedStandardModule
 import Categorification.WeightedKLR.RedStrands.BraidedStandardTwo
+import Categorification.WeightedKLR.RedStrands.BraidedStandardization
 import Categorification.WeightedKLR.RedStrands.BraidedStendhal
 import Categorification.WeightedKLR.RedStrands.BraidedViolatedIdentity
 import Categorification.WeightedKLR.RedStrands.BraidedViolatedPush

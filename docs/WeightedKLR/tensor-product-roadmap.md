@@ -916,9 +916,19 @@ of the braid bimodule as a right module over the swapped-order corner.
 (`braidingFunctorObjLoadingProjectiveIso`). The projective in degree zero is K-projective and
 multiplication identifies its ordinary balanced tensor with `e(s) B`. The Figure 5 comparison
 then gives `braidingFunctorObjFigureFiveIso`: the two-red braid applied to the lower loading
-projective is `S_t` in cohomological degree zero over the swapped corner. Identifying these
-loading models with the two standardizations of the exterior projectives, and recovering the
-internal grading shift, remain open here.
+projective is `S_t` in cohomological degree zero over the swapped corner.
+
+The endpoint comparisons in `BraidedStandardization.lean` use the standardization of Definition
+5.4 on the exterior loading projectives. `loadingProjectiveEquivExteriorStandardization` uses
+last-factor vacuum: all strictly higher loadings are violated, so the lower standard is the
+loading projective. `loadingStandardEquivExteriorStandardization` identifies the upper loading
+standard with the standardization with first-factor vacuum. The comparisons are right-linear
+over the respective corners, using red relabelling and horizontal reflection to read the existing
+left standardization there. The inverse cyclic rotation relates the two canonical two-piece
+loadings, so `braidingFunctorObjFigureFiveStandardizationIso` composes both comparisons with
+`braidingFunctorObjFigureFiveIso`. Thus the ungraded two-red braid sends
+`S(P_u ⊠ P_∅)` to `S(P_∅ ⊠ P_u)` in cohomological degree zero. The internal grading shift
+and the general adjacent-block reduction remain open.
 
 Open, in working order: Lemma 6.8 (needs block standardization in the braided algebra; standard
 modules exist only in `StendhalAlgebraAllOrders`, `RedStrands/StandardAction.lean`, and partial

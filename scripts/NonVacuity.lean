@@ -5952,4 +5952,13 @@ example : (DG.DGModuleHom.lTensor ℚ (InDegreeZero ℚ)
   haveI : Module.Free ℚᵐᵒᵖ ℚ := Module.Free.of_equiv (MulOpposite.opLinearEquiv ℚᵐᵒᵖ).symm
   InDegreeZero.isQuasiIso_lTensor (A := ℚ) (B := ℚ) (P := ℚ) DG.DGModuleHom.isQuasiIso_id
 
+open scoped DG.DegreeZero in
+/-- The derived tensor product with a bimodule projective over its source is computed without
+resolutions (input to Webster, arXiv:1309.3796v2, proof of Proposition 6.7), for `ℚ` acting on
+itself. -/
+noncomputable example :=
+  letI := DG.HasDerivedCategory.standard ℚ
+  haveI : Module.Free ℚᵐᵒᵖ ℚ := Module.Free.of_equiv (MulOpposite.opLinearEquiv ℚᵐᵒᵖ).symm
+  QCompDerivedTensorIso ℚ ℚ ℚ
+
 end NonVacuity.BraidedStendhal

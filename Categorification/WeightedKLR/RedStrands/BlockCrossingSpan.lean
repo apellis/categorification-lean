@@ -58,7 +58,9 @@ private theorem localRedOrder (i : Seq μ) (hi : redWord i = κ₀) : ∀ B ∈ 
     exact hpq.not_gt (lt_of_redWord_eq_append hi hq hp)
   · obtain ⟨s,_,rfl⟩ := List.mem_map.1 hB; exact (hne (Subsingleton.elim ..)).elim
 
-private theorem wordCut (s : Loadings Bs) (i : Seq μ) (hi : redWord i = κ₀) (w : Perm (Fin m)) :
+/-- Reduced representatives whose upper word is an ordered local diagram whenever the
+end loadings match (Webster, proof of Lemma 6.8). -/
+theorem exists_reduced_crossing_cut (s : Loadings Bs) (i : Seq μ) (hi : redWord i = κ₀) (w : Perm (Fin m)) :
     ∃ A D, (IsReduced m (A ++ D) ∧ wordProd m (A ++ D) = w) ∧
       (w • i = Seq.cast h (place Bs s) → ∃ x : diagrams Q Λ Bs, x*E₀ = x ∧
         F x = π (e (Seq.cast h (place Bs s)) * ψw A)) := by
@@ -86,7 +88,7 @@ private theorem wordCut (s : Loadings Bs) (i : Seq μ) (hi : redWord i = κ₀) 
 private theorem loading_mem (s : Loadings Bs) (i : Seq μ) (hi : redWord i = κ₀) (z : R) :
     rep (π (e (Seq.cast h (place Bs s)) * z * e i)) ∈ U := by
   let t := Seq.cast h (place Bs s)
-  choose A D hword hcut using wordCut Q Λ L M f β h s i hi
+  choose A D hword hcut using exists_reduced_crossing_cut Q Λ L M f β h s i hi
   let ρ := fun w => A w ++ D w
   let G := (rep).comp (π).toLinearMap
   change e t * z * e i ∈ (U).comap G

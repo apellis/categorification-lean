@@ -5949,6 +5949,7 @@ noncomputable example (ν : Multiset Unit) :=
     (fun w => (TypeA.exists_reduced _ w).choose_spec)
     (fun w => (TypeA.exists_reduced _ w).choose_spec) _ bsRouquier (by decide)
 
+open scoped DG.DegreeZero in
 /-- Webster, arXiv:1309.3796v2, Proposition 6.7 for `𝔉_i`: `𝔉_i ∘ 𝔅(κ', κ) ≅ 𝔅(κ', κ) ∘ 𝔉_i`,
 for `sl₂`, two red strands of weight `ω` in either order, and every black weight. -/
 noncomputable example (ν : Multiset Unit) :=

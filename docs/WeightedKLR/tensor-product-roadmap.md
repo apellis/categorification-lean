@@ -1031,9 +1031,13 @@ For Lemma 6.8 the remaining intersection in these columns is
 `im δ_P ∩ (K_L ⊕ K_R) = im δ_K`, with `δ(u)=(uψ_j,−uψ_(j+1))` at the cut
 projectors. If `D` is strictly higher, its projector marks the joint witness.
 In general `interleaved_joint_dot_mem` puts `u X^min(A,B)` in the higher ideal
-by the two return bigons, without requiring `u` to belong to it. When both powers
+by the two return bigons. `interleaved_markedColumn_injective` balances the marked
+witness to prove column injectivity when `D` is strictly higher or either return
+power is zero, with arbitrary exterior strands. When both powers
 are positive and `D` is not higher, one needs a marked witness with the same two
-components, i.e. a correction modulo `ker δ_P`, not division by `X`. A different black
+components, i.e. a correction modulo `ker δ_P`, not division by `X`.
+`interleaved_markedColumn_injective_of_right_leg` gives a sufficient condition:
+the right joint leg is injective on the partially standardized corner. A different black
 can furnish either a global violation or a higher retained boundary without the
 specified descent. The first-weight division argument therefore does not extend
 as stated; this is not a counterexample to injectivity. Ordinary parabolic coordinates

@@ -5919,4 +5919,9 @@ noncomputable example :=
   letI := DG.HasDerivedCategory.standard ℤ
   derivedTensor ℤ ℤ ℤ
 
+open scoped DG.DegreeZero in
+/-- A projective module in degree zero is K-projective (input to Webster, arXiv:1309.3796v2,
+proof of Proposition 6.7), for `ℤ` over itself. -/
+example : DG.IsKProjective.{0} ℤ (InDegreeZero ℤ) := InDegreeZero.isKProjective
+
 end NonVacuity.BraidedStendhal

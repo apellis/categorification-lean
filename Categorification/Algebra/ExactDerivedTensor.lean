@@ -3,6 +3,7 @@ Copyright (c) 2026 Alex Ellis. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 -/
 import Categorification.Algebra.ProjectiveFlat
+import Categorification.Algebra.DerivedTensorComp
 
 set_option backward.isDefEq.respectTransparency false
 
@@ -26,6 +27,10 @@ no resolution.
   of the homotopy category.
 * `Categorification.QhCompDerivedTensorIso`: `Qh ⋙ (M ⊗ᴸ_B -) ≅ (M ⊗_B -) ⋙ Qh`.
 * `Categorification.QCompDerivedTensorIso`: `Q ⋙ (M ⊗ᴸ_B -) ≅ (M ⊗_B -) ⋙ Q`.
+* `Categorification.derivedTensorCompIsoOfProjective`:
+  `N ⊗ᴸ_C - ⋙ M ⊗ᴸ_B - ≅ (M ⊗_B N) ⊗ᴸ_C -` for `M` projective as a right `B`-module (the
+  companion of `Categorification.dgDerivedTensorCompIso`, where the inner bimodule is
+  K-projective).
 -/
 
 open CategoryTheory DG DG.DegreeZero DG.DerivedCategory
@@ -102,5 +107,33 @@ def QCompDerivedTensorIso :
     (Functor.associator _ _ _).symm ≪≫
     Functor.isoWhiskerRight (DG.HomotopyCategory.tensorFunctorQuotientIso A (InDegreeZero M)) _ ≪≫
     Functor.associator _ _ _
+
+section Comp
+
+open TensorProductOver.RightAction
+
+variable {A B} {C : Type u} [Ring C] (N : Type u) [AddCommGroup N] [Module B N]
+  [Module Cᵐᵒᵖ N] [SMulCommClass B Cᵐᵒᵖ N] [HasDerivedCategory.{w, u} C]
+
+/-- **Derived tensor products compose** when the outer bimodule `M` is projective as a right
+`B`-module: `M ⊗ᴸ_B (N ⊗ᴸ_C -) ≅ (M ⊗_B N) ⊗ᴸ_C -`. -/
+def derivedTensorCompIsoOfProjective :
+    derivedTensor.{w} B C N ⋙ derivedTensor.{w} A B M ≅
+      dgDerivedTensor.{w} A C
+        (TensorProductOver B (InDegreeZero M) (InDegreeZero N)) :=
+  let EC := kProjectiveEquivalence.{w} C
+  let ιC := (DG.HomotopyCategory.subcategoryKProjective C).ι
+  let TN := DG.HomotopyCategory.tensorFunctor (B := C) B (InDegreeZero N)
+  (Functor.associator _ _ _ ≪≫ Functor.isoWhiskerLeft EC.inverse
+      (Functor.associator _ _ _ ≪≫ Functor.isoWhiskerLeft ιC
+        (Functor.associator _ _ _ ≪≫ Functor.isoWhiskerLeft TN (QhCompDerivedTensorIso A B M) ≪≫
+          (Functor.associator _ _ _).symm ≪≫
+          Functor.isoWhiskerRight
+            (homotopyTensorFunctorCompIso (InDegreeZero M) (InDegreeZero N)) Qh)) :
+    (EC.inverse ⋙ ιC ⋙ TN ⋙ Qh) ⋙ derivedTensor.{w} A B M ≅
+      EC.inverse ⋙ ιC ⋙ DG.HomotopyCategory.tensorFunctor (B := C) A
+        (TensorProductOver B (InDegreeZero M) (InDegreeZero N)) ⋙ Qh)
+
+end Comp
 
 end Categorification

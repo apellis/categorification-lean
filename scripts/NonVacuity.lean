@@ -5961,4 +5961,13 @@ noncomputable example :=
   haveI : Module.Free ℚᵐᵒᵖ ℚ := Module.Free.of_equiv (MulOpposite.opLinearEquiv ℚᵐᵒᵖ).symm
   QCompDerivedTensorIso ℚ ℚ ℚ
 
+open scoped DG.DegreeZero in
+/-- Derived tensor products compose without a second resolution when the outer bimodule is
+projective over its source (input to Webster, arXiv:1309.3796v2, proof of Proposition 6.7), for
+`ℚ` acting on itself. -/
+noncomputable example :=
+  letI := DG.HasDerivedCategory.standard ℚ
+  haveI : Module.Free ℚᵐᵒᵖ ℚ := Module.Free.of_equiv (MulOpposite.opLinearEquiv ℚᵐᵒᵖ).symm
+  derivedTensorCompIsoOfProjective (A := ℚ) (B := ℚ) (C := ℚ) ℚ ℚ
+
 end NonVacuity.BraidedStendhal

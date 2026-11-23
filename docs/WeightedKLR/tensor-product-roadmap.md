@@ -839,6 +839,10 @@ For symmetric `Q`, Prop 4.16 holds over every commutative ring with no further h
 (`RedStrands/StendhalBasisSymm.lean`, `Stendhal.stendhalBasisOfSymm`): the algebra with all red
 orders maps to the KLR algebra of `stendhalQ Q Λ`, killing red dots and red/red crossings, and the
 Stendhal terms go to KLR basis elements.
+For `w = e`, `B̃_e ≃ T̃^λ` (`RedStrands/BraidedIdentity.lean`,
+`BraidedStendhalAlgebra.cornerEquivStendhal`), through the map `toAllOrders` that imposes the
+vanishing of red crossings: a reduced word between red-ordered sequences crosses no two red
+strands (`noRedCross_of_isRedOrdered`), so the bases of Props 6.4 and 4.16 correspond.
 
 The bimodules `B_w` and Lemma 6.5;
 the functors `𝔅_w` (Def 6.6, Prop 6.7, Cor 6.8, Lemma 6.9, Prop 6.10, Lemma 6.13);

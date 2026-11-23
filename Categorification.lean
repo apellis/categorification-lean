@@ -1595,6 +1595,7 @@ import Categorification.WeightedKLR.RedStrands.RedBlackCrossingInjective
 import Categorification.WeightedKLR.RedStrands.RedBlackCrossingStandard
 import Categorification.WeightedKLR.RedStrands.RedBlackCrossingTransport
 import Categorification.WeightedKLR.RedStrands.RedBlackCrossingChain
+import Categorification.WeightedKLR.RedStrands.BraidedIdentity
 import Categorification.WeightedKLR.RedStrands.BraidedStendhal
 import Categorification.WeightedKLR.RedStrands.StendhalBasisSymm
 

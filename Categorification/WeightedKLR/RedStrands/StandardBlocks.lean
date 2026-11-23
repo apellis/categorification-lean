@@ -164,14 +164,6 @@ omit [DecidableEq I] in
 theorem card_stendhalWeight : m = Multiset.card ν + ℓ := by
   simp [stendhalWeight]
 
-omit [DecidableEq I] in
-theorem exists_lbl_eq_inr (s : Seq μ) (r : Fin ℓ) : ∃ a, s.lbl a = .inr r := by
-  have : (Sum.inr r : I ⊕ Fin ℓ) ∈ Finset.univ.val.map s.1 := by
-    rw [s.2]
-    simp [stendhalWeight]
-  obtain ⟨a, -, ha⟩ := Multiset.mem_map.1 this
-  exact ⟨a, ha⟩
-
 /-- The position of the red strand `λ_r`. -/
 noncomputable def redPos (s : Seq μ) (r : Fin ℓ) : Fin m := (exists_lbl_eq_inr s r).choose
 

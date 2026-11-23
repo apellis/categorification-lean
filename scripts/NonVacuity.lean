@@ -5817,4 +5817,11 @@ noncomputable example (ν : Multiset Unit) :=
   stendhalBasisOfSymm bsQ (fun _ : Fin 2 => Finsupp.single () 1) (ν := ν) bsSymm
     (fun w => (TypeA.exists_reduced _ w).choose) (fun w => (TypeA.exists_reduced _ w).choose_spec)
 
+/-- Webster, arXiv:1309.3796v2, Definition 6.3 for `w = e`: `B̃_e ≃ T̃^λ`, for `sl₂`, two red
+strands of weight `ω` and every black weight. -/
+noncomputable example (ν : Multiset Unit) :=
+  BraidedStendhalAlgebra.cornerEquivStendhal (Λ := fun _ : Fin 2 => Finsupp.single () 1)
+    (ν := ν) bsSymm
+    (fun w => (TypeA.exists_reduced _ w).choose) (fun w => (TypeA.exists_reduced _ w).choose_spec)
+
 end NonVacuity.BraidedStendhal

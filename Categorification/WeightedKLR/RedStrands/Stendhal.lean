@@ -113,6 +113,16 @@ def IsRedOrdered {μ : Multiset (I ⊕ Fin ℓ)} (i : Seq μ) : Prop :=
 def IsViolated {μ : Multiset (I ⊕ Fin ℓ)} (i : Seq μ) : Prop :=
   ∃ h : 0 < Multiset.card μ, (i.lbl ⟨0, h⟩).isLeft
 
+omit [DecidableEq I] in
+/-- Every red label `λ_r` occurs in a sequence of Stendhal weight. -/
+theorem exists_lbl_eq_inr {ν : Multiset I} (s : Seq (stendhalWeight ℓ ν)) (r : Fin ℓ) :
+    ∃ a, s.lbl a = .inr r := by
+  have : (Sum.inr r : I ⊕ Fin ℓ) ∈ Finset.univ.val.map s.1 := by
+    rw [s.2]
+    simp [stendhalWeight]
+  obtain ⟨a, -, ha⟩ := Multiset.mem_map.1 this
+  exact ⟨a, ha⟩
+
 /-! ### The algebra of Stendhal diagrams -/
 
 section Rel

@@ -10,10 +10,12 @@ import Categorification.Algebra.Coinvariant
 import Categorification.Algebra.CoinvariantGraded
 import Categorification.Algebra.CoinvariantPartialSocle
 import Categorification.Algebra.CompositionFactors
+import Categorification.Algebra.CornerBimodule
 import Categorification.Algebra.CornerEndomorphism
 import Categorification.Algebra.CornerTensor
 import Categorification.Algebra.CornerTensorFactor
 import Categorification.Algebra.CornerTensorQuotient
+import Categorification.Algebra.DerivedTensor
 import Categorification.Algebra.ModuleTower
 import Categorification.Algebra.ModuleTowerK0
 import Categorification.Algebra.ModuleTowerSl2
@@ -1061,6 +1063,7 @@ import Categorification.WeightedKLR.Loadings.Tree
 import Categorification.WeightedKLR.KLR.SpacedSurjective
 import Categorification.WeightedKLR.Steadied
 import Categorification.WeightedKLR.Deformation
+import Categorification.WeightedKLR.RedStrands.BraidingFunctor
 import Categorification.WeightedKLR.RedStrands.CrawleyBoevey
 import Categorification.WeightedKLR.RedStrands.CrawleyBoeveyIn
 import Categorification.WeightedKLR.RedStrands.Reduced

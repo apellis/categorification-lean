@@ -15,7 +15,7 @@ public: keep it mathematical and technical.
 - `scripts/NonVacuity.lean` (run by CI) applies each headline theorem to concrete data with every
   hypothesis proved. When a headline theorem is added or its hypotheses change, add or update its
   example there.
-- Dependencies: Mathlib, string-diagrams-lean and lie-lean. Generic diagrammatics belong in string-diagrams-lean, Lie-theoretic results in lie-lean, and odd or super-specific results in odd-lean.
+- Dependencies: Mathlib, string-diagrams-lean, lie-lean and dg-lean. Generic diagrammatics belong in string-diagrams-lean, Lie-theoretic results in lie-lean, generic dg and derived-category results in dg-lean, and odd or super-specific results in odd-lean.
 - Record the source of every main result in its docstring: paper and version, section, and
   theorem or equation number. Check each locator in the cited version. Distinguish the literal
   printed statement, a repaired statement, a proof gap and a counterexample. Never weaken a

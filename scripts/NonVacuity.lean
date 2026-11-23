@@ -5884,4 +5884,24 @@ noncomputable example (ν : Multiset Unit) :=
     (k := ℚ) (Q := bsQ) (ρ := fun w => (TypeA.exists_reduced _ w).choose)
     (fun w => (TypeA.exists_reduced _ w).choose_spec) bsSymm
 
+open scoped DG.DegreeZero in
+/-- Webster, arXiv:1309.3796v2, Definition 6.6: the braiding functor `- ⊗ᴸ B(κ', κ)` for
+`sl₂`, two red strands of weight `ω` in either order, and every black weight. -/
+noncomputable example (ν : Multiset Unit) :=
+  letI := DG.HasDerivedCategory.standard
+    (BraidedStendhalAlgebra.isIdempotentElem_violMk_redProj ℚ bsQ
+      (fun _ : Fin 2 => Finsupp.single () 1) ν [0, 1]).Cornerᵐᵒᵖ
+  letI := DG.HasDerivedCategory.standard
+    (BraidedStendhalAlgebra.isIdempotentElem_violMk_redProj ℚ bsQ
+      (fun _ : Fin 2 => Finsupp.single () 1) ν [1, 0]).Cornerᵐᵒᵖ
+  BraidedStendhalAlgebra.braidingFunctor ℚ bsQ (fun _ : Fin 2 => Finsupp.single () 1) ν
+    [0, 1] [1, 0]
+
+open scoped DG.DegreeZero in
+/-- The derived tensor product with an ordinary bimodule (Webster, arXiv:1309.3796v2,
+Definition 6.6), for `ℤ` acting on itself. -/
+noncomputable example :=
+  letI := DG.HasDerivedCategory.standard ℤ
+  derivedTensor ℤ ℤ ℤ
+
 end NonVacuity.BraidedStendhal

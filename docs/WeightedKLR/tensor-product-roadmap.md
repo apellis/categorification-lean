@@ -875,11 +875,18 @@ the quotients by violated idempotents (`violMk_mult_injective_append`,
 through the last coset (`lastCosetWord`), as in Webster's proof. Open: the part for `F`
 (Webster: by biadjunction) and the derived form.
 
-The functors `𝔅_w` (Def 6.6, Prop 6.7 derived, Cor 6.8, Lemma 6.9, Prop 6.10, Lemma 6.13);
-tilting modules (Thm 6.14); `𝔅_w` are equivalences (Thm 6.15); the braid group action
-(Def 6.16, Cor 6.18); Ringel duality (Cor 6.19); semi-orthogonal decompositions
-(Prop 6.20); the Serre functor (Prop 6.21). Open. These need derived categories of
-graded modules; the plan is Mathlib's `DerivedCategory`.
+Def 6.6 is done in ungraded, unbounded form: `braidingFunctor κ' κ`
+(`RedStrands/BraidingFunctor.lean`) is the derived tensor product `- ⊗ᴸ B(κ', κ)` on right
+modules over the corners of the violated quotient, built on dg-lean's derived categories of dg
+modules over rings in degree `0`, computed on K-projective resolutions (`derivedTensor`,
+`derivedRightTensor`, `Algebra/DerivedTensor.lean`; the bimodule `e A e'` is
+`cornerBimodule`, `Algebra/CornerBimodule.lean`). Webster uses graded modules and `D⁻`; the
+graded version and the restriction to `D⁻` are open roadmap items.
+
+Open: Prop 6.7 derived, Cor 6.8, Lemma 6.9, Prop 6.10, Lemma 6.13; tilting modules
+(Thm 6.14); `𝔅_w` are equivalences (Thm 6.15); the braid group action (Def 6.16, Cor 6.18);
+Ringel duality (Cor 6.19); semi-orthogonal decompositions (Prop 6.20); the Serre functor
+(Prop 6.21).
 
 ### Phase E: §7, rigidity
 

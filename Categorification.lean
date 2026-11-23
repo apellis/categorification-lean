@@ -18,6 +18,7 @@ import Categorification.Algebra.ModuleTower
 import Categorification.Algebra.ModuleTowerK0
 import Categorification.Algebra.ModuleTowerSl2
 import Categorification.Algebra.NilHeckeModuleRecognition
+import Categorification.Algebra.TensorAlong
 import Categorification.Algebra.DividedDifference
 import Categorification.Algebra.ExactDimension
 import Categorification.Algebra.ExternalTensor

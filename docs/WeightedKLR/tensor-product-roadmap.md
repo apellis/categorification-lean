@@ -850,8 +850,10 @@ multiplication `B̃(κ₂, κ₁) ⊗ B̃(κ₁, κ₀) → B̃(κ₂, κ₀)` o
 crossings that `κ₂` still reads crossed (`RedCrossingPath`, the length condition
 `ℓ(ww') = ℓ(w) + ℓ(w')`). The one-crossing case (`tensorMult_bijective`) compares frame classes
 with the basis of Prop 6.4; the general case follows by induction through the refinement lemma
-`CornerTensor.mult_injective_of_factor`. Still open: the translation of the length condition on
-permutations into `RedCrossingPath`, and the quotient bimodules `B_w`.
+`CornerTensor.mult_injective_of_factor`. The length condition in inversion-set form (every pair
+of labels crossed from `κ₀` to `κ₁` is still crossed in `κ₂`, for `κ₀` without repeated labels)
+gives such a path by bubble sort (`redCrossingPath_of_inversions`,
+`tensorMult_bijective_of_inversions`). Still open: the quotient bimodules `B_w`.
 
 The functors `𝔅_w` (Def 6.6, Prop 6.7, Cor 6.8, Lemma 6.9, Prop 6.10, Lemma 6.13);
 tilting modules (Thm 6.14); `𝔅_w` are equivalences (Thm 6.15); the braid group action

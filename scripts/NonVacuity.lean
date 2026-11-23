@@ -5834,4 +5834,13 @@ noncomputable example (ν : Multiset Unit) :=
     (κ₂ := [2, 0, 1]) (κ₁ := [0, 2, 1]) (κ₀ := [0, 1, 2])
     (.cross (L := [0]) (M := []) rfl rfl (by decide) (by decide) .refl)
 
+/-- Webster, arXiv:1309.3796v2, Lemma 6.5 with the length condition as inversion sets, for
+`sl₂`, three red strands of weight `ω`, `w' = s₁` and `w = s₂ s₁`, and every black weight. -/
+example (ν : Multiset Unit) :=
+  BraidedStendhalAlgebra.tensorMult_bijective_of_inversions
+    (Λ := fun _ : Fin 3 => Finsupp.single () 1) (ν := ν) (k := ℚ) (Q := bsQ)
+    (ρ := fun w => (TypeA.exists_reduced _ w).choose)
+    (fun w => (TypeA.exists_reduced _ w).choose_spec) bsSymm
+    (κ₂ := [2, 1, 0]) (κ₁ := [1, 0, 2]) (κ₀ := [0, 1, 2]) (by decide) (by decide) (by decide)
+
 end NonVacuity.BraidedStendhal

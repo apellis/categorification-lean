@@ -900,18 +900,19 @@ modules over rings in degree `0`, computed on K-projective resolutions (`derived
 `cornerBimodule`, `Algebra/CornerBimodule.lean`). Webster uses graded modules and `D⁻`; the
 graded version and the restriction to `D⁻` are open roadmap items.
 
-Prop 6.9 for two red strands, in progress (`RedStrands/BraidedStandardTwo.lean`,
-`RedStrands/BraidedStandardInjective.lean`). Let the leftmost strand of `t` be `λ_r` and let `g`
+Prop 6.9 for two red strands, done (`RedStrands/BraidedStandardTwo.lean`,
+`RedStrands/BraidedStandardInjective.lean`, `RedStrands/BraidedStandardIso.lean`). Let the leftmost strand of `t` be `λ_r` and let `g`
 carry it to the right edge, `g • t = s` (`EdgeBraid`). The braiding diagram `ψ_g` sends the
 generators of the ideal `U_r` (violated idempotents, and idempotents starting with `λ_r` followed
 by a black strand) into the violated ideal (`e_mul_mul_e_mem_violIdeal`); every element of
 `e(s) A e_{r :: L}` is `ψ_g e(t) x` modulo diagrams with violated bottom
 (`exists_e_mul_mul_redProj_sub_mem_of_last`); and if `ψ_g e(t) x e_{r :: L}` is violated then
 `e(t) x e_{r :: L}` lies in `U_r` (`mem_edgeIdeal_of_mem_violIdeal`, through the left inverse
-`throughMap`). Open: packaging these as the module isomorphism of Figure 5, and the reduction
-of general `ℓ` to two red strands through Lemma 6.8.
+`throughMap`). Together they give the isomorphism of Figure 5,
+`e(t) (A / U_r) e_{r :: L} ≃ e(s) (A / A e_viol A) e_{r :: L}` (`braidCornerEquiv`). Open: the
+reduction of general `ℓ` to two red strands through Lemma 6.8, and the graded form.
 
-Open: Lemma 6.8, Prop 6.9 (beyond the steps above), Cor 6.10, Lemma 6.11, Def 6.12, Cor 6.13,
+Open: Lemma 6.8, Prop 6.9 for general `ℓ`, Cor 6.10, Lemma 6.11, Def 6.12, Cor 6.13,
 Lemma 6.14; tilting modules (Thm 6.15); `𝔅_σ` are equivalences (Thm 6.16); the braid group
 action (Cor 6.17); Ringel duality (Cor 6.18); semi-orthogonal decompositions (Prop 6.19); the
 Serre functor (Prop 6.20).

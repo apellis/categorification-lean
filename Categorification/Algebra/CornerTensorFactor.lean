@@ -235,6 +235,32 @@ theorem exists_mult_eq_of_factor
 
 end Factor
 
+section Self
+
+variable {e₂ e₀ : A} (h₂ : IsIdempotentElem e₂) (h₀ : IsIdempotentElem e₀)
+
+/-- Over the corner `e₀Ae₀`, every class is `z ⊗ e₀`. -/
+theorem tmul_mult_self (t : CornerTensor k A e₂ e₀ e₀) : tmul (mult h₂ h₀ h₀ t) e₀ = t := by
+  induction t using induction_on with
+  | tmul x y =>
+    have h : e₂ * x * e₀ * y * e₀ = e₂ * x * e₀ * (e₀ * y * e₀) := by
+      simp only [← mul_assoc, mul_idem h₀]
+    rw [mult_tmul, h, tmul_balance, tmul_corner x y]
+    simp only [mul_assoc, h₀.eq]
+  | add s t hs ht => rw [map_add, tmul_add_left, hs, ht]
+
+/-- Multiplication `e₂Ae₀ ⊗_{e₀Ae₀} e₀Ae₀ → A` is injective. -/
+theorem mult_injective_self :
+    Function.Injective (mult h₂ h₀ h₀ : CornerTensor k A e₂ e₀ e₀ →ₗ[k] A) := fun t t' h => by
+  rw [← tmul_mult_self h₂ h₀ t, h, tmul_mult_self]
+
+/-- Multiplication `e₂Ae₀ ⊗_{e₀Ae₀} e₀Ae₀ → A` is onto `e₂Ae₀`. -/
+theorem mult_tmul_self (y : A) :
+    mult h₂ h₀ h₀ (tmul y e₀ : CornerTensor k A e₂ e₀ e₀) = e₂ * y * e₀ := by
+  rw [mult_tmul, mul_assoc _ e₀ e₀, h₀.eq, mul_idem h₀]
+
+end Self
+
 end CornerTensor
 
 end

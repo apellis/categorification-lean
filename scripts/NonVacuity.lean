@@ -5824,4 +5824,14 @@ noncomputable example (ν : Multiset Unit) :=
     (ν := ν) bsSymm
     (fun w => (TypeA.exists_reduced _ w).choose) (fun w => (TypeA.exists_reduced _ w).choose_spec)
 
+/-- Webster, arXiv:1309.3796v2, Lemma 6.5 for three red strands of weight `ω`, `sl₂` and every
+black weight: `w'` crosses the last two red strands and `w` crosses the first one with the strand
+now in the middle, so `ℓ(ww') = ℓ(w) + ℓ(w')` and `B̃_w ⊗ B̃_{w'} ≃ B̃_{ww'}`. -/
+noncomputable example (ν : Multiset Unit) :=
+  BraidedStendhalAlgebra.tensorMultEquivOfPath (Λ := fun _ : Fin 3 => Finsupp.single () 1)
+    (ν := ν) (ρ := fun w => (TypeA.exists_reduced _ w).choose)
+    (fun w => (TypeA.exists_reduced _ w).choose_spec) bsSymm
+    (κ₂ := [2, 0, 1]) (κ₁ := [0, 2, 1]) (κ₀ := [0, 1, 2])
+    (.cross (L := [0]) (M := []) rfl rfl (by decide) (by decide) .refl)
+
 end NonVacuity.BraidedStendhal

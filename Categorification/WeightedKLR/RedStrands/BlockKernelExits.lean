@@ -54,14 +54,10 @@ local notation "leg" => fun (w : List ℕ) (s : KLR.Seq μ) => (ψw w * e s : R)
 private theorem end_idem (w : List ℕ) (s : KLR.Seq μ) : (e (endAt w s) : R) * leg w s = leg w s := by
   rw [← mul_assoc, e_mul_ψw, inv_smul_smul, mul_assoc, e_mul_self]
 
-/-- Move a whole ordered prefix across the marked seam. Only the loading at the cut
-has to be in the source order. The mark stays in `K` and the suffix below `s` is arbitrary. -/
-theorem blockKernelWord_slide (x : K) (u v : List ℕ) (s : KLR.Seq μ)
+private theorem seamWord_lower (u v : List ℕ) (s : KLR.Seq μ)
     (hv : redWord (endAt v s) = redWord t) (y : A) :
-    (BalancedTensor.tmul (act u • x) (lower (raw (leg v s) * y)) : Z) =
-      BalancedTensor.tmul x (lower (raw (leg (u ++ v) s) * y)) := by
-  rw [BalancedTensor.op_smul_tmul]
-  apply congrArg; apply Subtype.ext
+    blockSeamWord Q Λ t u • lower (raw (leg v s) * y) = lower (raw (leg (u ++ v) s) * y) := by
+  apply Subtype.ext
   have hy : E * raw (leg v s) = raw (leg v s) := by
     have h := congrArg raw (end_idem Q Λ v s)
     rw [map_mul] at h
@@ -75,6 +71,14 @@ theorem blockKernelWord_slide (x : K) (u v : List ℕ) (s : KLR.Seq μ)
   rw [appendLeg, ← map_mul mk, ← map_mul mk, ← map_mul mk]
   simp only [← mul_assoc]
   rw [mul_assoc _ E E, (isIdempotentElem_redProj _).eq, mul_assoc _ E (raw (leg v s)), hy]
+
+/-- Move a whole ordered prefix across the marked seam. Only the loading at the cut
+has to be in the source order. The mark stays in `K` and the suffix below `s` is arbitrary. -/
+theorem blockKernelWord_slide (x : K) (u v : List ℕ) (s : KLR.Seq μ)
+    (hv : redWord (endAt v s) = redWord t) (y : A) :
+    (BalancedTensor.tmul (act u • x) (lower (raw (leg v s) * y)) : Z) =
+      BalancedTensor.tmul x (lower (raw (leg (u ++ v) s) * y)) := by
+  rw [BalancedTensor.op_smul_tmul,seamWord_lower _ _ _ _ _ _ _ hv]
 
 variable (s : KLR.Seq (stendhalWeight ℓ ν)) (j : ℕ) (hj : j+2 < (stendhalWeight ℓ ν).card)
 local notation "l" => [j+1,j]
@@ -101,6 +105,18 @@ theorem blockKernelBraid_slide (x : K) (hb : s.lbl ⟨j,by omega⟩ = .inr b)
       BalancedTensor.tmul (act [j+1] • x) (lower (raw (leg r s) * y)) := by
   rw [blockKernelWord_slide _ _ _ _ _ _ _ _ _ _ hl, blockKernelWord_slide _ _ _ _ _ _ _ _ _ _ hr,
     local_braid Q Λ a b s j hj hb ha]
+
+/-- In the projective tensor the joint coefficient is arbitrary. This is the
+unmarked braid comparison used to detect independently marked exits in the first
+black weight of Webster v2, Lemma 6.8, after (6.21). -/
+theorem blockLoadingBraid_slide (u : rIdeal (orderedLoadingIdem Q Λ t)) (hb : s.lbl ⟨j,by omega⟩ = .inr b)
+    (ha : s.lbl ⟨j+2,hj⟩ = .inr a) (hl : redWord (endAt l s) = redWord t)
+    (hr : redWord (endAt r s) = redWord t) (y : A) :
+    (BalancedTensor.tmul (act [j] • u) (lower (raw (leg l s) * y)) :
+      BalancedTensor k k T (rIdeal (orderedLoadingIdem Q Λ t)) B) =
+      BalancedTensor.tmul (act [j+1] • u) (lower (raw (leg r s) * y)) := by
+  rw [BalancedTensor.op_smul_tmul,BalancedTensor.op_smul_tmul,seamWord_lower _ _ _ _ _ _ _ hl,
+    seamWord_lower _ _ _ _ _ _ _ hr,local_braid Q Λ a b s j hj hb ha]
 
 private theorem exit_bigon (i : I) (hb : s.lbl ⟨j,by omega⟩ = .inr b)
     (hi : s.lbl ⟨j+1,by omega⟩ = .inl i) (ha : s.lbl ⟨j+2,hj⟩ = .inr a) :
@@ -158,7 +174,9 @@ private theorem mark_cross (u v : KLR.Seq μ) (c : ℕ) (eq : v = sadj m c • u
     mul_assoc _ (raw (e (sadj m c • u))) (raw (ψ c)), xId]
   simp only [mul_assoc, e_mul_redProj, ite_eq_left hu]
 
-private theorem root_le_left_cross (u : KLR.Seq μ) (c : ℕ) (hc : c+1 < m) (r₀ : Fin ℓ) (i : I)
+/-- Moving a black one place left across a red cannot lower a retained boundary
+count. Used at the right exit of the cut following Webster v2, (6.21). -/
+theorem adjacentBlockRoot_le_left_cross (u : KLR.Seq μ) (c : ℕ) (hc : c+1 < m) (r₀ : Fin ℓ) (i : I)
     (hr : u.lbl ⟨c,Nat.lt_of_succ_lt hc⟩ = .inr r₀) (hi : u.lbl ⟨c+1,hc⟩ = .inl i) :
     adjacentBlockRoot a b u ≤ adjacentBlockRoot a b (sadj m c • u) := by
   intro label color
@@ -196,10 +214,10 @@ theorem blockKernelHigherExit_slide (i : I) (hb : s.lbl ⟨j,by omega⟩ = .inr 
   have u₁ : u.lbl ⟨j+1,by omega⟩ = .inl i := by rw [he]; exact (braid_smul_apply_one hj s).trans hi
   have fromU : sadj m j • u = endAt l s := by rw [he, sadj_smul_smul]
   have hu : redWord u = redWord t := (redWord_sadj_smul v hj (by simp [i₂])).trans hr
-  have hu' : adjacentBlockRoot a b t < adjacentBlockRoot a b u := higher.trans_le (root_le_left_cross a b v (j+1) hj b i b₁ i₂)
+  have hu' : adjacentBlockRoot a b t < adjacentBlockRoot a b u := higher.trans_le (adjacentBlockRoot_le_left_cross a b v (j+1) hj b i b₁ i₂)
   have hl : redWord (endAt l s) = redWord t := fromU ▸ (redWord_sadj_smul u (by omega) (by simp [u₁])).trans hu
   have hh : adjacentBlockRoot a b t < adjacentBlockRoot a b (endAt l s) :=
-    fromU ▸ hu'.trans_le (root_le_left_cross a b u j (by omega) a i u₀ u₁)
+    fromU ▸ hu'.trans_le (adjacentBlockRoot_le_left_cross a b u j (by omega) a i u₀ u₁)
   let x := blockHigherMark Q Λ t a b u hu hu' z
   refine ⟨hl,hh,?_⟩
   have H := blockKernelBraid_slide Q Λ t a b κ' s j hj x hb ha hl hr y

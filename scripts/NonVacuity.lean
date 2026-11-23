@@ -5870,6 +5870,54 @@ noncomputable example :=
   letI := DG.HasDerivedCategory.standard (ViolOrderCorner (k := ℚ) (Q := Q) (Λ := Λ) (ν := ν) [1, 0])ᵐᵒᵖ
   braidingFunctorObjFigureFiveStandardizationIso (Λ₂ := Λ) hQ hρ blackWord
 
+open QuantumGroup
+
+private abbrev sl₂ := CartanDatum.ofGraph (⊥ : SimpleGraph Unit)
+
+private theorem hRouquier : IsRouquierQ sl₂ Q where
+  symm i j hij := (hij (Subsingleton.elim i j)).elim
+  homogeneous i j hij := (hij (Subsingleton.elim i j)).elim
+  unit_coeff i j hij := (hij (Subsingleton.elim i j)).elim
+
+private noncomputable abbrev realization := Matrix.Realization.std (UDot.A sl₂) ℂ
+
+private noncomputable def fracΛ : Fin 2 → Unit →₀ ℕ :=
+  fun j => Finsupp.single () (if j = 0 then 1 else 3)
+
+private noncomputable def fracWeight (j : Fin 2) :
+    Module.Dual ℂ (Matrix.Realization.StdSpace (UDot.A sl₂) ℂ) :=
+  ((fracΛ j () : ℂ) / 2) • realization.root ()
+
+private theorem fracWeight_coroot (j : Fin 2) (i : Unit) :
+    fracWeight j (realization.coroot i) = (fracΛ j i : ℂ) := by
+  cases i
+  rw [fracWeight, LinearMap.smul_apply, realization.root_coroot, UDot.A_self, smul_eq_mul]
+  push_cast
+  ring
+
+private theorem fracWeight_shift :
+    weightPairing sl₂ realization (fracWeight 0 - (ν.map realization.root).sum) (fracWeight 1) =
+      (-3 / 2 : ℂ) := by
+  have hd : UDot.di sl₂ () = 1 := by rfl
+  rw [map_sub, LinearMap.sub_apply]
+  simp only [ν, Multiset.map_singleton, Multiset.sum_singleton]
+  rw [fracWeight, map_smul, LinearMap.smul_apply, weightPairing_root, fracWeight_coroot, hd]
+  norm_num [fracΛ, smul_eq_mul]
+
+/-- Webster, arXiv:1309.3796v2, §6.1 Proposition 6.9 and Figure 5, for one black `sl₂` strand
+and weights `ω` and `3ω`. The multiplier has degree `3/2`, over the coefficient field `ℚ`. -/
+example : ∃ y : violCorner ℚ Q fracΛ ν (figureFiveLower blackWord) [1, 0],
+    y.1 = violMk ℚ Q fracΛ ν (ofKLR ℚ Q fracΛ ν
+      (KLRAlgebra.ψw (ρ (finRotate μ.card)⁻¹) * KLRAlgebra.e (figureFiveUpper blackWord))) ∧
+    y ∈ figureFiveCutGrade sl₂ hRouquier (weightPairing sl₂ realization) fracWeight
+      (figureFiveLower blackWord) 1 0 (3 / 2) := by
+  have h := figureFive_mem_cutGrade_word (Λ := fracΛ) sl₂ hRouquier realization
+    (weightPairing sl₂ realization) fracWeight
+    (fun i w => weightPairing_root sl₂ realization w i) fracWeight_coroot
+    (weightPairing_isSymm sl₂ realization) hρ blackWord
+  rw [fracWeight_shift, neg_div, neg_neg] at h
+  exact h
+
 end NonVacuity.WebsterFigureFive
 
 namespace NonVacuity.BraidedStendhal

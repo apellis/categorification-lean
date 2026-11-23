@@ -25,6 +25,11 @@ diagram kills the generators of the submodule `U_t` that defines the standard mo
 
 * `BraidedStendhalAlgebra.e_mul_mul_e_mem_violIdeal` : `e(s) w e(t')` lies in the violated
   ideal.
+* `BraidedStendhalAlgebra.exists_e_mul_mul_redProj_sub_mem` : factoring `e(s) w e_κ` through a
+  fixed diagram `ψ_{ρ(g)} e(t)` modulo violated idempotents.
+* `BraidedStendhalAlgebra.exists_e_mul_mul_redProj_sub_mem_of_last` : the case where `g` carries
+  the leftmost strand `λ_r` of `t` to the right edge of `s`, the surjectivity step of
+  Proposition 6.9.
 -/
 
 namespace Categorification.Stendhal
@@ -36,6 +41,7 @@ variable {I : Type*} [DecidableEq I] {k : Type*} [CommRing k] {ℓ : ℕ}
 
 local notation "μ" => stendhalWeight ℓ ν
 local notation "m" => Multiset.card (stendhalWeight ℓ ν)
+local notation "R" => KLR.KLRAlgebra k (stendhalQ Q Λ) (stendhalWeight ℓ ν)
 
 namespace BraidedStendhalAlgebra
 
@@ -117,6 +123,143 @@ theorem e_mul_mul_e_mem_violIdeal {s t' : Seq μ} {r : Fin ℓ} (h1 : 1 < m)
       ← hz, ← mul_assoc, map_mul, map_mul]
     exact TwoSidedIdeal.mul_mem_right _ _ _
       (TwoSidedIdeal.mul_mem_left _ _ _ (TwoSidedIdeal.subset_span ⟨_, hviol, rfl⟩))
+
+omit [DecidableEq I] in
+/-- If `e(j)` is not violated and its red strands read `r :: L`, its leftmost strand is `λ_r`. -/
+theorem lbl_zero_of_not_isViolated {j : Seq μ} {r : Fin ℓ} {L : List (Fin ℓ)} (h0 : 0 < m)
+    (hj : ¬ IsViolated j) (hr : redWord j = r :: L) : j.lbl ⟨0, h0⟩ = .inr r := by
+  obtain ⟨r', hr'⟩ : ∃ r', j.lbl ⟨0, h0⟩ = .inr r' := by
+    rcases hl : j.lbl ⟨0, h0⟩ with b | r'
+    · exact absurd ⟨h0, by simp [hl]⟩ hj
+    · exact ⟨r', rfl⟩
+  rw [hr']
+  by_contra hne
+  have hmem : r' ∈ L := by
+    have := mem_redWord j r'
+    rw [hr, List.mem_cons] at this
+    exact this.resolve_left fun h => hne (by rw [h])
+  have hpw := redWord_pairwise_one j
+  rw [hr, List.pairwise_cons] at hpw
+  obtain ⟨a, ha⟩ := exists_lbl_eq_inr j r
+  exact absurd (hpw.1 r' hmem a _ ha hr') (by simp [Fin.lt_def])
+
+omit [DecidableEq I] in
+/-- **The inversions of moving the leftmost strand to the right edge.** Let `c` send every
+position `p` other than the last one to `p + 1`, and let `τ` send `0` to the last
+position. Then every inversion of `c τ` is an inversion of `τ`: the diagram `τ` factors through
+the diagram `c⁻¹` that carries the strand at the left edge to the right edge. -/
+theorem invSet_mul_subset_of_last {c τ : Perm (Fin m)} (h0 : 0 < m)
+    (hc : ∀ x : Fin m, (x : ℕ) ≠ m - 1 → (c x : ℕ) = x + 1)
+    (hτ : τ ⟨0, h0⟩ = ⟨m - 1, by omega⟩) : invSet m (c * τ) ⊆ invSet m τ := by
+  rintro ⟨a, b⟩ hab
+  rw [mem_invSet_pair] at hab ⊢
+  rw [Perm.mul_apply, Perm.mul_apply] at hab
+  refine ⟨hab.1, ?_⟩
+  have hb : (τ b : ℕ) ≠ m - 1 := by
+    intro h
+    have : τ b = τ ⟨0, h0⟩ := by rw [hτ]; exact Fin.ext h
+    have := τ.injective this
+    subst this
+    exact absurd hab.1 (by simp [Fin.lt_def])
+  by_cases ha : (τ a : ℕ) = m - 1
+  · rw [Fin.lt_def, ha]; have := (τ b).isLt; omega
+  · have h2 := hab.2
+    rw [Fin.lt_def, hc _ hb, hc _ ha] at h2
+    rw [Fin.lt_def]; omega
+
+open Classical in
+/-- The right factor `g⁻¹ τ` of `τ` through `g`, if the lengths add, and `1` otherwise. -/
+noncomputable def throughFrame (g τ : Perm (Fin m)) : Perm (Fin m) :=
+  if invSet m (g⁻¹ * τ) ⊆ invSet m τ then g⁻¹ * τ else 1
+
+omit [DecidableEq I] in
+theorem throughFrame_le (g τ : Perm (Fin m)) : invSet m (throughFrame g τ) ⊆ invSet m τ := by
+  unfold throughFrame
+  split_ifs with h
+  · exact h
+  · exact invSet_one_subset τ
+
+include hρ hQ in
+/-- **Factoring through a fixed diagram modulo violated idempotents.** Let `g • t = s`, and
+suppose that every diagram `τ` from a non-violated `j` of red order `κ` to `s` factors through
+`g` with lengths adding. Then `e(s) w e_κ` is `ψ_{ρ(g)} e(t) x` modulo violated idempotents. -/
+theorem exists_e_mul_mul_redProj_sub_mem {s t : Seq μ} {κ : List (Fin ℓ)} (g : Perm (Fin m))
+    (hgt : g • t = s)
+    (hg : ∀ (j : Seq μ) (τ : Perm (Fin m)), τ • j = s → redWord j = κ → ¬ IsViolated j →
+      invSet m (g⁻¹ * τ) ⊆ invSet m τ)
+    (w : BraidedStendhalAlgebra k Q Λ ν) :
+    ∃ x, ofKLR k Q Λ ν (KLRAlgebra.e s) * w * redProj k Q Λ ν κ -
+      ofKLR k Q Λ ν (KLRAlgebra.ψw (ρ g) * KLRAlgebra.e t) * x ∈ violIdeal k Q Λ ν := by
+  set ρ' := fun τ => ρ (τ * (throughFrame g τ)⁻¹) ++ ρ (throughFrame g τ)
+  have hρ' : IsReducedChoice ρ' := isReducedChoice_frame hρ _ (throughFrame_le g)
+  induction (basis hQ ρ' hρ').mem_span w using Submodule.span_induction with
+  | zero => exact ⟨0, by simp⟩
+  | add x y _ _ hx hy =>
+    obtain ⟨x', hx'⟩ := hx
+    obtain ⟨y', hy'⟩ := hy
+    refine ⟨x' + y', ?_⟩
+    convert add_mem hx' hy' using 1
+    noncomm_ring
+  | smul c x _ hx =>
+    obtain ⟨x', hx'⟩ := hx
+    refine ⟨c • x', ?_⟩
+    have := TwoSidedIdeal.mul_mem_left _ (algebraMap k _ c) _ hx'
+    convert this using 1
+    simp only [mul_sub, ← Algebra.smul_def, mul_smul_comm, smul_mul_assoc]
+  | mem x hx =>
+    obtain ⟨⟨⟨j, τ, u⟩, hu⟩, rfl⟩ := hx
+    rw [basis_apply, redProj, ← map_mul, ← map_mul]
+    dsimp only
+    rw [mul_assoc (KLRAlgebra.e s), mul_assoc (_ * _) (KLRAlgebra.e j), e_mul_redIdem]
+    split_ifs with hκ
+    swap
+    · exact ⟨0, by simp⟩
+    have hy := e_mul_std (Q := Q) (Λ := Λ) (ρ' τ) (monomial u 1) j
+    rw [(hρ' τ).2] at hy
+    rw [← hy, ← mul_assoc, KLRAlgebra.e_mul_e]
+    split_ifs with hτ
+    swap
+    · exact ⟨0, by simp⟩
+    rw [hτ, hy]
+    by_cases hv : IsViolated j
+    · refine ⟨0, ?_⟩
+      rw [mul_zero, sub_zero, map_mul]
+      exact TwoSidedIdeal.mul_mem_left _ _ _ (TwoSidedIdeal.subset_span ⟨j, hv, rfl⟩)
+    have hle := hg j τ hτ.symm hκ hv
+    have hf : throughFrame g τ = g⁻¹ * τ := by simp [throughFrame, hle]
+    have hρτ : ρ' τ = ρ g ++ ρ (g⁻¹ * τ) := by simp only [ρ', hf, mul_inv_rev, inv_inv,
+      mul_inv_cancel_left]
+    have hz := e_mul_std (Q := Q) (Λ := Λ) (ρ (g⁻¹ * τ)) (monomial u 1) j
+    rw [(hρ (g⁻¹ * τ)).2, mul_smul, ← hτ, ← hgt, inv_smul_smul] at hz
+    refine ⟨ofKLR k Q Λ ν (KLRAlgebra.ψw (ρ (g⁻¹ * τ)) * KLRAlgebra.pol (monomial u 1) *
+      KLRAlgebra.e j), ?_⟩
+    have hY : (KLRAlgebra.ψw (ρ g ++ ρ (g⁻¹ * τ)) * KLRAlgebra.pol (monomial u 1) *
+        KLRAlgebra.e j : R) = KLRAlgebra.ψw (ρ g) * KLRAlgebra.e t *
+          (KLRAlgebra.ψw (ρ (g⁻¹ * τ)) * KLRAlgebra.pol (monomial u 1) * KLRAlgebra.e j) := by
+      rw [KLRAlgebra.ψw_append]
+      conv_rhs => rw [mul_assoc, hz]
+      simp only [mul_assoc]
+    rw [hρτ, hY, map_mul, sub_self]
+    exact zero_mem _
+
+include hρ hQ in
+/-- **Surjectivity step of Proposition 6.9** (arXiv:1309.3796v2, two red strands). If the last
+strand of `s` is the red strand `λ_r`, `g • t = s`, and `g⁻¹` moves every position other than
+the last one by one step to the right, then for the red order `r :: L` every element
+`e(s) w e_{r :: L}` is `ψ_{ρ(g)} e(t) x` modulo violated idempotents. -/
+theorem exists_e_mul_mul_redProj_sub_mem_of_last {s t : Seq μ} {r : Fin ℓ} {L : List (Fin ℓ)}
+    (h0 : 0 < m) (g : Perm (Fin m)) (hgt : g • t = s) (hs : s.lbl ⟨m - 1, by omega⟩ = .inr r)
+    (hc : ∀ x : Fin m, (x : ℕ) ≠ m - 1 → (g⁻¹ x : ℕ) = x + 1)
+    (w : BraidedStendhalAlgebra k Q Λ ν) :
+    ∃ x, ofKLR k Q Λ ν (KLRAlgebra.e s) * w * redProj k Q Λ ν (r :: L) -
+      ofKLR k Q Λ ν (KLRAlgebra.ψw (ρ g) * KLRAlgebra.e t) * x ∈ violIdeal k Q Λ ν := by
+  refine exists_e_mul_mul_redProj_sub_mem hρ hQ g hgt (fun j τ hτ hκ hv => ?_) w
+  have hj0 := lbl_zero_of_not_isViolated h0 hv hκ
+  have hτ0 : τ ⟨0, h0⟩ = ⟨m - 1, by omega⟩ := by
+    refine lbl_inj_of_inr s r ?_ hs
+    rw [← hτ, lbl_smul]
+    simpa using hj0
+  exact invSet_mul_subset_of_last h0 hc hτ0
 
 end BraidedStendhalAlgebra
 

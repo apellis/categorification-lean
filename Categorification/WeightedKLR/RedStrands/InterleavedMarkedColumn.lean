@@ -195,6 +195,6 @@ theorem interleaved_markedColumn_injective_of_right_leg {i : I} {Lr Mr : List (F
   intro x y hx hy _ my rel
   obtain ⟨u,hu,hl,hr⟩ :=
     (interleaved_quotient_relation_iff Q Λ s j hj hQ t ht hb hi ha x y hx hy).mp rel
-  exact ⟨u,rightLeg u hu (by rw [hr]; exact J.neg_mem my),hu,hl,hr⟩
+  exact ⟨u,rightLeg u hu (by rw [hr]; exact (J).neg_mem my),hu,hl,hr⟩
 
 end Categorification.Stendhal.BraidedStendhalAlgebra

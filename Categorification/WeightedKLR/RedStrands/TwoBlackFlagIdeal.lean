@@ -123,4 +123,67 @@ theorem ddiff_mem_ideal {a b : σ} (hab : a≠b) {m : ℕ} {f : P}
   rw [map_add,ddiff_mul hab,ddiff_mul hab,← ddiff_X_pow hab m,ddiff_ddiff hab, mul_zero,add_zero]
   exact Ideal.mem_span_pair.2 ⟨ddiff a b u,rename (swap a b) u+ddiff a b v,by rw [ddiff_X_pow hab]; ring⟩
 
+private theorem complete_succ_sub_pow_dvd (a b : σ) (n : ℕ) :
+    (X a : P) ∣ complete (X a) (X b) (n + 1) - (X b)^n := by
+  induction n with
+  | zero => simp [complete]
+  | succ n ih =>
+    obtain ⟨w, hw⟩ := ih
+    refine ⟨X b * w + (X a)^n, ?_⟩
+    rw [complete, pow_succ]
+    linear_combination X b * hw
+
+private theorem first_dot_pow_dvd_of_dvd_mul_complete {a b : σ} (hab : a ≠ b)
+    (n d : ℕ) {g : P} (hg : (X a)^d ∣ g * complete (X a) (X b) (n + 1)) :
+    (X a)^d ∣ g := by
+  induction d generalizing g with
+  | zero => simp
+  | succ d ih =>
+    obtain ⟨v, hv⟩ := hg
+    obtain ⟨w, hw⟩ := complete_succ_sub_pow_dvd (k := k) a b n
+    have h : (X a) ^ 1 ∣ g * (X b)^n := by
+      refine ⟨(X a)^d * v - g*w, ?_⟩
+      rw [pow_succ] at hv
+      linear_combination hv - g * hw
+    obtain ⟨z, hz⟩ := KLR.KLRAlgebra.X_pow_dvd_of_dvd_mul_other_pow hab 1 n h
+    rw [pow_one] at hz
+    have hcancel : z * complete (X a) (X b) (n + 1) = (X a)^d * v := by
+      apply (X_mul_cancel_left_iff (i := a)).mp
+      rw [pow_succ, hz] at hv
+      linear_combination hv
+    obtain ⟨p, hp⟩ := ih ⟨v, hcancel⟩
+    exact ⟨p, by rw [hz, hp, pow_succ]; ring⟩
+
+private theorem cancel_first_dot_pow (a : σ) (d : ℕ) (p q : P)
+    (h : p * (X a)^d = q * (X a)^d) : p = q := by
+  induction d with
+  | zero => simpa using h
+  | succ d ih =>
+    simp only [pow_succ, ← mul_assoc, X_mul_cancel_right_iff] at h
+    exact ih h
+
+/-- First-dot multiplication reflects membership when only the first bound increases. -/
+theorem mul_first_pow_mem_iff {a b : σ} (hab : a ≠ b) (m n d : ℕ) (f : P) :
+    f * (X a)^d ∈ ideal a b (m+d) n ↔ f ∈ ideal a b m n := by
+  rw [ideal, ideal, Ideal.mem_span_pair, Ideal.mem_span_pair]
+  constructor
+  · rintro ⟨u, v, h⟩
+    cases n with
+    | zero =>
+      refine ⟨u, 0, cancel_first_dot_pow a d _ _ ?_⟩
+      simpa only [complete, mul_zero, add_zero, pow_add, ← mul_assoc] using h
+    | succ n =>
+      have hdiv : (X a)^d ∣ v * complete (X a) (X b) (n+1) := by
+        refine ⟨f-u*(X a)^m, ?_⟩
+        rw [pow_add] at h
+        linear_combination h
+      obtain ⟨w, hw⟩ := first_dot_pow_dvd_of_dvd_mul_complete hab n d hdiv
+      refine ⟨u, w, cancel_first_dot_pow a d _ _ ?_⟩
+      rw [pow_add, hw] at h
+      linear_combination h
+  · rintro ⟨u, v, h⟩
+    refine ⟨u, v*(X a)^d, ?_⟩
+    rw [pow_add]
+    linear_combination (X a)^d*h
+
 end Categorification.Stendhal.TwoBlackFlag

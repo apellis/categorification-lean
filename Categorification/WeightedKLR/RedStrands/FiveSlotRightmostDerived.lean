@@ -67,7 +67,7 @@ private theorem crossingRange_homology_vanish (F : DerivedCategory.{w,0} B ⥤ D
 
 /-- A split realization of a crossing kernel inside an acyclic module makes
 the actual quotient acyclic when the larger inclusion is degree-zero monic. -/
-private theorem crossingRange_homology_vanish_of_retract {L : Type} [AddCommGroup L] [Module B L]
+theorem crossingRange_homology_vanish_of_retract {L : Type} [AddCommGroup L] [Module B L]
     (F : DerivedCategory.{w,0} B ⥤ DerivedCategory.{w,0} A)
     [F.Additive] [F.CommShift ℤ] [F.IsTriangulated] (f : M →ₗ[B] N)
     (u : L →ₗ[B] M) (i : LinearMap.ker f →ₗ[B] L) (r : L →ₗ[B] LinearMap.ker f)
@@ -155,7 +155,7 @@ local notation "δ₀" => F (ψ 1 : R)
 local notation "x₁" => F (x (⟨1, by decide⟩ : Fin N) : R)
 local notation "x₂" => F (x (⟨2, by decide⟩ : Fin N) : R)
 
-private theorem leftExtreme_support (a : P₀) : p E₀ * a.1.1 = a.1.1 := by
+theorem leftExtreme_support (a : P₀) : p E₀ * a.1.1 = a.1.1 := by
   have h := a.2
   change f₀ * a.1 = a.1 at h
   exact congrArg (fun z : T => z.1) h
@@ -176,10 +176,10 @@ private theorem leftExtremeLeftMultiply_val (c : V) (hc : p E₀ * c = c * p E�
   change p E₀ * c * E * a.1.1 = _
   rw [mul_assoc (p E₀ * c), ha, hc, mul_assoc c, leftExtreme_support Q Λ a]
 
-private def leftExtremeDelta : P₀ →ₗ[Tᵐᵒᵖ] P₀ := leftExtremeLeftMultiply Q Λ δ₀
+def leftExtremeDelta : P₀ →ₗ[Tᵐᵒᵖ] P₀ := leftExtremeLeftMultiply Q Λ δ₀
 private def leftExtremeDot : P₀ →ₗ[Tᵐᵒᵖ] P₀ := leftExtremeLeftMultiply Q Λ x₁
 
-private theorem leftExtremeDelta_val (a : P₀) :
+theorem leftExtremeDelta_val (a : P₀) :
     (leftExtremeDelta Q Λ a).1.1 = δ₀ * a.1.1 := by
   apply leftExtremeLeftMultiply_val
   rw [← map_mul, ← map_mul, e_mul_ψ, show sadj N 1 • E₀ = E₀ by decide]
@@ -371,13 +371,13 @@ private theorem crossingKernelProjection_apply {RingType M : Type} [Ring RingTyp
   change a.1 - x (d a.1) = a.1
   rw [show d a.1 = 0 from a.2, map_zero, sub_zero]
 
-private def leftExtremeKernelProjection :
+def leftExtremeKernelProjection :
     P₀ →ₗ[Tᵐᵒᵖ] LinearMap.ker d₀ :=
   @crossingKernelProjection Tᵐᵒᵖ ↥P₀ inferInstance (Submodule.addCommGroup P₀)
     (Submodule.module P₀) d₀ (leftExtremeDot Q Λ)
     (leftExtremeDelta_square Q Λ) (leftExtremeDelta_contract Q Λ)
 
-private theorem leftExtremeKernelProjection_apply (a : LinearMap.ker d₀) :
+theorem leftExtremeKernelProjection_apply (a : LinearMap.ker d₀) :
     leftExtremeKernelProjection Q Λ a.1 = a :=
   @crossingKernelProjection_apply Tᵐᵒᵖ ↥P₀ inferInstance (Submodule.addCommGroup P₀)
     (Submodule.module P₀) d₀ (leftExtremeDot Q Λ)

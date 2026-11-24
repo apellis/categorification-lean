@@ -6844,7 +6844,7 @@ private noncomputable abbrev projection :=
   CycKLR.mk ℚ params (fun _ => (Polynomial.X ^ 3 : Polynomial ℚ)) black
 
 example : projection (pol (esymm (Fin black.card) ℚ 2)) = 0 :=
-  terminal_pol_esymm_eq_zero (i := ()) (fun _ _ => Subsingleton.elim _ _) params 2
+  terminal_pol_esymm_eq_zero (ν := black) (i := ()) (fun _ _ => Subsingleton.elim _ _) params 2
     (by decide) (by decide)
 
 example (p : MvPolynomial (Fin black.card) ℚ) (hp : p ∈ coinvIdeal ℚ black.card) :

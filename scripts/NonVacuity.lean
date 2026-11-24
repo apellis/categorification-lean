@@ -11240,6 +11240,9 @@ example : derivedTensor ℚ ℚ ℚ ⟶ derivedTensor ℚ ℚ ℚ :=
 
 example := ordinaryTensorCoefficientMap_tmul twice twice_op
 
+example : NatTrans.CommShift (derivedTensorCoefficientMap twice twice_op) ℤ :=
+  inferInstance
+
 end
 
 end WebsterDerivedTensorCoefficientFixture

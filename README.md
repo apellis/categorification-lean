@@ -1059,7 +1059,10 @@ ordinary complexes on the weight category realizes as a dg module, with
 pointwise quasi-isomorphisms becoming dg quasi-isomorphisms
 (`diagramWeightModuleOfComplex`, `diagramWeightModuleOfComplexMap_isQuasiIso`). A homogeneous exact
 augmented chain gives a dg model with a pointwise quasi-isomorphic augmentation
-(`weightDgGradedChainAugmentation_quasiIso`).
+(`weightDgGradedChainAugmentation_quasiIso`). Applied to the ordered
+loading resolution, this gives its literal graded augmentation and its
+quasi-isomorphism to the homogeneous standard
+(`orderedWeightDgAugmentation_quasiIso`).
 
 A balanced homogeneous multiplication of two
 coefficients induces their product from the intermediate weight-category

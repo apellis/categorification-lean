@@ -5835,6 +5835,15 @@ example : ∃ x, δ 0 x = (⟨1, one_mul 1⟩ : P) :=
   ((gradedLoadingResolutionChainMap_augmentation_exact data false A₀ mulGrade eGrade
     eIdem aboveTrans T₀ quotientGrade) ⟨1, one_mul 1⟩).mp rfl
 
+open scoped DG.DegreeZero
+local instance instOrderedRationalWeight : InternalGrading ℚ := scalarInternalGrading ℚ
+local instance instOrderedRationalBigraded : BigradedDGRing ℚ := scalarBigradedDGRing ℚ
+
+example := orderedWeightDgAugmentation_quasiIso data false eGrade eIdem aboveTrans T₀
+  (fun {_ _ _ _} _ _ => (mem_degreeZeroGrading_iff _).mpr
+    (Or.inr (Subsingleton.elim (α := PUnit) _ _)))
+  quotientGrade
+
 end NonVacuity.WebsterOrderedGradedResolution
 
 end

@@ -61,7 +61,8 @@ private theorem loweringWord_snoc (d : List (I × ℕ)) (i : I) (n : ℕ) :
       qDivPow (v ^ Δ.d i) n (F R v i) • dividedLoweringWord highest d := by
   simp [dividedLoweringWord, List.foldl_append]
 
-private theorem bar_dividedLoweringWord (d : List (I × ℕ)) :
+/-- Divided lowering words are fixed by the highest-weight bar involution. -/
+theorem bar_dividedLoweringWord (d : List (I × ℕ)) :
     hwBar hR highest (dividedLoweringWord highest d) = dividedLoweringWord highest d := by
   induction d using List.reverseRecOn with
   | nil => exact hwBar_hwv hR highest

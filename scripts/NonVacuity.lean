@@ -5950,6 +5950,19 @@ example := KLR.CycKLR.isSimple_coevaluationProjective CyclotomicHighestWeight.pa
 example := classical_weightSpace_raise_extremal_eq_bot P generalized (weight : Module.Dual ℝ _) dominant
   1 () (by simp [CoxeterSystem.IsLeftDescent])
 
+/-- The graded isomorphism criterion on the level-two reflection projective. -/
+example := KLR.CycKLR.coevaluationProjective_iso_of_same_weyl CyclotomicHighestWeight.params
+  (fun _ => 2) CyclotomicHighestWeight.datum 2 CyclotomicHighestWeight.dominantTwo
+  CyclotomicHighestWeight.regular P weight dominant (fun i => by
+    cases i
+    change P.root () (P.coroot ()) = (2 : ℝ)
+    rw [P.root_coroot]
+    rfl) [()] [()] reduced reduced rfl
+
+/-- There is no weight above the highest weight in the outgoing simple-root direction. -/
+example := classical_weightSpace_raise_extremal_eq_bot P generalized (weight : Module.Dual ℝ _) dominant
+  1 () (by simp [CoxeterSystem.IsLeftDescent])
+
 example : coevaluationDividedWord (P.cartanDatum generalized) weight [()] = [((), 2)] := by
   change [((), ((P.cartanDatum generalized).coroot () weight).toNat)] = _
   have h : (P.cartanDatum generalized).coroot () weight = 2 := by

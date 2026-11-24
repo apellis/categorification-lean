@@ -1731,6 +1731,7 @@ import Categorification.WeightedKLR.Rigidity.ExtremalRaising
 import Categorification.WeightedKLR.Rigidity.ExtremalStringNorm
 import Categorification.WeightedKLR.Rigidity.CoevaluationDividedPower
 import Categorification.WeightedKLR.Rigidity.ReducedDividedNorm
+import Categorification.WeightedKLR.Rigidity.CoevaluationIndependence
 
 /-!
 # Categorification

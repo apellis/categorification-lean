@@ -605,6 +605,7 @@ import Categorification.KLR.KL2.Serre
 import Categorification.KLR.KL2.SerreMaps
 import Categorification.KLR.KL2.SerreSeq
 import Categorification.KLR.KL2.Theorem8
+import Categorification.KLR.ExitPolynomialMatrix
 import Categorification.KLR.Mackey
 import Categorification.KLR.MackeyFactor
 import Categorification.KLR.MackeyGraded

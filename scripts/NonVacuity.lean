@@ -6422,6 +6422,80 @@ example (a : (isIdempotentElem_violMk_redProj ℚ Q Λ ν [0, 1]).Corner)
 
 end NonVacuity.WebsterBraidReflection
 
+/-! ### Webster, Lemma 6.8 after (6.21), polynomial kernel of two distinct exits -/
+
+noncomputable section
+open Categorification.KLR Categorification.TypeA Equiv MvPolynomial
+open KLRAlgebra
+namespace NonVacuity.ExitPolynomialMatrix
+
+private abbrev ν : Multiset (Fin 3) := {2, 0, 0, 1}
+private def Q (a b : Fin 3) : MvPolynomial (Fin 2) ℤ :=
+  if a = b then 0 else if a = 0 then X 0 else if b = 0 then X 1 else 1
+private theorem hQ : KLRSymm Q := by
+  intro a b h
+  unfold Q
+  rw [ite_eq_right h, ite_eq_right (Ne.symm h)]
+  by_cases ha : a = 0 <;> by_cases hb : b = 0 <;> simp_all
+private abbrev P := MvPolynomial (Fin ν.card) ℤ
+private abbrev R := KLRAlgebra ℤ Q ν
+private def s : Seq ν := KLRAlgebra.Seq.ofList [2, 0, 0, 1] (by decide)
+private def middle : List ℕ := [1, 0, 2]
+private def w := wordProd ν.card middle
+private def ρ (t : Perm (Fin ν.card)) := if t = w then middle else canWord ν.card t
+private theorem hw : ρ w = middle := ite_eq_left rfl
+private theorem hρ (t) : IsReduced ν.card (ρ t) ∧ wordProd ν.card (ρ t) = t := by
+  by_cases h : t = w
+  · subst t; rw [hw]
+    refine ⟨⟨?_, ?_⟩, rfl⟩
+    · simp [ValidWord, middle]
+    · rw [length_eq_invCount]; decide
+  · simpa only [ρ, ite_eq_right h] using And.intro (isReduced_canWord ν.card t) (wordProd_canWord _ t)
+private def leftPos : Fin ν.card := ⟨0, by decide⟩
+private theorem blackDot : twoBlackExitPolynomial Q s 0 (by decide) = X leftPos := by
+  have ha : (wordProd ν.card [2] • s).lbl ⟨1, by decide⟩ = 0 := by decide
+  have hb : (wordProd ν.card [2] • s).lbl ⟨2, by decide⟩ = 1 := by decide
+  unfold twoBlackExitPolynomial exitSquarePolynomial
+  dsimp only
+  rw [ha, hb, ite_eq_right (by decide : (0 : Fin 3) ≠ 1)]
+  change rename _ (rename _ (rename _ (X (0 : Fin 2)))) = X leftPos
+  simp only [rename_X]
+  congr 1
+private def upper : Fin 2 → List ℕ := ![[0, 1], []]
+private def leg : Fin 2 → List ℕ := ![[0, 1, 2], middle]
+
+example (a : Fin 2 → R) :
+    (∑ j : Fin 2, a j * (ψw (leg j) * e s)) = 0 ↔
+      ∀ t : Perm (Fin ν.card), (∑ j : Fin 2, ∑ u : Perm (Fin ν.card),
+        exitPolynomial hQ ρ hρ (wordProd ν.card (leg j) • s) u (a j) *
+          exitPolynomial hQ ρ hρ s t (ψw (ρ u ++ leg j) * e s)) = 0 :=
+  exit_relation_polynomial_matrix_iff hQ ρ hρ Finset.univ s leg a
+
+-- At [red, black, black, red] with the two black labels equal, the reduced upper
+-- word on the extreme exit and the bare middle exit have polynomial columns
+-- X₀ and 1 in the row indexed by w. Every other row vanishes.
+example (f : Fin 2 → P) :
+    (∑ a : Fin 2, (pol (f a) * ψw (upper a) * e (wordProd ν.card (leg a) • s)) * (ψw (leg a) * e s) : R) = 0 ↔
+      f 0 * X leftPos + f 1 = 0 := by
+  rw [exit_polynomial_matrix_iff hQ ρ hρ Finset.univ s upper leg f]
+  have extreme := twoBlack_extreme_middle (Q := Q) s 0 (by decide) (by decide) (by decide) (by decide)
+  rw [blackDot] at extreme
+  have plain (t) := exitPolynomial_normal hQ ρ hρ s s t w (1 : P)
+  simp only [hw, map_one, one_mul, true_and] at plain
+  simp only [Fin.sum_univ_two]
+  change (∀ t, f 0 * exitPolynomial hQ ρ hρ s t (ψw ([0, 1] ++ [0, 1, 2]) * e s) +
+    f 1 * exitPolynomial hQ ρ hρ s t (ψw middle * e s) = 0) ↔ _
+  rw [extreme]
+  change (∀ t, f 0 * exitPolynomial hQ ρ hρ s t (pol (X leftPos) * (ψw middle * e s)) +
+    f 1 * exitPolynomial hQ ρ hρ s t (ψw middle * e s) = 0) ↔ _
+  simp only [exitPolynomial_pol_mul, plain]
+  constructor
+  · intro h; simpa only [ite_true, mul_one] using h w
+  · intro h t; by_cases ht : w = t <;> simp [ht, h]
+
+end NonVacuity.ExitPolynomialMatrix
+end
+
 namespace NonVacuity.WebsterBraidFiltration
 
 open Categorification Categorification.KLR Categorification.Stendhal

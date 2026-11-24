@@ -97,6 +97,38 @@ private theorem ordinaryImage (z : R) :
     StendhalAlgebraAllOrders.isIdempotentElem_redOrderedIdem.eq]
 
 include word order step in
+/-- Right cancellation up to a loading idempotent in the violated quotient
+supplies the ordinary crossing test under the canonical corner equivalence. -/
+theorem ordinary_crossing_test_of_violated_cancel
+    (hQ : KLRSymm Q)
+    (cancel : ∀ y : V, y * π (ψ j * KLRAlgebra.e source) = 0 → y * p higher = 0)
+    (x : TensorProductAlgebra k Q Λ ν)
+    (hx : x * tensorOfKLR Q Λ ν (KLRAlgebra.e higher) = x)
+    (hy : x * tensorOfKLR Q Λ ν (ψ j * KLRAlgebra.e source) = 0) : x = 0 := by
+  let ρ := TypeA.canWord (Multiset.card (stendhalWeight ℓ ν))
+  have hρ : IsReducedChoice ρ := fun w => ⟨isReduced_canWord _ w, wordProd_canWord _ w⟩
+  let q := violCornerEquiv (ν := ν) (Λ := Λ) hρ hQ
+  let y := q.symm x
+  have hxy : q y = x := q.apply_symm_apply x
+  have himg (z : R) : q (cornerImage Q Λ z) = tensorOfKLR Q Λ ν z :=
+    (violCornerEquiv_violCornerHom hρ hQ (cornerMk (ofKLR k Q Λ ν z))).trans (ordinaryImage Q Λ z)
+  have hz : y * cornerImage Q Λ (ψ j * KLRAlgebra.e source) = 0 := by
+    apply q.injective
+    rw [map_mul, himg, hxy, hy, map_zero]
+  have hraw : y.1 * π (ψ j * KLRAlgebra.e source) = 0 := by
+    rw [← cornerImage_cross Q Λ word order j step]
+    exact congrArg Subtype.val hz
+  have hproj : y * cornerImage Q Λ (KLRAlgebra.e higher) = 0 := by
+    apply Subtype.ext
+    change y.1 * (cornerImage Q Λ (KLRAlgebra.e higher)).1 = 0
+    rw [cornerImage_idem Q Λ word order]
+    exact cancel y.1 hraw
+  calc
+    x = x * tensorOfKLR Q Λ ν (KLRAlgebra.e higher) := hx.symm
+    _ = q (y * cornerImage Q Λ (KLRAlgebra.e higher)) := by rw [map_mul, hxy, himg]
+    _ = 0 := by rw [hproj, map_zero]
+
+include word order step in
 /-- The ordinary right multiplication test gives cancellation of crossing
 multiplication when the input has the canonical red order and the higher source cut. -/
 theorem eq_zero_of_crossing_mul_of_corner

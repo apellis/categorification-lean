@@ -65,6 +65,20 @@ private theorem violated_descent {d : I} (hi : s.lbl ⟨j+1,hj⟩ = .inl d)
   apply lt_of_le_of_ne (by rw [h0]; exact Nat.zero_le _)
   exact w.injective.ne (by intro h; have := congrArg Fin.val h; simp at this)
 
+
+/-- A single black strand can cancel its left exit in the violated quotient
+whenever the coefficient is supported on the crossed loading. -/
+theorem firstWeight_viol_exit_cross_cancel (hQ : KLRSymm Q) {d : I}
+    (hi : s.lbl ⟨j + 1, hj⟩ = .inl d)
+    (z : V) (hz : z * c = 0) : z * p v = 0 := by
+  obtain ⟨r, hr⟩ : ∃ r, s.lbl ⟨j, by omega⟩ = .inr r := by
+    cases h : s.lbl ⟨j, by omega⟩ with
+    | inl d' =>
+      have eq := congrArg Fin.val (only_black i s h hi)
+      simp at eq
+    | inr r => exact ⟨r, rfl⟩
+  exact viol_exit_cross_cancel Q Λ s j hj hQ d r hr hi (violated_descent i s j hj hi) z hz
+
 private theorem higher_descent {d : I} {r : Fin ℓ} (hr : s.lbl ⟨j,by omega⟩ = .inr r)
     (hi : s.lbl ⟨j+1,hj⟩ = .inl d) (hs : redWord s = κ) (hn : ¬α < root s)
     (u : KLR.Seq μ) (ho : redWord u = κ) (hh : α < root u) (w : Perm (Fin m)) (hw : w • s = u) :

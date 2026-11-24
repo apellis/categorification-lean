@@ -63,7 +63,8 @@ private theorem q_ord : q = TensorProductAlgebra.mk Q wt ν
   apply Subtype.ext
   exact (e_mul_redOrderedIdem middle).trans (ite_eq_left middleOrdered)
 
-private theorem p_add_q : p + q = 1 := by
+/-- The two surviving loading idempotents sum to the unit in the one-black block. -/
+theorem terminalIdem_add_middleIdem : p + q = 1 := by
   classical
   have hsum : (∑ s : Seq μ, project (e s)) = 1 := by
     change (∑ s : Seq μ, π (KLRAlgebra.e s)) = 1
@@ -223,7 +224,7 @@ private theorem character_dot : terminalCharacter d = 0 := by
   have h := congrArg terminalCharacter d_mul_d
   simpa only [map_mul, map_zero, mul_eq_zero, or_self] using h
 
-/-- The smaller-cut trace in the fundamental coevaluation projective. -/
+/-- The trace of the middle loading in the terminal projective. -/
 abbrev fundamentalCutTrace : Submodule Tᵐᵒᵖ (rIdeal p) :=
   coevaluationTrace (fun _ : Unit => q)
 
@@ -249,7 +250,7 @@ private theorem right_corner_coordinates (x : rIdeal p) :
   exact ⟨b, ha ▸ h.symm⟩
 
 /-- For the two fundamental representations over `ℚ`, the kernel of the
-terminal loading character on the coevaluation projective is exactly the
+terminal loading character on the terminal projective is exactly the
 trace of the loading between the two red strands. -/
 theorem mem_fundamentalCutTrace_iff (x : rIdeal p) :
     x ∈ fundamentalCutTrace ↔ terminalCharacter x.val = 0 := by
@@ -273,10 +274,11 @@ theorem mem_fundamentalCutTrace_iff (x : rIdeal p) :
     have hsum : b • (⟨d, d_left⟩ : rIdeal p) + y = x := by
       apply Subtype.ext
       change b • d + x.val * q = x.val
-      rw [← hb, ← mul_add, p_add_q, mul_one]
+      rw [← hb, ← mul_add, terminalIdem_add_middleIdem, mul_one]
     exact hsum ▸ fundamentalCutTrace.add_mem hd hy
 
-private theorem corner_inverse (x : rIdeal p) (hx : terminalCharacter x.val ≠ 0) :
+/-- Any terminal ideal vector with nonzero character generates the terminal ideal. -/
+theorem exists_mul_eq_terminalIdem (x : rIdeal p) (hx : terminalCharacter x.val ≠ 0) :
     ∃ z : T, x.val * z = p := by
   let a := terminalCharacter x.val
   obtain ⟨b, hb⟩ := right_corner_coordinates x
@@ -322,7 +324,7 @@ theorem fundamentalCutTrace_eq_iff_simpleQuotient (N : Submodule Tᵐᵒᵖ (rId
     N = fundamentalCutTrace ↔ IsSimpleModule Tᵐᵒᵖ (rIdeal p ⧸ N) :=
   coevaluationTrace_eq_iff_simpleQuotient hp _ terminalCharacter.toRingHom
     terminalCharacter_terminalIdem (fun _ => terminalCharacter_middleIdem)
-    (fun x => (mem_fundamentalCutTrace_iff x).mpr) corner_inverse N
+    (fun x => (mem_fundamentalCutTrace_iff x).mpr) exists_mul_eq_terminalIdem N
 
 section Resolution
 
@@ -335,17 +337,19 @@ private theorem cross_middle : u = p * C := by
   have h := congrArg π (KLRAlgebra.ψ_mul_e (Q := stendhalQ Q wt) 1 middle)
   simpa only [hswap, map_mul, AlgHom.comp_apply, ψ, e] using h
 
-private theorem cross_terminal : v = q * C := by
+/-- The mixed crossing starting at the terminal loading ends at the middle loading. -/
+theorem terminalCrossing_eq_middle_mul : v = q * C := by
   have hswap : sadj (Multiset.card μ) 1 • terminal = middle := by decide +kernel
   have h := congrArg π (KLRAlgebra.ψ_mul_e (Q := stendhalQ Q wt) 1 terminal)
   simpa only [hswap, map_mul, AlgHom.comp_apply, ψ, e] using h
 
-private theorem middle_cross_bigon : u * v = d := by
+/-- Crossing to the middle loading and back gives the terminal black dot. -/
+theorem mixedBigon_terminal : u * v = d := by
   have h := ψ_sq_red_black (Q := Q) (Λ := wt) 1 (by decide) terminal () 1 rfl rfl
   simp only [wt, Finsupp.single_eq_same, pow_one] at h
   calc
     u * v = C * C * p := by
-      rw [mul_assoc C q v, cross_terminal, ← mul_assoc q q, hq.eq, ← cross_terminal, ← mul_assoc]
+      rw [mul_assoc C q v, terminalCrossing_eq_middle_mul, ← mul_assoc q q, hq.eq, ← terminalCrossing_eq_middle_mul, ← mul_assoc]
     _ = d := by rw [← map_mul, ← map_mul, h]
 
 /-- The differential between the two loading projectives is the single mixed
@@ -367,18 +371,18 @@ theorem fundamentalResolutionMap_injective : Function.Injective fundamentalResol
   change q * x.val * p = b • v at hb
   rw [x.property] at ha hb
   have hd : u * x.val * p = b • d := by
-    rw [mul_assoc, hb, mul_smul_comm, middle_cross_bigon]
+    rw [mul_assoc, hb, mul_smul_comm, mixedBigon_terminal]
   have hu : u * x.val * q = a • u := by
     rw [mul_assoc, ha, mul_smul_comm, mul_assoc, hq.eq]
   rw [h, zero_mul] at hd hu
   have hdn : d ≠ 0 := dot_ne_zero
-  have hun : u ≠ 0 := fun hz => hdn (by rw [← middle_cross_bigon, hz, zero_mul])
+  have hun : u ≠ 0 := fun hz => hdn (by rw [← mixedBigon_terminal, hz, zero_mul])
   have ha0 : a = 0 := (smul_eq_zero.mp hu.symm).resolve_right hun
   have hb0 : b = 0 := (smul_eq_zero.mp hd.symm).resolve_right hdn
   apply Subtype.ext
   change x.val = 0
   calc
-    x.val = x.val * p + x.val * q := by rw [← mul_add, p_add_q, mul_one]
+    x.val = x.val * p + x.val * q := by rw [← mul_add, terminalIdem_add_middleIdem, mul_one]
     _ = 0 := by rw [ha, hb, ha0, hb0, zero_smul, zero_smul, zero_add]
 
 /-- The image of the mixed crossing is exactly the smaller-cut trace. -/
@@ -398,11 +402,11 @@ theorem fundamentalResolutionMap_range :
     rw [x.property] at hb
     let y : rIdeal q := ⟨b • q + a • v, by
       change q * (b • q + a • v) = b • q + a • v
-      rw [mul_add, mul_smul_comm, hq.eq, mul_smul_comm, cross_terminal, ← mul_assoc, hq.eq]⟩
+      rw [mul_add, mul_smul_comm, hq.eq, mul_smul_comm, terminalCrossing_eq_middle_mul, ← mul_assoc, hq.eq]⟩
     refine ⟨y, Subtype.ext ?_⟩
     change u * (b • q + a • v) = x.val
-    rw [mul_add, mul_smul_comm, mul_assoc C q q, hq.eq, mul_smul_comm, middle_cross_bigon,
-      ← hb, ← ha, ← mul_add, add_comm q p, p_add_q, mul_one]
+    rw [mul_add, mul_smul_comm, mul_assoc C q q, hq.eq, mul_smul_comm, mixedBigon_terminal,
+      ← hb, ← ha, ← mul_add, add_comm q p, terminalIdem_add_middleIdem, mul_one]
 
 /-- The fundamental terminal-character simple admits a length-one resolution
 by the two loading projectives. This gives a rank-one benchmark for the
@@ -444,7 +448,7 @@ theorem fundamentalMiddleHom_eq_zero
 
 open CategoryTheory
 
-/-- The coevaluation simple as a right module. -/
+/-- The terminal simple as a right module. -/
 abbrev fundamentalTerminalSimple : ModuleCat.{0} Tᵐᵒᵖ :=
   ModuleCat.of Tᵐᵒᵖ (rIdeal p ⧸ fundamentalCutTrace)
 

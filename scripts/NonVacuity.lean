@@ -8872,6 +8872,38 @@ local instance : CatModule.HasDerivedCategory.{1,0} (WeightCategory Tᵐᵒᵖ) 
 example := gradedFundamentalCup
 example := gradedFundamentalCap
 
+example : gradedMiddleCharacter (MulOpposite.op middleIdem) = 1 := middleCharacter_middleIdem
+example : gradedMiddleCharacter (MulOpposite.op terminalIdem) = 0 := middleCharacter_terminalIdem
+example := gradedMiddleSimple_headEquiv
+example := normalizedMiddleSimple_line
+example : Subsingleton (normalizedMiddleSimple.obj ⟨0⟩) := normalizedMiddleSimple_subsingleton 0 (by decide)
+example := gradedMiddleCapCupAdjunction
+example := gradedMiddleCup_fieldIso
+example := gradedMiddleCap_middleIso
+example := gradedMiddleCap_terminal_isZero
+
+example := middleResolution_maps_degree 2
+example := middleResolution_exact_terminal 2
+example := middleResolution_exact_middle 1
+example := middleResolution_augmentation_surjective 0 1 (Or.inl rfl)
+example := gradedMiddleComplex_exact ⟨0⟩
+example := gradedMiddleComplex_exact ⟨2⟩
+example := gradedMiddleCap_shiftedMiddleIso 2
+example := gradedMiddleCap_shiftedTerminal_isZero 1
+example := gradedMiddleCap_simpleIso
+example := gradedMiddleCap_shiftedSimpleIso 1
+example := gradedMiddleCupCap_fieldIso
+example := gradedMiddleCup_scalarIso (-2)
+example := gradedMiddleCupCap_scalarIso 3
+example := gradedMiddleCupCap_shiftedScalarIso (-2) 4
+example := fundamentalTraceCoefficient_line (-2)
+example := fundamentalTraceCoefficient_off_diagonal 1 0 (by decide)
+example := gradedFundamentalQuantumTraceIso
+example := gradedFundamentalClockwiseCircleIso
+example := gradedFundamentalClockwiseCircle_shiftedIso (-2) 4
+example := compactScalarLine_class (-1)
+example := fundamentalClockwiseCircle_class
+
 end
 
 end NonVacuity.WebsterGradedFundamentalCup
@@ -8950,6 +8982,51 @@ end NonVacuity.WebsterFundamentalDerivedCircle
 
 end
 
+noncomputable section
+namespace NonVacuity.WebsterMiddleCutEvaluation
+open CategoryTheory CategoryTheory.Limits DG Categorification Categorification.Stendhal FundamentalCorner
+open scoped DG.DegreeZero
+attribute [local instance 1100] IsIdempotentElem.instAlgebraCorner_categorification
+local notation "T" => TensorProductAlgebra ℚ Q wt ({()} : Multiset Unit)
+local instance : DG.HasDerivedCategory.{1,0} ℚ := DG.HasDerivedCategory.standard ℚ
+local instance : DG.HasDerivedCategory.{1,0} Tᵐᵒᵖ := DG.HasDerivedCategory.standard Tᵐᵒᵖ
+local instance : CatModule.HasDerivedCategory.{1,0} (SingleObj ℚ) :=
+  CatModule.HasDerivedCategory.standard (SingleObj ℚ)
+local instance : CatModule.HasDerivedCategory.{1,0} (SingleObj Tᵐᵒᵖ) :=
+  CatModule.HasDerivedCategory.standard (SingleObj Tᵐᵒᵖ)
+
+example : blackCount middle 1 () = 1 ∧ blackCount terminal 1 () = 0 :=
+  ⟨middle_terminal_cuts.2.1, middle_terminal_cuts.2.2.2⟩
+
+example : IsSimpleModule Tᵐᵒᵖ (rIdeal middleIdem ⧸ middleCutTrace) :=
+  (middleCutTrace_eq_iff_simpleQuotient middleCutTrace).mp rfl
+
+example := middleQuotientDualEquiv
+example := middleCapCupAdjunction
+example := middleCup_fieldIso
+example := middleAdjointCap_middleIso
+example := middleAdjointCap_terminal_isZero
+example := middleProjectiveResolution
+example := middleAdjointCap_middleSimpleIso
+example := middleCupCap_fieldIso
+
+local notation "cap" => Coevaluation.capBimoduleFunctor ℚ T MiddleCoefficient
+local notation "headObj" => DG.DerivedCategory.Q.obj
+  (DGModuleCat.of Tᵐᵒᵖ (InDegreeZero (rIdeal middleIdem ⧸ middleCutTrace)))
+
+example : DG.DerivedCategory.finrankHomology ℚ (-2) ((cap).obj headObj) = 1 := by
+  simpa using middleTor_finrank.{1} 2
+
+example : DG.DerivedCategory.finrankHomology ℚ (-1) ((cap).obj headObj) = 0 := by
+  simpa using middleTor_finrank.{1} 1
+
+example : DG.DerivedCategory.finrankHomology ℚ (-1)
+    ((middleCup ⋙ (cap)).obj (DG.DerivedCategory.Q.obj (DGModuleCat.of ℚ ℚ))) = 1 := by
+  simpa using middleCupCap_finrank.{1} (-1)
+
+end NonVacuity.WebsterMiddleCutEvaluation
+end
+
 namespace NonVacuity.WebsterCupRHomRegular
 
 open CategoryTheory DG MulOpposite Categorification.Stendhal.Coevaluation
@@ -9004,6 +9081,20 @@ example := diagramWeightDerivedTensorObjIsoOfResolution (fun j => DG.grading (M 
     change CatModule.IsQuasiIso (tensor.map (𝟙 Rep))
     rw [tensor.map_id Rep]
     exact CatModule.isQuasiIso_id _)
+
+
+example : CatModule.IsQuasiIso (𝟙 ((diagramWeightBimodule
+    (fun j => DG.grading (M := ℚ) j) leftAction rightAction).left (⟨0⟩ : WeightCategory ℚ))) := by
+  let G := fun j => DG.grading (M := ℚ) j
+  let Z : WeightCategory ℚ := ⟨0⟩
+  let N := (diagramWeightBimodule G leftAction rightAction).left Z
+  exact diagramWeightLeft_isQuasiIso_of_cohomology G leftAction rightAction (Iso.refl N) (𝟙 N)
+    (fun X => CatModule.isQuasiIso_id N X 0)
+    (fun X n hn => diagramWeightLeft_cohomology_subsingleton G leftAction rightAction X Z hn)
+
+
+example := diagramWeightDerivedTensorRepresentableIso (fun j => DG.grading (M := ℚ) j)
+  leftAction rightAction (⟨1⟩ : WeightCategory ℚ)
 
 end
 
@@ -9268,3 +9359,13 @@ example :
 
 end NonVacuity.WebsterActualBraidKernel
 end
+
+
+namespace NonVacuity.WebsterUnitParameters
+
+noncomputable example :=
+  Categorification.Stendhal.tensorProductUnitParameterEquiv
+    (k := ℚ) (P := fun _ _ => 0) (P' := fun _ _ => 1)
+    (fun _ : Fin 2 => Finsupp.single () 2) ({(), ()} : Multiset Unit)
+
+end NonVacuity.WebsterUnitParameters

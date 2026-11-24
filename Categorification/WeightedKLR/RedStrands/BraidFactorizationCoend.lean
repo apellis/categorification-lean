@@ -174,6 +174,34 @@ def braidFactorizationCoendEquiv (hρ : IsReducedChoice ρ)
   intro X Z
   exact AddEquiv.ofBijective _ (braidFactorizationCoend_bijective C hQ hρ h0 hp H X Z)
 
+/-- The ordinary graded braid factorization as a natural isomorphism of dg module families. -/
+def braidFactorizationCoendNatIso (hρ : IsReducedChoice ρ)
+    (h0 : lower.Nodup) (hp : lower.Perm middle)
+    (H : ∀ x y, [x, y] <+ lower → [y, x] <+ middle → [y, x] <+ upper) :
+    letI := Graded.cornerGradedAlgebra V (hE upper) (H₀ upper)
+    letI := Graded.cornerGradedAlgebra V (hE middle) (H₀ middle)
+    letI := Graded.cornerGradedAlgebra V (hE lower) (H₀ lower)
+    letI := gradedAlgebraInternalGrading (S upper)
+    letI := gradedAlgebraInternalGrading (S middle)
+    letI := gradedAlgebraInternalGrading (S lower)
+    letI := gradedAlgebraBigradedDGRing (S upper)
+    letI := gradedAlgebraBigradedDGRing (S middle)
+    letI := gradedAlgebraBigradedDGRing (S lower)
+    diagramCornerWeightRightFamily V (hE upper) (hE middle) (H₀ upper) (H₀ middle) ⋙
+      (diagramCornerWeightRightBimodule V (hE middle) (hE lower) (H₀ middle) (H₀ lower)).tensorFunctor ≅
+        diagramCornerWeightRightFamily V (hE upper) (hE lower) (H₀ upper) (H₀ lower) := by
+  letI := Graded.cornerGradedAlgebra V (hE upper) (H₀ upper)
+  letI := Graded.cornerGradedAlgebra V (hE middle) (H₀ middle)
+  letI := Graded.cornerGradedAlgebra V (hE lower) (H₀ lower)
+  letI := gradedAlgebraInternalGrading (S upper)
+  letI := gradedAlgebraInternalGrading (S middle)
+  letI := gradedAlgebraInternalGrading (S lower)
+  letI := gradedAlgebraBigradedDGRing (S upper)
+  letI := gradedAlgebraBigradedDGRing (S middle)
+  letI := gradedAlgebraBigradedDGRing (S lower)
+  exact diagramCornerWeightRightCoendNatIso V (hE upper) (hE middle) (hE lower)
+    (H₀ upper) (H₀ middle) (H₀ lower) (braidFactorizationCoend_bijective C hQ hρ h0 hp H)
+
 end Graded
 
 end Categorification.Stendhal.BraidedStendhalAlgebra

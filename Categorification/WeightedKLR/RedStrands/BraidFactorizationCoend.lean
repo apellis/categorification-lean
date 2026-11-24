@@ -17,7 +17,7 @@ noncomputable section
 
 namespace Categorification.Stendhal.BraidedStendhalAlgebra
 
-open KLR TypeA Equiv
+open KLR TypeA Equiv CategoryTheory
 open scoped List
 
 variable {I : Type} [DecidableEq I] {k : Type*} [Field k] {ℓ : ℕ}

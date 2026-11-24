@@ -491,8 +491,8 @@ def diagramCornerWeightRightCoendNatIso :
     letI := gradedAlgebraBigradedDGRing (OW h₀)
     (∀ (X : WeightCategory h₀.Cornerᵐᵒᵖ) (Z : WeightCategory h₂.Cornerᵐᵒᵖ),
       Function.Bijective (diagramCornerWeightRightCoendProduct G h₂ h₁ he₂ he₁ h₀ he₀ X Z)) →
-    diagramCornerWeightRightFamily G h₂ h₁ he₂ he₁ ⋙ (D₁).tensorFunctor ≅
-      diagramCornerWeightRightFamily G h₂ h₀ he₂ he₀ := by
+    (diagramCornerWeightRightFamily G h₂ h₁ he₂ he₁ ⋙ (D₁).tensorFunctor ≅
+      diagramCornerWeightRightFamily G h₂ h₀ he₂ he₀) := by
   letI := Graded.cornerGradedAlgebra G h₂ he₂
   letI := Graded.cornerGradedAlgebra G h₁ he₁
   letI := Graded.cornerGradedAlgebra G h₀ he₀

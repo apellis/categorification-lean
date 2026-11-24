@@ -6820,3 +6820,16 @@ private noncomputable abbrev Λ : Fin 1 → Unit →₀ ℕ := fun _ => Finsupp.
 example := oneBlack_extremal_projective_simple Q Λ () (by simp [Λ])
 
 end NonVacuity.WebsterSingleBlackExtremal
+
+namespace NonVacuity.WebsterTerminalCyclotomic
+
+open Categorification.KLR.CycKLR
+
+private noncomputable abbrev Q : Unit → Unit → MvPolynomial (Fin 2) ℚ := fun _ _ => 0
+
+example := terminalCoinvModule_simple (ν := Multiset.replicate 2 ())
+  (i := ()) (fun j _ => Subsingleton.elim j ()) Q
+
+example := twoBlack_terminal_relations Q
+
+end NonVacuity.WebsterTerminalCyclotomic

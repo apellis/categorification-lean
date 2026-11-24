@@ -640,6 +640,7 @@ import Categorification.KLR.ResProjGraded
 import Categorification.KLR.Restriction
 import Categorification.KLR.Simple
 import Categorification.KLR.SimpleNilHecke
+import Categorification.KLR.CyclotomicTerminal
 import Categorification.KLR.Spanning
 import Categorification.KLR.SymGdim
 import Categorification.KLR.Symmetries

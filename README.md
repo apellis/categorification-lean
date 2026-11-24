@@ -1002,7 +1002,12 @@ roots this determines the multiplicities
 (`Stendhal.coevaluationWord_multiplicities_eq`). For Proposition 7.2, a single
 red with coroot pairing one gives a simple projective at the red-first
 one-black loading (`Stendhal.oneBlack_extremal_projective_simple`).
-The higher multiplicities and multi-letter words remain open.
+In any saturated one-colour content the coinvariant module gives a simple
+module over the terminal cyclotomic quotient
+(`KLR.CycKLR.terminalCoinvModule_simple`). At weight two the generators satisfy
+the matrix-unit relations (`KLR.CycKLR.twoBlack_terminal_relations`).
+Identifying the divided-power projective at higher multiplicities and for
+multi-letter words remains open.
 
 ### Weak `sl₂`-categorifications (Chuang–Rouquier, arXiv:math/0407205v2, §5)
 

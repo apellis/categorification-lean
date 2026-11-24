@@ -8998,6 +8998,29 @@ example := diagramWeightOrdinaryProjection_tmul G G leftAction rightAction leftA
   (⟨1, InDegreeZero.ring_mem_grading_zero (1 : ℚ)⟩ : G 0)
   (⟨1, InDegreeZero.ring_mem_grading_zero (1 : ℚ)⟩ : G 0)
 
+example := CornerTensor.liftAdd (k := ℚ) (1 : ℚ) 1 1 product
+  (fun c x y => by change (c * x) * y = x * (c * y); ring)
+  (fun x y => by simp)
+  (fun x c y => by change (x * (1 * c * 1)) * y = x * ((1 * c * 1) * y); ring)
+
+private theorem unitIdempotent : IsIdempotentElem (1 : ℚ) := by simp [IsIdempotentElem]
+
+private abbrev UnitCorner := cornerBimodule (1 : ℚ) 1
+
+private def projectedProduct : UnitCorner →+ UnitCorner →+ ℚ :=
+  ((product.flip).compl₂ (cornerBimodule (1 : ℚ) 1).subtype).comp
+    (cornerBimodule (1 : ℚ) 1).subtype
+
+private theorem projectedProduct_balanced (b : unitIdempotent.Corner) (x y : UnitCorner) :
+    projectedProduct (b • x) y = projectedProduct x (op b • y) := by
+  change y.val * (b.val * x.val) = (y.val * b.val) * x.val
+  exact (mul_assoc _ _ _).symm
+
+example := cornerTensorCutLift_tmul (k := ℚ) unitIdempotent unitIdempotent unitIdempotent
+  projectedProduct projectedProduct_balanced
+  (cornerSandwichAdd unitIdempotent unitIdempotent (1 : ℚ))
+  (cornerSandwichAdd unitIdempotent unitIdempotent (1 : ℚ))
+
 end
 
 end NonVacuity.WebsterWeightCoend

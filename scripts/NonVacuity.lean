@@ -5933,6 +5933,14 @@ example := KLR.CycKLR.finrank_coevaluation_projectiveBlock CyclotomicHighestWeig
     rw [P.root_coroot]
     rfl) [()] reduced
 
+/-- There is no weight above the highest weight in the outgoing simple-root direction. -/
+example := classical_weightSpace_raise_extremal_eq_bot P generalized (weight : Module.Dual ℝ _) dominant
+  1 () (by simp [CoxeterSystem.IsLeftDescent])
+
+/-- The actual complete three-step string scalar at the quantum parameter is one. -/
+example := polCoef_endpoint (q := (RatFunc.X : RatFunc ℚ)) RatFunc.X_ne_zero
+  (fun _ hn => LieLean.LusztigF.pow_ne_one_of_transcendental LieLean.LusztigF.transcendental_ratFunc_X hn) 3
+
 end
 
 end NonVacuity.WebsterReducedCoevaluationWord

@@ -1015,7 +1015,10 @@ coevaluation word have dimension one
 (`Stendhal.finrank_quantum_coevaluationWeight`). For every content the
 cyclotomic projective rank equals its quantum weight multiplicity. In
 particular the cyclotomic coevaluation block has Laurent rank one
-(`CycKLR.finrank_coevaluation_projectiveBlock`). The normalized
+(`CycKLR.finrank_coevaluation_projectiveBlock`). At a positive Weyl step
+the raised weight space vanishes in the classical and quantum modules, and
+the full divided power preserves the Shapovalov norm on a bar-invariant
+primitive vector (`SingleBlack.websterForm_saturated_dividedPower`). The normalized
 Shapovalov pairings are still needed for general reflection words.
 
 ### Weak `sl₂`-categorifications (Chuang–Rouquier, arXiv:math/0407205v2, §5)

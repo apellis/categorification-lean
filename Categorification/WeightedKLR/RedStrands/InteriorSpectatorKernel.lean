@@ -303,9 +303,13 @@ private theorem interiorCrossingMap_of_threeRed_test
   apply eq_zero_of_mul_appendRedCrossing parameter weights νInterior hQ
     ThreeRedOneBlack.higher ThreeRedOneBlack.source threeHigherOrdered threeSourceOrdered
     2 (by decide) hbase x
-  · rw [appendHigher]
+  · change x * tensorOfKLR parameter weights νInterior
+      (KLRAlgebra.e (appendRedLoading ThreeRedOneBlack.higher)) = x
+    rw [appendHigher]
     exact hx
-  · rw [appendSource]
+  · change x * tensorOfKLR parameter weights νInterior
+      (ψ 2 * KLRAlgebra.e (appendRedLoading ThreeRedOneBlack.source)) = 0
+    rw [appendSource]
     exact hc
 
 end EarlierField

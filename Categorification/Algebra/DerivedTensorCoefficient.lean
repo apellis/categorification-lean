@@ -218,7 +218,6 @@ private instance homotopyOrdinaryTensorCoeffNat_commShift (f : M →ₗ[A] M')
     infer_instance
   exact commShift_of_whiskerLeft_obj_surjective q α (fun ⟨X⟩ => ⟨X,rfl⟩)
 
-set_option synthInstance.maxHeartbeats 300000 in
 instance derivedTensorCoefficientMap_commShift (f : M →ₗ[A] M')
     (hf : ∀ (b : B) (m : M), f (op b • m) = op b • f m) :
     NatTrans.CommShift (derivedTensorCoefficientMap f hf) ℤ := by

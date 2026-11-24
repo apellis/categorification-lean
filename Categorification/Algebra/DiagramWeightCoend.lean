@@ -108,4 +108,37 @@ theorem diagramWeightCoendProduct_d
   rw [InDegreeZero.d_apply, hx₀, hy₀, map_zero, AddMonoidHom.zero_apply, map_zero,
     smul_zero, add_zero]
 
+variable [Module A P] [Module Cᵐᵒᵖ P] [SMulCommClass A Cᵐᵒᵖ P]
+  (hPL : ∀ {i j : ℤ} {a : A} {x : P}, a ∈ wgrading i → x ∈ L j → a • x ∈ L (i + j))
+  (hPR : ∀ {i j : ℤ} {c : C} {x : P}, c ∈ wgrading i → x ∈ L j → op c • x ∈ L (j + i))
+  (hβL : ∀ (a : A) (x : M) (y : N), β (a • x) y = a • β x y)
+
+local notation "D₃" => diagramWeightBimodule L hPL hPR
+local notation "F" => diagramWeightCoendProduct G H L hgL hgR hhL hhR β hw hb
+
+/-- A homogeneous balanced product commuting with the outer left action gives
+a dg map of the two tensor modules at the fixed right endpoint. -/
+def diagramWeightCoendProductHom : (D₁).tensorObj ((D₂).left Z) ⟶ (D₃).left Z where
+  app X := F X Z
+  map_mem' {_ _ _} h := diagramWeightCoendProduct_mem G H L hgL hgR hhL hhR β hw hb _ Z h
+  map_d' {X} x := diagramWeightCoendProduct_d G H L hgL hgR hhL hhR β hw hb X Z x
+  map_smul' {X X'} f t := by
+    let actIn : CatTensorProduct ((D₁).right X) ((D₂).left Z) →+
+        CatTensorProduct ((D₁).right X') ((D₂).left Z) :=
+      ((D₁).tensorObj ((D₂).left Z)).act f
+    let actOut : InDegreeZero (L (X.as - Z.as)) →+ InDegreeZero (L (X'.as - Z.as)) :=
+      ((D₃).left Z).act f
+    have he : (F X' Z).comp actIn = actOut.comp (F X Z) := by
+      apply CatTensorProduct.addHom_ext
+      intro Y x y
+      change (F X' Z) (((D₁).tensorObj ((D₂).left Z)).act f (CatTensorProduct.tmul Y x y)) =
+        ((D₃).left Z).act f ((F X Z) (CatTensorProduct.tmul Y x y))
+      rw [CatBimodule.tensorObj_act_tmul]
+      apply Subtype.ext
+      exact (diagramWeightCoendProduct_tmul G H L hgL hgR hhL hhR β hw hb X' Z Y
+        ((D₁).lact f x) y).trans ((hβL f.val x.val y.val).trans
+        (congrArg (fun z : P => f.val • z)
+          (diagramWeightCoendProduct_tmul G H L hgL hgR hhL hhR β hw hb X Z Y x y)).symm)
+    exact DFunLike.congr_fun he t
+
 end Categorification

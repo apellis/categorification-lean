@@ -1008,6 +1008,11 @@ categories, with a specified cohomological shift on the cup and a finite
 dimensional ordinary tensor-Hom comparison preserving the module action
 (`Stendhal.Coevaluation.shiftedCupFunctor`, `capFunctor`, and
 `cupTensorHomEquiv_op_tmul`). The normalized graded coevaluation remains open.
+For Definition 7.4, when twice the height or twice the inner-product
+functional changes sign at the endpoint, the length and symmetrizer sum
+of the coevaluation word compute the homological and internal shift numbers
+(`coevaluationWord_length_eq_twice_height` and
+`coevaluationWord_sum_symmetrizers_eq_twice_pairing`).
 
 The cup also has an ungraded derived Hom construction with the action
 by coefficient precomposition, with a dg Hom model on scalar inputs.

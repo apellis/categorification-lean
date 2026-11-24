@@ -1743,6 +1743,7 @@ import Categorification.WeightedKLR.Rigidity.CoevaluationWord
 import Categorification.WeightedKLR.Rigidity.CoevaluationTrace
 import Categorification.WeightedKLR.Rigidity.FundamentalCoevaluation
 import Categorification.WeightedKLR.Rigidity.ReducedCoevaluationWord
+import Categorification.WeightedKLR.Rigidity.CoevaluationShifts
 import Categorification.WeightedKLR.Rigidity.DerivedCupCap
 import Categorification.WeightedKLR.Rigidity.DerivedCupHom
 import Categorification.WeightedKLR.Rigidity.DerivedCupRegular

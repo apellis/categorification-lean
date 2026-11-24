@@ -5926,6 +5926,32 @@ end
 
 end NonVacuity.WebsterReducedCoevaluationWord
 
+namespace NonVacuity.WebsterCoevaluationShift
+
+open Categorification.Stendhal
+
+private def datum : _root_.CartanDatum Unit ℤ where
+  root := fun _ => 2
+  coroot := fun _ => LinearMap.id
+  coroot_root_self := fun _ => rfl
+
+private theorem nonnegative : NonnegativeReflectionPath datum 3 [()] :=
+  ⟨by change (0 : ℤ) ≤ 3; decide, trivial⟩
+
+private theorem final : (AddMonoidHom.id ℤ)
+    ([()].foldl (fun μ i => datum.reflection i μ) 3) = - (AddMonoidHom.id ℤ) 3 := by
+  decide
+
+example : ((coevaluationWord datum 3 [()]).length : ℤ) = 3 :=
+  coevaluationWord_length_eq_twice_height datum (AddMonoidHom.id ℤ) (fun _ => rfl)
+    3 [()] nonnegative final
+
+example : ((coevaluationWord datum 3 [()]).map (fun _ => (1 : ℤ))).sum = 3 :=
+  coevaluationWord_sum_symmetrizers_eq_twice_pairing datum (AddMonoidHom.id ℤ)
+    (fun _ => 1) (fun _ => rfl) 3 [()] nonnegative final
+
+end NonVacuity.WebsterCoevaluationShift
+
 namespace NonVacuity.WebsterSingleBlackExtremal
 
 open Categorification.Stendhal

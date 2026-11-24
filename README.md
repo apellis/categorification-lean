@@ -1069,6 +1069,9 @@ such corners at their generator weights
 The ordered loading resolution has a graded augmentation that is a
 quasi-isomorphism to the homogeneous standard
 (`orderedWeightDgAugmentation_quasiIso`).
+The ordered model's higher loading support implies derived tensor concentration
+when those loadings annihilate the coefficient filtration layers (Webster Lemma 6.11,
+`orderedWeightDerivedTensor_cohomology_isZero_of_filtered_loading_support`).
 
 A balanced homogeneous multiplication of two
 coefficients induces their product from the intermediate weight-category

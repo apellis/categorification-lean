@@ -10495,6 +10495,45 @@ example : CatModule.IsKProjective
   orderedWeightDgResolution_isKProjective data false eGrade eIdem aboveTrans
     rankOneStandardGrade quotientGrade
 
+local instance instOrderedDerivedRationalWeight :
+    CatModule.HasDerivedCategory.{1,0} (WeightCategory ℚ) :=
+  CatModule.HasDerivedCategory.standard _
+
+private theorem rightQuotientGrade ⦃j : ℤ⦄ ⦃x : P⦄ (hx : x.val ∈ wgrading j) :
+    data.quotient true x ∈ degreeZeroGrading (S true) j := by
+  change x ∈ degreeZeroGrading P j
+  rcases (mem_degreeZeroGrading_iff ℚ).mp hx with h | h
+  · exact (mem_degreeZeroGrading_iff P).mpr (Or.inl h)
+  · exact (mem_degreeZeroGrading_iff P).mpr (Or.inr (Subtype.ext h))
+
+private theorem nonzeroStandardSmul {i j : ℤ} {a : ℚ} {x : S true}
+    (ha : a ∈ wgrading i) (hx : x ∈ degreeZeroGrading (S true) j) :
+    a • x ∈ degreeZeroGrading (S true) (i+j) := by
+  rcases (mem_degreeZeroGrading_iff ℚ).mp ha with hi | rfl
+  · rcases (mem_degreeZeroGrading_iff _).mp hx with hj | rfl
+    · exact (mem_degreeZeroGrading_iff _).mpr (Or.inl (by omega))
+    · rw [smul_zero]; exact zero_mem _
+  · rw [zero_smul]; exact zero_mem _
+
+private theorem filteredCoefficient : HasFiltration
+    (fun _ : Unit => ModuleCat.of ℚᵐᵒᵖ ℚ) [()] (ModuleCat.of ℚᵐᵒᵖ ℚ) :=
+  HasFiltration.single (c := ()) (LinearEquiv.refl ℚᵐᵒᵖ ℚ)
+
+private theorem filteredRationalLeft {i j : ℤ} {a x : ℚ}
+    (ha : a ∈ wgrading i) (hx : x ∈ DG.grading j) :
+    a • x ∈ DG.grading (i+j) := mul_mem_grading ha hx
+
+private theorem filteredRationalRight {i j : ℤ} {b x : ℚ}
+    (hb : b ∈ wgrading i) (hx : x ∈ DG.grading j) :
+    MulOpposite.op b • x ∈ DG.grading (j+i) := mul_mem_grading hx hb
+
+example := orderedWeightDerivedTensor_cohomology_isZero_of_filtered_loading_support
+  data true eGrade eIdem aboveTrans (degreeZeroGrading (S true))
+  nonzeroStandardSmul rightQuotientGrade (fun j => DG.grading (M := ℚ) j)
+  filteredRationalLeft filteredRationalRight filteredCoefficient
+  (by intro i hi; exact False.elim (Bool.noConfusion hi.1))
+  (⟨0⟩ : WeightCategory ℚ) (-1) (by decide)
+
 end NonVacuity.WebsterOrderedGradedResolution
 
 end

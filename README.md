@@ -1068,7 +1068,11 @@ its individual terms, placed in their cohomological degrees, are K-projective
 (`diagramWeightModuleOfComplex_isKProjective`). The ordered loading resolution meets this criterion because its
 cohomological pieces are representable loading corners or direct sums of
 such corners at their generator weights
-(`orderedWeightDgResolution_isKProjective`).
+(`orderedWeightDgResolution_isKProjective`). At a diagrammatic left loading standard, the graded
+quotient and the higher trace filtrations supply the ordered K-projective
+model and its quasi-isomorphic augmentation
+(`leftStandardOrderedWeightResolution_isKProjective`,
+`leftStandardOrderedWeightAugmentation_quasiIso`).
 
 A balanced homogeneous multiplication of two
 coefficients induces their product from the intermediate weight-category

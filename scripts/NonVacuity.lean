@@ -8298,3 +8298,17 @@ noncomputable example := postTensorHomologyPositiveEven (k := ℚ) 1
   (by simp) (by decide)
 
 end NonVacuity.WebsterLabelTwoUnknot
+
+namespace NonVacuity.WebsterLabelTwoPolynomialPresentation
+
+open Categorification.Webster.LabelTwo
+
+example : middlePolynomialEquiv ℤ (squareQuotientVariable ℤ 0) = y₁ :=
+  middlePolynomialEquiv_variable_zero ℤ
+
+example : middlePolynomialEquiv ℤ (squareQuotientVariable ℤ 1) = y₂ :=
+  middlePolynomialEquiv_variable_one ℤ
+
+noncomputable example := specializedQuotientEquiv ℤ
+
+end NonVacuity.WebsterLabelTwoPolynomialPresentation

@@ -56,6 +56,7 @@ variable {ρ : Equiv.Perm (Fin (Multiset.card μ)) → List ℕ}
 
 local notation "κ" => List.map σ (List.finRange ℓ)
 
+include hρ hQ in
 /-- A loading strictly above the support of the reflected standard filtration
 annihilates the braid coefficient. -/
 theorem violLoadingIdem_mul_braidingBimodule_eq_zero_of_filtration_le
@@ -361,8 +362,15 @@ def reflectedStandardWeightBraidingCohomology (κ' : List (Fin ℓ)) :
     ∀ [CatModule.HasDerivedCategory.{v,0} (WeightCategory (hE).Cornerᵐᵒᵖ)]
       [CatModule.HasDerivedCategory.{v,0}
         (WeightCategory (isIdempotentElem_violMk_redProj k Q Λ ν κ').Cornerᵐᵒᵖ)]
-      (X : WeightCategory (isIdempotentElem_violMk_redProj k Q Λ ν κ').Cornerᵐᵒᵖ) (n : ℤ),
-      ModuleCat ℤ := by
+      (_X : WeightCategory (isIdempotentElem_violMk_redProj k Q Λ ν κ').Cornerᵐᵒᵖ) (_n : ℤ),
+      AddCommGrpCat := by
+  letI := Graded.cornerGradedAlgebra V hE (redProj_mem_violAuxiliaryGrade G κ)
+  letI := Graded.cornerGradedAlgebra V (isIdempotentElem_violMk_redProj k Q Λ ν κ')
+    (redProj_mem_violAuxiliaryGrade G κ')
+  letI := gradedAlgebraInternalGrading CG
+  letI := gradedAlgebraInternalGrading (TargetGrade κ')
+  letI := gradedAlgebraBigradedDGRing CG
+  letI := gradedAlgebraBigradedDGRing (TargetGrade κ')
   intro hSource hTarget X n
   exact ((CatModule.DerivedCategory.cohomologyFunctor X n).obj
           ((auxiliaryGradedBraidingFunctor G κ κ').obj

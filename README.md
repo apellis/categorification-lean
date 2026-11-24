@@ -1449,6 +1449,11 @@ the incoming cokernel
 The outgoing differential embeds the incoming cokernel in the exterior
 projective with quotient the final simple
 (`Stendhal.LabelTwo.outgoingCokernelShortComplex_shortExact`).
+The exterior term is projective before and after reflection, so two
+dimension shifts identify first self Tor of the incoming cokernel with
+third self Tor of the final simple. The actual middle standard
+resolution gives vanishing in characteristic different from two
+(`Stendhal.LabelTwo.labelTwoSimpleAmbientTorThree_isZero`).
 
 
 

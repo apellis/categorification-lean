@@ -136,22 +136,27 @@ private def projectedTensorBack : 𝓕 →ₗ[k] BTP :=
   (BalancedTensor.mapRight (projectRestrict k)).comp
     (stdTensorCoords k).symm.toLinearMap
 
-set_option maxHeartbeats 650000 in
-private theorem projectedTensor_split (v : BTP) :
-    projectedTensorBack k (projectedTensorForward k v) = v := by
-  change BalancedTensor.mapRight (projectRestrict k)
-    ((stdTensorCoords k).symm
-      ((stdTensorCoords k) (BalancedTensor.mapRight (P).subtype v))) = v
-  rw [LinearEquiv.symm_apply_apply]
-  change ((BalancedTensor.mapRight (projectRestrict k)).comp
-    (BalancedTensor.mapRight (P).subtype)) v = v
+private theorem linear_retract_through_equiv {K X Y Z : Type*} [CommRing K]
+    [AddCommGroup X] [Module K X] [AddCommGroup Y] [Module K Y]
+    [AddCommGroup Z] [Module K Z] (e : Y ≃ₗ[K] Z) (i₀ : X →ₗ[K] Y) (r : Y →ₗ[K] X)
+    (h : r.comp i₀ = LinearMap.id) (x : X) :
+    (r.comp e.symm.toLinearMap) (e.toLinearMap.comp i₀ x) = x :=
+  (congrArg r (e.symm_apply_apply (i₀ x))).trans (DFunLike.congr_fun h x)
+
+private theorem projectMap_comp_inclusion :
+    (BalancedTensor.mapRight (k := k) (B := k) (M := N) (projectRestrict k)).comp
+      (BalancedTensor.mapRight (P).subtype) = LinearMap.id := by
   have hc := BalancedTensor.mapRight_comp (k := k) (B := k) (M := N)
     (P).subtype (projectRestrict k)
   have hr := congrArg
     (fun f : P →ₗ[T] P => BalancedTensor.mapRight (k := k) (B := k) (M := N) f)
     (splitting k)
   have hid := BalancedTensor.mapRight_id (k := k) (B := k) («A» := T) (M := N) («N» := P)
-  exact DFunLike.congr_fun (hc.symm.trans (hr.trans hid)) v
+  exact hc.symm.trans (hr.trans hid)
+
+private theorem projectedTensor_split (v : BTP) :
+    projectedTensorBack k (projectedTensorForward k v) = v :=
+  linear_retract_through_equiv (stdTensorCoords k) _ _ (projectMap_comp_inclusion k) v
 
 
 private theorem projectedTensor_project (w : 𝓕) :
@@ -168,32 +173,41 @@ private theorem projectedTensor_project (w : 𝓕) :
     (projection k) (project k) (labelTwoRightExteriorProjection_generator (parameter k)) w
   exact h.trans (coefficient_e_fixed k (op (project k) • w.val))
 
-set_option maxHeartbeats 850000 in
+local notation "W" => fixSub k N (op (project k))
+
+private theorem projectedTensorForward_fixed (v : BTP) :
+    (projectedTensorForward k v).val ∈ W := by
+  change op (project k) • (projectedTensorForward k v).val = _
+  exact (projectedTensor_project k (projectedTensorForward k v)).symm.trans
+    (congrArg (fun z : BTP => (projectedTensorForward k z).val) (projectedTensor_split k v))
+
+private def projectedTensorForwardFixed : BTP →ₗ[k] W :=
+  ((𝓕).subtype.comp (projectedTensorForward k)).codRestrict W (projectedTensorForward_fixed k)
+
+private def includeProjectorFixed : W →ₗ[k] 𝓕 where
+  toFun w := ⟨w.val, coefficient_e_fixed k w.val⟩
+  map_add' _ _ := rfl
+  map_smul' _ _ := rfl
+
+private def projectedTensorBackFixed : W →ₗ[k] BTP :=
+  (projectedTensorBack k).comp (includeProjectorFixed k)
+
+private theorem projectedTensor_forward_back (w : W) :
+    projectedTensorForwardFixed k (projectedTensorBackFixed k w) = w :=
+  Subtype.ext ((projectedTensor_project k (includeProjectorFixed k w)).trans w.property)
+
+private theorem projectedTensor_back_forward (v : BTP) :
+    projectedTensorBackFixed k (projectedTensorForwardFixed k v) = v := by
+  have h : includeProjectorFixed k (projectedTensorForwardFixed k v) =
+      projectedTensorForward k v := Subtype.ext rfl
+  exact (congrArg (projectedTensorBack k) h).trans (projectedTensor_split k v)
+
 /-- Ordinary incoming exterior tensor is the right-coefficient subspace
 fixed by the divided projector. -/
-def incomingExteriorStandardTensorEquiv :
-    BTP ≃ₗ[k] fixSub k N (op (project k)) := by
-  let f := ((𝓕).subtype.comp (projectedTensorForward k)).codRestrict
-    (fixSub k N (op (project k))) fun v => by
-      change op (project k) • (projectedTensorForward k v).val = _
-      rw [← projectedTensor_project, projectedTensor_split]
-      rfl
-  let r : fixSub k N (op (project k)) →ₗ[k] 𝓕 :=
-    { toFun := fun w => ⟨w.val, coefficient_e_fixed k w.val⟩
-      map_add' _ _ := rfl
-      map_smul' _ _ := rfl }
-  let inverse := (projectedTensorBack k).comp r
-  refine LinearEquiv.ofLinearMap f inverse ?_ ?_
-  · apply LinearMap.ext
-    intro w
-    apply Subtype.ext
-    exact (projectedTensor_project k (r w)).trans w.property
-  · apply LinearMap.ext
-    intro v
-    change projectedTensorBack k (r (f v)) = v
-    have hf : r (f v) = projectedTensorForward k v := Subtype.ext rfl
-    rw [hf, projectedTensor_split]
-
+def incomingExteriorStandardTensorEquiv : BTP ≃ₗ[k] W :=
+  LinearEquiv.ofLinearMap (projectedTensorForwardFixed k) (projectedTensorBackFixed k)
+    (LinearMap.ext (projectedTensor_forward_back k))
+    (LinearMap.ext (projectedTensor_back_forward k))
 
 private abbrev affineProjection : Aff →ₐ[k] T := stendhalTensorProjection (Q := parameter k) wt ν
 
@@ -206,22 +220,24 @@ private theorem crossingTranslate_val :
   exact congrArg (affineProjection k (KLRAlgebra.ψ 2) • ·)
     (labelTwoRightExteriorProjection_generator (parameter k))
 
-set_option maxHeartbeats 850000 in
+private def crossingTranslateReadout : S →ₗ[k] DualNumber k × DualNumber k :=
+  (terminalQuotientCoordinates k).comp
+    (((exteriorMiddleQuotientEquiv k).toLinearMap.restrictScalars k).comp
+      ((labelTwoExteriorToMiddle (parameter k)).restrictScalars k))
+
+private theorem crossingTranslateReadout_translate :
+    crossingTranslateReadout k (crossingTranslate k).val = (0,1) := by
+  change terminalQuotientCoordinates k (exteriorMiddleQuotientEquiv k
+    (labelTwoExteriorToMiddle (parameter k) (crossingTranslate k).val)) = _
+  rw [crossingTranslate_val]
+  exact (congrArg (terminalQuotientCoordinates k) (exteriorMiddleQuotientEquiv_projected_translate k)).trans
+    (terminalQuotientCoordinates_incoming_translate k)
+
 private theorem crossingTranslate_ne_zero : (crossingTranslate k).val ≠ 0 := by
-  let coord := terminalQuotientCoordinates k
-  let e := exteriorMiddleQuotientEquiv k
-  let F := labelTwoExteriorToMiddle (parameter k)
-  have hTranslate := congrArg (fun x : S => coord (e (F x))) (crossingTranslate_val k)
-  have hProjected := congrArg coord (exteriorMiddleQuotientEquiv_projected_translate k)
-  have h : coord (e (F (crossingTranslate k).val)) = (0, 1) :=
-    hTranslate.trans (hProjected.trans (terminalQuotientCoordinates_incoming_translate k))
-  intro hzero
-  have h₀ := congrArg (fun x : S => coord (e (F x))) hzero
-  have hF := congrArg (fun y => coord (e y)) F.map_zero
-  have hE := congrArg coord e.map_zero
-  have hz : coord (e (F (crossingTranslate k).val)) = 0 :=
-    h₀.trans (hF.trans (hE.trans coord.map_zero))
-  exact zero_ne_one (congrArg Prod.snd (hz.symm.trans h))
+  intro h
+  have hc := (crossingTranslateReadout_translate k).symm.trans
+    ((congrArg (crossingTranslateReadout k) h).trans (crossingTranslateReadout k).map_zero)
+  exact one_ne_zero (congrArg Prod.snd hc)
 
 private def incomingFixedGenerator : fixSub k N (op (project k)) := by
   refine ⟨crossingTranslate k, ?_⟩

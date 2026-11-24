@@ -1495,7 +1495,11 @@ in every degree (`Stendhal.LabelTwo.diagramSumCompanionAugmentation_exact_in_deg
 The inclusions and quotient maps give the corresponding distinguished
 triangles of dg weight modules
 (`Stendhal.LabelTwo.middleSumWeight_distinguished`,
-`Stendhal.LabelTwo.middleDifferenceWeight_distinguished`). Evaluation on the
+`Stendhal.LabelTwo.middleDifferenceWeight_distinguished`).
+With vanishing standard cohomology, the connecting isomorphisms retain
+the actual internal shift by two
+(`Stendhal.LabelTwo.middleSumWeightShiftIso`,
+`Stendhal.LabelTwo.middleDifferenceWeightShiftIso`). Evaluation on the
 middle generator identifies the endomorphism algebra with the actual
 regular parabolic factor (`Stendhal.LabelTwo.middleEndomorphismFactorEquiv`).
 The diagrammatic dot-sum quotient is the standardization of its

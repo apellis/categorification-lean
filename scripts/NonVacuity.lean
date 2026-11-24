@@ -8549,4 +8549,6 @@ example := fiveSlotRightmostKernel_equiv_nilHeckeRangeProd Q Λ
 
 example := FiveSlotFlag.fiveSlotRightmost_firstCrossing_cancel_on_leftExtreme Q Λ (fun _ _ _ => rfl)
 
+example := fiveSlotRightmost_centralIntersectionIntoProjective_injective Q Λ (fun _ _ _ => rfl)
+
 end NonVacuity.WebsterFiveSlotRightHigher

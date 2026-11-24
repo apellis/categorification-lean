@@ -9059,6 +9059,12 @@ private theorem productLeft (a x y : ℚ) : product (a • x) y = a • product 
 example := diagramWeightCoendProductHom G G G leftAction rightAction leftAction rightAction
   product productWeight productBalanced (⟨0⟩ : QWeight) leftAction rightAction productLeft
 
+private theorem productRight (c x y : ℚ) : product x (op c • y) = op c • product x y :=
+  (mul_assoc x y c).symm
+
+example := diagramWeightCoendProductNatTrans G G G leftAction rightAction leftAction rightAction
+  product productWeight productBalanced leftAction rightAction productLeft productRight
+
 private theorem productSpan :
     AddSubgroup.closure (Set.range fun z : ℚ × ℚ => product z.1 z.2) = ⊤ := by
   apply top_unique
@@ -9076,12 +9082,6 @@ example := diagramWeightOrdinaryProjection_tmul G G leftAction rightAction leftA
   (⟨0⟩ : QWeight) (⟨1⟩ : QWeight)
   (⟨1, InDegreeZero.ring_mem_grading_zero (1 : ℚ)⟩ : G 0)
   (⟨1, InDegreeZero.ring_mem_grading_zero (1 : ℚ)⟩ : G 0)
-
-private theorem productRight (c x y : ℚ) : product x (op c • y) = op c • product x y :=
-  (mul_assoc x y c).symm
-
-example := diagramWeightCoendProductNatTrans G G G leftAction rightAction leftAction rightAction
-  product productWeight productBalanced leftAction rightAction productLeft productRight
 
 end
 

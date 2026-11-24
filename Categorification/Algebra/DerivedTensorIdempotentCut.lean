@@ -4,6 +4,8 @@ Released under Apache 2.0 license as described in the file LICENSE.
 -/
 import Categorification.Algebra.DerivedTensorOrdinaryLinear
 import Categorification.Algebra.IdempotentEquiv
+import Categorification.Algebra.Graded.RightTwist
+import Categorification.Algebra.Graded.Tensor
 
 /-!
 # Derived tensor with an idempotent left ideal
@@ -67,6 +69,46 @@ def balancedTensorLeftIdealEquiv {p : A} (hp : IsIdempotentElem p) :
     rw [action_tmul, BalancedTensor.op_smul_tmul]
     congr 1
     exact Subtype.ext z.property
+
+section Graded
+
+open Categorification.Graded
+
+variable {𝒜 : ℤ → Submodule k A} {𝓜 : ℤ → Submodule k M}
+
+variable [SetLike.GradedSMul (oppositeGrade 𝒜) 𝓜] in
+
+/-- At the actual idempotent cut, the balanced comparison preserves the
+sum of the two diagram degrees. -/
+theorem balancedTensorLeftIdealEquiv_preservesGrading {p : A} (hp : IsIdempotentElem p) :
+    PreservesGrading (balancedGrading k A 𝓜 (Graded.submodule 𝒜 (lIdeal p)))
+      (Graded.idem 𝓜 (op p)) (balancedTensorLeftIdealEquiv hp).toLinearMap := by
+  intro d x hx
+  apply balancedGrading_map_mem _ _ ?_ hx
+  intro i j m z hm hz
+  change action p (BalancedTensor.tmul m z) ∈ 𝓜 (i + j)
+  rw [action_tmul]
+  have hz' : op (z : A) ∈ oppositeGrade 𝒜 j := hz
+  have h := SetLike.GradedSMul.smul_mem (A := oppositeGrade 𝒜) hz' hm
+  change op (z : A) • m ∈ 𝓜 (j + i) at h
+  simpa only [add_comm j i] using h
+
+/-- When the idempotent is homogeneous of degree zero, the inverse
+fixed-cut comparison preserves degree as well. -/
+theorem balancedTensorLeftIdealEquiv_symm_preservesGrading {p : A} (hp : IsIdempotentElem p)
+    (hp₀ : p ∈ 𝒜 0) :
+    PreservesGrading (Graded.idem 𝓜 (op p))
+      (balancedGrading k A 𝓜 (Graded.submodule 𝒜 (lIdeal p)))
+      (balancedTensorLeftIdealEquiv hp).symm.toLinearMap := by
+  intro d z hz
+  let e : lIdeal p := ⟨p,hp.eq⟩
+  change (BalancedTensor.tmul z.val e : BT (k := k) (M := M) p) ∈
+    balancedGrading k A 𝓜 (Graded.submodule 𝒜 (lIdeal p)) d
+  have hx : z.val ∈ 𝓜 d := hz
+  have he : e ∈ Graded.submodule 𝒜 (lIdeal p) 0 := hp₀
+  simpa only [add_zero] using tmul_mem_balancedGrading (B := k) hx he
+
+end Graded
 
 variable [HasDerivedCategory.{w,0} A] [HasDerivedCategory.{w,0} k]
 

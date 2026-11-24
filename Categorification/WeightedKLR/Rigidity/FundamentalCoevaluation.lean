@@ -7,10 +7,11 @@ import Categorification.WeightedKLR.RedStrands.FundamentalCorner
 import Categorification.WeightedKLR.RedStrands.FirstWeightBoundary
 
 /-!
-# The simple head of the fundamental coevaluation projective
+# The simple head of the terminal loading projective
 
-Webster, arXiv:1309.3796v2, §7.1, Lemma 7.3 for the two fundamental
-representations of type A₁ over `ℚ`.
+For two fundamental type A₁ factors over `ℚ`, this file computes the
+simple quotient of the projective at the terminal loading. The general
+cut-trace criterion is modeled on Webster, arXiv:1309.3796v2, Lemma 7.3.
 -/
 
 noncomputable section
@@ -315,9 +316,8 @@ theorem terminalCoefficient_ker :
   ext x
   exact (mem_fundamentalCutTrace_iff x).symm
 
-/-- Webster, arXiv:1309.3796v2, §7.1, Lemma 7.3 in the two fundamental
-type A₁ factors over `ℚ`: the cut trace is the unique simple-quotient
-kernel of the right loading projective. -/
+/-- The cut trace is the unique simple-quotient kernel of the terminal
+right loading projective for two fundamental type A₁ factors over `ℚ`. -/
 theorem fundamentalCutTrace_eq_iff_simpleQuotient (N : Submodule Tᵐᵒᵖ (rIdeal p)) :
     N = fundamentalCutTrace ↔ IsSimpleModule Tᵐᵒᵖ (rIdeal p ⧸ N) :=
   coevaluationTrace_eq_iff_simpleQuotient hp _ terminalCharacter.toRingHom

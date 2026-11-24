@@ -1015,7 +1015,8 @@ representative of the input (`diagramWeightDerivedTensorObjIso`). K-projectivity
 of the left weight modules also gives the derived Hom
 (`diagramWeightDerivedHom`). A balanced homogeneous multiplication of two
 coefficients induces their product from the intermediate weight-category
-tensor coend (`diagramWeightCoendProduct_tmul`). In the right-module
+tensor coend (`diagramWeightCoendProduct_tmul`). Compatibility with the outer
+action gives a map of dg modules (`diagramWeightCoendProductHom`). In the right-module
 convention this gives the coend multiplication of three rectangular corners
 (`diagramCornerWeightRightCoendProduct_tmul`). If ordinary pure products
 generate the coefficient, the coend product is onto at each pair of endpoint

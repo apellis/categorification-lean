@@ -1073,8 +1073,11 @@ dots on the actual middle standard of the label-two pair are commuting
 square-zero endomorphisms. The polynomial quotient acts on this
 standard, with the sum sent to the sum of the two right dots
 (`Stendhal.LabelTwo.middleDotQuotientAction`,
-`Stendhal.LabelTwo.middleDotQuotientAction_sum`). Bijectivity of this
-endomorphism-algebra map remains open.
+`Stendhal.LabelTwo.middleDotQuotientAction_sum`). PBW straightening gives
+surjectivity and the two regular one-black factors detect four
+independent coordinates. This identifies the actual endomorphism algebra
+with the square-zero polynomial quotient
+(`Stendhal.LabelTwo.middleEndomorphismEquiv`).
 
 ### Weak `sl₂`-categorifications (Chuang–Rouquier, arXiv:math/0407205v2, §5)
 

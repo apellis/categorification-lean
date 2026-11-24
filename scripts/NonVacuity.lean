@@ -8543,3 +8543,22 @@ example : (dotEnd ℚ 1)^2 = 0 := dotEnd_sq ℚ 1
 end NonVacuity.WebsterLabelTwoMiddleDots
 
 end
+
+noncomputable section
+
+namespace NonVacuity.WebsterLabelTwoMiddleEndomorphism
+
+open Categorification.Stendhal.LabelTwo
+attribute [local instance 1100] IsIdempotentElem.instAlgebraCorner_categorification
+
+example : Function.Bijective (middleDotQuotientAction ℚ) :=
+  (middleEndomorphismEquiv ℚ).bijective
+
+example :
+    middleEndomorphismEquiv ℚ (Ideal.Quotient.mk (middleDotIdeal ℚ)
+      (MvPolynomial.X 0 + MvPolynomial.X 1)) = dotEnd ℚ 0 + dotEnd ℚ 1 :=
+  middleEndomorphismEquiv_sum ℚ
+
+end NonVacuity.WebsterLabelTwoMiddleEndomorphism
+
+end

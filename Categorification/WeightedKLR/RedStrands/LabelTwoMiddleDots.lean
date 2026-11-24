@@ -4,6 +4,8 @@ Released under Apache 2.0 license as described in the file LICENSE.
 -/
 import Categorification.WeightedKLR.RedStrands.LeftStandardEnd
 import Categorification.WeightedKLR.RedStrands.BlackIdempotent
+import Categorification.WeightedKLR.RedStrands.QuotientBasis
+import Categorification.TypeA.Inversions
 import Categorification.KLR.NcEvalHom
 import Mathlib.RingTheory.Ideal.Quotient.Operations
 
@@ -23,8 +25,8 @@ open KLR KLRAlgebra TypeA
 
 attribute [local instance 1100] IsIdempotentElem.instAlgebraCorner_categorification
 
-local notation "ν" => (({()} : Multiset Unit) + {()})
-local notation "μ" => stendhalWeight 2 ν
+local notation "blackWeight" => (({()} : Multiset Unit) + {()})
+local notation "μ" => stendhalWeight 2 blackWeight
 
 variable (k : Type) [Field k]
 
@@ -36,7 +38,7 @@ def parameter (_ _ : Unit) : MvPolynomial (Fin 2) k := 0
 
 local notation "q₀" => parameter k
 local notation "wt₂" => weights
-local notation "A" => TensorProductAlgebra k q₀ wt₂ ν
+local notation "A" => TensorProductAlgebra k q₀ wt₂ blackWeight
 
 /-- The middle loading is red, black, red, black. -/
 def loading : Seq μ :=
@@ -51,7 +53,7 @@ abbrev Standard := leftStandard q₀ wt₂ loading loading_ordered
 
 local notation "S" => Standard k
 local notation "g" => leftStandardUnit q₀ wt₂ loading loading_ordered
-local notation "π" => tensorOfKLR q₀ wt₂ ν
+local notation "π" => tensorOfKLR q₀ wt₂ blackWeight
 
 /-- Dot on the black strand before the second red. -/
 def leftMiddleDot : A := π (KLRAlgebra.x ⟨1, by decide⟩)
@@ -77,13 +79,13 @@ private theorem cutTwoHigher : StendhalLT loading (cut 2) := by
 
 private theorem proj_loading (s : Seq μ) (hs : IsRedOrdered s) :
     π (e s) = seqIdem q₀ wt₂ s hs := by
-  apply congrArg (TensorProductAlgebra.mk q₀ wt₂ ν)
+  apply congrArg (TensorProductAlgebra.mk q₀ wt₂ blackWeight)
   apply Subtype.ext
   exact (StendhalAlgebraAllOrders.e_mul_redOrderedIdem s).trans (ite_eq_left hs)
 
 private theorem proj_cutZero : π (e (cut 0)) = 0 := by
   rw [proj_loading k _ cutZeroOrdered]
-  change (StendhalAlgebra.violatedIdeal k q₀ wt₂ ν).ringCon.mk' _ = 0
+  change (StendhalAlgebra.violatedIdeal k q₀ wt₂ blackWeight).ringCon.mk' _ = 0
   rw [← TwoSidedIdeal.mem_ker, TwoSidedIdeal.ker_ringCon_mk']
   exact TwoSidedIdeal.subset_span ⟨cut 0, cutZeroOrdered, cutZeroViolated, rfl⟩
 
@@ -252,5 +254,196 @@ theorem middleDotQuotientAction_sum :
 
 /-- The middle-layer quotient by the sum of its two right-dot maps. -/
 abbrev StandardDotSumQuotient := S ⧸ LinearMap.range (dotEnd k 0 + dotEnd k 1)
+
+section Spanning
+
+private abbrev blackPosition : Fin 2 → Fin (Multiset.card μ) :=
+  ![⟨1, by decide⟩, ⟨3, by decide⟩]
+
+private abbrev swapBlacks : Equiv.Perm (Fin (Multiset.card μ)) :=
+  wordProd (Multiset.card μ) [2, 1, 2]
+
+private def wordChoice (w : Equiv.Perm (Fin (Multiset.card μ))) : List ℕ :=
+  if w = swapBlacks then [2, 1, 2] else canWord (Multiset.card μ) w
+
+private theorem wordChoice_spec (w : Equiv.Perm (Fin (Multiset.card μ))) :
+    IsReduced (Multiset.card μ) (wordChoice w) ∧ wordProd _ (wordChoice w) = w := by
+  unfold wordChoice
+  split_ifs with h
+  · subst w
+    refine ⟨⟨?_, ?_⟩, rfl⟩
+    · intro j hj
+      simp only [List.mem_cons, List.mem_nil_iff, or_false] at hj
+      rcases hj with rfl | rfl | rfl <;> decide
+    · rw [length_eq_invCount]
+      decide +kernel
+  · exact ⟨isReduced_canWord _ _, wordProd_canWord _ _⟩
+
+private theorem wordChoice_one : wordChoice 1 = [] := by
+  rw [wordChoice, ite_eq_right (by decide +kernel)]
+  exact List.length_eq_zero_iff.mp (by rw [length_canWord, length_one])
+
+private theorem middle_stabilizer (w : Equiv.Perm (Fin (Multiset.card μ)))
+    (hw : w • loading = loading) : w = 1 ∨ w = swapBlacks := by
+  have hc : ∀ f : Equiv.Perm (Fin (Multiset.card μ)), f • loading = loading →
+      f = 1 ∨ f = swapBlacks := by decide +kernel
+  exact hc w hw
+
+private def blackPolynomial : MvPolynomial (Fin 2) k →ₐ[k] A :=
+  ((TensorProductAlgebra.mk q₀ wt₂ blackWeight).comp ((orderProjection q₀ wt₂ blackWeight).comp
+    (StendhalAlgebraAllOrders.ofKLR k q₀ wt₂ blackWeight))).comp
+      (KLRAlgebra.pol.comp (MvPolynomial.rename blackPosition))
+
+private theorem blackPolynomial_X (r : Fin 2) :
+    blackPolynomial k (MvPolynomial.X r) = π (KLRAlgebra.x (blackPosition r)) := by
+  change π (KLRAlgebra.pol (MvPolynomial.rename blackPosition (MvPolynomial.X r))) = _
+  rw [MvPolynomial.rename_X, KLRAlgebra.pol_X]
+
+private theorem dotPolynomial_generator (p : MvPolynomial (Fin 2) k) :
+    polynomialDotEnd k p g = blackPolynomial k p • g := by
+  induction p using MvPolynomial.induction_on with
+  | C c =>
+    rw [MvPolynomial.C_eq_algebraMap, AlgHom.commutes, AlgHom.commutes]
+    change c • (g : S) = _
+    rw [algebraMap_smul]
+  | add p q hp hq =>
+    rw [map_add, map_add, LinearMap.add_apply, add_smul, hp, hq]
+  | mul_X p r hp =>
+    have hx : dotEnd k r g = blackPolynomial k (MvPolynomial.X r) • g := by
+      rw [blackPolynomial_X]
+      fin_cases r
+      · exact dotEnd_zero_gen k
+      · exact dotEnd_one_gen k
+    rw [map_mul, Module.End.mul_apply, polynomialDotEnd_X, hx, map_smul, hp, ← mul_smul,
+      mul_comm p (MvPolynomial.X r), map_mul]
+
+private theorem dotMonomial_lift (d : Fin (Multiset.card μ) →₀ ℕ)
+    (hd : ∀ j ∈ d.support, (loading.lbl j).isLeft) :
+    ∃ p : MvPolynomial (Fin 2) k,
+      MvPolynomial.rename blackPosition p = MvPolynomial.monomial d 1 := by
+  let a := blackPosition 0
+  let b := blackPosition 1
+  have hs (j : Fin (Multiset.card μ)) (hj : j ∈ d.support) :
+      j = a ∨ j = b := by
+    have hshape : ∀ j : Fin (Multiset.card μ), (loading.lbl j).isLeft →
+        j = blackPosition 0 ∨ j = blackPosition 1 := by decide +kernel
+    exact hshape j (hd j hj)
+  have hrepr : d = Finsupp.single a (d a) + Finsupp.single b (d b) := by
+    ext j
+    rw [Finsupp.add_apply]
+    by_cases ha : j = a
+    · subst j
+      rw [Finsupp.single_eq_same, Finsupp.single_eq_of_ne (by decide : a ≠ b), add_zero]
+    by_cases hb : j = b
+    · subst j
+      rw [Finsupp.single_eq_of_ne ha, Finsupp.single_eq_same, zero_add]
+    have hz : d j = 0 := Finsupp.notMem_support_iff.mp (fun h => (hs j h).elim ha hb)
+    rw [Finsupp.single_eq_of_ne ha, Finsupp.single_eq_of_ne hb, zero_add, hz]
+  refine ⟨MvPolynomial.X 0 ^ (d a) * MvPolynomial.X 1 ^ (d b), ?_⟩
+  rw [map_mul, map_pow, map_pow, MvPolynomial.rename_X, MvPolynomial.rename_X,
+    MvPolynomial.X_pow_eq_monomial, MvPolynomial.X_pow_eq_monomial,
+    MvPolynomial.monomial_mul_monomial, one_mul]
+  exact congrArg (fun s => MvPolynomial.monomial s 1) hrepr.symm
+
+private def dotPolynomialEval : MvPolynomial (Fin 2) k →ₗ[k] S where
+  toFun p := polynomialDotEnd k p g
+  map_add' p q := by rw [map_add, LinearMap.add_apply]
+  map_smul' c p := by
+    rw [map_smul, LinearMap.smul_apply]
+    rfl
+
+private theorem projectTerm
+    (b : {b // IsStendhalTerm (ν := blackWeight) (ℓ := 2) wordChoice b}) :
+    tensorProductTerm wordChoice_spec q₀ wt₂ b = π (KLRAlgebra.stdElt wordChoice b.1) := by
+  apply congrArg (TensorProductAlgebra.mk q₀ wt₂ blackWeight)
+  apply Subtype.ext
+  exact ((Subsemigroup.mem_corner_iff StendhalAlgebraAllOrders.isIdempotentElem_redOrderedIdem).mp
+    (stendhalTerm q₀ wt₂ (fun w => (wordChoice_spec w).2) b).2).2.symm
+
+local notation "E" => seqIdem q₀ wt₂ loading loading_ordered
+
+private theorem blackPolynomial_fixed (p : MvPolynomial (Fin 2) k) :
+    E • (blackPolynomial k p • g) = blackPolynomial k p • g := by
+  have hc : E * blackPolynomial k p = blackPolynomial k p * E := by
+    change E * π (KLRAlgebra.pol (MvPolynomial.rename blackPosition p)) =
+      π (KLRAlgebra.pol (MvPolynomial.rename blackPosition p)) * E
+    rw [← proj_loading k loading loading_ordered, ← projected_mul, ← projected_mul,
+      (KLRAlgebra.e_commute_pol _ _).eq]
+  rw [← mul_smul, hc, mul_smul, gen_fixed]
+
+private theorem middle_fixed_in_range (a : A) :
+    (E * a) • g ∈ LinearMap.range (dotPolynomialEval k) := by
+  classical
+  let W := LinearMap.range (dotPolynomialEval k)
+  have ha : a ∈ Submodule.span k (Set.range (tensorProductTerm wordChoice_spec q₀ wt₂)) := by
+    rw [span_tensorProductTerm wordChoice_spec q₀ wt₂]
+    trivial
+  induction ha using Submodule.span_induction with
+  | mem z hz =>
+    obtain ⟨b, rfl⟩ := hz
+    let d := tensorProductTerm wordChoice_spec q₀ wt₂ b
+    have hL : E * d = if b.1.2.1 • b.1.1 = loading then d else 0 := by
+      unfold d tensorProductTerm
+      rw [← map_mul, e_mul_stendhalTerm]
+      split_ifs <;> simp only [map_zero]
+    have hR : d * E = if b.1.1 = loading then d else 0 := by
+      unfold d tensorProductTerm
+      rw [← map_mul, stendhalTerm_mul_e]
+      split_ifs <;> simp only [map_zero]
+    change (E * d) • g ∈ W
+    rw [hL]
+    split_ifs with ht
+    · have hbg : d • g = (d * E) • g := by rw [mul_smul, gen_fixed]
+      rw [hbg, hR]
+      split_ifs with hb
+      · have hw : b.1.2.1 • loading = loading := hb ▸ ht
+        have hl (j : Fin (Multiset.card μ)) (hj : j ∈ b.1.2.2.support) : (loading.lbl j).isLeft := by
+          have h := b.2.2.2.1 j hj
+          change (b.1.1.lbl j).isLeft = true at h
+          rwa [hb] at h
+        obtain ⟨p, hp⟩ := dotMonomial_lift k b.1.2.2 hl
+        have hpoly : π (KLRAlgebra.pol (MvPolynomial.monomial b.1.2.2 1)) = blackPolynomial k p := by
+          change π (KLRAlgebra.pol (MvPolynomial.monomial b.1.2.2 1)) =
+            π (KLRAlgebra.pol (MvPolynomial.rename blackPosition p))
+          rw [hp]
+        change d • g ∈ W
+        rw [show d = _ from projectTerm k b, KLRAlgebra.stdElt,
+          projected_mul, projected_mul, hpoly, hb, proj_loading k _ loading_ordered,
+          mul_smul, gen_fixed, mul_smul]
+        rcases middle_stabilizer _ hw with h | h
+        · rw [h, wordChoice_one, KLRAlgebra.ψw, List.map_nil, List.prod_nil,
+            show π (1 : KLRAlgebra k (stendhalQ q₀ wt₂) μ) = 1 from
+              by simp only [tensorOfKLR, map_one], one_smul]
+          exact ⟨p, dotPolynomial_generator k p⟩
+        · rw [h, wordChoice, ite_eq_left rfl, KLRAlgebra.ψw]
+          simp only [List.map_cons, List.map_nil, List.prod_cons, List.prod_nil, mul_one,
+            projected_mul, mul_smul]
+          rw [higherCrossing_kills_middle_fixed k _ (blackPolynomial_fixed k p), smul_zero, smul_zero]
+          exact W.zero_mem
+      · rw [zero_smul]
+        exact W.zero_mem
+    · rw [zero_smul]
+      exact W.zero_mem
+  | zero => rw [mul_zero, zero_smul]; exact W.zero_mem
+  | add x y _ _ hx hy => simpa only [mul_add, add_smul] using W.add_mem hx hy
+  | smul c x _ hx =>
+    simpa only [mul_smul_comm, smul_assoc] using W.smul_mem c hx
+
+/-- The polynomial dot quotient surjects onto the endomorphism algebra
+of the actual middle standard. In the PBW expansion, the only possible
+nonidentity permutation exchanges the black strands through the higher
+cut and hence contributes zero. -/
+theorem middleDotQuotientAction_surjective : Function.Surjective (middleDotQuotientAction k) := by
+  intro f
+  obtain ⟨a, ha⟩ := leftStandard_exists_smul_unit
+    (Q := q₀) (Λ := wt₂) loading loading_ordered (f g)
+  have h : (E * a) • g = f g := by
+    rw [mul_smul, ← ha, ← f.map_smul, gen_fixed]
+  obtain ⟨p, hp⟩ := middle_fixed_in_range k a
+  refine ⟨Ideal.Quotient.mk _ p, leftStandard_hom_ext loading loading_ordered ?_⟩
+  change polynomialDotEnd k p g = f g
+  exact hp.trans h
+
+end Spanning
 
 end Categorification.Stendhal.LabelTwo

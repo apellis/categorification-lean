@@ -1371,6 +1371,10 @@ loading idempotents. The ordered resolution and the divided projector
 splitting show that the incoming diagonal ambient homology also vanishes
 in every nonzero degree
 (`Stendhal.LabelTwo.incomingExteriorAmbientHomology_isZero`).
+The reflected incoming exterior paired with the middle standard vanishes
+in every degree. The middle idempotent kills the ordinary tensor and the
+higher loading support kills the remaining degrees
+(`Stendhal.LabelTwo.incomingMiddleStandardHomology_isZero`).
 On the incoming divided standard, the reflected projector selects the
 line spanned by the black-crossing translate
 (`Stendhal.labelTwoRightExterior_reflectedProjector_image`).

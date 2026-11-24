@@ -8317,3 +8317,24 @@ example := fiveSlot_oneBlackBeforePair_columnInclusion Q Λ (fun _ _ _ => rfl)
 
 end
 end NonVacuity.WebsterPrincipalAllBottoms
+
+namespace NonVacuity.WebsterPrincipalPalette
+
+open Categorification.Stendhal Categorification.KLR BraidedStendhalAlgebra
+
+private def Q : Bool → Bool → MvPolynomial (Fin 2) ℤ := fun _ _ => 0
+private noncomputable def Λ : Fin 3 → Bool →₀ ℕ :=
+  fun r => Finsupp.single true (![3,2,1] r)
+
+local notation "ν" => ((Singleton.singleton true : Multiset Bool) + Singleton.singleton true)
+
+private def bottom : Seq (stendhalWeight 3 ν) :=
+  Seq.ofList [.inr 2,.inl true,.inr 1,.inl true,.inr 0] (by decide)
+
+example := fiveSlot_singleColour_oneBlackBeforePair_columnInclusion Q Λ true
+  (fiveSlotPrincipalCentralTop true) bottom (Or.inl rfl)
+
+example := fiveSlot_singleColour_oneBlackBeforePair_columnInclusion Q Λ true
+  (fiveSlotPrincipalNearbyTop true) bottom (Or.inr rfl)
+
+end NonVacuity.WebsterPrincipalPalette

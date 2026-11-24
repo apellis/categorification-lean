@@ -285,3 +285,78 @@ end Tensor
 
 end BraidedStendhalAlgebra
 end Categorification.Stendhal
+
+namespace Categorification.Stendhal.BraidedStendhalAlgebra
+
+open KLR KLRAlgebra
+
+attribute [local instance 1100] IsIdempotentElem.instAlgebraCorner_categorification
+
+variable {I J : Type} [DecidableEq I] [DecidableEq J] {ℓ : ℕ} {ν : Multiset I}
+  (f : I → J) (hf : Function.Injective f)
+
+local notation "μ" => stendhalWeight ℓ ν
+local notation "μ'" => stendhalWeight ℓ (ν.map f)
+local notation "σ" => paletteLoading f hf
+
+variable {k : Type*} [CommRing k]
+  (Q : J → J → MvPolynomial (Fin 2) k) (Λ : Fin ℓ → J →₀ ℕ)
+
+local notation "Q₀" => fun i j => Q (f i) (f j)
+local notation "Λ₀" => pullBlackWeights Λ f hf
+local notation "p" => fun s : Seq μ =>
+  violMk k Q₀ Λ₀ ν (ofKLR k Q₀ Λ₀ ν (e s))
+local notation "p'" => fun s : Seq μ' =>
+  violMk k Q Λ (ν.map f) (ofKLR k Q Λ (ν.map f) (e s))
+
+variable (t : KLR.Seq (stendhalWeight ℓ ν)) (a b : Fin ℓ)
+local notation "ord" => isIdempotentElem_violMk_redProj k Q₀ Λ₀ ν (redWord t)
+local notation "ord'" => isIdempotentElem_violMk_redProj k Q Λ (ν.map f) (redWord (σ t))
+local notation "T" => IsIdempotentElem.Corner ord
+local notation "T'" => IsIdempotentElem.Corner ord'
+local notation "e₀" => violMk k Q₀ Λ₀ ν (redProj k Q₀ Λ₀ ν (redWord t))
+local notation "e₀'" => violMk k Q Λ (ν.map f) (redProj k Q Λ (ν.map f) (redWord (σ t)))
+local notation "Pr" => rIdeal (orderedLoadingIdem Q₀ Λ₀ t)
+local notation "Pr'" => rIdeal (orderedLoadingIdem Q Λ (σ t))
+local notation "K" => blockLoadingKernel Q₀ Λ₀ t a b
+local notation "K'" => blockLoadingKernel Q Λ (σ t) a b
+
+local notation "ψ" => orderPaletteEquiv f hf Q Λ t
+local notation "PE" => projPaletteEquiv f hf Q Λ t
+local notation "KE" => kernelPaletteEquiv f hf Q Λ t a b
+
+variable (s : KLR.Seq (stendhalWeight ℓ ν))
+local notation "C" => RedBlock.crossingSpace (k := k) e₀ (p s)
+local notation "C'" => RedBlock.crossingSpace (k := k) e₀' (p' (σ s))
+local notation "CE" => crossingCutPaletteEquiv f hf Q Λ t (p s) (p' (σ s))
+  (violPaletteEquiv_e Q Λ f hf s)
+local notation "CE_smul" => crossingCutPaletteEquiv_smul f hf Q Λ t (p s) (p' (σ s))
+  (violPaletteEquiv_e Q Λ f hf s)
+
+private def kernelColumnPaletteEquiv :
+    BalancedTensor k k T K C ≃ₗ[k] BalancedTensor k k T' K' C' :=
+  BalancedTensor.changeRingEquiv ψ KE CE (kernelPaletteEquiv_smul f hf Q Λ t a b) CE_smul
+
+private def projColumnPaletteEquiv :
+    BalancedTensor k k T Pr C ≃ₗ[k] BalancedTensor k k T' Pr' C' :=
+  BalancedTensor.changeRingEquiv ψ PE CE (projPaletteEquiv_smul f hf Q Λ t) CE_smul
+
+local notation "ci" => blockKernelColumnInclusion Q₀ Λ₀ t a b s
+local notation "ci'" => blockKernelColumnInclusion Q Λ (σ t) a b (σ s)
+local notation "KC" => kernelColumnPaletteEquiv f hf Q Λ t a b s
+local notation "PC" => projColumnPaletteEquiv f hf Q Λ t s
+
+private theorem palette_column_square : (ci').comp (KC).toLinearMap =
+    (PC).toLinearMap.comp ci := by
+  apply BalancedTensor.ext
+  intro x y
+  rfl
+
+/-- Injective relabelling transports the loading-column inclusion in (6.21)
+over any commutative ground ring. -/
+theorem blockKernelColumnInclusion_injective_palette_iff :
+    Function.Injective (ci').toFun ↔ Function.Injective (ci).toFun :=
+  injective_iff_square (KC).toEquiv (PC).toEquiv (ci).toFun (ci').toFun
+    (fun z => LinearMap.congr_fun (palette_column_square f hf Q Λ t a b s) z)
+
+end Categorification.Stendhal.BraidedStendhalAlgebra

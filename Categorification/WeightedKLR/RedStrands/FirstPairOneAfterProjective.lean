@@ -86,6 +86,8 @@ theorem firstPairOneAfter_blockKernel_projective (side : Bool) (hQ : KLRSymm Q) 
   · have top : sadj N 3 • firstPairOneAfterSpectator false = jA := by decide +kernel
     have order : redWord (firstPairOneAfterSpectator false) = redWord A₀ := by decide
     intro y hy hr hz
+    change p (sadj N 3 • firstPairOneAfterSpectator false) * y = y at hy
+    change F (ψ 3 * e (sadj N 3 • firstPairOneAfterSpectator false)) * y = 0 at hz
     rw [top] at hy hz
     rw [order] at hr
     have nearby : jA = sadj N 2 • A₀ := by decide +kernel
@@ -94,6 +96,8 @@ theorem firstPairOneAfter_blockKernel_projective (side : Bool) (hQ : KLRSymm Q) 
   · have top : sadj N 3 • firstPairOneAfterSpectator true = D := by decide +kernel
     have order : redWord (firstPairOneAfterSpectator true) = redWord A₀ := by decide
     intro y hy hr hz
+    change p (sadj N 3 • firstPairOneAfterSpectator true) * y = y at hy
+    change F (ψ 3 * e (sadj N 3 • firstPairOneAfterSpectator true)) * y = 0 at hz
     rw [top] at hy hz
     rw [order] at hr
     exact fiveSlotLastRed_rightwardCrossing_cancel Q Λ hQ y hy hr

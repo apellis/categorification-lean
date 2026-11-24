@@ -8158,8 +8158,9 @@ example := fundamentalCapRegularIso
 
 end NonVacuity.WebsterFundamentalCupRegular
 
-namespace NonVacuity.WebsterFundamentalDerivedCircle
 noncomputable section
+
+namespace NonVacuity.WebsterFundamentalDerivedCircle
 
 open CategoryTheory Categorification Categorification.Stendhal FundamentalCorner
 open scoped DG.DegreeZero

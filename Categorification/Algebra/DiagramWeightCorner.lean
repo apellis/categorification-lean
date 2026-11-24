@@ -4,6 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 -/
 import Categorification.Algebra.DiagramWeightCoendSurjectivity
 import Categorification.Algebra.DiagramWeightOrdinaryTensor
+import Categorification.Algebra.DiagramWeightCoendNaturality
 import Categorification.Algebra.CornerTensorCutLift
 import Categorification.Algebra.CornerBimodule
 import Categorification.Algebra.Graded.RightTwist
@@ -254,6 +255,24 @@ theorem diagramCornerWeightRightCoendProduct_surjective
 
 end Composition
 
+/-- The left-module family of a rectangular right weight bimodule. -/
+def diagramCornerWeightRightFamily :
+    letI := Graded.cornerGradedAlgebra G he he0
+    letI := Graded.cornerGradedAlgebra G he' he'0
+    letI := gradedAlgebraInternalGrading (oppositeGrade L)
+    letI := gradedAlgebraInternalGrading (oppositeGrade R)
+    letI := gradedAlgebraBigradedDGRing (oppositeGrade L)
+    letI := gradedAlgebraBigradedDGRing (oppositeGrade R)
+    (WeightCategory he.Cornerᵐᵒᵖ)ᵒᵖ ⥤ CatModule (WeightCategory he'.Cornerᵐᵒᵖ) := by
+  letI := Graded.cornerGradedAlgebra G he he0
+  letI := Graded.cornerGradedAlgebra G he' he'0
+  letI := gradedAlgebraInternalGrading (oppositeGrade L)
+  letI := gradedAlgebraInternalGrading (oppositeGrade R)
+  letI := gradedAlgebraBigradedDGRing (oppositeGrade L)
+  letI := gradedAlgebraBigradedDGRing (oppositeGrade R)
+  exact diagramWeightLeftFunctor (diagramCornerWeight G)
+    (rightCornerLeft G (e := e) he') (rightCornerRight G (e' := e') he)
+
 section OrdinaryComparison
 
 open CornerEndomorphism
@@ -456,6 +475,52 @@ theorem diagramCornerWeightRightCoendProduct_injective
   apply hf
   apply hOrd
   exact (hmul t).trans ((congrArg (fun z => z.val.val) h).trans (hmul t').symm)
+
+local notation "G₃" => diagramCornerWeight (e := e₂) (e' := e₀) G
+
+/-- The pointwise right coend equivalence is natural in its source weight. -/
+def diagramCornerWeightRightCoendNatIso :
+    letI := Graded.cornerGradedAlgebra G h₂ he₂
+    letI := Graded.cornerGradedAlgebra G h₁ he₁
+    letI := Graded.cornerGradedAlgebra G h₀ he₀
+    letI := gradedAlgebraInternalGrading (OW h₂)
+    letI := gradedAlgebraInternalGrading (OW h₁)
+    letI := gradedAlgebraInternalGrading (OW h₀)
+    letI := gradedAlgebraBigradedDGRing (OW h₂)
+    letI := gradedAlgebraBigradedDGRing (OW h₁)
+    letI := gradedAlgebraBigradedDGRing (OW h₀)
+    (∀ (X : WeightCategory h₀.Cornerᵐᵒᵖ) (Z : WeightCategory h₂.Cornerᵐᵒᵖ),
+      Function.Bijective (diagramCornerWeightRightCoendProduct G h₂ h₁ he₂ he₁ h₀ he₀ X Z)) →
+    (diagramCornerWeightRightFamily G h₂ h₁ he₂ he₁ ⋙ (D₁).tensorFunctor ≅
+      diagramCornerWeightRightFamily G h₂ h₀ he₂ he₀) := by
+  letI := Graded.cornerGradedAlgebra G h₂ he₂
+  letI := Graded.cornerGradedAlgebra G h₁ he₁
+  letI := Graded.cornerGradedAlgebra G h₀ he₀
+  letI := gradedAlgebraInternalGrading (OW h₂)
+  letI := gradedAlgebraInternalGrading (OW h₁)
+  letI := gradedAlgebraInternalGrading (OW h₀)
+  letI := gradedAlgebraBigradedDGRing (OW h₂)
+  letI := gradedAlgebraBigradedDGRing (OW h₁)
+  letI := gradedAlgebraBigradedDGRing (OW h₀)
+  intro hbij
+  exact diagramWeightCoendProductNatIso
+    (A := h₀.Cornerᵐᵒᵖ) (B := h₁.Cornerᵐᵒᵖ) (C := h₂.Cornerᵐᵒᵖ)
+    G₁ G₂ G₃ (rightCornerLeft G (e := e₁) h₀) (rightCornerRight G (e' := e₀) h₁)
+    (rightCornerLeft G (e := e₂) h₁) (rightCornerRight G (e' := e₁) h₂)
+    cornerRightProduct (cornerRightProduct_mem G)
+    (fun b x y => Subtype.ext (by
+      change y.val * (op b • x : cornerBimodule e₁ e₀).val =
+        (b • y : cornerBimodule e₂ e₁).val * x.val
+      rw [cornerBimodule.coe_smul_right h₁]
+      exact (mul_assoc _ _ _).symm))
+    (rightCornerLeft G (e := e₂) h₀) (rightCornerRight G (e' := e₀) h₂)
+    (fun a x y => Subtype.ext (by
+      change y.val * (a • x : cornerBimodule e₁ e₀).val =
+        (a • cornerRightProduct x y : cornerBimodule e₂ e₀).val
+      rw [cornerBimodule.coe_smul_right h₀, cornerBimodule.coe_smul_right h₀]
+      exact (mul_assoc _ _ _).symm))
+    (fun c x y => Subtype.ext (show (c.unop.val * y.val) * x.val =
+      c.unop.val * (y.val * x.val) from mul_assoc _ _ _)) hbij
 
 end OrdinaryComparison
 

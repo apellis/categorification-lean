@@ -1059,7 +1059,9 @@ implies additivity (`redWordOffset_add_of_sublist`), and its balanced
 multiplication identifies the quotient corner coefficient
 (`violCornerTensorMulEquiv_tmul`). The weight-category product identifies
 each endpoint coend with its homogeneous quotient coefficient
-(`braidFactorizationCoendEquiv`). Its injectivity uses a split comparison to
+(`braidFactorizationCoendEquiv`). The equivalence respects the endpoint actions
+as a natural isomorphism of dg module families
+(`braidFactorizationCoendNatIso`). Its injectivity uses a split comparison to
 the field corner tensor (`diagramCornerWeightRightSlice_leftInverse`).
 
 Over a scalar field in degree zero the left modules are K-projective, so the

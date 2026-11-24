@@ -6699,3 +6699,21 @@ example :
   norm_num
 
 end NonVacuity.WebsterDiagramColumn
+
+namespace NonVacuity.WebsterBraidColumnGeneration
+
+open KLR KLRAlgebra Stendhal Stendhal.BraidedStendhalAlgebra TypeA
+
+private abbrev weight := stendhalWeight (I := Unit) 2 0
+private noncomputable abbrev params : Unit → Unit → MvPolynomial (Fin 2) ℚ := fun _ _ => 0
+private abbrev exponents : Fin 2 → Unit →₀ ℕ := fun _ => 0
+private def reversed : Seq weight := Seq.ofList [.inr 1, .inr 0] (by decide)
+
+example :
+    Submodule.span ℚ
+        (columnProducts (Q := params) (Λ := exponents) (canWord weight.card) reversed [0, 1]) =
+      LinearMap.range (columnProjection (Q := params) (Λ := exponents) reversed [0, 1]) :=
+  span_columnProducts (fun _ _ _ => rfl) (canWord weight.card)
+    (fun w => ⟨isReduced_canWord _ w, wordProd_canWord _ w⟩) reversed [0, 1]
+
+end NonVacuity.WebsterBraidColumnGeneration

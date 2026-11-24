@@ -6384,6 +6384,24 @@ example :=
   adjacentRedSwapWeight_isInternal (Λ := Ξ) (ν := ν) sl₂ hRouquier
     (weightPairing sl₂ realization) η [0] [] 1 2
 
+/-- Reversing three red strands contributes once for each of the three
+inverted red pairs to the degree of the full coefficient. -/
+example :=
+  let Ξ : Fin 3 → Unit →₀ ℕ := fun j => Finsupp.single () (j.val + 1)
+  let η : Fin 3 → Module.Dual ℂ ℂ := fun _ => 0
+  let B : LinearMap.BilinForm ℂ (Module.Dual ℂ ℂ) := 0
+  have hCard : (redWordInversions ([0, 1, 2] : List (Fin 3)) [2, 1, 0]).card = 3 := by
+    decide
+  have hoff : redWordOffset B η [0, 1, 2] [2, 1, 0] = 6 := by
+    change redWordOffset (0 : LinearMap.BilinForm ℂ (Module.Dual ℂ ℂ)) η
+      [0, 1, 2] [2, 1, 0] = 6
+    simp only [redWordOffset, LinearMap.zero_apply, sub_zero, Finset.sum_const, hCard]
+    norm_num
+  have h := redPermutationWeight_intAdd (Λ := Ξ) (ν := ν) sl₂ hRouquier
+    B η [0, 1, 2] [2, 1, 0] 0
+  show redPermutationWeight (Λ := Ξ) (ν := ν) sl₂ hRouquier B η [0, 1, 2] [2, 1, 0] 6 =
+      _ from by simpa only [hoff, Int.cast_zero, zero_add] using h
+
 end NonVacuity.WebsterFigureFive
 
 namespace NonVacuity.BraidedStendhal

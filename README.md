@@ -1025,6 +1025,10 @@ degree coset with offset `2 - ⟨λ_r, λ_d⟩`. The coordinate comparison
 The same comparison holds for any adjacent red swap with arbitrary spectator
 strands (`adjacentRedSwap_mem_weight`). The normalized pieces decompose the
 full coefficient as a direct sum (`adjacentRedSwapWeight_isInternal`).
+For any red permutation, `redWordOffset` sums the crossing corrections over
+the red pairs inverted between the boundary words. This defines the normalized
+coefficient and its full homogeneous decomposition
+(`redPermutation_mem_weight`, `redPermutationWeight_isInternal`).
 
 Definition 7.4 has cup and cap coefficient models in the ungraded derived
 categories, with a specified cohomological shift on the cup and a finite

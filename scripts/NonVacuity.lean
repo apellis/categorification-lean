@@ -8074,6 +8074,27 @@ example := fiveSlotCentral_flagRows_eval Λ Q factor rfl rfl (by simp [D])
 end
 end NonVacuity.WebsterTwoBlackFlag
 
+namespace NonVacuity.WebsterCentralFlagInjection
+
+open Categorification.Stendhal BraidedStendhalAlgebra
+noncomputable section
+
+private abbrev Q : Unit → Unit → MvPolynomial (Fin 2) ℤ := fun _ _ => 0
+private abbrev Λ : Fin 3 → Unit →₀ ℕ := fun r =>
+  Finsupp.single () (if r=0 then 3 else if r=1 then 2 else 1)
+
+/-- The spectator supports both blacks and both exchanged-red crossings
+have positive weight. The row reflection and balanced injection hold in
+the globally violated quotient over the integers. -/
+example : FiveSlotCentralRowReflection Q Λ :=
+  fiveSlotCentral_rowReflection Q Λ (fun _ _ _ => rfl)
+
+example : Function.Injective
+    (blockKernelColumnInclusion Q Λ (fixedTopFourExitCut 1) 1 2 fixedTopFourExitBottom) :=
+  fiveSlotCentral_blockKernelColumnInclusion_injective Q Λ (fun _ _ _ => rfl)
+
+end
+end NonVacuity.WebsterCentralFlagInjection
 namespace NonVacuity.WebsterFiveSlotFlag
 
 open KLR KLRAlgebra Stendhal Stendhal.FiveSlotFlag Stendhal.BraidedStendhalAlgebra
@@ -8120,6 +8141,116 @@ private noncomputable abbrev Λ : Fin 3 → Unit →₀ ℕ := fun _ => Finsupp.
 example := fiveSlot_blockKernelColumnInclusion_injective Q Λ (fun _ _ _ => rfl)
 
 end NonVacuity.WebsterFiveSlotKernelColumn
+
+namespace NonVacuity.WebsterFiveSlotThreeTopKernelColumn
+
+open Categorification.KLR Categorification.Stendhal BraidedStendhalAlgebra
+open Categorification.TypeA
+
+private noncomputable abbrev Q : Unit → Unit → MvPolynomial (Fin 2) ℚ := fun _ _ => 0
+private noncomputable abbrev Λ : Fin 3 → Unit →₀ ℕ := fun _ => Finsupp.single () 2
+private abbrev μ := stendhalWeight 3 ({()} + {()} : Multiset Unit)
+private abbrev extreme := fixedTopFourExitCut 2
+private abbrev mixed := sadj μ.card 2 • extreme
+private abbrev full := sadj μ.card 3 • mixed
+
+example := fiveSlotRightTop_blockKernelColumnInclusion_injective Q Λ extreme (fun _ _ _ => rfl)
+  (Or.inl rfl)
+
+example := fiveSlotRightTop_blockKernelColumnInclusion_injective Q Λ mixed (fun _ _ _ => rfl)
+  (Or.inr (Or.inl rfl))
+
+example := fiveSlotRightTop_blockKernelColumnInclusion_injective Q Λ full (fun _ _ _ => rfl)
+  (Or.inr (Or.inr rfl))
+
+end NonVacuity.WebsterFiveSlotThreeTopKernelColumn
+
+namespace NonVacuity.WebsterFiveSlotThreeTopDerived
+
+open Categorification.KLR Categorification.Stendhal Categorification.TypeA
+open BraidedStendhalAlgebra DG MulOpposite
+open scoped DG.DegreeZero
+
+attribute [local instance 1200] Ring.toIntAlgebra
+
+private noncomputable abbrev Q : Unit → Unit → MvPolynomial (Fin 2) ℚ := fun _ _ => 0
+private noncomputable abbrev Λ : Fin 3 → Unit →₀ ℕ := fun _ => Finsupp.single () 2
+local notation "ν₀" => ({()} + {()} : Multiset Unit)
+local notation "t" => sadj (Multiset.card (stendhalWeight 3 ν₀)) 2 • fixedTopFourExitCut 2
+local notation "T" => IsIdempotentElem.Corner
+  (isIdempotentElem_violMk_redProj ℚ Q Λ ν₀ (redWord t))
+local notation "U" => IsIdempotentElem.Corner
+  (isIdempotentElem_violMk_loading Q Λ fixedTopFourExitBottom)
+
+example [DG.HasDerivedCategory.{0, 0} Tᵐᵒᵖ] [DG.HasDerivedCategory.{0, 0} Uᵐᵒᵖ] :=
+  fiveSlotRightTop_blockKernelColumnDerivedHomology_mono Q Λ t (fun _ _ _ => rfl)
+    (Or.inr (Or.inl rfl))
+
+end NonVacuity.WebsterFiveSlotThreeTopDerived
+
+namespace NonVacuity.WebsterFiveSlotBoundedSpectator
+
+open Categorification.KLR Categorification.Stendhal Categorification.QuantumGroup
+open BraidedStendhalAlgebra CategoryTheory DG MulOpposite
+open scoped DG.DegreeZero
+
+attribute [local instance 1200] Ring.toIntAlgebra
+
+private noncomputable abbrev C := Categorification.QuantumGroup.CartanDatum.ofGraph (⊥ : SimpleGraph Unit)
+private noncomputable abbrev Λ : Fin 3 → Unit →₀ ℕ := fun _ => Finsupp.single () 1
+private noncomputable abbrev Q := Categorification.KL3.Diagram.CL.qCL
+  (Categorification.KL3.Diagram.CL.CLScalars.kl : Categorification.KL3.Diagram.CL.CLScalars C ℚ)
+
+local notation "ν₀" => ({()} + {()} : Multiset Unit)
+local notation "t" => fixedTopFourExitCut 1
+local notation "κ" => ([0,2,1] : List (Fin 3))
+local notation "Corner" => fun reds : List (Fin 3) =>
+  IsIdempotentElem.Corner (isIdempotentElem_violMk_redProj ℚ Q Λ ν₀ reds)
+
+example := fiveSlot_blockKernelTensorInclusion_injective_of_spectatorWeight_le_one
+  (k := ℚ) C Λ t (by decide) (by simp [Λ])
+
+example := fiveSlot_blockKernelTensorInclusion_injective_of_spectatorWeight_le_one
+  (k := ℚ) C Λ (fixedTopFourExitCut 2) (by decide) (by simp [Λ])
+
+example [DG.HasDerivedCategory.{0, 0} (Corner (redWord t))ᵐᵒᵖ]
+    [DG.HasDerivedCategory.{0, 0} (Corner κ)ᵐᵒᵖ] :=
+  fiveSlot_blockKernelDerivedHomology_mono_of_spectatorWeight_le_one
+    (k := ℚ) C Λ t (by decide) (by simp [Λ])
+
+end NonVacuity.WebsterFiveSlotBoundedSpectator
+
+namespace NonVacuity.WebsterFiveSlotAllTops
+
+open Categorification.KLR Categorification.Stendhal Categorification.QuantumGroup
+open BraidedStendhalAlgebra CategoryTheory DG MulOpposite
+open scoped DG.DegreeZero
+
+attribute [local instance 1200] Ring.toIntAlgebra
+
+private noncomputable abbrev C := Categorification.QuantumGroup.CartanDatum.ofGraph (⊥ : SimpleGraph Unit)
+private noncomputable abbrev Λ : Fin 3 → Unit →₀ ℕ := fun r => Finsupp.single () (![3,2,1] r)
+private noncomputable abbrev Q := Categorification.KL3.Diagram.CL.qCL
+  (Categorification.KL3.Diagram.CL.CLScalars.kl : Categorification.KL3.Diagram.CL.CLScalars C ℚ)
+
+local notation "ν₀" => ({()} + {()} : Multiset Unit)
+local notation "t" => fixedTopFourExitCut 1
+local notation "nearby" => Categorification.TypeA.sadj (Multiset.card (stendhalWeight 3 ν₀)) 2 •
+  fixedTopFourExitCut 0
+local notation "κ" => ([0,2,1] : List (Fin 3))
+local notation "Corner" => fun reds : List (Fin 3) =>
+  IsIdempotentElem.Corner (isIdempotentElem_violMk_redProj ℚ Q Λ ν₀ reds)
+
+example := fiveSlot_blockKernelTensorInclusion_injective_standard_allTops (k := ℚ) C Λ t (by decide)
+
+example := fiveSlot_blockKernelTensorInclusion_injective_standard_allTops
+  (k := ℚ) C Λ nearby (by decide)
+
+example [DG.HasDerivedCategory.{0, 0} (Corner (redWord t))ᵐᵒᵖ]
+    [DG.HasDerivedCategory.{0, 0} (Corner κ)ᵐᵒᵖ] :=
+  fiveSlot_blockKernelDerivedHomology_mono_standard_allTops (k := ℚ) C Λ t (by decide)
+
+end NonVacuity.WebsterFiveSlotAllTops
 
 namespace NonVacuity.WebsterFiveSlotAllBottom
 

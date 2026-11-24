@@ -6286,3 +6286,23 @@ example := exists_blockColumn_coordinate_embedding Q (fun _ => Finsupp.single fa
   L M pair β (fun _ _ _ => rfl) wt
 
 end NonVacuity.WebsterBlockShuffle
+
+namespace NonVacuity.WebsterLoadingPlacement
+open Categorification.Stendhal Categorification.Stendhal.RedBlock Categorification.KLR
+
+private abbrev ν : Multiset Unit := {(), (), (), ()}
+private def t : Seq (stendhalWeight 4 ν) :=
+  KLRAlgebra.Seq.ofList [.inr 0, .inl (), .inr 1, .inl (), .inr 2, .inl (), .inr 3, .inl ()]
+    (by decide)
+private def pair : Fin 2 ↪ Fin 4 where
+  toFun i := ⟨i.val + 1, by omega⟩
+  inj' i j h := Fin.ext (Nat.add_right_cancel (congrArg Fin.val h))
+private theorem ht : ¬ IsViolated t := by
+  rintro ⟨hp, hb⟩
+  have he : t.lbl ⟨0, hp⟩ = .inr 0 := rfl
+  simp [he] at hb
+private theorem ho : redWord t = [0] ++ pair 0 :: pair 1 :: [3] := by decide
+
+example := exists_place_adjacent t ht [0] [3] pair ho
+
+end NonVacuity.WebsterLoadingPlacement

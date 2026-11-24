@@ -1028,7 +1028,8 @@ action (Cor 6.17); Ringel duality (Cor 6.18); semi-orthogonal decompositions (Pr
 Serre functor (Prop 6.20).
 
 For the multi-strand interval calculation, `intervalConcat` puts a local KLR diagram
-between fixed exterior loading idempotents. The exact image is the span of shifted
+between fixed exterior loading idempotents. The map is injective for symmetric
+parameters (`intervalConcat_injective`). Its image is the span of shifted
 local PBW words and their shifted bottom dots (`range_intervalConcat_eq_span`).
 
 ### Phase E: §7, rigidity

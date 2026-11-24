@@ -6502,4 +6502,7 @@ example (x y : KLRAlgebra ℤ params M) :
     intervalConcat params l r (x * y) = intervalConcat params l r x * intervalConcat params l r y :=
   intervalConcat_mul params l r x y
 
+example : Function.Injective (intervalConcat (β := M) params l r) :=
+  intervalConcat_injective params (by intro a b _; simp [params]) l r
+
 end NonVacuity.WebsterIntervalConcat

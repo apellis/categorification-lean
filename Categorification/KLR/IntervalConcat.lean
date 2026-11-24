@@ -2,8 +2,7 @@
 Copyright (c) 2026 Alex Ellis. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 -/
-import Categorification.KLR.BasisTheoremGeneral
-import Categorification.KLR.Concat
+import Categorification.KLR.InductionFree
 
 
 /-!
@@ -99,5 +98,36 @@ theorem range_intervalConcat_eq_span (hsym : KLRSymm Q) (l : Seq α) (r : Seq γ
   funext b
   rw [Function.comp_apply, intervalConcat_apply, show B b = _ from basisOfSymm_apply _ _ _ _,
     concat_interval_ψw_pol_e _ ((hρ b.2.1).1.1) l b.1 r]
+
+private theorem exists_idem_coordinate (hsym : KLRSymm Q) {ν : Multiset I} (i : Seq ν) :
+    ∃ f : KLRAlgebra k Q ν →ₗ[k] k, f (e i) = 1 := by
+  classical
+  let B := basisOfSymm hsym (canWord ν.card)
+    (fun w => ⟨isReduced_canWord _ w, wordProd_canWord _ w⟩)
+  let j : Seq ν × Perm (Fin ν.card) × (Fin ν.card →₀ ℕ) := (i, 1, 0)
+  refine ⟨B.coord j, ?_⟩
+  have hj : B j = e i := by
+    dsimp only [B]
+    rw [basisOfSymm_apply]
+    simp [j, canWord_one]
+  rw [← hj, Module.Basis.coord_apply, Module.Basis.repr_self, Finsupp.single_eq_same]
+
+/-- For symmetric parameters, concatenating fixed exterior loading idempotents
+is faithful on local interval relations. -/
+theorem intervalConcat_injective (hsym : KLRSymm Q) (l : Seq α) (r : Seq γ) :
+    Function.Injective (intervalConcat (β := β) Q l r) := by
+  intro x y h
+  rw [intervalConcat_apply, intervalConcat_apply] at h
+  obtain ⟨left, hl⟩ := exists_idem_coordinate Q hsym l
+  obtain ⟨right, hr⟩ := exists_idem_coordinate Q hsym r
+  have hleft := congrArg
+    (fun z => TensorProduct.lid k _ (left.rTensor (KLRAlgebra k Q (β + γ)) z))
+    (concat_injective hsym h)
+  have hm : concat Q β γ (x ⊗ₜ[k] e r) = concat Q β γ (y ⊗ₜ[k] e r) := by
+    simpa only [LinearMap.rTensor_tmul, hl, TensorProduct.lid_tmul, one_smul] using hleft
+  have hright := congrArg
+    (fun z => TensorProduct.rid k _ (right.lTensor (KLRAlgebra k Q β) z))
+    (concat_injective hsym hm)
+  simpa only [LinearMap.lTensor_tmul, hr, TensorProduct.rid_tmul, one_smul] using hright
 
 end Categorification.KLR.KLRAlgebra

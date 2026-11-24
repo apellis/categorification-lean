@@ -1027,7 +1027,9 @@ modules, the homotopy category and the derived category are additive. At the
 dg module level the tensor commutes with cohomological shifts naturally
 (`diagramWeightTensorShiftNatIso`). The shift isomorphisms respect zero and
 addition and descend to the homotopy category
-(`diagramWeightTensorHomotopy_commShift`). A balanced homogeneous multiplication of two
+(`diagramWeightTensorHomotopy_commShift`). Mapping cone comparison identifies
+the standard triangles and makes the homotopy tensor triangulated
+(`diagramWeightTensorHomotopy_isTriangulated`). A balanced homogeneous multiplication of two
 coefficients induces their product from the intermediate weight-category
 tensor coend (`diagramWeightCoendProduct_tmul`). Compatibility with the outer
 action gives a map of dg modules (`diagramWeightCoendProductHom`).

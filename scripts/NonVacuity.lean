@@ -8566,4 +8566,9 @@ example := FiveSlotFlag.fiveSlotLastRed_firstCrossing_cancel Q Λ (fun _ _ _ => 
 
 example := FiveSlotFlag.fiveSlotLastRed_secondCrossing_mem_leftExtremeImage Q Λ (fun _ _ _ => rfl)
 
+example (a : rIdeal (orderedLoadingIdem Q Λ (fiveSlotRightLoading 2))) :=
+  fiveSlotLastRedKernel_mem_iff_two_nearby_factors Q Λ (fun _ _ _ => rfl) a
+
+example := fiveSlotLastRedKernel_equiv_nilHeckeRangeProd Q Λ
+
 end NonVacuity.WebsterFiveSlotLastRedTransport

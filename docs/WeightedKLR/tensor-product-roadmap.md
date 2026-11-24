@@ -927,8 +927,34 @@ over the respective corners, using red relabelling and horizontal reflection to 
 left standardization there. The inverse cyclic rotation relates the two canonical two-piece
 loadings, so `braidingFunctorObjFigureFiveStandardizationIso` composes both comparisons with
 `braidingFunctorObjFigureFiveIso`. Thus the ungraded two-red braid sends
-`S(P_u ⊠ P_∅)` to `S(P_∅ ⊠ P_u)` in cohomological degree zero. The internal grading shift
-and the general adjacent-block reduction remain open.
+`S(P_u ⊠ P_∅)` to `S(P_∅ ⊠ P_u)` in cohomological degree zero.
+
+For the internal grading, `ExteriorStandardGrading.lean` grades `stdLayerModule` using the two
+projective factors, their exterior tensor, affine balanced induction, and the ordered quotient.
+The identity-shuffle tensor of loading idempotents has degree zero. In
+`BraidedStandardization.lean`, `loadingProjectiveEquivExteriorStandardization_mem_grade` and
+`loadingStandardEquivExteriorStandardization_mk_mem_grade` show that the two endpoint maps
+preserve degree on homogeneous diagram representatives. Relabelling and horizontal reflection
+preserve diagram degrees, and the standardization map identifies the degree-zero generators.
+`BraidedExteriorGrading.lean` identifies the whole pieces under those same maps. A homogeneous
+upper exterior element lifts to a homogeneous corner representative: take the corresponding
+component of any lift, using uniqueness of the intrinsic direct sum. At the lower endpoint the
+same-order cut consists of the diagrams of the loading right ideal, and its intrinsic comap
+provides the homogeneous components. The lower identification has no shift
+(`figureFiveLowerProjective_mem_grade_iff`). The upper exterior grading includes `ℤ` into `ℂ`,
+with zero pieces off the integers. Composing with the shifted loading comparison identifies its
+piece at `z + ⟨λ₀ − α, λ₁⟩` with the cut at `z`, for every complex `z`
+(`figureFiveExteriorToCut_mem_grade_iff`). Both sides vanish outside the shifted integral coset.
+The graded derived comparison still needs the graded version of Definition 6.6 and graded
+evaluation of its tensor on the lower projective.
+
+For Lemma 6.11, `braidingBimoduleFlip` implements the horizontal reflection used in
+the proof of `f_n → s_n`. It swaps the order corners and intertwines their actions with
+the opposite actions through the corner anti-involutions.
+`hasReflectedStandardFiltration_braidingBimodule` carries a supplied right-standard
+filtration of the inverse braid to a left filtration with the same loading labels on the
+braid, using restriction of scalars along the corner flip on each subquotient.
+Existence of the right-standard filtration and higher Tor vanishing remain open.
 
 Lemma 6.8, ordinary tensor at a fixed top loading: `adjacentBlockRoot` measures the cuts
 of `λ(j)`. A reduced diagram for the adjacent red swap factors through the swapped red

@@ -6725,3 +6725,28 @@ example :
 
 end NonVacuity.WebsterActualBraidKernel
 end
+
+noncomputable section
+namespace NonVacuity.WebsterTwoRedPartialStandard
+
+open Categorification Categorification.KLR Categorification.Stendhal
+open Categorification.Stendhal.BraidedStendhalAlgebra
+
+attribute [local instance 1200] Ring.toIntAlgebra
+
+private abbrev ν : Multiset Bool := {false, false}
+private abbrev Q : Bool → Bool → MvPolynomial (Fin 2) ℤ := fun _ _ => 1
+private abbrev Λ : Fin 2 → Bool →₀ ℕ := fun _ => Finsupp.single false 2
+private def s : Seq (stendhalWeight 2 ν) :=
+  ⟨fun j => if j.val = 0 then .inr 0 else if j.val = 3 then .inr 1 else .inl false, by decide⟩
+
+private abbrev corner (order : List (Fin 2)) :=
+  (isIdempotentElem_violMk_redProj ℤ Q Λ ν order).Corner
+
+local instance (order : List (Fin 2)) : HasDerivedCategory.{0, 0} (corner order)ᵐᵒᵖ :=
+  HasDerivedCategory.small _
+
+example := blockPartialStandard_twoRed_braid_homology_vanish Q Λ s [1, 0] (-1) (by decide)
+
+end NonVacuity.WebsterTwoRedPartialStandard
+end

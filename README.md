@@ -1281,6 +1281,11 @@ has ambient derived tensor homology only in degree zero for every right
 coefficient (`Stendhal.labelTwoExteriorReflectedLineEquiv`,
 `Stendhal.labelTwoExteriorReflectedLineGenerator_degree_two`,
 `Stendhal.LabelTwo.labelTwoLeftExterior_derivedTensorHomology_isZero`).
+The ambient derived tensor of the outgoing exterior term with its
+horizontal reflection has degree-zero homology `k` and vanishes in every
+other cohomological degree
+(`Stendhal.LabelTwo.outgoingExteriorAmbientHomology_zero`,
+`Stendhal.LabelTwo.outgoingExteriorAmbientHomology_isZero`).
 
 
 

@@ -1,4 +1,6 @@
 import Categorification
+import Mathlib.Algebra.Homology.Single
+import Mathlib.CategoryTheory.Preadditive.Yoneda.Basic
 import Mathlib.Algebra.Category.Grp.Zero
 import Mathlib.Analysis.Real.Sqrt
 import LieLean.Algebra.QuantumGroup.Sl2.SimpleModule
@@ -8346,6 +8348,23 @@ end
 
 end NonVacuity.WebsterFiveSlotMarkedJoints
 
+namespace NonVacuity.WebsterFirstPairAllBottom
+
+open Categorification.KLR Categorification.Stendhal Categorification.QuantumGroup BraidedStendhalAlgebra
+
+private noncomputable abbrev C := CartanDatum.ofGraph (⊥ : SimpleGraph Unit)
+private noncomputable abbrev Q := Categorification.KL3.Diagram.CL.qCL
+  (Categorification.KL3.Diagram.CL.CLScalars.kl : Categorification.KL3.Diagram.CL.CLScalars C ℚ)
+private def Λ : Fin 3 → Unit →₀ ℕ := fun r => Finsupp.single () (r.val + 1)
+private def t : Seq (stendhalWeight 3 ({()} + {()} : Multiset Unit)) :=
+  Seq.ofList [.inl (), .inr 0, .inr 1, .inr 2, .inl ()] (by decide)
+
+example := firstPair_blockKernelTensorInclusion_injective_standard_of_twoInterior (k := ℚ) C Λ t
+  (by decide) (blockKernelColumnInclusion_injective_of_tensor Q Λ t 0 1 firstPairBottomTwoInterior
+    (blockKernelTensorInclusion_injective_of_violated_top Q Λ t 0 1 _ ⟨by decide, by decide⟩))
+
+end NonVacuity.WebsterFirstPairAllBottom
+
 namespace NonVacuity.WebsterFiveSlotCentral
 
 open Categorification.KLR Categorification.Stendhal Categorification.TypeA
@@ -8674,22 +8693,16 @@ example := fiveSlot_blockKernelTensorInclusion_injective_standard C Λ
 
 end NonVacuity.WebsterFiveSlotAllBottom
 
-namespace NonVacuity.WebsterFirstPairAllBottom
+namespace NonVacuity.WebsterFirstPairTwoAfter
 
-open Categorification.KLR Categorification.Stendhal Categorification.QuantumGroup BraidedStendhalAlgebra
+open Categorification.KLR Categorification.Stendhal BraidedStendhalAlgebra MvPolynomial
 
-private noncomputable abbrev C := CartanDatum.ofGraph (⊥ : SimpleGraph Unit)
-private noncomputable abbrev Q := Categorification.KL3.Diagram.CL.qCL
-  (Categorification.KL3.Diagram.CL.CLScalars.kl : Categorification.KL3.Diagram.CL.CLScalars C ℚ)
+private def Q : Unit → Unit → MvPolynomial (Fin 2) (ZMod 4) := fun _ _ => 0
 private def Λ : Fin 3 → Unit →₀ ℕ := fun r => Finsupp.single () (r.val + 1)
-private def t : Seq (stendhalWeight 3 ({()} + {()} : Multiset Unit)) :=
-  Seq.ofList [.inl (), .inr 0, .inr 1, .inr 2, .inl ()] (by decide)
 
-example := firstPair_blockKernelTensorInclusion_injective_standard_of_twoInterior (k := ℚ) C Λ t
-  (by decide) (blockKernelColumnInclusion_injective_of_tensor Q Λ t 0 1 firstPairBottomTwoInterior
-    (blockKernelTensorInclusion_injective_of_violated_top Q Λ t 0 1 _ ⟨by decide, by decide⟩))
+example := firstPairTwoAfter_blockKernel_mem_iff_twoFactors Q Λ (fun _ _ _ => rfl)
 
-end NonVacuity.WebsterFirstPairAllBottom
+end NonVacuity.WebsterFirstPairTwoAfter
 
 namespace NonVacuity.WebsterFiveSlotAllBottomDerived
 
@@ -9161,6 +9174,27 @@ example : fundamentalBraidMiddleClass ∉ Graded.shift (figureFiveCutGrade (Λ :
   rw [fundamentalBraidMiddleClass_resolutionWeight]
   norm_num
 
+
+example : ∃ z, z ∈ Graded.shift (figureFiveCutGrade (Λ := wt) datum fundamentalBraidParameters
+    (weightPairing datum realization) (fun _ => braidFundamentalWeight realization) terminal 1 0) 1 (3 / 2) ∧
+    fundamentalBraidCutComplex.g z = 0 ∧ ¬ ∃ y, fundamentalBraidCutComplex.f y = z :=
+  (fundamentalBraidHomology_weight_iff realization _).mpr rfl
+
+example : ¬ ∃ z, z ∈ Graded.shift (figureFiveCutGrade (Λ := wt) datum fundamentalBraidParameters
+    (weightPairing datum realization) (fun _ => braidFundamentalWeight realization) terminal 1 0) 1 (5 / 2) ∧
+    fundamentalBraidCutComplex.g z = 0 ∧ ¬ ∃ y, fundamentalBraidCutComplex.f y = z := by
+  intro h
+  have he : (5 / 2 : ℂ) = 3 / 2 := (fundamentalBraidHomology_weight_iff realization _).mp h
+  norm_num at he
+
+
+example : (fundamentalBraidWeightComplex realization (5 / 2)).Exact :=
+  fundamentalBraidWeightComplex_exact realization (by norm_num)
+
+open CategoryTheory in
+noncomputable example : (fundamentalBraidWeightComplex realization (3 / 2)).homology ≅ ModuleCat.of ℚ ℚ :=
+  fundamentalBraidWeightComplex_homologyIso realization
+
 end
 end NonVacuity.WebsterFundamentalBraidWeight
 
@@ -9512,6 +9546,9 @@ example := diagramWeightCoendProduct_surjective G G G leftAction rightAction lef
 example := diagramWeightTensorSlice_leftInverse G G leftAction rightAction leftAction rightAction
   (⟨0⟩ : QWeight) (⟨0⟩ : QWeight)
 
+example := diagramWeightTensorOrdinary_range_eq_grade G G leftAction rightAction leftAction rightAction
+  (⟨0⟩ : QWeight) (⟨1⟩ : QWeight)
+
 example := diagramWeightOrdinaryProjection_tmul G G leftAction rightAction leftAction rightAction
   (⟨0⟩ : QWeight) (⟨1⟩ : QWeight)
   (⟨1, InDegreeZero.ring_mem_grading_zero (1 : ℚ)⟩ : G 0)
@@ -9731,3 +9768,25 @@ example := gradedTerminalStandardResolution_quasiIso
 example := terminal_lt_middle
 
 end NonVacuity.WebsterGradedTerminalStandard
+
+noncomputable section
+
+namespace NonVacuity.WebsterWeightComplex
+
+open Categorification CategoryTheory DG
+open scoped DG.DegreeZero
+
+local instance instScalarWeightComplexInternalGrading : InternalGrading ℚ := scalarInternalGrading ℚ
+local instance instScalarWeightComplexBigradedRing : BigradedDGRing ℚ := scalarBigradedDGRing ℚ
+
+private abbrev source : WeightCategory ℚ := ⟨0⟩
+
+private abbrev weightComplex :=
+  preadditiveCoyonedaObj source ⋙ HomologicalComplex.single _ (ComplexShape.up ℤ) (-1)
+
+example : CatModule.IsQuasiIso (diagramWeightModuleOfComplexMap (𝟙 weightComplex)) :=
+  diagramWeightModuleOfComplexMap_isQuasiIso _ (fun _ => inferInstance)
+
+end NonVacuity.WebsterWeightComplex
+
+end

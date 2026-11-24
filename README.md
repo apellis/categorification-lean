@@ -1049,7 +1049,10 @@ to iterated extensions of the localized layers
 restricts to a short exact sequence of weight modules
 (`diagramWeightLeftLinearMap_shortExact`). For Lemma 6.11, vanishing of the
 derived tensor on the localized layers gives vanishing on the filtered input
-(`WeightModuleFiltration.diagramWeightDerivedTensor_cohomology_isZero`).
+(`WeightModuleFiltration.diagramWeightDerivedTensor_cohomology_isZero`). A diagram of
+ordinary complexes on the weight category realizes as a dg module, with
+pointwise quasi-isomorphisms becoming dg quasi-isomorphisms
+(`diagramWeightModuleOfComplex`, `diagramWeightModuleOfComplexMap_isQuasiIso`).
 
 A balanced homogeneous multiplication of two
 coefficients induces their product from the intermediate weight-category
@@ -1065,7 +1068,8 @@ weights (`diagramWeightCoendProduct_surjective`). Forgetting the intermediate
 weight embeds each endpoint coend as a summand of the ordinary additive
 balanced tensor (`diagramWeightTensorSlice_leftInverse`). The associated
 projection keeps pure tensors of the endpoint degree
-(`diagramWeightOrdinaryProjection_tmul`). For a rectangular corner between two degree-zero
+(`diagramWeightOrdinaryProjection_tmul`). The image of the endpoint weight coend is exactly the total-degree
+component of the ordinary balanced tensor (`diagramWeightTensorOrdinary_range_eq_grade`). For a rectangular corner between two degree-zero
 idempotents, `diagramCornerWeightDerivedRightTensor` uses the restricted grading
 and defines derived right tensor on the graded right-module categories.
 For the actual braid bimodule this gives `auxiliaryGradedBraidingFunctor`
@@ -1159,7 +1163,13 @@ projective is exactly `3/2` (`fundamentalBraidMiddleClass_resolutionWeight`).
 
 On the entire crossed loading cuts the first map is injective and the
 second is surjective. The middle homology is the scalar line
-(`fundamentalBraidCutComplex_homologyIso`). The diagonal-ring equivalence
+(`fundamentalBraidCutComplex_homologyIso`). The weights admitting a homogeneous
+representative of a nonzero class consist of three halves alone
+(`fundamentalBraidHomology_weight_iff`). Both differentials preserve the
+total weight. At three halves the restricted complex has a rational
+homology line, and all other weight pieces are exact
+(`fundamentalBraidWeightComplex_homologyIso`, `fundamentalBraidWeightComplex_exact`).
+The diagonal-ring equivalence
 carries the two mixed crossings to the differentials of the projective
 resolution of the middle head (`fundamentalBraidSourceResolution`). Its
 balanced tensor with the braid has this same homology line in resolution

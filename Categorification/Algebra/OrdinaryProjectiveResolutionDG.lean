@@ -50,7 +50,9 @@ private theorem dg_ofComplex_kProjective (K : CochainComplex (ModuleCat.{u} R) �
   rw [Functor.map_zero]
   exact CochainComplex.IsKProjective.nonempty_homotopy_zero _ hY
 
-private theorem isQuasiIso_ofComplex_map
+/-- The dg realization of a quasi-isomorphism of ordinary cochain complexes
+is a quasi-isomorphism. -/
+theorem dgModule_ofComplex_map_isQuasiIso
     {K L : CochainComplex (ModuleCat.{u} R) ℤ} (f : K ⟶ L) [QuasiIso f] :
     ((DGModuleCat.ofComplex R).map f).hom.IsQuasiIso := by
   let F := DGModuleCat.ofComplex R
@@ -76,7 +78,7 @@ def projectiveResolutionDGAug : projectiveResolutionDGModel P ⟶ projectiveReso
   (DGModuleCat.ofComplex R).map (HomologicalComplex.extendMap P.π embeddingDownNat)
 
 theorem projectiveResolutionDGAug_quasiIso : (projectiveResolutionDGAug P).hom.IsQuasiIso :=
-  isQuasiIso_ofComplex_map _
+  dgModule_ofComplex_map_isQuasiIso _
 
 theorem projectiveResolutionDGModel_kProjective :
     IsKProjective.{u} R (projectiveResolutionDGModel P) := by

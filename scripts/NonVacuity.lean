@@ -9171,6 +9171,10 @@ example := diagramWeightTensorConeIso (fun j => DG.grading (M := ℚ) j)
 example : (diagramWeightTensorHomotopy (fun j => DG.grading (M := ℚ) j)
     leftAction rightAction).IsTriangulated := inferInstance
 
+
+example : (diagramWeightDerivedTensor (fun j => DG.grading (M := ℚ) j)
+    leftAction rightAction).IsTriangulated := inferInstance
+
 end
 
 end NonVacuity.WebsterWeightTensor

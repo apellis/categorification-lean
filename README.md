@@ -1029,7 +1029,10 @@ dg module level the tensor commutes with cohomological shifts naturally
 addition and descend to the homotopy category
 (`diagramWeightTensorHomotopy_commShift`). Mapping cone comparison identifies
 the standard triangles and makes the homotopy tensor triangulated
-(`diagramWeightTensorHomotopy_isTriangulated`). A balanced homogeneous multiplication of two
+(`diagramWeightTensorHomotopy_isTriangulated`). The derived tensor is also
+triangulated through the K-projective equivalence. Vanishing of its
+cohomology at a target weight and degree passes through finite iterated
+extensions (`diagramWeightDerivedTensor_cohomology_isZero_of_extensions`). A balanced homogeneous multiplication of two
 coefficients induces their product from the intermediate weight-category
 tensor coend (`diagramWeightCoendProduct_tmul`). Compatibility with the outer
 action gives a map of dg modules (`diagramWeightCoendProductHom`).

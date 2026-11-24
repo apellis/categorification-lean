@@ -3,6 +3,7 @@ Copyright (c) 2026 Alex Ellis. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 -/
 import Categorification.Algebra.DerivedTensor
+import Categorification.Algebra.OrdinaryProjectiveResolutionDG
 import Categorification.WeightedKLR.RedStrands.LeftStandardModule
 
 /-!
@@ -111,6 +112,37 @@ theorem isZero_derivedTensorHomology_of_loading_projective_summands
   have hz : (z : B) • u = z := Subtype.ext z.2
   rw [← hz, map_smul]
   exact Submodule.smul_mem _ _ (Submodule.subset_span ⟨e j i, hunit, hkill j hj i⟩)
+
+
+/-- An ordinary projective resolution with the prescribed loading support gives derived
+tensor vanishing away from zero. -/
+theorem isZero_derivedTensorHomology_of_projectiveResolution_loading_support
+    {X : ModuleCat.{u} B} (P : ProjectiveResolution X)
+    {ι : Type*} (e : ι → B) (good : ι → Prop)
+    (he : ∀ i, IsIdempotentElem (e i))
+    (hs : ∀ n : ℕ, ∃ (J : Type) (label : J → ι)
+      (inc : ∀ i, lIdeal (e (label i)) →ₗ[B] P.complex.X (n+1)),
+      (∀ i, good (label i)) ∧ ∀ x : P.complex.X (n+1),
+        x ∈ Submodule.span B {y | ∃ i z, inc i z = y})
+    (hkill : ∀ i, good i → ∀ m : M, op (e i) • m = 0)
+    (n : ℤ) (hn : n ≠ 0) :
+    IsZero ((homologyFunctor (A := A) ℤ n).obj
+      ((derivedTensor A B M).obj (Q.obj (DGModuleCat.of B (InDegreeZero X))))) := by
+  classical
+  have h (j : ℤ) : ∃ (J : Type) (label : J → ι)
+      (inc : ∀ i, lIdeal (e (label i)) →ₗ[B] projectiveResolutionDGModel P),
+      (∀ i, good (label i)) ∧ (j ≠ 0 → ∀ x : projectiveResolutionDGModel P,
+        x ∈ grading j → x ∈ Submodule.span B {y | ∃ i z, inc i z = y}) := by
+    by_cases hj : j = 0
+    · exact ⟨Empty, Empty.elim, fun i => i.elim, fun i => i.elim, fun h => (h hj).elim⟩
+    · obtain ⟨J, label, inc, hl, hspan⟩ := projectiveResolutionDGModel_loading_support P e good hs j hj
+      exact ⟨J, label, inc, hl, fun _ => hspan⟩
+  choose J label inc hl hspan using h
+  exact isZero_derivedTensorHomology_of_loading_projective_summands
+    (projectiveResolutionDGModel_kProjective P) (projectiveResolutionDGAugToOrdinary P)
+    (projectiveResolutionDGAugToOrdinary_quasiIso P)
+    (fun j i => e (label j i)) (fun j i => he (label j i)) inc hspan
+    (fun j _ i m => hkill _ (hl j i) m) n hn
 
 
 end Model

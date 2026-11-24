@@ -16,6 +16,8 @@ gives concentration of its image. The top nilHecke splitting and the
 balanced monomorphism at the final cut complete the dimension shift.
 -/
 
+set_option backward.isDefEq.respectTransparency false
+
 noncomputable section
 
 namespace Categorification.Stendhal.BraidedStendhalAlgebra
@@ -34,8 +36,8 @@ local notation "R" => KLRAlgebra k (stendhalQ Q Λ) μ
 local notation "F" => AlgHom.comp (violMk k Q Λ ν) (ofKLR k Q Λ ν)
 local notation "p" => fun t => F (e t)
 local notation "E₀" => fixedTopFourExitCut 0
-local notation "E₁" => fiveSlotHigherLoading 2
-local notation "E₂" => fiveSlotRightLoading 2
+local notation "E₁" => sadj N 2 • E₀
+local notation "E₂" => sadj N 3 • (sadj N 2 • fixedTopFourExitCut 2)
 local notation "E" => violMk k Q Λ ν (redProj k Q Λ ν (redWord E₀))
 local notation "T" => IsIdempotentElem.Corner (isIdempotentElem_violMk_redProj k Q Λ ν (redWord E₂))
 private theorem lastRedOrder₀ : redWord E₀ = redWord E₂ := by decide
@@ -69,20 +71,32 @@ private theorem leftExtremeAboveOrder : redWord E₀ = redWord E₁ := by decide
 private def principalMap :=
   crossingIntoKernelMap Q Λ 1 2 leftExtremeAboveOrder aboveNearby 2
 
-private def leftExtremeToNearby : P₀ →ₗ[Tᵐᵒᵖ] P₁ :=
-  (blockLoadingKernel Q Λ E₁ 1 2).subtype.comp (principalMap Q Λ)
+private def leftExtremeToNearby : P₀ →ₗ[Tᵐᵒᵖ] P₁ where
+  toFun a := (principalMap Q Λ a).1
+  map_add' a b := congrArg Subtype.val (map_add (principalMap Q Λ) a b)
+  map_smul' r a := by
+    apply Subtype.ext; apply Subtype.ext
+    have h := congrArg (fun z : K₁ => z.1.1.1) (map_smul (principalMap Q Λ) r a)
+    exact h
 
 private theorem leftExtremeToNearby_val (a : P₀) :
     (leftExtremeToNearby Q Λ a).1.1 = u₀ * a.1.1 := by
+  change (principalMap Q Λ a).1.1.1 = _
+  unfold principalMap
   simpa only [ψw_cons, ψw_nil, mul_one] using
     crossingIntoKernelMap_val Q Λ 1 2 leftExtremeAboveOrder aboveNearby 2 (by decide) a
+
+private theorem lastRedExtreme_support (a : P₀) : p E₀ * a.1.1 = a.1.1 := by
+  have h := a.2
+  change f₀ * a.1 = a.1 at h
+  exact congrArg (fun z : T => z.1) h
 
 private theorem leftExtremeToNearby_injective (hQ : KLRSymm Q) :
     Function.Injective (leftExtremeToNearby Q Λ) := by
   intro a b h
   apply Subtype.ext; apply Subtype.ext; apply sub_eq_zero.mp
   apply fiveSlotNearby_leftWord_cancel_of_leftSupport Q Λ hQ
-  · rw [mul_sub, leftExtreme_support Q Λ a, leftExtreme_support Q Λ b]
+  · rw [mul_sub, lastRedExtreme_support Q Λ a, lastRedExtreme_support Q Λ b]
   · have hv := congrArg (fun z : P₁ => z.1.1) h
     rw [leftExtremeToNearby_val, leftExtremeToNearby_val] at hv
     simp only [ψw_cons, ψw_nil, mul_one] at hv
@@ -93,6 +107,7 @@ private def lastRed_firstNearbyMap : P₁ →ₗ[Tᵐᵒᵖ] K₂ :=
 
 private theorem lastRed_firstNearbyMap_val (a : P₁) :
     (lastRed_firstNearbyMap Q Λ a).1.1.1 = c₀ * a.1.1 := by
+  unfold lastRed_firstNearbyMap
   simpa only [ψw_cons, ψw_nil, mul_one] using
     crossingIntoKernelMap_val Q Λ 1 2 lastRedOrder₁ nearbyAboveTop 1 (by decide) a
 
@@ -113,7 +128,7 @@ private theorem lastRed_firstNearbyMap_injective (hQ : KLRSymm Q) :
     rw [sub_mul, ha, hb]
   · have hv := congrArg (fun z : K₂ => z.1.1.1) h
     rw [lastRed_firstNearbyMap_val, lastRed_firstNearbyMap_val] at hv
-    simpa only [mul_sub, hv, sub_self]
+    simp only [mul_sub, hv, sub_self]
 
 section Second
 variable (hQ : KLRSymm Q)
@@ -154,11 +169,11 @@ private theorem nearbyToLastRedSecond_on_principal (a : P₀) :
   rw [nearbyToLastRedSecond_val, leftExtremeToNearby_val,
     lastRed_firstNearbyMap_val, leftExtremeToNearby_val, leftExtremeDelta_val]
   have bottom : F (ψw [1] * e E₀) * a.1.1 = δ₀ * a.1.1 := by
-    rw [ψw_cons, ψw_nil, mul_one, map_mul F (ψ 1), mul_assoc δ₀,
-      leftExtreme_support Q Λ a]
-  have h := FiveSlotFlag.fiveSlotLastRed_secondCrossing_on_leftExtreme Q Λ a.1.1
-  change c₁ * (u₀ * a.1.1) = c₀ * (u₀ * (F (ψw [1] * e E₀) * a.1.1)) at h
-  rwa [bottom] at h
+    simp only [ψw_cons, ψw_nil, mul_one, map_mul, mul_assoc, lastRedExtreme_support Q Λ a]
+  calc
+    _ = c₀ * (u₀ * (F (ψw [1] * e E₀) * a.1.1)) :=
+      FiveSlotFlag.fiveSlotLastRed_secondCrossing_on_leftExtreme Q Λ a.1.1
+    _ = _ := congrArg (fun y : V => c₀ * (u₀ * y)) bottom
 
 include hQ in
 private theorem nearbyToLastRedSecond_on_principal_zero (a : P₀) :
@@ -186,8 +201,10 @@ private theorem lastRedSecond_range_eq_nilHecke_range :
       (blockLoadingRep_val Q Λ E₁ b).trans ((congrArg (· * E) hb₁).trans hb₂)
     refine ⟨z, ?_⟩
     apply Subtype.ext; apply Subtype.ext; apply Subtype.ext
-    rw [nearbyToLastRedSecond_val, fiveSlotLastRedKernel_nilHecke_val, hz]
-    exact hb.symm
+    calc
+      _ = c₁ * z.1.1 := nearbyToLastRedSecond_val Q Λ z
+      _ = c₁ * b := congrArg (c₁ * ·) hz
+      _ = _ := hb.symm.trans (fiveSlotLastRedKernel_nilHecke_val Q Λ a).symm
 
 end Second
 

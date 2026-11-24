@@ -987,8 +987,12 @@ elements of the source-order block column. The affine coordinate representatives
 be chosen as explicit reduced words indexed by the recursive block shuffles. In a
 binary shuffle, a right crossing either extends an external ascent or moves to an
 internal crossing in one block, with an error in a lower crossing-filtration step.
-The binary coordinates vanish at shuffles longer than the filtration degree.
-The right joint crossing formula on the full block quotient is open.
+The filtered binary coordinate reserves its shuffle length from the crossing
+budget, and the two tensor factors share the remainder. Iterating this bound gives
+the total-length bound for the recursive coordinates. In
+`exists_blockStack_filtered_quotient_coordinates` the bound passes to the image
+of that filtration in the quotient. The right joint crossing formula in these
+quotient coordinates is open.
 
 Still open for Lemma 6.8: the higher-homology vanishing in (6.21),
 including injectivity after tensoring the kernel inclusion, then Prop 6.9

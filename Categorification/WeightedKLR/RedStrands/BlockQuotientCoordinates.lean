@@ -107,6 +107,42 @@ private theorem exists_quotientBlockCoordinate (g : R →ₗ[k] diagrams Q Λ ro
 /-- The parabolic coordinates read the quotient by red dots, global violations and
 higher source loadings. Reconstruction is by stacking the original coordinate
 representatives. Webster v2, Lemma 6.8, proof of the kernel test (6.21). -/
+theorem exists_blockStack_filtered_quotient_coordinates (hQ : KLRSymm Q)
+    (h : weightSum row = stendhalWeight ℓ ν) :
+    let S := affineStackBlocks Q Λ L M f β h
+    ∃ n, ∃ (index : Fin n ≃ ShuffleIndex row) (g : Fin n → R →ₗ[k] diagrams Q Λ row) (w : Fin n → R)
+      (G : Fin n → (J).ringCon.Quotient →ₗ[k] quotients Q Λ row),
+      (∀ j y, G j (q (mk (raw y))) = P (g j y)) ∧
+      (∀ j, w j = S 1 * ψw (shuffleWord row (index j))) ∧
+      (∀ j y n, y ∈ filt k (stendhalQ Q Λ) μ n →
+        G j (q (mk (raw y))) ∈ (blockShuffleFilt Q Λ row (index j) n).map (P).toLinearMap) ∧
+      (∀ j y, g j (S 1 * y) = g j y) ∧
+      (∀ j, G j (q (mk (raw (w j)))) = 1) ∧
+      (∀ i j, i ≠ j → G i (q (mk (raw (w j)))) = 0) ∧
+      (∀ y, q (mk (raw (S 1 * y))) = ∑ j, q (mk (raw (S (g j y) * w j)))) := by
+  classical
+  obtain ⟨n, index, g, w, _, hfil, hw, hmul, _, hsec, hself, hother, _, hbad, rebuild⟩ :=
+    exists_blockStack_coordinates_with_filtered_shuffle_words Q Λ hQ L M f β h
+  have desc (j : Fin n) :=
+    exists_quotientBlockCoordinate Q Λ L M f β (g j) (hsec j) (hbad j)
+  choose G hG using desc
+  refine ⟨n, index, g, w, G, hG, hw, ?_, ?_, ?_, ?_, ?_⟩
+  · intro j y n hy
+    rw [hG]
+    exact ⟨g j y, hfil j y n hy, rfl⟩
+  · intro j y
+    rw [hmul, one_mul]
+  · intro j
+    rw [hG, hself, map_one]
+  · intro i j hij
+    rw [hG, hother _ _ hij, map_zero]
+  · intro y
+    have hr := congrArg ((q).comp mk) (rebuild y)
+    simpa only [map_sum, AlgHom.comp_apply] using hr
+
+/-- The parabolic coordinates read the quotient by red dots, global violations and
+higher source loadings. Reconstruction is by stacking the original coordinate
+representatives. Webster v2, Lemma 6.8, proof of the kernel test (6.21). -/
 theorem exists_blockStack_quotient_coordinates (hQ : KLRSymm Q)
     (h : weightSum row = stendhalWeight ℓ ν) :
     let S := affineStackBlocks Q Λ L M f β h
@@ -117,22 +153,9 @@ theorem exists_blockStack_quotient_coordinates (hQ : KLRSymm Q)
       (∀ j, G j (q (mk (raw (w j)))) = 1) ∧
       (∀ i j, i ≠ j → G i (q (mk (raw (w j)))) = 0) ∧
       (∀ y, q (mk (raw (S 1 * y))) = ∑ j, q (mk (raw (S (g j y) * w j)))) := by
-  classical
-  obtain ⟨n, g, w, _, hmul, _, hsec, hself, hother, _, hbad, rebuild⟩ :=
-    exists_blockStack_coordinates_with_bottom Q Λ hQ L M f β h
-  have desc (j : Fin n) :=
-    exists_quotientBlockCoordinate Q Λ L M f β (g j) (hsec j) (hbad j)
-  choose G hG using desc
-  refine ⟨n, g, w, G, hG, ?_, ?_, ?_, ?_⟩
-  · intro j y
-    rw [hmul, one_mul]
-  · intro j
-    rw [hG, hself, map_one]
-  · intro i j hij
-    rw [hG, hother _ _ hij, map_zero]
-  · intro y
-    have hr := congrArg ((q).comp mk) (rebuild y)
-    simpa only [map_sum, AlgHom.comp_apply] using hr
+  obtain ⟨n, _, g, w, G, hG, _, _, h⟩ :=
+    exists_blockStack_filtered_quotient_coordinates Q Λ L M f β hQ h
+  exact ⟨n, g, w, G, hG, h⟩
 
 /-- The descended coordinates separate the source-order block column. This uses
 reconstruction and the external block-algebra action on that column. -/

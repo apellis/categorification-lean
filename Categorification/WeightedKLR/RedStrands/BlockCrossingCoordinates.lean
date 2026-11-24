@@ -4,7 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 -/
 import Categorification.WeightedKLR.RedStrands.BlockCrossingSeam
 import Categorification.WeightedKLR.RedStrands.BlockShuffleLoading
-import Categorification.KLR.Crystal.IndDecomp
+import Categorification.WeightedKLR.RedStrands.BlockShuffleCrossing
 import Categorification.KLR.Examples.Small
 
 /-!
@@ -199,6 +199,52 @@ theorem isReduced_shuffleWord : ∀ (row : List (RedBlock I ℓ)) (u : ShuffleIn
     simpa only [shuffleWord, List.nil_append] using
       (IsReduced.parabolic h empty (isReduced_shuffleWord row u.2) (isReduced_canWord _ u.1.1) sh).1
 
+/-- Tensor crossing filtration on the external block diagrams. A pure tensor of
+block diagrams can use its crossing budget in either factor. -/
+def blockCrossingFilt : (row : List (RedBlock I ℓ)) → ℕ → Submodule k (X row)
+  | [], _ => ⊤
+  | B :: row, n => Submodule.span k {z | ∃ (p q : ℕ) (x : R B.weight) (y : X row),
+      p + q ≤ n ∧ x ∈ filt k S B.weight p ∧ y ∈ blockCrossingFilt row q ∧
+        omitRedDots Q Λ B x ⊗ₜ[k] y = z}
+
+/-- The available internal crossing budget after fixing the exiting shuffle. -/
+def blockShuffleFilt (row : List (RedBlock I ℓ)) (index : ShuffleIndex row) (n : ℕ) :
+    Submodule k (X row) :=
+  if (shuffleWord row index).length ≤ n then blockCrossingFilt Q Λ row (n - (shuffleWord row index).length) else ⊥
+
+/-- A shuffle longer than the source diagram has zero coefficient. -/
+theorem blockShuffleFilt_eq_bot (row : List (RedBlock I ℓ)) (index : ShuffleIndex row)
+    {n : ℕ} (hn : n < (shuffleWord row index).length) : blockShuffleFilt Q Λ row index n = ⊥ :=
+  ite_eq_right (Nat.not_le.mpr hn)
+
+private theorem filtered_cons_coordinate (B : RedBlock I ℓ) (row : List (RedBlock I ℓ))
+    (u : Shuffle (Seq.card_add' B.weight (weightSum row))) (v : ShuffleIndex row)
+    (tail : R (weightSum row) →ₗ[k] X row)
+    (htail : ∀ y n, y ∈ filt k S (weightSum row) n → tail y ∈ blockShuffleFilt Q Λ row v n)
+    {z : R B.weight ⊗[k] R (weightSum row)} {n : ℕ}
+    (hz : z ∈ tensorCrossingFilt S B.weight (weightSum row) (length _ u.1) n) :
+    TensorProduct.map (omitRedDots Q Λ B).toLinearMap tail z ∈ blockShuffleFilt Q Λ (B :: row) (u, v) n := by
+  let F := TensorProduct.map (omitRedDots Q Λ B).toLinearMap tail
+  let M := blockShuffleFilt Q Λ (B :: row) (u, v) n
+  change z ∈ M.comap F
+  apply (Submodule.span_le.2 ?_ hz)
+  rintro _ ⟨p, q, x, y, hpq, hx, hy, rfl⟩
+  change F (x ⊗ₜ[k] y) ∈ M
+  rw [show F (x ⊗ₜ[k] y) = omitRedDots Q Λ B x ⊗ₜ[k] tail y from TensorProduct.map_tmul _ _ x y]
+  have h := htail y q hy
+  by_cases good : (shuffleWord row v).length ≤ q
+  · rw [blockShuffleFilt, ite_eq_left good] at h
+    have budget : (shuffleWord (B :: row) (u, v)).length = (shuffleWord row v).length + length _ u.1 := by
+      simp only [shuffleWord, List.length_append, length_shiftWord, length_canWord]
+    have enough : (shuffleWord (B :: row) (u, v)).length ≤ n := by omega
+    rw [show M = blockCrossingFilt Q Λ (B :: row) (n - (shuffleWord (B :: row) (u, v)).length) from
+      ite_eq_left enough]
+    apply Submodule.subset_span
+    exact ⟨p, q - (shuffleWord row v).length, x, tail y, by omega, hx, h, rfl⟩
+  · rw [blockShuffleFilt, ite_eq_right good, Submodule.mem_bot] at h
+    rw [h, TensorProduct.tmul_zero]
+    exact M.zero_mem
+
 private theorem rightIn_word {a b : Multiset (I ⊕ Fin ℓ)} (z : R b) (d c : List ℕ)
     (hd : ValidWord b.card d) :
     rightIn Q Λ a b (z * ψw d) * (oneConcat S a b * ψw c) =
@@ -215,6 +261,7 @@ private theorem rightIn_word {a b : Multiset (I ⊕ Fin ℓ)} (z : R b) (d c : L
 private theorem binaryCoordinates (a b : Multiset (I ⊕ Fin ℓ)) (hQ : KLRSymm Q) :
     let U := Shuffle (Seq.card_add' a b)
     ∃ (g : U → R (a+b) →ₗ[k] (R a ⊗[k] R b)) (w : U → R (a+b)),
+      (∀ i y n, y ∈ filt k S (a+b) n → g i y ∈ tensorCrossingFilt S a b (length _ i.1) n) ∧
       (∀ i, w i = oneConcat S a b * ψw (canWord _ i.1)) ∧
       (∀ i x y, g i (concat S a b x * y) = x * g i y) ∧
       (∀ i y s, g i (y * e s) = g i y * concatIdem (i.1 • s)) ∧
@@ -229,7 +276,9 @@ private theorem binaryCoordinates (a b : Multiset (I ⊕ Fin ℓ)) (hQ : KLRSymm
     mem_oneConcatSub.2 (by change _ * (oneConcat S a b * y) = _; rw [← mul_assoc, oneConcat_idem.eq]; rfl)
   have hcol (i : Shuffle (Seq.card_add' a b)) : col (B i).1 = B i :=
     Subtype.ext (mem_oneConcatSub.1 (B i).2)
-  refine ⟨fun i => ((B.coord i).restrictScalars k).comp col, fun i => (B i).1, ?_, ?_, ?_, ?_, ?_, ?_⟩
+  refine ⟨fun i => ((B.coord i).restrictScalars k).comp col, fun i => (B i).1, ?_, ?_, ?_, ?_, ?_, ?_, ?_⟩
+  · intro i y n hy
+    exact freeBasis_coord_mem_tensorCrossingFilt (stendhalQ_symm Q Λ hQ) _ _ _ _ _ _ hy i
   · intro i
     exact freeBasis_apply _ _ _ _ _ _ _ i
   · intro i x y
@@ -275,6 +324,7 @@ private theorem projection_loadingIdem_eq_zero : ∀ Bs (s : Loadings Bs), Viola
 private structure Coefficients (row : List (RedBlock I ℓ)) (D : Type*) [Ring D] [Algebra k D] where
   coeff : ShuffleIndex row → R (weightSum row) →ₗ[k] X row
   word : ShuffleIndex row → R (weightSum row)
+  coeff_filt : ∀ i y n, y ∈ filt k S (weightSum row) n → coeff i y ∈ blockShuffleFilt Q Λ row i n
   word_spec : ∀ i, word i = juxtapose Q Λ row 1 * ψw (shuffleWord row i)
   bottom : ShuffleIndex row → Seq (weightSum row) → X row
   coeff_e : ∀ j y s, coeff j (y * e s) = coeff j y * bottom j s
@@ -292,7 +342,9 @@ private def emptyCoefficients (D : Type*) [Ring D] [Algebra k D] : Coefficients 
   letI : Unique (ShuffleIndex ([] : List (RedBlock I ℓ))) := inferInstanceAs (Unique Unit)
   let z := zeroEquiv (I ⊕ Fin ℓ) k S
   let ev := ULift.algEquiv.symm.toLinearMap.comp z.toLinearMap
-  refine ⟨fun _ => ev, fun _ => 1, ?_, fun _ _ => 1, ?_, ?_, ?_, ?_, ?_, ?_, ?_⟩
+  refine ⟨fun _ => ev, fun _ => 1, ?_, ?_, fun _ _ => 1, ?_, ?_, ?_, ?_, ?_, ?_, ?_⟩
+  · intro i y n _
+    simp only [blockShuffleFilt, shuffleWord, List.length_nil, Nat.zero_le, ite_true, blockCrossingFilt, Submodule.mem_top]
   · intro _
     change (1 : R 0) = algebraMap k _ 1 * ψw []
     rw [map_one, ψw_nil, mul_one]
@@ -328,7 +380,7 @@ private def consCoefficients (B : RedBlock I ℓ) (row : List (RedBlock I ℓ)) 
   letI : Fintype U := Fintype.ofFinite (Shuffle (Seq.card_add' a b))
   let g := (binaryCoordinates Q Λ a b hQ).choose
   let w := (binaryCoordinates Q Λ a b hQ).choose_spec.choose
-  obtain ⟨w_spec, gm, ge, gs, gn, gw⟩ := (binaryCoordinates Q Λ a b hQ).choose_spec.choose_spec
+  obtain ⟨g_filt, w_spec, gm, ge, gs, gn, gw⟩ := (binaryCoordinates Q Λ a b hQ).choose_spec.choose_spec
   let v := omitRedDots Q Λ B
   let c j := TensorProduct.map v.toLinearMap (T.coeff j)
   let hcoeff (u : X (B::row)) (s) (j) : c j (TensorProduct.map (readBlock Q Λ B).toLinearMap
@@ -367,7 +419,9 @@ private def consCoefficients (B : RedBlock I ℓ) (row : List (RedBlock I ℓ)) 
     change juxtapose Q Λ (B::row) ((1 : diagramAlgebra Q Λ B) ⊗ₜ[k] (1 : X row)) = _
     rw [juxtapose_tmul, map_one]; rfl
   refine ⟨fun ij => (c ij.2).comp (g ij.1),
-    fun ij => rightIn Q Λ a b (T.word ij.2) * w ij.1, ?_, bottom, ?_, ?_, ?_, ?_, ?_, ?_, ?_⟩
+    fun ij => rightIn Q Λ a b (T.word ij.2) * w ij.1, ?_, ?_, bottom, ?_, ?_, ?_, ?_, ?_, ?_, ?_⟩
+  · intro ij y n hy
+    exact filtered_cons_coordinate Q Λ B row ij.1 ij.2 (T.coeff ij.2) (T.coeff_filt ij.2) (g_filt ij.1 y n hy)
   · intro ij
     have hw : w ij.1 = oneConcat S a b * ψw (canWord _ ij.1.1) := w_spec ij.1
     rw [T.word_spec, hw, unit]
@@ -506,7 +560,7 @@ Proposition 6.4 and proof of Lemma 6.8; Khovanov–Lauda I, Proposition 2.16). M
 above the seam multiplies each coefficient. A bottom loading acts on each
 coefficient through the split projector for its shuffle. Restacking the coefficients recovers the
 whole column after imposing red dots, before either kind of violation. -/
-theorem exists_blockStack_coordinates_with_shuffle_words (hQ : KLRSymm Q) (L M : List (Fin ℓ × Multiset I))
+theorem exists_blockStack_coordinates_with_filtered_shuffle_words (hQ : KLRSymm Q) (L M : List (Fin ℓ × Multiset I))
     (f : Fin 2 ↪ Fin ℓ) (β : Multiset I) {ν : Multiset I}
     (h : weightSum (adjacentRow L M f β) = stendhalWeight ℓ ν) :
     let row := adjacentRow L M f β
@@ -518,6 +572,7 @@ theorem exists_blockStack_coordinates_with_shuffle_words (hQ : KLRSymm Q) (L M :
         (fun r i => boundaryCount (cut (f 0) (f 1) r) i row) < adjacentBlockRoot (f 0) (f 1) s)
     ∃ n, ∃ (index : Fin n ≃ ShuffleIndex row) (g : Fin n → R μ →ₗ[k] X row) (w : Fin n → R μ)
       (bottom : Fin n → Seq μ → X row),
+      (∀ j y n, y ∈ filt k S μ n → g j y ∈ blockShuffleFilt Q Λ row (index j) n) ∧
       (∀ j, w j = G 1 * ψw (shuffleWord row (index j))) ∧
       (∀ j x y, g j (G x * y) = x * g j y) ∧
       (∀ j y s, g j (y * e s) = g j y * bottom j s) ∧
@@ -610,7 +665,11 @@ theorem exists_blockStack_coordinates_with_shuffle_words (hQ : KLRSymm Q) (L M :
     apply Finset.sum_congr rfl; intro j _
     change π (b (juxtapose Q Λ row (T.coeff _ v) * _)) = π (b (juxtapose Q Λ row (T.coeff _ (b.symm (b v)))) * _)
     rw [map_mul b, AlgEquiv.symm_apply_apply]
-  refine ⟨_, e.symm, g, w, bottom, ?_, g_mul, g_e, g_section, ?_, ?_, ?_, ?_, rebuild⟩
+  refine ⟨_, e.symm, g, w, bottom, ?_, ?_, g_mul, g_e, g_section, ?_, ?_, ?_, ?_, rebuild⟩
+  · intro j y n hy
+    have castFilt {u v : Multiset (I ⊕ Fin ℓ)} (e : u = v) (z : R v) (hz : z ∈ filt k S v n) :
+        (castKLR S e).symm z ∈ filt k S u n := by subst v; exact hz
+    exact T.coeff_filt _ (b.symm y) n (castFilt h y hy)
   · intro j
     change b (T.word _) = b (juxtapose Q Λ row 1) * ψw _
     rw [T.word_spec, map_mul, show ∀ d, b (ψw d) = ψw d from castKLR_ψw h]
@@ -648,6 +707,31 @@ theorem exists_blockStack_coordinates_with_shuffle_words (hQ : KLRSymm Q) (L M :
         apply Finset.sum_eq_zero
         intro i _
         rw [g_mul, map_mul, zero_at_loading i y s hs, zero_mul]
+
+/-- Coordinates indexed by chosen reduced shuffle words. -/
+theorem exists_blockStack_coordinates_with_shuffle_words (hQ : KLRSymm Q) (L M : List (Fin ℓ × Multiset I))
+    (f : Fin 2 ↪ Fin ℓ) (β : Multiset I) {ν : Multiset I}
+    (h : weightSum (adjacentRow L M f β) = stendhalWeight ℓ ν) :
+    let row := adjacentRow L M f β
+    let μ := stendhalWeight ℓ ν
+    let G := affineStackBlocks Q Λ L M f β h
+    let π := ofKLR k Q Λ ν
+    let bad := fun s : KLR.Seq μ => IsViolated s ∨
+      (redWord s = L.map Prod.fst ++ f 0 :: f 1 :: M.map Prod.fst ∧
+        (fun r i => boundaryCount (cut (f 0) (f 1) r) i row) < adjacentBlockRoot (f 0) (f 1) s)
+    ∃ n, ∃ (index : Fin n ≃ ShuffleIndex row) (g : Fin n → R μ →ₗ[k] X row) (w : Fin n → R μ)
+      (bottom : Fin n → Seq μ → X row),
+      (∀ j, w j = G 1 * ψw (shuffleWord row (index j))) ∧
+      (∀ j x y, g j (G x * y) = x * g j y) ∧
+      (∀ j y s, g j (y * e s) = g j y * bottom j s) ∧
+      (∀ j y, g j (toKLR k Q Λ ν (π y)) = g j y) ∧
+      (∀ j, g j (w j) = 1) ∧ (∀ i j, i ≠ j → g i (w j) = 0) ∧
+      (∀ j s, bottom j s = 0 ∨ ∃ v : Loadings row,
+        ShuffleLoading row (Seq.cast h.symm s) v ∧ bottom j s = loadingIdem Q Λ row v) ∧
+      (∀ j y s z, bad s → projection Q Λ row (g j (y * e s * z)) = 0) ∧
+      ∀ y, π (G 1 * y) = ∑ j, π (G (g j y) * w j) := by
+  obtain ⟨n, e, g, w, bottom, _, h⟩ := exists_blockStack_coordinates_with_filtered_shuffle_words Q Λ hQ L M f β h
+  exact ⟨n, e, g, w, bottom, h⟩
 
 /-- Finite coordinates without a choice of presentation of their shuffle indices. -/
 theorem exists_blockStack_coordinates_with_bottom (hQ : KLRSymm Q) (L M : List (Fin ℓ × Multiset I))

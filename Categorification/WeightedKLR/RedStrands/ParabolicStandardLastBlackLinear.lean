@@ -68,15 +68,6 @@ theorem castTensorProductAlgebra_tensorOfKLR_castKLR {ν ν' : Multiset I} (hν 
       tensorOfKLR Q Λ ν' (castKLR S h' c) := by
   subst hν; rfl
 
-end Generic
-
-section BlackAppendGeneric
-
-variable {I k : Type*} [DecidableEq I] [Field k] {ℓ : ℕ}
-  (Q : I → I → MvPolynomial (Fin 2) k) (Λ : Fin ℓ → I →₀ ℕ) (i : I)
-
-local notation "S" => stendhalQ Q Λ
-
 private theorem appendBlackStendhal_orderProjection_id' (ν : Multiset I)
     (y : StendhalAlgebraAllOrders k Q Λ ν) :
     appendBlackStendhal Q Λ i ν (orderProjection Q Λ ν y) =
@@ -85,9 +76,9 @@ private theorem appendBlackStendhal_orderProjection_id' (ν : Multiset I)
   appendBlackStendhal_orderProjection Q Λ id i ν y
 
 /-- **`appendBlack` on the image of a diagram `c`** is the image of `ι(c ⊗ 1_i)`. -/
-theorem appendBlack_tensorOfKLR_castKLR (ν : Multiset I) {W : Multiset (I ⊕ Fin ℓ)}
-    (h : W = stendhalWeight ℓ ν)
-    (h' : W + {Sum.inl i} = stendhalWeight ℓ ((Singleton.singleton i : Multiset I) + ν))
+theorem appendBlack_tensorOfKLR_castKLR (ν : Multiset I) {W : Multiset (I ⊕ Fin (ℓ + 1))}
+    (h : W = stendhalWeight (ℓ + 1) ν)
+    (h' : W + {Sum.inl i} = stendhalWeight (ℓ + 1) ((Singleton.singleton i : Multiset I) + ν))
     (c : KLRAlgebra k S W) :
     appendBlack Q Λ i ν (tensorOfKLR Q Λ ν (castKLR S h c)) =
       tensorOfKLR Q Λ _ (castKLR S h' (appendR S W (Sum.inl i) c)) := by
@@ -96,7 +87,7 @@ theorem appendBlack_tensorOfKLR_castKLR (ν : Multiset I) {W : Multiset (I ⊕ F
     appendR_apply]
   rfl
 
-end BlackAppendGeneric
+end Generic
 
 section Linear
 

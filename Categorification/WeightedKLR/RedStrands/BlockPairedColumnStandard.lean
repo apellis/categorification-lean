@@ -15,7 +15,7 @@ supplies the internal support test for the adjacent source-order column.
 
 namespace Categorification.Stendhal.RedBlock
 
-open KLR KLRAlgebra TypeA BraidedStendhalAlgebra QuantumGroup
+open KLR KLRAlgebra TypeA BraidedStendhalAlgebra QuantumGroup KL3.Diagram
 
 variable {I k : Type} [DecidableEq I] [Field k] {ℓ : ℕ}
     (C : CartanDatum I) (Λ : Fin ℓ → I →₀ ℕ)

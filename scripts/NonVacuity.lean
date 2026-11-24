@@ -10811,3 +10811,23 @@ example :=
 end NonVacuity.WebsterReflectedOrderedWeight
 
 end
+
+namespace NonVacuity.AmbientDerivedIdempotentCut
+
+open Categorification DG MulOpposite
+open scoped DG.DegreeZero
+noncomputable section
+
+local instance : HasDerivedCategory.{0,0} ℚ := HasDerivedCategory.small _
+
+example := balancedTensorLeftIdealEquiv (k := ℚ) (M := ℚᵐᵒᵖ)
+  (show IsIdempotentElem (1 : ℚ) from one_mul 1)
+
+example := ambientDerivedTensorH0LeftIdealEquiv (k := ℚ) (M := ℚᵐᵒᵖ)
+  (fun c m => by
+    apply unop_injective
+    exact mul_comm m.unop c)
+  (show IsIdempotentElem (1 : ℚ) from one_mul 1)
+
+end
+end NonVacuity.AmbientDerivedIdempotentCut

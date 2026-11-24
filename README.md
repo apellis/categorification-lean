@@ -1060,9 +1060,11 @@ rank one is simple as an ungraded module
 identifies the graded lifts (`GProj.nonempty_iso_of_homGdim_coeff_zero`).
 The classical and quantum weight spaces at the content of every reduced
 coevaluation word have dimension one
-(`Stendhal.finrank_quantum_coevaluationWeight`). The comparison with the
-cyclotomic block and the Shapovalov pairings are the remaining inputs for
-general reflection words.
+(`Stendhal.finrank_quantum_coevaluationWeight`). For every content the
+cyclotomic projective rank equals its quantum weight multiplicity. In
+particular the cyclotomic coevaluation block has Laurent rank one
+(`CycKLR.finrank_coevaluation_projectiveBlock`). The normalized
+Shapovalov pairings are still needed for general reflection words.
 
 **Webster, arXiv:1309.3796v2, §7.1, Lemma 7.3.** The smaller-cut trace is
 the sum of the images of maps from the corresponding loading projectives

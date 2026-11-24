@@ -1754,6 +1754,7 @@ import Categorification.WeightedKLR.Rigidity.FundamentalCupRegular
 import Categorification.WeightedKLR.Rigidity.SingleBlackExtremal
 import Categorification.WeightedKLR.Rigidity.ExtremalNorm
 import Categorification.WeightedKLR.Rigidity.ExtremalWeightRank
+import Categorification.WeightedKLR.Rigidity.ExtremalBlockRank
 
 /-!
 # Categorification

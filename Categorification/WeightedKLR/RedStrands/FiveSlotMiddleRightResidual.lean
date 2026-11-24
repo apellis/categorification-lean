@@ -444,15 +444,17 @@ theorem fiveSlotMiddleRight_residual_equiv (hQ : KLRSymm Q) :
   intro u v hu hur hv hvr rel
   have hD : D = fiveSlotRightLoading 2 := by decide +kernel
   have hA : A = fiveSlotHigherLoading 2 := by decide +kernel
-  have hE : Eₐ = F (redIdem k Q Λ ν (redWord (fixedTopFourExitCut 0))) := by
+  have hE : Eₐ = F (redIdem k Q Λ (redWord (fixedTopFourExitCut 0))) := by
     have order : redWord A = redWord (fixedTopFourExitCut 0) := by decide
     simpa only [redProj, AlgHom.comp_apply] using
-      congrArg (fun w => F (redIdem k Q Λ ν w)) order
+      congrArg (fun w => F (redIdem k Q Λ w)) order
   have h := FiveSlotFlag.fiveSlotLastRed_square_reflects_earlierCrossing Q Λ hQ u v
     (by simpa only [hD] using hu) hv
     (by simpa only [hE] using hur) (by simpa only [hE] using hvr)
     (by simpa only [← hD, ψw_cons, ψw_nil, mul_one] using rel)
-  simpa only [← hA, ← hE] using h
+  obtain ⟨z, hleft, hright, hvalue⟩ := h
+  exact ⟨z, by simpa only [hA] using hleft, by simpa only [hE] using hright,
+    by simpa only [hA] using hvalue⟩
 
 /-- For a weight-zero final red strand, the residual higher layer at the
 middle-right loading is the actual nearby partial standard. -/

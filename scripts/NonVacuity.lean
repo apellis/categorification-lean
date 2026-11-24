@@ -9860,6 +9860,10 @@ example := outgoingExteriorAmbientHomology_isZero ℚ (-1) (by decide)
 
 example := incomingExteriorAmbientHomology_isZero ℚ (-1) (by decide)
 
+example := labelTwo_incomingLift_return (parameter ℚ)
+
+example := Categorification.Webster.LabelTwo.plus_one_notMem_range_plus_comp_plus (k := ℚ)
+
 example (z : labelTwoRightExteriorDividedStandard (parameter ℚ)) :=
   labelTwoRightExterior_reflectedProjector_image (parameter ℚ) z
 

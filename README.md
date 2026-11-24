@@ -1294,6 +1294,11 @@ in every nonzero degree
 On the incoming divided standard, the reflected projector selects the
 line spanned by the black-crossing translate
 (`Stendhal.labelTwoRightExterior_reflectedProjector_image`).
+Returning the lifted incoming generator to the unquotiented middle
+standard gives its dot-sum relation. In the separated middle algebra this
+relation survives modulo the second dot-sum image
+(`Stendhal.labelTwo_incomingLift_return`,
+`Webster.LabelTwo.plus_one_notMem_range_plus_comp_plus`).
 
 
 

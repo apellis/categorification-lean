@@ -10530,11 +10530,12 @@ example := by
   let S := Graded.oppositeGrade (Graded.cornerGrading G e)
   letI := gradedAlgebraInternalGrading S
   letI := gradedAlgebraBigradedDGRing S
-  letI : CatModule.HasDerivedCategory.{1,0} (WeightCategory e.Cornerᵐᵒᵖ) :=
+  let D : CatModule.HasDerivedCategory.{1,0} (WeightCategory e.Cornerᵐᵒᵖ) :=
     CatModule.HasDerivedCategory.standard _
-  exact reflectedStandardWeightBraiding_isZero (Λ := vacuumWeights)
-    vacuumRouquier (1 : Equiv.Perm (Fin 0)) vacuumReduced vacuumSymmetric
-    vacuumHigherFiltration vacuumLoading [] (⟨0⟩ : WeightCategory e.Cornerᵐᵒᵖ) 1 (by decide)
+  exact @reflectedStandardWeightBraiding_isZero.{1} Unit ℚ _ _ 0 (0 : Multiset Unit)
+    vacuumParameters vacuumWeights _ vacuumRouquier (1 : Equiv.Perm (Fin 0))
+    vacuumWord vacuumReduced vacuumSymmetric vacuumHigherFiltration vacuumLoading []
+    D D (⟨0⟩ : WeightCategory e.Cornerᵐᵒᵖ) 1 (by decide)
     (fun _ ht => (ht.2 fun r => r.elim0).elim)
 
 end NonVacuity.WebsterReflectedOrderedWeight

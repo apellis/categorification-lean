@@ -9857,6 +9857,9 @@ example := middle_upperLoadingIdeal_eq_singleton ℚ
 
 example := rightMiddleDotSumQuotient_kills_higher ℚ
 
+example :=
+  leftStandardLayer_projective (parameter ℚ) weights loading loading_ordered
+
 end NonVacuity.WebsterLabelTwoMiddleFixedComplex
 
 end

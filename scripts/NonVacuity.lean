@@ -5870,6 +5870,241 @@ noncomputable example :=
   letI := DG.HasDerivedCategory.standard (ViolOrderCorner (k := ℚ) (Q := Q) (Λ := Λ) (ν := ν) [1, 0])ᵐᵒᵖ
   braidingFunctorObjFigureFiveStandardizationIso (Λ₂ := Λ) hQ hρ blackWord
 
+open QuantumGroup
+
+private abbrev sl₂ := CartanDatum.ofGraph (⊥ : SimpleGraph Unit)
+
+private theorem hRouquier : IsRouquierQ sl₂ Q where
+  symm i j hij := (hij (Subsingleton.elim i j)).elim
+  homogeneous i j hij := (hij (Subsingleton.elim i j)).elim
+  unit_coeff i j hij := (hij (Subsingleton.elim i j)).elim
+
+private noncomputable abbrev realization := Matrix.Realization.std (UDot.A sl₂) ℂ
+
+private noncomputable def fracΛ : Fin 2 → Unit →₀ ℕ :=
+  fun j => Finsupp.single () (if j = 0 then 1 else 3)
+
+private noncomputable def fracWeight (j : Fin 2) :
+    Module.Dual ℂ (Matrix.Realization.StdSpace (UDot.A sl₂) ℂ) :=
+  ((fracΛ j () : ℂ) / 2) • realization.root ()
+
+private theorem fracWeight_coroot (j : Fin 2) (i : Unit) :
+    fracWeight j (realization.coroot i) = (fracΛ j i : ℂ) := by
+  cases i
+  rw [fracWeight, LinearMap.smul_apply, realization.root_coroot, UDot.A_self, smul_eq_mul]
+  push_cast
+  ring
+
+private theorem fracWeight_shift :
+    weightPairing sl₂ realization (fracWeight 0 - (ν.map realization.root).sum) (fracWeight 1) =
+      (-3 / 2 : ℂ) := by
+  have hd : UDot.di sl₂ () = 1 := by rfl
+  rw [map_sub, LinearMap.sub_apply]
+  simp only [ν, Multiset.map_singleton, Multiset.sum_singleton]
+  rw [fracWeight, map_smul, LinearMap.smul_apply, weightPairing_root, fracWeight_coroot, hd]
+  norm_num [fracΛ, smul_eq_mul]
+
+/-- Webster, arXiv:1309.3796v2, §6.1 Proposition 6.9 and Figure 5, for one black `sl₂` strand
+and weights `ω` and `3ω`. The multiplier has degree `3/2`, over the coefficient field `ℚ`. -/
+example : ∃ y : violCorner ℚ Q fracΛ ν (figureFiveLower blackWord) [1, 0],
+    y.1 = violMk ℚ Q fracΛ ν (ofKLR ℚ Q fracΛ ν
+      (KLRAlgebra.ψw (ρ (finRotate μ.card)⁻¹) * KLRAlgebra.e (figureFiveUpper blackWord))) ∧
+    y ∈ figureFiveCutGrade sl₂ hRouquier (weightPairing sl₂ realization) fracWeight
+      (figureFiveLower blackWord) 1 0 (3 / 2) := by
+  have h := figureFive_mem_cutGrade_word (Λ := fracΛ) sl₂ hRouquier realization
+    (weightPairing sl₂ realization) fracWeight
+    (fun i w => weightPairing_root sl₂ realization w i) fracWeight_coroot
+    (weightPairing_isSymm sl₂ realization) hρ blackWord
+  rw [fracWeight_shift, neg_div, neg_neg] at h
+  exact h
+
+open Categorification.Graded in
+/-- The Figure 5 loading comparison in the same `sl₂` example, with internal shift `−3/2`
+in Webster's convention and `+3/2` in `Graded.shift`. -/
+noncomputable example :
+    Categorification.Graded.shift (violLoadingGrade (Λ := fracΛ) sl₂ hRouquier
+        (figureFiveUpper blackWord) [1, 0]) (3 / 2 : ℂ)
+      ≃ᵍ[(ViolOrderCorner (k := ℚ) (Q := Q) (Λ := fracΛ) (ν := ν) [1, 0])ᵐᵒᵖ]
+      figureFiveCutGrade (Λ := fracΛ) sl₂ hRouquier (weightPairing sl₂ realization)
+        fracWeight (figureFiveLower blackWord) 1 0 := by
+  have e := figureFiveGradedLoadingEquiv_word (Λ := fracΛ) sl₂ hRouquier realization
+    (weightPairing sl₂ realization) fracWeight
+    (fun i w => weightPairing_root sl₂ realization w i) fracWeight_coroot
+    (weightPairing_isSymm sl₂ realization) hρ blackWord
+  rw [fracWeight_shift, neg_div, neg_neg] at e
+  exact e
+
+open Categorification.Graded in
+/-- At the lower endpoint in Webster, arXiv:1309.3796v2, §6.1, Figure 5, the whole degree-zero
+piece is respected by the projective comparison, in particular on the loading idempotent. -/
+noncomputable example :=
+  let v := figureFiveLower blackWord
+  let h : redWord v = List.map (1 : Perm (Fin 2)) (List.finRange 2) := by
+    exact (redWord_redPerm (1 : Perm (Fin 2)) _).trans (congrArg (List.map (1 : Perm (Fin 2)))
+      ((redWord_eq_finRange_iff _).2 (isRedOrdered_seqCast _
+        (isRedOrdered_twoPieceLoading (SingleRed.ordered ν _) vacuumWord))))
+  let f := violLoadingIdem (k := ℚ) (Q := Q) (Λ := fracΛ) h
+  let p : rIdeal f := ⟨f, (isIdempotentElem_violLoadingIdem (Λ := fracΛ) h).eq⟩
+  let G := stendhalGradingDatum fracΛ hRouquier.gradingDatum (UDot.di sl₂)
+    (fun i => (hRouquier.gradingDatum_degX i).trans (UDot.two_mul_di sl₂ i).symm)
+  have hp : p.val.val ∈ violAuxiliaryGrade G 0 :=
+    mem_map_of_mem _ (violMk ℚ Q fracΛ ν).toLinearMap
+      (mem_map_of_mem _ (ofKLR ℚ Q fracΛ ν).toLinearMap (G.e_mem_grade v))
+  (figureFiveLowerProjective_mem_grade_iff (Λ := fracΛ) sl₂ hRouquier hρ blackWord 0 p).2 hp
+
+open Categorification.Graded in
+/-- The upper map in Webster, arXiv:1309.3796v2, §6.1, Figure 5, preserves degree zero
+on the class of the upper loading idempotent for the same one-strand example. -/
+noncomputable example :=
+  let σ := Equiv.swap (0 : Fin 2) 1
+  let x := SingleRed.insertWord 0 vacuumWord
+  let v := figureFiveUpper blackWord
+  let κ := List.map σ (List.finRange 2)
+  let h : redWord v = κ :=
+    (redWord_redPerm σ _).trans (congrArg (List.map σ) ((redWord_eq_finRange_iff _).2
+      (isRedOrdered_seqCast (congrArg (stendhalWeight 2) (zero_add ν))
+        (isRedOrdered_twoPieceLoading (SingleRed.ordered 0 x) blackWord))))
+  let f := violLoadingIdem (k := ℚ) (Q := Q) (Λ := fracΛ) h
+  let p : violCorner ℚ Q fracΛ ν v κ := ⟨f.val, mem_violCorner_iff.2
+    ⟨congrArg Subtype.val (isIdempotentElem_violLoadingIdem (Λ := fracΛ) h).eq,
+      CornerEndomorphism.corner_mul_right (isIdempotentElem_violMk_redProj ℚ Q fracΛ ν κ) f⟩⟩
+  let G := stendhalGradingDatum fracΛ hRouquier.gradingDatum (UDot.di sl₂)
+    (fun i => (hRouquier.gradingDatum_degX i).trans (UDot.two_mul_di sl₂ i).symm)
+  have hp : p.val ∈ violAuxiliaryGrade G 0 :=
+    mem_map_of_mem _ (violMk ℚ Q fracΛ ν).toLinearMap
+      (mem_map_of_mem _ (ofKLR ℚ Q fracΛ ν).toLinearMap (G.e_mem_grade v))
+  loadingStandardEquivExteriorStandardization_mk_mem_grade hRouquier hQ σ hρ
+    (zero_add ν) x blackWord p hp
+
+private noncomputable abbrev fracUpperExterior : ModuleCat.{0}
+    (ViolOrderCorner (k := ℚ) (Q := Q) (Λ := fracΛ) (ν := ν) [1, 0])ᵐᵒᵖ :=
+  exteriorStandardizationRight (Λ₂ := fracΛ) (σ₂ := Equiv.swap 0 1) hQ hρ
+    (zero_add ν) (SingleRed.insertWord 0 vacuumWord) blackWord
+
+private noncomputable def fracExteriorToCut :=
+  figureFiveExteriorToCut (Λ := fracΛ) sl₂ hRouquier hρ realization
+    (weightPairing sl₂ realization) fracWeight
+    (fun i w => weightPairing_root sl₂ realization w i) fracWeight_coroot
+    (weightPairing_isSymm sl₂ realization) blackWord
+
+/-- The Figure 5 cut at degree `3/2` identifies with degree zero in the intrinsic exterior
+standardization, over `ℚ`, for one black strand and red weights `ω`, `3ω`. -/
+example (x : fracUpperExterior) : fracExteriorToCut.toEquiv x ∈
+    figureFiveCutGrade (Λ := fracΛ) sl₂ hRouquier (weightPairing sl₂ realization) fracWeight
+      (figureFiveLower blackWord) 1 0 (3 / 2) ↔
+    x ∈ figureFiveUpperExteriorGrade (Λ := fracΛ) sl₂ hRouquier hρ blackWord 0 := by
+  have h := figureFiveExteriorToCut_mem_grade_iff (Λ := fracΛ) sl₂ hRouquier hρ realization
+    (weightPairing sl₂ realization) fracWeight
+    (fun i w => weightPairing_root sl₂ realization w i) fracWeight_coroot
+    (weightPairing_isSymm sl₂ realization) blackWord (3 / 2) x
+  have hs : (3 / 2 : ℂ) + weightPairing sl₂ realization
+      (fracWeight 0 - (ν.map realization.root).sum) (fracWeight 1) = 0 := by
+    rw [fracWeight_shift]
+    ring
+  rwa [hs] at h
+
+/-- In the same example, degree zero is outside the shifted integral coset of the cut. -/
+example (x : fracUpperExterior) : fracExteriorToCut.toEquiv x ∈
+    figureFiveCutGrade (Λ := fracΛ) sl₂ hRouquier (weightPairing sl₂ realization) fracWeight
+      (figureFiveLower blackWord) 1 0 0 ↔ x = 0 := by
+  have h := figureFiveExteriorToCut_mem_grade_iff (Λ := fracΛ) sl₂ hRouquier hρ realization
+    (weightPairing sl₂ realization) fracWeight
+    (fun i w => weightPairing_root sl₂ realization w i) fracWeight_coroot
+    (weightPairing_isSymm sl₂ realization) blackWord 0 x
+  have hs : (0 : ℂ) + weightPairing sl₂ realization
+      (fracWeight 0 - (ν.map realization.root).sum) (fracWeight 1) = -3 / 2 := by
+    rw [zero_add, fracWeight_shift]
+  rw [hs] at h
+  refine h.trans ?_
+  have hn : ¬ ∃ n : ℤ, (n : ℂ) = -3 / 2 := by
+    rintro ⟨n, hn⟩
+    have h₂ : ((2 * n : ℤ) : ℂ) = (-3 : ℂ) := by
+      push_cast
+      linear_combination 2 * hn
+    have h₂' : 2 * n = (-3 : ℤ) := by exact_mod_cast h₂
+    omega
+  have hbot : figureFiveUpperExteriorGrade (Λ := fracΛ) sl₂ hRouquier hρ blackWord (-3 / 2) = ⊥ :=
+    Function.extend_apply' (f := fun n : ℤ => (n : ℂ)) _ ⊥ _ hn
+  rw [hbot]
+  exact Submodule.mem_bot ℚ
+
+open scoped DG.DegreeZero in
+/-- For one black `sl₂` strand and weights `ω`, `3ω`, over `ℚ`, the Figure 5 diagram
+lifts to a balanced tensor of internal degree `3/2` and cochain degree zero. Its image in the
+unshifted upper exterior standardization has internal degree zero. -/
+example : ∃ x : FigureFiveExteriorTensor (Λ := fracΛ) sl₂ hRouquier hρ blackWord,
+    x ∈ figureFiveExteriorTensorGrade (Λ := fracΛ) sl₂ hRouquier hρ
+      (weightPairing sl₂ realization) fracWeight blackWord (3 / 2) ∧
+    (figureFiveExteriorTensorEquivCut (Λ := fracΛ) sl₂ hRouquier hρ blackWord x).val =
+      violMk ℚ Q fracΛ ν (ofKLR ℚ Q fracΛ ν
+        (KLRAlgebra.ψw (ρ (finRotate μ.card)⁻¹) * KLRAlgebra.e (figureFiveUpper blackWord))) ∧
+    (figureFiveExteriorTensorEquiv (Λ := fracΛ) sl₂ hRouquier hρ
+      (weightPairing sl₂ realization) fracWeight realization
+      (fun i w => weightPairing_root sl₂ realization w i) fracWeight_coroot
+      (weightPairing_isSymm sl₂ realization) blackWord).toLinearEquiv x ∈
+      figureFiveUpperExteriorGrade (Λ := fracΛ) sl₂ hRouquier hρ blackWord 0 ∧
+    x ∈ DG.grading (0 : ℤ) := by
+  let ev := figureFiveExteriorTensorEquivCut (Λ := fracΛ) sl₂ hRouquier hρ blackWord
+  let gr := figureFiveExteriorTensorEquiv (Λ := fracΛ) sl₂ hRouquier hρ
+    (weightPairing sl₂ realization) fracWeight realization
+    (fun i w => weightPairing_root sl₂ realization w i) fracWeight_coroot
+    (weightPairing_isSymm sl₂ realization) blackWord
+  obtain ⟨y, hy, hg⟩ := figureFive_mem_cutGrade_word (Λ := fracΛ) sl₂ hRouquier realization
+    (weightPairing sl₂ realization) fracWeight
+    (fun i w => weightPairing_root sl₂ realization w i) fracWeight_coroot
+    (weightPairing_isSymm sl₂ realization) hρ blackWord
+  have hy' : ev (ev.symm y) = y := ev.apply_symm_apply y
+  have hx := (figureFiveExteriorTensorEquivCut_mem_grade_iff (Λ := fracΛ) sl₂ hRouquier hρ
+    (weightPairing sl₂ realization) fracWeight blackWord (3 / 2) (ev.symm y)).1 (by
+      change ev (ev.symm y) ∈ _
+      rw [hy']; rwa [fracWeight_shift, neg_div, neg_neg] at hg)
+  refine ⟨ev.symm y, hx, (congrArg Subtype.val hy').trans hy, ?_,
+    figureFiveExteriorTensor_mem_cochain_zero sl₂ hRouquier hρ blackWord (ev.symm y)⟩
+  have h := gr.map_mem' hx
+  have hs : (3 / 2 : ℂ) + weightPairing sl₂ realization
+      (fracWeight 0 - (ν.map realization.root).sum) (fracWeight 1) = 0 := by
+    rw [fracWeight_shift]; ring
+  change gr.toLinearEquiv (ev.symm y) ∈ figureFiveUpperExteriorGrade (Λ := fracΛ) sl₂ hRouquier hρ
+    blackWord ((3 / 2 : ℂ) + weightPairing sl₂ realization (fracWeight 0 - (ν.map realization.root).sum)
+      (fracWeight 1)) at h
+  rwa [hs] at h
+
+/-- Degree zero is outside the shifted integral coset of this balanced tensor. -/
+example : figureFiveExteriorTensorGrade (Λ := fracΛ) sl₂ hRouquier hρ
+    (weightPairing sl₂ realization) fracWeight blackWord 0 = ⊥ := by
+  let gr := figureFiveExteriorTensorEquiv (Λ := fracΛ) sl₂ hRouquier hρ
+    (weightPairing sl₂ realization) fracWeight realization
+    (fun i w => weightPairing_root sl₂ realization w i) fracWeight_coroot
+    (weightPairing_isSymm sl₂ realization) blackWord
+  have hn : ¬ ∃ n : ℤ, (n : ℂ) = -3 / 2 := by
+    rintro ⟨n, hn⟩
+    have h₂ : ((2 * n : ℤ) : ℂ) = (-3 : ℂ) := by
+      push_cast
+      linear_combination 2 * hn
+    have h₂' : 2 * n = (-3 : ℤ) := by exact_mod_cast h₂
+    omega
+  have hbot : figureFiveUpperExteriorGrade (Λ := fracΛ) sl₂ hRouquier hρ blackWord (-3 / 2) = ⊥ :=
+    Function.extend_apply' (f := fun n : ℤ => (n : ℂ)) _ ⊥ _ hn
+  refine eq_bot_iff.2 fun x hx => (Submodule.mem_bot ℤ).2 (gr.toLinearEquiv.injective ?_)
+  let y := gr.toLinearEquiv x
+  have h := gr.map_mem' hx
+  change y ∈ figureFiveUpperExteriorGrade (Λ := fracΛ) sl₂ hRouquier hρ blackWord
+    ((0 : ℂ) + weightPairing sl₂ realization (fracWeight 0 - (ν.map realization.root).sum)
+      (fracWeight 1)) at h
+  rw [zero_add, fracWeight_shift, hbot] at h
+  exact ((Submodule.mem_bot ℚ).1 h).trans gr.toLinearEquiv.map_zero.symm
+
+/-- The Figure 5 lower exterior standardization over `ℚ` splits off the regular right
+module in every complex internal degree, with last-factor vacuum and red weights `ω`, `3ω`. -/
+example (z : ℂ) (x : figureFiveLowerExterior (Λ := fracΛ) sl₂ hRouquier hρ blackWord)
+    (hx : x ∈ figureFiveLowerExteriorGrade (Λ := fracΛ) sl₂ hRouquier hρ blackWord z) :
+    figureFiveLowerExteriorInclusion (Λ := fracΛ) sl₂ hRouquier hρ blackWord x ∈
+      figureFiveLowerOrderGrade (Λ := fracΛ) sl₂ hRouquier z ∧
+    figureFiveLowerExteriorProjection (Λ := fracΛ) sl₂ hRouquier hρ blackWord
+      (figureFiveLowerExteriorInclusion (Λ := fracΛ) sl₂ hRouquier hρ blackWord x) = x := by
+  obtain ⟨hi, -, hsplit⟩ := figureFiveLowerExterior_graded_retract (Λ := fracΛ) sl₂ hRouquier hρ blackWord
+  exact ⟨hi hx, hsplit x⟩
+
 end NonVacuity.WebsterFigureFive
 
 namespace NonVacuity.BraidedStendhal
@@ -6306,3 +6541,76 @@ private theorem ho : redWord t = [0] ++ pair 0 :: pair 1 :: [3] := by decide
 example := exists_place_adjacent t ht [0] [3] pair ho
 
 end NonVacuity.WebsterLoadingPlacement
+
+namespace NonVacuity.WebsterBraidReflection
+
+open Categorification.Stendhal.BraidedStendhalAlgebra MulOpposite
+
+private noncomputable abbrev Q : Unit → Unit → MvPolynomial (Fin 2) ℚ := fun _ _ => 0
+private noncomputable abbrev Λ : Fin 2 → Unit →₀ ℕ :=
+  fun j => Finsupp.single () (j.val + 1)
+private abbrev ν : Multiset Unit := 0
+
+example (a : (isIdempotentElem_violMk_redProj ℚ Q Λ ν [0, 1]).Corner)
+    (b : (isIdempotentElem_violMk_redProj ℚ Q Λ ν [1, 0]).Cornerᵐᵒᵖ)
+    (x : braidingBimodule ℚ Q Λ ν [0, 1] [1, 0]) :
+    braidingBimoduleFlip [0, 1] [1, 0] (a • x) =
+      op (cornerFlip a) • braidingBimoduleFlip [0, 1] [1, 0] x ∧
+    braidingBimoduleFlip [0, 1] [1, 0] (b • x) =
+      cornerFlip b.unop • braidingBimoduleFlip [0, 1] [1, 0] x :=
+  ⟨braidingBimoduleFlip_smul_left [0, 1] [1, 0] a x,
+    braidingBimoduleFlip_smul_right [0, 1] [1, 0] b x⟩
+
+end NonVacuity.WebsterBraidReflection
+
+namespace NonVacuity.WebsterBraidFiltration
+
+open Categorification Categorification.KLR Categorification.Stendhal
+  Categorification.Stendhal.BraidedStendhalAlgebra ModuleFiltration MulOpposite
+
+private noncomputable abbrev Q : Unit → Unit → MvPolynomial (Fin 2) ℚ := fun _ _ => 0
+private abbrev Λ : Fin 0 → Unit →₀ ℕ := Fin.elim0
+private abbrev ν : Multiset Unit := 0
+private abbrev μ := stendhalWeight 0 ν
+private theorem card_eq : μ.card = 0 := by simp [μ, stendhalWeight]
+private def s : Seq μ := KLRAlgebra.Seq.ofList [] (by simp [μ, stendhalWeight])
+
+private def label : {t : Seq μ // redWord t = [] ∧ ¬ IsViolated t} :=
+  ⟨s, by simp [redWord, card_eq], by simp [IsViolated, card_eq]⟩
+
+local notation "C" => ViolOrderCorner (k := ℚ) (Q := Q) (Λ := Λ) (ν := ν) []
+set_option quotPrecheck false in
+local notation "B" => ↥(braidingBimodule ℚ Q Λ ν [] [])
+set_option quotPrecheck false in
+local notation "S" t:arg => ViolLoadingStandard (k := ℚ) (Q := Q) (Λ := Λ) t []
+
+private theorem rightFiltration :
+    HasFiltration (fun t => ModuleCat.of Cᵐᵒᵖ (S t.val)) [label] (ModuleCat.of Cᵐᵒᵖ B) := by
+  classical
+  have hu (t : Seq μ) : t = s := Subtype.ext (funext (fun i => Fin.elim0 (Fin.cast card_eq i)))
+  have hr : redWord s = [] := label.property.1
+  have hF : Finset.univ.filter (fun t : Seq μ => redWord t = []) = {s} := by
+    ext t
+    rw [hu t]
+    simp [hr]
+  have hp : redProj ℚ Q Λ ν [] = ofKLR ℚ Q Λ ν (KLRAlgebra.e s) := by
+    rw [redProj, redIdem, hF, Finset.sum_singleton]
+  let e : B ≃ₗ[Cᵐᵒᵖ] violCorner ℚ Q Λ ν s [] :=
+    { toFun x := ⟨x.val, mem_violCorner_iff.2 ⟨by rw [← hp]; exact x.property.1, x.property.2⟩⟩
+      invFun y := ⟨y.val, ⟨by rw [hp]; exact (mem_violCorner_iff.1 y.property).1,
+        (mem_violCorner_iff.1 y.property).2⟩⟩
+      left_inv x := Subtype.ext rfl
+      right_inv x := Subtype.ext rfl
+      map_add' x y := Subtype.ext rfl
+      map_smul' a x := Subtype.ext rfl }
+  have ht : violStandardUpper (k := ℚ) (Q := Q) (Λ := Λ) s [] = ⊥ := by
+    refine Submodule.span_eq_bot.mpr ?_
+    rintro y ⟨t, a, hκ, hlt, hy⟩
+    exact (hlt.2 (fun r => Fin.elim0 r)).elim
+  exact HasFiltration.single (c := label) (e.trans (Submodule.quotEquivOfEqBot _ ht).symm)
+
+/-- Reflection transports the one-step filtration at the empty loading. -/
+noncomputable example :=
+  hasReflectedStandardFiltration_braidingBimodule [] [] rightFiltration
+
+end NonVacuity.WebsterBraidFiltration

@@ -187,13 +187,25 @@ open QuantumGroup KL3.Diagram
 variable {F : Type*} [Field F] {C : CartanDatum Unit}
 local notation "QL" => CL.qCL (CL.CLScalars.kl : CL.CLScalars C F)
 
+private theorem rightmostCrossing_std_prefix
+    (hR : IsRouquierQ C QL) (hQ : KLRSymm QL) (weights : Fin 3 → Unit →₀ ℕ)
+    (x : TensorProductAlgebra F QL weights ({()} + ((0 : Multiset Unit) + 0)))
+    (hx : x * tensorOfKLR QL weights _
+      (KLRAlgebra.e (appendRedLoading (appendBlackLoading () (0 + 0) prefixLoading))) = x)
+    (hc : x * tensorOfKLR QL weights _
+      (ψ ((stendhalWeight 2 ((0 : Multiset Unit) + 0)).card) *
+        KLRAlgebra.e (appendBlackLoading () (0 + 0) (appendRedLoading prefixLoading))) = 0) :
+    x = 0 :=
+  eq_zero_of_mul_rightmostRedCrossing (k := F) (C := C) (ℓ := 2)
+    hR hQ weights () 0 prefixLoading prefix_ordered x hx hc
+
 /-- The crossing into the loading kernel is injective at the standard
 Khovanov–Lauda parameters, including positive spectator weight. -/
 theorem higherCrossingMap_standard_injective
     (hR : IsRouquierQ C QL) (hQ : KLRSymm QL) (weights : Fin 3 → Unit →₀ ℕ) :
     Function.Injective (higherCrossingMap QL weights) :=
-  higherCrossingMap_of_exact_prefix QL weights hQ
-    (eq_zero_of_mul_rightmostRedCrossing hR hQ weights () 0 prefixLoading prefix_ordered)
+  higherCrossingMap_of_exact_prefix (k := F) QL weights hQ
+    (rightmostCrossing_std_prefix (F := F) (C := C) hR hQ weights)
 
 /-- The kernel has the higher partial standard as a single layer for the standard
 Khovanov–Lauda parameters and arbitrary spectator weight. -/

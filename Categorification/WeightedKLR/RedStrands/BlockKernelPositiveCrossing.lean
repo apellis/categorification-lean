@@ -162,6 +162,24 @@ private theorem source_append :
     appendBlackLoading () (0 + 0) (appendRedLoading prefixLoading) = source := by
   apply Subtype.ext; funext a; fin_cases a <;> decide
 
+/-- Applying the ordinary test to the two-red prefix uses the exact two loadings. -/
+private theorem higherCrossingMap_of_exact_prefix (hQ : KLRSymm Q)
+    (hLast : ∀ x : TensorProductAlgebra k Q Λ ({()} + ((0 : Multiset Unit) + 0)),
+      x * tensorOfKLR Q Λ _ (KLRAlgebra.e (appendRedLoading (appendBlackLoading () (0 + 0) prefixLoading))) = x →
+      x * tensorOfKLR Q Λ _ (ψ ((stendhalWeight 2 ((0 : Multiset Unit) + 0)).card) *
+        KLRAlgebra.e (appendBlackLoading () (0 + 0) (appendRedLoading prefixLoading))) = 0 →
+      x = 0) :
+    Function.Injective (higherCrossingMap Q Λ) := by
+  apply higherCrossingMap_injective_of_ordinary_test Q Λ hQ
+  intro x hx hc
+  have hedges :
+      (stendhalWeight 2 ((0 : Multiset Unit) + 0)).card = 2 := by decide
+  apply hLast x
+  · rw [higher_append]
+    exact hx
+  · rw [hedges, source_append]
+    exact hc
+
 section Standard
 
 open QuantumGroup KL3.Diagram
@@ -173,16 +191,9 @@ local notation "QL" => CL.qCL (CL.CLScalars.kl : CL.CLScalars C F)
 Khovanov–Lauda parameters, including positive spectator weight. -/
 theorem higherCrossingMap_standard_injective
     (hR : IsRouquierQ C QL) (hQ : KLRSymm QL) (weights : Fin 3 → Unit →₀ ℕ) :
-    Function.Injective (higherCrossingMap QL weights) := by
-  apply higherCrossingMap_injective_of_ordinary_test QL weights hQ
-  intro x hx hc
-  have hedges :
-      (stendhalWeight 2 ((0 : Multiset Unit) + 0)).card = 2 := by decide
-  apply eq_zero_of_mul_rightmostRedCrossing hR hQ weights () 0 prefixLoading prefix_ordered x
-  · rw [higher_append]
-    exact hx
-  · rw [hedges, source_append]
-    exact hc
+    Function.Injective (higherCrossingMap QL weights) :=
+  higherCrossingMap_of_exact_prefix QL weights hQ
+    (eq_zero_of_mul_rightmostRedCrossing hR hQ weights () 0 prefixLoading prefix_ordered)
 
 /-- The kernel has the higher partial standard as a single layer for the standard
 Khovanov–Lauda parameters and arbitrary spectator weight. -/

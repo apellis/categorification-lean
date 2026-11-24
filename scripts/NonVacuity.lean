@@ -9094,6 +9094,22 @@ example : Function.Injective fundamentalBraidCutComplex.f ∧ Function.Surjectiv
   fundamentalBraidCutComplex_ends
 
 end NonVacuity.WebsterFundamentalBraidHomology
+
+namespace NonVacuity.WebsterFundamentalBraidTensorHomology
+open CategoryTheory Categorification.Stendhal.FundamentalCorner
+
+example : Function.Exact braidSourceD₂ braidSourceD₁ ∧
+    Function.Surjective braidSourceMiddleAugmentation :=
+  ⟨fundamentalBraidSourceResolution.2.2.2.1,fundamentalBraidSourceResolution.2.2.2.2.2⟩
+
+example : Function.Injective fundamentalBraidTensorComplex.f ∧
+    Function.Surjective fundamentalBraidTensorComplex.g := fundamentalBraidTensorComplex_ends
+
+noncomputable example : fundamentalBraidTensorComplex.homology ≅
+    (ModuleCat.restrictScalars (Int.castRingHom ℚ)).obj (ModuleCat.of ℚ ℚ) :=
+  fundamentalBraidTensorHomologyIso
+
+end NonVacuity.WebsterFundamentalBraidTensorHomology
 end
 
 namespace NonVacuity.WebsterCupRHomRegular

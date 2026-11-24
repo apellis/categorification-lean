@@ -1304,6 +1304,11 @@ degree zero and one-dimensional in every positive degree over a field of
 characteristic different from two
 (`Stendhal.LabelTwo.relativeMiddleTorHomologyIso`,
 `Stendhal.LabelTwo.relativeMiddleTorPositive`).
+The ambient tensor of the two actual sum quotients has the same Tor
+objects degree by degree. This comparison uses the supported resolution
+of the middle standard and dimension shifts from the two alternating
+short exact sequences
+(`Stendhal.LabelTwo.actualAmbientMiddleToRelativeTorIso`).
 
 **Terminal-character resolution benchmark for Webster, arXiv:1309.3796v2,
 §8.1.** In the fundamental rank-one block over `ℚ`, the terminal simple

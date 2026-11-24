@@ -9292,6 +9292,13 @@ example := relativeMiddleTorZero ℚ
 
 example (n : ℕ) := relativeMiddleTorPositive ℚ n (by decide)
 
+open scoped DG.DegreeZero in
+noncomputable example (n : ℕ) :=
+  letI := DG.HasDerivedCategory.standard ℚ
+  letI := DG.HasDerivedCategory.standard
+    (TensorProductAlgebra ℚ (parameter ℚ) weights (({()} : Multiset Unit) + {()}))
+  actualAmbientMiddleToRelativeTorIso ℚ (by decide) n
+
 end NonVacuity.WebsterLabelTwoMiddleFixedComplex
 
 end

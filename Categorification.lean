@@ -1792,6 +1792,7 @@ import Categorification.Algebra.DiagramWeightCorner
 import Categorification.Algebra.DiagramWeightCoend
 import Categorification.Algebra.DiagramWeightCoendNaturality
 import Categorification.Algebra.DiagramWeightCoendSurjectivity
+import Categorification.Algebra.DiagramWeightComplex
 import Categorification.Algebra.DiagramWeightExact
 import Categorification.Algebra.DiagramWeightLoadingVanish
 import Categorification.Algebra.DiagramWeightOrdinaryTensor

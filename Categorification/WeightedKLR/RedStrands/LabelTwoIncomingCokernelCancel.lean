@@ -3,6 +3,7 @@ Copyright (c) 2026 Alex Ellis. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 -/
 import Categorification.WeightedKLR.RedStrands.LabelTwoIncomingCokernelTor
+import Categorification.WeightedKLR.RedStrands.LabelTwoIncomingCokernelSurjective
 import Categorification.Algebra.DerivedTensorCoefficientExact
 import Categorification.Algebra.ReflectedVectorDual
 
@@ -85,9 +86,9 @@ local notation "R" => MiddleTensorCoefficient k
 local notation "B" => StandardDotSumQuotient k
 local notation "K" => IncomingMiddleCokernel k
 
-local instance : Module Tᵐᵒᵖ I := inferInstanceAs (Module TRawᵐᵒᵖ I)
-local instance : SMulCommClass k Tᵐᵒᵖ I := inferInstanceAs (SMulCommClass k TRawᵐᵒᵖ I)
-local instance : IsScalarTower k Tᵐᵒᵖ I := inferInstanceAs (IsScalarTower k TRawᵐᵒᵖ I)
+local instance cancelIncomingRightModule : Module Tᵐᵒᵖ I := inferInstanceAs (Module TRawᵐᵒᵖ I)
+local instance cancelIncomingGroundComm : SMulCommClass k Tᵐᵒᵖ I := inferInstanceAs (SMulCommClass k TRawᵐᵒᵖ I)
+local instance cancelIncomingScalarTower : IsScalarTower k Tᵐᵒᵖ I := inferInstanceAs (IsScalarTower k TRawᵐᵒᵖ I)
 
 local notation "ρ" => tensorReflect (Q := parameter k) (Λ := weights) («ν» := ν)
 

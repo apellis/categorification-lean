@@ -3,6 +3,7 @@ Copyright (c) 2026 Alex Ellis. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 -/
 import Categorification.WeightedKLR.RedStrands.FirstPairOneAfterSpectator
+import Categorification.WeightedKLR.RedStrands.BlockKernelNilHecke
 
 /-!
 # Two equal black strands beyond the final spectator
@@ -244,5 +245,40 @@ theorem firstPairTwoAfter_nilHecke_kernel (hQ : KLRSymm Q)
     exact ⟨y,hy,hyr,hdot.symm.trans hrep⟩
   · rintro ⟨y,_,_,h⟩
     rw [h, ← mul_assoc, firstPairTwoAfter_leg_true_zero Q Λ, zero_mul]
+
+attribute [local instance 1100] IsIdempotentElem.instAlgebraCorner_categorification
+
+local notation "K" => blockLoadingKernel Q Λ bottom 0 1
+local notation "T" => IsIdempotentElem.Corner
+  (isIdempotentElem_violMk_redProj k Q Λ ν (redWord bottom))
+local notation "d" => blockLoadingKernel_nilHeckeCrossing Q Λ bottom 0 1 3 (by decide) (by decide)
+
+/-- The rightmost first-pair higher kernel splits as two copies of the actual
+nilHecke crossing image over the original red-order corner. -/
+def firstPairTwoAfter_equiv_nilHeckeRangeProd :
+    K ≃ₗ[Tᵐᵒᵖ] LinearMap.range (d : K →ₗ[Tᵐᵒᵖ] K) × LinearMap.range (d : K →ₗ[Tᵐᵒᵖ] K) :=
+  blockLoadingKernel_equiv_nilHeckeRangeProd Q Λ bottom 0 1 3 (by decide) (by decide)
+
+/-- The summand in the rightmost splitting is the second spectator-crossing
+image with full original red-order support. -/
+theorem firstPairTwoAfter_nilHecke_range_iff (hQ : KLRSymm Q) (z : K) :
+    z ∈ LinearMap.range (d : K →ₗ[Tᵐᵒᵖ] K) ↔
+      ∃ y : V, proj above * y = y ∧ y * F (redIdem k Q Λ (redWord bottom)) = y ∧
+        z.1.1.1 = leg true * y := by
+  have left : proj bottom * z.1.1.1 = z.1.1.1 := congrArg (fun x : T => x.1) z.1.2
+  have right : z.1.1.1 * F (redIdem k Q Λ (redWord bottom)) = z.1.1.1 :=
+    CornerEndomorphism.corner_mul_right _ z.1.1
+  let δ : K →ₗ[Tᵐᵒᵖ] K := d
+  have eq := blockLoadingKernel_nilHecke_range_eq_ker Q Λ bottom 0 1 3 (by decide) (by decide)
+  have val : (δ z).1.1.1 = D * z.1.1.1 :=
+    blockLoadingKernel_nilHeckeCrossing_val Q Λ bottom 0 1 3 (by decide) (by decide) z
+  change z ∈ LinearMap.range δ ↔ _
+  rw [show LinearMap.range δ = LinearMap.ker δ from eq, LinearMap.mem_ker]
+  refine Iff.trans ?_ (firstPairTwoAfter_nilHecke_kernel Q Λ hQ z.1.1.1 z.2 left right)
+  constructor
+  · intro hz
+    exact val.symm.trans (congrArg (fun a : K => a.1.1.1) hz)
+  · intro hz
+    exact Subtype.ext (Subtype.ext (Subtype.ext (val.trans hz)))
 
 end Categorification.Stendhal.BraidedStendhalAlgebra

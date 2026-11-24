@@ -111,6 +111,7 @@ import Categorification.Algebra.ModuleCatLinear
 import Categorification.Algebra.ModuleFiltration
 import Categorification.Algebra.OrderedProjectiveResolution
 import Categorification.Algebra.GradedOrderedProjectiveResolution
+import Categorification.Algebra.HomogeneousOrderedCoverTransport
 import Categorification.Algebra.ModuleFiltrationMap
 import Categorification.Algebra.IdempotentTraceFiltration
 import Categorification.Algebra.MonicTrace

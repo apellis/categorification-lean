@@ -32,10 +32,10 @@ local notation "𝒜₂" => middleTensorGrade k (labelTwoGradingDatum k)
 local notation "ℳ₂" => middleStandardGrade k (labelTwoGradingDatum k)
 local notation "S₂" => Standard k
 
-local instance : InternalGrading A₂ := gradedAlgebraInternalGrading 𝒜₂
-local instance : BigradedDGRing A₂ := gradedAlgebraBigradedDGRing 𝒜₂
-local instance : InternalGrading k := scalarInternalGrading k
-local instance : BigradedDGRing k := scalarBigradedDGRing k
+local instance middleCoverInternalGrading : InternalGrading A₂ := gradedAlgebraInternalGrading 𝒜₂
+local instance middleCoverDGGrading : BigradedDGRing A₂ := gradedAlgebraBigradedDGRing 𝒜₂
+local instance middleCoverScalarInternalGrading : InternalGrading k := scalarInternalGrading k
+local instance middleCoverScalarDGGrading : BigradedDGRing k := scalarBigradedDGRing k
 
 local notation "W₂" => WeightCategory A₂
 

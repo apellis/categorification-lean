@@ -9556,6 +9556,12 @@ example := diagramWeightOrdinaryProjection_tmul G G leftAction rightAction leftA
   (⟨1, InDegreeZero.ring_mem_grading_zero (1 : ℚ)⟩ : G 0)
   (⟨1, InDegreeZero.ring_mem_grading_zero (1 : ℚ)⟩ : G 0)
 
+example (J : ℤ → Submodule ℚ ℚ) [DirectSum.Decomposition (fun d => (J d).toAddSubgroup)]
+    (hL : ∀ {i j : ℤ} {a b : ℚ}, a ∈ wgrading i → b ∈ J j → a • b ∈ J (i + j))
+    (hR : ∀ {i j : ℤ} {a b : ℚ}, a ∈ wgrading i → b ∈ J j → op a • b ∈ J (j + i)) :=
+  diagramWeightTensorGroundGradeEquiv (B := ℚ) J J hL hR hL hR
+    (fun c m : ℚ => mul_comm m c) (⟨0⟩ : QWeight) (⟨1⟩ : QWeight)
+
 end
 
 end NonVacuity.WebsterWeightCoend

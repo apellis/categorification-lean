@@ -212,6 +212,13 @@ theorem firstPairOneAfter_blockKernel_principal (hQ : KLRSymm Q)
   obtain ⟨y,hy,h⟩ := cut 1 1
   exact ⟨y,hy,by simpa only [mul_one,left] using h⟩
 
+private theorem firstPairOneAfter_cross_mem : cross ∈ J := by
+  have hp : proj (upper side) ∈ J :=
+    TwoSidedIdeal.subset_span ⟨upper side, firstPairOneAfter_upper_order side,
+      firstPairOneAfter_strict side, rfl⟩
+  exact (firstPairOneAfter_cross_right Q Λ side) ▸
+    TwoSidedIdeal.mul_mem_left _ _ _ hp
+
 /-- The principal higher kernel is projective once the ordinary right-corner
 crossing test is injective. -/
 theorem firstPairOneAfter_blockKernel_projective_of_cancellation (hQ : KLRSymm Q)
@@ -220,15 +227,21 @@ theorem firstPairOneAfter_blockKernel_projective_of_cancellation (hQ : KLRSymm Q
     Module.Projective
       (isIdempotentElem_violMk_redProj k Q Λ ν (redWord (lower side))).Cornerᵐᵒᵖ
       (blockLoadingKernel Q Λ (lower side) 0 1) := by
-  have hp : proj (upper side) ∈ J :=
-    TwoSidedIdeal.subset_span ⟨upper side, firstPairOneAfter_upper_order side,
-      firstPairOneAfter_strict side, rfl⟩
-  have hc : cross ∈ J := (firstPairOneAfter_cross_right Q Λ side) ▸
-    TwoSidedIdeal.mul_mem_left _ _ _ hp
   exact blockLoadingKernel_projective_of_principal_factor Q Λ (lower side) 0 1
-    (upper side) (firstPairOneAfter_upper_order side) cross hc
+    (upper side) (firstPairOneAfter_upper_order side) cross (firstPairOneAfter_cross_mem Q Λ side)
     (firstPairOneAfter_cross_left Q Λ side) (firstPairOneAfter_cross_right Q Λ side)
     (firstPairOneAfter_blockKernel_principal Q Λ side hQ)
     (by simpa only [redProj, AlgHom.comp_apply] using cancel)
+
+/-- For a one-after-spectator top, a column inclusion is injective when
+its terminal spectator crossing cancels on that bottom column. -/
+theorem firstPairOneAfter_blockKernelColumnInclusion_injective_of_cancellation
+    (hQ : KLRSymm Q) (s : Seq μ)
+    (cancel : ∀ y : V, proj (upper side) * y = y → y * proj s = y → cross * y = 0 → y = 0) :
+    Function.Injective (blockKernelColumnInclusion Q Λ (lower side) 0 1 s) :=
+  blockKernelColumnInclusion_injective_of_principal_factor Q Λ (lower side) 0 1 s
+    (upper side) (firstPairOneAfter_upper_order side) cross (firstPairOneAfter_cross_mem Q Λ side)
+    (firstPairOneAfter_cross_left Q Λ side) (firstPairOneAfter_cross_right Q Λ side)
+    (firstPairOneAfter_blockKernel_principal Q Λ side hQ) cancel
 
 end Categorification.Stendhal.BraidedStendhalAlgebra

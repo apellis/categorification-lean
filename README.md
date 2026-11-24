@@ -1084,7 +1084,9 @@ projection keeps pure tensors of the endpoint degree
 (`diagramWeightOrdinaryProjection_tmul`). The image of the endpoint weight coend is exactly the total-degree
 component of the ordinary balanced tensor (`diagramWeightTensorOrdinary_range_eq_grade`).
 The integer and ground-ring balanced tensor gradings agree under the
-additive comparison (`Graded.balancedTensorIntScalarAddEquiv_map_grade`). For a rectangular corner between two degree-zero
+additive comparison (`Graded.balancedTensorIntScalarAddEquiv_map_grade`).
+A nonpositive resolution has the same degree-zero tensor cohomology
+as the ordinary weight tensor (`catTensorCohomologyZeroEquivOfQuasiIso`). For a rectangular corner between two degree-zero
 idempotents, `diagramCornerWeightDerivedRightTensor` uses the restricted grading
 and defines derived right tensor on the graded right-module categories.
 For the actual braid bimodule this gives `auxiliaryGradedBraidingFunctor`
@@ -1184,6 +1186,11 @@ representative of a nonzero class consist of three halves alone
 total weight. At three halves the restricted complex has a rational
 homology line, and all other weight pieces are exact
 (`fundamentalBraidWeightComplex_homologyIso`, `fundamentalBraidWeightComplex_exact`).
+The graded diagonal-ring equivalence identifies the shifted loading projectives
+in this resolution with the native projectives at the same weights in the
+source of the braid (`fundamentalBraidSourceLoadingIso`). Its augmented
+mixed-crossing sequence is exact at every source weight
+(`fundamentalBraidSourceGradedResolution`).
 The diagonal-ring equivalence
 carries the two mixed crossings to the differentials of the projective
 resolution of the middle head (`fundamentalBraidSourceResolution`). Its
@@ -1299,6 +1306,12 @@ and the actual outgoing crossing has degree two between these graded modules
 (`Stendhal.LabelTwo.labelTwoMiddleQuotientDecomposition`,
 `Stendhal.LabelTwo.labelTwoLeftExteriorDecomposition`,
 `Stendhal.LabelTwo.labelTwoOutgoing_degree_two`).
+The divided incoming standard is graded using its degree-zero projected
+generator. The actual incoming crossing also has degree two. The shifts
+`3`, `1`, and `−1` on these raw gradings put both maps in degree zero
+(`Stendhal.LabelTwo.labelTwoIncoming_degree_two`,
+`Stendhal.LabelTwo.labelTwoShiftedIncoming_preservesGrading`,
+`Stendhal.LabelTwo.labelTwoShiftedOutgoing_preservesGrading`).
 The complementary exterior projective then surjects onto the actual
 cokernel of the outgoing crossing
 (`Stendhal.labelTwoExteriorEndComplex_exact`,
@@ -1407,7 +1420,11 @@ degree two (`Stendhal.LabelTwo.diagramPlus_degree_two`,
 and the augmentation to the graded dot-sum quotient are exact in every
 internal degree (`Stendhal.LabelTwo.diagramPlusMinus_exact_in_degree`,
 `Stendhal.LabelTwo.diagramMinusPlus_exact_in_degree`,
-`Stendhal.LabelTwo.diagramPlusAugmentation_exact_in_degree`). Evaluation on the
+`Stendhal.LabelTwo.diagramPlusAugmentation_exact_in_degree`).
+The dot-difference quotient carries the companion grading. Both quotient
+inclusions shift internal degree by two and give short exact sequences
+in every degree (`Stendhal.LabelTwo.diagramSumCompanionAugmentation_exact_in_degree`,
+`Stendhal.LabelTwo.diagramDifferenceCompanionAugmentation_exact_in_degree`). Evaluation on the
 middle generator identifies the endomorphism algebra with the actual
 regular parabolic factor (`Stendhal.LabelTwo.middleEndomorphismFactorEquiv`).
 The diagrammatic dot-sum quotient is the standardization of its

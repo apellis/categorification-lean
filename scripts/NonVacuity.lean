@@ -5571,6 +5571,18 @@ example := Categorification.Stendhal.LabelTwo.labelTwoLeftExteriorDecomposition 
 
 example := Categorification.Stendhal.LabelTwo.labelTwoOutgoing_degree_two ℚ
 
+example := Categorification.Stendhal.LabelTwo.labelTwoRightExteriorDecomposition ℚ
+
+example := Categorification.Stendhal.LabelTwo.labelTwoIncoming_degree_two ℚ
+
+example := Categorification.Stendhal.LabelTwo.labelTwoNormalizedIncoming_injective ℚ
+
+example := Categorification.Stendhal.LabelTwo.labelTwoNormalizedCrossings_exact ℚ
+
+example := Categorification.Stendhal.LabelTwo.labelTwoShiftedIncoming_preservesGrading ℚ
+
+example := Categorification.Stendhal.LabelTwo.labelTwoShiftedOutgoing_preservesGrading ℚ
+
 example := Categorification.Stendhal.labelTwoExteriorEndComplex_exact Q
 
 example := Categorification.Stendhal.labelTwoExteriorEndComplex_epi Q
@@ -8647,6 +8659,33 @@ example [DG.HasDerivedCategory.{0, 0} Tᵐᵒᵖ] [DG.HasDerivedCategory.{0, 0} 
 
 end NonVacuity.WebsterFiveSlotThreeTopDerived
 
+noncomputable section
+
+namespace NonVacuity.WebsterProjectiveKernelBraidAmplitude
+
+open Categorification.KLR Categorification.Stendhal BraidedStendhalAlgebra MvPolynomial DG
+open scoped DG.DegreeZero
+
+attribute [local instance 1100] IsIdempotentElem.instAlgebraCorner_categorification
+attribute [local instance 1200] Ring.toIntAlgebra
+
+private def Q : Unit → Unit → MvPolynomial (Fin 2) (ZMod 4) := fun _ _ => 0
+private def Λ : Fin 3 → Unit →₀ ℕ := fun r => Finsupp.single () (r.val + 1)
+private def t : Categorification.KLR.Seq (stendhalWeight 3 ({()} : Multiset Unit)) :=
+  ⟨![.inr 0, .inr 1, .inr 2, .inl ()], by decide⟩
+
+local instance (order : List (Fin 3)) : DG.HasDerivedCategory.{0, 0}
+    (isIdempotentElem_violMk_redProj (ZMod 4) Q Λ ({()} : Multiset Unit) order).Cornerᵐᵒᵖ :=
+  DG.HasDerivedCategory.small _
+
+example := blockPartialStandard_braid_homology_vanish_of_projective_kernel_off_two_degrees
+  Q Λ t 0 1 [1, 0, 2]
+  (firstWeight_blockLoadingKernel_projective () Q Λ 0 1 t (fun _ _ _ => rfl))
+  (-2) (by decide) (by decide)
+
+end NonVacuity.WebsterProjectiveKernelBraidAmplitude
+end
+
 namespace NonVacuity.WebsterFiveSlotBoundedSpectator
 
 open Categorification.KLR Categorification.Stendhal Categorification.QuantumGroup
@@ -9259,6 +9298,19 @@ noncomputable example := fundamentalBraidDerivedHeadHMinusOne.{1}
 example := fundamentalBraidDerivedHead_isZero.{1} 0 (by decide)
 
 end NonVacuity.WebsterFundamentalBraidDerivedHead
+
+namespace NonVacuity.WebsterFundamentalBraidGradedSource
+open CategoryTheory DG Categorification.Stendhal Categorification.Stendhal.FundamentalCorner
+
+private theorem orderedMiddle : IsRedOrdered middle := by unfold IsRedOrdered; decide +kernel
+
+noncomputable example := fundamentalBraidSourceLoadingIso middle orderedMiddle 2
+
+example := fundamentalBraidSourceLoading_isKProjective terminal terminal_ordered 1
+
+example := fundamentalBraidSourceGradedResolution ⟨0⟩
+
+end NonVacuity.WebsterFundamentalBraidGradedSource
 end
 
 namespace NonVacuity.WebsterCupRHomRegular
@@ -9561,6 +9613,21 @@ example := diagramWeightOrdinaryProjection_tmul G G leftAction rightAction leftA
   (⟨1, InDegreeZero.ring_mem_grading_zero (1 : ℚ)⟩ : G 0)
   (⟨1, InDegreeZero.ring_mem_grading_zero (1 : ℚ)⟩ : G 0)
 
+private abbrev rationalCoefficient := diagramWeightBimodule G leftAction rightAction
+
+private abbrev rationalRight := rationalCoefficient.right (⟨0⟩ : QWeight)
+
+private abbrev rationalLeft := rationalCoefficient.left (⟨0⟩ : QWeight)
+
+example :=
+  catTensorCohomologyZeroEquivOfQuasiIso (L := rationalRight)
+    (fun _ => ⟨InDegreeZero.mem_grading_zero, InDegreeZero.d_apply _⟩)
+    (fun _ => ⟨InDegreeZero.mem_grading_zero, InDegreeZero.d_apply _⟩)
+    (fun _ {_} _ => InDegreeZero.d_apply _ _)
+    (𝟙 rationalLeft) (CatModule.IsQuasiIso.of_isIso _)
+    (fun {_ _} g => WeightCategory.mem_grading_iff.mpr
+      (InDegreeZero.ring_mem_grading_zero g.val))
+
 end
 
 end NonVacuity.WebsterWeightCoend
@@ -9849,6 +9916,10 @@ example (d : ℤ) := diagramMinusPlus_exact_in_degree ℚ d
 example (d : ℤ) := diagramPlusAugmentation_exact_in_degree ℚ d
 
 example (d : ℤ) := diagramMiddleAugmentationAtDegree_surjective ℚ d
+
+example (d : ℤ) := diagramSumCompanionAugmentation_exact_in_degree ℚ d
+
+example (d : ℤ) := diagramDifferenceCompanionAugmentation_exact_in_degree ℚ d
 
 example := middleEndomorphismFactorEquiv ℚ
 

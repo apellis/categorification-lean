@@ -5937,6 +5937,16 @@ example := KLR.CycKLR.finrank_coevaluation_projectiveBlock CyclotomicHighestWeig
 example := classical_weightSpace_raise_extremal_eq_bot P generalized (weight : Module.Dual ℝ _) dominant
   1 () (by simp [CoxeterSystem.IsLeftDescent])
 
+example : coevaluationDividedWord (P.cartanDatum generalized) weight [()] = [((), 2)] := by
+  change [((), ((P.cartanDatum generalized).coroot () weight).toNat)] = _
+  have h : (P.cartanDatum generalized).coroot () weight = 2 := by
+    have h' := P.coroot_cartanDatum_cast generalized () weight
+    change (((P.cartanDatum generalized).coroot () weight : ℤ) : ℝ) = P.root () (P.coroot ()) at h'
+    rw [P.root_coroot] at h'
+    exact_mod_cast h'
+  rw [h]
+  rfl
+
 /-- The actual complete three-step string scalar at the quantum parameter is one. -/
 example := polCoef_endpoint (q := (RatFunc.X : RatFunc ℚ)) RatFunc.X_ne_zero
   (fun _ hn => LieLean.LusztigF.pow_ne_one_of_transcendental LieLean.LusztigF.transcendental_ratFunc_X hn) 3

@@ -11300,3 +11300,16 @@ example : NatTrans.CommShift (derivedTensorCoefficientMap twice twice_op) ℤ :=
 end
 
 end WebsterDerivedTensorCoefficientFixture
+
+namespace NonVacuity.ReflectedVectorDual
+
+open Categorification MulOpposite
+
+noncomputable section
+
+private def reflection : Polynomial ℚ →ₐ[ℚ] (Polynomial ℚ)ᵐᵒᵖ := (AlgEquiv.toOpposite ℚ (Polynomial ℚ)).toAlgHom
+
+example := VectorDualRight.reflectedTwistDualEquiv (M := Polynomial ℚ) reflection (fun _ => rfl)
+
+end
+end NonVacuity.ReflectedVectorDual

@@ -10254,6 +10254,25 @@ private abbrev rankOneDifferential :=
   gradedLoadingResolutionChainMap data false rankOneScalarGrade mulGrade eGrade eIdem
     aboveTrans rankOneStandardGrade quotientGrade
 
+open scoped DG.DegreeZero
+
+local instance instOrderedTransportRationalInternalGrading : InternalGrading ℚ :=
+  scalarInternalGrading ℚ
+
+private theorem nonzeroQuotientGrade ⦃j : ℤ⦄ ⦃x : P⦄ (hx : x.val ∈ degreeZeroGrading ℚ j) :
+    data.quotient true x ∈ degreeZeroGrading (S true) j := by
+  change x ∈ degreeZeroGrading P j
+  rcases (mem_degreeZeroGrading_iff ℚ).mp hx with h | h
+  · exact (mem_degreeZeroGrading_iff P).mpr (Or.inl h)
+  · exact (mem_degreeZeroGrading_iff P).mpr (Or.inr (Subtype.ext h))
+
+example : (data.transport (RingEquiv.refl ℚ)).quotient true
+    (⟨1, one_mul 1⟩ : P) ∈
+    transportedStandardGrading (RingEquiv.refl ℚ) true (degreeZeroGrading (S true)) 0 :=
+  data.transport_quotient_mem_weight (RingEquiv.refl ℚ) true
+    (degreeZeroGrading (S true)) (fun h => h) (fun h => nonzeroQuotientGrade h)
+    (mem_degreeZeroGrading_zero ℚ 1)
+
 -- The rank-one example has a nonzero higher kernel in degree zero.
 example : Function.Exact (rankOneDifferential 0) (data.quotient false) :=
   gradedLoadingResolutionChainMap_augmentation_exact data false rankOneScalarGrade mulGrade eGrade eIdem aboveTrans rankOneStandardGrade quotientGrade

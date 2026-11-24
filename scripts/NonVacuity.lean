@@ -5497,6 +5497,69 @@ example := KLR.CyclotomicAction.vacuum_homTensorMap_bijective.{0, 0, 0} rqHyp co
 
 end NonVacuity.CyclotomicFrobeniusRouquier
 
+namespace NonVacuity.WebsterLabelTwoEndpointTor
+
+open Categorification.Stendhal.SingleRed
+
+private noncomputable def Q (_ _ : Unit) : MvPolynomial (Fin 2) ℚ := 0
+
+/-- The actual one-red endpoint corner in Webster Proposition 8.4. -/
+noncomputable example := twoBlackTerminalWebsterCornerEquiv Q
+
+/-- The actual one-red derived tensor pairing in degree zero. -/
+noncomputable example := labelTwoEndpointTorZero Q
+
+/-- The actual one-red derived tensor pairing in degree five. -/
+example := labelTwoEndpointTor_succ_isZero Q 4
+
+/-- The scalar endpoint corner has no nonzero diagrams in internal degree two. -/
+example (G : Categorification.KLR.GradingDatum Q) (d : Unit → ℤ)
+    (hd : ∀ j, G.degX j = 2 * d j)
+    (z : (twoBlackTerminalWebsterIdem_idempotent Q).Corner) :=
+  twoBlackTerminalWebsterCorner_mem_grade_iff Q G d hd 2 z
+
+/-- The actual exterior cut with both black strands in the first factor. -/
+noncomputable example (hQ : Categorification.KLR.KLRSymm Q) :=
+  labelTwoExteriorStandardCutEquiv Q (labelTwoFirstFactorEquiv Q) hQ
+
+/-- The actual exterior cut with both black strands in the last factor. -/
+noncomputable example (hQ : Categorification.KLR.KLRSymm Q) :=
+  labelTwoExteriorStandardCutEquiv Q (labelTwoLastFactorEquiv Q) hQ
+
+/-- The full two-black slide vanishes between the complementary cut projectors. -/
+example :=
+  Categorification.Stendhal.labelTwo_endpointSlide_complement
+    (fun (_ _ : Unit ⊕ Fin 2) => (0 : MvPolynomial (Fin 2) ℚ))
+
+/-- The reflected terminal projector has the first dot as its off-diagonal line. -/
+example := Categorification.KLR.CycKLR.twoBlackTerminal_reflected_corner_span Q
+
+/-- The red-black map from the rational middle standard into the left exterior projective. -/
+noncomputable example := Categorification.Stendhal.labelTwoMiddleToExterior Q
+
+/-- The same crossing descends through the middle dot-sum quotient. -/
+noncomputable example := Categorification.Stendhal.labelTwoMiddleExteriorDifferential Q
+
+/-- The incoming crossing on the genuine divided-power standard. -/
+noncomputable example := Categorification.Stendhal.labelTwoExteriorMiddleDifferential Q
+
+/-- The two actual exterior crossing differentials have zero composite. -/
+example := Categorification.Stendhal.labelTwoExteriorMiddleDifferential_comp_zero Q
+
+noncomputable example := Categorification.Stendhal.labelTwoExteriorStandardComplex Q
+
+/-- The undotted and dotted terminal columns of the actual outgoing map. -/
+example := Categorification.Stendhal.labelTwo_outgoing_terminal_diagram_columns Q
+
+/-- The outgoing diagrams at each surviving cut have independent scalar coefficients. -/
+example (a b : ℚ) :=
+  Categorification.Stendhal.LabelTwoEndpointFlag.outgoing_middle_coefficients_eq_zero Q (a := a) (b := b)
+
+example (a b : ℚ) :=
+  Categorification.Stendhal.LabelTwoEndpointFlag.outgoing_terminal_coefficients_eq_zero Q (a := a) (b := b)
+
+end NonVacuity.WebsterLabelTwoEndpointTor
+
 namespace NonVacuity.WebsterLocalization
 
 open Categorification Categorification.QuantumGroup
@@ -9110,6 +9173,17 @@ noncomputable example : fundamentalBraidTensorComplex.homology ≅
   fundamentalBraidTensorHomologyIso
 
 end NonVacuity.WebsterFundamentalBraidTensorHomology
+
+namespace NonVacuity.WebsterFundamentalBraidTargetHead
+open CategoryTheory Categorification.Stendhal.FundamentalCorner
+
+example : Function.Injective fundamentalBraidRightTensorComplex.f ∧
+    Function.Surjective fundamentalBraidRightTensorComplex.g := fundamentalBraidRightTensorComplex_ends
+
+noncomputable example : fundamentalBraidRightTensorComplex.homology ≅ braidTargetMiddleHead :=
+  fundamentalBraidRightTensorHomologyIso
+
+end NonVacuity.WebsterFundamentalBraidTargetHead
 end
 
 namespace NonVacuity.WebsterCupRHomRegular
@@ -9509,6 +9583,32 @@ example := by
   letI : CatModule.HasDerivedCategory.{1,0} (WeightCategory (E [0, 1]).Cornerᵐᵒᵖ) :=
     CatModule.HasDerivedCategory.standard _
   exact auxiliaryGradedBraidingFunctor (ν := ν₀) FundamentalCorner.grading [1, 0] [0, 1]
+
+example := by
+  letI := Graded.cornerGradedAlgebra V (E [1, 0]) (H [1, 0])
+  letI := Graded.cornerGradedAlgebra V (E [0, 1]) (H [0, 1])
+  letI := gradedAlgebraInternalGrading (S [1, 0])
+  letI := gradedAlgebraInternalGrading (S [0, 1])
+  letI := gradedAlgebraBigradedDGRing (S [1, 0])
+  letI := gradedAlgebraBigradedDGRing (S [0, 1])
+  letI : CatModule.HasDerivedCategory.{1,0} (WeightCategory (E [1, 0]).Cornerᵐᵒᵖ) :=
+    CatModule.HasDerivedCategory.standard _
+  letI : CatModule.HasDerivedCategory.{1,0} (WeightCategory (E [0, 1]).Cornerᵐᵒᵖ) :=
+    CatModule.HasDerivedCategory.standard _
+  let Z : WeightCategory (E [1, 0]).Cornerᵐᵒᵖ := ⟨0⟩
+  let X : WeightCategory (E [0, 1]).Cornerᵐᵒᵖ := ⟨0⟩
+  let R := CatModule.representable Z
+  refine auxiliaryGradedBraiding_cohomology_isZero_of_loading_support
+    (ν := ν₀) FundamentalCorner.grading [1, 0] [0, 1] (𝟙 R)
+    (CatModule.isKProjective_representable Z) (CatModule.isQuasiIso_id R) X (-1)
+    (ι := Empty) (fun i => nomatch i) ?_ (fun i => nomatch i)
+  intro W x hx
+  have hg : (show (Z ⟶ W) from x) ∈ DG.grading (-1 : ℤ) := hx
+  have hd := InDegreeZero.ring_mem_grading_iff.mp (WeightCategory.mem_grading_iff.mp hg)
+  have hz : (show (Z ⟶ W) from x) = 0 :=
+    WeightCategory.hom_ext (hd.resolve_left (by decide))
+  rw [show x = 0 from hz]
+  exact zero_mem _
 
 end
 

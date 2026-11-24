@@ -9120,6 +9120,19 @@ example : fundamentalBraidMiddleClass ∉ Graded.shift (figureFiveCutGrade (Λ :
   rw [fundamentalBraidMiddleClass_resolutionWeight]
   norm_num
 
+
+example : ∃ z, z ∈ Graded.shift (figureFiveCutGrade (Λ := wt) datum fundamentalBraidParameters
+    (weightPairing datum realization) (fun _ => braidFundamentalWeight realization) terminal 1 0) 1 (3 / 2) ∧
+    fundamentalBraidCutComplex.g z = 0 ∧ ¬ ∃ y, fundamentalBraidCutComplex.f y = z :=
+  (fundamentalBraidHomology_weight_iff realization _).mpr rfl
+
+example : ¬ ∃ z, z ∈ Graded.shift (figureFiveCutGrade (Λ := wt) datum fundamentalBraidParameters
+    (weightPairing datum realization) (fun _ => braidFundamentalWeight realization) terminal 1 0) 1 (5 / 2) ∧
+    fundamentalBraidCutComplex.g z = 0 ∧ ¬ ∃ y, fundamentalBraidCutComplex.f y = z := by
+  intro h
+  have he : (5 / 2 : ℂ) = 3 / 2 := (fundamentalBraidHomology_weight_iff realization _).mp h
+  norm_num at he
+
 end
 end NonVacuity.WebsterFundamentalBraidWeight
 

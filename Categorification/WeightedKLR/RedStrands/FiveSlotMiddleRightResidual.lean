@@ -4,6 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 -/
 import Categorification.WeightedKLR.RedStrands.AffineHigherKernelMap
 import Categorification.WeightedKLR.RedStrands.FiveSlotMiddleRightHigher
+import Categorification.WeightedKLR.RedStrands.FiveSlotLastRedTransport
 import Mathlib.LinearAlgebra.Quotient.Basic
 
 /-!
@@ -222,5 +223,216 @@ theorem fiveSlotMiddleRight_residual_quotient_of_nearby (hQ : KLRSymm Q) :
     (Function.Injective f ↔ ∀ x : P₂, (∃ y : P₁, f₁ y = f₂ x) → x ∈ K₂)
   exact quotient_map_of_two_images (A := Tᵐᵒᵖ) (P := P₁) (P' := P₂) (M := K)
     f₁ f₂ K₂ (nearby_kernel_maps_into_central Q Λ hQ) (middleRight_generated_by_maps Q Λ hQ)
+
+section ResidualSaturation
+
+local notation "ν" => ν₀
+local notation "n" => N
+local notation "A" => nearby
+local notation "D" => sadj n 1 • A
+local notation "δ" => F (ψ 1 * e A)
+local notation "τ" => F (ψ 2 * e D)
+local notation "X" => -F (x (⟨3, by decide⟩ : Fin n))
+local notation "Y" => F (x (⟨2, by decide⟩ : Fin n))
+
+private theorem dividedSquare : τ * τ = (0 : V) := by
+  rw [← map_mul]
+  suffices h : (ψ 2 * e D : R) * (ψ 2 * e D) = 0 by rw [h, map_zero]
+  have hfix : sadj n 2 • D = D := by decide +kernel
+  have h := KLRAlgebra.ψ_sq (Q := stendhalQ Q Λ) 2 (by decide : 2 + 1 < n) D
+  rw [ite_eq_left (by decide)] at h
+  have hd : (e D : R) * (ψ 2 * e D) = ψ 2 * e D := by
+    simp only [ψ_mul_e, hfix, ← mul_assoc, e_mul_self]
+  calc
+    _ = ψ 2 * (ψ 2 * e D) := by rw [mul_assoc, hd]
+    _ = 0 := by rwa [← mul_assoc]
+
+private theorem earlierCrossing_dot : δ * X = X * δ := by
+  rw [mul_neg, neg_mul, ← map_mul F, ← map_mul F]
+  apply congrArg (fun a : R => -F a)
+  rw [mul_assoc, ← x_mul_e, ← mul_assoc,
+    ← x_mul_ψ (Q := stendhalQ Q Λ) (⟨3, by decide⟩ : Fin n) 1 (by decide) (by decide), mul_assoc]
+
+private theorem earlierCrossing_left : p D * δ = δ := by
+  rw [← map_mul]
+  apply congrArg F
+  simp only [ψ_mul_e, ← mul_assoc, e_mul_self]
+
+private theorem divided_dot : τ * X = p D - Y * τ := by
+  rw [mul_neg, ← map_mul F, ← map_mul F, ← map_sub F, ← map_neg F]
+  apply congrArg F
+  have h := dot_cross_left (Q := stendhalQ Q Λ) (k := k) 2 (by decide : 2 + 1 < n) D
+  rw [ite_eq_left (by decide), sub_mul] at h
+  have hh : -(ψ 2 * x (⟨3, by decide⟩ : Fin n) * e D : R) = e D - x (⟨2, by decide⟩ : Fin n) * ψ 2 * e D := by
+    calc
+      _ = (x (⟨2, by decide⟩ : Fin n) * ψ 2 * e D -
+        ψ 2 * x (⟨3, by decide⟩ : Fin n) * e D) -
+        x (⟨2, by decide⟩ : Fin n) * ψ 2 * e D := by abel
+      _ = _ := by rw [h]
+  have move : ((ψ 2 * e D) * x (⟨3, by decide⟩ : Fin n) : R) =
+      ψ 2 * x (⟨3, by decide⟩ : Fin n) * e D := by
+    rw [mul_assoc, ← x_mul_e, ← mul_assoc]
+  rw [move]
+  simpa only [mul_assoc] using hh
+
+/-- Once the commuting square for the independent red crossings is
+Cartesian, the remaining same-color overlap is controlled by the
+nilHecke square-zero relation and the dot commutator. -/
+theorem fiveSlotMiddleRight_divided_overlap_mem
+    (J : TwoSidedIdeal V)
+    (hker : ∀ y : V, p A * y = y → y * violMk k Q Λ ν (redProj k Q Λ ν (redWord A)) = y →
+      τ * (δ * y) = 0 → y ∈ J)
+    (y z : V) (hy : p A * y = y) (hz : p A * z = z)
+    (hyr : y * violMk k Q Λ ν (redProj k Q Λ ν (redWord A)) = y)
+    (hzr : z * violMk k Q Λ ν (redProj k Q Λ ν (redWord A)) = z)
+    (hoverlap : τ * (δ * y) = δ * z) : y ∈ J := by
+  have hzero : τ * (δ * z) = 0 := by
+    rw [← hoverlap, ← mul_assoc, dividedSquare Q Λ, zero_mul]
+  have hZ : z ∈ J := hker z hz hzr hzero
+  have hdot : τ * (δ * (X * z)) = δ * z := by
+    rw [← mul_assoc δ, earlierCrossing_dot Q Λ, mul_assoc X, ← mul_assoc τ,
+      divided_dot Q Λ, sub_mul, ← mul_assoc (p D), earlierCrossing_left Q Λ,
+      mul_assoc Y, hzero, mul_zero, sub_zero]
+  have hsub : τ * (δ * (y - X * z)) = 0 := by
+    rw [mul_sub, mul_sub, hoverlap, hdot, sub_self]
+  have hcomm : p A * X = X * p A := by
+    rw [mul_neg, neg_mul, ← map_mul F, ← map_mul F, x_mul_e]
+  have hfix : p A * (y - X * z) = y - X * z := by
+    rw [mul_sub, hy, ← mul_assoc, hcomm, mul_assoc, hz]
+  have hfixr : (y - X * z) * violMk k Q Λ ν (redProj k Q Λ ν (redWord A)) = y - X * z := by
+    rw [sub_mul, hyr, mul_assoc, hzr]
+  have hd : X * z ∈ J := TwoSidedIdeal.mul_mem_left _ _ _ hZ
+  simpa only [sub_add_cancel] using J.add_mem (hker _ hfix hfixr hsub) hd
+
+local notation "C" => fixedTopFourExitCut 1
+local notation "B" => sadj n 3 • D
+local notation "β" => F (ψ 3 * e D)
+local notation "β'" => F (ψ 3 * e B)
+local notation "c" => F (ψ 1 * e C)
+local notation "α'" => F (ψ 3 * e C)
+
+private theorem inverseLastCrossing (weight : Λ 2 () = 0) : β' * β = p D := by
+  rw [← map_mul F]
+  refine congrArg F ?_
+  have hd : (e B : R) * (ψ 3 * e D) = ψ 3 * e D := by
+    simp only [ψ_mul_e, ← mul_assoc, e_mul_self]
+  have labels₀ : (D).lbl ⟨3, by decide⟩ = Sum.inl () := by decide
+  have labels₁ : (D).lbl ⟨4, by decide⟩ = Sum.inr 2 := by decide
+  have h := KLRAlgebra.ψ_sq (Q := stendhalQ Q Λ) (k := k) 3 (by decide : 3 + 1 < n) D
+  have dots : (![x (⟨3, by decide⟩ : Fin n), x (⟨4, by decide⟩ : Fin n)] : Fin 2 → R) =
+      fun a => x (![⟨3, by decide⟩, ⟨4, by decide⟩] a) := by
+    funext a
+    fin_cases a <;> rfl
+  rw [labels₀, labels₁, ite_eq_right (by decide), stendhalQ_inl_inr, weight, pow_zero,
+    dots, ncEval_eq_pol, map_one, map_one, one_mul] at h
+  rw [mul_assoc, hd, ← mul_assoc, h]
+
+private theorem oppositeCrossings_commute : β' * c = δ * α' := by
+  rw [← map_mul F, ← map_mul F]
+  refine congrArg F ?_
+  have hBC : sadj n 1 • C = B := by decide +kernel
+  have hCA : sadj n 3 • C = A := by decide +kernel
+  have hc : (e B : R) * (ψ 1 * e C) = ψ 1 * e C := by
+    simp only [ψ_mul_e, hBC, ← mul_assoc, e_mul_self]
+  have ha : (e A : R) * (ψ 3 * e C) = ψ 3 * e C := by
+    simp only [ψ_mul_e, hCA, ← mul_assoc, e_mul_self]
+  rw [mul_assoc, hc, mul_assoc, ha, ← mul_assoc, ← mul_assoc,
+    ψ_mul_ψ (Q := stendhalQ Q Λ) 1 3 (by decide)]
+
+private theorem oppositeCrossing_left : p A * α' = α' := by
+  rw [← map_mul]
+  apply congrArg F
+  have ha : sadj n 3 • C = A := by decide +kernel
+  simp only [ψ_mul_e, ha, ← mul_assoc, e_mul_self]
+
+/-- At weight zero on the last red strand, its crossing has explicit inverse.
+Thus overlap after the final crossing is already overlap before it. -/
+theorem fiveSlotMiddleRight_overlap_before_lastRed_zeroWeight (weight : Λ 2 () = 0)
+    (u v : V) (hfixed : p D * u = u)
+    (hr : v * violMk k Q Λ ν (redProj k Q Λ ν (redWord A)) = v)
+    (h : β * u = c * v) :
+    ∃ z : V, p A * z = z ∧
+      z * violMk k Q Λ ν (redProj k Q Λ ν (redWord A)) = z ∧ u = δ * z := by
+  refine ⟨α' * v, ?_, ?_, ?_⟩
+  · rw [← mul_assoc, oppositeCrossing_left Q Λ]
+  · rw [mul_assoc, hr]
+  calc
+    u = (β' * β) * u := by rw [inverseLastCrossing Q Λ weight, hfixed]
+    _ = δ * (α' * v) := by
+      rw [mul_assoc, h, ← mul_assoc, oppositeCrossings_commute Q Λ, mul_assoc]
+
+open FiveSlotFlag
+
+local notation "leftExtreme" => fixedTopFourExitCut 0
+local notation "J₂" => blockUpperIdeal k Q Λ ν 1 2 (adjacentBlockRoot 1 2 A) (redWord A)
+local notation "Eₐ" => violMk k Q Λ ν (redProj k Q Λ ν (redWord A))
+
+private theorem nearbySecondCrossing_factor : τ * δ = F (ψw [2, 1] * e A) := by
+  rw [← map_mul F]
+  apply congrArg F
+  simpa only [List.cons_append, List.nil_append, ψw_cons, ψw_nil, mul_one] using
+    cut_word_mul Q Λ [2] [1] A D (by decide +kernel)
+
+private theorem nearbySecondCrossing_mem_higher (hQ : KLRSymm Q)
+    (y : V) (hl : p A * y = y) (hr : y * Eₐ = y) (h0 : τ * (δ * y) = 0) :
+    y ∈ J₂ := by
+  rw [← mul_assoc, nearbySecondCrossing_factor Q Λ] at h0
+  have he : redWord A = redWord leftExtreme := by decide
+  obtain ⟨z, hz, _, rfl⟩ := fiveSlotLastRed_secondCrossing_mem_leftExtremeImage Q Λ hQ
+    y hl (by simpa only [redProj, he, AlgHom.comp_apply] using hr) h0
+  have higher : adjacentBlockRoot 1 2 A < adjacentBlockRoot 1 2 leftExtreme := by
+    apply lt_of_le_not_ge
+    · intro r i
+      fin_cases r <;> cases i <;> decide
+    · intro h
+      exact (by decide : ¬ adjacentBlockRoot 1 2 leftExtreme 1 () ≤ adjacentBlockRoot 1 2 A 1 ())
+        (h 1 ())
+  have hi : p leftExtreme ∈ J₂ := TwoSidedIdeal.subset_span ⟨leftExtreme, he.symm, higher, rfl⟩
+  rw [← hz]
+  exact TwoSidedIdeal.mul_mem_left _ _ _ (TwoSidedIdeal.mul_mem_right _ _ _ hi)
+
+private theorem middleRightSecond_factor : β * (τ * δ) = F c₂ := by
+  rw [nearbySecondCrossing_factor Q Λ, ← map_mul F]
+  apply congrArg F
+  simpa only [List.cons_append, List.nil_append, ψw_cons, ψw_nil, mul_one] using
+    cut_word_mul Q Λ [3] [2, 1] A D (by decide +kernel)
+
+private theorem fiveSlotMiddleRight_nearby_saturated_zeroWeight (hQ : KLRSymm Q)
+    (weight : Λ 2 () = 0) (y : P₂) (hy : ∃ z : P₁, f₁ z = f₂ y) : y ∈ K₂ := by
+  obtain ⟨z, hz⟩ := hy
+  have hrep : c * z.1.1 = F c₂ * y.1.1 :=
+    (centralMap_val Q Λ z).symm.trans ((congrArg (fun a : K => a.1.1.1) hz).trans
+      (nearbyMap_val Q Λ y))
+  have hyl : p A * y.1.1 = y.1.1 := congrArg Subtype.val y.2
+  have hyr : y.1.1 * Eₐ = y.1.1 := by
+    have he : redWord A = κ := by decide
+    simpa only [he] using CornerEndomorphism.corner_mul_right _ y.1
+  have hzr : z.1.1 * Eₐ = z.1.1 := by
+    have he : redWord A = κ := by decide
+    simpa only [he] using CornerEndomorphism.corner_mul_right _ z.1
+  have hfixed : p D * (τ * (δ * y.1.1)) = τ * (δ * y.1.1) := by
+    have he : p D * τ = τ := by
+      rw [← map_mul F]
+      apply congrArg F
+      have hfix : sadj n 2 • D = D := by decide +kernel
+      simp only [ψ_mul_e, hfix, ← mul_assoc, e_mul_self]
+    rw [← mul_assoc, he]
+  obtain ⟨b, hbl, hbr, hoverlap⟩ :=
+    fiveSlotMiddleRight_overlap_before_lastRed_zeroWeight Q Λ weight _ _ hfixed hzr (by
+      rw [← mul_assoc τ, ← mul_assoc β, middleRightSecond_factor Q Λ, hrep])
+  change y.1.1 ∈ J₂
+  exact fiveSlotMiddleRight_divided_overlap_mem Q Λ J₂
+    (nearbySecondCrossing_mem_higher Q Λ hQ) _ _ hyl hbl hyr hbr hoverlap
+
+/-- For a weight-zero final red strand, the residual higher layer at the
+middle-right loading is the actual nearby partial standard. -/
+theorem fiveSlotMiddleRight_residual_equiv_of_lastWeight_zero (hQ : KLRSymm Q)
+    (weight : Λ 2 () = 0) :
+    Nonempty ((blockPartialStandardAt Q Λ nearby 1 2 κ nearby_order) ≃ₗ[Tᵐᵒᵖ] (K ⧸ J₁)) := by
+  obtain ⟨f, hsurj, hinj⟩ := fiveSlotMiddleRight_residual_quotient_of_nearby Q Λ hQ
+  exact ⟨LinearEquiv.ofBijective f ⟨hinj.2 (fiveSlotMiddleRight_nearby_saturated_zeroWeight Q Λ hQ weight),
+    hsurj⟩⟩
+
+end ResidualSaturation
 
 end Categorification.Stendhal.BraidedStendhalAlgebra

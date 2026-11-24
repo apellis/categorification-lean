@@ -8673,6 +8673,11 @@ example := middleFixedToOrdinaryTensorGradedEquiv ℚ
 
 example := middleStandardTensorEquiv_mem_grade_iff ℚ
 
+noncomputable example :=
+  middleOrderedCoversTransport_quotient_mem_grade ℚ
+    (RingEquiv.refl (TensorProductAlgebra ℚ (parameter ℚ) weights (({()} : Multiset Unit) + {()})))
+    (fun _ _ => rfl)
+
 example := middleStandardQuotient_mem_grade ℚ
 
 end NonVacuity.WebsterLabelTwoMiddleFixedComplex

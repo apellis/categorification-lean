@@ -1109,7 +1109,10 @@ quotient are in degrees zero and two
 Tensoring these fixed vectors with the degree-zero standard generator gives
 the graded ordinary middle tensor
 (`Stendhal.LabelTwo.middleFixedToOrdinaryTensorGradedEquiv`). Its ground-field coordinates detect that grade
-(`Stendhal.LabelTwo.middleStandardTensorEquiv_mem_grade_iff`). Evaluation on the
+(`Stendhal.LabelTwo.middleStandardTensorEquiv_mem_grade_iff`). At this cut
+the ordered cover transported from the source parameters has the literal
+degree-preserving quotient augmentation
+(`Stendhal.LabelTwo.middleOrderedCoversTransport_quotient_mem_grade`). Evaluation on the
 middle generator identifies the endomorphism algebra with the actual
 regular parabolic factor (`Stendhal.LabelTwo.middleEndomorphismFactorEquiv`).
 The diagrammatic dot-sum quotient is the standardization of its

@@ -94,11 +94,11 @@ private theorem detectFactors_injective :
       (standardEnd_detectFactors_surjective k)
 
 set_option maxHeartbeats 1200000 in
-private theorem pairMap_injective : Function.Injective (pairMap k) := by
-  intro x y h
+private theorem pairTest_injective :
+    Function.Injective (fun x : W × W => testModuleMap k (pairMap k x).val) := by
+  intro x y hmap
   let E' := leftStandardEndEquivFixed (parameter k) weights loading loading_ordered
   let coord (w : W) := standardEnd_detectFactors k (E'.symm w)
-  have hmap := congrArg (fun z : T => testModuleMap k z.val) h
   change testModuleMap k (π (ψw [1]) • x.1.val + π (ψw [2, 1]) • x.2.val) =
     testModuleMap k (π (ψw [1]) • y.1.val + π (ψw [2, 1]) • y.2.val) at hmap
   simp only [(testModuleMap k).map_add, (testModuleMap k).map_smul, testModuleMap_fixed] at hmap
@@ -107,6 +107,10 @@ private theorem pairMap_injective : Function.Injective (pairMap k) := by
   exact Prod.ext
     (E'.symm.injective (detectFactors_injective k (congrArg Prod.fst he)))
     (E'.symm.injective (detectFactors_injective k (congrArg Prod.snd he)))
+
+private theorem pairMap_injective : Function.Injective (pairMap k) := by
+  intro x y h
+  exact pairTest_injective k (congrArg (fun z : T => testModuleMap k z.val) h)
 
 /-- At the terminal loading, the two shuffles identify the fixed
 diagrammatic standard with two copies of the middle fixed space. -/
@@ -209,6 +213,39 @@ private def projectFixed (s : Seq μ) (hs : IsRedOrdered s) (z : S) :
   ⟨seqIdem (parameter k) weights s hs • z, by
     change seqIdem (parameter k) weights s hs • (seqIdem (parameter k) weights s hs • z) = _
     rw [← mul_smul, seqIdem_mul_self]⟩
+
+private theorem middleTest_injective :
+    Function.Injective (fun z : W => testModuleMap k z.val) := by
+  intro x y h
+  let E' := leftStandardEndEquivFixed (parameter k) weights loading loading_ordered
+  have hxy := (testModuleMap_fixed k x).symm.trans (h.trans (testModuleMap_fixed k y))
+  have hs : KLRSymm (parameter k) := fun a b h => (h (Subsingleton.elim a b)).elim
+  exact E'.symm.injective (detectFactors_injective k
+    (parabolicStandardUnit_injective (parameter k) weights ({()} : Multiset Unit) {()} _ hs hxy))
+
+private theorem terminalTest_injective :
+    Function.Injective (fun z : T => testModuleMap k z.val) := by
+  intro x y h
+  obtain ⟨p, rfl⟩ := pairMap_surjective k x
+  obtain ⟨q, rfl⟩ := pairMap_surjective k y
+  exact congrArg (pairMap k) (pairTest_injective k h)
+
+/-- The parabolic test module detects the entire diagrammatic middle standard. -/
+theorem testModuleMap_injective : Function.Injective (testModuleMap k) := by
+  intro x y h
+  have hE : testModuleMap k (E • x) = testModuleMap k (E • y) :=
+    ((testModuleMap k).map_smul E x).trans
+      ((congrArg (fun z => E • z) h).trans ((testModuleMap k).map_smul E y).symm)
+  have hEt : testModuleMap k (Et • x) = testModuleMap k (Et • y) :=
+    ((testModuleMap k).map_smul Et x).trans
+      ((congrArg (fun z => Et • z) h).trans ((testModuleMap k).map_smul Et y).symm)
+  have he : E • x = E • y := congrArg Subtype.val (middleTest_injective k
+    (a₁ := projectFixed k loading loading_ordered x) (a₂ := projectFixed k loading loading_ordered y) hE)
+  have ht : Et • x = Et • y := congrArg Subtype.val (terminalTest_injective k
+    (a₁ := projectFixed k terminalLoading terminalLoading_ordered x)
+    (a₂ := projectFixed k terminalLoading terminalLoading_ordered y) hEt)
+  exact (middle_terminal_decompose k x).symm.trans
+    ((congrArg₂ (· + ·) he ht).trans (middle_terminal_decompose k y))
 
 private theorem diagram_exact_of_fixed (f g : F)
     (hm : Function.Exact (fFixed k (a := E) f) (fFixed k (a := E) g))

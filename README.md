@@ -1206,6 +1206,15 @@ its black-crossing translate have coefficients `(1, −ε)` and `(0, 1)`
 in these coordinates (`Stendhal.LabelTwo.incomingDiagram_coordinates`,
 `Stendhal.LabelTwo.incomingDiagram_translate_coordinates`).
 
+The diagrammatic standard
+is the parabolic standardization of its two regular separated factors
+(`Stendhal.LabelTwo.middleStandardParabolicEquiv`). Its parabolic grading
+pulls back to a graded module on the actual diagrammatic carrier
+(`Stendhal.LabelTwo.middleStandardGradedEquiv`). Its middle generator
+has degree zero, and both alternating dot differentials have internal
+degree two (`Stendhal.LabelTwo.diagramPlus_degree_two`,
+`Stendhal.LabelTwo.diagramMinus_degree_two`).
+
 ### Weak `sl₂`-categorifications (Chuang–Rouquier, arXiv:math/0407205v2, §5)
 
 Input for Webster's §5 (arXiv:1309.3796v2, Props. 5.11–5.18). A weak `sl₂`-categorification

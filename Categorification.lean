@@ -1892,6 +1892,7 @@ import Categorification.WeightedKLR.Rigidity.TwoStageDerivedHomology
 import Categorification.WeightedKLR.Rigidity.FundamentalBraidDerivedHead
 import Categorification.WeightedKLR.Rigidity.FundamentalMiddleDimensions
 import Categorification.Algebra.DiagramBigrading
+import Categorification.Algebra.DiagramOppositeWeight
 import Categorification.Algebra.DiagramWeightBimodule
 import Categorification.Algebra.DiagramWeightCohomologyShift
 import Categorification.Algebra.DiagramWeightTensorH0

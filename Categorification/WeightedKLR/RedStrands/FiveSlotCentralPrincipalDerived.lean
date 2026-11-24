@@ -3,6 +3,8 @@ Copyright (c) 2026 Alex Ellis. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 -/
 import Categorification.WeightedKLR.RedStrands.FiveSlotCentralHigher
+import Categorification.WeightedKLR.RedStrands.FiveSlotPrincipalAllBottoms
+import Categorification.WeightedKLR.RedStrands.FiveSlotAllTops
 import Categorification.WeightedKLR.RedStrands.HigherKernelCrossingAt
 import Categorification.WeightedKLR.RedStrands.BlockKernelDerivedSequence
 
@@ -158,5 +160,56 @@ theorem fiveSlotCentral_partialStandard_braid_homology_vanish_of_cancellation (h
   have hp : IsZero (G.obj (ModuleCat.of Tᵐᵒᵖ (rIdeal d))) :=
     blockLoadingProjective_braid_homology_vanish Q Λ v₀ target j hj
   exact hp.of_iso (G.mapIso e₀.toModuleIso.symm)
+
+/-- The ordinary central kernel is projective at arbitrary red weights. -/
+theorem fiveSlotCentral_blockLoadingKernel_projective (hQ : KLRSymm Q) :
+    Module.Projective Tᵐᵒᵖ K :=
+  fiveSlotCentral_blockLoadingKernel_projective_of_cancellation Q Λ hQ
+    (fun y hy _ hz => fiveSlotCentral_leftWord_cancel_of_leftSupport Q Λ hQ y hy hz)
+
+/-- The ordinary balanced map is the only input to the central derived shift. -/
+theorem fiveSlotCentral_partialStandard_braid_homology_vanish (hQ : KLRSymm Q)
+    (hbal : Function.Injective (blockKernelTensorInclusion Q Λ t 1 2 target))
+    [HasDerivedCategory.{w, 0} Tᵐᵒᵖ] [HasDerivedCategory.{w, 0} Uᵐᵒᵖ]
+    (n : ℤ) (hn : n ≠ 0) :
+    IsZero ((DG.DerivedCategory.homologyFunctor (A := Uᵐᵒᵖ) ℤ n).obj
+      ((braidingFunctor k Q Λ ν₀ (redWord t) target).obj
+        (DG.DerivedCategory.Q.obj ((degreeZeroModuleFunctor Tᵐᵒᵖ).obj
+          (blockLoadingShortComplex Q Λ t 1 2).X₃)))) :=
+  fiveSlotCentral_partialStandard_braid_homology_vanish_of_cancellation Q Λ target hQ
+    (fun y hy _ hz => fiveSlotCentral_leftWord_cancel_of_leftSupport Q Λ hQ y hy hz) hbal n hn
+
+
+section Standard
+
+open QuantumGroup KL3.Diagram
+
+variable {F₀ : Type} [Field F₀] (C₀ : CartanDatum Unit)
+local notation "QL" => CL.qCL (CL.CLScalars.kl : CL.CLScalars C₀ F₀)
+local notation "κ₀" => ([0, 2, 1] : List (Fin 3))
+set_option quotPrecheck false in
+local notation "S₀" weights:arg =>
+  IsIdempotentElem.Corner (isIdempotentElem_violMk_redProj F₀ QL weights ν₀ (redWord t))
+set_option quotPrecheck false in
+local notation "D₀" weights:arg =>
+  IsIdempotentElem.Corner (isIdempotentElem_violMk_redProj F₀ QL weights ν₀ κ₀)
+
+/-- At standard parameters the actual central partial standard is concentrated
+in degree zero for the exchanged red order at all weights. -/
+theorem fiveSlotCentral_partialStandard_braid_homology_vanish_exchanged
+    (weights : Fin 3 → Unit →₀ ℕ)
+    [HasDerivedCategory.{w, 0} (S₀ weights)ᵐᵒᵖ]
+    [HasDerivedCategory.{w, 0} (D₀ weights)ᵐᵒᵖ]
+    (n : ℤ) (hn : n ≠ 0) :
+    IsZero ((DG.DerivedCategory.homologyFunctor (A := (D₀ weights)ᵐᵒᵖ) ℤ n).obj
+      ((braidingFunctor F₀ QL weights ν₀ (redWord t) κ₀).obj
+        (DG.DerivedCategory.Q.obj ((degreeZeroModuleFunctor (S₀ weights)ᵐᵒᵖ).obj
+          (blockLoadingShortComplex QL weights t 1 2).X₃)))) := by
+  have hQ : KLRSymm QL := fun i j hij => (hij (Subsingleton.elim i j)).elim
+  exact fiveSlotCentral_partialStandard_braid_homology_vanish_of_cancellation QL weights κ₀ hQ
+    (fun y hy _ hz => fiveSlotCentral_leftWord_cancel_of_leftSupport QL weights hQ y hy hz)
+    (fiveSlot_blockKernelTensorInclusion_injective_standard_allTops C₀ weights t (by decide)) n hn
+
+end Standard
 
 end Categorification.Stendhal.BraidedStendhalAlgebra

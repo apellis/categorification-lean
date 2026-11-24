@@ -7692,4 +7692,16 @@ example (f : KLR.PolyRep.Pol ℚ FiveSlotFlag.weight) :
   exact eval_mem_flag_of_violMk_eq_zero params weights _ (loadingIdeal_preservesFlags weights)
     (loadingIdeal_eq_top_of_violated weights) hz f loading
 
+example : sortedFlagP (k := ℚ) weights (.inr 1) (.inr 0) = 1 := by
+  simp [sortedFlagP]
+
+example (f : KLR.PolyRep.Pol ℚ FiveSlotFlag.weight) :
+    blackEval loading ((KLR.PolyRep.polyRep (sortedFlagP_factor params weights)) redDot f loading) ∈
+      loadingIdeal weights loading := by
+  have hz : violMk ℚ params weights black (ofKLR ℚ params weights black redDot) = 0 := by
+    rw [redDot, ofKLR_x_mul_e_of_red _ _ (by decide), map_zero]
+  exact eval_mem_sorted_flag_of_violMk_eq_zero params weights _
+    (loadingIdeal_preservesSortedFlags weights)
+    (loadingIdeal_eq_top_of_violated weights) hz f loading
+
 end NonVacuity.WebsterFiveSlotFlag

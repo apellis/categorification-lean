@@ -41,10 +41,50 @@ theorem flagP_factor : ∀ a b, a ≠ b →
   · simp [stendhalQ, flagP]
   · fin_cases r <;> fin_cases d <;> simp [stendhalQ, flagP]
 
+/-- The flag polynomial parameters with a chosen orientation of the
+red pairs. -/
+noncomputable def flagPWith (χ : Fin 3 → Fin 3 → Prop) [DecidableRel χ] :
+    Unit ⊕ Fin 3 → Unit ⊕ Fin 3 → MvPolynomial (Fin 2) k
+  | .inl _, .inl _ => 0
+  | .inl i, .inr r => X 1 ^ Λ r i
+  | .inr _, .inl _ => 1
+  | .inr r, .inr d => if χ r d then 1 else 0
+
+/-- All inversions of red labels can cross in the sorting direction. -/
+noncomputable def sortedFlagP : Unit ⊕ Fin 3 → Unit ⊕ Fin 3 → MvPolynomial (Fin 2) k
+  | .inl _, .inl _ => 0
+  | .inl i, .inr r => X 1 ^ Λ r i
+  | .inr _, .inl _ => 1
+  | .inr r, .inr d => if d < r then 1 else 0
+
+private theorem flagOrientation_asymm : ∀ r d : Fin 3, r = 2 ∧ d = 1 → ¬ (d = 2 ∧ r = 1) := by
+  rintro r d ⟨rfl, rfl⟩ h
+  exact (by decide : (1 : Fin 3) ≠ 2) h.1
+
+private theorem sortedOrientation_asymm : ∀ r d : Fin 3, d < r → ¬ r < d :=
+  fun _ _ h => h.not_gt
+
+local notation "PMod" => KLR.PolyRep.Pol k weight
+local notation "A" => KLRAlgebra k (stendhalQ Q Λ) weight
+section Orientation
+
+variable (χ : Fin 3 → Fin 3 → Prop) [DecidableRel χ]
+
+theorem flagPWith_factor (hχ : ∀ r d, χ r d → ¬χ d r) :
+    ∀ a b, a ≠ b →
+      stendhalQ Q Λ a b = flagPWith Λ χ b a * rename ![1, 0] (flagPWith Λ χ a b) := by
+  rintro (i | r) (j | d) h
+  · exact (h (by cases i; cases j; rfl)).elim
+  · simp [stendhalQ, flagPWith]
+  · simp [stendhalQ, flagPWith]
+  · by_cases hr : χ r d
+    · simp [stendhalQ, flagPWith, hr, hχ r d hr]
+    · simp [stendhalQ, flagPWith, hr]
+
 /-- Setting red variables to zero commutes with all flag crossings. -/
-theorem blackEval_crossComp_flagP (s : Seq weight) (j : ℕ) (h : j + 1 < m) (f : R) :
-    blackEval (sadj m j • s) (crossComp (flagP Λ) j h s f) =
-      crossComp (flagP Λ) j h s (blackEval s f) := by
+theorem blackEval_crossComp_flagPWith (s : Seq weight) (j : ℕ) (h : j + 1 < m) (f : R) :
+    blackEval (sadj m j • s) (crossComp (flagPWith Λ χ) j h s f) =
+      crossComp (flagPWith Λ χ) j h s (blackEval s f) := by
   let a : Fin m := ⟨j, by omega⟩
   let b : Fin m := ⟨j + 1, h⟩
   have hab : a ≠ b := by simp [a, b, Fin.ext_iff]
@@ -60,22 +100,22 @@ theorem blackEval_crossComp_flagP (s : Seq weight) (j : ℕ) (h : j + 1 < m) (f 
     cases ha : s.lbl ⟨j, by omega⟩ with
     | inl i =>
       cases hr : s.lbl ⟨j + 1, h⟩ with
-      | inl _ => rw [flagP, map_zero, map_zero]
+      | inl _ => rw [flagPWith, map_zero, map_zero]
       | inr r =>
-        rw [flagP, map_pow, rename_X]
+        rw [flagPWith, map_pow, rename_X]
         change blackEval (sadj m j • s) (X b ^ Λ r i) = X b ^ Λ r i
         rw [map_pow, blackEval_X, show (sadj m j • s).1 b = .inl i from hb.trans ha]
         rfl
     | inr r =>
       cases hr : s.lbl ⟨j + 1, h⟩ with
-      | inl _ => rw [flagP, map_one, map_one]
+      | inl _ => rw [flagPWith, map_one, map_one]
       | inr r' =>
-        rw [flagP]
+        rw [flagPWith]
         split_ifs <;> first | rw [map_one, map_one] | rw [map_zero, map_zero]
 
-local notation "PMod" => KLR.PolyRep.Pol k weight
-local notation "A" => KLRAlgebra k (stendhalQ Q Λ) weight
-local notation "FRep" => polyRep (flagP_factor Q Λ)
+variable (hχ : ∀ r d, χ r d → ¬χ d r)
+
+local notation "FRep" => polyRep (flagPWith_factor Q Λ χ hχ)
 
 /-- The simultaneous flag relations on positional polynomial functions. -/
 noncomputable def flagRelations (J : Seq weight → Ideal R) : Submodule k PMod where
@@ -89,11 +129,11 @@ noncomputable def flagRelations (J : Seq weight → Ideal R) : Submodule k PMod 
     exact (J s).mul_mem_left _ (hf s)
 
 /-- The sole local condition required for descent to the flag quotients. -/
-def PreservesFlags (J : Seq weight → Ideal R) : Prop :=
+def PreservesFlagsWith (J : Seq weight → Ideal R) : Prop :=
   ∀ (s : Seq weight) (j : ℕ) (h : j + 1 < m) (p : R), p ∈ J s →
-    crossComp (flagP Λ) j h s p ∈ J (sadj m j • s)
+    crossComp (flagPWith Λ χ) j h s p ∈ J (sadj m j • s)
 
-theorem flagRelations_stable (J : Seq weight → Ideal R) (hJ : PreservesFlags Λ J)
+theorem flagRelations_stableWith (J : Seq weight → Ideal R) (hJ : PreservesFlagsWith Λ χ J)
     (a : A) (f : PMod) (hf : f ∈ flagRelations J) :
     FRep a f ∈ flagRelations J := by
   revert f
@@ -125,13 +165,13 @@ theorem flagRelations_stable (J : Seq weight → Ideal R) (hJ : PreservesFlags �
       rw [polyRep_ψ]
       intro s
       by_cases hj : j + 1 < m
-      · rw [opΨ_apply (flagP Λ) j hj]
+      · rw [opΨ_apply (flagPWith Λ χ) j hj]
         have hs : sadj m j • (sadj m j • s) = s := sadj_smul_sadj_smul s j
-        have h := blackEval_crossComp_flagP Λ (sadj m j • s) j hj (f (sadj m j • s))
+        have h := blackEval_crossComp_flagPWith Λ χ (sadj m j • s) j hj (f (sadj m j • s))
         rw [hs] at h
         rw [h]
         simpa only [hs] using hJ _ j hj _ (hf (sadj m j • s))
-      · rw [opΨ_eq_zero (flagP Λ) (j := j) (Nat.le_of_not_gt hj), LinearMap.zero_apply, Pi.zero_apply,
+      · rw [opΨ_eq_zero (flagPWith Λ χ) (j := j) (Nat.le_of_not_gt hj), LinearMap.zero_apply, Pi.zero_apply,
           map_zero]
         exact zero_mem _
   | mul u v hu hv =>
@@ -144,10 +184,10 @@ theorem flagRelations_stable (J : Seq weight → Ideal R) (hJ : PreservesFlags �
     exact add_mem (hu _ hf) (hv _ hf)
 
 /-- The KLR polynomial action on the quotient by the positional flag relations. -/
-noncomputable def flagQuotRep (J : Seq weight → Ideal R) (hJ : PreservesFlags Λ J) :
+noncomputable def flagQuotRepWith (J : Seq weight → Ideal R) (hJ : PreservesFlagsWith Λ χ J) :
     A →ₐ[k] Module.End k (PMod ⧸ flagRelations J) where
   toFun a := (flagRelations J).mapQ (flagRelations J) (FRep a)
-    (fun f hf => flagRelations_stable Q Λ J hJ a f hf)
+    (fun f hf => flagRelations_stableWith Q Λ χ hχ J hJ a f hf)
   map_zero' := by
     apply LinearMap.ext
     intro x
@@ -176,26 +216,26 @@ noncomputable def flagQuotRep (J : Seq weight → Ideal R) (hJ : PreservesFlags 
 
 /-- A zero operator on the flag quotient has every positional test in its
 flag ideal after setting red variables to zero. -/
-theorem flagQuotRep_eq_zero_eval (J : Seq weight → Ideal R) (hJ : PreservesFlags Λ J)
-    {a : A} (ha : flagQuotRep Q Λ J hJ a = 0) (f : PMod) (s : Seq weight) :
+theorem flagQuotRep_eq_zero_evalWith (J : Seq weight → Ideal R) (hJ : PreservesFlagsWith Λ χ J)
+    {a : A} (ha : flagQuotRepWith Q Λ χ hχ J hJ a = 0) (f : PMod) (s : Seq weight) :
     blackEval s (FRep a f s) ∈ J s := by
   have hz := congrArg (fun g : Module.End k (PMod ⧸ flagRelations J) =>
     g ((flagRelations J).mkQ f)) ha
   change Submodule.Quotient.mk (FRep a f) = 0 at hz
   exact ((Submodule.Quotient.mk_eq_zero _).1 hz) s
 
-private theorem flagQuotRep_apply_mkQ (J : Seq weight → Ideal R) (hJ : PreservesFlags Λ J)
+private theorem flagQuotRep_apply_mkQWith (J : Seq weight → Ideal R) (hJ : PreservesFlagsWith Λ χ J)
     (a : A) (f : PMod) :
-    flagQuotRep Q Λ J hJ a ((flagRelations J).mkQ f) =
+    flagQuotRepWith Q Λ χ hχ J hJ a ((flagRelations J).mkQ f) =
       (flagRelations J).mkQ (FRep a f) := rfl
 
-private theorem flagQuotRep_red_dot (J : Seq weight → Ideal R) (hJ : PreservesFlags Λ J)
+private theorem flagQuotRep_red_dotWith (J : Seq weight → Ideal R) (hJ : PreservesFlagsWith Λ χ J)
     (a : Fin m) (s : Seq weight) (ha : (s.lbl a).isRight) :
-    flagQuotRep Q Λ J hJ (x a * e s) = 0 := by
+    flagQuotRepWith Q Λ χ hχ J hJ (x a * e s) = 0 := by
   apply LinearMap.ext
   intro z
   obtain ⟨f, rfl⟩ := (flagRelations J).mkQ_surjective z
-  rw [flagQuotRep_apply_mkQ, LinearMap.zero_apply, Submodule.mkQ_apply,
+  rw [flagQuotRep_apply_mkQWith, LinearMap.zero_apply, Submodule.mkQ_apply,
     Submodule.Quotient.mk_eq_zero]
   intro t
   rw [map_mul, Module.End.mul_apply, polyRep_x, polyRep_e, opX_apply, opE_apply, map_mul]
@@ -208,36 +248,36 @@ private theorem flagQuotRep_red_dot (J : Seq weight → Ideal R) (hJ : Preserves
     exact zero_mem _
 
 /-- The flag action descends to braided Stendhal diagrams. -/
-noncomputable def braidedFlagRep (J : Seq weight → Ideal R) (hJ : PreservesFlags Λ J) :
+noncomputable def braidedFlagRepWith (J : Seq weight → Ideal R) (hJ : PreservesFlagsWith Λ χ J) :
     BraidedStendhalAlgebra k Q Λ ({()} + {()} : Multiset Unit) →ₐ[k]
       Module.End k (PMod ⧸ flagRelations J) := by
-  refine RingQuot.liftAlgHom k ⟨(flagQuotRep Q Λ J hJ).comp (mk k _ _), ?_⟩
+  refine RingQuot.liftAlgHom k ⟨(flagQuotRepWith Q Λ χ hχ J hJ).comp (mk k _ _), ?_⟩
   intro u v h
   cases h with
   | klr h =>
-    exact congrArg (flagQuotRep Q Λ J hJ) (RingQuot.mkAlgHom_rel k h)
+    exact congrArg (flagQuotRepWith Q Λ χ hχ J hJ) (RingQuot.mkAlgHom_rel k h)
   | red_dot a s ha =>
-    change flagQuotRep Q Λ J hJ (mk k _ _ (fx k weight a * fe k weight s)) =
-      flagQuotRep Q Λ J hJ (mk k _ _ 0)
+    change flagQuotRepWith Q Λ χ hχ J hJ (mk k _ _ (fx k weight a * fe k weight s)) =
+      flagQuotRepWith Q Λ χ hχ J hJ (mk k _ _ 0)
     rw [map_mul, map_zero, map_zero]
-    exact flagQuotRep_red_dot Q Λ J hJ a s ha
+    exact flagQuotRep_red_dotWith Q Λ χ hχ J hJ a s ha
 
-theorem braidedFlagRep_ofKLR (J : Seq weight → Ideal R) (hJ : PreservesFlags Λ J)
+theorem braidedFlagRep_ofKLRWith (J : Seq weight → Ideal R) (hJ : PreservesFlagsWith Λ χ J)
     (a : A) :
-    braidedFlagRep Q Λ J hJ
+    braidedFlagRepWith Q Λ χ hχ J hJ
       (BraidedStendhalAlgebra.ofKLR k Q Λ ({()} + {()} : Multiset Unit) a) =
-      flagQuotRep Q Λ J hJ a := by
+      flagQuotRepWith Q Λ χ hχ J hJ a := by
   obtain ⟨u, rfl⟩ := mk_surjective a
   rw [BraidedStendhalAlgebra.ofKLR_mk]
   exact RingQuot.liftAlgHom_mkAlgHom_apply _ _ _ _
 
-private theorem flagQuotRep_violated_idem (J : Seq weight → Ideal R) (hJ : PreservesFlags Λ J)
+private theorem flagQuotRep_violated_idemWith (J : Seq weight → Ideal R) (hJ : PreservesFlagsWith Λ χ J)
     (s : Seq weight) (h : J s = ⊤) :
-    flagQuotRep Q Λ J hJ (e s) = 0 := by
+    flagQuotRepWith Q Λ χ hχ J hJ (e s) = 0 := by
   apply LinearMap.ext
   intro z
   obtain ⟨f, rfl⟩ := (flagRelations J).mkQ_surjective z
-  rw [flagQuotRep_apply_mkQ, LinearMap.zero_apply, Submodule.mkQ_apply,
+  rw [flagQuotRep_apply_mkQWith, LinearMap.zero_apply, Submodule.mkQ_apply,
     Submodule.Quotient.mk_eq_zero]
   intro t
   rw [polyRep_e, opE_apply]
@@ -249,36 +289,103 @@ private theorem flagQuotRep_violated_idem (J : Seq weight → Ideal R) (hJ : Pre
 
 /-- The flag representation in the violated quotient. The zero flag
 quotients at violated loadings are supplied by the ideal family. -/
-noncomputable def violatedFlagRep (J : Seq weight → Ideal R)
-    (hJ : PreservesFlags Λ J) (hV : ∀ s, IsViolated s → J s = ⊤) :
+noncomputable def violatedFlagRepWith (J : Seq weight → Ideal R)
+    (hJ : PreservesFlagsWith Λ χ J) (hV : ∀ s, IsViolated s → J s = ⊤) :
     BraidedStendhalAlgebra.ViolQuotient k Q Λ ({()} + {()} : Multiset Unit) →ₐ[k]
       Module.End k (PMod ⧸ flagRelations J) :=
   (BraidedStendhalAlgebra.violIdeal k Q Λ ({()} + {()} : Multiset Unit)).ringCon.liftₐ
-    (braidedFlagRep Q Λ J hJ) (by
+    (braidedFlagRepWith Q Λ χ hχ J hJ) (by
       apply (TwoSidedIdeal.ringCon_le_iff
-        (J := TwoSidedIdeal.ker (braidedFlagRep Q Λ J hJ).toRingHom)).mp
+        (J := TwoSidedIdeal.ker (braidedFlagRepWith Q Λ χ hχ J hJ).toRingHom)).mp
       apply TwoSidedIdeal.span_le.mpr
       rintro _ ⟨s, hs, rfl⟩
       apply (TwoSidedIdeal.mem_ker _).2
-      change braidedFlagRep Q Λ J hJ
+      change braidedFlagRepWith Q Λ χ hχ J hJ
         (BraidedStendhalAlgebra.ofKLR k Q Λ ({()} + {()} : Multiset Unit) (e s)) = 0
-      rw [braidedFlagRep_ofKLR]
-      exact flagQuotRep_violated_idem Q Λ J hJ s (hV s hs))
+      rw [braidedFlagRep_ofKLRWith]
+      exact flagQuotRep_violated_idemWith Q Λ χ hχ J hJ s (hV s hs))
 
 /-- A raw diagram vanishing in the violated quotient has every polynomial
 test in the prescribed flag ideal at its output loading. -/
+theorem eval_mem_flag_of_violMk_eq_zeroWith (J : Seq weight → Ideal R)
+    (hJ : PreservesFlagsWith Λ χ J) (hV : ∀ s, IsViolated s → J s = ⊤)
+    {a : A} (ha : BraidedStendhalAlgebra.violMk k Q Λ ({()} + {()} : Multiset Unit)
+      (BraidedStendhalAlgebra.ofKLR k Q Λ ({()} + {()} : Multiset Unit) a) = 0)
+    (f : PMod) (s : Seq weight) : blackEval s (FRep a f s) ∈ J s := by
+  have hz := congrArg (violatedFlagRepWith Q Λ χ hχ J hJ hV) ha
+  rw [map_zero] at hz
+  have hq (x : BraidedStendhalAlgebra k Q Λ ({()} + {()} : Multiset Unit)) :
+      violatedFlagRepWith Q Λ χ hχ J hJ hV
+        (BraidedStendhalAlgebra.violMk k Q Λ ({()} + {()} : Multiset Unit) x) =
+      braidedFlagRepWith Q Λ χ hχ J hJ x := RingCon.liftₐ_mk _ _ _ _
+  rw [hq, braidedFlagRep_ofKLRWith] at hz
+  exact flagQuotRep_eq_zero_evalWith Q Λ χ hχ J hJ hz f s
+
+end Orientation
+
+theorem sortedFlagP_factor : ∀ a b, a ≠ b →
+    stendhalQ Q Λ a b = sortedFlagP Λ b a * rename ![1, 0] (sortedFlagP Λ a b) :=
+  flagPWith_factor Q Λ (fun r d => d < r) sortedOrientation_asymm
+
+theorem blackEval_crossComp_flagP (s : Seq weight) (j : ℕ) (h : j + 1 < m) (f : R) :
+    blackEval (sadj m j • s) (crossComp (flagP Λ) j h s f) =
+      crossComp (flagP Λ) j h s (blackEval s f) :=
+  blackEval_crossComp_flagPWith Λ (fun r d => r = 2 ∧ d = 1) s j h f
+
+theorem blackEval_crossComp_sortedFlagP (s : Seq weight) (j : ℕ) (h : j + 1 < m) (f : R) :
+    blackEval (sadj m j • s) (crossComp (sortedFlagP Λ) j h s f) =
+      crossComp (sortedFlagP Λ) j h s (blackEval s f) :=
+  blackEval_crossComp_flagPWith Λ (fun r d => d < r) s j h f
+
+abbrev PreservesFlags (J : Seq weight → Ideal R) : Prop :=
+  PreservesFlagsWith Λ (fun r d => r = 2 ∧ d = 1) J
+
+abbrev PreservesSortedFlags (J : Seq weight → Ideal R) : Prop :=
+  PreservesFlagsWith Λ (fun r d => d < r) J
+
+theorem flagRelations_stable (J : Seq weight → Ideal R) (hJ : PreservesFlags Λ J)
+    (a : A) (f : PMod) (hf : f ∈ flagRelations J) :
+    polyRep (flagP_factor Q Λ) a f ∈ flagRelations J :=
+  flagRelations_stableWith Q Λ (fun r d => r = 2 ∧ d = 1) flagOrientation_asymm J hJ a f hf
+
+noncomputable abbrev flagQuotRep (J : Seq weight → Ideal R) (hJ : PreservesFlags Λ J) :=
+  flagQuotRepWith Q Λ (fun r d => r = 2 ∧ d = 1) flagOrientation_asymm J hJ
+
+noncomputable abbrev braidedFlagRep (J : Seq weight → Ideal R) (hJ : PreservesFlags Λ J) :=
+  braidedFlagRepWith Q Λ (fun r d => r = 2 ∧ d = 1) flagOrientation_asymm J hJ
+
+theorem flagQuotRep_eq_zero_eval (J : Seq weight → Ideal R) (hJ : PreservesFlags Λ J)
+    {a : A} (ha : flagQuotRep Q Λ J hJ a = 0) (f : PMod) (s : Seq weight) :
+    blackEval s (polyRep (flagP_factor Q Λ) a f s) ∈ J s :=
+  flagQuotRep_eq_zero_evalWith Q Λ (fun r d => r = 2 ∧ d = 1)
+    flagOrientation_asymm J hJ ha f s
+
+theorem braidedFlagRep_ofKLR (J : Seq weight → Ideal R) (hJ : PreservesFlags Λ J) (a : A) :
+    braidedFlagRep Q Λ J hJ
+      (BraidedStendhalAlgebra.ofKLR k Q Λ ({()} + {()} : Multiset Unit) a) =
+      flagQuotRep Q Λ J hJ a :=
+  braidedFlagRep_ofKLRWith Q Λ (fun r d => r = 2 ∧ d = 1) flagOrientation_asymm J hJ a
+
+noncomputable abbrev violatedFlagRep (J : Seq weight → Ideal R)
+    (hJ : PreservesFlags Λ J) (hV : ∀ s, IsViolated s → J s = ⊤) :=
+  violatedFlagRepWith Q Λ (fun r d => r = 2 ∧ d = 1) flagOrientation_asymm J hJ hV
+
+/-- The flag test for the single exchanged pair. -/
 theorem eval_mem_flag_of_violMk_eq_zero (J : Seq weight → Ideal R)
     (hJ : PreservesFlags Λ J) (hV : ∀ s, IsViolated s → J s = ⊤)
     {a : A} (ha : BraidedStendhalAlgebra.violMk k Q Λ ({()} + {()} : Multiset Unit)
       (BraidedStendhalAlgebra.ofKLR k Q Λ ({()} + {()} : Multiset Unit) a) = 0)
-    (f : PMod) (s : Seq weight) : blackEval s (FRep a f s) ∈ J s := by
-  have hz := congrArg (violatedFlagRep Q Λ J hJ hV) ha
-  rw [map_zero] at hz
-  have hq (x : BraidedStendhalAlgebra k Q Λ ({()} + {()} : Multiset Unit)) :
-      violatedFlagRep Q Λ J hJ hV
-        (BraidedStendhalAlgebra.violMk k Q Λ ({()} + {()} : Multiset Unit) x) =
-      braidedFlagRep Q Λ J hJ x := RingCon.liftₐ_mk _ _ _ _
-  rw [hq, braidedFlagRep_ofKLR] at hz
-  exact flagQuotRep_eq_zero_eval Q Λ J hJ hz f s
+    (f : PMod) (s : Seq weight) : blackEval s (polyRep (flagP_factor Q Λ) a f s) ∈ J s :=
+  eval_mem_flag_of_violMk_eq_zeroWith Q Λ (fun r d => r = 2 ∧ d = 1)
+    flagOrientation_asymm J hJ hV ha f s
+
+/-- The flag test for the action that crosses every inverted red pair. -/
+theorem eval_mem_sorted_flag_of_violMk_eq_zero (J : Seq weight → Ideal R)
+    (hJ : PreservesSortedFlags Λ J) (hV : ∀ s, IsViolated s → J s = ⊤)
+    {a : A} (ha : BraidedStendhalAlgebra.violMk k Q Λ ({()} + {()} : Multiset Unit)
+      (BraidedStendhalAlgebra.ofKLR k Q Λ ({()} + {()} : Multiset Unit) a) = 0)
+    (f : PMod) (s : Seq weight) : blackEval s (polyRep (sortedFlagP_factor Q Λ) a f s) ∈ J s :=
+  eval_mem_flag_of_violMk_eq_zeroWith Q Λ (fun r d => d < r)
+    sortedOrientation_asymm J hJ hV ha f s
 
 end Categorification.Stendhal.FiveSlotFlag

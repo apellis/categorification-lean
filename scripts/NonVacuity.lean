@@ -6690,3 +6690,9 @@ example :=
   Stendhal.BraidedStendhalAlgebra.TwoSpectatorOneBlack.terminalCrossingMap_surjective
     (k := ℚ) (fun _ _ => 0)
     (fun r => if r = 2 then 0 else Finsupp.single () 1)
+
+/-- The interior spectator crossing generates its higher-cut kernel when all
+four red weights are positive. -/
+example :=
+  Stendhal.BraidedStendhalAlgebra.TwoSpectatorOneBlack.interiorCrossingMap_surjective
+    (k := ℚ) (fun _ _ => 0) (fun _ => Finsupp.single () 1)

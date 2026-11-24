@@ -1076,6 +1076,12 @@ first spectator has weight zero, the standard-parameter rightmost-red test
 transports to terminal injectivity and identifies the kernel with the partial
 standard before both spectators
 (`TwoSpectatorOneBlack.mixedKernel_hasHigherFiltration_standard`).
+The interior spectator crossing also surjects onto the higher-cut kernel of
+the intermediate loading. If both crossings are injective, the kernel has
+two partial-standard layers, with the intermediate quotient above the final
+quotient (`TwoSpectatorOneBlack.kernel_hasTwoHigherLayers_of_crossings_injective`).
+The quotient step applies to arbitrary black content via
+`blockLoadingKernel_hasFiltration_cons_of_equiv`.
 
 Still open for Lemma 6.8: when a black lies between the bottom reds, prove that changes
 between different choices of the last crossing give equal balanced classes **in the

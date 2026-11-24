@@ -15,6 +15,7 @@ nonviolated block split in the same red order.
 namespace Categorification.Stendhal.RedBlock
 
 open KLR TypeA Equiv
+open Categorification.Stendhal.BraidedStendhalAlgebra
 
 variable {I : Type} {ℓ : ℕ}
 
@@ -67,5 +68,29 @@ theorem shufflePerm_lt_at_black_red (row : List (RedBlock I ℓ)) (u : ShuffleIn
     hn hord _ _ _ _ hly hlx hp
   have : y < x := by simpa using hbad
   exact (not_lt_of_ge hxy.le) this
+
+variable {k : Type*} [CommRing k] [DecidableEq I]
+    (Q : I → I → MvPolynomial (Fin 2) k) (Λ : Fin ℓ → I →₀ ℕ)
+    (L M : List (Fin ℓ × Multiset I)) (f : Fin 2 ↪ Fin ℓ) (β : Multiset I) {ν : Multiset I}
+
+local notation "row" => adjacentRow L M f β
+
+/-- A nonzero projected bottom idempotent forces an ascent at a black–red joint
+of the source order. The supporting local loading is nonviolated. -/
+theorem shufflePerm_lt_of_nonzero_indexedProjector
+    (h : weightSum row = stendhalWeight ℓ ν) (u : ShuffleIndex row)
+    (s : Seq (weightSum row)) (z : diagrams Q Λ row)
+    (hp : IndexedLoadingProjector Q Λ row u s z)
+    (hnz : projection Q Λ row z ≠ 0)
+    (ho : redWord (Seq.cast h s) = L.map Prod.fst ++ f 0 :: f 1 :: M.map Prod.fst)
+    {a b : Fin (weightSum row).card} {i : I} {r : Fin ℓ}
+    (ha : s.lbl a = .inl i) (hb : s.lbl b = .inr r) (hab : a < b) :
+    shufflePerm row u a < shufflePerm row u b := by
+  rcases hp.support with hz | ⟨v, hmatch, htop, hz⟩
+  · exact (hnz (by rw [hz, map_zero])).elim
+  have hn : ¬ Violated row v := fun hv =>
+    hnz (hz.symm ▸ projection_loadingIdem_eq_zero Q Λ row v hv)
+  exact shufflePerm_lt_at_black_red row u s v htop hn h
+    (redWord_place_eq_of_shuffleLoading L M f β h s v hmatch ho) ha hb hab
 
 end Categorification.Stendhal.RedBlock

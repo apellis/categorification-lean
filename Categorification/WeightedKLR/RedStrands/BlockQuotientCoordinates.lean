@@ -107,7 +107,7 @@ private theorem exists_quotientBlockCoordinate (g : R →ₗ[k] diagrams Q Λ ro
 /-- The parabolic coordinates read the quotient by red dots, global violations and
 higher source loadings. Reconstruction is by stacking the original coordinate
 representatives. Webster v2, Lemma 6.8, proof of the kernel test (6.21). -/
-theorem exists_blockStack_filtered_quotient_coordinates (hQ : KLRSymm Q)
+theorem exists_blockStack_quotient_coordinates_with_indexed_projectors (hQ : KLRSymm Q)
     (h : weightSum row = stendhalWeight ℓ ν) :
     let S := affineStackBlocks Q Λ L M f β h
     ∃ n, ∃ (index : Fin n ≃ ShuffleIndex row) (g : Fin n → R →ₗ[k] diagrams Q Λ row) (w : Fin n → R)
@@ -119,8 +119,7 @@ theorem exists_blockStack_filtered_quotient_coordinates (hQ : KLRSymm Q)
         G j (q (mk (raw y))) ∈ (blockShuffleFilt Q Λ row (index j) n).map (P).toLinearMap) ∧
       (∀ j x y, G j (q (mk (raw (S x * y)))) = P x * G j (q (mk (raw y)))) ∧
       (∀ j y s, G j (q (mk (raw (y * e s)))) = G j (q (mk (raw y))) * P (bottom j s)) ∧
-      (∀ j s, bottom j s = 0 ∨ ∃ v : Loadings row,
-        ShuffleLoading row (Seq.cast h.symm s) v ∧ bottom j s = loadingIdem Q Λ row v) ∧
+      (∀ j s, IndexedLoadingProjector Q Λ row (index j) (Seq.cast h.symm s) (bottom j s)) ∧
       (∀ j y, g j (S 1 * y) = g j y) ∧
       (∀ j, G j (q (mk (raw (w j)))) = 1) ∧
       (∀ i j, i ≠ j → G i (q (mk (raw (w j)))) = 0) ∧
@@ -128,7 +127,7 @@ theorem exists_blockStack_filtered_quotient_coordinates (hQ : KLRSymm Q)
   classical
   obtain ⟨n, index, g, w, bottom, hfil, hw, hmul, hbottom, hsec, hself, hother,
       hloading, hbad, rebuild⟩ :=
-    exists_blockStack_coordinates_with_filtered_shuffle_words Q Λ hQ L M f β h
+    exists_blockStack_coordinates_with_indexed_projectors Q Λ hQ L M f β h
   have desc (j : Fin n) :=
     exists_quotientBlockCoordinate Q Λ L M f β (g j) (hsec j) (hbad j)
   choose G hG using desc
@@ -150,6 +149,29 @@ theorem exists_blockStack_filtered_quotient_coordinates (hQ : KLRSymm Q)
     have hr := congrArg ((q).comp mk) (rebuild y)
     simpa only [map_sum, AlgHom.comp_apply] using hr
 
+/-- Filtered quotient coordinates, retaining the loading support of their projectors. -/
+theorem exists_blockStack_filtered_quotient_coordinates (hQ : KLRSymm Q)
+    (h : weightSum row = stendhalWeight ℓ ν) :
+    let S := affineStackBlocks Q Λ L M f β h
+    ∃ n, ∃ (index : Fin n ≃ ShuffleIndex row) (g : Fin n → R →ₗ[k] diagrams Q Λ row) (w : Fin n → R)
+      (G : Fin n → (J).ringCon.Quotient →ₗ[k] quotients Q Λ row)
+      (bottom : Fin n → Seq μ → diagrams Q Λ row),
+      (∀ j y, G j (q (mk (raw y))) = P (g j y)) ∧
+      (∀ j, w j = S 1 * ψw (shuffleWord row (index j))) ∧
+      (∀ j y n, y ∈ filt k (stendhalQ Q Λ) μ n →
+        G j (q (mk (raw y))) ∈ (blockShuffleFilt Q Λ row (index j) n).map (P).toLinearMap) ∧
+      (∀ j x y, G j (q (mk (raw (S x * y)))) = P x * G j (q (mk (raw y)))) ∧
+      (∀ j y s, G j (q (mk (raw (y * e s)))) = G j (q (mk (raw y))) * P (bottom j s)) ∧
+      (∀ j s, bottom j s = 0 ∨ ∃ v : Loadings row,
+        ShuffleLoading row (Seq.cast h.symm s) v ∧ bottom j s = loadingIdem Q Λ row v) ∧
+      (∀ j y, g j (S 1 * y) = g j y) ∧
+      (∀ j, G j (q (mk (raw (w j)))) = 1) ∧
+      (∀ i j, i ≠ j → G i (q (mk (raw (w j)))) = 0) ∧
+      (∀ y, q (mk (raw (S 1 * y))) = ∑ j, q (mk (raw (S (g j y) * w j)))) := by
+  obtain ⟨n, index, g, w, G, b, hG, hw, hf, hm, hb, hp, hu, hs, ho, hr⟩ :=
+    exists_blockStack_quotient_coordinates_with_indexed_projectors Q Λ L M f β hQ h
+  exact ⟨n, index, g, w, G, b, hG, hw, hf, hm, hb, fun j s => (hp j s).loading Q Λ, hu, hs, ho, hr⟩
+
 /-- The parabolic coordinates read the quotient by red dots, global violations and
 higher source loadings. Reconstruction is by stacking the original coordinate
 representatives. Webster v2, Lemma 6.8, proof of the kernel test (6.21). -/
@@ -167,25 +189,24 @@ theorem exists_blockStack_quotient_coordinates (hQ : KLRSymm Q)
     exists_blockStack_filtered_quotient_coordinates Q Λ L M f β hQ h
   exact ⟨n, g, w, G, hG, h⟩
 
-/-- The descended coordinates separate the source-order block column. This uses
-reconstruction and the external block-algebra action on that column. -/
-theorem exists_blockColumn_coordinate_embedding (hQ : KLRSymm Q)
-    (h : weightSum row = stendhalWeight ℓ ν) :
-    ∃ n, ∃ F : blockColumn Q Λ L M f β h →ₗ[k] (Fin n → quotients Q Λ row),
-      Function.Injective F := by
+/-- Reconstruction by the descended coordinates detects zero on the source-order
+column, for the same coordinate family used in a right-crossing computation. -/
+theorem blockColumn_eq_zero_of_quotient_coordinates
+    (h : weightSum row = μ) {n : ℕ}
+    (g : Fin n → R →ₗ[k] diagrams Q Λ row) (w : Fin n → R)
+    (G : Fin n → (J).ringCon.Quotient →ₗ[k] quotients Q Λ row)
+    (hG : ∀ j y, G j (q (mk (raw y))) = P (g j y))
+    (hunit : ∀ j y, g j (affineStackBlocks Q Λ L M f β h 1 * y) = g j y)
+    (rebuild : ∀ y, q (mk (raw (affineStackBlocks Q Λ L M f β h 1 * y))) =
+      ∑ j, q (mk (raw (affineStackBlocks Q Λ L M f β h (g j y) * w j))))
+    (x : blockColumn Q Λ L M f β h) (hx : ∀ j, G j x.1 = 0) : x = 0 := by
   classical
-  obtain ⟨n, g, w, G, hG, hunit, _, _, rebuild⟩ :=
-    exists_blockStack_quotient_coordinates Q Λ L M f β hQ h
   let N := blockColumn Q Λ L M f β h
   let F := stackBlocks Q Λ L M f β h
   let π := (mk).comp raw
   let eκ : R := redIdem k Q Λ κ
   let p := mk (redProj k Q Λ ν κ)
   let S := affineStackBlocks Q Λ L M f β h
-  let read : N →ₗ[k] (Fin n → quotients Q Λ row) :=
-    LinearMap.pi fun j => (G j).comp (N).subtype
-  refine ⟨n, read, (LinearMap.ker_eq_bot (f := read)).1 (LinearMap.ker_eq_bot'.2 ?_)⟩
-  intro x hx
   have surjπ : Function.Surjective π := violMk_surjective.comp ofKLR_surjective
   obtain ⟨v, hv⟩ := x.2
   obtain ⟨y, rfl⟩ := surjπ v
@@ -195,7 +216,7 @@ theorem exists_blockColumn_coordinate_embedding (hQ : KLRSymm Q)
     rw [← hv, map_mul π (S 1) z, map_mul π y eκ]
     rfl
   have coeff_zero (j : Fin n) : P (g j z) = 0 := by
-    have hc := congrFun hx j
+    have hc := hx j
     change G j x.1 = 0 at hc
     rw [rep] at hc
     change G j (q (mk (raw (S 1 * z)))) = 0 at hc
@@ -234,5 +255,22 @@ theorem exists_blockColumn_coordinate_embedding (hQ : KLRSymm Q)
         ← mul_assoc (F (g j z)) (F 1), ← map_mul F, mul_one]
     _ = _ := act.symm
     _ = 0 := congrArg (fun v : N => v.1) act_zero
+
+/-- The descended coordinates separate the source-order block column. This uses
+reconstruction and the external block-algebra action on that column. -/
+theorem exists_blockColumn_coordinate_embedding (hQ : KLRSymm Q)
+    (h : weightSum row = stendhalWeight ℓ ν) :
+    ∃ n, ∃ F : blockColumn Q Λ L M f β h →ₗ[k] (Fin n → quotients Q Λ row),
+      Function.Injective F := by
+  classical
+  obtain ⟨n, g, w, G, hG, hunit, _, _, rebuild⟩ :=
+    exists_blockStack_quotient_coordinates Q Λ L M f β hQ h
+  let N := blockColumn Q Λ L M f β h
+  let read : N →ₗ[k] (Fin n → quotients Q Λ row) :=
+    LinearMap.pi fun j => (G j).comp (N).subtype
+  refine ⟨n, read, (LinearMap.ker_eq_bot (f := read)).1 (LinearMap.ker_eq_bot'.2 ?_)⟩
+  intro x hx
+  exact blockColumn_eq_zero_of_quotient_coordinates Q Λ L M f β h g w G hG hunit rebuild x
+    (fun j => congrFun hx j)
 
 end Categorification.Stendhal.RedBlock

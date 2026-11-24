@@ -125,4 +125,43 @@ theorem injective_sum_of_rightAscentCoordinates
   change (x : A) * C i (lead i') = 0
   rw [hz, mul_zero]
 
+/-- Vanishing of the crossed coordinate matrix forces a supported source
+family to vanish when its leading corner maps are injective. -/
+theorem eq_zero_of_supported_rightAscentCoordinates
+    (row : List (RedBlock I ℓ)) {n : ℕ} (index : Fin n ≃ ShuffleIndex row)
+    (active : Fin n → Prop) (lead : Subtype active → Fin n)
+    (j : ℕ) (hj : j + 1 < (weightSum row).card)
+    (M : Subtype active → Submodule k A) (C : Fin n → Fin n → A)
+    (ht : ∀ i, (lead i = i.val ∧ SameInputBlock row (index (lead i)) j hj) ∨
+      (shufflePerm row (index (lead i)) = shufflePerm row (index i.val) * sadj _ j ∧
+        ¬ SameInputBlock row (index (lead i)) j hj))
+    (hlen : ∀ i, (shuffleWord row (index i.val)).length ≤ (shuffleWord row (index (lead i))).length)
+    (herror : ∀ (i : Subtype active) d, ((shuffleWord row (index i.val)).length ≤ 1 ∨
+      (shuffleWord row (index i.val)).length - 2 < (shuffleWord row (index d)).length) →
+      d ≠ lead i → C i.val d = 0)
+    (hdiag : ∀ i, Function.Injective (fun x : M i => (x : A) * C i.val (lead i)))
+    (x : Fin n → A) (hmem : ∀ i : Subtype active, x i.val ∈ M i)
+    (hzero : ∀ i, ¬ active i → x i = 0)
+    (hker : ∀ d, ∑ i, x i * C i d = 0) :
+    ∀ i, x i = 0 := by
+  classical
+  let x' (i : Subtype active) : M i := ⟨x i.val, hmem i⟩
+  have hi := injective_sum_of_rightAscentCoordinates row index (Function.Embedding.subtype active)
+    lead j hj M (fun i d => C i.val d) ht hlen herror hdiag
+  have h' : x' = 0 := hi (by
+    funext d
+    have hd := Fintype.sum_subtype_add_sum_subtype active (fun i => x i * C i d)
+    have hcomp : (∑ i : {i // ¬active i}, x i.val * C i.val d) = 0 := by
+      apply Finset.sum_eq_zero
+      intro i _
+      rw [hzero i.val i.property, zero_mul]
+    rw [hcomp, add_zero, hker] at hd
+    change (∑ i : Subtype active, x i.val * C i.val d) =
+      ∑ i : Subtype active, ((0 : M i) : A) * C i.val d
+    simpa only [Submodule.coe_zero, zero_mul, Finset.sum_const_zero] using hd)
+  intro i
+  by_cases ha : active i
+  · exact congrArg Subtype.val (congrFun h' ⟨i, ha⟩)
+  · exact hzero i ha
+
 end Categorification.Stendhal.RedBlock

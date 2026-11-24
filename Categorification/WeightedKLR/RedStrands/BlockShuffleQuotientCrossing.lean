@@ -62,6 +62,20 @@ private theorem internal_shuffle_error (Q : (I ⊕ Fin ℓ) → (I ⊕ Fin ℓ) 
   · exact (hvbad ((sameInputBlock_swap_iff row u v j hj hv).2 hsame)).elim
   · exact ⟨hi, hclose⟩
 
+/-- Swapping adjacent bottom slots at the same time as extending the shuffle leaves
+the actual loading projector unchanged. -/
+theorem IndexedLoadingProjector.eq_after_right_swap (Q : I → I → MvPolynomial (Fin 2) k)
+    (Λ : Fin ℓ → I →₀ ℕ) (row : List (RedBlock I ℓ)) {δ : Multiset (I ⊕ Fin ℓ)}
+    (h : weightSum row = δ) (u v : ShuffleIndex row) (j : ℕ)
+    (hv : shufflePerm row v = shufflePerm row u * sadj _ j) (s : Seq δ)
+    {z z₀ : diagrams Q Λ row}
+    (p : IndexedLoadingProjector Q Λ row v (Seq.cast h.symm s) z)
+    (p₀ : IndexedLoadingProjector Q Λ row u (Seq.cast h.symm (sadj δ.card j • s)) z₀) : z = z₀ := by
+  subst δ
+  apply IndexedLoadingProjector.eq_of_same_top Q Λ p p₀
+  change shufflePerm row v • s = shufflePerm row u • (sadj (weightSum row).card j • s)
+  rw [hv, mul_smul]
+
 variable (Q : I → I → MvPolynomial (Fin 2) k) (Λ : Fin ℓ → I →₀ ℕ)
     (L M : List (Fin ℓ × Multiset I)) (f : Fin 2 ↪ Fin ℓ) (β : Multiset I) {ν : Multiset I}
 
@@ -132,6 +146,48 @@ theorem quotientCoordinate_external_right_ascent (h : weightSum (adjacentRow L M
       · subst v; rw [ite_eq_left rfl, hself, one_mul]
       · rw [ite_eq_right he, hother d v he, zero_mul]
 
+/-- The external diagonal is the source loading projector. It acts as the identity
+on every coefficient supported at that loading, including the coordinates of every
+right-supported representative in the ambient KLR algebra. -/
+theorem quotientCoordinate_external_diagonal (h : weightSum (adjacentRow L M f β) = stendhalWeight ℓ ν)
+    {n : ℕ} (index : Fin n ≃ ShuffleIndex row)
+    (w : Fin n → R) (G : Fin n → (J).ringCon.Quotient →ₗ[k] quotients Q Λ row)
+    (bottom : Fin n → Seq μ → diagrams Q Λ row)
+    (hw : ∀ i, w i = (affineStackBlocks Q Λ L M f β h) 1 * ψw (shuffleWord row (index i)))
+    (hfilt : ∀ i y n, y ∈ filt k (stendhalQ Q Λ) μ n →
+      G i (π y) ∈ (blockShuffleFilt Q Λ row (index i) n).map (P).toLinearMap)
+    (hmul : ∀ i x y, G i (π ((affineStackBlocks Q Λ L M f β h) x * y)) = P x * G i (π y))
+    (hbottom : ∀ i y s, G i (π (y * e s)) = G i (π y) * P (bottom i s))
+    (hself : ∀ i, G i (π (w i)) = 1)
+    (hother : ∀ d i, d ≠ i → G d (π (w i)) = 0)
+    (hprojector : ∀ d s, IndexedLoadingProjector Q Λ row (index d) (Seq.cast h.symm s) (bottom d s))
+    (i v : Fin n) (j : ℕ) (hj : j+1 < (weightSum row).card)
+    (ha : shufflePerm row (index i) ⟨j,by omega⟩ < shufflePerm row (index i) ⟨j+1,hj⟩)
+    (hv : shufflePerm row (index v) = shufflePerm row (index i) * sadj _ j)
+    (s : Seq μ) :
+    let s₀ := sadj (Multiset.card μ) j • s
+    let src := P (bottom i s₀)
+    let diag := G v (π (w i * ψ j * e s))
+    diag = src ∧ (∀ x : quotients Q Λ row, x * src = x → x * diag = x) ∧
+      ∀ y : R, y * e s₀ = y → G i (π y) * diag = G i (π y) := by
+  intro s₀ src diag
+  have len (d : Fin n) : (shuffleWord row (index d)).length = length _ (shufflePerm row (index d)) :=
+    (isReduced_shuffleWord row (index d)).2
+  have above : (shuffleWord row (index i)).length - 2 < (shuffleWord row (index v)).length := by
+    rw [len i, len v, hv, length_mul_sadj_of_lt hj ha]
+    omega
+  have he : diag = P (bottom v s) := by
+    simpa only [diag, ↓reduceIte] using
+      quotientCoordinate_external_right_ascent Q Λ L M f β h index w G bottom hw hfilt hmul hbottom
+        hself hother i v v j hj ha hv s (Or.inr above)
+  have hb : bottom v s = bottom i s₀ :=
+    IndexedLoadingProjector.eq_after_right_swap Q Λ row h _ _ j hv s (hprojector v s) (hprojector i s₀)
+  have hd : diag = src := he.trans (congrArg P hb)
+  refine ⟨hd, fun x hx => (congrArg (x * ·) hd).trans hx, ?_⟩
+  intro y hy
+  rw [hd]
+  exact (hbottom i y s₀).symm.trans (congrArg (fun z : R => G i (π z)) hy)
+
 /-- At an internal ascent the leading quotient coordinate is the crossing in the
 appropriate block, multiplied by the bottom projector at the unchanged shuffle. -/
 theorem quotientCoordinate_internal_right_ascent (h : weightSum row = μ)
@@ -194,5 +250,76 @@ theorem exists_blockStack_external_crossing_coordinates (hQ : KLRSymm Q)
     exists_blockStack_filtered_quotient_coordinates Q Λ L M f β hQ h
   exact ⟨n, index, w, G, bottom, hw, hs, ho, hloading,
     quotientCoordinate_external_right_ascent Q Λ L M f β h index w G bottom hw hf hm hb hs ho⟩
+
+/-- Restacking the source coordinates before multiplying on the right gives the
+coordinate matrix of the right multiplication on the entire column. -/
+theorem quotientCoordinate_mul_right_sum
+    (h : weightSum row = μ) {n : ℕ}
+    (g : Fin n → R →ₗ[k] diagrams Q Λ row)
+    (w : Fin n → R) (G : Fin n → (J).ringCon.Quotient →ₗ[k] quotients Q Λ row)
+    (hG : ∀ i y, G i (π y) = P (g i y))
+    (hmul : ∀ i x y, G i (π ((affineStackBlocks Q Λ L M f β h) x * y)) = P x * G i (π y))
+    (rebuild : ∀ y, π ((affineStackBlocks Q Λ L M f β h) 1 * y) =
+      ∑ i, π ((affineStackBlocks Q Λ L M f β h) (g i y) * w i))
+    (d : Fin n) (y z : R) :
+    G d (π ((affineStackBlocks Q Λ L M f β h) 1 * y) * π z) =
+      ∑ i, G i (π y) * G d (π (w i * z)) := by
+  rw [rebuild, Finset.sum_mul, map_sum]
+  apply Finset.sum_congr rfl
+  intro i _
+  rw [← map_mul π, mul_assoc, hmul, ← hG i y]
+
+/-- The leading index of each ascent gives the crossing matrix on the same
+quotient coordinate family. An external leading index grows by one crossing;
+an internal leading index is unchanged. -/
+theorem exists_rightAscent_leading_coordinates (h : weightSum row = μ)
+    {n : ℕ} (index : Fin n ≃ ShuffleIndex row)
+    (w : Fin n → R) (G : Fin n → (J).ringCon.Quotient →ₗ[k] quotients Q Λ row)
+    (bottom : Fin n → Seq μ → diagrams Q Λ row)
+    (hw : ∀ i, w i = (affineStackBlocks Q Λ L M f β h) 1 * ψw (shuffleWord row (index i)))
+    (hfilt : ∀ i y n, y ∈ filt k (stendhalQ Q Λ) μ n →
+      G i (π y) ∈ (blockShuffleFilt Q Λ row (index i) n).map (P).toLinearMap)
+    (hmul : ∀ i x y, G i (π ((affineStackBlocks Q Λ L M f β h) x * y)) = P x * G i (π y))
+    (hbottom : ∀ i y s, G i (π (y * e s)) = G i (π y) * P (bottom i s))
+    (hself : ∀ i, G i (π (w i)) = 1)
+    (hother : ∀ d i, d ≠ i → G d (π (w i)) = 0)
+    (j : ℕ) (hj : j+1 < (weightSum row).card)
+    (s : Seq μ) :
+    let Asc := fun i : Fin n =>
+      shufflePerm row (index i) ⟨j,by omega⟩ < shufflePerm row (index i) ⟨j+1,hj⟩
+    ∃ lead : {i // Asc i} → Fin n,
+      (∀ i, (lead i = i.val ∧ SameInputBlock row (index (lead i)) j hj) ∨
+        (shufflePerm row (index (lead i)) = shufflePerm row (index i.val) * sadj _ j ∧
+          ¬ SameInputBlock row (index (lead i)) j hj)) ∧
+      (∀ i, (shuffleWord row (index i.val)).length ≤ (shuffleWord row (index (lead i))).length) ∧
+      (∀ i d, ((shuffleWord row (index i.val)).length ≤ 1 ∨
+        (shuffleWord row (index i.val)).length - 2 < (shuffleWord row (index d)).length) →
+        d ≠ lead i → G d (π (w i.val * ψ j * e s)) = 0) := by
+  classical
+  intro Asc
+  have chooseLead (i : {i // Asc i}) : ∃ v : Fin n,
+      ((v = i.val ∧ SameInputBlock row (index v) j hj) ∨
+        (shufflePerm row (index v) = shufflePerm row (index i.val) * sadj _ j ∧
+          ¬ SameInputBlock row (index v) j hj)) ∧
+      (shuffleWord row (index i.val)).length ≤ (shuffleWord row (index v)).length ∧
+      (∀ d, ((shuffleWord row (index i.val)).length ≤ 1 ∨
+        (shuffleWord row (index i.val)).length - 2 < (shuffleWord row (index d)).length) →
+        d ≠ v → G d (π (w i.val * ψ j * e s)) = 0) := by
+    rcases shuffleWord_right_ascent row (index i.val) j hj i.property with
+      ⟨v, ⟨hv, hlen, hblock⟩, _⟩ | ⟨hblock, _, _, _⟩
+    · let t := index.symm v
+      have ht : index t = v := index.apply_symm_apply v
+      refine ⟨t, Or.inr ⟨by rwa [ht], by rwa [ht]⟩, ?_, ?_⟩
+      · rw [ht, hlen]
+        exact Nat.le_succ _
+      · intro d hdegree hne
+        rw [quotientCoordinate_external_right_ascent Q Λ L M f β h index w G bottom hw hfilt hmul
+          hbottom hself hother i.val t d j hj i.property (ht.symm ▸ hv) s hdegree, ite_eq_right hne]
+    · refine ⟨i.val, Or.inl ⟨rfl, hblock⟩, le_rfl, ?_⟩
+      intro d hdegree hne
+      rw [quotientCoordinate_internal_right_ascent Q Λ L M f β h index w G bottom hw hfilt hmul
+        hbottom hself hother i.val d j hj i.property hblock s hdegree, ite_eq_right hne]
+  choose lead facts using chooseLead
+  exact ⟨lead, fun i => (facts i).1, fun i => (facts i).2.1, fun i => (facts i).2.2⟩
 
 end Categorification.Stendhal.RedBlock

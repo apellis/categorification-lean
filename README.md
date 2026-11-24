@@ -1117,6 +1117,9 @@ For any loading, quotienting the diagram algebra by the corresponding
 higher-loading ideal makes the loading standard projective. Its generator
 maps to the loading idempotent and splits off from the regular module
 (`Stendhal.leftStandardLayer_projective`).
+The actual periodic middle complex is consequently an augmented
+projective resolution of the diagrammatic dot-sum quotient over the
+middle layer algebra (`Stendhal.LabelTwo.relativeMiddleProjectiveResolution`).
 A projective resolution of the actual middle standard whose positive
 terms are supported on higher loadings gives ambient derived-tensor
 vanishing outside degree zero for the reflected coefficient

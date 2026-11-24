@@ -1075,6 +1075,7 @@ import Categorification.WeightedKLR.RedStrands.BraidFiltrationDimension
 import Categorification.WeightedKLR.RedStrands.BraidColumnFiltration
 import Categorification.WeightedKLR.RedStrands.BraidColumnGeneration
 import Categorification.WeightedKLR.RedStrands.BraidColumnEarlierFactor
+import Categorification.WeightedKLR.RedStrands.BraidCorrectionSquare
 import Categorification.WeightedKLR.RedStrands.BraidFiltrationIndex
 import Categorification.WeightedKLR.RedStrands.CrawleyBoevey
 import Categorification.WeightedKLR.RedStrands.CrawleyBoeveyIn

@@ -6913,3 +6913,29 @@ example :
     (v := v) (w := w) (γ := [1]) (Set.mem_singleton v) rfl hred z
 
 end NonVacuity.WebsterBraidEarlierCut
+
+namespace NonVacuity.WebsterThreeBlockCorrection
+
+open KLR KLRAlgebra Stendhal Stendhal.BraidedStendhalAlgebra TypeA
+
+private abbrev black : Multiset Unit := ([(), (), ()] : List Unit)
+private abbrev weight := stendhalWeight 3 black
+private noncomputable abbrev params : Unit → Unit → MvPolynomial (Fin 2) ℚ := fun _ _ => 0
+private noncomputable abbrev exponents : Fin 3 → Unit →₀ ℕ := fun _ => Finsupp.single () 2
+private def loading : Seq weight := Seq.ofList [.inr 2, .inl (), .inr 1, .inl (), .inr 0, .inl ()]
+  (by decide)
+private noncomputable abbrev raw := ofKLR ℚ params exponents black
+private noncomputable abbrev q := violMk ℚ params exponents black
+
+example :
+    q (raw (ψw [3, 2, 1, 0, 4, 2, 3, 2, 4, 1, 2, 3] * e loading)) =
+      q (raw (ψw [3, 2, 1, 0, 4, 3, 2, 3, 4, 1, 2, 3] * e loading)) := by
+  have hc := threeBlockReversal_correction params exponents (by decide) loading () 1
+    (by simp [exponents]) (by decide) (by decide) (by decide) (by decide)
+  have hz := threeBlockResidual_eq_zero params exponents loading (by decide) (by decide)
+    (show IsViolated (wordProd weight.card [1, 0, 4, 2, 3] • loading) from ⟨by decide, by decide⟩)
+  have he := congrArg (fun x => q (raw x)) hc
+  rw [map_sub, map_sub, hz, sub_eq_zero] at he
+  exact he
+
+end NonVacuity.WebsterThreeBlockCorrection

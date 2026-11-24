@@ -216,4 +216,22 @@ theorem place_swapPairLoading (M : List (Fin ℓ × Multiset I)) (f : Fin 2 ↪ 
     rw [Nat.add_assoc, Seq.sadj_smul_append_right (pairOffset_lt M f β b hb L),
       place_swapPairLoading M f β b hb L s.2]
 
+/-- Swapping the adjacent pair positions twice fixes every block loading. -/
+theorem swapPairLoading_involutive (M : List (Fin ℓ × Multiset I)) (f : Fin 2 ↪ Fin ℓ)
+    (β : Multiset I) (b : ℕ) : ∀ L, Function.Involutive (swapPairLoading M f β b L)
+  | [], s => by
+    apply Prod.ext
+    · change sadj _ b • (sadj _ b • s.1) = s.1
+      rw [← mul_smul, ← sadj_inv, inv_mul_cancel, one_smul]
+    · rfl
+  | _ :: L, s => Prod.ext rfl (swapPairLoading_involutive M f β b L s.2)
+
+/-- Taking the paired component of a local swap reads the transposed loading. -/
+theorem pairLoading_swapPairLoading (M : List (Fin ℓ × Multiset I)) (f : Fin 2 ↪ Fin ℓ)
+    (β : Multiset I) (b : ℕ) : ∀ L (x : Loadings (adjacentRow L M f β)),
+    pairLoading M f β L (swapPairLoading M f β b L x) =
+      sadj (⟨2,f,β⟩ : RedBlock I ℓ).localWeight.card b • pairLoading M f β L x
+  | [], _ => rfl
+  | _ :: L, x => pairLoading_swapPairLoading M f β b L x.2
+
 end Categorification.Stendhal.RedBlock

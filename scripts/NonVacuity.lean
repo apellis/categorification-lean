@@ -8883,6 +8883,13 @@ example := gradedMiddleCupCap_fieldIso
 example := gradedMiddleCup_scalarIso (-2)
 example := gradedMiddleCupCap_scalarIso 3
 example := gradedMiddleCupCap_shiftedScalarIso (-2) 4
+example := fundamentalTraceCoefficient_line (-2)
+example := fundamentalTraceCoefficient_off_diagonal 1 0 (by decide)
+example := gradedFundamentalQuantumTraceIso
+example := gradedFundamentalClockwiseCircleIso
+example := gradedFundamentalClockwiseCircle_shiftedIso (-2) 4
+example := compactScalarLine_class (-1)
+example := fundamentalClockwiseCircle_class
 
 end
 

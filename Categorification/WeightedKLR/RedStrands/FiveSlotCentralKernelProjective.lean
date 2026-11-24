@@ -4,6 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 -/
 import Categorification.WeightedKLR.RedStrands.AppendRedCrossingSuffix
 import Categorification.WeightedKLR.RedStrands.FiveSlotCentralHigher
+import Categorification.WeightedKLR.RedStrands.FiveSlotLeftTopCancellation
 
 /-!
 # Projectivity of the central five-slot higher kernel
@@ -86,5 +87,17 @@ theorem fiveSlotCentral_kernel_projective_standard
       centralShortPrefix centralShortPrefix_ordered 1 Λ
   exact fiveSlotCentral_kernel_projective_of_tests QL Λ hQ
     (centralFirstTest_transfer QL Λ test₁) (centralSecondTest_transfer QL Λ test₂)
+
+/-- The single terminal test with one uncrossed red on its right gives
+projectivity of the actual nearby five-slot higher kernel. -/
+theorem fiveSlotNearby_kernel_projective_standard
+    (hR : IsRouquierQ D QL) (hQ : KLRSymm QL) (Λ : Fin 3 → Unit →₀ ℕ) :
+    Module.Projective
+      (isIdempotentElem_violMk_redProj k QL Λ ν₀ (redWord jA)).Cornerᵐᵒᵖ
+      (blockLoadingKernel QL Λ jA 1 2) := by
+  have test : centralSecondTest.InjectiveAt QL Λ :=
+    OrderedCrossingTest.rightmost_appendReds_standard (ℓ := 1) hR hQ () θ
+      centralShortPrefix centralShortPrefix_ordered 1 Λ
+  exact fiveSlot_jA_kernel_projective_of_test QL Λ hQ (centralSecondTest_transfer QL Λ test)
 
 end Categorification.Stendhal.BraidedStendhalAlgebra

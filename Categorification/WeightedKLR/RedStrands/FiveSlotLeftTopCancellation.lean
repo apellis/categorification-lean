@@ -3,6 +3,7 @@ Copyright (c) 2026 Alex Ellis. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 -/
 import Categorification.WeightedKLR.RedStrands.FiveSlotLeftTopPrincipal
+import Categorification.WeightedKLR.RedStrands.OrdinaryRetainedCrossing
 
 
 /-!
@@ -124,18 +125,45 @@ local notation "map₀" => AlgHom.comp π F
 local notation "c" => map₀ (ψ 2*e v₀)
 local notation "J" => blockUpperIdeal k Q Λ ν₀ 1 2 (adjacentBlockRoot 1 2 t) (redWord t)
 
-/-- At the five-slot nearby left top, cancellation of the single crossing
-from the left-extreme loading suffices for the marked tensor inclusion. -/
-theorem fiveSlot_jA_blockKernelColumnInclusion_injective_of_leftCancellation
-    (hQ : KLRSymm Q) (bottom : Seq μ₀)
-    (cancel : ∀ y : V, map₀ (e v₀)*y=y → y*map₀ (e bottom)=y → c*y=0 → y=0) :
-    Function.Injective (blockKernelColumnInclusion Q Λ t 1 2 bottom) := by
+private theorem nearbyPrincipalSupport : c ∈ J ∧ map₀ (e t) * c = c ∧ c * map₀ (e v₀) = c := by
   have cl : map₀ (e t)*c=c := by
     rw [← map_mul, ψ_mul_e (Q := stendhalQ Q Λ) 2 v₀, ← mul_assoc, e_mul_self]
   have cr : c*map₀ (e v₀)=c := by rw [← map_mul,mul_assoc,e_mul_self]
   have hc : c ∈ J := by
     rw [fiveSlot_oneBlackBeforePair_blockUpperIdeal Q Λ t (.inr rfl)]
     exact cr ▸ TwoSidedIdeal.mul_mem_left _ c _ (TwoSidedIdeal.subset_span (Set.mem_singleton _))
+  exact ⟨hc, cl, cr⟩
+
+/-- The source-corner cancellation test makes the nearby five-slot higher
+kernel a loading projective. -/
+theorem fiveSlot_jA_kernel_projective_of_test (hQ : KLRSymm Q)
+    (test : OrdinaryCutCrossingTest Q Λ t v₀ 2) :
+    Module.Projective
+      (isIdempotentElem_violMk_redProj k Q Λ ν₀ (redWord t)).Cornerᵐᵒᵖ
+      (blockLoadingKernel Q Λ t 1 2) := by
+  obtain ⟨hc, cl, cr⟩ := nearbyPrincipalSupport Q Λ
+  apply blockLoadingKernel_projective_of_principal_factor Q Λ t 1 2 v₀
+    (by decide) c hc cl cr (fiveSlot_jA_higher_exists_leftFactor Q Λ hQ)
+  intro y hl hr hz
+  have word : redWord t = List.finRange 3 := by decide
+  have order : redWord v₀ = redWord t := by decide
+  have step : sadj n₀ 2 • t = v₀ := sadj_smul_smul 2 v₀
+  let E₀ := violMk k Q Λ ν₀ (redProj k Q Λ ν₀ (List.finRange 3))
+  have hv : E₀ * map₀ (e v₀) = map₀ (e v₀) := by
+    change violMk k Q Λ ν₀ (redProj k Q Λ ν₀ (List.finRange 3)) *
+      violMk k Q Λ ν₀ (ofKLR k Q Λ ν₀ (e v₀)) = _
+    rw [← map_mul, redProj_mul_e, ite_eq_left (order.trans word)]
+    rfl
+  have hy : E₀ * y = y ∧ y * E₀ = y := ⟨by rw [← hl, ← mul_assoc, hv], by rwa [word] at hr⟩
+  exact eq_zero_of_crossing_mul_of_corner Q Λ word order 2 step hQ test y hy hl hz
+
+/-- At the five-slot nearby left top, cancellation of the single crossing
+from the left-extreme loading suffices for the marked tensor inclusion. -/
+theorem fiveSlot_jA_blockKernelColumnInclusion_injective_of_leftCancellation
+    (hQ : KLRSymm Q) (bottom : Seq μ₀)
+    (cancel : ∀ y : V, map₀ (e v₀)*y=y → y*map₀ (e bottom)=y → c*y=0 → y=0) :
+    Function.Injective (blockKernelColumnInclusion Q Λ t 1 2 bottom) := by
+  obtain ⟨hc, cl, cr⟩ := nearbyPrincipalSupport Q Λ
   exact blockKernelColumnInclusion_injective_of_principal_factor Q Λ t 1 2 bottom v₀ (by decide)
     c hc cl cr (fiveSlot_jA_higher_exists_leftFactor Q Λ hQ) cancel
 

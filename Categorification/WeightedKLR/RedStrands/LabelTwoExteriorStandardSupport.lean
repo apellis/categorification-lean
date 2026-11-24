@@ -329,6 +329,12 @@ private theorem reflected_projector_eq :
   congrArg MulOpposite.unop (tensorReflect_projection (Q := param) (Λ := wt) («ν» := ν)
     (X₂ * ψ 2 * e A))
 
+/-- The reflected incoming projector fixes the black-crossing translate. -/
+theorem labelTwoRightExterior_reflectedProjector_fixes_translate :
+    (rightExteriorReflection param (π (X₂ * ψ 2 * e A))).unop • v₁ = v₁ :=
+  (congrArg (· • v₁) (reflected_projector_eq param)).trans
+    (reflected_fixes_projected_translate param)
+
 /-- The reflected right exterior projector acts on the actual divided standard
 with image spanned by the black-crossing translate. -/
 theorem labelTwoRightExterior_reflectedProjector_image (z : labelTwoRightExteriorDividedStandard param) :

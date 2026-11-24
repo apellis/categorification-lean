@@ -187,16 +187,19 @@ def source : Seq (stendhalWeight 3 ({()} : Multiset Unit)) := KLRAlgebra.Seq.ofL
 /-- The black strand lies just to the left of the zero-weight spectator. -/
 def higher : Seq (stendhalWeight 3 ({()} : Multiset Unit)) := KLRAlgebra.Seq.ofList [.inr 0, .inr 1, .inl (), .inr 2] (by decide)
 
-private theorem order : redWord higher = redWord source := by decide
+/-- The two loadings give the same order of red strands. -/
+theorem sameOrder : redWord higher = redWord source := by decide
 
-private theorem strictlyHigher : adjacentBlockRoot 0 1 source < adjacentBlockRoot 0 1 higher := by
+/-- Moving the black across the spectator increases the retained-boundary root. -/
+theorem source_lt_higher : adjacentBlockRoot 0 1 source < adjacentBlockRoot 0 1 higher := by
   refine lt_of_le_of_ne ?_ ?_
   · intro r i; fin_cases r <;> cases i <;> decide
   · intro h
     have bad : (0 : ℕ) = 1 := congrFun (congrFun h (2 : Fin 3)) ()
     contradiction
 
-private theorem maximal : ∀ w : Seq μ, redWord w = redWord higher →
+/-- Any loading of this order strictly above the higher loading is violated. -/
+theorem higher_maximal : ∀ w : Seq μ, redWord w = redWord higher →
     adjacentBlockRoot 0 1 higher < adjacentBlockRoot 0 1 w → IsViolated w := by
   suffices test : ∀ w : Seq μ, redWord w = redWord higher →
       (∀ r : Fin 3, adjacentBlockRoot 0 1 higher r () ≤ adjacentBlockRoot 0 1 w r ()) →
@@ -247,16 +250,16 @@ private theorem highBigon (h : Λ 2 () = 0) :
 partial standard comes from moving the black just before the spectator. -/
 theorem kernel_hasHigherFiltration (h : Λ 2 () = 0) :
     ModuleFiltration.HasFiltration
-      (fun _ : Unit => blockPartialStandardAt Q Λ higher 0 1 (redWord source) order)
+      (fun _ : Unit => blockPartialStandardAt Q Λ higher 0 1 (redWord source) sameOrder)
       [()] (ModuleCat.of _ (blockLoadingKernel Q Λ source 0 1)) :=
-  blockLoadingKernel_hasHigherSingle Q Λ source higher 0 1 order strictlyHigher
-    (loadingIdemEquiv_of_unit_bigon Q Λ source higher order 2 swap (lowBigon Q Λ h) (highBigon Q Λ h)) maximal
+  blockLoadingKernel_hasHigherSingle Q Λ source higher 0 1 sameOrder source_lt_higher
+    (loadingIdemEquiv_of_unit_bigon Q Λ source higher sameOrder 2 swap (lowBigon Q Λ h) (highBigon Q Λ h)) higher_maximal
 
 /-- With positive red weights, the higher retained partial standard is nonzero.
 The first-weight boundary character reads its projective idempotent as one. -/
 theorem higherPartialStandard_nontrivial [Nontrivial k] (hQ : KLRSymm Q)
     (hΛ : ∀ r, 0 < Λ r ()) :
-    Nontrivial (blockPartialStandardAt Q Λ higher 0 1 (redWord source) order) := by
+    Nontrivial (blockPartialStandardAt Q Λ higher 0 1 (redWord source) sameOrder) := by
   have hw : redWord higher = List.finRange 3 := by decide
   have hv : ¬ IsViolated higher := by rintro ⟨_, h⟩; contradiction
   have hs := (redWord_eq_finRange_iff higher).1 hw
@@ -274,8 +277,8 @@ theorem higherPartialStandard_nontrivial [Nontrivial k] (hQ : KLRSymm Q)
     rw [map_zero, map_zero, violCornerEquiv_violCornerHom hρ hQ,
       identityCornerHom_e hw, FirstWeight.boundaryCharacter_e, ite_eq_left rfl] at hc
     exact one_ne_zero hc
-  let d := orderedLoadingIdemAt Q Λ (redWord source) higher order
-  let η := blockPartialStandardAt_equiv_projective Q Λ higher 0 1 (redWord source) order maximal
+  let d := orderedLoadingIdemAt Q Λ (redWord source) higher sameOrder
+  let η := blockPartialStandardAt_equiv_projective Q Λ higher 0 1 (redWord source) sameOrder higher_maximal
   have hd : d.1 ≠ 0 := by
     rw [show d.1 = (violCornerHom k Q Λ ν e).1 by
       symm

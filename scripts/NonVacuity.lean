@@ -6641,3 +6641,8 @@ example :=
   Stendhal.BraidedStendhalAlgebra.ThreeRedOneBlack.higherPartialStandard_nontrivial
     (k := ℚ) (fun _ _ => 0) (fun _ => Finsupp.single () 1) (fun _ _ _ => rfl)
     (fun _ => by simp)
+
+/-- The higher projective surjects onto the kernel at strictly positive weight. -/
+example :=
+  Stendhal.BraidedStendhalAlgebra.ThreeRedOneBlack.higherCrossingMap_surjective
+    (k := ℚ) (fun _ _ => 0) (fun _ => Finsupp.single () 1)

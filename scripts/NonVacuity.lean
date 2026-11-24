@@ -7855,4 +7855,25 @@ example : (braidingFunctor.{0} ℤ params weight (0 : Multiset Bool) [0, 1] [1, 
 
 end NonVacuity.WebsterBraidTriangle
 
+namespace NonVacuity.WebsterRightTensor
+
+open DG DG.DerivedCategory MulOpposite
+open scoped DG.DegreeZero
+
+attribute [local instance 1200] Ring.toIntAlgebra
+
+local instance : HasDerivedCategory.{0, 0} ℤᵐᵒᵖ := HasDerivedCategory.small ℤᵐᵒᵖ
+
+private abbrev integralModel := DGModuleCat.of ℤᵐᵒᵖ (Categorification.InDegreeZero ℤ)
+
+example :
+    Mono ((homologyFunctor (A := ℤᵐᵒᵖ) ℤ 0).map
+      ((Categorification.derivedRightTensor ℤ ℤ ℤ).map (Q.map (𝟙 integralModel)))) := by
+  let μ := AddMonoidHom.id (Categorification.BalancedTensor ℤ ℤ ℤ ℤ ℤ)
+  exact Categorification.mono_derivedRightTensorHomology_of_balanced (k := ℤ) (X := ℤ)
+    (fun c n => mul_comm n c) (fun c n => mul_comm n c) (𝟙 integralModel) μ
+    (fun _ _ => rfl) Function.injective_id
+
+end NonVacuity.WebsterRightTensor
+
 end

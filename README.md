@@ -1236,6 +1236,12 @@ because its two PBW return words factor through the mixed braid
 correction. The two maps on the divided-power terms form a complex
 (`Stendhal.labelTwoExteriorMiddleDifferential`,
 `Stendhal.labelTwoExteriorMiddleDifferential_comp_zero`).
+The outgoing map on the two undotted terminal shuffles and their
+first-dot translates has four explicit diagram columns. The undotted
+second shuffle is zero, and its first-dot translate recovers the
+undotted first shuffle
+(`Stendhal.labelTwo_outgoing_terminal_affine_rows`,
+`Stendhal.labelTwo_outgoing_terminal_diagram_columns`).
 
 
 

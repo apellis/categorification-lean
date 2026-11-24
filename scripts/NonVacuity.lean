@@ -8357,7 +8357,7 @@ private noncomputable abbrev Q := Categorification.KL3.Diagram.CL.qCL
   (Categorification.KL3.Diagram.CL.CLScalars.kl : Categorification.KL3.Diagram.CL.CLScalars C ℚ)
 private def Λ : Fin 3 → Unit →₀ ℕ := fun r => Finsupp.single () (r.val + 1)
 private def t : Categorification.KLR.Seq (stendhalWeight 3 ({()} + {()} : Multiset Unit)) :=
-  Categorification.KLR.Seq.ofList [.inl (), .inr 0, .inr 1, .inr 2, .inl ()] (by decide)
+  ⟨![.inl (), .inr 0, .inr 1, .inr 2, .inl ()], by decide⟩
 
 example := firstPair_blockKernelTensorInclusion_injective_standard_of_twoInterior (k := ℚ) C Λ t
   (by decide) (blockKernelColumnInclusion_injective_of_tensor Q Λ t 0 1 firstPairBottomTwoInterior

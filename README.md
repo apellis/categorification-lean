@@ -1058,8 +1058,11 @@ Over a field, a projective with graded Hom norm one in a block of Laurent
 rank one is simple as an ungraded module
 (`GProj.isSimpleModule_of_homGdim_eq_one`). A nonzero degree-zero mixed Hom
 identifies the graded lifts (`GProj.nonempty_iso_of_homGdim_coeff_zero`).
-For general reflection words the extremal block rank and the required
-Shapovalov pairings remain to be identified.
+The classical and quantum weight spaces at the content of every reduced
+coevaluation word have dimension one
+(`Stendhal.finrank_quantum_coevaluationWeight`). The comparison with the
+cyclotomic block and the Shapovalov pairings are the remaining inputs for
+general reflection words.
 
 **Webster, arXiv:1309.3796v2, §7.1, Lemma 7.3.** The smaller-cut trace is
 the sum of the images of maps from the corresponding loading projectives

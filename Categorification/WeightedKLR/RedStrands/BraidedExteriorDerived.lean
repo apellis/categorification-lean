@@ -440,7 +440,8 @@ theorem figureFiveBraidDerivedTensor_exists_cochain_bound
   · rw [zero_add] at hij
     subst l
     rw [hb m j hj z hz, CatTensorProduct.tmul_zero]
-  · rw [hy0, CatTensorProduct.zero_tmul]
+  · rw [hy0]
+    exact CatTensorProduct.zero_tmul (N := braid.right n) («M» := P) m z
 
 section CoendCut
 open CatModule CatTensorProduct

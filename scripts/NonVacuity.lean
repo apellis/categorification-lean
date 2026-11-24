@@ -6881,6 +6881,110 @@ example := braidColumnBlockIndex_wordChange (Q := parameters) (Λ := weights)
 
 end NonVacuity.WebsterBlockBraidIndex
 
+namespace NonVacuity.WebsterBraidEarlierMixedCut
+open Categorification Categorification.KLR Categorification.Stendhal Equiv TypeA
+open KLRAlgebra BraidedStendhalAlgebra
+open scoped BigOperators
+
+private abbrev content : Multiset Unit := {()}
+private abbrev weight := stendhalWeight 3 content
+private abbrev m := Multiset.card weight
+private theorem four_eq_card : 4 = m := by decide
+private def top : Seq weight :=
+  KLRAlgebra.Seq.ofList [.inr 0, .inr 1, .inr 2, .inl ()] (by decide)
+private def bottom : Seq weight :=
+  KLRAlgebra.Seq.ofList [.inr 0, .inr 1, .inl (), .inr 2] (by decide)
+private def earlier : Seq weight :=
+  KLRAlgebra.Seq.ofList [.inr 0, .inl (), .inr 1, .inr 2] (by decide)
+private def sizes (r : Fin 3) : ℕ := if r = 2 then 1 else 0
+private theorem sizes_card : (∑ r, (sizes r + 1)) = m := by decide
+private def permuteReds : Perm (Fin 3) := Equiv.swap 1 2
+private def phi : Perm (Fin m) := sadj m 2
+private theorem bottom_eq : phi⁻¹ • top = bottom := by
+  apply Subtype.ext
+  funext a
+  fin_cases a <;> rfl
+private theorem earlier_eq : (phi * sadj m 1)⁻¹ • top = earlier := by
+  apply Subtype.ext
+  funext a
+  fin_cases a <;> rfl
+private def topR (r : Fin 3) : Fin m := Fin.cast four_eq_card (Fin.castSucc r)
+private def bottomR (r : Fin 3) : Fin m :=
+  Fin.cast four_eq_card (if r = 2 then 3 else Fin.castSucc r)
+private def earlierR (r : Fin 3) : Fin m :=
+  Fin.cast four_eq_card (if r = 0 then 0 else r.succ)
+private theorem redPos_top (r : Fin 3) : redPos top r = topR r := by
+  symm
+  apply eq_redPos (s := top)
+  fin_cases r <;> decide
+private theorem redPos_bottom (r : Fin 3) : redPos bottom r = bottomR r := by
+  symm
+  apply eq_redPos (s := bottom)
+  fin_cases r <;> decide
+private theorem redPos_earlier (r : Fin 3) : redPos earlier r = earlierR r := by
+  symm
+  apply eq_redPos (s := earlier)
+  fin_cases r <;> decide
+private theorem phi_eligible : ProjectiveBlockIndex top phi := by
+  constructor
+  · rw [bottom_eq]
+    exact (redWord_eq_finRange_iff bottom).1 (by decide)
+  · simp only [bottom_eq, redPos_bottom, redPos_top]
+    decide
+  · simp only [bottom_eq, redPos_bottom]
+    decide
+private theorem earlier_eligible : ProjectiveBlockIndex top (phi * sadj m 1) := by
+  constructor
+  · rw [earlier_eq]
+    exact (redWord_eq_finRange_iff earlier).1 (by decide)
+  · simp only [earlier_eq, redPos_earlier, redPos_top]
+    decide
+  · simp only [earlier_eq, redPos_earlier]
+    decide
+private theorem reduced (w : List ℕ) (hv : ValidWord m w)
+    (hl : w.length = invCount m (wordProd m w)) : IsReduced m w :=
+  ⟨hv, hl.trans (length_eq_invCount _).symm⟩
+private theorem uProduct : wordProd m [2, 1, 2] = braidColumnBlockIndex sizes sizes_card permuteReds phi := by
+  apply Equiv.ext
+  intro a
+  fin_cases a <;> rfl
+private theorem vProduct : wordProd m [1, 2] =
+    (braidColumnIndexOfProjective top sizes sizes_card permuteReds
+      ⟨phi * sadj m 1, earlier_eligible⟩).val := by
+  apply Equiv.ext
+  intro a
+  fin_cases a <;> rfl
+
+private noncomputable abbrev parameters : Unit → Unit → MvPolynomial (Fin 2) ℚ :=
+  fun _ _ => 0
+private noncomputable abbrev weights : Fin 3 → Unit →₀ ℕ :=
+  fun _ => Finsupp.single () 2
+
+private theorem distinct_loadings :
+    braidBlockPermutation sizes sizes_card permuteReds • top ≠ phi⁻¹ • top := by decide
+
+example :
+    let π := AlgHom.comp (violMk ℚ parameters weights content) (ofKLR ℚ parameters weights content)
+    let b := phi⁻¹ • top
+    let c := (phi * sadj m 1)⁻¹ • top
+    π (ψw [2, 1, 2] * pol 1 * e b) =
+      π (ψw [1, 2] * e c) * π (ψ 1 * pol 1 * e b) := by
+  intro π b c
+  have mixedCut := braidColumnBlockIndex_higher_mixed_cut (Q := parameters) (Λ := weights)
+    top sizes sizes_card permuteReds ⟨phi, phi_eligible⟩ (j := 1) (by decide) earlier_eligible
+    (r := 1) (i := ()) (by decide) (by decide) (by decide)
+    (reduced [2, 1, 2] (by simp [ValidWord, ← four_eq_card]) (by decide))
+    (reduced [1, 2] (by simp [ValidWord, ← four_eq_card]) (by decide)) uProduct vProduct 1
+  have h := mixedCut.2.2
+  have hbot := braidColumnLoadingProjection_map_lowSpan_eq_bot (Q := parameters) (Λ := weights)
+    _ _ distinct_loadings (subProds m [2, 1, 2]) 1 le_rfl
+  change _ ∈ (lowSpan ℚ (stendhalQ parameters weights) weight (subProds m [2, 1, 2]) 1).map _ at h
+  rw [hbot] at h
+  apply sub_eq_zero.mp
+  simpa only [Submodule.mem_bot] using h
+
+end NonVacuity.WebsterBraidEarlierMixedCut
+
 namespace NonVacuity.BraidedStendhal
 
 open Categorification Categorification.KLR Categorification.Stendhal

@@ -1018,9 +1018,37 @@ natural under maps of right input modules.
 
 `crossingStack_diagramCut` restacks the linear cut of an unmarked diagram to its projection,
 so `crossingStack` is surjective. The cut kills violated and higher bottom endpoints.
-Open for Lemma 6.8: descend the cut through such relations at arbitrary interior heights
-and show that cutting after stacking is the identity on the balanced tensor. Then prove the higher-homology vanishing in (6.21),
-including injectivity after tensoring the kernel inclusion, then Prop 6.9
+For interior relations, `exists_zero_crossingSeamClass_of_quotient` gives a *marked*
+representative of the same affine column diagram whose class is zero before restacking.
+For this lift, push a violation to the bottom red order, cut the upper part using adapted
+words, and reattach the lower tail.
+Consequently `ker_crossingStack_eq_map_ker_boundaryStack` identifies the ordinary kernel
+with the balanced classes of affine relations among marked stacks. Successive parabolic
+PBW coordinates (`exists_blockStack_coordinates`) read those stacks linearly over the
+juxtaposed upper diagrams. In the lower column the two boundary red orders agree, so
+`insert_uncrossed_order` allows the same order to be inserted between a coefficient and
+its tail. The ordered coefficient slides by balancing. Hence every affine relation has
+zero balanced class: `crossingStack_injective` and `crossingStackEquiv` give the ordinary
+comparison for arbitrary spectators and black contents. `crossingDiagramCut_eq_inverse`
+identifies the original basis cut on every representative with the inverse on its class.
+For (6.21), the loading projective is `e(t)T` in the source order. Its surjection to
+the external loading summand has kernel `K = e(t)T ∩ J` for the strictly higher
+retained-boundary ideal (`ker_blockStandardCover`). `blockKernelTensorInclusion` tensors
+this inclusion over `T` with the full braiding bimodule `B`. By moving a global violation
+above the seam, `ker_blockKernelTensorInclusion_eq_map` identifies its kernel with the
+classes of sums of marked pairs whose stacks vanish *before* quotienting by violations.
+At a bottom loading `s` where the two exchanged reds occupy consecutive positions, all
+reduced words admit the same last red crossing after a change of reduced expression.
+Its ordered coefficient slides into `K`; PBW division detects the resulting upper
+factor. Thus `blockKernelColumnInclusion_injective` proves injectivity after tensoring
+with `B e(s)`, for arbitrary spectators and top black contents.
+
+Still open for Lemma 6.8: when a black lies between the bottom reds, prove that changes
+between different choices of the last crossing give equal balanced classes **in the
+tensor with `K`**. The ordinary parabolic coordinates are linear for juxtaposed block
+diagrams, not for arbitrary upper elements of `e(t)T`. Also open: filter `K` by higher
+partial standardizations, apply the induction in (6.21), and identify the derived
+comparison naturally. Then Prop 6.9
 for general `ℓ` by reduction to two
 red strands, the graded forms of Def 6.6 and Props 6.7, 6.9, Cor 6.10, Lemma 6.11, Def 6.12, Cor 6.13,
 Lemma 6.14; tilting modules (Thm 6.15); `𝔅_σ` are equivalences (Thm 6.16); the braid group

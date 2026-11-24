@@ -129,6 +129,8 @@ open scoped DG.DegreeZero
 
 universe w
 
+section OrdinaryDerived
+
 variable [HasDerivedCategory.{w, 0}
   (TensorProductAlgebra k (parameter k) weights (({()} : Multiset Unit) + {()}))]
 
@@ -164,6 +166,8 @@ def actualAmbientMiddleToRelativeTorIso (h₂ : (2 : k) ≠ 0) (n : ℕ) :
   ambientMiddleToRelativeTorIso k (middleAmbientAcyclic k) h₂ n
 
 end GroundField
+
+end OrdinaryDerived
 
 
 section FixedWeight

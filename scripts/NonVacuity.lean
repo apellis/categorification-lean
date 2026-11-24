@@ -8058,3 +8058,19 @@ example [DG.HasDerivedCategory.{0, 0} Tᵐᵒᵖ] [DG.HasDerivedCategory.{0, 0} 
     (Or.inr (Or.inl rfl))
 
 end NonVacuity.WebsterFiveSlotThreeTopDerived
+namespace NonVacuity.WebsterFiveSlotAllBottom
+
+open Categorification.KLR Categorification.Stendhal Categorification.QuantumGroup
+open BraidedStendhalAlgebra
+
+private noncomputable abbrev C := CartanDatum.ofGraph (⊥ : SimpleGraph Unit)
+private noncomputable abbrev Λ : Fin 3 → Unit →₀ ℕ := fun _ => Finsupp.single () 2
+private noncomputable abbrev Q := Categorification.KL3.Diagram.CL.qCL
+  (Categorification.KL3.Diagram.CL.CLScalars.kl : Categorification.KL3.Diagram.CL.CLScalars C ℚ)
+
+/-- The full bottom red-order component is injective at standard positive weights. -/
+example := fiveSlot_blockKernelTensorInclusion_injective_standard C Λ
+  (k := ℚ) (by constructor <;> intro i j h <;> exact (h (Subsingleton.elim i j)).elim)
+  (show KLRSymm Q from fun i j h => (h (Subsingleton.elim i j)).elim)
+
+end NonVacuity.WebsterFiveSlotAllBottom

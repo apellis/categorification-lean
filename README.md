@@ -1013,7 +1013,9 @@ A graded diagram coefficient gives a dg bimodule of the two weight categories
 (`diagramWeightBimodule`). Its derived tensor is computed on a K-projective
 representative of the input (`diagramWeightDerivedTensorObjIso`). K-projectivity
 of the left weight modules also gives the derived Hom
-(`diagramWeightDerivedHom`). For a rectangular corner between two degree-zero
+(`diagramWeightDerivedHom`). A balanced homogeneous multiplication of two
+coefficients induces their product from the intermediate weight-category
+tensor coend (`diagramWeightCoendProduct_tmul`). For a rectangular corner between two degree-zero
 idempotents, `diagramCornerWeightDerivedRightTensor` uses the restricted grading
 and defines derived right tensor on the graded right-module categories.
 For the actual braid bimodule this gives `auxiliaryGradedBraidingFunctor`

@@ -987,6 +987,43 @@ upper exterior standardization. At weight coordinate `n` the unshifted upper pie
 input. It does not establish the restriction of the functor to all of Webster's `D⁻` or
 replace the reduction by Lemma 6.8.
 
+### Webster §§6–8 checkpoint, 24 November 2026
+
+- **§6, v2 Lemma 6.11.** The homogeneous ordered loading resolution is
+  K-projective and preserves acyclicity under the dg coend. The reflected
+  braid has cohomological concentration when every filtration layer satisfies
+  the directed loading condition. The general comparison of the two actual
+  standard resolutions and its application to every standard pair remain
+  open. The underlying dg coend symmetry, cone comparison, and balance
+  theorem are available upstream.
+  [Ordered resolution](https://github.com/apellis/categorification-lean/pull/917)
+  · [Directed vanishing](https://github.com/apellis/categorification-lean/pull/893)
+  · [DG balance](https://github.com/apellis/dg-lean/pull/72)
+- **§6 geometry.** The explicit bottom-block convention follows v3 Lemma 6.12.
+  Bottom reconstruction and the eligibility criterion are merged. Drafts
+  establish column generation, strict higher-trace reduction, and the
+  Bruhat refinement within equal black-count classes. The successive quotient
+  surjections are unfinished. Their injectivity via the source dimension
+  argument still requires the general braid pairing at (q=1).
+  [Reconstruction](https://github.com/apellis/categorification-lean/pull/908)
+  · [Generation](https://github.com/apellis/categorification-lean/pull/916)
+  · [Successive quotients](https://github.com/apellis/categorification-lean/pull/937)
+- **§7.** The graded fundamental braid and the normalized cup–braid–cap
+  calculation are merged. The shifted clockwise comparison and double
+  positive braid have focused proofs in drafts. The general ribbon twist
+  and tangle relations remain open.
+  [Cap comparison](https://github.com/apellis/categorification-lean/pull/918)
+  · [Shifted trace](https://github.com/apellis/categorification-lean/pull/922)
+  · [Double braid](https://github.com/apellis/categorification-lean/pull/934)
+- **§8.2.** The middle ordered augmentation and the incoming exterior
+  ambient (H^0) and tensor line are merged. Drafts give the graded
+  middle recurrence and the characteristic-different-from-two reflected
+  simple Tor₃ computation. The companion maps, recurrence base cases,
+  and graded dual comparison for the nonsimple terms remain open.
+  [Middle augmentation](https://github.com/apellis/categorification-lean/pull/872)
+  · [Recurrence](https://github.com/apellis/categorification-lean/pull/932)
+  · [Tor₃](https://github.com/apellis/categorification-lean/pull/935)
+
 For Lemma 6.11, `braidingBimoduleFlip` implements the horizontal reflection used in
 the proof of `f_n → s_n`. It swaps the order corners and intertwines their actions with
 the opposite actions through the corner anti-involutions.

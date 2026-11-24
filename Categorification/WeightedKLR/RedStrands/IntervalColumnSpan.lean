@@ -25,7 +25,8 @@ local notation "m" => Multiset.card μ
 local notation "A" => KLRAlgebra k (stendhalQ Q Λ) μ
 
 /-- The affine column exchanging two adjacent red strands is spanned by left
-multiples of the undotted crossings supported in their bottom interval.
+multiples of undotted crossings supported in their bottom interval. The two
+red strands are consecutive immediately above the interval factor.
 Webster v2, §6.1, the kernel test following (6.21). -/
 theorem mem_span_interval_crossing_column (hQ : KLRSymm Q)
     (s t : Seq μ) {q p : Fin m} {a b : Fin ℓ} {L M : List (Fin ℓ)}
@@ -34,17 +35,18 @@ theorem mem_span_interval_crossing_column (hQ : KLRSymm Q)
     (z : A) :
     e t * z * e s ∈ Submodule.span k {y : A | ∃ (x : A) (v : Perm (Fin m)),
       (∀ j, j < q ∨ p < j → v j = j) ∧ redWord (v • s) = redWord t ∧
-      e t * x * e (v • s) = x ∧
+      (v q : ℕ) = v p + 1 ∧ e t * x * e (v • s) = x ∧
       y = x * (ψw (canWord m v) * e s)} := by
   classical
   have frame (w : Perm (Fin m)) (hw : w • s = t) :
       ∃ v : Perm (Fin m), invSet m v ⊆ invSet m w ∧
-        (∀ j, j < q ∨ p < j → v j = j) ∧ redWord (v • s) = redWord t := by
+        (∀ j, j < q ∨ p < j → v j = j) ∧ redWord (v • s) = redWord t ∧
+        (v q : ℕ) = v p + 1 := by
     have hqp := lt_of_redWord_eq_append hs hq hp
-    obtain ⟨v, hv, hfix⟩ := exists_isSwapBelow_interval (R := redSet s) hqp
+    obtain ⟨v, hv, hfix, hadj⟩ := exists_isSwapBelow_interval_adjacent (R := redSet s) hqp
       (mem_invSet_of_sublist_redWord (by rw [hw, ht]; simp) hqp hq hp)
       (fun j hj => not_lt_of_redWord_eq_append hs hq hp (by simpa [redSet] using hj))
-    exact ⟨v, hv.le, hfix, ((redWord_smul_eq_swap_iff' hs hq hp v).2 hv.red).trans ht.symm⟩
+    exact ⟨v, hv.le, hfix, ((redWord_smul_eq_swap_iff' hs hq hp v).2 hv.red).trans ht.symm, hadj⟩
   let ρ (w : Perm (Fin m)) := if hw : w • s = t then
     canWord m (w * (frame w hw).choose⁻¹) ++ canWord m (frame w hw).choose
     else canWord m w
@@ -76,7 +78,8 @@ theorem mem_span_interval_crossing_column (hQ : KLRSymm Q)
     · apply Submodule.subset_span
       let v := (frame w hw).choose
       let x : A := e t * pol (monomial d 1) * ψw (canWord m (w * v⁻¹)) * e (v • s)
-      refine ⟨x, v, (frame w hw).choose_spec.2.1, (frame w hw).choose_spec.2.2, ?_, ?_⟩
+      refine ⟨x, v, (frame w hw).choose_spec.2.1, (frame w hw).choose_spec.2.2.1,
+        (frame w hw).choose_spec.2.2.2, ?_, ?_⟩
       · dsimp only [x]
         simp only [← mul_assoc, e_mul_self]
         rw [mul_assoc _ (e (v • s)) (e (v • s)), e_mul_self]

@@ -8961,6 +8961,16 @@ example := diagramWeightDerivedTensorObjIsoOfResolution (fun j => DG.grading (M 
     rw [tensor.map_id Rep]
     exact CatModule.isQuasiIso_id _)
 
+
+example : CatModule.IsQuasiIso (𝟙 ((diagramWeightBimodule
+    (fun j => DG.grading (M := ℚ) j) leftAction rightAction).left (⟨0⟩ : WeightCategory ℚ))) := by
+  let G := fun j => DG.grading (M := ℚ) j
+  let Z : WeightCategory ℚ := ⟨0⟩
+  let N := (diagramWeightBimodule G leftAction rightAction).left Z
+  exact diagramWeightLeft_isQuasiIso_of_cohomology G leftAction rightAction (Iso.refl N) (𝟙 N)
+    (fun X => CatModule.isQuasiIso_id N X 0)
+    (fun X n hn => diagramWeightLeft_cohomology_subsingleton G leftAction rightAction X Z hn)
+
 end
 
 end NonVacuity.WebsterWeightTensor

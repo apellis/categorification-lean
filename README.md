@@ -1152,6 +1152,10 @@ The degree-zero comparison with ordinary tensor is natural in this map
 (`derivedTensorHomologyIsoOrdinaryLinear_coefficient_naturality`).
 It commutes with cochain shifts and defines a morphism between the
 derived tensor images of a triangle (`derivedTensorCoefficientTriangleMap`).
+On a pure tensor it applies the map to the first factor
+(`ambientH0CoefficientMap_tmul`). Naturality of the connecting morphism
+transfers nonvanishing through a triangle when the source connecting
+morphism is surjective (`homology_map_ne_zero_of_middle_next_isZero`).
 
 For the ordinary corner tensor, `CornerTensor.liftAdd` descends a balanced
 bi-additive family with an additive target. On rectangular coefficients it
@@ -1399,6 +1403,10 @@ loading idempotents. The ordered resolution and the divided projector
 splitting show that the incoming diagonal ambient homology also vanishes
 in every nonzero degree
 (`Stendhal.LabelTwo.incomingExteriorAmbientHomology_isZero`).
+The reflected incoming exterior paired with the middle standard vanishes
+in every degree. The middle idempotent kills the ordinary tensor and the
+higher loading support kills the remaining degrees
+(`Stendhal.LabelTwo.incomingMiddleStandardHomology_isZero`).
 On the incoming divided standard, the reflected projector selects the
 line spanned by the black-crossing translate
 (`Stendhal.labelTwoRightExterior_reflectedProjector_image`).
@@ -1423,6 +1431,10 @@ returns the first dot sum
 (`Stendhal.LabelTwo.incomingLiftTensorMap_nonzero`).
 The preimage, middle standard, and incoming cokernel form a short exact
 sequence (`Stendhal.LabelTwo.incomingLiftShortComplex_shortExact`).
+The reflected incoming map is nonzero on the first ambient Tor of the
+incoming cokernel. Reflection transports the explicit tensor witness to
+the coefficient variable and the preimage sequence supplies the
+connecting map (`Stendhal.LabelTwo.incomingCokernelTorOne_map_nonzero`).
 
 
 

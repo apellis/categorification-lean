@@ -11388,6 +11388,21 @@ example : CatModule.IsKProjective
   orderedWeightDgResolution_isKProjective data false eGrade eIdem aboveTrans
     rankOneStandardGrade quotientGrade
 
+private abbrev orderedCoefficientRep :=
+  CatModule.representable (DGOpposite.op (⟨0⟩ : WeightCategory ℚ))
+
+private abbrev orderedAcyclicCoefficient := CatModule.cone (𝟙 orderedCoefficientRep)
+
+private theorem orderedAcyclicCoefficient_acyclic : CatModule.IsAcyclic orderedAcyclicCoefficient :=
+  (CatModule.isQuasiIso_iff_isAcyclic_cone (𝟙 orderedCoefficientRep)).mp
+    (CatModule.isQuasiIso_id orderedCoefficientRep)
+
+example : DG.IsAcyclic (CatTensorProduct orderedAcyclicCoefficient
+    (orderedWeightDgResolution data false eGrade eIdem aboveTrans rankOneStandardGrade quotientGrade)) :=
+  orderedWeightDgResolution_tensor_acyclic data false eGrade eIdem aboveTrans
+    rankOneStandardGrade quotientGrade orderedAcyclicCoefficient orderedAcyclicCoefficient_acyclic
+    (fun f => WeightCategory.mem_grading_iff.mpr (mem_degreeZeroGrading_zero ℚ f.val))
+
 local instance instOrderedDerivedRationalWeight :
     CatModule.HasDerivedCategory.{1,0} (WeightCategory ℚ) :=
   CatModule.HasDerivedCategory.standard _

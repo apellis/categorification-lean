@@ -1083,7 +1083,10 @@ A nonpositive resolution has the same degree-zero tensor cohomology
 as the ordinary weight tensor (`catTensorCohomologyZeroEquivOfQuasiIso`).
 For a K-projective resolution, this identifies the cohomology of the
 derived tensor at weight and degree zero
-(`diagramWeightDerivedTensorH0IsoOfResolution`). For a rectangular corner between two degree-zero
+(`diagramWeightDerivedTensorH0IsoOfResolution`).
+Evaluation at a weight and the K-projective model comparison are natural
+in dg module maps (`localizedWeightCohomologyIso_naturality`,
+`diagramWeightDerivedTensorObjIso_naturality`). For a rectangular corner between two degree-zero
 idempotents, `diagramCornerWeightDerivedRightTensor` uses the restricted grading
 and defines derived right tensor on the graded right-module categories.
 For the actual braid bimodule this gives `auxiliaryGradedBraidingFunctor`

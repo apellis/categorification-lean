@@ -9583,6 +9583,14 @@ example (hK : CatModule.IsKProjective rationalLeft) :=
     (fun _ => ⟨InDegreeZero.mem_grading_zero, InDegreeZero.d_apply _⟩)
     (⟨0⟩ : QWeight)
 
+example (n : ℤ) :=
+  letI := CatModule.HasDerivedCategory.standard QWeight
+  localizedWeightCohomologyIso_naturality (⟨0⟩ : QWeight) n (𝟙 rationalLeft)
+
+example (hK : CatModule.IsKProjective rationalLeft) :=
+  letI := CatModule.HasDerivedCategory.standard QWeight
+  diagramWeightDerivedTensorObjIso_naturality G leftAction rightAction (𝟙 rationalLeft) hK hK
+
 end
 
 end NonVacuity.WebsterWeightCoend

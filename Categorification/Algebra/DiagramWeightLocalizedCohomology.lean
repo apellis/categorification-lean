@@ -38,6 +38,56 @@ private def evaluatedHomologyIso (X : C) (n : ℤ) (M : CatModule.{w} C) :
   exact (L.sc n).mapHomologyIso F ≪≫
     (DGModuleCat.cohomologyAddEquiv ℤ E n).symm.toAddCommGrpIso
 
+/-- Evaluate a dg module map on the cohomology of its component at a weight. -/
+def weightEvalCohomologyMap (X : C) (n : ℤ) {M N : CatModule.{w} C} (f : M ⟶ N) :
+    AddCommGrpCat.of (cohomology (M.obj X) n) ⟶ AddCommGrpCat.of (cohomology (N.obj X) n) :=
+  AddCommGrpCat.ofHom (cohomology.mapAddMonoidHom (f.app X) f.map_mem f.map_d n)
+
+set_option backward.isDefEq.respectTransparency false in
+private theorem evaluatedHomologyIso_naturality (X : C) (n : ℤ)
+    {M N : CatModule.{w} C} (f : M ⟶ N) :
+    HomologicalComplex.homologyMap ((CatModule.evalComplex X).map f) n ≫
+        (evaluatedHomologyIso X n N).hom =
+      (evaluatedHomologyIso X n M).hom ≫ weightEvalCohomologyMap X n f := by
+  let : Algebra ℤ (CategoryTheory.End X) := Ring.toIntAlgebra _
+  let M₀ := (CatModule.eval X).obj M
+  let N₀ := (CatModule.eval X).obj N
+  let f₀ : M₀ ⟶ N₀ := (CatModule.eval X).map f
+  let F := forget₂ (ModuleCat.{w} ℤ) AddCommGrpCat.{w}
+  let L := DGModuleCat.forget ℤ (CategoryTheory.End X)
+  let h := (HomologicalComplex.shortComplexFunctor (ModuleCat.{w} ℤ) (ComplexShape.up ℤ) n).map
+    (L.map f₀)
+  have hn := ShortComplex.mapHomologyIso_hom_naturality h F
+  let eM : AddCommGrpCat.of (cohomology (M.obj X) n) ≅ F.obj ((L.obj M₀).homology n) :=
+    (DGModuleCat.cohomologyAddEquiv ℤ M₀ n).toAddCommGrpIso
+  let eN : AddCommGrpCat.of (cohomology (N.obj X) n) ≅ F.obj ((L.obj N₀).homology n) :=
+    (DGModuleCat.cohomologyAddEquiv ℤ N₀ n).toAddCommGrpIso
+  have h₁ : weightEvalCohomologyMap X n f ≫ eN.hom =
+      eM.hom ≫ F.map (HomologicalComplex.homologyMap (L.map f₀) n) := by
+    apply AddCommGrpCat.ext
+    intro x
+    exact DGModuleCat.cohomologyAddEquiv_naturality ℤ f₀ n x
+  have h₂ : F.map (HomologicalComplex.homologyMap (L.map f₀) n) ≫ eN.inv =
+      eM.inv ≫ weightEvalCohomologyMap X n f := by
+    rw [← cancel_epi eM.hom, ← Category.assoc, ← h₁, Category.assoc,
+      Iso.hom_inv_id, Category.comp_id, Iso.hom_inv_id_assoc]
+  change ShortComplex.homologyMap (F.mapShortComplex.map h) ≫
+      (((L.obj N₀).sc n).mapHomologyIso F).hom ≫ eN.inv =
+    ((((L.obj M₀).sc n).mapHomologyIso F).hom ≫ eM.inv) ≫ _
+  calc
+    _ = (ShortComplex.homologyMap (F.mapShortComplex.map h) ≫
+        (((L.obj N₀).sc n).mapHomologyIso F).hom) ≫ eN.inv :=
+      (Category.assoc _ _ _).symm
+    _ = ((((L.obj M₀).sc n).mapHomologyIso F).hom ≫
+        F.map (ShortComplex.homologyMap h)) ≫ eN.inv :=
+      congrArg (fun x => x ≫ eN.inv) hn
+    _ = _ := by
+      have hh : F.map (ShortComplex.homologyMap h) ≫ eN.inv =
+          eM.inv ≫ weightEvalCohomologyMap X n f := h₂
+      rw [Category.assoc]
+      exact (congrArg (fun x => (((L.obj M₀).sc n).mapHomologyIso F).hom ≫ x) hh).trans
+        (Category.assoc _ _ _).symm
+
 variable [CatModule.HasDerivedCategory.{z,w} C]
 
 /-- Cohomology on an explicit dg representative at a weight is its ordinary
@@ -53,6 +103,56 @@ def localizedWeightCohomologyIso (X : C) (n : ℤ) (M : CatModule.{w} C) :
       ((CatModule.evalComplex X).obj M) ≪≫ evaluatedHomologyIso X n M
 
 
+set_option backward.isDefEq.respectTransparency false in
+/-- The comparison with a dg representative is natural at each weight. -/
+theorem localizedWeightCohomologyIso_naturality (X : C) (n : ℤ)
+    {M N : CatModule.{w} C} (f : M ⟶ N) :
+    (CatModule.DerivedCategory.cohomologyFunctor X n).map (CatModule.DerivedCategory.Q.map f) ≫
+        (localizedWeightCohomologyIso X n N).hom =
+      (localizedWeightCohomologyIso X n M).hom ≫ weightEvalCohomologyMap X n f := by
+  let J := CatModule.HomotopyCategory.quotient C
+  let H := _root_.HomotopyCategory.homologyFunctor AddCommGrpCat.{w} (ComplexShape.up ℤ) n
+  let e₁ := CatModule.DerivedCategory.cohomologyFunctorFactorsh X n
+  let e₂ := CatModule.HomotopyCategory.evalFactors X
+  let e₃ := _root_.HomotopyCategory.homologyFunctorFactors AddCommGrpCat.{w} (ComplexShape.up ℤ) n
+  have h₁ := e₁.hom.naturality (J.map f)
+  have h₂ := congrArg H.map (e₂.hom.naturality f)
+  have h₃ := e₃.hom.naturality ((CatModule.evalComplex X).map f)
+  simp only [Functor.comp_map, Functor.map_comp] at h₁ h₂ h₃
+  let i₁M := e₁.hom.app (J.obj M)
+  let i₁N := e₁.hom.app (J.obj N)
+  let i₂M := H.map (e₂.hom.app M)
+  let i₂N := H.map (e₂.hom.app N)
+  let i₃M := e₃.hom.app ((CatModule.evalComplex X).obj M)
+  let i₃N := e₃.hom.app ((CatModule.evalComplex X).obj N)
+  let i₄M := (evaluatedHomologyIso X n M).hom
+  let i₄N := (evaluatedHomologyIso X n N).hom
+  let m₀ := (CatModule.DerivedCategory.cohomologyFunctor X n).map
+    (CatModule.DerivedCategory.Q.map f)
+  let m₁ := H.map ((CatModule.HomotopyCategory.eval.{w} X).map (J.map f))
+  let m₂ := H.map ((_root_.HomotopyCategory.quotient _ _).map ((CatModule.evalComplex X).map f))
+  let m₃ := HomologicalComplex.homologyMap ((CatModule.evalComplex X).map f) n
+  let m₄ := weightEvalCohomologyMap X n f
+  have hh₁ : m₀ ≫ i₁N = i₁M ≫ m₁ := h₁
+  have hh₂ : m₁ ≫ i₂N = i₂M ≫ m₂ := h₂
+  have hh₃ : m₂ ≫ i₃N = i₃M ≫ m₃ := h₃
+  change m₀ ≫ (i₁N ≫ i₂N ≫ i₃N ≫ i₄N) =
+    (i₁M ≫ i₂M ≫ i₃M ≫ i₄M) ≫ m₄
+  calc
+    _ = (m₀ ≫ i₁N) ≫ i₂N ≫ i₃N ≫ i₄N := by simp only [Category.assoc]
+    _ = (i₁M ≫ m₁) ≫ i₂N ≫ i₃N ≫ i₄N :=
+      congrArg (fun x => x ≫ i₂N ≫ i₃N ≫ i₄N) hh₁
+    _ = i₁M ≫ (m₁ ≫ i₂N) ≫ i₃N ≫ i₄N := by simp only [Category.assoc]
+    _ = i₁M ≫ (i₂M ≫ m₂) ≫ i₃N ≫ i₄N :=
+      congrArg (fun x => i₁M ≫ x ≫ i₃N ≫ i₄N) hh₂
+    _ = i₁M ≫ i₂M ≫ (m₂ ≫ i₃N) ≫ i₄N := by simp only [Category.assoc]
+    _ = i₁M ≫ i₂M ≫ (i₃M ≫ m₃) ≫ i₄N :=
+      congrArg (fun x => i₁M ≫ i₂M ≫ x ≫ i₄N) hh₃
+    _ = i₁M ≫ i₂M ≫ i₃M ≫ (m₃ ≫ i₄N) := by simp only [Category.assoc]
+    _ = i₁M ≫ i₂M ≫ i₃M ≫ (i₄M ≫ m₄) :=
+      congrArg (fun x => i₁M ≫ i₂M ≫ i₃M ≫ x) (evaluatedHomologyIso_naturality X n f)
+    _ = _ := by simp only [Category.assoc]
+
 section DerivedTensor
 
 variable {A B P : Type u} [Ring A] [Ring B]
@@ -66,6 +166,29 @@ variable {A B P : Type u} [Ring A] [Ring B]
 
 local notation "D₀" => diagramWeightBimodule G hl hr
 local notation "F₀" => diagramWeightDerivedTensor G hl hr
+
+/-- The tensor of a K-projective dg model is natural in maps of models. -/
+theorem diagramWeightDerivedTensorObjIso_naturality
+    {K L : CatModule.{u} (WeightCategory B)} (a : K ⟶ L)
+    (hK : CatModule.IsKProjective K) (hL : CatModule.IsKProjective L) :
+    (F₀).map (CatModule.DerivedCategory.Q.map a) ≫
+        (diagramWeightDerivedTensorObjIso G hl hr hL).hom =
+      (diagramWeightDerivedTensorObjIso G hl hr hK).hom ≫
+        CatModule.DerivedCategory.Q.map ((D₀).tensorFunctor.map a) := by
+  let C₀ := WeightCategory B
+  let C₁ := WeightCategory A
+  let J := CatModule.HomotopyCategory.quotient C₀
+  let S := CatModule.HomotopyCategory.subcategoryKProjective.{u} C₀
+  let I := CatModule.DerivedCategory.kProjectiveEquivalence C₀
+  let V : S.FullSubcategory :=
+    ⟨J.obj K, (CatModule.HomotopyCategory.quotient_obj_mem_subcategoryKProjective_iff K).mpr hK⟩
+  let W : S.FullSubcategory :=
+    ⟨J.obj L, (CatModule.HomotopyCategory.quotient_obj_mem_subcategoryKProjective_iff L).mpr hL⟩
+  let g : V ⟶ W := ObjectProperty.homMk (J.map a)
+  let T := S.ι ⋙ diagramWeightTensorHomotopy G hl hr ⋙ CatModule.DerivedCategory.Qh (C := C₁)
+  have h := congrArg T.map (I.unitIso.inv.naturality g)
+  rw [Functor.map_comp, Functor.map_comp] at h
+  exact h
 
 /-- A K-projective nonpositive resolution computes the degree-zero part of
 derived tensor by the ordinary endpoint coend. -/

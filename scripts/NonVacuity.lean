@@ -5539,6 +5539,22 @@ noncomputable example := KL3.Diagram.shiftHomEquivalence UDot.sl2RootDatum (ZMod
 
 end NonVacuity.WebsterLocalization
 
+namespace NonVacuity.WebsterCupCap
+
+open CategoryTheory DG MulOpposite Categorification.Stendhal.Coevaluation
+open scoped DG.DegreeZero TensorProduct
+
+local instance : DG.HasDerivedCategory.{0,0} ℚ := DG.HasDerivedCategory.small ℚ
+local instance : DG.HasDerivedCategory.{0,0} ℚᵐᵒᵖ := DG.HasDerivedCategory.small ℚᵐᵒᵖ
+
+example := shiftedCupFunctor ℚ ℚ (Fin 2 → ℚ) (-2)
+example := capFunctor ℚ ℚ (Fin 2 → ℚ)
+
+example (f : CupCoefficient ℚ (Fin 2 → ℚ)) (x : Fin 2 → ℚ) :=
+  cupTensorHomEquiv_op_tmul ℚ ℚ (Fin 2 → ℚ) (2 : ℚ) f (3 : ℚ) x
+
+end NonVacuity.WebsterCupCap
+
 namespace NonVacuity.CLSpanning
 
 open Categorification Categorification.QuantumGroup Categorification.KL3.Diagram
@@ -8026,18 +8042,21 @@ end NonVacuity.WebsterRightTensor
 
 end
 
-namespace NonVacuity.WebsterCupCap
+namespace NonVacuity.WebsterVacuumBraidColumn
 
-open CategoryTheory DG MulOpposite Categorification.Stendhal.Coevaluation
-open scoped DG.DegreeZero TensorProduct
+open KLR KLRAlgebra Stendhal Stendhal.BraidedStendhalAlgebra
 
-local instance : DG.HasDerivedCategory.{0,0} ℚ := DG.HasDerivedCategory.small ℚ
-local instance : DG.HasDerivedCategory.{0,0} ℚᵐᵒᵖ := DG.HasDerivedCategory.small ℚᵐᵒᵖ
+private abbrev content := stendhalWeight 2 (0 : Multiset Unit)
+private def ordered : Seq content := Seq.ofList [.inr 0, .inr 1] (by decide)
+private def exchanged : Seq content := Seq.ofList [.inr 1, .inr 0] (by decide)
+private noncomputable abbrev params : Unit → Unit → MvPolynomial (Fin 2) ℚ := fun _ _ => 0
+private abbrev weights : Fin 2 → Unit →₀ ℕ := fun _ => 0
 
-example := shiftedCupFunctor ℚ ℚ (Fin 2 → ℚ) (-2)
-example := capFunctor ℚ ℚ (Fin 2 → ℚ)
+example :
+    Module.finrank ℚ (violCorner ℚ params weights 0 exchanged (redWord ordered)) = 1 :=
+  finrank_vacuum_braidColumn params weights (fun _ _ _ => rfl) exchanged ordered
 
-example (f : CupCoefficient ℚ (Fin 2 → ℚ)) (x : Fin 2 → ℚ) :=
-  cupTensorHomEquiv_op_tmul ℚ ℚ (Fin 2 → ℚ) (2 : ℚ) f (3 : ℚ) x
+example := finrank_vacuum_braidColumn_eq_standard params weights
+  (fun _ _ _ => rfl) exchanged ordered
 
-end NonVacuity.WebsterCupCap
+end NonVacuity.WebsterVacuumBraidColumn

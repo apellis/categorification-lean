@@ -6702,3 +6702,9 @@ four red weights are positive. -/
 example :=
   Stendhal.BraidedStendhalAlgebra.TwoSpectatorOneBlack.interiorCrossingMap_surjective
     (k := ℚ) (fun _ _ => 0) (fun _ => Finsupp.single () 1)
+
+/-- Both retained layers are nonzero over the rationals with four positive reds. -/
+example (c : Bool) :=
+  Stendhal.BraidedStendhalAlgebra.TwoSpectatorOneBlack.twoSpectatorLayer_nontrivial
+    (k := ℚ) (fun _ _ => 0) (fun _ => Finsupp.single () 1) (fun _ _ _ => rfl)
+    (fun _ => by simp) c

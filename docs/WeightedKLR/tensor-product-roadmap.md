@@ -1087,6 +1087,8 @@ The earlier crossing commutes with appending an uncrossed terminal red
 test to the interior crossing at the standard Khovanov–Lauda parameters,
 giving the concrete two-layer filtration
 (`TwoSpectatorOneBlack.kernel_hasTwoHigherLayers_standard`).
+The boundary character detects both of these partial standards when the four red
+weights are positive (`TwoSpectatorOneBlack.twoSpectatorLayer_nontrivial`).
 
 Still open for Lemma 6.8: when a black lies between the bottom reds, prove that changes
 between different choices of the last crossing give equal balanced classes **in the

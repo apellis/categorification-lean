@@ -18,6 +18,42 @@ namespace Categorification.Stendhal.LabelTwo
 open KLR KLRAlgebra
 noncomputable section
 
+section QuotientTensor
+
+variable {𝕜 R M X : Type*} [CommRing 𝕜] [Ring R] [Algebra 𝕜 R]
+  [AddCommGroup M] [Module 𝕜 M]
+  [AddCommGroup X] [Module 𝕜 X] [Module R X] [IsScalarTower 𝕜 R X]
+
+private def descendRightQuotient (W : Submodule R X) (f : X →ₗ[𝕜] M →ₗ[𝕜] 𝕜)
+    (hf : W.restrictScalars 𝕜 ≤ LinearMap.ker f) : M →ₗ[𝕜] (X ⧸ W) →ₗ[𝕜] 𝕜 :=
+  (((W.restrictScalars 𝕜).liftQ f hf).comp
+    (Submodule.Quotient.restrictScalarsEquiv 𝕜 W).symm.toLinearMap).flip
+
+private theorem descendRightQuotient_mk (W : Submodule R X) (f : X →ₗ[𝕜] M →ₗ[𝕜] 𝕜)
+    (hf : W.restrictScalars 𝕜 ≤ LinearMap.ker f) (m : M) (x : X) :
+    descendRightQuotient W f hf m (W.mkQ x) = f x m := rfl
+
+variable [Module Rᵐᵒᵖ M] [SMulCommClass 𝕜 Rᵐᵒᵖ M]
+
+private def descendBalancedRightQuotient (W : Submodule R X) (f : X →ₗ[𝕜] M →ₗ[𝕜] 𝕜)
+    (hf : W.restrictScalars 𝕜 ≤ LinearMap.ker f)
+    (hb : ∀ (m : M) (a : R) (x : X), f x (MulOpposite.op a • m) = f (a • x) m) :
+    BalancedTensor 𝕜 𝕜 R M (X ⧸ W) →ₗ[𝕜] 𝕜 :=
+  BalancedTensor.lift (descendRightQuotient W f hf) (fun m a b => by
+    obtain ⟨x,rfl⟩ := W.mkQ_surjective b
+    rw [← W.mkQ.map_smul, descendRightQuotient_mk, descendRightQuotient_mk]
+    exact hb m a x)
+
+private theorem descendBalancedRightQuotient_tmul (W : Submodule R X)
+    (f : X →ₗ[𝕜] M →ₗ[𝕜] 𝕜) (hf : W.restrictScalars 𝕜 ≤ LinearMap.ker f)
+    (hb : ∀ (m : M) (a : R) (x : X), f x (MulOpposite.op a • m) = f (a • x) m)
+    (m : M) (x : X) :
+    descendBalancedRightQuotient W f hf hb (BalancedTensor.tmul m (W.mkQ x)) = f x m :=
+  (BalancedTensor.lift_tmul (descendRightQuotient W f hf) _ m (W.mkQ x)).trans
+    (descendRightQuotient_mk W f hf m x)
+
+end QuotientTensor
+
 attribute [local instance 1100] IsIdempotentElem.instAlgebraCorner_categorification
 
 variable (k : Type) [Field k]
@@ -130,35 +166,27 @@ private theorem liftTensorPreReadout_kills_plus (z : N) (s : S) :
 private def liftTensorPreBil : S →ₗ[k] N →ₗ[k] k :=
   ((BalancedTensor.mkBil k k T N S).compr₂ (liftTensorPreReadout k)).flip
 
-private def liftTensorQuotBil : N →ₗ[k] B →ₗ[k] k :=
-  ((((U).restrictScalars k).liftQ (liftTensorPreBil k) (by
-    rintro _ ⟨s,rfl⟩
-    apply LinearMap.mem_ker.mpr
-    ext m
-    exact liftTensorPreReadout_kills_plus k m s)).comp
-      (Submodule.Quotient.restrictScalarsEquiv k (U)).symm.toLinearMap).flip
+private theorem liftTensorPreBil_kills :
+    (U).restrictScalars k ≤ LinearMap.ker (liftTensorPreBil k) := by
+  rintro _ ⟨s,rfl⟩
+  apply LinearMap.mem_ker.mpr
+  ext m
+  exact liftTensorPreReadout_kills_plus k m s
 
-set_option maxHeartbeats 1000000 in
-private theorem liftTensorQuotBil_mk (m : N) (s : S) :
-    liftTensorQuotBil k m (q s) = liftTensorPreReadout k (BalancedTensor.tmul m s) := rfl
+private theorem liftTensorPreBil_balanced (m : N) (a : T) (s : S) :
+    liftTensorPreBil k s (op a • m) = liftTensorPreBil k (a • s) m :=
+  congrArg (liftTensorPreReadout k) (BalancedTensor.op_smul_tmul m a s)
 
-set_option maxHeartbeats 1000000 in
 /-- The middle left-dot coefficient defines a balanced tensor readout
 after imposing the dot-sum relation on the middle standard. -/
 def incomingLiftTensorReadout : BalancedTensor k k T N B →ₗ[k] k :=
-  BalancedTensor.lift (liftTensorQuotBil k) (fun m a b => by
-    obtain ⟨s,rfl⟩ := (U).mkQ_surjective b
-    change liftTensorQuotBil k (op a • m) (q s) = liftTensorQuotBil k m (a • q s)
-    rw [← (q).map_smul, liftTensorQuotBil_mk, liftTensorQuotBil_mk,
-      BalancedTensor.op_smul_tmul])
+  descendBalancedRightQuotient U (liftTensorPreBil k) (liftTensorPreBil_kills k)
+    (liftTensorPreBil_balanced k)
 
-set_option maxHeartbeats 1000000 in
 private theorem incomingLiftTensorReadout_mk (m : N) (s : S) :
     incomingLiftTensorReadout k (BalancedTensor.tmul m (q s)) =
-      liftTensorPreReadout k (BalancedTensor.tmul m s) := by
-  unfold incomingLiftTensorReadout
-  rw [BalancedTensor.lift_tmul]
-  exact liftTensorQuotBil_mk k m s
+      liftTensorPreReadout k (BalancedTensor.tmul m s) :=
+  descendBalancedRightQuotient_tmul U _ _ _ m s
 
 /-- The dot sum of the middle generator, viewed in the incoming preimage. -/
 def incomingLiftDotSumGenerator : J :=

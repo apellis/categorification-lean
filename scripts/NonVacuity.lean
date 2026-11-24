@@ -7572,6 +7572,167 @@ end
 
 end NonVacuity.WebsterFixedTopFourExits
 
+namespace NonVacuity.WebsterFiniteExitLift
+
+open Categorification.KLR Categorification.TypeA Categorification.Stendhal
+open BraidedStendhalAlgebra KLRAlgebra
+open scoped BigOperators
+
+private abbrev ν : Multiset Unit := {()} + {()}
+private abbrev Q : Unit → Unit → MvPolynomial (Fin 2) (ZMod 4) := fun _ _ => 0
+private abbrev Λ : Fin 4 → Unit →₀ ℕ := fun _ => Finsupp.single () 2
+private def bottom : Seq (stendhalWeight 4 ν) :=
+  Seq.ofList [.inr 0, .inl (), .inr 2, .inl (), .inr 1, .inr 3] (by decide)
+private def top : Seq (stendhalWeight 4 ν) :=
+  Seq.ofList [.inr 0, .inl (), .inr 1, .inl (), .inr 2, .inr 3] (by decide)
+private def exits : Bool → List ℕ
+  | false => [3,2]
+  | true => [2,3]
+private abbrev A := BraidedStendhalAlgebra (ZMod 4) Q Λ ν
+private abbrev F := ofKLR (ZMod 4) Q Λ ν
+private abbrev mk := violMk (ZMod 4) Q Λ ν
+private abbrev leg (i : Bool) := F (ψw (exits i) * e bottom)
+
+private theorem generate (v : Seq (stendhalWeight 4 ν)) (hv : redWord v = redWord top) (z : A) :
+    ∃ c : Bool → A, F (e v) * z * F (e bottom) = ∑ i, c i * leg i := by
+  have ho : redWord v = [0] ++ 1 :: 2 :: [3] := hv.trans (by decide)
+  obtain ⟨l,r,he⟩ := exists_interleavedColumn_exits Q Λ bottom 2 (by decide) (fun _ _ _ => rfl)
+    (a := 1) (b := 2) (by decide) (by decide) v ho z
+  refine ⟨fun i => if i then r else l, ?_⟩
+  simp only [Fintype.sum_bool, Bool.false_eq_true, ↓reduceIte]
+  rw [add_comm]
+  exact he
+
+/-- A violated diagram with a spectator black admits exit coefficients that
+individually vanish after imposing the global violation. -/
+example (u v : A) :=
+  let bad : Seq (stendhalWeight 4 ν) :=
+    Seq.ofList [.inl (), .inr 0, .inr 1, .inl (), .inr 2, .inr 3] (by decide)
+  exists_violated_finite_exits_of_violated_generation Q Λ bottom top exits (fun _ _ _ => rfl)
+    (fun v _ => generate v)
+    (u * F (e bad) * v) (by
+      have hv : IsViolated bad := ⟨by decide,rfl⟩
+      simp only [map_mul,violMk_e hv,mul_zero,zero_mul])
+
+/-- Lift a signed braid relation in the six-strand quotient using the same
+ordered exits. -/
+example :=
+  let d := wordProd (stendhalWeight 4 ν).card [2,3,2] • bottom
+  let side := fun i : Bool => wordProd (stendhalWeight 4 ν).card (exits i) • bottom
+  let signed := fun i : Bool => if i then
+    -(mk (F (e d * ψ 3 * e (side i)))) else mk (F (e d * ψ 2 * e (side i)))
+  have hd : d = top := by decide
+  have sup (i : Bool) : mk (F (e top)) * signed i * mk (F (e (side i))) = signed i := by
+    cases i <;> simp only [signed, Bool.false_eq_true, ↓reduceIte, ← hd, mul_neg, neg_mul] <;>
+      simp only [← map_mul, ← mul_assoc (e d), e_mul_self] <;>
+      simp only [mul_assoc, e_mul_self]
+  have rel : ∑ i, signed i * mk (leg i) = 0 := by
+    simp only [Fintype.sum_bool, signed, Bool.false_eq_true, ↓reduceIte, neg_mul, ← map_mul,
+      exits, side, ψw_cons, ψw_nil, mul_one]
+    have h := braid (Q := stendhalQ Q Λ) 2 (by decide) bottom
+    have hl : bottom.lbl ⟨2, by decide⟩ ≠ bottom.lbl ⟨4, by decide⟩ := by decide
+    rw [ite_eq_right (fun h => hl h.1), sub_mul, sub_eq_zero] at h
+    have le (w : List ℕ) : e (wordProd (stendhalWeight 4 ν).card w • bottom) * ψw w * e bottom =
+        (ψw w * e bottom : KLRAlgebra (ZMod 4) (stendhalQ Q Λ) (stendhalWeight 4 ν)) := by
+      rw [e_mul_ψw, inv_smul_smul, mul_assoc, e_mul_self]
+    have left := le [3,2]
+    have right := le [2,3]
+    simp only [ψw_cons, ψw_nil, mul_one] at left right
+    rw [show e d * ψ 2 * e (wordProd (stendhalWeight 4 ν).card [3,2] • bottom) *
+        (ψ 3 * ψ 2 * e bottom) = e d * (ψ 2 * ψ 3 * ψ 2 * e bottom) by
+          rw [mul_assoc, ← mul_assoc (e (wordProd (stendhalWeight 4 ν).card [3,2] • bottom)), left]
+          simp only [mul_assoc],
+      show e d * ψ 3 * e (wordProd (stendhalWeight 4 ν).card [2,3] • bottom) *
+        (ψ 2 * ψ 3 * e bottom) = e d * (ψ 3 * ψ 2 * ψ 3 * e bottom) by
+          rw [mul_assoc, ← mul_assoc (e (wordProd (stendhalWeight 4 ν).card [2,3] • bottom)), right]
+          simp only [mul_assoc],
+      ← h, neg_add_cancel]
+  exists_finiteExitRelation_affine_lift_of_violated_generation Q Λ bottom top exits
+    (fun _ _ _ => rfl) (fun v _ => generate v) signed sup rel
+
+end NonVacuity.WebsterFiniteExitLift
+
+namespace NonVacuity.WebsterFiveSlotMarkedJoints
+
+open Categorification.KLR Categorification.Stendhal Categorification.TypeA
+open BraidedStendhalAlgebra KLRAlgebra
+open scoped BigOperators
+
+noncomputable section
+
+private abbrev ν : Multiset Unit := {()} + {()}
+private abbrev μ := stendhalWeight 3 ν
+private abbrev Q : Unit → Unit → MvPolynomial (Fin 2) ℚ := fun _ _ => 0
+private abbrev Λ : Fin 3 → Unit →₀ ℕ := fun _ => Finsupp.single () 2
+private abbrev V := ViolQuotient ℚ Q Λ ν
+private abbrev R := KLRAlgebra ℚ (stendhalQ Q Λ) μ
+private abbrev F := (violMk ℚ Q Λ ν).comp (ofKLR ℚ Q Λ ν)
+private abbrev s := fixedTopFourExitBottom
+private abbrev v (i : Fin 4) := fixedTopFourExitCut i
+private abbrev jA := sadj μ.card 2 • v 0
+private abbrev J := blockUpperIdeal ℚ Q Λ ν 1 2 (adjacentBlockRoot 1 2 (v 2)) (redWord (v 2))
+private abbrev leg (l : List ℕ) (t : Seq μ) := F (ψw l*e t)
+
+private theorem compose (l w : List ℕ) (t : Seq μ) (ht : wordProd μ.card w • s=t) :
+    leg l t*leg w s=leg (l++w) s := by
+  have h : (e (wordProd μ.card w • s) : R)*(ψw w*e s)=ψw w*e s := by
+    rw [← mul_assoc,e_mul_ψw,inv_smul_smul,mul_assoc,e_mul_self]
+  simp only [leg,← map_mul,ψw_append,← ht]
+  rw [mul_assoc,h,mul_assoc]
+
+/-- A positive-weight marked relation through the actual higher joint at a
+surviving spectator cut. -/
+example (g : V) :=
+  let q := F (e (v 2))*g*F (e jA)
+  let x₀ := q*leg [2] (v 0)
+  let x₁ := -(q*leg [3] (v 1))
+  let x : Fin 4 → V := ![x₀,x₁,0,0]
+  have higher : adjacentBlockRoot 1 2 (v 2) < adjacentBlockRoot 1 2 jA := by
+    apply lt_of_le_not_ge
+    · intro i j
+      fin_cases i <;> cases j <;> decide
+    · intro le
+      exact (by decide : ¬ adjacentBlockRoot 1 2 jA 1 () ≤ adjacentBlockRoot 1 2 (v 2) 1 ())
+        (le 1 ())
+  have eMark : F (e jA) ∈ J := TwoSidedIdeal.subset_span ⟨jA,by decide,higher,rfl⟩
+  have qMark : q ∈ J := J.mul_mem_left _ _ eMark
+  have mark (i : Fin 4) : x i ∈ J := by
+    fin_cases i
+    · exact J.mul_mem_right _ _ qMark
+    · exact J.neg_mem (J.mul_mem_right _ _ qMark)
+    · exact J.zero_mem
+    · exact J.zero_mem
+  have cut (l : List ℕ) (t : Seq μ) :
+      F (e (v 2))*(q*leg l t)*F (e t)=q*leg l t := by
+    have left : F (e (v 2))*q=q := by
+      simp only [q,← mul_assoc,← map_mul,e_mul_self]
+    simp only [← mul_assoc (F (e (v 2))) q,left,leg,← map_mul,mul_assoc,e_mul_self]
+  have support (i : Fin 4) :
+      F (e (v 2))*x i*F (e (wordProd μ.card (fiveSlotExitWord i) • s))=x i := by
+    have h : wordProd μ.card (fiveSlotExitWord i) • s=v i := by fin_cases i <;> decide
+    rw [h]
+    fin_cases i
+    · exact cut [2] (v 0)
+    · change F (e (v 2))*(-(q*leg [3] (v 1)))*F (e (v 1))=-(q*leg [3] (v 1))
+      rw [mul_neg,neg_mul,cut]
+    · change F (e (v 2))*(0 : V)*F (e (v 2))=0
+      rw [mul_zero,zero_mul]
+    · change F (e (v 2))*(0 : V)*F (e (v 3))=0
+      rw [mul_zero,zero_mul]
+  have edge : leg [2] (v 0)*leg [3,2,1] s=leg [3] (v 1)*leg [2,3,1] s := by
+    rw [compose _ _ _ (by decide),compose _ _ _ (by decide)]
+    exact congrArg F (twoBlackNearbyExitWords (Q := stendhalQ Q Λ) 1 (by decide) s (by decide)).1
+  have sum : ∑ i, x i*F (ψw (fiveSlotExitWord i)*e s)=0 := by
+    rw [Fin.sum_univ_four]
+    change x₀*leg [3,2,1] s+x₁*leg [2,3,1] s+
+      (0 : V)*leg [1,2,3] s+0*leg [2,3,1,2] s=0
+    simp only [x₀,x₁,neg_mul,mul_assoc,edge,zero_mul,add_zero,add_neg_cancel]
+  exists_fiveSlot_markedExitJoints Q Λ (fun _ _ _ => rfl) x support mark sum
+
+end
+
+end NonVacuity.WebsterFiveSlotMarkedJoints
+
 namespace NonVacuity.WebsterIntervalColumn
 
 open Categorification.KLR Categorification.Stendhal

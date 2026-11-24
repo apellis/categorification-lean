@@ -6432,6 +6432,12 @@ example : adjacentBlockRoot 1 2 bareRight = adjacentBlockRoot 1 2 joint ∧
 
 example := firstWeight_blockKernelColumnInclusion_injective () q₄ oneWt 1 2 exchanged joint symm₄
 
+/-- The finite bottom-projector sum assembles the first-weight column tests for
+the exchanged red order, including the spectator. -/
+example := blockKernelTensorInclusion_injective_of_columns q₄ oneWt joint 1 2
+  (redWord exchanged) (fun u _ =>
+    firstWeight_blockKernelColumnInclusion_injective () q₄ oneWt 1 2 u joint symm₄)
+
 example := firstWeight_interleavedColumn_presentation () q₄ oneWt 1 2 exchanged 1 joint symm₄
   (by decide) (L := [0]) (M := []) (by decide) (by decide) (by decide) (by decide) (by decide)
 

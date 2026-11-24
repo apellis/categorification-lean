@@ -178,9 +178,11 @@ theorem higherCrossingMap_standard_injective
   intro x hx hc
   have hedges :
       (stendhalWeight 2 ((0 : Multiset Unit) + 0)).card = 2 := by decide
-  exact eq_zero_of_mul_rightmostRedCrossing hR hQ weights () 0 prefixLoading prefix_ordered x
-    (by simpa only [higher_append] using hx)
-    (by simpa only [hedges, source_append] using hc)
+  apply eq_zero_of_mul_rightmostRedCrossing hR hQ weights () 0 prefixLoading prefix_ordered x
+  · rw [higher_append]
+    exact hx
+  · rw [hedges, source_append]
+    exact hc
 
 /-- The kernel has the higher partial standard as a single layer for the standard
 Khovanov–Lauda parameters and arbitrary spectator weight. -/

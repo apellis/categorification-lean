@@ -1672,6 +1672,7 @@ import Categorification.WeightedKLR.RedStrands.BraidedIdentity
 import Categorification.WeightedKLR.RedStrands.BraidedRedOrder
 import Categorification.WeightedKLR.RedStrands.BraidedReflectedFiltration
 import Categorification.WeightedKLR.RedStrands.BraidedRelabel
+import Categorification.WeightedKLR.RedStrands.OffDiagonalParameters
 import Categorification.WeightedKLR.RedStrands.BraidedRelabelAppend
 import Categorification.WeightedKLR.RedStrands.BlockRightLegSweep
 import Categorification.WeightedKLR.RedStrands.AdjacentBlockTensor

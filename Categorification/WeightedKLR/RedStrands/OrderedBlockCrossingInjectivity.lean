@@ -132,6 +132,54 @@ private theorem eq_zero_of_mul_right_cut_tensor_middle (l : L) (p e c : A) (r : 
   rw [hcut, map_zero, hleft, hcentral e he, hx] at hinc
   exact hinc.symm
 
+/-- Tensoring a corner injection with an unchanged left coefficient preserves injectivity.
+The source is fixed by the tensor of the two left and right boundary idempotents. -/
+theorem eq_zero_of_mul_right_leftTensor_cut (pL eL : L) (p e c : A)
+    (hp : p * p = p) (he : e * e = e) (hc : e * c = c)
+    (hinj : ∀ a : A, p * a = a → a * e = a → a * c = 0 → a = 0)
+    (x : L ⊗[k] A) (hleft : (pL ⊗ₜ[k] p) * x = x)
+    (hsource : x * (eL ⊗ₜ[k] e) = x) (hzero : x * (eL ⊗ₜ[k] c) = 0) : x = 0 := by
+  let f := Algebra.TensorProduct.congr (AlgEquiv.refl : L ≃ₐ[k] L)
+    (Algebra.TensorProduct.rid k k A).symm
+  have hf (l : L) (a : A) : f (l ⊗ₜ[k] a) = l ⊗ₜ[k] (a ⊗ₜ[k] (1 : k)) := rfl
+  have hl : ((1 : L) ⊗ₜ[k] p) * x = x := by
+    calc
+      _ = ((1 : L) ⊗ₜ[k] p) * ((pL ⊗ₜ[k] p) * x) := by rw [hleft]
+      _ = x := by rw [← mul_assoc, Algebra.TensorProduct.tmul_mul_tmul, one_mul, hp, hleft]
+  apply f.injective
+  rw [map_zero f]
+  refine eq_zero_of_mul_right_cut_tensor_middle eL p e c (1 : k) hp he hc hinj (f x) ?_ ?_ ?_
+  · simpa only [map_mul f, hf] using congrArg f hl
+  · simpa only [map_mul f, hf] using congrArg f hsource
+  · simpa only [map_mul f, map_zero f, hf] using congrArg f hzero
+
+/-- Tensoring a corner injection with an unchanged right coefficient preserves injectivity. -/
+theorem eq_zero_of_mul_right_rightTensor_cut (pR eR : R) (p e c : A)
+    (hp : p * p = p) (he : e * e = e) (hc : e * c = c)
+    (hinj : ∀ a : A, p * a = a → a * e = a → a * c = 0 → a = 0)
+    (x : A ⊗[k] R) (hleft : (p ⊗ₜ[k] pR) * x = x)
+    (hsource : x * (e ⊗ₜ[k] eR) = x) (hzero : x * (c ⊗ₜ[k] eR) = 0) : x = 0 := by
+  let f := Algebra.TensorProduct.comm k A R
+  have hf (a : A) (b : R) : f (a ⊗ₜ[k] b) = b ⊗ₜ[k] a := rfl
+  apply f.injective
+  rw [map_zero f]
+  refine eq_zero_of_mul_right_leftTensor_cut pR eR p e c hp he hc hinj (f x) ?_ ?_ ?_
+  · simpa only [map_mul f, hf] using congrArg f hleft
+  · simpa only [map_mul f, hf] using congrArg f hsource
+  · simpa only [map_mul f, map_zero f, hf] using congrArg f hzero
+
+/-- The output of right multiplication is fixed by the target loading projector. -/
+theorem mul_right_leftTensor_target_cut (eL : L) (c t : A)
+    (heL : eL * eL = eL) (ht : c * t = c) (x : L ⊗[k] A) :
+    (x * (eL ⊗ₜ[k] c)) * (eL ⊗ₜ[k] t) = x * (eL ⊗ₜ[k] c) := by
+  rw [mul_assoc, Algebra.TensorProduct.tmul_mul_tmul, heL, ht]
+
+/-- The output is fixed by the target loading projector with an unchanged right coefficient. -/
+theorem mul_right_rightTensor_target_cut (eR : R) (c t : A)
+    (heR : eR * eR = eR) (ht : c * t = c) (x : A ⊗[k] R) :
+    (x * (c ⊗ₜ[k] eR)) * (t ⊗ₜ[k] eR) = x * (c ⊗ₜ[k] eR) := by
+  rw [mul_assoc, Algebra.TensorProduct.tmul_mul_tmul, heR, ht]
+
 end TensorSupport
 
 section Exterior

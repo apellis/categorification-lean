@@ -244,6 +244,35 @@ def braidFactorizationDerivedCoendOfResolution (hρ : IsReducedChoice ρ)
     (H₀ upper) (H₀ middle) (H₀ lower) (braidFactorizationCoend_bijective C hQ hρ h0 hp H)
     Z f hK hf ht
 
+/-- The graded derived composition with the source identity braid needs no
+resolution hypothesis. -/
+def braidFactorizationDerivedCoendIdentity (hρ : IsReducedChoice ρ)
+    (h0 : lower.Nodup) (hp : lower.Perm middle) :
+    letI := Graded.cornerGradedAlgebra V (hE middle) (H₀ middle)
+    letI := Graded.cornerGradedAlgebra V (hE lower) (H₀ lower)
+    letI := gradedAlgebraInternalGrading (S middle)
+    letI := gradedAlgebraInternalGrading (S lower)
+    letI := gradedAlgebraBigradedDGRing (S middle)
+    letI := gradedAlgebraBigradedDGRing (S lower)
+    [CatModule.HasDerivedCategory (WeightCategory (hE middle).Cornerᵐᵒᵖ)] →
+    [CatModule.HasDerivedCategory (WeightCategory (hE lower).Cornerᵐᵒᵖ)] →
+    ∀ Z : WeightCategory (hE middle).Cornerᵐᵒᵖ,
+      ((diagramCornerWeightDerivedRightTensor V (hE middle) (hE lower) (H₀ middle) (H₀ lower)).obj
+        (CatModule.DerivedCategory.Q.obj ((diagramCornerWeightRightBimodule V (hE middle) (hE middle)
+          (H₀ middle) (H₀ middle)).left Z)) ≅ CatModule.DerivedCategory.Q.obj
+            ((diagramCornerWeightRightBimodule V (hE middle) (hE lower)
+              (H₀ middle) (H₀ lower)).left Z)) := by
+  letI := Graded.cornerGradedAlgebra V (hE middle) (H₀ middle)
+  letI := Graded.cornerGradedAlgebra V (hE lower) (H₀ lower)
+  letI := gradedAlgebraInternalGrading (S middle)
+  letI := gradedAlgebraInternalGrading (S lower)
+  letI := gradedAlgebraBigradedDGRing (S middle)
+  letI := gradedAlgebraBigradedDGRing (S lower)
+  intro hM hL Z
+  exact diagramCornerWeightRightDerivedFactorizationSelf V (hE middle) (hE lower)
+    (H₀ middle) (H₀ lower)
+    (braidFactorizationCoend_bijective C hQ hρ h0 hp (upper := middle) (fun _ _ _ h => h)) Z
+
 end Graded
 
 end Categorification.Stendhal.BraidedStendhalAlgebra

@@ -129,57 +129,86 @@ private theorem middleStalk_coordinate_act {X Y : W₂} (a : X ⟶ Y)
     (middleStalkAction k a ((middleStalkZeroIso k X).hom z))) = _
   exact Iso.inv_hom_id_apply _ _
 
-set_option backward.isDefEq.respectTransparency false in
+private abbrev middleDiagramStalkValue (X : W₂) :=
+  InDegreeZero ((ℳ₂ (X.as - 0)).toAddSubgroup)
+
+private def middleStalkWeightTransport (X : W₂) :
+    middleStalkValue k X ≃+ middleDiagramStalkValue k X where
+  toFun z := ⟨z.val, by
+    change z.val ∈ (ℳ₂ (X.as - 0)).toAddSubgroup
+    rw [sub_zero]
+    exact z.property⟩
+  invFun z := ⟨z.val, by
+    change z.val ∈ (ℳ₂ X.as).toAddSubgroup
+    have hz : z.val ∈ (ℳ₂ (X.as - 0)).toAddSubgroup := z.property
+    rwa [sub_zero] at hz⟩
+  left_inv _ := rfl
+  right_inv _ := rfl
+  map_add' _ _ := rfl
+
+private def middleStalkEquiv (X : W₂) :
+    ComplexSum (middleStalkCochain k X) ≃+ middleDiagramStalkValue k X :=
+  (middleStalkAddEquiv k X).trans (middleStalkWeightTransport k X)
+
+private theorem middleStalkEquiv_val (X : W₂) (x : ComplexSum (middleStalkCochain k X)) :
+    (middleStalkEquiv k X x).val =
+      ((middleStalkZeroIso k X).hom (ComplexSum.component (middleStalkCochain k X) 0 x)).val := rfl
+
+private theorem middleStalkEquiv_mem (X : W₂) (n : ℤ) (x : ComplexSum (middleStalkCochain k X)) :
+    middleStalkEquiv k X x ∈ DG.grading n ↔ x ∈ DG.grading n := by
+  rw [InDegreeZero.mem_grading_iff]
+  by_cases h : n = 0
+  · subst n
+    refine ⟨fun _ => ?_, fun _ => Or.inl rfl⟩
+    exact ComplexSum.mem_grading_iff.mpr ⟨_, (middleStalkAddEquiv k X).symm_apply_apply x⟩
+  · rw [or_iff_right h]
+    constructor
+    · intro hx
+      have hx' : x = 0 := (middleStalkEquiv k X).injective
+        (hx.trans (map_zero (middleStalkEquiv k X)).symm)
+      rw [hx']
+      exact zero_mem _
+    · intro hx
+      obtain ⟨z, rfl⟩ := ComplexSum.mem_grading_iff.mp hx
+      have hz : z = 0 :=
+        (ModuleCat.isZero_iff_subsingleton.mp (middleStalk_off_zero k X h)).elim _ _
+      rw [hz, map_zero, map_zero]
+
+private theorem middleStalk_d_eq_zero (X : W₂) (x : ComplexSum (middleStalkCochain k X)) :
+    d x = 0 := by
+  have h : ComplexSum.of (middleStalkCochain k X) 0
+      ((middleStalkZeroIso k X).inv (middleStalkAddEquiv k X x)) = x :=
+    (middleStalkAddEquiv k X).symm_apply_apply x
+  rw [← h, ComplexSum.d_of, middleStalk_d_zero]
+  change ComplexSum.of _ _ 0 = 0
+  exact map_zero _
+
+private theorem middleStalkEquiv_d (X : W₂) (x : ComplexSum (middleStalkCochain k X)) :
+    middleStalkEquiv k X (d x) = d (middleStalkEquiv k X x) := by
+  rw [middleStalk_d_eq_zero, map_zero, InDegreeZero.d_apply]
+
+private theorem middleStalkEquiv_actionVal {X Y : W₂} (a : X ⟶ Y)
+    (x : ComplexSum (middleStalkCochain k X)) :
+    let f := HomologicalComplex.extendMap ((ChainComplex.single₀ _).map
+      (middleStalkAction k a)) ComplexShape.embeddingDownNat
+    (middleStalkEquiv k Y (ComplexSum.map f x)).val =
+      a.val • (middleStalkEquiv k X x).val := by
+  dsimp only
+  rw [middleStalkEquiv_val, middleStalkEquiv_val, middleStalk_component_map]
+  exact congrArg Subtype.val (middleStalk_coordinate_act k a (ComplexSum.component _ 0 x))
+
 /-- The middle standard's explicit stalk realization agrees with its
 degree-zero diagram weight module. -/
 def middleWeightStalkIso :
     weightDgModuleOfGradedTerm (middleGradedChainTerm k) ≅ middleStandardWeightModule k := by
-  let c (X : W₂) : (middleStalkValue k X) ≃+ InDegreeZero ((ℳ₂ (X.as - 0)).toAddSubgroup) :=
-    AddEquiv.addSubgroupCongr (congrArg (fun d => (ℳ₂ d).toAddSubgroup) (sub_zero X.as).symm)
-  let e (X : W₂) := (middleStalkAddEquiv k X).trans (c X)
-  refine CatModule.isoMk (fun X => e X) ?_ ?_ ?_
+  refine CatModule.isoMk (middleStalkEquiv k) ?_ ?_ ?_
   · intro X n x
-    symm
-    change x ∈ DG.grading (M := ComplexSum (middleStalkCochain k X)) n ↔
-      e X x ∈ DG.grading (M := InDegreeZero ((ℳ₂ (X.as - 0)).toAddSubgroup)) n
-    rw [InDegreeZero.mem_grading_iff]
-    by_cases h : n = 0
-    · subst n
-      refine ⟨fun _ => Or.inl rfl, fun _ => ?_⟩
-      exact ComplexSum.mem_grading_iff.mpr ⟨_, (middleStalkAddEquiv k X).symm_apply_apply x⟩
-    · rw [or_iff_right h]
-      constructor
-      · intro hx
-        obtain ⟨z, rfl⟩ := ComplexSum.mem_grading_iff.mp hx
-        have hz : z = 0 :=
-          (ModuleCat.isZero_iff_subsingleton.mp (middleStalk_off_zero k X h)).elim _ _
-        rw [hz, map_zero, map_zero]
-      · intro hx
-        have hx' : x = 0 := (e X).injective (hx.trans (map_zero (e X)).symm)
-        rw [hx']
-        exact zero_mem _
+    exact middleStalkEquiv_mem k X n x
   · intro X x
-    let x' : ComplexSum (middleStalkCochain k X) := x
-    change e X (d x') = 0
-    have h : ComplexSum.of (middleStalkCochain k X) 0
-        ((middleStalkZeroIso k X).inv (middleStalkAddEquiv k X x')) = x' :=
-      (middleStalkAddEquiv k X).symm_apply_apply x'
-    have hz : d x' = 0 := by
-      rw [← h, ComplexSum.d_of, middleStalk_d_zero]
-      change ComplexSum.of _ _ 0 = 0
-      exact map_zero _
-    rw [hz, map_zero]
+    exact middleStalkEquiv_d k X x
   · intro X Y a x
     apply Subtype.ext
-    let K := middleStalkCochain k X
-    let L := middleStalkCochain k Y
-    let f : K ⟶ L := HomologicalComplex.extendMap ((ChainComplex.single₀ _).map
-      (middleStalkAction k a)) ComplexShape.embeddingDownNat
-    change ((middleStalkZeroIso k Y).hom
-      (ComplexSum.component L 0 (ComplexSum.map f (x : ComplexSum K)))).val =
-      a.val • ((middleStalkZeroIso k X).hom (ComplexSum.component K 0 x)).val
-    rw [middleStalk_component_map]
-    exact congrArg Subtype.val (middleStalk_coordinate_act k a (ComplexSum.component K 0 x))
+    exact middleStalkEquiv_actionVal k a x
 
 
 universe v

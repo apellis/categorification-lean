@@ -16,9 +16,6 @@ degree-zero augmentation for the supported resolution used in Webster
 
 noncomputable section
 
-set_option maxHeartbeats 2400000
-set_option maxRecDepth 2048
-
 namespace Categorification.Stendhal.LabelTwo
 
 open KLR Categorification.ModuleFiltration

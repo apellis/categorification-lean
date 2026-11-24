@@ -10519,6 +10519,24 @@ example :=
     vacuumRouquier (1 : Equiv.Perm (Fin 0)) vacuumReduced vacuumSymmetric
     vacuumHigherFiltration vacuumLoading
 
+example := by
+  let A := stendhalGradingDatum vacuumWeights vacuumRouquier.gradingDatum
+    (UDot.di (CartanDatum.ofGraph (⊥ : SimpleGraph Unit)))
+    (fun i => (vacuumRouquier.gradingDatum_degX i).trans (UDot.two_mul_di _ i).symm)
+  let G := violAuxiliaryGrade (ν := (0 : Multiset Unit)) A
+  let e := isIdempotentElem_violMk_redProj ℚ vacuumParameters vacuumWeights
+    (0 : Multiset Unit) []
+  letI := Graded.cornerGradedAlgebra G e (redProj_mem_violAuxiliaryGrade A [])
+  let S := Graded.oppositeGrade (Graded.cornerGrading G e)
+  letI := gradedAlgebraInternalGrading S
+  letI := gradedAlgebraBigradedDGRing S
+  letI : CatModule.HasDerivedCategory.{1,0} (WeightCategory e.Cornerᵐᵒᵖ) :=
+    CatModule.HasDerivedCategory.standard _
+  exact reflectedStandardWeightBraiding_isZero (Λ := vacuumWeights)
+    vacuumRouquier (1 : Equiv.Perm (Fin 0)) vacuumReduced vacuumSymmetric
+    vacuumHigherFiltration vacuumLoading [] (⟨0⟩ : WeightCategory e.Cornerᵐᵒᵖ) 1 (by decide)
+    (fun _ ht => (ht.2 fun r => r.elim0).elim)
+
 end NonVacuity.WebsterReflectedOrderedWeight
 
 end

@@ -10823,6 +10823,112 @@ end NonVacuity.WebsterOppositeLoadingStandardSupport
 
 noncomputable section
 
+namespace NonVacuity.WebsterDirectedReflectedFiltration
+
+open CategoryTheory Categorification KLR Stendhal BraidedStendhalAlgebra
+open QuantumGroup ModuleFiltration DG MulOpposite
+open scoped DG.DegreeZero
+
+attribute [local instance 1100] IsIdempotentElem.instAlgebraCorner_categorification
+
+private abbrev Q : Empty → Empty → MvPolynomial (Fin 2) ℚ := fun i => i.elim
+private abbrev Λ : Fin 1 → Empty →₀ ℕ := 0
+private abbrev ν : Multiset Empty := 0
+private abbrev μ := stendhalWeight 1 ν
+private abbrev C := CartanDatum.ofGraph (⊥ : SimpleGraph Empty)
+private abbrev A := TensorProductAlgebra ℚ Q Λ ν
+private abbrev L := {s : Seq μ // IsRedOrdered s}
+
+private theorem rouquier : IsRouquierQ C Q where
+  symm i := i.elim
+  homogeneous i := i.elim
+  unit_coeff i := i.elim
+
+private theorem symmetric : KLRSymm Q := fun i => i.elim
+private def ρ (w : Equiv.Perm (Fin μ.card)) := (TypeA.exists_reduced _ w).choose
+private theorem reduced : TypeA.IsReducedChoice ρ := fun w => (TypeA.exists_reduced _ w).choose_spec
+
+private def loading : L := by
+  refine ⟨KLRAlgebra.Seq.ofList [Sum.inr 0] (by decide), ?_⟩
+  intro a b r r' hab
+  have hc : μ.card = 1 := by decide
+  have ha := a.isLt
+  have hb := b.isLt
+  exact (show False by omega).elim
+
+private abbrev S (s : L) := ModuleCat.of A (leftStandard Q Λ s.val s.property)
+private abbrev U (s : L) :=
+  (leftUpper Q Λ s.val s.property).comap (lIdeal (seqIdem Q Λ s.val s.property)).subtype
+
+private theorem higherFiltration (s : L) :
+    ∃ m : List L, (∀ t ∈ m, StendhalLT s.val t.val) ∧ HasFiltration S m (ModuleCat.of A (U s)) := by
+  have hzero : leftUpper Q Λ s.val s.property = ⊥ := by
+    apply Submodule.span_eq_bot.mpr
+    rintro _ ⟨t, ht, a, hlt, h⟩
+    exact (hlt.2 fun _ i => i.elim).elim
+  refine ⟨[], by simp, HasFiltration.zero ?_⟩
+  constructor
+  intro x y
+  apply Subtype.ext
+  apply Subtype.ext
+  have hx : x.val.val ∈ leftUpper Q Λ s.val s.property := x.property
+  have hy : y.val.val ∈ leftUpper Q Λ s.val s.property := y.property
+  rw [hzero, Submodule.mem_bot] at hx hy
+  exact hx.trans hy.symm
+
+private abbrev corner := ViolOrderCorner (k := ℚ) (Q := Q) (Λ := Λ) (ν := ν) [0]
+private abbrev labels := {t : Seq μ // redWord t = [0] ∧ ¬ IsViolated t}
+
+private theorem noTargetOrder : redProj ℚ Q Λ ν [] = 0 := by
+  apply redProj_eq_zero
+  intro s hs
+  have h := mem_redWord s (0 : Fin 1)
+  rw [hs] at h
+  exact List.not_mem_nil h
+
+private theorem coefficientFiltration :
+    HasFiltration (fun t : labels => ModuleCat.of cornerᵐᵒᵖ
+      (ViolLoadingStandard (k := ℚ) (Q := Q) (Λ := Λ) t.val [0])) []
+      (ModuleCat.of cornerᵐᵒᵖ (braidingBimodule ℚ Q Λ ν [] [0])) := by
+  apply HasFiltration.zero
+  constructor
+  intro x y
+  apply Subtype.ext
+  have hz := map_zero (violMk ℚ Q Λ ν)
+  have hx := x.property.1
+  have hy := y.property.1
+  rw [noTargetOrder, hz, zero_mul] at hx hy
+  exact hx.symm.trans hy
+
+example := by
+  let G := stendhalGradingDatum Λ rouquier.gradingDatum (UDot.di C)
+    (fun i => (rouquier.gradingDatum_degX i).trans (UDot.two_mul_di C i).symm)
+  let V := violAuxiliaryGrade (ν := ν) G
+  let e := isIdempotentElem_violMk_redProj ℚ Q Λ ν [0]
+  let e' := isIdempotentElem_violMk_redProj ℚ Q Λ ν []
+  letI := Graded.cornerGradedAlgebra V e (redProj_mem_violAuxiliaryGrade G [0])
+  letI := Graded.cornerGradedAlgebra V e' (redProj_mem_violAuxiliaryGrade G [])
+  let S := Graded.oppositeGrade (Graded.cornerGrading V e)
+  let S' := Graded.oppositeGrade (Graded.cornerGrading V e')
+  letI := gradedAlgebraInternalGrading S
+  letI := gradedAlgebraInternalGrading S'
+  letI := gradedAlgebraBigradedDGRing S
+  letI := gradedAlgebraBigradedDGRing S'
+  let D : CatModule.HasDerivedCategory.{1,0} (WeightCategory e.Cornerᵐᵒᵖ) :=
+    CatModule.HasDerivedCategory.standard _
+  let D' : CatModule.HasDerivedCategory.{1,0} (WeightCategory e'.Cornerᵐᵒᵖ) :=
+    CatModule.HasDerivedCategory.standard _
+  exact @reflectedStandardWeightBraiding_isZero_of_not_lt_filtration.{1}
+    Empty ℚ _ _ 1 ν Q Λ C rouquier (1 : Equiv.Perm (Fin 1))
+    ρ reduced symmetric higherFiltration loading
+    [] [] coefficientFiltration (by intro t ht; exact (List.not_mem_nil ht).elim) D D' (⟨0⟩ : WeightCategory e'.Cornerᵐᵒᵖ) (-1) (by decide)
+
+end NonVacuity.WebsterDirectedReflectedFiltration
+
+end
+
+noncomputable section
+
 namespace NonVacuity.WebsterWeightComplex
 
 open Categorification CategoryTheory DG

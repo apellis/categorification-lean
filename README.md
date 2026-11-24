@@ -1103,6 +1103,10 @@ and the augmentation to the graded dot-sum quotient are exact in every
 internal degree (`Stendhal.LabelTwo.diagramPlusMinus_exact_in_degree`,
 `Stendhal.LabelTwo.diagramMinusPlus_exact_in_degree`,
 `Stendhal.LabelTwo.diagramPlusAugmentation_exact_in_degree`).
+The dot-difference quotient carries the companion grading. Both quotient
+inclusions shift internal degree by two and give short exact sequences
+in every degree (`Stendhal.LabelTwo.diagramSumCompanionAugmentation_exact_in_degree`,
+`Stendhal.LabelTwo.diagramDifferenceCompanionAugmentation_exact_in_degree`).
 
 ### Weak `sl₂`-categorifications (Chuang–Rouquier, arXiv:math/0407205v2, §5)
 

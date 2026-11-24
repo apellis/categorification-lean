@@ -44,7 +44,8 @@ local notation "T" => TensorProductAlgebra k Q (Λ ∘ σ) ν
 local notation "μ" => stendhalWeight ℓ ν
 
 omit [DecidableEq I] in
-private theorem redWord_relabel {s : Seq μ} (hs : IsRedOrdered s) :
+/-- Relabelling an ordered loading gives the prescribed red order. -/
+theorem redWord_relabel {s : Seq μ} (hs : IsRedOrdered s) :
     redWord (Seq.redPerm σ s) = κ := by
   rw [redWord_redPerm, (redWord_eq_finRange_iff s).2 hs]
 
@@ -77,7 +78,8 @@ private theorem redPermTensorEquiv_loadingIdem {s : Seq μ} (hs : IsRedOrdered s
     rfl
   rw [hid, violCornerEquiv_violCornerHom, identityCornerHom_e h]
 
-private theorem leftCoefficientEquiv_loadingIdem {s : Seq μ} (hs : IsRedOrdered s) :
+/-- The coefficient equivalence carries a corner loading to the tensor loading. -/
+theorem leftCoefficientEquiv_loadingIdem {s : Seq μ} (hs : IsRedOrdered s) :
     leftCoefficientEquiv (Λ := Λ) hρ hQ σ (op (violLoadingIdem (redWord_relabel σ hs))) =
       seqIdem Q (Λ ∘ σ) s hs := by
   change tensorFlip (violCornerRedPermTensorEquiv (Λ₀ := Λ) hρ hQ σ
@@ -206,7 +208,8 @@ private theorem diagonalCut_upper_image {s : Seq μ} (hs : IsRedOrdered s) :
       (stendhalLT_redPerm_iff σ _ _).2 hlt, rfl⟩, ?_⟩
     rw [hG j hj a.unop.val _ rfl, ha', op_unop, ha]
 
-private def loadingStandardLeftEquiv {s : Seq μ} (hs : IsRedOrdered s) :
+/-- The coefficient equivalence identifies the corner right standard with the tensor left standard. -/
+def loadingStandardLeftEquiv {s : Seq μ} (hs : IsRedOrdered s) :
     ViolLoadingStandard (k := k) (Q := Q) (Λ := Λ) (Seq.redPerm σ s) κ ≃ₛₗ[
       (leftCoefficientEquiv (Λ := Λ) hρ hQ σ : Cᵐᵒᵖ →+* T)] leftStandard Q (Λ ∘ σ) s hs := by
   let E := (diagonalCutProjectiveEquiv (Λ := Λ) σ hs).trans (loadingProjectiveLeftEquiv hρ hQ σ hs)

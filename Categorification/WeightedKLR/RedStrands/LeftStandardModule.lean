@@ -93,6 +93,16 @@ theorem leftStandard_exists_smul_unit (s : Seq μ) (hs : IsRedOrdered s)
   obtain ⟨y, rfl⟩ := Submodule.Quotient.mk_surjective _ v
   exact ⟨y, leftStandard_mk_eq_smul_unit s hs y⟩
 
+variable (Q Λ) in
+/-- `e(t)` kills the standard module `S_s` when `t` is strictly above `s`. -/
+theorem seqIdem_smul_leftStandard_eq_zero {s t : Seq (stendhalWeight ℓ ν)} (hs : IsRedOrdered s)
+    (ht : IsRedOrdered t) (hst : StendhalLT s t) (v : leftStandard Q Λ s hs) :
+    seqIdem Q Λ t ht • v = 0 := by
+  obtain ⟨a, rfl⟩ := leftStandard_exists_smul_unit s hs v
+  rw [smul_smul, leftStandardUnit, ← Submodule.Quotient.mk_smul,
+    Submodule.Quotient.mk_eq_zero]
+  exact Submodule.subset_span ⟨t, ht, a, hst, rfl⟩
+
 variable {Z : Type*} [AddCommGroup Z] [Module (TensorProductAlgebra k Q Λ ν) Z]
 
 /-- The map `T^λ e(s) → Z`, `y ↦ y z`. -/

@@ -1017,8 +1017,11 @@ of the left weight modules also gives the derived Hom
 idempotents, `diagramCornerWeightDerivedRightTensor` uses the restricted grading
 and defines derived right tensor on the graded right-module categories.
 For the actual braid bimodule this gives `auxiliaryGradedBraidingFunctor`
-in the integer grading inherited from the augmented KLR algebra. The
-Webster degree of a red/red crossing requires its own normalization.
+in the integer grading inherited from the augmented KLR algebra. For a two-red swap,
+`twoRedSwapWeight` puts the actual rectangular coefficient in the complex
+degree coset with offset `2 - ⟨λ_r, λ_d⟩`. The coordinate comparison
+`twoRedSwapWeight_coordinate` and the reduced-diagram degree theorem
+`twoRedSwap_mem_weight` identify those pieces with Webster's degrees.
 
 Definition 7.4 has cup and cap coefficient models in the ungraded derived
 categories, with a specified cohomological shift on the cup and a finite

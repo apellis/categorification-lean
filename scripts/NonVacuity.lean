@@ -6563,6 +6563,11 @@ example
       (Finset.univ : Finset (Fin 2))
       {0, Finsupp.single ⟨0, by decide⟩ 1} {0} x y)
 
+example (x : Fin 2 → KLRAlgebra ℤ params (L + (M + R)))
+    (y : Fin 2 → KLRAlgebra ℤ params M) :=
+  exists_intervalExitKernel_coordinates params (by intro a b _; simp [params])
+    (Finset.univ : Finset (Fin 2)) (fun _ => l) (fun _ => r) x y
+
 end NonVacuity.WebsterIntervalConcat
 
 noncomputable section

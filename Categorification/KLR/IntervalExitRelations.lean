@@ -72,6 +72,8 @@ variable {I k : Type} [DecidableEq I] [CommRing k] (Q : I → I → MvPolynomial
 local notation "μ" => α+(β+γ)
 local notation "m" => Multiset.card μ
 local notation "R" => KLRAlgebra k Q μ
+local notation "K" => KLRAlgebra k Q β
+local notation "J" => (Seq α × (Fin α.card →₀ ℕ)) × (Seq γ × (Fin γ.card →₀ ℕ))
 local notation "ι" => intervalConcat (β := β) Q
 
 /-- A family of embedded interval exits has zero total product precisely when its
@@ -85,5 +87,37 @@ theorem intervalConcat_exit_kernel_iff {η : Type*} (L : Finset η)
   exact intervalPBWCoefficient_exit_kernel_iff Q h hQ L x (fun a => ι (l a) (r a) (leg a))
     (fun a _ u => intervalPBWSpan_mul_intervalConcat Q hQ (l a) (r a)
       (intervalPBWCoefficient Q h hQ u (x a)) (leg a))
+
+/-- Equations in the affine column split by exterior permutation, loading and
+dot exponents into a family of multiplication equations in the local algebra. -/
+theorem exists_intervalExitKernel_coordinates {η : Type} (hQ : KLRSymm Q) (T : Finset η)
+    (l : η → Seq α) (r : η → Seq γ) (x : η → R) (leg : η → K) :
+    let h : α.card + (β.card + γ.card) = m := by simp only [Multiset.card_add]
+    ∃ z : Perm (Fin m) → η → J →₀ K,
+      (∀ u a, intervalSpectatorSum Q (z u a) =
+        (intervalPBWCoefficient Q h hQ u (x a)).val * ι (l a) (r a) 1) ∧
+      (∀ u a, ∀ j ∈ (z u a).support, j.1.1 = l a ∧ j.2.1 = r a) ∧
+      ((∑ a ∈ T, x a * ι (l a) (r a) (leg a)) = 0 ↔
+        ∀ u j, ∑ a ∈ T, z u a j * leg a = 0) := by
+  classical
+  intro h
+  choose z hz he using fun (u : Perm (Fin m)) (a : η) =>
+    exists_intervalSpectatorSum_mul_intervalConcat Q (l a) (r a)
+      (intervalPBWCoefficient Q h hQ u (x a)) (1 : K)
+  refine ⟨z, he, hz, ?_⟩
+  have hk := intervalConcat_exit_kernel_iff Q hQ T l r x leg
+  dsimp only at hk
+  rw [hk]
+  apply forall_congr'
+  intro u
+  let w (a : η) : J →₀ K := (z u a).mapRange (· * leg a) (zero_mul _)
+  have hw (a : η) :
+      (intervalPBWCoefficient Q h hQ u (x a)).val * ι (l a) (r a) (leg a) =
+        intervalSpectatorSum Q (w a) := by
+    rw [← intervalSpectatorSum_right_mul Q _ _ _ (hz u a), he u a,
+      mul_assoc, ← intervalConcat_mul, one_mul]
+  simp_rw [hw]
+  rw [← map_sum, (intervalSpectatorSum_injective Q hQ).eq_iff' (map_zero _)]
+  simp [Finsupp.ext_iff, w, Finsupp.finsetSum_apply]
 
 end Categorification.KLR.KLRAlgebra

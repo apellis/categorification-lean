@@ -339,4 +339,21 @@ theorem intervalSpectatorConcat_exit_relation_iff {η : Type} (hQ : KLRSymm Q)
     (sum_intervalSpectatorConcat_eq_zero_iff Q hQ (L.map lEmb) (R.map rEmb)
       (fun a b => ∑ i ∈ T, x i a.2 b.2 * y i))
 
+/-- Sector coefficients multiply on the right in the local KLR algebra. -/
+theorem intervalSpectatorSum_right_mul (l : Seq α) (r : Seq γ) (z : ((Seq α × (Fin α.card →₀ ℕ)) × (Seq γ × (Fin γ.card →₀ ℕ))) →₀ K β)
+    (hz : ∀ j ∈ z.support, j.1.1 = l ∧ j.2.1 = r) (y : K β) :
+    intervalSpectatorSum Q z * intervalConcat Q l r y =
+      intervalSpectatorSum Q (z.mapRange (· * y) (zero_mul y)) := by
+  classical
+  simp only [intervalSpectatorSum, Finsupp.lsum_apply]
+  rw [Finsupp.sum_mapRange_index (fun _ => map_zero _)]
+  unfold Finsupp.sum
+  rw [Finset.sum_mul]
+  apply Finset.sum_congr rfl
+  intro j hj
+  obtain ⟨hl, hr⟩ := hz j hj
+  change intervalSpectatorConcat Q j.1.1 j.2.1 (monomial j.1.2 1) (monomial j.2.2 1) (z j) *
+      intervalConcat Q l r y = intervalSpectatorConcat Q j.1.1 j.2.1 (monomial j.1.2 1) (monomial j.2.2 1) (z j * y)
+  rw [hl, hr, intervalSpectatorConcat_mul_intervalConcat]
+
 end Categorification.KLR.KLRAlgebra

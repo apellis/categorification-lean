@@ -1787,6 +1787,7 @@ import Categorification.WeightedKLR.Rigidity.GradedFundamentalCupCap
 import Categorification.WeightedKLR.Rigidity.GradedMiddleProjectives
 import Categorification.WeightedKLR.Rigidity.GradedMiddleComplex
 import Categorification.WeightedKLR.Rigidity.GradedMiddleTor
+import Categorification.WeightedKLR.Rigidity.WeightModuleFiltration
 import Categorification.WeightedKLR.Rigidity.GradedMiddleScalarRepresentables
 import Categorification.WeightedKLR.Rigidity.FundamentalClockwiseClass
 import Categorification.WeightedKLR.Rigidity.SingleBlackExtremal

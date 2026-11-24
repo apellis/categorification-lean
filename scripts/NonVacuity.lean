@@ -6651,6 +6651,26 @@ example :=
     threeRedWords (lower := [0, 1, 2]) (middle := [1, 0, 2]) (upper := [1, 2, 0])
     threeRedLowerNodup threeRedPerm threeRedLength
 
+noncomputable example :=
+  braidFactorizationCoendNatIso (I := Unit) (k := ℚ) (Q := Q)
+    (Λ := threeRedWeights) (ν := ν) (ρ := TypeA.canWord threeRedSize) sl₂ hRouquier
+    threeRedWords (lower := [0, 1, 2]) (middle := [1, 0, 2]) (upper := [1, 2, 0])
+    threeRedLowerNodup threeRedPerm threeRedLength
+
+noncomputable example :=
+  @braidFactorizationDerivedCoendOfResolution Unit (inferInstance : DecidableEq Unit)
+    ℚ (inferInstance : Field ℚ) (ℓ := 3) (Q := Q)
+    (Λ := threeRedWeights) (ν := ν) (ρ := TypeA.canWord threeRedSize) sl₂ hRouquier
+    threeRedWords (lower := [0, 1, 2]) (middle := [1, 0, 2]) (upper := [1, 2, 0])
+    threeRedLowerNodup threeRedPerm threeRedLength
+
+noncomputable example :=
+  @braidFactorizationDerivedCoendIdentity Unit (inferInstance : DecidableEq Unit)
+    ℚ (inferInstance : Field ℚ) (ℓ := 3) (Q := Q)
+    (Λ := threeRedWeights) (ν := ν) (ρ := TypeA.canWord threeRedSize) sl₂ hRouquier
+    threeRedWords (lower := [0, 1, 2]) (middle := [1, 0, 2])
+    threeRedLowerNodup threeRedPerm
+
 end NonVacuity.WebsterFigureFive
 
 namespace NonVacuity.BraidedStendhal
@@ -8883,6 +8903,13 @@ example := gradedMiddleCupCap_fieldIso
 example := gradedMiddleCup_scalarIso (-2)
 example := gradedMiddleCupCap_scalarIso 3
 example := gradedMiddleCupCap_shiftedScalarIso (-2) 4
+example := fundamentalTraceCoefficient_line (-2)
+example := fundamentalTraceCoefficient_off_diagonal 1 0 (by decide)
+example := gradedFundamentalQuantumTraceIso
+example := gradedFundamentalClockwiseCircleIso
+example := gradedFundamentalClockwiseCircle_shiftedIso (-2) 4
+example := compactScalarLine_class (-1)
+example := fundamentalClockwiseCircle_class
 
 end
 
@@ -9005,6 +9032,67 @@ example : DG.DerivedCategory.finrankHomology ℚ (-1)
   simpa using middleCupCap_finrank.{1} (-1)
 
 end NonVacuity.WebsterMiddleCutEvaluation
+
+namespace NonVacuity.WebsterFundamentalBraidCorners
+open Categorification Categorification.Stendhal Categorification.Stendhal.FundamentalCorner KLR KLRAlgebra
+
+noncomputable section
+
+example : LinearIndependent ℚ terminalBraidClasses :=
+  fundamentalBraid_terminal_linearIndependent
+
+example : braidProject (ψ 0 * ψ 1 * e crossedMiddle) ≠ 0 :=
+  fundamentalBraid_mixed_ne_zero.2
+
+example : braidProject (e middle) * braidProject (ψw [0,1,0]) * braidProject (e crossedMiddle) = 0 :=
+  (fundamentalBraid_middle_middle_zero _).2
+
+example : braidProject (ψ 1) * braidProject (ψ 1 * ψ 0 * e crossedTerminal) =
+    terminalBraidClasses 1 :=
+  fundamentalBraid_terminal_differentials.1
+
+example : ∃ a b : ℚ, braidProject (e terminal) * braidProject (ψ 0) * braidProject (e crossedTerminal) =
+    a • terminalBraidClasses 0 + b • terminalBraidClasses 1 :=
+  fundamentalBraid_terminal_span _
+
+end
+end NonVacuity.WebsterFundamentalBraidCorners
+
+namespace NonVacuity.WebsterFundamentalBraidWeight
+open Categorification QuantumGroup Stendhal Stendhal.FundamentalCorner Stendhal.BraidedStendhalAlgebra
+
+noncomputable section
+private abbrev datum := CartanDatum.ofGraph (⊥ : SimpleGraph Unit)
+private abbrev realization := Matrix.Realization.std (UDot.A datum) ℂ
+
+example : weightPairing datum realization (braidFundamentalWeight realization)
+    (braidFundamentalWeight realization) = 1 / 2 :=
+  braidFundamentalWeight_norm realization
+
+example : fundamentalBraidMiddleClass ∈ Graded.shift (figureFiveCutGrade (Λ := wt)
+    datum fundamentalBraidParameters (weightPairing datum realization)
+    (fun _ => braidFundamentalWeight realization) terminal 1 0) 1 (3 / 2) :=
+  (fundamentalBraidMiddleClass_resolutionWeight realization _).mpr rfl
+
+example : fundamentalBraidMiddleClass ∉ Graded.shift (figureFiveCutGrade (Λ := wt)
+    datum fundamentalBraidParameters (weightPairing datum realization)
+    (fun _ => braidFundamentalWeight realization) terminal 1 0) 1 (0 : ℂ) := by
+  rw [fundamentalBraidMiddleClass_resolutionWeight]
+  norm_num
+
+end
+end NonVacuity.WebsterFundamentalBraidWeight
+
+namespace NonVacuity.WebsterFundamentalBraidHomology
+open CategoryTheory Categorification.Stendhal.FundamentalCorner
+
+noncomputable example : fundamentalBraidCutComplex.homology ≅ ModuleCat.of ℚ ℚ :=
+  fundamentalBraidCutComplex_homologyIso
+
+example : Function.Injective fundamentalBraidCutComplex.f ∧ Function.Surjective fundamentalBraidCutComplex.g :=
+  fundamentalBraidCutComplex_ends
+
+end NonVacuity.WebsterFundamentalBraidHomology
 end
 
 namespace NonVacuity.WebsterCupRHomRegular
@@ -9237,6 +9325,29 @@ example := diagramWeightDerivedTensorObjIso (fun j => DG.grading (M := ℚ) j)
 
 private abbrev Rep := CatModule.representable (⟨0⟩ : WeightCategory ℚ)
 
+private abbrev rationalWeightShortComplex : ShortComplex (CatModule (WeightCategory ℚ)) :=
+  ShortComplex.mk (0 : CatModule.zero ⟶ Rep) (𝟙 Rep) (by simp)
+
+private theorem rationalWeightShortComplex_shortExact : rationalWeightShortComplex.ShortExact := by
+  refine (CatModule.shortExact_iff _).mpr fun X => ⟨fun _ _ _ => Subsingleton.elim _ _, ?_, ?_⟩
+  · intro y
+    change y = 0 ↔ ∃ x, (0 : CatModule.zero ⟶ Rep).app X x = y
+    constructor
+    · rintro rfl
+      exact ⟨0, map_zero _⟩
+    · rintro ⟨x, rfl⟩
+      rfl
+  · exact Function.surjective_id
+
+example : ObjectProperty.extensionProductIter
+    (⊤ : ObjectProperty (CatModule.DerivedCategory.{1,0} (WeightCategory ℚ))) 1
+    (CatModule.DerivedCategory.Q.obj Rep) :=
+  WeightModuleFiltration.extensionProductIter
+    (WeightModuleFiltration.append (L := fun _ : Unit => Rep) () rationalWeightShortComplex
+      rationalWeightShortComplex_shortExact
+      (WeightModuleFiltration.nil (CatModule.isZero_of_subsingleton _)) ⟨Iso.refl Rep⟩)
+    ⊤ (fun _ _ => trivial) (fun _ _ => trivial)
+
 example := diagramWeightDerivedTensorObjIsoOfResolution (fun j => DG.grading (M := ℚ) j)
   leftAction rightAction (𝟙 Rep) (CatModule.isKProjective_representable (⟨0⟩ : WeightCategory ℚ))
   (CatModule.isQuasiIso_id Rep) (by
@@ -9259,6 +9370,28 @@ example : CatModule.IsQuasiIso (𝟙 ((diagramWeightBimodule
 
 example := diagramWeightDerivedTensorRepresentableIso (fun j => DG.grading (M := ℚ) j)
   leftAction rightAction (⟨1⟩ : WeightCategory ℚ)
+
+
+example : (diagramWeightDerivedTensor (fun j => DG.grading (M := ℚ) j) leftAction rightAction).Additive :=
+  inferInstance
+
+
+example := diagramWeightTensorShiftNatIso (fun j => DG.grading (M := ℚ) j) leftAction rightAction 1
+
+
+example : (diagramWeightTensorHomotopy (fun j => DG.grading (M := ℚ) j)
+    leftAction rightAction).CommShift ℤ := inferInstance
+
+
+example := diagramWeightTensorConeIso (fun j => DG.grading (M := ℚ) j)
+  leftAction rightAction (𝟙 Rep)
+
+example : (diagramWeightTensorHomotopy (fun j => DG.grading (M := ℚ) j)
+    leftAction rightAction).IsTriangulated := inferInstance
+
+
+example : (diagramWeightDerivedTensor (fun j => DG.grading (M := ℚ) j)
+    leftAction rightAction).IsTriangulated := inferInstance
 
 end
 
@@ -9547,3 +9680,14 @@ noncomputable example (s : KLR.Seq (stendhalWeight 2 ({(), ()} : Multiset Unit))
       (fun i j hij => (hij (Subsingleton.elim i j)).elim) t ht) s hs
 
 end NonVacuity.WebsterUnitParameters
+
+namespace NonVacuity.WebsterGroundTensorHomology
+
+open Categorification DG
+open scoped DG.DegreeZero
+
+noncomputable example :=
+  letI := HasDerivedCategory.small ℚ
+  derivedTensorHomologyIsoOrdinaryLinear (R := ℚ) (A := ℚ) (B := ℚ) (M := ℚ) ℚ
+
+end NonVacuity.WebsterGroundTensorHomology

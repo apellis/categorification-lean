@@ -1022,7 +1022,22 @@ weight module, it suffices to check the cohomology map in degree zero and
 vanishing in the other source degrees
 (`diagramWeightLeft_isQuasiIso_of_cohomology`). The representable at a source weight is sent to
 that component of the coefficient
-(`diagramWeightDerivedTensorRepresentableIso`). A balanced homogeneous multiplication of two
+(`diagramWeightDerivedTensorRepresentableIso`). The tensor functors on dg
+modules, the homotopy category and the derived category are additive. At the
+dg module level the tensor commutes with cohomological shifts naturally
+(`diagramWeightTensorShiftNatIso`). The shift isomorphisms respect zero and
+addition and descend to the homotopy category
+(`diagramWeightTensorHomotopy_commShift`). Mapping cone comparison identifies
+the standard triangles and makes the homotopy tensor triangulated
+(`diagramWeightTensorHomotopy_isTriangulated`). The derived tensor is also
+triangulated through the K-projective equivalence. Vanishing of its
+cohomology at a target weight and degree passes through finite iterated
+extensions (`diagramWeightDerivedTensor_cohomology_isZero_of_extensions`).
+Finite filtrations by short exact sequences of dg weight modules localize
+to iterated extensions of the localized layers
+(`WeightModuleFiltration.extensionProductIter`).
+
+A balanced homogeneous multiplication of two
 coefficients induces their product from the intermediate weight-category
 tensor coend (`diagramWeightCoendProduct_tmul`). Compatibility with the outer
 action gives a map of dg modules (`diagramWeightCoendProductHom`).
@@ -1059,7 +1074,13 @@ implies additivity (`redWordOffset_add_of_sublist`), and its balanced
 multiplication identifies the quotient corner coefficient
 (`violCornerTensorMulEquiv_tmul`). The weight-category product identifies
 each endpoint coend with its homogeneous quotient coefficient
-(`braidFactorizationCoendEquiv`). Its injectivity uses a split comparison to
+(`braidFactorizationCoendEquiv`). The equivalence respects the endpoint actions
+as a natural isomorphism of dg module families
+(`braidFactorizationCoendNatIso`). At a fixed source weight the product also
+computes the derived composite whenever tensoring preserves the K-projective
+augmentation (`braidFactorizationDerivedCoendOfResolution`). The source identity coefficient is representable at every
+weight, so the corresponding derived composition requires no resolution
+condition (`braidFactorizationDerivedCoendIdentity`). Its injectivity uses a split comparison to
 the field corner tensor (`diagramCornerWeightRightSlice_leftInverse`).
 
 Over a scalar field in degree zero the left modules are K-projective, so the
@@ -1111,6 +1132,21 @@ the composite on the ground field has one-dimensional cohomology in
 degrees minus one and one (`middleCupCap_finrank`). These computations
 forget the internal grading.
 
+In the fundamental case of Proposition 7.11, the four loading corners
+across the red crossing have dimensions zero (middle to middle), one
+(each mixed corner), and two (terminal to terminal). The terminal basis
+consists of the crossing and its one-dot decoration
+(`fundamentalBraid_terminal_span`, `fundamentalBraid_terminal_linearIndependent`).
+The mixed differentials on this basis have matrices `(0,1)ᵀ` and `(1,0)`
+(`fundamentalBraid_terminal_differentials`). This computes the ungraded
+corner diagrams entering the projective resolution. The surviving middle
+class has diagram degree `1/2`. Its weight in the translated terminal
+projective is exactly `3/2` (`fundamentalBraidMiddleClass_resolutionWeight`).
+
+On the entire crossed loading cuts the first map is injective and the
+second is surjective. The middle homology is the scalar line
+(`fundamentalBraidCutComplex_homologyIso`).
+
 In the diagram-weight categories the middle character is homogeneous.
 Its weight-zero generator identifies with the right simple head, with
 every diagram acting by the middle character
@@ -1132,7 +1168,12 @@ cohomological degrees are (−1, 1) and (1, −1)
 (`gradedMiddleCupCap_fieldIso`). For a scalar representable generated at
 weight j with cohomological shift [n], the two output representables
 have weights j−1 and j+1 and shifts [n−1] and [n+1], respectively
-(`gradedMiddleCupCap_shiftedScalarIso`).
+(`gradedMiddleCupCap_shiftedScalarIso`). For the clockwise orientation in
+§8.1, the cap uses the derived tensor of Proposition 7.13. Its coefficient
+has scalar fibers at equal weights, with right action given by the middle
+character (`fundamentalTraceCoefficient_action`). The resulting fundamental
+circle has compact scalar K₀ class −(q + q⁻¹) times the ground line
+(`fundamentalClockwiseCircle_class`).
 
 For Proposition 7.2, a single
 red with coroot pairing one gives a simple projective at the red-first

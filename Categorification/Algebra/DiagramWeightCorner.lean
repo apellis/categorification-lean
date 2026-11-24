@@ -4,6 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 -/
 import Categorification.Algebra.DiagramWeightCoendSurjectivity
 import Categorification.Algebra.DiagramWeightOrdinaryTensor
+import Categorification.Algebra.DiagramWeightCoendNaturality
 import Categorification.Algebra.CornerTensorCutLift
 import Categorification.Algebra.CornerBimodule
 import Categorification.Algebra.Graded.RightTwist
@@ -114,6 +115,83 @@ def diagramCornerWeightDerivedRightTensor :
   exact diagramWeightDerivedTensor (A := he'.Cornerᵐᵒᵖ) (B := he.Cornerᵐᵒᵖ)
     (diagramCornerWeight G)
     (rightCornerLeft G (e := e) he') (rightCornerRight G (e' := e') he)
+
+/-- At the same idempotent, the graded right coefficient at a source weight is representable. -/
+def diagramCornerWeightRightSelfIsoRepresentable :
+    letI := Graded.cornerGradedAlgebra G he he0
+    letI := gradedAlgebraInternalGrading (oppositeGrade L)
+    letI := gradedAlgebraBigradedDGRing (oppositeGrade L)
+    ∀ Z : WeightCategory he.Cornerᵐᵒᵖ,
+      CatModule.representable Z ≅ (diagramCornerWeightRightBimodule G he he he0 he0).left Z := by
+  letI := Graded.cornerGradedAlgebra G he he0
+  letI := gradedAlgebraInternalGrading (oppositeGrade L)
+  letI := gradedAlgebraBigradedDGRing (oppositeGrade L)
+  intro Z
+  let D := (diagramCornerWeightRightBimodule G he he he0 he0).left Z
+  let x : D.obj Z := ⟨⟨e, mem_cornerBimodule.mpr ⟨he.eq, he.eq⟩⟩, by
+    change e ∈ G (Z.as - Z.as)
+    rw [sub_self]
+    exact he0⟩
+  let f := CatModule.yonedaHom (M := D)
+    (⟨x, ⟨InDegreeZero.mem_grading_zero _, InDegreeZero.d_apply _ _⟩⟩ : cocycles (D.obj Z) 0)
+  have hf (X : WeightCategory he.Cornerᵐᵒᵖ) (a : Z ⟶ X) :
+      ((f.app X a).val.val : A) = a.val.unop.val := by
+    change e * a.val.unop.val = a.val.unop.val
+    exact CornerEndomorphism.corner_mul_left he a.val.unop
+  have hbij (X : WeightCategory he.Cornerᵐᵒᵖ) : Function.Bijective (f.app X) := by
+    constructor
+    · intro a b h
+      apply WeightCategory.hom_ext
+      apply unop_injective
+      apply Subtype.ext
+      exact (hf X a).symm.trans ((congrArg (fun y : D.obj X => y.val.val) h).trans (hf X b))
+    · intro y
+      let a : Z ⟶ X := ⟨op ⟨y.val.val, (Subsemigroup.mem_corner_iff he).mpr y.val.property⟩,
+        y.property⟩
+      exact ⟨a, Subtype.ext (Subtype.ext (hf X a))⟩
+  exact @asIso _ _ _ _ f (CatModule.isIso_of_bijective f hbij)
+
+/-- The identity braid's weight coefficient is K-projective at every source weight. -/
+theorem diagramCornerWeightRightSelf_isKProjective :
+    letI := Graded.cornerGradedAlgebra G he he0
+    letI := gradedAlgebraInternalGrading (oppositeGrade L)
+    letI := gradedAlgebraBigradedDGRing (oppositeGrade L)
+    ∀ Z : WeightCategory he.Cornerᵐᵒᵖ,
+      CatModule.IsKProjective ((diagramCornerWeightRightBimodule G he he he0 he0).left Z) := by
+  let := Graded.cornerGradedAlgebra G he he0
+  let := gradedAlgebraInternalGrading (oppositeGrade L)
+  let := gradedAlgebraBigradedDGRing (oppositeGrade L)
+  intro Z
+  exact (CatModule.isKProjective_representable Z).of_iso
+    (diagramCornerWeightRightSelfIsoRepresentable G he he0 Z).symm
+
+/-- A right corner tensor is computed by the ordinary tensor when the
+K-projective augmentation remains a quasi-isomorphism after tensoring. -/
+def diagramCornerWeightDerivedRightTensorIsoOfResolution :
+    letI := Graded.cornerGradedAlgebra G he he0
+    letI := Graded.cornerGradedAlgebra G he' he'0
+    letI := gradedAlgebraInternalGrading (oppositeGrade L)
+    letI := gradedAlgebraInternalGrading (oppositeGrade R)
+    letI := gradedAlgebraBigradedDGRing (oppositeGrade L)
+    letI := gradedAlgebraBigradedDGRing (oppositeGrade R)
+    [CatModule.HasDerivedCategory.{v,u} (WeightCategory he.Cornerᵐᵒᵖ)] →
+    [CatModule.HasDerivedCategory.{v,u} (WeightCategory he'.Cornerᵐᵒᵖ)] →
+    ∀ {K N : CatModule.{u} (WeightCategory he.Cornerᵐᵒᵖ)} (f : K ⟶ N),
+      CatModule.IsKProjective K → CatModule.IsQuasiIso f →
+      CatModule.IsQuasiIso ((diagramCornerWeightRightBimodule G he he' he0 he'0).tensorMap f) →
+      ((diagramCornerWeightDerivedRightTensor G he he' he0 he'0).obj
+        (CatModule.DerivedCategory.Q.obj N) ≅ CatModule.DerivedCategory.Q.obj
+          ((diagramCornerWeightRightBimodule G he he' he0 he'0).tensorFunctor.obj N)) := by
+  letI := Graded.cornerGradedAlgebra G he he0
+  letI := Graded.cornerGradedAlgebra G he' he'0
+  letI := gradedAlgebraInternalGrading (oppositeGrade L)
+  letI := gradedAlgebraInternalGrading (oppositeGrade R)
+  letI := gradedAlgebraBigradedDGRing (oppositeGrade L)
+  letI := gradedAlgebraBigradedDGRing (oppositeGrade R)
+  intro hL hR K N f hK hf ht
+  exact diagramWeightDerivedTensorObjIsoOfResolution
+    (diagramCornerWeight G) (rightCornerLeft G (e := e) he')
+    (rightCornerRight G (e' := e') he) f hK hf ht
 
 section Composition
 
@@ -253,6 +331,24 @@ theorem diagramCornerWeightRightCoendProduct_surjective
     cornerRightProduct (cornerRightProduct_mem G) _ X Z hspan
 
 end Composition
+
+/-- The left-module family of a rectangular right weight bimodule. -/
+def diagramCornerWeightRightFamily :
+    letI := Graded.cornerGradedAlgebra G he he0
+    letI := Graded.cornerGradedAlgebra G he' he'0
+    letI := gradedAlgebraInternalGrading (oppositeGrade L)
+    letI := gradedAlgebraInternalGrading (oppositeGrade R)
+    letI := gradedAlgebraBigradedDGRing (oppositeGrade L)
+    letI := gradedAlgebraBigradedDGRing (oppositeGrade R)
+    (WeightCategory he.Cornerᵐᵒᵖ)ᵒᵖ ⥤ CatModule (WeightCategory he'.Cornerᵐᵒᵖ) := by
+  letI := Graded.cornerGradedAlgebra G he he0
+  letI := Graded.cornerGradedAlgebra G he' he'0
+  letI := gradedAlgebraInternalGrading (oppositeGrade L)
+  letI := gradedAlgebraInternalGrading (oppositeGrade R)
+  letI := gradedAlgebraBigradedDGRing (oppositeGrade L)
+  letI := gradedAlgebraBigradedDGRing (oppositeGrade R)
+  exact diagramWeightLeftFunctor (diagramCornerWeight G)
+    (rightCornerLeft G (e := e) he') (rightCornerRight G (e' := e') he)
 
 section OrdinaryComparison
 
@@ -456,6 +552,124 @@ theorem diagramCornerWeightRightCoendProduct_injective
   apply hf
   apply hOrd
   exact (hmul t).trans ((congrArg (fun z => z.val.val) h).trans (hmul t').symm)
+
+local notation "G₃" => diagramCornerWeight (e := e₂) (e' := e₀) G
+
+/-- The pointwise right coend equivalence is natural in its source weight. -/
+def diagramCornerWeightRightCoendNatIso :
+    letI := Graded.cornerGradedAlgebra G h₂ he₂
+    letI := Graded.cornerGradedAlgebra G h₁ he₁
+    letI := Graded.cornerGradedAlgebra G h₀ he₀
+    letI := gradedAlgebraInternalGrading (OW h₂)
+    letI := gradedAlgebraInternalGrading (OW h₁)
+    letI := gradedAlgebraInternalGrading (OW h₀)
+    letI := gradedAlgebraBigradedDGRing (OW h₂)
+    letI := gradedAlgebraBigradedDGRing (OW h₁)
+    letI := gradedAlgebraBigradedDGRing (OW h₀)
+    (∀ (X : WeightCategory h₀.Cornerᵐᵒᵖ) (Z : WeightCategory h₂.Cornerᵐᵒᵖ),
+      Function.Bijective (diagramCornerWeightRightCoendProduct G h₂ h₁ he₂ he₁ h₀ he₀ X Z)) →
+    (diagramCornerWeightRightFamily G h₂ h₁ he₂ he₁ ⋙ (D₁).tensorFunctor ≅
+      diagramCornerWeightRightFamily G h₂ h₀ he₂ he₀) := by
+  letI := Graded.cornerGradedAlgebra G h₂ he₂
+  letI := Graded.cornerGradedAlgebra G h₁ he₁
+  letI := Graded.cornerGradedAlgebra G h₀ he₀
+  letI := gradedAlgebraInternalGrading (OW h₂)
+  letI := gradedAlgebraInternalGrading (OW h₁)
+  letI := gradedAlgebraInternalGrading (OW h₀)
+  letI := gradedAlgebraBigradedDGRing (OW h₂)
+  letI := gradedAlgebraBigradedDGRing (OW h₁)
+  letI := gradedAlgebraBigradedDGRing (OW h₀)
+  intro hbij
+  exact diagramWeightCoendProductNatIso
+    (A := h₀.Cornerᵐᵒᵖ) (B := h₁.Cornerᵐᵒᵖ) (C := h₂.Cornerᵐᵒᵖ)
+    G₁ G₂ G₃ (rightCornerLeft G (e := e₁) h₀) (rightCornerRight G (e' := e₀) h₁)
+    (rightCornerLeft G (e := e₂) h₁) (rightCornerRight G (e' := e₁) h₂)
+    cornerRightProduct (cornerRightProduct_mem G)
+    (fun b x y => Subtype.ext (by
+      change y.val * (op b • x : cornerBimodule e₁ e₀).val =
+        (b • y : cornerBimodule e₂ e₁).val * x.val
+      rw [cornerBimodule.coe_smul_right h₁]
+      exact (mul_assoc _ _ _).symm))
+    (rightCornerLeft G (e := e₂) h₀) (rightCornerRight G (e' := e₀) h₂)
+    (fun a x y => Subtype.ext (by
+      change y.val * (a • x : cornerBimodule e₁ e₀).val =
+        (a • cornerRightProduct x y : cornerBimodule e₂ e₀).val
+      rw [cornerBimodule.coe_smul_right h₀, cornerBimodule.coe_smul_right h₀]
+      exact (mul_assoc _ _ _).symm))
+    (fun c x y => Subtype.ext (show (c.unop.val * y.val) * x.val =
+      c.unop.val * (y.val * x.val) from mul_assoc _ _ _)) hbij
+/-- A resolution of the first coefficient augmented through the second
+computes their derived composite by the product corner under pointwise bijectivity. -/
+def diagramCornerWeightRightDerivedFactorizationOfResolution :
+    letI := Graded.cornerGradedAlgebra G h₂ he₂
+    letI := Graded.cornerGradedAlgebra G h₁ he₁
+    letI := Graded.cornerGradedAlgebra G h₀ he₀
+    letI := gradedAlgebraInternalGrading (OW h₂)
+    letI := gradedAlgebraInternalGrading (OW h₁)
+    letI := gradedAlgebraInternalGrading (OW h₀)
+    letI := gradedAlgebraBigradedDGRing (OW h₂)
+    letI := gradedAlgebraBigradedDGRing (OW h₁)
+    letI := gradedAlgebraBigradedDGRing (OW h₀)
+    [CatModule.HasDerivedCategory.{v,u} (WeightCategory h₁.Cornerᵐᵒᵖ)] →
+    [CatModule.HasDerivedCategory.{v,u} (WeightCategory h₀.Cornerᵐᵒᵖ)] →
+    (∀ (X : WeightCategory h₀.Cornerᵐᵒᵖ) (Z : WeightCategory h₂.Cornerᵐᵒᵖ),
+      Function.Bijective (diagramCornerWeightRightCoendProduct G h₂ h₁ he₂ he₁ h₀ he₀ X Z)) →
+    ∀ (Z : WeightCategory h₂.Cornerᵐᵒᵖ) {K : CatModule.{u} (WeightCategory h₁.Cornerᵐᵒᵖ)}
+      (f : K ⟶ (D₂).left Z), CatModule.IsKProjective K → CatModule.IsQuasiIso f →
+      CatModule.IsQuasiIso ((D₁).tensorMap f) →
+      ((diagramCornerWeightDerivedRightTensor G h₁ h₀ he₁ he₀).obj
+        (CatModule.DerivedCategory.Q.obj ((D₂).left Z)) ≅ CatModule.DerivedCategory.Q.obj
+          ((diagramCornerWeightRightFamily G h₂ h₀ he₂ he₀).obj (Opposite.op Z))) := by
+  letI := Graded.cornerGradedAlgebra G h₂ he₂
+  letI := Graded.cornerGradedAlgebra G h₁ he₁
+  letI := Graded.cornerGradedAlgebra G h₀ he₀
+  letI := gradedAlgebraInternalGrading (OW h₂)
+  letI := gradedAlgebraInternalGrading (OW h₁)
+  letI := gradedAlgebraInternalGrading (OW h₀)
+  letI := gradedAlgebraBigradedDGRing (OW h₂)
+  letI := gradedAlgebraBigradedDGRing (OW h₁)
+  letI := gradedAlgebraBigradedDGRing (OW h₀)
+  intro hM hL hbij Z K f hK hf ht
+  let e := diagramCornerWeightRightCoendNatIso G h₂ h₁ h₀ he₂ he₁ he₀ hbij
+  let Q : CatModule.{u} (WeightCategory h₀.Cornerᵐᵒᵖ) ⥤
+      CatModule.DerivedCategory.{v,u} (WeightCategory h₀.Cornerᵐᵒᵖ) := CatModule.DerivedCategory.Q
+  exact diagramCornerWeightDerivedRightTensorIsoOfResolution G h₁ h₀ he₁ he₀ f hK hf ht ≪≫
+    Q.mapIso (e.app (Opposite.op Z))
+
+/-- Composing a graded right corner with its source identity coefficient
+requires no additional acyclicity hypothesis. -/
+def diagramCornerWeightRightDerivedFactorizationSelf :
+    letI := Graded.cornerGradedAlgebra G h₁ he₁
+    letI := Graded.cornerGradedAlgebra G h₀ he₀
+    letI := gradedAlgebraInternalGrading (OW h₁)
+    letI := gradedAlgebraInternalGrading (OW h₀)
+    letI := gradedAlgebraBigradedDGRing (OW h₁)
+    letI := gradedAlgebraBigradedDGRing (OW h₀)
+    [CatModule.HasDerivedCategory.{v,u} (WeightCategory h₁.Cornerᵐᵒᵖ)] →
+    [CatModule.HasDerivedCategory.{v,u} (WeightCategory h₀.Cornerᵐᵒᵖ)] →
+    (∀ (X : WeightCategory h₀.Cornerᵐᵒᵖ) (Z : WeightCategory h₁.Cornerᵐᵒᵖ),
+      Function.Bijective (diagramCornerWeightRightCoendProduct G h₁ h₁ he₁ he₁ h₀ he₀ X Z)) →
+    ∀ Z : WeightCategory h₁.Cornerᵐᵒᵖ,
+      ((diagramCornerWeightDerivedRightTensor G h₁ h₀ he₁ he₀).obj
+        (CatModule.DerivedCategory.Q.obj
+          ((diagramCornerWeightRightBimodule G h₁ h₁ he₁ he₁).left Z)) ≅
+            CatModule.DerivedCategory.Q.obj
+              ((diagramCornerWeightRightBimodule G h₁ h₀ he₁ he₀).left Z)) := by
+  letI := Graded.cornerGradedAlgebra G h₁ he₁
+  letI := Graded.cornerGradedAlgebra G h₀ he₀
+  letI := gradedAlgebraInternalGrading (OW h₁)
+  letI := gradedAlgebraInternalGrading (OW h₀)
+  letI := gradedAlgebraBigradedDGRing (OW h₁)
+  letI := gradedAlgebraBigradedDGRing (OW h₀)
+  intro hM hL hbij Z
+  let N := (diagramCornerWeightRightBimodule G h₁ h₁ he₁ he₁).left Z
+  let D := (diagramCornerWeightRightBimodule G h₁ h₀ he₁ he₀).tensorFunctor
+  refine diagramCornerWeightRightDerivedFactorizationOfResolution G h₁ h₁ h₀
+    he₁ he₁ he₀ hbij Z (𝟙 N) (diagramCornerWeightRightSelf_isKProjective G h₁ he₁ Z)
+      (CatModule.isQuasiIso_id N) ?_
+  change CatModule.IsQuasiIso (D.map (𝟙 N))
+  rw [D.map_id N]
+  exact CatModule.isQuasiIso_id _
 
 end OrdinaryComparison
 

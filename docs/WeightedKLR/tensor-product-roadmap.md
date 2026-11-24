@@ -1101,6 +1101,19 @@ generators before quotient (`exists_interleavedColumn_exits`); balancing the ord
 coefficients into `K` gives two generators of `K ⊗_T B e(s)` even with spectators
 (`exists_interleavedKernelColumn_exits`).
 
+The relations with those exterior strands are determined in the projective row.
+Write `L=i a b`, `D=a i b`, `R=a b i` for the three local source loadings. Sort the
+three images of the bottom positions and use one exterior PBW word for each right
+coset. In these coordinates the stack rows are `(1,X^A)`, `(1,1)`, `(X^B,1)` and
+the signed joint columns are `(X^A,−1)`, `(1,−1)`, `(1,−X^B)`, with
+`A=Λ_a(i)`, `B=Λ_b(i)`. Here `X` is the local black dot *below* the exterior word.
+`ExitPBW.exists_parabolic_read` extends a choice of normal exit by linearity;
+subtracting the readback of the stack expresses every relation between sums as a
+joint image. `exists_interleavedRelation_affine_lift` lifts a zero stack with its
+prescribed quotient coefficients. Thus `interleaved_affine_relation_iff` and
+`interleaved_quotient_relation_iff` describe all relations, also those supported
+at just one exit. Neither theorem identifies the higher ideal with global violations.
+
 When there is **one black strand in total**, all paths from a non-higher loading to
 a strictly higher loading must move that black to the left. PBW division on the
 two-sided higher ideal leaves its upper factor in the ideal. The same forced descent
@@ -1130,8 +1143,13 @@ images of the one- and two-dot joint coefficients. The remaining `L₀,L₁` sta
 to distinct surviving PBW monomials, so there are no further relations. In
 particular, checking only the nonzero mixed braid misses a same-exit relation.
 
-Still open for Lemma 6.8: with a spectator black and positive pairings, determine
-the relations between the two generators and their marked lifts. A different black
+For Lemma 6.8 the remaining intersection in these columns is
+`im δ_P ∩ (K_L ⊕ K_R) = im δ_K`, with `δ(u)=(uψ_j,−uψ_(j+1))` at the cut
+projectors. If `D` is strictly higher, its projector marks the joint witness.
+In general `interleaved_joint_dot_mem` puts `u X^min(A,B)` in the higher ideal
+by the two return bigons, without requiring `u` to belong to it. When both powers
+are positive and `D` is not higher, one needs a marked witness with the same two
+components, i.e. a correction modulo `ker δ_P`, not division by `X`. A different black
 can furnish either a global violation or a higher retained boundary without the
 specified descent. The first-weight division argument therefore does not extend
 as stated; this is not a counterexample to injectivity. Ordinary parabolic coordinates

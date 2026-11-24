@@ -9089,6 +9089,10 @@ example : CatModule.IsQuasiIso (𝟙 ((diagramWeightBimodule
 example := diagramWeightDerivedTensorRepresentableIso (fun j => DG.grading (M := ℚ) j)
   leftAction rightAction (⟨1⟩ : WeightCategory ℚ)
 
+
+example : (diagramWeightDerivedTensor (fun j => DG.grading (M := ℚ) j) leftAction rightAction).Additive :=
+  inferInstance
+
 end
 
 end NonVacuity.WebsterWeightTensor

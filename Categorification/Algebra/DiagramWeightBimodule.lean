@@ -142,6 +142,26 @@ variable [CatModule.HasDerivedCategory.{v,u} (WeightCategory A)]
 
 local notation "D" => diagramWeightBimodule G hl hr
 
+/-- Tensor with a diagram coefficient is additive in the input module maps. -/
+instance diagramWeightTensorFunctor_additive : (D).tensorFunctor.Additive where
+  map_add := by
+    intro L N f g
+    apply CatModule.Hom.ext
+    intro X x
+    have eq : ((D).tensorMap (f + g)).app X =
+        ((D).tensorMap f).app X + ((D).tensorMap g).app X := by
+      apply CatTensorProduct.addHom_ext
+      intro Y b y
+      have hf := CatBimodule.tensorMap_tmul (D) f X Y b y
+      have hg := CatBimodule.tensorMap_tmul (D) g X Y b y
+      have hfg := CatBimodule.tensorMap_tmul (D) (f + g) X Y b y
+      exact hfg.trans ((congrArg (CatTensorProduct.tmul Y b) (CatModule.add_app f g Y y)).trans
+        ((CatTensorProduct.tmul_add Y b (f.app Y y) (g.app Y y)).trans
+          (congrArg₂ (· + ·) hf.symm hg.symm)))
+    have atx := DFunLike.congr_fun eq x
+    exact atx.trans (CatModule.add_app ((D).tensorMap f) ((D).tensorMap g) X x).symm
+
+
 /-- Tensoring with the graded coefficient preserves chain homotopies. -/
 def diagramWeightTensorHomotopy :
     CatModule.HomotopyCategory.{u} (WeightCategory B) ⥤
@@ -149,6 +169,15 @@ def diagramWeightTensorHomotopy :
   CategoryTheory.Quotient.lift _ ((D).tensorFunctor ⋙ CatModule.HomotopyCategory.quotient _)
     (fun _ _ _ _ h => CatModule.HomotopyCategory.eq_of_homotopy _ _
       ((D).homotopic_tensorMap h).some)
+
+instance diagramWeightTensorHomotopy_additive : (diagramWeightTensorHomotopy G hl hr).Additive := by
+  let F := CatModule.HomotopyCategory.quotient (WeightCategory B)
+  let H := diagramWeightTensorHomotopy G hl hr
+  let e : F ⋙ H ≅ (D).tensorFunctor ⋙ CatModule.HomotopyCategory.quotient (WeightCategory A) :=
+    CategoryTheory.Quotient.lift.isLift _ _ _
+  have := Functor.additive_of_iso e.symm
+  exact Functor.additive_of_full_essSurj_comp F H
+
 
 /-- Derived tensor with a graded diagram coefficient, computed on
 K-projective representatives of the input. -/
@@ -158,6 +187,16 @@ def diagramWeightDerivedTensor :
   (CatModule.DerivedCategory.kProjectiveEquivalence (WeightCategory B)).inverse ⋙
     (CatModule.HomotopyCategory.subcategoryKProjective (WeightCategory B)).ι ⋙
     diagramWeightTensorHomotopy G hl hr ⋙ CatModule.DerivedCategory.Qh
+
+instance diagramWeightDerivedTensor_additive : (diagramWeightDerivedTensor G hl hr).Additive := by
+  let K := CatModule.HomotopyCategory.subcategoryKProjective.{u} (WeightCategory B)
+  let η := CatModule.DerivedCategory.kProjectiveEquivalence (WeightCategory B)
+  let : η.functor.Additive := by
+    change (K.ι ⋙ CatModule.DerivedCategory.Qh).Additive
+    infer_instance
+  change (η.inverse ⋙ K.ι ⋙ diagramWeightTensorHomotopy G hl hr ⋙
+    CatModule.DerivedCategory.Qh).Additive
+  infer_instance
 
 /-- The derived tensor evaluates on a K-projective input by tensoring its dg model. -/
 def diagramWeightDerivedTensorObjIso {X : CatModule.{u} (WeightCategory B)}

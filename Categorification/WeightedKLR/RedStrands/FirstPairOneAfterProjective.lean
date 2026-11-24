@@ -75,27 +75,51 @@ theorem fiveSlotLastRed_rightwardCrossing_cancel (hQ : KLRSymm Q)
 
 attribute [local instance 1100] IsIdempotentElem.instAlgebraCorner_categorification
 
+local notation "lower" => firstPairOneAfterSpectator
+local notation "upper" => fun side => sadj N 3 • lower side
+
+private theorem firstPairOneAfter_cancel (side : Bool) (hQ : KLRSymm Q)
+    (y : V) (hy : p (upper side) * y = y)
+    (hr : y * F (redIdem k Q Λ (redWord (lower side))) = y)
+    (hz : F (ψ 3 * e (upper side)) * y = 0) : y = 0 := by
+  cases side
+  · have top : sadj N 3 • firstPairOneAfterSpectator false = jA := by decide +kernel
+    have order : redWord (firstPairOneAfterSpectator false) = redWord A₀ := by decide
+    change p (sadj N 3 • firstPairOneAfterSpectator false) * y = y at hy
+    change F (ψ 3 * e (sadj N 3 • firstPairOneAfterSpectator false)) * y = 0 at hz
+    rw [top] at hy hz
+    rw [order] at hr
+    have nearby : jA = sadj N 2 • A₀ := by decide +kernel
+    exact fiveSlotNearby_toCentral_cancel_on_orderCorner Q Λ hQ y hy hr
+      (by simpa only [ψw_cons, ψw_nil, mul_one, ← nearby] using hz)
+  · have top : sadj N 3 • firstPairOneAfterSpectator true = D := by decide +kernel
+    have order : redWord (firstPairOneAfterSpectator true) = redWord A₀ := by decide
+    change p (sadj N 3 • firstPairOneAfterSpectator true) * y = y at hy
+    change F (ψ 3 * e (sadj N 3 • firstPairOneAfterSpectator true)) * y = 0 at hz
+    rw [top] at hy hz
+    rw [order] at hr
+    exact fiveSlotLastRed_rightwardCrossing_cancel Q Λ hQ y hy hr
+      (by simpa only [ψw_cons, ψw_nil, mul_one] using hz)
+
 /-- Both one-after-spectator kernels for the first red pair are projective
 over the original red-order corner. -/
 theorem firstPairOneAfter_blockKernel_projective (side : Bool) (hQ : KLRSymm Q) :
     Module.Projective
       (isIdempotentElem_violMk_redProj k Q Λ ν (redWord (firstPairOneAfterSpectator side))).Cornerᵐᵒᵖ
       (blockLoadingKernel Q Λ (firstPairOneAfterSpectator side) 0 1) := by
-  apply firstPairOneAfter_blockKernel_projective_of_cancellation Q Λ side hQ
-  cases side
-  · have top : sadj N 3 • firstPairOneAfterSpectator false = jA := by decide +kernel
-    have order : redWord (firstPairOneAfterSpectator false) = redWord A₀ := by decide
-    intro y hy hr hz
-    rw [top] at hy hz
-    rw [order] at hr
-    exact fiveSlotNearby_toCentral_cancel_on_orderCorner Q Λ hQ y hy hr
-      (by simpa only [ψw_cons, ψw_nil, mul_one] using hz)
-  · have top : sadj N 3 • firstPairOneAfterSpectator true = D := by decide +kernel
-    have order : redWord (firstPairOneAfterSpectator true) = redWord A₀ := by decide
-    intro y hy hr hz
-    rw [top] at hy hz
-    rw [order] at hr
-    exact fiveSlotLastRed_rightwardCrossing_cancel Q Λ hQ y hy hr
-      (by simpa only [ψw_cons, ψw_nil, mul_one] using hz)
+  exact firstPairOneAfter_blockKernel_projective_of_cancellation Q Λ side hQ
+    (firstPairOneAfter_cancel Q Λ side hQ)
+
+/-- Both one-after-spectator kernels have a single actual higher
+partial-standard layer in the original red order. -/
+theorem firstPairOneAfter_blockKernel_hasHigherSingle (side : Bool) (hQ : KLRSymm Q) :
+    ModuleFiltration.HasFiltration
+      (fun _ : Unit => blockPartialStandardAt Q Λ (upper side) 0 1 (redWord (lower side))
+        (by cases side <;> decide)) [()]
+      (ModuleCat.of
+        (isIdempotentElem_violMk_redProj k Q Λ ν (redWord (lower side))).Cornerᵐᵒᵖ
+        (blockLoadingKernel Q Λ (lower side) 0 1)) :=
+  firstPairOneAfter_blockKernel_hasHigherSingle_of_cancellation Q Λ side hQ
+    (firstPairOneAfter_cancel Q Λ side hQ)
 
 end Categorification.Stendhal.FiveSlotFlag

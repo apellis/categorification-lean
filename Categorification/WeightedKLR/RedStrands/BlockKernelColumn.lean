@@ -3,6 +3,7 @@ Copyright (c) 2026 Alex Ellis. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 -/
 import Categorification.WeightedKLR.RedStrands.BlockKernelBottom
+import Categorification.WeightedKLR.RedStrands.BlockKernelFiltration
 
 /-!
 # Injectivity on a bottom column of the braiding bimodule
@@ -297,17 +298,13 @@ theorem blockKernelColumnInclusion_injective_of_principal_factor
 
 /-- A principal higher coefficient that detects zero on the source corner
 identifies the higher kernel with a loading projective. -/
-theorem blockLoadingKernel_projective_of_principal_factor
+def blockLoadingKernel_equiv_projective_of_principal_factor
     (u : KLR.Seq μ) (hu : redWord u = redWord t) (c : V) (hc : c ∈ J)
     (cl : pof t * c = c) (cr : c * pof u = c)
     (factor : ∀ x : V, x ∈ J → pof t * x = x → ∃ y : V, pof u * y = y ∧ c * y = x)
     (cancel : ∀ y : V, pof u * y = y → y * E = y → c * y = 0 → y = 0) :
-    Module.Projective Tᵐᵒᵖ K := by
-  let U : T := ⟨pof u, (Subsemigroup.mem_corner_iff ordT).2
-    (block_loading_order_support Q Λ t u hu)⟩
-  have hU : IsIdempotentElem U :=
-    Subtype.ext (((show IsIdempotentElem (KLRAlgebra.e u : KLRAlgebra k (stendhalQ Q Λ) μ) from
-      KLRAlgebra.e_mul_self _).map (ofKLR k Q Λ ν)).map mk).eq
+    rIdeal (orderedLoadingIdemAt Q Λ (redWord t) u hu) ≃ₗ[Tᵐᵒᵖ] K := by
+  let U := orderedLoadingIdemAt Q Λ (redWord t) u hu
   let g := principalGenerator Q Λ t a b u c hc cl cr hu
   have val : g.1.1.1 = c := principalRep_val Q Λ t u c cl cr hu
   let f : rIdeal U →ₗ[Tᵐᵒᵖ] K :=
@@ -339,8 +336,23 @@ theorem blockLoadingKernel_projective_of_principal_factor
     intro x
     obtain ⟨r, hr, hrep⟩ := principalCoefficient Q Λ t a b u hu c g val factor x
     exact ⟨⟨r, Subtype.ext hr⟩, hrep⟩
+  exact LinearEquiv.ofBijective f ⟨hinj, hsurj⟩
+
+/-- A principal higher coefficient that detects zero on the source corner
+makes the higher kernel projective. -/
+theorem blockLoadingKernel_projective_of_principal_factor
+    (u : KLR.Seq μ) (hu : redWord u = redWord t) (c : V) (hc : c ∈ J)
+    (cl : pof t * c = c) (cr : c * pof u = c)
+    (factor : ∀ x : V, x ∈ J → pof t * x = x → ∃ y : V, pof u * y = y ∧ c * y = x)
+    (cancel : ∀ y : V, pof u * y = y → y * E = y → c * y = 0 → y = 0) :
+    Module.Projective Tᵐᵒᵖ K := by
+  let U := orderedLoadingIdemAt Q Λ (redWord t) u hu
+  have hU : IsIdempotentElem U :=
+    Subtype.ext (((show IsIdempotentElem (KLRAlgebra.e u : KLRAlgebra k (stendhalQ Q Λ) μ) from
+      KLRAlgebra.e_mul_self _).map (ofKLR k Q Λ ν)).map mk).eq
   let : Module.Projective Tᵐᵒᵖ (rIdeal U) := rIdeal_projective hU
-  exact Module.Projective.of_equiv (LinearEquiv.ofBijective f ⟨hinj, hsurj⟩)
+  exact Module.Projective.of_equiv
+    (blockLoadingKernel_equiv_projective_of_principal_factor Q Λ t a b u hu c hc cl cr factor cancel)
 
 end PrincipalHigherCorner
 

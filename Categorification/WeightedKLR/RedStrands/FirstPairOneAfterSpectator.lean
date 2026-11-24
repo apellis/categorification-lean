@@ -231,4 +231,39 @@ theorem firstPairOneAfter_blockKernel_projective_of_cancellation (hQ : KLRSymm Q
     (firstPairOneAfter_blockKernel_principal Q Λ side hQ)
     (by simpa only [redProj, AlgHom.comp_apply] using cancel)
 
+/-- On a cancellative principal crossing, the actual higher kernel is one
+partial-standard layer indexed by the corresponding terminal spectator loading. -/
+theorem firstPairOneAfter_blockKernel_hasHigherSingle_of_cancellation (hQ : KLRSymm Q)
+    (cancel : ∀ y : V, proj (upper side) * y = y →
+      y * F (redIdem k Q Λ (redWord (lower side))) = y → cross * y = 0 → y = 0) :
+    ModuleFiltration.HasFiltration
+      (fun _ : Unit => blockPartialStandardAt Q Λ (upper side) 0 1 (redWord (lower side))
+        (firstPairOneAfter_upper_order side)) [()]
+      (ModuleCat.of
+        (isIdempotentElem_violMk_redProj k Q Λ ν (redWord (lower side))).Cornerᵐᵒᵖ
+        (blockLoadingKernel Q Λ (lower side) 0 1)) := by
+  have hp : proj (upper side) ∈ J :=
+    TwoSidedIdeal.subset_span ⟨upper side, firstPairOneAfter_upper_order side,
+      firstPairOneAfter_strict side, rfl⟩
+  have hc : cross ∈ J := (firstPairOneAfter_cross_right Q Λ side) ▸
+    TwoSidedIdeal.mul_mem_left _ _ _ hp
+  have crossEquiv := blockLoadingKernel_equiv_projective_of_principal_factor Q Λ (lower side) 0 1
+    (upper side) (firstPairOneAfter_upper_order side) cross hc
+    (firstPairOneAfter_cross_left Q Λ side) (firstPairOneAfter_cross_right Q Λ side)
+    (firstPairOneAfter_blockKernel_principal Q Λ side hQ)
+    (by simpa only [redProj, AlgHom.comp_apply] using cancel)
+
+  have order : redWord (upper side) = List.finRange 3 :=
+    (firstPairOneAfter_upper_order side).trans (firstPairOneAfter_order side)
+  have lastLabel : (upper side).lbl ⟨4, by decide⟩ = Sum.inr (2 : Fin 3) := by
+    cases side <;> decide
+  have terminal : ∀ (p : Fin N) (i : Unit), (upper side).lbl p = Sum.inl i →
+      p < redPos (upper side) 2 := by
+    rw [← eq_redPos lastLabel]
+    cases side <;> decide +kernel
+  have equiv := blockPartialStandardAt_equiv_projective Q Λ (upper side) 0 1 (redWord (lower side))
+    (firstPairOneAfter_upper_order side)
+    (firstPair_terminal_higher_isViolated (upper side) · order terminal)
+  exact ModuleFiltration.HasFiltration.single (crossEquiv.symm.trans equiv.symm)
+
 end Categorification.Stendhal.BraidedStendhalAlgebra

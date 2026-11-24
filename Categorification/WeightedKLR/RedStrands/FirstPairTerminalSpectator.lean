@@ -90,15 +90,13 @@ private theorem countBefore_terminal_red (t : Seq μ)
     simp only [p.isLt, hl, and_true, hbefore, ite_true]
   · simp only [hl, and_false, ite_false]
 
-/-- With the first two reds paired, a final spectator beyond all black
-strands is a maximal retained cut. The higher kernel then vanishes for
-arbitrary black content. -/
-theorem firstPair_terminal_blockLoadingKernel_eq_bot (t : Seq μ)
+/-- A strictly higher cut than a terminal spectator has a violated loading. -/
+theorem firstPair_terminal_higher_isViolated (t s : Seq μ)
     (order : redWord t = List.finRange 3)
-    (terminal : ∀ (p : Fin N) (i : I), t.lbl p = Sum.inl i → p < redPos t 2) :
-    blockLoadingKernel Q Λ t 0 1 = ⊥ := by
-  apply blockLoadingKernel_eq_bot_of_maximal
-  intro s hs hlt
+    (terminal : ∀ (p : Fin N) (i : I), t.lbl p = Sum.inl i → p < redPos t 2)
+    (hs : redWord s = redWord t)
+    (hlt : adjacentBlockRoot 0 1 t < adjacentBlockRoot 0 1 s) :
+    IsViolated s := by
   by_contra h
   apply hlt.not_ge
   intro r i
@@ -116,6 +114,16 @@ theorem firstPair_terminal_blockLoadingKernel_eq_bot (t : Seq μ)
       _ ≤ countBefore s (.inl i) N := countBefore_mono_at s i (redPos s 2).isLt.le
       _ = countBefore t (.inl i) N := by rw [countBefore_card, countBefore_card]
       _ = _ := countBefore_terminal_red t terminal i
+
+/-- With the first two reds paired, a final spectator beyond all black
+strands is a maximal retained cut. The higher kernel then vanishes for
+arbitrary black content. -/
+theorem firstPair_terminal_blockLoadingKernel_eq_bot (t : Seq μ)
+    (order : redWord t = List.finRange 3)
+    (terminal : ∀ (p : Fin N) (i : I), t.lbl p = Sum.inl i → p < redPos t 2) :
+    blockLoadingKernel Q Λ t 0 1 = ⊥ := by
+  exact blockLoadingKernel_eq_bot_of_maximal Q Λ t 0 1
+    (firstPair_terminal_higher_isViolated t · order terminal)
 
 open CategoryTheory CategoryTheory.Limits DG DG.DerivedCategory
 open scoped DG.DegreeZero

@@ -1049,7 +1049,10 @@ to iterated extensions of the localized layers
 restricts to a short exact sequence of weight modules
 (`diagramWeightLeftLinearMap_shortExact`). For Lemma 6.11, vanishing of the
 derived tensor on the localized layers gives vanishing on the filtered input
-(`WeightModuleFiltration.diagramWeightDerivedTensor_cohomology_isZero`).
+(`WeightModuleFiltration.diagramWeightDerivedTensor_cohomology_isZero`). A diagram of
+ordinary complexes on the weight category realizes as a dg module, with
+pointwise quasi-isomorphisms becoming dg quasi-isomorphisms
+(`diagramWeightModuleOfComplex`, `diagramWeightModuleOfComplexMap_isQuasiIso`).
 
 A balanced homogeneous multiplication of two
 coefficients induces their product from the intermediate weight-category
@@ -1159,13 +1162,18 @@ projective is exactly `3/2` (`fundamentalBraidMiddleClass_resolutionWeight`).
 
 On the entire crossed loading cuts the first map is injective and the
 second is surjective. The middle homology is the scalar line
-(`fundamentalBraidCutComplex_homologyIso`). The diagonal-ring equivalence
+(`fundamentalBraidCutComplex_homologyIso`). The weights admitting a homogeneous
+representative of a nonzero class consist of three halves alone
+(`fundamentalBraidHomology_weight_iff`). The diagonal-ring equivalence
 carries the two mixed crossings to the differentials of the projective
 resolution of the middle head (`fundamentalBraidSourceResolution`). Its
 balanced tensor with the braid has this same homology line in resolution
 degree one (`fundamentalBraidTensorCutIso`, `fundamentalBraidTensorHomologyIso`).
 With the right action of the reversed-order ring, this homology is its
-middle simple head (`fundamentalBraidRightTensorHomologyIso`).
+middle simple head (`fundamentalBraidRightTensorHomologyIso`). The positive
+derived braid on the source middle head has this target head in native
+cohomological degree −1 (`fundamentalBraidDerivedHeadIso`). Its cohomology
+vanishes in every other degree (`fundamentalBraidDerivedHead_isZero`).
 
 In the diagram-weight categories the middle character is homogeneous.
 Its weight-zero generator identifies with the right simple head, with
@@ -1402,6 +1410,7 @@ with nilpotent dot.
 | arXiv:1309.3796v2, §6.1, p. 65, proof of Lemma 6.11 (opposite standards) | Away from degree zero, tensor kills the loading summands in a supplied K-projective resolution if their idempotents annihilate the opposite standard. For left loading standards, idempotents strictly above the label give that annihilation | `Stendhal.isZero_derivedRightTensorHomology_leftStandard_of_higher_loadings` | The loading standards are over a field. The augmentation and the labels of its loading summands are hypotheses | The finite projective dimension result alone does not supply those labels |
 | arXiv:1309.3796v2, Proposition 6.4 and proof of Lemma 6.11 (vacuum dimension) | With no black strands, a fixed-top braid column has one basis vector. Both red orders determine the loadings, their connecting permutation is unique, and there are no violated loadings | `Stendhal.BraidedStendhalAlgebra.finrank_vacuum_braidColumn`, `Stendhal.BraidedStendhalAlgebra.finrank_vacuum_braidColumn_eq_standard` | Symmetric KLR parameters over a field | The column has the dimension of its singleton standard factor |
 | arXiv:1309.3796v2, §6.1, p. 65, proof of Lemma 6.11 (ordered projective resolutions) | The higher standard filtrations of the kernels of standard quotients construct successive projective covers of syzygies. Every positive term of the resulting left-standard resolution is spanned by loading projectives at labels strictly above the original label | `ModuleFiltration.OrderedStandardCovers.projectiveResolution_loading_support`, `Stendhal.exists_ordered_projectiveResolution_stdModule` | Same field and stratification hypotheses as Corollary 5.21 | Ordinary modules. The same support transports along ring reflection and the DG comparison is separate |
+| arXiv:1309.3796v2, Lemma 6.11, p. 65 (graded terminal standard) | In the fundamental type A₁ block, the higher trace at the terminal cut is the image of the mixed crossing from the middle projective. Its internal degree becomes zero when the middle generator is placed in weight one. The resulting two-term cone is K-projective, has a quasi-isomorphic augmentation to the terminal quotient, and has only the strictly higher middle loading in negative cohomological degree | `FundamentalCorner.fundamentalTerminal_higherTrace`, `FundamentalCorner.gradedTerminalStandardResolution_isKProjective`, `FundamentalCorner.gradedTerminalStandardResolution_quasiIso`, `FundamentalCorner.gradedTerminalStandardResolution_negative_component` | Two fundamental reds and one black over ℚ | The general graded ordered-cover construction remains open |
 | arXiv:1309.3796v2, Proposition 5.6 (word characters) and §3.4, Corollary 3.22 | Cor. 3.22 for word projectives: `gdim e(s) R^λ e(u)` is Webster's form `⟨F_u v_λ, F_s v_λ⟩`, which vanishes when the black contents differ. Prop. 5.6, character form: the iterated standardization `S(…S(S(R^{λ_1} e(u_1)) ⊠ R^{λ_2} e(u_2))…)` has, at the ordinary loading of every tensor word `w`, graded dimension equal to the factorwise form between `F_{u_1} v_{λ_1} ⊗ ⋯ ⊗ F_{u_ℓ} v_{λ_ℓ}` and the bar-ordinary vector of `w`; by induction on red strands from the product test of Thm. 4.38. Prop. 5.6 on the projective group: for every virtual projective class `x`, the graded Hom from `x` into `S_κ^i` is the factorwise form of `s` with `η(x)` (bar coproduct convention), which determines the class of `S_κ^i` | `Stendhal.FirstWeight.cyclotomicWordModule_word`, `Stendhal.FirstWeight.websterForm_suffix_eq_zero`, `Stendhal.FirstWeight.standardizationTestAt_word_of_wordCharacters`, `Stendhal.FirstWeight.iteratedStandard_word`, `Stendhal.FirstWeight.iteratedStandardTest_eq` | Rouquier datum (`IsRouquierQ`), `X`-regular root datum with weights matching `λ_j` | Proved as an identity of functionals on `K₀`; the Grothendieck group of finite-dimensional modules and the dual map `η` on it are not built |
 
 ### Lusztig's algebra `f` (Lusztig, *Introduction to quantum groups*, Ch. 1; KL I §3.1)

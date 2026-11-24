@@ -135,4 +135,30 @@ unquotiented-by-higher stack in `V`. This is not yet injectivity on the kernel t
 theorem blockKernelTensorInclusion_eq_zero_iff (z) : inc z = 0 ↔ stack (inc z) = 0 :=
   ⟨fun h => h ▸ map_zero _, fun h => blockLoadingTensorStack_injective Q Λ t κ' (h.trans (map_zero _).symm)⟩
 
+private theorem kernel_zero_of_violated (h : IsViolated t) (x : K) : x=0 := by
+  apply Subtype.ext
+  apply Subtype.ext
+  apply Subtype.ext
+  have hx := congrArg (fun y : T => y.1) x.1.2
+  change p t * x.1.1.1 = x.1.1.1 at hx
+  exact hx.symm.trans ((congrArg (fun y : V => y*x.1.1.1) (violMk_e h)).trans (zero_mul _))
+
+private theorem tensor_zero_of_violated (h : IsViolated t)
+    (z : BalancedTensor k k T K B) : z=0 := by
+  induction z using BalancedTensor.induction_on with
+  | zero => rfl
+  | tmul x y =>
+    have hx := kernel_zero_of_violated Q Λ t a b h x
+    exact (congrArg (fun x : K => (BalancedTensor.tmul x y : BalancedTensor k k T K B)) hx).trans
+      (BalancedTensor.zero_tmul y)
+  | add x y hx hy =>
+    exact (congrArg₂ (fun x y : BalancedTensor k k T K B => x+y) hx hy).trans (zero_add 0)
+
+/-- A violated top loading has zero source kernel tensor. -/
+theorem blockKernelTensorInclusion_injective_of_violated_top (h : IsViolated t) :
+    Function.Injective inc := by
+  intro x y _
+  exact (tensor_zero_of_violated Q Λ t a b κ' h x).trans (tensor_zero_of_violated Q Λ t a b κ' h y).symm
+
+
 end Categorification.Stendhal.BraidedStendhalAlgebra

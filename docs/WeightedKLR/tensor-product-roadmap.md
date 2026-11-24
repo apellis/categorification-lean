@@ -950,8 +950,11 @@ evaluation of its tensor on the lower projective.
 
 For Lemma 6.11, `braidingBimoduleFlip` implements the horizontal reflection used in
 the proof of `f_n → s_n`. It swaps the order corners and intertwines their actions with
-the opposite actions through the corner anti-involutions. The standard filtration and
-higher Tor steps remain open.
+the opposite actions through the corner anti-involutions.
+`hasReflectedStandardFiltration_braidingBimodule` carries a supplied right-standard
+filtration of the inverse braid to a left filtration with the same loading labels on the
+braid, using restriction of scalars along the corner flip on each subquotient.
+Existence of the right-standard filtration and higher Tor vanishing remain open.
 
 Open, in working order: Lemma 6.8 (needs block standardization in the braided algebra; standard
 modules exist only in `StendhalAlgebraAllOrders`, `RedStrands/StandardAction.lean`, and partial

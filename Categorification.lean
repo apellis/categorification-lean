@@ -110,6 +110,7 @@ import Categorification.Algebra.K0FinDim
 import Categorification.Algebra.ModuleCatLinear
 import Categorification.Algebra.ModuleFiltration
 import Categorification.Algebra.OrderedProjectiveResolution
+import Categorification.Algebra.GradedOrderedProjectiveResolution
 import Categorification.Algebra.ModuleFiltrationMap
 import Categorification.Algebra.IdempotentTraceFiltration
 import Categorification.Algebra.MonicTrace
@@ -670,6 +671,8 @@ import Categorification.WeightedKLR.RedStrands.LabelTwoMiddleQuotientCoordinates
 import Categorification.WeightedKLR.RedStrands.LabelTwoExteriorComplexExact
 import Categorification.WeightedKLR.RedStrands.LabelTwoExteriorDegrees
 import Categorification.WeightedKLR.RedStrands.LabelTwoExteriorCokernel
+import Categorification.WeightedKLR.RedStrands.LabelTwoExteriorProjectiveSpan
+import Categorification.WeightedKLR.RedStrands.LabelTwoExteriorCokernelSimple
 import Categorification.WeightedKLR.RedStrands.LoadingCutPBW
 import Categorification.WeightedKLR.RedStrands.SingleRedTerminalProjective
 import Categorification.KLR.CyclotomicTerminal
@@ -1828,6 +1831,7 @@ import Categorification.WeightedKLR.Rigidity.FundamentalBraidDerivedHead
 import Categorification.WeightedKLR.Rigidity.FundamentalMiddleDimensions
 import Categorification.Algebra.DiagramBigrading
 import Categorification.Algebra.DiagramWeightBimodule
+import Categorification.Algebra.DiagramWeightTensorH0
 import Categorification.Algebra.DiagramWeightTensorShift
 import Categorification.Algebra.DiagramWeightTensorCone
 import Categorification.Algebra.DiagramWeightTensorDerived
@@ -1837,6 +1841,7 @@ import Categorification.Algebra.DiagramWeightCoend
 import Categorification.Algebra.DiagramWeightCoendNaturality
 import Categorification.Algebra.DiagramWeightCoendSurjectivity
 import Categorification.Algebra.DiagramWeightComplex
+import Categorification.Algebra.DiagramWeightComplexKProjective
 import Categorification.Algebra.GradedChainWeightDG
 import Categorification.Algebra.DiagramWeightExact
 import Categorification.Algebra.DiagramWeightLoadingVanish

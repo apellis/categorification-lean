@@ -5575,6 +5575,10 @@ example := Categorification.Stendhal.labelTwoExteriorEndComplex_exact Q
 
 example := Categorification.Stendhal.labelTwoExteriorEndComplex_epi Q
 
+example := Categorification.Stendhal.labelTwoExteriorCokernel_simple Q
+
+example := Categorification.Stendhal.labelTwoExteriorCokernel_span Q
+
 end NonVacuity.WebsterLabelTwoEndpointTor
 
 namespace NonVacuity.WebsterLocalization
@@ -5770,6 +5774,7 @@ example (n : ℕ) : Subsingleton ((data.projectiveResolution ()).complex.X (n+1)
   exact hx.trans hy.symm
 
 end NonVacuity.WebsterOrderedResolution
+
 
 end
 
@@ -9548,6 +9553,25 @@ example (G' H' : ℤ → Submodule ℚ ℚ) (d : ℤ) :=
   Categorification.Graded.balancedTensorIntScalarAddEquiv_map_grade
     (k := ℚ) (A := ℚ) (fun c m : ℚ => mul_comm m c) G' H' d
 
+private def scalarGroundGrade (d : ℤ) : Submodule ℚ ℚ :=
+  { carrier := G d
+    add_mem' := (G d).add_mem
+    zero_mem' := (G d).zero_mem
+    smul_mem' := fun c x hx => by
+      change c • x ∈ G d
+      simpa only [zero_add] using leftAction (i := 0)
+        (InDegreeZero.ring_mem_grading_zero c) hx }
+
+local instance instGroundTensorRationalDecomposition :
+    DirectSum.Decomposition (fun d => (scalarGroundGrade d).toAddSubgroup) :=
+  inferInstanceAs (DirectSum.Decomposition G)
+
+example :=
+  diagramWeightTensorGroundGradeEquiv (B := ℚ) scalarGroundGrade scalarGroundGrade
+    (fun ha hm => leftAction ha hm) (fun ha hm => rightAction ha hm)
+    (fun ha hm => leftAction ha hm) (fun ha hm => rightAction ha hm)
+    (fun c m : ℚ => mul_comm m c) (⟨0⟩ : QWeight) (⟨0⟩ : QWeight)
+
 example := diagramWeightTensorOrdinary_range_eq_grade G G leftAction rightAction leftAction rightAction
   (⟨0⟩ : QWeight) (⟨1⟩ : QWeight)
 
@@ -9556,11 +9580,20 @@ example := diagramWeightOrdinaryProjection_tmul G G leftAction rightAction leftA
   (⟨1, InDegreeZero.ring_mem_grading_zero (1 : ℚ)⟩ : G 0)
   (⟨1, InDegreeZero.ring_mem_grading_zero (1 : ℚ)⟩ : G 0)
 
-example (J : ℤ → Submodule ℚ ℚ) [DirectSum.Decomposition (fun d => (J d).toAddSubgroup)]
-    (hL : ∀ {i j : ℤ} {a b : ℚ}, a ∈ wgrading i → b ∈ J j → a • b ∈ J (i + j))
-    (hR : ∀ {i j : ℤ} {a b : ℚ}, a ∈ wgrading i → b ∈ J j → op a • b ∈ J (j + i)) :=
-  diagramWeightTensorGroundGradeEquiv (B := ℚ) J J hL hR hL hR
-    (fun c m : ℚ => mul_comm m c) (⟨0⟩ : QWeight) (⟨1⟩ : QWeight)
+private abbrev rationalCoefficient := diagramWeightBimodule G leftAction rightAction
+
+private abbrev rationalRight := rationalCoefficient.right (⟨0⟩ : QWeight)
+
+private abbrev rationalLeft := rationalCoefficient.left (⟨0⟩ : QWeight)
+
+example :=
+  catTensorCohomologyZeroEquivOfQuasiIso (L := rationalRight)
+    (fun _ => ⟨InDegreeZero.mem_grading_zero, InDegreeZero.d_apply _⟩)
+    (fun _ => ⟨InDegreeZero.mem_grading_zero, InDegreeZero.d_apply _⟩)
+    (fun _ {_} _ => InDegreeZero.d_apply _ _)
+    (𝟙 rationalLeft) (CatModule.IsQuasiIso.of_isIso _)
+    (fun {_ _} g => WeightCategory.mem_grading_iff.mpr
+      (InDegreeZero.ring_mem_grading_zero g.val))
 
 end
 
@@ -9851,6 +9884,10 @@ example (d : ℤ) := diagramPlusAugmentation_exact_in_degree ℚ d
 
 example (d : ℤ) := diagramMiddleAugmentationAtDegree_surjective ℚ d
 
+example (d : ℤ) := diagramSumCompanionAugmentation_exact_in_degree ℚ d
+
+example (d : ℤ) := diagramDifferenceCompanionAugmentation_exact_in_degree ℚ d
+
 example := middleEndomorphismFactorEquiv ℚ
 
 example := factorDotSumQuotientEquiv ℚ
@@ -10068,6 +10105,76 @@ example : CatModule.IsQuasiIso (diagramWeightModuleOfComplexMap (𝟙 weightComp
 
 end NonVacuity.WebsterWeightComplex
 
+namespace NonVacuity.WebsterWeightComplexProjective
+
+open Categorification CategoryTheory DG
+open scoped DG.DegreeZero CatModule
+
+local instance instFixtureInternal : InternalGrading ℚ := scalarInternalGrading ℚ
+local instance instFixtureBigraded : BigradedDGRing ℚ := scalarBigradedDGRing ℚ
+
+private abbrev Z : WeightCategory ℚ := ⟨0⟩
+private abbrev H := preadditiveCoyonedaObj Z
+private abbrev TestScalars := (CategoryTheory.End Z)ᵐᵒᵖ
+private abbrev C := ComplexShape.up ℤ
+private abbrev testDiagram := H ⋙ HomologicalComplex.single (ModuleCat TestScalars) C 0
+private abbrev inner (X : WeightCategory ℚ) :=
+  HomologicalComplex.singleObjXSelf C 0 (H.obj X)
+
+private def fixtureCoordinate (X : WeightCategory ℚ) :
+    (weightComplexPiece testDiagram 0).obj X ≃+ (Z ⟶ X) :=
+  (weightComplexPieceAddEquiv testDiagram 0 X).trans
+    (AddEquiv.ofBijective (inner X).hom.hom.toAddMonoidHom
+      ⟨(ModuleCat.mono_iff_injective _).mp inferInstance,
+        (ModuleCat.epi_iff_surjective _).mp inferInstance⟩)
+
+private def representableProjection :
+    weightComplexPiece testDiagram 0 ⟶ CatModule.representable Z where
+  app X := (fixtureCoordinate X).toAddMonoidHom
+  map_mem' {X i x} hx := by
+    change fixtureCoordinate X x ∈ DG.grading (M := Z ⟶ X) i
+    rcases (weightComplexPiece_mem_grading_iff testDiagram 0 i X x).mp hx with rfl | rfl
+    · apply WeightCategory.mem_grading_iff.mpr
+      exact InDegreeZero.ring_mem_grading_iff.mpr (Or.inl rfl)
+    · rw [map_zero]
+      exact zero_mem _
+  map_d' {X} x := by
+    change fixtureCoordinate X (d x) = d (fixtureCoordinate X x)
+    rw [weightComplexPiece_d_eq_zero, map_zero]
+    exact (WeightCategory.hom_ext (InDegreeZero.ring_d_apply (fixtureCoordinate X x).val)).symm
+  map_smul' {X Y} a x := by
+    change (inner Y).hom (weightComplexPieceAddEquiv testDiagram 0 Y
+      ((weightComplexPiece testDiagram 0).act a x)) =
+      (H.map a) ((inner X).hom (weightComplexPieceAddEquiv testDiagram 0 X x))
+    erw [weightComplexPieceAddEquiv_act]
+    change (inner Y).hom (((HomologicalComplex.single (ModuleCat TestScalars) C 0).map
+      (H.map a)).f 0 (weightComplexPieceAddEquiv testDiagram 0 X x)) = _
+    erw [HomologicalComplex.single_map_f_self, ConcreteCategory.comp_apply, ConcreteCategory.comp_apply,
+      Iso.inv_hom_id_apply]
+
+example : CatModule.IsKProjective (diagramWeightModuleOfComplex testDiagram) := by
+  apply diagramWeightModuleOfComplex_isKProjective
+  · intro X n hn
+    exact HomologicalComplex.isZero_single_obj_X C 0 (H.obj X) n (by omega)
+  · intro n
+    cases n with
+    | zero =>
+      let _ := CatModule.isIso_of_bijective representableProjection (fun X => (fixtureCoordinate X).bijective)
+      exact (CatModule.isKProjective_representable Z).of_iso (asIso representableProjection)
+    | succ n =>
+      let b : ℤ := -((n + 1 : ℕ) : ℤ)
+      change CatModule.IsKProjective (weightComplexPiece testDiagram b)
+      intro N hN f
+      refine CatModule.homotopic_zero_iff_exists.mpr ⟨0, CatModule.Cochain.ext fun X x => ?_⟩
+      have hz : CategoryTheory.Limits.IsZero ((testDiagram.obj X).X b) :=
+        HomologicalComplex.isZero_single_obj_X C 0 (H.obj X) b (by dsimp [b]; omega)
+      have hs := ModuleCat.isZero_iff_subsingleton.mp hz
+      have h : x = 0 := (weightComplexPieceAddEquiv testDiagram b X).injective (hs.elim _ _)
+      rw [h]
+      simp
+
+end NonVacuity.WebsterWeightComplexProjective
+
 end
 
 noncomputable section
@@ -10110,5 +10217,92 @@ example := weightDgGradedChainAugmentation_quasiIso (R := ℚ)
   (by intro x; simp [periodicMap, eq_comm]) Function.surjective_id
 
 end NonVacuity.WebsterGradedChainDG
+
+end
+
+noncomputable section
+
+namespace NonVacuity.WebsterOrderedGradedResolution
+open Categorification Categorification.ModuleFiltration DG DirectSum
+
+private abbrev e (_ : Bool) : ℚ := 1
+private abbrev above (a b : Bool) : Prop := a = false ∧ b = true
+private abbrev P := lIdeal (1 : ℚ)
+
+private def S : Bool → ModuleCat ℚ
+  | false => ModuleCat.of ℚ PUnit
+  | true => ModuleCat.of ℚ P
+
+private def q : (i : Bool) → lIdeal (e i) →ₗ[ℚ] S i
+  | false => 0
+  | true => LinearMap.id
+
+private theorem pProjective : Module.Projective ℚ P := by
+  refine Module.Projective.of_split P.subtype
+    { toFun := fun p => ⟨p, mul_one _⟩
+      map_add' := fun _ _ => rfl
+      map_smul' := fun _ _ => rfl } ?_
+  ext
+  rfl
+
+private def data : OrderedStandardCovers S e above where
+  quotient := q
+  surjective := by
+    intro i x
+    cases i with
+    | false => exact ⟨0, Subsingleton.elim (α := PUnit) _ x⟩
+    | true => exact ⟨x, rfl⟩
+  projective _ := pProjective
+  kernel := by
+    intro i
+    cases i with
+    | false =>
+      refine ⟨[true], ?_, ?_⟩
+      · simp only [List.mem_singleton]
+        rintro _ rfl
+        exact ⟨rfl, rfl⟩
+      · apply HasFiltration.single (c := true)
+        exact LinearEquiv.ofBijective (LinearMap.ker (q false)).subtype
+          ⟨Submodule.injective_subtype _, fun x => ⟨⟨x, rfl⟩, rfl⟩⟩
+    | true =>
+      refine ⟨[], by simp, HasFiltration.zero ⟨?_⟩⟩
+      intro x y
+      exact Subtype.ext (show x.val = y.val from x.property.trans y.property.symm)
+
+private theorem mulGrade ⦃a b : ℤ⦄ ⦃x y : ℚ⦄ (hx : x ∈ degreeZeroGrading ℚ a)
+    (hy : y ∈ degreeZeroGrading ℚ b) : x * y ∈ degreeZeroGrading ℚ (a+b) := by
+  apply (mem_degreeZeroGrading_iff ℚ).mpr
+  rcases (mem_degreeZeroGrading_iff ℚ).mp hx with rfl | rfl
+  · rcases (mem_degreeZeroGrading_iff ℚ).mp hy with rfl | rfl
+    · exact Or.inl (zero_add _)
+    · exact Or.inr (mul_zero _)
+  · exact Or.inr (zero_mul _)
+
+private theorem eGrade (i : Bool) : e i ∈ degreeZeroGrading ℚ 0 := mem_degreeZeroGrading_zero _ _
+private theorem eIdem (i : Bool) : IsIdempotentElem (e i) := one_mul _
+private theorem aboveTrans (i j l : Bool) (h : above i j) (h' : above j l) : above i l :=
+  ⟨h.1, h'.2⟩
+private theorem quotientGrade ⦃n : ℤ⦄ ⦃x : P⦄ (_ : x.val ∈ degreeZeroGrading ℚ n) :
+    data.quotient false x ∈ degreeZeroGrading (S false) n :=
+  (mem_degreeZeroGrading_iff _).mpr (Or.inr rfl)
+
+private abbrev rankOneScalarGrade := degreeZeroGrading ℚ
+private abbrev rankOneStandardGrade := degreeZeroGrading (S false)
+private abbrev rankOneDifferential :=
+  gradedLoadingResolutionChainMap data false rankOneScalarGrade mulGrade eGrade eIdem
+    aboveTrans rankOneStandardGrade quotientGrade
+
+-- The rank-one example has a nonzero higher kernel in degree zero.
+example : Function.Exact (rankOneDifferential 0) (data.quotient false) :=
+  gradedLoadingResolutionChainMap_augmentation_exact data false rankOneScalarGrade mulGrade eGrade eIdem aboveTrans rankOneStandardGrade quotientGrade
+
+example : Function.Exact (rankOneDifferential 1) (rankOneDifferential 0) :=
+  gradedLoadingResolutionChainMap_exact data false rankOneScalarGrade mulGrade eGrade eIdem aboveTrans rankOneStandardGrade quotientGrade 0
+
+example : ∃ x, rankOneDifferential 0 x = (⟨1, one_mul 1⟩ : P) :=
+  ((gradedLoadingResolutionChainMap_augmentation_exact data false rankOneScalarGrade mulGrade eGrade
+    eIdem aboveTrans rankOneStandardGrade quotientGrade) ⟨1, one_mul 1⟩).mp rfl
+
+end NonVacuity.WebsterOrderedGradedResolution
 
 end

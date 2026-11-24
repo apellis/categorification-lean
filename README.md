@@ -1001,6 +1001,15 @@ weights (`Stendhal.rootSum_coevaluationWord`). For linearly independent simple
 roots this determines the multiplicities
 (`Stendhal.coevaluationWord_multiplicities_eq`). Proposition 7.2 remains open.
 
+**Webster, arXiv:1309.3796v2, §7.1, Lemma 7.3.** The smaller-cut trace is
+the sum of the images of maps from the corresponding loading projectives
+(`Stendhal.coevaluationTrace_eq_iSup_range`). A supported character and a
+corner inverse test identify this trace with the unique maximal submodule
+(`Stendhal.coevaluationTrace_eq_iff_simpleQuotient`). The mixed bigon factors
+the terminal black dot power through the adjacent smaller cut
+(`Stendhal.bigon_mem_coevaluationTrace`). The full diagrammatic inputs to
+the criterion remain open.
+
 ### Weak `sl₂`-categorifications (Chuang–Rouquier, arXiv:math/0407205v2, §5)
 
 Input for Webster's §5 (arXiv:1309.3796v2, Props. 5.11–5.18). A weak `sl₂`-categorification

@@ -132,16 +132,14 @@ private theorem middleStalk_coordinate_act {X Y : W₂} (a : X ⟶ Y)
 private abbrev middleDiagramStalkValue (X : W₂) :=
   InDegreeZero ((ℳ₂ (X.as - 0)).toAddSubgroup)
 
+private theorem middleStalkShift_mem (X : W₂) (v : S₂) :
+    v ∈ (ℳ₂ (X.as - 0)).toAddSubgroup ↔ v ∈ (ℳ₂ X.as).toAddSubgroup := by
+  rw [sub_zero]
+
 private def middleStalkWeightTransport (X : W₂) :
     middleStalkValue k X ≃+ middleDiagramStalkValue k X where
-  toFun z := ⟨z.val, by
-    change z.val ∈ (ℳ₂ (X.as - 0)).toAddSubgroup
-    rw [sub_zero]
-    exact z.property⟩
-  invFun z := ⟨z.val, by
-    change z.val ∈ (ℳ₂ X.as).toAddSubgroup
-    have hz : z.val ∈ (ℳ₂ (X.as - 0)).toAddSubgroup := z.property
-    rwa [sub_zero] at hz⟩
+  toFun z := ⟨z.val, (middleStalkShift_mem k X z.val).mpr z.property⟩
+  invFun z := ⟨z.val, (middleStalkShift_mem k X z.val).mp z.property⟩
   left_inv _ := rfl
   right_inv _ := rfl
   map_add' _ _ := rfl

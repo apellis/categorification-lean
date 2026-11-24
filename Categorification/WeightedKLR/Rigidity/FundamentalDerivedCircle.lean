@@ -2,6 +2,7 @@
 Copyright (c) 2026 Alex Ellis. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 -/
+import Categorification.WeightedKLR.Rigidity.CapProjectives
 import Categorification.WeightedKLR.Rigidity.FundamentalCupCap
 import Categorification.WeightedKLR.Rigidity.FundamentalCupRegular
 import Categorification.Algebra.DerivedTensorDegreeZero
@@ -9,6 +10,7 @@ import Categorification.Algebra.ProjectiveKProjective
 import DG.Homotopy.ComparisonRing
 import DG.Derived.Basic
 import Mathlib.CategoryTheory.Triangulated.Adjunction
+import Mathlib.Algebra.Homology.DerivedCategory.TStructure
 
 /-!
 # The fundamental derived cap and its cup–evaluation coefficient
@@ -45,62 +47,11 @@ local notation "BT" f:arg => TensorProductOver Tᵐᵒᵖ (InDegreeZero CM) (RP 
   change terminalCharacter terminalIdem * (show ℚ from x) = _
   rw [terminalCharacter_terminalIdem, one_mul]
 
-section OrdinaryTensor
-
-variable {f : T} (hf : IsIdempotentElem f)
-
-private def coefficientTensorMul : InDegreeZero CM →+ RP f →+ fixSub ℚ L f where
-  toFun b :=
-    { toFun := fun p => ⟨p.val • (show L from b), by
-        change f • (p.val • (show L from b)) = _
-        rw [← mul_smul, p.property]⟩
-      map_zero' := Subtype.ext (by
-        change terminalCharacter 0 * (show ℚ from b) = 0
-        rw [map_zero, zero_mul])
-      map_add' p q := Subtype.ext (add_smul p.val q.val (show L from b)) }
-  map_zero' := AddMonoidHom.ext fun p => Subtype.ext (by
-    change terminalCharacter p.val * 0 = 0
-    exact mul_zero _)
-  map_add' b b' := AddMonoidHom.ext fun p => Subtype.ext (smul_add p.val b b')
-
-private def coefficientTensorTo : BT f →+ fixSub ℚ L f :=
-  TensorProductOver.lift (coefficientTensorMul (f := f)) fun a b p =>
-    Subtype.ext (mul_smul p.val a.unop (show L from b)).symm
-
-/-- Balancing the cap coefficient with a loading projective gives the
-image of that loading idempotent in the left coefficient. -/
-def coefficientLoadingTensorEquiv : BT f ≃ₗ[ℚ] fixSub ℚ L f := by
-  let g : RP f := ⟨f, hf.eq⟩
-  let inv : fixSub ℚ L f →+ BT f :=
-    ((TensorProductOver.tmulAddHom Tᵐᵒᵖ (InDegreeZero CM) (RP f)).flip g).comp
-      (fixSub ℚ L f).subtype.toAddMonoidHom
-  have hleft : inv.comp coefficientTensorTo = AddMonoidHom.id (BT f) := by
-    apply TensorProductOver.addHom_ext
-    intro b p
-    change TensorProductOver.tmul Tᵐᵒᵖ (op (op p.val) • b) g =
-      TensorProductOver.tmul Tᵐᵒᵖ b p
-    rw [TensorProductOver.op_smul_tmul]
-    congr 1
-    exact Subtype.ext p.property
-  refine { coefficientTensorTo with
-    invFun := inv
-    left_inv := DFunLike.congr_fun hleft
-    right_inv := fun x => Subtype.ext x.property
-    map_smul' := ?_ }
-  intro c x
-  have h : coefficientTensorTo.comp (DistribSMul.toAddMonoidHom (BT f) c) =
-      (DistribSMul.toAddMonoidHom (fixSub ℚ L f) c).comp coefficientTensorTo := by
-    apply TensorProductOver.addHom_ext
-    intro b p
-    change coefficientTensorTo (c • TensorProductOver.tmul Tᵐᵒᵖ b p) =
-      c • coefficientTensorTo (TensorProductOver.tmul Tᵐᵒᵖ b p)
-    rw [TensorProductOver.smul_tmul]
-    apply Subtype.ext
-    change p.val • (c • (show L from b)) = c • (p.val • (show L from b))
-    exact smul_algebra_smul_comm c p.val _
-  exact DFunLike.congr_fun h x
-
-end OrdinaryTensor
+/-- Balancing the terminal coefficient with a loading projective gives the
+image of that loading idempotent. -/
+def coefficientLoadingTensorEquiv {f : T} (hf : IsIdempotentElem f) :
+    BT f ≃ₗ[ℚ] fixSub ℚ L f :=
+  Coevaluation.coefficientLoadingTensorEquiv ℚ T L hf
 
 private theorem loadingIdem_idempotent (s : KLR.Seq (stendhalWeight 2 ({()} : Multiset Unit))) :
     IsIdempotentElem (project (StendhalAlgebraAllOrders.e s)) :=
@@ -115,20 +66,8 @@ local notation "zeroObj" R:arg N:arg => C (DGModuleCat.of R (InDegreeZero N))
 
 /-- The cap on a loading projective is its idempotent image in degree zero. -/
 def fundamentalCap_loadingProjectiveIso {f : T} (hf : IsIdempotentElem f) :
-    fundamentalCap.obj (zeroObj Tᵐᵒᵖ (rIdeal f)) ≅ zeroObj ℚ (fixSub ℚ L f) := by
-  let : Module.Projective Tᵐᵒᵖ (rIdeal f) := rIdeal_projective hf
-  let U := DGModuleCat.of Tᵐᵒᵖ (RP f)
-  let W := DGModuleCat.of ℚ (InDegreeZero (fixSub ℚ L f))
-  let G := DGModuleCat.tensorFunctor (B := Tᵐᵒᵖ) ℚ (InDegreeZero CM)
-  let e : BT f ≃ᵈᵍ[ℚ] InDegreeZero (fixSub ℚ L f) :=
-    DGModuleEquiv.ofDegreeZero (coefficientLoadingTensorEquiv hf)
-      (fun hx hn => TensorProductOver.eq_zero_of_mem_grading_inDegreeZero hn hx)
-      TensorProductOver.d_inDegreeZero
-      (fun y => (InDegreeZero.mem_grading_iff _).mpr (Or.inl rfl))
-      (InDegreeZero.d_apply _)
-  exact derivedTensorObjIso (A := ℚ) (B := Tᵐᵒᵖ) (M := CM) (P := U)
-    (show IsKProjective Tᵐᵒᵖ (RP f) from InDegreeZero.isKProjective) ≪≫
-    DG.DerivedCategory.Q.mapIso (DGModuleCat.isoOfDGModuleEquiv (M := G.obj U) (N := W) e)
+    fundamentalCap.obj (zeroObj Tᵐᵒᵖ (rIdeal f)) ≅ zeroObj ℚ (fixSub ℚ L f) :=
+  capFunctor_projectiveIso ℚ T L hf
 
 private theorem fundamentalCap_middle_isZero :
     IsZero (fundamentalCap.obj (zeroObj Tᵐᵒᵖ (rIdeal middleIdem))) := by
@@ -158,6 +97,8 @@ private def fundamentalCap_terminalIso :
     DG.DerivedCategory.Q.mapIso (DGModuleCat.isoOfDGModuleEquiv h)
 
 section Comparison
+
+omit [HasDerivedCategory.{v,0} ℚ] [HasDerivedCategory.{v,0} Tᵐᵒᵖ]
 
 variable (R : Type) [Ring R] [HasDerivedCategory.{v,0} R]
     [_root_.HasDerivedCategory.{1} (ModuleCat.{0} R)]
@@ -257,6 +198,38 @@ private def comparisonDegreeZero (N : Type) [AddCommGroup N] [Module R N] :
     _root_.DerivedCategory.Qh.mapIso ((DegreeZero.homotopyFunctorFactors R).app U) ≪≫
     (_root_.DerivedCategory.quotientCompQhIso (ModuleCat.{0} R)).app K ≪≫
     _root_.DerivedCategory.Q.mapIso (@asIso _ _ _ _ f hf)
+
+/-- A short exact sequence of ordinary modules gives a distinguished triangle on
+their degree-zero dg modules. This transports the standard derived-category triangle
+across the comparison with dg modules over a degree-zero ring. -/
+theorem exists_degreeZero_triangle_of_shortExact (S : ShortComplex (ModuleCat.{0} R)) (hs : S.ShortExact) :
+    ∃ D : Triangle (DG.DerivedCategory.{v,0} R), D ∈ distTriang _ ∧
+      Nonempty (D.obj₁ ≅ zeroObj R S.X₁) ∧ Nonempty (D.obj₂ ≅ zeroObj R S.X₂) ∧
+      Nonempty (D.obj₃ ≅ zeroObj R S.X₃) := by
+  let E := comparisonEquivalence R
+  let iso (N : ModuleCat.{0} R) :
+      E.inverse.obj ((_root_.DerivedCategory.singleFunctor (ModuleCat.{0} R) 0).obj N) ≅ zeroObj R N :=
+    E.inverse.mapIso (comparisonDegreeZero R N).symm ≪≫ E.unitIso.symm.app _
+  exact ⟨E.inverse.mapTriangle.obj hs.singleTriangle, E.inverse.map_distinguished _ hs.singleTriangle_distinguished,
+    ⟨iso S.X₁⟩, ⟨iso S.X₂⟩, ⟨iso S.X₃⟩⟩
+
+/-- Every morphism from a degree-zero module shifted by one to a degree-zero
+module vanishes, by orthogonality in the standard t-structure. -/
+theorem degreeZero_shift_one_hom_eq_zero (M N : ModuleCat.{0} R)
+    (f : (zeroObj R M)⟦(1 : ℤ)⟧ ⟶ zeroObj R N) : f = 0 := by
+  let F := comparison R
+  let s := _root_.DerivedCategory.singleFunctor (ModuleCat.{0} R) 0
+  let e₁ : F.obj ((zeroObj R M)⟦(1 : ℤ)⟧) ≅ (s.obj M)⟦(1 : ℤ)⟧ :=
+    (F.commShiftIso (1 : ℤ)).app _ ≪≫ (shiftFunctor _ (1 : ℤ)).mapIso (comparisonDegreeZero R M)
+  let e₂ : F.obj (zeroObj R N) ≅ s.obj N := comparisonDegreeZero R N
+  let t : CategoryTheory.Triangulated.TStructure (_root_.DerivedCategory (ModuleCat.{0} R)) :=
+    _root_.DerivedCategory.TStructure.t
+  have hz : e₁.inv ≫ F.map f ≫ e₂.hom = 0 :=
+    t.zero_of_isLE_of_isGE _ (-1) 0 (by decide)
+      (t.isLE_shift (s.obj M) 0 1 (-1) (by decide)) (inferInstanceAs ((s.obj N).IsGE 0))
+  apply F.map_injective
+  rw [Functor.map_zero, ← cancel_epi e₁.inv, ← cancel_mono e₂.hom]
+  simpa only [Category.assoc, comp_zero, zero_comp] using hz
 
 end Comparison
 

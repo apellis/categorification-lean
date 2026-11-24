@@ -8584,6 +8584,20 @@ example :
       (seqIdem (parameter ℚ) weights loading loading_ordered) ≃ₗ[ℚ] DualNumber ℚ :=
   middleCutDotSumEquiv ℚ
 
+open KLR
+
+private abbrev higher : KLR.Seq (stendhalWeight 2 (({()} : Multiset Unit) + {()})) :=
+  TypeA.sadj (Multiset.card (stendhalWeight 2 (({()} : Multiset Unit) + {()}))) 2 • loading
+
+private theorem higher_ordered : IsRedOrdered higher := by
+  unfold IsRedOrdered
+  decide +kernel
+
+example :
+    Subsingleton (fixSub ℚ (Standard ℚ) (seqIdem (parameter ℚ) weights higher higher_ordered)) :=
+  middleFixed_subsingleton_of_other_loading ℚ higher higher_ordered
+    (by decide +kernel) (by decide +kernel)
+
 end NonVacuity.WebsterLabelTwoMiddleFixedComplex
 
 end

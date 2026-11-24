@@ -8663,6 +8663,12 @@ example := middleStandardTensorEquiv_plus ℚ
 
 example := middleStandardTensorEquiv_minus ℚ
 
+example := middleCutDotSum_scalar_mem_grade ℚ
+
+example := middleCutDotSum_epsilon_mem_grade ℚ
+
+example := middleCutDotSum_mem_grade_iff ℚ
+
 end NonVacuity.WebsterLabelTwoMiddleFixedComplex
 
 end

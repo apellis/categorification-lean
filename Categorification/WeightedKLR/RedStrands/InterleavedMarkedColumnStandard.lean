@@ -24,7 +24,6 @@ local notation "Q" => CL.qCL (CL.CLScalars.kl : CL.CLScalars C k)
 local notation "μ" => stendhalWeight ℓ ν
 local notation "n" => Multiset.card μ
 
-set_option maxHeartbeats 1200000 in
 /-- The marked-column kernel inclusion for one intervening black strand, with
 arbitrary exterior strands and pairings at standard parameters. -/
 theorem interleaved_markedColumn_injective_standard
@@ -35,7 +34,7 @@ theorem interleaved_markedColumn_injective_standard
     (ha : s.lbl ⟨j+2,hj⟩ = .inr a)
     (ho : redWord (wordProd n [j,j+1,j] • s) = redWord t) :
     Function.Injective (blockKernelColumnInclusion Q Λ t a b s) := by
-  apply interleaved_markedColumn_injective_of_right_leg Q Λ t s a b j hj hQ ht hb hi ha ho
+  refine interleaved_markedColumn_injective_of_right_leg Q Λ t s a b j hj hQ ht hb hi ha ho ?_
   intro x hleft hmul
   have hnd : (Lr ++ a :: b :: Mr).Nodup := ht ▸ redWord_nodup t
   have hab : a ≠ b := fun he =>
@@ -52,11 +51,15 @@ theorem interleaved_markedColumn_injective_standard
   let s' := wordProd n [j,j+1] • s
   have hs' : sadj n (j+1) • s' = wordProd n [j,j+1,j] • s := by
     simpa only [s', wordProd_cons, wordProd_nil, mul_one, mul_smul] using (braid_smul hj s).symm
-  apply RedBlock.mem_blockUpperIdeal_of_standard_paired_crossing C Λ f hR hQ Lr Mr
-    t s' (j+1) (by omega) i ht
-  · rwa [hs']
-  · rw [hs']; exact (braid_smul_apply_one hj s).trans hi
-  · rw [hs']; exact (braid_smul_apply_two hj s).trans hb
+  have hsource : redWord (sadj n (j+1) • s') = redWord t := hs' ▸ ho
+  have hblack : (sadj n (j+1) • s').lbl ⟨j+1,by omega⟩ = .inl i := by
+    rw [hs']
+    exact (braid_smul_apply_one hj s).trans hi
+  have hred : (sadj n (j+1) • s').lbl ⟨j+2,hj⟩ = .inr (f 1) := by
+    rw [hs', hfb]
+    exact (braid_smul_apply_two hj s).trans hb
+  refine RedBlock.mem_blockUpperIdeal_of_standard_paired_crossing C Λ f hR hQ Lr Mr
+    t s' (j+1) (by omega) i ht hsource hblack hred x ?_ ?_
   · rwa [hs']
   · simpa only [s', ψw_cons, ψw_nil, mul_one, hfa, hfb] using hmul
 

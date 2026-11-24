@@ -9306,6 +9306,7 @@ noncomputable example (n : ℕ) :=
 section
 
 open DG
+open scoped DG.DegreeZero
 
 local notation "MiddleT" => TensorProductAlgebra ℚ (parameter ℚ) weights
   (({()} : Multiset Unit) + {()})

@@ -14,7 +14,6 @@ dual-number specialization relation in the factor algebra.
 -/
 
 noncomputable section
-set_option maxHeartbeats 1800000
 
 namespace Categorification.Stendhal.LabelTwo
 

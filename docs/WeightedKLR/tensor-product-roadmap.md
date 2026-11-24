@@ -1086,7 +1086,12 @@ local PBW words and their shifted bottom dots (`range_intervalConcat_eq_span`).
 
 ### Phase E: §7, rigidity
 
-Coevaluation and evaluation for a pair (Def 7.1, Prop 7.2, Def 7.4, Props 7.5, 7.6,
+For Definition 7.1, `coevaluationWord` uses the simple coroot pairings along a
+reflection path. At nonnegative pairings, `rootSum_coevaluationWord` computes
+its total root content from the endpoints. Linear independence then makes
+the multiplicities independent of the chosen path with that endpoint.
+
+Coevaluation and evaluation for a pair (Prop 7.2, Def 7.4, Props 7.5, 7.6,
 7.8, Cors 7.7, 7.9, 7.10); ribbon structure (Prop 7.11, Def 7.12, Prop 7.13); general
 coevaluation and quantum trace (Def 7.15, Lemmas 7.16, 7.17, 7.19, Def 7.18,
 Props 7.20, 7.21, 7.22). All open.

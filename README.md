@@ -994,6 +994,13 @@ Erratum (Webster, arXiv:1209.2463v4, Theorem 2.19, ground ring). §2.1 fixes an 
 
 Notation note (Webster, arXiv:1209.2463v4, proof of Theorem 2.19, grading shift). The proof states that the subquotients of the Mackey filtration of `Res ∘ Ind` are shifted by the inner product `-⟨μ, μ'⟩`. The shift is the degree of the diagram exchanging a block of strands of dimension vector `μ` with one of dimension vector `μ'`, and this degree is `-(μ · μ')` for the symmetric form `i · j = ⟨i, j⟩ + ⟨j, i⟩`, as in KL I Prop. 2.18: the exchange crosses each hyperplane joining the two blocks exactly once, and a strand of colour `i` and one of colour `j` contribute the walls of the edges between `i` and `j` in both directions (`WeightedKLR.Juxtapose.segDeg_chamber_swapChamber`, `WeightedKLR.GradingDatum.pairDeg_comm`). So the printed shift is correct when `⟨-, -⟩` is read as the symmetric pairing of roots of §2.1 (where `⟨α_i, α_i⟩` is the degree of a dot), and wrong for the non-symmetric form `⟨j, i⟩ = d_i δ_{ij} - ∑_{e : j → i} d_i c_e` defined just before in §2.4. For one edge `e : 0 → 1` with `d = c_e = 1`, exchanging one strand of each colour crosses one wall of degree `1` in both orders, while the §2.4 form gives `⟨α_1, α_0⟩ = 0`. The twisted product on `K_0` in the statement of Theorem 2.19 uses the symmetric form, so only the reading of the proof is affected.
 
+**Webster, arXiv:1309.3796v2, Definition 7.1.** The word of the extremal projective
+records the coroot pairing at each reflection. Along a path with nonnegative
+pairings, its root content is the difference between the initial and final
+weights (`Stendhal.rootSum_coevaluationWord`). For linearly independent simple
+roots this determines the multiplicities
+(`Stendhal.coevaluationWord_multiplicities_eq`). Proposition 7.2 remains open.
+
 ### Weak `sl₂`-categorifications (Chuang–Rouquier, arXiv:math/0407205v2, §5)
 
 Input for Webster's §5 (arXiv:1309.3796v2, Props. 5.11–5.18). A weak `sl₂`-categorification

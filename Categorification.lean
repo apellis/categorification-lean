@@ -1802,6 +1802,7 @@ import Categorification.WeightedKLR.RedStrands.BraidedStandardGrading
 import Categorification.WeightedKLR.RedStrands.BraidedStandardInjective
 import Categorification.WeightedKLR.RedStrands.BraidedStandardIso
 import Categorification.WeightedKLR.RedStrands.BraidedStandardModule
+import Categorification.WeightedKLR.RedStrands.FigureFiveColumnFiltration
 import Categorification.WeightedKLR.RedStrands.VacuumBraidColumnDimension
 import Categorification.WeightedKLR.RedStrands.LabelTwoPeriodic
 import Categorification.WeightedKLR.RedStrands.LabelTwoUnknotHomology

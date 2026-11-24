@@ -6338,6 +6338,8 @@ private theorem hb : EdgeBraid (by decide : 0 < μ.card) 1 g s t where
 
 private theorem h1 : 1 < μ.card := by decide
 
+example := figureFiveColumn_hasStandardFiltration (Λ := Λ) (d := 0) hρ hQ h1 rfl rfl hb
+
 private noncomputable def figure5LoadingEquiv :=
   violLoadingStandardEquivBraidCorner (Λ₂ := Λ) (d := 0) hρ hQ h1 rfl rfl hb
 

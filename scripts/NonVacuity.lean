@@ -8966,6 +8966,12 @@ private theorem productSpan :
 example := diagramWeightCoendProduct_surjective G G G leftAction rightAction leftAction rightAction
   product productWeight productBalanced (⟨0⟩ : QWeight) (⟨0⟩ : QWeight) productSpan
 
+private theorem productLeft (a x y : ℚ) : product (a • x) y = a • product x y :=
+  mul_assoc a x y
+
+example := diagramWeightCoendProductHom G G G leftAction rightAction leftAction rightAction
+  product productWeight productBalanced (⟨0⟩ : QWeight) leftAction rightAction productLeft
+
 end
 
 end NonVacuity.WebsterWeightCoend

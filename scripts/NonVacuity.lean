@@ -9329,7 +9329,7 @@ local notation "ν" => ({()} + {()} : Multiset Unit)
 local notation "corner" order:arg =>
   IsIdempotentElem.Corner (isIdempotentElem_violMk_redProj ℚ Q Λ ν order)
 
-local instance (order : List (Fin 3)) : DG.HasDerivedCategory.{0, 0} (corner order)ᵐᵒᵖ :=
+noncomputable local instance (order : List (Fin 3)) : DG.HasDerivedCategory.{0, 0} (corner order)ᵐᵒᵖ :=
   DG.HasDerivedCategory.small _
 
 example := fiveSlot_partialStandard_braid_homology_vanish_all_tops_standard

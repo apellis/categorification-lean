@@ -101,7 +101,6 @@ import Categorification.Algebra.InductionAlongTriple
 import Categorification.Algebra.K0FinDim
 import Categorification.Algebra.ModuleCatLinear
 import Categorification.Algebra.ModuleFiltration
-import Categorification.Algebra.ModuleFiltrationChangeOfRings
 import Categorification.Algebra.ModuleFiltrationMap
 import Categorification.Algebra.IdempotentTraceFiltration
 import Categorification.Algebra.MonicTrace

@@ -2,7 +2,7 @@
 Copyright (c) 2026 Alex Ellis. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 -/
-import Categorification.Algebra.ModuleFiltrationChangeOfRings
+import Categorification.Algebra.ModuleFiltrationMap
 import Categorification.WeightedKLR.RedStrands.AdjacentBlockSlide
 import Categorification.WeightedKLR.RedStrands.FiniteHigherKernelChain
 import Categorification.WeightedKLR.RedStrands.AdjacentBlockRoot
@@ -315,7 +315,7 @@ theorem blockLoadingKernel_hasFiltration_redPerm
   have iso (t : C₀) : Nonempty (((ModuleCat.restrictScalars F.symm.toRingHom).obj
       (blockPartialStandardAt Q Λ' t.1 a b κ t.2)) ≃ₗ[_] L (redPermOrderedLoading σ κ t)) :=
     ⟨blockPartialStandardAt_redPermLinearEquiv Q σ h t.1 κ t.2 a b⟩
-  have HL := HasFiltration.mapLabels (redPermOrderedLoading σ κ) L iso H'
+  have HL := (HasFiltration.mono iso H').relabel (redPermOrderedLoading σ κ)
   exact HL.of_equiv (fixedOrderKernelObj_redPermLinearEquiv Q σ h s.1 κ s.2 a b)
 
 end Categorification.Stendhal.BraidedStendhalAlgebra

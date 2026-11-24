@@ -16,9 +16,6 @@ therefore computes ordinary weight tensor in cohomological degree zero.
 
 noncomputable section
 
-set_option maxHeartbeats 1800000
-set_option maxRecDepth 2048
-
 namespace Categorification
 
 open CategoryTheory DG MulOpposite

@@ -7068,6 +7068,37 @@ example := twoBlackRightPivotLabels loading 0 (by decide)
 
 end NonVacuity.WebsterTwoBlackExits
 
+namespace NonVacuity.WebsterPivotObstruction
+open Categorification.KLR Categorification.TypeA Categorification.Stendhal
+open BraidedStendhalAlgebra KLRAlgebra
+open MvPolynomial Equiv
+
+private abbrev ν : Multiset Unit := {()} + {()}
+private abbrev μ := stendhalWeight 2 ν
+private abbrev Q : Unit → Unit → MvPolynomial (Fin 2) ℚ := fun _ _ => 0
+private abbrev Λ : Fin 2 → Unit →₀ ℕ := fun r => if r = 0 then Finsupp.single () 3 else 0
+private def v : Seq μ := Seq.ofList [.inr 0, .inr 1, .inl (), .inl ()] (by decide)
+private abbrev A := KLRAlgebra ℚ (stendhalQ Q Λ) μ
+
+/-- A right-red crossing and its composition with a black crossing have a
+coupled relation in the affine KLR column with a surviving upper idempotent. -/
+example :=
+  let ρ := canWord μ.card
+  let hρ : ∀ w : Perm (Fin μ.card), IsReduced μ.card (ρ w) ∧ wordProd μ.card (ρ w) = w := fun w => ⟨isReduced_canWord _ w, wordProd_canWord _ w⟩
+  let B := lbasis (k := ℚ) («μ» := μ) (stendhalQ_symm Q Λ (fun _ _ _ => rfl)) ρ hρ
+  let u := sadj μ.card 1 • v
+  have h₁ : ρ 1 = [] := List.length_eq_zero_iff.mp
+    ((length_canWord _ _).trans (length_one _))
+  have hne : (e u : A) ≠ 0 := by
+    have he := B.ne_zero (u, 1, 0)
+    change lbasis _ ρ hρ (u, 1, 0) ≠ 0 at he
+    simpa only [lbasis_apply, h₁, ψw_nil, monomial_zero', map_one, one_mul] using he
+  exists_unmarked_twoColumnRelation_of_zeroExponent Q Λ (AlgHom.id ℚ A)
+    v 1 (by decide) 1 () rfl rfl (by decide) (⊥ : TwoSidedIdeal A)
+    (by simpa only [AlgHom.id_apply, TwoSidedIdeal.mem_bot] using hne)
+
+end NonVacuity.WebsterPivotObstruction
+
 namespace NonVacuity.WebsterIntervalColumn
 
 open Categorification.KLR Categorification.Stendhal

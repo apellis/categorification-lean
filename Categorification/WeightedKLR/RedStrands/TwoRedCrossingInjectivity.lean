@@ -172,7 +172,7 @@ theorem IsSecondRedCrossing.eq_zero_of_mul
   | atRight i θ u hu =>
     refine ⟨(appendRedLoading_ordered_iff _).2 (appendBlackLoading_ordered i _ u hu), ?_,
       eq_zero_of_mul_secondRedCrossing_at_right hR hQs Λ i θ u hu⟩
-    simp [stendhalWeight] <;> omega
+    simp [stendhalWeight]
   | @appendBlack ν a s t j h ih =>
     refine ⟨appendBlackLoading_ordered j ν s ih.1, ?_,
       eq_zero_of_mul_crossing_appendBlack QL hR Λ j ν a ih.2.1 s t ih.1 ih.2.2⟩

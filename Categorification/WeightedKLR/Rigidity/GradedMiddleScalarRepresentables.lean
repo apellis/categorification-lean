@@ -50,7 +50,8 @@ local notation "translate" t:arg => CatModule.DerivedCategory.internalShift Tᵐ
 local notation "headObj" => CatModule.DerivedCategory.Q.obj gradedMiddleSimple
 
 private instance : gradedMiddleCap.CommShift ℤ := by unfold gradedMiddleCap characterCap; infer_instance
-private def middleCupShift (n : ℤ) (X : CatModule.DerivedCategory.{v,0} (WeightCategory ℚ)) :
+/-- The normalized middle cup commutes with cohomological shifts of the input. -/
+def gradedMiddleCup_shiftIso (n : ℤ) (X : CatModule.DerivedCategory.{v,0} (WeightCategory ℚ)) :
     gradedMiddleCup.obj (X⟦n⟧) ≅ (gradedMiddleCup.obj X)⟦n⟧ := by
   let F := CatModule.DerivedCategory.restrict Fχ ⋙ translate 1
   let e := (F.commShiftIso n).app X
@@ -89,7 +90,7 @@ def gradedMiddleCupCap_shiftedScalarIso (j n : ℤ) :
     (gradedMiddleCup ⋙ gradedMiddleCap).obj ((line j)⟦n⟧) ≅
       (line (j-1))⟦n-1⟧ ⊞ (line (j+1))⟦n+1⟧ := by
   let sh := shiftFunctor (CatModule.DerivedCategory.{v,0} (WeightCategory ℚ)) n
-  let e₁ := gradedMiddleCap.mapIso (middleCupShift n (line j)) ≪≫
+  let e₁ := gradedMiddleCap.mapIso (gradedMiddleCup_shiftIso n (line j)) ≪≫
     (gradedMiddleCap.commShiftIso n).app (gradedMiddleCup.obj (line j))
   let e₂ := sh.mapBiprod ((line (j-1))⟦(-1 : ℤ)⟧) ((line (j+1))⟦(1 : ℤ)⟧)
   let e₃ := biprod.mapIso

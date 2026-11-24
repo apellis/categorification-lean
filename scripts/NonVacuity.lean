@@ -9777,6 +9777,10 @@ noncomputable example := fundamentalBraidTargetCap_translatedHeadIso.{1} 3
 
 noncomputable example := fundamentalBraidCappedCupIso.{1}
 
+noncomputable example := fundamentalBraidCappedCup_shiftedScalarIso.{1} 3 (-2)
+
+noncomputable example := fundamentalBraidCappedCup_clockwiseIso.{1} (-3) 2
+
 end NonVacuity.WebsterFundamentalBraidGradedResolutionModel
 end
 

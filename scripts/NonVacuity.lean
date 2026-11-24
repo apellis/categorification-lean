@@ -7597,7 +7597,7 @@ private theorem compose_at_cut (left right : List ℕ) :
 
 /-- Check a supported pair with a common-joint contribution, at positive red
 weights and with an exterior red spectator before the pair. -/
-private theorem pairAtTop (top : Seq μ) (hTop : top=s ∨ top=t)
+private theorem pairAtTop (top : Seq μ) (hTop : top=s ∨ top=t ∨ top=u)
     (order : redWord top = [0] ++ [1,2]) (g : ViolQuotient ℤ Q Λ ν) :
     let w := P (e top) * g * P (e u)
     let J := blockUpperIdeal ℤ Q Λ ν 1 2 (adjacentBlockRoot 1 2 top) (redWord top)
@@ -7627,13 +7627,15 @@ private theorem pairAtTop (top : Seq μ) (hTop : top=s ∨ top=t)
     rw [show y*P (ψw [2,3]*e s)=x*P (ψw [2]*e s) by
       simp only [x,y,mul_assoc,← map_mul,legs],sub_self]
     exact TwoSidedIdeal.zero_mem _
-  exists_equalBlack_rightPair_markedCycle_at_extreme_or_mixed Q Λ (fun _ _ _ => rfl)
+  exists_equalBlack_rightPair_markedCycle_at_three_tops Q Λ (fun _ _ _ => rfl)
     s top 2 (by decide) 1 2 () hTop [0] order rfl rfl rfl blacks x y (cut _) (cut _) rel
 
-/-- The right extreme and the mixed joint both admit the integral marked lift. -/
+/-- The right extreme, mixed joint and full joint admit the integral marked lift. -/
 example (g : ViolQuotient ℤ Q Λ ν) := pairAtTop s (Or.inl rfl) (by decide) g
 
-example (g : ViolQuotient ℤ Q Λ ν) := pairAtTop t (Or.inr rfl) (by decide) g
+example (g : ViolQuotient ℤ Q Λ ν) := pairAtTop t (Or.inr (Or.inl rfl)) (by decide) g
+
+example (g : ViolQuotient ℤ Q Λ ν) := pairAtTop u (Or.inr (Or.inr rfl)) (by decide) g
 
 end
 

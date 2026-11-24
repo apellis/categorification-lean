@@ -24,8 +24,10 @@ local notation "B" => BraidedStendhalAlgebra k Q Λ ν
 local notation "π" => ofKLR k Q Λ ν
 local notation "T" => toKLR k Q Λ ν
 
-private theorem mixed_reduced {N p : ℕ} (hp : p+2<N) :
-    IsReduced N [p] ∧ IsReduced N [p,p+1] ∧ IsReduced N [p+1,p,p+1] := by
+/-- The five local PBW words used by the mixed and full right-pair corners are reduced. -/
+theorem twoBlack_joint_words_reduced {N p : ℕ} (hp : p+2<N) :
+    IsReduced N [p] ∧ IsReduced N [p,p+1] ∧ IsReduced N [p+1,p,p+1] ∧
+      IsReduced N [p+1] ∧ IsReduced N [p+1,p] := by
   have shift {w : List ℕ} (hw : IsReduced 3 w) : IsReduced N (shiftWord p w) := by
     have empty (k : ℕ) : IsReduced k [] := by simp [TypeA.IsReduced, ValidWord, wordProd]
     have mid := (empty p).append_shiftWord (show p+3=p+3 from rfl) hw
@@ -43,7 +45,16 @@ private theorem mixed_reduced {N p : ℕ} (hp : p+2<N) :
     refine ⟨by simp [ValidWord], ?_⟩
     rw [length_eq_invCount]
     decide
-  simpa [shiftWord] using And.intro (shift one) (And.intro (shift two) (shift three))
+  have right : IsReduced 3 [1] := by
+    refine ⟨by simp [ValidWord], ?_⟩
+    rw [length_eq_invCount]
+    decide
+  have back : IsReduced 3 [1,0] := by
+    refine ⟨by simp [ValidWord], ?_⟩
+    rw [length_eq_invCount]
+    decide
+  simpa [shiftWord] using And.intro (shift one) (And.intro (shift two)
+    (And.intro (shift three) (And.intro (shift right) (shift back))))
 
 omit [DecidableEq I] in
 /-- The only nonidentity stabilizer of the mixed joint exchanges the
@@ -94,7 +105,7 @@ theorem exists_mixedJoint_corner_cycle_coefficient (hQ : KLRSymm Q) (s : Seq μ)
     simpa only [map_mul,toKLR_ofKLR_e] using congrArg T hz
   have sum := congrArg T rel
   simp only [map_add,map_mul,toKLR_ofKLR_e,toKLR_ofKLR_ψw,map_zero] at sum
-  obtain ⟨h₁,h₂,h₃⟩ := mixed_reduced hp
+  obtain ⟨h₁,h₂,h₃,_⟩ := twoBlack_joint_words_reduced hp
   obtain ⟨c,cut,cB,cD⟩ := KLRAlgebra.exists_mixedJoint_corner_cycle_coefficient
     (stendhalQ_symm Q Λ hQ) s p hp he hn h₁ h₂ h₃ (T x) (T y) (mixedJoint_stabilizer s p hp he red)
     (left x hx) (right x hx') (left y hy) (right y hy') sum

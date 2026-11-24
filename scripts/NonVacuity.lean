@@ -6473,3 +6473,27 @@ noncomputable example :=
   hasReflectedStandardFiltration_braidingBimodule [] [] rightFiltration
 
 end NonVacuity.WebsterBraidFiltration
+
+namespace NonVacuity.WebsterTwoBlackExits
+
+open KLR KLRAlgebra
+
+private abbrev colour := Fin 1 ⊕ Fin 2
+private abbrev labels : List colour := [.inr 0, .inl 0, .inl 0, .inr 1]
+private def loading : Seq (labels : Multiset colour) := Seq.ofList labels rfl
+
+private noncomputable def Q : colour → colour → MvPolynomial (Fin 2) ℚ :=
+  Stendhal.stendhalQ (fun _ _ => 0) (fun _ => Finsupp.single 0 1)
+
+example :
+    (ψw [0, 1, 2, 1, 0] * e loading : KLRAlgebra ℚ Q (labels : Multiset colour)) =
+      ψw [2, 0, 1, 2, 0] * e loading ∧
+    (ψw [2, 1, 0, 1, 2] * e loading : KLRAlgebra ℚ Q (labels : Multiset colour)) =
+      ψw [2, 0, 1, 2, 0] * e loading := by
+  have bounds : 0 + 3 < (labels : Multiset colour).card := by decide
+  have colours : loading.lbl ⟨0, by decide⟩ ≠ loading.lbl ⟨0 + 3, bounds⟩ := by
+    change (Sum.inr 0 : colour) ≠ Sum.inr 1
+    decide
+  exact twoBlackExitWords (Q := Q) 0 bounds loading colours
+
+end NonVacuity.WebsterTwoBlackExits

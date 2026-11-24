@@ -5953,6 +5953,25 @@ example := KLR.CycKLR.finrank_coevaluation_projectiveBlock CyclotomicHighestWeig
 example := classical_weightSpace_raise_extremal_eq_bot P generalized (weight : Module.Dual ℝ _) dominant
   1 () (by simp [CoxeterSystem.IsLeftDescent])
 
+/-- The actual level-two divided-power projective at the reflected weight is simple. -/
+example := KLR.CycKLR.isSimple_coevaluationProjective CyclotomicHighestWeight.params
+  (fun _ => 2) CyclotomicHighestWeight.datum 2 CyclotomicHighestWeight.dominantTwo
+  CyclotomicHighestWeight.regular P weight dominant (fun i => by
+    cases i
+    change P.root () (P.coroot ()) = (2 : ℝ)
+    rw [P.root_coroot]
+    rfl) [()] reduced
+
+example : coevaluationDividedWord (P.cartanDatum generalized) weight [()] = [((), 2)] := by
+  change [((), ((P.cartanDatum generalized).coroot () weight).toNat)] = _
+  have h : (P.cartanDatum generalized).coroot () weight = 2 := by
+    have h' := P.coroot_cartanDatum_cast generalized () weight
+    change (((P.cartanDatum generalized).coroot () weight : ℤ) : ℝ) = P.root () (P.coroot ()) at h'
+    rw [P.root_coroot] at h'
+    exact_mod_cast h'
+  rw [h]
+  rfl
+
 /-- The actual complete three-step string scalar at the quantum parameter is one. -/
 example := polCoef_endpoint (q := (RatFunc.X : RatFunc ℚ)) RatFunc.X_ne_zero
   LieLean.QuantumGroup.hvn_ratFunc 3

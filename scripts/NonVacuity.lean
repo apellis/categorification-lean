@@ -5750,6 +5750,12 @@ private theorem rbRouquier :
 private theorem rbSymm : KLRSymm (CL.qCL (CL.CLScalars.kl : CL.CLScalars rbC ℚ)) :=
   fun _ _ h => (h (Subsingleton.elim _ _)).elim
 
+/-- The ordinary crossing test with two appended positive red spectators. -/
+example :=
+  OrderedCrossingTest.rightmost_appendReds_standard rbRouquier rbSymm () 0
+    (KLRAlgebra.Seq.ofList [.inr (0 : Fin 2), .inr 1] (by decide))
+    (by unfold IsRedOrdered; decide) 2 (fun _ => Finsupp.single () 1)
+
 /-- The one-black kernel has its higher partial standard layer with positive spectator
 weight at the standard Khovanov–Lauda parameters for rank one. -/
 example :=

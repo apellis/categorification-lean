@@ -1090,6 +1090,18 @@ giving the concrete two-layer filtration
 The boundary character detects both of these partial standards when the four red
 weights are positive (`TwoSpectatorOneBlack.twoSpectatorLayer_nontrivial`).
 
+For a unique black strand and any red count, every higher retained cut has a
+left descent at the adjacent red immediately left of the black. When the swap
+raises the retained root, the actual crossing surjects onto the kernel
+(`crossingIntoKernelMap_oneBlack_surjective`). At standard parameters, the
+ordinary crossing test remains injective after appending any finite number of
+uncrossed reds (`OrderedCrossingTest.rightmost_appendReds_standard`). A finite
+chain of higher loading projectives, ending at a vanishing kernel, gives the
+filtration with the actual partial-standard quotients
+(`HigherProjectiveChain.hasFiltration`). Applying these results to an arbitrary
+one-black spectator chain still requires comparing the ordinary crossing test
+with the ordered-corner crossing at each position.
+
 Still open for Lemma 6.8: when a black lies between the bottom reds, prove that changes
 between different choices of the last crossing give equal balanced classes **in the
 tensor with `K`**. The ordinary parabolic coordinates are linear for juxtaposed block

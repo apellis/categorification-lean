@@ -9315,6 +9315,8 @@ local notation "MiddleG" => middleTensorGrade ℚ (labelTwoGradingDatum ℚ)
 
 local instance : InternalGrading MiddleT := gradedAlgebraInternalGrading MiddleG
 local instance : BigradedDGRing MiddleT := gradedAlgebraBigradedDGRing MiddleG
+local instance : InternalGrading ℚ := scalarInternalGrading ℚ
+local instance : BigradedDGRing ℚ := scalarBigradedDGRing ℚ
 local instance : CatModule.HasDerivedCategory.{1,0} (WeightCategory MiddleT) :=
   CatModule.HasDerivedCategory.standard (WeightCategory MiddleT)
 

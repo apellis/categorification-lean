@@ -35,19 +35,25 @@ private local instance {R : Type*} [Ring R] [Algebra k R] {u v : R} (hu : IsIdem
     IsScalarTower k hu.Corner (RedBlock.crossingSpace (k := k) u v) where
   smul_assoc c r x := Subtype.ext (smul_mul_assoc c r.1 x.1)
 
-private def columnIn : C →ₗ[T] B where
+local notation "Bκ" κ => RedBlock.crossingSpace (k := k) E (mk (redProj k Q Λ ν κ))
+
+private def columnInOrder (κ : List (Fin ℓ)) (hs : redWord s = κ) : C →ₗ[T] Bκ κ where
   toFun x := ⟨x.1,x.2.1,by
-    calc x.1 * F = (x.1 * p) * F := congrArg (· * F) x.2.2.symm
-         _ = x.1 := by rw [mul_assoc, ← map_mul, e_mul_redProj, ite_eq_left rfl, x.2.2]⟩
+    change x.1 * mk (redProj k Q Λ ν κ) = x.1
+    rw [← x.2.2, mul_assoc, ← map_mul, e_mul_redProj, ite_eq_left hs, x.2.2]⟩
   map_add' _ _ := rfl
   map_smul' _ _ := rfl
 
+private abbrev columnIn : C →ₗ[T] B := columnInOrder Q Λ t s (redWord s) rfl
+
 private theorem loading_sq : p * p = p := by rw [← map_mul,← map_mul,KLRAlgebra.e_mul_self]
 
-private def columnOut : B →ₗ[T] C where
+private def columnOutOrder (κ : List (Fin ℓ)) : (Bκ κ) →ₗ[T] C where
   toFun x := ⟨x.1 * p, by rw [← mul_assoc,x.2.1], by rw [mul_assoc,loading_sq]⟩
   map_add' x y := Subtype.ext (add_mul x.1 y.1 p)
   map_smul' r x := Subtype.ext (mul_assoc r.1 x.1 p)
+
+private abbrev columnOut : B →ₗ[T] C := columnOutOrder Q Λ t s (redWord s)
 
 /-- The map in (6.21) on the right loading `s`, formed by tensoring `K ↪ e(t)T`
 with `B e(s)` over `T`. -/
@@ -95,6 +101,78 @@ theorem blockKernelColumnInclusion_injective_of_tensor
     botMap emb embP out (recoverColumn Q Λ t a b s)
     (fun _ hx => (congrArg (fun z => botMap z) (hi (hx.trans (map_zero _).symm))).trans (map_zero _))
     (includeColumn Q Λ t a b s)
+
+private abbrev orderedLoadings (κ : List (Fin ℓ)) : Finset (KLR.Seq (stendhalWeight ℓ ν)) :=
+  Finset.univ.filter fun u => redWord u = κ
+
+private theorem columnAssembly_sum (κ : List (Fin ℓ)) (y : Bκ κ) :
+    ∑ u ∈ (orderedLoadings κ).attach,
+      columnInOrder Q Λ t u.1 κ (Finset.mem_filter.mp u.2).2
+        (columnOutOrder Q Λ t u.1 κ y) = y := by
+  classical
+  apply Subtype.ext
+  rw [AddSubmonoidClass.coe_finsetSum]
+  change (∑ u ∈ (orderedLoadings κ).attach, y.1 * mk (ofKLR k Q Λ ν (KLRAlgebra.e u.1))) = y.1
+  rw [Finset.sum_attach (orderedLoadings κ) (fun u => y.1 * mk (ofKLR k Q Λ ν (KLRAlgebra.e u)))]
+  rw [← Finset.mul_sum, ← map_sum, ← map_sum]
+  exact y.2.2
+
+private abbrev projectKernel (κ : List (Fin ℓ)) (u : KLR.Seq (stendhalWeight ℓ ν)) :=
+  BalancedTensor.mapRight (k := k) («B» := k) (M := K) (columnOutOrder Q Λ t u κ)
+
+private abbrev projectLoading (κ : List (Fin ℓ)) (u : KLR.Seq (stendhalWeight ℓ ν)) :=
+  BalancedTensor.mapRight (k := k) («B» := k) (M := P) (columnOutOrder Q Λ t u κ)
+
+private abbrev restoreKernel (κ : List (Fin ℓ)) (u : ↥(orderedLoadings (ν := ν) κ)) :=
+  BalancedTensor.mapRight (k := k) («B» := k) (M := K)
+    (columnInOrder Q Λ t u.1 κ (Finset.mem_filter.mp u.2).2)
+
+private theorem project_kernel_tensor (κ : List (Fin ℓ)) (u : KLR.Seq (stendhalWeight ℓ ν)) :
+    (blockKernelColumnInclusion Q Λ t a b u).comp (projectKernel Q Λ t a b κ u) =
+      (projectLoading Q Λ t κ u).comp (blockKernelTensorInclusion Q Λ t a b κ) :=
+  BalancedTensor.extB fun _ _ => rfl
+
+private theorem sum_kernel_tensor (κ : List (Fin ℓ)) :
+    (∑ u ∈ (orderedLoadings (ν := ν) κ).attach,
+      (restoreKernel Q Λ t a b κ u).comp (projectKernel Q Λ t a b κ u.1)) =
+      (LinearMap.id : BalancedTensor k k T K (Bκ κ) →ₗ[k] _) := by
+  apply BalancedTensor.extB
+  intro x y
+  refine (LinearMap.sum_apply (orderedLoadings (ν := ν) κ).attach
+    (fun u => (restoreKernel Q Λ t a b κ u).comp (projectKernel Q Λ t a b κ u.1))
+    (BalancedTensor.tmul x y)).trans ?_
+  change (∑ u ∈ (orderedLoadings (ν := ν) κ).attach, BalancedTensor.mkBil k k T K (Bκ κ) x
+      (columnInOrder Q Λ t u.1 κ (Finset.mem_filter.mp u.2).2
+        (columnOutOrder Q Λ t u.1 κ y))) = BalancedTensor.mkBil k k T K (Bκ κ) x y
+  let lift := BalancedTensor.mkBil k k T K (Bκ κ) x
+  let cut (u : ↥(orderedLoadings (ν := ν) κ)) :=
+    columnInOrder Q Λ t u.1 κ (Finset.mem_filter.mp u.2).2 (columnOutOrder Q Λ t u.1 κ y)
+  have hcut : ∑ u ∈ (orderedLoadings (ν := ν) κ).attach, cut u = y :=
+    columnAssembly_sum Q Λ t κ y
+  exact (map_sum lift cut (orderedLoadings (ν := ν) κ).attach).symm.trans (congrArg lift hcut)
+
+/-- The degree-one kernel test in Webster v2, §6.1, Lemma 6.8, (6.21), follows
+from the tests in all bottom loading columns of the exchanged red order. -/
+theorem blockKernelTensorInclusion_injective_of_columns (κ : List (Fin ℓ))
+    (hcol : ∀ u : KLR.Seq (stendhalWeight ℓ ν), redWord u = κ →
+      Function.Injective (blockKernelColumnInclusion Q Λ t a b u)) :
+    Function.Injective (blockKernelTensorInclusion Q Λ t a b κ) := by
+  rw [← LinearMap.ker_eq_bot, LinearMap.ker_eq_bot']
+  intro z hz
+  have hzero (u : ↥(orderedLoadings (ν := ν) κ)) : projectKernel Q Λ t a b κ u.1 z = 0 := by
+    refine hcol u.1 (Finset.mem_filter.mp u.2).2 ?_
+    calc
+      blockKernelColumnInclusion Q Λ t a b u.1 (projectKernel Q Λ t a b κ u.1 z) =
+          projectLoading Q Λ t κ u.1 (blockKernelTensorInclusion Q Λ t a b κ z) :=
+        LinearMap.congr_fun (project_kernel_tensor Q Λ t a b κ u.1) z
+      _ = projectLoading Q Λ t κ u.1 0 := congrArg (projectLoading Q Λ t κ u.1) hz
+      _ = 0 := map_zero (projectLoading Q Λ t κ u.1)
+      _ = blockKernelColumnInclusion Q Λ t a b u.1 0 := (map_zero _).symm
+  have hsum := LinearMap.congr_fun (sum_kernel_tensor Q Λ t a b κ) z
+  have heval := LinearMap.sum_apply (orderedLoadings (ν := ν) κ).attach
+    (fun u => (restoreKernel Q Λ t a b κ u).comp (projectKernel Q Λ t a b κ u.1)) z
+  refine hsum.symm.trans (heval.trans (Finset.sum_eq_zero fun u _ => ?_))
+  exact (congrArg (restoreKernel Q Λ t a b κ u) (hzero u)).trans (map_zero _)
 
 /-- Read a relation between two marked cuts in the loading column when the full
 kernel inclusion has been proved injective. In the first weight this identifies
@@ -213,5 +291,134 @@ theorem blockKernelColumnInclusion_injective_of_principal_factor
     (BalancedTensor.tmul_zero g))
 
 end PrincipalHigherCorner
+open scoped BigOperators
+
+section BottomFamily
+
+variable (κ' : List (Fin ℓ))
+local notation "μ" => stendhalWeight ℓ ν
+local notation "Sκ" => {u : KLR.Seq μ // redWord u=κ'}
+local notation "Bκ" => RedBlock.crossingSpace (k := k) E (mk (redProj k Q Λ ν κ'))
+local notation "Cof" => fun u : KLR.Seq μ =>
+  RedBlock.crossingSpace (k := k) E (mk (ofKLR k Q Λ ν (KLRAlgebra.e u)))
+local notation "pof" => fun u : KLR.Seq μ => mk (ofKLR k Q Λ ν (KLRAlgebra.e u))
+local notation "Full" => blockKernelTensorInclusion Q Λ t a b κ'
+
+@[instance_reducible] private noncomputable def bottomFamilyFintype : Fintype Sκ := by
+  classical
+  exact inferInstance
+
+attribute [local instance 1100] bottomFamilyFintype
+
+private def familyIn (u : Sκ) : Cof u.1 →ₗ[T] Bκ := by
+  obtain ⟨u,hu⟩ := u
+  subst κ'
+  exact columnIn Q Λ t u
+
+private def familyOut (u : Sκ) : Bκ →ₗ[T] Cof u.1 := by
+  obtain ⟨u,hu⟩ := u
+  subst κ'
+  exact columnOut Q Λ t u
+
+private theorem family_value (u : Sκ) (y : Bκ) :
+    (familyIn Q Λ t κ' u (familyOut Q Λ t κ' u y)).1=y.1*pof u.1 := by
+  obtain ⟨u,hu⟩ := u
+  subst κ'
+  rfl
+
+private def cutK (u : Sκ) : BalancedTensor k k T K Bκ →ₗ[k] BalancedTensor k k T K (Cof u.1) :=
+  BalancedTensor.mapRight (k := k) («B» := k) (M := K) (familyOut Q Λ t κ' u)
+
+private def cutP (u : Sκ) : BalancedTensor k k T P Bκ →ₗ[k] BalancedTensor k k T P (Cof u.1) :=
+  BalancedTensor.mapRight (k := k) («B» := k) (M := P) (familyOut Q Λ t κ' u)
+
+private def putK (u : Sκ) : BalancedTensor k k T K (Cof u.1) →ₗ[k] BalancedTensor k k T K Bκ :=
+  BalancedTensor.mapRight (k := k) («B» := k) (M := K) (familyIn Q Λ t κ' u)
+
+private theorem column_square (u : Sκ) :
+    (blockKernelColumnInclusion Q Λ t a b u.1).comp (cutK Q Λ t a b κ' u) =
+      (cutP Q Λ t κ' u).comp Full := by
+  apply BalancedTensor.ext
+  intro z y
+  rfl
+
+private theorem family_sum (y : Bκ) :
+    (∑ u : Sκ, familyIn Q Λ t κ' u (familyOut Q Λ t κ' u y))=y := by
+  classical
+  apply Subtype.ext
+  change (Bκ).subtype (∑ u : Sκ, familyIn Q Λ t κ' u (familyOut Q Λ t κ' u y))=y.1
+  rw [map_sum]
+  simp only [Submodule.subtype_apply,family_value,← Finset.mul_sum]
+  have all : (∑ u : Sκ, pof u.1) = mk (redProj k Q Λ ν κ') := by
+    calc
+      _ = ∑ u ∈ Finset.univ.map (Function.Embedding.subtype (fun u : KLR.Seq μ => redWord u = κ')), pof u := by
+        rw [Finset.sum_map]
+        rfl
+      _ = _ := by rw [Finset.univ_map_subtype, redProj, redIdem, map_sum, map_sum]
+  rw [all]
+  exact y.2.2
+
+private theorem put_cut_tmul (u : Sκ) (x : K) (y : Bκ) :
+    putK Q Λ t a b κ' u (cutK Q Λ t a b κ' u (BalancedTensor.tmul x y)) =
+      BalancedTensor.tmul x (familyIn Q Λ t κ' u (familyOut Q Λ t κ' u y)) := by
+  rfl
+
+private theorem put_cut_add (u : Sκ) (x y : BalancedTensor k k T K Bκ) :
+    putK Q Λ t a b κ' u (cutK Q Λ t a b κ' u (x+y)) =
+      putK Q Λ t a b κ' u (cutK Q Λ t a b κ' u x) +
+        putK Q Λ t a b κ' u (cutK Q Λ t a b κ' u y) :=
+  (congrArg (putK Q Λ t a b κ' u) (map_add (cutK Q Λ t a b κ' u) x y)).trans
+    (map_add (putK Q Λ t a b κ' u) _ _)
+
+private theorem tensor_family_sum (z : BalancedTensor k k T K Bκ) :
+    (∑ u : Sκ, putK Q Λ t a b κ' u (cutK Q Λ t a b κ' u z))=z := by
+  classical
+  induction z using BalancedTensor.induction_on with
+  | zero => simp only [map_zero,Finset.sum_const_zero]
+  | tmul x y =>
+    calc
+      _ = ∑ u : Sκ, BalancedTensor.tmul x (familyIn Q Λ t κ' u (familyOut Q Λ t κ' u y)) :=
+        Finset.sum_congr rfl (fun u _ => put_cut_tmul Q Λ t a b κ' u x y)
+      _ = BalancedTensor.tmul x (∑ u : Sκ, familyIn Q Λ t κ' u (familyOut Q Λ t κ' u y)) :=
+        (BalancedTensor.tmul_sum Finset.univ x _).symm
+      _ = _ := congrArg (BalancedTensor.tmul (k := k) («B» := k) (A := T) x)
+        (family_sum Q Λ t κ' y)
+  | add x y hx hy =>
+    let g (z : BalancedTensor k k T K Bκ) (u : Sκ) :=
+      putK Q Λ t a b κ' u (cutK Q Λ t a b κ' u z)
+    change (∑ u : Sκ, g (x+y) u) = x+y
+    calc
+      _ = ∑ u : Sκ, (g x u + g y u) :=
+        Finset.sum_congr rfl (fun u _ => put_cut_add Q Λ t a b κ' u x y)
+      _ = (∑ u : Sκ, g x u) + ∑ u : Sκ, g y u := Finset.sum_add_distrib
+      _ = _ := congrArg₂ (· + ·) hx hy
+
+private theorem column_zero_of_full (u : Sκ) (z : BalancedTensor k k T K Bκ)
+    (hz : Full z=0) :
+    blockKernelColumnInclusion Q Λ t a b u.1 (cutK Q Λ t a b κ' u z) = 0 :=
+  (LinearMap.congr_fun (column_square Q Λ t a b κ' u) z).trans
+    ((congrArg (cutP Q Λ t κ' u) hz).trans (map_zero (cutP Q Λ t κ' u)))
+
+/-- The kernel inclusion over the full bottom red order is injective if it is
+injective on each of its idempotent loading columns. -/
+theorem blockKernelTensorInclusion_injective_of_columns
+    (h : ∀ u : KLR.Seq μ, redWord u=κ' →
+      Function.Injective (blockKernelColumnInclusion Q Λ t a b u)) :
+    Function.Injective Full := by
+  classical
+  apply (injective_iff_map_eq_zero Full).mpr
+  intro z hz
+  have hc (u : Sκ) : cutK Q Λ t a b κ' u z=0 :=
+    h u.1 u.2 ((column_zero_of_full Q Λ t a b κ' u z hz).trans
+      (map_zero (blockKernelColumnInclusion Q Λ t a b u.1)).symm)
+  calc
+    z = ∑ u : Sκ, putK Q Λ t a b κ' u (cutK Q Λ t a b κ' u z) :=
+      (tensor_family_sum Q Λ t a b κ' z).symm
+    _ = ∑ _ : Sκ, (0 : BalancedTensor k k T K Bκ) :=
+      Finset.sum_congr rfl (fun u _ => (congrArg (putK Q Λ t a b κ' u) (hc u)).trans
+        (map_zero (putK Q Λ t a b κ' u)))
+    _ = 0 := Finset.sum_const_zero
+
+end BottomFamily
 
 end Categorification.Stendhal.BraidedStendhalAlgebra

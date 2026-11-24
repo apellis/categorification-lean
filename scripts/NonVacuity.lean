@@ -8852,6 +8852,16 @@ local instance : CatModule.HasDerivedCategory.{1,0} (WeightCategory Tᵐᵒᵖ) 
 example := gradedFundamentalCup
 example := gradedFundamentalCap
 
+example : gradedMiddleCharacter (MulOpposite.op middleIdem) = 1 := middleCharacter_middleIdem
+example : gradedMiddleCharacter (MulOpposite.op terminalIdem) = 0 := middleCharacter_terminalIdem
+example := gradedMiddleSimple_headEquiv
+example := normalizedMiddleSimple_line
+example : Subsingleton (normalizedMiddleSimple.obj ⟨0⟩) := normalizedMiddleSimple_subsingleton 0 (by decide)
+example := gradedMiddleCapCupAdjunction
+example := gradedMiddleCup_fieldIso
+example := gradedMiddleCap_middleIso
+example := gradedMiddleCap_terminal_isZero
+
 end
 
 end NonVacuity.WebsterGradedFundamentalCup

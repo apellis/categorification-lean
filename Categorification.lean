@@ -1782,6 +1782,7 @@ import Categorification.Algebra.DiagramWeightCoendSurjectivity
 import Categorification.Algebra.DiagramWeightOrdinaryTensor
 import Categorification.WeightedKLR.Rigidity.GradedCharacterCupCap
 import Categorification.WeightedKLR.Rigidity.GradedFundamentalCupCap
+import Categorification.WeightedKLR.Rigidity.GradedMiddleProjectives
 import Categorification.WeightedKLR.Rigidity.SingleBlackExtremal
 import Categorification.WeightedKLR.Rigidity.ExtremalNorm
 import Categorification.WeightedKLR.Rigidity.ExtremalWeightRank

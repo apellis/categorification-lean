@@ -1073,6 +1073,7 @@ import Categorification.WeightedKLR.Deformation
 import Categorification.WeightedKLR.RedStrands.BraidingFunctor
 import Categorification.WeightedKLR.RedStrands.BraidFiltrationDimension
 import Categorification.WeightedKLR.RedStrands.BraidColumnFiltration
+import Categorification.WeightedKLR.RedStrands.BraidColumnGeneration
 import Categorification.WeightedKLR.RedStrands.CrawleyBoevey
 import Categorification.WeightedKLR.RedStrands.CrawleyBoeveyIn
 import Categorification.WeightedKLR.RedStrands.Reduced

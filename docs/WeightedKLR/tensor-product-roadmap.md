@@ -964,20 +964,28 @@ retraction multiplies on the left by the loading idempotent and then applies the
 isomorphism. The diagram idempotent has internal degree zero, so both maps preserve every
 complex degree, and their composite on the exterior object is the identity.
 
-This does not yet give a graded derived functor comparison. The pinned `dg-lean` has integer
-internal weights via `DG.WeightCategory`, independent of the cochain grading. For this fixed
-braid, one can use the source coset `ℤ` and target coset `c + ℤ`, where
-`c = 2 − ⟨λ₁, λ₀⟩` is the correction to the auxiliary diagram degree. The bimodule of the two
-weight categories must use the piece at `n − m + c` between source `m` and target `n + c`.
-A comparison is needed between the coend tensor there and the graded balanced tensor here;
-the target piece at `n + c` must then be read at `n + c + ⟨λ₀ − α, λ₁⟩` in the unshifted
-upper exterior object. The pinned tensor–Hom derived tensor requires K-projective output
-slices of the braid. For the left-derived tensor alone this premise is unnecessary: descend
-along homotopy with `CatBimodule.homotopic_tensorMap`, then compose with the inverse of the
-source K-projective equivalence before tensoring and localize on the target. The remaining
-comparison must use the graded retract of the source representable and retain the internal
-coset; the ungraded derived comparison cannot supply it. Webster's `D⁻` also requires a
-bounded-above restriction, distinct from the fact that this projective is in cochain degree zero.
+`BraidedExteriorDerived.lean` uses `DG.WeightCategory` on the source coset `ℤ` and target
+coset `c + ℤ`, where `c = 2 − ⟨λ₁, λ₀⟩`. Between source `m` and target `n`, the braid piece
+is at internal degree `n − m + c`, independently of the cochain degree. The lower grading
+retract gives a corner generator at weight zero, hence `figureFiveLowerWeightModule_isKProjective`.
+The tensor descends through homotopy; applying it to a source K-projective representative
+and localizing on the target gives the ambient derived tensor, with no condition on the
+K-projectivity of the braid's output slices. `figureFiveBraidDerivedTensorObjIso` computes
+its value on the lower exterior standardization as the ordinary categorical coend.
+
+The comparison `figureFiveBraidCoendCutIso` sends the lower inclusion through the coend tensor,
+then evaluates the source representable at weight zero by `CatTensorProduct.rid`. On a pure
+coend tensor it multiplies the included lower diagram on the left of the braid diagram. Its
+image is fixed by the lower loading idempotent, hence in the loading cut. Its inverse sends a
+cut diagram `y` to `y ⊗ g`, where `g` is the projection of the regular unit to the lower
+standardization; balancing gives the first round trip and `e(s)y = y` gives the second.
+
+The right-linear comparison `figureFiveExteriorToCut` identifies that cut with the shifted
+upper exterior standardization. At weight coordinate `n` the unshifted upper piece is at
+`n + c + ⟨λ₀ − α, λ₁⟩`, all in cochain degree zero. Localizing gives
+`figureFiveBraidDerivedExteriorIso`, the ambient derived evaluation for the two-red Figure 5
+input. It does not establish the restriction of the functor to all of Webster's `D⁻` or
+replace the reduction by Lemma 6.8.
 
 For Lemma 6.11, `braidingBimoduleFlip` implements the horizontal reflection used in
 the proof of `f_n → s_n`. It swaps the order corners and intertwines their actions with
@@ -1031,6 +1039,38 @@ its tail. The ordered coefficient slides by balancing. Hence every affine relati
 zero balanced class: `crossingStack_injective` and `crossingStackEquiv` give the ordinary
 comparison for arbitrary spectators and black contents. `crossingDiagramCut_eq_inverse`
 identifies the original basis cut on every representative with the inverse on its class.
+The binary bottom-projector formula extends to each block of the parabolic
+coordinates. Theorem `violated_of_adjacent_shuffleLoading` shows that every compatible
+split of a globally violated or strictly higher retained source loading has an
+internally violated block. The projected coordinates vanish on diagrams factoring
+through one of these loadings, with arbitrary diagrams above and below the cut.
+`exists_blockStack_quotient_coordinates` descends the coordinates through red dots
+and both loading ideals to the partially standardized quotient. The coordinate
+words have coordinate `1` in their own slot and `0` in the other slots.
+`exists_blockColumn_coordinate_embedding` shows that the coordinates separate
+elements of the source-order block column. The affine coordinate representatives can
+be chosen as explicit reduced words indexed by the recursive block shuffles. In a
+binary shuffle, a right crossing either extends an external ascent or moves to an
+internal crossing in one block, with an error in a lower crossing-filtration step.
+The filtered binary coordinate reserves its shuffle length from the crossing
+budget, and the two tensor factors share the remainder. Iterating this bound gives
+the total-length bound for the recursive coordinates. In
+`exists_blockStack_filtered_quotient_coordinates` the bound passes to the image
+of that filtration in the quotient. For a right ascent in an arbitrary row,
+`quotientCoordinate_external_right_ascent` and
+`quotientCoordinate_internal_right_ascent` compute the leading quotient
+coordinates. The two alternatives land in disjoint targets. A matched
+nonviolated split in the source red order gives an ascent at a black–red joint.
+The exact indexed projector agrees with the loading of the selected shuffle.
+Consequently the external leading multiplier is the original right projector.
+The internal one is the supported crossing in the paired block.
+`blockColumn_eq_zero_of_ordered_paired_crossing` uses its ordered local injection
+to deduce the whole-column zero-kernel statement over a field.
+`exists_place_adjacent` places any nonviolated source loading with the prescribed
+red order in an adjacent row, and `mem_blockUpperIdeal_of_blockColumn_right_kernel`
+lifts a supported column kernel test to the higher ideal. The marked-column
+comparison and higher Tor argument remain open in general.
+
 For (6.21), the loading projective is `e(t)T` in the source order. Its surjection to
 the external loading summand has kernel `K = e(t)T ∩ J` for the strictly higher
 retained-boundary ideal (`ker_blockStandardCover`). `blockKernelTensorInclusion` tensors
@@ -1127,21 +1167,107 @@ loading projectives, and transports the quotient layers along the corner
 ring equivalence. This gives the one-black filtration for any red word
 (`oneBlack_hasFiltration_standard`).
 
-Still open for Lemma 6.8: when a black lies between the bottom reds, prove that changes
-between different choices of the last crossing give equal balanced classes **in the
-tensor with `K`**. The ordinary parabolic coordinates are linear for juxtaposed block
-diagrams, not for arbitrary upper elements of `e(t)T`. Also open: filter `K` by higher
+At `b i a` there are distinct exits `i a b` and `a b i`. If `a b i` is strictly
+higher, the joint `a i b` is higher too: moving a black left cannot decrease a
+retained count. `blockKernelHigherExit_slide` changes the exit idempotent of an
+arbitrary upper diagram in `K ⊗_T B`. If only `i a b` is marked, returning to it
+costs `Λ_a(i)` dots, not an invertible crossing (`blockKernelBigon_slide`). For any
+number of intervening blacks, `blockKernelIntervalBigon_slide` compares the two
+extreme exits with the product of the corresponding dot powers at the left exit.
+Separately, an excursion at the bottom to the consecutive column and back gives
+`ker_blockKernelColumnInclusion_le_ker_dots`. When all intervening pairings with
+`a` vanish the dot operator is the identity and the column inclusion is injective.
+
+For symmetric `Q`, at the bottom `b i a` every permutation into the source order
+inverts the outside positions. Two successive right descents give a reduced word
+ending in `[j+1,j]` or `[j,j+1]`. Putting the dots on top gives two undotted
+generators before quotient (`exists_interleavedColumn_exits`); balancing the ordered
+coefficients into `K` gives two generators of `K ⊗_T B e(s)` even with spectators
+(`exists_interleavedKernelColumn_exits`).
+
+The relations with those exterior strands are determined in the projective row.
+Write `L=i a b`, `D=a i b`, `R=a b i` for the three local source loadings. Sort the
+three images of the bottom positions and use one exterior PBW word for each right
+coset. In these coordinates the stack rows are `(1,X^A)`, `(1,1)`, `(X^B,1)` and
+the signed joint columns are `(X^A,−1)`, `(1,−1)`, `(1,−X^B)`, with
+`A=Λ_a(i)`, `B=Λ_b(i)`. Here `X` is the local black dot *below* the exterior word.
+`ExitPBW.exists_parabolic_read` extends a choice of normal exit by linearity;
+subtracting the readback of the stack expresses every relation between sums as a
+joint image. `exists_interleavedRelation_affine_lift` lifts a zero stack with its
+prescribed quotient coefficients. Thus `interleaved_affine_relation_iff` and
+`interleaved_quotient_relation_iff` describe all relations, also those supported
+at just one exit. Neither theorem identifies the higher ideal with global violations.
+
+When there is **one black strand in total**, all paths from a non-higher loading to
+a strictly higher loading must move that black to the left. PBW division on the
+two-sided higher ideal leaves its upper factor in the ideal. The same forced descent
+on globally violated loadings proves cancellation of the leftward crossing in the
+violated algebra; the dot is cancelled only on the affine PBW basis. This gives
+`firstWeight_exit_saturated`. Iterating to the first higher loading (or to a global
+violation) gives a generator `g` of the marked row with support `e(u)` such that
+`g y = 0` implies `e(u)y = 0`. Thus every marked class is `g ⊗ y` and a zero stack
+is already zero by balancing `e(u)`. `firstWeight_blockKernelTensorInclusion_injective`
+and `firstWeight_blockKernelColumnInclusion_injective` handle all mixed and same-exit
+relations in this weight. `firstWeight_blockKernel_mixedExit` assumes membership of
+the two crossed coefficients, not of their joint coefficient. The surjection and
+its exact kernel are `firstWeight_interleavedColumn_presentation`: a pair `(x,y)`
+of marked coefficients is a relation precisely when `xL + yR = 0` in the globally
+violated algebra, with no quotient by higher loadings on the right-hand side.
+
+For example take bottom `c b i a`, top `c a i b`, and pairings `(c,a,b)=(2,1,1)`.
+Write `L_d,R_d` for the left and right exit with `d` dots on the reduced upper word.
+With one black, each pair of endpoints has one PBW permutation. A black–red return
+adds its pairing in dots; a red–red return vanishes. Factoring through a leftmost
+black gives the upper dot cutoffs `2,3,3` at the left exit, joint and right exit,
+respectively, and cutoff `2` for the stacked column. Through the strictly higher
+`c i a b`, the marked exponents start at `0,1,1` at these three loadings. The
+unmarked relations are `L₀=R₀`, `L₁=R₁`, `R₂=0`; the marked generators are
+`L₀,L₁,R₁,R₂` with relations `L₁=R₁` and `R₂=0`. These two relations are the
+images of the one- and two-dot joint coefficients. The remaining `L₀,L₁` stack
+to distinct surviving PBW monomials, so there are no further relations. In
+particular, checking only the nonzero mixed braid misses a same-exit relation.
+
+For Lemma 6.8 the remaining intersection in these columns is
+`im δ_P ∩ (K_L ⊕ K_R) = im δ_K`, with `δ(u)=(uψ_j,−uψ_(j+1))` at the cut
+projectors. If `D` is strictly higher, its projector marks the joint witness.
+In general `interleaved_joint_dot_mem` puts `u X^min(A,B)` in the higher ideal
+by the two return bigons. `interleaved_markedColumn_injective` balances the marked
+witness to prove column injectivity when `D` is strictly higher or either return
+power is zero, with arbitrary exterior strands. When both powers
+are positive and `D` is not higher, one needs a marked witness with the same two
+components, i.e. a correction modulo `ker δ_P`, not division by `X`.
+`interleaved_markedColumn_injective_of_right_leg` gives a sufficient condition:
+the right joint leg is injective on the partially standardized corner. A different black
+can furnish either a global violation or a higher retained boundary without the
+specified descent. The first-weight division argument therefore does not extend
+as stated; this is not a counterexample to injectivity. Ordinary parabolic coordinates
+are linear for juxtaposed block diagrams, not for arbitrary upper elements of
+`e(t)T`. Also open: filter `K` by higher
 partial standardizations, apply the induction in (6.21), and identify the derived
 comparison naturally. Then Prop 6.9
 for general `ℓ` by reduction to two
-red strands, the graded forms of Def 6.6 and Props 6.7, 6.9, Cor 6.10, Lemma 6.11, Def 6.12, Cor 6.13,
+red strands, the graded bounded-above functor of Def 6.6 and its equivariance (Prop 6.7), Cor 6.10, Lemma 6.11, Def 6.12, Cor 6.13,
 Lemma 6.14; tilting modules (Thm 6.15); `𝔅_σ` are equivalences (Thm 6.16); the braid group
 action (Cor 6.17); Ringel duality (Cor 6.18); semi-orthogonal decompositions (Prop 6.19); the
 Serre functor (Prop 6.20).
 
+For the multi-strand interval calculation, `intervalConcat` puts a local KLR diagram
+between fixed exterior loading idempotents. The map is injective for symmetric
+parameters (`intervalConcat_injective`). Its image is the span of shifted
+local PBW words and their shifted bottom dots (`range_intervalConcat_eq_span`).
+
 ### Phase E: §7, rigidity
 
-Coevaluation and evaluation for a pair (Def 7.1, Prop 7.2, Def 7.4, Props 7.5, 7.6,
+For Definition 7.1, `coevaluationWord` uses the simple coroot pairings along a
+reflection path. At nonnegative pairings, `rootSum_coevaluationWord` computes
+its total root content from the endpoints. Linear independence then makes
+the multiplicities independent of the chosen path with that endpoint.
+`nonnegativeReflectionPath_of_reduced` checks the nonnegative pairings for a
+reduced Weyl expression and a dominant integral starting weight in a Cartan
+realization. Thus `coevaluationWord_multiplicities_eq_of_reduced` compares
+reduced expressions of the same Weyl element.
+
+Coevaluation and evaluation for a pair (Prop 7.2, Def 7.4, Props 7.5, 7.6,
 7.8, Cors 7.7, 7.9, 7.10); ribbon structure (Prop 7.11, Def 7.12, Prop 7.13); general
 coevaluation and quantum trace (Def 7.15, Lemmas 7.16, 7.17, 7.19, Def 7.18,
 Props 7.20, 7.21, 7.22). All open.

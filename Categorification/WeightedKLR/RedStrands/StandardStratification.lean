@@ -48,15 +48,6 @@ variable {n : ℕ} (Λ : Fin n → I →₀ ℕ) {ν : Multiset I}
 
 local notation "A" => TensorProductAlgebra k Q Λ ν
 
-/-- `e(t)` kills the standard module `S_s` when `t` is strictly above `s`. -/
-theorem seqIdem_smul_leftStandard_eq_zero {s t : Seq (stendhalWeight n ν)} (hs : IsRedOrdered s)
-    (ht : IsRedOrdered t) (hst : StendhalLT s t) (v : leftStandard Q Λ s hs) :
-    seqIdem Q Λ t ht • v = 0 := by
-  obtain ⟨a, rfl⟩ := leftStandard_exists_smul_unit s hs v
-  rw [smul_smul, leftStandardUnit, ← Submodule.Quotient.mk_smul,
-    Submodule.Quotient.mk_eq_zero]
-  exact Submodule.subset_span ⟨t, ht, a, hst, rfl⟩
-
 /-- The generator of `S_s` is fixed by `e(s)`. -/
 theorem seqIdem_smul_leftStandardUnit {s : Seq (stendhalWeight n ν)} (hs : IsRedOrdered s) :
     seqIdem Q Λ s hs • leftStandardUnit Q Λ s hs = leftStandardUnit Q Λ s hs := by

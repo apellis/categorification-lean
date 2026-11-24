@@ -1004,7 +1004,9 @@ red with coroot pairing one gives a simple projective at the red-first
 one-black loading (`Stendhal.oneBlack_extremal_projective_simple`).
 At highest weight two and two black strands, the image of the first dot
 followed by the first crossing is an idempotent whose cyclotomic right ideal
-is simple (`KLR.CycKLR.twoBlackTerminalProjective_simple`).
+is simple (`KLR.CycKLR.twoBlackTerminalProjective_simple`). The cyclotomic
+equivalence gives the simple projective in the one-red Webster algebra
+(`Stendhal.SingleRed.twoBlackTerminalWebsterProjective_simple`).
 
 In any saturated one-colour content the coinvariant module gives a simple
 module over the terminal cyclotomic quotient

@@ -1045,6 +1045,14 @@ from the middle loading to the terminal loading
 self-Ext groups vanish
 (`Stendhal.FundamentalCorner.fundamentalTerminalSimple_ext_eq_zero`).
 
+**Webster, arXiv:1309.3796v2, Definition 7.4 and §8.1.** For two
+fundamental type A₁ factors over `ℚ`, the derived cap of the unshifted
+terminal simple is the ground field in degree zero
+(`Stendhal.FundamentalCorner.fundamentalCap_terminalSimpleIso`).
+The cup followed by the evaluation cap on the ground field gives this
+coefficient shifted by minus one
+(`Stendhal.FundamentalCorner.fundamentalCupEvaluationRegularIso`).
+
 ### Weak `sl₂`-categorifications (Chuang–Rouquier, arXiv:math/0407205v2, §5)
 
 Input for Webster's §5 (arXiv:1309.3796v2, Props. 5.11–5.18). A weak `sl₂`-categorification

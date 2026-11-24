@@ -5906,6 +5906,23 @@ example : NonnegativeReflectionPath (P.cartanDatum generalized) weight [()] :=
 
 example := rootSum_coevaluationWord_of_reduced P generalized weight dominant [()] reduced
 
+example := finrank_classical_coevaluationWeight P generalized weight dominant [()] reduced
+
+private theorem xRegular : LieLean.QuantumGroup.sl2RootDatum.IsXRegular := by
+  change LinearIndependent ℤ LieLean.QuantumGroup.sl2RootDatum.root
+  rw [linearIndependent_unique_iff]
+  intro h
+  have hh := congrArg (fun f : ℤ →+ ℤ => f 1) h
+  norm_num at hh
+
+/-- The terminal weight space of the highest-weight-two quantum module has dimension one. -/
+example := finrank_quantum_coevaluationWeight (R := LieLean.QuantumGroup.sl2RootDatum) P
+  xRegular (2 • AddMonoidHom.id ℤ) weight dominant (fun i => by
+    cases i
+    change P.root () (P.coroot ()) = (2 : ℝ)
+    rw [P.root_coroot]
+    rfl) [()] reduced
+
 end
 
 end NonVacuity.WebsterReducedCoevaluationWord

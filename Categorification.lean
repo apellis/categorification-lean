@@ -1725,6 +1725,7 @@ import Categorification.WeightedKLR.Rigidity.CoevaluationWord
 import Categorification.WeightedKLR.Rigidity.ReducedCoevaluationWord
 import Categorification.WeightedKLR.Rigidity.SingleBlackExtremal
 import Categorification.WeightedKLR.Rigidity.ExtremalNorm
+import Categorification.WeightedKLR.Rigidity.ExtremalWeightRank
 
 /-!
 # Categorification

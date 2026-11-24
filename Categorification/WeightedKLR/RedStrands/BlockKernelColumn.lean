@@ -241,6 +241,25 @@ private def principalGenerator (u : KLR.Seq μ) (c : V) (hc : c ∈ J) (cl : pof
   rw [principalRep_val Q Λ t u c cl cr hu]
   exact hc
 
+private theorem principalCoefficient
+    (u : KLR.Seq μ) (hu : redWord u = redWord t) (c : V) (g : K) (val : g.1.1.1 = c)
+    (factor : ∀ x : V, x ∈ J → pof t * x = x → ∃ y : V, pof u * y = y ∧ c * y = x)
+    (x : K) : ∃ r : T, pof u * r.1 = r.1 ∧ MulOpposite.op r • g = x := by
+  have raw : pof t*x.1.1.1=x.1.1.1 := congrArg (fun y : T => y.1) x.1.2
+  obtain ⟨v,hv,hcv⟩ := factor _ x.2 raw
+  have vR : E*v=v := calc
+    _ = E*(pof u*v) := congrArg (E*·) hv.symm
+    _ = _ := by rw [← mul_assoc,(block_loading_order_support Q Λ t u hu).1,hv]
+  let r : T := ⟨v*E,(Subsemigroup.mem_corner_iff ordT).2
+    ⟨by rw [← mul_assoc,vR],by rw [mul_assoc,(ordT).eq]⟩⟩
+  refine ⟨r,by change pof u*(v*E)=v*E; rw [← mul_assoc,hv],?_⟩
+  apply Subtype.ext
+  apply Subtype.ext
+  apply Subtype.ext
+  change g.1.1.1*(v*E)=x.1.1.1
+  rw [val,← mul_assoc,hcv]
+  exact CornerEndomorphism.corner_mul_right ordT x.1.1
+
 /-- A cyclic higher corner reduces the tensor inclusion to cancellation of
 one left factor on the corresponding corner of the violated quotient. -/
 theorem blockKernelColumnInclusion_injective_of_principal_factor
@@ -250,21 +269,7 @@ theorem blockKernelColumnInclusion_injective_of_principal_factor
     Function.Injective inc := by
   let g := principalGenerator Q Λ t a b u c hc cl cr hu
   have val : g.1.1.1=c := principalRep_val Q Λ t u c cl cr hu
-  have coefficient (x : K) : ∃ r : T, pof u*r.1=r.1 ∧ MulOpposite.op r • g=x := by
-    have raw : pof t*x.1.1.1=x.1.1.1 := congrArg (fun y : T => y.1) x.1.2
-    obtain ⟨v,hv,hcv⟩ := factor _ x.2 raw
-    have vR : E*v=v := calc
-      _ = E*(pof u*v) := congrArg (E*·) hv.symm
-      _ = _ := by rw [← mul_assoc,(block_loading_order_support Q Λ t u hu).1,hv]
-    let r : T := ⟨v*E,(Subsemigroup.mem_corner_iff ordT).2
-      ⟨by rw [← mul_assoc,vR],by rw [mul_assoc,(ordT).eq]⟩⟩
-    refine ⟨r,by change pof u*(v*E)=v*E; rw [← mul_assoc,hv],?_⟩
-    apply Subtype.ext
-    apply Subtype.ext
-    apply Subtype.ext
-    change g.1.1.1*(v*E)=x.1.1.1
-    rw [val,← mul_assoc,hcv]
-    exact CornerEndomorphism.corner_mul_right ordT x.1.1
+  have coefficient := principalCoefficient Q Λ t a b u hu c g val factor
   have single (z : BalancedTensor k k T K C) :
       ∃ y : C, pof u*y.1=y.1 ∧ z=BalancedTensor.tmul g y := by
     induction z using BalancedTensor.induction_on with
@@ -289,6 +294,53 @@ theorem blockKernelColumnInclusion_injective_of_principal_factor
   have y0 : y=0 := Subtype.ext (cancel y.1 hy y.2.2 cz)
   exact hrep.trans ((congrArg (fun l : C => BalancedTensor.tmul g l) y0).trans
     (BalancedTensor.tmul_zero g))
+
+/-- A principal higher coefficient that detects zero on the source corner
+identifies the higher kernel with a loading projective. -/
+theorem blockLoadingKernel_projective_of_principal_factor
+    (u : KLR.Seq μ) (hu : redWord u = redWord t) (c : V) (hc : c ∈ J)
+    (cl : pof t * c = c) (cr : c * pof u = c)
+    (factor : ∀ x : V, x ∈ J → pof t * x = x → ∃ y : V, pof u * y = y ∧ c * y = x)
+    (cancel : ∀ y : V, pof u * y = y → y * E = y → c * y = 0 → y = 0) :
+    Module.Projective Tᵐᵒᵖ K := by
+  let U : T := ⟨pof u, (Subsemigroup.mem_corner_iff ordT).2
+    (block_loading_order_support Q Λ t u hu)⟩
+  have hU : IsIdempotentElem U :=
+    Subtype.ext (((show IsIdempotentElem (KLRAlgebra.e u : KLRAlgebra k (stendhalQ Q Λ) μ) from
+      KLRAlgebra.e_mul_self _).map (ofKLR k Q Λ ν)).map mk).eq
+  let g := principalGenerator Q Λ t a b u c hc cl cr hu
+  have val : g.1.1.1 = c := principalRep_val Q Λ t u c cl cr hu
+  let f : rIdeal U →ₗ[Tᵐᵒᵖ] K :=
+    { toFun := fun d => MulOpposite.op d.1 • g
+      map_add' := fun d e => by
+        apply Subtype.ext
+        apply Subtype.ext
+        apply Subtype.ext
+        change _ * (d.1.1 + e.1.1) = _ * d.1.1 + _ * e.1.1
+        exact mul_add _ _ _
+      map_smul' := fun r d => by
+        apply Subtype.ext
+        apply Subtype.ext
+        apply Subtype.ext
+        change _ * (d.1.1 * r.unop.1) = (_ * d.1.1) * r.unop.1
+        exact (mul_assoc _ _ _).symm }
+  have hinj : Function.Injective f := by
+    intro d e hde
+    let delta := d - e
+    have hδ : f delta = 0 := (f.map_sub d e).trans (sub_eq_zero.mpr hde)
+    have hz : c * delta.1.1 = 0 := by
+      rw [← val]
+      exact congrArg (fun z : K => z.1.1.1) hδ
+    have hleft : pof u * delta.1.1 = delta.1.1 := congrArg (fun z : T => z.1) delta.2
+    have hright : delta.1.1 * E = delta.1.1 := CornerEndomorphism.corner_mul_right ordT delta.1
+    have hzero : delta = 0 := Subtype.ext (Subtype.ext (cancel _ hleft hright hz))
+    exact sub_eq_zero.mp hzero
+  have hsurj : Function.Surjective f := by
+    intro x
+    obtain ⟨r, hr, hrep⟩ := principalCoefficient Q Λ t a b u hu c g val factor x
+    exact ⟨⟨r, Subtype.ext hr⟩, hrep⟩
+  let : Module.Projective Tᵐᵒᵖ (rIdeal U) := rIdeal_projective hU
+  exact Module.Projective.of_equiv (LinearEquiv.ofBijective f ⟨hinj, hsurj⟩)
 
 end PrincipalHigherCorner
 

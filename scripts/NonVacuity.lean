@@ -5559,6 +5559,21 @@ example (a b : ℚ) :=
 
 example (a b : ℚ) :=
   Categorification.Stendhal.LabelTwoEndpointFlag.outgoing_terminal_coefficients_eq_zero Q (a := a) (b := b)
+example := Categorification.Stendhal.LabelTwo.labelTwoExteriorMiddleDifferential_injective ℚ
+
+example := Categorification.Stendhal.LabelTwo.labelTwoExteriorStandardComplex_mono_first ℚ
+
+example := Categorification.Stendhal.LabelTwo.labelTwoExteriorStandardComplex_exact ℚ
+
+example := Categorification.Stendhal.LabelTwo.labelTwoMiddleQuotientDecomposition ℚ
+
+example := Categorification.Stendhal.LabelTwo.labelTwoLeftExteriorDecomposition ℚ
+
+example := Categorification.Stendhal.LabelTwo.labelTwoOutgoing_degree_two ℚ
+
+example := Categorification.Stendhal.labelTwoExteriorEndComplex_exact Q
+
+example := Categorification.Stendhal.labelTwoExteriorEndComplex_epi Q
 
 end NonVacuity.WebsterLabelTwoEndpointTor
 
@@ -5756,95 +5771,6 @@ example (n : ℕ) : Subsingleton ((data.projectiveResolution ()).complex.X (n+1)
 
 end NonVacuity.WebsterOrderedResolution
 
-namespace NonVacuity.WebsterOrderedGradedResolution
-open Categorification Categorification.ModuleFiltration DG DirectSum
-
-private abbrev e (_ : Bool) : ℚ := 1
-private abbrev above (a b : Bool) : Prop := a = false ∧ b = true
-private abbrev P := lIdeal (1 : ℚ)
-
-private def S : Bool → ModuleCat ℚ
-  | false => ModuleCat.of ℚ PUnit
-  | true => ModuleCat.of ℚ P
-
-private def q : (i : Bool) → lIdeal (e i) →ₗ[ℚ] S i
-  | false => 0
-  | true => LinearMap.id
-
-private theorem pProjective : Module.Projective ℚ P := by
-  refine Module.Projective.of_split P.subtype
-    { toFun := fun p => ⟨p, mul_one _⟩
-      map_add' := fun _ _ => rfl
-      map_smul' := fun _ _ => rfl } ?_
-  ext
-  rfl
-
-private def data : OrderedStandardCovers S e above where
-  quotient := q
-  surjective := by
-    intro i x
-    cases i with
-    | false => exact ⟨0, Subsingleton.elim (α := PUnit) _ x⟩
-    | true => exact ⟨x, rfl⟩
-  projective _ := pProjective
-  kernel := by
-    intro i
-    cases i with
-    | false =>
-      refine ⟨[true], ?_, ?_⟩
-      · simp only [List.mem_singleton]
-        rintro _ rfl
-        exact ⟨rfl, rfl⟩
-      · apply HasFiltration.single (c := true)
-        exact LinearEquiv.ofBijective (LinearMap.ker (q false)).subtype
-          ⟨Submodule.injective_subtype _, fun x => ⟨⟨x, rfl⟩, rfl⟩⟩
-    | true =>
-      refine ⟨[], by simp, HasFiltration.zero ⟨?_⟩⟩
-      intro x y
-      exact Subtype.ext (show x.val = y.val from x.property.trans y.property.symm)
-
-private theorem mulGrade ⦃a b : ℤ⦄ ⦃x y : ℚ⦄ (hx : x ∈ degreeZeroGrading ℚ a)
-    (hy : y ∈ degreeZeroGrading ℚ b) : x * y ∈ degreeZeroGrading ℚ (a+b) := by
-  apply (mem_degreeZeroGrading_iff ℚ).mpr
-  rcases (mem_degreeZeroGrading_iff ℚ).mp hx with rfl | rfl
-  · rcases (mem_degreeZeroGrading_iff ℚ).mp hy with rfl | rfl
-    · exact Or.inl (zero_add _)
-    · exact Or.inr (mul_zero _)
-  · exact Or.inr (zero_mul _)
-
-private theorem eGrade (i : Bool) : e i ∈ degreeZeroGrading ℚ 0 := mem_degreeZeroGrading_zero _ _
-private theorem eIdem (i : Bool) : IsIdempotentElem (e i) := one_mul _
-private theorem aboveTrans (i j l : Bool) (h : above i j) (h' : above j l) : above i l :=
-  ⟨h.1, h'.2⟩
-private theorem quotientGrade ⦃n : ℤ⦄ ⦃x : P⦄ (_ : x.val ∈ degreeZeroGrading ℚ n) :
-    data.quotient false x ∈ degreeZeroGrading (S false) n :=
-  (mem_degreeZeroGrading_iff _).mpr (Or.inr rfl)
-
-local notation "A₀" => degreeZeroGrading ℚ
-local notation "T₀" => degreeZeroGrading (S false)
-local notation "δ" => gradedLoadingResolutionChainMap data false A₀ mulGrade eGrade eIdem aboveTrans T₀ quotientGrade
-
--- The rank-one example has a nonzero higher kernel in degree zero.
-example : Function.Exact (δ 0) (data.quotient false) :=
-  gradedLoadingResolutionChainMap_augmentation_exact data false A₀ mulGrade eGrade eIdem aboveTrans T₀ quotientGrade
-
-example : Function.Exact (δ 1) (δ 0) :=
-  gradedLoadingResolutionChainMap_exact data false A₀ mulGrade eGrade eIdem aboveTrans T₀ quotientGrade 0
-
-example : ∃ x, δ 0 x = (⟨1, one_mul 1⟩ : P) :=
-  ((gradedLoadingResolutionChainMap_augmentation_exact data false A₀ mulGrade eGrade
-    eIdem aboveTrans T₀ quotientGrade) ⟨1, one_mul 1⟩).mp rfl
-
-open scoped DG.DegreeZero
-local instance instOrderedRationalWeight : InternalGrading ℚ := scalarInternalGrading ℚ
-local instance instOrderedRationalBigraded : BigradedDGRing ℚ := scalarBigradedDGRing ℚ
-
-example := orderedWeightDgAugmentation_quasiIso data false eGrade eIdem aboveTrans T₀
-  (fun {_ _ _ _} _ _ => (mem_degreeZeroGrading_iff _).mpr
-    (Or.inr (Subsingleton.elim (α := PUnit) _ _)))
-  quotientGrade
-
-end NonVacuity.WebsterOrderedGradedResolution
 
 end
 
@@ -9619,6 +9545,10 @@ example := diagramWeightCoendProduct_surjective G G G leftAction rightAction lef
 example := diagramWeightTensorSlice_leftInverse G G leftAction rightAction leftAction rightAction
   (⟨0⟩ : QWeight) (⟨0⟩ : QWeight)
 
+example (G' H' : ℤ → Submodule ℚ ℚ) (d : ℤ) :=
+  Categorification.Graded.balancedTensorIntScalarAddEquiv_map_grade
+    (k := ℚ) (A := ℚ) (fun c m : ℚ => mul_comm m c) G' H' d
+
 example := diagramWeightTensorOrdinary_range_eq_grade G G leftAction rightAction leftAction rightAction
   (⟨0⟩ : QWeight) (⟨1⟩ : QWeight)
 
@@ -9761,6 +9691,155 @@ example := by
 end
 
 end NonVacuity.WebsterAuxiliaryBraiding
+namespace NonVacuity.WebsterLabelTwoUnknot
+
+open Categorification.Webster.LabelTwo
+
+example : LinearMap.ker (plus (k := ℤ)) = LinearMap.range minus :=
+  ker_plus
+
+example : LinearMap.ker (minus (k := ℤ)) = LinearMap.range plus :=
+  ker_minus
+
+noncomputable example := postTensorHomologyZero (k := ℚ)
+
+noncomputable example := postTensorHomologyOdd (k := ℚ) 2 ⟨1,by decide⟩ (by decide)
+
+noncomputable example := postTensorHomologyPositiveEven (k := ℚ) 1
+  (by simp) (by decide)
+
+end NonVacuity.WebsterLabelTwoUnknot
+
+namespace NonVacuity.WebsterLabelTwoPolynomialPresentation
+
+open Categorification.Webster.LabelTwo
+
+example : middlePolynomialEquiv ℤ (squareQuotientVariable ℤ 0) = y₁ :=
+  middlePolynomialEquiv_variable_zero ℤ
+
+example : middlePolynomialEquiv ℤ (squareQuotientVariable ℤ 1) = y₂ :=
+  middlePolynomialEquiv_variable_one ℤ
+
+noncomputable example := specializedQuotientEquiv ℤ
+
+example : Module.finrank ℚ (SquareQuotient ℚ) = 4 := finrank_squareQuotient ℚ
+
+end NonVacuity.WebsterLabelTwoPolynomialPresentation
+noncomputable section
+
+namespace NonVacuity.WebsterLabelTwoMiddleDots
+
+open Categorification.Stendhal.LabelTwo
+
+example :
+    middleDotQuotientAction ℚ (Ideal.Quotient.mk (middleDotIdeal ℚ)
+      (MvPolynomial.X 0 + MvPolynomial.X 1)) = dotEnd ℚ 0 + dotEnd ℚ 1 :=
+  middleDotQuotientAction_sum ℚ
+
+example : (dotEnd ℚ 1)^2 = 0 := dotEnd_sq ℚ 1
+
+end NonVacuity.WebsterLabelTwoMiddleDots
+
+end
+
+noncomputable section
+
+namespace NonVacuity.WebsterLabelTwoMiddleEndomorphism
+
+open Categorification.Stendhal.LabelTwo
+attribute [local instance 1100] IsIdempotentElem.instAlgebraCorner_categorification
+
+example : Function.Bijective (middleDotQuotientAction ℚ) :=
+  (middleEndomorphismEquiv ℚ).bijective
+
+example :
+    middleEndomorphismEquiv ℚ (Ideal.Quotient.mk (middleDotIdeal ℚ)
+      (MvPolynomial.X 0 + MvPolynomial.X 1)) = dotEnd ℚ 0 + dotEnd ℚ 1 :=
+  middleEndomorphismEquiv_sum ℚ
+
+end NonVacuity.WebsterLabelTwoMiddleEndomorphism
+
+end
+
+noncomputable section
+
+namespace NonVacuity.WebsterLabelTwoMiddleFixedComplex
+
+open Categorification Categorification.Stendhal Categorification.Stendhal.LabelTwo
+
+attribute [local instance 1100] IsIdempotentElem.instAlgebraCorner_categorification
+
+example := rightMiddleComplex ℚ
+
+example := rightMiddleDotSumQuotient ℚ
+
+example : Function.Exact (fixedMinus ℚ) (fixedPlus ℚ) := fixedMinusPlus_exact ℚ
+
+example : Function.Exact (fixedPlus ℚ) (fixedMinus ℚ) := fixedPlusMinus_exact ℚ
+
+example :
+    fixSub ℚ (StandardDotSumQuotient ℚ)
+      (seqIdem (parameter ℚ) weights loading loading_ordered) ≃ₗ[ℚ] DualNumber ℚ :=
+  middleCutDotSumEquiv ℚ
+
+open KLR
+
+private abbrev higher : KLR.Seq (stendhalWeight 2 (({()} : Multiset Unit) + {()})) :=
+  TypeA.sadj (Multiset.card (stendhalWeight 2 (({()} : Multiset Unit) + {()}))) 2 • loading
+
+private theorem higher_ordered : IsRedOrdered higher := by
+  unfold IsRedOrdered
+  decide +kernel
+
+example :
+    Subsingleton (fixSub ℚ (Standard ℚ) (seqIdem (parameter ℚ) weights higher higher_ordered)) :=
+  middleFixed_subsingleton_of_other_loading ℚ higher higher_ordered
+    (by decide +kernel) (by decide +kernel)
+
+example : Function.Exact (diagramMinus ℚ) (diagramPlus ℚ) := diagramMinusPlus_exact ℚ
+
+example : Function.Exact (diagramPlus ℚ) (diagramMinus ℚ) := diagramPlusMinus_exact ℚ
+
+example : Function.Exact (diagramPlus ℚ) (diagramMiddleAugmentation ℚ) :=
+  diagramMiddleAugmentation_exact ℚ
+
+example (n : ℕ) : (rightMiddleComplex ℚ).ExactAt (n + 1) :=
+  rightMiddleComplex_exactAt ℚ n
+
+example : QuasiIso (diagramMiddleToQuotient ℚ) := diagramMiddleToQuotient_quasiIso ℚ
+
+example (a b : fixSub ℚ (Standard ℚ) (seqIdem (parameter ℚ) weights loading loading_ordered)) :
+    terminalCutDotSumEquiv ℚ (terminalQuotientMap ℚ ((terminalToTwoMiddle ℚ).symm (a,b))) =
+      (fixedAugmentation ℚ a, fixedAugmentation ℚ b) :=
+  terminalCutDotSumEquiv_apply ℚ (a,b)
+
+example := incomingDiagram_coordinates ℚ
+
+example := incomingDiagram_translate_coordinates ℚ
+example := middleStandardParabolicEquiv ℚ
+
+example : Function.Bijective (testModuleMap ℚ) :=
+  ⟨testModuleMap_injective ℚ, testModuleMap_surjective ℚ⟩
+
+example := middleStandardGFin ℚ (labelTwoGradingDatum ℚ)
+
+example :
+    (middleStandardGradedEquiv ℚ (labelTwoGradingDatum ℚ)).toLinearEquiv =
+      middleStandardParabolicEquiv ℚ :=
+  middleStandardGradedEquiv_toLinearEquiv ℚ (labelTwoGradingDatum ℚ)
+
+example := diagramPlus_degree_two ℚ
+
+example := diagramMinus_degree_two ℚ
+
+example := incomingExteriorDiagram_mem_grade ℚ
+
+example := incomingExteriorTranslate_mem_grade ℚ
+
+end NonVacuity.WebsterLabelTwoMiddleFixedComplex
+
+end
+
 
 noncomputable section
 
@@ -9849,6 +9928,75 @@ example :
 end NonVacuity.WebsterActualBraidKernel
 end
 
+noncomputable section
+namespace NonVacuity.WebsterFirstPairSpectator
+
+open CategoryTheory CategoryTheory.Limits DG
+open scoped DG.DegreeZero
+open Categorification Categorification.KLR Categorification.Stendhal
+open Categorification.KLR.KLRAlgebra Categorification.TypeA
+open Categorification.Stendhal.BraidedStendhalAlgebra
+
+attribute [local instance 1100] IsIdempotentElem.instAlgebraCorner_categorification
+attribute [local instance 1200] Ring.toIntAlgebra
+
+private abbrev ν : Multiset Unit := {()} + {()}
+private abbrev Q : Unit → Unit → MvPolynomial (Fin 2) ℤ := fun _ _ => 0
+private abbrev Λ : Fin 3 → Unit →₀ ℕ := fun _ => Finsupp.single () 2
+private def terminalLoading : Seq (stendhalWeight 3 ν) :=
+  ⟨![.inr 0, .inr 1, .inl (), .inl (), .inr 2], by decide⟩
+
+private abbrev corner (order : List (Fin 3)) :=
+  (isIdempotentElem_violMk_redProj ℤ Q Λ ν order).Corner
+
+local instance firstPairSpectatorDerived (order : List (Fin 3)) :
+    HasDerivedCategory.{0, 0} (corner order)ᵐᵒᵖ := HasDerivedCategory.small _
+
+private theorem terminalLoading_black_lt (p : Fin (stendhalWeight 3 ν).card) (i : Unit)
+    (h : terminalLoading.lbl p = Sum.inl i) : p < redPos terminalLoading 2 := by
+  have lastRed : terminalLoading.lbl ⟨4, by decide⟩ = Sum.inr 2 := by decide
+  rw [← eq_redPos lastRed]
+  cases i
+  revert p
+  decide +kernel
+
+example :
+    IsZero ((DG.DerivedCategory.homologyFunctor (A := (corner [1, 0, 2])ᵐᵒᵖ) ℤ 1).obj
+      ((braidingFunctor ℤ Q Λ ν (redWord terminalLoading) [1, 0, 2]).obj
+        (DG.DerivedCategory.Q.obj ((degreeZeroModuleFunctor (corner (redWord terminalLoading))ᵐᵒᵖ).obj
+          (blockLoadingShortComplex Q Λ terminalLoading 0 1).X₃)))) :=
+  firstPair_terminal_partialStandard_braid_homology_vanish Q Λ terminalLoading (by decide)
+    terminalLoading_black_lt [1, 0, 2] 1 (by decide)
+
+private abbrev lower := firstPairOneAfterSpectator false
+private abbrev upper := sadj (stendhalWeight 3 ν).card 3 • lower
+private abbrev F := (violMk ℤ Q Λ ν).comp (ofKLR ℤ Q Λ ν)
+private abbrev crossing := F (ψ 3 * e upper)
+private abbrev J := blockUpperIdeal ℤ Q Λ ν 0 1 (adjacentBlockRoot 0 1 lower) (redWord lower)
+
+example : ∃ y : ViolQuotient ℤ Q Λ ν, F (e upper) * y = y ∧ crossing * y = crossing := by
+  have strict : adjacentBlockRoot 0 1 lower < adjacentBlockRoot 0 1 upper := by
+    apply lt_of_le_not_ge
+    · intro r i
+      fin_cases r <;> cases i <;> decide
+    · intro h
+      exact (by decide : ¬ adjacentBlockRoot 0 1 upper 2 () ≤
+        adjacentBlockRoot 0 1 lower 2 ()) (h 2 ())
+  have higher : F (e upper) ∈ J := TwoSidedIdeal.subset_span ⟨upper, by decide, strict, rfl⟩
+  have support : crossing * F (e upper) = crossing := by
+    rw [← map_mul F, mul_assoc, e_mul_self]
+  have member : crossing ∈ J := support ▸ TwoSidedIdeal.mul_mem_left _ _ _ higher
+  have fixed : F (e lower) * crossing = crossing := by
+    rw [← map_mul F]
+    apply congrArg F
+    have step : sadj (stendhalWeight 3 ν).card 3 • upper = lower := by decide +kernel
+    simp only [ψ_mul_e, step, ← mul_assoc, e_mul_self]
+  exact firstPairOneAfter_blockKernel_principal Q Λ false (fun _ _ h => (h (Subsingleton.elim _ _)).elim)
+    crossing member fixed
+
+end NonVacuity.WebsterFirstPairSpectator
+end
+
 
 namespace NonVacuity.WebsterUnitParameters
 
@@ -9932,5 +10080,92 @@ example := weightDgGradedChainAugmentation_quasiIso (R := ℚ)
   (by intro x; simp [periodicMap, eq_comm]) Function.surjective_id
 
 end NonVacuity.WebsterGradedChainDG
+
+end
+
+noncomputable section
+
+namespace NonVacuity.WebsterOrderedGradedResolution
+open Categorification Categorification.ModuleFiltration DG DirectSum
+
+private abbrev e (_ : Bool) : ℚ := 1
+private abbrev above (a b : Bool) : Prop := a = false ∧ b = true
+private abbrev P := lIdeal (1 : ℚ)
+
+private def S : Bool → ModuleCat ℚ
+  | false => ModuleCat.of ℚ PUnit
+  | true => ModuleCat.of ℚ P
+
+private def q : (i : Bool) → lIdeal (e i) →ₗ[ℚ] S i
+  | false => 0
+  | true => LinearMap.id
+
+private theorem pProjective : Module.Projective ℚ P := by
+  refine Module.Projective.of_split P.subtype
+    { toFun := fun p => ⟨p, mul_one _⟩
+      map_add' := fun _ _ => rfl
+      map_smul' := fun _ _ => rfl } ?_
+  ext
+  rfl
+
+private def data : OrderedStandardCovers S e above where
+  quotient := q
+  surjective := by
+    intro i x
+    cases i with
+    | false => exact ⟨0, Subsingleton.elim (α := PUnit) _ x⟩
+    | true => exact ⟨x, rfl⟩
+  projective _ := pProjective
+  kernel := by
+    intro i
+    cases i with
+    | false =>
+      refine ⟨[true], ?_, ?_⟩
+      · simp only [List.mem_singleton]
+        rintro _ rfl
+        exact ⟨rfl, rfl⟩
+      · apply HasFiltration.single (c := true)
+        exact LinearEquiv.ofBijective (LinearMap.ker (q false)).subtype
+          ⟨Submodule.injective_subtype _, fun x => ⟨⟨x, rfl⟩, rfl⟩⟩
+    | true =>
+      refine ⟨[], by simp, HasFiltration.zero ⟨?_⟩⟩
+      intro x y
+      exact Subtype.ext (show x.val = y.val from x.property.trans y.property.symm)
+
+private theorem mulGrade ⦃a b : ℤ⦄ ⦃x y : ℚ⦄ (hx : x ∈ degreeZeroGrading ℚ a)
+    (hy : y ∈ degreeZeroGrading ℚ b) : x * y ∈ degreeZeroGrading ℚ (a+b) := by
+  apply (mem_degreeZeroGrading_iff ℚ).mpr
+  rcases (mem_degreeZeroGrading_iff ℚ).mp hx with rfl | rfl
+  · rcases (mem_degreeZeroGrading_iff ℚ).mp hy with rfl | rfl
+    · exact Or.inl (zero_add _)
+    · exact Or.inr (mul_zero _)
+  · exact Or.inr (zero_mul _)
+
+private theorem eGrade (i : Bool) : e i ∈ degreeZeroGrading ℚ 0 := mem_degreeZeroGrading_zero _ _
+private theorem eIdem (i : Bool) : IsIdempotentElem (e i) := one_mul _
+private theorem aboveTrans (i j l : Bool) (h : above i j) (h' : above j l) : above i l :=
+  ⟨h.1, h'.2⟩
+private theorem quotientGrade ⦃n : ℤ⦄ ⦃x : P⦄ (_ : x.val ∈ degreeZeroGrading ℚ n) :
+    data.quotient false x ∈ degreeZeroGrading (S false) n :=
+  (mem_degreeZeroGrading_iff _).mpr (Or.inr rfl)
+
+private abbrev rankOneScalarGrade := degreeZeroGrading ℚ
+private abbrev rankOneStandardGrade := degreeZeroGrading (S false)
+private abbrev rankOneDifferential :=
+  gradedLoadingResolutionChainMap data false rankOneScalarGrade mulGrade eGrade eIdem
+    aboveTrans rankOneStandardGrade quotientGrade
+
+-- The rank-one example has a nonzero higher kernel in degree zero.
+example : Function.Exact (rankOneDifferential 0) (data.quotient false) :=
+  gradedLoadingResolutionChainMap_augmentation_exact data false rankOneScalarGrade mulGrade eGrade eIdem aboveTrans rankOneStandardGrade quotientGrade
+
+example : Function.Exact (rankOneDifferential 1) (rankOneDifferential 0) :=
+  gradedLoadingResolutionChainMap_exact data false rankOneScalarGrade mulGrade eGrade eIdem aboveTrans rankOneStandardGrade quotientGrade 0
+
+example : ∃ x, rankOneDifferential 0 x = (⟨1, one_mul 1⟩ : P) :=
+  ((gradedLoadingResolutionChainMap_augmentation_exact data false rankOneScalarGrade mulGrade eGrade
+    eIdem aboveTrans rankOneStandardGrade quotientGrade) ⟨1, one_mul 1⟩).mp rfl
+
+end NonVacuity.WebsterOrderedGradedResolution
 
 end

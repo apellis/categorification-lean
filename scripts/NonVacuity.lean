@@ -9014,6 +9014,11 @@ private theorem productWeight {i j : ℤ} {x y : ℚ}
 private theorem productBalanced (b x y : ℚ) : product (op b • x) y = product x (b • y) :=
   mul_assoc x b y
 
+example := CornerTensor.liftAdd (k := ℚ) (1 : ℚ) 1 1 product
+  (fun c x y => by change (c * x) * y = x * (c * y); ring)
+  (fun x y => by simp)
+  (fun x c y => by change (x * (1 * c * 1)) * y = x * ((1 * c * 1) * y); ring)
+
 example := diagramWeightCoendProduct G G G leftAction rightAction leftAction rightAction
   product productWeight productBalanced (⟨0⟩ : QWeight) (⟨0⟩ : QWeight)
 

@@ -1082,6 +1082,9 @@ two partial-standard layers, with the intermediate quotient above the final
 quotient (`TwoSpectatorOneBlack.kernel_hasTwoHigherLayers_of_crossings_injective`).
 The quotient step applies to arbitrary black content via
 `blockLoadingKernel_hasFiltration_cons_of_equiv`.
+The earlier crossing commutes with appending an uncrossed terminal red
+(`appendRed_tensorOfKLR_crossing`), giving the diagram identification for
+transporting the rightmost-crossing injectivity test to the interior crossing.
 
 Still open for Lemma 6.8: when a black lies between the bottom reds, prove that changes
 between different choices of the last crossing give equal balanced classes **in the

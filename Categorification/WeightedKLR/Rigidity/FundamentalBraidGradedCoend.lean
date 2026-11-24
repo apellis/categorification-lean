@@ -93,6 +93,24 @@ theorem fundamentalBraidGradedCutIso_map (t : KLR.Seq μ) (ht : IsRedOrdered t) 
 
 private theorem orderedMiddle : IsRedOrdered middle := by unfold IsRedOrdered; decide +kernel
 
+/-- The coend on a fundamental loading is concentrated in cohomological degree
+zero. Its degree-zero group is the auxiliary weight cut. -/
+def fundamentalBraidGradedCutDGEquiv :
+    DGAddEquiv (((B).tensorFunctor.obj (corner p)).obj Z) (InDegreeZero ((cut s) (Z.as-j))) where
+  __ := fundamentalBraidGradedCutIso s hs j Z
+  map_mem' {i z} hz := by
+    have he := (coendLoadingEval_mem_grading ((B).right Z) p z i).mpr hz
+    have hh : i = 0 ∨ coendLoadingEval ((B).right Z) p z = 0 :=
+      (InDegreeZero.mem_grading_iff (M := diagramCornerWeight V (Z.as-j))).mp he
+    apply (InDegreeZero.mem_grading_iff (M := (cut s) (Z.as-j))).mpr
+    rcases hh with hh | hh
+    · exact Or.inl hh
+    · exact Or.inr (Subtype.ext (Subtype.ext (congrArg (fun m : pool => m.val.val) hh)))
+  map_d' z := by
+    have he := coendLoadingEval_d ((B).right Z) p z
+    have hh : coendLoadingEval ((B).right Z) p (d z) = 0 := he.trans (InDegreeZero.d_apply _ _)
+    exact Subtype.ext (Subtype.ext (congrArg (fun m : pool => m.val.val) hh))
+
 /-- The first mixed crossing of the native braid tensor resolution gives the
 diagrammatic differential on the middle cut at every target weight. -/
 theorem fundamentalBraidGradedCutIso_d₂

@@ -9482,3 +9482,14 @@ noncomputable example :=
     (fun _ : Fin 2 => Finsupp.single () 2) ({(), ()} : Multiset Unit)
 
 end NonVacuity.WebsterUnitParameters
+
+namespace NonVacuity.WebsterGroundTensorHomology
+
+open Categorification DG
+open scoped DG.DegreeZero
+
+noncomputable example :=
+  letI := HasDerivedCategory.small ℚ
+  derivedTensorHomologyIsoOrdinaryLinear (R := ℚ) (A := ℚ) (B := ℚ) (M := ℚ) ℚ
+
+end NonVacuity.WebsterGroundTensorHomology

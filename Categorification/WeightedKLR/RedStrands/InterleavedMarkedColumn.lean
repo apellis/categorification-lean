@@ -57,10 +57,9 @@ private def atSeam (v u : KLR.Seq μ) (hv : redWord v = redWord t) (hu : redWord
     calc z*E = (z*p u)*E := congrArg (·*E) hr.symm
          _ = z := by rw [mul_assoc,(cut_in_order Q Λ t u hu).2,hr]⟩⟩
 
-private theorem cut_upper (v : KLR.Seq μ) (g : K) : p t * (g.1.1.1*p v) * p v = g.1.1.1*p v ∧
-    g.1.1.1*p v ∈ J := by
-  have h : p t * g.1.1.1 = g.1.1.1 := congrArg Subtype.val g.1.2
-  exact ⟨by rw [← mul_assoc,h,mul_assoc,← map_mul π,e_mul_self],(J).mul_mem_right _ _ g.2⟩
+private theorem cut_upper (v : KLR.Seq μ) (g : V) (hs : p t * g = g) (hm : g ∈ J) :
+    p t * (g * p v) * p v = g * p v ∧ g * p v ∈ J :=
+  ⟨by rw [← mul_assoc, hs, mul_assoc, ← map_mul π, e_mul_self], (J).mul_mem_right _ _ hm⟩
 
 private def loadingStack : BalancedTensor k k T P C →ₗ[k] V :=
   BalancedTensor.lift ((LinearMap.compl₂ (LinearMap.mul k V) (C).subtype).comp
@@ -68,9 +67,10 @@ private def loadingStack : BalancedTensor k k T P C →ₗ[k] V :=
     (fun x r y => mul_assoc x.1.1 r.1 y.1)
 
 private theorem exits_zero (x y : K) (l r : C)
-    (h : inc (BalancedTensor.tmul x l + BalancedTensor.tmul y r) = 0) :
+    (h : inc (BalancedTensor.tmul x l + BalancedTensor.tmul y r :
+      BalancedTensor k k T K C) = 0) :
     x.1.1.1*l.1 + y.1.1.1*r.1 = 0 := by
-  let f := (loadingStack Q Λ t s).comp inc
+  let f : BalancedTensor k k T K C →ₗ[k] V := (loadingStack Q Λ t s).comp inc
   exact (map_add f (BalancedTensor.tmul x l) (BalancedTensor.tmul y r)).symm.trans
     ((congrArg (loadingStack Q Λ t s) h).trans (map_zero _))
 
@@ -126,41 +126,82 @@ private theorem marked_exits_balance {i : I} (hb : s.lbl ⟨j,by omega⟩ = .inr
   · apply Subtype.ext; change π (leg [j] (q L)) * π (leg L s) = π (leg [j+1] (q U)) * π (leg U s)
     rw [← map_mul π,← map_mul π]; apply congrArg π
     have h := ExitPBW.exit_rows Q Λ s j hj hb hi ha [] 1
-    simpa only [ψw_nil,map_one,one_mul] using h.2.1.trans h.2.2.1.symm
+    simpa only [ψw_nil, map_one, one_mul, ExitPBW.Order.tail] using h.2.1.trans h.2.2.1.symm
   · apply Subtype.ext; apply Subtype.ext; apply Subtype.ext
     change x.1.1.1 * p (q L) = (blockLoadingRep Q Λ t u).1.1 * π (leg [j] (q L)); rw [val,ul]
   · apply Subtype.ext; apply Subtype.ext; apply Subtype.ext
     change (-y.1.1.1) * p (q U) = (blockLoadingRep Q Λ t u).1.1 * π (leg [j+1] (q U))
     rw [val,ur,neg_mul]
 
-/-- For a bottom loading `b i a`, lifting the signed joint of two marked exit
-coefficients to the higher ideal suffices for the column inclusion in (6.21).
-The lift can differ from the original witness by any element killed by both legs. -/
-private theorem marked_column_of_joint_lift {i : I} {Lr Mr : List (Fin ℓ)}
-    (hQ : KLRSymm Q) (ht : redWord t = Lr ++ a :: b :: Mr)
-    (hb : s.lbl ⟨j,by omega⟩ = .inr b) (hi : s.lbl ⟨j+1,by omega⟩ = .inl i)
-    (ha : s.lbl ⟨j+2,hj⟩ = .inr a) (ho : redWord (q D) = redWord t)
-    (liftJoint : ∀ x y : V, p t * x * p (q L) = x → p t * y * p (q U) = y →
-      x ∈ J → y ∈ J → x * π (leg L s) + y * π (leg U s) = 0 →
-      ∃ u ∈ J, p t * u * p (q D) = u ∧ u * π (leg [j] (q L)) = x ∧
-        u * π (leg [j+1] (q U)) = -y) :
-    Function.Injective inc := by
+private abbrev MarkedJointLifts : Prop :=
+  ∀ x y : V, p t * x * p (q L) = x → p t * y * p (q U) = y →
+    x ∈ J → y ∈ J → x * π (leg L s) + y * π (leg U s) = 0 →
+    ∃ u ∈ J, p t * u * p (q D) = u ∧ u * π (leg [j] (q L)) = x ∧
+      u * π (leg [j+1] (q U)) = -y
+
+omit [DecidableEq I] in
+private theorem exit_orders {i : I} (hi : s.lbl ⟨j+1, by omega⟩ = .inl i)
+    (ho : redWord (q D) = redWord t) : redWord (q L) = redWord t ∧ redWord (q U) = redWord t := by
   have hL : sadj n j • q D = q L := by simp only [wordProd_cons,wordProd_nil,mul_one,mul_smul,sadj_smul_smul]
   have hR : sadj n (j+1) • q D = q U := by
     simp only [wordProd_cons,wordProd_nil,mul_one,mul_smul,braid_smul hj s,sadj_smul_smul]
   have hblack : (q D).lbl ⟨j+1,by omega⟩ = .inl i := (braid_smul_apply_one hj s).trans hi
-  have lo : redWord (q L) = redWord t := hL ▸ (redWord_sadj_smul (q D) (show j+1<n by omega) (by rw [hblack]; simp)).trans ho
-  have ro : redWord (q U) = redWord t := hR ▸ (redWord_sadj_smul (q D) hj (by rw [hblack]; simp)).trans ho
-  let l := interleavedLeg Q Λ s t L lo; let r := interleavedLeg Q Λ s t U ro
-  rw [← LinearMap.ker_eq_bot,LinearMap.ker_eq_bot']; intro z hz
-  obtain ⟨x,y,rfl⟩ := exists_interleavedKernelColumn_exits Q Λ s j hj t a b hQ ht hb ha lo ro z
-  have eq := exits_zero Q Λ t s a b x y l r hz
-  have lc := (leg_cuts Q Λ L s).1; have rc := (leg_cuts Q Λ U s).1
-  obtain ⟨hx,mx⟩ := cut_upper Q Λ t a b (q L) x; obtain ⟨hy,my⟩ := cut_upper Q Λ t a b (q U) y
-  have rel : (x.1.1.1*p (q L))*π (leg L s) + (y.1.1.1*p (q U))*π (leg U s) = 0 := by
-    rwa [mul_assoc,lc,mul_assoc,rc]
-  obtain ⟨u,hm,he,ul,ur⟩ := liftJoint _ _ hx hy mx my rel
+  exact ⟨hL ▸ (redWord_sadj_smul (q D) (show j + 1 < n by omega)
+    (by rw [hblack]; simp)).trans ho,
+    hR ▸ (redWord_sadj_smul (q D) hj (by rw [hblack]; simp)).trans ho⟩
+
+private theorem marked_joint_of_exits (liftJoint : MarkedJointLifts Q Λ t s a b j)
+    (x y : V) (hx : p t * x = x) (hy : p t * y = y) (mx : x ∈ J) (my : y ∈ J)
+    (rel : x * π (leg L s) + y * π (leg U s) = 0) :
+    ∃ u ∈ J, p t * u * p (q D) = u ∧ u * π (leg [j] (q L)) = x * p (q L) ∧
+      u * π (leg [j+1] (q U)) = -(y * p (q U)) := by
+  obtain ⟨hl, ml⟩ := cut_upper Q Λ t a b (q L) x hx mx
+  obtain ⟨hr, mr⟩ := cut_upper Q Λ t a b (q U) y hy my
+  apply liftJoint (x * p (q L)) (y * p (q U)) hl hr ml mr
+  rwa [mul_assoc, (leg_cuts Q Λ L s).1, mul_assoc, (leg_cuts Q Λ U s).1]
+
+private theorem marked_exit_pair_zero {i : I} (hb : s.lbl ⟨j, by omega⟩ = .inr b)
+    (hi : s.lbl ⟨j+1, by omega⟩ = .inl i) (ha : s.lbl ⟨j+2, hj⟩ = .inr a)
+    (lo : redWord (q L) = redWord t) (ro : redWord (q U) = redWord t)
+    (ho : redWord (q D) = redWord t) (liftJoint : MarkedJointLifts Q Λ t s a b j)
+    (x y : K)
+    (hz : inc (BalancedTensor.tmul x (interleavedLeg Q Λ s t L lo) +
+      BalancedTensor.tmul y (interleavedLeg Q Λ s t U ro) : BalancedTensor k k T K C) = 0) :
+    (BalancedTensor.tmul x (interleavedLeg Q Λ s t L lo) +
+      BalancedTensor.tmul y (interleavedLeg Q Λ s t U ro) : BalancedTensor k k T K C) = 0 := by
+  apply Exists.elim (marked_joint_of_exits Q Λ t s a b j liftJoint x.1.1.1 y.1.1.1
+    (congrArg (fun z : T => z.1) x.1.2) (congrArg (fun z : T => z.1) y.1.2) x.2 y.2
+    (exits_zero Q Λ t s a b x y _ _ hz))
+  rintro u ⟨hm, he, ul, ur⟩
   exact marked_exits_balance Q Λ t s a b j hj hb hi ha lo ro ho x y u hm he ul ur
+
+private theorem injective_of_generators {k X Y M N : Type*} [CommRing k]
+    [AddCommGroup M] [Module k M] [AddCommGroup N] [Module k N]
+    (gen : X → Y → M) (F : M →ₗ[k] N)
+    (hgen : ∀ z, ∃ x y, z = gen x y) (hzero : ∀ x y, F (gen x y) = 0 → gen x y = 0) :
+    Function.Injective F := by
+  apply (LinearMap.ker_eq_bot (f := F)).1
+  apply LinearMap.ker_eq_bot'.2
+  intro z hz
+  obtain ⟨x, y, rfl⟩ := hgen z
+  exact hzero x y hz
+
+/-- For a bottom loading `b i a`, lifting the signed joint of two marked exit
+coefficients to the higher ideal suffices for the column inclusion in (6.21). -/
+private theorem marked_column_of_joint_lift {i : I} {Lr Mr : List (Fin ℓ)}
+    (hQ : KLRSymm Q) (ht : redWord t = Lr ++ a :: b :: Mr)
+    (hb : s.lbl ⟨j, by omega⟩ = .inr b) (hi : s.lbl ⟨j+1, by omega⟩ = .inl i)
+    (ha : s.lbl ⟨j+2, hj⟩ = .inr a) (ho : redWord (q D) = redWord t)
+    (liftJoint : MarkedJointLifts Q Λ t s a b j) : Function.Injective inc := by
+  obtain ⟨lo, ro⟩ := exit_orders t s j hj hi ho
+  let gen (x y : K) : BalancedTensor k k T K C :=
+    BalancedTensor.tmul x (interleavedLeg Q Λ s t L lo) +
+      BalancedTensor.tmul y (interleavedLeg Q Λ s t U ro)
+  have hgen (z : BalancedTensor k k T K C) : ∃ x y, z = gen x y :=
+    exists_interleavedKernelColumn_exits Q Λ s j hj t a b hQ ht hb ha lo ro z
+  have hzero (x y : K) (hz : inc (gen x y) = 0) : gen x y = 0 :=
+    marked_exit_pair_zero Q Λ t s a b j hj hb hi ha lo ro ho liftJoint x y hz
+  exact injective_of_generators gen inc hgen hzero
 
 /-- The marked column inclusion for a higher joint or a zero return exponent.
 Webster v2, §6.1, proof of Lemma 6.8 after (6.21), restricted to `b i a`.
@@ -195,6 +236,7 @@ theorem interleaved_markedColumn_injective_of_right_leg {i : I} {Lr Mr : List (F
   intro x y hx hy _ my rel
   obtain ⟨u,hu,hl,hr⟩ :=
     (interleaved_quotient_relation_iff Q Λ s j hj hQ t ht hb hi ha x y hx hy).mp rel
-  exact ⟨u,rightLeg u hu (by rw [hr]; exact (J).neg_mem my),hu,hl,hr⟩
+  change u * π (leg [j+1] (q U)) = -y at hr
+  exact ⟨u, rightLeg u hu (hr.symm ▸ (J).neg_mem my), hu, hl, hr⟩
 
 end Categorification.Stendhal.BraidedStendhalAlgebra

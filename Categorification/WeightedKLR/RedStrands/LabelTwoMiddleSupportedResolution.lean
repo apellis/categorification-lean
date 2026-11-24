@@ -5,6 +5,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 import Categorification.WeightedKLR.RedStrands.LeftStandardParameterTransport
 import Categorification.WeightedKLR.RedStrands.OffDiagonalParameters
 import Categorification.WeightedKLR.RedStrands.LabelTwoMiddleAmbientAcyclicity
+import Categorification.WeightedKLR.RedStrands.LabelTwoMiddleAmbientTor
 import Categorification.WeightedKLR.RedStrands.StandardStratificationStd
 
 /-!
@@ -128,7 +129,10 @@ universe w
 
 variable [HasDerivedCategory.{w, 0}
   (TensorProductAlgebra k (parameter k) weights (({()} : Multiset Unit) + {()}))]
-  [HasDerivedCategory.{w, 0} ℤ]
+
+section IntegralHomology
+
+variable [HasDerivedCategory.{w, 0} ℤ]
 
 /-- The diagrammatic middle standard is acyclic away from degree zero for ambient
 derived tensor with the reflected diagrammatic dot-sum coefficient. -/
@@ -138,6 +142,26 @@ theorem middleStandard_derivedTensorHomology_isZero (n : ℤ) (hn : n ≠ 0) :
         (Q.obj (DGModuleCat.of Ambient (InDegreeZero (Standard k)))))) := by
   obtain ⟨P, hP⟩ := exists_middleStandard_supportedResolution k
   exact middleStandard_derivedTensorHomology_isZero_of_higher_support k P hP n hn
+
+end IntegralHomology
+
+section GroundField
+
+variable [HasDerivedCategory.{w, 0} k]
+
+/-- The actual middle standard is ambient acyclic for the reflected coefficient
+over the ground field. -/
+theorem middleAmbientAcyclic : MiddleAmbientAcyclic k := by
+  obtain ⟨P, hP⟩ := exists_middleStandard_supportedResolution k
+  exact middleAmbientAcyclic_of_supportedResolution k P hP
+
+/-- The actual ambient derived tensor of the reflected sum quotient with the
+sum quotient has the same Tor objects as the relative middle calculation. -/
+def actualAmbientMiddleToRelativeTorIso (h₂ : (2 : k) ≠ 0) (n : ℕ) :
+    ambientMiddleSumHomology k (-(n : ℤ)) ≅ relativeMiddleTor k n :=
+  ambientMiddleToRelativeTorIso k (middleAmbientAcyclic k) h₂ n
+
+end GroundField
 
 end Categorification.Stendhal.LabelTwo
 

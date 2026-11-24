@@ -9789,6 +9789,17 @@ end
 
 end NonVacuity.WebsterWeightCoend
 
+namespace NonVacuity.WebsterGroundTensorHomology
+
+open Categorification DG
+open scoped DG.DegreeZero
+
+noncomputable example :=
+  letI := HasDerivedCategory.small ℚ
+  derivedTensorHomologyIsoOrdinaryLinear (R := ℚ) (A := ℚ) (B := ℚ) (M := ℚ) ℚ
+
+end NonVacuity.WebsterGroundTensorHomology
+
 namespace NonVacuity.WebsterGradedCorner
 noncomputable section
 
@@ -10121,6 +10132,13 @@ example := middleStandardTensorEquiv_minus ℚ
 example := relativeMiddleTorZero ℚ
 
 example (n : ℕ) := relativeMiddleTorPositive ℚ n (by decide)
+
+open scoped DG.DegreeZero in
+noncomputable example (n : ℕ) :=
+  letI := DG.HasDerivedCategory.standard ℚ
+  letI := DG.HasDerivedCategory.standard
+    (TensorProductAlgebra ℚ (parameter ℚ) weights (({()} : Multiset Unit) + {()}))
+  actualAmbientMiddleToRelativeTorIso ℚ (by decide) n
 
 end NonVacuity.WebsterLabelTwoMiddleFixedComplex
 

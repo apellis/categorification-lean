@@ -1003,9 +1003,9 @@ from a dominant integral weight, the coroot pairings are nonnegative
 roots this determines the multiplicities
 (`Stendhal.coevaluationWord_multiplicities_eq`). For reduced expressions of the
 same Weyl element, this gives `Stendhal.coevaluationWord_multiplicities_eq_of_reduced`.
-The fundamental two-red type A₁ character is homogeneous in the
-Webster grading. Its derived restriction and extension give the internally
-graded fundamental cup and cap over the rationals. The cup has internal
+The terminal character of the two-red type A₁ algebra is homogeneous in the
+Webster grading. Its derived restriction and extension give a graded
+terminal-character cup and cap model over the rationals. The cup has internal
 shift one and cohomological shift minus one
 (`Stendhal.FundamentalCorner.gradedFundamentalCup` and `gradedFundamentalCap`).
 
@@ -1059,13 +1059,16 @@ The cap using the same coefficient is left adjoint before the shift
 The derived Hom and dual-tensor constructions agree on the ground field
 (`Stendhal.Coevaluation.cupRHomTensorRegularIso`).
 For the two fundamental type A₁ factors over the rationals, the dual
-coefficient is the simple quotient by the smaller-cut trace. It gives
-the cup with homological shift minus one and the cap
+of the terminal character is the simple quotient by the smaller-cut trace.
+It gives a terminal-character cup with homological shift minus one and cap
 (`Stendhal.FundamentalCorner.terminalQuotientDualEquiv`, `fundamentalCup`,
 and `fundamentalCap`).
 The cup on the ground field is the shifted terminal simple quotient,
 and the cap on the regular module is the left coefficient
 (`fundamentalCupRegularIso` and `fundamentalCapRegularIso`).
+Webster's normalization in Proposition 7.5 uses the middle loading
+`κ = (0, 1)`. The convention of §4 counts the black strands to the left
+of each red strand. The middle-character construction is in progress.
 
 For Proposition 7.2, a single
 red with coroot pairing one gives a simple projective at the red-first

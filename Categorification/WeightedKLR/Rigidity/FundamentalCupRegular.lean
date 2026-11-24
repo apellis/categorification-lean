@@ -6,12 +6,11 @@ import Categorification.WeightedKLR.Rigidity.FundamentalCupCap
 import Categorification.Algebra.DerivedTensorRegular
 
 /-!
-# Computing the fundamental type A₁ cup on the ground field
+# Computing the terminal-character cup on the ground field
 
-The cup of Webster's Definition 7.4, arXiv:1309.3796v2, takes the field
-to the terminal simple quotient with shift minus one after forgetting
-the internal grading. The cap takes the regular Webster module to the
-left terminal coefficient.
+The terminal-character cup takes the field to the terminal simple
+quotient with cohomological shift minus one. The associated cap takes
+the regular Webster module to the left terminal coefficient.
 -/
 
 noncomputable section

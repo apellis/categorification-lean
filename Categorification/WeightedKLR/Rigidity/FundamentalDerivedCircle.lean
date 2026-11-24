@@ -15,8 +15,8 @@ import Mathlib.Algebra.Homology.DerivedCategory.TStructure
 /-!
 # The fundamental derived cap and its cup–evaluation coefficient
 
-Webster, arXiv:1309.3796v2, §8.1, Proposition 8.3 input. Over `ℚ`, the
-derived cap on the unshifted fundamental terminal simple is `ℚ` in
+A terminal-character benchmark for Webster, arXiv:1309.3796v2, §7.1,
+Definition 7.4. Over `ℚ`, the derived tensor of the terminal characters is `ℚ` in
 degree zero. The mixed-crossing resolution reduces this to the two
 idempotent images in the left coefficient.
 -/
@@ -269,10 +269,9 @@ private def functorShiftObjIso {C₁ C₂ : Type*} [Category C₁] [Category C�
     F.obj ((shiftFunctor C₁ n).obj Y) ≅ (shiftFunctor C₂ n).obj (F.obj Y) :=
   (F.commShiftIso n).app Y
 
-/-- The specific cup–evaluation composition of Definition 7.4 applied
-to the ground field has the prescribed cohomological shift on the
-one-dimensional coefficient. This computes the coefficient benchmark for
-the fundamental case of Webster, arXiv:1309.3796v2, §8.1. -/
+/-- The terminal-character cup followed by the terminal-character cap gives
+the scalar line shifted by minus one on the ground field. The shift uses
+the convention of Webster, arXiv:1309.3796v2, Definition 7.4. -/
 def fundamentalCupEvaluationRegularIso :
     (fundamentalCup ⋙ fundamentalCap).obj (C (DGModuleCat.of ℚ ℚ)) ≅
       (shiftFunctor (DG.DerivedCategory.{v,0} ℚ) (-1)).obj (zeroObj ℚ ℚ) := by

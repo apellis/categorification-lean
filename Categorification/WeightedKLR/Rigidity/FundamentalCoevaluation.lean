@@ -11,10 +11,11 @@ import Mathlib.Algebra.Category.ModuleCat.Projective
 import Mathlib.CategoryTheory.Abelian.Projective.Dimension
 
 /-!
-# The simple head of the fundamental coevaluation projective
+# The simple head of the terminal loading projective
 
-Webster, arXiv:1309.3796v2, §7.1, Lemma 7.3 for the two fundamental
-representations of type A₁ over `ℚ`.
+For two fundamental type A₁ factors over `ℚ`, this file computes the
+simple quotient of the projective at the terminal loading. The general
+cut-trace criterion is modeled on Webster, arXiv:1309.3796v2, Lemma 7.3.
 -/
 
 noncomputable section
@@ -223,7 +224,7 @@ private theorem character_dot : terminalCharacter d = 0 := by
   have h := congrArg terminalCharacter d_mul_d
   simpa only [map_mul, map_zero, mul_eq_zero, or_self] using h
 
-/-- The smaller-cut trace in the fundamental coevaluation projective. -/
+/-- The trace of the middle loading in the terminal projective. -/
 abbrev fundamentalCutTrace : Submodule Tᵐᵒᵖ (rIdeal p) :=
   coevaluationTrace (fun _ : Unit => q)
 
@@ -249,7 +250,7 @@ private theorem right_corner_coordinates (x : rIdeal p) :
   exact ⟨b, ha ▸ h.symm⟩
 
 /-- For the two fundamental representations over `ℚ`, the kernel of the
-terminal loading character on the coevaluation projective is exactly the
+terminal loading character on the terminal projective is exactly the
 trace of the loading between the two red strands. -/
 theorem mem_fundamentalCutTrace_iff (x : rIdeal p) :
     x ∈ fundamentalCutTrace ↔ terminalCharacter x.val = 0 := by
@@ -317,9 +318,8 @@ theorem terminalCoefficient_ker :
   ext x
   exact (mem_fundamentalCutTrace_iff x).symm
 
-/-- Webster, arXiv:1309.3796v2, §7.1, Lemma 7.3 in the two fundamental
-type A₁ factors over `ℚ`: the cut trace is the unique simple-quotient
-kernel of the right loading projective. -/
+/-- The cut trace is the unique simple-quotient kernel of the terminal
+right loading projective for two fundamental type A₁ factors over `ℚ`. -/
 theorem fundamentalCutTrace_eq_iff_simpleQuotient (N : Submodule Tᵐᵒᵖ (rIdeal p)) :
     N = fundamentalCutTrace ↔ IsSimpleModule Tᵐᵒᵖ (rIdeal p ⧸ N) :=
   coevaluationTrace_eq_iff_simpleQuotient hp _ terminalCharacter.toRingHom
@@ -408,10 +408,9 @@ theorem fundamentalResolutionMap_range :
     rw [mul_add, mul_smul_comm, mul_assoc C q q, hq.eq, mul_smul_comm, mixedBigon_terminal,
       ← hb, ← ha, ← mul_add, add_comm q p, terminalIdem_add_middleIdem, mul_one]
 
-/-- The terminal coevaluation simple admits a length-one resolution by
-the two loading projectives. This is the finite projective input for the
-fundamental rank-one unknot calculation of Webster, arXiv:1309.3796v2,
-§8.1, Proposition 8.3. -/
+/-- The terminal simple admits a length-one resolution by the two loading
+projectives. Splicing it with the middle-projective quotient resolves the
+simple at the cut of Webster, arXiv:1309.3796v2, §7.1, Lemma 7.3. -/
 theorem fundamentalProjectiveResolution :
     Module.Projective Tᵐᵒᵖ (rIdeal q) ∧
     Module.Projective Tᵐᵒᵖ (rIdeal p) ∧
@@ -449,7 +448,7 @@ theorem fundamentalMiddleHom_eq_zero
 
 open CategoryTheory
 
-/-- The coevaluation simple as a right module. -/
+/-- The terminal simple as a right module. -/
 abbrev fundamentalTerminalSimple : ModuleCat.{0} Tᵐᵒᵖ :=
   ModuleCat.of Tᵐᵒᵖ (rIdeal p ⧸ fundamentalCutTrace)
 

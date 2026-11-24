@@ -1007,6 +1007,7 @@ import Categorification.TypeA.DoubleCoset
 import Categorification.TypeA.Exits
 import Categorification.TypeA.ExitsPrefix
 import Categorification.TypeA.GapSort
+import Categorification.TypeA.IntervalPBW
 import Categorification.TypeA.Inversions
 import Categorification.TypeA.LastStrand
 import Categorification.TypeA.Length
@@ -1626,6 +1627,7 @@ import Categorification.WeightedKLR.RedStrands.BraidedAppendIdentity
 import Categorification.WeightedKLR.RedStrands.BraidedAppendProjective
 import Categorification.WeightedKLR.RedStrands.BraidedAppendTensor
 import Categorification.WeightedKLR.RedStrands.BraidedAppendViolated
+import Categorification.WeightedKLR.RedStrands.BraidedExteriorDerived
 import Categorification.WeightedKLR.RedStrands.BraidedBimoduleFlip
 import Categorification.WeightedKLR.RedStrands.BraidedExteriorGrading
 import Categorification.WeightedKLR.RedStrands.BraidedExteriorTensor

@@ -51,14 +51,15 @@ theorem coevaluation_endpoint_pairing (L : Y →+ ℤ) (weight : P.integralWeigh
   abel
 
 open KLR.KLRAlgebra KLR.CycKLR LieLean.QuantumGroup LieLean.QuantumGroup.GrandLoop
-local notation "v" => (RatFunc.X : RatFunc ℚ)
-local instance : NeZero v := ⟨RatFunc.X_ne_zero⟩
+local notation "vQ" => (RatFunc.X : RatFunc ℚ)
+local instance : NeZero vQ := ⟨RatFunc.X_ne_zero⟩
 
 variable {R} (highest : Dom R) (hR : R.IsXRegular)
 
+omit [Fintype I] in
 private theorem loweringWord_snoc (d : List (I × ℕ)) (i : I) (n : ℕ) :
     dividedLoweringWord highest (d ++ [(i, n)]) =
-      qDivPow (v ^ Δ.d i) n (F R v i) • dividedLoweringWord highest d := by
+      qDivPow (vQ ^ Δ.d i) n (F R vQ i) • dividedLoweringWord highest d := by
   simp [dividedLoweringWord, List.foldl_append]
 
 /-- Divided lowering words are fixed by the highest-weight bar involution. -/
@@ -70,18 +71,19 @@ theorem bar_dividedLoweringWord (d : List (I × ℕ)) :
     rcases a with ⟨i, n⟩
     rw [loweringWord_snoc, hwBar_smul_U, barHom_qDivPow, barHom_F, ih]
 
+omit [Fintype I] in
 private theorem dividedLoweringWord_mem_weight (d : List (I × ℕ)) :
-    dividedLoweringWord highest d ∈ weightSpace R v _
+    dividedLoweringWord highest d ∈ weightSpace R vQ _
       (highest.1 - R.rootSum (expandDiv d : Multiset I).toFinsupp) := by
   induction d using List.reverseRecOn with
-  | nil => simpa [expandDiv, dividedLoweringWord] using (IrreducibleModule.hwv_mem_weightSpace (R := R) (v := v) (Λ := highest.1))
+  | nil => simpa [expandDiv, dividedLoweringWord] using (IrreducibleModule.hwv_mem_weightSpace (R := R) (v := vQ) (Λ := highest.1))
   | append_singleton d a ih =>
     rcases a with ⟨i, n⟩
     have hν : (List.replicate n i : Multiset I).toFinsupp = Finsupp.single i n := by
       ext j
       by_cases hj : j = i <;> simp [hj]
     rw [loweringWord_snoc, expandDiv_append, ← Multiset.coe_add, Multiset.toFinsupp_add, R.rootSum_add, ← sub_sub]
-    change _ ∈ weightSpace R v _ (_ - R.rootSum (List.replicate n i : Multiset I).toFinsupp)
+    change _ ∈ weightSpace R vQ _ (_ - R.rootSum (List.replicate n i : Multiset I).toFinsupp)
     rw [hν, R.rootSum_single]
     exact qDivPow_F_smul_mem_weightSpace ih i n
 
@@ -114,14 +116,14 @@ theorem websterForm_coevaluationDividedWord (weight : P.integralWeights)
       rw [show P.rootOf (fun j => (β j : ℤ)) = (weight : Dual K H) - g.val weight from h, sub_sub_cancel]
     have hpair := coevaluation_endpoint_pairing R P highest.1 weight hm w
       (nonnegativeReflectionPath_of_reduced P hCartan weight hdom w hpre) i
-    have hx : dividedLoweringWord highest d ∈ weightSpace R v _ μ := by
+    have hx : dividedLoweringWord highest d ∈ weightSpace R vQ _ μ := by
       have h := dividedLoweringWord_mem_weight highest d
       dsimp only [d] at h
       rw [expand_coevaluationDividedWord] at h
       exact h
     have hbot := quantum_weightSpace_raise_extremal_eq_bot P hR highest.1 weight hdom hm g β hcontent i hnd
     have he := E_smul_mem_weightSpace hx i
-    change _ ∈ weightSpace R v _ (highest.1 - R.rootSum β + R.root i) at he
+    change _ ∈ weightSpace R vQ _ (highest.1 - R.rootSum β + R.root i) at he
     rw [hbot, Submodule.mem_bot] at he
     have hn : 0 ≤ (Dc).coroot i η := by
       have ha := Matrix.Realization.apply_coroot_nonneg_of_not_isLeftDescent hdom hnd
@@ -153,6 +155,7 @@ variable {I k : Type*} [Fintype I] [DecidableEq I] [Field k] {C : CartanDatum I}
 
 local notation "dp" => dividedProjective hP.gradingDatum (fun i j => congrArg Neg.neg (C.symm i j)) C Λ
 
+include hΛ hR in
 /-- Webster, Proposition 7.2. The actual divided-power projective attached to a reduced
 coevaluation path in the cyclotomic factor is simple after forgetting the grading. -/
 theorem isSimple_coevaluationProjective

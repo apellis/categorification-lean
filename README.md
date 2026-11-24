@@ -1053,7 +1053,8 @@ construction gives derived Hom for every homogeneous scalar coefficient
 (`diagramWeightScalarDerivedHom`).
 
 For the ordinary corner tensor, `CornerTensor.liftAdd` descends a balanced
-bi-additive family with an additive target.
+bi-additive family with an additive target. On rectangular coefficients it
+sandwiches the inputs (`cornerTensorCutLift_tmul`).
 
 Definition 7.4 has cup and cap coefficient models in the ungraded derived
 categories, with a specified cohomological shift on the cup and a finite

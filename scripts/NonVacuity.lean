@@ -9019,6 +9019,24 @@ example := CornerTensor.liftAdd (k := ℚ) (1 : ℚ) 1 1 product
   (fun x y => by simp)
   (fun x c y => by change (x * (1 * c * 1)) * y = x * ((1 * c * 1) * y); ring)
 
+private theorem unitIdempotent : IsIdempotentElem (1 : ℚ) := by simp [IsIdempotentElem]
+
+private abbrev UnitCorner := cornerBimodule (1 : ℚ) 1
+
+private def projectedProduct : UnitCorner →+ UnitCorner →+ ℚ :=
+  ((product.flip).compl₂ (cornerBimodule (1 : ℚ) 1).subtype).comp
+    (cornerBimodule (1 : ℚ) 1).subtype
+
+private theorem projectedProduct_balanced (b : unitIdempotent.Corner) (x y : UnitCorner) :
+    projectedProduct (b • x) y = projectedProduct x (op b • y) := by
+  change y.val * (b.val * x.val) = (y.val * b.val) * x.val
+  exact (mul_assoc _ _ _).symm
+
+example := cornerTensorCutLift_tmul (k := ℚ) unitIdempotent unitIdempotent unitIdempotent
+  projectedProduct projectedProduct_balanced
+  (cornerSandwichAdd unitIdempotent unitIdempotent (1 : ℚ))
+  (cornerSandwichAdd unitIdempotent unitIdempotent (1 : ℚ))
+
 example := diagramWeightCoendProduct G G G leftAction rightAction leftAction rightAction
   product productWeight productBalanced (⟨0⟩ : QWeight) (⟨0⟩ : QWeight)
 

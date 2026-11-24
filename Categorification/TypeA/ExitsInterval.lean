@@ -60,12 +60,13 @@ theorem mem_Icc_of_perm_fix_outside {v : Perm (Fin m)}
     exact h.elim (not_lt.mpr ht.1) (not_lt.mpr ht.2)
   exact ⟨not_lt.mp (fun hl => h (.inl hl)), not_lt.mp (fun hr => h (.inr hr))⟩
 
-/-- **Interval-supported red crossing** (Webster, arXiv:1309.3796v2, proof of Lemma 6.8).
-For adjacent red strands inverted by `τ`, a reduced factor of `τ` crosses that red pair alone
-and fixes every position strictly outside the interval of the pair. -/
-theorem exists_isSwapBelow_interval (hqp : q < p) (hT : (q, p) ∈ invSet m τ)
+/-- A reduced interval-supported exit can put the exchanged red strands in
+consecutive positions. Webster, arXiv:1309.3796v2, proof of Lemma 6.8. -/
+theorem exists_isSwapBelow_interval_adjacent (hqp : q < p)
+    (hT : (q, p) ∈ invSet m τ)
     (hcons : ∀ t ∈ R, q < t → t < p → False) :
-    ∃ v, IsSwapBelow τ R q p v ∧ ∀ t, t < q ∨ p < t → v t = t := by
+    ∃ v, IsSwapBelow τ R q p v ∧ (∀ t, t < q ∨ p < t → v t = t) ∧
+      (v q : ℕ) = v p + 1 := by
   let e := setPerm q p (prefixSet τ R q p)
   have he : IsExit τ R q p e := isExit_setPerm hqp hT (isValid_prefixSet hqp hT hcons)
   have hfix : ∀ t, t < q ∨ p < t → e t = t := fun _ ht =>
@@ -74,14 +75,32 @@ theorem exists_isSwapBelow_interval (hqp : q < p) (hT : (q, p) ∈ invSet m τ)
   have hp := mem_Icc_of_perm_fix_outside hfix (t := p) ⟨hqp.le, le_rfl⟩
   have hadj := he.adj
   have hx : (e q : ℕ) + 1 < m := by have := (e p).isLt; omega
-  refine ⟨_, he.isSwapBelow hqp hT hx, fun t ht => ?_⟩
-  rw [Perm.mul_apply, hfix _ ht]
-  apply sadj_apply_of_ne
-  · intro h
-    exact ht.elim (fun hl => hl.not_ge (Fin.ext h ▸ hq.1))
-      (fun hr => hr.not_ge (Fin.ext h ▸ hq.2))
-  · intro h
-    have htp : t = e p := Fin.ext (h.trans hadj.symm)
-    exact ht.elim (fun hl => hl.not_ge (htp ▸ hp.1)) (fun hr => hr.not_ge (htp ▸ hp.2))
+  refine ⟨_, he.isSwapBelow hqp hT hx, ?_, ?_⟩
+  · intro t ht
+    rw [Perm.mul_apply, hfix _ ht]
+    apply sadj_apply_of_ne
+    · intro h
+      exact ht.elim (fun hl => hl.not_ge (Fin.ext h ▸ hq.1))
+        (fun hr => hr.not_ge (Fin.ext h ▸ hq.2))
+    · intro h
+      have htp : t = e p := Fin.ext (h.trans hadj.symm)
+      exact ht.elim (fun hl => hl.not_ge (htp ▸ hp.1)) (fun hr => hr.not_ge (htp ▸ hp.2))
+  · have hr : e p = ⟨(e q).val + 1, hx⟩ := Fin.ext hadj
+    change ((sadj m (e q) * e) q : ℕ) = ((sadj m (e q) * e) p : ℕ) + 1
+    rw [Perm.mul_apply, Perm.mul_apply]
+    have hleft : sadj m (e q).val (e q) = ⟨(e q).val+1, hx⟩ := by
+      exact sadj_apply_left hx
+    have hright : sadj m (e q).val (e p) = ⟨(e q).val, by omega⟩ := by
+      rw [hr]
+      exact sadj_apply_right hx
+    rw [hleft, hright]
+
+/-- The interval-supported crossing gives a reduced factor exchanging exactly the given
+adjacent red pair and fixing all positions outside its interval. -/
+theorem exists_isSwapBelow_interval (hqp : q < p) (hT : (q, p) ∈ invSet m τ)
+    (hcons : ∀ t ∈ R, q < t → t < p → False) :
+    ∃ v, IsSwapBelow τ R q p v ∧ ∀ t, t < q ∨ p < t → v t = t := by
+  obtain ⟨v, hv, hfix, _⟩ := exists_isSwapBelow_interval_adjacent hqp hT hcons
+  exact ⟨v, hv, hfix⟩
 
 end Categorification.TypeA

@@ -321,6 +321,99 @@ theorem fiveSlotRightmostKernel_mem_iff_two_central_factors (hQ : KLRSymm Q) (a 
   rw [h]
   exact TwoSidedIdeal.add_mem _ (member _ y) (member _ z)
 
+
+local notation "D" => π (ψ 3 : R)
+local notation "i₃" => (⟨3, by decide⟩ : Fin n₀)
+local notation "i₄" => (⟨4, by decide⟩ : Fin n₀)
+local notation "X₃" => π (x i₃ : R)
+local notation "X₄" => π (x i₄ : R)
+
+private theorem rightmostCrossing_square (z : V) (hz : p v₂ * z = z) :
+    D * (D * z) = 0 := by
+  have h : (ψ 3 * ψ 3 * e v₂ : R) = 0 := by
+    rw [ψ_sq 3 (by decide), ite_eq_left (by decide)]
+  have hm := congrArg π h
+  simp only [map_mul, map_zero] at hm
+  rw [← mul_assoc, ← hz, ← mul_assoc, hm, zero_mul]
+
+private theorem rightmostCrossing_left_dot (z : V) (hz : p v₂ * z = z) :
+    D * (X₃ * z) - X₄ * (D * z) = z := by
+  have h : (ψ 3 * x i₃ * e v₂ - x i₄ * ψ 3 * e v₂ : R) = e v₂ := by
+    rw [← sub_mul, dot_cross_right 3 (by decide : 3 + 1 < n₀), ite_eq_left (by decide)]
+  have hm := congrArg (fun r => π r * z) h
+  simpa only [map_mul, map_sub, sub_mul, mul_assoc, hz] using hm
+
+private theorem rightmostCrossing_c₀_left :
+    p v₂ * π c₀ = π c₀ := by
+  rw [← map_mul]
+  have top : wordProd n₀ [2,1] • v₁ = v₂ := by decide
+  rw [← top, ← mul_assoc, e_mul_ψw, inv_smul_smul, mul_assoc, e_mul_self]
+
+private theorem rightmostCrossing_c₀_to_c₁ : D * π c₀ = π c₁ := by
+  rw [← map_mul, ψw_cons 3 [2,1], mul_assoc]
+
+private theorem rightmostCrossing_c₁_zero : D * π c₁ = 0 := by
+  rw [← rightmostCrossing_c₀_to_c₁]
+  exact rightmostCrossing_square Q Λ _ (rightmostCrossing_c₀_left Q Λ)
+
+private theorem rightmostKernel_left (a : L) : p v₂ * a.1.1 = a.1.1 := by
+  have h := a.2
+  change orderedLoadingIdem Q Λ v₂ * a.1 = a.1 at h
+  exact congrArg (fun z : A => z.1) h
+
+/-- The equal-black crossing sends the rightmost kernel into the second E1 image. -/
+theorem fiveSlotRightmostKernel_crossing_mem_secondImage (hQ : KLRSymm Q)
+    (a : L) (ha : a ∈ K) :
+    ∃ y : V, p v₁ * y = y ∧ y * E = y ∧ D * a.1.1 = π c₁ * y := by
+  obtain ⟨y, z, hy, _, hyE, _, h⟩ := fiveSlotRightmostKernel_exists_two_central_factors Q Λ hQ a ha
+  refine ⟨y, hy, hyE, ?_⟩
+  rw [h, mul_add, ← mul_assoc, ← mul_assoc, rightmostCrossing_c₀_to_c₁,
+    rightmostCrossing_c₁_zero, zero_mul, add_zero]
+
+/-- At the rightmost top, the kernel of the equal-black crossing acting on the
+higher kernel is exactly the second E1 image. -/
+theorem fiveSlotRightmostKernel_crossing_eq_zero_iff (hQ : KLRSymm Q)
+    (a : L) (ha : a ∈ K) :
+    D * a.1.1 = 0 ↔ ∃ y : V, p v₁ * y = y ∧ y * E = y ∧ a.1.1 = π c₁ * y := by
+  constructor
+  · intro hzero
+    let b := blockLoadingRep Q Λ v₂ (X₃ * a.1.1)
+    have hb : b.1.1 = X₃ * a.1.1 := by
+      have hm : p v₂ * X₃ = X₃ * p v₂ := by
+        rw [← map_mul, ← map_mul, x_mul_e]
+      have hr : a.1.1 * E = a.1.1 := corner_mul_right _ a.1
+      exact (blockLoadingRep_val Q Λ v₂ _).trans (by
+        change p v₂ * (X₃ * a.1.1) * E = X₃ * a.1.1
+        rw [← mul_assoc, hm, mul_assoc X₃, rightmostKernel_left Q Λ a, mul_assoc, hr])
+    have hbK : b ∈ K := by
+      let J := blockUpperIdeal k Q Λ ν₀ 1 2 (adjacentBlockRoot 1 2 v₂) (redWord v₂)
+      change b.1.1 ∈ J
+      rw [hb]
+      exact TwoSidedIdeal.mul_mem_left _ _ _ ha
+    obtain ⟨y, hy, hyE, heq⟩ := fiveSlotRightmostKernel_crossing_mem_secondImage Q Λ hQ b hbK
+    have hdot := rightmostCrossing_left_dot Q Λ a.1.1 (rightmostKernel_left Q Λ a)
+    rw [hzero, mul_zero, sub_zero] at hdot
+    exact ⟨y, hy, hyE, hdot.symm.trans ((congrArg (D * ·) hb).symm.trans heq)⟩
+  · rintro ⟨y, _, _, h⟩
+    rw [h, ← mul_assoc, rightmostCrossing_c₁_zero, zero_mul]
+
+
+/-- A vector of the first E1 image lies in the second image precisely when
+the same coefficient gives zero in the second image. -/
+theorem fiveSlotRightmostKernel_central_images_intersect_iff (hQ : KLRSymm Q)
+    (y : V) (hy : p v₁ * y = y) (hyE : y * E = y) :
+    (∃ z : V, p v₁ * z = z ∧ z * E = z ∧ π c₀ * y = π c₁ * z) ↔ π c₁ * y = 0 := by
+  let a := blockLoadingRep Q Λ v₂ (π c₀ * y)
+  have ha : a.1.1 = π c₀ * y :=
+    (blockLoadingRep_val Q Λ v₂ _).trans (by
+      change p v₂ * (π c₀ * y) * E = π c₀ * y
+      rw [← mul_assoc, rightmostCrossing_c₀_left, mul_assoc, hyE])
+  have haK : a ∈ K := (fiveSlotRightmostKernel_mem_iff_two_central_factors Q Λ hQ a).2
+    ⟨y, 0, hy, mul_zero _, hyE, zero_mul _, by rw [ha, mul_zero, add_zero]⟩
+  have h := fiveSlotRightmostKernel_crossing_eq_zero_iff Q Λ hQ a haK
+  rw [ha, ← mul_assoc, rightmostCrossing_c₀_to_c₁] at h
+  exact h.symm
+
 end KernelSum
 
 end Categorification.Stendhal.BraidedStendhalAlgebra

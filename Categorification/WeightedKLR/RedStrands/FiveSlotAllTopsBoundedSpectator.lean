@@ -4,15 +4,16 @@ Released under Apache 2.0 license as described in the file LICENSE.
 -/
 import Categorification.WeightedKLR.RedStrands.FiveSlotSpectatorWeight
 import Categorification.WeightedKLR.RedStrands.FiveSlotAllBottomStandard
+import Categorification.WeightedKLR.RedStrands.FiveSlotCentralFlagInjection
+import Categorification.WeightedKLR.RedStrands.FiveSlotNearbyFlagInjection
 import Categorification.WeightedKLR.RedStrands.BlockKernelDerivedHomology
 
 /-!
-# The full five-slot map with a bounded spectator weight
+# The full five-slot map at all source loadings
 
-Webster, arXiv:1309.3796v2, Lemma 6.8 and (6.21). At standard parameters,
-if the initial red spectator has multiplicity at most one, the ordinary
-kernel map is injective at every five-slot top in the exchanged red order.
-The same comparison gives a monomorphism on degree-zero derived homology.
+Webster, arXiv:1309.3796v2, Lemma 6.8 and (6.21). The fixed two-interior
+column tests give ordinary injectivity and a degree-zero derived monomorphism
+for every source loading in the exchanged red order at standard parameters.
 -/
 
 noncomputable section
@@ -38,11 +39,11 @@ variable {k : Type} [CommRing k]
 private def FullKernelInjective (t : Seq μ₀) : Prop :=
   Function.Injective (blockKernelTensorInclusion Q Λ t 1 2 κ).toFun
 
-/-- Once the right-top cases are known, the higher ideals at the left tops
-give the full ordinary map for a spectator of multiplicity at most one. -/
-private theorem fiveSlot_blockKernelTensorInclusion_injective_of_rightTops
-    (t : Seq μ₀) (horder : redWord t = [0,1,2]) (small : Λ 0 () ≤ 1)
-    (rightTop : FiveSlotRightTop t → FullKernelInjective Q Λ t) :
+private theorem fiveSlot_fullKernelInjective_of_top_cases
+    (t : Seq μ₀) (horder : redWord t = [0,1,2])
+    (rightTop : FiveSlotRightTop t → FullKernelInjective Q Λ t)
+    (central : t = fixedTopFourExitCut 1 → FullKernelInjective Q Λ t)
+    (nearby : t = TypeA.sadj μ₀.card 2 • fixedTopFourExitCut 0 → FullKernelInjective Q Λ t) :
     FullKernelInjective Q Λ t := by
   by_cases hv : IsViolated t
   · exact blockKernelTensorInclusion_injective_of_violated_top Q Λ t 1 2 κ hv
@@ -54,12 +55,8 @@ private theorem fiveSlot_blockKernelTensorInclusion_injective_of_rightTops
       blockKernelTensorInclusion_injective_of_columns Q Λ _ 1 2 κ
         (fun s _ => fiveSlotLeftExtreme_blockKernelColumnInclusion_injective Q Λ s)
     exact hmax.symm ▸ hi
-  · exact blockKernelTensorInclusion_injective_of_columns Q Λ t 1 2 κ
-      (fun s _ => fiveSlot_oneBlackBeforePair_columnInclusion_of_spectatorWeight_le_one
-        Q Λ small t s (Or.inl hmid))
-  · exact blockKernelTensorInclusion_injective_of_columns Q Λ t 1 2 κ
-      (fun s _ => fiveSlot_oneBlackBeforePair_columnInclusion_of_spectatorWeight_le_one
-        Q Λ small t s (Or.inr hleft))
+  · exact central hmid
+  · exact nearby hleft
 
 end Ring
 
@@ -81,15 +78,49 @@ theorem fiveSlot_blockKernelTensorInclusion_injective_of_spectatorWeight_le_one
     (horder : redWord t = [0,1,2]) (small : Λ 0 () ≤ 1) :
     Function.Injective (blockKernelTensorInclusion Qstd Λ t 1 2 κ).toFun := by
   change FullKernelInjective Qstd Λ t
-  apply fiveSlot_blockKernelTensorInclusion_injective_of_rightTops Qstd Λ t horder small
-  intro h
+  apply fiveSlot_fullKernelInjective_of_top_cases Qstd Λ t horder
+  · intro h
+    have hr : IsRouquierQ C Qstd :=
+      ⟨fun i j h => (h (Subsingleton.elim i j)).elim,
+        fun i j h => (h (Subsingleton.elim i j)).elim,
+        fun i j h => (h (Subsingleton.elim i j)).elim⟩
+    have hq : KLRSymm Qstd := fun i j hij => (hij (Subsingleton.elim i j)).elim
+    exact fiveSlot_blockKernelTensorInclusion_injective_standard_of_twoInterior C Λ hr hq t horder
+      (fiveSlotRightTop_blockKernelColumnInclusion_injective Qstd Λ t hq h)
+  · intro h
+    exact blockKernelTensorInclusion_injective_of_columns Qstd Λ t 1 2 κ
+      (fun s _ => fiveSlot_oneBlackBeforePair_columnInclusion_of_spectatorWeight_le_one
+        Qstd Λ small t s (Or.inl h))
+  · intro h
+    exact blockKernelTensorInclusion_injective_of_columns Qstd Λ t 1 2 κ
+      (fun s _ => fiveSlot_oneBlackBeforePair_columnInclusion_of_spectatorWeight_le_one
+        Qstd Λ small t s (Or.inr h))
+
+set_option backward.isDefEq.respectTransparency false in
+/-- At standard parameters, the five-slot kernel inclusion is injective at
+every source loading of the original red order, after tensoring with the
+full exchanged red-order corner. -/
+theorem fiveSlot_blockKernelTensorInclusion_injective_all_tops_standard
+    (horder : redWord t = [0,1,2]) :
+    Function.Injective (blockKernelTensorInclusion Qstd Λ t 1 2 κ).toFun := by
+  change FullKernelInjective Qstd Λ t
   have hr : IsRouquierQ C Qstd :=
     ⟨fun i j h => (h (Subsingleton.elim i j)).elim,
       fun i j h => (h (Subsingleton.elim i j)).elim,
       fun i j h => (h (Subsingleton.elim i j)).elim⟩
   have hq : KLRSymm Qstd := fun i j hij => (hij (Subsingleton.elim i j)).elim
-  exact fiveSlot_blockKernelTensorInclusion_injective_standard_of_twoInterior C Λ hr hq t horder
-    (fiveSlotRightTop_blockKernelColumnInclusion_injective Qstd Λ t hq h)
+  have assemble (both : Function.Injective (blockKernelColumnInclusion Qstd Λ t 1 2 fixedTopFourExitBottom)) :
+      FullKernelInjective Qstd Λ t :=
+    fiveSlot_blockKernelTensorInclusion_injective_standard_of_twoInterior C Λ hr hq t horder both
+  apply fiveSlot_fullKernelInjective_of_top_cases Qstd Λ t horder
+  · intro h
+    exact assemble (fiveSlotRightTop_blockKernelColumnInclusion_injective Qstd Λ t hq h)
+  · intro h
+    subst t
+    exact assemble (fiveSlotCentral_blockKernelColumnInclusion_injective Qstd Λ hq)
+  · intro h
+    subst t
+    exact assemble (fiveSlotNearby_blockKernelColumnInclusion_injective Λ Qstd hq)
 
 set_option backward.isDefEq.respectTransparency false in
 /-- The corresponding degree-zero derived map is monic over the full
@@ -104,6 +135,18 @@ theorem fiveSlot_blockKernelDerivedHomology_mono_of_spectatorWeight_le_one
     fiveSlot_blockKernelTensorInclusion_injective_of_spectatorWeight_le_one C Λ t horder small
   exact blockKernelDerivedHomology_mono Qstd Λ t 1 2 κ hi
 
+
+set_option backward.isDefEq.respectTransparency false in
+/-- Degree-zero derived braid homology preserves the higher-kernel inclusion
+at every five-slot source loading, with unrestricted spectator weight. -/
+theorem fiveSlot_blockKernelDerivedHomology_mono_all_tops_standard
+    (horder : redWord t = [0,1,2])
+    [DG.HasDerivedCategory.{w, 0} Tᵐᵒᵖ] [DG.HasDerivedCategory.{w, 0} Uᵐᵒᵖ] :
+    Mono ((homologyFunctor (A := Uᵐᵒᵖ) ℤ 0).map
+      ((braidingFunctor (k := k) (Q := Qstd) (Λ := Λ) (ν := ν₀) (redWord t) κ).map
+        (DG.DerivedCategory.Q.map (blockLoadingKernelInclusionDG Qstd Λ t 1 2)))) :=
+  blockKernelDerivedHomology_mono Qstd Λ t 1 2 κ
+    (fiveSlot_blockKernelTensorInclusion_injective_all_tops_standard C Λ t horder)
 
 end Standard
 

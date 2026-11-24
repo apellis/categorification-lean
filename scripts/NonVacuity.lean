@@ -9253,18 +9253,21 @@ namespace NonVacuity.WebsterFiveSlotRightmostDerived
 
 open Categorification.KLR Categorification.Stendhal Categorification.QuantumGroup
 open BraidedStendhalAlgebra Categorification.KL3.Diagram MulOpposite
+open scoped DG.DegreeZero
+
+attribute [local instance 1100] IsIdempotentElem.instAlgebraCorner_categorification
+attribute [local instance 1200] Ring.toIntAlgebra
 
 private noncomputable abbrev C := CartanDatum.ofGraph (⊥ : SimpleGraph Unit)
 private noncomputable abbrev Λ : Fin 3 → Unit →₀ ℕ := fun r => Finsupp.single () (r.val + 2)
 private noncomputable abbrev Q := CL.qCL (CL.CLScalars.kl : CL.CLScalars C ℚ)
 
 local notation "ν" => ({()} + {()} : Multiset Unit)
-local notation "S" => IsIdempotentElem.Corner
-  (isIdempotentElem_violMk_redProj ℚ Q Λ ν (redWord (fixedTopFourExitCut 2)))
-local notation "T" => IsIdempotentElem.Corner
-  (isIdempotentElem_violMk_redProj ℚ Q Λ ν ([0,2,1] : List (Fin 3)))
+noncomputable local instance (order : List (Fin 3)) : DG.HasDerivedCategory.{0,0}
+    (isIdempotentElem_violMk_redProj ℚ Q Λ ν order).Cornerᵐᵒᵖ :=
+  DG.HasDerivedCategory.small _
 
-example [DG.HasDerivedCategory.{0,0} Sᵐᵒᵖ] [DG.HasDerivedCategory.{0,0} Tᵐᵒᵖ] :=
+example :=
   fiveSlotRightmost_partialStandard_braid_homology_vanish_exchanged (k := ℚ) C Λ 1 (by decide)
 
 end NonVacuity.WebsterFiveSlotRightmostDerived
@@ -9295,18 +9298,21 @@ namespace NonVacuity.WebsterFiveSlotLastRedDerived
 
 open Categorification.KLR Categorification.Stendhal Categorification.QuantumGroup
 open BraidedStendhalAlgebra Categorification.KL3.Diagram MulOpposite
+open scoped DG.DegreeZero
+
+attribute [local instance 1100] IsIdempotentElem.instAlgebraCorner_categorification
+attribute [local instance 1200] Ring.toIntAlgebra
 
 private noncomputable abbrev C := CartanDatum.ofGraph (⊥ : SimpleGraph Unit)
 private noncomputable abbrev Λ : Fin 3 → Unit →₀ ℕ := fun r => Finsupp.single () (r.val + 2)
 private noncomputable abbrev Q := CL.qCL (CL.CLScalars.kl : CL.CLScalars C ℚ)
 
 local notation "ν" => ({()} + {()} : Multiset Unit)
-local notation "S" => IsIdempotentElem.Corner
-  (isIdempotentElem_violMk_redProj ℚ Q Λ ν (redWord (fiveSlotRightLoading 2)))
-local notation "T" => IsIdempotentElem.Corner
-  (isIdempotentElem_violMk_redProj ℚ Q Λ ν ([0,2,1] : List (Fin 3)))
+noncomputable local instance (order : List (Fin 3)) : DG.HasDerivedCategory.{0,0}
+    (isIdempotentElem_violMk_redProj ℚ Q Λ ν order).Cornerᵐᵒᵖ :=
+  DG.HasDerivedCategory.small _
 
-example [DG.HasDerivedCategory.{0,0} Sᵐᵒᵖ] [DG.HasDerivedCategory.{0,0} Tᵐᵒᵖ] :=
+example :=
   fiveSlotLastRed_partialStandard_braid_homology_vanish_exchanged (k := ℚ) C Λ 1 (by decide)
 
 end NonVacuity.WebsterFiveSlotLastRedDerived

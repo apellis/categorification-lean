@@ -1835,6 +1835,7 @@ import Categorification.WeightedKLR.RedStrands.FirstPairTerminalColumnCancel
 import Categorification.WeightedKLR.RedStrands.FirstPairDerivedNegOne
 import Categorification.WeightedKLR.RedStrands.BlockKernelCrossingGenerator
 import Categorification.WeightedKLR.RedStrands.BraidedStandardGrading
+import Categorification.WeightedKLR.RedStrands.BraidedFlipGrading
 import Categorification.WeightedKLR.RedStrands.BraidedStandardInjective
 import Categorification.WeightedKLR.RedStrands.BraidedStandardIso
 import Categorification.WeightedKLR.RedStrands.BraidColumnPBW

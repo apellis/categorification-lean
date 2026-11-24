@@ -10413,6 +10413,32 @@ end
 
 end NonVacuity.WebsterScalarHom
 
+noncomputable section
+namespace NonVacuity.WebsterBraidedFlipGrade
+
+open Categorification CategoryTheory DG Stendhal FundamentalCorner BraidedStendhalAlgebra
+open scoped DG.DegreeZero
+
+local notation "ν₀" => ({()} : Multiset Unit)
+local notation "V" => violAuxiliaryGrade (ν := ν₀) FundamentalCorner.grading
+local notation "E" => isIdempotentElem_violMk_redProj ℚ Q wt ν₀ [0, 1]
+
+private theorem symmGrade (i j : Unit ⊕ Fin 2) :
+    FundamentalCorner.grading.degΨ i j = FundamentalCorner.grading.degΨ j i := by
+  rcases i with ⟨⟨⟩⟩ | i <;> rcases j with ⟨⟨⟩⟩ | j
+  · rfl
+  · fin_cases j <;> rfl
+  · fin_cases i <;> rfl
+  · fin_cases i <;> fin_cases j <;> rfl
+
+example (a : (E).Cornerᵐᵒᵖ) :
+    (cornerFlipEquiv (Q := Q) (Λ := wt) ν₀ [0, 1] a).val ∈ V 2 ↔ a.unop.val ∈ V 2 :=
+  cornerFlipEquiv_mem_violAuxiliaryGrade_iff FundamentalCorner.grading symmGrade [0, 1] 2 a
+
+end NonVacuity.WebsterBraidedFlipGrade
+
+end
+
 namespace NonVacuity.WebsterAuxiliaryBraiding
 
 noncomputable section

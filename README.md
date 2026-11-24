@@ -1471,6 +1471,10 @@ resolution for the actual middle cut
 The ordinary tensor of this actual coefficient with the middle standard
 is the dual-number vector space at the middle cut
 (`Stendhal.LabelTwo.middleStandardTensorEquiv`).
+In these coordinates, the actual sum map vanishes and the actual
+difference map is multiplication by `2ε`
+(`Stendhal.LabelTwo.middleStandardTensorEquiv_plus`,
+`Stendhal.LabelTwo.middleStandardTensorEquiv_minus`).
 
 **Terminal-character resolution benchmark for Webster, arXiv:1309.3796v2,
 §8.1.** In the fundamental rank-one block over `ℚ`, the terminal simple

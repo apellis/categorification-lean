@@ -175,12 +175,12 @@ section FixedWeight
 open CategoryTheory DG
 open scoped DG.DegreeZero
 
-local instance : InternalGrading Ambient :=
+local instance middleRankOneInternalGrading : InternalGrading Ambient :=
   gradedAlgebraInternalGrading (middleTensorGrade k (labelTwoGradingDatum k))
-local instance : BigradedDGRing Ambient :=
+local instance middleRankOneDGGrading : BigradedDGRing Ambient :=
   gradedAlgebraBigradedDGRing (middleTensorGrade k (labelTwoGradingDatum k))
-local instance : InternalGrading k := scalarInternalGrading k
-local instance : BigradedDGRing k := scalarBigradedDGRing k
+local instance middleRankOneScalarInternalGrading : InternalGrading k := scalarInternalGrading k
+local instance middleRankOneScalarDGGrading : BigradedDGRing k := scalarBigradedDGRing k
 
 private def rankOneMiddleCovers :=
   orderedStandardCoversTransport weights (rankOneParameterChange k).toRingEquiv

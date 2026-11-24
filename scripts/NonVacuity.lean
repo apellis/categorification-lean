@@ -8930,6 +8930,51 @@ end NonVacuity.WebsterFundamentalDerivedCircle
 
 end
 
+noncomputable section
+namespace NonVacuity.WebsterMiddleCutEvaluation
+open CategoryTheory CategoryTheory.Limits DG Categorification Categorification.Stendhal FundamentalCorner
+open scoped DG.DegreeZero
+attribute [local instance 1100] IsIdempotentElem.instAlgebraCorner_categorification
+local notation "T" => TensorProductAlgebra ℚ Q wt ({()} : Multiset Unit)
+local instance : DG.HasDerivedCategory.{1,0} ℚ := DG.HasDerivedCategory.standard ℚ
+local instance : DG.HasDerivedCategory.{1,0} Tᵐᵒᵖ := DG.HasDerivedCategory.standard Tᵐᵒᵖ
+local instance : CatModule.HasDerivedCategory.{1,0} (SingleObj ℚ) :=
+  CatModule.HasDerivedCategory.standard (SingleObj ℚ)
+local instance : CatModule.HasDerivedCategory.{1,0} (SingleObj Tᵐᵒᵖ) :=
+  CatModule.HasDerivedCategory.standard (SingleObj Tᵐᵒᵖ)
+
+example : blackCount middle 1 () = 1 ∧ blackCount terminal 1 () = 0 :=
+  ⟨middle_terminal_cuts.2.1, middle_terminal_cuts.2.2.2⟩
+
+example : IsSimpleModule Tᵐᵒᵖ (rIdeal middleIdem ⧸ middleCutTrace) :=
+  (middleCutTrace_eq_iff_simpleQuotient middleCutTrace).mp rfl
+
+example := middleQuotientDualEquiv
+example := middleCapCupAdjunction
+example := middleCup_fieldIso
+example := middleAdjointCap_middleIso
+example := middleAdjointCap_terminal_isZero
+example := middleProjectiveResolution
+example := middleAdjointCap_middleSimpleIso
+example := middleCupCap_fieldIso
+
+local notation "cap" => Coevaluation.capBimoduleFunctor ℚ T MiddleCoefficient
+local notation "headObj" => DG.DerivedCategory.Q.obj
+  (DGModuleCat.of Tᵐᵒᵖ (InDegreeZero (rIdeal middleIdem ⧸ middleCutTrace)))
+
+example : DG.DerivedCategory.finrankHomology ℚ (-2) ((cap).obj headObj) = 1 := by
+  simpa using middleTor_finrank.{1} 2
+
+example : DG.DerivedCategory.finrankHomology ℚ (-1) ((cap).obj headObj) = 0 := by
+  simpa using middleTor_finrank.{1} 1
+
+example : DG.DerivedCategory.finrankHomology ℚ (-1)
+    ((middleCup ⋙ (cap)).obj (DG.DerivedCategory.Q.obj (DGModuleCat.of ℚ ℚ))) = 1 := by
+  simpa using middleCupCap_finrank.{1} (-1)
+
+end NonVacuity.WebsterMiddleCutEvaluation
+end
+
 namespace NonVacuity.WebsterCupRHomRegular
 
 open CategoryTheory DG MulOpposite Categorification.Stendhal.Coevaluation

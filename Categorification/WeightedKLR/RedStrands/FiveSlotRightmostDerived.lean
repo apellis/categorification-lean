@@ -25,53 +25,6 @@ noncomputable section
 
 namespace Categorification
 
-section Kernel
-variable {B M N L : Type} [Ring B] [AddCommGroup M] [Module B M] [AddCommGroup N] [Module B N]
-  [AddCommGroup L] [Module B L]
-
-/-- A square-zero endomorphism with a contracting dot has split kernel inclusion. -/
-private def crossingKernelProjection (d x : L →ₗ[B] L)
-    (sq : ∀ a, d (d a) = 0) (contract : ∀ a, d a = 0 → d (x a) = a) :
-    L →ₗ[B] LinearMap.ker d :=
-  (LinearMap.id - x.comp d).codRestrict _ (fun a => by
-    change d (a - x (d a)) = 0
-    rw [map_sub, contract (d a) (sq a), sub_self])
-
-private theorem crossingKernelProjection_comp (d x : L →ₗ[B] L)
-    (sq : ∀ a, d (d a) = 0) (contract : ∀ a, d a = 0 → d (x a) = a) :
-    (crossingKernelProjection d x sq contract).comp (LinearMap.ker d).subtype = LinearMap.id := by
-  ext a
-  have ha : d a.1 = 0 := a.2
-  change a.1 - x (d a.1) = a.1
-  rw [ha, map_zero, sub_zero]
-
-/-- Matching the second crossing on the principal image to the nilHecke
-crossing on its source identifies their kernels once containment is known. -/
-private def crossingKernelEquiv (u : L →ₗ[B] M) (g : M →ₗ[B] N) (d : L →ₗ[B] L)
-    (injective : Function.Injective u)
-    (contained : LinearMap.ker g ≤ LinearMap.range u)
-    (comp_zero : ∀ a, g (u a) = 0 ↔ d a = 0) :
-    LinearMap.ker d ≃ₗ[B] LinearMap.ker g := by
-  let m := (u.comp (LinearMap.ker d).subtype).codRestrict (LinearMap.ker g)
-    (fun a => (comp_zero a.1).2 a.2)
-  apply LinearEquiv.ofBijective m
-  constructor
-  · intro a b h
-    apply Subtype.ext
-    apply injective
-    exact congrArg Subtype.val h
-  · intro a
-    obtain ⟨b, hb⟩ := contained a.2
-    have he : d b = 0 := (comp_zero b).1 (hb.symm ▸ a.2)
-    exact ⟨⟨b,he⟩, Subtype.ext hb⟩
-
-private theorem crossingKernelEquiv_apply_val (u : L →ₗ[B] M) (g : M →ₗ[B] N) (d : L →ₗ[B] L)
-    (injective : Function.Injective u) (contained : LinearMap.ker g ≤ LinearMap.range u)
-    (comp_zero : ∀ a, g (u a) = 0 ↔ d a = 0) (a : LinearMap.ker d) :
-    (crossingKernelEquiv u g d injective contained comp_zero a).1 = u a.1 := rfl
-
-end Kernel
-
 section Range
 universe w
 variable {B A M N : Type} [Ring B] [Ring A] [AddCommGroup M] [Module B M] [AddCommGroup N]
@@ -139,29 +92,20 @@ private theorem crossingRange_homology_vanish_of_retract {L : Type} [AddCommGrou
     infer_instance
   exact crossingRange_homology_vanish F f hker hmid hz n hn
 
-omit [HasDerivedCategory B] [HasDerivedCategory A] in
 
-/-- An additive homology functor sends a product of two copies of an acyclic
-module to zero in the same degree. -/
-private theorem isZero_additive_map_selfProd (G : ModuleCat B ⥤ ModuleCat A) [G.Additive]
-    (h : IsZero (G.obj (ModuleCat.of B M))) :
-    IsZero (G.obj (ModuleCat.of B (M × M))) := by
-  let f₁ := ModuleCat.ofHom (LinearMap.fst B M M)
-  let f₂ := ModuleCat.ofHom (LinearMap.snd B M M)
-  let g₁ := ModuleCat.ofHom (LinearMap.inl B M M)
-  let g₂ := ModuleCat.ofHom (LinearMap.inr B M M)
-  have e : f₁ ≫ g₁ + f₂ ≫ g₂ = 𝟙 (ModuleCat.of B (M × M)) := by
-    apply ModuleCat.hom_ext
-    apply LinearMap.ext
-    intro a
-    change ((a.1, 0) + (0, a.2) : M × M) = a
-    simp
-  have eq := congrArg G.map e
-  have e₁ : G.map f₁ = 0 := h.eq_of_tgt _ _
-  have e₂ : G.map f₂ = 0 := h.eq_of_tgt _ _
-  rw [Functor.map_add, Functor.map_comp, Functor.map_comp, CategoryTheory.Functor.map_id, e₁, e₂,
-    zero_comp, zero_comp, add_zero] at eq
-  exact (IsZero.iff_id_eq_zero _).mpr eq.symm
+/-- The split product sequence gives vanishing on two copies of an acyclic module. -/
+private theorem crossingProd_homology_vanish
+    (F : DerivedCategory.{w,0} B ⥤ DerivedCategory.{w,0} A)
+    [F.Additive] [F.CommShift ℤ] [F.IsTriangulated] (n : ℤ)
+    (h : IsZero ((crossingH F n).obj (ModuleCat.of B M))) :
+    IsZero ((crossingH F n).obj (ModuleCat.of B (M × M))) := by
+  have hfil : ModuleFiltration.HasFiltration
+      (fun _ : Unit => ModuleCat.of B M) [(), ()] (ModuleCat.of B (M × M)) :=
+    ModuleFiltration.HasFiltration.cons (X := ModuleCat.of B M) (Z := ModuleCat.of B M)
+      (LinearMap.inl B M M) (LinearMap.snd B M M) [()] ()
+      (fun _ _ e => congrArg Prod.fst e) Function.Exact.inl_snd (fun a => ⟨(0,a),rfl⟩)
+      (ModuleFiltration.HasFiltration.single (LinearEquiv.refl _ _)) ⟨LinearEquiv.refl _ _⟩
+  exact hfil.isZero_derivedHomology F n (fun _ _ => h)
 
 end Range
 
@@ -275,8 +219,10 @@ private def leftExtremeToCentral : P₀ →ₗ[Tᵐᵒᵖ] P₁ where
     apply Subtype.ext; apply Subtype.ext
     change (fiveSlotCentralPrincipalKernelMap Q Λ ((r • a) : P₀)).1.1.1 =
       (fiveSlotCentralPrincipalKernelMap Q Λ a).1.1.1 * r.unop.1
-    rw [fiveSlotCentralPrincipalKernelMap_val, fiveSlotCentralPrincipalKernelMap_val]
-    exact (mul_assoc u₀ a.1.1 r.unop.1).symm
+    calc
+      _ = u₀ * ((r • a : P₀).1.1) := fiveSlotCentralPrincipalKernelMap_val Q Λ ((r • a) : P₀)
+      _ = (u₀ * a.1.1) * r.unop.1 := (mul_assoc u₀ a.1.1 r.unop.1).symm
+      _ = _ := congrArg (· * r.unop.1) (fiveSlotCentralPrincipalKernelMap_val Q Λ a).symm
 
 private theorem leftExtremeToCentral_val (a : P₀) :
     (leftExtremeToCentral Q Λ a).1.1 = u₀ * a.1.1 :=
@@ -368,6 +314,48 @@ private theorem secondCrossing_range_eq_nilHecke_range :
 end Second
 
 
+
+
+section SecondKernelEquiv
+variable (hQ : KLRSymm Q)
+
+local notation "g₂" => centralToRightmostSecond Q Λ hQ
+local notation "u" => leftExtremeToCentral Q Λ
+local notation "d₀" => leftExtremeDelta Q Λ
+
+private def rightmostSecondKernelMap :
+    LinearMap.ker d₀ →ₗ[Tᵐᵒᵖ] LinearMap.ker g₂ where
+  toFun a := ⟨u a.1, (centralToRightmostSecond_on_principal_zero Q Λ hQ a.1).2 a.2⟩
+  map_add' a b := Subtype.ext (map_add u a.1 b.1)
+  map_smul' r a := Subtype.ext (map_smul u r a.1)
+
+private theorem rightmostSecondKernelMap_injective :
+    Function.Injective (rightmostSecondKernelMap Q Λ hQ) := by
+  intro a b h
+  have hv : u a.1 = u b.1 :=
+    congrArg (fun z : LinearMap.ker g₂ => z.1) h
+  exact Subtype.ext (leftExtremeToCentral_injective Q Λ hQ hv)
+
+private theorem rightmostSecondKernelMap_surjective :
+    Function.Surjective (rightmostSecondKernelMap Q Λ hQ) := by
+  intro a
+  have hsource : a.1 ∈ LinearMap.range u :=
+    centralToRightmostSecond_kernel_contained Q Λ hQ a.2
+  obtain ⟨b, hb⟩ := hsource
+  have hz : g₂ (u b) = 0 := hb.symm ▸ a.2
+  have hd := (centralToRightmostSecond_on_principal_zero Q Λ hQ b).1 hz
+  exact ⟨⟨b, hd⟩, Subtype.ext hb⟩
+
+private def rightmostSecondKernelEquiv :
+    LinearMap.ker d₀ ≃ₗ[Tᵐᵒᵖ] LinearMap.ker g₂ :=
+  LinearEquiv.ofBijective (rightmostSecondKernelMap Q Λ hQ)
+    ⟨rightmostSecondKernelMap_injective Q Λ hQ, rightmostSecondKernelMap_surjective Q Λ hQ⟩
+
+private theorem rightmostSecondKernelEquiv_val (a : LinearMap.ker d₀) :
+    (rightmostSecondKernelEquiv Q Λ hQ a).1 = u a.1 := rfl
+
+end SecondKernelEquiv
+
 section Derived
 open CategoryTheory CategoryTheory.Limits DG DG.DerivedCategory
 open scoped DG.DegreeZero
@@ -375,7 +363,7 @@ attribute [local instance 1200] Ring.toIntAlgebra
 
 universe w
 variable (target : List (Fin 3))
-variable [HasDerivedCategory.{w,0}
+variable [sourceDerived : HasDerivedCategory.{w,0}
     (isIdempotentElem_violMk_redProj k Q Λ ν (redWord E₂)).Cornerᵐᵒᵖ]
   [HasDerivedCategory.{w,0} (isIdempotentElem_violMk_redProj k Q Λ ν target).Cornerᵐᵒᵖ]
 variable (hQ : KLRSymm Q)
@@ -390,50 +378,78 @@ private abbrev rightmostHomologyFun (n : ℤ) :=
     braidingFunctor.{w} k Q Λ ν (redWord E₂) target ⋙ homologyFunctor ℤ n
 
 
+private def leftExtremeToCentralHom :
+    ModuleCat.of Tᵐᵒᵖ P₀ ⟶ ModuleCat.of Tᵐᵒᵖ P₁ :=
+  let : AddCommGroup P₀ := Submodule.addCommGroup P₀
+  let : AddCommGroup P₁ := Submodule.addCommGroup P₁
+  let : Module Tᵐᵒᵖ P₀ := Submodule.module P₀
+  let : Module Tᵐᵒᵖ P₁ := Submodule.module P₁
+  ModuleCat.ofHom u
+
+set_option backward.isDefEq.respectTransparency false in
 include hQ in
 private theorem leftExtremeToCentral_homology_mono
     (hbal : Function.Injective (blockKernelTensorInclusion Q Λ E₁ 1 2 target)) :
-    Mono ((rightmostHomologyFun.{w} Q Λ target 0).map (ModuleCat.ofHom u)) := by
+    Mono ((rightmostHomologyFun.{w} Q Λ target 0).map (leftExtremeToCentralHom Q Λ)) := by
+  let : HasDerivedCategory.{w,0} (isIdempotentElem_violMk_redProj k Q Λ ν (redWord E₁)).Cornerᵐᵒᵖ := sourceDerived
   let e := LinearEquiv.ofBijective (fiveSlotCentralPrincipalKernelMap Q Λ)
     ⟨fiveSlotCentralPrincipalKernelMap_injective_of_cancellation Q Λ
       (fun y hy _ hz => fiveSlotCentral_leftWord_cancel_of_leftSupport Q Λ hQ y hy hz),
       fiveSlotCentralPrincipalKernelMap_surjective Q Λ hQ⟩
-  have iso : ModuleCat.ofHom u = e.toModuleIso.hom ≫ ModuleCat.ofHom (K₁).subtype := by
+  have iso : leftExtremeToCentralHom Q Λ = e.toModuleIso.hom ≫ (blockLoadingShortComplex Q Λ E₁ 1 2).f := by
     apply ModuleCat.hom_ext
     apply LinearMap.ext
     intro a
     rfl
-  letI hmono : Mono ((rightmostHomologyFun.{w} Q Λ target 0).map (ModuleCat.ofHom (K₁).subtype)) :=
+  let hmono : Mono ((rightmostHomologyFun.{w} Q Λ target 0).map ((blockLoadingShortComplex Q Λ E₁ 1 2).f)) :=
     blockKernelDerivedHomology_mono Q Λ E₁ 1 2 target hbal
   rw [iso, Functor.map_comp]
   infer_instance
 
+private def leftExtremeKernelProjection :
+    P₀ →ₗ[Tᵐᵒᵖ] LinearMap.ker d₀ := by
+  let f : P₀ →ₗ[Tᵐᵒᵖ] P₀ := LinearMap.id - (leftExtremeDot Q Λ).comp d₀
+  refine f.codRestrict _ ?_
+  intro a
+  change d₀ (a - leftExtremeDot Q Λ (d₀ a)) = 0
+  rw [map_sub, leftExtremeDelta_contract Q Λ _ (leftExtremeDelta_square Q Λ a), sub_self]
+
+private theorem leftExtremeKernelProjection_apply (a : LinearMap.ker d₀) :
+    leftExtremeKernelProjection Q Λ a.1 = a := by
+  apply Subtype.ext
+  change a.1 - leftExtremeDot Q Λ (d₀ a.1) = a.1
+  rw [show d₀ a.1 = 0 from a.2, map_zero, sub_zero]
+
+set_option backward.isDefEq.respectTransparency false in
 private theorem secondCrossing_range_braid_homology_vanish
     (hbal : Function.Injective (blockKernelTensorInclusion Q Λ E₁ 1 2 target)) (n : ℤ) (hn : n ≠ 0) :
     IsZero ((rightmostHomologyFun.{w} Q Λ target n).obj (ModuleCat.of Tᵐᵒᵖ (LinearMap.range g₂))) := by
-  let e := crossingKernelEquiv (B := Tᵐᵒᵖ) (M := ↥P₁) (N := ↥K₂) (L := ↥P₀)
-    u g₂ d₀ (leftExtremeToCentral_injective Q Λ hQ)
-    (centralToRightmostSecond_kernel_contained Q Λ hQ)
-    (centralToRightmostSecond_on_principal_zero Q Λ hQ)
-  let proj := crossingKernelProjection d₀ (leftExtremeDot Q Λ)
-    (leftExtremeDelta_square Q Λ) (leftExtremeDelta_contract Q Λ)
+  let e := rightmostSecondKernelEquiv Q Λ hQ
+  let proj := leftExtremeKernelProjection Q Λ
   let i := (LinearMap.ker d₀).subtype.comp e.symm.toLinearMap
   let r := e.toLinearMap.comp proj
-  have hi : u.comp i = (LinearMap.ker g₂).subtype := by
+  have hi : (u).comp i = (LinearMap.ker g₂).subtype := by
     apply LinearMap.ext
     intro a
     change u (e.symm a).1 = a.1
     calc
-      _ = (e (e.symm a)).1 := (crossingKernelEquiv_apply_val _ _ _ _ _ _ _).symm
+      _ = (e (e.symm a)).1 := (rightmostSecondKernelEquiv_val Q Λ hQ (e.symm a)).symm
       _ = _ := congrArg Subtype.val (e.apply_symm_apply a)
   have hr : r.comp i = LinearMap.id := by
     apply LinearMap.ext
     intro a
     change e (proj ((LinearMap.ker d₀).subtype (e.symm a))) = a
-    have h := LinearMap.congr_fun
-      (crossingKernelProjection_comp d₀ (leftExtremeDot Q Λ)
-        (leftExtremeDelta_square Q Λ) (leftExtremeDelta_contract Q Λ)) (e.symm a)
+    have h := leftExtremeKernelProjection_apply Q Λ (e.symm a)
     exact (congrArg e h).trans (e.apply_symm_apply a)
+  let : HasDerivedCategory.{w,0} (isIdempotentElem_violMk_redProj k Q Λ ν (redWord E₀)).Cornerᵐᵒᵖ := sourceDerived
+  let : HasDerivedCategory.{w,0} (isIdempotentElem_violMk_redProj k Q Λ ν (redWord E₁)).Cornerᵐᵒᵖ := sourceDerived
+  let : (braidingFunctor.{w} k Q Λ ν (redWord E₂) target).Additive := by
+    unfold braidingFunctor
+    infer_instance
+  let : (braidingFunctor.{w} k Q Λ ν (redWord E₂) target).CommShift ℤ :=
+    braidingFunctor_commShift.{w} k Q Λ ν (redWord E₂) target
+  let : (braidingFunctor.{w} k Q Λ ν (redWord E₂) target).IsTriangulated :=
+    braidingFunctor_isTriangulated.{w} k Q Λ ν (redWord E₂) target
   exact crossingRange_homology_vanish_of_retract (braidingFunctor.{w} k Q Λ ν (redWord E₂) target) g₂ u i r hi hr
     (blockLoadingProjective_braid_homology_vanish Q Λ E₀ target)
     (blockLoadingProjective_braid_homology_vanish Q Λ E₁ target)
@@ -446,11 +462,22 @@ theorem fiveSlotRightmost_kernel_braid_homology_vanish
     (hbal : Function.Injective (blockKernelTensorInclusion Q Λ E₁ 1 2 target))
     (n : ℤ) (hn : n ≠ 0) : IsZero ((rightmostHomologyFun.{w} Q Λ target n).obj (ModuleCat.of Tᵐᵒᵖ K₂)) := by
   have h := secondCrossing_range_braid_homology_vanish Q Λ target hQ hbal n hn
-  let rangeIso : LinearMap.range d₂ ≃ₗ[Tᵐᵒᵖ] LinearMap.range g₂ :=
-    LinearEquiv.ofEq _ _ (secondCrossing_range_eq_nilHecke_range Q Λ hQ).symm
-  have hD := h.of_iso ((rightmostHomologyFun.{w} Q Λ target n).mapIso rangeIso.toModuleIso)
-  have hProd := isZero_additive_map_selfProd (rightmostHomologyFun.{w} Q Λ target n) hD
-  exact hProd.of_iso ((rightmostHomologyFun.{w} Q Λ target n).mapIso (fiveSlotRightmostKernel_equiv_nilHeckeRangeProd Q Λ).toModuleIso)
+  have hD : IsZero ((rightmostHomologyFun.{w} Q Λ target n).obj
+      (ModuleCat.of Tᵐᵒᵖ (LinearMap.range d₂))) :=
+    (secondCrossing_range_eq_nilHecke_range Q Λ hQ) ▸ h
+  let : (braidingFunctor.{w} k Q Λ ν (redWord E₂) target).Additive := by
+    unfold braidingFunctor
+    infer_instance
+  let : (braidingFunctor.{w} k Q Λ ν (redWord E₂) target).CommShift ℤ :=
+    braidingFunctor_commShift.{w} k Q Λ ν (redWord E₂) target
+  let : (braidingFunctor.{w} k Q Λ ν (redWord E₂) target).IsTriangulated :=
+    braidingFunctor_isTriangulated.{w} k Q Λ ν (redWord E₂) target
+  have hProd := crossingProd_homology_vanish (braidingFunctor.{w} k Q Λ ν (redWord E₂) target) n hD
+  let : AddCommGroup (LinearMap.range d₂) := Submodule.addCommGroup (LinearMap.range d₂)
+  let : Module Tᵐᵒᵖ (LinearMap.range d₂) := Submodule.module (LinearMap.range d₂)
+  let : AddCommGroup K₂ := blockKernelAddGroup Q Λ E₂ 1 2
+  let e := (fiveSlotRightmostKernel_equiv_nilHeckeRangeProd Q Λ).toModuleIso
+  exact hProd.of_iso ((rightmostHomologyFun.{w} Q Λ target n).mapIso e)
 
 include hQ in
 /-- The rightmost partial standard follows by Webster's (6.21) from the two

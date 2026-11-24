@@ -8552,3 +8552,23 @@ example := FiveSlotFlag.fiveSlotRightmost_firstCrossing_cancel_on_leftExtreme Q 
 example := fiveSlotRightmost_centralIntersectionIntoProjective_injective Q Λ (fun _ _ _ => rfl)
 
 end NonVacuity.WebsterFiveSlotRightHigher
+
+namespace NonVacuity.WebsterFiveSlotRightmostDerived
+
+open Categorification.KLR Categorification.Stendhal Categorification.QuantumGroup
+open BraidedStendhalAlgebra Categorification.KL3.Diagram MulOpposite
+
+private noncomputable abbrev C := CartanDatum.ofGraph (⊥ : SimpleGraph Unit)
+private noncomputable abbrev Λ : Fin 3 → Unit →₀ ℕ := fun r => Finsupp.single () (r.val + 2)
+private noncomputable abbrev Q := CL.qCL (CL.CLScalars.kl : CL.CLScalars C ℚ)
+
+local notation "ν" => ({()} + {()} : Multiset Unit)
+local notation "S" => IsIdempotentElem.Corner
+  (isIdempotentElem_violMk_redProj ℚ Q Λ ν (redWord (fixedTopFourExitCut 2)))
+local notation "T" => IsIdempotentElem.Corner
+  (isIdempotentElem_violMk_redProj ℚ Q Λ ν ([0,2,1] : List (Fin 3)))
+
+example [DG.HasDerivedCategory.{0,0} Sᵐᵒᵖ] [DG.HasDerivedCategory.{0,0} Tᵐᵒᵖ] :=
+  fiveSlotRightmost_partialStandard_braid_homology_vanish_exchanged (k := ℚ) C Λ 1 (by decide)
+
+end NonVacuity.WebsterFiveSlotRightmostDerived

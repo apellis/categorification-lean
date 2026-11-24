@@ -321,32 +321,33 @@ private theorem compose_leg (p q : List ℕ) (v : Seq μ₀)
     rw [← mul_assoc,e_mul_ψw,inv_smul_smul,mul_assoc,e_mul_self]
   rw [mul_assoc,cut,mul_assoc]
 
-private theorem right_cancel_words (hQ : KLRSymm Q) (upper : Seq μ₀) (l r : List ℕ)
+private theorem terminal_cancel_words (hQ : KLRSymm Q) (source upper : Seq μ₀)
+    (baseWord : List ℕ) (hbase : wordProd n₀ baseWord • bot=source) (l r : List ℕ)
     (hl₀ : IsReduced n₀ l) (hr₀ : IsReduced n₀ r) (hneq : wordProd n₀ l ≠ wordProd n₀ r)
-    (matching : ∀ w : Perm (Fin n₀), w • v₂=upper ↔ w=wordProd n₀ l ∨ w=wordProd n₀ r)
-    (hl₁ : IsReduced n₀ (l++[1,2,3])) (hr₁ : IsReduced n₀ (r++[1,2,3]))
-    (hneq' : wordProd n₀ (l++[1,2,3]) ≠ wordProd n₀ (r++[1,2,3])) (z : B)
-    (hz : E₀ upper * z * E₀ v₂ = z) (zero : z * leg [1,2,3] bot = 0) : z = 0 := by
+    (matching : ∀ w : Perm (Fin n₀), w • source=upper ↔ w=wordProd n₀ l ∨ w=wordProd n₀ r)
+    (hl₁ : IsReduced n₀ (l++baseWord)) (hr₁ : IsReduced n₀ (r++baseWord))
+    (hneq' : wordProd n₀ (l++baseWord) ≠ wordProd n₀ (r++baseWord)) (z : B)
+    (hz : E₀ upper * z * E₀ source = z) (zero : z * leg baseWord bot = 0) : z = 0 := by
   let G := toKLR k Q Λ ν₀
   have ex : G (E₀ upper) = e upper := toKLR_ofKLR_e ..
-  have ey : G (E₀ v₂) = e v₂ := toKLR_ofKLR_e ..
+  have ey : G (E₀ source) = e source := toKLR_ofKLR_e ..
   have hl : E₀ upper * z = z := by
     have h := congrArg (fun y => E₀ upper * y) hz
     rw [← mul_assoc (E₀ upper), ← mul_assoc (E₀ upper), ← map_mul, e_mul_self, hz] at h
     exact h.symm
-  have hr : z * E₀ v₂ = z := by
-    have h := congrArg (fun y => y * E₀ v₂) hz
-    rw [mul_assoc _ (E₀ v₂), ← map_mul, e_mul_self, hz] at h
+  have hr : z * E₀ source = z := by
+    have h := congrArg (fun y => y * E₀ source) hz
+    rw [mul_assoc _ (E₀ source), ← map_mul, e_mul_self, hz] at h
     exact h.symm
   have hl' : e upper * G z = G z := by rw [← ex, ← map_mul, hl]
-  have hr' : G z * e v₂ = G z := by rw [← ey, ← map_mul, hr]
+  have hr' : G z * e source = G z := by rw [← ey, ← map_mul, hr]
   obtain ⟨f,g,hfg⟩ := KLR.KLRAlgebra.exists_two_corner_coefficients_of_words
-    (stendhalQ_symm Q Λ hQ) v₂ upper l r hl₀ hr₀ hneq matching (G z) hl' hr'
+    (stendhalQ_symm Q Λ hQ) source upper l r hl₀ hr₀ hneq matching (G z) hl' hr'
   have sum := congrArg G zero
   simp only [G, map_mul, toKLR_ofKLR_ψw, toKLR_ofKLR_e, map_zero] at sum
-  change G z * (ψw [1,2,3] * e bot) = 0 at sum
-  have cut : (e v₂ : R₀) * (ψw [1,2,3] * e bot) = ψw [1,2,3] * e bot := by
-    rw [← show wordProd n₀ [1,2,3] • bot = v₂ by decide,
+  change G z * (ψw baseWord * e bot) = 0 at sum
+  have cut : (e source : R₀) * (ψw baseWord * e bot) = ψw baseWord * e bot := by
+    rw [← hbase,
       ← mul_assoc, e_mul_ψw, inv_smul_smul, mul_assoc, e_mul_self]
   rw [hfg, add_mul] at sum
   simp only [mul_assoc, cut] at sum
@@ -368,10 +369,10 @@ private theorem rightTop_cancel (hQ : KLRSymm Q) (upper : Seq μ₀) (ht : FiveS
       (by decide) (@twoBlack_right_extreme_words_reduced n₀ 1 (by decide)).1
       (@twoBlack_right_extreme_words_reduced n₀ 1 (by decide)).2 (by decide)
       (twoBlack_extreme_stabilizer_of_card_two v₂ 2 (by decide) (by decide) () rfl rfl) z hz zero
-  · refine right_cancel_words Q Λ hQ (sadj n₀ 2 • v₂) [2] [2,3] ?_ ?_ (by decide)
+  · refine terminal_cancel_words Q Λ hQ v₂ (sadj n₀ 2 • v₂) [1,2,3] (by decide) [2] [2,3] ?_ ?_ (by decide)
       (by decide +kernel) ?_ ?_ (by decide) z hz zero
     all_goals apply reduced <;> first | decide | simp [ValidWord,stendhalWeight]
-  · refine right_cancel_words Q Λ hQ (sadj n₀ 3 • (sadj n₀ 2 • v₂)) [3,2] [3,2,3] ?_ ?_ (by decide)
+  · refine terminal_cancel_words Q Λ hQ v₂ (sadj n₀ 3 • (sadj n₀ 2 • v₂)) [1,2,3] (by decide) [3,2] [3,2,3] ?_ ?_ (by decide)
       (by decide +kernel) ?_ ?_ (by decide) z hz zero
     all_goals apply reduced <;> first | decide | simp [ValidWord,stendhalWeight]
 
@@ -449,6 +450,87 @@ theorem exists_mixedTop_fourExitJointPresentation_prefixOne (hQ : KLRSymm Q)
       x₀=u*leg [2] v₀ ∧ x₁=v*leg [1] v₁-u*leg [3] v₁ ∧
       x₂=w*leg [2,3] v₂-v*leg [2] v₂ ∧ x₃=-(w*leg [1] v₃) := by
   exact exists_fiveSlotRightTop_fourExitJointPresentation Q Λ hQ mixed (Or.inr (Or.inl (by decide))) x₀ x₁ x₂ x₃ h₀ h₁ h₂ h₃ rel
+
+/-- The left extreme, nearby joint, and full joint in the five-slot example.
+The last red strand lies after both equal black strands. -/
+def FiveSlotLeftTop (upper : Seq μ₀) : Prop :=
+  upper=v₀ ∨ upper=sadj n₀ 2 • v₀ ∨ upper=sadj n₀ 1 • (sadj n₀ 2 • v₀)
+
+private theorem leftTop_pair_descent (upper : Seq μ₀) (ht : FiveSlotLeftTop upper)
+    (v : Seq μ₀) (j : ℕ) (hj : j+1<n₀)
+    (hl : v.lbl ⟨j,by omega⟩ = .inr 2) (hr : v.lbl ⟨j+1,hj⟩ = .inl ())
+    (w : Perm (Fin n₀)) (hw : w • v=upper) : w ⟨j+1,hj⟩ < w ⟨j,by omega⟩ := by
+  have read (f : Fin n₀) : upper.lbl (w f)=v.lbl f := by
+    rw [← hw,lbl_smul,show w⁻¹ (w f)=f from w.symm_apply_apply f]
+  have red : upper.lbl ⟨4,by decide⟩ = .inr 2 := by
+    rcases ht with rfl|rfl|rfl <;> decide
+  have fix : w ⟨j,by omega⟩=⟨4,by decide⟩ := lbl_inj_of_inr upper 2 ((read _).trans hl) red
+  rw [fix]
+  have before (q : Fin n₀) (hq : upper.lbl q=.inl ()) : q < (⟨4,by decide⟩ : Fin n₀) := by
+    rcases ht with rfl|rfl|rfl <;> fin_cases q <;> first | decide | contradiction
+  exact before _ ((read _).trans hr)
+
+private theorem leftTop_cancel (hQ : KLRSymm Q) (upper : Seq μ₀) (ht : FiveSlotLeftTop upper)
+    (z : B) (hz : E₀ upper*z*E₀ v₀=z) (zero : z*leg [3,2,1] bot=0) : z=0 := by
+  have reduced (l : List ℕ) (h : ValidWord n₀ l)
+      (hlen : l.length=invCount n₀ (wordProd n₀ l)) : IsReduced n₀ l :=
+    ⟨h,by rw [length_eq_invCount]; exact hlen⟩
+  rcases ht with rfl|rfl|rfl
+  · refine terminal_cancel_words Q Λ hQ v₀ v₀ [3,2,1] (by decide) [] [1] ?_ ?_ (by decide)
+      (by decide +kernel) ?_ ?_ (by decide) z hz zero
+    all_goals apply reduced <;> first | decide | simp [ValidWord,stendhalWeight]
+  · refine terminal_cancel_words Q Λ hQ v₀ (sadj n₀ 2 • v₀) [3,2,1] (by decide) [2] [2,1] ?_ ?_ (by decide)
+      (by decide +kernel) ?_ ?_ (by decide) z hz zero
+    all_goals apply reduced <;> first | decide | simp [ValidWord,stendhalWeight]
+  · refine terminal_cancel_words Q Λ hQ v₀ (sadj n₀ 1 • (sadj n₀ 2 • v₀)) [3,2,1] (by decide) [1,2] [1,2,1] ?_ ?_ (by decide)
+      (by decide +kernel) ?_ ?_ (by decide) z hz zero
+    all_goals apply reduced <;> first | decide | simp [ValidWord,stendhalWeight]
+
+/-- With the last red after both blacks, all supported affine exit relations
+are generated by the three neighboring joints reached by moving that red
+to the right. The remaining coefficient is detected on the left extreme
+exit. Webster, §6.1, proof of Lemma 6.8 after (6.21). -/
+theorem exists_fiveSlotLeftTop_fourExitJointPresentation (hQ : KLRSymm Q)
+    (upper : Seq μ₀) (ht : FiveSlotLeftTop upper) (x₀ x₁ x₂ x₃ : B)
+    (h₀ : E₀ upper*x₀*E₀ v₀=x₀) (h₁ : E₀ upper*x₁*E₀ v₁=x₁)
+    (h₂ : E₀ upper*x₂*E₀ v₂=x₂) (h₃ : E₀ upper*x₃*E₀ v₃=x₃)
+    (rel : x₀*leg [3,2,1] bot+x₁*leg [2,3,1] bot+
+      x₂*leg [1,2,3] bot+x₃*leg [2,3,1,2] bot=0) :
+    ∃ u v w : B, E₀ upper*u*E₀ jB=u ∧ E₀ upper*v*E₀ jA=v ∧ E₀ upper*w*E₀ jA=w ∧
+      x₂=u*leg [2] v₂ ∧ x₁=v*leg [3] v₁-u*leg [1] v₁ ∧
+      x₀=w*leg [2,1] v₀-v*leg [2] v₀ ∧ x₃=-(w*leg [3] v₃) := by
+  have near := twoBlackNearbyExitWords (Q := stendhalQ Q Λ) 1 (by decide) bot (by decide)
+  have reversed := twoBlackReversedMiddleExitWords (Q₀ := stendhalQ Q Λ) 1 (by decide) bot
+    (a := 1) (b := 2) (i := ()) (j := ()) rfl rfl rfl rfl (by decide)
+  have legA : leg [2] v₀*leg [3,2,1] bot=leg [3] v₁*leg [2,3,1] bot := by
+    rw [compose_leg Q Λ _ _ _ (by decide),compose_leg Q Λ _ _ _ (by decide)]
+    exact congrArg F near.1
+  have legB : leg [1] v₁*leg [2,3,1] bot=leg [2] v₂*leg [1,2,3] bot := by
+    rw [compose_leg Q Λ _ _ _ (by decide),compose_leg Q Λ _ _ _ (by decide)]
+    exact congrArg F near.2
+  have legC : leg [2,1] v₀*leg [3,2,1] bot=leg [3] v₃*leg [2,3,1,2] bot := by
+    rw [compose_leg Q Λ _ _ _ (by decide),compose_leg Q Λ _ _ _ (by decide)]
+    exact congrArg F reversed.1
+  have cut (l : List ℕ) (v : Seq μ₀) : leg l v*E₀ v=leg l v := by
+    simp only [← map_mul,mul_assoc,e_mul_self]
+  have single (j : ℕ) (v : Seq μ₀) : leg [j] v=F (ψ j*e v) := by
+    simp only [ψw_cons,ψw_nil,mul_one]
+  refine @exists_rectangular_jointCascade B _ (E₀ upper) _ _ _ _ _ _ _ (by rw [← map_mul,e_mul_self])
+    _ _ _ _ _ _ _ _ _ _ legB.symm legA.symm legC (cut _ _) (cut _ _) (cut _ _) ?_ ?_ ?_ ?_
+    x₂ x₁ x₀ x₃ h₂ h₁ h₀ h₃ (by rw [← rel]; abel)
+  · intro x hx
+    rw [single]
+    exact (show sadj n₀ 2 • v₂ = jB by decide) ▸ exists_supported_descent_factor Q Λ hQ v₂ upper 2 (by decide)
+      (leftTop_pair_descent upper ht v₂ 2 (by decide) rfl rfl) x hx
+  · intro x hx
+    rw [single]
+    exact (show sadj n₀ 3 • v₁ = jA by decide) ▸ exists_supported_descent_factor Q Λ hQ v₁ upper 3 (by decide)
+      (leftTop_pair_descent upper ht v₁ 3 (by decide) rfl rfl) x hx
+  · intro x hx
+    rw [single]
+    exact (show sadj n₀ 3 • v₃ = jA by decide) ▸ exists_supported_descent_factor Q Λ hQ v₃ upper 3 (by decide)
+      (leftTop_pair_descent upper ht v₃ 3 (by decide) rfl rfl) x hx
+  · exact leftTop_cancel Q Λ hQ upper ht
 
 end FixedTop
 end Categorification.Stendhal.BraidedStendhalAlgebra

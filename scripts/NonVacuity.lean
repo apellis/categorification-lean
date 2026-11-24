@@ -7247,11 +7247,11 @@ noncomputable section
 
 private abbrev ν : Multiset Unit := {()} + {()}
 private abbrev μ := stendhalWeight 3 ν
-private abbrev Q : Unit → Unit → MvPolynomial (Fin 2) ℚ := fun _ _ => 0
+private abbrev Q : Unit → Unit → MvPolynomial (Fin 2) ℤ := fun _ _ => 0
 private abbrev Λ : Fin 3 → Unit →₀ ℕ := fun _ => Finsupp.single () 2
-private abbrev B := BraidedStendhalAlgebra ℚ Q Λ ν
-private abbrev R := KLRAlgebra ℚ (stendhalQ Q Λ) μ
-private abbrev F := ofKLR ℚ Q Λ ν
+private abbrev B := BraidedStendhalAlgebra ℤ Q Λ ν
+private abbrev R := KLRAlgebra ℤ (stendhalQ Q Λ) μ
+private abbrev F := ofKLR ℤ Q Λ ν
 private abbrev bot := fixedTopFourExitBottom
 private abbrev v (i : Fin 4) := fixedTopFourExitCut i
 private abbrev jA := sadj μ.card 2 • v 0
@@ -7284,6 +7284,39 @@ example (g : B) :=
   exists_fixedTop_fourExitJointPresentation_prefixOne Q Λ (fun _ _ _ => rfl)
     x₀ x₁ 0 0 (cut _ _) (by simpa only [x₁,mul_neg,neg_mul] using congrArg Neg.neg (cut [3] (v 1)))
     (by rw [mul_zero,zero_mul]) (by rw [mul_zero,zero_mul]) sum
+
+private def leftTop : Fin 3 → Seq μ
+  | 0 => v 0
+  | 1 => sadj μ.card 2 • v 0
+  | _ => sadj μ.card 1 • (sadj μ.card 2 • v 0)
+
+/-- The right neighboring braid gives a signed relation at every left top. -/
+example (slot : Fin 3) (g : B) :=
+  let upper := leftTop slot
+  have ht : FiveSlotLeftTop upper := by
+    fin_cases slot
+    · exact Or.inl rfl
+    · exact Or.inr (Or.inl rfl)
+    · exact Or.inr (Or.inr rfl)
+  let q := F (e upper)*g*F (e (sadj μ.card 1 • v 1))
+  let x₁ := q*leg [1] (v 1)
+  let x₂ := -(q*leg [2] (v 2))
+  have cut (l : List ℕ) (s : Seq μ) : F (e upper)*(q*leg l s)*F (e s)=q*leg l s := by
+    have left : F (e upper)*q=q := by simp only [q,← mul_assoc,← map_mul,e_mul_self]
+    simp only [← mul_assoc (F (e upper)) q,left,leg,← map_mul,mul_assoc,e_mul_self]
+  have braid : leg [1] (v 1)*leg [2,3,1] bot=leg [2] (v 2)*leg [1,2,3] bot := by
+    rw [compose _ _ _ (by decide),compose _ _ _ (by decide)]
+    exact congrArg F (twoBlackNearbyExitWords (Q := stendhalQ Q Λ) 1 (by decide) bot (by decide)).2
+  have sum : (0 : B)*leg [3,2,1] bot+x₁*leg [2,3,1] bot+x₂*leg [1,2,3] bot+0*leg [2,3,1,2] bot=0 := by
+    simp only [x₁,x₂,neg_mul,mul_assoc,braid,zero_mul,zero_add,add_zero,add_neg_cancel]
+  exists_fiveSlotLeftTop_fourExitJointPresentation Q Λ (fun _ _ _ => rfl) upper ht
+    0 x₁ x₂ 0 (by rw [mul_zero,zero_mul]) (cut _ _)
+    (by simpa only [x₂,mul_neg,neg_mul] using congrArg Neg.neg (cut [2] (v 2)))
+    (by rw [mul_zero,zero_mul]) sum
+
+example := fiveSlot_oneBlackBeforePair_blockUpperIdeal Q Λ (v 1) (Or.inl rfl)
+example := fiveSlot_oneBlackBeforePair_blockUpperIdeal Q Λ jA (Or.inr rfl)
+example := fiveSlotLeftExtreme_blockKernelColumnInclusion_injective Q Λ bot
 
 end
 

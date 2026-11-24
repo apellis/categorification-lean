@@ -10424,6 +10424,27 @@ noncomputable example (n : ℕ) :=
     (TensorProductAlgebra ℚ (parameter ℚ) weights (({()} : Multiset Unit) + {()}))
   actualAmbientMiddleToRelativeTorIso ℚ (by decide) n
 
+section
+
+open DG
+open scoped DG.DegreeZero
+
+local notation "MiddleT" => TensorProductAlgebra ℚ (parameter ℚ) weights
+  (({()} : Multiset Unit) + {()})
+
+local notation "MiddleG" => middleTensorGrade ℚ (labelTwoGradingDatum ℚ)
+
+local instance : InternalGrading MiddleT := gradedAlgebraInternalGrading MiddleG
+local instance : BigradedDGRing MiddleT := gradedAlgebraBigradedDGRing MiddleG
+local instance : CatModule.HasDerivedCategory.{1,0} (WeightCategory MiddleT) :=
+  CatModule.HasDerivedCategory.standard (WeightCategory MiddleT)
+
+example := middleSumWeight_distinguished ℚ
+
+example := middleDifferenceWeight_distinguished ℚ
+
+end
+
 end NonVacuity.WebsterLabelTwoMiddleFixedComplex
 
 end

@@ -14,8 +14,6 @@ The splitting follows directly from the universal property of the standard.
 -/
 
 noncomputable section
-set_option maxHeartbeats 180000
-set_option synthInstance.maxHeartbeats 50000
 namespace Categorification.Stendhal
 open KLR KLRAlgebra
 attribute [local instance 1100] IsIdempotentElem.instAlgebraCorner_categorification

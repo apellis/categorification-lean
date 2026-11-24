@@ -6514,6 +6514,84 @@ noncomputable example :=
 
 end NonVacuity.BraidedStendhal
 
+namespace NonVacuity.WebsterBlockShuffle
+
+open Categorification.KLR Categorification.TypeA Categorification.Stendhal
+open RedBlock
+
+private def pair : Fin 2 ↪ Fin 3 := ⟨Fin.succ, Fin.succ_injective _⟩
+private abbrev L : List (Fin 3 × Multiset Bool) := [(0,{false})]
+private abbrev M : List (Fin 3 × Multiset Bool) := []
+private abbrev β : Multiset Bool := {true}
+private abbrev row := adjacentRow L M pair β
+private theorem wt : weightSum row = stendhalWeight 3 ({false}+β) := by decide
+private def localWords : Loadings row :=
+  ⟨KLRAlgebra.Seq.ofList [.inr 0,.inl false] (by decide),
+   KLRAlgebra.Seq.ofList [.inl true,.inr 0,.inr 1] (by decide),PUnit.unit⟩
+private def good : Loadings row :=
+  ⟨localWords.1,KLRAlgebra.Seq.ofList [.inr 0,.inl true,.inr 1] (by decide),PUnit.unit⟩
+private def interleaved : Seq (weightSum row) :=
+  KLRAlgebra.Seq.ofList [.inr 0,.inl true,.inl false,.inr 1,.inr 2] (by decide)
+private theorem matched : ShuffleLoading row interleaved localWords := by
+  refine ⟨⟨sadj _ 1, ?_⟩, place _ localWords.2, ?_,
+    ⟨⟨1, isShuffle_one _⟩, Seq.nil, one_smul _ _, trivial⟩⟩
+  · constructor <;> intro a b h <;> fin_cases a <;> fin_cases b <;>
+      first | exact False.elim (absurd h (by decide)) | decide
+  · apply Subtype.ext; funext x; fin_cases x <;> decide
+
+example : ¬ IsViolated interleaved := by rintro ⟨_,h⟩; contradiction
+/-- An interleaving swaps two differently coloured black strands; the first comes from
+the paired block, leaving the global leftmost strand red but raising its retained cut. -/
+example : Violated row localWords := by
+  have order : redWord (Seq.cast wt interleaved) =
+      L.map Prod.fst ++ pair 0 :: pair 1 :: M.map Prod.fst := by decide
+  apply violated_of_adjacent_shuffleLoading L M pair β wt interleaved localWords matched order
+  right
+  have aligned := aligned_adjacent L M pair β (order ▸ redWord_nodup _)
+  have ok : ¬ Violated row good := by rintro (⟨_,h⟩ | ⟨_,h⟩ | h) <;> contradiction
+  have boundary : (fun r i => boundaryCount (cut (pair 0) (pair 1) r) i row) =
+      adjacentBlockRoot (pair 0) (pair 1) (Seq.cast wt (place row good)) := by
+    funext r i
+    exact (count_place_of_not_violated r i good aligned ok).symm
+  rw [boundary]
+  refine lt_of_le_of_ne ?_ ?_
+  · intro r i; fin_cases r <;> cases i <;> decide
+  · intro eq
+    have bad : (0 : ℕ) = 1 := congrFun (congrFun eq 1) true
+    contradiction
+private noncomputable abbrev Q : Bool → Bool → MvPolynomial (Fin 2) ℚ := fun _ _ => 0
+
+example := exists_blockStack_quotient_coordinates Q (fun _ => Finsupp.single false 1)
+  L M pair β (fun _ _ _ => rfl) wt
+
+example := exists_blockStack_filtered_quotient_coordinates Q (fun _ => Finsupp.single false 1)
+  L M pair β (fun _ _ _ => rfl) wt
+
+example := exists_blockColumn_coordinate_embedding Q (fun _ => Finsupp.single false 1)
+  L M pair β (fun _ _ _ => rfl) wt
+
+end NonVacuity.WebsterBlockShuffle
+
+namespace NonVacuity.WebsterLoadingPlacement
+open Categorification.Stendhal Categorification.Stendhal.RedBlock Categorification.KLR
+
+private abbrev ν : Multiset Unit := {(), (), (), ()}
+private def t : Seq (stendhalWeight 4 ν) :=
+  KLRAlgebra.Seq.ofList [.inr 0, .inl (), .inr 1, .inl (), .inr 2, .inl (), .inr 3, .inl ()]
+    (by decide)
+private def pair : Fin 2 ↪ Fin 4 where
+  toFun i := ⟨i.val + 1, by omega⟩
+  inj' i j h := Fin.ext (Nat.add_right_cancel (congrArg Fin.val h))
+private theorem ht : ¬ IsViolated t := by
+  rintro ⟨hp, hb⟩
+  have he : t.lbl ⟨0, hp⟩ = .inr 0 := rfl
+  simp [he] at hb
+private theorem ho : redWord t = [0] ++ pair 0 :: pair 1 :: [3] := by decide
+
+example := exists_place_adjacent t ht [0] [3] pair ho
+
+end NonVacuity.WebsterLoadingPlacement
+
 namespace NonVacuity.WebsterBraidReflection
 
 open Categorification.Stendhal.BraidedStendhalAlgebra MulOpposite

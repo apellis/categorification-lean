@@ -78,7 +78,8 @@ local notation "E" => orderedIdem Q Λ ord row
 local notation "p" => redIdem k Q Λ (ν := ν) κ
 local notation "R" => KLRAlgebra k (stendhalQ Q Λ) (stendhalWeight ℓ ν)
 
-private theorem projector_eq : p * G 1 = G E ∧ G 1 * p = G E := by
+/-- The global uncrossed-order projector restricts on the juxtaposed unit to the product of the local order projectors. -/
+theorem affineStackBlocks_orderedIdem : p * G 1 = G E ∧ G 1 * p = G E := by
   classical
   let g := LinearMap.ofClass G
   let l := (LinearMap.mulLeft k p).comp g
@@ -102,6 +103,16 @@ private theorem projector_eq : p * G 1 = G E ∧ G 1 * p = G E := by
   change p * G 1 - G (E*1) = 0 ∧ G 1 * p - G (E*1) = 0 at H
   simpa only [mul_one,sub_eq_zero] using H
 
+/-- A placed loading in the prescribed local orders factors through the juxtaposed
+ordered projector already in the ambient KLR algebra. -/
+theorem affineStackBlocks_orderedIdem_mul_placed (u : Loadings row) (hu : UncrossedLoading row u) :
+    G E * e (Seq.cast h (place row u)) = e (Seq.cast h (place row u)) := by
+  classical
+  have load : G (loadingIdem Q Λ row u) = e (Seq.cast h (place row u)) := by
+    change castKLR _ h _ = _
+    rw [juxtapose_loadingIdem, castKLR_e]
+  rw [← load, ← map_mul G, order_at_loading Q Λ row u, ite_eq_left hu]
+
 /-- Cutting the lower column before an arbitrary local coefficient has the same effect as
 also projecting its other end to the uncrossed red order (Webster v2, proof of Lemma 6.8).
 This is a diagonal-column equality, not commutation of the red projector in the braid algebra. -/
@@ -109,7 +120,7 @@ theorem insert_uncrossed_order (hQ : KLRSymm Q) (a : diagrams Q Λ row) (y : R) 
     let π := ofKLR k Q Λ ν
     π (G (E*a) * y * p) = π (G (E*a*E) * y * p) := by
   intro π
-  have H := projector_eq Q Λ L M f β h
+  have H := affineStackBlocks_orderedIdem Q Λ L M f β h
   have fix (a : diagrams Q Λ row) : p * G (E*a) = G (E*a) := by
     rw [map_mul, ← H.1]; simp only [← mul_assoc, redIdem_mul_redIdem]
   have right (a : diagrams Q Λ row) : G a * p = G (a*E) := by

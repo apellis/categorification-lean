@@ -12,7 +12,7 @@ import Categorification.KLR.MixedJointKernel
 # Four-exit relations at the fixed right-extreme top
 
 Webster, arXiv:1309.3796v2, §6.1, Lemma 6.8 and the cut after (6.21).
-At the right extreme of the five-slot equal-black interval, three common
+At the extreme, mixed and full right tops of the five-slot equal-black interval, three common
 descents express a supported affine exit relation by its neighboring joints.
 The surviving rightmost coefficient is detected by the two reduced PBW rows.
 -/
@@ -290,17 +290,26 @@ private abbrev jA := sadj n₀ 2 • v₀
 private abbrev jB := sadj n₀ 1 • v₁
 private abbrev jD := sadj n₀ 1 • v₃
 
-private theorem last_pair_descent (v : Seq μ₀) (j : ℕ) (hj : j+1<n₀)
+private abbrev mixed := jB
+
+/-- The three five-slot tops with the earlier two red strands first. The
+last red lies before, between, or after the two equal black strands. -/
+def FiveSlotRightTop (upper : Seq μ₀) : Prop :=
+  upper=v₂ ∨ upper=sadj n₀ 2 • v₂ ∨ upper=sadj n₀ 3 • (sadj n₀ 2 • v₂)
+
+private theorem rightTop_pair_descent (upper : Seq μ₀) (ht : FiveSlotRightTop upper) (v : Seq μ₀) (j : ℕ) (hj : j+1<n₀)
     (hl : v.lbl ⟨j,by omega⟩ = .inl ()) (hr : v.lbl ⟨j+1,hj⟩ = .inr 1)
-    (w : Perm (Fin n₀)) (hw : w • v=v₂) : w ⟨j+1,hj⟩ < w ⟨j,by omega⟩ := by
-  have read (f : Fin n₀) : v₂.lbl (w f)=v.lbl f := by
+    (w : Perm (Fin n₀)) (hw : w • v=upper) : w ⟨j+1,hj⟩ < w ⟨j,by omega⟩ := by
+  have read (f : Fin n₀) : upper.lbl (w f)=v.lbl f := by
     rw [← hw,lbl_smul,show w⁻¹ (w f)=f from w.symm_apply_apply f]
-  have ha : v₂.lbl (w ⟨j+1,hj⟩)=.inr 1 := (read _).trans hr
-  have hb : v₂.lbl (w ⟨j,by omega⟩)=.inl () := (read _).trans hl
-  have ha' : w ⟨j+1,hj⟩=⟨1,by decide⟩ := lbl_inj_of_inr v₂ 1 ha rfl
+  have ha : upper.lbl (w ⟨j+1,hj⟩)=.inr 1 := (read _).trans hr
+  have hb : upper.lbl (w ⟨j,by omega⟩)=.inl () := (read _).trans hl
+  have red : upper.lbl ⟨1,by decide⟩ = .inr 1 := by
+    rcases ht with rfl|rfl|rfl <;> decide
+  have ha' : w ⟨j+1,hj⟩=⟨1,by decide⟩ := lbl_inj_of_inr upper 1 ha red
   rw [ha']
-  have before (p : Fin n₀) (hp : v₂.lbl p = .inl ()) : (⟨1,by decide⟩ : Fin n₀) < p := by
-    fin_cases p <;> first | decide | contradiction
+  have before (p : Fin n₀) (hp : upper.lbl p = .inl ()) : (⟨1,by decide⟩ : Fin n₀) < p := by
+    rcases ht with rfl|rfl|rfl <;> fin_cases p <;> first | decide | contradiction
   exact before _ hb
 
 private theorem compose_leg (p q : List ℕ) (v : Seq μ₀)
@@ -312,16 +321,71 @@ private theorem compose_leg (p q : List ℕ) (v : Seq μ₀)
     rw [← mul_assoc,e_mul_ψw,inv_smul_smul,mul_assoc,e_mul_self]
   rw [mul_assoc,cut,mul_assoc]
 
+private theorem right_cancel_words (hQ : KLRSymm Q) (upper : Seq μ₀) (l r : List ℕ)
+    (hl₀ : IsReduced n₀ l) (hr₀ : IsReduced n₀ r) (hneq : wordProd n₀ l ≠ wordProd n₀ r)
+    (matching : ∀ w : Perm (Fin n₀), w • v₂=upper ↔ w=wordProd n₀ l ∨ w=wordProd n₀ r)
+    (hl₁ : IsReduced n₀ (l++[1,2,3])) (hr₁ : IsReduced n₀ (r++[1,2,3]))
+    (hneq' : wordProd n₀ (l++[1,2,3]) ≠ wordProd n₀ (r++[1,2,3])) (z : B)
+    (hz : E₀ upper * z * E₀ v₂ = z) (zero : z * leg [1,2,3] bot = 0) : z = 0 := by
+  let G := toKLR k Q Λ ν₀
+  have ex : G (E₀ upper) = e upper := toKLR_ofKLR_e ..
+  have ey : G (E₀ v₂) = e v₂ := toKLR_ofKLR_e ..
+  have hl : E₀ upper * z = z := by
+    have h := congrArg (fun y => E₀ upper * y) hz
+    rw [← mul_assoc (E₀ upper), ← mul_assoc (E₀ upper), ← map_mul, e_mul_self, hz] at h
+    exact h.symm
+  have hr : z * E₀ v₂ = z := by
+    have h := congrArg (fun y => y * E₀ v₂) hz
+    rw [mul_assoc _ (E₀ v₂), ← map_mul, e_mul_self, hz] at h
+    exact h.symm
+  have hl' : e upper * G z = G z := by rw [← ex, ← map_mul, hl]
+  have hr' : G z * e v₂ = G z := by rw [← ey, ← map_mul, hr]
+  obtain ⟨f,g,hfg⟩ := KLR.KLRAlgebra.exists_two_corner_coefficients_of_words
+    (stendhalQ_symm Q Λ hQ) v₂ upper l r hl₀ hr₀ hneq matching (G z) hl' hr'
+  have sum := congrArg G zero
+  simp only [G, map_mul, toKLR_ofKLR_ψw, toKLR_ofKLR_e, map_zero] at sum
+  change G z * (ψw [1,2,3] * e bot) = 0 at sum
+  have cut : (e v₂ : R₀) * (ψw [1,2,3] * e bot) = ψw [1,2,3] * e bot := by
+    rw [← show wordProd n₀ [1,2,3] • bot = v₂ by decide,
+      ← mul_assoc, e_mul_ψw, inv_smul_smul, mul_assoc, e_mul_self]
+  rw [hfg, add_mul] at sum
+  simp only [mul_assoc, cut] at sum
+  rw [← mul_assoc (ψw l), ← mul_assoc (ψw r), ← ψw_append, ← ψw_append] at sum
+  have hf := (KLR.KLRAlgebra.top_polynomial_pair_eq_zero_iff_of_words
+    (stendhalQ_symm Q Λ hQ)
+    hl₁ hr₁ hneq' bot f g).mp sum
+  rw [← ofKLR_toKLR (hQ := hQ) z, hfg, hf.1, hf.2]
+  simp only [map_zero, zero_mul, add_zero]
+
+
+private theorem rightTop_cancel (hQ : KLRSymm Q) (upper : Seq μ₀) (ht : FiveSlotRightTop upper)
+    (z : B) (hz : E₀ upper * z * E₀ v₂=z) (zero : z*leg [1,2,3] bot=0) : z=0 := by
+  have reduced (l : List ℕ) (h : ValidWord n₀ l)
+      (hlen : l.length=invCount n₀ (wordProd n₀ l)) : IsReduced n₀ l :=
+    ⟨h,by rw [length_eq_invCount]; exact hlen⟩
+  rcases ht with rfl|rfl|rfl
+  · exact eq_zero_of_rightWord_in_twoRowCorner Q Λ hQ bot v₂ [1,2,3] 3
+      (by decide) (@twoBlack_right_extreme_words_reduced n₀ 1 (by decide)).1
+      (@twoBlack_right_extreme_words_reduced n₀ 1 (by decide)).2 (by decide)
+      (twoBlack_extreme_stabilizer_of_card_two v₂ 2 (by decide) (by decide) () rfl rfl) z hz zero
+  · refine right_cancel_words Q Λ hQ (sadj n₀ 2 • v₂) [2] [2,3] ?_ ?_ (by decide)
+      (by decide +kernel) ?_ ?_ (by decide) z hz zero
+    all_goals apply reduced <;> first | decide | simp [ValidWord,stendhalWeight]
+  · refine right_cancel_words Q Λ hQ (sadj n₀ 3 • (sadj n₀ 2 • v₂)) [3,2] [3,2,3] ?_ ?_ (by decide)
+      (by decide +kernel) ?_ ?_ (by decide) z hz zero
+    all_goals apply reduced <;> first | decide | simp [ValidWord,stendhalWeight]
+
 /-- In the five-slot example with a red spectator and two equal black strands,
-all affine four-exit relations at the fixed right-extreme top are generated by
+all affine four-exit relations at each of the three right tops are generated by
 the three neighboring joints in the descent cascade. -/
-theorem exists_fixedTop_fourExitJointPresentation_prefixOne (hQ : KLRSymm Q)
+theorem exists_fiveSlotRightTop_fourExitJointPresentation (hQ : KLRSymm Q)
+    (upper : Seq μ₀) (ht : FiveSlotRightTop upper)
     (x₀ x₁ x₂ x₃ : B)
-    (h₀ : E₀ v₂*x₀*E₀ v₀=x₀) (h₁ : E₀ v₂*x₁*E₀ v₁=x₁)
-    (h₂ : E₀ v₂*x₂*E₀ v₂=x₂) (h₃ : E₀ v₂*x₃*E₀ v₃=x₃)
+    (h₀ : E₀ upper*x₀*E₀ v₀=x₀) (h₁ : E₀ upper*x₁*E₀ v₁=x₁)
+    (h₂ : E₀ upper*x₂*E₀ v₂=x₂) (h₃ : E₀ upper*x₃*E₀ v₃=x₃)
     (rel : x₀*leg [3,2,1] bot+x₁*leg [2,3,1] bot+
       x₂*leg [1,2,3] bot+x₃*leg [2,3,1,2] bot=0) :
-    ∃ u v w : B, E₀ v₂*u*E₀ jA=u ∧ E₀ v₂*v*E₀ jB=v ∧ E₀ v₂*w*E₀ jD=w ∧
+    ∃ u v w : B, E₀ upper*u*E₀ jA=u ∧ E₀ upper*v*E₀ jB=v ∧ E₀ upper*w*E₀ jD=w ∧
       x₀=u*leg [2] v₀ ∧ x₁=v*leg [1] v₁-u*leg [3] v₁ ∧
       x₂=w*leg [2,3] v₂-v*leg [2] v₂ ∧ x₃=-(w*leg [1] v₃) := by
   have near := twoBlackNearbyExitWords (Q := stendhalQ Q Λ) 1 (by decide) bot
@@ -341,25 +405,50 @@ theorem exists_fixedTop_fourExitJointPresentation_prefixOne (hQ : KLRSymm Q)
     simp only [← map_mul,mul_assoc,e_mul_self]
   have single (j : ℕ) (v : Seq μ₀) : leg [j] v=F (ψ j*e v) := by
     simp only [ψw_cons,ψw_nil,mul_one]
-  refine @exists_fixedTop_jointCascade B _ _ _ _ _ _ _ _ (idempotent_cut Q Λ v₂)
+  refine @exists_rectangular_jointCascade B _ (E₀ upper) _ _ _ _ _ _ _ (by rw [← map_mul,e_mul_self])
     _ _ _ _ _ _ _ _ _ _ legA legB legD (cut _ _) (cut _ _) (cut _ _) ?_ ?_ ?_ ?_
     x₀ x₁ x₂ x₃ h₀ h₁ h₂ h₃ rel
   · intro x hx
     rw [single]
-    exact exists_supported_descent_factor Q Λ hQ v₀ v₂ 2 (by decide)
-      (last_pair_descent v₀ 2 (by decide) rfl rfl) x hx
+    exact exists_supported_descent_factor Q Λ hQ v₀ upper 2 (by decide)
+      (rightTop_pair_descent upper ht v₀ 2 (by decide) rfl rfl) x hx
   · intro x hx
     rw [single]
-    exact exists_supported_descent_factor Q Λ hQ v₁ v₂ 1 (by decide)
-      (last_pair_descent v₁ 1 (by decide) rfl rfl) x hx
+    exact exists_supported_descent_factor Q Λ hQ v₁ upper 1 (by decide)
+      (rightTop_pair_descent upper ht v₁ 1 (by decide) rfl rfl) x hx
   · intro x hx
     rw [single]
-    exact exists_supported_descent_factor Q Λ hQ v₃ v₂ 1 (by decide)
-      (last_pair_descent v₃ 1 (by decide) rfl rfl) x hx
-  · exact eq_zero_of_rightWord_in_twoRowCorner Q Λ hQ bot v₂ [1,2,3] 3
-      (by decide) (@twoBlack_right_extreme_words_reduced n₀ 1 (by decide)).1
-      (@twoBlack_right_extreme_words_reduced n₀ 1 (by decide)).2 (by decide)
-      (twoBlack_extreme_stabilizer_of_card_two v₂ 2 (by decide) (by decide) () rfl rfl)
+    exact exists_supported_descent_factor Q Λ hQ v₃ upper 1 (by decide)
+      (rightTop_pair_descent upper ht v₃ 1 (by decide) rfl rfl) x hx
+  · exact rightTop_cancel Q Λ hQ upper ht
+
+/-- In the five-slot example with a red spectator and two equal black strands,
+all affine four-exit relations at the fixed right-extreme top are generated by
+the three neighboring joints in the descent cascade. -/
+theorem exists_fixedTop_fourExitJointPresentation_prefixOne (hQ : KLRSymm Q)
+    (x₀ x₁ x₂ x₃ : B)
+    (h₀ : E₀ v₂*x₀*E₀ v₀=x₀) (h₁ : E₀ v₂*x₁*E₀ v₁=x₁)
+    (h₂ : E₀ v₂*x₂*E₀ v₂=x₂) (h₃ : E₀ v₂*x₃*E₀ v₃=x₃)
+    (rel : x₀*leg [3,2,1] bot+x₁*leg [2,3,1] bot+
+      x₂*leg [1,2,3] bot+x₃*leg [2,3,1,2] bot=0) :
+    ∃ u v w : B, E₀ v₂*u*E₀ jA=u ∧ E₀ v₂*v*E₀ jB=v ∧ E₀ v₂*w*E₀ jD=w ∧
+      x₀=u*leg [2] v₀ ∧ x₁=v*leg [1] v₁-u*leg [3] v₁ ∧
+      x₂=w*leg [2,3] v₂-v*leg [2] v₂ ∧ x₃=-(w*leg [1] v₃) := by
+  exact exists_fiveSlotRightTop_fourExitJointPresentation Q Λ hQ v₂ (Or.inl rfl) x₀ x₁ x₂ x₃ h₀ h₁ h₂ h₃ rel
+
+/-- In the five-slot example with a red spectator and two equal black strands,
+all affine four-exit relations at the mixed top are generated by
+the three neighboring joints in the descent cascade. -/
+theorem exists_mixedTop_fourExitJointPresentation_prefixOne (hQ : KLRSymm Q)
+    (x₀ x₁ x₂ x₃ : B)
+    (h₀ : E₀ mixed*x₀*E₀ v₀=x₀) (h₁ : E₀ mixed*x₁*E₀ v₁=x₁)
+    (h₂ : E₀ mixed*x₂*E₀ v₂=x₂) (h₃ : E₀ mixed*x₃*E₀ v₃=x₃)
+    (rel : x₀*leg [3,2,1] bot+x₁*leg [2,3,1] bot+
+      x₂*leg [1,2,3] bot+x₃*leg [2,3,1,2] bot=0) :
+    ∃ u v w : B, E₀ mixed*u*E₀ jA=u ∧ E₀ mixed*v*E₀ jB=v ∧ E₀ mixed*w*E₀ jD=w ∧
+      x₀=u*leg [2] v₀ ∧ x₁=v*leg [1] v₁-u*leg [3] v₁ ∧
+      x₂=w*leg [2,3] v₂-v*leg [2] v₂ ∧ x₃=-(w*leg [1] v₃) := by
+  exact exists_fiveSlotRightTop_fourExitJointPresentation Q Λ hQ mixed (Or.inr (Or.inl (by decide))) x₀ x₁ x₂ x₃ h₀ h₁ h₂ h₃ rel
 
 private abbrev mixed := jB
 

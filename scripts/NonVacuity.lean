@@ -7782,15 +7782,18 @@ noncomputable section
 
 private abbrev ν : Multiset Unit := {()} + {()}
 private abbrev μ := stendhalWeight 3 ν
-private abbrev Q : Unit → Unit → MvPolynomial (Fin 2) ℚ := fun _ _ => 0
+private abbrev Q : Unit → Unit → MvPolynomial (Fin 2) ℤ := fun _ _ => 0
 private abbrev Λ : Fin 3 → Unit →₀ ℕ := fun _ => Finsupp.single () 2
-private abbrev V := ViolQuotient ℚ Q Λ ν
-private abbrev R := KLRAlgebra ℚ (stendhalQ Q Λ) μ
-private abbrev F := (violMk ℚ Q Λ ν).comp (ofKLR ℚ Q Λ ν)
+private abbrev V := ViolQuotient ℤ Q Λ ν
+private abbrev R := KLRAlgebra ℤ (stendhalQ Q Λ) μ
+private abbrev F := (violMk ℤ Q Λ ν).comp (ofKLR ℤ Q Λ ν)
 private abbrev s := fixedTopFourExitBottom
 private abbrev v (i : Fin 4) := fixedTopFourExitCut i
 private abbrev jA := sadj μ.card 2 • v 0
-private abbrev J := blockUpperIdeal ℚ Q Λ ν 1 2 (adjacentBlockRoot 1 2 (v 2)) (redWord (v 2))
+private def fixtureTop : Fin 3 → Seq μ
+  | 0 => v 2
+  | 1 => sadj μ.card 2 • v 2
+  | _ => sadj μ.card 3 • (sadj μ.card 2 • v 2)
 private abbrev leg (l : List ℕ) (t : Seq μ) := F (ψw l*e t)
 
 private theorem compose (l w : List ℕ) (t : Seq μ) (ht : wordProd μ.card w • s=t) :
@@ -7802,19 +7805,27 @@ private theorem compose (l w : List ℕ) (t : Seq μ) (ht : wordProd μ.card w �
 
 /-- A positive-weight marked relation through the actual higher joint at a
 surviving spectator cut. -/
-example (g : V) :=
-  let q := F (e (v 2))*g*F (e jA)
+example (slot : Fin 3) (g : V) :=
+  let upper := fixtureTop slot
+  have ht : FiveSlotRightTop upper := by
+    fin_cases slot
+    · exact Or.inl rfl
+    · exact Or.inr (Or.inl rfl)
+    · exact Or.inr (Or.inr rfl)
+  let J := blockUpperIdeal ℤ Q Λ ν 1 2 (adjacentBlockRoot 1 2 upper) (redWord upper)
+  let q := F (e upper)*g*F (e jA)
   let x₀ := q*leg [2] (v 0)
   let x₁ := -(q*leg [3] (v 1))
   let x : Fin 4 → V := ![x₀,x₁,0,0]
-  have higher : adjacentBlockRoot 1 2 (v 2) < adjacentBlockRoot 1 2 jA := by
+  have higher : adjacentBlockRoot 1 2 upper < adjacentBlockRoot 1 2 jA := by
+    rw [fiveSlotRightTop_blockRoot upper ht]
     apply lt_of_le_not_ge
     · intro i j
       fin_cases i <;> cases j <;> decide
     · intro le
       exact (by decide : ¬ adjacentBlockRoot 1 2 jA 1 () ≤ adjacentBlockRoot 1 2 (v 2) 1 ())
         (le 1 ())
-  have eMark : F (e jA) ∈ J := TwoSidedIdeal.subset_span ⟨jA,by decide,higher,rfl⟩
+  have eMark : F (e jA) ∈ J := TwoSidedIdeal.subset_span ⟨jA,by rw [fiveSlotRightTop_redWord upper ht]; decide,higher,rfl⟩
   have qMark : q ∈ J := J.mul_mem_left _ _ eMark
   have mark (i : Fin 4) : x i ∈ J := by
     fin_cases i
@@ -7823,21 +7834,21 @@ example (g : V) :=
     · exact J.zero_mem
     · exact J.zero_mem
   have cut (l : List ℕ) (t : Seq μ) :
-      F (e (v 2))*(q*leg l t)*F (e t)=q*leg l t := by
-    have left : F (e (v 2))*q=q := by
+      F (e upper)*(q*leg l t)*F (e t)=q*leg l t := by
+    have left : F (e upper)*q=q := by
       simp only [q,← mul_assoc,← map_mul,e_mul_self]
-    simp only [← mul_assoc (F (e (v 2))) q,left,leg,← map_mul,mul_assoc,e_mul_self]
+    simp only [← mul_assoc (F (e upper)) q,left,leg,← map_mul,mul_assoc,e_mul_self]
   have support (i : Fin 4) :
-      F (e (v 2))*x i*F (e (wordProd μ.card (fiveSlotExitWord i) • s))=x i := by
+      F (e upper)*x i*F (e (wordProd μ.card (fiveSlotExitWord i) • s))=x i := by
     have h : wordProd μ.card (fiveSlotExitWord i) • s=v i := by fin_cases i <;> decide
     rw [h]
     fin_cases i
     · exact cut [2] (v 0)
-    · change F (e (v 2))*(-(q*leg [3] (v 1)))*F (e (v 1))=-(q*leg [3] (v 1))
+    · change F (e upper)*(-(q*leg [3] (v 1)))*F (e (v 1))=-(q*leg [3] (v 1))
       rw [mul_neg,neg_mul,cut]
-    · change F (e (v 2))*(0 : V)*F (e (v 2))=0
+    · change F (e upper)*(0 : V)*F (e (v 2))=0
       rw [mul_zero,zero_mul]
-    · change F (e (v 2))*(0 : V)*F (e (v 3))=0
+    · change F (e upper)*(0 : V)*F (e (v 3))=0
       rw [mul_zero,zero_mul]
   have edge : leg [2] (v 0)*leg [3,2,1] s=leg [3] (v 1)*leg [2,3,1] s := by
     rw [compose _ _ _ (by decide),compose _ _ _ (by decide)]
@@ -7847,7 +7858,7 @@ example (g : V) :=
     change x₀*leg [3,2,1] s+x₁*leg [2,3,1] s+
       (0 : V)*leg [1,2,3] s+0*leg [2,3,1,2] s=0
     simp only [x₀,x₁,neg_mul,mul_assoc,edge,zero_mul,add_zero,add_neg_cancel]
-  exists_fiveSlot_markedExitJoints Q Λ (fun _ _ _ => rfl) x support mark sum
+  exists_fiveSlotRightTop_markedExitJoints Q Λ (fun _ _ _ => rfl) upper ht x support mark sum
 
 end
 

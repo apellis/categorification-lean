@@ -1006,6 +1006,7 @@ import Categorification.TypeA.DoubleCoset
 import Categorification.TypeA.Exits
 import Categorification.TypeA.ExitsPrefix
 import Categorification.TypeA.GapSort
+import Categorification.TypeA.IntervalPBW
 import Categorification.TypeA.Inversions
 import Categorification.TypeA.LastStrand
 import Categorification.TypeA.Length

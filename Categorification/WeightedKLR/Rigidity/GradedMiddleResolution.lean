@@ -26,7 +26,7 @@ local notation "p" => terminalIdem
 local notation "q" => middleIdem
 local notation "C" => project (ψ 1)
 
-private theorem homogeneous_crossing_preimage {f c y : T} {j n : ℤ}
+theorem homogeneous_crossing_preimage {f c y : T} {j n : ℤ}
     (hf : f ∈ 𝒜 0) (hc : c ∈ 𝒜 1) (hy : y ∈ 𝒜 n) (hj : 1 + j = n)
     (x : rIdeal f) (hxy : c * x.val = y) :
     ∃ z : rIdeal f, z.val ∈ 𝒜 j ∧ c * z.val = y := by

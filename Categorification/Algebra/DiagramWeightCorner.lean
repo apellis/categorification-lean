@@ -5,6 +5,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 import Categorification.Algebra.DiagramWeightCoendSurjectivity
 import Categorification.Algebra.DiagramWeightOrdinaryTensor
 import Categorification.Algebra.DiagramWeightCoendNaturality
+import Categorification.Algebra.DiagramWeightLoadingVanish
 import Categorification.Algebra.CornerTensorCutLift
 import Categorification.Algebra.CornerBimodule
 import Categorification.Algebra.Graded.RightTwist
@@ -115,6 +116,42 @@ def diagramCornerWeightDerivedRightTensor :
   exact diagramWeightDerivedTensor (A := he'.Cornerᵐᵒᵖ) (B := he.Cornerᵐᵒᵖ)
     (diagramCornerWeight G)
     (rightCornerLeft G (e := e) he') (rightCornerRight G (e' := e') he)
+
+/-- Loading support in a K-projective model can be tested in the corner algebra:
+each allowed loading kills the ordinary rectangular coefficient by left
+multiplication. -/
+theorem diagramCornerWeightDerivedRightTensor_cohomology_isZero_of_loading_support :
+    letI := Graded.cornerGradedAlgebra G he he0
+    letI := Graded.cornerGradedAlgebra G he' he'0
+    letI := gradedAlgebraInternalGrading (oppositeGrade L)
+    letI := gradedAlgebraInternalGrading (oppositeGrade R)
+    letI := gradedAlgebraBigradedDGRing (oppositeGrade L)
+    letI := gradedAlgebraBigradedDGRing (oppositeGrade R)
+    ∀ [CatModule.HasDerivedCategory.{v,u} (WeightCategory he.Cornerᵐᵒᵖ)]
+      [CatModule.HasDerivedCategory.{v,u} (WeightCategory he'.Cornerᵐᵒᵖ)]
+      {K M : CatModule.{u} (WeightCategory he.Cornerᵐᵒᵖ)} (q : K ⟶ M),
+      CatModule.IsKProjective K → CatModule.IsQuasiIso q →
+      ∀ (X : WeightCategory he'.Cornerᵐᵒᵖ) (n : ℤ)
+        {ι : WeightCategory he.Cornerᵐᵒᵖ → Type*}
+        (f : ∀ W, ι W → (W ⟶ W)),
+        (∀ Z (m : K.obj Z), m ∈ DG.grading n →
+          m ∈ AddSubgroup.closure (diagramWeightLoadingGenerators K f Z)) →
+        (∀ W (i : ι W) (p : cornerBimodule e e'), (f W i).val.unop.val * p.val = 0) →
+        CategoryTheory.Limits.IsZero ((CatModule.DerivedCategory.cohomologyFunctor X n).obj
+          ((diagramCornerWeightDerivedRightTensor G he he' he0 he'0).obj
+            (CatModule.DerivedCategory.Q.obj M))) := by
+  let _ := Graded.cornerGradedAlgebra G he he0
+  let _ := Graded.cornerGradedAlgebra G he' he'0
+  let _ := gradedAlgebraInternalGrading (oppositeGrade L)
+  let _ := gradedAlgebraInternalGrading (oppositeGrade R)
+  let _ := gradedAlgebraBigradedDGRing (oppositeGrade L)
+  let _ := gradedAlgebraBigradedDGRing (oppositeGrade R)
+  intro _ _ K M q hK hq X n ι f hs hk
+  exact diagramWeightDerivedTensor_cohomology_isZero_of_loading_support
+    (diagramCornerWeight G) (rightCornerLeft G (e := e) he')
+    (rightCornerRight G (e' := e') he) q hK hq X n f hs
+    (fun W i p => Subtype.ext (Subtype.ext (hk W i p.val)))
+
 
 /-- At the same idempotent, the graded right coefficient at a source weight is representable. -/
 def diagramCornerWeightRightSelfIsoRepresentable :

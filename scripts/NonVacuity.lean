@@ -8063,3 +8063,20 @@ noncomputable example := postTensorHomologyPositiveEven (k := ℚ) 1
   (by simp) (by decide)
 
 end NonVacuity.WebsterLabelTwoUnknot
+
+namespace NonVacuity.WebsterLabelTwoInternalGrading
+
+open Categorification.Webster.LabelTwo
+
+noncomputable example := internalHomology_zero_scalar (k := ℚ)
+
+noncomputable example := internalHomology_zero_epsilon (k := ℚ)
+
+noncomputable example := internalHomology_odd (k := ℚ) 2 ⟨1,by decide⟩ (by decide)
+
+noncomputable example := internalHomology_positiveEven (k := ℚ) 1 (by simp) (by decide)
+
+example := internalHomology_off_support (k := ℚ) 3 (-8) (by decide)
+  (by simp [InternalSupport])
+
+end NonVacuity.WebsterLabelTwoInternalGrading

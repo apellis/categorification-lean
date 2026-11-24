@@ -68,7 +68,7 @@ theorem dividedWord_iso_of_websterNorm (β : Multiset I) (d d' : List (I × ℕ)
   have indec (b : List (I × ℕ)) (hb : (expandDiv b : Multiset I) = β)
       (h : Stendhal.SingleBlack.websterForm wt hR (dividedLoweringWord wt b) (dividedLoweringWord wt b) = 1) :
       (dp β b hb).IsIndec _ := by
-    subst β
+    cases hb
     apply GProj.isIndec_of_norm_one
     exact homGdim_dividedWord_of_websterNorm hP Λ RD highest hΛ hR b h
   obtain ⟨a, ⟨e⟩⟩ := GProj.exists_iso_shift_of_rank_one (indec d hd hn) (indec d' hd' hn') rank_one
@@ -112,9 +112,10 @@ theorem coevaluationProjective_iso_of_same_weyl
     rw [Stendhal.expand_coevaluationDividedWord, Stendhal.expand_coevaluationDividedWord]
     exact (Stendhal.coevaluationWord_multiplicities_eq_of_reduced P _ weight hweight u w hu hw same).symm
   refine ⟨h, dividedWord_iso_of_websterNorm hP Λ RD highest hΛ hR β (d u) (d w) rfl h ?_ ?_ ?_⟩
-  · dsimp only [β, d]
-    rw [Stendhal.expand_coevaluationDividedWord]
-    exact finrank_coevaluation_projectiveBlock hP Λ RD highest hΛ hR P weight hweight match_weight u hu
+  · have hc : β = (Stendhal.coevaluationWord D weight u : Multiset I) :=
+      congrArg (fun l : List I => (l : Multiset I)) (Stendhal.expand_coevaluationDividedWord D weight u)
+    exact (congrArg (fun γ : Multiset I => Module.finrank LP (K0 (grade G Λ γ))) hc).trans
+      (finrank_coevaluation_projectiveBlock hP Λ RD highest hΛ hR P weight hweight match_weight u hu)
   · exact Stendhal.websterForm_coevaluationDividedWord P wt hR weight hweight match_weight u hu
   · exact Stendhal.websterForm_coevaluationDividedWord P wt hR weight hweight match_weight w hw
 

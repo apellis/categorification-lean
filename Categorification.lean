@@ -1644,6 +1644,7 @@ import Categorification.WeightedKLR.RedStrands.AdjacentBlockTensor
 import Categorification.WeightedKLR.RedStrands.OrderedBlockAction
 import Categorification.WeightedKLR.RedStrands.BlockCrossingDiagramCut
 import Categorification.WeightedKLR.RedStrands.TwoBlackExitWords
+import Categorification.WeightedKLR.RedStrands.TwoBlackPivotObstruction
 import Categorification.WeightedKLR.RedStrands.BraidedStandardDerived
 import Categorification.WeightedKLR.RedStrands.BraidedStandardGrading
 import Categorification.WeightedKLR.RedStrands.BraidedStandardInjective

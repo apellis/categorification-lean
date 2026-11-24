@@ -586,6 +586,7 @@ import Categorification.KLR.InductionAlgebra
 import Categorification.KLR.InductionFree
 import Categorification.KLR.IntervalPBWCoordinates
 import Categorification.KLR.IntervalSpectatorDots
+import Categorification.KLR.IntervalExitRelations
 import Categorification.KLR.ReturnCrossing
 import Categorification.KLR.Intertwiner
 import Categorification.KLR.K0Algebra

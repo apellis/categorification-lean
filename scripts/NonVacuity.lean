@@ -6603,3 +6603,50 @@ example (x : R) : x = 0 ↔ ∀ v, (intervalPBWCoefficient Z h hQ v x).val = 0 :
 end NonVacuity.IntervalCoordinateFixture
 
 end
+
+noncomputable section
+open Categorification.KLR Categorification.TypeA Equiv MvPolynomial
+open KLRAlgebra
+namespace NonVacuity.IntervalExitRelations
+
+private abbrev α : Multiset (Fin 3) := {1}
+private abbrev β : Multiset (Fin 3) := {1,0,0,2}
+private abbrev γ : Multiset (Fin 3) := {2}
+private abbrev ν := α+(β+γ)
+private abbrev Q : Fin 3 → Fin 3 → MvPolynomial (Fin 2) ℤ := fun _ _ => 1
+private theorem symm : KLRSymm Q := fun _ _ _ => (map_one _).symm
+private def l : Seq α := KLRAlgebra.Seq.ofList [1] (by decide)
+private def r : Seq γ := KLRAlgebra.Seq.ofList [2] (by decide)
+private def b : Seq β := KLRAlgebra.Seq.ofList [1,0,0,2] (by decide)
+private abbrev Y : KLRAlgebra ℤ Q β := ψ 1 * e b
+private abbrev leg := intervalConcat Q l r Y
+private def u : Perm (Fin ν.card) := sadj ν.card 0 * sadj ν.card 4
+private theorem h : α.card+(β.card+γ.card)=ν.card := by decide
+private theorem sorted : StrictMono (fun i : Fin β.card => u ⟨α.card+i.val,by have := h; omega⟩) := by
+  change StrictMono (fun i : Fin 4 => u ⟨1+i.val,by change _ < 6; omega⟩)
+  intro i j hij
+  fin_cases i <;> fin_cases j <;> first | exact False.elim (absurd hij (by decide)) | decide
+
+-- The same-colour local crossing acts square-zero after attaching an exterior word.
+example : (ψw (canWord ν.card u) * leg) * leg = 0 := by
+  have eq : Y * Y = 0 := by
+    have he : sadj β.card 1 • b = b := by decide
+    have cut : (e b * (ψ 1 * e b) : KLRAlgebra ℤ Q β) = ψ 1 * e b := by
+      have slide := ψ_mul_e (k := ℤ) (Q := Q) 1 b
+      rw [he] at slide
+      rw [slide,← mul_assoc,e_mul_self]
+    have hz : (ψ 1 * ψ 1 * e b : KLRAlgebra ℤ Q β) = 0 := by
+      rw [KLRAlgebra.ψ_sq 1 (by decide),ite_eq_left (by decide)]
+    change ψ 1 * e b * (ψ 1 * e b) = _
+    rw [mul_assoc,cut,←mul_assoc,hz]
+  have test := intervalConcat_exit_relation_iff Q symm l r ({u} : Finset (Perm (Fin ν.card)))
+    (fun v hv => Finset.mem_singleton.mp hv ▸ sorted) ({()} : Finset Unit) (fun _ _ => Y) (fun _ => Y)
+  simpa only [Finset.sum_singleton] using test.2 (fun _ _ => by simpa only [Finset.sum_singleton] using eq)
+
+-- All ambient upper coefficients, including exterior dots, can be tested by this same leg.
+example (x : KLRAlgebra ℤ Q ν) : x * leg = 0 ↔ ∀ v, (intervalPBWCoefficient Q h symm v x).val * leg = 0 := by
+  simpa only [Finset.sum_singleton] using intervalConcat_exit_kernel_iff Q symm ({()} : Finset Unit)
+    (fun _ => l) (fun _ => r) (fun _ => x) (fun _ => Y)
+
+end NonVacuity.IntervalExitRelations
+end

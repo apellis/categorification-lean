@@ -1013,7 +1013,12 @@ A graded diagram coefficient gives a dg bimodule of the two weight categories
 (`diagramWeightBimodule`). Its derived tensor is computed on a K-projective
 representative of the input (`diagramWeightDerivedTensorObjIso`). K-projectivity
 of the left weight modules also gives the derived Hom
-(`diagramWeightDerivedHom`). A balanced homogeneous multiplication of two
+(`diagramWeightDerivedHom`). A K-projective augmentation that remains a quasi-isomorphism after
+tensoring computes the derived tensor by the original ordinary tensor
+(`diagramWeightDerivedTensorObjIsoOfResolution`). When the tensor target is isomorphic to a diagram
+weight module, it suffices to check the cohomology map in degree zero and
+vanishing in the other source degrees
+(`diagramWeightLeft_isQuasiIso_of_cohomology`). A balanced homogeneous multiplication of two
 coefficients induces their product from the intermediate weight-category
 tensor coend (`diagramWeightCoendProduct_tmul`). Compatibility with the outer
 action gives a map of dg modules (`diagramWeightCoendProductHom`).
@@ -1090,7 +1095,39 @@ and the cap on the regular module is the left coefficient
 (`fundamentalCupRegularIso` and `fundamentalCapRegularIso`).
 Webster's normalization in Proposition 7.5 uses the middle loading
 `κ = (0, 1)`. The convention of §4 counts the black strands to the left
-of each red strand. The middle-character construction is in progress.
+of each red strand. Over the rationals, the middle character gives the
+simple head at this cut (`middleCutTrace_eq_iff_simpleQuotient`). Its
+derived Hom cup sends the ground field to that head shifted by minus one
+(`middleCup_fieldIso`). The unshifted left adjoint takes the middle
+projective to the scalar line and kills the terminal projective
+(`middleAdjointCap_middleIso`, `middleAdjointCap_terminal_isZero`).
+The mixed crossings give a length-two projective resolution of the
+middle head (`middleProjectiveResolution`). Its scalar Tor with the
+left middle character has dimension one in homological degrees zero and
+two and vanishes elsewhere (`middleTor_finrank`). With the cup shift,
+the composite on the ground field has one-dimensional cohomology in
+degrees minus one and one (`middleCupCap_finrank`). These computations
+forget the internal grading.
+
+In the diagram-weight categories the middle character is homogeneous.
+Its weight-zero generator identifies with the right simple head, with
+every diagram acting by the middle character
+(`gradedMiddleSimple_headEquiv_smul`). On the scalar representable the
+normalized cup gives this character with internal shift one and
+cohomological shift minus one (`gradedMiddleCup_fieldIso`). The
+unshifted graded cap sends the middle loading projective to the scalar
+representable of weight zero and annihilates the terminal loading
+projective (`gradedMiddleCap_middleIso`, `gradedMiddleCap_terminal_isZero`).
+Both differential crossings have diagram degree one. In internal degree
+n the resolution is exact on the degree n−2, n−1 and n pieces of the
+middle, terminal and middle projectives (`middleResolution_maps_degree`,
+`middleResolution_exact_terminal`, `middleResolution_exact_middle`).
+These maps and the scalar augmentation form an objectwise exact
+sequence of dg modules over the weight category (`gradedMiddleComplex_exact`).
+After applying the cap, the normalized composite on the scalar
+representable splits into two scalar lines. Their internal and
+cohomological degrees are (−1, 1) and (1, −1)
+(`gradedMiddleCupCap_fieldIso`).
 
 For Proposition 7.2, a single
 red with coroot pairing one gives a simple projective at the red-first
@@ -1144,7 +1181,7 @@ corner inverse test identify this trace with the unique maximal submodule
 the terminal black dot power through the adjacent smaller cut
 (`Stendhal.bigon_mem_coevaluationTrace`). For two fundamental type A₁
 factors over `ℚ`, the terminal loading character has kernel exactly the
-smaller-cut trace and gives the unique simple quotient
+trace of the middle loading and gives the unique simple quotient
 (`Stendhal.FundamentalCorner.fundamentalCutTrace_eq_iff_simpleQuotient`).
 The coefficient on the generating vector is one
 (`Stendhal.FundamentalCorner.terminalCoefficient_generator`). The general

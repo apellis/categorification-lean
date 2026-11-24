@@ -97,6 +97,44 @@ def diagramWeightBimodule : CatBimodule (WeightCategory A) (WeightCategory B) wh
     simp only [InDegreeZero.d_apply, hg, map_zero, AddMonoidHom.zero_apply, smul_zero, zero_add]
   lact_ract' f g x := Subtype.ext (smul_comm f.val (op g.val) x.val)
 
+private theorem subsingleton_cohomology_inDegreeZero
+    (M : Type u) [AddCommGroup M] {n : ℤ} (hn : n ≠ 0) :
+    Subsingleton (cohomology (InDegreeZero M) n) := by
+  have hc : Subsingleton (cocycles (InDegreeZero M) n) :=
+    ⟨fun x y => Subtype.ext (by
+      have hx : x.val = 0 := (((mem_degreeZeroGrading_iff (InDegreeZero M)).mp (mem_cocycles.mp x.2).1).resolve_left hn)
+      have hy : y.val = 0 := (((mem_degreeZeroGrading_iff (InDegreeZero M)).mp (mem_cocycles.mp y.2).1).resolve_left hn)
+      exact hx.trans hy.symm)⟩
+  exact (cohomology.mk_surjective (InDegreeZero M) n).subsingleton
+
+/-- Every weight component of a diagram coefficient has cohomology in degree zero. -/
+theorem diagramWeightLeft_cohomology_subsingleton (X : WeightCategory A) (Z : WeightCategory B)
+    {n : ℤ} (hn : n ≠ 0) :
+    Subsingleton (cohomology (((diagramWeightBimodule G hl hr).left Z).obj X) n) :=
+  subsingleton_cohomology_inDegreeZero (G (X.as - Z.as)) hn
+
+/-- A comparison into a dg module isomorphic to a diagram weight module
+is a quasi-isomorphism
+when it is bijective in cohomological degree zero and the source has
+vanishing cohomology in all other degrees. -/
+theorem diagramWeightLeft_isQuasiIso_of_cohomology
+    {Z : WeightCategory B} {M₀ N : CatModule.{u} (WeightCategory A)}
+    (e : N ≅ (diagramWeightBimodule G hl hr).left Z) (f : M₀ ⟶ N)
+    (h₀ : ∀ X, Function.Bijective (CatModule.cohomologyMap f X 0))
+    (hvan : ∀ X n, n ≠ 0 → Subsingleton (cohomology (M₀.obj X) n)) :
+    CatModule.IsQuasiIso f := by
+  intro X n
+  by_cases hn : n = 0
+  · subst n
+    exact h₀ X
+  · let := hvan X n hn
+    let : Subsingleton (cohomology (((diagramWeightBimodule G hl hr).left Z).obj X) n) :=
+      diagramWeightLeft_cohomology_subsingleton G hl hr X Z hn
+    let : Subsingleton (cohomology (N.obj X) n) :=
+      ((CatModule.IsQuasiIso.of_isIso e.inv) X n).surjective.subsingleton
+    exact ⟨Function.injective_of_subsingleton _, fun y =>
+      ⟨0, Subsingleton.elim _ y⟩⟩
+
 section Derived
 
 variable [CatModule.HasDerivedCategory.{v,u} (WeightCategory A)]
@@ -132,6 +170,26 @@ def diagramWeightDerivedTensorObjIso {X : CatModule.{u} (WeightCategory B)}
   let E := CatModule.DerivedCategory.kProjectiveEquivalence (WeightCategory B)
   exact (diagramWeightTensorHomotopy G hl hr ⋙ CatModule.DerivedCategory.Qh).mapIso
     (H.ι.mapIso (E.unitIso.symm.app p))
+
+/-- A resolution whose augmentation stays a quasi-isomorphism after tensoring
+computes the derived tensor by the ordinary tensor of the input. -/
+def diagramWeightDerivedTensorObjIsoOfResolution
+    {K N : CatModule.{u} (WeightCategory B)} (f : K ⟶ N)
+    (hK : CatModule.IsKProjective K) (hf : CatModule.IsQuasiIso f)
+    (hTensor : CatModule.IsQuasiIso ((D).tensorMap f)) :
+    (diagramWeightDerivedTensor G hl hr).obj (CatModule.DerivedCategory.Q.obj N) ≅
+      CatModule.DerivedCategory.Q.obj ((D).tensorFunctor.obj N) := by
+  let Q₁ : CatModule.{u} (WeightCategory A) ⥤
+      CatModule.DerivedCategory.{v,u} (WeightCategory A) := CatModule.DerivedCategory.Q
+  let Q₂ : CatModule.{u} (WeightCategory B) ⥤
+      CatModule.DerivedCategory.{v,u} (WeightCategory B) := CatModule.DerivedCategory.Q
+  letI : IsIso (Q₂.map f) := (CatModule.DerivedCategory.isIso_Q_map_iff f).mpr hf
+  let t := Q₁.map ((D).tensorMap f)
+  have ht : IsIso t :=
+    (CatModule.DerivedCategory.isIso_Q_map_iff ((D).tensorMap f)).mpr hTensor
+  exact ((diagramWeightDerivedTensor G hl hr).mapIso (asIso (Q₂.map f))).symm ≪≫
+    diagramWeightDerivedTensorObjIso G hl hr hK ≪≫
+    @asIso _ _ _ _ t ht
 
 /-- Derived Hom with the graded coefficient, when its left modules are K-projective. -/
 def diagramWeightDerivedHom (h : ∀ Y, CatModule.IsKProjective ((D).left Y)) :

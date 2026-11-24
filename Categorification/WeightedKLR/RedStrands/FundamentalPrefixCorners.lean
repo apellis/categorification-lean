@@ -232,6 +232,21 @@ private theorem element_grade (a b : Fin 2) :
   change ofKLR ℚ Q wt {()} (_ * _) ∈ allOrdersGrade grading {()} 1 at he
   simpa only [map_mul,ψ,e] using he
 
+/-- In the two-red fundamental block the surviving loading idempotents
+have diagram degree zero and the two mixed crossings have degree one.
+These are the differentials in the resolution of the cut in Webster,
+arXiv:1309.3796v2, §7.1, Lemma 7.3. -/
+theorem fundamental_loading_crossing_degrees :
+    project (e middle) ∈ tensorProductGrade grading {()} 0 ∧
+    project (e terminal) ∈ tensorProductGrade grading {()} 0 ∧
+    project (ψ 1) * project (e middle) ∈ tensorProductGrade grading {()} 1 ∧
+    project (ψ 1) * project (e terminal) ∈ tensorProductGrade grading {()} 1 := by
+  refine ⟨?_, ?_, ?_, ?_⟩
+  · simpa only [crossB, degB, ite_true, one_mul, box, load_zero] using element_grade 0 0
+  · simpa only [crossB, degB, ite_true, one_mul, box, load_one] using element_grade 1 1
+  · simpa only [crossB, degB, show (0 : Fin 2) ≠ 1 by decide, ↓reduceIte, box, load_zero, C] using element_grade 0 1
+  · simpa only [crossB, degB, show (1 : Fin 2) ≠ 0 by decide, ↓reduceIte, box, load_one, C] using element_grade 1 0
+
 private theorem tensorQ : IsRouquierQ (QuantumGroup.CartanDatum.ofGraph (⊥ : SimpleGraph Unit)) Q where
   symm _ _ h := (h (Subsingleton.elim _ _)).elim
   homogeneous _ _ h := (h (Subsingleton.elim _ _)).elim

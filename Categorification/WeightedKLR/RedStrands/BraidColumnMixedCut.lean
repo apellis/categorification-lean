@@ -6,13 +6,13 @@ import Categorification.Algebra.CornerBimodule
 import Categorification.WeightedKLR.RedStrands.BraidColumnBlockPermutation
 
 /-!
-# Earlier products at a mixed cut in a braid column
+# Mixed cuts through a higher bottom loading
 
 Webster, arXiv:1309.3796v2, pp. 65–66, proof of Lemma 6.11. A mixed right
 descent with a red immediately followed by a black gives a cut through a
 strictly higher bottom loading when the swapped wiring is still eligible.
-The diagram factors through that earlier product up to shorter subword
-terms. For a word of length at most three and distinct endpoints, projection
+The diagram factors through the product through that loading up to shorter subword
+terms. The theorem compares the bottom loadings. For a word of length at most three and distinct endpoints, projection
 kills the error because it has no crossings.
 -/
 
@@ -29,9 +29,9 @@ local notation "R" => KLRAlgebra k (stendhalQ Q Λ) μ
 local notation "F" => AlgHom.comp (violMk k Q Λ ν) (ofKLR k Q Λ ν)
 
 /-- At a mixed right descent, a cut at the higher bottom loading puts the
-chosen braid-column diagram in the corresponding earlier eligible product
+chosen braid-column diagram in the corresponding eligible product through that loading
 up to the shorter subword terms of the same loading pair. -/
-theorem braidColumnBlockIndex_earlier_mixed_cut (s : Seq μ) (n : Fin ℓ → ℕ)
+theorem braidColumnBlockIndex_higher_mixed_cut (s : Seq μ) (n : Fin ℓ → ℕ)
     (hn : (∑ r, (n r + 1)) = m) (σ : Perm (Fin ℓ))
     (φ : {φ : Perm (Fin m) // ProjectiveBlockIndex s φ})
     {j : ℕ} (hj : j + 1 < m)

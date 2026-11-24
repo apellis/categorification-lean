@@ -6970,7 +6970,7 @@ example :
     π (ψw [2, 1, 2] * pol 1 * e b) =
       π (ψw [1, 2] * e c) * π (ψ 1 * pol 1 * e b) := by
   intro π b c
-  have mixedCut := braidColumnBlockIndex_earlier_mixed_cut (Q := parameters) (Λ := weights)
+  have mixedCut := braidColumnBlockIndex_higher_mixed_cut (Q := parameters) (Λ := weights)
     top sizes sizes_card permuteReds ⟨phi, phi_eligible⟩ (j := 1) (by decide) earlier_eligible
     (r := 1) (i := ()) (by decide) (by decide) (by decide)
     (reduced [2, 1, 2] (by simp [ValidWord, ← four_eq_card]) (by decide))

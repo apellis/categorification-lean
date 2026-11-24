@@ -8956,6 +8956,14 @@ private theorem productBalanced (b x y : ℚ) : product (op b • x) y = product
 example := diagramWeightCoendProduct G G G leftAction rightAction leftAction rightAction
   product productWeight productBalanced (⟨0⟩ : QWeight) (⟨0⟩ : QWeight)
 
+example := diagramWeightTensorSlice_leftInverse G G leftAction rightAction leftAction rightAction
+  (⟨0⟩ : QWeight) (⟨0⟩ : QWeight)
+
+example := diagramWeightOrdinaryProjection_tmul G G leftAction rightAction leftAction rightAction
+  (⟨0⟩ : QWeight) (⟨1⟩ : QWeight)
+  (⟨1, InDegreeZero.ring_mem_grading_zero (1 : ℚ)⟩ : G 0)
+  (⟨1, InDegreeZero.ring_mem_grading_zero (1 : ℚ)⟩ : G 0)
+
 end
 
 end NonVacuity.WebsterWeightCoend

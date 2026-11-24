@@ -1017,7 +1017,11 @@ of the left weight modules also gives the derived Hom
 coefficients induces their product from the intermediate weight-category
 tensor coend (`diagramWeightCoendProduct_tmul`). In the right-module
 convention this gives the coend multiplication of three rectangular corners
-(`diagramCornerWeightRightCoendProduct_tmul`). For a rectangular corner between two degree-zero
+(`diagramCornerWeightRightCoendProduct_tmul`). Forgetting the intermediate
+weight embeds each endpoint coend as a summand of the ordinary additive
+balanced tensor (`diagramWeightTensorSlice_leftInverse`). The associated
+projection keeps pure tensors of the endpoint degree
+(`diagramWeightOrdinaryProjection_tmul`). For a rectangular corner between two degree-zero
 idempotents, `diagramCornerWeightDerivedRightTensor` uses the restricted grading
 and defines derived right tensor on the graded right-module categories.
 For the actual braid bimodule this gives `auxiliaryGradedBraidingFunctor`

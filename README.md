@@ -1300,6 +1300,14 @@ The complementary exterior projective then surjects onto the actual
 cokernel of the outgoing crossing
 (`Stendhal.labelTwoExteriorEndComplex_exact`,
 `Stendhal.labelTwoExteriorEndComplex_epi`).
+The outgoing image contains the other loading cuts of the exterior
+projective. Its cokernel is supported at the left exterior loading,
+where the undotted generator and first dot span it. The black
+crossing sends the first dot back to the nonzero generator, which
+proves simplicity
+(`Stendhal.labelTwoExteriorAugmentation_loading_project`,
+`Stendhal.labelTwoExteriorCokernel_span`,
+`Stendhal.labelTwoExteriorCokernel_simple`).
 
 
 

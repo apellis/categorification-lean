@@ -1776,6 +1776,7 @@ import Categorification.WeightedKLR.Rigidity.FundamentalBraidAction
 import Categorification.WeightedKLR.Rigidity.FundamentalBraidSpan
 import Categorification.WeightedKLR.Rigidity.FundamentalBraidWeight
 import Categorification.WeightedKLR.Rigidity.FundamentalBraidComplex
+import Categorification.WeightedKLR.Rigidity.FundamentalBraidTensorHomology
 import Categorification.WeightedKLR.Rigidity.FundamentalMiddleDimensions
 import Categorification.Algebra.DiagramBigrading
 import Categorification.Algebra.DiagramWeightBimodule
@@ -1787,6 +1788,8 @@ import Categorification.Algebra.DiagramWeightCorner
 import Categorification.Algebra.DiagramWeightCoend
 import Categorification.Algebra.DiagramWeightCoendNaturality
 import Categorification.Algebra.DiagramWeightCoendSurjectivity
+import Categorification.Algebra.DiagramWeightExact
+import Categorification.Algebra.DiagramWeightLoadingVanish
 import Categorification.Algebra.DiagramWeightOrdinaryTensor
 import Categorification.WeightedKLR.Rigidity.GradedCharacterCupCap
 import Categorification.WeightedKLR.Rigidity.GradedFundamentalCupCap
@@ -1795,6 +1798,7 @@ import Categorification.WeightedKLR.Rigidity.GradedMiddleComplex
 import Categorification.WeightedKLR.Rigidity.GradedTerminalStandardResolution
 import Categorification.WeightedKLR.Rigidity.GradedMiddleTor
 import Categorification.WeightedKLR.Rigidity.WeightModuleFiltration
+import Categorification.WeightedKLR.Rigidity.WeightModuleDerivedFiltration
 import Categorification.WeightedKLR.Rigidity.GradedMiddleScalarRepresentables
 import Categorification.WeightedKLR.Rigidity.FundamentalClockwiseClass
 import Categorification.WeightedKLR.Rigidity.SingleBlackExtremal

@@ -11305,6 +11305,8 @@ example := incomingMiddleStandardHomology_isZero ℚ (-1)
 
 example := incomingCokernelTorOne_map_nonzero ℚ
 
+example := incomingCokernelTorOne_map_surjective_of_middleAcyclic ℚ
+
 end
 
 example (z : labelTwoRightExteriorDividedStandard (parameter ℚ)) :=

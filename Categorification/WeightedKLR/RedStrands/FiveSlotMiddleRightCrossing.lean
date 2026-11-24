@@ -60,7 +60,7 @@ private theorem middleRightTest_appendBlack
     (Q : Unit → Unit → MvPolynomial (Fin 2) k) (Λ : Fin 3 → Unit →₀ ℕ)
     (hR : IsRouquierQ D Q) (test : middleRightTest.InjectiveAt Q Λ) :
     OrdinaryCutCrossingTest Q Λ s t 1 := by
-  have h := eq_zero_of_mul_crossing_appendBlack (C := D) Q hR Λ () θ middleRightTest.index
+  have h := eq_zero_of_mul_crossing_appendBlack (C := D) (ℓ := 2) Q hR Λ () θ middleRightTest.index
     middleRightTest.index_valid middleRightTest.top middleRightTest.bottom middleRightTest.top_ordered test
   simpa only [OrdinaryCutCrossingTest, middleRightTest_top, middleRightTest_bottom,
     middleRightTest_index] using h

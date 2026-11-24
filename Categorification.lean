@@ -18,6 +18,7 @@ import Categorification.Algebra.CornerTensorQuotient
 import Categorification.Algebra.DerivedTensor
 import Categorification.Algebra.DerivedTensorFiltration
 import Categorification.Algebra.DerivedTensorHomology
+import Categorification.Algebra.DerivedRightTensorHomology
 import Categorification.Algebra.DerivedTensorTriangulated
 import Categorification.Algebra.DerivedTensorComp
 import Categorification.Algebra.DerivedTensorDegreeZero
@@ -1650,6 +1651,7 @@ import Categorification.WeightedKLR.RedStrands.BraidedStandardDerived
 import Categorification.WeightedKLR.RedStrands.BlockCrossingComparison
 import Categorification.WeightedKLR.RedStrands.BlockLoadingPresentation
 import Categorification.WeightedKLR.RedStrands.BlockKernelColumn
+import Categorification.WeightedKLR.RedStrands.BlockKernelDerivedHomology
 import Categorification.WeightedKLR.RedStrands.BraidedStandardGrading
 import Categorification.WeightedKLR.RedStrands.BraidedStandardInjective
 import Categorification.WeightedKLR.RedStrands.BraidedStandardIso

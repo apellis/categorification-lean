@@ -193,15 +193,21 @@ private theorem compose_cross (l w : List ℕ) (u : Seq μ₀)
 
 
 include order in
+private def finiteSeam (w : List ℕ) (source : Seq μ₀)
+    (hs : redWord source = redWord (v 2))
+    (ht : redWord (wordProd n₀ w • source) = redWord (v 2)) : T :=
+  seam Q Λ t w source (hs.trans order.symm) (ht.trans order.symm)
+
+include order in
 private def jointArms : Fin 4 → Fin 4 → T :=
-  ![![seam Q Λ t [2] (v 0) (by rw [order] <;> decide) (by rw [order] <;> decide),
-      -seam Q Λ t [3] (v 1) (by rw [order] <;> decide) (by rw [order] <;> decide),0,0],
-    ![0,seam Q Λ t [1] (v 1) (by rw [order] <;> decide) (by rw [order] <;> decide),
-      -seam Q Λ t [2] (v 2) (by rw [order]) (by rw [order] <;> decide),0],
-    ![seam Q Λ t [2,1] (v 0) (by rw [order] <;> decide) (by rw [order] <;> decide),0,0,
-      -seam Q Λ t [3] (v 3) (by rw [order] <;> decide) (by rw [order] <;> decide)],
-    ![0,0,seam Q Λ t [2,3] (v 2) (by rw [order]) (by rw [order] <;> decide),
-      -seam Q Λ t [1] (v 3) (by rw [order] <;> decide) (by rw [order] <;> decide)]]
+  ![![finiteSeam Q Λ t order [2] (v 0) (by decide) (by decide),
+      -finiteSeam Q Λ t order [3] (v 1) (by decide) (by decide),0,0],
+    ![0,finiteSeam Q Λ t order [1] (v 1) (by decide) (by decide),
+      -finiteSeam Q Λ t order [2] (v 2) (by decide) (by decide),0],
+    ![finiteSeam Q Λ t order [2,1] (v 0) (by decide) (by decide),0,0,
+      -finiteSeam Q Λ t order [3] (v 3) (by decide) (by decide)],
+    ![0,0,finiteSeam Q Λ t order [2,3] (v 2) (by decide) (by decide),
+      -finiteSeam Q Λ t order [1] (v 3) (by decide) (by decide)]]
 
 include order in
 private theorem jointArms_annihilate (j : Fin 4) :
@@ -322,40 +328,37 @@ private theorem cutCoeff_zero (x : Fin 4 → K)
     ∑ i, cutCoeff Q Λ t x i*cross (fiveSlotExitWord i) s=0 :=
   (Finset.sum_congr rfl (fun i _ => cutCoeff_product Q Λ t order x i)).trans (sum_exit_stack_zero Q Λ t order x hz)
 
-variable (joints : ∀ x : Fin 4 → V,
-  (∀ i, p t*x i*p (wordProd n₀ (fiveSlotExitWord i) • s)=x i) →
-  (∀ i, x i ∈ J) → (∑ i, x i*cross (fiveSlotExitWord i) s=0) →
-  ∃ zA : V, zA ∈ J ∧ ∃ zB : V, zB ∈ J ∧ ∃ zC : V, zC ∈ J ∧ ∃ zD : V, zD ∈ J ∧
-    x 0=zA*cross [2] (v 0)+zC*cross [2,1] (v 0) ∧
-    x 1=zB*cross [1] (v 1)-zA*cross [3] (v 1) ∧
-    x 2=zD*cross [2,3] (v 2)-zB*cross [2] (v 2) ∧
-    x 3=-(zC*cross [3] (v 3)+zD*cross [1] (v 3)) ∧
-    p t*zA*p (sadj n₀ 2 • v 0)=zA ∧ p t*zB*p (sadj n₀ 1 • v 1)=zB ∧
-    p t*zC*p (sadj n₀ 2 • v 0)=zC ∧ p t*zD*p (sadj n₀ 1 • v 3)=zD)
-
-include order joints in
-private theorem marked_joint_representation (x : Fin 4 → K)
+include order in
+private theorem marked_joint_representation (hQ : KLRSymm Q) (ht : FiveSlotRightTop t)
+    (x : Fin 4 → K)
     (hz : inc (∑ i,BalancedTensor.tmul (x i) (exitLeg Q Λ t order i))=0) :
     ∃ g : Fin 4 → K, ∀ i,
       rightOnKernel Q Λ t (exitProj Q Λ t order i) (x i) = jointColumn Q Λ t order g i := by
   obtain ⟨zA,mA,zB,mB,zC,mC,zD,mD,h₀,h₁,h₂,h₃,cA,cB,cC,cD⟩ :=
-    joints (cutCoeff Q Λ t x) (cutCoeff_supported Q Λ t x)
+    exists_fiveSlotRightTop_markedExitJoints Q Λ hQ t ht
+      (cutCoeff Q Λ t x) (cutCoeff_supported Q Λ t x)
       (cutCoeff_marked Q Λ t x) (cutCoeff_zero Q Λ t order x hz)
   let jA := sadj n₀ 2 • v 0
   let jB := sadj n₀ 1 • v 1
   let jD := sadj n₀ 1 • v 3
-  let g : Fin 4 → K := ![jointRep Q Λ t jA (by rw [order] <;> decide) zA cA mA,
-    jointRep Q Λ t jB (by rw [order] <;> decide) zB cB mB,
-    jointRep Q Λ t jA (by rw [order] <;> decide) zC cC mC,
-    jointRep Q Λ t jD (by rw [order] <;> decide) zD cD mD]
+  have ordA : redWord jA = κ :=
+    (by decide : redWord jA = redWord (v 2)).trans order.symm
+  have ordB : redWord jB = κ :=
+    (by decide : redWord jB = redWord (v 2)).trans order.symm
+  have ordD : redWord jD = κ :=
+    (by decide : redWord jD = redWord (v 2)).trans order.symm
+  let g : Fin 4 → K := ![jointRep Q Λ t jA ordA zA cA mA,
+    jointRep Q Λ t jB ordB zB cB mB,
+    jointRep Q Λ t jA ordA zC cC mC,
+    jointRep Q Λ t jD ordD zD cD mD]
   have gA : readK Q Λ t (g 0)=zA :=
-    jointRep_value Q Λ t jA (by rw [order] <;> decide) zA cA mA
+    jointRep_value Q Λ t jA ordA zA cA mA
   have gB : readK Q Λ t (g 1)=zB :=
-    jointRep_value Q Λ t jB (by rw [order] <;> decide) zB cB mB
+    jointRep_value Q Λ t jB ordB zB cB mB
   have gC : readK Q Λ t (g 2)=zC :=
-    jointRep_value Q Λ t jA (by rw [order] <;> decide) zC cC mC
+    jointRep_value Q Λ t jA ordA zC cC mC
   have gD : readK Q Λ t (g 3)=zD :=
-    jointRep_value Q Λ t jD (by rw [order] <;> decide) zD cD mD
+    jointRep_value Q Λ t jD ordD zD cD mD
   exact ⟨g,read_joint_coefficients Q Λ t order x g zA zB zC zD gA gB gC gD h₀ h₁ h₂ h₃⟩
 
 private abbrev SourceTensor := BalancedTensor k k T K C
@@ -377,35 +380,27 @@ private theorem balance_tensor (x g : Fin 4 → K)
     (exitLeg Q Λ t order) x (exitProj Q Λ t order) g (jointArms Q Λ t order)
     (exitProj_fixes_leg Q Λ t order) coeff (jointArms_annihilate Q Λ t order)
 
-include order joints in
-private theorem tensor_kernel_zero (hQ : KLRSymm Q) (z : SourceTensor (k := k) Q Λ t)
+include order in
+private theorem tensor_kernel_zero (hQ : KLRSymm Q) (ht : FiveSlotRightTop t)
+    (z : SourceTensor (k := k) Q Λ t)
     (hz : includeTensor Q Λ t z=0) : z=0 := by
   obtain ⟨x,rfl⟩ := collect_tensor Q Λ t order hQ z
-  obtain ⟨g,coeff⟩ := marked_joint_representation Q Λ t order joints x hz
+  obtain ⟨g,coeff⟩ := marked_joint_representation Q Λ t order hQ ht x hz
   exact balance_tensor Q Λ t order x g coeff
-
-/-- A marked four-exit presentation proves injectivity of Webster’s kernel-column inclusion
-for any five-slot top in the exchanged red order. -/
-include order joints in
-theorem fiveSlot_blockKernelColumnInclusion_injective_of_marked (hQ : KLRSymm Q) :
-    Function.Injective inc := by
-  change Function.Injective (includeTensor Q Λ t)
-  exact (injective_iff_map_eq_zero (includeTensor Q Λ t)).mpr (tensor_kernel_zero Q Λ t order joints hQ)
-
-/-- Webster's kernel-column inclusion (6.21) is injective at the five-slot
-right-extreme top with one earlier red and two equal black strands. -/
-theorem fiveSlot_blockKernelColumnInclusion_injective (hQ : KLRSymm Q) :
-    Function.Injective (blockKernelColumnInclusion Q Λ (v 2) 1 2 s) :=
-  fiveSlot_blockKernelColumnInclusion_injective_of_marked Q Λ (v 2) rfl
-    (exists_fiveSlot_markedExitJoints Q Λ hQ) hQ
 
 /-- Webster's five-slot kernel-column inclusion is injective at every placement
 of the last red among the two equal black strands to the right of the first
 exchanged red. -/
 theorem fiveSlotRightTop_blockKernelColumnInclusion_injective (hQ : KLRSymm Q)
-    (t : Seq (stendhalWeight 3 ({()} + {()}))) (ht : FiveSlotRightTop t) :
-    Function.Injective (blockKernelColumnInclusion Q Λ t 1 2 fixedTopFourExitBottom) :=
-  fiveSlot_blockKernelColumnInclusion_injective_of_marked Q Λ t
-    (fiveSlotRightTop_redWord t ht) (exists_fiveSlotRightTop_markedExitJoints Q Λ hQ t ht) hQ
+    (ht : FiveSlotRightTop t) : Function.Injective inc := by
+  change Function.Injective (includeTensor Q Λ t)
+  exact (injective_iff_map_eq_zero (includeTensor Q Λ t)).mpr
+    (tensor_kernel_zero Q Λ t (fiveSlotRightTop_redWord t ht) hQ ht)
+
+/-- Webster's kernel-column inclusion (6.21) is injective at the five-slot
+right-extreme top with one earlier red and two equal black strands. -/
+theorem fiveSlot_blockKernelColumnInclusion_injective (hQ : KLRSymm Q) :
+    Function.Injective (blockKernelColumnInclusion Q Λ (v 2) 1 2 s) :=
+  fiveSlotRightTop_blockKernelColumnInclusion_injective Q Λ (v 2) hQ (Or.inl rfl)
 
 end Categorification.Stendhal.BraidedStendhalAlgebra

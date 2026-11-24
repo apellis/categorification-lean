@@ -7485,13 +7485,13 @@ private abbrev extreme := fixedTopFourExitCut 2
 private abbrev mixed := sadj μ.card 2 • extreme
 private abbrev full := sadj μ.card 3 • mixed
 
-example := fiveSlotRightTop_blockKernelColumnInclusion_injective Q Λ (fun _ _ _ => rfl)
-  extreme (Or.inl rfl)
+example := fiveSlotRightTop_blockKernelColumnInclusion_injective Q Λ extreme (fun _ _ _ => rfl)
+  (Or.inl rfl)
 
-example := fiveSlotRightTop_blockKernelColumnInclusion_injective Q Λ (fun _ _ _ => rfl)
-  mixed (Or.inr (Or.inl rfl))
+example := fiveSlotRightTop_blockKernelColumnInclusion_injective Q Λ mixed (fun _ _ _ => rfl)
+  (Or.inr (Or.inl rfl))
 
-example := fiveSlotRightTop_blockKernelColumnInclusion_injective Q Λ (fun _ _ _ => rfl)
-  full (Or.inr (Or.inr rfl))
+example := fiveSlotRightTop_blockKernelColumnInclusion_injective Q Λ full (fun _ _ _ => rfl)
+  (Or.inr (Or.inr rfl))
 
 end NonVacuity.WebsterFiveSlotThreeTopKernelColumn

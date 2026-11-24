@@ -8676,6 +8676,17 @@ example := fiveSlot_blockKernelTensorInclusion_injective_standard C Λ
 
 end NonVacuity.WebsterFiveSlotAllBottom
 
+namespace NonVacuity.WebsterFirstPairTwoAfter
+
+open Categorification.KLR Categorification.Stendhal BraidedStendhalAlgebra MvPolynomial
+
+private def Q : Unit → Unit → MvPolynomial (Fin 2) (ZMod 4) := fun _ _ => 0
+private def Λ : Fin 3 → Unit →₀ ℕ := fun r => Finsupp.single () (r.val + 1)
+
+example := firstPairTwoAfter_blockKernel_mem_iff_twoFactors Q Λ (fun _ _ _ => rfl)
+
+end NonVacuity.WebsterFirstPairTwoAfter
+
 namespace NonVacuity.WebsterFiveSlotAllBottomDerived
 
 open Categorification.KLR Categorification.Stendhal Categorification.QuantumGroup

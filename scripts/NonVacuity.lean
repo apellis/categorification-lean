@@ -6543,6 +6543,30 @@ example :=
     (lower := [0, 1, 2]) (middle := [1, 0, 2]) (upper := [1, 2, 0])
     (by decide) (by decide) (by decide) (by decide) (by decide) (by decide) (by decide)
 
+private noncomputable abbrev threeRedWeights : Fin 3 → Unit →₀ ℕ :=
+  fun j => Finsupp.single () (j.val + 1)
+
+private abbrev threeRedSize := Multiset.card (stendhalWeight 3 ν)
+
+private theorem threeRedWords : TypeA.IsReducedChoice (TypeA.canWord threeRedSize) :=
+  fun w => ⟨TypeA.isReduced_canWord _ w, TypeA.wordProd_canWord _ w⟩
+
+private theorem threeRedLowerNodup : ([0, 1, 2] : List (Fin 3)).Nodup := by decide
+
+private theorem threeRedPerm : ([0, 1, 2] : List (Fin 3)).Perm [1, 0, 2] := by decide
+
+open scoped List in
+private theorem threeRedLength :
+    ∀ x y : Fin 3, [x, y] <+ [0, 1, 2] → [y, x] <+ [1, 0, 2] → [y, x] <+ [1, 2, 0] := by
+  decide
+
+/-- The graded weight coend surjects for two consecutive adjacent swaps. -/
+example :=
+  braidFactorizationCoend_surjective (I := Unit) (k := ℚ) (Q := Q)
+    (Λ := threeRedWeights) (ν := ν) (ρ := TypeA.canWord threeRedSize) sl₂ hRouquier
+    threeRedWords (lower := [0, 1, 2]) (middle := [1, 0, 2]) (upper := [1, 2, 0])
+    threeRedLowerNodup threeRedPerm threeRedLength
+
 end NonVacuity.WebsterFigureFive
 
 namespace NonVacuity.BraidedStendhal

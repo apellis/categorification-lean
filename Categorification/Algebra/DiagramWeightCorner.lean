@@ -2,7 +2,7 @@
 Copyright (c) 2026 Alex Ellis. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 -/
-import Categorification.Algebra.DiagramWeightCoend
+import Categorification.Algebra.DiagramWeightCoendSurjectivity
 import Categorification.Algebra.CornerBimodule
 import Categorification.Algebra.Graded.RightTwist
 import Categorification.WeightedKLR.GradedK0.Grading
@@ -119,7 +119,8 @@ variable {g : A} (hg : IsIdempotentElem g) (hg0 : g ∈ G 0)
 
 local notation "S" => Graded.cornerGrading G hg
 
-private def cornerRightProduct : cornerBimodule e' g →+ cornerBimodule e e' →+ cornerBimodule e g where
+/-- The rectangular coefficient product in the right-module order. -/
+def cornerRightProduct : cornerBimodule e' g →+ cornerBimodule e e' →+ cornerBimodule e g where
   toFun x :=
     { toFun y := ⟨y.val * x.val, mem_cornerBimodule.mpr
         ⟨by rw [← mul_assoc, (mem_cornerBimodule.mp y.property).1],
@@ -208,6 +209,46 @@ theorem diagramCornerWeightRightCoendProduct_tmul :
     (rightCornerLeft G (e := e') hg) (rightCornerRight G (e' := g) he')
     (rightCornerLeft G (e := e) he') (rightCornerRight G (e' := e') he)
     cornerRightProduct (cornerRightProduct_mem G) _ X Z Y x y)
+
+/-- The right-module coend product is onto when ordinary products span the
+target and each corner is the direct sum of its homogeneous pieces. -/
+theorem diagramCornerWeightRightCoendProduct_surjective
+    (h₁ : IsInternal (diagramCornerWeight (e := e') (e' := g) G))
+    (h₂ : IsInternal (diagramCornerWeight (e := e) (e' := e') G))
+    (h₃ : IsInternal (diagramCornerWeight (e := e) (e' := g) G))
+    (hspan : AddSubgroup.closure
+      (Set.range fun z : cornerBimodule e' g × cornerBimodule e e' =>
+        cornerRightProduct z.1 z.2) = ⊤) :
+    letI := Graded.cornerGradedAlgebra G he he0
+    letI := Graded.cornerGradedAlgebra G he' he'0
+    letI := Graded.cornerGradedAlgebra G hg hg0
+    letI := gradedAlgebraInternalGrading (oppositeGrade L)
+    letI := gradedAlgebraInternalGrading (oppositeGrade R)
+    letI := gradedAlgebraInternalGrading (oppositeGrade S)
+    letI := gradedAlgebraBigradedDGRing (oppositeGrade L)
+    letI := gradedAlgebraBigradedDGRing (oppositeGrade R)
+    letI := gradedAlgebraBigradedDGRing (oppositeGrade S)
+    ∀ (X : WeightCategory hg.Cornerᵐᵒᵖ) (Z : WeightCategory he.Cornerᵐᵒᵖ),
+      Function.Surjective (diagramCornerWeightRightCoendProduct G he he' he0 he'0 hg hg0 X Z) := by
+  let := Graded.cornerGradedAlgebra G he he0
+  let := Graded.cornerGradedAlgebra G he' he'0
+  let := Graded.cornerGradedAlgebra G hg hg0
+  let := gradedAlgebraInternalGrading (oppositeGrade L)
+  let := gradedAlgebraInternalGrading (oppositeGrade R)
+  let := gradedAlgebraInternalGrading (oppositeGrade S)
+  let := gradedAlgebraBigradedDGRing (oppositeGrade L)
+  let := gradedAlgebraBigradedDGRing (oppositeGrade R)
+  let := gradedAlgebraBigradedDGRing (oppositeGrade S)
+  let := h₁.chooseDecomposition
+  let := h₂.chooseDecomposition
+  let := h₃.chooseDecomposition
+  intro X Z
+  exact diagramWeightCoendProduct_surjective
+    (A := hg.Cornerᵐᵒᵖ) (B := he'.Cornerᵐᵒᵖ) (C := he.Cornerᵐᵒᵖ)
+    (diagramCornerWeight G) (diagramCornerWeight G) (diagramCornerWeight G)
+    (rightCornerLeft G (e := e') hg) (rightCornerRight G (e' := g) he')
+    (rightCornerLeft G (e := e) he') (rightCornerRight G (e' := e') he)
+    cornerRightProduct (cornerRightProduct_mem G) _ X Z hspan
 
 end Composition
 

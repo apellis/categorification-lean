@@ -1150,6 +1150,9 @@ ordinary tensor map applying it to the first factor
 (`derivedTensorCoefficientMap`, `derivedTensorObjIso_coefficient_naturality`).
 The degree-zero comparison with ordinary tensor is natural in this map
 (`derivedTensorHomologyIsoOrdinaryLinear_coefficient_naturality`).
+A short exact sequence of coefficients produces a distinguished triangle
+when the other argument is an ordinary module
+(`exists_distinguished_derivedTensorCoefficient`).
 It commutes with cochain shifts and defines a morphism between the
 derived tensor images of a triangle (`derivedTensorCoefficientTriangleMap`).
 On a pure tensor it applies the map to the first factor

@@ -6718,3 +6718,30 @@ example : IsReduced 6 (canWord 6 u ++ [3,1,2]) ∧ wordProd 6 (canWord 6 u ++ [3
   exact hword
 
 end IntervalPBWFixture
+
+namespace NonVacuity.WebsterBraidFiltrationDimension
+
+open ModuleFiltration.HasFiltration
+open scoped ModuleCat.Algebra
+
+private abbrev Std : Unit → ModuleCat ℚ := fun _ => ModuleCat.of ℚ ℚ
+private abbrev Column : ModuleCat ℚ := ModuleCat.of ℚ (ℚ × ℚ)
+
+example : ModuleFiltration.HasFiltration Std [(), ()] Column := by
+  have firstStep : ModuleFiltration.HasFiltration Std [()] (Std ()) := single (LinearEquiv.refl _ _)
+  have h : ModuleFiltration.HasFiltration Std [(), ()] Column :=
+    .cons (LinearMap.inl ℚ ℚ ℚ) (LinearMap.snd ℚ ℚ ℚ) [()] ()
+      (fun x y hxy => congrArg Prod.fst hxy)
+      (by
+        rintro ⟨x, y⟩
+        exact ⟨fun hy => ⟨x, by simp_all⟩, fun ⟨a, ha⟩ => (congrArg Prod.snd ha).symm⟩)
+      (fun z => ⟨(0, z), rfl⟩) firstStep ⟨LinearEquiv.refl _ _⟩
+  apply h.of_surjective_factors (k := ℚ) (S := Std) (fun _ => -LinearMap.id)
+  · intro c
+    infer_instance
+  · intro c z
+    exact ⟨-z, neg_neg z⟩
+  · change Module.finrank ℚ (ℚ × ℚ) = _
+    simp [Module.finrank_prod]
+
+end NonVacuity.WebsterBraidFiltrationDimension

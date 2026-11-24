@@ -6479,6 +6479,14 @@ example :
   exact congrArg (fun z : ℂ =>
     ↥((figureFiveUpperExteriorGrade (Λ := fracΛ) sl₂ hRouquier hρ blackWord z).restrictScalars ℤ)) h
 
+/-- The entire swapped braid coefficient places auxiliary coordinate one
+at Webster degree three halves for the two unequal red weights. -/
+example :=
+  have h : ((1 : ℤ) : ℂ) + (2 - weightPairing sl₂ realization (fracWeight 1) (fracWeight 0)) =
+      (3 / 2 : ℂ) := by rw [fracWeight_pair]; norm_num
+  h ▸ twoRedSwapWeight_intAdd (Λ := fracΛ) (ν := ν) sl₂ hRouquier
+    (weightPairing sl₂ realization) fracWeight 1 0 1
+
 end NonVacuity.WebsterFigureFive
 
 namespace NonVacuity.BraidedStendhal

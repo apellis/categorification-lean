@@ -59,13 +59,13 @@ private theorem centralFirstTest_transfer
     (Q : Unit → Unit → MvPolynomial (Fin 2) k) (Λ : Fin 3 → Unit →₀ ℕ)
     (test : centralFirstTest.InjectiveAt Q Λ) : OrdinaryCutCrossingTest Q Λ v₁ jA 3 := by
   unfold OrderedCrossingTest.InjectiveAt at test
-  simpa only [centralFirstTest_top, centralFirstTest_bottom, centralFirstTest_index] using test
+  simpa only [OrdinaryCutCrossingTest, centralFirstTest_top, centralFirstTest_bottom, centralFirstTest_index] using test
 
 private theorem centralSecondTest_transfer
     (Q : Unit → Unit → MvPolynomial (Fin 2) k) (Λ : Fin 3 → Unit →₀ ℕ)
     (test : centralSecondTest.InjectiveAt Q Λ) : OrdinaryCutCrossingTest Q Λ jA v₀ 2 := by
   unfold OrderedCrossingTest.InjectiveAt at test
-  simpa only [centralSecondTest_top, centralSecondTest_bottom, centralSecondTest_index] using test
+  simpa only [OrdinaryCutCrossingTest, centralSecondTest_top, centralSecondTest_bottom, centralSecondTest_index] using test
 
 open QuantumGroup KL3.Diagram
 variable {D : CartanDatum Unit}

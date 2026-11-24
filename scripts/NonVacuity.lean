@@ -6733,3 +6733,81 @@ noncomputable example :=
   hasReflectedStandardFiltration_braidingBimodule [] [] rightFiltration
 
 end NonVacuity.WebsterBraidFiltration
+
+namespace NonVacuity.WebsterFiniteExitLift
+
+open Categorification.KLR Categorification.TypeA Categorification.Stendhal
+open BraidedStendhalAlgebra KLRAlgebra
+open scoped BigOperators
+
+private abbrev ν : Multiset Unit := {()} + {()}
+private abbrev Q : Unit → Unit → MvPolynomial (Fin 2) (ZMod 4) := fun _ _ => 0
+private abbrev Λ : Fin 4 → Unit →₀ ℕ := fun _ => Finsupp.single () 2
+private def bottom : Seq (stendhalWeight 4 ν) :=
+  Seq.ofList [.inr 0, .inl (), .inr 2, .inl (), .inr 1, .inr 3] (by decide)
+private def top : Seq (stendhalWeight 4 ν) :=
+  Seq.ofList [.inr 0, .inl (), .inr 1, .inl (), .inr 2, .inr 3] (by decide)
+private def exits : Bool → List ℕ
+  | false => [3,2]
+  | true => [2,3]
+private abbrev A := BraidedStendhalAlgebra (ZMod 4) Q Λ ν
+private abbrev F := ofKLR (ZMod 4) Q Λ ν
+private abbrev mk := violMk (ZMod 4) Q Λ ν
+private abbrev leg (i : Bool) := F (ψw (exits i) * e bottom)
+
+private theorem generate (v : Seq (stendhalWeight 4 ν)) (hv : redWord v = redWord top) (z : A) :
+    ∃ c : Bool → A, F (e v) * z * F (e bottom) = ∑ i, c i * leg i := by
+  have ho : redWord v = [0] ++ 1 :: 2 :: [3] := hv.trans (by decide)
+  obtain ⟨l,r,he⟩ := exists_interleavedColumn_exits Q Λ bottom 2 (by decide) (fun _ _ _ => rfl)
+    (a := 1) (b := 2) (by decide) (by decide) v ho z
+  refine ⟨fun i => if i then r else l, ?_⟩
+  simp only [Fintype.sum_bool, Bool.false_eq_true, ↓reduceIte]
+  rw [add_comm]
+  exact he
+
+/-- A violated diagram with a spectator black admits exit coefficients that
+individually vanish after imposing the global violation. -/
+example (u v : A) :=
+  let bad : Seq (stendhalWeight 4 ν) :=
+    Seq.ofList [.inl (), .inr 0, .inr 1, .inl (), .inr 2, .inr 3] (by decide)
+  exists_violated_finite_exits Q Λ bottom top exits (fun _ _ _ => rfl) generate
+    (u * F (e bad) * v) (by
+      have hv : IsViolated bad := ⟨by decide,rfl⟩
+      simp only [map_mul,violMk_e hv,mul_zero,zero_mul])
+
+/-- Lift a signed braid relation in the six-strand quotient using the same
+ordered exits. -/
+example :=
+  let d := wordProd (stendhalWeight 4 ν).card [2,3,2] • bottom
+  let side := fun i : Bool => wordProd (stendhalWeight 4 ν).card (exits i) • bottom
+  let signed := fun i : Bool => if i then
+    -(mk (F (e d * ψ 3 * e (side i)))) else mk (F (e d * ψ 2 * e (side i)))
+  have hd : d = top := by decide
+  have sup (i : Bool) : mk (F (e top)) * signed i * mk (F (e (side i))) = signed i := by
+    cases i <;> simp only [signed, Bool.false_eq_true, ↓reduceIte, ← hd, mul_neg, neg_mul] <;>
+      simp only [← map_mul, ← mul_assoc (e d), e_mul_self] <;>
+      simp only [mul_assoc, e_mul_self]
+  have rel : ∑ i, signed i * mk (leg i) = 0 := by
+    simp only [Fintype.sum_bool, signed, Bool.false_eq_true, ↓reduceIte, neg_mul, ← map_mul,
+      exits, side, ψw_cons, ψw_nil, mul_one]
+    have h := braid (Q := stendhalQ Q Λ) 2 (by decide) bottom
+    have hl : bottom.lbl ⟨2, by decide⟩ ≠ bottom.lbl ⟨4, by decide⟩ := by decide
+    rw [ite_eq_right (fun h => hl h.1), sub_mul, sub_eq_zero] at h
+    have le (w : List ℕ) : e (wordProd (stendhalWeight 4 ν).card w • bottom) * ψw w * e bottom =
+        (ψw w * e bottom : KLRAlgebra (ZMod 4) (stendhalQ Q Λ) (stendhalWeight 4 ν)) := by
+      rw [e_mul_ψw, inv_smul_smul, mul_assoc, e_mul_self]
+    have left := le [3,2]
+    have right := le [2,3]
+    simp only [ψw_cons, ψw_nil, mul_one] at left right
+    rw [show e d * ψ 2 * e (wordProd (stendhalWeight 4 ν).card [3,2] • bottom) *
+        (ψ 3 * ψ 2 * e bottom) = e d * (ψ 2 * ψ 3 * ψ 2 * e bottom) by
+          rw [mul_assoc, ← mul_assoc (e (wordProd (stendhalWeight 4 ν).card [3,2] • bottom)), left]
+          simp only [mul_assoc],
+      show e d * ψ 3 * e (wordProd (stendhalWeight 4 ν).card [2,3] • bottom) *
+        (ψ 2 * ψ 3 * e bottom) = e d * (ψ 3 * ψ 2 * ψ 3 * e bottom) by
+          rw [mul_assoc, ← mul_assoc (e (wordProd (stendhalWeight 4 ν).card [2,3] • bottom)), right]
+          simp only [mul_assoc],
+      ← h, neg_add_cancel]
+  exists_finiteExitRelation_affine_lift Q Λ bottom top exits (fun _ _ _ => rfl) generate signed sup rel
+
+end NonVacuity.WebsterFiniteExitLift

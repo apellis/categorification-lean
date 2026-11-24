@@ -5923,6 +5923,16 @@ example := finrank_quantum_coevaluationWeight (R := LieLean.QuantumGroup.sl2Root
     rw [P.root_coroot]
     rfl) [()] reduced
 
+/-- The corresponding Laurent rank of cyclotomic projectives is one at the
+terminal weight of the level-two block. -/
+example := KLR.CycKLR.finrank_coevaluation_projectiveBlock CyclotomicHighestWeight.params
+  (fun _ => 2) CyclotomicHighestWeight.datum 2 CyclotomicHighestWeight.dominantTwo
+  CyclotomicHighestWeight.regular P weight dominant (fun i => by
+    cases i
+    change P.root () (P.coroot ()) = (2 : ℝ)
+    rw [P.root_coroot]
+    rfl) [()] reduced
+
 end
 
 end NonVacuity.WebsterReducedCoevaluationWord

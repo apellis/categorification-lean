@@ -1012,9 +1012,11 @@ rank one is simple as an ungraded module
 identifies the graded lifts (`GProj.nonempty_iso_of_homGdim_coeff_zero`).
 The classical and quantum weight spaces at the content of every reduced
 coevaluation word have dimension one
-(`Stendhal.finrank_quantum_coevaluationWeight`). The comparison with the
-cyclotomic block and the Shapovalov pairings are the remaining inputs for
-general reflection words.
+(`Stendhal.finrank_quantum_coevaluationWeight`). For every content the
+cyclotomic projective rank equals its quantum weight multiplicity. In
+particular the cyclotomic coevaluation block has Laurent rank one
+(`CycKLR.finrank_coevaluation_projectiveBlock`). The normalized
+Shapovalov pairings are still needed for general reflection words.
 
 ### Weak `sl₂`-categorifications (Chuang–Rouquier, arXiv:math/0407205v2, §5)
 

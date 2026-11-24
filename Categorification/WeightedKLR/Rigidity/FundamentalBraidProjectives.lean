@@ -195,7 +195,8 @@ theorem fundamentalBraidSourceResolution :
     · rintro ⟨y,rfl⟩
       exact ⟨tEquiv y,(d₁_comm y).symm⟩
 
-private theorem diagonalMixed_val (s : Seq μ) (hs : redWord s = List.finRange 2)
+/-- The value of an ordered mixed-crossing diagram in the source braid corner. -/
+theorem diagonalMixed_val (s : Seq μ) (hs : redWord s = List.finRange 2)
     (ht : redWord (sadj (Multiset.card μ) 1 • s) = List.finRange 2) :
     (diagonalDiagram (ψ 1 * e s)).val = braidProject (ψ 1) * braidProject (e s) := by
   rw [← map_mul]

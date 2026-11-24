@@ -1096,6 +1096,7 @@ import Categorification.WeightedKLR.RedStrands.BraidingWeightDecomposition
 import Categorification.WeightedKLR.RedStrands.RedPermutationGrading
 import Categorification.WeightedKLR.RedStrands.NormalizedBraidMultiplication
 import Categorification.WeightedKLR.RedStrands.BraidFactorizationDegree
+import Categorification.WeightedKLR.RedStrands.BraidFactorizationCoend
 import Categorification.WeightedKLR.RedStrands.TwoRedSwapNormalization
 import Categorification.WeightedKLR.RedStrands.CrawleyBoevey
 import Categorification.WeightedKLR.RedStrands.CrawleyBoeveyIn

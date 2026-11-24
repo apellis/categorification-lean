@@ -6903,3 +6903,64 @@ example :=
 end
 
 end NonVacuity.WebsterLastRedPair
+
+namespace NonVacuity.WebsterEqualBlackHigherPair
+
+open Categorification.KLR Categorification.TypeA Categorification.Stendhal
+open BraidedStendhalAlgebra KLRAlgebra
+
+noncomputable section
+
+private abbrev ν : Multiset Unit := {()} + {()}
+private abbrev μ := stendhalWeight 3 ν
+private abbrev Q : Unit → Unit → MvPolynomial (Fin 2) ℚ := fun _ _ => 0
+private abbrev Λ : Fin 3 → Unit →₀ ℕ := fun _ => Finsupp.single () 2
+private def s : Seq μ := Seq.ofList [.inr 0, .inr 1, .inr 2, .inl (), .inl ()] (by decide)
+private def t : Seq μ := sadj μ.card 2 • s
+private def u : Seq μ := sadj μ.card 3 • t
+private abbrev A := KLRAlgebra ℚ (stendhalQ Q Λ) μ
+private abbrev P := (violMk ℚ Q Λ ν).comp (ofKLR ℚ Q Λ ν)
+
+private theorem blacks (a : Fin μ.card) (h : (s.lbl a).isLeft) :
+    a = ⟨3,by decide⟩ ∨ a = ⟨4,by decide⟩ := by
+  fin_cases a <;> first | decide | contradiction
+
+private theorem compose_at_cut (left right : List ℕ) :
+    (ψw left * e (wordProd μ.card right • s) : A) * (ψw right * e s) =
+      ψw (left ++ right) * e s := by
+  have he : (e (wordProd μ.card right • s) : A) * (ψw right * e s) = ψw right * e s := by
+    rw [← mul_assoc,e_mul_ψw,inv_smul_smul,mul_assoc,e_mul_self]
+  rw [mul_assoc,he,ψw_append,mul_assoc]
+
+/-- Check a supported pair with a common-joint contribution, at positive red
+weights and with an exterior red spectator before the pair. -/
+example (g : ViolQuotient ℚ Q Λ ν) :=
+  let w := P (e s) * g * P (e u)
+  let x := w * P (ψw [2,3]*e t)
+  let y := w * P (ψw [3]*e t)
+  have cut (l : List ℕ) :
+      P (e s)*(w*P (ψw l*e t))*P (e t)=w*P (ψw l*e t) := by
+    have top : P (e s)*w=w := by
+      simp only [w,← mul_assoc,← map_mul,e_mul_self]
+    have right : P (ψw l*e t)*P (e t)=P (ψw l*e t) := by
+      simp only [← map_mul,mul_assoc,e_mul_self]
+    rw [← mul_assoc (P (e s)) w,top,mul_assoc,right]
+  have legs : (ψw [2,3]*e t : A)*(ψw [2]*e s)=(ψw [3]*e t)*(ψw [2,3]*e s) := by
+    have h₁ : wordProd μ.card [2] • s=t := by simp only [t,wordProd_singleton]
+    have h₂ : wordProd μ.card [2,3] • s=t := by decide
+    rw [← h₁,compose_at_cut, h₁,← h₂,compose_at_cut]
+    have h := braid (Q := stendhalQ Q Λ) 2 (by decide) s
+    have ne : s.lbl ⟨2,by decide⟩ ≠ s.lbl ⟨4,by decide⟩ := by decide
+    rw [ite_eq_right (fun h => ne h.1),sub_mul,sub_eq_zero] at h
+    simpa only [List.cons_append,List.nil_append,ψw_cons,ψw_nil,mul_one,mul_assoc] using h
+  have rel : y*P (ψw [2,3]*e s)-x*P (ψw [2]*e s) ∈
+      blockUpperIdeal ℚ Q Λ ν 1 2 (adjacentBlockRoot 1 2 s) (redWord s) := by
+    rw [show y*P (ψw [2,3]*e s)=x*P (ψw [2]*e s) by
+      simp only [x,y,mul_assoc,← map_mul,legs],sub_self]
+    exact TwoSidedIdeal.zero_mem _
+  exists_equalBlack_rightPair_markedCycle Q Λ (fun _ _ _ => rfl)
+    s 2 (by decide) 1 2 () [0] (by decide) rfl rfl rfl blacks x y (cut _) (cut _) rel
+
+end
+
+end NonVacuity.WebsterEqualBlackHigherPair

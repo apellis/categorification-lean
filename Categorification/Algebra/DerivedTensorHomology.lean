@@ -2,6 +2,7 @@
 Copyright (c) 2026 Alex Ellis. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 -/
+import Categorification.Algebra.DerivedTensorCoefficient
 import Categorification.Algebra.BalancedTensor
 import Categorification.Algebra.DerivedTensorDegreeZero
 import DG.Derived.ConnectiveResolution
@@ -200,6 +201,49 @@ theorem derivedTensorHomologyIsoOrdinaryLinear_naturality
   have : IsIso aX := by dsimp [aX]; infer_instance
   rw [← cancel_epi aX, ← Category.assoc, ← ha', Category.assoc, hY,
     ← Category.assoc, hb, Category.assoc, hTa', ← Category.assoc, ← hX, Category.assoc]
+
+set_option backward.isDefEq.respectTransparency false in
+/-- The degree-zero derived comparison is natural in the bimodule coefficient. -/
+theorem derivedTensorHomologyIsoOrdinaryLinear_coefficient_naturality
+    {M' : Type u} [AddCommGroup M'] [Module A M'] [Module Bᵐᵒᵖ M']
+    [SMulCommClass A Bᵐᵒᵖ M']
+    (f : M →ₗ[A] M') (hf : ∀ (b : B) (m : M), f (MulOpposite.op b • m) = MulOpposite.op b • f m)
+    (X : Type u) [AddCommGroup X] [Module B X] :
+    (HR (R := R)).map ((derivedTensorCoefficientMap f hf).app (Q.obj (DGModuleCat.of B (InDegreeZero X)))) ≫
+      (derivedTensorHomologyIsoOrdinaryLinear (R := R) (A := A) (B := B) (M := M') X).hom =
+    (derivedTensorHomologyIsoOrdinaryLinear (R := R) (A := A) (B := B) (M := M) X).hom ≫
+      (HR (R := R)).map (Q.map ((ordinaryTensorCoefficientMap f hf).app (DGModuleCat.of B (InDegreeZero X)))) := by
+  let H := HR (A := A) (R := R)
+  let S := DGModuleCat.of B (InDegreeZero X)
+  let P := model (B := B) X
+  let p : P ⟶ S := aug (B := B) X
+  let Φ := derivedTensorCoefficientMap f hf
+  let ψ := ordinaryTensorCoefficientMap f hf
+  let a := H.map ((F (M := M)).map (Q.map p))
+  let a' := H.map ((F (M := M')).map (Q.map p))
+  let b := H.map (derivedTensorObjIso (A := A) (M := M) (model_kproj (B := B) X)).hom
+  let b' := H.map (derivedTensorObjIso (A := A) (M := M') (model_kproj (B := B) X)).hom
+  let c := H.map (Q.map ((T (A := A) (M := M)).map p))
+  let c' := H.map (Q.map ((T (A := A) (M := M')).map p))
+  let e := (derivedTensorHomologyIsoOrdinaryLinear (R := R) (A := A) (B := B) (M := M) X).hom
+  let e' := (derivedTensorHomologyIsoOrdinaryLinear (R := R) (A := A) (B := B) (M := M') X).hom
+  have he : a ≫ e = b ≫ c := by
+    simp [a,b,c,e,H,p,derivedTensorHomologyIsoOrdinaryLinear]
+  have he' : a' ≫ e' = b' ≫ c' := by
+    simp [a',b',c',e',H,p,derivedTensorHomologyIsoOrdinaryLinear]
+  have h₁ : a ≫ H.map (Φ.app (Q.obj S)) = H.map (Φ.app (Q.obj P)) ≫ a' := by
+    simpa only [Φ,a,a',Functor.map_comp] using congrArg H.map (Φ.naturality (Q.map p))
+  have h₂ : H.map (Φ.app (Q.obj P)) ≫ b' = b ≫ H.map (Q.map (ψ.app P)) := by
+    simpa only [Φ,ψ,b,b',Functor.map_comp] using congrArg H.map
+      (derivedTensorObjIso_coefficient_naturality f hf (model_kproj (B := B) X))
+  have h₃ : c ≫ H.map (Q.map (ψ.app S)) = H.map (Q.map (ψ.app P)) ≫ c' := by
+    simpa only [ψ,c,c',Functor.map_comp] using
+      congrArg (fun a => H.map (Q.map a)) (ψ.naturality p)
+  have : IsIso a := by dsimp [a,p,H]; infer_instance
+  change H.map (Φ.app (Q.obj S)) ≫ e' = e ≫ H.map (Q.map (ψ.app S))
+  rw [← cancel_epi a, ← Category.assoc, h₁, Category.assoc, he',
+    ← Category.assoc, h₂, Category.assoc, ← h₃, ← Category.assoc, ← he, Category.assoc]
+
 
 end ScalarLinear
 

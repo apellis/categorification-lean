@@ -8943,6 +8943,29 @@ example := blockPartialStandard_braid_homology_negOne_vanish Q Λ
 
 end NonVacuity.WebsterBlockKernelDerivedNegOne
 
+namespace NonVacuity.WebsterFirstPairAllTopsDerivedNegOne
+
+open Categorification.KLR Categorification.Stendhal Categorification.QuantumGroup
+open BraidedStendhalAlgebra KL3.Diagram DG
+open scoped DG.DegreeZero
+
+attribute [local instance 1100] IsIdempotentElem.instAlgebraCorner_categorification
+attribute [local instance 1200] Ring.toIntAlgebra
+
+private abbrev C := CartanDatum.ofGraph (⊥ : SimpleGraph Unit)
+private abbrev Q := CL.qCL (CL.CLScalars.kl : CL.CLScalars C ℚ)
+private abbrev Λ : Fin 3 → Unit →₀ ℕ := fun r => Finsupp.single () (r.val + 1)
+private abbrev ν : Multiset Unit := {()} + {()}
+
+local instance (order : List (Fin 3)) : HasDerivedCategory.{0, 0}
+    (isIdempotentElem_violMk_redProj ℚ Q Λ ν order).Cornerᵐᵒᵖ :=
+  HasDerivedCategory.small _
+
+example := firstPair_partialStandard_braid_homology_negOne_allTops_standard
+  (k := ℚ) C Λ firstPairTwoAfterSpectator (by decide)
+
+end NonVacuity.WebsterFirstPairAllTopsDerivedNegOne
+
 end
 
 namespace NonVacuity.WebsterFiveSlotBoundedSpectator
@@ -9008,6 +9031,40 @@ example := firstPairTwoAfter_equiv_nilHeckeRangeProd Q Λ
 example := firstPairTwoAfter_nilHecke_range_iff Q Λ (fun _ _ _ => rfl)
 
 end NonVacuity.WebsterFirstPairTwoAfter
+
+
+noncomputable section
+
+namespace NonVacuity.WebsterFirstPairZeroSpectator
+
+open Categorification.KLR Categorification.Stendhal BraidedStendhalAlgebra MvPolynomial DG
+open scoped DG.DegreeZero
+
+attribute [local instance 1100] IsIdempotentElem.instAlgebraCorner_categorification
+attribute [local instance 1200] Ring.toIntAlgebra
+
+private def params : Fin 2 → Fin 2 → MvPolynomial (Fin 2) (ZMod 4) := fun _ _ => 0
+private def weights : Fin 3 → Fin 2 →₀ ℕ := fun r =>
+  if r = 2 then 0 else Finsupp.single 0 2 + Finsupp.single 1 2
+private abbrev ν : Multiset (Fin 2) := {0} + {1} + {0}
+private def after : Categorification.KLR.Seq (stendhalWeight 3 ν) :=
+  ⟨![.inr 0, .inr 1, .inr 2, .inl 0, .inl 1, .inl 0], by decide⟩
+private def terminal : Categorification.KLR.Seq (stendhalWeight 3 ν) :=
+  ⟨![.inr 0, .inr 1, .inl 0, .inl 1, .inl 0, .inr 2], by decide⟩
+
+local instance (order : List (Fin 3)) : HasDerivedCategory.{0,0}
+    (isIdempotentElem_violMk_redProj (ZMod 4) params weights ν order).Cornerᵐᵒᵖ :=
+  HasDerivedCategory.small _
+
+example := firstPair_zeroSpectator_partialStandard_braid_homology_vanish
+  params weights after [1,0,2] (by decide) (by intro i; simp [weights]) (-1) (by decide)
+
+example := firstPair_zeroSpectator_partialStandard_braid_homology_vanish
+  params weights terminal [2,0,1] (by decide) (by intro i; simp [weights]) (-2) (by decide)
+
+end NonVacuity.WebsterFirstPairZeroSpectator
+
+end
 
 namespace NonVacuity.WebsterFirstPairRightmostZero
 
@@ -9302,6 +9359,9 @@ example :
 example := finrank_vacuum_braidColumn_eq_standard params weights
   (fun _ _ _ => rfl) exchanged ordered
 
+example :=
+  vacuumBraidColumn_hasStandardFiltration params weights (fun _ _ _ => rfl) exchanged ordered
+
 end NonVacuity.WebsterVacuumBraidColumn
 
 namespace NonVacuity.WebsterBraidColumnPBW
@@ -9586,6 +9646,47 @@ example : redWord ((braidColumnBottomBlockIndex sizes sizes_card swapReds phi)�
 example := braidColumnBottomBlockIndex_lt_red_black top sizes sizes_card swapReds
   phi_eligible bottom_labels (2 : Fin 3) ⟨1, by decide⟩ (by decide) (i := ()) (by decide)
 
+
+private theorem wiring_mono :
+    ∀ r : Fin 3, StrictMono (fun a : Fin (sizes (swapReds r) + 1) =>
+      sadj m 1 (braidBlockPositions (sizes ∘ swapReds)
+        ((Equiv.sum_comp swapReds fun r => sizes r + 1).trans sizes_card) ⟨r,a⟩)) := by
+  intro r
+  fin_cases r <;> unfold StrictMono <;> decide
+
+example :=
+  exists_projectiveIndex_of_bottomBlock_strictMono top bottom
+    ((redWord_eq_finRange_iff top).1 (by decide)) ((redWord_eq_finRange_iff bottom).1 (by decide))
+    sizes sizes_card swapReds (by simpa only [bottom_eq] using bottom_labels)
+    (sadj m 1) (by
+      apply Subtype.ext
+      funext a
+      fin_cases a <;> rfl) wiring_mono
+
+private theorem wiring_adjacent_ascents (j : ℕ) (hj : j + 1 < m) :
+    ((braidBlockPermutation sizes sizes_card swapReds • bottom).lbl ⟨j+1,hj⟩).isLeft →
+      sadj m 1 ⟨j,by omega⟩ < sadj m 1 ⟨j+1,hj⟩ := by
+  have h : j ≤ 2 := by rw [← four_eq_card] at hj; omega
+  interval_cases j
+  · intro h
+    change false = true at h
+    cases h
+  · intro h
+    change false = true at h
+    cases h
+  · intro _
+    change 1 < 3
+    decide
+
+example :=
+  exists_projectiveIndex_of_bottomBlock_adjacent_ascents top bottom
+    ((redWord_eq_finRange_iff top).1 (by decide)) ((redWord_eq_finRange_iff bottom).1 (by decide))
+    sizes sizes_card swapReds (by simpa only [bottom_eq] using bottom_labels)
+    (sadj m 1) (by
+      apply Subtype.ext
+      funext a
+      fin_cases a <;> rfl) wiring_adjacent_ascents
+
 end NonVacuity.WebsterBottomBraidIndex
 
 namespace NonVacuity.WebsterFundamentalBraidWeight
@@ -9636,6 +9737,39 @@ noncomputable example : (fundamentalBraidWeightComplex realization (3 / 2)).homo
 end
 end NonVacuity.WebsterFundamentalBraidWeight
 
+namespace NonVacuity.WebsterBottomBraidBlackAscents
+open Categorification Categorification.KLR Categorification.Stendhal Equiv TypeA
+open scoped BigOperators
+
+private abbrev content : Multiset Bool := {false, true}
+private abbrev weight := stendhalWeight 3 content
+private abbrev m := Multiset.card weight
+private def top : Seq weight :=
+  KLRAlgebra.Seq.ofList [.inr 0, .inr 1, .inr 2, .inl false, .inl true] (by decide)
+private def sizes (r : Fin 3) : ℕ := if r = 2 then 2 else 0
+private theorem sizes_card : (∑ r, (sizes r + 1)) = m := by decide
+private def swapReds : Perm (Fin 3) := Equiv.swap 1 2
+private theorem first_positions (r : Fin 3) :
+    ((1 : Perm (Fin m))⁻¹ • top).lbl (braidBlockPositions sizes sizes_card ⟨r, 0⟩) = .inr r := by
+  simp only [inv_one, one_smul]
+  fin_cases r <;> decide
+private theorem identity_eligible : ProjectiveBlockIndex top (1 : Perm (Fin m)) := by
+  constructor
+  · simp only [inv_one, one_smul]
+    exact (redWord_eq_finRange_iff top).1 (by decide)
+  · simp only [inv_one, one_smul, Perm.one_apply]
+    intros
+    assumption
+  · simp only [inv_one, one_smul, Perm.one_apply]
+    intros
+    assumption
+
+example := braidColumnBottomBlockIndex_adjacent_black_ascent top sizes sizes_card swapReds
+  identity_eligible first_positions (j := 2) (by decide) (i := false) (i' := true)
+  (by decide) (by decide)
+
+end NonVacuity.WebsterBottomBraidBlackAscents
+
 namespace NonVacuity.WebsterFundamentalBraidHomology
 open CategoryTheory Categorification.Stendhal.FundamentalCorner
 
@@ -9646,6 +9780,21 @@ example : Function.Injective fundamentalBraidCutComplex.f ∧ Function.Surjectiv
   fundamentalBraidCutComplex_ends
 
 end NonVacuity.WebsterFundamentalBraidHomology
+
+namespace NonVacuity.WebsterBottomBraidReconstruction
+open Categorification Categorification.KLR Categorification.Stendhal Equiv
+private abbrev content : Multiset Unit := {()}
+private abbrev weight := stendhalWeight 3 content
+private def reordered : Seq weight :=
+  KLRAlgebra.Seq.ofList [.inr 0, .inr 2, .inr 1, .inl ()] (by decide)
+private def exchange : Perm (Fin 3) := Equiv.swap 1 2
+private theorem nonviolated : ¬ IsViolated reordered := by
+  rintro ⟨_,h⟩
+  change false = true at h
+  cases h
+example := exists_braidBottomBlockReconstruction reordered exchange (by decide) nonviolated
+
+end NonVacuity.WebsterBottomBraidReconstruction
 
 namespace NonVacuity.WebsterFundamentalBraidTensorHomology
 open CategoryTheory Categorification.Stendhal.FundamentalCorner
@@ -11251,6 +11400,21 @@ example : CatModule.IsKProjective
   orderedWeightDgResolution_isKProjective data false eGrade eIdem aboveTrans
     rankOneStandardGrade quotientGrade
 
+private abbrev orderedCoefficientRep :=
+  CatModule.representable (DGOpposite.op (⟨0⟩ : WeightCategory ℚ))
+
+private abbrev orderedAcyclicCoefficient := CatModule.cone (𝟙 orderedCoefficientRep)
+
+private theorem orderedAcyclicCoefficient_acyclic : CatModule.IsAcyclic orderedAcyclicCoefficient :=
+  (CatModule.isQuasiIso_iff_isAcyclic_cone (𝟙 orderedCoefficientRep)).mp
+    (CatModule.isQuasiIso_id orderedCoefficientRep)
+
+example : DG.IsAcyclic (CatTensorProduct orderedAcyclicCoefficient
+    (orderedWeightDgResolution data false eGrade eIdem aboveTrans rankOneStandardGrade quotientGrade)) :=
+  orderedWeightDgResolution_tensor_acyclic data false eGrade eIdem aboveTrans
+    rankOneStandardGrade quotientGrade orderedAcyclicCoefficient orderedAcyclicCoefficient_acyclic
+    (fun f => WeightCategory.mem_grading_iff.mpr (mem_degreeZeroGrading_zero ℚ f.val))
+
 local instance instOrderedDerivedRationalWeight :
     CatModule.HasDerivedCategory.{1,0} (WeightCategory ℚ) :=
   CatModule.HasDerivedCategory.standard _
@@ -11528,6 +11692,8 @@ example := outgoingExteriorAmbientHomology_zero ℚ
 
 example := outgoingExteriorAmbientHomology_isZero ℚ (-1) (by decide)
 
+example := incomingExteriorAmbientHomology_zero ℚ
+
 example := incomingExteriorAmbientHomology_isZero ℚ (-1) (by decide)
 
 example := labelTwo_incomingLift_return (parameter ℚ)
@@ -11535,6 +11701,7 @@ example := labelTwo_incomingLift_return (parameter ℚ)
 example := incomingLift_middle_fixed_iff ℚ
 
 example := incomingLiftTensorReadout_dotSum_generator ℚ
+example := incomingLiftTensorEquiv ℚ
 
 example := incomingLiftTensorMap_nonzero ℚ
 
@@ -11571,9 +11738,27 @@ example : derivedTensor ℚ ℚ ℚ ⟶ derivedTensor ℚ ℚ ℚ :=
 
 example := ordinaryTensorCoefficientMap_tmul twice twice_op
 
+example := derivedTensorHomologyIsoOrdinaryLinear_coefficient_naturality
+  (R := ℚ) twice twice_op ℚ
+
+example := ambientH0CoefficientMap_tmul twice twice_op (2 : ℚ) (3 : ℚ)
+
 example : NatTrans.CommShift (derivedTensorCoefficientMap twice twice_op) ℤ :=
   inferInstance
 
 end
 
 end WebsterDerivedTensorCoefficientFixture
+
+namespace NonVacuity.ReflectedVectorDual
+
+open Categorification MulOpposite
+
+noncomputable section
+
+private def reflection : Polynomial ℚ →ₐ[ℚ] (Polynomial ℚ)ᵐᵒᵖ := (AlgEquiv.toOpposite ℚ (Polynomial ℚ)).toAlgHom
+
+example := VectorDualRight.reflectedTwistDualEquiv (M := Polynomial ℚ) reflection (fun _ => rfl)
+
+end
+end NonVacuity.ReflectedVectorDual

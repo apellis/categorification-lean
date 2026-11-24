@@ -3,6 +3,7 @@ Copyright (c) 2026 Alex Ellis. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 -/
 import Categorification.Algebra.DiagramWeightComplex
+import DG.Category.Tensor.GradedFiltration
 import DG.Category.SubQuotient
 import Mathlib.Algebra.Homology.Single
 import DG.Category.Resolution.SemiFree
@@ -426,5 +427,145 @@ theorem diagramWeightModuleOfComplex_isKProjective
     (diagramWeightComplexTruncation_exhaustive F) (diagramWeightComplexTruncation_initial_kProjective F hzero)
     (fun n => weightComplexPiece F (cut (n+1))) proj (fun n => (split n).some)
     (fun n => by rw [hb n]; exact hterm n)
+
+private def cutProjection (b : ℤ) (X : WeightCategory R) :
+    ComplexSum (F.obj X) →+ ComplexSum (F.obj X) :=
+  DirectSum.toAddMonoid fun n =>
+    if b ≤ n then (ComplexSum.of (F.obj X) n).toAddMonoidHom else 0
+
+omit [F.Additive] in
+private theorem cutProjection_of (b : ℤ) (X : WeightCategory R) (n : ℤ) (x : (F.obj X).X n) :
+    cutProjection F b X (ComplexSum.of (F.obj X) n x) =
+      if b ≤ n then ComplexSum.of (F.obj X) n x else 0 := by
+  classical
+  change (DirectSum.toAddMonoid (β := fun n => (F.obj X).X n) (fun n =>
+    if b ≤ n then (ComplexSum.of (F.obj X) n).toAddMonoidHom else 0))
+      (DirectSum.of (fun n => (F.obj X).X n) n x) = _
+  rw [DirectSum.toAddMonoid_of]
+  split <;> rfl
+
+omit [F.Additive] in
+private theorem cutProjection_component (b : ℤ) (X : WeightCategory R) (n : ℤ)
+    (x : ComplexSum (F.obj X)) :
+    ComplexSum.component (F.obj X) n (cutProjection F b X x) =
+      if b ≤ n then ComplexSum.component (F.obj X) n x else 0 := by
+  induction x using ComplexSum.induction_on with
+  | zero => simp
+  | of j y =>
+    rw [cutProjection_of]
+    by_cases h : j = n
+    · subst j
+      split <;> simp
+    · rw [ComplexSum.component_of_ne h]
+      split <;> simp [ComplexSum.component_of_ne h]
+  | add x y hx hy =>
+    rw [map_add (cutProjection F b X), map_add, hx, hy, map_add]
+    split <;> simp
+
+/-- Keeping the coordinates above the cut gives a graded retraction of the truncation. -/
+def diagramWeightComplexTruncationRetraction (b : ℤ) :
+    CatModule.Cochain (diagramWeightModuleOfComplex F)
+      (diagramWeightComplexTruncation F b).toCatModule 0 where
+  app X := (cutProjection F b X).codRestrict ((diagramWeightComplexTruncation F b).carrier X)
+    (fun x n hn => by rw [cutProjection_component, ite_eq_right (by omega)])
+  map_mem' {X n x} hx := by
+    change (x : ComplexSum (F.obj X)) ∈ DG.grading n at hx
+    change cutProjection F b X x ∈ DG.grading (n + 0)
+    obtain ⟨y, rfl⟩ := ComplexSum.mem_grading_iff.mp hx
+    rw [add_zero, cutProjection_of]
+    split
+    · exact ComplexSum.of_mem_grading n y
+    · exact zero_mem _
+  map_smul' {X Y n f} _ x := by
+    rw [zero_mul, koszulSign_zero, one_smul]
+    apply Subtype.ext
+    change cutProjection F b Y (ComplexSum.map (F.map f) x) =
+      ComplexSum.map (F.map f) (cutProjection F b X x)
+    induction x using ComplexSum.induction_on with
+    | zero => simp
+    | of i y =>
+      rw [ComplexSum.map_of, cutProjection_of, cutProjection_of]
+      split
+      · exact (ComplexSum.map_of (F.map f) i y).symm
+      · exact (map_zero _).symm
+    | add x y hx hy => simp only [map_add, hx, hy]
+
+/-- The graded projection fixes every element supported above the cut. -/
+theorem diagramWeightComplexTruncationRetraction_subtype (b : ℤ) (X : WeightCategory R)
+    (x : (diagramWeightComplexTruncation F b).toCatModule.obj X) :
+    (diagramWeightComplexTruncationRetraction F b).app X
+      ((diagramWeightComplexTruncation F b).subtype.app X x) = x := by
+  apply Subtype.ext
+  let z : (diagramWeightComplexTruncation F b).carrier X := x
+  let a : ComplexSum (F.obj X) := z.val
+  change cutProjection F b X a = a
+  apply complexComponent_ext
+  intro n
+  rw [cutProjection_component F b X n a]
+  split
+  · rfl
+  · exact (z.property n (by omega)).symm
+
+/-- Tensoring a bounded-above weight complex with the fixed coefficient gives an
+acyclic coend when the coend of each of its single-degree pieces is acyclic. -/
+theorem diagramWeightModuleOfComplex_tensor_acyclic
+    (N : CatModule (DGOpposite (WeightCategory R)))
+    (hdeg : ∀ {X Y : WeightCategory R} (f : X ⟶ Y), f ∈ DG.grading (0 : ℤ))
+    (hzero : ∀ X (n : ℤ), 0 < n → Limits.IsZero ((F.obj X).X n))
+    (hterm : ∀ n : ℕ, DG.IsAcyclic
+      (CatTensorProduct N (weightComplexPiece F (-(n : ℤ))))) :
+    DG.IsAcyclic (CatTensorProduct N (diagramWeightModuleOfComplex F)) := by
+  let cut (n : ℕ) : ℤ := 1 - (n : ℤ)
+  let trunc (n : ℕ) := diagramWeightComplexTruncation F (cut n)
+  let stages (n : ℕ) := (trunc n).toCatModule
+  have hsteps (m n : ℕ) (hmn : m ≤ n) (X : WeightCategory R) :
+      (trunc m).carrier X ≤ (trunc n).carrier X := by
+    intro x hx j hj
+    exact hx j (by change j < cut n at hj; dsimp [cut] at *; omega)
+  have hstages (n : ℕ) : DG.IsAcyclic (CatTensorProduct N (stages n)) := by
+    induction n with
+    | zero =>
+      have hobj (X : WeightCategory R) (x : (stages 0).obj X) : x = 0 := by
+        apply Subtype.ext
+        apply complexComponent_ext
+        intro j
+        change ComplexSum.component (F.obj X) j x.val = 0
+        by_cases hj : 0 < j
+        · let _ := ModuleCat.isZero_iff_subsingleton.mp (hzero X j hj)
+          exact Subsingleton.elim _ _
+        · exact x.property j (by dsimp [cut]; omega)
+      refine DG.isAcyclic_iff.mpr fun j z hz _ => ⟨0, zero_mem _, ?_⟩
+      have hzer (x : CatTensorProduct N (stages 0)) : x = 0 := by
+        induction x using CatTensorProduct.induction_on with
+        | zero => rfl
+        | tmul X a b => rw [hobj X b, CatTensorProduct.tmul_zero]
+        | add a b ha hb => rw [ha, hb, add_zero]
+      rw [hzer z, d_zero]
+    | succ n ih =>
+      have hc : cut n = cut (n+1) + 1 := by dsimp [cut]; omega
+      have hb : cut (n+1) = -(n : ℤ) := by dsimp [cut]; omega
+      obtain ⟨p, ⟨split⟩⟩ := truncationSplitting_exists F (cut (n+1)) (cut n) hc
+        (hsteps n (n+1) (Nat.le_succ _))
+      let i := CatSubmodule.inclusion (hsteps n (n+1) (Nat.le_succ _))
+      let I := CatTensorProduct.map (𝟙 N) i
+      let P := CatTensorProduct.map (𝟙 N) p
+      obtain ⟨hi, hex, hp⟩ := CatTensorProduct.exact_of_graded_split N hdeg i p
+        split.r split.s (fun _ => split.r_i) (fun _ => split.p_s) (fun _ => split.p_i)
+        (fun _ => split.i_r_add_s_p)
+      have hq : DG.IsAcyclic (CatTensorProduct N (weightComplexPiece F (cut (n+1)))) := by
+        rw [hb]
+        exact hterm n
+      exact isAcyclic_of_shortExact_addHom I P
+        (fun h => CatTensorProduct.map_mem _ _ h) (fun h => CatTensorProduct.map_mem _ _ h)
+        (CatTensorProduct.map_d _ _) (CatTensorProduct.map_d _ _) hi hex hp ih hq
+  exact CatTensorProduct.isAcyclic_of_graded_split_union N hdeg stages (fun n => (trunc n).subtype)
+    (fun n => diagramWeightComplexTruncationRetraction F (cut n))
+    (fun n => diagramWeightComplexTruncationRetraction_subtype F (cut n))
+    (fun m n h => CatSubmodule.inclusion (hsteps m n h))
+    (fun _ _ _ => CatModule.hom_ext fun _ _ => rfl)
+    (fun X x => by
+      obtain ⟨n, hx⟩ := diagramWeightComplexTruncation_exhaustive F X x
+      exact ⟨n, ⟨x, hx⟩, rfl⟩)
+    hstages
 
 end Categorification

@@ -5,6 +5,8 @@ Released under Apache 2.0 license as described in the file LICENSE.
 import Categorification.Algebra.OrderedWeightDGResolution
 import Categorification.Algebra.GradedLoadingPieceComparison
 
+import DG.Category.Tensor.ShiftedCorner
+
 /-!
 # K-projectivity of the actual ordered loading resolution
 
@@ -161,5 +163,55 @@ theorem orderedWeightDgResolution_isKProjective :
         (orderedWeightDgPositivePieceIso data s he₀ he htrans T hq n)
       exact (CatModule.IsKProjective.directSum fun t =>
         CatModule.isKProjective_corner (positiveProjector data s he₀ he htrans T hq n t)).shift _
+
+
+section TensorAcyclic
+private theorem initialPiece_tensor_acyclic
+    (N : CatModule.{0} (DGOpposite W)) (hN : CatModule.IsAcyclic N)
+    (hdeg : ∀ {X Y : W} (f : X ⟶ Y), f ∈ DG.grading (0 : ℤ)) :
+    DG.IsAcyclic (CatTensorProduct N
+      (weightComplexPiece (orderedCochain data s he₀ he htrans T hq) 0)) := by
+  let X₀ : W := ⟨0⟩
+  let e₀ : DGCategory.Idempotent X₀ := loadingWeightIdempotent (e s) (he₀ s) (he s) X₀
+  let K : CatModule.{0} W := CatModule.corner e₀
+  have h : DG.IsAcyclic (CatTensorProduct N K) :=
+    CatTensorProduct.isAcyclic_corner (C := W) (N := N) (X := X₀) hN e₀
+  let E := orderedWeightDgInitialPieceIso data s he₀ he htrans T hq
+  exact CatTensorProduct.acyclic_of_DGAddEquiv (CatTensorProduct.congr (Iso.refl N) E)
+    (CatTensorProduct.isAcyclic_shift_right (C := W) N K 0 hdeg h)
+
+private theorem positivePiece_tensor_acyclic
+    (N : CatModule.{0} (DGOpposite W)) (hN : CatModule.IsAcyclic N)
+    (hdeg : ∀ {X Y : W} (f : X ⟶ Y), f ∈ DG.grading (0 : ℤ)) (n : ℕ) :
+    DG.IsAcyclic (CatTensorProduct N
+      (weightComplexPiece (orderedCochain data s he₀ he htrans T hq) (-((n+1 : ℕ) : ℤ)))) := by
+  let K : CatModule.{0} W := positiveCorners data s he₀ he htrans T hq n
+  let P := positiveProjector data s he₀ he htrans T hq n
+  let F := fun t => CatModule.corner (P t)
+  have hF (t : positiveGenerators data s he₀ he htrans T hq n) :
+      DG.IsAcyclic (CatTensorProduct N (F t)) :=
+    CatTensorProduct.isAcyclic_corner (C := W) (N := N) hN (P t)
+  have h : DG.IsAcyclic (CatTensorProduct N K) := CatTensorProduct.isAcyclic_directSum N F hF
+  let E := orderedWeightDgPositivePieceIso data s he₀ he htrans T hq n
+  exact CatTensorProduct.acyclic_of_DGAddEquiv (CatTensorProduct.congr (Iso.refl N) E)
+    (CatTensorProduct.isAcyclic_shift_right (C := W) N K (n+1 : ℕ) hdeg h)
+
+/-- The ordered projective weight model preserves acyclicity in the right coefficient. -/
+theorem orderedWeightDgResolution_tensor_acyclic
+    (N : CatModule.{0} (DGOpposite W)) (hN : CatModule.IsAcyclic N)
+    (hdeg : ∀ {X Y : W} (f : X ⟶ Y), f ∈ DG.grading (0 : ℤ)) :
+    DG.IsAcyclic (CatTensorProduct N (orderedWeightDgResolution data s he₀ he htrans T hq)) := by
+  let F := orderedCochain data s he₀ he htrans T hq
+  change DG.IsAcyclic (CatTensorProduct N (diagramWeightModuleOfComplex F))
+  apply diagramWeightModuleOfComplex_tensor_acyclic F N hdeg
+  · exact weightCochainOfGradedChain_positive_isZero
+      (orderedWeightTerms data s he₀ he htrans T hq) (orderedWeightDifferentials data s he₀ he htrans T hq)
+      (orderedWeightDifferentials_mem data s he₀ he htrans T hq) (orderedWeightDifferentials_comp data s he₀ he htrans T hq)
+  · intro n
+    cases n with
+    | zero => exact initialPiece_tensor_acyclic data s he₀ he htrans T hq N hN hdeg
+    | succ n => exact positivePiece_tensor_acyclic data s he₀ he htrans T hq N hN hdeg n
+
+end TensorAcyclic
 
 end Categorification.ModuleFiltration

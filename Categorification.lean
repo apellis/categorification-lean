@@ -1649,6 +1649,7 @@ import Categorification.WeightedKLR.RedStrands.BlockCrossingComparison
 import Categorification.WeightedKLR.RedStrands.BlockLoadingPresentation
 import Categorification.WeightedKLR.RedStrands.BlockKernelColumn
 import Categorification.WeightedKLR.RedStrands.BlockKernelFiltration
+import Categorification.WeightedKLR.RedStrands.BlockKernelSingleLayer
 import Categorification.WeightedKLR.RedStrands.BraidedStandardGrading
 import Categorification.WeightedKLR.RedStrands.BraidedStandardInjective
 import Categorification.WeightedKLR.RedStrands.BraidedStandardIso

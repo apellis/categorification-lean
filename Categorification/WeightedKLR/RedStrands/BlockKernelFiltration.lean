@@ -116,24 +116,25 @@ theorem blockLoadingKernel_eq_span :
     rw [blockLoadingRep_val]
     exact TwoSidedIdeal.mul_mem_right J _ _ (TwoSidedIdeal.mul_mem_left J _ _ (TwoSidedIdeal.mul_mem_left J _ _ (hgen u hu hh)))
 
-/-- A higher loading projected to the same ordered corner as the source. -/
-private def higherLoadingIdempotent (u : Seq μ) (hu : redWord u = redWord t) : T :=
-  ⟨p u, (Subsemigroup.mem_corner_iff (ord (redWord t))).2
-    ⟨by rw [← map_mul, redProj_mul_e, ite_eq_left hu],
-     by rw [← map_mul, e_mul_redProj, ite_eq_left hu]⟩⟩
+/-- A loading idempotent placed in the corner of a chosen equal red word. -/
+def orderedLoadingIdemAt (κ : List (Fin ℓ)) (w : Seq (stendhalWeight ℓ ν)) (hw : redWord w = κ) :
+    IsIdempotentElem.Corner (isIdempotentElem_violMk_redProj k Q Λ ν κ) :=
+  ⟨p w, (Subsemigroup.mem_corner_iff (isIdempotentElem_violMk_redProj k Q Λ ν κ)).2
+    ⟨by rw [← map_mul, redProj_mul_e, ite_eq_left hw],
+     by rw [← map_mul, e_mul_redProj, ite_eq_left hw]⟩⟩
 
 /-- The higher loading idempotents for the retained block boundary order. -/
 def higherBlockLoadingIdempotents : Set Tᵐᵒᵖ :=
   {e | ∃ (u : Seq μ) (hu : redWord u = redWord t),
     adjacentBlockRoot a b t < adjacentBlockRoot a b u ∧
-      e = op (higherLoadingIdempotent Q Λ t u hu)}
+      e = op (orderedLoadingIdemAt Q Λ (redWord t) u hu)}
 
 theorem higherBlockLoadingIdempotents_idempotent
     (e : Tᵐᵒᵖ) (he : e ∈ higherBlockLoadingIdempotents Q Λ t a b) :
     IsIdempotentElem e := by
   obtain ⟨u, hu, hh, rfl⟩ := he
-  change op (higherLoadingIdempotent Q Λ t u hu * higherLoadingIdempotent Q Λ t u hu) =
-    op (higherLoadingIdempotent Q Λ t u hu)
+  change op (orderedLoadingIdemAt Q Λ (redWord t) u hu * orderedLoadingIdemAt Q Λ (redWord t) u hu) =
+    op (orderedLoadingIdemAt Q Λ (redWord t) u hu)
   congr 1
   apply Subtype.ext
   change p u * p u = p u
@@ -146,7 +147,7 @@ theorem blockLoadingKernel_eq_idempotentTrace :
       (ModuleCat.of Tᵐᵒᵖ P) := by
   rw [blockLoadingKernel_eq_span, ModuleFiltration.idempotentTrace]
   have cut (u : Seq μ) (hu : redWord u = redWord t) (z : V) :
-      op (higherLoadingIdempotent Q Λ t u hu) • blockLoadingRep Q Λ t z =
+      op (orderedLoadingIdemAt Q Λ (redWord t) u hu) • blockLoadingRep Q Λ t z =
         blockLoadingRep Q Λ t (z * p u) := by
     have hr : p u * E (redWord t) = p u := by
       rw [← map_mul, e_mul_redProj, ite_eq_left hu]

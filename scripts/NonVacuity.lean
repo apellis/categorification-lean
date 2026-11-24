@@ -6628,3 +6628,10 @@ example : HasFiltration labels [true]
     exact Submodule.subset_span ⟨1, rfl, x, (one_smul ℤ x).symm⟩
 
 end NonVacuity.WebsterKernelTrace
+
+/-- For two positive-weight reds and a zero-weight spectator, the loading kernel
+has one higher partial standard layer for the black before the spectator. -/
+example :=
+  Stendhal.BraidedStendhalAlgebra.ThreeRedOneBlack.kernel_hasHigherFiltration
+    (k := ℚ) (fun _ _ => 0)
+    (fun r => if r = 2 then 0 else Finsupp.single () 1) (by decide)

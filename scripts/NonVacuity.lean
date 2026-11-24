@@ -7607,6 +7607,10 @@ example :
 example : FiveSlotCentralRowReflection Q Λ :=
   fiveSlotCentral_rowReflection_of_smallSpectator Q Λ (fun _ _ _ => rfl) pairing
 
+/-- The quotient reflection criterion controls the balanced column itself. -/
+example := fiveSlotCentral_columnInclusion_of_rowReflection Q Λ (fun _ _ _ => rfl)
+  (fiveSlotCentral_rowReflection_of_smallSpectator Q Λ (fun _ _ _ => rfl) pairing)
+
 /-- On the fundamental spectator the complete marked presentation uses the
 verified two-row reflection, with its ordinary four-arm support. -/
 example := fiveSlotCentral_markedExitJoints_of_row_reflection Q Λ (fun _ _ _ => rfl)

@@ -1672,6 +1672,7 @@ import Categorification.WeightedKLR.RedStrands.BraidedIdentity
 import Categorification.WeightedKLR.RedStrands.BraidedRedOrder
 import Categorification.WeightedKLR.RedStrands.BraidedReflectedFiltration
 import Categorification.WeightedKLR.RedStrands.BraidedRelabel
+import Categorification.WeightedKLR.RedStrands.OffDiagonalParameters
 import Categorification.WeightedKLR.RedStrands.BraidedRelabelAppend
 import Categorification.WeightedKLR.RedStrands.BlockRightLegSweep
 import Categorification.WeightedKLR.RedStrands.AdjacentBlockTensor
@@ -1776,6 +1777,7 @@ import Categorification.WeightedKLR.Rigidity.FundamentalBraidSpan
 import Categorification.WeightedKLR.Rigidity.FundamentalMiddleDimensions
 import Categorification.Algebra.DiagramBigrading
 import Categorification.Algebra.DiagramWeightBimodule
+import Categorification.Algebra.DiagramWeightTensorShift
 import Categorification.Algebra.DiagramWeightScalarHom
 import Categorification.Algebra.DiagramWeightCorner
 import Categorification.Algebra.DiagramWeightCoend
@@ -1787,6 +1789,8 @@ import Categorification.WeightedKLR.Rigidity.GradedFundamentalCupCap
 import Categorification.WeightedKLR.Rigidity.GradedMiddleProjectives
 import Categorification.WeightedKLR.Rigidity.GradedMiddleComplex
 import Categorification.WeightedKLR.Rigidity.GradedMiddleTor
+import Categorification.WeightedKLR.Rigidity.GradedMiddleScalarRepresentables
+import Categorification.WeightedKLR.Rigidity.FundamentalClockwiseClass
 import Categorification.WeightedKLR.Rigidity.SingleBlackExtremal
 import Categorification.WeightedKLR.Rigidity.ExtremalNorm
 import Categorification.WeightedKLR.Rigidity.ExtremalWeightRank

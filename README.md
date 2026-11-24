@@ -1013,12 +1013,19 @@ A graded diagram coefficient gives a dg bimodule of the two weight categories
 (`diagramWeightBimodule`). Its derived tensor is computed on a K-projective
 representative of the input (`diagramWeightDerivedTensorObjIso`). K-projectivity
 of the left weight modules also gives the derived Hom
-(`diagramWeightDerivedHom`). A K-projective augmentation that remains a quasi-isomorphism after
+(`diagramWeightDerivedHom`). The Stendhal tensor product algebra depends only on the off-diagonal
+polynomials. For a single black colour this identifies arbitrary parameter
+choices (`tensorProductUnitParameterEquiv`). A K-projective augmentation that remains a quasi-isomorphism after
 tensoring computes the derived tensor by the original ordinary tensor
 (`diagramWeightDerivedTensorObjIsoOfResolution`). When the tensor target is isomorphic to a diagram
 weight module, it suffices to check the cohomology map in degree zero and
 vanishing in the other source degrees
-(`diagramWeightLeft_isQuasiIso_of_cohomology`). A balanced homogeneous multiplication of two
+(`diagramWeightLeft_isQuasiIso_of_cohomology`). The representable at a source weight is sent to
+that component of the coefficient
+(`diagramWeightDerivedTensorRepresentableIso`). The tensor functors on dg
+modules, the homotopy category and the derived category are additive. At the
+dg module level the tensor commutes with cohomological shifts naturally
+(`diagramWeightTensorShiftNatIso`). A balanced homogeneous multiplication of two
 coefficients induces their product from the intermediate weight-category
 tensor coend (`diagramWeightCoendProduct_tmul`). Compatibility with the outer
 action gives a map of dg modules (`diagramWeightCoendProductHom`).
@@ -1053,9 +1060,12 @@ actual multiplication adds normalized degrees
 (`braidingCoefficientMul_mem_weight`). The inversion condition in Lemma 6.5
 implies additivity (`redWordOffset_add_of_sublist`), and its balanced
 multiplication identifies the quotient corner coefficient
-(`violCornerTensorMulEquiv_tmul`). On the intermediate weight category,
-the induced multiplication is onto the actual homogeneous quotient coefficient
-at each endpoint pair (`braidFactorizationCoend_surjective`).
+(`violCornerTensorMulEquiv_tmul`). The weight-category product identifies
+each endpoint coend with its homogeneous quotient coefficient
+(`braidFactorizationCoendEquiv`). The equivalence respects the endpoint actions
+as a natural isomorphism of dg module families
+(`braidFactorizationCoendNatIso`). Its injectivity uses a split comparison to
+the field corner tensor (`diagramCornerWeightRightSlice_leftInverse`).
 
 Over a scalar field in degree zero the left modules are K-projective, so the
 construction gives derived Hom for every homogeneous scalar coefficient
@@ -1133,7 +1143,15 @@ sequence of dg modules over the weight category (`gradedMiddleComplex_exact`).
 After applying the cap, the normalized composite on the scalar
 representable splits into two scalar lines. Their internal and
 cohomological degrees are (−1, 1) and (1, −1)
-(`gradedMiddleCupCap_fieldIso`).
+(`gradedMiddleCupCap_fieldIso`). For a scalar representable generated at
+weight j with cohomological shift [n], the two output representables
+have weights j−1 and j+1 and shifts [n−1] and [n+1], respectively
+(`gradedMiddleCupCap_shiftedScalarIso`). For the clockwise orientation in
+§8.1, the cap uses the derived tensor of Proposition 7.13. Its coefficient
+has scalar fibers at equal weights, with right action given by the middle
+character (`fundamentalTraceCoefficient_action`). The resulting fundamental
+circle has compact scalar K₀ class −(q + q⁻¹) times the ground line
+(`fundamentalClockwiseCircle_class`).
 
 For Proposition 7.2, a single
 red with coroot pairing one gives a simple projective at the red-first

@@ -6644,6 +6644,19 @@ example :=
     threeRedWords (lower := [0, 1, 2]) (middle := [1, 0, 2]) (upper := [1, 2, 0])
     threeRedLowerNodup threeRedPerm threeRedLength
 
+/-- The graded factorization is bijective for two consecutive adjacent swaps. -/
+example :=
+  braidFactorizationCoend_bijective (I := Unit) (k := ℚ) (Q := Q)
+    (Λ := threeRedWeights) (ν := ν) (ρ := TypeA.canWord threeRedSize) sl₂ hRouquier
+    threeRedWords (lower := [0, 1, 2]) (middle := [1, 0, 2]) (upper := [1, 2, 0])
+    threeRedLowerNodup threeRedPerm threeRedLength
+
+noncomputable example :=
+  braidFactorizationCoendNatIso (I := Unit) (k := ℚ) (Q := Q)
+    (Λ := threeRedWeights) (ν := ν) (ρ := TypeA.canWord threeRedSize) sl₂ hRouquier
+    threeRedWords (lower := [0, 1, 2]) (middle := [1, 0, 2]) (upper := [1, 2, 0])
+    threeRedLowerNodup threeRedPerm threeRedLength
+
 end NonVacuity.WebsterFigureFive
 
 namespace NonVacuity.BraidedStendhal
@@ -8873,6 +8886,16 @@ example := gradedMiddleCap_shiftedTerminal_isZero 1
 example := gradedMiddleCap_simpleIso
 example := gradedMiddleCap_shiftedSimpleIso 1
 example := gradedMiddleCupCap_fieldIso
+example := gradedMiddleCup_scalarIso (-2)
+example := gradedMiddleCupCap_scalarIso 3
+example := gradedMiddleCupCap_shiftedScalarIso (-2) 4
+example := fundamentalTraceCoefficient_line (-2)
+example := fundamentalTraceCoefficient_off_diagonal 1 0 (by decide)
+example := gradedFundamentalQuantumTraceIso
+example := gradedFundamentalClockwiseCircleIso
+example := gradedFundamentalClockwiseCircle_shiftedIso (-2) 4
+example := compactScalarLine_class (-1)
+example := fundamentalClockwiseCircle_class
 
 end
 
@@ -8995,6 +9018,31 @@ example : DG.DerivedCategory.finrankHomology ℚ (-1)
   simpa using middleCupCap_finrank.{1} (-1)
 
 end NonVacuity.WebsterMiddleCutEvaluation
+
+namespace NonVacuity.WebsterFundamentalBraidCorners
+open Categorification Categorification.Stendhal Categorification.Stendhal.FundamentalCorner KLR KLRAlgebra
+
+noncomputable section
+
+example : LinearIndependent ℚ terminalBraidClasses :=
+  fundamentalBraid_terminal_linearIndependent
+
+example : braidProject (ψ 0 * ψ 1 * e crossedMiddle) ≠ 0 :=
+  fundamentalBraid_mixed_ne_zero.2
+
+example : braidProject (e middle) * braidProject (ψw [0,1,0]) * braidProject (e crossedMiddle) = 0 :=
+  (fundamentalBraid_middle_middle_zero _).2
+
+example : braidProject (ψ 1) * braidProject (ψ 1 * ψ 0 * e crossedTerminal) =
+    terminalBraidClasses 1 :=
+  fundamentalBraid_terminal_differentials.1
+
+example : ∃ a b : ℚ, braidProject (e terminal) * braidProject (ψ 0) * braidProject (e crossedTerminal) =
+    a • terminalBraidClasses 0 + b • terminalBraidClasses 1 :=
+  fundamentalBraid_terminal_span _
+
+end
+end NonVacuity.WebsterFundamentalBraidCorners
 end
 
 namespace NonVacuity.WebsterCupRHomRegular
@@ -9061,6 +9109,17 @@ example : CatModule.IsQuasiIso (𝟙 ((diagramWeightBimodule
   exact diagramWeightLeft_isQuasiIso_of_cohomology G leftAction rightAction (Iso.refl N) (𝟙 N)
     (fun X => CatModule.isQuasiIso_id N X 0)
     (fun X n hn => diagramWeightLeft_cohomology_subsingleton G leftAction rightAction X Z hn)
+
+
+example := diagramWeightDerivedTensorRepresentableIso (fun j => DG.grading (M := ℚ) j)
+  leftAction rightAction (⟨1⟩ : WeightCategory ℚ)
+
+
+example : (diagramWeightDerivedTensor (fun j => DG.grading (M := ℚ) j) leftAction rightAction).Additive :=
+  inferInstance
+
+
+example := diagramWeightTensorShiftNatIso (fun j => DG.grading (M := ℚ) j) leftAction rightAction 1
 
 end
 
@@ -9326,27 +9385,12 @@ example :
 end NonVacuity.WebsterActualBraidKernel
 end
 
-namespace NonVacuity.WebsterFundamentalBraidCorners
-open Categorification Categorification.Stendhal Categorification.Stendhal.FundamentalCorner KLR KLRAlgebra
 
-noncomputable section
+namespace NonVacuity.WebsterUnitParameters
 
-example : LinearIndependent ℚ terminalBraidClasses :=
-  fundamentalBraid_terminal_linearIndependent
+noncomputable example :=
+  Categorification.Stendhal.tensorProductUnitParameterEquiv
+    (k := ℚ) (P := fun _ _ => 0) (P' := fun _ _ => 1)
+    (fun _ : Fin 2 => Finsupp.single () 2) ({(), ()} : Multiset Unit)
 
-example : braidProject (ψ 0 * ψ 1 * e crossedMiddle) ≠ 0 :=
-  fundamentalBraid_mixed_ne_zero.2
-
-example : braidProject (e middle) * braidProject (ψw [0,1,0]) * braidProject (e crossedMiddle) = 0 :=
-  (fundamentalBraid_middle_middle_zero _).2
-
-example : braidProject (ψ 1) * braidProject (ψ 1 * ψ 0 * e crossedTerminal) =
-    terminalBraidClasses 1 :=
-  fundamentalBraid_terminal_differentials.1
-
-example : ∃ a b : ℚ, braidProject (e terminal) * braidProject (ψ 0) * braidProject (e crossedTerminal) =
-    a • terminalBraidClasses 0 + b • terminalBraidClasses 1 :=
-  fundamentalBraid_terminal_span _
-
-end
-end NonVacuity.WebsterFundamentalBraidCorners
+end NonVacuity.WebsterUnitParameters

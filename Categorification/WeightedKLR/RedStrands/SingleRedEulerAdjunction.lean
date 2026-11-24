@@ -62,7 +62,8 @@ theorem projectiveIntegralEquiv_lof_mem_weightSpace (β : Multiset I) (x : K0 (g
   congr 1
   simp [projectiveParameter]
 
-private theorem projectiveIntegralEquiv_T (n : ℤ) (x : projectiveK0 G Λ) :
+/-- The categorical grading shift acts by the inverse Laurent parameter on the quantum vector. -/
+theorem projectiveIntegralEquiv_T (n : ℤ) (x : projectiveK0 G Λ) :
     (η ((LaurentPolynomial.T n : LP) • x)).val = v ^ (-n) • (η x).val := by
   rw [projectiveIntegralEquiv_val, projectiveIntegralEquiv_val, TensorProduct.tmul_smul,
     ← IsScalarTower.algebraMap_smul L]

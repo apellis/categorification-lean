@@ -471,13 +471,15 @@ variable (target : List (Fin 3))
 local notation "U" => IsIdempotentElem.Corner (isIdempotentElem_violMk_redProj k Q Λ ν₀ target)
 local notation "Braid" => braidingFunctor k Q Λ ν₀ κ target
 
-variable [HasDerivedCategory.{w, 0} Tᵐᵒᵖ] [HasDerivedCategory.{w, 0} Uᵐᵒᵖ]
-
 set_option backward.isDefEq.respectTransparency false in
 /-- The two-step kernel filtration gives concentration when the nearby
 partial standard is concentrated and the ordinary balanced test is known. -/
 theorem fiveSlotMiddleRight_partialStandard_braid_homology_vanish_of_layers
     (hQ : KLRSymm Q) (weight : Λ 2 () = 0) (injective : Function.Injective f₁)
+    [HasDerivedCategory.{w, 0}
+      (isIdempotentElem_violMk_redProj k Q Λ ν₀ κ).Cornerᵐᵒᵖ]
+    [HasDerivedCategory.{w, 0}
+      (isIdempotentElem_violMk_redProj k Q Λ ν₀ target).Cornerᵐᵒᵖ]
     (hnearby : ∀ j : ℤ, j ≠ 0 → IsZero ((homologyFunctor (A := Uᵐᵒᵖ) ℤ j).obj
       ((Braid).obj (DG.DerivedCategory.Q.obj ((degreeZeroModuleFunctor Tᵐᵒᵖ).obj
         (blockPartialStandardAt Q Λ nearby 1 2 κ nearby_order))))))

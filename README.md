@@ -1117,6 +1117,10 @@ For any loading, quotienting the diagram algebra by the corresponding
 higher-loading ideal makes the loading standard projective. Its generator
 maps to the loading idempotent and splits off from the regular module
 (`Stendhal.leftStandardLayer_projective`).
+A projective resolution of the actual middle standard whose positive
+terms are supported on higher loadings gives ambient derived-tensor
+vanishing outside degree zero for the reflected coefficient
+(`Stendhal.LabelTwo.middleStandard_derivedTensorHomology_isZero_of_higher_support`).
 
 ### Weak `sl₂`-categorifications (Chuang–Rouquier, arXiv:math/0407205v2, §5)
 

@@ -1665,6 +1665,7 @@ import Categorification.WeightedKLR.RedStrands.FiveSlotKernelColumn
 import Categorification.WeightedKLR.RedStrands.IntervalColumnSpan
 import Categorification.WeightedKLR.RedStrands.FiveSlotAllBottom
 import Categorification.WeightedKLR.RedStrands.FiveSlotAllBottomStandard
+import Categorification.WeightedKLR.RedStrands.FiveSlotAllBottomDerived
 import Categorification.WeightedKLR.RedStrands.FiveSlotKernelDerivedHomology
 import Categorification.WeightedKLR.RedStrands.BraidedStandardDerived
 import Categorification.WeightedKLR.RedStrands.BlockShuffleLoading

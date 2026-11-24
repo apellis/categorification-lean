@@ -9801,3 +9801,46 @@ example : CatModule.IsQuasiIso (diagramWeightModuleOfComplexMap (𝟙 weightComp
 end NonVacuity.WebsterWeightComplex
 
 end
+
+noncomputable section
+
+namespace NonVacuity.WebsterGradedChainDG
+
+open Categorification CategoryTheory DG
+open scoped DG.DegreeZero
+
+local instance instChainRationalInternal : InternalGrading ℚ := scalarInternalGrading ℚ
+local instance instChainRationalBigraded : BigradedDGRing ℚ := scalarBigradedDGRing ℚ
+
+private abbrev gradedRational : WeightGradedTerm ℚ where
+  obj := ModuleCat.of ℚ ℚ
+  grade := wgrading
+  decomp := inferInstance
+  smul_mem := mul_mem_wgrading
+
+private def periodicMap (n : ℕ) : ℚ →ₗ[ℚ] ℚ :=
+  if n % 2 = 0 then 0 else LinearMap.id
+
+private theorem periodicMap_homogeneous (n : ℕ) (j : ℤ) {x : ℚ} (hx : x ∈ wgrading j) :
+    periodicMap n x ∈ wgrading j := by
+  by_cases h : n % 2 = 0
+  · simp [periodicMap, h]
+  · simpa [periodicMap, h] using hx
+
+private theorem periodicMap_exact (n : ℕ) : Function.Exact (periodicMap (n+1)) (periodicMap n) := by
+  intro x
+  by_cases h : n % 2 = 0
+  · have hn : (n+1) % 2 ≠ 0 := by omega
+    simp [periodicMap, h, hn]
+  · have hn : (n+1) % 2 = 0 := by omega
+    simp [periodicMap, h, hn, eq_comm]
+
+example := weightDgGradedChainAugmentation_quasiIso (R := ℚ)
+  (fun _ => gradedRational) periodicMap (fun n j {_} h => periodicMap_homogeneous n j h)
+  (fun n => (periodicMap_exact n).apply_apply_eq_zero) gradedRational LinearMap.id
+  (fun _ {_} h => h) (fun x => by simp [periodicMap]) periodicMap_exact
+  (by intro x; simp [periodicMap, eq_comm]) Function.surjective_id
+
+end NonVacuity.WebsterGradedChainDG
+
+end

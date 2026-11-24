@@ -1468,6 +1468,9 @@ vanishing outside degree zero for the reflected coefficient
 The standard rank-one parameter comparison supplies this supported
 resolution for the actual middle cut
 (`Stendhal.LabelTwo.exists_middleStandard_supportedResolution`).
+The ordinary tensor of this actual coefficient with the middle standard
+is the dual-number vector space at the middle cut
+(`Stendhal.LabelTwo.middleStandardTensorEquiv`).
 
 **Terminal-character resolution benchmark for Webster, arXiv:1309.3796v2,
 §8.1.** In the fundamental rank-one block over `ℚ`, the terminal simple

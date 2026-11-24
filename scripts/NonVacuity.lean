@@ -10056,6 +10056,8 @@ example := exists_middleStandard_supportedResolution ℚ
 
 example := middleStandard_derivedTensorHomology_isZero ℚ (-1) (by decide)
 
+example := middleStandardTensorEquiv ℚ
+
 end NonVacuity.WebsterLabelTwoMiddleFixedComplex
 
 end

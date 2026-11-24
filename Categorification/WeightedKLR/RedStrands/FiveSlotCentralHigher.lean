@@ -57,6 +57,17 @@ private theorem cutRight {v w : Seq μ₀} {z : V} (hz : E v*z*E w=z) : z*E w=z 
   rw [mul_assoc _ (E w),idem,hz] at h
   exact h.symm
 
+private theorem factor_bottom : C*E v₀=C := by rw [← map_mul,mul_assoc,e_mul_self]
+
+private theorem factor_mem : C∈J := by
+  rw [fiveSlot_oneBlackBeforePair_blockUpperIdeal Q Λ t (Or.inl rfl)]
+  exact factor_bottom Q Λ ▸ TwoSidedIdeal.mul_mem_left _ C _ (TwoSidedIdeal.subset_span (Set.mem_singleton _))
+
+private theorem factor_top : E t*C=C := by
+  have h : (e t : KLRAlgebra k (stendhalQ Q Λ) μ₀)*(ψw [3,2]*e v₀)=ψw [3,2]*e v₀ := by
+    rw [← show wordProd N [3,2] • v₀=t by decide,← mul_assoc,e_mul_ψw,inv_smul_smul,mul_assoc,e_mul_self]
+  exact (map_mul F _ _).symm.trans (congrArg F h)
+
 /-- All higher-ideal elements with central left cut factor by the two
 crossings from the extreme. The bottom loading is unrestricted. -/
 theorem fiveSlotCentral_higher_exists_leftFactor (hQ : KLRSymm Q) (x : V)
@@ -114,18 +125,10 @@ theorem fiveSlotCentral_markedExitJoints_of_row_reflection (hQ : KLRSymm Q)
     simpa only [Finset.mul_sum,← mul_assoc C,factor] using rel
   obtain ⟨a,b,c,d,ha,hb,hc,hd,r₀,r₁,r₂,r₃⟩ := exists_fiveSlot_violQuotient_fourExitJointPresentation
     Q Λ hQ v₀ rfl y ycut sumZero
-  have markC : C∈J := by
-    rw [fiveSlot_oneBlackBeforePair_blockUpperIdeal Q Λ t (Or.inl rfl)]
-    have final : C*E v₀=C := by rw [← map_mul,mul_assoc,e_mul_self]
-    exact final ▸ TwoSidedIdeal.mul_mem_left _ C _ (TwoSidedIdeal.subset_span (Set.mem_singleton _))
-  have top : E t*C=C := by
-    have h : (e t : KLRAlgebra k (stendhalQ Q Λ) μ₀)*(ψw [3,2]*e v₀)=ψw [3,2]*e v₀ := by
-      rw [← show wordProd N [3,2] • v₀=t by decide,← mul_assoc,e_mul_ψw,inv_smul_smul,mul_assoc,e_mul_self]
-    exact (map_mul F _ _).symm.trans (congrArg F h)
   have fixed (u : Seq μ₀) (z : V) (hz : E v₀*z*E u=z) : E t*(C*z)*E u=C*z := by
-    rw [← mul_assoc (E t),top,mul_assoc,cutRight Q Λ hz]
-  refine ⟨C*a,TwoSidedIdeal.mul_mem_right J _ _ markC,C*b,TwoSidedIdeal.mul_mem_right J _ _ markC,
-    C*c,TwoSidedIdeal.mul_mem_right J _ _ markC,C*d,TwoSidedIdeal.mul_mem_right J _ _ markC,
+    rw [← mul_assoc (E t),factor_top,mul_assoc,cutRight Q Λ hz]
+  refine ⟨C*a,TwoSidedIdeal.mul_mem_right J _ _ (factor_mem Q Λ),C*b,TwoSidedIdeal.mul_mem_right J _ _ (factor_mem Q Λ),
+    C*c,TwoSidedIdeal.mul_mem_right J _ _ (factor_mem Q Λ),C*d,TwoSidedIdeal.mul_mem_right J _ _ (factor_mem Q Λ),
     fixed _ _ ha,fixed _ _ hb,fixed _ _ hc,fixed _ _ hd,?_,?_,?_,?_⟩
   · rw [← factor 0,r₀,mul_add]
     simp only [mul_assoc,AlgHom.comp_apply]
@@ -135,5 +138,25 @@ theorem fiveSlotCentral_markedExitJoints_of_row_reflection (hQ : KLRSymm Q)
     simp only [mul_assoc,AlgHom.comp_apply]
   · rw [← factor 3,r₃,mul_neg,mul_add]
     simp only [mul_assoc,AlgHom.comp_apply]
+
+/-- At every bottom, cancellation of the principal factor on the supported
+left-extreme corner suffices for injectivity at the central top. -/
+theorem fiveSlotCentral_columnInclusion_of_leftCancellation (hQ : KLRSymm Q) (s : Seq μ₀)
+    (cancel : ∀ y : V, E v₀*y*E s=y → C*y=0 → y=0) :
+    Function.Injective (blockKernelColumnInclusion Q Λ t 1 2 s) := by
+  apply blockKernelColumnInclusion_injective_of_principal_factor Q Λ t 1 2 s v₀ (by decide) C
+    (factor_mem Q Λ) (factor_top Q Λ) (factor_bottom Q Λ)
+    (fiveSlotCentral_higher_exists_leftFactor Q Λ hQ)
+  intro y yl yr hz
+  exact cancel y ((congrArg (·*E s) yl).trans yr) hz
+
+/-- Webster, Lemma 6.8 after (6.21), at the central five-slot upper loading.
+For the fixed exchanged bottom, reflection of the two specified PBW rows
+after global violation suffices for injectivity of the balanced column. -/
+theorem fiveSlotCentral_columnInclusion_of_rowReflection (hQ : KLRSymm Q)
+    (reflect : FiveSlotCentralRowReflection Q Λ) :
+    Function.Injective (blockKernelColumnInclusion Q Λ t 1 2 bot) :=
+  fiveSlotCentral_columnInclusion_of_leftCancellation Q Λ hQ bot
+    ((fiveSlotCentral_leftWord_cancel_iff Q Λ hQ).2 reflect)
 
 end Categorification.Stendhal.BraidedStendhalAlgebra

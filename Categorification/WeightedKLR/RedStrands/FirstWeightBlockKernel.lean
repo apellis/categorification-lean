@@ -2,6 +2,7 @@
 Copyright (c) 2026 Alex Ellis. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 -/
+import Categorification.WeightedKLR.Induction.Restriction
 import Categorification.WeightedKLR.RedStrands.BlockExitDivision
 import Categorification.WeightedKLR.RedStrands.BraidedAppendFlip
 import Categorification.WeightedKLR.RedStrands.BlockKernelColumn
@@ -221,6 +222,53 @@ private theorem cyclic_mark (hQ : KLRSymm Q) : ∃ (u : KLR.Seq μ) (g : K),
     rw [reflect_mul,violFlip_violFlip,zero] at h
     have ret := congrArg violFlip (det (violFlip y.1) h)
     rwa [reflect_mul,reflect_p,violFlip_violFlip,zero] at ret
+
+
+/-- In the first black weight, the actual higher kernel is a loading
+projective, for arbitrary symmetric parameters and red multiplicities. -/
+theorem firstWeight_blockLoadingKernel_projective (hQ : KLRSymm Q) :
+    Module.Projective Tᵐᵒᵖ K := by
+  obtain ⟨u, g, gen, det, hu, hcut⟩ := cyclic_mark i Q Λ a b t (redWord t) hQ
+  let ord := isIdempotentElem_violMk_redProj k Q Λ β (redWord t)
+  let U : T := ⟨p u, (Subsemigroup.mem_corner_iff ord).2
+    ⟨(map_mul mk _ _).symm.trans (congrArg mk ((redProj_mul_e _ _).trans (ite_eq_left hu))),
+      (map_mul mk _ _).symm.trans (congrArg mk ((e_mul_redProj _ _).trans (ite_eq_left hu)))⟩⟩
+  have hU : IsIdempotentElem U := by
+    apply Subtype.ext
+    change p u * p u = p u
+    rw [← map_mul π, e_mul_self]
+  have ug : op U • g = g := Subtype.ext (Subtype.ext (Subtype.ext hcut))
+  let f : rIdeal U →ₗ[Tᵐᵒᵖ] K :=
+    { toFun := fun d => op d.1 • g
+      map_add' := fun d e => by
+        apply Subtype.ext; apply Subtype.ext; apply Subtype.ext
+        change _ * (d.1.1 + e.1.1) = _ * d.1.1 + _ * e.1.1
+        exact mul_add _ _ _
+      map_smul' := fun r d => by
+        apply Subtype.ext; apply Subtype.ext; apply Subtype.ext
+        change _ * (d.1.1 * r.unop.1) = (_ * d.1.1) * r.unop.1
+        exact (mul_assoc _ _ _).symm }
+  have hi : Function.Injective f := by
+    intro d e hde
+    let delta := d - e
+    have hc : f delta = 0 := (f.map_sub d e).trans (sub_eq_zero.mpr hde)
+    let y : RedBlock.crossingSpace (k := k) E E :=
+      ⟨delta.1.1, (Subsemigroup.mem_corner_iff ord).1 delta.1.2⟩
+    have hy : g.1.1.1 * y.1 = 0 := congrArg (fun z : K => z.1.1.1) hc
+    have hcy : p u * y.1 = y.1 := congrArg (fun z : T => z.1) delta.2
+    have hc0 : delta = 0 := Subtype.ext (Subtype.ext (hcy.symm.trans (det y hy)))
+    exact sub_eq_zero.mp hc0
+  have hs : Function.Surjective f := by
+    intro x
+    obtain ⟨d, hd⟩ := gen x
+    use ⟨U * d, by rw [mem_rIdeal, ← mul_assoc, hU.eq]⟩
+    change (op (U * d)) • g = x
+    calc
+      op (U * d) • g = (op d * op U) • g := rfl
+      _ = op d • (op U • g) := mul_smul (op d) (op U) g
+      _ = x := (congrArg (op d • ·) ug).trans hd.symm
+  let : Module.Projective Tᵐᵒᵖ (rIdeal U) := rIdeal_projective hU
+  exact Module.Projective.of_equiv (LinearEquiv.ofBijective f ⟨hi, hs⟩)
 
 private theorem cyclic_tensor {S M N : Type*} [Ring S] [AddCommGroup M] [Module k M]
     [Module Sᵐᵒᵖ M] [AddCommGroup N] [Module k N] [Module S N]

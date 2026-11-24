@@ -303,33 +303,42 @@ private theorem reflected_kills_projected_unit :
     rw [← mul_assoc (D * Y), mul_assoc D Y Y, hY, mul_zero, zero_mul]
   rw [reflected_operator, projected_operator, ← Module.End.mul_apply, h, LinearMap.zero_apply]
 
-set_option maxHeartbeats 850000 in
+private theorem triple_mul_of_sq_zero_add_eq_one {R : Type*} [Ring R] (d y : R)
+    (hd : d * d = 0) (hmix : d * y + y * d = 1) : (d * y) * d = d := by
+  calc
+    (d * y) * d = (d * y + y * d) * d := by
+      rw [add_mul, mul_assoc y d d, hd, mul_zero, add_zero]
+    _ = d := by rw [hmix, one_mul]
+
 private theorem reflected_fixes_projected_translate :
     act (hflip (X₂ * ψ 2 * e A)) v₁ = v₁ := by
   have hD : D * D = 0 := (labelTwo_rightStandard_terminalOperators param).2.2.2.1
   have hmix : D * Y + Y * D = 1 := (labelTwo_rightStandard_terminalOperators param).2.2.2.2
-  have h : (D * Y) * D = D := calc
-    (D * Y) * D = (D * Y + Y * D) * D := by
-      rw [add_mul, mul_assoc Y D D, hD, mul_zero, add_zero]
-    _ = D := by rw [hmix, one_mul]
-  rw [reflected_operator, ← Module.End.mul_apply (D * Y) D v₀, h]
+  have h := triple_mul_of_sq_zero_add_eq_one D Y hD hmix
+  have h₀ := congrArg (fun f : Module.End k start => f v₀) h
+  exact (congrArg (fun f : Module.End k start => f v₁) (reflected_operator param)).trans h₀
 
-set_option maxHeartbeats 850000 in
+private theorem endOnSpanPair {K M : Type*} [CommRing K] [AddCommGroup M] [Module K M]
+    (f : Module.End K M) {u v z : M} {a b : K} (hz : z = a • u + b • v)
+    (hu : f u = 0) (hv : f v = v) : f z = b • v := by
+  rw [hz, map_add, map_smul, map_smul, hu, hv, smul_zero, zero_add]
+
+private theorem reflected_projector_eq :
+    (rightExteriorReflection param (π (X₂ * ψ 2 * e A))).unop =
+      π (hflip (X₂ * ψ 2 * e A : H)) :=
+  congrArg MulOpposite.unop (tensorReflect_projection (Q := param) (Λ := wt) («ν» := ν)
+    (X₂ * ψ 2 * e A))
+
 /-- The reflected right exterior projector acts on the actual divided standard
 with image spanned by the black-crossing translate. -/
 theorem labelTwoRightExterior_reflectedProjector_image (z : labelTwoRightExteriorDividedStandard param) :
     ∃ b : k, (rightExteriorReflection param (π (X₂ * ψ 2 * e A))).unop • z.val = b • v₁ := by
-  have hr : (rightExteriorReflection param (π (X₂ * ψ 2 * e A))).unop =
-      π (hflip (X₂ * ψ 2 * e A : H)) := by
-    exact congrArg MulOpposite.unop (tensorReflect_projection (Q := param) (Λ := wt) («ν» := ν)
-      (X₂ * ψ 2 * e A))
   obtain ⟨a,b,h⟩ := labelTwo_rightExteriorDividedStandard_span param z
-  refine ⟨b,?_⟩
-  rw [hr]
-  change act (hflip (X₂ * ψ 2 * e A)) z.val = _
-  have hs : z.val = a • v₀ + b • v₁ := h
-  rw [hs, map_add, map_smul, map_smul, reflected_kills_projected_unit,
-    reflected_fixes_projected_translate, smul_zero, zero_add]
+  let F : Module.End k start := act (hflip (X₂ * ψ 2 * e A))
+  have h₀ : F v₀ = 0 := reflected_kills_projected_unit param
+  have h₁ : F v₁ = v₁ := reflected_fixes_projected_translate param
+  exact ⟨b,(congrArg (fun u : T => u • z.val) (reflected_projector_eq param)).trans
+    (endOnSpanPair F h h₀ h₁)⟩
 
 
 end

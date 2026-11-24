@@ -25,18 +25,18 @@ local instance : BigradedDGRing Tᵐᵒᵖ := gradedAlgebraBigradedDGRing (Grade
 local instance : InternalGrading ℚ := scalarInternalGrading ℚ
 local instance : BigradedDGRing ℚ := scalarBigradedDGRing ℚ
 
-private def loadingValue {s : KLR.Seq μ} {hs : IsRedOrdered s} {j : ℤ} {k : WeightCategory Tᵐᵒᵖ}
+def loadingValue {s : KLR.Seq μ} {hs : IsRedOrdered s} {j : ℤ} {k : WeightCategory Tᵐᵒᵖ}
     (x : (shiftedLoadingModule s hs j).obj k) : rIdeal (project (e s)) := by
   refine ⟨x.val.val.unop, ?_⟩
   change project (e s) * x.val.val.unop = x.val.val.unop
   rw [projectedLoading_eq_mk_e s hs]
   exact congrArg (fun f : (⟨j⟩ : WeightCategory Tᵐᵒᵖ) ⟶ k => f.val.unop) x.property
 
-private theorem loadingValue_degree {s : KLR.Seq μ} {hs : IsRedOrdered s} {j : ℤ} {k : WeightCategory Tᵐᵒᵖ}
+theorem loadingValue_degree {s : KLR.Seq μ} {hs : IsRedOrdered s} {j : ℤ} {k : WeightCategory Tᵐᵒᵖ}
     (x : (shiftedLoadingModule s hs j).obj k) : (loadingValue x).val ∈ 𝒜 (k.as - j) := by
   exact x.val.property
 
-private def loadingElement {s : KLR.Seq μ} {hs : IsRedOrdered s} {j : ℤ} {k : WeightCategory Tᵐᵒᵖ}
+def loadingElement {s : KLR.Seq μ} {hs : IsRedOrdered s} {j : ℤ} {k : WeightCategory Tᵐᵒᵖ}
     (x : rIdeal (project (e s))) (hx : x.val ∈ 𝒜 (k.as-j)) : (shiftedLoadingModule s hs j).obj k := by
   let y : (⟨j⟩ : WeightCategory Tᵐᵒᵖ) ⟶ k :=
     ⟨op x.val, hx⟩
@@ -45,11 +45,11 @@ private def loadingElement {s : KLR.Seq μ} {hs : IsRedOrdered s} {j : ℤ} {k :
   rw [← projectedLoading_eq_mk_e s hs]
   exact congrArg op x.property
 
-private theorem loadingExt {s : KLR.Seq μ} {hs : IsRedOrdered s} {j : ℤ} {k : WeightCategory Tᵐᵒᵖ}
+theorem loadingExt {s : KLR.Seq μ} {hs : IsRedOrdered s} {j : ℤ} {k : WeightCategory Tᵐᵒᵖ}
     {x y : (shiftedLoadingModule s hs j).obj k} (h : (loadingValue x).val = (loadingValue y).val) : x = y :=
   Subtype.ext (WeightCategory.hom_ext (congrArg op h))
 
-private theorem loading_mem_grading {s : KLR.Seq μ} {hs : IsRedOrdered s} {j n : ℤ} {k : WeightCategory Tᵐᵒᵖ}
+theorem loading_mem_grading {s : KLR.Seq μ} {hs : IsRedOrdered s} {j n : ℤ} {k : WeightCategory Tᵐᵒᵖ}
     (x : (shiftedLoadingModule s hs j).obj k) : x ∈ DG.grading n ↔ n = 0 ∨ x = 0 := by
   change x.val.val ∈ DG.grading n ↔ _
   rw [InDegreeZero.ring_mem_grading_iff]
@@ -57,10 +57,10 @@ private theorem loading_mem_grading {s : KLR.Seq μ} {hs : IsRedOrdered s} {j n 
   · exact Or.imp_right (fun h => loadingExt (congrArg unop h))
   · exact Or.imp_right (fun h => h ▸ rfl)
 
-private theorem loading_d {s : KLR.Seq μ} {hs : IsRedOrdered s} {j : ℤ} {k : WeightCategory Tᵐᵒᵖ}
+theorem loading_d {s : KLR.Seq μ} {hs : IsRedOrdered s} {j : ℤ} {k : WeightCategory Tᵐᵒᵖ}
     (x : (shiftedLoadingModule s hs j).obj k) : d x = 0 := loadingExt (congrArg unop (InDegreeZero.ring_d_apply x.val.val))
 
-private def loadingMap {s t : KLR.Seq μ} {hs : IsRedOrdered s} {ht : IsRedOrdered t} {a b : ℤ}
+def loadingMap {s t : KLR.Seq μ} {hs : IsRedOrdered s} {ht : IsRedOrdered t} {a b : ℤ}
     (f : rIdeal (project (e s)) →ₗ[Tᵐᵒᵖ] rIdeal (project (e t)))
     (hf : ∀ n x, x.val ∈ 𝒜 (n-a) → (f x).val ∈ 𝒜 (n-b)) :
     shiftedLoadingModule s hs a ⟶ shiftedLoadingModule t ht b where

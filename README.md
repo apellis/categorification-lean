@@ -1105,7 +1105,10 @@ internal degree (`Stendhal.LabelTwo.diagramPlusMinus_exact_in_degree`,
 `Stendhal.LabelTwo.diagramPlusAugmentation_exact_in_degree`).
 The scalar and epsilon coordinates of the actual middle fixed dot-sum
 quotient are in degrees zero and two
-(`Stendhal.LabelTwo.middleCutDotSum_mem_grade_iff`). Evaluation on the
+(`Stendhal.LabelTwo.middleCutDotSum_mem_grade_iff`).
+Tensoring these fixed vectors with the degree-zero standard generator gives
+the graded ordinary middle tensor
+(`Stendhal.LabelTwo.middleFixedToOrdinaryTensorGradedEquiv`). Evaluation on the
 middle generator identifies the endomorphism algebra with the actual
 regular parabolic factor (`Stendhal.LabelTwo.middleEndomorphismFactorEquiv`).
 The diagrammatic dot-sum quotient is the standardization of its

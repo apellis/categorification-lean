@@ -77,3 +77,39 @@ theorem HigherProjectiveChain.hasFiltration {s : C} {m : List C}
     exact hasFiltration_cons_fixedOrder Q Λ a b κ s t f ih
 
 end Categorification.Stendhal.BraidedStendhalAlgebra
+
+namespace Categorification.Stendhal.BraidedStendhalAlgebra
+
+open KLR MulOpposite
+attribute [local instance 1100] IsIdempotentElem.instAlgebraCorner_categorification
+
+universe u v
+
+variable {I : Type u} {k : Type v} [DecidableEq I] [CommRing k] {ℓ : ℕ} {ν : Multiset I}
+variable (Q : I → I → MvPolynomial (Fin 2) k) (Λ : Fin ℓ → I →₀ ℕ)
+variable (a b : Fin ℓ) (κ : List (Fin ℓ))
+
+local notation "T" => IsIdempotentElem.Corner (isIdempotentElem_violMk_redProj k Q Λ ν κ)
+local notation "C" => {s : Seq (stendhalWeight ℓ ν) // redWord s = κ}
+local notation "KO" => fixedOrderKernelObj Q Λ a b κ
+
+/-- The initial kernel of a higher-projective chain is itself projective. -/
+theorem HigherProjectiveChain.projective_source {s : C} {m : List C}
+    (chain : HigherProjectiveChain Q Λ a b κ s m) :
+    Module.Projective Tᵐᵒᵖ (KO s) := by
+  cases chain with
+  | nil s hs =>
+    let : Subsingleton (KO s) := hs
+    let : Module.Free Tᵐᵒᵖ (KO s) := Module.Free.of_subsingleton _ _
+    infer_instance
+  | @cons s t m _ he _ =>
+    obtain ⟨e⟩ := he
+    have ht : IsIdempotentElem (orderedLoadingIdemAt Q Λ κ t.1 t.2) := by
+      obtain ⟨t, ht⟩ := t
+      subst κ
+      exact orderedLoadingIdem_idem Q Λ t
+    let : Module.Projective Tᵐᵒᵖ (rIdeal (orderedLoadingIdemAt Q Λ κ t.1 t.2)) :=
+      rIdeal_projective ht
+    exact Module.Projective.of_equiv' e
+
+end Categorification.Stendhal.BraidedStendhalAlgebra

@@ -5793,6 +5793,13 @@ example :=
     0 3 (κ := [2, 0, 3, 1]) (L := [2]) (M := [1]) rfl
     ⟨KLRAlgebra.Seq.ofList [.inr 2, .inr 0, .inr 3, .inr 1, .inl ()] (by decide), by decide⟩
 
+/-- The one-black higher kernel is projective at the middle pair in a noncanonical order. -/
+example :=
+  BraidedStendhalAlgebra.oneBlack_kernel_projective_standard
+    rbRouquier rbSymm () (fun _ : Fin 4 => Finsupp.single () 1)
+    0 3 (L := [2]) (M := [1])
+    (KLRAlgebra.Seq.ofList [.inr 2, .inr 0, .inr 3, .inr 1, .inl ()] (by decide)) (by decide)
+
 /-- The one-black kernel has its higher partial standard layer with positive spectator
 weight at the standard Khovanov–Lauda parameters for rank one. -/
 example :=

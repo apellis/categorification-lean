@@ -237,7 +237,7 @@ local notation "μ" => stendhalWeight ℓ ν
 local notation "C" => {s : Seq μ // redWord s = List.finRange ℓ}
 
 /-- The consecutive entries of a canonical red word have consecutive values. -/
-private theorem canonicalAdjacentRedValues {ℓ : ℕ} {a b : Fin ℓ} {L M : List (Fin ℓ)}
+theorem canonicalAdjacentRedValues {ℓ : ℕ} {a b : Fin ℓ} {L M : List (Fin ℓ)}
     (hword : List.finRange ℓ = L ++ a :: b :: M) : a.val + 1 = b.val := by
   have len := congrArg List.length hword
   simp only [List.length_finRange, List.length_append, List.length_cons] at len

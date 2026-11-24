@@ -256,13 +256,19 @@ theorem blockLoadingKernelAt_map_redPerm :
   · intro hx
     exact ⟨x, (hm x).1 hx, rfl⟩
 
+/-- The higher kernel under relabelling, semilinear over the change of corner. -/
+def fixedOrderKernelObj_redPermSemilinearEquiv :
+    (fixedOrderKernelObj Q Λ' a b κ ⟨s, hs⟩) ≃ₛₗ[φ]
+      fixedOrderKernelObj Q Λ (σ a) (σ b) (κ.map σ) ⟨s₁, hs₁⟩ :=
+  (P).ofSubmodules K₀ K₁ (blockLoadingKernelAt_map_redPerm Q σ h s κ hs a b)
+
 /-- The higher kernel under relabelling, over the relabelled corner. -/
 def fixedOrderKernelObj_redPermLinearEquiv :
     ((ModuleCat.restrictScalars (RingEquiv.op F).symm.toRingHom).obj
       (fixedOrderKernelObj Q Λ' a b κ ⟨s, hs⟩)) ≃ₗ[T₁ᵐᵒᵖ]
       fixedOrderKernelObj Q Λ (σ a) (σ b) (κ.map σ) ⟨s₁, hs₁⟩ :=
-  LinearEquiv.ofRestrictScalars (RingEquiv.op F) ((P).ofSubmodules K₀ K₁
-    (blockLoadingKernelAt_map_redPerm Q σ h s κ hs a b))
+  LinearEquiv.ofRestrictScalars (RingEquiv.op F)
+    (fixedOrderKernelObj_redPermSemilinearEquiv Q σ h s κ hs a b)
 
 /-- The actual partial-standard quotient under relabelling. -/
 def blockPartialStandardAt_redPermLinearEquiv :
@@ -322,6 +328,53 @@ end Categorification.Stendhal.BraidedStendhalAlgebra
 
 namespace Categorification.Stendhal.BraidedStendhalAlgebra
 
+open KLR Equiv
+
+variable {I : Type*} [DecidableEq I] {ℓ : ℕ} {ν : Multiset I}
+local notation "μ" => stendhalWeight ℓ ν
+
+omit [DecidableEq I] in
+/-- A loading predicate that is preserved by red relabelling can be verified
+in the canonical red word. -/
+theorem adjacentPairProperty_of_canonical
+    (P : (Fin ℓ → I →₀ ℕ) → Fin ℓ → Fin ℓ → (κ : List (Fin ℓ)) →
+      {s : Seq μ // redWord s = κ} → Prop)
+    (relabel : ∀ (σ : Perm (Fin ℓ)) (Λ : Fin ℓ → I →₀ ℕ)
+      (a b : Fin ℓ) (κ : List (Fin ℓ)) (s : {s : Seq μ // redWord s = κ}),
+        P (Λ ∘ σ) a b κ s →
+          P Λ (σ a) (σ b) (κ.map σ) (redPermOrderedLoading σ κ s))
+    (canonical : ∀ (Λ : Fin ℓ → I →₀ ℕ) (a b : Fin ℓ) (L M : List (Fin ℓ)),
+      List.finRange ℓ = L ++ a :: b :: M →
+      ∀ s : {s : Seq μ // redWord s = List.finRange ℓ}, P Λ a b (List.finRange ℓ) s)
+    (Λ : Fin ℓ → I →₀ ℕ) (a b : Fin ℓ) {κ L M : List (Fin ℓ)}
+    (hword : κ = L ++ a :: b :: M) (s : {s : Seq μ // redWord s = κ}) :
+    P Λ a b κ s := by
+  have hp : κ.Perm (List.finRange ℓ) := by
+    rw [← s.2]
+    exact (List.perm_ext_iff_of_nodup (redWord_nodup _) (List.nodup_finRange _)).2
+      fun r => by simp [mem_redWord]
+  obtain ⟨σ, rfl⟩ := exists_perm_eq_map_finRange hp
+  obtain ⟨a, rfl⟩ := σ.surjective a
+  obtain ⟨b, rfl⟩ := σ.surjective b
+  obtain ⟨raw, hraw⟩ := s
+  obtain ⟨c, hc⟩ := (Seq.redPermEquiv σ).surjective raw
+  change Seq.redPerm σ c = raw at hc
+  subst raw
+  have hinj := (List.map_injective_iff.2 σ.injective)
+  have hc : redWord c = List.finRange ℓ :=
+    hinj ((redWord_redPerm σ c).symm.trans hraw)
+  let L₀ := L.map σ.symm
+  let M₀ := M.map σ.symm
+  have hcanon : List.finRange ℓ = L₀ ++ a :: b :: M₀ := by
+    apply hinj
+    rw [hword]
+    simp [L₀, M₀, List.map_map, Function.comp_def]
+  exact relabel σ Λ a b _ ⟨c, hc⟩ (canonical (Λ ∘ σ) a b L₀ M₀ hcanon ⟨c, hc⟩)
+
+end Categorification.Stendhal.BraidedStendhalAlgebra
+
+namespace Categorification.Stendhal.BraidedStendhalAlgebra
+
 open KLR Equiv ModuleFiltration
 attribute [local instance 1100] IsIdempotentElem.instAlgebraCorner_categorification
 
@@ -348,29 +401,12 @@ theorem blockLoadingKernel_hasFiltration_of_canonical
     ∃ tail : List {t : Seq μ // redWord t = κ},
       HasFiltration (fun t => blockPartialStandardAt Q Λ t.1 a b κ t.2)
         tail (fixedOrderKernelObj Q Λ a b κ s) := by
-  have hp : κ.Perm (List.finRange ℓ) := by
-    rw [← s.2]
-    exact (List.perm_ext_iff_of_nodup (redWord_nodup _) (List.nodup_finRange _)).2
-      fun r => by simp [mem_redWord]
-  obtain ⟨σ, rfl⟩ := exists_perm_eq_map_finRange hp
-  obtain ⟨a, rfl⟩ := σ.surjective a
-  obtain ⟨b, rfl⟩ := σ.surjective b
-  obtain ⟨raw, hraw⟩ := s
-  obtain ⟨c, hc⟩ := (Seq.redPermEquiv σ).surjective raw
-  change Seq.redPerm σ c = raw at hc
-  subst raw
-  have hinj := (List.map_injective_iff.2 σ.injective)
-  have hc : redWord c = List.finRange ℓ :=
-    hinj ((redWord_redPerm σ c).symm.trans hraw)
-  let L₀ := L.map σ.symm
-  let M₀ := M.map σ.symm
-  have hcanon : List.finRange ℓ = L₀ ++ a :: b :: M₀ := by
-    apply hinj
-    rw [hword]
-    simp [L₀, M₀, List.map_map, Function.comp_def]
-  obtain ⟨tail, filt⟩ := canonical (Λ ∘ σ) a b L₀ M₀ hcanon ⟨c, hc⟩
-  have relabelled := blockLoadingKernel_hasFiltration_redPerm Q σ (fun _ => rfl)
-    (List.finRange ℓ) a b ⟨c, hc⟩ tail filt
-  exact ⟨_, relabelled⟩
+  refine adjacentPairProperty_of_canonical
+    (fun W c d order t => ∃ layers : List {x : Seq μ // redWord x = order},
+      HasFiltration (fun x => blockPartialStandardAt Q W x.1 c d order x.2)
+        layers (fixedOrderKernelObj Q W c d order t)) ?_ canonical Λ a b hword s
+  intro σ W c d order t filt
+  obtain ⟨tail, hf⟩ := filt
+  exact ⟨_, blockLoadingKernel_hasFiltration_redPerm Q σ (fun _ => rfl) order c d t tail hf⟩
 
 end Categorification.Stendhal.BraidedStendhalAlgebra

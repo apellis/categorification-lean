@@ -1125,7 +1125,9 @@ standard parameters (`oneBlack_pair_hasFiltration_standard`). Red relabelling
 permutes the retained root coordinates, identifies the higher ideals and the
 loading projectives, and transports the quotient layers along the corner
 ring equivalence. This gives the one-black filtration for any red word
-(`oneBlack_hasFiltration_standard`).
+(`oneBlack_hasFiltration_standard`). The source kernel is already projective:
+the first step identifies it with a loading projective, or the chain is empty
+and the kernel vanishes (`oneBlack_kernel_projective_standard`).
 
 Still open for Lemma 6.8: when a black lies between the bottom reds, prove that changes
 between different choices of the last crossing give equal balanced classes **in the

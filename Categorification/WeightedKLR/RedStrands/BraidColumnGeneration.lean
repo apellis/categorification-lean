@@ -147,7 +147,8 @@ theorem mem_columnProducts_iff (ρ : Equiv.Perm (Fin m) → List ℕ)
   · rintro ⟨w, z, hk, rfl⟩
     exact ⟨w, z.val, Set.mem_univ _, hk, z.prop, rfl⟩
 
-private theorem lowSpan_le_stdSpan (ρ : Equiv.Perm (Fin m) → List ℕ)
+/-- Rewrite shorter words in the chosen reduced words without increasing permutation support. -/
+theorem lowSpan_le_stdSpan (ρ : Equiv.Perm (Fin m) → List ℕ)
     (hρ : ∀ w, IsReduced m (ρ w) ∧ wordProd m (ρ w) = w)
     (S : Set (Equiv.Perm (Fin m))) (L : ℕ) :
     lowSpan k (stendhalQ Q Λ) μ S L ≤
@@ -203,7 +204,8 @@ theorem mul_mem_span_columnProductsOn (ρ : Equiv.Perm (Fin m) → List ℕ)
   exact ⟨w, a * z, hw, hk, ⟨by rw [← mul_assoc, ha.1], by rw [mul_assoc, hz]⟩,
     mul_assoc _ _ _⟩
 
-private theorem columnProjection_crossing (s : Seq μ) (κ : List (Fin ℓ))
+/-- The column projection fixes a crossing word with the prescribed endpoints. -/
+theorem columnProjection_crossing (s : Seq μ) (κ : List (Fin ℓ))
     {w : Equiv.Perm (Fin m)} {α : List ℕ} (hw : wordProd m α = w)
     (hk : redWord (w⁻¹ • s) = κ) :
     columnProjection (Q := Q) (Λ := Λ) s κ (q (raw (ψw α * pol 1 * e (w⁻¹ • s)))) =

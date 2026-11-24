@@ -6841,6 +6841,19 @@ example :
     (fun w => ⟨isReduced_canWord _ w, wordProd_canWord _ w⟩) loading [0, 1]
     (Relation.EqvGen.rel _ _ hstep) hv 1 loading
 
+example :
+    columnProjection loading [0, 1] (q (raw (ψw [1, 2, 1] * pol 1 * e loading))) -
+      columnProjection loading [0, 1] (q (raw (ψw [2, 1, 2] * pol 1 * e loading))) ∈
+      Submodule.span ℚ (columnProductsOn (canWord weight.card) loading [0, 1]
+        {w | (w ∈ subProds weight.card [1, 2, 1] ∧ length weight.card w < 1) ∧ w⁻¹ • loading = loading}) := by
+  have hstep : BraidStep [1, 2, 1] [2, 1, 2] := BraidStep.braid [] [] 1
+  have hv : ValidWord weight.card [1, 2, 1] := by
+    simp only [validWord_cons, validWord_nil]
+    decide
+  exact columnProjection_sub_mem_same_loading_of_braidEquiv (canWord weight.card)
+    (fun w => ⟨isReduced_canWord _ w, wordProd_canWord _ w⟩) loading [0, 1]
+    (Relation.EqvGen.rel _ _ hstep) hv 1 loading
+
 end NonVacuity.WebsterBraidColumnWordChange
 
 namespace NonVacuity.WebsterBraidIndex
@@ -6871,3 +6884,32 @@ example : reorderBottom blacks redSwap 1 ∈ braidIndices blacks redSwap :=
   reorderBottom_one_mem_braidIndices blacks redSwap
 
 end NonVacuity.WebsterBraidIndex
+
+namespace NonVacuity.WebsterBraidEarlierCut
+
+open KLR KLRAlgebra TypeA Stendhal Stendhal.BraidedStendhalAlgebra
+
+private abbrev black : Multiset Unit := {()}
+private abbrev weight := stendhalWeight 2 black
+private def top : Seq weight := Seq.ofList [.inr 1, .inr 0, .inl ()] (by decide)
+private abbrev v := sadj weight.card 0
+private abbrev w := v * wordProd weight.card [1]
+private noncomputable abbrev params : Unit → Unit → MvPolynomial (Fin 2) ℚ := fun _ _ => 0
+private abbrev exponents : Fin 2 → Unit →₀ ℕ := fun _ => 0
+private noncomputable abbrev q := violMk ℚ params exponents black
+private noncomputable abbrev raw := ofKLR ℚ params exponents black
+
+example :
+    q (raw (ψw [0, 1] * e (w⁻¹ • top))) * q (raw (e (w⁻¹ • top))) ∈
+      columnProductsOn (Q := params) (Λ := exponents) (fun _ => [0]) top [0, 1] {v} := by
+  have hred : redWord (v⁻¹ • top) = [0, 1] := by decide
+  have hbottom : redWord (w⁻¹ • top) = [0, 1] := by decide
+  let z : cornerBimodule (q (raw (e (w⁻¹ • top)))) (q (redProj ℚ params exponents black [0, 1])) :=
+    ⟨q (raw (e (w⁻¹ • top))), by
+      constructor
+      · rw [← map_mul q, ← map_mul raw, e_mul_self]
+      · rw [← map_mul q, e_mul_redProj, ite_eq_left hbottom]⟩
+  exact cutProduct_mem_columnProductsOn (fun _ => [0]) top [0, 1] {v}
+    (v := v) (w := w) (γ := [1]) (Set.mem_singleton v) rfl hred z
+
+end NonVacuity.WebsterBraidEarlierCut

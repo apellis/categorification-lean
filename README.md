@@ -1135,6 +1135,10 @@ the field corner tensor (`diagramCornerWeightRightSlice_leftInverse`).
 Over a scalar field in degree zero the left modules are K-projective, so the
 construction gives derived Hom for every homogeneous scalar coefficient
 (`diagramWeightScalarDerivedHom`).
+An ordinary bimodule map induces a natural transformation in the
+coefficient of derived tensor. On a K-projective model this is the
+ordinary tensor map applying it to the first factor
+(`derivedTensorCoefficientMap`, `derivedTensorObjIso_coefficient_naturality`).
 
 For the ordinary corner tensor, `CornerTensor.liftAdd` descends a balanced
 bi-additive family with an additive target. On rectangular coefficients it

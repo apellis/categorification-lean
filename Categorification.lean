@@ -1648,12 +1648,9 @@ import Categorification.WeightedKLR.RedStrands.BlockCrossingComparison
 import Categorification.WeightedKLR.RedStrands.BlockLoadingPresentation
 import Categorification.WeightedKLR.RedStrands.BlockKernelColumn
 import Categorification.WeightedKLR.RedStrands.BlockKernelIntervalExits
-<<<<<<< f380c7d
 import Categorification.WeightedKLR.RedStrands.InterleavedColumn
 import Categorification.WeightedKLR.RedStrands.FirstWeightBlockKernel
-=======
 import Categorification.WeightedKLR.RedStrands.BraidedStandardGrading
->>>>>>> 5b13cf5
 import Categorification.WeightedKLR.RedStrands.BraidedStandardInjective
 import Categorification.WeightedKLR.RedStrands.BraidedStandardIso
 import Categorification.WeightedKLR.RedStrands.BraidedStandardModule

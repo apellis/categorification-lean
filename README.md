@@ -1093,6 +1093,13 @@ because its two PBW return words factor through the mixed braid
 correction. The two maps on the divided-power terms form a complex
 (`Stendhal.labelTwoExteriorMiddleDifferential`,
 `Stendhal.labelTwoExteriorMiddleDifferential_comp_zero`).
+The projected exterior generator and its black-crossing translate
+span the incoming divided-power standard. They map to independent terminal coordinates
+in the common middle quotient, so the first map of the actual short
+complex is injective
+(`Stendhal.labelTwo_rightExteriorDividedStandard_span`,
+`Stendhal.LabelTwo.labelTwoExteriorMiddleDifferential_injective`,
+`Stendhal.LabelTwo.labelTwoExteriorStandardComplex_mono_first`).
 
 
 

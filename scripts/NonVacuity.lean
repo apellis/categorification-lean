@@ -5547,6 +5547,10 @@ example := Categorification.Stendhal.labelTwoExteriorMiddleDifferential_comp_zer
 
 noncomputable example := Categorification.Stendhal.labelTwoExteriorStandardComplex Q
 
+example := Categorification.Stendhal.LabelTwo.labelTwoExteriorMiddleDifferential_injective ℚ
+
+example := Categorification.Stendhal.LabelTwo.labelTwoExteriorStandardComplex_mono_first ℚ
+
 end NonVacuity.WebsterLabelTwoEndpointTor
 
 namespace NonVacuity.WebsterLocalization

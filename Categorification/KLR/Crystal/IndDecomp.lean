@@ -423,6 +423,68 @@ theorem concat_concatIdem (t : Seq (ν + ν')) :
   · exact absurd h2.symm h1
   · rfl
 
+private theorem hatW_mul_e_eq_concatIdem_mul (σ : Shuffle (Seq.card_add' ν ν') → List ℕ)
+    (hσ : ∀ u, wordProd (Multiset.card (ν + ν')) (σ u) = u.1)
+    (u : Shuffle (Seq.card_add' ν ν')) (s : Seq (ν + ν')) :
+    (hatW (Q := Q) σ u * e s : KLRAlgebra k Q (ν + ν')) =
+      concat Q ν ν' (concatIdem (u.1 • s)) * hatW (Q := Q) σ u := by
+  let E := oneConcat Q ν ν'
+  let p : KLRAlgebra k Q (ν + ν') := e (u.1 • s)
+  let w : KLRAlgebra k Q (ν + ν') := ψw (σ u)
+  have move : w * e s = p * w := by simp only [w, p, ψw_mul_e, hσ]
+  have commute : E * p = p * E := by simp only [E, p, oneConcat, eSum_mul_e, e_mul_eSum]
+  calc
+    _ = E * (w * e s) := mul_assoc _ _ _
+    _ = (p * E) * w := by rw [move, ← mul_assoc, commute]
+    _ = (p * E) * (E * w) := by
+      rw [← mul_assoc (p * E), mul_assoc p E E, oneConcat_idem.eq]
+    _ = _ := by rw [concat_concatIdem]; rfl
+
+/-- The bottom loading acts on each parabolic coordinate by its split projector. -/
+theorem freeBasis_coord_mul_e (hsym : KLRSymm Q)
+    (ρ : Equiv.Perm (Fin (Multiset.card ν)) → List ℕ)
+    (ρ' : Equiv.Perm (Fin (Multiset.card ν')) → List ℕ)
+    (σ : Shuffle (Seq.card_add' ν ν') → List ℕ)
+    (hρ : ∀ w, IsReduced (Multiset.card ν) (ρ w) ∧ wordProd (Multiset.card ν) (ρ w) = w)
+    (hρ' : ∀ w, IsReduced (Multiset.card ν') (ρ' w) ∧ wordProd (Multiset.card ν') (ρ' w) = w)
+    (hσ : ∀ u, IsReduced (Multiset.card (ν + ν')) (σ u) ∧
+      wordProd (Multiset.card (ν + ν')) (σ u) = u.1)
+    (s : Seq (ν + ν')) (u : Shuffle (Seq.card_add' ν ν'))
+    (z : oneConcatSub (ν := ν) (ν' := ν') Q) :
+    let B := freeBasis hsym ρ ρ' σ hρ hρ' hσ
+    B.coord u ⟨z.1 * e s, mem_oneConcatSub.2 (by rw [← mul_assoc, mem_oneConcatSub.1 z.2])⟩ =
+      B.coord u z * concatIdem (u.1 • s) := by
+  let B := freeBasis hsym ρ ρ' σ hρ hρ' hσ
+  let A := TensorKLR Q ν ν'
+  let C := oneConcatSub (ν := ν) (ν' := ν') Q
+  let project : C →ₗ[A] C :=
+    { toFun := fun z => ⟨z.1 * e s, mem_oneConcatSub.2 (by
+        rw [← mul_assoc, mem_oneConcatSub.1 z.2])⟩
+      map_add' := fun x y => Subtype.ext (add_mul x.1 y.1 (e s))
+      map_smul' := fun r z => Subtype.ext (by
+        change (concat Q ν ν' r * z.1) * e s = concat Q ν ν' r * (z.1 * e s)
+        exact mul_assoc _ _ _) }
+  let right : A →ₗ[A] A :=
+    { toFun := fun r => r * concatIdem (u.1 • s)
+      map_add' := fun x y => add_mul x y _
+      map_smul' := fun r z => mul_assoc r z _ }
+  have equivariant : (B.coord u).comp project = right.comp (B.coord u) := by
+    apply B.ext
+    intro v
+    have h : project (B v) = (concatIdem (Q := Q) (v.1 • s)) • B v := by
+      apply Subtype.ext
+      change ((B v).1 * e s : KLRAlgebra k Q (ν + ν')) = _
+      rw [coe_tensor_smul, show (B v).1 = hatW σ v from freeBasis_apply hsym ρ ρ' σ hρ hρ' hσ v]
+      exact hatW_mul_e_eq_concatIdem_mul σ (fun w => (hσ w).2) v s
+    simp only [LinearMap.comp_apply, h, map_smul, smul_eq_mul]
+    change concatIdem (Q := Q) (v.1 • s) * B.coord u (B v) =
+      B.coord u (B v) * concatIdem (u.1 • s)
+    by_cases huv : v = u
+    · subst v
+      simp [Module.Basis.coord_apply, Module.Basis.repr_self]
+    · simp [Module.Basis.coord_apply, Module.Basis.repr_self, huv]
+  exact LinearMap.congr_fun equivariant z
+
 end ConcatIdem
 
 /-! ### The decomposition of `Ind N` -/

@@ -1602,6 +1602,7 @@ import Categorification.WeightedKLR.RedStrands.StringyLoading
 import Categorification.WeightedKLR.RedStrands.StringyClassification
 import Categorification.WeightedKLR.RedStrands.StandardSplitting
 import Categorification.WeightedKLR.RedStrands.RedFirstBaseCrossing
+import Categorification.WeightedKLR.RedStrands.TwoRedCrossingInjectivity
 import Categorification.WeightedKLR.RedStrands.RedFirstCorner
 import Categorification.WeightedKLR.RedStrands.RedFirstDoubleCentralizer
 import Categorification.WeightedKLR.RedStrands.RedFirstEndomorphism
@@ -1624,6 +1625,9 @@ import Categorification.WeightedKLR.RedStrands.BraidedAppendIdentity
 import Categorification.WeightedKLR.RedStrands.BraidedAppendProjective
 import Categorification.WeightedKLR.RedStrands.BraidedAppendTensor
 import Categorification.WeightedKLR.RedStrands.BraidedAppendViolated
+import Categorification.WeightedKLR.RedStrands.BraidedBimoduleFlip
+import Categorification.WeightedKLR.RedStrands.BraidedExteriorGrading
+import Categorification.WeightedKLR.RedStrands.BraidedExteriorTensor
 import Categorification.WeightedKLR.RedStrands.BraidedFactorization
 import Categorification.WeightedKLR.RedStrands.BraidedFactorizationBasis
 import Categorification.WeightedKLR.RedStrands.BraidedFactorizationGeneral
@@ -1633,26 +1637,17 @@ import Categorification.WeightedKLR.RedStrands.BraidedFactorizationExits
 import Categorification.WeightedKLR.RedStrands.BraidedFactorizationSpan
 import Categorification.WeightedKLR.RedStrands.BraidedIdentity
 import Categorification.WeightedKLR.RedStrands.BraidedRedOrder
+import Categorification.WeightedKLR.RedStrands.BraidedReflectedFiltration
 import Categorification.WeightedKLR.RedStrands.BraidedRelabel
 import Categorification.WeightedKLR.RedStrands.BraidedRelabelAppend
 import Categorification.WeightedKLR.RedStrands.AdjacentBlockTensor
 import Categorification.WeightedKLR.RedStrands.OrderedBlockAction
+import Categorification.WeightedKLR.RedStrands.BlockCrossingDiagramCut
+import Categorification.WeightedKLR.RedStrands.BraidedStandardDerived
 import Categorification.WeightedKLR.RedStrands.BlockCrossingComparison
 import Categorification.WeightedKLR.RedStrands.BlockLoadingPresentation
+import Categorification.WeightedKLR.RedStrands.BlockKernelColumn
 import Categorification.WeightedKLR.RedStrands.BlockKernelIntervalExits
 import Categorification.WeightedKLR.RedStrands.InterleavedColumn
 import Categorification.WeightedKLR.RedStrands.FirstWeightBlockKernel
-import Categorification.WeightedKLR.RedStrands.BraidedStandardInjective
-import Categorification.WeightedKLR.RedStrands.BraidedStandardIso
-import Categorification.WeightedKLR.RedStrands.BraidedStandardTwo
-import Categorification.WeightedKLR.RedStrands.BraidedStendhal
-import Categorification.WeightedKLR.RedStrands.BraidedViolatedIdentity
-import Categorification.WeightedKLR.RedStrands.BraidedViolatedPush
-import Categorification.WeightedKLR.RedStrands.BraidedViolatedQuotient
-import Categorification.WeightedKLR.RedStrands.StendhalBasisSymm
-
-/-!
-# Categorification
-
-Lean 4 formalizations of results in categorification.
--/
+import Categorification.WeightedKLR.RedStrands.BraidedStandardGrading

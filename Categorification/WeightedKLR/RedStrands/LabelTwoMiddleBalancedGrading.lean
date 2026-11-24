@@ -3,6 +3,7 @@ Copyright (c) 2026 Alex Ellis. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 -/
 import Categorification.WeightedKLR.RedStrands.LabelTwoMiddleGradedAugmentation
+import Categorification.WeightedKLR.RedStrands.LabelTwoMiddleFixedGrading
 import Categorification.WeightedKLR.RedStrands.LabelTwoMiddleTensorDifferentials
 import Categorification.WeightedKLR.RedStrands.BoundaryHomReflection
 
@@ -124,5 +125,20 @@ theorem middleStandardQuotient_mem_grade {d : ℤ} {x : lIdeal E}
     (middleStandardGenerator_mem_grade k)
   change _ ∈ ℳ₂ (d + 0) at h
   simpa only [add_zero] using h
+
+/-- Scalar and epsilon coordinates of the actual ambient tensor have degrees
+zero and two respectively. -/
+theorem middleStandardTensorEquiv_mem_grade_iff (t : T) (d : ℤ) :
+    t ∈ 𝒯 d ↔ (d ≠ 0 → (middleStandardTensorEquiv k t).fst = 0) ∧
+      (d ≠ 2 → (middleStandardTensorEquiv k t).snd = 0) := by
+  let e := middleFixedToOrdinaryTensorGradedEquiv k
+  have h : t ∈ 𝒯 d ↔ (e.toLinearEquiv.symm t).val ∈ 𝒬 d := by
+    constructor
+    · intro ht
+      exact e.symm_map_mem' ht
+    · intro hz
+      have hz' : e.toLinearEquiv.symm t ∈ 𝒲 d := hz
+      exact (e.toLinearEquiv.apply_symm_apply t) ▸ e.map_mem' hz'
+  exact h.trans (middleCutDotSum_mem_grade_iff k (e.toLinearEquiv.symm t) d)
 
 end Categorification.Stendhal.LabelTwo

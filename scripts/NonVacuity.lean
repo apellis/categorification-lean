@@ -8671,6 +8671,8 @@ example := middleCutDotSum_mem_grade_iff ℚ
 
 example := middleFixedToOrdinaryTensorGradedEquiv ℚ
 
+example := middleStandardTensorEquiv_mem_grade_iff ℚ
+
 example := middleStandardQuotient_mem_grade ℚ
 
 end NonVacuity.WebsterLabelTwoMiddleFixedComplex

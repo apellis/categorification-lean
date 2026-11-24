@@ -70,7 +70,7 @@ theorem eq_zero_of_mul_secondRedCrossing_at_right
   let d : DecidableEq I := fun a b => Classical.propDecidable (a = b)
   have hd : decI = d := Subsingleton.elim _ _
   subst decI
-  letI : DecidableEq I := d
+  let _ : DecidableEq I := d
   let A := Multiset.map (addRedColor 1) (stendhalWeight 1 θ)
   let B := Multiset.map (Sum.map (id : I → I) (fun _ : Fin 1 => Fin.last 1))
     (stendhalWeight 1 (0 : Multiset I))

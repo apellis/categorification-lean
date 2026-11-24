@@ -3,6 +3,8 @@ Copyright (c) 2026 Alex Ellis. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 -/
 import Categorification.Algebra.DiagramWeightExact
+import Categorification.Algebra.DiagramWeightGroundTensor
+import Categorification.WeightedKLR.RedStrands.LabelTwoMiddleBalancedGrading
 import Categorification.WeightedKLR.RedStrands.LabelTwoMiddleGradedAugmentation
 import Categorification.WeightedKLR.Rigidity.WeightModuleExactTriangle
 import Categorification.WeightedKLR.RedStrands.LabelTwoMiddleAmbientTor
@@ -165,6 +167,8 @@ def middleDifferenceWeightAugmentation :
 
 universe v
 
+section CompanionDerived
+
 variable [CatModule.HasDerivedCategory.{v,0} (WeightCategory
   (TensorProductAlgebra k (parameter k) weights (({()} : Multiset Unit) + {()})))]
 
@@ -246,5 +250,51 @@ theorem middleDifferenceWeight_distinguished :
     ((ModuleCat.mono_iff_injective sc.f).mp hs.mono_f)
     ((ShortComplex.ShortExact.moduleCat_exact_iff_function_exact sc).mp hs.exact)
     ((ModuleCat.epi_iff_surjective sc.g).mp hs.epi_g)
+
+
+end CompanionDerived
+
+section MiddleTensor
+
+local notation "N₂" => MiddleTensorCoefficient k
+local notation "𝒩₂" => middleTensorCoefficientGrade k
+
+/-- Ground-field scalars preserve the reflected middle coefficient grading. -/
+theorem middleCoefficient_scalarLeft {i j : ℤ} {a : k} {x : N₂}
+    (ha : a ∈ wgrading i) (hx : x ∈ 𝒩₂ j) : a • x ∈ 𝒩₂ (i + j) := by
+  rcases InDegreeZero.ring_mem_grading_iff.mp ha with rfl | rfl
+  · rw [zero_add]
+    exact (𝒩₂ j).smul_mem _ hx
+  · rw [zero_smul]
+    exact zero_mem _
+
+/-- The reflected right diagram action respects the coefficient grading. -/
+theorem middleCoefficient_reflectedRight {i j : ℤ} {a : A₂} {x : N₂}
+    (ha : a ∈ wgrading i) (hx : x ∈ 𝒩₂ j) : op a • x ∈ 𝒩₂ (j + i) :=
+  middleTensorCoefficient_smul_mem_grade k hx ha
+
+/-- The actual reflected coefficient as a weight bimodule. -/
+def middleReflectedWeightBimodule : CatBimodule (WeightCategory k) (WeightCategory A₂) :=
+  diagramWeightBimodule (fun d => (𝒩₂ d).toAddSubgroup) (middleCoefficient_scalarLeft k)
+    (middleCoefficient_reflectedRight k)
+
+/-- The weight coend of the actual middle coefficient and standard is the
+corresponding ground-field homogeneous piece of the ordinary middle tensor. -/
+def middleStandardWeightTensorEquiv (X : WeightCategory k) :
+    ((middleReflectedWeightBimodule k).tensorObj (middleStandardWeightModule k)).obj X ≃+
+      middleOrdinaryTensorGrade k X.as := by
+  letI : DirectSum.Decomposition 𝒩₂ := (middleDotSumQuotientGFin k).decomposition
+  letI : DirectSum.Decomposition ℳ₂ := (middleStandardGFin k (labelTwoGradingDatum k)).decomposition
+  letI : DirectSum.Decomposition (fun d => (𝒩₂ d).toAddSubgroup) := addSubgroupDecomposition k 𝒩₂
+  letI : DirectSum.Decomposition (fun d => (ℳ₂ d).toAddSubgroup) := addSubgroupDecomposition k ℳ₂
+  letI : SetLike.GradedSMul 𝒜₂ ℳ₂ := (middleStandardGFin k (labelTwoGradingDatum k)).gradedSMul
+  let e := diagramWeightTensorGroundGradeEquiv (B := A₂) 𝒩₂ ℳ₂
+    (middleCoefficient_scalarLeft k) (middleCoefficient_reflectedRight k)
+    (leftModuleWeight k ℳ₂) (rightScalarWeight k ℳ₂)
+    (middleTensorCoefficient_algebraMap_smul k) X (⟨0⟩ : WeightCategory k)
+  exact e.trans (AddEquiv.addSubgroupCongr
+    (congrArg (fun d => (middleOrdinaryTensorGrade k d).toAddSubgroup) (sub_zero X.as)))
+
+end MiddleTensor
 
 end Categorification.Stendhal.LabelTwo

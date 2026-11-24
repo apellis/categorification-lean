@@ -11662,3 +11662,43 @@ example : NatTrans.CommShift (derivedTensorCoefficientMap twice twice_op) ℤ :=
 end
 
 end WebsterDerivedTensorCoefficientFixture
+
+namespace NonVacuity.DerivedTensorCoefficientExact
+
+open Categorification CategoryTheory DG MulOpposite
+open scoped DG.DegreeZero
+
+noncomputable section
+
+private abbrev inclusion : ℚ →ₗ[ℚ] ℚ × ℚ := LinearMap.inl ℚ ℚ ℚ
+private abbrev quotient : (ℚ × ℚ) →ₗ[ℚ] ℚ := LinearMap.snd ℚ ℚ ℚ
+
+private theorem inclusion_right (a m : ℚ) : inclusion (op a • m) = op a • inclusion m := by
+  change (op a • m, 0) = (op a • m, op a • (0 : ℚ))
+  rw [smul_zero]
+
+private theorem quotient_right (a : ℚ) (m : ℚ × ℚ) : quotient (op a • m) = op a • quotient m := rfl
+
+private theorem coefficientSequence_exact : Function.Exact inclusion quotient := by
+  intro z
+  change z.2 = 0 ↔ ∃ a : ℚ, (a,0) = z
+  constructor
+  · intro h
+    exact ⟨z.1, Prod.ext rfl h.symm⟩
+  · rintro ⟨a, rfl⟩
+    rfl
+
+private theorem inclusion_injective : Function.Injective inclusion :=
+  fun _ _ h => congrArg Prod.fst h
+
+private theorem quotient_surjective : Function.Surjective quotient :=
+  fun z => ⟨(0,z),rfl⟩
+
+local instance : DG.HasDerivedCategory.{0,0} ℚ := DG.HasDerivedCategory.small ℚ
+
+example := exists_distinguished_derivedTensorCoefficient (ModuleCat.of ℚ ℚ)
+  inclusion inclusion_right quotient quotient_right
+  coefficientSequence_exact inclusion_injective quotient_surjective
+
+end
+end NonVacuity.DerivedTensorCoefficientExact

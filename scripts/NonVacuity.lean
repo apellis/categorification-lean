@@ -6549,6 +6549,20 @@ example (y : KLRAlgebra ℤ params M) :
   exact intervalPBWSpan_mul_intervalConcat params (by intro a b _; simp [params]) l r
     ⟨_, intervalPBWSpan_polynomial params _ w _⟩ y
 
+example
+    (x : Fin 2 → (Fin L.card →₀ ℕ) → (Fin R.card →₀ ℕ) → KLRAlgebra ℤ params M)
+    (y : Fin 2 → KLRAlgebra ℤ params M) :
+    (∑ i : Fin 2, (∑ a ∈ ({0, Finsupp.single ⟨0, by decide⟩ 1} : Finset (Fin L.card →₀ ℕ)),
+      intervalSpectatorConcat params l r (monomial a 1) (monomial 0 1) (x i a 0)) *
+        intervalConcat params l r (y i)) = 0 ↔
+      ∀ a ∈ ({0, Finsupp.single ⟨0, by decide⟩ 1} : Finset (Fin L.card →₀ ℕ)),
+        (∑ i : Fin 2, x i a 0 * y i) = 0 := by
+  classical
+  simpa only [Finset.sum_singleton, Finset.mem_singleton, forall_eq] using
+    (intervalSpectatorConcat_exit_relation_iff params (by intro a b _; simp [params]) l r
+      (Finset.univ : Finset (Fin 2))
+      {0, Finsupp.single ⟨0, by decide⟩ 1} {0} x y)
+
 end NonVacuity.WebsterIntervalConcat
 
 noncomputable section

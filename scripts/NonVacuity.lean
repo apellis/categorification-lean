@@ -5633,13 +5633,14 @@ example : True := by
   exact (Stendhal.fgString_isPerfectBasis (k := ℚ) (Λ := pbΛ) () 0 pbRouquier
     (Multiset.notMem_zero ())).elim fun _ _ => trivial
 
+end
+
+end NonVacuity.PerfectBasis
+
 namespace NonVacuity.WebsterOppositeStandardTor
 
-open DG DG.DerivedCategory CategoryTheory.Limits
+open Categorification DG DG.DerivedCategory CategoryTheory.Limits
 open scoped DG.DegreeZero
-
-
-open Categorification
 
 local instance : DG.HasDerivedCategory.{0, 0} ℚ := DG.HasDerivedCategory.small ℚ
 
@@ -5657,13 +5658,9 @@ example : IsZero ((homologyFunctor (A := ℚ) ℤ (-1)).obj
     exact Submodule.zero_mem _
   · intro j _ a
     exact a.elim
-  · decide
+  · omega
 
 end NonVacuity.WebsterOppositeStandardTor
-
-end
-
-end NonVacuity.PerfectBasis
 
 namespace NonVacuity.StringParametrization
 

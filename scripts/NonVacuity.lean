@@ -6151,6 +6151,249 @@ example (y z : BraidedStendhalAlgebra (ZMod 4) q₄ Λ (β + β)) :
   apply Subtype.ext; apply Subtype.ext; rw [orderedColumnRep_val, orderedColumnRep_val]
   change q (_ * (v (y*e*z) * _)) = q (_ * (v 0 * _))
   simp only [map_mul v, map_mul q, hz, map_zero v, map_zero q, mul_zero, zero_mul]
+
+section KernelTensor
+open BraidedStendhalAlgebra
+private abbrev weights : Fin 4 → Unit →₀ ℕ := fun _ => Finsupp.single () 3
+private def source : Loadings Bs :=
+  ⟨top.1,KLRAlgebra.Seq.ofList [.inr 0,.inl (),.inr 1] (by decide),top.2.2⟩
+private abbrev src := Seq.cast weight (place Bs source)
+private def uncrossedBottom : Seq (stendhalWeight 4 (β + β)) :=
+  KLRAlgebra.Seq.ofList [.inr 0,.inl (),.inr 1,.inr 2,.inl (),.inr 3] (by decide)
+
+example := blockLoading_projective q₄ weights src
+example : (crossingSpace (k := ZMod 4)
+    (violMk (ZMod 4) q₄ weights (β+β) (redProj (ZMod 4) q₄ weights (β+β) (redWord src)))
+    (violMk (ZMod 4) q₄ weights (β+β) (redProj (ZMod 4) q₄ weights (β+β) [0,2,1,3]))).toAddSubgroup =
+      braidingBimodule (ZMod 4) q₄ weights (β+β) (redWord src) [0,2,1,3] := rfl
+
+/-- The internal black does not impose a retained cut in the loading presentation. -/
+example := ker_blockStandardCover q₄ weights L M pair β weight source (by decide)
+  (by rintro (⟨_,h⟩ | ⟨_,h⟩ | ⟨_,h⟩ | h) <;> contradiction)
+example := blockStandardCover_surjective q₄ weights L M pair β weight source (by decide)
+
+/-- A strictly higher generator exists without being globally violated. -/
+example : ¬IsViolated (Seq.cast weight (place Bs higher)) ∧
+    adjacentBlockRoot (pair 0) (pair 1) src < adjacentBlockRoot (pair 0) (pair 1) (Seq.cast weight (place Bs higher)) := by
+  refine ⟨by rintro ⟨_,h⟩; contradiction, lt_of_le_of_ne ?_ ?_⟩
+  · intro r i; fin_cases r <;> cases i <;> decide
+  · intro h
+    have bad : (1 : ℕ) = 2 := congrFun (congrFun h (pair 0)) ()
+    contradiction
+
+/-- Cut a violation strictly between two arbitrary diagrams as a zero in the kernel
+tensor, not merely in the projective tensor or the standard quotient. -/
+example (x y : BraidedStendhalAlgebra (ZMod 4) q₄ weights (β + β)) :=
+  let i : Seq (stendhalWeight 4 (β + β)) := KLRAlgebra.Seq.ofList
+    [.inl (),.inr 3,.inr 2,.inl (),.inr 1,.inr 0] (by decide)
+  exists_zero_blockKernelCut q₄ weights src (pair 0) (pair 1) [0,2,1,3] symm₄
+    (x := x * ofKLR (ZMod 4) q₄ weights (β + β) (KLRAlgebra.e i) * y) (by
+      have hi : IsViolated i := ⟨by decide,rfl⟩
+      simp only [map_mul, violMk_e hi, mul_zero,zero_mul])
+
+/-- The degree-one kernel has affine representatives even when the *exchanged* bottom
+pair encloses a black. This does not assert that these representatives have zero class. -/
+example := ker_blockKernelTensorInclusion_eq_map q₄ weights src (pair 0) (pair 1)
+  (redWord (Seq.cast weight (place Bs top))) symm₄
+
+/-- Over `ZMod 4` with two blacks and two spectators, the class killed in the projective
+tensor vanishes in the bottom component with consecutive exchanged reds. -/
+example := blockKernelColumnInclusion_injective q₄ weights src (pair 0) (pair 1)
+  (TypeA.sadj _ 2 • uncrossedBottom) symm₄ [0] [3] (by decide) uncrossedBottom (by decide)
+  2 (by decide) (by decide) (by decide) rfl
+private abbrev between := Seq.cast weight (place Bs top)
+private abbrev leftExit := TypeA.wordProd (stendhalWeight 4 (β+β)).card [3,2] • between
+private abbrev rightExit := TypeA.wordProd (stendhalWeight 4 (β+β)).card [2,3] • between
+private abbrev root := adjacentBlockRoot (pair 0) (pair 1) (ν := β+β)
+
+private theorem higherLeft : root src < root leftExit := by
+  refine lt_of_le_of_ne ?_ ?_
+  · intro r i; fin_cases r <;> cases i <;> decide
+  · intro h; have bad : (1 : ℕ) = 2 := congrFun (congrFun h (pair 0)) (); contradiction
+
+/-- A mark on the left exit need not extend to the bare right exit or joint. The
+correction in this example is a cube, not `1`. -/
+example : ¬IsViolated leftExit ∧ root rightExit = root src ∧ weights (pair 0) () = 3 := by
+  refine ⟨by rintro ⟨_,h⟩; contradiction, ?_, by simp [weights]⟩
+  funext r i; fin_cases r <;> cases i <;> decide
+
+example (y : BraidedStendhalAlgebra (ZMod 4) q₄ weights (β+β)) :=
+  blockKernelBigon_slide q₄ weights src (pair 0) (pair 1) [0,2,1,3] between 2 (by decide)
+    (blockHigherMark q₄ weights src (pair 0) (pair 1) leftExit (by decide) higherLeft
+      (ofKLR (ZMod 4) q₄ weights (β+β) (KLRAlgebra.ψ 2))) () (by decide) (by decide) (by decide) (by decide) y
+
+private def lowTop : Seq (stendhalWeight 4 (β+β)) :=
+  KLRAlgebra.Seq.ofList [.inr 0,.inr 1,.inl (),.inr 2,.inl (),.inr 3] (by decide)
+
+private theorem cut_idempotent {A : Type*} [Ring A] {p q : A} (hp : p * p = p) (hq : q * q = q) (u : A) :
+    p * (p*u*q) * q = p*u*q := by simp only [mul_assoc,hq]; rw [← mul_assoc,hp]
+
+/-- An equal-colour spectator lies to the left of `b i a`. Test the affine
+relation on arbitrary upper diagrams in both corners, with their bottom dots. -/
+example (u v : BraidedStendhalAlgebra (ZMod 4) q₄ weights (β+β)) :=
+  let F := ofKLR (ZMod 4) q₄ weights (β+β)
+  let p := fun z : Seq (stendhalWeight 4 (β+β)) => F (KLRAlgebra.e z)
+  have sq (z) : p z * p z = p z := by rw [← map_mul F,KLRAlgebra.e_mul_self]
+  interleaved_affine_relation_iff q₄ weights between 2 (by decide) symm₄ src
+    (Lr := [0]) (Mr := [3]) (by decide) (b := pair 1) (i := ()) (a := pair 0)
+    (by decide) (by decide) (by decide) _ _
+    (cut_idempotent (sq src) (sq leftExit) u) (cut_idempotent (sq src) (sq rightExit) v)
+
+/-- Here the *right* exit is strictly higher. Both cut classes are re-marked by
+the theorem; there is no higher-ideal premise on either exterior diagram. -/
+example (z y : BraidedStendhalAlgebra (ZMod 4) q₄ weights (β+β)) :=
+  blockKernelHigherExit_slide q₄ weights lowTop (pair 0) (pair 1) [0,2,1,3] between 2 (by decide)
+    () (by decide) (by decide) (by decide) (by decide) (by
+      refine lt_of_le_of_ne ?_ ?_
+      · intro r i; fin_cases r <;> cases i <;> decide
+      · intro h; have bad : (0 : ℕ) = 1 := congrFun (congrFun h (pair 0)) (); contradiction) z y
+
+section TwoBlackColours
+private abbrev colors : Multiset (Fin 2) := {0,1}
+private abbrev param : Fin 2 → Fin 2 → MvPolynomial (Fin 2) (ZMod 4) := fun _ _ => 0
+private abbrev wt : Fin 4 → Fin 2 →₀ ℕ := fun r => if r = pair 0 then
+  Finsupp.single 0 2 + Finsupp.single 1 3 else Finsupp.single 0 4 + Finsupp.single 1 4
+private def exterior : Seq (stendhalWeight 4 colors) :=
+  KLRAlgebra.Seq.ofList [.inr 0,.inr 2,.inl 0,.inr 1,.inl 1,.inr 3] (by decide)
+private def atJoint : Seq (stendhalWeight 4 colors) :=
+  KLRAlgebra.Seq.ofList [.inr 0,.inr 1,.inl 0,.inr 2,.inl 1,.inr 3] (by decide)
+
+/-- Distinct exterior colour and unequal positive pairings. Test all relations
+after killing global violations, not after quotienting by higher loadings. -/
+example (u v : ViolQuotient (ZMod 4) param wt colors) :=
+  let F := (violMk (ZMod 4) param wt colors).comp (ofKLR (ZMod 4) param wt colors)
+  let p := fun z : Seq (stendhalWeight 4 colors) => F (KLRAlgebra.e z)
+  have sq (z) : p z * p z = p z := by rw [← map_mul F,KLRAlgebra.e_mul_self]
+  let q := fun w => TypeA.wordProd (stendhalWeight 4 colors).card w • exterior
+  interleaved_quotient_relation_iff param wt exterior 1 (by decide) (fun _ _ _ => rfl) atJoint
+    (Lr := [0]) (Mr := [3]) (by decide) (a := pair 0) (b := pair 1) (i := 0)
+    (by decide) (by decide) (by decide) _ _
+    (cut_idempotent (sq atJoint) (sq (q [2,1])) u) (cut_idempotent (sq atJoint) (sq (q [1,2])) v)
+private def before : Seq (stendhalWeight 4 colors) :=
+  KLRAlgebra.Seq.ofList [.inr 0,.inr 1,.inr 2,.inl 0,.inl 1,.inr 3] (by decide)
+private def afterPair : Seq (stendhalWeight 4 colors) :=
+  KLRAlgebra.Seq.ofList [.inr 0,.inr 2,.inl 0,.inl 1,.inr 1,.inr 3] (by decide)
+private abbrev atLeft := TypeA.wordProd (stendhalWeight 4 colors).card [3,2,1] • afterPair
+private abbrev powers (z : ℕ) : ℕ := if z=0 then 2 else 3
+
+/-- Separate black colours give square and cube at the two positions of the left
+exit. The upper representative actually takes these blacks past the paired reds. -/
+example (y : BraidedStendhalAlgebra (ZMod 4) param wt colors) :=
+  blockKernelIntervalBigon_slide param wt before (pair 0) (pair 1) [0,2,1,3]
+    (blockHigherMark param wt before (pair 0) (pair 1) atLeft (by decide) (by
+      refine lt_of_le_of_ne ?_ ?_
+      · intro r i; fin_cases r <;> fin_cases i <;> decide
+      · intro h; have bad : (0 : ℕ) = 1 := congrFun (congrFun h (pair 0)) 0; contradiction)
+      (ofKLR (ZMod 4) param wt colors (KLRAlgebra.ψw [2,3,1,2])))
+    1 2 (by decide) afterPair (by decide) (by decide) powers (by
+      intro z hz; rcases (show z=0 ∨ z=1 by omega) with rfl | rfl
+      · exact ⟨0,by decide +revert,by simp [powers, wt]⟩
+      · exact ⟨1,by decide +revert,by simp [powers, wt]⟩) y
+
+/-- The same exponents annihilate every kernel class at the interleaved bottom,
+now on positions 2 and 3 rather than positions 1 and 2. -/
+example := ker_blockKernelColumnInclusion_le_ker_dots param wt before (pair 0) (pair 1)
+  (fun _ _ _ => rfl) [0] [3] (by decide) before rfl 1 2 (by decide) (by decide) (by decide)
+  afterPair (by decide) (by decide) powers (by
+    intro z hz; rcases (show z=0 ∨ z=1 by omega) with rfl | rfl
+    · exact ⟨0,by decide +revert,by simp [powers, wt]⟩
+    · exact ⟨1,by decide +revert,by simp [powers, wt]⟩)
+
+/-- Set only the red moved left to weight zero. The other red and both spectators
+still pair positively; the bottom has *two* intervening black strands. -/
+example := blockKernelColumnInclusion_injective_of_zero_pairings param (fun r => if r = pair 0 then 0 else wt r)
+  before (pair 0) (pair 1) (fun _ _ _ => rfl) [0] [3] (by decide) before rfl 1 2 (by decide)
+  (by decide) (by decide) afterPair (by decide) (by decide) (by
+    intro z hz; rcases (show z=0 ∨ z=1 by omega) with rfl | rfl
+    · exact ⟨0,by decide +revert,by decide⟩
+    · exact ⟨1,by decide +revert,by decide⟩)
+end TwoBlackColours
+
+/-- With a spectator black, the actual higher tensor is still generated by the
+two undotted exits at the interleaved bottom. No vanishing pairing is used. -/
+example := exists_interleavedKernelColumn_exits q₄ weights between 2 (by decide) src
+  (pair 0) (pair 1) symm₄ (L := [0]) (M := [3]) (by decide) (by decide) (by decide)
+  (by decide) (by decide)
+
+/-- The interleaved kernel inclusion with one zero return exponent, two spectator
+reds and an exterior black of the same colour. -/
+example := interleaved_markedColumn_injective q₄ (fun r => if r = pair 0 then 0 else weights r)
+  src between (pair 0) (pair 1) 2 (by decide) symm₄ (Lr := [0]) (Mr := [3])
+  (by decide) (i := ()) (by decide) (by decide) (by decide) (by decide) (Or.inr (by decide))
+
+/-- Both pairings are positive when the joint loading itself is higher. -/
+example := interleaved_markedColumn_injective q₄ weights lowTop between (pair 0) (pair 1)
+  2 (by decide) symm₄ (Lr := [0]) (Mr := [3]) (by decide) (i := ())
+  (by decide) (by decide) (by decide) (by decide) (Or.inl (by
+    refine lt_of_le_of_ne ?_ ?_
+    · intro r i; fin_cases r <;> cases i <;> decide
+    · intro h
+      have bad : (0 : ℕ) = 1 := congrFun (congrFun h (pair 0)) ()
+      contradiction))
+
+section FirstBlackWeight
+private abbrev oneWt : Fin 3 → Unit →₀ ℕ := fun r => Finsupp.single () (if r = 0 then 2 else 1)
+private def joint : Seq (stendhalWeight 3 β) :=
+  KLRAlgebra.Seq.ofList [.inr 0,.inr 1,.inl (),.inr 2] (by decide)
+private def exchanged : Seq (stendhalWeight 3 β) :=
+  KLRAlgebra.Seq.ofList [.inr 0,.inr 2,.inl (),.inr 1] (by decide)
+private def markedLeft : Seq (stendhalWeight 3 β) :=
+  KLRAlgebra.Seq.ofList [.inr 0,.inl (),.inr 1,.inr 2] (by decide)
+private def bareRight : Seq (stendhalWeight 3 β) :=
+  KLRAlgebra.Seq.ofList [.inr 0,.inr 1,.inr 2,.inl ()] (by decide)
+private theorem strictLeft : adjacentBlockRoot 1 2 joint < adjacentBlockRoot 1 2 markedLeft := by
+  refine lt_of_le_of_ne ?_ ?_
+  · intro r i; fin_cases r <;> cases i <;> decide
+  · intro he; have bad : (0 : ℕ) = 1 := congrFun (congrFun he 1) (); contradiction
+
+/-- Positive pairings and a left spectator of weight two. The right exit is
+not strictly higher, and the left exit is not globally violated. -/
+example : adjacentBlockRoot 1 2 bareRight = adjacentBlockRoot 1 2 joint ∧
+    ¬IsViolated markedLeft ∧ oneWt 1 () = 1 ∧ oneWt 2 () = 1 := by
+  refine ⟨?_,by rintro ⟨_,h⟩; contradiction,by simp [oneWt],by simp [oneWt]⟩
+  funext r i; fin_cases r <;> cases i <;> decide
+
+example := firstWeight_blockKernelColumnInclusion_injective () q₄ oneWt 1 2 exchanged joint symm₄
+
+example := firstWeight_interleavedColumn_presentation () q₄ oneWt 1 2 exchanged 1 joint symm₄
+  (by decide) (L := [0]) (M := []) (by decide) (by decide) (by decide) (by decide) (by decide)
+
+example :=
+  let g := blockHigherMark q₄ oneWt joint 1 2 markedLeft (by decide) strictLeft
+    (ofKLR (ZMod 4) q₄ oneWt β (KLRAlgebra.ψ 1))
+  let u := MulOpposite.op (blockSeamWord q₄ oneWt joint [1]) • g
+  firstWeight_exit_saturated () q₄ oneWt 1 2 (adjacentBlockRoot 1 2 joint) (redWord joint) bareRight 2
+    (by decide) symm₄ (r := 2) (d := ()) (by decide) (by decide) (by decide) u.1.1.1
+    ((blockUpperIdeal (ZMod 4) q₄ oneWt β 1 2 (adjacentBlockRoot 1 2 joint) (redWord joint)).mul_mem_right _ _ u.2)
+
+/-- Mark through `c i a b`, then cross to the non-higher joint `c a i b`.
+Both exit products factor through the left mark. The conclusion compares
+their separately constructed elements of `K ⊗_T B`. -/
+example :=
+  let g := blockHigherMark q₄ oneWt joint 1 2 markedLeft (by decide) strictLeft
+    (ofKLR (ZMod 4) q₄ oneWt β (KLRAlgebra.ψ 1))
+  let u := MulOpposite.op (blockSeamWord q₄ oneWt joint [1]) • g
+  firstWeight_blockKernel_mixedExit () q₄ oneWt 1 2 exchanged 1 joint (redWord exchanged)
+    symm₄ (by decide) (by decide) (by decide) (by decide) (by decide) u.1
+    ((blockLoadingKernel q₄ oneWt joint 1 2).smul_mem _ u.2)
+    ((blockLoadingKernel q₄ oneWt joint 1 2).smul_mem _ u.2)
+end FirstBlackWeight
+
+/-- A spectator black can provide either violation without reversing the
+specified `b,i` at positions 2 and 3. This tests the limit of the forced-descent
+argument, not failure of the tensor inclusion. -/
+private def twoRight : Seq (stendhalWeight 3 (β+β)) :=
+  KLRAlgebra.Seq.ofList [.inr 0,.inr 1,.inr 2,.inl (),.inl ()] (by decide)
+private abbrev fromRight := TypeA.wordProd (stendhalWeight 3 (β+β)).card
+example : IsViolated (fromRight [0,1,2,3] • twoRight) ∧
+    ¬fromRight [0,1,2,3] ⟨3,by decide⟩ < fromRight [0,1,2,3] ⟨2,by decide⟩ :=
+  ⟨⟨by decide,by decide⟩,by decide⟩
+example : adjacentBlockRoot 1 2 twoRight < adjacentBlockRoot 1 2 (fromRight [1,2,3] • twoRight) ∧
+    ¬fromRight [1,2,3] ⟨3,by decide⟩ < fromRight [1,2,3] ⟨2,by decide⟩ := by
+  refine ⟨lt_of_le_of_ne ?_ ?_,by decide⟩
+  · intro r i; fin_cases r <;> cases i <;> decide
+  · intro he; have bad : (0 : ℕ) = 1 := congrFun (congrFun he 1) (); contradiction
+end KernelTensor
 end AdjacentRow
 
 /-- Webster, arXiv:1309.3796v2, Prop. 6.4, for `sl₂`, two red strands of weight `ω` that may

@@ -5750,6 +5750,24 @@ private theorem rbRouquier :
 private theorem rbSymm : KLRSymm (CL.qCL (CL.CLScalars.kl : CL.CLScalars rbC ℚ)) :=
   fun _ _ h => (h (Subsingleton.elim _ _)).elim
 
+/-- The one-black kernel has its higher partial standard layer with positive spectator
+weight at the standard Khovanov–Lauda parameters for rank one. -/
+example :=
+  BraidedStendhalAlgebra.ThreeRedOneBlack.kernel_hasHigherFiltration_standard
+    rbRouquier rbSymm (fun _ => Finsupp.single () 1)
+
+/-- A positive terminal spectator and a zero-weight earlier spectator give a
+one-layer kernel filtration at standard rank-one parameters. -/
+example :=
+  BraidedStendhalAlgebra.TwoSpectatorOneBlack.mixedKernel_hasHigherFiltration_standard
+    rbRouquier rbSymm (fun r => if r = 2 then 0 else Finsupp.single () 1) (by decide)
+
+/-- With four positive red weights, the two actual retained partial-standard
+quotients give the one-black kernel filtration. -/
+example :=
+  BraidedStendhalAlgebra.TwoSpectatorOneBlack.kernel_hasTwoHigherLayers_standard
+    rbRouquier rbSymm (fun _ => Finsupp.single () 1)
+
 private def rbEmpty : Seq (stendhalWeight 0 ((0 : Multiset Unit) + 0)) :=
   KLRAlgebra.Seq.ofList [] (by decide)
 
@@ -6318,8 +6336,11 @@ example (x y : BraidedStendhalAlgebra (ZMod 4) q₄ weights (β + β)) :=
       have hi : IsViolated i := ⟨by decide,rfl⟩
       simp only [map_mul, violMk_e hi, mul_zero,zero_mul])
 
+example := blockLoadingKernel_eq_idempotentTrace q₄ weights src (pair 0) (pair 1)
+
 /-- The degree-one kernel has affine representatives even when the *exchanged* bottom
 pair encloses a black. This does not assert that these representatives have zero class. -/
+
 example := ker_blockKernelTensorInclusion_eq_map q₄ weights src (pair 0) (pair 1)
   (redWord (Seq.cast weight (place Bs top))) symm₄
 
@@ -7913,3 +7934,97 @@ example := fiveSlotCentral_markedExitJoints_of_row_reflection Q Λ (fun _ _ _ =>
 end
 
 end NonVacuity.WebsterCentralHigher
+
+namespace NonVacuity.WebsterKernelTrace
+
+open Categorification.ModuleFiltration
+
+private def labels : Bool → ModuleCat.{0} ℤ
+  | false => HasFiltration.zeroObj
+  | true => ModuleCat.of ℤ ℤ
+
+private instance : Subsingleton (labels false) := by
+  change Subsingleton PUnit
+  infer_instance
+
+private theorem filtration : HasFiltration labels ([false] ++ [true]) (labels true) := by
+  refine HasFiltration.cons (X := labels true) (Z := labels false) LinearMap.id 0 [true] false
+    (fun _ _ h => h) ?_ (fun z => ⟨0, Subsingleton.elim _ z⟩)
+    (HasFiltration.single (LinearEquiv.refl ℤ _)) ⟨LinearEquiv.refl ℤ _⟩
+  intro y
+  exact ⟨fun _ => ⟨y, rfl⟩, fun _ => rfl⟩
+
+example : HasFiltration labels [true]
+    (ModuleCat.of ℤ (idempotentTrace {1} (labels true))) := by
+  apply filtration.idempotentTrace {1}
+  · intro e he
+    rw [Set.mem_singleton_iff] at he
+    subst e
+    exact one_mul _
+  · intro c hc e he x
+    simp only [List.mem_singleton] at hc
+    subst c
+    exact Subsingleton.elim _ _
+  · intro c hc
+    simp only [List.mem_singleton] at hc
+    subst c
+    refine le_antisymm le_top fun x _ => ?_
+    exact Submodule.subset_span ⟨1, rfl, x, (one_smul ℤ x).symm⟩
+
+end NonVacuity.WebsterKernelTrace
+
+/-- For two positive-weight reds and a zero-weight spectator, the loading kernel
+has one higher partial standard layer for the black before the spectator. -/
+example :=
+  Stendhal.BraidedStendhalAlgebra.ThreeRedOneBlack.kernel_hasHigherFiltration
+    (k := ℚ) (fun _ _ => 0)
+    (fun r => if r = 2 then 0 else Finsupp.single () 1) (by decide)
+
+/-- The higher partial standard is nonzero when the spectator is also positive. -/
+example :=
+  Stendhal.BraidedStendhalAlgebra.ThreeRedOneBlack.higherPartialStandard_nontrivial
+    (k := ℚ) (fun _ _ => 0) (fun _ => Finsupp.single () 1) (fun _ _ _ => rfl)
+    (fun _ => by simp)
+
+/-- The higher projective surjects onto the kernel at strictly positive weight. -/
+example :=
+  Stendhal.BraidedStendhalAlgebra.ThreeRedOneBlack.higherCrossingMap_surjective
+    (k := ℚ) (fun _ _ => 0) (fun _ => Finsupp.single () 1)
+
+namespace Categorification.Stendhal.BraidedStendhalAlgebra.ThreeRedOneBlack
+
+open KLR
+
+private def internalBlack : Seq (stendhalWeight 3 ({()} : Multiset Unit)) :=
+  KLRAlgebra.Seq.ofList [.inr 0, .inl (), .inr 1, .inr 2] (by decide)
+
+example : adjacentBlockRoot 0 1 internalBlack = adjacentBlockRoot 0 1 higher := by
+  apply (adjacentBlockRoot_oneBlack_eq_iff (s := internalBlack) (t := higher)
+    (L := []) (M := [2]) (by decide) (by decide) ⟨1, by decide⟩ ⟨2, by decide⟩ rfl rfl).2
+  intro r hr ps pt hps hpt
+  fin_cases r
+  · fin_cases ps <;> fin_cases pt <;> revert hps hpt <;> decide
+  · exact (hr rfl).elim
+  · fin_cases ps <;> fin_cases pt <;> revert hps hpt <;> decide
+
+end Categorification.Stendhal.BraidedStendhalAlgebra.ThreeRedOneBlack
+
+/-- The one-black source after two zero-weight spectators gives one higher partial
+standard before both spectators. -/
+example :=
+  Stendhal.BraidedStendhalAlgebra.TwoSpectatorOneBlack.kernel_hasHigherFiltration
+    (k := ℚ) (fun _ _ => 0)
+    (fun r => if r = 0 ∨ r = 1 then Finsupp.single () 1 else 0) (by decide) (by decide)
+
+/-- With two spectators, the rightmost crossing surjects onto the one-black
+kernel even when that spectator has positive weight. -/
+example :=
+  Stendhal.BraidedStendhalAlgebra.TwoSpectatorOneBlack.terminalCrossingMap_surjective
+    (k := ℚ) (fun _ _ => 0)
+    (fun r => if r = 2 then 0 else Finsupp.single () 1)
+
+/-- The interior spectator crossing generates its higher-cut kernel when all
+four red weights are positive. -/
+example :=
+  Stendhal.BraidedStendhalAlgebra.TwoSpectatorOneBlack.interiorCrossingMap_surjective
+    (k := ℚ) (fun _ _ => 0) (fun _ => Finsupp.single () 1)

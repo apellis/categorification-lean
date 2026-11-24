@@ -6842,3 +6842,32 @@ example :
     (Relation.EqvGen.rel _ _ hstep) hv 1 loading
 
 end NonVacuity.WebsterBraidColumnWordChange
+
+namespace NonVacuity.WebsterBraidIndex
+
+open Stendhal.BraidFiltrationIndex
+
+private def blacks : Fin 2 → ℕ := ![1, 0]
+private def redSwap : Equiv.Perm (Fin 2) := Equiv.swap 0 1
+
+private theorem selected :
+    reorderBottom blacks redSwap 1 ∈ braidedIndices blacks blacks rfl redSwap :=
+  ⟨1, one_mem_sourceIndices blacks, rfl⟩
+
+example :
+    (reorderBottom blacks redSwap 1)
+        (blockReorder blacks redSwap (blockPosition blacks 0 0)) =
+      blockPosition blacks 0 0 :=
+  braidedIndex_red blacks blacks rfl redSwap selected 0
+
+example :
+    (blockReorder blacks redSwap (blockPosition blacks 0 ⟨1, by decide⟩)).val = 2 := by
+  rw [blockReorder_blockPosition]
+  change (blockPosition (blacks ∘ redSwap.symm) 1
+    (Fin.cast (by decide) ⟨1, by decide⟩)).val = 2
+  decide
+
+example : reorderBottom blacks redSwap 1 ∈ braidIndices blacks redSwap :=
+  reorderBottom_one_mem_braidIndices blacks redSwap
+
+end NonVacuity.WebsterBraidIndex

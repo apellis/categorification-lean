@@ -16,6 +16,8 @@ Webster, arXiv:1309.3796v2, §6.1, Lemma 6.8 and the cut after (6.21).
 In the five-slot interval with one earlier red and two equal black strands,
 all four supported marked exit coefficients come from marked neighboring
 joints at the fixed right-extreme top. The joint correction is carried out
+in the globally violated quotient and preserves each coefficient.
+-/
 open scoped BigOperators
 namespace Categorification.TypeA
 open Equiv

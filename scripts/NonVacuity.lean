@@ -5496,6 +5496,23 @@ example := KLR.CyclotomicAction.vacuum_homTensorMap_bijective.{0, 0, 0} rqHyp co
 
 end NonVacuity.CyclotomicFrobeniusRouquier
 
+namespace NonVacuity.WebsterLabelTwoEndpointTor
+
+open Categorification.Stendhal.SingleRed
+
+private noncomputable def Q (_ _ : Unit) : MvPolynomial (Fin 2) ℚ := 0
+
+/-- The actual one-red endpoint corner in Webster Proposition 8.4. -/
+noncomputable example := twoBlackTerminalWebsterCornerEquiv Q
+
+/-- The actual one-red derived tensor pairing in degree zero. -/
+noncomputable example := labelTwoEndpointTorZero Q
+
+/-- The actual one-red derived tensor pairing in degree five. -/
+example := labelTwoEndpointTor_succ_isZero Q 4
+
+end NonVacuity.WebsterLabelTwoEndpointTor
+
 namespace NonVacuity.WebsterLocalization
 
 open Categorification Categorification.QuantumGroup

@@ -71,4 +71,39 @@ theorem twoBlackTerminalWebsterProjective_simple :
       (simple_iff_isSimpleModule.mp (twoBlackTerminalProjective_simple Q)))
 
 
+attribute [local instance 1100] IsIdempotentElem.instAlgebraCorner_categorification
+
+/-- The outer divided-power factor in the label-two unknot calculation,
+Webster v2, §8.2, has scalar corner algebra. -/
+def twoBlackTerminalWebsterCornerEquiv :
+    (twoBlackTerminalWebsterIdem_idempotent Q).Corner ≃ₐ[k] k := by
+  let e := terminalEquiv Q
+  let P := twoBlackTerminalWebsterIdem Q
+  let C := (twoBlackTerminalWebsterIdem_idempotent Q).Corner
+  let f : k →ₐ[k] C := Algebra.ofId k C
+  refine (AlgEquiv.ofBijective f ⟨?_,?_⟩).symm
+  · have hn : P ≠ 0 := fun h => twoBlackTerminalIdem_ne_zero Q
+      (e.injective (h.trans (map_zero e).symm))
+    apply (injective_iff_map_eq_zero f).mpr
+    intro c hc
+    have hz : c • P = 0 := congrArg Subtype.val hc
+    exact (smul_eq_zero.mp hz).resolve_right hn
+  · intro z
+    obtain ⟨hl,hr⟩ := (Subsemigroup.mem_corner_iff
+      (twoBlackTerminalWebsterIdem_idempotent Q)).mp z.property
+    have support : twoBlackTerminalIdem Q * e.symm z.val = e.symm z.val ∧
+        e.symm z.val * twoBlackTerminalIdem Q = e.symm z.val := by
+      constructor
+      · apply e.injective
+        rw [map_mul,AlgEquiv.apply_symm_apply]; exact hl
+      · apply e.injective
+        rw [map_mul,AlgEquiv.apply_symm_apply]; exact hr
+    obtain ⟨c,hc⟩ := twoBlackTerminal_corner_span Q
+      ⟨e.symm z.val,(Subsemigroup.mem_corner_iff (twoBlackTerminalIdem_idempotent Q)).mpr support⟩
+    refine ⟨c,Subtype.ext ?_⟩
+    change c • P = z.val
+    have h := congrArg e hc
+    rw [map_smul,AlgEquiv.apply_symm_apply] at h
+    exact h
+
 end Categorification.Stendhal.SingleRed

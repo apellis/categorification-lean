@@ -1037,6 +1037,15 @@ followed by the first crossing is an idempotent whose cyclotomic right ideal
 is simple (`KLR.CycKLR.twoBlackTerminalProjective_simple`). The cyclotomic
 equivalence gives the simple projective in the one-red Webster algebra
 (`Stendhal.SingleRed.twoBlackTerminalWebsterProjective_simple`).
+The rank-two saturated divided-power corner is the ground field
+(`Stendhal.SingleRed.twoBlackTerminalWebsterCornerEquiv`). In §8.2,
+Proposition 8.4, this is the common one-red factor of the two exterior
+allocations. Pairing its actual right and left endpoint projectives by
+balanced tensor gives this scalar corner. The left-derived pairing is the
+ground field in degree zero and zero in positive degrees
+(`Stendhal.SingleRed.labelTwoEndpointTorZero`,
+`Stendhal.SingleRed.labelTwoEndpointTor_succ_isZero`).
+
 
 In any saturated one-colour content the coinvariant module gives a simple
 module over the terminal cyclotomic quotient

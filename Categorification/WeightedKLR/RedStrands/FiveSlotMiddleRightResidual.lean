@@ -5,8 +5,9 @@ Released under Apache 2.0 license as described in the file LICENSE.
 import Categorification.WeightedKLR.RedStrands.AffineHigherKernelMap
 import Categorification.WeightedKLR.RedStrands.FiveSlotMiddleRightHigher
 import Categorification.WeightedKLR.RedStrands.FiveSlotLastRedSquare
-import Categorification.WeightedKLR.RedStrands.FiveSlotMiddleRightCrossing
 import Categorification.WeightedKLR.RedStrands.FiveSlotPrincipalHigherDerived
+import Categorification.WeightedKLR.RedStrands.FiveSlotCentralPrincipalDerived
+import Categorification.WeightedKLR.RedStrands.FiveSlotLeftDerived
 import Categorification.WeightedKLR.RedStrands.FiveSlotAllTops
 import Mathlib.LinearAlgebra.Quotient.Basic
 
@@ -467,6 +468,27 @@ theorem fiveSlotMiddleRight_residual_equiv_of_lastWeight_zero (hQ : KLRSymm Q)
 
 end ResidualSaturation
 
+/-- The central loading projective embeds in the middle-right higher
+kernel over any commutative coefficient ring. -/
+theorem fiveSlotMiddleRight_centralMap_injective (hQ : KLRSymm Q) :
+    Function.Injective f₁ := by
+  intro x y hxy
+  apply sub_eq_zero.mp
+  apply Subtype.ext
+  apply Subtype.ext
+  change (x - y).1.1 = 0
+  apply FiveSlotFlag.fiveSlotMiddleRight_centralCrossing_cancel_on_orderCorner Q Λ hQ
+  · exact congrArg Subtype.val ((x - y).2)
+  · have order : redWord (fixedTopFourExitCut 0) = κ := by decide
+    simpa only [order, AlgHom.comp_apply, redProj] using
+      CornerEndomorphism.corner_mul_right _ (x - y).1
+  · have hzero : f₁ (x - y) = 0 := (f₁).map_sub x y |>.trans (sub_eq_zero.mpr hxy)
+    have h := congrArg (fun z : K => z.1.1.1) hzero
+    change (f₁ (x - y)).1.1.1 = 0 at h
+    rw [centralMap_val Q Λ] at h
+    simpa only [ψw_cons, ψw_nil, mul_one] using h
+
+
 set_option backward.isDefEq.respectTransparency false in
 /-- The central projective embeds as the first piece, and the second
 subquotient is the nearby partial standard. -/
@@ -497,6 +519,67 @@ theorem fiveSlotMiddleRight_kernel_twoLayer_of_lastWeight_zero (hQ : KLRSymm Q)
       [false, true] (ModuleCat.of Tᵐᵒᵖ K) :=
   fiveSlotMiddleRight_kernel_twoLayer_of_residual Q Λ
     (fiveSlotMiddleRight_residual_equiv_of_lastWeight_zero Q Λ hQ weight) injective
+
+/-- The middle-right higher kernel has the central loading projective
+as its first piece and the nearby partial standard as its quotient. -/
+theorem fiveSlotMiddleRight_kernel_twoLayer (hQ : KLRSymm Q) :
+    ModuleFiltration.HasFiltration
+      (fun b : Bool => if b then ModuleCat.of Tᵐᵒᵖ P₁ else
+        blockPartialStandardAt Q Λ nearby 1 2 κ nearby_order)
+      [false, true] (ModuleCat.of Tᵐᵒᵖ K) :=
+  fiveSlotMiddleRight_kernel_twoLayer_of_residual Q Λ
+    (fiveSlotMiddleRight_residual_equiv Q Λ hQ)
+    (fiveSlotMiddleRight_centralMap_injective Q Λ hQ)
+
+section HigherPartialStandards
+
+open CategoryTheory
+
+private theorem higherLoading_order (i : Fin 3) : redWord (fiveSlotHigherLoading i) = κ := by
+  fin_cases i <;> decide
+
+local notation "HigherStandard" => fun i : Fin 3 =>
+  blockPartialStandardAt Q Λ (fiveSlotHigherLoading i) 1 2 κ (higherLoading_order i)
+
+set_option backward.isDefEq.respectTransparency false in
+/-- The middle-right higher kernel is filtered by the three actual partial
+standards, indexed from the nearby loading to the left extreme. -/
+theorem fiveSlotMiddleRight_kernel_hasPartialStandardFiltration (hQ : KLRSymm Q) :
+    ModuleFiltration.HasFiltration HigherStandard [2, 1, 0] (ModuleCat.of Tᵐᵒᵖ K) := by
+  let L := HigherStandard
+  let leftComplex := blockLoadingShortComplex Q Λ (fixedTopFourExitCut 0) 1 2
+  let centralComplex := blockLoadingShortComplex Q Λ central 1 2
+  let leftKernel := blockLoadingKernel Q Λ (fixedTopFourExitCut 0) 1 2
+  have hzero : leftKernel = ⊥ := fiveSlotLeftExtreme_blockLoadingKernel_eq_bot Q Λ
+  have leftEquiv : L 0 ≃ₗ[Tᵐᵒᵖ] leftComplex.X₂ := by
+    let P := rIdeal (orderedLoadingIdem Q Λ (fixedTopFourExitCut 0))
+    let : AddCommGroup P := Submodule.addCommGroup P
+    let : Module Tᵐᵒᵖ P := Submodule.module P
+    change (P ⧸ leftKernel) ≃ₗ[Tᵐᵒᵖ] P
+    exact leftKernel.quotEquivOfEqBot hzero
+  have hinj : Function.Injective (fiveSlotCentralPrincipalKernelMap Q Λ) :=
+    fiveSlotCentralPrincipalKernelMap_injective_of_cancellation Q Λ
+      (fun y hy _ hz => fiveSlotCentral_leftWord_cancel_of_leftSupport Q Λ hQ y hy hz)
+  let centralEquiv : leftComplex.X₂ ≃ₗ[Tᵐᵒᵖ] centralComplex.X₁ :=
+    LinearEquiv.ofBijective (fiveSlotCentralPrincipalKernelMap Q Λ)
+      ⟨hinj, fiveSlotCentralPrincipalKernelMap_surjective Q Λ hQ⟩
+  have hkernel : ModuleFiltration.HasFiltration L [0] centralComplex.X₁ :=
+    ModuleFiltration.HasFiltration.single (centralEquiv.symm.trans leftEquiv.symm)
+  have hcentral : ModuleFiltration.HasFiltration L [1, 0] (ModuleCat.of Tᵐᵒᵖ P₁) := by
+    change ModuleFiltration.HasFiltration L [1, 0] centralComplex.X₂
+    have hS : centralComplex.ShortExact := blockLoadingShortComplex_shortExact Q Λ central 1 2
+    have h := (ShortComplex.ShortExact.moduleCat_exact_iff_function_exact centralComplex).1 hS.exact
+    exact .cons centralComplex.f.hom centralComplex.g.hom [0] 1
+      hS.moduleCat_injective_f h hS.moduleCat_surjective_g hkernel ⟨LinearEquiv.refl _ _⟩
+  obtain ⟨equiv⟩ := fiveSlotMiddleRight_residual_equiv Q Λ hQ
+  have hexact : Function.Exact f₁ (J₁).mkQ := by
+    intro x
+    exact Submodule.Quotient.mk_eq_zero J₁
+  exact .cons (Z := ModuleCat.of Tᵐᵒᵖ (K ⧸ J₁)) f₁ (J₁).mkQ [1, 0] 2
+    (fiveSlotMiddleRight_centralMap_injective Q Λ hQ) hexact (J₁).mkQ_surjective
+    hcentral ⟨equiv.symm⟩
+
+end HigherPartialStandards
 
 universe w
 
@@ -580,14 +663,8 @@ private theorem fiveSlotMiddleRight_partialStandard_braid_homology_vanish_standa
       ((braidingFunctor k₀ Qstd weights ν₀ κ exchanged).obj
         (DG.DerivedCategory.Q.obj ((degreeZeroModuleFunctor Sourceᵐᵒᵖ).obj
           (blockLoadingShortComplex Qstd weights rightMiddle 1 2).X₃)))) := by
-  have hr : IsRouquierQ datum Qstd :=
-    ⟨fun i j h => (h (Subsingleton.elim i j)).elim,
-      fun i j h => (h (Subsingleton.elim i j)).elim,
-      fun i j h => (h (Subsingleton.elim i j)).elim⟩
   have hq : KLRSymm Qstd := fun i j h => (h (Subsingleton.elim i j)).elim
-  have hinj : Function.Injective (fiveSlotMiddleRight_centralMap Qstd weights) := by
-    rw [fiveSlotMiddleRight_centralMap_eq_crossing]
-    exact fiveSlotMiddleRight_higherCrossingMap_injective_standard hr hq weights
+  have hinj := fiveSlotMiddleRight_centralMap_injective Qstd weights hq
   apply fiveSlotMiddleRight_partialStandard_braid_homology_vanish_of_residual_layers Qstd weights
     exchanged residual hinj _ _ j hn
   · intro i hi

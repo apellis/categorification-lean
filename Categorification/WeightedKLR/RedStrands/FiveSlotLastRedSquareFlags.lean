@@ -294,4 +294,59 @@ theorem fiveSlotLastRed_square_eval_mem_restricted_flag
     w.symm_comp_self, rename_id] at back
   exact back
 
+private theorem middleRightCentral_flag_test (z : R) (hz : F ((ψw [1] * e C) * z) = 0)
+    (input : Pol k weight) :
+    blackEval C (A z input C) ∈ ideal (⟨1, by decide⟩ : Fin N) a₄ M₀ (M₀+D₁+B₂) := by
+  let w := wordProd N [1]
+  have top : w • C = B := by decide +kernel
+  have h := eval_mem_sorted_flag_of_violMk_eq_zero Q Λ (loadingIdeal Λ)
+    (loadingIdeal_preservesSortedFlags Λ) (loadingIdeal_eq_top_of_violated Λ) hz input B
+  have idealB : loadingIdeal (k := k) Λ B = ideal a₂ a₄ (M₀+D₁) (M₀+D₁+B₂) := by
+    unfold loadingIdeal flagBound
+    rw [show redsBefore B (firstBlack B) = {0, 1} by decide,
+      show redsBefore B (secondBlack B) = Finset.univ by decide,
+      show firstBlack B = a₂ by decide, show secondBlack B = a₄ by decide,
+      Finset.sum_pair (by decide : (0 : Fin 3) ≠ 1), Fin.sum_univ_three]
+  have step : A ((ψw [1] * e C) * z) input B = X a₂ ^ D₁ * rename w (A z input C) :=
+    (squareCut_eval Q Λ C B 1 top z input).trans
+      (squareWord_action Λ C 1 (by decide) 1 (by decide) (by decide) _)
+  have same (f : P) : blackEval B (rename w f) = rename w (blackEval C f) := by
+    rw [← top, blackEval_rename_perm]
+  rw [step, map_mul (blackEval B), map_pow (blackEval B), blackEval_X,
+    ite_eq_left (by decide : ((B).lbl a₂).isLeft = true), same, idealB,
+    mul_comm (X a₂ ^ D₁)] at h
+  have small := (mul_first_pow_mem_iff (by decide : a₂ ≠ a₄) M₀ (M₀+D₁+B₂) D₁ _).1 h
+  have back := rename_mem (w⁻¹ : Perm (Fin N)) small
+  rw [show w⁻¹ a₂ = (⟨1, by decide⟩ : Fin N) by decide, show w⁻¹ a₄ = a₄ by decide,
+    rename_rename, show ((w⁻¹ : Perm (Fin N)) : Fin N → Fin N) ∘ w = id from w.symm_comp_self,
+    rename_id] at back
+  exact back
+
+/-- The central loading projective embeds into the middle-right loading
+by the first red-black crossing over any commutative coefficient ring. -/
+theorem fiveSlotMiddleRight_centralCrossing_cancel_on_orderCorner (hQ : KLRSymm Q)
+    (y : ViolQuotient k Q Λ ν) (left : F (e C) * y = y)
+    (right : y * F (redIdem k Q Λ (redWord (fixedTopFourExitCut 0))) = y)
+    (zero : F (ψw [1] * e C) * y = 0) : y = 0 := by
+  classical
+  obtain ⟨x,hx⟩ := (violMk_surjective (Q := Q) (Λ := Λ)).comp (ofKLR_surjective (Q := Q) (Λ := Λ)) y
+  have vanish (s : Seq weight) (hs : redWord s = redWord (fixedTopFourExitCut 0)) :
+      y * F (e s) = 0 := by
+    let z : R := e C * x * e s
+    have image : F z = y * F (e s) := by
+      change F (e C * x * e s) = _
+      rw [map_mul, map_mul, show F x = y from hx, left]
+    have hz : F ((ψw [1] * e C) * z) = 0 := by
+      rw [map_mul, image, ← mul_assoc, zero, zero_mul]
+    rw [← image]
+    apply central_eq_zero_of_flagEvaluation Q Λ hQ s hs z
+      (by simp only [z, ← mul_assoc, e_mul_self]) (by simp only [z, mul_assoc, e_mul_self])
+    intro f
+    simpa only [Nat.add_assoc] using middleRightCentral_flag_test Q Λ z hz (Pi.single s f)
+  calc
+    y = y * F (redIdem k Q Λ (redWord (fixedTopFourExitCut 0))) := right.symm
+    _ = 0 := by
+      rw [redIdem, map_sum, Finset.mul_sum]
+      exact Finset.sum_eq_zero fun s hs => vanish s (Finset.mem_filter.mp hs).2
+
 end Categorification.Stendhal.FiveSlotFlag

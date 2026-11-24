@@ -11,7 +11,8 @@ import Mathlib.LinearAlgebra.Quotient.Basic
 
 Webster, arXiv:1309.3796v2, proof of Lemma 6.8 at (6.21).
 After quotienting out the central-crossing image, the nearby partial standard
-maps surjectively onto the remaining higher quotient.
+maps surjectively onto the remaining higher quotient. Its injectivity is
+equivalent to saturation of the nearby kernel against the central crossing.
 -/
 
 noncomputable section
@@ -27,26 +28,38 @@ variable {A P P' M : Type} [Ring A]
   [AddCommGroup P] [Module A P] [AddCommGroup P'] [Module A P']
   [AddCommGroup M] [Module A M]
 
-private theorem quotient_surjects_of_two_images
+private theorem quotient_map_of_two_images
     (first : P →ₗ[A] M) (second : P' →ₗ[A] M) (N : Submodule A P')
     (vanish : ∀ x ∈ N, ∃ y : P, first y = second x)
     (gen : ∀ x : M, ∃ y : P, ∃ z : P', first y + second z = x) :
-    ∃ f : (P' ⧸ N) →ₗ[A] (M ⧸ first.range), Function.Surjective f := by
+    ∃ f : (P' ⧸ N) →ₗ[A] (M ⧸ first.range), Function.Surjective f ∧
+      (Function.Injective f ↔ ∀ x : P', (∃ y : P, first y = second x) → x ∈ N) := by
   let G := first.range.mkQ.comp second
   have hker : N ≤ LinearMap.ker G := by
     intro x hx
     obtain ⟨y, hy⟩ := vanish x hx
     exact (Submodule.Quotient.mk_eq_zero first.range).2 ⟨y, hy⟩
-  refine ⟨N.liftQ G hker, ?_⟩
-  intro q
-  obtain ⟨x, rfl⟩ := first.range.mkQ_surjective q
-  obtain ⟨y, z, hz⟩ := gen x
-  use N.mkQ z
-  change N.liftQ G hker (Submodule.Quotient.mk z) = first.range.mkQ x
-  rw [Submodule.liftQ_apply]
-  change first.range.mkQ (second z) = first.range.mkQ x
-  have hz₀ : first.range.mkQ (first y) = 0 := (Submodule.Quotient.mk_eq_zero first.range).2 ⟨y, rfl⟩
-  rw [← hz, map_add, hz₀, zero_add]
+  refine ⟨N.liftQ G hker, ?_, ?_⟩
+  · intro q
+    obtain ⟨x, rfl⟩ := first.range.mkQ_surjective q
+    obtain ⟨y, z, hz⟩ := gen x
+    use N.mkQ z
+    change N.liftQ G hker (Submodule.Quotient.mk z) = first.range.mkQ x
+    rw [Submodule.liftQ_apply]
+    change first.range.mkQ (second z) = first.range.mkQ x
+    have hz₀ : first.range.mkQ (first y) = 0 := (Submodule.Quotient.mk_eq_zero first.range).2 ⟨y, rfl⟩
+    rw [← hz, map_add, hz₀, zero_add]
+  · constructor
+    · intro injective x hx
+      apply (Submodule.Quotient.mk_eq_zero N).1
+      apply injective
+      rw [map_zero, Submodule.liftQ_apply]
+      exact (Submodule.Quotient.mk_eq_zero first.range).2 hx
+    · intro sat
+      apply LinearMap.ker_eq_bot.1
+      apply Submodule.ker_liftQ_eq_bot
+      intro x hx
+      exact sat x ((Submodule.Quotient.mk_eq_zero first.range).1 hx)
 
 end Module
 
@@ -199,13 +212,15 @@ private theorem middleRight_generated_by_maps (hQ : KLRSymm Q) (x : K) :
 of the middle-right higher kernel after the central crossing. -/
 theorem fiveSlotMiddleRight_residual_quotient_of_nearby (hQ : KLRSymm Q) :
     ∃ f : (blockPartialStandardAt Q Λ nearby 1 2 κ nearby_order) →ₗ[Tᵐᵒᵖ] (K ⧸ J₁),
-      Function.Surjective f := by
+      Function.Surjective f ∧
+      (Function.Injective f ↔ ∀ x : P₂, (∃ y : P₁, f₁ y = f₂ x) → x ∈ K₂) := by
   let : AddCommGroup P₁ := Submodule.addCommGroup _
   let : Module Tᵐᵒᵖ P₁ := Submodule.module _
   let : AddCommGroup P₂ := Submodule.addCommGroup _
   let : Module Tᵐᵒᵖ P₂ := Submodule.module _
-  change ∃ f : (P₂ ⧸ K₂) →ₗ[Tᵐᵒᵖ] (K ⧸ J₁), Function.Surjective f
-  exact quotient_surjects_of_two_images (A := Tᵐᵒᵖ) (P := P₁) (P' := P₂) (M := K)
+  change ∃ f : (P₂ ⧸ K₂) →ₗ[Tᵐᵒᵖ] (K ⧸ J₁), Function.Surjective f ∧
+    (Function.Injective f ↔ ∀ x : P₂, (∃ y : P₁, f₁ y = f₂ x) → x ∈ K₂)
+  exact quotient_map_of_two_images (A := Tᵐᵒᵖ) (P := P₁) (P' := P₂) (M := K)
     f₁ f₂ K₂ (nearby_kernel_maps_into_central Q Λ hQ) (middleRight_generated_by_maps Q Λ hQ)
 
 end Categorification.Stendhal.BraidedStendhalAlgebra

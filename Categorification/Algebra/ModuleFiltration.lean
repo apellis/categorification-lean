@@ -166,6 +166,25 @@ theorem restrictScalars {R : Type*} [Ring R] (φ : R →+* A) {m : List ι}
     exact .cons (F.map (ModuleCat.ofHom f)).hom (F.map (ModuleCat.ofHom g)).hom m c
       hf hfg hg ih ⟨LinearEquiv.ofBijective (F.map (ModuleCat.ofHom e.toLinearMap)).hom e.bijective⟩
 
+/-- An idempotent that kills every filtration layer kills the filtered module. -/
+theorem idempotent_smul_eq_zero {m : List ι} {Y : ModuleCat.{v} A}
+    (h : HasFiltration L m Y) (e : A) (he : IsIdempotentElem e)
+    (hk : ∀ c ∈ m, ∀ z : L c, e • z = 0) (y : Y) : e • y = 0 := by
+  induction h with
+  | zero hY => exact hY.elim _ _
+  | cons f g m c hf hfg hg hX hZ ih =>
+      obtain ⟨E⟩ := hZ
+      have hgc : e • g y = 0 := E.injective (by
+        rw [map_smul, map_zero]
+        exact hk c List.mem_cons_self _)
+      have hegy : g (e • y) = 0 := (map_smul g e y).trans hgc
+      obtain ⟨x, hx⟩ := (hfg (e • y)).mp hegy
+      have hx' : e • x = 0 := ih (fun d hd => hk d (List.mem_cons_of_mem _ hd)) x
+      calc
+        e • y = e • (e • y) := by rw [smul_smul, he.eq]
+        _ = e • f x := congrArg (e • ·) hx.symm
+        _ = 0 := by rw [← map_smul, hx', map_zero]
+
 end HasFiltration
 
 end Categorification.ModuleFiltration

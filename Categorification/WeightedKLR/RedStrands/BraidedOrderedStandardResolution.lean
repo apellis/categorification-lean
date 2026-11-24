@@ -5,6 +5,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 import Categorification.Algebra.OrderedProjectiveResolution
 import Categorification.WeightedKLR.RedStrands.BraidedBimoduleFlip
 import Categorification.WeightedKLR.RedStrands.BraidedStandardization
+import Categorification.WeightedKLR.RedStrands.BraidedReflectedFiltration
 import Categorification.WeightedKLR.RedStrands.OppositeStandardTor
 
 /-!
@@ -38,6 +39,16 @@ local notation "μ" => stendhalWeight ℓ ν
 def reflectedLeftCoefficientEquiv : C ≃+* T :=
   (cornerFlipEquiv (Q := Q) (Λ := Λ) ν κ).symm.trans (leftCoefficientEquiv hρ hQ σ)
 
+private theorem cornerFlip_violLoadingIdem {s : Seq μ} (hs : IsRedOrdered s) :
+    cornerFlip (violLoadingIdem (k := k) (Q := Q) (Λ := Λ) (redWord_relabel σ hs)) =
+      violLoadingIdem (redWord_relabel σ hs) := by
+  apply Subtype.ext
+  rw [cornerFlip_val]
+  exact (violFlip_violMk _).trans (congrArg (violMk k Q Λ ν) (flip_e _))
+
+attribute [local instance 1100] IsIdempotentElem.instAlgebraCorner_categorification
+attribute [local instance 1200] Ring.toIntAlgebra
+
 /-- The reflected coefficient change carries each corner loading to its tensor loading. -/
 theorem reflectedLeftCoefficientEquiv_loadingIdem {s : Seq μ} (hs : IsRedOrdered s) :
     reflectedLeftCoefficientEquiv (Λ := Λ) hρ hQ σ
@@ -45,12 +56,7 @@ theorem reflectedLeftCoefficientEquiv_loadingIdem {s : Seq μ} (hs : IsRedOrdere
   rw [reflectedLeftCoefficientEquiv, RingEquiv.trans_apply]
   change leftCoefficientEquiv hρ hQ σ (op (cornerFlip
     (violLoadingIdem (k := k) (Q := Q) (Λ := Λ) (redWord_relabel σ hs)))) = _
-  have hf : cornerFlip (violLoadingIdem (k := k) (Q := Q) (Λ := Λ)
-      (redWord_relabel σ hs)) = violLoadingIdem (redWord_relabel σ hs) := by
-    apply Subtype.ext
-    rw [cornerFlip_val]
-    exact (violFlip_violMk _).trans (congrArg (violMk k Q Λ ν) (flip_e _))
-  rw [hf, leftCoefficientEquiv_loadingIdem]
+  rw [cornerFlip_violLoadingIdem σ hs, leftCoefficientEquiv_loadingIdem]
 
 /-- Transport the reflected right standard to the tensor product algebra's left standard. -/
 def reflectedLoadingStandardLeftEquiv {s : Seq μ} (hs : IsRedOrdered s) :
@@ -148,5 +154,65 @@ theorem isZero_derivedTensorHomology_reflectedLoadingStandard
   have htd : StendhalLT t d.1 := ⟨fun r i => (hts r i).trans (hd.1 r i),
     fun hdt => hd.2 (fun r i => (hdt r i).trans (hts r i))⟩
   exact violLoadingIdem_smul_violLoadingStandard_eq_zero hρ hQ σ ht d.2 htd m
+
+attribute [local instance 1100] IsIdempotentElem.instAlgebraCorner_categorification
+attribute [local instance 1200] Ring.toIntAlgebra
+
+include hρ hQ in
+/-- A partial standard with a resolution supported strictly above each reflected
+coefficient layer has no higher derived braid cohomology. -/
+theorem braid_homology_vanish_of_reflected_filtration_loading_support
+    (κ' : List (Fin ℓ))
+    [HasDerivedCategory.{w, 0} Cᵐᵒᵖ]
+    [HasDerivedCategory.{w, 0} (ViolOrderCorner (k := k) (Q := Q) (Λ := Λ) (ν := ν) κ')ᵐᵒᵖ]
+    {m : List {s : Seq μ // redWord s = κ ∧ ¬ IsViolated s}}
+    (hf : ModuleFiltration.HasFiltration
+      (fun c => ModuleCat.of Cᵐᵒᵖ (ViolLoadingStandard (k := k) (Q := Q) (Λ := Λ) c.1 κ)) m
+      (ModuleCat.of Cᵐᵒᵖ (braidingBimodule k Q Λ ν κ' κ)))
+    {X : ModuleCat.{0} Cᵐᵒᵖ} (P : ProjectiveResolution X)
+    (hs : ∀ n : ℕ, ∃ (J : Type) (label : J → {s : Seq μ // IsRedOrdered s})
+      (inc : ∀ j, lIdeal (op (violLoadingIdem (k := k) (Q := Q) (Λ := Λ)
+        (redWord_relabel σ (label j).2))) →ₗ[Cᵐᵒᵖ] P.complex.X (n+1)),
+      (∀ j c, c ∈ m → StendhalLT ((Seq.redPermEquiv σ).symm c.1) (label j).1) ∧
+      ∀ x : P.complex.X (n+1), x ∈ Submodule.span Cᵐᵒᵖ {y | ∃ j z, inc j z = y})
+    (n : ℤ) (hn : n ≠ 0) :
+    IsZero ((DG.DerivedCategory.homologyFunctor
+        (A := (ViolOrderCorner (k := k) (Q := Q) (Λ := Λ) (ν := ν) κ')ᵐᵒᵖ) ℤ n).obj
+      ((braidingFunctor k Q Λ ν κ κ').obj
+        (DG.DerivedCategory.Q.obj (DGModuleCat.of Cᵐᵒᵖ (InDegreeZero X))))) := by
+  let e (d : {s : Seq μ // IsRedOrdered s}) : C :=
+    violLoadingIdem (k := k) (Q := Q) (Λ := Λ) (redWord_relabel σ d.2)
+  have he (d) : IsIdempotentElem (e d) :=
+    isIdempotentElem_violLoadingIdem (redWord_relabel σ d.2)
+  change IsZero ((DG.DerivedCategory.homologyFunctor
+      (A := (ViolOrderCorner (k := k) (Q := Q) (Λ := Λ) (ν := ν) κ')ᵐᵒᵖ) ℤ n).obj
+    ((derivedRightTensor C _ (braidingBimodule k Q Λ ν κ κ')).obj
+      (DG.DerivedCategory.Q.obj (DGModuleCat.of Cᵐᵒᵖ (InDegreeZero X)))))
+  refine isZero_derivedTensorHomology_of_projectiveResolution_loading_support
+    (ι := {s : Seq μ // IsRedOrdered s})
+    (M := OpBimodule C (braidingBimodule k Q Λ ν κ κ')) P
+    (fun d => op (e d)) (fun d => ∀ c ∈ m, StendhalLT ((Seq.redPermEquiv σ).symm c.1) d.1)
+    (fun d => congrArg op (he d).eq) hs ?_ n hn
+  intro d hd z
+  change e d • (z : braidingBimodule k Q Λ ν κ κ') = 0
+  have hf' := hasReflectedStandardFiltration_braidingBimodule (Q := Q) (Λ := Λ) κ κ' hf
+  refine hf'.idempotent_smul_eq_zero (e d) (he d) ?_ z
+  intro c hc x
+  obtain ⟨s, hv⟩ := (Seq.redPermEquiv σ).surjective c.1
+  have hs' : IsRedOrdered s := by
+    have hr := c.2.1
+    rw [← hv] at hr
+    change redWord (Seq.redPerm σ s) = κ at hr
+    rw [redWord_redPerm] at hr
+    exact (redWord_eq_finRange_iff _).1 ((List.map_injective_iff.2 σ.injective) hr)
+  have hsd := hd c hc
+  rw [← hv, (Seq.redPermEquiv σ).symm_apply_apply] at hsd
+  change op (cornerFlip (e d)) •
+    (x : ViolLoadingStandard (k := k) (Q := Q) (Λ := Λ) c.1 κ) = 0
+  rw [cornerFlip_violLoadingIdem σ d.2]
+  change Seq.redPerm σ s = c.1 at hv
+  revert x
+  rw [← hv]
+  exact violLoadingIdem_smul_violLoadingStandard_eq_zero hρ hQ σ hs' d.2 hsd
 
 end Categorification.Stendhal.BraidedStendhalAlgebra

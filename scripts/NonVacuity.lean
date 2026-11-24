@@ -9349,3 +9349,33 @@ noncomputable example :=
     (fun _ : Fin 2 => Finsupp.single () 2) ({(), ()} : Multiset Unit)
 
 end NonVacuity.WebsterUnitParameters
+
+namespace NonVacuity.WebsterPartialStandardOrdinary
+
+open Categorification Categorification.KLR Categorification.Stendhal BraidedStendhalAlgebra
+open DG MulOpposite
+
+private noncomputable abbrev Q : Unit → Unit → MvPolynomial (Fin 2) ℚ := fun _ _ => 0
+private noncomputable abbrev Λ : Fin 3 → Unit →₀ ℕ := fun r => Finsupp.single () (r.val + 2)
+local notation "ν" => ({()} + {()} : Multiset Unit)
+local notation "t" => fixedTopFourExitCut 0
+local notation "κ" => ([0,2,1] : List (Fin 3))
+local notation "T" => IsIdempotentElem.Corner
+  (isIdempotentElem_violMk_redProj ℚ Q Λ ν (redWord t))
+local notation "U" => IsIdempotentElem.Corner
+  (isIdempotentElem_violMk_redProj ℚ Q Λ ν κ)
+
+private theorem kernel_eq_bot : blockLoadingKernel Q Λ t 1 2 = ⊥ := by
+  apply le_antisymm ?_ bot_le
+  intro x hx
+  change x.1.1 ∈ blockUpperIdeal ℚ Q Λ ν 1 2 (adjacentBlockRoot 1 2 t) (redWord t) at hx
+  rw [fiveSlotLeftExtreme_blockUpperIdeal_eq_bot Q Λ] at hx
+  rw [Submodule.mem_bot]
+  apply Subtype.ext; apply Subtype.ext
+  exact (TwoSidedIdeal.mem_bot _).1 hx
+
+example [HasDerivedCategory.{0,0} Tᵐᵒᵖ] [HasDerivedCategory.{0,0} Uᵐᵒᵖ] :=
+  blockPartialStandard_braidIsoOrdinary_of_vanishing Q Λ t 1 2 κ
+    (blockPartialStandard_braid_homology_vanish_of_bot Q Λ t 1 2 κ kernel_eq_bot)
+
+end NonVacuity.WebsterPartialStandardOrdinary

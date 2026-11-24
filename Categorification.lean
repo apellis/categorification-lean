@@ -658,6 +658,7 @@ import Categorification.WeightedKLR.RedStrands.LabelTwoExteriorSlide
 import Categorification.WeightedKLR.RedStrands.LabelTwoMiddleExteriorMap
 import Categorification.WeightedKLR.RedStrands.LabelTwoExteriorMiddleRows
 import Categorification.WeightedKLR.RedStrands.LabelTwoExteriorMiddleMap
+import Categorification.WeightedKLR.RedStrands.LabelTwoOutgoingRows
 import Categorification.WeightedKLR.RedStrands.LoadingCutPBW
 import Categorification.WeightedKLR.RedStrands.SingleRedTerminalProjective
 import Categorification.KLR.CyclotomicTerminal

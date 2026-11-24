@@ -5547,6 +5547,9 @@ example := Categorification.Stendhal.labelTwoExteriorMiddleDifferential_comp_zer
 
 noncomputable example := Categorification.Stendhal.labelTwoExteriorStandardComplex Q
 
+/-- The undotted and dotted terminal columns of the actual outgoing map. -/
+example := Categorification.Stendhal.labelTwo_outgoing_terminal_diagram_columns Q
+
 end NonVacuity.WebsterLabelTwoEndpointTor
 
 namespace NonVacuity.WebsterLocalization

@@ -1003,6 +1003,12 @@ from a dominant integral weight, the coroot pairings are nonnegative
 roots this determines the multiplicities
 (`Stendhal.coevaluationWord_multiplicities_eq`). For reduced expressions of the
 same Weyl element, this gives `Stendhal.coevaluationWord_multiplicities_eq_of_reduced`.
+The fundamental two-red type A₁ character is homogeneous in the
+Webster grading. Its derived restriction and extension give the internally
+graded fundamental cup and cap over the rationals. The cup has internal
+shift one and cohomological shift minus one
+(`Stendhal.FundamentalCorner.gradedFundamentalCup` and `gradedFundamentalCap`).
+
 Definition 7.4 has cup and cap coefficient models in the ungraded derived
 categories, with a specified cohomological shift on the cup and a finite
 dimensional ordinary tensor-Hom comparison preserving the module action

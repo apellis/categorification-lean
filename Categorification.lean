@@ -1739,6 +1739,9 @@ import Categorification.WeightedKLR.Rigidity.DerivedCupCap
 import Categorification.WeightedKLR.Rigidity.SingleBlackExtremal
 import Categorification.WeightedKLR.Rigidity.CoevaluationTrace
 import Categorification.WeightedKLR.Rigidity.FundamentalCoevaluation
+import Categorification.Algebra.DiagramBigrading
+import Categorification.WeightedKLR.Rigidity.GradedCharacterCupCap
+import Categorification.WeightedKLR.Rigidity.GradedFundamentalCupCap
 
 /-!
 # Categorification

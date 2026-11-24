@@ -4,6 +4,8 @@ Released under Apache 2.0 license as described in the file LICENSE.
 -/
 import Categorification.WeightedKLR.RedStrands.StendhalBasis
 import Categorification.KLR.Symmetries
+import Categorification.KLR.CyclotomicSplit
+import Categorification.WeightedKLR.RedStrands.StendhalGrading
 
 /-!
 # Boundary characters in the first black weight
@@ -164,6 +166,74 @@ theorem boundaryCharacters_surjective (hΛ : ∀ r, 0 < Λ r i) :
   · intro s _ hst
     simp [show s.1 ≠ t.1 from fun h => hst (Subtype.ext h)]
   · simp
+
+section Grading
+
+open _root_.AddMonoidAlgebra
+
+variable (G : GradingDatum (stendhalQ Q Λ))
+  (hΛ : ∀ r, 0 < Λ r i)
+
+local notation "π" => ofKLR k Q Λ ((Singleton.singleton i) : Multiset I)
+private def evalKLR (s : Seq μ) :
+    KLRAlgebra k (stendhalQ Q Λ) μ →ₐ[k] k :=
+  (evalAll Q Λ hΛ s).comp π
+
+private theorem evalAll_x (s : Seq μ) (a : Fin (Multiset.card μ)) : (evalKLR Q Λ hΛ s) (KLRAlgebra.x a) = 0 := by
+  change evalAll Q Λ hΛ s (π (KLRAlgebra.x a)) = 0
+  rw [KLRAlgebra.x, ofKLR_mk, evalAll_mk]
+  simp [fx, characterGen]
+
+private theorem evalAll_ψ (s : Seq μ) (j : ℕ) : (evalKLR Q Λ hΛ s) (KLRAlgebra.ψ j) = 0 := by
+  change evalAll Q Λ hΛ s (π (KLRAlgebra.ψ j)) = 0
+  rw [KLRAlgebra.ψ, ofKLR_mk, evalAll_mk]
+  simp [fψ, characterGen]
+
+private theorem evalAll_coaction (s : Seq μ) (x : KLRAlgebra k (stendhalQ Q Λ) μ) :
+    AddMonoidAlgebra.mapAlgHom ℤ (evalKLR Q Λ hΛ s) (G.coaction x) = single 0 ((evalKLR Q Λ hΛ s) x) := by
+  let f := (AddMonoidAlgebra.mapAlgHom ℤ (evalKLR Q Λ hΛ s)).comp G.coaction
+  let g := (AddMonoidAlgebra.singleZeroAlgHom : k →ₐ[k] AddMonoidAlgebra k ℤ).comp (evalKLR Q Λ hΛ s)
+  change f x = g x
+  induction x using KLRAlgebra.klr_induction with
+  | hr c => rw [AlgHom.commutes, AlgHom.commutes]
+  | hadd x y hx hy => rw [map_add, map_add, hx, hy]
+  | hmul x y hx hy => rw [map_mul, map_mul, hx, hy]
+  | he t =>
+    change AddMonoidAlgebra.mapAlgHom ℤ (evalKLR Q Λ hΛ s) (G.coaction (KLRAlgebra.e t)) = _
+    rw [G.coaction_e, AddMonoidAlgebra.mapAlgHom_single]
+    rfl
+  | hx a =>
+    change AddMonoidAlgebra.mapAlgHom ℤ (evalKLR Q Λ hΛ s) (G.coaction (KLRAlgebra.x a)) = single 0 ((evalKLR Q Λ hΛ s) _)
+    rw [G.coaction_x, map_sum, evalAll_x Q Λ hΛ s]
+    simp only [AddMonoidAlgebra.mapAlgHom_single, map_mul, evalAll_x Q Λ hΛ s, zero_mul,
+      AddMonoidAlgebra.single_zero, Finset.sum_const_zero]
+  | hψ j =>
+    change AddMonoidAlgebra.mapAlgHom ℤ (evalKLR Q Λ hΛ s) (G.coaction (KLRAlgebra.ψ j)) = single 0 ((evalKLR Q Λ hΛ s) _)
+    rw [G.coaction_ψ, map_sum, evalAll_ψ Q Λ hΛ s]
+    simp only [AddMonoidAlgebra.mapAlgHom_single, map_mul, evalAll_ψ Q Λ hΛ s, zero_mul,
+      AddMonoidAlgebra.single_zero, Finset.sum_const_zero]
+
+/-- The first-weight character vanishes on homogeneous elements of any
+nonzero diagram degree. -/
+theorem boundaryCharacter_eq_zero_of_ne_grade (s : Seq μ) (hs : IsRedOrdered s) (hv : ¬ IsViolated s)
+    {d : ℤ} (hd : d ≠ 0) {z : TensorProductAlgebra k Q Λ {i}}
+    (hz : z ∈ tensorProductGrade G {i} d) : boundaryCharacter Q Λ hΛ s hs hv z = 0 := by
+  obtain ⟨y, hy, rfl⟩ := Submodule.mem_map.mp hz
+  change evalAll Q Λ hΛ s y.val = 0
+  have hy' : y.val ∈ allOrdersGrade G {i} d := hy
+  obtain ⟨x, hx, he⟩ := Submodule.mem_map.mp hy'
+  have he' : π x = y.val := he
+  rw [← he']
+  change (evalKLR Q Λ hΛ s) x = 0
+  have h := evalAll_coaction Q Λ G hΛ s x
+  rw [G.mem_grade.mp hx, AddMonoidAlgebra.mapAlgHom_single] at h
+  have h' := congrArg (fun x : AddMonoidAlgebra k ℤ => x.coeff d) h
+  change Finsupp.single d (evalKLR Q Λ hΛ s x) d =
+    Finsupp.single 0 (evalKLR Q Λ hΛ s x) d at h'
+  rw [Finsupp.single_eq_same, Finsupp.single_eq_of_ne hd] at h'
+  exact h'
+
+end Grading
 
 end FirstWeight
 end Categorification.Stendhal

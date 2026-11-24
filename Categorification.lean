@@ -1769,7 +1769,6 @@ import Categorification.Algebra.DerivedTensorRegular
 import Categorification.WeightedKLR.Rigidity.FundamentalCupRegular
 import Categorification.WeightedKLR.Rigidity.FundamentalDerivedCircle
 import Categorification.WeightedKLR.Rigidity.FundamentalMiddleDimensions
-import Categorification.WeightedKLR.Rigidity.SingleBlackExtremal
 import Categorification.Algebra.DiagramBigrading
 import Categorification.Algebra.DiagramWeightBimodule
 import Categorification.Algebra.DiagramWeightScalarHom
@@ -1778,6 +1777,7 @@ import Categorification.Algebra.DiagramWeightCoend
 import Categorification.Algebra.DiagramWeightCoendSurjectivity
 import Categorification.WeightedKLR.Rigidity.GradedCharacterCupCap
 import Categorification.WeightedKLR.Rigidity.GradedFundamentalCupCap
+import Categorification.WeightedKLR.Rigidity.SingleBlackExtremal
 import Categorification.WeightedKLR.Rigidity.ExtremalNorm
 import Categorification.WeightedKLR.Rigidity.ExtremalWeightRank
 import Categorification.WeightedKLR.Rigidity.ExtremalBlockRank

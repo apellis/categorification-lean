@@ -8783,6 +8783,7 @@ example (x : Abelian.Ext fundamentalTerminalSimple fundamentalTerminalSimple 1) 
   fundamentalTerminalSimple_ext_eq_zero 1 (by decide) x
 
 end NonVacuity.WebsterFundamentalResolution
+
 namespace NonVacuity.WebsterVacuumBraidColumn
 
 open KLR KLRAlgebra Stendhal Stendhal.BraidedStendhalAlgebra

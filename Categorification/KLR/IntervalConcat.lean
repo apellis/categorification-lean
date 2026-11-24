@@ -2,7 +2,7 @@
 Copyright (c) 2026 Alex Ellis. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 -/
-import Categorification.KLR.InductionFree
+import Categorification.KLR.Mackey
 
 
 /-!
@@ -22,19 +22,6 @@ open scoped TensorProduct
 variable {I k : Type*} [DecidableEq I] [CommRing k]
   {Q : I → I → MvPolynomial (Fin 2) k} {α β γ : Multiset I}
 
-private theorem concat_ψw_pol_e (p : MvPolynomial (Fin β.card) k)
-    (q : MvPolynomial (Fin γ.card) k) {w₁ w₂ : List ℕ}
-    (hw₁ : ValidWord β.card w₁) (hw₂ : ValidWord γ.card w₂) (s : Seq β) (r : Seq γ) :
-    concat Q β γ ((ψw w₁ * pol p * e s) ⊗ₜ[k] (ψw w₂ * pol q * e r)) =
-      ψw (w₁ ++ shiftWord β.card w₂) *
-        pol (rename (Seq.posL γ) p * rename (Seq.posR β) q) * e (s.append r) := by
-  have he : concat Q β γ ((pol p * e s) ⊗ₜ[k] (pol q * e r)) =
-      pol (rename (Seq.posL γ) p * rename (Seq.posR β) q) * e (s.append r) := by
-    simpa only [ψw_nil, mul_one, shiftWord, List.map_nil, List.nil_append] using
-      (concat_pol_ψw_e (Q := Q) p q (validWord_nil β.card) (validWord_nil γ.card) s r)
-  rw [mul_assoc (ψw w₁), mul_assoc (ψw w₂), ← Algebra.TensorProduct.tmul_mul_tmul,
-    concat_mul, concat_ψw_tmul_ψw hw₁ hw₂, mul_assoc, oneConcat_mul_concat, he, ← mul_assoc]
-
 /-- The local crossing word with bottom dots is shifted by the left exterior weight.
 The right exterior weight changes only the positions available for concatenation. -/
 theorem concat_interval_ψw_pol_e (p : MvPolynomial (Fin β.card) k) {w : List ℕ}
@@ -48,7 +35,7 @@ theorem concat_interval_ψw_pol_e (p : MvPolynomial (Fin β.card) k) {w : List �
       concat Q β γ ((ψw w * pol p * e s) ⊗ₜ[k] e r) =
         ψw w * pol a * e (s.append r) := by
     simpa only [shiftWord, List.map_nil, List.append_nil, ψw_nil, map_one, one_mul, mul_one] using
-      (concat_ψw_pol_e (Q := Q) p 1 hw (validWord_nil γ.card) s r)
+      (concat_ψw_pol_e (Q := Q) hw (validWord_nil γ.card) p 1 s r)
   rw [inner]
   have hw' : ValidWord (β + γ).card w := by
     intro j hj
@@ -56,7 +43,7 @@ theorem concat_interval_ψw_pol_e (p : MvPolynomial (Fin β.card) k) {w : List �
     rw [Multiset.card_add]
     omega
   simpa only [a, rename_rename, map_one, one_mul, ψw_nil, List.nil_append] using
-    (concat_ψw_pol_e (Q := Q) 1 a (validWord_nil α.card) hw' l (s.append r))
+    (concat_ψw_pol_e (Q := Q) (validWord_nil α.card) hw' 1 a l (s.append r))
 
 open Equiv PolyRep
 

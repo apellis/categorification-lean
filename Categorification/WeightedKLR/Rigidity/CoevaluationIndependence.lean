@@ -87,6 +87,7 @@ theorem dividedWord_iso_of_websterNorm (β : Multiset I) (d d' : List (I × ℕ)
   obtain rfl : a = 0 := by omega
   exact ⟨e.trans (GMod.shiftZeroIso (dp β d' hd').toGMod)⟩
 
+include hΛ hR in
 /-- Webster, Proposition 7.2. Two reduced expressions for the same Weyl element
 give isomorphic normalized graded cyclotomic projectives at the common content. -/
 theorem coevaluationProjective_iso_of_same_weyl

@@ -8338,10 +8338,12 @@ example := finrank_vacuum_braidColumn_eq_standard params weights
 end NonVacuity.WebsterVacuumBraidColumn
 
 namespace NonVacuity.WebsterGradedFundamentalCup
+noncomputable section
 
 open Categorification Categorification.Stendhal Categorification.Stendhal.FundamentalCorner
 open DG
 open scoped DG.DegreeZero
+attribute [local instance 1100] IsIdempotentElem.instAlgebraCorner_categorification
 
 local notation "T" => TensorProductAlgebra ℚ Q wt ({()} : Multiset Unit)
 local notation "G" => Graded.oppositeGrade (tensorProductGrade FundamentalCorner.grading ({()} : Multiset Unit))
@@ -8359,6 +8361,8 @@ local instance : CatModule.HasDerivedCategory.{1,0} (WeightCategory Tᵐᵒᵖ) 
 
 example := gradedFundamentalCup
 example := gradedFundamentalCap
+
+end
 
 end NonVacuity.WebsterGradedFundamentalCup
 namespace NonVacuity.WebsterCupRHom

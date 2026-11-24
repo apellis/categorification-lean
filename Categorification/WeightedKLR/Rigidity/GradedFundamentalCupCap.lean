@@ -59,6 +59,9 @@ def gradedTerminalCharacter : Tᵐᵒᵖ →ᵈᵍ+* ℚ where
     change terminalScalar (d a) = d (terminalScalar a)
     rw [InDegreeZero.ring_d_apply, InDegreeZero.ring_d_apply, map_zero]
 
+@[simp] theorem gradedTerminalCharacter_op (a : T) :
+    gradedTerminalCharacter (op a) = terminalCharacter a := rfl
+
 /-- The fundamental character respects the internal diagram grading. -/
 theorem gradedTerminalCharacter_mem_weight {j : ℤ} {a : Tᵐᵒᵖ}
     (ha : a ∈ wgrading j) : gradedTerminalCharacter a ∈ wgrading j := by

@@ -102,6 +102,7 @@ import Categorification.Algebra.K0FinDim
 import Categorification.Algebra.ModuleCatLinear
 import Categorification.Algebra.ModuleFiltration
 import Categorification.Algebra.ModuleFiltrationMap
+import Categorification.Algebra.IdempotentTraceFiltration
 import Categorification.Algebra.MonicTrace
 import Categorification.Algebra.NilHecke
 import Categorification.Algebra.NilHeckeIdempotent
@@ -1647,6 +1648,7 @@ import Categorification.WeightedKLR.RedStrands.BraidedStandardDerived
 import Categorification.WeightedKLR.RedStrands.BlockCrossingComparison
 import Categorification.WeightedKLR.RedStrands.BlockLoadingPresentation
 import Categorification.WeightedKLR.RedStrands.BlockKernelColumn
+import Categorification.WeightedKLR.RedStrands.BlockKernelFiltration
 import Categorification.WeightedKLR.RedStrands.BraidedStandardGrading
 import Categorification.WeightedKLR.RedStrands.BraidedStandardInjective
 import Categorification.WeightedKLR.RedStrands.BraidedStandardIso

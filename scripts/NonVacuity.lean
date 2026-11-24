@@ -6268,8 +6268,11 @@ example (x y : BraidedStendhalAlgebra (ZMod 4) q₄ weights (β + β)) :=
       have hi : IsViolated i := ⟨by decide,rfl⟩
       simp only [map_mul, violMk_e hi, mul_zero,zero_mul])
 
+example := blockLoadingKernel_eq_idempotentTrace q₄ weights src (pair 0) (pair 1)
+
 /-- The degree-one kernel has affine representatives even when the *exchanged* bottom
 pair encloses a black. This does not assert that these representatives have zero class. -/
+
 example := ker_blockKernelTensorInclusion_eq_map q₄ weights src (pair 0) (pair 1)
   (redWord (Seq.cast weight (place Bs top))) symm₄
 
@@ -6587,3 +6590,41 @@ noncomputable example :=
   hasReflectedStandardFiltration_braidingBimodule [] [] rightFiltration
 
 end NonVacuity.WebsterBraidFiltration
+
+namespace NonVacuity.WebsterKernelTrace
+
+open Categorification.ModuleFiltration
+
+private def labels : Bool → ModuleCat.{0} ℤ
+  | false => HasFiltration.zeroObj
+  | true => ModuleCat.of ℤ ℤ
+
+private instance : Subsingleton (labels false) := by
+  change Subsingleton PUnit
+  infer_instance
+
+private theorem filtration : HasFiltration labels ([false] ++ [true]) (labels true) := by
+  refine HasFiltration.cons (X := labels true) (Z := labels false) LinearMap.id 0 [true] false
+    (fun _ _ h => h) ?_ (fun z => ⟨0, Subsingleton.elim _ z⟩)
+    (HasFiltration.single (LinearEquiv.refl ℤ _)) ⟨LinearEquiv.refl ℤ _⟩
+  intro y
+  exact ⟨fun _ => ⟨y, rfl⟩, fun _ => rfl⟩
+
+example : HasFiltration labels [true]
+    (ModuleCat.of ℤ (idempotentTrace {1} (labels true))) := by
+  apply filtration.idempotentTrace {1}
+  · intro e he
+    rw [Set.mem_singleton_iff] at he
+    subst e
+    exact one_mul _
+  · intro c hc e he x
+    simp only [List.mem_singleton] at hc
+    subst c
+    exact Subsingleton.elim _ _
+  · intro c hc
+    simp only [List.mem_singleton] at hc
+    subst c
+    refine le_antisymm le_top fun x _ => ?_
+    exact Submodule.subset_span ⟨1, rfl, x, (one_smul ℤ x).symm⟩
+
+end NonVacuity.WebsterKernelTrace

@@ -8060,3 +8060,22 @@ example := finrank_vacuum_braidColumn_eq_standard params weights
   (fun _ _ _ => rfl) exchanged ordered
 
 end NonVacuity.WebsterVacuumBraidColumn
+
+namespace NonVacuity.WebsterCupRHom
+
+open CategoryTheory DG MulOpposite Categorification.Stendhal.Coevaluation
+open scoped DG.DegreeZero
+
+local instance : DG.HasDerivedCategory.{1,0} ℚ := DG.HasDerivedCategory.standard ℚ
+local instance : DG.HasDerivedCategory.{1,0} ℚᵐᵒᵖ := DG.HasDerivedCategory.standard ℚᵐᵒᵖ
+local instance : DG.CatModule.HasDerivedCategory.{1,0} (SingleObj ℚ) :=
+  DG.CatModule.HasDerivedCategory.standard (SingleObj ℚ)
+local instance : DG.CatModule.HasDerivedCategory.{1,0} (SingleObj ℚᵐᵒᵖ) :=
+  DG.CatModule.HasDerivedCategory.standard (SingleObj ℚᵐᵒᵖ)
+
+example := shiftedCupRHomFunctor ℚ ℚ (Fin 2 → ℚ) (-2)
+example := capBimoduleCupRHomAdjunction ℚ ℚ (Fin 2 → ℚ)
+example := capBimoduleRegularIso ℚ ℚ (Fin 2 → ℚ)
+example := cupRHomObjIso ℚ ℚ (Fin 2 → ℚ) (DG.DGModuleCat.of ℚ ℚ)
+
+end NonVacuity.WebsterCupRHom

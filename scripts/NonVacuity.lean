@@ -6831,5 +6831,6 @@ example := terminalCoinvModule_simple (ν := Multiset.replicate 2 ())
   (i := ()) (fun j _ => Subsingleton.elim j ()) Q
 
 example := twoBlack_terminal_relations Q
+example := twoBlackTerminalProjective_simple Q
 
 end NonVacuity.WebsterTerminalCyclotomic

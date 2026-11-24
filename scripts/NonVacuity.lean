@@ -8044,3 +8044,22 @@ example := finrank_vacuum_braidColumn_eq_standard params weights
   (fun _ _ _ => rfl) exchanged ordered
 
 end NonVacuity.WebsterVacuumBraidColumn
+
+namespace NonVacuity.WebsterLabelTwoUnknot
+
+open Categorification.Webster.LabelTwo
+
+example : LinearMap.ker (plus (k := ℤ)) = LinearMap.range minus :=
+  ker_plus
+
+example : LinearMap.ker (minus (k := ℤ)) = LinearMap.range plus :=
+  ker_minus
+
+noncomputable example := postTensorHomologyZero (k := ℚ)
+
+noncomputable example := postTensorHomologyOdd (k := ℚ) 2 ⟨1,by decide⟩ (by decide)
+
+noncomputable example := postTensorHomologyPositiveEven (k := ℚ) 1
+  (by simp) (by decide)
+
+end NonVacuity.WebsterLabelTwoUnknot

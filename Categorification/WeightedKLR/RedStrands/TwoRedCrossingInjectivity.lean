@@ -187,4 +187,117 @@ theorem IsSecondRedCrossing.eq_zero_of_mul
     subst h
     exact ih
 
+section Recognition
+
+open FirstWeight
+
+private theorem cast_sadj_smul {J : Type*} {m n : Multiset J} (h : m = n)
+    (a : ℕ) (s : Seq m) :
+    Seq.cast h (sadj m.card a • s) = sadj n.card a • Seq.cast h s := by
+  subst h
+  rfl
+
+omit [DecidableEq I] in
+private theorem sadj_appendBlackLoading (j : I) (ν : Multiset I) (a : ℕ)
+    (ha : a + 1 < (stendhalWeight 2 ν).card) (s : Seq (stendhalWeight 2 ν)) :
+    sadj (stendhalWeight 2 (Si j + ν)).card a • appendBlackLoading j ν s =
+      appendBlackLoading j ν (sadj (stendhalWeight 2 ν).card a • s) := by
+  unfold appendBlackLoading
+  rw [← cast_sadj_smul, Seq.sadj_smul_append_left ha]
+
+omit [DecidableEq I] in
+private theorem secondRedCrossing_atRight (i : I) (β : Multiset I)
+    (s : Seq (stendhalWeight 1 β)) (hs : IsRedOrdered s) :
+    IsSecondRedCrossing (Si i + β) (stendhalWeight 1 β).card
+      (appendRedLoading (appendBlackLoading i β s))
+      (appendBlackLoading i β (appendRedLoading s)) := by
+  have key (β' : Multiset I) (h : β' = β + 0) (s' : Seq (stendhalWeight 1 β'))
+      (hs' : IsRedOrdered s') :
+      IsSecondRedCrossing (Si i + β') (stendhalWeight 1 β').card
+        (appendRedLoading (appendBlackLoading i β' s'))
+        (appendBlackLoading i β' (appendRedLoading s')) := by
+    subst β'
+    exact .atRight i β s' hs'
+  exact key β (add_zero β).symm s hs
+
+/-- An adjacent black strand and the second red strand in an ordered two-red loading give the
+oriented elementary crossing of Lemma 5.23. Its bottom loading is the adjacent swap. -/
+theorem isSecondRedCrossing_of_labels {ν : Multiset I} {a : ℕ}
+    (s : Seq (stendhalWeight 2 ν)) (hs : IsRedOrdered s) (i : I)
+    (ha : a + 1 < (stendhalWeight 2 ν).card)
+    (hb : s.lbl ⟨a, by omega⟩ = .inl i)
+    (hr : s.lbl ⟨a + 1, ha⟩ = .inr (1 : Fin 2)) :
+    IsSecondRedCrossing ν a s (sadj (stendhalWeight 2 ν).card a • s) := by
+  generalize hν : ν.card = n
+  induction n using Nat.strong_induction_on generalizing ν with
+  | _ n ih =>
+    let q := terminalPos (ν := ν) (ℓ := 2) (by omega)
+    have hq : q.val = (stendhalWeight 2 ν).card - 1 := rfl
+    have hcard₂ := cardinal_weight (ℓ := 2) (ν := ν)
+    by_cases hlast : a + 1 = q.val
+    · have hred : HasLastRed s := by
+        change s.lbl (lastRedPosition 1 ν) = .inr (Fin.last 1)
+        have he : lastRedPosition 1 ν = (⟨a + 1, ha⟩ : Fin (stendhalWeight 2 ν).card) := by
+          apply Fin.ext
+          change ν.card + 1 = a + 1
+          omega
+        rw [he]
+        exact hr
+      obtain ⟨⟨u, hu⟩, he⟩ := (appendRedOrderedEquiv (ℓ := 1) (ν := ν)).surjective ⟨s, hs, hred⟩
+      obtain rfl : appendRedLoading u = s := congrArg Subtype.val he
+      have hcard₁ := cardinal_weight (ℓ := 1) (ν := ν)
+      have hl : a < (stendhalWeight 1 ν).card := by omega
+      have hpos : terminalPos (ℓ := 1) (ν := ν) (by omega) =
+          (⟨a, hl⟩ : Fin (stendhalWeight 1 ν).card) := by
+        apply Fin.ext
+        change (stendhalWeight 1 ν).card - 1 = a
+        omega
+      rw [appendRedLoading_lbl_of_lt u _ hl] at hb
+      have hblack : u.lbl (terminalPos (ℓ := 1) (ν := ν) (by omega)) = .inl i := by
+        rw [hpos]
+        cases h : u.lbl ⟨a, hl⟩ with
+        | inl j => simpa [h, addRedColor] using hb
+        | inr r => simp [h, addRedColor] at hb
+      obtain ⟨β, rfl⟩ := exists_eq_singleton_add_of_mem (mem_of_lbl_eq_inl u _ hblack)
+      obtain ⟨v, hv, rfl⟩ := exists_appendBlack_terminal u hblack hu
+      have ha' : a = (stendhalWeight 1 β).card := by
+        have h := cardinal_weight (ℓ := 1) (ν := β)
+        have hsum : (Si i + β).card = β.card + 1 := by simp
+        omega
+      subst a
+      change IsSecondRedCrossing _ _ (blackRedLoading i β v)
+        (sadj (stendhalWeight 2 (Si i + β)).card _ • blackRedLoading i β v)
+      rw [swap_blackRedLoading]
+      exact secondRedCrossing_atRight i β v hv
+    · cases hqcolour : s.lbl q with
+      | inr r =>
+        have he : q = lastRedPosition 1 ν := by
+          apply Fin.ext
+          change q.val = ν.card + 1
+          omega
+        have ht := terminal_red_last s hs r (he ▸ hqcolour)
+        change s.lbl (lastRedPosition 1 ν) = .inr (Fin.last 1) at ht
+        rw [← he] at ht
+        have heq := lbl_eq_inr_unique hr ht
+        exact (hlast (congrArg Fin.val heq)).elim
+      | inl j =>
+        obtain ⟨β, rfl⟩ := exists_eq_singleton_add_of_mem (mem_of_lbl_eq_inl s q hqcolour)
+        obtain ⟨u, hu, rfl⟩ := exists_appendBlack_terminal s hqcolour hs
+        have ha' : a + 1 < (stendhalWeight 2 β).card := by
+          have h := cardinal_weight (ℓ := 2) (ν := β)
+          have hsum : (Si j + β).card = β.card + 1 := by simp
+          omega
+        have hlt : a < (stendhalWeight 2 β).card := by omega
+        have hb' : u.lbl ⟨a, by omega⟩ = .inl i :=
+          (appendBlackLoading_lbl_of_lt j β u ⟨a, by omega⟩ hlt).symm.trans hb
+        have hr' : u.lbl ⟨a + 1, ha'⟩ = .inr (1 : Fin 2) :=
+          (appendBlackLoading_lbl_of_lt j β u ⟨a + 1, ha⟩ ha').symm.trans hr
+        rw [sadj_appendBlackLoading j β a ha']
+        have hdec : β.card < n := by
+          rw [← hν]
+          simp
+        exact .appendBlack j (ih β.card hdec (ν := β) u hu ha' hb' hr' rfl)
+
+end Recognition
+
 end Categorification.Stendhal

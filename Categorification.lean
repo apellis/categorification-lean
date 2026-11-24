@@ -1646,6 +1646,7 @@ import Categorification.WeightedKLR.RedStrands.AdjacentBlockTensor
 import Categorification.WeightedKLR.RedStrands.OrderedBlockAction
 import Categorification.WeightedKLR.RedStrands.OrderedBlockCrossingInjectivity
 import Categorification.WeightedKLR.RedStrands.BlockCrossingDiagramCut
+import Categorification.WeightedKLR.RedStrands.IntervalColumnSpan
 import Categorification.WeightedKLR.RedStrands.BraidedStandardDerived
 import Categorification.WeightedKLR.RedStrands.BlockShuffleLoading
 import Categorification.WeightedKLR.RedStrands.BlockShuffleCrossing

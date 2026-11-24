@@ -6665,6 +6665,25 @@ noncomputable example :=
 
 end NonVacuity.WebsterBraidFiltration
 
+namespace NonVacuity.WebsterIntervalColumn
+
+open Categorification.KLR Categorification.Stendhal
+
+private abbrev ν : Multiset Bool := {false, true, false}
+private def s : Seq (stendhalWeight 3 ν) :=
+  KLRAlgebra.Seq.ofList [.inr 0, .inl false, .inr 2, .inl true, .inl false, .inr 1] (by decide)
+private def t : Seq (stendhalWeight 3 ν) :=
+  KLRAlgebra.Seq.ofList [.inr 0, .inl false, .inr 1, .inl true, .inl false, .inr 2] (by decide)
+private noncomputable abbrev Q : Bool → Bool → MvPolynomial (Fin 2) ℚ := fun _ _ => 0
+
+example (z : KLRAlgebra ℚ (stendhalQ Q (fun _ : Fin 3 => Finsupp.single true 1))
+    (stendhalWeight 3 ν)) :=
+  BraidedStendhalAlgebra.mem_span_interval_crossing_column Q (fun _ => Finsupp.single true 1)
+    (by intro a b h; simp [Q]) s t (q := ⟨2, by decide⟩) (p := ⟨5, by decide⟩)
+    (a := 2) (b := 1) (L := [0]) (M := []) (by decide) (by decide) (by decide) (by decide) z
+
+end NonVacuity.WebsterIntervalColumn
+
 open Categorification.TypeA Equiv
 namespace IntervalPBWFixture
 

@@ -1016,7 +1016,10 @@ of the left weight modules also gives the derived Hom
 (`diagramWeightDerivedHom`). A balanced homogeneous multiplication of two
 coefficients induces their product from the intermediate weight-category
 tensor coend (`diagramWeightCoendProduct_tmul`). Compatibility with the outer
-action gives a map of dg modules (`diagramWeightCoendProductHom`). In the right-module
+action gives a map of dg modules (`diagramWeightCoendProductHom`).
+Compatibility with both outer actions makes it natural in the source weight
+(`diagramWeightCoendProductNatTrans`). Pointwise bijectivity gives the natural
+isomorphism (`diagramWeightCoendProductNatIso`). In the right-module
 convention this gives the coend multiplication of three rectangular corners
 (`diagramCornerWeightRightCoendProduct_tmul`). If ordinary pure products
 generate the coefficient, the coend product is onto at each pair of endpoint

@@ -1286,6 +1286,14 @@ horizontal reflection has degree-zero homology `k` and vanishes in every
 other cohomological degree
 (`Stendhal.LabelTwo.outgoingExteriorAmbientHomology_zero`,
 `Stendhal.LabelTwo.outgoingExteriorAmbientHomology_isZero`).
+The reflected incoming exterior coefficient kills all strictly higher
+loading idempotents. The ordered resolution and the divided projector
+splitting show that the incoming diagonal ambient homology also vanishes
+in every nonzero degree
+(`Stendhal.LabelTwo.incomingExteriorAmbientHomology_isZero`).
+On the incoming divided standard, the reflected projector selects the
+line spanned by the black-crossing translate
+(`Stendhal.labelTwoRightExterior_reflectedProjector_image`).
 
 
 

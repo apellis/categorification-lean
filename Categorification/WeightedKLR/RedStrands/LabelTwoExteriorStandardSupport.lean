@@ -5,6 +5,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 import Categorification.WeightedKLR.RedStrands.LabelTwoExteriorMiddleMap
 import Categorification.WeightedKLR.RedStrands.LoadingCutPBW
 import Categorification.WeightedKLR.RedStrands.RedBlackCrossingInjective
+import Categorification.WeightedKLR.RedStrands.BoundaryHomReflection
 
 /-!
 # The right exterior divided standard at label two
@@ -282,6 +283,54 @@ theorem labelTwo_rightExteriorDividedStandard_span
   rw [Submodule.mem_span_pair] at hz
   obtain ⟨a, b, hab⟩ := hz
   exact ⟨a, b, hab.symm⟩
+
+private abbrev rightExteriorReflection : T →ₐ[k] Tᵐᵒᵖ := tensorReflect
+
+local notation "D" => act (ψ 2 : H)
+local notation "Y" => act X₂
+
+private theorem projected_operator : act (X₂ * ψ 2 * e A) = Y * D := by
+  rw [map_mul, map_mul, startAffineAction_loading, mul_one]
+
+private theorem reflected_operator :
+    act (hflip (X₂ * ψ 2 * e A)) = D * Y := by
+  simp only [hflip_mul, hflip_e, hflip_ψ, hflip_x, map_mul, startAffineAction_loading, one_mul]
+
+private theorem reflected_kills_projected_unit :
+    act (hflip (X₂ * ψ 2 * e A)) v₀ = 0 := by
+  have hY : Y * Y = 0 := (labelTwo_rightStandard_terminalOperators param).1
+  have h : (D * Y) * (Y * D) = 0 := by
+    rw [← mul_assoc (D * Y), mul_assoc D Y Y, hY, mul_zero, zero_mul]
+  rw [reflected_operator, projected_operator, ← Module.End.mul_apply, h, LinearMap.zero_apply]
+
+set_option maxHeartbeats 850000 in
+private theorem reflected_fixes_projected_translate :
+    act (hflip (X₂ * ψ 2 * e A)) v₁ = v₁ := by
+  have hD : D * D = 0 := (labelTwo_rightStandard_terminalOperators param).2.2.2.1
+  have hmix : D * Y + Y * D = 1 := (labelTwo_rightStandard_terminalOperators param).2.2.2.2
+  have h : (D * Y) * D = D := calc
+    (D * Y) * D = (D * Y + Y * D) * D := by
+      rw [add_mul, mul_assoc Y D D, hD, mul_zero, add_zero]
+    _ = D := by rw [hmix, one_mul]
+  rw [reflected_operator, ← Module.End.mul_apply (D * Y) D v₀, h]
+
+set_option maxHeartbeats 850000 in
+/-- The reflected right exterior projector acts on the actual divided standard
+with image spanned by the black-crossing translate. -/
+theorem labelTwoRightExterior_reflectedProjector_image (z : labelTwoRightExteriorDividedStandard param) :
+    ∃ b : k, (rightExteriorReflection param (π (X₂ * ψ 2 * e A))).unop • z.val = b • v₁ := by
+  have hr : (rightExteriorReflection param (π (X₂ * ψ 2 * e A))).unop =
+      π (hflip (X₂ * ψ 2 * e A : H)) := by
+    exact congrArg MulOpposite.unop (tensorReflect_projection (Q := param) (Λ := wt) («ν» := ν)
+      (X₂ * ψ 2 * e A))
+  obtain ⟨a,b,h⟩ := labelTwo_rightExteriorDividedStandard_span param z
+  refine ⟨b,?_⟩
+  rw [hr]
+  change act (hflip (X₂ * ψ 2 * e A)) z.val = _
+  have hs : z.val = a • v₀ + b • v₁ := h
+  rw [hs, map_add, map_smul, map_smul, reflected_kills_projected_unit,
+    reflected_fixes_projected_translate, smul_zero, zero_add]
+
 
 end
 end Categorification.Stendhal

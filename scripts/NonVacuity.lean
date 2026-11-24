@@ -5750,6 +5750,12 @@ private theorem rbRouquier :
 private theorem rbSymm : KLRSymm (CL.qCL (CL.CLScalars.kl : CL.CLScalars rbC ℚ)) :=
   fun _ _ h => (h (Subsingleton.elim _ _)).elim
 
+/-- The one-black kernel has its higher partial standard layer with positive spectator
+weight at the standard Khovanov–Lauda parameters for rank one. -/
+example :=
+  BraidedStendhalAlgebra.ThreeRedOneBlack.kernel_hasHigherFiltration_standard
+    rbRouquier rbSymm (fun _ => Finsupp.single () 1)
+
 private def rbEmpty : Seq (stendhalWeight 0 ((0 : Multiset Unit) + 0)) :=
   KLRAlgebra.Seq.ofList [] (by decide)
 

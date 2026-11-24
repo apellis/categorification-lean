@@ -9191,6 +9191,27 @@ example [DG.HasDerivedCategory.{0, 0} (Corner (redWord t))ᵐᵒᵖ]
 
 end NonVacuity.WebsterFiveSlotAllTops
 
+noncomputable section
+
+namespace FirstPairOneAfterProjectiveNonVacuity
+
+open Categorification.KLR Categorification.Stendhal Categorification.Stendhal.BraidedStendhalAlgebra
+open MvPolynomial
+
+attribute [local instance 1100] IsIdempotentElem.instAlgebraCorner_categorification
+
+private def Q : Unit → Unit → MvPolynomial (Fin 2) (ZMod 4) := fun _ _ => 0
+private def Λ : Fin 3 → Unit →₀ ℕ := fun r => Finsupp.single () (r.val + 1)
+
+example := FiveSlotFlag.firstPairOneAfter_blockKernel_projective Q Λ false (fun _ _ _ => rfl)
+example := FiveSlotFlag.firstPairOneAfter_blockKernel_projective Q Λ true (fun _ _ _ => rfl)
+
+example := FiveSlotFlag.firstPairOneAfter_blockKernel_hasHigherSingle Q Λ false (fun _ _ _ => rfl)
+example := FiveSlotFlag.firstPairOneAfter_blockKernel_hasHigherSingle Q Λ true (fun _ _ _ => rfl)
+
+end FirstPairOneAfterProjectiveNonVacuity
+end
+
 namespace NonVacuity.WebsterPrincipalAllBottoms
 
 open Categorification.Stendhal Categorification.KLR BraidedStendhalAlgebra FiveSlotFlag
@@ -9267,23 +9288,14 @@ example := FiveSlotFlag.fiveSlotLastRed_square_reflects_earlierCrossing Q Λ (fu
 end NonVacuity.WebsterFiveSlotLastRedTransport
 
 
-noncomputable section
+namespace NonVacuity.WebsterFiveSlotMiddleRightFiltration
 
-namespace FirstPairOneAfterProjectiveNonVacuity
-
-open Categorification.KLR Categorification.Stendhal Categorification.Stendhal.BraidedStendhalAlgebra
+open Categorification.Stendhal Categorification.KLR BraidedStendhalAlgebra
 open MvPolynomial
-
-attribute [local instance 1100] IsIdempotentElem.instAlgebraCorner_categorification
 
 private def Q : Unit → Unit → MvPolynomial (Fin 2) (ZMod 4) := fun _ _ => 0
 private def Λ : Fin 3 → Unit →₀ ℕ := fun r => Finsupp.single () (r.val + 1)
 
-example := FiveSlotFlag.firstPairOneAfter_blockKernel_projective Q Λ false (fun _ _ _ => rfl)
-example := FiveSlotFlag.firstPairOneAfter_blockKernel_projective Q Λ true (fun _ _ _ => rfl)
+example := fiveSlotMiddleRight_kernel_hasPartialStandardFiltration Q Λ (fun _ _ _ => rfl)
 
-example := FiveSlotFlag.firstPairOneAfter_blockKernel_hasHigherSingle Q Λ false (fun _ _ _ => rfl)
-example := FiveSlotFlag.firstPairOneAfter_blockKernel_hasHigherSingle Q Λ true (fun _ _ _ => rfl)
-
-end FirstPairOneAfterProjectiveNonVacuity
-end
+end NonVacuity.WebsterFiveSlotMiddleRightFiltration

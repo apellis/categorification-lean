@@ -5544,6 +5544,8 @@ example : PowerSeries.coeff 2 signedMiddleSeries = LaurentPolynomial.T (-6) := b
 
 example : IsUnit middleDenominator := middleDenominator_isUnit
 
+example := shiftedDecompositionSeries_polynomial_representation
+
 end NonVacuity.WebsterLabelTwoMiddleSeries
 
 namespace NonVacuity.WebsterLocalization

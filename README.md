@@ -1237,7 +1237,11 @@ pair of degrees (`fundamentalBraidGradedDerivedCohomology_isZero`).
 The action on that line is the middle character in the reversed red order.
 In the derived category of target weight modules, the braid takes the graded
 middle simple to the reversed middle simple in cohomological degree −1
-(`fundamentalBraidGradedDerivedTargetIso`).
+(`fundamentalBraidGradedDerivedTargetIso`). The normalized cup contributes
+internal translation one and cohomological shift minus one. Applying the
+braid to this cup on the field gives the reversed middle character with
+internal translation one, in cohomological degree zero
+(`fundamentalBraidNormalizedCupIso`).
 The diagonal-ring equivalence
 carries the two mixed crossings to the differentials of the projective
 resolution of the middle head (`fundamentalBraidSourceResolution`). Its

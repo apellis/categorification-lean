@@ -1007,8 +1007,13 @@ the sum of the images of maps from the corresponding loading projectives
 corner inverse test identify this trace with the unique maximal submodule
 (`Stendhal.coevaluationTrace_eq_iff_simpleQuotient`). The mixed bigon factors
 the terminal black dot power through the adjacent smaller cut
-(`Stendhal.bigon_mem_coevaluationTrace`). The full diagrammatic inputs to
-the criterion remain open.
+(`Stendhal.bigon_mem_coevaluationTrace`). For two fundamental type A₁
+factors over `ℚ`, the terminal loading character has kernel exactly the
+smaller-cut trace and gives the unique simple quotient
+(`Stendhal.FundamentalCorner.fundamentalCutTrace_eq_iff_simpleQuotient`).
+The coefficient on the generating vector is one
+(`Stendhal.FundamentalCorner.terminalCoefficient_generator`). The general
+diagrammatic inputs to the criterion remain open.
 
 ### Weak `sl₂`-categorifications (Chuang–Rouquier, arXiv:math/0407205v2, §5)
 

@@ -7922,3 +7922,15 @@ example :
   simpa using bigon_mem_coevaluationTrace Q Λ ν _ allRight 1 (by decide) () 1 rfl rfl () rfl
 
 end NonVacuity.WebsterCoevaluationTrace
+
+namespace NonVacuity.WebsterFundamentalCoevaluation
+
+open Categorification Categorification.Stendhal FundamentalCorner
+
+example : IsSimpleModule (TensorProductAlgebra ℚ Q wt ({()} : Multiset Unit))ᵐᵒᵖ
+    (rIdeal terminalIdem ⧸ fundamentalCutTrace) :=
+  (fundamentalCutTrace_eq_iff_simpleQuotient fundamentalCutTrace).mp rfl
+
+example : Function.Surjective terminalCoefficient := terminalCoefficient_surjective
+
+end NonVacuity.WebsterFundamentalCoevaluation

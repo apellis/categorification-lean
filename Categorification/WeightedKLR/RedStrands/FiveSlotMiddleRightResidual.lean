@@ -436,6 +436,8 @@ theorem fiveSlotMiddleRight_residual_equiv_of_lastWeight_zero (hQ : KLRSymm Q)
   exact ⟨LinearEquiv.ofBijective f ⟨hinj.2 (fiveSlotMiddleRight_nearby_saturated_zeroWeight Q Λ hQ weight),
     hsurj⟩⟩
 
+end ResidualSaturation
+
 set_option backward.isDefEq.respectTransparency false in
 /-- The central projective embeds as the first piece, and the second
 subquotient is the nearby partial standard. -/
@@ -534,6 +536,5 @@ theorem fiveSlotMiddleRight_partialStandard_braid_homology_vanish_zero_final_sta
 
 end Standard
 
-end ResidualSaturation
 
 end Categorification.Stendhal.BraidedStendhalAlgebra

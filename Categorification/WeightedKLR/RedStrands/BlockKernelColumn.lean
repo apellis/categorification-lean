@@ -200,8 +200,8 @@ theorem blockKernelColumnInclusion_injective_of_violated_bottom (hs : IsViolated
     apply Subtype.ext
     have hy := y.2.2
     change y.1 * p = y.1 at hy
-    rw [show p = 0 from violMk_e hs, mul_zero] at hy
-    exact hy.symm
+    have hp : p = 0 := violMk_e hs
+    exact hy.symm.trans ((congrArg (fun z : V => y.1 * z) hp).trans (mul_zero _))
   have zero (z : BalancedTensor k k T K C) : z = 0 := by
     induction z using BalancedTensor.induction_on with
     | zero => rfl

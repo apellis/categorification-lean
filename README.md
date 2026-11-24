@@ -1015,7 +1015,9 @@ representative of the input (`diagramWeightDerivedTensorObjIso`). K-projectivity
 of the left weight modules also gives the derived Hom
 (`diagramWeightDerivedHom`). A balanced homogeneous multiplication of two
 coefficients induces their product from the intermediate weight-category
-tensor coend (`diagramWeightCoendProduct_tmul`). For a rectangular corner between two degree-zero
+tensor coend (`diagramWeightCoendProduct_tmul`). In the right-module
+convention this gives the coend multiplication of three rectangular corners
+(`diagramCornerWeightRightCoendProduct_tmul`). For a rectangular corner between two degree-zero
 idempotents, `diagramCornerWeightDerivedRightTensor` uses the restricted grading
 and defines derived right tensor on the graded right-module categories.
 For the actual braid bimodule this gives `auxiliaryGradedBraidingFunctor`

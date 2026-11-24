@@ -1105,10 +1105,10 @@ The coefficient on the generating vector is one
 (`Stendhal.FundamentalCorner.terminalCoefficient_generator`). The general
 diagrammatic inputs to the criterion remain open.
 
-**Webster, arXiv:1309.3796v2, §8.1, Proposition 8.3 input.** In the
-fundamental rank-one block over `ℚ`, the terminal coevaluation simple has a
-length-one projective resolution whose differential is the mixed crossing
-from the middle loading to the terminal loading
+**Terminal-character resolution benchmark for Webster, arXiv:1309.3796v2,
+§8.1.** In the fundamental rank-one block over `ℚ`, the terminal simple
+has a length-one projective resolution whose differential is the mixed
+crossing from the middle loading to the terminal loading
 (`Stendhal.FundamentalCorner.fundamentalProjectiveResolution`). Its positive
 self-Ext groups vanish
 (`Stendhal.FundamentalCorner.fundamentalTerminalSimple_ext_eq_zero`).

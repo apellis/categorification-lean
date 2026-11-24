@@ -6473,3 +6473,33 @@ noncomputable example :=
   hasReflectedStandardFiltration_braidingBimodule [] [] rightFiltration
 
 end NonVacuity.WebsterBraidFiltration
+
+namespace NonVacuity.WebsterIntervalConcat
+
+open Categorification.KLR Categorification.KLR.KLRAlgebra Categorification.TypeA
+open MvPolynomial
+open scoped TensorProduct
+
+private abbrev L : Multiset Bool := {false}
+private abbrev M : Multiset Bool := {false, true}
+private abbrev R : Multiset Bool := {true}
+private def l : Seq L := Seq.ofList [false] rfl
+private def s : Seq M := Seq.ofList [false, true] rfl
+private def r : Seq R := Seq.ofList [true] rfl
+private noncomputable def params : Bool → Bool → MvPolynomial (Fin 2) ℤ := fun _ _ => 1
+
+example :
+    intervalConcat params l r (ψw [0] * pol (MvPolynomial.X (⟨0, by decide⟩ : Fin M.card)) * e s) =
+      ψw [1] * pol (rename (Seq.posR L ∘ Seq.posL R) (MvPolynomial.X (⟨0, by decide⟩ : Fin M.card))) *
+        e (l.append (s.append r)) := by
+  rw [intervalConcat_apply, concat_interval_ψw_pol_e _ (show ValidWord M.card [0] by simp [ValidWord])]
+  rfl
+
+example := range_intervalConcat_eq_span params (by intro a b _; simp [params]) l r
+  (canWord M.card) (fun w => ⟨isReduced_canWord _ w, wordProd_canWord _ w⟩)
+
+example (x y : KLRAlgebra ℤ params M) :
+    intervalConcat params l r (x * y) = intervalConcat params l r x * intervalConcat params l r y :=
+  intervalConcat_mul params l r x y
+
+end NonVacuity.WebsterIntervalConcat

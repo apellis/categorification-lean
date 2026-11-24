@@ -1027,6 +1027,10 @@ Lemma 6.14; tilting modules (Thm 6.15); `𝔅_σ` are equivalences (Thm 6.16); t
 action (Cor 6.17); Ringel duality (Cor 6.18); semi-orthogonal decompositions (Prop 6.19); the
 Serre functor (Prop 6.20).
 
+For the multi-strand interval calculation, `intervalConcat` puts a local KLR diagram
+between fixed exterior loading idempotents. The exact image is the span of shifted
+local PBW words and their shifted bottom dots (`range_intervalConcat_eq_span`).
+
 ### Phase E: §7, rigidity
 
 Coevaluation and evaluation for a pair (Def 7.1, Prop 7.2, Def 7.4, Props 7.5, 7.6,

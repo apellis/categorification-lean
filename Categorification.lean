@@ -384,6 +384,7 @@ import Categorification.KLR.Center
 import Categorification.KLR.CenterFree
 import Categorification.KLR.Concat
 import Categorification.KLR.ConcatAssoc
+import Categorification.KLR.IntervalConcat
 import Categorification.KLR.Cor215
 import Categorification.KLR.Cor319
 import Categorification.KLR.CrossingRescale

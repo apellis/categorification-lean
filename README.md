@@ -1003,6 +1003,12 @@ from a dominant integral weight, the coroot pairings are nonnegative
 roots this determines the multiplicities
 (`Stendhal.coevaluationWord_multiplicities_eq`). For reduced expressions of the
 same Weyl element, this gives `Stendhal.coevaluationWord_multiplicities_eq_of_reduced`.
+For Definition 7.4, when twice the height or twice the inner-product
+functional changes sign at the endpoint, the length and symmetrizer sum
+of the coevaluation word compute the homological and internal shift numbers
+(`coevaluationWord_length_eq_twice_height` and
+`coevaluationWord_sum_symmetrizers_eq_twice_pairing`).
+
 For Proposition 7.2, a single
 red with coroot pairing one gives a simple projective at the red-first
 one-black loading (`Stendhal.oneBlack_extremal_projective_simple`).

@@ -1195,6 +1195,9 @@ the graded braid gives the crossed loading cut in auxiliary degree
 (`fundamentalBraidGradedCutIso`). On these coends both differentials multiply
 by the mixed crossing (`fundamentalBraidGradedCutIso_d₂`,
 `fundamentalBraidGradedCutIso_d₁`).
+The resulting tensor complex has middle homology ℚ at auxiliary weight zero
+(`fundamentalBraidGradedTensorHomologyIso`) and is exact at other weights
+(`fundamentalBraidGradedTensorComplex_exact`). Its two ends are exact in every weight.
 The diagonal-ring equivalence
 carries the two mixed crossings to the differentials of the projective
 resolution of the middle head (`fundamentalBraidSourceResolution`). Its

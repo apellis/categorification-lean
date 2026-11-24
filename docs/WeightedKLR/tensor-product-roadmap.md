@@ -964,20 +964,28 @@ retraction multiplies on the left by the loading idempotent and then applies the
 isomorphism. The diagram idempotent has internal degree zero, so both maps preserve every
 complex degree, and their composite on the exterior object is the identity.
 
-This does not yet give a graded derived functor comparison. The pinned `dg-lean` has integer
-internal weights via `DG.WeightCategory`, independent of the cochain grading. For this fixed
-braid, one can use the source coset `ℤ` and target coset `c + ℤ`, where
-`c = 2 − ⟨λ₁, λ₀⟩` is the correction to the auxiliary diagram degree. The bimodule of the two
-weight categories must use the piece at `n − m + c` between source `m` and target `n + c`.
-A comparison is needed between the coend tensor there and the graded balanced tensor here;
-the target piece at `n + c` must then be read at `n + c + ⟨λ₀ − α, λ₁⟩` in the unshifted
-upper exterior object. The pinned tensor–Hom derived tensor requires K-projective output
-slices of the braid. For the left-derived tensor alone this premise is unnecessary: descend
-along homotopy with `CatBimodule.homotopic_tensorMap`, then compose with the inverse of the
-source K-projective equivalence before tensoring and localize on the target. The remaining
-comparison must use the graded retract of the source representable and retain the internal
-coset; the ungraded derived comparison cannot supply it. Webster's `D⁻` also requires a
-bounded-above restriction, distinct from the fact that this projective is in cochain degree zero.
+`BraidedExteriorDerived.lean` uses `DG.WeightCategory` on the source coset `ℤ` and target
+coset `c + ℤ`, where `c = 2 − ⟨λ₁, λ₀⟩`. Between source `m` and target `n`, the braid piece
+is at internal degree `n − m + c`, independently of the cochain degree. The lower grading
+retract gives a corner generator at weight zero, hence `figureFiveLowerWeightModule_isKProjective`.
+The tensor descends through homotopy; applying it to a source K-projective representative
+and localizing on the target gives the ambient derived tensor, with no condition on the
+K-projectivity of the braid's output slices. `figureFiveBraidDerivedTensorObjIso` computes
+its value on the lower exterior standardization as the ordinary categorical coend.
+
+The comparison `figureFiveBraidCoendCutIso` sends the lower inclusion through the coend tensor,
+then evaluates the source representable at weight zero by `CatTensorProduct.rid`. On a pure
+coend tensor it multiplies the included lower diagram on the left of the braid diagram. Its
+image is fixed by the lower loading idempotent, hence in the loading cut. Its inverse sends a
+cut diagram `y` to `y ⊗ g`, where `g` is the projection of the regular unit to the lower
+standardization; balancing gives the first round trip and `e(s)y = y` gives the second.
+
+The right-linear comparison `figureFiveExteriorToCut` identifies that cut with the shifted
+upper exterior standardization. At weight coordinate `n` the unshifted upper piece is at
+`n + c + ⟨λ₀ − α, λ₁⟩`, all in cochain degree zero. Localizing gives
+`figureFiveBraidDerivedExteriorIso`, the ambient derived evaluation for the two-red Figure 5
+input. It does not establish the restriction of the functor to all of Webster's `D⁻` or
+replace the reduction by Lemma 6.8.
 
 For Lemma 6.11, `braidingBimoduleFlip` implements the horizontal reflection used in
 the proof of `f_n → s_n`. It swaps the order corners and intertwines their actions with
@@ -1031,6 +1039,38 @@ its tail. The ordered coefficient slides by balancing. Hence every affine relati
 zero balanced class: `crossingStack_injective` and `crossingStackEquiv` give the ordinary
 comparison for arbitrary spectators and black contents. `crossingDiagramCut_eq_inverse`
 identifies the original basis cut on every representative with the inverse on its class.
+The binary bottom-projector formula extends to each block of the parabolic
+coordinates. Theorem `violated_of_adjacent_shuffleLoading` shows that every compatible
+split of a globally violated or strictly higher retained source loading has an
+internally violated block. The projected coordinates vanish on diagrams factoring
+through one of these loadings, with arbitrary diagrams above and below the cut.
+`exists_blockStack_quotient_coordinates` descends the coordinates through red dots
+and both loading ideals to the partially standardized quotient. The coordinate
+words have coordinate `1` in their own slot and `0` in the other slots.
+`exists_blockColumn_coordinate_embedding` shows that the coordinates separate
+elements of the source-order block column. The affine coordinate representatives can
+be chosen as explicit reduced words indexed by the recursive block shuffles. In a
+binary shuffle, a right crossing either extends an external ascent or moves to an
+internal crossing in one block, with an error in a lower crossing-filtration step.
+The filtered binary coordinate reserves its shuffle length from the crossing
+budget, and the two tensor factors share the remainder. Iterating this bound gives
+the total-length bound for the recursive coordinates. In
+`exists_blockStack_filtered_quotient_coordinates` the bound passes to the image
+of that filtration in the quotient. For a right ascent in an arbitrary row,
+`quotientCoordinate_external_right_ascent` and
+`quotientCoordinate_internal_right_ascent` compute the leading quotient
+coordinates. The two alternatives land in disjoint targets. A matched
+nonviolated split in the source red order gives an ascent at a black–red joint.
+The exact indexed projector agrees with the loading of the selected shuffle.
+Consequently the external leading multiplier is the original right projector.
+The internal one is the supported crossing in the paired block.
+`blockColumn_eq_zero_of_ordered_paired_crossing` uses its ordered local injection
+to deduce the whole-column zero-kernel statement over a field.
+`exists_place_adjacent` places any nonviolated source loading with the prescribed
+red order in an adjacent row, and `mem_blockUpperIdeal_of_blockColumn_right_kernel`
+lifts a supported column kernel test to the higher ideal. The marked-column
+comparison and higher Tor argument remain open in general.
+
 For (6.21), the loading projective is `e(t)T` in the source order. Its surjection to
 the external loading summand has kernel `K = e(t)T ∩ J` for the strictly higher
 retained-boundary ideal (`ker_blockStandardCover`). `blockKernelTensorInclusion` tensors
@@ -1122,7 +1162,7 @@ are linear for juxtaposed block diagrams, not for arbitrary upper elements of
 partial standardizations, apply the induction in (6.21), and identify the derived
 comparison naturally. Then Prop 6.9
 for general `ℓ` by reduction to two
-red strands, the graded forms of Def 6.6 and Props 6.7, 6.9, Cor 6.10, Lemma 6.11, Def 6.12, Cor 6.13,
+red strands, the graded bounded-above functor of Def 6.6 and its equivariance (Prop 6.7), Cor 6.10, Lemma 6.11, Def 6.12, Cor 6.13,
 Lemma 6.14; tilting modules (Thm 6.15); `𝔅_σ` are equivalences (Thm 6.16); the braid group
 action (Cor 6.17); Ringel duality (Cor 6.18); semi-orthogonal decompositions (Prop 6.19); the
 Serre functor (Prop 6.20).

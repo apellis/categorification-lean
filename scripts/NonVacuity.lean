@@ -5599,6 +5599,13 @@ example := Categorification.Stendhal.LabelTwo.labelTwoShiftedAugmentation_preser
 
 example := Categorification.Stendhal.LabelTwo.labelTwoGradedAugmentation_simple ℚ
 
+example := Categorification.Stendhal.labelTwoExteriorReflectedLineEquiv
+  (Categorification.Stendhal.LabelTwo.parameter ℚ)
+
+example := Categorification.Stendhal.labelTwoExteriorReflectedLineGenerator_degree_two ℚ
+
+example := Categorification.Stendhal.LabelTwo.labelTwoLeftExterior_projective ℚ
+
 example := Categorification.Stendhal.labelTwoExteriorCokernel_span Q
 
 end NonVacuity.WebsterLabelTwoEndpointTor

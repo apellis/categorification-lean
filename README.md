@@ -1355,6 +1355,12 @@ completes the exact sequence of graded diagrammatic terms
 (`Stendhal.LabelTwo.labelTwoExteriorCokernelDecomposition`,
 `Stendhal.LabelTwo.labelTwoNormalizedAugmentation_exact`,
 `Stendhal.LabelTwo.labelTwoShiftedAugmentation_preservesGrading`).
+The reflected complementary exterior projector selects the nonzero
+first-dot line, in diagram degree two. The actual exterior projective
+has ambient derived tensor homology only in degree zero for every right
+coefficient (`Stendhal.labelTwoExteriorReflectedLineEquiv`,
+`Stendhal.labelTwoExteriorReflectedLineGenerator_degree_two`,
+`Stendhal.LabelTwo.labelTwoLeftExterior_derivedTensorHomology_isZero`).
 
 
 

@@ -1659,6 +1659,7 @@ import Categorification.WeightedKLR.RedStrands.TwoBlackExitWords
 import Categorification.WeightedKLR.RedStrands.TwoBlackPivotObstruction
 import Categorification.WeightedKLR.RedStrands.RightPairQuotientLift
 import Categorification.WeightedKLR.RedStrands.EqualBlackHigherPair
+import Categorification.WeightedKLR.RedStrands.FixedTopFourExitJoints
 import Categorification.WeightedKLR.RedStrands.BraidedStandardDerived
 import Categorification.WeightedKLR.RedStrands.BlockShuffleLoading
 import Categorification.WeightedKLR.RedStrands.BlockShuffleCrossing

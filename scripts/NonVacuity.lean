@@ -7521,6 +7521,57 @@ end
 
 end NonVacuity.WebsterEqualBlackHigherPair
 
+namespace NonVacuity.WebsterFixedTopFourExits
+
+open Categorification.KLR Categorification.Stendhal Categorification.TypeA
+open BraidedStendhalAlgebra KLRAlgebra
+
+noncomputable section
+
+private abbrev ν : Multiset Unit := {()} + {()}
+private abbrev μ := stendhalWeight 3 ν
+private abbrev Q : Unit → Unit → MvPolynomial (Fin 2) ℚ := fun _ _ => 0
+private abbrev Λ : Fin 3 → Unit →₀ ℕ := fun _ => Finsupp.single () 2
+private abbrev B := BraidedStendhalAlgebra ℚ Q Λ ν
+private abbrev R := KLRAlgebra ℚ (stendhalQ Q Λ) μ
+private abbrev F := ofKLR ℚ Q Λ ν
+private abbrev bot := fixedTopFourExitBottom
+private abbrev v (i : Fin 4) := fixedTopFourExitCut i
+private abbrev jA := sadj μ.card 2 • v 0
+private abbrev leg (l : List ℕ) (v : Seq μ) := F (ψw l*e v)
+
+private theorem compose (l w : List ℕ) (s : Seq μ) (hs : wordProd μ.card w • bot=s) :
+    leg l s*leg w bot=leg (l++w) bot := by
+  have h : (e (wordProd μ.card w • bot) : R)*(ψw w*e bot)=ψw w*e bot := by
+    rw [← mul_assoc,e_mul_ψw,inv_smul_smul,mul_assoc,e_mul_self]
+  simp only [leg,← map_mul,ψw_append,← hs]
+  rw [mul_assoc,h,mul_assoc]
+
+/-- A signed neighboring relation at the five-slot fixed top flows through
+the descent cascade. -/
+example (g : B) :=
+  let q := F (e (v 2))*g*F (e jA)
+  let x₀ := q*leg [2] (v 0)
+  let x₁ := -(q*leg [3] (v 1))
+  have cut (l : List ℕ) (s : Seq μ) :
+      F (e (v 2))*(q*leg l s)*F (e s)=q*leg l s := by
+    have left : F (e (v 2))*q=q := by
+      simp only [q,← mul_assoc,← map_mul,e_mul_self]
+    simp only [← mul_assoc (F (e (v 2))) q,left,leg,← map_mul,mul_assoc,e_mul_self]
+  have edge : leg [2] (v 0)*leg [3,2,1] bot=leg [3] (v 1)*leg [2,3,1] bot := by
+    rw [compose _ _ _ (by decide),compose _ _ _ (by decide)]
+    exact congrArg F (twoBlackNearbyExitWords (Q := stendhalQ Q Λ) 1 (by decide) bot (by decide)).1
+  have sum : x₀*leg [3,2,1] bot+x₁*leg [2,3,1] bot+
+      (0 : B)*leg [1,2,3] bot+(0 : B)*leg [2,3,1,2] bot=0 := by
+    simp only [x₀,x₁,neg_mul,mul_assoc,edge,zero_mul,add_zero,add_neg_cancel]
+  exists_fixedTop_fourExitJointPresentation_prefixOne Q Λ (fun _ _ _ => rfl)
+    x₀ x₁ 0 0 (cut _ _) (by simpa only [x₁,mul_neg,neg_mul] using congrArg Neg.neg (cut [3] (v 1)))
+    (by rw [mul_zero,zero_mul]) (by rw [mul_zero,zero_mul]) sum
+
+end
+
+end NonVacuity.WebsterFixedTopFourExits
+
 namespace NonVacuity.WebsterIntervalColumn
 
 open Categorification.KLR Categorification.Stendhal

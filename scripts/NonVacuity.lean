@@ -7970,6 +7970,65 @@ end
 
 end NonVacuity.WebsterFiveSlotMarkedJoints
 
+namespace NonVacuity.WebsterFiveSlotCentral
+
+open Categorification.KLR Categorification.Stendhal Categorification.TypeA
+open BraidedStendhalAlgebra KLRAlgebra
+
+noncomputable section
+
+private abbrev ν : Multiset Unit := {()} + {()}
+private abbrev μ := stendhalWeight 3 ν
+private abbrev Q : Unit → Unit → MvPolynomial (Fin 2) ℤ := fun _ _ => 0
+private abbrev Λ : Fin 3 → Unit →₀ ℕ := fun _ => Finsupp.single () 2
+private abbrev Q₀ := stendhalQ Q Λ
+private abbrev R := KLRAlgebra ℤ Q₀ μ
+private abbrev V := ViolQuotient ℤ Q Λ ν
+private abbrev F := (violMk ℤ Q Λ ν).comp (ofKLR ℤ Q Λ ν)
+private abbrev bot := fixedTopFourExitBottom
+private abbrev t := fixedTopFourExitCut 1
+private abbrev q := exitSquarePolynomial Q₀ t 1 (by decide)*exitSquarePolynomial Q₀ t 3 (by decide)
+private abbrev U : R := ψw [1,3,2,3,1]*e t
+
+/-- The central transposition row on the ordinary middle arm cancels the
+product of two positive-weight squares on the reversed arm. -/
+example :=
+  let y : R := pol (-q)*e t
+  let x : Fin 4 → V := ![0,F U,0,F y]
+  have cutU : (e t : R)*U*e t=U := by
+    have h := e_mul_pol_ψw_e (Q := Q₀) 1 [1,3,2,3,1] t
+    rw [show wordProd μ.card [1,3,2,3,1] • t=t by decide,map_one,one_mul] at h
+    rw [show e t*U=U by simpa only [U,mul_assoc] using h]
+    simp only [U,mul_assoc,e_mul_self]
+  have cutY : e t*y*e t=y := by
+    have h := e_mul_pol_ψw_e (Q := Q₀) (-q) [] t
+    simp only [wordProd_nil,one_smul,ψw_nil,mul_one] at h
+    change e t*(pol (-q)*e t)*e t=pol (-q)*e t
+    rw [h,mul_assoc,e_mul_self]
+  have support (i : Fin 4) :
+      F (e t)*x i*F (e (wordProd μ.card (fiveSlotExitWord i) • bot))=x i := by
+    have load (j : Fin 4) : wordProd μ.card (fiveSlotExitWord j) • bot=fixedTopFourExitCut j := by fin_cases j <;> decide
+    rw [load]
+    fin_cases i
+    · change F (e t)*(0 : V)*_=0; rw [mul_zero,zero_mul]
+    · exact (show F (e t)*F U*F (e t)=F U by simp only [← map_mul,cutU])
+    · change F (e t)*(0 : V)*_=0; rw [mul_zero,zero_mul]
+    · exact (show F (e t)*F y*F (e t)=F y by simp only [← map_mul,cutY])
+  have mat := fiveSlotCentral_middle_matrix_iff (stendhalQ_symm Q Λ (fun _ _ _ => rfl)) 0 1 (-q) 0
+  have sumRaw : U*(ψw [2,3,1]*e bot)+y*(ψw [2,3,1,2]*e bot)=0 := by
+    simpa only [map_zero,map_one,zero_mul,one_mul,zero_add,add_zero,y,U] using
+      mat.2 ⟨rfl,by change 1*q+ -q=0; rw [one_mul,add_neg_cancel]⟩
+  have sum : ∑ i, x i*F (ψw (fiveSlotExitWord i)*e bot)=0 := by
+    rw [Fin.sum_univ_four]
+    change (0 : V)*_+F U*F (ψw [2,3,1]*e bot)+0*_+F y*F (ψw [2,3,1,2]*e bot)=0
+    simpa only [zero_mul,zero_add,add_zero,map_mul,map_add,map_zero] using congrArg F sumRaw
+  exists_fiveSlot_violQuotient_fourExitJointPresentation Q Λ (fun _ _ _ => rfl)
+    t (by decide) x support sum
+
+end
+
+end NonVacuity.WebsterFiveSlotCentral
+
 namespace NonVacuity.WebsterFiveSlotKernelColumn
 
 open Categorification.Stendhal BraidedStendhalAlgebra
@@ -8269,7 +8328,6 @@ example (x : Abelian.Ext fundamentalTerminalSimple fundamentalTerminalSimple 1) 
   fundamentalTerminalSimple_ext_eq_zero 1 (by decide) x
 
 end NonVacuity.WebsterFundamentalResolution
-
 namespace NonVacuity.WebsterVacuumBraidColumn
 
 open KLR KLRAlgebra Stendhal Stendhal.BraidedStendhalAlgebra
@@ -8288,3 +8346,69 @@ example := finrank_vacuum_braidColumn_eq_standard params weights
   (fun _ _ _ => rfl) exchanged ordered
 
 end NonVacuity.WebsterVacuumBraidColumn
+
+namespace NonVacuity.WebsterCupRHom
+
+open CategoryTheory DG MulOpposite Categorification.Stendhal.Coevaluation
+open scoped DG.DegreeZero
+
+local instance : DG.HasDerivedCategory.{1,0} ℚ := DG.HasDerivedCategory.standard ℚ
+local instance : DG.HasDerivedCategory.{1,0} ℚᵐᵒᵖ := DG.HasDerivedCategory.standard ℚᵐᵒᵖ
+local instance : DG.CatModule.HasDerivedCategory.{1,0} (SingleObj ℚ) :=
+  DG.CatModule.HasDerivedCategory.standard (SingleObj ℚ)
+local instance : DG.CatModule.HasDerivedCategory.{1,0} (SingleObj ℚᵐᵒᵖ) :=
+  DG.CatModule.HasDerivedCategory.standard (SingleObj ℚᵐᵒᵖ)
+
+example := shiftedCupRHomFunctor ℚ ℚ (Fin 2 → ℚ) (-2)
+example := capBimoduleCupRHomAdjunction ℚ ℚ (Fin 2 → ℚ)
+example := capBimoduleRegularIso ℚ ℚ (Fin 2 → ℚ)
+example := cupRHomObjIso ℚ ℚ (Fin 2 → ℚ) (DG.DGModuleCat.of ℚ ℚ)
+
+end NonVacuity.WebsterCupRHom
+namespace NonVacuity.WebsterFundamentalCupCap
+
+open Categorification.Stendhal Categorification.Stendhal.FundamentalCorner
+open scoped DG.DegreeZero
+
+local notation "T" => TensorProductAlgebra ℚ Q wt ({()} : Multiset Unit)
+
+local instance : DG.HasDerivedCategory.{1,0} ℚ := DG.HasDerivedCategory.standard ℚ
+local instance : DG.HasDerivedCategory.{1,0} Tᵐᵒᵖ := DG.HasDerivedCategory.standard Tᵐᵒᵖ
+
+example := terminalQuotientDualEquiv
+example := fundamentalCup
+example := fundamentalCap
+
+end NonVacuity.WebsterFundamentalCupCap
+
+namespace NonVacuity.WebsterFundamentalCupRegular
+
+open Categorification.Stendhal Categorification.Stendhal.FundamentalCorner
+open scoped DG.DegreeZero
+
+local notation "T" => TensorProductAlgebra ℚ Q wt ({()} : Multiset Unit)
+
+local instance : DG.HasDerivedCategory.{1,0} ℚ := DG.HasDerivedCategory.standard ℚ
+local instance : DG.HasDerivedCategory.{1,0} Tᵐᵒᵖ := DG.HasDerivedCategory.standard Tᵐᵒᵖ
+
+example := fundamentalCupRegularIso
+example := fundamentalCapRegularIso
+
+end NonVacuity.WebsterFundamentalCupRegular
+
+namespace NonVacuity.WebsterCupRHomRegular
+
+open CategoryTheory DG MulOpposite Categorification.Stendhal.Coevaluation
+open scoped DG.DegreeZero
+
+local instance : DG.HasDerivedCategory.{1,0} ℚ := DG.HasDerivedCategory.standard ℚ
+local instance : DG.HasDerivedCategory.{1,0} ℚᵐᵒᵖ := DG.HasDerivedCategory.standard ℚᵐᵒᵖ
+local instance : DG.CatModule.HasDerivedCategory.{1,0} (SingleObj ℚ) :=
+  DG.CatModule.HasDerivedCategory.standard (SingleObj ℚ)
+local instance : DG.CatModule.HasDerivedCategory.{1,0} (SingleObj ℚᵐᵒᵖ) :=
+  DG.CatModule.HasDerivedCategory.standard (SingleObj ℚᵐᵒᵖ)
+
+example := cupRHomRegularIso ℚ ℚ (Fin 2 → ℚ)
+example := cupRHomTensorRegularIso ℚ ℚ (Fin 2 → ℚ)
+
+end NonVacuity.WebsterCupRHomRegular

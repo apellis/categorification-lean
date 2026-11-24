@@ -9030,6 +9030,11 @@ example (c : Bool) :=
     (k := ℚ) (fun _ _ => 0) (fun _ => Finsupp.single () 1) (fun _ _ _ => rfl)
     (fun _ => by simp) c
 
+noncomputable section
+
+open CategoryTheory CategoryTheory.Limits DG
+open scoped DG.DegreeZero
+
 namespace NonVacuity.WebsterActualBraidKernel
 
 open Categorification Categorification.KLR Categorification.Stendhal
@@ -9109,7 +9114,7 @@ example := twoRedPartialStandardBraidIsoOrdinary Q Λ s [1, 0]
 end NonVacuity.WebsterTwoRedPartialStandard
 
 namespace NonVacuity.WebsterDerivedOrdinaryComparison
-open Categorification
+open Categorification DG.DerivedCategory
 
 local instance : HasDerivedCategory.{0, 0} ℤ := HasDerivedCategory.small ℤ
 
@@ -9127,6 +9132,8 @@ private theorem vanish (n : ℤ) (_ : n ≠ 0) :
 example := derivedTensorIsoOrdinaryOfVanishing (A := ℤ) (B := ℤ) (M := ℤ) unitModule vanish
 
 end NonVacuity.WebsterDerivedOrdinaryComparison
+
+end
 
 namespace NonVacuity.WebsterFiveSlotLeftDerived
 

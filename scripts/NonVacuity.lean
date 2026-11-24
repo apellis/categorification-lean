@@ -9032,6 +9032,31 @@ example : DG.DerivedCategory.finrankHomology ℚ (-1)
   simpa using middleCupCap_finrank.{1} (-1)
 
 end NonVacuity.WebsterMiddleCutEvaluation
+
+namespace NonVacuity.WebsterFundamentalBraidCorners
+open Categorification Categorification.Stendhal Categorification.Stendhal.FundamentalCorner KLR KLRAlgebra
+
+noncomputable section
+
+example : LinearIndependent ℚ terminalBraidClasses :=
+  fundamentalBraid_terminal_linearIndependent
+
+example : braidProject (ψ 0 * ψ 1 * e crossedMiddle) ≠ 0 :=
+  fundamentalBraid_mixed_ne_zero.2
+
+example : braidProject (e middle) * braidProject (ψw [0,1,0]) * braidProject (e crossedMiddle) = 0 :=
+  (fundamentalBraid_middle_middle_zero _).2
+
+example : braidProject (ψ 1) * braidProject (ψ 1 * ψ 0 * e crossedTerminal) =
+    terminalBraidClasses 1 :=
+  fundamentalBraid_terminal_differentials.1
+
+example : ∃ a b : ℚ, braidProject (e terminal) * braidProject (ψ 0) * braidProject (e crossedTerminal) =
+    a • terminalBraidClasses 0 + b • terminalBraidClasses 1 :=
+  fundamentalBraid_terminal_span _
+
+end
+end NonVacuity.WebsterFundamentalBraidCorners
 end
 
 namespace NonVacuity.WebsterCupRHomRegular

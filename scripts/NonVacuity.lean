@@ -8659,6 +8659,10 @@ example := @middleStandard_derivedTensorHomology_isZero_of_higher_support ℚ
 
 example := middleStandardTensorEquiv ℚ
 
+example := middleStandardTensorEquiv_plus ℚ
+
+example := middleStandardTensorEquiv_minus ℚ
+
 end NonVacuity.WebsterLabelTwoMiddleFixedComplex
 
 end

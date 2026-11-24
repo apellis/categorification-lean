@@ -1124,6 +1124,10 @@ vanishing outside degree zero for the reflected coefficient
 The ordinary tensor of this actual coefficient with the middle standard
 is the dual-number vector space at the middle cut
 (`Stendhal.LabelTwo.middleStandardTensorEquiv`).
+In these coordinates, the actual sum map vanishes and the actual
+difference map is multiplication by `2ε`
+(`Stendhal.LabelTwo.middleStandardTensorEquiv_plus`,
+`Stendhal.LabelTwo.middleStandardTensorEquiv_minus`).
 
 ### Weak `sl₂`-categorifications (Chuang–Rouquier, arXiv:math/0407205v2, §5)
 

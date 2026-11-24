@@ -5568,6 +5568,18 @@ example := Categorification.Stendhal.LabelTwo.labelTwoLeftExteriorDecomposition 
 
 example := Categorification.Stendhal.LabelTwo.labelTwoOutgoing_degree_two ℚ
 
+example := Categorification.Stendhal.LabelTwo.labelTwoRightExteriorDecomposition ℚ
+
+example := Categorification.Stendhal.LabelTwo.labelTwoIncoming_degree_two ℚ
+
+example := Categorification.Stendhal.LabelTwo.labelTwoNormalizedIncoming_injective ℚ
+
+example := Categorification.Stendhal.LabelTwo.labelTwoNormalizedCrossings_exact ℚ
+
+example := Categorification.Stendhal.LabelTwo.labelTwoShiftedIncoming_preservesGrading ℚ
+
+example := Categorification.Stendhal.LabelTwo.labelTwoShiftedOutgoing_preservesGrading ℚ
+
 example := Categorification.Stendhal.labelTwoExteriorEndComplex_exact Q
 
 example := Categorification.Stendhal.labelTwoExteriorEndComplex_epi Q

@@ -1125,6 +1125,12 @@ and the actual outgoing crossing has degree two between these graded modules
 (`Stendhal.LabelTwo.labelTwoMiddleQuotientDecomposition`,
 `Stendhal.LabelTwo.labelTwoLeftExteriorDecomposition`,
 `Stendhal.LabelTwo.labelTwoOutgoing_degree_two`).
+The divided incoming standard is graded using its degree-zero projected
+generator. The actual incoming crossing also has degree two. The shifts
+`3`, `1`, and `−1` on these raw gradings put both maps in degree zero
+(`Stendhal.LabelTwo.labelTwoIncoming_degree_two`,
+`Stendhal.LabelTwo.labelTwoShiftedIncoming_preservesGrading`,
+`Stendhal.LabelTwo.labelTwoShiftedOutgoing_preservesGrading`).
 The complementary exterior projective then surjects onto the actual
 cokernel of the outgoing crossing
 (`Stendhal.labelTwoExteriorEndComplex_exact`,

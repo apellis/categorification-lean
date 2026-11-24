@@ -1098,9 +1098,11 @@ ordinary crossing test remains injective after appending any finite number of
 uncrossed reds (`OrderedCrossingTest.rightmost_appendReds_standard`). A finite
 chain of higher loading projectives, ending at a vanishing kernel, gives the
 filtration with the actual partial-standard quotients
-(`HigherProjectiveChain.hasFiltration`). Applying these results to an arbitrary
-one-black spectator chain still requires comparing the ordinary crossing test
-with the ordered-corner crossing at each position.
+(`HigherProjectiveChain.hasFiltration`). In the canonical red order, the ordinary right-multiplication test implies
+injectivity of the actual ordered-corner crossing at any black content
+(`crossingIntoKernelMap_injective_of_ordinary_test`). Applying these results
+to an arbitrary one-black spectator chain still requires identifying each
+successive pair of loadings with the appropriate finite red suffix.
 
 Still open for Lemma 6.8: when a black lies between the bottom reds, prove that changes
 between different choices of the last crossing give equal balanced classes **in the

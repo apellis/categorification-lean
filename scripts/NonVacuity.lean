@@ -9303,3 +9303,13 @@ example :
 
 end NonVacuity.WebsterActualBraidKernel
 end
+
+
+namespace NonVacuity.WebsterUnitParameters
+
+noncomputable example :=
+  Categorification.Stendhal.tensorProductUnitParameterEquiv
+    (k := ℚ) (P := fun _ _ => 0) (P' := fun _ _ => 1)
+    (fun _ : Fin 2 => Finsupp.single () 2) ({(), ()} : Multiset Unit)
+
+end NonVacuity.WebsterUnitParameters

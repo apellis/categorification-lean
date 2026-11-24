@@ -1013,7 +1013,9 @@ A graded diagram coefficient gives a dg bimodule of the two weight categories
 (`diagramWeightBimodule`). Its derived tensor is computed on a K-projective
 representative of the input (`diagramWeightDerivedTensorObjIso`). K-projectivity
 of the left weight modules also gives the derived Hom
-(`diagramWeightDerivedHom`). A K-projective augmentation that remains a quasi-isomorphism after
+(`diagramWeightDerivedHom`). The Stendhal tensor product algebra depends only on the off-diagonal
+polynomials. For a single black colour this identifies arbitrary parameter
+choices (`tensorProductUnitParameterEquiv`). A K-projective augmentation that remains a quasi-isomorphism after
 tensoring computes the derived tensor by the original ordinary tensor
 (`diagramWeightDerivedTensorObjIsoOfResolution`). A balanced homogeneous multiplication of two
 coefficients induces their product from the intermediate weight-category

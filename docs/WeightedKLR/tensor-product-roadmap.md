@@ -1111,6 +1111,13 @@ order, this gives the full one-black retained-kernel filtration at standard
 parameters (`oneBlack_firstPair_hasFiltration_standard`). Its length is the
 number of spectator reds to the left of the black strand.
 
+For a pair elsewhere in the red order, the crossing of the omitted red
+preserves the retained root. Every strictly higher affine cut at the block
+factors through the two crossings across the pair
+(`oneBlack_cut_factors_across_pair`). The two ordinary crossing tests imply
+cancellation of that product on the canonical ordered projective
+(`eq_zero_of_twoCrossings_mul_of_corner`).
+
 Still open for Lemma 6.8: when a black lies between the bottom reds, prove that changes
 between different choices of the last crossing give equal balanced classes **in the
 tensor with `K`**. The ordinary parabolic coordinates are linear for juxtaposed block

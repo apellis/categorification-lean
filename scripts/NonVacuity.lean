@@ -8385,6 +8385,23 @@ end
 
 end NonVacuity.WebsterFiveSlotMarkedJoints
 
+namespace NonVacuity.WebsterFirstPairAllBottom
+
+open Categorification.KLR Categorification.Stendhal Categorification.QuantumGroup BraidedStendhalAlgebra
+
+private noncomputable abbrev C := CartanDatum.ofGraph (⊥ : SimpleGraph Unit)
+private noncomputable abbrev Q := Categorification.KL3.Diagram.CL.qCL
+  (Categorification.KL3.Diagram.CL.CLScalars.kl : Categorification.KL3.Diagram.CL.CLScalars C ℚ)
+private def Λ : Fin 3 → Unit →₀ ℕ := fun r => Finsupp.single () (r.val + 1)
+private def t : Categorification.KLR.Seq (stendhalWeight 3 ({()} + {()} : Multiset Unit)) :=
+  ⟨![.inl (), .inr 0, .inr 1, .inr 2, .inl ()], by decide⟩
+
+example := firstPair_blockKernelTensorInclusion_injective_standard_of_twoInterior (k := ℚ) C Λ t
+  (by decide) (blockKernelColumnInclusion_injective_of_tensor Q Λ t 0 1 firstPairBottomTwoInterior
+    (blockKernelTensorInclusion_injective_of_violated_top Q Λ t 0 1 _ ⟨by decide, by decide⟩))
+
+end NonVacuity.WebsterFirstPairAllBottom
+
 namespace NonVacuity.WebsterFiveSlotCentral
 
 open Categorification.KLR Categorification.Stendhal Categorification.TypeA

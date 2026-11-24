@@ -58,40 +58,9 @@ private theorem bottom_cases (u : Seq μ₀) (hu : redWord u=[0,2,1]) :
 variable {k : Type} [CommRing k]
   (Q : Unit → Unit → MvPolynomial (Fin 2) k) (Λ : Fin 3 → Unit →₀ ℕ)
   (t : Seq μ₀)
-local notation "V" => ViolQuotient k Q Λ ν₀
-local notation "mk" => violMk k Q Λ ν₀
-local notation "E" => mk (redProj k Q Λ ν₀ (redWord t))
-local notation "ord" => isIdempotentElem_violMk_redProj k Q Λ ν₀ (redWord t)
-local notation "T" => IsIdempotentElem.Corner ord
-local notation "K" => blockLoadingKernel Q Λ t 1 2
-local notation "P" => fun z : Seq μ₀ => mk (ofKLR k Q Λ ν₀ (e z))
-local notation "C" => fun z : Seq μ₀ => RedBlock.crossingSpace (k := k) E (P z)
 local notation "inc" => fun z => blockKernelColumnInclusion Q Λ t 1 2 z
 
 attribute [local instance 1100] IsIdempotentElem.instAlgebraCorner_categorification
-
-private theorem zero_lower_tensor_of_violated (u : Seq μ₀) (hu : IsViolated u)
-    (z : BalancedTensor k k T K (C u)) : z=0 := by
-  have lower (y : C u) : y=0 := by
-    apply Subtype.ext
-    have hy := y.2.2
-    change y.1*P u=y.1 at hy
-    have hP : P u=0 := violMk_e hu
-    rw [hP,mul_zero] at hy
-    exact hy.symm
-  induction z using BalancedTensor.induction_on with
-  | zero => rfl
-  | tmul x y =>
-    have h := congrArg (BalancedTensor.tmul (k := k) («B» := k) (A := T) x) (lower y)
-    exact h.trans (BalancedTensor.tmul_zero x)
-  | add x y hx hy =>
-    exact (congrArg₂ (fun s t : BalancedTensor k k T K (C u) => s+t) hx hy).trans (zero_add 0)
-
-private theorem violated_bottom_injective (u : Seq μ₀) (hu : IsViolated u) :
-    Function.Injective (inc u) := by
-  intro x y _
-  exact (zero_lower_tensor_of_violated Q Λ t u hu x).trans
-    (zero_lower_tensor_of_violated Q Λ t u hu y).symm
 
 /-- For the five-slot bottom red order `[0,2,1]`, it suffices to check the
 two one-interior bottom columns and the two-interior bottom column. The top
@@ -118,7 +87,7 @@ theorem fiveSlot_blockKernelTensorInclusion_injective_of_interleaved
     (by decide) rfl rfl (sadj_smul_smul ..)
   change inj u
   rcases bottom_cases u hu with hv | h | h | h | h | h | h
-  · exact violated_bottom_injective Q Λ t u hv
+  · exact blockKernelColumnInclusion_injective_of_violated_bottom Q Λ t 1 2 u hv
   · exact (congrArg inj h).mpr inj₁
   · exact (congrArg inj h).mpr right
   · exact (congrArg inj h).mpr both

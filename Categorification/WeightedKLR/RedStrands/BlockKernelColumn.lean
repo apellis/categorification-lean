@@ -35,19 +35,25 @@ private local instance {R : Type*} [Ring R] [Algebra k R] {u v : R} (hu : IsIdem
     IsScalarTower k hu.Corner (RedBlock.crossingSpace (k := k) u v) where
   smul_assoc c r x := Subtype.ext (smul_mul_assoc c r.1 x.1)
 
-private def columnIn : C →ₗ[T] B where
+local notation "Bκ" κ => RedBlock.crossingSpace (k := k) E (mk (redProj k Q Λ ν κ))
+
+private def columnInOrder (κ : List (Fin ℓ)) (hs : redWord s = κ) : C →ₗ[T] Bκ κ where
   toFun x := ⟨x.1,x.2.1,by
-    calc x.1 * F = (x.1 * p) * F := congrArg (· * F) x.2.2.symm
-         _ = x.1 := by rw [mul_assoc, ← map_mul, e_mul_redProj, ite_eq_left rfl, x.2.2]⟩
+    change x.1 * mk (redProj k Q Λ ν κ) = x.1
+    rw [← x.2.2, mul_assoc, ← map_mul, e_mul_redProj, ite_eq_left hs, x.2.2]⟩
   map_add' _ _ := rfl
   map_smul' _ _ := rfl
 
+private abbrev columnIn : C →ₗ[T] B := columnInOrder Q Λ t s (redWord s) rfl
+
 private theorem loading_sq : p * p = p := by rw [← map_mul,← map_mul,KLRAlgebra.e_mul_self]
 
-private def columnOut : B →ₗ[T] C where
+private def columnOutOrder (κ : List (Fin ℓ)) : (Bκ κ) →ₗ[T] C where
   toFun x := ⟨x.1 * p, by rw [← mul_assoc,x.2.1], by rw [mul_assoc,loading_sq]⟩
   map_add' x y := Subtype.ext (add_mul x.1 y.1 p)
   map_smul' r x := Subtype.ext (mul_assoc r.1 x.1 p)
+
+private abbrev columnOut : B →ₗ[T] C := columnOutOrder Q Λ t s (redWord s)
 
 /-- The map in (6.21) on the right loading `s`, formed by tensoring `K ↪ e(t)T`
 with `B e(s)` over `T`. -/
@@ -82,6 +88,109 @@ private theorem columnInjective {X Y U D : Type*} [AddCommGroup X] [Module k X]
   have zero : j (u z) = 0 := (hn z).trans (hz ▸ map_zero _)
   have hb : b (u z) = 0 := H zero
   exact (LinearMap.congr_fun hu z).symm.trans ((congrArg w hb).trans (map_zero _))
+
+/-- A single bottom loading is a split summand on both sides of the tensor
+inclusion. Used to restrict the first-black-weight proof of the kernel test
+following Webster v2, (6.21), to an interleaved loading. -/
+theorem blockKernelColumnInclusion_injective_of_tensor
+    (hi : Function.Injective (blockKernelTensorInclusion Q Λ t a b (redWord s))) :
+    Function.Injective (blockKernelColumnInclusion Q Λ t a b s) :=
+  columnInjective (k := k) (X := BalancedTensor k k T K C) (Y := BalancedTensor k k T P C)
+    (U := BalancedTensor k k T K B) (D := BalancedTensor k k T P B)
+    (blockKernelColumnInclusion Q Λ t a b s) (blockKernelTensorInclusion Q Λ t a b (redWord s))
+    botMap emb embP out (recoverColumn Q Λ t a b s)
+    (fun _ hx => (congrArg (fun z => botMap z) (hi (hx.trans (map_zero _).symm))).trans (map_zero _))
+    (includeColumn Q Λ t a b s)
+
+private abbrev orderedLoadings (κ : List (Fin ℓ)) : Finset (KLR.Seq (stendhalWeight ℓ ν)) :=
+  Finset.univ.filter fun u => redWord u = κ
+
+private theorem columnAssembly_sum (κ : List (Fin ℓ)) (y : Bκ κ) :
+    ∑ u ∈ (orderedLoadings κ).attach,
+      columnInOrder Q Λ t u.1 κ (Finset.mem_filter.mp u.2).2
+        (columnOutOrder Q Λ t u.1 κ y) = y := by
+  classical
+  apply Subtype.ext
+  rw [AddSubmonoidClass.coe_finsetSum]
+  change (∑ u ∈ (orderedLoadings κ).attach, y.1 * mk (ofKLR k Q Λ ν (KLRAlgebra.e u.1))) = y.1
+  rw [Finset.sum_attach (orderedLoadings κ) (fun u => y.1 * mk (ofKLR k Q Λ ν (KLRAlgebra.e u)))]
+  rw [← Finset.mul_sum, ← map_sum, ← map_sum]
+  exact y.2.2
+
+private abbrev projectKernel (κ : List (Fin ℓ)) (u : KLR.Seq (stendhalWeight ℓ ν)) :=
+  BalancedTensor.mapRight (k := k) («B» := k) (M := K) (columnOutOrder Q Λ t u κ)
+
+private abbrev projectLoading (κ : List (Fin ℓ)) (u : KLR.Seq (stendhalWeight ℓ ν)) :=
+  BalancedTensor.mapRight (k := k) («B» := k) (M := P) (columnOutOrder Q Λ t u κ)
+
+private abbrev restoreKernel (κ : List (Fin ℓ)) (u : ↥(orderedLoadings (ν := ν) κ)) :=
+  BalancedTensor.mapRight (k := k) («B» := k) (M := K)
+    (columnInOrder Q Λ t u.1 κ (Finset.mem_filter.mp u.2).2)
+
+private theorem project_kernel_tensor (κ : List (Fin ℓ)) (u : KLR.Seq (stendhalWeight ℓ ν)) :
+    (blockKernelColumnInclusion Q Λ t a b u).comp (projectKernel Q Λ t a b κ u) =
+      (projectLoading Q Λ t κ u).comp (blockKernelTensorInclusion Q Λ t a b κ) :=
+  BalancedTensor.extB fun _ _ => rfl
+
+private theorem sum_kernel_tensor (κ : List (Fin ℓ)) :
+    (∑ u ∈ (orderedLoadings (ν := ν) κ).attach,
+      (restoreKernel Q Λ t a b κ u).comp (projectKernel Q Λ t a b κ u.1)) =
+      (LinearMap.id : BalancedTensor k k T K (Bκ κ) →ₗ[k] _) := by
+  apply BalancedTensor.extB
+  intro x y
+  refine (LinearMap.sum_apply (orderedLoadings (ν := ν) κ).attach
+    (fun u => (restoreKernel Q Λ t a b κ u).comp (projectKernel Q Λ t a b κ u.1))
+    (BalancedTensor.tmul x y)).trans ?_
+  change (∑ u ∈ (orderedLoadings (ν := ν) κ).attach, BalancedTensor.mkBil k k T K (Bκ κ) x
+      (columnInOrder Q Λ t u.1 κ (Finset.mem_filter.mp u.2).2
+        (columnOutOrder Q Λ t u.1 κ y))) = BalancedTensor.mkBil k k T K (Bκ κ) x y
+  let lift := BalancedTensor.mkBil k k T K (Bκ κ) x
+  let cut (u : ↥(orderedLoadings (ν := ν) κ)) :=
+    columnInOrder Q Λ t u.1 κ (Finset.mem_filter.mp u.2).2 (columnOutOrder Q Λ t u.1 κ y)
+  have hcut : ∑ u ∈ (orderedLoadings (ν := ν) κ).attach, cut u = y :=
+    columnAssembly_sum Q Λ t κ y
+  exact (map_sum lift cut (orderedLoadings (ν := ν) κ).attach).symm.trans (congrArg lift hcut)
+
+/-- The degree-one kernel test in Webster v2, §6.1, Lemma 6.8, (6.21), follows
+from the tests in all bottom loading columns of the exchanged red order. -/
+theorem blockKernelTensorInclusion_injective_of_columns (κ : List (Fin ℓ))
+    (hcol : ∀ u : KLR.Seq (stendhalWeight ℓ ν), redWord u = κ →
+      Function.Injective (blockKernelColumnInclusion Q Λ t a b u)) :
+    Function.Injective (blockKernelTensorInclusion Q Λ t a b κ) := by
+  rw [← LinearMap.ker_eq_bot, LinearMap.ker_eq_bot']
+  intro z hz
+  have hzero (u : ↥(orderedLoadings (ν := ν) κ)) : projectKernel Q Λ t a b κ u.1 z = 0 := by
+    refine hcol u.1 (Finset.mem_filter.mp u.2).2 ?_
+    calc
+      blockKernelColumnInclusion Q Λ t a b u.1 (projectKernel Q Λ t a b κ u.1 z) =
+          projectLoading Q Λ t κ u.1 (blockKernelTensorInclusion Q Λ t a b κ z) :=
+        LinearMap.congr_fun (project_kernel_tensor Q Λ t a b κ u.1) z
+      _ = projectLoading Q Λ t κ u.1 0 := congrArg (projectLoading Q Λ t κ u.1) hz
+      _ = 0 := map_zero (projectLoading Q Λ t κ u.1)
+      _ = blockKernelColumnInclusion Q Λ t a b u.1 0 := (map_zero _).symm
+  have hsum := LinearMap.congr_fun (sum_kernel_tensor Q Λ t a b κ) z
+  have heval := LinearMap.sum_apply (orderedLoadings (ν := ν) κ).attach
+    (fun u => (restoreKernel Q Λ t a b κ u).comp (projectKernel Q Λ t a b κ u.1)) z
+  refine hsum.symm.trans (heval.trans (Finset.sum_eq_zero fun u _ => ?_))
+  exact (congrArg (restoreKernel Q Λ t a b κ u) (hzero u)).trans (map_zero _)
+
+/-- Read a relation between two marked cuts in the loading column when the full
+kernel inclusion has been proved injective. In the first weight this identifies
+the relations of the two-exit presentation following Webster v2, (6.21). -/
+theorem blockKernelColumn_pair_eq_zero_iff
+    (hi : Function.Injective (blockKernelTensorInclusion Q Λ t a b (redWord s)))
+    (x y : K) (l r : C) :
+    (BalancedTensor.tmul x l + BalancedTensor.tmul y r : BalancedTensor k k T K C) = 0 ↔
+      x.1.1.1 * l.1 + y.1.1.1 * r.1 = 0 := by
+  let f := ((blockLoadingTensorStack Q Λ t (redWord s)).comp
+    (blockKernelTensorInclusion Q Λ t a b (redWord s))).comp emb
+  have retract (z : BalancedTensor k k T K C) := LinearMap.congr_fun (recoverColumn Q Λ t a b s) z
+  have he : Function.Injective emb := fun z w h => (retract z).symm.trans
+    ((congrArg (fun v => out (botMap v)) h).trans (retract w))
+  have hf : Function.Injective f := (blockLoadingTensorStack_injective Q Λ t (redWord s)).comp (hi.comp he)
+  have val : f (BalancedTensor.tmul x l + BalancedTensor.tmul y r) = x.1.1.1*l.1 + y.1.1.1*r.1 :=
+    map_add f _ _
+  exact ⟨fun h => val.symm.trans ((congrArg f h).trans (map_zero f)),fun h => hf (val.trans (h.trans (map_zero f).symm))⟩
 
 /-- **Injectivity in (6.21) at consecutive exchanged reds.** Webster v2, §6.1, Lemma
 6.8. The top may be any source loading, with arbitrary spectators and black contents.

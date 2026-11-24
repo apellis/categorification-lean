@@ -112,6 +112,14 @@ private theorem liftWeight {X Y : Type*} [AddCommGroup X] [Module ℚ X] [AddCom
 
 local notation "W" w:arg => fundamentalBraidWeightComplex P w
 
+/-- An ordinary crossing boundary of specified physical weight has a preimage
+under the crossing at that same physical weight. -/
+theorem fundamentalBraidWeightComplex_reflectBoundary {w : ℂ} (z : (W w).X₂)
+    (h : ∃ y : (S).X₁, (S).f y = z.val) : ∃ x : (W w).X₁, (W w).f x = z := by
+  obtain ⟨y,hy⟩ := h
+  obtain ⟨m,hm⟩ := liftWeight (fundamentalBraidCutComplex_preservesWeight P).1 z.property hy
+  exact ⟨m,Subtype.ext hm⟩
+
 /-- Each physical weight has zero homology in the two end resolution degrees. -/
 theorem fundamentalBraidWeightComplex_ends (w : ℂ) :
     Function.Injective (W w).f ∧ Function.Surjective (W w).g := by
@@ -134,9 +142,7 @@ theorem fundamentalBraidWeightComplex_exact {w : ℂ} (hw : w ≠ 3 / 2) : (W w)
     have hb : ∃ y, (S).f y = z.val := by
       by_contra h
       exact hw ((fundamentalBraidHomology_weight_iff P w).mp ⟨z.val,z.property,hc,h⟩)
-    obtain ⟨y,hy⟩ := hb
-    obtain ⟨m,hm⟩ := liftWeight (fundamentalBraidCutComplex_preservesWeight P).1 z.property hy
-    exact ⟨m,Subtype.ext hm⟩
+    exact fundamentalBraidWeightComplex_reflectBoundary P z hb
   · rintro ⟨y,rfl⟩
     exact (W w).moduleCat_zero_apply _
 

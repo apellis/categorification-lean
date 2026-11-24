@@ -9343,6 +9343,63 @@ example : ∃ a b : ℚ, braidProject (e terminal) * braidProject (ψ 0) * braid
 end
 end NonVacuity.WebsterFundamentalBraidCorners
 
+namespace NonVacuity.WebsterBottomBraidIndex
+open Categorification Categorification.KLR Categorification.Stendhal Equiv TypeA
+open scoped BigOperators
+private abbrev content : Multiset Unit := {()}
+private abbrev weight := stendhalWeight 3 content
+private abbrev m := Multiset.card weight
+private theorem four_eq_card : 4 = m := by decide
+private def top : Seq weight :=
+  KLRAlgebra.Seq.ofList [.inr 0, .inr 1, .inr 2, .inl ()] (by decide)
+private def bottom : Seq weight :=
+  KLRAlgebra.Seq.ofList [.inr 0, .inr 1, .inl (), .inr 2] (by decide)
+private def sizes (r : Fin 3) : ℕ := if r = 1 then 1 else 0
+private theorem sizes_card : (∑ r, (sizes r + 1)) = m := by decide
+private def swapReds : Perm (Fin 3) := Equiv.swap 1 2
+private def phi : Perm (Fin m) := sadj m 2
+private theorem bottom_eq : phi⁻¹ • top = bottom := by
+  apply Subtype.ext
+  funext a
+  fin_cases a <;> rfl
+private theorem bottom_labels (r : Fin 3) :
+    (phi⁻¹ • top).lbl (braidBlockPositions sizes sizes_card ⟨r, 0⟩) = .inr r := by
+  rw [bottom_eq]
+  fin_cases r <;> decide
+private def topR (r : Fin 3) : Fin m := Fin.cast four_eq_card (Fin.castSucc r)
+private def bottomR (r : Fin 3) : Fin m :=
+  Fin.cast four_eq_card (if r = 2 then 3 else Fin.castSucc r)
+private theorem redPos_top (r : Fin 3) : redPos top r = topR r := by
+  symm
+  apply eq_redPos (s := top)
+  fin_cases r <;> decide
+private theorem redPos_bottom (r : Fin 3) : redPos bottom r = bottomR r := by
+  symm
+  apply eq_redPos (s := bottom)
+  fin_cases r <;> decide
+private theorem phi_eligible : ProjectiveBlockIndex top phi := by
+  constructor
+  · rw [bottom_eq]
+    exact (redWord_eq_finRange_iff bottom).1 (by decide)
+  · simp only [bottom_eq, redPos_bottom, redPos_top]
+    decide
+  · simp only [bottom_eq, redPos_bottom]
+    decide
+
+example : braidColumnBottomBlockIndex sizes sizes_card swapReds phi = sadj m 1 := by
+  apply Equiv.ext
+  intro a
+  fin_cases a <;> rfl
+
+example : redWord ((braidColumnBottomBlockIndex sizes sizes_card swapReds phi)⁻¹ • top) = [0, 2, 1] :=
+  (redWord_braidColumnBottomBlockIndex_bottom top sizes sizes_card swapReds phi bottom_labels).trans
+    (by decide)
+
+example := braidColumnBottomBlockIndex_lt_red_black top sizes sizes_card swapReds
+  phi_eligible bottom_labels (2 : Fin 3) ⟨1, by decide⟩ (by decide) (i := ()) (by decide)
+
+end NonVacuity.WebsterBottomBraidIndex
+
 namespace NonVacuity.WebsterFundamentalBraidWeight
 open Categorification QuantumGroup Stendhal Stendhal.FundamentalCorner Stendhal.BraidedStendhalAlgebra
 

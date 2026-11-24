@@ -1828,6 +1828,7 @@ import Categorification.WeightedKLR.Rigidity.FundamentalBraidDerivedHead
 import Categorification.WeightedKLR.Rigidity.FundamentalMiddleDimensions
 import Categorification.Algebra.DiagramBigrading
 import Categorification.Algebra.DiagramWeightBimodule
+import Categorification.Algebra.DiagramWeightTensorH0
 import Categorification.Algebra.DiagramWeightTensorShift
 import Categorification.Algebra.DiagramWeightTensorCone
 import Categorification.Algebra.DiagramWeightTensorDerived

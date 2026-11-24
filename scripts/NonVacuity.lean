@@ -9556,6 +9556,21 @@ example := diagramWeightOrdinaryProjection_tmul G G leftAction rightAction leftA
   (⟨1, InDegreeZero.ring_mem_grading_zero (1 : ℚ)⟩ : G 0)
   (⟨1, InDegreeZero.ring_mem_grading_zero (1 : ℚ)⟩ : G 0)
 
+private abbrev rationalCoefficient := diagramWeightBimodule G leftAction rightAction
+
+private abbrev rationalRight := rationalCoefficient.right (⟨0⟩ : QWeight)
+
+private abbrev rationalLeft := rationalCoefficient.left (⟨0⟩ : QWeight)
+
+example :=
+  catTensorCohomologyZeroEquivOfQuasiIso (L := rationalRight)
+    (fun _ => ⟨InDegreeZero.mem_grading_zero, InDegreeZero.d_apply _⟩)
+    (fun _ => ⟨InDegreeZero.mem_grading_zero, InDegreeZero.d_apply _⟩)
+    (fun _ {_} _ => InDegreeZero.d_apply _ _)
+    (𝟙 rationalLeft) (CatModule.IsQuasiIso.of_isIso _)
+    (fun {_ _} g => WeightCategory.mem_grading_iff.mpr
+      (InDegreeZero.ring_mem_grading_zero g.val))
+
 end
 
 end NonVacuity.WebsterWeightCoend

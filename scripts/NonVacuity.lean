@@ -5586,6 +5586,16 @@ example := Categorification.Stendhal.labelTwoExteriorEndComplex_epi Q
 
 example := Categorification.Stendhal.labelTwoExteriorCokernel_simple Q
 
+example := Categorification.Stendhal.LabelTwo.labelTwoExteriorCokernelDecomposition ℚ
+
+example := Categorification.Stendhal.LabelTwo.labelTwoNormalizedAugmentation_exact ℚ
+
+example := Categorification.Stendhal.LabelTwo.labelTwoNormalizedAugmentation_surjective ℚ
+
+example := Categorification.Stendhal.LabelTwo.labelTwoShiftedAugmentation_preservesGrading ℚ
+
+example := Categorification.Stendhal.LabelTwo.labelTwoGradedAugmentation_simple ℚ
+
 example := Categorification.Stendhal.labelTwoExteriorCokernel_span Q
 
 end NonVacuity.WebsterLabelTwoEndpointTor

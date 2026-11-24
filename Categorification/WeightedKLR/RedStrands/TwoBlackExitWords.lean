@@ -219,4 +219,55 @@ theorem twoBlackRightPivotLabels {I : Type*} [DecidableEq I] {ν : Multiset I}
     congrArg s.lbl (offset_wordProd hp w₂ 1), congrArg s.lbl (offset_wordProd hp w₂ 2),
     congrArg s.lbl (offset_wordProd hp w₃ 2), congrArg s.lbl (offset_wordProd hp w₃ 3)⟩
 
+/-- Completing the four neighboring joints to the same upper loading gives the
+cycle cancellation on each exit. The red labels and the black labels need not
+be distinct within their respective families. -/
+theorem twoBlackExitCycleWords {I₀ : Type*} [DecidableEq I₀] {red : Type*}
+    [DecidableEq red] {Q₀ : I₀ ⊕ red → I₀ ⊕ red → MvPolynomial (Fin 2) k}
+    {ν₀ : Multiset (I₀ ⊕ red)} (p : ℕ) (hp : p + 3 < ν₀.card) (s : Seq ν₀)
+    {a b : red} {i j : I₀}
+    (hb : s.lbl ⟨p, by omega⟩ = .inr b)
+    (hi : s.lbl ⟨p+1, by omega⟩ = .inl i)
+    (hj : s.lbl ⟨p+2, by omega⟩ = .inl j)
+    (ha : s.lbl ⟨p+3, hp⟩ = .inr a) :
+    let v₀ := wordProd ν₀.card [p+2,p+1,p] • s
+    let v₁ := wordProd ν₀.card [p+1,p+2,p] • s
+    let v₂ := wordProd ν₀.card [p,p+1,p+2] • s
+    let v₃ := wordProd ν₀.card [p+1,p+2,p,p+1] • s
+    (ψw [p+1,p,p+1] * e v₀ : KLRAlgebra k Q₀ ν₀) = ψw [p,p+1,p] * e v₀ ∧
+    (ψw [p+1,p,p+2] * e v₁ : KLRAlgebra k Q₀ ν₀) = ψw [p+1,p+2,p] * e v₁ ∧
+    (ψw [p+1,p+2,p+1] * e v₂ : KLRAlgebra k Q₀ ν₀) = ψw [p+2,p+1,p+2] * e v₂ ∧
+    (ψw [p,p+2] * e v₃ : KLRAlgebra k Q₀ ν₀) = ψw [p+2,p] * e v₃ := by
+  intro v₀ v₁ v₂ v₃
+  have hl : v₀.lbl ⟨p, by omega⟩ ≠ v₀.lbl ⟨p+2, by omega⟩ := by
+    have h₀ : v₀.lbl ⟨p, by omega⟩ = s.lbl ⟨p+1, by omega⟩ := by
+      simp only [v₀, lbl_smul, ← wordProd_reverse, List.reverse_cons, List.reverse_nil,
+        List.nil_append, List.singleton_append]
+      exact congrArg s.lbl (offset_wordProd hp [0,1,2] 0)
+    have h₂ : v₀.lbl ⟨p+2, by omega⟩ = s.lbl ⟨p+3, hp⟩ := by
+      simp only [v₀, lbl_smul, ← wordProd_reverse, List.reverse_cons, List.reverse_nil,
+        List.nil_append, List.singleton_append]
+      exact congrArg s.lbl (offset_wordProd hp [0,1,2] 2)
+    rw [h₀,h₂,hi,ha]
+    exact Sum.inl_ne_inr
+  have hr : v₂.lbl ⟨p+1, by omega⟩ ≠ v₂.lbl ⟨p+1+2, by omega⟩ := by
+    have h₁ : v₂.lbl ⟨p+1, by omega⟩ = s.lbl ⟨p, by omega⟩ := by
+      simp only [v₂, lbl_smul, ← wordProd_reverse, List.reverse_cons, List.reverse_nil,
+        List.nil_append, List.singleton_append]
+      exact congrArg s.lbl (offset_wordProd hp [2,1,0] 1)
+    have h₃ : v₂.lbl ⟨p+3, hp⟩ = s.lbl ⟨p+2, by omega⟩ := by
+      simp only [v₂, lbl_smul, ← wordProd_reverse, List.reverse_cons, List.reverse_nil,
+        List.nil_append, List.singleton_append]
+      exact congrArg s.lbl (offset_wordProd hp [2,1,0] 3)
+    rw [h₁,h₃,hb,hj]
+    exact Sum.inr_ne_inl
+  have far : Commute (ψ p : KLRAlgebra k Q₀ ν₀) (ψ (p+2)) := ψ_mul_ψ _ _ (by omega)
+  refine ⟨?_,?_,?_,?_⟩
+  · simpa only [ψw_cons, ψw_nil, mul_one, mul_assoc] using
+      (braid_between (Q := Q₀) p (by omega) v₀ hl).symm
+  · simp only [ψw_cons, ψw_nil, mul_one, far.eq]
+  · simpa only [ψw_cons, ψw_nil, mul_one, mul_assoc] using
+      braid_between (Q := Q₀) (p+1) (by omega) v₂ hr
+  · simp only [ψw_cons, ψw_nil, mul_one, far.eq]
+
 end Categorification.KLR.KLRAlgebra

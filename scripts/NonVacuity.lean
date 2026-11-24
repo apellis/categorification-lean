@@ -6510,6 +6510,11 @@ example :=
 /-- The right pivot readout remains valid when the two black colours coincide. -/
 example := twoBlackRightPivotLabels loading 0 (by decide)
 
+/-- The four completed comparisons have zero total change on every exit. -/
+example :=
+  twoBlackExitCycleWords (Q₀ := Q) 0 (by decide) loading
+    (a := 1) (b := 0) (i := 0) (j := 0) rfl rfl rfl rfl
+
 end NonVacuity.WebsterTwoBlackExits
 
 namespace NonVacuity.WebsterPivotObstruction
@@ -6542,3 +6547,24 @@ example :=
     (by simpa only [AlgHom.id_apply, TwoSidedIdeal.mem_bot] using hne)
 
 end NonVacuity.WebsterPivotObstruction
+
+namespace NonVacuity.WebsterCycleMark
+
+open Categorification.Stendhal.BraidedStendhalAlgebra
+
+/-- The cycle changes a nonzero supported tuple into marked coefficients
+whilst preserving each of its four arm coefficients. -/
+example :=
+  let J : TwoSidedIdeal ℤ := ⊥
+  have zero : 0 ∈ J := J.zero_mem
+  have cancellation (x : ℤ) (_ : 1*x*1=x) (hx : x*1 ∈ J) : x ∈ J := by
+    simpa only [mul_one] using hx
+  have lift := fourExitPairLift_of_leftInverse J 1 1 1 1 1 1 1 1 1 1
+    rfl rfl rfl rfl rfl rfl cancellation
+  exists_marked_fourExitCycle J 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1
+    rfl rfl rfl rfl rfl rfl cancellation cancellation 1 1 (-1) 1 rfl rfl
+    (by simpa only [mul_one,sub_self] using zero)
+    (by simpa only [mul_one,sub_self] using zero)
+    (by simpa only [mul_one,neg_add_cancel] using zero) lift
+
+end NonVacuity.WebsterCycleMark

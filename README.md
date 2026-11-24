@@ -1102,7 +1102,12 @@ degree two (`Stendhal.LabelTwo.diagramPlus_degree_two`,
 and the augmentation to the graded dot-sum quotient are exact in every
 internal degree (`Stendhal.LabelTwo.diagramPlusMinus_exact_in_degree`,
 `Stendhal.LabelTwo.diagramMinusPlus_exact_in_degree`,
-`Stendhal.LabelTwo.diagramPlusAugmentation_exact_in_degree`).
+`Stendhal.LabelTwo.diagramPlusAugmentation_exact_in_degree`). Evaluation on the
+middle generator identifies the endomorphism algebra with the actual
+regular parabolic factor (`Stendhal.LabelTwo.middleEndomorphismFactorEquiv`).
+The diagrammatic dot-sum quotient is the standardization of its
+dual-number factor specialization
+(`Stendhal.LabelTwo.middleDotSumStandardizationEquiv`).
 
 ### Weak `sl₂`-categorifications (Chuang–Rouquier, arXiv:math/0407205v2, §5)
 

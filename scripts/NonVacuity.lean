@@ -8640,6 +8640,12 @@ example (d : ℤ) := diagramPlusAugmentation_exact_in_degree ℚ d
 
 example (d : ℤ) := diagramMiddleAugmentationAtDegree_surjective ℚ d
 
+example := middleEndomorphismFactorEquiv ℚ
+
+example := factorDotSumQuotientEquiv ℚ
+
+example (x : Standard ℚ) := middleDotSumStandardizationEquiv_mk ℚ x
+
 end NonVacuity.WebsterLabelTwoMiddleFixedComplex
 
 end

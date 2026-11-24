@@ -9538,6 +9538,10 @@ example := diagramWeightCoendProduct_surjective G G G leftAction rightAction lef
 example := diagramWeightTensorSlice_leftInverse G G leftAction rightAction leftAction rightAction
   (⟨0⟩ : QWeight) (⟨0⟩ : QWeight)
 
+example (G' H' : ℤ → Submodule ℚ ℚ) (d : ℤ) :=
+  Categorification.Graded.balancedTensorIntScalarAddEquiv_map_grade
+    (k := ℚ) (A := ℚ) (fun c m : ℚ => mul_comm m c) G' H' d
+
 example := diagramWeightTensorOrdinary_range_eq_grade G G leftAction rightAction leftAction rightAction
   (⟨0⟩ : QWeight) (⟨1⟩ : QWeight)
 

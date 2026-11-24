@@ -1833,6 +1833,7 @@ import Categorification.Algebra.GradedChainWeightDG
 import Categorification.Algebra.DiagramWeightExact
 import Categorification.Algebra.DiagramWeightLoadingVanish
 import Categorification.Algebra.DiagramWeightOrdinaryTensor
+import Categorification.Algebra.BalancedTensorScalarGrading
 import Categorification.WeightedKLR.Rigidity.GradedCharacterCupCap
 import Categorification.WeightedKLR.Rigidity.GradedFundamentalCupCap
 import Categorification.WeightedKLR.Rigidity.GradedMiddleProjectives

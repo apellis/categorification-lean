@@ -9306,6 +9306,7 @@ noncomputable example (n : ℕ) :=
 section
 
 open DG
+open scoped DG.DegreeZero
 
 local notation "MiddleT" => TensorProductAlgebra ℚ (parameter ℚ) weights
   (({()} : Multiset Unit) + {()})
@@ -9320,6 +9321,10 @@ local instance : CatModule.HasDerivedCategory.{1,0} (WeightCategory MiddleT) :=
 example := middleSumWeight_distinguished ℚ
 
 example := middleDifferenceWeight_distinguished ℚ
+
+open scoped DG.DegreeZero in
+noncomputable example := middleStandardWeightTensorEquiv ℚ (⟨2⟩ : WeightCategory ℚ)
+
 
 open CategoryTheory in
 example (X : WeightCategory MiddleT) (n : ℤ)

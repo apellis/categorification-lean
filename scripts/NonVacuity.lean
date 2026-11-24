@@ -8687,7 +8687,7 @@ private def t : Seq (stendhalWeight 3 ({()} + {()} : Multiset Unit)) :=
 
 example := firstPair_blockKernelTensorInclusion_injective_standard_of_twoInterior (k := ℚ) C Λ t
   (by decide) (blockKernelColumnInclusion_injective_of_tensor Q Λ t 0 1 firstPairBottomTwoInterior
-    (blockKernelTensorInclusion_injective_of_violated_top Q Λ t 0 1 _ (by decide)))
+    (blockKernelTensorInclusion_injective_of_violated_top Q Λ t 0 1 _ ⟨by decide, by decide⟩))
 
 end NonVacuity.WebsterFirstPairAllBottom
 

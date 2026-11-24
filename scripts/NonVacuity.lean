@@ -5756,6 +5756,87 @@ example (n : ℕ) : Subsingleton ((data.projectiveResolution ()).complex.X (n+1)
 
 end NonVacuity.WebsterOrderedResolution
 
+namespace NonVacuity.WebsterOrderedGradedResolution
+open Categorification Categorification.ModuleFiltration DG DirectSum
+
+private abbrev e (_ : Bool) : ℚ := 1
+private abbrev above (a b : Bool) : Prop := a = false ∧ b = true
+private abbrev P := lIdeal (1 : ℚ)
+
+private def S : Bool → ModuleCat ℚ
+  | false => ModuleCat.of ℚ PUnit
+  | true => ModuleCat.of ℚ P
+
+private def q : (i : Bool) → lIdeal (e i) →ₗ[ℚ] S i
+  | false => 0
+  | true => LinearMap.id
+
+private theorem pProjective : Module.Projective ℚ P := by
+  refine Module.Projective.of_split P.subtype
+    { toFun := fun p => ⟨p, mul_one _⟩
+      map_add' := fun _ _ => rfl
+      map_smul' := fun _ _ => rfl } ?_
+  ext
+  rfl
+
+private def data : OrderedStandardCovers S e above where
+  quotient := q
+  surjective := by
+    intro i x
+    cases i with
+    | false => exact ⟨0, Subsingleton.elim (α := PUnit) _ x⟩
+    | true => exact ⟨x, rfl⟩
+  projective _ := pProjective
+  kernel := by
+    intro i
+    cases i with
+    | false =>
+      refine ⟨[true], ?_, ?_⟩
+      · simp only [List.mem_singleton]
+        rintro _ rfl
+        exact ⟨rfl, rfl⟩
+      · apply HasFiltration.single (c := true)
+        exact LinearEquiv.ofBijective (LinearMap.ker (q false)).subtype
+          ⟨Submodule.injective_subtype _, fun x => ⟨⟨x, rfl⟩, rfl⟩⟩
+    | true =>
+      refine ⟨[], by simp, HasFiltration.zero ⟨?_⟩⟩
+      intro x y
+      exact Subtype.ext (show x.val = y.val from x.property.trans y.property.symm)
+
+private theorem mulGrade ⦃a b : ℤ⦄ ⦃x y : ℚ⦄ (hx : x ∈ degreeZeroGrading ℚ a)
+    (hy : y ∈ degreeZeroGrading ℚ b) : x * y ∈ degreeZeroGrading ℚ (a+b) := by
+  apply (mem_degreeZeroGrading_iff ℚ).mpr
+  rcases (mem_degreeZeroGrading_iff ℚ).mp hx with rfl | rfl
+  · rcases (mem_degreeZeroGrading_iff ℚ).mp hy with rfl | rfl
+    · exact Or.inl (zero_add _)
+    · exact Or.inr (mul_zero _)
+  · exact Or.inr (zero_mul _)
+
+private theorem eGrade (i : Bool) : e i ∈ degreeZeroGrading ℚ 0 := mem_degreeZeroGrading_zero _ _
+private theorem eIdem (i : Bool) : IsIdempotentElem (e i) := one_mul _
+private theorem aboveTrans (i j l : Bool) (h : above i j) (h' : above j l) : above i l :=
+  ⟨h.1, h'.2⟩
+private theorem quotientGrade ⦃n : ℤ⦄ ⦃x : P⦄ (_ : x.val ∈ degreeZeroGrading ℚ n) :
+    data.quotient false x ∈ degreeZeroGrading (S false) n :=
+  (mem_degreeZeroGrading_iff _).mpr (Or.inr rfl)
+
+local notation "A₀" => degreeZeroGrading ℚ
+local notation "T₀" => degreeZeroGrading (S false)
+local notation "δ" => gradedLoadingResolutionChainMap data false A₀ mulGrade eGrade eIdem aboveTrans T₀ quotientGrade
+
+-- The rank-one example has a nonzero higher kernel in degree zero.
+example : Function.Exact (δ 0) (data.quotient false) :=
+  gradedLoadingResolutionChainMap_augmentation_exact data false A₀ mulGrade eGrade eIdem aboveTrans T₀ quotientGrade
+
+example : Function.Exact (δ 1) (δ 0) :=
+  gradedLoadingResolutionChainMap_exact data false A₀ mulGrade eGrade eIdem aboveTrans T₀ quotientGrade 0
+
+example : ∃ x, δ 0 x = (⟨1, one_mul 1⟩ : P) :=
+  ((gradedLoadingResolutionChainMap_augmentation_exact data false A₀ mulGrade eGrade
+    eIdem aboveTrans T₀ quotientGrade) ⟨1, one_mul 1⟩).mp rfl
+
+end NonVacuity.WebsterOrderedGradedResolution
+
 end
 
 end NonVacuity.PerfectBasis

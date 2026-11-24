@@ -1022,7 +1022,15 @@ of that filtration in the quotient. For a right ascent in an arbitrary row,
 `quotientCoordinate_internal_right_ascent` compute the leading quotient
 coordinates. The two alternatives land in disjoint targets. A matched
 nonviolated split in the source red order gives an ascent at a black–red joint.
-The full supported right-leg injectivity and its passage to the kernel remain open.
+The exact indexed projector agrees with the loading of the selected shuffle.
+Consequently the external leading multiplier is the original right projector.
+The internal one is the supported crossing in the paired block.
+`blockColumn_eq_zero_of_ordered_paired_crossing` uses its ordered local injection
+to deduce the whole-column zero-kernel statement over a field.
+`exists_place_adjacent` places any nonviolated source loading with the prescribed
+red order in an adjacent row, and `mem_blockUpperIdeal_of_blockColumn_right_kernel`
+lifts a supported column kernel test to the higher ideal. The marked-column
+comparison and higher Tor argument remain open in general.
 
 Still open for Lemma 6.8: the higher-homology vanishing in (6.21),
 including injectivity after tensoring the kernel inclusion, then Prop 6.9

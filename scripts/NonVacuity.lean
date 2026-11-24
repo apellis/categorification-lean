@@ -9032,6 +9032,56 @@ example : DG.DerivedCategory.finrankHomology ℚ (-1)
   simpa using middleCupCap_finrank.{1} (-1)
 
 end NonVacuity.WebsterMiddleCutEvaluation
+
+namespace NonVacuity.WebsterFundamentalBraidCorners
+open Categorification Categorification.Stendhal Categorification.Stendhal.FundamentalCorner KLR KLRAlgebra
+
+noncomputable section
+
+example : LinearIndependent ℚ terminalBraidClasses :=
+  fundamentalBraid_terminal_linearIndependent
+
+example : braidProject (ψ 0 * ψ 1 * e crossedMiddle) ≠ 0 :=
+  fundamentalBraid_mixed_ne_zero.2
+
+example : braidProject (e middle) * braidProject (ψw [0,1,0]) * braidProject (e crossedMiddle) = 0 :=
+  (fundamentalBraid_middle_middle_zero _).2
+
+example : braidProject (ψ 1) * braidProject (ψ 1 * ψ 0 * e crossedTerminal) =
+    terminalBraidClasses 1 :=
+  fundamentalBraid_terminal_differentials.1
+
+example : ∃ a b : ℚ, braidProject (e terminal) * braidProject (ψ 0) * braidProject (e crossedTerminal) =
+    a • terminalBraidClasses 0 + b • terminalBraidClasses 1 :=
+  fundamentalBraid_terminal_span _
+
+end
+end NonVacuity.WebsterFundamentalBraidCorners
+
+namespace NonVacuity.WebsterFundamentalBraidWeight
+open Categorification QuantumGroup Stendhal Stendhal.FundamentalCorner Stendhal.BraidedStendhalAlgebra
+
+noncomputable section
+private abbrev datum := CartanDatum.ofGraph (⊥ : SimpleGraph Unit)
+private abbrev realization := Matrix.Realization.std (UDot.A datum) ℂ
+
+example : weightPairing datum realization (braidFundamentalWeight realization)
+    (braidFundamentalWeight realization) = 1 / 2 :=
+  braidFundamentalWeight_norm realization
+
+example : fundamentalBraidMiddleClass ∈ Graded.shift (figureFiveCutGrade (Λ := wt)
+    datum fundamentalBraidParameters (weightPairing datum realization)
+    (fun _ => braidFundamentalWeight realization) terminal 1 0) 1 (3 / 2) :=
+  (fundamentalBraidMiddleClass_resolutionWeight realization _).mpr rfl
+
+example : fundamentalBraidMiddleClass ∉ Graded.shift (figureFiveCutGrade (Λ := wt)
+    datum fundamentalBraidParameters (weightPairing datum realization)
+    (fun _ => braidFundamentalWeight realization) terminal 1 0) 1 (0 : ℂ) := by
+  rw [fundamentalBraidMiddleClass_resolutionWeight]
+  norm_num
+
+end
+end NonVacuity.WebsterFundamentalBraidWeight
 end
 
 namespace NonVacuity.WebsterCupRHomRegular
@@ -9136,6 +9186,17 @@ example := diagramWeightTensorShiftNatIso (fun j => DG.grading (M := ℚ) j) lef
 
 example : (diagramWeightTensorHomotopy (fun j => DG.grading (M := ℚ) j)
     leftAction rightAction).CommShift ℤ := inferInstance
+
+
+example := diagramWeightTensorConeIso (fun j => DG.grading (M := ℚ) j)
+  leftAction rightAction (𝟙 Rep)
+
+example : (diagramWeightTensorHomotopy (fun j => DG.grading (M := ℚ) j)
+    leftAction rightAction).IsTriangulated := inferInstance
+
+
+example : (diagramWeightDerivedTensor (fun j => DG.grading (M := ℚ) j)
+    leftAction rightAction).IsTriangulated := inferInstance
 
 end
 

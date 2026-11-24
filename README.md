@@ -1027,9 +1027,17 @@ modules, the homotopy category and the derived category are additive. At the
 dg module level the tensor commutes with cohomological shifts naturally
 (`diagramWeightTensorShiftNatIso`). The shift isomorphisms respect zero and
 addition and descend to the homotopy category
-(`diagramWeightTensorHomotopy_commShift`). Finite filtrations by short exact sequences of dg
-weight modules localize to iterated extensions of the localized layers
-(`WeightModuleFiltration.extensionProductIter`). A balanced homogeneous multiplication of two
+(`diagramWeightTensorHomotopy_commShift`). Mapping cone comparison identifies
+the standard triangles and makes the homotopy tensor triangulated
+(`diagramWeightTensorHomotopy_isTriangulated`). The derived tensor is also
+triangulated through the K-projective equivalence. Vanishing of its
+cohomology at a target weight and degree passes through finite iterated
+extensions (`diagramWeightDerivedTensor_cohomology_isZero_of_extensions`).
+Finite filtrations by short exact sequences of dg weight modules localize
+to iterated extensions of the localized layers
+(`WeightModuleFiltration.extensionProductIter`).
+
+A balanced homogeneous multiplication of two
 coefficients induces their product from the intermediate weight-category
 tensor coend (`diagramWeightCoendProduct_tmul`). Compatibility with the outer
 action gives a map of dg modules (`diagramWeightCoendProductHom`).
@@ -1123,6 +1131,17 @@ two and vanishes elsewhere (`middleTor_finrank`). With the cup shift,
 the composite on the ground field has one-dimensional cohomology in
 degrees minus one and one (`middleCupCap_finrank`). These computations
 forget the internal grading.
+
+In the fundamental case of Proposition 7.11, the four loading corners
+across the red crossing have dimensions zero (middle to middle), one
+(each mixed corner), and two (terminal to terminal). The terminal basis
+consists of the crossing and its one-dot decoration
+(`fundamentalBraid_terminal_span`, `fundamentalBraid_terminal_linearIndependent`).
+The mixed differentials on this basis have matrices `(0,1)ᵀ` and `(1,0)`
+(`fundamentalBraid_terminal_differentials`). This computes the ungraded
+corner diagrams entering the projective resolution. The surviving middle
+class has diagram degree `1/2`. Its weight in the translated terminal
+projective is exactly `3/2` (`fundamentalBraidMiddleClass_resolutionWeight`).
 
 In the diagram-weight categories the middle character is homogeneous.
 Its weight-zero generator identifies with the right simple head, with

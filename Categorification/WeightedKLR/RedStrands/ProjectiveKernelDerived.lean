@@ -83,10 +83,10 @@ theorem blockPartialStandard_braid_homology_vanish_of_projective_kernel
 
 open CategoryTheory.Pretriangulated
 
-noncomputable local instance {U : Type u} [Ring U] [HasDerivedCategory.{w, u} U] :
-    (homologyFunctor (A := U) ℤ 0).ShiftSequence ℤ := by
-  letI : (DG.HomotopyCategory.homologyFunctor.{u} ℤ U 0).ShiftSequence ℤ := by
-    change (DG.HomotopyCategory.forget.{u} ℤ U ⋙
+noncomputable local instance {R₁ : Type u} [Ring R₁] [HasDerivedCategory.{w, u} R₁] :
+    (homologyFunctor (A := R₁) ℤ 0).ShiftSequence ℤ := by
+  letI : (DG.HomotopyCategory.homologyFunctor.{u} ℤ R₁ 0).ShiftSequence ℤ := by
+    change (DG.HomotopyCategory.forget.{u} ℤ R₁ ⋙
       _root_.HomotopyCategory.homologyFunctor (ModuleCat.{u} ℤ) (ComplexShape.up ℤ) 0).ShiftSequence ℤ
     infer_instance
   exact Functor.ShiftSequence.induced (homologyFunctorFactorsh ℤ 0) ℤ

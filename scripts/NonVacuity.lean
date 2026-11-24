@@ -10701,3 +10701,37 @@ end StandardParameters
 end NonVacuity.WebsterDirectLeftWeight
 
 end
+
+namespace NonVacuity.WebsterIncomparableStandardSupport
+
+open Categorification Categorification.KLR Categorification.Stendhal
+
+private abbrev content : Multiset Bool := {false, true}
+private abbrev weight := stendhalWeight 2 content
+private def source : Seq weight :=
+  KLRAlgebra.Seq.ofList [.inr 0, .inl false, .inr 1, .inl true] (by decide)
+private def target : Seq weight :=
+  KLRAlgebra.Seq.ofList [.inr 0, .inl true, .inr 1, .inl false] (by decide)
+private theorem sourceOrdered : IsRedOrdered source :=
+  (redWord_eq_finRange_iff source).1 (by decide)
+private theorem targetOrdered : IsRedOrdered target :=
+  (redWord_eq_finRange_iff target).1 (by decide)
+private theorem targetNotLE : ¬ StendhalLE target source := by
+  intro h
+  exact (by decide : ¬ blackCount target 1 true ≤ blackCount source 1 true) (h 1 true)
+private theorem sourceNotLE : ¬ StendhalLE source target := by
+  intro h
+  exact (by decide : ¬ blackCount source 1 false ≤ blackCount target 1 false) (h 1 false)
+private noncomputable abbrev parameters : Bool → Bool → MvPolynomial (Fin 2) ℚ :=
+  fun i j => if i = j then 0 else 1
+private noncomputable abbrev weights : Fin 2 → Bool →₀ ℕ :=
+  fun _ => Finsupp.single false 2 + Finsupp.single true 2
+
+example : ¬ StendhalLE target source ∧ ¬ StendhalLE source target :=
+  ⟨targetNotLE, sourceNotLE⟩
+
+example (v : leftStandard parameters weights source sourceOrdered) :
+    seqIdem parameters weights target targetOrdered • v = 0 :=
+  seqIdem_smul_leftStandard_eq_zero_of_not_stendhalLE sourceOrdered targetOrdered targetNotLE v
+
+end NonVacuity.WebsterIncomparableStandardSupport

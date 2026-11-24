@@ -9,7 +9,7 @@ import Categorification.WeightedKLR.Rigidity.FundamentalBraidGradedCharacterComp
 /-!
 # Positive braid on the normalized fundamental cup
 
-Webster, arXiv:1309.3796v2, §7.1, Definition 7.4 and Proposition 7.11.
+Webster, arXiv:1309.3796v2, §7.1, Definition 7.4, and §7.2, Proposition 7.11.
 Over the rationals, the braid on the normalized fundamental cup on the field
 is the reversed-order middle character in cohomological degree zero with
 internal translation one.

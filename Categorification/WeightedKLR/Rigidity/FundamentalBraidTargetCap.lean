@@ -9,7 +9,7 @@ import Categorification.WeightedKLR.Rigidity.GradedMiddleTor
 /-!
 # Evaluation after the positive fundamental braid
 
-Webster, arXiv:1309.3796v2, §7.1, Definition 7.4 and Proposition 7.11.
+Webster, arXiv:1309.3796v2, §7.1, Definition 7.4, and §7.2, Proposition 7.11.
 Relabelling transports the cap by its adjunction with restriction along
 the middle character. Applying the positive braid and the reversed-order
 cap to the normalized cup produces two scalar summands.

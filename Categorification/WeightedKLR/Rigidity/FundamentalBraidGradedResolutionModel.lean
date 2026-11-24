@@ -10,7 +10,7 @@ import DG.Category.SubQuotient
 /-!
 # The two-stage projective model of the graded fundamental middle head
 
-For Webster, arXiv:1309.3796v2, §7.1, Lemma 7.3 and Proposition 7.11, the
+For Webster, arXiv:1309.3796v2, §7.1, Lemma 7.3, and §7.2, Proposition 7.11, the
 two projective resolution maps give an iterated cone on the loading
 projectives of the identity braid corner. Its augmentation to the middle
 simple is a quasi-isomorphism. This gives a model for the derived braid.
@@ -153,7 +153,7 @@ private theorem gradedBraidAug_zero : f₁ ≫ a₀ = 0 := by
   exact ((sourceExact X).2.2.1 _).mpr ⟨x,rfl⟩
 
 /-- The iterated mapping cone of the two source mixed crossings in the
-fundamental case of Webster v2, §7.1, Proposition 7.11. -/
+fundamental case of Webster v2, §7.2, Proposition 7.11. -/
 def fundamentalBraidGradedResolutionModel : CatModule.{0} (WeightCategory Rᵐᵒᵖ) :=
   cone (coneDescent f₂ f₁ fundamentalBraidGradedSource_comp_zero)
 

@@ -12,7 +12,7 @@ import Categorification.WeightedKLR.Rigidity.FundamentalBraidGradedTargetHead
 The homogeneous cut complex includes into the ordinary right-module
 complex. Since an ungraded boundary has a preimage at the required
 weight, the middle homology injects into the known middle target head.
-This computes its action in Webster, arXiv:1309.3796v2, §7.1,
+This computes its action in Webster, arXiv:1309.3796v2, §7.2,
 Proposition 7.11.
 -/
 noncomputable section
@@ -196,7 +196,7 @@ variable [CatModule.HasDerivedCategory.{z,0} (WeightCategory Kᵐᵒᵖ)]
 
 /-- The derived fundamental braid takes the source middle simple to the target
 middle simple supported in cohomological degree minus one. Its physical
-weight is three halves (Webster v2, §7.1, Proposition 7.11). -/
+weight is three halves (Webster v2, §7.2, Proposition 7.11). -/
 def fundamentalBraidGradedDerivedTargetIso :
     (DF).obj (CatModule.DerivedCategory.Q.obj fundamentalBraidSourceGradedHead) ≅
       (CatModule.DerivedCategory.Q.obj L)⟦(1 : ℤ)⟧ :=

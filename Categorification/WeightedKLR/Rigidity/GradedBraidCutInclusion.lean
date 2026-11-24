@@ -13,7 +13,7 @@ import Mathlib.Algebra.Module.Rat
 /-!
 # Comparing graded braid cuts with the ordinary target module
 
-In Webster, arXiv:1309.3796v2, §7.1, Proposition 7.11, the target
+In Webster, arXiv:1309.3796v2, §7.2, Proposition 7.11, the target
 module action is read by including the homogeneous braid complex into
 its ordinary right-module complex. Pointwise boundary reflection
 ensures that the resulting homology map is injective.

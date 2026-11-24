@@ -8,7 +8,7 @@ import Mathlib.Algebra.Homology.ShortComplex.PreservesHomology
 /-!
 # Weight homology of the fundamental braid tensor
 
-For Webster, arXiv:1309.3796v2, §7.1, Proposition 7.11, evaluate the two graded
+For Webster, arXiv:1309.3796v2, §7.2, Proposition 7.11, evaluate the two graded
 projective resolution maps after tensoring with the braid. The auxiliary
 weight `n` corresponds to physical weight `n + 3/2`. The middle homology
 is a rational line at weight zero, and the two ends are exact in every weight.
@@ -101,7 +101,7 @@ private abbrev forgetQ := ModuleCat.restrictScalars (Int.castRingHom ℚ)
 private def termIso {X : Type} [AddCommGroup X] (Y : ModuleCat ℚ) (e : X ≃+ Y) :
     ModuleCat.of ℤ X ≅ forgetQ.obj Y := e.toIntLinearEquiv.toModuleIso
 
-/-- In Webster v2, §7.1, Proposition 7.11, the braid tensor at auxiliary
+/-- In Webster v2, §7.2, Proposition 7.11, the braid tensor at auxiliary
 weight `n` identifies with the cut complex at physical weight `n + 3/2`. -/
 def fundamentalBraidGradedTensorCutIso : fundamentalBraidGradedTensorComplex n ≅ (W).map forgetQ :=
   ShortComplex.isoMk (termIso (W).X₁ (phys₂ P n))

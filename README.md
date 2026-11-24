@@ -1098,7 +1098,11 @@ pulls back to a graded module on the actual diagrammatic carrier
 (`Stendhal.LabelTwo.middleStandardGradedEquiv`). Its middle generator
 has degree zero, and both alternating dot differentials have internal
 degree two (`Stendhal.LabelTwo.diagramPlus_degree_two`,
-`Stendhal.LabelTwo.diagramMinus_degree_two`).
+`Stendhal.LabelTwo.diagramMinus_degree_two`). The shifted differentials
+and the augmentation to the graded dot-sum quotient are exact in every
+internal degree (`Stendhal.LabelTwo.diagramPlusMinus_exact_in_degree`,
+`Stendhal.LabelTwo.diagramMinusPlus_exact_in_degree`,
+`Stendhal.LabelTwo.diagramPlusAugmentation_exact_in_degree`).
 
 ### Weak `sl₂`-categorifications (Chuang–Rouquier, arXiv:math/0407205v2, §5)
 

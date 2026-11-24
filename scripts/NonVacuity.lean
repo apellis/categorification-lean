@@ -8630,6 +8630,16 @@ example := incomingExteriorDiagram_mem_grade ℚ
 
 example := incomingExteriorTranslate_mem_grade ℚ
 
+example := middleDotSumQuotientGFin ℚ
+
+example (d : ℤ) := diagramPlusMinus_exact_in_degree ℚ d
+
+example (d : ℤ) := diagramMinusPlus_exact_in_degree ℚ d
+
+example (d : ℤ) := diagramPlusAugmentation_exact_in_degree ℚ d
+
+example (d : ℤ) := diagramMiddleAugmentationAtDegree_surjective ℚ d
+
 end NonVacuity.WebsterLabelTwoMiddleFixedComplex
 
 end

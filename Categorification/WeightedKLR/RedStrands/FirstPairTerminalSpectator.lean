@@ -29,7 +29,9 @@ variable {I : Type u} {k : Type v} [DecidableEq I] [CommRing k] {ν : Multiset I
 local notation "μ" => stendhalWeight 3 ν
 local notation "N" => Multiset.card μ
 
-private theorem firstPair_root_eq_zero (s : Seq μ) (order : redWord s = List.finRange 3)
+/-- The first paired boundary has no black strand to its left on a
+surviving loading in canonical red order. -/
+theorem firstPair_merged_root_eq_zero (s : Seq μ) (order : redWord s = List.finRange 3)
     (hs : ¬ IsViolated s) (r : Fin 3) (hr : r = 0 ∨ r = 1) (i : I) :
     adjacentBlockRoot 0 1 s r i = 0 := by
   have nonempty : 0 < N := by
@@ -103,10 +105,10 @@ theorem firstPair_terminal_blockLoadingKernel_eq_bot (t : Seq μ)
   have same : redWord s = List.finRange 3 := hs.trans order
   fin_cases r
   · change adjacentBlockRoot 0 1 s 0 i ≤ adjacentBlockRoot 0 1 t 0 i
-    rw [firstPair_root_eq_zero s same h 0 (Or.inl rfl)]
+    rw [firstPair_merged_root_eq_zero s same h 0 (Or.inl rfl)]
     exact Nat.zero_le _
   · change adjacentBlockRoot 0 1 s 1 i ≤ adjacentBlockRoot 0 1 t 1 i
-    rw [firstPair_root_eq_zero s same h 1 (Or.inr rfl)]
+    rw [firstPair_merged_root_eq_zero s same h 1 (Or.inr rfl)]
     exact Nat.zero_le _
   · change blockBlackCount s ({2} : Finset (Fin 3)) i ≤ blockBlackCount t {2} i
     simp only [blockBlackCount_singleton, blackCount_eq_countBefore]

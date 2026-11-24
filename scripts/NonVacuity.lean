@@ -9110,6 +9110,17 @@ noncomputable example : fundamentalBraidTensorComplex.homology ≅
   fundamentalBraidTensorHomologyIso
 
 end NonVacuity.WebsterFundamentalBraidTensorHomology
+
+namespace NonVacuity.WebsterFundamentalBraidTargetHead
+open CategoryTheory Categorification.Stendhal.FundamentalCorner
+
+example : Function.Injective fundamentalBraidRightTensorComplex.f ∧
+    Function.Surjective fundamentalBraidRightTensorComplex.g := fundamentalBraidRightTensorComplex_ends
+
+noncomputable example : fundamentalBraidRightTensorComplex.homology ≅ braidTargetMiddleHead :=
+  fundamentalBraidRightTensorHomologyIso
+
+end NonVacuity.WebsterFundamentalBraidTargetHead
 end
 
 namespace NonVacuity.WebsterCupRHomRegular

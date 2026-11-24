@@ -1161,6 +1161,8 @@ carries the two mixed crossings to the differentials of the projective
 resolution of the middle head (`fundamentalBraidSourceResolution`). Its
 balanced tensor with the braid has this same homology line in resolution
 degree one (`fundamentalBraidTensorCutIso`, `fundamentalBraidTensorHomologyIso`).
+With the right action of the reversed-order ring, this homology is its
+middle simple head (`fundamentalBraidRightTensorHomologyIso`).
 
 In the diagram-weight categories the middle character is homogeneous.
 Its weight-zero generator identifies with the right simple head, with

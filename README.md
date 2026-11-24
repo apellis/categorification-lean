@@ -1035,7 +1035,11 @@ cohomology at a target weight and degree passes through finite iterated
 extensions (`diagramWeightDerivedTensor_cohomology_isZero_of_extensions`).
 Finite filtrations by short exact sequences of dg weight modules localize
 to iterated extensions of the localized layers
-(`WeightModuleFiltration.extensionProductIter`).
+(`WeightModuleFiltration.extensionProductIter`). A homogeneous short exact sequence
+restricts to a short exact sequence of weight modules
+(`diagramWeightLeftLinearMap_shortExact`). For Lemma 6.11, vanishing of the
+derived tensor on the localized layers gives vanishing on the filtered input
+(`WeightModuleFiltration.diagramWeightDerivedTensor_cohomology_isZero`).
 
 A balanced homogeneous multiplication of two
 coefficients induces their product from the intermediate weight-category

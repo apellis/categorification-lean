@@ -1309,6 +1309,12 @@ The middle left-dot coefficient descends through the dot-sum quotient in
 the balanced tensor with the reflected incoming preimage and evaluates
 the first dot sum on the middle generator to one
 (`Stendhal.LabelTwo.incomingLiftTensorReadout_dotSum_generator`).
+The incoming exterior map stays nonzero after tensoring with the reflected
+preimage. The incoming translate tensored with the lifted generator
+returns the first dot sum
+(`Stendhal.LabelTwo.incomingLiftTensorMap_nonzero`).
+The preimage, middle standard, and incoming cokernel form a short exact
+sequence (`Stendhal.LabelTwo.incomingLiftShortComplex_shortExact`).
 
 
 

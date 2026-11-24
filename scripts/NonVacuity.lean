@@ -6657,6 +6657,12 @@ noncomputable example :=
     threeRedWords (lower := [0, 1, 2]) (middle := [1, 0, 2]) (upper := [1, 2, 0])
     threeRedLowerNodup threeRedPerm threeRedLength
 
+noncomputable example :=
+  @braidFactorizationDerivedCoendOfResolution (I := Unit) (k := ℚ) (Q := Q)
+    (Λ := threeRedWeights) (ν := ν) (ρ := TypeA.canWord threeRedSize) sl₂ hRouquier
+    threeRedWords (lower := [0, 1, 2]) (middle := [1, 0, 2]) (upper := [1, 2, 0])
+    threeRedLowerNodup threeRedPerm threeRedLength
+
 end NonVacuity.WebsterFigureFive
 
 namespace NonVacuity.BraidedStendhal

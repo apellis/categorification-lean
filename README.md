@@ -1054,7 +1054,9 @@ multiplication identifies the quotient corner coefficient
 each endpoint coend with its homogeneous quotient coefficient
 (`braidFactorizationCoendEquiv`). The equivalence respects the endpoint actions
 as a natural isomorphism of dg module families
-(`braidFactorizationCoendNatIso`). Its injectivity uses a split comparison to
+(`braidFactorizationCoendNatIso`). At a fixed source weight the product also
+computes the derived composite whenever tensoring preserves the K-projective
+augmentation (`braidFactorizationDerivedCoendOfResolution`). Its injectivity uses a split comparison to
 the field corner tensor (`diagramCornerWeightRightSlice_leftInverse`).
 
 Over a scalar field in degree zero the left modules are K-projective, so the

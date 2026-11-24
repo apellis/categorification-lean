@@ -107,41 +107,56 @@ def fiveSlotRightHigherIdempotents : Set Tᵐᵒᵖ :=
     op (orderedLoadingIdemAt Q Λ (redWord t) v₁ (rightHigherOrder t ht v₁ (Or.inr (Or.inl rfl)))),
     op (orderedLoadingIdemAt Q Λ (redWord t) jA (rightHigherOrder t ht jA (Or.inr (Or.inr rfl))))}
 
-set_option maxHeartbeats 1000000 in
-/-- Only the three surviving idempotents contribute to the trace of the actual right-top kernel. -/
+private theorem trace_le_of_subset_or_zero {B : Type} [Ring B] {S U : Set B}
+    (X : ModuleCat B) (h : ∀ z ∈ S, z ∈ U ∨ z = 0) :
+    idempotentTrace S X ≤ idempotentTrace U X := by
+  rw [idempotentTrace, idempotentTrace]
+  apply Submodule.span_le.mpr
+  rintro _ ⟨z, hz, x, rfl⟩
+  rcases h z hz with hz | rfl
+  · exact Submodule.subset_span ⟨z, hz, x, rfl⟩
+  · rw [zero_smul]
+    exact Submodule.zero_mem _
+
+include ht in
+private theorem rightHigher_mem_or_zero (z : Tᵐᵒᵖ)
+    (hz : z ∈ higherBlockLoadingIdempotents Q Λ t 1 2) :
+    z ∈ fiveSlotRightHigherIdempotents Q Λ t ht ∨ z = 0 := by
+  obtain ⟨u, hu, hlt, rfl⟩ := hz
+  by_cases hbad : IsViolated u
+  · have hz : orderedLoadingIdemAt Q Λ (redWord t) u hu = 0 := by
+      apply Subtype.ext
+      exact show π (e u) = 0 from violMk_e hbad
+    exact Or.inr (by rw [hz, op_zero])
+  have horder := rightHigherOrder t ht v₀ (Or.inl rfl)
+  rcases fiveSlot_nonviolated_tops u (hu.trans horder.symm) hbad with hr | rfl | rfl | rfl
+  · rw [fiveSlotRightTop_blockRoot t ht, fiveSlotRightTop_blockRoot u hr] at hlt
+    exact (lt_irrefl _ hlt).elim
+  · exact Or.inl (Or.inl rfl)
+  · exact Or.inl (Or.inr (Or.inl rfl))
+  · exact Or.inl (Or.inr (Or.inr rfl))
+
+include ht in
+private theorem rightHigher_subset :
+    fiveSlotRightHigherIdempotents Q Λ t ht ⊆ higherBlockLoadingIdempotents Q Λ t 1 2 := by
+  intro z hz
+  have hroot : adjacentBlockRoot 1 2 t = adjacentBlockRoot 1 2 v₂ :=
+    (fiveSlotRightTop_blockRoot t ht).trans (fiveSlotRightTop_blockRoot v₂ (Or.inl rfl)).symm
+  have hlt (u) (hu : u = v₀ ∨ u = v₁ ∨ u = jA) :
+      adjacentBlockRoot 1 2 t < adjacentBlockRoot 1 2 u := hroot ▸ v2_lt u hu
+  rcases hz with rfl | rfl | rfl
+  · exact ⟨v₀, _, hlt v₀ (Or.inl rfl), rfl⟩
+  · exact ⟨v₁, _, hlt v₁ (Or.inr (Or.inl rfl)), rfl⟩
+  · exact ⟨jA, _, hlt jA (Or.inr (Or.inr rfl)), rfl⟩
+
+/-- Only the three surviving idempotents contribute to the trace of the right-top kernel. -/
 theorem fiveSlotRightTop_blockLoadingKernel_eq_trace :
     blockLoadingKernel Q Λ t 1 2 =
       idempotentTrace (fiveSlotRightHigherIdempotents Q Λ t ht) (ModuleCat.of Tᵐᵒᵖ P) := by
-  rw [blockLoadingKernel_eq_idempotentTrace, idempotentTrace, idempotentTrace]
-  apply le_antisymm
-  · apply Submodule.span_le.mpr
-    rintro _ ⟨_, ⟨u, hu, hlt, rfl⟩, x, rfl⟩
-    by_cases hbad : IsViolated u
-    · have hz : orderedLoadingIdemAt Q Λ (redWord t) u hu = 0 := by
-        apply Subtype.ext
-        exact show π (e u) = 0 from violMk_e hbad
-      rw [hz, op_zero]
-      have hx : (0 : Tᵐᵒᵖ) • x = 0 := by
-        change (0 : Tᵐᵒᵖ) • (x : P) = (0 : P)
-        exact zero_smul Tᵐᵒᵖ (x : P)
-      exact hx.symm ▸ Submodule.zero_mem _
-    have horder := rightHigherOrder t ht v₀ (Or.inl rfl)
-    rcases fiveSlot_nonviolated_tops u (hu.trans horder.symm) hbad with hr | rfl | rfl | rfl
-    · rw [fiveSlotRightTop_blockRoot t ht, fiveSlotRightTop_blockRoot u hr] at hlt
-      exact (lt_irrefl _ hlt).elim
-    · exact Submodule.subset_span ⟨_, Or.inl rfl, x, rfl⟩
-    · exact Submodule.subset_span ⟨_, Or.inr (Or.inl rfl), x, rfl⟩
-    · exact Submodule.subset_span ⟨_, Or.inr (Or.inr rfl), x, rfl⟩
-  · apply Submodule.span_le.mpr
-    rintro _ ⟨z, hz, x, rfl⟩
-    have hroot : adjacentBlockRoot 1 2 t = adjacentBlockRoot 1 2 v₂ :=
-      (fiveSlotRightTop_blockRoot t ht).trans (fiveSlotRightTop_blockRoot v₂ (Or.inl rfl)).symm
-    have hlt (u) (hu : u = v₀ ∨ u = v₁ ∨ u = jA) :
-        adjacentBlockRoot 1 2 t < adjacentBlockRoot 1 2 u := hroot ▸ v2_lt u hu
-    rcases hz with rfl | rfl | rfl
-    · exact Submodule.subset_span ⟨_, ⟨v₀, _, hlt v₀ (Or.inl rfl), rfl⟩, x, rfl⟩
-    · exact Submodule.subset_span ⟨_, ⟨v₁, _, hlt v₁ (Or.inr (Or.inl rfl)), rfl⟩, x, rfl⟩
-    · exact Submodule.subset_span ⟨_, ⟨jA, _, hlt jA (Or.inr (Or.inr rfl)), rfl⟩, x, rfl⟩
+  rw [blockLoadingKernel_eq_idempotentTrace]
+  exact le_antisymm
+    (trace_le_of_subset_or_zero _ (rightHigher_mem_or_zero Q Λ t ht))
+    (trace_le_of_subset_or_zero _ (fun _ hz => Or.inl (rightHigher_subset Q Λ t ht hz)))
 
 end Trace
 

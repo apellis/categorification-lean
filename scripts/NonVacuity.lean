@@ -9121,6 +9121,27 @@ noncomputable example : fundamentalBraidRightTensorComplex.homology ≅ braidTar
   fundamentalBraidRightTensorHomologyIso
 
 end NonVacuity.WebsterFundamentalBraidTargetHead
+
+namespace NonVacuity.WebsterFundamentalBraidDerivedHead
+open CategoryTheory DG Categorification Categorification.Stendhal
+open BraidedStendhalAlgebra FundamentalCorner
+open scoped DG.DegreeZero
+
+local notation "ν" => ({()} : Multiset Unit)
+local notation "K" => ViolOrderCorner (k := ℚ) (Q := Q) (Λ := wt) («ν» := ν) (List.finRange 2)
+local notation "U" => ViolOrderCorner (k := ℚ) (Q := Q) (Λ := wt) («ν» := ν) [1,0]
+noncomputable local instance : DG.HasDerivedCategory.{1,0} Kᵐᵒᵖ := DG.HasDerivedCategory.standard _
+noncomputable local instance : DG.HasDerivedCategory.{1,0} Uᵐᵒᵖ := DG.HasDerivedCategory.standard _
+
+noncomputable example :
+    (braidingFunctor ℚ Q wt ν (List.finRange 2) [1,0]).obj ((degreeZeroDerivedFunctor Kᵐᵒᵖ).obj braidSourceMiddleHead) ≅
+      ((degreeZeroDerivedFunctor Uᵐᵒᵖ).obj braidTargetMiddleHead)⟦(1 : ℤ)⟧ :=
+  fundamentalBraidDerivedHeadIso
+
+noncomputable example := fundamentalBraidDerivedHeadHMinusOne.{1}
+example := fundamentalBraidDerivedHead_isZero.{1} 0 (by decide)
+
+end NonVacuity.WebsterFundamentalBraidDerivedHead
 end
 
 namespace NonVacuity.WebsterCupRHomRegular

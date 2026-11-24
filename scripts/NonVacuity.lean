@@ -8854,6 +8854,15 @@ noncomputable example := by
     CatModule.HasDerivedCategory.standard (WeightCategory h.Cornerᵐᵒᵖ)
   exact diagramCornerWeightDerivedRightTensor G h h h0 h0
 
+example := by
+  letI := Graded.cornerGradedAlgebra G h h0
+  letI := gradedAlgebraInternalGrading (Categorification.Graded.oppositeGrade
+    (Graded.cornerGrading G h))
+  letI := gradedAlgebraBigradedDGRing (Categorification.Graded.oppositeGrade
+    (Graded.cornerGrading G h))
+  exact diagramCornerWeightRightCoendProduct G h h h0 h0 h h0
+    (⟨0⟩ : WeightCategory h.Cornerᵐᵒᵖ) (⟨0⟩ : WeightCategory h.Cornerᵐᵒᵖ)
+
 end
 
 end NonVacuity.WebsterGradedCorner

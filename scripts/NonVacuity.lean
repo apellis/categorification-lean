@@ -9858,6 +9858,8 @@ example := outgoingExteriorAmbientHomology_zero ℚ
 
 example := outgoingExteriorAmbientHomology_isZero ℚ (-1) (by decide)
 
+example := incomingExteriorAmbientHomology_zero ℚ
+
 example := incomingExteriorAmbientHomology_isZero ℚ (-1) (by decide)
 
 example (z : labelTwoRightExteriorDividedStandard (parameter ℚ)) :=

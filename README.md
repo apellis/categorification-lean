@@ -1294,6 +1294,10 @@ in every nonzero degree
 On the incoming divided standard, the reflected projector selects the
 line spanned by the black-crossing translate
 (`Stendhal.labelTwoRightExterior_reflectedProjector_image`).
+The translate survives by its terminal coordinate. Naturality of the
+standard tensor fixed-cut equivalence identifies the ambient incoming
+degree-zero diagonal with this scalar line
+(`Stendhal.LabelTwo.incomingExteriorAmbientHomology_zero`).
 
 
 

@@ -314,18 +314,27 @@ private theorem reflected_fixes_projected_translate :
     _ = D := by rw [hmix, one_mul]
   rw [reflected_operator, ← Module.End.mul_apply (D * Y) D v₀, h]
 
+
+private theorem reflected_projector_formula :
+    (rightExteriorReflection param (π (X₂ * ψ 2 * e A))).unop =
+      π (hflip (X₂ * ψ 2 * e A : H)) :=
+  congrArg MulOpposite.unop
+    (tensorReflect_projection (Q := param) (Λ := wt) («ν» := ν) (X₂ * ψ 2 * e A))
+
+/-- The reflected incoming projector fixes the black-crossing translate. -/
+theorem labelTwoRightExterior_reflectedProjector_fixes_translate :
+    (rightExteriorReflection param (π (X₂ * ψ 2 * e A))).unop • v₁ = v₁ :=
+  (congrArg (· • v₁) (reflected_projector_formula param)).trans
+    (reflected_fixes_projected_translate param)
+
 set_option maxHeartbeats 850000 in
 /-- The reflected right exterior projector acts on the actual divided standard
 with image spanned by the black-crossing translate. -/
 theorem labelTwoRightExterior_reflectedProjector_image (z : labelTwoRightExteriorDividedStandard param) :
     ∃ b : k, (rightExteriorReflection param (π (X₂ * ψ 2 * e A))).unop • z.val = b • v₁ := by
-  have hr : (rightExteriorReflection param (π (X₂ * ψ 2 * e A))).unop =
-      π (hflip (X₂ * ψ 2 * e A : H)) := by
-    exact congrArg MulOpposite.unop (tensorReflect_projection (Q := param) (Λ := wt) («ν» := ν)
-      (X₂ * ψ 2 * e A))
   obtain ⟨a,b,h⟩ := labelTwo_rightExteriorDividedStandard_span param z
   refine ⟨b,?_⟩
-  rw [hr]
+  rw [reflected_projector_formula param]
   change act (hflip (X₂ * ψ 2 * e A)) z.val = _
   have hs : z.val = a • v₀ + b • v₁ := h
   rw [hs, map_add, map_smul, map_smul, reflected_kills_projected_unit,

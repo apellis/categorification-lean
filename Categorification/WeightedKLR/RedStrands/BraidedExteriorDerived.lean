@@ -411,6 +411,38 @@ def figureFiveBraidDerivedTensorObjIso (u : Seq ν) :
   FigureFiveWeight.derivedTensorObjIso (C := CLo) («D» := CUp) _ _
     (figureFiveLowerWeightModule_isKProjective (Λ := Λ) C hR hρ u)
 
+/-- For the two-red braid of Webster, arXiv:1309.3796v2, §6.1, Definition 6.6, the
+ordinary coend on a supplied K-projective model represents the ambient derived value and
+preserves its cochain upper bound. This intermediate statement assumes a bounded model in
+the source weight category. Existence of finite graded models and termwise finiteness of
+the output are separate from this bound. -/
+theorem figureFiveBraidDerivedTensor_exists_cochain_bound
+    (X : CatModule.DerivedCategory.{1,0} CLo) (P : CatModule.{0} CLo)
+    (e : X ≅ (CatModule.DerivedCategory.Q (C := CLo)).obj P)
+    (hP : CatModule.IsKProjective P) (b : ℤ)
+    (hb : ∀ (m : CLo) (j : ℤ), b < j → ∀ x : P.obj m, x ∈ DG.grading j → x = 0) :
+    ∃ N : CatModule.{0} CUp,
+      Nonempty ((figureFiveBraidDerivedTensor (Λ := Λ) (ν := ν) C hR B η).obj X ≅
+        (CatModule.DerivedCategory.Q (C := CUp)).obj N) ∧
+      (∀ (n : CUp) (j : ℤ), b < j → ∀ x : N.obj n, x ∈ DG.grading j → x = 0) := by
+  let F := figureFiveBraidDerivedTensor (Λ := Λ) (ν := ν) C hR B η
+  let braid := figureFiveBraidWeightBimodule (Λ := Λ) (ν := ν) C hR B η
+  refine ⟨braid.tensorObj P,
+    ⟨F.mapIso e ≪≫ FigureFiveWeight.derivedTensorObjIso braid P hP⟩, ?_⟩
+  intro n j hj x hx
+  change x ∈ DG.grading («M» := CatTensorProduct (braid.right n) P) j at hx
+  refine CatTensorProduct.induction_on_mem_grading (N := braid.right n) («M» := P)
+    (P := fun x : CatTensorProduct (braid.right n) P => x = 0) rfl ?_
+    (fun _ _ hu hv => by rw [hu, hv, add_zero]) (fun _ hu => by rw [hu, neg_zero]) hx
+  intro m i l y z hy hz hij
+  change y ∈ degreeZeroGrading _ i at hy
+  rcases (mem_degreeZeroGrading_iff _).1 hy with rfl | hy0
+  · rw [zero_add] at hij
+    subst l
+    rw [hb m j hj z hz, CatTensorProduct.tmul_zero]
+  · rw [hy0]
+    exact CatTensorProduct.zero_tmul (N := braid.right n) («M» := P) m z
+
 section CoendCut
 open CatModule CatTensorProduct
 

@@ -17,7 +17,7 @@ noncomputable section
 
 namespace Categorification.Stendhal.BraidedStendhalAlgebra
 
-open KLR QuantumGroup KL3.Diagram CategoryTheory CategoryTheory.Limits DG DG.DerivedCategory MulOpposite
+open KLR TypeA QuantumGroup KL3.Diagram CategoryTheory CategoryTheory.Limits DG DG.DerivedCategory MulOpposite
 open scoped DG.DegreeZero
 attribute [local instance 1100] IsIdempotentElem.instAlgebraCorner_categorification
 attribute [local instance 1200] Ring.toIntAlgebra
@@ -26,7 +26,8 @@ universe w
 variable {k : Type} [Field k] (C : CartanDatum Unit)
 local notation "Qstd" => CL.qCL (CL.CLScalars.kl : CL.CLScalars C k)
 local notation "ν" => ({()} + {()} : Multiset Unit)
-local notation "t" => fiveSlotRightLoading 2
+local notation "N" => Multiset.card (stendhalWeight 3 ν)
+local notation "t" => sadj N 3 • (sadj N 2 • fixedTopFourExitCut 2)
 local notation "s" => fiveSlotHigherLoading 2
 local notation "κ" => ([0,2,1] : List (Fin 3))
 

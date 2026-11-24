@@ -9263,6 +9263,17 @@ example := fundamentalBraidGradedCutIso_d₂ ⟨0⟩
 example := fundamentalBraidGradedCutIso_d₁ ⟨1⟩
 
 end NonVacuity.WebsterFundamentalBraidGradedCoend
+
+namespace NonVacuity.WebsterFundamentalBraidGradedTensorHomology
+open Categorification.Stendhal.FundamentalCorner
+
+example := fundamentalBraidGradedTensorComplex_ends 0
+
+example := fundamentalBraidGradedTensorComplex_exact 1 (by decide)
+
+noncomputable example := fundamentalBraidGradedTensorHomologyIso
+
+end NonVacuity.WebsterFundamentalBraidGradedTensorHomology
 end
 
 namespace NonVacuity.WebsterCupRHomRegular

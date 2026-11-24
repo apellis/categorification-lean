@@ -9624,6 +9624,21 @@ example : Function.Injective fundamentalBraidCutComplex.f ∧ Function.Surjectiv
 
 end NonVacuity.WebsterFundamentalBraidHomology
 
+namespace NonVacuity.WebsterBottomBraidReconstruction
+open Categorification Categorification.KLR Categorification.Stendhal Equiv
+private abbrev content : Multiset Unit := {()}
+private abbrev weight := stendhalWeight 3 content
+private def reordered : Seq weight :=
+  KLRAlgebra.Seq.ofList [.inr 0, .inr 2, .inr 1, .inl ()] (by decide)
+private def exchange : Perm (Fin 3) := Equiv.swap 1 2
+private theorem nonviolated : ¬ IsViolated reordered := by
+  rintro ⟨_,h⟩
+  change false = true at h
+  cases h
+example := exists_braidBottomBlockReconstruction reordered exchange (by decide) nonviolated
+
+end NonVacuity.WebsterBottomBraidReconstruction
+
 namespace NonVacuity.WebsterFundamentalBraidTensorHomology
 open CategoryTheory Categorification.Stendhal.FundamentalCorner
 

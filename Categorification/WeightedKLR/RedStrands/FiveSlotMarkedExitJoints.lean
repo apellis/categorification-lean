@@ -10,12 +10,12 @@ import Categorification.KLR.InductionFree
 import Categorification.TypeA.WeakOrder
 
 /-!
-# Marked exit joints at the five-slot right extreme
+# Marked exit joints at the three five-slot right tops
 
 Webster, arXiv:1309.3796v2, §6.1, Lemma 6.8 and the cut after (6.21).
 In the five-slot interval with one earlier red and two equal black strands,
 all four supported marked exit coefficients come from marked neighboring
-joints at the fixed right-extreme top. The joint correction is carried out
+joints at the extreme, mixed, and full fixed tops. The joint correction is carried out
 in the globally violated quotient and preserves each coefficient.
 -/
 open scoped BigOperators
@@ -159,19 +159,29 @@ theorem fiveSlotExit_generate (hQ : KLRSymm Q) (v : Seq μ₀)
 
 /-- The four supported coefficients of a five-slot relation lift through the
 global violation while retaining the actual relation and all quotient projections. -/
+theorem exists_fiveSlotExitRelation_affine_lift_at (hQ : KLRSymm Q)
+    (upper : Seq μ₀) (order : redWord upper=redWord top) (x : Fin 4 → V)
+    (support : ∀ i, mk (p upper)*x i*mk (p (q i))=x i)
+    (hzero : ∑ i, x i*mk (leg i)=0) :
+    ∃ c : Fin 4 → A, (∀ i, p upper*c i*p (q i)=c i) ∧
+      (∀ i, mk (c i)=x i) ∧ (∑ i, c i*leg i)=0 := by
+  obtain ⟨c,hc,he⟩ := exists_finiteExitRelation_affine_lift Q Λ bottom upper
+    fiveSlotExitWord hQ (fun v hv => fiveSlotExit_generate Q Λ hQ v (hv.trans order)) x support hzero
+  refine ⟨fun i => p upper*c i*p (q i),fun i => ?_,hc,he⟩
+  have idem (v : Seq μ₀) : p v*p v=p v := by rw [← map_mul,e_mul_self]
+  calc
+    _ = (p upper*p upper)*c i*(p (q i)*p (q i)) := by simp only [mul_assoc]
+    _ = _ := by rw [idem,idem]
+
+
+/-- The four supported coefficients of a five-slot relation lift through the
+global violation while retaining the actual relation and all quotient projections. -/
 theorem exists_fiveSlotExitRelation_affine_lift (hQ : KLRSymm Q) (x : Fin 4 → V)
     (support : ∀ i, mk (p top)*x i*mk (p (q i))=x i)
     (hzero : ∑ i, x i*mk (leg i)=0) :
     ∃ c : Fin 4 → A, (∀ i, p top*c i*p (q i)=c i) ∧
       (∀ i, mk (c i)=x i) ∧ (∑ i, c i*leg i)=0 := by
-  obtain ⟨c,hc,he⟩ := exists_finiteExitRelation_affine_lift Q Λ bottom top
-    fiveSlotExitWord hQ (fiveSlotExit_generate Q Λ hQ) x support hzero
-  refine ⟨fun i => p top*c i*p (q i),fun i => ?_,hc,he⟩
-  have idem (v : Seq μ₀) : p v*p v=p v := by rw [← map_mul,e_mul_self]
-  calc
-    _ = (p top*p top)*c i*(p (q i)*p (q i)) := by simp only [mul_assoc]
-    _ = _ := by rw [idem,idem]
-
+  exact exists_fiveSlotExitRelation_affine_lift_at Q Λ hQ top rfl x support hzero
 
 local notation "π" => AlgHom.comp (violMk k Q Λ ν₀) (ofKLR k Q Λ ν₀)
 local notation "J" => blockUpperIdeal k Q Λ ν₀ 1 2 (adjacentBlockRoot 1 2 top) (redWord top)
@@ -193,41 +203,57 @@ private theorem compose_viol_leg (l r : List ℕ) (v u : Seq μ₀)
     rw [← mul_assoc,e_mul_ψw,inv_smul_smul,mul_assoc,e_mul_self]
   rw [mul_assoc,cut,mul_assoc]
 
-/-- At the fixed five-slot right extreme, every marked four-exit relation
-comes from marked neighboring joints. The two remaining joints lie strictly
-above the fixed top at the merged red cut. -/
-theorem exists_fiveSlot_markedExitJoints (hQ : KLRSymm Q)
-    (x : Fin 4 → V) (support : ∀ i, mk (p top)*x i*mk (p (q i))=x i)
-    (mark : ∀ i, x i ∈ J) (hzero : ∑ i, x i*mk (leg i)=0) :
-    ∃ zA ∈ J, ∃ zB ∈ J, ∃ zC ∈ J, ∃ zD ∈ J,
+/-- The extreme, mixed and full five-slot tops have the same red order. -/
+theorem fiveSlotRightTop_redWord (upper : Seq μ₀) (ht : FiveSlotRightTop upper) :
+    redWord upper=redWord top := by
+  rcases ht with rfl|rfl|rfl <;> decide
+
+/-- Moving the last red among its two black neighbors preserves the retained
+cut counts, which ignore the cut between the two exchanged red strands. -/
+theorem fiveSlotRightTop_blockRoot (upper : Seq μ₀) (ht : FiveSlotRightTop upper) :
+    adjacentBlockRoot 1 2 upper=adjacentBlockRoot 1 2 top := by
+  ext r i
+  rcases ht with rfl|rfl|rfl <;> fin_cases r <;> cases i <;> decide
+
+local notation "Jᵤ" => fun v : Seq μ₀ => blockUpperIdeal k Q Λ ν₀ 1 2 (adjacentBlockRoot 1 2 v) (redWord v)
+
+/-- At any of the three five-slot right tops, a relation whose four
+coefficients lie in the higher ideal comes from four marked neighboring
+joints. The correction preserves their individual upper and lower cuts. -/
+theorem exists_fiveSlotRightTop_markedExitJoints (hQ : KLRSymm Q)
+    (upper : Seq μ₀) (ht : FiveSlotRightTop upper)
+    (x : Fin 4 → V) (support : ∀ i, mk (p upper)*x i*mk (p (q i))=x i)
+    (mark : ∀ i, x i ∈ (Jᵤ upper)) (hzero : ∑ i, x i*mk (leg i)=0) :
+    ∃ zA ∈ (Jᵤ upper), ∃ zB ∈ (Jᵤ upper), ∃ zC ∈ (Jᵤ upper), ∃ zD ∈ (Jᵤ upper),
       x 0=zA*C [2] v₀+zC*C [2,1] v₀ ∧
       x 1=zB*C [1] v₁-zA*C [3] v₁ ∧
       x 2=zD*C [2,3] top-zB*C [2] top ∧
       x 3=-(zC*C [3] v₃+zD*C [1] v₃) ∧
-      π (e top)*zA*π (e jA)=zA ∧ π (e top)*zB*π (e jB)=zB ∧
-      π (e top)*zC*π (e jA)=zC ∧ π (e top)*zD*π (e jD)=zD := by
-  obtain ⟨y,yCut,yEval,yZero⟩ := exists_fiveSlotExitRelation_affine_lift Q Λ hQ x support hzero
+      π (e upper)*zA*π (e jA)=zA ∧ π (e upper)*zB*π (e jB)=zB ∧
+      π (e upper)*zC*π (e jA)=zC ∧ π (e upper)*zD*π (e jD)=zD := by
+  have order := fiveSlotRightTop_redWord upper ht
+  obtain ⟨y,yCut,yEval,yZero⟩ := exists_fiveSlotExitRelation_affine_lift_at Q Λ hQ upper order x support hzero
   have exits (i : Fin 4) : q i=fixedTopFourExitCut i := by fin_cases i <;> decide
-  have yCut' (i : Fin 4) : p top*y i*p (fixedTopFourExitCut i)=y i := by
+  have yCut' (i : Fin 4) : p upper*y i*p (fixedTopFourExitCut i)=y i := by
     rw [← exits i]
     exact yCut i
   have yRel : y 0*raw (ψw [3,2,1]*e bottom)+y 1*raw (ψw [2,3,1]*e bottom)+
       y 2*raw (ψw [1,2,3]*e bottom)+y 3*raw (ψw [2,3,1,2]*e bottom)=0 := by
     simpa only [Fin.sum_univ_four,fiveSlotExitWord,add_assoc] using yZero
   obtain ⟨u,v,w,uCut,vCut,wCut,h₀,h₁,h₂,h₃⟩ :=
-    exists_fixedTop_fourExitJointPresentation_prefixOne Q Λ hQ (y 0) (y 1) (y 2) (y 3)
+    exists_fiveSlotRightTop_fourExitJointPresentation Q Λ hQ upper ht (y 0) (y 1) (y 2) (y 3)
       (yCut' 0) (yCut' 1) (yCut' 2) (yCut' 3) yRel
   let xA := mk u
   let xB := mk v
   let xD := mk w
-  have hA : π (e top)*xA*π (e jA)=xA := by
-    change mk (p top)*mk u*mk (p jA)=mk u
+  have hA : π (e upper)*xA*π (e jA)=xA := by
+    change mk (p upper)*mk u*mk (p jA)=mk u
     simpa only [map_mul] using congrArg mk uCut
-  have hB : π (e top)*xB*π (e jB)=xB := by
-    change mk (p top)*mk v*mk (p jB)=mk v
+  have hB : π (e upper)*xB*π (e jB)=xB := by
+    change mk (p upper)*mk v*mk (p jB)=mk v
     simpa only [map_mul] using congrArg mk vCut
-  have hD : π (e top)*xD*π (e jD)=xD := by
-    change mk (p top)*mk w*mk (p jD)=mk w
+  have hD : π (e upper)*xD*π (e jD)=xD := by
+    change mk (p upper)*mk w*mk (p jD)=mk w
     simpa only [map_mul] using congrArg mk wCut
   have hx₀ : x 0=xA*C [2] v₀ := by
     rw [← yEval 0]
@@ -246,13 +272,13 @@ theorem exists_fiveSlot_markedExitJoints (hQ : KLRSymm Q)
   have black (i : Fin n₀) (hi : ((top).lbl i).isLeft) :
       i=⟨3,by decide⟩ ∨ i=⟨4,by decide⟩ := by
     fin_cases i <;> first | decide | contradiction
-  obtain ⟨z,zCut,zb,zd⟩ := exists_equalBlack_rightPair_markedCycle Q Λ hQ
-    top 2 (by decide) 1 2 () [0] (by decide) rfl rfl rfl black xB xD
+  obtain ⟨z,zCut,zb,zd⟩ := exists_equalBlack_rightPair_markedCycle_at_three_tops Q Λ hQ
+    top upper 2 (by decide) 1 2 () ht [0] (order.trans (by decide)) rfl rfl rfl black xB xD
     (bCut ▸ hB) (dCut ▸ hD) (hx₂ ▸ mark 2)
-  have zLeft : π (e top)*z=z := by
-    have h := congrArg (fun r => π (e top)*r) zCut
-    change π (e top)*(π (e top)*z*π (e (sadj n₀ 3 • (sadj n₀ 2 • top))))=π (e top)*z at h
-    rw [← mul_assoc (π (e top)),← mul_assoc (π (e top)),← map_mul,e_mul_self,zCut] at h
+  have zLeft : π (e upper)*z=z := by
+    have h := congrArg (fun r => π (e upper)*r) zCut
+    change π (e upper)*(π (e upper)*z*π (e (sadj n₀ 3 • (sadj n₀ 2 • top))))=π (e upper)*z at h
+    rw [← mul_assoc (π (e upper)),← mul_assoc (π (e upper)),← map_mul,e_mul_self,zCut] at h
     exact h.symm
   have cycle := twoBlackExitCycleWords (Q₀ := stendhalQ Q Λ) 1 (by decide) bottom
     (a := 1) (b := 2) (i := ()) (j := ()) rfl rfl rfl rfl
@@ -275,32 +301,33 @@ theorem exists_fiveSlot_markedExitJoints (hQ : KLRSymm Q)
     exact congrArg π cycle.2.2.2
   have cut (l : List ℕ) (v : Seq μ₀) : C l v*π (e v)=C l v := by
     simp only [← map_mul,mul_assoc,e_mul_self]
-  have hmark₁ : xB*C [1] v₁-xA*C [3] v₁ ∈ J := hx₁ ▸ mark 1
-  have hmark₂ : xD*C [2,3] top-xB*C [2] top ∈ J := hx₂ ▸ mark 2
-  have hmark₃ : (0 : V)*C [3] v₃ + xD*C [1] v₃ ∈ J := by
-    simpa only [zero_mul,zero_add,hx₃,neg_neg] using TwoSidedIdeal.neg_mem J (mark 3)
-  have jAhigher : adjacentBlockRoot 1 2 top < adjacentBlockRoot 1 2 jA := by
+  have hmark₁ : xB*C [1] v₁-xA*C [3] v₁ ∈ (Jᵤ upper) := hx₁ ▸ mark 1
+  have hmark₂ : xD*C [2,3] top-xB*C [2] top ∈ (Jᵤ upper) := hx₂ ▸ mark 2
+  have hmark₃ : (0 : V)*C [3] v₃ + xD*C [1] v₃ ∈ (Jᵤ upper) := by
+    simpa only [zero_mul,zero_add,hx₃,neg_neg] using TwoSidedIdeal.neg_mem (Jᵤ upper) (mark 3)
+  have jAhigher : adjacentBlockRoot 1 2 upper < adjacentBlockRoot 1 2 jA := by
+    rw [fiveSlotRightTop_blockRoot upper ht]
     apply lt_of_le_not_ge
     · intro r i
       fin_cases r <;> cases i <;> decide
     · intro le
       exact (by decide : ¬ adjacentBlockRoot 1 2 jA 1 () ≤ adjacentBlockRoot 1 2 top 1 ())
         (le 1 ())
-  have eMark : π (e jA) ∈ J :=
-    TwoSidedIdeal.subset_span ⟨jA,by decide,jAhigher,rfl⟩
-  have reflect (z : V) (hz : π (e top)*z*π (e jA)=z) (_ : z*C [3] v₁ ∈ J) :
-      z ∈ J := hz ▸ TwoSidedIdeal.mul_mem_left J _ _ eMark
+  have eMark : π (e jA) ∈ (Jᵤ upper) :=
+    TwoSidedIdeal.subset_span ⟨jA,by rw [order]; decide,jAhigher,rfl⟩
+  have reflect (z : V) (hz : π (e upper)*z*π (e jA)=z) (_ : z*C [3] v₁ ∈ (Jᵤ upper)) :
+      z ∈ (Jᵤ upper) := hz ▸ TwoSidedIdeal.mul_mem_left (Jᵤ upper) _ _ eMark
   have s₁ : v₁=v₃ := by decide
-  obtain ⟨r,rTop,mA,mB,mC,mD,r₀,r₁,r₂,r₃⟩ := exists_marked_fourExitCycle J
-    (π (e top)) (π (e jA)) (π (e jA))
+  obtain ⟨r,rTop,mA,mB,mC,mD,r₀,r₁,r₂,r₃⟩ := exists_marked_fourExitCycle (Jᵤ upper)
+    (π (e upper)) (π (e jA)) (π (e jA))
     (C [2] v₀) (C [3] v₁) (C [1] v₁) (C [2] top)
     (C [2,1] v₀) (C [3] v₃) (C [2,3] top) (C [1] v₃)
     (C [2,1] jA) (C [2,3] jB) (C [1] jA) (C [3] jD)
     cyc₀ cyc₁ cyc₂ cyc₃ (cut _ _) (cut _ _) reflect (s₁ ▸ reflect)
     xA xB 0 xD hA (by rw [mul_zero,zero_mul]) hmark₁ hmark₂ hmark₃
     (fun _ => ⟨z,zLeft,bCut.symm ▸ zb,dCut.symm ▸ zd⟩)
-  have tailCut (l : List ℕ) (v : Seq μ₀) : π (e top)*(r*C l v)*π (e v)=r*C l v := by
-    rw [← mul_assoc (π (e top)),rTop,mul_assoc,cut]
+  have tailCut (l : List ℕ) (v : Seq μ₀) : π (e upper)*(r*C l v)*π (e v)=r*C l v := by
+    rw [← mul_assoc (π (e upper)),rTop,mul_assoc,cut]
   refine ⟨_,mA,_,mB,_,mC,_,mD,?_,?_,?_,?_,?_,?_,?_,?_⟩
   · rw [r₀,zero_mul,add_zero,hx₀]
   · exact hx₁.trans r₁.symm
@@ -310,6 +337,21 @@ theorem exists_fiveSlot_markedExitJoints (hQ : KLRSymm Q)
   · simp only [mul_sub,sub_mul,hB,tailCut]
   · simpa only [zero_add] using tailCut [1] jA
   · simp only [mul_sub,sub_mul,hD,tailCut]
+
+/-- At the fixed five-slot right extreme, every marked four-exit relation
+comes from marked neighboring joints. The two remaining joints lie strictly
+above the fixed top at the merged red cut. -/
+theorem exists_fiveSlot_markedExitJoints (hQ : KLRSymm Q)
+    (x : Fin 4 → V) (support : ∀ i, mk (p top)*x i*mk (p (q i))=x i)
+    (mark : ∀ i, x i ∈ J) (hzero : ∑ i, x i*mk (leg i)=0) :
+    ∃ zA ∈ J, ∃ zB ∈ J, ∃ zC ∈ J, ∃ zD ∈ J,
+      x 0=zA*C [2] v₀+zC*C [2,1] v₀ ∧
+      x 1=zB*C [1] v₁-zA*C [3] v₁ ∧
+      x 2=zD*C [2,3] top-zB*C [2] top ∧
+      x 3=-(zC*C [3] v₃+zD*C [1] v₃) ∧
+      π (e top)*zA*π (e jA)=zA ∧ π (e top)*zB*π (e jB)=zB ∧
+      π (e top)*zC*π (e jA)=zC ∧ π (e top)*zD*π (e jD)=zD := by
+  exact exists_fiveSlotRightTop_markedExitJoints Q Λ hQ top (Or.inl rfl) x support mark hzero
 
 end Categorification.Stendhal.BraidedStendhalAlgebra
 

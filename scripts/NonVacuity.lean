@@ -1,7 +1,6 @@
 import Categorification
 import Mathlib.Analysis.Real.Sqrt
 import LieLean.Algebra.QuantumGroup.Sl2.SimpleModule
-import LieLean.GroupTheory.Coxeter.GeometricRepresentation
 
 /-!
 # Non-vacuity checks for the headline theorems
@@ -5540,6 +5539,22 @@ noncomputable example := KL3.Diagram.shiftHomEquivalence UDot.sl2RootDatum (ZMod
 
 end NonVacuity.WebsterLocalization
 
+namespace NonVacuity.WebsterCupCap
+
+open CategoryTheory DG MulOpposite Categorification.Stendhal.Coevaluation
+open scoped DG.DegreeZero TensorProduct
+
+local instance : DG.HasDerivedCategory.{0,0} ℚ := DG.HasDerivedCategory.small ℚ
+local instance : DG.HasDerivedCategory.{0,0} ℚᵐᵒᵖ := DG.HasDerivedCategory.small ℚᵐᵒᵖ
+
+example := shiftedCupFunctor ℚ ℚ (Fin 2 → ℚ) (-2)
+example := capFunctor ℚ ℚ (Fin 2 → ℚ)
+
+example (f : CupCoefficient ℚ (Fin 2 → ℚ)) (x : Fin 2 → ℚ) :=
+  cupTensorHomEquiv_op_tmul ℚ ℚ (Fin 2 → ℚ) (2 : ℚ) f (3 : ℚ) x
+
+end NonVacuity.WebsterCupCap
+
 namespace NonVacuity.CLSpanning
 
 open Categorification Categorification.QuantumGroup Categorification.KL3.Diagram
@@ -5965,6 +5980,83 @@ end
 
 end NonVacuity.WebsterReducedCoevaluationWord
 
+namespace NonVacuity.WebsterCoevaluationShift
+
+open Categorification.Stendhal
+
+private def datum : _root_.CartanDatum Unit ℤ where
+  root := fun _ => 2
+  coroot := fun _ => LinearMap.id
+  coroot_root_self := fun _ => rfl
+
+private theorem nonnegative : NonnegativeReflectionPath datum 3 [()] :=
+  ⟨by change (0 : ℤ) ≤ 3; decide, trivial⟩
+
+private theorem final : (AddMonoidHom.id ℤ)
+    ([()].foldl (fun μ i => datum.reflection i μ) 3) = - (AddMonoidHom.id ℤ) 3 := by
+  decide
+
+example : ((coevaluationWord datum 3 [()]).length : ℤ) = 3 :=
+  coevaluationWord_length_eq_twice_height datum (AddMonoidHom.id ℤ) (fun _ => rfl)
+    3 [()] nonnegative final
+
+example : ((coevaluationWord datum 3 [()]).map (fun _ => (1 : ℤ))).sum = 3 :=
+  coevaluationWord_sum_symmetrizers_eq_twice_pairing datum (AddMonoidHom.id ℤ)
+    (fun _ => 1) (fun _ => rfl) 3 [()] nonnegative final
+
+end NonVacuity.WebsterCoevaluationShift
+
+namespace NonVacuity.WebsterSingleBlackExtremal
+
+open Categorification.Stendhal
+
+private noncomputable abbrev Q : Unit → Unit → MvPolynomial (Fin 2) ℚ := fun _ _ => 0
+private noncomputable abbrev Λ : Fin 1 → Unit →₀ ℕ := fun _ => Finsupp.single () 1
+
+example := oneBlack_extremal_projective_simple Q Λ () (by simp [Λ])
+
+end NonVacuity.WebsterSingleBlackExtremal
+
+namespace NonVacuity.WebsterExtremalNorm
+
+open Categorification Categorification.Graded Stendhal Stendhal.SingleBlack
+
+attribute [local instance 1100] IsIdempotentElem.instAlgebraCorner_categorification
+
+private def weights : Fin 1 → Unit →₀ ℕ := fun _ => Finsupp.single () 1
+
+private def grading :=
+  stendhalGradingDatum weights (KLR.klGradingDatum ℚ (⊥ : SimpleGraph Unit))
+    (fun _ => 1) (fun _ => rfl)
+
+private abbrev block := tensorProductGrade grading ({()} : Multiset Unit)
+private abbrev proj := GProj.regular block
+
+private instance : HasGdim block := hasGdim_oneBlack () grading
+
+private theorem rank_one : Module.finrank (LaurentPolynomial ℤ) (K0 block) = 1 := by
+  rw [(oneBlackK0Equiv () grading (by simp [weights])).finrank_eq, Module.finrank_self]
+
+private theorem norm_one : proj.homGdim proj = 1 := by
+  rw [regular_homGdim () grading]
+  rw [show weights 0 () = 1 by simp [weights]]
+  simp
+
+example : IsSimpleModule (TensorProductAlgebra ℚ (KLR.klQ (⊥ : SimpleGraph Unit)) weights {()})
+    proj.carrier :=
+  GProj.isSimpleModule_of_homGdim_eq_one proj rank_one norm_one
+
+example : Nonempty (proj.Iso proj) :=
+  GProj.nonempty_iso_of_homGdim_coeff_zero proj proj rank_one norm_one norm_one
+    (by rw [norm_one]; simp [HahnSeries.coeff_one])
+
+/-- A shift moves the mixed Hom out of degree zero. -/
+example : (proj.homGdim (proj.shift 1)).coeff 0 = 0 := by
+  rw [GProj.homGdim_shift_right, norm_one, mul_one]
+  simp
+
+end NonVacuity.WebsterExtremalNorm
+
 namespace NonVacuity.WebsterReducedBraid
 
 noncomputable section
@@ -6042,16 +6134,62 @@ end
 
 end NonVacuity.WebsterReducedBraid
 
-namespace NonVacuity.WebsterSingleBlackExtremal
+namespace NonVacuity.WebsterTerminalCyclotomic
 
-open Categorification.Stendhal
+open Categorification.KLR.CycKLR
 
 private noncomputable abbrev Q : Unit → Unit → MvPolynomial (Fin 2) ℚ := fun _ _ => 0
-private noncomputable abbrev Λ : Fin 1 → Unit →₀ ℕ := fun _ => Finsupp.single () 1
 
-example := oneBlack_extremal_projective_simple Q Λ () (by simp [Λ])
+example := terminalCoinvModule_simple (ν := Multiset.replicate 2 ())
+  (i := ()) (fun j _ => Subsingleton.elim j ()) Q
 
-end NonVacuity.WebsterSingleBlackExtremal
+example := twoBlack_terminal_relations Q
+
+example := twoBlackTerminalProjective_simple Q
+example := Categorification.Stendhal.SingleRed.twoBlackTerminalWebsterProjective_simple Q
+
+end NonVacuity.WebsterTerminalCyclotomic
+
+namespace NonVacuity.WebsterTerminalSymmetric
+
+open KLR KLRAlgebra KLR.CycKLR MvPolynomial NilHecke
+
+private abbrev black := Multiset.replicate 3 ()
+private noncomputable abbrev params : Unit → Unit → MvPolynomial (Fin 2) ℚ := fun _ _ => 0
+private noncomputable abbrev projection :=
+  CycKLR.mk ℚ params (fun _ => (Polynomial.X ^ 3 : Polynomial ℚ)) black
+
+example : projection (pol (esymm (Fin black.card) ℚ 2)) = 0 :=
+  terminal_pol_esymm_eq_zero (ν := black) (i := ()) (fun _ _ => Subsingleton.elim _ _) params 2
+    (by decide) (by decide)
+
+example (p : MvPolynomial (Fin black.card) ℚ) (hp : p ∈ coinvIdeal ℚ black.card) :
+    projection (pol p) = 0 :=
+  terminal_pol_eq_zero_of_mem_coinvIdeal (i := ()) (fun _ _ => Subsingleton.elim _ _) params p hp
+
+example := terminalDividedProjective_simple (ν := black) (i := ())
+  (fun j _ => Subsingleton.elim j ()) params
+
+end NonVacuity.WebsterTerminalSymmetric
+
+namespace NonVacuity.WebsterSaturatedSingleRed
+
+open Categorification.Stendhal.SingleRed
+
+private abbrev black := Multiset.replicate 3 (0 : Fin 2)
+private noncomputable abbrev params : Fin 2 → Fin 2 → MvPolynomial (Fin 2) ℚ := fun _ _ => 0
+private noncomputable abbrev weights : Fin 1 → Fin 2 →₀ ℕ := fun _ =>
+  Finsupp.single 0 3 + Finsupp.single 1 2
+
+private theorem monochromatic : ∀ j ∈ black, j = 0 := by
+  intro j hj
+  exact (Multiset.mem_replicate.mp hj).2
+
+example := saturatedWebsterProjective_simple monochromatic params weights (by simp [weights, black])
+
+example := saturatedWebsterProjective_projective monochromatic params weights (by simp [weights, black])
+
+end NonVacuity.WebsterSaturatedSingleRed
 
 namespace NonVacuity.WebsterFigureFive
 
@@ -6417,6 +6555,59 @@ example :
     norm_num
   exact congrArg (fun z : ℂ =>
     ↥((figureFiveUpperExteriorGrade (Λ := fracΛ) sl₂ hRouquier hρ blackWord z).restrictScalars ℤ)) h
+
+/-- The entire swapped braid coefficient places auxiliary coordinate one
+at Webster degree three halves for the two unequal red weights. -/
+example :=
+  have h : ((1 : ℤ) : ℂ) + (2 - weightPairing sl₂ realization (fracWeight 1) (fracWeight 0)) =
+      (3 / 2 : ℂ) := by rw [fracWeight_pair]; norm_num
+  h ▸ twoRedSwapWeight_intAdd (Λ := fracΛ) (ν := ν) sl₂ hRouquier
+    (weightPairing sl₂ realization) fracWeight 1 0 1
+
+/-- Swapping the last two of three red strands leaves the first red strand
+as a spectator in the normalization of the full coefficient. -/
+example :=
+  let Ξ : Fin 3 → Unit →₀ ℕ := fun j => Finsupp.single () (j.val + 1)
+  let η : Fin 3 → Module.Dual ℂ (Matrix.Realization.StdSpace (UDot.A sl₂) ℂ) :=
+    fun j => ((Ξ j () : ℂ) / 2) • realization.root ()
+  adjacentRedSwapWeight_coordinate (Λ := Ξ) (ν := ν) sl₂ hRouquier
+    (weightPairing sl₂ realization) η [0] [] 1 2 0 2 1
+
+/-- The normalized three-red swap pieces decompose the full rectangular corner. -/
+example :=
+  let Ξ : Fin 3 → Unit →₀ ℕ := fun j => Finsupp.single () (j.val + 1)
+  let η : Fin 3 → Module.Dual ℂ (Matrix.Realization.StdSpace (UDot.A sl₂) ℂ) :=
+    fun j => ((Ξ j () : ℂ) / 2) • realization.root ()
+  adjacentRedSwapWeight_isInternal (Λ := Ξ) (ν := ν) sl₂ hRouquier
+    (weightPairing sl₂ realization) η [0] [] 1 2
+
+/-- Reversing three red strands contributes once for each of the three
+inverted red pairs to the degree of the full coefficient. -/
+example :=
+  let Ξ : Fin 3 → Unit →₀ ℕ := fun j => Finsupp.single () (j.val + 1)
+  let η : Fin 3 → Module.Dual ℂ ℂ := fun _ => 0
+  let B : LinearMap.BilinForm ℂ (Module.Dual ℂ ℂ) := 0
+  have hCard : (redWordInversions ([0, 1, 2] : List (Fin 3)) [2, 1, 0]).card = 3 := by
+    decide
+  have hoff : redWordOffset B η [0, 1, 2] [2, 1, 0] = 6 := by
+    change redWordOffset (0 : LinearMap.BilinForm ℂ (Module.Dual ℂ ℂ)) η
+      [0, 1, 2] [2, 1, 0] = 6
+    simp only [redWordOffset, LinearMap.zero_apply, sub_zero, Finset.sum_const, hCard]
+    norm_num
+  have h := redPermutationWeight_intAdd (Λ := Ξ) (ν := ν) sl₂ hRouquier
+    B η [0, 1, 2] [2, 1, 0] 0
+  show redPermutationWeight (Λ := Ξ) (ν := ν) sl₂ hRouquier B η [0, 1, 2] [2, 1, 0] 6 =
+      _ from by simpa only [hoff, Int.cast_zero, zero_add] using h
+
+/-- Two different red pairs are inverted by these successive adjacent
+swaps, so their Webster degree offsets add. -/
+example :=
+  let Ξ : Fin 3 → Unit →₀ ℕ := fun j => Finsupp.single () (j.val + 1)
+  let η : Fin 3 → Module.Dual ℂ (Matrix.Realization.StdSpace (UDot.A sl₂) ℂ) :=
+    fun j => ((Ξ j () : ℂ) / 2) • realization.root ()
+  redWordOffset_add (weightPairing sl₂ realization) η
+    (lower := [0, 1, 2]) (middle := [1, 0, 2]) (upper := [1, 2, 0])
+    (by decide) (by decide) (by decide) (by decide)
 
 end NonVacuity.WebsterFigureFive
 
@@ -7708,13 +7899,13 @@ noncomputable section
 
 private abbrev ν : Multiset Unit := {()} + {()}
 private abbrev μ := stendhalWeight 3 ν
-private abbrev Q : Unit → Unit → MvPolynomial (Fin 2) ℚ := fun _ _ => 0
+private abbrev Q : Unit → Unit → MvPolynomial (Fin 2) ℤ := fun _ _ => 0
 private abbrev Λ : Fin 3 → Unit →₀ ℕ := fun _ => Finsupp.single () 2
 private def s : Seq μ := Seq.ofList [.inr 0, .inr 1, .inr 2, .inl (), .inl ()] (by decide)
 private def t : Seq μ := sadj μ.card 2 • s
 private def u : Seq μ := sadj μ.card 3 • t
-private abbrev A := KLRAlgebra ℚ (stendhalQ Q Λ) μ
-private abbrev P := (violMk ℚ Q Λ ν).comp (ofKLR ℚ Q Λ ν)
+private abbrev A := KLRAlgebra ℤ (stendhalQ Q Λ) μ
+private abbrev P := (violMk ℤ Q Λ ν).comp (ofKLR ℤ Q Λ ν)
 
 private theorem blacks (a : Fin μ.card) (h : (s.lbl a).isLeft) :
     a = ⟨3,by decide⟩ ∨ a = ⟨4,by decide⟩ := by
@@ -7729,17 +7920,23 @@ private theorem compose_at_cut (left right : List ℕ) :
 
 /-- Check a supported pair with a common-joint contribution, at positive red
 weights and with an exterior red spectator before the pair. -/
-example (g : ViolQuotient ℚ Q Λ ν) :=
-  let w := P (e s) * g * P (e u)
+private theorem pairAtTop (top : Seq μ) (hTop : top=s ∨ top=t ∨ top=u)
+    (order : redWord top = [0] ++ [1,2]) (g : ViolQuotient ℤ Q Λ ν) :
+    let w := P (e top) * g * P (e u)
+    let J := blockUpperIdeal ℤ Q Λ ν 1 2 (adjacentBlockRoot 1 2 top) (redWord top)
+    ∃ z : ViolQuotient ℤ Q Λ ν, P (e top)*z*P (e u)=z ∧
+      w*P (ψw [2,3]*e t)-z*P (ψw [2,3]*e t) ∈ J ∧
+      w*P (ψw [3]*e t)-z*P (ψw [3]*e t) ∈ J :=
+  let w := P (e top) * g * P (e u)
   let x := w * P (ψw [2,3]*e t)
   let y := w * P (ψw [3]*e t)
   have cut (l : List ℕ) :
-      P (e s)*(w*P (ψw l*e t))*P (e t)=w*P (ψw l*e t) := by
-    have top : P (e s)*w=w := by
+      P (e top)*(w*P (ψw l*e t))*P (e t)=w*P (ψw l*e t) := by
+    have leftFixed : P (e top)*w=w := by
       simp only [w,← mul_assoc,← map_mul,e_mul_self]
     have right : P (ψw l*e t)*P (e t)=P (ψw l*e t) := by
       simp only [← map_mul,mul_assoc,e_mul_self]
-    rw [← mul_assoc (P (e s)) w,top,mul_assoc,right]
+    rw [← mul_assoc (P (e top)) w,leftFixed,mul_assoc,right]
   have legs : (ψw [2,3]*e t : A)*(ψw [2]*e s)=(ψw [3]*e t)*(ψw [2,3]*e s) := by
     have h₁ : wordProd μ.card [2] • s=t := by simp only [t,wordProd_singleton]
     have h₂ : wordProd μ.card [2,3] • s=t := by decide
@@ -7749,12 +7946,19 @@ example (g : ViolQuotient ℚ Q Λ ν) :=
     rw [ite_eq_right (fun h => ne h.1),sub_mul,sub_eq_zero] at h
     simpa only [List.cons_append,List.nil_append,ψw_cons,ψw_nil,mul_one,mul_assoc] using h
   have rel : y*P (ψw [2,3]*e s)-x*P (ψw [2]*e s) ∈
-      blockUpperIdeal ℚ Q Λ ν 1 2 (adjacentBlockRoot 1 2 s) (redWord s) := by
+      blockUpperIdeal ℤ Q Λ ν 1 2 (adjacentBlockRoot 1 2 top) (redWord top) := by
     rw [show y*P (ψw [2,3]*e s)=x*P (ψw [2]*e s) by
       simp only [x,y,mul_assoc,← map_mul,legs],sub_self]
     exact TwoSidedIdeal.zero_mem _
-  exists_equalBlack_rightPair_markedCycle Q Λ (fun _ _ _ => rfl)
-    s 2 (by decide) 1 2 () [0] (by decide) rfl rfl rfl blacks x y (cut _) (cut _) rel
+  exists_equalBlack_rightPair_markedCycle_at_three_tops Q Λ (fun _ _ _ => rfl)
+    s top 2 (by decide) 1 2 () hTop [0] order rfl rfl rfl blacks x y (cut _) (cut _) rel
+
+/-- The right extreme, mixed joint and full joint admit the integral marked lift. -/
+example (g : ViolQuotient ℤ Q Λ ν) := pairAtTop s (Or.inl rfl) (by decide) g
+
+example (g : ViolQuotient ℤ Q Λ ν) := pairAtTop t (Or.inr (Or.inl rfl)) (by decide) g
+
+example (g : ViolQuotient ℤ Q Λ ν) := pairAtTop u (Or.inr (Or.inr rfl)) (by decide) g
 
 end
 
@@ -7769,11 +7973,11 @@ noncomputable section
 
 private abbrev ν : Multiset Unit := {()} + {()}
 private abbrev μ := stendhalWeight 3 ν
-private abbrev Q : Unit → Unit → MvPolynomial (Fin 2) ℚ := fun _ _ => 0
+private abbrev Q : Unit → Unit → MvPolynomial (Fin 2) ℤ := fun _ _ => 0
 private abbrev Λ : Fin 3 → Unit →₀ ℕ := fun _ => Finsupp.single () 2
-private abbrev B := BraidedStendhalAlgebra ℚ Q Λ ν
-private abbrev R := KLRAlgebra ℚ (stendhalQ Q Λ) μ
-private abbrev F := ofKLR ℚ Q Λ ν
+private abbrev B := BraidedStendhalAlgebra ℤ Q Λ ν
+private abbrev R := KLRAlgebra ℤ (stendhalQ Q Λ) μ
+private abbrev F := ofKLR ℤ Q Λ ν
 private abbrev bot := fixedTopFourExitBottom
 private abbrev v (i : Fin 4) := fixedTopFourExitCut i
 private abbrev jA := sadj μ.card 2 • v 0
@@ -7806,6 +8010,39 @@ example (g : B) :=
   exists_fixedTop_fourExitJointPresentation_prefixOne Q Λ (fun _ _ _ => rfl)
     x₀ x₁ 0 0 (cut _ _) (by simpa only [x₁,mul_neg,neg_mul] using congrArg Neg.neg (cut [3] (v 1)))
     (by rw [mul_zero,zero_mul]) (by rw [mul_zero,zero_mul]) sum
+
+private def leftTop : Fin 3 → Seq μ
+  | 0 => v 0
+  | 1 => sadj μ.card 2 • v 0
+  | _ => sadj μ.card 1 • (sadj μ.card 2 • v 0)
+
+/-- The right neighboring braid gives a signed relation at every left top. -/
+example (slot : Fin 3) (g : B) :=
+  let upper := leftTop slot
+  have ht : FiveSlotLeftTop upper := by
+    fin_cases slot
+    · exact Or.inl rfl
+    · exact Or.inr (Or.inl rfl)
+    · exact Or.inr (Or.inr rfl)
+  let q := F (e upper)*g*F (e (sadj μ.card 1 • v 1))
+  let x₁ := q*leg [1] (v 1)
+  let x₂ := -(q*leg [2] (v 2))
+  have cut (l : List ℕ) (s : Seq μ) : F (e upper)*(q*leg l s)*F (e s)=q*leg l s := by
+    have left : F (e upper)*q=q := by simp only [q,← mul_assoc,← map_mul,e_mul_self]
+    simp only [← mul_assoc (F (e upper)) q,left,leg,← map_mul,mul_assoc,e_mul_self]
+  have braid : leg [1] (v 1)*leg [2,3,1] bot=leg [2] (v 2)*leg [1,2,3] bot := by
+    rw [compose _ _ _ (by decide),compose _ _ _ (by decide)]
+    exact congrArg F (twoBlackNearbyExitWords (Q := stendhalQ Q Λ) 1 (by decide) bot (by decide)).2
+  have sum : (0 : B)*leg [3,2,1] bot+x₁*leg [2,3,1] bot+x₂*leg [1,2,3] bot+0*leg [2,3,1,2] bot=0 := by
+    simp only [x₁,x₂,neg_mul,mul_assoc,braid,zero_mul,zero_add,add_zero,add_neg_cancel]
+  exists_fiveSlotLeftTop_fourExitJointPresentation Q Λ (fun _ _ _ => rfl) upper ht
+    0 x₁ x₂ 0 (by rw [mul_zero,zero_mul]) (cut _ _)
+    (by simpa only [x₂,mul_neg,neg_mul] using congrArg Neg.neg (cut [2] (v 2)))
+    (by rw [mul_zero,zero_mul]) sum
+
+example := fiveSlot_oneBlackBeforePair_blockUpperIdeal Q Λ (v 1) (Or.inl rfl)
+example := fiveSlot_oneBlackBeforePair_blockUpperIdeal Q Λ jA (Or.inr rfl)
+example := fiveSlotLeftExtreme_blockKernelColumnInclusion_injective Q Λ bot
 
 end
 
@@ -7901,15 +8138,18 @@ noncomputable section
 
 private abbrev ν : Multiset Unit := {()} + {()}
 private abbrev μ := stendhalWeight 3 ν
-private abbrev Q : Unit → Unit → MvPolynomial (Fin 2) ℚ := fun _ _ => 0
+private abbrev Q : Unit → Unit → MvPolynomial (Fin 2) ℤ := fun _ _ => 0
 private abbrev Λ : Fin 3 → Unit →₀ ℕ := fun _ => Finsupp.single () 2
-private abbrev V := ViolQuotient ℚ Q Λ ν
-private abbrev R := KLRAlgebra ℚ (stendhalQ Q Λ) μ
-private abbrev F := (violMk ℚ Q Λ ν).comp (ofKLR ℚ Q Λ ν)
+private abbrev V := ViolQuotient ℤ Q Λ ν
+private abbrev R := KLRAlgebra ℤ (stendhalQ Q Λ) μ
+private abbrev F := (violMk ℤ Q Λ ν).comp (ofKLR ℤ Q Λ ν)
 private abbrev s := fixedTopFourExitBottom
 private abbrev v (i : Fin 4) := fixedTopFourExitCut i
 private abbrev jA := sadj μ.card 2 • v 0
-private abbrev J := blockUpperIdeal ℚ Q Λ ν 1 2 (adjacentBlockRoot 1 2 (v 2)) (redWord (v 2))
+private def fixtureTop : Fin 3 → Seq μ
+  | 0 => v 2
+  | 1 => sadj μ.card 2 • v 2
+  | _ => sadj μ.card 3 • (sadj μ.card 2 • v 2)
 private abbrev leg (l : List ℕ) (t : Seq μ) := F (ψw l*e t)
 
 private theorem compose (l w : List ℕ) (t : Seq μ) (ht : wordProd μ.card w • s=t) :
@@ -7921,19 +8161,27 @@ private theorem compose (l w : List ℕ) (t : Seq μ) (ht : wordProd μ.card w �
 
 /-- A positive-weight marked relation through the actual higher joint at a
 surviving spectator cut. -/
-example (g : V) :=
-  let q := F (e (v 2))*g*F (e jA)
+example (slot : Fin 3) (g : V) :=
+  let upper := fixtureTop slot
+  have ht : FiveSlotRightTop upper := by
+    fin_cases slot
+    · exact Or.inl rfl
+    · exact Or.inr (Or.inl rfl)
+    · exact Or.inr (Or.inr rfl)
+  let J := blockUpperIdeal ℤ Q Λ ν 1 2 (adjacentBlockRoot 1 2 upper) (redWord upper)
+  let q := F (e upper)*g*F (e jA)
   let x₀ := q*leg [2] (v 0)
   let x₁ := -(q*leg [3] (v 1))
   let x : Fin 4 → V := ![x₀,x₁,0,0]
-  have higher : adjacentBlockRoot 1 2 (v 2) < adjacentBlockRoot 1 2 jA := by
+  have higher : adjacentBlockRoot 1 2 upper < adjacentBlockRoot 1 2 jA := by
+    rw [fiveSlotRightTop_blockRoot upper ht]
     apply lt_of_le_not_ge
     · intro i j
       fin_cases i <;> cases j <;> decide
     · intro le
       exact (by decide : ¬ adjacentBlockRoot 1 2 jA 1 () ≤ adjacentBlockRoot 1 2 (v 2) 1 ())
         (le 1 ())
-  have eMark : F (e jA) ∈ J := TwoSidedIdeal.subset_span ⟨jA,by decide,higher,rfl⟩
+  have eMark : F (e jA) ∈ J := TwoSidedIdeal.subset_span ⟨jA,by rw [fiveSlotRightTop_redWord upper ht]; decide,higher,rfl⟩
   have qMark : q ∈ J := J.mul_mem_left _ _ eMark
   have mark (i : Fin 4) : x i ∈ J := by
     fin_cases i
@@ -7942,21 +8190,21 @@ example (g : V) :=
     · exact J.zero_mem
     · exact J.zero_mem
   have cut (l : List ℕ) (t : Seq μ) :
-      F (e (v 2))*(q*leg l t)*F (e t)=q*leg l t := by
-    have left : F (e (v 2))*q=q := by
+      F (e upper)*(q*leg l t)*F (e t)=q*leg l t := by
+    have left : F (e upper)*q=q := by
       simp only [q,← mul_assoc,← map_mul,e_mul_self]
-    simp only [← mul_assoc (F (e (v 2))) q,left,leg,← map_mul,mul_assoc,e_mul_self]
+    simp only [← mul_assoc (F (e upper)) q,left,leg,← map_mul,mul_assoc,e_mul_self]
   have support (i : Fin 4) :
-      F (e (v 2))*x i*F (e (wordProd μ.card (fiveSlotExitWord i) • s))=x i := by
+      F (e upper)*x i*F (e (wordProd μ.card (fiveSlotExitWord i) • s))=x i := by
     have h : wordProd μ.card (fiveSlotExitWord i) • s=v i := by fin_cases i <;> decide
     rw [h]
     fin_cases i
     · exact cut [2] (v 0)
-    · change F (e (v 2))*(-(q*leg [3] (v 1)))*F (e (v 1))=-(q*leg [3] (v 1))
+    · change F (e upper)*(-(q*leg [3] (v 1)))*F (e (v 1))=-(q*leg [3] (v 1))
       rw [mul_neg,neg_mul,cut]
-    · change F (e (v 2))*(0 : V)*F (e (v 2))=0
+    · change F (e upper)*(0 : V)*F (e (v 2))=0
       rw [mul_zero,zero_mul]
-    · change F (e (v 2))*(0 : V)*F (e (v 3))=0
+    · change F (e upper)*(0 : V)*F (e (v 3))=0
       rw [mul_zero,zero_mul]
   have edge : leg [2] (v 0)*leg [3,2,1] s=leg [3] (v 1)*leg [2,3,1] s := by
     rw [compose _ _ _ (by decide),compose _ _ _ (by decide)]
@@ -7966,11 +8214,232 @@ example (g : V) :=
     change x₀*leg [3,2,1] s+x₁*leg [2,3,1] s+
       (0 : V)*leg [1,2,3] s+0*leg [2,3,1,2] s=0
     simp only [x₀,x₁,neg_mul,mul_assoc,edge,zero_mul,add_zero,add_neg_cancel]
-  exists_fiveSlot_markedExitJoints Q Λ (fun _ _ _ => rfl) x support mark sum
+  exists_fiveSlotRightTop_markedExitJoints Q Λ (fun _ _ _ => rfl) upper ht x support mark sum
 
 end
 
 end NonVacuity.WebsterFiveSlotMarkedJoints
+
+namespace NonVacuity.WebsterFiveSlotCentral
+
+open Categorification.KLR Categorification.Stendhal Categorification.TypeA
+open BraidedStendhalAlgebra KLRAlgebra
+
+noncomputable section
+
+private abbrev ν : Multiset Unit := {()} + {()}
+private abbrev μ := stendhalWeight 3 ν
+private abbrev Q : Unit → Unit → MvPolynomial (Fin 2) ℤ := fun _ _ => 0
+private abbrev Λ : Fin 3 → Unit →₀ ℕ := fun _ => Finsupp.single () 2
+private abbrev Q₀ := stendhalQ Q Λ
+private abbrev R := KLRAlgebra ℤ Q₀ μ
+private abbrev V := ViolQuotient ℤ Q Λ ν
+private abbrev F := (violMk ℤ Q Λ ν).comp (ofKLR ℤ Q Λ ν)
+private abbrev bot := fixedTopFourExitBottom
+private abbrev t := fixedTopFourExitCut 1
+private abbrev q := exitSquarePolynomial Q₀ t 1 (by decide)*exitSquarePolynomial Q₀ t 3 (by decide)
+private abbrev U : R := ψw [1,3,2,3,1]*e t
+
+/-- The central transposition row on the ordinary middle arm cancels the
+product of two positive-weight squares on the reversed arm. -/
+example :=
+  let y : R := pol (-q)*e t
+  let x : Fin 4 → V := ![0,F U,0,F y]
+  have cutU : (e t : R)*U*e t=U := by
+    have h := e_mul_pol_ψw_e (Q := Q₀) 1 [1,3,2,3,1] t
+    rw [show wordProd μ.card [1,3,2,3,1] • t=t by decide,map_one,one_mul] at h
+    rw [show e t*U=U by simpa only [U,mul_assoc] using h]
+    simp only [U,mul_assoc,e_mul_self]
+  have cutY : e t*y*e t=y := by
+    have h := e_mul_pol_ψw_e (Q := Q₀) (-q) [] t
+    simp only [wordProd_nil,one_smul,ψw_nil,mul_one] at h
+    change e t*(pol (-q)*e t)*e t=pol (-q)*e t
+    rw [h,mul_assoc,e_mul_self]
+  have support (i : Fin 4) :
+      F (e t)*x i*F (e (wordProd μ.card (fiveSlotExitWord i) • bot))=x i := by
+    have load (j : Fin 4) : wordProd μ.card (fiveSlotExitWord j) • bot=fixedTopFourExitCut j := by fin_cases j <;> decide
+    rw [load]
+    fin_cases i
+    · change F (e t)*(0 : V)*_=0; rw [mul_zero,zero_mul]
+    · exact (show F (e t)*F U*F (e t)=F U by simp only [← map_mul,cutU])
+    · change F (e t)*(0 : V)*_=0; rw [mul_zero,zero_mul]
+    · exact (show F (e t)*F y*F (e t)=F y by simp only [← map_mul,cutY])
+  have mat := fiveSlotCentral_middle_matrix_iff (stendhalQ_symm Q Λ (fun _ _ _ => rfl)) 0 1 (-q) 0
+  have sumRaw : U*(ψw [2,3,1]*e bot)+y*(ψw [2,3,1,2]*e bot)=0 := by
+    simpa only [map_zero,map_one,zero_mul,one_mul,zero_add,add_zero,y,U] using
+      mat.2 ⟨rfl,by change 1*q+ -q=0; rw [one_mul,add_neg_cancel]⟩
+  have sum : ∑ i, x i*F (ψw (fiveSlotExitWord i)*e bot)=0 := by
+    rw [Fin.sum_univ_four]
+    change (0 : V)*_+F U*F (ψw [2,3,1]*e bot)+0*_+F y*F (ψw [2,3,1,2]*e bot)=0
+    simpa only [zero_mul,zero_add,add_zero,map_mul,map_add,map_zero] using congrArg F sumRaw
+  exists_fiveSlot_violQuotient_fourExitJointPresentation Q Λ (fun _ _ _ => rfl)
+    t (by decide) x support sum
+
+end
+
+end NonVacuity.WebsterFiveSlotCentral
+
+namespace NonVacuity.WebsterCentralHigher
+
+open Categorification.KLR Categorification.Stendhal Categorification.TypeA
+open BraidedStendhalAlgebra KLRAlgebra
+
+noncomputable section
+
+private abbrev Q : Unit → Unit → MvPolynomial (Fin 2) ℤ := fun _ _ => 0
+private abbrev Λ : Fin 3 → Unit →₀ ℕ := fun r => Finsupp.single () (if r=0 then 1 else 2)
+private abbrev μ := stendhalWeight 3 ({()} + {()} : Multiset Unit)
+private theorem pairing : Λ 0 () ≤ 1 := by simp [Λ]
+
+/-- Both loadings allow arbitrary exchanged-red weights. Here both
+exchanged weights are two and the spectator is fundamental. -/
+example (s : Seq μ) :=
+  fiveSlot_oneBlackBeforePair_columnInclusion_of_spectatorWeight_le_one Q Λ pairing
+    (fixedTopFourExitCut 1) s (Or.inl rfl)
+
+example (s : Seq μ) :=
+  fiveSlot_oneBlackBeforePair_columnInclusion_of_spectatorWeight_le_one Q Λ pairing
+    (sadj μ.card 2 • fixedTopFourExitCut 0) s (Or.inr rfl)
+
+/-- The two rows use distinct polynomials at this positive-weight specialization. -/
+example := fiveSlotCentral_leftWord_rows Q Λ 1 (MvPolynomial.X (⟨1,by decide⟩ : Fin μ.card))
+
+/-- The principal crossing word preserves a nonzero PBW class over the
+integers even though the globally violated quotient kills this source corner. -/
+example :
+    let B := ofKLR ℤ Q Λ ({()} + {()})
+    B (ψw [3,2]*e (fixedTopFourExitCut 0)) * B (ψw [3,2,1]*e fixedTopFourExitBottom) ≠ 0 := by
+  let B := ofKLR ℤ Q Λ ({()} + {()})
+  let T := toKLR ℤ Q Λ ({()} + {()})
+  let v := fixedTopFourExitCut 0
+  let s := fixedTopFourExitBottom
+  let y := B (ψw [3,2,1]*e s)
+  change B (ψw [3,2]*e v)*y ≠ 0
+  intro zero
+  have top : (e v : KLRAlgebra ℤ (stendhalQ Q Λ) μ)*(ψw [3,2,1]*e s)=ψw [3,2,1]*e s := by
+    rw [← show wordProd μ.card [3,2,1] • s=v by decide,← mul_assoc,e_mul_ψw,inv_smul_smul,mul_assoc,e_mul_self]
+  have killed : y=0 := fiveSlotCentral_leftWord_cancel_braided Q Λ (fun _ _ _ => rfl) y
+    (by change B (e v)*B _=B _; rw [← map_mul,top])
+    (by change B _*B (e s)=B _; rw [← map_mul,mul_assoc,e_mul_self]) zero
+  have raw : (ψw [3,2,1]*e s : KLRAlgebra ℤ (stendhalQ Q Λ) μ)=0 := by
+    simpa only [y,B,T,map_mul,map_zero,toKLR_ofKLR_ψw,toKLR_ofKLR_e] using congrArg T killed
+  have red (w : List ℕ) (h : ValidWord μ.card w) (n : w.length=invCount μ.card (wordProd μ.card w)) :
+      IsReduced μ.card w := ⟨h,by rw [length_eq_invCount]; exact n⟩
+  have rows := top_polynomial_pair_eq_zero_iff_of_words (stendhalQ_symm Q Λ (fun _ _ _ => rfl))
+    (red [3,2,1] (by simp [ValidWord,stendhalWeight]) (by decide))
+    (red [1,3,2,1] (by simp [ValidWord,stendhalWeight]) (by decide)) (by decide) s 1 0
+  exact one_ne_zero (rows.1 (by simpa only [map_zero,map_one,one_mul,zero_mul,add_zero] using raw)).1
+
+example : FiveSlotCentralRowReflection Q Λ :=
+  fiveSlotCentral_rowReflection_of_smallSpectator Q Λ (fun _ _ _ => rfl) pairing
+
+/-- The quotient reflection criterion controls the balanced column itself. -/
+example := fiveSlotCentral_columnInclusion_of_rowReflection Q Λ (fun _ _ _ => rfl)
+  (fiveSlotCentral_rowReflection_of_smallSpectator Q Λ (fun _ _ _ => rfl) pairing)
+
+/-- On the fundamental spectator the complete marked presentation uses the
+verified two-row reflection, with its ordinary four-arm support. -/
+example := fiveSlotCentral_markedExitJoints_of_row_reflection Q Λ (fun _ _ _ => rfl)
+  (fiveSlotCentral_rowReflection_of_smallSpectator Q Λ (fun _ _ _ => rfl) pairing)
+  (fun _ => 0) (by intro i; rw [mul_zero,zero_mul]) (fun _ => TwoSidedIdeal.zero_mem _)
+  (by simp only [zero_mul,Finset.sum_const_zero])
+
+end
+
+end NonVacuity.WebsterCentralHigher
+
+namespace NonVacuity.WebsterTwoBlackFlag
+
+open Categorification.Stendhal Categorification.KLR BraidedStendhalAlgebra
+open MvPolynomial
+noncomputable section
+
+/-- The second power reflects membership with distinct positive bounds, even
+over a ring containing nonzero nilpotents. -/
+example (f : MvPolynomial (Fin 2) (ZMod 4)) :
+    f * X (1 : Fin 2)^2 ∈ TwoBlackFlag.ideal 0 1 2 5 ↔ f ∈ TwoBlackFlag.ideal 0 1 2 3 :=
+  TwoBlackFlag.mul_second_pow_mem_iff (by decide) (by decide : 2≤3) 2 f
+
+private abbrev Q : Unit → Unit → MvPolynomial (Fin 2) ℤ := fun _ _ => 0
+private abbrev Λ : Fin 3 → Unit →₀ ℕ := fun _ => Finsupp.single () 3
+private abbrev μ := stendhalWeight 3 ({()} + {()} : Multiset Unit)
+
+/-- At spectator pairing three the complete homogeneous quadratic annihilates
+the left-extreme source. -/
+example :=
+  let a : Fin μ.card := ⟨1,by decide⟩
+  let b : Fin μ.card := ⟨2,by decide⟩
+  fiveSlotLeftExtreme_flagIdeal_kills Q Λ
+    (f := TwoBlackFlag.complete (X a) (X b) 3)
+    (by
+      change TwoBlackFlag.complete (X a) (X b) 3 ∈ TwoBlackFlag.ideal a b (Λ 0 ()) (Λ 0 ())
+      rw [show Λ 0 ()=3 by simp [Λ]]
+      exact Ideal.subset_span (Set.mem_insert_of_mem _ (Set.mem_singleton _)))
+
+private abbrev D : Unit ⊕ Fin 3 → Unit ⊕ Fin 3 → MvPolynomial (Fin 2) ℤ
+  | .inl _,.inl _ => 0
+  | .inl i,.inr r => X 1 ^ Λ r i
+  | .inr _,.inl _ => 1
+  | .inr r,.inr u => if r=2 ∧ u=1 then 1 else 0
+
+private theorem factor : ∀ a b, a≠b → stendhalQ Q Λ a b = D b a*rename ![1,0] (D a b) := by
+  rintro (i | r) (j | u) h
+  · exact (h (by cases i; cases j; rfl)).elim
+  · simp [stendhalQ,D]
+  · simp [stendhalQ,D]
+  · fin_cases r <;> fin_cases u <;> simp [stendhalQ,D]
+
+/-- In the integral action, the reversed-middle word differentiates the
+first black variable. Both coefficient rows have positive rightward weight. -/
+example := fiveSlotCentral_flagRows_eval Λ Q factor rfl rfl (by simp [D])
+  1 1 (X (⟨2,by decide⟩ : Fin μ.card))
+
+end
+end NonVacuity.WebsterTwoBlackFlag
+
+namespace NonVacuity.WebsterCentralFlagInjection
+
+open Categorification.Stendhal BraidedStendhalAlgebra
+noncomputable section
+
+private abbrev Q : Unit → Unit → MvPolynomial (Fin 2) ℤ := fun _ _ => 0
+private abbrev Λ : Fin 3 → Unit →₀ ℕ := fun r =>
+  Finsupp.single () (if r=0 then 3 else if r=1 then 2 else 1)
+
+/-- The spectator supports both blacks and both exchanged-red crossings
+have positive weight. The row reflection and balanced injection hold in
+the globally violated quotient over the integers. -/
+example : FiveSlotCentralRowReflection Q Λ :=
+  fiveSlotCentral_rowReflection Q Λ (fun _ _ _ => rfl)
+
+example : Function.Injective
+    (blockKernelColumnInclusion Q Λ (fixedTopFourExitCut 1) 1 2 fixedTopFourExitBottom) :=
+  fiveSlotCentral_blockKernelColumnInclusion_injective Q Λ (fun _ _ _ => rfl)
+
+end
+end NonVacuity.WebsterCentralFlagInjection
+namespace NonVacuity.WebsterFiveSlotFlag
+
+open KLR KLRAlgebra Stendhal Stendhal.FiveSlotFlag Stendhal.BraidedStendhalAlgebra
+
+private abbrev black : Multiset Unit := {()} + {()}
+private noncomputable abbrev params : Unit → Unit → MvPolynomial (Fin 2) ℚ := fun _ _ => 0
+private noncomputable abbrev weights : Fin 3 → Unit →₀ ℕ := fun r => Finsupp.single () (r.val + 2)
+private def loading : Seq FiveSlotFlag.weight := Seq.ofList [.inr 0, .inl (), .inr 1, .inr 2, .inl ()]
+  (by decide)
+private abbrev pos : Fin FiveSlotFlag.weight.card := ⟨2, by decide⟩
+private noncomputable abbrev redDot : KLRAlgebra ℚ (stendhalQ params weights) FiveSlotFlag.weight :=
+  x pos * e loading
+
+example (f : KLR.PolyRep.Pol ℚ FiveSlotFlag.weight) :
+    blackEval loading ((KLR.PolyRep.polyRep (flagP_factor params weights)) redDot f loading) ∈
+      loadingIdeal weights loading := by
+  have hz : violMk ℚ params weights black (ofKLR ℚ params weights black redDot) = 0 := by
+    rw [redDot, ofKLR_x_mul_e_of_red _ _ (by decide), map_zero]
+  exact eval_mem_flag_of_violMk_eq_zero params weights _ (loadingIdeal_preservesFlags weights)
+    (loadingIdeal_eq_top_of_violated weights) hz f loading
+
+end NonVacuity.WebsterFiveSlotFlag
 
 namespace NonVacuity.WebsterFiveSlotKernelColumn
 
@@ -7983,6 +8452,84 @@ private noncomputable abbrev Λ : Fin 3 → Unit →₀ ℕ := fun _ => Finsupp.
 example := fiveSlot_blockKernelColumnInclusion_injective Q Λ (fun _ _ _ => rfl)
 
 end NonVacuity.WebsterFiveSlotKernelColumn
+
+namespace NonVacuity.WebsterFiveSlotThreeTopKernelColumn
+
+open Categorification.KLR Categorification.Stendhal BraidedStendhalAlgebra
+open Categorification.TypeA
+
+private noncomputable abbrev Q : Unit → Unit → MvPolynomial (Fin 2) ℚ := fun _ _ => 0
+private noncomputable abbrev Λ : Fin 3 → Unit →₀ ℕ := fun _ => Finsupp.single () 2
+private abbrev μ := stendhalWeight 3 ({()} + {()} : Multiset Unit)
+private abbrev extreme := fixedTopFourExitCut 2
+private abbrev mixed := sadj μ.card 2 • extreme
+private abbrev full := sadj μ.card 3 • mixed
+
+example := fiveSlotRightTop_blockKernelColumnInclusion_injective Q Λ extreme (fun _ _ _ => rfl)
+  (Or.inl rfl)
+
+example := fiveSlotRightTop_blockKernelColumnInclusion_injective Q Λ mixed (fun _ _ _ => rfl)
+  (Or.inr (Or.inl rfl))
+
+example := fiveSlotRightTop_blockKernelColumnInclusion_injective Q Λ full (fun _ _ _ => rfl)
+  (Or.inr (Or.inr rfl))
+
+end NonVacuity.WebsterFiveSlotThreeTopKernelColumn
+
+namespace NonVacuity.WebsterFiveSlotThreeTopDerived
+
+open Categorification.KLR Categorification.Stendhal Categorification.TypeA
+open BraidedStendhalAlgebra DG MulOpposite
+open scoped DG.DegreeZero
+
+attribute [local instance 1200] Ring.toIntAlgebra
+
+private noncomputable abbrev Q : Unit → Unit → MvPolynomial (Fin 2) ℚ := fun _ _ => 0
+private noncomputable abbrev Λ : Fin 3 → Unit →₀ ℕ := fun _ => Finsupp.single () 2
+local notation "ν₀" => ({()} + {()} : Multiset Unit)
+local notation "t" => sadj (Multiset.card (stendhalWeight 3 ν₀)) 2 • fixedTopFourExitCut 2
+local notation "T" => IsIdempotentElem.Corner
+  (isIdempotentElem_violMk_redProj ℚ Q Λ ν₀ (redWord t))
+local notation "U" => IsIdempotentElem.Corner
+  (isIdempotentElem_violMk_loading Q Λ fixedTopFourExitBottom)
+
+example [DG.HasDerivedCategory.{0, 0} Tᵐᵒᵖ] [DG.HasDerivedCategory.{0, 0} Uᵐᵒᵖ] :=
+  fiveSlotRightTop_blockKernelColumnDerivedHomology_mono Q Λ t (fun _ _ _ => rfl)
+    (Or.inr (Or.inl rfl))
+
+end NonVacuity.WebsterFiveSlotThreeTopDerived
+
+namespace NonVacuity.WebsterFiveSlotBoundedSpectator
+
+open Categorification.KLR Categorification.Stendhal Categorification.QuantumGroup
+open BraidedStendhalAlgebra CategoryTheory DG MulOpposite
+open scoped DG.DegreeZero
+
+attribute [local instance 1200] Ring.toIntAlgebra
+
+private noncomputable abbrev C := Categorification.QuantumGroup.CartanDatum.ofGraph (⊥ : SimpleGraph Unit)
+private noncomputable abbrev Λ : Fin 3 → Unit →₀ ℕ := fun _ => Finsupp.single () 1
+private noncomputable abbrev Q := Categorification.KL3.Diagram.CL.qCL
+  (Categorification.KL3.Diagram.CL.CLScalars.kl : Categorification.KL3.Diagram.CL.CLScalars C ℚ)
+
+local notation "ν₀" => ({()} + {()} : Multiset Unit)
+local notation "t" => fixedTopFourExitCut 1
+local notation "κ" => ([0,2,1] : List (Fin 3))
+local notation "Corner" => fun reds : List (Fin 3) =>
+  IsIdempotentElem.Corner (isIdempotentElem_violMk_redProj ℚ Q Λ ν₀ reds)
+
+example := fiveSlot_blockKernelTensorInclusion_injective_of_spectatorWeight_le_one
+  (k := ℚ) C Λ t (by decide) (by simp [Λ])
+
+example := fiveSlot_blockKernelTensorInclusion_injective_of_spectatorWeight_le_one
+  (k := ℚ) C Λ (fixedTopFourExitCut 2) (by decide) (by simp [Λ])
+
+example [DG.HasDerivedCategory.{0, 0} (Corner (redWord t))ᵐᵒᵖ]
+    [DG.HasDerivedCategory.{0, 0} (Corner κ)ᵐᵒᵖ] :=
+  fiveSlot_blockKernelDerivedHomology_mono_of_spectatorWeight_le_one
+    (k := ℚ) C Λ t (by decide) (by simp [Λ])
+
+end NonVacuity.WebsterFiveSlotBoundedSpectator
 
 namespace NonVacuity.WebsterFiveSlotAllBottom
 
@@ -8158,6 +8705,63 @@ end NonVacuity.WebsterRightTensor
 
 end
 
+namespace NonVacuity.WebsterCoevaluationTrace
+
+open Categorification Stendhal KLR KLRAlgebra TypeA
+
+local notation "E" => ((1, 0) : ℚ × ℚ)
+local notation "F" => ((0, 1) : ℚ × ℚ)
+local notation "cut" => (fun _ : Unit => F)
+
+example :
+    coevaluationTrace (e := E) cut =
+      ⨆ j, ⨆ f : rIdeal (cut j) →ₗ[(ℚ × ℚ)ᵐᵒᵖ] rIdeal E, LinearMap.range f :=
+  coevaluationTrace_eq_iSup_range cut (fun _ => by simp [IsIdempotentElem])
+
+example (N : Submodule (ℚ × ℚ)ᵐᵒᵖ (rIdeal E)) :
+    N = coevaluationTrace cut ↔ IsSimpleModule (ℚ × ℚ)ᵐᵒᵖ (rIdeal E ⧸ N) := by
+  apply coevaluationTrace_eq_iff_simpleQuotient (by simp [IsIdempotentElem])
+    cut (RingHom.fst ℚ ℚ) rfl (fun _ => rfl) _ _ N
+  · intro x h
+    have hx : (x : ℚ × ℚ).2 = 0 := by
+      simpa using (congrArg Prod.snd x.property).symm
+    have hzero : x = 0 := Subtype.ext (Prod.ext h hx)
+    rw [hzero]
+    exact Submodule.zero_mem _
+  · intro x h
+    change (x : ℚ × ℚ).1 ≠ 0 at h
+    exact ⟨((x : ℚ × ℚ).1⁻¹, 0), Prod.ext (mul_inv_cancel₀ h) (mul_zero _)⟩
+
+local notation "ν" => ({()} : Multiset Unit)
+local notation "μ" => stendhalWeight 2 ν
+local notation "Λ" => (fun _ : Fin 2 => Finsupp.single () 1)
+local notation "Q" => (fun _ _ : Unit => (0 : MvPolynomial (Fin 2) ℚ))
+
+private def allRight : Seq μ :=
+  ⟨![Sum.inr 0, Sum.inr 1, Sum.inl ()], by
+    decide⟩
+
+example :
+    ∃ z : rIdeal (tensorOfKLR Q Λ ν (e allRight)),
+      z ∈ coevaluationTrace
+        (fun _ : Unit => tensorOfKLR Q Λ ν (e (sadj (Multiset.card μ) 1 • allRight))) ∧
+      z.val = tensorOfKLR Q Λ ν (x ⟨2, by decide⟩ * e allRight) := by
+  simpa using bigon_mem_coevaluationTrace Q Λ ν _ allRight 1 (by decide) () 1 rfl rfl () rfl
+
+end NonVacuity.WebsterCoevaluationTrace
+
+namespace NonVacuity.WebsterFundamentalCoevaluation
+
+open Categorification Categorification.Stendhal FundamentalCorner
+
+example : IsSimpleModule (TensorProductAlgebra ℚ Q wt ({()} : Multiset Unit))ᵐᵒᵖ
+    (rIdeal terminalIdem ⧸ fundamentalCutTrace) :=
+  (fundamentalCutTrace_eq_iff_simpleQuotient fundamentalCutTrace).mp rfl
+
+example : Function.Surjective terminalCoefficient := terminalCoefficient_surjective
+
+end NonVacuity.WebsterFundamentalCoevaluation
+
 namespace NonVacuity.WebsterVacuumBraidColumn
 
 open KLR KLRAlgebra Stendhal Stendhal.BraidedStendhalAlgebra
@@ -8177,42 +8781,189 @@ example := finrank_vacuum_braidColumn_eq_standard params weights
 
 end NonVacuity.WebsterVacuumBraidColumn
 
-namespace NonVacuity.WebsterExtremalNorm
+namespace NonVacuity.WebsterGradedFundamentalCup
+noncomputable section
 
-open Categorification Categorification.Graded Stendhal Stendhal.SingleBlack
-
+open Categorification Categorification.Stendhal Categorification.Stendhal.FundamentalCorner
+open DG
+open scoped DG.DegreeZero
 attribute [local instance 1100] IsIdempotentElem.instAlgebraCorner_categorification
 
-private def weights : Fin 1 → Unit →₀ ℕ := fun _ => Finsupp.single () 1
+local notation "T" => TensorProductAlgebra ℚ Q wt ({()} : Multiset Unit)
+local notation "G" => Graded.oppositeGrade (tensorProductGrade FundamentalCorner.grading ({()} : Multiset Unit))
 
-private def grading :=
-  stendhalGradingDatum weights (KLR.klGradingDatum ℚ (⊥ : SimpleGraph Unit))
-    (fun _ => 1) (fun _ => rfl)
+local instance : InternalGrading Tᵐᵒᵖ := gradedAlgebraInternalGrading G
+local instance : BigradedDGRing Tᵐᵒᵖ := gradedAlgebraBigradedDGRing G
+local instance : InternalGrading ℚ := scalarInternalGrading ℚ
+local instance : BigradedDGRing ℚ := scalarBigradedDGRing ℚ
 
-private abbrev block := tensorProductGrade grading ({()} : Multiset Unit)
-private abbrev proj := GProj.regular block
+local instance : CatModule.HasDerivedCategory.{1,0} (WeightCategory ℚ) :=
+  CatModule.HasDerivedCategory.standard (WeightCategory ℚ)
 
-private instance : HasGdim block := hasGdim_oneBlack () grading
+local instance : CatModule.HasDerivedCategory.{1,0} (WeightCategory Tᵐᵒᵖ) :=
+  CatModule.HasDerivedCategory.standard (WeightCategory Tᵐᵒᵖ)
 
-private theorem rank_one : Module.finrank (LaurentPolynomial ℤ) (K0 block) = 1 := by
-  rw [(oneBlackK0Equiv () grading (by simp [weights])).finrank_eq, Module.finrank_self]
+example := gradedFundamentalCup
+example := gradedFundamentalCap
 
-private theorem norm_one : proj.homGdim proj = 1 := by
-  rw [regular_homGdim () grading]
-  rw [show weights 0 () = 1 by simp [weights]]
-  simp
+end
 
-example : IsSimpleModule (TensorProductAlgebra ℚ (KLR.klQ (⊥ : SimpleGraph Unit)) weights {()})
-    proj.carrier :=
-  GProj.isSimpleModule_of_homGdim_eq_one proj rank_one norm_one
+end NonVacuity.WebsterGradedFundamentalCup
+namespace NonVacuity.WebsterCupRHom
 
-example : Nonempty (proj.Iso proj) :=
-  GProj.nonempty_iso_of_homGdim_coeff_zero proj proj rank_one norm_one norm_one
-    (by rw [norm_one]; simp [HahnSeries.coeff_one])
+open CategoryTheory DG MulOpposite Categorification.Stendhal.Coevaluation
+open scoped DG.DegreeZero
 
-/-- A shift moves the mixed Hom out of degree zero. -/
-example : (proj.homGdim (proj.shift 1)).coeff 0 = 0 := by
-  rw [GProj.homGdim_shift_right, norm_one, mul_one]
-  simp
+local instance : DG.HasDerivedCategory.{1,0} ℚ := DG.HasDerivedCategory.standard ℚ
+local instance : DG.HasDerivedCategory.{1,0} ℚᵐᵒᵖ := DG.HasDerivedCategory.standard ℚᵐᵒᵖ
+local instance : DG.CatModule.HasDerivedCategory.{1,0} (SingleObj ℚ) :=
+  DG.CatModule.HasDerivedCategory.standard (SingleObj ℚ)
+local instance : DG.CatModule.HasDerivedCategory.{1,0} (SingleObj ℚᵐᵒᵖ) :=
+  DG.CatModule.HasDerivedCategory.standard (SingleObj ℚᵐᵒᵖ)
 
-end NonVacuity.WebsterExtremalNorm
+example := shiftedCupRHomFunctor ℚ ℚ (Fin 2 → ℚ) (-2)
+example := capBimoduleCupRHomAdjunction ℚ ℚ (Fin 2 → ℚ)
+example := capBimoduleRegularIso ℚ ℚ (Fin 2 → ℚ)
+example := cupRHomObjIso ℚ ℚ (Fin 2 → ℚ) (DG.DGModuleCat.of ℚ ℚ)
+
+end NonVacuity.WebsterCupRHom
+namespace NonVacuity.WebsterFundamentalCupCap
+
+open Categorification.Stendhal Categorification.Stendhal.FundamentalCorner
+open scoped DG.DegreeZero
+
+local notation "T" => TensorProductAlgebra ℚ Q wt ({()} : Multiset Unit)
+
+local instance : DG.HasDerivedCategory.{1,0} ℚ := DG.HasDerivedCategory.standard ℚ
+local instance : DG.HasDerivedCategory.{1,0} Tᵐᵒᵖ := DG.HasDerivedCategory.standard Tᵐᵒᵖ
+
+example := terminalQuotientDualEquiv
+example := fundamentalCup
+example := fundamentalCap
+
+end NonVacuity.WebsterFundamentalCupCap
+
+namespace NonVacuity.WebsterFundamentalCupRegular
+
+open Categorification.Stendhal Categorification.Stendhal.FundamentalCorner
+open scoped DG.DegreeZero
+
+local notation "T" => TensorProductAlgebra ℚ Q wt ({()} : Multiset Unit)
+
+local instance : DG.HasDerivedCategory.{1,0} ℚ := DG.HasDerivedCategory.standard ℚ
+local instance : DG.HasDerivedCategory.{1,0} Tᵐᵒᵖ := DG.HasDerivedCategory.standard Tᵐᵒᵖ
+
+example := fundamentalCupRegularIso
+example := fundamentalCapRegularIso
+
+end NonVacuity.WebsterFundamentalCupRegular
+
+namespace NonVacuity.WebsterCupRHomRegular
+
+open CategoryTheory DG MulOpposite Categorification.Stendhal.Coevaluation
+open scoped DG.DegreeZero
+
+local instance : DG.HasDerivedCategory.{1,0} ℚ := DG.HasDerivedCategory.standard ℚ
+local instance : DG.HasDerivedCategory.{1,0} ℚᵐᵒᵖ := DG.HasDerivedCategory.standard ℚᵐᵒᵖ
+local instance : DG.CatModule.HasDerivedCategory.{1,0} (SingleObj ℚ) :=
+  DG.CatModule.HasDerivedCategory.standard (SingleObj ℚ)
+local instance : DG.CatModule.HasDerivedCategory.{1,0} (SingleObj ℚᵐᵒᵖ) :=
+  DG.CatModule.HasDerivedCategory.standard (SingleObj ℚᵐᵒᵖ)
+
+example := cupRHomRegularIso ℚ ℚ (Fin 2 → ℚ)
+example := cupRHomTensorRegularIso ℚ ℚ (Fin 2 → ℚ)
+
+end NonVacuity.WebsterCupRHomRegular
+
+namespace NonVacuity.WebsterWeightTensor
+
+noncomputable section
+
+open Categorification CategoryTheory DG MulOpposite
+open scoped DG.DegreeZero
+
+local instance : InternalGrading ℚ := scalarInternalGrading ℚ
+local instance : BigradedDGRing ℚ := scalarBigradedDGRing ℚ
+local instance : CatModule.HasDerivedCategory.{1,0} (WeightCategory ℚ) :=
+  CatModule.HasDerivedCategory.standard (WeightCategory ℚ)
+
+private theorem leftAction {i j : ℤ} {a m : ℚ}
+    (ha : a ∈ wgrading i) (hm : m ∈ DG.grading j) :
+    a • m ∈ DG.grading (i+j) :=
+  mul_mem_grading ha hm
+
+private theorem rightAction {i j : ℤ} {b m : ℚ}
+    (hb : b ∈ wgrading i) (hm : m ∈ DG.grading j) :
+    op b • m ∈ DG.grading (j+i) :=
+  mul_mem_grading hm hb
+
+example := diagramWeightDerivedTensor (fun j => DG.grading (M := ℚ) j) leftAction rightAction
+
+example := diagramWeightDerivedTensorObjIso (fun j => DG.grading (M := ℚ) j)
+  leftAction rightAction (CatModule.isKProjective_representable (⟨0⟩ : WeightCategory ℚ))
+
+end
+
+end NonVacuity.WebsterWeightTensor
+
+namespace NonVacuity.WebsterGradedCorner
+noncomputable section
+
+open Categorification CategoryTheory DG
+open scoped DG.DegreeZero
+
+private abbrev R := MvPolynomial Unit ℚ
+
+private def G : ℤ → Submodule ℚ R :=
+  MvPolynomial.weightedHomogeneousSubmodule ℚ (fun _ : Unit => (1 : ℤ))
+
+local instance : GradedAlgebra G := MvPolynomial.weightedGradedAlgebra ℚ _
+
+private theorem h : IsIdempotentElem (1 : R) := by simp [IsIdempotentElem]
+
+private theorem h0 : (1 : R) ∈ G 0 := SetLike.GradedOne.one_mem
+
+noncomputable example := by
+  letI := Graded.cornerGradedAlgebra G h h0
+  letI := gradedAlgebraInternalGrading (Categorification.Graded.oppositeGrade
+    (Graded.cornerGrading G h))
+  letI := gradedAlgebraBigradedDGRing (Categorification.Graded.oppositeGrade
+    (Graded.cornerGrading G h))
+  letI : CatModule.HasDerivedCategory.{1,0} (WeightCategory h.Cornerᵐᵒᵖ) :=
+    CatModule.HasDerivedCategory.standard (WeightCategory h.Cornerᵐᵒᵖ)
+  exact diagramCornerWeightDerivedRightTensor G h h h0 h0
+
+end
+
+end NonVacuity.WebsterGradedCorner
+
+namespace NonVacuity.WebsterAuxiliaryBraiding
+
+noncomputable section
+
+open Categorification CategoryTheory DG Stendhal FundamentalCorner BraidedStendhalAlgebra
+open scoped DG.DegreeZero
+attribute [local instance 1100] IsIdempotentElem.instAlgebraCorner_categorification
+
+local notation "ν₀" => ({()} : Multiset Unit)
+local notation "V" => violAuxiliaryGrade (ν := ν₀) FundamentalCorner.grading
+local notation "E" => isIdempotentElem_violMk_redProj ℚ Q wt ν₀
+local notation "H" => redProj_mem_violAuxiliaryGrade (ν := ν₀) FundamentalCorner.grading
+local notation "S" => fun κ => Categorification.Graded.oppositeGrade (Graded.cornerGrading V (E κ))
+
+example := by
+  letI := Graded.cornerGradedAlgebra V (E [1, 0]) (H [1, 0])
+  letI := Graded.cornerGradedAlgebra V (E [0, 1]) (H [0, 1])
+  letI := gradedAlgebraInternalGrading (S [1, 0])
+  letI := gradedAlgebraInternalGrading (S [0, 1])
+  letI := gradedAlgebraBigradedDGRing (S [1, 0])
+  letI := gradedAlgebraBigradedDGRing (S [0, 1])
+  letI : CatModule.HasDerivedCategory.{1,0} (WeightCategory (E [1, 0]).Cornerᵐᵒᵖ) :=
+    CatModule.HasDerivedCategory.standard _
+  letI : CatModule.HasDerivedCategory.{1,0} (WeightCategory (E [0, 1]).Cornerᵐᵒᵖ) :=
+    CatModule.HasDerivedCategory.standard _
+  exact auxiliaryGradedBraidingFunctor (ν := ν₀) FundamentalCorner.grading [1, 0] [0, 1]
+
+end
+
+end NonVacuity.WebsterAuxiliaryBraiding

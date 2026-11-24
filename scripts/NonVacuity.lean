@@ -6747,6 +6747,7 @@ local instance (order : List (Fin 2)) : HasDerivedCategory.{0, 0} (corner order)
   HasDerivedCategory.small _
 
 example := blockPartialStandard_twoRed_braid_homology_vanish Q Λ s [1, 0] (-1) (by decide)
+example := twoRedPartialStandardBraidIsoOrdinary Q Λ s [1, 0]
 
 end NonVacuity.WebsterTwoRedPartialStandard
 end

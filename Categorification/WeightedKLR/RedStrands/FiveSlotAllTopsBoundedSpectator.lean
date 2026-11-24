@@ -43,7 +43,7 @@ private theorem fiveSlot_fullKernelInjective_of_top_cases
     (t : Seq μ₀) (horder : redWord t = [0,1,2])
     (rightTop : FiveSlotRightTop t → FullKernelInjective Q Λ t)
     (central : t = fixedTopFourExitCut 1 → FullKernelInjective Q Λ t)
-    (nearby : t = TypeA.sadj μ₀.card 2 • fixedTopFourExitCut 0 → FullKernelInjective Q Λ t) :
+    (nearby : t = TypeA.sadj (Multiset.card μ₀) 2 • fixedTopFourExitCut 0 → FullKernelInjective Q Λ t) :
     FullKernelInjective Q Λ t := by
   by_cases hv : IsViolated t
   · exact blockKernelTensorInclusion_injective_of_violated_top Q Λ t 1 2 κ hv

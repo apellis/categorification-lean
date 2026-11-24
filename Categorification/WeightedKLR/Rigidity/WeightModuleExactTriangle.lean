@@ -15,9 +15,9 @@ middle resolution in Webster, arXiv:1309.3796v2, §7.1.
 noncomputable section
 namespace Categorification.Stendhal.FundamentalCorner
 open CategoryTheory CategoryTheory.Limits CategoryTheory.Pretriangulated DG DG.CatModule
-universe v
-variable {C : Type} [Category.{0} C] [Preadditive C] [∀ X Y : C, DGAddCommGroup (X ⟶ Y)] [DGCategory C]
-    {A B E : CatModule.{0} C} (f : A ⟶ B) (g : B ⟶ E) (fg : f ≫ g = 0)
+universe u v w z
+variable {C : Type u} [Category.{v} C] [Preadditive C] [∀ X Y : C, DGAddCommGroup (X ⟶ Y)] [DGCategory C]
+    {A B E : CatModule.{w} C} (f : A ⟶ B) (g : B ⟶ E) (fg : f ≫ g = 0)
 
 private def coneDescent : cone f ⟶ E where
   app X := (g.app X).comp (cone.sndAddHom f X)
@@ -50,7 +50,7 @@ private theorem d_pack {X : C} (a : A.obj X) (b : B.obj X) (e : E.obj X) :
     simp [Units.smul_def, add_comm]
 
 omit [DGCategory C] in
-private theorem homogeneous_preimage {M N : CatModule.{0} C} (a : M ⟶ N) (X : C) {n : ℤ} {x : N.obj X}
+private theorem homogeneous_preimage {M N : CatModule.{w} C} (a : M ⟶ N) (X : C) {n : ℤ} {x : N.obj X}
     (hx : x ∈ DG.grading n) (h : ∃ y, a.app X y = x) :
     ∃ y ∈ DG.grading n, a.app X y = x := by
   obtain ⟨y, hy⟩ := h
@@ -89,20 +89,46 @@ private theorem coneDescent_quasiIso
     rw [d_pack, hda, h, hgb, d_zero, add_zero]
     rfl
 
-variable [CatModule.HasDerivedCategory.{v,0} C]
+variable [CatModule.HasDerivedCategory.{z,w} C]
 
 include fg in
 /-- A pointwise short exact sequence gives a distinguished triangle with these three objects. -/
 theorem exists_weight_triangle_of_exact
     (hinj : ∀ X, Function.Injective (f.app X)) (hex : ∀ X, Function.Exact (f.app X) (g.app X))
     (hsur : ∀ X, Function.Surjective (g.app X)) :
-    ∃ D : Triangle (CatModule.DerivedCategory.{v,0} C), D ∈ distTriang _ ∧
+    ∃ D : Triangle (CatModule.DerivedCategory.{z,w} C), D ∈ distTriang _ ∧
       Nonempty (D.obj₁ ≅ CatModule.DerivedCategory.Q.obj A) ∧
       Nonempty (D.obj₂ ≅ CatModule.DerivedCategory.Q.obj B) ∧ Nonempty (D.obj₃ ≅ CatModule.DerivedCategory.Q.obj E) := by
-  let qC : CatModule.{0} C ⥤ CatModule.DerivedCategory.{v,0} C := CatModule.DerivedCategory.Q
+  let qC : CatModule.{w} C ⥤ CatModule.DerivedCategory.{z,w} C := CatModule.DerivedCategory.Q
   have hIso : IsIso (qC.map H) := (CatModule.DerivedCategory.isIso_Q_map_iff H).mpr (coneDescent_quasiIso f g fg hinj hex hsur)
-  let D : Triangle (CatModule.DerivedCategory.{v,0} C) := CatModule.DerivedCategory.Q.mapTriangle.obj (cone.triangle f)
+  let D : Triangle (CatModule.DerivedCategory.{z,w} C) := CatModule.DerivedCategory.Q.mapTriangle.obj (cone.triangle f)
   have hD : D ∈ distTriang _ := (CatModule.DerivedCategory.mem_distTriang_iff _).mpr ⟨_, _, f, ⟨Iso.refl _⟩⟩
   exact ⟨D, hD, ⟨Iso.refl _⟩, ⟨Iso.refl _⟩, ⟨@asIso _ _ _ _ (qC.map H) hIso⟩⟩
+
+
+include fg in
+/-- The localization of a pointwise short exact sequence is a distinguished triangle. -/
+theorem exists_distinguished_weightTriangle_of_exact
+    (hinj : ∀ X, Function.Injective (f.app X)) (hex : ∀ X, Function.Exact (f.app X) (g.app X))
+    (hsur : ∀ X, Function.Surjective (g.app X)) :
+    let Q := CatModule.DerivedCategory.Q (C := C)
+    ∃ δ : Q.obj E ⟶ (Q.obj A)⟦(1 : ℤ)⟧,
+      Triangle.mk (Q.map f) (Q.map g) δ ∈ distTriang _ := by
+  let Q : CatModule.{w} C ⥤ CatModule.DerivedCategory.{z,w} C := CatModule.DerivedCategory.Q
+  let T : Triangle (CatModule.DerivedCategory.{z,w} C) := Q.mapTriangle.obj (cone.triangle f)
+  have hT : T ∈ distTriang _ :=
+    (CatModule.DerivedCategory.mem_distTriang_iff _).mpr ⟨_, _, f, ⟨Iso.refl _⟩⟩
+  have hi : IsIso (Q.map H) :=
+    (CatModule.DerivedCategory.isIso_Q_map_iff H).mpr (coneDescent_quasiIso f g fg hinj hex hsur)
+  let e : T.obj₃ ≅ Q.obj E := @asIso _ _ _ _ (Q.map H) hi
+  let T' := Triangle.mk (Q.map f) (Q.map g) (e.inv ≫ T.mor₃)
+  have hm : cone.inr f ≫ H = g := CatModule.Hom.ext fun _ _ => rfl
+  have eT : T ≅ T' := Triangle.isoMk T T' (Iso.refl _) (Iso.refl _) e
+    (by change Q.map f ≫ 𝟙 _ = 𝟙 _ ≫ Q.map f; rw [Category.comp_id, Category.id_comp])
+    (by change Q.map (cone.inr f) ≫ Q.map H = 𝟙 _ ≫ Q.map g
+        rw [← Q.map_comp, hm, Category.id_comp])
+    (by change T.mor₃ ≫ (shiftFunctor _ (1 : ℤ)).map (𝟙 _) = e.hom ≫ (e.inv ≫ T.mor₃)
+        rw [(shiftFunctor _ (1 : ℤ)).map_id, Category.comp_id, Iso.hom_inv_id_assoc])
+  exact ⟨e.inv ≫ T.mor₃, isomorphic_distinguished _ hT _ eT.symm⟩
 
 end Categorification.Stendhal.FundamentalCorner

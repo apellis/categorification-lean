@@ -8641,3 +8641,22 @@ example := fiveSlot_oneBlackBeforePair_columnInclusion Q Λ (fun _ _ _ => rfl)
 
 end
 end NonVacuity.WebsterPrincipalAllBottoms
+
+namespace NonVacuity.WebsterFiveSlotRightHigher
+
+open Categorification Categorification.KLR Categorification.Stendhal BraidedStendhalAlgebra
+
+private noncomputable abbrev Q : Unit → Unit → MvPolynomial (Fin 2) (ZMod 4) := fun _ _ => 0
+private noncomputable abbrev Λ : Fin 3 → Unit →₀ ℕ := fun r => Finsupp.single () (r.val + 2)
+local notation "t" => fixedTopFourExitCut 2
+
+example :=
+  fiveSlotRightTop_blockLoadingKernel_eq_trace Q Λ t (Or.inl rfl)
+
+example (a : rIdeal (orderedLoadingIdem Q Λ t)) :=
+  fiveSlotRightmostKernel_mem_iff_two_central_factors Q Λ (fun _ _ _ => rfl) a
+
+example (f : MvPolynomial (Fin 2) (ZMod 4)) :=
+  TwoBlackFlag.mul_first_pow_mem_iff (by decide : (0 : Fin 2) ≠ 1) 2 9 7 f
+
+end NonVacuity.WebsterFiveSlotRightHigher

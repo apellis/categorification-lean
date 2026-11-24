@@ -813,23 +813,17 @@ private theorem firstPair_ordinary_injective_at_oneAfter (side : Bool) : Injects
 
 attribute [local irreducible] firstPairFullExchangeOrdinary
 
-private theorem firstPair_all_tops (t : Seq μ) (ht : redWord t = [0, 1, 2]) : Injects t := by
+/-- At standard rank-one parameters the balanced kernel map in Webster v2,
+Lemma 6.8 at (6.21), for the first paired red exchange is injective at
+every five-slot source loading. -/
+theorem firstPair_blockKernelTensorInclusion_injective_standard_allTops
+    (t : Seq μ) (ht : redWord t = [0, 1, 2]) : Injects t := by
   rcases firstPair_top_cases t ht with violates | rfl | rfl | rfl | terminalLabel
   · exact firstPair_ordinary_injective_when_violated (k₀ := k₀) C weights t violates
   · exact firstPair_ordinary_injective_at_rightmost (k₀ := k₀) C weights
   · exact firstPair_ordinary_injective_at_oneAfter (k₀ := k₀) C weights false
   · exact firstPair_ordinary_injective_at_oneAfter (k₀ := k₀) C weights true
   · exact firstPair_ordinary_injective_when_terminal (k₀ := k₀) C weights t ht terminalLabel
-
-/-- At standard rank-one parameters the balanced kernel map in Webster v2,
-Lemma 6.8 at (6.21), for the first paired red exchange is injective at
-every five-slot source loading. -/
-theorem firstPair_blockKernelTensorInclusion_injective_standard_allTops
-    (t : Seq μ) (ht : redWord t = [0, 1, 2]) :
-    Function.Injective (blockKernelTensorInclusion Qstd weights t 0 1 [1, 0, 2]) := by
-  have h : Injects t := firstPair_all_tops (k₀ := k₀) C weights t ht
-  unfold firstPairFullExchangeOrdinary at h
-  exact h
 
 end Standard
 

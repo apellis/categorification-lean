@@ -6879,6 +6879,16 @@ private theorem secondProduct : wordProd m wordSecond = index.val := by
 example := braidColumnBlockIndex_wordChange (Q := parameters) (Λ := weights)
   top sizes sizes_card exchange ⟨phi, phi_eligible⟩ reducedFirst reducedSecond firstProduct secondProduct 1
 
+
+private noncomputable def correctionWords (w : Perm (Fin m)) : List ℕ :=
+  (TypeA.exists_reduced m w).choose
+private theorem correctionWords_spec : TypeA.IsReducedChoice correctionWords :=
+  fun w => (TypeA.exists_reduced m w).choose_spec
+
+example := braidColumnLoadingProjection_map_lowSpan_le_same_bottom
+  (Q := parameters) (Λ := weights) (braidBlockPermutation sizes sizes_card exchange • top) bottom
+  correctionWords correctionWords_spec (subProds m wordFirst) 10
+
 end NonVacuity.WebsterBlockBraidIndex
 
 namespace NonVacuity.WebsterBraidEarlierMixedCut
@@ -11387,6 +11397,11 @@ local instance : HasDerivedCategory.{0,0}
 example := outgoingExteriorAmbientHomology_zero ℚ
 
 example := outgoingExteriorAmbientHomology_isZero ℚ (-1) (by decide)
+
+example := incomingExteriorAmbientHomology_isZero ℚ (-1) (by decide)
+
+example (z : labelTwoRightExteriorDividedStandard (parameter ℚ)) :=
+  labelTwoRightExterior_reflectedProjector_image (parameter ℚ) z
 
 end
 end NonVacuity.WebsterOutgoingExteriorAmbientTor

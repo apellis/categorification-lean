@@ -384,6 +384,7 @@ import Categorification.KLR.Center
 import Categorification.KLR.CenterFree
 import Categorification.KLR.Concat
 import Categorification.KLR.ConcatAssoc
+import Categorification.KLR.IntervalConcat
 import Categorification.KLR.Cor215
 import Categorification.KLR.Cor319
 import Categorification.KLR.CrossingRescale
@@ -584,6 +585,7 @@ import Categorification.KLR.Induction
 import Categorification.KLR.InductionAlgebra
 import Categorification.KLR.InductionFree
 import Categorification.KLR.IntervalPBWCoordinates
+import Categorification.KLR.IntervalSpectatorDots
 import Categorification.KLR.ReturnCrossing
 import Categorification.KLR.Intertwiner
 import Categorification.KLR.K0Algebra
@@ -1642,6 +1644,9 @@ import Categorification.WeightedKLR.RedStrands.BraidedRedOrder
 import Categorification.WeightedKLR.RedStrands.BraidedReflectedFiltration
 import Categorification.WeightedKLR.RedStrands.BraidedRelabel
 import Categorification.WeightedKLR.RedStrands.BraidedRelabelAppend
+import Categorification.WeightedKLR.RedStrands.AdjacentBlockTensor
+import Categorification.WeightedKLR.RedStrands.OrderedBlockAction
+import Categorification.WeightedKLR.RedStrands.BlockCrossingDiagramCut
 import Categorification.WeightedKLR.RedStrands.BraidedStandardDerived
 import Categorification.WeightedKLR.RedStrands.BraidedStandardGrading
 import Categorification.WeightedKLR.RedStrands.BraidedStandardInjective

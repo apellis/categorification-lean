@@ -6094,8 +6094,16 @@ example : figureFiveExteriorTensorGrade (Λ := fracΛ) sl₂ hRouquier hρ
   rw [zero_add, fracWeight_shift, hbot] at h
   exact ((Submodule.mem_bot ℚ).1 h).trans gr.toLinearEquiv.map_zero.symm
 
-/-- The lower exterior standardization used by this tensor is projective. -/
-example := figureFiveLowerExterior_projective (Λ := fracΛ) sl₂ hRouquier hρ blackWord
+/-- The Figure 5 lower exterior standardization over `ℚ` splits off the regular right
+module in every complex internal degree, with last-factor vacuum and red weights `ω`, `3ω`. -/
+example (z : ℂ) (x : figureFiveLowerExterior (Λ := fracΛ) sl₂ hRouquier hρ blackWord)
+    (hx : x ∈ figureFiveLowerExteriorGrade (Λ := fracΛ) sl₂ hRouquier hρ blackWord z) :
+    figureFiveLowerExteriorInclusion (Λ := fracΛ) sl₂ hRouquier hρ blackWord x ∈
+      figureFiveLowerOrderGrade (Λ := fracΛ) sl₂ hRouquier z ∧
+    figureFiveLowerExteriorProjection (Λ := fracΛ) sl₂ hRouquier hρ blackWord
+      (figureFiveLowerExteriorInclusion (Λ := fracΛ) sl₂ hRouquier hρ blackWord x) = x := by
+  obtain ⟨hi, -, hsplit⟩ := figureFiveLowerExterior_graded_retract (Λ := fracΛ) sl₂ hRouquier hρ blackWord
+  exact ⟨hi hx, hsplit x⟩
 
 end NonVacuity.WebsterFigureFive
 
@@ -6106,6 +6114,58 @@ open Categorification Categorification.KLR Categorification.Stendhal
 private noncomputable abbrev bsQ : Unit → Unit → MvPolynomial (Fin 2) ℚ := fun _ _ => 0
 
 private theorem bsSymm : KLRSymm bsQ := fun _ _ _ => rfl
+
+/-- The fixed-top ordinary comparison of Webster, arXiv:1309.3796v2, Lemma 6.8. The
+middle pair has a black strand between its members, and a singleton block on either side. -/
+example :=
+  let t : Seq (stendhalWeight 4 ({()} : Multiset Unit)) :=
+    KLRAlgebra.Seq.ofList [.inr 0, .inr 1, .inl (), .inr 2, .inr 3] (by decide)
+  BraidedStendhalAlgebra.blockTensorEquiv ℚ bsQ
+    (fun _ : Fin 4 => Finsupp.single () 1) [0] [3] 2 1 t (by decide)
+
+namespace AdjacentRow
+open RedBlock
+private abbrev Λ : Fin 4 → Unit →₀ ℕ := fun _ => Finsupp.single () 1
+private def pair : Fin 2 ↪ Fin 4 :=
+  ⟨fun i => ⟨i.val + 1, by omega⟩, fun i j h => Fin.ext (by have := congrArg Fin.val h; dsimp at this; omega)⟩
+private abbrev β : Multiset Unit := {()}
+private abbrev L : List (Fin 4 × Multiset Unit) := [(0,β)]
+private abbrev M : List (Fin 4 × Multiset Unit) := [(3,0)]
+private abbrev Bs := adjacentRow L M pair β
+private theorem weight : weightSum Bs = stendhalWeight 4 (β + β) := by decide
+private def top : Loadings Bs :=
+  ⟨KLRAlgebra.Seq.ofList [.inr 0,.inl ()] (by decide),
+   KLRAlgebra.Seq.ofList [.inr 1,.inl (),.inr 0] (by decide),
+   KLRAlgebra.Seq.ofList [.inr 0] (by decide), PUnit.unit⟩
+private def bad : Loadings Bs :=
+  ⟨top.1,KLRAlgebra.Seq.ofList [.inl (),.inr 1,.inr 0] (by decide),top.2.2⟩
+
+/-- The internal cut is not imposed: the paired reds in exchanged order enclose a black. -/
+example := blockTensorLoadingEquiv bsQ Λ L M pair β weight top
+  (by rintro (⟨_,h⟩ | ⟨_,h⟩ | ⟨_,h⟩ | h) <;> contradiction) (by decide)
+
+/-- Moving that black left of both paired reds violates the block, not the global loading.
+It annihilates the entire bottom-order column. -/
+example : ¬ IsViolated (Seq.cast weight (place Bs bad)) := by rintro ⟨_,h⟩; contradiction
+example (z : blockColumn bsQ Λ L M pair β weight) :=
+  stackBlocks_violated_mul bsQ Λ L M pair β weight bad (.inr (.inl ⟨by decide,rfl⟩)) z
+
+example := orderedBlockAction bsQ Λ bsSymm (fun _ => 1) L M pair β weight
+example := orderedColumn_smulCommClass bsQ Λ bsSymm (fun _ => Fin.revPerm) L M pair β weight
+
+/-- Cut above the uncrossed standardization column. The local crossing exchanges the two
+reds with a black between them; the left spectator also carries a black strand. -/
+private noncomputable def cross : diagrams bsQ Λ Bs :=
+  let t : Seq (stendhalWeight 2 β) := KLRAlgebra.Seq.ofList [.inr 0,.inl (),.inr 1] (by decide)
+  let u := BraidedStendhalAlgebra.ofKLR ℚ bsQ (Λ ∘ pair) β
+    (KLRAlgebra.ψw [0,1,0] * KLRAlgebra.e t)
+  TensorProduct.tmul ℚ 1 (TensorProduct.tmul ℚ u 1)
+
+example := crossingStack_cut bsQ Λ bsSymm L M pair β weight cross 1
+example := crossingCut_slide bsQ Λ bsSymm L M pair β weight cross
+  (orderedIdem bsQ Λ (fun _ => 1) Bs) 1 (orderedInclusion_one bsQ Λ bsSymm _ Bs).symm 1
+example := crossingStack_surjective bsQ Λ bsSymm L M pair β weight
+end AdjacentRow
 
 /-- Webster, arXiv:1309.3796v2, Prop. 6.4, for `sl₂`, two red strands of weight `ω` that may
 cross, and every black weight. -/
@@ -6448,6 +6508,48 @@ example : IsReduced 6 (canWord 6 u ++ [3,1,2]) ∧ wordProd 6 (canWord 6 u ++ [3
   exact hword
 
 end IntervalPBWFixture
+namespace NonVacuity.WebsterIntervalConcat
+
+open Categorification.KLR Categorification.KLR.KLRAlgebra Categorification.TypeA
+open MvPolynomial
+open scoped TensorProduct
+
+private abbrev L : Multiset Bool := {false}
+private abbrev M : Multiset Bool := {false, true}
+private abbrev R : Multiset Bool := {true}
+private def l : Seq L := ⟨fun _ => false, by decide⟩
+private def s : Seq M := ⟨fun j => j.val != 0, by decide⟩
+private def r : Seq R := ⟨fun _ => true, by decide⟩
+private noncomputable def params : Bool → Bool → MvPolynomial (Fin 2) ℤ := fun _ _ => 1
+
+example :
+    intervalConcat params l r (ψw [0] * pol (MvPolynomial.X (⟨0, by decide⟩ : Fin M.card)) * e s) =
+      ψw [1] * pol (rename (Seq.posR L ∘ Seq.posL R) (MvPolynomial.X (⟨0, by decide⟩ : Fin M.card))) *
+        e (l.append (s.append r)) := by
+  rw [intervalConcat_apply, concat_interval_ψw_pol_e _ (show ValidWord M.card [0] by simp [ValidWord])]
+  rfl
+
+example := range_intervalConcat_eq_span params (by intro a b _; simp [params]) l r
+  (canWord M.card) (fun w => ⟨isReduced_canWord _ w, wordProd_canWord _ w⟩)
+
+example (x y : KLRAlgebra ℤ params M) :
+    intervalConcat params l r (x * y) = intervalConcat params l r x * intervalConcat params l r y :=
+  intervalConcat_mul params l r x y
+
+example : Function.Injective (intervalConcat (β := M) params l r) :=
+  intervalConcat_injective params (by intro a b _; simp [params]) l r
+
+example (y : KLRAlgebra ℤ params M) :
+    (ψw (shiftWord L.card (canWord M.card (Equiv.swap
+      (⟨0, by decide⟩ : Fin M.card) ⟨1, by decide⟩))) *
+      pol (MvPolynomial.X (Seq.posL (M + R) ⟨0, by decide⟩)) *
+      e (l.append (s.append r))) * intervalConcat params l r y ∈
+      intervalPBWSpan params (p := L.card) (n := M.card) := by
+  let w := Equiv.swap (⟨0, by decide⟩ : Fin M.card) ⟨1, by decide⟩
+  exact intervalPBWSpan_mul_intervalConcat params (by intro a b _; simp [params]) l r
+    ⟨_, intervalPBWSpan_polynomial params _ w _⟩ y
+
+end NonVacuity.WebsterIntervalConcat
 
 noncomputable section
 open Categorification.KLR Categorification.TypeA Categorification.Stendhal Equiv

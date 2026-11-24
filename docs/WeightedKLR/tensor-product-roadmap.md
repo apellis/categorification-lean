@@ -957,13 +957,27 @@ multiply. It identifies each degree of the quotient with the given cut grade. Th
 `figureFiveExteriorTensorEquiv` identifies the ordinary tensor with the shifted upper
 exterior standardization, using Webster's `M(a)_z = M_{z+a}`.
 
-The ordinary graded projective tensor calculation is not a graded derived functor comparison.
-The pinned `dg-lean` has a derived category of internally `ℤ`-graded dg modules via
-`DG.WeightCategory`, with integer internal shifts independent of cochain shifts. Its generic
-dg-category derived tensor takes a `CatBimodule` and a K-projectivity hypothesis on the output
-slices. An application to Definition 6.6 still needs the `ℂ`-indexed graded category and
-bimodule (or a verified reindexing respecting the shift and tensor), the relevant derived
-tensor comparison without an extra braid projectivity premise, and the bounded-above setting.
+The same lower exterior standardization is projective for degree-preserving maps, not just
+projective after forgetting degrees. In `figureFiveLowerExterior_graded_retract` the inclusion
+reads the standardization as the loading right ideal inside the regular right module. Its
+retraction multiplies on the left by the loading idempotent and then applies the lower endpoint
+isomorphism. The diagram idempotent has internal degree zero, so both maps preserve every
+complex degree, and their composite on the exterior object is the identity.
+
+This does not yet give a graded derived functor comparison. The pinned `dg-lean` has integer
+internal weights via `DG.WeightCategory`, independent of the cochain grading. For this fixed
+braid, one can use the source coset `ℤ` and target coset `c + ℤ`, where
+`c = 2 − ⟨λ₁, λ₀⟩` is the correction to the auxiliary diagram degree. The bimodule of the two
+weight categories must use the piece at `n − m + c` between source `m` and target `n + c`.
+A comparison is needed between the coend tensor there and the graded balanced tensor here;
+the target piece at `n + c` must then be read at `n + c + ⟨λ₀ − α, λ₁⟩` in the unshifted
+upper exterior object. The pinned tensor–Hom derived tensor requires K-projective output
+slices of the braid. For the left-derived tensor alone this premise is unnecessary: descend
+along homotopy with `CatBimodule.homotopic_tensorMap`, then compose with the inverse of the
+source K-projective equivalence before tensoring and localize on the target. The remaining
+comparison must use the graded retract of the source representable and retain the internal
+coset; the ungraded derived comparison cannot supply it. Webster's `D⁻` also requires a
+bounded-above restriction, distinct from the fact that this projective is in cochain degree zero.
 
 For Lemma 6.11, `braidingBimoduleFlip` implements the horizontal reflection used in
 the proof of `f_n → s_n`. It swaps the order corners and intertwines their actions with
@@ -973,13 +987,50 @@ filtration of the inverse braid to a left filtration with the same loading label
 braid, using restriction of scalars along the corner flip on each subquotient.
 Existence of the right-standard filtration and higher Tor vanishing remain open.
 
-Open, in working order: Lemma 6.8 (needs block standardization in the braided algebra; standard
-modules exist only in `StendhalAlgebraAllOrders`, `RedStrands/StandardAction.lean`, and partial
-standardization only for the last red strand), then Prop 6.9 for general `ℓ` by reduction to two
+Lemma 6.8, ordinary tensor at a fixed top loading: `adjacentBlockRoot` measures the cuts
+of `λ(j)`. A reduced diagram for the adjacent red swap factors through the swapped red
+order without decreasing any of these counts (`exists_adjacentBlock_frame`). Hence in the
+quotient by violated diagrams, factoring through higher loadings in the bottom or the top
+order gives the same subspace of the crossing bimodule (`mem_blockUpperIdeal_iff`). For a
+projective at `t`, `ker_blockTensorMult` identifies exactly which classes of the ordinary
+tensor are killed by the bottom-order higher relations, and `blockTensorEquiv` identifies the
+quotient tensor with the fixed-top corner modulo those relations.
+
+The external algebra acts on the fixed-bottom column by horizontal juxtaposition
+(`RedBlock.blockProductAction_projection`). A local violation raises a retained cut;
+in the exchanged order `higher_loading_mul_order_mem` moves the resulting higher relation
+to the bottom. No relation is imposed at the cut internal to the paired reds. For symmetric
+`Q`, `RedBlock.orderedBlockAction` gives the action of the tensor of the ordered block
+algebras on the summand selected by their red-order projectors, commuting with bottom
+multiplication. At a nonviolated exchanged loading, `RedBlock.blockTensorLoadingEquiv`
+identifies the ordinary quotient tensor above with the external loading idempotent's image.
+
+For the other ordinary composite, `RedBlock.crossingProduct` tensors the spectator regular
+bimodules with the local corner of red orders `[1,0]` and `[0,1]`. Writing `D₀` for the
+external ordered algebra before the crossing and `S₀` for its standardization column,
+`RedBlock.crossingStack` maps `crossingProduct ⊗_{D₀} S₀` to the exchanged-top column.
+`crossingCut` takes a juxtaposed upper diagram `x` and a global lower representative `y`
+to a balanced class. It is onto this tensor, and moving an ordered block diagram between
+the halves gives the same class. Stacking the cut gives the exchanged-top projection of
+`F(x) F(e₀) y`, where `F` juxtaposes diagrams and `e₀` fixes the seam order. The map is
+linear over the exchanged block algebra, commutes with global bottom stacking, and is
+natural under maps of right input modules.
+
+`crossingStack_diagramCut` restacks the linear cut of an unmarked diagram to its projection,
+so `crossingStack` is surjective. The cut kills violated and higher bottom endpoints.
+Open for Lemma 6.8: descend the cut through such relations at arbitrary interior heights
+and show that cutting after stacking is the identity on the balanced tensor. Then prove the higher-homology vanishing in (6.21),
+including injectivity after tensoring the kernel inclusion, then Prop 6.9
+for general `ℓ` by reduction to two
 red strands, the graded forms of Def 6.6 and Props 6.7, 6.9, Cor 6.10, Lemma 6.11, Def 6.12, Cor 6.13,
 Lemma 6.14; tilting modules (Thm 6.15); `𝔅_σ` are equivalences (Thm 6.16); the braid group
 action (Cor 6.17); Ringel duality (Cor 6.18); semi-orthogonal decompositions (Prop 6.19); the
 Serre functor (Prop 6.20).
+
+For the multi-strand interval calculation, `intervalConcat` puts a local KLR diagram
+between fixed exterior loading idempotents. The map is injective for symmetric
+parameters (`intervalConcat_injective`). Its image is the span of shifted
+local PBW words and their shifted bottom dots (`range_intervalConcat_eq_span`).
 
 ### Phase E: §7, rigidity
 

@@ -1081,7 +1081,9 @@ projection keeps pure tensors of the endpoint degree
 (`diagramWeightOrdinaryProjection_tmul`). The image of the endpoint weight coend is exactly the total-degree
 component of the ordinary balanced tensor (`diagramWeightTensorOrdinary_range_eq_grade`).
 The integer and ground-ring balanced tensor gradings agree under the
-additive comparison (`Graded.balancedTensorIntScalarAddEquiv_map_grade`). For a rectangular corner between two degree-zero
+additive comparison (`Graded.balancedTensorIntScalarAddEquiv_map_grade`).
+A nonpositive resolution has the same degree-zero tensor cohomology
+as the ordinary weight tensor (`catTensorCohomologyZeroEquivOfQuasiIso`). For a rectangular corner between two degree-zero
 idempotents, `diagramCornerWeightDerivedRightTensor` uses the restricted grading
 and defines derived right tensor on the graded right-module categories.
 For the actual braid bimodule this gives `auxiliaryGradedBraidingFunctor`

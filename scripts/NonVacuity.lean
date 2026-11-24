@@ -9029,3 +9029,230 @@ example (c : Bool) :=
   Stendhal.BraidedStendhalAlgebra.TwoSpectatorOneBlack.twoSpectatorLayer_nontrivial
     (k := ℚ) (fun _ _ => 0) (fun _ => Finsupp.single () 1) (fun _ _ _ => rfl)
     (fun _ => by simp) c
+
+namespace NonVacuity.WebsterActualBraidKernel
+
+open Categorification Categorification.KLR Categorification.Stendhal
+open Categorification.Stendhal.BraidedStendhalAlgebra
+
+attribute [local instance 1200] Ring.toIntAlgebra
+
+private abbrev ν : Multiset Bool := 0
+private abbrev Q : Bool → Bool → MvPolynomial (Fin 2) ℤ := fun _ _ => 1
+private abbrev Λ : Fin 2 → Bool →₀ ℕ := fun _ => 0
+private def t : Seq (stendhalWeight 2 ν) :=
+  ⟨fun j => Sum.inr (if j.val = 0 then 0 else 1), by decide⟩
+
+private abbrev corner (order : List (Fin 2)) :=
+  (isIdempotentElem_violMk_redProj ℤ Q Λ ν order).Corner
+
+local instance (order : List (Fin 2)) : HasDerivedCategory.{0, 0} (corner order)ᵐᵒᵖ :=
+  HasDerivedCategory.small _
+
+private theorem root_zero (s : Seq (stendhalWeight 2 ν)) :
+    adjacentBlockRoot 0 1 s = 0 := by
+  funext r i
+  have h (j : Fin (stendhalWeight 2 ν).card) : s.lbl j ≠ Sum.inl i := by
+    intro he
+    have hs := s.mem j
+    change s.lbl j ∈ stendhalWeight 2 ν at hs
+    simp [he, stendhalWeight] at hs
+  simp [adjacentBlockRoot, blockBlackCount, h]
+
+private theorem kernel_zero : blockLoadingKernel Q Λ t 0 1 = ⊥ := by
+  have hupper : blockUpperIdeal ℤ Q Λ ν 0 1 (adjacentBlockRoot 0 1 t) (redWord t) = ⊥ := by
+    apply le_antisymm (TwoSidedIdeal.span_le.mpr ?_) bot_le
+    rintro _ ⟨s, _, h, _⟩
+    rw [root_zero s, root_zero t] at h
+    exact (lt_irrefl _ h).elim
+  ext x
+  change x.val.val ∈ blockUpperIdeal ℤ Q Λ ν 0 1 (adjacentBlockRoot 0 1 t) (redWord t) ↔ _
+  rw [hupper, Submodule.mem_bot]
+  constructor
+  · intro hx
+    rw [TwoSidedIdeal.mem_bot] at hx
+    exact Subtype.ext (Subtype.ext hx)
+  · rintro rfl
+    exact (⊥ : TwoSidedIdeal _).zero_mem
+
+example :
+    IsZero ((DG.DerivedCategory.homologyFunctor (A := (corner [1, 0])ᵐᵒᵖ) ℤ 1).obj
+      ((braidingFunctor ℤ Q Λ ν (redWord t) [1, 0]).obj (DG.DerivedCategory.Q.obj
+        ((degreeZeroModuleFunctor (corner (redWord t))ᵐᵒᵖ).obj
+          (blockLoadingShortComplex Q Λ t 0 1).X₃)))) :=
+  blockPartialStandard_braid_homology_vanish_of_bot Q Λ t 0 1 [1, 0] kernel_zero 1 (by decide)
+
+end NonVacuity.WebsterActualBraidKernel
+
+namespace NonVacuity.WebsterTwoRedPartialStandard
+
+open Categorification Categorification.KLR Categorification.Stendhal
+open Categorification.Stendhal.BraidedStendhalAlgebra
+
+attribute [local instance 1200] Ring.toIntAlgebra
+
+private abbrev ν : Multiset Bool := {false, false}
+private abbrev Q : Bool → Bool → MvPolynomial (Fin 2) ℤ := fun _ _ => 1
+private abbrev Λ : Fin 2 → Bool →₀ ℕ := fun _ => Finsupp.single false 2
+private def s : Seq (stendhalWeight 2 ν) :=
+  ⟨fun j => if j.val = 0 then .inr 0 else if j.val = 3 then .inr 1 else .inl false, by decide⟩
+
+private abbrev corner (order : List (Fin 2)) :=
+  (isIdempotentElem_violMk_redProj ℤ Q Λ ν order).Corner
+
+local instance (order : List (Fin 2)) : HasDerivedCategory.{0, 0} (corner order)ᵐᵒᵖ :=
+  HasDerivedCategory.small _
+
+example := blockPartialStandard_twoRed_braid_homology_vanish Q Λ s [1, 0] (-1) (by decide)
+example := twoRedPartialStandardBraidIsoOrdinary Q Λ s [1, 0]
+
+end NonVacuity.WebsterTwoRedPartialStandard
+
+namespace NonVacuity.WebsterDerivedOrdinaryComparison
+open Categorification
+
+local instance : HasDerivedCategory.{0, 0} ℤ := HasDerivedCategory.small ℤ
+
+private abbrev unitModule : ModuleCat.{0} ℤ := ModuleCat.of ℤ PUnit
+
+private theorem vanish (n : ℤ) (_ : n ≠ 0) :
+    IsZero ((homologyFunctor ℤ n).obj ((derivedTensor ℤ ℤ ℤ).obj
+      (Q.obj ((degreeZeroModuleFunctor ℤ).obj unitModule)))) := by
+  apply Functor.map_isZero
+  apply Functor.map_isZero
+  apply Q.map_isZero
+  exact (degreeZeroModuleFunctor ℤ).map_isZero
+    (X := unitModule) (ModuleCat.isZero_iff_subsingleton.mpr inferInstance)
+
+example := derivedTensorIsoOrdinaryOfVanishing (A := ℤ) (B := ℤ) (M := ℤ) unitModule vanish
+
+end NonVacuity.WebsterDerivedOrdinaryComparison
+
+namespace NonVacuity.WebsterFiveSlotLeftDerived
+
+open Categorification.Stendhal BraidedStendhalAlgebra CategoryTheory DG MulOpposite
+open scoped DG.DegreeZero
+
+attribute [local instance 1200] Ring.toIntAlgebra
+
+private noncomputable abbrev Q : Unit → Unit → MvPolynomial (Fin 2) ℚ := fun _ _ => 0
+private noncomputable abbrev Λ : Fin 3 → Unit →₀ ℕ := fun _ => Finsupp.single () 2
+local notation "ν₀" => ({()} + {()} : Multiset Unit)
+local notation "t" => fixedTopFourExitCut 0
+local notation "κ" => ([0,2,1] : List (Fin 3))
+local notation "C" => fun reds : List (Fin 3) =>
+  IsIdempotentElem.Corner (isIdempotentElem_violMk_redProj ℚ Q Λ ν₀ reds)
+
+example : blockLoadingKernel Q Λ t 1 2 = ⊥ :=
+  fiveSlotLeftExtreme_blockLoadingKernel_eq_bot Q Λ
+
+noncomputable example [DG.HasDerivedCategory.{0, 0} (C (redWord t))ᵐᵒᵖ]
+    [DG.HasDerivedCategory.{0, 0} (C κ)ᵐᵒᵖ] :=
+  fiveSlotLeftExtreme_partialStandardBraidIsoOrdinary Q Λ κ
+
+end NonVacuity.WebsterFiveSlotLeftDerived
+
+namespace NonVacuity.WebsterFiveSlotAllTops
+
+open Categorification.KLR Categorification.Stendhal Categorification.QuantumGroup
+open BraidedStendhalAlgebra CategoryTheory DG MulOpposite
+open scoped DG.DegreeZero
+
+attribute [local instance 1200] Ring.toIntAlgebra
+
+private noncomputable abbrev C := Categorification.QuantumGroup.CartanDatum.ofGraph (⊥ : SimpleGraph Unit)
+private noncomputable abbrev Λ : Fin 3 → Unit →₀ ℕ := fun r => Finsupp.single () (![3,2,1] r)
+private noncomputable abbrev Q := Categorification.KL3.Diagram.CL.qCL
+  (Categorification.KL3.Diagram.CL.CLScalars.kl : Categorification.KL3.Diagram.CL.CLScalars C ℚ)
+
+local notation "ν₀" => ({()} + {()} : Multiset Unit)
+local notation "t" => fixedTopFourExitCut 1
+local notation "nearby" => Categorification.TypeA.sadj (Multiset.card (stendhalWeight 3 ν₀)) 2 •
+  fixedTopFourExitCut 0
+local notation "κ" => ([0,2,1] : List (Fin 3))
+local notation "Corner" => fun reds : List (Fin 3) =>
+  IsIdempotentElem.Corner (isIdempotentElem_violMk_redProj ℚ Q Λ ν₀ reds)
+
+example := fiveSlot_blockKernelTensorInclusion_injective_standard_allTops (k := ℚ) C Λ t (by decide)
+
+example := fiveSlot_blockKernelTensorInclusion_injective_standard_allTops
+  (k := ℚ) C Λ nearby (by decide)
+
+example [DG.HasDerivedCategory.{0, 0} (Corner (redWord t))ᵐᵒᵖ]
+    [DG.HasDerivedCategory.{0, 0} (Corner κ)ᵐᵒᵖ] :=
+  fiveSlot_blockKernelDerivedHomology_mono_standard_allTops (k := ℚ) C Λ t (by decide)
+
+end NonVacuity.WebsterFiveSlotAllTops
+
+namespace NonVacuity.WebsterPrincipalAllBottoms
+
+open Categorification.Stendhal Categorification.KLR BraidedStendhalAlgebra FiveSlotFlag
+open KLRAlgebra
+noncomputable section
+
+private abbrev Q : Unit → Unit → MvPolynomial (Fin 2) (ZMod 4) := fun _ _ => 0
+private abbrev Λ : Fin 3 → Unit →₀ ℕ := fun r => Finsupp.single () (r.val+2)
+private abbrev ν : Multiset Unit := {()}+{()}
+private def reversedRed : Seq weight :=
+  Seq.ofList [.inr 2,.inr 1,.inr 0,.inl (),.inl ()] (by decide)
+private def earlyBlack : Seq weight :=
+  Seq.ofList [.inr 2,.inl (),.inr 0,.inr 1,.inl ()] (by decide)
+
+/-- With all three reds reversed, the stable word uses only unit crossings. -/
+example : unitPath reversedRed (stableBottomWord reversedRed)=true :=
+  stableBottomWord_unit reversedRed (by decide)
+
+/-- A loading beginning with red two can still factor through a violated cut
+on its way to the extreme. -/
+example := stableBottomWord_killed_of_black_before_spectator Q Λ earlyBlack (by decide)
+
+/-- Both principal columns take arbitrary bottoms over a ring with zero
+divisors and with positive pairings 2, 3, and 4. -/
+example (s : Seq weight) := fiveSlot_oneBlackBeforePair_columnInclusion Q Λ
+  (fun _ _ _ => rfl) (fixedTopFourExitCut 1) s (Or.inl rfl)
+
+example := fiveSlot_oneBlackBeforePair_columnInclusion Q Λ (fun _ _ _ => rfl)
+  (Categorification.TypeA.sadj weight.card 2 • fixedTopFourExitCut 0) reversedRed (Or.inr rfl)
+
+end
+end NonVacuity.WebsterPrincipalAllBottoms
+
+namespace NonVacuity.WebsterFiveSlotRightHigher
+
+open Categorification Categorification.KLR Categorification.Stendhal BraidedStendhalAlgebra
+
+private noncomputable abbrev Q : Unit → Unit → MvPolynomial (Fin 2) (ZMod 4) := fun _ _ => 0
+private noncomputable abbrev Λ : Fin 3 → Unit →₀ ℕ := fun r => Finsupp.single () (r.val + 2)
+local notation "t" => fixedTopFourExitCut 2
+
+example :=
+  fiveSlotRightTop_blockLoadingKernel_eq_trace Q Λ t (Or.inl rfl)
+
+example (a : rIdeal (orderedLoadingIdem Q Λ t)) :=
+  fiveSlotRightmostKernel_mem_iff_two_central_factors Q Λ (fun _ _ _ => rfl) a
+
+example (f : MvPolynomial (Fin 2) (ZMod 4)) :=
+  TwoBlackFlag.mul_first_pow_mem_iff (by decide : (0 : Fin 2) ≠ 1) 2 9 7 f
+
+example := fiveSlotRightmostKernel_equiv_nilHeckeRangeProd Q Λ
+
+example := FiveSlotFlag.fiveSlotRightmost_firstCrossing_cancel_on_leftExtreme Q Λ (fun _ _ _ => rfl)
+
+example := fiveSlotRightmost_centralIntersectionIntoProjective_injective Q Λ (fun _ _ _ => rfl)
+
+end NonVacuity.WebsterFiveSlotRightHigher
+
+namespace NonVacuity.WebsterFiveSlotLastRedTransport
+
+open Categorification Categorification.KLR Categorification.Stendhal BraidedStendhalAlgebra
+
+private noncomputable abbrev Q : Unit → Unit → MvPolynomial (Fin 2) (ZMod 4) := fun _ _ => 0
+private noncomputable abbrev Λ : Fin 3 → Unit →₀ ℕ := fun r => Finsupp.single () (r.val + 2)
+
+example := FiveSlotFlag.fiveSlotNearby_toCentral_cancel_on_orderCorner Q Λ (fun _ _ _ => rfl)
+
+example := FiveSlotFlag.fiveSlotLastRed_firstCrossing_cancel Q Λ (fun _ _ _ => rfl)
+
+example := FiveSlotFlag.fiveSlotLastRed_secondCrossing_mem_leftExtremeImage Q Λ (fun _ _ _ => rfl)
+
+end NonVacuity.WebsterFiveSlotLastRedTransport

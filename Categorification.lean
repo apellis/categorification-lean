@@ -1681,6 +1681,7 @@ import Categorification.WeightedKLR.RedStrands.FiveSlotThreeTopDerived
 import Categorification.WeightedKLR.RedStrands.FiveSlotAllBottom
 import Categorification.WeightedKLR.RedStrands.FiveSlotAllBottomStandard
 import Categorification.WeightedKLR.RedStrands.FiveSlotAllBottomDerived
+import Categorification.WeightedKLR.RedStrands.FiveSlotLeftTopIdeal
 import Categorification.WeightedKLR.RedStrands.BraidedStandardDerived
 import Categorification.WeightedKLR.RedStrands.BlockShuffleLoading
 import Categorification.WeightedKLR.RedStrands.BlockShuffleCrossing

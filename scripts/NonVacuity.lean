@@ -8610,6 +8610,11 @@ example (n : ℕ) : (rightMiddleComplex ℚ).ExactAt (n + 1) :=
 
 example : QuasiIso (diagramMiddleToQuotient ℚ) := diagramMiddleToQuotient_quasiIso ℚ
 
+example (a b : fixSub ℚ (Standard ℚ) (seqIdem (parameter ℚ) weights loading loading_ordered)) :
+    terminalCutDotSumEquiv ℚ (terminalQuotientMap ℚ ((terminalToTwoMiddle ℚ).symm (a,b))) =
+      (fixedAugmentation ℚ a, fixedAugmentation ℚ b) :=
+  terminalCutDotSumEquiv_apply ℚ (a,b)
+
 end NonVacuity.WebsterLabelTwoMiddleFixedComplex
 
 end

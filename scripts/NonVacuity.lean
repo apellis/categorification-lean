@@ -9862,6 +9862,12 @@ example := incomingExteriorAmbientHomology_isZero ℚ (-1) (by decide)
 
 example := labelTwo_incomingLift_return (parameter ℚ)
 
+example := incomingLift_middle_fixed_iff ℚ
+
+example := middleY₁Readout_diagramPlus_generator ℚ
+
+example (z : incomingLiftSubmodule ℚ) := middleY₁Readout_middleDotElt_incomingLift_zero ℚ z
+
 example := Categorification.Webster.LabelTwo.plus_one_notMem_range_plus_comp_plus (k := ℚ)
 
 example (z : labelTwoRightExteriorDividedStandard (parameter ℚ)) :=

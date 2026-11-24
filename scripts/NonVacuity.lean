@@ -1,4 +1,6 @@
 import Categorification
+import Mathlib.Algebra.Homology.Single
+import Mathlib.CategoryTheory.Preadditive.Yoneda.Basic
 import Mathlib.Algebra.Category.Grp.Zero
 import Mathlib.Analysis.Real.Sqrt
 import LieLean.Algebra.QuantumGroup.Sl2.SimpleModule
@@ -9144,6 +9146,19 @@ example : fundamentalBraidMiddleClass ∉ Graded.shift (figureFiveCutGrade (Λ :
   rw [fundamentalBraidMiddleClass_resolutionWeight]
   norm_num
 
+
+example : ∃ z, z ∈ Graded.shift (figureFiveCutGrade (Λ := wt) datum fundamentalBraidParameters
+    (weightPairing datum realization) (fun _ => braidFundamentalWeight realization) terminal 1 0) 1 (3 / 2) ∧
+    fundamentalBraidCutComplex.g z = 0 ∧ ¬ ∃ y, fundamentalBraidCutComplex.f y = z :=
+  (fundamentalBraidHomology_weight_iff realization _).mpr rfl
+
+example : ¬ ∃ z, z ∈ Graded.shift (figureFiveCutGrade (Λ := wt) datum fundamentalBraidParameters
+    (weightPairing datum realization) (fun _ => braidFundamentalWeight realization) terminal 1 0) 1 (5 / 2) ∧
+    fundamentalBraidCutComplex.g z = 0 ∧ ¬ ∃ y, fundamentalBraidCutComplex.f y = z := by
+  intro h
+  have he : (5 / 2 : ℂ) = 3 / 2 := (fundamentalBraidHomology_weight_iff realization _).mp h
+  norm_num at he
+
 end
 end NonVacuity.WebsterFundamentalBraidWeight
 
@@ -9184,6 +9199,27 @@ noncomputable example : fundamentalBraidRightTensorComplex.homology ≅ braidTar
   fundamentalBraidRightTensorHomologyIso
 
 end NonVacuity.WebsterFundamentalBraidTargetHead
+
+namespace NonVacuity.WebsterFundamentalBraidDerivedHead
+open CategoryTheory DG Categorification Categorification.Stendhal
+open BraidedStendhalAlgebra FundamentalCorner
+open scoped DG.DegreeZero
+
+local notation "ν" => ({()} : Multiset Unit)
+local notation "K" => ViolOrderCorner (k := ℚ) (Q := Q) (Λ := wt) («ν» := ν) (List.finRange 2)
+local notation "U" => ViolOrderCorner (k := ℚ) (Q := Q) (Λ := wt) («ν» := ν) [1,0]
+noncomputable local instance : DG.HasDerivedCategory.{1,0} Kᵐᵒᵖ := DG.HasDerivedCategory.standard _
+noncomputable local instance : DG.HasDerivedCategory.{1,0} Uᵐᵒᵖ := DG.HasDerivedCategory.standard _
+
+noncomputable example :
+    (braidingFunctor ℚ Q wt ν (List.finRange 2) [1,0]).obj ((degreeZeroDerivedFunctor Kᵐᵒᵖ).obj braidSourceMiddleHead) ≅
+      ((degreeZeroDerivedFunctor Uᵐᵒᵖ).obj braidTargetMiddleHead)⟦(1 : ℤ)⟧ :=
+  fundamentalBraidDerivedHeadIso
+
+noncomputable example := fundamentalBraidDerivedHeadHMinusOne.{1}
+example := fundamentalBraidDerivedHead_isZero.{1} 0 (by decide)
+
+end NonVacuity.WebsterFundamentalBraidDerivedHead
 end
 
 namespace NonVacuity.WebsterCupRHomRegular
@@ -9614,6 +9650,34 @@ end
 
 end NonVacuity.WebsterAuxiliaryBraiding
 
+noncomputable section
+
+namespace NonVacuity.WebsterTerminalLoading
+
+open Categorification CategoryTheory DG MulOpposite
+open Categorification.Stendhal Categorification.Stendhal.FundamentalCorner
+open scoped DG.DegreeZero
+attribute [local instance 1100] IsIdempotentElem.instAlgebraCorner_categorification
+
+local notation "T" => TensorProductAlgebra ℚ Q wt ({()} : Multiset Unit)
+local instance instTerminalVanishTestInternalGrading : InternalGrading Tᵐᵒᵖ :=
+  gradedAlgebraInternalGrading (Graded.oppositeGrade (tensorProductGrade grading ({()} : Multiset Unit)))
+local instance instTerminalVanishTestBigradedRing : BigradedDGRing Tᵐᵒᵖ :=
+  gradedAlgebraBigradedDGRing (Graded.oppositeGrade (tensorProductGrade grading ({()} : Multiset Unit)))
+local instance instTerminalVanishTestScalarInternalGrading : InternalGrading ℚ := scalarInternalGrading ℚ
+local instance instTerminalVanishTestScalarBigradedRing : BigradedDGRing ℚ := scalarBigradedDGRing ℚ
+local instance instTerminalVanishTestScalarDerived : CatModule.HasDerivedCategory.{1,0} (WeightCategory ℚ) :=
+  CatModule.HasDerivedCategory.standard _
+local instance instTerminalVanishTestDiagramDerived : CatModule.HasDerivedCategory.{1,0} (WeightCategory Tᵐᵒᵖ) :=
+  CatModule.HasDerivedCategory.standard _
+
+example := gradedTerminalStandard_terminalCoefficient_cohomology_isZero
+  (⟨0⟩ : WeightCategory ℚ) (n := -1) (by decide)
+
+end NonVacuity.WebsterTerminalLoading
+
+end
+
 open CategoryTheory CategoryTheory.Limits DG
 open scoped DG.DegreeZero
 
@@ -9696,28 +9760,22 @@ end NonVacuity.WebsterGradedTerminalStandard
 
 noncomputable section
 
-namespace NonVacuity.WebsterTerminalLoading
+namespace NonVacuity.WebsterWeightComplex
 
-open Categorification CategoryTheory DG MulOpposite
-open Categorification.Stendhal Categorification.Stendhal.FundamentalCorner
+open Categorification CategoryTheory DG
 open scoped DG.DegreeZero
-attribute [local instance 1100] IsIdempotentElem.instAlgebraCorner_categorification
 
-local notation "T" => TensorProductAlgebra ℚ Q wt ({()} : Multiset Unit)
-local instance instTerminalVanishTestInternalGrading : InternalGrading Tᵐᵒᵖ :=
-  gradedAlgebraInternalGrading (Graded.oppositeGrade (tensorProductGrade grading ({()} : Multiset Unit)))
-local instance instTerminalVanishTestBigradedRing : BigradedDGRing Tᵐᵒᵖ :=
-  gradedAlgebraBigradedDGRing (Graded.oppositeGrade (tensorProductGrade grading ({()} : Multiset Unit)))
-local instance instTerminalVanishTestScalarInternalGrading : InternalGrading ℚ := scalarInternalGrading ℚ
-local instance instTerminalVanishTestScalarBigradedRing : BigradedDGRing ℚ := scalarBigradedDGRing ℚ
-local instance instTerminalVanishTestScalarDerived : CatModule.HasDerivedCategory.{1,0} (WeightCategory ℚ) :=
-  CatModule.HasDerivedCategory.standard _
-local instance instTerminalVanishTestDiagramDerived : CatModule.HasDerivedCategory.{1,0} (WeightCategory Tᵐᵒᵖ) :=
-  CatModule.HasDerivedCategory.standard _
+local instance instScalarWeightComplexInternalGrading : InternalGrading ℚ := scalarInternalGrading ℚ
+local instance instScalarWeightComplexBigradedRing : BigradedDGRing ℚ := scalarBigradedDGRing ℚ
 
-example := gradedTerminalStandard_terminalCoefficient_cohomology_isZero
-  (⟨0⟩ : WeightCategory ℚ) (n := -1) (by decide)
+private abbrev source : WeightCategory ℚ := ⟨0⟩
 
-end NonVacuity.WebsterTerminalLoading
+private abbrev weightComplex :=
+  preadditiveCoyonedaObj source ⋙ HomologicalComplex.single _ (ComplexShape.up ℤ) (-1)
+
+example : CatModule.IsQuasiIso (diagramWeightModuleOfComplexMap (𝟙 weightComplex)) :=
+  diagramWeightModuleOfComplexMap_isQuasiIso _ (fun _ => inferInstance)
+
+end NonVacuity.WebsterWeightComplex
 
 end

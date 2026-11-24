@@ -1090,7 +1090,9 @@ isomorphism (`diagramWeightCoendProductNatIso`). In the right-module
 convention this gives the coend multiplication of three rectangular corners
 (`diagramCornerWeightRightCoendProduct_tmul`). If ordinary pure products
 generate the coefficient, the coend product is onto at each pair of endpoint
-weights (`diagramWeightCoendProduct_surjective`). Forgetting the intermediate
+weights (`diagramWeightCoendProduct_surjective`). The cohomology sequence at a fixed weight gives the
+connecting isomorphism and kernel comparison
+(`weightCohomologyShiftIso`, `weightCohomologyShiftKernelIso`). Forgetting the intermediate
 weight embeds each endpoint coend as a summand of the ordinary additive
 balanced tensor (`diagramWeightTensorSlice_leftInverse`). The associated
 projection keeps pure tensors of the endpoint degree

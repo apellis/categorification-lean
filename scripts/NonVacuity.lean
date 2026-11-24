@@ -5922,9 +5922,52 @@ example : NonnegativeReflectionPath (P.cartanDatum generalized) weight [()] :=
 
 example := rootSum_coevaluationWord_of_reduced P generalized weight dominant [()] reduced
 
+example := finrank_classical_coevaluationWeight P generalized weight dominant [()] reduced
+
+private theorem xRegular : LieLean.QuantumGroup.sl2RootDatum.IsXRegular := by
+  change LinearIndependent ℤ LieLean.QuantumGroup.sl2RootDatum.root
+  rw [linearIndependent_unique_iff]
+  intro h
+  have hh := congrArg (fun f : ℤ →+ ℤ => f 1) h
+  norm_num at hh
+
+/-- The terminal weight space of the highest-weight-two quantum module has dimension one. -/
+example := finrank_quantum_coevaluationWeight (R := LieLean.QuantumGroup.sl2RootDatum) P
+  xRegular (2 • AddMonoidHom.id ℤ) weight dominant (fun i => by
+    cases i
+    change P.root () (P.coroot ()) = (2 : ℝ)
+    rw [P.root_coroot]
+    rfl) [()] reduced
+
 end
 
 end NonVacuity.WebsterReducedCoevaluationWord
+
+namespace NonVacuity.WebsterCoevaluationShift
+
+open Categorification.Stendhal
+
+private def datum : _root_.CartanDatum Unit ℤ where
+  root := fun _ => 2
+  coroot := fun _ => LinearMap.id
+  coroot_root_self := fun _ => rfl
+
+private theorem nonnegative : NonnegativeReflectionPath datum 3 [()] :=
+  ⟨by change (0 : ℤ) ≤ 3; decide, trivial⟩
+
+private theorem final : (AddMonoidHom.id ℤ)
+    ([()].foldl (fun μ i => datum.reflection i μ) 3) = - (AddMonoidHom.id ℤ) 3 := by
+  decide
+
+example : ((coevaluationWord datum 3 [()]).length : ℤ) = 3 :=
+  coevaluationWord_length_eq_twice_height datum (AddMonoidHom.id ℤ) (fun _ => rfl)
+    3 [()] nonnegative final
+
+example : ((coevaluationWord datum 3 [()]).map (fun _ => (1 : ℤ))).sum = 3 :=
+  coevaluationWord_sum_symmetrizers_eq_twice_pairing datum (AddMonoidHom.id ℤ)
+    (fun _ => 1) (fun _ => rfl) 3 [()] nonnegative final
+
+end NonVacuity.WebsterCoevaluationShift
 
 namespace NonVacuity.WebsterSingleBlackExtremal
 
@@ -5936,6 +5979,46 @@ private noncomputable abbrev Λ : Fin 1 → Unit →₀ ℕ := fun _ => Finsupp.
 example := oneBlack_extremal_projective_simple Q Λ () (by simp [Λ])
 
 end NonVacuity.WebsterSingleBlackExtremal
+
+namespace NonVacuity.WebsterExtremalNorm
+
+open Categorification Categorification.Graded Stendhal Stendhal.SingleBlack
+
+attribute [local instance 1100] IsIdempotentElem.instAlgebraCorner_categorification
+
+private def weights : Fin 1 → Unit →₀ ℕ := fun _ => Finsupp.single () 1
+
+private def grading :=
+  stendhalGradingDatum weights (KLR.klGradingDatum ℚ (⊥ : SimpleGraph Unit))
+    (fun _ => 1) (fun _ => rfl)
+
+private abbrev block := tensorProductGrade grading ({()} : Multiset Unit)
+private abbrev proj := GProj.regular block
+
+private instance : HasGdim block := hasGdim_oneBlack () grading
+
+private theorem rank_one : Module.finrank (LaurentPolynomial ℤ) (K0 block) = 1 := by
+  rw [(oneBlackK0Equiv () grading (by simp [weights])).finrank_eq, Module.finrank_self]
+
+private theorem norm_one : proj.homGdim proj = 1 := by
+  rw [regular_homGdim () grading]
+  rw [show weights 0 () = 1 by simp [weights]]
+  simp
+
+example : IsSimpleModule (TensorProductAlgebra ℚ (KLR.klQ (⊥ : SimpleGraph Unit)) weights {()})
+    proj.carrier :=
+  GProj.isSimpleModule_of_homGdim_eq_one proj rank_one norm_one
+
+example : Nonempty (proj.Iso proj) :=
+  GProj.nonempty_iso_of_homGdim_coeff_zero proj proj rank_one norm_one norm_one
+    (by rw [norm_one]; simp [HahnSeries.coeff_one])
+
+/-- A shift moves the mixed Hom out of degree zero. -/
+example : (proj.homGdim (proj.shift 1)).coeff 0 = 0 := by
+  rw [GProj.homGdim_shift_right, norm_one, mul_one]
+  simp
+
+end NonVacuity.WebsterExtremalNorm
 
 namespace NonVacuity.WebsterTerminalCyclotomic
 
@@ -8156,6 +8239,38 @@ example [DG.HasDerivedCategory.{0, 0} Tᵐᵒᵖ] [DG.HasDerivedCategory.{0, 0} 
 
 end NonVacuity.WebsterFiveSlotThreeTopDerived
 
+namespace NonVacuity.WebsterFiveSlotBoundedSpectator
+
+open Categorification.KLR Categorification.Stendhal Categorification.QuantumGroup
+open BraidedStendhalAlgebra CategoryTheory DG MulOpposite
+open scoped DG.DegreeZero
+
+attribute [local instance 1200] Ring.toIntAlgebra
+
+private noncomputable abbrev C := Categorification.QuantumGroup.CartanDatum.ofGraph (⊥ : SimpleGraph Unit)
+private noncomputable abbrev Λ : Fin 3 → Unit →₀ ℕ := fun _ => Finsupp.single () 1
+private noncomputable abbrev Q := Categorification.KL3.Diagram.CL.qCL
+  (Categorification.KL3.Diagram.CL.CLScalars.kl : Categorification.KL3.Diagram.CL.CLScalars C ℚ)
+
+local notation "ν₀" => ({()} + {()} : Multiset Unit)
+local notation "t" => fixedTopFourExitCut 1
+local notation "κ" => ([0,2,1] : List (Fin 3))
+local notation "Corner" => fun reds : List (Fin 3) =>
+  IsIdempotentElem.Corner (isIdempotentElem_violMk_redProj ℚ Q Λ ν₀ reds)
+
+example := fiveSlot_blockKernelTensorInclusion_injective_of_spectatorWeight_le_one
+  (k := ℚ) C Λ t (by decide) (by simp [Λ])
+
+example := fiveSlot_blockKernelTensorInclusion_injective_of_spectatorWeight_le_one
+  (k := ℚ) C Λ (fixedTopFourExitCut 2) (by decide) (by simp [Λ])
+
+example [DG.HasDerivedCategory.{0, 0} (Corner (redWord t))ᵐᵒᵖ]
+    [DG.HasDerivedCategory.{0, 0} (Corner κ)ᵐᵒᵖ] :=
+  fiveSlot_blockKernelDerivedHomology_mono_of_spectatorWeight_le_one
+    (k := ℚ) C Λ t (by decide) (by simp [Λ])
+
+end NonVacuity.WebsterFiveSlotBoundedSpectator
+
 namespace NonVacuity.WebsterFiveSlotAllBottom
 
 open Categorification.KLR Categorification.Stendhal Categorification.QuantumGroup
@@ -8330,6 +8445,62 @@ end NonVacuity.WebsterRightTensor
 
 end
 
+namespace NonVacuity.WebsterCoevaluationTrace
+
+open Categorification Stendhal KLR KLRAlgebra TypeA
+
+local notation "E" => ((1, 0) : ℚ × ℚ)
+local notation "F" => ((0, 1) : ℚ × ℚ)
+local notation "cut" => (fun _ : Unit => F)
+
+example :
+    coevaluationTrace (e := E) cut =
+      ⨆ j, ⨆ f : rIdeal (cut j) →ₗ[(ℚ × ℚ)ᵐᵒᵖ] rIdeal E, LinearMap.range f :=
+  coevaluationTrace_eq_iSup_range cut (fun _ => by simp [IsIdempotentElem])
+
+example (N : Submodule (ℚ × ℚ)ᵐᵒᵖ (rIdeal E)) :
+    N = coevaluationTrace cut ↔ IsSimpleModule (ℚ × ℚ)ᵐᵒᵖ (rIdeal E ⧸ N) := by
+  apply coevaluationTrace_eq_iff_simpleQuotient (by simp [IsIdempotentElem])
+    cut (RingHom.fst ℚ ℚ) rfl (fun _ => rfl) _ _ N
+  · intro x h
+    have hx : (x : ℚ × ℚ).2 = 0 := by
+      simpa using (congrArg Prod.snd x.property).symm
+    have hzero : x = 0 := Subtype.ext (Prod.ext h hx)
+    rw [hzero]
+    exact Submodule.zero_mem _
+  · intro x h
+    change (x : ℚ × ℚ).1 ≠ 0 at h
+    exact ⟨((x : ℚ × ℚ).1⁻¹, 0), Prod.ext (mul_inv_cancel₀ h) (mul_zero _)⟩
+
+local notation "ν" => ({()} : Multiset Unit)
+local notation "μ" => stendhalWeight 2 ν
+local notation "Λ" => (fun _ : Fin 2 => Finsupp.single () 1)
+local notation "Q" => (fun _ _ : Unit => (0 : MvPolynomial (Fin 2) ℚ))
+
+private def allRight : Seq μ :=
+  ⟨![Sum.inr 0, Sum.inr 1, Sum.inl ()], by
+    decide⟩
+
+example :
+    ∃ z : rIdeal (tensorOfKLR Q Λ ν (e allRight)),
+      z ∈ coevaluationTrace
+        (fun _ : Unit => tensorOfKLR Q Λ ν (e (sadj (Multiset.card μ) 1 • allRight))) ∧
+      z.val = tensorOfKLR Q Λ ν (x ⟨2, by decide⟩ * e allRight) := by
+  simpa using bigon_mem_coevaluationTrace Q Λ ν _ allRight 1 (by decide) () 1 rfl rfl () rfl
+
+end NonVacuity.WebsterCoevaluationTrace
+
+namespace NonVacuity.WebsterFundamentalCoevaluation
+
+open Categorification Categorification.Stendhal FundamentalCorner
+
+example : IsSimpleModule (TensorProductAlgebra ℚ Q wt ({()} : Multiset Unit))ᵐᵒᵖ
+    (rIdeal terminalIdem ⧸ fundamentalCutTrace) :=
+  (fundamentalCutTrace_eq_iff_simpleQuotient fundamentalCutTrace).mp rfl
+
+example : Function.Surjective terminalCoefficient := terminalCoefficient_surjective
+
+end NonVacuity.WebsterFundamentalCoevaluation
 namespace NonVacuity.WebsterVacuumBraidColumn
 
 open KLR KLRAlgebra Stendhal Stendhal.BraidedStendhalAlgebra
@@ -8348,3 +8519,69 @@ example := finrank_vacuum_braidColumn_eq_standard params weights
   (fun _ _ _ => rfl) exchanged ordered
 
 end NonVacuity.WebsterVacuumBraidColumn
+
+namespace NonVacuity.WebsterCupRHom
+
+open CategoryTheory DG MulOpposite Categorification.Stendhal.Coevaluation
+open scoped DG.DegreeZero
+
+local instance : DG.HasDerivedCategory.{1,0} ℚ := DG.HasDerivedCategory.standard ℚ
+local instance : DG.HasDerivedCategory.{1,0} ℚᵐᵒᵖ := DG.HasDerivedCategory.standard ℚᵐᵒᵖ
+local instance : DG.CatModule.HasDerivedCategory.{1,0} (SingleObj ℚ) :=
+  DG.CatModule.HasDerivedCategory.standard (SingleObj ℚ)
+local instance : DG.CatModule.HasDerivedCategory.{1,0} (SingleObj ℚᵐᵒᵖ) :=
+  DG.CatModule.HasDerivedCategory.standard (SingleObj ℚᵐᵒᵖ)
+
+example := shiftedCupRHomFunctor ℚ ℚ (Fin 2 → ℚ) (-2)
+example := capBimoduleCupRHomAdjunction ℚ ℚ (Fin 2 → ℚ)
+example := capBimoduleRegularIso ℚ ℚ (Fin 2 → ℚ)
+example := cupRHomObjIso ℚ ℚ (Fin 2 → ℚ) (DG.DGModuleCat.of ℚ ℚ)
+
+end NonVacuity.WebsterCupRHom
+namespace NonVacuity.WebsterFundamentalCupCap
+
+open Categorification.Stendhal Categorification.Stendhal.FundamentalCorner
+open scoped DG.DegreeZero
+
+local notation "T" => TensorProductAlgebra ℚ Q wt ({()} : Multiset Unit)
+
+local instance : DG.HasDerivedCategory.{1,0} ℚ := DG.HasDerivedCategory.standard ℚ
+local instance : DG.HasDerivedCategory.{1,0} Tᵐᵒᵖ := DG.HasDerivedCategory.standard Tᵐᵒᵖ
+
+example := terminalQuotientDualEquiv
+example := fundamentalCup
+example := fundamentalCap
+
+end NonVacuity.WebsterFundamentalCupCap
+
+namespace NonVacuity.WebsterFundamentalCupRegular
+
+open Categorification.Stendhal Categorification.Stendhal.FundamentalCorner
+open scoped DG.DegreeZero
+
+local notation "T" => TensorProductAlgebra ℚ Q wt ({()} : Multiset Unit)
+
+local instance : DG.HasDerivedCategory.{1,0} ℚ := DG.HasDerivedCategory.standard ℚ
+local instance : DG.HasDerivedCategory.{1,0} Tᵐᵒᵖ := DG.HasDerivedCategory.standard Tᵐᵒᵖ
+
+example := fundamentalCupRegularIso
+example := fundamentalCapRegularIso
+
+end NonVacuity.WebsterFundamentalCupRegular
+
+namespace NonVacuity.WebsterCupRHomRegular
+
+open CategoryTheory DG MulOpposite Categorification.Stendhal.Coevaluation
+open scoped DG.DegreeZero
+
+local instance : DG.HasDerivedCategory.{1,0} ℚ := DG.HasDerivedCategory.standard ℚ
+local instance : DG.HasDerivedCategory.{1,0} ℚᵐᵒᵖ := DG.HasDerivedCategory.standard ℚᵐᵒᵖ
+local instance : DG.CatModule.HasDerivedCategory.{1,0} (SingleObj ℚ) :=
+  DG.CatModule.HasDerivedCategory.standard (SingleObj ℚ)
+local instance : DG.CatModule.HasDerivedCategory.{1,0} (SingleObj ℚᵐᵒᵖ) :=
+  DG.CatModule.HasDerivedCategory.standard (SingleObj ℚᵐᵒᵖ)
+
+example := cupRHomRegularIso ℚ ℚ (Fin 2 → ℚ)
+example := cupRHomTensorRegularIso ℚ ℚ (Fin 2 → ℚ)
+
+end NonVacuity.WebsterCupRHomRegular

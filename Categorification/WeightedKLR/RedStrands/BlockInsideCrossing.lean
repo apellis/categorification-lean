@@ -76,7 +76,7 @@ private theorem juxtapose_insideCrossing :
       rw [show ((ψ a : KLRAlgebra k S B.weight) ⊗ₜ[k] T) =
         (ψ a ⊗ₜ[k] (1 : KLRAlgebra k S (weightSum row))) * ((1 : KLRAlgebra k S B.weight) ⊗ₜ[k] T) by
         rw [Algebra.TensorProduct.tmul_mul_tmul, mul_one, one_mul],
-        concat_mul, concat_ψ_tmul_one hh, mul_assoc, oneConcat_mul_concat]
+        concat_mul, KLR.KLRAlgebra.concat_ψ_tmul_one hh, mul_assoc, oneConcat_mul_concat]
     · have hh : ¬ (B.weight.card + b + 1 < B.weight.card) := by omega
       rw [insideCrossing, ite_eq_right hh, Nat.add_sub_cancel_left, juxtapose_tmul, map_one,
         juxtapose_insideCrossing row b hb, hunit]
@@ -114,7 +114,7 @@ private theorem juxtapose_one_commute_inside :
         _ = ψ b * P t := by rw [hc, mul_assoc, hL]
     rw [hunit]
     rcases ha with hh | ⟨b, rfl, hb⟩
-    · refine hcomm a (ψ a ⊗ₜ[k] 1) (concat_ψ_tmul_one hh) ?_ ?_
+    · refine hcomm a (ψ a ⊗ₜ[k] 1) (KLR.KLRAlgebra.concat_ψ_tmul_one hh) ?_ ?_
       · change (oneConcat S B.weight (weightSum row) * ψ a : KLRAlgebra k S _) = _
         simpa [ψw, shiftWord] using
           (oneConcat_mul_ψw (Q := S) (k := k) (ν := B.weight) (ν' := weightSum row)

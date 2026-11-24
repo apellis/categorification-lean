@@ -193,6 +193,27 @@ theorem blockKernelColumn_pair_eq_zero_iff
     map_add f _ _
   exact ⟨fun h => val.symm.trans ((congrArg f h).trans (map_zero f)),fun h => hf (val.trans (h.trans (map_zero f).symm))⟩
 
+/-- A violated bottom loading has zero coefficient column and gives an
+injective balanced inclusion. -/
+theorem blockKernelColumnInclusion_injective_of_violated_bottom (hs : IsViolated s) :
+    Function.Injective (blockKernelColumnInclusion Q Λ t a b s) := by
+  have lower (y : C) : y = 0 := by
+    apply Subtype.ext
+    have hy := y.2.2
+    change y.1 * p = y.1 at hy
+    have hp : p = 0 := violMk_e hs
+    exact hy.symm.trans ((congrArg (fun z : V => y.1 * z) hp).trans (mul_zero _))
+  have zero (z : BalancedTensor k k T K C) : z = 0 := by
+    induction z using BalancedTensor.induction_on with
+    | zero => rfl
+    | tmul x y =>
+      have h := congrArg (BalancedTensor.tmul (k := k) («B» := k) (A := T) x) (lower y)
+      exact h.trans (BalancedTensor.tmul_zero x)
+    | add x y hx hy =>
+      exact (congrArg₂ (fun s t : BalancedTensor k k T K C => s+t) hx hy).trans (zero_add 0)
+  intro x y _
+  exact (zero x).trans (zero y).symm
+
 /-- **Injectivity in (6.21) at consecutive exchanged reds.** Webster v2, §6.1, Lemma
 6.8. The top may be any source loading, with arbitrary spectators and black contents.
 The consecutive-position restriction is only on the bottom column; the proof uses a

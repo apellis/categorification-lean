@@ -9212,6 +9212,34 @@ example := FiveSlotFlag.firstPairOneAfter_blockKernel_hasHigherSingle Q Λ true 
 end FirstPairOneAfterProjectiveNonVacuity
 end
 
+noncomputable section
+
+namespace NonVacuity.WebsterFirstPairPrincipalDerived
+
+open Categorification.KLR Categorification.Stendhal Categorification.QuantumGroup
+open BraidedStendhalAlgebra CategoryTheory DG MulOpposite
+open scoped DG.DegreeZero
+
+attribute [local instance 1200] Ring.toIntAlgebra
+
+private abbrev C := CartanDatum.ofGraph (⊥ : SimpleGraph Unit)
+private abbrev Λ : Fin 3 → Unit →₀ ℕ := fun r => Finsupp.single () (r.val + 1)
+private abbrev Q := Categorification.KL3.Diagram.CL.qCL
+  (Categorification.KL3.Diagram.CL.CLScalars.kl : Categorification.KL3.Diagram.CL.CLScalars C ℚ)
+
+local notation "ν" => ({()} + {()} : Multiset Unit)
+local instance (order : List (Fin 3)) : DG.HasDerivedCategory.{0,0}
+    (isIdempotentElem_violMk_redProj ℚ Q Λ ν order).Cornerᵐᵒᵖ :=
+  DG.HasDerivedCategory.small _
+
+example := firstPairOneAfter_partialStandard_braid_homology_vanish_exchanged
+  (k := ℚ) C Λ false (-1) (by decide)
+example := firstPairOneAfter_partialStandard_braid_homology_vanish_exchanged
+  (k := ℚ) C Λ true 1 (by decide)
+
+end NonVacuity.WebsterFirstPairPrincipalDerived
+end
+
 namespace NonVacuity.WebsterPrincipalAllBottoms
 
 open Categorification.Stendhal Categorification.KLR BraidedStendhalAlgebra FiveSlotFlag

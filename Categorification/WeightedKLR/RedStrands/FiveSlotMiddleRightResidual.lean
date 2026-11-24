@@ -36,7 +36,7 @@ private theorem quotient_surjects_of_two_images
   have hker : N ≤ LinearMap.ker G := by
     intro x hx
     obtain ⟨y, hy⟩ := vanish x hx
-    exact Submodule.Quotient.mk_eq_zero.2 ⟨y, hy⟩
+    exact (Submodule.Quotient.mk_eq_zero first.range).2 ⟨y, hy⟩
   refine ⟨N.liftQ G hker, ?_⟩
   intro q
   obtain ⟨x, rfl⟩ := first.range.mkQ_surjective q
@@ -45,7 +45,7 @@ private theorem quotient_surjects_of_two_images
   change N.liftQ G hker (Submodule.Quotient.mk z) = first.range.mkQ x
   rw [Submodule.liftQ_apply]
   change first.range.mkQ (second z) = first.range.mkQ x
-  have hz₀ : first.range.mkQ (first y) = 0 := Submodule.Quotient.mk_eq_zero.2 ⟨y, rfl⟩
+  have hz₀ : first.range.mkQ (first y) = 0 := (Submodule.Quotient.mk_eq_zero first.range).2 ⟨y, rfl⟩
   rw [← hz, map_add, hz₀, zero_add]
 
 end Module
@@ -121,6 +121,10 @@ def fiveSlotMiddleRight_centralMap : P₁ →ₗ[Tᵐᵒᵖ] K :=
 /-- The second word from the nearby loading gives a second projective map. -/
 def fiveSlotMiddleRight_nearbyMap : P₂ →ₗ[Tᵐᵒᵖ] K :=
   affineIntoKernelMap Q Λ 1 2 nearby_order nearby_higher c₂ (nearby_right Q Λ)
+
+theorem fiveSlotMiddleRight_centralMap_eq_crossing :
+    fiveSlotMiddleRight_centralMap Q Λ =
+      crossingIntoKernelMap Q Λ 1 2 central_order central_higher 1 := rfl
 
 local notation "f₁" => fiveSlotMiddleRight_centralMap Q Λ
 local notation "f₂" => fiveSlotMiddleRight_nearbyMap Q Λ

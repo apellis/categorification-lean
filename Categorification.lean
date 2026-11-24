@@ -1674,6 +1674,7 @@ import Categorification.WeightedKLR.RedStrands.FiveSlotCentralHigher
 import Categorification.WeightedKLR.RedStrands.FiveSlotSpectatorWeight
 import Categorification.WeightedKLR.RedStrands.TwoBlackFlagIdeal
 import Categorification.WeightedKLR.RedStrands.FiveSlotFlagStability
+import Categorification.WeightedKLR.RedStrands.FiveSlotNearbyFlagInjection
 import Categorification.WeightedKLR.RedStrands.FiveSlotFlagSource
 import Categorification.WeightedKLR.RedStrands.FiveSlotFlagReadout
 import Categorification.WeightedKLR.RedStrands.FiveSlotCentralFlagInjection

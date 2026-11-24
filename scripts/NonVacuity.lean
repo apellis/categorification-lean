@@ -8773,6 +8773,17 @@ example : Function.Surjective terminalCoefficient := terminalCoefficient_surject
 
 end NonVacuity.WebsterFundamentalCoevaluation
 
+namespace NonVacuity.WebsterFundamentalResolution
+
+open CategoryTheory Categorification.Stendhal.FundamentalCorner
+
+example : fundamentalResolution.ShortExact := fundamentalResolution_shortExact
+
+example (x : Abelian.Ext fundamentalTerminalSimple fundamentalTerminalSimple 1) : x = 0 :=
+  fundamentalTerminalSimple_ext_eq_zero 1 (by decide) x
+
+end NonVacuity.WebsterFundamentalResolution
+
 namespace NonVacuity.WebsterVacuumBraidColumn
 
 open KLR KLRAlgebra Stendhal Stendhal.BraidedStendhalAlgebra
@@ -8869,6 +8880,32 @@ example := fundamentalCapRegularIso
 
 end NonVacuity.WebsterFundamentalCupRegular
 
+noncomputable section
+
+namespace NonVacuity.WebsterFundamentalDerivedCircle
+
+open CategoryTheory Categorification Categorification.Stendhal FundamentalCorner
+open scoped DG.DegreeZero
+
+local notation "T" => TensorProductAlgebra ℚ Q wt ({()} : Multiset Unit)
+
+local instance : DG.HasDerivedCategory.{1,0} ℚ := DG.HasDerivedCategory.standard ℚ
+local instance : DG.HasDerivedCategory.{1,0} Tᵐᵒᵖ := DG.HasDerivedCategory.standard Tᵐᵒᵖ
+
+example : fundamentalCap.obj (DG.DerivedCategory.Q.obj (DG.DGModuleCat.of Tᵐᵒᵖ
+    (InDegreeZero (rIdeal terminalIdem ⧸ fundamentalCutTrace)))) ≅
+    DG.DerivedCategory.Q.obj (DG.DGModuleCat.of ℚ (InDegreeZero ℚ)) :=
+  fundamentalCap_terminalSimpleIso
+
+example : (fundamentalCup ⋙ fundamentalCap).obj (DG.DerivedCategory.Q.obj
+    (DG.DGModuleCat.of ℚ ℚ)) ≅ (shiftFunctor (DG.DerivedCategory.{1,0} ℚ) (-1)).obj
+    (DG.DerivedCategory.Q.obj (DG.DGModuleCat.of ℚ (InDegreeZero ℚ))) :=
+  fundamentalCupEvaluationRegularIso
+
+end NonVacuity.WebsterFundamentalDerivedCircle
+
+end
+
 namespace NonVacuity.WebsterCupRHomRegular
 
 open CategoryTheory DG MulOpposite Categorification.Stendhal.Coevaluation
@@ -8956,6 +8993,12 @@ private theorem productBalanced (b x y : ℚ) : product (op b • x) y = product
 example := diagramWeightCoendProduct G G G leftAction rightAction leftAction rightAction
   product productWeight productBalanced (⟨0⟩ : QWeight) (⟨0⟩ : QWeight)
 
+private theorem productLeft (a x y : ℚ) : product (a • x) y = a • product x y :=
+  mul_assoc a x y
+
+example := diagramWeightCoendProductHom G G G leftAction rightAction leftAction rightAction
+  product productWeight productBalanced (⟨0⟩ : QWeight) leftAction rightAction productLeft
+
 private theorem productSpan :
     AddSubgroup.closure (Set.range fun z : ℚ × ℚ => product z.1 z.2) = ⊤ := by
   apply top_unique
@@ -8965,12 +9008,6 @@ private theorem productSpan :
 
 example := diagramWeightCoendProduct_surjective G G G leftAction rightAction leftAction rightAction
   product productWeight productBalanced (⟨0⟩ : QWeight) (⟨0⟩ : QWeight) productSpan
-
-private theorem productLeft (a x y : ℚ) : product (a • x) y = a • product x y :=
-  mul_assoc a x y
-
-example := diagramWeightCoendProductHom G G G leftAction rightAction leftAction rightAction
-  product productWeight productBalanced (⟨0⟩ : QWeight) leftAction rightAction productLeft
 
 end
 

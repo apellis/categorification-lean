@@ -583,6 +583,7 @@ import Categorification.KLR.IndPrefixVanish
 import Categorification.KLR.Induction
 import Categorification.KLR.InductionAlgebra
 import Categorification.KLR.InductionFree
+import Categorification.KLR.FourSlotExitSpan
 import Categorification.KLR.ReturnCrossing
 import Categorification.KLR.Intertwiner
 import Categorification.KLR.K0Algebra

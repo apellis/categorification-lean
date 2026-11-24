@@ -6473,3 +6473,34 @@ noncomputable example :=
   hasReflectedStandardFiltration_braidingBimodule [] [] rightFiltration
 
 end NonVacuity.WebsterBraidFiltration
+noncomputable section
+open Equiv Categorification.KLR Categorification.KLR.KLRAlgebra
+open Categorification.TypeA Categorification.Stendhal
+open Categorification.Stendhal.BraidedStendhalAlgebra
+
+namespace NonVacuity.WebsterFourSlotExits
+
+private abbrev ν : Multiset Bool := {false, false}
+private abbrev μ := stendhalWeight 2 ν
+private abbrev Q : Bool → Bool → MvPolynomial (Fin 2) ℤ := fun _ _ => 1
+private abbrev Λ : Fin 2 → Bool →₀ ℕ := fun _ => 0
+
+private def s : Seq μ :=
+  ⟨fun j => if j.val = 0 then .inr 0 else if j.val = 3 then .inr 1 else .inl false, by decide⟩
+
+private def t : Seq μ :=
+  ⟨fun j => if j.val = 0 then .inr 1 else if j.val = 3 then .inr 0 else .inl false, by decide⟩
+
+private theorem hex (w : Perm (Fin (Multiset.card μ))) (hw : w • s = t) :
+    w ⟨3, by decide⟩ < w ⟨0, by decide⟩ := by
+  have hred : [1, 0].Sublist (redWord (w • s)) := by rw [hw]; decide
+  have hi : ((⟨0, by decide⟩, ⟨3, by decide⟩) : Fin (Multiset.card μ) × Fin (Multiset.card μ)) ∈ invSet (Multiset.card μ) w :=
+    mem_invSet_of_sublist_redWord hred (by decide) (by decide) (by decide)
+  exact (mem_invSet.mp hi).2
+
+example (z : KLRAlgebra ℤ (stendhalQ Q Λ) μ) :=
+  mem_span_fourSlotExit_column (stendhalQ_symm Q Λ (by intro a b _; simp [Q])) (by decide)
+    s t hex z
+
+end NonVacuity.WebsterFourSlotExits
+end

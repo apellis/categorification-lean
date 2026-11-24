@@ -7125,6 +7125,64 @@ example :=
 
 end NonVacuity.WebsterCycleMark
 
+namespace NonVacuity.WebsterRightPair
+
+open Categorification.KLR Categorification.TypeA Categorification.Stendhal
+open BraidedStendhalAlgebra KLRAlgebra
+
+noncomputable section
+
+private abbrev ν : Multiset Unit := {()} + {()}
+private abbrev μ := stendhalWeight 4 ν
+private abbrev Q : Unit → Unit → MvPolynomial (Fin 2) ℚ := fun _ _ => 0
+private abbrev Λ : Fin 4 → Unit →₀ ℕ := fun _ => Finsupp.single () 2
+private def s : Seq μ := Seq.ofList [.inr 0, .inr 1, .inr 2, .inl (), .inl (), .inr 3] (by decide)
+private def v : Seq μ := Seq.ofList [.inl (), .inr 0, .inr 1, .inr 2, .inl (), .inr 3] (by decide)
+
+private theorem blacks (a : Fin μ.card) (h : (s.lbl a).isLeft) :
+    a = ⟨3,by decide⟩ ∨ a = ⟨4,by decide⟩ := by
+  fin_cases a <;> first | decide | contradiction
+
+/-- Both right factors apply at a genuinely violated generating cut, with
+exterior red spectators and coincident black colours. -/
+example (z : BraidedStendhalAlgebra ℚ Q Λ ν) :=
+  exists_rightPairColumn_coefficients_of_black_before Q Λ (ofKLR ℚ Q Λ ν)
+    (ofKLR_surjective (Q := Q) (Λ := Λ)) (fun _ _ _ => rfl) s v 2 (by decide) 2 rfl
+    blacks (exists_black_before_red_of_isViolated v 2 ⟨by decide,rfl⟩) z
+
+end
+
+end NonVacuity.WebsterRightPair
+
+namespace NonVacuity.WebsterLastRedPair
+
+open Categorification.KLR Categorification.TypeA Categorification.Stendhal
+open BraidedStendhalAlgebra KLRAlgebra
+
+noncomputable section
+
+private abbrev ν : Multiset Unit := {()} + {()}
+private abbrev μ := stendhalWeight 3 ν
+private abbrev Q : Unit → Unit → MvPolynomial (Fin 2) ℚ := fun _ _ => 0
+private abbrev Λ : Fin 3 → Unit →₀ ℕ := fun _ => Finsupp.single () 2
+private def s : Seq μ := Seq.ofList [.inr 0, .inr 1, .inr 2, .inl (), .inl ()] (by decide)
+private def t : Seq μ := Seq.ofList [.inr 0, .inr 1, .inl (), .inr 2, .inl ()] (by decide)
+
+private theorem blacks (a : Fin μ.card) (h : (s.lbl a).isLeft) :
+    a = ⟨3,by decide⟩ ∨ a = ⟨4,by decide⟩ := by
+  fin_cases a <;> first | decide | contradiction
+
+/-- Check the successive quotient projections at positive weight and repeated
+black colours with an exterior red before the exchanged pair. -/
+example :=
+  exists_rightPairRelation_affine_lift_of_lastPairHigher Q Λ (fun _ _ _ => rfl)
+    s t 2 (by decide) 1 2 [0] (by decide) rfl blacks
+    (fun _ => 0) (by intro i; rw [mul_zero, zero_mul]) (by simp only [zero_mul, Finset.sum_const_zero])
+
+end
+
+end NonVacuity.WebsterLastRedPair
+
 namespace NonVacuity.WebsterIntervalColumn
 
 open Categorification.KLR Categorification.Stendhal

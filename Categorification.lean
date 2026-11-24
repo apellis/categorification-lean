@@ -5,6 +5,7 @@ import Categorification.Algebra.BalancedTensorAssoc
 import Categorification.Algebra.BalancedTensorExact
 import Categorification.Algebra.BalancedTensorFiltration
 import Categorification.Algebra.BalancedTensorSplit
+import Categorification.Algebra.IdempotentExitLift
 import Categorification.Algebra.CoactionGrading
 import Categorification.Algebra.Coinvariant
 import Categorification.Algebra.CoinvariantGraded
@@ -1654,6 +1655,7 @@ import Categorification.WeightedKLR.RedStrands.BlockCrossingDiagramCut
 import Categorification.WeightedKLR.RedStrands.IntervalColumnSpan
 import Categorification.WeightedKLR.RedStrands.TwoBlackExitWords
 import Categorification.WeightedKLR.RedStrands.TwoBlackPivotObstruction
+import Categorification.WeightedKLR.RedStrands.RightPairQuotientLift
 import Categorification.WeightedKLR.RedStrands.BraidedStandardDerived
 import Categorification.WeightedKLR.RedStrands.BlockShuffleLoading
 import Categorification.WeightedKLR.RedStrands.BlockShuffleCrossing

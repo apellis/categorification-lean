@@ -4,6 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 -/
 import Categorification.Algebra.BalancedTensor
 import Categorification.Algebra.DiagramWeightCoend
+import Categorification.Algebra.Graded.Tensor
 
 /-!
 # The ordinary balanced tensor and its weight coends
@@ -282,5 +283,46 @@ theorem diagramWeightOrdinaryProjection_tmul {i j : ℤ} (x : G i) (y : H j) :
         change j = X.as - i - Z.as at he
         omega)
     rw [hz, CatTensorProduct.tmul_zero, map_zero]
+
+open Categorification.Graded
+
+local notation "ℳ₀" => (fun d : ℤ => AddSubgroup.toIntSubmodule (G d))
+local notation "𝒩₀" => (fun d : ℤ => AddSubgroup.toIntSubmodule (H d))
+local notation "𝒯" => balancedGrading ℤ B ℳ₀ 𝒩₀
+
+/-- Forgetting the intermediate weights identifies the weight coend with the total
+degree in the ordinary balanced tensor. -/
+theorem diagramWeightTensorOrdinary_range_eq_grade :
+    (diagramWeightTensorToOrdinary G H hgL hgR hhL hhR X Z).range =
+      (𝒯 (X.as - Z.as)).toAddSubgroup := by
+  let F := diagramWeightTensorToOrdinary G H hgL hgR hhL hhR X Z
+  let P := diagramWeightOrdinaryProjection G H hgL hgR hhL hhR X Z
+  apply le_antisymm
+  · rintro _ ⟨t, rfl⟩
+    induction t using CatTensorProduct.induction_on with
+    | zero => rw [map_zero]; exact zero_mem _
+    | tmul Y x y =>
+      rw [diagramWeightTensorToOrdinary_tmul G H hgL hgR hhL hhR X Z Y x y]
+      have h := tmul_mem_balancedGrading (B := ℤ) (A := B) (ℳ := ℳ₀) (𝒩 := 𝒩₀)
+        (show x.val ∈ ℳ₀ (X.as - Y.as) from x.property)
+        (show y.val ∈ 𝒩₀ (Y.as - Z.as) from y.property)
+      rwa [show X.as - Y.as + (Y.as - Z.as) = X.as - Z.as by omega] at h
+    | add u v hu hv => rw [map_add]; exact add_mem hu hv
+  · intro t ht
+    change t ∈ 𝒯 (X.as - Z.as) at ht
+    obtain ⟨u, hu, rfl⟩ := Submodule.mem_map.mp ht
+    clear ht
+    have hfix : P (BalancedTensor.mk ℤ ℤ B M N u) = BalancedTensor.mk ℤ ℤ B M N u := by
+      induction hu using Submodule.span_induction with
+      | mem u hu =>
+        obtain ⟨i, j, m, n, hdeg, hm, hn, rfl⟩ := hu
+        rw [BalancedTensor.mk_tmul]
+        exact (diagramWeightOrdinaryProjection_tmul G H hgL hgR hhL hhR X Z
+          ⟨m, hm⟩ ⟨n, hn⟩).trans (ite_eq_left hdeg)
+      | zero => rw [map_zero, map_zero]
+      | add u v _ _ hu hv => rw [map_add, map_add, hu, hv]
+      | smul c u _ hu => rw [map_smul, map_zsmul, hu]
+    exact ⟨diagramWeightTensorSliceOrdinary G H hgL hgR hhL hhR X Z
+      (BalancedTensor.mk ℤ ℤ B M N u), hfix⟩
 
 end Categorification

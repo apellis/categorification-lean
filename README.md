@@ -1133,6 +1133,14 @@ The coefficient on the generating vector is one
 (`Stendhal.FundamentalCorner.terminalCoefficient_generator`). The general
 diagrammatic inputs to the criterion remain open.
 
+**Terminal-character resolution benchmark for Webster, arXiv:1309.3796v2,
+§8.1.** In the fundamental rank-one block over `ℚ`, the terminal simple
+has a length-one projective resolution whose differential is the mixed
+crossing from the middle loading to the terminal loading
+(`Stendhal.FundamentalCorner.fundamentalProjectiveResolution`). Its positive
+self-Ext groups vanish
+(`Stendhal.FundamentalCorner.fundamentalTerminalSimple_ext_eq_zero`).
+
 ### Weak `sl₂`-categorifications (Chuang–Rouquier, arXiv:math/0407205v2, §5)
 
 Input for Webster's §5 (arXiv:1309.3796v2, Props. 5.11–5.18). A weak `sl₂`-categorification

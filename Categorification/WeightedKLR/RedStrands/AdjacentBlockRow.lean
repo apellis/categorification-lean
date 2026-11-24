@@ -97,6 +97,37 @@ theorem redWord_place_adjacent (L M : List (Fin ℓ × Multiset I)) (f : Fin 2 �
     rw [step]
     rcases ih s.2 with he | he <;> rw [he] <;> first | exact .inl rfl | exact .inr rfl
 
+/-- Every component loading has its original red order. -/
+def UncrossedLoading : (row : List (RedBlock I ℓ)) → Loadings row → Prop
+  | [], _ => True
+  | B :: row, s => redWord s.1 = List.finRange B.size ∧ UncrossedLoading row s.2
+
+private theorem spectator_order (x : Fin ℓ × Multiset I) (s : Seq (spectator x).localWeight) :
+    redWord s = List.finRange (spectator x).size :=
+  List.perm_singleton.1 (show (redWord s).Perm [0] from reds_perm s)
+
+private theorem spectator_orders : ∀ M : List (Fin ℓ × Multiset I), ∀ s, UncrossedLoading (M.map spectator) s
+  | [], _ => trivial
+  | x :: xs, s => ⟨spectator_order x s.1, spectator_orders xs s.2⟩
+
+/-- Reading the uncrossed global order is equivalent to reading it in every block
+(Webster, arXiv:1309.3796v2, §6.1, ordinary diagram comparison in Lemma 6.8). -/
+theorem uncrossedLoading_iff (L M : List (Fin ℓ × Multiset I)) (f : Fin 2 ↪ Fin ℓ)
+    (β : Multiset I) {ν : Multiset I} (h : weightSum (adjacentRow L M f β) = stendhalWeight ℓ ν)
+    (s : Loadings (adjacentRow L M f β)) : UncrossedLoading _ s ↔
+    redWord (Seq.cast h (place _ s)) = L.map Prod.fst ++ f 0 :: f 1 :: M.map Prod.fst := by
+  rw [← reds_eq, reds_cast]; clear h
+  induction L with
+  | nil =>
+    change (_ ∧ _) ↔ reds ((Seq.map _ s.1).append _) = f 0 :: f 1 :: M.map Prod.fst
+    rw [and_iff_left (spectator_orders M s.2), reds_append, reds_map, reds_spectators]
+    change redWord s.1 = [0,1] ↔ (redWord s.1).map f ++ M.map Prod.fst = [f 0, f 1] ++ M.map Prod.fst
+    rw [List.append_cancel_right_eq]; exact (List.map_injective_iff.2 f.injective).eq_iff.symm
+  | cons x xs ih =>
+    change (_ ∧ _) ↔ reds ((Seq.map _ s.1).append _) = x.1 :: _
+    rw [and_iff_right (spectator_order x s.1), reds_append, reds_spectator]
+    exact (ih s.2).trans ⟨congrArg (List.cons x.1), fun he => List.cons.inj he |>.2⟩
+
 /-- The blocks of the row are precisely the fibers of the retained cuts. -/
 theorem aligned_adjacent (L M : List (Fin ℓ × Multiset I)) (f : Fin 2 ↪ Fin ℓ) (β : Multiset I)
     (hn : (L.map Prod.fst ++ f 0 :: f 1 :: M.map Prod.fst).Nodup) :

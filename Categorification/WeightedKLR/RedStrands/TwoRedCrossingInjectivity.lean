@@ -22,7 +22,7 @@ namespace Categorification.Stendhal
 open KLR KLRAlgebra TypeA InductionAlong QuantumGroup KL3.Diagram
 open scoped TensorProduct
 
-variable {I k : Type} [DecidableEq I] [Field k]
+variable {I k : Type} [decI : DecidableEq I] [Field k]
   {C : CartanDatum I}
 
 local notation "QL" => CL.qCL (CL.CLScalars.kl : CL.CLScalars C k)
@@ -67,6 +67,10 @@ theorem eq_zero_of_mul_secondRedCrossing_at_right
     (hx : x * tensorOfKLR QL Λ _ (e (appendRedLoading (appendBlackLoading i (θ + 0) u))) = x)
     (h0 : x * tensorOfKLR QL Λ _ (ψ (stendhalWeight 1 (θ + 0)).card *
       e (appendBlackLoading i (θ + 0) (appendRedLoading u))) = 0) : x = 0 := by
+  let d : DecidableEq I := fun a b => Classical.propDecidable (a = b)
+  have hd : decI = d := Subsingleton.elim _ _
+  subst decI
+  letI : DecidableEq I := d
   let A := Multiset.map (addRedColor 1) (stendhalWeight 1 θ)
   let B := Multiset.map (Sum.map (id : I → I) (fun _ : Fin 1 => Fin.last 1))
     (stendhalWeight 1 (0 : Multiset I))
@@ -84,12 +88,13 @@ theorem eq_zero_of_mul_secondRedCrossing_at_right
     (Seq.cast (firstInd_klrWeight (ℓ := 1) i θ 0).symm s)
     (Seq.cast (firstInd_klrWeight (ℓ := 1) i θ 0).symm t)
     (cast_blackRedLoading_mem_botSet i θ u (firstInd_klrWeight (ℓ := 1) i θ 0) hb
-      (by simp [B, stendhalWeight]))
+      (by simp [stendhalWeight]))
     (cast_redBlackLoading_mem_concatSet i θ u (firstInd_klrWeight (ℓ := 1) i θ 0)) (firstFactorSwap i θ u)
   have hclip : redCrossIdem QL Λ i θ u hu * firstIndAffine QL Λ i θ 0 G =
       tensorOfKLR QL Λ _ (ψ (stendhalWeight 1 (θ + 0)).card * e t) := by
-    rw [hsrc, tensorOfKLR_e_of_ordered _ _ hs,
-      ← firstIndAffine_e_cast QL Λ i θ 0 s hs, ← map_mul]
+    have he : redCrossIdem QL Λ i θ u hu = redLoadingIdem QL Λ _ s hs :=
+      redCrossIdem_eq QL Λ i θ u hu
+    rw [he, ← firstIndAffine_e_cast QL Λ i θ 0 s hs, ← map_mul]
     change firstIndAffine QL Λ i θ 0 (_ * firstG _ A B j) = _
     rw [hframe, firstIndAffine_apply, map_mul, castKLR_ψ, castKLR_e, Seq.cast_cast_symm,
       show A.card = (stendhalWeight 1 (θ + 0)).card from firstFactorCrossingIndex (I := I) θ]

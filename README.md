@@ -1062,7 +1062,10 @@ augmented chain gives a dg model with a pointwise quasi-isomorphic augmentation
 (`weightDgGradedChainAugmentation_quasiIso`). Applied to the ordered
 loading resolution, this gives its literal graded augmentation and its
 quasi-isomorphism to the homogeneous standard
-(`orderedWeightDgAugmentation_quasiIso`).
+(`orderedWeightDgAugmentation_quasiIso`). The ordered model's higher loading support
+implies derived tensor concentration when those loadings annihilate the
+coefficient filtration layers (Webster Lemma 6.11,
+`orderedWeightDerivedTensor_cohomology_isZero_of_filtered_loading_support`).
 A bounded-above weight complex realizes as a K-projective dg module when
 its individual terms, placed in their cohomological degrees, are K-projective
 (`diagramWeightModuleOfComplex_isKProjective`). The ordered loading resolution meets this criterion because its

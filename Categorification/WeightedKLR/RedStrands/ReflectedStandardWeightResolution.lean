@@ -9,6 +9,12 @@ import Categorification.WeightedKLR.RedStrands.BraidingAuxiliaryLoading
 import Categorification.WeightedKLR.RedStrands.GradedLeftStandard
 import Categorification.WeightedKLR.RedStrands.OrderedStandardResolution
 
+import Categorification.Algebra.DiagramOppositeWeight
+import Categorification.Algebra.DiagramWeightRingEquiv
+import Categorification.WeightedKLR.RedStrands.BraidedFlipGrading
+import DG.Category.Tensor.Reindex
+import DG.Category.Tensor.ResolutionBalance
+
 /-!
 # Graded ordered resolutions in a reflected braid corner
 
@@ -343,5 +349,169 @@ theorem reflectedStandardWeightBraiding_isZero (κ' : List (Fin ℓ)) :
     have hj : -((j+1 : ℕ) : ℤ) = n := by dsimp [j]; omega
     exact reflectedStandardWeightResolution_loading_support hR σ hρ hQ hU s j Z x
       (by rw [hj]; exact hx)
+
+/-- The literal opposite-corner resolution of the reflected standard
+preserves acyclicity of the other coend input (Webster v2, Lemma 6.11). -/
+theorem reflectedStandardWeightResolution_tensor_acyclic :
+    letI := Graded.cornerGradedAlgebra V hE (redProj_mem_violAuxiliaryGrade G κ)
+    letI := gradedAlgebraInternalGrading CG
+    letI := gradedAlgebraBigradedDGRing CG
+    ∀ (N : CatModule.{0} (DGOpposite (WeightCategory (hE).Cornerᵐᵒᵖ))),
+      CatModule.IsAcyclic N →
+      DG.IsAcyclic (CatTensorProduct N (reflectedStandardWeightResolution hR σ hρ hQ hU s)) := by
+  let _ := Graded.cornerGradedAlgebra V hE (redProj_mem_violAuxiliaryGrade G κ)
+  let _ := gradedAlgebraInternalGrading CG
+  let _ := gradedAlgebraBigradedDGRing CG
+  intro N hN
+  exact orderedWeightDgResolution_tensor_acyclic Dₛ s (reflectedLoading_mem_grade hR σ hρ hQ)
+    (reflectedLoading_idempotent σ hρ hQ) loadingOrder_trans T
+    (fun {_ _} h => reflectedQuotient_mem_grade hR σ hρ hQ hU s h) N hN
+    (fun f => WeightCategory.mem_grading_iff.mpr (mem_degreeZeroGrading_zero _ f.val))
+
+local notation "OG" => Graded.cornerGrading V hE
+
+/-- Viewed as a right module over the original corner, the reflected ordered
+model can be used as a resolution in the first tensor argument. -/
+def reflectedStandardRightWeightResolution :
+    letI := Graded.cornerGradedAlgebra V hE (redProj_mem_violAuxiliaryGrade G κ)
+    letI := gradedAlgebraInternalGrading OG
+    letI := gradedAlgebraBigradedDGRing OG
+    CatModule (DGOpposite (WeightCategory (hE).Corner)) := by
+  letI := Graded.cornerGradedAlgebra V hE (redProj_mem_violAuxiliaryGrade G κ)
+  letI := gradedAlgebraInternalGrading OG
+  letI := gradedAlgebraBigradedDGRing OG
+  letI := gradedAlgebraInternalGrading CG
+  letI := gradedAlgebraBigradedDGRing CG
+  let F := oppositeWeightFunctor OG
+  letI : F.Additive := oppositeWeightFunctor_additive OG
+  letI : F.IsDGFunctor := oppositeWeightFunctor_isDGFunctor OG
+  exact CatModule.precompObj F (reflectedStandardWeightResolution hR σ hρ hQ hU s)
+
+/-- After opposite-weight restriction, the reflected ordered model retains
+the coend acyclicity needed for Webster v2, Lemma 6.11. -/
+theorem reflectedStandardRightWeightResolution_tensor_acyclic :
+    letI := Graded.cornerGradedAlgebra V hE (redProj_mem_violAuxiliaryGrade G κ)
+    letI := gradedAlgebraInternalGrading OG
+    letI := gradedAlgebraBigradedDGRing OG
+    ∀ (N : CatModule.{0} (DGOpposite (DGOpposite (WeightCategory (hE).Corner)))),
+      CatModule.IsAcyclic N →
+      DG.IsAcyclic (CatTensorProduct N
+        (reflectedStandardRightWeightResolution hR σ hρ hQ hU s)) := by
+  let _ := Graded.cornerGradedAlgebra V hE (redProj_mem_violAuxiliaryGrade G κ)
+  let _ := gradedAlgebraInternalGrading OG
+  let _ := gradedAlgebraBigradedDGRing OG
+  let _ := gradedAlgebraInternalGrading CG
+  let _ := gradedAlgebraBigradedDGRing CG
+  let F := oppositeWeightFunctor OG
+  let _ : F.Additive := oppositeWeightFunctor_additive OG
+  let _ : F.IsDGFunctor := oppositeWeightFunctor_isDGFunctor OG
+  let M := reflectedStandardWeightResolution hR σ hρ hQ hU s
+  have hsource {X Y : DGOpposite (WeightCategory (hE).Corner)} (f : X ⟶ Y) :
+      f ∈ DG.grading (0 : ℤ) :=
+    WeightCategory.mem_grading_iff.mpr (mem_degreeZeroGrading_zero _ (DGOpposite.homUnop f).val)
+  have htarget {X Y : WeightCategory (hE).Cornerᵐᵒᵖ} (f : X ⟶ Y) :
+      f ∈ DG.grading (0 : ℤ) :=
+    WeightCategory.mem_grading_iff.mpr (mem_degreeZeroGrading_zero _ f.val)
+  intro N hN
+  change DG.IsAcyclic (CatTensorProduct N (CatModule.precompObj F M))
+  exact CatTensorProduct.isAcyclic_precomp_of_coend F hsource htarget
+    (oppositeWeightFunctor_bijective OG) (oppositeWeightFullyFaithful OG) M
+    (reflectedStandardWeightResolution_tensor_acyclic hR σ hρ hQ hU s) N hN
+
+/-- Restriction of the reflected augmentation to the original right-module
+weight category preserves its objectwise quasi-isomorphism. -/
+theorem reflectedStandardRightWeightAugmentation_quasiIso :
+    letI := Graded.cornerGradedAlgebra V hE (redProj_mem_violAuxiliaryGrade G κ)
+    letI := gradedAlgebraInternalGrading OG
+    letI := gradedAlgebraBigradedDGRing OG
+    letI := gradedAlgebraInternalGrading CG
+    letI := gradedAlgebraBigradedDGRing CG
+    let F := oppositeWeightFunctor OG
+    letI : F.Additive := oppositeWeightFunctor_additive OG
+    letI : F.IsDGFunctor := oppositeWeightFunctor_isDGFunctor OG
+    CatModule.IsQuasiIso ((CatModule.precomp F).map
+      (reflectedStandardWeightAugmentation hR σ hρ hQ hU s)) := by
+  let _ := Graded.cornerGradedAlgebra V hE (redProj_mem_violAuxiliaryGrade G κ)
+  let _ := gradedAlgebraInternalGrading OG
+  let _ := gradedAlgebraBigradedDGRing OG
+  let _ := gradedAlgebraInternalGrading CG
+  let _ := gradedAlgebraBigradedDGRing CG
+  let F := oppositeWeightFunctor OG
+  let _ : F.Additive := oppositeWeightFunctor_additive OG
+  let _ : F.IsDGFunctor := oppositeWeightFunctor_isDGFunctor OG
+  change CatModule.IsQuasiIso ((CatModule.precomp F).map
+    (reflectedStandardWeightAugmentation hR σ hρ hQ hU s))
+  exact fun X n => reflectedStandardWeightAugmentation_quasiIso hR σ hρ hQ hU s (F.obj X) n
+
+section StandardPairBalance
+
+variable (t : OrderedLoading ℓ ν) (hSym : ∀ i j, (G).degΨ i j = (G).degΨ j i)
+
+local notation "O" => C
+local notation "Fop" => oppositeWeightFunctor OG
+local notation "flipRing" => RingEquiv.symm (cornerFlipEquiv (Q := Q) (Λ := Λ) ν κ)
+
+/-- Resolving either reflected standard computes the same coend cohomology.
+The left coefficient uses the degree-preserving horizontal reflection. -/
+def reflectedStandardPairCohomologyEquiv (j : ℤ) :
+    letI := Graded.cornerGradedAlgebra V hE (redProj_mem_violAuxiliaryGrade G κ)
+    letI := gradedAlgebraInternalGrading OG
+    letI := gradedAlgebraBigradedDGRing OG
+    letI := gradedAlgebraInternalGrading CG
+    letI := gradedAlgebraBigradedDGRing CG
+    let hgrade : ∀ {n : ℤ} (a : O), flipRing a ∈ wgrading (M := Oᵐᵒᵖ) n ↔ a ∈ wgrading (M := O) n :=
+      fun {n} a => by
+        have h := (cornerFlipEquiv_mem_violAuxiliaryGrade_iff G hSym κ n (flipRing a)).symm
+        rw [RingEquiv.apply_symm_apply] at h
+        exact h
+    let F := weightFunctorOfRingEquiv flipRing hgrade
+    letI : F.Additive := weightFunctorOfRingEquiv_additive flipRing hgrade
+    letI : F.IsDGFunctor := weightFunctorOfRingEquiv_isDGFunctor flipRing hgrade
+    letI : (Fop).Additive := oppositeWeightFunctor_additive OG
+    letI : (Fop).IsDGFunctor := oppositeWeightFunctor_isDGFunctor OG
+    DG.cohomology (CatTensorProduct
+      (CatModule.precompObj Fop (reflectedStandardWeightModule hR σ hρ hQ s))
+      (CatModule.precompObj F (reflectedStandardWeightResolution hR σ hρ hQ hU t))) j ≃+
+    DG.cohomology (CatTensorProduct
+      (reflectedStandardRightWeightResolution hR σ hρ hQ hU s)
+      (CatModule.precompObj F (reflectedStandardWeightModule hR σ hρ hQ t))) j := by
+  letI := Graded.cornerGradedAlgebra V hE (redProj_mem_violAuxiliaryGrade G κ)
+  letI := gradedAlgebraInternalGrading OG
+  letI := gradedAlgebraBigradedDGRing OG
+  letI := gradedAlgebraInternalGrading CG
+  letI := gradedAlgebraBigradedDGRing CG
+  have hgrade {n : ℤ} (a : O) : flipRing a ∈ wgrading (M := Oᵐᵒᵖ) n ↔ a ∈ wgrading (M := O) n := by
+    have h := (cornerFlipEquiv_mem_violAuxiliaryGrade_iff G hSym κ n (flipRing a)).symm
+    rw [RingEquiv.apply_symm_apply] at h
+    exact h
+  let F := weightFunctorOfRingEquiv flipRing hgrade
+  letI : F.Additive := weightFunctorOfRingEquiv_additive flipRing hgrade
+  letI : F.IsDGFunctor := weightFunctorOfRingEquiv_isDGFunctor flipRing hgrade
+  letI : (Fop).Additive := oppositeWeightFunctor_additive OG
+  letI : (Fop).IsDGFunctor := oppositeWeightFunctor_isDGFunctor OG
+  let f := (CatModule.precomp Fop).map (reflectedStandardWeightAugmentation hR σ hρ hQ hU s)
+  let g := (CatModule.precomp F).map (reflectedStandardWeightAugmentation hR σ hρ hQ hU t)
+  have hf : CatModule.IsQuasiIso f :=
+    reflectedStandardRightWeightAugmentation_quasiIso hR σ hρ hQ hU s
+  have hg : CatModule.IsQuasiIso g := fun X n =>
+    reflectedStandardWeightAugmentation_quasiIso hR σ hρ hQ hU t (F.obj X) n
+  have h₀ {X Y : WeightCategory O} (p : X ⟶ Y) : p ∈ DG.grading (0 : ℤ) :=
+    WeightCategory.mem_grading_iff.mpr (mem_degreeZeroGrading_zero _ p.val)
+  have h₀' {X Y : WeightCategory Oᵐᵒᵖ} (p : X ⟶ Y) : p ∈ DG.grading (0 : ℤ) :=
+    WeightCategory.mem_grading_iff.mpr (mem_degreeZeroGrading_zero _ p.val)
+  have hF : Function.Bijective F.obj :=
+    ⟨fun _ _ h => WeightCategory.ext (congrArg WeightCategory.as h),
+      fun X => ⟨⟨X.as⟩, rfl⟩⟩
+  letI : F.IsEquivalence := weightFunctorOfRingEquiv_isEquivalence flipRing hgrade
+  let M := reflectedStandardWeightResolution hR σ hρ hQ hU t
+  have hM (P : CatModule.{0} (DGOpposite (WeightCategory O))) (hP : CatModule.IsAcyclic P) :
+      DG.IsAcyclic (CatTensorProduct P (CatModule.precompObj F M)) :=
+    CatTensorProduct.isAcyclic_precomp_of_coend F h₀ h₀' hF
+      (Functor.FullyFaithful.ofFullyFaithful F) M
+      (reflectedStandardWeightResolution_tensor_acyclic hR σ hρ hQ hU t) P hP
+  exact CatTensorProduct.resolutionCohomologyEquiv h₀ f hf g hg hM
+    (reflectedStandardRightWeightResolution_tensor_acyclic hR σ hρ hQ hU s) j
+
+end StandardPairBalance
 
 end Categorification.Stendhal.BraidedStendhalAlgebra

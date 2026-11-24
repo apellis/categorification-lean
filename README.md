@@ -1446,6 +1446,9 @@ one-dimensional preimage tensor make this map surjective
 The resulting coefficient sequence gives zero first ambient self Tor for
 the incoming cokernel
 (`Stendhal.LabelTwo.incomingCokernelSelfTorOne_isZero_of_surjective`).
+The outgoing differential embeds the incoming cokernel in the exterior
+projective with quotient the final simple
+(`Stendhal.LabelTwo.outgoingCokernelShortComplex_shortExact`).
 
 
 

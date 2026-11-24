@@ -6609,6 +6609,17 @@ example :=
     (lower := [0, 1, 2]) (middle := [1, 0, 2]) (upper := [1, 2, 0])
     (by decide) (by decide) (by decide) (by decide)
 
+open scoped List in
+/-- The inversion condition used in Lemma 6.5 certifies offset addition
+along these two consecutive adjacent swaps. -/
+example :=
+  let Ξ : Fin 3 → Unit →₀ ℕ := fun j => Finsupp.single () (j.val + 1)
+  let η : Fin 3 → Module.Dual ℂ (Matrix.Realization.StdSpace (UDot.A sl₂) ℂ) :=
+    fun j => ((Ξ j () : ℂ) / 2) • realization.root ()
+  redWordOffset_add_of_sublist (weightPairing sl₂ realization) η
+    (lower := [0, 1, 2]) (middle := [1, 0, 2]) (upper := [1, 2, 0])
+    (by decide) (by decide) (by decide) (by decide) (by decide) (by decide) (by decide)
+
 end NonVacuity.WebsterFigureFive
 
 namespace NonVacuity.BraidedStendhal

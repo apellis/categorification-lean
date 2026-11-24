@@ -9096,6 +9096,10 @@ example : (diagramWeightDerivedTensor (fun j => DG.grading (M := ℚ) j) leftAct
 
 example := diagramWeightTensorShiftNatIso (fun j => DG.grading (M := ℚ) j) leftAction rightAction 1
 
+
+example : (diagramWeightTensorHomotopy (fun j => DG.grading (M := ℚ) j)
+    leftAction rightAction).CommShift ℤ := inferInstance
+
 end
 
 end NonVacuity.WebsterWeightTensor

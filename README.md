@@ -1088,6 +1088,12 @@ rows kill its image at the higher cut by the terminal square relation.
 The map factors through the middle dot-sum quotient
 (`Stendhal.labelTwo_leftExterior_return_square_zero`,
 `Stendhal.labelTwoMiddleToExterior`, `Stendhal.labelTwoMiddleExteriorDifferential`).
+The incoming exterior crossing descends to the middle dot-sum quotient
+because its two PBW return words factor through the mixed braid
+correction. The two maps on the divided-power terms form a complex
+(`Stendhal.labelTwoExteriorMiddleDifferential`,
+`Stendhal.labelTwoExteriorMiddleDifferential_comp_zero`).
+
 
 
 

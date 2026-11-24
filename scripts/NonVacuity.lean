@@ -5539,6 +5539,14 @@ noncomputable example := Categorification.Stendhal.labelTwoMiddleToExterior Q
 /-- The same crossing descends through the middle dot-sum quotient. -/
 noncomputable example := Categorification.Stendhal.labelTwoMiddleExteriorDifferential Q
 
+/-- The incoming crossing on the genuine divided-power standard. -/
+noncomputable example := Categorification.Stendhal.labelTwoExteriorMiddleDifferential Q
+
+/-- The two actual exterior crossing differentials have zero composite. -/
+example := Categorification.Stendhal.labelTwoExteriorMiddleDifferential_comp_zero Q
+
+noncomputable example := Categorification.Stendhal.labelTwoExteriorStandardComplex Q
+
 end NonVacuity.WebsterLabelTwoEndpointTor
 
 namespace NonVacuity.WebsterLocalization

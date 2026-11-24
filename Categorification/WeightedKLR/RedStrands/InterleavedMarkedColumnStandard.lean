@@ -24,6 +24,7 @@ local notation "Q" => CL.qCL (CL.CLScalars.kl : CL.CLScalars C k)
 local notation "μ" => stendhalWeight ℓ ν
 local notation "n" => Multiset.card μ
 
+set_option maxHeartbeats 1200000 in
 /-- The marked-column kernel inclusion for one intervening black strand, with
 arbitrary exterior strands and pairings at standard parameters. -/
 theorem interleaved_markedColumn_injective_standard

@@ -1033,6 +1033,10 @@ The offsets add when each red pair crosses at most once. In that case the
 actual multiplication adds normalized degrees
 (`braidingCoefficientMul_mem_weight`).
 
+Over a scalar field in degree zero the left modules are K-projective, so the
+construction gives derived Hom for every homogeneous scalar coefficient
+(`diagramWeightScalarDerivedHom`).
+
 Definition 7.4 has cup and cap coefficient models in the ungraded derived
 categories, with a specified cohomological shift on the cup and a finite
 dimensional ordinary tensor-Hom comparison preserving the module action

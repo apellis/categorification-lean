@@ -8860,6 +8860,40 @@ end
 
 end NonVacuity.WebsterGradedCorner
 
+namespace NonVacuity.WebsterScalarHom
+
+noncomputable section
+
+open Categorification CategoryTheory DG MulOpposite
+open scoped DG.DegreeZero
+
+local instance : InternalGrading ℚ := scalarInternalGrading ℚ
+local instance : BigradedDGRing ℚ := scalarBigradedDGRing ℚ
+local instance : CatModule.HasDerivedCategory.{1,0} (WeightCategory ℚ) :=
+  CatModule.HasDerivedCategory.standard (WeightCategory ℚ)
+
+private def weightPiece (j : ℤ) : Submodule ℚ ℚ where
+  carrier := (DG.grading (M := ℚ) j : Set ℚ)
+  add_mem' := add_mem
+  zero_mem' := zero_mem _
+  smul_mem' c m hm := by
+    change c * m ∈ DG.grading j
+    simpa only [zero_add] using mul_mem_grading (InDegreeZero.ring_mem_grading_zero c) hm
+
+private theorem rightAction {i j : ℤ} {b m : ℚ}
+    (hb : b ∈ wgrading i) (hm : m ∈ weightPiece j) :
+    op b • m ∈ weightPiece (j + i) := by
+  change m * b ∈ DG.grading (j + i)
+  exact mul_mem_grading (show m ∈ DG.grading j from hm) hb
+
+example := diagramWeightScalar_isKProjective ℚ weightPiece rightAction (⟨0⟩ : WeightCategory ℚ)
+
+example := diagramWeightScalarDerivedHom ℚ weightPiece rightAction
+
+end
+
+end NonVacuity.WebsterScalarHom
+
 namespace NonVacuity.WebsterAuxiliaryBraiding
 
 noncomputable section

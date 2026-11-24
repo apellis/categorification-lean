@@ -101,7 +101,8 @@ private theorem transport_red_black (s : Seq weight) (j : ℕ) (h : j + 1 < m) (
       congrArg (fun X : Finset (Fin 3) => ∑ u ∈ X, Λ u ()) he₁] at hm
     exact restrict_second (bounds_le Λ t) hm
 
-theorem loadingIdeal_preservesFlags : PreservesFlags Λ (loadingIdeal (k := k) Λ) := by
+theorem loadingIdeal_preservesFlagsWith (χ : Fin 3 → Fin 3 → Prop) [DecidableRel χ] :
+    PreservesFlagsWith Λ χ (loadingIdeal (k := k) Λ) := by
   intro s j h p hp
   rcases hleft : s.lbl ⟨j, by omega⟩ with i | r <;>
     rcases hright : s.lbl ⟨j + 1, h⟩ with i' | d
@@ -118,12 +119,12 @@ theorem loadingIdeal_preservesFlags : PreservesFlags Λ (loadingIdeal (k := k) �
     exact ddiff_mem_ideal (blackPositions s).2.2.1.ne hp
   · cases i
     simp only [crossComp, hleft, hright, reduceCtorEq, ↓reduceIte, LinearMap.coe_comp,
-      Function.comp_apply, LinearMap.mulLeft_apply, AlgHom.toLinearMap_apply, flagP, map_pow,
+      Function.comp_apply, LinearMap.mulLeft_apply, AlgHom.toLinearMap_apply, flagPWith, map_pow,
       rename_X, Matrix.cons_val_one, Matrix.cons_val_zero]
     exact transport_black_red Λ s j h d hleft hright p hp
   · cases i'
     simp only [crossComp, hleft, hright, reduceCtorEq, ↓reduceIte, LinearMap.coe_comp,
-      Function.comp_apply, LinearMap.mulLeft_apply, AlgHom.toLinearMap_apply, flagP, map_one, one_mul]
+      Function.comp_apply, LinearMap.mulLeft_apply, AlgHom.toLinearMap_apply, flagPWith, map_one, one_mul]
     exact transport_red_black Λ s j h r hleft hright p hp
   · have hn : r ≠ d := by
       intro he
@@ -137,11 +138,17 @@ theorem loadingIdeal_preservesFlags : PreservesFlags Λ (loadingIdeal (k := k) �
     rw [← ha, ← hb] at hm
     rw [crossComp, hleft, hright, ite_eq_right (fun he => hn (Sum.inr.inj he))]
     simp only [LinearMap.coe_comp, Function.comp_apply, LinearMap.mulLeft_apply,
-      AlgHom.toLinearMap_apply, flagP]
+      AlgHom.toLinearMap_apply, flagPWith]
     split_ifs
     · rw [map_one, one_mul, loadingIdeal, flagBound, flagBound, h₁, h₂]
       exact hm
     · rw [map_zero, zero_mul]
       exact zero_mem _
+
+theorem loadingIdeal_preservesFlags : PreservesFlags Λ (loadingIdeal (k := k) Λ) :=
+  loadingIdeal_preservesFlagsWith Λ (fun r d => r = 2 ∧ d = 1)
+
+theorem loadingIdeal_preservesSortedFlags : PreservesSortedFlags Λ (loadingIdeal (k := k) Λ) :=
+  loadingIdeal_preservesFlagsWith Λ (fun r d => d < r)
 
 end Categorification.Stendhal.FiveSlotFlag

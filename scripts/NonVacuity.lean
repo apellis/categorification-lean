@@ -5496,6 +5496,33 @@ example := KLR.CyclotomicAction.vacuum_homTensorMap_bijective.{0, 0, 0} rqHyp co
 
 end NonVacuity.CyclotomicFrobeniusRouquier
 
+namespace NonVacuity.WebsterLabelTwoUnknot
+
+open Categorification.Webster.LabelTwo
+
+example : LinearMap.ker (plus (k := ℤ)) = LinearMap.range minus :=
+  ker_plus
+
+example : LinearMap.ker (minus (k := ℤ)) = LinearMap.range plus :=
+  ker_minus
+
+noncomputable example := postTensorHomologyZero (k := ℚ)
+
+noncomputable example := postTensorHomologyOdd (k := ℚ) 2 ⟨1,by decide⟩ (by decide)
+
+noncomputable example := postTensorHomologyPositiveEven (k := ℚ) 1
+  (by simp) (by decide)
+
+end NonVacuity.WebsterLabelTwoUnknot
+
+namespace NonVacuity.WebsterLabelTwoProjectiveResolution
+
+open Categorification.Webster.LabelTwo
+
+noncomputable example := periodicProjectiveResolution (k := ℤ)
+
+end NonVacuity.WebsterLabelTwoProjectiveResolution
+
 namespace NonVacuity.WebsterLocalization
 
 open Categorification Categorification.QuantumGroup
@@ -5922,6 +5949,23 @@ example : NonnegativeReflectionPath (P.cartanDatum generalized) weight [()] :=
 
 example := rootSum_coevaluationWord_of_reduced P generalized weight dominant [()] reduced
 
+example := finrank_classical_coevaluationWeight P generalized weight dominant [()] reduced
+
+private theorem xRegular : LieLean.QuantumGroup.sl2RootDatum.IsXRegular := by
+  change LinearIndependent ℤ LieLean.QuantumGroup.sl2RootDatum.root
+  rw [linearIndependent_unique_iff]
+  intro h
+  have hh := congrArg (fun f : ℤ →+ ℤ => f 1) h
+  norm_num at hh
+
+/-- The terminal weight space of the highest-weight-two quantum module has dimension one. -/
+example := finrank_quantum_coevaluationWeight (R := LieLean.QuantumGroup.sl2RootDatum) P
+  xRegular (2 • AddMonoidHom.id ℤ) weight dominant (fun i => by
+    cases i
+    change P.root () (P.coroot ()) = (2 : ℝ)
+    rw [P.root_coroot]
+    rfl) [()] reduced
+
 end
 
 end NonVacuity.WebsterReducedCoevaluationWord
@@ -5962,6 +6006,46 @@ private noncomputable abbrev Λ : Fin 1 → Unit →₀ ℕ := fun _ => Finsupp.
 example := oneBlack_extremal_projective_simple Q Λ () (by simp [Λ])
 
 end NonVacuity.WebsterSingleBlackExtremal
+
+namespace NonVacuity.WebsterExtremalNorm
+
+open Categorification Categorification.Graded Stendhal Stendhal.SingleBlack
+
+attribute [local instance 1100] IsIdempotentElem.instAlgebraCorner_categorification
+
+private def weights : Fin 1 → Unit →₀ ℕ := fun _ => Finsupp.single () 1
+
+private def grading :=
+  stendhalGradingDatum weights (KLR.klGradingDatum ℚ (⊥ : SimpleGraph Unit))
+    (fun _ => 1) (fun _ => rfl)
+
+private abbrev block := tensorProductGrade grading ({()} : Multiset Unit)
+private abbrev proj := GProj.regular block
+
+private instance : HasGdim block := hasGdim_oneBlack () grading
+
+private theorem rank_one : Module.finrank (LaurentPolynomial ℤ) (K0 block) = 1 := by
+  rw [(oneBlackK0Equiv () grading (by simp [weights])).finrank_eq, Module.finrank_self]
+
+private theorem norm_one : proj.homGdim proj = 1 := by
+  rw [regular_homGdim () grading]
+  rw [show weights 0 () = 1 by simp [weights]]
+  simp
+
+example : IsSimpleModule (TensorProductAlgebra ℚ (KLR.klQ (⊥ : SimpleGraph Unit)) weights {()})
+    proj.carrier :=
+  GProj.isSimpleModule_of_homGdim_eq_one proj rank_one norm_one
+
+example : Nonempty (proj.Iso proj) :=
+  GProj.nonempty_iso_of_homGdim_coeff_zero proj proj rank_one norm_one norm_one
+    (by rw [norm_one]; simp [HahnSeries.coeff_one])
+
+/-- A shift moves the mixed Hom out of degree zero. -/
+example : (proj.homGdim (proj.shift 1)).coeff 0 = 0 := by
+  rw [GProj.homGdim_shift_right, norm_one, mul_one]
+  simp
+
+end NonVacuity.WebsterExtremalNorm
 
 namespace NonVacuity.WebsterTerminalCyclotomic
 
@@ -8178,6 +8262,38 @@ example [DG.HasDerivedCategory.{0, 0} Tᵐᵒᵖ] [DG.HasDerivedCategory.{0, 0} 
 
 end NonVacuity.WebsterFiveSlotThreeTopDerived
 
+namespace NonVacuity.WebsterFiveSlotBoundedSpectator
+
+open Categorification.KLR Categorification.Stendhal Categorification.QuantumGroup
+open BraidedStendhalAlgebra CategoryTheory DG MulOpposite
+open scoped DG.DegreeZero
+
+attribute [local instance 1200] Ring.toIntAlgebra
+
+private noncomputable abbrev C := Categorification.QuantumGroup.CartanDatum.ofGraph (⊥ : SimpleGraph Unit)
+private noncomputable abbrev Λ : Fin 3 → Unit →₀ ℕ := fun _ => Finsupp.single () 1
+private noncomputable abbrev Q := Categorification.KL3.Diagram.CL.qCL
+  (Categorification.KL3.Diagram.CL.CLScalars.kl : Categorification.KL3.Diagram.CL.CLScalars C ℚ)
+
+local notation "ν₀" => ({()} + {()} : Multiset Unit)
+local notation "t" => fixedTopFourExitCut 1
+local notation "κ" => ([0,2,1] : List (Fin 3))
+local notation "Corner" => fun reds : List (Fin 3) =>
+  IsIdempotentElem.Corner (isIdempotentElem_violMk_redProj ℚ Q Λ ν₀ reds)
+
+example := fiveSlot_blockKernelTensorInclusion_injective_of_spectatorWeight_le_one
+  (k := ℚ) C Λ t (by decide) (by simp [Λ])
+
+example := fiveSlot_blockKernelTensorInclusion_injective_of_spectatorWeight_le_one
+  (k := ℚ) C Λ (fixedTopFourExitCut 2) (by decide) (by simp [Λ])
+
+example [DG.HasDerivedCategory.{0, 0} (Corner (redWord t))ᵐᵒᵖ]
+    [DG.HasDerivedCategory.{0, 0} (Corner κ)ᵐᵒᵖ] :=
+  fiveSlot_blockKernelDerivedHomology_mono_of_spectatorWeight_le_one
+    (k := ℚ) C Λ t (by decide) (by simp [Λ])
+
+end NonVacuity.WebsterFiveSlotBoundedSpectator
+
 namespace NonVacuity.WebsterFiveSlotAllBottom
 
 open Categorification.KLR Categorification.Stendhal Categorification.QuantumGroup
@@ -8492,30 +8608,3 @@ example := cupRHomRegularIso ℚ ℚ (Fin 2 → ℚ)
 example := cupRHomTensorRegularIso ℚ ℚ (Fin 2 → ℚ)
 
 end NonVacuity.WebsterCupRHomRegular
-
-namespace NonVacuity.WebsterLabelTwoUnknot
-
-open Categorification.Webster.LabelTwo
-
-example : LinearMap.ker (plus (k := ℤ)) = LinearMap.range minus :=
-  ker_plus
-
-example : LinearMap.ker (minus (k := ℤ)) = LinearMap.range plus :=
-  ker_minus
-
-noncomputable example := postTensorHomologyZero (k := ℚ)
-
-noncomputable example := postTensorHomologyOdd (k := ℚ) 2 ⟨1,by decide⟩ (by decide)
-
-noncomputable example := postTensorHomologyPositiveEven (k := ℚ) 1
-  (by simp) (by decide)
-
-end NonVacuity.WebsterLabelTwoUnknot
-
-namespace NonVacuity.WebsterLabelTwoProjectiveResolution
-
-open Categorification.Webster.LabelTwo
-
-noncomputable example := periodicProjectiveResolution (k := ℤ)
-
-end NonVacuity.WebsterLabelTwoProjectiveResolution

@@ -10236,6 +10236,18 @@ example : ∃ x, rankOneDifferential 0 x = (⟨1, one_mul 1⟩ : P) :=
   ((gradedLoadingResolutionChainMap_augmentation_exact data false rankOneScalarGrade mulGrade eGrade
     eIdem aboveTrans rankOneStandardGrade quotientGrade) ⟨1, one_mul 1⟩).mp rfl
 
+open scoped DG.DegreeZero
+
+local instance instOrderedProjectivityScalarInternalGrading : InternalGrading ℚ :=
+  scalarInternalGrading ℚ
+local instance instOrderedProjectivityScalarBigradedRing : BigradedDGRing ℚ :=
+  scalarBigradedDGRing ℚ
+
+example : CatModule.IsKProjective
+    (orderedWeightDgResolution data false eGrade eIdem aboveTrans rankOneStandardGrade quotientGrade) :=
+  orderedWeightDgResolution_isKProjective data false eGrade eIdem aboveTrans
+    rankOneStandardGrade quotientGrade
+
 end NonVacuity.WebsterOrderedGradedResolution
 
 end

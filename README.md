@@ -1065,7 +1065,10 @@ quasi-isomorphism to the homogeneous standard
 (`orderedWeightDgAugmentation_quasiIso`).
 A bounded-above weight complex realizes as a K-projective dg module when
 its individual terms, placed in their cohomological degrees, are K-projective
-(`diagramWeightModuleOfComplex_isKProjective`).
+(`diagramWeightModuleOfComplex_isKProjective`). The ordered loading resolution meets this criterion because its
+cohomological pieces are representable loading corners or direct sums of
+such corners at their generator weights
+(`orderedWeightDgResolution_isKProjective`).
 
 A balanced homogeneous multiplication of two
 coefficients induces their product from the intermediate weight-category

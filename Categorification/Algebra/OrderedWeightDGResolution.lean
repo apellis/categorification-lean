@@ -31,7 +31,7 @@ variable {R : Type} [Ring R] [InternalGrading R] [BigradedDGRing R]
 
 local notation "A" => wgrading (M := R)
 local notation "W" => WeightCategory R
-private theorem weightMul ⦃i j : ℤ⦄ ⦃a b : R⦄
+theorem orderedWeightScalarMul ⦃i j : ℤ⦄ ⦃a b : R⦄
     (ha : a ∈ A i) (hb : b ∈ A j) : a * b ∈ A (i+j) :=
   mul_mem_wgrading ha hb
 
@@ -41,27 +41,27 @@ private def gradedTermFromSyzygy (G : GradedLoadingSyzygy (R := R) A) : WeightGr
     decomp := G.decomp
     smul_mem := fun {_ _ _ _} ha hx => G.smul_mem ha hx }
 
-private abbrev terms (n : ℕ) :=
-  gradedTermFromSyzygy (gradedLoadingResolutionTerm data s A (weightMul (R := R)) he₀ he htrans T hq n)
+abbrev orderedWeightTerms (n : ℕ) :=
+  gradedTermFromSyzygy (gradedLoadingResolutionTerm data s A (orderedWeightScalarMul (R := R)) he₀ he htrans T hq n)
 
-private abbrev differentials :=
-  gradedLoadingResolutionChainMap data s A (weightMul (R := R)) he₀ he htrans T hq
+abbrev orderedWeightDifferentials :=
+  gradedLoadingResolutionChainMap data s A (orderedWeightScalarMul (R := R)) he₀ he htrans T hq
 
-private theorem differentials_mem (n : ℕ) (j : ℤ) {x : (terms data s he₀ he htrans T hq (n+1)).obj}
-    (hx : x ∈ (terms data s he₀ he htrans T hq (n+1)).grade j) :
-    differentials data s he₀ he htrans T hq n x ∈ (terms data s he₀ he htrans T hq n).grade j :=
-  gradedLoadingResolutionChainMap_mem data s A (weightMul (R := R)) he₀ he htrans T hq n hx
+theorem orderedWeightDifferentials_mem (n : ℕ) (j : ℤ) {x : (orderedWeightTerms data s he₀ he htrans T hq (n+1)).obj}
+    (hx : x ∈ (orderedWeightTerms data s he₀ he htrans T hq (n+1)).grade j) :
+    orderedWeightDifferentials data s he₀ he htrans T hq n x ∈ (orderedWeightTerms data s he₀ he htrans T hq n).grade j :=
+  gradedLoadingResolutionChainMap_mem data s A (orderedWeightScalarMul (R := R)) he₀ he htrans T hq n hx
 
-private theorem differentials_comp (n : ℕ) (x : (terms data s he₀ he htrans T hq (n+2)).obj) :
-    differentials data s he₀ he htrans T hq n (differentials data s he₀ he htrans T hq (n+1) x) = 0 :=
-  (gradedLoadingResolutionChainMap_exact data s A (weightMul (R := R)) he₀ he htrans T hq n).apply_apply_eq_zero x
+theorem orderedWeightDifferentials_comp (n : ℕ) (x : (orderedWeightTerms data s he₀ he htrans T hq (n+2)).obj) :
+    orderedWeightDifferentials data s he₀ he htrans T hq n (orderedWeightDifferentials data s he₀ he htrans T hq (n+1) x) = 0 :=
+  (gradedLoadingResolutionChainMap_exact data s A (orderedWeightScalarMul (R := R)) he₀ he htrans T hq n).apply_apply_eq_zero x
 
 /-- The homogeneous ordered resolution viewed as a dg module on the weight category. -/
 def orderedWeightDgResolution : CatModule W :=
-  weightDgModuleOfGradedChain (terms data s he₀ he htrans T hq)
-    (differentials data s he₀ he htrans T hq)
-    (differentials_mem data s he₀ he htrans T hq)
-    (differentials_comp data s he₀ he htrans T hq)
+  weightDgModuleOfGradedChain (orderedWeightTerms data s he₀ he htrans T hq)
+    (orderedWeightDifferentials data s he₀ he htrans T hq)
+    (orderedWeightDifferentials_mem data s he₀ he htrans T hq)
+    (orderedWeightDifferentials_comp data s he₀ he htrans T hq)
 
 /-- The target of the ordered resolution, with its supplied homogeneous standard grading. -/
 def orderedWeightDgTarget : CatModule W :=
@@ -70,18 +70,18 @@ def orderedWeightDgTarget : CatModule W :=
 /-- The degree-preserving augmentation of the native ordered dg model. -/
 def orderedWeightDgAugmentation :
     orderedWeightDgResolution data s he₀ he htrans T hq ⟶ orderedWeightDgTarget s T hsmul :=
-  weightDgGradedChainAugmentation (terms data s he₀ he htrans T hq)
-    (differentials data s he₀ he htrans T hq)
-    (differentials_mem data s he₀ he htrans T hq) (differentials_comp data s he₀ he htrans T hq)
+  weightDgGradedChainAugmentation (orderedWeightTerms data s he₀ he htrans T hq)
+    (orderedWeightDifferentials data s he₀ he htrans T hq)
+    (orderedWeightDifferentials_mem data s he₀ he htrans T hq) (orderedWeightDifferentials_comp data s he₀ he htrans T hq)
     { obj := S s, grade := T, decomp := ‹_›, smul_mem := hsmul } (data.quotient s)
-    (fun _ {_} hx => hq hx) ((gradedLoadingResolutionChainMap_augmentation_exact data s A (weightMul (R := R)) he₀ he htrans T hq).apply_apply_eq_zero)
+    (fun _ {_} hx => hq hx) ((gradedLoadingResolutionChainMap_augmentation_exact data s A (orderedWeightScalarMul (R := R)) he₀ he htrans T hq).apply_apply_eq_zero)
 
 /-- The actual graded augmentation of the ordered resolution is a dg quasi-isomorphism. -/
 theorem orderedWeightDgAugmentation_quasiIso :
     CatModule.IsQuasiIso (orderedWeightDgAugmentation data s he₀ he htrans T hsmul hq) :=
   weightDgGradedChainAugmentation_quasiIso _ _ _ _ _ _ _ _
-    (gradedLoadingResolutionChainMap_exact data s A (weightMul (R := R)) he₀ he htrans T hq)
-    (gradedLoadingResolutionChainMap_augmentation_exact data s A (weightMul (R := R)) he₀ he htrans T hq)
+    (gradedLoadingResolutionChainMap_exact data s A (orderedWeightScalarMul (R := R)) he₀ he htrans T hq)
+    (gradedLoadingResolutionChainMap_augmentation_exact data s A (orderedWeightScalarMul (R := R)) he₀ he htrans T hq)
     (data.surjective s)
 
 end Categorification.ModuleFiltration

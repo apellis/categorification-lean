@@ -1376,6 +1376,7 @@ import Categorification.WeightedKLR.RedStrands.ParabolicStandardTensorFiltration
 import Categorification.WeightedKLR.RedStrands.ParabolicStandardTensorBase
 import Categorification.WeightedKLR.RedStrands.ParabolicStandardTensorProj
 import Categorification.WeightedKLR.RedStrands.LeftStandardModule
+import Categorification.WeightedKLR.RedStrands.OppositeStandardTor
 import Categorification.WeightedKLR.RedStrands.OrderedStandardResolution
 import Categorification.WeightedKLR.RedStrands.BlackCountTransport
 import Categorification.WeightedKLR.RedStrands.TwoPieceLoading
@@ -1710,6 +1711,7 @@ import Categorification.WeightedKLR.RedStrands.BraidedViolatedPush
 import Categorification.WeightedKLR.RedStrands.BraidedViolatedQuotient
 import Categorification.WeightedKLR.RedStrands.ExteriorStandardGrading
 import Categorification.WeightedKLR.RedStrands.StendhalBasisSymm
+import Categorification.WeightedKLR.Rigidity.CoevaluationWord
 
 /-!
 # Categorification

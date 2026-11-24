@@ -8203,3 +8203,35 @@ example [DG.HasDerivedCategory.{0, 0} (Corner (redWord t))ᵐᵒᵖ]
     (k := ℚ) C Λ t (by decide) (by simp [Λ])
 
 end NonVacuity.WebsterFiveSlotBoundedSpectator
+
+namespace NonVacuity.WebsterFiveSlotAllTops
+
+open Categorification.KLR Categorification.Stendhal Categorification.QuantumGroup
+open BraidedStendhalAlgebra CategoryTheory DG MulOpposite
+open scoped DG.DegreeZero
+
+attribute [local instance 1200] Ring.toIntAlgebra
+
+private noncomputable abbrev C := Categorification.QuantumGroup.CartanDatum.ofGraph (⊥ : SimpleGraph Unit)
+private noncomputable abbrev Λ : Fin 3 → Unit →₀ ℕ := fun r => Finsupp.single () (![3,2,1] r)
+private noncomputable abbrev Q := Categorification.KL3.Diagram.CL.qCL
+  (Categorification.KL3.Diagram.CL.CLScalars.kl : Categorification.KL3.Diagram.CL.CLScalars C ℚ)
+
+local notation "ν₀" => ({()} + {()} : Multiset Unit)
+local notation "t" => fixedTopFourExitCut 1
+local notation "nearby" => Categorification.TypeA.sadj (Multiset.card (stendhalWeight 3 ν₀)) 2 •
+  fixedTopFourExitCut 0
+local notation "κ" => ([0,2,1] : List (Fin 3))
+local notation "Corner" => fun reds : List (Fin 3) =>
+  IsIdempotentElem.Corner (isIdempotentElem_violMk_redProj ℚ Q Λ ν₀ reds)
+
+example := fiveSlot_blockKernelTensorInclusion_injective_standard_allTops (k := ℚ) C Λ t (by decide)
+
+example := fiveSlot_blockKernelTensorInclusion_injective_standard_allTops
+  (k := ℚ) C Λ nearby (by decide)
+
+example [DG.HasDerivedCategory.{0, 0} (Corner (redWord t))ᵐᵒᵖ]
+    [DG.HasDerivedCategory.{0, 0} (Corner κ)ᵐᵒᵖ] :=
+  fiveSlot_blockKernelDerivedHomology_mono_standard_allTops (k := ℚ) C Λ t (by decide)
+
+end NonVacuity.WebsterFiveSlotAllTops

@@ -7733,6 +7733,18 @@ end
 
 end NonVacuity.WebsterFiveSlotMarkedJoints
 
+namespace NonVacuity.WebsterFiveSlotKernelColumn
+
+open Categorification.Stendhal BraidedStendhalAlgebra
+
+private noncomputable abbrev Q : Unit → Unit → MvPolynomial (Fin 2) ℚ := fun _ _ => 0
+private noncomputable abbrev Λ : Fin 3 → Unit →₀ ℕ := fun _ => Finsupp.single () 2
+
+/-- Injectivity of the actual column tensor inclusion at positive red weights. -/
+example := fiveSlot_blockKernelColumnInclusion_injective Q Λ (fun _ _ _ => rfl)
+
+end NonVacuity.WebsterFiveSlotKernelColumn
+
 namespace NonVacuity.WebsterIntervalColumn
 
 open Categorification.KLR Categorification.Stendhal

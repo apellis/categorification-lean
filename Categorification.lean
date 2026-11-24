@@ -3,6 +3,7 @@ import Categorification.Algebra.AugmentationQuotient
 import Categorification.Algebra.BalancedTensor
 import Categorification.Algebra.BalancedTensorAssoc
 import Categorification.Algebra.BalancedTensorExact
+import Categorification.Algebra.BalancedTensorFiniteFamily
 import Categorification.Algebra.BalancedTensorFiltration
 import Categorification.Algebra.BalancedTensorSplit
 import Categorification.Algebra.IdempotentExitLift
@@ -1661,6 +1662,7 @@ import Categorification.WeightedKLR.RedStrands.RightPairQuotientLift
 import Categorification.WeightedKLR.RedStrands.EqualBlackHigherPair
 import Categorification.WeightedKLR.RedStrands.FixedTopFourExitJoints
 import Categorification.WeightedKLR.RedStrands.FiveSlotMarkedExitJoints
+import Categorification.WeightedKLR.RedStrands.FiveSlotKernelColumn
 import Categorification.WeightedKLR.RedStrands.BraidedStandardDerived
 import Categorification.WeightedKLR.RedStrands.BlockShuffleLoading
 import Categorification.WeightedKLR.RedStrands.BlockShuffleCrossing

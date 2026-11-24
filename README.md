@@ -1401,6 +1401,12 @@ standard gives its dot-sum relation. In the separated middle algebra this
 relation survives modulo the second dot-sum image
 (`Stendhal.labelTwo_incomingLift_return`,
 `Webster.LabelTwo.plus_one_notMem_range_plus_comp_plus`).
+At the middle loading, the preimage of the incoming image is exactly
+the dot-sum image. The left-dot coefficient detects the first dot-sum
+generator and vanishes on a second dot-sum action
+(`Stendhal.LabelTwo.incomingLift_middle_fixed_iff`,
+`Stendhal.LabelTwo.middleY₁Readout_diagramPlus_generator`,
+`Stendhal.LabelTwo.middleY₁Readout_middleDotElt_incomingLift_zero`).
 
 
 

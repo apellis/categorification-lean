@@ -9605,6 +9605,25 @@ example (G' H' : ℤ → Submodule ℚ ℚ) (d : ℤ) :=
   Categorification.Graded.balancedTensorIntScalarAddEquiv_map_grade
     (k := ℚ) (A := ℚ) (fun c m : ℚ => mul_comm m c) G' H' d
 
+private def scalarGroundGrade (d : ℤ) : Submodule ℚ ℚ :=
+  { carrier := G d
+    add_mem' := (G d).add_mem
+    zero_mem' := (G d).zero_mem
+    smul_mem' := fun c x hx => by
+      change c • x ∈ G d
+      simpa only [zero_add] using leftAction (i := 0)
+        (InDegreeZero.ring_mem_grading_zero c) hx }
+
+local instance instGroundTensorRationalDecomposition :
+    DirectSum.Decomposition (fun d => (scalarGroundGrade d).toAddSubgroup) :=
+  inferInstanceAs (DirectSum.Decomposition G)
+
+example :=
+  diagramWeightTensorGroundGradeEquiv (B := ℚ) scalarGroundGrade scalarGroundGrade
+    (fun ha hm => leftAction ha hm) (fun ha hm => rightAction ha hm)
+    (fun ha hm => leftAction ha hm) (fun ha hm => rightAction ha hm)
+    (fun c m : ℚ => mul_comm m c) (⟨0⟩ : QWeight) (⟨0⟩ : QWeight)
+
 example := diagramWeightTensorOrdinary_range_eq_grade G G leftAction rightAction leftAction rightAction
   (⟨0⟩ : QWeight) (⟨1⟩ : QWeight)
 

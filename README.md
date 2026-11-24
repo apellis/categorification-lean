@@ -1082,6 +1082,8 @@ projection keeps pure tensors of the endpoint degree
 component of the ordinary balanced tensor (`diagramWeightTensorOrdinary_range_eq_grade`).
 The integer and ground-ring balanced tensor gradings agree under the
 additive comparison (`Graded.balancedTensorIntScalarAddEquiv_map_grade`).
+The weight coend therefore identifies with the total-degree component
+over the ground ring (`diagramWeightTensorGroundGradeEquiv`).
 A nonpositive resolution has the same degree-zero tensor cohomology
 as the ordinary weight tensor (`catTensorCohomologyZeroEquivOfQuasiIso`). For a rectangular corner between two degree-zero
 idempotents, `diagramCornerWeightDerivedRightTensor` uses the restricted grading

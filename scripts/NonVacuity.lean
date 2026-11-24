@@ -6814,3 +6814,31 @@ example :
     (fun w => ⟨isReduced_canWord _ w, wordProd_canWord _ w⟩) reversed [0, 1]
 
 end NonVacuity.WebsterBraidColumnGeneration
+
+namespace NonVacuity.WebsterBraidColumnWordChange
+
+open KLR KLRAlgebra Stendhal Stendhal.BraidedStendhalAlgebra TypeA
+
+private abbrev black : Multiset Unit := ([(), ()] : List Unit)
+private abbrev weight := stendhalWeight 2 black
+private noncomputable abbrev params : Unit → Unit → MvPolynomial (Fin 2) ℚ := fun _ _ => 0
+private noncomputable abbrev exponents : Fin 2 → Unit →₀ ℕ := fun _ => Finsupp.single () 1
+private def loading : Seq weight := Seq.ofList [.inr 0, .inl (), .inr 1, .inl ()] (by decide)
+
+private noncomputable abbrev q := violMk ℚ params exponents black
+private noncomputable abbrev raw := ofKLR ℚ params exponents black
+
+example :
+    columnProjection loading [0, 1] (q (raw (ψw [1, 2, 1] * pol 1 * e loading))) -
+      columnProjection loading [0, 1] (q (raw (ψw [2, 1, 2] * pol 1 * e loading))) ∈
+      Submodule.span ℚ (columnProductsOn (canWord weight.card) loading [0, 1]
+        {w | w ∈ subProds weight.card [1, 2, 1] ∧ length weight.card w < 1}) := by
+  have hstep : BraidStep [1, 2, 1] [2, 1, 2] := BraidStep.braid [] [] 1
+  have hv : ValidWord weight.card [1, 2, 1] := by
+    simp only [validWord_cons, validWord_nil]
+    decide
+  exact columnProjection_sub_mem_span_of_braidEquiv (canWord weight.card)
+    (fun w => ⟨isReduced_canWord _ w, wordProd_canWord _ w⟩) loading [0, 1]
+    (Relation.EqvGen.rel _ _ hstep) hv 1 loading
+
+end NonVacuity.WebsterBraidColumnWordChange

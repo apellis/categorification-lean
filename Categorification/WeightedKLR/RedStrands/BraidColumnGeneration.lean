@@ -2,6 +2,7 @@
 Copyright (c) 2026 Alex Ellis. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 -/
+import Categorification.KLR.MackeyIntertwine
 import Categorification.WeightedKLR.RedStrands.BraidColumnFiltration
 import Categorification.WeightedKLR.RedStrands.BraidedViolatedQuotient
 
@@ -34,17 +35,63 @@ local notation "C" => fun κ => q (redProj k Q Λ ν κ)
 noncomputable def columnProjection (s : Seq μ) (κ : List (Fin ℓ)) : V →ₗ[k] V :=
   LinearMap.mulLeft k (E s) ∘ₗ LinearMap.mulRight k (C κ)
 
+/-- Products from the indicated permutations in the fixed-top braid column. -/
+def columnProductsOn (ρ : Equiv.Perm (Fin m) → List ℕ) (s : Seq μ) (κ : List (Fin ℓ))
+    (S : Set (Equiv.Perm (Fin m))) : Set V :=
+  {x | ∃ (w : Equiv.Perm (Fin m)) (z : V),
+    w ∈ S ∧ redWord (w⁻¹ • s) = κ ∧ z ∈ cornerBimodule (E (w⁻¹ • s)) (C κ) ∧
+    x = q (raw (ψw (ρ w) * e (w⁻¹ • s))) * z}
+
 /-- Images of the dot-free words multiplying the bottom loading projectives in
 the fixed-top braid column. Each diagram's bottom loading is the unique one
 taken to the top loading by its permutation. -/
-def columnProducts (ρ : Equiv.Perm (Fin m) → List ℕ) (s : Seq μ) (κ : List (Fin ℓ)) :
+abbrev columnProducts (ρ : Equiv.Perm (Fin m) → List ℕ) (s : Seq μ) (κ : List (Fin ℓ)) :
     Set V :=
-  {x | ∃ (w : Equiv.Perm (Fin m)) (z : V),
-    redWord (w⁻¹ • s) = κ ∧ z ∈ cornerBimodule (E (w⁻¹ • s)) (C κ) ∧
-    x = q (raw (ψw (ρ w) * e (w⁻¹ • s))) * z}
+  columnProductsOn (Q := Q) (Λ := Λ) ρ s κ Set.univ
 
 private theorem columnProjection_apply (s : Seq μ) (κ : List (Fin ℓ)) (x : V) :
     columnProjection (Q := Q) (Λ := Λ) s κ x = E s * (x * C κ) := rfl
+
+/-- Project a polynomial-weighted word into the fixed-top braid column,
+preserving the prescribed permutation support. -/
+theorem columnProjection_word_mem_span (ρ : Equiv.Perm (Fin m) → List ℕ)
+    (s : Seq μ) (κ : List (Fin ℓ)) (S : Set (Equiv.Perm (Fin m)))
+    (w : Equiv.Perm (Fin m)) (hρ : wordProd m (ρ w) = w) (hw : w ∈ S)
+    (p : MvPolynomial (Fin m) k) (i : Seq μ) :
+    columnProjection (Q := Q) (Λ := Λ) s κ (q (raw (ψw (ρ w) * pol p * e i))) ∈
+      Submodule.span k (columnProductsOn (Q := Q) (Λ := Λ) ρ s κ S) := by
+  change E s * (q (raw (ψw (ρ w) * pol p * e i)) * C κ) ∈ _
+  rw [← mul_assoc, ← map_mul, ← map_mul, ← map_mul raw, e_mul_gen, hρ]
+  split_ifs with hi
+  · subst i
+    let t := w⁻¹ • s
+    let z : V := q (raw (pol p * e t))
+    have hproj : raw (pol p * e t) * redProj k Q Λ ν κ =
+        if redWord t = κ then raw (pol p * e t) else 0 := by
+      rw [map_mul raw, mul_assoc, e_mul_redProj]
+      split_ifs <;> simp
+    change q (raw (ψw (ρ w) * pol p * e t) * redProj k Q Λ ν κ) ∈ _
+    rw [mul_assoc (ψw (ρ w)), map_mul raw, mul_assoc, hproj]
+    by_cases hk : redWord t = κ
+    · rw [ite_eq_left hk]
+      have he : e t * (pol p * e t) = (pol p * e t : KLRAlgebra k (stendhalQ Q Λ) μ) := by
+        rw [← mul_assoc, (e_commute_pol _ p).eq, mul_assoc, e_mul_self]
+      have hz : z ∈ cornerBimodule (E t) (C κ) := by
+        exact ⟨by rw [show E t * z = q (raw (e t * (pol p * e t))) by
+                        rw [map_mul raw, map_mul q], he],
+          by rw [show z * C κ = q (raw (pol p * e t) * redProj k Q Λ ν κ) by
+                 exact (map_mul q _ _).symm, hproj, ite_eq_left hk]⟩
+      apply Submodule.subset_span
+      refine ⟨w, z, hw, hk, hz, ?_⟩
+      change q (raw (ψw (ρ w)) * raw (pol p * e t)) = q (raw (ψw (ρ w) * e t)) * z
+      calc
+        _ = q (raw (ψw (ρ w) * (pol p * e t))) := congrArg q (map_mul raw _ _).symm
+        _ = q (raw ((ψw (ρ w) * e t) * (pol p * e t))) := by rw [mul_assoc, he]
+        _ = _ := by rw [map_mul raw, map_mul q]
+    · rw [ite_eq_right hk, mul_zero, map_zero]
+      exact zero_mem _
+  · rw [map_zero, zero_mul, map_zero]
+    exact zero_mem _
 
 /-- Every element of the fixed-top violated braid column is in the span of the
 finite family of dot-free reduced words with coefficients in their bottom
@@ -57,7 +104,7 @@ theorem span_columnProducts (hQ : KLRSymm Q) (ρ : Equiv.Perm (Fin m) → List �
       LinearMap.range (columnProjection (Q := Q) (Λ := Λ) s κ) := by
   apply le_antisymm
   · apply Submodule.span_le.mpr
-    rintro _ ⟨w, z, _, hz, rfl⟩
+    rintro _ ⟨w, z, _, _, hz, rfl⟩
     refine ⟨q (raw (ψw (ρ w) * e (w⁻¹ • s))) * z, ?_⟩
     rw [columnProjection_apply, mul_assoc _ z, hz.2, ← mul_assoc,
       ← map_mul, ← map_mul, ← mul_assoc, e_mul_ψw, (hρ w).2, mul_assoc,
@@ -71,40 +118,8 @@ theorem span_columnProducts (hQ : KLRSymm Q) (ρ : Equiv.Perm (Fin m) → List �
     rw [Submodule.map_span] at hm
     refine Submodule.span_le.mpr ?_ hm
     rintro _ ⟨_, ⟨⟨⟨i, w, u⟩, _⟩, rfl⟩, rfl⟩
-    let p : MvPolynomial (Fin m) k := monomial u 1
-    simp only [LinearMap.comp_apply, AlgHom.toLinearMap_apply, columnProjection_apply, stdElt]
-    change E s * (q (raw (ψw (ρ w) * pol p * e i)) * C κ) ∈ _
-    rw [← mul_assoc, ← map_mul, ← map_mul, ← map_mul raw, e_mul_gen, (hρ w).2]
-    split_ifs with hi
-    · subst i
-      let t := w⁻¹ • s
-      let z : V := q (raw (pol p * e t))
-      have hproj : raw (pol p * e t) * redProj k Q Λ ν κ =
-          if redWord t = κ then raw (pol p * e t) else 0 := by
-        rw [map_mul raw, mul_assoc, e_mul_redProj]
-        split_ifs <;> simp
-      change q (raw (ψw (ρ w) * pol p * e t) * redProj k Q Λ ν κ) ∈ _
-      rw [mul_assoc (ψw (ρ w)), map_mul raw, mul_assoc, hproj]
-      by_cases hk : redWord t = κ
-      · rw [ite_eq_left hk]
-        have he : e t * (pol p * e t) = (pol p * e t : KLRAlgebra k (stendhalQ Q Λ) μ) := by
-          rw [← mul_assoc, (e_commute_pol _ p).eq, mul_assoc, e_mul_self]
-        have hz : z ∈ cornerBimodule (E t) (C κ) := by
-          exact ⟨by rw [show E t * z = q (raw (e t * (pol p * e t))) by
-                          rw [map_mul raw, map_mul q], he],
-            by rw [show z * C κ = q (raw (pol p * e t) * redProj k Q Λ ν κ) by
-                   exact (map_mul q _ _).symm, hproj, ite_eq_left hk]⟩
-        apply Submodule.subset_span
-        refine ⟨w, z, hk, hz, ?_⟩
-        change q (raw (ψw (ρ w)) * raw (pol p * e t)) = q (raw (ψw (ρ w) * e t)) * z
-        calc
-          _ = q (raw (ψw (ρ w) * (pol p * e t))) := congrArg q (map_mul raw _ _).symm
-          _ = q (raw ((ψw (ρ w) * e t) * (pol p * e t))) := by rw [mul_assoc, he]
-          _ = _ := by rw [map_mul raw, map_mul q]
-      · rw [ite_eq_right hk, mul_zero, map_zero]
-        exact zero_mem _
-    · rw [map_zero, zero_mul, map_zero]
-      exact zero_mem _
+    exact columnProjection_word_mem_span ρ s κ Set.univ w (hρ w).2 (Set.mem_univ _)
+      (monomial u 1) i
 
 /-- The dot-free diagram as a right-module map from the bottom loading
 projective to the fixed-top column. -/
@@ -127,9 +142,92 @@ theorem mem_columnProducts_iff (ρ : Equiv.Perm (Fin m) → List ℕ)
       ∃ (w : Equiv.Perm (Fin m)) (z : cornerBimodule (E (w⁻¹ • s)) (C κ)),
         redWord (w⁻¹ • s) = κ ∧ x = (columnDiagramMap ρ hρ s κ w z).val := by
   constructor
-  · rintro ⟨w, z, hk, hz, rfl⟩
+  · rintro ⟨w, z, _, hk, hz, rfl⟩
     exact ⟨w, ⟨z, hz⟩, hk, rfl⟩
   · rintro ⟨w, z, hk, rfl⟩
-    exact ⟨w, z.val, hk, z.prop, rfl⟩
+    exact ⟨w, z.val, Set.mem_univ _, hk, z.prop, rfl⟩
+
+private theorem lowSpan_le_stdSpan (ρ : Equiv.Perm (Fin m) → List ℕ)
+    (hρ : ∀ w, IsReduced m (ρ w) ∧ wordProd m (ρ w) = w)
+    (S : Set (Equiv.Perm (Fin m))) (L : ℕ) :
+    lowSpan k (stendhalQ Q Λ) μ S L ≤
+      stdSpan (stendhalQ Q Λ) ρ {w | w ∈ S ∧ length m w < L} := by
+  apply Submodule.span_le.mpr
+  rintro _ ⟨τ, p, i, hv, hS, hL, rfl⟩
+  apply stdSpan_mono ρ _ (gen_mem_stdSpan ρ hρ τ hv p i)
+  intro w hw
+  refine ⟨hS hw, ?_⟩
+  obtain ⟨δ, hδ, heq⟩ := mem_subProds.mp hw
+  exact (length_le_of_wordProd_eq (hv.sublist hδ) heq).trans_lt
+    (hδ.length_le.trans_lt hL)
+
+/-- A change of reduced word in a fixed-top violated braid column is a sum
+of earlier candidates supported on shorter subword permutations. Each term
+belongs to a bottom loading projective of the required red order. Webster,
+arXiv:1309.3796v2, §6.1, proof of Lemma 6.11, independence of the reduced word. -/
+theorem columnProjection_sub_mem_span_of_braidEquiv
+    (ρ : Equiv.Perm (Fin m) → List ℕ) (hρ : ∀ w, IsReduced m (ρ w) ∧ wordProd m (ρ w) = w)
+    (s : Seq μ) (κ : List (Fin ℓ)) {α β : List ℕ} (hB : BraidEquiv α β)
+    (hv : ValidWord m α) (p : MvPolynomial (Fin m) k) (i : Seq μ) :
+    columnProjection (Q := Q) (Λ := Λ) s κ
+        (q (raw (ψw α * pol p * e i))) -
+      columnProjection (Q := Q) (Λ := Λ) s κ (q (raw (ψw β * pol p * e i))) ∈
+      Submodule.span k (columnProductsOn (Q := Q) (Λ := Λ) ρ s κ
+        {w | w ∈ subProds m α ∧ length m w < α.length - 2}) := by
+  let f := (columnProjection (Q := Q) (Λ := Λ) s κ).comp ((violMk k Q Λ ν).comp raw).toLinearMap
+  have h := lowSpan_le_stdSpan (Q := Q) (Λ := Λ) ρ hρ _ _
+    (braidEquiv_sub_mem_lowSpan (Q := stendhalQ Q Λ) hB hv p i)
+  have hm := Submodule.mem_map_of_mem (f := f) h
+  rw [stdSpan, Submodule.map_span] at hm
+  have hm' : f (ψw α * pol p * e i - ψw β * pol p * e i) ∈ Submodule.span k (columnProductsOn (Q := Q) (Λ := Λ) ρ s κ
+      {w | w ∈ subProds m α ∧ length m w < α.length - 2}) := by
+    refine (Submodule.span_le.mpr ?_) hm
+    rintro _ ⟨_, ⟨⟨j, w, u⟩, hw, rfl⟩, rfl⟩
+    exact columnProjection_word_mem_span ρ s κ _ w (hρ w).2 hw (monomial u 1) j
+  simpa only [f, LinearMap.comp_apply, AlgHom.toLinearMap_apply, AlgHom.comp_apply, map_sub]
+    using hm'
+
+/-- The supported column span is closed under right multiplication by a
+diagram with the fixed bottom red order. The multiplication stays in the
+coefficient loading projective of each generator. -/
+theorem mul_mem_span_columnProductsOn (ρ : Equiv.Perm (Fin m) → List ℕ)
+    (s : Seq μ) (κ : List (Fin ℓ)) (S : Set (Equiv.Perm (Fin m))) {x z : V}
+    (hx : x ∈ Submodule.span k (columnProductsOn (Q := Q) (Λ := Λ) ρ s κ S))
+    (hz : z * C κ = z) :
+    x * z ∈ Submodule.span k (columnProductsOn (Q := Q) (Λ := Λ) ρ s κ S) := by
+  have hm := Submodule.mem_map_of_mem (f := LinearMap.mulRight k z) hx
+  rw [Submodule.map_span] at hm
+  refine (Submodule.span_le.mpr ?_) hm
+  rintro _ ⟨_, ⟨w, a, hw, hk, ha, rfl⟩, rfl⟩
+  apply Submodule.subset_span
+  exact ⟨w, a * z, hw, hk, ⟨by rw [← mul_assoc, ha.1], by rw [mul_assoc, hz]⟩,
+    mul_assoc _ _ _⟩
+
+private theorem columnProjection_crossing (s : Seq μ) (κ : List (Fin ℓ))
+    {w : Equiv.Perm (Fin m)} {α : List ℕ} (hw : wordProd m α = w)
+    (hk : redWord (w⁻¹ • s) = κ) :
+    columnProjection (Q := Q) (Λ := Λ) s κ (q (raw (ψw α * pol 1 * e (w⁻¹ • s)))) =
+      q (raw (ψw α * e (w⁻¹ • s))) := by
+  rw [columnProjection_apply, map_one, mul_one, ← mul_assoc]
+  have hl : E s * q (raw (ψw α * e (w⁻¹ • s))) = q (raw (ψw α * e (w⁻¹ • s))) := by
+    rw [← map_mul, ← map_mul, ← mul_assoc, e_mul_ψw, hw, mul_assoc, e_mul_self]
+  rw [hl, ← map_mul q, map_mul raw, mul_assoc, e_mul_redProj, ite_eq_left hk, ← map_mul raw]
+
+/-- The reduced-word correction remains in the shorter subword span after
+multiplying any element of the diagram's coefficient projective on the right. -/
+theorem crossing_sub_mul_mem_span_of_braidEquiv
+    (ρ : Equiv.Perm (Fin m) → List ℕ) (hρ : ∀ w, IsReduced m (ρ w) ∧ wordProd m (ρ w) = w)
+    (s : Seq μ) (κ : List (Fin ℓ)) {w : Equiv.Perm (Fin m)} {α β : List ℕ}
+    (hB : BraidEquiv α β) (hv : ValidWord m α) (hw : wordProd m α = w)
+    (hk : redWord (w⁻¹ • s) = κ) (z : cornerBimodule (E (w⁻¹ • s)) (C κ)) :
+    q (raw (ψw α * e (w⁻¹ • s))) * z.val - q (raw (ψw β * e (w⁻¹ • s))) * z.val ∈
+      Submodule.span k (columnProductsOn (Q := Q) (Λ := Λ) ρ s κ
+        {v | v ∈ subProds m α ∧ length m v < α.length - 2}) := by
+  have hβ : wordProd m β = w := (hB.wordProd_eq hv).symm.trans hw
+  have h := columnProjection_sub_mem_span_of_braidEquiv (Q := Q) (Λ := Λ)
+    ρ hρ s κ hB hv 1 (w⁻¹ • s)
+  rw [columnProjection_crossing s κ hw hk, columnProjection_crossing s κ hβ hk] at h
+  rw [← sub_mul]
+  exact mul_mem_span_columnProductsOn ρ s κ _ h z.prop.2
 
 end Categorification.Stendhal.BraidedStendhalAlgebra

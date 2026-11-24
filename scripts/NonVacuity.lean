@@ -5633,6 +5633,46 @@ example : True := by
   exact (Stendhal.fgString_isPerfectBasis (k := ℚ) (Λ := pbΛ) () 0 pbRouquier
     (Multiset.notMem_zero ())).elim fun _ _ => trivial
 
+namespace NonVacuity.WebsterOrderedResolution
+
+open Categorification.ModuleFiltration
+
+
+private abbrev A := ℤ
+private abbrev std (_ : Unit) := ModuleCat.of A A
+private abbrev e (_ : Unit) : A := 1
+private abbrev above (_ _ : Unit) : Prop := False
+
+private def data : OrderedStandardCovers std e above where
+  quotient c := (lIdeal (e c)).subtype
+  surjective c := fun x => ⟨⟨x, mul_one x⟩, rfl⟩
+  projective c := by
+    refine Module.Projective.of_split (lIdeal (e c)).subtype (LinearMap.id.codRestrict _
+      (fun x => mul_one x)) ?_
+    rfl
+  kernel c := by
+    refine ⟨[], by simp, HasFiltration.zero ?_⟩
+    constructor
+    intro x y
+    apply Subtype.ext
+    exact Subtype.ext ((show x.1.1 = 0 from x.2).trans (show y.1.1 = 0 from y.2).symm)
+
+example (n : ℕ) : Subsingleton ((data.projectiveResolution ()).complex.X (n+1)) := by
+  obtain ⟨J, lb, inc, hab, hspan⟩ :=
+    data.projectiveResolution_loading_support () (fun _ _ _ h _ => h) n
+  have h : {y | ∃ j, ∃ z : lIdeal (e (lb j)), inc j z = y} = ∅ := by
+    ext y
+    simp only [Set.mem_ofPred_eq, Set.mem_empty_iff_false, iff_false]
+    rintro ⟨j, _, _⟩
+    exact hab j
+  constructor
+  intro x y
+  have hx : x = 0 := by simpa only [h, Submodule.span_empty, Submodule.mem_bot] using hspan x
+  have hy : y = 0 := by simpa only [h, Submodule.span_empty, Submodule.mem_bot] using hspan y
+  exact hx.trans hy.symm
+
+end NonVacuity.WebsterOrderedResolution
+
 end
 
 end NonVacuity.PerfectBasis
@@ -6352,6 +6392,20 @@ example (y : BraidedStendhalAlgebra (ZMod 4) q₄ weights (β+β)) :=
 private def lowTop : Seq (stendhalWeight 4 (β+β)) :=
   KLRAlgebra.Seq.ofList [.inr 0,.inr 1,.inl (),.inr 2,.inl (),.inr 3] (by decide)
 
+private theorem cut_idempotent {A : Type*} [Ring A] {p q : A} (hp : p * p = p) (hq : q * q = q) (u : A) :
+    p * (p*u*q) * q = p*u*q := by simp only [mul_assoc,hq]; rw [← mul_assoc,hp]
+
+/-- An equal-colour spectator lies to the left of `b i a`. Test the affine
+relation on arbitrary upper diagrams in both corners, with their bottom dots. -/
+example (u v : BraidedStendhalAlgebra (ZMod 4) q₄ weights (β+β)) :=
+  let F := ofKLR (ZMod 4) q₄ weights (β+β)
+  let p := fun z : Seq (stendhalWeight 4 (β+β)) => F (KLRAlgebra.e z)
+  have sq (z) : p z * p z = p z := by rw [← map_mul F,KLRAlgebra.e_mul_self]
+  interleaved_affine_relation_iff q₄ weights between 2 (by decide) symm₄ src
+    (Lr := [0]) (Mr := [3]) (by decide) (b := pair 1) (i := ()) (a := pair 0)
+    (by decide) (by decide) (by decide) _ _
+    (cut_idempotent (sq src) (sq leftExit) u) (cut_idempotent (sq src) (sq rightExit) v)
+
 /-- Here the *right* exit is strictly higher. Both cut classes are re-marked by
 the theorem; there is no higher-ideal premise on either exterior diagram. -/
 example (z y : BraidedStendhalAlgebra (ZMod 4) q₄ weights (β+β)) :=
@@ -6366,6 +6420,22 @@ private abbrev colors : Multiset (Fin 2) := {0,1}
 private abbrev param : Fin 2 → Fin 2 → MvPolynomial (Fin 2) (ZMod 4) := fun _ _ => 0
 private abbrev wt : Fin 4 → Fin 2 →₀ ℕ := fun r => if r = pair 0 then
   Finsupp.single 0 2 + Finsupp.single 1 3 else Finsupp.single 0 4 + Finsupp.single 1 4
+private def exterior : Seq (stendhalWeight 4 colors) :=
+  KLRAlgebra.Seq.ofList [.inr 0,.inr 2,.inl 0,.inr 1,.inl 1,.inr 3] (by decide)
+private def atJoint : Seq (stendhalWeight 4 colors) :=
+  KLRAlgebra.Seq.ofList [.inr 0,.inr 1,.inl 0,.inr 2,.inl 1,.inr 3] (by decide)
+
+/-- Distinct exterior colour and unequal positive pairings. Test all relations
+after killing global violations, not after quotienting by higher loadings. -/
+example (u v : ViolQuotient (ZMod 4) param wt colors) :=
+  let F := (violMk (ZMod 4) param wt colors).comp (ofKLR (ZMod 4) param wt colors)
+  let p := fun z : Seq (stendhalWeight 4 colors) => F (KLRAlgebra.e z)
+  have sq (z) : p z * p z = p z := by rw [← map_mul F,KLRAlgebra.e_mul_self]
+  let q := fun w => TypeA.wordProd (stendhalWeight 4 colors).card w • exterior
+  interleaved_quotient_relation_iff param wt exterior 1 (by decide) (fun _ _ _ => rfl) atJoint
+    (Lr := [0]) (Mr := [3]) (by decide) (a := pair 0) (b := pair 1) (i := 0)
+    (by decide) (by decide) (by decide) _ _
+    (cut_idempotent (sq atJoint) (sq (q [2,1])) u) (cut_idempotent (sq atJoint) (sq (q [1,2])) v)
 private def before : Seq (stendhalWeight 4 colors) :=
   KLRAlgebra.Seq.ofList [.inr 0,.inr 1,.inr 2,.inl 0,.inl 1,.inr 3] (by decide)
 private def afterPair : Seq (stendhalWeight 4 colors) :=
@@ -6412,6 +6482,22 @@ example := exists_interleavedKernelColumn_exits q₄ weights between 2 (by decid
   (pair 0) (pair 1) symm₄ (L := [0]) (M := [3]) (by decide) (by decide) (by decide)
   (by decide) (by decide)
 
+/-- The interleaved kernel inclusion with one zero return exponent, two spectator
+reds and an exterior black of the same colour. -/
+example := interleaved_markedColumn_injective q₄ (fun r => if r = pair 0 then 0 else weights r)
+  src between (pair 0) (pair 1) 2 (by decide) symm₄ (Lr := [0]) (Mr := [3])
+  (by decide) (i := ()) (by decide) (by decide) (by decide) (by decide) (Or.inr (by decide))
+
+/-- Both pairings are positive when the joint loading itself is higher. -/
+example := interleaved_markedColumn_injective q₄ weights lowTop between (pair 0) (pair 1)
+  2 (by decide) symm₄ (Lr := [0]) (Mr := [3]) (by decide) (i := ())
+  (by decide) (by decide) (by decide) (by decide) (Or.inl (by
+    refine lt_of_le_of_ne ?_ ?_
+    · intro r i; fin_cases r <;> cases i <;> decide
+    · intro h
+      have bad : (0 : ℕ) = 1 := congrFun (congrFun h (pair 0)) ()
+      contradiction))
+
 section FirstBlackWeight
 private abbrev oneWt : Fin 3 → Unit →₀ ℕ := fun r => Finsupp.single () (if r = 0 then 2 else 1)
 private def joint : Seq (stendhalWeight 3 β) :=
@@ -6435,6 +6521,12 @@ example : adjacentBlockRoot 1 2 bareRight = adjacentBlockRoot 1 2 joint ∧
   funext r i; fin_cases r <;> cases i <;> decide
 
 example := firstWeight_blockKernelColumnInclusion_injective () q₄ oneWt 1 2 exchanged joint symm₄
+
+/-- The finite bottom-projector sum assembles the first-weight column tests for
+the exchanged red order, including the spectator. -/
+example := blockKernelTensorInclusion_injective_of_columns q₄ oneWt joint 1 2
+  (redWord exchanged) (fun u _ =>
+    firstWeight_blockKernelColumnInclusion_injective () q₄ oneWt 1 2 u joint symm₄)
 
 example := firstWeight_interleavedColumn_presentation () q₄ oneWt 1 2 exchanged 1 joint symm₄
   (by decide) (L := [0]) (M := []) (by decide) (by decide) (by decide) (by decide) (by decide)
@@ -6710,6 +6802,84 @@ noncomputable example :=
   derivedTensorCompIsoOfProjective (A := ℚ) (B := ℚ) (C := ℚ) ℚ ℚ
 
 end NonVacuity.BraidedStendhal
+
+namespace NonVacuity.WebsterBlockShuffle
+
+open Categorification.KLR Categorification.TypeA Categorification.Stendhal
+open RedBlock
+
+private def pair : Fin 2 ↪ Fin 3 := ⟨Fin.succ, Fin.succ_injective _⟩
+private abbrev L : List (Fin 3 × Multiset Bool) := [(0,{false})]
+private abbrev M : List (Fin 3 × Multiset Bool) := []
+private abbrev β : Multiset Bool := {true}
+private abbrev row := adjacentRow L M pair β
+private theorem wt : weightSum row = stendhalWeight 3 ({false}+β) := by decide
+private def localWords : Loadings row :=
+  ⟨KLRAlgebra.Seq.ofList [.inr 0,.inl false] (by decide),
+   KLRAlgebra.Seq.ofList [.inl true,.inr 0,.inr 1] (by decide),PUnit.unit⟩
+private def good : Loadings row :=
+  ⟨localWords.1,KLRAlgebra.Seq.ofList [.inr 0,.inl true,.inr 1] (by decide),PUnit.unit⟩
+private def interleaved : Seq (weightSum row) :=
+  KLRAlgebra.Seq.ofList [.inr 0,.inl true,.inl false,.inr 1,.inr 2] (by decide)
+private theorem matched : ShuffleLoading row interleaved localWords := by
+  refine ⟨⟨sadj _ 1, ?_⟩, place _ localWords.2, ?_,
+    ⟨⟨1, isShuffle_one _⟩, Seq.nil, one_smul _ _, trivial⟩⟩
+  · constructor <;> intro a b h <;> fin_cases a <;> fin_cases b <;>
+      first | exact False.elim (absurd h (by decide)) | decide
+  · apply Subtype.ext; funext x; fin_cases x <;> decide
+
+example : ¬ IsViolated interleaved := by rintro ⟨_,h⟩; contradiction
+/-- An interleaving swaps two differently coloured black strands; the first comes from
+the paired block, leaving the global leftmost strand red but raising its retained cut. -/
+example : Violated row localWords := by
+  have order : redWord (Seq.cast wt interleaved) =
+      L.map Prod.fst ++ pair 0 :: pair 1 :: M.map Prod.fst := by decide
+  apply violated_of_adjacent_shuffleLoading L M pair β wt interleaved localWords matched order
+  right
+  have aligned := aligned_adjacent L M pair β (order ▸ redWord_nodup _)
+  have ok : ¬ Violated row good := by rintro (⟨_,h⟩ | ⟨_,h⟩ | h) <;> contradiction
+  have boundary : (fun r i => boundaryCount (cut (pair 0) (pair 1) r) i row) =
+      adjacentBlockRoot (pair 0) (pair 1) (Seq.cast wt (place row good)) := by
+    funext r i
+    exact (count_place_of_not_violated r i good aligned ok).symm
+  rw [boundary]
+  refine lt_of_le_of_ne ?_ ?_
+  · intro r i; fin_cases r <;> cases i <;> decide
+  · intro eq
+    have bad : (0 : ℕ) = 1 := congrFun (congrFun eq 1) true
+    contradiction
+private noncomputable abbrev Q : Bool → Bool → MvPolynomial (Fin 2) ℚ := fun _ _ => 0
+
+example := exists_blockStack_quotient_coordinates Q (fun _ => Finsupp.single false 1)
+  L M pair β (fun _ _ _ => rfl) wt
+
+example := exists_blockStack_filtered_quotient_coordinates Q (fun _ => Finsupp.single false 1)
+  L M pair β (fun _ _ _ => rfl) wt
+
+example := exists_blockColumn_coordinate_embedding Q (fun _ => Finsupp.single false 1)
+  L M pair β (fun _ _ _ => rfl) wt
+
+end NonVacuity.WebsterBlockShuffle
+
+namespace NonVacuity.WebsterLoadingPlacement
+open Categorification.Stendhal Categorification.Stendhal.RedBlock Categorification.KLR
+
+private abbrev ν : Multiset Unit := {(), (), (), ()}
+private def t : Seq (stendhalWeight 4 ν) :=
+  KLRAlgebra.Seq.ofList [.inr 0, .inl (), .inr 1, .inl (), .inr 2, .inl (), .inr 3, .inl ()]
+    (by decide)
+private def pair : Fin 2 ↪ Fin 4 where
+  toFun i := ⟨i.val + 1, by omega⟩
+  inj' i j h := Fin.ext (Nat.add_right_cancel (congrArg Fin.val h))
+private theorem ht : ¬ IsViolated t := by
+  rintro ⟨hp, hb⟩
+  have he : t.lbl ⟨0, hp⟩ = .inr 0 := rfl
+  simp [he] at hb
+private theorem ho : redWord t = [0] ++ pair 0 :: pair 1 :: [3] := by decide
+
+example := exists_place_adjacent t ht [0] [3] pair ho
+
+end NonVacuity.WebsterLoadingPlacement
 
 namespace NonVacuity.WebsterBraidReflection
 
@@ -7009,6 +7179,39 @@ example (x y : BraidedStendhalAlgebra ℤ Q Λ ν) :
 end NonVacuity.BraidedEqualBlackReturns
 end
 
+namespace NonVacuity.WebsterIntervalConcat
+
+open Categorification.KLR Categorification.KLR.KLRAlgebra Categorification.TypeA
+open MvPolynomial
+open scoped TensorProduct
+
+private abbrev L : Multiset Bool := {false}
+private abbrev M : Multiset Bool := {false, true}
+private abbrev R : Multiset Bool := {true}
+private def l : Seq L := Seq.ofList [false] rfl
+private def s : Seq M := Seq.ofList [false, true] rfl
+private def r : Seq R := Seq.ofList [true] rfl
+private noncomputable def params : Bool → Bool → MvPolynomial (Fin 2) ℤ := fun _ _ => 1
+
+example :
+    intervalConcat params l r (ψw [0] * pol (MvPolynomial.X (⟨0, by decide⟩ : Fin M.card)) * e s) =
+      ψw [1] * pol (rename (Seq.posR L ∘ Seq.posL R) (MvPolynomial.X (⟨0, by decide⟩ : Fin M.card))) *
+        e (l.append (s.append r)) := by
+  rw [intervalConcat_apply, concat_interval_ψw_pol_e _ (show ValidWord M.card [0] by simp [ValidWord])]
+  rfl
+
+example := range_intervalConcat_eq_span params (by intro a b _; simp [params]) l r
+  (canWord M.card) (fun w => ⟨isReduced_canWord _ w, wordProd_canWord _ w⟩)
+
+example (x y : KLRAlgebra ℤ params M) :
+    intervalConcat params l r (x * y) = intervalConcat params l r x * intervalConcat params l r y :=
+  intervalConcat_mul params l r x y
+
+example : Function.Injective (intervalConcat (β := M) params l r) :=
+  intervalConcat_injective params (by intro a b _; simp [params]) l r
+
+end NonVacuity.WebsterIntervalConcat
+
 namespace NonVacuity.WebsterBraidFiltration
 
 open Categorification Categorification.KLR Categorification.Stendhal
@@ -7060,6 +7263,25 @@ noncomputable example :=
   hasReflectedStandardFiltration_braidingBimodule [] [] rightFiltration
 
 end NonVacuity.WebsterBraidFiltration
+
+namespace NonVacuity.WebsterIntervalColumn
+
+open Categorification.KLR Categorification.Stendhal
+
+private abbrev ν : Multiset Bool := {false, true, false}
+private def s : Seq (stendhalWeight 3 ν) :=
+  KLRAlgebra.Seq.ofList [.inr 0, .inl false, .inr 2, .inl true, .inl false, .inr 1] (by decide)
+private def t : Seq (stendhalWeight 3 ν) :=
+  KLRAlgebra.Seq.ofList [.inr 0, .inl false, .inr 1, .inl true, .inl false, .inr 2] (by decide)
+private noncomputable abbrev Q : Bool → Bool → MvPolynomial (Fin 2) ℚ := fun _ _ => 0
+
+example (z : KLRAlgebra ℚ (stendhalQ Q (fun _ : Fin 3 => Finsupp.single true 1))
+    (stendhalWeight 3 ν)) :=
+  BraidedStendhalAlgebra.mem_span_interval_crossing_column Q (fun _ => Finsupp.single true 1)
+    (by intro a b h; simp [Q]) s t (q := ⟨2, by decide⟩) (p := ⟨5, by decide⟩)
+    (a := 2) (b := 1) (L := [0]) (M := []) (by decide) (by decide) (by decide) (by decide) z
+
+end NonVacuity.WebsterIntervalColumn
 
 open Categorification.TypeA Equiv
 namespace IntervalPBWFixture

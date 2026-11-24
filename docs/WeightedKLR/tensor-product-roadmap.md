@@ -1039,6 +1039,38 @@ its tail. The ordered coefficient slides by balancing. Hence every affine relati
 zero balanced class: `crossingStack_injective` and `crossingStackEquiv` give the ordinary
 comparison for arbitrary spectators and black contents. `crossingDiagramCut_eq_inverse`
 identifies the original basis cut on every representative with the inverse on its class.
+The binary bottom-projector formula extends to each block of the parabolic
+coordinates. Theorem `violated_of_adjacent_shuffleLoading` shows that every compatible
+split of a globally violated or strictly higher retained source loading has an
+internally violated block. The projected coordinates vanish on diagrams factoring
+through one of these loadings, with arbitrary diagrams above and below the cut.
+`exists_blockStack_quotient_coordinates` descends the coordinates through red dots
+and both loading ideals to the partially standardized quotient. The coordinate
+words have coordinate `1` in their own slot and `0` in the other slots.
+`exists_blockColumn_coordinate_embedding` shows that the coordinates separate
+elements of the source-order block column. The affine coordinate representatives can
+be chosen as explicit reduced words indexed by the recursive block shuffles. In a
+binary shuffle, a right crossing either extends an external ascent or moves to an
+internal crossing in one block, with an error in a lower crossing-filtration step.
+The filtered binary coordinate reserves its shuffle length from the crossing
+budget, and the two tensor factors share the remainder. Iterating this bound gives
+the total-length bound for the recursive coordinates. In
+`exists_blockStack_filtered_quotient_coordinates` the bound passes to the image
+of that filtration in the quotient. For a right ascent in an arbitrary row,
+`quotientCoordinate_external_right_ascent` and
+`quotientCoordinate_internal_right_ascent` compute the leading quotient
+coordinates. The two alternatives land in disjoint targets. A matched
+nonviolated split in the source red order gives an ascent at a black–red joint.
+The exact indexed projector agrees with the loading of the selected shuffle.
+Consequently the external leading multiplier is the original right projector.
+The internal one is the supported crossing in the paired block.
+`blockColumn_eq_zero_of_ordered_paired_crossing` uses its ordered local injection
+to deduce the whole-column zero-kernel statement over a field.
+`exists_place_adjacent` places any nonviolated source loading with the prescribed
+red order in an adjacent row, and `mem_blockUpperIdeal_of_blockColumn_right_kernel`
+lifts a supported column kernel test to the higher ideal. The marked-column
+comparison and higher Tor argument remain open in general.
+
 For (6.21), the loading projective is `e(t)T` in the source order. Its surjection to
 the external loading summand has kernel `K = e(t)T ∩ J` for the strictly higher
 retained-boundary ideal (`ker_blockStandardCover`). `blockKernelTensorInclusion` tensors
@@ -1069,6 +1101,19 @@ generators before quotient (`exists_interleavedColumn_exits`); balancing the ord
 coefficients into `K` gives two generators of `K ⊗_T B e(s)` even with spectators
 (`exists_interleavedKernelColumn_exits`).
 
+The relations with those exterior strands are determined in the projective row.
+Write `L=i a b`, `D=a i b`, `R=a b i` for the three local source loadings. Sort the
+three images of the bottom positions and use one exterior PBW word for each right
+coset. In these coordinates the stack rows are `(1,X^A)`, `(1,1)`, `(X^B,1)` and
+the signed joint columns are `(X^A,−1)`, `(1,−1)`, `(1,−X^B)`, with
+`A=Λ_a(i)`, `B=Λ_b(i)`. Here `X` is the local black dot *below* the exterior word.
+`ExitPBW.exists_parabolic_read` extends a choice of normal exit by linearity;
+subtracting the readback of the stack expresses every relation between sums as a
+joint image. `exists_interleavedRelation_affine_lift` lifts a zero stack with its
+prescribed quotient coefficients. Thus `interleaved_affine_relation_iff` and
+`interleaved_quotient_relation_iff` describe all relations, also those supported
+at just one exit. Neither theorem identifies the higher ideal with global violations.
+
 When there is **one black strand in total**, all paths from a non-higher loading to
 a strictly higher loading must move that black to the left. PBW division on the
 two-sided higher ideal leaves its upper factor in the ideal. The same forced descent
@@ -1098,8 +1143,17 @@ images of the one- and two-dot joint coefficients. The remaining `L₀,L₁` sta
 to distinct surviving PBW monomials, so there are no further relations. In
 particular, checking only the nonzero mixed braid misses a same-exit relation.
 
-Still open for Lemma 6.8: with a spectator black and positive pairings, determine
-the relations between the two generators and their marked lifts. A different black
+For Lemma 6.8 the remaining intersection in these columns is
+`im δ_P ∩ (K_L ⊕ K_R) = im δ_K`, with `δ(u)=(uψ_j,−uψ_(j+1))` at the cut
+projectors. If `D` is strictly higher, its projector marks the joint witness.
+In general `interleaved_joint_dot_mem` puts `u X^min(A,B)` in the higher ideal
+by the two return bigons. `interleaved_markedColumn_injective` balances the marked
+witness to prove column injectivity when `D` is strictly higher or either return
+power is zero, with arbitrary exterior strands. When both powers
+are positive and `D` is not higher, one needs a marked witness with the same two
+components, i.e. a correction modulo `ker δ_P`, not division by `X`.
+`interleaved_markedColumn_injective_of_right_leg` gives a sufficient condition:
+the right joint leg is injective on the partially standardized corner. A different black
 can furnish either a global violation or a higher retained boundary without the
 specified descent. The first-weight division argument therefore does not extend
 as stated; this is not a counterexample to injectivity. Ordinary parabolic coordinates
@@ -1112,6 +1166,11 @@ red strands, the graded bounded-above functor of Def 6.6 and its equivariance (P
 Lemma 6.14; tilting modules (Thm 6.15); `𝔅_σ` are equivalences (Thm 6.16); the braid group
 action (Cor 6.17); Ringel duality (Cor 6.18); semi-orthogonal decompositions (Prop 6.19); the
 Serre functor (Prop 6.20).
+
+For the multi-strand interval calculation, `intervalConcat` puts a local KLR diagram
+between fixed exterior loading idempotents. The map is injective for symmetric
+parameters (`intervalConcat_injective`). Its image is the span of shifted
+local PBW words and their shifted bottom dots (`range_intervalConcat_eq_span`).
 
 ### Phase E: §7, rigidity
 

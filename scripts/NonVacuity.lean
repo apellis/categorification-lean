@@ -8979,6 +8979,9 @@ example := diagramWeightDerivedTensorRepresentableIso (fun j => DG.grading (M :=
 example : (diagramWeightDerivedTensor (fun j => DG.grading (M := ℚ) j) leftAction rightAction).Additive :=
   inferInstance
 
+
+example := diagramWeightTensorShiftNatIso (fun j => DG.grading (M := ℚ) j) leftAction rightAction 1
+
 end
 
 end NonVacuity.WebsterWeightTensor

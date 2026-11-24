@@ -261,7 +261,8 @@ private theorem exterior_cokernel_black_cross_dot :
     Subtype.ext (labelTwoLeftExteriorProjector_cross_dot param)
   exact ((aug).map_smul _ _).symm.trans (congrArg (aug) h)
 
-private theorem simple_of_two_vector_span {R L : Type*}
+/-- A two-vector span is simple when a crossing extracts the cyclic vector. -/
+theorem simple_of_two_vector_span {R L : Type*}
     [Ring R] [Algebra k R] [AddCommGroup L] [Module k L] [Module R L]
     [IsScalarTower k R L] (g₀ g₁ : L) (hunit : g₀ ≠ 0) (cross : R)
     (h₀ : cross • g₀ = 0) (h₁ : cross • g₁ = g₀)

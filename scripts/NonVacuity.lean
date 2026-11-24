@@ -11622,6 +11622,12 @@ example := incomingLiftTensorMap_nonzero ℚ
 
 example := incomingLiftShortComplex_shortExact ℚ
 
+example := labelTwoIncomingExterior_simple ℚ
+
+example := labelTwo_middleQuotient_not_simple ℚ
+
+example := labelTwo_outgoingExterior_not_simple ℚ
+
 example := middleY₁Readout_diagramPlus_generator ℚ
 
 example (z : incomingLiftSubmodule ℚ) := middleY₁Readout_middleDotElt_incomingLift_zero ℚ z

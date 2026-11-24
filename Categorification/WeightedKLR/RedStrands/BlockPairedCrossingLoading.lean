@@ -222,7 +222,7 @@ theorem swapPairLoading_involutive (M : List (Fin ℓ × Multiset I)) (f : Fin 2
   | [], s => by
     apply Prod.ext
     · change sadj _ b • (sadj _ b • s.1) = s.1
-      rw [← mul_smul, ← sadj_inv, inv_mul_cancel, one_smul]
+      rw [← mul_smul, sadj_mul_self, one_smul]
     · rfl
   | _ :: L, s => Prod.ext rfl (swapPairLoading_involutive M f β b L s.2)
 
@@ -233,5 +233,43 @@ theorem pairLoading_swapPairLoading (M : List (Fin ℓ × Multiset I)) (f : Fin 
       sadj (⟨2,f,β⟩ : RedBlock I ℓ).localWeight.card b • pairLoading M f β L x
   | [], _ => rfl
   | _ :: L, x => pairLoading_swapPairLoading M f β b L x.2
+
+/-- Read the labels of an internal black–red crossing in the paired factor. -/
+theorem insideBlock_pair_labels (L M : List (Fin ℓ × Multiset I)) (f : Fin 2 ↪ Fin ℓ)
+    (β : Multiset I) (s : Loadings (adjacentRow L M f β))
+    {a : ℕ} (ha : a+1 < (weightSum (adjacentRow L M f β)).card) {i : I}
+    (hl : f 1 ∉ L.map Prod.fst) (hm : f 1 ∉ M.map Prod.fst)
+    (hin : InsideBlock (adjacentRow L M f β) a)
+    (hblack : (place (adjacentRow L M f β) s).lbl ⟨a,by omega⟩ = .inl i)
+    (hred : (place (adjacentRow L M f β) s).lbl ⟨a+1,ha⟩ = .inr (f 1)) :
+    ∃ b, ∃ hb : b+1 < (⟨2,f,β⟩ : RedBlock I ℓ).localWeight.card,
+      a = pairOffset L + b ∧
+      (pairLoading M f β L s).lbl ⟨b,by omega⟩ = .inl i ∧
+      (pairLoading M f β L s).lbl ⟨b+1,hb⟩ = .inr 1 := by
+  obtain ⟨b, he, hb⟩ := insideBlock_at_pair M f β L s a ha hl hm hin hred
+  let B : RedBlock I ℓ := ⟨2,f,β⟩
+  have hc : B.weight.card = B.localWeight.card := Multiset.card_map _ _
+  have hb' : b+1 < B.localWeight.card := hc ▸ hb
+  have hL : pairOffset L + b < (weightSum (adjacentRow L M f β)).card := by omega
+  have hR : pairOffset L + (b+1) < (weightSum (adjacentRow L M f β)).card := by omega
+  have hx := place_lbl_pairOffset M f β L s (⟨b,by omega⟩ : Fin B.weight.card) hL
+  have hy := place_lbl_pairOffset M f β L s (⟨b+1,hb⟩ : Fin B.weight.card) hR
+  have hix : (⟨pairOffset L + b,hL⟩ : Fin (weightSum (adjacentRow L M f β)).card) =
+      ⟨a,by omega⟩ := Fin.ext he.symm
+  have hiy : (⟨pairOffset L + (b+1),hR⟩ : Fin (weightSum (adjacentRow L M f β)).card) =
+      ⟨a+1,ha⟩ := Fin.ext (by change pairOffset L + (b+1) = a+1; omega)
+  rw [hix, Seq.map_lbl] at hx
+  rw [hiy, Seq.map_lbl] at hy
+  rw [hblack] at hx
+  rw [hred] at hy
+  change Sum.inl i = B.colour ((pairLoading M f β L s).lbl ⟨b,Nat.lt_trans (Nat.lt_succ_self b) hb'⟩) at hx
+  change Sum.inr (f 1) = B.colour ((pairLoading M f β L s).lbl ⟨b+1,hb'⟩) at hy
+  refine ⟨b, hb', he, ?_, ?_⟩
+  · cases h : (pairLoading M f β L s).lbl ⟨b,Nat.lt_trans (Nat.lt_succ_self b) hb'⟩ with
+    | inl j => simpa [h, RedBlock.colour] using hx.symm
+    | inr r => simp [h, RedBlock.colour] at hx
+  · cases h : (pairLoading M f β L s).lbl ⟨b+1,hb'⟩ with
+    | inl j => simp [h, RedBlock.colour] at hy
+    | inr r => exact congrArg Sum.inr (f.injective (by simpa [h, RedBlock.colour, B] using hy.symm))
 
 end Categorification.Stendhal.RedBlock

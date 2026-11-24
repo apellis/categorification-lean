@@ -281,6 +281,34 @@ private theorem principalCoefficient
   rw [val,← mul_assoc,hcv]
   exact CornerEndomorphism.corner_mul_right ordT x.1.1
 
+/-- It is enough to find a common supported generator on the tensors in one
+bottom column and to cancel its multiplication on that coefficient corner. -/
+theorem blockKernelColumnInclusion_injective_of_single_tensors
+    (u : KLR.Seq μ) (g : K)
+    (factor : ∀ (x : K) (y : C), ∃ w : C, pof u * w.1 = w.1 ∧
+      (BalancedTensor.tmul x y : BalancedTensor k k T K C) = BalancedTensor.tmul g w)
+    (cancel : ∀ y : V, pof u * y = y → y * pof s = y → g.1.1.1 * y = 0 → y = 0) :
+    Function.Injective inc := by
+  have single (z : BalancedTensor k k T K C) :
+      ∃ y : C, pof u * y.1 = y.1 ∧ z = BalancedTensor.tmul g y := by
+    induction z using BalancedTensor.induction_on with
+    | zero => exact ⟨0, mul_zero _, (BalancedTensor.tmul_zero g).symm⟩
+    | tmul x y => exact factor x y
+    | add x y hx hy =>
+      obtain ⟨l, hl, el⟩ := hx
+      obtain ⟨r, hr, er⟩ := hy
+      have raw : pof u * (l.1 + r.1) = l.1 + r.1 := by rw [mul_add, hl, hr]
+      exact ⟨l + r, raw, (congrArg₂ (· + ·) el er).trans (BalancedTensor.tmul_add g l r).symm⟩
+  apply (injective_iff_map_eq_zero inc).mpr
+  intro z hz
+  obtain ⟨y,hy,hrep⟩ := single z
+  let stack := (blockLoadingTensorStack Q Λ t (redWord s)).comp embP
+  have obs : stack (inc z) = 0 := (congrArg stack hz).trans (map_zero stack)
+  have raw : g.1.1.1 * y.1 = 0 := (congrArg (fun x => stack (inc x)) hrep).symm.trans obs
+  have y0 : y = 0 := Subtype.ext (cancel y.1 hy y.2.2 raw)
+  exact hrep.trans ((congrArg (fun l : C => BalancedTensor.tmul g l) y0).trans
+    (BalancedTensor.tmul_zero g))
+
 /-- A cyclic higher corner reduces the tensor inclusion to cancellation of
 one left factor on the corresponding corner of the violated quotient. -/
 theorem blockKernelColumnInclusion_injective_of_principal_factor
@@ -291,30 +319,14 @@ theorem blockKernelColumnInclusion_injective_of_principal_factor
   let g := principalGenerator Q Λ t a b u c hc cl cr hu
   have val : g.1.1.1=c := principalRep_val Q Λ t u c cl cr hu
   have coefficient := principalCoefficient Q Λ t a b u hu c g val factor
-  have single (z : BalancedTensor k k T K C) :
-      ∃ y : C, pof u*y.1=y.1 ∧ z=BalancedTensor.tmul g y := by
-    induction z using BalancedTensor.induction_on with
-    | zero => exact ⟨0,mul_zero _,(BalancedTensor.tmul_zero g).symm⟩
-    | tmul x l =>
-      obtain ⟨r,hr,part⟩ := coefficient x
-      have rep := congrArg (fun w : K => (BalancedTensor.tmul w l : BalancedTensor k k T K C)) part
-      exact ⟨r • l,by change pof u*(r.1*l.1)=r.1*l.1; rw [← mul_assoc,hr],
-        rep.symm.trans (BalancedTensor.op_smul_tmul g r l)⟩
-    | add x y hx hy =>
-      obtain ⟨l,hl,el⟩ := hx
-      obtain ⟨r,hr,er⟩ := hy
-      have raw : pof u*(l.1+r.1)=l.1+r.1 := by rw [mul_add,hl,hr]
-      exact ⟨l+r,raw,(congrArg₂ (·+·) el er).trans (BalancedTensor.tmul_add g l r).symm⟩
-  apply (injective_iff_map_eq_zero inc).mpr
-  intro z hz
-  obtain ⟨y,hy,hrep⟩ := single z
-  let stack := (blockLoadingTensorStack Q Λ t (redWord s)).comp embP
-  have obs : stack (inc z)=0 := (congrArg stack hz).trans (map_zero stack)
-  have raw : g.1.1.1*y.1=0 := (congrArg (fun x => stack (inc x)) hrep).symm.trans obs
-  have cz := (congrArg (·*y.1) val).symm.trans raw
-  have y0 : y=0 := Subtype.ext (cancel y.1 hy y.2.2 cz)
-  exact hrep.trans ((congrArg (fun l : C => BalancedTensor.tmul g l) y0).trans
-    (BalancedTensor.tmul_zero g))
+  apply blockKernelColumnInclusion_injective_of_single_tensors Q Λ t a b s u g
+  · intro x y
+    obtain ⟨r,hr,part⟩ := coefficient x
+    have rep := congrArg (fun w : K => (BalancedTensor.tmul w y : BalancedTensor k k T K C)) part
+    exact ⟨r • y, by change pof u * (r.1 * y.1) = r.1 * y.1; rw [← mul_assoc,hr],
+      rep.symm.trans (BalancedTensor.op_smul_tmul g r y)⟩
+  · intro y hy hz zero
+    exact cancel y hy hz ((congrArg (· * y) val).symm.trans zero)
 
 /-- A principal higher coefficient that detects zero on the source corner
 identifies the higher kernel with a loading projective. -/

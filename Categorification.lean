@@ -1730,6 +1730,9 @@ import Categorification.WeightedKLR.RedStrands.LabelTwoPeriodic
 import Categorification.WeightedKLR.RedStrands.LabelTwoUnknotHomology
 import Categorification.WeightedKLR.RedStrands.LabelTwoProjectiveResolution
 import Categorification.WeightedKLR.RedStrands.LabelTwoNativeTor
+import Categorification.WeightedKLR.RedStrands.LabelTwoCharacteristicTwo
+
+import Categorification.WeightedKLR.RedStrands.LabelTwoUnknotGrading
 import Categorification.WeightedKLR.RedStrands.BraidedStandardTwo
 import Categorification.WeightedKLR.RedStrands.BraidedStandardization
 import Categorification.WeightedKLR.RedStrands.BraidedOrderedStandardResolution

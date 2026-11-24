@@ -5535,6 +5535,40 @@ noncomputable example := middleTorPositive (k := ℚ) 2 (by decide)
 
 end NonVacuity.WebsterLabelTwoNativeTor
 
+namespace NonVacuity.WebsterLabelTwoInternalGrading
+
+open Categorification.Webster.LabelTwo
+
+noncomputable example := internalHomology_zero_scalar (k := ℚ)
+
+noncomputable example := internalHomology_zero_epsilon (k := ℚ)
+
+noncomputable example := internalHomology_odd (k := ℚ) 2 ⟨1,by decide⟩ (by decide)
+
+noncomputable example := internalHomology_positiveEven (k := ℚ) 1 (by simp) (by decide)
+
+example := internalHomology_off_support (k := ℚ) 3 (-8) (by decide)
+  (by simp [InternalSupport])
+
+end NonVacuity.WebsterLabelTwoInternalGrading
+
+namespace NonVacuity.WebsterLabelTwoCharacteristicTwo
+
+open Categorification.Webster.LabelTwo
+
+local instance : Fact (Nat.Prime 2) := ⟨by decide⟩
+
+noncomputable example := middleTor_of_two_eq_zero (k := ZMod 2) (by decide) 3
+
+noncomputable example := internalHomology_scalar_of_two_eq_zero (k := ZMod 2) (by decide) 3
+
+noncomputable example := internalHomology_epsilon_of_two_eq_zero (k := ZMod 2) (by decide) 3
+
+example := internalHomology_off_support_of_two_eq_zero (k := ZMod 2)
+  (by decide) 3 (-7) (by decide) (by decide)
+
+end NonVacuity.WebsterLabelTwoCharacteristicTwo
+
 namespace NonVacuity.WebsterLocalization
 
 open Categorification Categorification.QuantumGroup

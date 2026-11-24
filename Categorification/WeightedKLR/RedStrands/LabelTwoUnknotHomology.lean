@@ -247,6 +247,14 @@ removed so that `degree n+1 → degree n` vanishes for even `n`. -/
 noncomputable abbrev postTensorComplex : ChainComplex (ModuleCat.{u} k) ℕ :=
   ChainComplex.of (fun _ => V) tensorDifferential tensorDifferential_square
 
+/-- The differential from degree `n+1` to degree `n` in the specialized complex. -/
+theorem postTensorComplex_d_succ (n : ℕ) :
+    ((postTensorComplex (k := k)).d (n+1) n).hom =
+      if Even n then 0 else twiceEps := by
+  change (ChainComplex.of.d (fun _ => V) tensorDifferential (n+1) n).hom = _
+  rw [ChainComplex.of_d]
+  by_cases h : Even n <;> simp [tensorDifferential,h]
+
 local notation "T" => postTensorComplex (k := k)
 local notation "shape" => ComplexShape.down ℕ
 

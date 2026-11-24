@@ -8430,3 +8430,34 @@ example := cupRHomRegularIso ℚ ℚ (Fin 2 → ℚ)
 example := cupRHomTensorRegularIso ℚ ℚ (Fin 2 → ℚ)
 
 end NonVacuity.WebsterCupRHomRegular
+
+namespace NonVacuity.WebsterWeightTensor
+
+noncomputable section
+
+open Categorification CategoryTheory DG MulOpposite
+open scoped DG.DegreeZero
+
+local instance : InternalGrading ℚ := scalarInternalGrading ℚ
+local instance : BigradedDGRing ℚ := scalarBigradedDGRing ℚ
+local instance : CatModule.HasDerivedCategory.{1,0} (WeightCategory ℚ) :=
+  CatModule.HasDerivedCategory.standard (WeightCategory ℚ)
+
+private theorem leftAction {i j : ℤ} {a m : ℚ}
+    (ha : a ∈ wgrading i) (hm : m ∈ DG.grading j) :
+    a • m ∈ DG.grading (i+j) :=
+  mul_mem_grading ha hm
+
+private theorem rightAction {i j : ℤ} {b m : ℚ}
+    (hb : b ∈ wgrading i) (hm : m ∈ DG.grading j) :
+    op b • m ∈ DG.grading (j+i) :=
+  mul_mem_grading hm hb
+
+example := diagramWeightDerivedTensor (fun j => DG.grading (M := ℚ) j) leftAction rightAction
+
+example := diagramWeightDerivedTensorObjIso (fun j => DG.grading (M := ℚ) j)
+  leftAction rightAction (CatModule.isKProjective_representable (⟨0⟩ : WeightCategory ℚ))
+
+end
+
+end NonVacuity.WebsterWeightTensor

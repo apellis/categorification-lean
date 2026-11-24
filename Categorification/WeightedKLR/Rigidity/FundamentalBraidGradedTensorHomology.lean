@@ -146,4 +146,29 @@ def fundamentalBraidGradedTensorHomologyIso :
   exact (ShortComplex.homologyFunctor (ModuleCat ℤ)).mapIso e ≪≫
     (fundamentalBraidWeightComplex stdRealization (physicalWeight 0)).mapHomologyIso forgetQ ≪≫
     forgetQ.mapIso (by rw [hw]; exact fundamentalBraidWeightComplex_homologyIso stdRealization)
+
+private theorem terminalCutValue (z : Tens terminal terminal_ordered 1) :
+    (phys₁ P n z).val = (fundamentalBraidGradedCutIso terminal terminal_ordered 1 Z z).val :=
+  rfl
+
+private theorem liftToTensor (z : Tens terminal terminal_ordered 1)
+    (h : ∃ m : (W).X₁, (W).f m = phys₁ P n z) :
+    ∃ x : Tens middle midOrd 2, upMap n x = z := by
+  obtain ⟨m, hm⟩ := h
+  obtain ⟨x,hx⟩ := (phys₂ P n).surjective m
+  refine ⟨x,(phys₁ P n).injective ?_⟩
+  exact (up_comm P n x).trans ((congrArg (W).f hx).trans hm)
+
+/-- An ungraded boundary belonging to a homogeneous braid cut has a
+preimage under the tensor differential at the same target weight. -/
+theorem fundamentalBraidGradedTensor_reflectBoundary
+    (z : Tens terminal terminal_ordered 1)
+    (hz : ∃ y : fundamentalBraidCutComplex.X₁, fundamentalBraidCutComplex.f y =
+      (fundamentalBraidGradedCutIso terminal terminal_ordered 1 Z z).val) :
+    ∃ x : Tens middle midOrd 2, upMap n x = z := by
+  apply liftToTensor stdRealization n z
+  apply fundamentalBraidWeightComplex_reflectBoundary
+  rw [terminalCutValue]
+  exact hz
+
 end Categorification.Stendhal.FundamentalCorner

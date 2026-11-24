@@ -1759,6 +1759,9 @@ import Categorification.WeightedKLR.RedStrands.OneBlackPairKernel
 import Categorification.WeightedKLR.RedStrands.OneBlackAdjacentPairFiltration
 import Categorification.WeightedKLR.RedStrands.BlockKernelRelabel
 import Categorification.WeightedKLR.RedStrands.OneBlackAnyRedWordFiltration
+import Categorification.WeightedKLR.RedStrands.TwoSpectatorDerived
+import Categorification.WeightedKLR.RedStrands.BlockKernelDerivedSequence
+import Categorification.WeightedKLR.RedStrands.ProjectiveKernelDerived
 import Categorification.WeightedKLR.RedStrands.BraidedStandardGrading
 import Categorification.WeightedKLR.RedStrands.BraidedStandardInjective
 import Categorification.WeightedKLR.RedStrands.BraidedStandardIso
@@ -1806,6 +1809,5 @@ import Categorification.WeightedKLR.Rigidity.ReducedDividedNorm
 
 /-!
 # Categorification
-
 Lean 4 formalizations of results in categorification.
 -/

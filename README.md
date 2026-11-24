@@ -1423,6 +1423,9 @@ returns the first dot sum
 (`Stendhal.LabelTwo.incomingLiftTensorMap_nonzero`).
 The preimage, middle standard, and incoming cokernel form a short exact
 sequence (`Stendhal.LabelTwo.incomingLiftShortComplex_shortExact`).
+The outgoing differential embeds the incoming cokernel in the exterior
+projective with quotient the final simple
+(`Stendhal.LabelTwo.outgoingCokernelShortComplex_shortExact`).
 
 
 

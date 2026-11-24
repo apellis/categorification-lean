@@ -11620,6 +11620,8 @@ example := incomingLiftTensorMap_nonzero ℚ
 
 example := incomingLiftShortComplex_shortExact ℚ
 
+example := outgoingCokernelShortComplex_shortExact ℚ
+
 example := middleY₁Readout_diagramPlus_generator ℚ
 
 example (z : incomingLiftSubmodule ℚ) := middleY₁Readout_middleDotElt_incomingLift_zero ℚ z

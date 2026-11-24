@@ -1071,8 +1071,24 @@ red order in an adjacent row, and `mem_blockUpperIdeal_of_blockColumn_right_kern
 lifts a supported column kernel test to the higher ideal. The marked-column
 comparison and higher Tor argument remain open in general.
 
-Still open for Lemma 6.8: the higher-homology vanishing in (6.21),
-including injectivity after tensoring the kernel inclusion, then Prop 6.9
+For (6.21), the loading projective is `e(t)T` in the source order. Its surjection to
+the external loading summand has kernel `K = e(t)T ∩ J` for the strictly higher
+retained-boundary ideal (`ker_blockStandardCover`). `blockKernelTensorInclusion` tensors
+this inclusion over `T` with the full braiding bimodule `B`. By moving a global violation
+above the seam, `ker_blockKernelTensorInclusion_eq_map` identifies its kernel with the
+classes of sums of marked pairs whose stacks vanish *before* quotienting by violations.
+At a bottom loading `s` where the two exchanged reds occupy consecutive positions, all
+reduced words admit the same last red crossing after a change of reduced expression.
+Its ordered coefficient slides into `K`; PBW division detects the resulting upper
+factor. Thus `blockKernelColumnInclusion_injective` proves injectivity after tensoring
+with `B e(s)`, for arbitrary spectators and top black contents.
+
+Still open for Lemma 6.8: when a black lies between the bottom reds, prove that changes
+between different choices of the last crossing give equal balanced classes **in the
+tensor with `K`**. The ordinary parabolic coordinates are linear for juxtaposed block
+diagrams, not for arbitrary upper elements of `e(t)T`. Also open: filter `K` by higher
+partial standardizations, apply the induction in (6.21), and identify the derived
+comparison naturally. Then Prop 6.9
 for general `ℓ` by reduction to two
 red strands, the graded bounded-above functor of Def 6.6 and its equivariance (Prop 6.7), Cor 6.10, Lemma 6.11, Def 6.12, Cor 6.13,
 Lemma 6.14; tilting modules (Thm 6.15); `𝔅_σ` are equivalences (Thm 6.16); the braid group

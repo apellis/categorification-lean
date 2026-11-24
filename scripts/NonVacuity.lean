@@ -6318,6 +6318,57 @@ example (y z : BraidedStendhalAlgebra (ZMod 4) q₄ Λ (β + β)) :
   apply Subtype.ext; apply Subtype.ext; rw [orderedColumnRep_val, orderedColumnRep_val]
   change q (_ * (v (y*e*z) * _)) = q (_ * (v 0 * _))
   simp only [map_mul v, map_mul q, hz, map_zero v, map_zero q, mul_zero, zero_mul]
+
+section KernelTensor
+open BraidedStendhalAlgebra
+private abbrev weights : Fin 4 → Unit →₀ ℕ := fun _ => Finsupp.single () 3
+private def source : Loadings Bs :=
+  ⟨top.1,KLRAlgebra.Seq.ofList [.inr 0,.inl (),.inr 1] (by decide),top.2.2⟩
+private abbrev src := Seq.cast weight (place Bs source)
+private def uncrossedBottom : Seq (stendhalWeight 4 (β + β)) :=
+  KLRAlgebra.Seq.ofList [.inr 0,.inl (),.inr 1,.inr 2,.inl (),.inr 3] (by decide)
+
+example := blockLoading_projective q₄ weights src
+example : (crossingSpace (k := ZMod 4)
+    (violMk (ZMod 4) q₄ weights (β+β) (redProj (ZMod 4) q₄ weights (β+β) (redWord src)))
+    (violMk (ZMod 4) q₄ weights (β+β) (redProj (ZMod 4) q₄ weights (β+β) [0,2,1,3]))).toAddSubgroup =
+      braidingBimodule (ZMod 4) q₄ weights (β+β) (redWord src) [0,2,1,3] := rfl
+
+/-- The internal black does not impose a retained cut in the loading presentation. -/
+example := ker_blockStandardCover q₄ weights L M pair β weight source (by decide)
+  (by rintro (⟨_,h⟩ | ⟨_,h⟩ | ⟨_,h⟩ | h) <;> contradiction)
+example := blockStandardCover_surjective q₄ weights L M pair β weight source (by decide)
+
+/-- A strictly higher generator exists without being globally violated. -/
+example : ¬IsViolated (Seq.cast weight (place Bs higher)) ∧
+    adjacentBlockRoot (pair 0) (pair 1) src < adjacentBlockRoot (pair 0) (pair 1) (Seq.cast weight (place Bs higher)) := by
+  refine ⟨by rintro ⟨_,h⟩; contradiction, lt_of_le_of_ne ?_ ?_⟩
+  · intro r i; fin_cases r <;> cases i <;> decide
+  · intro h
+    have bad : (1 : ℕ) = 2 := congrFun (congrFun h (pair 0)) ()
+    contradiction
+
+/-- Cut a violation strictly between two arbitrary diagrams as a zero in the kernel
+tensor, not merely in the projective tensor or the standard quotient. -/
+example (x y : BraidedStendhalAlgebra (ZMod 4) q₄ weights (β + β)) :=
+  let i : Seq (stendhalWeight 4 (β + β)) := KLRAlgebra.Seq.ofList
+    [.inl (),.inr 3,.inr 2,.inl (),.inr 1,.inr 0] (by decide)
+  exists_zero_blockKernelCut q₄ weights src (pair 0) (pair 1) [0,2,1,3] symm₄
+    (x := x * ofKLR (ZMod 4) q₄ weights (β + β) (KLRAlgebra.e i) * y) (by
+      have hi : IsViolated i := ⟨by decide,rfl⟩
+      simp only [map_mul, violMk_e hi, mul_zero,zero_mul])
+
+/-- The degree-one kernel has affine representatives even when the *exchanged* bottom
+pair encloses a black. This does not assert that these representatives have zero class. -/
+example := ker_blockKernelTensorInclusion_eq_map q₄ weights src (pair 0) (pair 1)
+  (redWord (Seq.cast weight (place Bs top))) symm₄
+
+/-- Over `ZMod 4` with two blacks and two spectators, the class killed in the projective
+tensor vanishes in the bottom component with consecutive exchanged reds. -/
+example := blockKernelColumnInclusion_injective q₄ weights src (pair 0) (pair 1)
+  (TypeA.sadj _ 2 • uncrossedBottom) symm₄ [0] [3] (by decide) uncrossedBottom (by decide)
+  2 (by decide) (by decide) (by decide) rfl
+end KernelTensor
 end AdjacentRow
 
 /-- Webster, arXiv:1309.3796v2, Prop. 6.4, for `sl₂`, two red strands of weight `ω` that may

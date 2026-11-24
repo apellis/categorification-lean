@@ -78,6 +78,14 @@ theorem exists_middleStandard_supportedResolution_of_CLFiltration
     (rankOneParameterChange k).toRingEquiv (rankOneParameterChange_idem k) hU
     ⟨loading, loading_ordered⟩
 
+private theorem rankOneCLFiltration (d : DecidableEq Unit) (t : Labels) :
+    letI : DecidableEq Unit := d
+    ∃ m : List Labels, (∀ v ∈ m, StendhalLT t.1 v.1) ∧
+      HasFiltration StdCL m (ModuleCat.of ACL (U t)) := by
+  have h : d = (fun a b : Unit => Classical.propDecidable (a = b)) := Subsingleton.elim _ _
+  subst d
+  exact exists_hasFiltration_leftUpper_std (rankOneRouquier k) (rankOneSymm k) weights ν₂ t.1 t.2
+
 /-- The actual middle standard has a projective resolution with higher loading
 support in every positive degree. -/
 theorem exists_middleStandard_supportedResolution :
@@ -87,8 +95,8 @@ theorem exists_middleStandard_supportedResolution :
           P.complex.X (n + 1)),
         (∀ j, StendhalLT loading (label j).1) ∧ ∀ x : P.complex.X (n + 1),
           x ∈ Submodule.span Ambient {y | ∃ j z, inc j z = y} :=
-  exists_middleStandard_supportedResolution_of_CLFiltration k (fun t =>
-    exists_hasFiltration_leftUpper_std (rankOneRouquier k) (rankOneSymm k) weights ν₂ t.1 t.2)
+  exists_middleStandard_supportedResolution_of_CLFiltration k
+    (rankOneCLFiltration k instDecidableEqPUnit)
 
 open CategoryTheory.Limits DG DG.DerivedCategory
 open scoped DG.DegreeZero

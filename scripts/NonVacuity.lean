@@ -8767,6 +8767,9 @@ private def Λ : Fin 3 → Unit →₀ ℕ := fun r => Finsupp.single () (r.val 
 example := firstPairTwoAfter_blockKernel_mem_iff_twoFactors Q Λ (fun _ _ _ => rfl)
 example := firstPairTwoAfter_nilHecke_kernel Q Λ (fun _ _ _ => rfl)
 
+example := firstPairTwoAfter_equiv_nilHeckeRangeProd Q Λ
+example := firstPairTwoAfter_nilHecke_range_iff Q Λ (fun _ _ _ => rfl)
+
 end NonVacuity.WebsterFirstPairTwoAfter
 
 namespace NonVacuity.WebsterFirstPairTerminalColumn

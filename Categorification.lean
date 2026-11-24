@@ -1678,6 +1678,7 @@ import Categorification.WeightedKLR.RedStrands.FiveSlotMarkedExitJoints
 import Categorification.WeightedKLR.RedStrands.FiveSlotKernelColumn
 import Categorification.WeightedKLR.RedStrands.FiveSlotKernelDerivedHomology
 import Categorification.WeightedKLR.RedStrands.FiveSlotThreeTopDerived
+import Categorification.WeightedKLR.RedStrands.FiveSlotAllTopsBoundedSpectator
 import Categorification.WeightedKLR.RedStrands.FiveSlotAllBottom
 import Categorification.WeightedKLR.RedStrands.FiveSlotAllBottomStandard
 import Categorification.WeightedKLR.RedStrands.FiveSlotAllBottomDerived
@@ -1685,6 +1686,9 @@ import Categorification.WeightedKLR.RedStrands.FiveSlotLeftTopIdeal
 import Categorification.WeightedKLR.RedStrands.FiveSlotCentralTop
 import Categorification.WeightedKLR.RedStrands.FiveSlotLeftTopPrincipal
 import Categorification.WeightedKLR.RedStrands.FiveSlotLeftTopCancellation
+import Categorification.WeightedKLR.RedStrands.FiveSlotCentralCancellation
+import Categorification.WeightedKLR.RedStrands.FiveSlotCentralHigher
+import Categorification.WeightedKLR.RedStrands.FiveSlotSpectatorWeight
 import Categorification.WeightedKLR.RedStrands.BraidedStandardDerived
 import Categorification.WeightedKLR.RedStrands.BlockShuffleLoading
 import Categorification.WeightedKLR.RedStrands.BlockShuffleCrossing
@@ -1740,16 +1744,19 @@ import Categorification.WeightedKLR.Rigidity.CoevaluationWord
 import Categorification.WeightedKLR.Rigidity.CoevaluationTrace
 import Categorification.WeightedKLR.Rigidity.FundamentalCoevaluation
 import Categorification.WeightedKLR.Rigidity.ReducedCoevaluationWord
+import Categorification.WeightedKLR.Rigidity.CoevaluationShifts
 import Categorification.WeightedKLR.Rigidity.DerivedCupCap
 import Categorification.WeightedKLR.Rigidity.DerivedCupHom
 import Categorification.WeightedKLR.Rigidity.DerivedCupRegular
 import Categorification.WeightedKLR.Rigidity.FundamentalCupCap
 import Categorification.Algebra.DerivedTensorRegular
 import Categorification.WeightedKLR.Rigidity.FundamentalCupRegular
-import Categorification.WeightedKLR.Rigidity.SingleBlackExtremal
 import Categorification.Algebra.DiagramBigrading
 import Categorification.WeightedKLR.Rigidity.GradedCharacterCupCap
 import Categorification.WeightedKLR.Rigidity.GradedFundamentalCupCap
+import Categorification.WeightedKLR.Rigidity.SingleBlackExtremal
+import Categorification.WeightedKLR.Rigidity.ExtremalNorm
+import Categorification.WeightedKLR.Rigidity.ExtremalWeightRank
 
 /-!
 # Categorification

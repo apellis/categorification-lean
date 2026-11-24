@@ -19,7 +19,7 @@ universe u v w z
 variable {C : Type u} [Category.{v} C] [Preadditive C] [∀ X Y : C, DGAddCommGroup (X ⟶ Y)] [DGCategory C]
     {A B E : CatModule.{w} C} (f : A ⟶ B) (g : B ⟶ E) (fg : f ≫ g = 0)
 
-private def coneDescent : cone f ⟶ E where
+def coneDescent : cone f ⟶ E where
   app X := (g.app X).comp (cone.sndAddHom f X)
   map_mem' h := g.map_mem (cone.sndAddHom_mem h)
   map_d' {X} z := by
@@ -57,7 +57,7 @@ private theorem homogeneous_preimage {M N : CatModule.{w} C} (a : M ⟶ N) (X : 
   refine ⟨(DirectSum.decompose DG.grading y n).val, (DirectSum.decompose DG.grading y n).property, ?_⟩
   rw [← coe_decompose_map_of_map_mem (a.app X) (fun h => a.map_mem h), hy, DirectSum.decompose_of_mem_same _ hx]
 
-private theorem coneDescent_quasiIso
+theorem coneDescent_quasiIso
     (hinj : ∀ X, Function.Injective (f.app X)) (hex : ∀ X, Function.Exact (f.app X) (g.app X))
     (hsur : ∀ X, Function.Surjective (g.app X)) : IsQuasiIso H := by
   apply (isQuasiIso_iff_isAcyclic_cone H).mpr

@@ -24,10 +24,10 @@ attribute [local instance 1100] IsIdempotentElem.instAlgebraCorner_categorificat
 local notation "T" => TensorProductAlgebra ℚ Q wt ({()} : Multiset Unit)
 local notation "𝒜" => tensorProductGrade grading ({()} : Multiset Unit)
 local notation "μ" => stendhalWeight 2 ({()} : Multiset Unit)
-local instance : InternalGrading Tᵐᵒᵖ := gradedAlgebraInternalGrading (Graded.oppositeGrade 𝒜)
-local instance : BigradedDGRing Tᵐᵒᵖ := gradedAlgebraBigradedDGRing (Graded.oppositeGrade 𝒜)
-local instance : InternalGrading ℚ := scalarInternalGrading ℚ
-local instance : BigradedDGRing ℚ := scalarBigradedDGRing ℚ
+local instance instGradedTerminalStandardOppInternalGrading : InternalGrading Tᵐᵒᵖ := gradedAlgebraInternalGrading (Graded.oppositeGrade 𝒜)
+local instance instGradedTerminalStandardOppBigradedDGRing : BigradedDGRing Tᵐᵒᵖ := gradedAlgebraBigradedDGRing (Graded.oppositeGrade 𝒜)
+local instance instGradedTerminalStandardScalarInternalGrading : InternalGrading ℚ := scalarInternalGrading ℚ
+local instance instGradedTerminalStandardScalarBigradedDGRing : BigradedDGRing ℚ := scalarBigradedDGRing ℚ
 
 open KLR DirectSum
 

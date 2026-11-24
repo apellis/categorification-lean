@@ -6473,3 +6473,48 @@ noncomputable example :=
   hasReflectedStandardFiltration_braidingBimodule [] [] rightFiltration
 
 end NonVacuity.WebsterBraidFiltration
+
+/-! ### Webster, Lemma 6.8 after (6.21), two-black leading exit equation -/
+
+noncomputable section
+open Categorification.KLR Categorification.TypeA Equiv MvPolynomial
+open KLRAlgebra
+namespace NonVacuity.ExitLeadingEquations
+
+private abbrev ν : Multiset (Fin 3) := {2,0,0,1}
+private abbrev Q : Fin 3 → Fin 3 → MvPolynomial (Fin 2) ℤ := fun _ _ => 1
+private abbrev R := KLRAlgebra ℤ Q ν
+private abbrev P := MvPolynomial (Fin ν.card) ℤ
+private def s : Seq ν := KLRAlgebra.Seq.ofList [2,0,0,1] (by decide)
+private def upper : Fin 3 → List ℕ := ![[0,1],[2,1],[1,1]]
+private def leg : Fin 3 → List ℕ := ![[2,1,0],[0,1,2],[0,1,2]]
+private def out (a : Fin 3) := wordProd ν.card (upper a) * wordProd ν.card (leg a)
+private theorem same : out 1 = out 0 := by decide
+private theorem long : 4 < length ν.card (out 0) := by rw [length_eq_invCount]; decide
+private theorem short : length ν.card (out 2) ≤ 4 := by rw [length_eq_invCount]; decide
+
+-- The two extreme reduced cuts through the four-position interval have a common
+-- leading output. The nonreduced third cut imposes no equation in degree five.
+example (f : Fin 3 → P) :
+    (∑ a : Fin 3, (pol (f a) * ψw (upper a) * e (wordProd ν.card (leg a) • s)) *
+      (ψw (leg a) * e s) : R) ∈ filt ℤ Q ν 4 ↔ f 0 + f 1 = 0 := by
+  have symm : KLRSymm Q := fun _ _ _ => (map_one _).symm
+  have hu (a : Fin 3) : ValidWord ν.card (upper a) := by fin_cases a <;> simp [upper,ValidWord]
+  have hv (a : Fin 3) : ValidWord ν.card (leg a) := by fin_cases a <;> simp [leg,ValidWord]
+  have hb (a : Fin 3) : (upper a).length + (leg a).length ≤ 4+1 := by fin_cases a <;> decide
+  rw [exit_products_leading_iff symm Finset.univ s upper leg f (fun a _ => hu a) (fun a _ => hv a) (fun a _ => hb a)]
+  change (∀ t, 4 < length ν.card t → (∑ a : Fin 3, if out a = t then f a else 0) = 0) ↔ _
+  constructor
+  · intro H
+    have eq := H (out 0) long
+    have hne : out 2 ≠ out 0 := fun h => (h ▸ short).not_gt long
+    simpa only [Fin.sum_univ_three,same,ite_true,ite_eq_left rfl,ite_eq_right hne,add_zero] using eq
+  · intro he t ht
+    have hne : out 2 ≠ t := fun h => (h ▸ short).not_gt ht
+    rw [Fin.sum_univ_three,same,ite_eq_right hne,add_zero]
+    by_cases eq : out 0 = t
+    · simpa only [ite_eq_left eq] using he
+    · simp only [ite_eq_right eq,add_zero]
+
+end NonVacuity.ExitLeadingEquations
+end

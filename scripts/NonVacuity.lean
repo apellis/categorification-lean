@@ -8527,3 +8527,19 @@ noncomputable example := specializedQuotientEquiv ℤ
 example : Module.finrank ℚ (SquareQuotient ℚ) = 4 := finrank_squareQuotient ℚ
 
 end NonVacuity.WebsterLabelTwoPolynomialPresentation
+noncomputable section
+
+namespace NonVacuity.WebsterLabelTwoMiddleDots
+
+open Categorification.Stendhal.LabelTwo
+
+example :
+    middleDotQuotientAction ℚ (Ideal.Quotient.mk (middleDotIdeal ℚ)
+      (MvPolynomial.X 0 + MvPolynomial.X 1)) = dotEnd ℚ 0 + dotEnd ℚ 1 :=
+  middleDotQuotientAction_sum ℚ
+
+example : (dotEnd ℚ 1)^2 = 0 := dotEnd_sq ℚ 1
+
+end NonVacuity.WebsterLabelTwoMiddleDots
+
+end

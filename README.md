@@ -1068,6 +1068,13 @@ smaller-cut trace and gives the unique simple quotient
 The coefficient on the generating vector is one
 (`Stendhal.FundamentalCorner.terminalCoefficient_generator`). The general
 diagrammatic inputs to the criterion remain open.
+**Webster, arXiv:1309.3796v2, §8.2, Proposition 8.4 input.** The two black
+dots on the actual middle standard of the label-two pair are commuting
+square-zero endomorphisms. The polynomial quotient acts on this
+standard, with the sum sent to the sum of the two right dots
+(`Stendhal.LabelTwo.middleDotQuotientAction`,
+`Stendhal.LabelTwo.middleDotQuotientAction_sum`). Bijectivity of this
+endomorphism-algebra map remains open.
 
 ### Weak `sl₂`-categorifications (Chuang–Rouquier, arXiv:math/0407205v2, §5)
 

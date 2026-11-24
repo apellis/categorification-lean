@@ -44,7 +44,7 @@ def fundamentalCupRegularIso :
       map_mem' := fun {n m} hz => by
         have h := (InDegreeZero.mem_grading_iff (M := S)).mp hz
         change (show InDegreeZero (CupCoefficient ℚ FundamentalCoefficient) from
-          e (show S from m)) ∈ grading n
+          e (show S from m)) ∈ DG.grading n
         apply (InDegreeZero.mem_grading_iff (M := CupCoefficient ℚ FundamentalCoefficient)).mpr
         rcases h with h | h
         · exact Or.inl h

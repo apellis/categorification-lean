@@ -5951,6 +5951,9 @@ example (p : MvPolynomial (Fin black.card) ℚ) (hp : p ∈ coinvIdeal ℚ black
     projection (pol p) = 0 :=
   terminal_pol_eq_zero_of_mem_coinvIdeal (i := ()) (fun _ _ => Subsingleton.elim _ _) params p hp
 
+example := terminalDividedProjective_simple (ν := black) (i := ())
+  (fun j _ => Subsingleton.elim j ()) params
+
 end NonVacuity.WebsterTerminalSymmetric
 
 namespace NonVacuity.WebsterFigureFive

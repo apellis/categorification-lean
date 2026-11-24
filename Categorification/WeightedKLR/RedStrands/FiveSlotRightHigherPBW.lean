@@ -120,7 +120,7 @@ theorem fiveSlotRightmostHigher_exists_central_factors (hQ : KLRSymm Q) (i : Fin
 
 local notation "P" => MvPolynomial (Fin n₀) k
 
-private theorem slide_pol_from_left (j : ℕ) (hj : j + 1 < n₀) (s : Seq μ₀)
+theorem slide_pol_from_left (j : ℕ) (hj : j + 1 < n₀) (s : Seq μ₀)
     (f : P) (z : R) (hz : e s * z = z) :
     pol f * (ψ j * z) =
       ψ j * (pol (swapPol j hj f) * z) -
@@ -415,62 +415,83 @@ theorem fiveSlotRightmostKernel_central_images_intersect_iff (hQ : KLRSymm Q)
   exact h.symm
 
 
-private theorem rightmostKernel_rep_mul_val (c : V) (hc : p v₂ * c = c * p v₂) (a : L) :
-    (blockLoadingRep Q Λ v₂ (c * a.1.1)).1.1 = c * a.1.1 := by
-  have hr : a.1.1 * E = a.1.1 := corner_mul_right _ a.1
-  exact (blockLoadingRep_val Q Λ v₂ _).trans (by
-    change p v₂ * (c * a.1.1) * E = c * a.1.1
-    rw [← mul_assoc, hc, mul_assoc c, rightmostKernel_left Q Λ a, mul_assoc, hr])
+section KernelEndomorphism
 
-private def rightmostKernel_mul (c : V) (hc : p v₂ * c = c * p v₂) (a : K) : K :=
-  ⟨blockLoadingRep Q Λ v₂ (c * a.1.1.1), by
-    let J := blockUpperIdeal k Q Λ ν₀ 1 2 (adjacentBlockRoot 1 2 v₂) (redWord v₂)
-    change (blockLoadingRep Q Λ v₂ (c * a.1.1.1)).1.1 ∈ J
-    rw [rightmostKernel_rep_mul_val Q Λ c hc a.1]
+variable (s : Seq μ₀)
+local notation "Aₛ" => IsIdempotentElem.Corner
+  (isIdempotentElem_violMk_redProj k Q Λ ν₀ (redWord s))
+local notation "Lₛ" => rIdeal (orderedLoadingIdem Q Λ s)
+local notation "Kₛ" => blockLoadingKernel Q Λ s 1 2
+local notation "Eₛ" => violMk k Q Λ ν₀ (redProj k Q Λ ν₀ (redWord s))
+
+private theorem fiveSlotKernel_loading_support (a : Lₛ) : p s * a.1.1 = a.1.1 := by
+  have h := a.2
+  change orderedLoadingIdem Q Λ s * a.1 = a.1 at h
+  exact congrArg (fun z : Aₛ => z.1) h
+
+private theorem fiveSlotKernel_rep_mul_val (c : V) (hc : p s * c = c * p s) (a : Lₛ) :
+    (blockLoadingRep Q Λ s (c * a.1.1)).1.1 = c * a.1.1 := by
+  have hr : a.1.1 * Eₛ = a.1.1 := corner_mul_right _ a.1
+  exact (blockLoadingRep_val Q Λ s _).trans (by
+    change p s * (c * a.1.1) * Eₛ = c * a.1.1
+    rw [← mul_assoc, hc, mul_assoc c, fiveSlotKernel_loading_support Q Λ s a, mul_assoc, hr])
+
+private def fiveSlotKernel_mul (c : V) (hc : p s * c = c * p s) (a : Kₛ) : Kₛ :=
+  ⟨blockLoadingRep Q Λ s (c * a.1.1.1), by
+    let J := blockUpperIdeal k Q Λ ν₀ 1 2 (adjacentBlockRoot 1 2 s) (redWord s)
+    change (blockLoadingRep Q Λ s (c * a.1.1.1)).1.1 ∈ J
+    rw [fiveSlotKernel_rep_mul_val Q Λ s c hc a.1]
     exact TwoSidedIdeal.mul_mem_left _ _ _ a.2⟩
 
-private theorem rightmostKernel_mul_val (c : V) (hc : p v₂ * c = c * p v₂) (a : K) :
-    (rightmostKernel_mul Q Λ c hc a).1.1.1 = c * a.1.1.1 :=
-  rightmostKernel_rep_mul_val Q Λ c hc a.1
+private theorem fiveSlotKernel_mul_val (c : V) (hc : p s * c = c * p s) (a : Kₛ) :
+    (fiveSlotKernel_mul Q Λ s c hc a).1.1.1 = c * a.1.1.1 :=
+  fiveSlotKernel_rep_mul_val Q Λ s c hc a.1
 
-private theorem rightmostKernel_val_injective :
-    Function.Injective (fun a : K => a.1.1.1) := fun _ _ h =>
+private theorem fiveSlotKernel_val_injective :
+    Function.Injective (fun a : Kₛ => a.1.1.1) := fun _ _ h =>
   Subtype.ext (Subtype.ext (Subtype.ext h))
 
-private theorem rightmostKernel_mul_add (c : V) (hc : p v₂ * c = c * p v₂) (a b : K) :
-    rightmostKernel_mul Q Λ c hc (a + b) =
-      rightmostKernel_mul Q Λ c hc a + rightmostKernel_mul Q Λ c hc b := by
-  apply rightmostKernel_val_injective Q Λ
-  change (rightmostKernel_mul Q Λ c hc (a+b)).1.1.1 =
-    (rightmostKernel_mul Q Λ c hc a).1.1.1 + (rightmostKernel_mul Q Λ c hc b).1.1.1
-  simp only [rightmostKernel_mul_val]
+private theorem fiveSlotKernel_mul_add (c : V) (hc : p s * c = c * p s) (a b : Kₛ) :
+    fiveSlotKernel_mul Q Λ s c hc (a + b) =
+      fiveSlotKernel_mul Q Λ s c hc a + fiveSlotKernel_mul Q Λ s c hc b := by
+  apply fiveSlotKernel_val_injective Q Λ s
+  change (fiveSlotKernel_mul Q Λ s c hc (a+b)).1.1.1 =
+    (fiveSlotKernel_mul Q Λ s c hc a).1.1.1 + (fiveSlotKernel_mul Q Λ s c hc b).1.1.1
+  simp only [fiveSlotKernel_mul_val]
   exact mul_add c _ _
 
-private theorem rightmostKernel_mul_smul (c : V) (hc : p v₂ * c = c * p v₂) (r : Aᵐᵒᵖ) (a : K) :
-    rightmostKernel_mul Q Λ c hc (r • a) = r • rightmostKernel_mul Q Λ c hc a := by
-  apply rightmostKernel_val_injective Q Λ
-  change (rightmostKernel_mul Q Λ c hc (r • a)).1.1.1 =
-    (rightmostKernel_mul Q Λ c hc a).1.1.1 * r.unop.1
-  simp only [rightmostKernel_mul_val]
+private theorem fiveSlotKernel_mul_smul (c : V) (hc : p s * c = c * p s) (r : Aₛᵐᵒᵖ) (a : Kₛ) :
+    fiveSlotKernel_mul Q Λ s c hc (r • a) = r • fiveSlotKernel_mul Q Λ s c hc a := by
+  apply fiveSlotKernel_val_injective Q Λ s
+  change (fiveSlotKernel_mul Q Λ s c hc (r • a)).1.1.1 =
+    (fiveSlotKernel_mul Q Λ s c hc a).1.1.1 * r.unop.1
+  simp only [fiveSlotKernel_mul_val]
   exact (mul_assoc c _ _).symm
 
-private def rightmostKernel_leftMul (c : V) (hc : p v₂ * c = c * p v₂) :
-    K →ₗ[Aᵐᵒᵖ] K where
-  toFun := rightmostKernel_mul Q Λ c hc
-  map_add' := rightmostKernel_mul_add Q Λ c hc
-  map_smul' := rightmostKernel_mul_smul Q Λ c hc
+/-- Left multiplication by an element commuting with the top loading acts on its higher kernel. -/
+def fiveSlotKernelLeftMul (c : V) (hc : p s * c = c * p s) :
+    Kₛ →ₗ[Aₛᵐᵒᵖ] Kₛ where
+  toFun := fiveSlotKernel_mul Q Λ s c hc
+  map_add' := fiveSlotKernel_mul_add Q Λ s c hc
+  map_smul' := fiveSlotKernel_mul_smul Q Λ s c hc
 
-private theorem rightmostKernel_leftMul_val (c : V) (hc : p v₂ * c = c * p v₂) (a : K) :
-    (rightmostKernel_leftMul Q Λ c hc a).1.1.1 = c * a.1.1.1 :=
-  rightmostKernel_mul_val Q Λ c hc a
+theorem fiveSlotKernelLeftMul_val (c : V) (hc : p s * c = c * p s) (a : Kₛ) :
+    (fiveSlotKernelLeftMul Q Λ s c hc a).1.1.1 = c * a.1.1.1 :=
+  fiveSlotKernel_mul_val Q Λ s c hc a
+
+end KernelEndomorphism
 
 /-- The equal-black crossing as an endomorphism of the rightmost higher kernel. -/
 def fiveSlotRightmostKernel_nilHecke : K →ₗ[Aᵐᵒᵖ] K :=
-  rightmostKernel_leftMul Q Λ D (by
+  fiveSlotKernelLeftMul Q Λ v₂ D (by
     rw [← map_mul, ← map_mul, e_mul_ψ, show sadj n₀ 3 • v₂ = v₂ by decide])
 
+theorem fiveSlotRightmostKernel_nilHecke_val (z : K) :
+    (fiveSlotRightmostKernel_nilHecke Q Λ z).1.1.1 = D * z.1.1.1 :=
+  fiveSlotKernelLeftMul_val Q Λ v₂ D _ z
+
 private def rightmostKernel_dot : K →ₗ[Aᵐᵒᵖ] K :=
-  rightmostKernel_leftMul Q Λ X₃ (by rw [← map_mul, ← map_mul, x_mul_e])
+  fiveSlotKernelLeftMul Q Λ v₂ X₃ (by rw [← map_mul, ← map_mul, x_mul_e])
 
 local notation "d" => fiveSlotRightmostKernel_nilHecke Q Λ
 local notation "u" => rightmostKernel_dot Q Λ
@@ -480,21 +501,22 @@ private theorem rightmostKernel_d_sq (a : K) : d (d a) = 0 := by
   apply Subtype.ext
   apply Subtype.ext
   change (d (d a)).1.1.1 = (0 : V)
-  simp only [fiveSlotRightmostKernel_nilHecke, rightmostKernel_leftMul_val]
+  simp only [fiveSlotRightmostKernel_nilHecke, fiveSlotKernelLeftMul_val]
   exact rightmostCrossing_square Q Λ a.1.1.1 (rightmostKernel_left Q Λ a.1)
 
 private theorem rightmostKernel_d_u_of_d_zero (a : K) (ha : d a = 0) : d (u a) = a := by
   have hz : D * a.1.1.1 = 0 := by
-    rw [← rightmostKernel_leftMul_val Q Λ D _ a]
+    rw [← fiveSlotKernelLeftMul_val Q Λ v₂ D _ a]
     exact congrArg (fun b : K => b.1.1.1) ha
   apply Subtype.ext
   apply Subtype.ext
   apply Subtype.ext
-  simp only [fiveSlotRightmostKernel_nilHecke, rightmostKernel_dot, rightmostKernel_leftMul_val]
+  simp only [fiveSlotRightmostKernel_nilHecke, rightmostKernel_dot, fiveSlotKernelLeftMul_val]
   simpa only [hz, mul_zero, sub_zero] using
     rightmostCrossing_left_dot Q Λ a.1.1.1 (rightmostKernel_left Q Λ a.1)
 
-private def nilHeckeRangeProd {B M : Type} [Ring B] [AddCommGroup M] [Module B M]
+/-- A contracting operator splits a square-zero map into two copies of its range. -/
+def nilHeckeRangeProd {B M : Type} [Ring B] [AddCommGroup M] [Module B M]
     (δ dot : M →ₗ[B] M) (sq : ∀ a, δ (δ a) = 0)
     (contract : ∀ a, δ a = 0 → δ (dot a) = a) :
     M ≃ₗ[B] LinearMap.range δ × LinearMap.range δ where

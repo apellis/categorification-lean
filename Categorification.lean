@@ -1091,6 +1091,11 @@ import Categorification.WeightedKLR.Steadied
 import Categorification.WeightedKLR.Deformation
 import Categorification.WeightedKLR.RedStrands.BraidingFunctor
 import Categorification.WeightedKLR.RedStrands.BraidingAuxiliaryDerived
+import Categorification.WeightedKLR.RedStrands.AdjacentRedSwapNormalization
+import Categorification.WeightedKLR.RedStrands.BraidingWeightDecomposition
+import Categorification.WeightedKLR.RedStrands.RedPermutationGrading
+import Categorification.WeightedKLR.RedStrands.NormalizedBraidMultiplication
+import Categorification.WeightedKLR.RedStrands.BraidFactorizationDegree
 import Categorification.WeightedKLR.RedStrands.TwoRedSwapNormalization
 import Categorification.WeightedKLR.RedStrands.CrawleyBoevey
 import Categorification.WeightedKLR.RedStrands.CrawleyBoeveyIn
@@ -1761,9 +1766,10 @@ import Categorification.Algebra.DerivedTensorRegular
 import Categorification.WeightedKLR.Rigidity.FundamentalCupRegular
 import Categorification.Algebra.DiagramBigrading
 import Categorification.Algebra.DiagramWeightBimodule
+import Categorification.Algebra.DiagramWeightScalarHom
+import Categorification.Algebra.DiagramWeightCorner
 import Categorification.Algebra.DiagramWeightCoend
 import Categorification.Algebra.DiagramWeightCoendSurjectivity
-import Categorification.Algebra.DiagramWeightCorner
 import Categorification.WeightedKLR.Rigidity.GradedCharacterCupCap
 import Categorification.WeightedKLR.Rigidity.GradedFundamentalCupCap
 import Categorification.WeightedKLR.Rigidity.SingleBlackExtremal
@@ -1774,6 +1780,7 @@ import Categorification.WeightedKLR.Rigidity.ExtremalRaising
 import Categorification.WeightedKLR.Rigidity.ExtremalStringNorm
 import Categorification.WeightedKLR.Rigidity.CoevaluationDividedPower
 import Categorification.WeightedKLR.Rigidity.ReducedDividedNorm
+import Categorification.WeightedKLR.Rigidity.CoevaluationIndependence
 
 /-!
 # Categorification

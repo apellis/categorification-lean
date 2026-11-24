@@ -1003,9 +1003,9 @@ from a dominant integral weight, the coroot pairings are nonnegative
 roots this determines the multiplicities
 (`Stendhal.coevaluationWord_multiplicities_eq`). For reduced expressions of the
 same Weyl element, this gives `Stendhal.coevaluationWord_multiplicities_eq_of_reduced`.
-The fundamental two-red type A₁ character is homogeneous in the
-Webster grading. Its derived restriction and extension give the internally
-graded fundamental cup and cap over the rationals. The cup has internal
+The terminal character of the two-red type A₁ algebra is homogeneous in the
+Webster grading. Its derived restriction and extension give a graded
+terminal-character cup and cap model over the rationals. The cup has internal
 shift one and cohomological shift minus one
 (`Stendhal.FundamentalCorner.gradedFundamentalCup` and `gradedFundamentalCap`).
 
@@ -1028,6 +1028,23 @@ in the integer grading inherited from the augmented KLR algebra. For a two-red s
 degree coset with offset `2 - ⟨λ_r, λ_d⟩`. The coordinate comparison
 `twoRedSwapWeight_coordinate` and the reduced-diagram degree theorem
 `twoRedSwap_mem_weight` identify those pieces with Webster's degrees.
+The same comparison holds for any adjacent red swap with arbitrary spectator
+strands (`adjacentRedSwap_mem_weight`). The normalized pieces decompose the
+full coefficient as a direct sum (`adjacentRedSwapWeight_isInternal`).
+For any red permutation, `redWordOffset` sums the crossing corrections over
+the red pairs inverted between the boundary words. This defines the normalized
+coefficient and its full homogeneous decomposition
+(`redPermutation_mem_weight`, `redPermutationWeight_isInternal`).
+The offsets add when each red pair crosses at most once. In that case the
+actual multiplication adds normalized degrees
+(`braidingCoefficientMul_mem_weight`). The inversion condition in Lemma 6.5
+implies additivity (`redWordOffset_add_of_sublist`), and its balanced
+multiplication identifies the quotient corner coefficient
+(`violCornerTensorMulEquiv_tmul`).
+
+Over a scalar field in degree zero the left modules are K-projective, so the
+construction gives derived Hom for every homogeneous scalar coefficient
+(`diagramWeightScalarDerivedHom`).
 
 Definition 7.4 has cup and cap coefficient models in the ungraded derived
 categories, with a specified cohomological shift on the cup and a finite
@@ -1047,13 +1064,16 @@ The cap using the same coefficient is left adjoint before the shift
 The derived Hom and dual-tensor constructions agree on the ground field
 (`Stendhal.Coevaluation.cupRHomTensorRegularIso`).
 For the two fundamental type A₁ factors over the rationals, the dual
-coefficient is the simple quotient by the smaller-cut trace. It gives
-the cup with homological shift minus one and the cap
+of the terminal character is the simple quotient by the smaller-cut trace.
+It gives a terminal-character cup with homological shift minus one and cap
 (`Stendhal.FundamentalCorner.terminalQuotientDualEquiv`, `fundamentalCup`,
 and `fundamentalCap`).
 The cup on the ground field is the shifted terminal simple quotient,
 and the cap on the regular module is the left coefficient
 (`fundamentalCupRegularIso` and `fundamentalCapRegularIso`).
+Webster's normalization in Proposition 7.5 uses the middle loading
+`κ = (0, 1)`. The convention of §4 counts the black strands to the left
+of each red strand. The middle-character construction is in progress.
 
 For Proposition 7.2, a single
 red with coroot pairing one gives a simple projective at the red-first
@@ -1094,7 +1114,9 @@ the raised weight space vanishes in the classical and quantum modules, and
 the full divided power preserves the Shapovalov norm on a bar-invariant
 primitive vector (`SingleBlack.websterForm_saturated_dividedPower`). The
 normalized divided-power cyclotomic projective of each reduced coevaluation
-word is simple (`CycKLR.isSimple_coevaluationProjective`). The normalized
+word is simple (`CycKLR.isSimple_coevaluationProjective`). Two reduced words
+for the same Weyl element give isomorphic graded projectives
+(`CycKLR.coevaluationProjective_iso_of_same_weyl`). The normalized
 Shapovalov pairings are still needed for general reflection words.
 
 **Webster, arXiv:1309.3796v2, §7.1, Lemma 7.3.** The smaller-cut trace is

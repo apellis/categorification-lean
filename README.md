@@ -1349,6 +1349,12 @@ proves simplicity
 (`Stendhal.labelTwoExteriorAugmentation_loading_project`,
 `Stendhal.labelTwoExteriorCokernel_span`,
 `Stendhal.labelTwoExteriorCokernel_simple`).
+The simple augmentation inherits the quotient grading from the exterior
+projective. It preserves degree under their common shift by `−1` and
+completes the exact sequence of graded diagrammatic terms
+(`Stendhal.LabelTwo.labelTwoExteriorCokernelDecomposition`,
+`Stendhal.LabelTwo.labelTwoNormalizedAugmentation_exact`,
+`Stendhal.LabelTwo.labelTwoShiftedAugmentation_preservesGrading`).
 
 
 

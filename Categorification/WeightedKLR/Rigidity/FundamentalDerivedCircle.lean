@@ -11,12 +11,13 @@ import DG.Derived.Basic
 import Mathlib.CategoryTheory.Triangulated.Adjunction
 
 /-!
-# The fundamental derived cap and its cup–evaluation coefficient
+# The terminal-character derived cap and its cup–evaluation coefficient
 
-Webster, arXiv:1309.3796v2, §8.1, Proposition 8.3 input. Over `ℚ`, the
-derived cap on the unshifted fundamental terminal simple is `ℚ` in
-degree zero. The mixed-crossing resolution reduces this to the two
-idempotent images in the left coefficient.
+This rank-one benchmark uses the cup and cap construction of Webster,
+arXiv:1309.3796v2, Definition 7.4 and §8.1, with the terminal character.
+Over `ℚ`, the mixed-crossing resolution computes the cap on the terminal
+simple from the two idempotent images. Webster's coevaluation cut
+`κ = (0, 1)` selects the middle loading in Proposition 7.5.
 -/
 
 noncomputable section

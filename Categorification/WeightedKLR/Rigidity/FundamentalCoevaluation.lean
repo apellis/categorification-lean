@@ -404,10 +404,9 @@ theorem fundamentalResolutionMap_range :
     rw [mul_add, mul_smul_comm, mul_assoc C q q, hq.eq, mul_smul_comm, middle_cross_bigon,
       ← hb, ← ha, ← mul_add, add_comm q p, p_add_q, mul_one]
 
-/-- The terminal coevaluation simple admits a length-one resolution by
-the two loading projectives. This is the finite projective input for the
-fundamental rank-one unknot calculation of Webster, arXiv:1309.3796v2,
-§8.1, Proposition 8.3. -/
+/-- The fundamental terminal-character simple admits a length-one resolution
+by the two loading projectives. This gives a rank-one benchmark for the
+projective-resolution method in Webster, arXiv:1309.3796v2, §8.1. -/
 theorem fundamentalProjectiveResolution :
     Module.Projective Tᵐᵒᵖ (rIdeal q) ∧
     Module.Projective Tᵐᵒᵖ (rIdeal p) ∧

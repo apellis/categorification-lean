@@ -1105,21 +1105,23 @@ The coefficient on the generating vector is one
 (`Stendhal.FundamentalCorner.terminalCoefficient_generator`). The general
 diagrammatic inputs to the criterion remain open.
 
-**Webster, arXiv:1309.3796v2, §8.1, Proposition 8.3 input.** In the
-fundamental rank-one block over `ℚ`, the terminal coevaluation simple has a
-length-one projective resolution whose differential is the mixed crossing
-from the middle loading to the terminal loading
+**Terminal-character resolution benchmark for Webster, arXiv:1309.3796v2,
+§8.1.** In the fundamental rank-one block over `ℚ`, the terminal simple
+has a length-one projective resolution whose differential is the mixed
+crossing from the middle loading to the terminal loading
 (`Stendhal.FundamentalCorner.fundamentalProjectiveResolution`). Its positive
 self-Ext groups vanish
 (`Stendhal.FundamentalCorner.fundamentalTerminalSimple_ext_eq_zero`).
 
-**Webster, arXiv:1309.3796v2, Definition 7.4 and §8.1.** For two
-fundamental type A₁ factors over `ℚ`, the derived cap of the unshifted
-terminal simple is the ground field in degree zero
+**Terminal-character cup and cap benchmark.** For two fundamental type A₁
+factors over `ℚ`, the derived terminal-character cap sends the unshifted
+terminal simple to the ground field in degree zero
 (`Stendhal.FundamentalCorner.fundamentalCap_terminalSimpleIso`).
-The cup followed by the evaluation cap on the ground field gives this
-coefficient shifted by minus one
+Composing the terminal-character cup with this cap sends the ground field
+to its shift by minus one
 (`Stendhal.FundamentalCorner.fundamentalCupEvaluationRegularIso`).
+Webster's v2 coevaluation cut `κ = (0, 1)` selects the middle loading in
+Proposition 7.5.
 
 ### Weak `sl₂`-categorifications (Chuang–Rouquier, arXiv:math/0407205v2, §5)
 

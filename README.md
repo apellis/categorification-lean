@@ -1270,7 +1270,11 @@ internal degree (`Stendhal.LabelTwo.diagramPlusMinus_exact_in_degree`,
 The dot-difference quotient carries the companion grading. Both quotient
 inclusions shift internal degree by two and give short exact sequences
 in every degree (`Stendhal.LabelTwo.diagramSumCompanionAugmentation_exact_in_degree`,
-`Stendhal.LabelTwo.diagramDifferenceCompanionAugmentation_exact_in_degree`). Evaluation on the
+`Stendhal.LabelTwo.diagramDifferenceCompanionAugmentation_exact_in_degree`).
+The inclusions and quotient maps give the corresponding distinguished
+triangles of dg weight modules
+(`Stendhal.LabelTwo.middleSumWeight_distinguished`,
+`Stendhal.LabelTwo.middleDifferenceWeight_distinguished`). Evaluation on the
 middle generator identifies the endomorphism algebra with the actual
 regular parabolic factor (`Stendhal.LabelTwo.middleEndomorphismFactorEquiv`).
 The diagrammatic dot-sum quotient is the standardization of its

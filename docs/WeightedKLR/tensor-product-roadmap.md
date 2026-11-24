@@ -965,6 +965,11 @@ slices. An application to Definition 6.6 still needs the `ℂ`-indexed graded ca
 bimodule (or a verified reindexing respecting the shift and tensor), the relevant derived
 tensor comparison without an extra braid projectivity premise, and the bounded-above setting.
 
+For Lemma 6.11, `braidingBimoduleFlip` implements the horizontal reflection used in
+the proof of `f_n → s_n`. It swaps the order corners and intertwines their actions with
+the opposite actions through the corner anti-involutions. The standard filtration and
+higher Tor steps remain open.
+
 Open, in working order: Lemma 6.8 (needs block standardization in the braided algebra; standard
 modules exist only in `StendhalAlgebraAllOrders`, `RedStrands/StandardAction.lean`, and partial
 standardization only for the last red strand), then Prop 6.9 for general `ℓ` by reduction to two

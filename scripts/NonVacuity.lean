@@ -6340,3 +6340,24 @@ noncomputable example :=
   derivedTensorCompIsoOfProjective (A := ℚ) (B := ℚ) (C := ℚ) ℚ ℚ
 
 end NonVacuity.BraidedStendhal
+
+namespace NonVacuity.WebsterBraidReflection
+
+open Categorification.Stendhal.BraidedStendhalAlgebra MulOpposite
+
+private noncomputable abbrev Q : Unit → Unit → MvPolynomial (Fin 2) ℚ := fun _ _ => 0
+private noncomputable abbrev Λ : Fin 2 → Unit →₀ ℕ :=
+  fun j => Finsupp.single () (j.val + 1)
+private abbrev ν : Multiset Unit := 0
+
+example (a : (isIdempotentElem_violMk_redProj ℚ Q Λ ν [0, 1]).Corner)
+    (b : (isIdempotentElem_violMk_redProj ℚ Q Λ ν [1, 0]).Cornerᵐᵒᵖ)
+    (x : braidingBimodule ℚ Q Λ ν [0, 1] [1, 0]) :
+    braidingBimoduleFlip [0, 1] [1, 0] (a • x) =
+      op (cornerFlip a) • braidingBimoduleFlip [0, 1] [1, 0] x ∧
+    braidingBimoduleFlip [0, 1] [1, 0] (b • x) =
+      cornerFlip b.unop • braidingBimoduleFlip [0, 1] [1, 0] x :=
+  ⟨braidingBimoduleFlip_smul_left [0, 1] [1, 0] a x,
+    braidingBimoduleFlip_smul_right [0, 1] [1, 0] b x⟩
+
+end NonVacuity.WebsterBraidReflection

@@ -16,7 +16,7 @@ for all red spectators. The short exact sequence gives derived concentration.
 
 namespace Categorification.Stendhal.BraidedStendhalAlgebra
 
-open CategoryTheory DG DG.DerivedCategory KLR QuantumGroup KL3.Diagram
+open CategoryTheory CategoryTheory.Limits DG DG.DerivedCategory KLR QuantumGroup KL3.Diagram
 open scoped DG.DegreeZero
 attribute [local instance 1100] IsIdempotentElem.instAlgebraCorner_categorification
 attribute [local instance 1200] Ring.toIntAlgebra

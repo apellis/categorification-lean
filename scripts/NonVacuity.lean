@@ -7472,3 +7472,26 @@ private noncomputable abbrev Λ : Fin 3 → Unit →₀ ℕ := fun _ => Finsupp.
 example := fiveSlot_blockKernelColumnInclusion_injective Q Λ (fun _ _ _ => rfl)
 
 end NonVacuity.WebsterFiveSlotKernelColumn
+
+namespace NonVacuity.WebsterFiveSlotThreeTopKernelColumn
+
+open Categorification.KLR Categorification.Stendhal BraidedStendhalAlgebra
+open Categorification.TypeA
+
+private noncomputable abbrev Q : Unit → Unit → MvPolynomial (Fin 2) ℚ := fun _ _ => 0
+private noncomputable abbrev Λ : Fin 3 → Unit →₀ ℕ := fun _ => Finsupp.single () 2
+private abbrev μ := stendhalWeight 3 ({()} + {()} : Multiset Unit)
+private abbrev extreme := fixedTopFourExitCut 2
+private abbrev mixed := sadj μ.card 2 • extreme
+private abbrev full := sadj μ.card 3 • mixed
+
+example := fiveSlotRightTop_blockKernelColumnInclusion_injective Q Λ (fun _ _ _ => rfl)
+  extreme (Or.inl rfl)
+
+example := fiveSlotRightTop_blockKernelColumnInclusion_injective Q Λ (fun _ _ _ => rfl)
+  mixed (Or.inr (Or.inl rfl))
+
+example := fiveSlotRightTop_blockKernelColumnInclusion_injective Q Λ (fun _ _ _ => rfl)
+  full (Or.inr (Or.inr rfl))
+
+end NonVacuity.WebsterFiveSlotThreeTopKernelColumn

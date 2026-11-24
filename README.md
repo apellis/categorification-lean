@@ -1009,6 +1009,11 @@ dimensional ordinary tensor-Hom comparison preserving the module action
 (`Stendhal.Coevaluation.shiftedCupFunctor`, `capFunctor`, and
 `cupTensorHomEquiv_op_tmul`). The normalized graded coevaluation remains open.
 
+The cup also has an ungraded derived Hom construction with the action
+by coefficient precomposition, with a dg Hom model on scalar inputs.
+The cap using the same coefficient is left adjoint before the shift
+(`Stendhal.Coevaluation.cupRHomObjIso` and `capBimoduleCupRHomAdjunction`).
+
 For Proposition 7.2, a single
 red with coroot pairing one gives a simple projective at the red-first
 one-black loading (`Stendhal.oneBlack_extremal_projective_simple`).

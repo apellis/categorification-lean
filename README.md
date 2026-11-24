@@ -1165,7 +1165,10 @@ resolution of the middle head (`fundamentalBraidSourceResolution`). Its
 balanced tensor with the braid has this same homology line in resolution
 degree one (`fundamentalBraidTensorCutIso`, `fundamentalBraidTensorHomologyIso`).
 With the right action of the reversed-order ring, this homology is its
-middle simple head (`fundamentalBraidRightTensorHomologyIso`).
+middle simple head (`fundamentalBraidRightTensorHomologyIso`). The positive
+derived braid on the source middle head has this target head in native
+cohomological degree −1 (`fundamentalBraidDerivedHeadIso`). Its cohomology
+vanishes in every other degree (`fundamentalBraidDerivedHead_isZero`).
 
 In the diagram-weight categories the middle character is homogeneous.
 Its weight-zero generator identifies with the right simple head, with

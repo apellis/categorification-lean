@@ -19,7 +19,7 @@ universe u v w z
 variable {C : Type u} [Category.{v} C] [Preadditive C] [∀ X Y : C, DGAddCommGroup (X ⟶ Y)] [DGCategory C]
     {A B E : CatModule.{w} C} (f : A ⟶ B) (g : B ⟶ E) (fg : f ≫ g = 0)
 
-private def coneDescent : cone f ⟶ E where
+def coneDescent : cone f ⟶ E where
   app X := (g.app X).comp (cone.sndAddHom f X)
   map_mem' h := g.map_mem (cone.sndAddHom_mem h)
   map_d' {X} z := by
@@ -32,17 +32,19 @@ private def coneDescent : cone f ⟶ E where
 
 local notation "H" => coneDescent f g fg
 
-private def pack {X : C} (a : A.obj X) (b : B.obj X) (e : E.obj X) : (cone H).obj X :=
+/-- The three coordinates in the iterated cone of two successive maps. -/
+def weightTwoStagePack {X : C} (a : A.obj X) (b : B.obj X) (e : E.obj X) : (cone H).obj X :=
   (shift.mk 1 (show (cone f).obj X from (shift.mk 1 a, b)), e)
 
 private theorem pack_mem {X : C} {n : ℤ} (a : A.obj X) (b : B.obj X) (e : E.obj X) :
-    pack f g fg a b e ∈ DG.grading n ↔
+    weightTwoStagePack f g fg a b e ∈ DG.grading n ↔
       a ∈ DG.grading (n+1+1) ∧ b ∈ DG.grading (n+1) ∧ e ∈ DG.grading n := by
   change (_ ∧ _) ↔ _
   exact and_assoc
 
-private theorem d_pack {X : C} (a : A.obj X) (b : B.obj X) (e : E.obj X) :
-    d (pack f g fg a b e) = pack f g fg (d a) (-(f.app X a + d b)) (g.app X b + d e) := by
+/-- The differential of the length-two model in its three coordinates. -/
+theorem weightTwoStagePack_d {X : C} (a : A.obj X) (b : B.obj X) (e : E.obj X) :
+    d (weightTwoStagePack f g fg a b e) = weightTwoStagePack f g fg (d a) (-(f.app X a + d b)) (g.app X b + d e) := by
   refine Prod.ext (Prod.ext ?_ ?_) rfl
   · change koszulSign 1 • (koszulSign 1 • d a) = d a
     simp [Units.smul_def]
@@ -57,7 +59,7 @@ private theorem homogeneous_preimage {M N : CatModule.{w} C} (a : M ⟶ N) (X : 
   refine ⟨(DirectSum.decompose DG.grading y n).val, (DirectSum.decompose DG.grading y n).property, ?_⟩
   rw [← coe_decompose_map_of_map_mem (a.app X) (fun h => a.map_mem h), hy, DirectSum.decompose_of_mem_same _ hx]
 
-private theorem coneDescent_quasiIso
+theorem coneDescent_quasiIso
     (hinj : ∀ X, Function.Injective (f.app X)) (hex : ∀ X, Function.Exact (f.app X) (g.app X))
     (hsur : ∀ X, Function.Surjective (g.app X)) : IsQuasiIso H := by
   apply (isQuasiIso_iff_isAcyclic_cone H).mpr
@@ -66,9 +68,9 @@ private theorem coneDescent_quasiIso
   let a := shift.unmk 1 ((cone.fstHom f).app X (shift.unmk 1 ((cone.fstHom H).app X y)))
   let b := cone.sndAddHom f X (shift.unmk 1 ((cone.fstHom H).app X y))
   let e := cone.sndAddHom H X y
-  change pack f g fg a b e ∈ DG.grading n at hy
-  change d (pack f g fg a b e) = 0 at hdy
-  rw [d_pack] at hdy
+  change weightTwoStagePack f g fg a b e ∈ DG.grading n at hy
+  change d (weightTwoStagePack f g fg a b e) = 0 at hdy
+  rw [weightTwoStagePack_d] at hdy
   have hb := (pack_mem f g fg a b e).mp hy
   have hba : -(f.app X a + d b) = 0 := congrArg (fun z : (cone H).obj X =>
     cone.sndAddHom f X (shift.unmk 1 ((cone.fstHom H).app X z))) hdy
@@ -82,11 +84,11 @@ private theorem coneDescent_quasiIso
     rw [f.map_d, hfa, d_neg, d_add, d_d, add_zero]
     have h := neg_eq_zero.mp hba
     exact (eq_neg_of_add_eq_zero_left h).symm
-  refine ⟨pack f g fg a' b' 0, ?_, ?_⟩
+  refine ⟨weightTwoStagePack f g fg a' b' 0, ?_, ?_⟩
   · apply (pack_mem f g fg a' b' 0).mpr
     simpa only [sub_add_cancel] using (show a' ∈ DG.grading (n+1) ∧ b' ∈ DG.grading n ∧ (0 : E.obj X) ∈ DG.grading (n-1) from ⟨ha', hb', zero_mem _⟩)
   · have h : -(f.app X a' + d b') = b := by rw [hfa]; abel
-    rw [d_pack, hda, h, hgb, d_zero, add_zero]
+    rw [weightTwoStagePack_d, hda, h, hgb, d_zero, add_zero]
     rfl
 
 variable [CatModule.HasDerivedCategory.{z,w} C]

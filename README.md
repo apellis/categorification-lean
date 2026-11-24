@@ -1144,6 +1144,12 @@ the field corner tensor (`diagramCornerWeightRightSlice_leftInverse`).
 Over a scalar field in degree zero the left modules are K-projective, so the
 construction gives derived Hom for every homogeneous scalar coefficient
 (`diagramWeightScalarDerivedHom`).
+An ordinary bimodule map induces a natural transformation in the
+coefficient of derived tensor. On a K-projective model this is the
+ordinary tensor map applying it to the first factor
+(`derivedTensorCoefficientMap`, `derivedTensorObjIso_coefficient_naturality`).
+It commutes with cochain shifts and defines a morphism between the
+derived tensor images of a triangle (`derivedTensorCoefficientTriangleMap`).
 
 For the ordinary corner tensor, `CornerTensor.liftAdd` descends a balanced
 bi-additive family with an additive target. On rectangular coefficients it
@@ -1228,6 +1234,10 @@ head. Tensoring that cone represents the derived braid on this head
 Its localized cohomology is ℚ in degree −1 and auxiliary weight zero
 (`fundamentalBraidGradedDerivedHomologyIso`). It vanishes at every other
 pair of degrees (`fundamentalBraidGradedDerivedCohomology_isZero`).
+The action on that line is the middle character in the reversed red order.
+In the derived category of target weight modules, the braid takes the graded
+middle simple to the reversed middle simple in cohomological degree −1
+(`fundamentalBraidGradedDerivedTargetIso`).
 The diagonal-ring equivalence
 carries the two mixed crossings to the differentials of the projective
 resolution of the middle head (`fundamentalBraidSourceResolution`). Its
@@ -1378,6 +1388,14 @@ horizontal reflection has degree-zero homology `k` and vanishes in every
 other cohomological degree
 (`Stendhal.LabelTwo.outgoingExteriorAmbientHomology_zero`,
 `Stendhal.LabelTwo.outgoingExteriorAmbientHomology_isZero`).
+The reflected incoming exterior coefficient kills all strictly higher
+loading idempotents. The ordered resolution and the divided projector
+splitting show that the incoming diagonal ambient homology also vanishes
+in every nonzero degree
+(`Stendhal.LabelTwo.incomingExteriorAmbientHomology_isZero`).
+On the incoming divided standard, the reflected projector selects the
+line spanned by the black-crossing translate
+(`Stendhal.labelTwoRightExterior_reflectedProjector_image`).
 
 
 
@@ -1481,7 +1499,15 @@ quotient are in degrees zero and two
 The dot-difference quotient carries the companion grading. Both quotient
 inclusions shift internal degree by two and give short exact sequences
 in every degree (`Stendhal.LabelTwo.diagramSumCompanionAugmentation_exact_in_degree`,
-`Stendhal.LabelTwo.diagramDifferenceCompanionAugmentation_exact_in_degree`). Evaluation on the
+`Stendhal.LabelTwo.diagramDifferenceCompanionAugmentation_exact_in_degree`).
+The inclusions and quotient maps give the corresponding distinguished
+triangles of dg weight modules
+(`Stendhal.LabelTwo.middleSumWeight_distinguished`,
+`Stendhal.LabelTwo.middleDifferenceWeight_distinguished`).
+With vanishing standard cohomology, the connecting isomorphisms retain
+the actual internal shift by two
+(`Stendhal.LabelTwo.middleSumWeightShiftIso`,
+`Stendhal.LabelTwo.middleDifferenceWeightShiftIso`). Evaluation on the
 middle generator identifies the endomorphism algebra with the actual
 regular parabolic factor (`Stendhal.LabelTwo.middleEndomorphismFactorEquiv`).
 The diagrammatic dot-sum quotient is the standardization of its
@@ -1505,9 +1531,9 @@ vanishing outside degree zero for the reflected coefficient
 (`Stendhal.LabelTwo.middleStandard_derivedTensorHomology_isZero_of_higher_support`).
 The standard rank-one parameter comparison supplies this supported
 resolution for the actual middle cut
-(`Stendhal.LabelTwo.exists_middleStandard_supportedResolution`).
-The same construction works for every ordered loading in the actual
-two-red, two-black algebra
+(`Stendhal.LabelTwo.exists_middleStandard_supportedResolution`). The same
+construction works for every ordered loading in the actual two-red,
+two-black algebra
 (`Stendhal.LabelTwo.exists_loadingStandard_supportedResolution`).
 The ordinary tensor of this actual coefficient with the middle standard
 is the dual-number vector space at the middle cut
@@ -1620,6 +1646,8 @@ with nilpotent dot.
 | arXiv:1309.3796v2, Proposition 6.9, Figure 5 (derived exterior comparison) | Co-Yoneda at the source weight zero identifies the coend on the lower projective with the loading cut by multiplication. The inverse inserts the projected regular unit in the tensor. The shifted Figure 5 comparison then identifies the derived value with the upper exterior standardization in cochain degree zero, with coordinate `n` reading its intrinsic piece at `n + c + ⟨λ₀ − α, λ₁⟩` | `Stendhal.BraidedStendhalAlgebra.figureFiveBraidCoendCutIso`, `Stendhal.BraidedStendhalAlgebra.figureFiveBraidCoendExteriorIso_hom_tmul`, `Stendhal.BraidedStendhalAlgebra.figureFiveBraidDerivedExteriorIso` | Two red strands, symmetric Rouquier datum over a field, finite colour set and the source weight pairing | Two-red evaluation in the ambient weight-category derived categories; the `D⁻` restriction and Lemma 6.8 reduction remain open |
 | arXiv:1309.3796v2, §6.1, p. 65, proof of Lemma 6.11 (reflection) | Horizontal reflection identifies `B(κ', κ)` with `B(κ, κ')`, transporting left multiplication to right multiplication and right multiplication to left multiplication via the corner anti-involutions. Swapping the orders inverts the red permutation | `Stendhal.BraidedStendhalAlgebra.braidingBimoduleFlip`, `braidingBimoduleFlip_smul_left`, `braidingBimoduleFlip_smul_right` | Any commutative ground ring | Ungraded transport. The left filtration obtained from a supplied right filtration is in the next row |
 | arXiv:1309.3796v2, Definitions 4.4 and 5.1 | The left loading standard inherits the grading of the loading ideal because its higher trace is homogeneous. The quotient preserves degrees and the scalar action adds degrees | `Stendhal.leftUpper_isHomogeneous`, `Stendhal.gradedLeftStandard_mkQ_mem`, `Stendhal.gradedLeftStandard_smul_mem` | Diagram grading over a field | Literal quotient grading |
+| arXiv:1309.3796v2, Proposition 5.20 and proof of Lemma 6.11, pp. 65–66 (block permutation indices) | The red-led blocks of a nonviolated ordered top loading are determined by successive red positions. Permuting them carries each eligible projective wiring to a braid-column index with the same bottom loading and the prescribed top red order. A change of reduced word gives shorter subword terms in that loading pair | `Stendhal.exists_braidBlockPositions`, `Stendhal.braidColumnIndexOfProjective`, `Stendhal.redWord_braidBlockPermutation_smul`, `Stendhal.braidColumnBlockIndex_wordChange` | The indexing is independent of parameters, and the word-change estimate is over a commutative ring | Relating the shorter terms to earlier eligible products and computing the quotient dimension remain open in general |
+| arXiv:1309.3796v2, proof of Lemma 6.11, pp. 65–66 (mixed cut) | An adjacent black strand can cross left through a red at the bottom of an eligible wiring when the swapped wiring is still eligible and the block-permuted diagram has a right descent there. The resulting product factors through the strictly higher bottom loading up to shorter subwords. Distinct loading endpoints kill that error for words of length at most three | `Stendhal.braidColumnBlockIndex_higher_mixed_cut`, `Stendhal.braidColumnLoadingProjection_map_lowSpan_eq_bot` | Commutative ground ring and the specified mixed descent | Exact factorization in the three-red, one-black fixture. Its position in the braid filtration and general earlier-product reduction remain open |
 | arXiv:1309.3796v2, §6.1, p. 65, proof of Lemma 6.11 (filtration transport) | A supplied right-standard filtration of the inverse braid gives a left filtration of the braid by the same loading standards with scalars restricted along the corner flip. The ordered list of labels is preserved | `Stendhal.BraidedStendhalAlgebra.hasReflectedStandardFiltration_braidingBimodule`, `ModuleFiltration.HasFiltration.restrictScalars` | Any commutative ground ring. The input filtration is a hypothesis | Existence of the right-standard filtration and higher Tor vanishing remain open |
 | arXiv:1309.3796v2, Definition 5.1 and proof of Lemma 6.11 (loading support) | Every red-ordered loading outside the lower order ideal of a standard label annihilates its left standard. For each wiring a reduced word can be chosen that passes through a loading strictly above the source | `Stendhal.exists_reduced_suffix_raises_of_not_stendhalLE`, `Stendhal.seqIdem_smul_leftStandard_eq_zero_of_not_stendhalLE` | Tensor product algebras over a field | Applies to incomparable labels as well as strictly higher labels |
 | arXiv:1309.3796v2, §6.1, p. 65, proof of Lemma 6.11 (opposite loading support) | A loading strictly above the resolved standard annihilates every opposite coefficient layer whose label is not strictly above the resolved standard. The ordinary corner comparison transports the vanishing of the corresponding left-standard action | `Stendhal.not_stendhalLE_of_lt_of_not_lt`, `Stendhal.BraidedStendhalAlgebra.violLoadingIdem_smul_violLoadingStandard_eq_zero_of_not_lt` | Symmetric KLR parameters over a field and a choice of reduced words | Supplies the ordinary loading annihilation for use in graded derived tensor vanishing |

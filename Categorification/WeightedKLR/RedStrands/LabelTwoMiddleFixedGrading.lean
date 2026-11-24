@@ -16,7 +16,6 @@ coordinates in Webster, arXiv:1309.3796v2, §8.2.
 
 noncomputable section
 
-set_option maxHeartbeats 1800000
 set_option maxRecDepth 2048
 
 namespace Categorification.Stendhal.LabelTwo
@@ -50,30 +49,40 @@ private theorem middleToFixed_y₁_value : (middleToFixed k (y₁ : Middle k)).v
   rw [h]
   exact DFunLike.congr_fun (middleDotQuotientAction_X k 0) g
 
+private theorem fixedQuotientMap_eq_of_specialize (a : Middle k) (b : DualNumber k)
+    (hb : specialize a = b) :
+    fixedQuotientMap k (middleToFixed k a) = (middleCutDotSumEquiv k).symm b := by
+  let e := middleCutDotSumEquiv k
+  have left : e (fixedQuotientMap k (middleToFixed k a)) = b :=
+    (middleCutDotSumEquiv_specialize k a).trans hb
+  have right : e (e.symm b) = b := e.apply_symm_apply b
+  exact e.injective (left.trans right.symm)
+
+private theorem fixedQuotientMap_mem_grade (z : fixSub k S E) (d : ℤ)
+    (hz : z.val ∈ ℳ d) : (fixedQuotientMap k z).val ∈ 𝒬 d := by
+  change (LinearMap.range (diagramPlus k)).mkQ z.val ∈ 𝒬 d
+  exact preservesGrading_mkQ ℳ (LinearMap.range (diagramPlus k)) hz
+
 /-- The scalar coordinate at the actual fixed middle quotient is in internal degree zero. -/
 theorem middleCutDotSum_scalar_mem_grade :
     ((middleCutDotSumEquiv k).symm (1 : DualNumber k)).val ∈ 𝒬 0 := by
-  have h : fixedQuotientMap k (middleToFixed k (1 : Middle k)) =
-      (middleCutDotSumEquiv k).symm 1 := by
-    apply (middleCutDotSumEquiv k).injective
-    rw [LinearEquiv.apply_symm_apply, middleCutDotSumEquiv_specialize, map_one]
-  rw [← h]
-  change (LinearMap.range (diagramPlus k)).mkQ ((middleToFixed k (1 : Middle k)).val) ∈ 𝒬 0
-  rw [middleToFixed_one_value]
-  exact preservesGrading_mkQ ℳ (LinearMap.range (diagramPlus k)) (middleStandardGenerator_mem_grade k)
+  have hvalue : specialize (1 : Middle k) = (1 : DualNumber k) := map_one specialize
+  have h := fixedQuotientMap_eq_of_specialize k 1 1 hvalue
+  have hz : (middleToFixed k (1 : Middle k)).val ∈ ℳ 0 := by
+    rw [middleToFixed_one_value]
+    exact middleStandardGenerator_mem_grade k
+  exact h ▸ fixedQuotientMap_mem_grade k _ 0 hz
 
 /-- The epsilon coordinate at the actual fixed middle quotient is in internal degree two. -/
 theorem middleCutDotSum_epsilon_mem_grade :
     ((middleCutDotSumEquiv k).symm ε).val ∈ 𝒬 2 := by
-  have h : fixedQuotientMap k (middleToFixed k (y₁ : Middle k)) =
-      (middleCutDotSumEquiv k).symm ε := by
-    apply (middleCutDotSumEquiv k).injective
-    rw [LinearEquiv.apply_symm_apply, middleCutDotSumEquiv_specialize, specialize_y₁]
-  rw [← h]
-  change (LinearMap.range (diagramPlus k)).mkQ ((middleToFixed k (y₁ : Middle k)).val) ∈ 𝒬 2
-  rw [middleToFixed_y₁_value]
-  have hh : dotEnd k 0 g ∈ ℳ ((0 : ℤ) + 2) := dotEnd_degree_two k 0 (middleStandardGenerator_mem_grade k)
-  exact preservesGrading_mkQ ℳ (LinearMap.range (diagramPlus k)) ((zero_add (2 : ℤ)) ▸ hh)
+  have h := fixedQuotientMap_eq_of_specialize k y₁ ε specialize_y₁
+  have hz : (middleToFixed k (y₁ : Middle k)).val ∈ ℳ 2 := by
+    rw [middleToFixed_y₁_value]
+    have hdot : dotEnd k 0 g ∈ ℳ ((0 : ℤ) + 2) :=
+      dotEnd_degree_two k 0 (middleStandardGenerator_mem_grade k)
+    exact (zero_add (2 : ℤ)) ▸ hdot
+  exact h ▸ fixedQuotientMap_mem_grade k _ 2 hz
 
 private theorem dualNumber_split (x : DualNumber k) :
     x = x.fst • (1 : DualNumber k) + x.snd • ε := by

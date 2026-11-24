@@ -2,7 +2,7 @@
 Copyright (c) 2026 Alex Ellis. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 -/
-import Categorification.Algebra.DerivedTensor
+import Categorification.Algebra.DerivedTensorTriangulated
 
 /-!
 # Maps on derived tensor in the ordinary coefficient
@@ -22,6 +22,27 @@ namespace Categorification
 noncomputable section
 
 universe u w
+
+private theorem commShift_of_whiskerLeft_obj_surjective
+    {C D E : Type*} [Category C] [Category D] [Category E]
+    [HasShift C ℤ] [HasShift D ℤ] [HasShift E ℤ]
+    (H : C ⥤ D) [H.CommShift ℤ] {F G : D ⥤ E}
+    [F.CommShift ℤ] [G.CommShift ℤ] (τ : F ⟶ G)
+    [NatTrans.CommShift (Functor.whiskerLeft H τ) ℤ]
+    (hH : Function.Surjective H.obj) : NatTrans.CommShift τ ℤ where
+  shift_comm n := by
+    ext Y
+    obtain ⟨X,rfl⟩ := hH Y
+    have e := NatTrans.shift_app_comm (Functor.whiskerLeft H τ) n X
+    simp only [Functor.commShiftIso_comp_hom_app, Functor.whiskerLeft_app,
+      Functor.comp_obj, Category.assoc] at e
+    let h : H.obj ((shiftFunctor C n).obj X) ⟶
+        (shiftFunctor D n).obj (H.obj X) := (H.commShiftIso n).hom.app X
+    have hnat := τ.naturality h
+    change F.map h ≫ τ.app ((shiftFunctor D n).obj (H.obj X)) =
+      τ.app (H.obj ((shiftFunctor C n).obj X)) ≫ G.map h at hnat
+    rw [← Category.assoc (τ.app _) (G.map h), ← hnat, Category.assoc] at e
+    exact (cancel_epi (F.map h)).mp e
 
 section DG
 
@@ -123,11 +144,10 @@ variable  [HasDerivedCategory.{w,u} A] [HasDerivedCategory.{w,u} B]
 def derivedTensorCoefficientMap (f : M →ₗ[A] M')
     (hf : ∀ (b : B) (m : M), f (op b • m) = op b • f m) :
     derivedTensor.{w} A B M ⟶ derivedTensor.{w} A B M' :=
-  Functor.whiskerLeft
-    ((DG.DerivedCategory.kProjectiveEquivalence.{w} B).inverse ⋙
-      (DG.HomotopyCategory.subcategoryKProjective B).ι)
-    (Functor.whiskerRight (homotopyTensorCoeffNat (coefficientHomDegreeZero f) hf)
-      (DG.DerivedCategory.Qh (A := A)))
+  Functor.whiskerLeft (DG.DerivedCategory.kProjectiveEquivalence.{w} B).inverse
+    (Functor.whiskerLeft (DG.HomotopyCategory.subcategoryKProjective B).ι
+      (Functor.whiskerRight (homotopyTensorCoeffNat (coefficientHomDegreeZero f) hf)
+        (DG.DerivedCategory.Qh (A := A))))
 
 
 open DG.DerivedCategory
@@ -166,6 +186,71 @@ theorem derivedTensorObjIso_coefficient_naturality (f : M →ₗ[A] M')
       Qh.map ((DG.HomotopyCategory.quotient A).map (η.app P))
   simp only [← Functor.map_comp, Category.assoc]
   rw [← Category.assoc (α.app _) (T'.map r), ← h, Category.assoc, hα]
+
+local instance : Fact (∀ m : InDegreeZero M, m ∈ grading 0) :=
+  ⟨fun _ => (InDegreeZero.mem_grading_iff (M := M)).mpr (Or.inl rfl)⟩
+
+local instance : Fact (∀ m : InDegreeZero M', m ∈ grading 0) :=
+  ⟨fun _ => (InDegreeZero.mem_grading_iff (M := M')).mpr (Or.inl rfl)⟩
+
+private instance tensorCoeffNat_commShift (f : M →ₗ[A] M')
+    (hf : ∀ (b : B) (m : M), f (op b • m) = op b • f m) :
+    NatTrans.CommShift (tensorCoeffNat (coefficientHomDegreeZero f) hf) ℤ where
+  shift_comm n := by
+    ext X : 2
+    exact DGModuleCat.tensor_hom_ext (A := A) (M := InDegreeZero M)
+      (N := DGModuleCat.of B (Shift n X)) fun _ _ => rfl
+
+
+private instance homotopyOrdinaryTensorCoeffNat_commShift (f : M →ₗ[A] M')
+    (hf : ∀ (b : B) (m : M), f (op b • m) = op b • f m) :
+    NatTrans.CommShift (homotopyTensorCoeffNat (coefficientHomDegreeZero f) hf) ℤ := by
+  let q := DG.HomotopyCategory.quotient B
+  let q' := DG.HomotopyCategory.quotient A
+  let e  := DG.HomotopyCategory.tensorFunctorQuotientIso (B := B) A (InDegreeZero M)
+  let e' := DG.HomotopyCategory.tensorFunctorQuotientIso (B := B) A (InDegreeZero M')
+  let η := tensorCoeffNat (coefficientHomDegreeZero f) hf
+  let α := homotopyTensorCoeffNat (coefficientHomDegreeZero f) hf
+  have he : Functor.whiskerLeft q α =
+      e.hom ≫ Functor.whiskerRight η q' ≫ e'.inv := rfl
+  have : NatTrans.CommShift (Functor.whiskerLeft q α) ℤ := by
+    rw [he]
+    infer_instance
+  exact commShift_of_whiskerLeft_obj_surjective q α (fun ⟨X⟩ => ⟨X,rfl⟩)
+
+set_option synthInstance.maxHeartbeats 300000 in
+instance derivedTensorCoefficientMap_commShift (f : M →ₗ[A] M')
+    (hf : ∀ (b : B) (m : M), f (op b • m) = op b • f m) :
+    NatTrans.CommShift (derivedTensorCoefficientMap f hf) ℤ := by
+  let : (kProjectiveEquivalence.{w} B).inverse.CommShift ℤ := by
+    let : (kProjectiveEquivalence.{w} B).functor.CommShift ℤ :=
+      inferInstanceAs ((kProjectiveFunctor.{w} B).CommShift ℤ)
+    exact (kProjectiveEquivalence.{w} B).commShiftInverse ℤ
+  let α := homotopyTensorCoeffNat (coefficientHomDegreeZero f) hf
+  let β := Functor.whiskerRight α (Qh (A := A))
+  let γ := Functor.whiskerLeft (DG.HomotopyCategory.subcategoryKProjective B).ι β
+  have hα : NatTrans.CommShift α ℤ := homotopyOrdinaryTensorCoeffNat_commShift f hf
+  have hβ : NatTrans.CommShift β ℤ := NatTrans.CommShift.whiskerRight α _ ℤ
+  have hγ : NatTrans.CommShift γ ℤ := NatTrans.CommShift.whiskerLeft (F₁ := (DG.HomotopyCategory.subcategoryKProjective B).ι) _ _ β ℤ
+  exact NatTrans.CommShift.whiskerLeft (F₁ := (kProjectiveEquivalence.{w} B).inverse) _ _ γ ℤ
+
+open CategoryTheory.Pretriangulated
+
+/-- A coefficient map yields a morphism of the two derived tensor triangles. -/
+def derivedTensorCoefficientTriangleMap (f : M →ₗ[A] M')
+    (hf : ∀ (b : B) (m : M), f (op b • m) = op b • f m)
+    (D : Triangle (DerivedCategory.{w,u} B)) :
+    (derivedTensor.{w} A B M).mapTriangle.obj D ⟶
+      (derivedTensor.{w} A B M').mapTriangle.obj D where
+  hom₁ := (derivedTensorCoefficientMap f hf).app D.obj₁
+  hom₂ := (derivedTensorCoefficientMap f hf).app D.obj₂
+  hom₃ := (derivedTensorCoefficientMap f hf).app D.obj₃
+  comm₁ := (derivedTensorCoefficientMap f hf).naturality D.mor₁
+  comm₂ := (derivedTensorCoefficientMap f hf).naturality D.mor₂
+  comm₃ := by
+    dsimp
+    simp only [Category.assoc, NatTrans.shift_app_comm (derivedTensorCoefficientMap f hf) (1 : ℤ) D.obj₁,
+      NatTrans.naturality_assoc]
 
 end Ordinary
 end

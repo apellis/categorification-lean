@@ -1244,6 +1244,9 @@ A projective resolution of the actual middle standard whose positive
 terms are supported on higher loadings gives ambient derived-tensor
 vanishing outside degree zero for the reflected coefficient
 (`Stendhal.LabelTwo.middleStandard_derivedTensorHomology_isZero_of_higher_support`).
+The standard rank-one parameter comparison supplies this supported
+resolution for the actual middle cut
+(`Stendhal.LabelTwo.exists_middleStandard_supportedResolution`).
 
 **Terminal-character resolution benchmark for Webster, arXiv:1309.3796v2,
 §8.1.** In the fundamental rank-one block over `ℚ`, the terminal simple

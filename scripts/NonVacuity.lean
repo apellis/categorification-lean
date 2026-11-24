@@ -9188,6 +9188,10 @@ example :=
 
 example := @middleStandard_derivedTensorHomology_isZero_of_higher_support ℚ
 
+example := exists_middleStandard_supportedResolution ℚ
+
+example := @middleStandard_derivedTensorHomology_isZero ℚ
+
 end NonVacuity.WebsterLabelTwoMiddleFixedComplex
 
 end

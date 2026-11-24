@@ -9428,6 +9428,18 @@ noncomputable example := fundamentalBraidGradedHomologyTargetIso
 
 noncomputable example := fundamentalBraidGradedDerivedTargetIso.{1}
 
+attribute [local instance] fundamentalBraidSourceOrderedInternal fundamentalBraidSourceOrderedBigraded
+  fundamentalTargetScalarInternal fundamentalTargetScalarBigraded
+
+local instance braidCupScalarDerived : CatModule.HasDerivedCategory.{1,0} (WeightCategory ℚ) :=
+  CatModule.HasDerivedCategory.standard _
+local instance braidCupOrderedDerived :
+    CatModule.HasDerivedCategory.{1,0}
+      (WeightCategory (TensorProductAlgebra ℚ Q wt ({()} : Multiset Unit))ᵐᵒᵖ) :=
+  CatModule.HasDerivedCategory.standard _
+
+noncomputable example := fundamentalBraidNormalizedCupIso.{1}
+
 end NonVacuity.WebsterFundamentalBraidGradedResolutionModel
 end
 

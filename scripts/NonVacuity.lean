@@ -8727,6 +8727,34 @@ example := blockPartialStandard_braid_homology_vanish_of_projective_kernel_off_t
 end NonVacuity.WebsterProjectiveKernelBraidAmplitude
 end
 
+noncomputable section
+
+namespace NonVacuity.WebsterBlockKernelDerivedNegOne
+
+open Categorification.KLR Categorification.Stendhal Categorification.QuantumGroup
+open BraidedStendhalAlgebra KL3.Diagram DG
+open scoped DG.DegreeZero
+
+attribute [local instance 1100] IsIdempotentElem.instAlgebraCorner_categorification
+attribute [local instance 1200] Ring.toIntAlgebra
+
+private abbrev C := CartanDatum.ofGraph (⊥ : SimpleGraph Unit)
+private abbrev Q := CL.qCL (CL.CLScalars.kl : CL.CLScalars C ℚ)
+private abbrev Λ : Fin 3 → Unit →₀ ℕ := fun r => Finsupp.single () (r.val + 1)
+private abbrev ν : Multiset Unit := {()} + {()}
+
+local instance (order : List (Fin 3)) : HasDerivedCategory.{0, 0}
+    (isIdempotentElem_violMk_redProj ℚ Q Λ ν order).Cornerᵐᵒᵖ :=
+  HasDerivedCategory.small _
+
+example := blockPartialStandard_braid_homology_negOne_vanish Q Λ
+  (firstPairOneAfterSpectator true) 0 1 [1, 0, 2]
+  (firstPairOneAfter_blockKernelTensorInclusion_injective_standard (k₀ := ℚ) C Λ true)
+
+end NonVacuity.WebsterBlockKernelDerivedNegOne
+
+end
+
 namespace NonVacuity.WebsterFiveSlotBoundedSpectator
 
 open Categorification.KLR Categorification.Stendhal Categorification.QuantumGroup
@@ -9052,6 +9080,29 @@ example := finrank_vacuum_braidColumn_eq_standard params weights
   (fun _ _ _ => rfl) exchanged ordered
 
 end NonVacuity.WebsterVacuumBraidColumn
+
+namespace NonVacuity.WebsterBraidColumnPBW
+
+open Categorification Categorification.KLR Categorification.Stendhal
+open Categorification.Stendhal.BraidedStendhalAlgebra Equiv MvPolynomial
+
+private abbrev content : Multiset Unit := {()}
+private abbrev weight := stendhalWeight 3 content
+private def top : Seq weight :=
+  KLRAlgebra.Seq.ofList [.inr 0, .inl (), .inr 1, .inr 2] (by decide)
+private noncomputable abbrev parameters : Unit → Unit → MvPolynomial (Fin 2) ℚ :=
+  fun _ _ => 0
+private noncomputable abbrev weights : Fin 3 → Unit →₀ ℕ :=
+  fun j => Finsupp.single () (j.val + 1)
+private noncomputable def reducedWord (w : Perm (Fin weight.card)) :=
+  (TypeA.exists_reduced _ w).choose
+private theorem reducedChoice : TypeA.IsReducedChoice reducedWord :=
+  fun w => (TypeA.exists_reduced _ w).choose_spec
+private theorem symmetric : KLRSymm parameters := fun _ _ _ => rfl
+
+example := span_violFixedTopColumn (Λ := weights) symmetric reducedChoice top [0, 2, 1]
+
+end NonVacuity.WebsterBraidColumnPBW
 
 namespace NonVacuity.WebsterGradedFundamentalCup
 noncomputable section
@@ -9418,6 +9469,12 @@ example := fundamentalBraidGradedResolutionAugmentation_quasiIso
 
 noncomputable example := fundamentalBraidGradedDerivedModelIso.{1}
 
+noncomputable example := fundamentalBraidGradedDerivedHomologyIso.{1}
+
+example := fundamentalBraidGradedDerivedCohomology_isZero.{1} 0 0 (Or.inl (by decide))
+
+example := fundamentalBraidGradedDerivedCohomology_isZero.{1} 1 (-1) (Or.inr (by decide))
+
 end NonVacuity.WebsterFundamentalBraidGradedResolutionModel
 end
 
@@ -9684,6 +9741,21 @@ example := cornerTensorCutLift_tmul (k := ℚ) unitIdempotent unitIdempotent uni
 example := diagramWeightCoendProduct G G G leftAction rightAction leftAction rightAction
   product productWeight productBalanced (⟨0⟩ : QWeight) (⟨0⟩ : QWeight)
 
+section
+
+open CategoryTheory.Limits CategoryTheory.Pretriangulated
+
+local instance : CatModule.HasDerivedCategory.{1,0} QWeight :=
+  CatModule.HasDerivedCategory.standard QWeight
+
+example (X : QWeight) (T : Triangle (CatModule.DerivedCategory QWeight))
+    (hT : T ∈ distTriang _) (n : ℤ)
+    (h₀ : IsZero ((CatModule.DerivedCategory.cohomologyFunctor X n).obj T.obj₂))
+    (h₁ : IsZero ((CatModule.DerivedCategory.cohomologyFunctor X (n + 1)).obj T.obj₂)) :=
+  weightCohomologyShiftIso X T hT n h₀ h₁
+
+end
+
 private theorem productLeft (a x y : ℚ) : product (a • x) y = a • product x y :=
   mul_assoc a x y
 
@@ -9775,9 +9847,30 @@ example (hK : CatModule.IsKProjective rationalLeft) :=
   letI := CatModule.HasDerivedCategory.standard QWeight
   diagramWeightDerivedTensorObjIso_naturality G leftAction rightAction (𝟙 rationalLeft) hK hK
 
+
+example (hK : CatModule.IsKProjective rationalLeft) :=
+  letI := CatModule.HasDerivedCategory.standard QWeight
+  diagramWeightDerivedTensorH0IsoOfResolution_naturality G leftAction rightAction
+    (𝟙 rationalLeft) (𝟙 rationalLeft) (𝟙 rationalLeft) hK hK
+    (CatModule.IsQuasiIso.of_isIso _) (CatModule.IsQuasiIso.of_isIso _)
+    (fun _ {_} _ => InDegreeZero.d_apply _ _) (fun _ {_} _ => InDegreeZero.d_apply _ _)
+    (fun _ => ⟨InDegreeZero.mem_grading_zero, InDegreeZero.d_apply _⟩)
+    (fun _ => ⟨InDegreeZero.mem_grading_zero, InDegreeZero.d_apply _⟩) (⟨0⟩ : QWeight)
+
 end
 
 end NonVacuity.WebsterWeightCoend
+
+namespace NonVacuity.WebsterGroundTensorHomology
+
+open Categorification DG
+open scoped DG.DegreeZero
+
+noncomputable example :=
+  letI := HasDerivedCategory.small ℚ
+  derivedTensorHomologyIsoOrdinaryLinear (R := ℚ) (A := ℚ) (B := ℚ) (M := ℚ) ℚ
+
+end NonVacuity.WebsterGroundTensorHomology
 
 namespace NonVacuity.WebsterGradedCorner
 noncomputable section
@@ -10000,6 +10093,12 @@ example :
       (seqIdem (parameter ℚ) weights loading loading_ordered) ≃ₗ[ℚ] DualNumber ℚ :=
   middleCutDotSumEquiv ℚ
 
+example := middleCutDotSum_scalar_mem_grade ℚ
+
+example := middleCutDotSum_epsilon_mem_grade ℚ
+
+example := middleCutDotSum_mem_grade_iff ℚ
+
 open KLR
 
 private abbrev higher : KLR.Seq (stendhalWeight 2 (({()} : Multiset Unit) + {()})) :=
@@ -10096,13 +10195,28 @@ local instance instLabelTwoMiddleIntegralDerived : DG.HasDerivedCategory.{0, 0} 
 
 example := exists_middleStandard_supportedResolution ℚ
 
+example := exists_loadingStandard_supportedResolution ℚ ⟨loading, loading_ordered⟩
+
 example := middleStandard_derivedTensorHomology_isZero ℚ (-1) (by decide)
+
+example := relativeMiddleProjectiveResolution ℚ
 
 example := middleStandardTensorEquiv ℚ
 
 example := middleStandardTensorEquiv_plus ℚ
 
 example := middleStandardTensorEquiv_minus ℚ
+
+example := relativeMiddleTorZero ℚ
+
+example (n : ℕ) := relativeMiddleTorPositive ℚ n (by decide)
+
+open scoped DG.DegreeZero in
+noncomputable example (n : ℕ) :=
+  letI := DG.HasDerivedCategory.standard ℚ
+  letI := DG.HasDerivedCategory.standard
+    (TensorProductAlgebra ℚ (parameter ℚ) weights (({()} : Multiset Unit) + {()}))
+  actualAmbientMiddleToRelativeTorIso ℚ (by decide) n
 
 end NonVacuity.WebsterLabelTwoMiddleFixedComplex
 
@@ -10310,6 +10424,83 @@ example : leftStandardUnit Q wt terminal terminal_ordered ∈
     (mk_e_mem_tensorProductGrade grading _ terminal terminal_ordered)
 
 end NonVacuity.WebsterGradedLeftStandard
+
+namespace NonVacuity.WebsterIncomparableStandardSupport
+
+open Categorification Categorification.KLR Categorification.Stendhal
+
+private abbrev content : Multiset Bool := {false, true}
+private abbrev weight := stendhalWeight 2 content
+private def source : Seq weight :=
+  KLRAlgebra.Seq.ofList [.inr 0, .inl false, .inr 1, .inl true] (by decide)
+private def target : Seq weight :=
+  KLRAlgebra.Seq.ofList [.inr 0, .inl true, .inr 1, .inl false] (by decide)
+private theorem sourceOrdered : IsRedOrdered source :=
+  (redWord_eq_finRange_iff source).1 (by decide)
+private theorem targetOrdered : IsRedOrdered target :=
+  (redWord_eq_finRange_iff target).1 (by decide)
+private theorem targetNotLE : ¬ StendhalLE target source := by
+  intro h
+  exact (by decide : ¬ blackCount target 1 true ≤ blackCount source 1 true) (h 1 true)
+private theorem sourceNotLE : ¬ StendhalLE source target := by
+  intro h
+  exact (by decide : ¬ blackCount source 1 false ≤ blackCount target 1 false) (h 1 false)
+private noncomputable abbrev parameters : Bool → Bool → MvPolynomial (Fin 2) ℚ :=
+  fun i j => if i = j then 0 else 1
+private noncomputable abbrev weights : Fin 2 → Bool →₀ ℕ :=
+  fun _ => Finsupp.single false 2 + Finsupp.single true 2
+
+example : ¬ StendhalLE target source ∧ ¬ StendhalLE source target :=
+  ⟨targetNotLE, sourceNotLE⟩
+
+example (v : leftStandard parameters weights source sourceOrdered) :
+    seqIdem parameters weights target targetOrdered • v = 0 :=
+  seqIdem_smul_leftStandard_eq_zero_of_not_stendhalLE sourceOrdered targetOrdered targetNotLE v
+
+end NonVacuity.WebsterIncomparableStandardSupport
+
+namespace NonVacuity.WebsterOppositeLoadingStandardSupport
+
+open Categorification Categorification.KLR Categorification.Stendhal
+open Categorification.Stendhal.BraidedStendhalAlgebra Equiv MulOpposite
+
+attribute [local instance 1100] IsIdempotentElem.instAlgebraCorner_categorification
+
+private abbrev content : Multiset Bool := {false, true}
+private abbrev weight := stendhalWeight 2 content
+private abbrev swapReds : Perm (Fin 2) := Equiv.swap 0 1
+private abbrev order := List.map swapReds (List.finRange 2)
+private def earlier : Seq weight :=
+  KLRAlgebra.Seq.ofList [.inr 0, .inl false, .inr 1, .inl true] (by decide)
+private def later : Seq weight :=
+  KLRAlgebra.Seq.ofList [.inr 0, .inl true, .inr 1, .inl false] (by decide)
+private theorem earlierOrdered : IsRedOrdered earlier :=
+  (redWord_eq_finRange_iff earlier).1 (by decide)
+private theorem laterOrdered : IsRedOrdered later :=
+  (redWord_eq_finRange_iff later).1 (by decide)
+private theorem laterNotLE : ¬ StendhalLE later earlier := by
+  intro h
+  exact (by decide : ¬ blackCount later 1 true ≤ blackCount earlier 1 true) (h 1 true)
+private noncomputable abbrev parameters : Bool → Bool → MvPolynomial (Fin 2) ℚ :=
+  fun i j => if i = j then 0 else 1
+private noncomputable abbrev weights : Fin 2 → Bool →₀ ℕ :=
+  fun _ => Finsupp.single false 2 + Finsupp.single true 2
+private theorem symmetric : KLRSymm parameters := by
+  intro i j h
+  simp [parameters, h, Ne.symm h]
+private noncomputable def reducedWord (w : Perm (Fin weight.card)) :=
+  (TypeA.exists_reduced _ w).choose
+private theorem reducedChoice : TypeA.IsReducedChoice reducedWord :=
+  fun w => (TypeA.exists_reduced _ w).choose_spec
+
+example (v : ViolLoadingStandard (k := ℚ) (Q := parameters) (Λ := weights)
+    (Seq.redPerm swapReds earlier) order) :
+    op (violLoadingIdem (k := ℚ) (Q := parameters) (Λ := weights)
+      (redWord_relabel swapReds laterOrdered)) • v = 0 :=
+  violLoadingIdem_smul_violLoadingStandard_eq_zero_of_not_le reducedChoice symmetric
+    swapReds earlierOrdered laterOrdered laterNotLE v
+
+end NonVacuity.WebsterOppositeLoadingStandardSupport
 
 noncomputable section
 
@@ -10795,82 +10986,46 @@ end NonVacuity.WebsterReflectedOrderedWeight
 
 end
 
-namespace NonVacuity.WebsterIncomparableStandardSupport
+namespace NonVacuity.AmbientDerivedIdempotentCut
 
-open Categorification Categorification.KLR Categorification.Stendhal
+open Categorification DG MulOpposite
+open scoped DG.DegreeZero
+noncomputable section
 
-private abbrev content : Multiset Bool := {false, true}
-private abbrev weight := stendhalWeight 2 content
-private def source : Seq weight :=
-  KLRAlgebra.Seq.ofList [.inr 0, .inl false, .inr 1, .inl true] (by decide)
-private def target : Seq weight :=
-  KLRAlgebra.Seq.ofList [.inr 0, .inl true, .inr 1, .inl false] (by decide)
-private theorem sourceOrdered : IsRedOrdered source :=
-  (redWord_eq_finRange_iff source).1 (by decide)
-private theorem targetOrdered : IsRedOrdered target :=
-  (redWord_eq_finRange_iff target).1 (by decide)
-private theorem targetNotLE : ¬ StendhalLE target source := by
-  intro h
-  exact (by decide : ¬ blackCount target 1 true ≤ blackCount source 1 true) (h 1 true)
-private theorem sourceNotLE : ¬ StendhalLE source target := by
-  intro h
-  exact (by decide : ¬ blackCount source 1 false ≤ blackCount target 1 false) (h 1 false)
-private noncomputable abbrev parameters : Bool → Bool → MvPolynomial (Fin 2) ℚ :=
-  fun i j => if i = j then 0 else 1
-private noncomputable abbrev weights : Fin 2 → Bool →₀ ℕ :=
-  fun _ => Finsupp.single false 2 + Finsupp.single true 2
+local instance : HasDerivedCategory.{0,0} ℚ := HasDerivedCategory.small _
 
-example : ¬ StendhalLE target source ∧ ¬ StendhalLE source target :=
-  ⟨targetNotLE, sourceNotLE⟩
+example := balancedTensorLeftIdealEquiv (k := ℚ) (M := ℚᵐᵒᵖ)
+  (show IsIdempotentElem (1 : ℚ) from one_mul 1)
 
-example (v : leftStandard parameters weights source sourceOrdered) :
-    seqIdem parameters weights target targetOrdered • v = 0 :=
-  seqIdem_smul_leftStandard_eq_zero_of_not_stendhalLE sourceOrdered targetOrdered targetNotLE v
+example := ambientDerivedTensorH0LeftIdealEquiv (k := ℚ) (M := ℚᵐᵒᵖ)
+  (fun c m => by
+    apply unop_injective
+    exact mul_comm m.unop c)
+  (show IsIdempotentElem (1 : ℚ) from one_mul 1)
 
-end NonVacuity.WebsterIncomparableStandardSupport
+end
+end NonVacuity.AmbientDerivedIdempotentCut
 
-namespace NonVacuity.WebsterOppositeLoadingStandardSupport
+namespace NonVacuity.WebsterOutgoingExteriorAmbientTor
 
-open Categorification Categorification.KLR Categorification.Stendhal
-open Categorification.Stendhal.BraidedStendhalAlgebra Equiv MulOpposite
+open Categorification.Stendhal Categorification.Stendhal.LabelTwo DG
+open scoped DG.DegreeZero
+noncomputable section
 
 attribute [local instance 1100] IsIdempotentElem.instAlgebraCorner_categorification
 
-private abbrev content : Multiset Bool := {false, true}
-private abbrev weight := stendhalWeight 2 content
-private abbrev swapReds : Perm (Fin 2) := Equiv.swap 0 1
-private abbrev order := List.map swapReds (List.finRange 2)
-private def earlier : Seq weight :=
-  KLRAlgebra.Seq.ofList [.inr 0, .inl false, .inr 1, .inl true] (by decide)
-private def later : Seq weight :=
-  KLRAlgebra.Seq.ofList [.inr 0, .inl true, .inr 1, .inl false] (by decide)
-private theorem earlierOrdered : IsRedOrdered earlier :=
-  (redWord_eq_finRange_iff earlier).1 (by decide)
-private theorem laterOrdered : IsRedOrdered later :=
-  (redWord_eq_finRange_iff later).1 (by decide)
-private theorem laterNotLE : ¬ StendhalLE later earlier := by
-  intro h
-  exact (by decide : ¬ blackCount later 1 true ≤ blackCount earlier 1 true) (h 1 true)
-private noncomputable abbrev parameters : Bool → Bool → MvPolynomial (Fin 2) ℚ :=
-  fun i j => if i = j then 0 else 1
-private noncomputable abbrev weights : Fin 2 → Bool →₀ ℕ :=
-  fun _ => Finsupp.single false 2 + Finsupp.single true 2
-private theorem symmetric : KLRSymm parameters := by
-  intro i j h
-  simp [parameters, h, Ne.symm h]
-private noncomputable def reducedWord (w : Perm (Fin weight.card)) :=
-  (TypeA.exists_reduced _ w).choose
-private theorem reducedChoice : TypeA.IsReducedChoice reducedWord :=
-  fun w => (TypeA.exists_reduced _ w).choose_spec
+local instance : HasDerivedCategory.{0,0} ℚ := HasDerivedCategory.small _
 
-example (v : ViolLoadingStandard (k := ℚ) (Q := parameters) (Λ := weights)
-    (Seq.redPerm swapReds earlier) order) :
-    op (violLoadingIdem (k := ℚ) (Q := parameters) (Λ := weights)
-      (redWord_relabel swapReds laterOrdered)) • v = 0 :=
-  violLoadingIdem_smul_violLoadingStandard_eq_zero_of_not_le reducedChoice symmetric
-    swapReds earlierOrdered laterOrdered laterNotLE v
+local instance : HasDerivedCategory.{0,0}
+    (TensorProductAlgebra ℚ (parameter ℚ) (fun (_ : Fin 2) => Finsupp.single () 2)
+      (Multiset.replicate 2 ())) := HasDerivedCategory.small _
 
-end NonVacuity.WebsterOppositeLoadingStandardSupport
+example := outgoingExteriorAmbientHomology_zero ℚ
+
+example := outgoingExteriorAmbientHomology_isZero ℚ (-1) (by decide)
+
+end
+end NonVacuity.WebsterOutgoingExteriorAmbientTor
 
 noncomputable section
 

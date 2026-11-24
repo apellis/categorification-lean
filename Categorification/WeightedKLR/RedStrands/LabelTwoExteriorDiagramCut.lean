@@ -103,6 +103,6 @@ def labelTwoExteriorStandardCutEquiv (hQ : KLRSymm Q) :
     change fixSub k V (parabolicInputMap Q Λ₂ θ β (labelTwoExteriorLift Q factorEquiv)) ≃ₗ[k] k
     rw [labelTwoExteriorLift_spec]
     exact (fixedCorner Q factorEquiv).trans (twoBlackTerminalWebsterCornerEquiv Q).toLinearEquiv
-  exact (parabolicStandardFixedEquiv Q Λ₂ θ β V hQ t).symm.trans line
+  exact (parabolicStandardConcatFixedEquiv Q Λ₂ θ β V hQ t).symm.trans line
 
 end Categorification.Stendhal.SingleRed

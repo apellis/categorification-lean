@@ -69,7 +69,7 @@ theorem isIdempotentElem_parabolicStandardConcatAction (t : TensorKLR S α δ)
 /-- The identity shuffle identifies the fixed subspace of a separated diagram on
 the factor module with the fixed subspace of its concatenated diagram on the
 actual standardization. This applies in particular to divided-power projectors. -/
-def parabolicStandardFixedEquiv (t : TensorKLR S α δ) :
+def parabolicStandardConcatFixedEquiv (t : TensorKLR S α δ) :
     fixSub k N (parabolicInputMap Q Λ θ β t) ≃ₗ[k] LinearMap.ker (act t - LinearMap.id) := by
   let f : fixSub k N (parabolicInputMap Q Λ θ β t) →ₗ[k] LinearMap.ker (act t - LinearMap.id) :=
     ((U).comp (fixSub k N (parabolicInputMap Q Λ θ β t)).subtype).codRestrict _ fun n => by

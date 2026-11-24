@@ -4,7 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 -/
 import Categorification.WeightedKLR.RedStrands.AffineHigherKernelMap
 import Categorification.WeightedKLR.RedStrands.FiveSlotMiddleRightHigher
-import Categorification.WeightedKLR.RedStrands.FiveSlotLastRedTransport
+import Categorification.WeightedKLR.RedStrands.FiveSlotLastRedSquare
 import Categorification.WeightedKLR.RedStrands.FiveSlotMiddleRightCrossing
 import Categorification.WeightedKLR.RedStrands.FiveSlotPrincipalHigherDerived
 import Categorification.WeightedKLR.RedStrands.FiveSlotAllTops
@@ -400,8 +400,16 @@ private theorem middleRightSecond_factor : β * (τ * δ) = F c₂ := by
   simpa only [List.cons_append, List.nil_append, ψw_cons, ψw_nil, mul_one] using
     cut_word_mul Q Λ [3] [2, 1] A D (by decide +kernel)
 
-private theorem fiveSlotMiddleRight_nearby_saturated_zeroWeight (hQ : KLRSymm Q)
-    (weight : Λ 2 () = 0) (y : P₂) (hy : ∃ z : P₁, f₁ z = f₂ y) : y ∈ K₂ := by
+/-- The crossing-square overlap identifies the residual higher kernel with
+the nearby partial standard. -/
+theorem fiveSlotMiddleRight_residual_equiv_of_crossing_overlap (hQ : KLRSymm Q)
+    (square : ∀ u v : V, p D * u = u → u * Eₐ = u → p C * v = v → v * Eₐ = v →
+      β * u = c * v →
+      ∃ z : V, p A * z = z ∧ z * Eₐ = z ∧ u = δ * z) :
+    Nonempty ((blockPartialStandardAt Q Λ nearby 1 2 κ nearby_order) ≃ₗ[Tᵐᵒᵖ] (K ⧸ J₁)) := by
+  obtain ⟨f, hsurj, hinj⟩ := fiveSlotMiddleRight_residual_quotient_of_nearby Q Λ hQ
+  refine ⟨LinearEquiv.ofBijective f ⟨hinj.2 ?_, hsurj⟩⟩
+  intro y hy
   obtain ⟨z, hz⟩ := hy
   have hrep : c * z.1.1 = F c₂ * y.1.1 :=
     (centralMap_val Q Λ z).symm.trans ((congrArg (fun a : K => a.1.1.1) hz).trans
@@ -410,6 +418,7 @@ private theorem fiveSlotMiddleRight_nearby_saturated_zeroWeight (hQ : KLRSymm Q)
   have hyr : y.1.1 * Eₐ = y.1.1 := by
     have he : redWord A = κ := by decide
     simpa only [he] using CornerEndomorphism.corner_mul_right _ y.1
+  have hzl : p C * z.1.1 = z.1.1 := congrArg Subtype.val z.2
   have hzr : z.1.1 * Eₐ = z.1.1 := by
     have he : redWord A = κ := by decide
     simpa only [he] using CornerEndomorphism.corner_mul_right _ z.1
@@ -421,28 +430,47 @@ private theorem fiveSlotMiddleRight_nearby_saturated_zeroWeight (hQ : KLRSymm Q)
       simp only [ψ_mul_e, hfix, ← mul_assoc, e_mul_self]
     rw [← mul_assoc, he]
   obtain ⟨b, hbl, hbr, hoverlap⟩ :=
-    fiveSlotMiddleRight_overlap_before_lastRed_zeroWeight Q Λ weight _ _ hfixed hzr (by
+    square _ _ hfixed (by simp only [mul_assoc, hyr]) hzl hzr (by
       rw [← mul_assoc τ, ← mul_assoc β, middleRightSecond_factor Q Λ, hrep])
   change y.1.1 ∈ J₂
   exact fiveSlotMiddleRight_divided_overlap_mem Q Λ J₂
     (nearbySecondCrossing_mem_higher Q Λ hQ) _ _ hyl hbl hyr hbr hoverlap
 
+/-- The actual residual higher kernel at the middle-right loading is the
+nearby partial standard. -/
+theorem fiveSlotMiddleRight_residual_equiv (hQ : KLRSymm Q) :
+    Nonempty ((blockPartialStandardAt Q Λ nearby 1 2 κ nearby_order) ≃ₗ[Tᵐᵒᵖ] (K ⧸ J₁)) := by
+  apply fiveSlotMiddleRight_residual_equiv_of_crossing_overlap Q Λ hQ
+  intro u v hu hur hv hvr rel
+  have hD : D = fiveSlotRightLoading 2 := by decide +kernel
+  have hA : A = fiveSlotHigherLoading 2 := by decide +kernel
+  have hE : Eₐ = F (redIdem k Q Λ ν (redWord (fixedTopFourExitCut 0))) := by
+    have order : redWord A = redWord (fixedTopFourExitCut 0) := by decide
+    simpa only [redProj, AlgHom.comp_apply] using
+      congrArg (fun w => F (redIdem k Q Λ ν w)) order
+  have h := FiveSlotFlag.fiveSlotLastRed_square_reflects_earlierCrossing Q Λ hQ u v
+    (by simpa only [hD] using hu) hv
+    (by simpa only [hE] using hur) (by simpa only [hE] using hvr)
+    (by simpa only [← hD, ψw_cons, ψw_nil, mul_one] using rel)
+  simpa only [← hA, ← hE] using h
+
 /-- For a weight-zero final red strand, the residual higher layer at the
 middle-right loading is the actual nearby partial standard. -/
 theorem fiveSlotMiddleRight_residual_equiv_of_lastWeight_zero (hQ : KLRSymm Q)
     (weight : Λ 2 () = 0) :
-    Nonempty ((blockPartialStandardAt Q Λ nearby 1 2 κ nearby_order) ≃ₗ[Tᵐᵒᵖ] (K ⧸ J₁)) := by
-  obtain ⟨f, hsurj, hinj⟩ := fiveSlotMiddleRight_residual_quotient_of_nearby Q Λ hQ
-  exact ⟨LinearEquiv.ofBijective f ⟨hinj.2 (fiveSlotMiddleRight_nearby_saturated_zeroWeight Q Λ hQ weight),
-    hsurj⟩⟩
+    Nonempty ((blockPartialStandardAt Q Λ nearby 1 2 κ nearby_order) ≃ₗ[Tᵐᵒᵖ] (K ⧸ J₁)) :=
+  fiveSlotMiddleRight_residual_equiv_of_crossing_overlap Q Λ hQ
+    (fun u v hu _ _ hv h =>
+      fiveSlotMiddleRight_overlap_before_lastRed_zeroWeight Q Λ weight u v hu hv h)
 
 end ResidualSaturation
 
 set_option backward.isDefEq.respectTransparency false in
 /-- The central projective embeds as the first piece, and the second
 subquotient is the nearby partial standard. -/
-theorem fiveSlotMiddleRight_kernel_twoLayer_of_lastWeight_zero (hQ : KLRSymm Q)
-    (weight : Λ 2 () = 0) (injective : Function.Injective f₁) :
+theorem fiveSlotMiddleRight_kernel_twoLayer_of_residual
+    (residual : Nonempty ((blockPartialStandardAt Q Λ nearby 1 2 κ nearby_order) ≃ₗ[Tᵐᵒᵖ] (K ⧸ J₁)))
+    (injective : Function.Injective f₁) :
     ModuleFiltration.HasFiltration
       (fun b : Bool => if b then ModuleCat.of Tᵐᵒᵖ P₁ else
         blockPartialStandardAt Q Λ nearby 1 2 κ nearby_order)
@@ -450,13 +478,23 @@ theorem fiveSlotMiddleRight_kernel_twoLayer_of_lastWeight_zero (hQ : KLRSymm Q)
   let L := fun b : Bool => if b then ModuleCat.of Tᵐᵒᵖ P₁ else
     blockPartialStandardAt Q Λ nearby 1 2 κ nearby_order
   let Z := ModuleCat.of Tᵐᵒᵖ (K ⧸ J₁)
-  obtain ⟨equiv⟩ := fiveSlotMiddleRight_residual_equiv_of_lastWeight_zero Q Λ hQ weight
+  obtain ⟨equiv⟩ := residual
   have hexact : Function.Exact f₁ (J₁).mkQ := by
     intro y
     exact Submodule.Quotient.mk_eq_zero J₁
   exact ModuleFiltration.HasFiltration.cons (L := L) (Z := Z) f₁ (J₁).mkQ [true] false
     injective hexact (J₁).mkQ_surjective
     (ModuleFiltration.HasFiltration.single (LinearEquiv.refl _ _)) ⟨equiv.symm⟩
+
+/-- The two-step kernel filtration at zero final red weight. -/
+theorem fiveSlotMiddleRight_kernel_twoLayer_of_lastWeight_zero (hQ : KLRSymm Q)
+    (weight : Λ 2 () = 0) (injective : Function.Injective f₁) :
+    ModuleFiltration.HasFiltration
+      (fun b : Bool => if b then ModuleCat.of Tᵐᵒᵖ P₁ else
+        blockPartialStandardAt Q Λ nearby 1 2 κ nearby_order)
+      [false, true] (ModuleCat.of Tᵐᵒᵖ K) :=
+  fiveSlotMiddleRight_kernel_twoLayer_of_residual Q Λ
+    (fiveSlotMiddleRight_residual_equiv_of_lastWeight_zero Q Λ hQ weight) injective
 
 universe w
 
@@ -474,8 +512,9 @@ local notation "Braid" => braidingFunctor k Q Λ ν₀ κ target
 set_option backward.isDefEq.respectTransparency false in
 /-- The two-step kernel filtration gives concentration when the nearby
 partial standard is concentrated and the ordinary balanced test is known. -/
-theorem fiveSlotMiddleRight_partialStandard_braid_homology_vanish_of_layers
-    (hQ : KLRSymm Q) (weight : Λ 2 () = 0) (injective : Function.Injective f₁)
+private theorem fiveSlotMiddleRight_partialStandard_braid_homology_vanish_of_residual_layers
+    (residual : Nonempty ((blockPartialStandardAt Q Λ nearby 1 2 κ nearby_order) ≃ₗ[Tᵐᵒᵖ] (K ⧸ J₁)))
+    (injective : Function.Injective f₁)
     [HasDerivedCategory.{w, 0}
       (isIdempotentElem_violMk_redProj k Q Λ ν₀ κ).Cornerᵐᵒᵖ]
     [HasDerivedCategory.{w, 0}
@@ -489,11 +528,29 @@ theorem fiveSlotMiddleRight_partialStandard_braid_homology_vanish_of_layers
       (DG.DerivedCategory.Q.obj ((degreeZeroModuleFunctor Tᵐᵒᵖ).obj
         (blockLoadingShortComplex Q Λ rightMiddle 1 2).X₃)))) := by
   apply blockPartialStandard_braid_homology_vanish Q Λ rightMiddle 1 2 target
-    (fiveSlotMiddleRight_kernel_twoLayer_of_lastWeight_zero Q Λ hQ weight injective) _ hbal j hn
+    (fiveSlotMiddleRight_kernel_twoLayer_of_residual Q Λ residual injective) _ hbal j hn
   intro b _ i hi
   cases b
   · exact hnearby i hi
   · exact blockLoadingProjective_braid_homology_vanish Q Λ central target i hi
+
+set_option backward.isDefEq.respectTransparency false in
+theorem fiveSlotMiddleRight_partialStandard_braid_homology_vanish_of_layers
+    (hQ : KLRSymm Q) (weight : Λ 2 () = 0) (injective : Function.Injective f₁)
+    [HasDerivedCategory.{w, 0}
+      (isIdempotentElem_violMk_redProj k Q Λ ν₀ κ).Cornerᵐᵒᵖ]
+    [HasDerivedCategory.{w, 0}
+      (isIdempotentElem_violMk_redProj k Q Λ ν₀ target).Cornerᵐᵒᵖ]
+    (hnearby : ∀ j : ℤ, j ≠ 0 → IsZero ((homologyFunctor (A := Uᵐᵒᵖ) ℤ j).obj
+      ((Braid).obj (DG.DerivedCategory.Q.obj ((degreeZeroModuleFunctor Tᵐᵒᵖ).obj
+        (blockPartialStandardAt Q Λ nearby 1 2 κ nearby_order))))))
+    (hbal : Function.Injective (blockKernelTensorInclusion Q Λ rightMiddle 1 2 target))
+    (j : ℤ) (hn : j ≠ 0) :
+    IsZero ((homologyFunctor (A := Uᵐᵒᵖ) ℤ j).obj ((Braid).obj
+      (DG.DerivedCategory.Q.obj ((degreeZeroModuleFunctor Tᵐᵒᵖ).obj
+        (blockLoadingShortComplex Q Λ rightMiddle 1 2).X₃)))) :=
+  fiveSlotMiddleRight_partialStandard_braid_homology_vanish_of_residual_layers Q Λ target
+    (fiveSlotMiddleRight_residual_equiv_of_lastWeight_zero Q Λ hQ weight) injective hnearby hbal j hn
 
 end Derived
 
@@ -512,11 +569,11 @@ local notation "Target" => IsIdempotentElem.Corner
   (isIdempotentElem_violMk_redProj k₀ Qstd weights ν₀ exchanged)
 
 set_option backward.isDefEq.respectTransparency false in
-/-- The actual middle-right partial standard has no nonzero-degree braid
-homology at standard parameters when the final red weight is zero. -/
-theorem fiveSlotMiddleRight_partialStandard_braid_homology_vanish_zero_final_standard
+private theorem fiveSlotMiddleRight_partialStandard_braid_homology_vanish_standard_of_residual
     [HasDerivedCategory.{w, 0} Sourceᵐᵒᵖ] [HasDerivedCategory.{w, 0} Targetᵐᵒᵖ]
-    (weight : weights 2 () = 0) (j : ℤ) (hn : j ≠ 0) :
+    (residual : Nonempty ((blockPartialStandardAt Qstd weights nearby 1 2 κ nearby_order)
+      ≃ₗ[Sourceᵐᵒᵖ] (blockLoadingKernel Qstd weights rightMiddle 1 2 ⧸
+        LinearMap.range (fiveSlotMiddleRight_centralMap Qstd weights)))) (j : ℤ) (hn : j ≠ 0) :
     IsZero ((homologyFunctor (A := Targetᵐᵒᵖ) ℤ j).obj
       ((braidingFunctor k₀ Qstd weights ν₀ κ exchanged).obj
         (DG.DerivedCategory.Q.obj ((degreeZeroModuleFunctor Sourceᵐᵒᵖ).obj
@@ -529,12 +586,40 @@ theorem fiveSlotMiddleRight_partialStandard_braid_homology_vanish_zero_final_sta
   have hinj : Function.Injective (fiveSlotMiddleRight_centralMap Qstd weights) := by
     rw [fiveSlotMiddleRight_centralMap_eq_crossing]
     exact fiveSlotMiddleRight_higherCrossingMap_injective_standard hr hq weights
-  apply fiveSlotMiddleRight_partialStandard_braid_homology_vanish_of_layers Qstd weights
-    exchanged hq weight hinj _ _ j hn
+  apply fiveSlotMiddleRight_partialStandard_braid_homology_vanish_of_residual_layers Qstd weights
+    exchanged residual hinj _ _ j hn
   · intro i hi
     exact fiveSlotNextRetainedPartialStandard_braid_homology_vanish_exchanged
       (C₀ := datum) (F₀ := k₀) weights i hi
   · exact fiveSlot_blockKernelTensorInclusion_injective_standard_allTops datum weights rightMiddle (by decide)
+
+set_option backward.isDefEq.respectTransparency false in
+/-- The actual middle-right partial standard has no nonzero-degree braid
+homology at standard parameters when the final red weight is zero. -/
+theorem fiveSlotMiddleRight_partialStandard_braid_homology_vanish_zero_final_standard
+    [HasDerivedCategory.{w, 0} Sourceᵐᵒᵖ] [HasDerivedCategory.{w, 0} Targetᵐᵒᵖ]
+    (weight : weights 2 () = 0) (j : ℤ) (hn : j ≠ 0) :
+    IsZero ((homologyFunctor (A := Targetᵐᵒᵖ) ℤ j).obj
+      ((braidingFunctor k₀ Qstd weights ν₀ κ exchanged).obj
+        (DG.DerivedCategory.Q.obj ((degreeZeroModuleFunctor Sourceᵐᵒᵖ).obj
+          (blockLoadingShortComplex Qstd weights rightMiddle 1 2).X₃)))) := by
+  have hq : KLRSymm Qstd := fun i j h => (h (Subsingleton.elim i j)).elim
+  exact fiveSlotMiddleRight_partialStandard_braid_homology_vanish_standard_of_residual datum weights
+    (fiveSlotMiddleRight_residual_equiv_of_lastWeight_zero Qstd weights hq weight) j hn
+
+set_option backward.isDefEq.respectTransparency false in
+/-- The actual middle-right partial standard has no nonzero-degree braid
+homology at standard parameters for arbitrary red weights. -/
+theorem fiveSlotMiddleRight_partialStandard_braid_homology_vanish_standard
+    [HasDerivedCategory.{w, 0} Sourceᵐᵒᵖ] [HasDerivedCategory.{w, 0} Targetᵐᵒᵖ]
+    (j : ℤ) (hn : j ≠ 0) :
+    IsZero ((homologyFunctor (A := Targetᵐᵒᵖ) ℤ j).obj
+      ((braidingFunctor k₀ Qstd weights ν₀ κ exchanged).obj
+        (DG.DerivedCategory.Q.obj ((degreeZeroModuleFunctor Sourceᵐᵒᵖ).obj
+          (blockLoadingShortComplex Qstd weights rightMiddle 1 2).X₃)))) := by
+  have hq : KLRSymm Qstd := fun i j h => (h (Subsingleton.elim i j)).elim
+  exact fiveSlotMiddleRight_partialStandard_braid_homology_vanish_standard_of_residual datum weights
+    (fiveSlotMiddleRight_residual_equiv Qstd weights hq) j hn
 
 end Standard
 

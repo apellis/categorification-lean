@@ -8315,3 +8315,17 @@ example := internalHomology_off_support (k := ℚ) 3 (-8) (by decide)
   (by simp [InternalSupport])
 
 end NonVacuity.WebsterLabelTwoInternalGrading
+
+namespace NonVacuity.WebsterLabelTwoMiddleSeries
+
+open Categorification.Webster.LabelTwo
+
+example : PowerSeries.coeff 3 signedMiddleSeries = -LaurentPolynomial.T (-6) := by
+  exact signedMiddleSeries_coeff_of_support 2 (-6) (by simp [InternalSupport])
+
+example : PowerSeries.coeff 2 signedMiddleSeries = LaurentPolynomial.T (-6) := by
+  exact signedMiddleSeries_coeff_of_support 1 (-6) (by simp [InternalSupport])
+
+example : IsUnit middleDenominator := middleDenominator_isUnit
+
+end NonVacuity.WebsterLabelTwoMiddleSeries

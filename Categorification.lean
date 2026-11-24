@@ -1093,6 +1093,7 @@ import Categorification.WeightedKLR.Steadied
 import Categorification.WeightedKLR.Deformation
 import Categorification.WeightedKLR.RedStrands.BraidingFunctor
 import Categorification.WeightedKLR.RedStrands.BraidingAuxiliaryDerived
+import Categorification.WeightedKLR.RedStrands.BraidingAuxiliaryLoading
 import Categorification.WeightedKLR.RedStrands.AdjacentRedSwapNormalization
 import Categorification.WeightedKLR.RedStrands.BraidingWeightDecomposition
 import Categorification.WeightedKLR.RedStrands.RedPermutationGrading

@@ -10837,3 +10837,16 @@ example := ambientDerivedTensorH0LeftIdealEquiv (k := ℚ) (M := ℚᵐᵒᵖ)
 
 end
 end NonVacuity.AmbientDerivedIdempotentCut
+
+namespace NonVacuity.BalancedTensorReflection
+
+open Categorification MulOpposite
+
+noncomputable section
+
+example := BalancedTensor.reflectionSwap_tmul
+  (k := ℚ) (A := ℚ) (M := ℚ) (N := ℚ) id
+  (fun _ => rfl) (fun a x => mul_comm x a) (fun a x => mul_comm x a) (2 : ℚ) (3 : ℚ)
+
+end
+end NonVacuity.BalancedTensorReflection

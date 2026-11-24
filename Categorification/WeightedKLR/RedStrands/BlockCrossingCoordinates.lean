@@ -170,9 +170,52 @@ private theorem kills_left_right {a b : Multiset (I ⊕ Fin ℓ)} {D : Type*} [R
         (α := []) (α' := []) (by simp) (by simp) t i
     rw [hc]; apply hh; simpa only [Seq.lbl, Seq.append_posR] using hj
 
+/-- A shuffle of a row separates its first block from the tail, then shuffles the tail. -/
+def ShuffleIndex : List (RedBlock I ℓ) → Type
+  | [] => Unit
+  | B :: row => Shuffle (Seq.card_add' B.weight (weightSum row)) × ShuffleIndex row
+
+instance shuffleIndexFintype : (row : List (RedBlock I ℓ)) → Fintype (ShuffleIndex row)
+  | [] => inferInstanceAs (Fintype Unit)
+  | B :: row => @instFintypeProd _ _ (Fintype.ofFinite (Shuffle (Seq.card_add' B.weight (weightSum row))))
+      (shuffleIndexFintype row)
+
+/-- The chosen crossing word reads the tail in its shifted positions and then applies
+the minimal representative separating the first block. -/
+def shuffleWord : (row : List (RedBlock I ℓ)) → ShuffleIndex row → List ℕ
+  | [], _ => []
+  | B :: row, u => shiftWord B.weight.card (shuffleWord row u.2) ++ canWord _ u.1.1
+
+omit [DecidableEq I] in
+/-- Each word chosen by the recursion is reduced. -/
+theorem isReduced_shuffleWord : ∀ (row : List (RedBlock I ℓ)) (u : ShuffleIndex row),
+    IsReduced (weightSum row).card (shuffleWord row u)
+  | [], _ => by simp [shuffleWord, TypeA.IsReduced]
+  | B :: row, u => by
+    let h := Seq.card_add' B.weight (weightSum row)
+    have empty : IsReduced B.weight.card [] := by simp [TypeA.IsReduced]
+    have sh : IsShuffle h (wordProd _ (canWord _ u.1.1)) := by
+      rw [wordProd_canWord]; exact u.1.2
+    simpa only [shuffleWord, List.nil_append] using
+      (IsReduced.parabolic h empty (isReduced_shuffleWord row u.2) (isReduced_canWord _ u.1.1) sh).1
+
+private theorem rightIn_word {a b : Multiset (I ⊕ Fin ℓ)} (z : R b) (d c : List ℕ)
+    (hd : ValidWord b.card d) :
+    rightIn Q Λ a b (z * ψw d) * (oneConcat S a b * ψw c) =
+      rightIn Q Λ a b z * ψw (shiftWord a.card d ++ c) := by
+  let r := rightIn Q Λ a b
+  have fix (y : R b) : r y * oneConcat S a b = r y := concat_mul_oneConcat _
+  have shift : r (ψw d) = oneConcat S a b * ψw (shiftWord a.card d) := by
+    change concat S a b (1 ⊗ₜ[k] ψw d) = _
+    rw [← ψw_nil (Q := S) (ν := a), concat_ψw_tmul_ψw (validWord_nil _) hd,
+      ← oneConcat_mul_ψw (validWord_nil _) hd, List.nil_append]
+  change r (z * ψw d) * _ = r z * _
+  rw [← mul_assoc, fix, map_mul r, shift, ← mul_assoc (r z), fix, ψw_append, mul_assoc]
+
 private theorem binaryCoordinates (a b : Multiset (I ⊕ Fin ℓ)) (hQ : KLRSymm Q) :
     let U := Shuffle (Seq.card_add' a b)
     ∃ (g : U → R (a+b) →ₗ[k] (R a ⊗[k] R b)) (w : U → R (a+b)),
+      (∀ i, w i = oneConcat S a b * ψw (canWord _ i.1)) ∧
       (∀ i x y, g i (concat S a b x * y) = x * g i y) ∧
       (∀ i y s, g i (y * e s) = g i y * concatIdem (i.1 • s)) ∧
       (∀ i, g i (w i) = 1) ∧ (∀ i j, i ≠ j → g i (w j) = 0) ∧
@@ -186,7 +229,9 @@ private theorem binaryCoordinates (a b : Multiset (I ⊕ Fin ℓ)) (hQ : KLRSymm
     mem_oneConcatSub.2 (by change _ * (oneConcat S a b * y) = _; rw [← mul_assoc, oneConcat_idem.eq]; rfl)
   have hcol (i : Shuffle (Seq.card_add' a b)) : col (B i).1 = B i :=
     Subtype.ext (mem_oneConcatSub.1 (B i).2)
-  refine ⟨fun i => ((B.coord i).restrictScalars k).comp col, fun i => (B i).1, ?_, ?_, ?_, ?_, ?_⟩
+  refine ⟨fun i => ((B.coord i).restrictScalars k).comp col, fun i => (B i).1, ?_, ?_, ?_, ?_, ?_, ?_⟩
+  · intro i
+    exact freeBasis_apply _ _ _ _ _ _ _ i
   · intro i x y
     have he : col (concat S a b x * y) = x • col y := Subtype.ext (by
       change oneConcat S a b * (concat S a b x * y) = concat S a b x * (oneConcat S a b * y)
@@ -228,11 +273,10 @@ private theorem projection_loadingIdem_eq_zero : ∀ Bs (s : Loadings Bs), Viola
     · rw [projection_loadingIdem_eq_zero Bs s.2 h, TensorProduct.tmul_zero]
 
 private structure Coefficients (row : List (RedBlock I ℓ)) (D : Type*) [Ring D] [Algebra k D] where
-  ι : Type
-  fintype : Fintype ι
-  coeff : ι → R (weightSum row) →ₗ[k] X row
-  word : ι → R (weightSum row)
-  bottom : ι → Seq (weightSum row) → X row
+  coeff : ShuffleIndex row → R (weightSum row) →ₗ[k] X row
+  word : ShuffleIndex row → R (weightSum row)
+  word_spec : ∀ i, word i = juxtapose Q Λ row 1 * ψw (shuffleWord row i)
+  bottom : ShuffleIndex row → Seq (weightSum row) → X row
   coeff_e : ∀ j y s, coeff j (y * e s) = coeff j y * bottom j s
   bottom_spec : ∀ j s, bottom j s = 0 ∨
     ∃ v : Loadings row, ShuffleLoading row s v ∧ bottom j s = loadingIdem Q Λ row v
@@ -245,9 +289,13 @@ private structure Coefficients (row : List (RedBlock I ℓ)) (D : Type*) [Ring D
     H (juxtapose Q Λ row 1 * y) = ∑ j, H (juxtapose Q Λ row (coeff j y) * word j)
 
 private def emptyCoefficients (D : Type*) [Ring D] [Algebra k D] : Coefficients Q Λ [] D := by
+  letI : Unique (ShuffleIndex ([] : List (RedBlock I ℓ))) := inferInstanceAs (Unique Unit)
   let z := zeroEquiv (I ⊕ Fin ℓ) k S
   let ev := ULift.algEquiv.symm.toLinearMap.comp z.toLinearMap
-  refine ⟨Unit, inferInstance, fun _ => ev, fun _ => 1, fun _ _ => 1, ?_, ?_, ?_, ?_, ?_, ?_, ?_⟩
+  refine ⟨fun _ => ev, fun _ => 1, ?_, fun _ _ => 1, ?_, ?_, ?_, ?_, ?_, ?_, ?_⟩
+  · intro _
+    change (1 : R 0) = algebraMap k _ 1 * ψw []
+    rw [map_one, ψw_nil, mul_one]
   · intro _ y s
     rw [e_eq_one, mul_one, mul_one]
   · intro _ _
@@ -278,11 +326,9 @@ private def consCoefficients (B : RedBlock I ℓ) (row : List (RedBlock I ℓ)) 
   let b := weightSum row
   let U := Shuffle (Seq.card_add' a b)
   letI : Fintype U := Fintype.ofFinite (Shuffle (Seq.card_add' a b))
-  letI : Fintype T.ι := T.fintype
-  let prodfin : Fintype (U × T.ι) := @instFintypeProd U T.ι ‹Fintype U› T.fintype
   let g := (binaryCoordinates Q Λ a b hQ).choose
   let w := (binaryCoordinates Q Λ a b hQ).choose_spec.choose
-  obtain ⟨gm, ge, gs, gn, gw⟩ := (binaryCoordinates Q Λ a b hQ).choose_spec.choose_spec
+  obtain ⟨w_spec, gm, ge, gs, gn, gw⟩ := (binaryCoordinates Q Λ a b hQ).choose_spec.choose_spec
   let v := omitRedDots Q Λ B
   let c j := TensorProduct.map v.toLinearMap (T.coeff j)
   let hcoeff (u : X (B::row)) (s) (j) : c j (TensorProduct.map (readBlock Q Λ B).toLinearMap
@@ -295,7 +341,7 @@ private def consCoefficients (B : RedBlock I ℓ) (row : List (RedBlock I ℓ)) 
       | tmul x y =>
         simp only [c, TensorProduct.map_tmul, Algebra.TensorProduct.tmul_mul_tmul, AlgHom.toLinearMap_apply,
           map_mul, v, omit_read Q Λ B hQ, T.coeff_mul]
-  have project_tmul (j : T.ι) (s : KLR.Seq B.weight) (t : KLR.Seq (weightSum row))
+  have project_tmul (j : ShuffleIndex row) (s : KLR.Seq B.weight) (t : KLR.Seq (weightSum row))
       (u : R B.weight ⊗[k] R (weightSum row)) :
       c j (u * ((KLRAlgebra.e s : R B.weight) ⊗ₜ[k] (KLRAlgebra.e t : R (weightSum row)))) =
         c j u * (v (e s) ⊗ₜ[k] T.bottom j t) := by
@@ -313,12 +359,19 @@ private def consCoefficients (B : RedBlock I ℓ) (row : List (RedBlock I ℓ)) 
   have gRight (u : U) (z : R (weightSum row)) (r : R (a + b)) :
       g u (rightIn Q Λ a b z * r) = ((1 : R B.weight) ⊗ₜ[k] z) * g u r :=
     gm u _ r
-  let bottom (ij : U × T.ι) (s : KLR.Seq (weightSum (B :: row))) : X (B :: row) :=
+  let bottom (ij : U × ShuffleIndex row) (s : KLR.Seq (weightSum (B :: row))) : X (B :: row) :=
     if hs : ij.1.1 • s ∈ concatSet a b then
       v (e (split _ hs).1) ⊗ₜ[k] T.bottom ij.2 (split _ hs).2
     else 0
-  refine ⟨U × T.ι, prodfin, fun ij => (c ij.2).comp (g ij.1),
-    fun ij => rightIn Q Λ a b (T.word ij.2) * w ij.1, bottom, ?_, ?_, ?_, ?_, ?_, ?_, ?_⟩
+  have unit : juxtapose Q Λ (B :: row) 1 = rightIn Q Λ a b (juxtapose Q Λ row 1) := by
+    change juxtapose Q Λ (B::row) ((1 : diagramAlgebra Q Λ B) ⊗ₜ[k] (1 : X row)) = _
+    rw [juxtapose_tmul, map_one]; rfl
+  refine ⟨fun ij => (c ij.2).comp (g ij.1),
+    fun ij => rightIn Q Λ a b (T.word ij.2) * w ij.1, ?_, bottom, ?_, ?_, ?_, ?_, ?_, ?_, ?_⟩
+  · intro ij
+    have hw : w ij.1 = oneConcat S a b * ψw (canWord _ ij.1.1) := w_spec ij.1
+    rw [T.word_spec, hw, unit]
+    exact rightIn_word Q Λ _ _ _ (isReduced_shuffleWord row _).1
   · intro ij y s
     change c ij.2 (g ij.1 (y * e s)) = c ij.2 (g ij.1 y) * bottom ij s
     rw [ge]
@@ -376,9 +429,7 @@ private def consCoefficients (B : RedBlock I ℓ) (row : List (RedBlock I ℓ)) 
     let r := rightIn Q Λ a b
     let m := concat S a b
     let U₀ := juxtapose Q Λ row 1
-    have hE : juxtapose Q Λ (B::row) 1 = r U₀ := by
-      change juxtapose Q Λ (B::row) ((1 : diagramAlgebra Q Λ B) ⊗ₜ[k] (1 : X row)) = r U₀
-      rw [juxtapose_tmul, map_one]; rfl
+    have hE : juxtapose Q Λ (B::row) 1 = r U₀ := unit
     have step (s) : H (r U₀ * m s) =
         ∑ j, H (juxtapose Q Λ (B::row) (c j s) * r (T.word j)) := by
       induction s using TensorProduct.inductionOn with
@@ -397,7 +448,7 @@ private def consCoefficients (B : RedBlock I ℓ) (row : List (RedBlock I ℓ)) 
     have topFix : r U₀ * oneConcat S a b = r U₀ := concat_mul_oneConcat _
     change H (juxtapose Q Λ (B::row) 1 * y) = _
     rw [hE, ← topFix, mul_assoc, gw, Finset.mul_sum, map_sum]
-    refine Eq.trans ?_ (@Fintype.sum_prod_type D U T.ι ‹Fintype U› T.fintype _ _).symm
+    refine Eq.trans ?_ (@Fintype.sum_prod_type D U (ShuffleIndex row) ‹Fintype U› (shuffleIndexFintype row) _ _).symm
     apply Finset.sum_congr (univ_eq U _ _); intro i _
     rw [← mul_assoc, map_mul, step, Finset.sum_mul]
     exact Finset.sum_congr rfl fun j _ => by simp only [map_mul, mul_assoc, LinearMap.comp_apply]; rfl
@@ -455,7 +506,7 @@ Proposition 6.4 and proof of Lemma 6.8; Khovanov–Lauda I, Proposition 2.16). M
 above the seam multiplies each coefficient. A bottom loading acts on each
 coefficient through the split projector for its shuffle. Restacking the coefficients recovers the
 whole column after imposing red dots, before either kind of violation. -/
-theorem exists_blockStack_coordinates_with_bottom (hQ : KLRSymm Q) (L M : List (Fin ℓ × Multiset I))
+theorem exists_blockStack_coordinates_with_shuffle_words (hQ : KLRSymm Q) (L M : List (Fin ℓ × Multiset I))
     (f : Fin 2 ↪ Fin ℓ) (β : Multiset I) {ν : Multiset I}
     (h : weightSum (adjacentRow L M f β) = stendhalWeight ℓ ν) :
     let row := adjacentRow L M f β
@@ -465,8 +516,9 @@ theorem exists_blockStack_coordinates_with_bottom (hQ : KLRSymm Q) (L M : List (
     let bad := fun s : KLR.Seq μ => IsViolated s ∨
       (redWord s = L.map Prod.fst ++ f 0 :: f 1 :: M.map Prod.fst ∧
         (fun r i => boundaryCount (cut (f 0) (f 1) r) i row) < adjacentBlockRoot (f 0) (f 1) s)
-    ∃ n, ∃ (g : Fin n → R μ →ₗ[k] X row) (w : Fin n → R μ)
+    ∃ n, ∃ (index : Fin n ≃ ShuffleIndex row) (g : Fin n → R μ →ₗ[k] X row) (w : Fin n → R μ)
       (bottom : Fin n → Seq μ → X row),
+      (∀ j, w j = G 1 * ψw (shuffleWord row (index j))) ∧
       (∀ j x y, g j (G x * y) = x * g j y) ∧
       (∀ j y s, g j (y * e s) = g j y * bottom j s) ∧
       (∀ j y, g j (toKLR k Q Λ ν (π y)) = g j y) ∧
@@ -478,8 +530,7 @@ theorem exists_blockStack_coordinates_with_bottom (hQ : KLRSymm Q) (L M : List (
   classical
   intro row μ G π bad
   let T := rowCoefficients Q Λ (BraidedStendhalAlgebra k Q Λ ν) hQ row
-  let : Fintype T.ι := T.fintype
-  let e := Fintype.equivFin T.ι
+  let e := Fintype.equivFin (ShuffleIndex row)
   let b := castKLR S h
   let H := (π.comp b.toAlgHom).toNonUnitalAlgHom
   have hh : KillsRed Q Λ H := by
@@ -497,21 +548,21 @@ theorem exists_blockStack_coordinates_with_bottom (hQ : KLRSymm Q) (L M : List (
     apply b.injective
     rw [AlgEquiv.apply_symm_apply, show b (KLRAlgebra.e (Seq.cast h.symm s)) = _ from
       castKLR_e h (Seq.cast h.symm s), cast_back]
-  let g (j : Fin (Fintype.card T.ι)) := (T.coeff (e.symm j)).comp b.symm.toLinearMap
-  let w (j : Fin (Fintype.card T.ι)) := b (T.word (e.symm j))
-  let bottom (j : Fin (Fintype.card T.ι)) (s : KLR.Seq μ) :=
+  let g (j : Fin (Fintype.card (ShuffleIndex row))) := (T.coeff (e.symm j)).comp b.symm.toLinearMap
+  let w (j : Fin (Fintype.card (ShuffleIndex row))) := b (T.word (e.symm j))
+  let bottom (j : Fin (Fintype.card (ShuffleIndex row))) (s : KLR.Seq μ) :=
     T.bottom (e.symm j) (Seq.cast h.symm s)
-  have g_mul (j : Fin (Fintype.card T.ι)) (x : X row) (y : R μ) :
+  have g_mul (j : Fin (Fintype.card (ShuffleIndex row))) (x : X row) (y : R μ) :
       g j (G x * y) = x * g j y := by
     change T.coeff _ (b.symm (b (juxtapose Q Λ row x)*y)) = _
     rw [map_mul, AlgEquiv.symm_apply_apply]; exact T.coeff_mul _ _ _
-  have g_e (j : Fin (Fintype.card T.ι)) (y : R μ) (s : KLR.Seq μ) :
+  have g_e (j : Fin (Fintype.card (ShuffleIndex row))) (y : R μ) (s : KLR.Seq μ) :
       g j (y * KLRAlgebra.e s) = g j y * bottom j s := by
     change T.coeff _ (b.symm (y * KLRAlgebra.e s)) = _
     rw [map_mul]
     rw [cast_e, T.coeff_e]
     rfl
-  have g_section (j : Fin (Fintype.card T.ι)) (y : R μ) :
+  have g_section (j : Fin (Fintype.card (ShuffleIndex row))) (y : R μ) :
       g j (toKLR k Q Λ ν (π y)) = g j y := by
     apply coefficient_of_section Q Λ hQ (g j) _ y
     intro s a ha z
@@ -530,7 +581,7 @@ theorem exists_blockStack_coordinates_with_bottom (hQ : KLRSymm Q) (L M : List (
     change T.coeff _ (b.symm ((KLRAlgebra.x a * KLRAlgebra.e s) * z)) = 0
     rw [map_mul b.symm, map_mul b.symm, cast_x, cast_e]
     exact T.coeff_top_red _ _ _ red' _
-  have zero_at_loading (j : Fin (Fintype.card T.ι)) (y : R μ) (s : KLR.Seq μ)
+  have zero_at_loading (j : Fin (Fintype.card (ShuffleIndex row))) (y : R μ) (s : KLR.Seq μ)
       (hviol : bad s) : projection Q Λ row (g j (y * KLRAlgebra.e s)) = 0 := by
     let u := Seq.cast h.symm s
     have hv (v : Loadings row) (hs : ShuffleLoading row u v) : Violated row v := by
@@ -559,7 +610,10 @@ theorem exists_blockStack_coordinates_with_bottom (hQ : KLRSymm Q) (L M : List (
     apply Finset.sum_congr rfl; intro j _
     change π (b (juxtapose Q Λ row (T.coeff _ v) * _)) = π (b (juxtapose Q Λ row (T.coeff _ (b.symm (b v)))) * _)
     rw [map_mul b, AlgEquiv.symm_apply_apply]
-  refine ⟨_, g, w, bottom, g_mul, g_e, g_section, ?_, ?_, ?_, ?_, rebuild⟩
+  refine ⟨_, e.symm, g, w, bottom, ?_, g_mul, g_e, g_section, ?_, ?_, ?_, ?_, rebuild⟩
+  · intro j
+    change b (T.word _) = b (juxtapose Q Λ row 1) * ψw _
+    rw [T.word_spec, map_mul, show ∀ d, b (ψw d) = ψw d from castKLR_ψw h]
   · intro j
     change T.coeff (e.symm j) (b.symm (b (T.word (e.symm j)))) = 1
     rw [AlgEquiv.symm_apply_apply, T.coeff_word_self]
@@ -594,6 +648,30 @@ theorem exists_blockStack_coordinates_with_bottom (hQ : KLRSymm Q) (L M : List (
         apply Finset.sum_eq_zero
         intro i _
         rw [g_mul, map_mul, zero_at_loading i y s hs, zero_mul]
+
+/-- Finite coordinates without a choice of presentation of their shuffle indices. -/
+theorem exists_blockStack_coordinates_with_bottom (hQ : KLRSymm Q) (L M : List (Fin ℓ × Multiset I))
+    (f : Fin 2 ↪ Fin ℓ) (β : Multiset I) {ν : Multiset I}
+    (h : weightSum (adjacentRow L M f β) = stendhalWeight ℓ ν) :
+    let row := adjacentRow L M f β
+    let μ := stendhalWeight ℓ ν
+    let G := affineStackBlocks Q Λ L M f β h
+    let π := ofKLR k Q Λ ν
+    let bad := fun s : KLR.Seq μ => IsViolated s ∨
+      (redWord s = L.map Prod.fst ++ f 0 :: f 1 :: M.map Prod.fst ∧
+        (fun r i => boundaryCount (cut (f 0) (f 1) r) i row) < adjacentBlockRoot (f 0) (f 1) s)
+    ∃ n, ∃ (g : Fin n → R μ →ₗ[k] X row) (w : Fin n → R μ)
+      (bottom : Fin n → Seq μ → X row),
+      (∀ j x y, g j (G x * y) = x * g j y) ∧
+      (∀ j y s, g j (y * e s) = g j y * bottom j s) ∧
+      (∀ j y, g j (toKLR k Q Λ ν (π y)) = g j y) ∧
+      (∀ j, g j (w j) = 1) ∧ (∀ i j, i ≠ j → g i (w j) = 0) ∧
+      (∀ j s, bottom j s = 0 ∨ ∃ v : Loadings row,
+        ShuffleLoading row (Seq.cast h.symm s) v ∧ bottom j s = loadingIdem Q Λ row v) ∧
+      (∀ j y s z, bad s → projection Q Λ row (g j (y * e s * z)) = 0) ∧
+      ∀ y, π (G 1 * y) = ∑ j, π (G (g j y) * w j) := by
+  obtain ⟨n, _, g, w, bottom, _, h⟩ := exists_blockStack_coordinates_with_shuffle_words Q Λ hQ L M f β h
+  exact ⟨n, g, w, bottom, h⟩
 
 /-- Parabolic coordinates that are linear under multiplication above the seam and
 reconstruct the juxtaposed-top column after forgetting red dots. -/

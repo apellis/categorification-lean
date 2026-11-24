@@ -964,7 +964,12 @@ through one of these loadings, with arbitrary diagrams above and below the cut.
 and both loading ideals to the partially standardized quotient. The coordinate
 words have coordinate `1` in their own slot and `0` in the other slots.
 `exists_blockColumn_coordinate_embedding` shows that the coordinates separate
-elements of the source-order block column. The right joint crossing formula is open.
+elements of the source-order block column. The affine coordinate representatives can
+be chosen as explicit reduced words indexed by the recursive block shuffles. In a
+binary shuffle, a right crossing either extends an external ascent or moves to an
+internal crossing in one block, with an error in a lower crossing-filtration step.
+The binary coordinates vanish at shuffles longer than the filtration degree.
+The right joint crossing formula on the full block quotient is open.
 
 Still open for Lemma 6.8: the higher-homology vanishing in (6.21),
 including injectivity after tensoring the kernel inclusion, then Prop 6.9

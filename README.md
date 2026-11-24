@@ -1040,13 +1040,14 @@ actual multiplication adds normalized degrees
 (`braidingCoefficientMul_mem_weight`). The inversion condition in Lemma 6.5
 implies additivity (`redWordOffset_add_of_sublist`), and its balanced
 multiplication identifies the quotient corner coefficient
-(`violCornerTensorMulEquiv_tmul`). The additive universal property
-`CornerTensor.liftAdd` descends a balanced bi-additive family with an
-additive target.
+(`violCornerTensorMulEquiv_tmul`).
 
 Over a scalar field in degree zero the left modules are K-projective, so the
 construction gives derived Hom for every homogeneous scalar coefficient
 (`diagramWeightScalarDerivedHom`).
+
+For the ordinary corner tensor, `CornerTensor.liftAdd` descends a balanced
+bi-additive family with an additive target.
 
 Definition 7.4 has cup and cap coefficient models in the ungraded derived
 categories, with a specified cohomological shift on the cup and a finite

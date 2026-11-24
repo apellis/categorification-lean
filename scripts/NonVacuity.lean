@@ -6500,3 +6500,54 @@ example : ModuleFiltration.HasFiltration Std [(), ()] Column := by
     simp [Module.finrank_prod]
 
 end NonVacuity.WebsterBraidFiltrationDimension
+
+namespace NonVacuity.WebsterDiagramColumn
+
+open Stendhal.BraidColumn
+open scoped ModuleCat.Algebra
+
+private abbrev projectives : ℕ → ModuleCat ℚ := fun _ => ModuleCat.of ℚ (ℚ × ℚ)
+private abbrev column : ModuleCat ℚ := ModuleCat.of ℚ ℚ
+private abbrev diagram : ∀ i, projectives i →ₗ[ℚ] column := fun _ => LinearMap.fst ℚ ℚ ℚ
+private abbrev relations (i : ℕ) : Submodule ℚ (projectives i) := LinearMap.ker (diagram i)
+
+private theorem diagram_surjective (i : ℕ) : Function.Surjective (diagram i) :=
+  fun z => ⟨(z, 0), rfl⟩
+
+example : ModuleFiltration.HasFiltration (fun i => ModuleCat.of ℚ (projectives i ⧸ relations i))
+    [0] column := by
+  have e (i : ℕ) : (projectives i ⧸ relations i) ≃ₗ[ℚ] ℚ :=
+    (diagram i).quotKerEquivOfSurjective (diagram_surjective i)
+  exact hasStandardFiltration_diagramColumn (k := ℚ) diagram 1 relations
+    (show (⊥ : Submodule ℚ column) ⊔ _ = ⊤ by
+      rw [LinearMap.range_eq_top.mpr (diagram_surjective 0)]
+      exact top_unique le_sup_right)
+    (fun i x hx => by rw [LinearMap.mem_ker.mp hx]; exact zero_mem _)
+    (fun i => Module.Finite.of_surjective (e i).symm.toLinearMap (e i).symm.surjective)
+    (show Module.finrank ℚ ℚ = Module.finrank ℚ (projectives 0 ⧸ relations 0) by
+      exact (e 0).finrank_eq.symm)
+
+private abbrev changedDiagram (i : ℕ) : projectives i →ₗ[ℚ] column :=
+  if i = 0 then diagram i else -diagram i
+
+example : diagramStep diagram 2 = diagramStep changedDiagram 2 := by
+  apply diagramStep_eq_of_sub_mem
+  intro i _ x
+  cases i with
+  | zero => simp [changedDiagram]
+  | succ i =>
+    have ht : diagramStep diagram (i + 1) = ⊤ := by
+      change diagramStep diagram i ⊔ (diagram i).range = ⊤
+      rw [LinearMap.range_eq_top.mpr (diagram_surjective i)]
+      exact top_unique le_sup_right
+    rw [ht]
+    trivial
+
+example :
+    (diagramMul (show IsIdempotentElem (1 : ℚ) by simp [IsIdempotentElem])
+      (⟨2, by simp, by simp⟩ : cornerBimodule (1 : ℚ) 1)
+      (⟨3, by simp, by simp⟩ : cornerBimodule (1 : ℚ) 1)).val = 6 := by
+  change (2 : ℚ) * 3 = 6
+  norm_num
+
+end NonVacuity.WebsterDiagramColumn

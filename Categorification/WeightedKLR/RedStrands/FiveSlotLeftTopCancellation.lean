@@ -141,9 +141,10 @@ theorem fiveSlot_jA_kernel_projective_of_test (hQ : KLRSymm Q)
     Module.Projective
       (isIdempotentElem_violMk_redProj k Q Λ ν₀ (redWord t)).Cornerᵐᵒᵖ
       (blockLoadingKernel Q Λ t 1 2) := by
-  obtain ⟨hc, cl, cr⟩ := nearbyPrincipalSupport Q Λ
+  have support : c ∈ J ∧ map₀ (e t) * c = c ∧ c * map₀ (e v₀) = c :=
+    nearbyPrincipalSupport Q Λ
   apply blockLoadingKernel_projective_of_principal_factor Q Λ t 1 2 v₀
-    (by decide) c hc cl cr (fiveSlot_jA_higher_exists_leftFactor Q Λ hQ)
+    (by decide) c support.1 support.2.1 support.2.2 (fiveSlot_jA_higher_exists_leftFactor Q Λ hQ)
   intro y hl hr hz
   have word : redWord t = List.finRange 3 := by decide
   have order : redWord v₀ = redWord t := by decide
@@ -154,8 +155,13 @@ theorem fiveSlot_jA_kernel_projective_of_test (hQ : KLRSymm Q)
       violMk k Q Λ ν₀ (ofKLR k Q Λ ν₀ (e v₀)) = _
     rw [← map_mul, redProj_mul_e, ite_eq_left (order.trans word)]
     rfl
-  have hy : E₀ * y = y ∧ y * E₀ = y := ⟨by rw [← hl, ← mul_assoc, hv], by rwa [word] at hr⟩
-  exact eq_zero_of_crossing_mul_of_corner Q Λ word order 2 step hQ test y hy hl hz
+  have left : map₀ (e v₀) * y = y := hl
+  have hyLeft : E₀ * y = y := calc
+    E₀ * y = E₀ * (map₀ (e v₀) * y) := congrArg (E₀ * ·) left.symm
+    _ = (E₀ * map₀ (e v₀)) * y := (mul_assoc _ _ _).symm
+    _ = y := (congrArg (· * y) hv).trans left
+  have hyRight : y * E₀ = y := by rwa [word] at hr
+  exact eq_zero_of_crossing_mul_of_corner Q Λ word order 2 step hQ test y ⟨hyLeft, hyRight⟩ left hz
 
 /-- At the five-slot nearby left top, cancellation of the single crossing
 from the left-extreme loading suffices for the marked tensor inclusion. -/
@@ -163,9 +169,10 @@ theorem fiveSlot_jA_blockKernelColumnInclusion_injective_of_leftCancellation
     (hQ : KLRSymm Q) (bottom : Seq μ₀)
     (cancel : ∀ y : V, map₀ (e v₀)*y=y → y*map₀ (e bottom)=y → c*y=0 → y=0) :
     Function.Injective (blockKernelColumnInclusion Q Λ t 1 2 bottom) := by
-  obtain ⟨hc, cl, cr⟩ := nearbyPrincipalSupport Q Λ
+  have support : c ∈ J ∧ map₀ (e t) * c = c ∧ c * map₀ (e v₀) = c :=
+    nearbyPrincipalSupport Q Λ
   exact blockKernelColumnInclusion_injective_of_principal_factor Q Λ t 1 2 bottom v₀ (by decide)
-    c hc cl cr (fiveSlot_jA_higher_exists_leftFactor Q Λ hQ) cancel
+    c support.1 support.2.1 support.2.2 (fiveSlot_jA_higher_exists_leftFactor Q Λ hQ) cancel
 
 /-- For the two-interior bottom column at the nearby left loading, a
 single saturated corner of the global violated ideal completes the

@@ -1404,6 +1404,27 @@ in every nonzero degree
 On the incoming divided standard, the reflected projector selects the
 line spanned by the black-crossing translate
 (`Stendhal.labelTwoRightExterior_reflectedProjector_image`).
+Returning the lifted incoming generator to the unquotiented middle
+standard gives its dot-sum relation. In the separated middle algebra this
+relation survives modulo the second dot-sum image
+(`Stendhal.labelTwo_incomingLift_return`,
+`Webster.LabelTwo.plus_one_notMem_range_plus_comp_plus`).
+At the middle loading, the preimage of the incoming image is exactly
+the dot-sum image. The left-dot coefficient detects the first dot-sum
+generator and vanishes on a second dot-sum action
+(`Stendhal.LabelTwo.incomingLift_middle_fixed_iff`,
+`Stendhal.LabelTwo.middleY₁Readout_diagramPlus_generator`,
+`Stendhal.LabelTwo.middleY₁Readout_middleDotElt_incomingLift_zero`).
+The middle left-dot coefficient descends through the dot-sum quotient in
+the balanced tensor with the reflected incoming preimage and evaluates
+the first dot sum on the middle generator to one
+(`Stendhal.LabelTwo.incomingLiftTensorReadout_dotSum_generator`).
+The incoming exterior map stays nonzero after tensoring with the reflected
+preimage. The incoming translate tensored with the lifted generator
+returns the first dot sum
+(`Stendhal.LabelTwo.incomingLiftTensorMap_nonzero`).
+The preimage, middle standard, and incoming cokernel form a short exact
+sequence (`Stendhal.LabelTwo.incomingLiftShortComplex_shortExact`).
 
 
 
@@ -1504,6 +1525,14 @@ internal degree (`Stendhal.LabelTwo.diagramPlusMinus_exact_in_degree`,
 The scalar and epsilon coordinates of the actual middle fixed dot-sum
 quotient are in degrees zero and two
 (`Stendhal.LabelTwo.middleCutDotSum_mem_grade_iff`).
+Tensoring these fixed vectors with the degree-zero standard generator gives
+the graded ordinary middle tensor
+(`Stendhal.LabelTwo.middleFixedToOrdinaryTensorGradedEquiv`). Its ground-field
+coordinates detect the internal degree
+(`Stendhal.LabelTwo.middleStandardTensorEquiv_mem_grade_iff`). At this cut
+the ordered cover transported from the source parameters has the literal
+degree-preserving quotient augmentation
+(`Stendhal.LabelTwo.middleOrderedCoversTransport_quotient_mem_grade`).
 The dot-difference quotient carries the companion grading. Both quotient
 inclusions shift internal degree by two and give short exact sequences
 in every degree (`Stendhal.LabelTwo.diagramSumCompanionAugmentation_exact_in_degree`,
@@ -1515,7 +1544,12 @@ triangles of dg weight modules
 With vanishing standard cohomology, the connecting isomorphisms retain
 the actual internal shift by two
 (`Stendhal.LabelTwo.middleSumWeightShiftIso`,
-`Stendhal.LabelTwo.middleDifferenceWeightShiftIso`). Evaluation on the
+`Stendhal.LabelTwo.middleDifferenceWeightShiftIso`). The fixed-weight coend
+of the reflected coefficient and middle standard agrees with the corresponding
+ground-field component of the actual ordinary tensor
+(`Stendhal.LabelTwo.middleStandardWeightTensorEquiv`). The degree-zero
+derived comparison uses any supplied nonpositive K-projective model
+(`Stendhal.LabelTwo.middleStandardWeightH0IsoOfResolution`). Evaluation on the
 middle generator identifies the endomorphism algebra with the actual
 regular parabolic factor (`Stendhal.LabelTwo.middleEndomorphismFactorEquiv`).
 The diagrammatic dot-sum quotient is the standardization of its
@@ -1655,6 +1689,7 @@ with nilpotent dot.
 | arXiv:1309.3796v2, §6.1, p. 65, proof of Lemma 6.11 (reflection) | Horizontal reflection identifies `B(κ', κ)` with `B(κ, κ')`, transporting left multiplication to right multiplication and right multiplication to left multiplication via the corner anti-involutions. Swapping the orders inverts the red permutation | `Stendhal.BraidedStendhalAlgebra.braidingBimoduleFlip`, `braidingBimoduleFlip_smul_left`, `braidingBimoduleFlip_smul_right` | Any commutative ground ring | Ungraded transport. The left filtration obtained from a supplied right filtration is in the next row |
 | arXiv:1309.3796v2, Definitions 4.4 and 5.1 | The left loading standard inherits the grading of the loading ideal because its higher trace is homogeneous. The quotient preserves degrees and the scalar action adds degrees | `Stendhal.leftUpper_isHomogeneous`, `Stendhal.gradedLeftStandard_mkQ_mem`, `Stendhal.gradedLeftStandard_smul_mem` | Diagram grading over a field | Literal quotient grading |
 | arXiv:1309.3796v2, Proposition 5.20 and proof of Lemma 6.11, pp. 65–66 (block permutation indices) | The red-led blocks of a nonviolated ordered top loading are determined by successive red positions. Permuting them carries each eligible projective wiring to a braid-column index with the same bottom loading and the prescribed top red order. A change of reduced word gives shorter subword terms in that loading pair | `Stendhal.exists_braidBlockPositions`, `Stendhal.braidColumnIndexOfProjective`, `Stendhal.redWord_braidBlockPermutation_smul`, `Stendhal.braidColumnBlockIndex_wordChange` | The indexing is independent of parameters, and the word-change estimate is over a commutative ring | Relating the shorter terms to earlier eligible products and computing the quotient dimension remain open in general |
+| arXiv:1309.3796v3, proof of Lemma 6.12, p. 66 (bottom block permutation) | Composing a projective wiring with the block permutation at the bottom fixes its top loading and has the prescribed bottom red order. A red and the black strands following it in a relocated block give ascents in the resulting wiring | `Stendhal.braidColumnBottomBlockIndex`, `Stendhal.redWord_braidColumnBottomBlockIndex_bottom`, `Stendhal.braidColumnBottomBlockIndex_lt_red_black` | Nonviolated ordered bottom loadings equipped with the block sizes from their red positions | This is the bottom convention specified in v3. General generation and the filtration relation are separate |
 | arXiv:1309.3796v2, proof of Lemma 6.11, pp. 65–66 (mixed cut) | An adjacent black strand can cross left through a red at the bottom of an eligible wiring when the swapped wiring is still eligible and the block-permuted diagram has a right descent there. The resulting product factors through the strictly higher bottom loading up to shorter subwords. Distinct loading endpoints kill that error for words of length at most three | `Stendhal.braidColumnBlockIndex_higher_mixed_cut`, `Stendhal.braidColumnLoadingProjection_map_lowSpan_eq_bot` | Commutative ground ring and the specified mixed descent | Exact factorization in the three-red, one-black fixture. Its position in the braid filtration and general earlier-product reduction remain open |
 | arXiv:1309.3796v2, §6.1, p. 65, proof of Lemma 6.11 (filtration transport) | A supplied right-standard filtration of the inverse braid gives a left filtration of the braid by the same loading standards with scalars restricted along the corner flip. The ordered list of labels is preserved | `Stendhal.BraidedStendhalAlgebra.hasReflectedStandardFiltration_braidingBimodule`, `ModuleFiltration.HasFiltration.restrictScalars` | Any commutative ground ring. The input filtration is a hypothesis | Existence of the right-standard filtration and higher Tor vanishing remain open |
 | arXiv:1309.3796v2, Definition 5.1 and proof of Lemma 6.11 (loading support) | Every red-ordered loading outside the lower order ideal of a standard label annihilates its left standard. For each wiring a reduced word can be chosen that passes through a loading strictly above the source | `Stendhal.exists_reduced_suffix_raises_of_not_stendhalLE`, `Stendhal.seqIdem_smul_leftStandard_eq_zero_of_not_stendhalLE` | Tensor product algebras over a field | Applies to incomparable labels as well as strictly higher labels |
@@ -1668,6 +1703,7 @@ with nilpotent dot.
 | arXiv:1309.3796v2, §6.1, p. 65, proof of Lemma 6.11 (reflected coefficient grading) | Undoing the red permutation and reflecting diagrams identifies each auxiliary degree of the opposite red-order corner with the corresponding tensor-product-algebra degree | `BraidedStendhalAlgebra.leftCoefficientEquiv_mem_grade_iff` | Rouquier KLR parameters over a field and a reduced-word choice | The coefficient equivalence preserves and reflects every internal degree |
 | arXiv:1309.3796v2, §6.1, p. 65, proof of Lemma 6.11 (graded reflected standard resolution) | Restricting the graded left standard to the opposite braid corner yields an ordered K-projective model with the homogeneous standard quotient and with higher loading support in negative degrees | `BraidedStendhalAlgebra.reflectedStandardWeightAugmentation_quasiIso`, `BraidedStendhalAlgebra.reflectedStandardWeightResolution_loading_support`, `BraidedStendhalAlgebra.reflectedStandardWeightBraiding_negative_isZero` | Ordinary higher trace filtrations. The braid vanishing step assumes those higher loadings annihilate the rectangular coefficient | Negative cohomology of the scalar-restricted diagrammatic standard |
 | arXiv:1309.3796v2, §6.1, p. 65, proof of Lemma 6.11 (reflected braid cohomology) | The graded braid of the reflected standard is concentrated in cohomological degree zero when higher loading projectors annihilate the coefficient | `BraidedStendhalAlgebra.reflectedStandardWeightBraiding_isZero` | Ordinary higher trace filtrations and ordinary coefficient annihilation | Concentration at all internal weights |
+| arXiv:1309.3796v2, §6.1, p. 65, proof of Lemma 6.11 (reflected coefficient filtration) | Higher loading projectors kill every reflected standard layer if no layer label is strictly above the input. The auxiliary graded braid then has vanishing cohomology in every nonzero degree | `BraidedStendhalAlgebra.reflectedStandardWeightBraiding_isZero_of_not_lt_filtration` | Supplied higher trace covers and an ordinary reflected standard filtration with no strictly higher layer | The condition permits incomparable labels |
 | arXiv:1309.3796v2, §8.2, proof of Proposition 8.4 (label-two unknot) | The alternating multiplications by `y₁+y₂` and `y₁−y₂` are exact in the middle algebra. Tensoring with the plus quotient gives alternating zero and twice-epsilon maps. The specialized homology gives the dual numbers in degree zero and one-dimensional homology in every positive degree | `Webster.LabelTwo.ker_plus`, `Webster.LabelTwo.ker_minus`, `Webster.LabelTwo.tensor_plus_zero`, `Webster.LabelTwo.tensor_minus_mul`, `Webster.LabelTwo.postTensorHomologyZero`, `Webster.LabelTwo.postTensorHomologyOdd`, `Webster.LabelTwo.postTensorHomologyPositiveEven` | The periodic exactness holds over a commutative ring. The stated positive-degree homology uses a field of characteristic different from two | Ungraded middle-algebra calculation. Both polynomial quotient models are identified by `Webster.LabelTwo.middlePolynomialEquiv` and `Webster.LabelTwo.specializedQuotientEquiv` |
 | arXiv:1309.3796v2, Lemma 6.11, p. 65 (graded terminal standard) | In the fundamental type A₁ block, the higher trace at the terminal cut is the image of the mixed crossing from the middle projective. Its internal degree becomes zero when the middle generator is placed in weight one. The resulting two-term cone is K-projective, has a quasi-isomorphic augmentation to the terminal quotient, and has only the strictly higher middle loading in negative cohomological degree | `FundamentalCorner.fundamentalTerminal_higherTrace`, `FundamentalCorner.gradedTerminalStandardResolution_isKProjective`, `FundamentalCorner.gradedTerminalStandardResolution_quasiIso`, `FundamentalCorner.gradedTerminalStandardResolution_negative_component` | Two fundamental reds and one black over ℚ | The general graded ordered-cover construction remains open |
 | arXiv:1309.3796v2, Proposition 5.6 (word characters) and §3.4, Corollary 3.22 | Cor. 3.22 for word projectives: `gdim e(s) R^λ e(u)` is Webster's form `⟨F_u v_λ, F_s v_λ⟩`, which vanishes when the black contents differ. Prop. 5.6, character form: the iterated standardization `S(…S(S(R^{λ_1} e(u_1)) ⊠ R^{λ_2} e(u_2))…)` has, at the ordinary loading of every tensor word `w`, graded dimension equal to the factorwise form between `F_{u_1} v_{λ_1} ⊗ ⋯ ⊗ F_{u_ℓ} v_{λ_ℓ}` and the bar-ordinary vector of `w`; by induction on red strands from the product test of Thm. 4.38. Prop. 5.6 on the projective group: for every virtual projective class `x`, the graded Hom from `x` into `S_κ^i` is the factorwise form of `s` with `η(x)` (bar coproduct convention), which determines the class of `S_κ^i` | `Stendhal.FirstWeight.cyclotomicWordModule_word`, `Stendhal.FirstWeight.websterForm_suffix_eq_zero`, `Stendhal.FirstWeight.standardizationTestAt_word_of_wordCharacters`, `Stendhal.FirstWeight.iteratedStandard_word`, `Stendhal.FirstWeight.iteratedStandardTest_eq` | Rouquier datum (`IsRouquierQ`), `X`-regular root datum with weights matching `λ_j` | Proved as an identity of functionals on `K₀`; the Grothendieck group of finite-dimensional modules and the dual map `η` on it are not built |

@@ -1212,6 +1212,21 @@ The projector has diagram degree zero and the scalar corner has no
 nonzero elements in other internal degrees
 (`Stendhal.SingleRed.twoBlackTerminalWebsterIdem_mem_grade`,
 `Stendhal.SingleRed.twoBlackTerminalWebsterCorner_mem_grade_iff`).
+For both exterior allocations, projecting the actual parabolic
+standardization with an affine lift of the separated projector cuts out
+one scalar line. The projected action is independent of the lift
+(`Stendhal.parabolicStandardConcatAction_eq_of_inputMap_eq`,
+`Stendhal.SingleRed.labelTwoExteriorStandardCutEquiv`).
+Sliding both blacks across the red intertwines their two nilHecke
+projectors. The slide between complementary projectors vanishes
+(`Stendhal.labelTwo_endpointSlide_projector`,
+`Stendhal.labelTwo_endpointSlide_complement`). The complementary
+terminal corner is spanned by the first dot and is concentrated in its
+internal degree
+(`KLR.CycKLR.twoBlackTerminal_reflected_corner_span`,
+`KLR.CycKLR.twoBlackTerminal_reflected_corner_mem_grade_iff`).
+
+
 
 
 

@@ -5518,6 +5518,22 @@ example (G : Categorification.KLR.GradingDatum Q) (d : Unit → ℤ)
     (z : (twoBlackTerminalWebsterIdem_idempotent Q).Corner) :=
   twoBlackTerminalWebsterCorner_mem_grade_iff Q G d hd 2 z
 
+/-- The actual exterior cut with both black strands in the first factor. -/
+noncomputable example (hQ : Categorification.KLR.KLRSymm Q) :=
+  labelTwoExteriorStandardCutEquiv Q (labelTwoFirstFactorEquiv Q) hQ
+
+/-- The actual exterior cut with both black strands in the last factor. -/
+noncomputable example (hQ : Categorification.KLR.KLRSymm Q) :=
+  labelTwoExteriorStandardCutEquiv Q (labelTwoLastFactorEquiv Q) hQ
+
+/-- The full two-black slide vanishes between the complementary cut projectors. -/
+example :=
+  Categorification.Stendhal.labelTwo_endpointSlide_complement
+    (fun (_ _ : Unit ⊕ Fin 2) => (0 : MvPolynomial (Fin 2) ℚ))
+
+/-- The reflected terminal projector has the first dot as its off-diagonal line. -/
+example := Categorification.KLR.CycKLR.twoBlackTerminal_reflected_corner_span Q
+
 end NonVacuity.WebsterLabelTwoEndpointTor
 
 namespace NonVacuity.WebsterLocalization

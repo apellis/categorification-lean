@@ -31,12 +31,12 @@ local notation "V" => violAuxiliaryGrade («ν» := ν) grading
 local notation "hE" => isIdempotentElem_violMk_redProj ℚ Q wt ν κ₀
 local notation "S" => Graded.oppositeGrade (Graded.cornerGrading V hE)
 local notation "G" => Graded.oppositeGrade (tensorProductGrade grading ν)
-local instance : GradedAlgebra (Graded.cornerGrading V hE) :=
+local instance fundamentalBraidSourceCornerGrades : GradedAlgebra (Graded.cornerGrading V hE) :=
   Graded.cornerGradedAlgebra V hE (redProj_mem_violAuxiliaryGrade grading κ₀)
-local instance : InternalGrading Kᵐᵒᵖ := gradedAlgebraInternalGrading S
-local instance : BigradedDGRing Kᵐᵒᵖ := gradedAlgebraBigradedDGRing S
-local instance : InternalGrading Tᵐᵒᵖ := gradedAlgebraInternalGrading G
-local instance : BigradedDGRing Tᵐᵒᵖ := gradedAlgebraBigradedDGRing G
+local instance fundamentalBraidSourceCornerInternal : InternalGrading Kᵐᵒᵖ := gradedAlgebraInternalGrading S
+local instance fundamentalBraidSourceCornerBigraded : BigradedDGRing Kᵐᵒᵖ := gradedAlgebraBigradedDGRing S
+local instance fundamentalBraidSourceOrderedInternal : InternalGrading Tᵐᵒᵖ := gradedAlgebraInternalGrading G
+local instance fundamentalBraidSourceOrderedBigraded : BigradedDGRing Tᵐᵒᵖ := gradedAlgebraBigradedDGRing G
 
 private theorem sourceWeight {j : ℤ} (a : Kᵐᵒᵖ) :
     fundamentalBraidSourceEquiv a.unop ∈ tensorProductGrade grading ν j ↔ a.unop.val ∈ V j :=

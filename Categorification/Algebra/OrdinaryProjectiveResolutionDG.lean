@@ -11,6 +11,7 @@ import Mathlib.Algebra.Homology.Embedding.ExtendHomology
 import Mathlib.Algebra.Homology.HomotopyCategory.KProjective
 import Mathlib.CategoryTheory.Abelian.Projective.Resolution
 import Mathlib.Algebra.Homology.ShortComplex.ModuleCat
+import Mathlib.Algebra.Category.ModuleCat.Projective
 
 /-!
 # Ordinary projective resolutions as dg models
@@ -80,24 +81,37 @@ def projectiveResolutionDGAug : projectiveResolutionDGModel P ⟶ projectiveReso
 theorem projectiveResolutionDGAug_quasiIso : (projectiveResolutionDGAug P).hom.IsQuasiIso :=
   dgModule_ofComplex_map_isQuasiIso _
 
+private theorem projectiveResolutionCochainTerm_projective (n : ℤ) :
+    Projective ((P.complex.extend embeddingDownNat).X n) := by
+  by_cases hn : n ≤ 0
+  · let j := (-n).toNat
+    have hj : embeddingDownNat.f j = n := by
+      change -(j : ℤ) = n
+      dsimp [j]
+      omega
+    exact Projective.of_iso (P.complex.extendXIso embeddingDownNat hj).symm (P.projective j)
+  · exact IsZero.projective (P.complex.isZero_extend_X embeddingDownNat n (by
+      intro j hj
+      change -(j : ℤ) = n at hj
+      omega))
+
 theorem projectiveResolutionDGModel_kProjective :
     IsKProjective.{u} R (projectiveResolutionDGModel P) := by
   let K : CochainComplex (ModuleCat.{u} R) ℤ := P.complex.extend embeddingDownNat
-  have : ∀ n, Projective (K.X n) := by
-    intro n
-    by_cases hn : n ≤ 0
-    · let j := (-n).toNat
-      have hj : embeddingDownNat.f j = n := by
-        change -(j : ℤ) = n
-        dsimp [j]
-        omega
-      exact Projective.of_iso (P.complex.extendXIso embeddingDownNat hj).symm (P.projective j)
-    · exact IsZero.projective (P.complex.isZero_extend_X embeddingDownNat n (by
-        intro j hj
-        change -(j : ℤ) = n at hj
-        omega))
+  let : ∀ n, Projective (K.X n) := projectiveResolutionCochainTerm_projective P
   let : K.IsKProjective := CochainComplex.isKProjective_of_projective K 0
   exact dg_ofComplex_kProjective K
+
+/-- The underlying module of the DG realization of an ordinary projective
+resolution is projective. -/
+theorem projectiveResolutionDGModel_underlyingProjective :
+    Module.Projective R (projectiveResolutionDGModel P) := by
+  let K : CochainComplex (ModuleCat.{u} R) ℤ := P.complex.extend embeddingDownNat
+  have h (n : ℤ) : Module.Projective R (K.X n) := by
+    let : Projective (K.X n) := projectiveResolutionCochainTerm_projective P n
+    exact ModuleCat.projective_of_module_projective (K.X n)
+  change Module.Projective R (ComplexSum K)
+  exact Module.Projective.directSum_iff.mpr h
 
 
 /-- Higher loading support in a projective resolution gives off-zero homogeneous loading

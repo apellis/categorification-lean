@@ -1148,6 +1148,9 @@ An ordinary bimodule map induces a natural transformation in the
 coefficient of derived tensor. On a K-projective model this is the
 ordinary tensor map applying it to the first factor
 (`derivedTensorCoefficientMap`, `derivedTensorObjIso_coefficient_naturality`).
+A short exact sequence of coefficients produces a distinguished triangle
+when the other argument is an ordinary module
+(`exists_distinguished_derivedTensorCoefficient`).
 The degree-zero comparison with ordinary tensor is natural in this map
 (`derivedTensorHomologyIsoOrdinaryLinear_coefficient_naturality`).
 It commutes with cochain shifts and defines a morphism between the
@@ -1440,6 +1443,9 @@ connecting map (`Stendhal.LabelTwo.incomingCokernelTorOne_map_nonzero`).
 When the characteristic differs from two, the middle acyclicity and the
 one-dimensional preimage tensor make this map surjective
 (`Stendhal.LabelTwo.incomingCokernelTorOne_map_surjective_of_middleAcyclic`).
+The resulting coefficient sequence gives zero first ambient self Tor for
+the incoming cokernel
+(`Stendhal.LabelTwo.incomingCokernelSelfTorOne_isZero_of_surjective`).
 
 
 

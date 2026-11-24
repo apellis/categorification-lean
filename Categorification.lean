@@ -22,6 +22,7 @@ import Categorification.Algebra.CornerTensorFactor
 import Categorification.Algebra.CornerTensorQuotient
 import Categorification.Algebra.DerivedTensor
 import Categorification.Algebra.DerivedTensorCoefficient
+import Categorification.Algebra.DerivedTensorCoefficientExact
 import Categorification.Algebra.DerivedTensorFiltration
 import Categorification.Algebra.DerivedHomologyShift
 import Categorification.Algebra.DerivedTensorOrdinaryLinear
@@ -138,6 +139,7 @@ import Categorification.Algebra.SumDecompLinear
 import Categorification.Algebra.SumDecompNaturality
 import Categorification.Algebra.SymmetricFree
 import Categorification.Algebra.TwistedVectorDual
+import Categorification.Algebra.ReflectedVectorDual
 import Categorification.Algebra.UniqueSimpleQuotient
 import Categorification.CategoryTheory.PiAbelian
 import Categorification.CategoryTheory.PiShift
@@ -695,6 +697,7 @@ import Categorification.WeightedKLR.RedStrands.LabelTwoIncomingMiddleMixed
 import Categorification.WeightedKLR.RedStrands.LabelTwoIncomingMiddleMixedResolution
 import Categorification.WeightedKLR.RedStrands.LabelTwoIncomingCokernelTor
 import Categorification.WeightedKLR.RedStrands.LabelTwoIncomingCokernelSurjective
+import Categorification.WeightedKLR.RedStrands.LabelTwoIncomingCokernelCancel
 import Categorification.WeightedKLR.RedStrands.LoadingCutPBW
 import Categorification.WeightedKLR.RedStrands.SingleRedTerminalProjective
 import Categorification.KLR.CyclotomicTerminal

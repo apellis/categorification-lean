@@ -432,4 +432,38 @@ end
 
 end Transport
 
+section LayerComparison
+
+variable {A : Type u} [Ring A]
+  {K K' : ι → ModuleCat.{v} A}
+
+/-- Replace every filtration layer by a linearly isomorphic module. -/
+theorem HasFiltration.congrLayers {m : List ι} {Y : ModuleCat.{v} A}
+    (h : HasFiltration K m Y) (e : ∀ c, K c ≃ₗ[A] K' c) :
+    HasFiltration K' m Y := by
+  induction h with
+  | zero hY => exact .zero hY
+  | cons f g m c hf hfg hg _ hZ ih =>
+      exact .cons f g m c hf hfg hg ih (hZ.map fun j => j.trans (e c))
+
+variable {A₀ : Type u} [Ring A₀] {S S' : ι → ModuleCat.{u} A₀}
+  {e : ι → A₀} {above : ι → ι → Prop}
+
+/-- Transport ordered covers along isomorphisms of the standard modules. -/
+def OrderedStandardCovers.congrLayers (D : OrderedStandardCovers S e above)
+    (E : ∀ c, S c ≃ₗ[A₀] S' c) : OrderedStandardCovers S' e above where
+  quotient c := (E c).toLinearMap.comp (D.quotient c)
+  surjective c := (E c).surjective.comp (D.surjective c)
+  projective c := D.projective c
+  kernel c := by
+    obtain ⟨m, hm, h⟩ := D.kernel c
+    refine ⟨m, hm, ?_⟩
+    have hk : LinearMap.ker ((E c).toLinearMap.comp (D.quotient c)) = LinearMap.ker (D.quotient c) := by
+      ext x
+      simp only [LinearMap.mem_ker, LinearMap.comp_apply, LinearEquiv.coe_coe, EmbeddingLike.map_eq_zero_iff]
+    rw [hk]
+    exact h.congrLayers E
+
+end LayerComparison
+
 end Categorification.ModuleFiltration

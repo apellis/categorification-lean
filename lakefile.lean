@@ -14,7 +14,7 @@ require LieLean from git
 
 require DG from git
   "https://github.com/apellis/dg-lean.git" @
-  "161db4ede65f2dd359263a301c33ec39036988eb"
+  "b324e7aa7eb876ead876e502b18513f9411aa369"
 
 require mathlib from git
   "https://github.com/leanprover-community/mathlib4.git" @

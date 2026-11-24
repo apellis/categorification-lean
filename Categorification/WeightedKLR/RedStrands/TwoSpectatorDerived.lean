@@ -4,6 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 -/
 import Categorification.WeightedKLR.RedStrands.InteriorSpectatorKernel
 import Categorification.WeightedKLR.RedStrands.BlockKernelDerivedSequence
+import Categorification.WeightedKLR.RedStrands.FirstWeightBlockKernel
 
 /-!
 # Derived braid cohomology of the two retained spectator layers
@@ -195,6 +196,55 @@ theorem twoSpectatorPartialStandard_braid_homology_vanish_standard
             (blockLoadingShortComplex QL weights source 0 1).X₃)))) :=
   twoSpectatorPartialStandard_braid_homology_vanish_of_terminal_crossing QL weights target
     (terminalCrossingMap_standard_injective hR hQ weights) hsource n hn
+
+end Standard
+
+
+section Standard
+open QuantumGroup KL3.Diagram
+
+variable {F₀ : Type} [Field F₀] {C₀ : CartanDatum Unit}
+local notation "QL" => CL.qCL (CL.CLScalars.kl : CL.CLScalars C₀ F₀)
+
+/-- Both actual partial-standard layers are concentrated in degree zero in the
+one-black case at the standard parameters. -/
+theorem twoSpectatorLayer_braid_homology_vanish_firstWeight
+    (hR : IsRouquierQ C₀ QL) (hQ : KLRSymm QL) (weights : Fin 4 → Unit →₀ ℕ)
+    (target : List (Fin 4))
+    [HasDerivedCategory.{w, 0}
+      (isIdempotentElem_violMk_redProj F₀ QL weights ν₀ (redWord source)).Cornerᵐᵒᵖ]
+    [HasDerivedCategory.{w, 0}
+      (isIdempotentElem_violMk_redProj F₀ QL weights ν₀ target).Cornerᵐᵒᵖ]
+    (c : Bool) (n : ℤ) (hn : n ≠ 0) :
+    IsZero ((DG.DerivedCategory.homologyFunctor
+        (A := (isIdempotentElem_violMk_redProj F₀ QL weights ν₀ target).Cornerᵐᵒᵖ) ℤ n).obj
+      ((braidingFunctor F₀ QL weights ν₀ (redWord source) target).obj
+        (DG.DerivedCategory.Q.obj
+          ((degreeZeroModuleFunctor
+            (isIdempotentElem_violMk_redProj F₀ QL weights ν₀ (redWord source)).Cornerᵐᵒᵖ).obj
+            (twoSpectatorLayer QL weights c))))) :=
+  twoSpectatorLayer_braid_homology_vanish_standard hR hQ weights target
+    (firstWeight_blockKernelTensorInclusion_injective () QL weights 0 1 terminalHigher target hQ) c n hn
+
+/-- The source partial standard is concentrated in degree zero in the one-black
+case at the standard parameters. -/
+theorem twoSpectatorPartialStandard_braid_homology_vanish_firstWeight
+    (hR : IsRouquierQ C₀ QL) (hQ : KLRSymm QL) (weights : Fin 4 → Unit →₀ ℕ)
+    (target : List (Fin 4))
+    [HasDerivedCategory.{w, 0}
+      (isIdempotentElem_violMk_redProj F₀ QL weights ν₀ (redWord source)).Cornerᵐᵒᵖ]
+    [HasDerivedCategory.{w, 0}
+      (isIdempotentElem_violMk_redProj F₀ QL weights ν₀ target).Cornerᵐᵒᵖ]
+    (n : ℤ) (hn : n ≠ 0) :
+    IsZero ((DG.DerivedCategory.homologyFunctor
+        (A := (isIdempotentElem_violMk_redProj F₀ QL weights ν₀ target).Cornerᵐᵒᵖ) ℤ n).obj
+      ((braidingFunctor F₀ QL weights ν₀ (redWord source) target).obj
+        (DG.DerivedCategory.Q.obj
+          ((degreeZeroModuleFunctor
+            (isIdempotentElem_violMk_redProj F₀ QL weights ν₀ (redWord source)).Cornerᵐᵒᵖ).obj
+            (blockLoadingShortComplex QL weights source 0 1).X₃)))) :=
+  twoSpectatorPartialStandard_braid_homology_vanish_standard hR hQ weights target
+    (firstWeight_blockKernelTensorInclusion_injective () QL weights 0 1 source target hQ) n hn
 
 end Standard
 

@@ -1069,7 +1069,10 @@ such corners at their generator weights
 quotient and the higher trace filtrations supply the ordered K-projective
 model and its quasi-isomorphic augmentation
 (`leftStandardOrderedWeightResolution_isKProjective`,
-`leftStandardOrderedWeightAugmentation_quasiIso`).
+`leftStandardOrderedWeightAugmentation_quasiIso`). At the standard Khovanov–Lauda parameters,
+Corollary 5.21 supplies the higher trace filtrations directly
+(`leftStandardOrderedWeightResolution_std_isKProjective`,
+`leftStandardOrderedWeightAugmentation_std_quasiIso`).
 The ordered loading resolution has a graded augmentation that is a
 quasi-isomorphism to the homogeneous standard
 (`orderedWeightDgAugmentation_quasiIso`).

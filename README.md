@@ -1085,6 +1085,16 @@ the composite on the ground field has one-dimensional cohomology in
 degrees minus one and one (`middleCupCap_finrank`). These computations
 forget the internal grading.
 
+In the diagram-weight categories the middle character is homogeneous.
+Its weight-zero generator identifies with the right simple head, with
+every diagram acting by the middle character
+(`gradedMiddleSimple_headEquiv_smul`). On the scalar representable the
+normalized cup gives this character with internal shift one and
+cohomological shift minus one (`gradedMiddleCup_fieldIso`). The
+unshifted graded cap sends the middle loading projective to the scalar
+representable of weight zero and annihilates the terminal loading
+projective (`gradedMiddleCap_middleIso`, `gradedMiddleCap_terminal_isZero`).
+
 For Proposition 7.2, a single
 red with coroot pairing one gives a simple projective at the red-first
 one-black loading (`Stendhal.oneBlack_extremal_projective_simple`).

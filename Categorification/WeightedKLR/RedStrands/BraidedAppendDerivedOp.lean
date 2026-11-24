@@ -3,7 +3,7 @@ Copyright (c) 2026 Alex Ellis. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 -/
 import Categorification.WeightedKLR.RedStrands.BraidedAppendDerived
-import Categorification.WeightedKLR.RedStrands.BraidedAppendFlip
+import Categorification.WeightedKLR.RedStrands.BraidedBimoduleFlip
 
 set_option backward.isDefEq.respectTransparency false
 
@@ -73,57 +73,6 @@ set_option quotPrecheck false in
 local notation "eS" κ:max => violMk k Q Λ ν (redProj k Q Λ ν κ)
 set_option quotPrecheck false in
 local notation "φ" => appendViol Q Λ i ν
-
-section Flip
-
-variable {Q Λ ν}
-
-theorem violFlip_mul' (a b : ViolQuotient k Q Λ ν) : violFlip (a * b) = violFlip b * violFlip a :=
-  congrArg MulOpposite.unop (map_mul (violFlipHom k Q Λ ν) a b)
-
-theorem violFlip_add' (a b : ViolQuotient k Q Λ ν) : violFlip (a + b) = violFlip a + violFlip b :=
-  congrArg MulOpposite.unop (map_add (violFlipHom k Q Λ ν) a b)
-
-theorem violFlip_zero' : violFlip (0 : ViolQuotient k Q Λ ν) = 0 :=
-  congrArg MulOpposite.unop (map_zero (violFlipHom k Q Λ ν))
-
-theorem violFlip_idem (κ : List (Fin ℓ)) :
-    violFlip (violMk k Q Λ ν (redProj k Q Λ ν κ)) = violMk k Q Λ ν (redProj k Q Λ ν κ) := by
-  rw [violFlip_violMk, flip_redProj]
-
-/-- The top–bottom flip on the corner at a red order `κ`. -/
-noncomputable def cornerFlip {κ : List (Fin ℓ)}
-    (x : (isIdempotentElem_violMk_redProj k Q Λ ν κ).Corner) :
-    (isIdempotentElem_violMk_redProj k Q Λ ν κ).Corner :=
-  ⟨violFlip x.1, (Subsemigroup.mem_corner_iff (isIdempotentElem_violMk_redProj k Q Λ ν κ)).2
-    ⟨by
-      have h := congrArg violFlip (corner_right x)
-      rwa [violFlip_mul', violFlip_idem] at h, by
-      have h := congrArg violFlip (corner_left x)
-      rwa [violFlip_mul', violFlip_idem] at h⟩⟩
-
-theorem cornerFlip_val {κ : List (Fin ℓ)} (x : (isIdempotentElem_violMk_redProj k Q Λ ν κ).Corner) :
-    (cornerFlip x).1 = violFlip x.1 := rfl
-
-theorem cornerFlip_cornerFlip {κ : List (Fin ℓ)}
-    (x : (isIdempotentElem_violMk_redProj k Q Λ ν κ).Corner) : cornerFlip (cornerFlip x) = x :=
-  Subtype.ext (violFlip_violFlip x.1)
-
-variable (ν) in
-/-- The flip identifies the opposite of a corner with the corner. -/
-noncomputable def cornerFlipEquiv (κ : List (Fin ℓ)) :
-    (isIdempotentElem_violMk_redProj k Q Λ ν κ).Cornerᵐᵒᵖ ≃+*
-      (isIdempotentElem_violMk_redProj k Q Λ ν κ).Corner where
-  toFun a := cornerFlip a.unop
-  invFun y := op (cornerFlip y)
-  left_inv a := by
-    change op (cornerFlip (cornerFlip a.unop)) = a
-    rw [cornerFlip_cornerFlip]; rfl
-  right_inv y := cornerFlip_cornerFlip y
-  map_mul' a b := Subtype.ext (violFlip_mul' _ _)
-  map_add' a b := Subtype.ext (violFlip_add' _ _)
-
-end Flip
 
 section Hom
 
@@ -222,11 +171,8 @@ theorem firstMultF_mem (t : firstTensorF (k := k) Q Λ i ν κ' κ) :
 /-- The flip `B(κ', κ) → B(κ, κ')`. -/
 noncomputable def flipB (b : InDegreeZero (OpBimodule (Sc κ') (BS κ' κ))) :
     InDegreeZero (OpBimodule (Sc κ) (BS κ κ')) :=
-  (⟨violFlip (show BS κ' κ from b).1, by
-      have h := congrArg violFlip (show BS κ' κ from b).2.2
-      rwa [violFlip_mul', violFlip_idem] at h, by
-      have h := congrArg violFlip (show BS κ' κ from b).2.1
-      rwa [violFlip_mul', violFlip_idem] at h⟩ : BS κ κ')
+  (braidingBimoduleFlip (Q := Q) (Λ := Λ) (ν := ν) κ' κ
+    (show BS κ' κ from b) : BS κ κ')
 
 theorem flipB_val (b : InDegreeZero (OpBimodule (Sc κ') (BS κ' κ))) :
     (show BS κ κ' from flipB Q Λ ν κ' κ b).1 = violFlip (show BS κ' κ from b).1 := rfl

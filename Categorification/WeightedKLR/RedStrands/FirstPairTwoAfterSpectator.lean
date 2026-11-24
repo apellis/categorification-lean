@@ -3,6 +3,7 @@ Copyright (c) 2026 Alex Ellis. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 -/
 import Categorification.WeightedKLR.RedStrands.FirstPairOneAfterSpectator
+import Categorification.WeightedKLR.RedStrands.BlockKernelNilHecke
 
 /-!
 # Two equal black strands beyond the final spectator
@@ -174,5 +175,110 @@ theorem firstPairTwoAfter_blockKernel_mem_iff_twoFactors (hQ : KLRSymm Q)
     rw [← he]
     exact sum_mem fun i _ => TwoSidedIdeal.mul_mem_right J (leg i) (y i)
       (firstPairTwoAfter_leg_mem Q Λ i)
+
+local notation "D" => F (ψ 3 : A)
+local notation "X₃" => F (x (⟨3, by decide⟩ : Fin N) : A)
+local notation "X₄" => F (x (⟨4, by decide⟩ : Fin N) : A)
+
+private theorem firstPairTwoAfter_nilHecke_square (z : V) (hz : proj bottom * z = z) :
+    D * (D * z) = 0 := by
+  have h : (ψ 3 * ψ 3 * e bottom : A) = 0 := by
+    rw [ψ_sq 3 (by decide), ite_eq_left (by decide)]
+  have hm := congrArg F h
+  simp only [map_mul, map_zero] at hm
+  rw [← mul_assoc, ← hz, ← mul_assoc, hm, zero_mul]
+
+private theorem firstPairTwoAfter_nilHecke_dot (z : V) (hz : proj bottom * z = z) :
+    D * (X₃ * z) - X₄ * (D * z) = z := by
+  have h : (ψ 3 * x (⟨3, by decide⟩ : Fin N) * e bottom -
+      x (⟨4, by decide⟩ : Fin N) * ψ 3 * e bottom : A) = e bottom := by
+    rw [← sub_mul, dot_cross_right 3 (by decide : 3 + 1 < N), ite_eq_left (by decide)]
+  have hm := congrArg (fun r => F r * z) h
+  simpa only [map_mul, map_sub, sub_mul, mul_assoc, hz] using hm
+
+private theorem firstPairTwoAfter_leg_left (i : Bool) : proj bottom * leg i = leg i := by
+  rw [← map_mul F]
+  apply congrArg F
+  simp only [hflip_mul, hflip_e, ← mul_assoc, e_mul_self]
+
+private theorem firstPairTwoAfter_legs :
+    D * leg false = leg true := by
+  rw [← map_mul F]
+  apply congrArg F
+  simp only [rightPairWord, ψw_cons, ψw_nil, mul_one, hflip_mul, hflip_e, hflip_ψ]
+  have h : sadj N 3 • bottom = bottom := by decide +kernel
+  rw [← mul_assoc, ψ_mul_e, h, mul_assoc]
+
+private theorem firstPairTwoAfter_leg_true_zero : D * leg true = 0 := by
+  rw [← firstPairTwoAfter_legs]
+  exact firstPairTwoAfter_nilHecke_square Q Λ _ (firstPairTwoAfter_leg_left Q Λ false)
+
+private theorem firstPairTwoAfter_nilHecke_image (hQ : KLRSymm Q)
+    (z : V) (hz : z ∈ J) (left : proj bottom * z = z)
+    (right : z * F (redIdem k Q Λ (redWord bottom)) = z) :
+    ∃ y : V, proj above * y = y ∧ y * F (redIdem k Q Λ (redWord bottom)) = y ∧
+      D * z = leg true * y := by
+  obtain ⟨y,hy,hr,he⟩ := (firstPairTwoAfter_blockKernel_mem_iff_twoFactors Q Λ hQ z left right).1 hz
+  refine ⟨y false, hy false, hr false, ?_⟩
+  rw [← he, show (Finset.univ : Finset Bool) = {false, true} by decide,
+    Finset.sum_insert (by decide), Finset.sum_singleton, mul_add, ← mul_assoc, ← mul_assoc,
+    firstPairTwoAfter_legs Q Λ, firstPairTwoAfter_leg_true_zero Q Λ]
+  simp only [zero_mul, add_zero]
+
+/-- On the actual rightmost higher kernel, the kernel of the equal-black
+crossing is its image, given by the second crossing factor. -/
+theorem firstPairTwoAfter_nilHecke_kernel (hQ : KLRSymm Q)
+    (z : V) (hz : z ∈ J) (left : proj bottom * z = z)
+    (right : z * F (redIdem k Q Λ (redWord bottom)) = z) :
+    D * z = 0 ↔ ∃ y : V, proj above * y = y ∧ y * F (redIdem k Q Λ (redWord bottom)) = y ∧
+      z = leg true * y := by
+  constructor
+  · intro zero
+    have hx : proj bottom * X₃ = X₃ * proj bottom := by
+      rw [← map_mul F, ← map_mul F, x_mul_e]
+    have lx : proj bottom * (X₃ * z) = X₃ * z := by rw [← mul_assoc, hx, mul_assoc, left]
+    have rx : (X₃ * z) * F (redIdem k Q Λ (redWord bottom)) = X₃ * z := by rw [mul_assoc, right]
+    have hxZ := TwoSidedIdeal.mul_mem_left J X₃ z hz
+    obtain ⟨y,hy,hyr,hrep⟩ := firstPairTwoAfter_nilHecke_image Q Λ hQ _ hxZ lx rx
+    have hdot := firstPairTwoAfter_nilHecke_dot Q Λ z left
+    rw [zero, mul_zero, sub_zero] at hdot
+    exact ⟨y,hy,hyr,hdot.symm.trans hrep⟩
+  · rintro ⟨y,_,_,h⟩
+    rw [h, ← mul_assoc, firstPairTwoAfter_leg_true_zero Q Λ, zero_mul]
+
+attribute [local instance 1100] IsIdempotentElem.instAlgebraCorner_categorification
+
+local notation "K" => blockLoadingKernel Q Λ bottom 0 1
+local notation "T" => IsIdempotentElem.Corner
+  (isIdempotentElem_violMk_redProj k Q Λ ν (redWord bottom))
+local notation "d" => blockLoadingKernel_nilHeckeCrossing Q Λ bottom 0 1 3 (by decide) (by decide)
+
+/-- The rightmost first-pair higher kernel splits as two copies of the actual
+nilHecke crossing image over the original red-order corner. -/
+def firstPairTwoAfter_equiv_nilHeckeRangeProd :
+    K ≃ₗ[Tᵐᵒᵖ] LinearMap.range (d : K →ₗ[Tᵐᵒᵖ] K) × LinearMap.range (d : K →ₗ[Tᵐᵒᵖ] K) :=
+  blockLoadingKernel_equiv_nilHeckeRangeProd Q Λ bottom 0 1 3 (by decide) (by decide)
+
+/-- The summand in the rightmost splitting is the second spectator-crossing
+image with full original red-order support. -/
+theorem firstPairTwoAfter_nilHecke_range_iff (hQ : KLRSymm Q) (z : K) :
+    z ∈ LinearMap.range (d : K →ₗ[Tᵐᵒᵖ] K) ↔
+      ∃ y : V, proj above * y = y ∧ y * F (redIdem k Q Λ (redWord bottom)) = y ∧
+        z.1.1.1 = leg true * y := by
+  have left : proj bottom * z.1.1.1 = z.1.1.1 := congrArg (fun x : T => x.1) z.1.2
+  have right : z.1.1.1 * F (redIdem k Q Λ (redWord bottom)) = z.1.1.1 :=
+    CornerEndomorphism.corner_mul_right _ z.1.1
+  let δ : K →ₗ[Tᵐᵒᵖ] K := d
+  have eq := blockLoadingKernel_nilHecke_range_eq_ker Q Λ bottom 0 1 3 (by decide) (by decide)
+  have val : (δ z).1.1.1 = D * z.1.1.1 :=
+    blockLoadingKernel_nilHeckeCrossing_val Q Λ bottom 0 1 3 (by decide) (by decide) z
+  change z ∈ LinearMap.range δ ↔ _
+  rw [show LinearMap.range δ = LinearMap.ker δ from eq, LinearMap.mem_ker]
+  refine Iff.trans ?_ (firstPairTwoAfter_nilHecke_kernel Q Λ hQ z.1.1.1 z.2 left right)
+  constructor
+  · intro hz
+    exact val.symm.trans (congrArg (fun a : K => a.1.1.1) hz)
+  · intro hz
+    exact Subtype.ext (Subtype.ext (Subtype.ext (val.trans hz)))
 
 end Categorification.Stendhal.BraidedStendhalAlgebra

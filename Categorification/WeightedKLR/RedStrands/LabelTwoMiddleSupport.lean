@@ -23,10 +23,6 @@ attribute [local instance 1100] IsIdempotentElem.instAlgebraCorner_categorificat
 local notation "blackWeight" => (({()} : Multiset Unit) + {()})
 local notation "μ" => stendhalWeight 2 blackWeight
 
-/-- The loading with both black strands to the right of the second red. -/
-def terminalLoading : Seq μ :=
-  Seq.ofList [.inr 0, .inr 1, .inl (), .inl ()] (by decide)
-
 private abbrev higherLoading : Seq μ := sadj (Multiset.card μ) 2 • loading
 
 private abbrev position (j : Fin 4) : Fin (Multiset.card μ) := j

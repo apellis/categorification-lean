@@ -55,7 +55,8 @@ private theorem diagramMinus_mul_diagramPlus :
 
 private abbrev diagramModule := ModuleCat.of A S
 
-private def diagramDifferential (n : ℕ) : diagramModule k ⟶ diagramModule k :=
+/-- The differential from degree `n + 1` to degree `n`. -/
+def diagramDifferential (n : ℕ) : diagramModule k ⟶ diagramModule k :=
   ModuleCat.ofHom (if Even n then diagramPlus k else diagramMinus k)
 
 private theorem diagramDifferential_square (n : ℕ) :

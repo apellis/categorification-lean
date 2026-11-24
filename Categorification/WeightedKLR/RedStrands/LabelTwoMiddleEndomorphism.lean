@@ -29,7 +29,8 @@ local notation "V" => Module.End A (Standard k)
 private theorem quotient_finrank : Module.finrank k U = 4 :=
   Webster.LabelTwo.finrank_squareQuotient k
 
-private theorem end_finrank : Module.finrank k V = 4 := by
+/-- The endomorphism algebra of the middle standard has dimension four. -/
+theorem middleEndomorphism_finrank : Module.finrank k V = 4 := by
   have : Module.Finite k U := Module.finite_of_finrank_pos (by rw [quotient_finrank]; decide)
   have hf := middleDotQuotientAction_surjective k
   have : Module.Finite k V :=
@@ -51,7 +52,7 @@ def middleEndomorphismEquiv : U ≃ₐ[k] V := by
   have : Module.Finite k V :=
     Module.Finite.of_surjective (middleDotQuotientAction k).toLinearMap hf
   have hdim : Module.finrank k U = Module.finrank k V := by
-    rw [quotient_finrank, end_finrank]
+    rw [quotient_finrank, middleEndomorphism_finrank]
   refine AlgEquiv.ofBijective (middleDotQuotientAction k) ⟨?_, hf⟩
   exact (LinearMap.injective_iff_surjective_of_finrank_eq_finrank (f := (middleDotQuotientAction k).toLinearMap) hdim).mpr hf
 

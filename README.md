@@ -1085,9 +1085,13 @@ right-module version by reflection and augmentation onto the dot-sum
 quotient. At the middle loading both alternating pairs are exact and
 the augmentation target is the dual-number specialization
 (`Stendhal.LabelTwo.rightMiddleComplex`,
-`Stendhal.LabelTwo.middleCutDotSumEquiv`). Every other loading outside the
-terminal loading acts by zero (`Stendhal.LabelTwo.middleFixed_subsingleton_of_other_loading`).
-Exactness at the terminal loading remains open.
+`Stendhal.LabelTwo.middleCutDotSumEquiv`). At the terminal loading two independent
+shuffle copies carry the same alternating dot maps. All other ordered
+loadings act by zero. The alternating maps on the full diagrammatic
+standard are exact and resolve the dot-sum quotient
+(`Stendhal.LabelTwo.diagramMinusPlus_exact`,
+`Stendhal.LabelTwo.diagramPlusMinus_exact`,
+`Stendhal.LabelTwo.diagramMiddleAugmentation_exact`).
 
 ### Weak `sl₂`-categorifications (Chuang–Rouquier, arXiv:math/0407205v2, §5)
 

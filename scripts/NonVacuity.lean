@@ -8598,6 +8598,18 @@ example :
   middleFixed_subsingleton_of_other_loading ℚ higher higher_ordered
     (by decide +kernel) (by decide +kernel)
 
+example : Function.Exact (diagramMinus ℚ) (diagramPlus ℚ) := diagramMinusPlus_exact ℚ
+
+example : Function.Exact (diagramPlus ℚ) (diagramMinus ℚ) := diagramPlusMinus_exact ℚ
+
+example : Function.Exact (diagramPlus ℚ) (diagramMiddleAugmentation ℚ) :=
+  diagramMiddleAugmentation_exact ℚ
+
+example (n : ℕ) : (rightMiddleComplex ℚ).ExactAt (n + 1) :=
+  rightMiddleComplex_exactAt ℚ n
+
+example : QuasiIso (diagramMiddleToQuotient ℚ) := diagramMiddleToQuotient_quasiIso ℚ
+
 end NonVacuity.WebsterLabelTwoMiddleFixedComplex
 
 end

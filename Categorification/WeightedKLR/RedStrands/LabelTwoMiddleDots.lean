@@ -345,7 +345,8 @@ private theorem dotMonomial_lift (d : Fin (Multiset.card μ) →₀ ℕ)
     MvPolynomial.monomial_mul_monomial, one_mul]
   exact congrArg (fun s => MvPolynomial.monomial s 1) hrepr.symm
 
-private def dotPolynomialEval : MvPolynomial (Fin 2) k →ₗ[k] S where
+/-- Evaluate a two-variable dot polynomial on the middle generator. -/
+def dotPolynomialEval : MvPolynomial (Fin 2) k →ₗ[k] S where
   toFun p := polynomialDotEnd k p g
   map_add' p q := by rw [map_add, LinearMap.add_apply]
   map_smul' c p := by
@@ -370,6 +371,12 @@ private theorem blackPolynomial_fixed (p : MvPolynomial (Fin 2) k) :
     rw [← proj_loading k loading loading_ordered, ← projected_mul, ← projected_mul,
       (KLRAlgebra.e_commute_pol _ _).eq]
   rw [← mul_smul, hc, mul_smul, gen_fixed]
+
+theorem dotPolynomialEval_fixed (p : MvPolynomial (Fin 2) k) :
+    E • dotPolynomialEval k p = dotPolynomialEval k p := by
+  change E • polynomialDotEnd k p g = polynomialDotEnd k p g
+  rw [dotPolynomial_generator]
+  exact blackPolynomial_fixed k p
 
 private theorem middle_fixed_in_range (a : A) :
     (E * a) • g ∈ LinearMap.range (dotPolynomialEval k) := by
@@ -443,6 +450,143 @@ theorem middleDotQuotientAction_surjective : Function.Surjective (middleDotQuoti
   refine ⟨Ideal.Quotient.mk _ p, leftStandard_hom_ext loading loading_ordered ?_⟩
   change polynomialDotEnd k p g = f g
   exact hp.trans h
+
+/-- The loading with both black strands to the right of the second red. -/
+def terminalLoading : Seq μ :=
+  Seq.ofList [.inr 0, .inr 1, .inl (), .inl ()] (by decide)
+
+theorem terminalLoading_ordered : IsRedOrdered terminalLoading := by
+  unfold IsRedOrdered
+  decide +kernel
+
+local notation "n" => Multiset.card μ
+
+private abbrev terminalShuffleFirst : Equiv.Perm (Fin n) := wordProd n [1]
+private abbrev terminalShuffleSecond : Equiv.Perm (Fin n) := wordProd n [2, 1]
+
+theorem terminal_transporters (w : Equiv.Perm (Fin n)) (hw : w • loading = terminalLoading) :
+    w = terminalShuffleFirst ∨ w = terminalShuffleSecond := by
+  have h : ∀ f : Equiv.Perm (Fin n), f • loading = terminalLoading →
+      f = terminalShuffleFirst ∨ f = terminalShuffleSecond := by decide +kernel
+  exact h w hw
+
+
+private def terminalWordChoice (w : Equiv.Perm (Fin n)) : List ℕ :=
+  if w = terminalShuffleFirst then [1]
+  else if w = terminalShuffleSecond then [2, 1]
+  else canWord n w
+
+private theorem terminalWordChoice_spec (w : Equiv.Perm (Fin n)) :
+    IsReduced n (terminalWordChoice w) ∧ wordProd _ (terminalWordChoice w) = w := by
+  unfold terminalWordChoice
+  split_ifs with h₁ h₂
+  · subst w
+    refine ⟨⟨?_, ?_⟩, rfl⟩
+    · intro j hj
+      simp only [List.mem_singleton] at hj
+      subst j
+      decide
+    · rw [length_eq_invCount]
+      decide +kernel
+  · subst w
+    refine ⟨⟨?_, ?_⟩, rfl⟩
+    · intro j hj
+      simp only [List.mem_cons, List.mem_nil_iff, or_false] at hj
+      rcases hj with rfl | rfl <;> decide
+    · rw [length_eq_invCount]
+      decide +kernel
+  · exact ⟨isReduced_canWord _ _, wordProd_canWord _ _⟩
+
+/-- The two terminal shuffle words applied to separated bottom polynomials. -/
+def terminalPolynomialEval (p : MvPolynomial (Fin 2) k × MvPolynomial (Fin 2) k) : S :=
+  π (KLRAlgebra.ψw [1]) • dotPolynomialEval k p.1 +
+    π (KLRAlgebra.ψw [2, 1]) • dotPolynomialEval k p.2
+
+private def terminalPolynomialEvalLinear :
+    (MvPolynomial (Fin 2) k × MvPolynomial (Fin 2) k) →ₗ[k] S where
+  toFun := terminalPolynomialEval k
+  map_add' x y := by
+    simp only [terminalPolynomialEval, Prod.fst_add, Prod.snd_add, map_add, smul_add]
+    abel
+  map_smul' c z := by
+    simp only [terminalPolynomialEval, Prod.smul_fst, Prod.smul_snd, map_smul, smul_add,
+      smul_comm (π (KLRAlgebra.ψw [1])) c, smul_comm (π (KLRAlgebra.ψw [2, 1])) c,
+      RingHom.id_apply]
+
+local notation "Et" => seqIdem q₀ wt₂ terminalLoading terminalLoading_ordered
+
+private theorem terminal_fixed_in_range (a : A) :
+    (Et * a) • g ∈ LinearMap.range (terminalPolynomialEvalLinear k) := by
+  classical
+  let W := LinearMap.range (terminalPolynomialEvalLinear k)
+  have ha : a ∈ Submodule.span k (Set.range (tensorProductTerm terminalWordChoice_spec q₀ wt₂)) := by
+    rw [span_tensorProductTerm terminalWordChoice_spec q₀ wt₂]
+    trivial
+  induction ha using Submodule.span_induction with
+  | mem z hz =>
+    obtain ⟨b, rfl⟩ := hz
+    let d := tensorProductTerm terminalWordChoice_spec q₀ wt₂ b
+    have hL : Et * d = if b.1.2.1 • b.1.1 = terminalLoading then d else 0 := by
+      unfold d tensorProductTerm
+      rw [← map_mul, e_mul_stendhalTerm]
+      split_ifs <;> simp only [map_zero]
+    have hR : d * E = if b.1.1 = loading then d else 0 := by
+      unfold d tensorProductTerm
+      rw [← map_mul, stendhalTerm_mul_e]
+      split_ifs <;> simp only [map_zero]
+    change (Et * d) • g ∈ W
+    rw [hL]
+    split_ifs with ht
+    · have hbg : d • g = (d * E) • g := by rw [mul_smul, gen_fixed]
+      rw [hbg, hR]
+      split_ifs with hb
+      · have hw : b.1.2.1 • loading = terminalLoading := hb ▸ ht
+        have hl (j : Fin (Multiset.card μ)) (hj : j ∈ b.1.2.2.support) : (loading.lbl j).isLeft := by
+          have h := b.2.2.2.1 j hj
+          change (b.1.1.lbl j).isLeft = true at h
+          rwa [hb] at h
+        obtain ⟨p, hp⟩ := dotMonomial_lift k b.1.2.2 hl
+        have hpoly : π (KLRAlgebra.pol (MvPolynomial.monomial b.1.2.2 1)) = blackPolynomial k p := by
+          change π (KLRAlgebra.pol (MvPolynomial.monomial b.1.2.2 1)) =
+            π (KLRAlgebra.pol (MvPolynomial.rename blackPosition p))
+          rw [hp]
+        change d • g ∈ W
+        have hd : d = π (KLRAlgebra.stdElt terminalWordChoice b.1) := by
+          apply congrArg (TensorProductAlgebra.mk q₀ wt₂ blackWeight)
+          apply Subtype.ext
+          exact ((Subsemigroup.mem_corner_iff StendhalAlgebraAllOrders.isIdempotentElem_redOrderedIdem).mp
+            (stendhalTerm q₀ wt₂ (fun w => (terminalWordChoice_spec w).2) b).2).2.symm
+        rw [hd, KLRAlgebra.stdElt,
+          projected_mul, projected_mul, hpoly, hb, proj_loading k _ loading_ordered,
+          mul_smul, gen_fixed, mul_smul]
+        rcases terminal_transporters _ hw with h | h
+        · rw [h, terminalWordChoice, ite_eq_left rfl, ← dotPolynomial_generator]
+          refine ⟨(p, 0), ?_⟩
+          change terminalPolynomialEval k (_, _) = π (KLRAlgebra.ψw [1]) • dotPolynomialEval k p
+          simp only [terminalPolynomialEval, map_zero, smul_zero, add_zero]
+        · rw [h, terminalWordChoice, ite_eq_right (by decide +kernel), ite_eq_left rfl,
+            ← dotPolynomial_generator]
+          refine ⟨(0, p), ?_⟩
+          change terminalPolynomialEval k (_, _) = π (KLRAlgebra.ψw [2, 1]) • dotPolynomialEval k p
+          simp only [terminalPolynomialEval, map_zero, smul_zero, zero_add]
+      · rw [zero_smul]
+        exact W.zero_mem
+    · rw [zero_smul]
+      exact W.zero_mem
+  | zero => rw [mul_zero, zero_smul]; exact W.zero_mem
+  | add x y _ _ hx hy => simpa only [mul_add, add_smul] using W.add_mem hx hy
+  | smul c x _ hx =>
+    simpa only [mul_smul_comm, smul_assoc] using W.smul_mem c hx
+
+
+/-- At the terminal loading the middle standard is spanned by the two
+shuffle diagrams with arbitrary polynomial dots at the source. -/
+theorem terminalPolynomialEval_surjective_on_fixed (z : S) (hz : Et • z = z) :
+    ∃ p, terminalPolynomialEval k p = z := by
+  obtain ⟨a, ha⟩ := leftStandard_exists_smul_unit
+    (Q := q₀) (Λ := wt₂) loading loading_ordered z
+  obtain ⟨p, hp⟩ := terminal_fixed_in_range k a
+  exact ⟨p, hp.trans (by rw [mul_smul, ← ha, hz])⟩
 
 end Spanning
 

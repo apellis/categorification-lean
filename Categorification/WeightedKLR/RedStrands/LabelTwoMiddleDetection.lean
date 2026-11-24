@@ -130,7 +130,9 @@ private theorem unit_fixed (n : D) : E • (U n) = U n := by
   have hl := congrArg (fun a : A => ρ a (U n)) (cutTensor_actual k)
   exact hl.symm.trans (h.trans (congrArg U hr))
 
-private def testModuleMap : S →ₗ[A] V :=
+/-- The cyclic map from the actual middle standard to the induced
+regular separated test module. -/
+def testModuleMap : S →ₗ[A] V :=
   leftStandardLift (Q := q₀) (Λ := wt₂) loading loading_ordered (U (1 : D))
     (fun s hs a hlt => by
       rw [mul_smul]
@@ -196,6 +198,19 @@ theorem standardEnd_detectFactors_surjective : Function.Surjective (standardEnd_
   (LinearEquiv.ofInjective U
     (parabolicStandardUnit_injective q₀ wt₂ oneBlack oneBlack D (parameterSymm k))).symm.surjective.comp
       ((testFixed_surj k).comp (leftStandardEndEquivFixed q₀ wt₂ loading loading_ordered).surjective)
+
+/-- The detected factor coordinate of a middle-fixed vector is its
+coefficient in the identity shuffle. -/
+theorem testModuleMap_fixed (x : fixSub k S E) :
+    testModuleMap k x.val =
+      U (standardEnd_detectFactors k
+        ((leftStandardEndEquivFixed q₀ wt₂ loading loading_ordered).symm x)) := by
+  unfold standardEnd_detectFactors
+  simp only [LinearMap.comp_apply, LinearEquiv.coe_coe, LinearEquiv.apply_symm_apply]
+  change (testFixed k x).val = _
+  exact (congrArg Subtype.val ((LinearEquiv.ofInjective U
+    (parabolicStandardUnit_injective q₀ wt₂ oneBlack oneBlack D (parameterSymm k))).apply_symm_apply
+      (testFixed k x))).symm
 
 private theorem adjoinRootPow_finrank (n : ℕ) :
     Module.finrank k (AdjoinRoot ((Polynomial.X : Polynomial k)^n)) = n := by

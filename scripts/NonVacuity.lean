@@ -9338,4 +9338,7 @@ example := fiveSlot_partialStandard_braid_homology_vanish_all_tops_standard
 example := fiveSlot_partialStandard_braid_homology_vanish_all_tops_standard
   (k := ℚ) C Λ (fiveSlotRightLoading 2) (by decide) 1 (by decide)
 
+example := fiveSlot_partialStandard_braidIsoOrdinary_all_tops_standard
+  (k := ℚ) C Λ (fiveSlotRightLoading 2) (by decide)
+
 end NonVacuity.WebsterFiveSlotConcentration

@@ -6950,3 +6950,34 @@ example :
     ⟨by decide, by decide⟩
 
 end NonVacuity.WebsterThreeBlockCorrection
+
+namespace NonVacuity.WebsterDottedProjectiveCut
+
+open KLR KLRAlgebra Stendhal Stendhal.BraidedStendhalAlgebra TypeA
+
+private abbrev black : Multiset Unit := {()}
+private abbrev weight := stendhalWeight 2 black
+private def top : Seq weight := Seq.ofList [.inr 0, .inl (), .inr 1] (by decide)
+private abbrev v := wordProd weight.card [1, 0]
+private noncomputable abbrev params : Unit → Unit → MvPolynomial (Fin 2) ℚ := fun _ _ => 0
+private noncomputable abbrev exponents : Fin 2 → Unit →₀ ℕ := fun _ => Finsupp.single () 2
+private noncomputable abbrev q := violMk ℚ params exponents black
+private noncomputable abbrev raw := ofKLR ℚ params exponents black
+private noncomputable abbrev dot : MvPolynomial (Fin weight.card) ℚ := MvPolynomial.X ⟨1, by decide⟩
+
+example :
+    q (raw (ψw [] * pol dot * ψw [1, 0] * e (v⁻¹ • top))) * q (raw (e (v⁻¹ • top))) ∈
+      columnProductsOn (Q := params) (Λ := exponents) (fun _ => [1, 0]) top [1, 0] {v} := by
+  have hred : redWord (v⁻¹ • top) = [1, 0] := by decide
+  have hη : DistinctCrossings [1, 0] (v⁻¹ • top) :=
+    ⟨⟨by decide, by decide⟩, ⟨⟨by decide, by decide⟩, trivial⟩⟩
+  let z : cornerBimodule (q (raw (e (v⁻¹ • top)))) (q (redProj ℚ params exponents black [1, 0])) :=
+    ⟨q (raw (e (v⁻¹ • top))), by
+      constructor
+      · rw [← map_mul q, ← map_mul raw, e_mul_self]
+      · rw [← map_mul q, e_mul_redProj, ite_eq_left hred]⟩
+  exact dottedCut_mem_columnProductsOn (fun _ => [1, 0]) top [1, 0] {v}
+    (v := v) (w := v) (α := []) (η := [1, 0]) (β := [])
+    (Set.mem_singleton v) (by rw [wordProd_nil, mul_one]) hred rfl hη dot z
+
+end NonVacuity.WebsterDottedProjectiveCut

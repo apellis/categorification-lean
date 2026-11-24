@@ -3,6 +3,7 @@ Copyright (c) 2026 Alex Ellis. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 -/
 import Categorification.WeightedKLR.RedStrands.FiveSlotLeftTopIdeal
+import Categorification.WeightedKLR.RedStrands.BlockKernelFiltration
 import Categorification.KLR.EqualBlackReturnKernel
 
 /-!
@@ -203,5 +204,101 @@ theorem fiveSlotRightmostHigher_exists_two_right_factors (hQ : KLRSymm Q) (i : F
   refine ⟨a + b, c, by rw [mul_add, ha, hb], hc, ?_⟩
   change z = pol f * (c₀ * w) + pol g * (c₁ * w) at h
   rw [h, hfa, hgc, ← add_assoc, ← mul_add]
+
+
+local notation "V" => ViolQuotient k Q Λ ν₀
+local notation "π" => AlgHom.comp (violMk k Q Λ ν₀) (ofKLR k Q Λ ν₀)
+local notation "p" => fun s : Seq μ₀ => π (e s)
+
+/-- The supported quotient cuts at the rightmost top factor through two
+fixed maps from the central loading. -/
+theorem fiveSlotRightmostHigher_quotient_exists_two_right_factors (hQ : KLRSymm Q)
+    (i : Fin 3) (z : V) (hl : p v₂ * z = z) (hr : z * p (S i) = z) :
+    ∃ y x : V, p v₁ * y = y ∧ p v₁ * x = x ∧ z = π c₀ * y + π c₁ * x := by
+  obtain ⟨a, ha⟩ := (violMk_surjective (Q := Q) (Λ := Λ)).comp
+    (ofKLR_surjective (Q := Q) (Λ := Λ)) z
+  let b : R := e v₂ * a * e (S i)
+  have hb : π b = z := by
+    change π (e v₂ * a * e (S i)) = z
+    rw [map_mul, map_mul, show π a = z from ha, hl, hr]
+  have hbl : (e v₂ : R) * b = b := by
+    change e v₂ * (e v₂ * a * e (S i)) = e v₂ * a * e (S i)
+    rw [← mul_assoc, ← mul_assoc, e_mul_self]
+  have hbr : b * e (S i) = b := by
+    change e v₂ * a * e (S i) * e (S i) = e v₂ * a * e (S i)
+    rw [mul_assoc, e_mul_self]
+  obtain ⟨y, x, hy, hx, h⟩ := fiveSlotRightmostHigher_exists_two_right_factors Q Λ hQ i b hbl hbr
+  refine ⟨π y, π x, (map_mul π _ _).symm.trans (congrArg π hy),
+    (map_mul π _ _).symm.trans (congrArg π hx), ?_⟩
+  exact hb.symm.trans ((congrArg π h).trans (by simp only [map_add, map_mul]))
+
+
+section KernelSum
+
+open MulOpposite CornerEndomorphism
+attribute [local instance 1100] IsIdempotentElem.instAlgebraCorner_categorification
+local notation "A" => IsIdempotentElem.Corner (isIdempotentElem_violMk_redProj k Q Λ ν₀ (redWord v₂))
+local notation "L" => rIdeal (orderedLoadingIdem Q Λ v₂)
+local notation "K" => blockLoadingKernel Q Λ v₂ 1 2
+local notation "E" => violMk k Q Λ ν₀ (redProj k Q Λ ν₀ (redWord v₂))
+
+private theorem kernelSum_idealCut (u : Seq μ₀) (hu : redWord u = redWord v₂) (z : V) :
+    (blockLoadingRep Q Λ v₂ (z * p u)).1.1 = p v₂ * z * p u := by
+  have hE : p u * E = p u := corner_mul_right _ (orderedLoadingIdemAt Q Λ (redWord v₂) u hu)
+  exact (blockLoadingRep_val Q Λ v₂ (z * p u)).trans (by
+    change p v₂ * (z * p u) * E = p v₂ * z * p u
+    rw [← mul_assoc, mul_assoc (p v₂ * z), hE])
+
+/-- The actual kernel at the rightmost top is the sum of the two supported
+images of the E1 projective. The second crossing includes the top nilHecke generator. -/
+theorem fiveSlotRightmostKernel_exists_two_central_factors (hQ : KLRSymm Q)
+    (a : L) (ha : a ∈ K) :
+    ∃ y z : V, p v₁ * y = y ∧ p v₁ * z = z ∧ y * E = y ∧ z * E = z ∧
+      a.1.1 = π c₀ * y + π c₁ * z := by
+  suffices h : ∃ y z : V, p v₁ * y = y ∧ p v₁ * z = z ∧ a.1.1 = π c₀ * y + π c₁ * z by
+    obtain ⟨y, z, hy, hz, h⟩ := h
+    have hE : E * E = E := (isIdempotentElem_violMk_redProj k Q Λ ν₀ (redWord v₂)).eq
+    refine ⟨y * E, z * E, by rw [← mul_assoc, hy], by rw [← mul_assoc, hz],
+      by rw [mul_assoc, hE], by rw [mul_assoc, hE], ?_⟩
+    exact (corner_mul_right _ a.1).symm.trans (by rw [h, add_mul, mul_assoc, mul_assoc])
+  rw [blockLoadingKernel_eq_span] at ha
+  induction ha using Submodule.span_induction with
+  | mem x hx =>
+    obtain ⟨u, hu, hlt, z, rfl⟩ := hx
+    suffices h : ∃ y x : V, p v₁ * y = y ∧ p v₁ * x = x ∧
+        p v₂ * z * p u = π c₀ * y + π c₁ * x by
+      obtain ⟨y, x, hy, hx, h⟩ := h
+      exact ⟨y, x, hy, hx, (kernelSum_idealCut Q Λ u hu z).trans h⟩
+    by_cases hv : IsViolated u
+    · have hzero : p u = 0 := violMk_e hv
+      exact ⟨0, 0, mul_zero _, mul_zero _, by rw [hzero, mul_zero, mul_zero, mul_zero, zero_add]⟩
+    have hred : redWord u = redWord v₀ := hu.trans (by decide)
+    have hcut (i : Fin 3) :=
+      fiveSlotRightmostHigher_quotient_exists_two_right_factors Q Λ hQ i
+        (p v₂ * z * p (S i))
+        (by rw [← mul_assoc, ← mul_assoc, ← map_mul, e_mul_self])
+        (by rw [mul_assoc, ← map_mul, e_mul_self])
+    obtain hr | rfl | rfl | rfl := fiveSlot_nonviolated_tops u hred hv
+    · rw [fiveSlotRightTop_blockRoot u hr, fiveSlotRightTop_blockRoot v₂ (Or.inl rfl)] at hlt
+      exact (lt_irrefl _ hlt).elim
+    · exact hcut 0
+    · exact hcut 1
+    · exact hcut 2
+  | zero =>
+    exact ⟨0, 0, mul_zero _, mul_zero _, by change (0 : V) = _; rw [mul_zero, mul_zero, zero_add]⟩
+  | add x y _ _ h₁ h₂ =>
+    obtain ⟨a, b, ha, hb, rfl₁⟩ := h₁
+    obtain ⟨c, d, hc, hd, rfl₂⟩ := h₂
+    refine ⟨a + c, b + d, by rw [mul_add, ha, hc], by rw [mul_add, hb, hd], ?_⟩
+    change x.1.1 + y.1.1 = _
+    rw [rfl₁, rfl₂, mul_add, mul_add]
+    exact add_add_add_comm _ _ _ _
+  | smul r x _ h =>
+    obtain ⟨a, b, ha, hb, h⟩ := h
+    refine ⟨a * r.unop.1, b * r.unop.1, by rw [← mul_assoc, ha], by rw [← mul_assoc, hb], ?_⟩
+    change x.1.1 * r.unop.1 = _
+    rw [h, add_mul, mul_assoc, mul_assoc]
+
+end KernelSum
 
 end Categorification.Stendhal.BraidedStendhalAlgebra

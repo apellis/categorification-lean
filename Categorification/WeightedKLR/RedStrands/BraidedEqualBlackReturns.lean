@@ -123,5 +123,56 @@ theorem equalBlack_return_mem_iff (s : Seq μ) (l : List ℕ) (b j : ℕ)
   rw [expansion]
   exact rows _ _
 
+open KLR.KLRAlgebra in
+/-- For the standard red parameters, a relation among the three return columns
+in the braided Stendhal algebra has a single full-joint coefficient whose two
+components are the signed ordinary and reversed-middle upper coefficients.
+Webster, arXiv:1309.3796v2, §6.1, proof of Lemma 6.8 after (6.21), before the
+higher ideal. -/
+theorem exists_equalBlack_cycle_coefficient (hQ : KLRSymm Q) (s : Seq μ) (l : List ℕ)
+    (b : ℕ) (hb : b + 2 < m) (hl : IsReduced m l) (hjl : IsReduced m ((b + 1) :: l))
+    (r : Fin ℓ) (i : I)
+    (hr : (wordProd m l • s).lbl ⟨b, by omega⟩ = Sum.inr r)
+    (hi : (wordProd m l • s).lbl ⟨b + 1, by omega⟩ = Sum.inl i)
+    (hi' : (wordProd m l • s).lbl ⟨b + 2, hb⟩ = Sum.inl i) (f g h : P)
+    (relation : π (pol f * (ψw (b :: b :: l) * e s) + pol g * (ψw ((b + 1) :: b :: b :: l) * e s) +
+      pol h * (ψw (b :: b :: (b + 1) :: l) * e s)) = 0) :
+    let t := sadj m b • (wordProd m l • s)
+    let j := b + 1
+    ∃ c : B, c * π (e (sadj m j • t)) = c ∧
+      c * π (ψw [b, j] * e t) = -π (pol f * (ψw [b] * e t) + pol g * (ψw [j, b] * e t)) ∧
+      c * π (ψw [j] * e t) = π (pol h * (ψw [b] * e t)) := by
+  intro t j
+  let top := wordProd m l • s
+  let black := KLRAlgebra.blackSubst (k := k) top
+  have he : top.lbl ⟨j, by omega⟩ = top.lbl ⟨j + 1, hb⟩ := hi.trans hi'.symm
+  have hn : top.lbl ⟨b, by omega⟩ ≠ top.lbl ⟨j, by omega⟩ := by rw [hr, hi]; exact Sum.inr_ne_inl
+  have hw : stendhalQ Q Λ (top.lbl ⟨b, by omega⟩) (top.lbl ⟨j, by omega⟩) = X 1 ^ Λ r i := by
+    rw [hr, hi, stendhalQ_inr_inl]
+  have q : exitSquarePolynomial (stendhalQ Q Λ) top b (by omega) = X (⟨j, by omega⟩ : Fin m) ^ Λ r i := by
+    unfold exitSquarePolynomial
+    dsimp only
+    rw [ite_eq_right hn, hw, map_pow, rename_X]
+    rfl
+  have coefficients := (BraidedStendhalAlgebra.equalBlack_return_kernel hQ s l b hb hl hjl r i hr hi hi' f g h).mp relation
+  have affineRelation := (KLR.KLRAlgebra.equalBlack_return_kernel (stendhalQ_symm Q Λ hQ) s l b j (Λ r i)
+    (by omega) hb hl hjl he q (black f) (black g) (black h)).mpr coefficients
+  obtain ⟨c, fixed, Barm, Darm⟩ := KLR.KLRAlgebra.exists_equalBlack_cycle_coefficient (stendhalQ_symm Q Λ hQ)
+    s l b (Λ r i) hb hl hjl he hn hw (black f) (black g) (black h) affineRelation
+  have tb : wordProd m [b] • t = top := by
+    simp only [wordProd_cons, wordProd_nil, mul_one]
+    exact sadj_smul_smul b top
+  have tjb : wordProd m [j, b] • t = top := by
+    rw [wordProd_cons, mul_smul, tb, sadj_smul_eq_self hb he]
+  have subst (w : List ℕ) (hw : wordProd m w • t = top) (u : P) :
+      π (pol (black u) * (ψw w * e t)) = π (pol u * (ψw w * e t)) := by
+    have lift := section_word (Q := Q) (Λ := Λ) t w u
+    rw [hw] at lift
+    exact (congrArg π lift.symm).trans (ofKLR_toKLR hQ _)
+  refine ⟨π c, ?_, ?_, ?_⟩
+  · exact (map_mul π _ _).symm.trans (congrArg π fixed)
+  · rw [← map_mul, Barm, map_neg, map_add, subst [b] tb, subst [j, b] tjb, ← map_add]
+  · rw [← map_mul, Darm, subst [b] tb]
+
 end Categorification.Stendhal.BraidedStendhalAlgebra
 end

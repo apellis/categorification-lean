@@ -369,5 +369,146 @@ theorem equalBlack_return_kernel (s : Seq ν) (l : List ℕ) (b j n : ℕ)
   · rintro ⟨z, rfl, rfl, rfl⟩
     constructor <;> ring
 
+/-- The full two-black joint completes the ordinary and reversed-middle arms by
+`[b,b+1]` and `[b+1]`, respectively. Returning from that joint by `[b,b+1]`
+produces the two components of the generator in `equalBlack_return_kernel`,
+with opposite signs on the two arms. The joint loading has the colour pattern
+`i,r,i`, and its right-hand square has the standard power on the black dot.
+Webster, arXiv:1309.3796v2, §6.1, proof of Lemma 6.8 after (6.21). -/
+theorem equalBlack_cycle_components (t : Seq ν) (b n : ℕ) (hp : b + 2 < m)
+    (he : t.lbl ⟨b, by omega⟩ = t.lbl ⟨b + 2, hp⟩)
+    (hn : t.lbl ⟨b, by omega⟩ ≠ t.lbl ⟨b + 1, by omega⟩)
+    (hsq : exitSquarePolynomial Q t (b + 1) hp = X (⟨b + 2, hp⟩ : Fin m) ^ n) :
+    let j := b + 1
+    let q : P := X (⟨j, by omega⟩ : Fin m) ^ n
+    let q' : P := X (⟨j + 1, hp⟩ : Fin m) ^ n
+    (ψw [b, j] * (ψw [b, j] * e t) : R) =
+        pol q * (ψw [j, b] * e t) - pol (NilHecke.dd k m j q) * (ψw [b] * e t) ∧
+      (ψw [b, j] * (ψw [j] * e t) : R) = pol q' * (ψw [b] * e t) := by
+  intro j q q'
+  let L : Fin m := ⟨j, by omega⟩
+  let H : Fin m := ⟨j + 1, hp⟩
+  have hb : b + 1 < m := by omega
+  have diff : L ≠ H := by intro e; have h := congrArg Fin.val e; change j = j + 1 at h; omega
+  have across : (sadj m j • t).lbl ⟨b, by omega⟩ ≠ (sadj m j • t).lbl ⟨b + 2, hp⟩ := by
+    change (sadj m j • t).1 _ ≠ (sadj m j • t).1 _
+    rw [sadj_smul_apply, sadj_smul_apply, sadj_apply_right hp,
+      sadj_apply_of_ne _ (by dsimp [j]; omega) (by dsimp [j]; omega)]
+    exact hn
+  have same : (sadj m b • t).lbl L = (sadj m b • t).lbl H := by
+    change (sadj m b • t).1 _ = (sadj m b • t).1 _
+    rw [sadj_smul_apply, sadj_smul_apply, show L = ⟨b + 1, hb⟩ from rfl, sadj_apply_right hb,
+      sadj_apply_of_ne _ (by dsimp [H, j]; omega) (by dsimp [H, j]; omega)]
+    exact he
+  have braid₀ := braid (Q := Q) b hp (sadj m j • t)
+  rw [ite_eq_right (fun h => across h.1), sub_mul, sub_eq_zero] at braid₀
+  have loaded : (e (sadj m j • t) * (ψ j * e t) : R) = ψ j * e t := by
+    rw [← mul_assoc, ← ψ_mul_e, mul_assoc, e_mul_self]
+  have bra := congrArg (· * (ψ j * e t)) braid₀
+  rw [mul_assoc _ (e _), loaded, mul_assoc _ (e _), loaded] at bra
+  have sq : (ψ j * (ψ j * e t) : R) = pol q' * e t := by
+    have eq := square_above (Q := Q) t [] j hp
+    have hh : exitSquarePolynomial Q t j hp = q' := hsq
+    simpa only [ψw_cons, ψw_nil, mul_one, one_mul, wordProd_nil, one_smul, mul_assoc, hh] using eq
+  have comm : Commute (ψ b : R) (pol q') := by
+    change Commute _ (pol ((X H : P) ^ n))
+    rw [map_pow, pol_X]
+    exact (show Commute (ψ b : R) (x H) from (x_mul_ψ H b
+      (by dsimp [H, j]; omega) (by dsimp [H, j]; omega)).symm).pow_right n
+  have ret : (ψ b * (ψ j * (ψ j * e t)) : R) = pol q' * (ψ b * e t) := by
+    rw [sq, comm.left_comm]
+  have sw : swapPol j hp q = q' := by
+    change rename (Equiv.swap L H) ((X L : P) ^ n) = X H ^ n
+    rw [map_pow, rename_X, Equiv.swap_apply_left]
+  have sw' : swapPol j hp q' = q := by
+    change rename (Equiv.swap L H) ((X H : P) ^ n) = X L ^ n
+    rw [map_pow, rename_X, Equiv.swap_apply_right]
+  have dd : NilHecke.dd k m j q' = -NilHecke.dd k m j q := by
+    rw [← sw, NilHecke.dd_of_lt hp]
+    exact ddiff_rename_swap diff q
+  have ds := ψ_mul_pol_mul_e (Q := Q) j hp (sadj m b • t) q'
+  rw [ite_eq_left same, sw', dd, map_neg, neg_mul, ← sub_eq_add_neg] at ds
+  have support : (e (sadj m b • t) * (ψ b * e t) : R) = ψ b * e t := by
+    rw [← mul_assoc, ← ψ_mul_e, mul_assoc, e_mul_self]
+  have ds' := congrArg (· * (ψ b * e t)) ds
+  rw [sub_mul, mul_assoc _ (e _), support, mul_assoc _ (e _), support, mul_assoc _ (e _), support] at ds'
+  constructor
+  · simp only [ψw_cons, ψw_nil, mul_one, mul_assoc] at bra ds' ⊢
+    rw [bra, ret, ds']
+  · simpa only [ψw_cons, ψw_nil, mul_one, mul_assoc] using ret
+
+include hQ in
+/-- Each polynomial relation among the three equal-black return columns is
+induced by one coefficient supported at the full two-black joint. In the
+notation of `equalBlack_return_kernel` this coefficient is `pol z` times
+the return `[b,b+1]`, cut by the idempotent of the full joint at its bottom.
+The ordinary and reversed-middle components have opposite signs. This is an
+affine instance of the common-coefficient lifting step in Webster,
+arXiv:1309.3796v2, §6.1, proof of Lemma 6.8 after (6.21). -/
+theorem exists_equalBlack_cycle_coefficient (s : Seq ν) (l : List ℕ) (b n : ℕ) (hp : b + 2 < m)
+    (hl : IsReduced m l) (hjl : IsReduced m ((b + 1) :: l))
+    (he : (wordProd m l • s).lbl ⟨b + 1, by omega⟩ = (wordProd m l • s).lbl ⟨b + 2, hp⟩)
+    (hn : (wordProd m l • s).lbl ⟨b, by omega⟩ ≠ (wordProd m l • s).lbl ⟨b + 1, by omega⟩)
+    (hw : Q ((wordProd m l • s).lbl ⟨b, by omega⟩) ((wordProd m l • s).lbl ⟨b + 1, by omega⟩) = X 1 ^ n)
+    (f g h : P)
+    (relation : (pol f * (ψw (b :: b :: l) * e s) + pol g * (ψw ((b + 1) :: b :: b :: l) * e s) +
+      pol h * (ψw (b :: b :: (b + 1) :: l) * e s) : R) = 0) :
+    let t := sadj m b • (wordProd m l • s)
+    let j := b + 1
+    ∃ c : R, c * e (sadj m j • t) = c ∧
+      c * (ψw [b, j] * e t) = -(pol f * (ψw [b] * e t) + pol g * (ψw [j, b] * e t)) ∧
+      c * (ψw [j] * e t) = pol h * (ψw [b] * e t) := by
+  intro t j
+  let r := wordProd m l • s
+  let p₀ : Fin m := ⟨b, by omega⟩
+  let p₁ : Fin m := ⟨b + 1, by omega⟩
+  let p₂ : Fin m := ⟨b + 2, hp⟩
+  let q : P := X p₁ ^ n
+  let q' : P := X p₂ ^ n
+  have hb : b + 1 < m := by omega
+  have t₀ : t.lbl p₀ = r.lbl p₁ := by
+    change (sadj m b • r).1 _ = r.1 _
+    rw [sadj_smul_apply, sadj_apply_left hb]
+  have t₁ : t.lbl p₁ = r.lbl p₀ := by
+    change (sadj m b • r).1 _ = r.1 _
+    rw [sadj_smul_apply, sadj_apply_right hb]
+  have t₂ : t.lbl p₂ = r.lbl p₂ := by
+    change (sadj m b • r).1 _ = r.1 _
+    rw [sadj_smul_apply, sadj_apply_of_ne _ (by dsimp [p₂]; omega) (by dsimp [p₂]; omega)]
+  have te : t.lbl p₀ = t.lbl p₂ := t₀.trans (he.trans t₂.symm)
+  have tn : t.lbl p₀ ≠ t.lbl p₁ := by rw [t₀, t₁]; exact Ne.symm hn
+  have weight : exitSquarePolynomial Q r b hb = q := by
+    unfold exitSquarePolynomial
+    dsimp only
+    rw [ite_eq_right hn, hw, map_pow, rename_X]
+    rfl
+  have tw : exitSquarePolynomial Q t j hp = q' := by
+    change (if t.lbl p₁ = t.lbl p₂ then 0 else rename ![p₁, p₂] (Q (t.lbl p₁) (t.lbl p₂))) = q'
+    rw [t₁, t₂, ← he, ite_eq_right hn, hw, map_pow, rename_X]
+    rfl
+  obtain ⟨z, hf, hg, hh⟩ := (equalBlack_return_kernel hQ s l b j n hb hp hl hjl he weight f g h).1 relation
+  obtain ⟨armB, armD⟩ := equalBlack_cycle_components (Q := Q) t b n hp te tn tw
+  let F := sadj m j • t
+  have fe : F.lbl p₀ = F.lbl p₁ := by
+    change (sadj m j • t).1 _ = (sadj m j • t).1 _
+    rw [sadj_smul_apply j t p₀, sadj_smul_apply j t p₁,
+      show sadj m j p₁ = p₂ from sadj_apply_left hp,
+      sadj_apply_of_ne _ (by dsimp [p₀, j]; omega) (by dsimp [p₀, j]; omega)]
+    exact te
+  have fixed : sadj m b • F = F := sadj_smul_eq_self hb fe
+  have fullB : wordProd m [b, j] • t = F := by
+    simp only [wordProd_cons, wordProd_nil, mul_one, mul_smul]
+    exact fixed
+  have cutB := support_word (Q := Q) t [b, j]
+  have cutD := support_word (Q := Q) t [j]
+  rw [fullB] at cutB
+  simp only [wordProd_cons, wordProd_nil, mul_one] at cutD
+  refine ⟨pol z * ψw [b, j] * e F, ?_, ?_, ?_⟩
+  · rw [mul_assoc _ (e F), e_mul_self]
+  · rw [mul_assoc _ (e F), cutB, mul_assoc, armB, hf, hg]
+    simp only [map_mul, map_neg, neg_mul, mul_assoc, neg_add_rev, neg_neg, sub_eq_add_neg, mul_add, mul_neg]
+    rfl
+  · rw [mul_assoc _ (e F), cutD, mul_assoc, armD, hh, map_mul, mul_assoc]
+
 end
 end Categorification.KLR.KLRAlgebra

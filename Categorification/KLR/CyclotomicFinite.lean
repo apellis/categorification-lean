@@ -204,6 +204,20 @@ theorem pol_sub_mul_pol_dd (j : ℕ) (h : j + 1 < m) (f : MvPolynomial (Fin m) k
   have hne : (⟨j, by omega⟩ : Fin m) ≠ ⟨j + 1, h⟩ := fun e => by simp [Fin.ext_iff] at e
   rw [← map_mul, dd_of_lt h, ddiff_spec hne, map_sub]
 
+/-- Between two equal-colour crossings a polynomial contributes its divided
+difference times a single crossing. -/
+theorem ψ_pol_ψ_mul_e_same (j : ℕ) (h : j + 1 < m) {i : Seq ν}
+    (hi : i.lbl ⟨j, by omega⟩ = i.lbl ⟨j + 1, h⟩) (f : MvPolynomial (Fin m) k) :
+    (ψ j * pol f * ψ j * e i : KLRAlgebra k Q ν) = pol (dd k m j f) * ψ j * e i := by
+  have hc := ψ_mul_pol_mul_e (Q := Q) j h i f
+  simp only [hi, ↓reduceIte] at hc
+  have he := ψ_mul_e_comm (Q := Q) j h hi
+  have hz : (ψ j * (ψ j * e i) : KLRAlgebra k Q ν) = 0 := by
+    rw [← mul_assoc]
+    exact ψ_mul_ψ_mul_e_same j h hi
+  rw [mul_assoc (ψ j * pol f), he, ← mul_assoc, hc, add_mul]
+  simp only [mul_assoc, ← he, hz, mul_zero, zero_add]
+
 section Module
 
 variable {M : Type*} [AddCommGroup M] [Module (KLRAlgebra k Q ν) M]
@@ -216,14 +230,7 @@ theorem dd_smul_eq_zero (j : ℕ) (h : j + 1 < m) {i : Seq ν}
     (pol (dd k m j f) * e i : KLRAlgebra k Q ν) • v = 0 := by
   have hc := ψ_mul_pol_mul_e (Q := Q) j h i f
   simp only [hi, ↓reduceIte] at hc
-  -- `ψ f ψ e = (∂f) ψ e`
-  have h1 : (ψ j * pol f * ψ j * e i : KLRAlgebra k Q ν) = pol (dd k m j f) * ψ j * e i := by
-    have : (ψ j * pol f * ψ j * e i : KLRAlgebra k Q ν) = (ψ j * pol f * e i) * ψ j := by
-      rw [mul_assoc (ψ j * pol f), ψ_mul_e_comm j h hi, ← mul_assoc]
-    have hz : (ψ j * (ψ j * e i) : KLRAlgebra k Q ν) = 0 := by
-      rw [← mul_assoc]; exact ψ_mul_ψ_mul_e_same j h hi
-    rw [this, hc, add_mul]
-    simp only [mul_assoc, ← ψ_mul_e_comm j h hi, hz, mul_zero, zero_add]
+  have h1 := ψ_pol_ψ_mul_e_same (Q := Q) j h hi f
   -- solve for `(∂f) e`
   have h2 : (pol (dd k m j f) * e i : KLRAlgebra k Q ν) =
       pol (MvPolynomial.X ⟨j, by omega⟩ - MvPolynomial.X ⟨j + 1, h⟩) *

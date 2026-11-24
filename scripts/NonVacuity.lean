@@ -11263,6 +11263,8 @@ example := labelTwo_incomingLift_return (parameter ℚ)
 
 example := incomingLift_middle_fixed_iff ℚ
 
+example := incomingLiftTensorReadout_dotSum_generator ℚ
+
 example := middleY₁Readout_diagramPlus_generator ℚ
 
 example (z : incomingLiftSubmodule ℚ) := middleY₁Readout_middleDotElt_incomingLift_zero ℚ z

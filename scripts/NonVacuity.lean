@@ -9561,6 +9561,21 @@ example := diagramWeightOrdinaryProjection_tmul G G leftAction rightAction leftA
   (⟨1, InDegreeZero.ring_mem_grading_zero (1 : ℚ)⟩ : G 0)
   (⟨1, InDegreeZero.ring_mem_grading_zero (1 : ℚ)⟩ : G 0)
 
+section
+
+open CategoryTheory.Limits CategoryTheory.Pretriangulated
+
+local instance : CatModule.HasDerivedCategory.{1,0} QWeight :=
+  CatModule.HasDerivedCategory.standard QWeight
+
+example (X : QWeight) (T : Triangle (CatModule.DerivedCategory QWeight))
+    (hT : T ∈ distTriang _) (n : ℤ)
+    (h₀ : IsZero ((CatModule.DerivedCategory.cohomologyFunctor X n).obj T.obj₂))
+    (h₁ : IsZero ((CatModule.DerivedCategory.cohomologyFunctor X (n + 1)).obj T.obj₂)) :=
+  weightCohomologyShiftIso X T hT n h₀ h₁
+
+end
+
 end
 
 end NonVacuity.WebsterWeightCoend

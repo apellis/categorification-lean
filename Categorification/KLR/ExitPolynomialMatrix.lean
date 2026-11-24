@@ -154,7 +154,8 @@ def exitSquarePolynomial (Q : I → I → MvPolynomial (Fin 2) k) (r : Seq ν)
   let b : Fin m := ⟨j + 1, hj⟩
   if r.lbl a = r.lbl b then 0 else rename ![a, b] (Q (r.lbl a) (r.lbl b))
 
-private theorem square_above (s : Seq ν) (leg : List ℕ) (j : ℕ) (hj : j + 1 < m) :
+/-- A square on top of a supported crossing word multiplies by its local KLR square polynomial. -/
+theorem exit_square_word (s : Seq ν) (leg : List ℕ) (j : ℕ) (hj : j + 1 < m) :
     (ψw (j :: j :: leg) * e s : R) =
       pol (exitSquarePolynomial Q (wordProd m leg • s) j hj) * (ψw leg * e s) := by
   let r := wordProd m leg • s
@@ -211,34 +212,51 @@ theorem twoBlack_extreme_middle (s : Seq ν) (p : ℕ) (hp : p + 3 < m)
   calc
     _ = ψw [p + 1, p, p + 1, p + 1, p + 2] * e s := by simpa only [List.cons_append, List.nil_append, ψw_cons, mul_assoc] using bra'
     _ = ψ (p + 1) * (ψ p * (ψw [p + 1, p + 1, p + 2] * e s)) := by simp only [ψw_cons, mul_assoc]
-    _ = ψ (p + 1) * (ψ p * (pol q * (ψw [p + 2] * e s))) := by rw [square_above s [p + 2] (p + 1) (by omega)]
+    _ = ψ (p + 1) * (ψ p * (pol q * (ψw [p + 2] * e s))) := by rw [exit_square_word s [p + 2] (p + 1) (by omega)]
     _ = _ := by
       rw [slide_above s [p + 2] p (by omega) q ha, slide_above s [p, p + 2] (p + 1) (by omega) _ hc]
       rfl
 
-include hQ in
-private theorem polynomial_pair_of_reduced {l : List ℕ} (hl : IsReduced m l) (j : ℕ)
-    (hj : IsReduced m (j :: l)) (s : Seq ν) (f g : P) :
-    (pol f * (ψw l * e s) + pol g * (ψw (j :: l) * e s) : R) = 0 ↔ f = 0 ∧ g = 0 := by
+/-- Choose PBW words containing a prescribed reduced word and its reduced
+extension by one crossing. Their product permutations are distinct. -/
+theorem exists_pbw_words_for_crossing {N : ℕ} {l : List ℕ} (hl : IsReduced N l)
+    (j : ℕ) (hj : IsReduced N (j :: l)) :
+    let u := wordProd N l
+    let v := wordProd N (j :: l)
+    u ≠ v ∧ ∃ rep : Perm (Fin N) → List ℕ, rep u = l ∧ rep v = j :: l ∧
+      ∀ t, IsReduced N (rep t) ∧ wordProd N (rep t) = t := by
+  intro u v
   classical
-  let u := wordProd m l
-  let v := wordProd m (j :: l)
   have huv : u ≠ v := by
     intro he
-    have h₁ : l.length = length m u := hl.2
-    have h₂ : l.length + 1 = length m v := hj.2
+    have h₁ : l.length = length N u := hl.2
+    have h₂ : l.length + 1 = length N v := hj.2
     rw [he] at h₁
     omega
-  let rep (t : S) := if t = u then l else if t = v then j :: l else TypeA.canWord m t
+  let rep (t : Perm (Fin N)) := if t = u then l else if t = v then j :: l else TypeA.canWord N t
   have repU : rep u = l := ite_eq_left rfl
   have repV : rep v = j :: l := by simp [rep, huv.symm]
-  have hrep (t : S) : IsReduced m (rep t) ∧ wordProd m (rep t) = t := by
+  have hrep (t : Perm (Fin N)) : IsReduced N (rep t) ∧ wordProd N (rep t) = t := by
     by_cases hu : t = u
     · subst t; rw [repU]; exact ⟨hl, rfl⟩
     by_cases hv : t = v
     · subst t; rw [repV]; exact ⟨hj, rfl⟩
     · simpa only [rep, ite_eq_right hu, ite_eq_right hv] using
-        And.intro (isReduced_canWord m t) (wordProd_canWord m t)
+        And.intro (isReduced_canWord N t) (wordProd_canWord N t)
+  exact ⟨huv, rep, repU, repV, hrep⟩
+
+include hQ in
+/-- Top polynomial coefficients at two reduced PBW rows separated by a crossing are independent. -/
+theorem top_polynomial_pair_eq_zero_iff_of_reduced {l : List ℕ} (hl : IsReduced m l) (j : ℕ)
+    (hj : IsReduced m (j :: l)) (s : Seq ν) (f g : P) :
+    (pol f * (ψw l * e s) + pol g * (ψw (j :: l) * e s) : R) = 0 ↔ f = 0 ∧ g = 0 := by
+  classical
+  let u := wordProd m l
+  let v := wordProd m (j :: l)
+  obtain ⟨huv, rep, repU, repV, hrep⟩ := exists_pbw_words_for_crossing hl j hj
+  change u ≠ v at huv
+  change rep u = l at repU
+  change rep v = j :: l at repV
   constructor
   · intro eq
     have eq' : (pol f * ψw (rep u) * e s + pol g * ψw (rep v) * e s : R) = 0 := by
@@ -268,9 +286,9 @@ theorem equalBlack_return_expansion (s : Seq ν) (l : List ℕ) (b j : ℕ)
   let r := wordProd m l • s
   have fix := sadj_smul_eq_self hj he
   have same : wordProd m (j :: l) • s = r := by rw [wordProd_cons, mul_smul, fix]
-  have c₀ : (ψw (b :: b :: l) * e s : R) = pol q * y := square_above s l b hb
+  have c₀ : (ψw (b :: b :: l) * e s : R) = pol q * y := exit_square_word s l b hb
   have c₂ : (ψw (b :: b :: j :: l) * e s : R) = pol q * z := by
-    rw [square_above s (j :: l) b hb, same]
+    rw [exit_square_word s (j :: l) b hb, same]
   have hr : e r * y = y := support_word s l
   have cross := ψ_mul_pol_mul_e (Q := Q) j hj r q
   rw [ite_eq_left he] at cross
@@ -306,9 +324,10 @@ theorem equalBlack_return_matrix_iff (s : Seq ν) (l : List ℕ) (b j : ℕ)
   have expansion := equalBlack_return_expansion (Q := Q) s l b j hb hj he f g h
   dsimp only at expansion
   rw [expansion]
-  exact polynomial_pair_of_reduced hQ hl j hjl s _ _
+  exact top_polynomial_pair_eq_zero_iff_of_reduced hQ hl j hjl s _ _
 
-private theorem dvd_X_pow_of_dvd_mul_other {σ : Type*} {a b : σ} (hab : a ≠ b) (n : ℕ)
+/-- Divisibility by a variable power is unaffected by multiplication with a power of a distinct variable. -/
+theorem X_pow_dvd_of_dvd_mul_other {σ : Type*} {a b : σ} (hab : a ≠ b) (n : ℕ)
     {g : MvPolynomial σ k} (h : X a ^ n ∣ g * X b ^ n) : X a ^ n ∣ g := by
   classical
   simp only [X_pow_eq_monomial] at h ⊢
@@ -359,7 +378,7 @@ theorem equalBlack_return_kernel (s : Seq ν) (l : List ℕ) (b j n : ℕ)
   constructor
   · rintro ⟨h₀, h₁⟩
     have hdiv : X a ^ n ∣ (-g) * X b' ^ n := ⟨h, by linear_combination -h₁⟩
-    obtain ⟨z, hz⟩ := dvd_X_pow_of_dvd_mul_other hne n hdiv
+    obtain ⟨z, hz⟩ := X_pow_dvd_of_dvd_mul_other hne n hdiv
     have hg : g = -(z * X a ^ n) := by linear_combination -hz
     subst g
     have reg : IsRegular ((X a : P) ^ n) := isRegular_X_pow n
@@ -407,7 +426,7 @@ theorem equalBlack_cycle_components (t : Seq ν) (b n : ℕ) (hp : b + 2 < m)
   have bra := congrArg (· * (ψ j * e t)) braid₀
   rw [mul_assoc _ (e _), loaded, mul_assoc _ (e _), loaded] at bra
   have sq : (ψ j * (ψ j * e t) : R) = pol q' * e t := by
-    have eq := square_above (Q := Q) t [] j hp
+    have eq := exit_square_word (Q := Q) t [] j hp
     have hh : exitSquarePolynomial Q t j hp = q' := hsq
     simpa only [ψw_cons, ψw_nil, mul_one, one_mul, wordProd_nil, one_smul, mul_assoc, hh] using eq
   have comm : Commute (ψ b : R) (pol q') := by

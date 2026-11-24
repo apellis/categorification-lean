@@ -606,6 +606,7 @@ import Categorification.KLR.KL2.SerreMaps
 import Categorification.KLR.KL2.SerreSeq
 import Categorification.KLR.KL2.Theorem8
 import Categorification.KLR.ExitPolynomialMatrix
+import Categorification.KLR.EqualBlackReturnKernel
 import Categorification.KLR.Mackey
 import Categorification.KLR.MackeyFactor
 import Categorification.KLR.MackeyGraded
@@ -1653,6 +1654,7 @@ import Categorification.WeightedKLR.RedStrands.BraidedStandardTwo
 import Categorification.WeightedKLR.RedStrands.BraidedStandardization
 import Categorification.WeightedKLR.RedStrands.BraidedStendhal
 import Categorification.WeightedKLR.RedStrands.BraidedEqualBlackReturns
+import Categorification.WeightedKLR.RedStrands.BraidedEqualBlackCornerCycle
 import Categorification.WeightedKLR.RedStrands.BraidedViolatedIdentity
 import Categorification.WeightedKLR.RedStrands.BraidedViolatedPush
 import Categorification.WeightedKLR.RedStrands.BraidedViolatedQuotient

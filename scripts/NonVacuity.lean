@@ -6569,6 +6569,19 @@ example :
   · apply (returns 1 (-X x₂) (X x₃)).2
     simp only [one_mul, and_self]
 
+/-- The fourth return contributes the second independent polynomial relation. -/
+example (f g h i : P) :
+    (pol f * (ψw (1 :: 1 :: l) * e s) + pol g * (ψw (2 :: 1 :: 1 :: l) * e s) +
+      pol h * (ψw (1 :: 1 :: 2 :: l) * e s) + pol i * (ψw (2 :: 1 :: 1 :: 2 :: l) * e s) : R) = 0 ↔
+      ∃ u v : P, f = u ∧ g = -(u * X x₂) ∧ h = u * X x₃ + v ∧ i = -(v * X x₂) := by
+  have kernel := equalBlack_four_return_kernel hQ s l 1 2 1 (by decide) (by decide) redL redJL
+    (by decide) (by simpa only [pow_one] using weight) f g h i
+  have ddx : NilHecke.dd ℤ ν.card 2 (X x₂) = (1 : P) := by
+    rw [NilHecke.dd_of_lt (by decide : 2 + 1 < ν.card)]
+    exact ddiff_X_left (by decide : x₂ ≠ x₃)
+  dsimp only at kernel
+  simpa only [pow_one, ddx, mul_one] using kernel
+
 end NonVacuity.EqualBlackReturns
 end
 
@@ -6656,6 +6669,32 @@ example :
     (by decide) rl rjl 1 () hred hi hi'
   apply (relation 1 (-X x₂) (X x₃)).2
   simp only [map_neg, map_one, black₂, black₃, one_mul, and_self]
+
+private theorem onlyTwo : ∀ w : Equiv.Perm (Fin μ.card),
+    w • (sadj μ.card 1 • (wordProd μ.card l • s)) = wordProd μ.card l • s ↔
+      w = wordProd μ.card [1] ∨ w = wordProd μ.card [2, 1] :=
+  BraidedStendhalAlgebra.twoBlack_return_permutations_of_card_two _ 1 (by decide) (by decide) () hi hi'
+
+-- An extra exterior red keeps the two return permutations at the shifted joint.
+private def spectatorTop : Seq (stendhalWeight 3 ν) :=
+  KLR.KLRAlgebra.Seq.ofList [.inr 0, .inr 1, .inr 2, .inl (), .inl ()] (by decide)
+example (w : Equiv.Perm (Fin (stendhalWeight 3 ν).card)) :
+    w • (sadj (stendhalWeight 3 ν).card 2 • spectatorTop) = spectatorTop ↔
+      w = wordProd (stendhalWeight 3 ν).card [2] ∨ w = wordProd (stendhalWeight 3 ν).card [3, 2] :=
+  BraidedStendhalAlgebra.twoBlack_return_permutations_of_card_two spectatorTop 2 (by decide) (by decide) ()
+    (by decide) (by decide) w
+
+/-- Arbitrary upper elements at the four-strand extreme have a common full-joint
+coefficient, including after imposing the red-dot relations. -/
+example (x y : BraidedStendhalAlgebra ℤ Q Λ ν) :
+    let r := wordProd μ.card l • s
+    let t := sadj μ.card 1 • r
+    π (e r) * x = x → x * π (e t) = x → π (e r) * y = y → y * π (e t) = y →
+    x * π (ψw (1 :: l) * e s) + y * π (ψw (1 :: 2 :: l) * e s) = 0 →
+    ∃ c, c * π (e (sadj μ.card 2 • t)) = c ∧ c * π (ψw [1, 2] * e t) = -x ∧
+      c * π (ψw [2] * e t) = y :=
+  BraidedStendhalAlgebra.exists_equalBlack_corner_cycle_coefficient symmQ s l 1 (by decide) rl rjl
+    1 () hred hi hi' onlyTwo x y
 
 end NonVacuity.BraidedEqualBlackReturns
 end

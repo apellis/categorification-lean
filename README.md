@@ -1123,7 +1123,9 @@ consists of the crossing and its one-dot decoration
 (`fundamentalBraid_terminal_span`, `fundamentalBraid_terminal_linearIndependent`).
 The mixed differentials on this basis have matrices `(0,1)ᵀ` and `(1,0)`
 (`fundamentalBraid_terminal_differentials`). This computes the ungraded
-corner diagrams entering the projective resolution.
+corner diagrams entering the projective resolution. The surviving middle
+class has diagram degree `1/2`. Its weight in the translated terminal
+projective is exactly `3/2` (`fundamentalBraidMiddleClass_resolutionWeight`).
 
 In the diagram-weight categories the middle character is homogeneous.
 Its weight-zero generator identifies with the right simple head, with

@@ -264,6 +264,119 @@ theorem diagramWeightTensorShiftNatIso_hom_tmul (k : ℤ)
         (Shift.unmk k (M := L.obj Y) y)) :=
   weightTensorShiftHom_tmul k ((D).right X) L (weight_twist_eq k) Y x y
 
+/-- The shift isomorphisms respect zero and addition of cohomological degrees. -/
+instance diagramWeightTensor_commShift : (D).tensorFunctor.CommShift ℤ where
+  commShiftIso := diagramWeightTensorShiftNatIso G hl hr
+  commShiftIso_zero := by
+    apply Iso.ext
+    apply NatTrans.ext
+    funext L
+    apply CatModule.Hom.ext
+    intro X x
+    let f := ((diagramWeightTensorShiftNatIso G hl hr 0).hom.app L).app X
+    let g := ((Functor.CommShift.isoZero (D).tensorFunctor ℤ).hom.app L).app X
+    have eq : f = g := by
+      apply CatTensorProduct.addHom_ext
+      intro Y b y
+      change f (CatTensorProduct.tmul Y b y) = g (CatTensorProduct.tmul Y b y)
+      refine (diagramWeightTensorShiftNatIso_hom_tmul G hl hr 0 L X Y b y).trans ?_
+      dsimp only [g]
+      rw [Functor.CommShift.isoZero_hom_app]
+      let p := CatTensorProduct.tmul (N := (D).right X) (M := CatModule.shift 0 L) Y b y
+      let a := ((D).tensorFunctor.map ((shiftFunctorZero (CatModule (WeightCategory B)) ℤ).hom.app L))
+      let b₀ := ((shiftFunctorZero (CatModule (WeightCategory A)) ℤ).inv.app ((D).tensorObj L))
+      have h₁ := CatModule.comp_app a b₀ X p
+      have h₂ := CatModule.shiftFunctorZero_inv_app_app ((D).tensorObj L) (a.app X p)
+      have h₃ := CatBimodule.tensorMap_tmul (D) (CatModule.shiftZeroIso L).hom X Y b y
+      exact (h₁.trans (h₂.trans
+        (congrArg (Shift.mk 0 (M := ((D).tensorObj L).obj X)) h₃))).symm
+    exact DFunLike.congr_fun eq x
+  commShiftIso_add := by
+    intro a b
+    apply Iso.ext
+    apply NatTrans.ext
+    funext L
+    apply CatModule.Hom.ext
+    intro X x
+    let f := ((diagramWeightTensorShiftNatIso G hl hr (a+b)).hom.app L).app X
+    let g := ((Functor.CommShift.isoAdd (diagramWeightTensorShiftNatIso G hl hr a)
+      (diagramWeightTensorShiftNatIso G hl hr b)).hom.app L).app X
+    have eq : f = g := by
+      apply CatTensorProduct.addHom_ext
+      intro Y z y
+      change f (CatTensorProduct.tmul Y z y) = g (CatTensorProduct.tmul Y z y)
+      dsimp only [g]
+      rw [Functor.CommShift.isoAdd_hom_app]
+      let A₀ := (D).tensorObj L
+      let q := CatTensorProduct.tmul (N := (D).right X) (M := CatModule.shift (a+b) L) Y z y
+      let v := Shift.unmk (a+b) (M := L.obj Y) y
+      let w : A₀.obj X := CatTensorProduct.tmul (N := (D).right X) (M := L) Y z v
+      let r₁ := (shiftFunctorAdd (CatModule (WeightCategory B)) a b).hom.app L
+      let h₁ := (D).tensorMap r₁
+      let h₂ := (diagramWeightTensorShiftNatIso G hl hr b).hom.app (CatModule.shift a L)
+      let h₃ := CatModule.shiftMap b ((diagramWeightTensorShiftNatIso G hl hr a).hom.app L)
+      let h₄ := (shiftFunctorAdd (CatModule (WeightCategory A)) a b).inv.app A₀
+      have hc₁ := CatModule.comp_app h₁ (h₂ ≫ h₃ ≫ h₄) X q
+      have hc₂ := CatModule.comp_app h₂ (h₃ ≫ h₄) X (h₁.app X q)
+      have hc₃ := CatModule.comp_app h₃ h₄ X (h₂.app X (h₁.app X q))
+      have hc := hc₁.trans (hc₂.trans hc₃)
+      have e₁ := CatBimodule.tensorMap_tmul (D) r₁ X Y z y
+      have er₁ : r₁.app Y y = Shift.mk b (M := (CatModule.shift a L).obj Y)
+          (Shift.mk a (M := L.obj Y) v) := by
+        exact CatModule.shiftFunctorAdd'_hom_app_app a b (a+b) rfl L y
+      let y₁ := Shift.mk a (M := L.obj Y) v
+      let y₂ := Shift.mk b (M := (CatModule.shift a L).obj Y) y₁
+      let t := CatTensorProduct.tmul (N := (D).right X) (M := CatModule.shift a L) Y z y₁
+      let t₂ := Shift.mk b (M := ((D).tensorObj (CatModule.shift a L)).obj X) t
+      let w₁ : (CatModule.shift a A₀).obj X := CatModule.shift.mk (M := A₀) (X := X) a w
+      let w₂ : (CatModule.shift b (CatModule.shift a A₀)).obj X :=
+        CatModule.shift.mk (M := CatModule.shift a A₀) (X := X) b w₁
+      have e₁' : h₁.app X q = CatTensorProduct.tmul
+          (N := (D).right X) (M := CatModule.shift b (CatModule.shift a L)) Y z y₂ :=
+        e₁.trans (congrArg (CatTensorProduct.tmul (N := (D).right X)
+          (M := CatModule.shift b (CatModule.shift a L)) Y z) er₁)
+      have e₂ := diagramWeightTensorShiftNatIso_hom_tmul G hl hr b (CatModule.shift a L) X Y z y₂
+      have e₂' : h₂.app X (CatTensorProduct.tmul
+          (N := (D).right X) (M := CatModule.shift b (CatModule.shift a L)) Y z y₂) = t₂ :=
+        e₂.trans (congrArg (fun y₀ => Shift.mk b (M := ((D).tensorObj (CatModule.shift a L)).obj X)
+          (CatTensorProduct.tmul (N := (D).right X) (M := CatModule.shift a L) Y z y₀))
+          (Shift.unmk_mk (n := b) y₁))
+      have e₃ := CatModule.shiftMap_app_mk (n := b) ((diagramWeightTensorShiftNatIso G hl hr a).hom.app L) t
+      have ea : ((diagramWeightTensorShiftNatIso G hl hr a).hom.app L).app X t = w₁ :=
+        (diagramWeightTensorShiftNatIso_hom_tmul G hl hr a L X Y z y₁).trans
+          (congrArg (fun y₀ => Shift.mk a (M := A₀.obj X)
+            (CatTensorProduct.tmul (N := (D).right X) (M := L) Y z y₀)) (Shift.unmk_mk (n := a) v))
+      have e₃' : h₃.app X t₂ = w₂ := e₃.trans
+        (congrArg (Shift.mk b (M := (CatModule.shift a A₀).obj X)) ea)
+      have e₄ : h₄.app X w₂ = Shift.mk (a+b) (M := A₀.obj X) w :=
+        CatModule.shiftFunctorAdd'_inv_app_app a b (a+b) rfl A₀ (X := X) w₂
+      have hc' : (h₁ ≫ h₂ ≫ h₃ ≫ h₄).app X q = Shift.mk (a+b) (M := A₀.obj X) w :=
+        hc.trans ((congrArg (fun t₀ => h₄.app X (h₃.app X (h₂.app X t₀))) e₁').trans
+          ((congrArg (fun t₀ => h₄.app X (h₃.app X t₀)) e₂').trans
+            ((congrArg (h₄.app X) e₃').trans e₄)))
+      exact (diagramWeightTensorShiftNatIso_hom_tmul G hl hr (a+b) L X Y z y).trans hc'.symm
+    exact DFunLike.congr_fun eq x
+
+
+variable [CatModule.HasDerivedCategory.{v,u} (WeightCategory A)]
+  [CatModule.HasDerivedCategory.{v,u} (WeightCategory B)]
+
+/-- The homotopy tensor is induced by the dg module tensor. -/
+def diagramWeightTensorHomotopyFactors :
+    CatModule.HomotopyCategory.quotient (WeightCategory B) ⋙ diagramWeightTensorHomotopy G hl hr ≅
+      (D).tensorFunctor ⋙ CatModule.HomotopyCategory.quotient (WeightCategory A) :=
+  CategoryTheory.Quotient.lift.isLift _ _ _
+
+instance diagramWeightTensorHomotopy_commShift : (diagramWeightTensorHomotopy G hl hr).CommShift ℤ :=
+  CategoryTheory.Quotient.liftCommShift ((D).tensorFunctor ⋙
+      CatModule.HomotopyCategory.quotient (WeightCategory A))
+    (CatModule.homotopic.{u} (WeightCategory B)) ℤ _
+
+instance : NatTrans.CommShift (diagramWeightTensorHomotopyFactors G hl hr).hom ℤ :=
+  CategoryTheory.Quotient.liftCommShift_compatibility ((D).tensorFunctor ⋙
+      CatModule.HomotopyCategory.quotient (WeightCategory A))
+    (CatModule.homotopic.{u} (WeightCategory B)) ℤ _
+
 end DiagramTensor
 
 end Categorification

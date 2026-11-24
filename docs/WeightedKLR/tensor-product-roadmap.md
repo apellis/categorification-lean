@@ -1094,11 +1094,49 @@ Separately, an excursion at the bottom to the consecutive column and back gives
 `ker_blockKernelColumnInclusion_le_ker_dots`. When all intervening pairings with
 `a` vanish the dot operator is the identity and the column inclusion is injective.
 
-Still open for Lemma 6.8: eliminate arbitrary sums of differently marked cuts at
-positive pairings, even with one intervening black. The dotted relation is not an
-undotted one, and the annihilator need not act injectively. Ordinary parabolic
-coordinates are linear for juxtaposed block diagrams, not for arbitrary upper
-elements of `e(t)T`. Also open: filter `K` by higher
+For symmetric `Q`, at the bottom `b i a` every permutation into the source order
+inverts the outside positions. Two successive right descents give a reduced word
+ending in `[j+1,j]` or `[j,j+1]`. Putting the dots on top gives two undotted
+generators before quotient (`exists_interleavedColumn_exits`); balancing the ordered
+coefficients into `K` gives two generators of `K ⊗_T B e(s)` even with spectators
+(`exists_interleavedKernelColumn_exits`).
+
+When there is **one black strand in total**, all paths from a non-higher loading to
+a strictly higher loading must move that black to the left. PBW division on the
+two-sided higher ideal leaves its upper factor in the ideal. The same forced descent
+on globally violated loadings proves cancellation of the leftward crossing in the
+violated algebra; the dot is cancelled only on the affine PBW basis. This gives
+`firstWeight_exit_saturated`. Iterating to the first higher loading (or to a global
+violation) gives a generator `g` of the marked row with support `e(u)` such that
+`g y = 0` implies `e(u)y = 0`. Thus every marked class is `g ⊗ y` and a zero stack
+is already zero by balancing `e(u)`. `firstWeight_blockKernelTensorInclusion_injective`
+and `firstWeight_blockKernelColumnInclusion_injective` handle all mixed and same-exit
+relations in this weight. `firstWeight_blockKernel_mixedExit` assumes membership of
+the two crossed coefficients, not of their joint coefficient. The surjection and
+its exact kernel are `firstWeight_interleavedColumn_presentation`: a pair `(x,y)`
+of marked coefficients is a relation precisely when `xL + yR = 0` in the globally
+violated algebra, with no quotient by higher loadings on the right-hand side.
+
+For example take bottom `c b i a`, top `c a i b`, and pairings `(c,a,b)=(2,1,1)`.
+Write `L_d,R_d` for the left and right exit with `d` dots on the reduced upper word.
+With one black, each pair of endpoints has one PBW permutation. A black–red return
+adds its pairing in dots; a red–red return vanishes. Factoring through a leftmost
+black gives the upper dot cutoffs `2,3,3` at the left exit, joint and right exit,
+respectively, and cutoff `2` for the stacked column. Through the strictly higher
+`c i a b`, the marked exponents start at `0,1,1` at these three loadings. The
+unmarked relations are `L₀=R₀`, `L₁=R₁`, `R₂=0`; the marked generators are
+`L₀,L₁,R₁,R₂` with relations `L₁=R₁` and `R₂=0`. These two relations are the
+images of the one- and two-dot joint coefficients. The remaining `L₀,L₁` stack
+to distinct surviving PBW monomials, so there are no further relations. In
+particular, checking only the nonzero mixed braid misses a same-exit relation.
+
+Still open for Lemma 6.8: with a spectator black and positive pairings, determine
+the relations between the two generators and their marked lifts. A different black
+can furnish either a global violation or a higher retained boundary without the
+specified descent. The first-weight division argument therefore does not extend
+as stated; this is not a counterexample to injectivity. Ordinary parabolic coordinates
+are linear for juxtaposed block diagrams, not for arbitrary upper elements of
+`e(t)T`. Also open: filter `K` by higher
 partial standardizations, apply the induction in (6.21), and identify the derived
 comparison naturally. Then Prop 6.9
 for general `ℓ` by reduction to two

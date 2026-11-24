@@ -83,6 +83,37 @@ private theorem columnInjective {X Y U D : Type*} [AddCommGroup X] [Module k X]
   have hb : b (u z) = 0 := H zero
   exact (LinearMap.congr_fun hu z).symm.trans ((congrArg w hb).trans (map_zero _))
 
+/-- A single bottom loading is a split summand on both sides of the tensor
+inclusion. Used to restrict the first-black-weight proof of the kernel test
+following Webster v2, (6.21), to an interleaved loading. -/
+theorem blockKernelColumnInclusion_injective_of_tensor
+    (hi : Function.Injective (blockKernelTensorInclusion Q Λ t a b (redWord s))) :
+    Function.Injective (blockKernelColumnInclusion Q Λ t a b s) :=
+  columnInjective (k := k) (X := BalancedTensor k k T K C) (Y := BalancedTensor k k T P C)
+    (U := BalancedTensor k k T K B) (D := BalancedTensor k k T P B)
+    (blockKernelColumnInclusion Q Λ t a b s) (blockKernelTensorInclusion Q Λ t a b (redWord s))
+    botMap emb embP out (recoverColumn Q Λ t a b s)
+    (fun _ hx => (congrArg (fun z => botMap z) (hi (hx.trans (map_zero _).symm))).trans (map_zero _))
+    (includeColumn Q Λ t a b s)
+
+/-- Read a relation between two marked cuts in the loading column when the full
+kernel inclusion has been proved injective. In the first weight this identifies
+the relations of the two-exit presentation following Webster v2, (6.21). -/
+theorem blockKernelColumn_pair_eq_zero_iff
+    (hi : Function.Injective (blockKernelTensorInclusion Q Λ t a b (redWord s)))
+    (x y : K) (l r : C) :
+    (BalancedTensor.tmul x l + BalancedTensor.tmul y r : BalancedTensor k k T K C) = 0 ↔
+      x.1.1.1 * l.1 + y.1.1.1 * r.1 = 0 := by
+  let f := ((blockLoadingTensorStack Q Λ t (redWord s)).comp
+    (blockKernelTensorInclusion Q Λ t a b (redWord s))).comp emb
+  have retract (z : BalancedTensor k k T K C) := LinearMap.congr_fun (recoverColumn Q Λ t a b s) z
+  have he : Function.Injective emb := fun z w h => (retract z).symm.trans
+    ((congrArg (fun v => out (botMap v)) h).trans (retract w))
+  have hf : Function.Injective f := (blockLoadingTensorStack_injective Q Λ t (redWord s)).comp (hi.comp he)
+  have val : f (BalancedTensor.tmul x l + BalancedTensor.tmul y r) = x.1.1.1*l.1 + y.1.1.1*r.1 :=
+    map_add f _ _
+  exact ⟨fun h => val.symm.trans ((congrArg f h).trans (map_zero f)),fun h => hf (val.trans (h.trans (map_zero f).symm))⟩
+
 /-- **Injectivity in (6.21) at consecutive exchanged reds.** Webster v2, §6.1, Lemma
 6.8. The top may be any source loading, with arbitrary spectators and black contents.
 The consecutive-position restriction is only on the bottom column; the proof uses a

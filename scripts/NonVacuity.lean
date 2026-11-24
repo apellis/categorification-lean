@@ -7879,3 +7879,26 @@ example :
 end NonVacuity.WebsterRightTensor
 
 end
+
+namespace NonVacuity.WebsterFiveSlotThreeTopDerived
+
+open Categorification.KLR Categorification.Stendhal Categorification.TypeA
+open BraidedStendhalAlgebra DG MulOpposite
+open scoped DG.DegreeZero
+
+attribute [local instance 1200] Ring.toIntAlgebra
+
+private noncomputable abbrev Q : Unit → Unit → MvPolynomial (Fin 2) ℚ := fun _ _ => 0
+private noncomputable abbrev Λ : Fin 3 → Unit →₀ ℕ := fun _ => Finsupp.single () 2
+local notation "ν₀" => ({()} + {()} : Multiset Unit)
+local notation "t" => sadj (Multiset.card (stendhalWeight 3 ν₀)) 2 • fixedTopFourExitCut 2
+local notation "T" => IsIdempotentElem.Corner
+  (isIdempotentElem_violMk_redProj ℚ Q Λ ν₀ (redWord t))
+local notation "U" => IsIdempotentElem.Corner
+  (isIdempotentElem_violMk_loading Q Λ fixedTopFourExitBottom)
+
+example [DG.HasDerivedCategory.{0, 0} Tᵐᵒᵖ] [DG.HasDerivedCategory.{0, 0} Uᵐᵒᵖ] :=
+  fiveSlotRightTop_blockKernelColumnDerivedHomology_mono Q Λ t (fun _ _ _ => rfl)
+    (Or.inr (Or.inl rfl))
+
+end NonVacuity.WebsterFiveSlotThreeTopDerived

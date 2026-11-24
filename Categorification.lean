@@ -1667,6 +1667,7 @@ import Categorification.WeightedKLR.RedStrands.EqualBlackHigherPair
 import Categorification.WeightedKLR.RedStrands.FixedTopFourExitJoints
 import Categorification.WeightedKLR.RedStrands.FiveSlotMarkedExitJoints
 import Categorification.WeightedKLR.RedStrands.FiveSlotKernelColumn
+import Categorification.WeightedKLR.RedStrands.FiveSlotThreeTopDerived
 import Categorification.WeightedKLR.RedStrands.IntervalColumnSpan
 import Categorification.WeightedKLR.RedStrands.BraidedStandardDerived
 import Categorification.WeightedKLR.RedStrands.BlockShuffleLoading

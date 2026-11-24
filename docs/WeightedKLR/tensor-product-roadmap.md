@@ -1018,9 +1018,87 @@ natural under maps of right input modules.
 
 `crossingStack_diagramCut` restacks the linear cut of an unmarked diagram to its projection,
 so `crossingStack` is surjective. The cut kills violated and higher bottom endpoints.
-Open for Lemma 6.8: descend the cut through such relations at arbitrary interior heights
-and show that cutting after stacking is the identity on the balanced tensor. Then prove the higher-homology vanishing in (6.21),
-including injectivity after tensoring the kernel inclusion, then Prop 6.9
+For interior relations, `exists_zero_crossingSeamClass_of_quotient` gives a *marked*
+representative of the same affine column diagram whose class is zero before restacking.
+For this lift, push a violation to the bottom red order, cut the upper part using adapted
+words, and reattach the lower tail.
+Consequently `ker_crossingStack_eq_map_ker_boundaryStack` identifies the ordinary kernel
+with the balanced classes of affine relations among marked stacks. Successive parabolic
+PBW coordinates (`exists_blockStack_coordinates`) read those stacks linearly over the
+juxtaposed upper diagrams. In the lower column the two boundary red orders agree, so
+`insert_uncrossed_order` allows the same order to be inserted between a coefficient and
+its tail. The ordered coefficient slides by balancing. Hence every affine relation has
+zero balanced class: `crossingStack_injective` and `crossingStackEquiv` give the ordinary
+comparison for arbitrary spectators and black contents. `crossingDiagramCut_eq_inverse`
+identifies the original basis cut on every representative with the inverse on its class.
+For (6.21), the loading projective is `e(t)T` in the source order. Its surjection to
+the external loading summand has kernel `K = e(t)T ∩ J` for the strictly higher
+retained-boundary ideal (`ker_blockStandardCover`). `blockKernelTensorInclusion` tensors
+this inclusion over `T` with the full braiding bimodule `B`. By moving a global violation
+above the seam, `ker_blockKernelTensorInclusion_eq_map` identifies its kernel with the
+classes of sums of marked pairs whose stacks vanish *before* quotienting by violations.
+At a bottom loading `s` where the two exchanged reds occupy consecutive positions, all
+reduced words admit the same last red crossing after a change of reduced expression.
+Its ordered coefficient slides into `K`; PBW division detects the resulting upper
+factor. Thus `blockKernelColumnInclusion_injective` proves injectivity after tensoring
+with `B e(s)`, for arbitrary spectators and top black contents.
+
+At `b i a` there are distinct exits `i a b` and `a b i`. If `a b i` is strictly
+higher, the joint `a i b` is higher too: moving a black left cannot decrease a
+retained count. `blockKernelHigherExit_slide` changes the exit idempotent of an
+arbitrary upper diagram in `K ⊗_T B`. If only `i a b` is marked, returning to it
+costs `Λ_a(i)` dots, not an invertible crossing (`blockKernelBigon_slide`). For any
+number of intervening blacks, `blockKernelIntervalBigon_slide` compares the two
+extreme exits with the product of the corresponding dot powers at the left exit.
+Separately, an excursion at the bottom to the consecutive column and back gives
+`ker_blockKernelColumnInclusion_le_ker_dots`. When all intervening pairings with
+`a` vanish the dot operator is the identity and the column inclusion is injective.
+
+For symmetric `Q`, at the bottom `b i a` every permutation into the source order
+inverts the outside positions. Two successive right descents give a reduced word
+ending in `[j+1,j]` or `[j,j+1]`. Putting the dots on top gives two undotted
+generators before quotient (`exists_interleavedColumn_exits`); balancing the ordered
+coefficients into `K` gives two generators of `K ⊗_T B e(s)` even with spectators
+(`exists_interleavedKernelColumn_exits`).
+
+When there is **one black strand in total**, all paths from a non-higher loading to
+a strictly higher loading must move that black to the left. PBW division on the
+two-sided higher ideal leaves its upper factor in the ideal. The same forced descent
+on globally violated loadings proves cancellation of the leftward crossing in the
+violated algebra; the dot is cancelled only on the affine PBW basis. This gives
+`firstWeight_exit_saturated`. Iterating to the first higher loading (or to a global
+violation) gives a generator `g` of the marked row with support `e(u)` such that
+`g y = 0` implies `e(u)y = 0`. Thus every marked class is `g ⊗ y` and a zero stack
+is already zero by balancing `e(u)`. `firstWeight_blockKernelTensorInclusion_injective`
+and `firstWeight_blockKernelColumnInclusion_injective` handle all mixed and same-exit
+relations in this weight. `firstWeight_blockKernel_mixedExit` assumes membership of
+the two crossed coefficients, not of their joint coefficient. The surjection and
+its exact kernel are `firstWeight_interleavedColumn_presentation`: a pair `(x,y)`
+of marked coefficients is a relation precisely when `xL + yR = 0` in the globally
+violated algebra, with no quotient by higher loadings on the right-hand side.
+
+For example take bottom `c b i a`, top `c a i b`, and pairings `(c,a,b)=(2,1,1)`.
+Write `L_d,R_d` for the left and right exit with `d` dots on the reduced upper word.
+With one black, each pair of endpoints has one PBW permutation. A black–red return
+adds its pairing in dots; a red–red return vanishes. Factoring through a leftmost
+black gives the upper dot cutoffs `2,3,3` at the left exit, joint and right exit,
+respectively, and cutoff `2` for the stacked column. Through the strictly higher
+`c i a b`, the marked exponents start at `0,1,1` at these three loadings. The
+unmarked relations are `L₀=R₀`, `L₁=R₁`, `R₂=0`; the marked generators are
+`L₀,L₁,R₁,R₂` with relations `L₁=R₁` and `R₂=0`. These two relations are the
+images of the one- and two-dot joint coefficients. The remaining `L₀,L₁` stack
+to distinct surviving PBW monomials, so there are no further relations. In
+particular, checking only the nonzero mixed braid misses a same-exit relation.
+
+Still open for Lemma 6.8: with a spectator black and positive pairings, determine
+the relations between the two generators and their marked lifts. A different black
+can furnish either a global violation or a higher retained boundary without the
+specified descent. The first-weight division argument therefore does not extend
+as stated; this is not a counterexample to injectivity. Ordinary parabolic coordinates
+are linear for juxtaposed block diagrams, not for arbitrary upper elements of
+`e(t)T`. Also open: filter `K` by higher
+partial standardizations, apply the induction in (6.21), and identify the derived
+comparison naturally. Then Prop 6.9
 for general `ℓ` by reduction to two
 red strands, the graded forms of Def 6.6 and Props 6.7, 6.9, Cor 6.10, Lemma 6.11, Def 6.12, Cor 6.13,
 Lemma 6.14; tilting modules (Thm 6.15); `𝔅_σ` are equivalences (Thm 6.16); the braid group

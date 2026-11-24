@@ -9321,6 +9321,12 @@ example := middleSumWeight_distinguished ℚ
 
 example := middleDifferenceWeight_distinguished ℚ
 
+open CategoryTheory in
+example (X : WeightCategory MiddleT) (n : ℤ)
+    (h₀ : middleWeightStandardIsZero ℚ (𝟭 (CatModule.DerivedCategory (WeightCategory MiddleT))) X n)
+    (h₁ : middleWeightStandardIsZero ℚ (𝟭 (CatModule.DerivedCategory (WeightCategory MiddleT))) X (n + 1)) :=
+  middleSumWeightShiftIso ℚ (𝟭 (CatModule.DerivedCategory (WeightCategory MiddleT))) X n h₀ h₁
+
 end
 
 end NonVacuity.WebsterLabelTwoMiddleFixedComplex

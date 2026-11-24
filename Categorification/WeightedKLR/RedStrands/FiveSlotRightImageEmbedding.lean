@@ -93,6 +93,10 @@ def fiveSlotRightmost_firstCentralMap (hQ : KLRSymm Q) : P₁ →ₗ[Aᵐᵒᵖ]
   map_add' := rightmost_c_element_add Q Λ hQ
   map_smul' := rightmost_c_element_smul Q Λ hQ
 
+theorem fiveSlotRightmost_firstCentralMap_val (hQ : KLRSymm Q) (y : P₁) :
+    (fiveSlotRightmost_firstCentralMap Q Λ hQ y).1.1.1 = c * y.1.1 :=
+  rightmost_c_element_val Q Λ hQ y
+
 theorem fiveSlotRightmost_firstCentralMap_injective (hQ : KLRSymm Q) :
     Function.Injective (fiveSlotRightmost_firstCentralMap Q Λ hQ) := by
   apply (injective_iff_map_eq_zero _).2

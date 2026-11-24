@@ -469,6 +469,10 @@ def fiveSlotRightmostKernel_nilHecke : K →ₗ[Aᵐᵒᵖ] K :=
   rightmostKernel_leftMul Q Λ D (by
     rw [← map_mul, ← map_mul, e_mul_ψ, show sadj n₀ 3 • v₂ = v₂ by decide])
 
+theorem fiveSlotRightmostKernel_nilHecke_val (z : K) :
+    (fiveSlotRightmostKernel_nilHecke Q Λ z).1.1.1 = D * z.1.1.1 :=
+  rightmostKernel_leftMul_val Q Λ D _ z
+
 private def rightmostKernel_dot : K →ₗ[Aᵐᵒᵖ] K :=
   rightmostKernel_leftMul Q Λ X₃ (by rw [← map_mul, ← map_mul, x_mul_e])
 

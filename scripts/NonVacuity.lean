@@ -9021,7 +9021,8 @@ attribute [local instance 1100] IsIdempotentElem.instAlgebraCorner_categorificat
 attribute [local instance 1200] Ring.toIntAlgebra
 
 private def params : Fin 2 → Fin 2 → MvPolynomial (Fin 2) (ZMod 4) := fun _ _ => 0
-private def weights : Fin 3 → Fin 2 →₀ ℕ := fun r => if r = 2 then 0 else Finsupp.single 0 2
+private def weights : Fin 3 → Fin 2 →₀ ℕ := fun r =>
+  if r = 2 then 0 else Finsupp.single 0 2 + Finsupp.single 1 2
 private abbrev ν : Multiset (Fin 2) := {0} + {1} + {0}
 private def after : Categorification.KLR.Seq (stendhalWeight 3 ν) :=
   ⟨![.inr 0, .inr 1, .inr 2, .inl 0, .inl 1, .inl 0], by decide⟩

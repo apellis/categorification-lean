@@ -1039,6 +1039,38 @@ its tail. The ordered coefficient slides by balancing. Hence every affine relati
 zero balanced class: `crossingStack_injective` and `crossingStackEquiv` give the ordinary
 comparison for arbitrary spectators and black contents. `crossingDiagramCut_eq_inverse`
 identifies the original basis cut on every representative with the inverse on its class.
+The binary bottom-projector formula extends to each block of the parabolic
+coordinates. Theorem `violated_of_adjacent_shuffleLoading` shows that every compatible
+split of a globally violated or strictly higher retained source loading has an
+internally violated block. The projected coordinates vanish on diagrams factoring
+through one of these loadings, with arbitrary diagrams above and below the cut.
+`exists_blockStack_quotient_coordinates` descends the coordinates through red dots
+and both loading ideals to the partially standardized quotient. The coordinate
+words have coordinate `1` in their own slot and `0` in the other slots.
+`exists_blockColumn_coordinate_embedding` shows that the coordinates separate
+elements of the source-order block column. The affine coordinate representatives can
+be chosen as explicit reduced words indexed by the recursive block shuffles. In a
+binary shuffle, a right crossing either extends an external ascent or moves to an
+internal crossing in one block, with an error in a lower crossing-filtration step.
+The filtered binary coordinate reserves its shuffle length from the crossing
+budget, and the two tensor factors share the remainder. Iterating this bound gives
+the total-length bound for the recursive coordinates. In
+`exists_blockStack_filtered_quotient_coordinates` the bound passes to the image
+of that filtration in the quotient. For a right ascent in an arbitrary row,
+`quotientCoordinate_external_right_ascent` and
+`quotientCoordinate_internal_right_ascent` compute the leading quotient
+coordinates. The two alternatives land in disjoint targets. A matched
+nonviolated split in the source red order gives an ascent at a black–red joint.
+The exact indexed projector agrees with the loading of the selected shuffle.
+Consequently the external leading multiplier is the original right projector.
+The internal one is the supported crossing in the paired block.
+`blockColumn_eq_zero_of_ordered_paired_crossing` uses its ordered local injection
+to deduce the whole-column zero-kernel statement over a field.
+`exists_place_adjacent` places any nonviolated source loading with the prescribed
+red order in an adjacent row, and `mem_blockUpperIdeal_of_blockColumn_right_kernel`
+lifts a supported column kernel test to the higher ideal. The marked-column
+comparison and higher Tor argument remain open in general.
+
 Still open for Lemma 6.8: the higher-homology vanishing in (6.21),
 including injectivity after tensoring the kernel inclusion, then Prop 6.9
 for general `ℓ` by reduction to two

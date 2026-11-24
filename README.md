@@ -1550,7 +1550,10 @@ derived comparison uses any supplied nonpositive K-projective model
 (`Stendhal.LabelTwo.middleStandardWeightH0IsoOfResolution`). Internal translation of the input weights
 induces the same translation of the output weights of the diagrammatic
 derived tensor
-(`diagramWeightDerivedTensorInternalShiftIso`, `weightInternalShift_cohomologyIso`). Evaluation on the
+(`diagramWeightDerivedTensorInternalShiftIso`, `weightInternalShift_cohomologyIso`). For each companion quotient a grading shift by $j$
+therefore translates the output weight from $w$ to $w-j$
+(`Stendhal.LabelTwo.middleSumWeightTensorCohomologyShiftIso`,
+`Stendhal.LabelTwo.middleDifferenceWeightTensorCohomologyShiftIso`). Evaluation on the
 middle generator identifies the endomorphism algebra with the actual
 regular parabolic factor (`Stendhal.LabelTwo.middleEndomorphismFactorEquiv`).
 The diagrammatic dot-sum quotient is the standardization of its

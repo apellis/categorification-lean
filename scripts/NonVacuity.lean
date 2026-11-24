@@ -5550,6 +5550,10 @@ example := Categorification.Stendhal.labelTwoExteriorMiddleDifferential_comp_zer
 
 noncomputable example := Categorification.Stendhal.labelTwoExteriorStandardComplex Q
 
+example := Categorification.Stendhal.LabelTwo.labelTwoExteriorMiddleDifferential_injective ℚ
+
+example := Categorification.Stendhal.LabelTwo.labelTwoExteriorStandardComplex_mono_first ℚ
+
 /-- The undotted and dotted terminal columns of the actual outgoing map. -/
 example := Categorification.Stendhal.labelTwo_outgoing_terminal_diagram_columns Q
 
@@ -9671,6 +9675,136 @@ example := by
 end
 
 end NonVacuity.WebsterAuxiliaryBraiding
+namespace NonVacuity.WebsterLabelTwoUnknot
+
+open Categorification.Webster.LabelTwo
+
+example : LinearMap.ker (plus (k := ℤ)) = LinearMap.range minus :=
+  ker_plus
+
+example : LinearMap.ker (minus (k := ℤ)) = LinearMap.range plus :=
+  ker_minus
+
+noncomputable example := postTensorHomologyZero (k := ℚ)
+
+noncomputable example := postTensorHomologyOdd (k := ℚ) 2 ⟨1,by decide⟩ (by decide)
+
+noncomputable example := postTensorHomologyPositiveEven (k := ℚ) 1
+  (by simp) (by decide)
+
+end NonVacuity.WebsterLabelTwoUnknot
+
+namespace NonVacuity.WebsterLabelTwoPolynomialPresentation
+
+open Categorification.Webster.LabelTwo
+
+example : middlePolynomialEquiv ℤ (squareQuotientVariable ℤ 0) = y₁ :=
+  middlePolynomialEquiv_variable_zero ℤ
+
+example : middlePolynomialEquiv ℤ (squareQuotientVariable ℤ 1) = y₂ :=
+  middlePolynomialEquiv_variable_one ℤ
+
+noncomputable example := specializedQuotientEquiv ℤ
+
+example : Module.finrank ℚ (SquareQuotient ℚ) = 4 := finrank_squareQuotient ℚ
+
+end NonVacuity.WebsterLabelTwoPolynomialPresentation
+noncomputable section
+
+namespace NonVacuity.WebsterLabelTwoMiddleDots
+
+open Categorification.Stendhal.LabelTwo
+
+example :
+    middleDotQuotientAction ℚ (Ideal.Quotient.mk (middleDotIdeal ℚ)
+      (MvPolynomial.X 0 + MvPolynomial.X 1)) = dotEnd ℚ 0 + dotEnd ℚ 1 :=
+  middleDotQuotientAction_sum ℚ
+
+example : (dotEnd ℚ 1)^2 = 0 := dotEnd_sq ℚ 1
+
+end NonVacuity.WebsterLabelTwoMiddleDots
+
+end
+
+noncomputable section
+
+namespace NonVacuity.WebsterLabelTwoMiddleEndomorphism
+
+open Categorification.Stendhal.LabelTwo
+attribute [local instance 1100] IsIdempotentElem.instAlgebraCorner_categorification
+
+example : Function.Bijective (middleDotQuotientAction ℚ) :=
+  (middleEndomorphismEquiv ℚ).bijective
+
+example :
+    middleEndomorphismEquiv ℚ (Ideal.Quotient.mk (middleDotIdeal ℚ)
+      (MvPolynomial.X 0 + MvPolynomial.X 1)) = dotEnd ℚ 0 + dotEnd ℚ 1 :=
+  middleEndomorphismEquiv_sum ℚ
+
+end NonVacuity.WebsterLabelTwoMiddleEndomorphism
+
+end
+
+noncomputable section
+
+namespace NonVacuity.WebsterLabelTwoMiddleFixedComplex
+
+open Categorification Categorification.Stendhal Categorification.Stendhal.LabelTwo
+
+attribute [local instance 1100] IsIdempotentElem.instAlgebraCorner_categorification
+
+example := rightMiddleComplex ℚ
+
+example := rightMiddleDotSumQuotient ℚ
+
+example : Function.Exact (fixedMinus ℚ) (fixedPlus ℚ) := fixedMinusPlus_exact ℚ
+
+example : Function.Exact (fixedPlus ℚ) (fixedMinus ℚ) := fixedPlusMinus_exact ℚ
+
+example :
+    fixSub ℚ (StandardDotSumQuotient ℚ)
+      (seqIdem (parameter ℚ) weights loading loading_ordered) ≃ₗ[ℚ] DualNumber ℚ :=
+  middleCutDotSumEquiv ℚ
+
+open KLR
+
+private abbrev higher : KLR.Seq (stendhalWeight 2 (({()} : Multiset Unit) + {()})) :=
+  TypeA.sadj (Multiset.card (stendhalWeight 2 (({()} : Multiset Unit) + {()}))) 2 • loading
+
+private theorem higher_ordered : IsRedOrdered higher := by
+  unfold IsRedOrdered
+  decide +kernel
+
+example :
+    Subsingleton (fixSub ℚ (Standard ℚ) (seqIdem (parameter ℚ) weights higher higher_ordered)) :=
+  middleFixed_subsingleton_of_other_loading ℚ higher higher_ordered
+    (by decide +kernel) (by decide +kernel)
+
+example : Function.Exact (diagramMinus ℚ) (diagramPlus ℚ) := diagramMinusPlus_exact ℚ
+
+example : Function.Exact (diagramPlus ℚ) (diagramMinus ℚ) := diagramPlusMinus_exact ℚ
+
+example : Function.Exact (diagramPlus ℚ) (diagramMiddleAugmentation ℚ) :=
+  diagramMiddleAugmentation_exact ℚ
+
+example (n : ℕ) : (rightMiddleComplex ℚ).ExactAt (n + 1) :=
+  rightMiddleComplex_exactAt ℚ n
+
+example : QuasiIso (diagramMiddleToQuotient ℚ) := diagramMiddleToQuotient_quasiIso ℚ
+
+example (a b : fixSub ℚ (Standard ℚ) (seqIdem (parameter ℚ) weights loading loading_ordered)) :
+    terminalCutDotSumEquiv ℚ (terminalQuotientMap ℚ ((terminalToTwoMiddle ℚ).symm (a,b))) =
+      (fixedAugmentation ℚ a, fixedAugmentation ℚ b) :=
+  terminalCutDotSumEquiv_apply ℚ (a,b)
+
+example := incomingDiagram_coordinates ℚ
+
+example := incomingDiagram_translate_coordinates ℚ
+
+end NonVacuity.WebsterLabelTwoMiddleFixedComplex
+
+end
+
 
 noncomputable section
 

@@ -63,6 +63,7 @@ def reflectedLoadingStandardLeftEquiv {s : Seq μ} (hs : IsRedOrdered s) :
   map_smul' a x := (loadingStandardLeftEquiv (Λ := Λ) hρ hQ σ hs).map_smulₛₗ
     ((cornerFlipEquiv (Q := Q) (Λ := Λ) ν κ).symm a) x
 
+include hρ hQ in
 /-- The reflected standard has an ordinary projective resolution over its braid corner,
 with only strictly higher loading projectives in the positive chain degrees. -/
 theorem exists_ordered_projectiveResolution_reflectedLoadingStandard
@@ -102,6 +103,7 @@ theorem exists_ordered_projectiveResolution_reflectedLoadingStandard
     exact ⟨fun r i => (hab.1 r i).trans (hbc.1 r i), fun hca =>
       hab.2 (fun r i => (hbc.1 r i).trans (hca r i))⟩)
 
+include hρ hQ in
 /-- Higher loading idempotents also annihilate the unreflected right loading
 standard in the braid corner. -/
 theorem violLoadingIdem_smul_violLoadingStandard_eq_zero
@@ -119,6 +121,7 @@ theorem violLoadingIdem_smul_violLoadingStandard_eq_zero
 open DG DG.DerivedCategory
 open scoped DG.DegreeZero
 
+include hρ hQ in
 /-- The ordered-cover input to Webster's Lemma 6.11, p. 65, for two loading
 standards in the same braid corner. The right standard is the tensor coefficient
 and the reflected right standard is the left argument. -/

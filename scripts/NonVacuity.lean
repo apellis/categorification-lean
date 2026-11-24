@@ -5756,6 +5756,12 @@ example :=
   BraidedStendhalAlgebra.ThreeRedOneBlack.kernel_hasHigherFiltration_standard
     rbRouquier rbSymm (fun _ => Finsupp.single () 1)
 
+/-- A positive terminal spectator and a zero-weight earlier spectator give a
+one-layer kernel filtration at standard rank-one parameters. -/
+example :=
+  BraidedStendhalAlgebra.TwoSpectatorOneBlack.mixedKernel_hasHigherFiltration_standard
+    rbRouquier rbSymm (fun r => if r = 2 then 0 else Finsupp.single () 1) (by decide)
+
 private def rbEmpty : Seq (stendhalWeight 0 ((0 : Multiset Unit) + 0)) :=
   KLRAlgebra.Seq.ofList [] (by decide)
 

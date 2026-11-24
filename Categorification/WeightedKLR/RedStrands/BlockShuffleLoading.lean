@@ -21,7 +21,7 @@ variable {I : Type*} {ℓ : ℕ}
 
 /-- An interleaving preserves the order of the positions belonging to each input block.
 The map sends positions in the juxtaposition to positions in the interleaving. -/
-private def PreservesBlockOrder {α : Type*} [Preorder α] :
+def PreservesBlockOrder {α : Type*} [Preorder α] :
     (Bs : List (RedBlock I ℓ)) → (Fin (weightSum Bs).card → α) → Prop
   | [], _ => True
   | B :: Bs, f => StrictMono (f ∘ Seq.posL (weightSum Bs)) ∧
@@ -60,7 +60,9 @@ private theorem black_has_red {α : Type*} [Preorder α] : ∀ (Bs : List (RedBl
         black_has_red Bs s.2 (f ∘ Seq.posR B.weight) hf.2 (fun h => hv (.inr h)) x i hx'
       exact ⟨Seq.posR _ y,r,by simpa only [place,Seq.lbl,Seq.append_posR] using hy,hxy⟩
 
-private theorem red_before_black {α : Type*} [Preorder α] : ∀ (Bs : List (RedBlock I ℓ))
+/-- A red strand before a black strand in a nonviolated block row stays before it
+when an interleaving preserves the red order. -/
+theorem red_before_black {α : Type*} [Preorder α] : ∀ (Bs : List (RedBlock I ℓ))
     (s : Loadings Bs) (f : Fin (weightSum Bs).card → α),
     PreservesBlockOrder Bs f → ¬ Violated Bs s →
     (∀ y z r r', (place Bs s).lbl y = .inr r → (place Bs s).lbl z = .inr r' →
@@ -100,11 +102,11 @@ def ShuffleLoading : (Bs : List (RedBlock I ℓ)) → Seq (weightSum Bs) → Loa
     ∃ (u : Shuffle (Seq.card_add' B.weight (weightSum Bs))) (t : Seq (weightSum Bs)),
       u.1 • z = (Seq.map B.colour s.1).append t ∧ ShuffleLoading Bs t s.2
 
-private theorem preserves_comp {α β : Type*} [Preorder α] [Preorder β] (g : α → β)
+theorem PreservesBlockOrder.comp_right {α β : Type*} [Preorder α] [Preorder β] (g : α → β)
     (hg : StrictMono g) : ∀ (Bs : List (RedBlock I ℓ)) (f : Fin (weightSum Bs).card → α),
     PreservesBlockOrder Bs f → PreservesBlockOrder Bs (g ∘ f)
   | [], _, _ => trivial
-  | B :: Bs, f, hf => ⟨hg.comp hf.1, preserves_comp g hg Bs (f ∘ Seq.posR B.weight) hf.2⟩
+  | B :: Bs, f, hf => ⟨hg.comp hf.1, PreservesBlockOrder.comp_right g hg Bs (f ∘ Seq.posR B.weight) hf.2⟩
 
 private theorem permutation_of_shuffle :
     ∀ (Bs : List (RedBlock I ℓ)) (z : Seq (weightSum Bs)) (s : Loadings Bs),
@@ -123,9 +125,10 @@ private theorem permutation_of_shuffle :
           (fun x => u.1⁻¹ (Seq.posR B.weight x)) ∘ p := by
         funext x; simp only [Perm.mul_apply,Function.comp_apply,e,Seq.posR,blockPerm_inr]
       change PreservesBlockOrder Bs (fun x => (u.1⁻¹ * e) (Seq.posR B.weight x))
-      rw [he]; exact preserves_comp _ u.2.2 Bs p hf
+      rw [he]; exact PreservesBlockOrder.comp_right _ u.2.2 Bs p hf
 
-private theorem red_order_cast {w : Multiset (I ⊕ Fin ℓ)} {ν : Multiset I}
+/-- Equal red words preserve the order of red positions under the loading permutation. -/
+theorem red_order_cast {w : Multiset (I ⊕ Fin ℓ)} {ν : Multiset I}
     (h : w = stendhalWeight ℓ ν) (p : Perm (Fin w.card)) (s : Seq w)
     (ho : redWord (Seq.cast h (p • s)) = redWord (Seq.cast h s)) :
     ∀ y z r r', s.lbl y = .inr r → s.lbl z = .inr r' → y < z → p y < p z := by

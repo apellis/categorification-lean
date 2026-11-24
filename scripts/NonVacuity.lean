@@ -5560,6 +5560,12 @@ example := Categorification.Stendhal.LabelTwo.labelTwoExteriorMiddleDifferential
 
 example := Categorification.Stendhal.LabelTwo.labelTwoExteriorStandardComplex_mono_first ℚ
 
+example := Categorification.Stendhal.LabelTwo.labelTwoExteriorStandardComplex_exact ℚ
+
+example := Categorification.Stendhal.labelTwoExteriorEndComplex_exact Q
+
+example := Categorification.Stendhal.labelTwoExteriorEndComplex_epi Q
+
 end NonVacuity.WebsterLabelTwoEndpointTor
 
 namespace NonVacuity.WebsterLocalization

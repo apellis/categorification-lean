@@ -1107,12 +1107,22 @@ exterior unit vector recovers its two scalar coefficients
 `Stendhal.LabelTwoEndpointFlag.outgoing_middle_coefficients_eq_zero`,
 `Stendhal.LabelTwoEndpointFlag.outgoing_terminal_coefficients_eq_zero`).
 The projected exterior generator and its black-crossing translate
-span the incoming divided-power standard. They map to independent terminal coordinates
-in the common middle quotient, so the first map of the actual short
+span the incoming divided-power standard. They map to independent
+terminal coordinates in the common middle quotient, so the first map of
+the actual short
 complex is injective
 (`Stendhal.labelTwo_rightExteriorDividedStandard_span`,
 `Stendhal.LabelTwo.labelTwoExteriorMiddleDifferential_injective`,
 `Stendhal.LabelTwo.labelTwoExteriorStandardComplex_mono_first`).
+The middle quotient splits into its two loading cuts. The outgoing
+map is injective at the middle loading. At the terminal loading its
+kernel equals the span of the two incoming generator images. This
+proves exactness at the middle term of the actual complex
+(`Stendhal.LabelTwo.labelTwoExteriorStandardComplex_exact`).
+The complementary exterior projective then surjects onto the actual
+cokernel of the outgoing crossing
+(`Stendhal.labelTwoExteriorEndComplex_exact`,
+`Stendhal.labelTwoExteriorEndComplex_epi`).
 
 
 

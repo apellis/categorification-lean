@@ -5633,6 +5633,46 @@ example : True := by
   exact (Stendhal.fgString_isPerfectBasis (k := ℚ) (Λ := pbΛ) () 0 pbRouquier
     (Multiset.notMem_zero ())).elim fun _ _ => trivial
 
+namespace NonVacuity.WebsterOrderedResolution
+
+open Categorification.ModuleFiltration
+
+
+private abbrev A := ℤ
+private abbrev std (_ : Unit) := ModuleCat.of A A
+private abbrev e (_ : Unit) : A := 1
+private abbrev above (_ _ : Unit) : Prop := False
+
+private def data : OrderedStandardCovers std e above where
+  quotient c := (lIdeal (e c)).subtype
+  surjective c := fun x => ⟨⟨x, mul_one x⟩, rfl⟩
+  projective c := by
+    refine Module.Projective.of_split (lIdeal (e c)).subtype (LinearMap.id.codRestrict _
+      (fun x => mul_one x)) ?_
+    rfl
+  kernel c := by
+    refine ⟨[], by simp, HasFiltration.zero ?_⟩
+    constructor
+    intro x y
+    apply Subtype.ext
+    exact Subtype.ext ((show x.1.1 = 0 from x.2).trans (show y.1.1 = 0 from y.2).symm)
+
+example (n : ℕ) : Subsingleton ((data.projectiveResolution ()).complex.X (n+1)) := by
+  obtain ⟨J, lb, inc, hab, hspan⟩ :=
+    data.projectiveResolution_loading_support () (fun _ _ _ h _ => h) n
+  have h : {y | ∃ j, ∃ z : lIdeal (e (lb j)), inc j z = y} = ∅ := by
+    ext y
+    simp only [Set.mem_ofPred_eq, Set.mem_empty_iff_false, iff_false]
+    rintro ⟨j, _, _⟩
+    exact hab j
+  constructor
+  intro x y
+  have hx : x = 0 := by simpa only [h, Submodule.span_empty, Submodule.mem_bot] using hspan x
+  have hy : y = 0 := by simpa only [h, Submodule.span_empty, Submodule.mem_bot] using hspan y
+  exact hx.trans hy.symm
+
+end NonVacuity.WebsterOrderedResolution
+
 end
 
 end NonVacuity.PerfectBasis
@@ -6855,6 +6895,39 @@ example (a : (isIdempotentElem_violMk_redProj ℚ Q Λ ν [0, 1]).Corner)
     braidingBimoduleFlip_smul_right [0, 1] [1, 0] b x⟩
 
 end NonVacuity.WebsterBraidReflection
+
+namespace NonVacuity.WebsterIntervalConcat
+
+open Categorification.KLR Categorification.KLR.KLRAlgebra Categorification.TypeA
+open MvPolynomial
+open scoped TensorProduct
+
+private abbrev L : Multiset Bool := {false}
+private abbrev M : Multiset Bool := {false, true}
+private abbrev R : Multiset Bool := {true}
+private def l : Seq L := Seq.ofList [false] rfl
+private def s : Seq M := Seq.ofList [false, true] rfl
+private def r : Seq R := Seq.ofList [true] rfl
+private noncomputable def params : Bool → Bool → MvPolynomial (Fin 2) ℤ := fun _ _ => 1
+
+example :
+    intervalConcat params l r (ψw [0] * pol (MvPolynomial.X (⟨0, by decide⟩ : Fin M.card)) * e s) =
+      ψw [1] * pol (rename (Seq.posR L ∘ Seq.posL R) (MvPolynomial.X (⟨0, by decide⟩ : Fin M.card))) *
+        e (l.append (s.append r)) := by
+  rw [intervalConcat_apply, concat_interval_ψw_pol_e _ (show ValidWord M.card [0] by simp [ValidWord])]
+  rfl
+
+example := range_intervalConcat_eq_span params (by intro a b _; simp [params]) l r
+  (canWord M.card) (fun w => ⟨isReduced_canWord _ w, wordProd_canWord _ w⟩)
+
+example (x y : KLRAlgebra ℤ params M) :
+    intervalConcat params l r (x * y) = intervalConcat params l r x * intervalConcat params l r y :=
+  intervalConcat_mul params l r x y
+
+example : Function.Injective (intervalConcat (β := M) params l r) :=
+  intervalConcat_injective params (by intro a b _; simp [params]) l r
+
+end NonVacuity.WebsterIntervalConcat
 
 namespace NonVacuity.WebsterBraidFiltration
 

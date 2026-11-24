@@ -101,6 +101,7 @@ import Categorification.Algebra.InductionAlongTriple
 import Categorification.Algebra.K0FinDim
 import Categorification.Algebra.ModuleCatLinear
 import Categorification.Algebra.ModuleFiltration
+import Categorification.Algebra.OrderedProjectiveResolution
 import Categorification.Algebra.ModuleFiltrationMap
 import Categorification.Algebra.MonicTrace
 import Categorification.Algebra.NilHecke
@@ -384,6 +385,7 @@ import Categorification.KLR.Center
 import Categorification.KLR.CenterFree
 import Categorification.KLR.Concat
 import Categorification.KLR.ConcatAssoc
+import Categorification.KLR.IntervalConcat
 import Categorification.KLR.Cor215
 import Categorification.KLR.Cor319
 import Categorification.KLR.CrossingRescale
@@ -1366,6 +1368,7 @@ import Categorification.WeightedKLR.RedStrands.ParabolicStandardTensorFiltration
 import Categorification.WeightedKLR.RedStrands.ParabolicStandardTensorBase
 import Categorification.WeightedKLR.RedStrands.ParabolicStandardTensorProj
 import Categorification.WeightedKLR.RedStrands.LeftStandardModule
+import Categorification.WeightedKLR.RedStrands.OrderedStandardResolution
 import Categorification.WeightedKLR.RedStrands.BlackCountTransport
 import Categorification.WeightedKLR.RedStrands.TwoPieceLoading
 import Categorification.WeightedKLR.RedStrands.ParabolicStandardUpper

@@ -10106,3 +10106,18 @@ example := weightDgGradedChainAugmentation_quasiIso (R := ℚ)
 end NonVacuity.WebsterGradedChainDG
 
 end
+
+noncomputable section
+
+namespace NonVacuity.WebsterGradedLeftStandard
+
+open Categorification.Stendhal Categorification.Stendhal.FundamentalCorner
+
+example : leftStandardUnit Q wt terminal terminal_ordered ∈
+    gradedLeftStandard grading terminal terminal_ordered 0 :=
+  gradedLeftStandard_mkQ_mem grading terminal terminal_ordered _
+    (mk_e_mem_tensorProductGrade grading _ terminal terminal_ordered)
+
+end NonVacuity.WebsterGradedLeftStandard
+
+end

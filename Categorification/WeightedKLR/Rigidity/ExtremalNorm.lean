@@ -69,7 +69,8 @@ theorem exists_scalar_of_homGdim_eq_one (hn : homGdim P P = 1) (f : P.carrier �
       have : Subsingleton (H d) := Module.finrank_zero_iff.mp hz
       exact ⟨0, (congrArg Subtype.val (Subsingleton.elim f 0)).trans (zero_smul _ _).symm⟩
 
-private theorem isIndec_of_norm_one (hn : homGdim P P = 1) : P.IsIndec A := by
+/-- A projective with graded endomorphism series one is indecomposable. -/
+theorem isIndec_of_norm_one (hn : homGdim P P = 1) : P.IsIndec A := by
   refine ⟨nontrivial_of_norm_one P hn, fun e _ he => ?_⟩
   obtain ⟨c, hc⟩ := exists_scalar_of_homGdim_eq_one P hn e
   by_cases h0 : c = 0

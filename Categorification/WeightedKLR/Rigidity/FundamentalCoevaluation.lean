@@ -408,9 +408,9 @@ theorem fundamentalResolutionMap_range :
     rw [mul_add, mul_smul_comm, mul_assoc C q q, hq.eq, mul_smul_comm, mixedBigon_terminal,
       ← hb, ← ha, ← mul_add, add_comm q p, terminalIdem_add_middleIdem, mul_one]
 
-/-- The terminal simple admits a length-one resolution by the two loading
-projectives. Splicing it with the middle-projective quotient resolves the
-simple at the cut of Webster, arXiv:1309.3796v2, §7.1, Lemma 7.3. -/
+/-- The fundamental terminal-character simple admits a length-one resolution
+by the two loading projectives. This gives a rank-one benchmark for the
+projective-resolution method in Webster, arXiv:1309.3796v2, §8.1. -/
 theorem fundamentalProjectiveResolution :
     Module.Projective Tᵐᵒᵖ (rIdeal q) ∧
     Module.Projective Tᵐᵒᵖ (rIdeal p) ∧

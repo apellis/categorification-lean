@@ -1028,6 +1028,19 @@ in the integer grading inherited from the augmented KLR algebra. For a two-red s
 degree coset with offset `2 - ⟨λ_r, λ_d⟩`. The coordinate comparison
 `twoRedSwapWeight_coordinate` and the reduced-diagram degree theorem
 `twoRedSwap_mem_weight` identify those pieces with Webster's degrees.
+The same comparison holds for any adjacent red swap with arbitrary spectator
+strands (`adjacentRedSwap_mem_weight`). The normalized pieces decompose the
+full coefficient as a direct sum (`adjacentRedSwapWeight_isInternal`).
+For any red permutation, `redWordOffset` sums the crossing corrections over
+the red pairs inverted between the boundary words. This defines the normalized
+coefficient and its full homogeneous decomposition
+(`redPermutation_mem_weight`, `redPermutationWeight_isInternal`).
+The offsets add when each red pair crosses at most once. In that case the
+actual multiplication adds normalized degrees
+(`braidingCoefficientMul_mem_weight`). The inversion condition in Lemma 6.5
+implies additivity (`redWordOffset_add_of_sublist`), and its balanced
+multiplication identifies the quotient corner coefficient
+(`violCornerTensorMulEquiv_tmul`).
 
 Definition 7.4 has cup and cap coefficient models in the ungraded derived
 categories, with a specified cohomological shift on the cup and a finite

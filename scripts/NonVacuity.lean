@@ -6762,6 +6762,15 @@ example (z : KLRAlgebra ℤ (stendhalQ Q Λ) μ) :=
   mem_span_fourSlotExit_column (stendhalQ_symm Q Λ (by intro a b _; simp [Q])) (by decide)
     s t hex z
 
+example (z : BraidedStendhalAlgebra ℤ Q Λ ν) :=
+  fourSlotExit_generate Q Λ (by intro a b _; simp [Q]) (by decide) s t
+    (a := 0) (b := 1) (by decide) (by decide) (by decide) z
+
+example :=
+  exists_fourSlotExitRelation_affine_lift Q Λ (by intro a b _; simp [Q]) (by decide) s t
+    (a := 0) (b := 1) (by decide) (by decide) (by decide) (fun _ => 0)
+    (fun _ => by simp) (by simp)
+
 end NonVacuity.WebsterFourSlotExits
 end
 

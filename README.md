@@ -1011,6 +1011,8 @@ the black dots vanish in the saturated cyclotomic quotient. The entire
 coinvariant ideal therefore maps to zero
 (`KLR.CycKLR.terminal_pol_esymm_eq_zero`,
 `KLR.CycKLR.terminal_pol_eq_zero_of_mem_coinvIdeal`).
+The actual saturated divided-power right ideal is simple for any number
+of same-colour strands (`KLR.CycKLR.terminalDividedProjective_simple`).
 Identifying the divided-power projective at higher multiplicities and for
 multi-letter words remains open.
 

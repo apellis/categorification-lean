@@ -4,6 +4,8 @@ Released under Apache 2.0 license as described in the file LICENSE.
 -/
 import Mathlib.Logic.Equiv.Fin.Rotate
 import Categorification.WeightedKLR.RedStrands.BraidedStandardGrading
+import Categorification.WeightedKLR.RedStrands.BraidingAuxiliaryDerived
+import Categorification.Algebra.HomogeneousOrderedCoverTransport
 import Categorification.WeightedKLR.RedStrands.BraidedRelabel
 import Categorification.WeightedKLR.RedStrands.BlackCountTransport
 import Categorification.WeightedKLR.RedStrands.ParabolicStandardTensorProj
@@ -507,6 +509,29 @@ private theorem leftCoefficientEquiv_mem_grade
       allOrdersGrade (G') ν n := Graded.mem_map_of_mem _ _ ha'
   simpa only [zero_add, add_zero] using
     SetLike.GradedMul.mul_mem (SetLike.GradedMul.mul_mem hp hz) hp
+
+open DG
+open scoped DG.DegreeZero
+
+/-- The left coefficient equivalence preserves and reflects the internal
+degree at any relabelled red order. -/
+theorem leftCoefficientEquiv_mem_grade_iff
+    {ρ : Perm (Fin (Multiset.card μ)) → List ℕ} (hρ : TypeA.IsReducedChoice ρ) (hQ : KLRSymm Q)
+    {n : ℤ} (c : C) :
+    leftCoefficientEquiv hρ hQ σ (op c) ∈ tensorProductGrade (G') ν n ↔
+      c.val ∈ violAuxiliaryGrade (ν := ν) G n := by
+  let H := isIdempotentElem_violMk_redProj k Q Λ ν κ
+  let _ := Graded.cornerGradedAlgebra (violAuxiliaryGrade (ν := ν) G) H
+    (redProj_mem_violAuxiliaryGrade G κ)
+  let source := gradedAlgebraInternalGrading (Graded.oppositeGrade
+    (Graded.cornerGrading (violAuxiliaryGrade (ν := ν) G) H))
+  let target := gradedAlgebraInternalGrading (tensorProductGrade (G') ν)
+  let _ := source
+  let _ := target
+  refine ModuleFiltration.addEquiv_mem_grade_iff source.wgrading target.wgrading
+    (leftCoefficientEquiv hρ hQ σ).toAddEquiv ?_ n (op c)
+  intro i x hx
+  exact leftCoefficientEquiv_mem_grade hR σ hρ hQ x.unop hx
 
 end GradedCoefficients
 

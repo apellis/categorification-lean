@@ -146,6 +146,57 @@ private theorem term_shape (a b : Fin 2) (hab : a = 0 ∨ b = 0)
   simp only [GradingDatum.stdDeg,wordB,map_zero,add_zero]
   by_cases h : a = b <;> simp [h,degB,GradingDatum.degW,wordProd,cross_degree]
 
+private theorem corner_coordinates (a b : Fin 2) (hab : a = 0 ∨ b = 0) (z : T) :
+    ∃ c : ℚ, box b * z * box a = c • (crossB a b * box a) := by
+  classical
+  let B := tensorProductBasis (ν := {()}) wordSpec Q wt
+  let W := Submodule.span ℚ {crossB a b * box a}
+  apply (exists_congr (fun _ => eq_comm)).mp
+  apply Submodule.mem_span_singleton.mp
+  change box b * z * box a ∈ W
+  have hz : z ∈ Submodule.span ℚ (Set.range B) := B.span_eq.symm ▸ Submodule.mem_top
+  induction hz using Submodule.span_induction with
+  | mem x hx =>
+    obtain ⟨i, rfl⟩ := hx
+    have hs := sandwich_tensorProductBasis (Q := Q) (Λ := wt) wordSpec
+      (load a) (load b) (FirstWeight.boundaryAt () 2 a).2.1
+      (FirstWeight.boundaryAt () 2 b).2.1 i
+    rw [show box b * B i * box a = _ from (by
+      simpa only [box_eq a, box_eq b] using hs :
+        box b * B i * box a = if hasEndpoints wordSpec (load a) (load b) i then B i else 0)]
+    split_ifs with h
+    · have hi := (term_shape a b hab i h).1
+      have he : B i = crossB a b * box a := by
+        rw [show B i = _ from project_of_term i, hi, KLRAlgebra.stdElt, MvPolynomial.monomial_zero', MvPolynomial.C_1,
+          map_one, mul_one, map_mul, map_mul]
+        congr 1
+        rw [wordB]
+        split_ifs <;> simp [KLRAlgebra.ψw, ψ, C, *]
+      exact he.symm ▸ Submodule.subset_span (Set.mem_singleton _)
+    · exact W.zero_mem
+  | zero => rw [mul_zero, zero_mul]; exact W.zero_mem
+  | add x y _ _ hx hy => simpa only [mul_add, add_mul] using W.add_mem hx hy
+  | smul c x _ hx => simpa only [mul_smul_comm, smul_mul_assoc] using W.smul_mem c hx
+
+/-- Every corner with at least one endpoint at the middle loading is
+spanned by the straight idempotent or the single mixed crossing, as in the
+first-weight diagram calculation of Webster, arXiv:1309.3796v2, §4.7,
+Lemma 4.36. -/
+theorem fundamental_middle_corner_coordinates (z : T) :
+    (∃ c : ℚ, project (e middle) * z * project (e middle) =
+      c • project (e middle)) ∧
+    (∃ c : ℚ, project (e terminal) * z * project (e middle) =
+      c • (project (ψ 1) * project (e middle))) ∧
+    (∃ c : ℚ, project (e middle) * z * project (e terminal) =
+      c • (project (ψ 1) * project (e terminal))) := by
+  refine ⟨?_, ?_, ?_⟩
+  · simpa only [crossB, ite_true, one_mul, box, load_zero] using
+      corner_coordinates 0 0 (Or.inl rfl) z
+  · simpa only [crossB, show (0 : Fin 2) ≠ 1 by decide, ↓reduceIte, box, load_zero, load_one, C] using
+      corner_coordinates 0 1 (Or.inl rfl) z
+  · simpa only [crossB, show (1 : Fin 2) ≠ 0 by decide, ↓reduceIte, box, load_zero, load_one, C] using
+      corner_coordinates 1 0 (Or.inr rfl) z
+
 private theorem element_nz (a b : Fin 2) (hab : a = 0 ∨ b = 0) :
     crossB a b * box a ≠ 0 := by
   have hn : C * (C * box 1) ≠ 0 := by rw [← mul_assoc,bigon]; exact dot_ne_zero
@@ -180,6 +231,21 @@ private theorem element_grade (a b : Fin 2) :
   rw [cross_degree] at he
   change ofKLR ℚ Q wt {()} (_ * _) ∈ allOrdersGrade grading {()} 1 at he
   simpa only [map_mul,ψ,e] using he
+
+/-- In the two-red fundamental block the surviving loading idempotents
+have diagram degree zero and the two mixed crossings have degree one.
+These are the differentials in the resolution of the cut in Webster,
+arXiv:1309.3796v2, §7.1, Lemma 7.3. -/
+theorem fundamental_loading_crossing_degrees :
+    project (e middle) ∈ tensorProductGrade grading {()} 0 ∧
+    project (e terminal) ∈ tensorProductGrade grading {()} 0 ∧
+    project (ψ 1) * project (e middle) ∈ tensorProductGrade grading {()} 1 ∧
+    project (ψ 1) * project (e terminal) ∈ tensorProductGrade grading {()} 1 := by
+  refine ⟨?_, ?_, ?_, ?_⟩
+  · simpa only [crossB, degB, ite_true, one_mul, box, load_zero] using element_grade 0 0
+  · simpa only [crossB, degB, ite_true, one_mul, box, load_one] using element_grade 1 1
+  · simpa only [crossB, degB, show (0 : Fin 2) ≠ 1 by decide, ↓reduceIte, box, load_zero, C] using element_grade 0 1
+  · simpa only [crossB, degB, show (1 : Fin 2) ≠ 0 by decide, ↓reduceIte, box, load_one, C] using element_grade 1 0
 
 private theorem tensorQ : IsRouquierQ (QuantumGroup.CartanDatum.ofGraph (⊥ : SimpleGraph Unit)) Q where
   symm _ _ h := (h (Subsingleton.elim _ _)).elim

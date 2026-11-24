@@ -85,6 +85,36 @@ local notation "p" => π (x (⟨0, by decide⟩ : Fin (Multiset.card ν)))
 local notation "q" => π (x (⟨1, by decide⟩ : Fin (Multiset.card ν)))
 local notation "d" => π (ψ 0)
 
+/-- The weight-two nilHecke relations in a cut follow from the first dot
+square, the nilHecke crossing square and slide, and commutation of the dots. -/
+theorem terminalTwoBlack_relations_of_first_dot_sq_zero {S : Type*} [Ring S]
+    (first second crossing : S) (pp : first*first=0) (dd : crossing*crossing=0) (right : crossing*first-second*crossing=1) (pq : first*second=second*first) :
+    first+second=0 ∧ second*second=0 ∧ crossing*first+first*crossing=1 := by
+  have dp : crossing*first=second*crossing+1 := (sub_eq_iff_eq_add.mp right).trans (add_comm _ _)
+  have sum : first+second= -(second*(second*crossing)) := by
+    have h : (0 : S)=second*(second*crossing)+(first+second) := calc
+      0 = crossing*(first*first) := by rw [pp, mul_zero]
+      _ = (crossing*first)*first := (mul_assoc crossing first first).symm
+      _ = second*(second*crossing)+(first+second) := by
+        rw [dp, add_mul, one_mul, mul_assoc, dp, mul_add, mul_one]
+        abel
+    have e := congrArg (fun z : S => z-second*(second*crossing)) h
+    abel_nf at e ⊢
+    exact e.symm
+  have sumD : (first+second)*crossing=0 := by
+    calc
+      _ = -(second*(second*crossing))*crossing := congrArg (· * crossing) sum
+      _ = 0 := by rw [neg_mul, mul_assoc, mul_assoc, dd, mul_zero, mul_zero, neg_zero]
+  have comm : (first+second)*second=second*(first+second) := by rw [add_mul, mul_add, pq]
+  have sumZero : first+second=0 := calc
+    _ = (first+second)*(crossing*first-second*crossing) := by rw [right, mul_one]
+    _ = 0 := by rw [mul_sub, ← mul_assoc (first+second) crossing, ← mul_assoc (first+second) second,
+      sumD, comm, mul_assoc, sumD, zero_mul, mul_zero, sub_self]
+  have qNeg : second = -first := by
+    exact (eq_neg_iff_add_eq_zero.mpr (by rw [add_comm, sumZero]))
+  exact ⟨sumZero, by rw [qNeg, neg_mul_neg, pp],
+    by simpa only [qNeg, neg_mul, sub_neg_eq_add] using right⟩
+
 /-- The two-strand terminal cyclotomic block at weight two satisfies the
 rank-two matrix-unit relations in its first dot and crossing. -/
 theorem twoBlack_terminal_relations : p*p=0 ∧ d*d=0 ∧ p+q=0 ∧ d*p+p*d=1 := by
@@ -100,7 +130,6 @@ theorem twoBlack_terminal_relations : p*p=0 ∧ d*d=0 ∧ p+q=0 ∧ d*p+p*d=1 :=
   have dd : d*d=0 := by simpa only [map_mul, map_zero] using congrArg π hnil
   have right : d*p-q*d=1 := by
     simpa only [map_sub, map_mul, map_one] using congrArg π hRight
-  have dp : d*p=q*d+1 := (sub_eq_iff_eq_add.mp right).trans (add_comm _ _)
   have hCyc := mk_cycElt (Q := Q) (a := powers) s
   rw [cycElt_of_pos _ _ s (by decide), eOne, mul_one, map_pow,
     Polynomial.aeval_X, map_pow] at hCyc
@@ -108,28 +137,10 @@ theorem twoBlack_terminal_relations : p*p=0 ∧ d*d=0 ∧ p+q=0 ∧ d*p+p*d=1 :=
   have pq : p*q=q*p := by
     simpa only [map_mul] using
       (congrArg π (x_mul_x (Q := Q) («ν» := ν) ⟨0, by decide⟩ ⟨1, by decide⟩))
-  have sum : p+q= -(q*(q*d)) := by
-    have h : (0 : R)=q*(q*d)+(p+q) := calc
-      0 = d*(p*p) := by rw [pp, mul_zero]
-      _ = (d*p)*p := (mul_assoc d p p).symm
-      _ = q*(q*d)+(p+q) := by
-        rw [dp, add_mul, one_mul, mul_assoc, dp, mul_add, mul_one]
-        abel
-    have e := congrArg (fun z : R => z-q*(q*d)) h
-    abel_nf at e ⊢
-    exact e.symm
-  have sumD : (p+q)*d=0 := by
-    calc
-      _ = -(q*(q*d))*d := congrArg (· * d) sum
-      _ = 0 := by rw [neg_mul, mul_assoc, mul_assoc, dd, mul_zero, mul_zero, neg_zero]
-  have comm : (p+q)*q=q*(p+q) := by rw [add_mul, mul_add, pq]
-  have sumZero : p+q=0 := calc
-    _ = (p+q)*(d*p-q*d) := by rw [right, mul_one]
-    _ = 0 := by rw [mul_sub, ← mul_assoc (p+q) d, ← mul_assoc (p+q) q,
-      sumD, comm, mul_assoc, sumD, zero_mul, mul_zero, sub_self]
-  have qNeg : q = -p := by
-    exact (eq_neg_iff_add_eq_zero.mpr (by rw [add_comm, sumZero]))
-  exact ⟨pp,dd,sumZero,by simpa only [qNeg, neg_mul, sub_neg_eq_add] using right⟩
+
+  obtain ⟨hsum, _, hslide⟩ := terminalTwoBlack_relations_of_first_dot_sq_zero p q d pp dd right pq
+  exact ⟨pp, dd, hsum, hslide⟩
+
 
 
 end TwoBlack

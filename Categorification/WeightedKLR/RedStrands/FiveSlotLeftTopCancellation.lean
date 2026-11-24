@@ -120,4 +120,34 @@ theorem fiveSlot_jA_leftCancellation_viol_iff :
       rw [map_mul,hπ,hy]
     exact hπ.symm.trans ((violMk_eq_zero_iff z).mpr (saturation z zl zr hz))
 
+local notation "map₀" => AlgHom.comp π F
+local notation "c" => map₀ (ψ 2*e v₀)
+local notation "J" => blockUpperIdeal k Q Λ ν₀ 1 2 (adjacentBlockRoot 1 2 t) (redWord t)
+
+/-- At the five-slot nearby left top, cancellation of the single crossing
+from the left-extreme loading suffices for the marked tensor inclusion. -/
+theorem fiveSlot_jA_blockKernelColumnInclusion_injective_of_leftCancellation
+    (hQ : KLRSymm Q) (bottom : Seq μ₀)
+    (cancel : ∀ y : V, map₀ (e v₀)*y=y → y*map₀ (e bottom)=y → c*y=0 → y=0) :
+    Function.Injective (blockKernelColumnInclusion Q Λ t 1 2 bottom) := by
+  have cl : map₀ (e t)*c=c := by
+    rw [← map_mul, ψ_mul_e (Q := stendhalQ Q Λ) 2 v₀, ← mul_assoc, e_mul_self]
+  have cr : c*map₀ (e v₀)=c := by rw [← map_mul,mul_assoc,e_mul_self]
+  have hc : c ∈ J := by
+    rw [fiveSlot_oneBlackBeforePair_blockUpperIdeal Q Λ t (.inr rfl)]
+    exact cr ▸ TwoSidedIdeal.mul_mem_left _ c _ (TwoSidedIdeal.subset_span (Set.mem_singleton _))
+  exact blockKernelColumnInclusion_injective_of_principal_factor Q Λ t 1 2 bottom v₀ (by decide)
+    c hc cl cr (fiveSlot_jA_higher_exists_leftFactor Q Λ hQ) cancel
+
+/-- For the two-interior bottom column at the nearby left loading, a
+single saturated corner of the global violated ideal completes the
+injectivity test in Webster's (6.21). -/
+theorem fiveSlot_jA_blockKernelColumnInclusion_injective_of_violated_saturation
+    (hQ : KLRSymm Q)
+    (saturates : ∀ z : A, p v₀*z=z → z*p s=z →
+      F (ψ 2*e v₀)*z ∈ violIdeal k Q Λ ν₀ → z ∈ violIdeal k Q Λ ν₀) :
+    Function.Injective (blockKernelColumnInclusion Q Λ t 1 2 s) :=
+  fiveSlot_jA_blockKernelColumnInclusion_injective_of_leftCancellation Q Λ hQ s
+    ((fiveSlot_jA_leftCancellation_viol_iff Q Λ).mpr saturates)
+
 end Categorification.Stendhal.BraidedStendhalAlgebra

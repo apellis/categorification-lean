@@ -1558,7 +1558,10 @@ weight from $w$ to $w-j$
 graded middle standard extends to a higher-supported ordered resolution, and
 the reflected coefficient has zero derived tensor cohomology in every
 nonzero cohomological degree at each internal weight
-(`Stendhal.LabelTwo.middleStandardWeight_cohomology_isZero`). Evaluation on the
+(`Stendhal.LabelTwo.middleStandardWeight_cohomology_isZero`). The two companion triangles
+alternate on the negative cohomological tail. Two steps raise the
+cohomological index by two and decrease the evaluation weight by four
+(`Stendhal.LabelTwo.middleSumWeightTensorPeriodIso`). Evaluation on the
 middle generator identifies the endomorphism algebra with the actual
 regular parabolic factor (`Stendhal.LabelTwo.middleEndomorphismFactorEquiv`).
 The diagrammatic dot-sum quotient is the standardization of its

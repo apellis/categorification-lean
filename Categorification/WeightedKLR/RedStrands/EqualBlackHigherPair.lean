@@ -2,7 +2,7 @@
 Copyright (c) 2026 Alex Ellis. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 -/
-import Categorification.WeightedKLR.RedStrands.MixedJointCycle
+import Categorification.WeightedKLR.RedStrands.FullJointCycle
 import Categorification.WeightedKLR.RedStrands.RightPairQuotientLift
 
 /-!
@@ -24,12 +24,12 @@ variable {I k : Type} [DecidableEq I] [CommRing k] {ℓ : ℕ} {ν : Multiset I}
 local notation "μ" => stendhalWeight ℓ ν
 local notation "n" => Multiset.card μ
 
-/-- At the extreme or mixed fixed top, every supported relation in the higher
+/-- At the extreme, mixed or full fixed top, every supported relation in the higher
 quotient of the equal-black right pair lifts to the common cycle join.
 The distinguished exchanged pair is last in the upper red order. -/
-theorem exists_equalBlack_rightPairCycle_at_extreme_or_mixed
+theorem exists_equalBlack_rightPairCycle_at_three_tops
     (hQ : KLRSymm Q) (s top : Seq μ) (p : ℕ) (hp : p+2<n) (a b : Fin ℓ) (i : I)
-    (atTop : top=s ∨ top=sadj n p • s)
+    (atTop : top=s ∨ top=sadj n p • s ∨ top=sadj n (p+1) • (sadj n p • s))
     (L : List (Fin ℓ)) (order : redWord top = L ++ [a,b])
     (hb : s.lbl ⟨p,by omega⟩ = .inr b)
     (hi : s.lbl ⟨p+1,by omega⟩ = .inl i) (hi' : s.lbl ⟨p+2,hp⟩ = .inl i)
@@ -88,7 +88,7 @@ theorem exists_equalBlack_rightPairCycle_at_extreme_or_mixed
   have matching := twoBlack_return_permutations s p hp (hi.trans hi'.symm) reds
   have solve : ∃ w, w*raw (e (sadj n (p+1) • t))=w ∧
       w*raw (ψw [p,p+1]*e t) = -(c false) ∧ w*raw (ψw [p+1]*e t)=c true := by
-    rcases atTop with h | h
+    rcases atTop with h | h | h
     · subst top
       have cjoint := exists_equalBlack_corner_cycle_coefficient (Q := Q) (Λ := Λ) hQ s []
         p hp empty single b i (by simpa only [wordProd_nil,one_smul] using hb)
@@ -99,6 +99,9 @@ theorem exists_equalBlack_rightPairCycle_at_extreme_or_mixed
       exact cjoint (left false) (right false) (left true) (right true) signed
     · subst top
       exact exists_mixedJoint_corner_cycle_coefficient hQ s p hp b i hb hi hi' reds
+        (c false) (c true) (left false) (right false) (left true) (right true) signed
+    · subst top
+      exact exists_fullJoint_corner_cycle_coefficient hQ s p hp b i hb hi hi' reds
         (c false) (c true) (left false) (right false) (left true) (right true) signed
   obtain ⟨w,wSupport,wLeft,wRight⟩ := solve
   have evalL : mq (c false) = -x := eval false
@@ -123,6 +126,29 @@ theorem exists_equalBlack_rightPairCycle_at_extreme_or_mixed
   · rw [mul_assoc,wL,leftFixed _ hx]
   · rw [mul_assoc,wR,leftFixed _ hy]
 
+/-- At the extreme or mixed fixed top, every supported relation in the higher
+quotient of the equal-black right pair lifts to the common cycle join.
+The distinguished exchanged pair is last in the upper red order. -/
+theorem exists_equalBlack_rightPairCycle_at_extreme_or_mixed
+    (hQ : KLRSymm Q) (s top : Seq μ) (p : ℕ) (hp : p+2<n) (a b : Fin ℓ) (i : I)
+    (atTop : top=s ∨ top=sadj n p • s)
+    (L : List (Fin ℓ)) (order : redWord top = L ++ [a,b])
+    (hb : s.lbl ⟨p,by omega⟩ = .inr b)
+    (hi : s.lbl ⟨p+1,by omega⟩ = .inl i) (hi' : s.lbl ⟨p+2,hp⟩ = .inl i)
+    (blacks : ∀ j, (s.lbl j).isLeft → j = ⟨p+1,by omega⟩ ∨ j = ⟨p+2,hp⟩) :
+    let J := blockUpperIdeal k Q Λ ν a b (adjacentBlockRoot a b top) (redWord top)
+    let q := J.ringCon.mk'
+    let mq := q.comp (violMk k Q Λ ν).toRingHom
+    let P := mq.comp (ofKLR k Q Λ ν).toRingHom
+    let t := sadj n p • s
+    ∀ x y : J.ringCon.Quotient,
+      P (e top)*x*P (e t)=x → P (e top)*y*P (e t)=y →
+      x*P (ψw [p]*e s)=y*P (ψw [p,p+1]*e s) →
+      ∃ c : J.ringCon.Quotient, P (e top)*c*P (e (sadj n (p+1) • t))=c ∧
+        c*P (ψw [p,p+1]*e t)=x ∧ c*P (ψw [p+1]*e t)=y := by
+  exact exists_equalBlack_rightPairCycle_at_three_tops Q Λ hQ s top p hp a b i
+    (atTop.imp_right Or.inl) L order hb hi hi' blacks
+
 /-- At the fixed right-extreme top, every supported relation in the higher
 quotient of the equal-black right pair lifts to the common cycle join.
 The distinguished exchanged pair is last in the upper red order. -/
@@ -144,12 +170,12 @@ theorem exists_equalBlack_rightPairCycle_after_higher
         c*P (ψw [p,p+1]*e t)=x ∧ c*P (ψw [p+1]*e t)=y := by
   exact exists_equalBlack_rightPairCycle_at_extreme_or_mixed Q Λ hQ s s p hp a b i (Or.inl rfl) L order hb hi hi' blacks
 
-/-- The higher-mark condition at the extreme or mixed top admits a supported common-joint
+/-- The higher-mark condition at the extreme, mixed or full top admits a supported common-joint
 coefficient before taking the higher quotient. This is the coupled input to
 `exists_marked_fourExitCycle`. -/
-theorem exists_equalBlack_rightPair_markedCycle_at_extreme_or_mixed
+theorem exists_equalBlack_rightPair_markedCycle_at_three_tops
     (hQ : KLRSymm Q) (s top : Seq μ) (p : ℕ) (hp : p+2<n) (a b : Fin ℓ) (i : I)
-    (atTop : top=s ∨ top=sadj n p • s)
+    (atTop : top=s ∨ top=sadj n p • s ∨ top=sadj n (p+1) • (sadj n p • s))
     (L : List (Fin ℓ)) (order : redWord top = L ++ [a,b])
     (hb : s.lbl ⟨p,by omega⟩ = .inr b)
     (hi : s.lbl ⟨p+1,by omega⟩ = .inl i) (hi' : s.lbl ⟨p+2,hp⟩ = .inl i)
@@ -172,7 +198,7 @@ theorem exists_equalBlack_rightPair_markedCycle_at_extreme_or_mixed
     symm
     apply sub_eq_zero.mp
     simpa only [map_sub,map_mul] using (vanish _).2 hm
-  obtain ⟨c,cCut,cL,cR⟩ := exists_equalBlack_rightPairCycle_at_extreme_or_mixed Q Λ hQ
+  obtain ⟨c,cCut,cL,cR⟩ := exists_equalBlack_rightPairCycle_at_three_tops Q Λ hQ
     s top p hp a b i atTop L order hb hi hi' blacks (q x) (q y)
     (by
       change q (P (e top))*q x*q (P (e t))=q x
@@ -196,6 +222,28 @@ theorem exists_equalBlack_rightPair_markedCycle_at_extreme_or_mixed
     exact sub_eq_zero.mpr cL.symm
   · rw [map_sub,map_mul,hq]
     exact sub_eq_zero.mpr cR.symm
+
+/-- The higher-mark condition at the extreme or mixed top admits a supported common-joint
+coefficient before taking the higher quotient. This is the coupled input to
+`exists_marked_fourExitCycle`. -/
+theorem exists_equalBlack_rightPair_markedCycle_at_extreme_or_mixed
+    (hQ : KLRSymm Q) (s top : Seq μ) (p : ℕ) (hp : p+2<n) (a b : Fin ℓ) (i : I)
+    (atTop : top=s ∨ top=sadj n p • s)
+    (L : List (Fin ℓ)) (order : redWord top = L ++ [a,b])
+    (hb : s.lbl ⟨p,by omega⟩ = .inr b)
+    (hi : s.lbl ⟨p+1,by omega⟩ = .inl i) (hi' : s.lbl ⟨p+2,hp⟩ = .inl i)
+    (blacks : ∀ j, (s.lbl j).isLeft → j = ⟨p+1,by omega⟩ ∨ j = ⟨p+2,hp⟩) :
+    let J := blockUpperIdeal k Q Λ ν a b (adjacentBlockRoot a b top) (redWord top)
+    let P := (violMk k Q Λ ν).comp (ofKLR k Q Λ ν)
+    let t := sadj n p • s
+    let u := sadj n (p+1) • t
+    ∀ x y : ViolQuotient k Q Λ ν,
+      P (e top)*x*P (e t)=x → P (e top)*y*P (e t)=y →
+      y*P (ψw [p,p+1]*e s)-x*P (ψw [p]*e s) ∈ J →
+      ∃ z : ViolQuotient k Q Λ ν, P (e top)*z*P (e u)=z ∧
+        x-z*P (ψw [p,p+1]*e t) ∈ J ∧ y-z*P (ψw [p+1]*e t) ∈ J := by
+  exact exists_equalBlack_rightPair_markedCycle_at_three_tops Q Λ hQ s top p hp a b i
+    (atTop.imp_right Or.inl) L order hb hi hi' blacks
 
 /-- The higher-mark condition at the right extreme admits a supported common-joint
 coefficient before taking the higher quotient. This is the coupled input to

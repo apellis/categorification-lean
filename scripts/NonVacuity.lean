@@ -9673,6 +9673,75 @@ example :
 end NonVacuity.WebsterActualBraidKernel
 end
 
+noncomputable section
+namespace NonVacuity.WebsterFirstPairSpectator
+
+open CategoryTheory CategoryTheory.Limits DG
+open scoped DG.DegreeZero
+open Categorification Categorification.KLR Categorification.Stendhal
+open Categorification.KLR.KLRAlgebra Categorification.TypeA
+open Categorification.Stendhal.BraidedStendhalAlgebra
+
+attribute [local instance 1100] IsIdempotentElem.instAlgebraCorner_categorification
+attribute [local instance 1200] Ring.toIntAlgebra
+
+private abbrev ν : Multiset Unit := {()} + {()}
+private abbrev Q : Unit → Unit → MvPolynomial (Fin 2) ℤ := fun _ _ => 0
+private abbrev Λ : Fin 3 → Unit →₀ ℕ := fun _ => Finsupp.single () 2
+private def terminalLoading : Seq (stendhalWeight 3 ν) :=
+  ⟨![.inr 0, .inr 1, .inl (), .inl (), .inr 2], by decide⟩
+
+private abbrev corner (order : List (Fin 3)) :=
+  (isIdempotentElem_violMk_redProj ℤ Q Λ ν order).Corner
+
+local instance firstPairSpectatorDerived (order : List (Fin 3)) :
+    HasDerivedCategory.{0, 0} (corner order)ᵐᵒᵖ := HasDerivedCategory.small _
+
+private theorem terminalLoading_black_lt (p : Fin (stendhalWeight 3 ν).card) (i : Unit)
+    (h : terminalLoading.lbl p = Sum.inl i) : p < redPos terminalLoading 2 := by
+  have lastRed : terminalLoading.lbl ⟨4, by decide⟩ = Sum.inr 2 := by decide
+  rw [← eq_redPos lastRed]
+  cases i
+  revert p
+  decide +kernel
+
+example :
+    IsZero ((DG.DerivedCategory.homologyFunctor (A := (corner [1, 0, 2])ᵐᵒᵖ) ℤ 1).obj
+      ((braidingFunctor ℤ Q Λ ν (redWord terminalLoading) [1, 0, 2]).obj
+        (DG.DerivedCategory.Q.obj ((degreeZeroModuleFunctor (corner (redWord terminalLoading))ᵐᵒᵖ).obj
+          (blockLoadingShortComplex Q Λ terminalLoading 0 1).X₃)))) :=
+  firstPair_terminal_partialStandard_braid_homology_vanish Q Λ terminalLoading (by decide)
+    terminalLoading_black_lt [1, 0, 2] 1 (by decide)
+
+private abbrev lower := firstPairOneAfterSpectator false
+private abbrev upper := sadj (stendhalWeight 3 ν).card 3 • lower
+private abbrev F := (violMk ℤ Q Λ ν).comp (ofKLR ℤ Q Λ ν)
+private abbrev crossing := F (ψ 3 * e upper)
+private abbrev J := blockUpperIdeal ℤ Q Λ ν 0 1 (adjacentBlockRoot 0 1 lower) (redWord lower)
+
+example : ∃ y : ViolQuotient ℤ Q Λ ν, F (e upper) * y = y ∧ crossing * y = crossing := by
+  have strict : adjacentBlockRoot 0 1 lower < adjacentBlockRoot 0 1 upper := by
+    apply lt_of_le_not_ge
+    · intro r i
+      fin_cases r <;> cases i <;> decide
+    · intro h
+      exact (by decide : ¬ adjacentBlockRoot 0 1 upper 2 () ≤
+        adjacentBlockRoot 0 1 lower 2 ()) (h 2 ())
+  have higher : F (e upper) ∈ J := TwoSidedIdeal.subset_span ⟨upper, by decide, strict, rfl⟩
+  have support : crossing * F (e upper) = crossing := by
+    rw [← map_mul F, mul_assoc, e_mul_self]
+  have member : crossing ∈ J := support ▸ TwoSidedIdeal.mul_mem_left _ _ _ higher
+  have fixed : F (e lower) * crossing = crossing := by
+    rw [← map_mul F]
+    apply congrArg F
+    have step : sadj (stendhalWeight 3 ν).card 3 • upper = lower := by decide +kernel
+    simp only [ψ_mul_e, step, ← mul_assoc, e_mul_self]
+  exact firstPairOneAfter_blockKernel_principal Q Λ false (fun _ _ h => (h (Subsingleton.elim _ _)).elim)
+    crossing member fixed
+
+end NonVacuity.WebsterFirstPairSpectator
+end
+
 
 namespace NonVacuity.WebsterUnitParameters
 

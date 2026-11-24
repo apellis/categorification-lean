@@ -997,9 +997,13 @@ Notation note (Webster, arXiv:1209.2463v4, proof of Theorem 2.19, grading shift)
 **Webster, arXiv:1309.3796v2, Definition 7.1.** The word of the extremal projective
 records the coroot pairing at each reflection. Along a path with nonnegative
 pairings, its root content is the difference between the initial and final
-weights (`Stendhal.rootSum_coevaluationWord`). For linearly independent simple
+weights (`Stendhal.rootSum_coevaluationWord`). For a reduced Weyl expression
+from a dominant integral weight, the coroot pairings are nonnegative
+(`Stendhal.nonnegativeReflectionPath_of_reduced`). For linearly independent simple
 roots this determines the multiplicities
-(`Stendhal.coevaluationWord_multiplicities_eq`). Proposition 7.2 remains open.
+(`Stendhal.coevaluationWord_multiplicities_eq`). For reduced expressions of the
+same Weyl element, this gives `Stendhal.coevaluationWord_multiplicities_eq_of_reduced`.
+Proposition 7.2 remains open.
 
 ### Weak `sl₂`-categorifications (Chuang–Rouquier, arXiv:math/0407205v2, §5)
 

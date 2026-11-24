@@ -948,6 +948,11 @@ piece at `z + ⟨λ₀ − α, λ₁⟩` with the cut at `z`, for every complex 
 The graded derived comparison still needs the graded version of Definition 6.6 and graded
 evaluation of its tensor on the lower projective.
 
+For Lemma 6.11, `braidingBimoduleFlip` implements the horizontal reflection used in
+the proof of `f_n → s_n`. It swaps the order corners and intertwines their actions with
+the opposite actions through the corner anti-involutions. The standard filtration and
+higher Tor steps remain open.
+
 Open, in working order: Lemma 6.8 (needs block standardization in the braided algebra; standard
 modules exist only in `StendhalAlgebraAllOrders`, `RedStrands/StandardAction.lean`, and partial
 standardization only for the last red strand), then Prop 6.9 for general `ℓ` by reduction to two

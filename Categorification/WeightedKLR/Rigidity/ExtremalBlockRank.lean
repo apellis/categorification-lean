@@ -79,20 +79,20 @@ variable {I k : Type*} [Fintype I] [DecidableEq I] [Field k] {C : CartanDatum I}
     (hR : (projectiveRootDatum RD).IsXRegular)
 
 local notation "G" => hP.gradingDatum
-local notation "R" => projectiveRootDatum RD
+local notation "𝒟" => projectiveRootDatum RD
 local notation "λ₀" => RD.pair.flip highest
-local notation "V" => IrreducibleModule R v λ₀
+local notation "V" => IrreducibleModule 𝒟 v λ₀
 
 omit [Fintype I] in
 private theorem pair_flip_content (β : Multiset I) :
-    RD.pair.flip (highest - (β.map RD.iX).sum) = λ₀ - R.rootSum β.toFinsupp := by
+    RD.pair.flip (highest - (β.map RD.iX).sum) = λ₀ - (𝒟).rootSum β.toFinsupp := by
   rw [map_sub]
   congr 1
   induction β using Multiset.induction_on with
   | empty => simp
   | cons i β ih =>
-    rw [← Multiset.singleton_add, Multiset.toFinsupp_add, R.rootSum_add,
-      Multiset.toFinsupp_singleton, R.rootSum_single, one_smul, Multiset.map_add,
+    rw [← Multiset.singleton_add, Multiset.toFinsupp_add, (𝒟).rootSum_add,
+      Multiset.toFinsupp_singleton, (𝒟).rootSum_single, one_smul, Multiset.map_add,
       Multiset.sum_add, map_add, ih, Multiset.map_singleton, Multiset.sum_singleton]
     rfl
 
@@ -101,20 +101,20 @@ include hΛ hR in
 cyclotomic content equals the dimension of its irreducible quantum weight space. -/
 theorem finrank_projectiveBlock_eq_weightSpace (β : Multiset I) :
     finrank LP (K0 (grade G Λ β)) =
-      finrank (RatFunc ℚ) (weightSpace R v V (λ₀ - R.rootSum β.toFinsupp)) := by
+      finrank (RatFunc ℚ) (weightSpace 𝒟 v V (λ₀ - (𝒟).rootSum β.toFinsupp)) := by
   classical
-  let (ν : Multiset I) := module_finite (ν := ν) (fun i j hij => by
+  let (ν : Multiset I) := module_finite (Q := Q) (ν := ν) (fun i j hij => by
     obtain ⟨c, hc, h⟩ := hP.polyInY_leading i j hij
     rw [h]
     exact hc.map Polynomial.C) (fun i => Polynomial.monic_X_pow (R := k) (Λ i))
   let (ν : Multiset I) := HasGdim.of_finiteDimensional (grade G Λ ν)
   let e := projectiveHighestWeightEquiv Λ RD highest hΛ hP hR
-  let χ := fun ν : Multiset I => λ₀ - R.rootSum ν.toFinsupp
+  let χ := fun ν : Multiset I => λ₀ - (𝒟).rootSum ν.toFinsupp
   have hχ : Function.Injective χ := fun _ _ h => Multiset.toFinsupp.injective
-    (R.rootSum_injective hR (sub_right_injective h))
+    ((𝒟).rootSum_injective hR (sub_right_injective h))
   apply finrank_of_baseChange_weight_decomposition (fun ν => K0 (grade G Λ ν)) e
-    (fun ν => weightSpace R v V (χ ν)) ?_ ?_ β
-  · exact (iSupIndep_weightSpace (R := R) (M := V)
+    (fun ν => weightSpace 𝒟 v V (χ ν)) ?_ ?_ β
+  · exact (iSupIndep_weightSpace (R := 𝒟) (M := V)
       (pow_ne_one_of_transcendental' LusztigF.transcendental_ratFunc_X)).comp hχ
   · intro ν x
     have h := projectiveIntegralEquiv_lof_mem_weightSpace hP Λ RD highest hΛ hR ν x
@@ -129,7 +129,7 @@ theorem finrank_coevaluation_projectiveBlock
     [AddCommGroup H] [Module K H] [FiniteDimensional K H]
     (P : Matrix.Realization C.toLusztig.cartanMatrix K H) (weight : P.integralWeights)
     (hweight : P.IsDominantIntegral (weight : Dual K H))
-    (match_weight : ∀ i, (weight : Dual K H) (P.coroot i) = (λ₀ (R.coroot i) : K))
+    (match_weight : ∀ i, (weight : Dual K H) (P.coroot i) = (λ₀ ((𝒟).coroot i) : K))
     (w : List I) (hw : (P.coxeterSystem C.toLusztig.isGeneralizedCartan_cartanMatrix).IsReduced w.reverse) :
     finrank LP (K0 (grade G Λ (Stendhal.coevaluationWord
       (P.cartanDatum C.toLusztig.isGeneralizedCartan_cartanMatrix) weight w : Multiset I))) = 1 := by

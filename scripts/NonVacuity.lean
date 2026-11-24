@@ -9698,3 +9698,23 @@ noncomputable example :=
   derivedTensorHomologyIsoOrdinaryLinear (R := ℚ) (A := ℚ) (B := ℚ) (M := ℚ) ℚ
 
 end NonVacuity.WebsterGroundTensorHomology
+
+namespace NonVacuity.AmbientDerivedIdempotentCut
+
+open Categorification DG MulOpposite
+open scoped DG.DegreeZero
+noncomputable section
+
+local instance : HasDerivedCategory.{0,0} ℚ := HasDerivedCategory.small _
+
+example := balancedTensorLeftIdealEquiv (k := ℚ) (M := ℚᵐᵒᵖ)
+  (show IsIdempotentElem (1 : ℚ) from one_mul 1)
+
+example := ambientDerivedTensorH0LeftIdealEquiv (k := ℚ) (M := ℚᵐᵒᵖ)
+  (fun c m => by
+    apply unop_injective
+    exact mul_comm m.unop c)
+  (show IsIdempotentElem (1 : ℚ) from one_mul 1)
+
+end
+end NonVacuity.AmbientDerivedIdempotentCut

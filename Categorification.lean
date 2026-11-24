@@ -23,6 +23,7 @@ import Categorification.Algebra.DerivedTensor
 import Categorification.Algebra.DerivedTensorFiltration
 import Categorification.Algebra.DerivedHomologyShift
 import Categorification.Algebra.DerivedTensorOrdinaryLinear
+import Categorification.Algebra.DerivedTensorIdempotentCut
 import Categorification.Algebra.DerivedTensorHomology
 import Categorification.Algebra.DerivedRightTensorHomology
 import Categorification.Algebra.DerivedTensorTriangulated

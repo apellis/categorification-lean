@@ -5777,6 +5777,14 @@ example : ∃ tail : List {t : Seq (stendhalWeight 5 ({()} : Multiset Unit)) //
   have hterminal : ∀ p, rbFive.lbl p = .inl () → p.val = 5 := by decide
   exact ⟨tail, hl.trans (by rw [hterminal p hp]), hf⟩
 
+/-- The middle pair in a four-red loading uses the two-crossing projection
+when the black moves past the omitted red. -/
+example :=
+  BraidedStendhalAlgebra.oneBlack_pair_hasFiltration_standard
+    rbRouquier rbSymm () (fun _ : Fin 4 => Finsupp.single () 1)
+    1 2 (L := [0]) (M := [3]) (by decide)
+    ⟨KLRAlgebra.Seq.ofList [.inr 0, .inr 1, .inr 2, .inr 3, .inl ()] (by decide), by decide⟩
+
 /-- The one-black kernel has its higher partial standard layer with positive spectator
 weight at the standard Khovanov–Lauda parameters for rank one. -/
 example :=

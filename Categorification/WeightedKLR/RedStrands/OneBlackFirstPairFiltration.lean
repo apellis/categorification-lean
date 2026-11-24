@@ -71,7 +71,8 @@ local notation "n" => Multiset.card μ
 local notation "C" => {s : Seq μ // redWord s = List.finRange ℓ}
 
 omit [DecidableEq I] in
-private theorem oneBlack_hasRed_at_ne (s : Seq μ) {x y : Fin n}
+/-- With one black, every other position has a red label. -/
+theorem oneBlack_hasRed_at_ne (s : Seq μ) {x y : Fin n}
     (hx : s.lbl x = .inl i) (hne : y ≠ x) :
     ∃ r : Fin ℓ, s.lbl y = .inr r := by
   cases h : s.lbl y with

@@ -1406,7 +1406,10 @@ vanishing outside degree zero for the reflected coefficient
 (`Stendhal.LabelTwo.middleStandard_derivedTensorHomology_isZero_of_higher_support`).
 The standard rank-one parameter comparison supplies this supported
 resolution for the actual middle cut
-(`Stendhal.LabelTwo.exists_middleStandard_supportedResolution`).
+(`Stendhal.LabelTwo.exists_middleStandard_supportedResolution`). The same
+construction works for every ordered loading in the actual two-red,
+two-black algebra
+(`Stendhal.LabelTwo.exists_loadingStandard_supportedResolution`).
 The ordinary tensor of this actual coefficient with the middle standard
 is the dual-number vector space at the middle cut
 (`Stendhal.LabelTwo.middleStandardTensorEquiv`).

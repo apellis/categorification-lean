@@ -220,7 +220,7 @@ theorem exists_equalBlack_four_cycle_coefficient (hQ : KLRSymm Q) (s : Seq ν) (
 
 /-- PBW expansion of a supported corner where the only compatible permutations
 are a reduced word and its extension by one crossing. -/
-private theorem exists_two_corner_coefficients (hQ : KLRSymm Q) (s t : Seq ν) (l : List ℕ) (j : ℕ)
+theorem exists_two_corner_coefficients (hQ : KLRSymm Q) (s t : Seq ν) (l : List ℕ) (j : ℕ)
     (hl : IsReduced m l) (hjl : IsReduced m (j :: l))
     (matching : ∀ w : Perm (Fin m), w • s = t ↔ w = wordProd m l ∨ w = wordProd m (j :: l))
     (x : R) (hleft : e t * x = x) (hright : x * e s = x) :

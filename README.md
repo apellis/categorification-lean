@@ -1003,10 +1003,66 @@ from a dominant integral weight, the coroot pairings are nonnegative
 roots this determines the multiplicities
 (`Stendhal.coevaluationWord_multiplicities_eq`). For reduced expressions of the
 same Weyl element, this gives `Stendhal.coevaluationWord_multiplicities_eq_of_reduced`.
+Definition 7.4 has cup and cap coefficient models in the ungraded derived
+categories, with a specified cohomological shift on the cup and a finite
+dimensional ordinary tensor-Hom comparison preserving the module action
+(`Stendhal.Coevaluation.shiftedCupFunctor`, `capFunctor`, and
+`cupTensorHomEquiv_op_tmul`). The normalized graded coevaluation remains open.
+
+The cup also has an ungraded derived Hom construction with the action
+by coefficient precomposition, with a dg Hom model on scalar inputs.
+The cap using the same coefficient is left adjoint before the shift
+(`Stendhal.Coevaluation.cupRHomObjIso` and `capBimoduleCupRHomAdjunction`).
+The derived Hom and dual-tensor constructions agree on the ground field
+(`Stendhal.Coevaluation.cupRHomTensorRegularIso`).
+For the two fundamental type A₁ factors over the rationals, the dual
+coefficient is the simple quotient by the smaller-cut trace. It gives
+the cup with homological shift minus one and the cap
+(`Stendhal.FundamentalCorner.terminalQuotientDualEquiv`, `fundamentalCup`,
+and `fundamentalCap`).
+The cup on the ground field is the shifted terminal simple quotient,
+and the cap on the regular module is the left coefficient
+(`fundamentalCupRegularIso` and `fundamentalCapRegularIso`).
+
 For Proposition 7.2, a single
 red with coroot pairing one gives a simple projective at the red-first
 one-black loading (`Stendhal.oneBlack_extremal_projective_simple`).
-The higher multiplicities and multi-letter words remain open.
+At highest weight two and two black strands, the image of the first dot
+followed by the first crossing is an idempotent whose cyclotomic right ideal
+is simple (`KLR.CycKLR.twoBlackTerminalProjective_simple`). The cyclotomic
+equivalence gives the simple projective in the one-red Webster algebra
+(`Stendhal.SingleRed.twoBlackTerminalWebsterProjective_simple`).
+
+In any saturated one-colour content the coinvariant module gives a simple
+module over the terminal cyclotomic quotient
+(`KLR.CycKLR.terminalCoinvModule_simple`). At weight two the generators satisfy
+the matrix-unit relations (`KLR.CycKLR.twoBlack_terminal_relations`).
+For every multiplicity, the positive elementary symmetric polynomials in
+the black dots vanish in the saturated cyclotomic quotient. The entire
+coinvariant ideal therefore maps to zero
+(`KLR.CycKLR.terminal_pol_esymm_eq_zero`,
+`KLR.CycKLR.terminal_pol_eq_zero_of_mem_coinvIdeal`).
+The actual saturated divided-power right ideal is simple for any number
+of same-colour strands (`KLR.CycKLR.terminalDividedProjective_simple`).
+Its one-red Webster image is a homogeneous simple projective, including
+when the red weight has additional pairings at colours absent from the
+black content (`Stendhal.SingleRed.saturatedWebsterProjective_simple`).
+Identifying the divided-power projective at higher multiplicities and for
+multi-letter words remains open.
+
+**Webster, arXiv:1309.3796v2, §7.1, Lemma 7.3.** The smaller-cut trace is
+the sum of the images of maps from the corresponding loading projectives
+(`Stendhal.coevaluationTrace_eq_iSup_range`). A supported character and a
+corner inverse test identify this trace with the unique maximal submodule
+(`Stendhal.coevaluationTrace_eq_iff_simpleQuotient`). The mixed bigon factors
+the terminal black dot power through the adjacent smaller cut
+(`Stendhal.bigon_mem_coevaluationTrace`). For two fundamental type A₁
+factors over `ℚ`, the terminal loading character has kernel exactly the
+smaller-cut trace and gives the unique simple quotient
+(`Stendhal.FundamentalCorner.fundamentalCutTrace_eq_iff_simpleQuotient`).
+The coefficient on the generating vector is one
+(`Stendhal.FundamentalCorner.terminalCoefficient_generator`). The general
+diagrammatic inputs to the criterion remain open.
 
 ### Weak `sl₂`-categorifications (Chuang–Rouquier, arXiv:math/0407205v2, §5)
 

@@ -204,5 +204,143 @@ theorem incomingLiftTensorReadout_dotSum_generator :
   rw [incomingLiftTensorReadout_mk, liftTensorPreReadout_generator]
   exact middleY₁Readout_diagramPlus_generator k
 
+open Categorification.Webster.LabelTwo
+
+private theorem plus_eq_smul_plus_and_square (z : Middle k) [NeZero (2 : k)] :
+    ∃ a b : k, plus z = a • plus 1 + b • plus (plus 1) := by
+  rcases z with ⟨⟨a,b⟩,⟨c,d⟩⟩
+  have h₁ : plus (1 : Middle k) = ⟨⟨0,1⟩,⟨1,0⟩⟩ := by
+    change plus (⟨⟨1,0⟩,⟨0,0⟩⟩ : Middle k) = _
+    rw [plus_coordinates, zero_add]
+  refine ⟨a,(c+b)/2,?_⟩
+  rw [h₁, plus_coordinates, plus_coordinates]
+  apply TrivSqZeroExt.ext <;> apply TrivSqZeroExt.ext
+  · change (0 : k) = a * 0 + (c+b)/2 * 0
+    simp
+  · change a = a * 1 + (c+b)/2 * 0
+    simp
+  · change a = a * 1 + (c+b)/2 * 0
+    simp
+  · change c+b = a * 0 + (c+b)/2 * (1+1)
+    rw [mul_zero, zero_add, one_add_one_eq_two, div_mul_cancel₀ _ (NeZero.ne (2 : k))]
+
+private theorem diagramPlus_generator_eq_smul :
+    diagramPlus k g = fElt • g := by
+  change dotEnd k 0 g + dotEnd k 1 g = _
+  rw [dotEnd_zero_gen, dotEnd_one_gen, add_smul]
+
+private theorem middleToFixed_plus_val (a : Middle k) :
+    (middleToFixed k (plus a)).val = diagramPlus k (middleToFixed k a).val :=
+  (congrArg Subtype.val (fixedPlus_transport k a)).symm
+
+private theorem middle_fixed_dotSum_spans [NeZero (2 : k)] (z : fixSub k S E) :
+    ∃ a b : k, diagramPlus k z.val = a • diagramPlus k g + b • (fElt • diagramPlus k g) := by
+  let u := (middleToFixed k).symm z
+  obtain ⟨a,b,h⟩ := plus_eq_smul_plus_and_square k u
+  refine ⟨a,b,?_⟩
+  have h₁ : (middleToFixed k (plus (1 : Middle k))).val = diagramPlus k g :=
+    (middleToFixed_plus_val k 1).trans (congrArg (diagramPlus k) (middleToFixed_one_val k))
+  have h₂ : (middleToFixed k (plus (plus (1 : Middle k)))).val = fElt • diagramPlus k g := calc
+    _ = diagramPlus k (middleToFixed k (plus (1 : Middle k))).val := middleToFixed_plus_val k _
+    _ = diagramPlus k (diagramPlus k g) := congrArg (diagramPlus k) h₁
+    _ = diagramPlus k (fElt • g) := congrArg (diagramPlus k) (diagramPlus_generator_eq_smul k)
+    _ = fElt • diagramPlus k g := (diagramPlus k).map_smul fElt g
+  let f : Middle k →ₗ[k] S := (fixSub k S E).subtype.comp (middleToFixed k).toLinearMap
+  have hu : (middleToFixed k u).val = z.val :=
+    congrArg Subtype.val ((middleToFixed k).apply_symm_apply z)
+  have h₀ : f (plus u) = diagramPlus k z.val :=
+    (middleToFixed_plus_val k u).trans (congrArg (diagramPlus k) hu)
+  calc
+    _ = f (plus u) := h₀.symm
+    _ = a • f (plus 1) + b • f (plus (plus 1)) := by rw [h, map_add, map_smul, map_smul]
+    _ = _ := congrArg₂ (· + ·) (congrArg (a • ·) h₁) (congrArg (b • ·) h₂)
+
+private theorem incoming_fixed_dotSum_spans [NeZero (2 : k)] (w : 𝓦) :
+    ∃ a b : k, w.val = a • (show N from incomingLiftDotSumGenerator k) +
+      b • (op fElt • (show N from incomingLiftDotSumGenerator k)) := by
+  let u : J := w.val
+  have hW : op E • w.val = w.val := w.property
+  rw [incomingLiftCoefficient_op_smul, unop_tensorReflect_e] at hW
+  have hu : E • u.val = u.val := congrArg Subtype.val hW
+  obtain ⟨v,hv,h⟩ := (incomingLift_middle_fixed_iff k u.val hu).1 u.property
+  obtain ⟨a,b,hab⟩ := middle_fixed_dotSum_spans k ⟨v,hv⟩
+  refine ⟨a,b,?_⟩
+  rw [incomingLiftCoefficient_op_smul, dotSum_reflection_fixed]
+  exact Subtype.ext (h.symm.trans hab)
+
+local notation "BTQ" => BalancedTensor k k T N B
+
+private def dotSumTensor : BTQ :=
+  BalancedTensor.tmul (show N from incomingLiftDotSumGenerator k) (q g)
+
+private def tensorQuotientMap : BT →ₗ[k] BTQ := BalancedTensor.mapRight q
+
+private theorem tensorQuotientMap_surjective : Function.Surjective (tensorQuotientMap k) :=
+  BalancedTensor.mapRight_surjective (k := k) («B» := k) (M := N) (U).mkQ_surjective
+
+private theorem opDotSum_tmul_quotGen :
+    (BalancedTensor.tmul (op fElt • (show N from incomingLiftDotSumGenerator k)) (q g) : BTQ) = 0 := by
+  let m : N := incomingLiftDotSumGenerator k
+  have hq : q (diagramPlus k g) = 0 := (Submodule.Quotient.mk_eq_zero U).2 ⟨g,rfl⟩
+  have h : fElt • q g = 0 :=
+    ((q).map_smul fElt g).symm.trans ((congrArg q (diagramPlus_generator_eq_smul k).symm).trans hq)
+  exact (BalancedTensor.op_smul_tmul m fElt (q g)).trans
+    ((congrArg (fun v : B => (BalancedTensor.tmul m v : BTQ)) h).trans (BalancedTensor.tmul_zero m))
+
+private theorem tensorQuotientMap_pure_fixed (v : BT) :
+    tensorQuotientMap k v = BalancedTensor.tmul (tensorFixed k v).val (q g) := by
+  have eqv := ((tensorFixed k).symm_apply_apply v).symm
+  have hs := leftStandardTensorEquivFixed_symm_apply (parameter k) weights loading loading_ordered N
+    (coefficient_kills_higher k) (tensorFixed k v)
+  exact (congrArg (tensorQuotientMap k) (eqv.trans hs)).trans
+    (BalancedTensor.mapRight_tmul q _ g)
+
+private theorem image_spanning_of_surjection {K V W : Type*} [CommRing K]
+    [AddCommGroup V] [Module K V] [AddCommGroup W] [Module K W]
+    (f : V →ₗ[K] W) (hf : Function.Surjective f) (z : W)
+    (h : ∀ v, ∃ a : K, f v = a • z) (w : W) : ∃ a : K, w = a • z := by
+  obtain ⟨v,rfl⟩ := hf w
+  exact h v
+
+private theorem readout_span_quotient {K V W : Type*} [CommRing K]
+    [AddCommGroup V] [Module K V] [AddCommGroup W] [Module K W]
+    (eval : V →ₗ[K] W) (x u v : V) (huv : ∃ a b : K, x = a • u + b • v)
+    (hv : eval v = 0) : ∃ a : K, eval x = a • eval u := by
+  obtain ⟨a,b,h⟩ := huv
+  exact ⟨a, by rw [h, map_add, map_smul, map_smul, hv, smul_zero, add_zero]⟩
+
+private theorem quotientTensor_dotSum_span [NeZero (2 : k)] (v : BT) :
+    ∃ a : k, tensorQuotientMap k v = a • dotSumTensor k := by
+  let eval : N →ₗ[k] BTQ := (BalancedTensor.mkBil k k T N B).flip (q g)
+  let d : N := incomingLiftDotSumGenerator k
+  have h := readout_span_quotient eval (tensorFixed k v).val d (op fElt • d)
+    (incoming_fixed_dotSum_spans k (tensorFixed k v)) (opDotSum_tmul_quotGen k)
+  exact h.imp fun a ha => (tensorQuotientMap_pure_fixed k v).trans ha
+
+private theorem tensor_dotSum_spans [NeZero (2 : k)] (x : BTQ) :
+    ∃ a : k, x = a • dotSumTensor k :=
+  image_spanning_of_surjection (tensorQuotientMap k) (tensorQuotientMap_surjective k)
+    (dotSumTensor k) (quotientTensor_dotSum_span k) x
+
+private theorem bijective_of_line_readout {K V : Type*} [Field K] [AddCommGroup V] [Module K V]
+    (f : V →ₗ[K] K) (z : V) (h : ∀ v, ∃ a : K, v = a • z) (hOne : f z = 1) :
+    Function.Bijective f := by
+  have hf (a : K) : f (a • z) = a := by rw [map_smul,hOne,smul_eq_mul,mul_one]
+  constructor
+  · apply (injective_iff_map_eq_zero (f := f)).2
+    intro x hx
+    obtain ⟨a,rfl⟩ := h x
+    rw [hf] at hx
+    rw [hx,zero_smul]
+  · intro a
+    exact ⟨a • z,hf a⟩
+
+/-- With two invertible, the reflected incoming preimage tensored with the
+middle quotient is the one-dimensional dot-sum line. -/
+def incomingLiftTensorEquiv [NeZero (2 : k)] : BTQ ≃ₗ[k] k :=
+  LinearEquiv.ofBijective (incomingLiftTensorReadout k)
+    (bijective_of_line_readout (incomingLiftTensorReadout k) (dotSumTensor k)
+      (tensor_dotSum_spans k) (incomingLiftTensorReadout_dotSum_generator k))
+
 end
 end Categorification.Stendhal.LabelTwo

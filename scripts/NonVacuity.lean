@@ -8044,3 +8044,43 @@ example := finrank_vacuum_braidColumn_eq_standard params weights
   (fun _ _ _ => rfl) exchanged ordered
 
 end NonVacuity.WebsterVacuumBraidColumn
+
+namespace NonVacuity.WebsterExtremalNorm
+
+open Categorification Categorification.Graded Stendhal Stendhal.SingleBlack
+
+attribute [local instance 1100] IsIdempotentElem.instAlgebraCorner_categorification
+
+private def weights : Fin 1 → Unit →₀ ℕ := fun _ => Finsupp.single () 1
+
+private def grading :=
+  stendhalGradingDatum weights (KLR.klGradingDatum ℚ (⊥ : SimpleGraph Unit))
+    (fun _ => 1) (fun _ => rfl)
+
+private abbrev block := tensorProductGrade grading ({()} : Multiset Unit)
+private abbrev proj := GProj.regular block
+
+private instance : HasGdim block := hasGdim_oneBlack () grading
+
+private theorem rank_one : Module.finrank (LaurentPolynomial ℤ) (K0 block) = 1 := by
+  rw [(oneBlackK0Equiv () grading (by simp [weights])).finrank_eq, Module.finrank_self]
+
+private theorem norm_one : proj.homGdim proj = 1 := by
+  rw [regular_homGdim () grading]
+  rw [show weights 0 () = 1 by simp [weights]]
+  simp
+
+example : IsSimpleModule (TensorProductAlgebra ℚ (KLR.klQ (⊥ : SimpleGraph Unit)) weights {()})
+    proj.carrier :=
+  GProj.isSimpleModule_of_homGdim_eq_one proj rank_one norm_one
+
+example : Nonempty (proj.Iso proj) :=
+  GProj.nonempty_iso_of_homGdim_coeff_zero proj proj rank_one norm_one norm_one
+    (by rw [norm_one]; simp [HahnSeries.coeff_one])
+
+/-- A shift moves the mixed Hom out of degree zero. -/
+example : (proj.homGdim (proj.shift 1)).coeff 0 = 0 := by
+  rw [GProj.homGdim_shift_right, norm_one, mul_one]
+  simp
+
+end NonVacuity.WebsterExtremalNorm

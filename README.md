@@ -1006,7 +1006,12 @@ same Weyl element, this gives `Stendhal.coevaluationWord_multiplicities_eq_of_re
 For Proposition 7.2, a single
 red with coroot pairing one gives a simple projective at the red-first
 one-black loading (`Stendhal.oneBlack_extremal_projective_simple`).
-The higher multiplicities and multi-letter words remain open.
+Over a field, a projective with graded Hom norm one in a block of Laurent
+rank one is simple as an ungraded module
+(`GProj.isSimpleModule_of_homGdim_eq_one`). A nonzero degree-zero mixed Hom
+identifies the graded lifts (`GProj.nonempty_iso_of_homGdim_coeff_zero`).
+For general reflection words the extremal block rank and the required
+Shapovalov pairings remain to be identified.
 
 ### Weak `sl₂`-categorifications (Chuang–Rouquier, arXiv:math/0407205v2, §5)
 

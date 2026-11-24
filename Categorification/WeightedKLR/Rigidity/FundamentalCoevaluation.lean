@@ -5,6 +5,10 @@ Released under Apache 2.0 license as described in the file LICENSE.
 import Categorification.WeightedKLR.Rigidity.CoevaluationTrace
 import Categorification.WeightedKLR.RedStrands.FundamentalCorner
 import Categorification.WeightedKLR.RedStrands.FirstWeightBoundary
+import Categorification.WeightedKLR.RedStrands.FundamentalPrefixCorners
+import Categorification.WeightedKLR.Induction.Restriction
+import Mathlib.Algebra.Category.ModuleCat.Projective
+import Mathlib.CategoryTheory.Abelian.Projective.Dimension
 
 /-!
 # The simple head of the fundamental coevaluation projective
@@ -99,10 +103,6 @@ private theorem p_add_q : p + q = 1 := by
         exact (e_mul_redOrderedIdem s).trans (ite_eq_right ho), map_zero]
   rw [Finset.sum_congr rfl (fun s _ => hf s), Finset.sum_add_distrib] at hsum
   simpa only [Finset.sum_ite_eq', Finset.mem_univ, ↓reduceIte] using hsum
-
-private theorem wordSpec (w : Perm (Fin (Multiset.card μ))) :
-    IsReduced (Multiset.card μ) (ρ w) ∧ wordProd _ (ρ w) = w :=
-  ⟨isReduced_canWord _ _, wordProd_canWord _ _⟩
 
 private theorem nilWord : ρ 1 = [] :=
   List.length_eq_zero_iff.mp (by rw [length_canWord, length_one])
@@ -323,5 +323,174 @@ theorem fundamentalCutTrace_eq_iff_simpleQuotient (N : Submodule Tᵐᵒᵖ (rId
   coevaluationTrace_eq_iff_simpleQuotient hp _ terminalCharacter.toRingHom
     terminalCharacter_terminalIdem (fun _ => terminalCharacter_middleIdem)
     (fun x => (mem_fundamentalCutTrace_iff x).mpr) corner_inverse N
+
+section Resolution
+
+local notation "C" => project (ψ 1)
+local notation "u" => C * q
+local notation "v" => C * p
+
+private theorem cross_middle : u = p * C := by
+  have hswap : sadj (Multiset.card μ) 1 • middle = terminal := by decide +kernel
+  have h := congrArg π (KLRAlgebra.ψ_mul_e (Q := stendhalQ Q wt) 1 middle)
+  simpa only [hswap, map_mul, AlgHom.comp_apply, ψ, e] using h
+
+private theorem cross_terminal : v = q * C := by
+  have hswap : sadj (Multiset.card μ) 1 • terminal = middle := by decide +kernel
+  have h := congrArg π (KLRAlgebra.ψ_mul_e (Q := stendhalQ Q wt) 1 terminal)
+  simpa only [hswap, map_mul, AlgHom.comp_apply, ψ, e] using h
+
+private theorem middle_cross_bigon : u * v = d := by
+  have h := ψ_sq_red_black (Q := Q) (Λ := wt) 1 (by decide) terminal () 1 rfl rfl
+  simp only [wt, Finsupp.single_eq_same, pow_one] at h
+  calc
+    u * v = C * C * p := by
+      rw [mul_assoc C q v, cross_terminal, ← mul_assoc q q, hq.eq, ← cross_terminal, ← mul_assoc]
+    _ = d := by rw [← map_mul, ← map_mul, h]
+
+/-- The differential between the two loading projectives is the single mixed
+crossing, with terminal loading on top and middle loading on the bottom. -/
+def fundamentalResolutionMap : rIdeal q →ₗ[Tᵐᵒᵖ] rIdeal p where
+  toFun x := ⟨u * x.val, by
+    change p * (u * x.val) = u * x.val
+    rw [← mul_assoc, cross_middle, ← mul_assoc, hp.eq]⟩
+  map_add' x y := Subtype.ext (mul_add u x.val y.val)
+  map_smul' a x := Subtype.ext (mul_assoc u x.val a.unop).symm
+
+/-- The mixed crossing embeds the middle loading projective. -/
+theorem fundamentalResolutionMap_injective : Function.Injective fundamentalResolutionMap := by
+  apply (injective_iff_map_eq_zero fundamentalResolutionMap).2
+  intro x hx
+  have h : u * x.val = 0 := congrArg Subtype.val hx
+  have ⟨⟨a, ha⟩, _, ⟨b, hb⟩⟩ := fundamental_middle_corner_coordinates x.val
+  change q * x.val * q = a • q at ha
+  change q * x.val * p = b • v at hb
+  rw [x.property] at ha hb
+  have hd : u * x.val * p = b • d := by
+    rw [mul_assoc, hb, mul_smul_comm, middle_cross_bigon]
+  have hu : u * x.val * q = a • u := by
+    rw [mul_assoc, ha, mul_smul_comm, mul_assoc, hq.eq]
+  rw [h, zero_mul] at hd hu
+  have hdn : d ≠ 0 := dot_ne_zero
+  have hun : u ≠ 0 := fun hz => hdn (by rw [← middle_cross_bigon, hz, zero_mul])
+  have ha0 : a = 0 := (smul_eq_zero.mp hu.symm).resolve_right hun
+  have hb0 : b = 0 := (smul_eq_zero.mp hd.symm).resolve_right hdn
+  apply Subtype.ext
+  change x.val = 0
+  calc
+    x.val = x.val * p + x.val * q := by rw [← mul_add, p_add_q, mul_one]
+    _ = 0 := by rw [ha, hb, ha0, hb0, zero_smul, zero_smul, zero_add]
+
+/-- The image of the mixed crossing is exactly the smaller-cut trace. -/
+theorem fundamentalResolutionMap_range :
+    LinearMap.range fundamentalResolutionMap = fundamentalCutTrace := by
+  ext x
+  rw [mem_fundamentalCutTrace_iff]
+  constructor
+  · rintro ⟨y, rfl⟩
+    change terminalCharacter (u * y.val) = 0
+    rw [map_mul, map_mul, terminalCharacter_middleIdem, mul_zero, zero_mul]
+  · intro hx
+    obtain ⟨a, ha⟩ := right_corner_coordinates x
+    rw [hx, zero_smul, zero_add] at ha
+    obtain ⟨b, hb⟩ := (fundamental_middle_corner_coordinates x.val).2.1
+    change p * x.val * q = b • u at hb
+    rw [x.property] at hb
+    let y : rIdeal q := ⟨b • q + a • v, by
+      change q * (b • q + a • v) = b • q + a • v
+      rw [mul_add, mul_smul_comm, hq.eq, mul_smul_comm, cross_terminal, ← mul_assoc, hq.eq]⟩
+    refine ⟨y, Subtype.ext ?_⟩
+    change u * (b • q + a • v) = x.val
+    rw [mul_add, mul_smul_comm, mul_assoc C q q, hq.eq, mul_smul_comm, middle_cross_bigon,
+      ← hb, ← ha, ← mul_add, add_comm q p, p_add_q, mul_one]
+
+/-- The terminal coevaluation simple admits a length-one resolution by
+the two loading projectives. This is the finite projective input for the
+fundamental rank-one unknot calculation of Webster, arXiv:1309.3796v2,
+§8.1, Proposition 8.3. -/
+theorem fundamentalProjectiveResolution :
+    Module.Projective Tᵐᵒᵖ (rIdeal q) ∧
+    Module.Projective Tᵐᵒᵖ (rIdeal p) ∧
+    Function.Injective fundamentalResolutionMap ∧
+    Function.Exact fundamentalResolutionMap fundamentalCutTrace.mkQ ∧
+    Function.Surjective fundamentalCutTrace.mkQ := by
+  refine ⟨rIdeal_projective hq, rIdeal_projective hp, fundamentalResolutionMap_injective,
+    LinearMap.exact_iff.mpr ?_, fundamentalCutTrace.mkQ_surjective⟩
+  rw [fundamentalResolutionMap_range, Submodule.ker_mkQ]
+
+/-- The middle loading annihilates the terminal simple. -/
+theorem middleIdem_smul_terminalSimple (z : rIdeal p ⧸ fundamentalCutTrace) :
+    op q • z = 0 := by
+  obtain ⟨x, rfl⟩ := fundamentalCutTrace.mkQ_surjective z
+  rw [← map_smul]
+  apply (Submodule.Quotient.mk_eq_zero fundamentalCutTrace).mpr
+  apply (mem_fundamentalCutTrace_iff _).mpr
+  change terminalCharacter (x.val * q) = 0
+  rw [map_mul, terminalCharacter_middleIdem, mul_zero]
+
+/-- Applying `Hom(-, L)` to the two-term resolution gives zero in degree
+one, since the middle projective is generated on an idempotent killing `L`. -/
+theorem fundamentalMiddleHom_eq_zero
+    (f : rIdeal q →ₗ[Tᵐᵒᵖ] (rIdeal p ⧸ fundamentalCutTrace)) : f = 0 := by
+  let g : rIdeal q := ⟨q, hq.eq⟩
+  have hg : op q • g = g := Subtype.ext hq.eq
+  have hfg : f g = 0 := by
+    calc
+      f g = f (op q • g) := congrArg f hg.symm
+      _ = op q • f g := f.map_smul _ _
+      _ = 0 := middleIdem_smul_terminalSimple _
+  ext x
+  have hx : op x.val • g = x := Subtype.ext x.property
+  rw [← hx, map_smul, hfg, smul_zero, LinearMap.zero_apply]
+
+open CategoryTheory
+
+/-- The coevaluation simple as a right module. -/
+abbrev fundamentalTerminalSimple : ModuleCat.{0} Tᵐᵒᵖ :=
+  ModuleCat.of Tᵐᵒᵖ (rIdeal p ⧸ fundamentalCutTrace)
+
+/-- The mixed-crossing resolution, packaged as a short complex. -/
+def fundamentalResolution : ShortComplex (ModuleCat.{0} Tᵐᵒᵖ) :=
+  ShortComplex.mk (ModuleCat.ofHom fundamentalResolutionMap)
+    (ModuleCat.ofHom fundamentalCutTrace.mkQ)
+    (by ext x; exact fundamentalProjectiveResolution.2.2.2.1.apply_apply_eq_zero x)
+
+/-- The mixed-crossing complex is short exact. -/
+theorem fundamentalResolution_shortExact : fundamentalResolution.ShortExact := by
+  let : Mono fundamentalResolution.f :=
+    (ModuleCat.mono_iff_injective _).2 fundamentalResolutionMap_injective
+  let : Epi fundamentalResolution.g :=
+    (ModuleCat.epi_iff_surjective _).2 fundamentalCutTrace.mkQ_surjective
+  exact ⟨(ShortComplex.ShortExact.moduleCat_exact_iff_function_exact _).2
+    fundamentalProjectiveResolution.2.2.2.1⟩
+
+/-- The terminal simple has no self-extensions in positive degrees. -/
+theorem fundamentalTerminalSimple_ext_eq_zero (n : ℕ) (hn : 0 < n)
+    (x : Abelian.Ext fundamentalTerminalSimple fundamentalTerminalSimple n) : x = 0 := by
+  let : Module.Projective Tᵐᵒᵖ (rIdeal q) := rIdeal_projective hq
+  let : Module.Projective Tᵐᵒᵖ (rIdeal p) := rIdeal_projective hp
+  let : Projective fundamentalResolution.X₁ := by
+    change Projective (ModuleCat.of Tᵐᵒᵖ (rIdeal q))
+    infer_instance
+  let : Projective fundamentalResolution.X₂ := by
+    change Projective (ModuleCat.of Tᵐᵒᵖ (rIdeal p))
+    infer_instance
+  by_cases h : n = 1
+  · subst n
+    obtain ⟨y, hy⟩ := Abelian.Ext.contravariant_sequence_exact₃
+      fundamentalResolution_shortExact fundamentalTerminalSimple x
+      (Abelian.Ext.eq_zero_of_hasProjectiveDimensionLT _ 1 (by rfl)) (Nat.add_zero 1)
+    have hy0 : Abelian.Ext.homEquiv₀ y = 0 := by
+      ext z
+      exact LinearMap.congr_fun
+        (fundamentalMiddleHom_eq_zero (Abelian.Ext.homEquiv₀ y).hom) z
+    rw [← Abelian.Ext.mk₀_homEquiv₀_apply y, hy0, Abelian.Ext.mk₀_zero,
+      Abelian.Ext.comp_zero] at hy
+    exact hy.symm
+  · let : HasProjectiveDimensionLT fundamentalTerminalSimple 2 :=
+      fundamentalResolution_shortExact.hasProjectiveDimensionLT_X₃ 1 inferInstance inferInstance
+    exact Abelian.Ext.eq_zero_of_hasProjectiveDimensionLT x 2 (by omega)
+
+end Resolution
 
 end Categorification.Stendhal.FundamentalCorner

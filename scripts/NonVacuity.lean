@@ -7934,3 +7934,14 @@ example : IsSimpleModule (TensorProductAlgebra â„š Q wt ({()} : Multiset Unit))á
 example : Function.Surjective terminalCoefficient := terminalCoefficient_surjective
 
 end NonVacuity.WebsterFundamentalCoevaluation
+
+namespace NonVacuity.WebsterFundamentalResolution
+
+open CategoryTheory Categorification.Stendhal.FundamentalCorner
+
+example : fundamentalResolution.ShortExact := fundamentalResolution_shortExact
+
+example (x : Abelian.Ext fundamentalTerminalSimple fundamentalTerminalSimple 1) : x = 0 :=
+  fundamentalTerminalSimple_ext_eq_zero 1 (by decide) x
+
+end NonVacuity.WebsterFundamentalResolution

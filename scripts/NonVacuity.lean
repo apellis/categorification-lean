@@ -9310,3 +9310,32 @@ example [DG.HasDerivedCategory.{0,0} Sᵐᵒᵖ] [DG.HasDerivedCategory.{0,0} T�
   fiveSlotLastRed_partialStandard_braid_homology_vanish_exchanged (k := ℚ) C Λ 1 (by decide)
 
 end NonVacuity.WebsterFiveSlotLastRedDerived
+
+namespace NonVacuity.WebsterFiveSlotConcentration
+
+open Categorification.KLR Categorification.Stendhal Categorification.QuantumGroup
+open BraidedStendhalAlgebra CategoryTheory DG MulOpposite
+open scoped DG.DegreeZero
+
+attribute [local instance 1200] Ring.toIntAlgebra
+
+private noncomputable abbrev C := CartanDatum.ofGraph (⊥ : SimpleGraph Unit)
+private noncomputable abbrev Λ : Fin 3 → Unit →₀ ℕ :=
+  fun r => Finsupp.single () (r.val + 2)
+private noncomputable abbrev Q := Categorification.KL3.Diagram.CL.qCL
+  (Categorification.KL3.Diagram.CL.CLScalars.kl : Categorification.KL3.Diagram.CL.CLScalars C ℚ)
+
+local notation "ν" => ({()} + {()} : Multiset Unit)
+local notation "corner" order:arg =>
+  IsIdempotentElem.Corner (isIdempotentElem_violMk_redProj ℚ Q Λ ν order)
+
+local instance (order : List (Fin 3)) : DG.HasDerivedCategory.{0, 0} (corner order)ᵐᵒᵖ :=
+  DG.HasDerivedCategory.small _
+
+example := fiveSlot_partialStandard_braid_homology_vanish_all_tops_standard
+  (k := ℚ) C Λ (fixedTopFourExitCut 2) (by decide) (-1) (by decide)
+
+example := fiveSlot_partialStandard_braid_homology_vanish_all_tops_standard
+  (k := ℚ) C Λ (fiveSlotRightLoading 2) (by decide) 1 (by decide)
+
+end NonVacuity.WebsterFiveSlotConcentration

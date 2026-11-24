@@ -401,12 +401,21 @@ theorem blockLoadingKernel_hasFiltration_of_canonical
     ∃ tail : List {t : Seq μ // redWord t = κ},
       HasFiltration (fun t => blockPartialStandardAt Q Λ t.1 a b κ t.2)
         tail (fixedOrderKernelObj Q Λ a b κ s) := by
-  refine adjacentPairProperty_of_canonical
-    (fun W c d order t => ∃ layers : List {x : Seq μ // redWord x = order},
+  let P (W : Fin ℓ → I →₀ ℕ) (c d : Fin ℓ) (order : List (Fin ℓ))
+      (t : {x : Seq μ // redWord x = order}) : Prop :=
+    ∃ layers : List {x : Seq μ // redWord x = order},
       HasFiltration (fun x => blockPartialStandardAt Q W x.1 c d order x.2)
-        layers (fixedOrderKernelObj Q W c d order t)) ?_ canonical Λ a b hword s
-  intro σ W c d order t filt
-  obtain ⟨tail, hf⟩ := filt
-  exact ⟨_, blockLoadingKernel_hasFiltration_redPerm Q σ (fun _ => rfl) order c d t tail hf⟩
+        layers (fixedOrderKernelObj Q W c d order t)
+  have hC (W : Fin ℓ → I →₀ ℕ) (c d : Fin ℓ) (L M : List (Fin ℓ))
+      (h : List.finRange ℓ = L ++ c :: d :: M)
+      (t : {x : Seq μ // redWord x = List.finRange ℓ}) : P W c d (List.finRange ℓ) t :=
+    canonical W c d L M h t
+  have hR (σ : Perm (Fin ℓ)) (W : Fin ℓ → I →₀ ℕ) (c d : Fin ℓ)
+      (order : List (Fin ℓ)) (t : {x : Seq μ // redWord x = order})
+      (filt : P (W ∘ σ) c d order t) :
+      P W (σ c) (σ d) (order.map σ) (redPermOrderedLoading σ order t) := by
+    obtain ⟨tail, hf⟩ := filt
+    exact ⟨_, blockLoadingKernel_hasFiltration_redPerm Q σ (fun _ => rfl) order c d t tail hf⟩
+  exact adjacentPairProperty_of_canonical (ν := ν) P hR hC Λ a b hword s
 
 end Categorification.Stendhal.BraidedStendhalAlgebra

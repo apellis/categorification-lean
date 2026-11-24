@@ -1287,6 +1287,12 @@ map is injective at the middle loading. At the terminal loading its
 kernel equals the span of the two incoming generator images. This
 proves exactness at the middle term of the actual complex
 (`Stendhal.LabelTwo.labelTwoExteriorStandardComplex_exact`).
+The grading of the middle standard descends to its dot-sum quotient.
+The complementary exterior projective inherits the regular algebra grading,
+and the actual outgoing crossing has degree two between these graded modules
+(`Stendhal.LabelTwo.labelTwoMiddleQuotientDecomposition`,
+`Stendhal.LabelTwo.labelTwoLeftExteriorDecomposition`,
+`Stendhal.LabelTwo.labelTwoOutgoing_degree_two`).
 The complementary exterior projective then surjects onto the actual
 cokernel of the outgoing crossing
 (`Stendhal.labelTwoExteriorEndComplex_exact`,
@@ -1375,6 +1381,15 @@ specializes each shuffle coordinate to a dual number
 its black-crossing translate have coefficients `(1, −ε)` and `(0, 1)`
 in these coordinates (`Stendhal.LabelTwo.incomingDiagram_coordinates`,
 `Stendhal.LabelTwo.incomingDiagram_translate_coordinates`).
+
+The diagrammatic standard
+is the parabolic standardization of its two regular separated factors
+(`Stendhal.LabelTwo.middleStandardParabolicEquiv`). Its parabolic grading
+pulls back to a graded module on the actual diagrammatic carrier
+(`Stendhal.LabelTwo.middleStandardGradedEquiv`). Its middle generator
+has degree zero, and both alternating dot differentials have internal
+degree two (`Stendhal.LabelTwo.diagramPlus_degree_two`,
+`Stendhal.LabelTwo.diagramMinus_degree_two`).
 
 **Terminal-character resolution benchmark for Webster, arXiv:1309.3796v2,
 §8.1.** In the fundamental rank-one block over `ℚ`, the terminal simple

@@ -5565,6 +5565,12 @@ example := Categorification.Stendhal.LabelTwo.labelTwoExteriorStandardComplex_mo
 
 example := Categorification.Stendhal.LabelTwo.labelTwoExteriorStandardComplex_exact ℚ
 
+example := Categorification.Stendhal.LabelTwo.labelTwoMiddleQuotientDecomposition ℚ
+
+example := Categorification.Stendhal.LabelTwo.labelTwoLeftExteriorDecomposition ℚ
+
+example := Categorification.Stendhal.LabelTwo.labelTwoOutgoing_degree_two ℚ
+
 example := Categorification.Stendhal.labelTwoExteriorEndComplex_exact Q
 
 example := Categorification.Stendhal.labelTwoExteriorEndComplex_epi Q
@@ -9809,6 +9815,25 @@ example (a b : fixSub ℚ (Standard ℚ) (seqIdem (parameter ℚ) weights loadin
 example := incomingDiagram_coordinates ℚ
 
 example := incomingDiagram_translate_coordinates ℚ
+example := middleStandardParabolicEquiv ℚ
+
+example : Function.Bijective (testModuleMap ℚ) :=
+  ⟨testModuleMap_injective ℚ, testModuleMap_surjective ℚ⟩
+
+example := middleStandardGFin ℚ (labelTwoGradingDatum ℚ)
+
+example :
+    (middleStandardGradedEquiv ℚ (labelTwoGradingDatum ℚ)).toLinearEquiv =
+      middleStandardParabolicEquiv ℚ :=
+  middleStandardGradedEquiv_toLinearEquiv ℚ (labelTwoGradingDatum ℚ)
+
+example := diagramPlus_degree_two ℚ
+
+example := diagramMinus_degree_two ℚ
+
+example := incomingExteriorDiagram_mem_grade ℚ
+
+example := incomingExteriorTranslate_mem_grade ℚ
 
 end NonVacuity.WebsterLabelTwoMiddleFixedComplex
 

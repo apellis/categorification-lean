@@ -120,20 +120,23 @@ private theorem terminal_right_row (z : rIdeal E) :
   rw [mem_rIdeal.mp z.property] at hm
   exact Submodule.mem_span_pair.mp hm
 
+/-- The two-black terminal projector is nonzero. -/
+theorem twoBlackTerminalIdem_ne_zero : E ≠ 0 := by
+  obtain ⟨_,_,_,rel⟩ := twoBlack_terminal_relations Q
+  obtain ⟨ep,_,_,_⟩ := terminalIdem_right_products Q
+  let _ : Nontrivial R :=
+    (terminalCoinvAct («ν» := ν) (i := ()) (fun j _ => Subsingleton.elim j ()) Q).toRingHom.domain_nontrivial
+  intro ez
+  rw [ez,zero_mul] at ep
+  rw [← ep,mul_zero,zero_mul,zero_add] at rel
+  exact zero_ne_one rel
+
 /-- Webster, arXiv:1309.3796v2, Proposition 7.2 for the terminal two-strand
 one-colour block. The right ideal of the divided-power projector is simple. -/
 theorem twoBlackTerminalProjective_simple :
     CategoryTheory.Simple (ModuleCat.of Rᵐᵒᵖ (rIdeal E)) := by
-  obtain ⟨_,_,_,rel⟩ := twoBlack_terminal_relations Q
-  obtain ⟨ep,pe,ed,ee⟩ := terminalIdem_right_products Q
-  let _ : Nontrivial R :=
-    (terminalCoinvAct («ν» := ν) (i := ()) (fun j _ => Subsingleton.elim j ()) Q).toRingHom.domain_nontrivial
-  have neE : E ≠ 0 := by
-    intro ez
-    have pz := ep
-    rw [ez,zero_mul] at pz
-    rw [← pz,mul_zero,zero_mul,zero_add] at rel
-    exact zero_ne_one rel
+  obtain ⟨_,pe,ed,ee⟩ := terminalIdem_right_products Q
+  have neE := twoBlackTerminalIdem_ne_zero Q
   apply simple_iff_isSimpleModule.mpr
   apply isSimpleModule_iff_toSpanSingleton_surjective.mpr
   let generator : rIdeal E := ⟨E,ee⟩
@@ -163,5 +166,18 @@ theorem twoBlackTerminalProjective_simple :
   change r.val*(u*z.val)=z.val
   rw [← mul_assoc,hu]
   exact z.property
+
+/-- The divided-power terminal corner is spanned by its idempotent.
+This is the scalar corner for each outer factor in the label-two
+calculation preceding Webster v2, §8.2, Proposition 8.4. -/
+theorem twoBlackTerminal_corner_span (z : (twoBlackTerminalIdem_idempotent Q).Corner) :
+    ∃ a : k, a • E = z.val := by
+  obtain ⟨left,right⟩ := (Subsemigroup.mem_corner_iff (twoBlackTerminalIdem_idempotent Q)).mp z.property
+  obtain ⟨a,b,h⟩ := terminal_right_row Q (⟨z.val,mem_rIdeal.mpr left⟩ : rIdeal E)
+  obtain ⟨_,pe,_,ee⟩ := terminalIdem_right_products Q
+  refine ⟨a,?_⟩
+  have h' := congrArg (· * E) h
+  change (a • E + b • p) * E = z.val * E at h'
+  rwa [add_mul,smul_mul_assoc,smul_mul_assoc,ee,pe,smul_zero,add_zero,right] at h'
 
 end Categorification.KLR.CycKLR

@@ -9274,6 +9274,29 @@ example := fundamentalBraidGradedTensorComplex_exact 1 (by decide)
 noncomputable example := fundamentalBraidGradedTensorHomologyIso
 
 end NonVacuity.WebsterFundamentalBraidGradedTensorHomology
+
+namespace NonVacuity.WebsterFundamentalBraidGradedResolutionModel
+open CategoryTheory DG Categorification.Stendhal Categorification.Stendhal.FundamentalCorner
+open BraidedStendhalAlgebra
+open scoped DG.DegreeZero
+attribute [local instance 1100] IsIdempotentElem.instAlgebraCorner_categorification
+attribute [local instance] fundamentalBraidCoendSourceCornerGrades fundamentalBraidCoendTargetCornerGrades
+  fundamentalBraidCoendSourceInternal fundamentalBraidCoendTargetInternal
+  fundamentalBraidCoendSourceBigraded fundamentalBraidCoendTargetBigraded
+
+local notation "R" κ:arg => ViolOrderCorner (k := ℚ) (Q := Q) (Λ := wt) («ν» := ({()} : Multiset Unit)) κ
+local instance fundamentalBraidModelSourceDerived :
+    CatModule.HasDerivedCategory.{1,0} (WeightCategory (R (List.finRange 2))ᵐᵒᵖ) :=
+  CatModule.HasDerivedCategory.standard _
+local instance fundamentalBraidModelTargetDerived :
+    CatModule.HasDerivedCategory.{1,0} (WeightCategory (R ([1,0] : List (Fin 2)))ᵐᵒᵖ) :=
+  CatModule.HasDerivedCategory.standard _
+
+example := fundamentalBraidGradedResolutionAugmentation_quasiIso
+
+noncomputable example := fundamentalBraidGradedDerivedModelIso.{1}
+
+end NonVacuity.WebsterFundamentalBraidGradedResolutionModel
 end
 
 namespace NonVacuity.WebsterCupRHomRegular

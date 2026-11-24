@@ -1854,6 +1854,7 @@ import Categorification.Algebra.DiagramWeightComplex
 import Categorification.Algebra.DiagramWeightComplexKProjective
 import Categorification.Algebra.GradedChainWeightDG
 import Categorification.Algebra.OrderedWeightDGResolution
+import Categorification.Algebra.OrderedWeightDGProjectivity
 import Categorification.Algebra.DiagramWeightExact
 import Categorification.Algebra.DiagramWeightLoadingVanish
 import Categorification.Algebra.DiagramWeightOrdinaryTensor

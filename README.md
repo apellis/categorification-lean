@@ -1062,7 +1062,10 @@ A homogeneous exact augmented chain gives a dg model with a pointwise
 quasi-isomorphic augmentation (`weightDgGradedChainAugmentation_quasiIso`).
 A bounded-above weight complex realizes as a K-projective dg module when
 its individual terms, placed in their cohomological degrees, are K-projective
-(`diagramWeightModuleOfComplex_isKProjective`).
+(`diagramWeightModuleOfComplex_isKProjective`). The ordered loading resolution meets this criterion because its
+cohomological pieces are representable loading corners or direct sums of
+such corners at their generator weights
+(`orderedWeightDgResolution_isKProjective`).
 The ordered loading resolution has a graded augmentation that is a
 quasi-isomorphism to the homogeneous standard
 (`orderedWeightDgAugmentation_quasiIso`).

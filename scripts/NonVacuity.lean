@@ -10483,6 +10483,18 @@ example := orderedWeightDgAugmentation_quasiIso data false eGrade eIdem aboveTra
     (Or.inr (Subsingleton.elim (α := PUnit) _ _)))
   quotientGrade
 
+open scoped DG.DegreeZero
+
+local instance instOrderedProjectivityScalarInternalGrading : InternalGrading ℚ :=
+  scalarInternalGrading ℚ
+local instance instOrderedProjectivityScalarBigradedRing : BigradedDGRing ℚ :=
+  scalarBigradedDGRing ℚ
+
+example : CatModule.IsKProjective
+    (orderedWeightDgResolution data false eGrade eIdem aboveTrans rankOneStandardGrade quotientGrade) :=
+  orderedWeightDgResolution_isKProjective data false eGrade eIdem aboveTrans
+    rankOneStandardGrade quotientGrade
+
 end NonVacuity.WebsterOrderedGradedResolution
 
 end

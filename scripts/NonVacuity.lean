@@ -8880,6 +8880,9 @@ example := gradedMiddleCap_shiftedTerminal_isZero 1
 example := gradedMiddleCap_simpleIso
 example := gradedMiddleCap_shiftedSimpleIso 1
 example := gradedMiddleCupCap_fieldIso
+example := gradedMiddleCup_scalarIso (-2)
+example := gradedMiddleCupCap_scalarIso 3
+example := gradedMiddleCupCap_shiftedScalarIso (-2) 4
 
 end
 

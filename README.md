@@ -1127,7 +1127,10 @@ sequence of dg modules over the weight category (`gradedMiddleComplex_exact`).
 After applying the cap, the normalized composite on the scalar
 representable splits into two scalar lines. Their internal and
 cohomological degrees are (−1, 1) and (1, −1)
-(`gradedMiddleCupCap_fieldIso`).
+(`gradedMiddleCupCap_fieldIso`). For a scalar representable generated at
+weight j with cohomological shift [n], the two output representables
+have weights j−1 and j+1 and shifts [n−1] and [n+1], respectively
+(`gradedMiddleCupCap_shiftedScalarIso`).
 
 For Proposition 7.2, a single
 red with coroot pairing one gives a simple projective at the red-first

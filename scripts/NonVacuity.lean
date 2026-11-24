@@ -9157,6 +9157,14 @@ example : ¬ ∃ z, z ∈ Graded.shift (figureFiveCutGrade (Λ := wt) datum fund
   have he : (5 / 2 : ℂ) = 3 / 2 := (fundamentalBraidHomology_weight_iff realization _).mp h
   norm_num at he
 
+
+example : (fundamentalBraidWeightComplex realization (5 / 2)).Exact :=
+  fundamentalBraidWeightComplex_exact realization (by norm_num)
+
+open CategoryTheory in
+noncomputable example : (fundamentalBraidWeightComplex realization (3 / 2)).homology ≅ ModuleCat.of ℚ ℚ :=
+  fundamentalBraidWeightComplex_homologyIso realization
+
 end
 end NonVacuity.WebsterFundamentalBraidWeight
 

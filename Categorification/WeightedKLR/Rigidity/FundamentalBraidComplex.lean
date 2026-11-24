@@ -184,7 +184,9 @@ theorem fundamentalBraidCutComplex_ends :
     Function.Injective fundamentalBraidCutComplex.f ∧ Function.Surjective fundamentalBraidCutComplex.g :=
   ⟨d₂_inj,d₁_surj⟩
 
-private def scalarHomologyIso (S : ShortComplex (ModuleCat.{0} ℚ)) (v : S.X₂) (hv : S.g v = 0)
+/-- A cycle freely spanning homology over the rationals identifies the middle
+homology of a short complex with the rational line. -/
+def scalarHomologyIsoOfSpanningCycle (S : ShortComplex (ModuleCat.{0} ℚ)) (v : S.X₂) (hv : S.g v = 0)
     (indep : ∀ (a : ℚ) (m : S.X₁), S.f m = a • v → a = 0)
     (spans : ∀ z : S.X₂, S.g z = 0 → ∃ (a : ℚ) (m : S.X₁), S.f m = a • v - z) :
     S.homology ≅ ModuleCat.of ℚ ℚ := by
@@ -264,7 +266,7 @@ is the scalar line over ℚ (Webster v2, Proposition 7.11). Its generator
 is the reduced diagram with reversed middle loading at the bottom. -/
 def fundamentalBraidCutComplex_homologyIso :
     fundamentalBraidCutComplex.homology ≅ ModuleCat.of ℚ ℚ := by
-  apply scalarHomologyIso fundamentalBraidCutComplex bGen d₁_b
+  apply scalarHomologyIsoOfSpanningCycle fundamentalBraidCutComplex bGen d₁_b
   · intro a m he
     change d₂ m = a • bGen at he
     obtain ⟨c,rfl⟩ := mid_repr m

@@ -18,6 +18,7 @@ namespace Categorification.Stendhal
 
 open QuantumGroup KL3.Diagram KLR ModuleFiltration DG CategoryTheory
 open scoped DG.DegreeZero Classical
+attribute [local instance 1100] IsIdempotentElem.instAlgebraCorner_categorification
 
 variable {I k : Type} [Field k] {C : CartanDatum I}
   {l : ℕ} (Λ : Fin l → I →₀ ℕ) (ν : Multiset I)

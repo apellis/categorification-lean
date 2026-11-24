@@ -6770,7 +6770,8 @@ individually vanish after imposing the global violation. -/
 example (u v : A) :=
   let bad : Seq (stendhalWeight 4 ν) :=
     Seq.ofList [.inl (), .inr 0, .inr 1, .inl (), .inr 2, .inr 3] (by decide)
-  exists_violated_finite_exits Q Λ bottom top exits (fun _ _ _ => rfl) generate
+  exists_violated_finite_exits_of_violated_generation Q Λ bottom top exits (fun _ _ _ => rfl)
+    (fun v _ => generate v)
     (u * F (e bad) * v) (by
       have hv : IsViolated bad := ⟨by decide,rfl⟩
       simp only [map_mul,violMk_e hv,mul_zero,zero_mul])
@@ -6808,6 +6809,7 @@ example :=
           rw [mul_assoc, ← mul_assoc (e (wordProd (stendhalWeight 4 ν).card [2,3] • bottom)), right]
           simp only [mul_assoc],
       ← h, neg_add_cancel]
-  exists_finiteExitRelation_affine_lift Q Λ bottom top exits (fun _ _ _ => rfl) generate signed sup rel
+  exists_finiteExitRelation_affine_lift_of_violated_generation Q Λ bottom top exits
+    (fun _ _ _ => rfl) (fun v _ => generate v) signed sup rel
 
 end NonVacuity.WebsterFiniteExitLift

@@ -41,11 +41,10 @@ private theorem finite_exit_support (i : ι) :
 
 variable [Fintype ι]
 
-/-- If a finite family of exit words generates the columns with the prescribed upper
-red order, then it also generates their globally violated part with globally violated
-coefficients. Webster v2, §6.1, Proposition 6.4 and the cut after (6.21). -/
-theorem exists_violated_finite_exits (hQ : KLRSymm Q)
-    (generate : ∀ v : KLR.Seq μ, redWord v = redWord t → ∀ z : A,
+/-- Generation only at globally violated intermediate loadings suffices to decompose
+a globally violated element using globally violated coefficients. Webster v2, §6.1, Proposition 6.4 and the cut after (6.21). -/
+theorem exists_violated_finite_exits_of_violated_generation (hQ : KLRSymm Q)
+    (generate : ∀ v : KLR.Seq μ, IsViolated v → redWord v = redWord t → ∀ z : A,
       ∃ c : ι → A, p v * z * p s = ∑ i, c i * leg i)
     (z : A) (hz : mk z = 0) :
     ∃ c : ι → A, (∀ i, mk (c i) = 0) ∧ p t * z * p s = ∑ i, c i * leg i := by
@@ -73,7 +72,7 @@ theorem exists_violated_finite_exits (hQ : KLRSymm Q)
     simp only [smul_mul_assoc]
   | mem v hv =>
     obtain ⟨u,i,d,hi,ho,rfl⟩ := hv
-    obtain ⟨c,he⟩ := generate i ho d
+    obtain ⟨c,he⟩ := generate i hi ho d
     let g := p t * u * p i
     have hg : mk g = 0 := by simp only [g,map_mul,violMk_e hi,mul_zero]
     have hc : g * (p i * d * p s) = p t * (u * p i * d) * p s := by
@@ -82,12 +81,22 @@ theorem exists_violated_finite_exits (hQ : KLRSymm Q)
     rw [← hc, he, Finset.mul_sum]
     simp only [mul_assoc]
 
+/-- If a finite family of exit words generates the columns with the prescribed upper
+red order, then it also generates their globally violated part with globally violated
+coefficients. Webster v2, §6.1, Proposition 6.4 and the cut after (6.21). -/
+theorem exists_violated_finite_exits (hQ : KLRSymm Q)
+    (generate : ∀ v : KLR.Seq μ, redWord v = redWord t → ∀ z : A,
+      ∃ c : ι → A, p v * z * p s = ∑ i, c i * leg i)
+    (z : A) (hz : mk z = 0) :
+    ∃ c : ι → A, (∀ i, mk (c i) = 0) ∧ p t * z * p s = ∑ i, c i * leg i :=
+  exists_violated_finite_exits_of_violated_generation Q Λ s t words hQ
+    (fun v _ => generate v) z hz
+
 /-- A relation for a finite exit family in the globally violated quotient lifts with
 its prescribed coefficients to a relation before quotienting. Thus every prescribed
-higher mark remains on its exit coefficient. The hypothesis on generation must be
-proved separately for the family of exits. Webster v2, §6.1, after (6.21). -/
-theorem exists_finiteExitRelation_affine_lift (hQ : KLRSymm Q)
-    (generate : ∀ v : KLR.Seq μ, redWord v = redWord t → ∀ z : A,
+higher mark remains on its exit coefficient. The family only needs to generate the affine columns at violated intermediate loadings. Webster v2, §6.1, after (6.21). -/
+theorem exists_finiteExitRelation_affine_lift_of_violated_generation (hQ : KLRSymm Q)
+    (generate : ∀ v : KLR.Seq μ, IsViolated v → redWord v = redWord t → ∀ z : A,
       ∃ c : ι → A, p v * z * p s = ∑ i, c i * leg i)
     (x : ι → V)
     (support : ∀ i, mk (p t) * x i * mk (p (q i)) = x i)
@@ -96,7 +105,7 @@ theorem exists_finiteExitRelation_affine_lift (hQ : KLRSymm Q)
       ∑ i, (p t * c i * p (q i)) * leg i = 0 := by
   classical
   choose a ha using fun i => violMk_surjective (x i)
-  obtain ⟨b,hb,he⟩ := exists_violated_finite_exits Q Λ s t words hQ generate
+  obtain ⟨b,hb,he⟩ := exists_violated_finite_exits_of_violated_generation Q Λ s t words hQ generate
     (∑ i, a i * leg i) (by simpa only [map_sum,map_mul,ha] using hzero)
   have right : (∑ i, a i * leg i) * p s = ∑ i, a i * leg i := by
     rw [Finset.sum_mul]
@@ -110,5 +119,20 @@ theorem exists_finiteExitRelation_affine_lift (hQ : KLRSymm Q)
     rw [← Finset.mul_sum]
     simp only [sub_mul]
     rw [Finset.sum_sub_distrib, ← h, mul_sub, ← mul_assoc, idem, sub_self]
+
+/-- A relation for a finite exit family in the globally violated quotient lifts with
+its prescribed coefficients to a relation before quotienting. Thus every prescribed
+higher mark remains on its exit coefficient. The hypothesis on generation must be
+proved separately for the family of exits. Webster v2, §6.1, after (6.21). -/
+theorem exists_finiteExitRelation_affine_lift (hQ : KLRSymm Q)
+    (generate : ∀ v : KLR.Seq μ, redWord v = redWord t → ∀ z : A,
+      ∃ c : ι → A, p v * z * p s = ∑ i, c i * leg i)
+    (x : ι → V)
+    (support : ∀ i, mk (p t) * x i * mk (p (q i)) = x i)
+    (hzero : ∑ i, x i * mk (leg i) = 0) :
+    ∃ c : ι → A, (∀ i, mk (p t * c i * p (q i)) = x i) ∧
+      ∑ i, (p t * c i * p (q i)) * leg i = 0 :=
+  exists_finiteExitRelation_affine_lift_of_violated_generation Q Λ s t words hQ
+    (fun v _ => generate v) x support hzero
 
 end Categorification.Stendhal.BraidedStendhalAlgebra

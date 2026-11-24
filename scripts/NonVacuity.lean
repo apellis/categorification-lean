@@ -9718,3 +9718,25 @@ example := ambientDerivedTensorH0LeftIdealEquiv (k := ℚ) (M := ℚᵐᵒᵖ)
 
 end
 end NonVacuity.AmbientDerivedIdempotentCut
+
+namespace NonVacuity.GradedIdempotentTensorCut
+
+open Categorification Categorification.Graded MulOpposite
+noncomputable section
+
+private def scalarPieces (_ : ℤ) : Submodule ℚ ℚ := ⊤
+private def rightPieces (_ : ℤ) : Submodule ℚ ℚᵐᵒᵖ := ⊤
+
+local instance : SetLike.GradedSMul (oppositeGrade scalarPieces) rightPieces where
+  smul_mem _ _ _ _ _ _ := Submodule.mem_top
+
+example := balancedTensorLeftIdealEquiv_preservesGrading
+  (𝒜 := scalarPieces) (𝓜 := rightPieces)
+  (show IsIdempotentElem (1 : ℚ) from one_mul 1)
+
+example := balancedTensorLeftIdealEquiv_symm_preservesGrading
+  (𝒜 := scalarPieces) (𝓜 := rightPieces)
+  (show IsIdempotentElem (1 : ℚ) from one_mul 1) Submodule.mem_top
+
+end
+end NonVacuity.GradedIdempotentTensorCut

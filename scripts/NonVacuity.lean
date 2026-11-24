@@ -9175,6 +9175,34 @@ example : (diagramWeightTensorHomotopy (fun j => DG.grading (M := ℚ) j)
 example : (diagramWeightDerivedTensor (fun j => DG.grading (M := ℚ) j)
     leftAction rightAction).IsTriangulated := inferInstance
 
+example : CategoryTheory.Limits.IsZero ((CatModule.DerivedCategory.cohomologyFunctor
+    (⟨1⟩ : WeightCategory ℚ) 0).obj
+    ((diagramWeightDerivedTensor (fun j => DG.grading (M := ℚ) j) leftAction rightAction).obj
+      (CatModule.DerivedCategory.Q.obj Rep))) := by
+  let e (Z : WeightCategory ℚ) (_ : PLift (Z.as = 0)) : Z ⟶ Z := 𝟙 Z
+  refine diagramWeightDerivedTensor_cohomology_isZero_of_loading_support
+    (fun j => DG.grading (M := ℚ) j) leftAction rightAction (𝟙 Rep)
+    (CatModule.isKProjective_representable (⟨0⟩ : WeightCategory ℚ)) (CatModule.isQuasiIso_id Rep)
+    ⟨1⟩ 0 e ?_ ?_
+  · intro Z m _
+    by_cases h : Z.as = 0
+    · exact AddSubgroup.subset_closure
+        ⟨⟨h⟩, m, (Rep.act_id' Z m).symm⟩
+    · have hm : (m : (⟨0⟩ : WeightCategory ℚ) ⟶ Z) = 0 := by
+        apply WeightCategory.hom_ext
+        have hmem := WeightCategory.mem_wgrading (show (⟨0⟩ : WeightCategory ℚ) ⟶ Z from m)
+        change m.val ∈ DG.grading (M := ℚ) (Z.as - 0) at hmem
+        exact ((DG.mem_degreeZeroGrading_iff ℚ).mp hmem).resolve_left (by simpa using h)
+      rw [show m = 0 from hm]
+      exact zero_mem _
+  · intro Z i p
+    have hp : p = 0 := by
+      apply Subtype.ext
+      have hp' : p.val ∈ DG.grading (M := ℚ) (1 - Z.as) := p.property
+      have hi := i.down
+      exact ((DG.mem_degreeZeroGrading_iff ℚ).mp hp').resolve_left (by omega)
+    rw [hp, map_zero]
+
 end
 
 end NonVacuity.WebsterWeightTensor

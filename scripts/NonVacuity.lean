@@ -8801,6 +8801,8 @@ private def weights : Fin 3 → Unit →₀ ℕ := fun r => Finsupp.single () (i
 
 example := firstPairRightmost_secondCrossing_kernel_of_weight_one params weights (by simp [weights])
 
+example := firstPairSecondSpectatorCrossing_residualEquiv params weights (by simp [weights])
+
 end NonVacuity.WebsterFirstPairRightmostWeightOne
 
 

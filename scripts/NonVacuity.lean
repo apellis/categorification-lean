@@ -9604,15 +9604,15 @@ open scoped DG.DegreeZero
 attribute [local instance 1100] IsIdempotentElem.instAlgebraCorner_categorification
 
 local notation "T" => TensorProductAlgebra ℚ Q wt ({()} : Multiset Unit)
-local instance : InternalGrading Tᵐᵒᵖ :=
+local instance instTerminalVanishTestInternalGrading : InternalGrading Tᵐᵒᵖ :=
   gradedAlgebraInternalGrading (Graded.oppositeGrade (tensorProductGrade grading ({()} : Multiset Unit)))
-local instance : BigradedDGRing Tᵐᵒᵖ :=
+local instance instTerminalVanishTestBigradedRing : BigradedDGRing Tᵐᵒᵖ :=
   gradedAlgebraBigradedDGRing (Graded.oppositeGrade (tensorProductGrade grading ({()} : Multiset Unit)))
-local instance : InternalGrading ℚ := scalarInternalGrading ℚ
-local instance : BigradedDGRing ℚ := scalarBigradedDGRing ℚ
-local instance : CatModule.HasDerivedCategory.{1,0} (WeightCategory ℚ) :=
+local instance instTerminalVanishTestScalarInternalGrading : InternalGrading ℚ := scalarInternalGrading ℚ
+local instance instTerminalVanishTestScalarBigradedRing : BigradedDGRing ℚ := scalarBigradedDGRing ℚ
+local instance instTerminalVanishTestScalarDerived : CatModule.HasDerivedCategory.{1,0} (WeightCategory ℚ) :=
   CatModule.HasDerivedCategory.standard _
-local instance : CatModule.HasDerivedCategory.{1,0} (WeightCategory Tᵐᵒᵖ) :=
+local instance instTerminalVanishTestDiagramDerived : CatModule.HasDerivedCategory.{1,0} (WeightCategory Tᵐᵒᵖ) :=
   CatModule.HasDerivedCategory.standard _
 
 example := gradedTerminalStandard_terminalCoefficient_cohomology_isZero

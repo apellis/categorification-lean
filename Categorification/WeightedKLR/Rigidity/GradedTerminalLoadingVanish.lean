@@ -22,8 +22,8 @@ open scoped DG.DegreeZero CatModule
 attribute [local instance 1100] IsIdempotentElem.instAlgebraCorner_categorification
 local notation "T" => TensorProductAlgebra ℚ Q wt ({()} : Multiset Unit)
 local notation "𝒜" => tensorProductGrade grading ({()} : Multiset Unit)
-local instance : InternalGrading Tᵐᵒᵖ := gradedAlgebraInternalGrading (Graded.oppositeGrade 𝒜)
-local instance : BigradedDGRing Tᵐᵒᵖ := gradedAlgebraBigradedDGRing (Graded.oppositeGrade 𝒜)
+local instance instTerminalLoadingInternalGrading : InternalGrading Tᵐᵒᵖ := gradedAlgebraInternalGrading (Graded.oppositeGrade 𝒜)
+local instance instTerminalLoadingBigradedRing : BigradedDGRing Tᵐᵒᵖ := gradedAlgebraBigradedDGRing (Graded.oppositeGrade 𝒜)
 
 private theorem middleOrdered : IsRedOrdered middle := by unfold IsRedOrdered; decide +kernel
 
@@ -49,15 +49,15 @@ theorem gradedTerminalStandardResolution_loading_support (Z : WeightCategory T�
     rw [map_zero, map_zero]
 
 
-local instance : InternalGrading ℚ := scalarInternalGrading ℚ
-local instance : BigradedDGRing ℚ := scalarBigradedDGRing ℚ
+local instance instTerminalLoadingScalarInternalGrading : InternalGrading ℚ := scalarInternalGrading ℚ
+local instance instTerminalLoadingScalarBigradedRing : BigradedDGRing ℚ := scalarBigradedDGRing ℚ
 
 private def terminalCoefficientCharacter : Tᵐᵒᵖᵐᵒᵖ →+* ℚ :=
   terminalCharacter.toRingHom.comp (RingEquiv.opOp T).symm.toRingHom
 
-local instance : Module Tᵐᵒᵖᵐᵒᵖ ℚ := Module.compHom ℚ terminalCoefficientCharacter
+local instance instTerminalLoadingRightModule : Module Tᵐᵒᵖᵐᵒᵖ ℚ := Module.compHom ℚ terminalCoefficientCharacter
 
-local instance : SMulCommClass ℚ Tᵐᵒᵖᵐᵒᵖ ℚ where
+local instance instTerminalLoadingScalarCommutes : SMulCommClass ℚ Tᵐᵒᵖᵐᵒᵖ ℚ where
   smul_comm a b x := by
     change a * (terminalCoefficientCharacter b * x) =
       terminalCoefficientCharacter b * (a * x)

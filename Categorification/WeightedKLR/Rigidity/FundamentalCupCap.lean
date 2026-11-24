@@ -6,11 +6,13 @@ import Categorification.WeightedKLR.Rigidity.DerivedCupCap
 import Categorification.WeightedKLR.Rigidity.FundamentalCoevaluation
 
 /-!
-# Cups and caps for two fundamental type A₁ factors
+# Terminal-character cup and cap for two fundamental type A₁ factors
 
-Webster, arXiv:1309.3796v2, Definition 7.4. Over the rationals the dual
-of the terminal character module is the simple right quotient by the
-smaller-cut trace. This supplies the coefficient of the ungraded cup and cap.
+The dual of the terminal character module is the simple right quotient
+by the smaller-cut trace. Applying the general construction of Definition
+7.4 to that character gives the terminal-character benchmark. In
+Webster, arXiv:1309.3796v2, Proposition 7.5 uses the middle loading
+with `κ = (0, 1)`, counting black strands to the left of each red strand.
 -/
 
 noncomputable section
@@ -95,8 +97,8 @@ private theorem terminalToDual_surjective : Function.Surjective terminalToDual :
   exact (map_smul f' (show ℚ from y) (show FundamentalCoefficient from (1 : ℚ))).symm.trans
     (congrArg f' hy)
 
-/-- The dual coefficient of the cup is the simple right quotient from
-Webster's Lemma 7.3, expressed using the terminal character. -/
+/-- The dual of the terminal character is the simple right quotient by
+the terminal loading's cut trace. -/
 def terminalQuotientDualEquiv :
     (rIdeal terminalIdem ⧸ fundamentalCutTrace) ≃ₗ[Tᵐᵒᵖ]
       CupCoefficient ℚ FundamentalCoefficient :=
@@ -107,7 +109,7 @@ universe v
 
 variable [HasDerivedCategory.{v,0} ℚ] [HasDerivedCategory.{v,0} Tᵐᵒᵖ]
 
-/-- The ungraded type A₁ fundamental cup with cohomological shift minus one. -/
+/-- The ungraded terminal-character cup with cohomological shift minus one. -/
 def fundamentalCup : DerivedCategory.{v,0} ℚ ⥤ DerivedCategory.{v,0} Tᵐᵒᵖ :=
   shiftedCupFunctor ℚ T FundamentalCoefficient (-1)
 

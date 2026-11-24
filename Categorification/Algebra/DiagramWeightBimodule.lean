@@ -97,12 +97,70 @@ def diagramWeightBimodule : CatBimodule (WeightCategory A) (WeightCategory B) wh
     simp only [InDegreeZero.d_apply, hg, map_zero, AddMonoidHom.zero_apply, smul_zero, zero_add]
   lact_ract' f g x := Subtype.ext (smul_comm f.val (op g.val) x.val)
 
+private theorem subsingleton_cohomology_inDegreeZero
+    (M : Type u) [AddCommGroup M] {n : ℤ} (hn : n ≠ 0) :
+    Subsingleton (cohomology (InDegreeZero M) n) := by
+  have hc : Subsingleton (cocycles (InDegreeZero M) n) :=
+    ⟨fun x y => Subtype.ext (by
+      have hx : x.val = 0 := (((mem_degreeZeroGrading_iff (InDegreeZero M)).mp (mem_cocycles.mp x.2).1).resolve_left hn)
+      have hy : y.val = 0 := (((mem_degreeZeroGrading_iff (InDegreeZero M)).mp (mem_cocycles.mp y.2).1).resolve_left hn)
+      exact hx.trans hy.symm)⟩
+  exact (cohomology.mk_surjective (InDegreeZero M) n).subsingleton
+
+/-- Every weight component of a diagram coefficient has cohomology in degree zero. -/
+theorem diagramWeightLeft_cohomology_subsingleton (X : WeightCategory A) (Z : WeightCategory B)
+    {n : ℤ} (hn : n ≠ 0) :
+    Subsingleton (cohomology (((diagramWeightBimodule G hl hr).left Z).obj X) n) :=
+  subsingleton_cohomology_inDegreeZero (G (X.as - Z.as)) hn
+
+/-- A comparison into a dg module isomorphic to a diagram weight module
+is a quasi-isomorphism
+when it is bijective in cohomological degree zero and the source has
+vanishing cohomology in all other degrees. -/
+theorem diagramWeightLeft_isQuasiIso_of_cohomology
+    {Z : WeightCategory B} {M₀ N : CatModule.{u} (WeightCategory A)}
+    (e : N ≅ (diagramWeightBimodule G hl hr).left Z) (f : M₀ ⟶ N)
+    (h₀ : ∀ X, Function.Bijective (CatModule.cohomologyMap f X 0))
+    (hvan : ∀ X n, n ≠ 0 → Subsingleton (cohomology (M₀.obj X) n)) :
+    CatModule.IsQuasiIso f := by
+  intro X n
+  by_cases hn : n = 0
+  · subst n
+    exact h₀ X
+  · let := hvan X n hn
+    let : Subsingleton (cohomology (((diagramWeightBimodule G hl hr).left Z).obj X) n) :=
+      diagramWeightLeft_cohomology_subsingleton G hl hr X Z hn
+    let : Subsingleton (cohomology (N.obj X) n) :=
+      ((CatModule.IsQuasiIso.of_isIso e.inv) X n).surjective.subsingleton
+    exact ⟨Function.injective_of_subsingleton _, fun y =>
+      ⟨0, Subsingleton.elim _ y⟩⟩
+
 section Derived
 
 variable [CatModule.HasDerivedCategory.{v,u} (WeightCategory A)]
   [CatModule.HasDerivedCategory.{v,u} (WeightCategory B)]
 
 local notation "D" => diagramWeightBimodule G hl hr
+
+/-- Tensor with a diagram coefficient is additive in the input module maps. -/
+instance diagramWeightTensorFunctor_additive : (D).tensorFunctor.Additive where
+  map_add := by
+    intro L N f g
+    apply CatModule.Hom.ext
+    intro X x
+    have eq : ((D).tensorMap (f + g)).app X =
+        ((D).tensorMap f).app X + ((D).tensorMap g).app X := by
+      apply CatTensorProduct.addHom_ext
+      intro Y b y
+      have hf := CatBimodule.tensorMap_tmul (D) f X Y b y
+      have hg := CatBimodule.tensorMap_tmul (D) g X Y b y
+      have hfg := CatBimodule.tensorMap_tmul (D) (f + g) X Y b y
+      exact hfg.trans ((congrArg (CatTensorProduct.tmul Y b) (CatModule.add_app f g Y y)).trans
+        ((CatTensorProduct.tmul_add Y b (f.app Y y) (g.app Y y)).trans
+          (congrArg₂ (· + ·) hf.symm hg.symm)))
+    have atx := DFunLike.congr_fun eq x
+    exact atx.trans (CatModule.add_app ((D).tensorMap f) ((D).tensorMap g) X x).symm
+
 
 /-- Tensoring with the graded coefficient preserves chain homotopies. -/
 def diagramWeightTensorHomotopy :
@@ -112,6 +170,15 @@ def diagramWeightTensorHomotopy :
     (fun _ _ _ _ h => CatModule.HomotopyCategory.eq_of_homotopy _ _
       ((D).homotopic_tensorMap h).some)
 
+instance diagramWeightTensorHomotopy_additive : (diagramWeightTensorHomotopy G hl hr).Additive := by
+  let F := CatModule.HomotopyCategory.quotient (WeightCategory B)
+  let H := diagramWeightTensorHomotopy G hl hr
+  let e : F ⋙ H ≅ (D).tensorFunctor ⋙ CatModule.HomotopyCategory.quotient (WeightCategory A) :=
+    CategoryTheory.Quotient.lift.isLift _ _ _
+  have := Functor.additive_of_iso e.symm
+  exact Functor.additive_of_full_essSurj_comp F H
+
+
 /-- Derived tensor with a graded diagram coefficient, computed on
 K-projective representatives of the input. -/
 def diagramWeightDerivedTensor :
@@ -120,6 +187,16 @@ def diagramWeightDerivedTensor :
   (CatModule.DerivedCategory.kProjectiveEquivalence (WeightCategory B)).inverse ⋙
     (CatModule.HomotopyCategory.subcategoryKProjective (WeightCategory B)).ι ⋙
     diagramWeightTensorHomotopy G hl hr ⋙ CatModule.DerivedCategory.Qh
+
+instance diagramWeightDerivedTensor_additive : (diagramWeightDerivedTensor G hl hr).Additive := by
+  let K := CatModule.HomotopyCategory.subcategoryKProjective.{u} (WeightCategory B)
+  let η := CatModule.DerivedCategory.kProjectiveEquivalence (WeightCategory B)
+  let : η.functor.Additive := by
+    change (K.ι ⋙ CatModule.DerivedCategory.Qh).Additive
+    infer_instance
+  change (η.inverse ⋙ K.ι ⋙ diagramWeightTensorHomotopy G hl hr ⋙
+    CatModule.DerivedCategory.Qh).Additive
+  infer_instance
 
 /-- The derived tensor evaluates on a K-projective input by tensoring its dg model. -/
 def diagramWeightDerivedTensorObjIso {X : CatModule.{u} (WeightCategory B)}
@@ -133,6 +210,26 @@ def diagramWeightDerivedTensorObjIso {X : CatModule.{u} (WeightCategory B)}
   exact (diagramWeightTensorHomotopy G hl hr ⋙ CatModule.DerivedCategory.Qh).mapIso
     (H.ι.mapIso (E.unitIso.symm.app p))
 
+/-- A resolution whose augmentation stays a quasi-isomorphism after tensoring
+computes the derived tensor by the ordinary tensor of the input. -/
+def diagramWeightDerivedTensorObjIsoOfResolution
+    {K N : CatModule.{u} (WeightCategory B)} (f : K ⟶ N)
+    (hK : CatModule.IsKProjective K) (hf : CatModule.IsQuasiIso f)
+    (hTensor : CatModule.IsQuasiIso ((D).tensorMap f)) :
+    (diagramWeightDerivedTensor G hl hr).obj (CatModule.DerivedCategory.Q.obj N) ≅
+      CatModule.DerivedCategory.Q.obj ((D).tensorFunctor.obj N) := by
+  let Q₁ : CatModule.{u} (WeightCategory A) ⥤
+      CatModule.DerivedCategory.{v,u} (WeightCategory A) := CatModule.DerivedCategory.Q
+  let Q₂ : CatModule.{u} (WeightCategory B) ⥤
+      CatModule.DerivedCategory.{v,u} (WeightCategory B) := CatModule.DerivedCategory.Q
+  letI : IsIso (Q₂.map f) := (CatModule.DerivedCategory.isIso_Q_map_iff f).mpr hf
+  let t := Q₁.map ((D).tensorMap f)
+  have ht : IsIso t :=
+    (CatModule.DerivedCategory.isIso_Q_map_iff ((D).tensorMap f)).mpr hTensor
+  exact ((diagramWeightDerivedTensor G hl hr).mapIso (asIso (Q₂.map f))).symm ≪≫
+    diagramWeightDerivedTensorObjIso G hl hr hK ≪≫
+    @asIso _ _ _ _ t ht
+
 /-- Derived Hom with the graded coefficient, when its left modules are K-projective. -/
 def diagramWeightDerivedHom (h : ∀ Y, CatModule.IsKProjective ((D).left Y)) :
     CatModule.DerivedCategory.{v,u} (WeightCategory A) ⥤
@@ -140,5 +237,51 @@ def diagramWeightDerivedHom (h : ∀ Y, CatModule.IsKProjective ((D).left Y)) :
   CatModule.DerivedCategory.rhom D h
 
 end Derived
+
+section Representable
+
+local notation "C" => WeightCategory A
+local notation "E" => WeightCategory B
+local notation "D" => diagramWeightBimodule G hl hr
+
+/-- Graded tensor on a representable evaluates the diagram coefficient at its source weight. -/
+def diagramWeightTensorRepresentableIso (Z : E) :
+    (D).tensorObj (CatModule.representable Z) ≅ (D).left Z := by
+  let ρ (X : C) := CatTensorProduct.rid ((D).right X) Z
+  refine CatModule.isoMk (fun X => (ρ X).toAddEquiv) ?_ ?_ ?_
+  · intro X n x
+    exact ⟨fun hx => (ρ X).symm_apply_apply x ▸ (ρ X).symm.map_mem hx,
+      fun hx => (ρ X).map_mem hx⟩
+  · intro X x
+    exact (ρ X).map_d x
+  · intro X Y a x
+    change (ρ Y) ((D).tensorAct (CatModule.representable Z) a x) = (D).lact a ((ρ X) x)
+    induction x using CatTensorProduct.induction_on with
+    | zero => simp only [map_zero]
+    | tmul T b f =>
+      change CatTensorProduct.rid ((D).right Y) Z
+          ((D).tensorAct (CatModule.representable Z) a (CatTensorProduct.tmul T b f)) =
+        (D).lact a (CatTensorProduct.rid ((D).right X) Z (CatTensorProduct.tmul T b f))
+      have ht := CatBimodule.tensorAct_tmul (B := D) (CatModule.representable Z) a T b f
+      have hY := (CatTensorProduct.rid_tmul (N := (D).right Y) Z T ((D).lact a b) f)
+      have hX := (CatTensorProduct.rid_tmul (N := (D).right X) Z T b f)
+      have hY' := hY.trans ((D).right_ract Y f ((D).lact a b))
+      have hX' := hX.trans ((D).right_ract X f b)
+      exact (congrArg (ρ Y) ht).trans
+        (hY'.trans (((D).lact_ract' a f b).symm.trans (congrArg ((D).lact a) hX'.symm)))
+    | add x y hx hy => rw [map_add, map_add, map_add, map_add, hx, hy]
+
+variable [CatModule.HasDerivedCategory.{v,u} (WeightCategory A)]
+  [CatModule.HasDerivedCategory.{v,u} (WeightCategory B)]
+
+/-- The derived tensor of a representable is the coefficient at the representing weight. -/
+def diagramWeightDerivedTensorRepresentableIso (Z : E) :
+    (diagramWeightDerivedTensor G hl hr).obj (CatModule.DerivedCategory.Q.obj
+      (CatModule.representable Z)) ≅ CatModule.DerivedCategory.Q.obj ((D).left Z) := by
+  let Q : CatModule.{u} C ⥤ CatModule.DerivedCategory.{v,u} C := CatModule.DerivedCategory.Q
+  exact diagramWeightDerivedTensorObjIso G hl hr (CatModule.isKProjective_representable Z) ≪≫
+    Q.mapIso (diagramWeightTensorRepresentableIso G hl hr Z)
+
+end Representable
 
 end Categorification

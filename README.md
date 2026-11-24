@@ -1018,7 +1018,9 @@ tensoring computes the derived tensor by the original ordinary tensor
 (`diagramWeightDerivedTensorObjIsoOfResolution`). When the tensor target is isomorphic to a diagram
 weight module, it suffices to check the cohomology map in degree zero and
 vanishing in the other source degrees
-(`diagramWeightLeft_isQuasiIso_of_cohomology`). A balanced homogeneous multiplication of two
+(`diagramWeightLeft_isQuasiIso_of_cohomology`). The representable at a source weight is sent to
+that component of the coefficient
+(`diagramWeightDerivedTensorRepresentableIso`). A balanced homogeneous multiplication of two
 coefficients induces their product from the intermediate weight-category
 tensor coend (`diagramWeightCoendProduct_tmul`). Compatibility with the outer
 action gives a map of dg modules (`diagramWeightCoendProductHom`).

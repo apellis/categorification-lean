@@ -199,4 +199,50 @@ def diagramWeightDerivedHom (h : ∀ Y, CatModule.IsKProjective ((D).left Y)) :
 
 end Derived
 
+section Representable
+
+local notation "C" => WeightCategory A
+local notation "E" => WeightCategory B
+local notation "D" => diagramWeightBimodule G hl hr
+
+/-- Graded tensor on a representable evaluates the diagram coefficient at its source weight. -/
+def diagramWeightTensorRepresentableIso (Z : E) :
+    (D).tensorObj (CatModule.representable Z) ≅ (D).left Z := by
+  let ρ (X : C) := CatTensorProduct.rid ((D).right X) Z
+  refine CatModule.isoMk (fun X => (ρ X).toAddEquiv) ?_ ?_ ?_
+  · intro X n x
+    exact ⟨fun hx => (ρ X).symm_apply_apply x ▸ (ρ X).symm.map_mem hx,
+      fun hx => (ρ X).map_mem hx⟩
+  · intro X x
+    exact (ρ X).map_d x
+  · intro X Y a x
+    change (ρ Y) ((D).tensorAct (CatModule.representable Z) a x) = (D).lact a ((ρ X) x)
+    induction x using CatTensorProduct.induction_on with
+    | zero => simp only [map_zero]
+    | tmul T b f =>
+      change CatTensorProduct.rid ((D).right Y) Z
+          ((D).tensorAct (CatModule.representable Z) a (CatTensorProduct.tmul T b f)) =
+        (D).lact a (CatTensorProduct.rid ((D).right X) Z (CatTensorProduct.tmul T b f))
+      have ht := CatBimodule.tensorAct_tmul (B := D) (CatModule.representable Z) a T b f
+      have hY := (CatTensorProduct.rid_tmul (N := (D).right Y) Z T ((D).lact a b) f)
+      have hX := (CatTensorProduct.rid_tmul (N := (D).right X) Z T b f)
+      have hY' := hY.trans ((D).right_ract Y f ((D).lact a b))
+      have hX' := hX.trans ((D).right_ract X f b)
+      exact (congrArg (ρ Y) ht).trans
+        (hY'.trans (((D).lact_ract' a f b).symm.trans (congrArg ((D).lact a) hX'.symm)))
+    | add x y hx hy => rw [map_add, map_add, map_add, map_add, hx, hy]
+
+variable [CatModule.HasDerivedCategory.{v,u} (WeightCategory A)]
+  [CatModule.HasDerivedCategory.{v,u} (WeightCategory B)]
+
+/-- The derived tensor of a representable is the coefficient at the representing weight. -/
+def diagramWeightDerivedTensorRepresentableIso (Z : E) :
+    (diagramWeightDerivedTensor G hl hr).obj (CatModule.DerivedCategory.Q.obj
+      (CatModule.representable Z)) ≅ CatModule.DerivedCategory.Q.obj ((D).left Z) := by
+  let Q : CatModule.{u} C ⥤ CatModule.DerivedCategory.{v,u} C := CatModule.DerivedCategory.Q
+  exact diagramWeightDerivedTensorObjIso G hl hr (CatModule.isKProjective_representable Z) ≪≫
+    Q.mapIso (diagramWeightTensorRepresentableIso G hl hr Z)
+
+end Representable
+
 end Categorification

@@ -6123,6 +6123,56 @@ example (z : ℂ) (x : figureFiveLowerExterior (Λ := fracΛ) sl₂ hRouquier h�
   obtain ⟨hi, -, hsplit⟩ := figureFiveLowerExterior_graded_retract (Λ := fracΛ) sl₂ hRouquier hρ blackWord
   exact ⟨hi hx, hsplit x⟩
 
+open scoped DG.DegreeZero in
+/-- The same one-black lower exterior standardization is K-projective in its weight category. -/
+example : DG.CatModule.IsKProjective (figureFiveLowerWeightModule (Λ := fracΛ) sl₂ hRouquier hρ blackWord) :=
+  figureFiveLowerWeightModule_isKProjective (Λ := fracΛ) sl₂ hRouquier hρ blackWord
+
+/-- The derived braid on this projective agrees with the ordinary categorical coend. -/
+noncomputable example :=
+  figureFiveBraidDerivedTensorObjIso (Λ := fracΛ) sl₂ hRouquier hρ
+    (weightPairing sl₂ realization) fracWeight blackWord
+
+/-- The two-red derived braid on the lower projective is the shifted upper exterior standard. -/
+noncomputable example :=
+  figureFiveBraidDerivedExteriorIso (Λ := fracΛ) sl₂ hRouquier hρ
+    (weightPairing sl₂ realization) fracWeight realization
+    (fun i w => weightPairing_root sl₂ realization w i) fracWeight_coroot
+    (weightPairing_isSymm sl₂ realization) blackWord
+
+/-- After the upper diagram map, the pure coend tensor is evaluated by diagram multiplication. -/
+example :=
+  figureFiveBraidCoendExteriorIso_hom_tmul (Λ := fracΛ) sl₂ hRouquier hρ
+    (weightPairing sl₂ realization) fracWeight realization
+    (fun i w => weightPairing_root sl₂ realization w i) fracWeight_coroot
+    (weightPairing_isSymm sl₂ realization) blackWord
+
+private theorem fracWeight_pair :
+    weightPairing sl₂ realization (fracWeight 1) (fracWeight 0) = (3 / 2 : ℂ) := by
+  have hd : UDot.di sl₂ () = 1 := rfl
+  rw [fracWeight, map_smul, LinearMap.smul_apply, weightPairing_root, fracWeight_coroot, hd]
+  norm_num [fracΛ, smul_eq_mul]
+
+open scoped DG.DegreeZero in
+/-- Internal coordinate `1` of the braid output has degree `3/2`. After the shift `-3/2`
+it reads the unshifted degree-zero exterior piece. -/
+example :
+    (figureFiveShiftedUpperWeightModule (Λ := fracΛ) sl₂ hRouquier hρ
+      (weightPairing sl₂ realization) fracWeight realization
+      (fun i w => weightPairing_root sl₂ realization w i) fracWeight_coroot
+      (weightPairing_isSymm sl₂ realization) blackWord).obj ⟨1⟩ =
+      ↥((figureFiveUpperExteriorGrade (Λ := fracΛ) sl₂ hRouquier hρ blackWord 0).restrictScalars ℤ) := by
+  refine (figureFiveShiftedUpperWeightModule_obj (Λ := fracΛ) sl₂ hRouquier hρ
+    (weightPairing sl₂ realization) fracWeight realization
+    (fun i w => weightPairing_root sl₂ realization w i) fracWeight_coroot
+    (weightPairing_isSymm sl₂ realization) blackWord ⟨1⟩).trans ?_
+  have h : ((1 : ℤ) : ℂ) + (2 - weightPairing sl₂ realization (fracWeight 1) (fracWeight 0)) +
+      weightPairing sl₂ realization (fracWeight 0 - (ν.map realization.root).sum) (fracWeight 1) = 0 := by
+    rw [fracWeight_pair, fracWeight_shift]
+    norm_num
+  exact congrArg (fun z : ℂ =>
+    ↥((figureFiveUpperExteriorGrade (Λ := fracΛ) sl₂ hRouquier hρ blackWord z).restrictScalars ℤ)) h
+
 end NonVacuity.WebsterFigureFive
 
 namespace NonVacuity.BraidedStendhal
@@ -6702,3 +6752,175 @@ four red weights are positive. -/
 example :=
   Stendhal.BraidedStendhalAlgebra.TwoSpectatorOneBlack.interiorCrossingMap_surjective
     (k := ℚ) (fun _ _ => 0) (fun _ => Finsupp.single () 1)
+open Categorification.TypeA Equiv
+namespace IntervalPBWFixture
+
+private theorem h : 1+(4+1)=6 := rfl
+private def u : Perm (Fin 6) := sadj 6 0 * sadj 6 4
+private def v : Perm (Fin 4) := wordProd 4 [2,0,1]
+private abbrev w := u * intervalPerm h v
+
+private theorem sorted : StrictMono (fun i : Fin 4 => u ⟨1+i.val,by omega⟩) := by
+  intro i j hij
+  fin_cases i <;> fin_cases j <;> first | exact False.elim (absurd hij (by decide)) | decide
+
+private theorem split : rightIntervalSplit h w = (u,v) := by
+  rw [w, rightIntervalSplit_mul, rightIntervalSplit_of_sorted h u sorted, one_mul]
+
+example : rightIntervalWord h w = canWord 6 u ++ shiftWord 1 (canWord 4 v) := by
+  rw [rightIntervalWord,split]
+
+example : length 6 w = 5 := by
+  rw [length_rightIntervalSplit h w, split]
+  change length 6 u + length 4 v = 5
+  rw [length_eq_invCount,length_eq_invCount]
+  decide
+
+example : IsReduced 6 (canWord 6 u ++ [3,1,2]) ∧ wordProd 6 (canWord 6 u ++ [3,1,2]) = w := by
+  have hr : IsReduced 4 [2,0,1] := by
+    constructor
+    · simp [ValidWord]
+    · rw [length_eq_invCount]; decide
+  have hword := rightIntervalSplit_append h w [2,0,1] hr (by rw [split]; rfl)
+  rw [split] at hword
+  exact hword
+
+end IntervalPBWFixture
+
+noncomputable section
+open CategoryTheory CategoryTheory.Limits DG DG.DerivedCategory
+open Categorification Categorification.ModuleFiltration
+open scoped DG.DegreeZero
+
+namespace NonVacuity.WebsterDerivedBraidFiltration
+
+local instance : HasDerivedCategory.{0, 0} ℤ := HasDerivedCategory.small ℤ
+
+private abbrev X : ModuleCat ℤ := ModuleCat.of ℤ PUnit
+
+private abbrev S : ShortComplex (ModuleCat ℤ) :=
+  ShortComplex.mk (𝟙 X) (𝟙 X) (by ext x)
+
+private theorem hS : S.ShortExact := by
+  let : Mono S.f := by change Mono (𝟙 X); infer_instance
+  let : Epi S.g := by change Epi (𝟙 X); infer_instance
+  refine ⟨(ShortComplex.ShortExact.moduleCat_exact_iff_function_exact S).mpr ?_⟩
+  intro x
+  exact ⟨fun _ => ⟨x, rfl⟩, fun _ => Subsingleton.elim _ _⟩
+
+example : IsZero ((homologyFunctor ℤ 1).obj ((derivedTensor ℤ ℤ ℤ).obj
+    (Q.obj ((degreeZeroModuleFunctor ℤ).obj S.X₃)))) := by
+  have hf : HasFiltration (fun _ : Unit => X) [] S.X₁ := .zero inferInstance
+  refine isZero_derivedTensorHomology_quotient_of_filtered_kernel (k := ℤ) (M := ℤ) S hS hf
+    ?_ ?_ ?_ (AddMonoidHom.id _) ?_ Function.injective_id 1 (by decide)
+  · simp
+  · intro n _
+    apply Functor.map_isZero
+    apply Functor.map_isZero
+    apply Q.map_isZero
+    exact (degreeZeroModuleFunctor ℤ).map_isZero (ModuleCat.isZero_iff_subsingleton.mpr inferInstance)
+  · intro c m
+    change m * c = c * m
+    exact mul_comm _ _
+  · intro m x
+    rfl
+
+end NonVacuity.WebsterDerivedBraidFiltration
+
+namespace NonVacuity.WebsterBraidTriangle
+open Categorification.Stendhal.BraidedStendhalAlgebra
+
+private abbrev params : Bool → Bool → MvPolynomial (Fin 2) ℤ := fun _ _ => 1
+private abbrev weight : Fin 2 → Bool →₀ ℕ := fun _ => 0
+private abbrev corner (order : List (Fin 2)) :=
+  (isIdempotentElem_violMk_redProj ℤ params weight (0 : Multiset Bool) order).Corner
+
+local instance (order : List (Fin 2)) : HasDerivedCategory.{0, 0} (corner order)ᵐᵒᵖ :=
+  HasDerivedCategory.small _
+
+example : (braidingFunctor.{0} ℤ params weight (0 : Multiset Bool) [0, 1] [1, 0]).IsTriangulated :=
+  inferInstance
+
+end NonVacuity.WebsterBraidTriangle
+
+namespace NonVacuity.WebsterRightTensor
+
+open DG DG.DerivedCategory MulOpposite
+open scoped DG.DegreeZero
+
+attribute [local instance 1200] Ring.toIntAlgebra
+
+local instance : HasDerivedCategory.{0, 0} ℤᵐᵒᵖ := HasDerivedCategory.small ℤᵐᵒᵖ
+
+private abbrev integralModel := DGModuleCat.of ℤᵐᵒᵖ (Categorification.InDegreeZero ℤ)
+
+example :
+    Mono ((homologyFunctor (A := ℤᵐᵒᵖ) ℤ 0).map
+      ((Categorification.derivedRightTensor ℤ ℤ ℤ).map (Q.map (𝟙 integralModel)))) := by
+  let μ := AddMonoidHom.id (Categorification.BalancedTensor ℤ ℤ ℤ ℤ ℤ)
+  exact Categorification.mono_derivedRightTensorHomology_of_balanced (k := ℤ) (X := ℤ)
+    (fun c n => mul_comm n c) (fun c n => mul_comm n c) (𝟙 integralModel) μ
+    (fun _ _ => rfl) Function.injective_id
+
+end NonVacuity.WebsterRightTensor
+
+end
+
+open CategoryTheory CategoryTheory.Limits DG
+open scoped DG.DegreeZero
+
+noncomputable section
+namespace NonVacuity.WebsterActualBraidKernel
+
+open Categorification Categorification.KLR Categorification.Stendhal
+open Categorification.Stendhal.BraidedStendhalAlgebra
+
+attribute [local instance 1200] Ring.toIntAlgebra
+
+private abbrev ν : Multiset Bool := 0
+private abbrev Q : Bool → Bool → MvPolynomial (Fin 2) ℤ := fun _ _ => 1
+private abbrev Λ : Fin 2 → Bool →₀ ℕ := fun _ => 0
+private def t : Seq (stendhalWeight 2 ν) :=
+  ⟨fun j => Sum.inr (if j.val = 0 then 0 else 1), by decide⟩
+
+private abbrev corner (order : List (Fin 2)) :=
+  (isIdempotentElem_violMk_redProj ℤ Q Λ ν order).Corner
+
+local instance (order : List (Fin 2)) : HasDerivedCategory.{0, 0} (corner order)ᵐᵒᵖ :=
+  HasDerivedCategory.small _
+
+private theorem root_zero (s : Seq (stendhalWeight 2 ν)) :
+    adjacentBlockRoot 0 1 s = 0 := by
+  funext r i
+  have h (j : Fin (stendhalWeight 2 ν).card) : s.lbl j ≠ Sum.inl i := by
+    intro he
+    have hs := s.mem j
+    change s.lbl j ∈ stendhalWeight 2 ν at hs
+    simp [he, stendhalWeight] at hs
+  simp [adjacentBlockRoot, blockBlackCount, h]
+
+private theorem kernel_zero : blockLoadingKernel Q Λ t 0 1 = ⊥ := by
+  have hupper : blockUpperIdeal ℤ Q Λ ν 0 1 (adjacentBlockRoot 0 1 t) (redWord t) = ⊥ := by
+    apply le_antisymm (TwoSidedIdeal.span_le.mpr ?_) bot_le
+    rintro _ ⟨s, _, h, _⟩
+    rw [root_zero s, root_zero t] at h
+    exact (lt_irrefl _ h).elim
+  ext x
+  change x.val.val ∈ blockUpperIdeal ℤ Q Λ ν 0 1 (adjacentBlockRoot 0 1 t) (redWord t) ↔ _
+  rw [hupper, Submodule.mem_bot]
+  constructor
+  · intro hx
+    rw [TwoSidedIdeal.mem_bot] at hx
+    exact Subtype.ext (Subtype.ext hx)
+  · rintro rfl
+    exact (⊥ : TwoSidedIdeal _).zero_mem
+
+example :
+    IsZero ((DG.DerivedCategory.homologyFunctor (A := (corner [1, 0])ᵐᵒᵖ) ℤ 1).obj
+      ((braidingFunctor ℤ Q Λ ν (redWord t) [1, 0]).obj (DG.DerivedCategory.Q.obj
+        ((degreeZeroModuleFunctor (corner (redWord t))ᵐᵒᵖ).obj
+          (blockLoadingShortComplex Q Λ t 0 1).X₃)))) :=
+  blockPartialStandard_braid_homology_vanish_of_bot Q Λ t 0 1 [1, 0] kernel_zero 1 (by decide)
+
+end NonVacuity.WebsterActualBraidKernel
+end

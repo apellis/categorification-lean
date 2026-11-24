@@ -8622,6 +8622,14 @@ example :
       middleStandardParabolicEquiv ℚ :=
   middleStandardGradedEquiv_toLinearEquiv ℚ (labelTwoGradingDatum ℚ)
 
+example := diagramPlus_degree_two ℚ
+
+example := diagramMinus_degree_two ℚ
+
+example := incomingExteriorDiagram_mem_grade ℚ
+
+example := incomingExteriorTranslate_mem_grade ℚ
+
 end NonVacuity.WebsterLabelTwoMiddleFixedComplex
 
 end

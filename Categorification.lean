@@ -101,6 +101,7 @@ import Categorification.Algebra.InductionAlongTriple
 import Categorification.Algebra.K0FinDim
 import Categorification.Algebra.ModuleCatLinear
 import Categorification.Algebra.ModuleFiltration
+import Categorification.Algebra.ModuleFiltrationChangeOfRings
 import Categorification.Algebra.ModuleFiltrationMap
 import Categorification.Algebra.IdempotentTraceFiltration
 import Categorification.Algebra.MonicTrace
@@ -1674,6 +1675,8 @@ import Categorification.WeightedKLR.RedStrands.OneBlackOmittedRedCrossing
 import Categorification.WeightedKLR.RedStrands.AffineHigherKernelMap
 import Categorification.WeightedKLR.RedStrands.OneBlackPairKernel
 import Categorification.WeightedKLR.RedStrands.OneBlackAdjacentPairFiltration
+import Categorification.WeightedKLR.RedStrands.BlockKernelRelabel
+import Categorification.WeightedKLR.RedStrands.OneBlackAnyRedWordFiltration
 import Categorification.WeightedKLR.RedStrands.BraidedStandardGrading
 import Categorification.WeightedKLR.RedStrands.BraidedStandardInjective
 import Categorification.WeightedKLR.RedStrands.BraidedStandardIso

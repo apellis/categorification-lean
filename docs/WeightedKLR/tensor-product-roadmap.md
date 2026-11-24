@@ -1121,7 +1121,11 @@ actual higher projective with the source kernel for the two-crossing step
 (`nonempty_kernelEquiv_of_twoCrossingTests`). Combining single steps across
 retained reds with the two-crossing step across the pair constructs the
 actual finite filtration for any adjacent pair in canonical red order at
-standard parameters (`oneBlack_pair_hasFiltration_standard`).
+standard parameters (`oneBlack_pair_hasFiltration_standard`). Red relabelling
+permutes the retained root coordinates, identifies the higher ideals and the
+loading projectives, and transports the quotient layers along the corner
+ring equivalence. This gives the one-black filtration for any red word
+(`oneBlack_hasFiltration_standard`).
 
 Still open for Lemma 6.8: when a black lies between the bottom reds, prove that changes
 between different choices of the last crossing give equal balanced classes **in the

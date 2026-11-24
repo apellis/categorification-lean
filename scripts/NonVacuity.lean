@@ -11220,3 +11220,26 @@ example := outgoingExteriorAmbientHomology_isZero ℚ (-1) (by decide)
 
 end
 end NonVacuity.WebsterOutgoingExteriorAmbientTor
+
+section WebsterDerivedTensorCoefficientFixture
+noncomputable section
+
+open Categorification CategoryTheory DG MulOpposite
+open scoped DG.DegreeZero
+
+private def twice : ℚ →ₗ[ℚ] ℚ := (2 : ℚ) • LinearMap.id
+
+private theorem twice_op (r x : ℚ) : twice (op r • x) = op r • twice x := by
+  change 2 • ((op r) • x) = op r • (2 • x)
+  exact smul_comm (2 : ℚ) (op r) x
+
+local instance : DG.HasDerivedCategory.{0,0} ℚ := DG.HasDerivedCategory.small ℚ
+
+example : derivedTensor ℚ ℚ ℚ ⟶ derivedTensor ℚ ℚ ℚ :=
+  derivedTensorCoefficientMap twice twice_op
+
+example := ordinaryTensorCoefficientMap_tmul twice twice_op
+
+end
+
+end WebsterDerivedTensorCoefficientFixture

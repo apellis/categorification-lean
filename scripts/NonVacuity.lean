@@ -9032,6 +9032,10 @@ example := firstPairRightmost_secondCrossing_kernel_of_weight_one params weights
 
 example := firstPairSecondSpectatorCrossing_residualEquiv params weights (by simp [weights])
 
+example := firstPairSecondSpectatorCrossing_rangeEquivNilHecke params weights (fun _ _ _ => rfl)
+
+example := firstPairSpectatorCompositeImage_eq params weights (fun _ _ _ => rfl)
+
 end NonVacuity.WebsterFirstPairRightmostWeightOne
 
 namespace NonVacuity.WebsterFirstPairTerminalColumn

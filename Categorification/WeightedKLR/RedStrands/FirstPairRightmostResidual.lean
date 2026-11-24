@@ -177,4 +177,215 @@ def firstPairSecondSpectatorCrossing_residualEquiv (one : Λ 2 () = 1) :
     (firstPair_secondCrossing_kernel_le Q Λ one)
   exact e
 
+section NilHeckeRange
+
+local notation "KR" => blockLoadingKernel Q Λ Rtop 0 1
+local notation "JR" => blockUpperIdeal k Q Λ ν 0 1 (adjacentBlockRoot 0 1 Rtop) (redWord Rtop)
+
+set_option backward.isDefEq.respectTransparency false in
+private def rightmostNilHeckeMap : KR →ₗ[Tᵐᵒᵖ] KR :=
+  blockLoadingKernel_nilHeckeCrossing Q Λ Rtop 0 1 3 (by decide) (by decide)
+
+local notation "τR" => rightmostNilHeckeMap Q Λ
+
+private theorem firstPair_secondCrossing_leg :
+    F (hflip (ψw (rightPairWord 2 true) * e Rtop : A)) = F δ := by
+  apply congrArg F
+  rw [hflip_mul,hflip_e,hflip_ψw]
+  change (e Rtop : A) * ψw [3,2] = δ
+  have h : (wordProd N [3,2])⁻¹ • Rtop = B := by decide +kernel
+  rw [e_mul_ψw,h]
+
+set_option backward.isDefEq.respectTransparency false in
+private theorem firstPair_secondCrossing_in_rightmostKernel (x : P) :
+    f x ∈ KR := by
+  have strict : adjacentBlockRoot 0 1 Rtop < adjacentBlockRoot 0 1 B := by
+    apply lt_of_le_not_ge
+    · intro r i
+      fin_cases r <;> cases i <;> decide
+    · intro h
+      exact (by decide : ¬ adjacentBlockRoot 0 1 B 2 () ≤ adjacentBlockRoot 0 1 Rtop 2 ())
+        (h 2 ())
+  have source : p B ∈ JR := TwoSidedIdeal.subset_span ⟨B, by decide, strict, rfl⟩
+  have coeff : F δ ∈ JR :=
+    firstPair_secondCrossing_right Q Λ ▸ TwoSidedIdeal.mul_mem_left JR _ _ source
+  change (f x).1.1 ∈ JR
+  rw [firstPairSecondSpectatorCrossing_val Q Λ]
+  exact TwoSidedIdeal.mul_mem_right JR _ _ coeff
+
+set_option backward.isDefEq.respectTransparency false in
+private def secondCrossingIntoRightmostKernel : P →ₗ[Tᵐᵒᵖ] KR :=
+  LinearMap.codRestrict KR f (firstPair_secondCrossing_in_rightmostKernel Q Λ)
+
+local notation "g" => secondCrossingIntoRightmostKernel Q Λ
+
+set_option backward.isDefEq.respectTransparency false in
+private theorem firstPair_secondCrossingIntoRightmostKernel_val (x : P) :
+    (AddHom.toFun (LinearMap.toAddHom g) x).1.1.1 = F δ * x.1.1 :=
+  firstPairSecondSpectatorCrossing_val Q Λ x
+
+set_option backward.isDefEq.respectTransparency false in
+private theorem firstPair_secondCrossing_range_eq_nilHecke (hQ : KLRSymm Q) :
+    LinearMap.range g = LinearMap.range τR := by
+  ext z
+  have iff := firstPairTwoAfter_nilHecke_range_iff Q Λ hQ z
+  change z ∈ LinearMap.range τR ↔
+    ∃ y : V, p B * y = y ∧ y * E = y ∧
+      z.1.1.1 = F (hflip (ψw (rightPairWord 2 true) * e Rtop : A)) * y at iff
+  rw [firstPair_secondCrossing_leg Q Λ] at iff
+  rw [iff]
+  constructor
+  · rintro ⟨y, rfl⟩
+    exact ⟨y.1.1, congrArg (fun v : T => v.1) y.2,
+      CornerEndomorphism.corner_mul_right ord y.1,
+      firstPair_secondCrossingIntoRightmostKernel_val Q Λ y⟩
+  · rintro ⟨y,left,right,eq⟩
+    have Bcut := (Subsemigroup.mem_corner_iff ord).1 (orderedLoadingIdem Q Λ B).2
+    change E * p B = p B ∧ p B * E = p B at Bcut
+    have leftE : E * y = y := by
+      calc
+        E * y = E * (p B * y) := congrArg (E * ·) left.symm
+        _ = y := by rw [← mul_assoc,Bcut.1,left]
+    let c : T := ⟨y,(Subsemigroup.mem_corner_iff ord).2 ⟨leftE,right⟩⟩
+    let w : P := ⟨c,Subtype.ext left⟩
+    refine ⟨w,?_⟩
+    apply Subtype.ext
+    apply Subtype.ext
+    apply Subtype.ext
+    exact (firstPair_secondCrossingIntoRightmostKernel_val Q Λ w).trans eq.symm
+
+set_option backward.isDefEq.respectTransparency false in
+private def secondCrossingRangeEquivSupport :
+    LinearMap.range f ≃ₗ[Tᵐᵒᵖ] LinearMap.range g := by
+  let map : LinearMap.range g →ₗ[Tᵐᵒᵖ] LinearMap.range f :=
+    LinearMap.codRestrict (LinearMap.range f) ((KR).subtype.comp (LinearMap.range g).subtype)
+      (by rintro ⟨z,⟨x,rfl⟩⟩; exact ⟨x,rfl⟩)
+  refine (LinearEquiv.ofBijective map ⟨?_,?_⟩).symm
+  · intro x y eq
+    have val : (map x).1 = (map y).1 := congrArg (fun v : LinearMap.range f => v.1) eq
+    apply Subtype.ext
+    apply Subtype.ext
+    exact val
+  · rintro ⟨z,⟨x,rfl⟩⟩
+    exact ⟨⟨g x, x, rfl⟩,rfl⟩
+
+set_option backward.isDefEq.respectTransparency false in
+/-- The second spectator-crossing image is the summand in the actual
+rightmost higher kernel's nilHecke splitting. -/
+def firstPairSecondSpectatorCrossing_rangeEquivNilHecke (hQ : KLRSymm Q) :
+    LinearMap.range f ≃ₗ[Tᵐᵒᵖ] LinearMap.range τR :=
+  (secondCrossingRangeEquivSupport Q Λ).trans
+    (LinearEquiv.ofEq _ _ (firstPair_secondCrossing_range_eq_nilHecke Q Λ hQ))
+
+end NilHeckeRange
+
+section TerminalMap
+
+private theorem firstPair_terminal_same_order : redWord D = redWord B := by decide
+
+local notation "PD" =>
+  rIdeal (orderedLoadingIdemAt Q Λ (redWord B) D firstPair_terminal_same_order)
+
+private def supportedCornerMul {s t : Seq μ} (hs : redWord s = redWord B)
+    (ht : redWord t = redWord B) (c : V) (left : p t * c = c) (right : c * p s = c) :
+    rIdeal (orderedLoadingIdemAt Q Λ (redWord B) s hs) →ₗ[Tᵐᵒᵖ]
+      rIdeal (orderedLoadingIdemAt Q Λ (redWord B) t ht) := by
+  have sl := (Subsemigroup.mem_corner_iff ord).1 (orderedLoadingIdemAt Q Λ (redWord B) s hs).2
+  have tl := (Subsemigroup.mem_corner_iff ord).1 (orderedLoadingIdemAt Q Λ (redWord B) t ht).2
+  change E * p s = p s ∧ p s * E = p s at sl
+  change E * p t = p t ∧ p t * E = p t at tl
+  have el : E * c = c := by
+    calc
+      E * c = E * (p t * c) := congrArg (E * ·) left.symm
+      _ = c := by rw [← mul_assoc,tl.1,left]
+  have er : c * E = c := by
+    calc
+      c * E = (c * p s) * E := congrArg (· * E) right.symm
+      _ = c := by rw [mul_assoc,sl.2,right]
+  let cT : T := ⟨c,(Subsemigroup.mem_corner_iff ord).2 ⟨el,er⟩⟩
+  exact
+    { toFun := fun x => ⟨cT * x.1, by
+        apply Subtype.ext
+        change p t * (c * x.1.1) = c * x.1.1
+        rw [← mul_assoc,left]⟩
+      map_add' := fun x y => Subtype.ext (mul_add cT x.1 y.1)
+      map_smul' := fun r x => Subtype.ext (mul_assoc cT x.1 r.unop).symm }
+
+private theorem firstPair_terminalCrossing_left : p B * F β = F β := by
+  have shift : sadj N 3 • D = B := sadj_smul_smul ..
+  rw [← map_mul F,ψ_mul_e,shift,← mul_assoc,e_mul_self]
+
+private theorem firstPair_terminalCrossing_right : F β * p D = F β := by
+  rw [← map_mul F,mul_assoc,e_mul_self]
+
+/-- The terminal crossing into the one-after-spectator loading, over
+the original ordered corner. -/
+def firstPairTerminalSpectatorCrossing : PD →ₗ[Tᵐᵒᵖ] P :=
+  supportedCornerMul Q Λ firstPair_terminal_same_order rfl (F β)
+    (firstPair_terminalCrossing_left Q Λ) (firstPair_terminalCrossing_right Q Λ)
+
+local notation "bmap" => firstPairTerminalSpectatorCrossing Q Λ
+
+private theorem firstPair_terminalSpectatorCrossing_val (x : PD) :
+    (bmap x).1.1 = F β * x.1.1 := rfl
+
+set_option backward.isDefEq.respectTransparency false in
+/-- The actual higher-cut kernel at the middle loading is exactly the
+terminal crossing image inside its loading projective. -/
+theorem firstPairTerminalSpectatorCrossing_range (hQ : KLRSymm Q) :
+    LinearMap.range bmap = K := by
+  ext z
+  constructor
+  · rintro ⟨u,rfl⟩
+    change (bmap u).1.1 ∈ J
+    rw [firstPair_terminalSpectatorCrossing_val Q Λ]
+    have strict : adjacentBlockRoot 0 1 B < adjacentBlockRoot 0 1 D := by
+      apply lt_of_le_not_ge
+      · intro r i
+        fin_cases r <;> cases i <;> decide
+      · intro h
+        exact (by decide : ¬ adjacentBlockRoot 0 1 D 2 () ≤ adjacentBlockRoot 0 1 B 2 ())
+          (h 2 ())
+    have dMem : p D ∈ J := TwoSidedIdeal.subset_span ⟨D, by decide, strict, rfl⟩
+    have bMem : F β ∈ J := by
+      rw [map_mul F]
+      exact TwoSidedIdeal.mul_mem_left J _ _ dMem
+    exact TwoSidedIdeal.mul_mem_right J _ _ bMem
+  · intro hz
+    have left := congrArg (fun x : T => x.1) z.2
+    have right : z.1.1 * E = z.1.1 := CornerEndomorphism.corner_mul_right ord z.1
+    obtain ⟨u,hu,rep⟩ := firstPairOneAfter_blockKernel_principal Q Λ true hQ z.1.1 hz left
+    have Dcut := (Subsemigroup.mem_corner_iff ord).1
+      (orderedLoadingIdemAt Q Λ (redWord B) D firstPair_terminal_same_order).2
+    change E * p D = p D ∧ p D * E = p D at Dcut
+    let v := u * E
+    have vl : p D * v = v := by
+      change p D * (u * E) = u * E
+      rw [← mul_assoc,hu]
+    have el : E * v = v := by
+      calc
+        E * v = E * (p D * v) := congrArg (E * ·) vl.symm
+        _ = v := by rw [← mul_assoc,Dcut.1,vl]
+    have er : v * E = v := by
+      change (u * E) * E = u * E
+      rw [mul_assoc,(ord).eq]
+    let d : T := ⟨v,(Subsemigroup.mem_corner_iff ord).2 ⟨el,er⟩⟩
+    let x : PD := ⟨d,Subtype.ext vl⟩
+    refine ⟨x,?_⟩
+    apply Subtype.ext
+    apply Subtype.ext
+    rw [firstPair_terminalSpectatorCrossing_val Q Λ]
+    change F β * (u * E) = z.1.1
+    rw [← mul_assoc,rep,right]
+
+set_option backward.isDefEq.respectTransparency false in
+/-- The lower submodule of the second-crossing image is the composite
+image of the two spectator crossings from the terminal projective. -/
+theorem firstPairSpectatorCompositeImage_eq (hQ : KLRSymm Q) :
+    LinearMap.range ((LinearMap.rangeRestrict f).comp bmap) =
+      (K).map (LinearMap.rangeRestrict f) := by
+  rw [LinearMap.range_comp, firstPairTerminalSpectatorCrossing_range Q Λ hQ]
+
+end TerminalMap
+
 end Categorification.Stendhal.BraidedStendhalAlgebra

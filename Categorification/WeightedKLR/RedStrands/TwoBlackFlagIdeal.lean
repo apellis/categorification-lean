@@ -154,6 +154,24 @@ private theorem first_dot_pow_dvd_of_dvd_mul_complete {a b : σ} (hab : a ≠ b)
     obtain ⟨p, hp⟩ := ih ⟨v, hcancel⟩
     exact ⟨p, by rw [hz, hp, pow_succ]; ring⟩
 
+/-- Dividing the complete-polynomial relation by the shorter complete
+polynomial recovers the rectangular relation at the source cut. -/
+theorem mem_rectangular_of_mul_complete {a b : σ} (hab : a ≠ b)
+    (d m : ℕ) (hd : d ≠ 0) (f : P)
+    (h : f * complete (X a) (X b) d ∈ ideal a b d (d + m)) :
+    f ∈ (Ideal.span {(X a)^d, (X b)^m} : Ideal (P)) := by
+  cases d with
+  | zero => exact (hd rfl).elim
+  | succ d =>
+    rw [ideal_add_right a b (le_refl (d + 1)) m] at h
+    obtain ⟨u, v, hh⟩ := Ideal.mem_span_pair.1 h
+    have hdiv : (X a : P)^(d + 1) ∣
+        (f - v * (X b)^m) * complete (X a) (X b) (d + 1) := by
+      refine ⟨u, ?_⟩
+      linear_combination -hh
+    obtain ⟨w, hw⟩ := first_dot_pow_dvd_of_dvd_mul_complete hab d (d + 1) hdiv
+    exact Ideal.mem_span_pair.2 ⟨w, v, by linear_combination -hw⟩
+
 private theorem cancel_first_dot_pow (a : σ) (d : ℕ) (p q : P)
     (h : p * (X a)^d = q * (X a)^d) : p = q := by
   induction d with

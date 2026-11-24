@@ -7692,3 +7692,25 @@ example : Function.Injective
 
 end
 end NonVacuity.WebsterCentralFlagInjection
+namespace NonVacuity.WebsterFiveSlotFlag
+
+open KLR KLRAlgebra Stendhal Stendhal.FiveSlotFlag Stendhal.BraidedStendhalAlgebra
+
+private abbrev black : Multiset Unit := {()} + {()}
+private noncomputable abbrev params : Unit → Unit → MvPolynomial (Fin 2) ℚ := fun _ _ => 0
+private noncomputable abbrev weights : Fin 3 → Unit →₀ ℕ := fun r => Finsupp.single () (r.val + 2)
+private def loading : Seq FiveSlotFlag.weight := Seq.ofList [.inr 0, .inl (), .inr 1, .inr 2, .inl ()]
+  (by decide)
+private abbrev pos : Fin FiveSlotFlag.weight.card := ⟨2, by decide⟩
+private noncomputable abbrev redDot : KLRAlgebra ℚ (stendhalQ params weights) FiveSlotFlag.weight :=
+  x pos * e loading
+
+example (f : KLR.PolyRep.Pol ℚ FiveSlotFlag.weight) :
+    blackEval loading ((KLR.PolyRep.polyRep (flagP_factor params weights)) redDot f loading) ∈
+      loadingIdeal weights loading := by
+  have hz : violMk ℚ params weights black (ofKLR ℚ params weights black redDot) = 0 := by
+    rw [redDot, ofKLR_x_mul_e_of_red _ _ (by decide), map_zero]
+  exact eval_mem_flag_of_violMk_eq_zero params weights _ (loadingIdeal_preservesFlags weights)
+    (loadingIdeal_eq_top_of_violated weights) hz f loading
+
+end NonVacuity.WebsterFiveSlotFlag

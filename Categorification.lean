@@ -654,6 +654,7 @@ import Categorification.KLR.SimpleNilHecke
 import Categorification.KLR.CyclotomicTerminal
 import Categorification.KLR.CyclotomicTerminalSymmetric
 import Categorification.KLR.CyclotomicSaturatedProjective
+import Categorification.WeightedKLR.RedStrands.SingleRedSaturatedProjective
 import Categorification.KLR.Spanning
 import Categorification.KLR.SymGdim
 import Categorification.KLR.Symmetries

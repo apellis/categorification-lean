@@ -1017,6 +1017,9 @@ coinvariant ideal therefore maps to zero
 `KLR.CycKLR.terminal_pol_eq_zero_of_mem_coinvIdeal`).
 The actual saturated divided-power right ideal is simple for any number
 of same-colour strands (`KLR.CycKLR.terminalDividedProjective_simple`).
+Its one-red Webster image is a homogeneous simple projective, including
+when the red weight has additional pairings at colours absent from the
+black content (`Stendhal.SingleRed.saturatedWebsterProjective_simple`).
 Identifying the divided-power projective at higher multiplicities and for
 multi-letter words remains open.
 

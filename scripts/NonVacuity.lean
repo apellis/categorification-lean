@@ -8646,6 +8646,12 @@ example := factorDotSumQuotientEquiv ℚ
 
 example (x : Standard ℚ) := middleDotSumStandardizationEquiv_mk ℚ x
 
+example := middle_higher_eq
+
+example := middle_upperLoadingIdeal_eq_singleton ℚ
+
+example := rightMiddleDotSumQuotient_kills_higher ℚ
+
 end NonVacuity.WebsterLabelTwoMiddleFixedComplex
 
 end

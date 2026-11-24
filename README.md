@@ -1040,7 +1040,8 @@ implies additivity (`redWordOffset_add_of_sublist`), and its balanced
 multiplication identifies the quotient corner coefficient
 (`violCornerTensorMulEquiv_tmul`). The additive universal property
 `CornerTensor.liftAdd` descends a balanced bi-additive family with an
-additive target.
+additive target. A balanced product on the rectangular coefficients descends
+by sandwiching the two inputs (`cornerTensorCutLift_tmul`).
 
 Over a scalar field in degree zero the left modules are K-projective, so the
 construction gives derived Hom for every homogeneous scalar coefficient

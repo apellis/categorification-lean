@@ -1427,6 +1427,10 @@ returns the first dot sum
 (`Stendhal.LabelTwo.incomingLiftTensorMap_nonzero`).
 The preimage, middle standard, and incoming cokernel form a short exact
 sequence (`Stendhal.LabelTwo.incomingLiftShortComplex_shortExact`).
+The reflected incoming map is nonzero on the first ambient Tor of the
+incoming cokernel. Reflection transports the explicit tensor witness to
+the coefficient variable and the preimage sequence supplies the
+connecting map (`Stendhal.LabelTwo.incomingCokernelTorOne_map_nonzero`).
 
 
 

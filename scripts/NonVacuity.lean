@@ -11298,6 +11298,8 @@ example := incomingMiddleStandardHomology_zero_isZero ℚ
 
 example := incomingMiddleStandardHomology_isZero ℚ (-1)
 
+example := incomingCokernelTorOne_map_nonzero ℚ
+
 end
 
 example (z : labelTwoRightExteriorDividedStandard (parameter ℚ)) :=

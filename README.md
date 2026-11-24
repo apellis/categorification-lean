@@ -999,7 +999,10 @@ records the coroot pairing at each reflection. Along a path with nonnegative
 pairings, its root content is the difference between the initial and final
 weights (`Stendhal.rootSum_coevaluationWord`). For linearly independent simple
 roots this determines the multiplicities
-(`Stendhal.coevaluationWord_multiplicities_eq`). Proposition 7.2 remains open.
+(`Stendhal.coevaluationWord_multiplicities_eq`). For Proposition 7.2, a single
+red with coroot pairing one gives a simple projective at the red-first
+one-black loading (`Stendhal.oneBlack_extremal_projective_simple`).
+The higher multiplicities and multi-letter words remain open.
 
 ### Weak `sl₂`-categorifications (Chuang–Rouquier, arXiv:math/0407205v2, §5)
 

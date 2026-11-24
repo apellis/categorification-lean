@@ -6809,3 +6809,14 @@ example : IsReduced 6 (canWord 6 u ++ [3,1,2]) ∧ wordProd 6 (canWord 6 u ++ [3
   exact hword
 
 end IntervalPBWFixture
+
+namespace NonVacuity.WebsterSingleBlackExtremal
+
+open Categorification.Stendhal
+
+private noncomputable abbrev Q : Unit → Unit → MvPolynomial (Fin 2) ℚ := fun _ _ => 0
+private noncomputable abbrev Λ : Fin 1 → Unit →₀ ℕ := fun _ => Finsupp.single () 1
+
+example := oneBlack_extremal_projective_simple Q Λ () (by simp [Λ])
+
+end NonVacuity.WebsterSingleBlackExtremal

@@ -1032,7 +1032,12 @@ the standard triangles and makes the homotopy tensor triangulated
 (`diagramWeightTensorHomotopy_isTriangulated`). The derived tensor is also
 triangulated through the K-projective equivalence. Vanishing of its
 cohomology at a target weight and degree passes through finite iterated
-extensions (`diagramWeightDerivedTensor_cohomology_isZero_of_extensions`). A balanced homogeneous multiplication of two
+extensions (`diagramWeightDerivedTensor_cohomology_isZero_of_extensions`).
+Finite filtrations by short exact sequences of dg weight modules localize
+to iterated extensions of the localized layers
+(`WeightModuleFiltration.extensionProductIter`).
+
+A balanced homogeneous multiplication of two
 coefficients induces their product from the intermediate weight-category
 tensor coend (`diagramWeightCoendProduct_tmul`). Compatibility with the outer
 action gives a map of dg modules (`diagramWeightCoendProductHom`).

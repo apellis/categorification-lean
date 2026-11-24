@@ -9141,6 +9141,29 @@ example := diagramWeightDerivedTensorObjIso (fun j => DG.grading (M := ℚ) j)
 
 private abbrev Rep := CatModule.representable (⟨0⟩ : WeightCategory ℚ)
 
+private abbrev rationalWeightShortComplex : ShortComplex (CatModule (WeightCategory ℚ)) :=
+  ShortComplex.mk (0 : CatModule.zero ⟶ Rep) (𝟙 Rep) (by simp)
+
+private theorem rationalWeightShortComplex_shortExact : rationalWeightShortComplex.ShortExact := by
+  refine (CatModule.shortExact_iff _).mpr fun X => ⟨fun _ _ _ => Subsingleton.elim _ _, ?_, ?_⟩
+  · intro y
+    change y = 0 ↔ ∃ x, (0 : CatModule.zero ⟶ Rep).app X x = y
+    constructor
+    · rintro rfl
+      exact ⟨0, map_zero _⟩
+    · rintro ⟨x, rfl⟩
+      rfl
+  · exact Function.surjective_id
+
+example : ObjectProperty.extensionProductIter
+    (⊤ : ObjectProperty (CatModule.DerivedCategory.{1,0} (WeightCategory ℚ))) 1
+    (CatModule.DerivedCategory.Q.obj Rep) :=
+  WeightModuleFiltration.extensionProductIter
+    (WeightModuleFiltration.append (L := fun _ : Unit => Rep) () rationalWeightShortComplex
+      rationalWeightShortComplex_shortExact
+      (WeightModuleFiltration.nil (CatModule.isZero_of_subsingleton _)) ⟨Iso.refl Rep⟩)
+    ⊤ (fun _ _ => trivial) (fun _ _ => trivial)
+
 example := diagramWeightDerivedTensorObjIsoOfResolution (fun j => DG.grading (M := ℚ) j)
   leftAction rightAction (𝟙 Rep) (CatModule.isKProjective_representable (⟨0⟩ : WeightCategory ℚ))
   (CatModule.isQuasiIso_id Rep) (by

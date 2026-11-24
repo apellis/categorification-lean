@@ -6361,3 +6361,55 @@ example (a : (isIdempotentElem_violMk_redProj ℚ Q Λ ν [0, 1]).Corner)
     braidingBimoduleFlip_smul_right [0, 1] [1, 0] b x⟩
 
 end NonVacuity.WebsterBraidReflection
+
+namespace NonVacuity.WebsterBraidFiltration
+
+open Categorification Categorification.KLR Categorification.Stendhal
+  Categorification.Stendhal.BraidedStendhalAlgebra ModuleFiltration MulOpposite
+
+private noncomputable abbrev Q : Unit → Unit → MvPolynomial (Fin 2) ℚ := fun _ _ => 0
+private abbrev Λ : Fin 0 → Unit →₀ ℕ := Fin.elim0
+private abbrev ν : Multiset Unit := 0
+private abbrev μ := stendhalWeight 0 ν
+private theorem card_eq : μ.card = 0 := by simp [μ, stendhalWeight]
+private def s : Seq μ := KLRAlgebra.Seq.ofList [] (by simp [μ, stendhalWeight])
+
+private def label : {t : Seq μ // redWord t = [] ∧ ¬ IsViolated t} :=
+  ⟨s, by simp [redWord, card_eq], by simp [IsViolated, card_eq]⟩
+
+local notation "C" => ViolOrderCorner (k := ℚ) (Q := Q) (Λ := Λ) (ν := ν) []
+set_option quotPrecheck false in
+local notation "B" => ↥(braidingBimodule ℚ Q Λ ν [] [])
+set_option quotPrecheck false in
+local notation "S" t:arg => ViolLoadingStandard (k := ℚ) (Q := Q) (Λ := Λ) t []
+
+private theorem rightFiltration :
+    HasFiltration (fun t => ModuleCat.of Cᵐᵒᵖ (S t.val)) [label] (ModuleCat.of Cᵐᵒᵖ B) := by
+  classical
+  have hu (t : Seq μ) : t = s := Subtype.ext (funext (fun i => Fin.elim0 (Fin.cast card_eq i)))
+  have hr : redWord s = [] := label.property.1
+  have hF : Finset.univ.filter (fun t : Seq μ => redWord t = []) = {s} := by
+    ext t
+    rw [hu t]
+    simp [hr]
+  have hp : redProj ℚ Q Λ ν [] = ofKLR ℚ Q Λ ν (KLRAlgebra.e s) := by
+    rw [redProj, redIdem, hF, Finset.sum_singleton]
+  let e : B ≃ₗ[Cᵐᵒᵖ] violCorner ℚ Q Λ ν s [] :=
+    { toFun x := ⟨x.val, mem_violCorner_iff.2 ⟨by rw [← hp]; exact x.property.1, x.property.2⟩⟩
+      invFun y := ⟨y.val, ⟨by rw [hp]; exact (mem_violCorner_iff.1 y.property).1,
+        (mem_violCorner_iff.1 y.property).2⟩⟩
+      left_inv x := Subtype.ext rfl
+      right_inv x := Subtype.ext rfl
+      map_add' x y := Subtype.ext rfl
+      map_smul' a x := Subtype.ext rfl }
+  have ht : violStandardUpper (k := ℚ) (Q := Q) (Λ := Λ) s [] = ⊥ := by
+    refine Submodule.span_eq_bot.mpr ?_
+    rintro y ⟨t, a, hκ, hlt, hy⟩
+    exact (hlt.2 (fun r => Fin.elim0 r)).elim
+  exact HasFiltration.single (c := label) (e.trans (Submodule.quotEquivOfEqBot _ ht).symm)
+
+/-- Reflection transports the one-step filtration at the empty loading. -/
+noncomputable example :=
+  hasReflectedStandardFiltration_braidingBimodule [] [] rightFiltration
+
+end NonVacuity.WebsterBraidFiltration

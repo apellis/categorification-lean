@@ -152,6 +152,20 @@ theorem mono {L' : ι → ModuleCat.{v} A}
     obtain ⟨e⟩ := hZ
     exact .cons f g m c hf hfg hg ih ⟨e.trans (hL c).some⟩
 
+/-- Restricting scalars carries a finite filtration to the restricted subquotients,
+with the same labels. -/
+theorem restrictScalars {R : Type*} [Ring R] (φ : R →+* A) {m : List ι}
+    {Y : ModuleCat.{v} A} (h : HasFiltration L m Y) :
+    HasFiltration (fun c => (ModuleCat.restrictScalars φ).obj (L c)) m
+      ((ModuleCat.restrictScalars φ).obj Y) := by
+  induction h with
+  | zero hY => exact .zero hY
+  | cons f g m c hf hfg hg _ hZ ih =>
+    obtain ⟨e⟩ := hZ
+    let F := ModuleCat.restrictScalars.{v} φ
+    exact .cons (F.map (ModuleCat.ofHom f)).hom (F.map (ModuleCat.ofHom g)).hom m c
+      hf hfg hg ih ⟨LinearEquiv.ofBijective (F.map (ModuleCat.ofHom e.toLinearMap)).hom e.bijective⟩
+
 end HasFiltration
 
 end Categorification.ModuleFiltration

@@ -5934,6 +5934,25 @@ example := twoBlack_terminal_relations Q
 
 end NonVacuity.WebsterTerminalCyclotomic
 
+namespace NonVacuity.WebsterTerminalSymmetric
+
+open KLR KLRAlgebra KLR.CycKLR MvPolynomial NilHecke
+
+private abbrev black := Multiset.replicate 3 ()
+private noncomputable abbrev params : Unit → Unit → MvPolynomial (Fin 2) ℚ := fun _ _ => 0
+private noncomputable abbrev projection :=
+  CycKLR.mk ℚ params (fun _ => (Polynomial.X ^ 3 : Polynomial ℚ)) black
+
+example : projection (pol (esymm (Fin black.card) ℚ 2)) = 0 :=
+  terminal_pol_esymm_eq_zero (ν := black) (i := ()) (fun _ _ => Subsingleton.elim _ _) params 2
+    (by decide) (by decide)
+
+example (p : MvPolynomial (Fin black.card) ℚ) (hp : p ∈ coinvIdeal ℚ black.card) :
+    projection (pol p) = 0 :=
+  terminal_pol_eq_zero_of_mem_coinvIdeal (i := ()) (fun _ _ => Subsingleton.elim _ _) params p hp
+
+end NonVacuity.WebsterTerminalSymmetric
+
 namespace NonVacuity.WebsterFigureFive
 
 open Categorification Categorification.KLR Categorification.Stendhal

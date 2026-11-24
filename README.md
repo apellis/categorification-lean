@@ -1010,6 +1010,11 @@ In any saturated one-colour content the coinvariant module gives a simple
 module over the terminal cyclotomic quotient
 (`KLR.CycKLR.terminalCoinvModule_simple`). At weight two the generators satisfy
 the matrix-unit relations (`KLR.CycKLR.twoBlack_terminal_relations`).
+For every multiplicity, the positive elementary symmetric polynomials in
+the black dots vanish in the saturated cyclotomic quotient. The entire
+coinvariant ideal therefore maps to zero
+(`KLR.CycKLR.terminal_pol_esymm_eq_zero`,
+`KLR.CycKLR.terminal_pol_eq_zero_of_mem_coinvIdeal`).
 Identifying the divided-power projective at higher multiplicities and for
 multi-letter words remains open.
 

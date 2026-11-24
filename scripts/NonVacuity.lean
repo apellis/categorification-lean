@@ -7052,6 +7052,20 @@ example :
     decide
   exact twoBlackExitWords (Q := Q) 0 bounds loading colours
 
+/-- The planar neighboring joints retain one black strand between the reds. -/
+example :=
+  twoBlackNearbyExitWords (Q := Q) 0 (by decide) loading
+    (show (Sum.inr 0 : colour) ≠ Sum.inr 1 by decide)
+
+/-- Reversing the two middle black strands gives an additional exit whose
+comparisons with the two extremes still hold for equal black colours. -/
+example :=
+  twoBlackReversedMiddleExitWords (Q₀ := Q) 0 (by decide) loading
+    (a := 1) (b := 0) (i := 0) (j := 0) rfl rfl rfl rfl (by decide)
+
+/-- The right pivot readout remains valid when the two black colours coincide. -/
+example := twoBlackRightPivotLabels loading 0 (by decide)
+
 end NonVacuity.WebsterTwoBlackExits
 
 namespace NonVacuity.WebsterIntervalColumn

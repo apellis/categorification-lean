@@ -108,6 +108,46 @@ def ambientDerivedTensorH0Equiv (X : Type u) [AddCommGroup X] [Module A X] :
   (derivedTensorHomologyIsoOrdinaryLinear (R := k) (A := k) (B := A) (M := N) X).toLinearEquiv.trans
     (ordinaryH0Equiv (k := k) (A := A) (N := N) (X := X)).symm
 
+/-- The degree-zero coefficient map applies the bimodule map to the first
+factor under the ordinary tensor comparison. -/
+theorem ambientH0CoefficientMap_tmul
+    {N' X : Type u} [AddCommGroup N'] [Module k N'] [Module Aᵐᵒᵖ N']
+    [SMulCommClass k Aᵐᵒᵖ N'] [AddCommGroup X] [Module A X]
+    (f : N →ₗ[k] N') (hf : ∀ (a : A) (m : N), f (op a • m) = op a • f m)
+    (m : N) (x : X) :
+    (ambientDerivedTensorH0Equiv (N := N') X)
+      ((homologyFunctor k 0).map ((derivedTensorCoefficientMap f hf).app
+        (Q.obj (DGModuleCat.of A (InDegreeZero X))))
+        ((ambientDerivedTensorH0Equiv (N := N) X).symm (TensorProductOver.tmul A m x))) =
+      TensorProductOver.tmul A (f m) x := by
+  let W := DGModuleCat.of A (InDegreeZero X)
+  let τ := ordinaryTensorCoefficientMap f hf
+  let η := derivedTensorCoefficientMap f hf
+  let H := homologyFunctor (A := k) k 0
+  let d := derivedTensorHomologyIsoOrdinaryLinear (R := k) (A := k) (B := A) (M := N) X
+  let d' := derivedTensorHomologyIsoOrdinaryLinear (R := k) (A := k) (B := A) (M := N') X
+  let e := ordinaryH0Equiv (k := k) (A := A) (N := N) (X := X)
+  let e' := ordinaryH0Equiv (k := k) (A := A) (N := N') (X := X)
+  let z := TensorProductOver.tmul A m x
+  have h₁ := derivedTensorHomologyIsoOrdinaryLinear_coefficient_naturality (R := k) f hf X
+  have h₂ := DFunLike.congr_fun (congrArg ModuleCat.Hom.hom h₁) (d.inv (e z))
+  change d'.hom (H.map (η.app (Q.obj W)) (d.inv (e z))) =
+    H.map (Q.map (τ.app W)) (d.hom (d.inv (e z))) at h₂
+  let M := (DGModuleCat.tensorFunctor k (InDegreeZero N)).obj W
+  let M' := (DGModuleCat.tensorFunctor k (InDegreeZero N')).obj W
+  have h₃ : H.map (Q.map (τ.app W)) (e z) = e' ((τ.app W) z) :=
+    scalarDegreeZeroHomologyQEquiv_naturality (M := M) (N := M') (τ.app W)
+      (TensorProductOver.mem_grading_zero_inDegreeZero (B := A) (M := N) (N := X))
+      (TensorProductOver.d_inDegreeZero (B := A) (M := N) (N := X))
+      (TensorProductOver.mem_grading_zero_inDegreeZero (B := A) (M := N') (N := X))
+      (TensorProductOver.d_inDegreeZero (B := A) (M := N') (N := X)) z
+  have hh : d.hom (d.inv (e z)) = e z := d.toLinearEquiv.apply_symm_apply (e z)
+  rw [hh] at h₂
+  change e'.symm (d'.hom (H.map (η.app (Q.obj W)) (d.inv (e z)))) = _
+  exact (congrArg e'.symm (h₂.trans h₃)).trans
+    ((e'.symm_apply_apply _).trans (ordinaryTensorCoefficientMap_tmul f hf W m x))
+
+
 /-- The degree-zero derived tensor map induced by an ordinary module map. -/
 abbrev ambientH0Map {X Y : Type u} [AddCommGroup X] [AddCommGroup Y] [Module A X] [Module A Y]
     (f : X →ₗ[A] Y) :=

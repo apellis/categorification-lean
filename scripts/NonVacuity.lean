@@ -10648,6 +10648,8 @@ example := ordinaryTensorCoefficientMap_tmul twice twice_op
 example := derivedTensorHomologyIsoOrdinaryLinear_coefficient_naturality
   (R := ℚ) twice twice_op ℚ
 
+example := ambientH0CoefficientMap_tmul twice twice_op (2 : ℚ) (3 : ℚ)
+
 end
 
 end WebsterDerivedTensorCoefficientFixture

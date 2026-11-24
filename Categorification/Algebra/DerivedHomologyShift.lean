@@ -60,6 +60,28 @@ noncomputable def homologyShiftKernelIso (n : ℤ)
   let h := (F.homologySequence_exact₁ T hT n (n + 1) rfl).fIsKernel
   exact IsLimit.conePointUniqueUpToIso h (limit.isLimit _)
 
+/-- Through a morphism of triangles, a nonzero map in the first objects'
+next degree forces a nonzero map in the third objects' current degree
+when the source connecting morphism is surjective. -/
+theorem homology_map_ne_zero_of_middle_next_isZero
+    {T T' : Triangle (DerivedCategory.{w, v} A)}
+    (hT : T ∈ distTriang _) (φ : T ⟶ T') (n : ℤ)
+    (h₁ : IsZero ((homologyFunctor R (n + 1)).obj T.obj₂))
+    (hφ : (homologyFunctor R (n + 1)).map φ.hom₁ ≠ 0) :
+    (homologyFunctor R n).map φ.hom₃ ≠ 0 := by
+  let F := homologyFunctor (A := A) R 0
+  let δ := F.homologySequenceδ T n (n + 1) rfl
+  have : Epi δ := (F.homologySequence_exact₁ T hT n (n + 1) rfl).epi_f_iff.mpr
+    (h₁.eq_of_tgt _ _)
+  intro h
+  apply hφ
+  change (F.shift (n + 1)).map φ.hom₁ = 0
+  apply (cancel_epi δ).mp
+  change (F.shift n).map φ.hom₃ = 0 at h
+  rw [comp_zero, show δ = F.homologySequenceδ T n (n + 1) rfl from rfl,
+    ← F.homologySequenceδ_naturality φ n (n + 1) rfl, h, zero_comp]
+
+
 /-- The two homology maps of a distinguished triangle form an exact pair. -/
 theorem homology_distinguished_pair_exact (T : Triangle (DerivedCategory.{w, v} A))
     (hT : T ∈ distTriang _) (n : ℤ)

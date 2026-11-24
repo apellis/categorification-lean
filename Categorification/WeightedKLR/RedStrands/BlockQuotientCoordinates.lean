@@ -113,16 +113,93 @@ theorem exists_blockStack_quotient_coordinates (hQ : KLRSymm Q)
     ∃ n, ∃ (g : Fin n → R →ₗ[k] diagrams Q Λ row) (w : Fin n → R)
       (G : Fin n → (J).ringCon.Quotient →ₗ[k] quotients Q Λ row),
       (∀ j y, G j (q (mk (raw y))) = P (g j y)) ∧
+      (∀ j y, g j (S 1 * y) = g j y) ∧
+      (∀ j, G j (q (mk (raw (w j)))) = 1) ∧
+      (∀ i j, i ≠ j → G i (q (mk (raw (w j)))) = 0) ∧
       (∀ y, q (mk (raw (S 1 * y))) = ∑ j, q (mk (raw (S (g j y) * w j)))) := by
   classical
-  obtain ⟨n, g, w, _, _, _, hsec, _, hbad, rebuild⟩ :=
+  obtain ⟨n, g, w, _, hmul, _, hsec, hself, hother, _, hbad, rebuild⟩ :=
     exists_blockStack_coordinates_with_bottom Q Λ hQ L M f β h
   have desc (j : Fin n) :=
     exists_quotientBlockCoordinate Q Λ L M f β (g j) (hsec j) (hbad j)
   choose G hG using desc
-  refine ⟨n, g, w, G, hG, ?_⟩
-  intro y
-  have hr := congrArg ((q).comp mk) (rebuild y)
-  simpa only [map_sum, AlgHom.comp_apply] using hr
+  refine ⟨n, g, w, G, hG, ?_, ?_, ?_, ?_⟩
+  · intro j y
+    rw [hmul, one_mul]
+  · intro j
+    rw [hG, hself, map_one]
+  · intro i j hij
+    rw [hG, hother _ _ hij, map_zero]
+  · intro y
+    have hr := congrArg ((q).comp mk) (rebuild y)
+    simpa only [map_sum, AlgHom.comp_apply] using hr
+
+/-- The descended coordinates separate the source-order block column. This uses
+reconstruction and the external block-algebra action on that column. -/
+theorem exists_blockColumn_coordinate_embedding (hQ : KLRSymm Q)
+    (h : weightSum row = stendhalWeight ℓ ν) :
+    ∃ n, ∃ F : blockColumn Q Λ L M f β h →ₗ[k] (Fin n → quotients Q Λ row),
+      Function.Injective F := by
+  classical
+  obtain ⟨n, g, w, G, hG, hunit, _, _, rebuild⟩ :=
+    exists_blockStack_quotient_coordinates Q Λ L M f β hQ h
+  let N := blockColumn Q Λ L M f β h
+  let F := stackBlocks Q Λ L M f β h
+  let π := (mk).comp raw
+  let eκ : R := redIdem k Q Λ κ
+  let p := mk (redProj k Q Λ ν κ)
+  let S := affineStackBlocks Q Λ L M f β h
+  let read : N →ₗ[k] (Fin n → quotients Q Λ row) :=
+    LinearMap.pi fun j => (G j).comp (N).subtype
+  refine ⟨n, read, (LinearMap.ker_eq_bot (f := read)).1 (LinearMap.ker_eq_bot'.2 ?_)⟩
+  intro x hx
+  have surjπ : Function.Surjective π := violMk_surjective.comp ofKLR_surjective
+  obtain ⟨v, hv⟩ := x.2
+  obtain ⟨y, rfl⟩ := surjπ v
+  let z := y * eκ
+  have rep : x.1 = q (π (S 1 * z)) := by
+    change q (F 1 * (π y * p)) = x.1 at hv
+    rw [← hv, map_mul π (S 1) z, map_mul π y eκ]
+    rfl
+  have coeff_zero (j : Fin n) : P (g j z) = 0 := by
+    have hc := congrFun hx j
+    change G j x.1 = 0 at hc
+    rw [rep] at hc
+    change G j (q (mk (raw (S 1 * z)))) = 0 at hc
+    rwa [hG, hunit] at hc
+  have sum_rep : x.1 = ∑ j, q (F (g j z) * π (w j)) := by
+    calc
+      _ = q (π (S 1 * z)) := rep
+      _ = ∑ j, q (π (S (g j z) * w j)) := rebuild z
+      _ = _ := by
+        apply Finset.sum_congr rfl
+        intro j _
+        rw [map_mul π]
+        rfl
+  have right_fixed : x.1 * q p = x.1 := by
+    change q (F 1 * (π y * p)) = x.1 at hv
+    have hp : IsIdempotentElem p := bottomIdempotent Q Λ L M f
+    rw [← hv, ← map_mul (q), mul_assoc, mul_assoc, hp.eq]
+  apply Subtype.ext
+  change x.1 = 0
+  rw [← right_fixed, sum_rep, Finset.sum_mul]
+  apply Finset.sum_eq_zero
+  intro j _
+  let u : N := ⟨q (F 1 * (π (w j) * p)), ⟨π (w j), rfl⟩⟩
+  have act := blockProductAction_projection Q Λ L M f β h (g j z) u
+  have act_zero : blockProductAction Q Λ L M f β h (P (g j z)) u = 0 := by
+    calc
+      _ = blockProductAction Q Λ L M f β h 0 u :=
+        congrArg (fun v : quotients Q Λ row => blockProductAction Q Λ L M f β h v u)
+          (coeff_zero j)
+      _ = 0 := LinearMap.congr_fun (map_zero (blockProductAction Q Λ L M f β h)) u
+  calc
+    _ = q (F (g j z)) * u.1 := by
+      change q (F (g j z) * π (w j)) * q p =
+        q (F (g j z)) * q (F 1 * (π (w j) * p))
+      rw [← map_mul (q), ← map_mul (q), mul_assoc _ (π (w j)) p,
+        ← mul_assoc (F (g j z)) (F 1), ← map_mul F, mul_one]
+    _ = _ := act.symm
+    _ = 0 := congrArg (fun v : N => v.1) act_zero
 
 end Categorification.Stendhal.RedBlock

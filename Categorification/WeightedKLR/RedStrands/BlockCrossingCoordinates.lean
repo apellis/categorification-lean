@@ -175,6 +175,7 @@ private theorem binaryCoordinates (a b : Multiset (I ⊕ Fin ℓ)) (hQ : KLRSymm
     ∃ (g : U → R (a+b) →ₗ[k] (R a ⊗[k] R b)) (w : U → R (a+b)),
       (∀ i x y, g i (concat S a b x * y) = x * g i y) ∧
       (∀ i y s, g i (y * e s) = g i y * concatIdem (i.1 • s)) ∧
+      (∀ i, g i (w i) = 1) ∧ (∀ i j, i ≠ j → g i (w j) = 0) ∧
       ∀ y, oneConcat S a b * y = ∑ i, concat S a b (g i y) * w i := by
   classical
   let B := freeBasis (ν := a) (ν' := b) (stendhalQ_symm Q Λ hQ) (canWord _) (canWord _)
@@ -183,7 +184,9 @@ private theorem binaryCoordinates (a b : Multiset (I ⊕ Fin ℓ)) (hQ : KLRSymm
     (fun i => ⟨isReduced_canWord _ i.1,wordProd_canWord _ i.1⟩)
   let col := (LinearMap.mulLeft k (oneConcat S a b)).codRestrict (oneConcatSub S) fun y =>
     mem_oneConcatSub.2 (by change _ * (oneConcat S a b * y) = _; rw [← mul_assoc, oneConcat_idem.eq]; rfl)
-  refine ⟨fun i => ((B.coord i).restrictScalars k).comp col, fun i => (B i).1, ?_, ?_, ?_⟩
+  have hcol (i : Shuffle (Seq.card_add' a b)) : col (B i).1 = B i :=
+    Subtype.ext (mem_oneConcatSub.1 (B i).2)
+  refine ⟨fun i => ((B.coord i).restrictScalars k).comp col, fun i => (B i).1, ?_, ?_, ?_, ?_, ?_⟩
   · intro i x y
     have he : col (concat S a b x * y) = x • col y := Subtype.ext (by
       change oneConcat S a b * (concat S a b x * y) = concat S a b x * (oneConcat S a b * y)
@@ -200,6 +203,12 @@ private theorem binaryCoordinates (a b : Multiset (I ⊕ Fin ℓ)) (hQ : KLRSymm
       (fun i => canWord _ i.1) (fun i => ⟨isReduced_canWord _ i, wordProd_canWord _ i⟩)
       (fun i => ⟨isReduced_canWord _ i, wordProd_canWord _ i⟩)
       (fun i => ⟨isReduced_canWord _ i.1, wordProd_canWord _ i.1⟩) s i (col y)
+  · intro i
+    change B.coord i (col (B i).1) = 1
+    simp [hcol, Module.Basis.coord_apply, Module.Basis.repr_self]
+  · intro i j hij
+    change B.coord i (col (B j).1) = 0
+    simp [hcol, Module.Basis.coord_apply, Module.Basis.repr_self, hij]
   · intro y
     have he := congrArg Subtype.val (B.sum_repr (col y))
     change (col y).1 = ∑ i, concat S a b (B.repr (col y) i) * (B i).1
@@ -228,6 +237,8 @@ private structure Coefficients (row : List (RedBlock I ℓ)) (D : Type*) [Ring D
   bottom_spec : ∀ j s, bottom j s = 0 ∨
     ∃ v : Loadings row, ShuffleLoading row s v ∧ bottom j s = loadingIdem Q Λ row v
   coeff_mul : ∀ j x y, coeff j (juxtapose Q Λ row x * y) = x * coeff j y
+  coeff_word_self : ∀ j, coeff j (word j) = 1
+  coeff_word_ne : ∀ i j, i ≠ j → coeff i (word j) = 0
   coeff_top_red : ∀ j (t : Seq (weightSum row)) a, (t.lbl a).isRight → ∀ y,
     coeff j ((x a * e t) * y) = 0
   expand : ∀ (H : R (weightSum row) →ₙₐ[k] D), KillsRed Q Λ H → ∀ y,
@@ -236,7 +247,7 @@ private structure Coefficients (row : List (RedBlock I ℓ)) (D : Type*) [Ring D
 private def emptyCoefficients (D : Type*) [Ring D] [Algebra k D] : Coefficients Q Λ [] D := by
   let z := zeroEquiv (I ⊕ Fin ℓ) k S
   let ev := ULift.algEquiv.symm.toLinearMap.comp z.toLinearMap
-  refine ⟨Unit, inferInstance, fun _ => ev, fun _ => 1, fun _ _ => 1, ?_, ?_, ?_, ?_, ?_⟩
+  refine ⟨Unit, inferInstance, fun _ => ev, fun _ => 1, fun _ _ => 1, ?_, ?_, ?_, ?_, ?_, ?_, ?_⟩
   · intro _ y s
     rw [e_eq_one, mul_one, mul_one]
   · intro _ _
@@ -244,6 +255,12 @@ private def emptyCoefficients (D : Type*) [Ring D] [Algebra k D] : Coefficients 
   · intro _ a y
     change ULift.up (z (algebraMap k _ a.down * y)) = _
     rw [map_mul, AlgEquiv.commutes]; rfl
+  · intro _
+    change ULift.up (z 1) = 1
+    rw [map_one]
+    rfl
+  · intro i j hij
+    exact (hij (Subsingleton.elim i j)).elim
   · intro _ _ a
     exact Fin.elim0 a
   · intro H _ y
@@ -265,7 +282,7 @@ private def consCoefficients (B : RedBlock I ℓ) (row : List (RedBlock I ℓ)) 
   let prodfin : Fintype (U × T.ι) := @instFintypeProd U T.ι ‹Fintype U› T.fintype
   let g := (binaryCoordinates Q Λ a b hQ).choose
   let w := (binaryCoordinates Q Λ a b hQ).choose_spec.choose
-  obtain ⟨gm,ge,gw⟩ := (binaryCoordinates Q Λ a b hQ).choose_spec.choose_spec
+  obtain ⟨gm, ge, gs, gn, gw⟩ := (binaryCoordinates Q Λ a b hQ).choose_spec.choose_spec
   let v := omitRedDots Q Λ B
   let c j := TensorProduct.map v.toLinearMap (T.coeff j)
   let hcoeff (u : X (B::row)) (s) (j) : c j (TensorProduct.map (readBlock Q Λ B).toLinearMap
@@ -293,12 +310,15 @@ private def consCoefficients (B : RedBlock I ℓ) (row : List (RedBlock I ℓ)) 
     (ex.choose, ex.choose_spec.choose)
   have split_spec (s : KLR.Seq (a + b)) (hs : s ∈ concatSet a b) :
       (split s hs).1.append (split s hs).2 = s := (mem_concatSet.1 hs).choose_spec.choose_spec
+  have gRight (u : U) (z : R (weightSum row)) (r : R (a + b)) :
+      g u (rightIn Q Λ a b z * r) = ((1 : R B.weight) ⊗ₜ[k] z) * g u r :=
+    gm u _ r
   let bottom (ij : U × T.ι) (s : KLR.Seq (weightSum (B :: row))) : X (B :: row) :=
     if hs : ij.1.1 • s ∈ concatSet a b then
       v (e (split _ hs).1) ⊗ₜ[k] T.bottom ij.2 (split _ hs).2
     else 0
   refine ⟨U × T.ι, prodfin, fun ij => (c ij.2).comp (g ij.1),
-    fun ij => rightIn Q Λ a b (T.word ij.2) * w ij.1, bottom, ?_, ?_, ?_, ?_, ?_⟩
+    fun ij => rightIn Q Λ a b (T.word ij.2) * w ij.1, bottom, ?_, ?_, ?_, ?_, ?_, ?_, ?_⟩
   · intro ij y s
     change c ij.2 (g ij.1 (y * e s)) = c ij.2 (g ij.1 y) * bottom ij s
     rw [ge]
@@ -335,6 +355,19 @@ private def consCoefficients (B : RedBlock I ℓ) (row : List (RedBlock I ℓ)) 
   · intro ij u y
     change c ij.2 (g ij.1 (concat S a b _ * y)) = _
     rw [gm]; exact hcoeff u _ _
+  · intro ij
+    change c ij.2 (g ij.1 (rightIn Q Λ a b (T.word ij.2) * w ij.1)) = 1
+    rw [gRight, gs, mul_one]
+    simp only [c, TensorProduct.map_tmul, AlgHom.toLinearMap_apply, map_one, T.coeff_word_self]
+    exact Algebra.TensorProduct.one_def.symm
+  · intro ij uv hne
+    change c ij.2 (g ij.1 (rightIn Q Λ a b (T.word uv.2) * w uv.1)) = 0
+    rw [gRight]
+    by_cases hu : ij.1 = uv.1
+    · have hv : ij.2 ≠ uv.2 := fun h => hne (Prod.ext hu h)
+      rw [← hu, gs, mul_one]
+      simp only [c, TensorProduct.map_tmul, T.coeff_word_ne _ _ hv, TensorProduct.tmul_zero]
+    · rw [gn _ _ hu, mul_zero, map_zero]
   · intro ij s d hd y
     exact concat_top_red Q Λ v (T.coeff ij.2) (omitRedDots_top_red Q Λ B)
       (T.coeff_top_red ij.2) (g ij.1) (gm ij.1) s d hd y
@@ -437,6 +470,7 @@ theorem exists_blockStack_coordinates_with_bottom (hQ : KLRSymm Q) (L M : List (
       (∀ j x y, g j (G x * y) = x * g j y) ∧
       (∀ j y s, g j (y * e s) = g j y * bottom j s) ∧
       (∀ j y, g j (toKLR k Q Λ ν (π y)) = g j y) ∧
+      (∀ j, g j (w j) = 1) ∧ (∀ i j, i ≠ j → g i (w j) = 0) ∧
       (∀ j s, bottom j s = 0 ∨ ∃ v : Loadings row,
         ShuffleLoading row (Seq.cast h.symm s) v ∧ bottom j s = loadingIdem Q Λ row v) ∧
       (∀ j y s z, bad s → projection Q Λ row (g j (y * e s * z)) = 0) ∧
@@ -525,7 +559,14 @@ theorem exists_blockStack_coordinates_with_bottom (hQ : KLRSymm Q) (L M : List (
     apply Finset.sum_congr rfl; intro j _
     change π (b (juxtapose Q Λ row (T.coeff _ v) * _)) = π (b (juxtapose Q Λ row (T.coeff _ (b.symm (b v)))) * _)
     rw [map_mul b, AlgEquiv.symm_apply_apply]
-  refine ⟨_, g, w, bottom, g_mul, g_e, g_section, ?_, ?_, rebuild⟩
+  refine ⟨_, g, w, bottom, g_mul, g_e, g_section, ?_, ?_, ?_, ?_, rebuild⟩
+  · intro j
+    change T.coeff (e.symm j) (b.symm (b (T.word (e.symm j)))) = 1
+    rw [AlgEquiv.symm_apply_apply, T.coeff_word_self]
+  · intro i j hij
+    change T.coeff (e.symm i) (b.symm (b (T.word (e.symm j)))) = 0
+    rw [AlgEquiv.symm_apply_apply]
+    exact T.coeff_word_ne _ _ (fun h => hij (e.symm.injective h))
   · intro j s
     exact T.bottom_spec (e.symm j) (Seq.cast h.symm s)
   · intro j y s z hs
@@ -566,7 +607,7 @@ theorem exists_blockStack_coordinates (hQ : KLRSymm Q) (L M : List (Fin ℓ × M
     ∃ n, ∃ (g : Fin n → R μ →ₗ[k] X row) (w : Fin n → R μ),
       (∀ j x y, g j (G x * y) = x * g j y) ∧
       ∀ y, π (G 1 * y) = ∑ j, π (G (g j y) * w j) := by
-  obtain ⟨n, g, w, _, hmul, _, _, _, _, hexpand⟩ :=
+  obtain ⟨n, g, w, _, hmul, _, _, _, _, _, _, hexpand⟩ :=
     exists_blockStack_coordinates_with_bottom Q Λ hQ L M f β h
   exact ⟨n, g, w, hmul, hexpand⟩
 

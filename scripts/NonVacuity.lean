@@ -6197,4 +6197,7 @@ private noncomputable abbrev Q : Bool → Bool → MvPolynomial (Fin 2) ℚ := f
 example := exists_blockStack_quotient_coordinates Q (fun _ => Finsupp.single false 1)
   L M pair β (fun _ _ _ => rfl) wt
 
+example := exists_blockColumn_coordinate_embedding Q (fun _ => Finsupp.single false 1)
+  L M pair β (fun _ _ _ => rfl) wt
+
 end NonVacuity.WebsterBlockShuffle

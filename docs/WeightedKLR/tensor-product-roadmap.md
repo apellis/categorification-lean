@@ -961,8 +961,10 @@ split of a globally violated or strictly higher retained source loading has an
 internally violated block. The projected coordinates vanish on diagrams factoring
 through one of these loadings, with arbitrary diagrams above and below the cut.
 `exists_blockStack_quotient_coordinates` descends the coordinates through red dots
-and both loading ideals to the partially standardized quotient. The next step is
-to identify their support and the effect of the right joint crossing on that quotient.
+and both loading ideals to the partially standardized quotient. The coordinate
+words have coordinate `1` in their own slot and `0` in the other slots.
+`exists_blockColumn_coordinate_embedding` shows that the coordinates separate
+elements of the source-order block column. The right joint crossing formula is open.
 
 Still open for Lemma 6.8: the higher-homology vanishing in (6.21),
 including injectivity after tensoring the kernel inclusion, then Prop 6.9

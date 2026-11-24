@@ -10096,6 +10096,8 @@ local instance instLabelTwoMiddleIntegralDerived : DG.HasDerivedCategory.{0, 0} 
 
 example := exists_middleStandard_supportedResolution ℚ
 
+example := exists_loadingStandard_supportedResolution ℚ ⟨loading, loading_ordered⟩
+
 example := middleStandard_derivedTensorHomology_isZero ℚ (-1) (by decide)
 
 example := relativeMiddleProjectiveResolution ℚ

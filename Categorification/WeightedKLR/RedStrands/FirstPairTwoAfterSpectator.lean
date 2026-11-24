@@ -175,4 +175,74 @@ theorem firstPairTwoAfter_blockKernel_mem_iff_twoFactors (hQ : KLRSymm Q)
     exact sum_mem fun i _ => TwoSidedIdeal.mul_mem_right J (leg i) (y i)
       (firstPairTwoAfter_leg_mem Q Λ i)
 
+local notation "D" => F (ψ 3 : A)
+local notation "X₃" => F (x (⟨3, by decide⟩ : Fin N) : A)
+local notation "X₄" => F (x (⟨4, by decide⟩ : Fin N) : A)
+
+private theorem firstPairTwoAfter_nilHecke_square (z : V) (hz : proj bottom * z = z) :
+    D * (D * z) = 0 := by
+  have h : (ψ 3 * ψ 3 * e bottom : A) = 0 := by
+    rw [ψ_sq 3 (by decide), ite_eq_left (by decide)]
+  have hm := congrArg F h
+  simp only [map_mul, map_zero] at hm
+  rw [← mul_assoc, ← hz, ← mul_assoc, hm, zero_mul]
+
+private theorem firstPairTwoAfter_nilHecke_dot (z : V) (hz : proj bottom * z = z) :
+    D * (X₃ * z) - X₄ * (D * z) = z := by
+  have h : (ψ 3 * x (⟨3, by decide⟩ : Fin N) * e bottom -
+      x (⟨4, by decide⟩ : Fin N) * ψ 3 * e bottom : A) = e bottom := by
+    rw [← sub_mul, dot_cross_right 3 (by decide : 3 + 1 < N), ite_eq_left (by decide)]
+  have hm := congrArg (fun r => F r * z) h
+  simpa only [map_mul, map_sub, sub_mul, mul_assoc, hz] using hm
+
+private theorem firstPairTwoAfter_leg_left (i : Bool) : proj bottom * leg i = leg i := by
+  rw [← map_mul F]
+  apply congrArg F
+  simp only [hflip_mul, hflip_e, ← mul_assoc, e_mul_self]
+
+private theorem firstPairTwoAfter_legs :
+    D * leg false = leg true := by
+  rw [← map_mul F]
+  apply congrArg F
+  simp only [rightPairWord, ψw_cons, ψw_nil, mul_one, hflip_mul, hflip_e, hflip_ψ]
+  have h : sadj N 3 • bottom = bottom := by decide +kernel
+  rw [← mul_assoc, ψ_mul_e, h, mul_assoc]
+
+private theorem firstPairTwoAfter_leg_true_zero : D * leg true = 0 := by
+  rw [← firstPairTwoAfter_legs]
+  exact firstPairTwoAfter_nilHecke_square Q Λ _ (firstPairTwoAfter_leg_left Q Λ false)
+
+private theorem firstPairTwoAfter_nilHecke_image (hQ : KLRSymm Q)
+    (z : V) (hz : z ∈ J) (left : proj bottom * z = z)
+    (right : z * F (redIdem k Q Λ (redWord bottom)) = z) :
+    ∃ y : V, proj above * y = y ∧ y * F (redIdem k Q Λ (redWord bottom)) = y ∧
+      D * z = leg true * y := by
+  obtain ⟨y,hy,hr,he⟩ := (firstPairTwoAfter_blockKernel_mem_iff_twoFactors Q Λ hQ z left right).1 hz
+  refine ⟨y false, hy false, hr false, ?_⟩
+  rw [← he, show (Finset.univ : Finset Bool) = {false, true} by decide,
+    Finset.sum_insert (by decide), Finset.sum_singleton, mul_add, ← mul_assoc, ← mul_assoc,
+    firstPairTwoAfter_legs Q Λ, firstPairTwoAfter_leg_true_zero Q Λ]
+  simp only [zero_mul, add_zero]
+
+/-- On the actual rightmost higher kernel, the kernel of the equal-black
+crossing is its image, given by the second crossing factor. -/
+theorem firstPairTwoAfter_nilHecke_kernel (hQ : KLRSymm Q)
+    (z : V) (hz : z ∈ J) (left : proj bottom * z = z)
+    (right : z * F (redIdem k Q Λ (redWord bottom)) = z) :
+    D * z = 0 ↔ ∃ y : V, proj above * y = y ∧ y * F (redIdem k Q Λ (redWord bottom)) = y ∧
+      z = leg true * y := by
+  constructor
+  · intro zero
+    have hx : proj bottom * X₃ = X₃ * proj bottom := by
+      rw [← map_mul F, ← map_mul F, x_mul_e]
+    have lx : proj bottom * (X₃ * z) = X₃ * z := by rw [← mul_assoc, hx, mul_assoc, left]
+    have rx : (X₃ * z) * F (redIdem k Q Λ (redWord bottom)) = X₃ * z := by rw [mul_assoc, right]
+    have hxZ := TwoSidedIdeal.mul_mem_left J X₃ z hz
+    obtain ⟨y,hy,hyr,hrep⟩ := firstPairTwoAfter_nilHecke_image Q Λ hQ _ hxZ lx rx
+    have hdot := firstPairTwoAfter_nilHecke_dot Q Λ z left
+    rw [zero, mul_zero, sub_zero] at hdot
+    exact ⟨y,hy,hyr,hdot.symm.trans hrep⟩
+  · rintro ⟨y,_,_,h⟩
+    rw [h, ← mul_assoc, firstPairTwoAfter_leg_true_zero Q Λ, zero_mul]
+
 end Categorification.Stendhal.BraidedStendhalAlgebra

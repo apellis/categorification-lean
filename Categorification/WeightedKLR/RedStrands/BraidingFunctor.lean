@@ -4,7 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 -/
 import Categorification.WeightedKLR.RedStrands.BraidedViolatedIdentity
 import Categorification.Algebra.CornerBimodule
-import Categorification.Algebra.DerivedTensor
+import Categorification.Algebra.DerivedTensorTriangulated
 
 set_option backward.isDefEq.respectTransparency false
 
@@ -66,6 +66,20 @@ noncomputable def braidingFunctor (κ' κ : List (Fin ℓ))
     [HasDerivedCategory.{w} (hE κ').Cornerᵐᵒᵖ] [HasDerivedCategory.{w} (hE κ).Cornerᵐᵒᵖ] :
     DG.DerivedCategory.{w} (hE κ').Cornerᵐᵒᵖ ⥤ DG.DerivedCategory.{w} (hE κ).Cornerᵐᵒᵖ :=
   derivedRightTensor.{w} (hE κ').Corner (hE κ).Corner (braidingBimodule k Q Λ ν κ' κ)
+
+variable (k Q Λ ν) in
+noncomputable instance braidingFunctor_commShift (κ' κ : List (Fin ℓ))
+    [HasDerivedCategory.{w} (hE κ').Cornerᵐᵒᵖ] [HasDerivedCategory.{w} (hE κ).Cornerᵐᵒᵖ] :
+    (braidingFunctor.{w} k Q Λ ν κ' κ).CommShift ℤ := by
+  unfold braidingFunctor
+  infer_instance
+
+variable (k Q Λ ν) in
+instance braidingFunctor_isTriangulated (κ' κ : List (Fin ℓ))
+    [HasDerivedCategory.{w} (hE κ').Cornerᵐᵒᵖ] [HasDerivedCategory.{w} (hE κ).Cornerᵐᵒᵖ] :
+    (braidingFunctor.{w} k Q Λ ν κ' κ).IsTriangulated := by
+  unfold braidingFunctor
+  infer_instance
 
 end BraidedStendhalAlgebra
 

@@ -644,4 +644,166 @@ def figureFiveExteriorTensorEquiv (u : Seq ν) :
 
 end ExteriorEvaluation
 
+section WeightCoordinates
+variable {I k : Type} [DecidableEq I] [Field k]
+  {Q : I → I → MvPolynomial (Fin 2) k} {Λ : Fin 2 → I →₀ ℕ} {ν : Multiset I}
+  {ρ : Perm (Fin (Multiset.card (stendhalWeight 2 ν))) → List ℕ}
+  (C : CartanDatum I) (hR : IsRouquierQ C Q) (hρ : TypeA.IsReducedChoice ρ)
+
+local notation "T" κ:arg => ViolOrderCorner (k := k) (Q := Q) (Λ := Λ) (ν := ν) κ
+local notation "A" => (T [0, 1])ᵐᵒᵖ
+local notation "D" => (T [1, 0])ᵐᵒᵖ
+local notation "𝒱" => violAuxiliaryGrade (ν := ν) (diagramDatum C hR Λ)
+attribute [local instance] lowerCornerRing upperCornerRing lowerCornerAddGroup upperCornerAddGroup
+  lowerOrderAuxDecomposition
+
+/-- The diagram grading on the lower opposite corner, in its integer coordinates. -/
+abbrev figureFiveLowerOrderPieces : ℤ → Submodule ℤ A := lowerOrderAux C hR
+
+/-- The diagram grading on the upper opposite corner, in its integer coordinates. -/
+abbrev figureFiveUpperOrderPieces : ℤ → Submodule ℤ D := upperOrderAux C hR
+
+/-- The intrinsic lower exterior grading in integer coordinates. -/
+abbrev figureFiveLowerExteriorPieces (u : Seq ν) := lowerExteriorAux (Λ := Λ) C hR hρ u
+
+/-- The lower order grading restricts to its original pieces at integer degrees. -/
+theorem figureFiveLowerOrderGrade_int (n : ℤ) :
+    figureFiveLowerOrderGrade (Λ := Λ) (ν := ν) C hR (n : ℂ) =
+      figureFiveLowerOrderPieces C hR n := by
+  change complexGrade (lowerOrderAux C hR) 0 (n : ℂ) = lowerOrderAux C hR n
+  simpa only [add_zero] using complexGrade_apply (lowerOrderAux (Λ := Λ) (ν := ν) C hR) 0 n
+
+/-- The upper order grading restricts to its original pieces at integer degrees. -/
+theorem figureFiveUpperOrderGrade_int (n : ℤ) :
+    figureFiveUpperOrderGrade (Λ := Λ) (ν := ν) C hR (n : ℂ) =
+      figureFiveUpperOrderPieces C hR n := by
+  change complexGrade (upperOrderAux C hR) 0 (n : ℂ) = upperOrderAux C hR n
+  simpa only [add_zero] using complexGrade_apply (upperOrderAux (Λ := Λ) (ν := ν) C hR) 0 n
+
+/-- The lower exterior grading restricts to its original pieces at integer degrees. -/
+theorem figureFiveLowerExteriorGrade_int (u : Seq ν) (n : ℤ) :
+    figureFiveLowerExteriorGrade (Λ := Λ) C hR hρ u (n : ℂ) =
+      figureFiveLowerExteriorPieces C hR hρ u n := by
+  change complexGrade (lowerExteriorAux C hR hρ u) 0 (n : ℂ) = lowerExteriorAux C hR hρ u n
+  simpa only [add_zero] using complexGrade_apply (lowerExteriorAux (Λ := Λ) C hR hρ u) 0 n
+
+instance figureFiveLowerOrderPiecesDecomposition :
+    Decomposition (figureFiveLowerOrderPieces (Λ := Λ) (ν := ν) C hR) := inferInstance
+
+instance figureFiveUpperOrderPiecesDecomposition :
+    Decomposition (figureFiveUpperOrderPieces (Λ := Λ) (ν := ν) C hR) :=
+  (isInternal_diagramGrade C hR (upperOrderVal (Λ := Λ) (ν := ν))
+    (fun _ _ h => unop_injective (Subtype.ext h)) (projector_mem_zero C hR [1, 0])
+    (projector_mem_zero C hR [1, 0])
+    (fun a => (Subsemigroup.mem_corner_iff (isIdempotentElem_violMk_redProj k Q Λ ν [1, 0])).1 a.unop.2)
+    (fun _ hl hr => ⟨op ⟨_, (Subsemigroup.mem_corner_iff
+      (isIdempotentElem_violMk_redProj k Q Λ ν [1, 0])).2 ⟨hl, hr⟩⟩, rfl⟩)).chooseDecomposition
+
+instance figureFiveLowerOrderPiecesGradedMonoid :
+    SetLike.GradedMonoid (figureFiveLowerOrderPieces (Λ := Λ) (ν := ν) C hR) where
+  one_mem := projector_mem_zero C hR [0, 1]
+  mul_mem {i j a b} ha hb := by
+    change b.unop.val * a.unop.val ∈ 𝒱 (i + j)
+    rw [add_comm]
+    exact SetLike.GradedMul.mul_mem («A» := 𝒱) hb ha
+
+instance figureFiveUpperOrderPiecesGradedMonoid :
+    SetLike.GradedMonoid (figureFiveUpperOrderPieces (Λ := Λ) (ν := ν) C hR) where
+  one_mem := projector_mem_zero C hR [1, 0]
+  mul_mem {i j a b} ha hb := by
+    change b.unop.val * a.unop.val ∈ 𝒱 (i + j)
+    rw [add_comm]
+    exact SetLike.GradedMul.mul_mem («A» := 𝒱) hb ha
+
+/-- The lower corner acts on the lower standardization by adding integer degrees. -/
+theorem figureFiveLowerExteriorPieces_smul (u : Seq ν) {i j : ℤ} {a : A}
+    {x : InDegreeZero (figureFiveLowerExterior (Λ := Λ) C hR hρ u)}
+    (ha : a ∈ figureFiveLowerOrderPieces C hR i) (hx : x ∈ figureFiveLowerExteriorPieces C hR hρ u j) :
+    a • x ∈ figureFiveLowerExteriorPieces C hR hρ u (i + j) := by
+  rw [← figureFiveLowerOrderGrade_int] at ha
+  rw [← figureFiveLowerExteriorGrade_int] at hx ⊢
+  push_cast
+  exact lowerExterior_smul_mem C hR hρ u ha hx
+
+/-- The two opposite corners act on the braid by commuting diagram concatenations. -/
+theorem figureFiveBraidActionsCommute : SMulCommClass D Aᵐᵒᵖ
+    (InDegreeZero (OpBimodule (T [0, 1]) (braidingBimodule k Q Λ ν [0, 1] [1, 0]))) :=
+  figureFiveBraidComm
+
+end WeightCoordinates
+
+section CutCoordinates
+variable {I k : Type} [DecidableEq I] [Field k]
+  {Q : I → I → MvPolynomial (Fin 2) k} {Λ : Fin 2 → I →₀ ℕ} {ν : Multiset I}
+  {ρ : Perm (Fin (Multiset.card (stendhalWeight 2 ν))) → List ℕ}
+  (C : CartanDatum I) (hR : IsRouquierQ C Q) (hρ : TypeA.IsReducedChoice ρ)
+
+local notation "T" κ:arg => ViolOrderCorner (k := k) (Q := Q) (Λ := Λ) (ν := ν) κ
+local notation "A" => (T [0, 1])ᵐᵒᵖ
+local notation "D" => (T [1, 0])ᵐᵒᵖ
+local notation "M" => InDegreeZero (OpBimodule (T [0, 1]) (braidingBimodule k Q Λ ν [0, 1] [1, 0]))
+local notation "Y" u:arg => violCorner k Q Λ ν (figureFiveLower u) [1, 0]
+local notation "e" u:arg => violMk k Q Λ ν (ofKLR k Q Λ ν (KLRAlgebra.e (figureFiveLower u)))
+local notation "E₀" => violMk k Q Λ ν (redProj k Q Λ ν [0, 1])
+local notation "In" u:arg => figureFiveLowerExteriorInclusion (Λ := Λ) C hR hρ u
+local notation "Pr" u:arg => figureFiveLowerExteriorProjection (Λ := Λ) C hR hρ u
+local notation "N" u:arg => InDegreeZero (figureFiveLowerExterior (Λ := Λ) C hR hρ u)
+attribute [local instance] lowerCornerRing upperCornerRing lowerCornerAddGroup upperCornerAddGroup
+
+/-- The image of the inclusion of the lower exterior standardization lies in the loading ideal. -/
+theorem figureFiveLowerExteriorInclusion_fixed (u : Seq ν) (x : N u) :
+    (e u) * ((In u) x).unop.val = ((In u) x).unop.val :=
+  congrArg Subtype.val ((figureFiveLowerLoadingEquiv C hR hρ u).symm x).2
+
+/-- The generator of the loading summand is its degree-zero loading idempotent. -/
+theorem figureFiveLowerExteriorInclusion_projection_one (u : Seq ν) :
+    ((In u) ((Pr u) 1)).unop.val = e u := by
+  let eqv := figureFiveLowerLoadingEquiv (Λ := Λ) C hR hρ u
+  let r : lowerLoading (Λ := Λ) (Q := Q) u := lowerLoadingProjection u (1 : A)
+  change (eqv.symm (eqv r)).val.val = _
+  refine (congrArg (fun x : lowerLoading (Λ := Λ) (Q := Q) u => x.val.val)
+    (eqv.symm_apply_apply r)).trans ?_
+  let p := violLoadingIdem (k := k) (Q := Q) (Λ := Λ) (figureFiveLowerRedWord u)
+  change (p * 1).val = p.val
+  exact congrArg Subtype.val (mul_one p)
+
+/-- Include the Figure 5 loading cut into its braid bimodule by the same diagram. -/
+def figureFiveBraidCutInclusion (u : Seq ν) (y : Y u) : M :=
+  ⟨y.val, by
+    have h := mem_violCorner_iff.1 y.2
+    have ep : E₀ * e u = e u := by
+      rw [← map_mul, redProj_mul_e, ite_eq_left (figureFiveLowerRedWord u)]
+    apply mem_cornerBimodule.2
+    exact ⟨calc
+      E₀ * y.val = E₀ * (e u * y.val) := congrArg (E₀ * ·) h.1.symm
+      _ = y.val := by rw [← mul_assoc, ep, h.1], h.2⟩⟩
+
+variable {H : Type*} [AddCommGroup H] [Module ℂ H]
+  (B : LinearMap.BilinForm ℂ (Module.Dual ℂ H)) (η : Fin 2 → Module.Dual ℂ H)
+local notation "c" => (2 - B (η 1) (η 0))
+local notation "G" => violAuxiliaryGrade (ν := ν) (diagramDatum C hR Λ)
+local notation "CutGrade" u:arg => figureFiveCutGrade (Λ := Λ) C hR B η (figureFiveLower u) 1 0
+
+/-- A diagram in the cut and the same diagram in the braid have the same internal coordinate. -/
+theorem figureFiveBraidCut_mem_grade_iff (u : Seq ν) (n : ℤ) (y : Y u) (b : M) (h : y.val = b.val) :
+    y ∈ (CutGrade u) ((n : ℂ) + c) ↔ b ∈ figureFiveBraidGrade C hR B η ((n : ℂ) + c) := by
+  change y ∈ ((CutGrade u) ((n : ℂ) + c)).restrictScalars ℤ ↔
+    b ∈ complexGrade (braidAux C hR) c ((n : ℂ) + c)
+  rw [← cutPiece_eq C hR B η u, complexGrade_apply, complexGrade_apply]
+  change y.val ∈ G n ↔ b.val ∈ G n
+  rw [h]
+
+/-- The upper-order action on the cut adds the integer difference of the output weights. -/
+theorem figureFiveBraidCut_smul_mem_grade (u : Seq ν) {i j : ℤ} {a : D} {y : Y u}
+    (ha : a ∈ figureFiveUpperOrderPieces C hR i) (hy : y ∈ (CutGrade u) ((j : ℂ) + c)) :
+    a • y ∈ (CutGrade u) (((i + j : ℤ) : ℂ) + c) := by
+  change y ∈ ((CutGrade u) ((j : ℂ) + c)).restrictScalars ℤ at hy
+  change a • y ∈ ((CutGrade u) (((i + j : ℤ) : ℂ) + c)).restrictScalars ℤ
+  rw [← cutPiece_eq C hR B η u, complexGrade_apply] at hy ⊢
+  change (a • y).val ∈ G (i + j)
+  rw [violCorner_smul_val, add_comm]
+  exact SetLike.GradedMul.mul_mem («A» := G) (show y.val ∈ G j from hy) (show a.unop.val ∈ G i from ha)
+
+end CutCoordinates
+
 end Categorification.Stendhal.BraidedStendhalAlgebra

@@ -5,6 +5,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 import Categorification.WeightedKLR.RedStrands.LeftStandardParameterTransport
 import Categorification.WeightedKLR.RedStrands.OffDiagonalParameters
 import Categorification.WeightedKLR.RedStrands.LabelTwoMiddleAmbientAcyclicity
+import Categorification.WeightedKLR.RedStrands.LabelTwoMiddleAmbientTor
 import Categorification.WeightedKLR.RedStrands.StandardStratificationStd
 
 /-!
@@ -63,6 +64,20 @@ private theorem rankOneParameterChange_idem (s : KLR.Seq (stendhalWeight 2 ν₂
   tensorProductOffDiagonalEquiv_e (Q := qCL) (Q' := q) (Λ := weights) (ν := ν₂)
     (fun i j hij => (hij (Subsingleton.elim i j)).elim) s hs
 
+/-- The higher support of every loading-standard projective resolution transports
+from the standard rank-one parameters to the actual label-two algebra. -/
+theorem exists_loadingStandard_supportedResolution_of_CLFiltration
+    (hU : ∀ t : Labels, ∃ m : List Labels, (∀ v ∈ m, StendhalLT t.1 v.1) ∧
+      HasFiltration StdCL m (ModuleCat.of ACL (U t))) (s : Labels) :
+    ∃ P : ProjectiveResolution (ModuleCat.of Ambient (leftStandard q weights s.1 s.2)), ∀ n : ℕ,
+      ∃ (J : Type) (label : J → Labels)
+        (inc : ∀ j, lIdeal (seqIdem q weights (label j).1 (label j).2) →ₗ[Ambient]
+          P.complex.X (n + 1)),
+        (∀ j, StendhalLT s.1 (label j).1) ∧ ∀ x : P.complex.X (n + 1),
+          x ∈ Submodule.span Ambient {y | ∃ j z, inc j z = y} :=
+  exists_ordered_projectiveResolution_leftStandard_transport weights
+    (rankOneParameterChange k).toRingEquiv (rankOneParameterChange_idem k) hU s
+
 /-- The higher support of the standard projective resolution transports from the
 standard rank-one parameters to the actual label-two middle cut. -/
 theorem exists_middleStandard_supportedResolution_of_CLFiltration
@@ -74,9 +89,7 @@ theorem exists_middleStandard_supportedResolution_of_CLFiltration
           P.complex.X (n + 1)),
         (∀ j, StendhalLT loading (label j).1) ∧ ∀ x : P.complex.X (n + 1),
           x ∈ Submodule.span Ambient {y | ∃ j z, inc j z = y} :=
-  exists_ordered_projectiveResolution_leftStandard_transport weights
-    (rankOneParameterChange k).toRingEquiv (rankOneParameterChange_idem k) hU
-    ⟨loading, loading_ordered⟩
+  exists_loadingStandard_supportedResolution_of_CLFiltration k hU ⟨loading, loading_ordered⟩
 
 private theorem rankOneCLFiltration (d : DecidableEq Unit) (t : Labels) :
     letI : DecidableEq Unit := d
@@ -85,6 +98,18 @@ private theorem rankOneCLFiltration (d : DecidableEq Unit) (t : Labels) :
   have h : d = (fun a b : Unit => Classical.propDecidable (a = b)) := Subsingleton.elim _ _
   subst d
   exact exists_hasFiltration_leftUpper_std (rankOneRouquier k) (rankOneSymm k) weights ν₂ t.1 t.2
+
+/-- Every actual label-two loading standard has a projective resolution with
+higher loading support in every positive degree. -/
+theorem exists_loadingStandard_supportedResolution (s : Labels) :
+    ∃ P : ProjectiveResolution (ModuleCat.of Ambient (leftStandard q weights s.1 s.2)), ∀ n : ℕ,
+      ∃ (J : Type) (label : J → Labels)
+        (inc : ∀ j, lIdeal (seqIdem q weights (label j).1 (label j).2) →ₗ[Ambient]
+          P.complex.X (n + 1)),
+        (∀ j, StendhalLT s.1 (label j).1) ∧ ∀ x : P.complex.X (n + 1),
+          x ∈ Submodule.span Ambient {y | ∃ j z, inc j z = y} :=
+  exists_loadingStandard_supportedResolution_of_CLFiltration k
+    (rankOneCLFiltration k instDecidableEqPUnit) s
 
 /-- The actual middle standard has a projective resolution with higher loading
 support in every positive degree. -/
@@ -95,8 +120,7 @@ theorem exists_middleStandard_supportedResolution :
           P.complex.X (n + 1)),
         (∀ j, StendhalLT loading (label j).1) ∧ ∀ x : P.complex.X (n + 1),
           x ∈ Submodule.span Ambient {y | ∃ j z, inc j z = y} :=
-  exists_middleStandard_supportedResolution_of_CLFiltration k
-    (rankOneCLFiltration k instDecidableEqPUnit)
+  exists_loadingStandard_supportedResolution k ⟨loading, loading_ordered⟩
 
 open CategoryTheory.Limits DG DG.DerivedCategory
 open scoped DG.DegreeZero
@@ -105,7 +129,10 @@ universe w
 
 variable [HasDerivedCategory.{w, 0}
   (TensorProductAlgebra k (parameter k) weights (({()} : Multiset Unit) + {()}))]
-  [HasDerivedCategory.{w, 0} ℤ]
+
+section IntegralHomology
+
+variable [HasDerivedCategory.{w, 0} ℤ]
 
 /-- The diagrammatic middle standard is acyclic away from degree zero for ambient
 derived tensor with the reflected diagrammatic dot-sum coefficient. -/
@@ -115,6 +142,26 @@ theorem middleStandard_derivedTensorHomology_isZero (n : ℤ) (hn : n ≠ 0) :
         (Q.obj (DGModuleCat.of Ambient (InDegreeZero (Standard k)))))) := by
   obtain ⟨P, hP⟩ := exists_middleStandard_supportedResolution k
   exact middleStandard_derivedTensorHomology_isZero_of_higher_support k P hP n hn
+
+end IntegralHomology
+
+section GroundField
+
+variable [HasDerivedCategory.{w, 0} k]
+
+/-- The actual middle standard is ambient acyclic for the reflected coefficient
+over the ground field. -/
+theorem middleAmbientAcyclic : MiddleAmbientAcyclic k := by
+  obtain ⟨P, hP⟩ := exists_middleStandard_supportedResolution k
+  exact middleAmbientAcyclic_of_supportedResolution k P hP
+
+/-- The actual ambient derived tensor of the reflected sum quotient with the
+sum quotient has the same Tor objects as the relative middle calculation. -/
+def actualAmbientMiddleToRelativeTorIso (h₂ : (2 : k) ≠ 0) (n : ℕ) :
+    ambientMiddleSumHomology k (-(n : ℤ)) ≅ relativeMiddleTor k n :=
+  ambientMiddleToRelativeTorIso k (middleAmbientAcyclic k) h₂ n
+
+end GroundField
 
 end Categorification.Stendhal.LabelTwo
 

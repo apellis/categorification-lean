@@ -1751,6 +1751,7 @@ import Categorification.WeightedKLR.Rigidity.FundamentalCupCap
 import Categorification.Algebra.DerivedTensorRegular
 import Categorification.WeightedKLR.Rigidity.FundamentalCupRegular
 import Categorification.WeightedKLR.Rigidity.SingleBlackExtremal
+import Categorification.WeightedKLR.Rigidity.ExtremalNorm
 
 /-!
 # Categorification

@@ -1054,6 +1054,12 @@ when the red weight has additional pairings at colours absent from the
 black content (`Stendhal.SingleRed.saturatedWebsterProjective_simple`).
 Identifying the divided-power projective at higher multiplicities and for
 multi-letter words remains open.
+Over a field, a projective with graded Hom norm one in a block of Laurent
+rank one is simple as an ungraded module
+(`GProj.isSimpleModule_of_homGdim_eq_one`). A nonzero degree-zero mixed Hom
+identifies the graded lifts (`GProj.nonempty_iso_of_homGdim_coeff_zero`).
+For general reflection words the extremal block rank and the required
+Shapovalov pairings remain to be identified.
 
 **Webster, arXiv:1309.3796v2, §7.1, Lemma 7.3.** The smaller-cut trace is
 the sum of the images of maps from the corresponding loading projectives

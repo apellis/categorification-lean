@@ -1771,6 +1771,8 @@ import Categorification.WeightedKLR.Rigidity.FundamentalCupCap
 import Categorification.Algebra.DerivedTensorRegular
 import Categorification.WeightedKLR.Rigidity.FundamentalCupRegular
 import Categorification.WeightedKLR.Rigidity.FundamentalDerivedCircle
+import Categorification.WeightedKLR.Rigidity.FundamentalBraidAction
+import Categorification.WeightedKLR.Rigidity.FundamentalBraidSpan
 import Categorification.WeightedKLR.Rigidity.FundamentalMiddleDimensions
 import Categorification.Algebra.DiagramBigrading
 import Categorification.Algebra.DiagramWeightBimodule

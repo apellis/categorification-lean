@@ -1106,6 +1106,15 @@ the composite on the ground field has one-dimensional cohomology in
 degrees minus one and one (`middleCupCap_finrank`). These computations
 forget the internal grading.
 
+In the fundamental case of Proposition 7.11, the four loading corners
+across the red crossing have dimensions zero (middle to middle), one
+(each mixed corner), and two (terminal to terminal). The terminal basis
+consists of the crossing and its one-dot decoration
+(`fundamentalBraid_terminal_span`, `fundamentalBraid_terminal_linearIndependent`).
+The mixed differentials on this basis have matrices `(0,1)ᵀ` and `(1,0)`
+(`fundamentalBraid_terminal_differentials`). This computes the ungraded
+corner diagrams entering the projective resolution.
+
 In the diagram-weight categories the middle character is homogeneous.
 Its weight-zero generator identifies with the right simple head, with
 every diagram acting by the middle character

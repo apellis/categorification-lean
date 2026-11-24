@@ -9259,6 +9259,10 @@ example (d : ℤ) := diagramPlusAugmentation_exact_in_degree ℚ d
 
 example (d : ℤ) := diagramMiddleAugmentationAtDegree_surjective ℚ d
 
+example (d : ℤ) := diagramSumCompanionAugmentation_exact_in_degree ℚ d
+
+example (d : ℤ) := diagramDifferenceCompanionAugmentation_exact_in_degree ℚ d
+
 example := middleEndomorphismFactorEquiv ℚ
 
 example := factorDotSumQuotientEquiv ℚ

@@ -1266,7 +1266,11 @@ degree two (`Stendhal.LabelTwo.diagramPlus_degree_two`,
 and the augmentation to the graded dot-sum quotient are exact in every
 internal degree (`Stendhal.LabelTwo.diagramPlusMinus_exact_in_degree`,
 `Stendhal.LabelTwo.diagramMinusPlus_exact_in_degree`,
-`Stendhal.LabelTwo.diagramPlusAugmentation_exact_in_degree`). Evaluation on the
+`Stendhal.LabelTwo.diagramPlusAugmentation_exact_in_degree`).
+The dot-difference quotient carries the companion grading. Both quotient
+inclusions shift internal degree by two and give short exact sequences
+in every degree (`Stendhal.LabelTwo.diagramSumCompanionAugmentation_exact_in_degree`,
+`Stendhal.LabelTwo.diagramDifferenceCompanionAugmentation_exact_in_degree`). Evaluation on the
 middle generator identifies the endomorphism algebra with the actual
 regular parabolic factor (`Stendhal.LabelTwo.middleEndomorphismFactorEquiv`).
 The diagrammatic dot-sum quotient is the standardization of its

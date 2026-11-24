@@ -7621,3 +7621,52 @@ example := fiveSlotCentral_markedExitJoints_of_row_reflection Q Λ (fun _ _ _ =>
 end
 
 end NonVacuity.WebsterCentralHigher
+
+namespace NonVacuity.WebsterTwoBlackFlag
+
+open Categorification.Stendhal Categorification.KLR BraidedStendhalAlgebra
+open MvPolynomial
+noncomputable section
+
+/-- The second power reflects membership with distinct positive bounds, even
+over a ring containing nonzero nilpotents. -/
+example (f : MvPolynomial (Fin 2) (ZMod 4)) :
+    f * X (1 : Fin 2)^2 ∈ TwoBlackFlag.ideal 0 1 2 5 ↔ f ∈ TwoBlackFlag.ideal 0 1 2 3 :=
+  TwoBlackFlag.mul_second_pow_mem_iff (by decide) (by decide : 2≤3) 2 f
+
+private abbrev Q : Unit → Unit → MvPolynomial (Fin 2) ℤ := fun _ _ => 0
+private abbrev Λ : Fin 3 → Unit →₀ ℕ := fun _ => Finsupp.single () 3
+private abbrev μ := stendhalWeight 3 ({()} + {()} : Multiset Unit)
+
+/-- At spectator pairing three the complete homogeneous quadratic annihilates
+the left-extreme source. -/
+example :=
+  let a : Fin μ.card := ⟨1,by decide⟩
+  let b : Fin μ.card := ⟨2,by decide⟩
+  fiveSlotLeftExtreme_flagIdeal_kills Q Λ
+    (f := TwoBlackFlag.complete (X a) (X b) 3)
+    (by
+      change TwoBlackFlag.complete (X a) (X b) 3 ∈ TwoBlackFlag.ideal a b (Λ 0 ()) (Λ 0 ())
+      rw [show Λ 0 ()=3 by simp [Λ]]
+      exact Ideal.subset_span (Set.mem_insert_of_mem _ (Set.mem_singleton _)))
+
+private abbrev D : Unit ⊕ Fin 3 → Unit ⊕ Fin 3 → MvPolynomial (Fin 2) ℤ
+  | .inl _,.inl _ => 0
+  | .inl i,.inr r => X 1 ^ Λ r i
+  | .inr _,.inl _ => 1
+  | .inr r,.inr u => if r=2 ∧ u=1 then 1 else 0
+
+private theorem factor : ∀ a b, a≠b → stendhalQ Q Λ a b = D b a*rename ![1,0] (D a b) := by
+  rintro (i | r) (j | u) h
+  · exact (h (by cases i; cases j; rfl)).elim
+  · simp [stendhalQ,D]
+  · simp [stendhalQ,D]
+  · fin_cases r <;> fin_cases u <;> simp [stendhalQ,D]
+
+/-- In the integral action, the reversed-middle word differentiates the
+first black variable. Both coefficient rows have positive rightward weight. -/
+example := fiveSlotCentral_flagRows_eval Λ Q factor rfl rfl (by simp [D])
+  1 1 (X (⟨2,by decide⟩ : Fin μ.card))
+
+end
+end NonVacuity.WebsterTwoBlackFlag

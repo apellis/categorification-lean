@@ -347,22 +347,27 @@ theorem equalBlack_return_matrix_iff (s : Seq ν) (l : List ℕ) (b j : ℕ)
   exact top_polynomial_pair_eq_zero_iff_of_reduced hQ hl j hjl s _ _
 
 /-- Divisibility by a variable power is unaffected by multiplication with a power of a distinct variable. -/
-theorem X_pow_dvd_of_dvd_mul_other {σ : Type*} {a b : σ} (hab : a ≠ b) (n : ℕ)
-    {g : MvPolynomial σ k} (h : X a ^ n ∣ g * X b ^ n) : X a ^ n ∣ g := by
+theorem X_pow_dvd_of_dvd_mul_other_pow {σ : Type*} {a b : σ} (hab : a ≠ b) (n d : ℕ)
+    {g : MvPolynomial σ k} (h : X a ^ n ∣ g * X b ^ d) : X a ^ n ∣ g := by
   classical
   simp only [X_pow_eq_monomial] at h ⊢
   obtain ⟨z, hz⟩ := h
   rw [monomial_one_dvd_iff_modMonomial_eq_zero]
-  ext d
-  change (g.modMonomial (Finsupp.single a n)).coeff d = 0
-  by_cases ha : Finsupp.single a n ≤ d
+  ext t
+  change (g.modMonomial (Finsupp.single a n)).coeff t = 0
+  by_cases ha : Finsupp.single a n ≤ t
   · exact coeff_modMonomial_of_le _ ha
   rw [coeff_modMonomial_of_not_le _ ha]
-  have hab' : ¬ Finsupp.single a n ≤ d + Finsupp.single b n := by
+  have hab' : ¬ Finsupp.single a n ≤ t + Finsupp.single b d := by
     simpa only [Finsupp.single_le_iff, Finsupp.add_apply, Finsupp.single_eq_of_ne hab, add_zero] using ha
-  have eq := congrArg (fun x : MvPolynomial σ k => x.coeff (d + Finsupp.single b n)) hz
+  have eq := congrArg (fun x : MvPolynomial σ k => x.coeff (t + Finsupp.single b d)) hz
   rw [coeff_mul_monomial, mul_one, coeff_monomial_mul', ite_eq_right hab'] at eq
   exact eq
+
+/-- Equal exponents in the two-variable divisibility test. -/
+theorem X_pow_dvd_of_dvd_mul_other {σ : Type*} {a b : σ} (hab : a ≠ b) (n : ℕ)
+    {g : MvPolynomial σ k} (h : X a ^ n ∣ g * X b ^ n) : X a ^ n ∣ g :=
+  X_pow_dvd_of_dvd_mul_other_pow hab n n h
 
 include hQ in
 /-- For the black-dot power `q = X_j^n` of a right-red bigon, all relations

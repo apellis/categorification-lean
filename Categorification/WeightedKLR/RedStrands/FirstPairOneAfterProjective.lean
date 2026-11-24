@@ -88,8 +88,9 @@ theorem firstPairOneAfter_blockKernel_projective (side : Bool) (hQ : KLRSymm Q) 
     intro y hy hr hz
     rw [top] at hy hz
     rw [order] at hr
+    have nearby : jA = sadj N 2 • A₀ := by decide +kernel
     exact fiveSlotNearby_toCentral_cancel_on_orderCorner Q Λ hQ y hy hr
-      (by simpa only [ψw_cons, ψw_nil, mul_one] using hz)
+      (by simpa only [ψw_cons, ψw_nil, mul_one, ← nearby] using hz)
   · have top : sadj N 3 • firstPairOneAfterSpectator true = D := by decide +kernel
     have order : redWord (firstPairOneAfterSpectator true) = redWord A₀ := by decide
     intro y hy hr hz

@@ -5589,6 +5589,16 @@ example := Categorification.Stendhal.labelTwoExteriorEndComplex_epi Q
 
 example := Categorification.Stendhal.labelTwoExteriorCokernel_simple Q
 
+example := Categorification.Stendhal.LabelTwo.labelTwoExteriorCokernelDecomposition ℚ
+
+example := Categorification.Stendhal.LabelTwo.labelTwoNormalizedAugmentation_exact ℚ
+
+example := Categorification.Stendhal.LabelTwo.labelTwoNormalizedAugmentation_surjective ℚ
+
+example := Categorification.Stendhal.LabelTwo.labelTwoShiftedAugmentation_preservesGrading ℚ
+
+example := Categorification.Stendhal.LabelTwo.labelTwoGradedAugmentation_simple ℚ
+
 example := Categorification.Stendhal.labelTwoExteriorCokernel_span Q
 
 end NonVacuity.WebsterLabelTwoEndpointTor
@@ -9377,6 +9387,29 @@ example := fundamentalBraidGradedTensorComplex_exact 1 (by decide)
 noncomputable example := fundamentalBraidGradedTensorHomologyIso
 
 end NonVacuity.WebsterFundamentalBraidGradedTensorHomology
+
+namespace NonVacuity.WebsterFundamentalBraidGradedResolutionModel
+open CategoryTheory DG Categorification.Stendhal Categorification.Stendhal.FundamentalCorner
+open BraidedStendhalAlgebra
+open scoped DG.DegreeZero
+attribute [local instance 1100] IsIdempotentElem.instAlgebraCorner_categorification
+attribute [local instance] fundamentalBraidCoendSourceCornerGrades fundamentalBraidCoendTargetCornerGrades
+  fundamentalBraidCoendSourceInternal fundamentalBraidCoendTargetInternal
+  fundamentalBraidCoendSourceBigraded fundamentalBraidCoendTargetBigraded
+
+local notation "R" κ:arg => ViolOrderCorner (k := ℚ) (Q := Q) (Λ := wt) («ν» := ({()} : Multiset Unit)) κ
+local instance fundamentalBraidModelSourceDerived :
+    CatModule.HasDerivedCategory.{1,0} (WeightCategory (R (List.finRange 2))ᵐᵒᵖ) :=
+  CatModule.HasDerivedCategory.standard _
+local instance fundamentalBraidModelTargetDerived :
+    CatModule.HasDerivedCategory.{1,0} (WeightCategory (R ([1,0] : List (Fin 2)))ᵐᵒᵖ) :=
+  CatModule.HasDerivedCategory.standard _
+
+example := fundamentalBraidGradedResolutionAugmentation_quasiIso
+
+noncomputable example := fundamentalBraidGradedDerivedModelIso.{1}
+
+end NonVacuity.WebsterFundamentalBraidGradedResolutionModel
 end
 
 namespace NonVacuity.WebsterCupRHomRegular
@@ -9958,6 +9991,12 @@ example :
       (seqIdem (parameter ℚ) weights loading loading_ordered) ≃ₗ[ℚ] DualNumber ℚ :=
   middleCutDotSumEquiv ℚ
 
+example := middleCutDotSum_scalar_mem_grade ℚ
+
+example := middleCutDotSum_epsilon_mem_grade ℚ
+
+example := middleCutDotSum_mem_grade_iff ℚ
+
 open KLR
 
 private abbrev higher : KLR.Seq (stendhalWeight 2 (({()} : Multiset Unit) + {()})) :=
@@ -10056,17 +10095,17 @@ example := exists_middleStandard_supportedResolution ℚ
 
 example := middleStandard_derivedTensorHomology_isZero ℚ (-1) (by decide)
 
+example := relativeMiddleProjectiveResolution ℚ
+
 example := middleStandardTensorEquiv ℚ
 
 example := middleStandardTensorEquiv_plus ℚ
 
 example := middleStandardTensorEquiv_minus ℚ
 
-example := middleCutDotSum_scalar_mem_grade ℚ
+example := relativeMiddleTorZero ℚ
 
-example := middleCutDotSum_epsilon_mem_grade ℚ
-
-example := middleCutDotSum_mem_grade_iff ℚ
+example (n : ℕ) := relativeMiddleTorPositive ℚ n (by decide)
 
 end NonVacuity.WebsterLabelTwoMiddleFixedComplex
 

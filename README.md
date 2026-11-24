@@ -1213,6 +1213,9 @@ by the mixed crossing (`fundamentalBraidGradedCutIso_d₂`,
 The resulting tensor complex has middle homology ℚ at auxiliary weight zero
 (`fundamentalBraidGradedTensorHomologyIso`) and is exact at other weights
 (`fundamentalBraidGradedTensorComplex_exact`). Its two ends are exact in every weight.
+The iterated cone of the source loading projectives resolves the graded middle
+head. Tensoring that cone represents the derived braid on this head
+(`fundamentalBraidGradedDerivedModelIso`).
 The diagonal-ring equivalence
 carries the two mixed crossings to the differentials of the projective
 resolution of the middle head (`fundamentalBraidSourceResolution`). Its
@@ -1346,6 +1349,12 @@ proves simplicity
 (`Stendhal.labelTwoExteriorAugmentation_loading_project`,
 `Stendhal.labelTwoExteriorCokernel_span`,
 `Stendhal.labelTwoExteriorCokernel_simple`).
+The simple augmentation inherits the quotient grading from the exterior
+projective. It preserves degree under their common shift by `−1` and
+completes the exact sequence of graded diagrammatic terms
+(`Stendhal.LabelTwo.labelTwoExteriorCokernelDecomposition`,
+`Stendhal.LabelTwo.labelTwoNormalizedAugmentation_exact`,
+`Stendhal.LabelTwo.labelTwoShiftedAugmentation_preservesGrading`).
 
 
 
@@ -1464,6 +1473,9 @@ For any loading, quotienting the diagram algebra by the corresponding
 higher-loading ideal makes the loading standard projective. Its generator
 maps to the loading idempotent and splits off from the regular module
 (`Stendhal.leftStandardLayer_projective`).
+The actual periodic middle complex is consequently an augmented
+projective resolution of the diagrammatic dot-sum quotient over the
+middle layer algebra (`Stendhal.LabelTwo.relativeMiddleProjectiveResolution`).
 A projective resolution of the actual middle standard whose positive
 terms are supported on higher loadings gives ambient derived-tensor
 vanishing outside degree zero for the reflected coefficient
@@ -1478,6 +1490,12 @@ In these coordinates, the actual sum map vanishes and the actual
 difference map is multiplication by `2ε`
 (`Stendhal.LabelTwo.middleStandardTensorEquiv_plus`,
 `Stendhal.LabelTwo.middleStandardTensorEquiv_minus`).
+Tensoring the native projective resolution over the middle layer gives
+the separated factor complex. Its relative Tor is dual numbers in
+degree zero and one-dimensional in every positive degree over a field of
+characteristic different from two
+(`Stendhal.LabelTwo.relativeMiddleTorHomologyIso`,
+`Stendhal.LabelTwo.relativeMiddleTorPositive`).
 
 **Terminal-character resolution benchmark for Webster, arXiv:1309.3796v2,
 §8.1.** In the fundamental rank-one block over `ℚ`, the terminal simple

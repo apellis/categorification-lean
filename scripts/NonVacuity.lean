@@ -10098,11 +10098,17 @@ example := exists_middleStandard_supportedResolution ℚ
 
 example := middleStandard_derivedTensorHomology_isZero ℚ (-1) (by decide)
 
+example := relativeMiddleProjectiveResolution ℚ
+
 example := middleStandardTensorEquiv ℚ
 
 example := middleStandardTensorEquiv_plus ℚ
 
 example := middleStandardTensorEquiv_minus ℚ
+
+example := relativeMiddleTorZero ℚ
+
+example (n : ℕ) := relativeMiddleTorPositive ℚ n (by decide)
 
 end NonVacuity.WebsterLabelTwoMiddleFixedComplex
 

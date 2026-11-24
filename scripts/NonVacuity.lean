@@ -8610,6 +8610,11 @@ example (n : ℕ) : (rightMiddleComplex ℚ).ExactAt (n + 1) :=
 
 example : QuasiIso (diagramMiddleToQuotient ℚ) := diagramMiddleToQuotient_quasiIso ℚ
 
+example := middleStandardParabolicEquiv ℚ
+
+example : Function.Bijective (testModuleMap ℚ) :=
+  ⟨testModuleMap_injective ℚ, testModuleMap_surjective ℚ⟩
+
 end NonVacuity.WebsterLabelTwoMiddleFixedComplex
 
 end

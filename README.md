@@ -1091,7 +1091,9 @@ loadings act by zero. The alternating maps on the full diagrammatic
 standard are exact and resolve the dot-sum quotient
 (`Stendhal.LabelTwo.diagramMinusPlus_exact`,
 `Stendhal.LabelTwo.diagramPlusMinus_exact`,
-`Stendhal.LabelTwo.diagramMiddleAugmentation_exact`).
+`Stendhal.LabelTwo.diagramMiddleAugmentation_exact`). The diagrammatic standard
+is the parabolic standardization of its two regular separated factors
+(`Stendhal.LabelTwo.middleStandardParabolicEquiv`).
 
 ### Weak `sl₂`-categorifications (Chuang–Rouquier, arXiv:math/0407205v2, §5)
 

@@ -1207,6 +1207,9 @@ The resulting tensor complex has middle homology ℚ at auxiliary weight zero
 The iterated cone of the source loading projectives resolves the graded middle
 head. Tensoring that cone represents the derived braid on this head
 (`fundamentalBraidGradedDerivedModelIso`).
+Its localized cohomology is ℚ in degree −1 and auxiliary weight zero
+(`fundamentalBraidGradedDerivedHomologyIso`). It vanishes at every other
+pair of degrees (`fundamentalBraidGradedDerivedCohomology_isZero`).
 The diagonal-ring equivalence
 carries the two mixed crossings to the differentials of the projective
 resolution of the middle head (`fundamentalBraidSourceResolution`). Its

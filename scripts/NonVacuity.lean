@@ -9395,6 +9395,12 @@ example := fundamentalBraidGradedResolutionAugmentation_quasiIso
 
 noncomputable example := fundamentalBraidGradedDerivedModelIso.{1}
 
+noncomputable example := fundamentalBraidGradedDerivedHomologyIso.{1}
+
+example := fundamentalBraidGradedDerivedCohomology_isZero.{1} 0 0 (Or.inl (by decide))
+
+example := fundamentalBraidGradedDerivedCohomology_isZero.{1} 1 (-1) (Or.inr (by decide))
+
 end NonVacuity.WebsterFundamentalBraidGradedResolutionModel
 end
 

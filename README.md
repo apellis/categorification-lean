@@ -1146,6 +1146,35 @@ smaller-cut trace and gives the unique simple quotient
 The coefficient on the generating vector is one
 (`Stendhal.FundamentalCorner.terminalCoefficient_generator`). The general
 diagrammatic inputs to the criterion remain open.
+**Webster, arXiv:1309.3796v2, §8.2, Proposition 8.4 input.** The two black
+dots on the actual middle standard of the label-two pair are commuting
+square-zero endomorphisms. The polynomial quotient acts on this
+standard, with the sum sent to the sum of the two right dots
+(`Stendhal.LabelTwo.middleDotQuotientAction`,
+`Stendhal.LabelTwo.middleDotQuotientAction_sum`). PBW straightening gives
+surjectivity and the two regular one-black factors detect four
+independent coordinates. This identifies the actual endomorphism algebra
+with the square-zero polynomial quotient
+(`Stendhal.LabelTwo.middleEndomorphismEquiv`).
+
+**Webster, arXiv:1309.3796v2, §8.2, middle complex.** The alternating
+dot maps give a complex of the diagrammatic middle standard, with a
+right-module version by reflection and augmentation onto the dot-sum
+quotient. At the middle loading both alternating pairs are exact and
+the augmentation target is the dual-number specialization
+(`Stendhal.LabelTwo.rightMiddleComplex`,
+`Stendhal.LabelTwo.middleCutDotSumEquiv`). At the terminal loading two independent
+shuffle copies carry the same alternating dot maps. All other ordered
+loadings act by zero. The alternating maps on the full diagrammatic
+standard are exact and resolve the dot-sum quotient
+(`Stendhal.LabelTwo.diagramMinusPlus_exact`,
+`Stendhal.LabelTwo.diagramPlusMinus_exact`,
+`Stendhal.LabelTwo.diagramMiddleAugmentation_exact`). The terminal augmentation
+specializes each shuffle coordinate to a dual number
+(`Stendhal.LabelTwo.terminalCutDotSumEquiv_apply`). The incoming exterior diagram and
+its black-crossing translate have coefficients `(1, −ε)` and `(0, 1)`
+in these coordinates (`Stendhal.LabelTwo.incomingDiagram_coordinates`,
+`Stendhal.LabelTwo.incomingDiagram_translate_coordinates`).
 
 ### Weak `sl₂`-categorifications (Chuang–Rouquier, arXiv:math/0407205v2, §5)
 
@@ -1219,6 +1248,7 @@ with nilpotent dot.
 | arXiv:1309.3796v2, §6.1, p. 65, proof of Lemma 6.11 (opposite standards) | Away from degree zero, tensor kills the loading summands in a supplied K-projective resolution if their idempotents annihilate the opposite standard. For left loading standards, idempotents strictly above the label give that annihilation | `Stendhal.isZero_derivedRightTensorHomology_leftStandard_of_higher_loadings` | The loading standards are over a field. The augmentation and the labels of its loading summands are hypotheses | The finite projective dimension result alone does not supply those labels |
 | arXiv:1309.3796v2, Proposition 6.4 and proof of Lemma 6.11 (vacuum dimension) | With no black strands, a fixed-top braid column has one basis vector. Both red orders determine the loadings, their connecting permutation is unique, and there are no violated loadings | `Stendhal.BraidedStendhalAlgebra.finrank_vacuum_braidColumn`, `Stendhal.BraidedStendhalAlgebra.finrank_vacuum_braidColumn_eq_standard` | Symmetric KLR parameters over a field | The column has the dimension of its singleton standard factor |
 | arXiv:1309.3796v2, §6.1, p. 65, proof of Lemma 6.11 (ordered projective resolutions) | The higher standard filtrations of the kernels of standard quotients construct successive projective covers of syzygies. Every positive term of the resulting left-standard resolution is spanned by loading projectives at labels strictly above the original label | `ModuleFiltration.OrderedStandardCovers.projectiveResolution_loading_support`, `Stendhal.exists_ordered_projectiveResolution_stdModule` | Same field and stratification hypotheses as Corollary 5.21 | Ordinary modules. The same support transports along ring reflection and the DG comparison is separate |
+| arXiv:1309.3796v2, §8.2, proof of Proposition 8.4 (label-two unknot) | The alternating multiplications by `y₁+y₂` and `y₁−y₂` are exact in the middle algebra. Tensoring with the plus quotient gives alternating zero and twice-epsilon maps. The specialized homology gives the dual numbers in degree zero and one-dimensional homology in every positive degree | `Webster.LabelTwo.ker_plus`, `Webster.LabelTwo.ker_minus`, `Webster.LabelTwo.tensor_plus_zero`, `Webster.LabelTwo.tensor_minus_mul`, `Webster.LabelTwo.postTensorHomologyZero`, `Webster.LabelTwo.postTensorHomologyOdd`, `Webster.LabelTwo.postTensorHomologyPositiveEven` | The periodic exactness holds over a commutative ring. The stated positive-degree homology uses a field of characteristic different from two | Ungraded middle-algebra calculation. Both polynomial quotient models are identified by `Webster.LabelTwo.middlePolynomialEquiv` and `Webster.LabelTwo.specializedQuotientEquiv` |
 | arXiv:1309.3796v2, Proposition 5.6 (word characters) and §3.4, Corollary 3.22 | Cor. 3.22 for word projectives: `gdim e(s) R^λ e(u)` is Webster's form `⟨F_u v_λ, F_s v_λ⟩`, which vanishes when the black contents differ. Prop. 5.6, character form: the iterated standardization `S(…S(S(R^{λ_1} e(u_1)) ⊠ R^{λ_2} e(u_2))…)` has, at the ordinary loading of every tensor word `w`, graded dimension equal to the factorwise form between `F_{u_1} v_{λ_1} ⊗ ⋯ ⊗ F_{u_ℓ} v_{λ_ℓ}` and the bar-ordinary vector of `w`; by induction on red strands from the product test of Thm. 4.38. Prop. 5.6 on the projective group: for every virtual projective class `x`, the graded Hom from `x` into `S_κ^i` is the factorwise form of `s` with `η(x)` (bar coproduct convention), which determines the class of `S_κ^i` | `Stendhal.FirstWeight.cyclotomicWordModule_word`, `Stendhal.FirstWeight.websterForm_suffix_eq_zero`, `Stendhal.FirstWeight.standardizationTestAt_word_of_wordCharacters`, `Stendhal.FirstWeight.iteratedStandard_word`, `Stendhal.FirstWeight.iteratedStandardTest_eq` | Rouquier datum (`IsRouquierQ`), `X`-regular root datum with weights matching `λ_j` | Proved as an identity of functionals on `K₀`; the Grothendieck group of finite-dimensional modules and the dual map `η` on it are not built |
 
 ### Lusztig's algebra `f` (Lusztig, *Introduction to quantum groups*, Ch. 1; KL I §3.1)

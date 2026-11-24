@@ -9265,3 +9265,16 @@ example := FiveSlotFlag.fiveSlotLastRed_secondCrossing_mem_leftExtremeImage Q Λ
 example := FiveSlotFlag.fiveSlotLastRed_square_reflects_earlierCrossing Q Λ (fun _ _ _ => rfl)
 
 end NonVacuity.WebsterFiveSlotLastRedTransport
+
+
+namespace NonVacuity.WebsterFiveSlotMiddleRightFiltration
+
+open Categorification.Stendhal Categorification.KLR BraidedStendhalAlgebra
+open MvPolynomial
+
+private def Q : Unit → Unit → MvPolynomial (Fin 2) (ZMod 4) := fun _ _ => 0
+private def Λ : Fin 3 → Unit →₀ ℕ := fun r => Finsupp.single () (r.val + 1)
+
+example := fiveSlotMiddleRight_kernel_hasPartialStandardFiltration Q Λ (fun _ _ _ => rfl)
+
+end NonVacuity.WebsterFiveSlotMiddleRightFiltration

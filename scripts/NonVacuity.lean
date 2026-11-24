@@ -5589,6 +5589,23 @@ example := Categorification.Stendhal.labelTwoExteriorEndComplex_epi Q
 
 example := Categorification.Stendhal.labelTwoExteriorCokernel_simple Q
 
+example := Categorification.Stendhal.LabelTwo.labelTwoExteriorCokernelDecomposition ℚ
+
+example := Categorification.Stendhal.LabelTwo.labelTwoNormalizedAugmentation_exact ℚ
+
+example := Categorification.Stendhal.LabelTwo.labelTwoNormalizedAugmentation_surjective ℚ
+
+example := Categorification.Stendhal.LabelTwo.labelTwoShiftedAugmentation_preservesGrading ℚ
+
+example := Categorification.Stendhal.LabelTwo.labelTwoGradedAugmentation_simple ℚ
+
+example := Categorification.Stendhal.labelTwoExteriorReflectedLineEquiv
+  (Categorification.Stendhal.LabelTwo.parameter ℚ)
+
+example := Categorification.Stendhal.labelTwoExteriorReflectedLineGenerator_degree_two ℚ
+
+example := Categorification.Stendhal.LabelTwo.labelTwoLeftExterior_projective ℚ
+
 example := Categorification.Stendhal.labelTwoExteriorCokernel_span Q
 
 end NonVacuity.WebsterLabelTwoEndpointTor
@@ -6320,6 +6337,8 @@ private theorem hb : EdgeBraid (by decide : 0 < μ.card) 1 g s t where
     · exact False.elim (hx rfl)
 
 private theorem h1 : 1 < μ.card := by decide
+
+example := figureFiveColumn_hasStandardFiltration (Λ := Λ) (d := 0) hρ hQ h1 rfl rfl hb
 
 private noncomputable def figure5LoadingEquiv :=
   violLoadingStandardEquivBraidCorner (Λ₂ := Λ) (d := 0) hρ hQ h1 rfl rfl hb
@@ -9665,6 +9684,21 @@ example := cornerTensorCutLift_tmul (k := ℚ) unitIdempotent unitIdempotent uni
 example := diagramWeightCoendProduct G G G leftAction rightAction leftAction rightAction
   product productWeight productBalanced (⟨0⟩ : QWeight) (⟨0⟩ : QWeight)
 
+section
+
+open CategoryTheory.Limits CategoryTheory.Pretriangulated
+
+local instance : CatModule.HasDerivedCategory.{1,0} QWeight :=
+  CatModule.HasDerivedCategory.standard QWeight
+
+example (X : QWeight) (T : Triangle (CatModule.DerivedCategory QWeight))
+    (hT : T ∈ distTriang _) (n : ℤ)
+    (h₀ : IsZero ((CatModule.DerivedCategory.cohomologyFunctor X n).obj T.obj₂))
+    (h₁ : IsZero ((CatModule.DerivedCategory.cohomologyFunctor X (n + 1)).obj T.obj₂)) :=
+  weightCohomologyShiftIso X T hT n h₀ h₁
+
+end
+
 private theorem productLeft (a x y : ℚ) : product (a • x) y = a • product x y :=
   mul_assoc a x y
 
@@ -9756,20 +9790,15 @@ example (hK : CatModule.IsKProjective rationalLeft) :=
   letI := CatModule.HasDerivedCategory.standard QWeight
   diagramWeightDerivedTensorObjIso_naturality G leftAction rightAction (𝟙 rationalLeft) hK hK
 
-section
 
-open CategoryTheory.Limits CategoryTheory.Pretriangulated
-
-local instance : CatModule.HasDerivedCategory.{1,0} QWeight :=
-  CatModule.HasDerivedCategory.standard QWeight
-
-example (X : QWeight) (T : Triangle (CatModule.DerivedCategory QWeight))
-    (hT : T ∈ distTriang _) (n : ℤ)
-    (h₀ : IsZero ((CatModule.DerivedCategory.cohomologyFunctor X n).obj T.obj₂))
-    (h₁ : IsZero ((CatModule.DerivedCategory.cohomologyFunctor X (n + 1)).obj T.obj₂)) :=
-  weightCohomologyShiftIso X T hT n h₀ h₁
-
-end
+example (hK : CatModule.IsKProjective rationalLeft) :=
+  letI := CatModule.HasDerivedCategory.standard QWeight
+  diagramWeightDerivedTensorH0IsoOfResolution_naturality G leftAction rightAction
+    (𝟙 rationalLeft) (𝟙 rationalLeft) (𝟙 rationalLeft) hK hK
+    (CatModule.IsQuasiIso.of_isIso _) (CatModule.IsQuasiIso.of_isIso _)
+    (fun _ {_} _ => InDegreeZero.d_apply _ _) (fun _ {_} _ => InDegreeZero.d_apply _ _)
+    (fun _ => ⟨InDegreeZero.mem_grading_zero, InDegreeZero.d_apply _⟩)
+    (fun _ => ⟨InDegreeZero.mem_grading_zero, InDegreeZero.d_apply _⟩) (⟨0⟩ : QWeight)
 
 end
 
@@ -10092,13 +10121,21 @@ local instance instLabelTwoMiddleIntegralDerived : DG.HasDerivedCategory.{0, 0} 
 
 example := exists_middleStandard_supportedResolution ℚ
 
+example := exists_loadingStandard_supportedResolution ℚ ⟨loading, loading_ordered⟩
+
 example := middleStandard_derivedTensorHomology_isZero ℚ (-1) (by decide)
+
+example := relativeMiddleProjectiveResolution ℚ
 
 example := middleStandardTensorEquiv ℚ
 
 example := middleStandardTensorEquiv_plus ℚ
 
 example := middleStandardTensorEquiv_minus ℚ
+
+example := relativeMiddleTorZero ℚ
+
+example (n : ℕ) := relativeMiddleTorPositive ℚ n (by decide)
 
 end NonVacuity.WebsterLabelTwoMiddleFixedComplex
 
@@ -10605,5 +10642,95 @@ example := orderedWeightDerivedTensor_cohomology_isZero_of_filtered_loading_supp
   (⟨0⟩ : WeightCategory ℚ) (-1) (by decide)
 
 end NonVacuity.WebsterOrderedGradedResolution
+
+namespace NonVacuity.WebsterDirectLeftWeight
+
+open Categorification Categorification.Stendhal Categorification.ModuleFiltration
+open KLR DG CategoryTheory
+open scoped DG.DegreeZero
+
+attribute [local instance 1100] IsIdempotentElem.instAlgebraCorner_categorification
+
+private abbrev vacuumParameters : Unit → Unit → MvPolynomial (Fin 2) ℚ := fun _ _ => 0
+private abbrev vacuumWeights : Fin 0 → Unit →₀ ℕ := Fin.elim0
+
+private def vacuumBlackGrade : GradingDatum vacuumParameters where
+  degX _ := 0
+  degΨ _ _ := 0
+  degΨ_self _ := rfl
+  isWeightedHomogeneous a b h := (h (Subsingleton.elim a b)).elim
+
+private def vacuumGrade : GradingDatum (stendhalQ vacuumParameters vacuumWeights) :=
+  stendhalGradingDatum vacuumWeights vacuumBlackGrade (fun _ => 0) (fun _ => rfl)
+
+private abbrev vacuumLabel := {t : Seq (stendhalWeight 0 (0 : Multiset Unit)) // IsRedOrdered t}
+private abbrev vacuumAlgebra := TensorProductAlgebra ℚ vacuumParameters vacuumWeights (0 : Multiset Unit)
+private abbrev vacuumStandard (s : vacuumLabel) :=
+  ModuleCat.of vacuumAlgebra (leftStandard vacuumParameters vacuumWeights s.val s.property)
+private abbrev vacuumKernel (s : vacuumLabel) :=
+  (leftUpper vacuumParameters vacuumWeights s.val s.property).comap
+    (lIdeal (seqIdem vacuumParameters vacuumWeights s.val s.property)).subtype
+
+private def vacuumLoading : vacuumLabel := by
+  let s : Seq (stendhalWeight 0 (0 : Multiset Unit)) := by
+    simpa [stendhalWeight] using (KLR.Seq.nil : Seq (0 : Multiset (Unit ⊕ Fin 0)))
+  exact ⟨s, fun _ _ r => r.elim0⟩
+
+private theorem vacuumHigherFiltration (s : vacuumLabel) :
+    ∃ m : List vacuumLabel, (∀ t ∈ m, StendhalLT s.val t.val) ∧
+      HasFiltration vacuumStandard m (ModuleCat.of vacuumAlgebra (vacuumKernel s)) := by
+  have hzero : leftUpper vacuumParameters vacuumWeights s.val s.property = ⊥ := by
+    apply Submodule.span_eq_bot.mpr
+    rintro _ ⟨t, ht, a, hlt, h⟩
+    exact (hlt.2 fun r => r.elim0).elim
+  refine ⟨[], by simp, HasFiltration.zero ?_⟩
+  constructor
+  intro x y
+  apply Subtype.ext
+  apply Subtype.ext
+  have hx : x.val.val ∈ leftUpper vacuumParameters vacuumWeights s.val s.property := x.property
+  have hy : y.val.val ∈ leftUpper vacuumParameters vacuumWeights s.val s.property := y.property
+  rw [hzero, Submodule.mem_bot] at hx hy
+  exact hx.trans hy.symm
+
+example :=
+  leftStandardOrderedWeightResolution_isKProjective vacuumGrade vacuumHigherFiltration vacuumLoading
+
+example :=
+  leftStandardOrderedWeightAugmentation_quasiIso vacuumGrade vacuumHigherFiltration vacuumLoading
+
+section StandardParameters
+
+open QuantumGroup KL3.Diagram
+
+variable (C : CartanDatum Unit)
+
+private def vacuumKLBlackGrade :
+    GradingDatum (CL.qCL (CL.CLScalars.kl : CL.CLScalars C ℚ)) where
+  degX _ := 0
+  degΨ _ _ := 0
+  degΨ_self _ := rfl
+  isWeightedHomogeneous a b h := (h (Subsingleton.elim a b)).elim
+
+private def vacuumKLGrade :=
+  stendhalGradingDatum vacuumWeights (vacuumKLBlackGrade C) (fun _ => 0) (fun _ => rfl)
+
+private theorem vacuumKLRouquier :
+    IsRouquierQ C (CL.qCL (CL.CLScalars.kl : CL.CLScalars C ℚ)) :=
+  ⟨fun a b h => (h (Subsingleton.elim a b)).elim,
+    fun a b h => (h (Subsingleton.elim a b)).elim,
+    fun a b h => (h (Subsingleton.elim a b)).elim⟩
+
+example :=
+  leftStandardOrderedWeightResolution_std_isKProjective vacuumWeights 0
+    (vacuumKLGrade C) (vacuumKLRouquier C) vacuumLoading
+
+example :=
+  leftStandardOrderedWeightAugmentation_std_quasiIso vacuumWeights 0
+    (vacuumKLGrade C) (vacuumKLRouquier C) vacuumLoading
+
+end StandardParameters
+
+end NonVacuity.WebsterDirectLeftWeight
 
 end

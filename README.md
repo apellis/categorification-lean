@@ -1474,6 +1474,9 @@ For any loading, quotienting the diagram algebra by the corresponding
 higher-loading ideal makes the loading standard projective. Its generator
 maps to the loading idempotent and splits off from the regular module
 (`Stendhal.leftStandardLayer_projective`).
+The actual periodic middle complex is consequently an augmented
+projective resolution of the diagrammatic dot-sum quotient over the
+middle layer algebra (`Stendhal.LabelTwo.relativeMiddleProjectiveResolution`).
 A projective resolution of the actual middle standard whose positive
 terms are supported on higher loadings gives ambient derived-tensor
 vanishing outside degree zero for the reflected coefficient
@@ -1488,6 +1491,17 @@ In these coordinates, the actual sum map vanishes and the actual
 difference map is multiplication by `2ε`
 (`Stendhal.LabelTwo.middleStandardTensorEquiv_plus`,
 `Stendhal.LabelTwo.middleStandardTensorEquiv_minus`).
+Tensoring the native projective resolution over the middle layer gives
+the separated factor complex. Its relative Tor is dual numbers in
+degree zero and one-dimensional in every positive degree over a field of
+characteristic different from two
+(`Stendhal.LabelTwo.relativeMiddleTorHomologyIso`,
+`Stendhal.LabelTwo.relativeMiddleTorPositive`).
+The ambient tensor of the two actual sum quotients has the same Tor
+objects degree by degree. This comparison uses the supported resolution
+of the middle standard and dimension shifts from the two alternating
+short exact sequences
+(`Stendhal.LabelTwo.actualAmbientMiddleToRelativeTorIso`).
 
 **Terminal-character resolution benchmark for Webster, arXiv:1309.3796v2,
 §8.1.** In the fundamental rank-one block over `ℚ`, the terminal simple

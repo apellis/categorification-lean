@@ -9398,6 +9398,49 @@ example : redWord ((braidColumnBottomBlockIndex sizes sizes_card swapReds phi)�
 example := braidColumnBottomBlockIndex_lt_red_black top sizes sizes_card swapReds
   phi_eligible bottom_labels (2 : Fin 3) ⟨1, by decide⟩ (by decide) (i := ()) (by decide)
 
+
+private def higherSizes (r : Fin 3) : ℕ := if r = 2 then 1 else 0
+private theorem higherCard : (∑ r, (higherSizes r + 1)) = m := by decide
+private theorem identity_eligible : ProjectiveBlockIndex top (1 : Perm (Fin m)) := by
+  constructor
+  · simp only [inv_one, one_smul]
+    exact (redWord_eq_finRange_iff top).1 (by decide)
+  · simp only [inv_one, one_smul, Perm.one_apply]
+    intros
+    assumption
+  · simp only [inv_one, one_smul, Perm.one_apply]
+    intros
+    assumption
+private theorem first_word :
+    wordProd m [1] = braidColumnBottomBlockIndex sizes sizes_card swapReds phi := by
+  apply Equiv.ext
+  intro a
+  fin_cases a <;> rfl
+private theorem second_word :
+    wordProd m [1, 2] =
+      braidColumnBottomBlockIndex higherSizes higherCard swapReds (1 : Perm (Fin m)) := by
+  apply Equiv.ext
+  intro a
+  fin_cases a <;> rfl
+private theorem higher_index :
+    braidColumnBottomBlockIndex higherSizes higherCard swapReds (1 : Perm (Fin m)) =
+      braidColumnBottomBlockIndex sizes sizes_card swapReds phi * sadj m 2 := by
+  rw [← first_word, ← second_word]
+  rfl
+private theorem reduced_words (word : List ℕ) (h : ValidWord m word)
+    (n : word.length = invCount m (wordProd m word)) : IsReduced m word :=
+  ⟨h,n.trans (length_eq_invCount _).symm⟩
+private noncomputable abbrev cutQ : Unit → Unit → MvPolynomial (Fin 2) ℚ := fun _ _ => 0
+private noncomputable abbrev cutWeights : Fin 3 → Unit →₀ ℕ := fun _ => Finsupp.single () 2
+
+example :=
+  (braidColumnBottomBlockIndex_mixed_product (Q := cutQ) (Λ := cutWeights)
+    top sizes higherSizes sizes_card higherCard swapReds ⟨phi, phi_eligible⟩ ⟨1, identity_eligible⟩
+    (j := 2) (by decide) higher_index (by decide) (r := 1) (i := ()) (by decide) (by decide)
+    (reduced_words [1] (by simp [ValidWord, ← four_eq_card]) (by decide))
+    (reduced_words [1, 2] (by simp [ValidWord, ← four_eq_card]) (by decide))
+    first_word second_word).2.2 (by decide)
+
 end NonVacuity.WebsterBottomBraidIndex
 
 namespace NonVacuity.WebsterFundamentalBraidWeight

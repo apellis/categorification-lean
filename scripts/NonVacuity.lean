@@ -6378,6 +6378,11 @@ private theorem hRouquier : IsRouquierQ sl₂ Q where
   homogeneous i j hij := (hij (Subsingleton.elim i j)).elim
   unit_coeff i j hij := (hij (Subsingleton.elim i j)).elim
 
+-- The unequal rational red weights are exchanged by the coefficient equivalence.
+noncomputable example (c : ViolOrderCorner (k := ℚ) (Q := Q) (Λ := Λ) (ν := ν)
+    (List.map (Equiv.swap (0 : Fin 2) 1) (List.finRange 2))) :=
+  leftCoefficientEquiv_mem_grade_iff hRouquier (Equiv.swap 0 1) hρ hQ (n := 0) c
+
 private noncomputable abbrev realization := Matrix.Realization.std (UDot.A sl₂) ℂ
 
 private noncomputable def fracΛ : Fin 2 → Unit →₀ ℕ :=

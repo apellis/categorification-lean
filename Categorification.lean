@@ -1798,6 +1798,7 @@ import Categorification.WeightedKLR.RedStrands.BlockKernelCrossingGenerator
 import Categorification.WeightedKLR.RedStrands.BraidedStandardGrading
 import Categorification.WeightedKLR.RedStrands.BraidedStandardInjective
 import Categorification.WeightedKLR.RedStrands.BraidedStandardIso
+import Categorification.WeightedKLR.RedStrands.BraidColumnPBW
 import Categorification.WeightedKLR.RedStrands.BraidedStandardModule
 import Categorification.WeightedKLR.RedStrands.VacuumBraidColumnDimension
 import Categorification.WeightedKLR.RedStrands.LabelTwoPeriodic

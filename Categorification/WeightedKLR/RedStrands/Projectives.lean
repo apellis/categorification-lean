@@ -80,6 +80,16 @@ private lemma sandwich_basis (i j : Seq μ) (hi : IsRedOrdered i) (hj : IsRedOrd
     split_ifs <;> simp_all
   · simp [ht, hasEndpoints]
 
+open Classical in
+/-- Compressing a Stendhal PBW basis diagram by two loading idempotents
+selects its ordered bottom and top boundaries. -/
+theorem sandwich_tensorProductBasis (i j : Seq μ) (hi : IsRedOrdered i) (hj : IsRedOrdered j)
+    (b : Idx) :
+    TensorProductAlgebra.mk Q Λ ν (StendhalAlgebra.e j hj) * B b *
+      TensorProductAlgebra.mk Q Λ ν (StendhalAlgebra.e i hi) =
+      if hasEndpoints hρ i j b then B b else 0 :=
+  sandwich_basis hρ i j hi hj b
+
 private lemma range_boundary (i j : Seq μ) (hi : IsRedOrdered i) (hj : IsRedOrdered j) :
     LinearMap.range (((leftIdeal (boundary i hi : A)).subtype.restrictScalars k).comp
       (idemSubspace k (leftIdeal (boundary i hi : A)) (boundary j hj : A)).subtype) =

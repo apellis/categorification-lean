@@ -6168,6 +6168,83 @@ example : (proj.homGdim (proj.shift 1)).coeff 0 = 0 := by
 
 end NonVacuity.WebsterExtremalNorm
 
+namespace NonVacuity.WebsterReducedBraid
+
+noncomputable section
+
+open LieLean Matrix.Realization
+private def matrixA₂ (i j : Bool) : ℤ := if i = j then 2 else -1
+
+private theorem xRegular {Y : Type*} [AddCommGroup Y] {D : LusztigCartanDatum Bool} (R : D.RootDatum Y)
+    (hA : D.cartanMatrix = matrixA₂) : R.IsXRegular := by
+  apply Fintype.linearIndependent_iff.mpr
+  intro c hc j
+  have h (k : Bool) : c false * D.cartanMatrix k false + c true * D.cartanMatrix k true = 0 := by
+    have ht := congrArg (fun f : Y →+ ℤ => f (R.coroot k)) hc
+    simpa [Fintype.sum_bool, AddMonoidHom.add_apply, AddMonoidHom.zsmul_apply, R.root_coroot,
+      zsmul_eq_mul, add_comm] using ht
+  have a := h false
+  have b := h true
+  simp [hA, matrixA₂] at a b
+  cases j <;> omega
+
+variable (D : LusztigCartanDatum Bool) (hA : D.cartanMatrix = matrixA₂)
+local notation "P" => Matrix.Realization.std D.cartanMatrix ℝ
+private abbrev wt : (P).integralWeights :=
+  ⟨(P).root false + (P).root true, (P).integralWeights.add_mem ((P).root_mem_integralWeights false) ((P).root_mem_integralWeights true)⟩
+include hA in
+private theorem matchWt (i : Bool) : (wt D : Module.Dual ℝ _) ((P).coroot i) = 1 := by
+  change (P).root false ((P).coroot i) + (P).root true ((P).coroot i) = 1
+  rw [(P).root_coroot, (P).root_coroot, hA]
+  cases i <;> norm_num [matrixA₂]
+include hA in
+private theorem dominant : (P).IsDominantIntegral (wt D) := fun i => ⟨1, by simpa using matchWt D hA i⟩
+local notation "cs" => Matrix.Realization.coxeterSystem (Matrix.Realization.std D.cartanMatrix ℝ) D.isGeneralizedCartan_cartanMatrix
+include hA in
+private theorem reduced (i : Bool) : (cs).IsReduced ([i, !i, i] : List Bool).reverse := by
+  cases i
+  · apply (cs).isReduced_alternatingWord true false (k := 3)
+    right
+    rw [hA]
+    decide
+  · apply (cs).isReduced_alternatingWord false true (k := 3)
+    right
+    rw [hA]
+    decide
+
+include hA in
+private theorem sameBraid : (cs).wordProd ([false,true,false] : List Bool).reverse =
+    (cs).wordProd ([true,false,true] : List Bool).reverse := by
+  have h := (cs).wordProd_braidWord_eq true false
+  have he : D.cartanMatrix.coxeterMatrix true false = 3 := by rw [hA]; decide
+  have he' : D.cartanMatrix.coxeterMatrix false true = 3 := by rw [hA]; decide
+  rw [show ([false,true,false] : List Bool).reverse = CoxeterSystem.alternatingWord true false 3 from rfl,
+    show ([true,false,true] : List Bool).reverse = CoxeterSystem.alternatingWord false true 3 from rfl]
+  simpa only [CoxeterSystem.braidWord, he, he'] using h
+
+open Categorification.KLR.Unfurling Categorification.KLR.CycKLR
+private abbrev Δ := (coverCartan arr).toLusztig
+private theorem hA₂ : Δ.cartanMatrix = matrixA₂ := by
+  funext i j
+  cases i <;> cases j <;> rfl
+private theorem WtMatch (i : Bool) : (wt Δ : Module.Dual ℝ _) ((Matrix.Realization.std Δ.cartanMatrix ℝ).coroot i)
+    = (((coverWeight arr).pair.flip lam ((projectiveRootDatum (coverWeight arr)).coroot i) : ℤ) : ℝ) := by
+  rw [matchWt Δ hA₂]
+  change _ = (((coverWeight arr).pair ((coverWeight arr).iY i) lam : ℤ) : ℝ)
+  rw [coverWeight_pair_iY]
+  norm_num [lam]
+/-- The actual graded cyclotomic projectives agree for the distinct A₂ braid
+words 010 and 101, at level one of each colour over the field of two elements. -/
+example := coevaluationProjective_iso_of_same_weyl oneArrowParameters (fun _ => 1)
+  (coverWeight arr) lam (fun i => by rw [coverWeight_pair_iY]; rfl)
+  (xRegular (projectiveRootDatum (coverWeight arr)) hA₂)
+  (Matrix.Realization.std Δ.cartanMatrix ℝ) (wt Δ) (dominant Δ hA₂) WtMatch
+  [false, true, false] [true, false, true] (reduced Δ hA₂ false) (reduced Δ hA₂ true) (sameBraid Δ hA₂)
+
+end
+
+end NonVacuity.WebsterReducedBraid
+
 namespace NonVacuity.WebsterTerminalCyclotomic
 
 open Categorification.KLR.CycKLR
@@ -6597,6 +6674,113 @@ example :=
       (3 / 2 : ℂ) := by rw [fracWeight_pair]; norm_num
   h ▸ twoRedSwapWeight_intAdd (Λ := fracΛ) (ν := ν) sl₂ hRouquier
     (weightPairing sl₂ realization) fracWeight 1 0 1
+
+/-- Swapping the last two of three red strands leaves the first red strand
+as a spectator in the normalization of the full coefficient. -/
+example :=
+  let Ξ : Fin 3 → Unit →₀ ℕ := fun j => Finsupp.single () (j.val + 1)
+  let η : Fin 3 → Module.Dual ℂ (Matrix.Realization.StdSpace (UDot.A sl₂) ℂ) :=
+    fun j => ((Ξ j () : ℂ) / 2) • realization.root ()
+  adjacentRedSwapWeight_coordinate (Λ := Ξ) (ν := ν) sl₂ hRouquier
+    (weightPairing sl₂ realization) η [0] [] 1 2 0 2 1
+
+/-- The normalized three-red swap pieces decompose the full rectangular corner. -/
+example :=
+  let Ξ : Fin 3 → Unit →₀ ℕ := fun j => Finsupp.single () (j.val + 1)
+  let η : Fin 3 → Module.Dual ℂ (Matrix.Realization.StdSpace (UDot.A sl₂) ℂ) :=
+    fun j => ((Ξ j () : ℂ) / 2) • realization.root ()
+  adjacentRedSwapWeight_isInternal (Λ := Ξ) (ν := ν) sl₂ hRouquier
+    (weightPairing sl₂ realization) η [0] [] 1 2
+
+/-- Reversing three red strands contributes once for each of the three
+inverted red pairs to the degree of the full coefficient. -/
+example :=
+  let Ξ : Fin 3 → Unit →₀ ℕ := fun j => Finsupp.single () (j.val + 1)
+  let η : Fin 3 → Module.Dual ℂ ℂ := fun _ => 0
+  let B : LinearMap.BilinForm ℂ (Module.Dual ℂ ℂ) := 0
+  have hCard : (redWordInversions ([0, 1, 2] : List (Fin 3)) [2, 1, 0]).card = 3 := by
+    decide
+  have hoff : redWordOffset B η [0, 1, 2] [2, 1, 0] = 6 := by
+    change redWordOffset (0 : LinearMap.BilinForm ℂ (Module.Dual ℂ ℂ)) η
+      [0, 1, 2] [2, 1, 0] = 6
+    simp only [redWordOffset, LinearMap.zero_apply, sub_zero, Finset.sum_const, hCard]
+    norm_num
+  have h := redPermutationWeight_intAdd (Λ := Ξ) (ν := ν) sl₂ hRouquier
+    B η [0, 1, 2] [2, 1, 0] 0
+  show redPermutationWeight (Λ := Ξ) (ν := ν) sl₂ hRouquier B η [0, 1, 2] [2, 1, 0] 6 =
+      _ from by simpa only [hoff, Int.cast_zero, zero_add] using h
+
+/-- Two different red pairs are inverted by these successive adjacent
+swaps, so their Webster degree offsets add. -/
+example :=
+  let Ξ : Fin 3 → Unit →₀ ℕ := fun j => Finsupp.single () (j.val + 1)
+  let η : Fin 3 → Module.Dual ℂ (Matrix.Realization.StdSpace (UDot.A sl₂) ℂ) :=
+    fun j => ((Ξ j () : ℂ) / 2) • realization.root ()
+  redWordOffset_add (weightPairing sl₂ realization) η
+    (lower := [0, 1, 2]) (middle := [1, 0, 2]) (upper := [1, 2, 0])
+    (by decide) (by decide) (by decide) (by decide)
+
+open scoped List in
+/-- The inversion condition used in Lemma 6.5 certifies offset addition
+along these two consecutive adjacent swaps. -/
+example :=
+  let Ξ : Fin 3 → Unit →₀ ℕ := fun j => Finsupp.single () (j.val + 1)
+  let η : Fin 3 → Module.Dual ℂ (Matrix.Realization.StdSpace (UDot.A sl₂) ℂ) :=
+    fun j => ((Ξ j () : ℂ) / 2) • realization.root ()
+  redWordOffset_add_of_sublist (weightPairing sl₂ realization) η
+    (lower := [0, 1, 2]) (middle := [1, 0, 2]) (upper := [1, 2, 0])
+    (by decide) (by decide) (by decide) (by decide) (by decide) (by decide) (by decide)
+
+private noncomputable abbrev threeRedWeights : Fin 3 → Unit →₀ ℕ :=
+  fun j => Finsupp.single () (j.val + 1)
+
+private abbrev threeRedSize := Multiset.card (stendhalWeight 3 ν)
+
+private theorem threeRedWords : TypeA.IsReducedChoice (TypeA.canWord threeRedSize) :=
+  fun w => ⟨TypeA.isReduced_canWord _ w, TypeA.wordProd_canWord _ w⟩
+
+private theorem threeRedLowerNodup : ([0, 1, 2] : List (Fin 3)).Nodup := by decide
+
+private theorem threeRedPerm : ([0, 1, 2] : List (Fin 3)).Perm [1, 0, 2] := by decide
+
+open scoped List in
+private theorem threeRedLength :
+    ∀ x y : Fin 3, [x, y] <+ [0, 1, 2] → [y, x] <+ [1, 0, 2] → [y, x] <+ [1, 2, 0] := by
+  decide
+
+/-- The graded weight coend surjects for two consecutive adjacent swaps. -/
+example :=
+  braidFactorizationCoend_surjective (I := Unit) (k := ℚ) (Q := Q)
+    (Λ := threeRedWeights) (ν := ν) (ρ := TypeA.canWord threeRedSize) sl₂ hRouquier
+    threeRedWords (lower := [0, 1, 2]) (middle := [1, 0, 2]) (upper := [1, 2, 0])
+    threeRedLowerNodup threeRedPerm threeRedLength
+
+/-- The graded factorization is bijective for two consecutive adjacent swaps. -/
+example :=
+  braidFactorizationCoend_bijective (I := Unit) (k := ℚ) (Q := Q)
+    (Λ := threeRedWeights) (ν := ν) (ρ := TypeA.canWord threeRedSize) sl₂ hRouquier
+    threeRedWords (lower := [0, 1, 2]) (middle := [1, 0, 2]) (upper := [1, 2, 0])
+    threeRedLowerNodup threeRedPerm threeRedLength
+
+noncomputable example :=
+  braidFactorizationCoendNatIso (I := Unit) (k := ℚ) (Q := Q)
+    (Λ := threeRedWeights) (ν := ν) (ρ := TypeA.canWord threeRedSize) sl₂ hRouquier
+    threeRedWords (lower := [0, 1, 2]) (middle := [1, 0, 2]) (upper := [1, 2, 0])
+    threeRedLowerNodup threeRedPerm threeRedLength
+
+noncomputable example :=
+  @braidFactorizationDerivedCoendOfResolution Unit (inferInstance : DecidableEq Unit)
+    ℚ (inferInstance : Field ℚ) (ℓ := 3) (Q := Q)
+    (Λ := threeRedWeights) (ν := ν) (ρ := TypeA.canWord threeRedSize) sl₂ hRouquier
+    threeRedWords (lower := [0, 1, 2]) (middle := [1, 0, 2]) (upper := [1, 2, 0])
+    threeRedLowerNodup threeRedPerm threeRedLength
+
+noncomputable example :=
+  @braidFactorizationDerivedCoendIdentity Unit (inferInstance : DecidableEq Unit)
+    ℚ (inferInstance : Field ℚ) (ℓ := 3) (Q := Q)
+    (Λ := threeRedWeights) (ν := ν) (ρ := TypeA.canWord threeRedSize) sl₂ hRouquier
+    threeRedWords (lower := [0, 1, 2]) (middle := [1, 0, 2])
+    threeRedLowerNodup threeRedPerm
 
 end NonVacuity.WebsterFigureFive
 
@@ -8751,6 +8935,17 @@ example : Function.Surjective terminalCoefficient := terminalCoefficient_surject
 
 end NonVacuity.WebsterFundamentalCoevaluation
 
+namespace NonVacuity.WebsterFundamentalResolution
+
+open CategoryTheory Categorification.Stendhal.FundamentalCorner
+
+example : fundamentalResolution.ShortExact := fundamentalResolution_shortExact
+
+example (x : Abelian.Ext fundamentalTerminalSimple fundamentalTerminalSimple 1) : x = 0 :=
+  fundamentalTerminalSimple_ext_eq_zero 1 (by decide) x
+
+end NonVacuity.WebsterFundamentalResolution
+
 namespace NonVacuity.WebsterVacuumBraidColumn
 
 open KLR KLRAlgebra Stendhal Stendhal.BraidedStendhalAlgebra
@@ -8794,6 +8989,38 @@ local instance : CatModule.HasDerivedCategory.{1,0} (WeightCategory Tᵐᵒᵖ) 
 
 example := gradedFundamentalCup
 example := gradedFundamentalCap
+
+example : gradedMiddleCharacter (MulOpposite.op middleIdem) = 1 := middleCharacter_middleIdem
+example : gradedMiddleCharacter (MulOpposite.op terminalIdem) = 0 := middleCharacter_terminalIdem
+example := gradedMiddleSimple_headEquiv
+example := normalizedMiddleSimple_line
+example : Subsingleton (normalizedMiddleSimple.obj ⟨0⟩) := normalizedMiddleSimple_subsingleton 0 (by decide)
+example := gradedMiddleCapCupAdjunction
+example := gradedMiddleCup_fieldIso
+example := gradedMiddleCap_middleIso
+example := gradedMiddleCap_terminal_isZero
+
+example := middleResolution_maps_degree 2
+example := middleResolution_exact_terminal 2
+example := middleResolution_exact_middle 1
+example := middleResolution_augmentation_surjective 0 1 (Or.inl rfl)
+example := gradedMiddleComplex_exact ⟨0⟩
+example := gradedMiddleComplex_exact ⟨2⟩
+example := gradedMiddleCap_shiftedMiddleIso 2
+example := gradedMiddleCap_shiftedTerminal_isZero 1
+example := gradedMiddleCap_simpleIso
+example := gradedMiddleCap_shiftedSimpleIso 1
+example := gradedMiddleCupCap_fieldIso
+example := gradedMiddleCup_scalarIso (-2)
+example := gradedMiddleCupCap_scalarIso 3
+example := gradedMiddleCupCap_shiftedScalarIso (-2) 4
+example := fundamentalTraceCoefficient_line (-2)
+example := fundamentalTraceCoefficient_off_diagonal 1 0 (by decide)
+example := gradedFundamentalQuantumTraceIso
+example := gradedFundamentalClockwiseCircleIso
+example := gradedFundamentalClockwiseCircle_shiftedIso (-2) 4
+example := compactScalarLine_class (-1)
+example := fundamentalClockwiseCircle_class
 
 end
 
@@ -8847,6 +9074,138 @@ example := fundamentalCapRegularIso
 
 end NonVacuity.WebsterFundamentalCupRegular
 
+noncomputable section
+
+namespace NonVacuity.WebsterFundamentalDerivedCircle
+
+open CategoryTheory Categorification Categorification.Stendhal FundamentalCorner
+open scoped DG.DegreeZero
+
+local notation "T" => TensorProductAlgebra ℚ Q wt ({()} : Multiset Unit)
+
+local instance : DG.HasDerivedCategory.{1,0} ℚ := DG.HasDerivedCategory.standard ℚ
+local instance : DG.HasDerivedCategory.{1,0} Tᵐᵒᵖ := DG.HasDerivedCategory.standard Tᵐᵒᵖ
+
+example : fundamentalCap.obj (DG.DerivedCategory.Q.obj (DG.DGModuleCat.of Tᵐᵒᵖ
+    (InDegreeZero (rIdeal terminalIdem ⧸ fundamentalCutTrace)))) ≅
+    DG.DerivedCategory.Q.obj (DG.DGModuleCat.of ℚ (InDegreeZero ℚ)) :=
+  fundamentalCap_terminalSimpleIso
+
+example : (fundamentalCup ⋙ fundamentalCap).obj (DG.DerivedCategory.Q.obj
+    (DG.DGModuleCat.of ℚ ℚ)) ≅ (shiftFunctor (DG.DerivedCategory.{1,0} ℚ) (-1)).obj
+    (DG.DerivedCategory.Q.obj (DG.DGModuleCat.of ℚ (InDegreeZero ℚ))) :=
+  fundamentalCupEvaluationRegularIso
+
+end NonVacuity.WebsterFundamentalDerivedCircle
+
+end
+
+noncomputable section
+namespace NonVacuity.WebsterMiddleCutEvaluation
+open CategoryTheory CategoryTheory.Limits DG Categorification Categorification.Stendhal FundamentalCorner
+open scoped DG.DegreeZero
+attribute [local instance 1100] IsIdempotentElem.instAlgebraCorner_categorification
+local notation "T" => TensorProductAlgebra ℚ Q wt ({()} : Multiset Unit)
+local instance : DG.HasDerivedCategory.{1,0} ℚ := DG.HasDerivedCategory.standard ℚ
+local instance : DG.HasDerivedCategory.{1,0} Tᵐᵒᵖ := DG.HasDerivedCategory.standard Tᵐᵒᵖ
+local instance : CatModule.HasDerivedCategory.{1,0} (SingleObj ℚ) :=
+  CatModule.HasDerivedCategory.standard (SingleObj ℚ)
+local instance : CatModule.HasDerivedCategory.{1,0} (SingleObj Tᵐᵒᵖ) :=
+  CatModule.HasDerivedCategory.standard (SingleObj Tᵐᵒᵖ)
+
+example : blackCount middle 1 () = 1 ∧ blackCount terminal 1 () = 0 :=
+  ⟨middle_terminal_cuts.2.1, middle_terminal_cuts.2.2.2⟩
+
+example : IsSimpleModule Tᵐᵒᵖ (rIdeal middleIdem ⧸ middleCutTrace) :=
+  (middleCutTrace_eq_iff_simpleQuotient middleCutTrace).mp rfl
+
+example := middleQuotientDualEquiv
+example := middleCapCupAdjunction
+example := middleCup_fieldIso
+example := middleAdjointCap_middleIso
+example := middleAdjointCap_terminal_isZero
+example := middleProjectiveResolution
+example := middleAdjointCap_middleSimpleIso
+example := middleCupCap_fieldIso
+
+local notation "cap" => Coevaluation.capBimoduleFunctor ℚ T MiddleCoefficient
+local notation "headObj" => DG.DerivedCategory.Q.obj
+  (DGModuleCat.of Tᵐᵒᵖ (InDegreeZero (rIdeal middleIdem ⧸ middleCutTrace)))
+
+example : DG.DerivedCategory.finrankHomology ℚ (-2) ((cap).obj headObj) = 1 := by
+  simpa using middleTor_finrank.{1} 2
+
+example : DG.DerivedCategory.finrankHomology ℚ (-1) ((cap).obj headObj) = 0 := by
+  simpa using middleTor_finrank.{1} 1
+
+example : DG.DerivedCategory.finrankHomology ℚ (-1)
+    ((middleCup ⋙ (cap)).obj (DG.DerivedCategory.Q.obj (DGModuleCat.of ℚ ℚ))) = 1 := by
+  simpa using middleCupCap_finrank.{1} (-1)
+
+end NonVacuity.WebsterMiddleCutEvaluation
+
+namespace NonVacuity.WebsterFundamentalBraidCorners
+open Categorification Categorification.Stendhal Categorification.Stendhal.FundamentalCorner KLR KLRAlgebra
+
+noncomputable section
+
+example : LinearIndependent ℚ terminalBraidClasses :=
+  fundamentalBraid_terminal_linearIndependent
+
+example : braidProject (ψ 0 * ψ 1 * e crossedMiddle) ≠ 0 :=
+  fundamentalBraid_mixed_ne_zero.2
+
+example : braidProject (e middle) * braidProject (ψw [0,1,0]) * braidProject (e crossedMiddle) = 0 :=
+  (fundamentalBraid_middle_middle_zero _).2
+
+example : braidProject (ψ 1) * braidProject (ψ 1 * ψ 0 * e crossedTerminal) =
+    terminalBraidClasses 1 :=
+  fundamentalBraid_terminal_differentials.1
+
+example : ∃ a b : ℚ, braidProject (e terminal) * braidProject (ψ 0) * braidProject (e crossedTerminal) =
+    a • terminalBraidClasses 0 + b • terminalBraidClasses 1 :=
+  fundamentalBraid_terminal_span _
+
+end
+end NonVacuity.WebsterFundamentalBraidCorners
+
+namespace NonVacuity.WebsterFundamentalBraidWeight
+open Categorification QuantumGroup Stendhal Stendhal.FundamentalCorner Stendhal.BraidedStendhalAlgebra
+
+noncomputable section
+private abbrev datum := CartanDatum.ofGraph (⊥ : SimpleGraph Unit)
+private abbrev realization := Matrix.Realization.std (UDot.A datum) ℂ
+
+example : weightPairing datum realization (braidFundamentalWeight realization)
+    (braidFundamentalWeight realization) = 1 / 2 :=
+  braidFundamentalWeight_norm realization
+
+example : fundamentalBraidMiddleClass ∈ Graded.shift (figureFiveCutGrade (Λ := wt)
+    datum fundamentalBraidParameters (weightPairing datum realization)
+    (fun _ => braidFundamentalWeight realization) terminal 1 0) 1 (3 / 2) :=
+  (fundamentalBraidMiddleClass_resolutionWeight realization _).mpr rfl
+
+example : fundamentalBraidMiddleClass ∉ Graded.shift (figureFiveCutGrade (Λ := wt)
+    datum fundamentalBraidParameters (weightPairing datum realization)
+    (fun _ => braidFundamentalWeight realization) terminal 1 0) 1 (0 : ℂ) := by
+  rw [fundamentalBraidMiddleClass_resolutionWeight]
+  norm_num
+
+end
+end NonVacuity.WebsterFundamentalBraidWeight
+
+namespace NonVacuity.WebsterFundamentalBraidHomology
+open CategoryTheory Categorification.Stendhal.FundamentalCorner
+
+noncomputable example : fundamentalBraidCutComplex.homology ≅ ModuleCat.of ℚ ℚ :=
+  fundamentalBraidCutComplex_homologyIso
+
+example : Function.Injective fundamentalBraidCutComplex.f ∧ Function.Surjective fundamentalBraidCutComplex.g :=
+  fundamentalBraidCutComplex_ends
+
+end NonVacuity.WebsterFundamentalBraidHomology
+end
+
 namespace NonVacuity.WebsterCupRHomRegular
 
 open CategoryTheory DG MulOpposite Categorification.Stendhal.Coevaluation
@@ -8864,98 +9223,6 @@ example := cupRHomTensorRegularIso ℚ ℚ (Fin 2 → ℚ)
 
 end NonVacuity.WebsterCupRHomRegular
 
-namespace NonVacuity.WebsterWeightTensor
-
-noncomputable section
-
-open Categorification CategoryTheory DG MulOpposite
-open scoped DG.DegreeZero
-
-local instance : InternalGrading ℚ := scalarInternalGrading ℚ
-local instance : BigradedDGRing ℚ := scalarBigradedDGRing ℚ
-local instance : CatModule.HasDerivedCategory.{1,0} (WeightCategory ℚ) :=
-  CatModule.HasDerivedCategory.standard (WeightCategory ℚ)
-
-private theorem leftAction {i j : ℤ} {a m : ℚ}
-    (ha : a ∈ wgrading i) (hm : m ∈ DG.grading j) :
-    a • m ∈ DG.grading (i+j) :=
-  mul_mem_grading ha hm
-
-private theorem rightAction {i j : ℤ} {b m : ℚ}
-    (hb : b ∈ wgrading i) (hm : m ∈ DG.grading j) :
-    op b • m ∈ DG.grading (j+i) :=
-  mul_mem_grading hm hb
-
-example := diagramWeightDerivedTensor (fun j => DG.grading (M := ℚ) j) leftAction rightAction
-
-example := diagramWeightDerivedTensorObjIso (fun j => DG.grading (M := ℚ) j)
-  leftAction rightAction (CatModule.isKProjective_representable (⟨0⟩ : WeightCategory ℚ))
-
-end
-
-end NonVacuity.WebsterWeightTensor
-
-namespace NonVacuity.WebsterGradedCorner
-noncomputable section
-
-open Categorification CategoryTheory DG
-open scoped DG.DegreeZero
-
-private abbrev R := MvPolynomial Unit ℚ
-
-private def G : ℤ → Submodule ℚ R :=
-  MvPolynomial.weightedHomogeneousSubmodule ℚ (fun _ : Unit => (1 : ℤ))
-
-local instance : GradedAlgebra G := MvPolynomial.weightedGradedAlgebra ℚ _
-
-private theorem h : IsIdempotentElem (1 : R) := by simp [IsIdempotentElem]
-
-private theorem h0 : (1 : R) ∈ G 0 := SetLike.GradedOne.one_mem
-
-noncomputable example := by
-  letI := Graded.cornerGradedAlgebra G h h0
-  letI := gradedAlgebraInternalGrading (Categorification.Graded.oppositeGrade
-    (Graded.cornerGrading G h))
-  letI := gradedAlgebraBigradedDGRing (Categorification.Graded.oppositeGrade
-    (Graded.cornerGrading G h))
-  letI : CatModule.HasDerivedCategory.{1,0} (WeightCategory h.Cornerᵐᵒᵖ) :=
-    CatModule.HasDerivedCategory.standard (WeightCategory h.Cornerᵐᵒᵖ)
-  exact diagramCornerWeightDerivedRightTensor G h h h0 h0
-
-end
-
-end NonVacuity.WebsterGradedCorner
-
-namespace NonVacuity.WebsterAuxiliaryBraiding
-
-noncomputable section
-
-open Categorification CategoryTheory DG Stendhal FundamentalCorner BraidedStendhalAlgebra
-open scoped DG.DegreeZero
-attribute [local instance 1100] IsIdempotentElem.instAlgebraCorner_categorification
-
-local notation "ν₀" => ({()} : Multiset Unit)
-local notation "V" => violAuxiliaryGrade (ν := ν₀) FundamentalCorner.grading
-local notation "E" => isIdempotentElem_violMk_redProj ℚ Q wt ν₀
-local notation "H" => redProj_mem_violAuxiliaryGrade (ν := ν₀) FundamentalCorner.grading
-local notation "S" => fun κ => Categorification.Graded.oppositeGrade (Graded.cornerGrading V (E κ))
-
-example := by
-  letI := Graded.cornerGradedAlgebra V (E [1, 0]) (H [1, 0])
-  letI := Graded.cornerGradedAlgebra V (E [0, 1]) (H [0, 1])
-  letI := gradedAlgebraInternalGrading (S [1, 0])
-  letI := gradedAlgebraInternalGrading (S [0, 1])
-  letI := gradedAlgebraBigradedDGRing (S [1, 0])
-  letI := gradedAlgebraBigradedDGRing (S [0, 1])
-  letI : CatModule.HasDerivedCategory.{1,0} (WeightCategory (E [1, 0]).Cornerᵐᵒᵖ) :=
-    CatModule.HasDerivedCategory.standard _
-  letI : CatModule.HasDerivedCategory.{1,0} (WeightCategory (E [0, 1]).Cornerᵐᵒᵖ) :=
-    CatModule.HasDerivedCategory.standard _
-  exact auxiliaryGradedBraidingFunctor (ν := ν₀) FundamentalCorner.grading [1, 0] [0, 1]
-
-end
-
-end NonVacuity.WebsterAuxiliaryBraiding
 namespace NonVacuity.WebsterLabelTwoUnknot
 
 open Categorification.Webster.LabelTwo
@@ -9101,6 +9368,472 @@ example := incomingExteriorDiagram_mem_grade ℚ
 
 example := incomingExteriorTranslate_mem_grade ℚ
 
+example := middleDotSumQuotientGFin ℚ
+
+example (d : ℤ) := diagramPlusMinus_exact_in_degree ℚ d
+
+example (d : ℤ) := diagramMinusPlus_exact_in_degree ℚ d
+
+example (d : ℤ) := diagramPlusAugmentation_exact_in_degree ℚ d
+
+example (d : ℤ) := diagramMiddleAugmentationAtDegree_surjective ℚ d
+
+example := middleEndomorphismFactorEquiv ℚ
+
+example := factorDotSumQuotientEquiv ℚ
+
+example (x : Standard ℚ) := middleDotSumStandardizationEquiv_mk ℚ x
+
+example := middle_higher_eq
+
+example := middle_upperLoadingIdeal_eq_singleton ℚ
+
+example := rightMiddleDotSumQuotient_kills_higher ℚ
+
+example :=
+  leftStandardLayer_projective (parameter ℚ) weights loading loading_ordered
+
+example := relativeMiddleProjectiveResolution ℚ
+
+example := @middleStandard_derivedTensorHomology_isZero_of_higher_support ℚ
+
+example := exists_middleStandard_supportedResolution ℚ
+
+example := @middleStandard_derivedTensorHomology_isZero ℚ
+
+example := middleStandardTensorEquiv ℚ
+
+example := middleStandardTensorEquiv_plus ℚ
+
+example := middleStandardTensorEquiv_minus ℚ
+
+example := relativeMiddleTorZero ℚ
+
+example (n : ℕ) := relativeMiddleTorPositive ℚ n (by decide)
+
+open scoped DG.DegreeZero in
+noncomputable example (n : ℕ) :=
+  letI := DG.HasDerivedCategory.standard ℚ
+  letI := DG.HasDerivedCategory.standard
+    (TensorProductAlgebra ℚ (parameter ℚ) weights (({()} : Multiset Unit) + {()}))
+  actualAmbientMiddleToRelativeTorIso ℚ (by decide) n
+
 end NonVacuity.WebsterLabelTwoMiddleFixedComplex
 
 end
+
+namespace NonVacuity.WebsterWeightTensor
+
+noncomputable section
+
+open Categorification CategoryTheory DG MulOpposite
+open scoped DG.DegreeZero
+
+local instance : InternalGrading ℚ := scalarInternalGrading ℚ
+local instance : BigradedDGRing ℚ := scalarBigradedDGRing ℚ
+local instance : CatModule.HasDerivedCategory.{1,0} (WeightCategory ℚ) :=
+  CatModule.HasDerivedCategory.standard (WeightCategory ℚ)
+
+private theorem leftAction {i j : ℤ} {a m : ℚ}
+    (ha : a ∈ wgrading i) (hm : m ∈ DG.grading j) :
+    a • m ∈ DG.grading (i+j) :=
+  mul_mem_grading ha hm
+
+private theorem rightAction {i j : ℤ} {b m : ℚ}
+    (hb : b ∈ wgrading i) (hm : m ∈ DG.grading j) :
+    op b • m ∈ DG.grading (j+i) :=
+  mul_mem_grading hm hb
+
+example := diagramWeightDerivedTensor (fun j => DG.grading (M := ℚ) j) leftAction rightAction
+
+example := diagramWeightDerivedTensorObjIso (fun j => DG.grading (M := ℚ) j)
+  leftAction rightAction (CatModule.isKProjective_representable (⟨0⟩ : WeightCategory ℚ))
+
+private abbrev Rep := CatModule.representable (⟨0⟩ : WeightCategory ℚ)
+
+private abbrev rationalWeightShortComplex : ShortComplex (CatModule (WeightCategory ℚ)) :=
+  ShortComplex.mk (0 : CatModule.zero ⟶ Rep) (𝟙 Rep) (by simp)
+
+private theorem rationalWeightShortComplex_shortExact : rationalWeightShortComplex.ShortExact := by
+  refine (CatModule.shortExact_iff _).mpr fun X => ⟨fun _ _ _ => Subsingleton.elim _ _, ?_, ?_⟩
+  · intro y
+    change y = 0 ↔ ∃ x, (0 : CatModule.zero ⟶ Rep).app X x = y
+    constructor
+    · rintro rfl
+      exact ⟨0, map_zero _⟩
+    · rintro ⟨x, rfl⟩
+      rfl
+  · exact Function.surjective_id
+
+example : ObjectProperty.extensionProductIter
+    (⊤ : ObjectProperty (CatModule.DerivedCategory.{1,0} (WeightCategory ℚ))) 1
+    (CatModule.DerivedCategory.Q.obj Rep) :=
+  WeightModuleFiltration.extensionProductIter
+    (WeightModuleFiltration.append (L := fun _ : Unit => Rep) () rationalWeightShortComplex
+      rationalWeightShortComplex_shortExact
+      (WeightModuleFiltration.nil (CatModule.isZero_of_subsingleton _)) ⟨Iso.refl Rep⟩)
+    ⊤ (fun _ _ => trivial) (fun _ _ => trivial)
+
+example := diagramWeightDerivedTensorObjIsoOfResolution (fun j => DG.grading (M := ℚ) j)
+  leftAction rightAction (𝟙 Rep) (CatModule.isKProjective_representable (⟨0⟩ : WeightCategory ℚ))
+  (CatModule.isQuasiIso_id Rep) (by
+    let tensor := (diagramWeightBimodule (fun j => DG.grading (M := ℚ) j)
+      leftAction rightAction).tensorFunctor
+    change CatModule.IsQuasiIso (tensor.map (𝟙 Rep))
+    rw [tensor.map_id Rep]
+    exact CatModule.isQuasiIso_id _)
+
+
+example : CatModule.IsQuasiIso (𝟙 ((diagramWeightBimodule
+    (fun j => DG.grading (M := ℚ) j) leftAction rightAction).left (⟨0⟩ : WeightCategory ℚ))) := by
+  let G := fun j => DG.grading (M := ℚ) j
+  let Z : WeightCategory ℚ := ⟨0⟩
+  let N := (diagramWeightBimodule G leftAction rightAction).left Z
+  exact diagramWeightLeft_isQuasiIso_of_cohomology G leftAction rightAction (Iso.refl N) (𝟙 N)
+    (fun X => CatModule.isQuasiIso_id N X 0)
+    (fun X n hn => diagramWeightLeft_cohomology_subsingleton G leftAction rightAction X Z hn)
+
+
+example := diagramWeightDerivedTensorRepresentableIso (fun j => DG.grading (M := ℚ) j)
+  leftAction rightAction (⟨1⟩ : WeightCategory ℚ)
+
+
+example : (diagramWeightDerivedTensor (fun j => DG.grading (M := ℚ) j) leftAction rightAction).Additive :=
+  inferInstance
+
+
+example := diagramWeightTensorShiftNatIso (fun j => DG.grading (M := ℚ) j) leftAction rightAction 1
+
+
+example : (diagramWeightTensorHomotopy (fun j => DG.grading (M := ℚ) j)
+    leftAction rightAction).CommShift ℤ := inferInstance
+
+
+example := diagramWeightTensorConeIso (fun j => DG.grading (M := ℚ) j)
+  leftAction rightAction (𝟙 Rep)
+
+example : (diagramWeightTensorHomotopy (fun j => DG.grading (M := ℚ) j)
+    leftAction rightAction).IsTriangulated := inferInstance
+
+
+example : (diagramWeightDerivedTensor (fun j => DG.grading (M := ℚ) j)
+    leftAction rightAction).IsTriangulated := inferInstance
+
+end
+
+end NonVacuity.WebsterWeightTensor
+
+namespace NonVacuity.WebsterWeightCoend
+
+noncomputable section
+
+open Categorification CategoryTheory DG MulOpposite
+open scoped DG.DegreeZero
+
+local instance : InternalGrading ℚ := scalarInternalGrading ℚ
+local instance : BigradedDGRing ℚ := scalarBigradedDGRing ℚ
+
+private abbrev QWeight := WeightCategory ℚ
+private abbrev G := fun j => DG.grading (M := ℚ) j
+
+private theorem leftAction {i j : ℤ} {a m : ℚ}
+    (ha : a ∈ wgrading i) (hm : m ∈ G j) : a • m ∈ G (i + j) :=
+  mul_mem_grading ha hm
+
+private theorem rightAction {i j : ℤ} {a m : ℚ}
+    (ha : a ∈ wgrading i) (hm : m ∈ G j) : op a • m ∈ G (j + i) :=
+  mul_mem_grading hm ha
+
+private def product : ℚ →+ ℚ →+ ℚ where
+  toFun x :=
+    { toFun := fun y => x * y
+      map_zero' := mul_zero _
+      map_add' := mul_add x }
+  map_zero' := AddMonoidHom.ext fun y => zero_mul y
+  map_add' x y := AddMonoidHom.ext fun z => add_mul x y z
+
+private theorem productWeight {i j : ℤ} {x y : ℚ}
+    (hx : x ∈ G i) (hy : y ∈ G j) : product x y ∈ G (i + j) :=
+  mul_mem_grading hx hy
+
+private theorem productBalanced (b x y : ℚ) : product (op b • x) y = product x (b • y) :=
+  mul_assoc x b y
+
+example := CornerTensor.liftAdd (k := ℚ) (1 : ℚ) 1 1 product
+  (fun c x y => by change (c * x) * y = x * (c * y); ring)
+  (fun x y => by simp)
+  (fun x c y => by change (x * (1 * c * 1)) * y = x * ((1 * c * 1) * y); ring)
+
+private theorem unitIdempotent : IsIdempotentElem (1 : ℚ) := by simp [IsIdempotentElem]
+
+private abbrev UnitCorner := cornerBimodule (1 : ℚ) 1
+
+private def projectedProduct : UnitCorner →+ UnitCorner →+ ℚ :=
+  ((product.flip).compl₂ (cornerBimodule (1 : ℚ) 1).subtype).comp
+    (cornerBimodule (1 : ℚ) 1).subtype
+
+private theorem projectedProduct_balanced (b : unitIdempotent.Corner) (x y : UnitCorner) :
+    projectedProduct (b • x) y = projectedProduct x (op b • y) := by
+  change y.val * (b.val * x.val) = (y.val * b.val) * x.val
+  exact (mul_assoc _ _ _).symm
+
+example := cornerTensorCutLift_tmul (k := ℚ) unitIdempotent unitIdempotent unitIdempotent
+  projectedProduct projectedProduct_balanced
+  (cornerSandwichAdd unitIdempotent unitIdempotent (1 : ℚ))
+  (cornerSandwichAdd unitIdempotent unitIdempotent (1 : ℚ))
+
+example := diagramWeightCoendProduct G G G leftAction rightAction leftAction rightAction
+  product productWeight productBalanced (⟨0⟩ : QWeight) (⟨0⟩ : QWeight)
+
+private theorem productLeft (a x y : ℚ) : product (a • x) y = a • product x y :=
+  mul_assoc a x y
+
+example := diagramWeightCoendProductHom G G G leftAction rightAction leftAction rightAction
+  product productWeight productBalanced (⟨0⟩ : QWeight) leftAction rightAction productLeft
+
+private theorem productRight (c x y : ℚ) : product x (op c • y) = op c • product x y :=
+  (mul_assoc x y c).symm
+
+example := diagramWeightCoendProductNatTrans G G G leftAction rightAction leftAction rightAction
+  product productWeight productBalanced leftAction rightAction productLeft productRight
+
+private theorem productSpan :
+    AddSubgroup.closure (Set.range fun z : ℚ × ℚ => product z.1 z.2) = ⊤ := by
+  apply top_unique
+  intro z _
+  apply AddSubgroup.subset_closure
+  exact ⟨(z, 1), mul_one z⟩
+
+example := diagramWeightCoendProduct_surjective G G G leftAction rightAction leftAction rightAction
+  product productWeight productBalanced (⟨0⟩ : QWeight) (⟨0⟩ : QWeight) productSpan
+
+example := diagramWeightTensorSlice_leftInverse G G leftAction rightAction leftAction rightAction
+  (⟨0⟩ : QWeight) (⟨0⟩ : QWeight)
+
+example := diagramWeightOrdinaryProjection_tmul G G leftAction rightAction leftAction rightAction
+  (⟨0⟩ : QWeight) (⟨1⟩ : QWeight)
+  (⟨1, InDegreeZero.ring_mem_grading_zero (1 : ℚ)⟩ : G 0)
+  (⟨1, InDegreeZero.ring_mem_grading_zero (1 : ℚ)⟩ : G 0)
+
+end
+
+end NonVacuity.WebsterWeightCoend
+
+namespace NonVacuity.WebsterGradedCorner
+noncomputable section
+
+open Categorification CategoryTheory DG
+open scoped DG.DegreeZero
+
+private abbrev R := MvPolynomial Unit ℚ
+
+private def G : ℤ → Submodule ℚ R :=
+  MvPolynomial.weightedHomogeneousSubmodule ℚ (fun _ : Unit => (1 : ℤ))
+
+local instance : GradedAlgebra G := MvPolynomial.weightedGradedAlgebra ℚ _
+
+private theorem h : IsIdempotentElem (1 : R) := by simp [IsIdempotentElem]
+
+private theorem h0 : (1 : R) ∈ G 0 := SetLike.GradedOne.one_mem
+
+noncomputable example := by
+  letI := Graded.cornerGradedAlgebra G h h0
+  letI := gradedAlgebraInternalGrading (Categorification.Graded.oppositeGrade
+    (Graded.cornerGrading G h))
+  letI := gradedAlgebraBigradedDGRing (Categorification.Graded.oppositeGrade
+    (Graded.cornerGrading G h))
+  letI : CatModule.HasDerivedCategory.{1,0} (WeightCategory h.Cornerᵐᵒᵖ) :=
+    CatModule.HasDerivedCategory.standard (WeightCategory h.Cornerᵐᵒᵖ)
+  exact diagramCornerWeightDerivedRightTensor G h h h0 h0
+
+example := by
+  letI := Graded.cornerGradedAlgebra G h h0
+  letI := gradedAlgebraInternalGrading (Categorification.Graded.oppositeGrade
+    (Graded.cornerGrading G h))
+  letI := gradedAlgebraBigradedDGRing (Categorification.Graded.oppositeGrade
+    (Graded.cornerGrading G h))
+  exact diagramCornerWeightRightCoendProduct G h h h0 h0 h h0
+    (⟨0⟩ : WeightCategory h.Cornerᵐᵒᵖ) (⟨0⟩ : WeightCategory h.Cornerᵐᵒᵖ)
+
+end
+
+end NonVacuity.WebsterGradedCorner
+
+namespace NonVacuity.WebsterScalarHom
+
+noncomputable section
+
+open Categorification CategoryTheory DG MulOpposite
+open scoped DG.DegreeZero
+
+local instance : InternalGrading ℚ := scalarInternalGrading ℚ
+local instance : BigradedDGRing ℚ := scalarBigradedDGRing ℚ
+local instance : CatModule.HasDerivedCategory.{1,0} (WeightCategory ℚ) :=
+  CatModule.HasDerivedCategory.standard (WeightCategory ℚ)
+
+private def weightPiece (j : ℤ) : Submodule ℚ ℚ where
+  carrier := (DG.grading (M := ℚ) j : Set ℚ)
+  add_mem' := add_mem
+  zero_mem' := zero_mem _
+  smul_mem' c m hm := by
+    change c * m ∈ DG.grading j
+    simpa only [zero_add] using mul_mem_grading (InDegreeZero.ring_mem_grading_zero c) hm
+
+private theorem rightAction {i j : ℤ} {b m : ℚ}
+    (hb : b ∈ wgrading i) (hm : m ∈ weightPiece j) :
+    op b • m ∈ weightPiece (j + i) := by
+  change m * b ∈ DG.grading (j + i)
+  exact mul_mem_grading (show m ∈ DG.grading j from hm) hb
+
+example := diagramWeightScalar_isKProjective ℚ weightPiece rightAction (⟨0⟩ : WeightCategory ℚ)
+
+example := diagramWeightScalarDerivedHom ℚ weightPiece rightAction
+
+end
+
+end NonVacuity.WebsterScalarHom
+
+namespace NonVacuity.WebsterAuxiliaryBraiding
+
+noncomputable section
+
+open Categorification CategoryTheory DG Stendhal FundamentalCorner BraidedStendhalAlgebra
+open scoped DG.DegreeZero
+attribute [local instance 1100] IsIdempotentElem.instAlgebraCorner_categorification
+
+local notation "ν₀" => ({()} : Multiset Unit)
+local notation "V" => violAuxiliaryGrade (ν := ν₀) FundamentalCorner.grading
+local notation "E" => isIdempotentElem_violMk_redProj ℚ Q wt ν₀
+local notation "H" => redProj_mem_violAuxiliaryGrade (ν := ν₀) FundamentalCorner.grading
+local notation "S" => fun κ => Categorification.Graded.oppositeGrade (Graded.cornerGrading V (E κ))
+
+example := by
+  letI := Graded.cornerGradedAlgebra V (E [1, 0]) (H [1, 0])
+  letI := Graded.cornerGradedAlgebra V (E [0, 1]) (H [0, 1])
+  letI := gradedAlgebraInternalGrading (S [1, 0])
+  letI := gradedAlgebraInternalGrading (S [0, 1])
+  letI := gradedAlgebraBigradedDGRing (S [1, 0])
+  letI := gradedAlgebraBigradedDGRing (S [0, 1])
+  letI : CatModule.HasDerivedCategory.{1,0} (WeightCategory (E [1, 0]).Cornerᵐᵒᵖ) :=
+    CatModule.HasDerivedCategory.standard _
+  letI : CatModule.HasDerivedCategory.{1,0} (WeightCategory (E [0, 1]).Cornerᵐᵒᵖ) :=
+    CatModule.HasDerivedCategory.standard _
+  exact auxiliaryGradedBraidingFunctor (ν := ν₀) FundamentalCorner.grading [1, 0] [0, 1]
+
+end
+
+end NonVacuity.WebsterAuxiliaryBraiding
+
+open CategoryTheory CategoryTheory.Limits DG
+open scoped DG.DegreeZero
+
+noncomputable section
+namespace NonVacuity.WebsterActualBraidKernel
+
+open Categorification Categorification.KLR Categorification.Stendhal
+open Categorification.Stendhal.BraidedStendhalAlgebra
+
+attribute [local instance 1200] Ring.toIntAlgebra
+
+private abbrev ν : Multiset Bool := 0
+private abbrev Q : Bool → Bool → MvPolynomial (Fin 2) ℤ := fun _ _ => 1
+private abbrev Λ : Fin 2 → Bool →₀ ℕ := fun _ => 0
+private def t : Seq (stendhalWeight 2 ν) :=
+  ⟨fun j => Sum.inr (if j.val = 0 then 0 else 1), by decide⟩
+
+private abbrev corner (order : List (Fin 2)) :=
+  (isIdempotentElem_violMk_redProj ℤ Q Λ ν order).Corner
+
+local instance (order : List (Fin 2)) : HasDerivedCategory.{0, 0} (corner order)ᵐᵒᵖ :=
+  HasDerivedCategory.small _
+
+private theorem root_zero (s : Seq (stendhalWeight 2 ν)) :
+    adjacentBlockRoot 0 1 s = 0 := by
+  funext r i
+  have h (j : Fin (stendhalWeight 2 ν).card) : s.lbl j ≠ Sum.inl i := by
+    intro he
+    have hs := s.mem j
+    change s.lbl j ∈ stendhalWeight 2 ν at hs
+    simp [he, stendhalWeight] at hs
+  simp [adjacentBlockRoot, blockBlackCount, h]
+
+private theorem kernel_zero : blockLoadingKernel Q Λ t 0 1 = ⊥ := by
+  have hupper : blockUpperIdeal ℤ Q Λ ν 0 1 (adjacentBlockRoot 0 1 t) (redWord t) = ⊥ := by
+    apply le_antisymm (TwoSidedIdeal.span_le.mpr ?_) bot_le
+    rintro _ ⟨s, _, h, _⟩
+    rw [root_zero s, root_zero t] at h
+    exact (lt_irrefl _ h).elim
+  ext x
+  change x.val.val ∈ blockUpperIdeal ℤ Q Λ ν 0 1 (adjacentBlockRoot 0 1 t) (redWord t) ↔ _
+  rw [hupper, Submodule.mem_bot]
+  constructor
+  · intro hx
+    rw [TwoSidedIdeal.mem_bot] at hx
+    exact Subtype.ext (Subtype.ext hx)
+  · rintro rfl
+    exact (⊥ : TwoSidedIdeal _).zero_mem
+
+example :
+    IsZero ((DG.DerivedCategory.homologyFunctor (A := (corner [1, 0])ᵐᵒᵖ) ℤ 1).obj
+      ((braidingFunctor ℤ Q Λ ν (redWord t) [1, 0]).obj (DG.DerivedCategory.Q.obj
+        ((degreeZeroModuleFunctor (corner (redWord t))ᵐᵒᵖ).obj
+          (blockLoadingShortComplex Q Λ t 0 1).X₃)))) :=
+  blockPartialStandard_braid_homology_vanish_of_bot Q Λ t 0 1 [1, 0] kernel_zero 1 (by decide)
+
+end NonVacuity.WebsterActualBraidKernel
+end
+
+
+namespace NonVacuity.WebsterUnitParameters
+
+noncomputable example :=
+  Categorification.Stendhal.tensorProductUnitParameterEquiv
+    (k := ℚ) (P := fun _ _ => 0) (P' := fun _ _ => 1)
+    (fun _ : Fin 2 => Finsupp.single () 2) ({(), ()} : Multiset Unit)
+
+open Categorification Categorification.KLR Categorification.Stendhal
+
+attribute [local instance 1100] IsIdempotentElem.instAlgebraCorner_categorification
+
+noncomputable example (s : KLR.Seq (stendhalWeight 2 ({(), ()} : Multiset Unit)))
+    (hs : IsRedOrdered s) :=
+  leftStandardRestrictedEquiv (fun _ : Fin 2 => Finsupp.single () 2)
+    (tensorProductUnitParameterEquiv (k := ℚ) (P := fun _ _ => 0) (P' := fun _ _ => 1)
+      (fun _ : Fin 2 => Finsupp.single () 2) ({(), ()} : Multiset Unit)).toRingEquiv
+    (fun t ht => tensorProductOffDiagonalEquiv_e
+      (Q := fun _ : Unit => fun _ => (0 : MvPolynomial (Fin 2) ℚ)) (Q' := fun _ _ => 1)
+      (Λ := fun _ : Fin 2 => Finsupp.single () 2)
+      (fun i j hij => (hij (Subsingleton.elim i j)).elim) t ht) s hs
+
+end NonVacuity.WebsterUnitParameters
+
+namespace NonVacuity.WebsterGroundTensorHomology
+
+open Categorification DG
+open scoped DG.DegreeZero
+
+noncomputable example :=
+  letI := HasDerivedCategory.small ℚ
+  derivedTensorHomologyIsoOrdinaryLinear (R := ℚ) (A := ℚ) (B := ℚ) (M := ℚ) ℚ
+
+end NonVacuity.WebsterGroundTensorHomology
+
+namespace NonVacuity.AmbientDerivedIdempotentCut
+
+open Categorification DG MulOpposite
+open scoped DG.DegreeZero
+noncomputable section
+
+local instance : HasDerivedCategory.{0,0} ℚ := HasDerivedCategory.small _
+
+example := balancedTensorLeftIdealEquiv (k := ℚ) (M := ℚᵐᵒᵖ)
+  (show IsIdempotentElem (1 : ℚ) from one_mul 1)
+
+example := ambientDerivedTensorH0LeftIdealEquiv (k := ℚ) (M := ℚᵐᵒᵖ)
+  (fun c m => by
+    apply unop_injective
+    exact mul_comm m.unop c)
+  (show IsIdempotentElem (1 : ℚ) from one_mul 1)
+
+end
+end NonVacuity.AmbientDerivedIdempotentCut

@@ -253,4 +253,53 @@ theorem weightDgGradedChainAugmentation_quasiIso
     ComplexShape.embeddingDownNat)
   infer_instance
 
+section Coordinates
+
+variable {R : Type} [Ring R] [InternalGrading R] [BigradedDGRing R]
+  (P : ℕ → WeightGradedTerm R)
+  (δ : ∀ n, (P (n+1)).obj →ₗ[R] (P n).obj)
+  (hδ : ∀ n j {x : (P (n+1)).obj}, x ∈ (P (n+1)).grade j → δ n x ∈ (P n).grade j)
+  (hc : ∀ n (x : (P (n+2)).obj), δ n (δ (n+1) x) = 0)
+
+def weightCochainOfGradedChain : WeightComplexDiagram R ℤ :=
+  weightDiagramOfGradedChain P δ hδ hc ⋙
+    ComplexShape.embeddingDownNat.extendFunctor (ModuleCat ℤ)
+
+instance : (weightCochainOfGradedChain P δ hδ hc).Additive := by
+  unfold weightCochainOfGradedChain
+  infer_instance
+
+theorem weightCochainOfGradedChain_positive_isZero (X : WeightCategory R) (n : ℤ) (hn : 0 < n) :
+    CategoryTheory.Limits.IsZero (((weightCochainOfGradedChain P δ hδ hc).obj X).X n) := by
+  change CategoryTheory.Limits.IsZero
+    ((((weightDiagramOfGradedChain P δ hδ hc).obj X).extend ComplexShape.embeddingDownNat).X n)
+  apply HomologicalComplex.isZero_extend_X
+  intro i hi
+  change -(i : ℤ) = n at hi
+  omega
+
+/-- The component in cohomological degree minus n is the nth chain term
+restricted to the indicated internal weight. -/
+def weightCochainOfGradedChain_coordinate (X : WeightCategory R) (n : ℕ) :
+    ((weightCochainOfGradedChain P δ hδ hc).obj X).X (-(n : ℤ)) ≅
+      ModuleCat.of ℤ ((P n).grade X.as) :=
+  ((weightDiagramOfGradedChain P δ hδ hc).obj X).extendXIso
+    ComplexShape.embeddingDownNat (i := n) rfl
+
+/-- The coordinate identification respects the action of homogeneous arrows. -/
+theorem weightCochainOfGradedChain_coordinate_act {X Y : WeightCategory R} (a : X ⟶ Y) (n : ℕ)
+    (x : ((weightCochainOfGradedChain P δ hδ hc).obj X).X (-(n : ℤ))) :
+    (weightCochainOfGradedChain_coordinate P δ hδ hc Y n).hom
+      (((weightCochainOfGradedChain P δ hδ hc).map a).f (-(n : ℤ)) x) =
+      (⟨a.val • ((weightCochainOfGradedChain_coordinate P δ hδ hc X n).hom x).val, by
+        have h := (P n).smul_mem a.property
+          ((weightCochainOfGradedChain_coordinate P δ hδ hc X n).hom x).property
+        rwa [show Y.as - X.as + X.as = Y.as by omega] at h⟩ : (P n).grade Y.as) := by
+  let j := ComplexShape.embeddingDownNat.extendFunctorCompEvalIso
+    (ModuleCat ℤ) (i := n) (i' := -(n : ℤ)) rfl
+  have h := j.hom.naturality ((weightDiagramOfGradedChain P δ hδ hc).map a)
+  exact congrArg (fun f => f x) h
+
+end Coordinates
+
 end Categorification

@@ -235,10 +235,12 @@ private theorem fixQuotientMap_surjective {B M : Type*} [Ring B] [Algebra k B]
   exact ⟨⟨e • a, smul_mem_fixSub he a⟩, Subtype.ext
     ((U.mkQ.map_smul e a).trans ((congrArg (fun y : M ⧸ U => e • y) hs').trans h₀))⟩
 
-private def fixedQuotientMap : W →ₗ[k] targetFixed :=
+/-- Map the middle fixed space to the fixed space of its diagrammatic quotient. -/
+def fixedQuotientMap : W →ₗ[k] targetFixed :=
   fixQuotientMap k (B := A) (M := S) E (LinearMap.range (diagramPlus k))
 
-private theorem fixedQuotientMap_surj : Function.Surjective (fixedQuotientMap k) :=
+/-- Every fixed quotient vector lifts to a fixed vector in the middle standard. -/
+theorem fixedQuotientMap_surj : Function.Surjective (fixedQuotientMap k) :=
   fixQuotientMap_surjective k (B := A) (M := S) (e := E)
     (seqIdem_mul_self (parameter k) weights loading loading_ordered)
     (LinearMap.range (diagramPlus k))
@@ -321,5 +323,51 @@ def middleCutDotSumEquiv : targetFixed ≃ₗ[k] DualNumber k :=
   (fixedDotSumQuotientEquiv k).symm.trans <|
     (Submodule.quotEquivOfEq _ _ (fixedAugmentation_ker k).symm).trans
       (LinearMap.quotKerEquivOfSurjective (fixedAugmentation k) (fixedAugmentation_surjective k))
+
+
+/-- The fixed quotient coordinates send a lifted middle polynomial to its specialization. -/
+theorem middleCutDotSumEquiv_specialize (a : Middle k) :
+    middleCutDotSumEquiv k (fixedQuotientMap k (middleToFixed k a)) = specialize a := by
+  let z := middleToFixed k a
+  have hz : fixedDotSumQuotientEquiv k ((LinearMap.range (fixedPlus k)).mkQ z) =
+      fixedQuotientMap k z := rfl
+  calc
+    _ = middleCutDotSumEquiv k
+        (fixedDotSumQuotientEquiv k ((LinearMap.range (fixedPlus k)).mkQ z)) :=
+      congrArg (middleCutDotSumEquiv k) hz.symm
+    _ = fixedAugmentation k z := by
+      let H := (Submodule.quotEquivOfEq _ _ (fixedAugmentation_ker k).symm).trans
+        (LinearMap.quotKerEquivOfSurjective (fixedAugmentation k) (fixedAugmentation_surjective k))
+      let x := (LinearMap.range (fixedPlus k)).mkQ z
+      change H ((fixedDotSumQuotientEquiv k).symm ((fixedDotSumQuotientEquiv k) x)) = _
+      calc
+        _ = H x := congrArg H ((fixedDotSumQuotientEquiv k).symm_apply_apply x)
+        _ = fixedAugmentation k z := rfl
+    _ = specialize a := fixedAugmentation_apply k a
+
+private theorem dot_smul_middle_fixed (a : A) (f : Module.End A S)
+    (ha : f g = a • g) (hf : ∀ b : Middle k, Commute f (algebraToEnd k b)) (z : W) :
+    a • z.val = f z.val := by
+  obtain ⟨b, rfl⟩ := (middleToFixed k).surjective z
+  change a • ((algebraToEnd k b) g) = f ((algebraToEnd k b) g)
+  rw [← (algebraToEnd k b).map_smul, ← ha]
+  exact (DFunLike.congr_fun (hf b).eq g).symm
+
+/-- At the fixed middle cut, the ambient left dot acts as the right-dot endomorphism. -/
+theorem leftMiddleDot_smul_middle_fixed (z : W) :
+    leftMiddleDot k • z.val = dotEnd k 0 z.val :=
+  dot_smul_middle_fixed k _ _ (dotEnd_zero_gen k)
+    (fun a => by
+      rw [← algebraToEnd_y₁]
+      exact (Commute.all (y₁ : Middle k) a).map (algebraToEnd k).toAlgHom) z
+
+/-- At the fixed middle cut, the ambient right-position dot acts as the
+second right-dot endomorphism. -/
+theorem rightMiddleDot_smul_middle_fixed (z : W) :
+    rightMiddleDot k • z.val = dotEnd k 1 z.val :=
+  dot_smul_middle_fixed k _ _ (dotEnd_one_gen k)
+    (fun a => by
+      rw [← algebraToEnd_y₂]
+      exact (Commute.all (y₂ : Middle k) a).map (algebraToEnd k).toAlgHom) z
 
 end Categorification.Stendhal.LabelTwo

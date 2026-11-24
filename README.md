@@ -1062,7 +1062,16 @@ A homogeneous exact augmented chain gives a dg model with a pointwise
 quasi-isomorphic augmentation (`weightDgGradedChainAugmentation_quasiIso`).
 A bounded-above weight complex realizes as a K-projective dg module when
 its individual terms, placed in their cohomological degrees, are K-projective
-(`diagramWeightModuleOfComplex_isKProjective`).
+(`diagramWeightModuleOfComplex_isKProjective`). The ordered loading resolution meets this criterion because its
+cohomological pieces are representable loading corners or direct sums of
+such corners at their generator weights
+(`orderedWeightDgResolution_isKProjective`).
+The ordered loading resolution has a graded augmentation that is a
+quasi-isomorphism to the homogeneous standard
+(`orderedWeightDgAugmentation_quasiIso`).
+The ordered model's higher loading support implies derived tensor concentration
+when those loadings annihilate the coefficient filtration layers (Webster Lemma 6.11,
+`orderedWeightDerivedTensor_cohomology_isZero_of_filtered_loading_support`).
 
 A balanced homogeneous multiplication of two
 coefficients induces their product from the intermediate weight-category
@@ -1458,6 +1467,20 @@ For any loading, quotienting the diagram algebra by the corresponding
 higher-loading ideal makes the loading standard projective. Its generator
 maps to the loading idempotent and splits off from the regular module
 (`Stendhal.leftStandardLayer_projective`).
+A projective resolution of the actual middle standard whose positive
+terms are supported on higher loadings gives ambient derived-tensor
+vanishing outside degree zero for the reflected coefficient
+(`Stendhal.LabelTwo.middleStandard_derivedTensorHomology_isZero_of_higher_support`).
+The standard rank-one parameter comparison supplies this supported
+resolution for the actual middle cut
+(`Stendhal.LabelTwo.exists_middleStandard_supportedResolution`).
+The ordinary tensor of this actual coefficient with the middle standard
+is the dual-number vector space at the middle cut
+(`Stendhal.LabelTwo.middleStandardTensorEquiv`).
+In these coordinates, the actual sum map vanishes and the actual
+difference map is multiplication by `2ε`
+(`Stendhal.LabelTwo.middleStandardTensorEquiv_plus`,
+`Stendhal.LabelTwo.middleStandardTensorEquiv_minus`).
 
 **Terminal-character resolution benchmark for Webster, arXiv:1309.3796v2,
 §8.1.** In the fundamental rank-one block over `ℚ`, the terminal simple
@@ -1549,6 +1572,7 @@ with nilpotent dot.
 | arXiv:1309.3796v2, Definition 6.6 and Proposition 6.9, Figure 5 (weight-category coend) | The lower exterior standardization is K-projective on the source integer coset. The derived tensor of the two-red braid at this object is the ordinary categorical coend, with braid degree `n − m + c` between source `m` and target `n + c`, where `c = 2 − ⟨λ₁, λ₀⟩` | `Stendhal.BraidedStendhalAlgebra.figureFiveLowerWeightModule_isKProjective`, `Stendhal.BraidedStendhalAlgebra.figureFiveBraidDerivedTensorObjIso` | Two red strands, symmetric Rouquier datum over a field; no K-projectivity premise on the braid's output slices | Ambient derived evaluation to the ordinary coend |
 | arXiv:1309.3796v2, Proposition 6.9, Figure 5 (derived exterior comparison) | Co-Yoneda at the source weight zero identifies the coend on the lower projective with the loading cut by multiplication. The inverse inserts the projected regular unit in the tensor. The shifted Figure 5 comparison then identifies the derived value with the upper exterior standardization in cochain degree zero, with coordinate `n` reading its intrinsic piece at `n + c + ⟨λ₀ − α, λ₁⟩` | `Stendhal.BraidedStendhalAlgebra.figureFiveBraidCoendCutIso`, `Stendhal.BraidedStendhalAlgebra.figureFiveBraidCoendExteriorIso_hom_tmul`, `Stendhal.BraidedStendhalAlgebra.figureFiveBraidDerivedExteriorIso` | Two red strands, symmetric Rouquier datum over a field, finite colour set and the source weight pairing | Two-red evaluation in the ambient weight-category derived categories; the `D⁻` restriction and Lemma 6.8 reduction remain open |
 | arXiv:1309.3796v2, §6.1, p. 65, proof of Lemma 6.11 (reflection) | Horizontal reflection identifies `B(κ', κ)` with `B(κ, κ')`, transporting left multiplication to right multiplication and right multiplication to left multiplication via the corner anti-involutions. Swapping the orders inverts the red permutation | `Stendhal.BraidedStendhalAlgebra.braidingBimoduleFlip`, `braidingBimoduleFlip_smul_left`, `braidingBimoduleFlip_smul_right` | Any commutative ground ring | Ungraded transport. The left filtration obtained from a supplied right filtration is in the next row |
+| arXiv:1309.3796v2, Definitions 4.4 and 5.1 | The left loading standard inherits the grading of the loading ideal because its higher trace is homogeneous. The quotient preserves degrees and the scalar action adds degrees | `Stendhal.leftUpper_isHomogeneous`, `Stendhal.gradedLeftStandard_mkQ_mem`, `Stendhal.gradedLeftStandard_smul_mem` | Diagram grading over a field | Literal quotient grading |
 | arXiv:1309.3796v2, §6.1, p. 65, proof of Lemma 6.11 (filtration transport) | A supplied right-standard filtration of the inverse braid gives a left filtration of the braid by the same loading standards with scalars restricted along the corner flip. The ordered list of labels is preserved | `Stendhal.BraidedStendhalAlgebra.hasReflectedStandardFiltration_braidingBimodule`, `ModuleFiltration.HasFiltration.restrictScalars` | Any commutative ground ring. The input filtration is a hypothesis | Existence of the right-standard filtration and higher Tor vanishing remain open |
 | arXiv:1309.3796v2, §6.1, p. 65, proof of Lemma 6.11 (opposite standards) | Away from degree zero, tensor kills the loading summands in a supplied K-projective resolution if their idempotents annihilate the opposite standard. For left loading standards, idempotents strictly above the label give that annihilation | `Stendhal.isZero_derivedRightTensorHomology_leftStandard_of_higher_loadings` | The loading standards are over a field. The augmentation and the labels of its loading summands are hypotheses | The finite projective dimension result alone does not supply those labels |
 | arXiv:1309.3796v2, Proposition 6.4 and proof of Lemma 6.11 (vacuum dimension) | With no black strands, a fixed-top braid column has one basis vector. Both red orders determine the loadings, their connecting permutation is unique, and there are no violated loadings | `Stendhal.BraidedStendhalAlgebra.finrank_vacuum_braidColumn`, `Stendhal.BraidedStendhalAlgebra.finrank_vacuum_braidColumn_eq_standard` | Symmetric KLR parameters over a field | The column has the dimension of its singleton standard factor |

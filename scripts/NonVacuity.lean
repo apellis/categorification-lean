@@ -9709,6 +9709,26 @@ example :=
     (fun {_ _} g => WeightCategory.mem_grading_iff.mpr
       (InDegreeZero.ring_mem_grading_zero g.val))
 
+example (n : ℤ) :=
+  letI := CatModule.HasDerivedCategory.standard QWeight
+  localizedWeightCohomologyIso (⟨0⟩ : QWeight) n rationalLeft
+
+example (hK : CatModule.IsKProjective rationalLeft) :=
+  letI := CatModule.HasDerivedCategory.standard QWeight
+  diagramWeightDerivedTensorH0IsoOfResolution G leftAction rightAction
+    (𝟙 rationalLeft) hK (CatModule.IsQuasiIso.of_isIso _)
+    (fun _ {_} _ => InDegreeZero.d_apply _ _)
+    (fun _ => ⟨InDegreeZero.mem_grading_zero, InDegreeZero.d_apply _⟩)
+    (⟨0⟩ : QWeight)
+
+example (n : ℤ) :=
+  letI := CatModule.HasDerivedCategory.standard QWeight
+  localizedWeightCohomologyIso_naturality (⟨0⟩ : QWeight) n (𝟙 rationalLeft)
+
+example (hK : CatModule.IsKProjective rationalLeft) :=
+  letI := CatModule.HasDerivedCategory.standard QWeight
+  diagramWeightDerivedTensorObjIso_naturality G leftAction rightAction (𝟙 rationalLeft) hK hK
+
 end
 
 end NonVacuity.WebsterWeightCoend

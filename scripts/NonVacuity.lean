@@ -9187,7 +9187,9 @@ example : CategoryTheory.Limits.IsZero ((CatModule.DerivedCategory.cohomologyFun
   · intro Z m _
     by_cases h : Z.as = 0
     · exact AddSubgroup.subset_closure
-        ⟨⟨h⟩, m, (Rep.act_id' Z m).symm⟩
+        ⟨Z, ⟨h⟩, 𝟙 Z, m, by
+          change m = Rep.act (𝟙 Z) (Rep.act (𝟙 Z) m)
+          rw [Rep.act_id', Rep.act_id']⟩
     · have hm : (m : (⟨0⟩ : WeightCategory ℚ) ⟶ Z) = 0 := by
         apply WeightCategory.hom_ext
         have hmem := WeightCategory.mem_wgrading (show (⟨0⟩ : WeightCategory ℚ) ⟶ Z from m)

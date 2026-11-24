@@ -33,14 +33,22 @@ variable {A B P : Type u} [Ring A] [Ring B]
 
 local notation "D" => diagramWeightBimodule G hl hr
 
-/-- If a degree of a resolution is generated at each weight by loading images,
+/-- The generators at weight `Z` obtained by transporting images of loading
+endomorphisms from their source weights. A homogeneous piece of a loading
+projective is generated this way. -/
+def diagramWeightLoadingGenerators (K : CatModule.{u} (WeightCategory B))
+    {ι : WeightCategory B → Type*} (e : ∀ W, ι W → (W ⟶ W)) (Z : WeightCategory B) :
+    Set (K.obj Z) :=
+  {x | ∃ (W : WeightCategory B) (i : ι W) (a : W ⟶ Z) (y : K.obj W), x = K.act a (K.act (e W i) y)}
+
+/-- If a degree of a resolution is generated at each weight by transported loading images,
 and those loadings kill the coefficient at an output weight, the corresponding
 degree of the ordinary tensor is zero at that weight. -/
 theorem diagramWeightTensor_grading_subsingleton_of_loading_support
     {K : CatModule.{u} (WeightCategory B)} (X : WeightCategory A) (n : ℤ)
     {ι : WeightCategory B → Type*} (e : ∀ Z, ι Z → (Z ⟶ Z))
     (hspan : ∀ Z (m : K.obj Z), m ∈ DG.grading n →
-      m ∈ AddSubgroup.closure {x | ∃ i : ι Z, ∃ y : K.obj Z, x = K.act (e Z i) y})
+      m ∈ AddSubgroup.closure (diagramWeightLoadingGenerators K e Z))
     (hkill : ∀ Z (i : ι Z) (p : (D).obj X Z), (D).ract (e Z i) p = 0) :
     Subsingleton (DG.grading (M := ((D).tensorObj K).obj X) n) := by
   suffices hz : ∀ x : ((D).tensorObj K).obj X, x ∈ DG.grading n → x = 0 from
@@ -55,13 +63,16 @@ theorem diagramWeightTensor_grading_subsingleton_of_loading_support
   · have hj : j = n := by simpa using hij
     subst j
     let t := CatTensorProduct.tmulAddHom ((D).right X) K Z p
-    have hle : AddSubgroup.closure {x | ∃ i : ι Z, ∃ y : K.obj Z, x = K.act (e Z i) y} ≤
+    have hle : AddSubgroup.closure (diagramWeightLoadingGenerators K e Z) ≤
         t.ker := (AddSubgroup.closure_le _).mpr (by
-      rintro _ ⟨s, z, rfl⟩
-      change CatTensorProduct.tmul (N := (D).right X) Z p (e Z s • z) = 0
+      rintro _ ⟨W, s, a, z, rfl⟩
+      change CatTensorProduct.tmul (N := (D).right X) Z p (a • (e W s • z)) = 0
+      let p' := ((D).right X).ract a p
       calc
-        _ = CatTensorProduct.tmul Z (((D).right X).ract (e Z s) p) z :=
-          (CatTensorProduct.ract_tmul (e Z s) p z).symm
+        _ = CatTensorProduct.tmul W p' (e W s • z) :=
+          (CatTensorProduct.ract_tmul a p (e W s • z)).symm
+        _ = CatTensorProduct.tmul W (((D).right X).ract (e W s) p') z :=
+          (CatTensorProduct.ract_tmul (e W s) p' z).symm
         _ = 0 := by rw [CatBimodule.right_ract, hkill, CatTensorProduct.zero_tmul])
     exact hle (hspan Z m hm)
   · exact CatTensorProduct.zero_tmul _ _
@@ -78,7 +89,7 @@ theorem diagramWeightDerivedTensor_cohomology_isZero_of_loading_support
     (X : WeightCategory A) (n : ℤ)
     {ι : WeightCategory B → Type*} (e : ∀ Z, ι Z → (Z ⟶ Z))
     (hspan : ∀ Z (m : K.obj Z), m ∈ DG.grading n →
-      m ∈ AddSubgroup.closure {x | ∃ i : ι Z, ∃ y : K.obj Z, x = K.act (e Z i) y})
+      m ∈ AddSubgroup.closure (diagramWeightLoadingGenerators K e Z))
     (hkill : ∀ Z (i : ι Z) (p : (D).obj X Z), (D).ract (e Z i) p = 0) :
     IsZero ((CatModule.DerivedCategory.cohomologyFunctor X n).obj
       ((diagramWeightDerivedTensor G hl hr).obj (CatModule.DerivedCategory.Q.obj M))) := by
@@ -110,7 +121,7 @@ theorem diagramWeightDerivedTensor_cohomology_isZero_of_filtered_loading_support
     {ι : WeightCategory B → Type*} (e : ∀ Z, ι Z → (Z ⟶ Z))
     (he : ∀ Z (i : ι Z), IsIdempotentElem (MulOpposite.op (e Z i).val))
     (hspan : ∀ Z (m : K.obj Z), m ∈ DG.grading n →
-      m ∈ AddSubgroup.closure {x | ∃ i : ι Z, ∃ y : K.obj Z, x = K.act (e Z i) y})
+      m ∈ AddSubgroup.closure (diagramWeightLoadingGenerators K e Z))
     {η : Type*} {L : η → ModuleCat.{u} Bᵐᵒᵖ} {layers : List η}
     (hF : ModuleFiltration.HasFiltration L layers (ModuleCat.of Bᵐᵒᵖ P))
     (hkill : ∀ Z (i : ι Z) c, c ∈ layers → ∀ z : L c, MulOpposite.op (e Z i).val • z = 0) :

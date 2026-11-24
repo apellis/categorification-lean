@@ -1213,6 +1213,9 @@ by the mixed crossing (`fundamentalBraidGradedCutIso_d₂`,
 The resulting tensor complex has middle homology ℚ at auxiliary weight zero
 (`fundamentalBraidGradedTensorHomologyIso`) and is exact at other weights
 (`fundamentalBraidGradedTensorComplex_exact`). Its two ends are exact in every weight.
+The iterated cone of the source loading projectives resolves the graded middle
+head. Tensoring that cone represents the derived braid on this head
+(`fundamentalBraidGradedDerivedModelIso`).
 The diagonal-ring equivalence
 carries the two mixed crossings to the differentials of the projective
 resolution of the middle head (`fundamentalBraidSourceResolution`). Its

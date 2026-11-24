@@ -165,4 +165,52 @@ theorem middleStandardTensorEquiv_mem_grade_iff (t : T) (d : ℤ) :
   exact h.trans ((middleCutDotSum_mem_grade_iff k (e.toLinearEquiv.symm t) d).trans
     (Iff.of_eq (congrArg P hc)))
 
+/-- The scalar coordinate identifies weight zero in the ordinary middle tensor. -/
+def middleOrdinaryTensorGradeZeroEquiv : middleOrdinaryTensorGrade k 0 ≃ₗ[k] k := by
+  let e := middleStandardTensorEquiv k
+  let p := (TrivSqZeroExt.fstHom k k k).toLinearMap.comp
+    (e.toLinearMap.comp (middleOrdinaryTensorGrade k 0).subtype)
+  refine LinearEquiv.ofBijective p ⟨?_, ?_⟩
+  · intro x y hxy
+    have hx := ((middleStandardTensorEquiv_mem_grade_iff k x.val 0).mp x.property).2 (by decide)
+    have hy := ((middleStandardTensorEquiv_mem_grade_iff k y.val 0).mp y.property).2 (by decide)
+    exact Subtype.ext (e.injective (TrivSqZeroExt.ext hxy (hx.trans hy.symm)))
+  · intro c
+    let u : DualNumber k := TrivSqZeroExt.inl c
+    have hu := e.apply_symm_apply u
+    have hz : e.symm u ∈ middleOrdinaryTensorGrade k 0 :=
+      (middleStandardTensorEquiv_mem_grade_iff k _ _).mpr
+        ⟨fun h => (h rfl).elim, fun _ => (congrArg TrivSqZeroExt.snd hu).trans rfl⟩
+    exact ⟨⟨e.symm u, hz⟩, (congrArg TrivSqZeroExt.fst hu).trans rfl⟩
+
+/-- The epsilon coordinate identifies weight two in the ordinary middle tensor. -/
+def middleOrdinaryTensorGradeTwoEquiv : middleOrdinaryTensorGrade k 2 ≃ₗ[k] k := by
+  let e := middleStandardTensorEquiv k
+  let p := (TrivSqZeroExt.sndHom k k).comp
+    (e.toLinearMap.comp (middleOrdinaryTensorGrade k 2).subtype)
+  refine LinearEquiv.ofBijective p ⟨?_, ?_⟩
+  · intro x y hxy
+    have hx := ((middleStandardTensorEquiv_mem_grade_iff k x.val 2).mp x.property).1 (by decide)
+    have hy := ((middleStandardTensorEquiv_mem_grade_iff k y.val 2).mp y.property).1 (by decide)
+    exact Subtype.ext (e.injective (TrivSqZeroExt.ext (hx.trans hy.symm) hxy))
+  · intro c
+    let u : DualNumber k := TrivSqZeroExt.inr c
+    have hu := e.apply_symm_apply u
+    have hz : e.symm u ∈ middleOrdinaryTensorGrade k 2 :=
+      (middleStandardTensorEquiv_mem_grade_iff k _ _).mpr
+        ⟨fun _ => (congrArg TrivSqZeroExt.fst hu).trans rfl, fun h => (h rfl).elim⟩
+    exact ⟨⟨e.symm u, hz⟩, (congrArg TrivSqZeroExt.snd hu).trans rfl⟩
+
+/-- The ordinary middle tensor vanishes at every other internal weight. -/
+theorem middleOrdinaryTensorGrade_subsingleton {j : ℤ} (h₀ : j ≠ 0) (h₂ : j ≠ 2) :
+    Subsingleton (middleOrdinaryTensorGrade k j) := by
+  have zero (t : middleOrdinaryTensorGrade k j) : t = 0 := by
+    apply Subtype.ext
+    apply (middleStandardTensorEquiv k).injective
+    change middleStandardTensorEquiv k t.val = middleStandardTensorEquiv k 0
+    rw [map_zero]
+    have h := (middleStandardTensorEquiv_mem_grade_iff k t.val j).mp t.property
+    exact TrivSqZeroExt.ext (h.1 h₀) (h.2 h₂)
+  exact ⟨fun x y => (zero x).trans (zero y).symm⟩
+
 end Categorification.Stendhal.LabelTwo

@@ -226,6 +226,25 @@ variable [CatModule.HasDerivedCategory.{v,0} (WeightCategory
   (TensorProductAlgebra k (parameter k) weights (({()} : Multiset Unit) + {()})))]
   [CatModule.HasDerivedCategory.{v,0} (WeightCategory k)]
 
+private theorem middleWeightCover_idem_zero (i : I₂) : idems₂ i ∈ wgrading (M := A₂) 0 :=
+  mk_e_mem_tensorProductGrade (labelTwoGradingDatum k) ν₂ i.1 i.2
+
+private theorem middleWeightCover_idempotent (i : I₂) : IsIdempotentElem (idems₂ i) :=
+  seqIdem_mul_self (parameter k) weights i.1 i.2
+
+private theorem middleWeightCover_order_trans (a b c : I₂)
+    (hab : StendhalLT a.1 b.1) (hbc : StendhalLT b.1 c.1) : StendhalLT a.1 c.1 :=
+  ⟨fun r i => (hab.1 r i).trans (hbc.1 r i),
+    fun hca => hab.2 (fun r i => (hbc.1 r i).trans (hca r i))⟩
+
+private theorem middleWeightCover_quotient_mem_grade
+    (D : OrderedStandardCovers standards₂ idems₂ (fun s t => StendhalLT s.1 t.1))
+    (hD : ∀ x : lIdeal (idems₂ s₂), D.quotient s₂ x = (Submodule.Quotient.mk x : S₂))
+    ⦃j : ℤ⦄ ⦃x : lIdeal (idems₂ s₂)⦄ (hx : x.val ∈ wgrading j) :
+    D.quotient s₂ x ∈ (middleGradedChainTerm k).grade j := by
+  rw [hD]
+  exact middleStandardQuotient_mem_grade k hx
+
 /-- Higher-loading ordered covers for the actual middle standard make the
 fixed-weight derived tensor cohomology vanish away from degree zero. -/
 theorem middleStandardWeight_cohomology_isZero_of_ordered_covers
@@ -236,18 +255,12 @@ theorem middleStandardWeight_cohomology_isZero_of_ordered_covers
       ((middleReflectedWeightDerivedTensor k).obj
         (CatModule.DerivedCategory.Q.obj (middleStandardWeightModule k)))) := by
   let T : ℤ → AddSubgroup (standards₂ s₂) := (middleGradedChainTerm k).grade
-  have he₀ (i : I₂) : idems₂ i ∈ wgrading (M := A₂) 0 :=
-    mk_e_mem_tensorProductGrade (labelTwoGradingDatum k) ν₂ i.1 i.2
-  have he (i : I₂) : IsIdempotentElem (idems₂ i) :=
-    seqIdem_mul_self (parameter k) weights i.1 i.2
-  have htrans (a b c : I₂) (hab : StendhalLT a.1 b.1) (hbc : StendhalLT b.1 c.1) :
-      StendhalLT a.1 c.1 := by
-    exact ⟨fun r i => (hab.1 r i).trans (hbc.1 r i),
-      fun hca => hab.2 (fun r i => (hbc.1 r i).trans (hca r i))⟩
+  let he₀ := middleWeightCover_idem_zero k
+  let he := middleWeightCover_idempotent k
+  let htrans := middleWeightCover_order_trans
   have hq ⦃j : ℤ⦄ ⦃x : lIdeal (idems₂ s₂)⦄ (hx : x.val ∈ wgrading j) :
-      D.quotient s₂ x ∈ T j := by
-    rw [hD]
-    exact middleStandardQuotient_mem_grade k hx
+      D.quotient s₂ x ∈ T j :=
+    middleWeightCover_quotient_mem_grade k D hD hx
   let L : Unit → ModuleCat A₂ᵐᵒᵖ := fun _ => ModuleCat.of _ (MiddleTensorCoefficient k)
   have hF : HasFiltration L [()] (ModuleCat.of _ (MiddleTensorCoefficient k)) :=
     HasFiltration.single (LinearEquiv.refl _ _)
@@ -262,6 +275,35 @@ theorem middleStandardWeight_cohomology_isZero_of_ordered_covers
   let H := CatModule.DerivedCategory.cohomologyFunctor X n
   exact hZ.of_iso ((F ⋙ H).mapIso
     (CatModule.DerivedCategory.Q.mapIso (middleWeightStalkIso k))).symm
+
+/-- The ordered middle cover computes degree-zero tensor cohomology using
+its own degree-preserving augmentation. -/
+def middleStandardWeightH0Iso_of_ordered_covers
+    (D : OrderedStandardCovers standards₂ idems₂ (fun s t => StendhalLT s.1 t.1))
+    (hD : ∀ x : lIdeal (idems₂ s₂), D.quotient s₂ x = (Submodule.Quotient.mk x : S₂))
+    (X : WeightCategory k) :
+    (CatModule.DerivedCategory.cohomologyFunctor X 0).obj
+      ((middleReflectedWeightDerivedTensor k).obj
+        (CatModule.DerivedCategory.Q.obj (middleStandardWeightModule k))) ≅
+      AddCommGrpCat.of (middleOrdinaryTensorGrade k X.as) := by
+  let T : ℤ → AddSubgroup (standards₂ s₂) := (middleGradedChainTerm k).grade
+  let dc : DirectSum.Decomposition T := (middleGradedChainTerm k).decomp
+  let he₀ := middleWeightCover_idem_zero k
+  let he := middleWeightCover_idempotent k
+  let htrans := middleWeightCover_order_trans
+  have hq ⦃j : ℤ⦄ ⦃x : lIdeal (idems₂ s₂)⦄ (hx : x.val ∈ wgrading j) :
+      D.quotient s₂ x ∈ T j :=
+    middleWeightCover_quotient_mem_grade k D hD hx
+  let q := @orderedWeightDgAugmentation _ _ _ _ _ _ _ _ D s₂ he₀ he htrans T dc (middleGradedChainTerm k).smul_mem hq
+  let f := q ≫ (middleWeightStalkIso k).hom
+  have hK := @orderedWeightDgResolution_isKProjective _ _ _ _ _ _ _ _
+    D s₂ he₀ he htrans T dc hq
+  have hqiso := @orderedWeightDgAugmentation_quasiIso _ _ _ _ _ _ _ _
+    D s₂ he₀ he htrans T dc (middleGradedChainTerm k).smul_mem hq
+  have hf : CatModule.IsQuasiIso f :=
+    hqiso.comp (CatModule.IsQuasiIso.of_isIso (middleWeightStalkIso k).hom)
+  exact middleStandardWeightH0IsoOfResolution k f hK hf
+    (fun Y {_} hx => weightDgModuleOfGradedChain_d_eq_zero_of_degree_zero _ _ _ _ Y hx) X
 
 end HigherSupport
 

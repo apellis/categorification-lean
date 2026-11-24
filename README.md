@@ -1013,6 +1013,8 @@ The cup also has an ungraded derived Hom construction with the action
 by coefficient precomposition, with a dg Hom model on scalar inputs.
 The cap using the same coefficient is left adjoint before the shift
 (`Stendhal.Coevaluation.cupRHomObjIso` and `capBimoduleCupRHomAdjunction`).
+The derived Hom and dual-tensor constructions agree on the ground field
+(`Stendhal.Coevaluation.cupRHomTensorRegularIso`).
 For the two fundamental type A₁ factors over the rationals, the dual
 coefficient is the simple quotient by the smaller-cut trace. It gives
 the cup with homological shift minus one and the cap

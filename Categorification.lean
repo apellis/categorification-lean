@@ -1727,6 +1727,7 @@ import Categorification.WeightedKLR.Rigidity.FundamentalCoevaluation
 import Categorification.WeightedKLR.Rigidity.ReducedCoevaluationWord
 import Categorification.WeightedKLR.Rigidity.DerivedCupCap
 import Categorification.WeightedKLR.Rigidity.DerivedCupHom
+import Categorification.WeightedKLR.Rigidity.DerivedCupRegular
 import Categorification.WeightedKLR.Rigidity.FundamentalCupCap
 import Categorification.Algebra.DerivedTensorRegular
 import Categorification.WeightedKLR.Rigidity.FundamentalCupRegular

@@ -8846,6 +8846,9 @@ example := gradedMiddleComplex_exact ⟨0⟩
 example := gradedMiddleComplex_exact ⟨2⟩
 example := gradedMiddleCap_shiftedMiddleIso 2
 example := gradedMiddleCap_shiftedTerminal_isZero 1
+example := gradedMiddleCap_simpleIso
+example := gradedMiddleCap_shiftedSimpleIso 1
+example := gradedMiddleCupCap_fieldIso
 
 end
 

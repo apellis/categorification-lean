@@ -1102,6 +1102,10 @@ middle, terminal and middle projectives (`middleResolution_maps_degree`,
 `middleResolution_exact_terminal`, `middleResolution_exact_middle`).
 These maps and the scalar augmentation form an objectwise exact
 sequence of dg modules over the weight category (`gradedMiddleComplex_exact`).
+After applying the cap, the normalized composite on the scalar
+representable splits into two scalar lines. Their internal and
+cohomological degrees are (−1, 1) and (1, −1)
+(`gradedMiddleCupCap_fieldIso`).
 
 For Proposition 7.2, a single
 red with coroot pairing one gives a simple projective at the red-first

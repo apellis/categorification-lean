@@ -1189,7 +1189,12 @@ The graded diagonal-ring equivalence identifies the shifted loading projectives
 in this resolution with the native projectives at the same weights in the
 source of the braid (`fundamentalBraidSourceLoadingIso`). Its augmented
 mixed-crossing sequence is exact at every source weight
-(`fundamentalBraidSourceGradedResolution`).
+(`fundamentalBraidSourceGradedResolution`). Tensoring these projectives with
+the graded braid gives the crossed loading cut in auxiliary degree
+`n-j` at target weight `n` for a generator of weight `j`
+(`fundamentalBraidGradedCutIso`). On these coends both differentials multiply
+by the mixed crossing (`fundamentalBraidGradedCutIso_d₂`,
+`fundamentalBraidGradedCutIso_d₁`).
 The diagonal-ring equivalence
 carries the two mixed crossings to the differentials of the projective
 resolution of the middle head (`fundamentalBraidSourceResolution`). Its

@@ -287,4 +287,44 @@ theorem fiveSlotMiddleRight_second_factors_higher_nearby (hQ : KLRSymm Q) (x : V
     simpa only [map_mul] using congrArg F (middleRight_second_word_on_higher Q Λ)
   exact ⟨F (ψw [3, 2, 1] * e leftExtreme) * r, by rw [← he', ← mul_assoc, rep, mul_assoc]⟩
 
+
+attribute [local instance 1100] IsIdempotentElem.instAlgebraCorner_categorification
+
+local notation "T" => IsIdempotentElem.Corner (isIdempotentElem_violMk_redProj k Q Λ ν₀ (redWord rightMiddle))
+local notation "E" => violMk k Q Λ ν₀ (redProj k Q Λ ν₀ (redWord rightMiddle))
+local notation "K" => blockLoadingKernel Q Λ rightMiddle 1 2
+
+/-- Every element of the actual middle-right higher kernel has a two-term
+expression with coefficients in the source ordered algebra, cut at the
+central and nearby loadings respectively. -/
+theorem fiveSlotMiddleRight_blockLoadingKernel_two_factors (hQ : KLRSymm Q) (x : K) :
+    ∃ a b : T, pof central * a.1 = a.1 ∧ pof nearby * b.1 = b.1 ∧
+      x.1.1.1 = C₁ * a.1 + C₂ * b.1 := by
+  let ord := isIdempotentElem_violMk_redProj k Q Λ ν₀ (redWord rightMiddle)
+  have project (u : Seq μ₀) (hu : redWord u = redWord rightMiddle) (y : V) :
+      ∃ r : T, r.1 = pof u * y * E ∧ pof u * r.1 = r.1 := by
+    have left : E * pof u = pof u := by
+      change E * violMk k Q Λ ν₀ (ofKLR k Q Λ ν₀ (e u)) = _
+      rw [← map_mul, redProj_mul_e, ite_eq_left hu]
+      rfl
+    have hs : pof u * pof u = pof u := by rw [← map_mul, e_mul_self]
+    let r : T := ⟨pof u * y * E, (Subsemigroup.mem_corner_iff ord).2
+      ⟨by rw [← mul_assoc, ← mul_assoc, left], by rw [mul_assoc, ord.eq]⟩⟩
+    exact ⟨r, rfl, by change pof u * (pof u * y * E) = _; rw [← mul_assoc, ← mul_assoc, hs]⟩
+  have left : pof rightMiddle * x.1.1.1 = x.1.1.1 :=
+    congrArg (fun z : T => z.1) x.1.2
+  have right : x.1.1.1 * E = x.1.1.1 :=
+    CornerEndomorphism.corner_mul_right ord x.1.1
+  obtain ⟨y, z, hx⟩ := fiveSlotMiddleRight_higher_two_factors Q Λ hQ x.1.1.1 x.2 left
+  obtain ⟨a, ha, hpa⟩ := project central (by decide) y
+  obtain ⟨b, hb, hpb⟩ := project nearby (by decide) z
+  have h₁ : C₁ * pof central = C₁ := by rw [← map_mul, mul_assoc, e_mul_self]
+  have h₂ : C₂ * pof nearby = C₂ := by rw [← map_mul, mul_assoc, e_mul_self]
+  refine ⟨a, b, hpa, hpb, ?_⟩
+  calc
+    x.1.1.1 = x.1.1.1 * E := right.symm
+    _ = (C₁ * y + C₂ * z) * E := congrArg (· * E) hx
+    _ = C₁ * a.1 + C₂ * b.1 := by rw [ha, hb, add_mul, ← mul_assoc C₁, ← mul_assoc C₁, h₁,
+      ← mul_assoc C₂, ← mul_assoc C₂, h₂]
+
 end Categorification.Stendhal.BraidedStendhalAlgebra

@@ -5551,6 +5551,13 @@ noncomputable example := Categorification.Stendhal.labelTwoExteriorStandardCompl
 /-- The undotted and dotted terminal columns of the actual outgoing map. -/
 example := Categorification.Stendhal.labelTwo_outgoing_terminal_diagram_columns Q
 
+/-- The outgoing diagrams at each surviving cut have independent scalar coefficients. -/
+example (a b : ℚ) :=
+  Categorification.Stendhal.LabelTwoEndpointFlag.outgoing_middle_coefficients_eq_zero Q (a := a) (b := b)
+
+example (a b : ℚ) :=
+  Categorification.Stendhal.LabelTwoEndpointFlag.outgoing_terminal_coefficients_eq_zero Q (a := a) (b := b)
+
 end NonVacuity.WebsterLabelTwoEndpointTor
 
 namespace NonVacuity.WebsterLocalization

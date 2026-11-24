@@ -1242,6 +1242,13 @@ second shuffle is zero, and its first-dot translate recovers the
 undotted first shuffle
 (`Stendhal.labelTwo_outgoing_terminal_affine_rows`,
 `Stendhal.labelTwo_outgoing_terminal_diagram_columns`).
+A polynomial flag representation of the actual two-red diagram
+algebra detects the undotted and first-dot outgoing columns at both
+surviving middle-standard loadings. Evaluating a relation on the
+exterior unit vector recovers its two scalar coefficients
+(`Stendhal.LabelTwoEndpointFlag.tensorFlagRep`,
+`Stendhal.LabelTwoEndpointFlag.outgoing_middle_coefficients_eq_zero`,
+`Stendhal.LabelTwoEndpointFlag.outgoing_terminal_coefficients_eq_zero`).
 
 
 

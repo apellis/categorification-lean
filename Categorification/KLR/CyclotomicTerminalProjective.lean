@@ -1,6 +1,18 @@
+/-
+Copyright (c) 2026 Alex Ellis. All rights reserved.
+Released under Apache 2.0 license as described in the file LICENSE.
+-/
 import Categorification.KLR.CyclotomicTerminal
 import Categorification.KLR.CyclotomicSplit
 import Categorification.Algebra.IdempotentEquiv
+
+/-!
+# The two-strand terminal projective
+
+The weight-two terminal cyclotomic right ideal cut out by the nilHecke
+divided-power projector is simple. This is the single-colour weight-two
+case of Webster, arXiv:1309.3796v2, Proposition 7.2.
+-/
 
 noncomputable section
 
@@ -20,6 +32,21 @@ local notation "d" => π (ψ 0)
 
 /-- The divided-power projector (x₀ ψ₀) in the weight-two terminal algebra. -/
 def twoBlackTerminalIdem : R := p*d
+
+/-- The affine lift of the terminal projector acts as the standard two-strand
+nilHecke divided-power idempotent. -/
+theorem toNH_twoBlackTerminalIdem_lift :
+    toNH (i := ()) (fun j (_ : j ∈ ν) => Subsingleton.elim j ()) Q
+      (x (⟨0, by decide⟩ : Fin (Multiset.card ν)) * ψ 0) =
+      NilHecke.idemNH k 2 := by
+  have hx : (NilHecke.xDelta (m := 2) 2 : MvPolynomial (Fin 2) k) =
+      MvPolynomial.X 0 := by
+    simp [NilHecke.xDelta, Fin.prod_univ_succ]
+  rw [map_mul, toNH_x, toNH_ψ]
+  change NilHecke.mulX k 2 0 * NilHecke.dd k 2 0 = _
+  rw [NilHecke.idemNH, hx, show NilHecke.w0Word 2 = [0] from rfl,
+    NilHecke.ddw_cons, NilHecke.ddw_nil, mul_one]
+  rfl
 
 local notation "E" => twoBlackTerminalIdem Q
 
@@ -136,6 +163,5 @@ theorem twoBlackTerminalProjective_simple :
   change r.val*(u*z.val)=z.val
   rw [← mul_assoc,hu]
   exact z.property
-
 
 end Categorification.KLR.CycKLR

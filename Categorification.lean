@@ -1627,6 +1627,7 @@ import Categorification.WeightedKLR.RedStrands.BraidedAppendTensor
 import Categorification.WeightedKLR.RedStrands.BraidedAppendViolated
 import Categorification.WeightedKLR.RedStrands.BraidedBimoduleFlip
 import Categorification.WeightedKLR.RedStrands.BraidedExteriorGrading
+import Categorification.WeightedKLR.RedStrands.BraidedExteriorTensor
 import Categorification.WeightedKLR.RedStrands.BraidedFactorization
 import Categorification.WeightedKLR.RedStrands.BraidedFactorizationBasis
 import Categorification.WeightedKLR.RedStrands.BraidedFactorizationGeneral

@@ -8984,27 +8984,6 @@ private theorem productWeight {i j : ℤ} {x y : ℚ}
 private theorem productBalanced (b x y : ℚ) : product (op b • x) y = product x (b • y) :=
   mul_assoc x b y
 
-example := diagramWeightCoendProduct G G G leftAction rightAction leftAction rightAction
-  product productWeight productBalanced (⟨0⟩ : QWeight) (⟨0⟩ : QWeight)
-
-private theorem productSpan :
-    AddSubgroup.closure (Set.range fun z : ℚ × ℚ => product z.1 z.2) = ⊤ := by
-  apply top_unique
-  intro z _
-  apply AddSubgroup.subset_closure
-  exact ⟨(z, 1), mul_one z⟩
-
-example := diagramWeightCoendProduct_surjective G G G leftAction rightAction leftAction rightAction
-  product productWeight productBalanced (⟨0⟩ : QWeight) (⟨0⟩ : QWeight) productSpan
-
-example := diagramWeightTensorSlice_leftInverse G G leftAction rightAction leftAction rightAction
-  (⟨0⟩ : QWeight) (⟨0⟩ : QWeight)
-
-example := diagramWeightOrdinaryProjection_tmul G G leftAction rightAction leftAction rightAction
-  (⟨0⟩ : QWeight) (⟨1⟩ : QWeight)
-  (⟨1, InDegreeZero.ring_mem_grading_zero (1 : ℚ)⟩ : G 0)
-  (⟨1, InDegreeZero.ring_mem_grading_zero (1 : ℚ)⟩ : G 0)
-
 example := CornerTensor.liftAdd (k := ℚ) (1 : ℚ) 1 1 product
   (fun c x y => by change (c * x) * y = x * (c * y); ring)
   (fun x y => by simp)
@@ -9027,6 +9006,27 @@ example := cornerTensorCutLift_tmul (k := ℚ) unitIdempotent unitIdempotent uni
   projectedProduct projectedProduct_balanced
   (cornerSandwichAdd unitIdempotent unitIdempotent (1 : ℚ))
   (cornerSandwichAdd unitIdempotent unitIdempotent (1 : ℚ))
+
+example := diagramWeightCoendProduct G G G leftAction rightAction leftAction rightAction
+  product productWeight productBalanced (⟨0⟩ : QWeight) (⟨0⟩ : QWeight)
+
+private theorem productSpan :
+    AddSubgroup.closure (Set.range fun z : ℚ × ℚ => product z.1 z.2) = ⊤ := by
+  apply top_unique
+  intro z _
+  apply AddSubgroup.subset_closure
+  exact ⟨(z, 1), mul_one z⟩
+
+example := diagramWeightCoendProduct_surjective G G G leftAction rightAction leftAction rightAction
+  product productWeight productBalanced (⟨0⟩ : QWeight) (⟨0⟩ : QWeight) productSpan
+
+example := diagramWeightTensorSlice_leftInverse G G leftAction rightAction leftAction rightAction
+  (⟨0⟩ : QWeight) (⟨0⟩ : QWeight)
+
+example := diagramWeightOrdinaryProjection_tmul G G leftAction rightAction leftAction rightAction
+  (⟨0⟩ : QWeight) (⟨1⟩ : QWeight)
+  (⟨1, InDegreeZero.ring_mem_grading_zero (1 : ℚ)⟩ : G 0)
+  (⟨1, InDegreeZero.ring_mem_grading_zero (1 : ℚ)⟩ : G 0)
 
 end
 

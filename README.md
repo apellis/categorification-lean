@@ -1017,13 +1017,14 @@ of the left weight modules also gives the derived Hom
 coefficients induces their product from the intermediate weight-category
 tensor coend (`diagramWeightCoendProduct_tmul`). In the right-module
 convention this gives the coend multiplication of three rectangular corners
-(`diagramCornerWeightRightCoendProduct_tmul`). Ordinary pure products
-that span the coefficient give a surjection at each endpoint pair
-(`diagramWeightCoendProduct_surjective`). Forgetting intermediate weights
-embeds the coend as the endpoint-degree summand of the ordinary additive
-balanced tensor (`diagramWeightTensorSlice_leftInverse`,
-`diagramWeightOrdinaryProjection_tmul`). For a rectangular corner between
-two degree-zero idempotents, `diagramCornerWeightDerivedRightTensor` uses the restricted grading
+(`diagramCornerWeightRightCoendProduct_tmul`). If ordinary pure products
+generate the coefficient, the coend product is onto at each pair of endpoint
+weights (`diagramWeightCoendProduct_surjective`). Forgetting the intermediate
+weight embeds each endpoint coend as a summand of the ordinary additive
+balanced tensor (`diagramWeightTensorSlice_leftInverse`). The associated
+projection keeps pure tensors of the endpoint degree
+(`diagramWeightOrdinaryProjection_tmul`). For a rectangular corner between two degree-zero
+idempotents, `diagramCornerWeightDerivedRightTensor` uses the restricted grading
 and defines derived right tensor on the graded right-module categories.
 For the actual braid bimodule this gives `auxiliaryGradedBraidingFunctor`
 in the integer grading inherited from the augmented KLR algebra. For a two-red swap,
@@ -1043,17 +1044,18 @@ actual multiplication adds normalized degrees
 (`braidingCoefficientMul_mem_weight`). The inversion condition in Lemma 6.5
 implies additivity (`redWordOffset_add_of_sublist`), and its balanced
 multiplication identifies the quotient corner coefficient
-(`violCornerTensorMulEquiv_tmul`). The additive universal property
-`CornerTensor.liftAdd` descends additive balanced products with an
-additive target. On rectangular coefficients it sandwiches the inputs
-(`cornerTensorCutLift_tmul`). The weight-category product identifies each endpoint coend with its
-homogeneous quotient coefficient (`braidFactorizationCoendEquiv`).
-Its injectivity uses a split comparison to the field corner tensor
-(`diagramCornerWeightRightSlice_leftInverse`).
+(`violCornerTensorMulEquiv_tmul`). The weight-category product identifies
+each endpoint coend with its homogeneous quotient coefficient
+(`braidFactorizationCoendEquiv`). Its injectivity uses a split comparison to
+the field corner tensor (`diagramCornerWeightRightSlice_leftInverse`).
 
 Over a scalar field in degree zero the left modules are K-projective, so the
 construction gives derived Hom for every homogeneous scalar coefficient
 (`diagramWeightScalarDerivedHom`).
+
+For the ordinary corner tensor, `CornerTensor.liftAdd` descends a balanced
+bi-additive family with an additive target. On rectangular coefficients it
+sandwiches the inputs (`cornerTensorCutLift_tmul`).
 
 Definition 7.4 has cup and cap coefficient models in the ungraded derived
 categories, with a specified cohomological shift on the cup and a finite

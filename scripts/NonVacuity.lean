@@ -5539,6 +5539,22 @@ noncomputable example := KL3.Diagram.shiftHomEquivalence UDot.sl2RootDatum (ZMod
 
 end NonVacuity.WebsterLocalization
 
+namespace NonVacuity.WebsterCupCap
+
+open CategoryTheory DG MulOpposite Categorification.Stendhal.Coevaluation
+open scoped DG.DegreeZero TensorProduct
+
+local instance : DG.HasDerivedCategory.{0,0} ℚ := DG.HasDerivedCategory.small ℚ
+local instance : DG.HasDerivedCategory.{0,0} ℚᵐᵒᵖ := DG.HasDerivedCategory.small ℚᵐᵒᵖ
+
+example := shiftedCupFunctor ℚ ℚ (Fin 2 → ℚ) (-2)
+example := capFunctor ℚ ℚ (Fin 2 → ℚ)
+
+example (f : CupCoefficient ℚ (Fin 2 → ℚ)) (x : Fin 2 → ℚ) :=
+  cupTensorHomEquiv_op_tmul ℚ ℚ (Fin 2 → ℚ) (2 : ℚ) f (3 : ℚ) x
+
+end NonVacuity.WebsterCupCap
+
 namespace NonVacuity.CLSpanning
 
 open Categorification Categorification.QuantumGroup Categorification.KL3.Diagram
@@ -5920,6 +5936,63 @@ private noncomputable abbrev Λ : Fin 1 → Unit →₀ ℕ := fun _ => Finsupp.
 example := oneBlack_extremal_projective_simple Q Λ () (by simp [Λ])
 
 end NonVacuity.WebsterSingleBlackExtremal
+
+namespace NonVacuity.WebsterTerminalCyclotomic
+
+open Categorification.KLR.CycKLR
+
+private noncomputable abbrev Q : Unit → Unit → MvPolynomial (Fin 2) ℚ := fun _ _ => 0
+
+example := terminalCoinvModule_simple (ν := Multiset.replicate 2 ())
+  (i := ()) (fun j _ => Subsingleton.elim j ()) Q
+
+example := twoBlack_terminal_relations Q
+
+example := twoBlackTerminalProjective_simple Q
+example := Categorification.Stendhal.SingleRed.twoBlackTerminalWebsterProjective_simple Q
+
+end NonVacuity.WebsterTerminalCyclotomic
+
+namespace NonVacuity.WebsterTerminalSymmetric
+
+open KLR KLRAlgebra KLR.CycKLR MvPolynomial NilHecke
+
+private abbrev black := Multiset.replicate 3 ()
+private noncomputable abbrev params : Unit → Unit → MvPolynomial (Fin 2) ℚ := fun _ _ => 0
+private noncomputable abbrev projection :=
+  CycKLR.mk ℚ params (fun _ => (Polynomial.X ^ 3 : Polynomial ℚ)) black
+
+example : projection (pol (esymm (Fin black.card) ℚ 2)) = 0 :=
+  terminal_pol_esymm_eq_zero (ν := black) (i := ()) (fun _ _ => Subsingleton.elim _ _) params 2
+    (by decide) (by decide)
+
+example (p : MvPolynomial (Fin black.card) ℚ) (hp : p ∈ coinvIdeal ℚ black.card) :
+    projection (pol p) = 0 :=
+  terminal_pol_eq_zero_of_mem_coinvIdeal (i := ()) (fun _ _ => Subsingleton.elim _ _) params p hp
+
+example := terminalDividedProjective_simple (ν := black) (i := ())
+  (fun j _ => Subsingleton.elim j ()) params
+
+end NonVacuity.WebsterTerminalSymmetric
+
+namespace NonVacuity.WebsterSaturatedSingleRed
+
+open Categorification.Stendhal.SingleRed
+
+private abbrev black := Multiset.replicate 3 (0 : Fin 2)
+private noncomputable abbrev params : Fin 2 → Fin 2 → MvPolynomial (Fin 2) ℚ := fun _ _ => 0
+private noncomputable abbrev weights : Fin 1 → Fin 2 →₀ ℕ := fun _ =>
+  Finsupp.single 0 3 + Finsupp.single 1 2
+
+private theorem monochromatic : ∀ j ∈ black, j = 0 := by
+  intro j hj
+  exact (Multiset.mem_replicate.mp hj).2
+
+example := saturatedWebsterProjective_simple monochromatic params weights (by simp [weights, black])
+
+example := saturatedWebsterProjective_projective monochromatic params weights (by simp [weights, black])
+
+end NonVacuity.WebsterSaturatedSingleRed
 
 namespace NonVacuity.WebsterFigureFive
 
@@ -7576,13 +7649,13 @@ noncomputable section
 
 private abbrev ν : Multiset Unit := {()} + {()}
 private abbrev μ := stendhalWeight 3 ν
-private abbrev Q : Unit → Unit → MvPolynomial (Fin 2) ℚ := fun _ _ => 0
+private abbrev Q : Unit → Unit → MvPolynomial (Fin 2) ℤ := fun _ _ => 0
 private abbrev Λ : Fin 3 → Unit →₀ ℕ := fun _ => Finsupp.single () 2
 private def s : Seq μ := Seq.ofList [.inr 0, .inr 1, .inr 2, .inl (), .inl ()] (by decide)
 private def t : Seq μ := sadj μ.card 2 • s
 private def u : Seq μ := sadj μ.card 3 • t
-private abbrev A := KLRAlgebra ℚ (stendhalQ Q Λ) μ
-private abbrev P := (violMk ℚ Q Λ ν).comp (ofKLR ℚ Q Λ ν)
+private abbrev A := KLRAlgebra ℤ (stendhalQ Q Λ) μ
+private abbrev P := (violMk ℤ Q Λ ν).comp (ofKLR ℤ Q Λ ν)
 
 private theorem blacks (a : Fin μ.card) (h : (s.lbl a).isLeft) :
     a = ⟨3,by decide⟩ ∨ a = ⟨4,by decide⟩ := by
@@ -7597,17 +7670,23 @@ private theorem compose_at_cut (left right : List ℕ) :
 
 /-- Check a supported pair with a common-joint contribution, at positive red
 weights and with an exterior red spectator before the pair. -/
-example (g : ViolQuotient ℚ Q Λ ν) :=
-  let w := P (e s) * g * P (e u)
+private theorem pairAtTop (top : Seq μ) (hTop : top=s ∨ top=t ∨ top=u)
+    (order : redWord top = [0] ++ [1,2]) (g : ViolQuotient ℤ Q Λ ν) :
+    let w := P (e top) * g * P (e u)
+    let J := blockUpperIdeal ℤ Q Λ ν 1 2 (adjacentBlockRoot 1 2 top) (redWord top)
+    ∃ z : ViolQuotient ℤ Q Λ ν, P (e top)*z*P (e u)=z ∧
+      w*P (ψw [2,3]*e t)-z*P (ψw [2,3]*e t) ∈ J ∧
+      w*P (ψw [3]*e t)-z*P (ψw [3]*e t) ∈ J :=
+  let w := P (e top) * g * P (e u)
   let x := w * P (ψw [2,3]*e t)
   let y := w * P (ψw [3]*e t)
   have cut (l : List ℕ) :
-      P (e s)*(w*P (ψw l*e t))*P (e t)=w*P (ψw l*e t) := by
-    have top : P (e s)*w=w := by
+      P (e top)*(w*P (ψw l*e t))*P (e t)=w*P (ψw l*e t) := by
+    have leftFixed : P (e top)*w=w := by
       simp only [w,← mul_assoc,← map_mul,e_mul_self]
     have right : P (ψw l*e t)*P (e t)=P (ψw l*e t) := by
       simp only [← map_mul,mul_assoc,e_mul_self]
-    rw [← mul_assoc (P (e s)) w,top,mul_assoc,right]
+    rw [← mul_assoc (P (e top)) w,leftFixed,mul_assoc,right]
   have legs : (ψw [2,3]*e t : A)*(ψw [2]*e s)=(ψw [3]*e t)*(ψw [2,3]*e s) := by
     have h₁ : wordProd μ.card [2] • s=t := by simp only [t,wordProd_singleton]
     have h₂ : wordProd μ.card [2,3] • s=t := by decide
@@ -7617,12 +7696,19 @@ example (g : ViolQuotient ℚ Q Λ ν) :=
     rw [ite_eq_right (fun h => ne h.1),sub_mul,sub_eq_zero] at h
     simpa only [List.cons_append,List.nil_append,ψw_cons,ψw_nil,mul_one,mul_assoc] using h
   have rel : y*P (ψw [2,3]*e s)-x*P (ψw [2]*e s) ∈
-      blockUpperIdeal ℚ Q Λ ν 1 2 (adjacentBlockRoot 1 2 s) (redWord s) := by
+      blockUpperIdeal ℤ Q Λ ν 1 2 (adjacentBlockRoot 1 2 top) (redWord top) := by
     rw [show y*P (ψw [2,3]*e s)=x*P (ψw [2]*e s) by
       simp only [x,y,mul_assoc,← map_mul,legs],sub_self]
     exact TwoSidedIdeal.zero_mem _
-  exists_equalBlack_rightPair_markedCycle Q Λ (fun _ _ _ => rfl)
-    s 2 (by decide) 1 2 () [0] (by decide) rfl rfl rfl blacks x y (cut _) (cut _) rel
+  exists_equalBlack_rightPair_markedCycle_at_three_tops Q Λ (fun _ _ _ => rfl)
+    s top 2 (by decide) 1 2 () hTop [0] order rfl rfl rfl blacks x y (cut _) (cut _) rel
+
+/-- The right extreme, mixed joint and full joint admit the integral marked lift. -/
+example (g : ViolQuotient ℤ Q Λ ν) := pairAtTop s (Or.inl rfl) (by decide) g
+
+example (g : ViolQuotient ℤ Q Λ ν) := pairAtTop t (Or.inr (Or.inl rfl)) (by decide) g
+
+example (g : ViolQuotient ℤ Q Λ ν) := pairAtTop u (Or.inr (Or.inr rfl)) (by decide) g
 
 end
 
@@ -7769,15 +7855,18 @@ noncomputable section
 
 private abbrev ν : Multiset Unit := {()} + {()}
 private abbrev μ := stendhalWeight 3 ν
-private abbrev Q : Unit → Unit → MvPolynomial (Fin 2) ℚ := fun _ _ => 0
+private abbrev Q : Unit → Unit → MvPolynomial (Fin 2) ℤ := fun _ _ => 0
 private abbrev Λ : Fin 3 → Unit →₀ ℕ := fun _ => Finsupp.single () 2
-private abbrev V := ViolQuotient ℚ Q Λ ν
-private abbrev R := KLRAlgebra ℚ (stendhalQ Q Λ) μ
-private abbrev F := (violMk ℚ Q Λ ν).comp (ofKLR ℚ Q Λ ν)
+private abbrev V := ViolQuotient ℤ Q Λ ν
+private abbrev R := KLRAlgebra ℤ (stendhalQ Q Λ) μ
+private abbrev F := (violMk ℤ Q Λ ν).comp (ofKLR ℤ Q Λ ν)
 private abbrev s := fixedTopFourExitBottom
 private abbrev v (i : Fin 4) := fixedTopFourExitCut i
 private abbrev jA := sadj μ.card 2 • v 0
-private abbrev J := blockUpperIdeal ℚ Q Λ ν 1 2 (adjacentBlockRoot 1 2 (v 2)) (redWord (v 2))
+private def fixtureTop : Fin 3 → Seq μ
+  | 0 => v 2
+  | 1 => sadj μ.card 2 • v 2
+  | _ => sadj μ.card 3 • (sadj μ.card 2 • v 2)
 private abbrev leg (l : List ℕ) (t : Seq μ) := F (ψw l*e t)
 
 private theorem compose (l w : List ℕ) (t : Seq μ) (ht : wordProd μ.card w • s=t) :
@@ -7789,19 +7878,27 @@ private theorem compose (l w : List ℕ) (t : Seq μ) (ht : wordProd μ.card w �
 
 /-- A positive-weight marked relation through the actual higher joint at a
 surviving spectator cut. -/
-example (g : V) :=
-  let q := F (e (v 2))*g*F (e jA)
+example (slot : Fin 3) (g : V) :=
+  let upper := fixtureTop slot
+  have ht : FiveSlotRightTop upper := by
+    fin_cases slot
+    · exact Or.inl rfl
+    · exact Or.inr (Or.inl rfl)
+    · exact Or.inr (Or.inr rfl)
+  let J := blockUpperIdeal ℤ Q Λ ν 1 2 (adjacentBlockRoot 1 2 upper) (redWord upper)
+  let q := F (e upper)*g*F (e jA)
   let x₀ := q*leg [2] (v 0)
   let x₁ := -(q*leg [3] (v 1))
   let x : Fin 4 → V := ![x₀,x₁,0,0]
-  have higher : adjacentBlockRoot 1 2 (v 2) < adjacentBlockRoot 1 2 jA := by
+  have higher : adjacentBlockRoot 1 2 upper < adjacentBlockRoot 1 2 jA := by
+    rw [fiveSlotRightTop_blockRoot upper ht]
     apply lt_of_le_not_ge
     · intro i j
       fin_cases i <;> cases j <;> decide
     · intro le
       exact (by decide : ¬ adjacentBlockRoot 1 2 jA 1 () ≤ adjacentBlockRoot 1 2 (v 2) 1 ())
         (le 1 ())
-  have eMark : F (e jA) ∈ J := TwoSidedIdeal.subset_span ⟨jA,by decide,higher,rfl⟩
+  have eMark : F (e jA) ∈ J := TwoSidedIdeal.subset_span ⟨jA,by rw [fiveSlotRightTop_redWord upper ht]; decide,higher,rfl⟩
   have qMark : q ∈ J := J.mul_mem_left _ _ eMark
   have mark (i : Fin 4) : x i ∈ J := by
     fin_cases i
@@ -7810,21 +7907,21 @@ example (g : V) :=
     · exact J.zero_mem
     · exact J.zero_mem
   have cut (l : List ℕ) (t : Seq μ) :
-      F (e (v 2))*(q*leg l t)*F (e t)=q*leg l t := by
-    have left : F (e (v 2))*q=q := by
+      F (e upper)*(q*leg l t)*F (e t)=q*leg l t := by
+    have left : F (e upper)*q=q := by
       simp only [q,← mul_assoc,← map_mul,e_mul_self]
-    simp only [← mul_assoc (F (e (v 2))) q,left,leg,← map_mul,mul_assoc,e_mul_self]
+    simp only [← mul_assoc (F (e upper)) q,left,leg,← map_mul,mul_assoc,e_mul_self]
   have support (i : Fin 4) :
-      F (e (v 2))*x i*F (e (wordProd μ.card (fiveSlotExitWord i) • s))=x i := by
+      F (e upper)*x i*F (e (wordProd μ.card (fiveSlotExitWord i) • s))=x i := by
     have h : wordProd μ.card (fiveSlotExitWord i) • s=v i := by fin_cases i <;> decide
     rw [h]
     fin_cases i
     · exact cut [2] (v 0)
-    · change F (e (v 2))*(-(q*leg [3] (v 1)))*F (e (v 1))=-(q*leg [3] (v 1))
+    · change F (e upper)*(-(q*leg [3] (v 1)))*F (e (v 1))=-(q*leg [3] (v 1))
       rw [mul_neg,neg_mul,cut]
-    · change F (e (v 2))*(0 : V)*F (e (v 2))=0
+    · change F (e upper)*(0 : V)*F (e (v 2))=0
       rw [mul_zero,zero_mul]
-    · change F (e (v 2))*(0 : V)*F (e (v 3))=0
+    · change F (e upper)*(0 : V)*F (e (v 3))=0
       rw [mul_zero,zero_mul]
   have edge : leg [2] (v 0)*leg [3,2,1] s=leg [3] (v 1)*leg [2,3,1] s := by
     rw [compose _ _ _ (by decide),compose _ _ _ (by decide)]
@@ -7834,7 +7931,7 @@ example (g : V) :=
     change x₀*leg [3,2,1] s+x₁*leg [2,3,1] s+
       (0 : V)*leg [1,2,3] s+0*leg [2,3,1,2] s=0
     simp only [x₀,x₁,neg_mul,mul_assoc,edge,zero_mul,add_zero,add_neg_cancel]
-  exists_fiveSlot_markedExitJoints Q Λ (fun _ _ _ => rfl) x support mark sum
+  exists_fiveSlotRightTop_markedExitJoints Q Λ (fun _ _ _ => rfl) upper ht x support mark sum
 
 end
 
@@ -7851,6 +7948,52 @@ private noncomputable abbrev Λ : Fin 3 → Unit →₀ ℕ := fun _ => Finsupp.
 example := fiveSlot_blockKernelColumnInclusion_injective Q Λ (fun _ _ _ => rfl)
 
 end NonVacuity.WebsterFiveSlotKernelColumn
+
+namespace NonVacuity.WebsterFiveSlotThreeTopKernelColumn
+
+open Categorification.KLR Categorification.Stendhal BraidedStendhalAlgebra
+open Categorification.TypeA
+
+private noncomputable abbrev Q : Unit → Unit → MvPolynomial (Fin 2) ℚ := fun _ _ => 0
+private noncomputable abbrev Λ : Fin 3 → Unit →₀ ℕ := fun _ => Finsupp.single () 2
+private abbrev μ := stendhalWeight 3 ({()} + {()} : Multiset Unit)
+private abbrev extreme := fixedTopFourExitCut 2
+private abbrev mixed := sadj μ.card 2 • extreme
+private abbrev full := sadj μ.card 3 • mixed
+
+example := fiveSlotRightTop_blockKernelColumnInclusion_injective Q Λ extreme (fun _ _ _ => rfl)
+  (Or.inl rfl)
+
+example := fiveSlotRightTop_blockKernelColumnInclusion_injective Q Λ mixed (fun _ _ _ => rfl)
+  (Or.inr (Or.inl rfl))
+
+example := fiveSlotRightTop_blockKernelColumnInclusion_injective Q Λ full (fun _ _ _ => rfl)
+  (Or.inr (Or.inr rfl))
+
+end NonVacuity.WebsterFiveSlotThreeTopKernelColumn
+
+namespace NonVacuity.WebsterFiveSlotThreeTopDerived
+
+open Categorification.KLR Categorification.Stendhal Categorification.TypeA
+open BraidedStendhalAlgebra DG MulOpposite
+open scoped DG.DegreeZero
+
+attribute [local instance 1200] Ring.toIntAlgebra
+
+private noncomputable abbrev Q : Unit → Unit → MvPolynomial (Fin 2) ℚ := fun _ _ => 0
+private noncomputable abbrev Λ : Fin 3 → Unit →₀ ℕ := fun _ => Finsupp.single () 2
+local notation "ν₀" => ({()} + {()} : Multiset Unit)
+local notation "t" => sadj (Multiset.card (stendhalWeight 3 ν₀)) 2 • fixedTopFourExitCut 2
+local notation "T" => IsIdempotentElem.Corner
+  (isIdempotentElem_violMk_redProj ℚ Q Λ ν₀ (redWord t))
+local notation "U" => IsIdempotentElem.Corner
+  (isIdempotentElem_violMk_loading Q Λ fixedTopFourExitBottom)
+
+example [DG.HasDerivedCategory.{0, 0} Tᵐᵒᵖ] [DG.HasDerivedCategory.{0, 0} Uᵐᵒᵖ] :=
+  fiveSlotRightTop_blockKernelColumnDerivedHomology_mono Q Λ t (fun _ _ _ => rfl)
+    (Or.inr (Or.inl rfl))
+
+end NonVacuity.WebsterFiveSlotThreeTopDerived
 
 namespace NonVacuity.WebsterFiveSlotAllBottom
 

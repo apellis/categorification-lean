@@ -1,4 +1,5 @@
 import Categorification
+import Mathlib.Analysis.Real.Sqrt
 import LieLean.Algebra.QuantumGroup.Sl2.SimpleModule
 
 /-!
@@ -7083,3 +7084,39 @@ example : IsReduced 6 (canWord 6 u ++ [3,1,2]) ∧ wordProd 6 (canWord 6 u ++ [3
   exact hword
 
 end IntervalPBWFixture
+
+namespace NonVacuity.WebsterReducedCoevaluationWord
+
+open Categorification.Stendhal
+
+noncomputable section
+
+private def A : Matrix Unit Unit ℤ := fun _ _ => 2
+
+private theorem generalized : A.IsGeneralizedCartan where
+  diag _ := rfl
+  offDiag_nonpos i j hij := (hij (Subsingleton.elim i j)).elim
+  zero_comm _ _ := Iff.rfl
+
+private abbrev P := Matrix.Realization.std A ℝ
+private abbrev weight : P.integralWeights := ⟨P.root (), P.root_mem_integralWeights ()⟩
+
+private theorem dominant : P.IsDominantIntegral weight := by
+  intro i
+  cases i
+  refine ⟨2, ?_⟩
+  change P.root () (P.coroot ()) = (2 : ℝ)
+  rw [P.root_coroot]
+  rfl
+
+private theorem reduced : (P.coxeterSystem generalized).IsReduced ([()] : List Unit).reverse := by
+  simp [CoxeterSystem.IsReduced, CoxeterSystem.length_simple]
+
+example : NonnegativeReflectionPath (P.cartanDatum generalized) weight [()] :=
+  nonnegativeReflectionPath_of_reduced P generalized weight dominant [()] reduced
+
+example := rootSum_coevaluationWord_of_reduced P generalized weight dominant [()] reduced
+
+end
+
+end NonVacuity.WebsterReducedCoevaluationWord

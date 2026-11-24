@@ -1692,6 +1692,7 @@ import Categorification.WeightedKLR.RedStrands.BraidedViolatedQuotient
 import Categorification.WeightedKLR.RedStrands.ExteriorStandardGrading
 import Categorification.WeightedKLR.RedStrands.StendhalBasisSymm
 import Categorification.WeightedKLR.Rigidity.CoevaluationWord
+import Categorification.WeightedKLR.Rigidity.ReducedCoevaluationWord
 
 /-!
 # Categorification

@@ -1178,6 +1178,10 @@ For Definition 7.1, `coevaluationWord` uses the simple coroot pairings along a
 reflection path. At nonnegative pairings, `rootSum_coevaluationWord` computes
 its total root content from the endpoints. Linear independence then makes
 the multiplicities independent of the chosen path with that endpoint.
+`nonnegativeReflectionPath_of_reduced` checks the nonnegative pairings for a
+reduced Weyl expression and a dominant integral starting weight in a Cartan
+realization. Thus `coevaluationWord_multiplicities_eq_of_reduced` compares
+reduced expressions of the same Weyl element.
 
 Coevaluation and evaluation for a pair (Prop 7.2, Def 7.4, Props 7.5, 7.6,
 7.8, Cors 7.7, 7.9, 7.10); ribbon structure (Prop 7.11, Def 7.12, Prop 7.13); general

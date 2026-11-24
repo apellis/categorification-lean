@@ -5575,6 +5575,10 @@ example := Categorification.Stendhal.labelTwoExteriorEndComplex_exact Q
 
 example := Categorification.Stendhal.labelTwoExteriorEndComplex_epi Q
 
+example := Categorification.Stendhal.labelTwoExteriorCokernel_simple Q
+
+example := Categorification.Stendhal.labelTwoExteriorCokernel_span Q
+
 end NonVacuity.WebsterLabelTwoEndpointTor
 
 namespace NonVacuity.WebsterLocalization
@@ -9836,6 +9840,31 @@ example := incomingExteriorDiagram_mem_grade ℚ
 
 example := incomingExteriorTranslate_mem_grade ℚ
 
+example := middleDotSumQuotientGFin ℚ
+
+example (d : ℤ) := diagramPlusMinus_exact_in_degree ℚ d
+
+example (d : ℤ) := diagramMinusPlus_exact_in_degree ℚ d
+
+example (d : ℤ) := diagramPlusAugmentation_exact_in_degree ℚ d
+
+example (d : ℤ) := diagramMiddleAugmentationAtDegree_surjective ℚ d
+
+example := middleEndomorphismFactorEquiv ℚ
+
+example := factorDotSumQuotientEquiv ℚ
+
+example (x : Standard ℚ) := middleDotSumStandardizationEquiv_mk ℚ x
+
+example := middle_higher_eq
+
+example := middle_upperLoadingIdeal_eq_singleton ℚ
+
+example := rightMiddleDotSumQuotient_kills_higher ℚ
+
+example :=
+  leftStandardLayer_projective (parameter ℚ) weights loading loading_ordered
+
 end NonVacuity.WebsterLabelTwoMiddleFixedComplex
 
 end
@@ -10235,6 +10264,15 @@ example : Function.Exact (rankOneDifferential 1) (rankOneDifferential 0) :=
 example : ∃ x, rankOneDifferential 0 x = (⟨1, one_mul 1⟩ : P) :=
   ((gradedLoadingResolutionChainMap_augmentation_exact data false rankOneScalarGrade mulGrade eGrade
     eIdem aboveTrans rankOneStandardGrade quotientGrade) ⟨1, one_mul 1⟩).mp rfl
+
+open scoped DG.DegreeZero
+local instance instOrderedRationalWeight : InternalGrading ℚ := scalarInternalGrading ℚ
+local instance instOrderedRationalBigraded : BigradedDGRing ℚ := scalarBigradedDGRing ℚ
+
+example := orderedWeightDgAugmentation_quasiIso data false eGrade eIdem aboveTrans rankOneStandardGrade
+  (fun {_ _ _ _} _ _ => (mem_degreeZeroGrading_iff _).mpr
+    (Or.inr (Subsingleton.elim (α := PUnit) _ _)))
+  quotientGrade
 
 open scoped DG.DegreeZero
 

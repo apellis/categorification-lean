@@ -8943,6 +8943,29 @@ example := blockPartialStandard_braid_homology_negOne_vanish Q Λ
 
 end NonVacuity.WebsterBlockKernelDerivedNegOne
 
+namespace NonVacuity.WebsterFirstPairAllTopsDerivedNegOne
+
+open Categorification.KLR Categorification.Stendhal Categorification.QuantumGroup
+open BraidedStendhalAlgebra KL3.Diagram DG
+open scoped DG.DegreeZero
+
+attribute [local instance 1100] IsIdempotentElem.instAlgebraCorner_categorification
+attribute [local instance 1200] Ring.toIntAlgebra
+
+private abbrev C := CartanDatum.ofGraph (⊥ : SimpleGraph Unit)
+private abbrev Q := CL.qCL (CL.CLScalars.kl : CL.CLScalars C ℚ)
+private abbrev Λ : Fin 3 → Unit →₀ ℕ := fun r => Finsupp.single () (r.val + 1)
+private abbrev ν : Multiset Unit := {()} + {()}
+
+local instance (order : List (Fin 3)) : HasDerivedCategory.{0, 0}
+    (isIdempotentElem_violMk_redProj ℚ Q Λ ν order).Cornerᵐᵒᵖ :=
+  HasDerivedCategory.small _
+
+example := firstPair_partialStandard_braid_homology_negOne_allTops_standard
+  (k := ℚ) C Λ firstPairTwoAfterSpectator (by decide)
+
+end NonVacuity.WebsterFirstPairAllTopsDerivedNegOne
+
 end
 
 namespace NonVacuity.WebsterFiveSlotBoundedSpectator

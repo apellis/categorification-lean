@@ -5539,6 +5539,22 @@ noncomputable example := KL3.Diagram.shiftHomEquivalence UDot.sl2RootDatum (ZMod
 
 end NonVacuity.WebsterLocalization
 
+namespace NonVacuity.WebsterCupCap
+
+open CategoryTheory DG MulOpposite Categorification.Stendhal.Coevaluation
+open scoped DG.DegreeZero TensorProduct
+
+local instance : DG.HasDerivedCategory.{0,0} ℚ := DG.HasDerivedCategory.small ℚ
+local instance : DG.HasDerivedCategory.{0,0} ℚᵐᵒᵖ := DG.HasDerivedCategory.small ℚᵐᵒᵖ
+
+example := shiftedCupFunctor ℚ ℚ (Fin 2 → ℚ) (-2)
+example := capFunctor ℚ ℚ (Fin 2 → ℚ)
+
+example (f : CupCoefficient ℚ (Fin 2 → ℚ)) (x : Fin 2 → ℚ) :=
+  cupTensorHomEquiv_op_tmul ℚ ℚ (Fin 2 → ℚ) (2 : ℚ) f (3 : ℚ) x
+
+end NonVacuity.WebsterCupCap
+
 namespace NonVacuity.CLSpanning
 
 open Categorification Categorification.QuantumGroup Categorification.KL3.Diagram
@@ -5920,6 +5936,63 @@ private noncomputable abbrev Λ : Fin 1 → Unit →₀ ℕ := fun _ => Finsupp.
 example := oneBlack_extremal_projective_simple Q Λ () (by simp [Λ])
 
 end NonVacuity.WebsterSingleBlackExtremal
+
+namespace NonVacuity.WebsterTerminalCyclotomic
+
+open Categorification.KLR.CycKLR
+
+private noncomputable abbrev Q : Unit → Unit → MvPolynomial (Fin 2) ℚ := fun _ _ => 0
+
+example := terminalCoinvModule_simple (ν := Multiset.replicate 2 ())
+  (i := ()) (fun j _ => Subsingleton.elim j ()) Q
+
+example := twoBlack_terminal_relations Q
+
+example := twoBlackTerminalProjective_simple Q
+example := Categorification.Stendhal.SingleRed.twoBlackTerminalWebsterProjective_simple Q
+
+end NonVacuity.WebsterTerminalCyclotomic
+
+namespace NonVacuity.WebsterTerminalSymmetric
+
+open KLR KLRAlgebra KLR.CycKLR MvPolynomial NilHecke
+
+private abbrev black := Multiset.replicate 3 ()
+private noncomputable abbrev params : Unit → Unit → MvPolynomial (Fin 2) ℚ := fun _ _ => 0
+private noncomputable abbrev projection :=
+  CycKLR.mk ℚ params (fun _ => (Polynomial.X ^ 3 : Polynomial ℚ)) black
+
+example : projection (pol (esymm (Fin black.card) ℚ 2)) = 0 :=
+  terminal_pol_esymm_eq_zero (ν := black) (i := ()) (fun _ _ => Subsingleton.elim _ _) params 2
+    (by decide) (by decide)
+
+example (p : MvPolynomial (Fin black.card) ℚ) (hp : p ∈ coinvIdeal ℚ black.card) :
+    projection (pol p) = 0 :=
+  terminal_pol_eq_zero_of_mem_coinvIdeal (i := ()) (fun _ _ => Subsingleton.elim _ _) params p hp
+
+example := terminalDividedProjective_simple (ν := black) (i := ())
+  (fun j _ => Subsingleton.elim j ()) params
+
+end NonVacuity.WebsterTerminalSymmetric
+
+namespace NonVacuity.WebsterSaturatedSingleRed
+
+open Categorification.Stendhal.SingleRed
+
+private abbrev black := Multiset.replicate 3 (0 : Fin 2)
+private noncomputable abbrev params : Fin 2 → Fin 2 → MvPolynomial (Fin 2) ℚ := fun _ _ => 0
+private noncomputable abbrev weights : Fin 1 → Fin 2 →₀ ℕ := fun _ =>
+  Finsupp.single 0 3 + Finsupp.single 1 2
+
+private theorem monochromatic : ∀ j ∈ black, j = 0 := by
+  intro j hj
+  exact (Multiset.mem_replicate.mp hj).2
+
+example := saturatedWebsterProjective_simple monochromatic params weights (by simp [weights, black])
+
+example := saturatedWebsterProjective_projective monochromatic params weights (by simp [weights, black])
+
+end NonVacuity.WebsterSaturatedSingleRed
 
 namespace NonVacuity.WebsterFigureFive
 
@@ -7908,6 +7981,52 @@ private noncomputable abbrev Λ : Fin 3 → Unit →₀ ℕ := fun _ => Finsupp.
 example := fiveSlot_blockKernelColumnInclusion_injective Q Λ (fun _ _ _ => rfl)
 
 end NonVacuity.WebsterFiveSlotKernelColumn
+
+namespace NonVacuity.WebsterFiveSlotThreeTopKernelColumn
+
+open Categorification.KLR Categorification.Stendhal BraidedStendhalAlgebra
+open Categorification.TypeA
+
+private noncomputable abbrev Q : Unit → Unit → MvPolynomial (Fin 2) ℚ := fun _ _ => 0
+private noncomputable abbrev Λ : Fin 3 → Unit →₀ ℕ := fun _ => Finsupp.single () 2
+private abbrev μ := stendhalWeight 3 ({()} + {()} : Multiset Unit)
+private abbrev extreme := fixedTopFourExitCut 2
+private abbrev mixed := sadj μ.card 2 • extreme
+private abbrev full := sadj μ.card 3 • mixed
+
+example := fiveSlotRightTop_blockKernelColumnInclusion_injective Q Λ extreme (fun _ _ _ => rfl)
+  (Or.inl rfl)
+
+example := fiveSlotRightTop_blockKernelColumnInclusion_injective Q Λ mixed (fun _ _ _ => rfl)
+  (Or.inr (Or.inl rfl))
+
+example := fiveSlotRightTop_blockKernelColumnInclusion_injective Q Λ full (fun _ _ _ => rfl)
+  (Or.inr (Or.inr rfl))
+
+end NonVacuity.WebsterFiveSlotThreeTopKernelColumn
+
+namespace NonVacuity.WebsterFiveSlotThreeTopDerived
+
+open Categorification.KLR Categorification.Stendhal Categorification.TypeA
+open BraidedStendhalAlgebra DG MulOpposite
+open scoped DG.DegreeZero
+
+attribute [local instance 1200] Ring.toIntAlgebra
+
+private noncomputable abbrev Q : Unit → Unit → MvPolynomial (Fin 2) ℚ := fun _ _ => 0
+private noncomputable abbrev Λ : Fin 3 → Unit →₀ ℕ := fun _ => Finsupp.single () 2
+local notation "ν₀" => ({()} + {()} : Multiset Unit)
+local notation "t" => sadj (Multiset.card (stendhalWeight 3 ν₀)) 2 • fixedTopFourExitCut 2
+local notation "T" => IsIdempotentElem.Corner
+  (isIdempotentElem_violMk_redProj ℚ Q Λ ν₀ (redWord t))
+local notation "U" => IsIdempotentElem.Corner
+  (isIdempotentElem_violMk_loading Q Λ fixedTopFourExitBottom)
+
+example [DG.HasDerivedCategory.{0, 0} Tᵐᵒᵖ] [DG.HasDerivedCategory.{0, 0} Uᵐᵒᵖ] :=
+  fiveSlotRightTop_blockKernelColumnDerivedHomology_mono Q Λ t (fun _ _ _ => rfl)
+    (Or.inr (Or.inl rfl))
+
+end NonVacuity.WebsterFiveSlotThreeTopDerived
 
 namespace NonVacuity.WebsterFiveSlotAllBottom
 

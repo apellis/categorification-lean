@@ -171,7 +171,8 @@ def loadingSummand (s : Loadings Bs) : Submodule k (J).ringCon.Quotient :=
   LinearMap.range ((N).subtype ∘ₗ blockProductAction Q Λ L M f β h
     (projection Q Λ Bs (loadingIdem Q Λ Bs s)))
 
-private theorem loadingSummand_eq (s : Loadings Bs) :
+/-- The external loading idempotent selects the projected fixed-top column. -/
+theorem loadingSummand_eq (s : Loadings Bs) :
     loadingSummand Q Λ L M f β h s = LinearMap.range
       ((q).toLinearMap ∘ₗ LinearMap.mulLeft k (π (e (Seq.cast h (place Bs s)))) ∘ₗ
         LinearMap.mulRight k p) := by

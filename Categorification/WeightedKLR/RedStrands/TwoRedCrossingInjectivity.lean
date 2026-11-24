@@ -88,7 +88,8 @@ theorem eq_zero_of_mul_secondRedCrossing_at_right
     (cast_redBlackLoading_mem_concatSet i θ u (firstInd_klrWeight (ℓ := 1) i θ 0)) (firstFactorSwap i θ u)
   have hclip : redCrossIdem QL Λ i θ u hu * firstIndAffine QL Λ i θ 0 G =
       tensorOfKLR QL Λ _ (ψ (stendhalWeight 1 (θ + 0)).card * e t) := by
-    rw [hsrc, ← firstIndAffine_e_cast QL Λ i θ 0 s hs, ← map_mul]
+    rw [hsrc, tensorOfKLR_e_of_ordered _ _ hs,
+      ← firstIndAffine_e_cast QL Λ i θ 0 s hs, ← map_mul]
     change firstIndAffine QL Λ i θ 0 (_ * firstG _ A B j) = _
     rw [hframe, firstIndAffine_apply, map_mul, castKLR_ψ, castKLR_e, Seq.cast_cast_symm,
       show A.card = (stendhalWeight 1 (θ + 0)).card from firstFactorCrossingIndex (I := I) θ]

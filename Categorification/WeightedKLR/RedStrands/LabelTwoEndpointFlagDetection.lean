@@ -393,5 +393,13 @@ theorem outgoing_middle_coefficients_eq_zero {a b : k}
     _ _ (by rw [mul_assoc]; exact middle_columns_eval_one Q)
       (by rw [mul_assoc]; exact middle_columns_eval_dot Q) h
 
+/-- The undotted and first-dot exterior projector columns are independent at
+the left exterior loading. -/
+theorem outgoing_exterior_coefficients_eq_zero {a b : k}
+    (h : tensorOfKLR Q weights ν (a • p + b • (X₁ * p) : H) = 0) :
+    a = 0 ∧ b = 0 :=
+  detect_input_coefficients Q C₀ 1 2 (by decide) loadingIdeal_c (by decide)
+    _ _ (complementaryProjection_at_left_on_one Q) (leftDotProjection_at_left_on_one Q) h
+
 end
 end Categorification.Stendhal.LabelTwoEndpointFlag

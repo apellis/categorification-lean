@@ -1057,9 +1057,21 @@ derived tensor on the localized layers gives vanishing on the filtered input
 (`WeightModuleFiltration.diagramWeightDerivedTensor_cohomology_isZero`). A diagram of
 ordinary complexes on the weight category realizes as a dg module, with
 pointwise quasi-isomorphisms becoming dg quasi-isomorphisms
-(`diagramWeightModuleOfComplex`, `diagramWeightModuleOfComplexMap_isQuasiIso`). A homogeneous exact
-augmented chain gives a dg model with a pointwise quasi-isomorphic augmentation
-(`weightDgGradedChainAugmentation_quasiIso`).
+(`diagramWeightModuleOfComplex`, `diagramWeightModuleOfComplexMap_isQuasiIso`).
+A homogeneous exact augmented chain gives a dg model with a pointwise
+quasi-isomorphic augmentation (`weightDgGradedChainAugmentation_quasiIso`).
+A bounded-above weight complex realizes as a K-projective dg module when
+its individual terms, placed in their cohomological degrees, are K-projective
+(`diagramWeightModuleOfComplex_isKProjective`). The ordered loading resolution meets this criterion because its
+cohomological pieces are representable loading corners or direct sums of
+such corners at their generator weights
+(`orderedWeightDgResolution_isKProjective`).
+The ordered loading resolution has a graded augmentation that is a
+quasi-isomorphism to the homogeneous standard
+(`orderedWeightDgAugmentation_quasiIso`).
+The ordered model's higher loading support implies derived tensor concentration
+when those loadings annihilate the coefficient filtration layers (Webster Lemma 6.11,
+`orderedWeightDerivedTensor_cohomology_isZero_of_filtered_loading_support`).
 
 A balanced homogeneous multiplication of two
 coefficients induces their product from the intermediate weight-category
@@ -1078,7 +1090,17 @@ projection keeps pure tensors of the endpoint degree
 (`diagramWeightOrdinaryProjection_tmul`). The image of the endpoint weight coend is exactly the total-degree
 component of the ordinary balanced tensor (`diagramWeightTensorOrdinary_range_eq_grade`).
 The integer and ground-ring balanced tensor gradings agree under the
-additive comparison (`Graded.balancedTensorIntScalarAddEquiv_map_grade`). For a rectangular corner between two degree-zero
+additive comparison (`Graded.balancedTensorIntScalarAddEquiv_map_grade`).
+The weight coend therefore identifies with the total-degree component
+over the ground ring (`diagramWeightTensorGroundGradeEquiv`).
+A nonpositive resolution has the same degree-zero tensor cohomology
+as the ordinary weight tensor (`catTensorCohomologyZeroEquivOfQuasiIso`).
+For a K-projective resolution, this identifies the cohomology of the
+derived tensor at weight and degree zero
+(`diagramWeightDerivedTensorH0IsoOfResolution`).
+Evaluation at a weight and the K-projective model comparison are natural
+in dg module maps (`localizedWeightCohomologyIso_naturality`,
+`diagramWeightDerivedTensorObjIso_naturality`). For a rectangular corner between two degree-zero
 idempotents, `diagramCornerWeightDerivedRightTensor` uses the restricted grading
 and defines derived right tensor on the graded right-module categories.
 For the actual braid bimodule this gives `auxiliaryGradedBraidingFunctor`
@@ -1178,6 +1200,19 @@ representative of a nonzero class consist of three halves alone
 total weight. At three halves the restricted complex has a rational
 homology line, and all other weight pieces are exact
 (`fundamentalBraidWeightComplex_homologyIso`, `fundamentalBraidWeightComplex_exact`).
+The graded diagonal-ring equivalence identifies the shifted loading projectives
+in this resolution with the native projectives at the same weights in the
+source of the braid (`fundamentalBraidSourceLoadingIso`). Its augmented
+mixed-crossing sequence is exact at every source weight
+(`fundamentalBraidSourceGradedResolution`). Tensoring these projectives with
+the graded braid gives the crossed loading cut in auxiliary degree
+`n-j` at target weight `n` for a generator of weight `j`
+(`fundamentalBraidGradedCutIso`). On these coends both differentials multiply
+by the mixed crossing (`fundamentalBraidGradedCutIso_d₂`,
+`fundamentalBraidGradedCutIso_d₁`).
+The resulting tensor complex has middle homology ℚ at auxiliary weight zero
+(`fundamentalBraidGradedTensorHomologyIso`) and is exact at other weights
+(`fundamentalBraidGradedTensorComplex_exact`). Its two ends are exact in every weight.
 The diagonal-ring equivalence
 carries the two mixed crossings to the differentials of the projective
 resolution of the middle head (`fundamentalBraidSourceResolution`). Its
@@ -1293,10 +1328,24 @@ and the actual outgoing crossing has degree two between these graded modules
 (`Stendhal.LabelTwo.labelTwoMiddleQuotientDecomposition`,
 `Stendhal.LabelTwo.labelTwoLeftExteriorDecomposition`,
 `Stendhal.LabelTwo.labelTwoOutgoing_degree_two`).
+The divided incoming standard is graded using its degree-zero projected
+generator. The actual incoming crossing also has degree two. The shifts
+`3`, `1`, and `−1` on these raw gradings put both maps in degree zero
+(`Stendhal.LabelTwo.labelTwoIncoming_degree_two`,
+`Stendhal.LabelTwo.labelTwoShiftedIncoming_preservesGrading`,
+`Stendhal.LabelTwo.labelTwoShiftedOutgoing_preservesGrading`).
 The complementary exterior projective then surjects onto the actual
 cokernel of the outgoing crossing
 (`Stendhal.labelTwoExteriorEndComplex_exact`,
 `Stendhal.labelTwoExteriorEndComplex_epi`).
+The outgoing image contains the other loading cuts of the exterior
+projective. Its cokernel is supported at the left exterior loading,
+where the undotted generator and first dot span it. The black
+crossing sends the first dot back to the nonzero generator, which
+proves simplicity
+(`Stendhal.labelTwoExteriorAugmentation_loading_project`,
+`Stendhal.labelTwoExteriorCokernel_span`,
+`Stendhal.labelTwoExteriorCokernel_simple`).
 
 
 
@@ -1393,7 +1442,11 @@ degree two (`Stendhal.LabelTwo.diagramPlus_degree_two`,
 and the augmentation to the graded dot-sum quotient are exact in every
 internal degree (`Stendhal.LabelTwo.diagramPlusMinus_exact_in_degree`,
 `Stendhal.LabelTwo.diagramMinusPlus_exact_in_degree`,
-`Stendhal.LabelTwo.diagramPlusAugmentation_exact_in_degree`). Evaluation on the
+`Stendhal.LabelTwo.diagramPlusAugmentation_exact_in_degree`).
+The dot-difference quotient carries the companion grading. Both quotient
+inclusions shift internal degree by two and give short exact sequences
+in every degree (`Stendhal.LabelTwo.diagramSumCompanionAugmentation_exact_in_degree`,
+`Stendhal.LabelTwo.diagramDifferenceCompanionAugmentation_exact_in_degree`). Evaluation on the
 middle generator identifies the endomorphism algebra with the actual
 regular parabolic factor (`Stendhal.LabelTwo.middleEndomorphismFactorEquiv`).
 The diagrammatic dot-sum quotient is the standardization of its
@@ -1414,10 +1467,17 @@ vanishing outside degree zero for the reflected coefficient
 (`Stendhal.LabelTwo.middleStandard_derivedTensorHomology_isZero_of_higher_support`).
 The standard rank-one parameter comparison supplies this supported
 resolution for the actual middle cut
-(`Stendhal.LabelTwo.exists_middleStandard_supportedResolution`). The same
-construction works for every ordered loading in the actual two-red,
-two-black algebra
+(`Stendhal.LabelTwo.exists_middleStandard_supportedResolution`).
+The same construction works for every ordered loading in the actual
+two-red, two-black algebra
 (`Stendhal.LabelTwo.exists_loadingStandard_supportedResolution`).
+The ordinary tensor of this actual coefficient with the middle standard
+is the dual-number vector space at the middle cut
+(`Stendhal.LabelTwo.middleStandardTensorEquiv`).
+In these coordinates, the actual sum map vanishes and the actual
+difference map is multiplication by `2ε`
+(`Stendhal.LabelTwo.middleStandardTensorEquiv_plus`,
+`Stendhal.LabelTwo.middleStandardTensorEquiv_minus`).
 
 **Terminal-character resolution benchmark for Webster, arXiv:1309.3796v2,
 §8.1.** In the fundamental rank-one block over `ℚ`, the terminal simple
@@ -1509,10 +1569,14 @@ with nilpotent dot.
 | arXiv:1309.3796v2, Definition 6.6 and Proposition 6.9, Figure 5 (weight-category coend) | The lower exterior standardization is K-projective on the source integer coset. The derived tensor of the two-red braid at this object is the ordinary categorical coend, with braid degree `n − m + c` between source `m` and target `n + c`, where `c = 2 − ⟨λ₁, λ₀⟩` | `Stendhal.BraidedStendhalAlgebra.figureFiveLowerWeightModule_isKProjective`, `Stendhal.BraidedStendhalAlgebra.figureFiveBraidDerivedTensorObjIso` | Two red strands, symmetric Rouquier datum over a field; no K-projectivity premise on the braid's output slices | Ambient derived evaluation to the ordinary coend |
 | arXiv:1309.3796v2, Proposition 6.9, Figure 5 (derived exterior comparison) | Co-Yoneda at the source weight zero identifies the coend on the lower projective with the loading cut by multiplication. The inverse inserts the projected regular unit in the tensor. The shifted Figure 5 comparison then identifies the derived value with the upper exterior standardization in cochain degree zero, with coordinate `n` reading its intrinsic piece at `n + c + ⟨λ₀ − α, λ₁⟩` | `Stendhal.BraidedStendhalAlgebra.figureFiveBraidCoendCutIso`, `Stendhal.BraidedStendhalAlgebra.figureFiveBraidCoendExteriorIso_hom_tmul`, `Stendhal.BraidedStendhalAlgebra.figureFiveBraidDerivedExteriorIso` | Two red strands, symmetric Rouquier datum over a field, finite colour set and the source weight pairing | Two-red evaluation in the ambient weight-category derived categories; the `D⁻` restriction and Lemma 6.8 reduction remain open |
 | arXiv:1309.3796v2, §6.1, p. 65, proof of Lemma 6.11 (reflection) | Horizontal reflection identifies `B(κ', κ)` with `B(κ, κ')`, transporting left multiplication to right multiplication and right multiplication to left multiplication via the corner anti-involutions. Swapping the orders inverts the red permutation | `Stendhal.BraidedStendhalAlgebra.braidingBimoduleFlip`, `braidingBimoduleFlip_smul_left`, `braidingBimoduleFlip_smul_right` | Any commutative ground ring | Ungraded transport. The left filtration obtained from a supplied right filtration is in the next row |
+| arXiv:1309.3796v2, Definitions 4.4 and 5.1 | The left loading standard inherits the grading of the loading ideal because its higher trace is homogeneous. The quotient preserves degrees and the scalar action adds degrees | `Stendhal.leftUpper_isHomogeneous`, `Stendhal.gradedLeftStandard_mkQ_mem`, `Stendhal.gradedLeftStandard_smul_mem` | Diagram grading over a field | Literal quotient grading |
 | arXiv:1309.3796v2, §6.1, p. 65, proof of Lemma 6.11 (filtration transport) | A supplied right-standard filtration of the inverse braid gives a left filtration of the braid by the same loading standards with scalars restricted along the corner flip. The ordered list of labels is preserved | `Stendhal.BraidedStendhalAlgebra.hasReflectedStandardFiltration_braidingBimodule`, `ModuleFiltration.HasFiltration.restrictScalars` | Any commutative ground ring. The input filtration is a hypothesis | Existence of the right-standard filtration and higher Tor vanishing remain open |
 | arXiv:1309.3796v2, §6.1, p. 65, proof of Lemma 6.11 (opposite standards) | Away from degree zero, tensor kills the loading summands in a supplied K-projective resolution if their idempotents annihilate the opposite standard. For left loading standards, idempotents strictly above the label give that annihilation | `Stendhal.isZero_derivedRightTensorHomology_leftStandard_of_higher_loadings` | The loading standards are over a field. The augmentation and the labels of its loading summands are hypotheses | The finite projective dimension result alone does not supply those labels |
 | arXiv:1309.3796v2, Proposition 6.4 and proof of Lemma 6.11 (vacuum dimension) | With no black strands, a fixed-top braid column has one basis vector. Both red orders determine the loadings, their connecting permutation is unique, and there are no violated loadings | `Stendhal.BraidedStendhalAlgebra.finrank_vacuum_braidColumn`, `Stendhal.BraidedStendhalAlgebra.finrank_vacuum_braidColumn_eq_standard` | Symmetric KLR parameters over a field | The column has the dimension of its singleton standard factor |
 | arXiv:1309.3796v2, §6.1, p. 65, proof of Lemma 6.11 (ordered projective resolutions) | The higher standard filtrations of the kernels of standard quotients construct successive projective covers of syzygies. Every positive term of the resulting left-standard resolution is spanned by loading projectives at labels strictly above the original label | `ModuleFiltration.OrderedStandardCovers.projectiveResolution_loading_support`, `Stendhal.exists_ordered_projectiveResolution_stdModule` | Same field and stratification hypotheses as Corollary 5.21 | Ordinary modules. The same support transports along ring reflection or an idempotent-preserving parameter equivalence (`Stendhal.exists_ordered_projectiveResolution_leftStandard_transport`). The DG comparison is separate |
+| arXiv:1309.3796v2, §6.1, p. 65, proof of Lemma 6.11 (graded ordered projective resolutions) | A homogeneous standard quotient starts an exact degree-preserving chain. Every positive term is a direct sum of higher loading ideals shifted by their homogeneous generator weights. Each weight piece is generated by transports of the corresponding loading-fixed vectors | `ModuleFiltration.gradedLoadingResolutionTerm`, `ModuleFiltration.gradedLoadingResolutionChainMap_exact`, `ModuleFiltration.gradedLoadingResolutionPositive_support` | Ordinary ordered kernel filtrations and a homogeneous quotient over a graded ring | Exactness and projective loading support in the chain model |
+| arXiv:1309.3796v2, §6.1, p. 65, proof of Lemma 6.11 (reflected standard grading) | A homogeneous coefficient-ring equivalence transports the scalar action and the ordered-cover quotient in each internal degree | `ModuleFiltration.ringEquiv_symm_mem_weight`, `ModuleFiltration.transportedStandardGrading_smul`, `ModuleFiltration.OrderedStandardCovers.transport_quotient_mem_weight` | Supplied homogeneous ordered cover and homogeneous ring equivalence | Scalar transport for use with the reflected braid corner |
+| arXiv:1309.3796v2, §6.1, p. 65, proof of Lemma 6.11 (reflected coefficient grading) | Undoing the red permutation and reflecting diagrams identifies each auxiliary degree of the opposite red-order corner with the corresponding tensor-product-algebra degree | `BraidedStendhalAlgebra.leftCoefficientEquiv_mem_grade_iff` | Rouquier KLR parameters over a field and a reduced-word choice | The coefficient equivalence preserves and reflects every internal degree |
 | arXiv:1309.3796v2, §8.2, proof of Proposition 8.4 (label-two unknot) | The alternating multiplications by `y₁+y₂` and `y₁−y₂` are exact in the middle algebra. Tensoring with the plus quotient gives alternating zero and twice-epsilon maps. The specialized homology gives the dual numbers in degree zero and one-dimensional homology in every positive degree | `Webster.LabelTwo.ker_plus`, `Webster.LabelTwo.ker_minus`, `Webster.LabelTwo.tensor_plus_zero`, `Webster.LabelTwo.tensor_minus_mul`, `Webster.LabelTwo.postTensorHomologyZero`, `Webster.LabelTwo.postTensorHomologyOdd`, `Webster.LabelTwo.postTensorHomologyPositiveEven` | The periodic exactness holds over a commutative ring. The stated positive-degree homology uses a field of characteristic different from two | Ungraded middle-algebra calculation. Both polynomial quotient models are identified by `Webster.LabelTwo.middlePolynomialEquiv` and `Webster.LabelTwo.specializedQuotientEquiv` |
 | arXiv:1309.3796v2, Lemma 6.11, p. 65 (graded terminal standard) | In the fundamental type A₁ block, the higher trace at the terminal cut is the image of the mixed crossing from the middle projective. Its internal degree becomes zero when the middle generator is placed in weight one. The resulting two-term cone is K-projective, has a quasi-isomorphic augmentation to the terminal quotient, and has only the strictly higher middle loading in negative cohomological degree | `FundamentalCorner.fundamentalTerminal_higherTrace`, `FundamentalCorner.gradedTerminalStandardResolution_isKProjective`, `FundamentalCorner.gradedTerminalStandardResolution_quasiIso`, `FundamentalCorner.gradedTerminalStandardResolution_negative_component` | Two fundamental reds and one black over ℚ | The general graded ordered-cover construction remains open |
 | arXiv:1309.3796v2, Proposition 5.6 (word characters) and §3.4, Corollary 3.22 | Cor. 3.22 for word projectives: `gdim e(s) R^λ e(u)` is Webster's form `⟨F_u v_λ, F_s v_λ⟩`, which vanishes when the black contents differ. Prop. 5.6, character form: the iterated standardization `S(…S(S(R^{λ_1} e(u_1)) ⊠ R^{λ_2} e(u_2))…)` has, at the ordinary loading of every tensor word `w`, graded dimension equal to the factorwise form between `F_{u_1} v_{λ_1} ⊗ ⋯ ⊗ F_{u_ℓ} v_{λ_ℓ}` and the bar-ordinary vector of `w`; by induction on red strands from the product test of Thm. 4.38. Prop. 5.6 on the projective group: for every virtual projective class `x`, the graded Hom from `x` into `S_κ^i` is the factorwise form of `s` with `η(x)` (bar coproduct convention), which determines the class of `S_κ^i` | `Stendhal.FirstWeight.cyclotomicWordModule_word`, `Stendhal.FirstWeight.websterForm_suffix_eq_zero`, `Stendhal.FirstWeight.standardizationTestAt_word_of_wordCharacters`, `Stendhal.FirstWeight.iteratedStandard_word`, `Stendhal.FirstWeight.iteratedStandardTest_eq` | Rouquier datum (`IsRouquierQ`), `X`-regular root datum with weights matching `λ_j` | Proved as an identity of functionals on `K₀`; the Grothendieck group of finite-dimensional modules and the dual map `η` on it are not built |

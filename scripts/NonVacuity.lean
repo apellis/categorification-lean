@@ -6105,6 +6105,56 @@ example (z : ℂ) (x : figureFiveLowerExterior (Λ := fracΛ) sl₂ hRouquier h�
   obtain ⟨hi, -, hsplit⟩ := figureFiveLowerExterior_graded_retract (Λ := fracΛ) sl₂ hRouquier hρ blackWord
   exact ⟨hi hx, hsplit x⟩
 
+open scoped DG.DegreeZero in
+/-- The same one-black lower exterior standardization is K-projective in its weight category. -/
+example : DG.CatModule.IsKProjective (figureFiveLowerWeightModule (Λ := fracΛ) sl₂ hRouquier hρ blackWord) :=
+  figureFiveLowerWeightModule_isKProjective (Λ := fracΛ) sl₂ hRouquier hρ blackWord
+
+/-- The derived braid on this projective agrees with the ordinary categorical coend. -/
+noncomputable example :=
+  figureFiveBraidDerivedTensorObjIso (Λ := fracΛ) sl₂ hRouquier hρ
+    (weightPairing sl₂ realization) fracWeight blackWord
+
+/-- The two-red derived braid on the lower projective is the shifted upper exterior standard. -/
+noncomputable example :=
+  figureFiveBraidDerivedExteriorIso (Λ := fracΛ) sl₂ hRouquier hρ
+    (weightPairing sl₂ realization) fracWeight realization
+    (fun i w => weightPairing_root sl₂ realization w i) fracWeight_coroot
+    (weightPairing_isSymm sl₂ realization) blackWord
+
+/-- After the upper diagram map, the pure coend tensor is evaluated by diagram multiplication. -/
+example :=
+  figureFiveBraidCoendExteriorIso_hom_tmul (Λ := fracΛ) sl₂ hRouquier hρ
+    (weightPairing sl₂ realization) fracWeight realization
+    (fun i w => weightPairing_root sl₂ realization w i) fracWeight_coroot
+    (weightPairing_isSymm sl₂ realization) blackWord
+
+private theorem fracWeight_pair :
+    weightPairing sl₂ realization (fracWeight 1) (fracWeight 0) = (3 / 2 : ℂ) := by
+  have hd : UDot.di sl₂ () = 1 := rfl
+  rw [fracWeight, map_smul, LinearMap.smul_apply, weightPairing_root, fracWeight_coroot, hd]
+  norm_num [fracΛ, smul_eq_mul]
+
+open scoped DG.DegreeZero in
+/-- Internal coordinate `1` of the braid output has degree `3/2`. After the shift `-3/2`
+it reads the unshifted degree-zero exterior piece. -/
+example :
+    (figureFiveShiftedUpperWeightModule (Λ := fracΛ) sl₂ hRouquier hρ
+      (weightPairing sl₂ realization) fracWeight realization
+      (fun i w => weightPairing_root sl₂ realization w i) fracWeight_coroot
+      (weightPairing_isSymm sl₂ realization) blackWord).obj ⟨1⟩ =
+      ↥((figureFiveUpperExteriorGrade (Λ := fracΛ) sl₂ hRouquier hρ blackWord 0).restrictScalars ℤ) := by
+  refine (figureFiveShiftedUpperWeightModule_obj (Λ := fracΛ) sl₂ hRouquier hρ
+    (weightPairing sl₂ realization) fracWeight realization
+    (fun i w => weightPairing_root sl₂ realization w i) fracWeight_coroot
+    (weightPairing_isSymm sl₂ realization) blackWord ⟨1⟩).trans ?_
+  have h : ((1 : ℤ) : ℂ) + (2 - weightPairing sl₂ realization (fracWeight 1) (fracWeight 0)) +
+      weightPairing sl₂ realization (fracWeight 0 - (ν.map realization.root).sum) (fracWeight 1) = 0 := by
+    rw [fracWeight_pair, fracWeight_shift]
+    norm_num
+  exact congrArg (fun z : ℂ =>
+    ↥((figureFiveUpperExteriorGrade (Λ := fracΛ) sl₂ hRouquier hρ blackWord z).restrictScalars ℤ)) h
+
 end NonVacuity.WebsterFigureFive
 
 namespace NonVacuity.BraidedStendhal
@@ -6165,6 +6215,69 @@ example := crossingStack_cut bsQ Λ bsSymm L M pair β weight cross 1
 example := crossingCut_slide bsQ Λ bsSymm L M pair β weight cross
   (orderedIdem bsQ Λ (fun _ => 1) Bs) 1 (orderedInclusion_one bsQ Λ bsSymm _ Bs).symm 1
 example := crossingStack_surjective bsQ Λ bsSymm L M pair β weight
+
+/-- The violation is strictly between two arbitrary diagrams, and its red order is not
+that of the uncrossed bottom. The witness is zero in the balanced tensor itself. -/
+example (y z : KLRAlgebra ℚ (stendhalQ bsQ Λ) (stendhalWeight 4 (β + β))) :=
+  let i : Seq (stendhalWeight 4 (β + β)) := KLRAlgebra.Seq.ofList
+    [.inl (), .inr 3, .inr 2, .inl (), .inr 1, .inr 0] (by decide)
+  exists_zero_crossingSeamClass_of_quotient bsQ Λ bsSymm L M pair β weight
+    (y := y * KLRAlgebra.e i * z) (by
+      have hi : IsViolated i := ⟨by decide, rfl⟩
+      simp only [map_mul, AlgHom.comp_apply, BraidedStendhalAlgebra.violMk_e hi, mul_zero,
+        zero_mul, map_zero])
+
+example := ker_crossingStack_eq_map_ker_boundaryStack bsQ Λ bsSymm L M pair β weight
+
+/-- Read back the balanced tensor of the local crossing with the standard column, with
+a black in the pair and another in a spectator. The forward map here is stacking. -/
+example (y : BraidedStendhalAlgebra.ViolQuotient ℚ bsQ Λ (β + β)) :
+    let t := crossingCut bsQ Λ bsSymm L M pair β weight (TensorProduct.tmul ℚ cross y)
+    (crossingStackEquiv bsQ Λ bsSymm L M pair β weight).symm
+      (crossingStack bsQ Λ bsSymm L M pair β weight t) = t := by
+  intro t; exact (crossingStackEquiv bsQ Λ bsSymm L M pair β weight).symm_apply_apply t
+
+/-- The original unmarked cut kills a violation strictly between arbitrary diagrams. -/
+example (y z : BraidedStendhalAlgebra ℚ bsQ Λ (β + β)) :
+    let i : Seq (stendhalWeight 4 (β + β)) := KLRAlgebra.Seq.ofList
+      [.inl (), .inr 3, .inr 2, .inl (), .inr 1, .inr 0] (by decide)
+    crossingDiagramCut bsQ Λ bsSymm L M pair β weight
+      (y * BraidedStendhalAlgebra.ofKLR ℚ bsQ Λ (β + β) (KLRAlgebra.e i) * z) = 0 := by
+  intro i
+  have hi : IsViolated i := ⟨by decide, rfl⟩
+  refine Eq.trans ?_ (crossingDiagramCut bsQ Λ bsSymm L M pair β weight).map_zero
+  rw [crossingDiagramCut_eq_inverse, crossingDiagramCut_eq_inverse]
+  apply congrArg; apply congrArg
+  simp only [map_mul, BraidedStendhalAlgebra.violMk_e hi, mul_zero, zero_mul, map_zero]
+
+private abbrev q₄ : Unit → Unit → MvPolynomial (Fin 2) (ZMod 4) := fun _ _ => 0
+private theorem symm₄ : KLRSymm q₄ := fun _ _ _ => rfl
+private def higher : Loadings Bs :=
+  ⟨top.1, KLRAlgebra.Seq.ofList [.inl (), .inr 0, .inr 1] (by decide), top.2.2⟩
+
+/-- Over a ring with zero divisors, the cut also kills an interior *higher* loading:
+the paired block starts with a black, but the global diagram starts with a red. -/
+example (y z : BraidedStendhalAlgebra (ZMod 4) q₄ Λ (β + β)) :
+    let i := Seq.cast weight (place Bs higher)
+    crossingDiagramCut q₄ Λ symm₄ L M pair β weight
+      (y * BraidedStendhalAlgebra.ofKLR (ZMod 4) q₄ Λ (β + β) (KLRAlgebra.e i) * z) = 0 := by
+  intro i
+  let J := BraidedStendhalAlgebra.blockUpperIdeal (ZMod 4) q₄ Λ (β + β) (pair 0) (pair 1)
+    (fun r c => boundaryCount (cut (pair 0) (pair 1) r) c Bs) (L.map Prod.fst ++ pair 0 :: pair 1 :: M.map Prod.fst)
+  let q := RingCon.mkₐ (ZMod 4) J.ringCon
+  let v := BraidedStendhalAlgebra.violMk (ZMod 4) q₄ Λ (β + β)
+  let e := BraidedStendhalAlgebra.ofKLR (ZMod 4) q₄ Λ (β + β) (KLRAlgebra.e i)
+  have hz : q (v e) = 0 := by
+    change J.ringCon.mk' _ = 0
+    rw [← TwoSidedIdeal.mem_ker, TwoSidedIdeal.ker_ringCon_mk']
+    apply TwoSidedIdeal.subset_span
+    exact ⟨i, by decide, root_lt_of_violated weight (aligned_adjacent L M pair β (by decide)) higher
+      (.inr (.inl ⟨by decide, rfl⟩)), rfl⟩
+  refine Eq.trans ?_ (crossingDiagramCut q₄ Λ symm₄ L M pair β weight).map_zero
+  rw [crossingDiagramCut_eq_inverse, crossingDiagramCut_eq_inverse]; apply congrArg
+  apply Subtype.ext; apply Subtype.ext; rw [orderedColumnRep_val, orderedColumnRep_val]
+  change q (_ * (v (y*e*z) * _)) = q (_ * (v 0 * _))
+  simp only [map_mul v, map_mul q, hz, map_zero v, map_zero q, mul_zero, zero_mul]
 end AdjacentRow
 
 /-- Webster, arXiv:1309.3796v2, Prop. 6.4, for `sl₂`, two red strands of weight `ω` that may
@@ -6473,6 +6586,41 @@ noncomputable example :=
   hasReflectedStandardFiltration_braidingBimodule [] [] rightFiltration
 
 end NonVacuity.WebsterBraidFiltration
+
+open Categorification.TypeA Equiv
+namespace IntervalPBWFixture
+
+private theorem h : 1+(4+1)=6 := rfl
+private def u : Perm (Fin 6) := sadj 6 0 * sadj 6 4
+private def v : Perm (Fin 4) := wordProd 4 [2,0,1]
+private abbrev w := u * intervalPerm h v
+
+private theorem sorted : StrictMono (fun i : Fin 4 => u ⟨1+i.val,by omega⟩) := by
+  intro i j hij
+  fin_cases i <;> fin_cases j <;> first | exact False.elim (absurd hij (by decide)) | decide
+
+private theorem split : rightIntervalSplit h w = (u,v) := by
+  rw [w, rightIntervalSplit_mul, rightIntervalSplit_of_sorted h u sorted, one_mul]
+
+example : rightIntervalWord h w = canWord 6 u ++ shiftWord 1 (canWord 4 v) := by
+  rw [rightIntervalWord,split]
+
+example : length 6 w = 5 := by
+  rw [length_rightIntervalSplit h w, split]
+  change length 6 u + length 4 v = 5
+  rw [length_eq_invCount,length_eq_invCount]
+  decide
+
+example : IsReduced 6 (canWord 6 u ++ [3,1,2]) ∧ wordProd 6 (canWord 6 u ++ [3,1,2]) = w := by
+  have hr : IsReduced 4 [2,0,1] := by
+    constructor
+    · simp [ValidWord]
+    · rw [length_eq_invCount]; decide
+  have hword := rightIntervalSplit_append h w [2,0,1] hr (by rw [split]; rfl)
+  rw [split] at hword
+  exact hword
+
+end IntervalPBWFixture
 
 noncomputable section
 open CategoryTheory CategoryTheory.Limits DG DG.DerivedCategory

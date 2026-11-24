@@ -8799,7 +8799,7 @@ open Categorification.KLR Categorification.Stendhal BraidedStendhalAlgebra MvPol
 private def params : Unit → Unit → MvPolynomial (Fin 2) (ZMod 4) := fun _ _ => 0
 private def weights : Fin 3 → Unit →₀ ℕ := fun r => Finsupp.single () (if r = 2 then 1 else 2)
 
-example := firstPairRightmost_secondCrossing_kernel_of_weight_one params weights (by decide)
+example := firstPairRightmost_secondCrossing_kernel_of_weight_one params weights (by simp [weights])
 
 end NonVacuity.WebsterFirstPairRightmostWeightOne
 

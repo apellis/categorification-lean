@@ -9057,6 +9057,31 @@ example : ∃ a b : ℚ, braidProject (e terminal) * braidProject (ψ 0) * braid
 
 end
 end NonVacuity.WebsterFundamentalBraidCorners
+
+namespace NonVacuity.WebsterFundamentalBraidWeight
+open Categorification QuantumGroup Stendhal Stendhal.FundamentalCorner Stendhal.BraidedStendhalAlgebra
+
+noncomputable section
+private abbrev datum := CartanDatum.ofGraph (⊥ : SimpleGraph Unit)
+private abbrev realization := Matrix.Realization.std (UDot.A datum) ℂ
+
+example : weightPairing datum realization (braidFundamentalWeight realization)
+    (braidFundamentalWeight realization) = 1 / 2 :=
+  braidFundamentalWeight_norm realization
+
+example : fundamentalBraidMiddleClass ∈ Graded.shift (figureFiveCutGrade (Λ := wt)
+    datum fundamentalBraidParameters (weightPairing datum realization)
+    (fun _ => braidFundamentalWeight realization) terminal 1 0) 1 (3 / 2) :=
+  (fundamentalBraidMiddleClass_resolutionWeight realization _).mpr rfl
+
+example : fundamentalBraidMiddleClass ∉ Graded.shift (figureFiveCutGrade (Λ := wt)
+    datum fundamentalBraidParameters (weightPairing datum realization)
+    (fun _ => braidFundamentalWeight realization) terminal 1 0) 1 (0 : ℂ) := by
+  rw [fundamentalBraidMiddleClass_resolutionWeight]
+  norm_num
+
+end
+end NonVacuity.WebsterFundamentalBraidWeight
 end
 
 namespace NonVacuity.WebsterCupRHomRegular

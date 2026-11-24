@@ -7765,3 +7765,27 @@ example := derivedTensorIsoOrdinaryOfVanishing (A := ℤ) (B := ℤ) (M := ℤ) 
 
 end NonVacuity.WebsterDerivedOrdinaryComparison
 end
+
+namespace NonVacuity.WebsterFiveSlotLeftDerived
+
+open Categorification.Stendhal BraidedStendhalAlgebra CategoryTheory DG MulOpposite
+open scoped DG.DegreeZero
+
+attribute [local instance 1200] Ring.toIntAlgebra
+
+private noncomputable abbrev Q : Unit → Unit → MvPolynomial (Fin 2) ℚ := fun _ _ => 0
+private noncomputable abbrev Λ : Fin 3 → Unit →₀ ℕ := fun _ => Finsupp.single () 2
+local notation "ν₀" => ({()} + {()} : Multiset Unit)
+local notation "t" => fixedTopFourExitCut 0
+local notation "κ" => ([0,2,1] : List (Fin 3))
+local notation "C" => fun reds : List (Fin 3) =>
+  IsIdempotentElem.Corner (isIdempotentElem_violMk_redProj ℚ Q Λ ν₀ reds)
+
+example : blockLoadingKernel Q Λ t 1 2 = ⊥ :=
+  fiveSlotLeftExtreme_blockLoadingKernel_eq_bot Q Λ
+
+noncomputable example [DG.HasDerivedCategory.{0, 0} (C (redWord t))ᵐᵒᵖ]
+    [DG.HasDerivedCategory.{0, 0} (C κ)ᵐᵒᵖ] :=
+  fiveSlotLeftExtreme_partialStandardBraidIsoOrdinary Q Λ κ
+
+end NonVacuity.WebsterFiveSlotLeftDerived

@@ -1661,6 +1661,7 @@ import Categorification.WeightedKLR.RedStrands.EqualBlackHigherPair
 import Categorification.WeightedKLR.RedStrands.FixedTopFourExitJoints
 import Categorification.WeightedKLR.RedStrands.FiveSlotMarkedExitJoints
 import Categorification.WeightedKLR.RedStrands.FiveSlotLeftTopIdeal
+import Categorification.WeightedKLR.RedStrands.FiveSlotLeftDerived
 import Categorification.WeightedKLR.RedStrands.BraidedStandardDerived
 import Categorification.WeightedKLR.RedStrands.BlockCrossingComparison
 import Categorification.WeightedKLR.RedStrands.BlockLoadingPresentation

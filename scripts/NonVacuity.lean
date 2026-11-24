@@ -9082,6 +9082,17 @@ example : fundamentalBraidMiddleClass ∉ Graded.shift (figureFiveCutGrade (Λ :
 
 end
 end NonVacuity.WebsterFundamentalBraidWeight
+
+namespace NonVacuity.WebsterFundamentalBraidHomology
+open CategoryTheory Categorification.Stendhal.FundamentalCorner
+
+noncomputable example : fundamentalBraidCutComplex.homology ≅ ModuleCat.of ℚ ℚ :=
+  fundamentalBraidCutComplex_homologyIso
+
+example : Function.Injective fundamentalBraidCutComplex.f ∧ Function.Surjective fundamentalBraidCutComplex.g :=
+  fundamentalBraidCutComplex_ends
+
+end NonVacuity.WebsterFundamentalBraidHomology
 end
 
 namespace NonVacuity.WebsterCupRHomRegular

@@ -1138,6 +1138,10 @@ corner diagrams entering the projective resolution. The surviving middle
 class has diagram degree `1/2`. Its weight in the translated terminal
 projective is exactly `3/2` (`fundamentalBraidMiddleClass_resolutionWeight`).
 
+On the entire crossed loading cuts the first map is injective and the
+second is surjective. The middle homology is the scalar line
+(`fundamentalBraidCutComplex_homologyIso`).
+
 In the diagram-weight categories the middle character is homogeneous.
 Its weight-zero generator identifies with the right simple head, with
 every diagram acting by the middle character

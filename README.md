@@ -1093,7 +1093,9 @@ standard are exact and resolve the dot-sum quotient
 `Stendhal.LabelTwo.diagramPlusMinus_exact`,
 `Stendhal.LabelTwo.diagramMiddleAugmentation_exact`). The diagrammatic standard
 is the parabolic standardization of its two regular separated factors
-(`Stendhal.LabelTwo.middleStandardParabolicEquiv`).
+(`Stendhal.LabelTwo.middleStandardParabolicEquiv`). Its parabolic grading
+pulls back to a graded module on the actual diagrammatic carrier
+(`Stendhal.LabelTwo.middleStandardGradedEquiv`).
 
 ### Weak `sl₂`-categorifications (Chuang–Rouquier, arXiv:math/0407205v2, §5)
 

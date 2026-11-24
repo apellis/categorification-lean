@@ -8615,6 +8615,13 @@ example := middleStandardParabolicEquiv ℚ
 example : Function.Bijective (testModuleMap ℚ) :=
   ⟨testModuleMap_injective ℚ, testModuleMap_surjective ℚ⟩
 
+example := middleStandardGFin ℚ (labelTwoGradingDatum ℚ)
+
+example :
+    (middleStandardGradedEquiv ℚ (labelTwoGradingDatum ℚ)).toLinearEquiv =
+      middleStandardParabolicEquiv ℚ :=
+  middleStandardGradedEquiv_toLinearEquiv ℚ (labelTwoGradingDatum ℚ)
+
 end NonVacuity.WebsterLabelTwoMiddleFixedComplex
 
 end

@@ -1027,7 +1027,9 @@ modules, the homotopy category and the derived category are additive. At the
 dg module level the tensor commutes with cohomological shifts naturally
 (`diagramWeightTensorShiftNatIso`). The shift isomorphisms respect zero and
 addition and descend to the homotopy category
-(`diagramWeightTensorHomotopy_commShift`). A balanced homogeneous multiplication of two
+(`diagramWeightTensorHomotopy_commShift`). Mapping cone comparison identifies
+the standard triangles and makes the homotopy tensor triangulated
+(`diagramWeightTensorHomotopy_isTriangulated`). A balanced homogeneous multiplication of two
 coefficients induces their product from the intermediate weight-category
 tensor coend (`diagramWeightCoendProduct_tmul`). Compatibility with the outer
 action gives a map of dg modules (`diagramWeightCoendProductHom`).
@@ -1129,9 +1131,12 @@ consists of the crossing and its one-dot decoration
 (`fundamentalBraid_terminal_span`, `fundamentalBraid_terminal_linearIndependent`).
 The mixed differentials on this basis have matrices `(0,1)ᵀ` and `(1,0)`
 (`fundamentalBraid_terminal_differentials`). This computes the ungraded
-corner diagrams entering the projective resolution. On the entire
-crossed loading cuts the first map is injective, the second is surjective,
-and the middle homology is the scalar line
+corner diagrams entering the projective resolution. The surviving middle
+class has diagram degree `1/2`. Its weight in the translated terminal
+projective is exactly `3/2` (`fundamentalBraidMiddleClass_resolutionWeight`).
+
+On the entire crossed loading cuts the first map is injective and the
+second is surjective. The middle homology is the scalar line
 (`fundamentalBraidCutComplex_homologyIso`).
 
 In the diagram-weight categories the middle character is homogeneous.

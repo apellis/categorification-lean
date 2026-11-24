@@ -6,6 +6,7 @@ import Categorification.Algebra.BalancedTensorExact
 import Categorification.Algebra.BalancedTensorFiniteFamily
 import Categorification.Algebra.BalancedTensorFiltration
 import Categorification.Algebra.BalancedTensorSplit
+import Categorification.Algebra.BalancedTensorReflection
 import Categorification.Algebra.IdempotentExitLift
 import Categorification.Algebra.CoactionGrading
 import Categorification.Algebra.Coinvariant

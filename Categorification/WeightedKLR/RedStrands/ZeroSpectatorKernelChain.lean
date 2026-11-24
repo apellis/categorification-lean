@@ -73,7 +73,8 @@ private theorem unitBigons (t : Seq μ) (j : ℕ) (hj : j + 1 < n) (r : Fin ℓ)
     rw [KLRAlgebra.ψ_sq j hj, hb', hr']
     simp only [reduceCtorEq, ↓reduceIte, stendhalQ_inl_inr, hz, pow_zero, unitEval, one_mul]
 
-private theorem idemEquivAt {s t : Seq μ} {κ : List (Fin ℓ)}
+/-- The endpoint idempotents are equivalent in any common ordered corner. -/
+theorem ZeroWeightSpectatorPath.orderedIdemEquivAt {s t : Seq μ} {κ : List (Fin ℓ)}
     (path : ZeroWeightSpectatorPath Λ s t) (hs : redWord s = κ) :
     IdemEquiv (orderedLoadingIdemAt Q Λ κ s hs)
       (orderedLoadingIdemAt Q Λ κ t ((path.redWord_eq Λ).trans hs)) := by
@@ -104,7 +105,7 @@ def kernelEquivPartialStandard_of_zeroWeightSpectatorPath
     (blockLoadingKernel Q Λ s a b) ≃ₗ[
       (IsIdempotentElem.Corner (isIdempotentElem_violMk_redProj k Q Λ ν (redWord s)))ᵐᵒᵖ]
       blockPartialStandardAt Q Λ t a b (redWord s) (path.redWord_eq Λ) := by
-  have he := idemEquivAt Λ Q path rfl
+  have he := ZeroWeightSpectatorPath.orderedIdemEquivAt Λ Q path rfl
   have htop := blockLoadingKernel_eq_top_of_equiv Q Λ s t a b (path.redWord_eq Λ) hlt he
   let p := blockLoadingKernel Q Λ s a b
   let φ := Classical.choose_spec (Classical.choose_spec he)

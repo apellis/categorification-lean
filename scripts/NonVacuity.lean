@@ -6677,3 +6677,10 @@ example :=
   Stendhal.BraidedStendhalAlgebra.TwoSpectatorOneBlack.kernel_hasHigherFiltration
     (k := ℚ) (fun _ _ => 0)
     (fun r => if r = 0 ∨ r = 1 then Finsupp.single () 1 else 0) (by decide) (by decide)
+
+/-- With two spectators, the rightmost crossing surjects onto the one-black
+kernel even when that spectator has positive weight. -/
+example :=
+  Stendhal.BraidedStendhalAlgebra.TwoSpectatorOneBlack.terminalCrossingMap_surjective
+    (k := ℚ) (fun _ _ => 0)
+    (fun r => if r = 2 then 0 else Finsupp.single () 1)

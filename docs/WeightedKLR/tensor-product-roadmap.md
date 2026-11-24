@@ -1068,6 +1068,12 @@ between the source kernel and the endpoint partial standard when the pair is
 first, the endpoint is strictly higher, and the black is before all spectators
 (`kernelEquivPartialStandard_beforeSpectators`). The two-spectator loading
 realizes this chain explicitly (`TwoSpectatorOneBlack.kernelEquivHigherPartialStandard`).
+For two spectators of arbitrary weight, the terminal crossing surjects onto the
+source kernel (`TwoSpectatorOneBlack.terminalCrossingMap_surjective`).
+The retained order forces a terminal left descent on each higher cut, which
+gives an affine factorization before taking the violating quotient. If the
+first spectator has weight zero, injectivity of the terminal crossing suffices
+to identify the kernel with the partial standard before both spectators.
 
 Still open for Lemma 6.8: when a black lies between the bottom reds, prove that changes
 between different choices of the last crossing give equal balanced classes **in the

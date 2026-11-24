@@ -7789,3 +7789,127 @@ noncomputable example [DG.HasDerivedCategory.{0, 0} (C (redWord t))ᵐᵒᵖ]
   fiveSlotLeftExtreme_partialStandardBraidIsoOrdinary Q Λ κ
 
 end NonVacuity.WebsterFiveSlotLeftDerived
+
+namespace NonVacuity.WebsterFiveSlotCentral
+
+open Categorification.KLR Categorification.Stendhal Categorification.TypeA
+open BraidedStendhalAlgebra KLRAlgebra
+
+noncomputable section
+
+private abbrev ν : Multiset Unit := {()} + {()}
+private abbrev μ := stendhalWeight 3 ν
+private abbrev Q : Unit → Unit → MvPolynomial (Fin 2) ℤ := fun _ _ => 0
+private abbrev Λ : Fin 3 → Unit →₀ ℕ := fun _ => Finsupp.single () 2
+private abbrev Q₀ := stendhalQ Q Λ
+private abbrev R := KLRAlgebra ℤ Q₀ μ
+private abbrev V := ViolQuotient ℤ Q Λ ν
+private abbrev F := (violMk ℤ Q Λ ν).comp (ofKLR ℤ Q Λ ν)
+private abbrev bot := fixedTopFourExitBottom
+private abbrev t := fixedTopFourExitCut 1
+private abbrev q := exitSquarePolynomial Q₀ t 1 (by decide)*exitSquarePolynomial Q₀ t 3 (by decide)
+private abbrev U : R := ψw [1,3,2,3,1]*e t
+
+/-- The central transposition row on the ordinary middle arm cancels the
+product of two positive-weight squares on the reversed arm. -/
+example :=
+  let y : R := pol (-q)*e t
+  let x : Fin 4 → V := ![0,F U,0,F y]
+  have cutU : (e t : R)*U*e t=U := by
+    have h := e_mul_pol_ψw_e (Q := Q₀) 1 [1,3,2,3,1] t
+    rw [show wordProd μ.card [1,3,2,3,1] • t=t by decide,map_one,one_mul] at h
+    rw [show e t*U=U by simpa only [U,mul_assoc] using h]
+    simp only [U,mul_assoc,e_mul_self]
+  have cutY : e t*y*e t=y := by
+    have h := e_mul_pol_ψw_e (Q := Q₀) (-q) [] t
+    simp only [wordProd_nil,one_smul,ψw_nil,mul_one] at h
+    change e t*(pol (-q)*e t)*e t=pol (-q)*e t
+    rw [h,mul_assoc,e_mul_self]
+  have support (i : Fin 4) :
+      F (e t)*x i*F (e (wordProd μ.card (fiveSlotExitWord i) • bot))=x i := by
+    have load (j : Fin 4) : wordProd μ.card (fiveSlotExitWord j) • bot=fixedTopFourExitCut j := by fin_cases j <;> decide
+    rw [load]
+    fin_cases i
+    · change F (e t)*(0 : V)*_=0; rw [mul_zero,zero_mul]
+    · exact (show F (e t)*F U*F (e t)=F U by simp only [← map_mul,cutU])
+    · change F (e t)*(0 : V)*_=0; rw [mul_zero,zero_mul]
+    · exact (show F (e t)*F y*F (e t)=F y by simp only [← map_mul,cutY])
+  have mat := fiveSlotCentral_middle_matrix_iff (stendhalQ_symm Q Λ (fun _ _ _ => rfl)) 0 1 (-q) 0
+  have sumRaw : U*(ψw [2,3,1]*e bot)+y*(ψw [2,3,1,2]*e bot)=0 := by
+    simpa only [map_zero,map_one,zero_mul,one_mul,zero_add,add_zero,y,U] using
+      mat.2 ⟨rfl,by change 1*q+ -q=0; rw [one_mul,add_neg_cancel]⟩
+  have sum : ∑ i, x i*F (ψw (fiveSlotExitWord i)*e bot)=0 := by
+    rw [Fin.sum_univ_four]
+    change (0 : V)*_+F U*F (ψw [2,3,1]*e bot)+0*_+F y*F (ψw [2,3,1,2]*e bot)=0
+    simpa only [zero_mul,zero_add,add_zero,map_mul,map_add,map_zero] using congrArg F sumRaw
+  exists_fiveSlot_violQuotient_fourExitJointPresentation Q Λ (fun _ _ _ => rfl)
+    t (by decide) x support sum
+
+end
+
+end NonVacuity.WebsterFiveSlotCentral
+
+namespace NonVacuity.WebsterCentralHigher
+
+open Categorification.KLR Categorification.Stendhal Categorification.TypeA
+open BraidedStendhalAlgebra KLRAlgebra
+
+noncomputable section
+
+private abbrev Q : Unit → Unit → MvPolynomial (Fin 2) ℤ := fun _ _ => 0
+private abbrev Λ : Fin 3 → Unit →₀ ℕ := fun r => Finsupp.single () (if r=0 then 1 else 2)
+private abbrev μ := stendhalWeight 3 ({()} + {()} : Multiset Unit)
+private theorem pairing : Λ 0 () ≤ 1 := by simp [Λ]
+
+/-- Both loadings allow arbitrary exchanged-red weights. Here both
+exchanged weights are two and the spectator is fundamental. -/
+example (s : Seq μ) :=
+  fiveSlot_oneBlackBeforePair_columnInclusion_of_spectatorWeight_le_one Q Λ pairing
+    (fixedTopFourExitCut 1) s (Or.inl rfl)
+
+example (s : Seq μ) :=
+  fiveSlot_oneBlackBeforePair_columnInclusion_of_spectatorWeight_le_one Q Λ pairing
+    (sadj μ.card 2 • fixedTopFourExitCut 0) s (Or.inr rfl)
+
+/-- The two rows use distinct polynomials at this positive-weight specialization. -/
+example := fiveSlotCentral_leftWord_rows Q Λ 1 (MvPolynomial.X (⟨1,by decide⟩ : Fin μ.card))
+
+/-- The principal crossing word preserves a nonzero PBW class over the
+integers even though the globally violated quotient kills this source corner. -/
+example :
+    let B := ofKLR ℤ Q Λ ({()} + {()})
+    B (ψw [3,2]*e (fixedTopFourExitCut 0)) * B (ψw [3,2,1]*e fixedTopFourExitBottom) ≠ 0 := by
+  let B := ofKLR ℤ Q Λ ({()} + {()})
+  let T := toKLR ℤ Q Λ ({()} + {()})
+  let v := fixedTopFourExitCut 0
+  let s := fixedTopFourExitBottom
+  let y := B (ψw [3,2,1]*e s)
+  change B (ψw [3,2]*e v)*y ≠ 0
+  intro zero
+  have top : (e v : KLRAlgebra ℤ (stendhalQ Q Λ) μ)*(ψw [3,2,1]*e s)=ψw [3,2,1]*e s := by
+    rw [← show wordProd μ.card [3,2,1] • s=v by decide,← mul_assoc,e_mul_ψw,inv_smul_smul,mul_assoc,e_mul_self]
+  have killed : y=0 := fiveSlotCentral_leftWord_cancel_braided Q Λ (fun _ _ _ => rfl) y
+    (by change B (e v)*B _=B _; rw [← map_mul,top])
+    (by change B _*B (e s)=B _; rw [← map_mul,mul_assoc,e_mul_self]) zero
+  have raw : (ψw [3,2,1]*e s : KLRAlgebra ℤ (stendhalQ Q Λ) μ)=0 := by
+    simpa only [y,B,T,map_mul,map_zero,toKLR_ofKLR_ψw,toKLR_ofKLR_e] using congrArg T killed
+  have red (w : List ℕ) (h : ValidWord μ.card w) (n : w.length=invCount μ.card (wordProd μ.card w)) :
+      IsReduced μ.card w := ⟨h,by rw [length_eq_invCount]; exact n⟩
+  have rows := top_polynomial_pair_eq_zero_iff_of_words (stendhalQ_symm Q Λ (fun _ _ _ => rfl))
+    (red [3,2,1] (by simp [ValidWord,stendhalWeight]) (by decide))
+    (red [1,3,2,1] (by simp [ValidWord,stendhalWeight]) (by decide)) (by decide) s 1 0
+  exact one_ne_zero (rows.1 (by simpa only [map_zero,map_one,one_mul,zero_mul,add_zero] using raw)).1
+
+example : FiveSlotCentralRowReflection Q Λ :=
+  fiveSlotCentral_rowReflection_of_smallSpectator Q Λ (fun _ _ _ => rfl) pairing
+
+/-- On the fundamental spectator the complete marked presentation uses the
+verified two-row reflection, with its ordinary four-arm support. -/
+example := fiveSlotCentral_markedExitJoints_of_row_reflection Q Λ (fun _ _ _ => rfl)
+  (fiveSlotCentral_rowReflection_of_smallSpectator Q Λ (fun _ _ _ => rfl) pairing)
+  (fun _ => 0) (by intro i; rw [mul_zero,zero_mul]) (fun _ => TwoSidedIdeal.zero_mem _)
+  (by simp only [zero_mul,Finset.sum_const_zero])
+
+end
+
+end NonVacuity.WebsterCentralHigher

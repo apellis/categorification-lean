@@ -1116,7 +1116,9 @@ preserves the retained root. Every strictly higher affine cut at the block
 factors through the two crossings across the pair
 (`oneBlack_cut_factors_across_pair`). The two ordinary crossing tests imply
 cancellation of that product on the canonical ordered projective
-(`eq_zero_of_twoCrossings_mul_of_corner`).
+(`eq_zero_of_twoCrossings_mul_of_corner`). Together these facts identify the
+actual higher projective with the source kernel for the two-crossing step
+(`nonempty_kernelEquiv_of_twoCrossingTests`).
 
 Still open for Lemma 6.8: when a black lies between the bottom reds, prove that changes
 between different choices of the last crossing give equal balanced classes **in the

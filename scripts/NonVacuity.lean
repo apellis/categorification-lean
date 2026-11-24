@@ -8783,6 +8783,7 @@ example (x : Abelian.Ext fundamentalTerminalSimple fundamentalTerminalSimple 1) 
   fundamentalTerminalSimple_ext_eq_zero 1 (by decide) x
 
 end NonVacuity.WebsterFundamentalResolution
+
 namespace NonVacuity.WebsterVacuumBraidColumn
 
 open KLR KLRAlgebra Stendhal Stendhal.BraidedStendhalAlgebra
@@ -9056,6 +9057,16 @@ private theorem productBalanced (b x y : ℚ) : product (op b • x) y = product
 example := diagramWeightCoendProduct G G G leftAction rightAction leftAction rightAction
   product productWeight productBalanced (⟨0⟩ : QWeight) (⟨0⟩ : QWeight)
 
+private theorem productSpan :
+    AddSubgroup.closure (Set.range fun z : ℚ × ℚ => product z.1 z.2) = ⊤ := by
+  apply top_unique
+  intro z _
+  apply AddSubgroup.subset_closure
+  exact ⟨(z, 1), mul_one z⟩
+
+example := diagramWeightCoendProduct_surjective G G G leftAction rightAction leftAction rightAction
+  product productWeight productBalanced (⟨0⟩ : QWeight) (⟨0⟩ : QWeight) productSpan
+
 end
 
 end NonVacuity.WebsterWeightCoend
@@ -9164,3 +9175,62 @@ example := by
 end
 
 end NonVacuity.WebsterAuxiliaryBraiding
+
+open CategoryTheory CategoryTheory.Limits DG
+open scoped DG.DegreeZero
+
+noncomputable section
+namespace NonVacuity.WebsterActualBraidKernel
+
+open Categorification Categorification.KLR Categorification.Stendhal
+open Categorification.Stendhal.BraidedStendhalAlgebra
+
+attribute [local instance 1200] Ring.toIntAlgebra
+
+private abbrev ν : Multiset Bool := 0
+private abbrev Q : Bool → Bool → MvPolynomial (Fin 2) ℤ := fun _ _ => 1
+private abbrev Λ : Fin 2 → Bool →₀ ℕ := fun _ => 0
+private def t : Seq (stendhalWeight 2 ν) :=
+  ⟨fun j => Sum.inr (if j.val = 0 then 0 else 1), by decide⟩
+
+private abbrev corner (order : List (Fin 2)) :=
+  (isIdempotentElem_violMk_redProj ℤ Q Λ ν order).Corner
+
+local instance (order : List (Fin 2)) : HasDerivedCategory.{0, 0} (corner order)ᵐᵒᵖ :=
+  HasDerivedCategory.small _
+
+private theorem root_zero (s : Seq (stendhalWeight 2 ν)) :
+    adjacentBlockRoot 0 1 s = 0 := by
+  funext r i
+  have h (j : Fin (stendhalWeight 2 ν).card) : s.lbl j ≠ Sum.inl i := by
+    intro he
+    have hs := s.mem j
+    change s.lbl j ∈ stendhalWeight 2 ν at hs
+    simp [he, stendhalWeight] at hs
+  simp [adjacentBlockRoot, blockBlackCount, h]
+
+private theorem kernel_zero : blockLoadingKernel Q Λ t 0 1 = ⊥ := by
+  have hupper : blockUpperIdeal ℤ Q Λ ν 0 1 (adjacentBlockRoot 0 1 t) (redWord t) = ⊥ := by
+    apply le_antisymm (TwoSidedIdeal.span_le.mpr ?_) bot_le
+    rintro _ ⟨s, _, h, _⟩
+    rw [root_zero s, root_zero t] at h
+    exact (lt_irrefl _ h).elim
+  ext x
+  change x.val.val ∈ blockUpperIdeal ℤ Q Λ ν 0 1 (adjacentBlockRoot 0 1 t) (redWord t) ↔ _
+  rw [hupper, Submodule.mem_bot]
+  constructor
+  · intro hx
+    rw [TwoSidedIdeal.mem_bot] at hx
+    exact Subtype.ext (Subtype.ext hx)
+  · rintro rfl
+    exact (⊥ : TwoSidedIdeal _).zero_mem
+
+example :
+    IsZero ((DG.DerivedCategory.homologyFunctor (A := (corner [1, 0])ᵐᵒᵖ) ℤ 1).obj
+      ((braidingFunctor ℤ Q Λ ν (redWord t) [1, 0]).obj (DG.DerivedCategory.Q.obj
+        ((degreeZeroModuleFunctor (corner (redWord t))ᵐᵒᵖ).obj
+          (blockLoadingShortComplex Q Λ t 0 1).X₃)))) :=
+  blockPartialStandard_braid_homology_vanish_of_bot Q Λ t 0 1 [1, 0] kernel_zero 1 (by decide)
+
+end NonVacuity.WebsterActualBraidKernel
+end

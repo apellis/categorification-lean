@@ -6338,6 +6338,8 @@ private theorem hb : EdgeBraid (by decide : 0 < μ.card) 1 g s t where
 
 private theorem h1 : 1 < μ.card := by decide
 
+example := figureFiveColumn_hasStandardFiltration (Λ := Λ) (d := 0) hρ hQ h1 rfl rfl hb
+
 private noncomputable def figure5LoadingEquiv :=
   violLoadingStandardEquivBraidCorner (Λ₂ := Λ) (d := 0) hρ hQ h1 rfl rfl hb
 
@@ -9051,6 +9053,29 @@ example := finrank_vacuum_braidColumn_eq_standard params weights
 
 end NonVacuity.WebsterVacuumBraidColumn
 
+namespace NonVacuity.WebsterBraidColumnPBW
+
+open Categorification Categorification.KLR Categorification.Stendhal
+open Categorification.Stendhal.BraidedStendhalAlgebra Equiv MvPolynomial
+
+private abbrev content : Multiset Unit := {()}
+private abbrev weight := stendhalWeight 3 content
+private def top : Seq weight :=
+  KLRAlgebra.Seq.ofList [.inr 0, .inl (), .inr 1, .inr 2] (by decide)
+private noncomputable abbrev parameters : Unit → Unit → MvPolynomial (Fin 2) ℚ :=
+  fun _ _ => 0
+private noncomputable abbrev weights : Fin 3 → Unit →₀ ℕ :=
+  fun j => Finsupp.single () (j.val + 1)
+private noncomputable def reducedWord (w : Perm (Fin weight.card)) :=
+  (TypeA.exists_reduced _ w).choose
+private theorem reducedChoice : TypeA.IsReducedChoice reducedWord :=
+  fun w => (TypeA.exists_reduced _ w).choose_spec
+private theorem symmetric : KLRSymm parameters := fun _ _ _ => rfl
+
+example := span_violFixedTopColumn (Λ := weights) symmetric reducedChoice top [0, 2, 1]
+
+end NonVacuity.WebsterBraidColumnPBW
+
 namespace NonVacuity.WebsterGradedFundamentalCup
 noncomputable section
 
@@ -9416,6 +9441,12 @@ example := fundamentalBraidGradedResolutionAugmentation_quasiIso
 
 noncomputable example := fundamentalBraidGradedDerivedModelIso.{1}
 
+noncomputable example := fundamentalBraidGradedDerivedHomologyIso.{1}
+
+example := fundamentalBraidGradedDerivedCohomology_isZero.{1} 0 0 (Or.inl (by decide))
+
+example := fundamentalBraidGradedDerivedCohomology_isZero.{1} 1 (-1) (Or.inr (by decide))
+
 end NonVacuity.WebsterFundamentalBraidGradedResolutionModel
 end
 
@@ -9682,6 +9713,21 @@ example := cornerTensorCutLift_tmul (k := ℚ) unitIdempotent unitIdempotent uni
 example := diagramWeightCoendProduct G G G leftAction rightAction leftAction rightAction
   product productWeight productBalanced (⟨0⟩ : QWeight) (⟨0⟩ : QWeight)
 
+section
+
+open CategoryTheory.Limits CategoryTheory.Pretriangulated
+
+local instance : CatModule.HasDerivedCategory.{1,0} QWeight :=
+  CatModule.HasDerivedCategory.standard QWeight
+
+example (X : QWeight) (T : Triangle (CatModule.DerivedCategory QWeight))
+    (hT : T ∈ distTriang _) (n : ℤ)
+    (h₀ : IsZero ((CatModule.DerivedCategory.cohomologyFunctor X n).obj T.obj₂))
+    (h₁ : IsZero ((CatModule.DerivedCategory.cohomologyFunctor X (n + 1)).obj T.obj₂)) :=
+  weightCohomologyShiftIso X T hT n h₀ h₁
+
+end
+
 private theorem productLeft (a x y : ℚ) : product (a • x) y = a • product x y :=
   mul_assoc a x y
 
@@ -9772,6 +9818,16 @@ example (n : ℤ) :=
 example (hK : CatModule.IsKProjective rationalLeft) :=
   letI := CatModule.HasDerivedCategory.standard QWeight
   diagramWeightDerivedTensorObjIso_naturality G leftAction rightAction (𝟙 rationalLeft) hK hK
+
+
+example (hK : CatModule.IsKProjective rationalLeft) :=
+  letI := CatModule.HasDerivedCategory.standard QWeight
+  diagramWeightDerivedTensorH0IsoOfResolution_naturality G leftAction rightAction
+    (𝟙 rationalLeft) (𝟙 rationalLeft) (𝟙 rationalLeft) hK hK
+    (CatModule.IsQuasiIso.of_isIso _) (CatModule.IsQuasiIso.of_isIso _)
+    (fun _ {_} _ => InDegreeZero.d_apply _ _) (fun _ {_} _ => InDegreeZero.d_apply _ _)
+    (fun _ => ⟨InDegreeZero.mem_grading_zero, InDegreeZero.d_apply _⟩)
+    (fun _ => ⟨InDegreeZero.mem_grading_zero, InDegreeZero.d_apply _⟩) (⟨0⟩ : QWeight)
 
 end
 
@@ -10008,6 +10064,12 @@ example :
     fixSub ℚ (StandardDotSumQuotient ℚ)
       (seqIdem (parameter ℚ) weights loading loading_ordered) ≃ₗ[ℚ] DualNumber ℚ :=
   middleCutDotSumEquiv ℚ
+
+example := middleCutDotSum_scalar_mem_grade ℚ
+
+example := middleCutDotSum_epsilon_mem_grade ℚ
+
+example := middleCutDotSum_mem_grade_iff ℚ
 
 open KLR
 
@@ -10633,6 +10695,170 @@ example := orderedWeightDerivedTensor_cohomology_isZero_of_filtered_loading_supp
   (⟨0⟩ : WeightCategory ℚ) (-1) (by decide)
 
 end NonVacuity.WebsterOrderedGradedResolution
+
+namespace NonVacuity.WebsterDirectLeftWeight
+
+open Categorification Categorification.Stendhal Categorification.ModuleFiltration
+open KLR DG CategoryTheory
+open scoped DG.DegreeZero
+
+attribute [local instance 1100] IsIdempotentElem.instAlgebraCorner_categorification
+
+private abbrev vacuumParameters : Unit → Unit → MvPolynomial (Fin 2) ℚ := fun _ _ => 0
+private abbrev vacuumWeights : Fin 0 → Unit →₀ ℕ := Fin.elim0
+
+private def vacuumBlackGrade : GradingDatum vacuumParameters where
+  degX _ := 0
+  degΨ _ _ := 0
+  degΨ_self _ := rfl
+  isWeightedHomogeneous a b h := (h (Subsingleton.elim a b)).elim
+
+private def vacuumGrade : GradingDatum (stendhalQ vacuumParameters vacuumWeights) :=
+  stendhalGradingDatum vacuumWeights vacuumBlackGrade (fun _ => 0) (fun _ => rfl)
+
+private abbrev vacuumLabel := {t : Seq (stendhalWeight 0 (0 : Multiset Unit)) // IsRedOrdered t}
+private abbrev vacuumAlgebra := TensorProductAlgebra ℚ vacuumParameters vacuumWeights (0 : Multiset Unit)
+private abbrev vacuumStandard (s : vacuumLabel) :=
+  ModuleCat.of vacuumAlgebra (leftStandard vacuumParameters vacuumWeights s.val s.property)
+private abbrev vacuumKernel (s : vacuumLabel) :=
+  (leftUpper vacuumParameters vacuumWeights s.val s.property).comap
+    (lIdeal (seqIdem vacuumParameters vacuumWeights s.val s.property)).subtype
+
+private def vacuumLoading : vacuumLabel := by
+  let s : Seq (stendhalWeight 0 (0 : Multiset Unit)) := by
+    simpa [stendhalWeight] using (KLR.Seq.nil : Seq (0 : Multiset (Unit ⊕ Fin 0)))
+  exact ⟨s, fun _ _ r => r.elim0⟩
+
+private theorem vacuumHigherFiltration (s : vacuumLabel) :
+    ∃ m : List vacuumLabel, (∀ t ∈ m, StendhalLT s.val t.val) ∧
+      HasFiltration vacuumStandard m (ModuleCat.of vacuumAlgebra (vacuumKernel s)) := by
+  have hzero : leftUpper vacuumParameters vacuumWeights s.val s.property = ⊥ := by
+    apply Submodule.span_eq_bot.mpr
+    rintro _ ⟨t, ht, a, hlt, h⟩
+    exact (hlt.2 fun r => r.elim0).elim
+  refine ⟨[], by simp, HasFiltration.zero ?_⟩
+  constructor
+  intro x y
+  apply Subtype.ext
+  apply Subtype.ext
+  have hx : x.val.val ∈ leftUpper vacuumParameters vacuumWeights s.val s.property := x.property
+  have hy : y.val.val ∈ leftUpper vacuumParameters vacuumWeights s.val s.property := y.property
+  rw [hzero, Submodule.mem_bot] at hx hy
+  exact hx.trans hy.symm
+
+example :=
+  leftStandardOrderedWeightResolution_isKProjective vacuumGrade vacuumHigherFiltration vacuumLoading
+
+example :=
+  leftStandardOrderedWeightAugmentation_quasiIso vacuumGrade vacuumHigherFiltration vacuumLoading
+
+section StandardParameters
+
+open QuantumGroup KL3.Diagram
+
+variable (C : CartanDatum Unit)
+
+private def vacuumKLBlackGrade :
+    GradingDatum (CL.qCL (CL.CLScalars.kl : CL.CLScalars C ℚ)) where
+  degX _ := 0
+  degΨ _ _ := 0
+  degΨ_self _ := rfl
+  isWeightedHomogeneous a b h := (h (Subsingleton.elim a b)).elim
+
+private def vacuumKLGrade :=
+  stendhalGradingDatum vacuumWeights (vacuumKLBlackGrade C) (fun _ => 0) (fun _ => rfl)
+
+private theorem vacuumKLRouquier :
+    IsRouquierQ C (CL.qCL (CL.CLScalars.kl : CL.CLScalars C ℚ)) :=
+  ⟨fun a b h => (h (Subsingleton.elim a b)).elim,
+    fun a b h => (h (Subsingleton.elim a b)).elim,
+    fun a b h => (h (Subsingleton.elim a b)).elim⟩
+
+example :=
+  leftStandardOrderedWeightResolution_std_isKProjective vacuumWeights 0
+    (vacuumKLGrade C) (vacuumKLRouquier C) vacuumLoading
+
+example :=
+  leftStandardOrderedWeightAugmentation_std_quasiIso vacuumWeights 0
+    (vacuumKLGrade C) (vacuumKLRouquier C) vacuumLoading
+
+end StandardParameters
+
+end NonVacuity.WebsterDirectLeftWeight
+
+end
+
+noncomputable section
+
+namespace NonVacuity.WebsterReflectedOrderedWeight
+
+open Categorification Categorification.Stendhal Categorification.ModuleFiltration
+open KLR DG CategoryTheory
+open scoped DG.DegreeZero
+
+attribute [local instance 1100] IsIdempotentElem.instAlgebraCorner_categorification
+
+private abbrev vacuumParameters : Unit → Unit → MvPolynomial (Fin 2) ℚ := fun _ _ => 0
+private abbrev vacuumWeights : Fin 0 → Unit →₀ ℕ := Fin.elim0
+
+open QuantumGroup BraidedStendhalAlgebra
+
+private theorem vacuumRouquier : IsRouquierQ (CartanDatum.ofGraph (⊥ : SimpleGraph Unit))
+    vacuumParameters where
+  symm i j hij := (hij (Subsingleton.elim i j)).elim
+  homogeneous i j hij := (hij (Subsingleton.elim i j)).elim
+  unit_coeff i j hij := (hij (Subsingleton.elim i j)).elim
+
+private noncomputable def vacuumWord
+    (w : Equiv.Perm (Fin (stendhalWeight 0 (0 : Multiset Unit)).card)) :=
+  (TypeA.exists_reduced _ w).choose
+
+private theorem vacuumReduced : TypeA.IsReducedChoice vacuumWord :=
+  fun w => (TypeA.exists_reduced _ w).choose_spec
+
+private theorem vacuumSymmetric : KLRSymm vacuumParameters := fun _ _ _ => rfl
+
+private abbrev vacuumLabel := {t : Seq (stendhalWeight 0 (0 : Multiset Unit)) // IsRedOrdered t}
+private abbrev vacuumAlgebra := TensorProductAlgebra ℚ vacuumParameters vacuumWeights (0 : Multiset Unit)
+private abbrev vacuumStandard (s : vacuumLabel) :=
+  ModuleCat.of vacuumAlgebra (leftStandard vacuumParameters vacuumWeights s.val s.property)
+private abbrev vacuumKernel (s : vacuumLabel) :=
+  (leftUpper vacuumParameters vacuumWeights s.val s.property).comap
+    (lIdeal (seqIdem vacuumParameters vacuumWeights s.val s.property)).subtype
+
+private def vacuumLoading : vacuumLabel := by
+  let s : Seq (stendhalWeight 0 (0 : Multiset Unit)) := by
+    simpa [stendhalWeight] using (KLR.Seq.nil : Seq (0 : Multiset (Unit ⊕ Fin 0)))
+  exact ⟨s, fun _ _ r => r.elim0⟩
+
+private theorem vacuumHigherFiltration (s : vacuumLabel) :
+    ∃ m : List vacuumLabel, (∀ t ∈ m, StendhalLT s.val t.val) ∧
+      HasFiltration vacuumStandard m (ModuleCat.of vacuumAlgebra (vacuumKernel s)) := by
+  have hzero : leftUpper vacuumParameters vacuumWeights s.val s.property = ⊥ := by
+    apply Submodule.span_eq_bot.mpr
+    rintro _ ⟨t, ht, a, hlt, h⟩
+    exact (hlt.2 fun r => r.elim0).elim
+  refine ⟨[], by simp, HasFiltration.zero ?_⟩
+  constructor
+  intro x y
+  apply Subtype.ext
+  apply Subtype.ext
+  have hx : x.val.val ∈ leftUpper vacuumParameters vacuumWeights s.val s.property := x.property
+  have hy : y.val.val ∈ leftUpper vacuumParameters vacuumWeights s.val s.property := y.property
+  rw [hzero, Submodule.mem_bot] at hx hy
+  exact hx.trans hy.symm
+
+example :=
+  reflectedStandardWeightResolution_isKProjective (Λ := vacuumWeights)
+    vacuumRouquier (1 : Equiv.Perm (Fin 0)) vacuumReduced vacuumSymmetric
+    vacuumHigherFiltration vacuumLoading
+
+example :=
+  reflectedStandardWeightAugmentation_quasiIso (Λ := vacuumWeights)
+    vacuumRouquier (1 : Equiv.Perm (Fin 0)) vacuumReduced vacuumSymmetric
+    vacuumHigherFiltration vacuumLoading
+
+end NonVacuity.WebsterReflectedOrderedWeight
 
 end
 

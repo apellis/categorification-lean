@@ -10245,6 +10245,15 @@ example (hK : CatModule.IsKProjective rationalLeft) :=
     (fun _ => ⟨InDegreeZero.mem_grading_zero, InDegreeZero.d_apply _⟩)
     (fun _ => ⟨InDegreeZero.mem_grading_zero, InDegreeZero.d_apply _⟩) (⟨0⟩ : QWeight)
 
+example :=
+  diagramWeightTensorInternalShiftIso G leftAction rightAction (-2) rationalLeft
+
+example :=
+  letI := CatModule.HasDerivedCategory.standard QWeight
+  diagramWeightDerivedTensorInternalShiftIso G leftAction rightAction (-2)
+    (CatModule.DerivedCategory.Q.obj rationalLeft)
+
+
 end
 
 end NonVacuity.WebsterWeightCoend

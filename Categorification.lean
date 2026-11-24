@@ -1896,6 +1896,7 @@ import Categorification.Algebra.DiagramWeightBimodule
 import Categorification.Algebra.DiagramWeightCohomologyShift
 import Categorification.Algebra.DiagramWeightTensorH0
 import Categorification.Algebra.DiagramWeightLocalizedCohomology
+import Categorification.Algebra.DiagramWeightInternalShift
 import Categorification.Algebra.DiagramWeightCohomologyShift
 import Categorification.Algebra.WeightCoendReindex
 import Categorification.Algebra.DiagramWeightTensorInternal

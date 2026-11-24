@@ -6652,3 +6652,21 @@ example :=
 example :=
   Stendhal.BraidedStendhalAlgebra.ThreeRedOneBlack.higherCrossingMap_surjective
     (k := ℚ) (fun _ _ => 0) (fun _ => Finsupp.single () 1)
+
+namespace Categorification.Stendhal.BraidedStendhalAlgebra.ThreeRedOneBlack
+
+open KLR
+
+private def internalBlack : Seq (stendhalWeight 3 ({()} : Multiset Unit)) :=
+  KLRAlgebra.Seq.ofList [.inr 0, .inl (), .inr 1, .inr 2] (by decide)
+
+example : adjacentBlockRoot 0 1 internalBlack = adjacentBlockRoot 0 1 higher := by
+  apply (adjacentBlockRoot_oneBlack_eq_iff (s := internalBlack) (t := higher)
+    (L := []) (M := [2]) (by decide) (by decide) ⟨1, by decide⟩ ⟨2, by decide⟩ rfl rfl).2
+  intro r hr ps pt hps hpt
+  fin_cases r
+  · fin_cases ps <;> fin_cases pt <;> revert hps hpt <;> decide
+  · exact (hr rfl).elim
+  · fin_cases ps <;> fin_cases pt <;> revert hps hpt <;> decide
+
+end Categorification.Stendhal.BraidedStendhalAlgebra.ThreeRedOneBlack

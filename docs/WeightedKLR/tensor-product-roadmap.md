@@ -1059,6 +1059,10 @@ the kernel. At standard Khovanov–Lauda parameters, rightmost-red crossing
 injectivity transports along the identity-corner equivalence and horizontal reflection.
 Thus the one-layer filtration holds with arbitrary spectator weight
 (`ThreeRedOneBlack.kernel_hasHigherFiltration_standard`).
+The one-black retained order is inclusion of the retained reds after the black
+strand (`adjacentBlockRoot_oneBlack_le_iff`). Strict dominance additionally
+requires some retained red to separate the loadings. This gives the boundary
+order needed for extending the filtration to a longer list of spectators.
 
 Still open for Lemma 6.8: when a black lies between the bottom reds, prove that changes
 between different choices of the last crossing give equal balanced classes **in the

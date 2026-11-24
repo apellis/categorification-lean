@@ -1150,6 +1150,10 @@ ordinary tensor map applying it to the first factor
 (`derivedTensorCoefficientMap`, `derivedTensorObjIso_coefficient_naturality`).
 The degree-zero comparison with ordinary tensor is natural in this map
 (`derivedTensorHomologyIsoOrdinaryLinear_coefficient_naturality`).
+On a pure tensor it applies the map to the first factor
+(`ambientH0CoefficientMap_tmul`). Naturality of the connecting morphism
+transfers nonvanishing through a triangle when the source connecting
+morphism is surjective (`homology_map_ne_zero_of_middle_next_isZero`).
 It commutes with cochain shifts and defines a morphism between the
 derived tensor images of a triangle (`derivedTensorCoefficientTriangleMap`).
 

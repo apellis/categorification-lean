@@ -1443,6 +1443,9 @@ connecting map (`Stendhal.LabelTwo.incomingCokernelTorOne_map_nonzero`).
 When the characteristic differs from two, the middle acyclicity and the
 one-dimensional preimage tensor make this map surjective
 (`Stendhal.LabelTwo.incomingCokernelTorOne_map_surjective_of_middleAcyclic`).
+The resulting coefficient sequence gives zero first ambient self Tor for
+the incoming cokernel
+(`Stendhal.LabelTwo.incomingCokernelSelfTorOne_isZero_of_surjective`).
 
 
 

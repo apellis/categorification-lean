@@ -11641,6 +11641,8 @@ example := incomingCokernelTorOne_map_nonzero ℚ
 
 example := incomingCokernelTorOne_map_surjective_of_middleAcyclic ℚ
 
+example := incomingCokernelSelfTorOne_isZero_of_surjective ℚ
+
 end
 
 example (z : labelTwoRightExteriorDividedStandard (parameter ℚ)) :=

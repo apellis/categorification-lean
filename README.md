@@ -1305,6 +1305,10 @@ generator and vanishes on a second dot-sum action
 (`Stendhal.LabelTwo.incomingLift_middle_fixed_iff`,
 `Stendhal.LabelTwo.middleY₁Readout_diagramPlus_generator`,
 `Stendhal.LabelTwo.middleY₁Readout_middleDotElt_incomingLift_zero`).
+The middle left-dot coefficient descends through the dot-sum quotient in
+the balanced tensor with the reflected incoming preimage and evaluates
+the first dot sum on the middle generator to one
+(`Stendhal.LabelTwo.incomingLiftTensorReadout_dotSum_generator`).
 
 
 

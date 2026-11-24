@@ -184,7 +184,7 @@ section Standard
 
 open QuantumGroup KL3.Diagram
 
-variable {F : Type*} [Field F] {C : CartanDatum Unit}
+variable {F : Type} [Field F] {C : CartanDatum Unit}
 local notation "QL" => CL.qCL (CL.CLScalars.kl : CL.CLScalars C F)
 
 private theorem rightmostCrossing_std_prefix

@@ -10701,3 +10701,31 @@ end StandardParameters
 end NonVacuity.WebsterDirectLeftWeight
 
 end
+
+noncomputable section
+
+namespace NonVacuity.WebsterBlockKernelDerivedNegOne
+
+open Categorification.KLR Categorification.Stendhal Categorification.QuantumGroup
+open BraidedStendhalAlgebra KL3.Diagram DG
+open scoped DG.DegreeZero
+
+attribute [local instance 1100] IsIdempotentElem.instAlgebraCorner_categorification
+attribute [local instance 1200] Ring.toIntAlgebra
+
+private abbrev C := CartanDatum.ofGraph (⊥ : SimpleGraph Unit)
+private abbrev Q := CL.qCL (CL.CLScalars.kl : CL.CLScalars C ℚ)
+private abbrev Λ : Fin 3 → Unit →₀ ℕ := fun r => Finsupp.single () (r.val + 1)
+private abbrev ν : Multiset Unit := {()} + {()}
+
+local instance (order : List (Fin 3)) : HasDerivedCategory.{0, 0}
+    (isIdempotentElem_violMk_redProj ℚ Q Λ ν order).Cornerᵐᵒᵖ :=
+  HasDerivedCategory.small _
+
+example := blockPartialStandard_braid_homology_negOne_vanish Q Λ
+  (firstPairOneAfterSpectator true) 0 1 [1, 0, 2]
+  (firstPairOneAfter_blockKernelTensorInclusion_injective_standard (k₀ := ℚ) C Λ true)
+
+end NonVacuity.WebsterBlockKernelDerivedNegOne
+
+end

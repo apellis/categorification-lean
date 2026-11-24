@@ -955,6 +955,15 @@ its tail. The ordered coefficient slides by balancing. Hence every affine relati
 zero balanced class: `crossingStack_injective` and `crossingStackEquiv` give the ordinary
 comparison for arbitrary spectators and black contents. `crossingDiagramCut_eq_inverse`
 identifies the original basis cut on every representative with the inverse on its class.
+The binary bottom-projector formula extends to each block of the parabolic
+coordinates. Theorem `violated_of_adjacent_shuffleLoading` shows that every compatible
+split of a globally violated or strictly higher retained source loading has an
+internally violated block. The projected coordinates vanish on diagrams factoring
+through one of these loadings, with arbitrary diagrams above and below the cut.
+`exists_blockStack_quotient_coordinates` descends the coordinates through red dots
+and both loading ideals to the partially standardized quotient. The next step is
+to identify their support and the effect of the right joint crossing on that quotient.
+
 Still open for Lemma 6.8: the higher-homology vanishing in (6.21),
 including injectivity after tensoring the kernel inclusion, then Prop 6.9
 for general `ℓ` by reduction to two

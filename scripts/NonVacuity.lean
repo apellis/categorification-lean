@@ -6795,6 +6795,92 @@ noncomputable example :=
 
 end NonVacuity.WebsterFigureFive
 
+namespace NonVacuity.WebsterBlockBraidIndex
+
+open Categorification Categorification.KLR Categorification.Stendhal Equiv TypeA
+open scoped BigOperators
+
+private abbrev content : Multiset Bool := {false, true, false}
+private abbrev weight := stendhalWeight 3 content
+private abbrev m := Multiset.card weight
+private theorem six_eq_card : 6 = m := by decide
+private def top : Seq weight :=
+  KLRAlgebra.Seq.ofList [.inr 0, .inr 1, .inl false, .inr 2, .inl true, .inl false] (by decide)
+private def bottom : Seq weight :=
+  KLRAlgebra.Seq.ofList [.inr 0, .inl false, .inr 1, .inr 2, .inl true, .inl false] (by decide)
+private def sizes (r : Fin 3) : ℕ := r.val
+private theorem sizes_card : (∑ r, (sizes r + 1)) = m := by decide
+private theorem red_slots (r : Fin 3) : top.lbl (braidBlockPositions sizes sizes_card ⟨r, 0⟩) =
+    .inr r := by
+  fin_cases r <;> decide
+private theorem top_ordered : IsRedOrdered top := (redWord_eq_finRange_iff top).1 (by decide)
+private theorem top_nonviolated : ¬ IsViolated top := by
+  rintro ⟨_, hv⟩
+  change false = true at hv
+  cases hv
+private def exchange : Perm (Fin 3) := Equiv.swap 0 2
+private def phi : Perm (Fin m) := sadj m 1
+private theorem bottom_eq : phi⁻¹ • top = bottom := by
+  apply Subtype.ext
+  funext a
+  fin_cases a <;> rfl
+private def bottomRed (r : Fin 3) : Fin m :=
+  Fin.cast six_eq_card (if r = 0 then 0 else if r = 1 then 2 else 3)
+private def topRed (r : Fin 3) : Fin m :=
+  Fin.cast six_eq_card (if r = 0 then 0 else if r = 1 then 1 else 3)
+private theorem redPos_bottom (r : Fin 3) : redPos bottom r = bottomRed r := by
+  symm
+  apply eq_redPos (s := bottom)
+  fin_cases r <;> decide
+private theorem redPos_top (r : Fin 3) : redPos top r = topRed r := by
+  symm
+  apply eq_redPos (s := top)
+  fin_cases r <;> decide
+private theorem phi_eligible : ProjectiveBlockIndex top phi := by
+  constructor
+  · rw [bottom_eq]
+    exact (redWord_eq_finRange_iff bottom).1 (by decide)
+  · simp only [bottom_eq, redPos_bottom, redPos_top]
+    decide
+  · simp only [bottom_eq, redPos_bottom]
+    decide
+
+example := exists_braidBlockPositions top top_ordered top_nonviolated
+
+example : redWord (braidBlockPermutation sizes sizes_card exchange • top) = [2, 1, 0] :=
+  (redWord_braidBlockPermutation_smul top sizes sizes_card exchange red_slots).trans (by decide)
+
+example := braidColumnIndexOfProjective top sizes sizes_card exchange ⟨phi, phi_eligible⟩
+
+example : (braidColumnBlockIndex sizes sizes_card exchange phi)⁻¹ •
+    (braidBlockPermutation sizes sizes_card exchange • top) = bottom := by
+  rw [braidColumnBlockIndex_bottom, bottom_eq]
+
+private def wordFirst : List ℕ := [2, 3, 4, 1, 2, 3, 0, 1, 2, 0, 1, 0]
+private def wordSecond : List ℕ := [2, 3, 4, 1, 2, 3, 0, 1, 2, 1, 0, 1]
+private theorem reducedFirst : IsReduced m wordFirst :=
+  ⟨by simp [ValidWord, wordFirst, ← six_eq_card], by rw [length_eq_invCount]; decide⟩
+private theorem reducedSecond : IsReduced m wordSecond :=
+  ⟨by simp [ValidWord, wordSecond, ← six_eq_card], by rw [length_eq_invCount]; decide⟩
+private noncomputable abbrev parameters : Bool → Bool → MvPolynomial (Fin 2) ℚ :=
+  fun _ _ => 0
+private noncomputable abbrev weights : Fin 3 → Bool →₀ ℕ :=
+  fun r => Finsupp.single false (r.val + 1) + Finsupp.single true 1
+private def index := braidColumnIndexOfProjective top sizes sizes_card exchange ⟨phi, phi_eligible⟩
+private theorem firstProduct : wordProd m wordFirst = index.val := by
+  apply Equiv.ext
+  intro x
+  fin_cases x <;> rfl
+private theorem secondProduct : wordProd m wordSecond = index.val := by
+  apply Equiv.ext
+  intro x
+  fin_cases x <;> rfl
+
+example := braidColumnBlockIndex_wordChange (Q := parameters) (Λ := weights)
+  top sizes sizes_card exchange ⟨phi, phi_eligible⟩ reducedFirst reducedSecond firstProduct secondProduct 1
+
+end NonVacuity.WebsterBlockBraidIndex
+
 namespace NonVacuity.BraidedStendhal
 
 open Categorification Categorification.KLR Categorification.Stendhal

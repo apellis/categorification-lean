@@ -1023,7 +1023,9 @@ vanishing in the other source degrees
 (`diagramWeightLeft_isQuasiIso_of_cohomology`). The representable at a source weight is sent to
 that component of the coefficient
 (`diagramWeightDerivedTensorRepresentableIso`). The tensor functors on dg
-modules, the homotopy category and the derived category are additive. A balanced homogeneous multiplication of two
+modules, the homotopy category and the derived category are additive. At the
+dg module level the tensor commutes with cohomological shifts naturally
+(`diagramWeightTensorShiftNatIso`). A balanced homogeneous multiplication of two
 coefficients induces their product from the intermediate weight-category
 tensor coend (`diagramWeightCoendProduct_tmul`). Compatibility with the outer
 action gives a map of dg modules (`diagramWeightCoendProductHom`).

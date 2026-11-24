@@ -1775,6 +1775,7 @@ import Categorification.WeightedKLR.Rigidity.FundamentalDerivedCircle
 import Categorification.WeightedKLR.Rigidity.FundamentalMiddleDimensions
 import Categorification.Algebra.DiagramBigrading
 import Categorification.Algebra.DiagramWeightBimodule
+import Categorification.Algebra.DiagramWeightTensorShift
 import Categorification.Algebra.DiagramWeightScalarHom
 import Categorification.Algebra.DiagramWeightCorner
 import Categorification.Algebra.DiagramWeightCoend

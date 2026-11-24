@@ -1730,6 +1730,7 @@ import Categorification.WeightedKLR.Rigidity.ExtremalBlockRank
 import Categorification.WeightedKLR.Rigidity.ExtremalRaising
 import Categorification.WeightedKLR.Rigidity.ExtremalStringNorm
 import Categorification.WeightedKLR.Rigidity.CoevaluationDividedPower
+import Categorification.WeightedKLR.Rigidity.ReducedDividedNorm
 
 /-!
 # Categorification

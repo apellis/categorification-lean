@@ -1018,7 +1018,9 @@ particular the cyclotomic coevaluation block has Laurent rank one
 (`CycKLR.finrank_coevaluation_projectiveBlock`). At a positive Weyl step
 the raised weight space vanishes in the classical and quantum modules, and
 the full divided power preserves the Shapovalov norm on a bar-invariant
-primitive vector (`SingleBlack.websterForm_saturated_dividedPower`). The normalized
+primitive vector (`SingleBlack.websterForm_saturated_dividedPower`). The
+normalized divided-power cyclotomic projective of each reduced coevaluation
+word is simple (`CycKLR.isSimple_coevaluationProjective`). The normalized
 Shapovalov pairings are still needed for general reflection words.
 
 ### Weak `sl₂`-categorifications (Chuang–Rouquier, arXiv:math/0407205v2, §5)

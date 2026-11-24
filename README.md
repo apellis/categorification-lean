@@ -1003,7 +1003,10 @@ from a dominant integral weight, the coroot pairings are nonnegative
 roots this determines the multiplicities
 (`Stendhal.coevaluationWord_multiplicities_eq`). For reduced expressions of the
 same Weyl element, this gives `Stendhal.coevaluationWord_multiplicities_eq_of_reduced`.
-Proposition 7.2 remains open.
+For Proposition 7.2, a single
+red with coroot pairing one gives a simple projective at the red-first
+one-black loading (`Stendhal.oneBlack_extremal_projective_simple`).
+The higher multiplicities and multi-letter words remain open.
 
 ### Weak `sl₂`-categorifications (Chuang–Rouquier, arXiv:math/0407205v2, §5)
 

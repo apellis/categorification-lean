@@ -5910,6 +5910,17 @@ end
 
 end NonVacuity.WebsterReducedCoevaluationWord
 
+namespace NonVacuity.WebsterSingleBlackExtremal
+
+open Categorification.Stendhal
+
+private noncomputable abbrev Q : Unit → Unit → MvPolynomial (Fin 2) ℚ := fun _ _ => 0
+private noncomputable abbrev Λ : Fin 1 → Unit →₀ ℕ := fun _ => Finsupp.single () 1
+
+example := oneBlack_extremal_projective_simple Q Λ () (by simp [Λ])
+
+end NonVacuity.WebsterSingleBlackExtremal
+
 namespace NonVacuity.WebsterFigureFive
 
 open Categorification Categorification.KLR Categorification.Stendhal

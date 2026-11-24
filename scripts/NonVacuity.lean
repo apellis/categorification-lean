@@ -9057,6 +9057,17 @@ example : ∃ a b : ℚ, braidProject (e terminal) * braidProject (ψ 0) * braid
 
 end
 end NonVacuity.WebsterFundamentalBraidCorners
+
+namespace NonVacuity.WebsterFundamentalBraidHomology
+open CategoryTheory Categorification.Stendhal.FundamentalCorner
+
+noncomputable example : fundamentalBraidCutComplex.homology ≅ ModuleCat.of ℚ ℚ :=
+  fundamentalBraidCutComplex_homologyIso
+
+example : Function.Injective fundamentalBraidCutComplex.f ∧ Function.Surjective fundamentalBraidCutComplex.g :=
+  fundamentalBraidCutComplex_ends
+
+end NonVacuity.WebsterFundamentalBraidHomology
 end
 
 namespace NonVacuity.WebsterCupRHomRegular

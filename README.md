@@ -1237,7 +1237,13 @@ pair of degrees (`fundamentalBraidGradedDerivedCohomology_isZero`).
 The action on that line is the middle character in the reversed red order.
 In the derived category of target weight modules, the braid takes the graded
 middle simple to the reversed middle simple in cohomological degree −1
-(`fundamentalBraidGradedDerivedTargetIso`). The normalized cup contributes
+(`fundamentalBraidGradedDerivedTargetIso`). Simultaneous transposition of
+the red labels identifies the two positive crossing bimodules. Applying the
+two successive positive crossings returns the ordered middle character
+in cohomological degree −2 and auxiliary weight zero
+(`fundamentalDoubleBraidHeadIso`). On the reversed cut the first crossing’s
+physical offset of 3/2 makes the total offset 3
+(`fundamentalDoubleBraidCut_physicalWeight`). The normalized cup contributes
 internal translation one and cohomological shift minus one. Applying the
 braid to this cup on the field gives the reversed middle character with
 internal translation one, in cohomological degree zero

@@ -1755,6 +1755,7 @@ import Categorification.WeightedKLR.RedStrands.BlockKernelFiltration
 import Categorification.WeightedKLR.RedStrands.BlockKernelSingleLayer
 import Categorification.WeightedKLR.RedStrands.FirstPairTerminalSpectator
 import Categorification.WeightedKLR.RedStrands.FirstPairOneAfterSpectator
+import Categorification.WeightedKLR.RedStrands.FirstPairTwoAfterSpectator
 import Categorification.WeightedKLR.RedStrands.BlockKernelCrossingGenerator
 import Categorification.WeightedKLR.RedStrands.BraidedStandardGrading
 import Categorification.WeightedKLR.RedStrands.BraidedStandardInjective
@@ -1791,6 +1792,7 @@ import Categorification.WeightedKLR.Rigidity.FundamentalBraidAction
 import Categorification.WeightedKLR.Rigidity.FundamentalBraidSpan
 import Categorification.WeightedKLR.Rigidity.FundamentalBraidWeight
 import Categorification.WeightedKLR.Rigidity.FundamentalBraidComplex
+import Categorification.WeightedKLR.Rigidity.FundamentalBraidHomologyWeight
 import Categorification.WeightedKLR.Rigidity.FundamentalBraidTensorHomology
 import Categorification.WeightedKLR.Rigidity.FundamentalBraidTargetCharacter
 import Categorification.WeightedKLR.Rigidity.FundamentalBraidTargetHead
@@ -1807,6 +1809,7 @@ import Categorification.Algebra.DiagramWeightCorner
 import Categorification.Algebra.DiagramWeightCoend
 import Categorification.Algebra.DiagramWeightCoendNaturality
 import Categorification.Algebra.DiagramWeightCoendSurjectivity
+import Categorification.Algebra.DiagramWeightComplex
 import Categorification.Algebra.DiagramWeightExact
 import Categorification.Algebra.DiagramWeightLoadingVanish
 import Categorification.Algebra.DiagramWeightOrdinaryTensor

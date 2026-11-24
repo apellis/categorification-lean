@@ -202,6 +202,48 @@ def braidFactorizationCoendNatIso (hρ : IsReducedChoice ρ)
   exact diagramCornerWeightRightCoendNatIso V (hE upper) (hE middle) (hE lower)
     (H₀ upper) (H₀ middle) (H₀ lower) (braidFactorizationCoend_bijective C hQ hρ h0 hp H)
 
+/-- The length-additive graded braid composite at a source weight is computed
+by the product coefficient if tensoring preserves the resolution augmentation. -/
+def braidFactorizationDerivedCoendOfResolution (hρ : IsReducedChoice ρ)
+    (h0 : lower.Nodup) (hp : lower.Perm middle)
+    (H : ∀ x y, [x, y] <+ lower → [y, x] <+ middle → [y, x] <+ upper) :
+    letI := Graded.cornerGradedAlgebra V (hE upper) (H₀ upper)
+    letI := Graded.cornerGradedAlgebra V (hE middle) (H₀ middle)
+    letI := Graded.cornerGradedAlgebra V (hE lower) (H₀ lower)
+    letI := gradedAlgebraInternalGrading (S upper)
+    letI := gradedAlgebraInternalGrading (S middle)
+    letI := gradedAlgebraInternalGrading (S lower)
+    letI := gradedAlgebraBigradedDGRing (S upper)
+    letI := gradedAlgebraBigradedDGRing (S middle)
+    letI := gradedAlgebraBigradedDGRing (S lower)
+    [CatModule.HasDerivedCategory (WeightCategory (hE middle).Cornerᵐᵒᵖ)] →
+    [CatModule.HasDerivedCategory (WeightCategory (hE lower).Cornerᵐᵒᵖ)] →
+    ∀ (Z : WeightCategory (hE upper).Cornerᵐᵒᵖ)
+      {K : CatModule (WeightCategory (hE middle).Cornerᵐᵒᵖ)}
+      (f : K ⟶ (diagramCornerWeightRightBimodule V (hE upper) (hE middle)
+        (H₀ upper) (H₀ middle)).left Z),
+      CatModule.IsKProjective K → CatModule.IsQuasiIso f →
+      CatModule.IsQuasiIso ((diagramCornerWeightRightBimodule V (hE middle) (hE lower)
+        (H₀ middle) (H₀ lower)).tensorMap f) →
+      ((diagramCornerWeightDerivedRightTensor V (hE middle) (hE lower) (H₀ middle) (H₀ lower)).obj
+        (CatModule.DerivedCategory.Q.obj ((diagramCornerWeightRightBimodule V (hE upper) (hE middle)
+          (H₀ upper) (H₀ middle)).left Z)) ≅ CatModule.DerivedCategory.Q.obj
+            ((diagramCornerWeightRightBimodule V (hE upper) (hE lower)
+              (H₀ upper) (H₀ lower)).left Z)) := by
+  letI := Graded.cornerGradedAlgebra V (hE upper) (H₀ upper)
+  letI := Graded.cornerGradedAlgebra V (hE middle) (H₀ middle)
+  letI := Graded.cornerGradedAlgebra V (hE lower) (H₀ lower)
+  letI := gradedAlgebraInternalGrading (S upper)
+  letI := gradedAlgebraInternalGrading (S middle)
+  letI := gradedAlgebraInternalGrading (S lower)
+  letI := gradedAlgebraBigradedDGRing (S upper)
+  letI := gradedAlgebraBigradedDGRing (S middle)
+  letI := gradedAlgebraBigradedDGRing (S lower)
+  intro hM hL Z K f hK hf ht
+  exact diagramCornerWeightRightDerivedFactorizationOfResolution V (hE upper) (hE middle) (hE lower)
+    (H₀ upper) (H₀ middle) (H₀ lower) (braidFactorizationCoend_bijective C hQ hρ h0 hp H)
+    Z f hK hf ht
+
 end Graded
 
 end Categorification.Stendhal.BraidedStendhalAlgebra

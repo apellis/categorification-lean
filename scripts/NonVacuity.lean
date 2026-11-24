@@ -6829,4 +6829,11 @@ example (z : KLRAlgebra ℚ (stendhalQ Q (fun _ : Fin 3 => Finsupp.single true 1
     (by intro a b h; simp [Q]) s t (q := ⟨2, by decide⟩) (p := ⟨5, by decide⟩)
     (a := 2) (b := 1) (L := [0]) (M := []) (by decide) (by decide) (by decide) (by decide) z
 
+/-- Uniform generation in the affine algebra for two interior black strands
+and one exterior spectator. -/
+example (z : BraidedStendhalAlgebra ℚ Q (fun _ : Fin 3 => Finsupp.single true 1) ν) :=
+  BraidedStendhalAlgebra.intervalExit_generate Q (fun _ => Finsupp.single true 1)
+    (by intro a b h; simp [Q]) s t (q := ⟨2, by decide⟩) (p := ⟨5, by decide⟩)
+    (a := 2) (b := 1) (L := [0]) (M := []) (by decide) (by decide) (by decide) (by decide) t rfl z
+
 end NonVacuity.WebsterIntervalColumn

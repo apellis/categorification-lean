@@ -8655,6 +8655,8 @@ example := rightMiddleDotSumQuotient_kills_higher ℚ
 example :=
   leftStandardLayer_projective (parameter ℚ) weights loading loading_ordered
 
+example := relativeMiddleProjectiveResolution ℚ
+
 end NonVacuity.WebsterLabelTwoMiddleFixedComplex
 
 end

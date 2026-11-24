@@ -996,8 +996,18 @@ projective at `t`, `ker_blockTensorMult` identifies exactly which classes of the
 tensor are killed by the bottom-order higher relations, and `blockTensorEquiv` identifies the
 quotient tensor with the fixed-top corner modulo those relations.
 
-Open, in working order: Lemma 6.8 (construct the external block-algebra action, identify both
-ordinary composites naturally and prove the higher-homology vanishing in (6.21)), then Prop 6.9
+The external algebra acts on the fixed-bottom column by horizontal juxtaposition
+(`RedBlock.blockProductAction_projection`). A local violation raises a retained cut;
+in the exchanged order `higher_loading_mul_order_mem` moves the resulting higher relation
+to the bottom. No relation is imposed at the cut internal to the paired reds. For symmetric
+`Q`, `RedBlock.orderedBlockAction` gives the action of the tensor of the ordered block
+algebras on the summand selected by their red-order projectors, commuting with bottom
+multiplication. At a nonviolated exchanged loading, `RedBlock.blockTensorLoadingEquiv`
+identifies the ordinary quotient tensor above with the external loading idempotent's image.
+
+Open, in working order: Lemma 6.8 (identify the balanced tensor of the local crossing
+bimodule and the spectator regular bimodules with partial standardization as the same
+diagram column, establish naturality, then prove the higher-homology vanishing in (6.21)), then Prop 6.9
 for general `ℓ` by reduction to two
 red strands, the graded forms of Def 6.6 and Props 6.7, 6.9, Cor 6.10, Lemma 6.11, Def 6.12, Cor 6.13,
 Lemma 6.14; tilting modules (Thm 6.15); `𝔅_σ` are equivalences (Thm 6.16); the braid group

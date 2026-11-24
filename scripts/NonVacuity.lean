@@ -9405,6 +9405,10 @@ example := fundamentalBraidGradedDerivedCohomology_isZero.{1} 0 0 (Or.inl (by de
 
 example := fundamentalBraidGradedDerivedCohomology_isZero.{1} 1 (-1) (Or.inr (by decide))
 
+noncomputable example := fundamentalBraidGradedHomologyTargetIso
+
+noncomputable example := fundamentalBraidGradedDerivedTargetIso.{1}
+
 end NonVacuity.WebsterFundamentalBraidGradedResolutionModel
 end
 

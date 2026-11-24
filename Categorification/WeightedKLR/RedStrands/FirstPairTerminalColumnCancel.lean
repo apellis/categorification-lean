@@ -4,6 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 -/
 import Categorification.WeightedKLR.RedStrands.FirstPairOneAfterSpectator
 import Categorification.WeightedKLR.RedStrands.FirstPairAllBottom
+import Categorification.WeightedKLR.RedStrands.FirstPairTwoAfterSpectator
 import Categorification.WeightedKLR.RedStrands.AddRed
 import Categorification.KLR.EqualBlackReturnKernel
 import Categorification.WeightedKLR.RedStrands.BraidedEqualBlackReturns
@@ -41,9 +42,14 @@ local notation "ρ" => terminalWord («ν» := ν) (ℓ := 2)
 local notation "last" => (⟨4, by decide⟩ : Fin N)
 local notation "c" => fun side => (ψ 3 * e (upper side) : R)
 
+private def TerminalLeftFactor (t : Seq μ) (crossing : R) : Prop :=
+  ∀ u : Seq μ, u.lbl last = .inr 2 → ∀ x : R,
+    ∃ z : R, (e t : R) * x * e u = crossing * z
+
 private theorem firstPairTerminal_column_violated_factor
-    (hQ : KLRSymm Q) (s : Seq μ) (hs : IsViolated s) (side : Bool) (x y : R) :
-    ∃ w : R, (e (lower side) : R) * y * e s * x * e b = c side * w ∧ φ w ∈ J := by
+    (hQ : KLRSymm Q) (t : Seq μ) (crossing : R) (factor : TerminalLeftFactor Q Λ t crossing)
+    (s : Seq μ) (hs : IsViolated s) (x y : R) :
+    ∃ w : R, (e t : R) * y * e s * x * e b = crossing * w ∧ φ w ∈ J := by
   classical
   let B := basisOfSymm (k := k) («ν» := μ) (stendhalQ_symm Q Λ hQ) ρ
     (fun w => terminalWord_spec («ν» := ν) (ℓ := 2) w)
@@ -99,32 +105,14 @@ private theorem firstPairTerminal_column_violated_factor
               simp only [mul_assoc,cv,cut]
             _ = _ := by rw [pc,cv,mul_assoc]
         let x₀ := y * ψw pref
-        have descent (w' : Perm (Fin N)) (h : w' • lower side = u) :
-            w' last < w' ⟨3,by decide⟩ := by
-          have red : u.lbl (w' ⟨3,by decide⟩) = .inr 2 := by
-            rw [← h, lbl_smul]
-            change (lower side).lbl (w'.symm (w' ⟨3,by decide⟩)) = _
-            rw [w'.symm_apply_apply]
-            cases side <;> decide
-          have pos := lbl_inj_of_inr u (2 : Fin 3) red uData.2
-          have hle : w' last ≤ last := Nat.le_of_lt_succ (w' last).isLt
-          have hne : w' last ≠ last := fun eq =>
-            (by decide : (4 : ℕ) ≠ 3) (congrArg Fin.val (w'.injective (eq.trans pos.symm)))
-          rw [pos]
-          exact lt_of_le_of_ne hle hne
-        obtain ⟨d, hd⟩ := exists_singleExitColumn_coefficient (stendhalQ_symm Q Λ hQ)
-          (lower side) u 3 (by decide) descent (hflip x₀)
-        have flip : hflip (ψ 3 * e (lower side) : R) = c side := by
-          simp only [hflip_mul,hflip_ψ,hflip_e,e_mul_ψ]
-        have fact : (e (lower side) : R) * x₀ * e u = c side * hflip d := by
-          simpa only [hflip_mul,hflip_e,hflip_hflip,flip,mul_assoc] using congrArg hflip hd
+        obtain ⟨d,fact⟩ := factor u uData.2 x₀
         have pu : φ (e u) ∈ J := TwoSidedIdeal.subset_span ⟨u,uData.1,rfl⟩
-        refine ⟨hflip d * e u * v, ?_, ?_⟩
+        refine ⟨d * e u * v, ?_, ?_⟩
         · calc
-            _ = (e (lower side) : R) * y * (e s * (ψw (ρ w) * pol (monomial dots 1) * e b) * e b) := by
+            _ = (e t : R) * y * (e s * (ψw (ρ w) * pol (monomial dots 1) * e b) * e b) := by
               simp only [mul_assoc]
-            _ = ((e (lower side) : R) * x₀ * e u) * v := by rw [col]; simp only [x₀,mul_assoc]
-            _ = c side * (hflip d * e u * v) := by
+            _ = ((e t : R) * x₀ * e u) * v := by rw [col]; simp only [x₀,mul_assoc]
+            _ = crossing * (d * e u * v) := by
               rw [fact]
               simp only [mul_assoc, cut]
         · simp only [map_mul]
@@ -133,23 +121,24 @@ private theorem firstPairTerminal_column_violated_factor
         have cut : (e s : R) * (ψw (ρ w) * pol (monomial dots 1) * e b) = 0 := by
           have neq : w⁻¹ • s ≠ b := fun he => e₁ (by rw [← he, smul_inv_smul])
           rw [e_mul_gen, terminalWord_prod, ite_eq_right neq]
-        rw [mul_assoc ((e (lower side) : R) * y) (e s), cut]
+        rw [mul_assoc ((e t : R) * y) (e s), cut]
         simp only [mul_zero,zero_mul]
     · refine ⟨0, ?_, by rw [map_zero]; exact (J).zero_mem⟩
       simp only [mul_assoc, e_mul_e, ite_eq_right e₀, mul_zero]
 
-private theorem firstPairTerminal_lift_violating_relation (hQ : KLRSymm Q) (side : Bool)
+private theorem firstPairTerminal_lift_violating_relation (hQ : KLRSymm Q)
+    (t : Seq μ) (crossing : R) (factor : TerminalLeftFactor Q Λ t crossing)
     (z : U) (hz : z ∈ J) :
-    ∃ w : R, φ (e (lower side)) * z * φ (e b) = φ (c side * w) ∧ φ w ∈ J := by
+    ∃ w : R, φ (e t) * z * φ (e b) = φ (crossing * w) ∧ φ w ∈ J := by
   change z ∈ TwoSidedIdeal.span {r : U | ∃ s : Seq μ, IsViolated s ∧ r = φ (e s)} at hz
   have cut : ∀ y x : R, ∃ w : R,
-      φ (e (lower side) * y) * z * φ (x * e b) = φ (c side * w) ∧ φ w ∈ J := by
+      φ (e t * y) * z * φ (x * e b) = φ (crossing * w) ∧ φ w ∈ J := by
     refine TwoSidedIdeal.span_induction
       (p := fun r _ => ∀ y x : R, ∃ w : R,
-        φ (e (lower side) * y) * r * φ (x * e b) = φ (c side * w) ∧ φ w ∈ J)
+        φ (e t * y) * r * φ (x * e b) = φ (crossing * w) ∧ φ w ∈ J)
       ?_ ?_ ?_ ?_ ?_ ?_ hz
     · rintro _ ⟨s,hs,rfl⟩ y x
-      obtain ⟨w,hw,hwJ⟩ := firstPairTerminal_column_violated_factor Q Λ hQ s hs side x y
+      obtain ⟨w,hw,hwJ⟩ := firstPairTerminal_column_violated_factor Q Λ hQ t crossing factor s hs x y
       exact ⟨w, by simpa only [map_mul φ,mul_assoc] using congrArg φ hw, hwJ⟩
     · intro y x
       exact ⟨0, by rw [mul_zero,zero_mul,mul_zero,map_zero], by rw [map_zero]; exact (J).zero_mem⟩
@@ -171,17 +160,17 @@ private theorem firstPairTerminal_lift_violating_relation (hQ : KLRSymm Q) (side
   simpa only [mul_one,one_mul] using cut 1 1
 
 private theorem firstPairTerminal_affine_rightWord_cancel (hQ : KLRSymm Q)
-    (lowerCut upperCut : Seq μ) (l r : List ℕ)
-    (step : wordProd N [3] • lowerCut = upperCut)
+    (lowerCut upperCut : Seq μ) (exitWord l r : List ℕ)
+    (step : wordProd N exitWord • lowerCut = upperCut)
     (hl : IsReduced N l) (hr : IsReduced N r) (ne : wordProd N l ≠ wordProd N r)
     (matchings : ∀ w : Perm (Fin N), w • upperCut = b ↔ w = wordProd N l ∨ w = wordProd N r)
-    (hl' : IsReduced N (l ++ [3])) (hr' : IsReduced N (r ++ [3]))
-    (ne' : wordProd N (l ++ [3]) ≠ wordProd N (r ++ [3]))
+    (hl' : IsReduced N (l ++ exitWord)) (hr' : IsReduced N (r ++ exitWord))
+    (ne' : wordProd N (l ++ exitWord) ≠ wordProd N (r ++ exitWord))
     (z : R) (left : e b * z = z) (right : z * e upperCut = z)
-    (zero : z * (ψw [3] * e lowerCut) = 0) : z = 0 := by
+    (zero : z * (ψw exitWord * e lowerCut) = 0) : z = 0 := by
   obtain ⟨f,g,rows⟩ := exists_two_corner_coefficients_of_words
     (stendhalQ_symm Q Λ hQ) upperCut b l r hl hr ne matchings z left right
-  have cut : (e upperCut : R) * (ψw [3] * e lowerCut) = ψw [3] * e lowerCut := by
+  have cut : (e upperCut : R) * (ψw exitWord * e lowerCut) = ψw exitWord * e lowerCut := by
     rw [← step, ← mul_assoc, e_mul_ψw, inv_smul_smul, mul_assoc, e_mul_self]
   rw [rows, add_mul] at zero
   simp only [mul_assoc,cut] at zero
@@ -211,66 +200,171 @@ private theorem firstPairTerminal_affine_cancel (hQ : KLRSymm Q)
     ⟨h₁, by rw [length_eq_invCount]; exact h₂⟩
   have eq : hflip z = 0 := by
     cases side
-    · exact firstPairTerminal_affine_rightWord_cancel Q Λ hQ _ _ [2,0,1,0] [1,2,0,1,0] step
+    · exact firstPairTerminal_affine_rightWord_cancel Q Λ hQ _ _ [3] [2,0,1,0] [1,2,0,1,0] step
         (red _ (by simp [ValidWord, stendhalWeight]) (by decide)) (red _ (by simp [ValidWord, stendhalWeight]) (by decide))
         (by decide) (by decide +kernel) (red _ (by simp [ValidWord, stendhalWeight]) (by decide))
         (red _ (by simp [ValidWord, stendhalWeight]) (by decide)) (by decide) _ zL zR z0
-    · exact firstPairTerminal_affine_rightWord_cancel Q Λ hQ _ _ [2,1,0] [1,2,1,0] step
+    · exact firstPairTerminal_affine_rightWord_cancel Q Λ hQ _ _ [3] [2,1,0] [1,2,1,0] step
         (red _ (by simp [ValidWord, stendhalWeight]) (by decide)) (red _ (by simp [ValidWord, stendhalWeight]) (by decide))
         (by decide) (by decide +kernel) (red _ (by simp [ValidWord, stendhalWeight]) (by decide))
         (red _ (by simp [ValidWord, stendhalWeight]) (by decide)) (by decide) _ zL zR z0
   simpa only [hflip_hflip,hflip_zero] using congrArg hflip eq
 
-/-- In the exchanged two-interior bottom column, the one-after-spectator
-crossing is injective on the terminal source coefficient in the violated quotient. -/
-theorem firstPairTerminal_column_crossing_cancel (hQ : KLRSymm Q)
-    (side : Bool) (y : V) (left : F (e (upper side)) * y = y) (right : y * F (e b) = y)
-    (zero : F (c side) * y = 0) : y = 0 := by
+private theorem firstPairTerminal_common_exit (hQ : KLRSymm Q)
+    (p : ℕ) (hp : p + 1 < N) (s w : Seq μ)
+    (hr : s.lbl ⟨p,by omega⟩ = .inr 2) (terminal : w.lbl last = .inr 2) (x : R) :
+    ∃ z : R, e s * x * e w = (ψ p * e (sadj N p • s)) * z := by
+  have descent (σ : Perm (Fin N)) (hσ : σ • s = w) :
+      σ ⟨p+1,hp⟩ < σ ⟨p,by omega⟩ := by
+    have hred : w.lbl (σ ⟨p,by omega⟩) = .inr 2 := by
+      rw [← hσ, lbl_smul]
+      change s.lbl (σ.symm (σ ⟨p,by omega⟩)) = _
+      rw [σ.symm_apply_apply]
+      exact hr
+    have h := lbl_inj_of_inr w (2 : Fin 3) hred terminal
+    have le : σ ⟨p+1,hp⟩ ≤ last := Nat.le_of_lt_succ (σ ⟨p+1,hp⟩).isLt
+    have ne : σ ⟨p+1,hp⟩ ≠ last := fun he => by
+      have val : p + 1 = p := congrArg Fin.val (σ.injective (he.trans h.symm))
+      exact Nat.succ_ne_self p val
+    rw [h]
+    exact lt_of_le_of_ne le ne
+  obtain ⟨z,hz⟩ := exists_singleExitColumn_coefficient (stendhalQ_symm Q Λ hQ)
+    s w p hp descent (hflip x)
+  have flip : hflip (ψ p * e s : R) = ψ p * e (sadj N p • s) := by
+    simp only [hflip_mul,hflip_e,hflip_ψ,e_mul_ψ]
+  exact ⟨hflip z, by simpa only [hflip_mul,hflip_e,hflip_hflip,flip,mul_assoc] using congrArg hflip hz⟩
+
+private theorem firstPairTerminal_reflect_crossing_zero (hQ : KLRSymm Q)
+    (t u : Seq μ) (crossing : R) (factor : TerminalLeftFactor Q Λ t crossing)
+    (cl : (e t : R) * crossing = crossing) (cr : crossing * e u = crossing)
+    (diagram : toKLR k Q Λ ν (φ crossing) = crossing)
+    (affineCancel : ∀ z : R, e u * z = z → z * e b = z → crossing * z = 0 → z = 0)
+    (y : V) (left : F (e u) * y = y) (right : y * F (e b) = y)
+    (zero : F crossing * y = 0) : y = 0 := by
   obtain ⟨a,ha⟩ := (violMk_surjective (Q := Q) (Λ := Λ)) y
   let G := toKLR k Q Λ ν
-  let z := (e (upper side) : R) * G a * e b
+  let z := (e u : R) * G a * e b
   have back (r : U) : φ (G r) = r := ofKLR_toKLR (hQ := hQ) r
   have hz : F z = y := by
-    change F ((e (upper side) : R) * G a * e b) = y
+    change F ((e u : R) * G a * e b) = y
     rw [map_mul F, map_mul F, show F (G a) = y from (congrArg (violMk k Q Λ ν) (back a)).trans ha,
       left,right]
   have zG : G (φ z) = z := by
     simp only [z,map_mul φ,back,map_mul G,G,toKLR_ofKLR_e]
-  have zl : e (upper side) * z = z := by simp only [z, ← mul_assoc, e_mul_self]
+  have zl : e u * z = z := by simp only [z, ← mul_assoc, e_mul_self]
   have zr : z * e b = z := by simp only [z, mul_assoc, e_mul_self]
-  have cr : c side * e (upper side) = c side := by simp only [mul_assoc,e_mul_self]
-  have cl : (e (lower side) : R) * c side = c side := by
-    have step : sadj N 3 • lower side = upper side := rfl
-    rw [← mul_assoc, e_mul_ψ,step,mul_assoc,e_mul_self]
-  have hxV : φ (c side * z) ∈ J := (violMk_eq_zero_iff _).1 (by
-    change F (c side * z) = 0
+  have hxV : φ (crossing * z) ∈ J := (violMk_eq_zero_iff _).1 (by
+    change F (crossing * z) = 0
     rwa [map_mul F,hz])
-  obtain ⟨w, hw, hwJ⟩ := firstPairTerminal_lift_violating_relation Q Λ hQ side _ hxV
-  have phiEq : φ (c side * z) = φ (c side * w) := by
-    rw [← map_mul φ (e (lower side)), ← map_mul φ, ← mul_assoc (e (lower side) : R) (c side),
+  obtain ⟨w, hw, hwJ⟩ := firstPairTerminal_lift_violating_relation Q Λ hQ t crossing factor _ hxV
+  have phiEq : φ (crossing * z) = φ (crossing * w) := by
+    rw [← map_mul φ (e t), ← map_mul φ, ← mul_assoc (e t : R) (crossing),
       cl, mul_assoc, zr] at hw
     exact hw
-  have hcG : G (φ (c side)) = c side := by
-    simp only [map_mul φ,map_mul G,G,toKLR_ofKLR_ψ,toKLR_ofKLR_e]
   let w₀ := G (φ w)
-  have zeq : c side * z = c side * w₀ := by
+  have zeq : crossing * z = crossing * w₀ := by
     have h := congrArg G phiEq
-    rw [map_mul φ (c side) z, map_mul φ (c side) w, map_mul G, map_mul G, hcG, zG] at h
+    rw [map_mul φ (crossing) z, map_mul φ (crossing) w, map_mul G, map_mul G, diagram, zG] at h
     exact h
-  let w' := (e (upper side) : R) * w₀ * e b
-  have wL : e (upper side) * w' = w' := by simp only [w',← mul_assoc,e_mul_self]
+  let w' := (e u : R) * w₀ * e b
+  have wL : e u * w' = w' := by simp only [w',← mul_assoc,e_mul_self]
   have wR : w' * e b = w' := by simp only [w',mul_assoc,e_mul_self]
-  have cheq : c side * (z - w') = 0 := by
-    have cW : c side * w' = c side * w₀ * e b := by
+  have cheq : crossing * (z - w') = 0 := by
+    have cW : crossing * w' = crossing * w₀ * e b := by
       rw [show w' = _ from rfl, ← mul_assoc, ← mul_assoc, cr]
-    rw [mul_sub, cW, ← zeq, mul_assoc (c side) z (e b), zr, sub_self]
-  have eq : z = w' := sub_eq_zero.mp <| firstPairTerminal_affine_cancel Q Λ hQ side _ (by
+    rw [mul_sub, cW, ← zeq, mul_assoc (crossing) z (e b), zr, sub_self]
+  have eq : z = w' := sub_eq_zero.mp <| affineCancel _ (by
     rw [mul_sub,zl,wL]) (by rw [sub_mul,zr,wR]) cheq
   have wJ : φ w' ∈ J := by
     simp only [w',w₀,map_mul φ,back]
     exact TwoSidedIdeal.mul_mem_right J _ _ (TwoSidedIdeal.mul_mem_left J _ _ hwJ)
   rw [← hz,eq]
   exact (violMk_eq_zero_iff _).2 wJ
+
+/-- In the exchanged two-interior bottom column, the one-after-spectator
+crossing is injective on the terminal source coefficient in the violated quotient. -/
+theorem firstPairTerminal_column_crossing_cancel (hQ : KLRSymm Q)
+    (side : Bool) (y : V) (left : F (e (upper side)) * y = y) (right : y * F (e b) = y)
+    (zero : F (c side) * y = 0) : y = 0 := by
+  refine firstPairTerminal_reflect_crossing_zero Q Λ hQ (lower side) (upper side) (c side)
+    ?_ ?_ ?_ ?_ (firstPairTerminal_affine_cancel Q Λ hQ side) y left right zero
+  · intro u terminal x
+    exact firstPairTerminal_common_exit Q Λ hQ 3 (by decide) (lower side) u
+      (by cases side <;> decide) terminal x
+  · have step : sadj N 3 • lower side = upper side := rfl
+    rw [← mul_assoc, e_mul_ψ,step,mul_assoc,e_mul_self]
+  · simp only [mul_assoc,e_mul_self]
+  · simp only [map_mul φ,map_mul (toKLR k Q Λ ν),toKLR_ofKLR_ψ,toKLR_ofKLR_e]
+
+local notation "rightmost" => firstPairTwoAfterSpectator
+local notation "middle" => firstPairOneAfterSpectator true
+local notation "terminal" => sadj N 3 • middle
+local notation "double" => (ψw [2,3] * e terminal : R)
+
+private theorem firstPairRightmost_terminal_double_factor (hQ : KLRSymm Q) :
+    TerminalLeftFactor Q Λ rightmost double := by
+  intro w hlast x
+  obtain ⟨a,ha₀⟩ := firstPairTerminal_common_exit Q Λ hQ 2 (by decide)
+    rightmost w (by decide) hlast x
+  have up : sadj N 2 • rightmost = middle := by decide +kernel
+  have ha : (e rightmost : R) * x * e w = (ψ 2 * e middle) * a := by rwa [up] at ha₀
+  have cutr : (ψ 2 * e middle : R) * e middle = ψ 2 * e middle := by
+    rw [mul_assoc,e_mul_self]
+  have hz : (e rightmost : R) * x * e w = (ψ 2 * e middle) * (e middle * a * e w) := by
+    have hr : ((e rightmost : R) * x * e w) * e w = e rightmost * x * e w := by
+      rw [mul_assoc (e rightmost * x : R), e_mul_self]
+    calc
+      _ = ((e rightmost : R) * x * e w) * e w := hr.symm
+      _ = (ψ 2 * e middle) * (a * e w) := by rw [ha, mul_assoc]
+      _ = ((ψ 2 * e middle) * e middle) * (a * e w) :=
+        congrArg (· * (a * e w)) cutr.symm
+      _ = _ := by simp only [mul_assoc]
+  obtain ⟨z,hz'⟩ := firstPairTerminal_common_exit Q Λ hQ 3 (by decide)
+    middle w (by decide) hlast a
+  refine ⟨z, ?_⟩
+  rw [hz,hz', ← mul_assoc]
+  have hcut : (e middle : R) * ψ 3 * e terminal = ψ 3 * e terminal := by
+    rw [e_mul_ψ, mul_assoc, e_mul_self]
+  rw [mul_assoc (ψ 2) (e middle), ← mul_assoc (e middle : R) (ψ 3), hcut]
+  simp only [ψw_cons, ψw_nil, mul_one, mul_assoc]
+
+private theorem firstPairRightmost_terminal_affine_cancel (hQ : KLRSymm Q)
+    (z : R) (left : e terminal * z = z) (right : z * e b = z)
+    (zero : double * z = 0) : z = 0 := by
+  have step : wordProd N [3,2] • rightmost = terminal := by decide +kernel
+  have zL : (e b : R) * hflip z = hflip z := by
+    simpa only [hflip_mul,hflip_e] using congrArg hflip right
+  have zR : hflip z * (e terminal : R) = hflip z := by
+    simpa only [hflip_mul,hflip_e] using congrArg hflip left
+  have flip : hflip double = ψw [3,2] * e rightmost := by
+    rw [hflip_mul, hflip_e, hflip_ψw]
+    change (e terminal : R) * ψw [3,2] = ψw [3,2] * e rightmost
+    rw [e_mul_ψw, ← step, inv_smul_smul]
+  have z0 : hflip z * (ψw [3,2] * e rightmost) = 0 := by
+    simpa only [hflip_mul,hflip_zero,flip] using congrArg hflip zero
+  have red (w : List ℕ) (h₁ : ValidWord N w)
+      (h₂ : w.length = invCount N (wordProd N w)) : IsReduced N w :=
+    ⟨h₁, by rw [length_eq_invCount]; exact h₂⟩
+  have eq := firstPairTerminal_affine_rightWord_cancel Q Λ hQ _ _ [3,2] [2,1,0] [1,2,1,0] step
+    (red _ (by simp [ValidWord, stendhalWeight]) (by decide))
+    (red _ (by simp [ValidWord, stendhalWeight]) (by decide))
+    (by decide) (by decide +kernel)
+    (red _ (by simp [ValidWord, stendhalWeight]) (by decide))
+    (red _ (by simp [ValidWord, stendhalWeight]) (by decide)) (by decide) _ zL zR z0
+  simpa only [hflip_hflip,hflip_zero] using congrArg hflip eq
+
+/-- The common double spectator crossing cancels in the actual exchanged
+two-interior bottom column at the rightmost top. -/
+theorem firstPairRightmost_terminal_double_cancel (hQ : KLRSymm Q)
+    (y : V) (left : F (e terminal) * y = y) (right : y * F (e b) = y)
+    (zero : F double * y = 0) : y = 0 := by
+  refine firstPairTerminal_reflect_crossing_zero Q Λ hQ rightmost terminal double
+    (firstPairRightmost_terminal_double_factor Q Λ hQ)
+    ?_ ?_ ?_ (firstPairRightmost_terminal_affine_cancel Q Λ hQ) y left right zero
+  · have step : wordProd N [2,3] • terminal = rightmost := by decide +kernel
+    rw [← mul_assoc, e_mul_ψw, ← step, inv_smul_smul, mul_assoc,e_mul_self]
+  · simp only [mul_assoc,e_mul_self]
+  · simp only [map_mul φ,map_mul (toKLR k Q Λ ν),toKLR_ofKLR_ψw,toKLR_ofKLR_e]
 
 /-- Both one-after-spectator tops satisfy the actual balanced kernel
 test at the remaining first-pair bottom column. -/

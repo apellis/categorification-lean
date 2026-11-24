@@ -8782,6 +8782,8 @@ example := firstPairOneAfter_terminal_blockKernelColumnInclusion_injective Q Λ
 
 example := firstPairOneAfter_blockKernelTensorInclusion_injective_standard (k₀ := ℚ) C Λ true
 
+example := firstPairRightmost_terminal_double_cancel Q Λ (fun _ _ _ => rfl)
+
 end NonVacuity.WebsterFirstPairTerminalColumn
 
 namespace NonVacuity.WebsterFiveSlotAllBottomDerived

@@ -1389,7 +1389,11 @@ pulls back to a graded module on the actual diagrammatic carrier
 (`Stendhal.LabelTwo.middleStandardGradedEquiv`). Its middle generator
 has degree zero, and both alternating dot differentials have internal
 degree two (`Stendhal.LabelTwo.diagramPlus_degree_two`,
-`Stendhal.LabelTwo.diagramMinus_degree_two`).
+`Stendhal.LabelTwo.diagramMinus_degree_two`). The shifted differentials
+and the augmentation to the graded dot-sum quotient are exact in every
+internal degree (`Stendhal.LabelTwo.diagramPlusMinus_exact_in_degree`,
+`Stendhal.LabelTwo.diagramMinusPlus_exact_in_degree`,
+`Stendhal.LabelTwo.diagramPlusAugmentation_exact_in_degree`).
 
 **Terminal-character resolution benchmark for Webster, arXiv:1309.3796v2,
 §8.1.** In the fundamental rank-one block over `ℚ`, the terminal simple

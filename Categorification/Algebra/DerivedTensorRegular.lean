@@ -50,4 +50,3 @@ def derivedTensorRegularCoefficientIso [HasDerivedCategory.{v,u} A] [HasDerivedC
     DG.DerivedCategory.Q.mapIso (tensorRegularCoefficientIso A B M)
 
 end Categorification
-

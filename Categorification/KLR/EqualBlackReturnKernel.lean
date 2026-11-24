@@ -219,19 +219,19 @@ theorem exists_equalBlack_four_cycle_coefficient (hQ : KLRSymm Q) (s : Seq ν) (
     abel
 
 /-- PBW expansion of a supported corner where the only compatible permutations
-are a reduced word and its extension by one crossing. -/
-theorem exists_two_corner_coefficients (hQ : KLRSymm Q) (s t : Seq ν) (l : List ℕ) (j : ℕ)
-    (hl : IsReduced m l) (hjl : IsReduced m (j :: l))
-    (matching : ∀ w : Perm (Fin m), w • s = t ↔ w = wordProd m l ∨ w = wordProd m (j :: l))
+are two prescribed distinct reduced words. -/
+theorem exists_two_corner_coefficients_of_words (hQ : KLRSymm Q) (s t : Seq ν) (l k : List ℕ)
+    (hl : IsReduced m l) (hk : IsReduced m k) (huv : wordProd m l ≠ wordProd m k)
+    (matching : ∀ w : Perm (Fin m), w • s = t ↔ w = wordProd m l ∨ w = wordProd m k)
     (x : R) (hleft : e t * x = x) (hright : x * e s = x) :
-    ∃ f g : P, x = pol f * (ψw l * e s) + pol g * (ψw (j :: l) * e s) := by
+    ∃ f g : P, x = pol f * (ψw l * e s) + pol g * (ψw k * e s) := by
   classical
   let u := wordProd m l
-  let v := wordProd m (j :: l)
-  obtain ⟨huv, rep, rU, rV, hrep⟩ := exists_pbw_words_for_crossing hl j hjl
+  let v := wordProd m k
+  obtain ⟨rep, rU, rV, hrep⟩ := exists_pbw_words_for_pair hl hk huv
   change u ≠ v at huv
   change rep u = l at rU
-  change rep v = j :: l at rV
+  change rep v = k at rV
   let f w := exitPolynomial hQ rep hrep s w x
   let term w : R := pol (f w) * ψw (rep w) * e s
   have sum : ∑ w, e t * term w = x := by
@@ -248,6 +248,16 @@ theorem exists_two_corner_coefficients (hQ : KLRSymm Q) (s t : Seq ν) (l : List
   rw [(matching v).2 (Or.inr rfl)] at fv
   rw [fu, fv] at sum
   exact ⟨f u, f v, by simpa only [term, rU, rV, mul_assoc] using sum.symm⟩
+
+/-- PBW expansion of a supported corner where the only compatible permutations
+are a reduced word and its extension by one crossing. -/
+theorem exists_two_corner_coefficients (hQ : KLRSymm Q) (s t : Seq ν) (l : List ℕ) (j : ℕ)
+    (hl : IsReduced m l) (hjl : IsReduced m (j :: l))
+    (matching : ∀ w : Perm (Fin m), w • s = t ↔ w = wordProd m l ∨ w = wordProd m (j :: l))
+    (x : R) (hleft : e t * x = x) (hright : x * e s = x) :
+    ∃ f g : P, x = pol f * (ψw l * e s) + pol g * (ψw (j :: l) * e s) := by
+  exact exists_two_corner_coefficients_of_words hQ s t l (j :: l) hl hjl
+    (exists_pbw_words_for_crossing hl j hjl).1 matching x hleft hright
 
 /-- At the right extreme, arbitrary upper elements on the two arms have a
 common full-joint lift when the only two permutations from the joint loading to

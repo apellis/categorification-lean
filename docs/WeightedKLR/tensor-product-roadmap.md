@@ -957,13 +957,27 @@ multiply. It identifies each degree of the quotient with the given cut grade. Th
 `figureFiveExteriorTensorEquiv` identifies the ordinary tensor with the shifted upper
 exterior standardization, using Webster's `M(a)_z = M_{z+a}`.
 
-The ordinary graded projective tensor calculation is not a graded derived functor comparison.
-The pinned `dg-lean` has a derived category of internally `ℤ`-graded dg modules via
-`DG.WeightCategory`, with integer internal shifts independent of cochain shifts. Its generic
-dg-category derived tensor takes a `CatBimodule` and a K-projectivity hypothesis on the output
-slices. An application to Definition 6.6 still needs the `ℂ`-indexed graded category and
-bimodule (or a verified reindexing respecting the shift and tensor), the relevant derived
-tensor comparison without an extra braid projectivity premise, and the bounded-above setting.
+The same lower exterior standardization is projective for degree-preserving maps, not just
+projective after forgetting degrees. In `figureFiveLowerExterior_graded_retract` the inclusion
+reads the standardization as the loading right ideal inside the regular right module. Its
+retraction multiplies on the left by the loading idempotent and then applies the lower endpoint
+isomorphism. The diagram idempotent has internal degree zero, so both maps preserve every
+complex degree, and their composite on the exterior object is the identity.
+
+This does not yet give a graded derived functor comparison. The pinned `dg-lean` has integer
+internal weights via `DG.WeightCategory`, independent of the cochain grading. For this fixed
+braid, one can use the source coset `ℤ` and target coset `c + ℤ`, where
+`c = 2 − ⟨λ₁, λ₀⟩` is the correction to the auxiliary diagram degree. The bimodule of the two
+weight categories must use the piece at `n − m + c` between source `m` and target `n + c`.
+A comparison is needed between the coend tensor there and the graded balanced tensor here;
+the target piece at `n + c` must then be read at `n + c + ⟨λ₀ − α, λ₁⟩` in the unshifted
+upper exterior object. The pinned tensor–Hom derived tensor requires K-projective output
+slices of the braid. For the left-derived tensor alone this premise is unnecessary: descend
+along homotopy with `CatBimodule.homotopic_tensorMap`, then compose with the inverse of the
+source K-projective equivalence before tensoring and localize on the target. The remaining
+comparison must use the graded retract of the source representable and retain the internal
+coset; the ungraded derived comparison cannot supply it. Webster's `D⁻` also requires a
+bounded-above restriction, distinct from the fact that this projective is in cochain degree zero.
 
 For Lemma 6.11, `braidingBimoduleFlip` implements the horizontal reflection used in
 the proof of `f_n → s_n`. It swaps the order corners and intertwines their actions with

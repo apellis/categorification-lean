@@ -121,6 +121,19 @@ private theorem isInternal_complexGrade (L : ℤ → Submodule ℤ M) [Decomposi
     rw [iSup_extend_bot (cast_add_injective c)]
     exact hL.submodule_iSup_eq_top
 
+private theorem complexGrade_map_mem (L : ℤ → Submodule ℤ M) (R : ℤ → Submodule ℤ N)
+    (c : ℂ) (f : M →+ N) (hf : ∀ n x, x ∈ L n → f x ∈ R n)
+    {z : ℂ} {x : M} (hx : x ∈ complexGrade L c z) : f x ∈ complexGrade R c z := by
+  by_cases hz : ∃ n : ℤ, (n : ℂ) + c = z
+  · obtain ⟨n, rfl⟩ := hz
+    rw [complexGrade_apply] at hx ⊢
+    exact hf n x hx
+  · have hL : complexGrade L c z = ⊥ := Function.extend_apply' L (fun _ => ⊥) z hz
+    have hR : complexGrade R c z = ⊥ := Function.extend_apply' R (fun _ => ⊥) z hz
+    rw [hL, Submodule.mem_bot] at hx
+    rw [hR, hx, map_zero]
+    exact zero_mem _
+
 private theorem complexGrade_pair (L : ℤ → Submodule ℤ M) (R : ℤ → Submodule ℤ N)
     (T : ℤ → Submodule ℤ Y) (c d : ℂ) (f : M →+ N →+ Y)
     (hf : ∀ ⦃i j : ℤ⦄ ⦃x : M⦄ ⦃y : N⦄, x ∈ L i → y ∈ R j → f x y ∈ T (i + j))
@@ -409,6 +422,62 @@ def figureFiveLowerExteriorGrade (u : Seq ν) : ℂ → Submodule ℤ (N u) :=
 instance figureFiveLowerExteriorDecomposition (u : Seq ν) :
     Decomposition (figureFiveLowerExteriorGrade (Λ := Λ) C hR hρ u) :=
   (isInternal_complexGrade (lowerExteriorAux (Λ := Λ) C hR hρ u) 0).chooseDecomposition
+
+private def lowerLoadingInclusion (u : Seq ν) : ↥(rIdeal (idem u)) →ₗ[A] A :=
+  (opRegularEquiv (T [0, 1])).symm.toLinearMap.comp (rIdeal (idem u)).subtype
+
+private def lowerLoadingProjection (u : Seq ν) : A →ₗ[A] ↥(rIdeal (idem u)) :=
+  (rIdealProj (isIdempotentElem_violLoadingIdem (Λ := Λ) (Q := Q) (figureFiveLowerRedWord u))).comp
+    (opRegularEquiv (T [0, 1])).toLinearMap
+
+/-- The inclusion of the lower exterior standardization into the regular right module, via
+its identification with the loading ideal. -/
+def figureFiveLowerExteriorInclusion (u : Seq ν) : N u →ₗ[A] A :=
+  (lowerLoadingInclusion (Λ := Λ) (Q := Q) u).comp
+    (figureFiveLowerLoadingEquiv (Λ := Λ) C hR hρ u).symm.toLinearMap
+
+/-- Left multiplication by the lower loading idempotent, viewed in the lower exterior
+standardization. The regular right module is written as the left regular module of `A`. -/
+def figureFiveLowerExteriorProjection (u : Seq ν) : A →ₗ[A] N u :=
+  (figureFiveLowerLoadingEquiv (Λ := Λ) C hR hρ u).toLinearMap.comp
+    (lowerLoadingProjection (Λ := Λ) (Q := Q) u)
+
+/-- Webster, arXiv:1309.3796v2, §6.1, proof of Proposition 6.9: the two-red lower exterior
+standardization is a graded projective. The inclusion and projection through `e(s) T` split
+in internal degree zero, for the `ℂ`-grading of Definition 6.2. The cochain grading is not
+used here. -/
+theorem figureFiveLowerExterior_graded_retract (u : Seq ν) :
+    PreservesGrading (figureFiveLowerExteriorGrade (Λ := Λ) C hR hρ u)
+      (figureFiveLowerOrderGrade (Λ := Λ) (ν := ν) C hR)
+      (figureFiveLowerExteriorInclusion (Λ := Λ) C hR hρ u) ∧
+    PreservesGrading (figureFiveLowerOrderGrade (Λ := Λ) (ν := ν) C hR)
+      (figureFiveLowerExteriorGrade (Λ := Λ) C hR hρ u)
+      (figureFiveLowerExteriorProjection (Λ := Λ) C hR hρ u) ∧
+    Function.LeftInverse (figureFiveLowerExteriorProjection (Λ := Λ) C hR hρ u)
+      (figureFiveLowerExteriorInclusion (Λ := Λ) C hR hρ u) := by
+  let e := figureFiveLowerLoadingEquiv (Λ := Λ) C hR hρ u
+  let i := lowerLoadingInclusion (Λ := Λ) (Q := Q) u
+  let p := lowerLoadingProjection (Λ := Λ) (Q := Q) u
+  refine ⟨?_, ?_, fun x => ?_⟩
+  · intro z x hx
+    refine complexGrade_map_mem (lowerExteriorAux (Λ := Λ) C hR hρ u)
+      (lowerOrderAux (Λ := Λ) (ν := ν) C hR) 0
+      (figureFiveLowerExteriorInclusion (Λ := Λ) C hR hρ u).toAddMonoidHom (fun n x hx => ?_) hx
+    change (e.symm x).val.val ∈ 𝒱 n
+    exact (lowerExteriorAux_iff C hR hρ u n x).1 hx
+  · intro z a ha
+    refine complexGrade_map_mem (lowerOrderAux (Λ := Λ) (ν := ν) C hR)
+      (lowerExteriorAux (Λ := Λ) C hR hρ u) 0
+      (figureFiveLowerExteriorProjection (Λ := Λ) C hR hρ u).toAddMonoidHom (fun n a ha => ?_) ha
+    have hmul : (p a).val.val ∈ 𝒱 n := by
+      change (idem u).val * a.unop.val ∈ 𝒱 n
+      have hf : (idem u).val ∈ 𝒱 0 := loading_mem_zero C hR (figureFiveLower u)
+      simpa only [zero_add] using (SetLike.GradedMul.mul_mem («A» := (𝒱)) hf
+        (show a.unop.val ∈ 𝒱 n from ha))
+    have hcancel : e.symm (e (p a)) = p a := e.symm_apply_apply (p a)
+    exact (lowerExteriorAux_iff C hR hρ u n (e (p a))).2 (hcancel.symm ▸ hmul)
+  · have h (y : ↥(rIdeal (idem u))) : p (i y) = y := Subtype.ext y.2
+    exact (congrArg (fun y : ↥(rIdeal (idem u)) => e y) (h (e.symm x))).trans (e.apply_symm_apply x)
 
 private theorem lowerExterior_smul_mem (u : Seq ν) {i j : ℂ} {a : A} {x : N u}
     (ha : a ∈ figureFiveLowerOrderGrade C hR i) (hx : x ∈ figureFiveLowerExteriorGrade (Λ := Λ) C hR hρ u j) :

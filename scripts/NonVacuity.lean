@@ -6094,8 +6094,16 @@ example : figureFiveExteriorTensorGrade (Λ := fracΛ) sl₂ hRouquier hρ
   rw [zero_add, fracWeight_shift, hbot] at h
   exact ((Submodule.mem_bot ℚ).1 h).trans gr.toLinearEquiv.map_zero.symm
 
-/-- The lower exterior standardization used by this tensor is projective. -/
-example := figureFiveLowerExterior_projective (Λ := fracΛ) sl₂ hRouquier hρ blackWord
+/-- The Figure 5 lower exterior standardization over `ℚ` splits off the regular right
+module in every complex internal degree, with last-factor vacuum and red weights `ω`, `3ω`. -/
+example (z : ℂ) (x : figureFiveLowerExterior (Λ := fracΛ) sl₂ hRouquier hρ blackWord)
+    (hx : x ∈ figureFiveLowerExteriorGrade (Λ := fracΛ) sl₂ hRouquier hρ blackWord z) :
+    figureFiveLowerExteriorInclusion (Λ := fracΛ) sl₂ hRouquier hρ blackWord x ∈
+      figureFiveLowerOrderGrade (Λ := fracΛ) sl₂ hRouquier z ∧
+    figureFiveLowerExteriorProjection (Λ := fracΛ) sl₂ hRouquier hρ blackWord
+      (figureFiveLowerExteriorInclusion (Λ := fracΛ) sl₂ hRouquier hρ blackWord x) = x := by
+  obtain ⟨hi, -, hsplit⟩ := figureFiveLowerExterior_graded_retract (Λ := fracΛ) sl₂ hRouquier hρ blackWord
+  exact ⟨hi hx, hsplit x⟩
 
 end NonVacuity.WebsterFigureFive
 

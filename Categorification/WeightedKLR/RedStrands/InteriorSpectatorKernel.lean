@@ -307,10 +307,12 @@ private theorem interiorCrossingMap_of_threeRed_test
       (KLRAlgebra.e (appendRedLoading ThreeRedOneBlack.higher)) = x
     rw [appendHigher]
     exact hx
-  · change x * tensorOfKLR parameter weights νInterior
-      (ψ 2 * KLRAlgebra.e (appendRedLoading ThreeRedOneBlack.source)) = 0
-    rw [appendSource]
-    exact hc
+  · have hc' : x * tensorOfKLR parameter weights νInterior
+        ((ψ 2 : KLRAlgebra k₁ (stendhalQ parameter weights) (stendhalWeight 4 νInterior)) *
+          KLRAlgebra.e (appendRedLoading (ν := νInterior) ThreeRedOneBlack.source)) = 0 := by
+      rw [appendSource]
+      exact hc
+    exact hc'
 
 end EarlierField
 

@@ -616,6 +616,8 @@ import Categorification.KLR.KL2.SerreSeq
 import Categorification.KLR.KL2.Theorem8
 import Categorification.KLR.ExitPolynomialMatrix
 import Categorification.KLR.EqualBlackReturnKernel
+import Categorification.KLR.MixedJointKernel
+import Categorification.KLR.FullJointKernel
 import Categorification.KLR.Mackey
 import Categorification.KLR.MackeyFactor
 import Categorification.KLR.MackeyGraded
@@ -649,6 +651,12 @@ import Categorification.KLR.ResProjGraded
 import Categorification.KLR.Restriction
 import Categorification.KLR.Simple
 import Categorification.KLR.SimpleNilHecke
+import Categorification.KLR.CyclotomicTerminalProjective
+import Categorification.WeightedKLR.RedStrands.SingleRedTerminalProjective
+import Categorification.KLR.CyclotomicTerminal
+import Categorification.KLR.CyclotomicTerminalSymmetric
+import Categorification.KLR.CyclotomicSaturatedProjective
+import Categorification.WeightedKLR.RedStrands.SingleRedSaturatedProjective
 import Categorification.KLR.Spanning
 import Categorification.KLR.SymGdim
 import Categorification.KLR.Symmetries
@@ -1669,9 +1677,12 @@ import Categorification.WeightedKLR.RedStrands.FixedTopFourExitJoints
 import Categorification.WeightedKLR.RedStrands.FiveSlotMarkedExitJoints
 import Categorification.WeightedKLR.RedStrands.FiveSlotKernelColumn
 import Categorification.WeightedKLR.RedStrands.FiveSlotKernelDerivedHomology
+import Categorification.WeightedKLR.RedStrands.FiveSlotThreeTopDerived
 import Categorification.WeightedKLR.RedStrands.FiveSlotAllBottom
 import Categorification.WeightedKLR.RedStrands.FiveSlotAllBottomStandard
 import Categorification.WeightedKLR.RedStrands.FiveSlotAllBottomDerived
+import Categorification.WeightedKLR.RedStrands.FiveSlotLeftTopIdeal
+import Categorification.WeightedKLR.RedStrands.FiveSlotCentralTop
 import Categorification.WeightedKLR.RedStrands.BraidedStandardDerived
 import Categorification.WeightedKLR.RedStrands.BlockShuffleLoading
 import Categorification.WeightedKLR.RedStrands.BlockShuffleCrossing
@@ -1719,6 +1730,8 @@ import Categorification.WeightedKLR.RedStrands.BlockPartialStandardOrderedResolu
 import Categorification.WeightedKLR.RedStrands.BraidedStendhal
 import Categorification.WeightedKLR.RedStrands.BraidedEqualBlackReturns
 import Categorification.WeightedKLR.RedStrands.BraidedEqualBlackCornerCycle
+import Categorification.WeightedKLR.RedStrands.MixedJointCycle
+import Categorification.WeightedKLR.RedStrands.FullJointCycle
 import Categorification.WeightedKLR.RedStrands.BraidedViolatedIdentity
 import Categorification.WeightedKLR.RedStrands.BraidedViolatedPush
 import Categorification.WeightedKLR.RedStrands.BraidedViolatedQuotient
@@ -1726,6 +1739,7 @@ import Categorification.WeightedKLR.RedStrands.ExteriorStandardGrading
 import Categorification.WeightedKLR.RedStrands.StendhalBasisSymm
 import Categorification.WeightedKLR.Rigidity.CoevaluationWord
 import Categorification.WeightedKLR.Rigidity.ReducedCoevaluationWord
+import Categorification.WeightedKLR.Rigidity.DerivedCupCap
 import Categorification.WeightedKLR.Rigidity.SingleBlackExtremal
 
 /-!

@@ -9836,6 +9836,31 @@ example := incomingExteriorDiagram_mem_grade ℚ
 
 example := incomingExteriorTranslate_mem_grade ℚ
 
+example := middleDotSumQuotientGFin ℚ
+
+example (d : ℤ) := diagramPlusMinus_exact_in_degree ℚ d
+
+example (d : ℤ) := diagramMinusPlus_exact_in_degree ℚ d
+
+example (d : ℤ) := diagramPlusAugmentation_exact_in_degree ℚ d
+
+example (d : ℤ) := diagramMiddleAugmentationAtDegree_surjective ℚ d
+
+example := middleEndomorphismFactorEquiv ℚ
+
+example := factorDotSumQuotientEquiv ℚ
+
+example (x : Standard ℚ) := middleDotSumStandardizationEquiv_mk ℚ x
+
+example := middle_higher_eq
+
+example := middle_upperLoadingIdeal_eq_singleton ℚ
+
+example := rightMiddleDotSumQuotient_kills_higher ℚ
+
+example :=
+  leftStandardLayer_projective (parameter ℚ) weights loading loading_ordered
+
 end NonVacuity.WebsterLabelTwoMiddleFixedComplex
 
 end

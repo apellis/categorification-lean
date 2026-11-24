@@ -1726,6 +1726,7 @@ import Categorification.WeightedKLR.Rigidity.CoevaluationTrace
 import Categorification.WeightedKLR.Rigidity.FundamentalCoevaluation
 import Categorification.WeightedKLR.Rigidity.ReducedCoevaluationWord
 import Categorification.WeightedKLR.Rigidity.DerivedCupCap
+import Categorification.WeightedKLR.Rigidity.FundamentalCupCap
 import Categorification.WeightedKLR.Rigidity.SingleBlackExtremal
 
 /-!

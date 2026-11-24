@@ -10041,6 +10041,21 @@ example := rightMiddleDotSumQuotient_kills_higher ℚ
 example :=
   leftStandardLayer_projective (parameter ℚ) weights loading loading_ordered
 
+open scoped DG.DegreeZero
+
+private abbrev middleAmbientRational :=
+  TensorProductAlgebra ℚ (parameter ℚ) weights (({()} : Multiset Unit) + {()})
+
+local instance instLabelTwoMiddleAmbientDerived : DG.HasDerivedCategory.{0, 0} middleAmbientRational :=
+  DG.HasDerivedCategory.small _
+
+local instance instLabelTwoMiddleIntegralDerived : DG.HasDerivedCategory.{0, 0} ℤ :=
+  DG.HasDerivedCategory.small ℤ
+
+example := exists_middleStandard_supportedResolution ℚ
+
+example := middleStandard_derivedTensorHomology_isZero ℚ (-1) (by decide)
+
 end NonVacuity.WebsterLabelTwoMiddleFixedComplex
 
 end

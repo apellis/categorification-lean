@@ -17,9 +17,6 @@ graded ordinary tensor with the actual middle standard.
 
 noncomputable section
 
-set_option maxHeartbeats 3200000
-set_option maxRecDepth 2048
-
 namespace Categorification.Stendhal.LabelTwo
 
 open KLR Categorification.Graded Categorification.Webster.LabelTwo DirectSum MulOpposite
@@ -50,14 +47,23 @@ private theorem labelTwo_degPsi_symm (a b : Unit ⊕ Fin 2) :
     (labelTwoGradingDatum k).degΨ a b = (labelTwoGradingDatum k).degΨ b a := by
   cases a <;> cases b <;> rfl
 
+private theorem labelTwo_reflect_mem_grade {j : ℤ} {a : A₂} (ha : a ∈ 𝒜₂ j) :
+    (tensorReflect (Q := parameter k) (Λ := weights) (ν := ν₂) a).unop ∈ 𝒜₂ j :=
+  (tensorReflection (labelTwoGradingDatum k) (labelTwo_degPsi_symm k)).mem_grade' ha
+
+private theorem middleDotSum_smul_mem_grade {i j : ℤ} {a : A₂} {z : Qmod}
+    (hz : z ∈ 𝒬 i) (ha : a ∈ 𝒜₂ j) : a • z ∈ 𝒬 (i + j) := by
+  have h : a • z ∈ 𝒬 (j + i) := (middleDotSumQuotientGFin k).gradedSMul.smul_mem ha hz
+  rwa [add_comm j i] at h
+
 /-- Right action by a homogeneous diagram adds its degree on the reflected coefficient. -/
 theorem middleTensorCoefficient_smul_mem_grade {i j : ℤ} {a : A₂} {z : N}
     (hz : z ∈ 𝒩₂ i) (ha : a ∈ 𝒜₂ j) : op a • z ∈ 𝒩₂ (i + j) := by
-  have h : (tensorReflect (Q := parameter k) (Λ := weights) (ν := ν₂) a).unop ∈ 𝒜₂ j :=
-    (tensorReflection (labelTwoGradingDatum k) (labelTwo_degPsi_symm k)).mem_grade' ha
-  change (op a • z : N) ∈ 𝒬 (i + j)
-  rw [middleTensorCoefficient_op_smul, add_comm i j]
-  exact (middleDotSumQuotientGFin k).gradedSMul.smul_mem h (show (z : Qmod) ∈ 𝒬 i from hz)
+  let a' : A₂ := (tensorReflect (Q := parameter k) (Λ := weights) (ν := ν₂) a).unop
+  let z' : Qmod := z
+  have h : a' • z' ∈ 𝒬 (i + j) := middleDotSum_smul_mem_grade k hz (labelTwo_reflect_mem_grade k ha)
+  have he : (op a • z : N) = a' • z' := middleTensorCoefficient_op_smul k a z
+  exact he.symm ▸ h
 
 /-- The usual total grading on the actual balanced tensor. -/
 def middleOrdinaryTensorGrade : ℤ → Submodule k T := balancedGrading k A₂ 𝒩₂ ℳ₂
@@ -99,15 +105,18 @@ private theorem fixedMiddleToTensor_apply (z : W) :
   leftStandardTensorEquivFixed_symm_apply (parameter k) weights loading loading_ordered N
     (coefficient_kills_higher k) ((middleFixedReflectionEquiv k).symm z)
 
+private theorem middleTensorGenerator_mem_grade {d : ℤ} {z : N} (hz : z ∈ 𝒩₂ d) :
+    BalancedTensor.tmul (k := k) (B := k) (A := A₂) z (show S from g) ∈ 𝒯 d := by
+  change _ ∈ balancedGrading k A₂ 𝒩₂ ℳ₂ d
+  simpa only [add_zero] using
+    tmul_mem_balancedGrading (B := k) (A := A₂) (ℳ := 𝒩₂) (𝒩 := ℳ₂) hz
+      (middleStandardGenerator_mem_grade k)
+
 private theorem fixedMiddleToTensor_preserves : PreservesGrading 𝒲 𝒯
     (fixedMiddleToTensor k).toLinearMap := by
   intro d z hz
-  change fixedMiddleToTensor k z ∈ 𝒯 d
-  rw [fixedMiddleToTensor_apply k z]
-  have h := tmul_mem_balancedGrading (B := k) (A := A₂) (ℳ := 𝒩₂) (𝒩 := ℳ₂)
-    (show (show N from z.val) ∈ 𝒩₂ d from hz) (middleStandardGenerator_mem_grade k)
-  rw [add_zero] at h
-  exact h
+  have h := middleTensorGenerator_mem_grade k (show (show N from z.val) ∈ 𝒩₂ d from hz)
+  exact (fixedMiddleToTensor_apply k z).symm ▸ h
 
 /-- Recover the actual graded ordinary tensor by tensoring a fixed quotient vector with
 the degree-zero generator of the middle standard. -/
@@ -126,6 +135,17 @@ theorem middleStandardQuotient_mem_grade {d : ℤ} {x : lIdeal E}
   change _ ∈ ℳ₂ (d + 0) at h
   simpa only [add_zero] using h
 
+private theorem middleStandardTensorEquiv_cut_apply (t : T) :
+    middleStandardTensorEquiv k t = middleCutDotSumEquiv k ((fixedMiddleToTensor k).symm t) :=
+  rfl
+
+private theorem middleStandardTensorEquiv_graded_cut_apply (t : T) :
+    middleStandardTensorEquiv k t =
+      middleCutDotSumEquiv k ((middleFixedToOrdinaryTensorGradedEquiv k).toLinearEquiv.symm t) := by
+  have h : (fixedMiddleToTensor k).symm t =
+      (middleFixedToOrdinaryTensorGradedEquiv k).toLinearEquiv.symm t := rfl
+  exact (middleStandardTensorEquiv_cut_apply k t).trans (congrArg (middleCutDotSumEquiv k) h)
+
 /-- Scalar and epsilon coordinates of the actual ambient tensor have degrees
 zero and two respectively. -/
 theorem middleStandardTensorEquiv_mem_grade_iff (t : T) (d : ℤ) :
@@ -139,6 +159,10 @@ theorem middleStandardTensorEquiv_mem_grade_iff (t : T) (d : ℤ) :
     · intro hz
       have hz' : e.toLinearEquiv.symm t ∈ 𝒲 d := hz
       exact (e.toLinearEquiv.apply_symm_apply t) ▸ e.map_mem' hz'
-  exact h.trans (middleCutDotSum_mem_grade_iff k (e.toLinearEquiv.symm t) d)
+  let P (u : DualNumber k) : Prop := (d ≠ 0 → u.fst = 0) ∧ (d ≠ 2 → u.snd = 0)
+  have hc : middleCutDotSumEquiv k (e.toLinearEquiv.symm t) = middleStandardTensorEquiv k t :=
+    (middleStandardTensorEquiv_graded_cut_apply k t).symm
+  exact h.trans ((middleCutDotSum_mem_grade_iff k (e.toLinearEquiv.symm t) d).trans
+    (Iff.of_eq (congrArg P hc)))
 
 end Categorification.Stendhal.LabelTwo

@@ -1225,6 +1225,13 @@ terminal corner is spanned by the first dot and is concentrated in its
 internal degree
 (`KLR.CycKLR.twoBlackTerminal_reflected_corner_span`,
 `KLR.CycKLR.twoBlackTerminal_reflected_corner_mem_grade_iff`).
+The return crossing from the middle loading defines a map to the
+complementary left-exterior divided projective. The two possible PBW
+rows kill its image at the higher cut by the terminal square relation.
+The map factors through the middle dot-sum quotient
+(`Stendhal.labelTwo_leftExterior_return_square_zero`,
+`Stendhal.labelTwoMiddleToExterior`, `Stendhal.labelTwoMiddleExteriorDifferential`).
+
 
 
 

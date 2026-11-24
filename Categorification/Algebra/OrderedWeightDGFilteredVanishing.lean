@@ -139,6 +139,25 @@ theorem orderedWeightDgResolution_loading_support
   exact AddSubgroup.subset_closure ⟨⟨i, hi⟩, k, g, hg, hfix, a, ha⟩
 
 
+/-- The ordered resolution has zero component in positive cohomological degree. -/
+theorem orderedWeightDgResolution_positive_eq_zero
+    (X : W) (n : ℤ) (hn : 0 < n)
+    (x : (orderedWeightDgResolution data s he₀ he htrans T hq).obj X)
+    (hx : x ∈ DG.grading n) : x = 0 := by
+  let K := weightCochainOfGradedChain (orderedWeightTerms data s he₀ he htrans T hq)
+    (orderedWeightDifferentials data s he₀ he htrans T hq)
+    (orderedWeightDifferentials_mem data s he₀ he htrans T hq)
+    (orderedWeightDifferentials_comp data s he₀ he htrans T hq)
+  have hzero := weightCochainOfGradedChain_positive_isZero
+    (orderedWeightTerms data s he₀ he htrans T hq) (orderedWeightDifferentials data s he₀ he htrans T hq)
+    (orderedWeightDifferentials_mem data s he₀ he htrans T hq)
+    (orderedWeightDifferentials_comp data s he₀ he htrans T hq) X n hn
+  change (x : ComplexSum (K.obj X)) ∈ DG.grading (M := ComplexSum (K.obj X)) n at hx
+  obtain ⟨y, hy⟩ := ComplexSum.mem_grading_iff.mp hx
+  have hy₀ : y = 0 := (ModuleCat.isZero_iff_subsingleton.mp hzero).elim _ _
+  have hx₀ : x = 0 := hy.symm.trans (hy₀ ▸ map_zero _)
+  exact hx₀
+
 section Tensor
 
 universe v
@@ -176,20 +195,9 @@ theorem orderedWeightDerivedTensor_cohomology_isZero_of_filtered_loading_support
     have hj : -((j + 1 : ℕ) : ℤ) = n := by dsimp [j]; omega
     exact orderedWeightDgResolution_loading_support data s he₀ he htrans T hq j Z x
       (by rw [hj]; exact hx)
-  · let K := weightCochainOfGradedChain (orderedWeightTerms data s he₀ he htrans T hq)
-        (orderedWeightDifferentials data s he₀ he htrans T hq)
-        (orderedWeightDifferentials_mem data s he₀ he htrans T hq)
-        (orderedWeightDifferentials_comp data s he₀ he htrans T hq)
-    have hzero := weightCochainOfGradedChain_positive_isZero
-      (orderedWeightTerms data s he₀ he htrans T hq) (orderedWeightDifferentials data s he₀ he htrans T hq)
-      (orderedWeightDifferentials_mem data s he₀ he htrans T hq)
-      (orderedWeightDifferentials_comp data s he₀ he htrans T hq) Z n (by omega)
-    change (x : ComplexSum (K.obj Z)) ∈ DG.grading (M := ComplexSum (K.obj Z)) n at hx
-    obtain ⟨y, hy⟩ := ComplexSum.mem_grading_iff.mp hx
-    have hy₀ : y = 0 := (ModuleCat.isZero_iff_subsingleton.mp hzero).elim _ _
-    have hx₀ : x = 0 := hy.symm.trans (hy₀ ▸ map_zero _)
-    rw [hx₀]
+  · rw [orderedWeightDgResolution_positive_eq_zero data s he₀ he htrans T hq Z n (by omega) x hx]
     exact zero_mem _
+
 
 end Tensor
 end Categorification.ModuleFiltration

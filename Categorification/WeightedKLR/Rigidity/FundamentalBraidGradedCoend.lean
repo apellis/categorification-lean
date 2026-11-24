@@ -91,6 +91,13 @@ theorem fundamentalBraidGradedCutIso_map (t : KLR.Seq μ) (ht : IsRedOrdered t) 
   exact congrArg (fun m : (B).obj Z (⟨k⟩ : WeightCategory Kᵐᵒᵖ) => m.val.val) (h.trans hact)
 
 
+/-- A homogeneous target diagram acts on the loading coend by right multiplication. -/
+theorem fundamentalBraidGradedCutIso_lact {Z' : WeightCategory Uᵐᵒᵖ} (f : Z ⟶ Z')
+    (z : ((B).tensorFunctor.obj (corner p)).obj Z) :
+    (fundamentalBraidGradedCutIso s hs j Z' ((B).tensorAct (corner p) f z)).val.val =
+      (fundamentalBraidGradedCutIso s hs j Z z).val.val * f.val.unop.val :=
+  congrArg (fun m : (B).obj Z' (⟨j⟩ : WeightCategory Kᵐᵒᵖ) => m.val.val)
+    (coendLoadingEval_lact B p f z)
 private theorem orderedMiddle : IsRedOrdered middle := by unfold IsRedOrdered; decide +kernel
 
 /-- The coend on a fundamental loading is concentrated in cohomological degree

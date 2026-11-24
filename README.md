@@ -1013,7 +1013,9 @@ A graded diagram coefficient gives a dg bimodule of the two weight categories
 (`diagramWeightBimodule`). Its derived tensor is computed on a K-projective
 representative of the input (`diagramWeightDerivedTensorObjIso`). K-projectivity
 of the left weight modules also gives the derived Hom
-(`diagramWeightDerivedHom`).
+(`diagramWeightDerivedHom`). Over a scalar field in degree zero the left modules
+are K-projective, so the construction gives derived Hom for every homogeneous
+scalar coefficient (`diagramWeightScalarDerivedHom`).
 
 Definition 7.4 has cup and cap coefficient models in the ungraded derived
 categories, with a specified cohomological shift on the cup and a finite

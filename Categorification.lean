@@ -1749,6 +1749,7 @@ import Categorification.WeightedKLR.Rigidity.FundamentalCupRegular
 import Categorification.WeightedKLR.Rigidity.SingleBlackExtremal
 import Categorification.Algebra.DiagramBigrading
 import Categorification.Algebra.DiagramWeightBimodule
+import Categorification.Algebra.DiagramWeightScalarHom
 import Categorification.WeightedKLR.Rigidity.GradedCharacterCupCap
 import Categorification.WeightedKLR.Rigidity.GradedFundamentalCupCap
 

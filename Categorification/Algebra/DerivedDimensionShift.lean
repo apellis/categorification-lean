@@ -2,7 +2,7 @@
 Copyright (c) 2026 Alex Ellis. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 -/
-import DG.Derived.Basic
+import Categorification.Algebra.DGShortExactTriangle
 import Mathlib.Algebra.Homology.DerivedCategory.HomologySequence
 
 /-!
@@ -57,5 +57,26 @@ theorem isZero_homology_obj₃_of_concentrated_triangle
       rwa [e, h]
     · have h' : IsZero ((F.shift (n + 1)).obj T.obj₁) := by rw [e]; exact hK _ h
       exact h'.eq_of_tgt _ _
+
+end DG.DerivedCategory
+
+namespace DG.DerivedCategory
+
+universe w v u r
+
+variable {A B : Type u} [Ring A] [DGAddCommGroup A] [DGRing A] [HasDerivedCategory.{w, v} A]
+  [Ring B] [DGAddCommGroup B] [DGRing B] [HasDerivedCategory.{w, v} B]
+  (R : Type r) [CommRing R] [Algebra R A] [DGAlgebra R A]
+
+/-- Dimension shift for the image of a short exact sequence under a triangulated functor.
+This is the cohomological implication in the proof of (6.21) in Webster's Lemma 6.8. -/
+theorem isZero_homology_obj_of_shortExact (F : DerivedCategory.{w, v} B ⥤ DerivedCategory.{w, v} A)
+    [F.CommShift ℤ] [F.IsTriangulated] (S : ShortComplex (DGModuleCat.{v} B)) (hS : S.ShortExact)
+    (hK : ∀ n : ℤ, n ≠ 0 → IsZero ((homologyFunctor R n).obj (F.obj (Q.obj S.X₁))))
+    (hP : ∀ n : ℤ, n ≠ 0 → IsZero ((homologyFunctor R n).obj (F.obj (Q.obj S.X₂))))
+    (h₀ : Mono ((homologyFunctor R 0).map (F.map (Q.map S.f))))
+    (n : ℤ) (hn : n ≠ 0) : IsZero ((homologyFunctor R n).obj (F.obj (Q.obj S.X₃))) := by
+  obtain ⟨δ, hT⟩ := exists_distinguished_of_shortExact S hS
+  exact isZero_homology_obj₃_of_concentrated_triangle R _ (F.map_distinguished _ hT) hK hP h₀ n hn
 
 end DG.DerivedCategory

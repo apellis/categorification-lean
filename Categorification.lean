@@ -103,6 +103,7 @@ import Categorification.Algebra.ModuleCatLinear
 import Categorification.Algebra.ModuleFiltration
 import Categorification.Algebra.OrderedProjectiveResolution
 import Categorification.Algebra.ModuleFiltrationMap
+import Categorification.Algebra.IdempotentTraceFiltration
 import Categorification.Algebra.MonicTrace
 import Categorification.Algebra.NilHecke
 import Categorification.Algebra.NilHeckeIdempotent
@@ -1678,6 +1679,9 @@ import Categorification.WeightedKLR.RedStrands.InterleavedColumn
 import Categorification.WeightedKLR.RedStrands.InterleavedPresentation
 import Categorification.WeightedKLR.RedStrands.InterleavedMarkedColumn
 import Categorification.WeightedKLR.RedStrands.FirstWeightBlockKernel
+import Categorification.WeightedKLR.RedStrands.BlockKernelFiltration
+import Categorification.WeightedKLR.RedStrands.BlockKernelSingleLayer
+import Categorification.WeightedKLR.RedStrands.BlockKernelCrossingGenerator
 import Categorification.WeightedKLR.RedStrands.BraidedStandardGrading
 import Categorification.WeightedKLR.RedStrands.BraidedStandardInjective
 import Categorification.WeightedKLR.RedStrands.BraidedStandardIso

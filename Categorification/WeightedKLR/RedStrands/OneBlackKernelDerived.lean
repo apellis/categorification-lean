@@ -3,7 +3,6 @@ Copyright (c) 2026 Alex Ellis. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 -/
 import Categorification.WeightedKLR.RedStrands.FirstWeightBlockKernel
-import Categorification.WeightedKLR.RedStrands.OneBlackKernelProjective
 import Categorification.WeightedKLR.RedStrands.ProjectiveKernelDerived
 
 /-!
@@ -16,39 +15,39 @@ for all red spectators. The short exact sequence gives derived concentration.
 
 namespace Categorification.Stendhal.BraidedStendhalAlgebra
 
-open CategoryTheory CategoryTheory.Limits DG DG.DerivedCategory KLR QuantumGroup KL3.Diagram
+open CategoryTheory CategoryTheory.Limits DG DG.DerivedCategory KLR
 open scoped DG.DegreeZero
+
 attribute [local instance 1100] IsIdempotentElem.instAlgebraCorner_categorification
 attribute [local instance 1200] Ring.toIntAlgebra
 
-universe w
+universe w v
 
-variable {I k : Type} [DecidableEq I] [Field k] {ℓ : ℕ} {D : CartanDatum I} {i : I}
-local notation "QL" => CL.qCL (CL.CLScalars.kl : CL.CLScalars D k)
+variable {I : Type} {k : Type v} [DecidableEq I] [CommRing k] {ℓ : ℕ} (i : I)
+variable (Q : I → I → MvPolynomial (Fin 2) k) (Λ : Fin ℓ → I →₀ ℕ)
+
 local notation "ν₁" => (Singleton.singleton i : Multiset I)
-local notation "μ" => stendhalWeight ℓ ν₁
 
-variable (Λ : Fin ℓ → I →₀ ℕ) (t : Seq μ) (a b : Fin ℓ) (L M : List (Fin ℓ))
-local notation "κ" => L ++ b :: a :: M
-local notation "T" => IsIdempotentElem.Corner (isIdempotentElem_violMk_redProj k QL Λ ν₁ (redWord t))
-local notation "U" => IsIdempotentElem.Corner (isIdempotentElem_violMk_redProj k QL Λ ν₁ κ)
-
-variable [HasDerivedCategory.{w, 0} Tᵐᵒᵖ] [HasDerivedCategory.{w, 0} Uᵐᵒᵖ]
-
-/-- The derived braid of an actual one-black partial standard is concentrated
-in degree zero for the standard Khovanov–Lauda parameters. -/
-theorem oneBlack_partialStandard_braid_homology_vanish_standard
-    (hR : IsRouquierQ D QL) (hQ : KLRSymm QL)
-    (ht : redWord t = L ++ a :: b :: M)
-    (n : ℤ) (hn : n ≠ 0) :
-    IsZero ((DG.DerivedCategory.homologyFunctor (A := Uᵐᵒᵖ) ℤ n).obj
-      ((braidingFunctor k QL Λ ν₁ (redWord t) κ).obj
-        (DG.DerivedCategory.Q.obj ((degreeZeroModuleFunctor Tᵐᵒᵖ).obj
-          (blockLoadingShortComplex QL Λ t a b).X₃)))) := by
-  have hP : Module.Projective Tᵐᵒᵖ (blockLoadingKernel QL Λ t a b) :=
-    oneBlack_kernel_projective_standard hR hQ i Λ a b t ht
-  have hbal : Function.Injective (blockKernelTensorInclusion QL Λ t a b κ) :=
-    firstWeight_blockKernelTensorInclusion_injective i QL Λ a b t κ hQ
-  exact blockPartialStandard_braid_homology_vanish_of_projective_kernel QL Λ t a b κ hP hbal n hn
+set_option backward.isDefEq.respectTransparency false in
+/-- The derived braid of the actual one-black partial standard is concentrated
+in degree zero for symmetric parameters over any commutative ring. -/
+theorem firstWeight_blockPartialStandard_braid_homology_vanish
+    (t : KLR.Seq (stendhalWeight ℓ ν₁)) (a b : Fin ℓ) (κ : List (Fin ℓ))
+    [sourceDerived : HasDerivedCategory.{w, v}
+      (isIdempotentElem_violMk_redProj k Q Λ ν₁ (redWord t)).Cornerᵐᵒᵖ]
+    [targetDerived : HasDerivedCategory.{w, v}
+      (isIdempotentElem_violMk_redProj k Q Λ ν₁ κ).Cornerᵐᵒᵖ]
+    (hQ : KLRSymm Q) (n : ℤ) (hn : n ≠ 0) :
+    IsZero ((DG.DerivedCategory.homologyFunctor
+      (A := (isIdempotentElem_violMk_redProj k Q Λ ν₁ κ).Cornerᵐᵒᵖ) ℤ n).obj
+      ((braidingFunctor k Q Λ ν₁ (redWord t) κ).obj (DG.DerivedCategory.Q.obj
+        ((degreeZeroModuleFunctor (isIdempotentElem_violMk_redProj k Q Λ ν₁ (redWord t)).Cornerᵐᵒᵖ).obj
+          (blockLoadingShortComplex Q Λ t a b).X₃)))) := by
+  have hP : Module.Projective (isIdempotentElem_violMk_redProj k Q Λ ν₁ (redWord t)).Cornerᵐᵒᵖ
+      (blockLoadingKernel Q Λ t a b) :=
+    firstWeight_blockLoadingKernel_projective i Q Λ a b t hQ
+  have hbal : Function.Injective (blockKernelTensorInclusion Q Λ t a b κ) :=
+    firstWeight_blockKernelTensorInclusion_injective i Q Λ a b t κ hQ
+  exact blockPartialStandard_braid_homology_vanish_of_projective_kernel Q Λ t a b κ hP hbal n hn
 
 end Categorification.Stendhal.BraidedStendhalAlgebra

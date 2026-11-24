@@ -9053,6 +9053,29 @@ example := finrank_vacuum_braidColumn_eq_standard params weights
 
 end NonVacuity.WebsterVacuumBraidColumn
 
+namespace NonVacuity.WebsterBraidColumnPBW
+
+open Categorification Categorification.KLR Categorification.Stendhal
+open Categorification.Stendhal.BraidedStendhalAlgebra Equiv MvPolynomial
+
+private abbrev content : Multiset Unit := {()}
+private abbrev weight := stendhalWeight 3 content
+private def top : Seq weight :=
+  KLRAlgebra.Seq.ofList [.inr 0, .inl (), .inr 1, .inr 2] (by decide)
+private noncomputable abbrev parameters : Unit → Unit → MvPolynomial (Fin 2) ℚ :=
+  fun _ _ => 0
+private noncomputable abbrev weights : Fin 3 → Unit →₀ ℕ :=
+  fun j => Finsupp.single () (j.val + 1)
+private noncomputable def reducedWord (w : Perm (Fin weight.card)) :=
+  (TypeA.exists_reduced _ w).choose
+private theorem reducedChoice : TypeA.IsReducedChoice reducedWord :=
+  fun w => (TypeA.exists_reduced _ w).choose_spec
+private theorem symmetric : KLRSymm parameters := fun _ _ _ => rfl
+
+example := span_violFixedTopColumn (Λ := weights) symmetric reducedChoice top [0, 2, 1]
+
+end NonVacuity.WebsterBraidColumnPBW
+
 namespace NonVacuity.WebsterGradedFundamentalCup
 noncomputable section
 

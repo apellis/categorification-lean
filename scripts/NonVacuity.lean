@@ -9325,6 +9325,12 @@ example := middleDifferenceWeight_distinguished ℚ
 open scoped DG.DegreeZero in
 noncomputable example := middleStandardWeightTensorEquiv ℚ (⟨2⟩ : WeightCategory ℚ)
 
+noncomputable example :
+    letI : CatModule.HasDerivedCategory.{1,0} (WeightCategory ℚ) :=
+      CatModule.HasDerivedCategory.standard (WeightCategory ℚ)
+    (middleReflectedWeightDerivedTensor ℚ).IsTriangulated := inferInstance
+
+
 
 open CategoryTheory in
 example (X : WeightCategory MiddleT) (n : ℤ)

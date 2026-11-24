@@ -1281,7 +1281,9 @@ the actual internal shift by two
 `Stendhal.LabelTwo.middleDifferenceWeightShiftIso`). The fixed-weight coend
 of the reflected coefficient and middle standard agrees with the corresponding
 ground-field component of the actual ordinary tensor
-(`Stendhal.LabelTwo.middleStandardWeightTensorEquiv`). Evaluation on the
+(`Stendhal.LabelTwo.middleStandardWeightTensorEquiv`). The degree-zero
+derived comparison uses any supplied nonpositive K-projective model
+(`Stendhal.LabelTwo.middleStandardWeightH0IsoOfResolution`). Evaluation on the
 middle generator identifies the endomorphism algebra with the actual
 regular parabolic factor (`Stendhal.LabelTwo.middleEndomorphismFactorEquiv`).
 The diagrammatic dot-sum quotient is the standardization of its

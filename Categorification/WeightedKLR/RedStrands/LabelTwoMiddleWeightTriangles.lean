@@ -4,6 +4,8 @@ Released under Apache 2.0 license as described in the file LICENSE.
 -/
 import Categorification.Algebra.DiagramWeightExact
 import Categorification.Algebra.DiagramWeightGroundTensor
+import Categorification.Algebra.DiagramWeightLocalizedCohomology
+import Categorification.Algebra.DiagramWeightTensorDerived
 import Categorification.WeightedKLR.RedStrands.LabelTwoMiddleBalancedGrading
 import Categorification.WeightedKLR.RedStrands.LabelTwoMiddleGradedAugmentation
 import Categorification.WeightedKLR.Rigidity.WeightModuleExactTriangle
@@ -297,6 +299,40 @@ def middleStandardWeightTensorEquiv (X : WeightCategory k) :
     (middleTensorCoefficient_algebraMap_smul k) X (⟨0⟩ : WeightCategory k)
   exact e.trans (AddEquiv.addSubgroupCongr
     (congrArg (fun d => (middleOrdinaryTensorGrade k d).toAddSubgroup) (sub_zero X.as)))
+
+variable [CatModule.HasDerivedCategory.{v,0} (WeightCategory
+  (TensorProductAlgebra k (parameter k) weights (({()} : Multiset Unit) + {()})))]
+  [CatModule.HasDerivedCategory.{v,0} (WeightCategory k)]
+
+/-- Derived weight tensor with the actual reflected middle coefficient. -/
+def middleReflectedWeightDerivedTensor : CatModule.DerivedCategory.{v,0} (WeightCategory A₂) ⥤
+    CatModule.DerivedCategory.{v,0} (WeightCategory k) :=
+  diagramWeightDerivedTensor (fun d => (𝒩₂ d).toAddSubgroup) (middleCoefficient_scalarLeft k)
+    (middleCoefficient_reflectedRight k)
+
+instance : (middleReflectedWeightDerivedTensor k).CommShift ℤ := by
+  unfold middleReflectedWeightDerivedTensor
+  infer_instance
+
+instance : (middleReflectedWeightDerivedTensor k).IsTriangulated := by
+  unfold middleReflectedWeightDerivedTensor
+  infer_instance
+
+/-- The degree-zero derived tensor of the actual middle standard is the
+ordinary graded component, computed on a supplied K-projective resolution. -/
+def middleStandardWeightH0IsoOfResolution
+    {K : CatModule (WeightCategory A₂)} (f : K ⟶ middleStandardWeightModule k)
+    (hK : CatModule.IsKProjective K) (hf : CatModule.IsQuasiIso f)
+    (hK₀ : ∀ (Y : WeightCategory A₂) {x : K.obj Y}, x ∈ DG.grading (0 : ℤ) → d x = 0)
+    (X : WeightCategory k) :
+    (CatModule.DerivedCategory.cohomologyFunctor X 0).obj
+      ((middleReflectedWeightDerivedTensor k).obj
+        (CatModule.DerivedCategory.Q.obj (middleStandardWeightModule k))) ≅
+      AddCommGrpCat.of (middleOrdinaryTensorGrade k X.as) :=
+  diagramWeightDerivedTensorH0IsoOfResolution (fun d => (𝒩₂ d).toAddSubgroup)
+    (middleCoefficient_scalarLeft k) (middleCoefficient_reflectedRight k)
+    f hK hf hK₀ (fun _ => ⟨InDegreeZero.mem_grading_zero, InDegreeZero.d_apply _⟩) X ≪≫
+    (middleStandardWeightTensorEquiv k X).toAddCommGrpIso
 
 end MiddleTensor
 

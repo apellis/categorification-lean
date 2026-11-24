@@ -8768,6 +8768,22 @@ example := firstPairTwoAfter_blockKernel_mem_iff_twoFactors Q Λ (fun _ _ _ => r
 
 end NonVacuity.WebsterFirstPairTwoAfter
 
+namespace NonVacuity.WebsterFirstPairTerminalColumn
+
+open Categorification.KLR Categorification.Stendhal Categorification.QuantumGroup
+open BraidedStendhalAlgebra MvPolynomial
+
+private def Q : Unit → Unit → MvPolynomial (Fin 2) (ZMod 4) := fun _ _ => 0
+private def Λ : Fin 3 → Unit →₀ ℕ := fun r => Finsupp.single () (r.val + 1)
+private noncomputable abbrev C := CartanDatum.ofGraph (⊥ : SimpleGraph Unit)
+
+example := firstPairOneAfter_terminal_blockKernelColumnInclusion_injective Q Λ
+  (fun _ _ _ => rfl) false
+
+example := firstPairOneAfter_blockKernelTensorInclusion_injective_standard (k₀ := ℚ) C Λ true
+
+end NonVacuity.WebsterFirstPairTerminalColumn
+
 namespace NonVacuity.WebsterFiveSlotAllBottomDerived
 
 open Categorification.KLR Categorification.Stendhal Categorification.QuantumGroup

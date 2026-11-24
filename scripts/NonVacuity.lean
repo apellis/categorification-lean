@@ -8880,6 +8880,32 @@ example := fundamentalCapRegularIso
 
 end NonVacuity.WebsterFundamentalCupRegular
 
+noncomputable section
+
+namespace NonVacuity.WebsterFundamentalDerivedCircle
+
+open CategoryTheory Categorification Categorification.Stendhal FundamentalCorner
+open scoped DG.DegreeZero
+
+local notation "T" => TensorProductAlgebra ℚ Q wt ({()} : Multiset Unit)
+
+local instance : DG.HasDerivedCategory.{1,0} ℚ := DG.HasDerivedCategory.standard ℚ
+local instance : DG.HasDerivedCategory.{1,0} Tᵐᵒᵖ := DG.HasDerivedCategory.standard Tᵐᵒᵖ
+
+example : fundamentalCap.obj (DG.DerivedCategory.Q.obj (DG.DGModuleCat.of Tᵐᵒᵖ
+    (InDegreeZero (rIdeal terminalIdem ⧸ fundamentalCutTrace)))) ≅
+    DG.DerivedCategory.Q.obj (DG.DGModuleCat.of ℚ (InDegreeZero ℚ)) :=
+  fundamentalCap_terminalSimpleIso
+
+example : (fundamentalCup ⋙ fundamentalCap).obj (DG.DerivedCategory.Q.obj
+    (DG.DGModuleCat.of ℚ ℚ)) ≅ (shiftFunctor (DG.DerivedCategory.{1,0} ℚ) (-1)).obj
+    (DG.DerivedCategory.Q.obj (DG.DGModuleCat.of ℚ (InDegreeZero ℚ))) :=
+  fundamentalCupEvaluationRegularIso
+
+end NonVacuity.WebsterFundamentalDerivedCircle
+
+end
+
 namespace NonVacuity.WebsterCupRHomRegular
 
 open CategoryTheory DG MulOpposite Categorification.Stendhal.Coevaluation

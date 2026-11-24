@@ -5,6 +5,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 import Categorification.WeightedKLR.RedStrands.FiveSlotCentralCancellation
 import Categorification.WeightedKLR.RedStrands.FiveSlotLeftTopPrincipal
 import Categorification.WeightedKLR.RedStrands.FiveSlotSpectatorWeight
+import Categorification.WeightedKLR.RedStrands.OrdinaryRetainedCrossing
 
 /-!
 # The principal higher ideal at the central five-slot top
@@ -158,5 +159,45 @@ theorem fiveSlotCentral_columnInclusion_of_rowReflection (hQ : KLRSymm Q)
     Function.Injective (blockKernelColumnInclusion Q Λ t 1 2 bot) :=
   fiveSlotCentral_columnInclusion_of_leftCancellation Q Λ hQ bot
     ((fiveSlotCentral_leftWord_cancel_iff Q Λ hQ).2 reflect)
+
+
+/-- The two ordinary red-black tests give cancellation on the source corner
+of the central principal coefficient. -/
+theorem fiveSlotCentral_leftWord_cancel_source_of_tests (hQ : KLRSymm Q)
+    (first : OrdinaryCutCrossingTest Q Λ t jA 3)
+    (second : OrdinaryCutCrossingTest Q Λ jA v₀ 2)
+    (y : V) (hl : E v₀ * y = y)
+    (hr : y * violMk k Q Λ ν₀ (redProj k Q Λ ν₀ (redWord t)) = y)
+    (hz : C * y = 0) : y = 0 := by
+  have hword : redWord t = List.finRange 3 := by decide
+  have h₁ : redWord jA = redWord t := by decide
+  have h₂ : redWord v₀ = redWord jA := by decide
+  have hstep₁ : sadj N 3 • t = jA := by decide
+  have hstep₂ : sadj N 2 • jA = v₀ := sadj_smul_smul 2 v₀
+  let A := violMk k Q Λ ν₀ (redProj k Q Λ ν₀ (List.finRange 3))
+  have hv : A * E v₀ = E v₀ := by
+    change violMk k Q Λ ν₀ (redProj k Q Λ ν₀ (List.finRange 3)) *
+      violMk k Q Λ ν₀ (ofKLR k Q Λ ν₀ (e v₀)) = _
+    rw [← map_mul, redProj_mul_e, ite_eq_left (h₂.trans (h₁.trans hword))]
+    rfl
+  have hy : A * y = y ∧ y * A = y := ⟨by rw [← hl, ← mul_assoc, hv], by rwa [hword] at hr⟩
+  have hz' : F ((ψ 3 * e jA) * (ψ 2 * e v₀)) * y = 0 := by
+    rw [map_mul, split Q Λ]
+    exact hz
+  exact eq_zero_of_twoCrossings_mul_of_corner Q Λ hword h₁ h₂ 3 2 hstep₁ hstep₂ hQ
+    first second y hy hl hz'
+
+/-- The actual central five-slot higher kernel is projective whenever the
+two constituent ordinary crossings cancel on their source cuts. -/
+theorem fiveSlotCentral_kernel_projective_of_tests (hQ : KLRSymm Q)
+    (first : OrdinaryCutCrossingTest Q Λ t jA 3)
+    (second : OrdinaryCutCrossingTest Q Λ jA v₀ 2) :
+    Module.Projective
+      (isIdempotentElem_violMk_redProj k Q Λ ν₀ (redWord t)).Cornerᵐᵒᵖ
+      (blockLoadingKernel Q Λ t 1 2) :=
+  blockLoadingKernel_projective_of_principal_factor Q Λ t 1 2 v₀
+    (by decide) C (factor_mem Q Λ) (factor_top Q Λ) (factor_bottom Q Λ)
+    (fiveSlotCentral_higher_exists_leftFactor Q Λ hQ)
+    (fiveSlotCentral_leftWord_cancel_source_of_tests Q Λ hQ first second)
 
 end Categorification.Stendhal.BraidedStendhalAlgebra

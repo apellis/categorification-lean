@@ -138,6 +138,7 @@ import Categorification.Algebra.SumDecompLinear
 import Categorification.Algebra.SumDecompNaturality
 import Categorification.Algebra.SymmetricFree
 import Categorification.Algebra.TwistedVectorDual
+import Categorification.Algebra.ReflectedVectorDual
 import Categorification.Algebra.UniqueSimpleQuotient
 import Categorification.CategoryTheory.PiAbelian
 import Categorification.CategoryTheory.PiShift

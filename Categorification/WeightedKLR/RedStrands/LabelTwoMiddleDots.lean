@@ -179,11 +179,13 @@ private theorem projected_dot_commutes_idem (j : Fin (Multiset.card μ)) :
 def dotEnd : Fin 2 → Module.End A S :=
   ![liftMiddleDot k (leftMiddleDot k), liftMiddleDot k (rightMiddleDot k)]
 
-private theorem dotEnd_zero_gen :
+/-- On the middle generator, the first right-dot map inserts the left black dot. -/
+theorem dotEnd_zero_gen :
     dotEnd k 0 g = leftMiddleDot k • g :=
   liftMiddleDot_generator k _ (projected_dot_commutes_idem k ⟨1, by decide⟩)
 
-private theorem dotEnd_one_gen :
+/-- On the middle generator, the second right-dot map inserts the right black dot. -/
+theorem dotEnd_one_gen :
     dotEnd k 1 g = rightMiddleDot k • g :=
   liftMiddleDot_generator k _ (projected_dot_commutes_idem k ⟨3, by decide⟩)
 

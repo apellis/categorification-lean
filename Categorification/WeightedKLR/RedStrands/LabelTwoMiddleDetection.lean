@@ -139,7 +139,8 @@ def testModuleMap : S →ₗ[A] V :=
       change ρ (seqIdem q₀ wt₂ s hs) _ = 0
       rw [higherZero k s hs hlt, LinearMap.zero_apply])
 
-private theorem testModuleMap_generator : testModuleMap k g = U (1 : D) :=
+/-- The diagrammatic generator maps to the unit in the identity shuffle. -/
+theorem testModuleMap_generator : testModuleMap k g = U (1 : D) :=
   leftStandardLift_unit (Q := q₀) (Λ := wt₂) loading loading_ordered _
     (unit_fixed k _) _
 

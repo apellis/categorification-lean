@@ -8267,6 +8267,27 @@ example := fiveSlotCentral_flagRows_eval Λ Q factor rfl rfl (by simp [D])
 end
 end NonVacuity.WebsterTwoBlackFlag
 
+namespace NonVacuity.WebsterCentralFlagInjection
+
+open Categorification.Stendhal BraidedStendhalAlgebra
+noncomputable section
+
+private abbrev Q : Unit → Unit → MvPolynomial (Fin 2) ℤ := fun _ _ => 0
+private abbrev Λ : Fin 3 → Unit →₀ ℕ := fun r =>
+  Finsupp.single () (if r=0 then 3 else if r=1 then 2 else 1)
+
+/-- The spectator supports both blacks and both exchanged-red crossings
+have positive weight. The row reflection and balanced injection hold in
+the globally violated quotient over the integers. -/
+example : FiveSlotCentralRowReflection Q Λ :=
+  fiveSlotCentral_rowReflection Q Λ (fun _ _ _ => rfl)
+
+example : Function.Injective
+    (blockKernelColumnInclusion Q Λ (fixedTopFourExitCut 1) 1 2 fixedTopFourExitBottom) :=
+  fiveSlotCentral_blockKernelColumnInclusion_injective Q Λ (fun _ _ _ => rfl)
+
+end
+end NonVacuity.WebsterCentralFlagInjection
 namespace NonVacuity.WebsterFiveSlotFlag
 
 open KLR KLRAlgebra Stendhal Stendhal.FiveSlotFlag Stendhal.BraidedStendhalAlgebra

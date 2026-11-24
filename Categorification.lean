@@ -1693,6 +1693,7 @@ import Categorification.WeightedKLR.RedStrands.TwoBlackFlagIdeal
 import Categorification.WeightedKLR.RedStrands.FiveSlotFlagStability
 import Categorification.WeightedKLR.RedStrands.FiveSlotFlagSource
 import Categorification.WeightedKLR.RedStrands.FiveSlotFlagReadout
+import Categorification.WeightedKLR.RedStrands.FiveSlotCentralFlagInjection
 import Categorification.WeightedKLR.RedStrands.BraidedStandardDerived
 import Categorification.WeightedKLR.RedStrands.BlockShuffleLoading
 import Categorification.WeightedKLR.RedStrands.BlockShuffleCrossing

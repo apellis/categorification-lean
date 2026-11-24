@@ -95,24 +95,24 @@ theorem cast_redBlackLoading_mem_concatSet
 
 section Suffix
 
-variable (Q : I → I → MvPolynomial (Fin 2) k) (Λ : Fin 2 → I →₀ ℕ)
+variable {ℓ : ℕ} (Q : I → I → MvPolynomial (Fin 2) k) (Λ : Fin ℓ → I →₀ ℕ)
 
 /-- A straight black strand appended on the right preserves the index of a crossing
 and appends the black label to its bottom idempotent. -/
 theorem cast_appendR_ψ_mul_e (j : I) (ν : Multiset I)
-    (a : ℕ) (ha : a + 1 < (stendhalWeight 2 ν).card) (t : Seq (stendhalWeight 2 ν)) :
+    (a : ℕ) (ha : a + 1 < (stendhalWeight ℓ ν).card) (t : Seq (stendhalWeight ℓ ν)) :
     castKLR (stendhalQ Q Λ) (stendhalWeight_addBlack j ν)
       (appendR (stendhalQ Q Λ) _ (Sum.inl j) (ψ a * e t)) =
       ψ a * e (appendBlackLoading j ν t) := by
   let S := stendhalQ Q Λ
-  let A := stendhalWeight 2 ν
-  let J : I ⊕ Fin 2 := .inl j
-  let d : Seq ({J} : Multiset (I ⊕ Fin 2)) := default
+  let A := stendhalWeight ℓ ν
+  let J : I ⊕ Fin ℓ := .inl j
+  let d : Seq ({J} : Multiset (I ⊕ Fin ℓ)) := default
   have hψ : appendR S A J (ψ a : KLRAlgebra k S A) = ψ a * oneConcat S A {J} := by
     have hw : ValidWord A.card [a] := validWord_cons.2 ⟨ha, validWord_nil _⟩
     simpa only [ψw_cons, ψw_nil, mul_one] using (appendR_ψw (Q := S) (i := J) hw)
   have hd : (e d : KLRAlgebra k S {J}) = 1 := by
-    rw [← sum_e (Q := S) (ν := ({J} : Multiset (I ⊕ Fin 2))), Fintype.sum_unique]
+    rw [← sum_e (Q := S) (ν := ({J} : Multiset (I ⊕ Fin ℓ))), Fintype.sum_unique]
   have he : appendR S A J (e t) = e (t.append d) := by
     rw [appendR_apply, ← hd, concat_e_tmul_e]
   have hh : (oneConcat S A {J} * e (t.append d) : KLRAlgebra k S (A + {J})) =

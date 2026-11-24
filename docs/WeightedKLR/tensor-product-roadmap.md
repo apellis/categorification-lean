@@ -1100,8 +1100,11 @@ chain of higher loading projectives, ending at a vanishing kernel, gives the
 filtration with the actual partial-standard quotients
 (`HigherProjectiveChain.hasFiltration`). In the canonical red order, the ordinary right-multiplication test implies
 injectivity of the actual ordered-corner crossing at any black content
-(`crossingIntoKernelMap_injective_of_ordinary_test`). Applying these results
-to an arbitrary one-black spectator chain still requires identifying each
+(`crossingIntoKernelMap_injective_of_ordinary_test`). Each ordinary test supplies
+the actual projective step of a one-black chain
+(`HigherProjectiveChain.cons_of_oneBlack_ordinary_test`), and a maximal surviving
+loading closes the chain (`HigherProjectiveChain.nil_of_maximal`).
+The unconditional arbitrary-length case still requires identifying each
 successive pair of loadings with the appropriate finite red suffix.
 
 Still open for Lemma 6.8: when a black lies between the bottom reds, prove that changes

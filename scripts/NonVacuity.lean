@@ -1,4 +1,5 @@
 import Categorification
+import Mathlib.Analysis.Real.Sqrt
 import LieLean.Algebra.QuantumGroup.Sl2.SimpleModule
 
 /-!
@@ -5538,6 +5539,22 @@ noncomputable example := KL3.Diagram.shiftHomEquivalence UDot.sl2RootDatum (ZMod
 
 end NonVacuity.WebsterLocalization
 
+namespace NonVacuity.WebsterCupCap
+
+open CategoryTheory DG MulOpposite Categorification.Stendhal.Coevaluation
+open scoped DG.DegreeZero TensorProduct
+
+local instance : DG.HasDerivedCategory.{0,0} ℚ := DG.HasDerivedCategory.small ℚ
+local instance : DG.HasDerivedCategory.{0,0} ℚᵐᵒᵖ := DG.HasDerivedCategory.small ℚᵐᵒᵖ
+
+example := shiftedCupFunctor ℚ ℚ (Fin 2 → ℚ) (-2)
+example := capFunctor ℚ ℚ (Fin 2 → ℚ)
+
+example (f : CupCoefficient ℚ (Fin 2 → ℚ)) (x : Fin 2 → ℚ) :=
+  cupTensorHomEquiv_op_tmul ℚ ℚ (Fin 2 → ℚ) (2 : ℚ) f (3 : ℚ) x
+
+end NonVacuity.WebsterCupCap
+
 namespace NonVacuity.CLSpanning
 
 open Categorification Categorification.QuantumGroup Categorification.KL3.Diagram
@@ -5872,6 +5889,53 @@ example : datum.rootSum (↑(coevaluationWord datum 3 [()]) : Multiset Unit).toF
   simpa [datum, CartanDatum.reflection_apply] using rootSum_coevaluationWord datum 3 [()] h
 
 end NonVacuity.WebsterCoevaluationWord
+
+namespace NonVacuity.WebsterReducedCoevaluationWord
+
+open Categorification.Stendhal
+
+noncomputable section
+
+private def A : Matrix Unit Unit ℤ := fun _ _ => 2
+
+private theorem generalized : A.IsGeneralizedCartan where
+  diag _ := rfl
+  offDiag_nonpos i j hij := (hij (Subsingleton.elim i j)).elim
+  zero_comm _ _ := Iff.rfl
+
+private abbrev P := Matrix.Realization.std A ℝ
+private abbrev weight : P.integralWeights := ⟨P.root (), P.root_mem_integralWeights ()⟩
+
+private theorem dominant : P.IsDominantIntegral weight := by
+  intro i
+  cases i
+  refine ⟨2, ?_⟩
+  change P.root () (P.coroot ()) = (2 : ℝ)
+  rw [P.root_coroot]
+  rfl
+
+private theorem reduced : (P.coxeterSystem generalized).IsReduced ([()] : List Unit).reverse := by
+  simp [CoxeterSystem.IsReduced, CoxeterSystem.length_simple]
+
+example : NonnegativeReflectionPath (P.cartanDatum generalized) weight [()] :=
+  nonnegativeReflectionPath_of_reduced P generalized weight dominant [()] reduced
+
+example := rootSum_coevaluationWord_of_reduced P generalized weight dominant [()] reduced
+
+end
+
+end NonVacuity.WebsterReducedCoevaluationWord
+
+namespace NonVacuity.WebsterSingleBlackExtremal
+
+open Categorification.Stendhal
+
+private noncomputable abbrev Q : Unit → Unit → MvPolynomial (Fin 2) ℚ := fun _ _ => 0
+private noncomputable abbrev Λ : Fin 1 → Unit →₀ ℕ := fun _ => Finsupp.single () 1
+
+example := oneBlack_extremal_projective_simple Q Λ () (by simp [Λ])
+
+end NonVacuity.WebsterSingleBlackExtremal
 
 namespace NonVacuity.WebsterFigureFive
 
@@ -6401,8 +6465,11 @@ example (x y : BraidedStendhalAlgebra (ZMod 4) q₄ weights (β + β)) :=
       have hi : IsViolated i := ⟨by decide,rfl⟩
       simp only [map_mul, violMk_e hi, mul_zero,zero_mul])
 
+example := blockLoadingKernel_eq_idempotentTrace q₄ weights src (pair 0) (pair 1)
+
 /-- The degree-one kernel has affine representatives even when the *exchanged* bottom
 pair encloses a black. This does not assert that these representatives have zero class. -/
+
 example := ker_blockKernelTensorInclusion_eq_map q₄ weights src (pair 0) (pair 1)
   (redWord (Seq.cast weight (place Bs top))) symm₄
 
@@ -7307,6 +7374,62 @@ noncomputable example :=
 
 end NonVacuity.WebsterBraidFiltration
 
+namespace NonVacuity.WebsterKernelTrace
+
+open Categorification.ModuleFiltration
+
+private def labels : Bool → ModuleCat.{0} ℤ
+  | false => HasFiltration.zeroObj
+  | true => ModuleCat.of ℤ ℤ
+
+private instance : Subsingleton (labels false) := by
+  change Subsingleton PUnit
+  infer_instance
+
+private theorem filtration : HasFiltration labels ([false] ++ [true]) (labels true) := by
+  refine HasFiltration.cons (X := labels true) (Z := labels false) LinearMap.id 0 [true] false
+    (fun _ _ h => h) ?_ (fun z => ⟨0, Subsingleton.elim _ z⟩)
+    (HasFiltration.single (LinearEquiv.refl ℤ _)) ⟨LinearEquiv.refl ℤ _⟩
+  intro y
+  exact ⟨fun _ => ⟨y, rfl⟩, fun _ => rfl⟩
+
+example : HasFiltration labels [true]
+    (ModuleCat.of ℤ (idempotentTrace {1} (labels true))) := by
+  apply filtration.idempotentTrace {1}
+  · intro e he
+    rw [Set.mem_singleton_iff] at he
+    subst e
+    exact one_mul _
+  · intro c hc e he x
+    simp only [List.mem_singleton] at hc
+    subst c
+    exact Subsingleton.elim _ _
+  · intro c hc
+    simp only [List.mem_singleton] at hc
+    subst c
+    refine le_antisymm le_top fun x _ => ?_
+    exact Submodule.subset_span ⟨1, rfl, x, (one_smul ℤ x).symm⟩
+
+end NonVacuity.WebsterKernelTrace
+
+/-- For two positive-weight reds and a zero-weight spectator, the loading kernel
+has one higher partial standard layer for the black before the spectator. -/
+example :=
+  Stendhal.BraidedStendhalAlgebra.ThreeRedOneBlack.kernel_hasHigherFiltration
+    (k := ℚ) (fun _ _ => 0)
+    (fun r => if r = 2 then 0 else Finsupp.single () 1) (by decide)
+
+/-- The higher partial standard is nonzero when the spectator is also positive. -/
+example :=
+  Stendhal.BraidedStendhalAlgebra.ThreeRedOneBlack.higherPartialStandard_nontrivial
+    (k := ℚ) (fun _ _ => 0) (fun _ => Finsupp.single () 1) (fun _ _ _ => rfl)
+    (fun _ => by simp)
+
+/-- The higher projective surjects onto the kernel at strictly positive weight. -/
+example :=
+  Stendhal.BraidedStendhalAlgebra.ThreeRedOneBlack.higherCrossingMap_surjective
+    (k := ℚ) (fun _ _ => 0) (fun _ => Finsupp.single () 1)
+
 namespace NonVacuity.WebsterTwoBlackExits
 
 open KLR KLRAlgebra
@@ -7745,6 +7868,47 @@ example := fiveSlot_blockKernelColumnInclusion_injective Q Λ (fun _ _ _ => rfl)
 
 end NonVacuity.WebsterFiveSlotKernelColumn
 
+namespace NonVacuity.WebsterFiveSlotAllBottom
+
+open Categorification.KLR Categorification.Stendhal Categorification.QuantumGroup
+open BraidedStendhalAlgebra
+
+private noncomputable abbrev C := CartanDatum.ofGraph (⊥ : SimpleGraph Unit)
+private noncomputable abbrev Λ : Fin 3 → Unit →₀ ℕ := fun _ => Finsupp.single () 2
+private noncomputable abbrev Q := Categorification.KL3.Diagram.CL.qCL
+  (Categorification.KL3.Diagram.CL.CLScalars.kl : Categorification.KL3.Diagram.CL.CLScalars C ℚ)
+
+/-- The full bottom red-order component is injective at standard positive weights. -/
+example := fiveSlot_blockKernelTensorInclusion_injective_standard C Λ
+  (k := ℚ) (by constructor <;> intro i j h <;> exact (h (Subsingleton.elim i j)).elim)
+  (show KLRSymm Q from fun i j h => (h (Subsingleton.elim i j)).elim)
+
+end NonVacuity.WebsterFiveSlotAllBottom
+
+namespace NonVacuity.WebsterFiveSlotAllBottomDerived
+
+open Categorification.KLR Categorification.Stendhal Categorification.QuantumGroup
+open BraidedStendhalAlgebra CategoryTheory DG MulOpposite
+open scoped DG.DegreeZero
+
+attribute [local instance 1200] Ring.toIntAlgebra
+
+private noncomputable abbrev C := Categorification.QuantumGroup.CartanDatum.ofGraph (⊥ : SimpleGraph Unit)
+private noncomputable abbrev Λ : Fin 3 → Unit →₀ ℕ := fun _ => Finsupp.single () 2
+private noncomputable abbrev Q := Categorification.KL3.Diagram.CL.qCL
+  (Categorification.KL3.Diagram.CL.CLScalars.kl : Categorification.KL3.Diagram.CL.CLScalars C ℚ)
+local notation "ν₀" => ({()} + {()} : Multiset Unit)
+local notation "t" => fixedTopFourExitCut 2
+local notation "κ" => ([0,2,1] : List (Fin 3))
+local notation "Corner" => fun reds : List (Fin 3) =>
+  IsIdempotentElem.Corner (isIdempotentElem_violMk_redProj ℚ Q Λ ν₀ reds)
+
+example [DG.HasDerivedCategory.{0, 0} (Corner (redWord t))ᵐᵒᵖ]
+    [DG.HasDerivedCategory.{0, 0} (Corner κ)ᵐᵒᵖ] :=
+  fiveSlot_blockKernelDerivedHomology_mono_standard (k := ℚ) C Λ
+
+end NonVacuity.WebsterFiveSlotAllBottomDerived
+
 namespace NonVacuity.WebsterIntervalColumn
 
 open Categorification.KLR Categorification.Stendhal
@@ -7934,3 +8098,21 @@ example : IsSimpleModule (TensorProductAlgebra ℚ Q wt ({()} : Multiset Unit))�
 example : Function.Surjective terminalCoefficient := terminalCoefficient_surjective
 
 end NonVacuity.WebsterFundamentalCoevaluation
+namespace NonVacuity.WebsterVacuumBraidColumn
+
+open KLR KLRAlgebra Stendhal Stendhal.BraidedStendhalAlgebra
+
+private abbrev content := stendhalWeight 2 (0 : Multiset Unit)
+private def ordered : Seq content := Seq.ofList [.inr 0, .inr 1] (by decide)
+private def exchanged : Seq content := Seq.ofList [.inr 1, .inr 0] (by decide)
+private noncomputable abbrev params : Unit → Unit → MvPolynomial (Fin 2) ℚ := fun _ _ => 0
+private abbrev weights : Fin 2 → Unit →₀ ℕ := fun _ => 0
+
+example :
+    Module.finrank ℚ (violCorner ℚ params weights 0 exchanged (redWord ordered)) = 1 :=
+  finrank_vacuum_braidColumn params weights (fun _ _ _ => rfl) exchanged ordered
+
+example := finrank_vacuum_braidColumn_eq_standard params weights
+  (fun _ _ _ => rfl) exchanged ordered
+
+end NonVacuity.WebsterVacuumBraidColumn

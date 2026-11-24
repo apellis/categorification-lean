@@ -8716,7 +8716,7 @@ private noncomputable abbrev C := CartanDatum.ofGraph (⊥ : SimpleGraph Unit)
 example := firstPairOneAfter_terminal_blockKernelColumnInclusion_injective Q Λ
   (fun _ _ _ => rfl) false
 
-example := firstPairOneAfter_blockKernelTensorInclusion_injective_standard (k := ℚ) C Λ true
+example := firstPairOneAfter_blockKernelTensorInclusion_injective_standard (k₀ := ℚ) C Λ true
 
 end NonVacuity.WebsterFirstPairTerminalColumn
 

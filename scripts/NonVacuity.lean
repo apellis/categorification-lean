@@ -6473,3 +6473,61 @@ noncomputable example :=
   hasReflectedStandardFiltration_braidingBimodule [] [] rightFiltration
 
 end NonVacuity.WebsterBraidFiltration
+
+noncomputable section
+open CategoryTheory CategoryTheory.Limits DG DG.DerivedCategory
+open Categorification Categorification.ModuleFiltration
+open scoped DG.DegreeZero
+
+namespace NonVacuity.WebsterDerivedBraidFiltration
+
+local instance : HasDerivedCategory.{0, 0} ℤ := HasDerivedCategory.small ℤ
+
+private abbrev X : ModuleCat ℤ := ModuleCat.of ℤ PUnit
+
+private abbrev S : ShortComplex (ModuleCat ℤ) :=
+  ShortComplex.mk (𝟙 X) (𝟙 X) (by ext x)
+
+private theorem hS : S.ShortExact := by
+  let : Mono S.f := by change Mono (𝟙 X); infer_instance
+  let : Epi S.g := by change Epi (𝟙 X); infer_instance
+  refine ⟨(ShortComplex.ShortExact.moduleCat_exact_iff_function_exact S).mpr ?_⟩
+  intro x
+  exact ⟨fun _ => ⟨x, rfl⟩, fun _ => Subsingleton.elim _ _⟩
+
+example : IsZero ((homologyFunctor ℤ 1).obj ((derivedTensor ℤ ℤ ℤ).obj
+    (Q.obj ((degreeZeroModuleFunctor ℤ).obj S.X₃)))) := by
+  have hf : HasFiltration (fun _ : Unit => X) [] S.X₁ := .zero inferInstance
+  refine isZero_derivedTensorHomology_quotient_of_filtered_kernel (k := ℤ) (M := ℤ) S hS hf
+    ?_ ?_ ?_ (AddMonoidHom.id _) ?_ Function.injective_id 1 (by decide)
+  · simp
+  · intro n _
+    apply Functor.map_isZero
+    apply Functor.map_isZero
+    apply Q.map_isZero
+    exact (degreeZeroModuleFunctor ℤ).map_isZero (ModuleCat.isZero_iff_subsingleton.mpr inferInstance)
+  · intro c m
+    change m * c = c * m
+    exact mul_comm _ _
+  · intro m x
+    rfl
+
+end NonVacuity.WebsterDerivedBraidFiltration
+
+namespace NonVacuity.WebsterBraidTriangle
+open Categorification.Stendhal.BraidedStendhalAlgebra
+
+private abbrev params : Bool → Bool → MvPolynomial (Fin 2) ℤ := fun _ _ => 1
+private abbrev weight : Fin 2 → Bool →₀ ℕ := fun _ => 0
+private abbrev corner (order : List (Fin 2)) :=
+  (isIdempotentElem_violMk_redProj ℤ params weight (0 : Multiset Bool) order).Corner
+
+local instance (order : List (Fin 2)) : HasDerivedCategory.{0, 0} (corner order)ᵐᵒᵖ :=
+  HasDerivedCategory.small _
+
+example : (braidingFunctor.{0} ℤ params weight (0 : Multiset Bool) [0, 1] [1, 0]).IsTriangulated :=
+  inferInstance
+
+end NonVacuity.WebsterBraidTriangle
+
+end

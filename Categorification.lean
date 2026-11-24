@@ -16,6 +16,9 @@ import Categorification.Algebra.CornerTensor
 import Categorification.Algebra.CornerTensorFactor
 import Categorification.Algebra.CornerTensorQuotient
 import Categorification.Algebra.DerivedTensor
+import Categorification.Algebra.DerivedTensorFiltration
+import Categorification.Algebra.DerivedTensorHomology
+import Categorification.Algebra.DerivedTensorTriangulated
 import Categorification.Algebra.DerivedTensorComp
 import Categorification.Algebra.DerivedTensorDegreeZero
 import Categorification.Algebra.ExactDerivedTensor

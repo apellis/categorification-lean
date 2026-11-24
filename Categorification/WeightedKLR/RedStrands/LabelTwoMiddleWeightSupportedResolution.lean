@@ -222,10 +222,6 @@ local notation "idems₂" => fun t : I₂ => seqIdem (parameter k) weights t.1 t
 set_option quotPrecheck false in
 local notation "standards₂" => fun t : I₂ => ModuleCat.of A₂ (leftStandard (parameter k) weights t.1 t.2)
 
-variable [CatModule.HasDerivedCategory.{v,0} (WeightCategory
-  (TensorProductAlgebra k (parameter k) weights (({()} : Multiset Unit) + {()})))]
-  [CatModule.HasDerivedCategory.{v,0} (WeightCategory k)]
-
 private theorem middleWeightCover_idem_zero (i : I₂) : idems₂ i ∈ wgrading (M := A₂) 0 :=
   mk_e_mem_tensorProductGrade (labelTwoGradingDatum k) ν₂ i.1 i.2
 
@@ -244,6 +240,10 @@ private theorem middleWeightCover_quotient_mem_grade
     D.quotient s₂ x ∈ (middleGradedChainTerm k).grade j := by
   rw [hD]
   exact middleStandardQuotient_mem_grade k hx
+
+variable [CatModule.HasDerivedCategory.{v,0} (WeightCategory
+  (TensorProductAlgebra k (parameter k) weights (({()} : Multiset Unit) + {()})))]
+  [CatModule.HasDerivedCategory.{v,0} (WeightCategory k)]
 
 /-- Higher-loading ordered covers for the actual middle standard make the
 fixed-weight derived tensor cohomology vanish away from degree zero. -/

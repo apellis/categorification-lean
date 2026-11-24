@@ -129,6 +129,8 @@ open scoped DG.DegreeZero
 
 universe w
 
+section OrdinaryDerived
+
 variable [HasDerivedCategory.{w, 0}
   (TensorProductAlgebra k (parameter k) weights (({()} : Multiset Unit) + {()}))]
 
@@ -165,6 +167,8 @@ def actualAmbientMiddleToRelativeTorIso (h₂ : (2 : k) ≠ 0) (n : ℕ) :
 
 end GroundField
 
+end OrdinaryDerived
+
 
 section FixedWeight
 
@@ -178,10 +182,6 @@ local instance : BigradedDGRing Ambient :=
 local instance : InternalGrading k := scalarInternalGrading k
 local instance : BigradedDGRing k := scalarBigradedDGRing k
 
-variable [CatModule.HasDerivedCategory.{w,0} (WeightCategory
-  (TensorProductAlgebra k (parameter k) weights (({()} : Multiset Unit) + {()})))]
-  [CatModule.HasDerivedCategory.{w,0} (WeightCategory k)]
-
 private def rankOneMiddleCovers :=
   orderedStandardCoversTransport weights (rankOneParameterChange k).toRingEquiv
     (rankOneParameterChange_idem k) (rankOneCLFiltration k instDecidableEqPUnit)
@@ -192,6 +192,10 @@ private theorem rankOneMiddleCovers_quotient
       (Submodule.Quotient.mk x : Standard k) :=
   middleOrderedCoversTransport_quotient k (rankOneParameterChange k).toRingEquiv
     (rankOneParameterChange_idem k) (rankOneCLFiltration k instDecidableEqPUnit) x
+
+variable [CatModule.HasDerivedCategory.{w,0} (WeightCategory
+  (TensorProductAlgebra k (parameter k) weights (({()} : Multiset Unit) + {()})))]
+  [CatModule.HasDerivedCategory.{w,0} (WeightCategory k)]
 
 /-- The diagrammatic middle standard is acyclic at every weight for the
 reflected dot-sum coefficient. -/

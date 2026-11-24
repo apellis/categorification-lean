@@ -4,6 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 -/
 import Categorification.WeightedKLR.RedStrands.BraidedStandardModule
 import Categorification.KLR.PolNu
+import Categorification.Algebra.ModuleFiltration
 
 /-!
 # Dimension of a vacuum braid column
@@ -178,5 +179,55 @@ theorem finrank_vacuum_braidColumn_eq_standard (hQ : KLRSymm Q) (s t : Seq μ) :
     t (redWord t)) (vacuum_violStandardUpper_eq_bot Q Λ t)).restrictScalars k
   rw [e.finrank_eq, finrank_vacuum_braidColumn Q Λ hQ s t,
     finrank_vacuum_braidColumn Q Λ hQ t t]
+
+
+/-- A vacuum braid column is its single right loading standard. The
+nonzero column generator can be chosen by the vacuum dimension calculation. -/
+noncomputable def vacuumBraidColumnStandardEquiv (hQ : KLRSymm Q) (s t : Seq μ) :
+    violCorner k Q Λ ν₀ s (redWord t) ≃ₗ[Right (redWord t)]
+      ViolLoadingStandard (k := k) (Q := Q) (Λ := Λ) t (redWord t) := by
+  classical
+  let P := violCorner k Q Λ ν₀ t (redWord t)
+  let D := violCorner k Q Λ ν₀ s (redWord t)
+  have hp : Module.finrank k P = 1 := finrank_vacuum_braidColumn Q Λ hQ t t
+  have hd : Module.finrank k D = 1 := finrank_vacuum_braidColumn Q Λ hQ s t
+  letI : Nontrivial D := Module.nontrivial_of_finrank_pos (by rw [hd]; decide)
+  let x := (exists_ne (0 : D)).choose
+  have hx : x ≠ 0 := (exists_ne (0 : D)).choose_spec
+  have hxSupport := mem_violCorner_iff.mp x.property
+  let E := q (redProj k Q Λ ν₀ (redWord t))
+  have hE : IsIdempotentElem E := (isIdempotentElem_redProj (redWord t)).map q
+  have hEq : q (raw (e t)) = E := congrArg q (vacuum_redProj_eq Q Λ t).symm
+  let u : P := ⟨E, mem_violCorner_iff.mpr ⟨by rw [hEq]; exact hE.eq, hE.eq⟩⟩
+  let f : P →ₗ[Right (redWord t)] D := {
+    toFun := fun y => ⟨x.val * y.val, mem_violCorner_iff.mpr ⟨
+      by rw [← mul_assoc, hxSupport.1],
+      by rw [mul_assoc, (mem_violCorner_iff.mp y.property).2]⟩⟩
+    map_add' := fun y z => Subtype.ext (mul_add _ _ _)
+    map_smul' := fun a y => Subtype.ext (by
+      change x.val * (y.val * a.unop.val) = (x.val * y.val) * a.unop.val
+      exact (mul_assoc _ _ _).symm) }
+  have hfu : f u = x := Subtype.ext hxSupport.2
+  let g := f.restrictScalars k
+  have hg : g ≠ 0 := by
+    intro he
+    have hz : g u = 0 := DFunLike.congr_fun he u
+    exact hx (hfu.symm.trans hz)
+  have hs : Function.Surjective g := surjective_of_nonzero_of_finrank_eq_one hd hg
+  letI : FiniteDimensional k P := FiniteDimensional.of_finrank_pos (by rw [hp]; decide)
+  letI : FiniteDimensional k D := FiniteDimensional.of_finrank_pos (by rw [hd]; decide)
+  have hi : Function.Injective g :=
+    (LinearMap.injective_iff_surjective_of_finrank_eq_finrank (hp.trans hd.symm)).mpr hs
+  exact (LinearEquiv.ofBijective f ⟨hi, hs⟩).symm.trans
+    (Submodule.quotEquivOfEqBot _ (vacuum_violStandardUpper_eq_bot Q Λ t)).symm
+
+/-- Webster's right standard filtration for a vacuum braid column, with
+its unique loading standard as the only factor. -/
+theorem vacuumBraidColumn_hasStandardFiltration (hQ : KLRSymm Q) (s t : Seq μ) :
+    ModuleFiltration.HasFiltration
+      (fun j : Seq μ => ModuleCat.of (Right (redWord t))
+        (ViolLoadingStandard (k := k) (Q := Q) (Λ := Λ) j (redWord t)))
+      [t] (ModuleCat.of (Right (redWord t)) (violCorner k Q Λ ν₀ s (redWord t))) :=
+  ModuleFiltration.HasFiltration.single (vacuumBraidColumnStandardEquiv Q Λ hQ s t)
 
 end Categorification.Stendhal.BraidedStendhalAlgebra

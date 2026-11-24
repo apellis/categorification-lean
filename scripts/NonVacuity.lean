@@ -8976,6 +8976,9 @@ example :
 example := finrank_vacuum_braidColumn_eq_standard params weights
   (fun _ _ _ => rfl) exchanged ordered
 
+example :=
+  vacuumBraidColumn_hasStandardFiltration params weights (fun _ _ _ => rfl) exchanged ordered
+
 end NonVacuity.WebsterVacuumBraidColumn
 
 namespace NonVacuity.WebsterGradedFundamentalCup

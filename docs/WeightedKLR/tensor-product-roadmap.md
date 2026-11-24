@@ -1051,6 +1051,9 @@ For one black strand following the pair and a zero-weight spectator, the unit bi
 identify the source projective with the higher projective before the spectator. All loads
 strictly above that higher loading are violated, so its partial standard gives one layer
 of the kernel (`ThreeRedOneBlack.kernel_hasHigherFiltration`).
+When all three red weights are positive, the first-weight boundary character
+proves that this higher partial standard is nonzero. Its identification with the
+positive-spectator kernel still requires the crossing map.
 
 Still open for Lemma 6.8: when a black lies between the bottom reds, prove that changes
 between different choices of the last crossing give equal balanced classes **in the

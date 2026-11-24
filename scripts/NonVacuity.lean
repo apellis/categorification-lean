@@ -6635,3 +6635,9 @@ example :=
   Stendhal.BraidedStendhalAlgebra.ThreeRedOneBlack.kernel_hasHigherFiltration
     (k := ℚ) (fun _ _ => 0)
     (fun r => if r = 2 then 0 else Finsupp.single () 1) (by decide)
+
+/-- The higher partial standard is nonzero when the spectator is also positive. -/
+example :=
+  Stendhal.BraidedStendhalAlgebra.ThreeRedOneBlack.higherPartialStandard_nontrivial
+    (k := ℚ) (fun _ _ => 0) (fun _ => Finsupp.single () 1) (fun _ _ _ => rfl)
+    (fun _ => by simp)

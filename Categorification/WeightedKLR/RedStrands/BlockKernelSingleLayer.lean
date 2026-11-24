@@ -4,6 +4,8 @@ Released under Apache 2.0 license as described in the file LICENSE.
 -/
 import Categorification.WeightedKLR.RedStrands.BlockKernelFiltration
 import Mathlib.LinearAlgebra.Quotient.Basic
+import Categorification.WeightedKLR.RedStrands.BraidedViolatedIdentity
+import Categorification.WeightedKLR.RedStrands.BoundaryCharacters
 
 /-!
 # The higher partial standard across a zero-weight spectator
@@ -249,6 +251,43 @@ theorem kernel_hasHigherFiltration (h : Λ 2 () = 0) :
       [()] (ModuleCat.of _ (blockLoadingKernel Q Λ source 0 1)) :=
   blockLoadingKernel_hasHigherSingle Q Λ source higher 0 1 order strictlyHigher
     (loadingIdemEquiv_of_unit_bigon Q Λ source higher order 2 swap (lowBigon Q Λ h) (highBigon Q Λ h)) maximal
+
+/-- With positive red weights, the higher retained partial standard is nonzero.
+The first-weight boundary character reads its projective idempotent as one. -/
+theorem higherPartialStandard_nontrivial [Nontrivial k] (hQ : KLRSymm Q)
+    (hΛ : ∀ r, 0 < Λ r ()) :
+    Nontrivial (blockPartialStandardAt Q Λ higher 0 1 (redWord source) order) := by
+  have hw : redWord higher = List.finRange 3 := by decide
+  have hv : ¬ IsViolated higher := by rintro ⟨_, h⟩; contradiction
+  have hs := (redWord_eq_finRange_iff higher).1 hw
+  let ρ := TypeA.canWord (Multiset.card μ)
+  have hρ : TypeA.IsReducedChoice ρ :=
+    fun w => ⟨TypeA.isReduced_canWord _ w, TypeA.wordProd_canWord _ w⟩
+  let q := violCornerEquiv (ν := ν) (Λ := Λ) hρ hQ
+  let e := cornerMk (ofKLR k Q Λ ν (KLRAlgebra.e higher))
+  have he : (violCornerHom k Q Λ ν e).1 ≠ 0 := by
+    intro h
+    have hz : violCornerHom k Q Λ ν e = 0 := Subtype.ext h
+    have hc := congrArg (FirstWeight.boundaryCharacter Q Λ hΛ higher hs hv ∘ q) hz
+    change FirstWeight.boundaryCharacter Q Λ hΛ higher hs hv (q (violCornerHom k Q Λ ν e)) =
+      FirstWeight.boundaryCharacter Q Λ hΛ higher hs hv (q 0) at hc
+    rw [map_zero, map_zero, violCornerEquiv_violCornerHom hρ hQ,
+      identityCornerHom_e hw, FirstWeight.boundaryCharacter_e, ite_eq_left rfl] at hc
+    exact one_ne_zero hc
+  let d := orderedLoadingIdemAt Q Λ (redWord source) higher order
+  let η := blockPartialStandardAt_equiv_projective Q Λ higher 0 1 (redWord source) order maximal
+  have hd : d.1 ≠ 0 := by
+    rw [show d.1 = (violCornerHom k Q Λ ν e).1 by
+      symm
+      rw [violCornerHom_val, cornerMk_e_val hw]
+      rfl]
+    exact he
+  have hidem : IsIdempotentElem d := by
+    apply Subtype.ext
+    exact congrArg Subtype.val (orderedLoadingIdem_idem Q Λ higher).eq
+  have hd' : (⟨d, hidem.eq⟩ : rIdeal d) ≠ 0 := fun h =>
+    hd (congrArg (fun x : rIdeal d => x.1.1) h)
+  exact ⟨η.symm ⟨d, hidem.eq⟩, η.symm 0, fun h => hd' (η.symm.injective h)⟩
 
 end ThreeRedOneBlack
 end Categorification.Stendhal.BraidedStendhalAlgebra

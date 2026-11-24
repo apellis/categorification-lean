@@ -5562,6 +5562,12 @@ example := Categorification.Stendhal.LabelTwo.labelTwoExteriorStandardComplex_mo
 
 example := Categorification.Stendhal.LabelTwo.labelTwoExteriorStandardComplex_exact ℚ
 
+example := Categorification.Stendhal.LabelTwo.labelTwoMiddleQuotientDecomposition ℚ
+
+example := Categorification.Stendhal.LabelTwo.labelTwoLeftExteriorDecomposition ℚ
+
+example := Categorification.Stendhal.LabelTwo.labelTwoOutgoing_degree_two ℚ
+
 example := Categorification.Stendhal.labelTwoExteriorEndComplex_exact Q
 
 example := Categorification.Stendhal.labelTwoExteriorEndComplex_epi Q

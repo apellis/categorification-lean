@@ -1119,6 +1119,12 @@ map is injective at the middle loading. At the terminal loading its
 kernel equals the span of the two incoming generator images. This
 proves exactness at the middle term of the actual complex
 (`Stendhal.LabelTwo.labelTwoExteriorStandardComplex_exact`).
+The grading of the middle standard descends to its dot-sum quotient.
+The complementary exterior projective inherits the regular algebra grading,
+and the actual outgoing crossing has degree two between these graded modules
+(`Stendhal.LabelTwo.labelTwoMiddleQuotientDecomposition`,
+`Stendhal.LabelTwo.labelTwoLeftExteriorDecomposition`,
+`Stendhal.LabelTwo.labelTwoOutgoing_degree_two`).
 The complementary exterior projective then surjects onto the actual
 cokernel of the outgoing crossing
 (`Stendhal.labelTwoExteriorEndComplex_exact`,

@@ -1642,6 +1642,7 @@ import Categorification.WeightedKLR.RedStrands.BraidedRedOrder
 import Categorification.WeightedKLR.RedStrands.BraidedReflectedFiltration
 import Categorification.WeightedKLR.RedStrands.BraidedRelabel
 import Categorification.WeightedKLR.RedStrands.BraidedRelabelAppend
+import Categorification.WeightedKLR.RedStrands.BlockRightLegSweep
 import Categorification.WeightedKLR.RedStrands.AdjacentBlockTensor
 import Categorification.WeightedKLR.RedStrands.OrderedBlockAction
 import Categorification.WeightedKLR.RedStrands.OrderedBlockCrossingInjectivity
@@ -1665,6 +1666,7 @@ import Categorification.WeightedKLR.RedStrands.BlockShuffleQuotientCrossing
 import Categorification.WeightedKLR.RedStrands.BlockShuffleTriangular
 import Categorification.WeightedKLR.RedStrands.BlockShuffleColumnKernel
 import Categorification.WeightedKLR.RedStrands.BlockPairedColumnInjection
+import Categorification.WeightedKLR.RedStrands.BlockPairedColumnStandard
 import Categorification.WeightedKLR.RedStrands.BlockLoadingPresentation
 import Categorification.WeightedKLR.RedStrands.BlockKernelColumn
 import Categorification.WeightedKLR.RedStrands.BraidedStandardGrading

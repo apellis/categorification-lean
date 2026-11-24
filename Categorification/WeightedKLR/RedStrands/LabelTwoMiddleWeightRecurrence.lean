@@ -15,9 +15,6 @@ cohomology vanishes. The target retains the internal shift by two.
 
 noncomputable section
 
-set_option maxHeartbeats 1800000
-set_option maxRecDepth 2048
-
 namespace Categorification.Stendhal.LabelTwo
 
 open KLR CategoryTheory CategoryTheory.Limits CategoryTheory.Pretriangulated DG

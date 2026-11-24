@@ -94,7 +94,7 @@ theorem crossingRange_homology_vanish_of_retract {L : Type} [AddCommGroup L] [Mo
 
 
 /-- The split product sequence gives vanishing on two copies of an acyclic module. -/
-private theorem crossingProd_homology_vanish
+theorem crossingProd_homology_vanish
     (F : DerivedCategory.{w,0} B ⥤ DerivedCategory.{w,0} A)
     [F.Additive] [F.CommShift ℤ] [F.IsTriangulated] (n : ℤ)
     (h : IsZero ((crossingH F n).obj (ModuleCat.of B M))) :

@@ -1521,7 +1521,10 @@ Tensoring these fixed vectors with the degree-zero standard generator gives
 the graded ordinary middle tensor
 (`Stendhal.LabelTwo.middleFixedToOrdinaryTensorGradedEquiv`). Its ground-field
 coordinates detect the internal degree
-(`Stendhal.LabelTwo.middleStandardTensorEquiv_mem_grade_iff`).
+(`Stendhal.LabelTwo.middleStandardTensorEquiv_mem_grade_iff`). At this cut
+the ordered cover transported from the source parameters has the literal
+degree-preserving quotient augmentation
+(`Stendhal.LabelTwo.middleOrderedCoversTransport_quotient_mem_grade`).
 The dot-difference quotient carries the companion grading. Both quotient
 inclusions shift internal degree by two and give short exact sequences
 in every degree (`Stendhal.LabelTwo.diagramSumCompanionAugmentation_exact_in_degree`,

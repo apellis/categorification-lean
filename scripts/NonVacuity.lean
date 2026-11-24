@@ -10570,6 +10570,11 @@ example :=
     (mk_e_mem_tensorProductGrade (labelTwoGradingDatum ℚ)
       (({()} : Multiset Unit) + {()}) loading loading_ordered)
 
+noncomputable example :=
+  middleOrderedCoversTransport_quotient_mem_grade ℚ
+    (RingEquiv.refl (TensorProductAlgebra ℚ (parameter ℚ) weights (({()} : Multiset Unit) + {()})))
+    (fun _ _ => rfl)
+
 end NonVacuity.WebsterLabelTwoMiddleFixedComplex
 
 end

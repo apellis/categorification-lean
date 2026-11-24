@@ -3,7 +3,7 @@ Copyright (c) 2026 Alex Ellis. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 -/
 import Mathlib.Logic.Equiv.Fin.Rotate
-import Categorification.WeightedKLR.RedStrands.BraidedStandardDerived
+import Categorification.WeightedKLR.RedStrands.BraidedStandardGrading
 import Categorification.WeightedKLR.RedStrands.BraidedRelabel
 import Categorification.WeightedKLR.RedStrands.BlackCountTransport
 import Categorification.WeightedKLR.RedStrands.ParabolicStandardTensorProj
@@ -356,11 +356,15 @@ private def emptyBlack : Seq (0 : Multiset I) := KLRAlgebra.Seq.ofList [] (by si
 local notation "vacuum" => SingleRed.insertWord 0 (emptyBlack (I := I))
 local notation "m₂" => Multiset.card (stendhalWeight 2 ν)
 
-private def figureFiveLower (u : Seq ν) : Seq (stendhalWeight 2 ν) :=
+/-- Webster, arXiv:1309.3796v2, Figure 5: the lower loading, with all black strands between
+the two reds in the order `[0, 1]`. -/
+def figureFiveLower (u : Seq ν) : Seq (stendhalWeight 2 ν) :=
   Seq.redPerm 1 (Seq.cast (congrArg (stendhalWeight 2) (add_zero ν))
     (twoPieceLoading ν 0 (SingleRed.insertWord ν u) emptyBlack))
 
-private def figureFiveUpper (u : Seq ν) : Seq (stendhalWeight 2 ν) :=
+/-- Webster, arXiv:1309.3796v2, Figure 5: the upper loading, with red order `[1, 0]` and all
+black strands to its right. -/
+def figureFiveUpper (u : Seq ν) : Seq (stendhalWeight 2 ν) :=
   Seq.redPerm swapRed (Seq.cast (congrArg (stendhalWeight 2) (zero_add ν))
     (twoPieceLoading 0 ν vacuum u))
 
@@ -455,6 +459,45 @@ private theorem figureFive_edge (u : Seq ν) :
       exact coe_finRotate_of_ne_last (fun h => hi (congrArg Fin.val h))
     rw [inv_inv]
     exact hshift figureFive_pos j hj
+
+open QuantumGroup in
+/-- Webster, arXiv:1309.3796v2, §6.1 Proposition 6.9, Figure 5, for an arbitrary black word.
+The same diagram used by the ungraded loading comparison is homogeneous in the braid cut,
+with the internal degree opposite to Webster's printed shift. -/
+theorem figureFive_mem_cutGrade_word {k : Type*} [CommRing k] [DecidableEq I] [Fintype I]
+    {Q : I → I → MvPolynomial (Fin 2) k} {Λ : Fin 2 → I →₀ ℕ}
+    (C : CartanDatum I) (hQ : IsRouquierQ C Q) {H : Type*} [AddCommGroup H] [Module ℂ H]
+    (P : Matrix.Realization (UDot.A C) ℂ H) (B : LinearMap.BilinForm ℂ (Module.Dual ℂ H))
+    (η : Fin 2 → Module.Dual ℂ H)
+    (hB : ∀ i x, B (P.root i) x = (UDot.di C i : ℂ) * x (P.coroot i))
+    (hΛ : ∀ j i, η j (P.coroot i) = (Λ j i : ℂ)) (hSym : B.IsSymm)
+    {ρ : Perm (Fin m₂) → List ℕ} (hρ : TypeA.IsReducedChoice ρ) (u : Seq ν) :
+    ∃ y : violCorner k Q Λ ν (figureFiveLower u) [1, 0],
+      y.1 = violMk k Q Λ ν (ofKLR k Q Λ ν
+        (KLRAlgebra.ψw (ρ (finRotate m₂)⁻¹) * KLRAlgebra.e (figureFiveUpper u))) ∧
+      y ∈ figureFiveCutGrade C hQ B η (figureFiveLower u) 1 0
+        (-B (η 0 - (ν.map P.root).sum) (η 1)) :=
+  figureFive_mem_cutGrade C hQ B η P hB hΛ hSym hρ figureFive_one_lt
+    (figureFive_upper_zero u) (figureFive_upper_one u) (figureFive_edge u)
+
+open QuantumGroup Categorification.Graded in
+/-- Webster, arXiv:1309.3796v2, §6.1 Proposition 6.9, Figure 5, on the two loading models.
+For every black word, the shifted upper loading standard is graded-isomorphic to the cut
+of the braid at the lower loading, by left multiplication by the Figure 5 diagram. -/
+def figureFiveGradedLoadingEquiv_word {k : Type*} [CommRing k] [DecidableEq I] [Fintype I]
+    {Q : I → I → MvPolynomial (Fin 2) k} {Λ : Fin 2 → I →₀ ℕ}
+    (C : CartanDatum I) (hQ : IsRouquierQ C Q) {H : Type*} [AddCommGroup H] [Module ℂ H]
+    (P : Matrix.Realization (UDot.A C) ℂ H) (B : LinearMap.BilinForm ℂ (Module.Dual ℂ H))
+    (η : Fin 2 → Module.Dual ℂ H)
+    (hB : ∀ i x, B (P.root i) x = (UDot.di C i : ℂ) * x (P.coroot i))
+    (hΛ : ∀ j i, η j (P.coroot i) = (Λ j i : ℂ)) (hSym : B.IsSymm)
+    {ρ : Perm (Fin m₂) → List ℕ} (hρ : TypeA.IsReducedChoice ρ) (u : Seq ν) :
+    Categorification.Graded.shift (violLoadingGrade (Λ := Λ) C hQ (figureFiveUpper u) [1, 0])
+        (-B (η 0 - (ν.map P.root).sum) (η 1))
+      ≃ᵍ[(ViolOrderCorner (k := k) (Q := Q) (Λ := Λ) (ν := ν) [1, 0])ᵐᵒᵖ]
+      figureFiveCutGrade (Λ := Λ) C hQ B η (figureFiveLower u) 1 0 :=
+  figureFiveGradedLoadingEquiv C hQ hρ (fun i j hij => (hQ.symm i j hij).symm) figureFive_one_lt
+    (figureFive_upper_zero u) (figureFive_upper_one u) (figureFive_edge u) P B η hB hΛ hSym
 
 end FigureFiveGeometry
 

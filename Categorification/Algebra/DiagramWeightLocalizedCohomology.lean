@@ -265,7 +265,7 @@ private theorem tensorMap_eq_on_zero_cycle_of_Q_eq
   have hU : CatModule.DerivedCategory.Q.map (U.map f) = CatModule.DerivedCategory.Q.map (U.map g) :=
     congrArg (fun m => Qh.map (T.map m)) hJ
   have hV := weightEvalCohomologyMap_congr X 0 (U.map f) (U.map g) hU
-  let e := tensorH0Equiv G hl hr (𝟙 E) (CatModule.IsQuasiIso.of_isIso _) 
+  let e := tensorH0Equiv G hl hr (𝟙 E) (CatModule.IsQuasiIso.of_isIso _)
     (fun Y {_} _ => (hE Y).d_zero _) hE X
   have he := congrArg (fun m => e (m (cohomology.mk _ 0 z))) hV
   change e (cohomology.mapAddMonoidHom ((U.map f).app X) (U.map f).map_mem (U.map f).map_d 0

@@ -8025,3 +8025,19 @@ example :
 end NonVacuity.WebsterRightTensor
 
 end
+
+namespace NonVacuity.WebsterCupCap
+
+open CategoryTheory DG MulOpposite Categorification.Stendhal.Coevaluation
+open scoped DG.DegreeZero TensorProduct
+
+local instance : DG.HasDerivedCategory.{0,0} ℚ := DG.HasDerivedCategory.small ℚ
+local instance : DG.HasDerivedCategory.{0,0} ℚᵐᵒᵖ := DG.HasDerivedCategory.small ℚᵐᵒᵖ
+
+example := shiftedCupFunctor ℚ ℚ (Fin 2 → ℚ) (-2)
+example := capFunctor ℚ ℚ (Fin 2 → ℚ)
+
+example (f : CupCoefficient ℚ (Fin 2 → ℚ)) (x : Fin 2 → ℚ) :=
+  cupTensorHomEquiv_op_tmul ℚ ℚ (Fin 2 → ℚ) (2 : ℚ) f (3 : ℚ) x
+
+end NonVacuity.WebsterCupCap

@@ -8615,6 +8615,10 @@ example (a b : fixSub ℚ (Standard ℚ) (seqIdem (parameter ℚ) weights loadin
       (fixedAugmentation ℚ a, fixedAugmentation ℚ b) :=
   terminalCutDotSumEquiv_apply ℚ (a,b)
 
+example := incomingDiagram_coordinates ℚ
+
+example := incomingDiagram_translate_coordinates ℚ
+
 end NonVacuity.WebsterLabelTwoMiddleFixedComplex
 
 end

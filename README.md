@@ -1093,7 +1093,10 @@ standard are exact and resolve the dot-sum quotient
 `Stendhal.LabelTwo.diagramPlusMinus_exact`,
 `Stendhal.LabelTwo.diagramMiddleAugmentation_exact`). The terminal augmentation
 specializes each shuffle coordinate to a dual number
-(`Stendhal.LabelTwo.terminalCutDotSumEquiv_apply`).
+(`Stendhal.LabelTwo.terminalCutDotSumEquiv_apply`). The incoming exterior diagram and
+its black-crossing translate have coefficients `(1, −ε)` and `(0, 1)`
+in these coordinates (`Stendhal.LabelTwo.incomingDiagram_coordinates`,
+`Stendhal.LabelTwo.incomingDiagram_translate_coordinates`).
 
 ### Weak `sl₂`-categorifications (Chuang–Rouquier, arXiv:math/0407205v2, §5)
 

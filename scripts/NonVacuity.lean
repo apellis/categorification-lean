@@ -9037,6 +9037,10 @@ example := firstPairOneAfter_blockKernelTensorInclusion_injective_standard (k₀
 
 example := firstPairRightmost_terminal_double_cancel Q Λ (fun _ _ _ => rfl)
 
+example := firstPairRightmost_terminal_blockKernelColumnInclusion_injective Q Λ (fun _ _ _ => rfl)
+example := firstPair_blockKernelTensorInclusion_injective_standard_allTops (k₀ := ℚ) C Λ
+  firstPairTwoAfterSpectator (by decide)
+
 end NonVacuity.WebsterFirstPairTerminalColumn
 
 namespace NonVacuity.WebsterFiveSlotAllBottomDerived
@@ -11277,6 +11281,7 @@ example := labelTwo_incomingLift_return (parameter ℚ)
 example := incomingLift_middle_fixed_iff ℚ
 
 example := incomingLiftTensorReadout_dotSum_generator ℚ
+example := incomingLiftTensorEquiv ℚ
 
 example := incomingLiftTensorMap_nonzero ℚ
 

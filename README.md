@@ -1091,8 +1091,16 @@ projection keeps pure tensors of the endpoint degree
 component of the ordinary balanced tensor (`diagramWeightTensorOrdinary_range_eq_grade`).
 The integer and ground-ring balanced tensor gradings agree under the
 additive comparison (`Graded.balancedTensorIntScalarAddEquiv_map_grade`).
+The weight coend therefore identifies with the total-degree component
+over the ground ring (`diagramWeightTensorGroundGradeEquiv`).
 A nonpositive resolution has the same degree-zero tensor cohomology
-as the ordinary weight tensor (`catTensorCohomologyZeroEquivOfQuasiIso`). For a rectangular corner between two degree-zero
+as the ordinary weight tensor (`catTensorCohomologyZeroEquivOfQuasiIso`).
+For a K-projective resolution, this identifies the cohomology of the
+derived tensor at weight and degree zero
+(`diagramWeightDerivedTensorH0IsoOfResolution`).
+Evaluation at a weight and the K-projective model comparison are natural
+in dg module maps (`localizedWeightCohomologyIso_naturality`,
+`diagramWeightDerivedTensorObjIso_naturality`). For a rectangular corner between two degree-zero
 idempotents, `diagramCornerWeightDerivedRightTensor` uses the restricted grading
 and defines derived right tensor on the graded right-module categories.
 For the actual braid bimodule this gives `auxiliaryGradedBraidingFunctor`
@@ -1196,7 +1204,18 @@ The graded diagonal-ring equivalence identifies the shifted loading projectives
 in this resolution with the native projectives at the same weights in the
 source of the braid (`fundamentalBraidSourceLoadingIso`). Its augmented
 mixed-crossing sequence is exact at every source weight
-(`fundamentalBraidSourceGradedResolution`).
+(`fundamentalBraidSourceGradedResolution`). Tensoring these projectives with
+the graded braid gives the crossed loading cut in auxiliary degree
+`n-j` at target weight `n` for a generator of weight `j`
+(`fundamentalBraidGradedCutIso`). On these coends both differentials multiply
+by the mixed crossing (`fundamentalBraidGradedCutIso_d₂`,
+`fundamentalBraidGradedCutIso_d₁`).
+The resulting tensor complex has middle homology ℚ at auxiliary weight zero
+(`fundamentalBraidGradedTensorHomologyIso`) and is exact at other weights
+(`fundamentalBraidGradedTensorComplex_exact`). Its two ends are exact in every weight.
+The iterated cone of the source loading projectives resolves the graded middle
+head. Tensoring that cone represents the derived braid on this head
+(`fundamentalBraidGradedDerivedModelIso`).
 The diagonal-ring equivalence
 carries the two mixed crossings to the differentials of the projective
 resolution of the middle head (`fundamentalBraidSourceResolution`). Its
@@ -1330,6 +1349,18 @@ proves simplicity
 (`Stendhal.labelTwoExteriorAugmentation_loading_project`,
 `Stendhal.labelTwoExteriorCokernel_span`,
 `Stendhal.labelTwoExteriorCokernel_simple`).
+The simple augmentation inherits the quotient grading from the exterior
+projective. It preserves degree under their common shift by `−1` and
+completes the exact sequence of graded diagrammatic terms
+(`Stendhal.LabelTwo.labelTwoExteriorCokernelDecomposition`,
+`Stendhal.LabelTwo.labelTwoNormalizedAugmentation_exact`,
+`Stendhal.LabelTwo.labelTwoShiftedAugmentation_preservesGrading`).
+The reflected complementary exterior projector selects the nonzero
+first-dot line, in diagram degree two. The actual exterior projective
+has ambient derived tensor homology only in degree zero for every right
+coefficient (`Stendhal.labelTwoExteriorReflectedLineEquiv`,
+`Stendhal.labelTwoExteriorReflectedLineGenerator_degree_two`,
+`Stendhal.LabelTwo.labelTwoLeftExterior_derivedTensorHomology_isZero`).
 
 
 
@@ -1445,6 +1476,20 @@ For any loading, quotienting the diagram algebra by the corresponding
 higher-loading ideal makes the loading standard projective. Its generator
 maps to the loading idempotent and splits off from the regular module
 (`Stendhal.leftStandardLayer_projective`).
+A projective resolution of the actual middle standard whose positive
+terms are supported on higher loadings gives ambient derived-tensor
+vanishing outside degree zero for the reflected coefficient
+(`Stendhal.LabelTwo.middleStandard_derivedTensorHomology_isZero_of_higher_support`).
+The standard rank-one parameter comparison supplies this supported
+resolution for the actual middle cut
+(`Stendhal.LabelTwo.exists_middleStandard_supportedResolution`).
+The ordinary tensor of this actual coefficient with the middle standard
+is the dual-number vector space at the middle cut
+(`Stendhal.LabelTwo.middleStandardTensorEquiv`).
+In these coordinates, the actual sum map vanishes and the actual
+difference map is multiplication by `2ε`
+(`Stendhal.LabelTwo.middleStandardTensorEquiv_plus`,
+`Stendhal.LabelTwo.middleStandardTensorEquiv_minus`).
 
 **Terminal-character resolution benchmark for Webster, arXiv:1309.3796v2,
 §8.1.** In the fundamental rank-one block over `ℚ`, the terminal simple

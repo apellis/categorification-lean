@@ -449,10 +449,11 @@ theorem fiveSlotMiddleRight_kernel_twoLayer_of_lastWeight_zero (hQ : KLRSymm Q)
     blockPartialStandardAt Q Λ nearby 1 2 κ nearby_order
   let Z := ModuleCat.of Tᵐᵒᵖ (K ⧸ J₁)
   obtain ⟨equiv⟩ := fiveSlotMiddleRight_residual_equiv_of_lastWeight_zero Q Λ hQ weight
-  have hexact : Function.Exact f₁ J₁.mkQ := fun y =>
-    Submodule.Quotient.mk_eq_zero J₁
-  exact ModuleFiltration.HasFiltration.cons (L := L) (Z := Z) f₁ J₁.mkQ [true] false
-    injective hexact J₁.mkQ_surjective
+  have hexact : Function.Exact f₁ (J₁).mkQ := by
+    intro y
+    exact Submodule.Quotient.mk_eq_zero J₁
+  exact ModuleFiltration.HasFiltration.cons (L := L) (Z := Z) f₁ (J₁).mkQ [true] false
+    injective hexact (J₁).mkQ_surjective
     (ModuleFiltration.HasFiltration.single (LinearEquiv.refl _ _)) ⟨equiv.symm⟩
 
 universe w
@@ -475,16 +476,16 @@ set_option backward.isDefEq.respectTransparency false in
 partial standard is concentrated and the ordinary balanced test is known. -/
 theorem fiveSlotMiddleRight_partialStandard_braid_homology_vanish_of_layers
     (hQ : KLRSymm Q) (weight : Λ 2 () = 0) (injective : Function.Injective f₁)
-    (hnearby : ∀ n : ℤ, n ≠ 0 → IsZero ((homologyFunctor (A := Uᵐᵒᵖ) ℤ n).obj
+    (hnearby : ∀ j : ℤ, j ≠ 0 → IsZero ((homologyFunctor (A := Uᵐᵒᵖ) ℤ j).obj
       ((Braid).obj (DG.DerivedCategory.Q.obj ((degreeZeroModuleFunctor Tᵐᵒᵖ).obj
         (blockPartialStandardAt Q Λ nearby 1 2 κ nearby_order))))))
     (hbal : Function.Injective (blockKernelTensorInclusion Q Λ rightMiddle 1 2 target))
-    (n : ℤ) (hn : n ≠ 0) :
-    IsZero ((homologyFunctor (A := Uᵐᵒᵖ) ℤ n).obj ((Braid).obj
+    (j : ℤ) (hn : j ≠ 0) :
+    IsZero ((homologyFunctor (A := Uᵐᵒᵖ) ℤ j).obj ((Braid).obj
       (DG.DerivedCategory.Q.obj ((degreeZeroModuleFunctor Tᵐᵒᵖ).obj
         (blockLoadingShortComplex Q Λ rightMiddle 1 2).X₃)))) := by
   apply blockPartialStandard_braid_homology_vanish Q Λ rightMiddle 1 2 target
-    (fiveSlotMiddleRight_kernel_twoLayer_of_lastWeight_zero Q Λ hQ weight injective) _ hbal n hn
+    (fiveSlotMiddleRight_kernel_twoLayer_of_lastWeight_zero Q Λ hQ weight injective) _ hbal j hn
   intro b _ i hi
   cases b
   · exact hnearby i hi
@@ -511,8 +512,8 @@ set_option backward.isDefEq.respectTransparency false in
 homology at standard parameters when the final red weight is zero. -/
 theorem fiveSlotMiddleRight_partialStandard_braid_homology_vanish_zero_final_standard
     [HasDerivedCategory.{w, 0} Sourceᵐᵒᵖ] [HasDerivedCategory.{w, 0} Targetᵐᵒᵖ]
-    (weight : weights 2 () = 0) (n : ℤ) (hn : n ≠ 0) :
-    IsZero ((homologyFunctor (A := Targetᵐᵒᵖ) ℤ n).obj
+    (weight : weights 2 () = 0) (j : ℤ) (hn : j ≠ 0) :
+    IsZero ((homologyFunctor (A := Targetᵐᵒᵖ) ℤ j).obj
       ((braidingFunctor k₀ Qstd weights ν₀ κ exchanged).obj
         (DG.DerivedCategory.Q.obj ((degreeZeroModuleFunctor Sourceᵐᵒᵖ).obj
           (blockLoadingShortComplex Qstd weights rightMiddle 1 2).X₃)))) := by
@@ -525,7 +526,7 @@ theorem fiveSlotMiddleRight_partialStandard_braid_homology_vanish_zero_final_sta
     rw [fiveSlotMiddleRight_centralMap_eq_crossing]
     exact fiveSlotMiddleRight_higherCrossingMap_injective_standard hr hq weights
   apply fiveSlotMiddleRight_partialStandard_braid_homology_vanish_of_layers Qstd weights
-    exchanged hq weight hinj _ _ n hn
+    exchanged hq weight hinj _ _ j hn
   · intro i hi
     exact fiveSlotNextRetainedPartialStandard_braid_homology_vanish_exchanged
       (C₀ := datum) (F₀ := k₀) weights i hi

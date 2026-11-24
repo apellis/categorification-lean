@@ -6938,4 +6938,15 @@ example :
   rw [map_sub, map_sub, hz, sub_eq_zero] at he
   exact he
 
+private noncomputable abbrev exponentsThree : Fin 3 → Unit →₀ ℕ := fun _ => Finsupp.single () 3
+private noncomputable abbrev rawThree := ofKLR ℚ params exponentsThree black
+private noncomputable abbrev qThree := violMk ℚ params exponentsThree black
+
+example :
+    qThree (rawThree (ψw [3, 2, 1, 0, 4, 2, 3, 2, 4, 1, 2, 3] * e loading)) =
+      qThree (rawThree (ψw [3, 2, 1, 0, 4, 3, 2, 3, 4, 1, 2, 3] * e loading)) :=
+  threeBlockReversal_words_eq params exponentsThree (by decide) loading () 1
+    (by decide) (by decide) (by decide) (by decide) (by decide) (by decide)
+    ⟨by decide, by decide⟩
+
 end NonVacuity.WebsterThreeBlockCorrection

@@ -56,7 +56,7 @@ end Categorification.KLR.KLRAlgebra
 
 namespace Categorification.Stendhal
 
-open KLR KLRAlgebra MvPolynomial TypeA
+open KLR KLRAlgebra MvPolynomial TypeA NilHecke
 
 variable {I k : Type*} [DecidableEq I] [CommRing k] {ℓ : ℕ} {ν : Multiset I}
   (Q : I → I → MvPolynomial (Fin 2) k) (Λ : Fin ℓ → I →₀ ℕ)
@@ -64,6 +64,28 @@ variable {I k : Type*} [DecidableEq I] [CommRing k] {ℓ : ℕ} {ν : Multiset I
 local notation "μ" => stendhalWeight ℓ ν
 local notation "m" => Multiset.card μ
 local notation "A" => KLRAlgebra k (stendhalQ Q Λ) μ
+
+private noncomputable def braidCoefficient (j : ℕ) (h : j + 2 < m) (n : ℕ) :
+    MvPolynomial (Fin m) k :=
+  rename (![⟨j, by omega⟩, ⟨j + 1, by omega⟩, ⟨j + 2, h⟩] : Fin 3 → Fin m)
+    (qbar (X 0 ^ n))
+
+private theorem affine_braid_black_red_black (j : ℕ) (h : j + 2 < m) (s : Seq μ)
+    (i : I) (r : Fin ℓ)
+    (hi : s.lbl ⟨j, by omega⟩ = .inl i)
+    (hr : s.lbl ⟨j + 1, by omega⟩ = .inr r)
+    (hi' : s.lbl ⟨j + 2, h⟩ = .inl i) :
+    ((ψ j * ψ (j + 1) * ψ j - ψ (j + 1) * ψ j * ψ (j + 1)) * e s : A) =
+      pol (braidCoefficient j h (Λ r i)) * e s := by
+  have key := KLRAlgebra.braid (Q := stendhalQ Q Λ) j h s
+  have hx : (![x ⟨j, by omega⟩, x ⟨j + 1, by omega⟩, x ⟨j + 2, h⟩] : Fin 3 → A) =
+      fun a => x (![⟨j, by omega⟩, ⟨j + 1, by omega⟩, ⟨j + 2, h⟩] a) := by
+    funext a
+    fin_cases a <;> rfl
+  rw [hi, hr, hi'] at key
+  simp only [ne_eq, reduceCtorEq, not_false_eq_true, and_self, ↓reduceIte] at key
+  rw [stendhalQ_inl_inr, hx, KLRAlgebra.ncEval_eq_pol] at key
+  exact key
 
 /-- When the red exponent is two, the black–red–black braid coefficient
 is the sum of the two outer dots in the affine algebra. -/
@@ -74,16 +96,9 @@ theorem affine_braid_black_red_black_two (j : ℕ) (h : j + 2 < m) (s : Seq μ)
     (hi' : s.lbl ⟨j + 2, h⟩ = .inl i) :
     ((ψ j * ψ (j + 1) * ψ j - ψ (j + 1) * ψ j * ψ (j + 1)) * e s : A) =
       (x ⟨j, by omega⟩ + x ⟨j + 2, h⟩) * e s := by
-  have key := KLRAlgebra.braid (Q := stendhalQ Q Λ) j h s
-  have hx : (![x ⟨j, by omega⟩, x ⟨j + 1, by omega⟩, x ⟨j + 2, h⟩] : Fin 3 → A) =
-      fun a => x (![⟨j, by omega⟩, ⟨j + 1, by omega⟩, ⟨j + 2, h⟩] a) := by
-    funext a
-    fin_cases a <;> rfl
-  rw [hi, hr, hi'] at key
-  simp only [ne_eq, reduceCtorEq, not_false_eq_true, and_self, ↓reduceIte] at key
-  rw [stendhalQ_inl_inr, hΛ, StendhalAlgebraAllOrders.qbar_X_zero_pow, hx,
-    KLRAlgebra.ncEval_eq_pol] at key
-  simpa [Finset.sum_range_succ, add_comm, KLRAlgebra.pol_X] using key
+  have key := affine_braid_black_red_black Q Λ j h s i r hi hr hi'
+  simpa [hΛ, braidCoefficient, StendhalAlgebraAllOrders.qbar_X_zero_pow, Finset.sum_range_succ,
+    add_comm, KLRAlgebra.pol_X] using key
 
 /-- The braid correction at positions two through four contracts the two
 equal-black crossings at positions four and five to one crossing. This is the
@@ -167,6 +182,105 @@ theorem threeBlockResidual_eq_zero (s : Seq μ) (h : 5 < m)
     simpa [b, ψw_cons, ψw_nil, mul_assoc] using hh
   rw [hcomm, he]
   exact cut_vanishes Q Λ [3, 2, 0] [1, 0, 4, 2, 3] s hv
+
+/-- Inserting an arbitrary polynomial before the residual crossing at
+position four does not prevent the violated cut. The red–black crossing at
+position one permutes the dots exactly. -/
+theorem threeBlockDottedResidual_eq_zero (s : Seq μ) (h : 5 < m)
+    (p : MvPolynomial (Fin m) k)
+    (hne : (wordProd m [4, 2, 3] • s).lbl ⟨0, by omega⟩ ≠
+      (wordProd m [4, 2, 3] • s).lbl ⟨2, by omega⟩)
+    (hslide : (wordProd m [4, 2, 3] • s).lbl ⟨1, by omega⟩ ≠
+      (wordProd m [4, 2, 3] • s).lbl ⟨2, by omega⟩)
+    (hv : IsViolated (wordProd m [1, 0, 4, 2, 3] • s)) :
+    q (raw (ψw [3, 2, 1, 0] * pol p * ψw [4, 1, 2, 3] * e s)) = 0 := by
+  let t := wordProd m [4, 2, 3] • s
+  let b : A := ψw [4, 2, 3] * e s
+  let a : A := ψw [3, 2]
+  let g := swapPol 1 (by omega : 1 + 1 < m) p
+  have hg : swapPol 1 (by omega : 1 + 1 < m) g = p := by
+    simp only [g, swapPol, rename_rename]
+    rw [show (⇑(Equiv.swap (⟨1, by omega⟩ : Fin m) ⟨2, by omega⟩) ∘ ⇑(Equiv.swap
+      (⟨1, by omega⟩ : Fin m) ⟨2, by omega⟩)) = id from
+      funext fun x => Equiv.swap_apply_self _ _ x, rename_id_apply]
+  have hs : e t * b = b := by
+    dsimp only [b, t]
+    rw [← mul_assoc, e_mul_ψw, inv_smul_smul, mul_assoc, e_mul_self]
+  have hg' := ψ_mul_pol_mul_e (Q := stendhalQ Q Λ) 1 (by omega) t g
+  rw [hg, ite_eq_right hslide, add_zero] at hg'
+  have hslide' : (pol p * (ψ 1 * b) : A) = ψ 1 * (pol g * b) := by
+    have he := congrArg (fun z : A => z * b) hg'.symm
+    simpa only [mul_assoc, hs] using he
+  have hsb : e t * (pol g * b) = pol g * b := by
+    rw [← mul_assoc, (e_commute_pol _ g).eq, mul_assoc, hs]
+  have hb := KLRAlgebra.braid (Q := stendhalQ Q Λ) 0 (by omega) t
+  rw [ite_eq_right (fun h => hne h.1), sub_mul, sub_eq_zero] at hb
+  have he := congrArg (fun z : A => a * (z * (pol g * b))) hb.symm
+  simp only [mul_assoc, hsb] at he
+  have far : Commute (ψ 1 : A) (ψ 4) := ψ_mul_ψ 1 4 (by decide)
+  have hp : (ψw [3, 2, 1, 0] * pol p * ψw [4, 1, 2, 3] * e s : A) =
+      a * (ψ 1 * (ψ 0 * (pol p * (ψ 1 * b)))) := by
+    simp only [a, b, ψw_cons, ψw_nil, mul_one, mul_assoc]
+    rw [far.symm.left_comm]
+  rw [hp, hslide', he]
+  let u := wordProd m [1, 0, 4, 2, 3] • s
+  have hz : q (raw (e u)) = 0 :=
+    (violMk_eq_zero_iff _).2 (TwoSidedIdeal.subset_span ⟨_, hv, rfl⟩)
+  have hu : u = wordProd m [1, 0] • t := by
+    change wordProd m ([1, 0] ++ [4, 2, 3]) • s = _
+    rw [wordProd_append, mul_smul]
+  have ht : (e u * ψw [1, 0] : A) = ψw [1, 0] * e t := by
+    rw [e_mul_ψw, hu, inv_smul_smul]
+  have hs' : e u * (ψ 1 * (ψ 0 * (pol g * b))) = (ψ 1 * (ψ 0 * (pol g * b)) : A) := by
+    have ht' := congrArg (fun z : A => z * (pol g * b)) ht
+    simpa only [ψw_cons, ψw_nil, mul_one, mul_assoc, hsb] using ht'
+  rw [← hs']
+  simp only [map_mul, hz, zero_mul, mul_zero]
+
+
+/-- The three-block braid correction vanishes in the violated quotient
+for every red exponent. Its coefficient contracts by divided difference,
+then slides through the red–black crossing on the route to a violated cut. -/
+theorem threeBlockReversal_words_eq (h : 5 < m) (s : Seq μ) (i : I) (r : Fin ℓ)
+    (h₂ : (wordProd m [1, 2, 3] • s).lbl ⟨2, by omega⟩ = .inl i)
+    (h₃ : (wordProd m [1, 2, 3] • s).lbl ⟨3, by omega⟩ = .inr r)
+    (h₄ : (wordProd m [1, 2, 3] • s).lbl ⟨4, by omega⟩ = .inl i)
+    (h₅ : (wordProd m [1, 2, 3] • s).lbl ⟨5, h⟩ = .inl i)
+    (hne : (wordProd m [4, 2, 3] • s).lbl ⟨0, by omega⟩ ≠
+      (wordProd m [4, 2, 3] • s).lbl ⟨2, by omega⟩)
+    (hslide : (wordProd m [4, 2, 3] • s).lbl ⟨1, by omega⟩ ≠
+      (wordProd m [4, 2, 3] • s).lbl ⟨2, by omega⟩)
+    (hv : IsViolated (wordProd m [1, 0, 4, 2, 3] • s)) :
+    q (raw (ψw [3, 2, 1, 0, 4, 2, 3, 2, 4, 1, 2, 3] * e s)) =
+      q (raw (ψw [3, 2, 1, 0, 4, 3, 2, 3, 4, 1, 2, 3] * e s)) := by
+  let t := wordProd m [1, 2, 3] • s
+  let a : A := ψw [3, 2, 1, 0]
+  let b : A := ψw [1, 2, 3] * e s
+  let f : MvPolynomial (Fin m) k := braidCoefficient 2 (by omega) (Λ r i)
+  let B : A := ψ 2 * ψ 3 * ψ 2 - ψ 3 * ψ 2 * ψ 3
+  have hsupport : e t * b = b := by
+    dsimp only [b, t]
+    rw [← mul_assoc, e_mul_ψw, inv_smul_smul, mul_assoc, e_mul_self]
+  have he : (ψ 4 * e t : A) = e t * ψ 4 := ψ_mul_e_comm 4 h (h₄.trans h₅.symm)
+  have hb : B * e t = pol f * e t :=
+    affine_braid_black_red_black Q Λ 2 (by omega) t i r h₂ h₃ h₄
+  have hlocal : ψ 4 * (B * (ψ 4 * e t)) = pol (dd k m 4 f) * (ψ 4 * e t) := by
+    calc
+      _ = ψ 4 * ((B * e t) * ψ 4) := by rw [he, mul_assoc B]
+      _ = ψ 4 * (pol f * (ψ 4 * e t)) := by rw [hb, he, mul_assoc]
+      _ = _ := by
+        simpa only [mul_assoc] using ψ_pol_ψ_mul_e_same (Q := stendhalQ Q Λ)
+          4 h (h₄.trans h₅.symm) f
+  have hframe := congrArg (fun x : A => a * (x * b)) hlocal
+  simp only [mul_assoc, hsupport] at hframe
+  have hc : (ψw [3, 2, 1, 0, 4, 2, 3, 2, 4, 1, 2, 3] * e s : A) -
+      ψw [3, 2, 1, 0, 4, 3, 2, 3, 4, 1, 2, 3] * e s =
+      ψw [3, 2, 1, 0] * pol (dd k m 4 f) * (ψw [4, 1, 2, 3] * e s) := by
+    simpa [a, b, B, ψw_cons, ψw_nil, mul_sub, sub_mul, mul_assoc] using hframe
+  have hz := threeBlockDottedResidual_eq_zero Q Λ s h (dd k m 4 f) hne hslide hv
+  have hq := congrArg (fun x => q (raw x)) hc
+  rw [map_sub, map_sub, ← mul_assoc, hz, sub_eq_zero] at hq
+  exact hq
 
 end BraidedStendhalAlgebra
 

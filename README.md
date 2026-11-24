@@ -1079,6 +1079,15 @@ independent coordinates. This identifies the actual endomorphism algebra
 with the square-zero polynomial quotient
 (`Stendhal.LabelTwo.middleEndomorphismEquiv`).
 
+**Webster, arXiv:1309.3796v2, §8.2, middle complex.** The alternating
+dot maps give a complex of the diagrammatic middle standard, with a
+right-module version by reflection and augmentation onto the dot-sum
+quotient. At the middle loading both alternating pairs are exact and
+the augmentation target is the dual-number specialization
+(`Stendhal.LabelTwo.rightMiddleComplex`,
+`Stendhal.LabelTwo.middleCutDotSumEquiv`). Exactness away from that
+loading remains open.
+
 ### Weak `sl₂`-categorifications (Chuang–Rouquier, arXiv:math/0407205v2, §5)
 
 Input for Webster's §5 (arXiv:1309.3796v2, Props. 5.11–5.18). A weak `sl₂`-categorification

@@ -1389,6 +1389,7 @@ import Categorification.WeightedKLR.RedStrands.LeftStandardEnd
 import Categorification.WeightedKLR.RedStrands.LabelTwoMiddleDots
 import Categorification.WeightedKLR.RedStrands.LabelTwoMiddleDetection
 import Categorification.WeightedKLR.RedStrands.LabelTwoMiddleEndomorphism
+import Categorification.WeightedKLR.RedStrands.LabelTwoMiddleFixedComplex
 import Categorification.WeightedKLR.RedStrands.OppositeStandardTor
 import Categorification.WeightedKLR.RedStrands.OrderedStandardResolution
 import Categorification.WeightedKLR.RedStrands.BlackCountTransport

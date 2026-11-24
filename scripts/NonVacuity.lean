@@ -8562,3 +8562,28 @@ example :
 end NonVacuity.WebsterLabelTwoMiddleEndomorphism
 
 end
+
+noncomputable section
+
+namespace NonVacuity.WebsterLabelTwoMiddleFixedComplex
+
+open Categorification Categorification.Stendhal Categorification.Stendhal.LabelTwo
+
+attribute [local instance 1100] IsIdempotentElem.instAlgebraCorner_categorification
+
+example := rightMiddleComplex ℚ
+
+example := rightMiddleDotSumQuotient ℚ
+
+example : Function.Exact (fixedMinus ℚ) (fixedPlus ℚ) := fixedMinusPlus_exact ℚ
+
+example : Function.Exact (fixedPlus ℚ) (fixedMinus ℚ) := fixedPlusMinus_exact ℚ
+
+example :
+    fixSub ℚ (StandardDotSumQuotient ℚ)
+      (seqIdem (parameter ℚ) weights loading loading_ordered) ≃ₗ[ℚ] DualNumber ℚ :=
+  middleCutDotSumEquiv ℚ
+
+end NonVacuity.WebsterLabelTwoMiddleFixedComplex
+
+end

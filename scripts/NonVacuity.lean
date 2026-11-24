@@ -5511,6 +5511,12 @@ noncomputable example := labelTwoEndpointTorZero Q
 /-- The actual one-red derived tensor pairing in degree five. -/
 example := labelTwoEndpointTor_succ_isZero Q 4
 
+/-- The scalar endpoint corner has no nonzero diagrams in internal degree two. -/
+example (G : Categorification.KLR.GradingDatum Q) (d : Unit → ℤ)
+    (hd : ∀ j, G.degX j = 2 * d j)
+    (z : (twoBlackTerminalWebsterIdem_idempotent Q).Corner) :=
+  twoBlackTerminalWebsterCorner_mem_grade_iff Q G d hd 2 z
+
 end NonVacuity.WebsterLabelTwoEndpointTor
 
 namespace NonVacuity.WebsterLocalization

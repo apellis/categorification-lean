@@ -1003,9 +1003,9 @@ from a dominant integral weight, the coroot pairings are nonnegative
 roots this determines the multiplicities
 (`Stendhal.coevaluationWord_multiplicities_eq`). For reduced expressions of the
 same Weyl element, this gives `Stendhal.coevaluationWord_multiplicities_eq_of_reduced`.
-The fundamental two-red type A₁ character is homogeneous in the
-Webster grading. Its derived restriction and extension give the internally
-graded fundamental cup and cap over the rationals. The cup has internal
+The terminal character of the two-red type A₁ algebra is homogeneous in the
+Webster grading. Its derived restriction and extension give a graded
+terminal-character cup and cap model over the rationals. The cup has internal
 shift one and cohomological shift minus one
 (`Stendhal.FundamentalCorner.gradedFundamentalCup` and `gradedFundamentalCap`).
 
@@ -1044,6 +1044,10 @@ multiplication identifies the quotient corner coefficient
 the induced multiplication is onto the actual homogeneous quotient coefficient
 at each endpoint pair (`braidFactorizationCoend_surjective`).
 
+Over a scalar field in degree zero the left modules are K-projective, so the
+construction gives derived Hom for every homogeneous scalar coefficient
+(`diagramWeightScalarDerivedHom`).
+
 Definition 7.4 has cup and cap coefficient models in the ungraded derived
 categories, with a specified cohomological shift on the cup and a finite
 dimensional ordinary tensor-Hom comparison preserving the module action
@@ -1062,13 +1066,16 @@ The cap using the same coefficient is left adjoint before the shift
 The derived Hom and dual-tensor constructions agree on the ground field
 (`Stendhal.Coevaluation.cupRHomTensorRegularIso`).
 For the two fundamental type A₁ factors over the rationals, the dual
-coefficient is the simple quotient by the smaller-cut trace. It gives
-the cup with homological shift minus one and the cap
+of the terminal character is the simple quotient by the smaller-cut trace.
+It gives a terminal-character cup with homological shift minus one and cap
 (`Stendhal.FundamentalCorner.terminalQuotientDualEquiv`, `fundamentalCup`,
 and `fundamentalCap`).
 The cup on the ground field is the shifted terminal simple quotient,
 and the cap on the regular module is the left coefficient
 (`fundamentalCupRegularIso` and `fundamentalCapRegularIso`).
+Webster's normalization in Proposition 7.5 uses the middle loading
+`κ = (0, 1)`. The convention of §4 counts the black strands to the left
+of each red strand. The middle-character construction is in progress.
 
 For Proposition 7.2, a single
 red with coroot pairing one gives a simple projective at the red-first
@@ -1109,7 +1116,9 @@ the raised weight space vanishes in the classical and quantum modules, and
 the full divided power preserves the Shapovalov norm on a bar-invariant
 primitive vector (`SingleBlack.websterForm_saturated_dividedPower`). The
 normalized divided-power cyclotomic projective of each reduced coevaluation
-word is simple (`CycKLR.isSimple_coevaluationProjective`). The normalized
+word is simple (`CycKLR.isSimple_coevaluationProjective`). Two reduced words
+for the same Weyl element give isomorphic graded projectives
+(`CycKLR.coevaluationProjective_iso_of_same_weyl`). The normalized
 Shapovalov pairings are still needed for general reflection words.
 
 **Webster, arXiv:1309.3796v2, §7.1, Lemma 7.3.** The smaller-cut trace is
@@ -1159,6 +1168,8 @@ with nilpotent dot.
 | arXiv:1309.3796v2, Definition 6.6 | The functor `𝔅_w = - ⊗ᴸ B_w`: the derived tensor product with the bimodule `B(κ', κ) = e_{κ'}(A/J)e_κ` of the violated quotient, from right modules over the corner at `κ'` to right modules over the corner at `κ`, computed on K-projective resolutions; the bimodule itself need not be K-projective | `Stendhal.BraidedStendhalAlgebra.braidingBimodule`, `Stendhal.BraidedStendhalAlgebra.braidingFunctor`, `derivedTensor`, `derivedRightTensor`, `derivedTensorObjIso`, `cornerBimodule` | Any commutative ring; dg-lean derived categories of dg modules over rings in degree `0` | Ungraded and unbounded; Webster uses graded modules and `D⁻`. The graded form and the restriction to `D⁻` are open |
 | arXiv:1309.3796v2, Lemma 6.8, (6.21) (derived filtered kernel) | Derived ordinary bimodule tensor is triangulated and its degree-zero cohomology is naturally ordinary balanced tensor. Vanishing on the layers of a finite kernel filtration and on the middle term, together with injectivity of balanced tensor on the kernel inclusion, implies vanishing of nonzero cohomology on the quotient | `Stendhal.BraidedStendhalAlgebra.braidingFunctor_isTriangulated`, `derivedTensorHomologyIsoOrdinary_naturality`, `ModuleFiltration.HasFiltration.isZero_derivedHomology`, `isZero_derivedTensorHomology_quotient_of_filtered_kernel` | Ordinary bimodules and ungraded derived categories | The higher partial standard filtration and the general marked injectivity input remain open |
 | arXiv:1309.3796v2, Lemma 6.8, (6.21) (degree-zero block kernel map) | Swapping the factors identifies the ordinary right-module tensor with the opposite-ring tensor in the braid functor. The ordinary injectivity test on the block kernel inclusion implies a monomorphism on the actual degree-zero derived braid map | `Stendhal.BraidedStendhalAlgebra.blockKernelDerivedHomology_mono` | Commutative ground ring, ungraded derived categories | Takes injectivity of the full ordinary block kernel map as input |
+| arXiv:1309.3796v2, Lemma 6.8, (6.21) (loading partial standard) | The kernel, loading projective and partial-standard quotient form the native short exact sequence. The braid of the loading projective is concentrated in degree zero. The same follows for the quotient when derived vanishing holds on the layers of the higher kernel and the ordinary balanced kernel inclusion is injective. A zero higher kernel gives the initial case directly | `Stendhal.BraidedStendhalAlgebra.blockLoadingShortComplex_shortExact`, `blockLoadingProjective_braid_homology_vanish`, `blockPartialStandard_braid_homology_vanish`, `blockPartialStandard_braid_homology_vanish_of_bot` | Commutative ground ring and ungraded derived categories | The higher partial-standard filtration and the general marked injectivity are inputs |
+| arXiv:1309.3796v2, Lemma 6.8, (6.21) (derived braid in the first black weight) | The cyclic higher kernel is a loading projective. Ordinary balanced injectivity and the native short exact sequence give vanishing braid cohomology outside degree zero for the actual one-black partial standard | `Stendhal.BraidedStendhalAlgebra.firstWeight_blockLoadingKernel_projective`, `Stendhal.BraidedStendhalAlgebra.firstWeight_blockPartialStandard_braid_homology_vanish` | Symmetric `Q` over any commutative ring, arbitrary red spectators and weights, ungraded derived categories | One black strand in total |
 | arXiv:1309.3796v2, Lemma 6.8, (6.21) (three five-slot right tops) | The ordinary kernel-column inclusion and its degree-zero derived map are injective at each of the three right top loadings for the fixed two-interior bottom. The comparison uses the target corner of that individual loading | `Stendhal.BraidedStendhalAlgebra.fiveSlotRightTop_blockKernelColumnInclusion_injective`, `Stendhal.BraidedStendhalAlgebra.fiveSlotRightTop_blockKernelColumnDerivedHomology_mono` | A commutative ground ring and two equal black strands of the single colour | Fixed five-slot bottom column |
 | arXiv:1309.3796v2, Lemma 6.8, (6.21) (five-slot bounded spectator) | With two equal black strands and three reds, the ordinary kernel inclusion and its degree-zero derived map are injective for every top of red order `[0,1,2]` and the full bottom red order `[0,2,1]` | `Stendhal.BraidedStendhalAlgebra.fiveSlot_blockKernelTensorInclusion_injective_of_spectatorWeight_le_one`, `Stendhal.BraidedStendhalAlgebra.fiveSlot_blockKernelDerivedHomology_mono_of_spectatorWeight_le_one` | Standard rank-one Khovanov–Lauda parameters over a field. Red spectator `0` has pairing at most one | Full five-slot kernel map with the stated spectator bound |
 | arXiv:1309.3796v2, Proposition 6.7 (part for `E`, bimodule level) | The black strand appended at the right (`appendBlackAlg`, `βE_i`) commutes with the braided bimodules: multiplication `e_{κ'}B(νᵢ)φ(e_{κ'}) ⊗_{e_{κ'}B(ν)e_{κ'}} e_{κ'}B(ν)e_κ → e_{κ'}B(νᵢ)φ(e_κ)` is bijective, for `B̃` and for the quotients `B` by violated idempotents. Proof as Webster's: with the reduced words through the last coset (`lastCosetWord`), every standard diagram ending in the new strand factors as `ψ_c x_last^n` times the image of a standard diagram, so the left factor is free over the image | `Stendhal.BraidedStendhalAlgebra.appendBlackAlg`, `Stendhal.BraidedStendhalAlgebra.coset_mul_appendBlackValue_basis`, `Stendhal.BraidedStendhalAlgebra.mult_injective_append`, `Stendhal.BraidedStendhalAlgebra.mult_surjective_append`, `Stendhal.BraidedStendhalAlgebra.appendViol`, `Stendhal.BraidedStendhalAlgebra.violMk_mult_injective_append`, `Stendhal.BraidedStendhalAlgebra.violMk_mult_surjective_append`, `TensorAlong.mult_injective_of_ker` | Symmetric `Q`, any commutative ring | Proved at the level of bimodules; the part for `F` is the next row; the derived statement is the row after it |

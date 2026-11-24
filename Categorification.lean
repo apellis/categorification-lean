@@ -1732,6 +1732,9 @@ import Categorification.WeightedKLR.RedStrands.InterleavedMarkedColumnStandard
 import Categorification.WeightedKLR.RedStrands.FiniteExitAffineLift
 import Categorification.WeightedKLR.RedStrands.FirstWeightBlockKernel
 import Categorification.WeightedKLR.RedStrands.BlockKernelDerivedHomology
+import Categorification.WeightedKLR.RedStrands.BlockKernelDerivedSequence
+import Categorification.WeightedKLR.RedStrands.ProjectiveKernelDerived
+import Categorification.WeightedKLR.RedStrands.OneBlackKernelDerived
 import Categorification.WeightedKLR.RedStrands.BlockKernelFiltration
 import Categorification.WeightedKLR.RedStrands.BlockKernelSingleLayer
 import Categorification.WeightedKLR.RedStrands.BlockKernelCrossingGenerator
@@ -1767,9 +1770,10 @@ import Categorification.Algebra.DerivedTensorRegular
 import Categorification.WeightedKLR.Rigidity.FundamentalCupRegular
 import Categorification.Algebra.DiagramBigrading
 import Categorification.Algebra.DiagramWeightBimodule
+import Categorification.Algebra.DiagramWeightScalarHom
+import Categorification.Algebra.DiagramWeightCorner
 import Categorification.Algebra.DiagramWeightCoend
 import Categorification.Algebra.DiagramWeightCoendSurjectivity
-import Categorification.Algebra.DiagramWeightCorner
 import Categorification.WeightedKLR.Rigidity.GradedCharacterCupCap
 import Categorification.WeightedKLR.Rigidity.GradedFundamentalCupCap
 import Categorification.WeightedKLR.Rigidity.SingleBlackExtremal
@@ -1780,6 +1784,7 @@ import Categorification.WeightedKLR.Rigidity.ExtremalRaising
 import Categorification.WeightedKLR.Rigidity.ExtremalStringNorm
 import Categorification.WeightedKLR.Rigidity.CoevaluationDividedPower
 import Categorification.WeightedKLR.Rigidity.ReducedDividedNorm
+import Categorification.WeightedKLR.Rigidity.CoevaluationIndependence
 
 /-!
 # Categorification

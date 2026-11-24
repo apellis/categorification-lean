@@ -1063,6 +1063,9 @@ The one-black retained order is inclusion of the retained reds after the black
 strand (`adjacentBlockRoot_oneBlack_le_iff`). Strict dominance additionally
 requires some retained red to separate the loadings. This gives the boundary
 order needed for extending the filtration to a longer list of spectators.
+For two zero-weight spectators, composing the two unit crossings identifies the
+source kernel with the partial standard before both spectators
+(`TwoSpectatorOneBlack.kernelEquivHigherPartialStandard`).
 
 Still open for Lemma 6.8: when a black lies between the bottom reds, prove that changes
 between different choices of the last crossing give equal balanced classes **in the

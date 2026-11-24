@@ -6670,3 +6670,10 @@ example : adjacentBlockRoot 0 1 internalBlack = adjacentBlockRoot 0 1 higher := 
   · fin_cases ps <;> fin_cases pt <;> revert hps hpt <;> decide
 
 end Categorification.Stendhal.BraidedStendhalAlgebra.ThreeRedOneBlack
+
+/-- The one-black source after two zero-weight spectators gives one higher partial
+standard before both spectators. -/
+example :=
+  Stendhal.BraidedStendhalAlgebra.TwoSpectatorOneBlack.kernel_hasHigherFiltration
+    (k := ℚ) (fun _ _ => 0)
+    (fun r => if r = 0 ∨ r = 1 then Finsupp.single () 1 else 0) (by decide) (by decide)

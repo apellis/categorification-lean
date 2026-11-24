@@ -4,6 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 -/
 import Categorification.WeightedKLR.RedStrands.AdjacentBlockAction
 import Categorification.WeightedKLR.RedStrands.BraidedRelabel
+import Categorification.WeightedKLR.RedStrands.BlackIdempotent
 
 /-!
 # Ordered tensor product algebras acting on the adjacent-block column
@@ -55,6 +56,28 @@ private def diagonalValue : T →ₙₐ[k] ViolQuotient k Q Λ ν where
 private theorem diagonalValue_one : diagonalValue Q Λ hQ ν 1 = violMk k Q Λ ν P :=
   congrArg Subtype.val (map_one (diagonalEquiv Q Λ hQ ν).symm)
 
+private theorem diagonalValue_ofKLR
+    (a : KLRAlgebra k (stendhalQ Q Λ) (stendhalWeight ℓ ν))
+    (ha : ofKLR k Q Λ ν a ∈ Subsemigroup.corner P) :
+    diagonalValue Q Λ hQ ν (tensorOfKLR Q Λ ν a) =
+      violMk k Q Λ ν (ofKLR k Q Λ ν a) := by
+  let x : (hp).Corner := ⟨ofKLR k Q Λ ν a, ha⟩
+  have hr : ofKLR k Q Λ ν a * P = ofKLR k Q Λ ν a :=
+    ((Subsemigroup.mem_corner_iff hp).1 ha).2
+  have hx : diagonalEquiv Q Λ hQ ν (violCornerHom k Q Λ ν x) = tensorOfKLR Q Λ ν a := by
+    change violCornerEquiv (canReduced _) hQ _ = _
+    rw [violCornerEquiv_violCornerHom]
+    apply congrArg (TensorProductAlgebra.mk Q Λ ν)
+    apply Subtype.ext
+    rw [identityCornerHom_val]
+    change toAllOrders k Q Λ ν (ofKLR k Q Λ ν a) =
+      StendhalAlgebraAllOrders.ofKLR k Q Λ ν a *
+        StendhalAlgebraAllOrders.redOrderedIdem k Q Λ ν
+    rw [← toAllOrders_ofKLR, ← toAllOrders_redIdem, ← map_mul]
+    exact (congrArg (toAllOrders k Q Λ ν) hr).symm
+  change ((diagonalEquiv Q Λ hQ ν).symm (tensorOfKLR Q Λ ν a)).1 = _
+  rw [← hx, AlgEquiv.symm_apply_apply, violCornerHom_val]
+
 end Diagonal
 
 variable (σ : (B : RedBlock I ℓ) → Equiv.Perm (Fin B.size))
@@ -74,6 +97,75 @@ theorem orderedValue_one (B : RedBlock I ℓ) : orderedValue Q Λ hQ σ B 1 =
       (redProj k Q (Λ ∘ B.label) B.black ((List.finRange B.size).map (σ B))) := by
   change violRedPermEquiv _ _ (diagonalValue Q _ hQ B.black 1) = _
   rw [diagonalValue_one, violRedPermEquiv_violMk, redPermAlgEquiv_redProj]
+
+private theorem orderedValue_ofKLR (B : RedBlock I ℓ)
+    (a : KLRAlgebra k (stendhalQ Q ((Λ ∘ B.label) ∘ σ B)) B.localWeight)
+    (ha : ofKLR k Q ((Λ ∘ B.label) ∘ σ B) B.black a ∈
+      Subsemigroup.corner (redProj k Q ((Λ ∘ B.label) ∘ σ B) B.black (List.finRange B.size))) :
+    orderedValue Q Λ hQ σ B (tensorOfKLR Q ((Λ ∘ B.label) ∘ σ B) B.black a) =
+      violMk k Q (Λ ∘ B.label) B.black
+        (redPermAlgEquiv (σ B) (fun _ => rfl) (ofKLR k Q ((Λ ∘ B.label) ∘ σ B) B.black a)) := by
+  change (violRedPermEquiv (σ B) (fun _ => rfl))
+    (diagonalValue Q ((Λ ∘ B.label) ∘ σ B) hQ B.black
+      (tensorOfKLR Q ((Λ ∘ B.label) ∘ σ B) B.black a)) = _
+  rw [diagonalValue_ofKLR Q ((Λ ∘ B.label) ∘ σ B) hQ B.black _ ha]
+  exact violRedPermEquiv_violMk (Λ := Λ ∘ B.label) (Λ' := (Λ ∘ B.label) ∘ σ B)
+    (σ B) (fun _ => rfl) (ofKLR k Q _ B.black a)
+
+section IdentityGenerators
+
+open KLRAlgebra
+
+/-- An identity-order loading idempotent in the ordered algebra includes as the same
+loading idempotent in the local violated braided quotient. -/
+theorem orderedValue_identity_e (B : RedBlock I ℓ) (s : Seq B.localWeight)
+    (hs : redWord s = List.finRange B.size) :
+    orderedValue Q Λ hQ (fun _ => 1) B (tensorOfKLR Q (Λ ∘ B.label) B.black (e s)) =
+      violMk k Q (Λ ∘ B.label) B.black (ofKLR k Q (Λ ∘ B.label) B.black (e s)) := by
+  let W := Λ ∘ B.label
+  let W' := W ∘ (1 : Equiv.Perm (Fin B.size))
+  have ha : ofKLR k Q W' B.black (e s) ∈
+      Subsemigroup.corner (redProj k Q W' B.black (List.finRange B.size)) :=
+    (Subsemigroup.mem_corner_iff (isIdempotentElem_redProj _)).2
+      ⟨by rw [redProj_mul_e, ite_eq_left hs], by rw [e_mul_redProj, ite_eq_left hs]⟩
+  refine (orderedValue_ofKLR Q Λ hQ (fun _ => 1) B (e s) ha).trans ?_
+  apply congrArg (violMk k Q W B.black)
+  calc
+    _ = ofKLR k Q W B.black (e (Seq.redPerm 1 s)) := redPermAlgEquiv_e 1 (fun _ => rfl) s
+    _ = ofKLR k Q W B.black (e s) := by rw [Seq.redPerm_one]
+
+/-- An elementary crossing whose two loadings have identity red order includes as the
+same crossing with its bottom idempotent in the local violated braided quotient. -/
+theorem orderedValue_identity_ψ_mul_e (B : RedBlock I ℓ) (a : ℕ) (t : Seq B.localWeight)
+    (ht : redWord t = List.finRange B.size)
+    (hs : redWord (sadj B.localWeight.card a • t) = List.finRange B.size) :
+    orderedValue Q Λ hQ (fun _ => 1) B (tensorOfKLR Q (Λ ∘ B.label) B.black (ψ a * e t)) =
+      violMk k Q (Λ ∘ B.label) B.black (ofKLR k Q (Λ ∘ B.label) B.black (ψ a * e t)) := by
+  let W := Λ ∘ B.label
+  let W' := W ∘ (1 : Equiv.Perm (Fin B.size))
+  let F := ofKLR k Q W' B.black
+  have ha : F (ψ a * e t) ∈
+      Subsemigroup.corner (redProj k Q W' B.black (List.finRange B.size)) := by
+    apply (Subsemigroup.mem_corner_iff (isIdempotentElem_redProj _)).2
+    constructor
+    · change _ * ofKLR k Q W' B.black (ψ a * e t) = _
+      rw [ψ_mul_e, map_mul, ← mul_assoc, redProj_mul_e, ite_eq_left hs]
+    · change ofKLR k Q W' B.black (ψ a * e t) * _ = _
+      rw [map_mul, mul_assoc, e_mul_redProj, ite_eq_left ht]
+  refine (orderedValue_ofKLR Q Λ hQ (fun _ => 1) B (ψ a * e t) ha).trans ?_
+  apply congrArg (violMk k Q W B.black)
+  let r := redPermAlgEquiv (Q := Q) (Λ := W) (Λ' := W') (ν := B.black)
+    (1 : Equiv.Perm (Fin B.size)) (fun _ => rfl)
+  have hψ : r (F (ψ a)) = ofKLR k Q W B.black (ψ a) := by
+    change redPermAlgEquiv _ _ (ofKLR k Q W' B.black (ψ a)) = _
+    rw [redPermAlgEquiv, relabelAlgEquiv_ofKLR, relabelHom_ψ]
+  have he : r (F (e t)) = ofKLR k Q W B.black (e t) :=
+    (redPermAlgEquiv_e 1 (fun _ => rfl) t).trans
+      (congrArg (fun s => ofKLR k Q W B.black (e s)) (Seq.redPerm_one t))
+  change r (F (ψ a * e t)) = _
+  rw [map_mul F, map_mul r, hψ, he, map_mul]
+
+end IdentityGenerators
 
 /-- Cut a diagram down to its diagonal ordered algebra, retaining both order projectors. -/
 def orderedRetraction (B : RedBlock I ℓ) : quotientAlgebra Q Λ B →ₗ[k]

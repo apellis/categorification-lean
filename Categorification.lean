@@ -1675,6 +1675,7 @@ import Categorification.WeightedKLR.RedStrands.BlockKernelColumn
 import Categorification.WeightedKLR.RedStrands.BlockKernelIntervalExits
 import Categorification.WeightedKLR.RedStrands.InterleavedColumn
 import Categorification.WeightedKLR.RedStrands.InterleavedPresentation
+import Categorification.WeightedKLR.RedStrands.InterleavedMarkedColumn
 import Categorification.WeightedKLR.RedStrands.FirstWeightBlockKernel
 import Categorification.WeightedKLR.RedStrands.BraidedStandardGrading
 import Categorification.WeightedKLR.RedStrands.BraidedStandardInjective

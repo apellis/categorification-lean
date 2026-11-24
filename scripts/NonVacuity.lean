@@ -9255,4 +9255,6 @@ example := FiveSlotFlag.fiveSlotLastRed_firstCrossing_cancel Q Λ (fun _ _ _ => 
 
 example := FiveSlotFlag.fiveSlotLastRed_secondCrossing_mem_leftExtremeImage Q Λ (fun _ _ _ => rfl)
 
+example := FiveSlotFlag.fiveSlotLastRed_square_reflects_earlierCrossing Q Λ (fun _ _ _ => rfl)
+
 end NonVacuity.WebsterFiveSlotLastRedTransport

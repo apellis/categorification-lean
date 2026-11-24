@@ -110,6 +110,7 @@ import Categorification.Algebra.K0FinDim
 import Categorification.Algebra.ModuleCatLinear
 import Categorification.Algebra.ModuleFiltration
 import Categorification.Algebra.OrderedProjectiveResolution
+import Categorification.Algebra.GradedOrderedProjectiveResolution
 import Categorification.Algebra.ModuleFiltrationMap
 import Categorification.Algebra.IdempotentTraceFiltration
 import Categorification.Algebra.MonicTrace

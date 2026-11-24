@@ -5677,6 +5677,31 @@ end
 
 end NonVacuity.PerfectBasis
 
+namespace NonVacuity.WebsterOppositeStandardTor
+
+open Categorification DG DG.DerivedCategory CategoryTheory.Limits
+open scoped DG.DegreeZero
+
+local instance : DG.HasDerivedCategory.{0, 0} ℚ := DG.HasDerivedCategory.small ℚ
+
+private abbrev Z := DGModuleCat.of ℚ (InDegreeZero ℚ)
+
+example : IsZero ((homologyFunctor (A := ℚ) ℤ (-1)).obj
+    ((derivedTensor ℚ ℚ ℚ).obj (Q.obj Z))) := by
+  apply isZero_derivedTensorHomology_of_loading_projective_summands
+    (P := Z) (S := Z) (ι := fun _ => Empty) (InDegreeZero.isKProjective (A := ℚ) (M := ℚ)) (𝟙 Z)
+    (DGModuleHom.isQuasiIso_id (A := ℚ) (M := InDegreeZero ℚ)) (fun _ a => a.elim) (fun _ a => a.elim)
+    (fun _ a => a.elim)
+  · intro j hj x hx
+    have hx' : x = 0 := ((InDegreeZero.mem_grading_iff _).mp hx).resolve_left hj
+    subst x
+    exact Submodule.zero_mem _
+  · intro j _ a
+    exact a.elim
+  · omega
+
+end NonVacuity.WebsterOppositeStandardTor
+
 namespace NonVacuity.StringParametrization
 
 open Categorification Categorification.KLR

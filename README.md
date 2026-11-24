@@ -1183,6 +1183,11 @@ representative of a nonzero class consist of three halves alone
 total weight. At three halves the restricted complex has a rational
 homology line, and all other weight pieces are exact
 (`fundamentalBraidWeightComplex_homologyIso`, `fundamentalBraidWeightComplex_exact`).
+The graded diagonal-ring equivalence identifies the shifted loading projectives
+in this resolution with the native projectives at the same weights in the
+source of the braid (`fundamentalBraidSourceLoadingIso`). Its augmented
+mixed-crossing sequence is exact at every source weight
+(`fundamentalBraidSourceGradedResolution`).
 The diagonal-ring equivalence
 carries the two mixed crossings to the differentials of the projective
 resolution of the middle head (`fundamentalBraidSourceResolution`). Its

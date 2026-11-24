@@ -123,3 +123,131 @@ theorem braidColumnBottomBlockIndex_adjacent_black_ascent
     (braidColumnBottomBlockIndex_apply n hn σ φ r a').symm ▸ horder'
 
 end Categorification.Stendhal
+
+namespace Categorification.Stendhal
+open KLR KLRAlgebra TypeA Equiv
+open scoped BigOperators
+variable {I : Type} [DecidableEq I] {ℓ : ℕ} {ν : Multiset I}
+local notation "μ" => stendhalWeight ℓ ν
+local notation "m" => Multiset.card μ
+
+/-- A wiring increasing within each relocated block is obtained by the
+bottom-block move of an eligible projective wiring. -/
+theorem exists_projectiveIndex_of_bottomBlock_strictMono
+    (s b : Seq μ) (hs : IsRedOrdered s) (hb : IsRedOrdered b)
+    (n : Fin ℓ → ℕ) (hn : (∑ r, (n r + 1)) = m) (σ : Perm (Fin ℓ))
+    (hr : ∀ r : Fin ℓ, b.lbl (braidBlockPositions n hn ⟨r,0⟩) = .inr r)
+    (w : Perm (Fin m)) (hw : w • (braidBlockPermutation n hn σ • b) = s)
+    (hmono : ∀ r : Fin ℓ, StrictMono (fun a : Fin (n (σ r) + 1) =>
+      w (braidBlockPositions (n ∘ σ) ((Equiv.sum_comp σ fun r => n r + 1).trans hn) ⟨r,a⟩))) :
+    ∃ φ : Perm (Fin m), ProjectiveBlockIndex s φ ∧ φ⁻¹ • s = b ∧
+      braidColumnBottomBlockIndex n hn σ φ = w := by
+  let φ := w * braidBlockPermutation n hn σ
+  have hφ : φ • b = s := by simpa only [φ,mul_smul] using hw
+  have hφb : φ⁻¹ • s = b := by rw [← hφ, inv_smul_smul]
+  let p := braidBlockPositions n hn
+  have hφMono (r : Fin ℓ) : StrictMono (fun a : Fin (n r + 1) => φ (p ⟨r,a⟩)) := by
+    obtain ⟨r, rfl⟩ := σ.surjective r
+    intro a a' ha
+    change w (braidBlockPermutation n hn σ (p ⟨σ r,a⟩)) <
+      w (braidBlockPermutation n hn σ (p ⟨σ r,a'⟩))
+    rw [braidBlockPermutation_apply,braidBlockPermutation_apply]
+    exact hmono r ha
+  have hred (r : Fin ℓ) : p ⟨r,0⟩ = redPos b r := eq_redPos (hr r)
+  have hred' (r : Fin ℓ) : φ (p ⟨r,0⟩) = redPos s r := by
+    apply eq_redPos
+    rw [← hφ, BraidedStendhalAlgebra.lbl_smul]
+    simpa only [Perm.inv_def, Equiv.symm_apply_apply] using hr r
+  have positive {r : Fin ℓ} {a : Fin (n r + 1)} {i : I}
+      (ha : b.lbl (p ⟨r,a⟩) = .inl i) : 0 < a := by
+    apply lt_of_le_of_ne (Fin.zero_le _)
+    intro h
+    rw [← h, hr] at ha
+    cases ha
+  refine ⟨φ, ?_, hφb, ?_⟩
+  · constructor
+    · rwa [hφb]
+    · dsimp only
+      rw [hφb]
+      intro a i r ha hbefore
+      obtain ⟨⟨q,o⟩, rfl⟩ := p.surjective a
+      have hle : r ≤ q := by
+        by_contra h
+        have hlt := braidBlockPositions_lt_red n hn (lt_of_not_ge h) o
+        rw [hred] at hlt
+        exact (not_lt_of_ge hlt.le) hbefore
+      have ht : redPos s r ≤ redPos s q := by
+        rcases hle.lt_or_eq with h | rfl
+        · exact ((redPos_lt_iff hs).2 h).le
+        · exact le_rfl
+      exact ht.trans_lt ((hred' q) ▸ hφMono q (positive ha))
+    · dsimp only
+      rw [hφb]
+      intro a a' i i' ha ha' hlt hbetween
+      obtain ⟨⟨r,o⟩, rfl⟩ := p.surjective a
+      obtain ⟨⟨r',o'⟩, rfl⟩ := p.surjective a'
+      have hsame : r = r' := by
+        rcases lt_trichotomy r r' with h | he | h
+        · exact (hbetween r' ⟨(hred r') ▸ braidBlockPositions_lt_red n hn h o,
+            (hred r') ▸ (braidBlockPositions_lt_iff n hn r' 0 o').2 (positive ha')⟩).elim
+        · exact he
+        · have h₁ := braidBlockPositions_lt_red n hn h o'
+          have h₂ := (braidBlockPositions_lt_iff n hn r 0 o).2 (positive ha)
+          exact (not_lt_of_ge (h₁.trans h₂).le hlt).elim
+      subst r'
+      exact hφMono r ((braidBlockPositions_lt_iff n hn r o o').1 hlt)
+  · change (w * braidBlockPermutation n hn σ) * (braidBlockPermutation n hn σ)⁻¹ = _
+    rw [mul_assoc, mul_inv_cancel, mul_one]
+
+end Categorification.Stendhal
+
+namespace Categorification.Stendhal
+open KLR KLRAlgebra TypeA Equiv
+open scoped BigOperators
+variable {I : Type} [DecidableEq I] {ℓ : ℕ} {ν : Multiset I}
+local notation "μ" => stendhalWeight ℓ ν
+local notation "m" => Multiset.card μ
+
+/-- Ascents at every adjacent pair with a black right slot imply eligibility.
+The relocated red slots are the zero offsets, so all consecutive positions
+inside a block have a black right slot. -/
+theorem exists_projectiveIndex_of_bottomBlock_adjacent_ascents
+    (s b : Seq μ) (hs : IsRedOrdered s) (hb : IsRedOrdered b)
+    (n : Fin ℓ → ℕ) (hn : (∑ r, (n r + 1)) = m) (σ : Perm (Fin ℓ))
+    (hr : ∀ r : Fin ℓ, b.lbl (braidBlockPositions n hn ⟨r,0⟩) = .inr r)
+    (w : Perm (Fin m)) (hw : w • (braidBlockPermutation n hn σ • b) = s)
+    (hascent : ∀ (j : ℕ) (hj : j + 1 < m),
+      ((braidBlockPermutation n hn σ • b).lbl ⟨j+1,hj⟩).isLeft →
+      w ⟨j,by omega⟩ < w ⟨j+1,hj⟩) :
+    ∃ φ : Perm (Fin m), ProjectiveBlockIndex s φ ∧ φ⁻¹ • s = b ∧
+      braidColumnBottomBlockIndex n hn σ φ = w := by
+  apply exists_projectiveIndex_of_bottomBlock_strictMono s b hs hb n hn σ hr w hw
+  intro r
+  let hn' : (∑ r, ((n ∘ σ) r + 1)) = m := (Equiv.sum_comp σ fun r => n r + 1).trans hn
+  let p := braidBlockPositions (n ∘ σ) hn'
+  change StrictMono (fun a : Fin (n (σ r) + 1) => w (p ⟨r,a⟩))
+  rw [Fin.strictMono_iff_lt_succ]
+  intro a
+  let x := p ⟨r,a.castSucc⟩
+  let y := p ⟨r,a.succ⟩
+  have hxy : x.val + 1 = y.val := by
+    simp only [x,y,p,braidBlockPositions, Equiv.trans_apply, finCongr_apply, Fin.val_cast,
+      finSigmaFinEquiv_apply, Fin.val_castSucc, Fin.val_succ]
+    omega
+  have hyBlack : ((braidBlockPermutation n hn σ • b).lbl y).isLeft := by
+    cases he : (braidBlockPermutation n hn σ • b).lbl y with
+    | inl i => rfl
+    | inr k =>
+      obtain ⟨q,rfl⟩ := σ.surjective k
+      have hred : (braidBlockPermutation n hn σ • b).lbl (p ⟨q,0⟩) = .inr (σ q) :=
+        (lbl_braidBlockPermutation_smul b n hn σ q 0).trans (hr (σ q))
+      have h := p.injective (lbl_eq_inr_unique he hred)
+      have hv := congrArg (fun v : Σ r : Fin ℓ, Fin ((n ∘ σ) r + 1) => v.2.val) h
+      change a.val + 1 = 0 at hv
+      omega
+  have hj : x.val + 1 < m := hxy ▸ y.isLt
+  have hy : (⟨x.val+1,hj⟩ : Fin m) = y := Fin.ext hxy
+  change w x < w y
+  exact hy ▸ hascent x.val hj (hy.symm ▸ hyBlack)
+
+end Categorification.Stendhal

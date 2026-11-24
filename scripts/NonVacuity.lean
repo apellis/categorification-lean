@@ -9589,6 +9589,47 @@ example : redWord ((braidColumnBottomBlockIndex sizes sizes_card swapReds phi)�
 example := braidColumnBottomBlockIndex_lt_red_black top sizes sizes_card swapReds
   phi_eligible bottom_labels (2 : Fin 3) ⟨1, by decide⟩ (by decide) (i := ()) (by decide)
 
+
+private theorem wiring_mono :
+    ∀ r : Fin 3, StrictMono (fun a : Fin (sizes (swapReds r) + 1) =>
+      sadj m 1 (braidBlockPositions (sizes ∘ swapReds)
+        ((Equiv.sum_comp swapReds fun r => sizes r + 1).trans sizes_card) ⟨r,a⟩)) := by
+  intro r
+  fin_cases r <;> unfold StrictMono <;> decide
+
+example :=
+  exists_projectiveIndex_of_bottomBlock_strictMono top bottom
+    ((redWord_eq_finRange_iff top).1 (by decide)) ((redWord_eq_finRange_iff bottom).1 (by decide))
+    sizes sizes_card swapReds (by simpa only [bottom_eq] using bottom_labels)
+    (sadj m 1) (by
+      apply Subtype.ext
+      funext a
+      fin_cases a <;> rfl) wiring_mono
+
+private theorem wiring_adjacent_ascents (j : ℕ) (hj : j + 1 < m) :
+    ((braidBlockPermutation sizes sizes_card swapReds • bottom).lbl ⟨j+1,hj⟩).isLeft →
+      sadj m 1 ⟨j,by omega⟩ < sadj m 1 ⟨j+1,hj⟩ := by
+  have h : j ≤ 2 := by rw [← four_eq_card] at hj; omega
+  interval_cases j
+  · intro h
+    change false = true at h
+    cases h
+  · intro h
+    change false = true at h
+    cases h
+  · intro _
+    change 1 < 3
+    decide
+
+example :=
+  exists_projectiveIndex_of_bottomBlock_adjacent_ascents top bottom
+    ((redWord_eq_finRange_iff top).1 (by decide)) ((redWord_eq_finRange_iff bottom).1 (by decide))
+    sizes sizes_card swapReds (by simpa only [bottom_eq] using bottom_labels)
+    (sadj m 1) (by
+      apply Subtype.ext
+      funext a
+      fin_cases a <;> rfl) wiring_adjacent_ascents
+
 end NonVacuity.WebsterBottomBraidIndex
 
 namespace NonVacuity.WebsterFundamentalBraidWeight

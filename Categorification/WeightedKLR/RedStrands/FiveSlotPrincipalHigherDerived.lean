@@ -8,6 +8,7 @@ import Categorification.WeightedKLR.RedStrands.HigherKernelCrossingAt
 import Categorification.WeightedKLR.RedStrands.BlockKernelDerivedSequence
 import Categorification.WeightedKLR.RedStrands.BraidedBimoduleFlip
 import Categorification.WeightedKLR.RedStrands.FiveSlotStandardCrossingTest
+import Categorification.WeightedKLR.RedStrands.FiveSlotAllTops
 
 /-!
 # The principal higher layer at the next retained five-slot top
@@ -323,6 +324,27 @@ theorem fiveSlotNextRetainedPartialStandard_braid_homology_vanish_standard
           (blockLoadingShortComplex QL weights jA 1 2).X₃)))) :=
   fiveSlotNextRetainedPartialStandard_braid_homology_vanish QL weights target hQ
     (fiveSlotNextRetainedCrossing_standard_injective hR hQ weights) hbal n hn
+
+
+/-- The next retained five-slot partial standard is concentrated in degree
+zero for the actual exchanged red order at standard parameters. -/
+theorem fiveSlotNextRetainedPartialStandard_braid_homology_vanish_exchanged
+    (weights : Fin 3 → Unit →₀ ℕ)
+    [HasDerivedCategory.{w, 0} (S₀ weights)ᵐᵒᵖ]
+    [HasDerivedCategory.{w, 0} (D₀ weights ([0,2,1] : List (Fin 3)))ᵐᵒᵖ]
+    (n : ℤ) (hn : n ≠ 0) :
+    IsZero ((DG.DerivedCategory.homologyFunctor
+        (A := (D₀ weights ([0,2,1] : List (Fin 3)))ᵐᵒᵖ) ℤ n).obj
+      ((braidingFunctor F₀ QL weights ν₀ (redWord jA) [0,2,1]).obj
+        (DG.DerivedCategory.Q.obj ((degreeZeroModuleFunctor (S₀ weights)ᵐᵒᵖ).obj
+          (blockLoadingShortComplex QL weights jA 1 2).X₃)))) := by
+  have hR : IsRouquierQ C₀ QL :=
+    ⟨fun i j h => (h (Subsingleton.elim i j)).elim,
+      fun i j h => (h (Subsingleton.elim i j)).elim,
+      fun i j h => (h (Subsingleton.elim i j)).elim⟩
+  have hQ : KLRSymm QL := fun i j h => (h (Subsingleton.elim i j)).elim
+  exact fiveSlotNextRetainedPartialStandard_braid_homology_vanish_standard hR hQ weights [0,2,1]
+    (fiveSlot_blockKernelTensorInclusion_injective_standard_allTops C₀ weights jA (by decide)) n hn
 
 end Standard
 

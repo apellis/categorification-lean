@@ -219,6 +219,14 @@ private noncomputable def scalarQuotientEquiv (h2 : (2:k)≠0) :
 private def epsilonEquiv (h2 : (2:k)≠0) : (twiceEps (k := k)).ker ≃ₗ[k] k :=
   (LinearEquiv.ofEq _ _ (ker_twiceEps h2)).trans scalarCyclesEquiv
 
+/-- The kernel of multiplication by twice epsilon is the epsilon line. -/
+noncomputable abbrev twiceEpsKernelEquiv (h₂ : (2 : k) ≠ 0) :
+    (twiceEps (k := k)).ker ≃ₗ[k] k := epsilonEquiv h₂
+
+/-- The cokernel of multiplication by twice epsilon is the scalar line. -/
+noncomputable abbrev twiceEpsCokernelEquiv (h₂ : (2 : k) ≠ 0) :
+    (B ⧸ (twiceEps (k := k)).range) ≃ₗ[k] k := scalarQuotientEquiv h₂
+
 /-- The odd homology is represented by the scalar class of the quotient. -/
 noncomputable def oddHomologyIso (h2 : (2:k)≠0) :
     (postTensorOdd (k := k)).homology ≅ ModuleCat.of k k :=

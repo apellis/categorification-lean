@@ -6492,6 +6492,12 @@ example : ψw (canWord μ.card u) * (z.val * (ψ 2 * e s)) = 0 := by
   change ψw _ * (ψ 2 * e s * (ψ 2 * e s)) = _
   rw [mul_assoc (ψ 2) (e s), cut, ← mul_assoc (ψ 2), sq, mul_zero]
 
+-- An arbitrary ambient relation with the unit leg is detected by every exterior readout.
+example (x : R) : x = 0 ↔ ∀ v, (intervalPBWCoefficient Z h hQ v x).val = 0 := by
+  have ht := intervalPBWCoefficient_exit_kernel_iff Z h hQ ({()} : Finset Unit) (fun _ => x)
+    (fun _ => 1) (fun _ _ u => by rw [mul_one]; exact (intervalPBWCoefficient Z h hQ u x).property)
+  simpa only [Finset.sum_singleton, mul_one] using ht
+
 end NonVacuity.IntervalCoordinateFixture
 
 end

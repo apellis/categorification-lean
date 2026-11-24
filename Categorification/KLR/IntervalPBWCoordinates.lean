@@ -217,4 +217,53 @@ theorem intervalPBW_exit_relation_iff {η : Type*} (T : Finset (S m))
   · intro he u hu
     exact Subtype.ext ((val u hu).trans (he u hu))
 
+/-- Unsorted exterior permutations have zero coordinate. -/
+theorem intervalPBWCoefficient_eq_zero_of_not_sorted (u : S m)
+    (hu : ¬ StrictMono (fun i : Fin n => u ⟨p+i.val,by omega⟩)) : G u = 0 := by
+  apply (B).ext
+  rintro ⟨s,w,d⟩
+  have ne : (rightIntervalSplit h w).1 ≠ u := fun he => hu (he ▸ rightIntervalSplit_sorted h w)
+  rw [intervalPBWCoefficient_basis,ite_eq_right ne, LinearMap.zero_apply]
+
+/-- Right multiplication by a diagram acts separately on exterior coefficients
+provided their products belong to the interval span. -/
+theorem intervalPBWCoefficient_mul_right (x leg : R)
+    (inside : ∀ u, (G u x).val * leg ∈ M) (t : S m) :
+    (G t (x * leg)).val = (G t x).val * leg := by
+  classical
+  have row (u : S m) : (G t ((ψw (TypeA.canWord m u) * (G u x).val) * leg)).val =
+      if u = t then (G u x).val * leg else 0 := by
+    by_cases sorted : StrictMono (fun i : Fin n => u ⟨p+i.val,by omega⟩)
+    · let z : M := ⟨(G u x).val * leg,inside u⟩
+      rw [mul_assoc]
+      change (G t (ψw (TypeA.canWord m u) * z.val)).val = _
+      rw [intervalPBWCoefficient_mul Q h hQ u t sorted z]
+      split <;> rfl
+    · rw [intervalPBWCoefficient_eq_zero_of_not_sorted Q h hQ u sorted]
+      simp
+  calc
+    _ = (G t ((∑ u : S m, ψw (TypeA.canWord m u) * (G u x).val) * leg)).val :=
+      congrArg (fun y : R => (G t (y * leg)).val) (sum_intervalPBWCoefficient Q h hQ x).symm
+    _ = ∑ u : S m, if u = t then (G u x).val * leg else 0 := by
+      rw [Finset.sum_mul,map_sum,Submodule.coe_sum]
+      exact Finset.sum_congr rfl fun u _ => row u
+    _ = _ := by simp
+
+/-- The kernel test on arbitrary upper coefficients reduces to the local equations
+for their extracted exterior coordinates. The interval-span closure hypothesis
+is needed for the actual products of these coordinates with their exit legs. -/
+theorem intervalPBWCoefficient_exit_kernel_iff {η : Type*} (L : Finset η) (x leg : η → R)
+    (inside : ∀ a ∈ L, ∀ u, (G u (x a)).val * leg a ∈ M) :
+    (∑ a ∈ L, x a * leg a) = 0 ↔ ∀ u : S m, ∑ a ∈ L, (G u (x a)).val * leg a = 0 := by
+  classical
+  have read (u : S m) : (G u (∑ a ∈ L, x a * leg a)).val = ∑ a ∈ L, (G u (x a)).val * leg a := by
+    rw [map_sum,Submodule.coe_sum]
+    exact Finset.sum_congr rfl fun a ha => intervalPBWCoefficient_mul_right Q h hQ _ _ (inside a ha) u
+  constructor
+  · intro hz u
+    rw [← read u,hz,map_zero,Submodule.coe_zero]
+  · intro hz
+    rw [← sum_intervalPBWCoefficient Q h hQ (∑ a ∈ L, x a * leg a)]
+    exact Finset.sum_eq_zero fun u _ => by rw [read u, hz u, mul_zero]
+
 end Categorification.KLR.KLRAlgebra

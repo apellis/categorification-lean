@@ -1049,7 +1049,10 @@ to iterated extensions of the localized layers
 restricts to a short exact sequence of weight modules
 (`diagramWeightLeftLinearMap_shortExact`). For Lemma 6.11, vanishing of the
 derived tensor on the localized layers gives vanishing on the filtered input
-(`WeightModuleFiltration.diagramWeightDerivedTensor_cohomology_isZero`).
+(`WeightModuleFiltration.diagramWeightDerivedTensor_cohomology_isZero`). A diagram of
+ordinary complexes on the weight category realizes as a dg module, with
+pointwise quasi-isomorphisms becoming dg quasi-isomorphisms
+(`diagramWeightModuleOfComplex`, `diagramWeightModuleOfComplexMap_isQuasiIso`).
 
 A balanced homogeneous multiplication of two
 coefficients induces their product from the intermediate weight-category

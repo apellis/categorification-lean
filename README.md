@@ -1053,9 +1053,10 @@ actual multiplication adds normalized degrees
 (`braidingCoefficientMul_mem_weight`). The inversion condition in Lemma 6.5
 implies additivity (`redWordOffset_add_of_sublist`), and its balanced
 multiplication identifies the quotient corner coefficient
-(`violCornerTensorMulEquiv_tmul`). On the intermediate weight category,
-the induced multiplication is onto the actual homogeneous quotient coefficient
-at each endpoint pair (`braidFactorizationCoend_surjective`).
+(`violCornerTensorMulEquiv_tmul`). The weight-category product identifies
+each endpoint coend with its homogeneous quotient coefficient
+(`braidFactorizationCoendEquiv`). Its injectivity uses a split comparison to
+the field corner tensor (`diagramCornerWeightRightSlice_leftInverse`).
 
 Over a scalar field in degree zero the left modules are K-projective, so the
 construction gives derived Hom for every homogeneous scalar coefficient

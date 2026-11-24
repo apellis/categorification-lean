@@ -1063,6 +1063,9 @@ quasi-isomorphic augmentation (`weightDgGradedChainAugmentation_quasiIso`).
 A bounded-above weight complex realizes as a K-projective dg module when
 its individual terms, placed in their cohomological degrees, are K-projective
 (`diagramWeightModuleOfComplex_isKProjective`).
+The ordered loading resolution has a graded augmentation that is a
+quasi-isomorphism to the homogeneous standard
+(`orderedWeightDgAugmentation_quasiIso`).
 
 A balanced homogeneous multiplication of two
 coefficients induces their product from the intermediate weight-category

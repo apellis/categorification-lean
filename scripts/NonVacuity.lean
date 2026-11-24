@@ -9672,6 +9672,34 @@ end
 
 end NonVacuity.WebsterAuxiliaryBraiding
 
+noncomputable section
+
+namespace NonVacuity.WebsterTerminalLoading
+
+open Categorification CategoryTheory DG MulOpposite
+open Categorification.Stendhal Categorification.Stendhal.FundamentalCorner
+open scoped DG.DegreeZero
+attribute [local instance 1100] IsIdempotentElem.instAlgebraCorner_categorification
+
+local notation "T" => TensorProductAlgebra ℚ Q wt ({()} : Multiset Unit)
+local instance instTerminalVanishTestInternalGrading : InternalGrading Tᵐᵒᵖ :=
+  gradedAlgebraInternalGrading (Graded.oppositeGrade (tensorProductGrade grading ({()} : Multiset Unit)))
+local instance instTerminalVanishTestBigradedRing : BigradedDGRing Tᵐᵒᵖ :=
+  gradedAlgebraBigradedDGRing (Graded.oppositeGrade (tensorProductGrade grading ({()} : Multiset Unit)))
+local instance instTerminalVanishTestScalarInternalGrading : InternalGrading ℚ := scalarInternalGrading ℚ
+local instance instTerminalVanishTestScalarBigradedRing : BigradedDGRing ℚ := scalarBigradedDGRing ℚ
+local instance instTerminalVanishTestScalarDerived : CatModule.HasDerivedCategory.{1,0} (WeightCategory ℚ) :=
+  CatModule.HasDerivedCategory.standard _
+local instance instTerminalVanishTestDiagramDerived : CatModule.HasDerivedCategory.{1,0} (WeightCategory Tᵐᵒᵖ) :=
+  CatModule.HasDerivedCategory.standard _
+
+example := gradedTerminalStandard_terminalCoefficient_cohomology_isZero
+  (⟨0⟩ : WeightCategory ℚ) (n := -1) (by decide)
+
+end NonVacuity.WebsterTerminalLoading
+
+end
+
 open CategoryTheory CategoryTheory.Limits DG
 open scoped DG.DegreeZero
 

@@ -18,6 +18,10 @@ import Categorification.Algebra.CornerTensor
 import Categorification.Algebra.CornerTensorFactor
 import Categorification.Algebra.CornerTensorQuotient
 import Categorification.Algebra.DerivedTensor
+import Categorification.Algebra.DerivedTensorFiltration
+import Categorification.Algebra.DerivedTensorHomology
+import Categorification.Algebra.DerivedRightTensorHomology
+import Categorification.Algebra.DerivedTensorTriangulated
 import Categorification.Algebra.DerivedTensorComp
 import Categorification.Algebra.DerivedTensorDegreeZero
 import Categorification.Algebra.ExactDerivedTensor
@@ -1661,6 +1665,7 @@ import Categorification.WeightedKLR.RedStrands.FiveSlotKernelColumn
 import Categorification.WeightedKLR.RedStrands.IntervalColumnSpan
 import Categorification.WeightedKLR.RedStrands.FiveSlotAllBottom
 import Categorification.WeightedKLR.RedStrands.FiveSlotAllBottomStandard
+import Categorification.WeightedKLR.RedStrands.FiveSlotKernelDerivedHomology
 import Categorification.WeightedKLR.RedStrands.BraidedStandardDerived
 import Categorification.WeightedKLR.RedStrands.BlockShuffleLoading
 import Categorification.WeightedKLR.RedStrands.BlockShuffleCrossing
@@ -1683,6 +1688,7 @@ import Categorification.WeightedKLR.RedStrands.BlockPairedColumnStandard
 import Categorification.WeightedKLR.RedStrands.BraidedStandardGrading
 import Categorification.WeightedKLR.RedStrands.BlockLoadingPresentation
 import Categorification.WeightedKLR.RedStrands.BlockKernelColumn
+import Categorification.WeightedKLR.RedStrands.BlockKernelDerivedHomology
 import Categorification.WeightedKLR.RedStrands.BlockKernelIntervalExits
 import Categorification.WeightedKLR.RedStrands.InterleavedColumn
 import Categorification.WeightedKLR.RedStrands.FiniteExitAffineLift

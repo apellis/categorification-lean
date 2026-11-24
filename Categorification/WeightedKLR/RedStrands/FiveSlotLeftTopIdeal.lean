@@ -119,18 +119,26 @@ private theorem injective_of_zero_tensor_factor {S T X M N Y : Type*}
       (fun _ _ h₁ h₂ => by rw [h₁,h₂,add_zero])
   exact fun x y _ => (zero x).trans (zero y).symm
 
+/-- When the retained higher ideal vanishes, its balanced kernel-column
+inclusion is injective for every bottom loading. -/
+theorem fiveSlot_blockKernelColumnInclusion_injective_of_upperIdeal_eq_bot (t s : Seq μ₀)
+    (empty : J[t]=⊥) :
+    Function.Injective (blockKernelColumnInclusion Q Λ t 1 2 s) := by
+  have vanish (x : blockLoadingKernel Q Λ t 1 2) : x=0 := by
+    have mem : x.1.1.1 ∈ J[t] := x.2
+    rw [empty] at mem
+    apply Subtype.ext
+    apply Subtype.ext
+    apply Subtype.ext
+    exact (TwoSidedIdeal.mem_bot _).1 mem
+  exact injective_of_zero_tensor_factor (blockKernelColumnInclusion Q Λ t 1 2 s) vanish
+
 /-- At the maximal retained cut, the source kernel of the standard
 presentation vanishes. Its tensor inclusion is injective at every bottom
 loading, independently of the red and black parameters. -/
 theorem fiveSlotLeftExtreme_blockKernelColumnInclusion_injective (s : Seq μ₀) :
     Function.Injective (blockKernelColumnInclusion Q Λ v₀ 1 2 s) := by
-  have vanish (x : blockLoadingKernel Q Λ v₀ 1 2) : x=0 := by
-    have mem : x.1.1.1 ∈ J[v₀] := x.2
-    rw [fiveSlotLeftExtreme_blockUpperIdeal_eq_bot Q Λ] at mem
-    apply Subtype.ext
-    apply Subtype.ext
-    apply Subtype.ext
-    exact (TwoSidedIdeal.mem_bot _).1 mem
-  exact injective_of_zero_tensor_factor (blockKernelColumnInclusion Q Λ v₀ 1 2 s) vanish
+  exact fiveSlot_blockKernelColumnInclusion_injective_of_upperIdeal_eq_bot Q Λ v₀ s
+    (fiveSlotLeftExtreme_blockUpperIdeal_eq_bot Q Λ)
 
 end Categorification.Stendhal.BraidedStendhalAlgebra

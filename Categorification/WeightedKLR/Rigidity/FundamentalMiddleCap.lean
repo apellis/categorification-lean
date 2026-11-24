@@ -38,7 +38,8 @@ def middleCharacter : T →ₐ[ℚ] ℚ :=
   FirstWeight.boundaryCharacter Q wt (by intro r; simp [wt]) middle middle_redOrdered
     (by unfold IsViolated; decide +kernel)
 
-private theorem projectedIdem_eq (s : KLR.Seq μ) (hs : IsRedOrdered s) :
+/-- In the ordered corner the all-orders loading projector equals the image of its ordered idempotent. -/
+theorem projectedLoading_eq_mk_e (s : KLR.Seq μ) (hs : IsRedOrdered s) :
     project (StendhalAlgebraAllOrders.e s) =
       TensorProductAlgebra.mk Q wt {()} (StendhalAlgebra.e s hs) := by
   apply congrArg (TensorProductAlgebra.mk Q wt {()})
@@ -46,10 +47,10 @@ private theorem projectedIdem_eq (s : KLR.Seq μ) (hs : IsRedOrdered s) :
   exact (StendhalAlgebraAllOrders.e_mul_redOrderedIdem s).trans (ite_eq_left hs)
 
 @[simp] theorem middleCharacter_middleIdem : middleCharacter middleIdem = 1 := by
-  simp [middleIdem, projectedIdem_eq _ middle_redOrdered, middleCharacter, FirstWeight.boundaryCharacter_e]
+  simp [middleIdem, projectedLoading_eq_mk_e _ middle_redOrdered, middleCharacter, FirstWeight.boundaryCharacter_e]
 
 @[simp] theorem middleCharacter_terminalIdem : middleCharacter terminalIdem = 0 := by
-  simp [terminalIdem, projectedIdem_eq _ terminal_ordered, middleCharacter,
+  simp [terminalIdem, projectedLoading_eq_mk_e _ terminal_ordered, middleCharacter,
     FirstWeight.boundaryCharacter_e, show terminal ≠ middle by decide +kernel]
 
 /-- The left coefficient on which a diagram acts by its middle character. -/

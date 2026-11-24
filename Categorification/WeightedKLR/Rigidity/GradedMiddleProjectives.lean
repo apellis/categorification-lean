@@ -107,19 +107,30 @@ local notation "Fχ" => WeightCategory.mapFunctor gradedMiddleCharacter gradedMi
 local notation "wzero" => (⟨0⟩ : WeightCategory Tᵐᵒᵖ)
 local notation "ground" => representable (⟨0⟩ : WeightCategory ℚ)
 
-/-- The degree-zero diagram projector for the loading at internal weight zero. -/
-def gradedLoadingIdempotent (s : KLR.Seq μ) (hs : IsRedOrdered s) : Idempotent wzero where
-  val := WeightCategory.homMk (op (TensorProductAlgebra.mk Q wt {()} (StendhalAlgebra.e s hs)))
-    (show _ ∈ G 0 from mk_e_mem_tensorProductGrade grading {()} s hs)
+/-- The degree-zero diagram projector at the generating weight j. -/
+def gradedLoadingIdempotentAt (s : KLR.Seq μ) (hs : IsRedOrdered s) (j : ℤ) :
+    Idempotent (⟨j⟩ : WeightCategory Tᵐᵒᵖ) where
+  val := WeightCategory.homMk (op (TensorProductAlgebra.mk Q wt {()} (StendhalAlgebra.e s hs))) (by
+    change _ ∈ G (j-j)
+    rw [sub_self]
+    exact mk_e_mem_tensorProductGrade grading {()} s hs)
   mem_cocycles := ⟨WeightCategory.mem_grading_iff.mpr ((InDegreeZero.ring_mem_grading_iff (R := Tᵐᵒᵖ)).mpr
     (Or.inl rfl)), WeightCategory.hom_ext (InDegreeZero.ring_d_apply
       (op (TensorProductAlgebra.mk Q wt {()} (StendhalAlgebra.e s hs))))⟩
   comp_self := WeightCategory.hom_ext (congrArg op (isIdempotentElem_mk_e (Q := Q) (Λ := wt) s hs).eq)
 
-private theorem projectedCharacter (s : KLR.Seq μ) (hs : IsRedOrdered s) :
-    ((gradedLoadingIdempotent s hs).map Fχ).val.val = if s = middle then (1 : ℚ) else 0 := by
+/-- The degree-zero diagram projector for the loading at internal weight zero. -/
+abbrev gradedLoadingIdempotent (s : KLR.Seq μ) (hs : IsRedOrdered s) : Idempotent wzero :=
+  gradedLoadingIdempotentAt s hs 0
+
+private theorem projectedCharacter (s : KLR.Seq μ) (hs : IsRedOrdered s) (j : ℤ) :
+    ((gradedLoadingIdempotentAt s hs j).map Fχ).val.val = if s = middle then (1 : ℚ) else 0 := by
   change middleCharacter (TensorProductAlgebra.mk Q wt {()} (StendhalAlgebra.e s hs)) = _
   simp only [middleCharacter, FirstWeight.boundaryCharacter_e]
+
+/-- The diagram projective with its generator placed at internal weight j. -/
+def shiftedLoadingModule (s : KLR.Seq μ) (hs : IsRedOrdered s) (j : ℤ) : CatModule.{0} (WeightCategory Tᵐᵒᵖ) :=
+  corner (gradedLoadingIdempotentAt s hs j)
 
 variable [CatModule.HasDerivedCategory.{v,0} (WeightCategory ℚ)]
   [CatModule.HasDerivedCategory.{v,0} (WeightCategory Tᵐᵒᵖ)]
@@ -135,7 +146,7 @@ def gradedMiddleCap_middleIso :
       CatModule.DerivedCategory.Q.obj ground := by
   let e := gradedLoadingIdempotent middle (by unfold IsRedOrdered; decide +kernel)
   have h : (e.map Fχ).val = 𝟙 _ := WeightCategory.hom_ext
-    ((projectedCharacter middle _).trans (ite_eq_left rfl))
+    ((projectedCharacter middle _ 0).trans (ite_eq_left rfl))
   exact inducedLoadingProjectiveIso Fχ e ≪≫ CatModule.DerivedCategory.Q.mapIso (cornerIsoOfId _ h)
 
 /-- The graded cap annihilates the terminal loading projective (0,0). -/
@@ -143,9 +154,31 @@ theorem gradedMiddleCap_terminal_isZero :
     Limits.IsZero (gradedMiddleCap.obj (gradedLoadingProjective terminal terminal_ordered)) := by
   let e := gradedLoadingIdempotent terminal terminal_ordered
   have h : (e.map Fχ).val = 0 := WeightCategory.hom_ext
-    ((projectedCharacter terminal _).trans (ite_eq_right (by decide +kernel)))
+    ((projectedCharacter terminal _ 0).trans (ite_eq_right (by decide +kernel)))
   exact (CategoryTheory.Functor.map_isZero CatModule.DerivedCategory.Q (cornerIsZeroOfZero _ h)).of_iso
     (inducedLoadingProjectiveIso Fχ e)
+
+/-- On a middle projective generated at weight j the cap gives the scalar
+representable at the same weight. -/
+def gradedMiddleCap_shiftedMiddleIso (j : ℤ) :
+    gradedMiddleCap.obj (CatModule.DerivedCategory.Q.obj
+      (shiftedLoadingModule middle (by unfold IsRedOrdered; decide +kernel) j)) ≅
+      CatModule.DerivedCategory.Q.obj (representable (⟨j⟩ : WeightCategory ℚ)) := by
+  let e := gradedLoadingIdempotentAt middle (by unfold IsRedOrdered; decide +kernel) j
+  have h : (e.map Fχ).val = 𝟙 _ := WeightCategory.hom_ext
+    ((projectedCharacter middle _ j).trans (ite_eq_left rfl))
+  exact gradedMiddleCap.mapIso (CatModule.DerivedCategory.Q.mapIso (uliftSelfIso (corner e)).symm) ≪≫
+    inducedLoadingProjectiveIso Fχ e ≪≫ CatModule.DerivedCategory.Q.mapIso (cornerIsoOfId _ h)
+
+/-- The cap kills the terminal projective at every generating weight. -/
+theorem gradedMiddleCap_shiftedTerminal_isZero (j : ℤ) :
+    Limits.IsZero (gradedMiddleCap.obj (CatModule.DerivedCategory.Q.obj
+      (shiftedLoadingModule terminal terminal_ordered j))) := by
+  let e := gradedLoadingIdempotentAt terminal terminal_ordered j
+  have h : (e.map Fχ).val = 0 := WeightCategory.hom_ext
+    ((projectedCharacter terminal _ j).trans (ite_eq_right (by decide +kernel)))
+  exact (CategoryTheory.Functor.map_isZero CatModule.DerivedCategory.Q (cornerIsZeroOfZero _ h)).of_iso
+    (gradedMiddleCap.mapIso (CatModule.DerivedCategory.Q.mapIso (uliftSelfIso (corner e)).symm) ≪≫ inducedLoadingProjectiveIso Fχ e)
 
 end
 end Categorification.Stendhal.FundamentalCorner

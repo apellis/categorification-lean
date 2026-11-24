@@ -1159,7 +1159,9 @@ projective is exactly `3/2` (`fundamentalBraidMiddleClass_resolutionWeight`).
 
 On the entire crossed loading cuts the first map is injective and the
 second is surjective. The middle homology is the scalar line
-(`fundamentalBraidCutComplex_homologyIso`). The diagonal-ring equivalence
+(`fundamentalBraidCutComplex_homologyIso`). The weights admitting a homogeneous
+representative of a nonzero class consist of three halves alone
+(`fundamentalBraidHomology_weight_iff`). The diagonal-ring equivalence
 carries the two mixed crossings to the differentials of the projective
 resolution of the middle head (`fundamentalBraidSourceResolution`). Its
 balanced tensor with the braid has this same homology line in resolution

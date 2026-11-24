@@ -1057,10 +1057,13 @@ derived tensor on the localized layers gives vanishing on the filtered input
 (`WeightModuleFiltration.diagramWeightDerivedTensor_cohomology_isZero`). A diagram of
 ordinary complexes on the weight category realizes as a dg module, with
 pointwise quasi-isomorphisms becoming dg quasi-isomorphisms
-(`diagramWeightModuleOfComplex`, `diagramWeightModuleOfComplexMap_isQuasiIso`). A homogeneous exact
-augmented chain gives a dg model with a pointwise quasi-isomorphic augmentation
-(`weightDgGradedChainAugmentation_quasiIso`). Applied to the ordered
-loading resolution, this gives its literal graded augmentation and its
+(`diagramWeightModuleOfComplex`, `diagramWeightModuleOfComplexMap_isQuasiIso`).
+A homogeneous exact augmented chain gives a dg model with a pointwise
+quasi-isomorphic augmentation (`weightDgGradedChainAugmentation_quasiIso`).
+A bounded-above weight complex realizes as a K-projective dg module when
+its individual terms, placed in their cohomological degrees, are K-projective
+(`diagramWeightModuleOfComplex_isKProjective`).
+The ordered loading resolution has a graded augmentation that is a
 quasi-isomorphism to the homogeneous standard
 (`orderedWeightDgAugmentation_quasiIso`).
 
@@ -1300,6 +1303,14 @@ The complementary exterior projective then surjects onto the actual
 cokernel of the outgoing crossing
 (`Stendhal.labelTwoExteriorEndComplex_exact`,
 `Stendhal.labelTwoExteriorEndComplex_epi`).
+The outgoing image contains the other loading cuts of the exterior
+projective. Its cokernel is supported at the left exterior loading,
+where the undotted generator and first dot span it. The black
+crossing sends the first dot back to the nonzero generator, which
+proves simplicity
+(`Stendhal.labelTwoExteriorAugmentation_loading_project`,
+`Stendhal.labelTwoExteriorCokernel_span`,
+`Stendhal.labelTwoExteriorCokernel_simple`).
 
 
 

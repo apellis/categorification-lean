@@ -1767,6 +1767,7 @@ import Categorification.Algebra.DiagramBigrading
 import Categorification.Algebra.DiagramWeightBimodule
 import Categorification.Algebra.DiagramWeightScalarHom
 import Categorification.Algebra.DiagramWeightCorner
+import Categorification.Algebra.DiagramWeightCoend
 import Categorification.WeightedKLR.Rigidity.GradedCharacterCupCap
 import Categorification.WeightedKLR.Rigidity.GradedFundamentalCupCap
 import Categorification.WeightedKLR.Rigidity.SingleBlackExtremal

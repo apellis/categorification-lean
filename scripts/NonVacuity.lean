@@ -8906,6 +8906,49 @@ end
 
 end NonVacuity.WebsterWeightTensor
 
+namespace NonVacuity.WebsterWeightCoend
+
+noncomputable section
+
+open Categorification CategoryTheory DG MulOpposite
+open scoped DG.DegreeZero
+
+local instance : InternalGrading ℚ := scalarInternalGrading ℚ
+local instance : BigradedDGRing ℚ := scalarBigradedDGRing ℚ
+
+private abbrev QWeight := WeightCategory ℚ
+private abbrev G := fun j => DG.grading (M := ℚ) j
+
+private theorem leftAction {i j : ℤ} {a m : ℚ}
+    (ha : a ∈ wgrading i) (hm : m ∈ G j) : a • m ∈ G (i + j) :=
+  mul_mem_grading ha hm
+
+private theorem rightAction {i j : ℤ} {a m : ℚ}
+    (ha : a ∈ wgrading i) (hm : m ∈ G j) : op a • m ∈ G (j + i) :=
+  mul_mem_grading hm ha
+
+private def product : ℚ →+ ℚ →+ ℚ where
+  toFun x :=
+    { toFun := fun y => x * y
+      map_zero' := mul_zero _
+      map_add' := mul_add x }
+  map_zero' := AddMonoidHom.ext fun y => zero_mul y
+  map_add' x y := AddMonoidHom.ext fun z => add_mul x y z
+
+private theorem productWeight {i j : ℤ} {x y : ℚ}
+    (hx : x ∈ G i) (hy : y ∈ G j) : product x y ∈ G (i + j) :=
+  mul_mem_grading hx hy
+
+private theorem productBalanced (b x y : ℚ) : product (op b • x) y = product x (b • y) :=
+  mul_assoc x b y
+
+example := diagramWeightCoendProduct G G G leftAction rightAction leftAction rightAction
+  product productWeight productBalanced (⟨0⟩ : QWeight) (⟨0⟩ : QWeight)
+
+end
+
+end NonVacuity.WebsterWeightCoend
+
 namespace NonVacuity.WebsterGradedCorner
 noncomputable section
 

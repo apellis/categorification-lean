@@ -1781,6 +1781,7 @@ import Categorification.WeightedKLR.Rigidity.GradedMiddleProjectives
 import Categorification.WeightedKLR.Rigidity.GradedMiddleComplex
 import Categorification.WeightedKLR.Rigidity.GradedMiddleTor
 import Categorification.WeightedKLR.Rigidity.GradedMiddleScalarRepresentables
+import Categorification.WeightedKLR.Rigidity.FundamentalClockwiseClass
 import Categorification.WeightedKLR.Rigidity.SingleBlackExtremal
 import Categorification.WeightedKLR.Rigidity.ExtremalNorm
 import Categorification.WeightedKLR.Rigidity.ExtremalWeightRank

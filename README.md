@@ -1108,7 +1108,12 @@ cohomological degrees are (−1, 1) and (1, −1)
 (`gradedMiddleCupCap_fieldIso`). For a scalar representable generated at
 weight j with cohomological shift [n], the two output representables
 have weights j−1 and j+1 and shifts [n−1] and [n+1], respectively
-(`gradedMiddleCupCap_shiftedScalarIso`).
+(`gradedMiddleCupCap_shiftedScalarIso`). For the clockwise orientation in
+§8.1, the cap uses the derived tensor of Proposition 7.13. Its coefficient
+has scalar fibers at equal weights, with right action given by the middle
+character (`fundamentalTraceCoefficient_action`). The resulting fundamental
+circle has compact scalar K₀ class −(q + q⁻¹) times the ground line
+(`fundamentalClockwiseCircle_class`).
 
 For Proposition 7.2, a single
 red with coroot pairing one gives a simple projective at the red-first

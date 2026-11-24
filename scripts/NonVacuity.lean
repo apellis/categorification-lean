@@ -6367,6 +6367,15 @@ example :=
   h ▸ twoRedSwapWeight_intAdd (Λ := fracΛ) (ν := ν) sl₂ hRouquier
     (weightPairing sl₂ realization) fracWeight 1 0 1
 
+/-- Swapping the last two of three red strands leaves the first red strand
+as a spectator in the normalization of the full coefficient. -/
+example :=
+  let Ξ : Fin 3 → Unit →₀ ℕ := fun j => Finsupp.single () (j.val + 1)
+  let η : Fin 3 → Module.Dual ℂ (Matrix.Realization.StdSpace (UDot.A sl₂) ℂ) :=
+    fun j => ((Ξ j () : ℂ) / 2) • realization.root ()
+  adjacentRedSwapWeight_coordinate (Λ := Ξ) (ν := ν) sl₂ hRouquier
+    (weightPairing sl₂ realization) η [0] [] 1 2 0 2 1
+
 end NonVacuity.WebsterFigureFive
 
 namespace NonVacuity.BraidedStendhal

@@ -45,6 +45,10 @@ private theorem tensorSource_comp_zero : f' ≫ g' = 0 := by
   unfold diagramCornerWeightRightBimodule
   exact diagramWeightTensor_comp_zero _ _ _ f g fundamentalBraidGradedSource_comp_zero
 
+/-- The graded tensor crossing complex as a short complex of modules over the reversed weight category. -/
+def fundamentalBraidTensorWeightModules : ShortComplex (CatModule.{0} (WeightCategory Uᵐᵒᵖ)) :=
+  ShortComplex.mk f' g' tensorSource_comp_zero
+
 /-- The tensor of the source resolution is the two-stage model of the actual tensor maps. -/
 private def tensorModelIso :
     (D).tensorFunctor.obj fundamentalBraidGradedResolutionModel ≅
@@ -97,10 +101,15 @@ variable [CatModule.HasDerivedCategory.{z,0} (WeightCategory Kᵐᵒᵖ)]
   [CatModule.HasDerivedCategory.{z,0} (WeightCategory Uᵐᵒᵖ)]
 local notation "br" => CategoryTheory.Functor.obj DF (CatModule.DerivedCategory.Q.obj fundamentalBraidSourceGradedHead)
 
+/-- The localized derived braid is represented by the two successive tensor crossing maps. -/
+def fundamentalBraidGradedDerivedConeIso :
+    br ≅ CatModule.DerivedCategory.Q.obj (cone (coneDescent fundamentalBraidTensorWeightModules.f
+      fundamentalBraidTensorWeightModules.g fundamentalBraidTensorWeightModules.zero)) :=
+  fundamentalBraidGradedDerivedModelIso ≪≫ CatModule.DerivedCategory.Q.mapIso tensorModelIso
+
 private def derivedTensorCohomology (n i : ℤ) :
     (CatModule.DerivedCategory.cohomologyFunctor (Z n) i).obj br ≅ AddCommGrpCat.of (cohomology ((M).obj (Z n)) i) :=
-  (CatModule.DerivedCategory.cohomologyFunctor (Z n) i).mapIso (fundamentalBraidGradedDerivedModelIso ≪≫
-    CatModule.DerivedCategory.Q.mapIso tensorModelIso) ≪≫ localizedWeightCohomologyIso (Z n) i M
+  (CatModule.DerivedCategory.cohomologyFunctor (Z n) i).mapIso fundamentalBraidGradedDerivedConeIso ≪≫ localizedWeightCohomologyIso (Z n) i M
 
 /-- The fundamental graded derived braid on the middle simple has a rational
 line in cohomological degree minus one and auxiliary weight zero, the physical

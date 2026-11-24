@@ -57,6 +57,15 @@ private theorem readHead_smul (r : Uᵐᵒᵖ) (x : braidTargetMiddleHead) :
   rw [map_smul]
   exact middleDual_smul_apply _ _ _
 
+/-- The underlying scalar of the reversed-order middle head. -/
+def fundamentalBraidTargetHeadScalarEquiv : braidTargetMiddleHead ≃+ ℚ := readHead
+
+/-- The reversed-order middle character gives the action on the scalar line. -/
+theorem fundamentalBraidTargetHeadScalarEquiv_smul (r : Uᵐᵒᵖ) (x : braidTargetMiddleHead) :
+    fundamentalBraidTargetHeadScalarEquiv (r • x) =
+      fundamentalBraidTargetCharacter r.unop * fundamentalBraidTargetHeadScalarEquiv x :=
+  readHead_smul r x
+
 private abbrev scalarF : Cut middle →ₗ[ℚ] Cut terminal := (S).f.hom
 private abbrev scalarG : Cut terminal →ₗ[ℚ] Cut middle := (S).g.hom
 private theorem scalarG_zero : scalarG G = 0 := fundamentalBraidCycle_closed

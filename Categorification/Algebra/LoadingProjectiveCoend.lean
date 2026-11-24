@@ -2,7 +2,7 @@
 Copyright (c) 2026 Alex Ellis. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 -/
-import DG.Category.Tensor.Basic
+import DG.Category.Tensor.Bimodule
 import DG.Category.Derived.FiniteCell
 /-!
 # Tensoring a representable summand by a right coefficient
@@ -103,4 +103,24 @@ theorem coendLoadingEval_d
   rw [CatTensorProduct.map_d,(rid N X).map_d]
   rfl
 
+end Categorification
+
+noncomputable section
+namespace Categorification
+open CategoryTheory DG CatModule DGCategory CatTensorProduct DGOpposite
+universe u v u' v' w
+variable {C : Type u} [Category.{v} C] [Preadditive C] [∀ X Y : C, DGAddCommGroup (X ⟶ Y)] [DGCategory C]
+variable {D : Type u'} [Category.{v'} D] [Preadditive D] [∀ X Y : D, DGAddCommGroup (X ⟶ Y)]
+/-- The loading coend evaluation commutes with the action of the target dg category. -/
+theorem coendLoadingEval_lact (B : CatBimodule.{w} D C) {X : C} (e : Idempotent X)
+    {Y Z : D} (f : Y ⟶ Z) (z : CatTensorProduct (B.right Y) (corner e)) :
+    coendLoadingEval (B.right Z) e (B.tensorAct (corner e) f z) = B.lact f (coendLoadingEval (B.right Y) e z) := by
+  induction z using CatTensorProduct.induction_on with
+  | zero => rw [map_zero,map_zero,map_zero,map_zero]
+  | add a b ha hb => rw [map_add,map_add,map_add,map_add,ha,hb]
+  | tmul W n m =>
+    rw [B.tensorAct_tmul,coendLoadingEval_tmul,coendLoadingEval_tmul]
+    have hz := B.right_ract Z (m.val : X ⟶ W) (B.lact f n)
+    have hy := B.right_ract Y (m.val : X ⟶ W) n
+    exact hz.trans ((B.lact_ract' f m.val n).symm.trans (congrArg (B.lact f) hy.symm))
 end Categorification

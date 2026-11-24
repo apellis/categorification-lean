@@ -9059,7 +9059,37 @@ example := firstPairSecondSpectatorCrossing_rangeEquivNilHecke params weights (f
 
 example := firstPairSpectatorCompositeImage_eq params weights (fun _ _ _ => rfl)
 
+example := firstPairRightmost_blockLoadingKernel_projective_of_weight_one
+  params weights (fun _ _ _ => rfl) (by simp [weights])
+
 end NonVacuity.WebsterFirstPairRightmostWeightOne
+
+noncomputable section
+
+namespace NonVacuity.WebsterFirstPairRightmostWeightOneDerived
+
+open Categorification.KLR Categorification.Stendhal Categorification.QuantumGroup
+open BraidedStendhalAlgebra KL3.Diagram DG
+open scoped DG.DegreeZero
+
+attribute [local instance 1100] IsIdempotentElem.instAlgebraCorner_categorification
+attribute [local instance 1200] Ring.toIntAlgebra
+
+private abbrev C := CartanDatum.ofGraph (⊥ : SimpleGraph Unit)
+private abbrev Q := CL.qCL (CL.CLScalars.kl : CL.CLScalars C ℚ)
+private abbrev weights : Fin 3 → Unit →₀ ℕ := fun r => Finsupp.single () (if r = 2 then 1 else 2)
+private abbrev ν : Multiset Unit := {()} + {()}
+
+local instance (order : List (Fin 3)) : HasDerivedCategory.{0,0}
+    (isIdempotentElem_violMk_redProj ℚ Q weights ν order).Cornerᵐᵒᵖ :=
+  HasDerivedCategory.small _
+
+example := firstPairRightmost_partialStandard_braid_homology_vanish_of_weight_one
+  (k := ℚ) C weights (by simp [weights]) (-2) (by decide)
+
+end NonVacuity.WebsterFirstPairRightmostWeightOneDerived
+
+end
 
 namespace NonVacuity.WebsterFirstPairTerminalColumn
 

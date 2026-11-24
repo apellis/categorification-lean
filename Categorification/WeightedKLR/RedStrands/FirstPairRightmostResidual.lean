@@ -4,6 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 -/
 import Categorification.WeightedKLR.RedStrands.FirstPairRightmostWeightOne
 import Categorification.WeightedKLR.RedStrands.BlockKernelSingleLayer
+import Mathlib.Algebra.Exact.Basic
 import Mathlib.LinearAlgebra.Isomorphisms
 
 /-!
@@ -18,6 +19,21 @@ partial standard.
 noncomputable section
 
 namespace Categorification.Stendhal.BraidedStendhalAlgebra
+
+private theorem projective_of_exact_with_retraction {S V P I : Type*} [Semiring S]
+    [AddCommGroup V] [AddCommGroup P] [AddCommGroup I]
+    [Module S V] [Module S P] [Module S I]
+    (incl : V →ₗ[S] P) (out : P →ₗ[S] I) (ret : P →ₗ[S] V)
+    (hex : Function.Exact incl out) (surj : Function.Surjective out)
+    (split : ret.comp incl = LinearMap.id) (projective : Module.Projective S P) :
+    Module.Projective S I := by
+  let : Module.Projective S P := projective
+  have inj : Function.Injective incl := by
+    intro x y eq
+    exact (LinearMap.congr_fun split x).symm.trans
+      ((congrArg ret eq).trans (LinearMap.congr_fun split y))
+  obtain ⟨sectionMap,hsec⟩ := ((hex.split_tfae inj surj).out 2 1 rfl rfl).mp ⟨ret,split⟩
+  exact Module.Projective.of_split sectionMap out hsec
 
 private abbrev quotientModule {S M : Type*} [Ring S] [AddCommGroup M] [Module S M]
     (K : Submodule S M) : ModuleCat S :=
@@ -385,6 +401,268 @@ theorem firstPairSpectatorCompositeImage_eq (hQ : KLRSymm Q) :
     LinearMap.range ((LinearMap.rangeRestrict f).comp bmap) =
       (K).map (LinearMap.rangeRestrict f) := by
   rw [LinearMap.range_comp, firstPairTerminalSpectatorCrossing_range Q Λ hQ]
+
+section TerminalProduct
+
+local notation "τ" => (ψ 2 * e D : A)
+local notation "σ" => (ψw [3,3] * e D : A)
+local notation "double" => (ψw [2,3] * e D : A)
+
+private theorem firstPair_terminal_beta_left :
+    (e B : A) * β = β := by
+  have s : sadj N 3 • D = B := sadj_smul_smul ..
+  rw [ψ_mul_e, s, ← mul_assoc, e_mul_self]
+
+private theorem firstPair_terminal_tau_left :
+    (e D : A) * τ = τ := by
+  have s : sadj N 2 • D = D := by decide +kernel
+  rw [ψ_mul_e, s, ← mul_assoc, e_mul_self]
+
+private theorem firstPair_terminal_sigma_left :
+    (e D : A) * σ = σ := by
+  have s : wordProd N [3,3] • D = D := by decide +kernel
+  have sinv : (wordProd N [3,3])⁻¹ • D = D := by
+    calc
+      _ = (wordProd N [3,3])⁻¹ • (wordProd N [3,3] • D) :=
+        congrArg ((wordProd N [3,3])⁻¹ • ·) s.symm
+      _ = _ := inv_smul_smul ..
+  rw [← mul_assoc, e_mul_ψw, sinv, mul_assoc, e_mul_self]
+
+private theorem firstPair_terminal_gamma_beta : γ * β = τ * σ := by
+  have aux : ((ψw [2,3] : A) * β) = (ψ 2 : A) * σ := by
+    simp only [ψw_cons, ψw_nil, mul_one, mul_assoc]
+  rw [mul_assoc (ψw [2,3]), firstPair_terminal_beta_left Q Λ,
+    mul_assoc (ψ 2), firstPair_terminal_sigma_left Q Λ]
+  exact aux
+
+set_option backward.isDefEq.respectTransparency false in
+private theorem firstPair_terminal_delta_beta : δ * β = double * τ := by
+  have h₂ : (D).lbl ⟨2, by decide⟩ = Sum.inl () := by decide
+  have h₄ : (D).lbl ⟨4, by decide⟩ = Sum.inr 2 := by decide
+  have ne : (Sum.inl () : Unit ⊕ Fin 3) ≠ Sum.inr 2 := by decide
+  have br := braid (Q := stendhalQ Q Λ) 2 (by decide) D
+  rw [h₂,h₄] at br
+  simp [ne] at br
+  let c : A := ψ 2 * ψ 3 * ψ 2
+  let d : A := ψ 3 * ψ 2 * ψ 3
+  have br₀ : (c - d) * e D = 0 := br
+  have eq : c * e D = d * e D := sub_eq_zero.mp ((sub_mul c d (e D)).symm.trans br₀)
+  rw [mul_assoc (ψw [3,2]),firstPair_terminal_beta_left Q Λ,
+    mul_assoc (ψw [2,3]),firstPair_terminal_tau_left Q Λ]
+  simpa only [ψw_cons, ψw_nil, mul_one, mul_assoc] using (show (ψ 3 * ψ 2 * ψ 3 : A) * e D = (ψ 2 * ψ 3 * ψ 2 : A) * e D from eq.symm)
+
+private theorem firstPair_terminal_tau_sq : τ * τ = 0 := by
+  have equal : (D).lbl ⟨2, by decide⟩ = (D).lbl ⟨3, by decide⟩ := by decide
+  have sq := ψ_sq (Q := stendhalQ Q Λ) 2 (by decide) D
+  rw [ite_eq_left equal] at sq
+  rw [mul_assoc (ψ 2),firstPair_terminal_tau_left Q Λ,← mul_assoc (ψ 2)]
+  exact sq
+
+
+local notation "α" => (ψ 3 * e B : A)
+local notation "dot₃" => (x (⟨3,by decide⟩ : Fin N) : A)
+local notation "dot₂" => (x (⟨2,by decide⟩ : Fin N) : A)
+
+private theorem firstPair_terminal_alpha_left : (e D : A) * α = α := by
+  rw [ψ_mul_e,← mul_assoc,e_mul_self]
+
+private theorem firstPair_terminal_gamma_factor : γ = τ * α := by
+  rw [mul_assoc (ψ 2),firstPair_terminal_alpha_left Q Λ]
+  simp only [ψw_cons,ψw_nil,mul_one,mul_assoc]
+
+set_option backward.isDefEq.respectTransparency false in
+private theorem firstPair_terminal_weightOne_return (one : Λ 2 () = 1) :
+    σ = (dot₃ * e D : A) := by
+  have labels₃ : (D).lbl ⟨3,by decide⟩ = .inl () := by decide
+  have labels₄ : (D).lbl ⟨4,by decide⟩ = .inr 2 := by decide
+  have sq := ψ_sq (Q := stendhalQ Q Λ) 3 (by decide) D
+  rw [labels₃,labels₄,ite_eq_right Sum.inl_ne_inr,stendhalQ_inl_inr,one,pow_one] at sq
+  let dots : Fin 2 → Fin N := ![⟨3,by decide⟩,⟨4,by decide⟩]
+  have indices : ![dot₃,(x ⟨4,by decide⟩ : A)] = fun a => x (dots a) := by
+    funext a
+    fin_cases a <;> rfl
+  have ev : ncEval ![dot₃,(x ⟨4,by decide⟩ : A)] (X 0 : MvPolynomial (Fin 2) k) = dot₃ := by
+    rw [indices]
+    calc
+      _ = x (dots 0) := by
+        simpa only [rename_X,pol_X] using
+          (ncEval_eq_pol (Q := stendhalQ Q Λ) dots (X 0 : MvPolynomial (Fin 2) k))
+      _ = dot₃ := congrArg (fun a : Fin N => (x a : A)) (show dots 0 = ⟨3,by decide⟩ from rfl)
+  have raw : ((ψ 3 * ψ 3 : A) * e D) = dot₃ * e D := sq.trans (congrArg (· * e D) ev)
+  simpa only [ψw_cons,ψw_nil,mul_one,mul_assoc] using raw
+
+set_option backward.isDefEq.respectTransparency false in
+private theorem firstPair_terminal_weightOne_section (one : Λ 2 () = 1) :
+    -(γ * β * τ) = τ := by
+  have dleft : (e D : A) * (dot₃ * e D) = dot₃ * e D := by
+    rw [← mul_assoc,← x_mul_e,mul_assoc,e_mul_self]
+  have relation : (dot₂ * τ - τ * (dot₃ * e D) : A) = e D := by
+    calc
+      _ = (dot₂ * ψ 2 - ψ 2 * dot₃) * e D := by
+        rw [mul_assoc (ψ 2) (e D), dleft]
+        simp only [mul_assoc,sub_mul]
+      _ = _ := by rw [dot_cross_left 2 (by decide : 2+1 < N),ite_eq_left (by decide)]
+  have h := congrArg (· * τ) relation
+  rw [sub_mul,mul_assoc dot₂,firstPair_terminal_tau_sq Q Λ,mul_zero,zero_sub,
+    firstPair_terminal_tau_left Q Λ] at h
+  rw [firstPair_terminal_gamma_beta Q Λ, firstPair_terminal_weightOne_return Q Λ one]
+  exact h
+
+end TerminalProduct
+
+local notation "τD" => (ψ 2 * e D : A)
+
+private theorem terminal_nilHecke_left : p D * F τD = F τD :=
+  (map_mul F _ _).symm.trans (congrArg F (firstPair_terminal_tau_left Q Λ))
+
+/-- The equal-black crossing on the terminal loading projective. -/
+def firstPairTerminalNilHeckeCrossing : PD →ₗ[Tᵐᵒᵖ] PD :=
+  supportedCornerMul Q Λ firstPair_terminal_same_order firstPair_terminal_same_order (F τD)
+    (terminal_nilHecke_left Q Λ) (by rw [← map_mul F,mul_assoc,e_mul_self])
+
+local notation "tauTerm" => firstPairTerminalNilHeckeCrossing Q Λ
+
+private theorem terminal_nilHecke_val (y : PD) :
+    (tauTerm y).1.1 = F τD * y.1.1 := rfl
+
+
+local notation "α" => (ψ 3 * e B : A)
+local notation "γ" => (ψw [2,3] * e B : A)
+local notation "ρ" => (ψ 2 * e Rtop : A)
+
+private def middleToTerminalReturn : P →ₗ[Tᵐᵒᵖ] PD :=
+  supportedCornerMul Q Λ rfl firstPair_terminal_same_order (-F α)
+    (by rw [mul_neg, ← map_mul F, firstPair_terminal_alpha_left Q Λ])
+    (by rw [neg_mul, ← map_mul F, mul_assoc,e_mul_self])
+
+private theorem middleToTerminalReturn_val (y : P) :
+    (middleToTerminalReturn Q Λ y).1.1 = (-F α) * y.1.1 := rfl
+
+/-- At final spectator weight one, the negative other braid path maps the
+middle loading projective to the terminal nilHecke image. -/
+def middleToTerminalNilHeckeImage : P →ₗ[Tᵐᵒᵖ] LinearMap.range tauTerm :=
+  (LinearMap.rangeRestrict tauTerm).comp (middleToTerminalReturn Q Λ)
+
+local notation "sectionRet" => middleToTerminalNilHeckeImage Q Λ
+
+private theorem middleToTerminalNilHeckeImage_val (y : P) :
+    (sectionRet y).1.1.1 = -(F γ * y.1.1) := by
+  change (tauTerm (middleToTerminalReturn Q Λ y)).1.1 = _
+  rw [terminal_nilHecke_val Q Λ,middleToTerminalReturn_val Q Λ,neg_mul,mul_neg,← mul_assoc,← map_mul F,
+    ← firstPair_terminal_gamma_factor Q Λ]
+
+/-- The terminal spectator crossing on the divided terminal summand. -/
+def terminalNilHeckeImageToMiddle : LinearMap.range tauTerm →ₗ[Tᵐᵒᵖ] P :=
+  (bmap).comp (LinearMap.range tauTerm).subtype
+
+local notation "incl" => terminalNilHeckeImageToMiddle Q Λ
+
+private theorem terminalNilHeckeImageToMiddle_val (z : LinearMap.range tauTerm) :
+    (incl z).1.1 = F β * z.1.1.1 :=
+  firstPair_terminalSpectatorCrossing_val Q Λ z.1
+
+private theorem terminalImage_split (one : Λ 2 () = 1) (z : LinearMap.range tauTerm) :
+    sectionRet (incl z) = z := by
+  obtain ⟨x,hx⟩ := z.2
+  have value : F τD * x.1.1 = z.1.1.1 :=
+    (terminal_nilHecke_val Q Λ x).symm.trans (congrArg (fun v : PD => v.1.1) hx)
+  apply Subtype.ext
+  apply Subtype.ext
+  apply Subtype.ext
+  rw [middleToTerminalNilHeckeImage_val Q Λ,terminalNilHeckeImageToMiddle_val Q Λ,← value]
+  simpa only [map_neg,map_mul F,neg_mul,mul_assoc] using
+    congrArg (fun c : A => F c * x.1.1) (firstPair_terminal_weightOne_section Q Λ one)
+
+/-- The divided terminal summand includes into the middle loading
+projective by a split monomorphism. -/
+theorem terminalNilHeckeImageToMiddle_split (one : Λ 2 () = 1) :
+    (sectionRet).comp incl = LinearMap.id :=
+  LinearMap.ext (terminalImage_split Q Λ one)
+
+set_option backward.isDefEq.respectTransparency false in
+/-- At spectator weight one, the kernel of the second crossing consists
+exactly of the divided terminal summand embedded by the first crossing. -/
+theorem terminalNilHeckeImage_range_eq_secondCrossing_ker (one : Λ 2 () = 1) :
+    LinearMap.range incl = LinearMap.ker f := by
+  ext y
+  constructor
+  · rintro ⟨z,rfl⟩
+    obtain ⟨x,hx⟩ := z.2
+    have value : F τD * x.1.1 = z.1.1.1 :=
+      (terminal_nilHecke_val Q Λ x).symm.trans (congrArg (fun v : PD => v.1.1) hx)
+    have kill : (δ * β) * τD = 0 := by
+      rw [firstPair_terminal_delta_beta Q Λ,mul_assoc,firstPair_terminal_tau_sq Q Λ,mul_zero]
+    apply LinearMap.mem_ker.mpr
+    apply Subtype.ext
+    apply Subtype.ext
+    change (f (incl z)).1.1 = (0 : V)
+    rw [firstPairSecondSpectatorCrossing_val Q Λ,terminalNilHeckeImageToMiddle_val Q Λ,← value]
+    simpa only [map_mul F,map_zero,mul_assoc,zero_mul] using
+      congrArg (fun c : A => F c * x.1.1) kill
+  · intro hy
+    have zero : F δ * y.1.1 = 0 := (firstPairSecondSpectatorCrossing_val Q Λ y).symm.trans
+      (congrArg (fun z : P' => z.1.1) (LinearMap.mem_ker.mp hy))
+    have yleft : p B * y.1.1 = y.1.1 := congrArg (fun z : T => z.1) y.2
+    have relation : F ρ * F δ - F β * F γ = p B := by
+      calc
+        _ = F (ρ * δ) - F (β * γ) :=
+          congrArg₂ (· - ·) (map_mul F ρ δ).symm (map_mul F β γ).symm
+        _ = F (ρ * δ - β * γ) := (map_sub F _ _).symm
+        _ = p B := congrArg F (firstPair_rightmost_weightOne_braid Q Λ one)
+    have br := congrArg (fun c : V => c * y.1.1) relation
+    rw [sub_mul,mul_assoc (F ρ),mul_assoc (F β),zero,mul_zero,zero_sub,yleft] at br
+    refine ⟨sectionRet y,?_⟩
+    apply Subtype.ext
+    apply Subtype.ext
+    rw [terminalNilHeckeImageToMiddle_val Q Λ,middleToTerminalNilHeckeImage_val Q Λ,mul_neg]
+    exact br
+
+
+set_option backward.isDefEq.respectTransparency false in
+/-- At final spectator weight one, the second crossing image is a direct
+summand of the middle loading projective. -/
+theorem firstPairSecondSpectatorCrossing_range_projective_of_weight_one (one : Λ 2 () = 1) :
+    Module.Projective Tᵐᵒᵖ (LinearMap.range f) := by
+  let : AddCommGroup P := Submodule.addCommGroup P
+  let : Module Tᵐᵒᵖ P := Submodule.module P
+  let : AddCommGroup P' := Submodule.addCommGroup P'
+  let : Module Tᵐᵒᵖ P' := Submodule.module P'
+  let : AddCommGroup PD := Submodule.addCommGroup PD
+  let : Module Tᵐᵒᵖ PD := Submodule.module PD
+  let domain : Submodule Tᵐᵒᵖ PD := LinearMap.range tauTerm
+  let image : Submodule Tᵐᵒᵖ P' := LinearMap.range f
+  let : AddCommGroup domain := Submodule.addCommGroup (R := Tᵐᵒᵖ) (M := PD) domain
+  let : Module Tᵐᵒᵖ domain := Submodule.module (R := Tᵐᵒᵖ) (M := PD) domain
+  let : AddCommGroup image := Submodule.addCommGroup (R := Tᵐᵒᵖ) (M := P') image
+  let : Module Tᵐᵒᵖ image := Submodule.module (R := Tᵐᵒᵖ) (M := P') image
+  let out : P →ₗ[Tᵐᵒᵖ] image := LinearMap.rangeRestrict f
+  have hex : Function.Exact incl out := by
+    rw [LinearMap.exact_iff, show LinearMap.ker out = LinearMap.ker f from LinearMap.ker_rangeRestrict f]
+    exact (terminalNilHeckeImage_range_eq_secondCrossing_ker Q Λ one).symm
+  have surj : Function.Surjective out := by
+    rintro ⟨_,⟨x,hx⟩⟩
+    exact ⟨x,Subtype.ext hx⟩
+  exact projective_of_exact_with_retraction incl out sectionRet hex surj
+    (terminalNilHeckeImageToMiddle_split Q Λ one) (blockLoading_projective Q Λ B)
+
+set_option backward.isDefEq.respectTransparency false in
+/-- The entire rightmost higher-cut kernel is projective when the final
+spectator pairing is one. -/
+theorem firstPairRightmost_blockLoadingKernel_projective_of_weight_one (hQ : KLRSymm Q)
+    (one : Λ 2 () = 1) :
+    Module.Projective
+      (isIdempotentElem_violMk_redProj k Q Λ ν (redWord Rtop)).Cornerᵐᵒᵖ
+      (blockLoadingKernel Q Λ Rtop 0 1) := by
+  let : Module.Projective Tᵐᵒᵖ (LinearMap.range f) :=
+    firstPairSecondSpectatorCrossing_range_projective_of_weight_one Q Λ one
+  let equiv := firstPairSecondSpectatorCrossing_rangeEquivNilHecke Q Λ hQ
+  let image := LinearMap.range (rightmostNilHeckeMap Q Λ)
+  let : Module.Projective Tᵐᵒᵖ image := Module.Projective.of_equiv equiv
+  let : Module.Projective Tᵐᵒᵖ (image × image) := inferInstance
+  let split : blockLoadingKernel Q Λ Rtop 0 1 ≃ₗ[Tᵐᵒᵖ] image × image :=
+    firstPairTwoAfter_equiv_nilHeckeRangeProd Q Λ
+  change Module.Projective Tᵐᵒᵖ (blockLoadingKernel Q Λ Rtop 0 1)
+  exact Module.Projective.of_equiv split.symm
 
 end TerminalMap
 

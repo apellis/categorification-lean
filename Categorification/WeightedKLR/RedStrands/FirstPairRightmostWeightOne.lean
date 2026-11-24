@@ -44,7 +44,9 @@ private theorem firstPair_weightOne_qbar :
   simp
 
 set_option backward.isDefEq.respectTransparency false in
-private theorem firstPair_rightmost_weightOne_braid (one : Λ 2 () = 1) :
+/-- In the black-spectator-black braid at spectator weight one, the
+two crossing paths differ by the middle loading idempotent. -/
+theorem firstPair_rightmost_weightOne_braid (one : Λ 2 () = 1) :
     (ρ * δ - β * γ : A) = e B := by
   have tR : wordProd N [3,2] • B = Rtop := by decide +kernel
   have tD : wordProd N [2,3] • B = D := by decide +kernel

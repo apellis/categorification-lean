@@ -1674,6 +1674,7 @@ import Categorification.WeightedKLR.RedStrands.FiveSlotKernelDerivedHomology
 import Categorification.WeightedKLR.RedStrands.FiveSlotAllBottom
 import Categorification.WeightedKLR.RedStrands.FiveSlotAllBottomStandard
 import Categorification.WeightedKLR.RedStrands.FiveSlotAllBottomDerived
+import Categorification.WeightedKLR.RedStrands.FiveSlotLeftTopCancellation
 import Categorification.WeightedKLR.RedStrands.FiveSlotLeftTopIdeal
 import Categorification.WeightedKLR.RedStrands.FiveSlotCentralTop
 import Categorification.WeightedKLR.RedStrands.FiveSlotLeftTopPrincipal
@@ -1683,7 +1684,6 @@ import Categorification.WeightedKLR.RedStrands.FiveSlotSpectatorWeight
 import Categorification.WeightedKLR.RedStrands.TwoBlackFlagIdeal
 import Categorification.WeightedKLR.RedStrands.FiveSlotFlagSource
 import Categorification.WeightedKLR.RedStrands.FiveSlotFlagReadout
-import Categorification.WeightedKLR.RedStrands.FiveSlotLeftTopCancellation
 import Categorification.WeightedKLR.RedStrands.BraidedStandardDerived
 import Categorification.WeightedKLR.RedStrands.BlockShuffleLoading
 import Categorification.WeightedKLR.RedStrands.BlockShuffleCrossing

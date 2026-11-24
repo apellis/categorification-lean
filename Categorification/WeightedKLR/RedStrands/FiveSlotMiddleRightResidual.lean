@@ -21,6 +21,35 @@ namespace Categorification.Stendhal.BraidedStendhalAlgebra
 open KLR KLRAlgebra TypeA
 attribute [local instance 1100] IsIdempotentElem.instAlgebraCorner_categorification
 
+section Module
+
+variable {A P P' M : Type} [Ring A]
+  [AddCommGroup P] [Module A P] [AddCommGroup P'] [Module A P']
+  [AddCommGroup M] [Module A M]
+
+private theorem quotient_surjects_of_two_images
+    (first : P →ₗ[A] M) (second : P' →ₗ[A] M) (N : Submodule A P')
+    (vanish : ∀ x ∈ N, ∃ y : P, first y = second x)
+    (gen : ∀ x : M, ∃ y : P, ∃ z : P', first y + second z = x) :
+    ∃ f : (P' ⧸ N) →ₗ[A] (M ⧸ first.range), Function.Surjective f := by
+  let G := first.range.mkQ.comp second
+  have hker : N ≤ LinearMap.ker G := by
+    intro x hx
+    obtain ⟨y, hy⟩ := vanish x hx
+    exact Submodule.Quotient.mk_eq_zero.2 ⟨y, hy⟩
+  refine ⟨N.liftQ G hker, ?_⟩
+  intro q
+  obtain ⟨x, rfl⟩ := first.range.mkQ_surjective q
+  obtain ⟨y, z, hz⟩ := gen x
+  use N.mkQ z
+  change N.liftQ G hker (Submodule.Quotient.mk z) = first.range.mkQ x
+  rw [Submodule.liftQ_apply]
+  change first.range.mkQ (second z) = first.range.mkQ x
+  have hz₀ : first.range.mkQ (first y) = 0 := Submodule.Quotient.mk_eq_zero.2 ⟨y, rfl⟩
+  rw [← hz, map_add, hz₀, zero_add]
+
+end Module
+
 variable {k : Type} [CommRing k] (Q : Unit → Unit → MvPolynomial (Fin 2) k)
   (Λ : Fin 3 → Unit →₀ ℕ)
 
@@ -96,7 +125,6 @@ def fiveSlotMiddleRight_nearbyMap : P₂ →ₗ[Tᵐᵒᵖ] K :=
 local notation "f₁" => fiveSlotMiddleRight_centralMap Q Λ
 local notation "f₂" => fiveSlotMiddleRight_nearbyMap Q Λ
 local notation "J₁" => LinearMap.range f₁
-local notation "G" => LinearMap.comp (Submodule.mkQ J₁) f₂
 
 private theorem centralMap_val (u : P₁) : (f₁ u).1.1.1 = F c₁ * u.1.1 :=
   affineIntoKernelMap_val Q Λ 1 2 central_order central_higher c₁ (central_left Q Λ) (central_right Q Λ) u
@@ -111,9 +139,8 @@ private theorem mem_nearby_kernel {ω : List (Fin 3)} (hω : redWord nearby = ω
   subst ω
   rfl
 
-private theorem nearby_kernel_maps_into_central (hQ : KLRSymm Q) :
-    K₂ ≤ LinearMap.ker G := by
-  intro x hx
+private theorem nearby_kernel_maps_into_central (hQ : KLRSymm Q) (x : P₂) (hx : x ∈ K₂) :
+    ∃ a : P₁, f₁ a = f₂ x := by
   have hxJ : x.1.1 ∈ blockUpperIdeal k Q Λ ν₀ 1 2
       (adjacentBlockRoot 1 2 nearby) (redWord nearby) := by
     rw [nearby_order]
@@ -142,17 +169,17 @@ private theorem nearby_kernel_maps_into_central (hQ : KLRSymm Q) :
     apply Subtype.ext
     apply Subtype.ext
     apply Subtype.ext
+    change (f₁ a).1.1.1 = (f₂ x).1.1.1
     rw [centralMap_val, nearbyMap_val]
     change F c₁ * (p central * (E * z * E)) = F c₂ * x.1.1
     calc
       _ = (F c₁ * p central * E) * z * E := by simp only [mul_assoc]
       _ = (F c₂ * x.1.1) * E := by rw [h₁, h₁E, ← hz]
       _ = _ := by rw [mul_assoc, xr]
-  exact Submodule.Quotient.mk_eq_zero.2 ⟨a, hrep⟩
+  exact ⟨a, hrep⟩
 
-private theorem nearby_residual_surjective (hQ : KLRSymm Q) : Function.Surjective G := by
-  intro q
-  obtain ⟨x, rfl⟩ := (J₁).mkQ_surjective q
+private theorem middleRight_generated_by_maps (hQ : KLRSymm Q) (x : K) :
+    ∃ u : P₁, ∃ v : P₂, f₁ u + f₂ v = x := by
   obtain ⟨a, b, ha, hb, hx⟩ := fiveSlotMiddleRight_blockLoadingKernel_two_factors Q Λ hQ x
   let u : P₁ := ⟨a, Subtype.ext ha⟩
   let v : P₂ := ⟨b, Subtype.ext hb⟩
@@ -163,20 +190,15 @@ private theorem nearby_residual_surjective (hQ : KLRSymm Q) : Function.Surjectiv
     change (f₁ u).1.1.1 + (f₂ v).1.1.1 = x.1.1.1
     rw [centralMap_val, nearbyMap_val]
     exact hx.symm
-  refine ⟨v, ?_⟩
-  change (J₁).mkQ (f₂ v) = (J₁).mkQ x
-  have zero : (J₁).mkQ (f₁ u) = 0 := Submodule.Quotient.mk_eq_zero.2 ⟨u, rfl⟩
-  rw [← sum, map_add, zero, zero_add]
+  exact ⟨u, v, sum⟩
 
 /-- The actual nearby higher partial standard surjects onto the remainder
 of the middle-right higher kernel after the central crossing. -/
 theorem fiveSlotMiddleRight_residual_quotient_of_nearby (hQ : KLRSymm Q) :
     ∃ f : (blockPartialStandardAt Q Λ nearby 1 2 κ nearby_order) →ₗ[Tᵐᵒᵖ] (K ⧸ J₁),
       Function.Surjective f := by
-  let lift := (K₂).liftQ G (nearby_kernel_maps_into_central Q Λ hQ)
-  refine ⟨lift, ?_⟩
-  intro q
-  obtain ⟨v, hv⟩ := nearby_residual_surjective Q Λ hQ q
-  exact ⟨(K₂).mkQ v, (LinearMap.congr_fun (Submodule.liftQ_mkQ _ _ _) v).trans hv⟩
+  change ∃ f : (P₂ ⧸ K₂) →ₗ[Tᵐᵒᵖ] (K ⧸ J₁), Function.Surjective f
+  exact quotient_surjects_of_two_images f₁ f₂ K₂
+    (nearby_kernel_maps_into_central Q Λ hQ) (middleRight_generated_by_maps Q Λ hQ)
 
 end Categorification.Stendhal.BraidedStendhalAlgebra

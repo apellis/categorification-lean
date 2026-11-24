@@ -10610,4 +10610,62 @@ example := orderedWeightDerivedTensor_cohomology_isZero_of_filtered_loading_supp
 
 end NonVacuity.WebsterOrderedGradedResolution
 
+namespace NonVacuity.WebsterDirectLeftWeight
+
+open Categorification Categorification.Stendhal Categorification.ModuleFiltration
+open KLR DG CategoryTheory
+open scoped DG.DegreeZero
+
+attribute [local instance 1100] IsIdempotentElem.instAlgebraCorner_categorification
+
+private abbrev vacuumParameters : Unit → Unit → MvPolynomial (Fin 2) ℚ := fun _ _ => 0
+private abbrev vacuumWeights : Fin 0 → Unit →₀ ℕ := Fin.elim0
+
+private def vacuumBlackGrade : GradingDatum vacuumParameters where
+  degX _ := 0
+  degΨ _ _ := 0
+  degΨ_self _ := rfl
+  isWeightedHomogeneous a b h := (h (Subsingleton.elim a b)).elim
+
+private def vacuumGrade : GradingDatum (stendhalQ vacuumParameters vacuumWeights) :=
+  stendhalGradingDatum vacuumWeights vacuumBlackGrade (fun _ => 0) (fun _ => rfl)
+
+private abbrev vacuumLabel := {t : Seq (stendhalWeight 0 (0 : Multiset Unit)) // IsRedOrdered t}
+private abbrev vacuumAlgebra := TensorProductAlgebra ℚ vacuumParameters vacuumWeights (0 : Multiset Unit)
+private abbrev vacuumStandard (s : vacuumLabel) :=
+  ModuleCat.of vacuumAlgebra (leftStandard vacuumParameters vacuumWeights s.val s.property)
+private abbrev vacuumKernel (s : vacuumLabel) :=
+  (leftUpper vacuumParameters vacuumWeights s.val s.property).comap
+    (lIdeal (seqIdem vacuumParameters vacuumWeights s.val s.property)).subtype
+
+private def vacuumLoading : vacuumLabel := by
+  let s : Seq (stendhalWeight 0 (0 : Multiset Unit)) := by
+    simpa [stendhalWeight] using (KLR.Seq.nil : Seq (0 : Multiset (Unit ⊕ Fin 0)))
+  exact ⟨s, fun _ _ r => r.elim0⟩
+
+private theorem vacuumHigherFiltration (s : vacuumLabel) :
+    ∃ m : List vacuumLabel, (∀ t ∈ m, StendhalLT s.val t.val) ∧
+      HasFiltration vacuumStandard m (ModuleCat.of vacuumAlgebra (vacuumKernel s)) := by
+  have hzero : leftUpper vacuumParameters vacuumWeights s.val s.property = ⊥ := by
+    apply Submodule.span_eq_bot.mpr
+    rintro _ ⟨t, ht, a, hlt, h⟩
+    exact (hlt.2 fun r => r.elim0).elim
+  refine ⟨[], by simp, HasFiltration.zero ?_⟩
+  constructor
+  intro x y
+  apply Subtype.ext
+  apply Subtype.ext
+  have hx : x.val.val ∈ leftUpper vacuumParameters vacuumWeights s.val s.property := x.property
+  have hy : y.val.val ∈ leftUpper vacuumParameters vacuumWeights s.val s.property := y.property
+  rw [hzero, Submodule.mem_bot] at hx hy
+  exact hx.trans hy.symm
+
+example :=
+  leftStandardOrderedWeightResolution_isKProjective vacuumGrade vacuumHigherFiltration vacuumLoading
+
+example :=
+  leftStandardOrderedWeightAugmentation_quasiIso vacuumGrade vacuumHigherFiltration vacuumLoading
+
+end NonVacuity.WebsterDirectLeftWeight
+
 end

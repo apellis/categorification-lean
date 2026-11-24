@@ -11331,6 +11331,8 @@ example := derivedTensorHomologyIsoOrdinaryLinear_coefficient_naturality
 example : NatTrans.CommShift (derivedTensorCoefficientMap twice twice_op) ℤ :=
   inferInstance
 
+example := ambientH0CoefficientMap_tmul twice twice_op (2 : ℚ) (3 : ℚ)
+
 end
 
 end WebsterDerivedTensorCoefficientFixture

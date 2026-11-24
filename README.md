@@ -1046,9 +1046,10 @@ multiplication identifies the quotient corner coefficient
 (`violCornerTensorMulEquiv_tmul`). The additive universal property
 `CornerTensor.liftAdd` descends additive balanced products with an
 additive target. On rectangular coefficients it sandwiches the inputs
-(`cornerTensorCutLift_tmul`). The weight-category product surjects onto
-the actual homogeneous quotient at each endpoint pair
-(`braidFactorizationCoend_surjective`).
+(`cornerTensorCutLift_tmul`). The weight-category product identifies each endpoint coend with its
+homogeneous quotient coefficient (`braidFactorizationCoendEquiv`).
+Its injectivity uses a split comparison to the field corner tensor
+(`diagramCornerWeightRightSlice_leftInverse`).
 
 Over a scalar field in degree zero the left modules are K-projective, so the
 construction gives derived Hom for every homogeneous scalar coefficient

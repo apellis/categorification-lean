@@ -217,6 +217,28 @@ theorem twoBlack_extreme_middle (s : Seq ν) (p : ℕ) (hp : p + 3 < m)
       rw [slide_above s [p + 2] p (by omega) q ha, slide_above s [p, p + 2] (p + 1) (by omega) _ hc]
       rfl
 
+/-- Choose PBW representatives containing two prescribed reduced words with
+distinct product permutations. -/
+theorem exists_pbw_words_for_pair {N : ℕ} {l k : List ℕ}
+    (hl : IsReduced N l) (hk : IsReduced N k) (huv : wordProd N l ≠ wordProd N k) :
+    ∃ rep : Perm (Fin N) → List ℕ, rep (wordProd N l) = l ∧ rep (wordProd N k) = k ∧
+      ∀ t, IsReduced N (rep t) ∧ wordProd N (rep t) = t := by
+  classical
+  let u := wordProd N l
+  let v := wordProd N k
+  change u ≠ v at huv
+  let rep (t : Perm (Fin N)) := if t = u then l else if t = v then k else TypeA.canWord N t
+  have repU : rep u = l := ite_eq_left rfl
+  have repV : rep v = k := by simp [rep, huv.symm]
+  have hrep (t : Perm (Fin N)) : IsReduced N (rep t) ∧ wordProd N (rep t) = t := by
+    by_cases hu : t = u
+    · subst t; rw [repU]; exact ⟨hl, rfl⟩
+    by_cases hv : t = v
+    · subst t; rw [repV]; exact ⟨hk, rfl⟩
+    · simpa only [rep, ite_eq_right hu, ite_eq_right hv] using
+        And.intro (isReduced_canWord N t) (wordProd_canWord N t)
+  exact ⟨rep, repU, repV, hrep⟩
+
 /-- Choose PBW words containing a prescribed reduced word and its reduced
 extension by one crossing. Their product permutations are distinct. -/
 theorem exists_pbw_words_for_crossing {N : ℕ} {l : List ℕ} (hl : IsReduced N l)
@@ -233,30 +255,21 @@ theorem exists_pbw_words_for_crossing {N : ℕ} {l : List ℕ} (hl : IsReduced N
     have h₂ : l.length + 1 = length N v := hj.2
     rw [he] at h₁
     omega
-  let rep (t : Perm (Fin N)) := if t = u then l else if t = v then j :: l else TypeA.canWord N t
-  have repU : rep u = l := ite_eq_left rfl
-  have repV : rep v = j :: l := by simp [rep, huv.symm]
-  have hrep (t : Perm (Fin N)) : IsReduced N (rep t) ∧ wordProd N (rep t) = t := by
-    by_cases hu : t = u
-    · subst t; rw [repU]; exact ⟨hl, rfl⟩
-    by_cases hv : t = v
-    · subst t; rw [repV]; exact ⟨hj, rfl⟩
-    · simpa only [rep, ite_eq_right hu, ite_eq_right hv] using
-        And.intro (isReduced_canWord N t) (wordProd_canWord N t)
-  exact ⟨huv, rep, repU, repV, hrep⟩
+  exact ⟨huv, exists_pbw_words_for_pair hl hj huv⟩
 
 include hQ in
-/-- Top polynomial coefficients at two reduced PBW rows separated by a crossing are independent. -/
-theorem top_polynomial_pair_eq_zero_iff_of_reduced {l : List ℕ} (hl : IsReduced m l) (j : ℕ)
-    (hj : IsReduced m (j :: l)) (s : Seq ν) (f g : P) :
-    (pol f * (ψw l * e s) + pol g * (ψw (j :: l) * e s) : R) = 0 ↔ f = 0 ∧ g = 0 := by
+/-- Top polynomials at two distinct prescribed reduced PBW words are independent. -/
+theorem top_polynomial_pair_eq_zero_iff_of_words {l k : List ℕ}
+    (hl : IsReduced m l) (hk : IsReduced m k) (huv : wordProd m l ≠ wordProd m k)
+    (s : Seq ν) (f g : P) :
+    (pol f * (ψw l * e s) + pol g * (ψw k * e s) : R) = 0 ↔ f = 0 ∧ g = 0 := by
   classical
   let u := wordProd m l
-  let v := wordProd m (j :: l)
-  obtain ⟨huv, rep, repU, repV, hrep⟩ := exists_pbw_words_for_crossing hl j hj
+  let v := wordProd m k
+  obtain ⟨rep, repU, repV, hrep⟩ := exists_pbw_words_for_pair hl hk huv
   change u ≠ v at huv
   change rep u = l at repU
-  change rep v = j :: l at repV
+  change rep v = k at repV
   constructor
   · intro eq
     have eq' : (pol f * ψw (rep u) * e s + pol g * ψw (rep v) * e s : R) = 0 := by
@@ -268,6 +281,13 @@ theorem top_polynomial_pair_eq_zero_iff_of_reduced {l : List ℕ} (hl : IsReduce
     · simpa only [map_add, exitPolynomial_normal, true_and, ite_true,
         ite_eq_right huv, zero_add, map_zero] using read v
   · rintro ⟨rfl, rfl⟩; simp
+
+include hQ in
+/-- Top polynomial coefficients at two reduced PBW rows separated by a crossing are independent. -/
+theorem top_polynomial_pair_eq_zero_iff_of_reduced {l : List ℕ} (hl : IsReduced m l) (j : ℕ)
+    (hj : IsReduced m (j :: l)) (s : Seq ν) (f g : P) :
+    (pol f * (ψw l * e s) + pol g * (ψw (j :: l) * e s) : R) = 0 ↔ f = 0 ∧ g = 0 := by
+  exact top_polynomial_pair_eq_zero_iff_of_words hQ hl hj (exists_pbw_words_for_crossing hl j hj).1 s f g
 
 /-- The two PBW rows of the right-extreme return sum, including the divided
 difference at the crossing of the two equal black strands. -/

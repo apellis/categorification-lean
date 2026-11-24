@@ -2,6 +2,7 @@
 Copyright (c) 2026 Alex Ellis. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 -/
+import Categorification.WeightedKLR.RedStrands.BlockKernelDerivedOrdinary
 import Categorification.WeightedKLR.RedStrands.FiveSlotCentralPrincipalDerived
 import Categorification.WeightedKLR.RedStrands.FiveSlotLastRedDerivedStandard
 import Categorification.WeightedKLR.RedStrands.FiveSlotLeftDerived
@@ -76,5 +77,24 @@ theorem fiveSlot_partialStandard_braid_homology_vanish_all_tops_standard
       (C₀ := C) (F₀ := k) weights n hn
   · exact fiveSlotNextRetainedPartialStandard_braid_homology_vanish_exchanged
       (C₀ := C) (F₀ := k) weights n hn
+
+set_option quotPrecheck false in
+local notation "X" t:arg => (blockLoadingShortComplex Qstd weights t 1 2).X₃
+local notation "OrdinaryBimodule" t:arg =>
+  OpBimodule (T t) (braidingBimodule k Qstd weights ν (redWord t) κ)
+
+set_option backward.isDefEq.respectTransparency false in
+/-- The actual braid of every five-slot partial standard has its ordinary
+tensor model in degree zero, as a module over the full exchanged corner. -/
+noncomputable def fiveSlot_partialStandard_braidIsoOrdinary_all_tops_standard
+    (t : Seq μ)
+    [HasDerivedCategory.{w, 0} (T t)ᵐᵒᵖ] [HasDerivedCategory.{w, 0} Uᵐᵒᵖ]
+    (order : redWord t = [0, 1, 2]) :
+    (braidingFunctor.{w} k Qstd weights ν (redWord t) κ).obj
+      (DG.DerivedCategory.Q.obj ((degreeZeroModuleFunctor (T t)ᵐᵒᵖ).obj (X t))) ≅
+      DG.DerivedCategory.Q.obj (DGModuleCat.of Uᵐᵒᵖ
+        (TensorProductOver (T t)ᵐᵒᵖ (InDegreeZero (OrdinaryBimodule t)) (InDegreeZero (X t)))) :=
+  blockPartialStandard_braidIsoOrdinary_of_vanishing Qstd weights t 1 2 κ
+    (fiveSlot_partialStandard_braid_homology_vanish_all_tops_standard C weights t order)
 
 end Categorification.Stendhal.BraidedStendhalAlgebra

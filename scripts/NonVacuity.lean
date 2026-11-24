@@ -8329,7 +8329,7 @@ private noncomputable def Λ : Fin 3 → Bool →₀ ℕ :=
 local notation "ν" => ((Singleton.singleton true : Multiset Bool) + Singleton.singleton true)
 
 private def bottom : Seq (stendhalWeight 3 ν) :=
-  Seq.ofList [.inr 2,.inl true,.inr 1,.inl true,.inr 0] (by decide)
+  ⟨![.inr 2,.inl true,.inr 1,.inl true,.inr 0], by decide⟩
 
 example := fiveSlot_singleColour_oneBlackBeforePair_columnInclusion Q Λ true
   (fiveSlotPrincipalCentralTop true) bottom (Or.inl rfl)

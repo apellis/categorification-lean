@@ -10431,6 +10431,49 @@ example (v : leftStandard parameters weights source sourceOrdered) :
 
 end NonVacuity.WebsterIncomparableStandardSupport
 
+namespace NonVacuity.WebsterOppositeLoadingStandardSupport
+
+open Categorification Categorification.KLR Categorification.Stendhal
+open Categorification.Stendhal.BraidedStendhalAlgebra Equiv MulOpposite
+
+attribute [local instance 1100] IsIdempotentElem.instAlgebraCorner_categorification
+
+private abbrev content : Multiset Bool := {false, true}
+private abbrev weight := stendhalWeight 2 content
+private abbrev swapReds : Perm (Fin 2) := Equiv.swap 0 1
+private abbrev order := List.map swapReds (List.finRange 2)
+private def earlier : Seq weight :=
+  KLRAlgebra.Seq.ofList [.inr 0, .inl false, .inr 1, .inl true] (by decide)
+private def later : Seq weight :=
+  KLRAlgebra.Seq.ofList [.inr 0, .inl true, .inr 1, .inl false] (by decide)
+private theorem earlierOrdered : IsRedOrdered earlier :=
+  (redWord_eq_finRange_iff earlier).1 (by decide)
+private theorem laterOrdered : IsRedOrdered later :=
+  (redWord_eq_finRange_iff later).1 (by decide)
+private theorem laterNotLE : ¬ StendhalLE later earlier := by
+  intro h
+  exact (by decide : ¬ blackCount later 1 true ≤ blackCount earlier 1 true) (h 1 true)
+private noncomputable abbrev parameters : Bool → Bool → MvPolynomial (Fin 2) ℚ :=
+  fun i j => if i = j then 0 else 1
+private noncomputable abbrev weights : Fin 2 → Bool →₀ ℕ :=
+  fun _ => Finsupp.single false 2 + Finsupp.single true 2
+private theorem symmetric : KLRSymm parameters := by
+  intro i j h
+  simp [parameters, h, Ne.symm h]
+private noncomputable def reducedWord (w : Perm (Fin weight.card)) :=
+  (TypeA.exists_reduced _ w).choose
+private theorem reducedChoice : TypeA.IsReducedChoice reducedWord :=
+  fun w => (TypeA.exists_reduced _ w).choose_spec
+
+example (v : ViolLoadingStandard (k := ℚ) (Q := parameters) (Λ := weights)
+    (Seq.redPerm swapReds earlier) order) :
+    op (violLoadingIdem (k := ℚ) (Q := parameters) (Λ := weights)
+      (redWord_relabel swapReds laterOrdered)) • v = 0 :=
+  violLoadingIdem_smul_violLoadingStandard_eq_zero_of_not_le reducedChoice symmetric
+    swapReds earlierOrdered laterOrdered laterNotLE v
+
+end NonVacuity.WebsterOppositeLoadingStandardSupport
+
 noncomputable section
 
 namespace NonVacuity.WebsterWeightComplex

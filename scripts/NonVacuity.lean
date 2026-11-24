@@ -5736,6 +5736,7 @@ noncomputable example (ν : Multiset Unit) :=
 end NonVacuity.RedFirstCorner
 
 namespace NonVacuity.RedBlackCrossing
+attribute [local instance 1100] IsIdempotentElem.instAlgebraCorner_categorification
 
 open Categorification Categorification.KLR Categorification.Stendhal Categorification.KL3.Diagram
 
@@ -5755,6 +5756,26 @@ example :=
   OrderedCrossingTest.rightmost_appendReds_standard rbRouquier rbSymm () 0
     (KLRAlgebra.Seq.ofList [.inr (0 : Fin 2), .inr 1] (by decide))
     (by unfold IsRedOrdered; decide) 2 (fun _ => Finsupp.single () 1)
+
+private def rbFive : Seq (stendhalWeight 5 ({()} : Multiset Unit)) :=
+  KLRAlgebra.Seq.ofList [.inr 0, .inr 1, .inr 2, .inr 3, .inr 4, .inl ()] (by decide)
+
+/-- A terminal black and three positive spectators give three actual retained layers. -/
+example : ∃ tail : List {t : Seq (stendhalWeight 5 ({()} : Multiset Unit)) //
+      redWord t = List.finRange 5},
+    tail.length = 3 ∧
+      ModuleFiltration.HasFiltration
+        (fun t => BraidedStendhalAlgebra.blockPartialStandardAt
+          (CL.qCL (CL.CLScalars.kl : CL.CLScalars rbC ℚ))
+          (fun _ => Finsupp.single () 1) t.1 0 1 (List.finRange 5) t.2)
+        tail (BraidedStendhalAlgebra.fixedOrderKernelObj
+          (CL.qCL (CL.CLScalars.kl : CL.CLScalars rbC ℚ))
+          (fun _ => Finsupp.single () 1) 0 1 (List.finRange 5) ⟨rbFive, by decide⟩) := by
+  obtain ⟨p, hp, tail, hl, hf⟩ :=
+    BraidedStendhalAlgebra.oneBlack_firstPair_hasFiltration_standard
+      (m := 3) rbRouquier rbSymm () (fun _ => Finsupp.single () 1) ⟨rbFive, by decide⟩
+  have hterminal : ∀ p, rbFive.lbl p = .inl () → p.val = 5 := by decide
+  exact ⟨tail, hl.trans (by rw [hterminal p hp]), hf⟩
 
 /-- The one-black kernel has its higher partial standard layer with positive spectator
 weight at the standard Khovanov–Lauda parameters for rank one. -/

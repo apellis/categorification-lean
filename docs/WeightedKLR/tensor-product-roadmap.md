@@ -1104,8 +1104,12 @@ injectivity of the actual ordered-corner crossing at any black content
 the actual projective step of a one-black chain
 (`HigherProjectiveChain.cons_of_oneBlack_ordinary_test`), and a maximal surviving
 loading closes the chain (`HigherProjectiveChain.nil_of_maximal`).
-The unconditional arbitrary-length case still requires identifying each
-successive pair of loadings with the appropriate finite red suffix.
+The actual crossing at every position reduces to the rightmost crossing by
+peeling off terminal, uncrossed red strands
+(`oneBlack_crossing_injective_standard`). For the first two reds in canonical
+order, this gives the full one-black retained-kernel filtration at standard
+parameters (`oneBlack_firstPair_hasFiltration_standard`). Its length is the
+number of spectator reds to the left of the black strand.
 
 Still open for Lemma 6.8: when a black lies between the bottom reds, prove that changes
 between different choices of the last crossing give equal balanced classes **in the

@@ -86,10 +86,11 @@ theorem websterForm_saturated_dividedPower (i : I) (n : ℕ) (μ : Y →+ ℤ)
     (vd_pow_ne_one (D := D) hvn_ratFunc i) (IrreducibleModule.form_comm hR hvn_ratFunc)
     (IsContravariant.nodeSl2_F hvn_ratFunc (isInt transcendental_ratFunc_X hR highest) hB i)
     hprim hprim n n
-  rw [if_pos rfl, polCoef_endpoint (pow_ne_zero _ RatFunc.X_ne_zero)
+  simp only [↓reduceIte] at h
+  rw [polCoef_endpoint (pow_ne_zero _ RatFunc.X_ne_zero)
     (vd_pow_ne_one (D := D) hvn_ratFunc i), one_mul] at h
   dsimp only [U] at h
-  rw [nodeSl2_dF_eq] at h
+  rw [nodeSl2_dF_eq hR] at h
   rw [websterForm, websterForm, hwBar_smul_U, barHom_qDivPow, barHom_F, hbar, h]
 
 end SingleBlack

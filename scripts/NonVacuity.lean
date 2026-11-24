@@ -11615,6 +11615,7 @@ example := labelTwo_incomingLift_return (parameter ℚ)
 example := incomingLift_middle_fixed_iff ℚ
 
 example := incomingLiftTensorReadout_dotSum_generator ℚ
+example := incomingLiftTensorEquiv ℚ
 
 example := incomingLiftTensorMap_nonzero ℚ
 
@@ -11637,6 +11638,8 @@ example := incomingMiddleStandardHomology_zero_isZero ℚ
 example := incomingMiddleStandardHomology_isZero ℚ (-1)
 
 example := incomingCokernelTorOne_map_nonzero ℚ
+
+example := incomingCokernelTorOne_map_surjective_of_middleAcyclic ℚ
 
 end
 

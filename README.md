@@ -1425,6 +1425,8 @@ The middle left-dot coefficient descends through the dot-sum quotient in
 the balanced tensor with the reflected incoming preimage and evaluates
 the first dot sum on the middle generator to one
 (`Stendhal.LabelTwo.incomingLiftTensorReadout_dotSum_generator`).
+Over fields of characteristic different from two, this readout identifies the entire
+balanced tensor with the ground field (`Stendhal.LabelTwo.incomingLiftTensorEquiv`).
 The incoming exterior map stays nonzero after tensoring with the reflected
 preimage. The incoming translate tensored with the lifted generator
 returns the first dot sum
@@ -1435,6 +1437,9 @@ The reflected incoming map is nonzero on the first ambient Tor of the
 incoming cokernel. Reflection transports the explicit tensor witness to
 the coefficient variable and the preimage sequence supplies the
 connecting map (`Stendhal.LabelTwo.incomingCokernelTorOne_map_nonzero`).
+When the characteristic differs from two, the middle acyclicity and the
+one-dimensional preimage tensor make this map surjective
+(`Stendhal.LabelTwo.incomingCokernelTorOne_map_surjective_of_middleAcyclic`).
 
 
 

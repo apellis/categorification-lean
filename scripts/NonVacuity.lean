@@ -9723,6 +9723,26 @@ example := exists_braidBottomBlockReconstruction reordered exchange (by decide) 
 
 end NonVacuity.WebsterBottomBraidReconstruction
 
+namespace NonVacuity.WebsterBottomBraidSpan
+
+open Categorification Categorification.KLR Categorification.Stendhal Equiv TypeA
+private abbrev content : Multiset Unit := {()}
+private abbrev weight := stendhalWeight 3 content
+private def top : Seq weight :=
+  KLRAlgebra.Seq.ofList [.inr 0, .inr 1, .inr 2, .inl ()] (by decide)
+private theorem top_ordered : IsRedOrdered top := (redWord_eq_finRange_iff top).1 (by decide)
+private def swapReds : Perm (Fin 3) := Equiv.swap 1 2
+private noncomputable def words (w : Perm (Fin (Multiset.card weight))) :=
+  (TypeA.exists_reduced _ w).choose
+private theorem words_spec : IsReducedChoice words := fun w => (TypeA.exists_reduced _ w).choose_spec
+private noncomputable abbrev parameters : Unit → Unit → MvPolynomial (Fin 2) ℚ := fun _ _ => 0
+private noncomputable abbrev weights : Fin 3 → Unit →₀ ℕ := fun _ => Finsupp.single () 2
+
+example := span_braidColumnBottomProducts (Q := parameters) (Λ := weights)
+  top top_ordered swapReds words words_spec
+
+end NonVacuity.WebsterBottomBraidSpan
+
 namespace NonVacuity.WebsterFundamentalBraidTensorHomology
 open CategoryTheory Categorification.Stendhal.FundamentalCorner
 

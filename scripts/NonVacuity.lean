@@ -1,4 +1,5 @@
 import Categorification
+import Mathlib.Algebra.Category.Grp.Zero
 import Mathlib.Analysis.Real.Sqrt
 import LieLean.Algebra.QuantumGroup.Sl2.SimpleModule
 
@@ -9208,6 +9209,59 @@ example : (diagramWeightTensorHomotopy (fun j => DG.grading (M := ℚ) j)
 
 example : (diagramWeightDerivedTensor (fun j => DG.grading (M := ℚ) j)
     leftAction rightAction).IsTriangulated := inferInstance
+
+
+private abbrev rationalWeightGrading (j : ℤ) := DG.grading (M := ℚ) j
+
+example : ∀ X : WeightCategory ℚ, Function.Exact
+    ((diagramWeightLeftLinearMap rationalWeightGrading rationalWeightGrading
+      leftAction rightAction leftAction rightAction (⟨0⟩ : WeightCategory ℚ)
+      (LinearMap.id : ℚ →ₗ[ℚ] ℚ) (fun _ {_} h => h)).app X)
+    ((diagramWeightLeftLinearMap rationalWeightGrading rationalWeightGrading
+      leftAction rightAction leftAction rightAction (⟨0⟩ : WeightCategory ℚ)
+      (0 : ℚ →ₗ[ℚ] ℚ) (fun _ {_} _ => zero_mem _)).app X) :=
+  diagramWeightLeftLinearMap_exact _ _ leftAction rightAction leftAction rightAction _
+    (LinearMap.id : ℚ →ₗ[ℚ] ℚ) (fun _ {_} h => h) _ leftAction rightAction
+    (0 : ℚ →ₗ[ℚ] ℚ) (fun _ {_} _ => zero_mem _) (by
+      intro x
+      exact ⟨fun _ => ⟨x, rfl⟩, fun _ => rfl⟩)
+
+private theorem rationalWeightRepresentable_cohomology_one :
+    CategoryTheory.Limits.IsZero ((CatModule.DerivedCategory.cohomologyFunctor
+      (⟨0⟩ : WeightCategory ℚ) 1).obj
+      ((diagramWeightDerivedTensor rationalWeightGrading leftAction rightAction).obj
+        (CatModule.DerivedCategory.Q.obj Rep))) := by
+  let X : WeightCategory ℚ := ⟨0⟩
+  let M := (diagramWeightBimodule rationalWeightGrading leftAction rightAction).left X
+  let D := CatModule.DerivedCategory.cohomologyFunctor X 1
+  refine CategoryTheory.Limits.IsZero.of_iso ?_
+    (D.mapIso (diagramWeightDerivedTensorRepresentableIso rationalWeightGrading leftAction rightAction X))
+  refine CategoryTheory.Limits.IsZero.of_iso ?_
+    ((CatModule.DerivedCategory.cohomologyFunctorFactorsh X 1).app
+      ((CatModule.HomotopyCategory.quotient _).obj M))
+  let H := _root_.HomotopyCategory.homologyFunctor AddCommGrpCat (ComplexShape.up ℤ) 1
+  refine CategoryTheory.Limits.IsZero.of_iso ?_
+    (H.mapIso ((CatModule.HomotopyCategory.evalFactors X).app M))
+  refine CategoryTheory.Limits.IsZero.of_iso ?_
+    ((_root_.HomotopyCategory.homologyFunctorFactors AddCommGrpCat (ComplexShape.up ℤ) 1).app
+      ((CatModule.evalComplex X).obj M))
+  apply ShortComplex.isZero_homology_of_isZero_X₂
+  apply AddCommGrpCat.isZero_of_iff_subsingleton.mpr
+  change Subsingleton (DG.grading (M := M.obj X) 1)
+  refine ⟨fun x y => Subtype.ext ?_⟩
+  have hx := (InDegreeZero.mem_grading_iff (M := rationalWeightGrading (X.as - X.as))).mp x.property
+  have hy := (InDegreeZero.mem_grading_iff (M := rationalWeightGrading (X.as - X.as))).mp y.property
+  exact (hx.resolve_left (by decide)).trans (hy.resolve_left (by decide)).symm
+
+example : CategoryTheory.Limits.IsZero ((CatModule.DerivedCategory.cohomologyFunctor
+    (⟨0⟩ : WeightCategory ℚ) 1).obj
+    ((diagramWeightDerivedTensor rationalWeightGrading leftAction rightAction).obj
+      (CatModule.DerivedCategory.Q.obj Rep))) :=
+  WeightModuleFiltration.diagramWeightDerivedTensor_cohomology_isZero _ leftAction rightAction
+    (WeightModuleFiltration.append (L := fun _ : Unit => Rep) () rationalWeightShortComplex
+      rationalWeightShortComplex_shortExact
+      (WeightModuleFiltration.nil (CatModule.isZero_of_subsingleton _)) ⟨Iso.refl Rep⟩)
+    ⟨0⟩ 1 (fun _ _ => rationalWeightRepresentable_cohomology_one)
 
 end
 

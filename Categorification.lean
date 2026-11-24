@@ -1787,6 +1787,7 @@ import Categorification.Algebra.DiagramWeightCorner
 import Categorification.Algebra.DiagramWeightCoend
 import Categorification.Algebra.DiagramWeightCoendNaturality
 import Categorification.Algebra.DiagramWeightCoendSurjectivity
+import Categorification.Algebra.DiagramWeightExact
 import Categorification.Algebra.DiagramWeightOrdinaryTensor
 import Categorification.WeightedKLR.Rigidity.GradedCharacterCupCap
 import Categorification.WeightedKLR.Rigidity.GradedFundamentalCupCap
@@ -1794,6 +1795,7 @@ import Categorification.WeightedKLR.Rigidity.GradedMiddleProjectives
 import Categorification.WeightedKLR.Rigidity.GradedMiddleComplex
 import Categorification.WeightedKLR.Rigidity.GradedMiddleTor
 import Categorification.WeightedKLR.Rigidity.WeightModuleFiltration
+import Categorification.WeightedKLR.Rigidity.WeightModuleDerivedFiltration
 import Categorification.WeightedKLR.Rigidity.GradedMiddleScalarRepresentables
 import Categorification.WeightedKLR.Rigidity.FundamentalClockwiseClass
 import Categorification.WeightedKLR.Rigidity.SingleBlackExtremal

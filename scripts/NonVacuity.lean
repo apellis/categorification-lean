@@ -7173,13 +7173,13 @@ noncomputable section
 
 private abbrev ν : Multiset Unit := {()} + {()}
 private abbrev μ := stendhalWeight 3 ν
-private abbrev Q : Unit → Unit → MvPolynomial (Fin 2) ℚ := fun _ _ => 0
+private abbrev Q : Unit → Unit → MvPolynomial (Fin 2) ℤ := fun _ _ => 0
 private abbrev Λ : Fin 3 → Unit →₀ ℕ := fun _ => Finsupp.single () 2
 private def s : Seq μ := Seq.ofList [.inr 0, .inr 1, .inr 2, .inl (), .inl ()] (by decide)
 private def t : Seq μ := sadj μ.card 2 • s
 private def u : Seq μ := sadj μ.card 3 • t
-private abbrev A := KLRAlgebra ℚ (stendhalQ Q Λ) μ
-private abbrev P := (violMk ℚ Q Λ ν).comp (ofKLR ℚ Q Λ ν)
+private abbrev A := KLRAlgebra ℤ (stendhalQ Q Λ) μ
+private abbrev P := (violMk ℤ Q Λ ν).comp (ofKLR ℤ Q Λ ν)
 
 private theorem blacks (a : Fin μ.card) (h : (s.lbl a).isLeft) :
     a = ⟨3,by decide⟩ ∨ a = ⟨4,by decide⟩ := by
@@ -7194,17 +7194,23 @@ private theorem compose_at_cut (left right : List ℕ) :
 
 /-- Check a supported pair with a common-joint contribution, at positive red
 weights and with an exterior red spectator before the pair. -/
-example (g : ViolQuotient ℚ Q Λ ν) :=
-  let w := P (e s) * g * P (e u)
+private theorem pairAtTop (top : Seq μ) (hTop : top=s ∨ top=t)
+    (order : redWord top = [0] ++ [1,2]) (g : ViolQuotient ℤ Q Λ ν) :
+    let w := P (e top) * g * P (e u)
+    let J := blockUpperIdeal ℤ Q Λ ν 1 2 (adjacentBlockRoot 1 2 top) (redWord top)
+    ∃ z : ViolQuotient ℤ Q Λ ν, P (e top)*z*P (e u)=z ∧
+      w*P (ψw [2,3]*e t)-z*P (ψw [2,3]*e t) ∈ J ∧
+      w*P (ψw [3]*e t)-z*P (ψw [3]*e t) ∈ J :=
+  let w := P (e top) * g * P (e u)
   let x := w * P (ψw [2,3]*e t)
   let y := w * P (ψw [3]*e t)
   have cut (l : List ℕ) :
-      P (e s)*(w*P (ψw l*e t))*P (e t)=w*P (ψw l*e t) := by
-    have top : P (e s)*w=w := by
+      P (e top)*(w*P (ψw l*e t))*P (e t)=w*P (ψw l*e t) := by
+    have leftFixed : P (e top)*w=w := by
       simp only [w,← mul_assoc,← map_mul,e_mul_self]
     have right : P (ψw l*e t)*P (e t)=P (ψw l*e t) := by
       simp only [← map_mul,mul_assoc,e_mul_self]
-    rw [← mul_assoc (P (e s)) w,top,mul_assoc,right]
+    rw [← mul_assoc (P (e top)) w,leftFixed,mul_assoc,right]
   have legs : (ψw [2,3]*e t : A)*(ψw [2]*e s)=(ψw [3]*e t)*(ψw [2,3]*e s) := by
     have h₁ : wordProd μ.card [2] • s=t := by simp only [t,wordProd_singleton]
     have h₂ : wordProd μ.card [2,3] • s=t := by decide
@@ -7214,12 +7220,17 @@ example (g : ViolQuotient ℚ Q Λ ν) :=
     rw [ite_eq_right (fun h => ne h.1),sub_mul,sub_eq_zero] at h
     simpa only [List.cons_append,List.nil_append,ψw_cons,ψw_nil,mul_one,mul_assoc] using h
   have rel : y*P (ψw [2,3]*e s)-x*P (ψw [2]*e s) ∈
-      blockUpperIdeal ℚ Q Λ ν 1 2 (adjacentBlockRoot 1 2 s) (redWord s) := by
+      blockUpperIdeal ℤ Q Λ ν 1 2 (adjacentBlockRoot 1 2 top) (redWord top) := by
     rw [show y*P (ψw [2,3]*e s)=x*P (ψw [2]*e s) by
       simp only [x,y,mul_assoc,← map_mul,legs],sub_self]
     exact TwoSidedIdeal.zero_mem _
-  exists_equalBlack_rightPair_markedCycle Q Λ (fun _ _ _ => rfl)
-    s 2 (by decide) 1 2 () [0] (by decide) rfl rfl rfl blacks x y (cut _) (cut _) rel
+  exists_equalBlack_rightPair_markedCycle_at_extreme_or_mixed Q Λ (fun _ _ _ => rfl)
+    s top 2 (by decide) 1 2 () hTop [0] order rfl rfl rfl blacks x y (cut _) (cut _) rel
+
+/-- The right extreme and the mixed joint both admit the integral marked lift. -/
+example (g : ViolQuotient ℤ Q Λ ν) := pairAtTop s (Or.inl rfl) (by decide) g
+
+example (g : ViolQuotient ℤ Q Λ ν) := pairAtTop t (Or.inr rfl) (by decide) g
 
 end
 

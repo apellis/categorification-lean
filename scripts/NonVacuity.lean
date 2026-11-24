@@ -6422,6 +6422,283 @@ example (a : (isIdempotentElem_violMk_redProj ℚ Q Λ ν [0, 1]).Corner)
 
 end NonVacuity.WebsterBraidReflection
 
+/-! ### Webster, Lemma 6.8 after (6.21), polynomial kernel of two distinct exits -/
+
+noncomputable section
+open Categorification.KLR Categorification.TypeA Equiv MvPolynomial
+open KLRAlgebra
+namespace NonVacuity.ExitPolynomialMatrix
+
+private abbrev ν : Multiset (Fin 3) := {2, 0, 0, 1}
+private def Q (a b : Fin 3) : MvPolynomial (Fin 2) ℤ :=
+  if a = b then 0 else if a = 0 then X 0 else if b = 0 then X 1 else 1
+private theorem hQ : KLRSymm Q := by
+  intro a b h
+  unfold Q
+  rw [ite_eq_right h, ite_eq_right (Ne.symm h)]
+  by_cases ha : a = 0 <;> by_cases hb : b = 0 <;> simp_all
+private abbrev P := MvPolynomial (Fin ν.card) ℤ
+private abbrev R := KLRAlgebra ℤ Q ν
+private def s : Seq ν := KLRAlgebra.Seq.ofList [2, 0, 0, 1] (by decide)
+private def middle : List ℕ := [1, 0, 2]
+private def w := wordProd ν.card middle
+private def ρ (t : Perm (Fin ν.card)) := if t = w then middle else canWord ν.card t
+private theorem hw : ρ w = middle := ite_eq_left rfl
+private theorem hρ (t) : IsReduced ν.card (ρ t) ∧ wordProd ν.card (ρ t) = t := by
+  by_cases h : t = w
+  · subst t; rw [hw]
+    refine ⟨⟨?_, ?_⟩, rfl⟩
+    · simp [ValidWord, middle]
+    · rw [length_eq_invCount]; decide
+  · simpa only [ρ, ite_eq_right h] using And.intro (isReduced_canWord ν.card t) (wordProd_canWord _ t)
+private def leftPos : Fin ν.card := ⟨0, by decide⟩
+private theorem blackDot : twoBlackExitPolynomial Q s 0 (by decide) = X leftPos := by
+  have ha : (wordProd ν.card [2] • s).lbl ⟨1, by decide⟩ = 0 := by decide
+  have hb : (wordProd ν.card [2] • s).lbl ⟨2, by decide⟩ = 1 := by decide
+  unfold twoBlackExitPolynomial exitSquarePolynomial
+  dsimp only
+  rw [ha, hb, ite_eq_right (by decide : (0 : Fin 3) ≠ 1)]
+  change rename _ (rename _ (rename _ (X (0 : Fin 2)))) = X leftPos
+  simp only [rename_X]
+  congr 1
+private def upper : Fin 2 → List ℕ := ![[0, 1], []]
+private def leg : Fin 2 → List ℕ := ![[0, 1, 2], middle]
+
+example (a : Fin 2 → R) :
+    (∑ j : Fin 2, a j * (ψw (leg j) * e s)) = 0 ↔
+      ∀ t : Perm (Fin ν.card), (∑ j : Fin 2, ∑ u : Perm (Fin ν.card),
+        exitPolynomial hQ ρ hρ (wordProd ν.card (leg j) • s) u (a j) *
+          exitPolynomial hQ ρ hρ s t (ψw (ρ u ++ leg j) * e s)) = 0 :=
+  exit_relation_polynomial_matrix_iff hQ ρ hρ Finset.univ s leg a
+
+-- At [red, black, black, red] with the two black labels equal, the reduced upper
+-- word on the extreme exit and the bare middle exit have polynomial columns
+-- X₀ and 1 in the row indexed by w. Every other row vanishes.
+example (f : Fin 2 → P) :
+    (∑ a : Fin 2, (pol (f a) * ψw (upper a) * e (wordProd ν.card (leg a) • s)) * (ψw (leg a) * e s) : R) = 0 ↔
+      f 0 * X leftPos + f 1 = 0 := by
+  rw [exit_polynomial_matrix_iff hQ ρ hρ Finset.univ s upper leg f]
+  have extreme := twoBlack_extreme_middle (Q := Q) s 0 (by decide) (by decide) (by decide) (by decide)
+  rw [blackDot] at extreme
+  have plain (t) := exitPolynomial_normal hQ ρ hρ s s t w (1 : P)
+  simp only [hw, map_one, one_mul, true_and] at plain
+  simp only [Fin.sum_univ_two]
+  change (∀ t, f 0 * exitPolynomial hQ ρ hρ s t (ψw ([0, 1] ++ [0, 1, 2]) * e s) +
+    f 1 * exitPolynomial hQ ρ hρ s t (ψw middle * e s) = 0) ↔ _
+  rw [extreme]
+  change (∀ t, f 0 * exitPolynomial hQ ρ hρ s t (pol (X leftPos) * (ψw middle * e s)) +
+    f 1 * exitPolynomial hQ ρ hρ s t (ψw middle * e s) = 0) ↔ _
+  simp only [exitPolynomial_pol_mul, plain]
+  constructor
+  · intro h; simpa only [ite_true, mul_one] using h w
+  · intro h t; by_cases ht : w = t <;> simp [ht, h]
+
+end NonVacuity.ExitPolynomialMatrix
+end
+
+/-! ### Webster, Lemma 6.8 after (6.21), coupled equal-black return columns -/
+
+noncomputable section
+open Categorification Categorification.KLR Categorification.TypeA Equiv MvPolynomial
+open KLRAlgebra
+namespace NonVacuity.EqualBlackReturns
+
+private abbrev I := Unit ⊕ Bool
+private abbrev black : I := .inl ()
+private abbrev a : I := .inr false
+private abbrev b : I := .inr true
+private abbrev ν : Multiset I := {b, black, black, a}
+private def Q (i j : I) : MvPolynomial (Fin 2) ℤ :=
+  if i = j then 0 else if i = black then X 0 else if j = black then X 1 else 1
+private theorem hQ : KLRSymm Q := by
+  intro i j h
+  unfold Q
+  rw [ite_eq_right h, ite_eq_right (Ne.symm h)]
+  by_cases hi : i = black <;> by_cases hj : j = black <;> simp_all
+private abbrev P := MvPolynomial (Fin ν.card) ℤ
+private abbrev R := KLRAlgebra ℤ Q ν
+private def s : Seq ν := KLRAlgebra.Seq.ofList [b, black, black, a] (by decide)
+private def l : List ℕ := [0, 1, 2]
+private abbrev x₂ : Fin ν.card := ⟨2, by decide⟩
+private abbrev x₃ : Fin ν.card := ⟨3, by decide⟩
+private theorem weight : exitSquarePolynomial Q (wordProd ν.card l • s) 1 (by decide) = X x₂ := by
+  have hb : (wordProd ν.card l • s).lbl ⟨1, by decide⟩ = b := by decide
+  have hi : (wordProd ν.card l • s).lbl ⟨2, by decide⟩ = black := by decide
+  unfold exitSquarePolynomial
+  dsimp only
+  rw [hb, hi, ite_eq_right (by decide : b ≠ black)]
+  change rename _ (X (1 : Fin 2)) = X x₂
+  rw [rename_X]
+  rfl
+private theorem redL : IsReduced ν.card l := by
+  refine ⟨?_, ?_⟩
+  · simp [ValidWord, l]
+  · rw [length_eq_invCount]; decide
+private theorem redJL : IsReduced ν.card (2 :: l) := by
+  refine ⟨?_, ?_⟩
+  · simp [ValidWord, l]
+  · rw [length_eq_invCount]; decide
+
+-- The two right-extreme joint maps are ψ₁ and ψ₁ψ₂. Their three return
+-- columns have polynomial kernel generated by (1, −X₂, X₃).
+private theorem returns (f g h : P) :
+    (pol f * (ψw (1 :: 1 :: l) * e s) + pol g * (ψw (2 :: 1 :: 1 :: l) * e s) +
+      pol h * (ψw (1 :: 1 :: 2 :: l) * e s) : R) = 0 ↔
+      g = -(f * X x₂) ∧ h = f * X x₃ := by
+  have matrix := equalBlack_return_kernel hQ s l 1 2 1 (by decide) (by decide) redL redJL
+    (by decide) (by simpa only [pow_one] using weight) f g h
+  have ddx : NilHecke.dd ℤ ν.card 2 (X x₂) = (1 : P) := by
+    rw [NilHecke.dd_of_lt (by decide : 2 + 1 < ν.card)]
+    exact ddiff_X_left (by decide : x₂ ≠ x₃)
+  change ( _ = 0 ↔ ∃ z : P, f = z * NilHecke.dd ℤ ν.card 2 (X x₂ ^ 1) ∧
+    g = -(z * X x₂ ^ 1) ∧ h = z * X x₃ ^ 1) at matrix
+  simpa only [pow_one, ddx, mul_one, exists_eq_left'] using matrix
+
+/-- The generator has a single common coefficient at the full joint. -/
+example :
+    let t := sadj ν.card 1 • (wordProd ν.card l • s)
+    ∃ c : R, c * e (sadj ν.card 2 • t) = c ∧
+      c * (ψw [1, 2] * e t) = -(pol (1 : P) * (ψw [1] * e t) +
+        pol (-X x₂) * (ψw [2, 1] * e t)) ∧
+      c * (ψw [2] * e t) = pol (X x₃) * (ψw [1] * e t) := by
+  have hb : (wordProd ν.card l • s).lbl ⟨1, by decide⟩ = b := by decide
+  have hi : (wordProd ν.card l • s).lbl x₂ = black := by decide
+  apply exists_equalBlack_cycle_coefficient hQ s l 1 1 (by decide) redL redJL (by decide) (by decide)
+  · rw [hb, hi, pow_one]
+    rfl
+  · apply (returns 1 (-X x₂) (X x₃)).2
+    simp only [one_mul, and_self]
+
+/-- The fourth return contributes the second independent polynomial relation. -/
+example (f g h i : P) :
+    (pol f * (ψw (1 :: 1 :: l) * e s) + pol g * (ψw (2 :: 1 :: 1 :: l) * e s) +
+      pol h * (ψw (1 :: 1 :: 2 :: l) * e s) + pol i * (ψw (2 :: 1 :: 1 :: 2 :: l) * e s) : R) = 0 ↔
+      ∃ u v : P, f = u ∧ g = -(u * X x₂) ∧ h = u * X x₃ + v ∧ i = -(v * X x₂) := by
+  have kernel := equalBlack_four_return_kernel hQ s l 1 2 1 (by decide) (by decide) redL redJL
+    (by decide) (by simpa only [pow_one] using weight) f g h i
+  have ddx : NilHecke.dd ℤ ν.card 2 (X x₂) = (1 : P) := by
+    rw [NilHecke.dd_of_lt (by decide : 2 + 1 < ν.card)]
+    exact ddiff_X_left (by decide : x₂ ≠ x₃)
+  dsimp only at kernel
+  simpa only [pow_one, ddx, mul_one] using kernel
+
+end NonVacuity.EqualBlackReturns
+end
+
+/-! ### Webster, Lemma 6.8 after (6.21), nonzero overlap after killing red dots -/
+
+noncomputable section
+open Categorification Categorification.KLR Categorification.Stendhal Categorification.TypeA MvPolynomial
+namespace NonVacuity.BraidedEqualBlackReturns
+
+private abbrev ν : Multiset Unit := {(), ()}
+private abbrev μ := stendhalWeight 2 ν
+private abbrev Q : Unit → Unit → MvPolynomial (Fin 2) ℤ := fun _ _ => 0
+private def Λ : Fin 2 → Unit →₀ ℕ := fun _ => Finsupp.single () 1
+private abbrev π := BraidedStendhalAlgebra.ofKLR ℤ Q Λ ν
+private abbrev P := MvPolynomial (Fin μ.card) ℤ
+private def s : Seq μ := KLR.KLRAlgebra.Seq.ofList [.inr 1, .inl (), .inl (), .inr 0] (by decide)
+private def l : List ℕ := [0, 1, 2]
+private abbrev x₂ : Fin μ.card := ⟨2, by decide⟩
+private abbrev x₃ : Fin μ.card := ⟨3, by decide⟩
+private def black := Stendhal.KLRAlgebra.blackSubst (k := ℤ) (wordProd μ.card l • s)
+private theorem black₂ : black (X x₂) = X x₂ := by
+  unfold black; rw [Stendhal.KLRAlgebra.blackSubst_X, ite_eq_left (by decide)]
+private theorem black₃ : black (X x₃) = X x₃ := by
+  unfold black; rw [Stendhal.KLRAlgebra.blackSubst_X, ite_eq_left (by decide)]
+private abbrev R := KLR.KLRAlgebra ℤ (stendhalQ Q Λ) μ
+private abbrev plain : R := KLR.KLRAlgebra.ψw (1 :: 1 :: l) * KLR.KLRAlgebra.e s
+private abbrev blackAbove : R := KLR.KLRAlgebra.ψw (2 :: 1 :: 1 :: l) * KLR.KLRAlgebra.e s
+private abbrev blackBelow : R := KLR.KLRAlgebra.ψw (1 :: 1 :: 2 :: l) * KLR.KLRAlgebra.e s
+open KLR.KLRAlgebra
+
+private theorem symmQ : KLRSymm Q := fun _ _ h => False.elim (h (Subsingleton.elim _ _))
+private theorem cardμ : μ.card = 4 := by decide
+private theorem rl : IsReduced μ.card l := by
+  rw [cardμ]
+  refine ⟨?_, ?_⟩
+  · simp [ValidWord, l]
+  · rw [length_eq_invCount]; decide
+private theorem rjl : IsReduced μ.card (2 :: l) := by
+  rw [cardμ]
+  refine ⟨?_, ?_⟩
+  · simp [ValidWord, l]
+  · rw [length_eq_invCount]; decide
+private theorem hred : (wordProd μ.card l • s).lbl ⟨1, by decide⟩ = Sum.inr 1 := by decide
+private theorem hi : (wordProd μ.card l • s).lbl x₂ = Sum.inl () := by decide
+private theorem hi' : (wordProd μ.card l • s).lbl x₃ = Sum.inl () := by decide
+private theorem n : Λ 1 () = 1 := by simp [Λ]
+private theorem relation (f g h : P) :
+    π (pol f * plain + pol g * blackAbove + pol h * blackBelow) = 0 ↔
+      black g = -(black f * X x₂) ∧ black h = black f * X x₃ := by
+  have eq := BraidedStendhalAlgebra.equalBlack_return_kernel (Λ := Λ) symmQ s l 1
+    (by decide) rl rjl 1 () hred hi hi' f g h
+  dsimp only at eq
+  rw [n] at eq
+  have ddx : NilHecke.dd ℤ μ.card 2 (X x₂) = (1 : P) := by
+    rw [NilHecke.dd_of_lt (by decide : 2 + 1 < μ.card)]
+    exact ddiff_X_left (by decide : x₂ ≠ x₃)
+  change (_ = 0 ↔ ∃ z : P, black f = z * NilHecke.dd ℤ μ.card 2 (X x₂ ^ 1) ∧
+    black g = -(z * X x₂ ^ 1) ∧ black h = z * X x₃ ^ 1) at eq
+  simpa only [pow_one, ddx, mul_one, exists_eq_left'] using eq
+
+-- The two joint arms have a nonzero common element after killing red dots.
+-- The black-below term equals a combination of two black-above returns.
+example : π (pol (X x₃) * blackBelow) ≠ 0 ∧
+    π (pol (X x₃) * blackBelow) = -π (plain - pol (X x₂) * blackAbove) := by
+  have oneRel := (relation 1 (-X x₂) (X x₃)).2 (by simp only [map_neg, map_one, black₂, black₃, one_mul, and_self])
+  have nonzero := (relation 0 0 (X x₃)).1
+  constructor
+  · intro he
+    have hz : π (pol (0 : P) * plain + pol (0 : P) * blackAbove + pol (X x₃) * blackBelow) = 0 := by
+      simpa only [map_zero, zero_mul, add_zero, zero_add] using he
+    have eq := (nonzero hz).2
+    rw [black₃, map_zero, zero_mul] at eq
+    exact X_ne_zero x₃ eq
+  · rw [map_one, one_mul, map_neg, neg_mul, ← sub_eq_add_neg, map_add] at oneRel
+    exact eq_neg_of_add_eq_zero_right oneRel
+
+/-- The nonzero overlap is induced by one coefficient in the red-dot quotient. -/
+example :
+    let t := sadj μ.card 1 • (wordProd μ.card l • s)
+    ∃ c, c * π (e (sadj μ.card 2 • t)) = c ∧
+      c * π (ψw [1, 2] * e t) = -π (pol (1 : P) * (ψw [1] * e t) +
+        pol (-X x₂) * (ψw [2, 1] * e t)) ∧
+      c * π (ψw [2] * e t) = π (pol (X x₃) * (ψw [1] * e t)) := by
+  apply BraidedStendhalAlgebra.exists_equalBlack_cycle_coefficient (Λ := Λ) symmQ s l 1
+    (by decide) rl rjl 1 () hred hi hi'
+  apply (relation 1 (-X x₂) (X x₃)).2
+  simp only [map_neg, map_one, black₂, black₃, one_mul, and_self]
+
+private theorem onlyTwo : ∀ w : Equiv.Perm (Fin μ.card),
+    w • (sadj μ.card 1 • (wordProd μ.card l • s)) = wordProd μ.card l • s ↔
+      w = wordProd μ.card [1] ∨ w = wordProd μ.card [2, 1] :=
+  BraidedStendhalAlgebra.twoBlack_return_permutations_of_card_two _ 1 (by decide) (by decide) () hi hi'
+
+-- An extra exterior red keeps the two return permutations at the shifted joint.
+private def spectatorTop : Seq (stendhalWeight 3 ν) :=
+  KLR.KLRAlgebra.Seq.ofList [.inr 0, .inr 1, .inr 2, .inl (), .inl ()] (by decide)
+example (w : Equiv.Perm (Fin (stendhalWeight 3 ν).card)) :
+    w • (sadj (stendhalWeight 3 ν).card 2 • spectatorTop) = spectatorTop ↔
+      w = wordProd (stendhalWeight 3 ν).card [2] ∨ w = wordProd (stendhalWeight 3 ν).card [3, 2] :=
+  BraidedStendhalAlgebra.twoBlack_return_permutations_of_card_two spectatorTop 2 (by decide) (by decide) ()
+    (by decide) (by decide) w
+
+/-- Arbitrary upper elements at the four-strand extreme have a common full-joint
+coefficient, including after imposing the red-dot relations. -/
+example (x y : BraidedStendhalAlgebra ℤ Q Λ ν) :
+    let r := wordProd μ.card l • s
+    let t := sadj μ.card 1 • r
+    π (e r) * x = x → x * π (e t) = x → π (e r) * y = y → y * π (e t) = y →
+    x * π (ψw (1 :: l) * e s) + y * π (ψw (1 :: 2 :: l) * e s) = 0 →
+    ∃ c, c * π (e (sadj μ.card 2 • t)) = c ∧ c * π (ψw [1, 2] * e t) = -x ∧
+      c * π (ψw [2] * e t) = y :=
+  BraidedStendhalAlgebra.exists_equalBlack_corner_cycle_coefficient symmQ s l 1 (by decide) rl rjl
+    1 () hred hi hi' onlyTwo x y
+
+end NonVacuity.BraidedEqualBlackReturns
+end
+
 namespace NonVacuity.WebsterBraidFiltration
 
 open Categorification Categorification.KLR Categorification.Stendhal

@@ -9009,6 +9009,18 @@ example := firstPairTwoAfter_nilHecke_range_iff Q Λ (fun _ _ _ => rfl)
 
 end NonVacuity.WebsterFirstPairTwoAfter
 
+namespace NonVacuity.WebsterFirstPairRightmostZero
+
+open Categorification.KLR Categorification.Stendhal BraidedStendhalAlgebra MvPolynomial
+
+private def params : Unit → Unit → MvPolynomial (Fin 2) (ZMod 4) := fun _ _ => 0
+private def weights : Fin 3 → Unit →₀ ℕ := fun r => Finsupp.single () (if r = 2 then 0 else 2)
+
+example := firstPairRightmost_partialStandard_isZero_of_zeroSpectator
+  params weights (by simp [weights])
+
+end NonVacuity.WebsterFirstPairRightmostZero
+
 namespace NonVacuity.WebsterFirstPairTerminalColumn
 
 open Categorification.KLR Categorification.Stendhal Categorification.QuantumGroup

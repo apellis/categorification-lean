@@ -6057,6 +6057,83 @@ example : (proj.homGdim (proj.shift 1)).coeff 0 = 0 := by
 
 end NonVacuity.WebsterExtremalNorm
 
+namespace NonVacuity.WebsterReducedBraid
+
+noncomputable section
+
+open LieLean Matrix.Realization
+private def matrixA₂ (i j : Bool) : ℤ := if i = j then 2 else -1
+
+private theorem xRegular {Y : Type*} [AddCommGroup Y] {D : LusztigCartanDatum Bool} (R : D.RootDatum Y)
+    (hA : D.cartanMatrix = matrixA₂) : R.IsXRegular := by
+  apply Fintype.linearIndependent_iff.mpr
+  intro c hc j
+  have h (k : Bool) : c false * D.cartanMatrix k false + c true * D.cartanMatrix k true = 0 := by
+    have ht := congrArg (fun f : Y →+ ℤ => f (R.coroot k)) hc
+    simpa [Fintype.sum_bool, AddMonoidHom.add_apply, AddMonoidHom.zsmul_apply, R.root_coroot,
+      zsmul_eq_mul, add_comm] using ht
+  have a := h false
+  have b := h true
+  simp [hA, matrixA₂] at a b
+  cases j <;> omega
+
+variable (D : LusztigCartanDatum Bool) (hA : D.cartanMatrix = matrixA₂)
+local notation "P" => Matrix.Realization.std D.cartanMatrix ℝ
+private abbrev wt : (P).integralWeights :=
+  ⟨(P).root false + (P).root true, (P).integralWeights.add_mem ((P).root_mem_integralWeights false) ((P).root_mem_integralWeights true)⟩
+include hA in
+private theorem matchWt (i : Bool) : (wt D : Module.Dual ℝ _) ((P).coroot i) = 1 := by
+  change (P).root false ((P).coroot i) + (P).root true ((P).coroot i) = 1
+  rw [(P).root_coroot, (P).root_coroot, hA]
+  cases i <;> norm_num [matrixA₂]
+include hA in
+private theorem dominant : (P).IsDominantIntegral (wt D) := fun i => ⟨1, by simpa using matchWt D hA i⟩
+local notation "cs" => Matrix.Realization.coxeterSystem (Matrix.Realization.std D.cartanMatrix ℝ) D.isGeneralizedCartan_cartanMatrix
+include hA in
+private theorem reduced (i : Bool) : (cs).IsReduced ([i, !i, i] : List Bool).reverse := by
+  cases i
+  · apply (cs).isReduced_alternatingWord true false (k := 3)
+    right
+    rw [hA]
+    decide
+  · apply (cs).isReduced_alternatingWord false true (k := 3)
+    right
+    rw [hA]
+    decide
+
+include hA in
+private theorem sameBraid : (cs).wordProd ([false,true,false] : List Bool).reverse =
+    (cs).wordProd ([true,false,true] : List Bool).reverse := by
+  have h := (cs).wordProd_braidWord_eq true false
+  have he : D.cartanMatrix.coxeterMatrix true false = 3 := by rw [hA]; decide
+  have he' : D.cartanMatrix.coxeterMatrix false true = 3 := by rw [hA]; decide
+  rw [show ([false,true,false] : List Bool).reverse = CoxeterSystem.alternatingWord true false 3 from rfl,
+    show ([true,false,true] : List Bool).reverse = CoxeterSystem.alternatingWord false true 3 from rfl]
+  simpa only [CoxeterSystem.braidWord, he, he'] using h
+
+open Categorification.KLR.Unfurling Categorification.KLR.CycKLR
+private abbrev Δ := (coverCartan arr).toLusztig
+private theorem hA₂ : Δ.cartanMatrix = matrixA₂ := by
+  funext i j
+  cases i <;> cases j <;> rfl
+private theorem WtMatch (i : Bool) : (wt Δ : Module.Dual ℝ _) ((Matrix.Realization.std Δ.cartanMatrix ℝ).coroot i)
+    = (((coverWeight arr).pair.flip lam ((projectiveRootDatum (coverWeight arr)).coroot i) : ℤ) : ℝ) := by
+  rw [matchWt Δ hA₂]
+  change _ = (((coverWeight arr).pair ((coverWeight arr).iY i) lam : ℤ) : ℝ)
+  rw [coverWeight_pair_iY]
+  norm_num [lam]
+/-- The actual graded cyclotomic projectives agree for the distinct A₂ braid
+words 010 and 101, at level one of each colour over the field of two elements. -/
+example := coevaluationProjective_iso_of_same_weyl oneArrowParameters (fun _ => 1)
+  (coverWeight arr) lam (fun i => by rw [coverWeight_pair_iY]; rfl)
+  (xRegular (projectiveRootDatum (coverWeight arr)) hA₂)
+  (Matrix.Realization.std Δ.cartanMatrix ℝ) (wt Δ) (dominant Δ hA₂) WtMatch
+  [false, true, false] [true, false, true] (reduced Δ hA₂ false) (reduced Δ hA₂ true) (sameBraid Δ hA₂)
+
+end
+
+end NonVacuity.WebsterReducedBraid
+
 namespace NonVacuity.WebsterTerminalCyclotomic
 
 open Categorification.KLR.CycKLR
@@ -8913,6 +8990,14 @@ private theorem productSpan :
 example := diagramWeightCoendProduct_surjective G G G leftAction rightAction leftAction rightAction
   product productWeight productBalanced (⟨0⟩ : QWeight) (⟨0⟩ : QWeight) productSpan
 
+example := diagramWeightTensorSlice_leftInverse G G leftAction rightAction leftAction rightAction
+  (⟨0⟩ : QWeight) (⟨0⟩ : QWeight)
+
+example := diagramWeightOrdinaryProjection_tmul G G leftAction rightAction leftAction rightAction
+  (⟨0⟩ : QWeight) (⟨1⟩ : QWeight)
+  (⟨1, InDegreeZero.ring_mem_grading_zero (1 : ℚ)⟩ : G 0)
+  (⟨1, InDegreeZero.ring_mem_grading_zero (1 : ℚ)⟩ : G 0)
+
 end
 
 end NonVacuity.WebsterWeightCoend
@@ -8956,6 +9041,40 @@ example := by
 end
 
 end NonVacuity.WebsterGradedCorner
+
+namespace NonVacuity.WebsterScalarHom
+
+noncomputable section
+
+open Categorification CategoryTheory DG MulOpposite
+open scoped DG.DegreeZero
+
+local instance : InternalGrading ℚ := scalarInternalGrading ℚ
+local instance : BigradedDGRing ℚ := scalarBigradedDGRing ℚ
+local instance : CatModule.HasDerivedCategory.{1,0} (WeightCategory ℚ) :=
+  CatModule.HasDerivedCategory.standard (WeightCategory ℚ)
+
+private def weightPiece (j : ℤ) : Submodule ℚ ℚ where
+  carrier := (DG.grading (M := ℚ) j : Set ℚ)
+  add_mem' := add_mem
+  zero_mem' := zero_mem _
+  smul_mem' c m hm := by
+    change c * m ∈ DG.grading j
+    simpa only [zero_add] using mul_mem_grading (InDegreeZero.ring_mem_grading_zero c) hm
+
+private theorem rightAction {i j : ℤ} {b m : ℚ}
+    (hb : b ∈ wgrading i) (hm : m ∈ weightPiece j) :
+    op b • m ∈ weightPiece (j + i) := by
+  change m * b ∈ DG.grading (j + i)
+  exact mul_mem_grading (show m ∈ DG.grading j from hm) hb
+
+example := diagramWeightScalar_isKProjective ℚ weightPiece rightAction (⟨0⟩ : WeightCategory ℚ)
+
+example := diagramWeightScalarDerivedHom ℚ weightPiece rightAction
+
+end
+
+end NonVacuity.WebsterScalarHom
 
 namespace NonVacuity.WebsterAuxiliaryBraiding
 

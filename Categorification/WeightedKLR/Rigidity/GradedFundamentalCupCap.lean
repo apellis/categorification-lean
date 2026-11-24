@@ -9,12 +9,12 @@ import Categorification.WeightedKLR.Rigidity.FundamentalCoevaluation
 import Categorification.WeightedKLR.RedStrands.FundamentalCornerEuler
 
 /-!
-# Internally graded fundamental cup and cap
+# Internally graded terminal-character cup and cap
 
-For the pair of type A₁ fundamental weights over the rationals, the
-terminal character determines both functors of Webster's Definition 7.4,
-arXiv:1309.3796v2. The shifts on the cup are one in diagram degree and
-minus one in cohomological degree.
+For two fundamental type A₁ weights over the rationals, the terminal
+character gives a graded cup and cap model. The cup has diagram shift
+one and cohomological shift minus one. In Webster, arXiv:1309.3796v2,
+Proposition 7.5 uses the middle loading `κ = (0, 1)`.
 -/
 
 noncomputable section
@@ -78,8 +78,8 @@ universe v
 variable [CatModule.HasDerivedCategory.{v,0} (WeightCategory ℚ)]
   [CatModule.HasDerivedCategory.{v,0} (WeightCategory Tᵐᵒᵖ)]
 
-/-- Webster, arXiv:1309.3796v2, Definition 7.4 over ℚ for the two type A₁
-fundamental weights. The internal shift is one and the cohomological shift is minus one. -/
+/-- The terminal-character cup over ℚ for two type A₁ fundamental weights.
+The internal shift is one and the cohomological shift is minus one. -/
 def gradedFundamentalCup :
     CatModule.DerivedCategory.{v,0} (WeightCategory ℚ) ⥤
       CatModule.DerivedCategory.{v,0} (WeightCategory Tᵐᵒᵖ) :=

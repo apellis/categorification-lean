@@ -1003,9 +1003,9 @@ from a dominant integral weight, the coroot pairings are nonnegative
 roots this determines the multiplicities
 (`Stendhal.coevaluationWord_multiplicities_eq`). For reduced expressions of the
 same Weyl element, this gives `Stendhal.coevaluationWord_multiplicities_eq_of_reduced`.
-The fundamental two-red type A₁ character is homogeneous in the
-Webster grading. Its derived restriction and extension give the internally
-graded fundamental cup and cap over the rationals. The cup has internal
+The terminal character of the two-red type A₁ algebra is homogeneous in the
+Webster grading. Its derived restriction and extension give a graded
+terminal-character cup and cap model over the rationals. The cup has internal
 shift one and cohomological shift minus one
 (`Stendhal.FundamentalCorner.gradedFundamentalCup` and `gradedFundamentalCap`).
 
@@ -1017,10 +1017,13 @@ of the left weight modules also gives the derived Hom
 coefficients induces their product from the intermediate weight-category
 tensor coend (`diagramWeightCoendProduct_tmul`). In the right-module
 convention this gives the coend multiplication of three rectangular corners
-(`diagramCornerWeightRightCoendProduct_tmul`). If ordinary pure products
-generate the coefficient, the coend product is onto at each pair of endpoint
-weights (`diagramWeightCoendProduct_surjective`). For a rectangular corner between two degree-zero
-idempotents, `diagramCornerWeightDerivedRightTensor` uses the restricted grading
+(`diagramCornerWeightRightCoendProduct_tmul`). Ordinary pure products
+that span the coefficient give a surjection at each endpoint pair
+(`diagramWeightCoendProduct_surjective`). Forgetting intermediate weights
+embeds the coend as the endpoint-degree summand of the ordinary additive
+balanced tensor (`diagramWeightTensorSlice_leftInverse`,
+`diagramWeightOrdinaryProjection_tmul`). For a rectangular corner between
+two degree-zero idempotents, `diagramCornerWeightDerivedRightTensor` uses the restricted grading
 and defines derived right tensor on the graded right-module categories.
 For the actual braid bimodule this gives `auxiliaryGradedBraidingFunctor`
 in the integer grading inherited from the augmented KLR algebra. For a two-red swap,
@@ -1044,6 +1047,10 @@ multiplication identifies the quotient corner coefficient
 the induced multiplication is onto the actual homogeneous quotient coefficient
 at each endpoint pair (`braidFactorizationCoend_surjective`).
 
+Over a scalar field in degree zero the left modules are K-projective, so the
+construction gives derived Hom for every homogeneous scalar coefficient
+(`diagramWeightScalarDerivedHom`).
+
 Definition 7.4 has cup and cap coefficient models in the ungraded derived
 categories, with a specified cohomological shift on the cup and a finite
 dimensional ordinary tensor-Hom comparison preserving the module action
@@ -1062,13 +1069,16 @@ The cap using the same coefficient is left adjoint before the shift
 The derived Hom and dual-tensor constructions agree on the ground field
 (`Stendhal.Coevaluation.cupRHomTensorRegularIso`).
 For the two fundamental type A₁ factors over the rationals, the dual
-coefficient is the simple quotient by the smaller-cut trace. It gives
-the cup with homological shift minus one and the cap
+of the terminal character is the simple quotient by the smaller-cut trace.
+It gives a terminal-character cup with homological shift minus one and cap
 (`Stendhal.FundamentalCorner.terminalQuotientDualEquiv`, `fundamentalCup`,
 and `fundamentalCap`).
 The cup on the ground field is the shifted terminal simple quotient,
 and the cap on the regular module is the left coefficient
 (`fundamentalCupRegularIso` and `fundamentalCapRegularIso`).
+Webster's normalization in Proposition 7.5 uses the middle loading
+`κ = (0, 1)`. The convention of §4 counts the black strands to the left
+of each red strand. The middle-character construction is in progress.
 
 For Proposition 7.2, a single
 red with coroot pairing one gives a simple projective at the red-first
@@ -1109,7 +1119,9 @@ the raised weight space vanishes in the classical and quantum modules, and
 the full divided power preserves the Shapovalov norm on a bar-invariant
 primitive vector (`SingleBlack.websterForm_saturated_dividedPower`). The
 normalized divided-power cyclotomic projective of each reduced coevaluation
-word is simple (`CycKLR.isSimple_coevaluationProjective`). The normalized
+word is simple (`CycKLR.isSimple_coevaluationProjective`). Two reduced words
+for the same Weyl element give isomorphic graded projectives
+(`CycKLR.coevaluationProjective_iso_of_same_weyl`). The normalized
 Shapovalov pairings are still needed for general reflection words.
 
 **Webster, arXiv:1309.3796v2, §7.1, Lemma 7.3.** The smaller-cut trace is

@@ -8322,7 +8322,7 @@ namespace NonVacuity.WebsterPrincipalPalette
 
 open Categorification.Stendhal Categorification.KLR BraidedStendhalAlgebra
 
-private def Q : Bool → Bool → MvPolynomial (Fin 2) ℤ := fun _ _ => 0
+private noncomputable def Q : Bool → Bool → MvPolynomial (Fin 2) ℤ := fun _ _ => 0
 private noncomputable def Λ : Fin 3 → Bool →₀ ℕ :=
   fun r => Finsupp.single true (![3,2,1] r)
 

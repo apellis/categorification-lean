@@ -1003,6 +1003,12 @@ from a dominant integral weight, the coroot pairings are nonnegative
 roots this determines the multiplicities
 (`Stendhal.coevaluationWord_multiplicities_eq`). For reduced expressions of the
 same Weyl element, this gives `Stendhal.coevaluationWord_multiplicities_eq_of_reduced`.
+Definition 7.4 has cup and cap coefficient models in the ungraded derived
+categories, with a specified cohomological shift on the cup and a finite
+dimensional ordinary tensor-Hom comparison preserving the module action
+(`Stendhal.Coevaluation.shiftedCupFunctor`, `capFunctor`, and
+`cupTensorHomEquiv_op_tmul`). The normalized graded coevaluation remains open.
+
 For Proposition 7.2, a single
 red with coroot pairing one gives a simple projective at the red-first
 one-black loading (`Stendhal.oneBlack_extremal_projective_simple`).

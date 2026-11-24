@@ -186,4 +186,41 @@ theorem mul_first_pow_mem_iff {a b : σ} (hab : a ≠ b) (m n d : ℕ) (f : P) :
     rw [pow_add]
     linear_combination (X a)^d*h
 
+/-- If the divided difference after the first black moves right vanishes
+in the equal-bound flag quotient, the original coefficient belongs to
+the rectangular ideal for the two separated positions. -/
+theorem mem_rectangular_of_ddiff_first_pow_mem {a b : σ} (hab : a ≠ b)
+    (m d : ℕ) (f : P)
+    (hf : ddiff a b ((X a)^d*f) ∈ ideal a b (m+d) (m+d)) :
+    f ∈ Ideal.span {(X a)^m, (X b)^d} := by
+  classical
+  let Xₐ : P := X a
+  let Xᵦ : P := X b
+  obtain ⟨u,v, huv⟩ := Ideal.mem_span_pair.1 hf
+  change u * Xₐ^(m+d) + v * complete Xₐ Xᵦ (m+d) = _ at huv
+  have h := ddiff_spec hab (Xₐ^d*f)
+  rw [← huv, map_mul, map_pow, rename_X, swap_apply_left, mul_add] at h
+  rw [mul_left_comm (Xₐ-Xᵦ) v, sub_mul_complete, pow_add Xₐ, pow_add Xᵦ] at h
+  let z := (Xₐ-Xᵦ)*u+v
+  have hdiv : Xᵦ^d ∣ (f-z*Xₐ^m)*Xₐ^d := by
+    refine ⟨rename (swap a b) f - v*Xᵦ^m, ?_⟩
+    dsimp only [z]
+    linear_combination -h
+  obtain ⟨w, hw⟩ := KLR.KLRAlgebra.X_pow_dvd_of_dvd_mul_other_pow hab.symm d d hdiv
+  exact Ideal.mem_span_pair.2 ⟨z,w, by linear_combination -hw⟩
+
+/-- Removing a last-position power from a rectangular coefficient test reduces
+the bound on that dot by the same amount. -/
+theorem mem_rectangular_of_mul_second_pow {a b : σ} (hab : a ≠ b)
+    (m e d : ℕ) (f : P)
+    (hf : f*(X b)^d ∈ (Ideal.span {(X a)^m, (X b)^(e+d)} : Ideal P)) :
+    f ∈ (Ideal.span {(X a)^m, (X b)^e} : Ideal P) := by
+  obtain ⟨u,v,h⟩ := Ideal.mem_span_pair.1 hf
+  have hd : (X a)^m ∣ (f-v*(X b)^e)*(X b)^d := by
+    refine ⟨u,?_⟩
+    rw [pow_add] at h
+    linear_combination -h
+  obtain ⟨w,hw⟩ := KLR.KLRAlgebra.X_pow_dvd_of_dvd_mul_other_pow hab m d hd
+  exact Ideal.mem_span_pair.2 ⟨w,v,by linear_combination -hw⟩
+
 end Categorification.Stendhal.TwoBlackFlag

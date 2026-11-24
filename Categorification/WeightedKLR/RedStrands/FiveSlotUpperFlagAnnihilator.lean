@@ -40,7 +40,8 @@ local notation "H" => complete (X a₁ : P) (X a₂) m
 local notation "H'" => complete (X a₁ : P) (X a₄) m
 local notation "b" => (ψ 2 * (ψ 3 * e v₁) : R)
 
-private theorem red_black_right_square (j : ℕ) (hj : j+1<N) (s : Seq μ) (r : Fin 3)
+/-- The reverse and forward crossing at a red-black cut give the black dot power. -/
+theorem fiveSlot_red_black_right_square (j : ℕ) (hj : j+1<N) (s : Seq μ) (r : Fin 3)
     (hl : s.lbl ⟨j, by omega⟩ = Sum.inr r) (hr : s.lbl ⟨j+1,hj⟩ = Sum.inl ()) :
     (ψ j * ψ j * e s : R) = x ⟨j+1,hj⟩ ^ (Λ r ()) * e s := by
   rw [ψ_sq j hj, hl, hr]
@@ -70,14 +71,15 @@ private theorem right_first_dot_kills (t : Seq μ) (h₀ : t.lbl ⟨0, by decide
     rw [← mul_assoc, ← ψ_mul_e, mul_assoc, e_mul_self]
   have killed := congrArg F top
   rw [map_mul, zero, zero_mul] at killed
-  have sq := red_black_right_square Q Λ 0 (by decide) t 0 h₀ h₁
+  have sq := fiveSlot_red_black_right_square Q Λ 0 (by decide) t 0 h₀ h₁
   rw [← sq, mul_assoc, map_mul, killed.symm, mul_zero]
 
-private theorem e1_return : ψ 3 * (ψ 2 * b) = (x a₄)^d * e v₁ := by
+/-- Returning the second black at the central cut through the left extreme gives its two-red dot power. -/
+theorem fiveSlotCentral_secondBlack_return : ψ 3 * (ψ 2 * b) = (x a₄)^d * e v₁ := by
   have hmid : (e jA : R) * (ψ 3 * e v₁) = ψ 3 * e v₁ := by
     have hs : sadj N 3 • v₁ = jA := by decide
     rw [← hs, ← mul_assoc, ← ψ_mul_e, mul_assoc, e_mul_self]
-  have h₂ := red_black_right_square Q Λ 2 (by decide) jA 1 (by decide) (by decide)
+  have h₂ := fiveSlot_red_black_right_square Q Λ 2 (by decide) jA 1 (by decide) (by decide)
   have first : (ψ 2 * (ψ 2 * (ψ 3 * e v₁)) : R) =
       (x a₃)^ (Λ 1 ()) * (ψ 3 * e v₁) := by
     have h := congrArg (· * (ψ 3 * e v₁ : R)) h₂
@@ -91,7 +93,7 @@ private theorem e1_return : ψ 3 * (ψ 2 * b) = (x a₄)^d * e v₁ := by
       (X a₄ : P) ^ (Λ 1 ()) := by
     rw [swapPol, map_pow, rename_X, show swap a₃ a₄ a₃ = a₄ by decide]
   rw [ns, map_pow (pol : P →ₐ[k] R), map_pow (pol : P →ₐ[k] R), pol_X, pol_X] at s₃
-  rw [first, s₃, ← mul_assoc (ψ 3), red_black_right_square Q Λ 3 (by decide) v₁ 2
+  rw [first, s₃, ← mul_assoc (ψ 3), fiveSlot_red_black_right_square Q Λ 3 (by decide) v₁ 2
     (by decide) (by decide), ← mul_assoc, ← pow_add]
 
 private theorem e1_map_complete (φ : P →ₐ[k] P) (f g : P) (j : ℕ) :
@@ -127,7 +129,7 @@ private theorem e1_complete_higher_kills : F (pol H' * (x a₄)^d * e v₁ : R) 
     rw [← show (e v₀ : R) * b = b from hb, ← mul_assoc, map_mul, kill, zero_mul]
   have hzero : F (ψ 3 * (ψ 2 * (pol H * b)) : R) = 0 := by
     rw [map_mul, map_mul, hz, mul_zero, mul_zero]
-  rw [hs₂, hs₃, hs, e1_return Q Λ, ← mul_assoc] at hzero
+  rw [hs₂, hs₃, hs, fiveSlotCentral_secondBlack_return Q Λ, ← mul_assoc] at hzero
   exact hzero
 
 /-- The full two-black flag ideal kills the central loading idempotent. -/
@@ -163,7 +165,7 @@ private theorem nearby_complete_higher_kills :
   have hzero : F (ψ 2 * (pol H * z) : R) = 0 := by rw [map_mul, hprod, mul_zero]
   rw [hs, hswap] at hzero
   change F (pol (complete (X a₁ : P) (X a₃) m) * (ψ 2 * (ψ 2 * e jA))) = 0 at hzero
-  rw [← mul_assoc (ψ 2), red_black_right_square Q Λ 2 (by decide) jA 1
+  rw [← mul_assoc (ψ 2), fiveSlot_red_black_right_square Q Λ 2 (by decide) jA 1
     (by decide) (by decide), ← mul_assoc] at hzero
   exact hzero
 

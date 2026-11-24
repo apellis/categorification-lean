@@ -455,10 +455,12 @@ private theorem centralFinish_slide (i : Fin 3) (f : P) :
     rfl
   · simp [centralFinishWord, wordProd]
 
-private theorem centralTerm_kill (hQ : KLRSymm Q) (i : Fin 3) (s : Seq weight)
+private theorem centralTerm_transfer (hQ : KLRSymm Q) (i : Fin 3) (s : Seq weight)
     (front : List ℕ) (hfront : wordProd N front • s = H i)
-    (f : P) (hf : blackEval E₁ f * (X i₄)^centralFinishExponent Λ i ∈ J) :
-    F (pol f * (ψw (centralFinishWord i ++ front) * e s)) = 0 := by
+    (f : P) :
+    F (pol f * (ψw (centralFinishWord i ++ front) * e s)) =
+      F ((ψw (centralFinishWord i) * (pol (rename ((p i)⁻¹ : Perm (Fin N)) (blackEval E₁ f)) *
+        e (H i))) * (ψw front * e s)) := by
   let z : R := ψw front * e s
   have hleft : (e (H i) : R) * z = z := by
     change (e (H i) * (ψw front * e s) : R) = ψw front * e s
@@ -466,7 +468,6 @@ private theorem centralTerm_kill (hQ : KLRSymm Q) (i : Fin 3) (s : Seq weight)
   have htop : (e E₁ : R) * (ψw (centralFinishWord i) * z) = ψw (centralFinishWord i) * z := by
     rw [← centralFinish_top i, ← mul_assoc, e_mul_ψw, inv_smul_smul, mul_assoc, hleft]
   let g := rename ((p i)⁻¹ : Perm (Fin N)) (blackEval E₁ f)
-  have hk := centralIntermediate_flag_kills Q Λ i g (centralFinish_pullback Λ i (blackEval E₁ f) hf)
   have hrename : rename (p i) g = blackEval E₁ f := by
     change rename (p i) (rename ((p i)⁻¹ : Perm (Fin N)) (blackEval E₁ f)) = blackEval E₁ f
     rw [rename_rename, show ((p i : Fin N → Fin N) ∘ (((p i)⁻¹ : Perm (Fin N)) : Fin N → Fin N)) = id from
@@ -478,9 +479,8 @@ private theorem centralTerm_kill (hQ : KLRSymm Q) (i : Fin 3) (s : Seq weight)
     have hh := congrArg (ofKLR k Q Λ ν₀) (toKLR_ofKLR_pol_mul_e (Q := Q) (Λ := Λ) f E₁)
     rw [ofKLR_toKLR hQ] at hh
     exact congrArg (violMk k Q Λ ν₀) hh
-  change F (pol f * (ψw (centralFinishWord i ++ front) * e s)) = 0
   rw [ψw_append, mul_assoc (ψw _)]
-  change F (pol f * (ψw (centralFinishWord i) * z)) = 0
+  change F (pol f * (ψw (centralFinishWord i) * z)) = F ((ψw (centralFinishWord i) * (pol g * e (H i))) * z)
   calc
     _ = F (pol f * e E₁) * F (ψw (centralFinishWord i) * z) := by
       rw [← map_mul, mul_assoc, htop]
@@ -489,7 +489,36 @@ private theorem centralTerm_kill (hQ : KLRSymm Q) (i : Fin 3) (s : Seq weight)
     _ = F ((ψw (centralFinishWord i) * (pol g * e (H i))) * z) := by
       apply congrArg F
       simpa only [mul_assoc, hleft] using h.symm
-    _ = 0 := by rw [map_mul, map_mul, hk, mul_zero, zero_mul]
+
+
+private theorem centralTerm_kill (hQ : KLRSymm Q) (i : Fin 3) (s : Seq weight)
+    (front : List ℕ) (hfront : wordProd N front • s = H i)
+    (f : P) (hf : blackEval E₁ f * (X i₄)^centralFinishExponent Λ i ∈ J) :
+    F (pol f * (ψw (centralFinishWord i ++ front) * e s)) = 0 := by
+  have hk := centralIntermediate_flag_kills Q Λ i _
+    (centralFinish_pullback Λ i (blackEval E₁ f) hf)
+  rw [centralTerm_transfer Q Λ hQ i s front hfront f, map_mul, map_mul, hk, mul_zero, zero_mul]
+
+private theorem centralReadout_ideal (i : Fin 6) (L : Ideal P) (f g : P) (z : R)
+    (hfg : z = pol f * (ψw (a i) * e (S i)) + pol g * (ψw (b i) * e (S i)))
+    (test : ∀ q : P, blackEval E₁ (polyRep (sortedFlagP_factor Q Λ) z (Pi.single (S i) q) E₁) ∈ L) :
+    blackEval E₁ f * (X i₄)^centralFinishExponent Λ (centralStableIntermediate i) ∈ L ∧
+      blackEval E₁ g * (X i₄)^centralFinishExponent Λ (centralSwappedIntermediate i) ∈ L := by
+  obtain ⟨h₁,h₂⟩ := centralWords_readout Q Λ i f g z hfg
+  have b₁ : ((E₁).lbl i₁).isLeft = true := by decide
+  have b₄ : ((E₁).lbl i₄).isLeft = true := by decide
+  have hf : blackEval E₁ f * (X i₄)^centralFinishExponent Λ (centralStableIntermediate i) ∈ L := by
+    have h := test 1
+    rw [h₁, map_mul (blackEval E₁), map_pow (blackEval E₁), blackEval_X, ite_eq_left b₄] at h
+    exact h
+  have hg : blackEval E₁ g * (X i₄)^centralFinishExponent Λ (centralSwappedIntermediate i) ∈ L := by
+    have h := test (X (firstBlack (S i)))
+    rw [h₂] at h
+    simp only [map_add (blackEval E₁), map_mul (blackEval E₁), map_pow (blackEval E₁),
+      blackEval_X, ite_eq_left b₁, ite_eq_left b₄, ← mul_assoc] at h
+    have hd := L.sub_mem h (L.mul_mem_right (X i₁) hf)
+    simpa only [add_sub_cancel_left] using hd
+  exact ⟨hf,hg⟩
 
 /-- In the fixed red-order corner, the central polynomial flag tests reflect
 vanishing of the diagram. -/
@@ -503,22 +532,118 @@ theorem central_eq_zero_of_flagEvaluation (hQ : KLRSymm Q) (s : Seq weight)
   obtain ⟨ha, hb, hne, hmatch⟩ := centralWords_spec i
   obtain ⟨f,g,hfg⟩ := exists_two_corner_coefficients_of_words
     (stendhalQ_symm Q Λ hQ) (S i) E₁ (a i) (b i) ha hb hne hmatch z left right
-  obtain ⟨h₁,h₂⟩ := centralWords_readout Q Λ i f g z hfg
-  have b₁ : ((E₁).lbl i₁).isLeft = true := by decide
-  have b₄ : ((E₁).lbl i₄).isLeft = true := by decide
-  have hf : blackEval E₁ f * (X i₄)^centralFinishExponent Λ (centralStableIntermediate i) ∈ J := by
-    have h := test 1
-    rw [h₁, map_mul (blackEval E₁), map_pow (blackEval E₁), blackEval_X, ite_eq_left b₄] at h
-    exact h
-  have hg : blackEval E₁ g * (X i₄)^centralFinishExponent Λ (centralSwappedIntermediate i) ∈ J := by
-    have h := test (X (firstBlack (S i)))
-    rw [h₂] at h
-    simp only [map_add (blackEval E₁), map_mul (blackEval E₁), map_pow (blackEval E₁),
-      blackEval_X, ite_eq_left b₁, ite_eq_left b₄, ← mul_assoc] at h
-    have hd := (J).sub_mem h ((J).mul_mem_right (X i₁) hf)
-    simpa only [add_sub_cancel_left] using hd
+  obtain ⟨hf,hg⟩ := centralReadout_ideal Q Λ i J f g z hfg test
   rw [hfg, map_add, centralStableWord, centralSwappedWord, centralTerm_kill Q Λ hQ _ _ _ (centralStablePrefix_top i) f hf,
     centralTerm_kill Q Λ hQ _ _ _ (centralSwappedPrefix_top i) g hg, zero_add]
+
+
+private def centralReturnExponent (Λ : Fin 3 → Unit →₀ ℕ) : Fin 3 → ℕ
+  | 0 => 0
+  | 1 => Λ 1 ()
+  | _ => Λ 1 () + Λ 2 ()
+
+private theorem centralReturn_finish_bound (i : Fin 3) :
+    centralReturnExponent Λ i + centralFinishExponent Λ i = Λ 1 () + Λ 2 () := by
+  fin_cases i <;> simp [centralReturnExponent, centralFinishExponent]
+
+private theorem centralFinish_rectangular_pullback (i : Fin 3) (f : P)
+    (hf : f * (X i₄)^centralFinishExponent Λ i ∈
+      (Ideal.span {(X i₁)^m, (X i₄)^(Λ 1 () + Λ 2 ())} : Ideal P)) :
+    rename ((p i)⁻¹ : Perm (Fin N)) f ∈
+      (Ideal.span {(X i₁)^m, (X (centralFinishSecond i))^centralReturnExponent Λ i} : Ideal P) := by
+  have hh := hf
+  rw [← centralReturn_finish_bound Λ i] at hh
+  obtain ⟨u,v,huv⟩ := Ideal.mem_span_pair.1
+    (mem_rectangular_of_mul_second_pow (by decide : i₁ ≠ i₄) m _ _ f hh)
+  have h₁ : (p i)⁻¹ i₁ = i₁ := calc
+    _ = (p i)⁻¹ ((p i) i₁) := congrArg (((p i)⁻¹ : Perm (Fin N)) : Fin N → Fin N) (centralFinish_first_fixed i).symm
+    _ = _ := (p i).symm_apply_apply _
+  have h₂ : (p i)⁻¹ i₄ = centralFinishSecond i := calc
+    _ = (p i)⁻¹ ((p i) (centralFinishSecond i)) :=
+      congrArg (((p i)⁻¹ : Perm (Fin N)) : Fin N → Fin N) (centralFinish_second i).symm
+    _ = _ := (p i).symm_apply_apply _
+  refine Ideal.mem_span_pair.2 ⟨rename ((p i)⁻¹ : Perm (Fin N)) u,
+    rename ((p i)⁻¹ : Perm (Fin N)) v, ?_⟩
+  have he := congrArg (rename ((p i)⁻¹ : Perm (Fin N))) huv
+  simpa only [map_add, map_mul, map_pow, rename_X, h₁, h₂] using he
+
+local notation "U" => (ψw [3,2] * e E₀ : R)
+
+private theorem centralFinish_return_factor (i : Fin 3) :
+    ∃ r₀ : R, (ψw (centralFinishWord i) : R) *
+      (pol ((X (centralFinishSecond i) : P)^centralReturnExponent Λ i) * e (H i)) = U * r₀ := by
+  fin_cases i
+  · refine ⟨e E₀, ?_⟩
+    change (ψw [3,2] : R) * (pol ((X i₂ : P)^0) * e E₀) = U * e E₀
+    rw [pow_zero, map_one, one_mul, mul_assoc, e_mul_self]
+  · refine ⟨ψ 2 * e jA, ?_⟩
+    have cut : (e E₀ : R) * (ψ 2 * e jA) = ψ 2 * e jA := by
+      rw [← mul_assoc, e_mul_ψ, mul_assoc, e_mul_self]
+    have sq := fiveSlot_red_black_right_square Q Λ 2 (by decide) jA 1 (by decide) (by decide)
+    change (ψw [3] : R) * (pol ((X i₃ : P)^(Λ 1 ())) * e jA) = U * (ψ 2 * e jA)
+    simp only [ψw_cons, ψw_nil, mul_one, map_pow, pol_X, mul_assoc, cut]
+    rw [← mul_assoc (ψ 2), sq]
+  · refine ⟨ψ 2 * (ψ 3 * e E₁), ?_⟩
+    have cut : (e E₀ : R) * (ψ 2 * (ψ 3 * e E₁)) = ψ 2 * (ψ 3 * e E₁) := by
+      have h : (e E₀ * (ψw [2,3] * e E₁) : R) = ψw [2,3] * e E₁ := by
+        rw [← show wordProd N [2,3] • E₁ = E₀ by decide, ← mul_assoc,
+          e_mul_ψw, inv_smul_smul, mul_assoc, e_mul_self]
+      simpa only [ψw_cons, ψw_nil, mul_one, mul_assoc] using h
+    change (ψw [] : R) * (pol ((X i₄ : P)^(Λ 1 ()+Λ 2 ())) * e E₁) =
+      U * (ψ 2 * (ψ 3 * e E₁))
+    simp only [ψw_cons, ψw_nil, mul_one, one_mul, map_pow, pol_X, mul_assoc, cut]
+    exact (fiveSlotCentral_secondBlack_return Q Λ).symm
+
+private theorem centralFinish_rectangular_factor (i : Fin 3) (g : P)
+    (hg : g ∈ (Ideal.span {(X i₁)^m, (X (centralFinishSecond i))^centralReturnExponent Λ i} : Ideal P)) :
+    ∃ y : ViolQuotient k Q Λ ν₀, F ((ψw (centralFinishWord i) : R) * (pol g * e (H i))) = F U * y := by
+  obtain ⟨v,w,rfl⟩ := Ideal.mem_span_pair.1 hg
+  let r : P := (X (centralFinishSecond i))^centralReturnExponent Λ i
+  have kill : F (pol (v*(X i₁)^m) * e (H i)) = 0 := by
+    apply centralIntermediate_flag_kills Q Λ i
+    exact (TwoBlackFlag.ideal i₁ (centralFinishSecond i) m (centralIntermediateBound Λ i)).mul_mem_left v
+      (Ideal.subset_span (Or.inl rfl))
+  obtain ⟨r₀, ha⟩ := centralFinish_return_factor Q Λ i
+  have swap : (pol (w*r) * e (H i) : R) = (pol r * e (H i)) * pol w := by
+    rw [mul_comm w r, map_mul, mul_assoc, ← (e_commute_pol _ w).eq, ← mul_assoc]
+  refine ⟨F (r₀ * pol w), ?_⟩
+  change F ((ψw (centralFinishWord i) : R) *
+    (pol (v*(X i₁)^m + w*r) * e (H i))) = _
+  rw [map_add pol, add_mul, mul_add, map_add F, map_mul F (ψw _), kill, mul_zero, zero_add,
+    swap, ← mul_assoc, ha, mul_assoc, map_mul]
+
+private theorem centralTerm_mem_leftExtremeImage (hQ : KLRSymm Q) (i : Fin 3) (s : Seq weight)
+    (front : List ℕ) (hfront : wordProd N front • s = H i)
+    (f : P) (hf : blackEval E₁ f * (X i₄)^centralFinishExponent Λ i ∈
+      (Ideal.span {(X i₁)^m, (X i₄)^(Λ 1 () + Λ 2 ())} : Ideal P)) :
+    ∃ y : ViolQuotient k Q Λ ν₀,
+      F (pol f * (ψw (centralFinishWord i ++ front) * e s)) = F U * y := by
+  let g := rename ((p i)⁻¹ : Perm (Fin N)) (blackEval E₁ f)
+  rw [centralTerm_transfer Q Λ hQ i s front hfront f]
+  obtain ⟨y, hy⟩ := centralFinish_rectangular_factor Q Λ i g
+    (centralFinish_rectangular_pullback Λ i (blackEval E₁ f) hf)
+  refine ⟨y * F (ψw front * e s), ?_⟩
+  rw [map_mul, hy, mul_assoc]
+
+/-- Rectangular flag tests on the E1 row place a diagram in the principal
+image of the left-extreme loading. -/
+theorem central_mem_leftExtremeImage_of_rectangular_flag (hQ : KLRSymm Q) (s : Seq weight)
+    (order : redWord s = redWord E₀) (z : R) (left : e E₁ * z = z) (right : z * e s = z)
+    (test : ∀ f : P, blackEval E₁ (polyRep (sortedFlagP_factor Q Λ) z (Pi.single s f) E₁) ∈
+      (Ideal.span {(X i₁)^m, (X i₄)^(Λ 1 () + Λ 2 ())} : Ideal P)) :
+    ∃ y : ViolQuotient k Q Λ ν₀, F z = F U * y := by
+  by_cases hv : IsViolated s
+  · refine ⟨0, ?_⟩
+    rw [← right, map_mul, show F (e s) = 0 from violMk_e hv, mul_zero, mul_zero]
+  obtain ⟨i, rfl⟩ := centralBottomLoading_cases s order hv
+  obtain ⟨ha,hb,hne,hmatch⟩ := centralWords_spec i
+  obtain ⟨f,g,hfg⟩ := exists_two_corner_coefficients_of_words
+    (stendhalQ_symm Q Λ hQ) (S i) E₁ (a i) (b i) ha hb hne hmatch z left right
+  obtain ⟨hf,hg⟩ := centralReadout_ideal Q Λ i _ f g z hfg test
+  obtain ⟨y,hy⟩ := centralTerm_mem_leftExtremeImage Q Λ hQ _ _ _ (centralStablePrefix_top i) f hf
+  obtain ⟨q,hq⟩ := centralTerm_mem_leftExtremeImage Q Λ hQ _ _ _ (centralSwappedPrefix_top i) g hg
+  refine ⟨y+q, ?_⟩
+  rw [hfg, map_add, centralStableWord, centralSwappedWord, hy, hq, mul_add]
 
 end Reflection
 
@@ -614,6 +739,80 @@ theorem fiveSlotRightmost_firstCrossing_cancel_on_orderCorner (hQ : KLRSymm Q)
       apply Finset.sum_eq_zero
       intro s hs
       exact vanish s (Finset.mem_filter.mp hs).2
+
+
+private theorem rightmostSecond_flag_test (z : R) (hz : F ((ψw [3,2,1]*e E₁)*z)=0)
+    (input : Pol k weight) :
+    blackEval E₁ (A z input E₁) ∈
+      (Ideal.span {(X i₁)^m, (X i₄)^d} : Ideal P) := by
+  let g := A z input
+  have cut : opE E₁ g=Pi.single E₁ (g E₁) := by funext u; rw [opE_apply,Pi.single_apply]
+  have top : w • E₁=E₂ := by decide
+  have fix : sadj N 3 • E₂ = E₂ := by decide
+  have full : wordProd N [3,2,1] • E₁=E₂ := by decide
+  have h := eval_mem_sorted_flag_of_violMk_eq_zero Q Λ (loadingIdeal Λ)
+    (loadingIdeal_preservesSortedFlags Λ) (loadingIdeal_eq_top_of_violated Λ) hz input E₂
+  rw [map_mul A,map_mul A,polyRep_ψw,polyRep_e,Module.End.mul_apply,Module.End.mul_apply,
+    show opE E₁ (A z input)=Pi.single E₁ (g E₁) from cut,opΨw_single,full,Pi.single_eq_same,
+    rightmostFirst_ideal Λ] at h
+  rw [wordComp, dite_eq_left (by decide : 3+1<N), LinearMap.comp_apply, top] at h
+  have comm := blackEval_crossComp_sortedFlagP Λ E₂ 3 (by decide)
+    (wordComp D [2,1] E₁ (g E₁))
+  rw [fix] at comm
+  rw [comm, rightmostFirst_wordComp Λ, crossComp,
+    ite_eq_left (by decide : ((E₂).lbl i₃) = ((E₂).lbl i₄))] at h
+  have same (f : P) : blackEval E₂ (rename w f)=rename w (blackEval E₁ f) := by
+    rw [← top,blackEval_rename_perm]
+  rw [map_mul (blackEval E₂), map_pow (blackEval E₂), blackEval_X,
+    ite_eq_left (by decide : ((E₂).lbl i₃).isLeft = true), same] at h
+  obtain ⟨r₀,r₁,hab⟩ := Ideal.mem_span_pair.1
+    (TwoBlackFlag.mem_rectangular_of_ddiff_first_pow_mem (by decide : i₃ ≠ i₄) m d _ h)
+  have back := congrArg (rename (w⁻¹ : Perm (Fin N))) hab
+  change rename (w⁻¹ : Perm (Fin N)) (r₀*(X i₃)^m + r₁*(X i₄)^d) =
+    rename (w⁻¹ : Perm (Fin N)) (rename w (blackEval E₁ (A z input E₁))) at back
+  let φ : P →ₐ[k] P := rename (w⁻¹ : Perm (Fin N))
+  rw [map_add φ, map_mul φ, map_mul φ, map_pow φ, map_pow φ, rename_X, rename_X,
+    show w⁻¹ i₃=i₁ by decide, show w⁻¹ i₄=i₄ by decide, rename_rename,
+    show ((w⁻¹ : Perm (Fin N)) ∘ (w : Perm (Fin N)))=id from (w).symm_comp_self, rename_id] at back
+  exact Ideal.mem_span_pair.2 ⟨_, _, back⟩
+
+/-- The kernel of the second central-to-rightmost crossing lies in the
+principal image of the left-extreme loading. -/
+theorem fiveSlotRightmost_secondCrossing_kernel_mem_leftExtremeImage (hQ : KLRSymm Q)
+    (y : V) (left : F (e E₁)*y=y) (right : y*F (redIdem k Q Λ (redWord E₀))=y)
+    (zero : F (ψw [3,2,1]*e E₁)*y=0) :
+    ∃ r₁ : V, F (e E₀)*r₁=r₁ ∧ r₁*F (redIdem k Q Λ (redWord E₀))=r₁ ∧
+      y=F (ψw [3,2]*e E₀)*r₁ := by
+  classical
+  obtain ⟨x,hx⟩ := (violMk_surjective (Q := Q) (Λ := Λ)).comp (ofKLR_surjective (Q := Q) (Λ := Λ)) y
+  let u : V := F (ψw [3,2]*e E₀)
+  let E : V := F (redIdem k Q Λ (redWord E₀))
+  let image : AddSubmonoid V :=
+    { carrier := {t | ∃ z : V, t = u*z}
+      zero_mem' := ⟨0,(mul_zero u).symm⟩
+      add_mem' := by rintro r₀ r₁ ⟨v,rfl⟩ ⟨q,rfl⟩; exact ⟨v+q,(mul_add u v q).symm⟩ }
+  have each (s : Seq weight) (hs : redWord s=redWord E₀) : y*F (e s) ∈ image := by
+    let z : R := e E₁*x*e s
+    have hz' : F z=y*F (e s) := by
+      change F (e E₁*x*e s)=_
+      rw [map_mul,map_mul,show F x=y from hx,left]
+    have hz : F ((ψw [3,2,1]*e E₁)*z)=0 := by rw [map_mul,hz',← mul_assoc,zero,zero_mul]
+    rw [← hz']
+    exact central_mem_leftExtremeImage_of_rectangular_flag Q Λ hQ s hs z
+      (by simp only [z,← mul_assoc,e_mul_self]) (by simp only [z,mul_assoc,e_mul_self])
+      (fun f => rightmostSecond_flag_test Q Λ z hz (Pi.single s f))
+  have hy : y ∈ image := by
+    rw [← right, redIdem, map_sum, Finset.mul_sum]
+    exact sum_mem fun s hs => each s (Finset.mem_filter.mp hs).2
+  obtain ⟨r₁,hb⟩ := hy
+  have he₀ : F (e E₀)*F (e E₀) = F (e E₀) := by rw [← map_mul,e_mul_self]
+  have he : E*E=E := (isIdempotentElem_violMk_redProj k Q Λ ν₀ (redWord E₀)).eq
+  have hu : u*F (e E₀)=u := by rw [← map_mul, mul_assoc, e_mul_self]
+  refine ⟨F (e E₀)*r₁*E, ?_, ?_, ?_⟩
+  · rw [← mul_assoc, ← mul_assoc, he₀]
+  · rw [mul_assoc, he]
+  · rw [← mul_assoc u, ← mul_assoc u, hu, ← hb]
+    exact right.symm
 
 end FirstCrossing
 

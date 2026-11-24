@@ -158,9 +158,9 @@ theorem diagramCornerWeightRightSelf_isKProjective :
     letI := gradedAlgebraBigradedDGRing (oppositeGrade L)
     ∀ Z : WeightCategory he.Cornerᵐᵒᵖ,
       CatModule.IsKProjective ((diagramCornerWeightRightBimodule G he he he0 he0).left Z) := by
-  letI := Graded.cornerGradedAlgebra G he he0
-  letI := gradedAlgebraInternalGrading (oppositeGrade L)
-  letI := gradedAlgebraBigradedDGRing (oppositeGrade L)
+  let := Graded.cornerGradedAlgebra G he he0
+  let := gradedAlgebraInternalGrading (oppositeGrade L)
+  let := gradedAlgebraBigradedDGRing (oppositeGrade L)
   intro Z
   exact (CatModule.isKProjective_representable Z).of_iso
     (diagramCornerWeightRightSelfIsoRepresentable G he he0 Z).symm

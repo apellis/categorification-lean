@@ -1682,6 +1682,9 @@ import Categorification.WeightedKLR.RedStrands.FiveSlotAllBottom
 import Categorification.WeightedKLR.RedStrands.FiveSlotAllBottomStandard
 import Categorification.WeightedKLR.RedStrands.FiveSlotAllBottomDerived
 import Categorification.WeightedKLR.RedStrands.FiveSlotLeftTopIdeal
+import Categorification.WeightedKLR.RedStrands.FiveSlotCentralTop
+import Categorification.WeightedKLR.RedStrands.FiveSlotLeftTopPrincipal
+import Categorification.WeightedKLR.RedStrands.FiveSlotLeftTopCancellation
 import Categorification.WeightedKLR.RedStrands.BraidedStandardDerived
 import Categorification.WeightedKLR.RedStrands.BlockShuffleLoading
 import Categorification.WeightedKLR.RedStrands.BlockShuffleCrossing
@@ -1734,8 +1737,15 @@ import Categorification.WeightedKLR.RedStrands.BraidedViolatedQuotient
 import Categorification.WeightedKLR.RedStrands.ExteriorStandardGrading
 import Categorification.WeightedKLR.RedStrands.StendhalBasisSymm
 import Categorification.WeightedKLR.Rigidity.CoevaluationWord
+import Categorification.WeightedKLR.Rigidity.CoevaluationTrace
+import Categorification.WeightedKLR.Rigidity.FundamentalCoevaluation
 import Categorification.WeightedKLR.Rigidity.ReducedCoevaluationWord
 import Categorification.WeightedKLR.Rigidity.DerivedCupCap
+import Categorification.WeightedKLR.Rigidity.DerivedCupHom
+import Categorification.WeightedKLR.Rigidity.DerivedCupRegular
+import Categorification.WeightedKLR.Rigidity.FundamentalCupCap
+import Categorification.Algebra.DerivedTensorRegular
+import Categorification.WeightedKLR.Rigidity.FundamentalCupRegular
 import Categorification.WeightedKLR.Rigidity.SingleBlackExtremal
 import Categorification.WeightedKLR.Rigidity.ExtremalNorm
 

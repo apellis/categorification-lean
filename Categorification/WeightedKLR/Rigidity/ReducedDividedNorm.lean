@@ -82,9 +82,9 @@ private theorem dividedLoweringWord_mem_weight (d : List (I × ℕ)) :
     have hν : (List.replicate n i : Multiset I).toFinsupp = Finsupp.single i n := by
       ext j
       by_cases hj : j = i <;> simp [hj]
-    rw [loweringWord_snoc, expandDiv_append, ← Multiset.coe_add, Multiset.toFinsupp_add, R.rootSum_add, ← sub_sub]
-    change _ ∈ weightSpace R vQ _ (_ - R.rootSum (List.replicate n i : Multiset I).toFinsupp)
-    rw [hν, R.rootSum_single]
+    have hex : expandDiv [(i, n)] = List.replicate n i := by simp [expandDiv]
+    rw [loweringWord_snoc, Categorification.KLR.expandDiv_append, hex, ← Multiset.coe_add,
+      Multiset.toFinsupp_add, R.rootSum_add, hν, R.rootSum_single, ← sub_sub]
     exact qDivPow_F_smul_mem_weightSpace ih i n
 
 variable [FiniteDimensional K H]

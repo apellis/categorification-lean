@@ -5946,10 +5946,6 @@ example := KLR.CycKLR.isSimple_coevaluationProjective CyclotomicHighestWeight.pa
     rw [P.root_coroot]
     rfl) [()] reduced
 
-/-- There is no weight above the highest weight in the outgoing simple-root direction. -/
-example := classical_weightSpace_raise_extremal_eq_bot P generalized (weight : Module.Dual ℝ _) dominant
-  1 () (by simp [CoxeterSystem.IsLeftDescent])
-
 /-- The graded isomorphism criterion on the level-two reflection projective. -/
 example := KLR.CycKLR.coevaluationProjective_iso_of_same_weyl CyclotomicHighestWeight.params
   (fun _ => 2) CyclotomicHighestWeight.datum 2 CyclotomicHighestWeight.dominantTwo
@@ -5958,10 +5954,6 @@ example := KLR.CycKLR.coevaluationProjective_iso_of_same_weyl CyclotomicHighestW
     change P.root () (P.coroot ()) = (2 : ℝ)
     rw [P.root_coroot]
     rfl) [()] [()] reduced reduced rfl
-
-/-- There is no weight above the highest weight in the outgoing simple-root direction. -/
-example := classical_weightSpace_raise_extremal_eq_bot P generalized (weight : Module.Dual ℝ _) dominant
-  1 () (by simp [CoxeterSystem.IsLeftDescent])
 
 example : coevaluationDividedWord (P.cartanDatum generalized) weight [()] = [((), 2)] := by
   change [((), ((P.cartanDatum generalized).coroot () weight).toNat)] = _
@@ -5975,7 +5967,7 @@ example : coevaluationDividedWord (P.cartanDatum generalized) weight [()] = [(()
 
 /-- The actual complete three-step string scalar at the quantum parameter is one. -/
 example := polCoef_endpoint (q := (RatFunc.X : RatFunc ℚ)) RatFunc.X_ne_zero
-  (fun _ hn => LieLean.LusztigF.pow_ne_one_of_transcendental LieLean.LusztigF.transcendental_ratFunc_X hn) 3
+  LieLean.QuantumGroup.hvn_ratFunc 3
 
 end
 

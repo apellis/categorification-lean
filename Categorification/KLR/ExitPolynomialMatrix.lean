@@ -4,6 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 -/
 import Categorification.KLR.InductionFree
 import Categorification.KLR.CyclotomicFinite
+import Mathlib.Algebra.MvPolynomial.Division
 
 /-!
 # Polynomial matrix of the affine interval exit equations
@@ -214,6 +215,159 @@ theorem twoBlack_extreme_middle (s : Seq ν) (p : ℕ) (hp : p + 3 < m)
     _ = _ := by
       rw [slide_above s [p + 2] p (by omega) q ha, slide_above s [p, p + 2] (p + 1) (by omega) _ hc]
       rfl
+
+include hQ in
+private theorem polynomial_pair_of_reduced {l : List ℕ} (hl : IsReduced m l) (j : ℕ)
+    (hj : IsReduced m (j :: l)) (s : Seq ν) (f g : P) :
+    (pol f * (ψw l * e s) + pol g * (ψw (j :: l) * e s) : R) = 0 ↔ f = 0 ∧ g = 0 := by
+  classical
+  let u := wordProd m l
+  let v := wordProd m (j :: l)
+  have huv : u ≠ v := by
+    intro he
+    have h₁ : l.length = length m u := hl.2
+    have h₂ : l.length + 1 = length m v := hj.2
+    rw [he] at h₁
+    omega
+  let rep (t : S) := if t = u then l else if t = v then j :: l else TypeA.canWord m t
+  have repU : rep u = l := ite_eq_left rfl
+  have repV : rep v = j :: l := by simp [rep, huv.symm]
+  have hrep (t : S) : IsReduced m (rep t) ∧ wordProd m (rep t) = t := by
+    by_cases hu : t = u
+    · subst t; rw [repU]; exact ⟨hl, rfl⟩
+    by_cases hv : t = v
+    · subst t; rw [repV]; exact ⟨hj, rfl⟩
+    · simpa only [rep, ite_eq_right hu, ite_eq_right hv] using
+        And.intro (isReduced_canWord m t) (wordProd_canWord m t)
+  constructor
+  · intro eq
+    have eq' : (pol f * ψw (rep u) * e s + pol g * ψw (rep v) * e s : R) = 0 := by
+      simpa only [repU, repV, mul_assoc] using eq
+    have read (t : S) := congrArg (exitPolynomial hQ rep hrep s t) eq'
+    constructor
+    · simpa only [map_add, exitPolynomial_normal, true_and, ite_true,
+        ite_eq_right huv.symm, add_zero, map_zero] using read u
+    · simpa only [map_add, exitPolynomial_normal, true_and, ite_true,
+        ite_eq_right huv, zero_add, map_zero] using read v
+  · rintro ⟨rfl, rfl⟩; simp
+
+/-- The two PBW rows of the right-extreme return sum, including the divided
+difference at the crossing of the two equal black strands. -/
+theorem equalBlack_return_expansion (s : Seq ν) (l : List ℕ) (b j : ℕ)
+    (hb : b + 1 < m) (hj : j + 1 < m)
+    (he : (wordProd m l • s).lbl ⟨j, by omega⟩ = (wordProd m l • s).lbl ⟨j + 1, hj⟩)
+    (f g h : P) :
+    let q := exitSquarePolynomial Q (wordProd m l • s) b hb
+    (pol f * (ψw (b :: b :: l) * e s) + pol g * (ψw (j :: b :: b :: l) * e s) +
+      pol h * (ψw (b :: b :: j :: l) * e s) : R) =
+      pol (f * q + g * NilHecke.dd k m j q) * (ψw l * e s) +
+        pol (g * swapPol j hj q + h * q) * (ψw (j :: l) * e s) := by
+  intro q
+  let y : R := ψw l * e s
+  let z : R := ψw (j :: l) * e s
+  let r := wordProd m l • s
+  have fix := sadj_smul_eq_self hj he
+  have same : wordProd m (j :: l) • s = r := by rw [wordProd_cons, mul_smul, fix]
+  have c₀ : (ψw (b :: b :: l) * e s : R) = pol q * y := square_above s l b hb
+  have c₂ : (ψw (b :: b :: j :: l) * e s : R) = pol q * z := by
+    rw [square_above s (j :: l) b hb, same]
+  have hr : e r * y = y := support_word s l
+  have cross := ψ_mul_pol_mul_e (Q := Q) j hj r q
+  rw [ite_eq_left he] at cross
+  have c₁ : (ψw (j :: b :: b :: l) * e s : R) =
+      pol (swapPol j hj q) * z + pol (NilHecke.dd k m j q) * y := by
+    calc
+      _ = ψ j * (pol q * y) := by rw [ψw_cons, mul_assoc, c₀]
+      _ = (ψ j * pol q * e r) * y := by rw [mul_assoc _ (e r), hr, mul_assoc]
+      _ = _ := by
+        rw [cross, add_mul, mul_assoc _ (e r), hr, mul_assoc _ (e r), hr]
+        simp only [z, y, ψw_cons, mul_assoc]
+  rw [c₀, c₁, c₂]
+  simp only [map_add, map_mul, add_mul, mul_add, mul_assoc, y, z]
+  abel
+
+include hQ in
+/-- Polynomial matrix of three return columns of the two outgoing arms at the
+right extreme of a two-black interval in Webster, arXiv:1309.3796v2, §6.1,
+proof of Lemma 6.8 after (6.21). At the extreme the outgoing arms are `ψ b` and
+`ψ b ψ j`. The black crossing `ψ j` has equal colours. A return by `ψ b`,
+with `ψ j` before or after the return, produces both the divided difference
+of the square polynomial and the transposed square polynomial. The two equations
+are exact whenever the extreme word and its black crossing are reduced. -/
+theorem equalBlack_return_matrix_iff (s : Seq ν) (l : List ℕ) (b j : ℕ)
+    (hb : b + 1 < m) (hj : j + 1 < m) (hl : IsReduced m l) (hjl : IsReduced m (j :: l))
+    (he : (wordProd m l • s).lbl ⟨j, by omega⟩ = (wordProd m l • s).lbl ⟨j + 1, hj⟩)
+    (f g h : P) :
+    let q := exitSquarePolynomial Q (wordProd m l • s) b hb
+    (pol f * (ψw (b :: b :: l) * e s) + pol g * (ψw (j :: b :: b :: l) * e s) +
+      pol h * (ψw (b :: b :: j :: l) * e s) : R) = 0 ↔
+      f * q + g * NilHecke.dd k m j q = 0 ∧ g * swapPol j hj q + h * q = 0 := by
+  intro q
+  have expansion := equalBlack_return_expansion (Q := Q) s l b j hb hj he f g h
+  dsimp only at expansion
+  rw [expansion]
+  exact polynomial_pair_of_reduced hQ hl j hjl s _ _
+
+private theorem dvd_X_pow_of_dvd_mul_other {σ : Type*} {a b : σ} (hab : a ≠ b) (n : ℕ)
+    {g : MvPolynomial σ k} (h : X a ^ n ∣ g * X b ^ n) : X a ^ n ∣ g := by
+  classical
+  simp only [X_pow_eq_monomial] at h ⊢
+  obtain ⟨z, hz⟩ := h
+  rw [monomial_one_dvd_iff_modMonomial_eq_zero]
+  ext d
+  change (g.modMonomial (Finsupp.single a n)).coeff d = 0
+  by_cases ha : Finsupp.single a n ≤ d
+  · exact coeff_modMonomial_of_le _ ha
+  rw [coeff_modMonomial_of_not_le _ ha]
+  have hab' : ¬ Finsupp.single a n ≤ d + Finsupp.single b n := by
+    simpa only [Finsupp.single_le_iff, Finsupp.add_apply, Finsupp.single_eq_of_ne hab, add_zero] using ha
+  have eq := congrArg (fun x : MvPolynomial σ k => x.coeff (d + Finsupp.single b n)) hz
+  rw [coeff_mul_monomial, mul_one, coeff_monomial_mul', ite_eq_right hab'] at eq
+  exact eq
+
+include hQ in
+/-- For the black-dot power `q = X_j^n` of a right-red bigon, all relations
+among the three equal-black return columns are multiples of
+`(∂_j q, -q, s_j q)`. This computes the interaction of the ordinary and
+reversed-middle arms at the extreme in Webster, arXiv:1309.3796v2, §6.1,
+proof of Lemma 6.8 after (6.21). It also covers `n = 0` and base rings with
+zero divisors. -/
+theorem equalBlack_return_kernel (s : Seq ν) (l : List ℕ) (b j n : ℕ)
+    (hb : b + 1 < m) (hj : j + 1 < m) (hl : IsReduced m l) (hjl : IsReduced m (j :: l))
+    (he : (wordProd m l • s).lbl ⟨j, by omega⟩ = (wordProd m l • s).lbl ⟨j + 1, hj⟩)
+    (hweight : exitSquarePolynomial Q (wordProd m l • s) b hb = X (⟨j, by omega⟩ : Fin m) ^ n)
+    (f g h : P) :
+    (pol f * (ψw (b :: b :: l) * e s) + pol g * (ψw (j :: b :: b :: l) * e s) +
+      pol h * (ψw (b :: b :: j :: l) * e s) : R) = 0 ↔
+      ∃ z : P, f = z * NilHecke.dd k m j (X (⟨j, by omega⟩ : Fin m) ^ n) ∧
+        g = -(z * X (⟨j, by omega⟩ : Fin m) ^ n) ∧ h = z * X (⟨j + 1, hj⟩ : Fin m) ^ n := by
+  let a : Fin m := ⟨j, by omega⟩
+  let b' : Fin m := ⟨j + 1, hj⟩
+  let d := NilHecke.dd k m j ((X a : P) ^ n)
+  have hne : a ≠ b' := by
+    intro e
+    have h := congrArg Fin.val e
+    change j = j + 1 at h
+    omega
+  have swap : swapPol j hj ((X a : P) ^ n) = X b' ^ n := by
+    rw [map_pow]; simp only [swapPol, rename_X, a, b', swap_apply_left]
+  have equations := equalBlack_return_matrix_iff hQ s l b j hb hj hl hjl he f g h
+  dsimp only at equations
+  rw [equations, hweight, swap]
+  change (f * X a ^ n + g * d = 0 ∧ g * X b' ^ n + h * X a ^ n = 0) ↔
+    ∃ z : P, f = z * d ∧ g = -(z * X a ^ n) ∧ h = z * X b' ^ n
+  constructor
+  · rintro ⟨h₀, h₁⟩
+    have hdiv : X a ^ n ∣ (-g) * X b' ^ n := ⟨h, by linear_combination -h₁⟩
+    obtain ⟨z, hz⟩ := dvd_X_pow_of_dvd_mul_other hne n hdiv
+    have hg : g = -(z * X a ^ n) := by linear_combination -hz
+    subst g
+    have reg : IsRegular ((X a : P) ^ n) := isRegular_X_pow n
+    refine ⟨z, reg.right ?_, rfl, reg.right ?_⟩
+    · linear_combination h₀
+    · linear_combination h₁
+  · rintro ⟨z, rfl, rfl, rfl⟩
+    constructor <;> ring
 
 end
 end Categorification.KLR.KLRAlgebra

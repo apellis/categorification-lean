@@ -117,8 +117,10 @@ theorem higherCrossingMap_injective_of_ordinary_test (hQ : KLRSymm Q)
   intro y hy
   have hY : E * y.1.1 = y.1.1 ∧ y.1.1 * E = y.1.1 := by
     have inner := (Subsemigroup.mem_corner_iff (isIdempotentElem_violMk_redProj k Q Λ ν (redWord source))).1 y.1.2
-    rw [word] at inner
-    exact inner
+    have hEeq : violMk k Q Λ ν (redProj k Q Λ ν (redWord source)) = E :=
+      congrArg (fun order => violMk k Q Λ ν (redProj k Q Λ ν order)) word
+    exact ⟨(congrArg (fun z => z * y.1.1) hEeq).symm.trans inner.1,
+      (congrArg (fun z => y.1.1 * z) hEeq).symm.trans inner.2⟩
   let fy : (isIdempotentElem_violRedProj k Q Λ ν).Corner := ⟨violFlip y.1.1,
     (Subsemigroup.mem_corner_iff (isIdempotentElem_violRedProj k Q Λ ν)).2
     ⟨by rw [← flipE Q Λ, ← flipMul Q Λ, hY.2],
@@ -136,9 +138,10 @@ theorem higherCrossingMap_injective_of_ordinary_test (hQ : KLRSymm Q)
       rfl
     rw [cornerImage_cross, ← flipCross Q Λ, ← flipMul Q Λ, hx]
     exact congrArg MulOpposite.unop (map_zero (violFlipHom k Q Λ ν))
-  have hq : q fy = 0 := h (q fy) (by
-    rw [← ordinaryImage, ← violCornerEquiv_violCornerHom hρ hQ, ← map_mul q, hf]) (by
-    rw [← ordinaryImage, ← violCornerEquiv_violCornerHom hρ hQ, ← map_mul q, hh, map_zero])
+  have himg (z : R) : q (cornerImage Q Λ z) = tensorOfKLR Q Λ ν z :=
+    (violCornerEquiv_violCornerHom hρ hQ (cornerMk (ofKLR k Q Λ ν z))).trans (ordinaryImage Q Λ z)
+  have hq : q fy = 0 := h (q fy) (by rw [← himg, ← map_mul q, hf])
+    (by rw [← himg, ← map_mul q, hh, map_zero])
   have hfy : fy = 0 := q.injective (hq.trans (map_zero q).symm)
   apply Subtype.ext; apply Subtype.ext
   have hhf : violFlip y.1.1 = 0 := congrArg Subtype.val hfy

@@ -354,6 +354,62 @@ private def rightmostSecondKernelEquiv :
 private theorem rightmostSecondKernelEquiv_val (a : LinearMap.ker d₀) :
     (rightmostSecondKernelEquiv Q Λ hQ a).1 = u a.1 := rfl
 
+private def crossingKernelProjection {RingType M : Type} [Ring RingType] [AddCommGroup M] [Module RingType M]
+    (d x : M →ₗ[RingType] M)
+    (square : ∀ a, d (d a) = 0) (contract : ∀ a, d a = 0 → d (x a) = a) :
+    M →ₗ[RingType] LinearMap.ker d :=
+  (LinearMap.id - x.comp d).codRestrict _ (fun a => by
+    change d (a - x (d a)) = 0
+    rw [map_sub, contract (d a) (square a), sub_self])
+
+private theorem crossingKernelProjection_apply {RingType M : Type} [Ring RingType] [AddCommGroup M] [Module RingType M]
+    (d x : M →ₗ[RingType] M)
+    (square : ∀ a, d (d a) = 0) (contract : ∀ a, d a = 0 → d (x a) = a)
+    (a : LinearMap.ker d) :
+    crossingKernelProjection d x square contract a.1 = a := by
+  apply Subtype.ext
+  change a.1 - x (d a.1) = a.1
+  rw [show d a.1 = 0 from a.2, map_zero, sub_zero]
+
+private def leftExtremeKernelProjection :
+    P₀ →ₗ[Tᵐᵒᵖ] LinearMap.ker d₀ :=
+  @crossingKernelProjection Tᵐᵒᵖ ↥P₀ inferInstance (Submodule.addCommGroup P₀)
+    (Submodule.module P₀) d₀ (leftExtremeDot Q Λ)
+    (leftExtremeDelta_square Q Λ) (leftExtremeDelta_contract Q Λ)
+
+private theorem leftExtremeKernelProjection_apply (a : LinearMap.ker d₀) :
+    leftExtremeKernelProjection Q Λ a.1 = a :=
+  @crossingKernelProjection_apply Tᵐᵒᵖ ↥P₀ inferInstance (Submodule.addCommGroup P₀)
+    (Submodule.module P₀) d₀ (leftExtremeDot Q Λ)
+    (leftExtremeDelta_square Q Λ) (leftExtremeDelta_contract Q Λ) a
+
+private def secondCrossingKernelInclusion :
+    LinearMap.ker g₂ →ₗ[Tᵐᵒᵖ] P₀ :=
+  (LinearMap.ker d₀).subtype.comp (rightmostSecondKernelEquiv Q Λ hQ).symm.toLinearMap
+
+private def secondCrossingKernelRetraction :
+    P₀ →ₗ[Tᵐᵒᵖ] LinearMap.ker g₂ :=
+  (rightmostSecondKernelEquiv Q Λ hQ).toLinearMap.comp (leftExtremeKernelProjection Q Λ)
+
+private theorem secondCrossingKernelInclusion_factor :
+    (u).comp (secondCrossingKernelInclusion Q Λ hQ) = (LinearMap.ker g₂).subtype := by
+  let e := rightmostSecondKernelEquiv Q Λ hQ
+  apply LinearMap.ext
+  intro a
+  change u (e.symm a).1 = a.1
+  calc
+    _ = (e (e.symm a)).1 := (rightmostSecondKernelEquiv_val Q Λ hQ (e.symm a)).symm
+    _ = _ := congrArg Subtype.val (e.apply_symm_apply a)
+
+private theorem secondCrossingKernelInclusion_split :
+    (secondCrossingKernelRetraction Q Λ hQ).comp (secondCrossingKernelInclusion Q Λ hQ) =
+      LinearMap.id := by
+  let e := rightmostSecondKernelEquiv Q Λ hQ
+  apply LinearMap.ext
+  intro a
+  change e (leftExtremeKernelProjection Q Λ (e.symm a).1) = a
+  exact (congrArg e (leftExtremeKernelProjection_apply Q Λ (e.symm a))).trans (e.apply_symm_apply a)
+
 end SecondKernelEquiv
 
 section Derived
@@ -406,43 +462,21 @@ private theorem leftExtremeToCentral_homology_mono
   rw [iso, Functor.map_comp]
   infer_instance
 
-private def leftExtremeKernelProjection :
-    P₀ →ₗ[Tᵐᵒᵖ] LinearMap.ker d₀ := by
-  let f : P₀ →ₗ[Tᵐᵒᵖ] P₀ := LinearMap.id - (leftExtremeDot Q Λ).comp d₀
-  refine f.codRestrict _ ?_
-  intro a
-  change d₀ (a - leftExtremeDot Q Λ (d₀ a)) = 0
-  rw [map_sub, leftExtremeDelta_contract Q Λ _ (leftExtremeDelta_square Q Λ a), sub_self]
+private theorem leftExtreme_projective_braid_homology_vanish (j : ℤ) (hj : j ≠ 0) :
+    IsZero ((rightmostHomologyFun.{w} Q Λ target j).obj (ModuleCat.of Tᵐᵒᵖ P₀)) := by
+  let : HasDerivedCategory.{w,0} (isIdempotentElem_violMk_redProj k Q Λ ν (redWord E₀)).Cornerᵐᵒᵖ :=
+    sourceDerived
+  exact blockLoadingProjective_braid_homology_vanish Q Λ E₀ target j hj
 
-private theorem leftExtremeKernelProjection_apply (a : LinearMap.ker d₀) :
-    leftExtremeKernelProjection Q Λ a.1 = a := by
-  apply Subtype.ext
-  change a.1 - leftExtremeDot Q Λ (d₀ a.1) = a.1
-  rw [show d₀ a.1 = 0 from a.2, map_zero, sub_zero]
+private theorem central_projective_braid_homology_vanish (j : ℤ) (hj : j ≠ 0) :
+    IsZero ((rightmostHomologyFun.{w} Q Λ target j).obj (ModuleCat.of Tᵐᵒᵖ P₁)) := by
+  let : HasDerivedCategory.{w,0} (isIdempotentElem_violMk_redProj k Q Λ ν (redWord E₁)).Cornerᵐᵒᵖ :=
+    sourceDerived
+  exact blockLoadingProjective_braid_homology_vanish Q Λ E₁ target j hj
 
-set_option backward.isDefEq.respectTransparency false in
 private theorem secondCrossing_range_braid_homology_vanish
     (hbal : Function.Injective (blockKernelTensorInclusion Q Λ E₁ 1 2 target)) (n : ℤ) (hn : n ≠ 0) :
     IsZero ((rightmostHomologyFun.{w} Q Λ target n).obj (ModuleCat.of Tᵐᵒᵖ (LinearMap.range g₂))) := by
-  let e := rightmostSecondKernelEquiv Q Λ hQ
-  let proj := leftExtremeKernelProjection Q Λ
-  let i := (LinearMap.ker d₀).subtype.comp e.symm.toLinearMap
-  let r := e.toLinearMap.comp proj
-  have hi : (u).comp i = (LinearMap.ker g₂).subtype := by
-    apply LinearMap.ext
-    intro a
-    change u (e.symm a).1 = a.1
-    calc
-      _ = (e (e.symm a)).1 := (rightmostSecondKernelEquiv_val Q Λ hQ (e.symm a)).symm
-      _ = _ := congrArg Subtype.val (e.apply_symm_apply a)
-  have hr : r.comp i = LinearMap.id := by
-    apply LinearMap.ext
-    intro a
-    change e (proj ((LinearMap.ker d₀).subtype (e.symm a))) = a
-    have h := leftExtremeKernelProjection_apply Q Λ (e.symm a)
-    exact (congrArg e h).trans (e.apply_symm_apply a)
-  let : HasDerivedCategory.{w,0} (isIdempotentElem_violMk_redProj k Q Λ ν (redWord E₀)).Cornerᵐᵒᵖ := sourceDerived
-  let : HasDerivedCategory.{w,0} (isIdempotentElem_violMk_redProj k Q Λ ν (redWord E₁)).Cornerᵐᵒᵖ := sourceDerived
   let : (braidingFunctor.{w} k Q Λ ν (redWord E₂) target).Additive := by
     unfold braidingFunctor
     infer_instance
@@ -450,10 +484,21 @@ private theorem secondCrossing_range_braid_homology_vanish
     braidingFunctor_commShift.{w} k Q Λ ν (redWord E₂) target
   let : (braidingFunctor.{w} k Q Λ ν (redWord E₂) target).IsTriangulated :=
     braidingFunctor_isTriangulated.{w} k Q Λ ν (redWord E₂) target
-  exact crossingRange_homology_vanish_of_retract (braidingFunctor.{w} k Q Λ ν (redWord E₂) target) g₂ u i r hi hr
-    (blockLoadingProjective_braid_homology_vanish Q Λ E₀ target)
-    (blockLoadingProjective_braid_homology_vanish Q Λ E₁ target)
-    (leftExtremeToCentral_homology_mono Q Λ target hQ hbal) n hn
+  let H := braidingFunctor.{w} k Q Λ ν (redWord E₂) target
+  let : AddCommGroup P₀ := Submodule.addCommGroup P₀
+  let : AddCommGroup P₁ := Submodule.addCommGroup P₁
+  let : AddCommGroup K₂ := blockKernelAddGroup Q Λ E₂ 1 2
+  let : Module Tᵐᵒᵖ P₀ := Submodule.module P₀
+  let : Module Tᵐᵒᵖ P₁ := Submodule.module P₁
+  have hmono : Mono ((crossingH H 0).map (ModuleCat.ofHom (u))) :=
+    leftExtremeToCentral_homology_mono Q Λ target hQ hbal
+  change IsZero ((crossingH H n).obj (ModuleCat.of Tᵐᵒᵖ (LinearMap.range g₂)))
+  apply crossingRange_homology_vanish_of_retract
+    (B := Tᵐᵒᵖ) (M := ↥P₁) («N» := ↥K₂) (L := ↥P₀) H g₂ u
+    (secondCrossingKernelInclusion Q Λ hQ) (secondCrossingKernelRetraction Q Λ hQ)
+    (secondCrossingKernelInclusion_factor Q Λ hQ) (secondCrossingKernelInclusion_split Q Λ hQ)
+    (leftExtreme_projective_braid_homology_vanish Q Λ target)
+    (central_projective_braid_homology_vanish Q Λ target) hmono n hn
 
 include hQ in
 /-- The entire rightmost loading kernel has braid cohomology concentrated

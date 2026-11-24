@@ -1014,6 +1014,9 @@ coefficient is the simple quotient by the smaller-cut trace. It gives
 the cup with homological shift minus one and the cap
 (`Stendhal.FundamentalCorner.terminalQuotientDualEquiv`, `fundamentalCup`,
 and `fundamentalCap`).
+The cup on the ground field is the shifted terminal simple quotient,
+and the cap on the regular module is the left coefficient
+(`fundamentalCupRegularIso` and `fundamentalCapRegularIso`).
 
 For Proposition 7.2, a single
 red with coroot pairing one gives a simple projective at the red-first

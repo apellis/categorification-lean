@@ -8987,6 +8987,17 @@ example := diagramWeightDerivedTensor (fun j => DG.grading (M := ℚ) j) leftAct
 example := diagramWeightDerivedTensorObjIso (fun j => DG.grading (M := ℚ) j)
   leftAction rightAction (CatModule.isKProjective_representable (⟨0⟩ : WeightCategory ℚ))
 
+private abbrev Rep := CatModule.representable (⟨0⟩ : WeightCategory ℚ)
+
+example := diagramWeightDerivedTensorObjIsoOfResolution (fun j => DG.grading (M := ℚ) j)
+  leftAction rightAction (𝟙 Rep) (CatModule.isKProjective_representable (⟨0⟩ : WeightCategory ℚ))
+  (CatModule.isQuasiIso_id Rep) (by
+    let tensor := (diagramWeightBimodule (fun j => DG.grading (M := ℚ) j)
+      leftAction rightAction).tensorFunctor
+    change CatModule.IsQuasiIso (tensor.map (𝟙 Rep))
+    rw [tensor.map_id Rep]
+    exact CatModule.isQuasiIso_id _)
+
 end
 
 end NonVacuity.WebsterWeightTensor

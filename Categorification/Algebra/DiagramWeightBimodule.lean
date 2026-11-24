@@ -133,6 +133,26 @@ def diagramWeightDerivedTensorObjIso {X : CatModule.{u} (WeightCategory B)}
   exact (diagramWeightTensorHomotopy G hl hr ⋙ CatModule.DerivedCategory.Qh).mapIso
     (H.ι.mapIso (E.unitIso.symm.app p))
 
+/-- A resolution whose augmentation stays a quasi-isomorphism after tensoring
+computes the derived tensor by the ordinary tensor of the input. -/
+def diagramWeightDerivedTensorObjIsoOfResolution
+    {K N : CatModule.{u} (WeightCategory B)} (f : K ⟶ N)
+    (hK : CatModule.IsKProjective K) (hf : CatModule.IsQuasiIso f)
+    (hTensor : CatModule.IsQuasiIso ((D).tensorMap f)) :
+    (diagramWeightDerivedTensor G hl hr).obj (CatModule.DerivedCategory.Q.obj N) ≅
+      CatModule.DerivedCategory.Q.obj ((D).tensorFunctor.obj N) := by
+  let Q₁ : CatModule.{u} (WeightCategory A) ⥤
+      CatModule.DerivedCategory.{v,u} (WeightCategory A) := CatModule.DerivedCategory.Q
+  let Q₂ : CatModule.{u} (WeightCategory B) ⥤
+      CatModule.DerivedCategory.{v,u} (WeightCategory B) := CatModule.DerivedCategory.Q
+  letI : IsIso (Q₂.map f) := (CatModule.DerivedCategory.isIso_Q_map_iff f).mpr hf
+  let t := Q₁.map ((D).tensorMap f)
+  have ht : IsIso t :=
+    (CatModule.DerivedCategory.isIso_Q_map_iff ((D).tensorMap f)).mpr hTensor
+  exact ((diagramWeightDerivedTensor G hl hr).mapIso (asIso (Q₂.map f))).symm ≪≫
+    diagramWeightDerivedTensorObjIso G hl hr hK ≪≫
+    @asIso _ _ _ _ t ht
+
 /-- Derived Hom with the graded coefficient, when its left modules are K-projective. -/
 def diagramWeightDerivedHom (h : ∀ Y, CatModule.IsKProjective ((D).left Y)) :
     CatModule.DerivedCategory.{v,u} (WeightCategory A) ⥤

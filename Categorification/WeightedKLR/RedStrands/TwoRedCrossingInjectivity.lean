@@ -109,10 +109,10 @@ theorem eq_zero_of_mul_secondRedCrossing_at_right
 
 section Suffix
 
-variable (Q : I → I → MvPolynomial (Fin 2) k) (Λ : Fin 2 → I →₀ ℕ)
+variable {ℓ : ℕ} (Q : I → I → MvPolynomial (Fin 2) k) (Λ : Fin ℓ → I →₀ ℕ)
 
 private theorem appendBlack_tensorOfKLR_crossing (j : I) (ν : Multiset I)
-    (a : ℕ) (ha : a + 1 < (stendhalWeight 2 ν).card) (t : Seq (stendhalWeight 2 ν)) :
+    (a : ℕ) (ha : a + 1 < (stendhalWeight ℓ ν).card) (t : Seq (stendhalWeight ℓ ν)) :
     appendBlack Q Λ j ν (tensorOfKLR Q Λ ν (ψ a * e t)) =
       tensorOfKLR Q Λ (Si j + ν) (ψ a * e (appendBlackLoading j ν t)) := by
   have h := appendBlack_tensorOfKLR_castKLR Q Λ j ν rfl
@@ -123,10 +123,10 @@ end Suffix
 
 /-- Right black strand addition preserves injectivity of a specified crossing on its loading
 projective. The generator keeps its original index and gains the new terminal black colour. -/
-theorem eq_zero_of_mul_crossing_appendBlack
+theorem eq_zero_of_mul_crossing_appendBlack {ℓ : ℕ}
     (Q : I → I → MvPolynomial (Fin 2) k) (hR : IsRouquierQ C Q)
-    (Λ : Fin 2 → I →₀ ℕ) (j : I) (ν : Multiset I) (a : ℕ)
-    (ha : a + 1 < (stendhalWeight 2 ν).card) (s t : Seq (stendhalWeight 2 ν))
+    (Λ : Fin ℓ → I →₀ ℕ) (j : I) (ν : Multiset I) (a : ℕ)
+    (ha : a + 1 < (stendhalWeight ℓ ν).card) (s t : Seq (stendhalWeight ℓ ν))
     (hs : IsRedOrdered s)
     (hinj : ∀ x : TensorProductAlgebra k Q Λ ν,
       x * tensorOfKLR Q Λ ν (e s) = x → x * tensorOfKLR Q Λ ν (ψ a * e t) = 0 → x = 0)

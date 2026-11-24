@@ -1643,6 +1643,7 @@ import Categorification.WeightedKLR.RedStrands.BraidedRelabelAppend
 import Categorification.WeightedKLR.RedStrands.AdjacentBlockTensor
 import Categorification.WeightedKLR.RedStrands.OrderedBlockAction
 import Categorification.WeightedKLR.RedStrands.BlockCrossingDiagramCut
+import Categorification.WeightedKLR.RedStrands.IntervalColumnSpan
 import Categorification.WeightedKLR.RedStrands.BraidedStandardDerived
 import Categorification.WeightedKLR.RedStrands.BlockCrossingComparison
 import Categorification.WeightedKLR.RedStrands.BlockLoadingPresentation

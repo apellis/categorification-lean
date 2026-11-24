@@ -9446,6 +9446,39 @@ noncomputable example : (fundamentalBraidWeightComplex realization (3 / 2)).homo
 end
 end NonVacuity.WebsterFundamentalBraidWeight
 
+namespace NonVacuity.WebsterBottomBraidBlackAscents
+open Categorification Categorification.KLR Categorification.Stendhal Equiv TypeA
+open scoped BigOperators
+
+private abbrev content : Multiset Bool := {false, true}
+private abbrev weight := stendhalWeight 3 content
+private abbrev m := Multiset.card weight
+private def top : Seq weight :=
+  KLRAlgebra.Seq.ofList [.inr 0, .inr 1, .inr 2, .inl false, .inl true] (by decide)
+private def sizes (r : Fin 3) : ℕ := if r = 2 then 2 else 0
+private theorem sizes_card : (∑ r, (sizes r + 1)) = m := by decide
+private def swapReds : Perm (Fin 3) := Equiv.swap 1 2
+private theorem first_positions (r : Fin 3) :
+    ((1 : Perm (Fin m))⁻¹ • top).lbl (braidBlockPositions sizes sizes_card ⟨r, 0⟩) = .inr r := by
+  simp only [inv_one, one_smul]
+  fin_cases r <;> decide
+private theorem identity_eligible : ProjectiveBlockIndex top (1 : Perm (Fin m)) := by
+  constructor
+  · simp only [inv_one, one_smul]
+    exact (redWord_eq_finRange_iff top).1 (by decide)
+  · simp only [inv_one, one_smul, Perm.one_apply]
+    intros
+    assumption
+  · simp only [inv_one, one_smul, Perm.one_apply]
+    intros
+    assumption
+
+example := braidColumnBottomBlockIndex_adjacent_black_ascent top sizes sizes_card swapReds
+  identity_eligible first_positions (j := 2) (by decide) (i := false) (i' := true)
+  (by decide) (by decide)
+
+end NonVacuity.WebsterBottomBraidBlackAscents
+
 namespace NonVacuity.WebsterFundamentalBraidHomology
 open CategoryTheory Categorification.Stendhal.FundamentalCorner
 

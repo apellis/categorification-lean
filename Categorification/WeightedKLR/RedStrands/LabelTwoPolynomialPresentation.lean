@@ -5,6 +5,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 import Categorification.WeightedKLR.RedStrands.LabelTwoUnknotHomology
 import Mathlib.Algebra.MvPolynomial.Eval
 import Mathlib.RingTheory.Ideal.Quotient.Operations
+import Mathlib.LinearAlgebra.Dimension.Constructions
 import Mathlib.Tactic.FinCases
 
 /-!
@@ -172,6 +173,30 @@ noncomputable def specializedQuotientEquiv :
 @[simp] theorem specializedQuotientEquiv_mk (x : Middle k) :
     specializedQuotientEquiv k (Ideal.Quotient.mk (sumIdeal k) x) = specialize x :=
   rfl
+
+/-- The four coordinates in the basis of two square-zero variables. -/
+def middleCoordinates : Middle k ≃ₗ[k] (k × k) × (k × k) where
+  toFun x := ((x.fst.fst,x.fst.snd),(x.snd.fst,x.snd.snd))
+  invFun x := ⟨⟨x.1.1,x.1.2⟩,⟨x.2.1,x.2.2⟩⟩
+  left_inv := fun ⟨⟨_,_⟩,⟨_,_⟩⟩ => rfl
+  right_inv := fun ⟨⟨_,_⟩,⟨_,_⟩⟩ => rfl
+  map_add' _ _ := rfl
+  map_smul' _ _ := rfl
+
+/-- A four-element basis of the polynomial square quotient. -/
+def squareQuotientBasis :
+    Module.Basis ((Unit ⊕ Unit) ⊕ (Unit ⊕ Unit)) k (SquareQuotient k) :=
+  let b := Module.Basis.singleton Unit k
+  ((b.prod b).prod (b.prod b)).map
+    (((middlePolynomialEquiv k).toLinearEquiv.trans (middleCoordinates k)).symm)
+
+theorem squareQuotient_finite : Module.Finite k (SquareQuotient k) :=
+  Module.Finite.of_basis (squareQuotientBasis k)
+
+theorem finrank_squareQuotient [StrongRankCondition k] :
+    Module.finrank k (SquareQuotient k) = 4 := by
+  rw [Module.finrank_eq_card_basis (squareQuotientBasis k)]
+  decide
 
 end
 

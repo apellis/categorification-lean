@@ -8524,4 +8524,6 @@ example : middlePolynomialEquiv ℤ (squareQuotientVariable ℤ 1) = y₂ :=
 
 noncomputable example := specializedQuotientEquiv ℤ
 
+example : Module.finrank ℚ (SquareQuotient ℚ) = 4 := finrank_squareQuotient ℚ
+
 end NonVacuity.WebsterLabelTwoPolynomialPresentation

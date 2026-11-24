@@ -118,34 +118,67 @@ variable {I k : Type*} [DecidableEq I] [CommRing k]
 local notation "m" => Multiset.card ν
 local notation "A" => KLRAlgebra k Q ν
 
-omit [DecidableEq I] in
-private theorem rightCrossing_reduced {u : Perm (Fin m)} {j : ℕ} (hj : j + 1 < m)
-    (hlen : length m (u * sadj m j) = length m u + 1) :
-    IsReduced m (canWord m u ++ [j]) := by
-  refine ⟨validWord_append.2 ⟨validWord_canWord m u, ?_⟩, ?_⟩
-  · intro z hz
-    rcases List.mem_singleton.1 hz with rfl
-    exact hj
-  · rw [List.length_append, length_canWord, List.length_singleton,
-      wordProd_append, wordProd_canWord, wordProd_singleton, hlen]
+/-- Replacing the extended reduced word by another one for the same permutation
+adds a braid error in the indicated crossing-filtration step. -/
+theorem rightCrossing_error_of_reduced {ρ w : List ℕ} {j : ℕ}
+    (hρ : IsReduced m (ρ ++ [j])) (hw : IsReduced m w)
+    (he : wordProd m (ρ ++ [j]) = wordProd m w) (s : Seq ν) :
+    (ψw ρ * ψ j * e s - ψw w * e s : A) ∈ filt k Q ν (ρ.length - 2) := by
+  have hs : (e s : A) ∈ filt k Q ν 0 := by
+    simpa only [map_one, one_mul] using (pol_mul_e_mem (Q := Q) 1 s 0)
+  have error := sub_mem_of_braidEquiv_drop_three (braidEquiv_of_isReduced hρ hw he) hs
+  have hdegree : (ρ ++ [j]).length - 3 + 0 = ρ.length - 2 := by
+    simp only [List.length_append, List.length_singleton, Nat.add_zero]
+    omega
+  simpa only [hdegree, ψw_append, ψw_cons, ψw_nil, mul_one] using error
+
+private theorem ψw_eq_of_short_braidEquiv {ρ σ : List ℕ}
+    (h : BraidEquiv ρ σ) (hlen : ρ.length < 3) :
+    (ψw ρ : KLRAlgebra k Q ν) = ψw σ := by
+  induction h with
+  | rel _ _ h =>
+    cases h with
+    | comm α β hab =>
+      simp only [ψw_append, ψw_cons, ψw_nil, mul_one]
+      rw [ψ_mul_ψ _ _ hab]
+    | braid α β a =>
+      simp only [List.length_append, List.length_cons, List.length_nil] at hlen
+      omega
+  | refl => rfl
+  | symm _ _ h ih =>
+    exact (ih (length_eq_of_braidEquiv h ▸ hlen)).symm
+  | trans _ _ _ h₁ _ ih₁ ih₂ =>
+    exact (ih₁ hlen).trans (ih₂ (length_eq_of_braidEquiv h₁ ▸ hlen))
+
+/-- A reduced right extension of a shuffle of length at most one has no braid correction. -/
+theorem rightCrossing_eq_of_short_reduced {ρ w : List ℕ} {j : ℕ}
+    (hρ : IsReduced ν.card (ρ ++ [j])) (hw : IsReduced ν.card w)
+    (he : wordProd ν.card (ρ ++ [j]) = wordProd ν.card w) (hshort : ρ.length ≤ 1) :
+    (ψw ρ * ψ j : KLRAlgebra k Q ν) = ψw w := by
+  have h := braidEquiv_of_isReduced hρ hw he
+  have hlen : (ρ ++ [j]).length < 3 := by
+    simp only [List.length_append, List.length_singleton]
+    omega
+  simpa only [ψw_append, ψw_cons, ψw_nil, mul_one] using
+    (ψw_eq_of_short_braidEquiv (k := k) (Q := Q) (ν := ν) h hlen)
 
 private theorem rightCrossing_error {u : Perm (Fin m)} {j : ℕ} (hj : j + 1 < m)
     (hlen : length m (u * sadj m j) = length m u + 1) {w : List ℕ}
     (hw : IsReduced m w) (he : wordProd m w = u * sadj m j) (s : Seq ν) :
     (ψw (canWord m u) * ψ j * e s - ψw w * e s : A) ∈ filt k Q ν (length m u - 2) := by
-  have hρ := rightCrossing_reduced hj hlen
   have hprod : wordProd m (canWord m u ++ [j]) = wordProd m w := by
     rw [wordProd_append, wordProd_canWord, wordProd_singleton, he]
-  have hs : (e s : A) ∈ filt k Q ν 0 := by
-    simpa only [map_one, one_mul] using (pol_mul_e_mem (Q := Q) 1 s 0)
-  have error := sub_mem_of_braidEquiv_drop_three (braidEquiv_of_isReduced hρ hw hprod) hs
-  have hdegree : (canWord m u ++ [j]).length - 3 + 0 = length m u - 2 := by
-    rw [List.length_append, length_canWord, List.length_singleton]
-    omega
-  simpa only [hdegree, ψw_append, ψw_cons, ψw_nil, mul_one] using error
+  have hρ : IsReduced m (canWord m u ++ [j]) := by
+    refine ⟨validWord_append.2 ⟨validWord_canWord m u, ?_⟩, ?_⟩
+    · intro z hz
+      rcases List.mem_singleton.1 hz with rfl
+      exact hj
+    · rw [List.length_append, length_canWord, List.length_singleton,
+        wordProd_append, wordProd_canWord, wordProd_singleton, hlen]
+  simpa only [length_canWord] using rightCrossing_error_of_reduced hρ hw hprod s
 
 /-- On an external ascent, the crossing extends the shuffle word. Its error has
-crossing length at least two less than the incoming shuffle. -/
+filtration degree given by the incoming shuffle length minus two. -/
 theorem shuffle_right_ascent_crossing {n r : ℕ} (h : n + r = m) (u : Shuffle h)
     {j : ℕ} (hj : j + 1 < m) {x : Fin n} {y : Fin r}
     (hl : u.1 ⟨j, by omega⟩ = blockEquiv h (.inl x))

@@ -111,25 +111,35 @@ theorem exists_blockStack_filtered_quotient_coordinates (hQ : KLRSymm Q)
     (h : weightSum row = stendhalWeight ℓ ν) :
     let S := affineStackBlocks Q Λ L M f β h
     ∃ n, ∃ (index : Fin n ≃ ShuffleIndex row) (g : Fin n → R →ₗ[k] diagrams Q Λ row) (w : Fin n → R)
-      (G : Fin n → (J).ringCon.Quotient →ₗ[k] quotients Q Λ row),
+      (G : Fin n → (J).ringCon.Quotient →ₗ[k] quotients Q Λ row)
+      (bottom : Fin n → Seq μ → diagrams Q Λ row),
       (∀ j y, G j (q (mk (raw y))) = P (g j y)) ∧
       (∀ j, w j = S 1 * ψw (shuffleWord row (index j))) ∧
       (∀ j y n, y ∈ filt k (stendhalQ Q Λ) μ n →
         G j (q (mk (raw y))) ∈ (blockShuffleFilt Q Λ row (index j) n).map (P).toLinearMap) ∧
+      (∀ j x y, G j (q (mk (raw (S x * y)))) = P x * G j (q (mk (raw y)))) ∧
+      (∀ j y s, G j (q (mk (raw (y * e s)))) = G j (q (mk (raw y))) * P (bottom j s)) ∧
+      (∀ j s, bottom j s = 0 ∨ ∃ v : Loadings row,
+        ShuffleLoading row (Seq.cast h.symm s) v ∧ bottom j s = loadingIdem Q Λ row v) ∧
       (∀ j y, g j (S 1 * y) = g j y) ∧
       (∀ j, G j (q (mk (raw (w j)))) = 1) ∧
       (∀ i j, i ≠ j → G i (q (mk (raw (w j)))) = 0) ∧
       (∀ y, q (mk (raw (S 1 * y))) = ∑ j, q (mk (raw (S (g j y) * w j)))) := by
   classical
-  obtain ⟨n, index, g, w, _, hfil, hw, hmul, _, hsec, hself, hother, _, hbad, rebuild⟩ :=
+  obtain ⟨n, index, g, w, bottom, hfil, hw, hmul, hbottom, hsec, hself, hother,
+      hloading, hbad, rebuild⟩ :=
     exists_blockStack_coordinates_with_filtered_shuffle_words Q Λ hQ L M f β h
   have desc (j : Fin n) :=
     exists_quotientBlockCoordinate Q Λ L M f β (g j) (hsec j) (hbad j)
   choose G hG using desc
-  refine ⟨n, index, g, w, G, hG, hw, ?_, ?_, ?_, ?_, ?_⟩
+  refine ⟨n, index, g, w, G, bottom, hG, hw, ?_, ?_, ?_, hloading, ?_, ?_, ?_, ?_⟩
   · intro j y n hy
     rw [hG]
     exact ⟨g j y, hfil j y n hy, rfl⟩
+  · intro j x y
+    rw [hG, hmul, map_mul, hG]
+  · intro j y s
+    rw [hG, hbottom, map_mul, hG]
   · intro j y
     rw [hmul, one_mul]
   · intro j
@@ -153,7 +163,7 @@ theorem exists_blockStack_quotient_coordinates (hQ : KLRSymm Q)
       (∀ j, G j (q (mk (raw (w j)))) = 1) ∧
       (∀ i j, i ≠ j → G i (q (mk (raw (w j)))) = 0) ∧
       (∀ y, q (mk (raw (S 1 * y))) = ∑ j, q (mk (raw (S (g j y) * w j)))) := by
-  obtain ⟨n, _, g, w, G, hG, _, _, h⟩ :=
+  obtain ⟨n, _, g, w, G, _, hG, _, _, _, _, _, h⟩ :=
     exists_blockStack_filtered_quotient_coordinates Q Λ L M f β hQ h
   exact ⟨n, g, w, G, hG, h⟩
 

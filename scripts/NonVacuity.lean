@@ -10559,6 +10559,17 @@ example (X : WeightCategory MiddleT) (n : ℤ)
 
 end
 
+example := middleFixedToOrdinaryTensorGradedEquiv ℚ
+
+example := middleStandardTensorEquiv_mem_grade_iff ℚ
+
+example :=
+  middleStandardQuotient_mem_grade ℚ (d := 0)
+    (x := ⟨seqIdem (parameter ℚ) weights loading loading_ordered,
+      seqIdem_mul_self (parameter ℚ) weights loading loading_ordered⟩)
+    (mk_e_mem_tensorProductGrade (labelTwoGradingDatum ℚ)
+      (({()} : Multiset Unit) + {()}) loading loading_ordered)
+
 end NonVacuity.WebsterLabelTwoMiddleFixedComplex
 
 end

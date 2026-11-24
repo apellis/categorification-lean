@@ -1517,6 +1517,11 @@ internal degree (`Stendhal.LabelTwo.diagramPlusMinus_exact_in_degree`,
 The scalar and epsilon coordinates of the actual middle fixed dot-sum
 quotient are in degrees zero and two
 (`Stendhal.LabelTwo.middleCutDotSum_mem_grade_iff`).
+Tensoring these fixed vectors with the degree-zero standard generator gives
+the graded ordinary middle tensor
+(`Stendhal.LabelTwo.middleFixedToOrdinaryTensorGradedEquiv`). Its ground-field
+coordinates detect the internal degree
+(`Stendhal.LabelTwo.middleStandardTensorEquiv_mem_grade_iff`).
 The dot-difference quotient carries the companion grading. Both quotient
 inclusions shift internal degree by two and give short exact sequences
 in every degree (`Stendhal.LabelTwo.diagramSumCompanionAugmentation_exact_in_degree`,

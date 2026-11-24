@@ -5533,6 +5533,12 @@ example :=
 /-- The reflected terminal projector has the first dot as its off-diagonal line. -/
 example := Categorification.KLR.CycKLR.twoBlackTerminal_reflected_corner_span Q
 
+/-- The red-black map from the rational middle standard into the left exterior projective. -/
+noncomputable example := Categorification.Stendhal.labelTwoMiddleToExterior Q
+
+/-- The same crossing descends through the middle dot-sum quotient. -/
+noncomputable example := Categorification.Stendhal.labelTwoMiddleExteriorDifferential Q
+
 end NonVacuity.WebsterLabelTwoEndpointTor
 
 namespace NonVacuity.WebsterLocalization

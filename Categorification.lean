@@ -655,6 +655,7 @@ import Categorification.KLR.CyclotomicTerminalProjective
 import Categorification.WeightedKLR.RedStrands.LabelTwoEndpointTor
 import Categorification.WeightedKLR.RedStrands.LabelTwoExteriorDiagramCut
 import Categorification.WeightedKLR.RedStrands.LabelTwoExteriorSlide
+import Categorification.WeightedKLR.RedStrands.LabelTwoMiddleExteriorMap
 import Categorification.WeightedKLR.RedStrands.SingleRedTerminalProjective
 import Categorification.KLR.CyclotomicTerminal
 import Categorification.KLR.CyclotomicTerminalSymmetric

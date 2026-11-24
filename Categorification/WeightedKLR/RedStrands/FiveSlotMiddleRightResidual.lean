@@ -173,7 +173,6 @@ private theorem nearby_kernel_maps_into_central (hQ : KLRSymm Q) (x : P₂) (hx 
     apply Subtype.ext
     apply Subtype.ext
     apply Subtype.ext
-    change (f₁ a).1.1.1 = (f₂ x).1.1.1
     rw [centralMap_val, nearbyMap_val]
     change F c₁ * (p central * (E * z * E)) = F c₂ * x.1.1
     calc
@@ -192,8 +191,8 @@ private theorem middleRight_generated_by_maps (hQ : KLRSymm Q) (x : K) :
     apply Subtype.ext
     apply Subtype.ext
     change (f₁ u).1.1.1 + (f₂ v).1.1.1 = x.1.1.1
-    rw [centralMap_val, nearbyMap_val]
-    exact hx.symm
+    exact (congrArg₂ (fun a b : V => a + b)
+      (centralMap_val Q Λ u) (nearbyMap_val Q Λ v)).trans hx.symm
   exact ⟨u, v, sum⟩
 
 /-- The actual nearby higher partial standard surjects onto the remainder
@@ -201,8 +200,12 @@ of the middle-right higher kernel after the central crossing. -/
 theorem fiveSlotMiddleRight_residual_quotient_of_nearby (hQ : KLRSymm Q) :
     ∃ f : (blockPartialStandardAt Q Λ nearby 1 2 κ nearby_order) →ₗ[Tᵐᵒᵖ] (K ⧸ J₁),
       Function.Surjective f := by
+  let : AddCommGroup P₁ := Submodule.addCommGroup _
+  let : Module Tᵐᵒᵖ P₁ := Submodule.module _
+  let : AddCommGroup P₂ := Submodule.addCommGroup _
+  let : Module Tᵐᵒᵖ P₂ := Submodule.module _
   change ∃ f : (P₂ ⧸ K₂) →ₗ[Tᵐᵒᵖ] (K ⧸ J₁), Function.Surjective f
-  exact quotient_surjects_of_two_images f₁ f₂ K₂
-    (nearby_kernel_maps_into_central Q Λ hQ) (middleRight_generated_by_maps Q Λ hQ)
+  exact quotient_surjects_of_two_images (A := Tᵐᵒᵖ) (P := P₁) (P' := P₂) (M := K)
+    f₁ f₂ K₂ (nearby_kernel_maps_into_central Q Λ hQ) (middleRight_generated_by_maps Q Λ hQ)
 
 end Categorification.Stendhal.BraidedStendhalAlgebra

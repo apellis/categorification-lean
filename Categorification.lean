@@ -15,6 +15,7 @@ import Categorification.Algebra.CornerEndomorphism
 import Categorification.Algebra.CornerTensor
 import Categorification.Algebra.CornerTensorFactor
 import Categorification.Algebra.CornerTensorQuotient
+import Categorification.Algebra.DerivedDimensionShift
 import Categorification.Algebra.DerivedTensor
 import Categorification.Algebra.DerivedTensorComp
 import Categorification.Algebra.DerivedTensorDegreeZero

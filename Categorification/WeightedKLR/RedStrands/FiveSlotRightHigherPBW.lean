@@ -299,6 +299,28 @@ theorem fiveSlotRightmostKernel_exists_two_central_factors (hQ : KLRSymm Q)
     change x.1.1 * r.unop.1 = _
     rw [h, add_mul, mul_assoc, mul_assoc]
 
+/-- The two fixed E1 images characterize membership in the actual rightmost kernel. -/
+theorem fiveSlotRightmostKernel_mem_iff_two_central_factors (hQ : KLRSymm Q) (a : L) :
+    a ∈ K ↔
+      ∃ y z : V, p v₁ * y = y ∧ p v₁ * z = z ∧ y * E = y ∧ z * E = z ∧
+        a.1.1 = π c₀ * y + π c₁ * z := by
+  refine ⟨fiveSlotRightmostKernel_exists_two_central_factors Q Λ hQ a, ?_⟩
+  rintro ⟨y, z, _, _, _, _, h⟩
+  let J := blockUpperIdeal k Q Λ ν₀ 1 2 (adjacentBlockRoot 1 2 v₂) (redWord v₂)
+  have higher : adjacentBlockRoot 1 2 v₂ < adjacentBlockRoot 1 2 v₁ := by
+    apply lt_of_le_not_ge
+    · intro r i
+      fin_cases r <;> cases i <;> decide
+    · intro hge
+      exact (by decide : ¬ _ ≤ _) (hge (1 : Fin 3) ())
+  have hE1 : p v₁ ∈ J := TwoSidedIdeal.subset_span ⟨v₁, by decide, higher, rfl⟩
+  have member (w : R) (q : V) : π (w * e v₁) * q ∈ J := by
+    rw [map_mul]
+    exact TwoSidedIdeal.mul_mem_right _ _ _ (TwoSidedIdeal.mul_mem_left _ _ _ hE1)
+  change a.1.1 ∈ J
+  rw [h]
+  exact TwoSidedIdeal.add_mem _ (member _ y) (member _ z)
+
 end KernelSum
 
 end Categorification.Stendhal.BraidedStendhalAlgebra

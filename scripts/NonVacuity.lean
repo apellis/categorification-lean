@@ -5855,6 +5855,24 @@ end RedFirstEnd
 
 end NonVacuity.RedBlackCrossing
 
+namespace NonVacuity.WebsterCoevaluationWord
+
+open Categorification.Stendhal
+
+private def datum : _root_.CartanDatum Unit ℤ where
+  root := fun _ => 2
+  coroot := fun _ => LinearMap.id
+  coroot_root_self := fun _ => rfl
+
+example : coevaluationWord datum 3 [()] = [(), (), ()] := rfl
+
+example : datum.rootSum (↑(coevaluationWord datum 3 [()]) : Multiset Unit).toFinsupp = 6 := by
+  have h : NonnegativeReflectionPath datum 3 [()] :=
+    ⟨by change (0 : ℤ) ≤ 3; decide, trivial⟩
+  simpa [datum, CartanDatum.reflection_apply] using rootSum_coevaluationWord datum 3 [()] h
+
+end NonVacuity.WebsterCoevaluationWord
+
 namespace NonVacuity.WebsterFigureFive
 
 open Categorification Categorification.KLR Categorification.Stendhal

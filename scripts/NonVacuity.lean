@@ -9743,6 +9743,41 @@ example := span_braidColumnBottomProducts (Q := parameters) (Λ := weights)
 
 end NonVacuity.WebsterBottomBraidSpan
 
+namespace NonVacuity.WebsterBottomBraidHigherTrace
+open Categorification Categorification.KLR Categorification.Stendhal Equiv TypeA
+open KLRAlgebra BraidedStendhalAlgebra
+
+private abbrev content : Multiset Unit := {()}
+private abbrev weight := stendhalWeight 3 content
+private def top : Seq weight :=
+  KLRAlgebra.Seq.ofList [.inr 0, .inr 1, .inr 2, .inl ()] (by decide)
+private def source : Seq weight :=
+  KLRAlgebra.Seq.ofList [.inr 0, .inr 2, .inr 1, .inl ()] (by decide)
+private theorem top_ordered : IsRedOrdered top := (redWord_eq_finRange_iff top).1 (by decide)
+private def swapReds : Perm (Fin 3) := Equiv.swap 1 2
+private abbrev sourceOrder := (List.finRange 3).map swapReds
+private noncomputable def words (w : Perm (Fin (Multiset.card weight))) :=
+  (TypeA.exists_reduced _ w).choose
+private theorem words_spec : IsReducedChoice words := fun w => (TypeA.exists_reduced _ w).choose_spec
+private noncomputable abbrev parameters : Unit → Unit → MvPolynomial (Fin 2) ℚ := fun _ _ => 0
+private noncomputable abbrev weights : Fin 3 → Unit →₀ ℕ := fun _ => Finsupp.single () 2
+private noncomputable abbrev π :=
+  AlgHom.comp (violMk ℚ parameters weights content) (ofKLR ℚ parameters weights content)
+private noncomputable abbrev crossing := π (ψw [1] * e source)
+private theorem crossing_left : π (e top) * crossing = crossing := by
+  rw [← map_mul π]
+  apply congrArg π
+  have h := e_mul_std (k := ℚ) (Q := parameters) (Λ := weights) [1] 1 source
+  simpa only [show wordProd (Multiset.card weight) [1] • source = top by decide, map_one,mul_one]
+    using h
+
+example (z : violCorner ℚ parameters weights content source sourceOrder)
+    (hz : z ∈ violStandardUpper (Q := parameters) (Λ := weights) source sourceOrder) :=
+  braidColumnBottomBlock_mul_violStandardUpper_mem_higher_span top source top_ordered swapReds
+    words words_spec crossing crossing_left z hz
+
+end NonVacuity.WebsterBottomBraidHigherTrace
+
 namespace NonVacuity.WebsterFundamentalBraidTensorHomology
 open CategoryTheory Categorification.Stendhal.FundamentalCorner
 

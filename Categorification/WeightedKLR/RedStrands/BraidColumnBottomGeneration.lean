@@ -33,19 +33,23 @@ local notation "F" => AlgHom.comp (violMk k Q Λ ν) (ofKLR k Q Λ ν)
 local notation "E" => fun κ => violMk k Q Λ ν (redProj k Q Λ ν κ)
 
 /-- A right-stable submodule containing the eligible diagrams contains every
-PBW diagram in the prescribed braid column. The induction is on Coxeter length. -/
-theorem braidColumnBottomBlock_pbw_mem
+PBW diagram whose bottom satisfies the same predicate. The predicate is
+preserved by the shorter cuts used in Coxeter length induction. -/
+theorem braidColumnBottomBlock_pbw_mem_of_predicate
     (s : Seq μ) (hs : IsRedOrdered s) (σ : Perm (Fin ℓ))
     (ρ : Perm (Fin m) → List ℕ) (hρ : IsReducedChoice ρ)
+    (P : Seq μ → Prop)
+    (hcutP : ∀ (b : Seq μ) (j : ℕ) (hj : j + 1 < m),
+      (b.lbl ⟨j+1,hj⟩).isLeft → P b → P (sadj m j • b))
     (D : Submodule k V)
     (hmul : ∀ x ∈ D, ∀ z : V, z * E ((List.finRange ℓ).map σ) = z → x * z ∈ D)
     (hindex : ∀ (n : Fin ℓ → ℕ) (hn : (∑ r, (n r + 1)) = m)
       (φ : Perm (Fin m)), ProjectiveBlockIndex s φ →
       (∀ r : Fin ℓ, (φ⁻¹ • s).lbl (braidBlockPositions n hn ⟨r,0⟩) = .inr r) →
       let w := braidColumnBottomBlockIndex n hn σ φ
-      F (ψw (ρ w) * e (w⁻¹ • s)) ∈ D)
+      P (w⁻¹ • s) → F (ψw (ρ w) * e (w⁻¹ • s)) ∈ D)
     (w : Perm (Fin m)) (horder : redWord (w⁻¹ • s) = (List.finRange ℓ).map σ)
-    (p : MvPolynomial (Fin m) k) :
+    (hP : P (w⁻¹ • s)) (p : MvPolynomial (Fin m) k) :
     F (ψw (ρ w) * pol p * e (w⁻¹ • s)) ∈ D := by
   let κ := (List.finRange ℓ).map σ
   have hright {b : Seq μ} (hb : redWord b = κ) (x : R) :
@@ -71,10 +75,12 @@ theorem braidColumnBottomBlock_pbw_mem
     · obtain ⟨φ,hφ,ha',hw'⟩ :=
         exists_projectiveIndex_of_bottomBlock_adjacent_ascents s a hs ha n hn σ hred w hw hadj
       have hgood := hindex n hn φ hφ (fun r => by rw [ha']; exact hred r)
-      change F (ψw (ρ (braidColumnBottomBlockIndex n hn σ φ)) * e
-        ((braidColumnBottomBlockIndex n hn σ φ)⁻¹ • s)) ∈ D at hgood
-      rw [hw'] at hgood
-      have hm := hmul _ hgood _ (hright hbOrder (pol p))
+      change P ((braidColumnBottomBlockIndex n hn σ φ)⁻¹ • s) →
+        F (ψw (ρ (braidColumnBottomBlockIndex n hn σ φ)) * e
+          ((braidColumnBottomBlockIndex n hn σ φ)⁻¹ • s)) ∈ D at hgood
+      have hgood' := hgood (hw'.symm ▸ hP)
+      rw [hw'] at hgood'
+      have hm := hmul _ hgood' _ (hright hbOrder (pol p))
       have he : (ψw (ρ w) * e b) * (pol p * e b) = (ψw (ρ w) * pol p * e b : R) := by
         rw [mul_assoc (ψw (ρ w)), ← mul_assoc (e b), (e_commute_pol _ p).eq,
           mul_assoc (pol p), e_mul_self, ← mul_assoc]
@@ -99,7 +105,11 @@ theorem braidColumnBottomBlock_pbw_mem
         cases he : b.lbl ⟨j+1,hj⟩ <;> simp_all
       have hshort := length_mul_sadj_of_gt hj hd
       have hvlen : length m v < d := by change length m (w * sadj m j) < d; omega
-      have hcut := ih _ hvlen v hcOrder 1 rfl
+      have hcP : P c := by
+        rw [hc]
+        apply hcutP b j hj _ hP
+        simpa only [hb] using hblack
+      have hcut := ih _ hvlen v hcOrder hcP 1 rfl
       simp only [map_one,mul_one] at hcut
       have hh : (e c : R) * (ψ j * pol p * e b) = ψ j * pol p * e b := by
         have he' := e_mul_std (Q := Q) (Λ := Λ) [j] p b
@@ -137,11 +147,29 @@ theorem braidColumnBottomBlock_pbw_mem
         have hlen' : (ρ w).length = d := ((hρ w).1.2.trans (congrArg (length m) (hρ w).2)).trans hlen
         have hul : length m u < d := by omega
         have huOrder : redWord (u⁻¹ • s) = κ := he ▸ hbOrder
-        have H := ih _ hul u huOrder (monomial z 1) rfl
+        have Hu : P (u⁻¹ • s) := he ▸ hP
+        have H := ih _ hul u huOrder Hu (monomial z 1) rfl
         rwa [he] at H)) hs'
       have H := add_mem hdiff hfactor
       rw [sub_add_cancel] at H
       exact H
+
+theorem braidColumnBottomBlock_pbw_mem
+    (s : Seq μ) (hs : IsRedOrdered s) (σ : Perm (Fin ℓ))
+    (ρ : Perm (Fin m) → List ℕ) (hρ : IsReducedChoice ρ)
+    (D : Submodule k V)
+    (hmul : ∀ x ∈ D, ∀ z : V, z * E ((List.finRange ℓ).map σ) = z → x * z ∈ D)
+    (hindex : ∀ (n : Fin ℓ → ℕ) (hn : (∑ r, (n r + 1)) = m)
+      (φ : Perm (Fin m)), ProjectiveBlockIndex s φ →
+      (∀ r : Fin ℓ, (φ⁻¹ • s).lbl (braidBlockPositions n hn ⟨r,0⟩) = .inr r) →
+      let w := braidColumnBottomBlockIndex n hn σ φ
+      F (ψw (ρ w) * e (w⁻¹ • s)) ∈ D)
+    (w : Perm (Fin m)) (horder : redWord (w⁻¹ • s) = (List.finRange ℓ).map σ)
+    (p : MvPolynomial (Fin m) k) :
+    F (ψw (ρ w) * pol p * e (w⁻¹ • s)) ∈ D :=
+  braidColumnBottomBlock_pbw_mem_of_predicate s hs σ ρ hρ (fun _ => True)
+    (fun _ _ _ _ _ => trivial) D hmul
+    (fun n hn φ hφ hred _ => hindex n hn φ hφ hred) w horder trivial p
 
 end Categorification.Stendhal
 
@@ -159,35 +187,47 @@ local notation "F" => AlgHom.comp (violMk k Q Λ ν) (ofKLR k Q Λ ν)
 local notation "E" => fun κ => violMk k Q Λ ν (redProj k Q Λ ν κ)
 
 /-- Products of the eligible v3 diagrams with right support at the source red projector. -/
-def braidColumnBottomProducts (s : Seq μ) (σ : Perm (Fin ℓ))
-    (ρ : Perm (Fin m) → List ℕ) : Set V :=
+def braidColumnBottomProductsWhere (s : Seq μ) (σ : Perm (Fin ℓ))
+    (ρ : Perm (Fin m) → List ℕ) (P : Seq μ → Prop) : Set V :=
   {x | ∃ (n : Fin ℓ → ℕ) (hn : (∑ r, (n r + 1)) = m) (φ : Perm (Fin m)),
     ProjectiveBlockIndex s φ ∧
     (∀ r : Fin ℓ, (φ⁻¹ • s).lbl (braidBlockPositions n hn ⟨r,0⟩) = .inr r) ∧
-    ∃ z : V, z * E ((List.finRange ℓ).map σ) = z ∧
     let w := braidColumnBottomBlockIndex n hn σ φ
+    P (w⁻¹ • s) ∧ ∃ z : V, z * E ((List.finRange ℓ).map σ) = z ∧
     x = F (ψw (ρ w) * e (w⁻¹ • s)) * z}
+
+/-- The restricted generator span is stable under right multiplication
+by a right-supported coefficient. -/
+theorem braidColumnBottomProductsWhere_mul_mem_span
+    (s : Seq μ) (σ : Perm (Fin ℓ)) (ρ : Perm (Fin m) → List ℕ) (P : Seq μ → Prop)
+    {x z : V}
+    (hx : x ∈ Submodule.span k (braidColumnBottomProductsWhere (Q := Q) (Λ := Λ) s σ ρ P))
+    (hz : z * E ((List.finRange ℓ).map σ) = z) :
+    x * z ∈ Submodule.span k (braidColumnBottomProductsWhere (Q := Q) (Λ := Λ) s σ ρ P) := by
+  induction hx using Submodule.span_induction with
+  | mem x hx =>
+    obtain ⟨n,hn,φ,hφ,hred,hPy,y,hy,rfl⟩ := hx
+    apply Submodule.subset_span
+    exact ⟨n,hn,φ,hφ,hred,hPy,y * z,by rw [mul_assoc,hz],mul_assoc _ _ _⟩
+  | zero => rw [zero_mul]; exact zero_mem _
+  | add a b _ _ ha hb => rw [add_mul]; exact add_mem ha hb
+  | smul c a _ ha => rw [smul_mul_assoc]; exact Submodule.smul_mem _ c ha
 
 /-- Eligible bottom-block products span every fixed-top PBW diagram with the
 specified bottom red order. -/
-theorem braidColumnBottomBlock_pbw_mem_span
+theorem braidColumnBottomBlock_pbw_mem_span_where
     (s : Seq μ) (hs : IsRedOrdered s) (σ : Perm (Fin ℓ))
     (ρ : Perm (Fin m) → List ℕ) (hρ : IsReducedChoice ρ)
+    (P : Seq μ → Prop)
+    (hcutP : ∀ (b : Seq μ) (j : ℕ) (hj : j + 1 < m),
+      (b.lbl ⟨j+1,hj⟩).isLeft → P b → P (sadj m j • b))
     (w : Perm (Fin m)) (horder : redWord (w⁻¹ • s) = (List.finRange ℓ).map σ)
-    (p : MvPolynomial (Fin m) k) :
+    (hP : P (w⁻¹ • s)) (p : MvPolynomial (Fin m) k) :
     F (ψw (ρ w) * pol p * e (w⁻¹ • s)) ∈
-      Submodule.span k (braidColumnBottomProducts (Q := Q) (Λ := Λ) s σ ρ) := by
-  refine braidColumnBottomBlock_pbw_mem s hs σ ρ hρ _ ?_ ?_ w horder p
-  · intro x hx z hz
-    induction hx using Submodule.span_induction with
-    | mem x hx =>
-      obtain ⟨n,hn,φ,hφ,hred,y,hy,rfl⟩ := hx
-      apply Submodule.subset_span
-      exact ⟨n,hn,φ,hφ,hred,y * z,by rw [mul_assoc,hz],mul_assoc _ _ _⟩
-    | zero => rw [zero_mul]; exact zero_mem _
-    | add a b _ _ ha hb => rw [add_mul]; exact add_mem ha hb
-    | smul c a _ ha => rw [smul_mul_assoc]; exact Submodule.smul_mem _ c ha
-  · intro n hn φ hφ hr w
+      Submodule.span k (braidColumnBottomProductsWhere (Q := Q) (Λ := Λ) s σ ρ P) := by
+  refine braidColumnBottomBlock_pbw_mem_of_predicate s hs σ ρ hρ P hcutP _ ?_ ?_ w horder hP p
+  · exact fun x hx z hz => braidColumnBottomProductsWhere_mul_mem_span s σ ρ P hx hz
+  · intro n hn φ hφ hr w hPw
     let b := w⁻¹ • s
     let κ := (List.finRange ℓ).map σ
     have horder : redWord b = κ := redWord_braidColumnBottomBlockIndex_bottom s n hn σ φ hr
@@ -199,7 +239,22 @@ theorem braidColumnBottomBlock_pbw_mem_span
       rfl
     have he' : F (ψw (ρ w) * e b) = F (ψw (ρ w) * e b) * F (e b) := by
       rw [← map_mul F,mul_assoc (ψw (ρ w)),e_mul_self]
-    exact Submodule.subset_span ⟨n,hn,φ,hφ,hr,F (e b),hr',he'⟩
+    exact Submodule.subset_span ⟨n,hn,φ,hφ,hr,hPw,F (e b),hr',he'⟩
+
+/-- Products of all eligible diagrams in the fixed-top column. -/
+def braidColumnBottomProducts (s : Seq μ) (σ : Perm (Fin ℓ))
+    (ρ : Perm (Fin m) → List ℕ) : Set V :=
+  braidColumnBottomProductsWhere (Q := Q) (Λ := Λ) s σ ρ (fun _ => True)
+
+theorem braidColumnBottomBlock_pbw_mem_span
+    (s : Seq μ) (hs : IsRedOrdered s) (σ : Perm (Fin ℓ))
+    (ρ : Perm (Fin m) → List ℕ) (hρ : IsReducedChoice ρ)
+    (w : Perm (Fin m)) (horder : redWord (w⁻¹ • s) = (List.finRange ℓ).map σ)
+    (p : MvPolynomial (Fin m) k) :
+    F (ψw (ρ w) * pol p * e (w⁻¹ • s)) ∈
+      Submodule.span k (braidColumnBottomProducts (Q := Q) (Λ := Λ) s σ ρ) :=
+  braidColumnBottomBlock_pbw_mem_span_where s hs σ ρ hρ (fun _ => True)
+    (fun _ _ _ _ _ => trivial) w horder trivial p
 
 end Categorification.Stendhal
 
@@ -243,7 +298,7 @@ theorem span_braidColumnBottomProducts
   rw [← hπ]
   apply le_antisymm
   · refine Submodule.span_le.mpr ?_
-    rintro x ⟨n,hn,φ,hφ,hred,z,hz,rfl⟩
+    rintro x ⟨n,hn,φ,hφ,hred,_,z,hz,rfl⟩
     let w := braidColumnBottomBlockIndex n hn σ φ
     let b := w⁻¹ • s
     have he : (e s : R) * (ψw (ρ w) * e b) = ψw (ρ w) * e b := by

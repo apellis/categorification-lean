@@ -1038,7 +1038,9 @@ actual multiplication adds normalized degrees
 (`braidingCoefficientMul_mem_weight`). The inversion condition in Lemma 6.5
 implies additivity (`redWordOffset_add_of_sublist`), and its balanced
 multiplication identifies the quotient corner coefficient
-(`violCornerTensorMulEquiv_tmul`).
+(`violCornerTensorMulEquiv_tmul`). The additive universal property
+`CornerTensor.liftAdd` descends a balanced bi-additive family with an
+additive target.
 
 Over a scalar field in degree zero the left modules are K-projective, so the
 construction gives derived Hom for every homogeneous scalar coefficient

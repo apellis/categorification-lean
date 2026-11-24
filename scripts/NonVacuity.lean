@@ -9009,6 +9009,39 @@ example := firstPairTwoAfter_nilHecke_range_iff Q Λ (fun _ _ _ => rfl)
 
 end NonVacuity.WebsterFirstPairTwoAfter
 
+
+noncomputable section
+
+namespace NonVacuity.WebsterFirstPairZeroSpectator
+
+open Categorification.KLR Categorification.Stendhal BraidedStendhalAlgebra MvPolynomial DG
+open scoped DG.DegreeZero
+
+attribute [local instance 1100] IsIdempotentElem.instAlgebraCorner_categorification
+attribute [local instance 1200] Ring.toIntAlgebra
+
+private def params : Fin 2 → Fin 2 → MvPolynomial (Fin 2) (ZMod 4) := fun _ _ => 0
+private def weights : Fin 3 → Fin 2 →₀ ℕ := fun r => if r = 2 then 0 else Finsupp.single 0 2
+private abbrev ν : Multiset (Fin 2) := {0} + {1} + {0}
+private def after : Categorification.KLR.Seq (stendhalWeight 3 ν) :=
+  ⟨![.inr 0, .inr 1, .inr 2, .inl 0, .inl 1, .inl 0], by decide⟩
+private def terminal : Categorification.KLR.Seq (stendhalWeight 3 ν) :=
+  ⟨![.inr 0, .inr 1, .inl 0, .inl 1, .inl 0, .inr 2], by decide⟩
+
+local instance (order : List (Fin 3)) : HasDerivedCategory.{0,0}
+    (isIdempotentElem_violMk_redProj (ZMod 4) params weights ν order).Cornerᵐᵒᵖ :=
+  HasDerivedCategory.small _
+
+example := firstPair_zeroSpectator_partialStandard_braid_homology_vanish
+  params weights after [1,0,2] (by decide) (by intro i; simp [weights]) (-1) (by decide)
+
+example := firstPair_zeroSpectator_partialStandard_braid_homology_vanish
+  params weights terminal [2,0,1] (by decide) (by intro i; simp [weights]) (-2) (by decide)
+
+end NonVacuity.WebsterFirstPairZeroSpectator
+
+end
+
 namespace NonVacuity.WebsterFirstPairRightmostZero
 
 open Categorification.KLR Categorification.Stendhal BraidedStendhalAlgebra MvPolynomial

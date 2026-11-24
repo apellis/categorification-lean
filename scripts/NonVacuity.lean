@@ -9508,6 +9508,9 @@ example := diagramWeightCoendProduct_surjective G G G leftAction rightAction lef
 example := diagramWeightTensorSlice_leftInverse G G leftAction rightAction leftAction rightAction
   (⟨0⟩ : QWeight) (⟨0⟩ : QWeight)
 
+example := diagramWeightLeftLinearMap G G leftAction rightAction leftAction rightAction
+  (⟨0⟩ : QWeight) (LinearMap.id : ℚ →ₗ[ℚ] ℚ) (fun h => h)
+
 example := diagramWeightTensorOrdinary_range_eq_grade G G leftAction rightAction leftAction rightAction
   (⟨0⟩ : QWeight) (⟨1⟩ : QWeight)
 

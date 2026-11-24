@@ -1066,7 +1066,8 @@ weight embeds each endpoint coend as a summand of the ordinary additive
 balanced tensor (`diagramWeightTensorSlice_leftInverse`). The associated
 projection keeps pure tensors of the endpoint degree
 (`diagramWeightOrdinaryProjection_tmul`). The image of the endpoint weight coend is exactly the total-degree
-component of the ordinary balanced tensor (`diagramWeightTensorOrdinary_range_eq_grade`). For a rectangular corner between two degree-zero
+component of the ordinary balanced tensor (`diagramWeightTensorOrdinary_range_eq_grade`). A homogeneous module map
+restricts on these weight components (`diagramWeightLeftLinearMap`). For a rectangular corner between two degree-zero
 idempotents, `diagramCornerWeightDerivedRightTensor` uses the restricted grading
 and defines derived right tensor on the graded right-module categories.
 For the actual braid bimodule this gives `auxiliaryGradedBraidingFunctor`

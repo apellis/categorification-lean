@@ -9252,6 +9252,17 @@ example := fundamentalBraidSourceLoading_isKProjective terminal terminal_ordered
 example := fundamentalBraidSourceGradedResolution ⟨0⟩
 
 end NonVacuity.WebsterFundamentalBraidGradedSource
+
+namespace NonVacuity.WebsterFundamentalBraidGradedCoend
+open CategoryTheory DG Categorification.Stendhal Categorification.Stendhal.FundamentalCorner
+
+noncomputable example := fundamentalBraidGradedCutIso terminal terminal_ordered 1 ⟨0⟩
+
+example := fundamentalBraidGradedCutIso_d₂ ⟨0⟩
+
+example := fundamentalBraidGradedCutIso_d₁ ⟨1⟩
+
+end NonVacuity.WebsterFundamentalBraidGradedCoend
 end
 
 namespace NonVacuity.WebsterCupRHomRegular

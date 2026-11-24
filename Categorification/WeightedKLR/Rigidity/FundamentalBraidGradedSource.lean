@@ -89,7 +89,8 @@ def fundamentalBraidSourceLoadingAt (s : KLR.Seq μ) (hs : IsRedOrdered s) (j : 
     (isIdempotentElem_violLoadingIdem (k := ℚ) (Q := Q) (Λ := wt)
       ((redWord_eq_finRange_iff s).mpr hs)).eq)
 
-private theorem map_loading (s : KLR.Seq μ) (hs : IsRedOrdered s) (j : ℤ) :
+/-- The source weight functor takes each native loading to its ordered loading. -/
+theorem fundamentalBraidSourceWeightFunctor_loading (s : KLR.Seq μ) (hs : IsRedOrdered s) (j : ℤ) :
     fundamentalBraidSourceWeightFunctor.map (fundamentalBraidSourceLoadingAt s hs j).val =
       (gradedLoadingIdempotentAt s hs j).val := by
   let ho := (redWord_eq_finRange_iff s).mpr hs
@@ -107,11 +108,78 @@ def fundamentalBraidSourceLoadingIso (s : KLR.Seq μ) (hs : IsRedOrdered s) (j :
     CatModule.corner (fundamentalBraidSourceLoadingAt s hs j) ≅
       (res).obj (shiftedLoadingModule s hs j) :=
   weightRingEquivCornerIso fundamentalBraidSourceEquiv.op sourceWeight _
-    (fundamentalBraidSourceLoadingAt s hs j) (gradedLoadingIdempotentAt s hs j) (map_loading s hs j)
+    (fundamentalBraidSourceLoadingAt s hs j) (gradedLoadingIdempotentAt s hs j) (fundamentalBraidSourceWeightFunctor_loading s hs j)
 
 /-- Each term of the restricted graded resolution is K-projective. -/
 theorem fundamentalBraidSourceLoading_isKProjective (s : KLR.Seq μ) (hs : IsRedOrdered s) (j : ℤ) :
     CatModule.IsKProjective ((res).obj (shiftedLoadingModule s hs j)) :=
   (CatModule.isKProjective_corner _).of_iso (fundamentalBraidSourceLoadingIso s hs j).symm
+
+local notation "F" => fundamentalBraidSourceWeightFunctor
+local notation "P" s:arg hs:arg j:arg => fundamentalBraidSourceLoadingAt s hs j
+local notation "L" s:arg hs:arg j:arg => fundamentalBraidSourceLoadingIso s hs j
+private theorem orderedMiddle : IsRedOrdered middle := by unfold IsRedOrdered; decide +kernel
+
+private theorem iso_gen (s : KLR.Seq μ) (hs : IsRedOrdered s) (j : ℤ) :
+    ((L s hs j).hom.app ⟨j⟩) (cornerGen (P s hs j)) = cornerGen (gradedLoadingIdempotentAt s hs j) :=
+  Subtype.ext (fundamentalBraidSourceWeightFunctor_loading s hs j)
+
+private theorem iso_inv {s : KLR.Seq μ} {hs : IsRedOrdered s} {j : ℤ} (X : WeightCategory Kᵐᵒᵖ)
+    (y : (shiftedLoadingModule s hs j).obj ((F).obj X)) :
+    (F).map (((L s hs j).inv.app X y).val) = y.val :=
+  (F).map_preimage y.val
+
+private abbrev loadingMapInSource {s t : KLR.Seq μ} {hs : IsRedOrdered s} {ht : IsRedOrdered t} {i j : ℤ}
+    (g : shiftedLoadingModule s hs i ⟶ shiftedLoadingModule t ht j) :=
+  (L s hs i).hom ≫ (CatModule.precomp F).map g ≫ (L t ht j).inv
+
+private theorem loadingMapInSource_generator {s t : KLR.Seq μ} {hs : IsRedOrdered s} {ht : IsRedOrdered t}
+    {i j : ℤ} (g : shiftedLoadingModule s hs i ⟶ shiftedLoadingModule t ht j) :
+    fundamentalBraidSourceEquiv (((loadingMapInSource g).app ⟨i⟩ (cornerGen (P s hs i))).val.val).unop =
+      ((g.app ((F).obj ⟨i⟩) (cornerGen (gradedLoadingIdempotentAt s hs i))).val.val).unop := by
+  have hx : (F).map (((loadingMapInSource g).app ⟨i⟩ (cornerGen (P s hs i))).val) =
+      (g.app ((F).obj ⟨i⟩) (cornerGen (gradedLoadingIdempotentAt s hs i))).val := by
+    change (F).map (((L t ht j).inv.app _ (g.app _ (((L s hs i).hom.app _) _))).val) = _
+    rw [iso_gen]
+    exact iso_inv _ _
+  exact congrArg (fun h : (F).obj ⟨j⟩ ⟶ (F).obj ⟨i⟩ => h.val.unop) hx
+
+/-- The first mixed crossing on the native shifted braid-source projectives. -/
+abbrev fundamentalBraidGradedSourceD₂ :=
+  loadingMapInSource (s := middle) (hs := orderedMiddle) (i := 2)
+    (t := terminal) (ht := terminal_ordered) (j := 1) gradedMiddleD₂
+
+/-- The second mixed crossing on the native shifted braid-source projectives. -/
+abbrev fundamentalBraidGradedSourceD₁ :=
+  loadingMapInSource (s := terminal) (hs := terminal_ordered) (i := 1)
+    (t := middle) (ht := orderedMiddle) (j := 0) gradedMiddleD₁
+
+/-- The first differential takes its generator to the mixed crossing on
+the middle loading. -/
+theorem fundamentalBraidGradedSourceD₂_generator :
+    ((fundamentalBraidGradedSourceD₂.app ⟨2⟩ (cornerGen (P middle orderedMiddle 2))).val.val).unop =
+      diagonalDiagram (KLR.KLRAlgebra.ψ 1 * KLR.KLRAlgebra.e middle) := by
+  apply fundamentalBraidSourceEquiv.injective
+  rw [fundamentalBraidSourceEquiv_crossings.1]
+  refine (loadingMapInSource_generator gradedMiddleD₂).trans ?_
+  change (project (StendhalAlgebraAllOrders.ψ 1) * middleIdem) *
+    (TensorProductAlgebra.mk Q wt ν (StendhalAlgebra.e middle orderedMiddle)) = _
+  rw [← projectedLoading_eq_mk_e,mul_assoc]
+  exact congrArg (project (StendhalAlgebraAllOrders.ψ 1) * ·)
+    (IsIdempotentElem.map (by simp [IsIdempotentElem, StendhalAlgebraAllOrders.e_mul_e]) project).eq
+
+/-- The second differential takes its generator to the mixed crossing on
+the terminal loading. -/
+theorem fundamentalBraidGradedSourceD₁_generator :
+    ((fundamentalBraidGradedSourceD₁.app ⟨1⟩ (cornerGen (P terminal terminal_ordered 1))).val.val).unop =
+      diagonalDiagram (KLR.KLRAlgebra.ψ 1 * KLR.KLRAlgebra.e terminal) := by
+  apply fundamentalBraidSourceEquiv.injective
+  rw [fundamentalBraidSourceEquiv_crossings.2]
+  refine (loadingMapInSource_generator gradedMiddleD₁).trans ?_
+  change (project (StendhalAlgebraAllOrders.ψ 1) * terminalIdem) *
+    (TensorProductAlgebra.mk Q wt ν (StendhalAlgebra.e terminal terminal_ordered)) = _
+  rw [← projectedLoading_eq_mk_e,mul_assoc]
+  exact congrArg (project (StendhalAlgebraAllOrders.ψ 1) * ·)
+    (IsIdempotentElem.map (by simp [IsIdempotentElem, StendhalAlgebraAllOrders.e_mul_e]) project).eq
 
 end Categorification.Stendhal.FundamentalCorner

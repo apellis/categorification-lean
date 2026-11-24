@@ -9482,3 +9482,14 @@ noncomputable example :=
     (fun _ : Fin 2 => Finsupp.single () 2) ({(), ()} : Multiset Unit)
 
 end NonVacuity.WebsterUnitParameters
+
+namespace NonVacuity.WebsterGradedTerminalStandard
+open Categorification.Stendhal.FundamentalCorner
+
+example := gradedTerminalStandardResolution_isKProjective
+
+example := gradedTerminalStandardResolution_quasiIso
+
+example := terminal_lt_middle
+
+end NonVacuity.WebsterGradedTerminalStandard

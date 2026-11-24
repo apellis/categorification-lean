@@ -1283,7 +1283,11 @@ of the reflected coefficient and middle standard agrees with the corresponding
 ground-field component of the actual ordinary tensor
 (`Stendhal.LabelTwo.middleStandardWeightTensorEquiv`). The degree-zero
 derived comparison uses any supplied nonpositive K-projective model
-(`Stendhal.LabelTwo.middleStandardWeightH0IsoOfResolution`). Evaluation on the
+(`Stendhal.LabelTwo.middleStandardWeightH0IsoOfResolution`). The actual
+graded middle standard extends to a higher-supported ordered resolution, and
+the reflected coefficient has zero derived tensor cohomology in every
+nonzero cohomological degree at each internal weight
+(`Stendhal.LabelTwo.middleStandardWeight_cohomology_isZero`). Evaluation on the
 middle generator identifies the endomorphism algebra with the actual
 regular parabolic factor (`Stendhal.LabelTwo.middleEndomorphismFactorEquiv`).
 The diagrammatic dot-sum quotient is the standardization of its

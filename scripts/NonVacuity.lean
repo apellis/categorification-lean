@@ -9332,6 +9332,12 @@ noncomputable example :
       CatModule.HasDerivedCategory.standard (WeightCategory ℚ)
     (middleReflectedWeightDerivedTensor ℚ).IsTriangulated := inferInstance
 
+noncomputable example :=
+  letI : CatModule.HasDerivedCategory.{1,0} (WeightCategory ℚ) :=
+    CatModule.HasDerivedCategory.standard (WeightCategory ℚ)
+  middleStandardWeight_cohomology_isZero ℚ (⟨2⟩ : WeightCategory ℚ) (-1) (by decide)
+
+
 
 
 open CategoryTheory in

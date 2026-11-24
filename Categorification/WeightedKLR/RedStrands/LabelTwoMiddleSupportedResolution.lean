@@ -6,6 +6,8 @@ import Categorification.WeightedKLR.RedStrands.LeftStandardParameterTransport
 import Categorification.WeightedKLR.RedStrands.OffDiagonalParameters
 import Categorification.WeightedKLR.RedStrands.LabelTwoMiddleAmbientAcyclicity
 import Categorification.WeightedKLR.RedStrands.LabelTwoMiddleAmbientTor
+import Categorification.WeightedKLR.RedStrands.LabelTwoMiddleOrderedQuotient
+import Categorification.WeightedKLR.RedStrands.LabelTwoMiddleWeightSupportedResolution
 import Categorification.WeightedKLR.RedStrands.StandardStratificationStd
 
 /-!
@@ -139,6 +141,38 @@ def actualAmbientMiddleToRelativeTorIso (h₂ : (2 : k) ≠ 0) (n : ℕ) :
   ambientMiddleToRelativeTorIso k (middleAmbientAcyclic k) h₂ n
 
 end GroundField
+
+
+section FixedWeight
+
+open CategoryTheory DG
+open scoped DG.DegreeZero
+
+local instance : InternalGrading Ambient :=
+  gradedAlgebraInternalGrading (middleTensorGrade k (labelTwoGradingDatum k))
+local instance : BigradedDGRing Ambient :=
+  gradedAlgebraBigradedDGRing (middleTensorGrade k (labelTwoGradingDatum k))
+local instance : InternalGrading k := scalarInternalGrading k
+local instance : BigradedDGRing k := scalarBigradedDGRing k
+
+variable [CatModule.HasDerivedCategory.{w,0} (WeightCategory
+  (TensorProductAlgebra k (parameter k) weights (({()} : Multiset Unit) + {()})))]
+  [CatModule.HasDerivedCategory.{w,0} (WeightCategory k)]
+
+/-- The actual label-two middle standard is acyclic at every weight for the
+reflected dot-sum coefficient. -/
+theorem middleStandardWeight_cohomology_isZero (X : WeightCategory k) (n : ℤ) (hn : n ≠ 0) :
+    Limits.IsZero ((CatModule.DerivedCategory.cohomologyFunctor X n).obj
+      ((middleReflectedWeightDerivedTensor k).obj
+        (CatModule.DerivedCategory.Q.obj (middleStandardWeightModule k)))) := by
+  let σ := (rankOneParameterChange k).toRingEquiv
+  let hσ := rankOneParameterChange_idem k
+  let hU := rankOneCLFiltration k instDecidableEqPUnit
+  exact middleStandardWeight_cohomology_isZero_of_ordered_covers k
+    (orderedStandardCoversTransport weights σ hσ hU)
+    (middleOrderedCoversTransport_quotient k σ hσ hU) X n hn
+
+end FixedWeight
 
 end Categorification.Stendhal.LabelTwo
 

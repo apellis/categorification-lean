@@ -1112,6 +1112,12 @@ cohomological shift minus one (`gradedMiddleCup_fieldIso`). The
 unshifted graded cap sends the middle loading projective to the scalar
 representable of weight zero and annihilates the terminal loading
 projective (`gradedMiddleCap_middleIso`, `gradedMiddleCap_terminal_isZero`).
+Both differential crossings have diagram degree one. In internal degree
+n the resolution is exact on the degree n−2, n−1 and n pieces of the
+middle, terminal and middle projectives (`middleResolution_maps_degree`,
+`middleResolution_exact_terminal`, `middleResolution_exact_middle`).
+These maps and the scalar augmentation form an objectwise exact
+sequence of dg modules over the weight category (`gradedMiddleComplex_exact`).
 
 For Proposition 7.2, a single
 red with coroot pairing one gives a simple projective at the red-first

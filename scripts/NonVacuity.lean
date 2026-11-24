@@ -8862,6 +8862,15 @@ example := gradedMiddleCup_fieldIso
 example := gradedMiddleCap_middleIso
 example := gradedMiddleCap_terminal_isZero
 
+example := middleResolution_maps_degree 2
+example := middleResolution_exact_terminal 2
+example := middleResolution_exact_middle 1
+example := middleResolution_augmentation_surjective 0 1 (Or.inl rfl)
+example := gradedMiddleComplex_exact ⟨0⟩
+example := gradedMiddleComplex_exact ⟨2⟩
+example := gradedMiddleCap_shiftedMiddleIso 2
+example := gradedMiddleCap_shiftedTerminal_isZero 1
+
 end
 
 end NonVacuity.WebsterGradedFundamentalCup

@@ -15,6 +15,8 @@ import Categorification.Algebra.CompositionFactors
 import Categorification.Algebra.CornerBimodule
 import Categorification.Algebra.CornerEndomorphism
 import Categorification.Algebra.CornerTensor
+import Categorification.Algebra.CornerTensorAdditive
+import Categorification.Algebra.CornerTensorCutLift
 import Categorification.Algebra.CornerTensorFactor
 import Categorification.Algebra.CornerTensorQuotient
 import Categorification.Algebra.DerivedTensor
@@ -1096,6 +1098,7 @@ import Categorification.WeightedKLR.RedStrands.BraidingWeightDecomposition
 import Categorification.WeightedKLR.RedStrands.RedPermutationGrading
 import Categorification.WeightedKLR.RedStrands.NormalizedBraidMultiplication
 import Categorification.WeightedKLR.RedStrands.BraidFactorizationDegree
+import Categorification.WeightedKLR.RedStrands.BraidFactorizationCoend
 import Categorification.WeightedKLR.RedStrands.TwoRedSwapNormalization
 import Categorification.WeightedKLR.RedStrands.CrawleyBoevey
 import Categorification.WeightedKLR.RedStrands.CrawleyBoeveyIn
@@ -1731,6 +1734,9 @@ import Categorification.WeightedKLR.RedStrands.InterleavedMarkedColumnStandard
 import Categorification.WeightedKLR.RedStrands.FiniteExitAffineLift
 import Categorification.WeightedKLR.RedStrands.FirstWeightBlockKernel
 import Categorification.WeightedKLR.RedStrands.BlockKernelDerivedHomology
+import Categorification.WeightedKLR.RedStrands.BlockKernelDerivedSequence
+import Categorification.WeightedKLR.RedStrands.ProjectiveKernelDerived
+import Categorification.WeightedKLR.RedStrands.OneBlackKernelDerived
 import Categorification.WeightedKLR.RedStrands.BlockKernelFiltration
 import Categorification.WeightedKLR.RedStrands.BlockKernelSingleLayer
 import Categorification.WeightedKLR.RedStrands.BlockKernelCrossingGenerator
@@ -1764,11 +1770,14 @@ import Categorification.WeightedKLR.Rigidity.DerivedCupRegular
 import Categorification.WeightedKLR.Rigidity.FundamentalCupCap
 import Categorification.Algebra.DerivedTensorRegular
 import Categorification.WeightedKLR.Rigidity.FundamentalCupRegular
+import Categorification.WeightedKLR.Rigidity.FundamentalDerivedCircle
 import Categorification.Algebra.DiagramBigrading
 import Categorification.Algebra.DiagramWeightBimodule
 import Categorification.Algebra.DiagramWeightScalarHom
 import Categorification.Algebra.DiagramWeightCorner
 import Categorification.Algebra.DiagramWeightCoend
+import Categorification.Algebra.DiagramWeightCoendSurjectivity
+import Categorification.Algebra.DiagramWeightOrdinaryTensor
 import Categorification.WeightedKLR.Rigidity.GradedCharacterCupCap
 import Categorification.WeightedKLR.Rigidity.GradedFundamentalCupCap
 import Categorification.WeightedKLR.Rigidity.SingleBlackExtremal

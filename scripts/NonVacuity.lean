@@ -10062,6 +10062,76 @@ example : CatModule.IsQuasiIso (diagramWeightModuleOfComplexMap (𝟙 weightComp
 
 end NonVacuity.WebsterWeightComplex
 
+namespace NonVacuity.WebsterWeightComplexProjective
+
+open Categorification CategoryTheory DG
+open scoped DG.DegreeZero CatModule
+
+local instance instFixtureInternal : InternalGrading ℚ := scalarInternalGrading ℚ
+local instance instFixtureBigraded : BigradedDGRing ℚ := scalarBigradedDGRing ℚ
+
+private abbrev Z : WeightCategory ℚ := ⟨0⟩
+private abbrev H := preadditiveCoyonedaObj Z
+private abbrev TestScalars := (CategoryTheory.End Z)ᵐᵒᵖ
+private abbrev C := ComplexShape.up ℤ
+private abbrev testDiagram := H ⋙ HomologicalComplex.single (ModuleCat TestScalars) C 0
+private abbrev inner (X : WeightCategory ℚ) :=
+  HomologicalComplex.singleObjXSelf C 0 (H.obj X)
+
+private def fixtureCoordinate (X : WeightCategory ℚ) :
+    (weightComplexPiece testDiagram 0).obj X ≃+ (Z ⟶ X) :=
+  (weightComplexPieceAddEquiv testDiagram 0 X).trans
+    (AddEquiv.ofBijective (inner X).hom.hom.toAddMonoidHom
+      ⟨(ModuleCat.mono_iff_injective _).mp inferInstance,
+        (ModuleCat.epi_iff_surjective _).mp inferInstance⟩)
+
+private def representableProjection :
+    weightComplexPiece testDiagram 0 ⟶ CatModule.representable Z where
+  app X := (fixtureCoordinate X).toAddMonoidHom
+  map_mem' {X i x} hx := by
+    change fixtureCoordinate X x ∈ DG.grading (M := Z ⟶ X) i
+    rcases (weightComplexPiece_mem_grading_iff testDiagram 0 i X x).mp hx with rfl | rfl
+    · apply WeightCategory.mem_grading_iff.mpr
+      exact InDegreeZero.ring_mem_grading_iff.mpr (Or.inl rfl)
+    · rw [map_zero]
+      exact zero_mem _
+  map_d' {X} x := by
+    change fixtureCoordinate X (d x) = d (fixtureCoordinate X x)
+    rw [weightComplexPiece_d_eq_zero, map_zero]
+    exact (WeightCategory.hom_ext (InDegreeZero.ring_d_apply (fixtureCoordinate X x).val)).symm
+  map_smul' {X Y} a x := by
+    change (inner Y).hom (weightComplexPieceAddEquiv testDiagram 0 Y
+      ((weightComplexPiece testDiagram 0).act a x)) =
+      (H.map a) ((inner X).hom (weightComplexPieceAddEquiv testDiagram 0 X x))
+    erw [weightComplexPieceAddEquiv_act]
+    change (inner Y).hom (((HomologicalComplex.single (ModuleCat TestScalars) C 0).map
+      (H.map a)).f 0 (weightComplexPieceAddEquiv testDiagram 0 X x)) = _
+    erw [HomologicalComplex.single_map_f_self, ConcreteCategory.comp_apply, ConcreteCategory.comp_apply,
+      Iso.inv_hom_id_apply]
+
+example : CatModule.IsKProjective (diagramWeightModuleOfComplex testDiagram) := by
+  apply diagramWeightModuleOfComplex_isKProjective
+  · intro X n hn
+    exact HomologicalComplex.isZero_single_obj_X C 0 (H.obj X) n (by omega)
+  · intro n
+    cases n with
+    | zero =>
+      let _ := CatModule.isIso_of_bijective representableProjection (fun X => (fixtureCoordinate X).bijective)
+      exact (CatModule.isKProjective_representable Z).of_iso (asIso representableProjection)
+    | succ n =>
+      let b : ℤ := -((n + 1 : ℕ) : ℤ)
+      change CatModule.IsKProjective (weightComplexPiece testDiagram b)
+      intro N hN f
+      refine CatModule.homotopic_zero_iff_exists.mpr ⟨0, CatModule.Cochain.ext fun X x => ?_⟩
+      have hz : CategoryTheory.Limits.IsZero ((testDiagram.obj X).X b) :=
+        HomologicalComplex.isZero_single_obj_X C 0 (H.obj X) b (by dsimp [b]; omega)
+      have hs := ModuleCat.isZero_iff_subsingleton.mp hz
+      have h : x = 0 := (weightComplexPieceAddEquiv testDiagram b X).injective (hs.elim _ _)
+      rw [h]
+      simp
+
+end NonVacuity.WebsterWeightComplexProjective
+
 end
 
 noncomputable section

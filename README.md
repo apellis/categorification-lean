@@ -1057,9 +1057,12 @@ derived tensor on the localized layers gives vanishing on the filtered input
 (`WeightModuleFiltration.diagramWeightDerivedTensor_cohomology_isZero`). A diagram of
 ordinary complexes on the weight category realizes as a dg module, with
 pointwise quasi-isomorphisms becoming dg quasi-isomorphisms
-(`diagramWeightModuleOfComplex`, `diagramWeightModuleOfComplexMap_isQuasiIso`). A homogeneous exact
-augmented chain gives a dg model with a pointwise quasi-isomorphic augmentation
-(`weightDgGradedChainAugmentation_quasiIso`).
+(`diagramWeightModuleOfComplex`, `diagramWeightModuleOfComplexMap_isQuasiIso`).
+A homogeneous exact augmented chain gives a dg model with a pointwise
+quasi-isomorphic augmentation (`weightDgGradedChainAugmentation_quasiIso`).
+A bounded-above weight complex realizes as a K-projective dg module when
+its individual terms, placed in their cohomological degrees, are K-projective
+(`diagramWeightModuleOfComplex_isKProjective`).
 
 A balanced homogeneous multiplication of two
 coefficients induces their product from the intermediate weight-category

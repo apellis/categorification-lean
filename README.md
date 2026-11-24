@@ -1016,6 +1016,9 @@ of the left weight modules also gives the derived Hom
 (`diagramWeightDerivedHom`). For a rectangular corner between two degree-zero
 idempotents, `diagramCornerWeightDerivedRightTensor` uses the restricted grading
 and defines derived right tensor on the graded right-module categories.
+For the actual braid bimodule this gives `auxiliaryGradedBraidingFunctor`
+in the integer grading inherited from the augmented KLR algebra. The
+Webster degree of a red/red crossing requires its own normalization.
 
 Definition 7.4 has cup and cap coefficient models in the ungraded derived
 categories, with a specified cohomological shift on the cup and a finite

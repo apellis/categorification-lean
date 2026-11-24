@@ -8806,3 +8806,34 @@ noncomputable example := by
 end
 
 end NonVacuity.WebsterGradedCorner
+
+namespace NonVacuity.WebsterAuxiliaryBraiding
+
+noncomputable section
+
+open Categorification CategoryTheory DG Stendhal FundamentalCorner BraidedStendhalAlgebra
+open scoped DG.DegreeZero
+attribute [local instance 1100] IsIdempotentElem.instAlgebraCorner_categorification
+
+local notation "ν₀" => ({()} : Multiset Unit)
+local notation "V" => violAuxiliaryGrade (ν := ν₀) FundamentalCorner.grading
+local notation "E" => isIdempotentElem_violMk_redProj ℚ Q wt ν₀
+local notation "H" => redProj_mem_violAuxiliaryGrade (ν := ν₀) FundamentalCorner.grading
+local notation "S" => fun κ => Categorification.Graded.oppositeGrade (Graded.cornerGrading V (E κ))
+
+example := by
+  letI := Graded.cornerGradedAlgebra V (E [1, 0]) (H [1, 0])
+  letI := Graded.cornerGradedAlgebra V (E [0, 1]) (H [0, 1])
+  letI := gradedAlgebraInternalGrading (S [1, 0])
+  letI := gradedAlgebraInternalGrading (S [0, 1])
+  letI := gradedAlgebraBigradedDGRing (S [1, 0])
+  letI := gradedAlgebraBigradedDGRing (S [0, 1])
+  letI : CatModule.HasDerivedCategory.{1,0} (WeightCategory (E [1, 0]).Cornerᵐᵒᵖ) :=
+    CatModule.HasDerivedCategory.standard _
+  letI : CatModule.HasDerivedCategory.{1,0} (WeightCategory (E [0, 1]).Cornerᵐᵒᵖ) :=
+    CatModule.HasDerivedCategory.standard _
+  exact auxiliaryGradedBraidingFunctor (ν := ν₀) FundamentalCorner.grading [1, 0] [0, 1]
+
+end
+
+end NonVacuity.WebsterAuxiliaryBraiding

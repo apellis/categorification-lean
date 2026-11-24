@@ -184,7 +184,9 @@ theorem fundamentalBraidCutComplex_ends :
     Function.Injective fundamentalBraidCutComplex.f ∧ Function.Surjective fundamentalBraidCutComplex.g :=
   ⟨d₂_inj,d₁_surj⟩
 
-private def scalarHomologyIso (S : ShortComplex (ModuleCat.{0} ℚ)) (v : S.X₂) (hv : S.g v = 0)
+/-- A cycle freely spanning homology over the rationals identifies the middle
+homology of a short complex with the rational line. -/
+def scalarHomologyIsoOfSpanningCycle (S : ShortComplex (ModuleCat.{0} ℚ)) (v : S.X₂) (hv : S.g v = 0)
     (indep : ∀ (a : ℚ) (m : S.X₁), S.f m = a • v → a = 0)
     (spans : ∀ z : S.X₂, S.g z = 0 → ∃ (a : ℚ) (m : S.X₁), S.f m = a • v - z) :
     S.homology ≅ ModuleCat.of ℚ ℚ := by
@@ -204,12 +206,67 @@ private def scalarHomologyIso (S : ShortComplex (ModuleCat.{0} ℚ)) (v : S.X₂
     exact ⟨m,Subtype.ext hm⟩
   exact S.moduleCatHomologyIso ≪≫ (LinearEquiv.ofBijective f ⟨h₁,h₂⟩).symm.toModuleIso
 
+/-- The reversed middle diagram representing the homology of the fundamental
+braid-cut resolution in Webster v2, Proposition 7.11. -/
+def fundamentalBraidCycle : Cut terminal := bGen
+
+theorem fundamentalBraidCycle_val :
+    fundamentalBraidCycle.val = B := rfl
+
+theorem fundamentalBraidCycle_supported :
+    fundamentalBraidCycle.val * E crossedMiddle = fundamentalBraidCycle.val :=
+  terminal_middle_support.2
+
+theorem fundamentalBraidCycle_ne_zero : fundamentalBraidCycle.val ≠ 0 :=
+  fundamentalBraid_mixed_ne_zero.2
+
+theorem fundamentalBraidCycle_closed : fundamentalBraidCutComplex.g fundamentalBraidCycle = 0 := d₁_b
+
+/-- Every cycle in the tensored resolution differs from a scalar multiple
+of the reversed middle diagram by a boundary (Webster v2, Proposition 7.11). -/
+theorem fundamentalBraidCycle_mod_boundaries (z : Cut terminal) (hz : fundamentalBraidCutComplex.g z = 0) :
+    ∃ (a : ℚ) (y : Cut middle), fundamentalBraidCutComplex.f y = a • fundamentalBraidCycle - z := by
+  obtain ⟨a,b,c,he⟩ := term_repr z
+  change d₁ z = 0 at hz
+  rw [he,map_add,map_add,map_smul,map_smul,map_smul,d₁_b,d₁_u,d₁_d,smul_zero,smul_zero,add_zero,zero_add] at hz
+  have ha : aGen ≠ 0 := fun hh => fundamentalBraid_mixed_ne_zero.1 (congrArg Subtype.val hh)
+  rw [(smul_eq_zero.mp hz).resolve_right ha,zero_smul,zero_add] at he
+  refine ⟨a,(-c) • aGen,?_⟩
+  change d₂ ((-c) • aGen) = a • bGen - z
+  rw [map_smul,d₂_a,he]
+  apply Subtype.ext
+  change (-c) • D = a • B - (a • B + c • D)
+  rw [neg_smul,sub_add_eq_sub_sub,sub_self,zero_sub]
+
+/-- A closed vector is a boundary precisely when its component at the
+reversed middle loading vanishes (Webster v2, Proposition 7.11). -/
+theorem fundamentalBraidCycle_boundary_iff (z : Cut terminal) (hz : fundamentalBraidCutComplex.g z = 0) :
+    (∃ y : Cut middle, fundamentalBraidCutComplex.f y = z) ↔ z.val * E crossedMiddle = 0 := by
+  have hb (y : Cut middle) : (d₂ y).val * E crossedMiddle = 0 := by
+    obtain ⟨c,rfl⟩ := mid_repr y
+    rw [map_smul,d₂_a]
+    change (c • D) * E crossedMiddle = 0
+    rw [smul_mul_assoc,middle_sep.2,smul_zero]
+  constructor
+  · rintro ⟨y,rfl⟩
+    exact hb y
+  · intro hp
+    obtain ⟨a,y,hy⟩ := fundamentalBraidCycle_mod_boundaries z hz
+    have h := hb y
+    change (fundamentalBraidCutComplex.f y : Cut terminal).val * E crossedMiddle = 0 at h
+    rw [hy] at h
+    change (a • B - z.val) * E crossedMiddle = 0 at h
+    rw [sub_mul,smul_mul_assoc,terminal_middle_support.2,hp,sub_zero] at h
+    have ha : a = 0 := (smul_eq_zero.mp h).resolve_right fundamentalBraid_mixed_ne_zero.2
+    rw [ha,zero_smul,zero_sub] at hy
+    exact ⟨-y,by change d₂ (-y) = z; rw [map_neg,show d₂ y = -z from hy,neg_neg]⟩
+
 /-- Homology in the middle term of the fundamental braid-cut resolution
 is the scalar line over ℚ (Webster v2, Proposition 7.11). Its generator
 is the reduced diagram with reversed middle loading at the bottom. -/
 def fundamentalBraidCutComplex_homologyIso :
     fundamentalBraidCutComplex.homology ≅ ModuleCat.of ℚ ℚ := by
-  apply scalarHomologyIso fundamentalBraidCutComplex bGen d₁_b
+  apply scalarHomologyIsoOfSpanningCycle fundamentalBraidCutComplex bGen d₁_b
   · intro a m he
     change d₂ m = a • bGen at he
     obtain ⟨c,rfl⟩ := mid_repr m
@@ -218,18 +275,6 @@ def fundamentalBraidCutComplex_homologyIso :
     have ht := congrArg (· * E crossedMiddle) hh
     simp only [smul_mul_assoc,middle_sep.2,terminal_middle_support.2,smul_zero] at ht
     exact (smul_eq_zero.mp ht.symm).resolve_right fundamentalBraid_mixed_ne_zero.2
-  · intro z hz
-    change ↥(Cut terminal) at z
-    change d₁ z = 0 at hz
-    obtain ⟨a,b,c,he⟩ := term_repr z
-    rw [he,map_add,map_add,map_smul,map_smul,map_smul,d₁_b,d₁_u,d₁_d,smul_zero,smul_zero,add_zero,zero_add] at hz
-    have ha : aGen ≠ 0 := fun hh => fundamentalBraid_mixed_ne_zero.1 (congrArg Subtype.val hh)
-    rw [(smul_eq_zero.mp hz).resolve_right ha,zero_smul,zero_add] at he
-    refine ⟨a,(-c) • aGen,?_⟩
-    change d₂ ((-c) • aGen) = a • bGen - z
-    rw [map_smul,d₂_a,he]
-    apply Subtype.ext
-    change (-c) • D = a • B - (a • B + c • D)
-    rw [neg_smul,sub_add_eq_sub_sub,sub_self,zero_sub]
+  · exact fundamentalBraidCycle_mod_boundaries
 
 end Categorification.Stendhal.FundamentalCorner

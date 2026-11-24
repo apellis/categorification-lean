@@ -5566,6 +5566,10 @@ example := Categorification.Stendhal.labelTwoExteriorEndComplex_exact Q
 
 example := Categorification.Stendhal.labelTwoExteriorEndComplex_epi Q
 
+example := Categorification.Stendhal.labelTwoExteriorCokernel_simple Q
+
+example := Categorification.Stendhal.labelTwoExteriorCokernel_span Q
+
 end NonVacuity.WebsterLabelTwoEndpointTor
 
 namespace NonVacuity.WebsterLocalization

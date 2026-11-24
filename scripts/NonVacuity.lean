@@ -5550,10 +5550,6 @@ example := Categorification.Stendhal.labelTwoExteriorMiddleDifferential_comp_zer
 
 noncomputable example := Categorification.Stendhal.labelTwoExteriorStandardComplex Q
 
-example := Categorification.Stendhal.LabelTwo.labelTwoExteriorMiddleDifferential_injective ℚ
-
-example := Categorification.Stendhal.LabelTwo.labelTwoExteriorStandardComplex_mono_first ℚ
-
 /-- The undotted and dotted terminal columns of the actual outgoing map. -/
 example := Categorification.Stendhal.labelTwo_outgoing_terminal_diagram_columns Q
 
@@ -5563,6 +5559,15 @@ example (a b : ℚ) :=
 
 example (a b : ℚ) :=
   Categorification.Stendhal.LabelTwoEndpointFlag.outgoing_terminal_coefficients_eq_zero Q (a := a) (b := b)
+example := Categorification.Stendhal.LabelTwo.labelTwoExteriorMiddleDifferential_injective ℚ
+
+example := Categorification.Stendhal.LabelTwo.labelTwoExteriorStandardComplex_mono_first ℚ
+
+example := Categorification.Stendhal.LabelTwo.labelTwoExteriorStandardComplex_exact ℚ
+
+example := Categorification.Stendhal.labelTwoExteriorEndComplex_exact Q
+
+example := Categorification.Stendhal.labelTwoExteriorEndComplex_epi Q
 
 end NonVacuity.WebsterLabelTwoEndpointTor
 

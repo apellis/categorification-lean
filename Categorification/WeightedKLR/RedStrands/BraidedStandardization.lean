@@ -3,12 +3,13 @@ Copyright (c) 2026 Alex Ellis. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 -/
 import Mathlib.Logic.Equiv.Fin.Rotate
-import Categorification.WeightedKLR.RedStrands.BraidedStandardDerived
+import Categorification.WeightedKLR.RedStrands.BraidedStandardGrading
 import Categorification.WeightedKLR.RedStrands.BraidedRelabel
 import Categorification.WeightedKLR.RedStrands.BlackCountTransport
 import Categorification.WeightedKLR.RedStrands.ParabolicStandardTensorProj
 import Categorification.WeightedKLR.RedStrands.TwoPieceDecomposition
 import Categorification.WeightedKLR.RedStrands.TwoPieceStandardEquiv
+import Categorification.WeightedKLR.RedStrands.ExteriorStandardGrading
 
 /-!
 # Standardization at the Figure 5 loadings
@@ -16,9 +17,11 @@ import Categorification.WeightedKLR.RedStrands.TwoPieceStandardEquiv
 Webster, arXiv:1309.3796v2, §5.1, Definitions 5.1 and 5.4, and §6.1, proof of Proposition 6.9.
 We compare the right loading models used by the braid with the left-module calculations of
 standardization. Relabelling red strands identifies the corner with the tensor product algebra,
-and horizontal reflection converts the right action to the left action. With the internal
-grading forgotten, the two endpoint comparisons compose with Definition 6.6 evaluated on the
-Figure 5 loading projective.
+and horizontal reflection converts the right action to the left action. The endpoint maps
+preserve the degrees of homogeneous diagram representatives (Definition 4.4), using the
+intrinsic grading of the exterior standard layer. With the internal grading forgotten, the
+two endpoint comparisons compose with Definition 6.6 evaluated on the Figure 5 loading
+projective.
 -/
 
 noncomputable section
@@ -258,6 +261,48 @@ private def twoRedProjectiveStandardizationEquiv (Ω : Fin 2 → I →₀ ℕ) {
     (Y := cycProj Q Ω β u) (Y' := cycProj Q Ω β u) e.symm (LinearEquiv.refl _ _)
   exact (stdLayerEquiv Q Ω hQ rfl f).trans (twoPieceStandardEquiv Q Ω hx u hQ)
 
+private theorem parabolicStandardMap_unit {θ β : Multiset I} (Ω : Fin 2 → I →₀ ℕ)
+    {M M' : FactorModule Q Ω θ β} (f : M.carrier →ₗ[parabolicFactorAlgebra Q Ω θ β] M'.carrier)
+    (n : M.carrier) :
+    parabolicStandardMap Q Ω θ β f (parabolicStandardUnit Q Ω θ β M.carrier n) =
+      parabolicStandardUnit Q Ω θ β M'.carrier (f n) := by
+  let m := KLRAlgebra.oneConcatSubBimod (Q := stendhalQ Q Ω)
+    (ν := (stendhalWeight 1 θ).map (addRedColor 1))
+    (ν' := (stendhalWeight 1 β).map (Sum.map (id : I → I) fun _ : Fin 1 => Fin.last 1))
+  let n₀ : ParabolicInput Q Ω θ β M.carrier := n
+  have h := parabolicStandardMap_mk Q Ω θ β f (BalancedTensor.tmul m n₀)
+  exact h.trans (congrArg Submodule.Quotient.mk (BalancedTensor.mapRight_tmul
+    (parabolicInputHom Q Ω θ β f) m n₀))
+
+private theorem twoRedProjectiveStandardizationEquiv_symm_unit (Ω : Fin 2 → I →₀ ℕ)
+    {θ β : Multiset I} (x : Seq (stendhalWeight 1 θ)) (u : Seq β) :
+    (twoRedProjectiveStandardizationEquiv hQ Ω x (SingleRed.ordered θ x) u).symm
+      (leftStandardUnit Q Ω _ (isRedOrdered_twoPieceLoading (SingleRed.ordered θ x) u)) =
+    exteriorStandardUnit Ω x u := by
+  let hx := SingleRed.ordered θ x
+  let e := leftStandardEquivProjectiveOfMax (Q := Q) (Ω ∘ Fin.castSucc) x hx
+    (fun j _ hj => singleRed_not_lt x j hj)
+  let f := tensorFactorCongr Q Ω
+    (X := oldProj Q Ω θ x hx) (X' := ModuleCat.of _ (leftStandard Q (Ω ∘ Fin.castSucc) x hx))
+    (Y := cycProj Q Ω β u) (Y' := cycProj Q Ω β u) e.symm (LinearEquiv.refl _ _)
+  have hf : f (exteriorInputUnit Ω x u) = twoPieceInputUnit Q Ω hx u := by
+    let X := oldProj Q Ω θ x hx
+    let X' := ModuleCat.of (TensorProductAlgebra k Q (Ω ∘ Fin.castSucc) θ)
+      (leftStandard Q (Ω ∘ Fin.castSucc) x hx)
+    let Y := cycProj Q Ω β u
+    let eK : KMod (k := k) X ≃ₗ[TensorProductAlgebra k Q (Ω ∘ Fin.castSucc) θ]
+        KMod (k := k) X' := e.symm
+    let p : KMod (k := k) X := ⟨seqIdem Q (Ω ∘ Fin.castSucc) x hx, seqIdem_mul_self Q _ x hx⟩
+    let B := CycKLR k Q (fun i => Polynomial.X ^ Ω (Fin.last 1) i) β
+    have h := ExtTensor.congr_tmul (k := k) eK (LinearEquiv.refl B (KMod (k := k) Y)) p (cycUnit Q Ω u)
+    exact h
+  let g := stdLayerEquiv Q Ω hQ rfl f
+  have hu : g (exteriorStandardUnit Ω x u) = twoPieceStandardUnit Q Ω hx u hQ :=
+    (parabolicStandardMap_unit Ω f.toLinearMap (exteriorInputUnit Ω x u)).trans
+      (congrArg (parabolicStandardUnit Q Ω θ β _) hf)
+  exact (congrArg g.symm (twoPieceStandardEquiv_symm_unit Q Ω hx u hQ)).trans
+    ((congrArg g.symm hu.symm).trans (g.symm_apply_apply _))
+
 private theorem twoPieceLoading_vacuumLast_not_lt {θ : Multiset I}
     (x : Seq (stendhalWeight 1 θ)) (u : Seq (0 : Multiset I))
     (j : Seq (stendhalWeight 2 (θ + 0))) (hj : IsRedOrdered j) (hv : ¬ IsViolated j) :
@@ -345,6 +390,191 @@ def loadingProjectiveEquivExteriorStandardization {θ : Multiset I}
 
 end TwoRed
 
+section GradedCoefficients
+open QuantumGroup Categorification.Graded
+attribute [local instance 1100] IsIdempotentElem.instAlgebraCorner_categorification
+
+variable {I k : Type} [DecidableEq I] [Field k] {ℓ : ℕ}
+  {Q : I → I → MvPolynomial (Fin 2) k} {Λ : Fin ℓ → I →₀ ℕ} {ν : Multiset I}
+  {𝔠 : CartanDatum I} (hR : IsRouquierQ 𝔠 Q) (σ : Perm (Fin ℓ))
+
+private abbrev extraRedGrading (Ω : Fin ℓ → I →₀ ℕ) : KLR.GradingDatum (stendhalQ Q Ω) :=
+  stendhalGradingDatum Ω hR.gradingDatum (UDot.di 𝔠)
+    (fun i => (hR.gradingDatum_degX i).trans (UDot.two_mul_di 𝔠 i).symm)
+
+local notation "G" => extraRedGrading hR Λ
+local notation "G'" => extraRedGrading hR (Λ ∘ σ)
+local notation "μ" => stendhalWeight ℓ ν
+local notation "κ" => List.map σ (List.finRange ℓ)
+local notation "F" => SeqRelabel.ofRedPerm (k := k) (Q := Q) (Λ := Λ) (Λ' := Λ ∘ σ)
+  (ν := ν) σ (fun _ => rfl)
+
+private theorem redPermAffine_coaction (a : KLRAlgebra k (stendhalQ Q (Λ ∘ σ)) μ) :
+    (G).coaction (KLRAlgebra.relabelHom F a) =
+      AddMonoidAlgebra.mapAlgHom ℤ (KLRAlgebra.relabelHom F) ((G').coaction a) := by
+  classical
+  induction a using KLRAlgebra.klr_induction with
+  | hr r => simp only [AlgHom.commutes]
+  | hadd a b ha hb => simp only [map_add, ha, hb]
+  | hmul a b ha hb => simp only [map_mul, ha, hb]
+  | he t => simp only [KLRAlgebra.relabelHom_e, GradingDatum.coaction_e,
+      AddMonoidAlgebra.mapAlgHom_single]
+  | hx j =>
+    simp only [KLRAlgebra.relabelHom_x, GradingDatum.coaction_x, map_sum, map_mul,
+      AddMonoidAlgebra.mapAlgHom_single, KLRAlgebra.relabelHom_e]
+    symm
+    apply Fintype.sum_equiv (F).equiv
+    intro t
+    congr 1
+    change (G').degX (t.lbl j) = (G).degX (Sum.map id σ (t.lbl j))
+    cases t.lbl j <;> rfl
+  | hψ j =>
+    simp only [KLRAlgebra.relabelHom_ψ, GradingDatum.coaction_ψ, map_sum, map_mul,
+      AddMonoidAlgebra.mapAlgHom_single, KLRAlgebra.relabelHom_e]
+    symm
+    apply Fintype.sum_equiv (F).equiv
+    intro t
+    congr 1
+    by_cases hj : j + 1 < Multiset.card μ
+    · rw [(G').dψ_of_lt hj, (G).dψ_of_lt hj]
+      change (G').degΨ (t.lbl _) (t.lbl _) =
+        (G).degΨ (Sum.map id σ (t.lbl _)) (Sum.map id σ (t.lbl _))
+      cases t.lbl ⟨j, by omega⟩ <;> cases t.lbl ⟨j + 1, hj⟩ <;> rfl
+    · simp [GradingDatum.dψ, hj]
+
+private theorem redPermAffine_mem_grade {n : ℤ} {a : KLRAlgebra k (stendhalQ Q (Λ ∘ σ)) μ}
+    (ha : a ∈ (G').grade μ n) : KLRAlgebra.relabelEquiv F a ∈ (G).grade μ n := by
+  change KLRAlgebra.relabelHom F a ∈ (G).grade μ n
+  rw [GradingDatum.mem_grade, redPermAffine_coaction hR σ, (G').mem_grade.mp ha,
+    AddMonoidAlgebra.mapAlgHom_single]
+
+private theorem tensorFlip_mem_exteriorGrade {n : ℤ} {a : TensorProductAlgebra k Q (Λ ∘ σ) ν}
+    (ha : a ∈ tensorProductGrade (G') ν n) : tensorFlip a ∈ tensorProductGrade (G') ν n := by
+  obtain ⟨b, hb, rfl⟩ := stendhalTensorProjection_grade_lift _ (G') ν ha
+  rw [tensorFlip_projection]
+  apply stendhalTensorProjection_mem_grade _ (G') ν
+  exact (G').hflip_mem_grade (by
+    rintro (i | i) (j | j) <;> try rfl
+    exact congrArg Neg.neg (𝔠.symm i j)) hb
+
+local notation "V" => ViolQuotient k Q Λ ν
+local notation "C" => ViolOrderCorner (k := k) (Q := Q) (Λ := Λ) (ν := ν) κ
+
+private theorem leftCoefficientEquiv_mem_grade
+    {ρ : Perm (Fin (Multiset.card μ)) → List ℕ} (hρ : TypeA.IsReducedChoice ρ) (hQ : KLRSymm Q)
+    {n : ℤ} (c : C) (hc : c.val ∈ violAuxiliaryGrade (ν := ν) G n) :
+    leftCoefficientEquiv hρ hQ σ (op c) ∈ tensorProductGrade (G') ν n := by
+  obtain ⟨b, hb, hcb⟩ := Submodule.mem_map.1 hc
+  obtain ⟨a, ha, hab⟩ := Submodule.mem_map.1 hb
+  let l := KLRAlgebra.relabelEquiv F
+  have hl : PreservesGrading ((G').grade μ) ((G).grade μ) l.toLinearMap :=
+    fun _ _ h => redPermAffine_mem_grade hR σ h
+  have ha' : l.symm a ∈ (G').grade μ n :=
+    (GradedEquiv.ofPreserves l.toLinearEquiv hl).symm_map_mem' ha
+  let E := violCornerRedPermEquiv (k := k) (Q := Q) (ν := ν)
+    (Λ' := Λ ∘ σ) (Λ := Λ) σ (fun _ => rfl) (List.finRange ℓ)
+  let b' := ofKLR k Q (Λ ∘ σ) ν (l.symm a)
+  let R := redPermAlgEquiv (k := k) (Q := Q) (ν := ν) (Λ := Λ) (Λ' := Λ ∘ σ) σ (fun _ => rfl)
+  have hb' : R b' = b :=
+    (relabelAlgEquiv_ofKLR F (ofRedPerm_isRight σ (fun _ => rfl)) (l.symm a)).trans
+      ((congrArg (ofKLR k Q Λ ν) (l.apply_symm_apply a)).trans hab)
+  have he : E (violCornerHom k Q (Λ ∘ σ) ν (cornerMk b')) = c := by
+    apply Subtype.ext
+    refine (violRedPermEquiv_violMk (Λ := Λ) σ (fun _ => rfl) _).trans ?_
+    rw [cornerMk_val]
+    change violMk k Q Λ ν (R (redProj k Q (Λ ∘ σ) ν (List.finRange ℓ) * b' * _)) = _
+    rw [map_mul R, map_mul R, show R (redProj k Q (Λ ∘ σ) ν (List.finRange ℓ)) =
+      redProj k Q Λ ν κ from redPermAlgEquiv_redProj σ (fun _ => rfl) _, hb', map_mul, map_mul,
+      show violMk k Q Λ ν b = c.val from hcb,
+      corner_mul_left (isIdempotentElem_violMk_redProj k Q Λ ν κ),
+      corner_mul_right (isIdempotentElem_violMk_redProj k Q Λ ν κ)]
+  apply tensorFlip_mem_exteriorGrade hR σ
+  change violCornerEquiv hρ hQ (E.symm c) ∈ tensorProductGrade (G') ν n
+  rw [← he, RingEquiv.symm_apply_apply, violCornerEquiv_violCornerHom]
+  refine Graded.mem_map_of_mem _ (TensorProductAlgebra.mk Q (Λ ∘ σ) ν).toLinearMap
+    (x := identityCornerHom k Q (Λ ∘ σ) ν (cornerMk b')) ?_
+  change toAllOrders k Q (Λ ∘ σ) ν (redProj k Q (Λ ∘ σ) ν (List.finRange ℓ) * b' * _) ∈
+    allOrdersGrade (G') ν n
+  rw [map_mul, map_mul, redProj, toAllOrders_redIdem]
+  change _ * toAllOrders k Q (Λ ∘ σ) ν (ofKLR k Q (Λ ∘ σ) ν (l.symm a)) * _ ∈ _
+  rw [toAllOrders_ofKLR]
+  have hp : StendhalAlgebraAllOrders.redOrderedIdem k Q (Λ ∘ σ) ν ∈ allOrdersGrade (G') ν 0 :=
+    Submodule.sum_mem _ fun t _ => Graded.mem_map_of_mem _ _ ((G').e_mem_grade t)
+  have hz : StendhalAlgebraAllOrders.ofKLR k Q (Λ ∘ σ) ν (l.symm a) ∈
+      allOrdersGrade (G') ν n := Graded.mem_map_of_mem _ _ ha'
+  simpa only [zero_add, add_zero] using
+    SetLike.GradedMul.mul_mem (SetLike.GradedMul.mul_mem hp hz) hp
+
+end GradedCoefficients
+
+section GradedExteriorEndpoints
+open QuantumGroup
+
+variable {I k : Type} [DecidableEq I] [Field k]
+
+/-- On a homogeneous diagram representative, the loading-standard comparison preserves the
+intrinsic grading of the ordered quotient in Webster, arXiv:1309.3796v2, §5.1, Definition 5.4.
+Vacuum in the first factor gives the upper endpoint of §6.1, Proposition 6.9, Figure 5. -/
+theorem loadingStandardEquivExteriorStandardization_mk_mem_grade
+    {Q : I → I → MvPolynomial (Fin 2) k} {𝔠 : CartanDatum I} (hR : IsRouquierQ 𝔠 Q)
+    (hQ : KLRSymm Q) {Λ : Fin 2 → I →₀ ℕ} (σ : Perm (Fin 2)) {ν θ β : Multiset I}
+    {ρ : Perm (Fin (Multiset.card (stendhalWeight 2 ν))) → List ℕ} (hρ : TypeA.IsReducedChoice ρ)
+    (h : θ + β = ν) (x : Seq (stendhalWeight 1 θ)) (u : Seq β)
+    (y : violCorner k Q Λ ν
+      (Seq.redPerm σ (Seq.cast (congrArg (stendhalWeight 2) h) (twoPieceLoading θ β x u)))
+      (List.map σ (List.finRange 2)))
+    {n : ℤ} (hy : y.val ∈ violAuxiliaryGrade (ν := ν) (extraRedGrading hR Λ) n) :
+    loadingStandardEquivExteriorStandardization (Λ₂ := Λ) (σ₂ := σ) hQ hρ h x u
+      (Submodule.Quotient.mk y) ∈
+      exteriorStandardGrade (Λ ∘ σ) hR (extraRedGrading hR (Λ ∘ σ)) hQ x u h n := by
+  subst ν
+  let Ω := Λ ∘ σ
+  let G := extraRedGrading hR Ω
+  let hx := SingleRed.ordered θ x
+  let hs := isRedOrdered_twoPieceLoading hx u
+  let F := leftCoefficientEquiv (Λ := Λ) hρ hQ σ
+  let p := diagonalCutProjectiveEquiv (Λ := Λ) σ hs y
+  let z := loadingProjectiveLeftEquiv (Λ := Λ) hρ hQ σ hs p
+  have hd : p.val.val = y.val := rfl
+  have hF : F (op p.val) ∈ tensorProductGrade G (θ + β) n :=
+    leftCoefficientEquiv_mem_grade hR σ hρ hQ p.val (by rw [hd]; exact hy)
+  change (twoRedProjectiveStandardizationEquiv hQ Ω x hx u).symm
+    (Submodule.Quotient.mk z) ∈ _
+  rw [leftStandard_mk_eq_smul_unit _ hs z, LinearEquiv.map_smul,
+    twoRedProjectiveStandardizationEquiv_symm_unit hQ Ω x u]
+  let M := exteriorProjectiveStd hQ Ω rfl x hx u
+  let w : M := F (op p.val) • (show M from exteriorStandardUnit Ω x u)
+  change w ∈ _
+  have hm := exteriorStandardGrade_smul Ω hR G hQ x u hF
+    (exteriorStandardUnit_mem_grade Ω hR G hQ x u)
+  rw [add_zero] at hm
+  exact hm
+
+/-- At Webster's lower Figure 5 endpoint (arXiv:1309.3796v2, §6.1, Proposition 6.9), the
+loading projective comparison sends a homogeneous diagram of degree `n` to the intrinsic
+piece of degree `n` of the exterior standardization with last-factor vacuum. -/
+theorem loadingProjectiveEquivExteriorStandardization_mem_grade
+    {Q : I → I → MvPolynomial (Fin 2) k} {𝔠 : CartanDatum I} (hR : IsRouquierQ 𝔠 Q)
+    (hQ : KLRSymm Q) {Λ : Fin 2 → I →₀ ℕ} (σ : Perm (Fin 2)) {ν θ : Multiset I}
+    {ρ : Perm (Fin (Multiset.card (stendhalWeight 2 ν))) → List ℕ} (hρ : TypeA.IsReducedChoice ρ)
+    (h : θ + 0 = ν) (x : Seq (stendhalWeight 1 θ)) (u : Seq (0 : Multiset I))
+    (p : rIdeal (violLoadingIdem (k := k) (Q := Q) (Λ := Λ) (redWord_relabel σ
+      (isRedOrdered_seqCast (congrArg (stendhalWeight 2) h)
+        (isRedOrdered_twoPieceLoading (SingleRed.ordered θ x) u)))))
+    {n : ℤ} (hp : p.val.val ∈ violAuxiliaryGrade (ν := ν) (extraRedGrading hR Λ) n) :
+    loadingProjectiveEquivExteriorStandardization (Λ₂ := Λ) (σ₂ := σ) hQ hρ h x u p ∈
+      exteriorStandardGrade (Λ ∘ σ) hR (extraRedGrading hR (Λ ∘ σ)) hQ x u h n := by
+  subst ν
+  let hs := isRedOrdered_twoPieceLoading (SingleRed.ordered θ x) u
+  let y := (diagonalCutProjectiveEquiv (Λ := Λ) σ hs).symm p
+  have he : loadingProjectiveEquivExteriorStandardization (Λ₂ := Λ) (σ₂ := σ) hQ hρ rfl x u p =
+      loadingStandardEquivExteriorStandardization (Λ₂ := Λ) (σ₂ := σ) hQ hρ rfl x u
+        (Submodule.Quotient.mk y) := rfl
+  rw [he]
+  exact loadingStandardEquivExteriorStandardization_mk_mem_grade hR hQ σ hρ rfl x u y hp
+
+end GradedExteriorEndpoints
+
 local notation "swapRed" => Equiv.swap (0 : Fin 2) 1
 
 section FigureFiveGeometry
@@ -356,11 +586,15 @@ private def emptyBlack : Seq (0 : Multiset I) := KLRAlgebra.Seq.ofList [] (by si
 local notation "vacuum" => SingleRed.insertWord 0 (emptyBlack (I := I))
 local notation "m₂" => Multiset.card (stendhalWeight 2 ν)
 
-private def figureFiveLower (u : Seq ν) : Seq (stendhalWeight 2 ν) :=
+/-- Webster, arXiv:1309.3796v2, Figure 5: the lower loading, with all black strands between
+the two reds in the order `[0, 1]`. -/
+def figureFiveLower (u : Seq ν) : Seq (stendhalWeight 2 ν) :=
   Seq.redPerm 1 (Seq.cast (congrArg (stendhalWeight 2) (add_zero ν))
     (twoPieceLoading ν 0 (SingleRed.insertWord ν u) emptyBlack))
 
-private def figureFiveUpper (u : Seq ν) : Seq (stendhalWeight 2 ν) :=
+/-- Webster, arXiv:1309.3796v2, Figure 5: the upper loading, with red order `[1, 0]` and all
+black strands to its right. -/
+def figureFiveUpper (u : Seq ν) : Seq (stendhalWeight 2 ν) :=
   Seq.redPerm swapRed (Seq.cast (congrArg (stendhalWeight 2) (zero_add ν))
     (twoPieceLoading 0 ν vacuum u))
 
@@ -455,6 +689,45 @@ private theorem figureFive_edge (u : Seq ν) :
       exact coe_finRotate_of_ne_last (fun h => hi (congrArg Fin.val h))
     rw [inv_inv]
     exact hshift figureFive_pos j hj
+
+open QuantumGroup in
+/-- Webster, arXiv:1309.3796v2, §6.1 Proposition 6.9, Figure 5, for an arbitrary black word.
+The same diagram used by the ungraded loading comparison is homogeneous in the braid cut,
+with the internal degree opposite to Webster's printed shift. -/
+theorem figureFive_mem_cutGrade_word {k : Type*} [CommRing k] [DecidableEq I] [Fintype I]
+    {Q : I → I → MvPolynomial (Fin 2) k} {Λ : Fin 2 → I →₀ ℕ}
+    (C : CartanDatum I) (hQ : IsRouquierQ C Q) {H : Type*} [AddCommGroup H] [Module ℂ H]
+    (P : Matrix.Realization (UDot.A C) ℂ H) (B : LinearMap.BilinForm ℂ (Module.Dual ℂ H))
+    (η : Fin 2 → Module.Dual ℂ H)
+    (hB : ∀ i x, B (P.root i) x = (UDot.di C i : ℂ) * x (P.coroot i))
+    (hΛ : ∀ j i, η j (P.coroot i) = (Λ j i : ℂ)) (hSym : B.IsSymm)
+    {ρ : Perm (Fin m₂) → List ℕ} (hρ : TypeA.IsReducedChoice ρ) (u : Seq ν) :
+    ∃ y : violCorner k Q Λ ν (figureFiveLower u) [1, 0],
+      y.1 = violMk k Q Λ ν (ofKLR k Q Λ ν
+        (KLRAlgebra.ψw (ρ (finRotate m₂)⁻¹) * KLRAlgebra.e (figureFiveUpper u))) ∧
+      y ∈ figureFiveCutGrade C hQ B η (figureFiveLower u) 1 0
+        (-B (η 0 - (ν.map P.root).sum) (η 1)) :=
+  figureFive_mem_cutGrade C hQ B η P hB hΛ hSym hρ figureFive_one_lt
+    (figureFive_upper_zero u) (figureFive_upper_one u) (figureFive_edge u)
+
+open QuantumGroup Categorification.Graded in
+/-- Webster, arXiv:1309.3796v2, §6.1 Proposition 6.9, Figure 5, on the two loading models.
+For every black word, the shifted upper loading standard is graded-isomorphic to the cut
+of the braid at the lower loading, by left multiplication by the Figure 5 diagram. -/
+def figureFiveGradedLoadingEquiv_word {k : Type*} [CommRing k] [DecidableEq I] [Fintype I]
+    {Q : I → I → MvPolynomial (Fin 2) k} {Λ : Fin 2 → I →₀ ℕ}
+    (C : CartanDatum I) (hQ : IsRouquierQ C Q) {H : Type*} [AddCommGroup H] [Module ℂ H]
+    (P : Matrix.Realization (UDot.A C) ℂ H) (B : LinearMap.BilinForm ℂ (Module.Dual ℂ H))
+    (η : Fin 2 → Module.Dual ℂ H)
+    (hB : ∀ i x, B (P.root i) x = (UDot.di C i : ℂ) * x (P.coroot i))
+    (hΛ : ∀ j i, η j (P.coroot i) = (Λ j i : ℂ)) (hSym : B.IsSymm)
+    {ρ : Perm (Fin m₂) → List ℕ} (hρ : TypeA.IsReducedChoice ρ) (u : Seq ν) :
+    Categorification.Graded.shift (violLoadingGrade (Λ := Λ) C hQ (figureFiveUpper u) [1, 0])
+        (-B (η 0 - (ν.map P.root).sum) (η 1))
+      ≃ᵍ[(ViolOrderCorner (k := k) (Q := Q) (Λ := Λ) (ν := ν) [1, 0])ᵐᵒᵖ]
+      figureFiveCutGrade (Λ := Λ) C hQ B η (figureFiveLower u) 1 0 :=
+  figureFiveGradedLoadingEquiv C hQ hρ (fun i j hij => (hQ.symm i j hij).symm) figureFive_one_lt
+    (figureFive_upper_zero u) (figureFive_upper_one u) (figureFive_edge u) P B η hB hΛ hSym
 
 end FigureFiveGeometry
 

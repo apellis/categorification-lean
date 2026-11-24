@@ -6448,3 +6448,50 @@ example : IsReduced 6 (canWord 6 u ++ [3,1,2]) ∧ wordProd 6 (canWord 6 u ++ [3
   exact hword
 
 end IntervalPBWFixture
+
+noncomputable section
+open Categorification.KLR Categorification.TypeA Categorification.Stendhal Equiv
+open KLRAlgebra BraidedStendhalAlgebra MvPolynomial
+
+namespace NonVacuity.IntervalCoordinateFixture
+
+private abbrev ν : Multiset Unit := {(),()}
+private abbrev μ := stendhalWeight 4 ν
+private abbrev Q : Unit → Unit → MvPolynomial (Fin 2) ℤ := fun _ _ => 1
+private abbrev Λ : Fin 4 → Unit →₀ ℕ := fun _ => Finsupp.single () 1
+private abbrev Z := stendhalQ Q Λ
+private theorem hQ : KLRSymm Z := stendhalQ_symm Q Λ fun _ _ _ => (map_one _).symm
+private theorem h : 1+(4+1)=μ.card := by decide
+private def s : Seq μ := KLRAlgebra.Seq.ofList [.inr 0,.inr 2,.inl (),.inl (),.inr 1,.inr 3] (by decide)
+private def u : Perm (Fin μ.card) := sadj μ.card 0 * sadj μ.card 4
+private theorem hu : StrictMono (fun i : Fin 4 => u ⟨1+i.val,by have := h; omega⟩) := by
+  intro i j hij
+  fin_cases i <;> fin_cases j <;> first | exact False.elim (absurd hij (by decide)) | decide
+
+private abbrev R := KLRAlgebra ℤ Z μ
+private abbrev M := intervalPBWSpan Z (ν := μ) (p := 1) (n := 4)
+private def z : M := ⟨ψ 2 * e s,by
+  have hv := intervalPBWSpan_polynomial (ν := μ) (p := 1) Z s (sadj 4 1) (1 : MvPolynomial (Fin μ.card) ℤ)
+  rw [canWord_sadj (by decide : 1+1 < 4), map_one, mul_one] at hv
+  simpa only [shiftWord,List.map_cons,List.map_nil,ψw_cons,ψw_nil,mul_one] using hv⟩
+
+-- Even when the two internal black strands have the same colour, the exterior
+-- coordinate recovers their crossing with coefficient one.
+example : intervalPBWCoefficient Z h hQ u (ψw (canWord μ.card u) * (ψ 2 * e s)) = z :=
+  (intervalPBWCoefficient_mul Z h hQ u u hu z).trans (ite_eq_left rfl)
+
+-- Their nilHecke square vanishes as a single local exit relation in the ambient algebra.
+example : ψw (canWord μ.card u) * (z.val * (ψ 2 * e s)) = 0 := by
+  have he : sadj μ.card 2 • s = s := by decide
+  have cut : (e s * (ψ 2 * e s) : R) = ψ 2 * e s := by
+    have slide := ψ_mul_e (k := ℤ) (Q := Z) 2 s
+    rw [he] at slide
+    rw [slide, ← mul_assoc, e_mul_self]
+  have sq : (ψ 2 * ψ 2 * e s : R) = 0 := by
+    rw [KLRAlgebra.ψ_sq 2 (by decide), ite_eq_left (by decide)]
+  change ψw _ * (ψ 2 * e s * (ψ 2 * e s)) = _
+  rw [mul_assoc (ψ 2) (e s), cut, ← mul_assoc (ψ 2), sq, mul_zero]
+
+end NonVacuity.IntervalCoordinateFixture
+
+end

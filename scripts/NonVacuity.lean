@@ -8572,3 +8572,23 @@ example [DG.HasDerivedCategory.{0,0} Sᵐᵒᵖ] [DG.HasDerivedCategory.{0,0} T�
   fiveSlotRightmost_partialStandard_braid_homology_vanish_exchanged (k := ℚ) C Λ 1 (by decide)
 
 end NonVacuity.WebsterFiveSlotRightmostDerived
+
+namespace NonVacuity.WebsterFiveSlotLastRedTransport
+
+open Categorification Categorification.KLR Categorification.Stendhal BraidedStendhalAlgebra
+
+private noncomputable abbrev Q : Unit → Unit → MvPolynomial (Fin 2) (ZMod 4) := fun _ _ => 0
+private noncomputable abbrev Λ : Fin 3 → Unit →₀ ℕ := fun r => Finsupp.single () (r.val + 2)
+
+example := FiveSlotFlag.fiveSlotNearby_toCentral_cancel_on_orderCorner Q Λ (fun _ _ _ => rfl)
+
+example := FiveSlotFlag.fiveSlotLastRed_firstCrossing_cancel Q Λ (fun _ _ _ => rfl)
+
+example := FiveSlotFlag.fiveSlotLastRed_secondCrossing_mem_leftExtremeImage Q Λ (fun _ _ _ => rfl)
+
+example (a : rIdeal (orderedLoadingIdem Q Λ (fiveSlotRightLoading 2))) :=
+  fiveSlotLastRedKernel_mem_iff_two_nearby_factors Q Λ (fun _ _ _ => rfl) a
+
+example := fiveSlotLastRedKernel_equiv_nilHeckeRangeProd Q Λ
+
+end NonVacuity.WebsterFiveSlotLastRedTransport

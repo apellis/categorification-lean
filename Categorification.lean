@@ -1092,6 +1092,7 @@ import Categorification.WeightedKLR.Deformation
 import Categorification.WeightedKLR.RedStrands.BraidingFunctor
 import Categorification.WeightedKLR.RedStrands.BraidingAuxiliaryDerived
 import Categorification.WeightedKLR.RedStrands.AdjacentRedSwapNormalization
+import Categorification.WeightedKLR.RedStrands.BraidingWeightDecomposition
 import Categorification.WeightedKLR.RedStrands.TwoRedSwapNormalization
 import Categorification.WeightedKLR.RedStrands.CrawleyBoevey
 import Categorification.WeightedKLR.RedStrands.CrawleyBoeveyIn

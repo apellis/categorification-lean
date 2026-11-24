@@ -1009,6 +1009,12 @@ graded fundamental cup and cap over the rationals. The cup has internal
 shift one and cohomological shift minus one
 (`Stendhal.FundamentalCorner.gradedFundamentalCup` and `gradedFundamentalCap`).
 
+A graded diagram coefficient gives a dg bimodule of the two weight categories
+(`diagramWeightBimodule`). Its derived tensor is computed on a K-projective
+representative of the input (`diagramWeightDerivedTensorObjIso`). K-projectivity
+of the left weight modules also gives the derived Hom
+(`diagramWeightDerivedHom`).
+
 Definition 7.4 has cup and cap coefficient models in the ungraded derived
 categories, with a specified cohomological shift on the cup and a finite
 dimensional ordinary tensor-Hom comparison preserving the module action

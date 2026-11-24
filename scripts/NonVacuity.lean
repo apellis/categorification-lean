@@ -5571,6 +5571,18 @@ example := Categorification.Stendhal.LabelTwo.labelTwoLeftExteriorDecomposition 
 
 example := Categorification.Stendhal.LabelTwo.labelTwoOutgoing_degree_two ℚ
 
+example := Categorification.Stendhal.LabelTwo.labelTwoRightExteriorDecomposition ℚ
+
+example := Categorification.Stendhal.LabelTwo.labelTwoIncoming_degree_two ℚ
+
+example := Categorification.Stendhal.LabelTwo.labelTwoNormalizedIncoming_injective ℚ
+
+example := Categorification.Stendhal.LabelTwo.labelTwoNormalizedCrossings_exact ℚ
+
+example := Categorification.Stendhal.LabelTwo.labelTwoShiftedIncoming_preservesGrading ℚ
+
+example := Categorification.Stendhal.LabelTwo.labelTwoShiftedOutgoing_preservesGrading ℚ
+
 example := Categorification.Stendhal.labelTwoExteriorEndComplex_exact Q
 
 example := Categorification.Stendhal.labelTwoExteriorEndComplex_epi Q
@@ -8647,6 +8659,33 @@ example [DG.HasDerivedCategory.{0, 0} Tᵐᵒᵖ] [DG.HasDerivedCategory.{0, 0} 
 
 end NonVacuity.WebsterFiveSlotThreeTopDerived
 
+noncomputable section
+
+namespace NonVacuity.WebsterProjectiveKernelBraidAmplitude
+
+open Categorification.KLR Categorification.Stendhal BraidedStendhalAlgebra MvPolynomial DG
+open scoped DG.DegreeZero
+
+attribute [local instance 1100] IsIdempotentElem.instAlgebraCorner_categorification
+attribute [local instance 1200] Ring.toIntAlgebra
+
+private def Q : Unit → Unit → MvPolynomial (Fin 2) (ZMod 4) := fun _ _ => 0
+private def Λ : Fin 3 → Unit →₀ ℕ := fun r => Finsupp.single () (r.val + 1)
+private def t : Categorification.KLR.Seq (stendhalWeight 3 ({()} : Multiset Unit)) :=
+  ⟨![.inr 0, .inr 1, .inr 2, .inl ()], by decide⟩
+
+local instance (order : List (Fin 3)) : DG.HasDerivedCategory.{0, 0}
+    (isIdempotentElem_violMk_redProj (ZMod 4) Q Λ ({()} : Multiset Unit) order).Cornerᵐᵒᵖ :=
+  DG.HasDerivedCategory.small _
+
+example := blockPartialStandard_braid_homology_vanish_of_projective_kernel_off_two_degrees
+  Q Λ t 0 1 [1, 0, 2]
+  (firstWeight_blockLoadingKernel_projective () Q Λ 0 1 t (fun _ _ _ => rfl))
+  (-2) (by decide) (by decide)
+
+end NonVacuity.WebsterProjectiveKernelBraidAmplitude
+end
+
 namespace NonVacuity.WebsterFiveSlotBoundedSpectator
 
 open Categorification.KLR Categorification.Stendhal Categorification.QuantumGroup
@@ -9259,6 +9298,19 @@ noncomputable example := fundamentalBraidDerivedHeadHMinusOne.{1}
 example := fundamentalBraidDerivedHead_isZero.{1} 0 (by decide)
 
 end NonVacuity.WebsterFundamentalBraidDerivedHead
+
+namespace NonVacuity.WebsterFundamentalBraidGradedSource
+open CategoryTheory DG Categorification.Stendhal Categorification.Stendhal.FundamentalCorner
+
+private theorem orderedMiddle : IsRedOrdered middle := by unfold IsRedOrdered; decide +kernel
+
+noncomputable example := fundamentalBraidSourceLoadingIso middle orderedMiddle 2
+
+example := fundamentalBraidSourceLoading_isKProjective terminal terminal_ordered 1
+
+example := fundamentalBraidSourceGradedResolution ⟨0⟩
+
+end NonVacuity.WebsterFundamentalBraidGradedSource
 end
 
 namespace NonVacuity.WebsterCupRHomRegular
@@ -9560,6 +9612,21 @@ example := diagramWeightOrdinaryProjection_tmul G G leftAction rightAction leftA
   (⟨0⟩ : QWeight) (⟨1⟩ : QWeight)
   (⟨1, InDegreeZero.ring_mem_grading_zero (1 : ℚ)⟩ : G 0)
   (⟨1, InDegreeZero.ring_mem_grading_zero (1 : ℚ)⟩ : G 0)
+
+private abbrev rationalCoefficient := diagramWeightBimodule G leftAction rightAction
+
+private abbrev rationalRight := rationalCoefficient.right (⟨0⟩ : QWeight)
+
+private abbrev rationalLeft := rationalCoefficient.left (⟨0⟩ : QWeight)
+
+example :=
+  catTensorCohomologyZeroEquivOfQuasiIso (L := rationalRight)
+    (fun _ => ⟨InDegreeZero.mem_grading_zero, InDegreeZero.d_apply _⟩)
+    (fun _ => ⟨InDegreeZero.mem_grading_zero, InDegreeZero.d_apply _⟩)
+    (fun _ {_} _ => InDegreeZero.d_apply _ _)
+    (𝟙 rationalLeft) (CatModule.IsQuasiIso.of_isIso _)
+    (fun {_ _} g => WeightCategory.mem_grading_iff.mpr
+      (InDegreeZero.ring_mem_grading_zero g.val))
 
 end
 
@@ -10038,6 +10105,20 @@ noncomputable example :=
     (k := ℚ) (P := fun _ _ => 0) (P' := fun _ _ => 1)
     (fun _ : Fin 2 => Finsupp.single () 2) ({(), ()} : Multiset Unit)
 
+open Categorification Categorification.KLR Categorification.Stendhal
+
+attribute [local instance 1100] IsIdempotentElem.instAlgebraCorner_categorification
+
+noncomputable example (s : KLR.Seq (stendhalWeight 2 ({(), ()} : Multiset Unit)))
+    (hs : IsRedOrdered s) :=
+  leftStandardRestrictedEquiv (fun _ : Fin 2 => Finsupp.single () 2)
+    (tensorProductUnitParameterEquiv (k := ℚ) (P := fun _ _ => 0) (P' := fun _ _ => 1)
+      (fun _ : Fin 2 => Finsupp.single () 2) ({(), ()} : Multiset Unit)).toRingEquiv
+    (fun t ht => tensorProductOffDiagonalEquiv_e
+      (Q := fun _ : Unit => fun _ => (0 : MvPolynomial (Fin 2) ℚ)) (Q' := fun _ _ => 1)
+      (Λ := fun _ : Fin 2 => Finsupp.single () 2)
+      (fun i j hij => (hij (Subsingleton.elim i j)).elim) t ht) s hs
+
 end NonVacuity.WebsterUnitParameters
 
 namespace NonVacuity.WebsterGradedTerminalStandard
@@ -10268,6 +10349,25 @@ private abbrev rankOneStandardGrade := degreeZeroGrading (S false)
 private abbrev rankOneDifferential :=
   gradedLoadingResolutionChainMap data false rankOneScalarGrade mulGrade eGrade eIdem
     aboveTrans rankOneStandardGrade quotientGrade
+
+open scoped DG.DegreeZero
+
+local instance instOrderedTransportRationalInternalGrading : InternalGrading ℚ :=
+  scalarInternalGrading ℚ
+
+private theorem nonzeroQuotientGrade ⦃j : ℤ⦄ ⦃x : P⦄ (hx : x.val ∈ degreeZeroGrading ℚ j) :
+    data.quotient true x ∈ degreeZeroGrading (S true) j := by
+  change x ∈ degreeZeroGrading P j
+  rcases (mem_degreeZeroGrading_iff ℚ).mp hx with h | h
+  · exact (mem_degreeZeroGrading_iff P).mpr (Or.inl h)
+  · exact (mem_degreeZeroGrading_iff P).mpr (Or.inr (Subtype.ext h))
+
+example : (data.transport (RingEquiv.refl ℚ)).quotient true
+    (⟨1, one_mul 1⟩ : P) ∈
+    transportedStandardGrading (RingEquiv.refl ℚ) true (degreeZeroGrading (S true)) 0 :=
+  data.transport_quotient_mem_weight (RingEquiv.refl ℚ) true
+    (degreeZeroGrading (S true)) (fun h => h) (fun h => nonzeroQuotientGrade h)
+    (mem_degreeZeroGrading_zero ℚ 1)
 
 -- The rank-one example has a nonzero higher kernel in degree zero.
 example : Function.Exact (rankOneDifferential 0) (data.quotient false) :=

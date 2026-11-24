@@ -171,4 +171,81 @@ theorem exists_interleavedKernelColumn_exits (hQ : KLRSymm Q) {L M : List (Fin �
     z = BalancedTensor.tmul x (interleavedLeg Q Λ s t _ hl) + BalancedTensor.tmul y (interleavedLeg Q Λ s t _ hr) :=
   gather_two (S := T) _ _ (two_generators Q Λ s j hj t a b hQ ht hb ha hl hr) z
 
+section ViolatedRelations
+local notation "A" => BraidedStendhalAlgebra k Q Λ ν
+local notation "mk" => violMk k Q Λ ν
+local notation "pAt" => fun v : KLR.Seq μ => raw (e v)
+local notation "L₀" => raw (leg [j+1,j])
+local notation "R₀" => raw (leg [j,j+1])
+local notation "l₀" => endAt [j+1,j]
+local notation "r₀" => endAt [j,j+1]
+
+private theorem leg_support (w : List ℕ) : pAt (endAt w) * raw (leg w) = raw (leg w) ∧
+    raw (leg w) * pAt s = raw (leg w) := by
+  constructor
+  · rw [← map_mul, ← mul_assoc, e_mul_ψw, inv_smul_smul, mul_assoc, e_mul_self]
+  · rw [← map_mul, mul_assoc, e_mul_self]
+
+/-- In the interleaved column every globally violated stack is a sum of the two
+exits with *both coefficients globally violated*. The violation can be supplied by
+an exterior black: neither exit is required to be a descent to every violated loading.
+Webster v2, §6.1, Prop. 6.4 and the cut following (6.21) in Lemma 6.8. -/
+theorem exists_violated_interleaved_exits (hQ : KLRSymm Q) {L M : List (Fin ℓ)}
+    (ht : redWord t = L ++ a :: b :: M) (hb : s.lbl ⟨j,by omega⟩ = .inr b)
+    (ha : s.lbl ⟨j+2,hj⟩ = .inr a) (z : A) (hz : mk z = 0) :
+    ∃ x y : A, mk x = 0 ∧ mk y = 0 ∧ pAt t * z * pAt s = x * L₀ + y * R₀ := by
+  let words : IsReducedChoice (canWord m) := fun w => ⟨isReduced_canWord _ w,wordProd_canWord _ w⟩
+  have hv := redProj_mul_mem_violSpan words hQ (redWord t) ((violMk_eq_zero_iff z).1 hz)
+  suffices H : ∀ v ∈ violSpan k Q Λ ν (redWord t),
+      ∃ x y : A, mk x = 0 ∧ mk y = 0 ∧ pAt t * v * pAt s = x * L₀ + y * R₀ by
+    have cut : pAt t * redProj k Q Λ ν (redWord t) = pAt t :=
+      (e_mul_redProj _ _).trans (ite_eq_left rfl)
+    simpa only [← mul_assoc,cut] using H _ hv
+  intro v hv
+  induction hv using Submodule.span_induction with
+  | zero => exact ⟨0,0,map_zero _,map_zero _,by simp⟩
+  | add v w _ _ hv hw =>
+    obtain ⟨x,y,hx,hy,he⟩ := hv; obtain ⟨c,d,hc,hd,hf⟩ := hw
+    exact ⟨x+c,y+d,by rw [map_add,hx,hc,zero_add],by rw [map_add,hy,hd,zero_add],by
+      rw [mul_add,add_mul,he,hf,add_mul,add_mul]; abel⟩
+  | smul c v _ hv =>
+    obtain ⟨x,y,hx,hy,he⟩ := hv
+    exact ⟨c • x,c • y,by rw [map_smul,hx,smul_zero],by rw [map_smul,hy,smul_zero],by
+      rw [mul_smul_comm,smul_mul_assoc,he,smul_add,smul_mul_assoc,smul_mul_assoc]⟩
+  | mem v hv =>
+    obtain ⟨u,i,d,hi,ho,rfl⟩ := hv
+    obtain ⟨x,y,he⟩ := exists_interleavedColumn_exits Q Λ s j hj hQ hb ha i (ho.trans ht) d
+    let g := pAt t * u * pAt i
+    have hg : mk g = 0 := by simp only [g,map_mul,violMk_e hi,mul_zero]
+    have hc : g * (pAt i * d * pAt s) = pAt t * (u * pAt i * d) * pAt s := by
+      simp only [g,mul_assoc,← mul_assoc (pAt i) (pAt i),← map_mul raw,e_mul_self]
+    exact ⟨g*x,g*y,by rw [map_mul,hg,zero_mul],by rw [map_mul,hg,zero_mul],by
+      rw [← hc,he,mul_add,← mul_assoc,← mul_assoc]⟩
+
+/-- Every two-exit relation in the globally violated column lifts to an affine
+relation with the *prescribed* quotient coefficients and both cut projectors. This
+includes a quotient relation at just one exit; its other affine coefficient need
+only lift zero. Membership of the prescribed coefficients in the higher ideal is
+therefore preserved. This does not lift a higher mark to the joint.
+Source: Webster v2, §6.1, proof of Lemma 6.8 after (6.21). -/
+theorem exists_interleavedRelation_affine_lift (hQ : KLRSymm Q) {L M : List (Fin ℓ)}
+    (ht : redWord t = L ++ a :: b :: M) (hb : s.lbl ⟨j,by omega⟩ = .inr b)
+    (ha : s.lbl ⟨j+2,hj⟩ = .inr a) (x y : V)
+    (hx : mk (pAt t) * x * mk (pAt l₀) = x) (hy : mk (pAt t) * y * mk (pAt r₀) = y)
+    (hxy : x * mk L₀ + y * mk R₀ = 0) :
+    ∃ c d : A, mk (pAt t * c * pAt l₀) = x ∧ mk (pAt t * d * pAt r₀) = y ∧
+      (pAt t * c * pAt l₀) * L₀ + (pAt t * d * pAt r₀) * R₀ = 0 := by
+  obtain ⟨c,rfl⟩ := violMk_surjective x; obtain ⟨d,rfl⟩ := violMk_surjective y
+  have hl := leg_support Q Λ s [j+1,j]; have hr := leg_support Q Λ s [j,j+1]
+  obtain ⟨u,v,hu,hv,he⟩ := exists_violated_interleaved_exits Q Λ s j hj t a b hQ ht hb ha
+    (c*L₀+d*R₀) (by simpa only [map_add,map_mul] using hxy)
+  have h : pAt t * (c*L₀+d*R₀) = u*L₀+v*R₀ := by
+    simpa only [mul_assoc,add_mul,hl.2,hr.2] using he
+  have idem : pAt t * pAt t = pAt t := by rw [← map_mul,e_mul_self]
+  refine ⟨c-u,d-v,by simpa only [map_mul,map_sub,hu,sub_zero] using hx,
+    by simpa only [map_mul,map_sub,hv,sub_zero] using hy,?_⟩
+  simp only [mul_assoc,hl.1,hr.1]
+  rw [← mul_add,sub_mul,sub_mul,sub_add_sub_comm,← h,mul_sub,← mul_assoc,idem,sub_self]
+
+end ViolatedRelations
 end Categorification.Stendhal.BraidedStendhalAlgebra

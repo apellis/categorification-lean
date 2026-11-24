@@ -14,8 +14,6 @@ difference into multiplication by twice the dual-number variable.
 
 noncomputable section
 
-set_option maxHeartbeats 1000000
-
 namespace Categorification.Stendhal.LabelTwo
 
 open KLR KLRAlgebra MulOpposite Categorification.Webster.LabelTwo
@@ -111,13 +109,15 @@ private theorem tensorMap_on_fixed (f : Module.End Ambient S) (a : Ambient)
     _ = BalancedTensor.tmul (op a • m) g := (BalancedTensor.op_smul_tmul m a g).symm
     _ = _ := congrArg (fun m' : N => (BalancedTensor.tmul m' g : Tens)) hm
 
-/-- The first periodic diagram differential vanishes after ordinary tensor
-with the reflected dot-sum quotient. -/
-theorem middleStandardTensorEquiv_plus (t : Tens) :
-    middleStandardTensorEquiv k (BalancedTensor.mapRight (diagramPlus k) t) = 0 := by
-  obtain ⟨u, rfl⟩ := fixedGeneratorTensor_surjective k t
-  obtain ⟨z, rfl⟩ := fixedQuotientMap_surj k u
-  obtain ⟨b, rfl⟩ := (middleToFixed k).surjective z
+private abbrev tensorGenerator (b : Middle k) : Tens :=
+  fixedGeneratorTensor k (fixedQuotientMap k (middleToFixed k b))
+
+private theorem tensorGenerator_surjective : Function.Surjective (tensorGenerator k) :=
+  (fixedGeneratorTensor_surjective k).comp <|
+    (fixedQuotientMap_surj k).comp (middleToFixed k).surjective
+
+private theorem middleStandardTensorEquiv_plus_generator (b : Middle k) :
+    middleStandardTensorEquiv k (BalancedTensor.mapRight (diagramPlus k) (tensorGenerator k b)) = 0 := by
   have hv (w : W) : (fixedPlus k w).val = (LeftDot + RightDot) • w.val := by
     change dotEnd k 0 w.val + dotEnd k 1 w.val = _
     rw [add_smul, leftMiddleDot_smul_middle_fixed, rightMiddleDot_smul_middle_fixed]
@@ -137,14 +137,16 @@ theorem middleStandardTensorEquiv_plus (t : Tens) :
       change specialize ((y₁ + y₂) * b) = 0
       simp
 
-/-- The second periodic diagram differential becomes multiplication by twice
-the dual-number variable after ordinary tensor with the reflected quotient. -/
-theorem middleStandardTensorEquiv_minus (t : Tens) :
-    middleStandardTensorEquiv k (BalancedTensor.mapRight (diagramMinus k) t) =
-      (ε + ε) * middleStandardTensorEquiv k t := by
-  obtain ⟨u, rfl⟩ := fixedGeneratorTensor_surjective k t
-  obtain ⟨z, rfl⟩ := fixedQuotientMap_surj k u
-  obtain ⟨b, rfl⟩ := (middleToFixed k).surjective z
+/-- The first periodic diagram differential vanishes after ordinary tensor
+with the reflected dot-sum quotient. -/
+theorem middleStandardTensorEquiv_plus (t : Tens) :
+    middleStandardTensorEquiv k (BalancedTensor.mapRight (diagramPlus k) t) = 0 := by
+  obtain ⟨b, rfl⟩ := tensorGenerator_surjective k t
+  exact middleStandardTensorEquiv_plus_generator k b
+
+private theorem middleStandardTensorEquiv_minus_generator (b : Middle k) :
+    middleStandardTensorEquiv k (BalancedTensor.mapRight (diagramMinus k) (tensorGenerator k b)) =
+      (ε + ε) * middleStandardTensorEquiv k (tensorGenerator k b) := by
   have hv (w : W) : (fixedMinus k w).val = (LeftDot - RightDot) • w.val := by
     change dotEnd k 0 w.val - dotEnd k 1 w.val = _
     rw [sub_smul, leftMiddleDot_smul_middle_fixed, rightMiddleDot_smul_middle_fixed]
@@ -166,5 +168,13 @@ theorem middleStandardTensorEquiv_minus (t : Tens) :
     _ = (ε + ε) * middleCutDotSumEquiv k (fixedQuotientMap k z) :=
       congrArg ((ε + ε) * ·) (middleCutDotSumEquiv_specialize k b).symm
     _ = _ := congrArg ((ε + ε) * ·) (middleStandardTensorEquiv_fixed k _).symm
+
+/-- The second periodic diagram differential becomes multiplication by twice
+the dual-number variable after ordinary tensor with the reflected quotient. -/
+theorem middleStandardTensorEquiv_minus (t : Tens) :
+    middleStandardTensorEquiv k (BalancedTensor.mapRight (diagramMinus k) t) =
+      (ε + ε) * middleStandardTensorEquiv k t := by
+  obtain ⟨b, rfl⟩ := tensorGenerator_surjective k t
+  exact middleStandardTensorEquiv_minus_generator k b
 
 end Categorification.Stendhal.LabelTwo

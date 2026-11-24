@@ -143,12 +143,12 @@ private theorem kernel_zero_of_violated (h : IsViolated t) (x : K) : x=0 := by
   change p t * x.1.1.1 = x.1.1.1 at hx
   exact hx.symm.trans ((congrArg (fun y : V => y*x.1.1.1) (violMk_e h)).trans (zero_mul _))
 
-private theorem tensor_zero_of_violated (h : IsViolated t)
+private theorem tensor_zero_of_zero_kernel (h : ∀ x : K, x = 0)
     (z : BalancedTensor k k T K B) : z=0 := by
   induction z using BalancedTensor.induction_on with
   | zero => rfl
   | tmul x y =>
-    have hx := kernel_zero_of_violated Q Λ t a b h x
+    have hx := h x
     exact (congrArg (fun x : K => (BalancedTensor.tmul x y : BalancedTensor k k T K B)) hx).trans
       (BalancedTensor.zero_tmul y)
   | add x y hx hy =>
@@ -158,7 +158,19 @@ private theorem tensor_zero_of_violated (h : IsViolated t)
 theorem blockKernelTensorInclusion_injective_of_violated_top (h : IsViolated t) :
     Function.Injective inc := by
   intro x y _
-  exact (tensor_zero_of_violated Q Λ t a b κ' h x).trans (tensor_zero_of_violated Q Λ t a b κ' h y).symm
+  exact (tensor_zero_of_zero_kernel Q Λ t a b κ' (kernel_zero_of_violated Q Λ t a b h) x).trans (tensor_zero_of_zero_kernel Q Λ t a b κ' (kernel_zero_of_violated Q Λ t a b h) y).symm
 
+
+
+/-- An actual bottom higher kernel gives zero source tensor for every target order. -/
+theorem blockKernelTensorInclusion_injective_of_bot (h : K = ⊥) :
+    Function.Injective inc := by
+  have zero (x : K) : x = 0 := by
+    apply Subtype.ext
+    have hx : x.1 ∈ (⊥ : Submodule Tᵐᵒᵖ P) := (le_of_eq h) x.2
+    simpa only [Submodule.mem_bot, Submodule.coe_zero] using hx
+  intro x y _
+  exact (tensor_zero_of_zero_kernel Q Λ t a b κ' zero x).trans
+    (tensor_zero_of_zero_kernel Q Λ t a b κ' zero y).symm
 
 end Categorification.Stendhal.BraidedStendhalAlgebra

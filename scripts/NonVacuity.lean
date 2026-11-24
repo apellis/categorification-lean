@@ -8640,7 +8640,7 @@ attribute [local instance 1200] Ring.toIntAlgebra
 private def Q : Unit → Unit → MvPolynomial (Fin 2) (ZMod 4) := fun _ _ => 0
 private def Λ : Fin 3 → Unit →₀ ℕ := fun r => Finsupp.single () (r.val + 1)
 private def t : Categorification.KLR.Seq (stendhalWeight 3 ({()} : Multiset Unit)) :=
-  Categorification.KLR.Seq.ofList [.inr 0, .inr 1, .inr 2, .inl ()] (by decide)
+  ⟨![.inr 0, .inr 1, .inr 2, .inl ()], by decide⟩
 
 local instance (order : List (Fin 3)) : DG.HasDerivedCategory.{0, 0}
     (isIdempotentElem_violMk_redProj (ZMod 4) Q Λ ({()} : Multiset Unit) order).Cornerᵐᵒᵖ :=

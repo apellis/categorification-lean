@@ -1083,10 +1083,22 @@ Its ordered coefficient slides into `K`; PBW division detects the resulting uppe
 factor. Thus `blockKernelColumnInclusion_injective` proves injectivity after tensoring
 with `B e(s)`, for arbitrary spectators and top black contents.
 
-Still open for Lemma 6.8: when a black lies between the bottom reds, prove that changes
-between different choices of the last crossing give equal balanced classes **in the
-tensor with `K`**. The ordinary parabolic coordinates are linear for juxtaposed block
-diagrams, not for arbitrary upper elements of `e(t)T`. Also open: filter `K` by higher
+At `b i a` there are distinct exits `i a b` and `a b i`. If `a b i` is strictly
+higher, the joint `a i b` is higher too: moving a black left cannot decrease a
+retained count. `blockKernelHigherExit_slide` changes the exit idempotent of an
+arbitrary upper diagram in `K ⊗_T B`. If only `i a b` is marked, returning to it
+costs `Λ_a(i)` dots, not an invertible crossing (`blockKernelBigon_slide`). For any
+number of intervening blacks, `blockKernelIntervalBigon_slide` compares the two
+extreme exits with the product of the corresponding dot powers at the left exit.
+Separately, an excursion at the bottom to the consecutive column and back gives
+`ker_blockKernelColumnInclusion_le_ker_dots`. When all intervening pairings with
+`a` vanish the dot operator is the identity and the column inclusion is injective.
+
+Still open for Lemma 6.8: eliminate arbitrary sums of differently marked cuts at
+positive pairings, even with one intervening black. The dotted relation is not an
+undotted one, and the annihilator need not act injectively. Ordinary parabolic
+coordinates are linear for juxtaposed block diagrams, not for arbitrary upper
+elements of `e(t)T`. Also open: filter `K` by higher
 partial standardizations, apply the induction in (6.21), and identify the derived
 comparison naturally. Then Prop 6.9
 for general `ℓ` by reduction to two

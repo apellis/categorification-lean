@@ -10858,3 +10858,24 @@ example := ambientDerivedTensorH0LeftIdealEquiv (k := ℚ) (M := ℚᵐᵒᵖ)
 
 end
 end NonVacuity.AmbientDerivedIdempotentCut
+
+namespace NonVacuity.WebsterOutgoingExteriorAmbientTor
+
+open Categorification.Stendhal Categorification.Stendhal.LabelTwo DG
+open scoped DG.DegreeZero
+noncomputable section
+
+attribute [local instance 1100] IsIdempotentElem.instAlgebraCorner_categorification
+
+local instance : HasDerivedCategory.{0,0} ℚ := HasDerivedCategory.small _
+
+local instance : HasDerivedCategory.{0,0}
+    (TensorProductAlgebra ℚ (parameter ℚ) (fun (_ : Fin 2) => Finsupp.single () 2)
+      (Multiset.replicate 2 ())) := HasDerivedCategory.small _
+
+example := outgoingExteriorAmbientHomology_zero ℚ
+
+example := outgoingExteriorAmbientHomology_isZero ℚ (-1) (by decide)
+
+end
+end NonVacuity.WebsterOutgoingExteriorAmbientTor

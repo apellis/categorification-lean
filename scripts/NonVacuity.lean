@@ -5762,6 +5762,12 @@ example :=
   BraidedStendhalAlgebra.TwoSpectatorOneBlack.mixedKernel_hasHigherFiltration_standard
     rbRouquier rbSymm (fun r => if r = 2 then 0 else Finsupp.single () 1) (by decide)
 
+/-- With four positive red weights, the two actual retained partial-standard
+quotients give the one-black kernel filtration. -/
+example :=
+  BraidedStendhalAlgebra.TwoSpectatorOneBlack.kernel_hasTwoHigherLayers_standard
+    rbRouquier rbSymm (fun _ => Finsupp.single () 1)
+
 private def rbEmpty : Seq (stendhalWeight 0 ((0 : Multiset Unit) + 0)) :=
   KLRAlgebra.Seq.ofList [] (by decide)
 

@@ -81,4 +81,42 @@ theorem blockPartialStandard_braid_homology_vanish_of_projective_kernel
   intro _ _ j hj
   exact blockLoadingKernel_braid_homology_vanish_of_projective Q Λ t a b κ hP j hj
 
+open CategoryTheory.Pretriangulated
+
+noncomputable local instance {U : Type u} [Ring U] [HasDerivedCategory.{w, u} U] :
+    (homologyFunctor (A := U) ℤ 0).ShiftSequence ℤ := by
+  letI : (DG.HomotopyCategory.homologyFunctor.{u} ℤ U 0).ShiftSequence ℤ := by
+    change (DG.HomotopyCategory.forget.{u} ℤ U ⋙
+      _root_.HomotopyCategory.homologyFunctor (ModuleCat.{u} ℤ) (ComplexShape.up ℤ) 0).ShiftSequence ℤ
+    infer_instance
+  exact Functor.ShiftSequence.induced (homologyFunctorFactorsh ℤ 0) ℤ
+    (homologyFunctor ℤ) (homologyFunctorFactorsh ℤ)
+
+set_option backward.isDefEq.respectTransparency false in
+/-- A projective higher kernel bounds the braid cohomology of the actual partial
+standard to degrees minus one and zero, uniformly in the target red order. -/
+theorem blockPartialStandard_braid_homology_vanish_of_projective_kernel_off_two_degrees
+    (hP : Module.Projective Tᵐᵒᵖ K) (n : ℤ) (hn : n ≠ 0) (hm : n ≠ -1) :
+    IsZero ((DG.DerivedCategory.homologyFunctor (A := Uᵐᵒᵖ) ℤ n).obj
+      ((F).obj (DG.DerivedCategory.Q.obj ((degreeZeroModuleFunctor Tᵐᵒᵖ).obj
+        (blockLoadingShortComplex Q Λ t a b).X₃)))) := by
+  let S := blockLoadingShortComplex Q Λ t a b
+  let Sdg := S.map (degreeZeroModuleFunctor Tᵐᵒᵖ)
+  have hS := degreeZeroModuleFunctor_shortExact S (blockLoadingShortComplex_shortExact Q Λ t a b)
+  obtain ⟨δ, hΔ⟩ := exists_distinguished_of_shortExact Sdg hS
+  let Δ := ((F).mapTriangle.obj (Triangle.mk (DG.DerivedCategory.Q.map Sdg.f) (DG.DerivedCategory.Q.map Sdg.g) δ))
+  have dΔ : Δ ∈ distTriang _ := (F).map_distinguished _ hΔ
+  let H := homologyFunctor (A := Uᵐᵒᵖ) ℤ 0
+  have e (j : ℤ) : H.shift j = homologyFunctor ℤ j := rfl
+  change IsZero ((homologyFunctor ℤ n).obj Δ.obj₃)
+  rw [← e]
+  apply (H.homologySequence_exact₃ Δ dΔ n (n + 1) rfl).isZero_X₂
+  · change (H.shift n).map Δ.mor₂ = 0
+    rw [e]
+    exact (blockLoadingProjective_braid_homology_vanish Q Λ t κ n hn).eq_of_src _ _
+  · have hK : IsZero ((H.shift (n + 1)).obj Δ.obj₁) := by
+      rw [e]
+      exact blockLoadingKernel_braid_homology_vanish_of_projective Q Λ t a b κ hP _ (by omega)
+    exact hK.eq_of_tgt _ _
+
 end Categorification.Stendhal.BraidedStendhalAlgebra

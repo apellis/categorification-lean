@@ -991,8 +991,12 @@ The filtered binary coordinate reserves its shuffle length from the crossing
 budget, and the two tensor factors share the remainder. Iterating this bound gives
 the total-length bound for the recursive coordinates. In
 `exists_blockStack_filtered_quotient_coordinates` the bound passes to the image
-of that filtration in the quotient. The right joint crossing formula in these
-quotient coordinates is open.
+of that filtration in the quotient. For a right ascent in an arbitrary row,
+`quotientCoordinate_external_right_ascent` and
+`quotientCoordinate_internal_right_ascent` compute the leading quotient
+coordinates. The two alternatives land in disjoint targets. A matched
+nonviolated split in the source red order gives an ascent at a black–red joint.
+The full supported right-leg injectivity and its passage to the kernel remain open.
 
 Still open for Lemma 6.8: the higher-homology vanishing in (6.21),
 including injectivity after tensoring the kernel inclusion, then Prop 6.9

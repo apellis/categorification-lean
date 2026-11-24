@@ -1013,6 +1013,16 @@ The cup also has an ungraded derived Hom construction with the action
 by coefficient precomposition, with a dg Hom model on scalar inputs.
 The cap using the same coefficient is left adjoint before the shift
 (`Stendhal.Coevaluation.cupRHomObjIso` and `capBimoduleCupRHomAdjunction`).
+The derived Hom and dual-tensor constructions agree on the ground field
+(`Stendhal.Coevaluation.cupRHomTensorRegularIso`).
+For the two fundamental type A₁ factors over the rationals, the dual
+coefficient is the simple quotient by the smaller-cut trace. It gives
+the cup with homological shift minus one and the cap
+(`Stendhal.FundamentalCorner.terminalQuotientDualEquiv`, `fundamentalCup`,
+and `fundamentalCap`).
+The cup on the ground field is the shifted terminal simple quotient,
+and the cap on the regular module is the left coefficient
+(`fundamentalCupRegularIso` and `fundamentalCapRegularIso`).
 
 For Proposition 7.2, a single
 red with coroot pairing one gives a simple projective at the red-first
@@ -1039,6 +1049,20 @@ when the red weight has additional pairings at colours absent from the
 black content (`Stendhal.SingleRed.saturatedWebsterProjective_simple`).
 Identifying the divided-power projective at higher multiplicities and for
 multi-letter words remains open.
+
+**Webster, arXiv:1309.3796v2, §7.1, Lemma 7.3.** The smaller-cut trace is
+the sum of the images of maps from the corresponding loading projectives
+(`Stendhal.coevaluationTrace_eq_iSup_range`). A supported character and a
+corner inverse test identify this trace with the unique maximal submodule
+(`Stendhal.coevaluationTrace_eq_iff_simpleQuotient`). The mixed bigon factors
+the terminal black dot power through the adjacent smaller cut
+(`Stendhal.bigon_mem_coevaluationTrace`). For two fundamental type A₁
+factors over `ℚ`, the terminal loading character has kernel exactly the
+smaller-cut trace and gives the unique simple quotient
+(`Stendhal.FundamentalCorner.fundamentalCutTrace_eq_iff_simpleQuotient`).
+The coefficient on the generating vector is one
+(`Stendhal.FundamentalCorner.terminalCoefficient_generator`). The general
+diagrammatic inputs to the criterion remain open.
 
 ### Weak `sl₂`-categorifications (Chuang–Rouquier, arXiv:math/0407205v2, §5)
 

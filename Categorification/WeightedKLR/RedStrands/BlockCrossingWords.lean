@@ -165,10 +165,10 @@ private theorem localRedOrder (i : Seq μ) (hi : redWord i = κ₀) : ∀ B ∈ 
 
 /-- Reduced representatives whose upper word is an ordered local diagram whenever the
 end loadings match (Webster, arXiv:1309.3796v2, proof of Lemma 6.8). -/
-theorem exists_reduced_crossing_cut (s : Loadings Bs) (i : Seq μ) (hi : redWord i = κ₀) (w : Perm (Fin m)) :
+theorem exists_reduced_crossing_cut_affine (s : Loadings Bs) (i : Seq μ) (hi : redWord i = κ₀) (w : Perm (Fin m)) :
     ∃ A D, (IsReduced m (A ++ D) ∧ wordProd m (A ++ D) = w) ∧
       (w • i = Seq.cast h (place Bs s) → ∃ x : diagrams Q Λ Bs, x * E₀ = x ∧
-        F x = π (e (Seq.cast h (place Bs s)) * ψw A)) := by
+        castKLR S h (juxtapose Q Λ Bs x) = e (Seq.cast h (place Bs s)) * ψw A) := by
   by_cases hw : w • i = Seq.cast h (place Bs s)
   swap
   · exact ⟨[],canWord m w,⟨isReduced_canWord _ _,wordProd_canWord _ _⟩,fun he => (hw he).elim⟩
@@ -187,8 +187,18 @@ theorem exists_reduced_crossing_cut (s : Loadings Bs) (i : Seq μ) (hi : redWord
   have hD : wordProd m D = u⁻¹ * w := wordProd_canWord _ _
   have hprod : wordProd m (A ++ D) = w := by rw [wordProd_append,hD]; exact mul_inv_cancel_left u w
   refine ⟨A,D,⟨⟨validWord_append.2 ⟨hA.1, validWord_canWord _ _⟩,?_⟩,hprod⟩,
-    fun _ => ⟨x,hx,congrArg π hX⟩⟩
-  rw [List.length_append, hprod, hA.2, show D.length = length m (u⁻¹ * w) from length_canWord _ _, Nat.add_comm]
+    fun _ => ⟨x,hx,hX⟩⟩
+  rw [List.length_append, hprod, show D.length = length m (u⁻¹ * w) from length_canWord _ _, hA.2, Nat.add_comm]
   exact hl
+
+/-- The same reduced representatives after projection to the violated quotient. -/
+theorem exists_reduced_crossing_cut (s : Loadings Bs) (i : Seq μ) (hi : redWord i = κ₀) (w : Perm (Fin m)) :
+    ∃ A D, (IsReduced m (A ++ D) ∧ wordProd m (A ++ D) = w) ∧
+      (w • i = Seq.cast h (place Bs s) → ∃ x : diagrams Q Λ Bs, x * E₀ = x ∧
+        F x = π (e (Seq.cast h (place Bs s)) * ψw A)) := by
+  obtain ⟨A,D,hw,hx⟩ := exists_reduced_crossing_cut_affine Q Λ L M f β h s i hi w
+  refine ⟨A,D,hw,fun he => ?_⟩
+  obtain ⟨x,h₀,hX⟩ := hx he
+  exact ⟨x,h₀,congrArg π hX⟩
 
 end Categorification.Stendhal.RedBlock

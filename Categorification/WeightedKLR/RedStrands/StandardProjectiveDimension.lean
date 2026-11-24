@@ -3,6 +3,7 @@ Copyright (c) 2026 Alex Ellis. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 -/
 import Categorification.WeightedKLR.RedStrands.StandardStratification
+import Categorification.WeightedKLR.RedStrands.OrderedStandardResolution
 import Mathlib.CategoryTheory.Abelian.Projective.Dimension
 
 /-!
@@ -133,6 +134,22 @@ theorem exists_hasProjectiveDimensionLT_stdModule (hR : IsRouquierQ C Q)
     _ _ (Submodule.injective_subtype _)
     (LinearMap.exact_subtype_mkQ _) (Submodule.mkQ_surjective _)).hasProjectiveDimensionLT_X₃
       M hUM inferInstance
+
+/-- In the proof of Webster's Lemma 6.11, the standard resolution must have
+higher loading support in positive homological degrees. The kernel
+filtrations from Corollary 5.21 supply the resolution with that support. -/
+theorem exists_ordered_projectiveResolution_stdModule (hR : IsRouquierQ C Q)
+    (hall : ∀ (n : ℕ) (Λ' : Fin (n + 1) → I →₀ ℕ), AllFiniteDeltaInjective Q Λ' hQ)
+    {n : ℕ} (Λ : Fin n → I →₀ ℕ) (ν : Multiset I)
+    (s : {t : Seq (stendhalWeight n ν) // IsRedOrdered t}) :
+    ∃ P : ProjectiveResolution (stdModule Q Λ ν s), ∀ j : ℕ,
+      ∃ (J : Type) (label : J → {t : Seq (stendhalWeight n ν) // IsRedOrdered t})
+        (inc : ∀ i, lIdeal (seqIdem Q Λ (label i).1 (label i).2) →ₗ[TensorProductAlgebra k Q Λ ν]
+          P.complex.X (j + 1)),
+        (∀ i, StendhalLT s.1 (label i).1) ∧ ∀ x : P.complex.X (j + 1),
+          x ∈ Submodule.span (TensorProductAlgebra k Q Λ ν) {y | ∃ i z, inc i z = y} :=
+  exists_ordered_projectiveResolution_leftStandard Q Λ
+    (fun c => exists_hasFiltration_leftUpper Q hQ hR hall Λ ν c.1 c.2) s
 
 end Stendhal
 

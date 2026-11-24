@@ -7965,6 +7965,18 @@ example (f : KLR.PolyRep.Pol ℚ FiveSlotFlag.weight) :
   exact eval_mem_flag_of_violMk_eq_zero params weights _ (loadingIdeal_preservesFlags weights)
     (loadingIdeal_eq_top_of_violated weights) hz f loading
 
+example : sortedFlagP (k := ℚ) weights (.inr 1) (.inr 0) = 1 := by
+  simp [sortedFlagP]
+
+example (f : KLR.PolyRep.Pol ℚ FiveSlotFlag.weight) :
+    blackEval loading ((KLR.PolyRep.polyRep (sortedFlagP_factor params weights)) redDot f loading) ∈
+      loadingIdeal weights loading := by
+  have hz : violMk ℚ params weights black (ofKLR ℚ params weights black redDot) = 0 := by
+    rw [redDot, ofKLR_x_mul_e_of_red _ _ (by decide), map_zero]
+  exact eval_mem_sorted_flag_of_violMk_eq_zero params weights _
+    (loadingIdeal_preservesSortedFlags weights)
+    (loadingIdeal_eq_top_of_violated weights) hz f loading
+
 end NonVacuity.WebsterFiveSlotFlag
 namespace NonVacuity.WebsterFiveSlotKernelColumn
 
@@ -8272,3 +8284,36 @@ example [DG.HasDerivedCategory.{0,0} (Corner (redWord top))ᵐᵒᵖ]
   fiveSlot_singleColour_blockKernelDerivedHomology_mono (k := ℚ) C Λ true top (by decide)
 
 end NonVacuity.WebsterFiveSlotSingleColour
+
+namespace NonVacuity.WebsterPrincipalAllBottoms
+
+open Categorification.Stendhal Categorification.KLR BraidedStendhalAlgebra FiveSlotFlag
+open KLRAlgebra
+noncomputable section
+
+private abbrev Q : Unit → Unit → MvPolynomial (Fin 2) (ZMod 4) := fun _ _ => 0
+private abbrev Λ : Fin 3 → Unit →₀ ℕ := fun r => Finsupp.single () (r.val+2)
+private abbrev ν : Multiset Unit := {()}+{()}
+private def reversedRed : Seq weight :=
+  Seq.ofList [.inr 2,.inr 1,.inr 0,.inl (),.inl ()] (by decide)
+private def earlyBlack : Seq weight :=
+  Seq.ofList [.inr 2,.inl (),.inr 0,.inr 1,.inl ()] (by decide)
+
+/-- With all three reds reversed, the stable word uses only unit crossings. -/
+example : unitPath reversedRed (stableBottomWord reversedRed)=true :=
+  stableBottomWord_unit reversedRed (by decide)
+
+/-- A loading beginning with red two can still factor through a violated cut
+on its way to the extreme. -/
+example := stableBottomWord_killed_of_black_before_spectator Q Λ earlyBlack (by decide)
+
+/-- Both principal columns take arbitrary bottoms over a ring with zero
+divisors and with positive pairings 2, 3, and 4. -/
+example (s : Seq weight) := fiveSlot_oneBlackBeforePair_columnInclusion Q Λ
+  (fun _ _ _ => rfl) (fixedTopFourExitCut 1) s (Or.inl rfl)
+
+example := fiveSlot_oneBlackBeforePair_columnInclusion Q Λ (fun _ _ _ => rfl)
+  (Categorification.TypeA.sadj weight.card 2 • fixedTopFourExitCut 0) reversedRed (Or.inr rfl)
+
+end
+end NonVacuity.WebsterPrincipalAllBottoms

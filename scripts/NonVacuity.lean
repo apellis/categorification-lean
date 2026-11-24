@@ -8511,3 +8511,11 @@ noncomputable example := postTensorHomologyPositiveEven (k := ℚ) 1
   (by simp) (by decide)
 
 end NonVacuity.WebsterLabelTwoUnknot
+
+namespace NonVacuity.WebsterLabelTwoProjectiveResolution
+
+open Categorification.Webster.LabelTwo
+
+noncomputable example := periodicProjectiveResolution (k := ℤ)
+
+end NonVacuity.WebsterLabelTwoProjectiveResolution

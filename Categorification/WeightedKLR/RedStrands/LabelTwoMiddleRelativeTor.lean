@@ -79,7 +79,6 @@ end DG.TensorProductOver
 
 noncomputable section
 
-set_option maxHeartbeats 1000000
 
 namespace Categorification.Stendhal.LabelTwo
 
@@ -253,6 +252,34 @@ private def layerTermEquiv : Tens ≃ₗ[k] DualNumber k :=
 private abbrev layerTensorComplex :=
   ((tensorOverMiddleLayer k).mapHomologicalComplex (ComplexShape.down ℕ)).obj (C)
 
+private theorem post_d_succ_apply (j : ℕ) (v : DualNumber k) :
+    ((Post).d (j + 1) j).hom v = if Even j then 0 else (ε + ε) * v := by
+  rw [post_d_succ]
+  by_cases hj : Even j
+  · rw [ite_eq_left hj, ite_eq_left hj, LinearMap.zero_apply]
+  · rw [ite_eq_right hj, ite_eq_right hj, twiceEps_apply]
+
+private theorem layerTensorTerm_compat (j : ℕ) (t : Tens) :
+    ((Post).d (j + 1) j).hom (layerTermEquiv k t) =
+      layerTermEquiv k
+        (TensorProductOver.map LinearMap.id (((C).d (j + 1) j).hom) t) := by
+  let d : Module.End Layer S := ((C).d (j + 1) j).hom
+  let u : Ord := layerTensorAtStandard k t
+  let E := middleStandardTensorEquiv k
+  have post : ((Post).d (j + 1) j).hom (layerTermEquiv k t) =
+      if Even j then 0 else (ε + ε) * E u :=
+    post_d_succ_apply k j (layerTermEquiv k t)
+  change _ = E (layerTensorAtStandard k (TensorProductOver.map LinearMap.id d t))
+  by_cases hj : Even j
+  · have hd (z : S) : d z = diagramPlus k z :=
+      (relative_d_succ_apply k j z).trans (ite_eq_left hj ▸ rfl)
+    have hmap := congrArg E (layerTensorMap_apply k d (diagramPlus k) hd t)
+    exact (post.trans (ite_eq_left hj)).trans ((middleStandardTensorEquiv_plus k u).symm.trans hmap.symm)
+  · have hd (z : S) : d z = diagramMinus k z :=
+      (relative_d_succ_apply k j z).trans (ite_eq_right hj ▸ rfl)
+    have hmap := congrArg E (layerTensorMap_apply k d (diagramMinus k) hd t)
+    exact (post.trans (ite_eq_right hj)).trans ((middleStandardTensorEquiv_minus k u).symm.trans hmap.symm)
+
 /-- Tensoring the actual projective resolution over the middle layer yields the
 specialized periodic factor complex, including its alternating maps. -/
 def layerTensorResolutionIso : layerTensorComplex k ≅ Post := by
@@ -262,27 +289,7 @@ def layerTensorResolutionIso : layerTensorComplex k ≅ Post := by
   apply ModuleCat.hom_ext
   apply LinearMap.ext
   intro (t : Tens)
-  let d : Module.End Layer S := ((C).d (j + 1) j).hom
-  change ((Post).d (j + 1) j).hom ((layerTermEquiv k) t) =
-    middleStandardTensorEquiv k (layerTensorAtStandard k (TensorProductOver.map LinearMap.id d t))
-  rw [post_d_succ]
-  by_cases hj : Even j
-  · rw [ite_eq_left hj, LinearMap.zero_apply]
-    have hd (z : S) : d z = diagramPlus k z :=
-      (relative_d_succ_apply k j z).trans (by rw [ite_eq_left hj])
-    calc
-      _ = middleStandardTensorEquiv k (BalancedTensor.mapRight (diagramPlus k)
-          (layerTensorAtStandard k t)) := (middleStandardTensorEquiv_plus k (layerTensorAtStandard k t)).symm
-      _ = _ := congrArg (middleStandardTensorEquiv k)
-        (layerTensorMap_apply k d (diagramPlus k) hd t).symm
-  · rw [ite_eq_right hj, twiceEps_apply]
-    have hd (z : S) : d z = diagramMinus k z :=
-      (relative_d_succ_apply k j z).trans (by rw [ite_eq_right hj])
-    calc
-      _ = middleStandardTensorEquiv k (BalancedTensor.mapRight (diagramMinus k)
-          (layerTensorAtStandard k t)) := (middleStandardTensorEquiv_minus k (layerTensorAtStandard k t)).symm
-      _ = _ := congrArg (middleStandardTensorEquiv k)
-        (layerTensorMap_apply k d (diagramMinus k) hd t).symm
+  exact layerTensorTerm_compat k j t
 
 /-- The relative Tor of the actual reflected and left diagrammatic dot-sum
 quotients. -/

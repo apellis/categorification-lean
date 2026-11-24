@@ -14,9 +14,11 @@ import DG.Homotopy.OrdinaryTensorHomology
 Webster, arXiv:1309.3796v2, Lemma 6.8, proof of (6.21), identifies the cohomology
 map in degree zero with the ordinary balanced tensor map. The comparison is
 natural in the ordinary module and uses connective K-projective resolutions.
+When the derived tensor is concentrated in degree zero, the same comparison
+is an isomorphism in the derived category.
 -/
 
-open CategoryTheory DG DG.DerivedCategory MulOpposite
+open CategoryTheory CategoryTheory.Limits DG DG.DerivedCategory MulOpposite
 open scoped DG.DegreeZero
 
 noncomputable section
@@ -127,6 +129,54 @@ private theorem aug_tensor_iso_H0 (X : Type u) [AddCommGroup X] [Module B X] :
     ((aug_quasi (B := B) X) 0)
     (fun x hx => (ConnectiveResolution.isNonposGraded_colim B (InDegreeZero X) ring_nonpos).eq_zero one_pos hx)
 
+/-- The comparison from derived tensor to ordinary tensor on a degree-zero input. -/
+def derivedTensorToOrdinary (X : Type u) [AddCommGroup X] [Module B X] :
+    (F (A := A) (B := B) (M := M)).obj (Q.obj (DGModuleCat.of B (InDegreeZero X))) ⟶
+      Q.obj ((T (A := A) (B := B) (M := M)).obj (DGModuleCat.of B (InDegreeZero X))) :=
+  ((F (A := A) (B := B) (M := M)).mapIso (asIso (Q.map (aug (B := B) X))).symm ≪≫
+    derivedTensorObjIso (A := A) (M := M) (model_kproj (B := B) X)).hom ≫
+    Q.map ((T (A := A) (M := M)).map (aug (B := B) X))
+
+/-- Concentration in degree zero makes the comparison an isomorphism in
+the derived category, with its original module action. -/
+def derivedTensorIsoOrdinaryOfVanishing (X : Type u) [AddCommGroup X] [Module B X]
+    (hv : ∀ n : ℤ, n ≠ 0 → IsZero ((homologyFunctor (A := A) ℤ n).obj
+      ((F (A := A) (B := B) (M := M)).obj (Q.obj (DGModuleCat.of B (InDegreeZero X)))))) :
+    (F (A := A) (B := B) (M := M)).obj (Q.obj (DGModuleCat.of B (InDegreeZero X))) ≅
+      Q.obj ((T (A := A) (B := B) (M := M)).obj (DGModuleCat.of B (InDegreeZero X))) := by
+  let e := (F (A := A) (B := B) (M := M)).mapIso (asIso (Q.map (aug (B := B) X))).symm ≪≫
+    derivedTensorObjIso (A := A) (M := M) (model_kproj (B := B) X)
+  let p := (T (A := A) (M := M)).map (aug (B := B) X)
+  have hp : p.hom.IsQuasiIso := by
+    intro n
+    let Hn := homologyFunctor (A := A) ℤ n
+    have h : IsIso (Hn.map (Q.map p)) := by
+      by_cases hn : n = 0
+      · subst n
+        exact aug_tensor_iso_H0 (A := A) (B := B) (M := M) X
+      · have hsrc := (hv n hn).of_iso (Hn.mapIso e).symm
+        let Z := (T (A := A) (M := M)).obj (DGModuleCat.of B (InDegreeZero X))
+        have htgt : IsZero (Hn.obj (Q.obj Z)) := by
+          let : Subsingleton (cocycles Z n) := ⟨fun x y => by
+            apply Subtype.ext
+            have hx := TensorProductOver.eq_zero_of_mem_grading_inDegreeZero (B := B) (M := M) (N := X) hn (mem_cocycles.mp x.2).1
+            have hy := TensorProductOver.eq_zero_of_mem_grading_inDegreeZero (B := B) (M := M) (N := X) hn (mem_cocycles.mp y.2).1
+            exact hx.trans hy.symm⟩
+          let : Subsingleton (cohomology Z n) := (cohomology.mk_surjective Z n).subsingleton
+          exact ModuleCat.isZero_iff_subsingleton.mpr ((cohomologyAddEquiv ℤ Z n).surjective.subsingleton)
+        exact hsrc.isIso htgt _
+    exact (ConcreteCategory.isIso_iff_bijective _).mp
+      ((NatIso.isIso_map_iff (homologyFunctorFactors (A := A) ℤ n) p).mp h)
+  have : IsIso (Q.map p) := (isIso_Q_map_iff _).mpr hp
+  exact e ≪≫ asIso (Q.map p)
+
+@[simp] theorem derivedTensorIsoOrdinaryOfVanishing_hom
+    (X : Type u) [AddCommGroup X] [Module B X]
+    (hv : ∀ n : ℤ, n ≠ 0 → IsZero ((homologyFunctor (A := A) ℤ n).obj
+      ((F (A := A) (B := B) (M := M)).obj (Q.obj (DGModuleCat.of B (InDegreeZero X)))))) :
+    (derivedTensorIsoOrdinaryOfVanishing (A := A) (B := B) (M := M) X hv).hom =
+      derivedTensorToOrdinary (A := A) (B := B) (M := M) X := rfl
+
 /-- The derived tensor of ordinary modules agrees with ordinary tensor in degree zero. -/
 def derivedTensorHomologyIsoOrdinary (X : Type u) [AddCommGroup X] [Module B X] :
     (H (A := A)).obj ((F (A := A) (B := B) (M := M)).obj (Q.obj (DGModuleCat.of B (InDegreeZero X)))) ≅
@@ -156,6 +206,39 @@ private theorem compatible_model_morphism
 
 
 set_option backward.isDefEq.respectTransparency false in
+/-- The comparison before taking cohomology is natural. -/
+theorem derivedTensorToOrdinary_naturality
+    (f : DGModuleCat.of B (InDegreeZero X) ⟶ DGModuleCat.of B (InDegreeZero Y)) :
+    (F (A := A) (M := M)).map (Q.map f) ≫ (derivedTensorToOrdinary (A := A) (M := M) Y) =
+      (derivedTensorToOrdinary (A := A) (M := M) X) ≫ Q.map ((T (A := A) (M := M)).map f) := by
+  let L := F (A := A) (B := B) (M := M)
+  let G := T (A := A) (B := B) (M := M)
+  let aX := L.map (Q.map (aug (B := B) X))
+  let aY := L.map (Q.map (aug (B := B) Y))
+  let bX := (derivedTensorObjIso (A := A) (M := M) (model_kproj (B := B) X)).hom
+  let bY := (derivedTensorObjIso (A := A) (M := M) (model_kproj (B := B) Y)).hom
+  let cX := Q.map (G.map (aug (B := B) X))
+  let cY := Q.map (G.map (aug (B := B) Y))
+  let eX := derivedTensorToOrdinary (A := A) (B := B) (M := M) X
+  let eY := derivedTensorToOrdinary (A := A) (B := B) (M := M) Y
+  have hX : aX ≫ eX = bX ≫ cX := by
+    simp [aX, bX, cX, eX, L, G, derivedTensorToOrdinary]
+  have hY : aY ≫ eY = bY ≫ cY := by
+    simp [aY, bY, cY, eY, L, G, derivedTensorToOrdinary]
+  obtain ⟨a, ha, hTa⟩ := compatible_model_morphism (A := A) (M := M) f
+  have ha' : L.map (Q.map a) ≫ aY = aX ≫ L.map (Q.map f) := by
+    simpa only [aX, aY, Functor.map_comp] using congrArg L.map ha
+  have hb : L.map (Q.map a) ≫ bY = bX ≫ Q.map (G.map a) :=
+    derivedTensorObjIso_naturality (A := A) (M := M) a
+      (model_kproj (B := B) X) (model_kproj (B := B) Y)
+  change L.map (Q.map f) ≫ eY = eX ≫ Q.map (G.map f)
+  have : IsIso aX := by dsimp [aX]; infer_instance
+  rw [← cancel_epi aX, ← Category.assoc, ← ha', Category.assoc, hY,
+    ← Category.assoc, hb, Category.assoc]
+  change bX ≫ (Q.map (G.map a) ≫ Q.map (G.map (aug (B := B) Y))) = _
+  rw [hTa, ← Category.assoc, ← hX, Category.assoc]
+
+set_option backward.isDefEq.respectTransparency false in
 /-- The degree-zero comparison of the derived and ordinary tensors is natural. -/
 theorem derivedTensorHomologyIsoOrdinary_naturality
     (f : DGModuleCat.of B (InDegreeZero X) ⟶ DGModuleCat.of B (InDegreeZero Y)) :
@@ -163,36 +246,8 @@ theorem derivedTensorHomologyIsoOrdinary_naturality
         (derivedTensorHomologyIsoOrdinary (A := A) (B := B) (M := M) Y).hom =
       (derivedTensorHomologyIsoOrdinary (A := A) (B := B) (M := M) X).hom ≫
         (H (A := A)).map (Q.map ((T (A := A) (M := M)).map f)) := by
-  let L := F (A := A) (B := B) (M := M) ⋙ H (A := A)
-  let J := Q ⋙ H (A := A)
-  let G := T (A := A) (B := B) (M := M)
-  let aX := L.map (Q.map (aug (B := B) X))
-  let aY := L.map (Q.map (aug (B := B) Y))
-  let bX := H.map (derivedTensorObjIso (A := A) (M := M) (model_kproj (B := B) X)).hom
-  let bY := H.map (derivedTensorObjIso (A := A) (M := M) (model_kproj (B := B) Y)).hom
-  let cX := J.map (G.map (aug (B := B) X))
-  let cY := J.map (G.map (aug (B := B) Y))
-  let eX := (derivedTensorHomologyIsoOrdinary (A := A) (B := B) (M := M) X).hom
-  let eY := (derivedTensorHomologyIsoOrdinary (A := A) (B := B) (M := M) Y).hom
-  have hX : aX ≫ eX = bX ≫ cX := by
-    simp [aX, bX, cX, eX, L, J, G, derivedTensorHomologyIsoOrdinary]
-  have hY : aY ≫ eY = bY ≫ cY := by
-    simp [aY, bY, cY, eY, L, J, G, derivedTensorHomologyIsoOrdinary]
-  obtain ⟨a, ha, hTa⟩ := compatible_model_morphism (A := A) (M := M) f
-  have ha' : L.map (Q.map a) ≫ aY = aX ≫ L.map (Q.map f) := by
-    simpa only [aX, aY, Functor.map_comp] using congrArg L.map ha
-  have hTa' : J.map (G.map a) ≫ cY = cX ≫ J.map (G.map f) := by
-    simpa only [J, cY, cX, G, Functor.comp_map, Functor.map_comp] using
-      congrArg ((H (A := A)).map) hTa
-  have hb : L.map (Q.map a) ≫ bY = bX ≫ J.map (G.map a) := by
-    have h := derivedTensorObjIso_naturality (A := A) (M := M) a
-      (model_kproj (B := B) X) (model_kproj (B := B) Y)
-    simpa only [L, bY, bX, J, G, Functor.comp_map, Functor.map_comp] using
-      congrArg ((H (A := A)).map) h
-  change L.map (Q.map f) ≫ eY = eX ≫ J.map (G.map f)
-  have : IsIso aX := by dsimp [aX]; infer_instance
-  rw [← cancel_epi aX, ← Category.assoc, ← ha', Category.assoc, hY,
-    ← Category.assoc, hb, Category.assoc, hTa', ← Category.assoc, ← hX, Category.assoc]
+  have h := congrArg (H (A := A)).map (derivedTensorToOrdinary_naturality (A := A) (M := M) f)
+  simpa [derivedTensorToOrdinary, derivedTensorHomologyIsoOrdinary] using h
 
 end DerivedComparison
 

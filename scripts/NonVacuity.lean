@@ -9593,3 +9593,15 @@ noncomputable example :=
     (fun _ : Fin 2 => Finsupp.single () 2) ({(), ()} : Multiset Unit)
 
 end NonVacuity.WebsterUnitParameters
+
+namespace NonVacuity.WebsterOrderedGradedResolution
+
+open Categorification.ModuleFiltration
+
+example := @gradedLoadingResolutionChainMap_exact
+
+example := @gradedLoadingResolutionChainMap_augmentation_exact
+
+example := @gradedLoadingResolutionPositive_support
+
+end NonVacuity.WebsterOrderedGradedResolution

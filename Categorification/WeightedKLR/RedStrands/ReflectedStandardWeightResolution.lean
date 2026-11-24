@@ -273,4 +273,75 @@ theorem reflectedStandardWeightBraiding_negative_isZero (κ' : List (Fin ℓ)) :
     (reflectedStandardWeightResolution_loading_support hR σ hρ hQ hU s n)
     (fun t => hk t.1 t.2)
 
+/-- Cohomology at a specified weight of the graded braid of the reflected standard. -/
+def reflectedStandardWeightBraidingCohomology (κ' : List (Fin ℓ)) :
+    letI := Graded.cornerGradedAlgebra V hE (redProj_mem_violAuxiliaryGrade G κ)
+    letI := Graded.cornerGradedAlgebra V (isIdempotentElem_violMk_redProj k Q Λ ν κ')
+      (redProj_mem_violAuxiliaryGrade G κ')
+    letI := gradedAlgebraInternalGrading CG
+    letI := gradedAlgebraInternalGrading (TargetGrade κ')
+    letI := gradedAlgebraBigradedDGRing CG
+    letI := gradedAlgebraBigradedDGRing (TargetGrade κ')
+    ∀ [CatModule.HasDerivedCategory.{v,0} (WeightCategory (hE).Cornerᵐᵒᵖ)]
+      [CatModule.HasDerivedCategory.{v,0}
+        (WeightCategory (isIdempotentElem_violMk_redProj k Q Λ ν κ').Cornerᵐᵒᵖ)]
+      (_X : WeightCategory (isIdempotentElem_violMk_redProj k Q Λ ν κ').Cornerᵐᵒᵖ) (_n : ℤ),
+      AddCommGrpCat := by
+  letI := Graded.cornerGradedAlgebra V hE (redProj_mem_violAuxiliaryGrade G κ)
+  letI := Graded.cornerGradedAlgebra V (isIdempotentElem_violMk_redProj k Q Λ ν κ')
+    (redProj_mem_violAuxiliaryGrade G κ')
+  letI := gradedAlgebraInternalGrading CG
+  letI := gradedAlgebraInternalGrading (TargetGrade κ')
+  letI := gradedAlgebraBigradedDGRing CG
+  letI := gradedAlgebraBigradedDGRing (TargetGrade κ')
+  intro hSource hTarget X n
+  exact ((CatModule.DerivedCategory.cohomologyFunctor X n).obj
+          ((auxiliaryGradedBraidingFunctor G κ κ').obj
+            (CatModule.DerivedCategory.Q.obj (reflectedStandardWeightModule hR σ hρ hQ s))))
+
+include hU in
+/-- Higher left loading annihilation gives nonzero-degree cohomology vanishing for
+the auxiliary graded braid of the scalar-restricted standard. -/
+theorem reflectedStandardWeightBraiding_isZero (κ' : List (Fin ℓ)) :
+    letI := Graded.cornerGradedAlgebra V hE (redProj_mem_violAuxiliaryGrade G κ)
+    letI := Graded.cornerGradedAlgebra V (isIdempotentElem_violMk_redProj k Q Λ ν κ')
+      (redProj_mem_violAuxiliaryGrade G κ')
+    letI := gradedAlgebraInternalGrading CG
+    letI := gradedAlgebraInternalGrading (TargetGrade κ')
+    letI := gradedAlgebraBigradedDGRing CG
+    letI := gradedAlgebraBigradedDGRing (TargetGrade κ')
+    ∀ [CatModule.HasDerivedCategory.{v,0} (WeightCategory (hE).Cornerᵐᵒᵖ)]
+      [CatModule.HasDerivedCategory.{v,0}
+        (WeightCategory (isIdempotentElem_violMk_redProj k Q Λ ν κ').Cornerᵐᵒᵖ)]
+      (X : WeightCategory (isIdempotentElem_violMk_redProj k Q Λ ν κ').Cornerᵐᵒᵖ) (n : ℤ),
+      n ≠ 0 →
+      (∀ t : Label, above s t → ∀ p : braidingBimodule k Q Λ ν κ κ',
+        (violLoadingIdem (redWord_relabel σ t.2)).val * p.val = 0) →
+      CategoryTheory.Limits.IsZero
+        (reflectedStandardWeightBraidingCohomology hR σ hρ hQ s κ' X n) := by
+  intro hSource hTarget X n hn hk
+  unfold reflectedStandardWeightBraidingCohomology
+  let _ := Graded.cornerGradedAlgebra V hE (redProj_mem_violAuxiliaryGrade G κ)
+  let _ := gradedAlgebraInternalGrading CG
+  let _ := gradedAlgebraBigradedDGRing CG
+  refine auxiliaryGradedBraiding_cohomology_isZero_of_loading_support G κ κ'
+    (reflectedStandardWeightAugmentation hR σ hρ hQ hU s)
+    (reflectedStandardWeightResolution_isKProjective hR σ hρ hQ hU s)
+    (reflectedStandardWeightAugmentation_quasiIso hR σ hρ hQ hU s)
+    X n (ι := {t : Label // above s t})
+    (fun t => ⟨Seq.redPerm σ t.1.1, redWord_relabel σ t.1.2⟩) ?_
+    (fun t => hk t.1 t.2)
+  intro Z x hx
+  by_cases hp : 0 < n
+  · have hzero := orderedWeightDgResolution_positive_eq_zero Dₛ s
+      (reflectedLoading_mem_grade hR σ hρ hQ)
+      (reflectedLoading_idempotent σ hρ hQ) loadingOrder_trans T
+      (fun {_ _} h => reflectedQuotient_mem_grade hR σ hρ hQ hU s h) Z n hp x hx
+    rw [hzero]
+    exact AddSubgroup.zero_mem _
+  · let j := (-(n+1)).toNat
+    have hj : -((j+1 : ℕ) : ℤ) = n := by dsimp [j]; omega
+    exact reflectedStandardWeightResolution_loading_support hR σ hρ hQ hU s j Z x
+      (by rw [hj]; exact hx)
+
 end Categorification.Stendhal.BraidedStendhalAlgebra

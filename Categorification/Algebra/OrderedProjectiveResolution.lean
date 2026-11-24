@@ -359,4 +359,77 @@ end
 
 end Resolution
 
+section Transport
+
+open CategoryTheory
+
+noncomputable section
+
+variable {A B : Type u} [Ring A] [Ring B] {Label : Type w} {S : Label → ModuleCat.{u} A}
+    {e : Label → A} {above : Label → Label → Prop}
+
+attribute [local instance] RingHomInvPair.of_ringEquiv RingHomInvPair.of_ringEquiv_symm
+
+private def lIdealRestrictEquiv (σ : A ≃+* B) (a : A) :
+    lIdeal (σ a) ≃ₗ[B] (ModuleCat.restrictScalars σ.symm.toRingHom).obj
+      (ModuleCat.of A (lIdeal a)) where
+  toFun x := ⟨σ.symm x.1, by
+    change σ.symm x.1 * a = σ.symm x.1
+    have h := congrArg σ.symm x.2
+    simpa only [map_mul, RingEquiv.symm_apply_apply] using h⟩
+  invFun x := ⟨σ x.1, by
+    change σ x.1 * σ a = σ x.1
+    rw [← map_mul]
+    exact congrArg σ x.2⟩
+  left_inv x := Subtype.ext (σ.apply_symm_apply x.1)
+  right_inv x := Subtype.ext (σ.symm_apply_apply x.1)
+  map_add' x y := Subtype.ext (map_add σ.symm x.1 y.1)
+  map_smul' b x := Subtype.ext (map_mul σ.symm b x.1)
+
+private def lIdealMapEquiv (σ : A ≃+* B) (a : A) :
+    lIdeal a ≃ₛₗ[(σ : A →+* B)] lIdeal (σ a) where
+  toFun x := ⟨σ x.1, by
+    change σ x.1 * σ a = σ x.1
+    rw [← map_mul]
+    exact congrArg σ x.2⟩
+  invFun x := ⟨σ.symm x.1, by
+    change σ.symm x.1 * a = σ.symm x.1
+    have h := congrArg σ.symm x.2
+    simpa only [map_mul, RingEquiv.symm_apply_apply] using h⟩
+  left_inv x := Subtype.ext (σ.symm_apply_apply x.1)
+  right_inv x := Subtype.ext (σ.apply_symm_apply x.1)
+  map_add' x y := Subtype.ext (map_add σ x.1 y.1)
+  map_smul' b x := Subtype.ext (map_mul σ b x.1)
+
+/-- Transport the ordered standard covers along an algebra isomorphism, including reflection
+to the opposite algebra. Higher loading labels are preserved. -/
+def OrderedStandardCovers.transport (data : OrderedStandardCovers S e above) (σ : A ≃+* B) :
+    OrderedStandardCovers (fun c => (ModuleCat.restrictScalars σ.symm.toRingHom).obj (S c))
+      (fun c => σ (e c)) above where
+  quotient c := (((ModuleCat.restrictScalars σ.symm.toRingHom).map (ModuleCat.ofHom (data.quotient c))).hom).comp
+    (lIdealRestrictEquiv σ (e c)).toLinearMap
+  surjective c := (data.surjective c).comp (lIdealRestrictEquiv σ (e c)).surjective
+  projective c := by
+    let := data.projective c
+    exact Module.Projective.of_equiv (σ' := (σ.symm : B →+* A)) (lIdealMapEquiv σ (e c))
+  kernel c := by
+    obtain ⟨m, hm, hf⟩ := data.kernel c
+    let φ := (lIdealRestrictEquiv σ (e c))
+    let q := (((ModuleCat.restrictScalars σ.symm.toRingHom).map (ModuleCat.ofHom (data.quotient c))).hom).comp φ.toLinearMap
+    let E : LinearMap.ker q ≃ₗ[B] (ModuleCat.restrictScalars σ.symm.toRingHom).obj
+        (ModuleCat.of A (LinearMap.ker (data.quotient c))) :=
+      { toFun := fun x => ⟨φ x.1, x.2⟩
+        invFun := fun y => ⟨φ.symm y.1, by
+          change data.quotient c (φ (φ.symm y.1)) = 0
+          exact (congrArg (data.quotient c) (φ.apply_symm_apply y.1)).trans y.2⟩
+        left_inv := fun x => Subtype.ext (φ.symm_apply_apply x.1)
+        right_inv := fun x => Subtype.ext (φ.apply_symm_apply x.1)
+        map_add' := fun x y => Subtype.ext (map_add φ x.1 y.1)
+        map_smul' := fun r x => Subtype.ext (map_smul φ r x.1) }
+    exact ⟨m, hm, (hf.restrictScalars σ.symm.toRingHom).of_equiv E.symm⟩
+
+end
+
+end Transport
+
 end Categorification.ModuleFiltration

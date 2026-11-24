@@ -9693,6 +9693,12 @@ local instance braidCupOrderedDerived :
 
 noncomputable example := fundamentalBraidNormalizedCupIso.{1}
 
+noncomputable example := fundamentalBraidTargetCap_restrictIso.{1}
+
+noncomputable example := fundamentalBraidTargetCap_translatedHeadIso.{1} 3
+
+noncomputable example := fundamentalBraidCappedCupIso.{1}
+
 end NonVacuity.WebsterFundamentalBraidGradedResolutionModel
 end
 

@@ -6,7 +6,7 @@ import Mathlib.Logic.Equiv.Fin.Rotate
 import Categorification.WeightedKLR.RedStrands.BraidedStandardGrading
 import Categorification.WeightedKLR.RedStrands.BraidingAuxiliaryDerived
 import Categorification.Algebra.HomogeneousOrderedCoverTransport
-import Categorification.WeightedKLR.RedStrands.BraidedRelabel
+import Categorification.WeightedKLR.RedStrands.BraidedRelabelGrading
 import Categorification.WeightedKLR.RedStrands.BlackCountTransport
 import Categorification.WeightedKLR.RedStrands.ParabolicStandardTensorProj
 import Categorification.WeightedKLR.RedStrands.TwoPieceDecomposition
@@ -413,45 +413,6 @@ local notation "μ" => stendhalWeight ℓ ν
 local notation "κ" => List.map σ (List.finRange ℓ)
 local notation "F" => SeqRelabel.ofRedPerm (k := k) (Q := Q) (Λ := Λ) (Λ' := Λ ∘ σ)
   (ν := ν) σ (fun _ => rfl)
-
-private theorem redPermAffine_coaction (a : KLRAlgebra k (stendhalQ Q (Λ ∘ σ)) μ) :
-    (G).coaction (KLRAlgebra.relabelHom F a) =
-      AddMonoidAlgebra.mapAlgHom ℤ (KLRAlgebra.relabelHom F) ((G').coaction a) := by
-  classical
-  induction a using KLRAlgebra.klr_induction with
-  | hr r => simp only [AlgHom.commutes]
-  | hadd a b ha hb => simp only [map_add, ha, hb]
-  | hmul a b ha hb => simp only [map_mul, ha, hb]
-  | he t => simp only [KLRAlgebra.relabelHom_e, GradingDatum.coaction_e,
-      AddMonoidAlgebra.mapAlgHom_single]
-  | hx j =>
-    simp only [KLRAlgebra.relabelHom_x, GradingDatum.coaction_x, map_sum, map_mul,
-      AddMonoidAlgebra.mapAlgHom_single, KLRAlgebra.relabelHom_e]
-    symm
-    apply Fintype.sum_equiv (F).equiv
-    intro t
-    congr 1
-    change (G').degX (t.lbl j) = (G).degX (Sum.map id σ (t.lbl j))
-    cases t.lbl j <;> rfl
-  | hψ j =>
-    simp only [KLRAlgebra.relabelHom_ψ, GradingDatum.coaction_ψ, map_sum, map_mul,
-      AddMonoidAlgebra.mapAlgHom_single, KLRAlgebra.relabelHom_e]
-    symm
-    apply Fintype.sum_equiv (F).equiv
-    intro t
-    congr 1
-    by_cases hj : j + 1 < Multiset.card μ
-    · rw [(G').dψ_of_lt hj, (G).dψ_of_lt hj]
-      change (G').degΨ (t.lbl _) (t.lbl _) =
-        (G).degΨ (Sum.map id σ (t.lbl _)) (Sum.map id σ (t.lbl _))
-      cases t.lbl ⟨j, by omega⟩ <;> cases t.lbl ⟨j + 1, hj⟩ <;> rfl
-    · simp [GradingDatum.dψ, hj]
-
-private theorem redPermAffine_mem_grade {n : ℤ} {a : KLRAlgebra k (stendhalQ Q (Λ ∘ σ)) μ}
-    (ha : a ∈ (G').grade μ n) : KLRAlgebra.relabelEquiv F a ∈ (G).grade μ n := by
-  change KLRAlgebra.relabelHom F a ∈ (G).grade μ n
-  rw [GradingDatum.mem_grade, redPermAffine_coaction hR σ, (G').mem_grade.mp ha,
-    AddMonoidAlgebra.mapAlgHom_single]
 
 private theorem tensorFlip_mem_exteriorGrade {n : ℤ} {a : TensorProductAlgebra k Q (Λ ∘ σ) ν}
     (ha : a ∈ tensorProductGrade (G') ν n) : tensorFlip a ∈ tensorProductGrade (G') ν n := by

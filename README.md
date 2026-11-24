@@ -1242,6 +1242,10 @@ internal translation one and cohomological shift minus one. Applying the
 braid to this cup on the field gives the reversed middle character with
 internal translation one, in cohomological degree zero
 (`fundamentalBraidNormalizedCupIso`).
+Graded red relabelling identifies the reversed-order cap with ordered evaluation
+(`fundamentalBraidTargetCap_restrictIso`). Evaluating the braided cup in this
+reversed order gives scalar lines of auxiliary weights −1 and 1 in
+cohomological degrees 0 and −2, respectively (`fundamentalBraidCappedCupIso`).
 The diagonal-ring equivalence
 carries the two mixed crossings to the differentials of the projective
 resolution of the middle head (`fundamentalBraidSourceResolution`). Its

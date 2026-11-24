@@ -1080,7 +1080,10 @@ component of the ordinary balanced tensor (`diagramWeightTensorOrdinary_range_eq
 The integer and ground-ring balanced tensor gradings agree under the
 additive comparison (`Graded.balancedTensorIntScalarAddEquiv_map_grade`).
 A nonpositive resolution has the same degree-zero tensor cohomology
-as the ordinary weight tensor (`catTensorCohomologyZeroEquivOfQuasiIso`). For a rectangular corner between two degree-zero
+as the ordinary weight tensor (`catTensorCohomologyZeroEquivOfQuasiIso`).
+For a K-projective resolution, this identifies the cohomology of the
+derived tensor at weight and degree zero
+(`diagramWeightDerivedTensorH0IsoOfResolution`). For a rectangular corner between two degree-zero
 idempotents, `diagramCornerWeightDerivedRightTensor` uses the restricted grading
 and defines derived right tensor on the graded right-module categories.
 For the actual braid bimodule this gives `auxiliaryGradedBraidingFunctor`

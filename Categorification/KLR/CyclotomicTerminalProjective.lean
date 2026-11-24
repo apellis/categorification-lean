@@ -2,6 +2,7 @@
 Copyright (c) 2026 Alex Ellis. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 -/
+import Categorification.KLR.CyclotomicGrading
 import Categorification.KLR.CyclotomicTerminal
 import Categorification.KLR.CyclotomicSplit
 import Categorification.Algebra.IdempotentEquiv
@@ -179,5 +180,67 @@ theorem twoBlackTerminal_corner_span (z : (twoBlackTerminalIdem_idempotent Q).Co
   have h' := congrArg (· * E) h
   change (a • E + b • p) * E = z.val * E at h'
   rwa [add_mul,smul_mul_assoc,smul_mul_assoc,ee,pe,smul_zero,add_zero,right] at h'
+
+
+/-- Reversing the order of the first dot and crossing gives the complementary
+weight-two terminal projector. -/
+theorem twoBlackTerminal_reflected_projector : d * p = 1 - E := by
+  obtain ⟨_,_,_,rel⟩ := twoBlack_terminal_relations Q
+  exact eq_sub_of_add_eq rel
+
+/-- The dot and crossing exhibit the terminal and reflected projectors as
+equivalent idempotents. -/
+theorem twoBlackTerminal_reflected_equivPair : IsEquivPair p d E (1 - E) := by
+  obtain ⟨ep, _, ed, _⟩ := terminalIdem_right_products Q
+  refine IsEquivPair.of_mul_left rfl (twoBlackTerminal_reflected_projector Q) ep ?_
+  change d * (p * d) = d
+  rw [← mul_assoc, twoBlackTerminal_reflected_projector Q, sub_mul, one_mul, ed, sub_zero]
+
+/-- The off-diagonal corner from the complementary projector to the terminal
+projector is the nonzero line spanned by the first dot. -/
+theorem twoBlackTerminal_reflected_corner_span :
+    p ≠ 0 ∧ E * p = p ∧ p * (1 - E) = p ∧
+      ∀ z : R, E * z = z → z * (1 - E) = z → ∃ a : k, a • p = z := by
+  have h := twoBlackTerminal_reflected_equivPair Q
+  have pn : p ≠ 0 := by
+    intro h
+    apply twoBlackTerminalIdem_ne_zero Q
+    change p * d = 0
+    rw [h, zero_mul]
+  have off : E * (1 - E) = 0 := by rw [mul_sub, mul_one, h.idem_left.eq, sub_self]
+  refine ⟨pn, h.left_mul, h.mul_right, ?_⟩
+  intro z hl hr
+  obtain ⟨a,b,hspan⟩ := terminal_right_row Q (⟨z,mem_rIdeal.mpr hl⟩ : rIdeal E)
+  refine ⟨b,?_⟩
+  have h' := congrArg (· * (1 - E)) hspan
+  change (a • E + b • p) * (1 - E) = z * (1 - E) at h'
+  rwa [add_mul, smul_mul_assoc, smul_mul_assoc, off, h.mul_right, smul_zero, zero_add, hr] at h'
+
+
+/-- The complementary cut is a line in the internal degree of the black dot. -/
+theorem twoBlackTerminal_reflected_corner_mem_grade_iff (G : GradingDatum Q)
+    {z : R} (hl : E * z = z) (hr : z * (1 - E) = z) (n : ℤ) :
+    z ∈ grade G (fun _ => 2) ν n ↔ n = G.degX () ∨ z = 0 := by
+  let D := grade G (fun _ => 2) ν
+  let s : Seq ν := ⟨fun _ => (), by decide⟩
+  have hs : (e s : KLRAlgebra k Q ν) = 1 :=
+    e_eq_one_of_forall (fun j _ => Subsingleton.elim j ()) Q s
+  have hx : p ∈ D (G.degX ()) := by
+    apply Submodule.mem_map_of_mem
+    simpa only [hs, mul_one, s] using G.x_mul_e_mem_grade ⟨0, by decide⟩ s
+  obtain ⟨_, _, _, hspan⟩ := twoBlackTerminal_reflected_corner_span Q
+  obtain ⟨a, rfl⟩ := hspan z hl hr
+  have hzero : a • p ∈ D (G.degX ()) := Submodule.smul_mem _ _ hx
+  constructor
+  · intro hn
+    by_cases he : n = G.degX ()
+    · exact Or.inl he
+    · let : GradedAlgebra D := gradedAlgebra G (fun _ => 2) ν
+      exact Or.inr ((DirectSum.decompose_of_mem_same D hzero).symm.trans
+        (DirectSum.decompose_of_mem_ne D hn he))
+  · rintro (rfl | hz)
+    · exact hzero
+    · rw [hz]
+      exact (D n).zero_mem
 
 end Categorification.KLR.CycKLR

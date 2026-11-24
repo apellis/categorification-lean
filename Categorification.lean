@@ -653,6 +653,8 @@ import Categorification.KLR.Simple
 import Categorification.KLR.SimpleNilHecke
 import Categorification.KLR.CyclotomicTerminalProjective
 import Categorification.WeightedKLR.RedStrands.LabelTwoEndpointTor
+import Categorification.WeightedKLR.RedStrands.LabelTwoExteriorDiagramCut
+import Categorification.WeightedKLR.RedStrands.LabelTwoExteriorSlide
 import Categorification.WeightedKLR.RedStrands.SingleRedTerminalProjective
 import Categorification.KLR.CyclotomicTerminal
 import Categorification.KLR.CyclotomicTerminalSymmetric
@@ -1351,6 +1353,7 @@ import Categorification.WeightedKLR.RedStrands.TensorFormFundamental
 import Categorification.WeightedKLR.RedStrands.FundamentalRestriction
 import Categorification.WeightedKLR.RedStrands.TensorAdjointConvention
 import Categorification.WeightedKLR.RedStrands.TensorCoproductWords
+import Categorification.WeightedKLR.RedStrands.ParabolicDividedCut
 import Categorification.WeightedKLR.RedStrands.ParabolicShuffleLayer
 import Categorification.WeightedKLR.RedStrands.StandardizationTensorCharacter
 import Categorification.WeightedKLR.RedStrands.BlackInduction

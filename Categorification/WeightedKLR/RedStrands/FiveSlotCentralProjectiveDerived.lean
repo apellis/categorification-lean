@@ -32,8 +32,8 @@ local notation "Qstd" => CL.qCL (CL.CLScalars.kl : CL.CLScalars D k)
 local notation "ν₀" => ({()} + {()} : Multiset Unit)
 local notation "t" => fixedTopFourExitCut 1
 local notation "oppositeWord" => ([0, 2, 1] : List (Fin 3))
-local notation "T" => (isIdempotentElem_violMk_redProj k Qstd Λ ν₀ (redWord t)).Corner
-local notation "U" κ:arg => (isIdempotentElem_violMk_redProj k Qstd Λ ν₀ κ).Corner
+local notation "T" => IsIdempotentElem.Corner (isIdempotentElem_violMk_redProj k Qstd Λ ν₀ (redWord t))
+local notation "U" κ:arg => IsIdempotentElem.Corner (isIdempotentElem_violMk_redProj k Qstd Λ ν₀ κ)
 
 private theorem standardRouquier : IsRouquierQ D Qstd := by
   constructor <;> intro i j hij <;> exact (hij (Subsingleton.elim i j)).elim

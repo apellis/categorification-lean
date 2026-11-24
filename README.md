@@ -1208,6 +1208,11 @@ balanced tensor gives this scalar corner. The left-derived pairing is the
 ground field in degree zero and zero in positive degrees
 (`Stendhal.SingleRed.labelTwoEndpointTorZero`,
 `Stendhal.SingleRed.labelTwoEndpointTor_succ_isZero`).
+The projector has diagram degree zero and the scalar corner has no
+nonzero elements in other internal degrees
+(`Stendhal.SingleRed.twoBlackTerminalWebsterIdem_mem_grade`,
+`Stendhal.SingleRed.twoBlackTerminalWebsterCorner_mem_grade_iff`).
+
 
 
 In any saturated one-colour content the coinvariant module gives a simple

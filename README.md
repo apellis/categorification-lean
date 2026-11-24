@@ -1246,7 +1246,10 @@ vanishing outside degree zero for the reflected coefficient
 (`Stendhal.LabelTwo.middleStandard_derivedTensorHomology_isZero_of_higher_support`).
 The standard rank-one parameter comparison supplies this supported
 resolution for the actual middle cut
-(`Stendhal.LabelTwo.exists_middleStandard_supportedResolution`).
+(`Stendhal.LabelTwo.exists_middleStandard_supportedResolution`). The same
+construction works for every ordered loading in the actual two-red,
+two-black algebra
+(`Stendhal.LabelTwo.exists_loadingStandard_supportedResolution`).
 
 **Terminal-character resolution benchmark for Webster, arXiv:1309.3796v2,
 §8.1.** In the fundamental rank-one block over `ℚ`, the terminal simple

@@ -9190,6 +9190,8 @@ example := @middleStandard_derivedTensorHomology_isZero_of_higher_support ℚ
 
 example := exists_middleStandard_supportedResolution ℚ
 
+example := exists_loadingStandard_supportedResolution ℚ ⟨loading, loading_ordered⟩
+
 example := @middleStandard_derivedTensorHomology_isZero ℚ
 
 end NonVacuity.WebsterLabelTwoMiddleFixedComplex

@@ -1397,6 +1397,7 @@ import Categorification.WeightedKLR.RedStrands.ParabolicStandardTensorProj
 import Categorification.WeightedKLR.RedStrands.LeftStandardModule
 import Categorification.WeightedKLR.RedStrands.OppositeStandardTor
 import Categorification.WeightedKLR.RedStrands.OrderedStandardResolution
+import Categorification.WeightedKLR.RedStrands.LeftStandardParameterTransport
 import Categorification.WeightedKLR.RedStrands.BlackCountTransport
 import Categorification.WeightedKLR.RedStrands.TwoPieceLoading
 import Categorification.WeightedKLR.RedStrands.ParabolicStandardUpper

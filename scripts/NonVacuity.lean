@@ -9348,4 +9348,18 @@ noncomputable example :=
     (k := ℚ) (P := fun _ _ => 0) (P' := fun _ _ => 1)
     (fun _ : Fin 2 => Finsupp.single () 2) ({(), ()} : Multiset Unit)
 
+open Categorification Categorification.KLR Categorification.Stendhal
+
+attribute [local instance 1100] IsIdempotentElem.instAlgebraCorner_categorification
+
+noncomputable example (s : KLR.Seq (stendhalWeight 2 ({(), ()} : Multiset Unit)))
+    (hs : IsRedOrdered s) :=
+  leftStandardRestrictedEquiv (fun _ : Fin 2 => Finsupp.single () 2)
+    (tensorProductUnitParameterEquiv (k := ℚ) (P := fun _ _ => 0) (P' := fun _ _ => 1)
+      (fun _ : Fin 2 => Finsupp.single () 2) ({(), ()} : Multiset Unit)).toRingEquiv
+    (fun t ht => tensorProductOffDiagonalEquiv_e
+      (Q := fun _ : Unit => fun _ => (0 : MvPolynomial (Fin 2) ℚ)) (Q' := fun _ _ => 1)
+      (Λ := fun _ : Fin 2 => Finsupp.single () 2)
+      (fun i j hij => (hij (Subsingleton.elim i j)).elim) t ht) s hs
+
 end NonVacuity.WebsterUnitParameters

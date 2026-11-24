@@ -1063,6 +1063,9 @@ augmented chain gives a dg model with a pointwise quasi-isomorphic augmentation
 loading resolution, this gives its literal graded augmentation and its
 quasi-isomorphism to the homogeneous standard
 (`orderedWeightDgAugmentation_quasiIso`).
+A bounded-above weight complex realizes as a K-projective dg module when
+its individual terms, placed in their cohomological degrees, are K-projective
+(`diagramWeightModuleOfComplex_isKProjective`).
 
 A balanced homogeneous multiplication of two
 coefficients induces their product from the intermediate weight-category

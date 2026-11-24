@@ -1834,6 +1834,7 @@ import Categorification.Algebra.DiagramWeightCoend
 import Categorification.Algebra.DiagramWeightCoendNaturality
 import Categorification.Algebra.DiagramWeightCoendSurjectivity
 import Categorification.Algebra.DiagramWeightComplex
+import Categorification.Algebra.DiagramWeightComplexKProjective
 import Categorification.Algebra.GradedChainWeightDG
 import Categorification.Algebra.OrderedWeightDGResolution
 import Categorification.Algebra.DiagramWeightExact

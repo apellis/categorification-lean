@@ -414,6 +414,128 @@ theorem fiveSlotRightmostKernel_central_images_intersect_iff (hQ : KLRSymm Q)
   rw [ha, ← mul_assoc, rightmostCrossing_c₀_to_c₁] at h
   exact h.symm
 
+
+private theorem rightmostKernel_rep_mul_val (c : V) (hc : p v₂ * c = c * p v₂) (a : L) :
+    (blockLoadingRep Q Λ v₂ (c * a.1.1)).1.1 = c * a.1.1 := by
+  have hr : a.1.1 * E = a.1.1 := corner_mul_right _ a.1
+  exact (blockLoadingRep_val Q Λ v₂ _).trans (by
+    change p v₂ * (c * a.1.1) * E = c * a.1.1
+    rw [← mul_assoc, hc, mul_assoc c, rightmostKernel_left Q Λ a, mul_assoc, hr])
+
+private def rightmostKernel_mul (c : V) (hc : p v₂ * c = c * p v₂) (a : K) : K :=
+  ⟨blockLoadingRep Q Λ v₂ (c * a.1.1.1), by
+    let J := blockUpperIdeal k Q Λ ν₀ 1 2 (adjacentBlockRoot 1 2 v₂) (redWord v₂)
+    change (blockLoadingRep Q Λ v₂ (c * a.1.1.1)).1.1 ∈ J
+    rw [rightmostKernel_rep_mul_val Q Λ c hc a.1]
+    exact TwoSidedIdeal.mul_mem_left _ _ _ a.2⟩
+
+private theorem rightmostKernel_mul_val (c : V) (hc : p v₂ * c = c * p v₂) (a : K) :
+    (rightmostKernel_mul Q Λ c hc a).1.1.1 = c * a.1.1.1 :=
+  rightmostKernel_rep_mul_val Q Λ c hc a.1
+
+private theorem rightmostKernel_val_injective :
+    Function.Injective (fun a : K => a.1.1.1) := fun _ _ h =>
+  Subtype.ext (Subtype.ext (Subtype.ext h))
+
+private theorem rightmostKernel_mul_add (c : V) (hc : p v₂ * c = c * p v₂) (a b : K) :
+    rightmostKernel_mul Q Λ c hc (a + b) =
+      rightmostKernel_mul Q Λ c hc a + rightmostKernel_mul Q Λ c hc b := by
+  apply rightmostKernel_val_injective Q Λ
+  change (rightmostKernel_mul Q Λ c hc (a+b)).1.1.1 =
+    (rightmostKernel_mul Q Λ c hc a).1.1.1 + (rightmostKernel_mul Q Λ c hc b).1.1.1
+  simp only [rightmostKernel_mul_val]
+  exact mul_add c _ _
+
+private theorem rightmostKernel_mul_smul (c : V) (hc : p v₂ * c = c * p v₂) (r : Aᵐᵒᵖ) (a : K) :
+    rightmostKernel_mul Q Λ c hc (r • a) = r • rightmostKernel_mul Q Λ c hc a := by
+  apply rightmostKernel_val_injective Q Λ
+  change (rightmostKernel_mul Q Λ c hc (r • a)).1.1.1 =
+    (rightmostKernel_mul Q Λ c hc a).1.1.1 * r.unop.1
+  simp only [rightmostKernel_mul_val]
+  exact (mul_assoc c _ _).symm
+
+private def rightmostKernel_leftMul (c : V) (hc : p v₂ * c = c * p v₂) :
+    K →ₗ[Aᵐᵒᵖ] K where
+  toFun := rightmostKernel_mul Q Λ c hc
+  map_add' := rightmostKernel_mul_add Q Λ c hc
+  map_smul' := rightmostKernel_mul_smul Q Λ c hc
+
+private theorem rightmostKernel_leftMul_val (c : V) (hc : p v₂ * c = c * p v₂) (a : K) :
+    (rightmostKernel_leftMul Q Λ c hc a).1.1.1 = c * a.1.1.1 :=
+  rightmostKernel_mul_val Q Λ c hc a
+
+/-- The equal-black crossing as an endomorphism of the rightmost higher kernel. -/
+def fiveSlotRightmostKernel_nilHecke : K →ₗ[Aᵐᵒᵖ] K :=
+  rightmostKernel_leftMul Q Λ D (by
+    rw [← map_mul, ← map_mul, e_mul_ψ, show sadj n₀ 3 • v₂ = v₂ by decide])
+
+private def rightmostKernel_dot : K →ₗ[Aᵐᵒᵖ] K :=
+  rightmostKernel_leftMul Q Λ X₃ (by rw [← map_mul, ← map_mul, x_mul_e])
+
+local notation "d" => fiveSlotRightmostKernel_nilHecke Q Λ
+local notation "u" => rightmostKernel_dot Q Λ
+
+private theorem rightmostKernel_d_sq (a : K) : d (d a) = 0 := by
+  apply Subtype.ext
+  apply Subtype.ext
+  apply Subtype.ext
+  change (d (d a)).1.1.1 = (0 : V)
+  simp only [fiveSlotRightmostKernel_nilHecke, rightmostKernel_leftMul_val]
+  exact rightmostCrossing_square Q Λ a.1.1.1 (rightmostKernel_left Q Λ a.1)
+
+private theorem rightmostKernel_d_u_of_d_zero (a : K) (ha : d a = 0) : d (u a) = a := by
+  have hz : D * a.1.1.1 = 0 := by
+    rw [← rightmostKernel_leftMul_val Q Λ D _ a]
+    exact congrArg (fun b : K => b.1.1.1) ha
+  apply Subtype.ext
+  apply Subtype.ext
+  apply Subtype.ext
+  simp only [fiveSlotRightmostKernel_nilHecke, rightmostKernel_dot, rightmostKernel_leftMul_val]
+  simpa only [hz, mul_zero, sub_zero] using
+    rightmostCrossing_left_dot Q Λ a.1.1.1 (rightmostKernel_left Q Λ a.1)
+
+private def nilHeckeRangeProd {B M : Type} [Ring B] [AddCommGroup M] [Module B M]
+    (δ dot : M →ₗ[B] M) (sq : ∀ a, δ (δ a) = 0)
+    (contract : ∀ a, δ a = 0 → δ (dot a) = a) :
+    M ≃ₗ[B] LinearMap.range δ × LinearMap.range δ where
+  toFun a := (⟨a - dot (δ a), dot (a - dot (δ a)), contract _ (by
+    rw [map_sub, contract (δ a) (sq a), sub_self])⟩, ⟨δ a, a, rfl⟩)
+  invFun w := w.1.1 + dot w.2.1
+  left_inv a := sub_add_cancel _ _
+  right_inv w := by
+    have h₁ : δ w.1.1 = 0 := by
+      obtain ⟨a, ha⟩ := w.1.2
+      rw [← ha, sq a]
+    have h₂ : δ w.2.1 = 0 := by
+      obtain ⟨a, ha⟩ := w.2.2
+      rw [← ha, sq a]
+    have hd : δ (w.1.1 + dot w.2.1) = w.2.1 := by
+      rw [map_add, h₁, contract _ h₂, zero_add]
+    apply Prod.ext
+    · apply Subtype.ext
+      change w.1.1 + dot w.2.1 - dot (δ (w.1.1 + dot w.2.1)) = w.1.1
+      rw [hd, add_sub_cancel_right]
+    · exact Subtype.ext hd
+  map_add' a b := by
+    apply Prod.ext
+    · apply Subtype.ext
+      change a + b - dot (δ (a + b)) = (a - dot (δ a)) + (b - dot (δ b))
+      rw [map_add, map_add]
+      abel
+    · exact Subtype.ext (map_add δ a b)
+  map_smul' r a := by
+    apply Prod.ext
+    · apply Subtype.ext
+      change r • a - dot (δ (r • a)) = r • (a - dot (δ a))
+      rw [map_smul, map_smul, smul_sub]
+    · exact Subtype.ext (map_smul δ r a)
+
+/-- The rightmost higher kernel is two copies of the image of the equal-black
+crossing. Multiplication by the first black dot is a section. -/
+def fiveSlotRightmostKernel_equiv_nilHeckeRangeProd :
+    K ≃ₗ[Aᵐᵒᵖ] LinearMap.range d × LinearMap.range d :=
+  nilHeckeRangeProd d u (rightmostKernel_d_sq Q Λ) (rightmostKernel_d_u_of_d_zero Q Λ)
+
 end KernelSum
 
 end Categorification.Stendhal.BraidedStendhalAlgebra

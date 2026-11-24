@@ -8659,4 +8659,6 @@ example (a : rIdeal (orderedLoadingIdem Q Λ t)) :=
 example (f : MvPolynomial (Fin 2) (ZMod 4)) :=
   TwoBlackFlag.mul_first_pow_mem_iff (by decide : (0 : Fin 2) ≠ 1) 2 9 7 f
 
+example := fiveSlotRightmostKernel_equiv_nilHeckeRangeProd Q Λ
+
 end NonVacuity.WebsterFiveSlotRightHigher

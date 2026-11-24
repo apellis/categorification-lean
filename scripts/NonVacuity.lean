@@ -11719,3 +11719,15 @@ example := exists_distinguished_derivedTensorCoefficient (ModuleCat.of ℚ ℚ)
 
 end
 end NonVacuity.DerivedTensorCoefficientExact
+namespace NonVacuity.ReflectedVectorDual
+
+open Categorification MulOpposite
+
+noncomputable section
+
+private def reflection : Polynomial ℚ →ₐ[ℚ] (Polynomial ℚ)ᵐᵒᵖ := (AlgEquiv.toOpposite ℚ (Polynomial ℚ)).toAlgHom
+
+example := VectorDualRight.reflectedTwistDualEquiv (M := Polynomial ℚ) reflection (fun _ => rfl)
+
+end
+end NonVacuity.ReflectedVectorDual

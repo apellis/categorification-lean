@@ -2,7 +2,7 @@
 Copyright (c) 2026 Alex Ellis. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 -/
-import DG.Category.Tensor.Basic
+import DG.Category.Tensor.Bimodule
 import DG.Category.Derived.FiniteCell
 /-!
 # Tensoring a representable summand by a right coefficient
@@ -82,4 +82,45 @@ theorem coendLoadingEval_map {Y : C} (f : Idempotent Y) (g : corner e ⟶ corner
     have hg : (g.app Z m).val = b ≫ (m.val : X ⟶ Z) :=
       congrArg Subtype.val ((congrArg (g.app Z) hh.symm).trans (g.map_smul (m.val : X ⟶ Z) (cornerGen e)))
     exact (congrArg (fun h : Y ⟶ Z => n <• h) hg).trans (ract_comp _ _ _)
+
+/-- Evaluation on a loading both preserves and reflects cohomological degree. -/
+theorem coendLoadingEval_mem_grading
+    (z : CatTensorProduct N (corner e)) (i : ℤ) :
+    coendLoadingEval N e z ∈ grading i ↔ z ∈ grading i := by
+  constructor
+  · intro h
+    have he : cornerGen e ∈ grading 0 := e.mem_grading
+    have hz : tmul X (coendLoadingEval N e z) (cornerGen e) = z := (coendLoadingIso N e).symm_apply_apply z
+    have hh := CatTensorProduct.tmul_mem_grading (M := corner e) (N := N) h he
+    simpa only [add_zero,hz] using hh
+  · intro h
+    exact (rid N X).map_mem (CatTensorProduct.map_mem (𝟙 N) (cornerRetract e).i h)
+
+/-- Evaluation on a loading commutes with the differential of the right coefficient. -/
+theorem coendLoadingEval_d
+    (z : CatTensorProduct N (corner e)) : coendLoadingEval N e (d z) = d (coendLoadingEval N e z) := by
+  change (rid N X) (CatTensorProduct.map (𝟙 N) (cornerRetract e).i (d z)) = _
+  rw [CatTensorProduct.map_d,(rid N X).map_d]
+  rfl
+
+end Categorification
+
+noncomputable section
+namespace Categorification
+open CategoryTheory DG CatModule DGCategory CatTensorProduct DGOpposite
+universe u v u' v' w
+variable {C : Type u} [Category.{v} C] [Preadditive C] [∀ X Y : C, DGAddCommGroup (X ⟶ Y)] [DGCategory C]
+variable {D : Type u'} [Category.{v'} D] [Preadditive D] [∀ X Y : D, DGAddCommGroup (X ⟶ Y)]
+/-- The loading coend evaluation commutes with the action of the target dg category. -/
+theorem coendLoadingEval_lact (B : CatBimodule.{w} D C) {X : C} (e : Idempotent X)
+    {Y Z : D} (f : Y ⟶ Z) (z : CatTensorProduct (B.right Y) (corner e)) :
+    coendLoadingEval (B.right Z) e (B.tensorAct (corner e) f z) = B.lact f (coendLoadingEval (B.right Y) e z) := by
+  induction z using CatTensorProduct.induction_on with
+  | zero => rw [map_zero,map_zero,map_zero,map_zero]
+  | add a b ha hb => rw [map_add,map_add,map_add,map_add,ha,hb]
+  | tmul W n m =>
+    rw [B.tensorAct_tmul,coendLoadingEval_tmul,coendLoadingEval_tmul]
+    have hz := B.right_ract Z (m.val : X ⟶ W) (B.lact f n)
+    have hy := B.right_ract Y (m.val : X ⟶ W) n
+    exact hz.trans ((B.lact_ract' f m.val n).symm.trans (congrArg (B.lact f) hy.symm))
 end Categorification

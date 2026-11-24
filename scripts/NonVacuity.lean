@@ -6376,6 +6376,14 @@ example :=
   adjacentRedSwapWeight_coordinate (Λ := Ξ) (ν := ν) sl₂ hRouquier
     (weightPairing sl₂ realization) η [0] [] 1 2 0 2 1
 
+/-- The normalized three-red swap pieces decompose the full rectangular corner. -/
+example :=
+  let Ξ : Fin 3 → Unit →₀ ℕ := fun j => Finsupp.single () (j.val + 1)
+  let η : Fin 3 → Module.Dual ℂ (Matrix.Realization.StdSpace (UDot.A sl₂) ℂ) :=
+    fun j => ((Ξ j () : ℂ) / 2) • realization.root ()
+  adjacentRedSwapWeight_isInternal (Λ := Ξ) (ν := ν) sl₂ hRouquier
+    (weightPairing sl₂ realization) η [0] [] 1 2
+
 end NonVacuity.WebsterFigureFive
 
 namespace NonVacuity.BraidedStendhal

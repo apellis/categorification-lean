@@ -1654,6 +1654,7 @@ import Categorification.WeightedKLR.RedStrands.BraidedIdentity
 import Categorification.WeightedKLR.RedStrands.BraidedRedOrder
 import Categorification.WeightedKLR.RedStrands.BraidedReflectedFiltration
 import Categorification.WeightedKLR.RedStrands.BraidedRelabel
+import Categorification.WeightedKLR.RedStrands.BraidedPaletteRelabel
 import Categorification.WeightedKLR.RedStrands.BraidedRelabelAppend
 import Categorification.WeightedKLR.RedStrands.BlockRightLegSweep
 import Categorification.WeightedKLR.RedStrands.AdjacentBlockTensor
@@ -1686,6 +1687,7 @@ import Categorification.WeightedKLR.RedStrands.FiveSlotAllBottom
 import Categorification.WeightedKLR.RedStrands.FiveSlotAllBottomStandard
 import Categorification.WeightedKLR.RedStrands.FiveSlotAllTopsBoundedSpectator
 import Categorification.WeightedKLR.RedStrands.FiveSlotAllTops
+import Categorification.WeightedKLR.RedStrands.FiveSlotSingleColour
 import Categorification.WeightedKLR.RedStrands.BraidedStandardDerived
 import Categorification.WeightedKLR.RedStrands.BlockShuffleLoading
 import Categorification.WeightedKLR.RedStrands.BlockShuffleCrossing
@@ -1707,6 +1709,7 @@ import Categorification.WeightedKLR.RedStrands.BlockPairedColumnInjection
 import Categorification.WeightedKLR.RedStrands.BlockPairedColumnStandard
 import Categorification.WeightedKLR.RedStrands.BlockLoadingPresentation
 import Categorification.WeightedKLR.RedStrands.BlockKernelColumn
+import Categorification.WeightedKLR.RedStrands.BlockKernelPalette
 import Categorification.WeightedKLR.RedStrands.BlockKernelIntervalExits
 import Categorification.WeightedKLR.RedStrands.InterleavedColumn
 import Categorification.WeightedKLR.RedStrands.FiniteExitAffineLift

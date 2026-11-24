@@ -8235,3 +8235,40 @@ example [DG.HasDerivedCategory.{0, 0} (Corner (redWord t))ᵐᵒᵖ]
   fiveSlot_blockKernelDerivedHomology_mono_standard_allTops (k := ℚ) C Λ t (by decide)
 
 end NonVacuity.WebsterFiveSlotAllTops
+
+namespace NonVacuity.WebsterFiveSlotSingleColour
+
+open Categorification.KLR Categorification.Stendhal Categorification.QuantumGroup
+open BraidedStendhalAlgebra KLRAlgebra CategoryTheory DG MulOpposite
+open scoped DG.DegreeZero
+
+attribute [local instance 1200] Ring.toIntAlgebra
+
+private noncomputable abbrev C := CartanDatum.ofGraph (⊥ : SimpleGraph Bool)
+private noncomputable abbrev Λ : Fin 3 → Bool →₀ ℕ := fun r => Finsupp.single true (![3,2,1] r)
+private noncomputable abbrev Q := Categorification.KL3.Diagram.CL.qCL
+  (Categorification.KL3.Diagram.CL.CLScalars.kl : Categorification.KL3.Diagram.CL.CLScalars C ℚ)
+
+local notation "ν₁" => ((Singleton.singleton true : Multiset Bool) + Singleton.singleton true)
+local notation "κ" => ([0,2,1] : List (Fin 3))
+
+private def top : Seq (stendhalWeight 3 ν₁) :=
+  Seq.ofList [.inr 0,.inl true,.inr 1,.inl true,.inr 2] (by decide)
+
+private def bottom : Seq (stendhalWeight 3 ν₁) :=
+  Seq.ofList [.inr 0,.inr 2,.inl true,.inl true,.inr 1] (by decide)
+
+local notation "Corner" => fun reds : List (Fin 3) =>
+  IsIdempotentElem.Corner (isIdempotentElem_violMk_redProj ℚ Q Λ ν₁ reds)
+
+example := fiveSlot_singleColour_blockKernelTensorInclusion_injective
+  (k := ℚ) C Λ true top (by decide)
+
+example := fiveSlot_singleColour_blockKernelColumnInclusion_injective
+  (k := ℚ) C Λ true top bottom (by decide) (by decide)
+
+example [DG.HasDerivedCategory.{0,0} (Corner (redWord top))ᵐᵒᵖ]
+    [DG.HasDerivedCategory.{0,0} (Corner κ)ᵐᵒᵖ] :=
+  fiveSlot_singleColour_blockKernelDerivedHomology_mono (k := ℚ) C Λ true top (by decide)
+
+end NonVacuity.WebsterFiveSlotSingleColour

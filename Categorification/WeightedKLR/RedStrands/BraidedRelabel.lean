@@ -124,22 +124,28 @@ def SeqRelabel.ofRedPerm (σ : Perm (Fin ℓ)) (h : ∀ r, Λ' r = Λ (σ r)) :
 
 namespace BraidedStendhalAlgebra
 
-variable (R : SeqRelabel k (stendhalQ Q Λ') (stendhalQ Q Λ) (stendhalWeight ℓ ν)
-    (stendhalWeight ℓ ν))
-  (hR : ∀ (i : Seq (stendhalWeight ℓ ν)) (a : Fin (Multiset.card (stendhalWeight ℓ ν))),
+section Palette
+
+variable {I' : Type*} [DecidableEq I'] {Q' : I' → I' → MvPolynomial (Fin 2) k}
+  {Λ' : Fin ℓ → I' →₀ ℕ} {ν' : Multiset I'}
+local notation "μ'" => stendhalWeight ℓ ν'
+
+variable (R : SeqRelabel k (stendhalQ Q' Λ') (stendhalQ Q Λ)
+    (stendhalWeight ℓ ν') (stendhalWeight ℓ ν))
+  (hR : ∀ (i : Seq (stendhalWeight ℓ ν')) (a : Fin (Multiset.card (stendhalWeight ℓ ν'))),
     ((R.equiv i).lbl (Fin.cast R.card_eq a)).isRight = (i.lbl a).isRight)
 
 /-- The free algebra on the generators maps to `B̃(Λ)` through a relabelling. -/
-noncomputable def relabelFree : FreeAlgebra k (Gen μ) →ₐ[k] BraidedStendhalAlgebra k Q Λ ν :=
+noncomputable def relabelFree : FreeAlgebra k (Gen μ') →ₐ[k] BraidedStendhalAlgebra k Q Λ ν :=
   (ofKLR k Q Λ ν).comp ((KLRAlgebra.relabelHom R).comp (KLRAlgebra.mk k _ _))
 
 include hR in
-theorem relabelFree_rel ⦃u v : FreeAlgebra k (Gen μ)⦄ (h : BraidedRel k Q Λ' ν u v) :
+theorem relabelFree_rel ⦃u v : FreeAlgebra k (Gen μ')⦄ (h : BraidedRel k Q' Λ' ν' u v) :
     relabelFree R u = relabelFree R v := by
   cases h with
   | klr h =>
-    have : KLRAlgebra.mk k (stendhalQ Q Λ') (stendhalWeight ℓ ν) u =
-        KLRAlgebra.mk k (stendhalQ Q Λ') (stendhalWeight ℓ ν) v := RingQuot.mkAlgHom_rel k h
+    have : KLRAlgebra.mk k (stendhalQ Q' Λ') μ' u =
+        KLRAlgebra.mk k (stendhalQ Q' Λ') μ' v := RingQuot.mkAlgHom_rel k h
     simp only [relabelFree, AlgHom.comp_apply, this]
   | red_dot a i h =>
     simp only [relabelFree, AlgHom.comp_apply, map_mul, map_zero]
@@ -151,27 +157,27 @@ theorem relabelFree_rel ⦃u v : FreeAlgebra k (Gen μ)⦄ (h : BraidedRel k Q �
 /-- **Relabelling** `B̃(Λ') → B̃(Λ)` along a relabelling of sequences that preserves the colour
 (black or red) of every strand. -/
 noncomputable def relabelHom :
-    BraidedStendhalAlgebra k Q Λ' ν →ₐ[k] BraidedStendhalAlgebra k Q Λ ν :=
+    BraidedStendhalAlgebra k Q' Λ' ν' →ₐ[k] BraidedStendhalAlgebra k Q Λ ν :=
   RingQuot.liftAlgHom k ⟨relabelFree R, relabelFree_rel R hR⟩
 
-theorem relabelHom_ofKLR (u : KLR.KLRAlgebra k (stendhalQ Q Λ') μ) :
-    relabelHom R hR (ofKLR k Q Λ' ν u) = ofKLR k Q Λ ν (KLRAlgebra.relabelHom R u) := by
+theorem relabelHom_ofKLR (u : KLR.KLRAlgebra k (stendhalQ Q' Λ') μ') :
+    relabelHom R hR (ofKLR k Q' Λ' ν' u) = ofKLR k Q Λ ν (KLRAlgebra.relabelHom R u) := by
   obtain ⟨a, rfl⟩ := KLRAlgebra.mk_surjective u
   rw [ofKLR_mk]
   exact RingQuot.liftAlgHom_mkAlgHom_apply _ _ _ _
 
-omit [DecidableEq I] in
+omit [DecidableEq I] [DecidableEq I'] in
 include hR in
 theorem symm_isRight (i : Seq μ) (a : Fin (Multiset.card μ)) :
     ((R.symm.equiv i).lbl (Fin.cast R.symm.card_eq a)).isRight = (i.lbl a).isRight := by
   have := hR (R.equiv.symm i) (Fin.cast R.symm.card_eq a)
-  simp only [Equiv.apply_symm_apply, Fin.cast_eq_self] at this
+  simp only [Equiv.apply_symm_apply] at this
   exact this.symm
 
 /-- **Relabelling** `B̃(Λ') ≃ B̃(Λ)` along a relabelling of sequences that preserves the colour
 of every strand. -/
 noncomputable def relabelAlgEquiv :
-    BraidedStendhalAlgebra k Q Λ' ν ≃ₐ[k] BraidedStendhalAlgebra k Q Λ ν :=
+    BraidedStendhalAlgebra k Q' Λ' ν' ≃ₐ[k] BraidedStendhalAlgebra k Q Λ ν :=
   AlgEquiv.ofAlgHom (relabelHom R hR) (relabelHom R.symm (fun i a => symm_isRight R hR i a))
     (by
       ext y
@@ -188,9 +194,11 @@ noncomputable def relabelAlgEquiv :
       rw [← AlgHom.comp_apply (KLRAlgebra.relabelHom R.symm), KLRAlgebra.relabelHom_symm_comp]
       rfl)
 
-@[simp] theorem relabelAlgEquiv_ofKLR (u : KLR.KLRAlgebra k (stendhalQ Q Λ') μ) :
-    relabelAlgEquiv R hR (ofKLR k Q Λ' ν u) = ofKLR k Q Λ ν (KLRAlgebra.relabelHom R u) :=
+@[simp] theorem relabelAlgEquiv_ofKLR (u : KLR.KLRAlgebra k (stendhalQ Q' Λ') μ') :
+    relabelAlgEquiv R hR (ofKLR k Q' Λ' ν' u) = ofKLR k Q Λ ν (KLRAlgebra.relabelHom R u) :=
   relabelHom_ofKLR R hR u
+
+end Palette
 
 /-! ### Relabelling along a permutation of the red labels -/
 

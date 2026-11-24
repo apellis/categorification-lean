@@ -377,13 +377,15 @@ private theorem map_mem_of_basis
     Submodule.span_le.mpr (Set.range_subset_iff.mpr h)
   exact incl (basis.mem_span a)
 
-private theorem map_mem_of_sum
-    {k M Y ι : Type*} [CommRing k] [AddCommGroup M] [Module k M]
-    [AddCommGroup Y] [Module k Y] (L : M →ₗ[k] Y) (I : Submodule k Y)
-    (s : Finset ι) (f : ι → M) (a : M) (ha : ∑ i ∈ s, f i = a)
-    (h : ∀ i ∈ s, L (f i) ∈ I) : L a ∈ I := by
-  rw [← ha, map_sum]
-  exact I.sum_mem h
+private theorem mem_restricted_range_iff
+    {k B Y : Type*} [CommRing k] [AddCommGroup B] [Module k B]
+    [AddCommGroup Y] [Module k Y] (support : Submodule k B) (f : B →ₗ[k] Y) (v : Y) :
+    v ∈ LinearMap.range (f.comp support.subtype) ↔ ∃ y : B, y ∈ support ∧ v = f y := by
+  constructor
+  · rintro ⟨y,hy⟩
+    exact ⟨y.1,y.2,hy.symm⟩
+  · rintro ⟨y,hy,eq⟩
+    exact ⟨⟨y,hy⟩,eq.symm⟩
 
 end ColumnSpans
 
@@ -600,67 +602,66 @@ private def firstPairRightmostTensorImage : Submodule k X :=
 
 local notation "Im" => firstPairRightmostTensorImage Q Λ
 
+attribute [local irreducible] firstPairRightmostTensorImage
+
 set_option backward.isDefEq.respectTransparency false in
 private theorem firstPairRightmost_atom_mem_image (hQ : KLRSymm Q)
     (x : K) (u : Seq μ) (ends : u.lbl last = .inr 2)
     (r : T) (q : B) (hr : r.1 * p u = r.1) :
     tm x (r • q) ∈ Im := by
-  let L : CT →ₗ[k] X := (tm g).comp (CT).subtype
-  change tm x (r • q) ∈ LinearMap.range L
-  obtain ⟨z,hz,h⟩ := firstPairRightmost_balance_terminal_atom Q Λ hQ u ends x r q hr
-  let v : CT := ⟨z,hz⟩
-  have heq : L v = tm g z := rfl
-  exact LinearMap.mem_range.mpr ⟨v, heq.trans h.symm⟩
+  unfold firstPairRightmostTensorImage
+  apply (mem_restricted_range_iff CT (tm g) (tm x (r • q))).2
+  exact firstPairRightmost_balance_terminal_atom Q Λ hQ u ends x r q hr
 
 set_option backward.isDefEq.respectTransparency false in
-private theorem firstPairRightmost_supported_pbw_reduces (hQ : KLRSymm Q)
-    (x : K) (s : Seq μ) (hs : redWord s = redWord rightmost)
-    (d : Seq μ) (w : Perm (Fin N)) (dots : Fin N →₀ ℕ) :
-    tm x (firstPairTerminal_cutColumn Q Λ s hs (ψw (ρ w) * pol (monomial dots 1) * e d)) ∈ Im := by
+private theorem firstPairTerminal_testing_pbw
+    (s : Seq μ) (hs : redWord s = redWord rightmost)
+    (d : Seq μ) (w : Perm (Fin N)) (dots : Fin N →₀ ℕ)
+    (P : B → Prop) (zero_ok : P 0)
+    (factor_ok : ∀ (u : Seq μ), u.lbl last = .inr 2 →
+      ∀ (r : T) (q : B), r.1 * p u = r.1 → P (r • q)) :
+    P (firstPairTerminal_cutColumn Q Λ s hs (ψw (ρ w) * pol (monomial dots 1) * e d)) := by
   classical
   let cut := firstPairTerminal_cutColumn Q Λ s hs
-  change tm x (cut (ψw (ρ w) * pol (monomial dots 1) * e d)) ∈ Im
+  change P (cut (ψw (ρ w) * pol (monomial dots 1) * e d))
   by_cases e₀ : d = b
   · subst d
     by_cases e₁ : w • b = s
     · have factor : ∃ u : Seq μ, ∃ r : T, ∃ q : B, u.lbl last = .inr 2 ∧
           r.1 * p u = r.1 ∧ cut (ψw (ρ w) * pol (monomial dots 1) * e b) = r • q :=
-        @firstPairTerminal_form_right_atom k ‹CommRing k› Q Λ s hs w dots e₁
+        firstPairTerminal_form_right_atom Q Λ s hs w dots e₁
       obtain ⟨u,r,q,ends,hr,rep⟩ := factor
-      have hmem : tm x (r • q) ∈ Im :=
-        @firstPairRightmost_atom_mem_image k ‹CommRing k› Q Λ hQ x u ends r q hr
-      exact (congrArg (tm x) rep).symm ▸ hmem
+      exact rep.symm ▸ factor_ok u ends r q hr
     · have neq : w⁻¹ • s ≠ b := fun he => e₁ (by rw [← he, smul_inv_smul])
       have zero : cut (ψw (ρ w) * pol (monomial dots 1) * e b) = 0 := by
         apply Subtype.ext
         change F (e s * (ψw (ρ w) * pol (monomial dots 1) * e b) * e b) = 0
         rw [e_mul_gen, terminalWord_prod, ite_eq_right neq, zero_mul, map_zero]
-      rw [zero, map_zero (tm x)]
-      exact (Im).zero_mem
+      exact zero.symm ▸ zero_ok
   · have zero : cut (ψw (ρ w) * pol (monomial dots 1) * e d) = 0 := by
       apply Subtype.ext
       change F (e s * (ψw (ρ w) * pol (monomial dots 1) * e d) * e b) = 0
       simp only [mul_assoc,e_mul_e,ite_eq_right e₀,mul_zero,map_zero]
-    rw [zero, map_zero (tm x)]
-    exact (Im).zero_mem
+    exact zero.symm ▸ zero_ok
 
 set_option backward.isDefEq.respectTransparency false in
-private theorem firstPairRightmost_supported_source_reduces (hQ : KLRSymm Q)
-    (x : K) (s : Seq μ) (hs : redWord s = redWord rightmost) (a : R) :
-    tm x (firstPairTerminal_cutColumn Q Λ s hs a) ∈ Im := by
+private theorem firstPairTerminal_cutColumn_mem (hQ : KLRSymm Q)
+    (s : Seq μ) (hs : redWord s = redWord rightmost) (a : R)
+    (I : Submodule k B)
+    (factor_ok : ∀ (u : Seq μ), u.lbl last = .inr 2 →
+      ∀ (r : T) (q : B), r.1 * p u = r.1 → r • q ∈ I) :
+    firstPairTerminal_cutColumn Q Λ s hs a ∈ I := by
   classical
-  let L := (tm x).comp (firstPairTerminal_cutColumn Q Λ s hs)
+  let cut := firstPairTerminal_cutColumn Q Λ s hs
   let PBW := basisOfSymm (k := k) («ν» := μ) (stendhalQ_symm Q Λ hQ) ρ
     (fun w => terminalWord_spec («ν» := ν) (ℓ := 2) w)
-  change L a ∈ Im
-  refine map_mem_of_basis L Im PBW a ?_
+  change cut a ∈ I
+  refine map_mem_of_basis cut I PBW a ?_
   rintro ⟨d,w,dots⟩
   have hpbw : PBW (d,w,dots) = ψw (ρ w) * pol (monomial dots 1) * e d :=
     basisOfSymm_apply (stendhalQ_symm Q Λ hQ) ρ _ (d,w,dots)
-  have hmem : tm x (firstPairTerminal_cutColumn Q Λ s hs
-      (ψw (ρ w) * pol (monomial dots 1) * e d)) ∈ Im :=
-    firstPairRightmost_supported_pbw_reduces Q Λ hQ x s hs d w dots
-  exact (congrArg L hpbw).symm ▸ hmem
+  rw [hpbw]
+  exact firstPairTerminal_testing_pbw Q Λ s hs d w dots (· ∈ I) I.zero_mem factor_ok
 
 private noncomputable abbrev firstPairSourceLoadings :=
   Finset.univ.filter fun s : Seq μ => redWord s = redWord rightmost
@@ -684,8 +685,10 @@ private theorem firstPairTerminal_sum_coefficients (y : B) (a : R) (ha : F a = y
   rw [source,y.2.1,y.2.2]
 
 set_option backward.isDefEq.respectTransparency false in
-private theorem firstPairRightmost_mem_tensorImage (hQ : KLRSymm Q) (x : K) (y : B) :
-    tm x y ∈ Im := by
+private theorem firstPairTerminal_column_mem
+    (I : Submodule k B) (y : B)
+    (cuts : ∀ (s : Seq μ) (hs : redWord s = redWord rightmost) (a : R),
+      firstPairTerminal_cutColumn Q Λ s hs a ∈ I) : y ∈ I := by
   classical
   have surj : Function.Surjective F := (violMk_surjective (Q := Q) (Λ := Λ)).comp
     (ofKLR_surjective (Q := Q) (Λ := Λ))
@@ -693,18 +696,27 @@ private theorem firstPairRightmost_mem_tensorImage (hQ : KLRSymm Q) (x : K) (y :
   let loadings := firstPairSourceLoadings
   let col (s : ↥loadings) := firstPairTerminal_cutColumn Q Λ s.1 (Finset.mem_filter.mp s.2).2 a
   have split : (∑ s ∈ loadings.attach, col s) = y := firstPairTerminal_sum_coefficients Q Λ y a ha
-  refine map_mem_of_sum (tm x) Im loadings.attach col y split ?_
-  intro i _hi
-  exact firstPairRightmost_supported_source_reduces Q Λ hQ x i.1
-    (Finset.mem_filter.mp i.2).2 a
+  rw [← split]
+  exact I.sum_mem fun s _ => cuts s.1 (Finset.mem_filter.mp s.2).2 a
+
+set_option backward.isDefEq.respectTransparency false in
+private theorem firstPairRightmost_mem_tensorImage (hQ : KLRSymm Q) (x : K) (y : B) :
+    tm x y ∈ Im := by
+  let I : Submodule k B := Submodule.comap (tm x) Im
+  change y ∈ I
+  refine firstPairTerminal_column_mem Q Λ I y ?_
+  intro s hs a
+  refine firstPairTerminal_cutColumn_mem Q Λ hQ s hs a I ?_
+  intro u hu r q hr
+  exact firstPairRightmost_atom_mem_image Q Λ hQ x u hu r q hr
 
 set_option backward.isDefEq.respectTransparency false in
 private theorem firstPairRightmost_single_tensor (hQ : KLRSymm Q) (x : K) (y : B) :
     ∃ w : B, p terminal * w.1 = w.1 ∧ tm x y = tm g w := by
-  have hy : tm x y ∈ LinearMap.range ((tm g).comp (CT).subtype) :=
-    @firstPairRightmost_mem_tensorImage k ‹CommRing k› Q Λ hQ x y
-  obtain ⟨w,hw⟩ := LinearMap.mem_range.mp hy
-  exact ⟨w.1,w.2,hw.symm⟩
+  apply (mem_restricted_range_iff CT (tm g) (tm x y)).1
+  have mem : tm x y ∈ Im := firstPairRightmost_mem_tensorImage Q Λ hQ x y
+  unfold firstPairRightmostTensorImage at mem
+  exact mem
 
 /-- The actual ordinary balanced kernel inclusions at the rightmost first-pair
 top and the remaining two-interior bottom are injective. -/

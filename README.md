@@ -1388,6 +1388,14 @@ horizontal reflection has degree-zero homology `k` and vanishes in every
 other cohomological degree
 (`Stendhal.LabelTwo.outgoingExteriorAmbientHomology_zero`,
 `Stendhal.LabelTwo.outgoingExteriorAmbientHomology_isZero`).
+The reflected incoming exterior coefficient kills all strictly higher
+loading idempotents. The ordered resolution and the divided projector
+splitting show that the incoming diagonal ambient homology also vanishes
+in every nonzero degree
+(`Stendhal.LabelTwo.incomingExteriorAmbientHomology_isZero`).
+On the incoming divided standard, the reflected projector selects the
+line spanned by the black-crossing translate
+(`Stendhal.labelTwoRightExterior_reflectedProjector_image`).
 
 
 
@@ -1523,9 +1531,9 @@ vanishing outside degree zero for the reflected coefficient
 (`Stendhal.LabelTwo.middleStandard_derivedTensorHomology_isZero_of_higher_support`).
 The standard rank-one parameter comparison supplies this supported
 resolution for the actual middle cut
-(`Stendhal.LabelTwo.exists_middleStandard_supportedResolution`).
-The same construction works for every ordered loading in the actual
-two-red, two-black algebra
+(`Stendhal.LabelTwo.exists_middleStandard_supportedResolution`). The same
+construction works for every ordered loading in the actual two-red,
+two-black algebra
 (`Stendhal.LabelTwo.exists_loadingStandard_supportedResolution`).
 The ordinary tensor of this actual coefficient with the middle standard
 is the dual-number vector space at the middle cut

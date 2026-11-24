@@ -109,7 +109,7 @@ local notation "H" => centralIntermediateLoading
 local notation "a" => centralStableWord
 local notation "b" => centralSwappedWord
 
-private theorem centralBottomLoading_cases (s : Seq weight)
+theorem centralBottomLoading_cases (s : Seq weight)
     (order : redWord s = redWord E₀) (hv : ¬ IsViolated s) :
     ∃ i, s = S i := by
   obtain h | rfl | rfl | rfl := fiveSlot_nonviolated_tops s order hv
@@ -185,7 +185,7 @@ local notation "pre" => centralBeforeSwap
 local notation "post" => centralAfterSwap
 local notation "j" => centralSwapIndex
 
-private theorem centralWordComp_append (l r : List ℕ) (s : Seq weight) (f : P) :
+theorem centralWordComp_append (l r : List ℕ) (s : Seq weight) (f : P) :
     wordComp D (l ++ r) s f = wordComp D l (wordProd N r • s) (wordComp D r s f) := by
   induction l with
   | nil => simp [wordComp]
@@ -200,7 +200,7 @@ private theorem central_unit_parameter (i r : Unit ⊕ Fin 3) (h : unitLabels i 
     (D i r : MvPolynomial (Fin 2) k) = 1 := by
   cases i <;> cases r <;> simp_all [unitLabels, sortedFlagP]
 
-private theorem centralUnit_action (s : Seq weight) (l : List ℕ) (hl : unitPath s l = true) (f : P) :
+theorem centralUnit_action (s : Seq weight) (l : List ℕ) (hl : unitPath s l = true) (f : P) :
     wordComp D l s f = rename (wordProd N l) f :=
   wordComp_of_unitPath (central_unit_parameter Λ) s l hl f
 
@@ -264,7 +264,7 @@ private theorem central_finish_crossComp (s : Seq weight) (j : ℕ) (h : j+1<N)
   simp only [crossComp,hb,hr,reduceCtorEq,↓reduceIte,sortedFlagP,map_pow,rename_X,
     Matrix.cons_val_one,Matrix.cons_val_zero,LinearMap.comp_apply,LinearMap.mulLeft_apply,AlgHom.toLinearMap_apply]
 
-private theorem central_finish_first (f : P) :
+theorem central_finish_first (f : P) :
     wordComp D [2] E₀ f = X i₃^(Λ 1 ())*rename (wordProd N [2]) f := by
   rw [wordComp,dite_eq_left (by decide : 2+1<N)]
   simp only [LinearMap.comp_apply,wordComp,LinearMap.id_apply,wordProd_nil,one_smul,wordProd_cons,mul_one]
@@ -282,7 +282,7 @@ private theorem central_finish_two (f : P) :
     rfl
   rw [hp]
 
-private theorem central_finish_one (f : P) :
+theorem central_finish_one (f : P) :
     wordComp D [3] jA f = X i₄^(Λ 2 ())*rename (wordProd N [3]) f := by
   rw [wordComp,dite_eq_left (by decide : 3+1<N)]
   simp only [LinearMap.comp_apply,wordComp,LinearMap.id_apply,wordProd_nil,one_smul,wordProd_cons,mul_one]
@@ -427,7 +427,7 @@ private theorem centralIntermediate_flag_kills (i : Fin 3) (f : P)
   · exact fiveSlotNearby_flagIdeal_kills Q Λ hf
   · exact fiveSlotCentral_flagIdeal_kills Q Λ hf
 
-private theorem centralSlide_step (j : ℕ) (hj : j+1<N) (s : Seq weight)
+theorem centralSlide_step (j : ℕ) (hj : j+1<N) (s : Seq weight)
     (hne : s.lbl ⟨j, by omega⟩ ≠ s.lbl ⟨j+1,hj⟩) (f : P)
     (z : R) (hz : e s * z = z) :
     ψ j * (pol f * z) = pol (swapPol j hj f) * (ψ j * z) := by

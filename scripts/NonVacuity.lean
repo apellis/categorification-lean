@@ -8552,3 +8552,18 @@ example := FiveSlotFlag.fiveSlotRightmost_firstCrossing_cancel_on_leftExtreme Q 
 example := fiveSlotRightmost_centralIntersectionIntoProjective_injective Q Λ (fun _ _ _ => rfl)
 
 end NonVacuity.WebsterFiveSlotRightHigher
+
+namespace NonVacuity.WebsterFiveSlotLastRedTransport
+
+open Categorification Categorification.KLR Categorification.Stendhal BraidedStendhalAlgebra
+
+private noncomputable abbrev Q : Unit → Unit → MvPolynomial (Fin 2) (ZMod 4) := fun _ _ => 0
+private noncomputable abbrev Λ : Fin 3 → Unit →₀ ℕ := fun r => Finsupp.single () (r.val + 2)
+
+example := FiveSlotFlag.fiveSlotNearby_toCentral_cancel_on_orderCorner Q Λ (fun _ _ _ => rfl)
+
+example := FiveSlotFlag.fiveSlotLastRed_firstCrossing_cancel Q Λ (fun _ _ _ => rfl)
+
+example := FiveSlotFlag.fiveSlotLastRed_secondCrossing_mem_leftExtremeImage Q Λ (fun _ _ _ => rfl)
+
+end NonVacuity.WebsterFiveSlotLastRedTransport

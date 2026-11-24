@@ -979,6 +979,14 @@ comparison must use the graded retract of the source representable and retain th
 coset; the ungraded derived comparison cannot supply it. Webster's `D⁻` also requires a
 bounded-above restriction, distinct from the fact that this projective is in cochain degree zero.
 
+For Lemma 6.11, `braidingBimoduleFlip` implements the horizontal reflection used in
+the proof of `f_n → s_n`. It swaps the order corners and intertwines their actions with
+the opposite actions through the corner anti-involutions.
+`hasReflectedStandardFiltration_braidingBimodule` carries a supplied right-standard
+filtration of the inverse braid to a left filtration with the same loading labels on the
+braid, using restriction of scalars along the corner flip on each subquotient.
+Existence of the right-standard filtration and higher Tor vanishing remain open.
+
 Open, in working order: Lemma 6.8 (needs block standardization in the braided algebra; standard
 modules exist only in `StendhalAlgebraAllOrders`, `RedStrands/StandardAction.lean`, and partial
 standardization only for the last red strand), then Prop 6.9 for general `ℓ` by reduction to two

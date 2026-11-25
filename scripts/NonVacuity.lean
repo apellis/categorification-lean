@@ -10465,6 +10465,37 @@ end
 
 end NonVacuity.WebsterScalarHom
 
+noncomputable section
+namespace NonVacuity.WebsterOppositeWeight
+
+open Categorification CategoryTheory DG Stendhal FundamentalCorner BraidedStendhalAlgebra
+open scoped DG.DegreeZero
+
+attribute [local instance 1100] IsIdempotentElem.instAlgebraCorner_categorification
+local notation "ν₀" => ({()} : Multiset Unit)
+local notation "V" => violAuxiliaryGrade (ν := ν₀) FundamentalCorner.grading
+local notation "E" => isIdempotentElem_violMk_redProj ℚ Q wt ν₀ [0, 1]
+local notation "H" => redProj_mem_violAuxiliaryGrade (ν := ν₀) FundamentalCorner.grading [0, 1]
+
+example := by
+  letI := Graded.cornerGradedAlgebra V E H
+  let G := Graded.cornerGrading V E
+  exact oppositeWeightFullyFaithful G
+
+example := by
+  letI := Graded.cornerGradedAlgebra V E H
+  let G := Graded.cornerGrading V E
+  let _ := gradedAlgebraInternalGrading G
+  let _ := gradedAlgebraBigradedDGRing G
+  let _ := gradedAlgebraInternalGrading (Graded.oppositeGrade G)
+  let _ := gradedAlgebraBigradedDGRing (Graded.oppositeGrade G)
+  let F := oppositeWeightFunctor G
+  exact show (F.obj (DGOpposite.op ⟨2⟩)).as = -2 from rfl
+
+end NonVacuity.WebsterOppositeWeight
+
+end
+
 namespace NonVacuity.WebsterAuxiliaryBraiding
 
 noncomputable section

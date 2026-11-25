@@ -924,9 +924,16 @@ is rigid (`IsRigidCut`; it holds when no black strand lies between `b` and the n
 of Def 5.1 are exactly those of the partial standard of Lemma 6.8
 (`mem_violStandardUpper_iff_mem_blockUpperIdeal`). One inclusion holds at every loading: every
 diagram `e(t) x e(u)` between loadings of one red order factors through loadings above both
-(`e_mul_mul_e_mem_commonUpperSpan`). Open: steps 2–4 of the plan (braid of the partial standard
-by Lemma 6.8 and `blockTensorEquiv`, the Figure 5 comparison with spectators on both sides, the
-graded shift).
+(`e_mul_mul_e_mem_commonUpperSpan`).
+
+Step 2 (`RedStrands/BlockPartialStandardTensor.lean`): for a loading `t` of red order
+`L ++ b :: a :: M`, the ordinary tensor of the braid bimodule to `L ++ a :: b :: M` with the
+partial standard is the cut `e(t) V e_{κ₀}` modulo the diagrams through loadings of the bottom
+order with strictly higher retained root (`partialStandardTensorEquiv`, no hypotheses; it uses
+the slide `mem_blockUpperIdeal_iff` in place of `blockTensorEquiv`). With Lemma 6.8 this is the
+derived braid of the partial standard in degree zero (`blockPartialStandard_braidIso`, under
+(6.8-filt) and (6.8-inj)). Open: steps 3–4 (the Figure 5 comparison with spectators on both
+sides, the graded shift).
 
 The ungraded Figure 5 right-module map for Prop 6.9 (`RedStrands/BraidedStandardTwo.lean`,
 `RedStrands/BraidedStandardInjective.lean`, `RedStrands/BraidedStandardIso.lean`). Let the leftmost strand of `t` be `λ_r` and let `g`

@@ -262,6 +262,58 @@ theorem derivedTensorHomologyIsoOrdinary_naturality
         (H (A := A)).map (Q.map ((T (A := A) (M := M)).map f)) :=
   derivedTensorHomologyIsoOrdinaryLinear_naturality (R := ℤ) f
 
+/-- The comparison from derived tensor to ordinary tensor on a degree-zero input. -/
+def derivedTensorToOrdinary (X : Type u) [AddCommGroup X] [Module B X] :
+    (F (A := A) (B := B) (M := M)).obj (Q.obj (DGModuleCat.of B (InDegreeZero X))) ⟶
+      Q.obj ((T (A := A) (B := B) (M := M)).obj (DGModuleCat.of B (InDegreeZero X))) :=
+  ((F (A := A) (B := B) (M := M)).mapIso (asIso (Q.map (aug (B := B) X))).symm ≪≫
+    derivedTensorObjIso (A := A) (M := M) (model_kproj (B := B) X)).hom ≫
+    Q.map ((T (A := A) (M := M)).map (aug (B := B) X))
+
+/-- Webster, arXiv:1309.3796v2, Lemma 6.8: when the derived tensor of an ordinary module is
+concentrated in degree zero, the comparison with the ordinary tensor is an isomorphism in the
+derived category, with its module action. -/
+def derivedTensorIsoOrdinaryOfVanishing (X : Type u) [AddCommGroup X] [Module B X]
+    (hv : ∀ n : ℤ, n ≠ 0 → CategoryTheory.Limits.IsZero ((homologyFunctor (A := A) ℤ n).obj
+      ((F (A := A) (B := B) (M := M)).obj (Q.obj (DGModuleCat.of B (InDegreeZero X)))))) :
+    (F (A := A) (B := B) (M := M)).obj (Q.obj (DGModuleCat.of B (InDegreeZero X))) ≅
+      Q.obj ((T (A := A) (B := B) (M := M)).obj (DGModuleCat.of B (InDegreeZero X))) := by
+  let e := (F (A := A) (B := B) (M := M)).mapIso (asIso (Q.map (aug (B := B) X))).symm ≪≫
+    derivedTensorObjIso (A := A) (M := M) (model_kproj (B := B) X)
+  let p := (T (A := A) (M := M)).map (aug (B := B) X)
+  have hp : p.hom.IsQuasiIso := by
+    intro n
+    let Hn := homologyFunctor (A := A) ℤ n
+    have h : IsIso (Hn.map (Q.map p)) := by
+      by_cases hn : n = 0
+      · subst n
+        exact aug_tensor_iso_H0 (R := ℤ) (A := A) (B := B) (M := M) X
+      · have hsrc := (hv n hn).of_iso (Hn.mapIso e).symm
+        let Z := (T (A := A) (M := M)).obj (DGModuleCat.of B (InDegreeZero X))
+        have htgt : CategoryTheory.Limits.IsZero (Hn.obj (Q.obj Z)) := by
+          let : Subsingleton (cocycles Z n) := ⟨fun x y => by
+            apply Subtype.ext
+            have hx := TensorProductOver.eq_zero_of_mem_grading_inDegreeZero (B := B) (M := M)
+              (N := X) hn (mem_cocycles.mp x.2).1
+            have hy := TensorProductOver.eq_zero_of_mem_grading_inDegreeZero (B := B) (M := M)
+              (N := X) hn (mem_cocycles.mp y.2).1
+            exact hx.trans hy.symm⟩
+          let : Subsingleton (cohomology Z n) := (cohomology.mk_surjective Z n).subsingleton
+          exact ModuleCat.isZero_iff_subsingleton.mpr
+            ((cohomologyAddEquiv ℤ Z n).surjective.subsingleton)
+        exact hsrc.isIso htgt _
+    exact (ConcreteCategory.isIso_iff_bijective _).mp
+      ((NatIso.isIso_map_iff (homologyFunctorFactors (A := A) ℤ n) p).mp h)
+  have : IsIso (Q.map p) := (isIso_Q_map_iff _).mpr hp
+  exact e ≪≫ asIso (Q.map p)
+
+@[simp] theorem derivedTensorIsoOrdinaryOfVanishing_hom
+    (X : Type u) [AddCommGroup X] [Module B X]
+    (hv : ∀ n : ℤ, n ≠ 0 → CategoryTheory.Limits.IsZero ((homologyFunctor (A := A) ℤ n).obj
+      ((F (A := A) (B := B) (M := M)).obj (Q.obj (DGModuleCat.of B (InDegreeZero X)))))) :
+    (derivedTensorIsoOrdinaryOfVanishing (A := A) (B := B) (M := M) X hv).hom =
+      derivedTensorToOrdinary (A := A) (B := B) (M := M) X := rfl
+
 end DerivedComparison
 
 section BalancedComparison

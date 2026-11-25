@@ -12033,3 +12033,26 @@ example := VectorDualRight.reflectedTwistDualEquiv (M := Polynomial ℚ) reflect
 
 end
 end NonVacuity.ReflectedVectorDual
+noncomputable section
+open CategoryTheory CategoryTheory.Limits DG DG.DerivedCategory
+open scoped DG.DegreeZero
+namespace NonVacuity.WebsterDerivedOrdinaryComparison
+open Categorification
+
+local instance : HasDerivedCategory.{0, 0} ℤ := HasDerivedCategory.small ℤ
+
+private abbrev unitModule : ModuleCat.{0} ℤ := ModuleCat.of ℤ PUnit
+
+private theorem vanish (n : ℤ) (_ : n ≠ 0) :
+    IsZero ((homologyFunctor ℤ n).obj ((derivedTensor ℤ ℤ ℤ).obj
+      (Q.obj ((degreeZeroModuleFunctor ℤ).obj unitModule)))) := by
+  apply Functor.map_isZero
+  apply Functor.map_isZero
+  apply Q.map_isZero
+  exact (degreeZeroModuleFunctor ℤ).map_isZero
+    (X := unitModule) (ModuleCat.isZero_iff_subsingleton.mpr inferInstance)
+
+example := derivedTensorIsoOrdinaryOfVanishing (A := ℤ) (B := ℤ) (M := ℤ) unitModule vanish
+
+end NonVacuity.WebsterDerivedOrdinaryComparison
+end

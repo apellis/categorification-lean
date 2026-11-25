@@ -1455,6 +1455,13 @@ The outgoing differential embeds the incoming cokernel in the exterior
 projective with quotient the final simple
 (`Stendhal.LabelTwo.outgoingCokernelShortComplex_shortExact`).
 
+The incoming divided exterior standard and the final augmentation
+are simple. The middle quotient and outgoing projective each have a
+proper nonzero submodule given by the image of the previous differential
+(`Stendhal.LabelTwo.labelTwoIncomingExterior_simple`,
+`Stendhal.LabelTwo.labelTwo_middleQuotient_not_simple`,
+`Stendhal.LabelTwo.labelTwo_outgoingExterior_not_simple`).
+
 
 
 

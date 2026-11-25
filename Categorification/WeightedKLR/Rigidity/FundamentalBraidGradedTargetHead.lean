@@ -9,7 +9,7 @@ import Categorification.WeightedKLR.RedStrands.BraidingAuxiliaryDerived
 /-!
 # The graded middle head in the reversed target order
 
-In the fundamental case of Webster, arXiv:1309.3796v2, §7.1,
+In the fundamental case of Webster, arXiv:1309.3796v2, §7.2,
 Proposition 7.11, the reversed-order middle character is concentrated
 in auxiliary weight zero. Restrict the scalar weight module along this
 character to express the target in the weight category of the braid.

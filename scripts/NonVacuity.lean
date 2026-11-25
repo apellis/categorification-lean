@@ -6879,6 +6879,16 @@ private theorem secondProduct : wordProd m wordSecond = index.val := by
 example := braidColumnBlockIndex_wordChange (Q := parameters) (Λ := weights)
   top sizes sizes_card exchange ⟨phi, phi_eligible⟩ reducedFirst reducedSecond firstProduct secondProduct 1
 
+
+private noncomputable def correctionWords (w : Perm (Fin m)) : List ℕ :=
+  (TypeA.exists_reduced m w).choose
+private theorem correctionWords_spec : TypeA.IsReducedChoice correctionWords :=
+  fun w => (TypeA.exists_reduced m w).choose_spec
+
+example := braidColumnLoadingProjection_map_lowSpan_le_same_bottom
+  (Q := parameters) (Λ := weights) (braidBlockPermutation sizes sizes_card exchange • top) bottom
+  correctionWords correctionWords_spec (subProds m wordFirst) 10
+
 end NonVacuity.WebsterBlockBraidIndex
 
 namespace NonVacuity.WebsterBraidEarlierMixedCut
@@ -9614,6 +9624,21 @@ private theorem bottom_labels (r : Fin 3) :
     (phi⁻¹ • top).lbl (braidBlockPositions sizes sizes_card ⟨r, 0⟩) = .inr r := by
   rw [bottom_eq]
   fin_cases r <;> decide
+
+example : ∃! input : (Fin 3 → ℕ) × Perm (Fin m),
+    ∃ hn : (∑ r, (input.1 r + 1)) = m,
+      (∀ r : Fin 3, (input.2⁻¹ • top).lbl (braidBlockPositions input.1 hn ⟨r,0⟩) = .inr r) ∧
+      braidColumnBottomBlockIndex input.1 hn swapReds input.2 = sadj m 1 := by
+  have hindex : braidColumnBottomBlockIndex sizes sizes_card swapReds phi = sadj m 1 := by
+    apply Equiv.ext
+    intro a
+    fin_cases a <;> rfl
+  refine ⟨(sizes,phi), ⟨sizes_card,bottom_labels,hindex⟩, ?_⟩
+  rintro ⟨n,w⟩ ⟨hn,hred,hw⟩
+  obtain ⟨he,he'⟩ := braidColumnBottomBlockIndex_eq_of_eq top swapReds n sizes hn sizes_card
+    w phi hred bottom_labels (hw.trans hindex.symm)
+  exact Prod.ext he he'
+
 private def topR (r : Fin 3) : Fin m := Fin.cast four_eq_card (Fin.castSucc r)
 private def bottomR (r : Fin 3) : Fin m :=
   Fin.cast four_eq_card (if r = 2 then 3 else Fin.castSucc r)
@@ -9642,6 +9667,48 @@ example : braidColumnBottomBlockIndex sizes sizes_card swapReds phi = sadj m 1 :
 example : redWord ((braidColumnBottomBlockIndex sizes sizes_card swapReds phi)⁻¹ • top) = [0, 2, 1] :=
   (redWord_braidColumnBottomBlockIndex_bottom top sizes sizes_card swapReds phi bottom_labels).trans
     (by decide)
+
+private def higherSizes (r : Fin 3) : ℕ := if r = 2 then 1 else 0
+private theorem higherCard : (∑ r, (higherSizes r + 1)) = m := by decide
+private theorem identity_eligible : ProjectiveBlockIndex top (1 : Perm (Fin m)) := by
+  constructor
+  · simp only [inv_one, one_smul]
+    exact (redWord_eq_finRange_iff top).1 (by decide)
+  · simp only [inv_one, one_smul, Perm.one_apply]
+    intros
+    assumption
+  · simp only [inv_one, one_smul, Perm.one_apply]
+    intros
+    assumption
+private theorem first_word :
+    wordProd m [1] = braidColumnBottomBlockIndex sizes sizes_card swapReds phi := by
+  apply Equiv.ext
+  intro a
+  fin_cases a <;> rfl
+private theorem second_word :
+    wordProd m [1, 2] =
+      braidColumnBottomBlockIndex higherSizes higherCard swapReds (1 : Perm (Fin m)) := by
+  apply Equiv.ext
+  intro a
+  fin_cases a <;> rfl
+private theorem higher_index :
+    braidColumnBottomBlockIndex higherSizes higherCard swapReds (1 : Perm (Fin m)) =
+      braidColumnBottomBlockIndex sizes sizes_card swapReds phi * sadj m 2 := by
+  rw [← first_word, ← second_word]
+  rfl
+private theorem reduced_words (word : List ℕ) (h : ValidWord m word)
+    (n : word.length = invCount m (wordProd m word)) : IsReduced m word :=
+  ⟨h,n.trans (length_eq_invCount _).symm⟩
+private noncomputable abbrev cutQ : Unit → Unit → MvPolynomial (Fin 2) ℚ := fun _ _ => 0
+private noncomputable abbrev cutWeights : Fin 3 → Unit →₀ ℕ := fun _ => Finsupp.single () 2
+
+example :=
+  (braidColumnBottomBlockIndex_mixed_product (Q := cutQ) (Λ := cutWeights)
+    top sizes higherSizes sizes_card higherCard swapReds ⟨phi, phi_eligible⟩ ⟨1, identity_eligible⟩
+    (j := 2) (by decide) higher_index (by decide) (r := 1) (i := ()) (by decide) (by decide)
+    (reduced_words [1] (by simp [ValidWord, ← four_eq_card]) (by decide))
+    (reduced_words [1, 2] (by simp [ValidWord, ← four_eq_card]) (by decide))
+    first_word second_word).2.2 (by decide)
 
 example := braidColumnBottomBlockIndex_lt_red_black top sizes sizes_card swapReds
   phi_eligible bottom_labels (2 : Fin 3) ⟨1, by decide⟩ (by decide) (i := ()) (by decide)
@@ -9695,6 +9762,8 @@ open Categorification QuantumGroup Stendhal Stendhal.FundamentalCorner Stendhal.
 noncomputable section
 private abbrev datum := CartanDatum.ofGraph (⊥ : SimpleGraph Unit)
 private abbrev realization := Matrix.Realization.std (UDot.A datum) ℂ
+
+example := fundamentalDoubleBraidCut_physicalWeight realization crossedMiddle 1 0
 
 example : weightPairing datum realization (braidFundamentalWeight realization)
     (braidFundamentalWeight realization) = 1 / 2 :=
@@ -9793,6 +9862,96 @@ private theorem nonviolated : ¬ IsViolated reordered := by
 example := exists_braidBottomBlockReconstruction reordered exchange (by decide) nonviolated
 
 end NonVacuity.WebsterBottomBraidReconstruction
+
+namespace NonVacuity.WebsterBottomBraidSpan
+
+open Categorification Categorification.KLR Categorification.Stendhal Equiv TypeA
+private abbrev content : Multiset Unit := {()}
+private abbrev weight := stendhalWeight 3 content
+private def top : Seq weight :=
+  KLRAlgebra.Seq.ofList [.inr 0, .inr 1, .inr 2, .inl ()] (by decide)
+private theorem top_ordered : IsRedOrdered top := (redWord_eq_finRange_iff top).1 (by decide)
+private def swapReds : Perm (Fin 3) := Equiv.swap 1 2
+private noncomputable def words (w : Perm (Fin (Multiset.card weight))) :=
+  (TypeA.exists_reduced _ w).choose
+private theorem words_spec : IsReducedChoice words := fun w => (TypeA.exists_reduced _ w).choose_spec
+private noncomputable abbrev parameters : Unit → Unit → MvPolynomial (Fin 2) ℚ := fun _ _ => 0
+private noncomputable abbrev weights : Fin 3 → Unit →₀ ℕ := fun _ => Finsupp.single () 2
+
+example := span_braidColumnBottomProducts (Q := parameters) (Λ := weights)
+  top top_ordered swapReds words words_spec
+
+end NonVacuity.WebsterBottomBraidSpan
+
+namespace NonVacuity.WebsterBottomBraidHigherTrace
+open Categorification Categorification.KLR Categorification.Stendhal Equiv TypeA
+open KLRAlgebra BraidedStendhalAlgebra
+
+private abbrev content : Multiset Unit := {()}
+private abbrev weight := stendhalWeight 3 content
+private def top : Seq weight :=
+  KLRAlgebra.Seq.ofList [.inr 0, .inr 1, .inr 2, .inl ()] (by decide)
+private def source : Seq weight :=
+  KLRAlgebra.Seq.ofList [.inr 0, .inr 2, .inr 1, .inl ()] (by decide)
+private theorem top_ordered : IsRedOrdered top := (redWord_eq_finRange_iff top).1 (by decide)
+private def swapReds : Perm (Fin 3) := Equiv.swap 1 2
+private abbrev sourceOrder := (List.finRange 3).map swapReds
+private noncomputable def words (w : Perm (Fin (Multiset.card weight))) :=
+  (TypeA.exists_reduced _ w).choose
+private theorem words_spec : IsReducedChoice words := fun w => (TypeA.exists_reduced _ w).choose_spec
+private noncomputable abbrev parameters : Unit → Unit → MvPolynomial (Fin 2) ℚ := fun _ _ => 0
+private noncomputable abbrev weights : Fin 3 → Unit →₀ ℕ := fun _ => Finsupp.single () 2
+private noncomputable abbrev π :=
+  AlgHom.comp (violMk ℚ parameters weights content) (ofKLR ℚ parameters weights content)
+private noncomputable abbrev crossing := π (ψw [1] * e source)
+private theorem crossing_left : π (e top) * crossing = crossing := by
+  rw [← map_mul π]
+  apply congrArg π
+  have h := e_mul_std (k := ℚ) (Q := parameters) (Λ := weights) [1] 1 source
+  simpa only [show wordProd (Multiset.card weight) [1] • source = top by decide, map_one,mul_one]
+    using h
+
+example (z : violCorner ℚ parameters weights content source sourceOrder)
+    (hz : z ∈ violStandardUpper (Q := parameters) (Λ := weights) source sourceOrder) :=
+  braidColumnBottomBlock_mul_violStandardUpper_mem_higher_span top source top_ordered swapReds
+    words words_spec crossing crossing_left z hz
+
+end NonVacuity.WebsterBottomBraidHigherTrace
+
+namespace NonVacuity.WebsterBottomBraidBruhat
+open Categorification Categorification.KLR Categorification.Stendhal Equiv TypeA
+
+private abbrev content : Multiset Unit := {()}
+private abbrev weight := stendhalWeight 4 content
+private abbrev m := Multiset.card weight
+private theorem five_eq_card : 5 = m := by decide
+private def top : Seq weight :=
+  KLRAlgebra.Seq.ofList [.inr 0, .inr 1, .inr 2, .inr 3, .inl ()] (by decide)
+private theorem top_ordered : IsRedOrdered top := (redWord_eq_finRange_iff top).1 (by decide)
+private def swapReds : Perm (Fin 4) := Equiv.swap 0 2
+private def wiring : Perm (Fin m) := wordProd m [0,1,0]
+private theorem second_word : wordProd m [1,0,1] = wiring := by
+  apply Equiv.ext
+  intro a
+  fin_cases a <;> rfl
+private theorem reduced (w : List ℕ) (h : ValidWord m w)
+    (hl : w.length = invCount m (wordProd m w)) : IsReduced m w :=
+  ⟨h,hl.trans (length_eq_invCount _).symm⟩
+private noncomputable def words (w : Perm (Fin m)) :=
+  (TypeA.exists_reduced _ w).choose
+private theorem words_spec : IsReducedChoice words := fun w => (TypeA.exists_reduced _ w).choose_spec
+private noncomputable abbrev parameters : Unit → Unit → MvPolynomial (Fin 2) ℚ := fun _ _ => 0
+private noncomputable abbrev weights : Fin 4 → Unit →₀ ℕ := fun _ => Finsupp.single () 2
+
+example := exists_braidColumnIndexLinearRefinement top
+
+example := braidColumnBottomBlock_wordChange_mem_earlier_span (Q := parameters) (Λ := weights)
+  top top_ordered swapReds words words_spec wiring (by decide)
+  (reduced [0,1,0] (by simp [ValidWord, ← five_eq_card]) (by decide))
+  (reduced [1,0,1] (by simp [ValidWord, ← five_eq_card]) (by decide)) rfl second_word 1
+
+end NonVacuity.WebsterBottomBraidBruhat
+
 
 namespace NonVacuity.WebsterFundamentalBraidTensorHomology
 open CategoryTheory Categorification.Stendhal.FundamentalCorner
@@ -9908,6 +10067,10 @@ noncomputable example := fundamentalBraidGradedHomologyTargetIso
 
 noncomputable example := fundamentalBraidGradedDerivedTargetIso.{1}
 
+noncomputable example := fundamentalBraidReversedHeadIso.{1}
+
+noncomputable example := fundamentalDoubleBraidHeadIso.{1}
+
 attribute [local instance] fundamentalBraidSourceOrderedInternal fundamentalBraidSourceOrderedBigraded
   fundamentalTargetScalarInternal fundamentalTargetScalarBigraded
 
@@ -9925,6 +10088,10 @@ noncomputable example := fundamentalBraidTargetCap_restrictIso.{1}
 noncomputable example := fundamentalBraidTargetCap_translatedHeadIso.{1} 3
 
 noncomputable example := fundamentalBraidCappedCupIso.{1}
+
+noncomputable example := fundamentalBraidCappedCup_shiftedScalarIso.{1} 3 (-2)
+
+noncomputable example := fundamentalBraidCappedCup_clockwiseIso.{1} (-3) 2
 
 end NonVacuity.WebsterFundamentalBraidGradedResolutionModel
 end
@@ -10308,6 +10475,15 @@ example (hK : CatModule.IsKProjective rationalLeft) :=
     (fun _ => ⟨InDegreeZero.mem_grading_zero, InDegreeZero.d_apply _⟩)
     (fun _ => ⟨InDegreeZero.mem_grading_zero, InDegreeZero.d_apply _⟩) (⟨0⟩ : QWeight)
 
+example :=
+  diagramWeightTensorInternalShiftIso G leftAction rightAction (-2) rationalLeft
+
+example :=
+  letI := CatModule.HasDerivedCategory.standard QWeight
+  diagramWeightDerivedTensorInternalShiftIso G leftAction rightAction (-2)
+    (CatModule.DerivedCategory.Q.obj rationalLeft)
+
+
 end
 
 end NonVacuity.WebsterWeightCoend
@@ -10418,6 +10594,63 @@ example := diagramWeightScalarDerivedHom ℚ weightPiece rightAction
 end
 
 end NonVacuity.WebsterScalarHom
+
+noncomputable section
+namespace NonVacuity.WebsterOppositeWeight
+
+open Categorification CategoryTheory DG Stendhal FundamentalCorner BraidedStendhalAlgebra
+open scoped DG.DegreeZero
+
+attribute [local instance 1100] IsIdempotentElem.instAlgebraCorner_categorification
+local notation "ν₀" => ({()} : Multiset Unit)
+local notation "V" => violAuxiliaryGrade (ν := ν₀) FundamentalCorner.grading
+local notation "E" => isIdempotentElem_violMk_redProj ℚ Q wt ν₀ [0, 1]
+local notation "H" => redProj_mem_violAuxiliaryGrade (ν := ν₀) FundamentalCorner.grading [0, 1]
+
+example := by
+  letI := Graded.cornerGradedAlgebra V E H
+  let G := Graded.cornerGrading V E
+  exact oppositeWeightFullyFaithful G
+
+example := by
+  letI := Graded.cornerGradedAlgebra V E H
+  let G := Graded.cornerGrading V E
+  let _ := gradedAlgebraInternalGrading G
+  let _ := gradedAlgebraBigradedDGRing G
+  let _ := gradedAlgebraInternalGrading (Graded.oppositeGrade G)
+  let _ := gradedAlgebraBigradedDGRing (Graded.oppositeGrade G)
+  let F := oppositeWeightFunctor G
+  exact show (F.obj (DGOpposite.op ⟨2⟩)).as = -2 from rfl
+
+end NonVacuity.WebsterOppositeWeight
+
+end
+
+noncomputable section
+namespace NonVacuity.WebsterBraidedFlipGrade
+
+open Categorification CategoryTheory DG Stendhal FundamentalCorner BraidedStendhalAlgebra
+open scoped DG.DegreeZero
+
+local notation "ν₀" => ({()} : Multiset Unit)
+local notation "V" => violAuxiliaryGrade (ν := ν₀) FundamentalCorner.grading
+local notation "E" => isIdempotentElem_violMk_redProj ℚ Q wt ν₀ [0, 1]
+
+private theorem symmGrade (i j : Unit ⊕ Fin 2) :
+    FundamentalCorner.grading.degΨ i j = FundamentalCorner.grading.degΨ j i := by
+  rcases i with ⟨⟨⟩⟩ | i <;> rcases j with ⟨⟨⟩⟩ | j
+  · rfl
+  · fin_cases j <;> rfl
+  · fin_cases i <;> rfl
+  · fin_cases i <;> fin_cases j <;> rfl
+
+example (a : (E).Cornerᵐᵒᵖ) :
+    (cornerFlipEquiv (Q := Q) (Λ := wt) ν₀ [0, 1] a).val ∈ V 2 ↔ a.unop.val ∈ V 2 :=
+  cornerFlipEquiv_mem_violAuxiliaryGrade_iff FundamentalCorner.grading symmGrade [0, 1] 2 a
+
+end NonVacuity.WebsterBraidedFlipGrade
+
+end
 
 namespace NonVacuity.WebsterAuxiliaryBraiding
 
@@ -10719,6 +10952,30 @@ noncomputable example :
     letI : CatModule.HasDerivedCategory.{1,0} (WeightCategory ℚ) :=
       CatModule.HasDerivedCategory.standard (WeightCategory ℚ)
     (middleReflectedWeightDerivedTensor ℚ).IsTriangulated := inferInstance
+
+noncomputable example :=
+  letI : CatModule.HasDerivedCategory.{1,0} (WeightCategory ℚ) :=
+    CatModule.HasDerivedCategory.standard (WeightCategory ℚ)
+  middleSumWeightTensorCohomologyShiftIso ℚ 2 (⟨4⟩ : WeightCategory ℚ) (-1)
+
+
+noncomputable example :=
+  letI : CatModule.HasDerivedCategory.{1,0} (WeightCategory ℚ) :=
+    CatModule.HasDerivedCategory.standard (WeightCategory ℚ)
+  middleStandardWeight_cohomology_isZero ℚ (⟨2⟩ : WeightCategory ℚ) (-1) (by decide)
+
+noncomputable example :=
+  letI : CatModule.HasDerivedCategory.{1,0} (WeightCategory ℚ) :=
+    CatModule.HasDerivedCategory.standard (WeightCategory ℚ)
+  middleStandardWeightH0AtTwoIso ℚ
+
+
+noncomputable example :=
+  letI : CatModule.HasDerivedCategory.{1,0} (WeightCategory ℚ) :=
+    CatModule.HasDerivedCategory.standard (WeightCategory ℚ)
+  middleSumWeightTensorPeriodIso ℚ (⟨6⟩ : WeightCategory ℚ) (-3) (by decide)
+
+
 
 
 
@@ -11701,11 +11958,31 @@ example := incomingLiftTensorMap_nonzero ℚ
 
 example := incomingLiftShortComplex_shortExact ℚ
 
+example := outgoingCokernelShortComplex_shortExact ℚ
+
+example := labelTwoIncomingExterior_simple ℚ
+
+example := labelTwo_middleQuotient_not_simple ℚ
+
+example := labelTwo_outgoingExterior_not_simple ℚ
+
 example := middleY₁Readout_diagramPlus_generator ℚ
 
 example (z : incomingLiftSubmodule ℚ) := middleY₁Readout_middleDotElt_incomingLift_zero ℚ z
 
 example := Categorification.Webster.LabelTwo.plus_one_notMem_range_plus_comp_plus (k := ℚ)
+
+section
+
+local instance : HasDerivedCategory.{0,0}
+    (TensorProductAlgebra ℚ (parameter ℚ) weights (({()} : Multiset Unit) + {()})) :=
+  HasDerivedCategory.small _
+
+example := incomingMiddleStandardHomology_zero_isZero ℚ
+
+example := incomingMiddleStandardHomology_isZero ℚ (-1)
+
+end
 
 example (z : labelTwoRightExteriorDividedStandard (parameter ℚ)) :=
   labelTwoRightExterior_reflectedProjector_image (parameter ℚ) z

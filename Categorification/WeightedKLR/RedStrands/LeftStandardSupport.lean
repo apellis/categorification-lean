@@ -29,7 +29,8 @@ variable {I : Type} [DecidableEq I] {ℓ : ℕ} {ν : Multiset I}
 local notation "μ" => stendhalWeight ℓ ν
 local notation "m" => Multiset.card (stendhalWeight ℓ ν)
 
-private theorem blackCount_sadj_black_black (s : Seq μ) {j : ℕ} (hj : j + 1 < m)
+/-- Exchanging adjacent black strands preserves Webster’s black counts. -/
+theorem blackCount_sadj_black_black (s : Seq μ) {j : ℕ} (hj : j + 1 < m)
     {i i' : I} (h₁ : s.lbl ⟨j, by omega⟩ = .inl i) (h₂ : s.lbl ⟨j + 1, hj⟩ = .inl i')
     (r : Fin ℓ) (c : I) :
     blackCount (sadj m j • s) r c = blackCount s r c := by

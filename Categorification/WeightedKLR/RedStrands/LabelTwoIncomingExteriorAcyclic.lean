@@ -2,6 +2,7 @@
 Copyright (c) 2026 Alex Ellis. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 -/
+import Categorification.WeightedKLR.RedStrands.LabelTwoExteriorCokernelSimple
 import Categorification.WeightedKLR.RedStrands.LabelTwoExteriorMiddleInjective
 import Categorification.WeightedKLR.RedStrands.LeftStandardTensorFixed
 import Categorification.WeightedKLR.RedStrands.OppositeStandardTor
@@ -238,6 +239,94 @@ private theorem crossingTranslate_ne_zero : (crossingTranslate k).val ≠ 0 := b
   have hc := (crossingTranslateReadout_translate k).symm.trans
     ((congrArg (crossingTranslateReadout k) h).trans (crossingTranslateReadout k).map_zero)
   exact one_ne_zero (congrArg Prod.snd hc)
+
+private abbrev incomingUndottedGenerator : P := projectRestrict k g
+
+private abbrev exteriorCrossing : T := affineProjection k (KLRAlgebra.ψ 2)
+private abbrev exteriorFirstDot : T :=
+  affineProjection k (KLRAlgebra.x ⟨2, by decide⟩)
+
+private abbrev crossingEnd : Module.End k S := (Algebra.lsmul k k S) (exteriorCrossing k)
+private abbrev dotEndExterior : Module.End k S := (Algebra.lsmul k k S) (exteriorFirstDot k)
+
+private theorem exteriorCrossingEnd_square : crossingEnd k * crossingEnd k = 0 :=
+  (labelTwo_rightStandard_terminalOperators (parameter k)).2.2.2.1
+
+private theorem exteriorCrossingEnd_dot_sum :
+    crossingEnd k * dotEndExterior k + dotEndExterior k * crossingEnd k = 1 :=
+  (labelTwo_rightStandard_terminalOperators (parameter k)).2.2.2.2
+
+private theorem projector_eq_mul : project k = exteriorFirstDot k * exteriorCrossing k * E := by
+  let p := affineProjection k
+  let a : Aff := KLRAlgebra.x ⟨2, by decide⟩
+  let d : Aff := KLRAlgebra.ψ 2
+  have hidem : p (KLRAlgebra.e A) = E := stendhalTensorProjection_e wt ν A ordered
+  change p ((a*d)*KLRAlgebra.e A) = (p a * p d)*E
+  exact (map_mul p _ _).trans (congrArg₂ (·*·) (map_mul p a d) hidem)
+
+private theorem incomingUndotted_val : (incomingUndottedGenerator k).val = project k • g :=
+  labelTwoRightExteriorProjection_generator (parameter k)
+
+private theorem exteriorUndotted_eq_ops :
+    (incomingUndottedGenerator k).val = exteriorFirstDot k • (exteriorCrossing k • g) := by
+  have he : (affineProjection k (KLRAlgebra.e A)) • g = g :=
+    labelTwo_rightStandard_loading_fixed (parameter k) g
+  have hE := (congrArg (fun a : T => a • g) (stendhalTensorProjection_e wt ν A ordered)).symm.trans he
+  calc _ = project k • g := incomingUndotted_val k
+       _ = (exteriorFirstDot k * exteriorCrossing k * E) • g :=
+         congrArg (fun a : T => a • g) (projector_eq_mul k)
+       _ = _ := by rw [mul_smul,hE,mul_smul]
+
+private theorem exteriorCrossing_kills_translate :
+    exteriorCrossing k • crossingTranslate k = 0 := by
+  apply Subtype.ext
+  change (crossingEnd k * crossingEnd k) (incomingUndottedGenerator k).val = 0
+  rw [exteriorCrossingEnd_square, LinearMap.zero_apply]
+
+private theorem mulEnd_projection_idempotent {R : Type*} [Ring R] (d y : R)
+    (hd : d * d = 0) (h : d * y + y * d = 1) : (y * d) * (y * d) = y * d := by
+  have hr : (d * y) * d = d := calc
+    _ = (d * y + y * d) * d := by
+      rw [add_mul, mul_assoc y d d, hd, mul_zero, add_zero]
+    _ = d := by rw [h, one_mul]
+  calc
+    (y * d) * (y * d) = y * ((d * y) * d) := by simp only [mul_assoc]
+    _ = y * d := congrArg (y * ·) hr
+
+private theorem exteriorDot_translates_back :
+    exteriorFirstDot k • crossingTranslate k = incomingUndottedGenerator k := by
+  have hp := mulEnd_projection_idempotent (crossingEnd k) (dotEndExterior k)
+    (exteriorCrossingEnd_square k) (exteriorCrossingEnd_dot_sum k)
+  apply Subtype.ext
+  change (dotEndExterior k * crossingEnd k) (incomingUndottedGenerator k).val =
+    (incomingUndottedGenerator k).val
+  rw [exteriorUndotted_eq_ops]
+  exact congrArg (fun f : Module.End k S => f g) hp
+
+private theorem incomingExterior_span (z : P) :
+    ∃ a b : k, z = a • crossingTranslate k + b • incomingUndottedGenerator k := by
+  obtain ⟨b,a,h⟩ := labelTwo_rightExteriorDividedStandard_span (parameter k) z
+  have hz : z.val = b • (project k • g) +
+      a • (affineProjection k (KLRAlgebra.ψ 2) • (project k • g)) := h
+  refine ⟨a,b,Subtype.ext ?_⟩
+  change z.val = a • (crossingTranslate k).val + b • (incomingUndottedGenerator k).val
+  exact (hz.trans (congrArg₂ (·+·) (congrArg (b•·) (incomingUndotted_val k).symm)
+    (congrArg (a•·) (crossingTranslate_val k).symm))).trans (add_comm _ _)
+
+private theorem crossingTranslate_cyclic (z : P) :
+    ∃ a : T, a • crossingTranslate k = z := by
+  obtain ⟨a,b,h⟩ := incomingExterior_span k z
+  refine ⟨algebraMap k T a + algebraMap k T b * exteriorFirstDot k,?_⟩
+  rw [add_smul, mul_smul, exteriorDot_translates_back, algebraMap_smul, algebraMap_smul, h]
+
+/-- The divided incoming exterior standard is simple. -/
+theorem labelTwoIncomingExterior_simple : CategoryTheory.Simple (ModuleCat.of T P) := by
+  apply simple_iff_isSimpleModule.mpr
+  have hn : crossingTranslate k ≠ 0 := fun h =>
+    crossingTranslate_ne_zero k (congrArg Subtype.val h)
+  exact simple_of_two_vector_span (k := k) (R := T) (L := P)
+    (crossingTranslate k) (incomingUndottedGenerator k) hn (exteriorCrossing k)
+    (exteriorCrossing_kills_translate k) rfl (incomingExterior_span k) (crossingTranslate_cyclic k)
 
 private def incomingFixedGenerator : fixSub k N (op (project k)) := by
   refine ⟨crossingTranslate k, ?_⟩

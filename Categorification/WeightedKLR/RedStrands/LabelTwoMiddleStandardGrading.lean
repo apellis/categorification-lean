@@ -16,7 +16,6 @@ The comparison is a degree-preserving equivalence with the standardization.
 
 noncomputable section
 
-set_option maxHeartbeats 1600000
 
 namespace Categorification.Stendhal.LabelTwo
 
@@ -95,15 +94,20 @@ local notation "lmap" => middleStandardTestLinear k
 def middleStandardGrade : ℤ → Submodule k (Standard k) :=
   Graded.comap (middleParabolicGFin k datum).grading lmap
 
+private theorem gradedComponents_mem_range_of_surjective
+    {Source Target : Type} [AddCommGroup Source] [Module k Source] [AddCommGroup Target] [Module k Target]
+    (G : ℤ → Submodule k Target) [Decomposition G] (f : Source →ₗ[k] Target)
+    (hf : Function.Surjective f) (x : Source) (d : ℤ) :
+    (decompose G (f x) d).val ∈ LinearMap.range f :=
+  hf (decompose G (f x) d).val
+
 /-- The actual diagrammatic middle standard as a finite graded module. -/
 def middleStandardGFin : GFin (k := k) (A := Alg) (middleTensorGrade k datum) := by
   let M₀ : ℤ → Submodule k V := (middleParabolicGFin k datum).grading
   let M : ℤ → Submodule k (Standard k) := Graded.comap M₀ lmap
   let : Decomposition M₀ := (middleParabolicGFin k datum).decomposition
-  have hr (x : Standard k) (d : ℤ) :
-      (decompose M₀ (lmap x) d).val ∈ LinearMap.range lmap := by
-    obtain ⟨a, ha⟩ := testModuleMap_surjective k (decompose M₀ (lmap x) d).val
-    exact ⟨a, ha⟩
+  have hsurj : Function.Surjective lmap := testModuleMap_surjective k
+  have hr := gradedComponents_mem_range_of_surjective k M₀ lmap hsurj
   let : Decomposition M := (Graded.isInternal_comap M₀ lmap (testModuleMap_injective k) hr).chooseDecomposition
   let : SetLike.GradedSMul (middleTensorGrade k datum) M := ⟨fun (i j : ℤ) (a : Alg) (b : Standard k) ha hb => by
     change lmap (a • b) ∈ (middleParabolicGFin k datum).grading (i + j)

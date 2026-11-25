@@ -4,6 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 -/
 import Categorification.Algebra.DiagramWeightExact
 import Categorification.Algebra.DiagramWeightGroundTensor
+import Categorification.Algebra.DiagramWeightInternalShift
 import Categorification.Algebra.DiagramWeightLocalizedCohomology
 import Categorification.Algebra.DiagramWeightTensorDerived
 import Categorification.WeightedKLR.RedStrands.LabelTwoMiddleBalancedGrading
@@ -95,6 +96,39 @@ def middleSumWeightModule (j : ℤ) : CatModule (WeightCategory A₂) :=
 def middleDifferenceWeightModule (j : ℤ) : CatModule (WeightCategory A₂) :=
   letI : SetLike.GradedSMul 𝒜₂ ℛ₂ := (middleDotDifferenceQuotientGFin k).gradedSMul
   (totalWeightBimodule k (Graded.shift ℛ₂ j)).left ⟨0⟩
+
+
+
+private def middleGradedWeightShift {X : Type} [AddCommGroup X] [Module k X] [Module A₂ X]
+    [SMulCommClass A₂ k X] (P : ℤ → Submodule k X) [SetLike.GradedSMul 𝒜₂ P] (j : ℤ) :
+    (totalWeightBimodule k (Graded.shift P j)).left ⟨0⟩ ≅
+      CatModule.precompObj (WeightCategory.shiftFunctor A₂ (-j))
+        ((totalWeightBimodule k (Graded.shift P 0)).left ⟨0⟩) := by
+  refine diagramWeightLeftGradeShiftIso (B := k)
+    (fun d => (Graded.shift P 0 d).toAddSubgroup)
+    (leftModuleWeight k (Graded.shift P 0)) (rightScalarWeight k (Graded.shift P 0))
+    (fun d => (Graded.shift P j d).toAddSubgroup)
+    (leftModuleWeight k (Graded.shift P j)) (rightScalarWeight k (Graded.shift P j))
+    (-j) ?_ ⟨0⟩
+  intro d
+  change (P (d - j)).toAddSubgroup = (P ((d + -j) - 0)).toAddSubgroup
+  rw [sub_zero, sub_eq_add_neg]
+
+/-- The positive grading shift of the sum quotient is restriction along
+the translation of weight objects by the negative shift. -/
+def middleSumWeightInternalShiftIso (j : ℤ) :
+    middleSumWeightModule k j ≅ CatModule.precompObj (WeightCategory.shiftFunctor A₂ (-j))
+      (middleSumWeightModule k 0) := by
+  letI : SetLike.GradedSMul 𝒜₂ 𝒬₂ := (middleDotSumQuotientGFin k).gradedSMul
+  exact middleGradedWeightShift k 𝒬₂ j
+
+/-- The positive grading shift of the difference quotient gives the same
+translation convention on its weight module. -/
+def middleDifferenceWeightInternalShiftIso (j : ℤ) :
+    middleDifferenceWeightModule k j ≅ CatModule.precompObj (WeightCategory.shiftFunctor A₂ (-j))
+      (middleDifferenceWeightModule k 0) := by
+  letI : SetLike.GradedSMul 𝒜₂ ℛ₂ := (middleDotDifferenceQuotientGFin k).gradedSMul
+  exact middleGradedWeightShift k ℛ₂ j
 
 
 private def liftedWeightMap {X Y : Type}
@@ -330,6 +364,49 @@ def middleStandardWeightH0IsoOfResolution
     (middleCoefficient_scalarLeft k) (middleCoefficient_reflectedRight k)
     f hK hf hK₀ (fun _ => ⟨InDegreeZero.mem_grading_zero, InDegreeZero.d_apply _⟩) X ≪≫
     (middleStandardWeightTensorEquiv k X).toAddCommGrpIso
+
+
+private def middleWeightTensorCohomologyShiftIso
+    (j : ℤ) {M M₀ : CatModule (WeightCategory A₂)}
+    (e : M ≅ CatModule.precompObj (WeightCategory.shiftFunctor A₂ (-j)) M₀)
+    (X : WeightCategory k) (n : ℤ) :
+    (CatModule.DerivedCategory.cohomologyFunctor X n).obj
+      ((middleReflectedWeightDerivedTensor k).obj (CatModule.DerivedCategory.Q.obj M)) ≅
+    (CatModule.DerivedCategory.cohomologyFunctor
+      ((WeightCategory.shiftFunctor k (-j)).obj X) n).obj
+      ((middleReflectedWeightDerivedTensor k).obj (CatModule.DerivedCategory.Q.obj M₀)) := by
+  let Q := CatModule.DerivedCategory.Q (C := WeightCategory A₂)
+  let F := middleReflectedWeightDerivedTensor k
+  let H := CatModule.DerivedCategory.cohomologyFunctor X n
+  let e₀ := Q.mapIso e ≪≫ (CatModule.DerivedCategory.QCompInternalShiftIso A₂ (-j)).symm.app M₀
+  let e₁ := diagramWeightDerivedTensorInternalShiftIso (fun d => (𝒩₂ d).toAddSubgroup)
+    (middleCoefficient_scalarLeft k) (middleCoefficient_reflectedRight k) (-j) (Q.obj M₀)
+  exact H.mapIso (F.mapIso e₀ ≪≫ e₁) ≪≫
+    weightInternalShift_cohomologyIso (-j) (F.obj (Q.obj M₀)) X n
+
+/-- The internal grading shift of the sum quotient translates output
+weights of its derived tensor with the reflected coefficient. -/
+def middleSumWeightTensorCohomologyShiftIso (j : ℤ) (X : WeightCategory k) (n : ℤ) :
+    (CatModule.DerivedCategory.cohomologyFunctor X n).obj
+      ((middleReflectedWeightDerivedTensor k).obj
+        (CatModule.DerivedCategory.Q.obj (middleSumWeightModule k j))) ≅
+    (CatModule.DerivedCategory.cohomologyFunctor
+      ((WeightCategory.shiftFunctor k (-j)).obj X) n).obj
+      ((middleReflectedWeightDerivedTensor k).obj
+        (CatModule.DerivedCategory.Q.obj (middleSumWeightModule k 0))) :=
+  middleWeightTensorCohomologyShiftIso k j (middleSumWeightInternalShiftIso k j) X n
+
+/-- The difference quotient obeys the same internal translation in the
+derived tensor. -/
+def middleDifferenceWeightTensorCohomologyShiftIso (j : ℤ) (X : WeightCategory k) (n : ℤ) :
+    (CatModule.DerivedCategory.cohomologyFunctor X n).obj
+      ((middleReflectedWeightDerivedTensor k).obj
+        (CatModule.DerivedCategory.Q.obj (middleDifferenceWeightModule k j))) ≅
+    (CatModule.DerivedCategory.cohomologyFunctor
+      ((WeightCategory.shiftFunctor k (-j)).obj X) n).obj
+      ((middleReflectedWeightDerivedTensor k).obj
+        (CatModule.DerivedCategory.Q.obj (middleDifferenceWeightModule k 0))) :=
+  middleWeightTensorCohomologyShiftIso k j (middleDifferenceWeightInternalShiftIso k j) X n
 
 end MiddleTensor
 

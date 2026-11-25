@@ -6,6 +6,8 @@ import Categorification.WeightedKLR.RedStrands.LeftStandardParameterTransport
 import Categorification.WeightedKLR.RedStrands.OffDiagonalParameters
 import Categorification.WeightedKLR.RedStrands.LabelTwoMiddleAmbientAcyclicity
 import Categorification.WeightedKLR.RedStrands.LabelTwoMiddleAmbientTor
+import Categorification.WeightedKLR.RedStrands.LabelTwoMiddleOrderedQuotient
+import Categorification.WeightedKLR.RedStrands.LabelTwoMiddleWeightSupportedResolution
 import Categorification.WeightedKLR.RedStrands.StandardStratificationStd
 
 /-!
@@ -127,6 +129,8 @@ open scoped DG.DegreeZero
 
 universe w
 
+section OrdinaryDerived
+
 variable [HasDerivedCategory.{w, 0}
   (TensorProductAlgebra k (parameter k) weights (({()} : Multiset Unit) + {()}))]
 
@@ -162,6 +166,82 @@ def actualAmbientMiddleToRelativeTorIso (h₂ : (2 : k) ≠ 0) (n : ℕ) :
   ambientMiddleToRelativeTorIso k (middleAmbientAcyclic k) h₂ n
 
 end GroundField
+
+end OrdinaryDerived
+
+
+section FixedWeight
+
+open CategoryTheory DG
+open scoped DG.DegreeZero
+
+local instance middleRankOneInternalGrading : InternalGrading Ambient :=
+  gradedAlgebraInternalGrading (middleTensorGrade k (labelTwoGradingDatum k))
+local instance middleRankOneDGGrading : BigradedDGRing Ambient :=
+  gradedAlgebraBigradedDGRing (middleTensorGrade k (labelTwoGradingDatum k))
+local instance middleRankOneScalarInternalGrading : InternalGrading k := scalarInternalGrading k
+local instance middleRankOneScalarDGGrading : BigradedDGRing k := scalarBigradedDGRing k
+
+private def rankOneMiddleCovers :=
+  orderedStandardCoversTransport weights (rankOneParameterChange k).toRingEquiv
+    (rankOneParameterChange_idem k) (rankOneCLFiltration k instDecidableEqPUnit)
+
+private theorem rankOneMiddleCovers_quotient
+    (x : lIdeal (seqIdem q weights loading loading_ordered)) :
+    (rankOneMiddleCovers k).quotient ⟨loading, loading_ordered⟩ x =
+      (Submodule.Quotient.mk x : Standard k) :=
+  middleOrderedCoversTransport_quotient k (rankOneParameterChange k).toRingEquiv
+    (rankOneParameterChange_idem k) (rankOneCLFiltration k instDecidableEqPUnit) x
+
+variable [CatModule.HasDerivedCategory.{w,0} (WeightCategory
+  (TensorProductAlgebra k (parameter k) weights (({()} : Multiset Unit) + {()})))]
+  [CatModule.HasDerivedCategory.{w,0} (WeightCategory k)]
+
+/-- The diagrammatic middle standard is acyclic at every weight for the
+reflected dot-sum coefficient. -/
+theorem middleStandardWeight_cohomology_isZero (X : WeightCategory k) (n : ℤ) (hn : n ≠ 0) :
+    Limits.IsZero ((CatModule.DerivedCategory.cohomologyFunctor X n).obj
+      ((middleReflectedWeightDerivedTensor k).obj
+        (CatModule.DerivedCategory.Q.obj (middleStandardWeightModule k)))) :=
+  middleStandardWeight_cohomology_isZero_of_ordered_covers k
+    (rankOneMiddleCovers k) (rankOneMiddleCovers_quotient k) X n hn
+
+/-- The rank-one ordered resolution computes the diagrammatic middle
+standard's degree-zero tensor cohomology. -/
+def middleStandardWeightH0Iso (X : WeightCategory k) :
+    (CatModule.DerivedCategory.cohomologyFunctor X 0).obj
+      ((middleReflectedWeightDerivedTensor k).obj
+        (CatModule.DerivedCategory.Q.obj (middleStandardWeightModule k))) ≅
+      AddCommGrpCat.of (middleOrdinaryTensorGrade k X.as) :=
+  middleStandardWeightH0Iso_of_ordered_covers k
+    (rankOneMiddleCovers k) (rankOneMiddleCovers_quotient k) X
+
+/-- Internal weight zero of the diagrammatic middle standard tensor is the
+ground field in cohomological degree zero. -/
+def middleStandardWeightH0AtZeroIso :
+    (CatModule.DerivedCategory.cohomologyFunctor (⟨0⟩ : WeightCategory k) 0).obj
+      ((middleReflectedWeightDerivedTensor k).obj
+        (CatModule.DerivedCategory.Q.obj (middleStandardWeightModule k))) ≅ AddCommGrpCat.of k :=
+  middleStandardWeightH0Iso k ⟨0⟩ ≪≫ (middleOrdinaryTensorGradeZeroEquiv k).toAddEquiv.toAddCommGrpIso
+
+/-- Internal weight two of the diagrammatic middle standard tensor is the
+ground field in cohomological degree zero. -/
+def middleStandardWeightH0AtTwoIso :
+    (CatModule.DerivedCategory.cohomologyFunctor (⟨2⟩ : WeightCategory k) 0).obj
+      ((middleReflectedWeightDerivedTensor k).obj
+        (CatModule.DerivedCategory.Q.obj (middleStandardWeightModule k))) ≅ AddCommGrpCat.of k :=
+  middleStandardWeightH0Iso k ⟨2⟩ ≪≫ (middleOrdinaryTensorGradeTwoEquiv k).toAddEquiv.toAddCommGrpIso
+
+/-- All remaining internal weights of the middle standard tensor vanish
+in cohomological degree zero. -/
+theorem middleStandardWeightH0_isZero (X : WeightCategory k) (h₀ : X.as ≠ 0) (h₂ : X.as ≠ 2) :
+    Limits.IsZero ((CatModule.DerivedCategory.cohomologyFunctor X 0).obj
+      ((middleReflectedWeightDerivedTensor k).obj
+        (CatModule.DerivedCategory.Q.obj (middleStandardWeightModule k)))) :=
+  (AddCommGrpCat.isZero_of_iff_subsingleton.mpr
+    (middleOrdinaryTensorGrade_subsingleton k h₀ h₂)).of_iso (middleStandardWeightH0Iso k X)
+
+end FixedWeight
 
 end Categorification.Stendhal.LabelTwo
 

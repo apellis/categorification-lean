@@ -1202,7 +1202,7 @@ the composite on the ground field has one-dimensional cohomology in
 degrees minus one and one (`middleCupCap_finrank`). These computations
 forget the internal grading.
 
-In the fundamental case of Proposition 7.11, the four loading corners
+For the fundamental labels in Proposition 7.11 (§7.2), the four loading corners
 across the red crossing have dimensions zero (middle to middle), one
 (each mixed corner), and two (terminal to terminal). The terminal basis
 consists of the crossing and its one-dot decoration
@@ -1243,7 +1243,13 @@ pair of degrees (`fundamentalBraidGradedDerivedCohomology_isZero`).
 The action on that line is the middle character in the reversed red order.
 In the derived category of target weight modules, the braid takes the graded
 middle simple to the reversed middle simple in cohomological degree −1
-(`fundamentalBraidGradedDerivedTargetIso`). The normalized cup contributes
+(`fundamentalBraidGradedDerivedTargetIso`). Simultaneous transposition of
+the red labels identifies the two positive crossing bimodules. Applying the
+two successive positive crossings returns the ordered middle character
+in cohomological degree −2 and auxiliary weight zero
+(`fundamentalDoubleBraidHeadIso`). On the reversed cut the first crossing’s
+physical offset of 3/2 makes the total offset 3
+(`fundamentalDoubleBraidCut_physicalWeight`). The normalized cup contributes
 internal translation one and cohomological shift minus one. Applying the
 braid to this cup on the field gives the reversed middle character with
 internal translation one, in cohomological degree zero
@@ -1252,6 +1258,10 @@ Graded red relabelling identifies the reversed-order cap with ordered evaluation
 (`fundamentalBraidTargetCap_restrictIso`). Evaluating the braided cup in this
 reversed order gives scalar lines of auxiliary weights −1 and 1 in
 cohomological degrees 0 and −2, respectively (`fundamentalBraidCappedCupIso`).
+For a scalar generator at weight j with shift [n], evaluating the braided cup
+gives weights j−1 and j+1 with shifts [n] and [n+2]. This is the clockwise
+circle on the same generator shifted by [1]
+(`fundamentalBraidCappedCup_clockwiseIso`).
 The diagonal-ring equivalence
 carries the two mixed crossings to the differentials of the projective
 resolution of the middle head (`fundamentalBraidSourceResolution`). Its
@@ -1407,6 +1417,10 @@ loading idempotents. The ordered resolution and the divided projector
 splitting show that the incoming diagonal ambient homology also vanishes
 in every nonzero degree
 (`Stendhal.LabelTwo.incomingExteriorAmbientHomology_isZero`).
+The reflected incoming exterior paired with the middle standard vanishes
+in every degree. The middle idempotent kills the ordinary tensor and the
+higher loading support kills the remaining degrees
+(`Stendhal.LabelTwo.incomingMiddleStandardHomology_isZero`).
 On the incoming divided standard, the reflected projector selects the
 line spanned by the black-crossing translate
 (`Stendhal.labelTwoRightExterior_reflectedProjector_image`).
@@ -1437,6 +1451,16 @@ returns the first dot sum
 (`Stendhal.LabelTwo.incomingLiftTensorMap_nonzero`).
 The preimage, middle standard, and incoming cokernel form a short exact
 sequence (`Stendhal.LabelTwo.incomingLiftShortComplex_shortExact`).
+The outgoing differential embeds the incoming cokernel in the exterior
+projective with quotient the final simple
+(`Stendhal.LabelTwo.outgoingCokernelShortComplex_shortExact`).
+
+The incoming divided exterior standard and the final augmentation
+are simple. The middle quotient and outgoing projective each have a
+proper nonzero submodule given by the image of the previous differential
+(`Stendhal.LabelTwo.labelTwoIncomingExterior_simple`,
+`Stendhal.LabelTwo.labelTwo_middleQuotient_not_simple`,
+`Stendhal.LabelTwo.labelTwo_outgoingExterior_not_simple`).
 
 
 
@@ -1561,7 +1585,28 @@ of the reflected coefficient and middle standard agrees with the corresponding
 ground-field component of the actual ordinary tensor
 (`Stendhal.LabelTwo.middleStandardWeightTensorEquiv`). The degree-zero
 derived comparison uses any supplied nonpositive K-projective model
-(`Stendhal.LabelTwo.middleStandardWeightH0IsoOfResolution`). Evaluation on the
+(`Stendhal.LabelTwo.middleStandardWeightH0IsoOfResolution`). Internal translation of the input weights
+induces the same translation of the output weights of the diagrammatic
+derived tensor
+(`diagramWeightDerivedTensorInternalShiftIso`, `weightInternalShift_cohomologyIso`).
+For each companion quotient a grading shift by $j$ translates the output
+weight from $w$ to $w-j$
+(`Stendhal.LabelTwo.middleSumWeightTensorCohomologyShiftIso`,
+`Stendhal.LabelTwo.middleDifferenceWeightTensorCohomologyShiftIso`). The actual
+graded middle standard extends to a higher-supported ordered resolution, and
+the reflected coefficient has zero derived tensor cohomology in every
+nonzero cohomological degree at each internal weight
+(`Stendhal.LabelTwo.middleStandardWeight_cohomology_isZero`). In degree zero the
+same ordered resolution gives one copy of the ground field at each of
+internal weights zero and two, and vanishing at all other internal weights
+(`Stendhal.LabelTwo.middleStandardWeightH0AtZeroIso`,
+`Stendhal.LabelTwo.middleStandardWeightH0AtTwoIso`,
+`Stendhal.LabelTwo.middleStandardWeightH0_isZero`). Evaluation on the
+
+(`Stendhal.LabelTwo.middleStandardWeight_cohomology_isZero`). The two companion triangles
+alternate on the negative cohomological tail. Two steps raise the
+cohomological index by two and decrease the evaluation weight by four
+(`Stendhal.LabelTwo.middleSumWeightTensorPeriodIso`). Evaluation on the
 middle generator identifies the endomorphism algebra with the actual
 regular parabolic factor (`Stendhal.LabelTwo.middleEndomorphismFactorEquiv`).
 The diagrammatic dot-sum quotient is the standardization of its
@@ -1703,9 +1748,16 @@ with nilpotent dot.
 | arXiv:1309.3796v2, Proposition 5.20 and proof of Lemma 6.11, pp. 65–66 (block permutation indices) | The red-led blocks of a nonviolated ordered top loading are determined by successive red positions. Permuting them carries each eligible projective wiring to a braid-column index with the same bottom loading and the prescribed top red order. A change of reduced word gives shorter subword terms in that loading pair | `Stendhal.exists_braidBlockPositions`, `Stendhal.braidColumnIndexOfProjective`, `Stendhal.redWord_braidBlockPermutation_smul`, `Stendhal.braidColumnBlockIndex_wordChange` | The indexing is independent of parameters, and the word-change estimate is over a commutative ring | Relating the shorter terms to earlier eligible products and computing the quotient dimension remain open in general |
 | arXiv:1309.3796v3, proof of Lemma 6.12, p. 66 (bottom reconstruction) | A nonviolated bottom with the chosen red order is the red-led block permutation of an ordinary red-ordered loading. The inverse permutation recovers its original block sizes and loading | `Stendhal.exists_braidBottomBlockReconstruction` | Arbitrary nonviolated bottom of Stendhal weight | Supplies the block coordinates for recognition and the crossing induction |
 | arXiv:1309.3796v3, proof of Lemma 6.12, p. 66 (bottom block permutation) | Composing a projective wiring with the block permutation at the bottom fixes its top loading and has the prescribed bottom red order. A red and the black strands following it in a relocated block give ascents in the resulting wiring | `Stendhal.braidColumnBottomBlockIndex`, `Stendhal.redWord_braidColumnBottomBlockIndex_bottom`, `Stendhal.braidColumnBottomBlockIndex_lt_red_black` | Nonviolated ordered bottom loadings equipped with the block sizes from their red positions | This is the bottom convention specified in v3. General generation and the filtration relation are separate |
+| arXiv:1309.3796v3, proof of Lemma 6.12, p. 66 (bijection of indexing families) | The bottom block move preserves the multiplicity of eligible wirings. If two marked inputs give the same output wiring, the reordered red positions determine their block sizes and permit recovery of the input wiring | `Stendhal.braidColumnBottomBlockIndex_eq_of_eq` | Red-led bottom blocks, permitting arbitrary block sizes and a red permutation | Injectivity of the bottom indexing map |
 | arXiv:1309.3796v3, proof of Lemma 6.12, p. 66 (bottom black ascents) | A black pair adjacent in the permuted bottom lies in one relocated block, and the original projective minimality gives an ascent after the block move | `Stendhal.braidColumnBottomBlockIndex_adjacent_black_ascent` | The original eligibility of Proposition 5.21 and the red-led block layout of its nonviolated bottom | Every such adjacent pair contributes the required black-crossing minimality |
 | arXiv:1309.3796v3, proof of Lemma 6.12, p. 66 (recognition of bottom indices) | A wiring increasing on each relocated red-led block comes from an eligible ordinary projective wiring. Ascents at adjacent pairs with a black right slot suffice | `Stendhal.exists_projectiveIndex_of_bottomBlock_strictMono`, `Stendhal.exists_projectiveIndex_of_bottomBlock_adjacent_ascents` | Fixed ordered top and an ordinary ordered bottom equipped with its red-led block layout | Supplies the recognition step for geometric generation |
 | arXiv:1309.3796v2, proof of Lemma 6.11, pp. 65–66 (mixed cut) | An adjacent black strand can cross left through a red at the bottom of an eligible wiring when the swapped wiring is still eligible and the block-permuted diagram has a right descent there. The resulting product factors through the strictly higher bottom loading up to shorter subwords. Distinct loading endpoints kill that error for words of length at most three | `Stendhal.braidColumnBlockIndex_higher_mixed_cut`, `Stendhal.braidColumnLoadingProjection_map_lowSpan_eq_bot` | Commutative ground ring and the specified mixed descent | Exact factorization in the three-red, one-black fixture. Its position in the braid filtration and general earlier-product reduction remain open |
+| arXiv:1309.3796v3, proof of Lemma 6.12, p. 66 (bottom mixed product) | At a mixed right ascent whose right extension is an eligible bottom index, multiplying by the crossing into the higher bottom gives the diagram of that index up to projected shorter subwords. The product is exact when the original word has at most one letter | `Stendhal.braidColumnBottomBlockIndex_mixed_product` | Commutative ground ring. The extended eligible index and the ascent are inputs | A three-red, one-black example has original word [1] and extended word [1,2]. General eligibility and filtration closure remain separate |
+
+| arXiv:1309.3796v2, Lemma 6.11 and v3, Lemma 6.12 (projected correction support) | Straightening a lower crossing span retains the specified subword set and strict length bound. The loading projection keeps precisely the diagrams with the original top and bottom | `Stendhal.braidColumnLoadingProjection_map_lowSpan_le_same_bottom` | Commutative ground ring and any reduced-word choice | Supplies the endpoint-preserving shorter terms needed for induction on crossings |
+| arXiv:1309.3796v3, proof of Lemma 6.12, p. 66 (column generation) | The products of eligible bottom-block diagrams span the actual violated braid column at a fixed ordered top. Cut a non-indexed wiring at a right descent with black right slot, then apply induction to the shorter cut and to the shorter corrections with the original endpoints | `Stendhal.braidColumnBottomBlock_pbw_mem`, `Stendhal.span_braidColumnBottomProducts` | Any commutative ground ring and a choice of reduced words | Generation of the column. The earlier-step relations and dimension identity still determine the proposed standard quotients |
+| arXiv:1309.3796v3, Definition 5.1 and proof of Lemma 6.12, p. 66 (higher-trace relation) | A strict dominance threshold survives the crossing induction. The higher trace of a loading standard maps into the span of eligible diagrams whose bottoms strictly dominate the label | `Stendhal.braidColumnBottomBlock_pbw_mem_of_predicate`, `Stendhal.braidColumnBottomBlock_mul_loading_mem_higher_span`, `Stendhal.braidColumnBottomBlock_mul_violStandardUpper_mem_higher_span` | Commutative ground ring, an ordered fixed top, and a reduced-word choice | Provides the strict-dominance standard relations. Within-label ordering and the dimension identity remain separate |
+| arXiv:1309.3796v3, proof of Lemma 6.12, p. 66 (Bruhat refinement) | Refine equal-black-count bottoms by strict Bruhat comparison and take any linear extension. Changes of reduced word contribute only to the span of strictly earlier eligible diagrams | `Stendhal.exists_braidColumnIndexLinearRefinement`, `Stendhal.braidColumnBottomBlock_wordChange_mem_earlier_span` | Commutative ground ring, ordered fixed top, and a reduced-word choice | The dimension identity remains open |
 | arXiv:1309.3796v2, §6.1, p. 65, proof of Lemma 6.11 (filtration transport) | A supplied right-standard filtration of the inverse braid gives a left filtration of the braid by the same loading standards with scalars restricted along the corner flip. The ordered list of labels is preserved | `Stendhal.BraidedStendhalAlgebra.hasReflectedStandardFiltration_braidingBimodule`, `ModuleFiltration.HasFiltration.restrictScalars` | Any commutative ground ring. The input filtration is a hypothesis | Existence of the right-standard filtration and higher Tor vanishing remain open |
 | arXiv:1309.3796v2, Definition 5.1 and proof of Lemma 6.11 (loading support) | Every red-ordered loading outside the lower order ideal of a standard label annihilates its left standard. For each wiring a reduced word can be chosen that passes through a loading strictly above the source | `Stendhal.exists_reduced_suffix_raises_of_not_stendhalLE`, `Stendhal.seqIdem_smul_leftStandard_eq_zero_of_not_stendhalLE` | Tensor product algebras over a field | Applies to incomparable labels as well as strictly higher labels |
 | arXiv:1309.3796v2, §6.1, p. 65, proof of Lemma 6.11 (opposite loading support) | A loading strictly above the resolved standard annihilates every opposite coefficient layer whose label is not strictly above the resolved standard. The ordinary corner comparison transports the vanishing of the corresponding left-standard action | `Stendhal.not_stendhalLE_of_lt_of_not_lt`, `Stendhal.BraidedStendhalAlgebra.violLoadingIdem_smul_violLoadingStandard_eq_zero_of_not_lt` | Symmetric KLR parameters over a field and a choice of reduced words | Supplies the ordinary loading annihilation for use in graded derived tensor vanishing |

@@ -900,6 +900,22 @@ modules over rings in degree `0`, computed on K-projective resolutions (`derived
 `cornerBimodule`, `Algebra/CornerBimodule.lean`). Webster uses graded modules and `D⁻`; the
 graded version and the restriction to `D⁻` are open roadmap items.
 
+Lemma 6.8, higher cohomology (`RedStrands/BraidPartialStandardVanishing.lean`): for an
+adjacent red pair and a red order `κ`, the braid of the partial standard at every loading of
+red word `κ` has no cohomology outside degree zero
+(`blockPartialStandardAt_braid_homology_vanish_of_kernel_filtrations`), by Webster's induction
+through (6.21), well-founded on `adjacentBlockRoot`. Two inputs of the printed proof are
+explicit hypotheses (maintainer decision), each a roadmap item to remove:
+
+- **(6.8-filt)** the kernel of each loading projective onto its partial standard is filtered by
+  partial standards at strictly higher loadings. The printed proof uses this without proof; §5
+  proves the analogue for full standardization (Prop 5.20). Route: adapt the dimension argument
+  of Prop 5.20 to partial standardization, then apply `blockLoadingKernel_hasFiltration`.
+- **(6.8-inj)** injectivity of the balanced tensor of the kernel inclusion with the braiding
+  bimodule (`blockKernelTensorInclusion`). The printed cut argument after (6.21) does not handle
+  the dotted relations in general; special cases are proved (first black weight, consecutive
+  exchanged reds, zero intervening pairings).
+
 The ungraded Figure 5 right-module map for Prop 6.9 (`RedStrands/BraidedStandardTwo.lean`,
 `RedStrands/BraidedStandardInjective.lean`, `RedStrands/BraidedStandardIso.lean`). Let the leftmost strand of `t` be `λ_r` and let `g`
 carry it to the right edge, `g • t = s` (`EdgeBraid`). The braiding diagram `ψ_g` sends the

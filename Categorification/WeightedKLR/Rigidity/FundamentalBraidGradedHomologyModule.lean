@@ -8,7 +8,7 @@ import Mathlib.Algebra.Homology.ShortComplex.ShortExact
 /-!
 # The homology module of the fundamental graded braid
 
-For Webster, arXiv:1309.3796v2, §7.1, Proposition 7.11, the two tensor
+For Webster, arXiv:1309.3796v2, §7.2, Proposition 7.11, the two tensor
 differentials have injective and surjective ends. The image of the
 derived braid is therefore the shifted middle homology in the abelian
 category of modules on the target weight category.

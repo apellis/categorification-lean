@@ -8,7 +8,7 @@ import Categorification.Algebra.DiagramWeightBimodule
 /-!
 # Internal translation of a graded diagram tensor
 
-Webster, arXiv:1309.3796v2, §7.1, Definition 7.4 and Proposition 7.11. Reindex both diagram weights by the same integer. The coefficient
+Webster, arXiv:1309.3796v2, §7.1, Definition 7.4, and §7.2, Proposition 7.11. Reindex both diagram weights by the same integer. The coefficient
 retains its weight difference, so the dg coend on a translated source
 identifies with the translated dg tensor. Internal translation preserves
 K-projective representatives and descends to the derived tensor.

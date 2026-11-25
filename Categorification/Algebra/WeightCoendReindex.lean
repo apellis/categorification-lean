@@ -11,7 +11,7 @@ import Mathlib.Logic.Equiv.Basic
 An equivalence on indices, arrows and module fibers transports each
 pure tensor. Compatibility with the two actions identifies the balancing
 relations in both directions. This reindexing applies to the internal
-weight translation of the braid in Webster, arXiv:1309.3796v2, §7.1.
+weight translation of the braid in Webster, arXiv:1309.3796v2, §7.2, Proposition 7.11.
 -/
 
 noncomputable section

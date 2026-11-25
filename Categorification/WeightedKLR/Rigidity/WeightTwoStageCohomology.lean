@@ -10,7 +10,7 @@ import DG.Homotopy.CohomologyComparison
 /-!
 # Cohomology of two-stage diagram-weight tensors
 
-The length-two case in Webster, arXiv:1309.3796v2, §7.1, Proposition 7.11,
+The length-two case in Webster, arXiv:1309.3796v2, §7.2, Proposition 7.11,
 requires two comparisons. Tensoring the resolution commutes with the two
 mapping cones. In the resulting degree-zero terms, the middle component
 of a cocycle represents its class modulo the first differential.

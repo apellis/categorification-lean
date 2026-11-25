@@ -1202,7 +1202,7 @@ the composite on the ground field has one-dimensional cohomology in
 degrees minus one and one (`middleCupCap_finrank`). These computations
 forget the internal grading.
 
-In the fundamental case of Proposition 7.11, the four loading corners
+For the fundamental labels in Proposition 7.11 (§7.2), the four loading corners
 across the red crossing have dimensions zero (middle to middle), one
 (each mixed corner), and two (terminal to terminal). The terminal basis
 consists of the crossing and its one-dot decoration

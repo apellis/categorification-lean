@@ -10,7 +10,7 @@ import Categorification.WeightedKLR.Rigidity.WeightTwoStageCohomology
 /-!
 # The weights and cohomological degrees of the derived fundamental braid
 
-In the fundamental type A₁ case of Webster, arXiv:1309.3796v2, §7.1,
+In the fundamental type A₁ case of Webster, arXiv:1309.3796v2, §7.2,
 Proposition 7.11, tensor the two-stage loading resolution by the graded
 braid and evaluate at each target weight. Only cohomological degree
 minus one and physical weight three halves survive.
@@ -113,7 +113,7 @@ private def derivedTensorCohomology (n i : ℤ) :
 
 /-- The fundamental graded derived braid on the middle simple has a rational
 line in cohomological degree minus one and auxiliary weight zero, the physical
-weight three halves in Webster v2, §7.1, Proposition 7.11. -/
+weight three halves in Webster v2, §7.2, Proposition 7.11. -/
 def fundamentalBraidGradedDerivedHomologyIso :
     (CatModule.DerivedCategory.cohomologyFunctor (Z 0) (-1)).obj br ≅ AddCommGrpCat.of ℚ :=
   derivedTensorCohomology 0 (-1) ≪≫ fundamentalBraidGradedModelHomologyIso 0 ≪≫

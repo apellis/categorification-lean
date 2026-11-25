@@ -69,6 +69,12 @@ private theorem subfamilyRelabel_coaction (z : KLRAlgebra k (stendhalQ Q (Λ ∘
       rfl
     · simp [GradingDatum.dψ,hj]
 
+/-- Relabelling along an inclusion of red labels preserves the affine degree. -/
+theorem redSubfamilyRelabel_mem_grade {d : ℤ} {z : KLRAlgebra k (stendhalQ Q (Λ ∘ f)) μ}
+    (hz : z ∈ (H).grade μ d) : relabelHom (F) z ∈ G.grade ((μ).map (c)) d := by
+  rw [GradingDatum.mem_grade, subfamilyRelabel_coaction, (H).mem_grade.mp hz,
+    AddMonoidAlgebra.mapAlgHom_single]
+
 /-- Projection to a red subfamily preserves the affine degree. -/
 theorem redSubfamilyProjection_mem_grade {d : ℤ} {x}
     (hx : x ∈ G.grade ((μ).map (c)) d) :

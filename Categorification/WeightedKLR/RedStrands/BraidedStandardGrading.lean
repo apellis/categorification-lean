@@ -93,7 +93,9 @@ local notation "π" => ofKLR k Q Λ ν
 local notation "q" => violMk k Q Λ ν
 
 omit [DecidableEq I] in
-private theorem EdgeBraid.invSet_eq_erase {h0 : 0 < m} {r : Fin 2} {g : Perm (Fin m)}
+/-- The inversions of the Figure 5 permutation are the pairs formed by the leftmost strand
+with each other strand. -/
+theorem EdgeBraid.invSet_eq_erase {h0 : 0 < m} {r : Fin 2} {g : Perm (Fin m)}
     {s t : Seq μ} (hb : EdgeBraid h0 r g s t) (ht : t.lbl ⟨0, h0⟩ = .inr r) :
     invSet m g = (Finset.univ.erase ⟨0, h0⟩).map
       ⟨fun b => (⟨0, h0⟩, b), fun _ _ h => congrArg Prod.snd h⟩ := by
@@ -129,10 +131,38 @@ private theorem EdgeBraid.invSet_eq_erase {h0 : 0 < m} {r : Fin 2} {g : Perm (Fi
     have := b.isLt
     omega
 
+omit [DecidableEq I] in
+/-- The auxiliary degree of the Figure 5 diagram, for any grading datum in which the crossing
+of the red strand `r` with a black strand of colour `i` has degree `c i` and the crossing with
+the other red strand has degree `-2`. -/
+theorem EdgeBraid.degW_eq (G' : KLR.GradingDatum (stendhalQ Q Λ)) (c : I → ℤ) {r : Fin 2}
+    (hc : ∀ x, G'.degΨ (.inr r) x = Sum.elim c (fun _ => -2) x)
+    {ρ : Perm (Fin m) → List ℕ} (hρ : IsReducedChoice ρ) {s t : Seq μ}
+    {g : Perm (Fin m)} (h0 : 0 < m) (ht : t.lbl ⟨0, h0⟩ = .inr r)
+    (hb : EdgeBraid h0 r g s t) :
+    G'.degW (ρ g) t = (ν.map c).sum - 2 := by
+  rw [GradingDatum.degW_eq_sum_invSet _ (hρ g).1, (hρ g).2, hb.invSet_eq_erase ht, Finset.sum_map]
+  let F : I ⊕ Fin 2 → ℤ := Sum.elim c (fun _ => -2)
+  change (∑ b ∈ Finset.univ.erase ⟨0, h0⟩, G'.degΨ (t.lbl ⟨0, h0⟩) (t.lbl b)) = _
+  rw [ht]
+  simp only [hc]
+  have hsum : (∑ b, F (t.lbl b)) = (ν.map c).sum + (-2 + -2) := by
+    change (Finset.univ.val.map (F ∘ t.lbl)).sum = _
+    rw [← Multiset.map_map, t.2, stendhalWeight, Multiset.map_add, Multiset.sum_add, Multiset.map_map,
+      Multiset.map_map]
+    simp [F, Function.comp_def]
+  have he := Finset.sum_erase_add (s := Finset.univ) (fun b => F (t.lbl b))
+    (Finset.mem_univ (⟨0, h0⟩ : Fin m))
+  rw [hsum, ht] at he
+  change _ + -2 = _ at he
+  change (∑ b ∈ Finset.univ.erase ⟨0, h0⟩, F (t.lbl b)) = _
+  omega
+
 variable (C : CartanDatum I) (hQ : IsRouquierQ C Q)
 
 omit [DecidableEq I] in
-private theorem cartanDotDegree (i : I) : hQ.gradingDatum.degX i = 2 * UDot.di C i :=
+/-- The dot degrees of a Rouquier datum are twice the symmetrizer. -/
+theorem cartanDotDegree (i : I) : hQ.gradingDatum.degX i = 2 * UDot.di C i :=
   (hQ.gradingDatum_degX i).trans (UDot.two_mul_di C i).symm
 
 local notation "G" => stendhalGradingDatum Λ hQ.gradingDatum (UDot.di C)
@@ -147,23 +177,8 @@ theorem figureFive_mem_violAuxiliaryGrade
     {g : Perm (Fin m)} (h0 : 0 < m) (ht : t.lbl ⟨0, h0⟩ = .inr r)
     (hb : EdgeBraid h0 r g s t) :
     q (π (KLRAlgebra.ψw (ρ g) * KLRAlgebra.e t)) ∈ violAuxiliaryGrade G (Δ r - 2) := by
-  have hdeg : (G).degW (ρ g) t = Δ r - 2 := by
-    rw [GradingDatum.degW_eq_sum_invSet _ (hρ g).1, (hρ g).2, hb.invSet_eq_erase ht, Finset.sum_map]
-    let f : I ⊕ Fin 2 → ℤ := Sum.elim (fun i => UDot.di C i * (Λ r i : ℤ)) (fun _ => -2)
-    change (∑ b ∈ Finset.univ.erase ⟨0, h0⟩, (G).degΨ (t.lbl ⟨0, h0⟩) (t.lbl b)) = _
-    rw [ht]
-    have hf (x : I ⊕ Fin 2) : (G).degΨ (.inr r) x = f x := by cases x <;> rfl
-    simp only [hf]
-    have hsum : (∑ b, f (t.lbl b)) = Δ r + (-2 + -2) := by
-      change (Finset.univ.val.map (f ∘ t.lbl)).sum = _
-      rw [← Multiset.map_map, t.2, stendhalWeight, Multiset.map_add, Multiset.sum_add, Multiset.map_map,
-        Multiset.map_map]
-      simp [f, Function.comp_def]
-    have he := Finset.sum_erase_add (s := Finset.univ) (fun b => f (t.lbl b))
-      (Finset.mem_univ (⟨0, h0⟩ : Fin m))
-    rw [hsum, ht] at he
-    change _ + -2 = _ at he
-    omega
+  have hdeg : (G).degW (ρ g) t = Δ r - 2 :=
+    hb.degW_eq G (fun i => UDot.di C i * (Λ r i : ℤ)) (fun x => by cases x <;> rfl) hρ h0 ht
   rw [← hdeg]
   have hψ := GradingDatum.ψw_mul_pol_mul_e_mem_grade G (ρ g) t (p := 1) (D := 0)
     (isWeightedHomogeneous_one k _)
@@ -233,11 +248,13 @@ theorem weightPairing_root (η : Module.Dual ℂ H) (i : I) :
 
 end RealizationPairing
 
-private theorem intCast_add_injective (c : ℂ) :
+/-- Translation of integer indices by a complex constant is injective. -/
+theorem intCast_add_injective (c : ℂ) :
     Function.Injective (fun n : ℤ => (n : ℂ) + c) := fun _ _ h =>
   Int.cast_injective (add_right_cancel h)
 
-private theorem isInternal_extend_bot {M : Type*} [AddCommGroup M] [Module k M]
+/-- Extending an internal grading by zero along an injection keeps it internal. -/
+theorem isInternal_extend_bot {M : Type*} [AddCommGroup M] [Module k M]
     (f : ℤ → ℂ) (hf : Function.Injective f) (𝒩 : ℤ → Submodule k M)
     (h𝒩 : DirectSum.IsInternal 𝒩) : DirectSum.IsInternal (Function.extend f 𝒩 ⊥) := by
   refine isInternal_submodule_of_iSupIndep_of_iSup_eq_top ?_ ?_

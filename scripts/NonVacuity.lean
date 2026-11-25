@@ -11707,6 +11707,18 @@ example (z : incomingLiftSubmodule ℚ) := middleY₁Readout_middleDotElt_incomi
 
 example := Categorification.Webster.LabelTwo.plus_one_notMem_range_plus_comp_plus (k := ℚ)
 
+section
+
+local instance : HasDerivedCategory.{0,0}
+    (TensorProductAlgebra ℚ (parameter ℚ) weights (({()} : Multiset Unit) + {()})) :=
+  HasDerivedCategory.small _
+
+example := incomingMiddleStandardHomology_zero_isZero ℚ
+
+example := incomingMiddleStandardHomology_isZero ℚ (-1)
+
+end
+
 example (z : labelTwoRightExteriorDividedStandard (parameter ℚ)) :=
   labelTwoRightExterior_reflectedProjector_image (parameter ℚ) z
 

@@ -43,6 +43,42 @@ private def inverseForward : G ⋙ F ≅ 𝟭 (WeightCategory B) :=
     simp [WeightCategory.isoOfEq]
     exact e.apply_symm_apply f.val)
 
+private def homotopyEquiv :
+    CatModule.HomotopyCategory.{v} (WeightCategory B) ≌ CatModule.HomotopyCategory.{v} (WeightCategory A) := by
+  let hA := CatModule.HomotopyCategory.precompNatIso (forwardInverse e he)
+    (fun _ => WeightCategory.mem_grading_zero_of_val_eq_one _ rfl) (fun _ => WeightCategory.d_eq_zero_of_val_eq_one _ rfl)
+    (fun _ => WeightCategory.mem_grading_zero_of_val_eq_one _ rfl) (fun _ => WeightCategory.d_eq_zero_of_val_eq_one _ rfl)
+  let hB := CatModule.HomotopyCategory.precompNatIso (inverseForward e he)
+    (fun _ => WeightCategory.mem_grading_zero_of_val_eq_one _ rfl) (fun _ => WeightCategory.d_eq_zero_of_val_eq_one _ rfl)
+    (fun _ => WeightCategory.mem_grading_zero_of_val_eq_one _ rfl) (fun _ => WeightCategory.d_eq_zero_of_val_eq_one _ rfl)
+  exact CategoryTheory.Equivalence.mk (CatModule.HomotopyCategory.precomp F) (CatModule.HomotopyCategory.precomp G)
+    ((CatModule.HomotopyCategory.precompIdIso _).symm ≪≫ hB.symm ≪≫ CatModule.HomotopyCategory.precompCompIso G F)
+    ((CatModule.HomotopyCategory.precompCompIso F G).symm ≪≫ hA ≪≫ CatModule.HomotopyCategory.precompIdIso _)
+
+/-- Restriction along a homogeneous ring equivalence preserves K-projectivity
+of dg modules over the weight category. -/
+theorem isKProjective_precomp_weightRingEquiv {P : CatModule.{v} (WeightCategory B)} (hP : IsKProjective P) :
+    IsKProjective ((CatModule.precomp F).obj P) := by
+  let H := homotopyEquiv.{u,v} e he
+  let Q := CatModule.HomotopyCategory.quotient.{v} (WeightCategory B)
+  let K := CatModule.HomotopyCategory.subcategoryKProjective.{v} (WeightCategory A)
+  let Acyc := CatModule.HomotopyCategory.subcategoryAcyclic.{v} (WeightCategory B)
+  have hk := (CatModule.HomotopyCategory.quotient_obj_mem_subcategoryKProjective_iff P).mpr hP
+  have ac {Y : CatModule.HomotopyCategory.{v} (WeightCategory A)}
+      (hY : CatModule.HomotopyCategory.subcategoryAcyclic _ Y) : Acyc (H.inverse.obj Y) := by
+    obtain ⟨N,rfl⟩ := CatModule.HomotopyCategory.quotient_obj_surjective Y
+    have hN := (CatModule.HomotopyCategory.quotient_obj_mem_subcategoryAcyclic_iff N).mp hY
+    exact Acyc.prop_of_iso ((CatModule.HomotopyCategory.precompFactors G).app N).symm
+      ((CatModule.HomotopyCategory.quotient_obj_mem_subcategoryAcyclic_iff _).mpr (hN.precomp _))
+  apply (CatModule.HomotopyCategory.quotient_obj_mem_subcategoryKProjective_iff _).mp
+  apply K.prop_of_iso ((CatModule.HomotopyCategory.precompFactors F).app P)
+  change K (H.functor.obj (Q.obj P))
+  intro Y f hY
+  have h₁ := hk (H.unitIso.hom.app _ ≫ H.inverse.map f) (ac hY)
+  apply H.inverse.map_injective
+  rw [Functor.map_zero]
+  exact (cancel_epi (H.unitIso.hom.app _)).mp (h₁.trans (by simp))
+
 variable [CatModule.HasDerivedCategory.{v,u} (WeightCategory A)]
   [CatModule.HasDerivedCategory.{v,u} (WeightCategory B)]
 

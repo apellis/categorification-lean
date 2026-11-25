@@ -9753,6 +9753,8 @@ noncomputable section
 private abbrev datum := CartanDatum.ofGraph (⊥ : SimpleGraph Unit)
 private abbrev realization := Matrix.Realization.std (UDot.A datum) ℂ
 
+example := fundamentalDoubleBraidCut_physicalWeight realization crossedMiddle 1 0
+
 example : weightPairing datum realization (braidFundamentalWeight realization)
     (braidFundamentalWeight realization) = 1 / 2 :=
   braidFundamentalWeight_norm realization
@@ -9964,6 +9966,10 @@ example := fundamentalBraidGradedDerivedCohomology_isZero.{1} 1 (-1) (Or.inr (by
 noncomputable example := fundamentalBraidGradedHomologyTargetIso
 
 noncomputable example := fundamentalBraidGradedDerivedTargetIso.{1}
+
+noncomputable example := fundamentalBraidReversedHeadIso.{1}
+
+noncomputable example := fundamentalDoubleBraidHeadIso.{1}
 
 attribute [local instance] fundamentalBraidSourceOrderedInternal fundamentalBraidSourceOrderedBigraded
   fundamentalTargetScalarInternal fundamentalTargetScalarBigraded

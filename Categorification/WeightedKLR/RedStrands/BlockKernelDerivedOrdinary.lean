@@ -3,6 +3,7 @@ Copyright (c) 2026 Alex Ellis. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 -/
 import Categorification.WeightedKLR.RedStrands.BlockKernelDerivedSequence
+import Categorification.WeightedKLR.RedStrands.BraidPartialStandardVanishing
 import Categorification.Algebra.DerivedTensorHomology
 
 /-!
@@ -52,5 +53,29 @@ def blockPartialStandard_braidIsoOrdinary_of_vanishing
       DG.DerivedCategory.Q.obj (DGModuleCat.of Uᵐᵒᵖ
         (TensorProductOver Tᵐᵒᵖ (InDegreeZero Braid) (InDegreeZero X))) :=
   derivedTensorIsoOrdinaryOfVanishing (A := Uᵐᵒᵖ) (B := Tᵐᵒᵖ) (M := Braid) X hv
+
+set_option backward.isDefEq.respectTransparency false in
+/-- **Webster, arXiv:1309.3796v2, Lemma 6.8 on loading partial standards** (v3: Lemma 6.9).
+The derived braid of the partial standard at `t` is its ordinary braid tensor in degree zero.
+
+The hypotheses `hfilt` and `hinj` are the two inputs of the printed proof that are not yet
+formalized (see `blockPartialStandardAt_braid_homology_vanish_of_kernel_filtrations`). -/
+def blockPartialStandard_braidIsoOrdinary
+    [HasDerivedCategory.{w, max u v} Tᵐᵒᵖ] [HasDerivedCategory.{w, max u v} Uᵐᵒᵖ]
+    (hfilt : ∀ (s : Seq (stendhalWeight ℓ ν)) (hs : redWord s = redWord t),
+      ∃ m : List {u : Seq (stendhalWeight ℓ ν) // redWord u = redWord t},
+      (∀ u ∈ m, adjacentBlockRoot a b s < adjacentBlockRoot a b u.1) ∧
+      ModuleFiltration.HasFiltration
+        (fun u => blockPartialStandardAt Q Λ u.1 a b (redWord t) u.2) m
+        (blockLoadingKernelObjAt Q Λ a b (redWord t) s hs))
+    (hinj : ∀ s : Seq (stendhalWeight ℓ ν), redWord s = redWord t →
+      Function.Injective (blockKernelTensorInclusion Q Λ s a b κ)) :
+    (braidingFunctor.{w} k Q Λ ν (redWord t) κ).obj
+        (DG.DerivedCategory.Q.obj ((degreeZeroModuleFunctor Tᵐᵒᵖ).obj X)) ≅
+      DG.DerivedCategory.Q.obj (DGModuleCat.of Uᵐᵒᵖ
+        (TensorProductOver Tᵐᵒᵖ (InDegreeZero Braid) (InDegreeZero X))) :=
+  blockPartialStandard_braidIsoOrdinary_of_vanishing Q Λ t a b κ
+    (fun n hn => blockPartialStandardAt_braid_homology_vanish_of_kernel_filtrations
+      Q Λ a b (redWord t) κ hfilt hinj t rfl n hn)
 
 end Categorification.Stendhal.BraidedStendhalAlgebra

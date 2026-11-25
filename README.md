@@ -1899,6 +1899,11 @@ label-preserving group `G` (`Categorification.finrank_labelInvariants`).
 `Categorification.ddiff`: divided difference operators on `MvPolynomial` over any commutative
 ring, with the nilHecke relations (`ddiff_spec`, `ddiff_ddiff`, `ddiff_mul`, `ddiff_braid`).
 
+## Maintenance
+
+Deferred cleanup items: [naming cleanup](docs/naming-cleanup.md) (theorem numbers and process
+adjectives in declaration and module names), to be done in one pass.
+
 ## Building
 
 Requires [elan](https://github.com/leanprover/elan). Toolchain

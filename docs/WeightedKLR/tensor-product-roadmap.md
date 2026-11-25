@@ -565,9 +565,10 @@ To remove this restriction, either extend the black-relation comparison
 the result along the crossing rescaling `tensorRescale` combined with a
 rescaling of the cover action.
 
-## The rest of arXiv:1309.3796v3
+## The rest of arXiv:1309.3796v2
 
-Plan for formalizing the paper in full, with numbers checked against v3. Status
+Plan for formalizing the paper in full. Numbers are those of v2, the target version; where v3
+numbers a statement differently, the v3 number is given as "v3: …". Numbers were checked against both versions. Status
 key: **done**, **partial**, **open**. The order below is the working order. §3 comes
 after §4 because the single-red case of the §4 constructions gives the §3 ones
 (Theorem 4.18, `T^λ ≅ R^λ` for one red strand).
@@ -576,15 +577,15 @@ after §4 because the single-red case of the §4 constructions gives the §3 one
 
 | Result | Content | Status |
 |---|---|---|
-| Thm 4.28 | `𝒰` acts on the double tensor product algebras `DT^λ` | done: strict pseudofunctor from the 1-cell dual of the KL 2-category to `Cat` (`blackActionPseudofunctor`), built from right whiskering (`violatingWhiskerRight`) and the functorial action of KL 2-morphisms (`blackMap_id`, `blackMap_comp`) |
-| Thm 4.30 | `T^λ` and `DT^λ` are Morita equivalent | done (#420) |
+| v3 Thm 4.28 (no numbered counterpart in v2) | `𝒰` acts on the double tensor product algebras `DT^λ` | done: strict pseudofunctor from the 1-cell dual of the KL 2-category to `Cat` (`blackActionPseudofunctor`), built from right whiskering (`violatingWhiskerRight`) and the functorial action of KL 2-morphisms (`blackMap_id`, `blackMap_comp`) |
+| Thm 4.29 (v3: Thm 4.30) | `T^λ` and `DT^λ` are Morita equivalent | done (#420) |
 | Thm 4.31 | `𝒰` acts on `T^λ`-modules by `βᵤ = e₋ β′ᵤ e₋` | done at the standard KL black parameters over a field: the action of Thm 4.28 on the additive idempotent completions (`StrictPseudofunctor.completion`) for the presentation of Thm 4.30 (`clBlackAction`); its value at `λ - ν` is identified with the completion of the all-down boundaries, with endomorphism ring `T^λ_ν` (`clBlackAction_tensorProduct`). Graded modules and the formula `βᵤ = e₋ β′ᵤ e₋` on algebras are not separately stated |
 | Thm 4.25 | representation of the 2-category `𝒯`; red lines act by `I^λ` | in progress: region categories (`regionFamily`) with the black action (`regionPresCL`); red/up iso, red/down quotient and dot crossings with both bigons (`regionRedUpIso`, `regionRedDownQuotient`, `regionRedDownDot`); the opposite counit on interior blocks is the Kang–Kashiwara leftward cap (`globalLoc_capL_app`, `blockLoc_capL`) and slides along red pullback (`redPullback_capL_tmul`). Remaining: the red cup, cap and pitchfork relations and the assembly with `presPseudofunctor`. The action on `T^λ`-modules used in §5 is Thm 4.31, which does not depend on this |
-| Prop 4.19 | `T^{λ⁻} ≅ e_ℓ T^λ e_ℓ` | done (v2 Prop 4.18, `appendRedEquiv`) |
+| Prop 4.18 (v3: Prop 4.19) | `T^{λ⁻} ≅ e_ℓ T^λ e_ℓ` | done (`appendRedEquiv`) |
 | Prop 4.21 | splitting a red strand, `T^{λ′} ≅ e_{λ′} T^λ e_{λ′}` | done (`SplitRed.splitRedEquiv`): with `λ'` splitting `λ_c = λ'_c + λ'_{c+1}`, `T^λ ≅ e T^{λ'} e` for `e` the sum of the idempotents of the loadings with red strands `c`, `c + 1` adjacent, for the crossing parameters of §2.2 (`IsRouquierQ`) |
 | Prop 4.32 | `IR^μ I^μ = id` and its commutation with `Eᵢ`, `Fᵢ` | done: `IR^μ Fᵢ I^μ ≅ Fᵢ` on bimodules (`lastRedBlackEquiv`); `IR^μ I^μ = id` is Prop 4.18 (`appendRedEquiv`); `IR^μ Eᵢ I^μ ≅ Eᵢ` over a field by reflection (`lastRedBlackMirrorEquiv`); both raise degrees by `degΨ(λ_ℓ, i)` (`lastRedBlackMap_mem_grade`, `lastRedBlackMirror_mem_grade`) |
 | Prop 4.33 | uniqueness of the sesquilinear forms | done (`TensorPairing.orderedForm_unique`, `orderedForm_nondegenerate`): a system of forms that is `τ`-Hermitian and isometric along `V_{λ₁} ⊗ ⋯ ⊗ V_{λₙ₋₁} ⊗ v_{λₙ}` is `orderedForm`, which is nondegenerate in both arguments. Webster's conditions do not fix the form on the empty tensor product; the theorem takes the scalar form `x̄ y` there as a normalization |
-| Prop 4.39 | `K₀(T̃^λ) ≅ U⁻_q ⊗ V^λ` | open; taken up after Cor 5.23, whose standard filtrations its proof uses |
+| Prop 4.39 | `K₀(T̃^λ) ≅ U⁻_q ⊗ V^λ` | open; taken up after the standard filtrations of Prop 5.20 and Cor 5.21, which its proof uses |
 
 ### Phase B: §3, cyclotomic quotients
 
@@ -611,7 +612,7 @@ KL III Thm 1.2) is the input for the basis statements behind Thm 3.17 and Cor 3.
 
 ### Phase C: §5, standard modules
 
-Done (v3 numbering, `RedStrands/StandardModule.lean`): the preorder of Def 5.1, encoded by the
+Done (`RedStrands/StandardModule.lean`): the preorder of Def 5.1, encoded by the
 number of black `i`-strands left of each red strand (`StendhalLE`, `StendhalLT`; the strict
 reading of "≥" in Def 5.1 is the one used); `P̃_s`, `U_s` and the standard module `S_s = P̃_s/U_s`
 (`seqProj`, `upperSubmodule`, `standardModule`); the cyclotomic step of Prop 5.3: a red strand
@@ -645,7 +646,7 @@ all-down matrix ring (`RedStrands/BlackModuleSumDecomp.lean`): `Eᵢ Fᵢ M ≅ 
 `n = ⟨i, λ⟩ ≥ 0` and dually (`blackModuleEFEquiv`, `blackModuleFEEquiv`), for every right
 module `M`, from the module-functor descriptions `blackResIndModule`, `blackIndResModule` and
 the generic `MatEnd.resIndEquivIndResProd`; Thm 5.8's proof uses the injectivity of
-Prop 5.26 for `S(L) e_α ≅ L`.
+Prop 5.24 (v3: Prop 5.26) for `S(L) e_α ≅ L`.
 
 Route for Props 5.5, 5.7 and the stratification results (chosen 2026-11-20). Webster's printed
 proofs work over a field with finite-dimensional graded modules and count dimensions. The route
@@ -724,14 +725,14 @@ from which the full one is obtained by iterating):
   inverse `z ⊗ n ↦ z · (1 ⊗ n)`; the key identity is that the parabolic affine image of a
   concatenation equals `appendRed` after the factor isomorphism (`emptyF_eq_emptyG`).
 
-* Step in the proof of Prop 5.21 (`RedStrands/TwoPieceStandardEquiv.lean`): for a red-ordered loading `t` of the
+* Step in the proof of Prop 5.20, v3: Prop 5.21 (`RedStrands/TwoPieceStandardEquiv.lean`): for a red-ordered loading `t` of the
   first `ℓ` red strands and a black sequence `u`, the standardization of `S_t ⊠ R e(u)` is the
   standard module `S_{t λ_{ℓ+1} u}` of Def 5.1, `S(S_t ⊠ R e(u)) ≅ S_{tλu}` as `T^λ`-modules
   (`twoPieceStandardEquiv`, `twoPieceStandardEquiv_symm_unit`), for `KLRSymm Q`. The map out of
   the standardization is `parabolicDesc`; the inverse is the lift of the unit of `S_{tλu}`,
   using that loadings above `tλu` act by zero (`parabolicStandardAction_upper_eq_zero`).
 
-* Prop 5.21, filtration form (`RedStrands/ProjectiveStandardFiltration.lean`): every `T^λ e(s)`
+* Prop 5.20 (v3: Prop 5.21), filtration form (`RedStrands/ProjectiveStandardFiltration.lean`): every `T^λ e(s)`
   has a finite filtration by standard modules (`hasStandardFiltrations`), by induction on the
   number of red strands: loading decomposition `(s₀, λ_{ℓ+1}, w)`
   (`exists_blackWordLoading_appendRed`), the filtration of Prop 5.5's proof, exactness of `⊠`
@@ -740,20 +741,20 @@ from which the full one is obtained by iterating):
   filtration `P_{≥φ}/P_{>φ} ≅ S^{κφ}_{iφ}`; route hypothesis `AllFiniteDeltaInjective` for every
   sequence of highest weights (removal tracked with Prop 5.5).
 
-* Cor 5.22, condition on projectives (`RedStrands/StandardStratification.lean`): the kernel
+* Cor 5.21 (v3: Cor 5.22), condition on projectives (`RedStrands/StandardStratification.lean`): the kernel
   `U_s` of `T^λ e(s) → S_s` has a finite filtration by `S_t` with `t > s` in Webster's dominance
   order on black counts (`exists_hasFiltration_leftUpper`). It comes from the ordered form of the
-  filtration of Prop 5.21 (`RedStrands/ProjectiveStandardFiltrationOrder.lean`,
+  filtration of Prop 5.20 (`RedStrands/ProjectiveStandardFiltrationOrder.lean`,
   `hasOrderedStandardFiltrations`: top quotient `S_{s'}` with `s'` equivalent to `s`, other
   labels strictly above `s`). Difference from the printed statement: Webster states that `T^λ`
   is standardly stratified; the formal statement is the condition on projectives of that
-  definition. Same route hypothesis as Prop 5.21.
+  definition. Same route hypothesis as Prop 5.20.
 
-* Prop 5.21 and Cor 5.22 at the standard Khovanov–Lauda scalars
+* Prop 5.20 and Cor 5.21 at the standard Khovanov–Lauda scalars
   (`RedStrands/StandardStratificationStd.lean`): `AllFiniteDeltaInjective` is discharged by the
   dimension count (`allFiniteDeltaInjective_std`), with no further hypothesis.
 
-* Lemma 5.29 and Cor 5.24 (`RedStrands/StandardProjectiveDimension.lean`): projective dimension
+* Lemma 5.26 and Cor 5.22 (v3: Lemma 5.29, Cor 5.24; `RedStrands/StandardProjectiveDimension.lean`): projective dimension
   `< n` passes from the subquotients of a finite filtration to the module
   (`HasFiltration.hasProjectiveDimensionLT`), and every standard module has finite projective
   dimension (`exists_hasProjectiveDimensionLT_stdModule`; `_std` at the standard scalars, with
@@ -787,15 +788,15 @@ of `T^λ e(s)` surject onto `S_s`, a product of standard quotients) is proved fo
 idempotent decomposition of `e(s)`: `Stendhal.IsSeqDecomp.leftStandardEquiv`,
 `Stendhal.IsSeqDecomp.lIdeal_le_sup` (`RedStrands/StandardSplitting.lean`).
 
-Prop 5.28 of v2 (`End(P⁰) ≅ T^{λ̲} ≅ R^{λ̲}` for `P⁰ = e⁰ T^λ`, `e⁰` the red-first loadings) is
+Prop 5.28 (v3: Prop 5.31; `End(P⁰) ≅ T^{λ̲} ≅ R^{λ̲}` for `P⁰ = e⁰ T^λ`, `e⁰` the red-first loadings) is
 proved as a ring isomorphism of the corner `e⁰ T^λ e⁰` with the cyclotomic KLR algebra of the
 total weight, for the crossing parameters of §2.2: `Stendhal.redFirstCornerEquiv`
 (`RedStrands/RedFirstCorner.lean`), by repeated red-strand splitting (Cor 4.21 of v2,
 `splitRedEquiv`) down to one red strand (Prop 4.20). Deferred: the printed `Φ`-indexed form of
-Prop 5.21 (the specific filtration `P_{≥φ}/P_{>φ} ≅ S^{κφ}_{iφ}`), which strengthens the
+Prop 5.20 (the specific filtration `P_{≥φ}/P_{>φ} ≅ S^{κφ}_{iφ}`), which strengthens the
 filtration form above.
 
-Cor 5.29 of v2 (v3: Cor 5.32, double centralizer of `P⁰`) is proved under the route hypothesis
+Cor 5.29 (v3: Cor 5.32, double centralizer of `P⁰`) is proved under the route hypothesis
 `HasCornerCopresentation e⁰`: `Stendhal.existsUnique_eq_mul_left_redFirst`
 (`RedStrands/RedFirstDoubleCentralizer.lean`), from the module-theoretic step
 `Categorification.exists_eq_mul_left_of_hasCornerCopresentation`
@@ -805,7 +806,7 @@ at least two with respect to `P⁰` (`Ext¹(L, T^λ) = 0` for simples `L` killed
 obtains this from Mazorchuk–Stroppel, J. Reine Angew. Math. 616 (2008), Cor. 2.6, whose proof
 uses Ringel duality for standardly stratified algebras.
 
-Prop 5.30 of v2 (v3: Prop 5.33) is proved under the same route hypothesis, which it inherits
+Prop 5.30 (v3: Prop 5.33) is proved under the same route hypothesis, which it inherits
 from Cor 5.29: `Stendhal.redFirstEndEquiv` (`RedStrands/RedFirstEndomorphism.lean`) identifies
 `T^λ` with the endomorphism algebra of the right module `⊕_s y_s B` over `B = e⁰ T^λ e⁰`,
 `y_s = θ̇_s θ_s`, with `a ↦ (θ̇_s e_s x ↦ θ̇_s e_s a x)` (`redFirstEndEquiv_apply`). The generic
@@ -823,10 +824,10 @@ the standard module is the form with `s` composed with `η` (`iteratedStandardTe
 needs it: a formal Grothendieck group of finite-dimensional modules with the dual map `η`.
 
 Standardization functors (Prop 5.3, Def 5.4, Props 5.6, 5.7); simples and crystals
-(Lemma 5.9, Prop 5.11, Thms 5.14, 5.15); standard stratification (Lemma 5.19, Prop 5.21 in printed `Φ`-indexed form, Lemma 5.25,
-Prop 5.26, Cor 5.27: `V^λ` is a tensor product categorification); Thm 5.28 (finite
+(Lemma 5.9, Prop 5.11, Thms 5.14, 5.15); standard stratification (Prop 5.20 in printed `Φ`-indexed form, Lemma 5.23,
+Prop 5.24; v3 adds Lemma 5.19 and Cor 5.27, `V^λ` is a tensor product categorification); Thm 5.25 (finite
 projective resolutions); self-dual projectives and double centralizer
-(Thm 5.30, Prop 5.31, Cor 5.32, Prop 5.33); Thm 5.34 (for `sl_n`, blocks of cyclotomic
+(Thm 5.27, Prop 5.28, Cor 5.29, Prop 5.30); Thm 5.31 (for `sl_n`, blocks of cyclotomic
 `q`-Schur algebras). Open except as listed above.
 
 ### Phase D: §6, braiding functors
@@ -999,7 +1000,7 @@ replace the reduction by Lemma 6.8.
   [Ordered resolution](https://github.com/apellis/categorification-lean/pull/917)
   · [Directed vanishing](https://github.com/apellis/categorification-lean/pull/893)
   · [DG balance](https://github.com/apellis/dg-lean/pull/72)
-- **§6 geometry.** The explicit bottom-block convention follows v3 Lemma 6.12.
+- **§6 geometry.** The explicit bottom-block convention follows the proof of Lemma 6.11 (v3: Lemma 6.12).
   Bottom reconstruction and the eligibility criterion are merged. Drafts
   establish column generation, strict higher-trace reduction, and the
   Bruhat refinement within equal black-count classes. The successive quotient
@@ -1023,6 +1024,13 @@ replace the reduction by Lemma 6.8.
   [Middle augmentation](https://github.com/apellis/categorification-lean/pull/872)
   · [Recurrence](https://github.com/apellis/categorification-lean/pull/932)
   · [Tor₃](https://github.com/apellis/categorification-lean/pull/935)
+
+Engineering item: the §6–§8 files added on 23–24 November raise `maxHeartbeats` in
+`BlockPartialStandardOrderedResolution`, `FiveSlotNearbyFlagInjection` and the
+`LabelTwo*` modules (exterior complex, degrees, middle map, standard support, incoming
+coordinates and degrees, middle exactness, augmentations, quotient coordinates, grading,
+specialization and terminal parabolic). Remove these overrides by restructuring the
+proofs (named intermediate statements, fewer nested transports), not by larger budgets.
 
 For Lemma 6.11, `braidingBimoduleFlip` implements the horizontal reflection used in
 the proof of `f_n → s_n`. It swaps the order corners and intertwines their actions with
@@ -1259,7 +1267,7 @@ homologies (Props 9.18, 9.20, 9.21). All open.
 * Prop 9.6 and Thm 9.16 are the Brundan–Kleshchev isomorphism (arXiv:0808.2032),
   which is not in the library. Options: formalize it, or take it as a stated
   hypothesis of the §9 results.
-* Thm 5.34 and §9 compare with cyclotomic `q`-Schur algebras and category `𝒪`. On
+* Thm 5.31 (v3: Thm 5.34) and §9 compare with cyclotomic `q`-Schur algebras and category `𝒪`. On
   2026-11-15 the maintainer excluded the Cherednik and `q`-Schur comparisons for
   the weighted KLR work. This needs confirming for 1309.3796.
 * Prop 9.14 (Koszulity) and Props 9.18–9.21 rest on results of other papers (for

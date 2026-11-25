@@ -4,6 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 -/
 import Categorification.WeightedKLR.RedStrands.BlockCrossingRowStandard
 import Categorification.WeightedKLR.RedStrands.BlockPartialStandardRigid
+import Categorification.WeightedKLR.RedStrands.BlockCrossingRigid
 
 /-!
 # The braid of a partial standard at a Figure 5 row loading
@@ -89,10 +90,8 @@ crossed loading and `t'` the placed uncrossed loading, the derived braid from
 `κ₁ = L ++ f 1 :: f 0 :: M` to `κ₀ = L ++ f 0 :: f 1 :: M` of the standard module at `t` is
 the standard module at `t'` in degree zero.
 
-Hypotheses: those of `rowPartialStandard_braidIso`, and the rigidity `hrig` of the cut at
-`f 0` in `t`, which identifies the standard module with the partial standard. Rigidity holds
-for these loadings (no black strand lies between `f 0` and the next red strand); its proof
-from the row data is a roadmap item. -/
+Hypotheses: those of `rowPartialStandard_braidIso`. The standard module at `t` is the partial
+standard because the cut at `f 0` is rigid (`isRigidCut_place_setPairLoading`). -/
 def rowStandard_braidIso {ρ : Equiv.Perm (Fin m₂) → List ℕ}
     (hρ : TypeA.IsReducedChoice ρ) {σ t₂ : Seq (stendhalWeight 2 β)} {g : Equiv.Perm (Fin m₂)}
     (h1 : 1 < m₂) (ht₀ : t₂.lbl ⟨0, by omega⟩ = .inr 0) (ht₁ : t₂.lbl ⟨1, h1⟩ = .inr 1)
@@ -122,8 +121,7 @@ def rowStandard_braidIso {ρ : Equiv.Perm (Fin m₂) → List ℕ}
     (hinj : ∀ s : Seq (stendhalWeight ℓ ν),
       redWord s = redWord (Seq.cast h (place _ (setPairLoading M f β σ L u))) →
       Function.Injective (blockKernelTensorInclusion Q Λ s (f 0) (f 1)
-        (L.map Prod.fst ++ f 0 :: f 1 :: M.map Prod.fst)))
-    (hrig : IsRigidCut (Seq.cast h (place _ (setPairLoading M f β σ L u))) (f 0)) :
+        (L.map Prod.fst ++ f 0 :: f 1 :: M.map Prod.fst))) :
     (braidingFunctor.{w} k Q Λ ν (redWord (Seq.cast h (place _ (setPairLoading M f β σ L u))))
         (L.map Prod.fst ++ f 0 :: f 1 :: M.map Prod.fst)).obj
         (DG.DerivedCategory.Q.obj ((degreeZeroModuleFunctor _).obj (ModuleCat.of _
@@ -135,7 +133,8 @@ def rowStandard_braidIso {ρ : Equiv.Perm (Fin m₂) → List ℕ}
           (Seq.cast h (place _ (setPairLoading M f β t₂ L u)))
           (L.map Prod.fst ++ f 0 :: f 1 :: M.map Prod.fst)))) :=
   (braidingFunctor.{w} k Q Λ ν _ _).mapIso (DG.DerivedCategory.Q.mapIso
-      ((degreeZeroModuleFunctor _).mapIso (partialStandardEquivStandard ht hrig).symm.toModuleIso)) ≪≫
+      ((degreeZeroModuleFunctor _).mapIso (partialStandardEquivStandard ht
+        (isRigidCut_place_setPairLoading M f β hb L h u hs ht)).symm.toModuleIso)) ≪≫
     rowPartialStandard_braidIso Q Λ hQ M f β hρ h1 ht₀ ht₁ hb hσ ht₂ L h u hs ht hstd hfilt hinj
 
 end Categorification.Stendhal.RedBlock

@@ -962,11 +962,11 @@ an explicit hypothesis (maintainer decision), a roadmap item to remove:
 
 Input side (`RedStrands/BlockPartialStandardRigid.lean`): at a rigid cut the partial standard
 is the standard module (`partialStandardEquivStandard`, from step 1), giving the ungraded
-Prop 6.9 at Figure 5 row loadings (`rowStandard_braidIso`). Open:
+Prop 6.9 at Figure 5 row loadings (`rowStandard_braidIso`). The cut at `f 0` is rigid
+(`RedStrands/BlockCrossingRigid.lean`, `isRigidCut_place_setPairLoading`): in the crossed
+Figure 5 loading `f 0` ends the paired block and the next block starts with its red strand,
+so `f 0` has as many black strands to its left as the next red strand. Open:
 
-- derive the rigidity of the cut at `f 0` (`IsRigidCut`, an argument of `rowStandard_braidIso`)
-  from the row data: in the crossed Figure 5 loading `f 0` ends the paired block and the next
-  block starts with its red strand (`isRigidCut_of_black_right`);
 - step 4 (the graded shift).
 
 The ungraded Figure 5 right-module map for Prop 6.9 (`RedStrands/BraidedStandardTwo.lean`,

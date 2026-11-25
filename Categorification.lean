@@ -20,7 +20,6 @@ import Categorification.Algebra.CornerTensorAdditive
 import Categorification.Algebra.CornerTensorCutLift
 import Categorification.Algebra.CornerTensorFactor
 import Categorification.Algebra.CornerTensorQuotient
-import Categorification.Algebra.DerivedDimensionShift
 import Categorification.Algebra.DGShortExactTriangle
 import Categorification.Algebra.DerivedTensor
 import Categorification.Algebra.DerivedTensorCoefficient
@@ -1785,7 +1784,6 @@ import Categorification.WeightedKLR.RedStrands.FiveSlotKernelColumn
 import Categorification.WeightedKLR.RedStrands.FiveSlotKernelDerivedHomology
 import Categorification.WeightedKLR.RedStrands.FiveSlotThreeTopDerived
 import Categorification.WeightedKLR.RedStrands.FiveSlotAllTopsBoundedSpectator
-import Categorification.WeightedKLR.RedStrands.FiveSlotDerivedNegOne
 import Categorification.WeightedKLR.RedStrands.FiveSlotAllBottom
 import Categorification.WeightedKLR.RedStrands.FiveSlotAllBottomStandard
 import Categorification.WeightedKLR.RedStrands.FiveSlotAllBottomDerived

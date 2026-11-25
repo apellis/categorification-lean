@@ -1025,6 +1025,13 @@ replace the reduction by Lemma 6.8.
   · [Recurrence](https://github.com/apellis/categorification-lean/pull/932)
   · [Tor₃](https://github.com/apellis/categorification-lean/pull/935)
 
+Engineering item: the §6–§8 files added on 23–24 November raise `maxHeartbeats` in
+`BlockPartialStandardOrderedResolution`, `FiveSlotNearbyFlagInjection` and the
+`LabelTwo*` modules (exterior complex, degrees, middle map, standard support, incoming
+coordinates and degrees, middle exactness, augmentations, quotient coordinates, grading,
+specialization and terminal parabolic). Remove these overrides by restructuring the
+proofs (named intermediate statements, fewer nested transports), not by larger budgets.
+
 For Lemma 6.11, `braidingBimoduleFlip` implements the horizontal reflection used in
 the proof of `f_n → s_n`. It swaps the order corners and intertwines their actions with
 the opposite actions through the corner anti-involutions.

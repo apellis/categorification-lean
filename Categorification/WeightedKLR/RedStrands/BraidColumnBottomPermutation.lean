@@ -83,3 +83,68 @@ theorem braidColumnBottomBlockIndex_lt_red_black (s : Seq μ) (n : Fin ℓ → �
   omega
 
 end Categorification.Stendhal
+
+namespace Categorification.Stendhal
+open KLR KLRAlgebra TypeA Equiv
+open scoped BigOperators
+
+private def braidBlockPrefix {ℓ : ℕ} (n : Fin ℓ → ℕ) (j : ℕ) (hj : j ≤ ℓ) : ℕ :=
+  ∑ r : Fin j, (n (Fin.castLE hj r) + 1)
+
+private theorem braidBlockPrefix_succ {ℓ : ℕ} (n : Fin ℓ → ℕ) (r : Fin ℓ) :
+    braidBlockPrefix n (r.val + 1) r.isLt =
+      braidBlockPrefix n r.val r.isLt.le + (n r + 1) := by
+  unfold braidBlockPrefix
+  rw [Fin.sum_univ_castSucc]
+  rfl
+
+/-- The red positions, together with the full row length, determine all block sizes. -/
+theorem braidBlockAmounts_eq_of_red_positions {ℓ m : ℕ} (n n' : Fin ℓ → ℕ)
+    (hn : (∑ r, (n r + 1)) = m) (hn' : (∑ r, (n' r + 1)) = m)
+    (hred : ∀ r : Fin ℓ,
+      braidBlockPositions n hn ⟨r,0⟩ = braidBlockPositions n' hn' ⟨r,0⟩) :
+    n = n' := by
+  have hp (j : ℕ) (hj : j ≤ ℓ) :
+      braidBlockPrefix n j hj = braidBlockPrefix n' j hj := by
+    rcases hj.eq_or_lt with rfl | hj'
+    · simpa only [braidBlockPrefix, Fin.castLE_refl] using hn.trans hn'.symm
+    · simpa only [braidBlockPositions, Equiv.trans_apply, finCongr_apply, Fin.val_cast,
+        finSigmaFinEquiv_apply, Fin.val_zero, add_zero, braidBlockPrefix] using
+          congrArg Fin.val (hred ⟨j,hj'⟩)
+  funext r
+  have h := hp (r.val + 1) r.isLt
+  rw [braidBlockPrefix_succ n r, braidBlockPrefix_succ n' r, hp r.val r.isLt.le] at h
+  omega
+
+variable {I : Type} [DecidableEq I] {ℓ : ℕ} {ν : Multiset I}
+local notation "μ" => stendhalWeight ℓ ν
+local notation "m" => Multiset.card μ
+
+/-- Reordering whole bottom blocks preserves the multiplicity of eligible indices.
+The transported red positions determine the marked block sizes, so equality
+of the reordered wirings forces equality of the original wirings. -/
+theorem braidColumnBottomBlockIndex_eq_of_eq (s : Seq μ) (σ : Perm (Fin ℓ))
+    (n n' : Fin ℓ → ℕ) (hn : (∑ r, (n r + 1)) = m)
+    (hn' : (∑ r, (n' r + 1)) = m) (φ φ' : Perm (Fin m))
+    (hred : ∀ r : Fin ℓ, (φ⁻¹ • s).lbl (braidBlockPositions n hn ⟨r,0⟩) = .inr r)
+    (hred' : ∀ r : Fin ℓ, (φ'⁻¹ • s).lbl (braidBlockPositions n' hn' ⟨r,0⟩) = .inr r)
+    (h : braidColumnBottomBlockIndex n hn σ φ = braidColumnBottomBlockIndex n' hn' σ φ') :
+    n = n' ∧ φ = φ' := by
+  have hloading := congrArg (fun w : Perm (Fin m) => w⁻¹ • s) h
+  rw [braidColumnBottomBlockIndex_bottom, braidColumnBottomBlockIndex_bottom] at hloading
+  have hpos (r : Fin ℓ) :
+      braidBlockPositions (n ∘ σ) ((Equiv.sum_comp σ fun q => n q + 1).trans hn) ⟨r,0⟩ =
+      braidBlockPositions (n' ∘ σ) ((Equiv.sum_comp σ fun q => n' q + 1).trans hn') ⟨r,0⟩ := by
+    have hr := (lbl_braidBlockPermutation_smul (φ⁻¹ • s) n hn σ r 0).trans (hred (σ r))
+    have hr' := (lbl_braidBlockPermutation_smul (φ'⁻¹ • s) n' hn' σ r 0).trans (hred' (σ r))
+    rw [hloading] at hr
+    exact lbl_eq_inr_unique hr hr'
+  have he := braidBlockAmounts_eq_of_red_positions (n ∘ σ) (n' ∘ σ) _ _ hpos
+  have hnEq : n = n' := by
+    funext r
+    obtain ⟨q,rfl⟩ := σ.surjective r
+    exact congrFun he q
+  subst n'
+  exact ⟨rfl, mul_right_cancel h⟩
+
+end Categorification.Stendhal

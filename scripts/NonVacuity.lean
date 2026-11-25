@@ -9614,6 +9614,21 @@ private theorem bottom_labels (r : Fin 3) :
     (phi⁻¹ • top).lbl (braidBlockPositions sizes sizes_card ⟨r, 0⟩) = .inr r := by
   rw [bottom_eq]
   fin_cases r <;> decide
+
+example : ∃! input : (Fin 3 → ℕ) × Perm (Fin m),
+    ∃ hn : (∑ r, (input.1 r + 1)) = m,
+      (∀ r : Fin 3, (input.2⁻¹ • top).lbl (braidBlockPositions input.1 hn ⟨r,0⟩) = .inr r) ∧
+      braidColumnBottomBlockIndex input.1 hn swapReds input.2 = sadj m 1 := by
+  have hindex : braidColumnBottomBlockIndex sizes sizes_card swapReds phi = sadj m 1 := by
+    apply Equiv.ext
+    intro a
+    fin_cases a <;> rfl
+  refine ⟨(sizes,phi), ⟨sizes_card,bottom_labels,hindex⟩, ?_⟩
+  rintro ⟨n,w⟩ ⟨hn,hred,hw⟩
+  obtain ⟨he,he'⟩ := braidColumnBottomBlockIndex_eq_of_eq top swapReds n sizes hn sizes_card
+    w phi hred bottom_labels (hw.trans hindex.symm)
+  exact Prod.ext he he'
+
 private def topR (r : Fin 3) : Fin m := Fin.cast four_eq_card (Fin.castSucc r)
 private def bottomR (r : Fin 3) : Fin m :=
   Fin.cast four_eq_card (if r = 2 then 3 else Fin.castSucc r)

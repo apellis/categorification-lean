@@ -87,7 +87,8 @@ theorem tmul_eq_zero_of_mem_spanSmul {c : BlockCut.space (C)} {e : quotients Q �
     (hz : z ∈ BalancedTensor.spanSmul (N := S₀) H) : (BalancedTensor.tmul c z : Z) = 0 :=
   BalancedTensor.tmul_eq_zero_of_mem_spanSmul _ (rmul_eq_smul c) g.kill hz
 
-private theorem act_stack_tmul (e : quotients Q Λ Bs) (he : ι₁ 1 * e = e) (x : (C).space)
+/-- Projecting the top of a stacked tensor projects its crossing coefficient. -/
+theorem act_crossingStack_tmul (e : quotients Q Λ Bs) (he : ι₁ 1 * e = e) (x : (C).space)
     (z : S₀) : act e (stk (BalancedTensor.tmul x z)).1 =
       (stk (BalancedTensor.tmul ((C).lproj e x) z)).1 := by
   rw [crossingStack_tmul, crossingStack_tmul, ← Module.End.mul_apply, ← map_mul]
@@ -109,6 +110,6 @@ theorem exists_stack_generator {c : BlockCut.space (C)} {e : quotients Q Λ Bs} 
   let G : Z →+ blockColumn Q Λ L M f β h :=
     (LinearMap.toAddMonoidHom (S₁).subtype).comp (stk).toAddMonoidHom
   exact BalancedTensor.exists_map_eq_tmul _ _ g.gen (rmul_eq_smul c) F G
-    (act_stack_tmul h e he) w
+    (act_crossingStack_tmul h e he) w
 
 end Categorification.Stendhal.RedBlock

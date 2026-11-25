@@ -59,6 +59,8 @@ structure Generator (r : D →ₗ[k] R) (c : C.space) (e : R) (τ : D) (H : Subm
   fix : ∀ a, C.lproj e (C.rmul r c a) = C.rmul r c a
   gen : LinearMap.range (C.lproj e) ≤ LinearMap.range (C.rmul r c)
   ann : ∀ a, C.rmul r c a = 0 → τ * a ∈ H
+  kill : ∀ a ∈ H, C.rmul r c a = 0
+  right : C.rmul r c τ = c
 
 section Tensor
 
@@ -118,7 +120,7 @@ theorem Generator.tensor {r : D →ₗ[k] R} {r₂ : D₂ →ₗ[k] R₂} {c : C
   have hl := lproj_tensor C C₂ e e₂
   let f := C.rmul r c
   let f₂ := C₂.rmul r₂ c₂
-  refine ⟨fun a => ?_, ?_, fun a ha => ?_⟩
+  refine ⟨fun a => ?_, ?_, fun a ha => ?_, fun a ha => ?_, ?_⟩
   · have key : TensorProduct.map (C.lproj e) (C₂.lproj e₂) ∘ₗ TensorProduct.map f f₂ =
         TensorProduct.map f f₂ := by
       rw [← TensorProduct.map_comp]
@@ -193,6 +195,18 @@ theorem Generator.tensor {r : D →ₗ[k] R} {r₂ : D₂ →ₗ[k] R₂} {c : C
       · rintro _ ⟨w, rfl⟩
         exact second w
     exact hle hker
+  · have hle : tensorRelations τ τ₂ H H₂ ≤ LinearMap.ker (TensorProduct.map f f₂) := by
+      refine sup_le (Submodule.span_le.2 ?_) (Submodule.span_le.2 ?_)
+      · rintro _ ⟨x, hx, y, -, rfl⟩
+        change TensorProduct.map f f₂ (x ⊗ₜ y) = 0
+        rw [TensorProduct.map_tmul, show f x = 0 from g.kill x hx, TensorProduct.zero_tmul]
+      · rintro _ ⟨x, -, y, hy, rfl⟩
+        change TensorProduct.map f f₂ (x ⊗ₜ y) = 0
+        rw [TensorProduct.map_tmul, show f₂ y = 0 from g₂.kill y hy, TensorProduct.tmul_zero]
+    exact (LinearMap.congr_fun hr a).trans (hle ha)
+  · refine (LinearMap.congr_fun hr (τ ⊗ₜ τ₂)).trans ?_
+    exact (TensorProduct.map_tmul (C.rmul r c) (C₂.rmul r₂ c₂) τ τ₂).trans
+      (by rw [g.right, g₂.right])
 
 end Tensor
 
@@ -231,12 +245,14 @@ theorem spectatorCut_generator (x : Fin ℓ × Multiset I) (τ : TA (spectator x
     change orderedRetraction Q Λ hQ botOrd (spectator x)
       (orderedValue Q Λ hQ botOrd (spectator x) τ * orderedValue Q Λ hQ botOrd (spectator x) a) = _
     rw [← map_mul]; exact orderedRetraction_value Q Λ hQ botOrd (spectator x) _
-  refine ⟨fun a => ?_, ?_, fun a ha => ?_⟩
+  refine ⟨fun a => ?_, ?_, fun a ha => ?_, fun a ha => ?_, ?_⟩
   · rw [hr, hl, ← mul_assoc, hτ.eq]
   · rintro _ ⟨y, rfl⟩
     exact ⟨y, by rw [hr, hl]⟩
   · rw [hr] at ha
     rw [ha]; exact zero_mem _
+  · rw [(Submodule.mem_bot k).1 ha, map_zero]
+  · rw [hr, hτ.eq]
 
 
 section Pair
@@ -270,6 +286,13 @@ private theorem finRange_map_one : (List.finRange 2).map ((1 : Equiv.Perm (Fin 2
 
 private theorem finRange_map_rev : (List.finRange 2).map (Fin.revPerm : Equiv.Perm (Fin 2)) =
     [1, 0] := by decide
+
+private theorem mem_violStandardUpper_of_mem {ν : Multiset I} {Λ' : Fin ℓ → I →₀ ℕ}
+    {t : Seq (stendhalWeight ℓ ν)} {κ : List (Fin ℓ)} (hκ : redWord t = κ)
+    (x : violCorner k Q Λ' ν t κ) (hx : x.1 ∈ stendhalUpperIdeal k Q Λ' ν t κ) :
+    x ∈ violStandardUpper t κ := by
+  subst hκ
+  exact (mem_violStandardUpper_iff x).2 hx
 
 private theorem mem_stendhalUpperIdeal_of_mem {ν : Multiset I} {Λ' : Fin ℓ → I →₀ ℕ}
     {t : Seq (stendhalWeight ℓ ν)} {κ : List (Fin ℓ)} (hκ : redWord t = κ)
@@ -349,7 +372,16 @@ theorem pairCut_generator {ρ : Equiv.Perm (Fin m₂) → List ℕ} (hρ : TypeA
     change orderedValue Q Λ hQ topOrd B₂ 1 * (es * X) * ov 1 = es * X
     rw [hP1, ← mul_assoc, hP1s, mul_assoc, hX2]
   let iso := violLoadingStandardEquivBraidCorner (k := k) (Q := Q) (Λ₂ := Λ ∘ f) hρ hQ h1 ht₀ ht₁ hb
-  refine ⟨fun a => Subtype.ext ?_, ?_, fun a ha => ?_⟩
+  have het : et * et = et := by
+    change q₂ (ι₂ (KLRAlgebra.e t)) * q₂ (ι₂ (KLRAlgebra.e t)) = q₂ (ι₂ (KLRAlgebra.e t))
+    rw [← map_mul q₂, ← map_mul ι₂, KLRAlgebra.e_mul_self]
+  have htf : redWord t = List.finRange 2 := ht.trans (by decide)
+  have hovτ : ov (tensorOfKLR Q (Λ ∘ f) β (KLRAlgebra.e t)) = et :=
+    orderedValue_identity_e Q Λ hQ B₂ t htf
+  have hcorner (a : TA B₂) : et * ov a ∈ violCorner k Q (Λ ∘ f) β t [0, 1] :=
+    mem_violCorner_iff.2 ⟨by rw [← mul_assoc, het], by rw [mul_assoc, hov]⟩
+  refine ⟨fun a => Subtype.ext ?_, ?_, fun a ha => ?_, fun a ha => Subtype.ext ?_,
+    Subtype.ext ?_⟩
   · rw [hl, hr, ← mul_assoc, hsc]
   · rintro _ ⟨x, rfl⟩
     have hx : (x.1 : quotientAlgebra Q Λ B₂) * P₀ = x.1 := by rw [← hP0]; exact x.2.2
@@ -389,9 +421,19 @@ theorem pairCut_generator {ρ : Equiv.Perm (Fin m₂) → List ℕ} (hρ : TypeA
     have hmk : (Submodule.Quotient.mk y' : ViolLoadingStandard (k := k) (Q := Q) (Λ := Λ ∘ f) t
         [0, 1]) = 0 := iso.injective (h0.trans (map_zero iso).symm)
     have hmem := mem_stendhalUpperIdeal_of_mem Q ht y' ((Submodule.Quotient.mk_eq_zero _).1 hmk)
-    have htf : redWord t = List.finRange 2 := ht.trans (by decide)
-    rw [mem_pairRelations, map_mul, orderedValue_identity_e Q Λ hQ B₂ t htf]
+    rw [mem_pairRelations, map_mul, hovτ]
     exact hmem
+  · rw [hr]
+    let y' : violCorner k Q (Λ ∘ f) β t [0, 1] := ⟨et * ov a, hcorner a⟩
+    have hmem : y' ∈ violStandardUpper t [0, 1] :=
+      mem_violStandardUpper_of_mem Q ht y'
+        (TwoSidedIdeal.mul_mem_left _ _ _ ((mem_pairRelations Q Λ hQ f β).1 ha))
+    have h0 := congrArg Subtype.val (congrArg iso ((Submodule.Quotient.mk_eq_zero _).2 hmem))
+    rw [map_zero, violLoadingStandardEquivBraidCorner_mk] at h0
+    change c * (et * ov a) = 0 at h0
+    rw [← mul_assoc, hct] at h0
+    exact h0
+  · rw [hr, hovτ, hct, hcval]
 
 end Pair
 
@@ -487,7 +529,7 @@ theorem spectatorCuts_generator : ∀ (M : List (Fin ℓ × Multiset I)) (s : Lo
       (spectatorsGen Q Λ hQ M s) (projection Q Λ (M.map spectator) (loadingIdem Q Λ _ s))
       (spectatorsIdem Q Λ hQ M s) (spectatorsRelations Q Λ hQ M s)
   | [], _ => by
-    refine ⟨fun a => ?_, ?_, fun a ha => ?_⟩
+    refine ⟨fun a => ?_, ?_, fun a ha => ?_, fun a ha => ?_, ?_⟩
     · show (1 : ULift.{0} k) * ((1 : ULift.{0} k) * (show ULift.{0} k from a)) =
         (1 : ULift.{0} k) * (show ULift.{0} k from a)
       rw [one_mul]
@@ -496,6 +538,9 @@ theorem spectatorCuts_generator : ∀ (M : List (Fin ℓ × Multiset I)) (s : Lo
     · have ha' : (1 : ULift.{0} k) * (show ULift.{0} k from a) = 0 := ha
       show (1 : ULift.{0} k) * (show ULift.{0} k from a) ∈ (⊥ : Submodule k (ULift.{0} k))
       rw [ha']; exact zero_mem _
+    · rw [(Submodule.mem_bot k).1 ha, map_zero]
+    · show (1 : ULift.{0} k) * (1 : ULift.{0} k) = 1
+      rw [one_mul]
   | x :: xs, s => by
     have g := ((spectatorCut_generator_loading Q Λ hQ x s.1).tensor
       (spectatorCuts_generator xs s.2)).congr_map (r' := LinearMap.ofClass

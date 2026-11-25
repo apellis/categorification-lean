@@ -62,13 +62,23 @@ local notation "C" => IsIdempotentElem.Corner (isIdempotentElem_violMk_redProj k
 local notation "D" => IsIdempotentElem.Corner (isIdempotentElem_violMk_redProj k Q Λ ν κ')
 local notation "F" => braidingFunctor k Q Λ ν κ κ'
 
+/-- The higher retained-cut kernel at a loading `s`, as a right module over the corner of an
+equal red word `κ`. -/
+def blockLoadingKernelObjAt (s : Seq μ) (hs : redWord s = κ) : ModuleCat Cᵐᵒᵖ := by
+  let P := rIdeal (orderedLoadingIdemAt Q Λ κ s hs)
+  let : AddCommGroup P := Submodule.addCommGroup P
+  let : Module Cᵐᵒᵖ P := Submodule.module P
+  let J : Submodule Cᵐᵒᵖ P := blockLoadingKernelAt Q Λ s a b κ hs
+  let : AddCommGroup J := Submodule.addCommGroup J
+  exact ModuleCat.of Cᵐᵒᵖ J
+
 set_option backward.isDefEq.respectTransparency false in
 /-- One step of the induction through (6.21) in Webster's Lemma 6.8, for a loading `s` placed
 in the corner of an equal red word `κ`. -/
 theorem blockPartialStandardAt_braid_homology_vanish (s : Seq μ) (hs : redWord s = κ)
     {ι : Type*} {L : ι → ModuleCat Cᵐᵒᵖ} {m : List ι}
     (hK : ModuleFiltration.HasFiltration L m
-      (ModuleCat.of Cᵐᵒᵖ (blockLoadingKernelAt Q Λ s a b κ hs)))
+      (blockLoadingKernelObjAt Q Λ a b κ s hs))
     (hL : ∀ c ∈ m, ∀ n : ℤ, n ≠ 0 → IsZero
       ((DG.DerivedCategory.homologyFunctor (A := Dᵐᵒᵖ) ℤ n).obj
         ((F).obj (DG.DerivedCategory.Q.obj ((degreeZeroModuleFunctor Cᵐᵒᵖ).obj (L c))))))
@@ -92,7 +102,7 @@ theorem blockPartialStandardAt_braid_homology_vanish_of_kernel_filtrations
     (hfilt : ∀ (s : Seq μ) (hs : redWord s = κ), ∃ m : List {u : Seq μ // redWord u = κ},
       (∀ u ∈ m, adjacentBlockRoot a b s < adjacentBlockRoot a b u.1) ∧
       ModuleFiltration.HasFiltration (fun u => blockPartialStandardAt Q Λ u.1 a b κ u.2) m
-        (ModuleCat.of Cᵐᵒᵖ (blockLoadingKernelAt Q Λ s a b κ hs)))
+        (blockLoadingKernelObjAt Q Λ a b κ s hs))
     (hinj : ∀ s : Seq μ, redWord s = κ →
       Function.Injective (blockKernelTensorInclusion Q Λ s a b κ'))
     (s : Seq μ) (hs : redWord s = κ) (n : ℤ) (hn : n ≠ 0) : IsZero

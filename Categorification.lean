@@ -1,6 +1,7 @@
 import Categorification.Algebra.AmbidextrousTrace
 import Categorification.Algebra.AugmentationQuotient
 import Categorification.Algebra.BalancedTensor
+import Categorification.Algebra.BalancedTensorCyclic
 import Categorification.Algebra.BalancedTensorAssoc
 import Categorification.Algebra.BalancedTensorExact
 import Categorification.Algebra.BalancedTensorFiniteFamily
@@ -1844,6 +1845,7 @@ import Categorification.WeightedKLR.RedStrands.CommonUpperLoading
 import Categorification.WeightedKLR.RedStrands.StandardPartialKernel
 import Categorification.WeightedKLR.RedStrands.BlockPartialStandardTensor
 import Categorification.WeightedKLR.RedStrands.BlockCutGenerator
+import Categorification.WeightedKLR.RedStrands.BlockCrossingGenerator
 import Categorification.WeightedKLR.RedStrands.FirstPairTerminalSpectator
 import Categorification.WeightedKLR.RedStrands.FirstPairZeroSpectator
 import Categorification.WeightedKLR.RedStrands.FirstPairOneAfterSpectator

@@ -58,8 +58,8 @@ variable {I : Type u} {k : Type v} [DecidableEq I] [CommRing k] {ℓ : ℕ} {ν 
     [HasDerivedCategory.{w, max u v} (isIdempotentElem_violMk_redProj k Q Λ ν κ').Cornerᵐᵒᵖ]
 
 local notation "μ" => stendhalWeight ℓ ν
-local notation "C" => (isIdempotentElem_violMk_redProj k Q Λ ν κ).Corner
-local notation "D" => (isIdempotentElem_violMk_redProj k Q Λ ν κ').Corner
+local notation "C" => IsIdempotentElem.Corner (isIdempotentElem_violMk_redProj k Q Λ ν κ)
+local notation "D" => IsIdempotentElem.Corner (isIdempotentElem_violMk_redProj k Q Λ ν κ')
 local notation "F" => braidingFunctor k Q Λ ν κ κ'
 
 set_option backward.isDefEq.respectTransparency false in
@@ -101,7 +101,7 @@ theorem blockPartialStandardAt_braid_homology_vanish_of_kernel_filtrations
           ((degreeZeroModuleFunctor Cᵐᵒᵖ).obj (blockPartialStandardAt Q Λ s a b κ hs))))) := by
   let r : Seq μ → Seq μ → Prop := fun t s => adjacentBlockRoot a b s < adjacentBlockRoot a b t
   have : IsTrans (Seq μ) r := ⟨fun _ _ _ h₁ h₂ => h₂.trans h₁⟩
-  have : IsIrrefl (Seq μ) r := ⟨fun _ h => lt_irrefl _ h⟩
+  have : Std.Irrefl r := ⟨fun _ => lt_irrefl _⟩
   have hwf : WellFounded r := Finite.wellFounded_of_trans_of_irrefl r
   suffices H : ∀ s : Seq μ, ∀ hs : redWord s = κ, ∀ n : ℤ, n ≠ 0 → IsZero
       ((DG.DerivedCategory.homologyFunctor (A := Dᵐᵒᵖ) ℤ n).obj

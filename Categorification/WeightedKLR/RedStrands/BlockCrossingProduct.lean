@@ -111,7 +111,8 @@ theorem pairCut_addSubgroup (f : Fin 2 ↪ Fin ℓ) (β : Multiset I) :
 local notation "rowCut" Bs => BlockCut (k := k) (quotients Q Λ Bs)
   (orderedInclusion Q Λ hQ topOrd Bs 1) (orderedInclusion Q Λ hQ botOrd Bs 1)
 
-private def spectatorCuts : (M : List (Fin ℓ × Multiset I)) → rowCut (M.map spectator)
+/-- The regular algebra factors at a list of unchanged red strands. -/
+def spectatorCuts : (M : List (Fin ℓ × Multiset I)) → rowCut (M.map spectator)
   | [] => { space := ModuleCat.of k (ULift.{0} k), incl := LinearMap.id, cut := LinearMap.id,
             cut_incl := fun _ => rfl, incl_cut := fun x => (by change x = 1*x*1; simp) }
   | x :: xs => (spectatorCut Q Λ hQ x).tensor (spectatorCuts xs)

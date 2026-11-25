@@ -278,6 +278,20 @@ theorem weightCochainOfGradedChain_positive_isZero (X : WeightCategory R) (n : �
   change -(i : ℤ) = n at hi
   omega
 
+/-- A degree-zero element of a nonpositive weight chain is a cocycle. -/
+theorem weightDgModuleOfGradedChain_d_eq_zero_of_degree_zero (X : WeightCategory R)
+    {x : (weightDgModuleOfGradedChain P δ hδ hc).obj X} (hx : x ∈ DG.grading (0 : ℤ)) :
+    d x = 0 := by
+  let K : CochainComplex (ModuleCat ℤ) ℤ := (weightCochainOfGradedChain P δ hδ hc).obj X
+  let y : ComplexSum K := x
+  change y ∈ DG.grading (M := ComplexSum K) (0 : ℤ) at hx
+  obtain ⟨z, hz⟩ := ComplexSum.mem_grading_iff.mp hx
+  have hpos : Limits.IsZero (K.X 1) :=
+    weightCochainOfGradedChain_positive_isZero P δ hδ hc X 1 (by decide)
+  have h : K.d 0 (0 + 1) z = 0 := (ModuleCat.isZero_iff_subsingleton.mp hpos).elim _ _
+  change d y = 0
+  rw [← hz, ComplexSum.d_of, h, map_zero]
+
 /-- The component in cohomological degree minus n is the nth chain term
 restricted to the indicated internal weight. -/
 def weightCochainOfGradedChain_coordinate (X : WeightCategory R) (n : ℕ) :

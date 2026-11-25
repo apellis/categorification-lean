@@ -4,7 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 -/
 import Categorification.WeightedKLR.Rigidity.FundamentalBraidTargetWeightEquiv
 import Categorification.WeightedKLR.Rigidity.FundamentalBraidNormalizedCup
-import Categorification.WeightedKLR.Rigidity.GradedMiddleTor
+import Categorification.WeightedKLR.Rigidity.FundamentalQuantumTrace
 
 /-!
 # Evaluation after the positive fundamental braid
@@ -94,6 +94,16 @@ local notation "DF" => diagramCornerWeightDerivedRightTensor V (he κ₀) (he κ
 local notation "R" => CatModule.DerivedCategory.restrict fundamentalBraidSourceWeightFunctor
 
 variable [CatModule.HasDerivedCategory.{v,0} (WeightCategory (K κ₀)ᵐᵒᵖ)]
+/-- After the normalized cup and positive braid at scalar weight j,
+reversed evaluation gives scalar lines at j−1 and j+1. -/
+def fundamentalBraidCappedCup_scalarIso (j : ℤ) :
+    fundamentalBraidTargetCap.obj ((DF).obj ((R).obj (gradedMiddleCup.obj (line j)))) ≅
+      (line (j-1)) ⊞ (line (j+1))⟦(2 : ℤ)⟧ := by
+  have zeroSub : 0-(1-j) = j-1 := by omega
+  have twoSub : 2-(1-j) = j+1 := by omega
+  exact fundamentalBraidTargetCap.mapIso (fundamentalBraidNormalizedCup_scalarIso j) ≪≫
+    (by simpa only [zeroSub, twoSub] using fundamentalBraidTargetCap_translatedHeadIso (1-j))
+
 /-- Apply the normalized cup to the field, braid the two fundamental
 strands, and evaluate in the reversed order. The two scalar terms have
 weights minus one and one, in cohomological degrees zero and minus two. -/
@@ -102,5 +112,43 @@ def fundamentalBraidCappedCupIso :
       (line (-1)) ⊞ (line 1)⟦(2 : ℤ)⟧ :=
   fundamentalBraidTargetCap.mapIso fundamentalBraidNormalizedCupIso ≪≫
     fundamentalBraidTargetCap_translatedHeadIso 1
+
+private local instance targetCapCommShift : fundamentalBraidTargetCap.CommShift ℤ := by
+  unfold fundamentalBraidTargetCap characterCap
+  infer_instance
+
+private local instance capCornerTensorCommShift : (DF).CommShift ℤ := by
+  unfold diagramCornerWeightDerivedRightTensor
+  apply diagramWeightDerivedTensor_commShift
+
+attribute [local instance] preservesBinaryBiproducts_of_preservesBiproducts
+
+local notation "E" => (R) ⋙ (DF) ⋙ fundamentalBraidTargetCap
+
+/-- For a scalar generator of weight j shifted by [n], the normalized cup,
+positive braid and reversed evaluation have summands at weights j−1 and
+j+1 with shifts [n] and [n+2], respectively. -/
+def fundamentalBraidCappedCup_shiftedScalarIso (j n : ℤ) :
+    (gradedMiddleCup ⋙ E).obj ((line j)⟦n⟧) ≅
+      (line (j-1))⟦n⟧ ⊞ (line (j+1))⟦n+2⟧ := by
+  let sh := shiftFunctor (CatModule.DerivedCategory.{v,0} (WeightCategory ℚ)) n
+  let e := (E).mapIso (gradedMiddleCup_shiftIso n (line j)) ≪≫
+    ((E).commShiftIso n).app (gradedMiddleCup.obj (line j))
+  exact e ≪≫ sh.mapIso (fundamentalBraidCappedCup_scalarIso j) ≪≫
+    sh.mapBiprod (line (j-1)) ((line (j+1))⟦(2 : ℤ)⟧) ≪≫
+    biprod.mapIso (Iso.refl _) ((shiftFunctorAdd' _ (2 : ℤ) n (n+2) (by omega)).app (line (j+1))).symm
+
+/-- On each shifted scalar generator the positive braid followed by the
+reversed cap gives the clockwise circle of Webster, arXiv:1309.3796v2,
+Proposition 7.13, with an additional cohomological shift [1]. -/
+def fundamentalBraidCappedCup_clockwiseIso (j n : ℤ) :
+    (gradedMiddleCup ⋙ E).obj ((line j)⟦n⟧) ≅
+      ((gradedMiddleCup ⋙ gradedFundamentalQuantumTrace).obj ((line j)⟦n⟧))⟦(1 : ℤ)⟧ := by
+  let sh := shiftFunctor (CatModule.DerivedCategory.{v,0} (WeightCategory ℚ)) (1 : ℤ)
+  let e := sh.mapIso (gradedFundamentalClockwiseCircle_shiftedIso j n) ≪≫
+    sh.mapBiprod ((line (j-1))⟦n-1⟧) ((line (j+1))⟦n+1⟧) ≪≫
+    biprod.mapIso ((shiftFunctorAdd' _ (n-1) (1 : ℤ) n (by omega)).app (line (j-1))).symm
+      ((shiftFunctorAdd' _ (n+1) (1 : ℤ) (n+2) (by omega)).app (line (j+1))).symm
+  exact fundamentalBraidCappedCup_shiftedScalarIso j n ≪≫ e.symm
 
 end Categorification.Stendhal.FundamentalCorner

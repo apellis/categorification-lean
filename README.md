@@ -1252,6 +1252,10 @@ Graded red relabelling identifies the reversed-order cap with ordered evaluation
 (`fundamentalBraidTargetCap_restrictIso`). Evaluating the braided cup in this
 reversed order gives scalar lines of auxiliary weights −1 and 1 in
 cohomological degrees 0 and −2, respectively (`fundamentalBraidCappedCupIso`).
+For a scalar generator at weight j with shift [n], evaluating the braided cup
+gives weights j−1 and j+1 with shifts [n] and [n+2]. This is the clockwise
+circle on the same generator shifted by [1]
+(`fundamentalBraidCappedCup_clockwiseIso`).
 The diagonal-ring equivalence
 carries the two mixed crossings to the differentials of the projective
 resolution of the middle head (`fundamentalBraidSourceResolution`). Its

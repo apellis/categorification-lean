@@ -10475,6 +10475,15 @@ example (hK : CatModule.IsKProjective rationalLeft) :=
     (fun _ => ⟨InDegreeZero.mem_grading_zero, InDegreeZero.d_apply _⟩)
     (fun _ => ⟨InDegreeZero.mem_grading_zero, InDegreeZero.d_apply _⟩) (⟨0⟩ : QWeight)
 
+example :=
+  diagramWeightTensorInternalShiftIso G leftAction rightAction (-2) rationalLeft
+
+example :=
+  letI := CatModule.HasDerivedCategory.standard QWeight
+  diagramWeightDerivedTensorInternalShiftIso G leftAction rightAction (-2)
+    (CatModule.DerivedCategory.Q.obj rationalLeft)
+
+
 end
 
 end NonVacuity.WebsterWeightCoend
@@ -10921,12 +10930,24 @@ noncomputable example :
 noncomputable example :=
   letI : CatModule.HasDerivedCategory.{1,0} (WeightCategory ℚ) :=
     CatModule.HasDerivedCategory.standard (WeightCategory ℚ)
+  middleSumWeightTensorCohomologyShiftIso ℚ 2 (⟨4⟩ : WeightCategory ℚ) (-1)
+
+
+noncomputable example :=
+  letI : CatModule.HasDerivedCategory.{1,0} (WeightCategory ℚ) :=
+    CatModule.HasDerivedCategory.standard (WeightCategory ℚ)
   middleStandardWeight_cohomology_isZero ℚ (⟨2⟩ : WeightCategory ℚ) (-1) (by decide)
 
 noncomputable example :=
   letI : CatModule.HasDerivedCategory.{1,0} (WeightCategory ℚ) :=
     CatModule.HasDerivedCategory.standard (WeightCategory ℚ)
   middleStandardWeightH0AtTwoIso ℚ
+
+
+noncomputable example :=
+  letI : CatModule.HasDerivedCategory.{1,0} (WeightCategory ℚ) :=
+    CatModule.HasDerivedCategory.standard (WeightCategory ℚ)
+  middleSumWeightTensorPeriodIso ℚ (⟨6⟩ : WeightCategory ℚ) (-3) (by decide)
 
 
 

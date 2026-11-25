@@ -1585,7 +1585,14 @@ of the reflected coefficient and middle standard agrees with the corresponding
 ground-field component of the actual ordinary tensor
 (`Stendhal.LabelTwo.middleStandardWeightTensorEquiv`). The degree-zero
 derived comparison uses any supplied nonpositive K-projective model
-(`Stendhal.LabelTwo.middleStandardWeightH0IsoOfResolution`). The actual
+(`Stendhal.LabelTwo.middleStandardWeightH0IsoOfResolution`). Internal translation of the input weights
+induces the same translation of the output weights of the diagrammatic
+derived tensor
+(`diagramWeightDerivedTensorInternalShiftIso`, `weightInternalShift_cohomologyIso`).
+For each companion quotient a grading shift by $j$ translates the output
+weight from $w$ to $w-j$
+(`Stendhal.LabelTwo.middleSumWeightTensorCohomologyShiftIso`,
+`Stendhal.LabelTwo.middleDifferenceWeightTensorCohomologyShiftIso`). The actual
 graded middle standard extends to a higher-supported ordered resolution, and
 the reflected coefficient has zero derived tensor cohomology in every
 nonzero cohomological degree at each internal weight
@@ -1595,6 +1602,11 @@ internal weights zero and two, and vanishing at all other internal weights
 (`Stendhal.LabelTwo.middleStandardWeightH0AtZeroIso`,
 `Stendhal.LabelTwo.middleStandardWeightH0AtTwoIso`,
 `Stendhal.LabelTwo.middleStandardWeightH0_isZero`). Evaluation on the
+
+(`Stendhal.LabelTwo.middleStandardWeight_cohomology_isZero`). The two companion triangles
+alternate on the negative cohomological tail. Two steps raise the
+cohomological index by two and decrease the evaluation weight by four
+(`Stendhal.LabelTwo.middleSumWeightTensorPeriodIso`). Evaluation on the
 middle generator identifies the endomorphism algebra with the actual
 regular parabolic factor (`Stendhal.LabelTwo.middleEndomorphismFactorEquiv`).
 The diagrammatic dot-sum quotient is the standardization of its

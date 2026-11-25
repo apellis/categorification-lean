@@ -917,6 +917,17 @@ explicit hypotheses (maintainer decision), each a roadmap item to remove:
   the dotted relations in general; special cases are proved (first black weight, consecutive
   exchanged reds, zero intervening pairings).
 
+Prop 6.9 for general `ℓ`, step 1 (`RedStrands/CommonUpperLoading.lean`,
+`RedStrands/StandardPartialKernel.lean`): at a loading of red order `… a b …` whose cut at `b`
+is rigid (`IsRigidCut`; it holds when no black strand lies between `b` and the next red strand,
+`isRigidCut_of_black_right`, as at the Figure 5 loading), the relations of the standard module
+of Def 5.1 are exactly those of the partial standard of Lemma 6.8
+(`mem_violStandardUpper_iff_mem_blockUpperIdeal`). One inclusion holds at every loading: every
+diagram `e(t) x e(u)` between loadings of one red order factors through loadings above both
+(`e_mul_mul_e_mem_commonUpperSpan`). Open: steps 2–4 of the plan (braid of the partial standard
+by Lemma 6.8 and `blockTensorEquiv`, the Figure 5 comparison with spectators on both sides, the
+graded shift).
+
 The ungraded Figure 5 right-module map for Prop 6.9 (`RedStrands/BraidedStandardTwo.lean`,
 `RedStrands/BraidedStandardInjective.lean`, `RedStrands/BraidedStandardIso.lean`). Let the leftmost strand of `t` be `λ_r` and let `g`
 carry it to the right edge, `g • t = s` (`EdgeBraid`). The braiding diagram `ψ_g` sends the

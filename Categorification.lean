@@ -2213,6 +2213,7 @@ import Categorification.WeightedKLR.RedStrands.DoubleBlackRelabel
 import Categorification.WeightedKLR.RedStrands.DoubleRouquierBlack
 import Categorification.WeightedKLR.RedStrands.DoubleRouquierRed
 import Categorification.WeightedKLR.RedStrands.DoubleRouquierRedCup
+import Categorification.WeightedKLR.RedStrands.DoubleRouquierRedContext
 import Categorification.WeightedKLR.RedStrands.DoubleBlackSuffix
 import Categorification.WeightedKLR.RedStrands.DoubleBoundary
 import Categorification.WeightedKLR.RedStrands.DoubleBoundaryInduction

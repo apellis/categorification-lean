@@ -122,6 +122,7 @@ import Categorification.Algebra.InductionAlongTriple
 import Categorification.Algebra.K0FinDim
 import Categorification.Algebra.ModuleCatLinear
 import Categorification.Algebra.ModuleFiltration
+import Categorification.Algebra.ModuleFiltrationIdempotents
 import Categorification.Algebra.OrderedProjectiveResolution
 import Categorification.Algebra.GradedOrderedProjectiveResolution
 import Categorification.Algebra.HomogeneousOrderedCoverTransport
@@ -1149,6 +1150,7 @@ import Categorification.WeightedKLR.KLR.SpacedSurjective
 import Categorification.WeightedKLR.Steadied
 import Categorification.WeightedKLR.Deformation
 import Categorification.WeightedKLR.RedStrands.BraidingFunctor
+import Categorification.WeightedKLR.RedStrands.BraidingBimoduleLoadingFiltration
 import Categorification.WeightedKLR.RedStrands.BraidingAuxiliaryDerived
 import Categorification.WeightedKLR.RedStrands.BraidingAuxiliaryLoading
 import Categorification.WeightedKLR.RedStrands.AdjacentRedSwapNormalization

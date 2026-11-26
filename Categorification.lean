@@ -2206,6 +2206,7 @@ import Categorification.WeightedKLR.RedStrands.DoubleBlackDownSpanning
 import Categorification.WeightedKLR.RedStrands.DoubleBlackPhysicalSpan
 import Categorification.WeightedKLR.RedStrands.DoubleBlackPresentation
 import Categorification.WeightedKLR.RedStrands.DoubleBlackRelabel
+import Categorification.WeightedKLR.RedStrands.DoubleRouquierBlack
 import Categorification.WeightedKLR.RedStrands.DoubleBlackSuffix
 import Categorification.WeightedKLR.RedStrands.DoubleBoundary
 import Categorification.WeightedKLR.RedStrands.DoubleBoundaryInduction

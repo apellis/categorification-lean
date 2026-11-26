@@ -139,7 +139,8 @@ theorem prependRedLoading_ordered_iff (s : Seq (stendhalWeight ℓ ν)) :
       rw [prependRedLoading_lbl, hb]
       rfl
     have := h (prependRedPosition a) (prependRedPosition b) _ _
-      (by change a.val + 1 < b.val + 1 at *; simp only [Fin.lt_def, prependRedPosition_val]; omega)
+      (by rw [Fin.lt_def, prependRedPosition_val, prependRedPosition_val]
+          exact Nat.succ_lt_succ (Fin.lt_def.mp hab))
       h₁ h₂
     exact Fin.succ_lt_succ_iff.mp this
   · intro h a b r r' hab ha hb
@@ -187,7 +188,7 @@ theorem prependRedLoading_surjOn
       apply Fin.ext
       change a.val = 0
       have ha := a.isLt
-      simp at ha
+      have hc : Multiset.card νᵣ = 1 := Multiset.card_singleton _
       omega
     rw [hpos]
     exact hs
@@ -215,9 +216,7 @@ theorem prependRedLoading_surjOn
     | inr a => exact Seq.append_posR _ _ a
   refine ⟨t, ?_⟩
   rw [prependRedLoading, ht, hst]
-  apply Subtype.ext
-  funext a
-  simp [s']
+  rfl
 
 /-- A red-ordered loading is either violated or begins with the first red strand. -/
 theorem violated_or_head_of_ordered (s : Seq (stendhalWeight (ℓ + 1) ν)) (hs : IsRedOrdered s) :
@@ -273,8 +272,23 @@ def firstRedIdem : A :=
 theorem isIdempotentElem_firstRedIdem : IsIdempotentElem (firstRedIdem Q Λ ν) :=
   (oneConcat_idem (Q := S) (ν := νᵣ) (ν' := ν₀)).map (prependRedAmbient Q Λ ν)
 
-local instance : Algebra k (isIdempotentElem_firstRedIdem Q Λ ν).Corner :=
+/-- The first-red idempotent is the sum over the loadings obtained by prepending. -/
+theorem firstRedIdem_eq_sum :
+    firstRedIdem Q Λ ν = ∑ s : Seq μ, StendhalAlgebraAllOrders.e (prependRedLoading s) := by
+  classical
+  rw [firstRedIdem, oneConcat_eq, map_sum, Fintype.sum_prod_type,
+    Fintype.sum_eq_single (firstRedSeq ℓ) (fun a ha => (ha (firstRedSeq_unique a)).elim)]
+  symm
+  apply Fintype.sum_bijective (Seq.map (prependRedColor ℓ))
+    (Seq.map_bijective (prependRedColor_injective ℓ) _)
+  intro s
+  rw [prependRedAmbient, AlgHom.comp_apply, AlgEquiv.coe_toAlgHom, castKLR_e]
+  rfl
+
+instance (priority := 1200) firstRedCornerAlgebra :
+    Algebra k (isIdempotentElem_firstRedIdem Q Λ ν).Corner :=
   KLR.cornerAlgebra _
+
 
 private def prependRedConcatCorner :
     ConcatCorner S νᵣ ν₀ →ₐ[k] (isIdempotentElem_firstRedIdem Q Λ ν).Corner where
@@ -320,16 +334,17 @@ private theorem prependRedKLR_e (s : Seq μ) :
       StendhalAlgebraAllOrders.e (prependRedLoading s) := by
   rw [prependRedKLR_val, relabelHom_e, BlockEmb.hom_e, BlockEmb.val_gE]
   change prependRedAmbient Q Λ ν (eSum S ((blockR νᵣ ν₀).F (Seq.map (prependRedColor ℓ) s))) = _
-  rw [blockR_prependRed_fibre, eSum, Finset.sum_singleton]
-  simp [prependRedAmbient, prependRedLoading, castKLR_e, StendhalAlgebraAllOrders.e]
+  rw [blockR_prependRed_fibre, eSum, Finset.sum_singleton, prependRedAmbient, AlgHom.comp_apply,
+    AlgEquiv.coe_toAlgHom, castKLR_e]
+  rfl
 
 private theorem prependRedKLR_x (a : Fin (Multiset.card μ)) :
     (prependRedKLR Q Λ ν (KLRAlgebra.x a)).val =
       StendhalAlgebraAllOrders.x (prependRedPosition a) * firstRedIdem Q Λ ν := by
   rw [prependRedKLR_val, relabelHom_x, BlockEmb.hom_x, val_polCorner, pol_X, map_mul]
   congr 1
-  simp [prependRedAmbient, prependRedPosition, castKLR_x,
-    StendhalAlgebraAllOrders.x, blockR]
+  rw [prependRedAmbient, AlgHom.comp_apply, AlgEquiv.coe_toAlgHom, castKLR_x]
+  rfl
 
 private theorem prependRedKLR_ψ {j : ℕ} (hj : j + 1 < Multiset.card μ) :
     (prependRedKLR Q Λ ν (KLRAlgebra.ψ j)).val =
@@ -337,7 +352,8 @@ private theorem prependRedKLR_ψ {j : ℕ} (hj : j + 1 < Multiset.card μ) :
   have hj' : j + 1 < Multiset.card ν₀ := by simpa using hj
   rw [prependRedKLR_val, relabelHom_ψ, BlockEmb.hom_ψ, BlockEmb.val_gψ _ hj', map_mul]
   congr 1
-  simp [prependRedAmbient, castKLR_ψ, StendhalAlgebraAllOrders.ψ, blockR, add_comm]
+  rw [prependRedAmbient, AlgHom.comp_apply, AlgEquiv.coe_toAlgHom, castKLR_ψ]
+  simp [StendhalAlgebraAllOrders.ψ, add_comm]
 
 /-- Add the new red strand on the left of a diagram, before imposing the violating
 ideal. The corner is the sum of the loadings that begin with the new red strand. -/
@@ -416,6 +432,63 @@ theorem prependRedAllOrders_one :
   rw [map_one]
   rfl
 
+/-- The grading on the old red strands obtained by omitting the first red colour
+(Webster, arXiv:1309.3796v3, Definition 4.4). -/
+def restrictFirstRedGrading (G : GradingDatum S) : GradingDatum (stendhalQ Q Λ₀) where
+  degX a := G.degX (prependRedColor ℓ a)
+  degΨ a b := G.degΨ (prependRedColor ℓ a) (prependRedColor ℓ b)
+  degΨ_self a := G.degΨ_self _
+  isWeightedHomogeneous a b hab := by
+    have h := G.isWeightedHomogeneous _ _ (fun he => hab (prependRedColor_injective ℓ he))
+    cases a <;> cases b <;> exact h
+
+private theorem prependRedRelabel_coaction (G : GradingDatum S)
+    (z : KLRAlgebra k (stendhalQ Q Λ₀) μ) :
+    G.coaction (relabelHom (prependRedRelabel Q Λ ν) z) =
+      AddMonoidAlgebra.mapAlgHom ℤ (relabelHom (prependRedRelabel Q Λ ν))
+        ((restrictFirstRedGrading Q Λ G).coaction z) := by
+  classical
+  let R := prependRedRelabel Q Λ ν
+  induction z using klr_induction with
+  | hr r => simp only [AlgHom.commutes]
+  | hadd x y h₁ h₂ => simp only [map_add, h₁, h₂]
+  | hmul x y h₁ h₂ => simp only [map_mul, h₁, h₂]
+  | he s => simp only [relabelHom_e, GradingDatum.coaction_e, AddMonoidAlgebra.mapAlgHom_single]
+  | hx a =>
+    simp only [relabelHom_x, GradingDatum.coaction_x, map_sum, AddMonoidAlgebra.mapAlgHom_single,
+      map_mul, relabelHom_e]
+    symm
+    apply Fintype.sum_equiv R.equiv
+    intro s
+    rfl
+  | hψ j =>
+    simp only [relabelHom_ψ, GradingDatum.coaction_ψ, map_sum, AddMonoidAlgebra.mapAlgHom_single,
+      map_mul, relabelHom_e]
+    symm
+    apply Fintype.sum_equiv R.equiv
+    intro s
+    congr 1
+    by_cases hj : j + 1 < Multiset.card μ
+    · have hj' : j + 1 < Multiset.card ν₀ := by simpa using hj
+      rw [GradingDatum.dψ_of_lt _ hj, G.dψ_of_lt hj']
+      rfl
+    · simp [GradingDatum.dψ, hj]
+
+/-- Adding the first red strand preserves diagram degrees (Webster, arXiv:1309.3796v3,
+Definition 4.4). -/
+theorem prependRedAllOrders_mem_grade (G : GradingDatum S) {d : ℤ}
+    {z : StendhalAlgebraAllOrders k Q Λ₀ ν}
+    (hz : z ∈ allOrdersGrade (restrictFirstRedGrading Q Λ G) ν d) :
+    (prependRedAllOrders Q Λ ν z).val ∈ allOrdersGrade G ν d := by
+  obtain ⟨a, ha, rfl⟩ := Submodule.mem_map.mp hz
+  change (prependRedAllOrders Q Λ ν (StendhalAlgebraAllOrders.ofKLR k Q Λ₀ ν a)).val ∈ _
+  rw [prependRedAllOrders_ofKLR, prependRedKLR_val]
+  apply Graded.mem_map_of_mem
+  apply G.castKLR_mem_grade
+  apply (blockR νᵣ ν₀).valHom_mem_grade
+  rw [GradingDatum.mem_grade, prependRedRelabel_coaction,
+    (restrictFirstRedGrading Q Λ G).mem_grade.mp ha, AddMonoidAlgebra.mapAlgHom_single]
+
 end PrependDiagrams
 
 section Quotient
@@ -437,6 +510,7 @@ local notation "T" => TensorProductAlgebra k Q Λ ν
 def orderedQuotient : A →ₐ[k] T :=
   (TensorProductAlgebra.mk Q Λ ν).comp (orderProjection Q Λ ν)
 
+open Classical in
 theorem orderedQuotient_e (t : Seq μ') :
     orderedQuotient Q Λ ν (StendhalAlgebraAllOrders.e t) =
       if h : IsRedOrdered t then TensorProductAlgebra.mk Q Λ ν (StendhalAlgebra.e t h) else 0 := by
@@ -445,14 +519,14 @@ theorem orderedQuotient_e (t : Seq μ') :
       if IsRedOrdered t then StendhalAlgebraAllOrders.e t else 0 :=
     StendhalAlgebraAllOrders.e_mul_redOrderedIdem t
   by_cases h : IsRedOrdered t
-  · rw [dif_pos h]
+  · simp only [h, ↓reduceDIte]
     change TensorProductAlgebra.mk Q Λ ν (orderProjection Q Λ ν _) = _
     congr 1
-    exact Subtype.ext (hv.trans (if_pos h))
-  · rw [dif_neg h]
+    exact Subtype.ext (by rw [hv]; simp [h]; rfl)
+  · simp only [h, ↓reduceDIte]
     change TensorProductAlgebra.mk Q Λ ν (orderProjection Q Λ ν _) = 0
     rw [show orderProjection Q Λ ν (StendhalAlgebraAllOrders.e t) = 0 from
-      Subtype.ext (hv.trans (if_neg h)), map_zero]
+      Subtype.ext (by rw [hv]; simp [h]), map_zero]
 
 theorem tensorProduct_mk_e_of_violated (t : Seq μ') (ht : IsRedOrdered t) (hv : IsViolated t) :
     TensorProductAlgebra.mk Q Λ ν (StendhalAlgebra.e t ht) = 0 := by
@@ -463,6 +537,7 @@ theorem tensorProduct_mk_e_of_violated (t : Seq μ') (ht : IsRedOrdered t) (hv :
 /-- Only the loadings beginning with the new red strand survive the ordered quotient. -/
 theorem orderedQuotient_e_eq_zero (t : Seq μ') (ht : ∀ s, prependRedLoading s ≠ t) :
     orderedQuotient Q Λ ν (StendhalAlgebraAllOrders.e t) = 0 := by
+  classical
   rw [orderedQuotient_e]
   split_ifs with h
   · rcases violated_or_head_of_ordered t h with hv | hh
@@ -478,12 +553,19 @@ theorem sum_orderedQuotient_prependRedLoading :
     rw [← map_sum, ← map_one (orderedQuotient Q Λ ν)]
     congr 1
     simp only [StendhalAlgebraAllOrders.e, ← map_sum, KLRAlgebra.sum_e, map_one]
-  rw [← h1, ← Finset.sum_image (fun s _ t _ h => prependRedLoading_injective h)]
+  rw [← h1, ← Finset.sum_image (f := fun t => orderedQuotient Q Λ ν (StendhalAlgebraAllOrders.e t))
+    (fun s _ t _ h => prependRedLoading_injective h)]
   apply Finset.sum_subset (Finset.subset_univ _)
   intro t _ ht
   apply orderedQuotient_e_eq_zero
   intro s hs
   exact ht (Finset.mem_image.2 ⟨s, Finset.mem_univ _, hs⟩)
+
+open Classical in
+private theorem redOrderedIdem_eq_sum_ite {n : ℕ} (Λ' : Fin n → I →₀ ℕ) :
+    StendhalAlgebraAllOrders.redOrderedIdem k Q Λ' ν =
+      ∑ s, if IsRedOrdered s then StendhalAlgebraAllOrders.e s else 0 := by
+  rw [StendhalAlgebraAllOrders.redOrderedIdem, Finset.sum_filter]
 
 private def prependRedValue : StendhalAlgebraAllOrders k Q Λ₀ ν →ₙ+* A :=
   (KLR.cornerVal (isIdempotentElem_firstRedIdem Q Λ ν)).comp
@@ -492,18 +574,23 @@ private def prependRedValue : StendhalAlgebraAllOrders k Q Λ₀ ν →ₙ+* A :
 private theorem prependRedValue_apply (z : StendhalAlgebraAllOrders k Q Λ₀ ν) :
     prependRedValue Q Λ ν z = (prependRedAllOrders Q Λ ν z).val := rfl
 
+private theorem prependRedValue_smul (c : k) (z : StendhalAlgebraAllOrders k Q Λ₀ ν) :
+    prependRedValue Q Λ ν (c • z) = c • prependRedValue Q Λ ν z := by
+  rw [prependRedValue_apply, prependRedValue_apply, AlgHom.map_smul_of_tower, KLR.Corner.val_smul]
+
 private theorem orderedQuotient_prependRedValue_redOrderedIdem :
     orderedQuotient Q Λ ν
       (prependRedValue Q Λ ν (StendhalAlgebraAllOrders.redOrderedIdem k Q Λ₀ ν)) = 1 := by
   classical
-  rw [← sum_orderedQuotient_prependRedLoading Q Λ ν, StendhalAlgebraAllOrders.redOrderedIdem,
-    map_sum, map_sum, Finset.sum_filter]
+  rw [← sum_orderedQuotient_prependRedLoading Q Λ ν]
+  rw [redOrderedIdem_eq_sum_ite (Λ' := Λ ∘ Fin.succ), map_sum, map_sum]
   apply Finset.sum_congr rfl
   intro s _
-  rw [prependRedValue_apply, prependRedAllOrders_e]
   split_ifs with h
-  · rfl
-  · rw [orderedQuotient_e, dif_neg (fun h' => h ((prependRedLoading_ordered_iff s).1 h'))]
+  · rw [prependRedValue_apply, prependRedAllOrders_e]
+  · rw [map_zero, map_zero, orderedQuotient_e]
+    simp only [show ¬ IsRedOrdered (prependRedLoading s) from
+      fun h' => h ((prependRedLoading_ordered_iff s).1 h'), ↓reduceDIte]
 
 /-- **Adding a red strand on the left** (Webster, arXiv:1309.3796v3, proof of
 Proposition 4.39): the algebra map `T̃^λ_ν → T^{(λ₀, λ)}_ν`, where the new red strand
@@ -517,15 +604,134 @@ def prependRed : StendhalAlgebra k Q Λ₀ ν →ₐ[k] T where
     change orderedQuotient Q Λ ν (prependRedValue Q Λ ν (x.val * y.val)) = _
     rw [map_mul, map_mul]
   commutes' c := by
+    rw [Algebra.algebraMap_eq_smul_one c]
     change orderedQuotient Q Λ ν (prependRedValue Q Λ ν
-      (algebraMap k _ c * StendhalAlgebraAllOrders.redOrderedIdem k Q Λ₀ ν)) = _
-    rw [map_mul, map_mul, orderedQuotient_prependRedValue_redOrderedIdem, mul_one,
-      prependRedValue_apply, AlgHom.commutes, KLR.Corner.val_algebraMap_categorification,
-      map_mul, AlgHom.commutes]
-    sorry
+      (c • StendhalAlgebraAllOrders.redOrderedIdem k Q Λ₀ ν)) = _
+    rw [prependRedValue_smul, map_smul, orderedQuotient_prependRedValue_redOrderedIdem,
+      Algebra.algebraMap_eq_smul_one]
 
 theorem prependRed_apply (z : StendhalAlgebra k Q Λ₀ ν) :
     prependRed Q Λ ν z = orderedQuotient Q Λ ν (prependRedAllOrders Q Λ ν z.val).val := rfl
+
+/-- `prependRed` preserves diagram degrees, for the grading of `T̃^λ` obtained by omitting
+the first red colour (Webster, arXiv:1309.3796v3, Definition 4.4). -/
+theorem prependRed_mem_grade (G : GradingDatum (stendhalQ Q Λ)) {d : ℤ}
+    {z : StendhalAlgebra k Q Λ₀ ν}
+    (hz : z ∈ stendhalGrade (restrictFirstRedGrading Q Λ G) ν d) :
+    prependRed Q Λ ν z ∈ tensorProductGrade G ν d := by
+  rw [prependRed_apply, orderedQuotient, AlgHom.comp_apply]
+  apply Graded.mem_map_of_mem (stendhalGrade G ν) (TensorProductAlgebra.mk Q Λ ν).toLinearMap
+  change (prependRedAllOrders Q Λ ν z.val).val * StendhalAlgebraAllOrders.redOrderedIdem k Q Λ ν ∈
+    allOrdersGrade G ν d
+  have hE : StendhalAlgebraAllOrders.redOrderedIdem k Q Λ ν ∈ allOrdersGrade G ν 0 :=
+    Submodule.sum_mem _ fun i _ => Graded.mem_map_of_mem _ _ (G.e_mem_grade i)
+  simpa using SetLike.GradedMul.mul_mem
+    (prependRedAllOrders_mem_grade Q Λ ν G (show z.val ∈ _ from hz)) hE
+
+private theorem orderedQuotient_firstRedIdem : orderedQuotient Q Λ ν (firstRedIdem Q Λ ν) = 1 := by
+  rw [firstRedIdem_eq_sum, map_sum, sum_orderedQuotient_prependRedLoading]
+
+private theorem orderedQuotient_mul_firstRedIdem (u : A) :
+    orderedQuotient Q Λ ν (u * firstRedIdem Q Λ ν) = orderedQuotient Q Λ ν u := by
+  rw [map_mul, orderedQuotient_firstRedIdem, mul_one]
+
+private theorem prependRed_orderProjection (w : StendhalAlgebraAllOrders k Q Λ₀ ν) :
+    prependRed Q Λ ν (orderProjection Q Λ₀ ν w) =
+      orderedQuotient Q Λ ν (prependRedAllOrders Q Λ ν w).val := by
+  rw [prependRed_apply]
+  change orderedQuotient Q Λ ν (prependRedValue Q Λ ν
+      (w * StendhalAlgebraAllOrders.redOrderedIdem k Q Λ₀ ν)) =
+    orderedQuotient Q Λ ν (prependRedValue Q Λ ν w)
+  rw [map_mul, map_mul, orderedQuotient_prependRedValue_redOrderedIdem, mul_one]
+
+private theorem orderedQuotient_surjective : Function.Surjective (orderedQuotient Q Λ ν) := by
+  intro y
+  obtain ⟨z, rfl⟩ : ∃ z, TensorProductAlgebra.mk Q Λ ν z = y :=
+    RingCon.mkₐ_surjective _ y
+  obtain ⟨u, rfl⟩ := orderProjection_surjective Q Λ ν z
+  exact ⟨u, rfl⟩
+
+omit [DecidableEq I] in
+private theorem prependRedLoading_ne_sadj (h1 : 1 < Multiset.card μ') (s s' : Seq μ) :
+    prependRedLoading s' ≠ TypeA.sadj (Multiset.card μ') 0 • prependRedLoading s := by
+  intro hs'
+  have h0 : 0 < Multiset.card μ := by
+    have : Multiset.card μ' = Multiset.card μ + 1 := by simp [stendhalWeight]; omega
+    omega
+  have hl : (prependRedLoading s').1 (firstPosition ℓ ν) =
+      (TypeA.sadj (Multiset.card μ') 0 • prependRedLoading s).1 (firstPosition ℓ ν) := by
+    rw [hs']
+  have hpos : TypeA.sadj (Multiset.card μ') 0 (firstPosition ℓ ν) = prependRedPosition ⟨0, h0⟩ :=
+    Fin.ext (by rw [show firstPosition ℓ ν = ⟨0, by omega⟩ from rfl, TypeA.sadj_apply_left h1]; simp)
+  rw [show (prependRedLoading s').1 (firstPosition ℓ ν) = Sum.inr 0 from
+    prependRedLoading_head s', KLRAlgebra.sadj_smul_apply, hpos] at hl
+  have hc := (prependRedLoading_lbl s ⟨0, h0⟩).symm.trans hl.symm
+  cases hs0 : s.lbl ⟨0, h0⟩ with
+  | inl i => rw [hs0] at hc; exact Sum.inl_ne_inr hc
+  | inr r => rw [hs0] at hc; exact Fin.succ_ne_zero r (Sum.inr.inj hc)
+
+/-- **Adding a red strand on the left is surjective** (Webster, arXiv:1309.3796v3, proof of
+Proposition 4.39): in `T^{(λ₀, λ)}` every surviving loading begins with the new red strand,
+and crossing it with the first black strand produces a violated loading. -/
+theorem prependRed_surjective : Function.Surjective (prependRed Q Λ ν) := by
+  classical
+  have hm : Multiset.card μ' = Multiset.card μ + 1 := by simp [stendhalWeight]; omega
+  have key : ∀ u : A, orderedQuotient Q Λ ν u ∈ (prependRed Q Λ ν).range := by
+    intro u
+    obtain ⟨b, rfl⟩ := StendhalAlgebraAllOrders.ofKLR_surjective (k := k) (Q := Q) (Λ := Λ)
+      (ν := ν) u
+    induction b using KLRAlgebra.klr_induction with
+    | hadd u v hu hv => rw [map_add, map_add]; exact add_mem hu hv
+    | hmul u v hu hv => rw [map_mul, map_mul]; exact mul_mem hu hv
+    | hr c => rw [AlgHom.commutes, AlgHom.commutes]; exact algebraMap_mem _ c
+    | he t =>
+      by_cases ht : ∃ s, prependRedLoading s = t
+      · obtain ⟨s, rfl⟩ := ht
+        refine (AlgHom.mem_range _).mpr ⟨orderProjection Q Λ₀ ν (StendhalAlgebraAllOrders.e s), ?_⟩
+        rw [prependRed_orderProjection, prependRedAllOrders_e]
+        rfl
+      · push Not at ht
+        change orderedQuotient Q Λ ν (StendhalAlgebraAllOrders.e t) ∈ _
+        rw [orderedQuotient_e_eq_zero Q Λ ν t ht]
+        exact zero_mem _
+    | hx a =>
+      change orderedQuotient Q Λ ν (StendhalAlgebraAllOrders.x a) ∈ _
+      rcases eq_firstPosition_or a with rfl | ⟨b, rfl⟩
+      · rw [← orderedQuotient_mul_firstRedIdem, firstRedIdem_eq_sum, Finset.mul_sum, map_sum]
+        refine Subalgebra.sum_mem _ fun s _ => ?_
+        rw [StendhalAlgebraAllOrders.x_mul_e_of_red _ _ (by rw [prependRedLoading_head]; rfl),
+          map_zero]
+        exact zero_mem _
+      · refine (AlgHom.mem_range _).mpr ⟨orderProjection Q Λ₀ ν (StendhalAlgebraAllOrders.x b), ?_⟩
+        rw [prependRed_orderProjection, prependRedAllOrders_x, orderedQuotient_mul_firstRedIdem]
+    | hψ j =>
+      change orderedQuotient Q Λ ν (StendhalAlgebraAllOrders.ψ j) ∈ _
+      cases j with
+      | zero =>
+        by_cases h1 : 1 < Multiset.card μ'
+        · rw [← orderedQuotient_mul_firstRedIdem, firstRedIdem_eq_sum, Finset.mul_sum, map_sum]
+          refine Subalgebra.sum_mem _ fun s _ => ?_
+          have hψe : StendhalAlgebraAllOrders.ψ 0 * StendhalAlgebraAllOrders.e (prependRedLoading s) =
+              StendhalAlgebraAllOrders.e (TypeA.sadj (Multiset.card μ') 0 • prependRedLoading s) *
+                (StendhalAlgebraAllOrders.ψ 0 : A) := by
+            simp only [StendhalAlgebraAllOrders.ψ, StendhalAlgebraAllOrders.e, ← map_mul,
+              KLRAlgebra.ψ_mul_e]
+          rw [hψe, map_mul, orderedQuotient_e_eq_zero Q Λ ν _
+            (fun s' => prependRedLoading_ne_sadj ν h1 s s'), zero_mul]
+          exact zero_mem _
+        · rw [StendhalAlgebraAllOrders.ψ, KLRAlgebra.ψ_eq_zero 0 (by omega), map_zero, map_zero]
+          exact zero_mem _
+      | succ j =>
+        by_cases hj : j + 1 < Multiset.card μ
+        · refine (AlgHom.mem_range _).mpr ⟨orderProjection Q Λ₀ ν (StendhalAlgebraAllOrders.ψ j), ?_⟩
+          rw [prependRed_orderProjection, prependRedAllOrders_ψ Q Λ ν j hj,
+            orderedQuotient_mul_firstRedIdem]
+        · rw [StendhalAlgebraAllOrders.ψ, KLRAlgebra.ψ_eq_zero (j + 1) (by omega), map_zero,
+            map_zero]
+          exact zero_mem _
+  intro y
+  obtain ⟨u, rfl⟩ := orderedQuotient_surjective Q Λ ν y
+  exact key u
 
 end Quotient
 

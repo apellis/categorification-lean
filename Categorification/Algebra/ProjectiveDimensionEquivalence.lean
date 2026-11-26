@@ -21,6 +21,8 @@ namespace CategoryTheory
 
 open Limits
 
+attribute [local instance] RingHomInvPair.of_ringEquiv RingHomInvPair.of_ringEquiv_symm
+
 universe v₁ v₂ u₁ u₂
 
 variable {C : Type u₁} [Category.{v₁} C] [Abelian C] [EnoughProjectives C]
@@ -65,5 +67,22 @@ theorem hasProjectiveDimensionLT_of_ringEquiv {R S : Type u₁} [Ring R] [Ring S
       map_add' := fun _ _ => rfl
       map_smul' := fun r m => he r m }
   exact hasProjectiveDimensionLT_of_iso φ.toModuleIso.symm n
+
+/-- **Projective dimension along a semilinear isomorphism.** If `φ : M ≃ₛₗ[e] N` is semilinear
+along a ring isomorphism `e : R ≃+* S`, the projective dimension of `M` over `R` is bounded by that
+of `N` over `S`. -/
+theorem hasProjectiveDimensionLT_of_semilinearEquiv {R S : Type u₁} [Ring R] [Ring S]
+    (e : R ≃+* S) {M N : Type u₁} [AddCommGroup M] [Module R M] [AddCommGroup N] [Module S N]
+    (φ : M ≃ₛₗ[(e : R →+* S)] N) (n : ℕ) (h : HasProjectiveDimensionLT (ModuleCat.of S N) n) :
+    HasProjectiveDimensionLT (ModuleCat.of R M) n := by
+  have h' := (ModuleCat.restrictScalars e.toRingHom).hasProjectiveDimensionLT_obj n _ h
+  let ψ : M ≃ₗ[R] (ModuleCat.restrictScalars e.toRingHom).obj (ModuleCat.of S N) :=
+    { toFun := fun m => φ m
+      invFun := fun m => φ.symm m
+      left_inv := φ.left_inv
+      right_inv := φ.right_inv
+      map_add' := φ.map_add
+      map_smul' := fun r m => φ.map_smulₛₗ r m }
+  exact hasProjectiveDimensionLT_of_iso ψ.toModuleIso.symm n
 
 end CategoryTheory

@@ -122,6 +122,7 @@ import Categorification.Algebra.InductionAlongTriple
 import Categorification.Algebra.K0FinDim
 import Categorification.Algebra.ModuleCatLinear
 import Categorification.Algebra.ModuleFiltration
+import Categorification.Algebra.ModuleFiltrationIdempotents
 import Categorification.Algebra.OrderedProjectiveResolution
 import Categorification.Algebra.GradedOrderedProjectiveResolution
 import Categorification.Algebra.HomogeneousOrderedCoverTransport
@@ -297,6 +298,7 @@ import Categorification.Diagrams.KL3.Symmetries
 import Categorification.Diagrams.KL3.SymmetryOmega
 import Categorification.Diagrams.KL3.SymmetryPsi
 import Categorification.Diagrams.KL3.SymmetrySigma
+import Categorification.Diagrams.KL3.SymmetrySigmaOmega
 import Categorification.Diagrams.KL3.SymmetrySigmaSymm
 import Categorification.Diagrams.KL3.SymmetrySigmaPresented
 import Categorification.Diagrams.KL3.SymmetrySigmaMatrix
@@ -531,6 +533,7 @@ import Categorification.KLR.CyclotomicAction.MixedComparison
 import Categorification.KLR.CyclotomicAction.GlobalMixed
 import Categorification.KLR.KKScalars
 import Categorification.KLR.KKScalarsStandard
+import Categorification.KLR.KKScalarsStandardPres
 import Categorification.KLR.CyclotomicAction.PresCL
 import Categorification.KLR.CyclotomicAction.Unfiltered
 import Categorification.KLR.CyclotomicAction.Vacuum
@@ -671,6 +674,7 @@ import Categorification.KLR.Restriction
 import Categorification.KLR.Simple
 import Categorification.KLR.SimpleNilHecke
 import Categorification.KLR.CyclotomicTerminalProjective
+import Categorification.WeightedKLR.RedStrands.BraidRightSequenceCut
 import Categorification.WeightedKLR.RedStrands.BraidingLattice
 import Categorification.WeightedKLR.RedStrands.AdjacentBraidingLattice
 import Categorification.WeightedKLR.RedStrands.AdjacentBraidingForm
@@ -1149,6 +1153,7 @@ import Categorification.WeightedKLR.KLR.SpacedSurjective
 import Categorification.WeightedKLR.Steadied
 import Categorification.WeightedKLR.Deformation
 import Categorification.WeightedKLR.RedStrands.BraidingFunctor
+import Categorification.WeightedKLR.RedStrands.BraidingBimoduleLoadingFiltration
 import Categorification.WeightedKLR.RedStrands.BraidingAuxiliaryDerived
 import Categorification.WeightedKLR.RedStrands.BraidingAuxiliaryLoading
 import Categorification.WeightedKLR.RedStrands.AdjacentRedSwapNormalization
@@ -2204,6 +2209,8 @@ import Categorification.WeightedKLR.RedStrands.DoubleBlackBubbleSlide
 import Categorification.WeightedKLR.RedStrands.DoubleBlackDownSpanning
 import Categorification.WeightedKLR.RedStrands.DoubleBlackPhysicalSpan
 import Categorification.WeightedKLR.RedStrands.DoubleBlackPresentation
+import Categorification.WeightedKLR.RedStrands.DoubleBlackRelabel
+import Categorification.WeightedKLR.RedStrands.DoubleRouquierBlack
 import Categorification.WeightedKLR.RedStrands.DoubleBlackSuffix
 import Categorification.WeightedKLR.RedStrands.DoubleBoundary
 import Categorification.WeightedKLR.RedStrands.DoubleBoundaryInduction
@@ -2358,6 +2365,7 @@ import Categorification.WeightedKLR.RedStrands.RightRowStandardGenerator
 import Categorification.WeightedKLR.RedStrands.RightStandardProjectiveDimension
 import Categorification.WeightedKLR.RedStrands.RightStandardReflection
 import Categorification.WeightedKLR.RedStrands.RightStandardRelabel
+import Categorification.WeightedKLR.RedStrands.ViolCornerRelabelFiltration
 import Categorification.WeightedKLR.RedStrands.RowFigureFiveBraid
 import Categorification.WeightedKLR.RedStrands.RowFigureFiveLoading
 import Categorification.WeightedKLR.RedStrands.RowStandardK0
@@ -2394,6 +2402,8 @@ import Categorification.WeightedKLR.RedStrands.TensorShuffleRecurrence
 import Categorification.WeightedKLR.RedStrands.TensorSplit
 import Categorification.WeightedKLR.RedStrands.TensorWordProjectives
 import Categorification.WeightedKLR.RedStrands.TensorWordRaising
+import Categorification.WeightedKLR.RedStrands.LoadingWordExpansion
+import Categorification.WeightedKLR.RedStrands.RightSequenceWordExpansion
 import Categorification.WeightedKLR.RedStrands.TensorWordSpanning
 import Categorification.WeightedKLR.RedStrands.TensorWordWeights
 import Categorification.WeightedKLR.RedStrands.VacuumRestrictionClass
@@ -2413,3 +2423,9 @@ import Categorification.WeightedKLR.Rigidity.WeightModuleExactTriangle
 import Categorification.WeightedKLR.SimpleDots
 import Categorification.WeightedKLR.SimpleGrading
 import Categorification.WeightedKLR.ZeroWeightSimple
+import Categorification.Algebra.Graded.HighDegreeIdeal
+import Categorification.Algebra.Graded.ExtensionK0Injective
+import Categorification.WeightedKLR.RedStrands.PrependRed
+import Categorification.WeightedKLR.RedStrands.EraseFirstRed
+import Categorification.WeightedKLR.RedStrands.PrependRedInjective
+import Categorification.WeightedKLR.RedStrands.PrependRedK0

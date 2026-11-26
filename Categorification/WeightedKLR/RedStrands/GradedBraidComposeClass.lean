@@ -14,14 +14,12 @@ set_option backward.isDefEq.respectTransparency false
 B. Webster, *Knot invariants and higher representation theory*, arXiv:1309.3796v2, §6.1, proof
 of Lemma 6.11 (step `p_n` on classes). Let `τ * σ` be length-additive over `τ`, so that
 `𝔅_σ ∘ 𝔅_τ ≅ 𝔅_{τ σ}` (`braidFunctorCompIso`). Suppose the class maps of `𝔅_τ` and of `𝔅_σ`
-(for the labels `λ ∘ τ`) are `x ↦ B(f_τ x, -)` and `y ↦ B(f_σ y, -)`. If every `𝔅_τ P`, `P`
-projective, has a finite projective resolution and is braid-concentrated for `σ`, then the class
+(for the labels `λ ∘ τ`) are `x ↦ B(f_τ x, -)` and `y ↦ B(f_σ y, -)`. If every `𝔅_τ P`, `P = e(s) T^λ` a
+sequence projective, has a finite projective resolution and is braid-concentrated for `σ`, then the class
 map of `𝔅_{τ σ}` is `x ↦ B(f_σ (f_τ x), -)` (`braidClass_mul`).
 
 ## Main results
 
-* `ext_rightTensorModuleEquiv` : `ℚ(v)`-linear maps on `V_λ` agreeing on the classes `η [P]` of
-  projectives are equal.
 * `classFunctional_braidF_mul` : the class functional of `𝔅_{τ σ} N` is that of `𝔅_σ (𝔅_τ N)`.
 * `braidClass_mul` : the class map of `𝔅_{τ σ}`.
 -/
@@ -52,32 +50,6 @@ local notation "Kr" => rightTensorProjectiveGroup C hQ Λ
 local notation "η'" => rightTensorModuleEquiv C hQ hR Λ wt hwt
 local notation "𝒜" ν => oppositeGrade (tensorProductGrade G ν)
 
-/-- `ℚ(v)`-linear maps on `V_λ` that agree on the classes `η [P]` of graded right projectives
-are equal. -/
-theorem ext_rightTensorModuleEquiv {M : Type*} [AddCommGroup M] [Module 𝕂 M]
-    {f g : TensorSpace wt →ₗ[𝕂] M}
-    (h : ∀ (ν : Multiset I) (P : GProj (𝒜 ν)),
-      f (η' (DirectSum.lof LP _ Kr ν (K0.of P))) = g (η' (DirectSum.lof LP _ Kr ν (K0.of P)))) :
-    f = g := by
-  suffices hfg : ∀ x, f (η' x) = g (η' x) by
-    refine Lattice.ext_of_lattice (isLattice_integralTensor C hR wt) fun z hz => ?_
-    obtain ⟨x, hx⟩ := (η').surjective ⟨z, hz⟩
-    have hzx : z = (η' x : TensorSpace wt) := by rw [hx]
-    rw [hzx]
-    exact hfg x
-  intro x
-  induction x using DirectSum.induction_on with
-  | zero => rw [map_zero, ZeroMemClass.coe_zero, map_zero, map_zero]
-  | of ν y =>
-    rw [← DirectSum.lof_eq_of LP]
-    induction y using Graded.K0.induction_on with
-    | of P => exact h ν P
-    | zero => rw [map_zero, map_zero, ZeroMemClass.coe_zero, map_zero, map_zero]
-    | add a b ha hb =>
-      rw [map_add, map_add, Submodule.coe_add, map_add, map_add, ha, hb]
-    | neg a ha => rw [map_neg, map_neg, Submodule.coe_neg, map_neg, map_neg, ha]
-  | add x y hx hy => rw [map_add, Submodule.coe_add, map_add, map_add, hx, hy]
-
 variable [∀ (Ω : Fin ℓ → I →₀ ℕ) (ν : Multiset I), Module.Finite k (TensorProductAlgebra k Q Ω ν)]
   (τ σ : Perm (Fin ℓ))
   (H : ∀ x y, List.Sublist [x, y] ((List.finRange ℓ).map ⇑(τ * σ)) →
@@ -99,12 +71,9 @@ theorem classFunctional_braidF_mul (ν : Multiset I) (N : GFin (𝒜 ν)) :
       hQ N).symm
 
 include H in
-/-- **The class map of a composite of braid functors** (Webster, arXiv:1309.3796v2, proof of
-Lemma 6.11, `p_n` on classes): if the class maps of `𝔅_τ` and `𝔅_σ` are `x ↦ B(f_τ x, -)` and
-`y ↦ B(f_σ y, -)`, the lengths of `τ` and `σ` add, and every `𝔅_τ P` with `P` projective has a
-finite projective resolution and is braid-concentrated for `σ`, then the class map of `𝔅_{τ σ}`
-is `x ↦ B(f_σ (f_τ x), -)`. -/
-theorem braidClass_mul
+/-- The value of the class map of `𝔅_{τ σ}` at `η [P]`, when `𝔅_τ P` has a finite projective
+resolution and is braid-concentrated for `σ`. -/
+theorem braidClass_mul_apply
     [∀ ν, DG.HasDerivedCategory.{w} (IsIdempotentElem.Corner
       (BraidedStendhalAlgebra.isIdempotentElem_violMk_redProj k Q (Λ ∘ τ) ν
         (List.finRange ℓ)))ᵐᵒᵖ]
@@ -116,14 +85,14 @@ theorem braidClass_mul
     (hτ : braidClass C hQ hR Λ wt hwt τ = (formDual hR (wt ∘ τ)).comp fτ)
     (hσ : braidClass C hQ hR (Λ ∘ τ) (wt ∘ τ) (fun r i => hwt (τ r) i) σ =
       (formDual hR ((wt ∘ τ) ∘ σ)).comp fσ)
-    (hN : ∀ (ν : Multiset I) (P : GProj (𝒜 ν)),
-      BraidedStendhalAlgebra.BraidConcentrated.{w} (Λ ∘ τ) ν (isReducedChoice_canChoice ν)
-        hQ.klrSymm σ hQ (braidF C hQ Λ τ ν P.toGFin) ∧
-      ∃ Ps : List (GProj (𝒜τ ν)),
-        Nonempty (GFin.Resolution (braidF C hQ Λ τ ν P.toGFin) (Ps.map GProj.toGFin))) :
-    braidClass C hQ hR Λ wt hwt (τ * σ) = (formDual hR ((wt ∘ τ) ∘ σ)).comp (fσ ∘ₗ fτ) := by
-  refine ext_rightTensorModuleEquiv C hQ hR Λ wt hwt fun ν P => ?_
-  obtain ⟨hc, Ps, ⟨r⟩⟩ := hN ν P
+    {ν : Multiset I} (P : GProj (𝒜 ν))
+    (hc : BraidedStendhalAlgebra.BraidConcentrated.{w} (Λ ∘ τ) ν (isReducedChoice_canChoice ν)
+      hQ.klrSymm σ hQ (braidF C hQ Λ τ ν P.toGFin))
+    (hres : ∃ Ps : List (GProj (𝒜τ ν)),
+      Nonempty (GFin.Resolution (braidF C hQ Λ τ ν P.toGFin) (Ps.map GProj.toGFin))) :
+    braidClass C hQ hR Λ wt hwt (τ * σ) (η' (DirectSum.lof LP _ Kr ν (K0.of P))) =
+      (formDual hR ((wt ∘ τ) ∘ σ)).comp (fσ ∘ₗ fτ) (η' (DirectSum.lof LP _ Kr ν (K0.of P))) := by
+  obtain ⟨Ps, ⟨r⟩⟩ := hres
   have hx := classFunctional_eq_form_of_resolution C hQ hR (Λ ∘ τ) (wt ∘ τ)
     (fun r i => hwt (τ r) i) ν r
   have hτP := braidClass_of C hQ hR Λ wt hwt τ ν P
@@ -141,5 +110,44 @@ theorem braidClass_mul
     braidClass_resolution_of_braidConcentrated C hQ hR (Λ ∘ τ) (wt ∘ τ)
       (fun r i => hwt (τ r) i) σ ν r hc]
   exact congrArg ConjDual.of (classFunctional_braidF_mul C hQ hR Λ wt hwt τ σ H ν P.toGFin)
+
+include H in
+/-- **The class map of a composite of braid functors** (Webster, arXiv:1309.3796v2, proof of
+Lemma 6.11, `p_n` on classes): if the class maps of `𝔅_τ` and `𝔅_σ` are `x ↦ B(f_τ x, -)` and
+`y ↦ B(f_σ y, -)`, the lengths of `τ` and `σ` add, and every `𝔅_τ (e(s) T^λ)` has a
+finite projective resolution and is braid-concentrated for `σ`, then the class map of `𝔅_{τ σ}`
+is `x ↦ B(f_σ (f_τ x), -)`. -/
+theorem braidClass_mul
+    [∀ ν, DG.HasDerivedCategory.{w} (IsIdempotentElem.Corner
+      (BraidedStendhalAlgebra.isIdempotentElem_violMk_redProj k Q (Λ ∘ τ) ν
+        (List.finRange ℓ)))ᵐᵒᵖ]
+    [∀ ν, DG.HasDerivedCategory.{w} (IsIdempotentElem.Corner
+      (BraidedStendhalAlgebra.isIdempotentElem_violMk_redProj k Q (Λ ∘ τ) ν
+        (List.map σ (List.finRange ℓ))))ᵐᵒᵖ]
+    (fτ : TensorSpace wt →ₗ[𝕂] TensorSpace (wt ∘ τ))
+    (fσ : TensorSpace (wt ∘ τ) →ₗ[𝕂] TensorSpace ((wt ∘ τ) ∘ σ))
+    (hτ : braidClass C hQ hR Λ wt hwt τ = (formDual hR (wt ∘ τ)).comp fτ)
+    (hσ : braidClass C hQ hR (Λ ∘ τ) (wt ∘ τ) (fun r i => hwt (τ r) i) σ =
+      (formDual hR ((wt ∘ τ) ∘ σ)).comp fσ)    (hN : ∀ (ν : Multiset I) (s : Seq (stendhalWeight ℓ ν)) (hs : IsRedOrdered s),
+      BraidedStendhalAlgebra.BraidConcentrated.{w} (Λ ∘ τ) ν (isReducedChoice_canChoice ν)
+        hQ.klrSymm σ hQ (braidF C hQ Λ τ ν (rightSequenceProj G s hs).toGFin) ∧
+      ∃ Ps : List (GProj (𝒜τ ν)), Nonempty (GFin.Resolution
+        (braidF C hQ Λ τ ν (rightSequenceProj G s hs).toGFin) (Ps.map GProj.toGFin))) :
+    braidClass C hQ hR Λ wt hwt (τ * σ) = (formDual hR ((wt ∘ τ) ∘ σ)).comp (fσ ∘ₗ fτ) := by
+  have hpt : ∀ (ν : Multiset I) (s : Seq (stendhalWeight ℓ ν)) (hs : IsRedOrdered s),
+      braidClass C hQ hR Λ wt hwt (τ * σ)
+          (η' (DirectSum.lof LP _ Kr ν (K0.of (rightSequenceProj G s hs)))) =
+        (formDual hR ((wt ∘ τ) ∘ σ)).comp (fσ ∘ₗ fτ)
+          (η' (DirectSum.lof LP _ Kr ν (K0.of (rightSequenceProj G s hs)))) := by
+    intro ν s hs
+    exact braidClass_mul_apply C hQ hR Λ wt hwt τ σ H fτ fσ hτ hσ (rightSequenceProj G s hs)
+      (hN ν s hs).1 (hN ν s hs).2
+  refine LinearMap.ext fun z => ConjDual.ext fun w => ?_
+  have key : (ConjDual.eval w).comp (braidClass C hQ hR Λ wt hwt (τ * σ)) -
+      (ConjDual.eval w).comp ((formDual hR ((wt ∘ τ) ∘ σ)).comp (fσ ∘ₗ fτ)) = 0 :=
+    ext_rightSequence C hQ hR Λ wt hwt _ fun β s hs => by
+      rw [LinearMap.sub_apply, sub_eq_zero]
+      exact congrArg (ConjDual.eval w) (hpt β s hs)
+  exact sub_eq_zero.1 (LinearMap.congr_fun key z)
 
 end Categorification.Stendhal.FirstWeight

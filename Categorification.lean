@@ -157,6 +157,7 @@ import Categorification.Diagrams.BicatInterpAdmissibleDescent
 import Categorification.Diagrams.BicatInterpAdmissiblePseudo
 import Categorification.Diagrams.BicatInterpAdmissibleLinear
 import Categorification.Diagrams.BicatInterpAdmissiblePull
+import Categorification.Diagrams.BicatInterpMirror
 import Categorification.Diagrams.BicatInterpPull
 import Categorification.Diagrams.BicatInterpPseudo
 import Categorification.Diagrams.BicatInterpPush

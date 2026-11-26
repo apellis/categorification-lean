@@ -4,6 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 -/
 import Categorification.Diagrams.BicatInterpAdmissible
 import Categorification.Diagrams.BicatInterpPull
+import Categorification.Diagrams.BicatInterpAdmissiblePull
 import Categorification.Diagrams.RevBicat
 import StringDiagrams.LayerMap.Generators
 
@@ -21,8 +22,8 @@ diagram is the admissible interpretation of the reflected diagram, conjugated by
 identifications (`admissibleMap_mirror`).
 
 This transfers relations proved for a model of the Khovanov–Lauda signature to the
-reflected black part of the double Stendhal signature of Webster, arXiv:1309.3796v3, §4.6,
-whose words are read with the opposite horizontal orientation.
+reflected black part of the double Stendhal signature of Webster, arXiv:1309.3796v3, §4.5
+(Theorem 4.25), whose words are read with the opposite horizontal orientation.
 
 ## Main definitions and results
 
@@ -30,7 +31,8 @@ whose words are read with the opposite horizontal orientation.
 * `Model.mirror`, `mirror_lift_map`, `mirror_lift_map₂`;
 * `mirrorFwIso`, `mirrorWordIso`: the identification of the image of a word with that of its
   reflection;
-* `GenImg.mirror`, `core_mirror`, `admissibleMap_mirror`, `admissibleMap_mirror_eq_zero`.
+* `GenImg.mirror`, `midK_mirror`, `core_mirror`, `coreC_mirror`, `admissibleChain_mirror`,
+  `admissibleMap_mirror`, `admissibleMap_mirror_eq_zero`.
 -/
 
 set_option backward.isDefEq.respectTransparency false
@@ -377,5 +379,142 @@ theorem core_mirror {L : Layer S} (hv : L.Valid) (s m n t : S.Region) (hl : S.ok
     _ _ _ _ _ _ _ _ _ _ _ _ _ _
 
 end CoreMirror
+
+/-! ## Admissible interpretations -/
+
+section AdmissibleMirror
+
+variable {C : Type w₁} [Bicategory.{w₂, v₂} C] {M' : Model S' (RevBicat C)}
+  (φ : SigMirror S S') (G' : GenImg M')
+
+/-- Admissibility is carried to the reflection, with the outer regions exchanged. -/
+theorem Cond.mirror {s t : S.Region} {a : Obj S} (h : Cond s t a) :
+    Cond (φ.region t) (φ.region s) (φ.obj a) :=
+  ⟨mirror_ok _ h.1 h.2.1, mirror_endR _ h.1 h.2.1, by
+    show φ.region (S.endR a.start a.word) = φ.region t
+    rw [h.2.2, h.2.1]⟩
+
+omit G' in
+/-- The image of an admissible word for the pullback along a reflection is isomorphic to the
+image of its reflection. -/
+def condMirrorIso {s t : S.Region} {a : Obj S} (h : Cond s t a) :
+    (M'.mirror φ.toMirrorColourMap).word s a.word t h.1 h.2.1 ≅
+      M'.word (φ.region t) (φ.obj a).word (φ.region s) (Cond.mirror φ h).1
+        (Cond.mirror φ h).2.1 :=
+  mirrorWordIso φ.toMirrorColourMap M' a.word s t h.1 h.2.1 _ _
+
+omit G' in
+theorem condMirrorIso_eqToHom {s t : S.Region} {a a' : Obj S} (e : a = a') (h : Cond s t a)
+    (h' : Cond s t a') :
+    (condMirrorIso φ h).hom ≫
+        eqToHom (admissibleWord_eq (M := M') (congrArg φ.obj e) (Cond.mirror φ h)
+          (Cond.mirror φ h')) =
+      eqToHom (admissibleWord_eq (M := M'.mirror φ.toMirrorColourMap) e h h') ≫
+        (condMirrorIso φ h').hom := by
+  subst e; simp
+
+/-- **The image of a layer for the pullback along a reflection**, on admissible words. -/
+theorem coreC_mirror {s t : S.Region} {L : Layer S} (hv : L.Valid) (h : Cond s t L.dom)
+    (h' : Cond (φ.region t) (φ.region s) (φ.layer L).dom) :
+    coreC (G'.mirror φ) hv h =
+      (condMirrorIso φ h).hom ≫
+        eqToHom (admissibleWord_eq (M := M') (φ.toLayerMap.dom_eq hv).symm
+          (Cond.mirror φ h) h') ≫
+        coreC G' (φ.layer_valid hv) h' ≫
+        eqToHom (admissibleWord_eq (M := M') (φ.toLayerMap.cod_eq hv)
+          (h'.cod (φ.layer_valid hv)) (Cond.mirror φ (h.cod hv))) ≫
+        (condMirrorIso φ (h.cod hv)).inv := by
+  rw [coreC_eq, coreC_eq, core_mirror φ G' hv,
+    core_regions G' (φ.layer_valid hv) (φ.region t) (S'.left (φ.layer L).gen)
+      (S'.right (φ.layer L).gen) (φ.region (S.right L.gen)) (φ.region (S.left L.gen))]
+  rfl
+
+/-- **The images of admissible chains for the pullback along a reflection** are the images of
+the reflected chains, between the identified images of the boundary words. -/
+theorem admissibleChain_mirror {s t : S.Region} : ∀ (ls : List (Layer S)) (a b : Obj S)
+    (hc : Chain a ls b) (ha : Cond s t a) (hb : Cond s t b),
+    admissibleChain (G'.mirror φ) a ls b hc ha hb =
+      (condMirrorIso φ ha).hom ≫
+        admissibleChain G' (φ.obj a) (ls.map φ.layer) (φ.obj b) (φ.toLayerMap.chain hc)
+          (Cond.mirror φ ha) (Cond.mirror φ hb) ≫
+        (condMirrorIso φ hb).inv
+  | [], a, b, hc, ha, hb => by
+    obtain rfl : a = b := hc
+    simp [admissibleChain]
+  | L :: ls, a, b, hc, ha, hb => by
+    obtain ⟨hv, rfl, hc'⟩ := hc
+    have h' : Cond (φ.region t) (φ.region s) (φ.layer L).dom :=
+      (φ.toLayerMap.dom_eq hv).symm ▸ Cond.mirror φ ha
+    simp only [List.map_cons, admissibleChain]
+    rw [coreC_mirror φ G' hv _ h', admissibleChain_mirror ls L.cod b hc' _ hb]
+    simp only [eqToHom_refl, Category.id_comp, Category.assoc, Iso.inv_hom_id_assoc]
+    erw [admissibleChain_src G' (φ.toLayerMap.cod_eq hv) (h' := φ.toLayerMap.chain hc')
+      (ha' := Cond.mirror φ (ha.cod hv))]
+    simp only [Category.assoc]
+    rfl
+
+/-- **The admissible interpretation of the pullback along a reflection** of a diagram is that of
+its reflection. -/
+theorem admissibleInterp_mirror {s t : S.Region} {a b : Obj S} (d : a ⟶ b) (ha : Cond s t a)
+    (hb : Cond s t b) :
+    (admissibleInterp (G'.mirror φ) s t).map
+        (ObjectProperty.homMk (X := ⟨a, ha⟩) (Y := ⟨b, hb⟩) d) =
+      (condMirrorIso φ ha).hom ≫
+        (admissibleInterp G' (φ.region t) (φ.region s)).map
+          (ObjectProperty.homMk (X := ⟨φ.obj a, Cond.mirror φ ha⟩)
+            (Y := ⟨φ.obj b, Cond.mirror φ hb⟩) (φ.toLayerMap.map d)) ≫
+        (condMirrorIso φ hb).inv :=
+  admissibleChain_mirror φ G' _ a b _ ha hb
+
+end AdmissibleMirror
+
+/-! ## Linear admissible interpretations -/
+
+section LinearMirror
+
+variable {C : Type w₁} [Bicategory.{w₂, v₂} C] {R : Type*} [CommRing R]
+  [∀ a b : C, Preadditive (a ⟶ b)] [∀ a b : C, Linear R (a ⟶ b)]
+
+instance revBicatPreadditive (a b : RevBicat C) : Preadditive (a ⟶ b) :=
+  inferInstanceAs (Preadditive (b.as ⟶ a.as))
+
+instance revBicatLinear (a b : RevBicat C) : Linear R (a ⟶ b) :=
+  inferInstanceAs (Linear R (b.as ⟶ a.as))
+
+variable {M' : Model S' (RevBicat C)} (φ : SigMirror S S') (G' : GenImg M')
+
+/-- **The linear admissible interpretation of the pullback along a reflection**: the image of
+a reflected linear combination of diagrams is the image of the original one for the pullback,
+conjugated by the identifications of the boundary words. -/
+theorem admissibleMap_mirror {s t : S.Region} {a b : Obj S} (ha : Cond s t a)
+    (hb : Cond s t b) (f : LinDiagram R a b) :
+    admissibleMap G' (Cond.mirror φ ha) (Cond.mirror φ hb) (φ.toLayerMap.lin f) =
+      (condMirrorIso φ ha).inv ≫ admissibleMap (G'.mirror φ) ha hb f ≫
+        (condMirrorIso φ hb).hom := by
+  induction f using (Finsupp.induction_linear (ι := a ⟶ b) (M := R)) with
+  | zero =>
+    change admissibleMap G' _ _ (Finsupp.mapDomain _ 0) = _
+    rw [Finsupp.mapDomain_zero, map_zero, map_zero]
+    simp
+  | add f g hf hg =>
+    erw [LayerMap.lin_add, map_add, hf, hg, map_add]
+    simp
+  | single d r =>
+    change admissibleMap G' _ _ (Finsupp.mapDomain _ (Finsupp.single d r)) = _
+    rw [Finsupp.mapDomain_single]
+    dsimp only [admissibleMap]
+    erw [Finsupp.linearCombination_single, Finsupp.linearCombination_single]
+    rw [admissibleInterp_mirror φ G' d ha hb]
+    simp
+
+/-- A linear combination killed by the admissible interpretation of the pullback along a
+reflection has its reflection killed by the original admissible interpretation. -/
+theorem admissibleMap_mirror_eq_zero {s t : S.Region} {a b : Obj S} (ha : Cond s t a)
+    (hb : Cond s t b) (f : LinDiagram R a b) (hf : admissibleMap (G'.mirror φ) ha hb f = 0) :
+    admissibleMap G' (Cond.mirror φ ha) (Cond.mirror φ hb) (φ.toLayerMap.lin f) = 0 := by
+  rw [admissibleMap_mirror φ G' ha hb f, hf]
+  simp
+
+end LinearMirror
 
 end Categorification.Diagrams.BicatInterp

@@ -122,6 +122,27 @@ theorem negTensorMap_laurent_smul {n : ℕ} (wt : Fin (n + 1) → Dom R) (c : LP
     negTensorMap D wt (c • x) = c • negTensorMap D wt x := by
   rw [negTensor_laurent_smul, tensor_laurent_smul, map_smul]
 
+/-- `𝔮_N` for the labels `(λ₀, λ)`, with source `U⁻ ⊗ V^λ` stated directly. -/
+def negTensorMapCons (ω₀ : Dom R) (wt : Fin ℓ → Dom R) :
+    NegTensor D wt →ₗ[𝕂] TensorSpace (Fin.cons ω₀ wt : Fin (ℓ + 1) → Dom R) :=
+  negTensorMap D (Fin.cons ω₀ wt : Fin (ℓ + 1) → Dom R)
+
+theorem negTensorMapCons_laurent_smul (ω₀ : Dom R) (wt : Fin ℓ → Dom R) (c : LP)
+    (x : NegTensor D wt) : negTensorMapCons C ω₀ wt (c • x) = c • negTensorMapCons C ω₀ wt x :=
+  negTensorMap_laurent_smul C (Fin.cons ω₀ wt : Fin (ℓ + 1) → Dom R) c x
+
+theorem negTensorMapCons_negWordVector (ω₀ : Dom R) (wt : Fin ℓ → Dom R) (w : TensorWord I ℓ) :
+    negTensorMapCons C ω₀ wt (negWordVector D w wt) =
+      tensorWordVector w.prependRed (Fin.cons ω₀ wt : Fin (ℓ + 1) → Dom R) :=
+  negTensorMap_negWordVector w (Fin.cons ω₀ wt : Fin (ℓ + 1) → Dom R)
+
+include hR in
+theorem negTensorMapCons_eq_zero [Finite I] {ω₀ : Dom R} {wt : Fin ℓ → Dom R} {β : I →₀ ℕ}
+    (hΛ : ∀ i, (β.degree : ℤ) ≤ ω₀.1 (R.coroot i)) {x : NegTensor D wt}
+    (hx : x ∈ negTensorBelow D wt β) (h : negTensorMapCons C ω₀ wt x = 0) : x = 0 :=
+  negTensorMap_injective_below hR (Fin.cons ω₀ wt : Fin (ℓ + 1) → Dom R) hΛ hx
+    (zero_mem _) (h.trans (map_zero _).symm)
+
 /-- The `ℤ[q, q⁻¹]`-span of the vectors `p̃_w`. -/
 def negTensorLattice (wt : Fin ℓ → Dom R) : Submodule LP (NegTensor D wt) :=
   Submodule.span LP (Set.range fun w : TensorWord I ℓ => negWordVector D w wt)
@@ -384,6 +405,142 @@ theorem tildeRelations [Finite I] (hρ : ∃ ω : Dom R, ∀ i, 1 ≤ ω.1 (R.co
           (h.trans (map_zero _).symm), fun h => by rw [h, map_zero]⟩
     _ ↔ _ := by rw [← hx']; exact Submodule.coe_eq_zero
 
+
+include hR in
+/-- **The classes `[P̃_w]` span `K₀(T̃^λ)`** in each black content (Webster,
+arXiv:1309.3796v3, proof of Proposition 4.39): `𝔯_N` is bijective, and every word class of
+`T^{(λ₀, λ)}` is zero or the class of a word beginning with the red strand `λ₀`. -/
+theorem span_tildeClassAt [Finite I] (hρ : ∃ ω : Dom R, ∀ i, 1 ≤ ω.1 (R.coroot i))
+    (hwt : ∀ r i, (Λ r i : ℤ) = (wt r).1 (R.coroot i)) (β : Multiset I) :
+    Submodule.span LP (Set.range (tildeClassAt C hQ Λ β)) = ⊤ := by
+  classical
+  obtain ⟨ω₀, -, rN, hr, hrel, hrw⟩ := exists_firstRedComparison C hQ hR Λ wt hρ hwt β 0
+  have hgen (w' : TensorWordAt (ℓ + 1) β) : projectiveWordAt (Fin.cons (weightLabels ω₀) Λ : Fin (ℓ + 1) → I →₀ ℕ) C hQ β w' ∈
+      Submodule.map rN (Submodule.span LP (Set.range (tildeClassAt C hQ Λ β))) := by
+    rcases tensorWordVector_eq_zero_or w'.1 (Fin.cons ω₀ wt : Fin (ℓ + 1) → Dom R) with h | ⟨h, hc⟩
+    · have hv : vectorWordAt (C := C) (Fin.cons ω₀ wt : Fin (ℓ + 1) → Dom R) hR β w' = 0 := Subtype.ext h
+      have := (hrel (Finsupp.single w' 1)).mpr (by
+        rw [Finsupp.sum_single_index (by simp), map_one, one_smul, hv])
+      rw [Finsupp.sum_single_index (by simp), one_smul] at this
+      rw [this]
+      exact zero_mem _
+    · let u : TensorWordAt ℓ β := ⟨w'.1.eraseFirstRed, by rw [hc]; exact w'.2⟩
+      have hv : vectorWordAt (C := C) (Fin.cons ω₀ wt : Fin (ℓ + 1) → Dom R) hR β u.prependRed =
+          vectorWordAt (C := C) (Fin.cons ω₀ wt : Fin (ℓ + 1) → Dom R) hR β w' := Subtype.ext h.symm
+      have := (hrel (Finsupp.single w' 1 + Finsupp.single u.prependRed (-1))).mpr (by
+        rw [Finsupp.sum_add_index' (fun _ => by simp) (fun _ _ _ => by rw [map_add, add_smul]),
+          Finsupp.sum_single_index (by simp), Finsupp.sum_single_index (by simp)]
+        rw [hv, map_neg, map_one, one_smul]
+        apply Subtype.ext
+        rw [Submodule.coe_add, Submodule.coe_smul, tensor_laurent_smul, map_neg, map_one]
+        have e (z : TensorSpace (Fin.cons ω₀ wt : Fin (ℓ + 1) → Dom R)) : z + (-1 : 𝕂) • z = 0 := by
+          nth_rewrite 1 [← one_smul 𝕂 z]
+          rw [← add_smul, add_neg_cancel, zero_smul]
+        exact e _)
+      rw [Finsupp.sum_add_index'
+          (h := fun w (c : LP) => c • projectiveWordAt (Fin.cons (weightLabels ω₀) Λ : Fin (ℓ + 1) → I →₀ ℕ) C hQ β w) (fun _ => zero_smul _ _)
+          (fun _ _ _ => add_smul _ _ _),
+        Finsupp.sum_single_index (by simp), Finsupp.sum_single_index (by simp), one_smul,
+        neg_smul, one_smul, add_neg_eq_zero] at this
+      rw [this, ← hrw u]
+      exact Submodule.mem_map_of_mem (Submodule.subset_span ⟨u, rfl⟩)
+  have htop : Submodule.map rN (Submodule.span LP (Set.range (tildeClassAt C hQ Λ β))) = ⊤ := by
+    rw [eq_top_iff, ← span_projectiveWordAt (Fin.cons (weightLabels ω₀) Λ : Fin (ℓ + 1) → I →₀ ℕ) C hQ β, Submodule.span_le]
+    rintro _ ⟨w', rfl⟩
+    exact hgen w'
+  apply Submodule.map_injective_of_injective hr.1
+  rw [htop, Submodule.map_top, LinearMap.range_eq_top.mpr hr.2]
+
 end Content
+
+/-! ### Assembling the black contents -/
+
+section Assembly
+
+variable (wt : Fin ℓ → Dom R)
+
+/-- The sum of the lattices of the black contents, mapped into `U⁻ ⊗ V^λ`. -/
+def latticeJoin :
+    DirectSum (Multiset I) (fun β => negTensorLatticeAt (C := C) wt β) →ₗ[LP] NegTensor D wt :=
+  DirectSum.toModule LP _ _ (fun β => (negTensorLatticeAt (C := C) wt β).subtype)
+
+theorem latticeJoin_lof (β : Multiset I) (x : negTensorLatticeAt (C := C) wt β) :
+    latticeJoin C wt (DirectSum.lof LP _ _ β x) = x := by
+  unfold latticeJoin
+  exact DirectSum.toModule_lof LP (M := fun β => negTensorLatticeAt (C := C) wt β) β x
+
+/-- `𝔮_N` maps the lattice of black content `β` into the weight `β` part of
+`V^ℤ_{λ₀} ⊗ V^ℤ_λ`. -/
+theorem negTensorMap_mem_integralTensorWeight [Finite I] (ω₀ : Dom R) {β : Multiset I}
+    {x : NegTensor D wt} (hx : x ∈ negTensorLatticeAt (C := C) wt β) :
+    negTensorMapCons C ω₀ wt x ∈
+      integralTensorWeight (Fin.cons ω₀ wt : Fin (ℓ + 1) → Dom R) hR β.toFinsupp := by
+  induction hx using Submodule.span_induction with
+  | mem x hx =>
+    obtain ⟨w, hw, rfl⟩ := hx
+    have hw' : w.prependRed.content.toMultiset = β := by rw [w.content_prependRed]; exact hw
+    rw [negTensorMapCons_negWordVector]
+    exact (vectorWordAt (C := C) (Fin.cons ω₀ wt : Fin (ℓ + 1) → Dom R) hR β
+      ⟨w.prependRed, hw'⟩).2
+  | zero => rw [map_zero]; exact zero_mem _
+  | add x y _ _ hx hy => rw [map_add]; exact add_mem hx hy
+  | smul c x _ hx =>
+    rw [negTensorMapCons_laurent_smul]
+    exact Submodule.smul_mem _ _ hx
+
+/-- `𝔮_N` on the lattice of black content `β`, with values in the weight `β` part. -/
+def latticeAtTensorMap [Finite I] (ω₀ : Dom R) (β : Multiset I) :
+    negTensorLatticeAt (C := C) wt β →ₗ[LP]
+      integralTensorWeight (Fin.cons ω₀ wt : Fin (ℓ + 1) → Dom R) hR β.toFinsupp where
+  toFun x := ⟨negTensorMapCons C ω₀ wt x,
+    negTensorMap_mem_integralTensorWeight C hR wt ω₀ x.2⟩
+  map_add' _ _ := Subtype.ext (map_add _ _ _)
+  map_smul' c x := Subtype.ext (negTensorMapCons_laurent_smul C ω₀ wt c x)
+
+theorem tensorWeightSumEquiv_lmap [Finite I] (ω₀ : Dom R)
+    (z : DirectSum (Multiset I) (fun β => negTensorLatticeAt (C := C) wt β)) :
+    ((tensorWeightSumEquiv C (Fin.cons ω₀ wt : Fin (ℓ + 1) → Dom R) hR
+      (DirectSum.lmap (latticeAtTensorMap C hR wt ω₀) z) : _) : TensorSpace _) =
+      negTensorMapCons C ω₀ wt (latticeJoin C wt z) := by
+  induction z using DirectSum.induction_on with
+  | zero => simp
+  | of β x =>
+    rw [← DirectSum.lof_eq_of LP, DirectSum.lmap_lof, latticeJoin_lof, DirectSum.lof_eq_of,
+      tensorWeightSumEquiv_of]
+    rfl
+  | add _ _ hx hy => rw [map_add, map_add, Submodule.coe_add, hx, hy, map_add, map_add]
+
+include hR in
+/-- **The black contents are independent in `U⁻ ⊗ V^λ`** (Webster, arXiv:1309.3796v3, proof
+of Proposition 4.39): `𝔮_N` maps them into distinct weight spaces of `V_{λ₀} ⊗ V^λ` and is
+injective on finitely many of them for `N` large. -/
+theorem latticeJoin_injective [Finite I] (hρ : ∃ ω : Dom R, ∀ i, 1 ≤ ω.1 (R.coroot i)) :
+    Function.Injective (latticeJoin C wt) := by
+  classical
+  intro x y hxy
+  obtain ⟨ω, h₁⟩ := hρ
+  set S := DFinsupp.support x ∪ DFinsupp.support y
+  set B : I →₀ ℕ := ∑ β ∈ S, β.toFinsupp
+  set ω₀ := largeWeight ω B.degree
+  let wtf : Fin (ℓ + 1) → Dom R := Fin.cons ω₀ wt
+  have hq : DirectSum.lmap (latticeAtTensorMap C hR wt ω₀) x =
+      DirectSum.lmap (latticeAtTensorMap C hR wt ω₀) y := by
+    apply (tensorWeightSumEquiv C wtf hR).injective
+    apply Subtype.ext
+    rw [tensorWeightSumEquiv_lmap, tensorWeightSumEquiv_lmap, hxy]
+  ext1 β
+  by_cases hβ : β ∈ S
+  · have h0 := congrArg Subtype.val (DFunLike.congr_fun hq β)
+    change negTensorMapCons C ω₀ wt (x β : NegTensor D wt) =
+      negTensorMapCons C ω₀ wt (y β : NegTensor D wt) at h0
+    have hle : β.toFinsupp ≤ B :=
+      Finset.single_le_sum (f := Multiset.toFinsupp) (fun _ _ => zero_le) hβ
+    exact Subtype.ext (negTensorMap_injective_below hR wtf (largeWeight_coroot h₁ _)
+      (negTensorBelow_mono wt hle (mem_negTensorBelow_of_mem_latticeAt C (x β).2))
+      (negTensorBelow_mono wt hle (mem_negTensorBelow_of_mem_latticeAt C (y β).2)) h0)
+  · rw [Finset.mem_union, not_or] at hβ
+    rw [DFinsupp.notMem_support_iff.mp hβ.1, DFinsupp.notMem_support_iff.mp hβ.2]
+
+end Assembly
 
 end Categorification.Stendhal.FirstWeight

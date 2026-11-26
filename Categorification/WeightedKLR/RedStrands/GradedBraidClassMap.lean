@@ -6,6 +6,7 @@ import Categorification.WeightedKLR.RedStrands.GradedBraidAppendClass
 import Categorification.WeightedKLR.RedStrands.TensorClassLowering
 import Categorification.Algebra.Graded.InduceProdShift
 import Categorification.WeightedKLR.RedStrands.TensorConjDual
+import Categorification.Algebra.Graded.EulerCharacteristic
 
 /-!
 # The braid functor on classes
@@ -74,6 +75,33 @@ theorem classFunctional_shift (ν : Multiset I) (N : GFin (𝒜 ν)) (a : ℤ) :
 theorem classFunctional_prod (ν : Multiset I) (N N' : GFin (𝒜 ν)) :
     cf ν (N.prod N') = cf ν N + cf ν N' :=
   classFunctional_eq_of_shortExact C hQ hR Λ wt hwt ν (GFin.ShortExact.prod N N')
+
+/-! ### Classes of modules with finite projective resolutions -/
+
+omit [∀ (Ω : Fin ℓ → I →₀ ℕ) (ν : Multiset I), Module.Finite k (TensorProductAlgebra k Q Ω ν)] in
+private theorem coe_eta_altSum (xs : List Mr) :
+    ((η' (altSum xs) : integralTensor wt) : TensorSpace wt) =
+      altSum (xs.map fun x => (η' x : TensorSpace wt)) := by
+  induction xs with
+  | nil => rw [altSum_nil, map_zero, ZeroMemClass.coe_zero, List.map_nil, altSum_nil]
+  | cons x xs ih => rw [altSum_cons, map_sub, Submodule.coe_sub, ih, List.map_cons, altSum_cons]
+
+/-- The class functional of a resolved module is the alternating sum along the resolution. -/
+theorem classFunctional_resolution (ν : Multiset I) {N : GFin (𝒜 ν)} {l : List (GFin (𝒜 ν))}
+    (r : GFin.Resolution N l) : cf ν N = altSum (l.map (cf ν)) :=
+  r.eq_altSum (cf ν) (fun e => classFunctional_congr C hQ hR Λ wt hwt ν e)
+    (fun S => classFunctional_eq_of_shortExact C hQ hR Λ wt hwt ν S)
+
+/-- **The class of a module with a finite projective resolution** (Webster, arXiv:1309.3796v2,
+Theorem 4.38): `classFunctional N = B(η x, -)` with `x = Σ (-1)^j [P_j]`. -/
+theorem classFunctional_eq_form_of_resolution (ν : Multiset I) {N : GFin (𝒜 ν)}
+    {Ps : List (GProj (𝒜 ν))} (r : GFin.Resolution N (Ps.map GProj.toGFin)) :
+    cf ν N = TensorPairing.orderedForm hR wt
+      (η' (altSum (Ps.map fun P => DirectSum.lof LP _ Kr ν (K0.of P)))) := by
+  rw [classFunctional_resolution C hQ hR Λ wt hwt ν r, coe_eta_altSum, map_altSum,
+    List.map_map, List.map_map, List.map_map]
+  congr 1
+  exact List.map_congr_left fun P _ => classFunctional_projective C hQ hR Λ wt hwt ν P
 
 /-! ### The braid functor on `K₀` -/
 
@@ -301,6 +329,27 @@ theorem braidClass_F_dualAction (i : I) (z : TensorSpace wt) :
     braidClass C hQ hR Λ wt hwt σ (tensorRepresentation wt (F R v i) z) =
       dualAction (wt ∘ σ) (F R v i) (braidClass C hQ hR Λ wt hwt σ z) :=
   braidClass_F C hQ hR Λ wt hwt σ i z
+
+/-- **The braid functor on a module with a finite projective resolution** whose short exact
+sequences `𝔅_σ` preserves (vanishing higher `Tor` against the braiding bimodule):
+`braidClass (η Σ (-1)^j [P_j]) = classFunctional (𝔅_σ N)`. -/
+theorem braidClass_resolution (ν : Multiset I) {N : GFin (𝒜 ν)} {Ps : List (GProj (𝒜 ν))}
+    (r : GFin.Resolution N (Ps.map GProj.toGFin)) (hr : r.Preserved (braidF C hQ Λ σ ν)) :
+    braidClass C hQ hR Λ wt hwt σ
+        (η' (altSum (Ps.map fun P => DirectSum.lof LP _ Kr ν (K0.of P)))) =
+      ConjDual.of (cf' ν (braidF C hQ Λ σ ν N)) := by
+  obtain ⟨r'⟩ := r.map (braidF C hQ Λ σ ν)
+    (fun e => ⟨BraidedStendhalAlgebra.braidFunctorCongr _ _ σ hQ e⟩) hr
+  have h := r'.eq_altSum (fun M => ConjDual.of (cf' ν M))
+    (fun e => congrArg _ (classFunctional_congr C hQ hR (Λ ∘ σ) (wt ∘ σ)
+      (fun r i => hwt (σ r) i) ν e))
+    (fun S => by
+      rw [← map_add]
+      exact congrArg _ (classFunctional_eq_of_shortExact C hQ hR (Λ ∘ σ) (wt ∘ σ)
+        (fun r i => hwt (σ r) i) ν S))
+  rw [h, coe_eta_altSum, map_altSum, List.map_map, List.map_map, List.map_map, List.map_map]
+  congr 1
+  exact List.map_congr_left fun P _ => braidClass_of C hQ hR Λ wt hwt σ ν P
 
 end BraidClass
 

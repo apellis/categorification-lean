@@ -195,4 +195,31 @@ theorem exists_hasFiltration_violCorner_of_braidFunctor (t : Seq μ) (ht : IsRed
           (violCorner k Q Λ ν t ((List.finRange ℓ).map σ))) :=
   exists_hasFiltration_of_cornerRelabel σ (braidRightSequenceCutEquiv hρ hQ hR σ t ht) h
 
+omit [Module.Finite k (TensorProductAlgebra k Q Λ ν)] in
+/-- **The braiding bimodule of `σ` is filtered when braided sequence projectives are** (Webster,
+arXiv:1309.3796v2, proof of Lemma 6.11): if `𝔅_{σ⁻¹}` sends every sequence projective of
+`T^{λ ∘ σ}` to a module with a standard filtration, then `B(σ, 1) = e_{σλ} V e_λ` has a
+filtration by the loading standards of the identity red order, as a right module over the
+corner at `λ`. -/
+theorem exists_hasFiltration_braidingBimodule_of_braidFunctor
+    [Module.Finite k (TensorProductAlgebra k Q ((Λ ∘ σ) ∘ ⇑σ⁻¹) ν)]
+    (h : ∀ (t : Seq μ) (ht : IsRedOrdered t), HasCornerStandardFiltration ((Λ ∘ σ) ∘ ⇑σ⁻¹) ν
+      hρ hQ hR (braidFunctor (Λ := Λ ∘ σ) (ν := ν) hρ hQ σ⁻¹ hR
+        (rightSequenceProj (rouquierGrading Q hR (Λ ∘ σ)) t ht).toGFin)) :
+    ∃ m : List {s : Seq μ // redWord s = ord ∧ ¬ IsViolated s},
+      HasFiltration (fun s => ModuleCat.of (C ord)ᵐᵒᵖ
+        (ViolLoadingStandard (k := k) (Q := Q) (Λ := Λ) s.1 ord)) m
+        (ModuleCat.of (C ord)ᵐᵒᵖ (braidingBimodule k Q Λ ν ((List.finRange ℓ).map σ) ord)) := by
+  refine exists_hasFiltration_braidingBimodule _ _ fun u hu => ?_
+  have hord : IsRedOrdered (Seq.redPerm σ⁻¹ u) := by
+    rw [← redWord_eq_finRange_iff, redWord_redPerm, hu, List.map_map]
+    simp
+  have h2 := exists_hasFiltration_violCorner_relabel (k := k) (Q := Q) (Λ := Λ) (ν := ν) σ
+    (exists_hasFiltration_violCorner_of_braidFunctor (Λ := Λ ∘ σ) hρ hQ hR σ⁻¹ _ hord (h _ hord))
+  rw [Seq.redPerm_redPerm, mul_inv_cancel, Seq.redPerm_one] at h2
+  have hκ : ((List.finRange ℓ).map ⇑σ⁻¹).map ⇑σ = ord := by simp [List.map_map]
+  generalize ((List.finRange ℓ).map ⇑σ⁻¹).map ⇑σ = κ at hκ h2
+  subst hκ
+  exact h2
+
 end Categorification.Stendhal.BraidedStendhalAlgebra

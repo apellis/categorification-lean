@@ -172,4 +172,43 @@ def rightBlackIndPrincipalIso {e : Tᵐᵒᵖ} (he : IsIdempotentElem e) (he0 : 
     rw [LinearMap.restrictScalars_apply, rightIndMul_tmul]
     exact SetLike.GradedMul.mul_mem (A := dst) hz (appendBlackOp_mem_grade G i ν hx)
 
+/-! ### Cutting by a loading idempotent -/
+
+section Cut
+
+variable [Module.Projective (TensorProductAlgebra k Q Λ ν)ᵐᵒᵖᵐᵒᵖ
+  (Corner (appendBlackOp Q Λ i ν))]
+
+omit [Module.Finite k (TensorProductAlgebra k Q Λ ν)ᵐᵒᵖ]
+  [Module.Projective (TensorProductAlgebra k Q Λ ν)ᵐᵒᵖᵐᵒᵖ (Corner (appendBlackOp Q Λ i ν))] in
+private theorem finite_corner_op : Module.Finite Tᵐᵒᵖᵐᵒᵖ Mc := by
+  have := finite_corner (Q := Q) (Λ := Λ) i ν
+  exact Module.Finite.of_restrictScalars_finite k Tᵐᵒᵖᵐᵒᵖ Mc
+
+/-- The cut corner `e' T^λ_{ν+i} e`, read in the opposite algebras: a finitely generated
+projective left `T^λ_ν`-module, graded by `cornerGr`. Its dual is a graded right projective. -/
+def cornerCutDual {e : T'ᵐᵒᵖ} (he : IsIdempotentElem e) (he0 : e ∈ dst 0) : GProj src :=
+  letI := idemDecomposition cornerGr he0
+  letI := finite_corner_op (Q := Q) (Λ := Λ) i ν
+  letI := finite_idemSubspace (k := k) (A := Tᵐᵒᵖ) (M := Mc) he
+  letI := projective_idemSubspace (k := k) (A := Tᵐᵒᵖ) (M := Mc) he
+  dualGProj src (idem cornerGr e)
+
+omit [Module.Finite k (TensorProductAlgebra k Q Λ ν)ᵐᵒᵖ] in
+/-- **Cutting `Fᵢ N` by an idempotent** (Webster, arXiv:1309.3796v2, §4.6, for right modules):
+for a degree-zero idempotent `e` of `T^λ_{ν+i}`, `gdim (Fᵢ N) e = gdim HOM(X_e, N)`, where
+`X_e = cornerCutDual` is the dual of the projective cut corner `e' T^λ_{ν+i} e`. -/
+theorem gdimPoly_rightBlackInd_cut (N : GFin src) {e : T'ᵐᵒᵖ} (he : IsIdempotentElem e)
+    (he0 : e ∈ dst 0) :
+    gdimPoly (idem (rightBlackInd G i ν N).grading e) =
+      gdimPoly (homGrade Tᵐᵒᵖ (cornerCutDual G i ν he he0).grading N.grading) := by
+  let := idemDecomposition cornerGr he0
+  let := finite_corner_op (Q := Q) (Λ := Λ) i ν
+  let := finite_idemSubspace (k := k) (A := Tᵐᵒᵖ) (M := Mc) he
+  let := projective_idemSubspace (k := k) (A := Tᵐᵒᵖ) (M := Mc) he
+  exact (gdimPoly_idem_balancedGrading src cornerGr N.grading he he0).trans
+    (gdimPoly_balancedGrading_eq src (idem cornerGr e) N.grading)
+
+end Cut
+
 end Categorification.Stendhal

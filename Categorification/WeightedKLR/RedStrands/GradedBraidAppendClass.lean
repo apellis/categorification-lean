@@ -206,4 +206,61 @@ theorem val_braidAppendLinear (y : myT) :
     BalancedTensor.ext fun _ _ => rfl
   exact LinearMap.congr_fun h y
 
+include hQ hρ in
+theorem braidAppendLinear_bijective :
+    Function.Bijective (braidAppendLinear (Λ := Λ) (i := i) hρ hρ' hQ σ) := by
+  refine ⟨fun y y' h => braidAppendMult_injective (hρ' := hρ') hρ hQ σ ?_, fun z => ?_⟩
+  · rw [← val_braidAppendLinear, ← val_braidAppendLinear, h]
+  · have hz := RectBimod.mem z
+    have e1 : (F̃) 1 = appendViol Q Λ i ν (violMk k Q Λ ν (redProj k Q Λ ν ord)) := by
+      rw [NonUnitalAlgHom.comp_apply, identityCornerMap_one]
+    rw [e1, permCornerMap_one hρ' hQ σ] at hz
+    obtain ⟨y, hy⟩ := braidAppendMult_surjective (Λ := Λ) (i := i) hρ hρ' hQ σ hz
+    exact ⟨y, RectBimod.ext (by rw [val_braidAppendLinear, hy])⟩
+
+/-- **The composite bimodule of `Fᵢ ∘ 𝔅_σ` is the corner `φ(e_λ) V_{ν+i} e_{σλ}`**
+(Webster, arXiv:1309.3796v2, §6.1, Proposition 6.7, for `Fᵢ`). -/
+def braidAppendEquiv : myT ≃ₗ[(Tσ')ᵐᵒᵖ] braidAppendBimod Q Λ i ν hρ hρ' hQ σ :=
+  LinearEquiv.ofBijective (braidAppendLinear (Λ := Λ) (i := i) hρ hρ' hQ σ)
+    (braidAppendLinear_bijective hρ hρ' hQ σ)
+
+theorem val_braidAppendEquiv (y : myT) :
+    RectBimod.val _ _ (braidAppendEquiv (Λ := Λ) (i := i) hρ hρ' hQ σ y) =
+      braidAppendMult i hρ hρ' hQ σ y :=
+  val_braidAppendLinear hρ hρ' hQ σ y
+
+theorem braidAppendEquiv_isBimoduleHom :
+    BalancedTensor.IsBimoduleHom (A := (TensorProductAlgebra k Q Λ ν)ᵐᵒᵖ)
+      (braidAppendEquiv (Λ := Λ) (i := i) hρ hρ' hQ σ).toLinearMap := by
+  intro a y
+  apply RectBimod.ext
+  change RectBimod.val _ _ (braidAppendEquiv (Λ := Λ) (i := i) hρ hρ' hQ σ (op a • y)) =
+    (F̃) a.unop * RectBimod.val _ _ (braidAppendEquiv (Λ := Λ) (i := i) hρ hρ' hQ σ y)
+  rw [val_braidAppendEquiv, val_braidAppendEquiv]
+  have h : (braidAppendMult i hρ hρ' hQ σ).comp
+      ((BalancedTensor.mapRight (BalancedTensor.rmul (TensorProductAlgebra k Q (Λ ∘ σ) ν)ᵐᵒᵖ
+        (braidBimod Q Λ ν hρ hQ σ) (op a))).restrictScalars k) =
+      (LinearMap.mulLeft k ((F̃) a.unop)).comp (braidAppendMult i hρ hρ' hQ σ) := by
+    refine BalancedTensor.ext fun m b => ?_
+    change appendViol Q Λ i ν (identityCornerMap Q Λ ν hρ hQ a.unop * RectBimod.val _ _ b) *
+        permCornerMap Q Λ νᵢ hρ' hQ σ m.1.unop =
+      appendViol Q Λ i ν (identityCornerMap Q Λ ν hρ hQ a.unop) *
+        (appendViol Q Λ i ν (RectBimod.val _ _ b) * permCornerMap Q Λ νᵢ hρ' hQ σ m.1.unop)
+    rw [map_mul, mul_assoc]
+  exact LinearMap.congr_fun h y
+
+theorem braidAppendEquiv_mem {d : ℤ} {y : myT}
+    (hy : y ∈ balancedGrading (Tσ')ᵐᵒᵖ (Tσ)ᵐᵒᵖ (cornerGr)
+      (braidBimodGrading Q Λ ν hρ hQ σ hR) d) :
+    braidAppendEquiv (Λ := Λ) (i := i) hρ hρ' hQ σ y ∈
+      braidAppendGrading Q Λ i ν hρ hρ' hQ σ hR d := by
+  refine balancedGrading_map_mem (fun d => braidAppendGrading Q Λ i ν hρ hρ' hQ σ hR d)
+    ((braidAppendEquiv (Λ := Λ) (i := i) hρ hρ' hQ σ).toLinearMap.restrictScalars k)
+    (fun a b m x hm hx => ?_) hy
+  change RectBimod.val _ _ (braidAppendEquiv (Λ := Λ) (i := i) hρ hρ' hQ σ
+    (BalancedTensor.tmul m x)) ∈ violAuxiliaryGrade (ν := νᵢ) (rouquierGrading Q hR Λ) (a + b)
+  rw [val_braidAppendEquiv, braidAppendMult_tmul, add_comm a b]
+  exact SetLike.GradedMul.mul_mem (A := violAuxiliaryGrade (ν := νᵢ) (rouquierGrading Q hR Λ))
+    (appendViol_mem_violAuxiliaryGrade i _ hx) (permCornerMap_mem_grade hρ' hQ σ hR hm)
+
 end Categorification.Stendhal.BraidedStendhalAlgebra

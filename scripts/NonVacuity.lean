@@ -2855,16 +2855,19 @@ example (ν : Multiset Unit) (x : tensorProjectiveGroup D params level ν) :=
   iteratedStandardTest_eq D params regular 2 level (fun _ => [()]) (factors 2)
     (fun j i => level_eq j i) ν x
 
+/-- `T^λ` is finite-dimensional in each black content (`tensorProductAlgebra_finite`). -/
+local instance (Ω : Fin 2 → Unit →₀ ℕ) (ν : Multiset Unit) :
+    Module.Finite ℚ (Stendhal.TensorProductAlgebra ℚ (fun _ _ => 0) Ω ν) :=
+  Stendhal.tensorProductAlgebra_finite Ω ν params
+
 attribute [local instance 1200] Ring.toIntAlgebra in
 open DG.DegreeZero in
 /-- Webster, arXiv:1309.3796v2, §6.1, Corollary 6.10, for two red `sl₂` strands of weight `ω`:
-the class map of the graded braid functor of the crossing is `x ↦ B(v² R x, -)`. The route
-hypotheses (`AllFiniteDeltaInjective` of Corollary 5.22 and `RowFigureFiveHypotheses` of
-Proposition 6.9) and the finite-dimensionality of the algebras `T^λ` are
-assumed here, not discharged. -/
-example [∀ (Ω : Fin 2 → Unit →₀ ℕ) (ν : Multiset Unit),
-      Module.Finite ℚ (Stendhal.TensorProductAlgebra ℚ (fun _ _ => 0) Ω ν)]
-    (hall : ∀ (n : ℕ) (Λ' : Fin (n + 1) → Unit →₀ ℕ),
+the class map of the graded braid functor of the crossing is `x ↦ B(v² R x, -)`. The
+finite-dimensionality of the algebras `T^λ` is discharged (`tensorProductAlgebra_finite`); the
+route hypotheses (`AllFiniteDeltaInjective` of Corollary 5.22 and `RowFigureFiveHypotheses` of
+Proposition 6.9) are assumed here, not discharged. -/
+example (hall : ∀ (n : ℕ) (Λ' : Fin (n + 1) → Unit →₀ ℕ),
       Stendhal.AllFiniteDeltaInjective _ Λ' params.klrSymm)
     (H : ∀ (u : Fin (0 + 2 + 0) → List Unit) (hu : u (rightPos 0 0) = []),
       RowFigureFiveHypotheses D params level u hu) :=
@@ -2876,6 +2879,31 @@ example [∀ (Ω : Fin 2 → Unit →₀ ℕ) (ν : Multiset Unit),
         ((List.finRange (0 + 2 + 0)).map (pairSwap 0 0))))ᵐᵒᵖ :=
     fun _ => DG.HasDerivedCategory.standard _
   braidClass_pairSwap D params regular (n := 0) (m := 0) level (factors 2) level_eq hall H
+
+attribute [local instance 1200] Ring.toIntAlgebra in
+open DG.DegreeZero in
+/-- Webster, arXiv:1309.3796v2, §6.1, Lemma 6.11, for two red `sl₂` strands of weight `ω` and the
+crossing: the graded braid functor sends each sequence projective to a module with a standard
+filtration. The route hypotheses (`AllFiniteDeltaInjective`, `RowFigureFiveHypotheses`,
+`BraidDiagramFiltration`) are assumed here, not discharged. -/
+example (hall : ∀ (n : ℕ) (Λ' : Fin (n + 1) → Unit →₀ ℕ),
+      Stendhal.AllFiniteDeltaInjective _ Λ' params.klrSymm)
+    (H : ∀ (n m : ℕ), n + 2 + m = 2 → ∀ (Ω : Fin (n + 2 + m) → Unit →₀ ℕ)
+      (u : Fin (n + 2 + m) → List Unit) (hu : u (rightPos n m) = []),
+      RowFigureFiveHypotheses D params Ω u hu)
+    (hD : ∀ (Λ : Fin 2 → Unit →₀ ℕ) (wt : Fin 2 → Dom R) (w : Equiv.Perm (Fin 2)),
+      BraidDiagramFiltration D params Λ wt w)
+    {ν : Multiset Unit} (t : KLR.Seq (Stendhal.stendhalWeight 2 ν))
+    (ht : Stendhal.IsRedOrdered t) :=
+  letI : ∀ (Ω : Fin 2 → Unit →₀ ℕ) (ν : Multiset Unit) (κ : List (Fin 2)),
+      DG.HasDerivedCategory (Stendhal.BraidedStendhalAlgebra.ViolOrderCorner (k := ℚ)
+        (Q := fun _ _ => 0) (Λ := Ω) (ν := ν) κ) := fun _ _ _ => DG.HasDerivedCategory.standard _
+  letI : ∀ (Ω : Fin 2 → Unit →₀ ℕ) (ν : Multiset Unit) (κ : List (Fin 2)),
+      DG.HasDerivedCategory (Stendhal.BraidedStendhalAlgebra.ViolOrderCorner (k := ℚ)
+        (Q := fun _ _ => 0) (Λ := Ω) (ν := ν) κ)ᵐᵒᵖ := fun _ _ _ => DG.HasDerivedCategory.standard _
+  letI : DG.HasDerivedCategory ℤ := DG.HasDerivedCategory.standard _
+  hasCornerStandardFiltration_braidF D params regular hall H hD (Equiv.swap 0 1) (by decide)
+    level (factors 2) level_eq t ht
 
 end TwoFundamentalLowerings
 

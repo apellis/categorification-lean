@@ -30,7 +30,7 @@ open LieLean LieLean.QuantumGroup LieLean.QuantumGroup.GrandLoop LusztigF
 
 local notation "𝕂" => RatFunc ℚ
 local notation "v" => (RatFunc.X : 𝕂)
-local instance : NeZero v := ⟨RatFunc.X_ne_zero⟩
+local instance tensorConjDualInst1 : NeZero v := ⟨RatFunc.X_ne_zero⟩
 
 
 /-- `ℚ(v)`-linear functionals on `M`, with `ℚ(v)` acting through the bar involution. -/

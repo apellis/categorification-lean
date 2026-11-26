@@ -58,7 +58,7 @@ variable {I : Type} [DecidableEq I] (C : QuantumGroup.CartanDatum I)
 
 local notation "𝕂" => RatFunc ℚ
 local notation "v" => (RatFunc.X : 𝕂)
-local instance : NeZero v := ⟨RatFunc.X_ne_zero⟩
+local instance gradedBraidGeneratorsInst1 : NeZero v := ⟨RatFunc.X_ne_zero⟩
 
 theorem ordinarySuffixOp_wordVec (w : Dom R) : ∀ (s l : List I),
     ordinarySuffixOp (fun i => Algebra.lsmul 𝕂 𝕂 (IrreducibleModule R v w.1) (F R v i)) s

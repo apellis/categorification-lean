@@ -45,8 +45,8 @@ local notation "series" => algebraMap 𝕂 (LaurentSeries ℚ)
 local notation "ev" => integralLaurentEval
 private abbrev invRing : LP ≃+* LP := (LaurentPolynomial.invert (R := ℤ)).toRingEquiv
 local notation "inv" => invRing
-local instance : NeZero (RatFunc.X : 𝕂) := ⟨RatFunc.X_ne_zero⟩
-local instance : RingHomInvPair invRing.toRingHom invRing.toRingHom :=
+local instance tensorClassFunctionalInst1 : NeZero (RatFunc.X : 𝕂) := ⟨RatFunc.X_ne_zero⟩
+local instance tensorClassFunctionalInst2 : RingHomInvPair invRing.toRingHom invRing.toRingHom :=
   RingHomInvPair.of_ringEquiv invRing
 
 variable {I : Type} {k Y : Type*} [DecidableEq I] [Field k] [AddCommGroup Y] [Finite I]

@@ -61,9 +61,9 @@ all red orders keeps instance search from comparing `λ` with `λ ∘ σ`. -/
 variable [∀ (Ω : Fin ℓ → I →₀ ℕ) (ν : Multiset I), Module.Finite k (TensorProductAlgebra k Q Ω ν)]
 
 private abbrev invRing : LP ≃+* LP := (LaurentPolynomial.invert (R := ℤ)).toRingEquiv
-local instance : RingHomInvPair invRing.toRingHom invRing.toRingHom :=
+local instance gradedBraidClassMapInst1 : RingHomInvPair invRing.toRingHom invRing.toRingHom :=
   RingHomInvPair.of_ringEquiv invRing
-local instance : NeZero (RatFunc.X : 𝕂) := ⟨RatFunc.X_ne_zero⟩
+local instance gradedBraidClassMapInst2 : NeZero (RatFunc.X : 𝕂) := ⟨RatFunc.X_ne_zero⟩
 
 /-! ### Shifts and direct sums -/
 

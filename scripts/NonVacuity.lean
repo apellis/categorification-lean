@@ -6026,12 +6026,21 @@ example (ν : Multiset Unit) (s : TensorProductAlgebra.OrderedLoading (ℓ := 2)
   redShuffleDual_mul_injective rbRouquier rbSymm (baseCrossing_std rbRouquier rbSymm)
     (fun _ : Fin 2 => Finsupp.single () 1) s.1 s.2
 
-/-- Webster, arXiv:1309.3796v2, Prop. 5.30, for `sl₂`, two red strands of weight `ω`, and every
-black weight, under the route hypothesis `HasCornerCopresentation e⁰` of Cor. 5.29. -/
-noncomputable example (ν : Multiset Unit)
-    (hK : HasCornerCopresentation (redFirstIdem (CL.qCL (CL.CLScalars.kl : CL.CLScalars rbC ℚ))
-      (fun _ : Fin 2 => Finsupp.single () 1) ν)) :=
-  redFirstEndEquiv rbRouquier rbSymm (fun _ : Fin 2 => Finsupp.single () 1) ν hK
+/-- Webster, arXiv:1309.3796v3, Cor. 5.32 (v2: Cor. 5.29), for `sl₂`, two red strands of
+weight `ω`, and every black weight: the dominant dimension of `T^λ` with respect to `P⁰` is at
+least two. -/
+example (ν : Multiset Unit) :=
+  hasCornerCopresentation_redFirstIdem rbRouquier rbSymm (fun _ : Fin 2 => Finsupp.single () 1) ν
+
+/-- Webster, arXiv:1309.3796v3, Cor. 5.32 (v2: Cor. 5.29), for `sl₂`, two red strands of
+weight `ω`, and every black weight. -/
+example (ν : Multiset Unit) :=
+  existsUnique_eq_mul_left_redFirst rbRouquier rbSymm (fun _ : Fin 2 => Finsupp.single () 1) ν
+
+/-- Webster, arXiv:1309.3796v3, Prop. 5.33 (v2: Prop. 5.30), for `sl₂`, two red strands of
+weight `ω`, and every black weight. -/
+noncomputable example (ν : Multiset Unit) :=
+  redFirstEndEquiv rbRouquier rbSymm (fun _ : Fin 2 => Finsupp.single () 1) ν
 
 end RedFirstEnd
 

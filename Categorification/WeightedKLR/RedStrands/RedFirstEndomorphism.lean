@@ -3,7 +3,7 @@ Copyright (c) 2026 Alex Ellis. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 -/
 import Categorification.WeightedKLR.RedStrands.RedShuffleFactor
-import Categorification.WeightedKLR.RedStrands.RedFirstDoubleCentralizer
+import Categorification.WeightedKLR.RedStrands.RedFirstDominantDimension
 import Categorification.Algebra.CornerEndomorphism
 
 set_option backward.isDefEq.respectTransparency false
@@ -25,8 +25,7 @@ and `T^λ` is the endomorphism algebra of `T^λ e⁰` (Corollary 5.29).
 
 * `mul_redShuffle_injective`: right multiplication by `θ_s` is injective on `T^λ e(s)`.
 * `redShuffleDual_mul_injective`: left multiplication by `θ̇_s` is injective on `e(s) T^λ`.
-* `redFirstEndEquiv`: **Proposition 5.30**, `T^λ ≅ End_B(⊕_s y_s B)`, under the route hypothesis
-  `HasCornerCopresentation e⁰` of Corollary 5.29 (`existsUnique_eq_mul_left_redFirst`).
+* `redFirstEndEquiv`: **Proposition 5.30** (v3: Proposition 5.33), `T^λ ≅ End_B(⊕_s y_s B)`.
 -/
 
 noncomputable section
@@ -156,15 +155,13 @@ abbrev redShuffleModule (Λ : Fin ℓ → I →₀ ℕ) (ν : Multiset I) : Type
     (fun s => redFirstIdem_mul_redShuffleDual QL Λ s.1 s.2)
 
 include hR hQs in
-/-- **Webster, arXiv:1309.3796v2, Proposition 5.30**, under the route hypothesis
-`HasCornerCopresentation e⁰` of Corollary 5.29: `T^λ` is isomorphic to the algebra of
-endomorphisms of the right `B`-module `⊕_s y_s B`, where `B = e⁰ T^λ e⁰ ≅ R^{∑ λ_r}` is the
-red-first corner (Proposition 5.28), `s` runs over the red-ordered loadings, and
-`y_s = θ̇_s θ_s` with `θ_s` the red/black shuffle from the red-first loading to `s`. The
-isomorphism sends `a` to the endomorphism `(θ̇_s e(s) x)_s ↦ (θ̇_s e(s) a x)_s` of
-`T^λ e⁰ ≅ ⊕_s y_s B` (`redFirstEndEquiv_apply`). -/
-noncomputable def redFirstEndEquiv (Λ : Fin (ℓ + 1) → I →₀ ℕ) (ν : Multiset I)
-    (hK : HasCornerCopresentation (redFirstIdem QL Λ ν)) :
+/-- **Webster, arXiv:1309.3796v3, Proposition 5.33** (v2: Proposition 5.30): `T^λ` is isomorphic to
+the algebra of endomorphisms of the right `B`-module `⊕_s y_s B`, where `B = e⁰ T^λ e⁰ ≅ R^{∑ λ_r}`
+is the red-first corner (Proposition 5.28), `s` runs over the red-ordered loadings, and
+`y_s = θ̇_s θ_s` with `θ_s` the red/black shuffle from the red-first loading to `s`. The isomorphism
+sends `a` to the endomorphism `(θ̇_s e(s) x)_s ↦ (θ̇_s e(s) a x)_s` of `T^λ e⁰ ≅ ⊕_s y_s B`
+(`redFirstEndEquiv_apply`). -/
+noncomputable def redFirstEndEquiv (Λ : Fin (ℓ + 1) → I →₀ ℕ) (ν : Multiset I) :
     TensorProductAlgebra k QL Λ ν ≃+*
       Module.End (isIdempotentElem_redFirstIdem QL Λ ν).Cornerᵐᵒᵖ
         (redShuffleModule (k := k) (C := C) Λ ν) :=
@@ -191,7 +188,7 @@ noncomputable def redFirstEndEquiv (Λ : Fin (ℓ + 1) → I →₀ ℕ) (ν : M
             have h2 : (x * e) * e = x * e := by rw [mul_assoc, he]
             rw [RingHom.id_apply, hfN, h1, hfb _ _ h2, mul_smul_comm, mul_one, smul_mul_assoc,
               he, mul_smul_comm, hfe _ h2, ← hfN] }
-      obtain ⟨a, ha, -⟩ := existsUnique_eq_mul_left_redFirst hR hQs Λ ν hK f' hfe
+      obtain ⟨a, ha, -⟩ := existsUnique_eq_mul_left_redFirst hR hQs Λ ν f' hfe
         (fun b x hx => hfb b x hx)
       exact ⟨a, ha⟩)
 
@@ -199,11 +196,11 @@ include hR hQs in
 /-- The isomorphism of Proposition 5.30 is left multiplication, transported along
 `T^λ e⁰ ≅ ⊕_s y_s B`, `x ↦ (θ̇_s e(s) x)_s`. -/
 theorem redFirstEndEquiv_apply (Λ : Fin (ℓ + 1) → I →₀ ℕ) (ν : Multiset I)
-    (hK : HasCornerCopresentation (redFirstIdem QL Λ ν)) (a x : TensorProductAlgebra k QL Λ ν)
+    (a x : TensorProductAlgebra k QL Λ ν)
     (hx : x * redFirstIdem QL Λ ν = x) (s : TensorProductAlgebra.OrderedLoading (ℓ := ℓ + 1) ν) :
     ∃ m : redShuffleModule (k := k) (C := C) Λ ν, (∀ t, (m t).1.1 = redShuffleDual QL Λ t.1 t.2 *
         TensorProductAlgebra.boundaryIdem QL Λ ν t * x) ∧
-      (redFirstEndEquiv hR hQs Λ ν hK a m s).1.1 =
+      (redFirstEndEquiv hR hQs Λ ν a m s).1.1 =
         redShuffleDual QL Λ s.1 s.2 * TensorProductAlgebra.boundaryIdem QL Λ ν s * (a * x) := by
   refine ⟨CornerEndomorphism.toTarget _
     (TensorProductAlgebra.completeOrthogonalIdempotents_boundaryIdem (k := k) QL Λ ν) _ _ _ _

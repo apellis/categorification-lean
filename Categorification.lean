@@ -2442,4 +2442,5 @@ import Categorification.WeightedKLR.RedStrands.NegativeTensorInjective
 import Categorification.WeightedKLR.RedStrands.TensorSplitFirst
 import Categorification.WeightedKLR.RedStrands.TensorWordFirstRed
 import Categorification.WeightedKLR.RedStrands.TildeWordProjectives
+import Categorification.WeightedKLR.RedStrands.TildeTensorEquiv
 import Categorification.WeightedKLR.RedStrands.RedFirstDominantDimension

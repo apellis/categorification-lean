@@ -29,13 +29,24 @@ limit `N → ∞`. Fix a dominant `λ₀` with `⟨α_i^∨, λ₀⟩ ≥ 1` for
 So the classes `[P̃_w]` and the vectors `p̃_w` satisfy the same relations in each black
 content, and both span. The contents assemble into a direct sum since `𝔮_N` separates them.
 
+The operators `F̃_i` act by left multiplication on `U⁻` (ERRATA entry 11: the printed right
+multiplication is not intertwined by `𝔮_N`). The proof uses a dominant weight `λ₁` with
+`⟨α_i^∨, λ₁⟩ ≥ 1` for all `i`, as Webster's does; this is a route hypothesis of the
+statements below, tracked for removal in the roadmap.
+
 ## Main definitions
 
 * `negTensorLattice` : the `ℤ[q, q⁻¹]`-span of the vectors `p̃_w`.
+* `tildeClass` : the divided word projective `[P̃_w]`.
 
 ## Main results
 
-* `exists_tildeTensorEquiv` : **Webster, Proposition 4.39**.
+* `tildeRelations`, `span_tildeClassAt` : in each black content, the `[P̃_w]` span and satisfy
+  the same relations as the `p̃_w`.
+* `latticeJoin_injective` : the black contents are independent in `U⁻ ⊗ V^λ`.
+* `exists_tildeTensorEquiv` : **Webster, Proposition 4.39**, with the target described as the
+  span of the `p̃_w`. Its identification with `U_q^{-,ℤ} ⊗ V^ℤ_λ` and the compatibilities
+  (4.40) are not yet formalized.
 -/
 
 noncomputable section
@@ -542,5 +553,81 @@ theorem latticeJoin_injective [Finite I] (hρ : ∃ ω : Dom R, ∀ i, 1 ≤ ω.
     rw [DFinsupp.notMem_support_iff.mp hβ.1, DFinsupp.notMem_support_iff.mp hβ.2]
 
 end Assembly
+
+/-! ### Proposition 4.39 -/
+
+section Main
+
+/-- The direct sum of semilinear equivalences. -/
+private def sumSemilinearEquiv {Ps Vs : Multiset I → Type*} [∀ β, AddCommMonoid (Ps β)]
+    [∀ β, Module LP (Ps β)] [∀ β, AddCommMonoid (Vs β)] [∀ β, Module LP (Vs β)]
+    (e : ∀ β, Ps β ≃ₛₗ[invLP.toRingHom] Vs β) :
+    DirectSum (Multiset I) Ps ≃ₛₗ[invLP.toRingHom] DirectSum (Multiset I) Vs where
+  toAddEquiv := DirectSum.congrAddEquiv (fun β => (e β).toAddEquiv)
+  map_smul' r x := by
+    ext β
+    exact (e β).map_smulₛₗ r (x β)
+
+private theorem sumSemilinearEquiv_lof {Ps Vs : Multiset I → Type*} [∀ β, AddCommMonoid (Ps β)]
+    [∀ β, Module LP (Ps β)] [∀ β, AddCommMonoid (Vs β)] [∀ β, Module LP (Vs β)]
+    (e : ∀ β, Ps β ≃ₛₗ[invLP.toRingHom] Vs β) (β : Multiset I) (x : Ps β) :
+    sumSemilinearEquiv e (DirectSum.lof LP _ Ps β x) = DirectSum.lof LP _ Vs β (e β x) :=
+  DirectSum.map_of _ _ _
+
+variable (wt : Fin ℓ → Dom R)
+
+theorem negTensorLatticeAt_le (β : Multiset I) :
+    negTensorLatticeAt (C := C) wt β ≤ negTensorLattice (C := C) wt :=
+  Submodule.span_mono fun _ ⟨w, _, hx⟩ => ⟨w, hx.symm⟩
+
+theorem latticeJoin_mem (z : DirectSum (Multiset I) (fun β => negTensorLatticeAt (C := C) wt β)) :
+    latticeJoin C wt z ∈ negTensorLattice (C := C) wt := by
+  induction z using DirectSum.induction_on with
+  | zero => rw [map_zero]; exact zero_mem _
+  | of β x =>
+    rw [← DirectSum.lof_eq_of LP, latticeJoin_lof]
+    exact negTensorLatticeAt_le C wt β x.2
+  | add _ _ hx hy => rw [map_add]; exact add_mem hx hy
+
+include hR in
+/-- The black content lattices assemble into the lattice of the vectors `p̃_w`. -/
+private theorem latticeJoin_bijective [Finite I] (hρ : ∃ ω : Dom R, ∀ i, 1 ≤ ω.1 (R.coroot i)) :
+    Function.Bijective ((latticeJoin C wt).codRestrict _ (latticeJoin_mem C wt)) := by
+  refine ⟨fun x y h => latticeJoin_injective C hR wt hρ (congrArg Subtype.val h), ?_⟩
+  rintro ⟨y, hy⟩
+  have hle : negTensorLattice (C := C) wt ≤ LinearMap.range (latticeJoin C wt) := by
+    refine Submodule.span_le.mpr ?_
+    rintro _ ⟨w, rfl⟩
+    exact ⟨DirectSum.lof LP _ _ w.content.toMultiset (negWordVectorAt C wt _ ⟨w, rfl⟩),
+      latticeJoin_lof C wt _ _⟩
+  obtain ⟨z, hz⟩ := hle hy
+  exact ⟨z, Subtype.ext hz⟩
+
+include hR in
+/-- **Webster, arXiv:1309.3796v3, Proposition 4.39**: `K₀(T̃^λ) ≅ U_q^{-,ℤ} ⊗ V^ℤ_λ`.
+For dominant labels `λ`, the sum over black contents of the split Grothendieck groups of
+graded projective `T̃^λ`-modules is isomorphic, semilinearly for `q ↦ q⁻¹`, to the
+`ℤ[q, q⁻¹]`-span of the vectors `p̃_w` in `U⁻ ⊗ V^λ`, by an isomorphism sending `[P̃_w]` to
+`p̃_w`.
+
+Route hypothesis (tracked for removal): a dominant weight `λ₁` with `⟨α_i^∨, λ₁⟩ ≥ 1` for
+all `i`, which the proof uses to build the large first labels `λ₀ = Nλ₁`. -/
+theorem exists_tildeTensorEquiv [Finite I] (hρ : ∃ ω : Dom R, ∀ i, 1 ≤ ω.1 (R.coroot i))
+    (Λ : Fin ℓ → I →₀ ℕ) (hwt : ∀ r i, (Λ r i : ℤ) = (wt r).1 (R.coroot i)) :
+    ∃ e : DirectSum (Multiset I) (fun β => K0 (stendhalGrade (moduleGrading Λ) β))
+        ≃ₛₗ[invLP.toRingHom] negTensorLattice (C := C) wt,
+      ∀ w : TensorWord I ℓ, (e (DirectSum.lof LP _ _ w.content.toMultiset (tildeClass C hQ Λ w)) :
+        NegTensor D wt) = negWordVector D w wt := by
+  choose e he using fun β => generatorEquiv_of_relations (tildeClassAt C hQ Λ β)
+    (negWordVectorAt C wt β) (span_tildeClassAt C hQ hR Λ wt hρ hwt β)
+    (span_negWordVectorAt C wt β) (tildeRelations C hQ hR Λ wt hρ hwt β)
+  refine ⟨(sumSemilinearEquiv e).trans (LinearEquiv.ofBijective _
+    (latticeJoin_bijective C hR wt hρ)), fun w => ?_⟩
+  change latticeJoin C wt (sumSemilinearEquiv e
+    (DirectSum.lof LP _ _ w.content.toMultiset (tildeClassAt C hQ Λ _ ⟨w, rfl⟩))) = _
+  rw [sumSemilinearEquiv_lof, latticeJoin_lof, he]
+  rfl
+
+end Main
 
 end Categorification.Stendhal.FirstWeight

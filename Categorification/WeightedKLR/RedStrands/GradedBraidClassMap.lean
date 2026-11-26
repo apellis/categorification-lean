@@ -5,6 +5,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 import Categorification.WeightedKLR.RedStrands.GradedBraidAppendClass
 import Categorification.WeightedKLR.RedStrands.TensorClassLowering
 import Categorification.Algebra.Graded.InduceProdShift
+import Categorification.WeightedKLR.RedStrands.TensorConjDual
 
 /-!
 # The braid functor on classes
@@ -73,45 +74,6 @@ theorem classFunctional_shift (ν : Multiset I) (N : GFin (𝒜 ν)) (a : ℤ) :
 theorem classFunctional_prod (ν : Multiset I) (N N' : GFin (𝒜 ν)) :
     cf ν (N.prod N') = cf ν N + cf ν N' :=
   classFunctional_eq_of_shortExact C hQ hR Λ wt hwt ν (GFin.ShortExact.prod N N')
-
-/-! ### Bar-twisted duals -/
-
-/-- `ℚ(v)`-linear functionals on `M`, with `ℚ(v)` acting through the bar involution. -/
-def ConjDual (M : Type*) [AddCommGroup M] [Module 𝕂 M] : Type _ := M →ₗ[𝕂] 𝕂
-
-namespace ConjDual
-
-variable {M : Type*} [AddCommGroup M] [Module 𝕂 M]
-
-instance : AddCommGroup (ConjDual M) := inferInstanceAs (AddCommGroup (M →ₗ[𝕂] 𝕂))
-
-instance : Module 𝕂 (ConjDual M) := Module.compHom (M →ₗ[𝕂] 𝕂) barRingHom
-
-/-- A functional, as an element of the bar-twisted dual. -/
-def of : (M →ₗ[𝕂] 𝕂) ≃+ ConjDual M := AddEquiv.refl _
-
-theorem smul_of (c : 𝕂) (f : M →ₗ[𝕂] 𝕂) : c • of f = of (barRingHom c • f) := rfl
-
-/-- `ξ ↦ ξ ∘ g` on the bar-twisted dual. -/
-def precomp (g : M →ₗ[𝕂] M) : ConjDual M →ₗ[𝕂] ConjDual M where
-  toFun ξ := of ((of.symm ξ).comp g)
-  map_add' _ _ := rfl
-  map_smul' _ _ := rfl
-
-theorem precomp_of (g : M →ₗ[𝕂] M) (f : M →ₗ[𝕂] 𝕂) : precomp g (of f) = of (f.comp g) := rfl
-
-/-- Evaluation at a vector, a bar-semilinear functional on the bar-twisted dual. -/
-def eval (w : M) : ConjDual M →ₛₗ[barRingHom] 𝕂 where
-  toFun ξ := of.symm ξ w
-  map_add' _ _ := rfl
-  map_smul' _ _ := rfl
-
-theorem eval_of (w : M) (f : M →ₗ[𝕂] 𝕂) : eval w (of f) = f w := rfl
-
-theorem ext {ξ ξ' : ConjDual M} (h : ∀ w, eval w ξ = eval w ξ') : ξ = ξ' :=
-  LinearMap.ext h
-
-end ConjDual
 
 /-! ### The braid functor on `K₀` -/
 
@@ -333,6 +295,12 @@ theorem braidClass_F (i : I) (z : TensorSpace wt) :
       (BraidedStendhalAlgebra.braidFunctorCongr _ _ σ hQ
         (rightBlackIndRightSequenceIso C hQ Λ i β t ht))) w
   exact sub_eq_zero.1 (LinearMap.congr_fun key z)
+
+/-- `braidClass` is `Fᵢ`-linear for `dualAction` on the bar-twisted dual of `V_{λ ∘ σ}`. -/
+theorem braidClass_F_dualAction (i : I) (z : TensorSpace wt) :
+    braidClass C hQ hR Λ wt hwt σ (tensorRepresentation wt (F R v i) z) =
+      dualAction (wt ∘ σ) (F R v i) (braidClass C hQ hR Λ wt hwt σ z) :=
+  braidClass_F C hQ hR Λ wt hwt σ i z
 
 end BraidClass
 

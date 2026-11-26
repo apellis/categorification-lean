@@ -42,6 +42,17 @@ jobs:
             echo "docs_only=false" >> "$GITHUB_OUTPUT"
           fi
 
+      # The axiom audit and the non-vacuity checks see only modules imported by the root file.
+      - name: Root file imports every module
+        run: |
+          missing=$(comm -13 <(grep '^import ' Categorification.lean | sed 's/^import //' | sort) \
+            <(find Categorification -name '*.lean' | sed 's/\.lean$//; s#/#.#g' | sort))
+          if [ -n "$missing" ]; then
+            echo "Modules not imported by Categorification.lean:"
+            echo "$missing"
+            exit 1
+          fi
+
       - name: Install elan
         if: steps.scope.outputs.docs_only != 'true'
         run: |

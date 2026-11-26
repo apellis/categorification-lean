@@ -334,6 +334,78 @@ theorem projectiveHomPolynomial_rightBlackInd_braidFunctor_eq_cut
     (show _ ∈ (𝒜) 0 from mk_e_mem_tensorProductGrade (rouquierGrading Q hR Λ) ν t ht)
     hes hes0
 
+/-- On right sequence projectives, `gdim HOM(e(s) T^{λ ∘ σ}_{ν+i}, 𝔅_σ Fᵢ (e(t) T^λ_ν))` is the
+graded dimension of the cut `e(t i) B_{ν+i} e(s)` of the braiding bimodule. -/
+theorem projectiveHomPolynomial_braidFunctor_rightBlackInd_eq_cut
+    [Module.Finite k (TensorProductAlgebra k Q Λ ν)]
+    [Module.Finite k (TensorProductAlgebra k Q Λ νᵢ)]
+    [Module.Finite k (TensorProductAlgebra k Q (Λ ∘ σ) νᵢ)]
+    (t : Seq (stendhalWeight ℓ ν)) (ht : IsRedOrdered t)
+    (s : Seq (stendhalWeight ℓ νᵢ)) (hs : IsRedOrdered s) :
+    projectiveHomPolynomial (𝒜σ')
+        (braidFunctor (Λ := Λ) (ν := νᵢ) hρ' hQ σ hR
+          (rightBlackInd (rouquierGrading Q hR Λ) i ν
+            (rightSequenceProj (rouquierGrading Q hR Λ) t ht).toGFin))
+        (K0.of (rightSequenceProj (rouquierGrading Q hR (Λ ∘ σ)) s hs)) =
+      gdimPoly (idem (idem (braidBimodGrading Q Λ νᵢ hρ' hQ σ hR)
+          (op (TensorProductAlgebra.mk Q (Λ ∘ σ) νᵢ (StendhalAlgebra.e s hs))))
+        (op (op (Stendhal.appendBlack Q Λ i ν
+          (TensorProductAlgebra.mk Q Λ ν (StendhalAlgebra.e t ht)))))) := by
+  have het : IsIdempotentElem (op (TensorProductAlgebra.mk Q Λ ν (StendhalAlgebra.e t ht))) :=
+    congrArg op (isIdempotentElem_mk_e (Q := Q) (Λ := Λ) t ht)
+  have het0 : _ ∈ (𝒜) 0 := mk_e_mem_tensorProductGrade (rouquierGrading Q hR Λ) ν t ht
+  have hes := congrArg op (isIdempotentElem_mk_e (Q := Q) (Λ := Λ ∘ σ) s hs)
+  have hes0 : _ ∈ (𝒜σ') 0 :=
+    mk_e_mem_tensorProductGrade (rouquierGrading Q hR (Λ ∘ σ)) νᵢ s hs
+  let Pφ := (GProj.ofIdempotent (appendBlackOp Q Λ i ν
+    (op (TensorProductAlgebra.mk Q Λ ν (StendhalAlgebra.e t ht)))) (het.map _)
+    (appendBlackOp_mem_grade (rouquierGrading Q hR Λ) i ν het0)).toGFin
+  have h1 : projectiveHomPolynomial (𝒜σ')
+        (braidFunctor (Λ := Λ) (ν := νᵢ) hρ' hQ σ hR
+          (rightBlackInd (rouquierGrading Q hR Λ) i ν
+            (rightSequenceProj (rouquierGrading Q hR Λ) t ht).toGFin))
+        (K0.of (rightSequenceProj (rouquierGrading Q hR (Λ ∘ σ)) s hs)) =
+      projectiveHomPolynomial (𝒜σ') (braidFunctor (Λ := Λ) (ν := νᵢ) hρ' hQ σ hR Pφ)
+        (K0.of (rightSequenceProj (rouquierGrading Q hR (Λ ∘ σ)) s hs)) := by
+    refine (projectiveHomPolynomial_ofIdempotent (𝒜σ') _ hes hes0).trans
+      (Eq.trans ?_ (projectiveHomPolynomial_ofIdempotent (𝒜σ') _ hes hes0).symm)
+    exact gdimPoly_idem_congr' (braidFunctorCongr (Λ := Λ) (ν := νᵢ) hρ' hQ σ hR
+      (rightBlackIndPrincipalIso (rouquierGrading Q hR Λ) i ν het het0))
+  rw [h1]
+  let := braidBimodDecomposition (Λ := Λ) (ν := νᵢ) hρ' hQ σ hR
+  let := braidBimod_gradedSMul_left (Λ := Λ) (ν := νᵢ) hρ' hQ σ hR
+  let := braidBimod_gradedSMul_right (Λ := Λ) (ν := νᵢ) hρ' hQ σ hR
+  let := finite_braidBimod (Λ := Λ) (ν := νᵢ) hρ' hQ σ
+  exact projectiveHomPolynomial_induce_ofIdempotent (𝒜') (𝒜σ')
+    (braidBimodGrading Q Λ νᵢ hρ' hQ σ hR) (het.map _)
+    (appendBlackOp_mem_grade (rouquierGrading Q hR Λ) i ν het0) hes hes0
+
+/-- **`Fᵢ ∘ 𝔅_σ` and `𝔅_σ ∘ Fᵢ` agree on Hom polynomials between right sequence projectives**
+(Webster, arXiv:1309.3796v2, §6.1, Proposition 6.7, for `Fᵢ`, graded, on classes):
+`gdim HOM(e(s) T^{λ ∘ σ}_{ν+i}, Fᵢ 𝔅_σ (e(t) T^λ_ν)) = gdim HOM(e(s) T^{λ ∘ σ}_{ν+i},
+𝔅_σ Fᵢ (e(t) T^λ_ν))`. -/
+theorem projectiveHomPolynomial_rightBlackInd_braidFunctor
+    [Module.Finite k (TensorProductAlgebra k Q Λ ν)]
+    [Module.Finite k (TensorProductAlgebra k Q Λ νᵢ)]
+    [Module.Finite k (TensorProductAlgebra k Q (Λ ∘ σ) ν)]
+    [Module.Finite k (TensorProductAlgebra k Q (Λ ∘ σ) νᵢ)]
+    (t : Seq (stendhalWeight ℓ ν)) (ht : IsRedOrdered t)
+    (s : Seq (stendhalWeight ℓ νᵢ)) (hs : IsRedOrdered s) :
+    projectiveHomPolynomial (𝒜σ')
+        (rightBlackInd (rouquierGrading Q hR (Λ ∘ σ)) i ν
+          (braidFunctor (Λ := Λ) (ν := ν) hρ hQ σ hR
+            (rightSequenceProj (rouquierGrading Q hR Λ) t ht).toGFin))
+        (K0.of (rightSequenceProj (rouquierGrading Q hR (Λ ∘ σ)) s hs)) =
+      projectiveHomPolynomial (𝒜σ')
+        (braidFunctor (Λ := Λ) (ν := νᵢ) hρ' hQ σ hR
+          (rightBlackInd (rouquierGrading Q hR Λ) i ν
+            (rightSequenceProj (rouquierGrading Q hR Λ) t ht).toGFin))
+        (K0.of (rightSequenceProj (rouquierGrading Q hR (Λ ∘ σ)) s hs)) := by
+  rw [projectiveHomPolynomial_rightBlackInd_braidFunctor_eq_cut hρ hρ' hQ σ hR,
+    projectiveHomPolynomial_braidFunctor_rightBlackInd_eq_cut hρ' hQ σ hR]
+  exact RectBimod.gdimPoly_idem_idem_grading_eq _
+    (identityCornerMap_appendBlack hρ hρ' hQ _).symm
+
 end Projective
 
 end Categorification.Stendhal.BraidedStendhalAlgebra

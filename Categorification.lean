@@ -159,6 +159,7 @@ import Categorification.Diagrams.BicatInterpAdmissibleDescent
 import Categorification.Diagrams.BicatInterpAdmissiblePseudo
 import Categorification.Diagrams.BicatInterpAdmissibleLinear
 import Categorification.Diagrams.BicatInterpAdmissiblePull
+import Categorification.Diagrams.BicatInterpMate
 import Categorification.Diagrams.BicatInterpMirror
 import Categorification.Diagrams.BicatInterpPull
 import Categorification.Diagrams.BicatInterpPseudo
@@ -2212,6 +2213,10 @@ import Categorification.WeightedKLR.RedStrands.DoubleBlackPhysicalSpan
 import Categorification.WeightedKLR.RedStrands.DoubleBlackPresentation
 import Categorification.WeightedKLR.RedStrands.DoubleBlackRelabel
 import Categorification.WeightedKLR.RedStrands.DoubleRouquierBlack
+import Categorification.WeightedKLR.RedStrands.DoubleRouquierRed
+import Categorification.WeightedKLR.RedStrands.DoubleRouquierRedCup
+import Categorification.WeightedKLR.RedStrands.DoubleRouquierRedContext
+import Categorification.WeightedKLR.RedStrands.DoubleRouquierRedUp
 import Categorification.WeightedKLR.RedStrands.DoubleBlackSuffix
 import Categorification.WeightedKLR.RedStrands.DoubleBoundary
 import Categorification.WeightedKLR.RedStrands.DoubleBoundaryInduction

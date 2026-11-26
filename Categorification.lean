@@ -2003,6 +2003,7 @@ import Categorification.Algebra.DerivedRightTensorInjective
 import Categorification.Algebra.DiagramWeightRingEquiv
 import Categorification.Algebra.Graded.BalancedInduction
 import Categorification.Algebra.Graded.CornerBimoduleGrading
+import Categorification.Algebra.Graded.RectBimodTensor
 import Categorification.Algebra.Graded.CyclicGenerator
 import Categorification.Algebra.Graded.EulerCharacteristic
 import Categorification.Algebra.Graded.ExtensionK0

@@ -1,0 +1,397 @@
+/-
+Copyright (c) 2026 Alex Ellis. All rights reserved.
+Released under Apache 2.0 license as described in the file LICENSE.
+-/
+import Categorification.Algebra.Graded.Duality
+import Categorification.Algebra.Graded.RightTwist
+
+/-!
+# Tensoring with a finitely generated projective module is a Hom functor
+
+Let `A` be an algebra over a field `k`, `P` a finitely generated projective right `A`-module and
+`N` a left `A`-module. Write `P^* = Hom_{A^op}(P, A)`, a left `A`-module through left
+multiplication in `A`. The map
+
+  `P ⊗_A N → Hom_A(P^*, N)`,   `p ⊗ n ↦ (g ↦ g(p) · n)`
+
+is a bijection: for a dual basis `p = ∑ⱼ xⱼ gⱼ(p)` its inverse is `h ↦ ∑ⱼ xⱼ ⊗ h(gⱼ)`. For
+graded `P` and `N` the map preserves degrees, where `P^*` carries the grading by degree of maps.
+So the graded dimension of `P ⊗_A N` is that of the graded Hom space from the graded projective
+module `P^*` into `N`.
+
+This is used for the induction functors of Webster, arXiv:1309.3796v2, §4.6, on modules that
+are not projective: the Hom spaces from a projective into an induced module are Hom spaces from
+a fixed projective into the original module.
+
+## Main definitions and results
+
+* `tensorHomMap` : `P ⊗_A N → Hom_A(P^*, N)`, and `tensorHomMap_bijective`.
+* `tensorHomMap_mem` : it preserves degrees.
+* `tensorHomGradedEquiv` : the graded isomorphism, and `gdimPoly_balancedGrading_eq` :
+  `gdim (P ⊗_A N) = gdim HOM(P^*, N)`.
+* `dualGProj 𝒜 ℙ` : `P^*` as a finitely generated graded projective left `A`-module.
+* `idemBalancedMap_bijective`, `gdimPoly_idem_balancedGrading` : for a `(B, A)`-bimodule `M` and
+  an idempotent `e ∈ B` of degree zero, `e (M ⊗_A N) ≅ e M ⊗_A N`; `e M` is projective
+  (`projective_idemSubspace`) and finitely generated (`finite_idemSubspace`) as a right module
+  when `M` is.
+-/
+
+noncomputable section
+
+namespace Categorification.Graded
+
+open MulOpposite BalancedTensor DirectSum
+
+section Ungraded
+
+variable {k : Type*} [Field k] {A : Type*} [Ring A] [Algebra k A]
+  {P : Type*} [AddCommGroup P] [Module k P] [Module Aᵐᵒᵖ P] [IsScalarTower k Aᵐᵒᵖ P]
+  {N : Type*} [AddCommGroup N] [Module k N] [Module A N] [IsScalarTower k A N]
+
+/-- The value `g ↦ g(p) · n` of `p ⊗ n`. -/
+def tensorHomValue (p : P) (n : N) : (P →ₗ[Aᵐᵒᵖ] Aᵐᵒᵖ) →ₗ[A] N where
+  toFun g := unop (g p) • n
+  map_add' g g' := by rw [LinearMap.add_apply, unop_add, add_smul]
+  map_smul' a g := by
+    change unop (op (a * unop (g p))) • n = a • unop (g p) • n
+    rw [unop_op, mul_smul]
+
+@[simp] theorem tensorHomValue_apply (p : P) (n : N) (g : P →ₗ[Aᵐᵒᵖ] Aᵐᵒᵖ) :
+    tensorHomValue p n g = unop (g p) • n := rfl
+
+variable (k A P N) in
+/-- The bilinear map `(p, n) ↦ (g ↦ g(p) · n)`. -/
+def tensorHomBil : P →ₗ[k] N →ₗ[k] ((P →ₗ[Aᵐᵒᵖ] Aᵐᵒᵖ) →ₗ[A] N) where
+  toFun p :=
+    { toFun := tensorHomValue p
+      map_add' n n' := LinearMap.ext fun g => by simp
+      map_smul' c n := LinearMap.ext fun g => by
+        simp [smul_comm (unop (g p)) c n] }
+  map_add' p p' := LinearMap.ext fun n => LinearMap.ext fun g => by simp [add_smul]
+  map_smul' c p := LinearMap.ext fun n => LinearMap.ext fun g => by
+    simp only [tensorHomValue_apply, LinearMap.coe_mk, AddHom.coe_mk, LinearMap.map_smul_of_tower,
+      unop_smul, RingHom.id_apply, LinearMap.smul_apply]
+    rw [smul_assoc]
+
+variable (k A P N) in
+/-- **The tensor–Hom map** `P ⊗_A N → Hom_A(P^*, N)`, `p ⊗ n ↦ (g ↦ g(p) · n)`. -/
+def tensorHomMap : BalancedTensor k k A P N →ₗ[k] ((P →ₗ[Aᵐᵒᵖ] Aᵐᵒᵖ) →ₗ[A] N) :=
+  lift (tensorHomBil k A P N) fun p a n => LinearMap.ext fun g => by
+    change unop (g (op a • p)) • n = unop (g p) • a • n
+    rw [map_smul, smul_eq_mul, unop_mul, unop_op, mul_smul]
+
+@[simp] theorem tensorHomMap_tmul (p : P) (n : N) (g : P →ₗ[Aᵐᵒᵖ] Aᵐᵒᵖ) :
+    tensorHomMap k A P N (tmul p n) g = unop (g p) • n := rfl
+
+omit [Algebra k A] [IsScalarTower k Aᵐᵒᵖ P] [IsScalarTower k A N] in
+private theorem sum_tmul' {ι : Type*} (s : Finset ι) (p : ι → P) (n : N) :
+    (tmul (∑ j ∈ s, p j) n : BalancedTensor k k A P N) = ∑ j ∈ s, tmul (p j) n := by
+  classical
+  induction s using Finset.induction_on with
+  | empty => simp
+  | insert j s hj ih => rw [Finset.sum_insert hj, Finset.sum_insert hj, add_tmul, ih]
+
+/-- A dual basis `p = ∑ⱼ gⱼ(p) • xⱼ` of `P` expands every `g ∈ P^*` as `∑ⱼ g(xⱼ) • gⱼ`. -/
+private theorem dual_eq_sum {m : ℕ} {x : Fin m → P} {f : Fin m → (P →ₗ[Aᵐᵒᵖ] Aᵐᵒᵖ)}
+    (hxf : ∀ p, ∑ j, f j p • x j = p) (g : P →ₗ[Aᵐᵒᵖ] Aᵐᵒᵖ) :
+    ∑ j, unop (g (x j)) • f j = g := LinearMap.ext fun p => by
+  rw [LinearMap.sum_apply]
+  conv_rhs => rw [← hxf p, map_sum]
+  refine Finset.sum_congr rfl fun j _ => ?_
+  rw [map_smul, smul_eq_mul]
+  rfl
+
+/-- The tensor–Hom map is bijective for finitely generated projective `P`. -/
+theorem tensorHomMap_bijective [Module.Finite Aᵐᵒᵖ P] [Module.Projective Aᵐᵒᵖ P] :
+    Function.Bijective (tensorHomMap k A P N) := by
+  obtain ⟨m, x, f, hxf⟩ := exists_dualBasis (A := Aᵐᵒᵖ) (M := P)
+  let inv : ((P →ₗ[Aᵐᵒᵖ] Aᵐᵒᵖ) →ₗ[A] N) → BalancedTensor k k A P N :=
+    fun h => ∑ j, tmul (x j) (h (f j))
+  refine Function.bijective_iff_has_inverse.2 ⟨inv, fun t => ?_, fun h => ?_⟩
+  · induction t using BalancedTensor.induction_on with
+    | zero => simp [inv]
+    | tmul p n =>
+      change ∑ j, tmul (x j) (unop (f j p) • n) = tmul p n
+      simp_rw [← op_smul_tmul, op_unop]
+      rw [← sum_tmul', hxf p]
+    | add t t' ht ht' =>
+      change ∑ j, tmul (x j) (tensorHomMap k A P N (t + t') (f j)) = t + t'
+      simp only [map_add, LinearMap.add_apply, tmul_add, Finset.sum_add_distrib]
+      exact congrArg₂ (· + ·) ht ht'
+  · refine LinearMap.ext fun g => ?_
+    change tensorHomMap k A P N (∑ j, tmul (x j) (h (f j))) g = h g
+    rw [map_sum, LinearMap.sum_apply]
+    simp only [tensorHomMap_tmul]
+    conv_rhs => rw [← dual_eq_sum hxf g, map_sum]
+    simp only [map_smul]
+
+end Ungraded
+
+section RightGrading
+
+variable {k : Type*} [Field k] {A : Type*} [Ring A] [Algebra k A] (𝒜 : ℤ → Submodule k A)
+  {P : Type*} [AddCommGroup P] [Module k P] [Module Aᵐᵒᵖ P]
+  (ℙ : ℤ → Submodule k P) [SetLike.GradedSMul (oppositeGrade 𝒜) ℙ]
+
+/-- A graded right module: `p a ∈ P_{i + l}` for `p ∈ P_i`, `a ∈ A_l`. -/
+theorem op_smul_mem_of_mem ⦃i l : ℤ⦄ ⦃p : P⦄ ⦃a : A⦄ (hp : p ∈ ℙ i) (ha : a ∈ 𝒜 l) :
+    op a • p ∈ ℙ (i + l) := by
+  rw [add_comm]
+  exact SetLike.GradedSMul.smul_mem (A := oppositeGrade 𝒜)
+    (show op a ∈ oppositeGrade 𝒜 l from ha) hp
+
+end RightGrading
+
+section Graded
+
+universe u
+
+variable {k : Type*} [Field k] {A : Type u} [Ring A] [Algebra k A] (𝒜 : ℤ → Submodule k A)
+  [GradedAlgebra 𝒜]
+  {P : Type u} [AddCommGroup P] [Module k P] [Module Aᵐᵒᵖ P] [IsScalarTower k Aᵐᵒᵖ P]
+  {N : Type*} [AddCommGroup N] [Module k N] [Module A N] [IsScalarTower k A N]
+  (ℙ : ℤ → Submodule k P) [Decomposition ℙ] [SetLike.GradedSMul (oppositeGrade 𝒜) ℙ]
+  (𝒩 : ℤ → Submodule k N) [Decomposition 𝒩] [SetLike.GradedSMul 𝒜 𝒩]
+
+/-- The grading of `P^* = Hom_{A^op}(P, A)` by degree of maps. -/
+abbrev dualGrade : ℤ → Submodule k (P →ₗ[Aᵐᵒᵖ] Aᵐᵒᵖ) := homGrade Aᵐᵒᵖ ℙ (oppositeGrade 𝒜)
+
+instance gradedSMul_dualGrade : SetLike.GradedSMul 𝒜 (dualGrade 𝒜 ℙ) where
+  smul_mem i j a g ha hg e y hy := by
+    change op (a * unop (g y)) ∈ oppositeGrade 𝒜 (e + (i +ᵥ j))
+    change a * unop (g y) ∈ 𝒜 (e + (i +ᵥ j))
+    rw [vadd_eq_add, show e + (i + j) = i + (e + j) by abel]
+    exact SetLike.GradedMul.mul_mem ha (hg hy)
+
+omit [GradedAlgebra 𝒜] [Decomposition ℙ] [Decomposition 𝒩]
+  [SetLike.GradedSMul (oppositeGrade 𝒜) ℙ] in
+/-- The tensor–Hom map preserves degrees. -/
+theorem tensorHomMap_mem ⦃d : ℤ⦄ ⦃t : BalancedTensor k k A P N⦄
+    (ht : t ∈ balancedGrading k A ℙ 𝒩 d) :
+    tensorHomMap k A P N t ∈ homGrade A (dualGrade 𝒜 ℙ) 𝒩 d := by
+  refine balancedGrading_map_mem (homGrade A (dualGrade 𝒜 ℙ) 𝒩) _ ?_ ht
+  intro i j p n hp hn e g hg
+  rw [tensorHomMap_tmul, show e + (i + j) = i + e + j by abel]
+  exact SetLike.GradedSMul.smul_mem (A := 𝒜) (show unop (g p) ∈ 𝒜 (i + e) from hg hp) hn
+
+variable [Module.Finite Aᵐᵒᵖ P]
+
+instance decomposition_dualGrade : Decomposition (dualGrade 𝒜 ℙ) :=
+  (isInternal_homGrade (oppositeGrade 𝒜) ℙ (oppositeGrade 𝒜)).chooseDecomposition
+
+variable [Module.Projective Aᵐᵒᵖ P]
+
+omit [IsScalarTower k Aᵐᵒᵖ P] in
+private theorem exists_dual_split :
+    ∃ (m : ℕ) (s : (P →ₗ[Aᵐᵒᵖ] Aᵐᵒᵖ) →ₗ[A] (Fin m → A))
+      (t : (Fin m → A) →ₗ[A] (P →ₗ[Aᵐᵒᵖ] Aᵐᵒᵖ)), t ∘ₗ s = LinearMap.id := by
+  obtain ⟨m, x, f, hxf⟩ := exists_dualBasis (A := Aᵐᵒᵖ) (M := P)
+  refine ⟨m,
+    { toFun := fun g j => unop (g (x j))
+      map_add' := fun g g' => funext fun j => by simp
+      map_smul' := fun a g => funext fun j => by
+        change unop (op (a * unop (g (x j)))) = a * unop (g (x j))
+        rw [unop_op] },
+    Fintype.linearCombination A f, LinearMap.ext fun g => ?_⟩
+  change Fintype.linearCombination A f (fun j => unop (g (x j))) = g
+  rw [Fintype.linearCombination_apply]
+  exact dual_eq_sum hxf g
+
+instance : Module.Finite A (P →ₗ[Aᵐᵒᵖ] Aᵐᵒᵖ) := by
+  obtain ⟨m, s, t, hts⟩ := exists_dual_split (A := A) (P := P)
+  exact Module.Finite.of_surjective t fun g => ⟨s g, LinearMap.congr_fun hts g⟩
+
+instance : Module.Projective A (P →ₗ[Aᵐᵒᵖ] Aᵐᵒᵖ) := by
+  obtain ⟨m, s, t, hts⟩ := exists_dual_split (A := A) (P := P)
+  exact Module.Projective.of_split s t hts
+
+/-- **The graded tensor–Hom isomorphism** `P ⊗_A N ≅ HOM_A(P^*, N)`. -/
+def tensorHomGradedEquiv :
+    letI := balancedDecomposition (B := k) (ℳ := ℙ) (𝒩 := 𝒩) 𝒜 (op_smul_mem_of_mem 𝒜 ℙ)
+    letI := (isInternal_homGrade 𝒜 (dualGrade 𝒜 ℙ) 𝒩).chooseDecomposition
+    balancedGrading k A ℙ 𝒩 ≃ᵍ[k] homGrade A (dualGrade 𝒜 ℙ) 𝒩 :=
+  letI := balancedDecomposition (B := k) (ℳ := ℙ) (𝒩 := 𝒩) 𝒜 (op_smul_mem_of_mem 𝒜 ℙ)
+  letI := (isInternal_homGrade 𝒜 (dualGrade 𝒜 ℙ) 𝒩).chooseDecomposition
+  GradedEquiv.ofPreserves (LinearEquiv.ofBijective _ tensorHomMap_bijective)
+    fun _ _ ht => tensorHomMap_mem 𝒜 ℙ 𝒩 ht
+
+/-- **`gdim (P ⊗_A N) = gdim HOM(P^*, N)`** for a finitely generated graded projective right
+module `P`. -/
+theorem gdimPoly_balancedGrading_eq :
+    gdimPoly (balancedGrading k A ℙ 𝒩) = gdimPoly (homGrade A (dualGrade 𝒜 ℙ) 𝒩) :=
+  gdimPoly_congr (tensorHomGradedEquiv 𝒜 ℙ 𝒩)
+
+/-- `P^*` as a finitely generated graded projective left module. -/
+def dualGProj : GProj 𝒜 where
+  carrier := P →ₗ[Aᵐᵒᵖ] Aᵐᵒᵖ
+  grading := dualGrade 𝒜 ℙ
+
+end Graded
+
+/-! ### Cutting a balanced tensor product by an idempotent -/
+
+section IdemCut
+
+variable {k : Type*} [Field k] {B : Type*} [Ring B] [Algebra k B] {A : Type*} [Ring A]
+  [Algebra k A]
+  {M : Type*} [AddCommGroup M] [Module k M] [Module B M] [IsScalarTower k B M] [Module Aᵐᵒᵖ M]
+  [SMulCommClass B Aᵐᵒᵖ M] [IsScalarTower k Aᵐᵒᵖ M]
+  {N : Type*} [AddCommGroup N] [Module k N] [Module A N] [IsScalarTower k A N]
+
+variable (A M) in
+/-- `e M` as a right submodule. -/
+def rightIdemSubmodule (e : B) : Submodule Aᵐᵒᵖ M where
+  carrier := {m | e • m = m}
+  add_mem' {a b} ha hb := by simp_all [smul_add]
+  zero_mem' := by simp
+  smul_mem' c m hm := by simp_all [smul_comm e c m]
+
+instance (e : B) : Module Aᵐᵒᵖ (idemSubspace k M e) :=
+  inferInstanceAs (Module Aᵐᵒᵖ (rightIdemSubmodule A M e))
+
+instance (e : B) : IsScalarTower k Aᵐᵒᵖ (idemSubspace k M e) where
+  smul_assoc c a m := Subtype.ext (smul_assoc c a (m : M))
+
+instance (e : B) : SMulCommClass k Aᵐᵒᵖ (idemSubspace k M e) where
+  smul_comm c a m := Subtype.ext (smul_comm c a (m : M))
+
+omit [Algebra k A] [IsScalarTower k Aᵐᵒᵖ M] in
+@[simp] theorem idemSubspace_coe_op_smul (e : B) (a : Aᵐᵒᵖ) (m : idemSubspace k M e) :
+    ((a • m : idemSubspace k M e) : M) = a • (m : M) := rfl
+
+variable (A) in
+/-- The projection `m ↦ e m` onto `e M`, a map of right modules. -/
+def idemSubspaceProj {e : B} (he : IsIdempotentElem e) : M →ₗ[Aᵐᵒᵖ] idemSubspace k M e where
+  toFun m := ⟨e • m, smul_mem_idemSubspace he m⟩
+  map_add' m m' := Subtype.ext (smul_add e m m')
+  map_smul' a m := Subtype.ext (smul_comm e a m)
+
+omit [Algebra k A] [IsScalarTower k Aᵐᵒᵖ M] in
+@[simp] theorem idemSubspaceProj_coe {e : B} (he : IsIdempotentElem e) (m : M) :
+    (idemSubspaceProj (k := k) A he m : M) = e • m := rfl
+
+variable (k A M) in
+/-- The inclusion `e M → M`, a map of right modules. -/
+def idemSubspaceIncl (e : B) : idemSubspace k M e →ₗ[Aᵐᵒᵖ] M where
+  toFun m := m
+  map_add' _ _ := rfl
+  map_smul' _ _ := rfl
+
+omit [Algebra k A] [IsScalarTower k Aᵐᵒᵖ M] in
+theorem idemSubspaceProj_comp_incl {e : B} (he : IsIdempotentElem e) :
+    idemSubspaceProj (k := k) (M := M) A he ∘ₗ idemSubspaceIncl k A M e = LinearMap.id :=
+  LinearMap.ext fun m => Subtype.ext m.2
+
+omit [Algebra k A] [IsScalarTower k Aᵐᵒᵖ M] in
+theorem projective_idemSubspace {e : B} (he : IsIdempotentElem e) [Module.Projective Aᵐᵒᵖ M] :
+    Module.Projective Aᵐᵒᵖ (idemSubspace k M e) :=
+  Module.Projective.of_split (idemSubspaceIncl k A M e) (idemSubspaceProj A he)
+    (idemSubspaceProj_comp_incl he)
+
+omit [Algebra k A] [IsScalarTower k Aᵐᵒᵖ M] in
+theorem finite_idemSubspace {e : B} (he : IsIdempotentElem e) [Module.Finite Aᵐᵒᵖ M] :
+    Module.Finite Aᵐᵒᵖ (idemSubspace k M e) :=
+  Module.Finite.of_surjective (idemSubspaceProj A he) fun m =>
+    ⟨m, LinearMap.congr_fun (idemSubspaceProj_comp_incl (A := A) he) m⟩
+
+variable (k A N) in
+/-- `e M ⊗_A N → e (M ⊗_A N)`. -/
+def idemBalancedMap (e : B) :
+    BalancedTensor k k A (idemSubspace k M e) N →ₗ[k]
+      idemSubspace k (BalancedTensor k B A M N) e :=
+  lift (A := A) (LinearMap.mk₂ k (fun (m : idemSubspace k M e) (n : N) =>
+      (⟨(tmul (m : M) n : BalancedTensor k B A M N),
+        (smul_tmul' (k := k) (A := A) e (m : M) n).trans
+          (congrArg (fun z => (tmul z n : BalancedTensor k B A M N)) m.2)⟩ :
+        idemSubspace k (BalancedTensor k B A M N) e))
+      (fun _ _ n => Subtype.ext (add_tmul _ _ n))
+      (fun c m n => Subtype.ext (smul_tmul c (m : M) n))
+      (fun _ _ _ => Subtype.ext (tmul_add _ _ _))
+      (fun c _ n => Subtype.ext (tmul_smul c _ n)))
+    fun m a n => Subtype.ext (op_smul_tmul (m : M) a n)
+
+omit [IsScalarTower k A N] in
+@[simp] theorem idemBalancedMap_tmul (e : B) (m : idemSubspace k M e) (n : N) :
+    (idemBalancedMap k A N e (tmul m n) : BalancedTensor k B A M N) = tmul (m : M) n := rfl
+
+variable (k N) in
+/-- `M ⊗_A N → e M ⊗_A N`, `m ⊗ n ↦ e m ⊗ n`. -/
+def idemBalancedProj {e : B} (he : IsIdempotentElem e) :
+    BalancedTensor k B A M N →ₗ[k] BalancedTensor k k A (idemSubspace k M e) N :=
+  lift (LinearMap.mk₂ k (fun (m : M) (n : N) =>
+      (tmul (idemSubspaceProj (k := k) A he m) n : BalancedTensor k k A (idemSubspace k M e) N))
+      (fun _ _ _ => by rw [map_add, add_tmul])
+      (fun c m n => by
+        rw [show idemSubspaceProj (k := k) A he (c • m) = c • idemSubspaceProj A he m from
+          Subtype.ext (smul_comm e c m), smul_tmul])
+      (fun _ _ _ => tmul_add _ _ _)
+      (fun c _ n => tmul_smul c _ n))
+    fun m a n => by
+      change tmul (idemSubspaceProj A he (op a • m)) n = tmul (idemSubspaceProj A he m) (a • n)
+      rw [map_smul, op_smul_tmul]
+
+omit [Algebra k A] [IsScalarTower k Aᵐᵒᵖ M] [IsScalarTower k A N] in
+@[simp] theorem idemBalancedProj_tmul {e : B} (he : IsIdempotentElem e) (m : M) (n : N) :
+    idemBalancedProj k N he (tmul m n : BalancedTensor k B A M N) =
+      tmul (idemSubspaceProj A he m) n := rfl
+
+omit [IsScalarTower k A N] in
+/-- **`e (M ⊗_A N) ≅ e M ⊗_A N`**. -/
+theorem idemBalancedMap_bijective {e : B} (he : IsIdempotentElem e) :
+    Function.Bijective (idemBalancedMap k A N (M := M) e) := by
+  have h : ∀ y : BalancedTensor k B A M N,
+      (idemBalancedMap k A N e (idemBalancedProj k N he y) : BalancedTensor k B A M N) = e • y :=
+    fun y => by
+      induction y using BalancedTensor.induction_on with
+      | zero => simp
+      | tmul m n => rfl
+      | add x y hx hy => rw [map_add, map_add, Submodule.coe_add, hx, hy, smul_add]
+  refine Function.bijective_iff_has_inverse.2
+    ⟨fun t => idemBalancedProj k N he t.1, fun x => ?_, fun t => Subtype.ext ((h t.1).trans t.2)⟩
+  induction x using BalancedTensor.induction_on with
+  | zero => simp
+  | tmul m n =>
+    change idemBalancedProj k N he (tmul (m : M) n) = tmul m n
+    rw [idemBalancedProj_tmul]
+    exact congrArg (fun z => (tmul z n : BalancedTensor k k A (idemSubspace k M e) N))
+      (Subtype.ext m.2)
+  | add x y hx hy =>
+    change idemBalancedProj k N he ((idemBalancedMap k A N e (x + y) : BalancedTensor k B A M N)) =
+      x + y
+    rw [map_add, Submodule.coe_add, map_add]
+    exact congrArg₂ (· + ·) hx hy
+
+section Graded
+
+variable (ℬ : ℤ → Submodule k B) [GradedAlgebra ℬ] (𝒜 : ℤ → Submodule k A) [GradedAlgebra 𝒜]
+  (ℳ : ℤ → Submodule k M) [Decomposition ℳ] [SetLike.GradedSMul ℬ ℳ]
+  [SetLike.GradedSMul (oppositeGrade 𝒜) ℳ]
+  (𝒩 : ℤ → Submodule k N) [Decomposition 𝒩] [SetLike.GradedSMul 𝒜 𝒩]
+
+instance (e : B) : SetLike.GradedSMul (oppositeGrade 𝒜) (idem ℳ e) where
+  smul_mem _ _ _ _ ha hm := SetLike.GradedSMul.smul_mem (A := oppositeGrade 𝒜) (B := ℳ) ha hm
+
+variable {ℬ} in
+include 𝒜 in
+omit [IsScalarTower k A N] [GradedAlgebra ℬ] in
+/-- **`gdim e (M ⊗_A N) = gdim (e M ⊗_A N)`** for an idempotent `e` of degree zero. -/
+theorem gdimPoly_idem_balancedGrading {e : B} (he : IsIdempotentElem e) (he0 : e ∈ ℬ 0) :
+    gdimPoly (idem (balancedGrading B A ℳ 𝒩) e) =
+      gdimPoly (balancedGrading k A (idem ℳ e) 𝒩) := by
+  let := balancedDecomposition (B := B) (ℳ := ℳ) (𝒩 := 𝒩) 𝒜 (op_smul_mem_of_mem 𝒜 ℳ)
+  let : SetLike.GradedSMul ℬ (balancedGrading B A ℳ 𝒩) := gradedSMul_balanced ℬ
+  let := idemDecomposition (balancedGrading B A ℳ 𝒩) he0
+  let := idemDecomposition ℳ he0
+  let := balancedDecomposition (B := k) (ℳ := idem ℳ e) (𝒩 := 𝒩) 𝒜
+    (op_smul_mem_of_mem 𝒜 (idem ℳ e))
+  refine (gdimPoly_congr (GradedEquiv.ofPreserves (A := k)
+    (LinearEquiv.ofBijective _ (idemBalancedMap_bijective he)) ?_)).symm
+  intro d x hx
+  exact balancedGrading_map_mem (idem (balancedGrading B A ℳ 𝒩) e) (idemBalancedMap k A N e)
+    (fun _ _ _ _ hm hn => tmul_mem_balancedGrading (B := B) (A := A) hm hn) hx
+
+end Graded
+
+end IdemCut
+
+end Categorification.Graded

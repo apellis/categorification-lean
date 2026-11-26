@@ -37,7 +37,9 @@ attribute [local instance] RingHomInvPair.of_ringEquiv RingHomInvPair.of_ringEqu
 
 universe u w
 
-variable {I : Type u} [DecidableEq I] {k : Type u} [Field k] {ℓ : ℕ}
+section Corner
+
+variable {I : Type*} [DecidableEq I] {k : Type*} [Field k] {ℓ : ℕ}
   {Q : I → I → MvPolynomial (Fin 2) k} {Λ : Fin ℓ → I →₀ ℕ} (i : I) (ν : Multiset I)
 
 local notation "T" => TensorProductAlgebra k Q Λ ν
@@ -65,6 +67,14 @@ theorem projective_blackCorner (C : QuantumGroup.CartanDatum I) (hQ : IsRouquier
     Module.Projective Tᵐᵒᵖᵐᵒᵖ (Corner (appendBlackOp Q Λ i ν)) := by
   have := projective_blackRes_regular (Q := Q) (Λ := Λ) i ν C hQ
   exact Module.Projective.of_equiv (blackCornerEquiv i ν)
+
+end Corner
+
+variable {I : Type u} [DecidableEq I] {k : Type u} [Field k] {ℓ : ℕ}
+  {Q : I → I → MvPolynomial (Fin 2) k} {Λ : Fin ℓ → I →₀ ℕ} (i : I) (ν : Multiset I)
+
+local notation "T" => TensorProductAlgebra k Q Λ ν
+local notation "T'" => TensorProductAlgebra k Q Λ ((Singleton.singleton i : Multiset I) + ν)
 
 variable {i ν}
 variable {M M' M'' : ModuleCat.{u} (TensorProductAlgebra k Q Λ ν)ᵐᵒᵖ}

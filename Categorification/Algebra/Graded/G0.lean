@@ -121,6 +121,12 @@ def IsoClass.shift (a : ℤ) : IsoClass 𝒜 → IsoClass 𝒜 :=
 
 end GFin
 
+/-- A graded projective module over a finite-dimensional algebra, as a finite-dimensional graded
+module. -/
+def GProj.toGFin [Module.Finite k A] {𝒜' : ℤ → Submodule k A} (P : GProj 𝒜') : GFin 𝒜' where
+  toGMod := P.toGMod
+  finiteDimensional := Module.Finite.trans A P.carrier
+
 open GFin FreeAbelianGroup
 
 /-- The defining relations `[N] - [M] - [P]` of `G₀`, one for each short exact sequence. -/

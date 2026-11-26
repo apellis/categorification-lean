@@ -2417,3 +2417,9 @@ import Categorification.WeightedKLR.Rigidity.WeightModuleExactTriangle
 import Categorification.WeightedKLR.SimpleDots
 import Categorification.WeightedKLR.SimpleGrading
 import Categorification.WeightedKLR.ZeroWeightSimple
+import Categorification.Algebra.Graded.HighDegreeIdeal
+import Categorification.Algebra.Graded.ExtensionK0Injective
+import Categorification.WeightedKLR.RedStrands.PrependRed
+import Categorification.WeightedKLR.RedStrands.EraseFirstRed
+import Categorification.WeightedKLR.RedStrands.PrependRedInjective
+import Categorification.WeightedKLR.RedStrands.PrependRedK0

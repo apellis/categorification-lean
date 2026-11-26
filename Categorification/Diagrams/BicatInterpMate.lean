@@ -16,11 +16,55 @@ as soon as the generator images, read through free isomorphisms, satisfy the cor
 equation in the target bicategory.
 -/
 
+set_option backward.isDefEq.respectTransparency false
+
 namespace Categorification.Diagrams.BicatInterp
 
 open CategoryTheory Bicategory StringDiagrams
 
 variable {S : Signature} {C : Type*} [Bicategory C] (M : Model S C)
+
+section Mates
+
+variable {B : Type*} [Bicategory B] {c d e f : B} {g : c ⟶ e} {h : d ⟶ f} {l₁ : c ⟶ d}
+  {r₁ : d ⟶ c} {l₂ : e ⟶ f} {r₂ : f ⟶ e} (adj₁ : l₁ ⊣ r₁) (adj₂ : l₂ ⊣ r₂)
+
+/-- **The unit form of the mate equation**: a cup on the left of `g` followed by `γ` equals a cup
+on the right followed by the mate of `γ`. -/
+theorem mateEquiv_unit (γ : g ≫ l₂ ⟶ l₁ ≫ h) :
+    (ρ_ g).inv ≫ g ◁ adj₂.unit ≫ (α_ _ _ _).inv ≫ γ ▷ r₂ ≫ (α_ _ _ _).hom =
+      (λ_ g).inv ≫ adj₁.unit ▷ g ≫ (α_ _ _ _).hom ≫ l₁ ◁ mateEquiv adj₁ adj₂ γ := by
+  have h := (mateEquiv_eq_iff adj₁ adj₂ γ (mateEquiv adj₁ adj₂ γ)).mp rfl
+  rw [Adjunction.homEquiv₁_symm_apply, Adjunction.homEquiv₂_apply] at h
+  simpa only [Category.assoc] using h.symm
+
+/-- **The counit form of the mate equation**: the mate of `γ` followed by a cap on the right of
+`h` equals `γ` followed by a cap on the left. -/
+theorem mateEquiv_counit (γ : g ≫ l₂ ⟶ l₁ ≫ h) :
+    (α_ _ _ _).inv ≫ mateEquiv adj₁ adj₂ γ ▷ l₂ ≫ (α_ _ _ _).hom ≫ h ◁ adj₂.counit ≫
+        (ρ_ h).hom =
+      r₁ ◁ γ ≫ (α_ _ _ _).inv ≫ adj₁.counit ▷ h ≫ (λ_ h).hom := by
+  rw [mateEquiv_apply']
+  calc _ = 𝟙 _ ⊗≫ r₁ ◁ g ◁ adj₂.unit ▷ l₂ ⊗≫ r₁ ◁ γ ▷ r₂ ▷ l₂ ⊗≫
+          ((adj₁.counit ▷ h) ▷ (r₂ ≫ l₂) ≫ (𝟙 _ ≫ h) ◁ adj₂.counit) ⊗≫ 𝟙 _ := by
+        bicategory
+    _ = 𝟙 _ ⊗≫ r₁ ◁ g ◁ adj₂.unit ▷ l₂ ⊗≫ r₁ ◁ γ ▷ r₂ ▷ l₂ ⊗≫
+          (((r₁ ≫ l₁) ≫ h) ◁ adj₂.counit ≫ (adj₁.counit ▷ h) ▷ 𝟙 _) ⊗≫ 𝟙 _ := by
+        rw [← whisker_exchange]
+    _ = 𝟙 _ ⊗≫ r₁ ◁ g ◁ adj₂.unit ▷ l₂ ⊗≫
+          r₁ ◁ (γ ▷ (r₂ ≫ l₂) ≫ (l₁ ≫ h) ◁ adj₂.counit) ⊗≫ adj₁.counit ▷ h ⊗≫ 𝟙 _ := by
+        bicategory
+    _ = 𝟙 _ ⊗≫ r₁ ◁ g ◁ adj₂.unit ▷ l₂ ⊗≫
+          r₁ ◁ ((g ≫ l₂) ◁ adj₂.counit ≫ γ ▷ 𝟙 _) ⊗≫ adj₁.counit ▷ h ⊗≫ 𝟙 _ := by
+        rw [← whisker_exchange]
+    _ = 𝟙 _ ⊗≫ r₁ ◁ g ◁ leftZigzag adj₂.unit adj₂.counit ⊗≫ r₁ ◁ γ ⊗≫
+          adj₁.counit ▷ h ⊗≫ 𝟙 _ := by
+        bicategory
+    _ = _ := by
+        rw [adj₂.left_triangle]
+        bicategory
+
+end Mates
 
 section Key
 

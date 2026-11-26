@@ -796,18 +796,19 @@ total weight, for the crossing parameters of §2.2: `Stendhal.redFirstCornerEqui
 Prop 5.20 (the specific filtration `P_{≥φ}/P_{>φ} ≅ S^{κφ}_{iφ}`), which strengthens the
 filtration form above.
 
-Cor 5.29 (v3: Cor 5.32, double centralizer of `P⁰`) is proved under the route hypothesis
-`HasCornerCopresentation e⁰`: `Stendhal.existsUnique_eq_mul_left_redFirst`
-(`RedStrands/RedFirstDoubleCentralizer.lean`), from the module-theoretic step
-`Categorification.exists_eq_mul_left_of_hasCornerCopresentation`
-(`Algebra/SelfDualDoubleCentralizer.lean`); uniqueness (faithfulness, Lemma 5.23) is
-unconditional. Roadmap item: remove the hypothesis, i.e. show that `T^λ` has dominant dimension
-at least two with respect to `P⁰` (`Ext¹(L, T^λ) = 0` for simples `L` killed by `e⁰`). Webster
-obtains this from Mazorchuk–Stroppel, J. Reine Angew. Math. 616 (2008), Cor. 2.6, whose proof
-uses Ringel duality for standardly stratified algebras.
+Cor 5.29 (v3: Cor 5.32, double centralizer of `P⁰`) is proved with no extra hypothesis:
+`Stendhal.existsUnique_eq_mul_left_redFirst` (`RedStrands/RedFirstDominantDimension.lean`), from
+the module-theoretic step `Categorification.exists_eq_mul_left_of_hasCornerCopresentation`
+(`Algebra/SelfDualDoubleCentralizer.lean`) and the dominant dimension of `T^λ` with respect to
+`P⁰` (`Stendhal.hasCornerCopresentation_redFirstIdem`). Webster obtains the dominant dimension
+from Mazorchuk–Stroppel, J. Reine Angew. Math. 616 (2008), Cor. 2.6. Here it is proved directly.
+Each red-ordered loading reaches a red-first one by crossings whose cokernels embed into sums of
+copies of `P⁰` (`RedStrands/RedFirstCopresentation.lean`, `ExactMulRightTransport.lean`). At the
+base crossing the cokernel is `S(₂Fᵢ N)` (`RedFirstBaseCrossingCokernel.lean`), and it has no
+nonzero element killed by `e⁰ T^λ` (`LastIndStandardCornerFaithful.lean`). The criteria are in
+`Algebra/CornerCopresentationCriteria.lean`.
 
-Prop 5.30 (v3: Prop 5.33) is proved under the same route hypothesis, which it inherits
-from Cor 5.29: `Stendhal.redFirstEndEquiv` (`RedStrands/RedFirstEndomorphism.lean`) identifies
+Prop 5.30 (v3: Prop 5.33) is proved with no extra hypothesis: `Stendhal.redFirstEndEquiv` (`RedStrands/RedFirstEndomorphism.lean`) identifies
 `T^λ` with the endomorphism algebra of the right module `⊕_s y_s B` over `B = e⁰ T^λ e⁰`,
 `y_s = θ̇_s θ_s`, with `a ↦ (θ̇_s e_s x ↦ θ̇_s e_s a x)` (`redFirstEndEquiv_apply`). The generic
 step is `Categorification.CornerEndomorphism.ringEquiv` (`Algebra/CornerEndomorphism.lean`); the
@@ -1302,9 +1303,11 @@ partial standardizations, apply the induction in (6.21), and identify the derive
 comparison naturally. Then Prop 6.9
 for general `ℓ` by reduction to two
 red strands, the graded bounded-above functor of Def 6.6 and its equivariance (Prop 6.7), Cor 6.10
-(proved for adjacent transpositions as `braidClass_pairSwap`, under `AllFiniteDeltaInjective`,
-`RowFigureFiveHypotheses` at every row and finite-dimensionality of `T^λ`; removing these
-hypotheses is open), Lemma 6.11, Def 6.12, Cor 6.13,
+(proved for adjacent transpositions as `braidClass_pairSwap`, under `AllFiniteDeltaInjective` and
+`RowFigureFiveHypotheses` at every row; finite-dimensionality of `T^λ` is
+`tensorProductAlgebra_finite`; removing the other hypotheses is open), Lemma 6.11 (proved for
+`w ≠ 1` as `hasCornerStandardFiltration_braidF` under the same hypotheses and
+`BraidDiagramFiltration`), Def 6.12, Cor 6.13,
 Lemma 6.14; tilting modules (Thm 6.15); `𝔅_σ` are equivalences (Thm 6.16); the braid group
 action (Cor 6.17); Ringel duality (Cor 6.18); semi-orthogonal decompositions (Prop 6.19); the
 Serre functor (Prop 6.20).

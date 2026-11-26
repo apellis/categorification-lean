@@ -65,6 +65,24 @@ private theorem read_red (wt : Fin (n+1) → Dom R) (s : List (I ⊕ J)) (r : J)
       appendHighest wt (loadingVector (fun j => wt j.castSucc) s) := by
   simp [loadingVector, readReverse]
 
+theorem loadingVector_append_inl (wt : Fin n → Dom R) (s : List (I ⊕ J)) (i : I) :
+    loadingVector wt (s ++ [.inl i]) = tensorRepresentation wt (F R v i) (loadingVector wt s) :=
+  read_black wt s i
+
+theorem loadingVector_append_inr (wt : Fin (n+1) → Dom R) (s : List (I ⊕ J)) (r : J) :
+    loadingVector wt (s ++ [.inr r]) = appendTensor wt (loadingVector (fun j => wt j.castSucc) s)
+      (IrreducibleModule.hwv R v (wt (Fin.last n)).1) :=
+  read_red wt s r
+
+theorem loadingVector_append_inr_zero (wt : Fin 0 → Dom R) (s : List (I ⊕ J)) (r : J) :
+    loadingVector wt (s ++ [.inr r]) = 0 := by
+  simp [loadingVector, readReverse]
+
+theorem loadingVector_nil_zero (wt : Fin 0 → Dom R) :
+    loadingVector (J := J) wt [] = tensorWordVector .empty wt := rfl
+
+theorem loadingVector_nil_succ (wt : Fin (n+1) → Dom R) : loadingVector (J := J) wt [] = 0 := rfl
+
 private theorem read_relabel {J' : Type*} (f : J → J') (wt : Fin n → Dom R) (s : List (I ⊕ J)) :
     loadingVector wt (s.map (Sum.map id f)) = loadingVector wt s := by
   induction s using List.reverseRecOn generalizing n with

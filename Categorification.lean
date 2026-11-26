@@ -2005,6 +2005,7 @@ import Categorification.WeightedKLR.Rigidity.CoevaluationIndependence
 import Categorification.Algebra.BalancedTensorRightExact
 import Categorification.Algebra.BalancedTensorTransport
 import Categorification.Algebra.CornerCopresentationCriteria
+import Categorification.Algebra.CornerFaithfulModule
 import Categorification.Algebra.DerivedKernelShift
 import Categorification.Algebra.DerivedRightTensorInjective
 import Categorification.Algebra.DiagramWeightRingEquiv
@@ -2427,5 +2428,8 @@ import Categorification.Algebra.Graded.HighDegreeIdeal
 import Categorification.Algebra.Graded.ExtensionK0Injective
 import Categorification.WeightedKLR.RedStrands.PrependRed
 import Categorification.WeightedKLR.RedStrands.EraseFirstRed
+import Categorification.WeightedKLR.RedStrands.FirstIndCornerFaithful
+import Categorification.WeightedKLR.RedStrands.LastIndStandardCornerFaithful
 import Categorification.WeightedKLR.RedStrands.PrependRedInjective
 import Categorification.WeightedKLR.RedStrands.PrependRedK0
+import Categorification.WeightedKLR.RedStrands.RedFirstDominantDimension

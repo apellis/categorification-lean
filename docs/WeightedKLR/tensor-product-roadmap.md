@@ -754,6 +754,19 @@ from which the full one is obtained by iterating):
   (`RedStrands/StandardStratificationStd.lean`): `AllFiniteDeltaInjective` is discharged by the
   dimension count (`allFiniteDeltaInjective_std`), with no further hypothesis.
 
+* Prop 5.20, printed `Φ`-indexed form (v3: Prop 5.21; `RedStrands/PhiDiagrams.lean`,
+  `PhiStandardLayers.lean`, `LabelledStandardFiltration.lean`, `PhiLayerStd.lean`): for a
+  red-ordered `s`, a choice `ρ` of reduced words and the block assignments `φ` of `s`
+  (`PhiIndex s`), put `x_φ = ψ_{ρ φ} e(s)`, `P_{>φ} = Σ_{φ • s < φ' • s} T^λ x_{φ'}` and
+  `P_{≥φ} = T^λ x_φ + P_{>φ}`. Then `P_{≥φ}/P_{>φ} ≅ S_{φ • s}`, `[e(φ • s)] ↦ [x_φ]`
+  (`phiLayerEquiv`, `phiLayerEquiv_unit`). As in Webster's proof: the `x_φ` span `T^λ e(s)`
+  modulo higher terms (`iSup_phiSub_eq_top`), the layer is a quotient of `S_{φ • s}`
+  (`phiLayerMap_surjective`), and `dim T^λ e(s) = Σ_φ dim S_{φ • s}`
+  (`finrank_lIdeal_eq_sum_phiBottom`, from a standard filtration labelled by the bottoms
+  `φ • s`, `hasLabelledStandardFiltrations`) forces bijectivity
+  (`Submodule.layerRank_eq_of_sum_eq`). Same route hypothesis as the filtration form; none
+  at the standard scalars (`phiLayerEquiv_std`).
+
 * Lemma 5.26 and Cor 5.22 (v3: Lemma 5.29, Cor 5.24; `RedStrands/StandardProjectiveDimension.lean`): projective dimension
   `< n` passes from the subquotients of a finite filtration to the module
   (`HasFiltration.hasProjectiveDimensionLT`), and every standard module has finite projective
@@ -792,9 +805,10 @@ Prop 5.28 (v3: Prop 5.31; `End(P⁰) ≅ T^{λ̲} ≅ R^{λ̲}` for `P⁰ = e⁰
 proved as a ring isomorphism of the corner `e⁰ T^λ e⁰` with the cyclotomic KLR algebra of the
 total weight, for the crossing parameters of §2.2: `Stendhal.redFirstCornerEquiv`
 (`RedStrands/RedFirstCorner.lean`), by repeated red-strand splitting (Cor 4.21 of v2,
-`splitRedEquiv`) down to one red strand (Prop 4.20). Deferred: the printed `Φ`-indexed form of
-Prop 5.20 (the specific filtration `P_{≥φ}/P_{>φ} ≅ S^{κφ}_{iφ}`), which strengthens the
-filtration form above.
+`splitRedEquiv`) down to one red strand (Prop 4.20). The printed `Φ`-indexed form of
+Prop 5.20 (v3: Prop 5.21; the specific filtration `P_{≥φ}/P_{>φ} ≅ S_{φ • s}`) is proved
+(`RedStrands/LabelledStandardFiltration.lean`, `phiLayerEquiv`), under the route hypothesis
+`AllFiniteDeltaInjective`, and with no hypothesis at the standard scalars (`phiLayerEquiv_std`).
 
 Cor 5.29 (v3: Cor 5.32, double centralizer of `P⁰`) is proved with no extra hypothesis:
 `Stendhal.existsUnique_eq_mul_left_redFirst` (`RedStrands/RedFirstDominantDimension.lean`), from
@@ -825,7 +839,7 @@ the standard module is the form with `s` composed with `η` (`iteratedStandardTe
 needs it: a formal Grothendieck group of finite-dimensional modules with the dual map `η`.
 
 Standardization functors (Prop 5.3, Def 5.4, Props 5.6, 5.7); simples and crystals
-(Lemma 5.9, Prop 5.11, Thms 5.14, 5.15); standard stratification (Prop 5.20 in printed `Φ`-indexed form, Lemma 5.23,
+(Lemma 5.9, Prop 5.11, Thms 5.14, 5.15); standard stratification (Lemma 5.23,
 Prop 5.24; v3 adds Lemma 5.19 and Cor 5.27, `V^λ` is a tensor product categorification); Thm 5.25 (finite
 projective resolutions); self-dual projectives and double centralizer
 (Thm 5.27, Prop 5.28, Cor 5.29, Prop 5.30); Thm 5.31 (for `sl_n`, blocks of cyclotomic

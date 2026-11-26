@@ -2431,6 +2431,17 @@ import Categorification.WeightedKLR.Rigidity.WeightModuleExactTriangle
 import Categorification.WeightedKLR.SimpleDots
 import Categorification.WeightedKLR.SimpleGrading
 import Categorification.WeightedKLR.ZeroWeightSimple
+import Categorification.Algebra.FinrankCounting
+import Categorification.KLR.SpanCornerDotsTop
+import Categorification.WeightedKLR.RedStrands.BlockAssignment
+import Categorification.WeightedKLR.RedStrands.BlockInsertLoading
+import Categorification.WeightedKLR.RedStrands.BlockInsertWord
+import Categorification.WeightedKLR.RedStrands.LabelledStandardFiltration
+import Categorification.WeightedKLR.RedStrands.PhiDiagrams
+import Categorification.WeightedKLR.RedStrands.PhiStandardLayers
+import Categorification.WeightedKLR.RedStrands.PhiWordsLabels
+import Categorification.WeightedKLR.RedStrands.StandardBlackInduction
+import Categorification.WeightedKLR.RedStrands.PhiLayerStd
 import Categorification.Algebra.Graded.HighDegreeIdeal
 import Categorification.Algebra.Graded.ExtensionK0Injective
 import Categorification.WeightedKLR.RedStrands.PrependRed
@@ -2439,4 +2450,7 @@ import Categorification.WeightedKLR.RedStrands.FirstIndCornerFaithful
 import Categorification.WeightedKLR.RedStrands.LastIndStandardCornerFaithful
 import Categorification.WeightedKLR.RedStrands.PrependRedInjective
 import Categorification.WeightedKLR.RedStrands.PrependRedK0
+import Categorification.WeightedKLR.RedStrands.StandardViolatedDescent
+import Categorification.WeightedKLR.RedStrands.StandardModuleReflection
+import Categorification.WeightedKLR.RedStrands.StandardRootDecomposition
 import Categorification.WeightedKLR.RedStrands.RedFirstDominantDimension

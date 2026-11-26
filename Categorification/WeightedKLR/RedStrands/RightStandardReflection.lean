@@ -22,7 +22,7 @@ set_option backward.isDefEq.respectTransparency false
 
 namespace Categorification.Stendhal.BraidedStendhalAlgebra
 
-open KLR Equiv MulOpposite Categorification.Graded
+open KLR Equiv MulOpposite Categorification.Graded RedBlock
 
 attribute [local instance] RingHomInvPair.of_ringEquiv RingHomInvPair.of_ringEquiv_symm
 attribute [local instance 1100] IsIdempotentElem.instAlgebraCorner_categorification
@@ -125,6 +125,44 @@ theorem loadingStandardCongr_mk (ht : t = t') (hκ : κ = κ') (y : violCorner k
 
 end Congr
 
+section Unit
+
+variable {t : Seq (stendhalWeight ℓ ν)} {κ : List (Fin ℓ)}
+
+/-- The idempotent `e(t)` in the cut `e(t) V e_κ`, for a loading `t` of the order `κ`. -/
+def loadingUnitCorner (ht : redWord t = κ) : violCorner k Q Λ ν t κ :=
+  ⟨(violLoadingIdem (k := k) (Q := Q) (Λ := Λ) ht).1, mem_violCorner_iff.2
+    ⟨congrArg Subtype.val (isIdempotentElem_violLoadingIdem (k := k) (Q := Q) (Λ := Λ) ht),
+      ((Subsemigroup.mem_corner_iff (isIdempotentElem_violMk_redProj k Q Λ ν κ)).1
+        (violLoadingIdem (k := k) (Q := Q) (Λ := Λ) ht).2).2⟩⟩
+
+/-- The generator `[e(t)]` of the loading standard `e(t) V e_κ / U_t`. -/
+def loadingUnit (ht : redWord t = κ) : ViolLoadingStandard (k := k) (Q := Q) (Λ := Λ) t κ :=
+  Submodule.Quotient.mk (loadingUnitCorner ht)
+
+theorem loadingUnit_mem_zero (G : KLR.GradingDatum (stendhalQ Q Λ)) (ht : redWord t = κ) :
+    loadingUnit (k := k) (Q := Q) (Λ := Λ) ht ∈ loadingStandardGrade G t κ 0 :=
+  Graded.mem_map_of_mem _ (loadingMkK t κ) (Graded.mem_comap.2
+    (Graded.mem_map_of_mem _ (violMk k Q Λ ν).toLinearMap
+      (Graded.mem_map_of_mem _ (ofKLR k Q Λ ν).toLinearMap (G.e_mem_grade t))))
+
+theorem loadingStandardCongr_loadingUnit {t' : Seq (stendhalWeight ℓ ν)} {κ' : List (Fin ℓ)}
+    (h : t = t') (hκ : κ = κ') (ht : redWord t = κ) (ht' : redWord t' = κ') :
+    loadingStandardCongr h hκ (loadingUnit (k := k) (Q := Q) (Λ := Λ) ht) = loadingUnit ht' :=
+  loadingStandardCongr_mk h hκ _ _ (by subst h; rfl)
+
+end Unit
+
+/-- At the identity permutation, `loadingStandardLeftEquiv` matches the generators. -/
+theorem loadingStandardLeftEquiv_one_unit {s : Seq (stendhalWeight ℓ ν)} (hs : IsRedOrdered s) :
+    loadingStandardLeftEquiv (Λ := Λ) hρ hQ 1 hs
+        (loadingUnit (k := k) (Q := Q) (Λ := Λ) (redWord_relabel 1 hs)) =
+      leftStandardUnit Q (Λ ∘ ⇑(1 : Perm (Fin ℓ))) s hs := by
+  change Submodule.Quotient.mk (⟨leftCoefficientEquiv (Λ := Λ) hρ hQ 1
+    (op (violLoadingIdem (k := k) (Q := Q) (Λ := Λ) (redWord_relabel 1 hs))), _⟩ :
+      lIdeal (seqIdem Q (Λ ∘ ⇑(1 : Perm (Fin ℓ))) s hs)) = _
+  exact congrArg Submodule.Quotient.mk (Subtype.ext (leftCoefficientEquiv_loadingIdem hρ hQ 1 hs))
+
 section Twist
 
 variable (G : KLR.GradingDatum (stendhalQ Q Λ)) (hsymm : ∀ a b, G.degΨ a b = G.degΨ b a)
@@ -168,6 +206,51 @@ def rightStandardTwistEquiv {s : Seq (stendhalWeight ℓ ν)} (hs : IsRedOrdered
       rw [leftCoefficientEquiv_one_symm_flip]
       exact loadingStandardCongr_smul (k := k) (Q := Q) (Λ := Λ) _ _ _
         (rightCornerHom (Λ := Λ) (ν := ν) hρ hQ a) (cornerCast_val _ _).symm _ }
+
+theorem rightStandardTwistEquiv_unit {s : Seq (stendhalWeight ℓ ν)} (hs : IsRedOrdered s)
+    (ht : redWord s = List.finRange ℓ) :
+    rightStandardTwistEquiv hρ hQ G hsymm hs (Twist.of (leftStandardUnit Q Λ s hs)) =
+      loadingUnit (k := k) (Q := Q) (Λ := Λ) ht := by
+  change loadingStandardCongr (k := k) (Q := Q) (Λ := Λ) (Seq.redPerm_one s)
+    (map_one_finRange (ℓ := ℓ))
+      ((loadingStandardLeftEquiv (Λ := Λ) hρ hQ 1 hs).symm
+        (leftStandardUnit Q (Λ ∘ ⇑(1 : Perm (Fin ℓ))) s hs)) = _
+  rw [(LinearEquiv.symm_apply_eq _).2 (loadingStandardLeftEquiv_one_unit hρ hQ hs).symm]
+  exact loadingStandardCongr_loadingUnit _ _ _ _
+
+/-- **The graded right standard module is the reflected graded left standard module**
+(Webster, arXiv:1309.3796v2, Definition 5.1): for a loading `s` of the red order `(1, …, ℓ)`,
+`(T e(s) / U_s)^ψ ≅ e(s) T / U_s` as graded right `T^λ`-modules. -/
+def rightStandardGradedEquiv {s : Seq (stendhalWeight ℓ ν)} (hs : IsRedOrdered s)
+    (ht : redWord s = List.finRange ℓ) :
+    twistGrading (tensorReflection (ν := ν) G hsymm) (gradedLeftStandard G s hs) ≃ᵍ[
+      (TensorProductAlgebra k Q Λ ν)ᵐᵒᵖ]
+      (show ℤ → Submodule k (RightStandard Λ hρ hQ s) from
+        loadingStandardGrade G s (List.finRange ℓ)) :=
+  letI := loadingStandardDecomposition G s (List.finRange ℓ) ht
+  letI := gradedLeftStandardDecomposition G s hs
+  GradedEquiv.ofGenerator (𝒜 := oppositeGrade (tensorProductGrade G ν))
+    (Twist.of (leftStandardUnit Q Λ s hs))
+    (fun d x hx => by
+      obtain ⟨b, hb, hbx⟩ := gradedLeftStandard_exists_smul_unit G s hs hx
+      refine ⟨op (tensorReflection (ν := ν) G hsymm b),
+        show _ ∈ tensorProductGrade G ν d from (tensorReflection (ν := ν) G hsymm).mem_grade hb,
+        ?_⟩
+      rw [Twist.op_smul_of, GradedAntiInvolution.invol, hbx]
+      rfl)
+    (rightStandardTwistEquiv hρ hQ G hsymm hs)
+    (by
+      rw [rightStandardTwistEquiv_unit hρ hQ G hsymm hs ht]
+      exact loadingUnit_mem_zero G ht)
+
+variable [Module.Finite k (TensorProductAlgebra k Q Λ ν)]
+
+/-- The graded isomorphism `rightStandardGradedEquiv` between finite-dimensional modules. -/
+def rightStandardIso {s : Seq (stendhalWeight ℓ ν)} (hs : IsRedOrdered s)
+    (ht : redWord s = List.finRange ℓ) :
+    ((leftStandardGFin G s hs).rightTwist (tensorReflection (ν := ν) G hsymm)).Iso
+      (rightStandard hρ hQ s G ht) :=
+  rightStandardGradedEquiv hρ hQ G hsymm hs ht
 
 end Twist
 

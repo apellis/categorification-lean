@@ -76,6 +76,7 @@ end Categorification.ModuleFiltration.HasFiltration
 namespace Categorification.Stendhal
 
 open CategoryTheory KLR KLRAlgebra InductionAlong MulOpposite ModuleFiltration
+open scoped TensorProduct
 attribute [local instance 1100] IsIdempotentElem.instAlgebraCorner_categorification
 
 variable {I : Type} [DecidableEq I] {k : Type} [Field k]
@@ -138,6 +139,13 @@ theorem blackIndStandardFiltration_zero (Λ : Fin 0 → I →₀ ℕ) :
     (LinearEquiv.ofEq _ _ (congrArg lIdeal (appendBlack_mk_e Q Λ i ν t ht))))).trans
     (leftStandardEquivZero Q Λ _ _)
 
+/-- Standard modules of equal loadings are isomorphic. -/
+def leftStandardCongr {n : ℕ} (Λ : Fin n → I →₀ ℕ) {ν : Multiset I}
+    {s t : Seq (stendhalWeight n ν)} (h : s = t) (hs : IsRedOrdered s) (ht : IsRedOrdered t) :
+    leftStandard Q Λ s hs ≃ₗ[TensorProductAlgebra k Q Λ ν] leftStandard Q Λ t ht := by
+  subst h
+  exact LinearEquiv.refl _ _
+
 /-! ### The induction step -/
 
 section Step
@@ -186,6 +194,7 @@ theorem finiteDimensional_tensorFactor_standard (hR : IsRouquierQ C Q) {θ β : 
     KMod (k := k) (cycProj Q Λ β u))
   infer_instance
 
+omit [DecidableEq I] in
 /-- The labels of the first layer: `(t'^{(k)}) λ_{ℓ+1} u = (t' λ_{ℓ+1} u)^{(k)}` for `k ≤ ℓ`. -/
 theorem map_twoPieceLabel_blockInsertLabels (i : I) {θ β : Multiset I}
     (t : Seq (stendhalWeight ℓ θ)) (ht : IsRedOrdered t) (u : Seq β) :
@@ -207,6 +216,7 @@ then `Fᵢ S_t` is filtered by the `S_{t^{(k)}}`. Route hypothesis: `AllFiniteDe
 theorem blackIndStandardFiltration_succ (hR : IsRouquierQ C Q)
     (hall : AllFiniteDeltaInjective Q Λ hQ) (hold : BlackIndStandardFiltration Q (old)) :
     BlackIndStandardFiltration Q Λ := by
+  classical
   intro i ν t ht
   obtain ⟨θ, β, h, t', u, ht', rfl⟩ := exists_twoPieceLoading_eq ht
   subst h
@@ -233,8 +243,8 @@ theorem blackIndStandardFiltration_succ (hR : IsRouquierQ C Q)
           (cycProj Q Λ ((Si i) + β) (Seq.cast (add_comm β (Si i)) (u.append default)))) :=
       stdLayerEquiv Q Λ hQ hl ((lastIndTensorEquiv Q Λ i X Y).trans
         (tensorFactorCongr Q Λ (LinearEquiv.refl _ _) (cycProjIndEquiv Q Λ i β u)))
-    refine HasFiltration.single (e₂.trans (e₁.trans (LinearEquiv.ofEq _ _ ?_)))
-    rw [blockInsertLoading_twoPiece_last]
+    exact HasFiltration.single (e₂.trans (e₁.trans
+      (leftStandardCongr Q Λ (blockInsertLoading_twoPiece_last i t' u).symm _ _)))
   -- the first layer
   have hfirst : HasFiltration (stdModule Q Λ ((Si i) + (θ + β)))
       ((List.range (ℓ + 1)).reverse.map fun k =>
@@ -252,7 +262,7 @@ theorem blackIndStandardFiltration_succ (hR : IsRouquierQ C Q)
           (oldIndModule Q Λ i X) Y)) :=
       h₁.mono fun d => nonempty_stdLayerModule_twoPiece_equiv Q Λ hQ hl d.2 u
     exact ((HasFiltration.relabel (L := stdModule Q Λ _) (twoPieceLabel hl u) h₂).of_equiv
-      e₂.symm).of_labels_eq (map_twoPieceLabel_blockInsertLabels Q Λ i t' ht' u)
+      e₂.symm).of_labels_eq (map_twoPieceLabel_blockInsertLabels i t' ht' u)
   -- assemble
   have := hF'.bind_of_mem (L' := stdModule Q Λ ((Si i) + (θ + β)))
     (M := fun d => if d = c.last Q Λ i then
@@ -264,7 +274,7 @@ theorem blackIndStandardFiltration_succ (hR : IsRouquierQ C Q)
     intro d hd
     simp only [StdLayer.blackIndLayers, List.mem_cons, List.mem_nil_iff, or_false] at hd
     rcases hd with rfl | rfl
-    · rw [if_pos rfl]
+    · simp only [↓reduceIte]
       exact hlast
     · by_cases hdl : c.first Q Λ i = c.last Q Λ i
       · exact absurd (congrArg StdLayer.θ hdl) (by
@@ -272,16 +282,16 @@ theorem blackIndStandardFiltration_succ (hR : IsRouquierQ C Q)
           intro h'
           have := congrArg Multiset.card h'
           simp at this)
-      · rw [if_neg hdl]
+      · simp only [hdl, ↓reduceIte]
         exact hfirst)
   refine this.of_labels_eq ?_
   have hne : ¬ c.first Q Λ i = c.last Q Λ i := fun h' => by
     have := congrArg (fun d => Multiset.card d.θ) h'
     simp [StdLayer.first, StdLayer.last] at this
-  simp only [StdLayer.blackIndLayers, List.flatMap_cons, List.flatMap_nil, if_pos rfl,
-    if_neg hne, List.append_nil, blockInsertLabels]
-  rw [List.range_succ, List.reverse_append, List.reverse_singleton, List.singleton_append,
-    List.map_cons]
+  simp only [StdLayer.blackIndLayers, List.flatMap_cons, List.flatMap_nil, ↓reduceIte, hne,
+    List.append_nil, blockInsertLabels]
+  simp only [List.range_succ, List.reverse_append, List.reverse_singleton,
+    List.singleton_append, List.map_cons]
   rfl
 
 end Step

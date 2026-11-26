@@ -62,9 +62,8 @@ theorem coe_blockInsertList (i : I) (k : ℕ) {ν : Multiset I}
     (t : Seq (stendhalWeight n ν)) :
     ((blockInsertList i k (List.ofFn t.lbl) : List (I ⊕ Fin n)) : Multiset (I ⊕ Fin n)) =
       stendhalWeight n ((Singleton.singleton i : Multiset I) + ν) := by
-  rw [Multiset.coe_eq_coe.2 (insertBefore_perm _ _ _), ← Multiset.cons_coe, coe_ofFn_lbl,
-    ← stendhalWeight_addBlack, Multiset.cons_eq_add_singleton]
-  rfl
+  rw [blockInsertList, Multiset.coe_eq_coe.2 (insertBefore_perm _ _ _), ← Multiset.cons_coe,
+    coe_ofFn_lbl, ← stendhalWeight_addBlack, add_comm, Multiset.singleton_add]
 
 /-- **The loading `t^{(k)}`**: `t` with a black strand coloured `i` added at the right end of
 block `k` (Webster, arXiv:1309.3796v3, Proposition 5.5 and proof of Proposition 5.6). -/
@@ -117,8 +116,6 @@ theorem ofFn_appendDefault {β : Multiset I} (i : I) (u : Seq β) :
       List.ofFn u.lbl ++ [i] := by
   rw [ofFn_seqCast', ofFn_append', ofFn_seqSingleton']
 
-variable [DecidableEq I]
-
 /-- **Insertion into `t' λ_{ℓ+1} u` at a block `k ≤ ℓ`** happens in `t'`. -/
 theorem blockInsertLoading_twoPiece_of_le (i : I) {k : ℕ} (hk : k ≤ ℓ) {θ β : Multiset I}
     (t : Seq (stendhalWeight ℓ θ)) (u : Seq β) :
@@ -136,7 +133,7 @@ theorem blockInsertLoading_twoPiece_of_le (i : I) {k : ℕ} (hk : k ≤ ℓ) {θ
     rw [insertBefore_append_of_exists _ _ _ _ hex',
       show (Sum.inl i : I ⊕ Fin (ℓ + 1)) = addRedColor ℓ (.inl i) from rfl,
       insertBefore_map, redAtLeast_comp_addRedColor]
-  · push_neg at hex
+  · simp only [not_exists, not_and, Bool.not_eq_true] at hex
     have hex' : ∀ y ∈ (List.ofFn t.lbl).map (addRedColor ℓ), redAtLeast k y = false := by
       intro y hy
       obtain ⟨z, hz, rfl⟩ := List.mem_map.1 hy
@@ -144,9 +141,8 @@ theorem blockInsertLoading_twoPiece_of_le (i : I) {k : ℕ} (hk : k ≤ ℓ) {θ
       simpa using hex z hz
     have hex'' : ∀ y ∈ List.ofFn t.lbl, redAtLeast k y = false := fun y hy => by
       simpa using hex y hy
-    rw [insertBefore_append_of_forall _ _ _ _ hex', insertBefore_of_forall _ _ _ hex'',
-      insertBefore, if_pos (by simp [redAtLeast, hk])]
-    simp
+    rw [insertBefore_append_of_forall _ _ _ _ hex', insertBefore_of_forall _ _ _ hex'']
+    simp [insertBefore, redAtLeast, hk]
 
 /-- **Insertion into `t' λ_{ℓ+1} u` at the last block** appends the new strand to `u`. -/
 theorem blockInsertLoading_twoPiece_last (i : I) {θ β : Multiset I}
@@ -164,7 +160,7 @@ theorem blockInsertLoading_twoPiece_last (i : I) {θ β : Multiset I}
     · obtain ⟨z, -, rfl⟩ := List.mem_map.1 hy
       rcases z with j | r
       · rfl
-      · simp only [addRedColor, Sum.map_inr, redAtLeast, Fin.coe_castSucc, decide_eq_false_iff_not,
+      · simp only [addRedColor, Sum.map_inr, redAtLeast, Fin.val_castSucc, decide_eq_false_iff_not,
           not_le]
         omega
     · rcases List.mem_cons.1 hy with rfl | hy

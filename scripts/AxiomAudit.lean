@@ -1,4 +1,8 @@
 import Categorification
+-- The specification files are not imported by the library; audit their bindings as well.
+import Categorification.Spec.Webster.Thm438
+import Categorification.Spec.Webster.Prop55
+import Categorification.Spec.Webster.Cor521
 import Lean.Util.CollectAxioms
 
 /-! Audit every declaration defined by a Categorification module, including private declarations

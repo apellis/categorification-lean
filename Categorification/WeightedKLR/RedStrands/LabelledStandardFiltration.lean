@@ -84,15 +84,15 @@ local notation "Si" j => (Singleton.singleton j : Multiset I)
 
 /-- The word of a loading. -/
 abbrev loadingWord {n : ℕ} {ν : Multiset I}
-    (c : {t : Seq (stendhalWeight n ν) // IsRedOrdered t}) : List (I ⊕ Fin n) :=
+    (c : {t : KLR.Seq (stendhalWeight n ν) // IsRedOrdered t}) : List (I ⊕ Fin n) :=
   List.ofFn c.1.lbl
 
 /-- **Labelled standard filtrations** (Webster, arXiv:1309.3796v3, proofs of Lemma 5.19 and
 Proposition 5.21): every `T^λ e(s)` has a filtration by standard modules whose labels, read as
 words, are the bottom words of the block assignments of `s`, up to order. -/
 def HasLabelledStandardFiltrations {n : ℕ} (Λ : Fin n → I →₀ ℕ) : Prop :=
-  ∀ (ν : Multiset I) (s : Seq (stendhalWeight n ν)) (hs : IsRedOrdered s),
-    ∃ m : List {t : Seq (stendhalWeight n ν) // IsRedOrdered t},
+  ∀ (ν : Multiset I) (s : KLR.Seq (stendhalWeight n ν)) (hs : IsRedOrdered s),
+    ∃ m : List {t : KLR.Seq (stendhalWeight n ν) // IsRedOrdered t},
       HasFiltration (stdModule Q Λ ν) m
         (ModuleCat.of (TensorProductAlgebra k Q Λ ν) (lIdeal (seqIdem Q Λ s hs))) ∧
       (m.map loadingWord).Perm (phiWords (List.ofFn s.lbl))
@@ -113,7 +113,7 @@ theorem hasLabelledStandardFiltrations_zero (Λ : Fin 0 → I →₀ ℕ) :
 
 section Step
 
-variable {ℓ : ℕ} (Λ : Fin (ℓ + 1) → I →₀ ℕ) (hQ : KLRSymm Q)
+variable {ℓ : ℕ} (Λ : Fin (ℓ + 1) → I →₀ ℕ)
 
 local notation "old" => Λ ∘ Fin.castSucc
 
@@ -124,13 +124,13 @@ theorem ofFn_seqMap' {J K : Type*} (f : J → K) {a : Multiset J} (s : Seq a) :
   exact (List.ofFn_congr (Multiset.card_map f a).symm (f ∘ s.lbl)).symm
 
 omit [DecidableEq I] [Field k] in
-theorem ofFn_appendRedLoading {ν : Multiset I} (s : Seq (stendhalWeight ℓ ν)) :
+theorem ofFn_appendRedLoading {ν : Multiset I} (s : KLR.Seq (stendhalWeight ℓ ν)) :
     List.ofFn (appendRedLoading s).lbl =
       (List.ofFn s.lbl).map (addRedColor ℓ) ++ [.inr (Fin.last ℓ)] := by
   rw [appendRedLoading, ofFn_seqCast', KLR.ofFn_append, ofFn_seqMap', ofFn_seqSingleton']
 
 omit [DecidableEq I] [Field k] in
-theorem phiWords_appendRedLoading {ν : Multiset I} (s : Seq (stendhalWeight ℓ ν)) :
+theorem phiWords_appendRedLoading {ν : Multiset I} (s : KLR.Seq (stendhalWeight ℓ ν)) :
     phiWords (List.ofFn (appendRedLoading s).lbl) =
       (phiWords (List.ofFn s.lbl)).map fun W => W.map (addRedColor ℓ) ++ [.inr (Fin.last ℓ)] := by
   rw [ofFn_appendRedLoading, phiWords_append_inr,
@@ -138,8 +138,8 @@ theorem phiWords_appendRedLoading {ν : Multiset I} (s : Seq (stendhalWeight ℓ
   rfl
 
 omit [DecidableEq I] [Field k] in
-theorem ofFn_twoPieceLoading_zero {θ : Multiset I} (t : Seq (stendhalWeight ℓ θ))
-    (u : Seq (0 : Multiset I)) :
+theorem ofFn_twoPieceLoading_zero {θ : Multiset I} (t : KLR.Seq (stendhalWeight ℓ θ))
+    (u : KLR.Seq (0 : Multiset I)) :
     List.ofFn (twoPieceLoading θ 0 t u).lbl =
       (List.ofFn t.lbl).map (addRedColor ℓ) ++ [.inr (Fin.last ℓ)] := by
   rw [ofFn_twoPieceLoading]
@@ -151,16 +151,16 @@ variable {C : QuantumGroup.CartanDatum I}
 
 /-- **The red step**: from a labelled filtration of `T^{λ'} e(s₀)`, one of
 `T^λ e(s₀ λ_{ℓ+1})`. -/
-theorem labelled_appendRed (hold : HasLabelledStandardFiltrations Q (old)) {θ : Multiset I}
-    (s₀ : Seq (stendhalWeight ℓ (θ + 0))) (hs₀ : IsRedOrdered s₀) :
-    ∃ m : List {t : Seq (stendhalWeight (ℓ + 1) (θ + 0)) // IsRedOrdered t},
+theorem labelled_appendRed (hQ : KLRSymm Q) (hold : HasLabelledStandardFiltrations Q (old)) {θ : Multiset I}
+    (s₀ : KLR.Seq (stendhalWeight ℓ (θ + 0))) (hs₀ : IsRedOrdered s₀) :
+    ∃ m : List {t : KLR.Seq (stendhalWeight (ℓ + 1) (θ + 0)) // IsRedOrdered t},
       HasFiltration (stdModule Q Λ (θ + 0)) m
         (loadingProj Q Λ (appendRedLoading s₀) ((appendRedLoading_ordered_iff s₀).2 hs₀)) ∧
       (m.map loadingWord).Perm (phiWords (List.ofFn (appendRedLoading s₀).lbl)) := by
   obtain ⟨t, ht, hts, ⟨f⟩⟩ := nonempty_zeroRestrict_redFactorModule_equiv Q Λ θ s₀ hs₀
-  let u₀ : Seq (0 : Multiset I) := Seq.ofList [] (by simp)
+  let u₀ : KLR.Seq (0 : Multiset I) := KLRAlgebra.Seq.ofList [] (by simp)
   obtain ⟨m₀, hm₀, hw₀⟩ := hold θ t ht
-  have E₁ := loadingProjRedEquiv Q Λ hQ s₀ hs₀
+  have E₁ := loadingProjRedEquiv Q Λ θ hQ s₀ hs₀
   have E₂ : stdLayerModule Q Λ hQ (redLayer Q Λ θ s₀ hs₀) ≃ₗ[TensorProductAlgebra k Q Λ (θ + 0)]
       stdLayerModule Q Λ hQ (tensorLayer Q Λ rfl (oldProj Q Λ θ t ht) (cycProj Q Λ 0 u₀)) :=
     stdLayerEquiv Q Λ hQ rfl ((zeroTensorEquiv Q Λ (redFactorModule Q Λ θ s₀ hs₀)).symm.trans
@@ -173,20 +173,23 @@ theorem labelled_appendRed (hold : HasLabelledStandardFiltrations Q (old)) {θ :
     (HasFiltration.relabel (L := stdModule Q Λ _) (twoPieceLabel rfl u₀) h₂).of_equiv
       (E₁.trans E₂).symm, ?_⟩
   rw [phiWords_appendRedLoading, List.map_map]
-  have hw : ∀ d : {t : Seq (stendhalWeight ℓ θ) // IsRedOrdered t},
+  have hw : ∀ d : {t : KLR.Seq (stendhalWeight ℓ θ) // IsRedOrdered t},
       loadingWord (twoPieceLabel rfl u₀ d) =
         (loadingWord d).map (addRedColor ℓ) ++ [.inr (Fin.last ℓ)] := fun d => by
     rw [loadingWord, twoPieceLabel, ofFn_seqCast', ofFn_twoPieceLoading_zero]
-  rw [List.map_congr_left fun d _ => hw d, ← List.map_map]
+  have hmap : m₀.map (loadingWord ∘ twoPieceLabel rfl u₀) =
+      (m₀.map loadingWord).map fun W => W.map (addRedColor ℓ) ++ [.inr (Fin.last ℓ)] := by
+    rw [List.map_map]
+    exact List.map_congr_left fun d _ => hw d
   have hst : List.ofFn t.lbl = List.ofFn s₀.lbl := by rw [hts, ofFn_seqCast']
-  rw [← hst]
+  rw [hmap, ← hst]
   exact hw₀.map _
 
 /-- **The black step**: `T^λ e(t, i) ≅ Fᵢ T^λ e(t)`, and `Fᵢ` filters each `S_c` by the
 `S_{c^{(k)}}`. -/
 theorem labelled_appendBlack (hR : IsRouquierQ C Q) (hblack : BlackIndStandardFiltration Q Λ)
-    (i : I) {ν : Multiset I} (t : Seq (stendhalWeight (ℓ + 1) ν)) (ht : IsRedOrdered t)
-    (m : List {t : Seq (stendhalWeight (ℓ + 1) ν) // IsRedOrdered t})
+    (i : I) {ν : Multiset I} (t : KLR.Seq (stendhalWeight (ℓ + 1) ν)) (ht : IsRedOrdered t)
+    (m : List {t : KLR.Seq (stendhalWeight (ℓ + 1) ν) // IsRedOrdered t})
     (hm : HasFiltration (stdModule Q Λ ν) m (loadingProj Q Λ t ht))
     (hw : (m.map loadingWord).Perm (phiWords (List.ofFn t.lbl))) :
     HasFiltration (stdModule Q Λ ((Si i) + ν)) (m.flatMap fun c => blockInsertLabels i c.1 c.2)
@@ -194,18 +197,21 @@ theorem labelled_appendBlack (hR : IsRouquierQ C Q) (hblack : BlackIndStandardFi
       ((m.flatMap fun c => blockInsertLabels i c.1 c.2).map loadingWord).Perm
         (phiWords (List.ofFn (appendBlackLoading i ν t).lbl)) := by
   refine ⟨?_, ?_⟩
-  · have hF := HasFiltration.map (blackIndModule Q Λ i) (fun f => Ind.map f)
-      (fun f hf => appendBlack_ind_map_injective C hR hf)
-      (fun f hf => Ind.map_surjective hf)
-      (fun f g _ hfg _ => appendBlack_ind_map_exact C hR hfg) hm
+  · have hF : HasFiltration (fun c => blackIndModule Q Λ i (stdModule Q Λ ν c)) m
+        (blackIndModule Q Λ i (loadingProj Q Λ t ht)) :=
+      HasFiltration.map (blackIndModule Q Λ i)
+        (fun f => Ind.map (φ := appendBlackNU (Q := Q) (Λ := Λ) i ν) f)
+        (fun _ hf => appendBlack_ind_map_injective (Q := Q) (Λ := Λ) (i := i) (ν := ν) C hR hf)
+        (fun _ hf => Ind.map_surjective (φ := appendBlackNU (Q := Q) (Λ := Λ) i ν) hf)
+        (fun _ _ _ hfg _ => appendBlack_ind_map_exact (Q := Q) (Λ := Λ) (i := i) (ν := ν) C hR hfg) hm
     exact (hF.bind_of_mem fun c _ => hblack i ν c.1 c.2).of_equiv
       (loadingProjBlackEquiv Q Λ i t ht).symm
   · rw [ofFn_appendBlackLoading', phiWords_append_inl, redCount_ofFn_lbl, List.map_flatMap]
-    have hc : ∀ c : {t : Seq (stendhalWeight (ℓ + 1) ν) // IsRedOrdered t},
+    have hc : ∀ c : {t : KLR.Seq (stendhalWeight (ℓ + 1) ν) // IsRedOrdered t},
         ((blockInsertLabels i c.1 c.2).map loadingWord).Perm
           ((List.range (ℓ + 1 + 1)).map fun k => blockInsertList i k (loadingWord c)) :=
       fun c => by
-        rw [blockInsertLabels, List.map_map, ← List.map_reverse]
+        rw [blockInsertLabels, List.map_map, List.map_reverse]
         refine (List.reverse_perm _).trans ?_
         refine List.Perm.of_eq (List.map_congr_left fun k _ => ?_)
         simp [loadingWord]
@@ -215,10 +221,10 @@ theorem labelled_appendBlack (hR : IsRouquierQ C Q) (hblack : BlackIndStandardFi
     exact hw.flatMap_right _
 
 /-- The black words: `T^λ e(s₀ λ_{ℓ+1} w)` by induction on `w`. -/
-theorem labelled_blackWord (hR : IsRouquierQ C Q) (hblack : BlackIndStandardFiltration Q Λ)
+theorem labelled_blackWord (hQ : KLRSymm Q) (hR : IsRouquierQ C Q) (hblack : BlackIndStandardFiltration Q Λ)
     (hold : HasLabelledStandardFiltrations Q (old)) {θ : Multiset I}
-    (s₀ : Seq (stendhalWeight ℓ (θ + 0))) (hs₀ : IsRedOrdered s₀) :
-    ∀ w : List I, ∃ m : List {t : Seq (stendhalWeight (ℓ + 1) (wordWt w (θ + 0))) //
+    (s₀ : KLR.Seq (stendhalWeight ℓ (θ + 0))) (hs₀ : IsRedOrdered s₀) :
+    ∀ w : List I, ∃ m : List {t : KLR.Seq (stendhalWeight (ℓ + 1) (wordWt w (θ + 0))) //
         IsRedOrdered t},
       HasFiltration (stdModule Q Λ _) m
         (loadingProj Q Λ (blackWordLoading w (appendRedLoading s₀))
@@ -227,17 +233,17 @@ theorem labelled_blackWord (hR : IsRouquierQ C Q) (hblack : BlackIndStandardFilt
         (phiWords (List.ofFn (blackWordLoading w (appendRedLoading s₀)).lbl))
   | [] => labelled_appendRed Q Λ hQ hold s₀ hs₀
   | j :: w => by
-    obtain ⟨m, hm, hw⟩ := labelled_blackWord hR hblack hold s₀ hs₀ w
+    obtain ⟨m, hm, hw⟩ := labelled_blackWord hQ hR hblack hold s₀ hs₀ w
     exact ⟨_, labelled_appendBlack Q Λ hR hblack j _ _ m hm hw⟩
 
 /-- **Induction step** on the number of red strands. -/
-theorem hasLabelledStandardFiltrations_succ (hR : IsRouquierQ C Q)
+theorem hasLabelledStandardFiltrations_succ (hQ : KLRSymm Q) (hR : IsRouquierQ C Q)
     (hblack : BlackIndStandardFiltration Q Λ) (hold : HasLabelledStandardFiltrations Q (old)) :
     HasLabelledStandardFiltrations Q Λ := by
   intro ν s hs
   obtain ⟨θ, w, s₀, hs₀, h, hc⟩ := exists_blackWordLoading_appendRed ν.card ν rfl s hs
   subst h
-  rw [Seq.cast_rfl] at hc
+  rw [KLR.Seq.cast_rfl] at hc
   subst hc
   exact labelled_blackWord Q Λ hQ hR hblack hold s₀ hs₀ w
 
@@ -252,9 +258,32 @@ theorem hasLabelledStandardFiltrations (hQ : KLRSymm Q) (hR : IsRouquierQ C Q)
     (hall : ∀ (n : ℕ) (Λ' : Fin (n + 1) → I →₀ ℕ), AllFiniteDeltaInjective Q Λ' hQ) :
     ∀ {n : ℕ} (Λ' : Fin n → I →₀ ℕ), HasLabelledStandardFiltrations Q Λ'
   | 0, Λ' => hasLabelledStandardFiltrations_zero Q Λ'
-  | n + 1, Λ' => hasLabelledStandardFiltrations_succ Q Λ' hQ hR
+  | _ + 1, Λ' => hasLabelledStandardFiltrations_succ Q Λ' hQ hR
       (blackIndStandardFiltration Q hQ hR hall Λ')
       (hasLabelledStandardFiltrations hQ hR hall (Λ' ∘ Fin.castSucc))
+
+end Categorification.Stendhal
+
+/-! The dimension count, with the standard `k`-algebra structure on the corner (that of
+`PhiStandardLayers`). -/
+
+namespace Categorification.Stendhal
+
+open KLR ModuleFiltration
+
+attribute [local instance 2000] KLR.cornerAlgebra
+
+variable {I : Type} [DecidableEq I] {k : Type} [Field k]
+  (Q : I → I → MvPolynomial (Fin 2) k)
+
+/-- The two `k`-algebra structures on a corner, `KLR.cornerAlgebra` and
+`IsIdempotentElem.instAlgebraCorner_categorification`, are equal (not definitionally). -/
+theorem cornerAlgebra_eq_instAlgebraCorner {B : Type*} [Ring B] [Algebra k B] {e : B}
+    (he : IsIdempotentElem e) :
+    KLR.cornerAlgebra (k := k) he = IsIdempotentElem.instAlgebraCorner_categorification he :=
+  Algebra.algebra_ext _ _ fun c => Subtype.ext (by
+    show algebraMap k B c * e = c • e
+    rw [Algebra.smul_def])
 
 section Dimension
 
@@ -271,8 +300,9 @@ def kModEquiv {A : Type} [Ring A] [Algebra k A] (X : ModuleCat.{0} A) [Module k 
   left_inv _ := rfl
   right_inv _ := rfl
 
+open scoped Classical in
 /-- The dimension of `S_t`, as a function of the loading (zero unless `t` is red-ordered). -/
-def stdDim (Λ : Fin ℓ → I →₀ ℕ) (t : Seq (stendhalWeight ℓ ν)) : ℕ :=
+def stdDim (Λ : Fin ℓ → I →₀ ℕ) (t : KLR.Seq (stendhalWeight ℓ ν)) : ℕ :=
   if h : IsRedOrdered t then Module.finrank k (leftStandard Q Λ t h) else 0
 
 /-- **The dimension identity of Lemma 5.19** (Webster, arXiv:1309.3796v3): the dimension of
@@ -280,41 +310,47 @@ def stdDim (Λ : Fin ℓ → I →₀ ℕ) (t : Seq (stendhalWeight ℓ ν)) : �
 assignments `φ` of `s`. Route hypothesis: `AllFiniteDeltaInjective`. -/
 theorem finrank_lIdeal_eq_sum_phiBottom (hQ : KLRSymm Q) (hR : IsRouquierQ C Q)
     (hall : ∀ (n : ℕ) (Λ' : Fin (n + 1) → I →₀ ℕ), AllFiniteDeltaInjective Q Λ' hQ)
-    (Λ : Fin ℓ → I →₀ ℕ) {s : Seq (stendhalWeight ℓ ν)} (hs : IsRedOrdered s) :
+    (Λ : Fin ℓ → I →₀ ℕ) {s : KLR.Seq (stendhalWeight ℓ ν)} (hs : IsRedOrdered s) :
     ∑ g : PhiIndex s, Module.finrank k (leftStandard Q Λ _ (g.isRedOrdered hs)) =
       Module.finrank k (lIdeal (seqIdem Q Λ s hs)) := by
   classical
   obtain ⟨m, hm, hw⟩ := hasLabelledStandardFiltrations Q hQ hR hall Λ ν s hs
-  have : Module.Finite k (TensorProductAlgebra k Q Λ ν) := tensorProductAlgebra_finite Λ ν hR
+  have : Module.Finite k (TensorProductAlgebra k Q Λ ν) := by
+    convert tensorProductAlgebra_finite (Q := Q) Λ ν hR using 4
+    exact cornerAlgebra_eq_instAlgebraCorner _
   have hfin : FiniteDimensional k (lIdeal (seqIdem Q Λ s hs)) :=
     Module.Finite.of_injective ((lIdeal (seqIdem Q Λ s hs)).subtype.restrictScalars k)
       Subtype.val_injective
-  have hY := (kModEquiv (ModuleCat.of (TensorProductAlgebra k Q Λ ν)
+  have hY := (kModEquiv (k := k) (ModuleCat.of (TensorProductAlgebra k Q Λ ν)
     (lIdeal (seqIdem Q Λ s hs)))).symm
   have hsum := hm.finrank_kMod_eq_sum (k := k) (Module.Finite.equiv hY)
   rw [← hY.finrank_eq] at hsum
   -- the layers
-  have hlay : ∀ c : {t : Seq (stendhalWeight ℓ ν) // IsRedOrdered t},
+  have hlay : ∀ c : {t : KLR.Seq (stendhalWeight ℓ ν) // IsRedOrdered t},
       Module.finrank k (KMod (k := k) (stdModule Q Λ ν c)) = stdDim Q Λ c.1 := fun c => by
-    rw [stdDim, dif_pos c.2]
-    exact (kModEquiv (stdModule Q Λ ν c)).finrank_eq
-  rw [List.map_congr_left fun c _ => hlay c, ← List.map_map stdDim Q Λ] at hsum
+    simp only [stdDim, c.2, ↓reduceDIte]
+    exact (kModEquiv (k := k) (stdModule Q Λ ν c)).finrank_eq
+  have hmc : m.map (fun c => Module.finrank k (KMod (k := k) (stdModule Q Λ ν c))) =
+      (m.map Subtype.val).map (stdDim Q Λ) := by
+    rw [List.map_map]
+    exact List.map_congr_left fun c _ => hlay c
+  rw [hmc] at hsum
   -- the labels are the bottoms
   set L := assignments s.lbl
   have hwords : (L.map fun g => phiBottom s g).map (fun t => List.ofFn t.lbl) =
       phiWords (List.ofFn s.lbl) := by
-    rw [List.map_map, ← map_assignWord_assignList (redIndexed_of_isRedOrdered hs)]
+    rw [List.map_map, ← map_assignWord_assignList s.lbl (redIndexed_of_isRedOrdered hs)]
     exact List.map_congr_left fun g hg => ofFn_phiBottom hg
   have hperm : (m.map Subtype.val).Perm (L.map fun g => phiBottom s g) := by
-    rw [← List.map_perm_map_iff (f := fun t : Seq (stendhalWeight ℓ ν) => List.ofFn t.lbl)
+    rw [← List.map_perm_map_iff (f := fun t : KLR.Seq (stendhalWeight ℓ ν) => List.ofFn t.lbl)
       (fun a b h => seq_ext_ofFn' h), hwords, List.map_map]
     exact hw
   rw [hsum, hperm.map _ |>.sum_eq, List.map_map]
-  rw [← Finset.sum_coe_sort L.toFinset] at *
   have hL := List.sum_toFinset (fun g => stdDim Q Λ (phiBottom s g)) (nodup_assignments s.lbl)
-  rw [← hL, ← Finset.sum_coe_sort]
+  rw [show (stdDim Q Λ ∘ fun g => phiBottom s g) = fun g => stdDim Q Λ (phiBottom s g) from rfl,
+    ← hL, ← Finset.sum_coe_sort L.toFinset (fun g => stdDim Q Λ (phiBottom s g))]
   refine Finset.sum_congr rfl fun g _ => ?_
-  rw [Function.comp_apply, stdDim, dif_pos (g.isRedOrdered hs)]
+  simp only [stdDim, g.isRedOrdered hs, ↓reduceDIte]
 
 end Dimension
 
@@ -328,13 +364,17 @@ def phiLayerEquiv {C : QuantumGroup.CartanDatum I} (hQ : KLRSymm Q) (hR : IsRouq
     (hall : ∀ (n : ℕ) (Λ' : Fin (n + 1) → I →₀ ℕ), AllFiniteDeltaInjective Q Λ' hQ)
     {ℓ : ℕ} {ν : Multiset I} (Λ : Fin ℓ → I →₀ ℕ)
     (ρ : Equiv.Perm (Fin (Multiset.card (stendhalWeight ℓ ν))) → List ℕ)
-    (hρ : ∀ w, TypeA.IsReduced _ (ρ w) ∧ TypeA.wordProd _ (ρ w) = w)
-    {s : Seq (stendhalWeight ℓ ν)} (hs : IsRedOrdered s) (g : PhiIndex s) :
+    (hρ : ∀ w, TypeA.IsReduced (Multiset.card (stendhalWeight ℓ ν)) (ρ w) ∧
+      TypeA.wordProd (Multiset.card (stendhalWeight ℓ ν)) (ρ w) = w)
+    {s : KLR.Seq (stendhalWeight ℓ ν)} (hs : IsRedOrdered s) (g : PhiIndex s) :
     leftStandard Q Λ (phiBottom s g.1) (g.isRedOrdered hs) ≃ₗ[TensorProductAlgebra k Q Λ ν]
       phiLayer Q Λ ρ hs g :=
-  haveI : Module.Finite k (TensorProductAlgebra k Q Λ ν) := tensorProductAlgebra_finite Λ ν hR
-  LinearEquiv.ofBijective (phiLayerMap Q Λ ρ hs hρ g)
-    (phiLayerMap_bijective_of_finrank_sum ρ hs hρ
+  LinearEquiv.ofBijective (phiLayerMap Q Λ ρ hs hρ g) (by
+    have : Module.Finite k (TensorProductAlgebra k Q Λ ν) :=
+      by
+        convert tensorProductAlgebra_finite (Q := Q) Λ ν hR using 4
+        exact cornerAlgebra_eq_instAlgebraCorner _
+    exact phiLayerMap_bijective_of_finrank_sum (Q := Q) (Λ := Λ) ρ hs hρ
       (finrank_lIdeal_eq_sum_phiBottom Q hQ hR hall Λ hs) g)
 
 theorem phiLayerEquiv_unit {C : QuantumGroup.CartanDatum I} (hQ : KLRSymm Q)
@@ -342,10 +382,11 @@ theorem phiLayerEquiv_unit {C : QuantumGroup.CartanDatum I} (hQ : KLRSymm Q)
     (hall : ∀ (n : ℕ) (Λ' : Fin (n + 1) → I →₀ ℕ), AllFiniteDeltaInjective Q Λ' hQ)
     {ℓ : ℕ} {ν : Multiset I} (Λ : Fin ℓ → I →₀ ℕ)
     (ρ : Equiv.Perm (Fin (Multiset.card (stendhalWeight ℓ ν))) → List ℕ)
-    (hρ : ∀ w, TypeA.IsReduced _ (ρ w) ∧ TypeA.wordProd _ (ρ w) = w)
-    {s : Seq (stendhalWeight ℓ ν)} (hs : IsRedOrdered s) (g : PhiIndex s) :
+    (hρ : ∀ w, TypeA.IsReduced (Multiset.card (stendhalWeight ℓ ν)) (ρ w) ∧
+      TypeA.wordProd (Multiset.card (stendhalWeight ℓ ν)) (ρ w) = w)
+    {s : KLR.Seq (stendhalWeight ℓ ν)} (hs : IsRedOrdered s) (g : PhiIndex s) :
     phiLayerEquiv Q hQ hR hall Λ ρ hρ hs g (leftStandardUnit Q Λ _ (g.isRedOrdered hs)) =
       phiLayerGen Q Λ ρ hs g :=
-  phiLayerMap_unit ρ hs hρ g
+  phiLayerMap_unit (Q := Q) (Λ := Λ) ρ hs hρ g
 
 end Categorification.Stendhal

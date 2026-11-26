@@ -192,6 +192,50 @@ theorem isInternal_grading (he0 : f 1 ∈ 𝒢 0) (he'0 : g 1 ∈ 𝒢 0) :
     Decomposition (grading 𝒢 f g) :=
   (isInternal_grading 𝒢 he0 he'0).chooseDecomposition
 
+/-! ### Cutting by idempotents on both sides -/
+
+section Cut
+
+variable {S : Type*} [Ring S] [Algebra k S]
+
+omit [GradedAlgebra 𝒢] in
+private theorem mem_of_cut {f' : S →ₙₐ[k] A} {t : T} {s : S} {u : T'} (h : f t = f' s)
+    (x : idemSubspace k (idemSubspace k (RectBimod f g) (op u)) (op (op t))) :
+    f' 1 * val f g x.1.1 = val f g x.1.1 ∧ val f g x.1.1 * g 1 = val f g x.1.1 := by
+  have ht : f t * val f g x.1.1 = val f g x.1.1 :=
+    congrArg (fun y => val f g y.1) x.2
+  have h1 : f' 1 * f' s = f' s := by rw [← map_mul, one_mul]
+  refine ⟨?_, (mem x.1.1).2⟩
+  rw [← ht, h, ← mul_assoc, h1]
+
+/-- The comparison of cuts `f(t) X g(u)` along an equality `f t = f' s`. -/
+private def cutTransfer {f' : S →ₙₐ[k] A} {t : T} {s : S} {u : T'} (h : f t = f' s) :
+    idemSubspace k (idemSubspace k (RectBimod f g) (op u)) (op (op t)) →ₗ[k]
+      idemSubspace k (idemSubspace k (RectBimod f' g) (op u)) (op (op s)) where
+  toFun x := ⟨⟨mk (val f g x.1.1) (mem_of_cut h x), ext (by
+      change val f g x.1.1 * g u = val f g x.1.1
+      exact congrArg (val f g) x.1.2)⟩, Subtype.ext (ext (by
+      change f' s * val f g x.1.1 = val f g x.1.1
+      rw [← h]
+      exact congrArg (fun y => val f g y.1) x.2))⟩
+  map_add' _ _ := rfl
+  map_smul' _ _ := rfl
+
+omit [GradedAlgebra 𝒢] in
+/-- **Cuts only depend on the cutting elements**: if `f t = f' s` in `A`, then
+`f(t) (f(1) A g(1)) g(u)` and `f'(s) (f'(1) A g(1)) g(u)` have the same graded dimension. -/
+theorem gdimPoly_idem_idem_grading_eq {f' : S →ₙₐ[k] A} {t : T} {s : S} {u : T'}
+    (h : f t = f' s) :
+    gdimPoly (idem (idem (grading 𝒢 f g) (op u)) (op (op t))) =
+      gdimPoly (idem (idem (grading 𝒢 f' g) (op u)) (op (op s))) :=
+  gdimPoly_congr (A := k)
+    { toLinearEquiv :=
+        LinearEquiv.ofLinearMap (cutTransfer (g := g) h) (cutTransfer (g := g) h.symm) rfl rfl
+      map_mem' := fun _ _ hx => hx
+      symm_map_mem' := fun _ _ hy => hy }
+
+end Cut
+
 end RectBimod
 
 end Categorification.Graded

@@ -53,20 +53,20 @@ local notation "𝒯" => TensorProductAlgebra k Q Λ ν
 /-! ### Scalars on the braiding bimodule -/
 
 /-- `k` acts on `e_λ V e_{σλ}` through the corner. -/
-local instance braidingBimoduleModuleK : Module k 𝒳 := Module.compHom 𝒳 (algebraMap k 𝒞)
+instance braidingBimoduleModuleK : Module k 𝒳 := Module.compHom 𝒳 (algebraMap k 𝒞)
 
 theorem braidingBimodule_val_smul_k (c : k) (x : 𝒳) : ((c • x : 𝒳) : ViolQuotient k Q Λ ν) =
     c • (x : ViolQuotient k Q Λ ν) := by
   change (c • violMk k Q Λ ν (redProj k Q Λ ν ord)) * x.1 = _
   rw [smul_mul_assoc, x.2.1]
 
-local instance braidingBimoduleTower : IsScalarTower k 𝒞 𝒳 where
+instance braidingBimoduleTower : IsScalarTower k 𝒞 𝒳 where
   smul_assoc c r x := Subtype.ext (by
     rw [braidingBimodule_val_smul_k, cornerBimodule.coe_smul_left, cornerBimodule.coe_smul_left]
     change (c • r.1) * x.1 = _
     rw [smul_mul_assoc])
 
-local instance braidingBimoduleComm : SMulCommClass 𝒞 k 𝒳 where
+instance braidingBimoduleComm : SMulCommClass 𝒞 k 𝒳 where
   smul_comm r c x := Subtype.ext (by
     rw [cornerBimodule.coe_smul_left, braidingBimodule_val_smul_k, braidingBimodule_val_smul_k,
       cornerBimodule.coe_smul_left, mul_smul_comm])

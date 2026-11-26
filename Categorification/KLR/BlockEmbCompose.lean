@@ -19,14 +19,15 @@ namespace Categorification.KLR
 
 open MvPolynomial
 
-variable {I : Type*} [DecidableEq I] {k : Type*} [CommRing k]
+variable {I₀ I J : Type*} [DecidableEq I₀] [DecidableEq I] [DecidableEq J] {k : Type*} [CommRing k]
 
 namespace KLRAlgebra
 
 namespace BlockEmb
 
-variable {μ₀ μ μ' ν ρ : Multiset I} {T : Finset (Seq ν)} {U : Finset (Seq ρ)}
-  {Q₀ Q Q' : I → I → MvPolynomial (Fin 2) k}
+variable {μ₀ : Multiset I₀} {μ ν : Multiset I} {μ' ρ : Multiset J} {T : Finset (Seq ν)}
+  {U : Finset (Seq ρ)} {Q₀ : I₀ → I₀ → MvPolynomial (Fin 2) k} {Q : I → I → MvPolynomial (Fin 2) k}
+  {Q' : J → J → MvPolynomial (Fin 2) k}
   (B : BlockEmb μ ν T) (D : BlockEmb μ' ρ U)
   (C : KLRAlgebra k Q ν →ₙₐ[k] KLRAlgebra k Q' ρ)
   (φ : KLRAlgebra k Q₀ μ₀ →ₐ[k] KLRAlgebra k Q μ) (φ' : KLRAlgebra k Q₀ μ₀ →ₐ[k] KLRAlgebra k Q' μ')

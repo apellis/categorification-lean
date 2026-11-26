@@ -2456,4 +2456,5 @@ import Categorification.WeightedKLR.RedStrands.StandardModuleReflection
 import Categorification.WeightedKLR.RedStrands.StandardRootDecomposition
 import Categorification.WeightedKLR.RedStrands.LeftRootStandard
 import Categorification.WeightedKLR.RedStrands.TwoPieceBlocks
+import Categorification.WeightedKLR.RedStrands.TwoPieceBlockMaps
 import Categorification.WeightedKLR.RedStrands.RedFirstDominantDimension

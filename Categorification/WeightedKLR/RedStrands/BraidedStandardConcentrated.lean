@@ -20,7 +20,8 @@ layers has Tor concentrated in degree `0` (`isZero_derivedTensorHomology_loading
 
 ## Main results
 
-* `isZero_braidingFunctor_homology_of_standardFiltration`.
+* `isZero_braidingFunctor_homology_of_standardFiltration`: step `s_n`.
+* `isZero_derivedTensorHomology_braidingBimodule`: the `Tor` part of step `p_{n+1}`.
 -/
 
 noncomputable section
@@ -103,6 +104,38 @@ theorem isZero_braidingFunctor_homology_of_standardFiltration
   refine isZero_derivedTensorHomology_of_filtrations
     (hf.of_equiv (braidingCoefficientFlipEquiv κ κ').symm)
     (hX.restrictScalars φ.symm.toRingHom) n fun c _ d _ => ?_
+  obtain ⟨t, ht, htc⟩ := exists_redPerm_of_redWord σ c.2.1
+  obtain ⟨s, hs, hsd⟩ := exists_redPerm_of_redWord σ d.2.1
+  have := isZero_derivedTensorHomology_loadingStandard hρ hQ σ D hs ht n hn
+  rw [htc, hsd] at this
+  exact this
+
+include hρ hQ in
+/-- **Composites of braid bimodules have no higher `Tor`** (Webster, arXiv:1309.3796v2, proof of
+Lemma 6.11, step `s_n + f_n → p_{n+1}`): if `B(κ₂, κ₁)` and `B(κ₀, κ₁)` have filtrations by the
+right standards of the corner at `κ₁ = σ ∘ (1, …, ℓ)`, then `B(κ₂, κ₁) ⊗ᴸ B(κ₁, κ₀)` has homology
+only in degree `0`. Its degree-zero homology is the balanced tensor product, which is
+`B(κ₂, κ₀)` when the lengths add (Lemma 6.5, `violMk_mult_injective`, `violMk_mult_surjective`). -/
+theorem isZero_derivedTensorHomology_braidingBimodule
+    [HasDerivedCategory.{w, 0} (C κ)] [HasDerivedCategory.{w, 0} ℤ]
+    (D : ModuleFiltration.OrderedStandardCovers
+      (fun s : {s : Seq μ // IsRedOrdered s} => ModuleCat.of (TensorProductAlgebra k Q (Λ ∘ σ) ν)
+        (leftStandard Q (Λ ∘ σ) s.1 s.2))
+      (fun s => seqIdem Q (Λ ∘ σ) s.1 s.2) (fun s t => StendhalLT s.1 t.1))
+    {κ₂ κ₀ : List (Fin ℓ)} {m m' : List {s : Seq μ // redWord s = κ ∧ ¬ IsViolated s}}
+    (h₂ : HasFiltration
+      (fun s => ModuleCat.of (C κ)ᵐᵒᵖ (ViolLoadingStandard (k := k) (Q := Q) (Λ := Λ) s.val κ)) m
+      (ModuleCat.of (C κ)ᵐᵒᵖ (B κ₂ κ)))
+    (h₀ : HasFiltration
+      (fun s => ModuleCat.of (C κ)ᵐᵒᵖ (ViolLoadingStandard (k := k) (Q := Q) (Λ := Λ) s.val κ)) m'
+      (ModuleCat.of (C κ)ᵐᵒᵖ (B κ₀ κ)))
+    (n : ℤ) (hn : n ≠ 0) :
+    IsZero ((homologyFunctor (A := ℤ) ℤ n).obj
+      ((derivedTensor.{w} ℤ (C κ) (ModuleCat.of (C κ)ᵐᵒᵖ (B κ₂ κ))).obj
+        (DG.DerivedCategory.Q.obj ((degreeZeroModuleFunctor (C κ)).obj
+          (ModuleCat.of (C κ) (B κ κ₀)))))) := by
+  refine isZero_derivedTensorHomology_of_filtrations h₂
+    (hasReflectedStandardFiltration_braidingBimodule κ κ₀ h₀) n fun c _ d _ => ?_
   obtain ⟨t, ht, htc⟩ := exists_redPerm_of_redWord σ c.2.1
   obtain ⟨s, hs, hsd⟩ := exists_redPerm_of_redWord σ d.2.1
   have := isZero_derivedTensorHomology_loadingStandard hρ hQ σ D hs ht n hn

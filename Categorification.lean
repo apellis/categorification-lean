@@ -2394,6 +2394,8 @@ import Categorification.WeightedKLR.RedStrands.TensorShuffleRecurrence
 import Categorification.WeightedKLR.RedStrands.TensorSplit
 import Categorification.WeightedKLR.RedStrands.TensorWordProjectives
 import Categorification.WeightedKLR.RedStrands.TensorWordRaising
+import Categorification.WeightedKLR.RedStrands.LoadingWordExpansion
+import Categorification.WeightedKLR.RedStrands.RightSequenceWordExpansion
 import Categorification.WeightedKLR.RedStrands.TensorWordSpanning
 import Categorification.WeightedKLR.RedStrands.TensorWordWeights
 import Categorification.WeightedKLR.RedStrands.VacuumRestrictionClass

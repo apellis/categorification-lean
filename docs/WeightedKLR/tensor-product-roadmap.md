@@ -1301,7 +1301,10 @@ are linear for juxtaposed block diagrams, not for arbitrary upper elements of
 partial standardizations, apply the induction in (6.21), and identify the derived
 comparison naturally. Then Prop 6.9
 for general `ℓ` by reduction to two
-red strands, the graded bounded-above functor of Def 6.6 and its equivariance (Prop 6.7), Cor 6.10, Lemma 6.11, Def 6.12, Cor 6.13,
+red strands, the graded bounded-above functor of Def 6.6 and its equivariance (Prop 6.7), Cor 6.10
+(proved for adjacent transpositions as `braidClass_pairSwap`, under `AllFiniteDeltaInjective`,
+`RowFigureFiveHypotheses` at every row and finite-dimensionality of `T^λ`; removing these
+hypotheses is open), Lemma 6.11, Def 6.12, Cor 6.13,
 Lemma 6.14; tilting modules (Thm 6.15); `𝔅_σ` are equivalences (Thm 6.16); the braid group
 action (Cor 6.17); Ringel duality (Cor 6.18); semi-orthogonal decompositions (Prop 6.19); the
 Serre functor (Prop 6.20).

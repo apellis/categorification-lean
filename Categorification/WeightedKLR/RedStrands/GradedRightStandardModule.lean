@@ -61,7 +61,8 @@ def rightCornerHom : 𝒯ᵐᵒᵖ →+* 𝒞oᵐᵒᵖ where
 variable (Λ) in
 /-- The standard module `e(t) T / U_t` at a loading of the red order `(1, …, ℓ)`, read as a right
 `T^λ`-module through `violCornerEquiv`. -/
-def RightStandard (_ : TypeA.IsReducedChoice ρ) (_ : KLRSymm Q) (t : KLR.Seq (stendhalWeight ℓ ν)) : Type :=
+def RightStandard (_ : TypeA.IsReducedChoice ρ) (_ : KLRSymm Q)
+    (t : KLR.Seq (stendhalWeight ℓ ν)) : Type :=
   ViolLoadingStandard (k := k) (Q := Q) (Λ := Λ) t ord
 
 namespace RightStandard

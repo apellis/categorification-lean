@@ -28,6 +28,7 @@ import Categorification.Algebra.DerivedTensorCoefficientExact
 import Categorification.Algebra.DerivedTensorCoefficientCovers
 import Categorification.Algebra.DerivedTensorProjectiveCoefficient
 import Categorification.Algebra.DerivedTensorTwoFiltrations
+import Categorification.Algebra.DerivedTensorRingEquiv
 import Categorification.Algebra.DerivedTensorFiltration
 import Categorification.Algebra.DerivedHomologyShift
 import Categorification.Algebra.DerivedTensorOrdinaryLinear
@@ -1891,6 +1892,7 @@ import Categorification.WeightedKLR.RedStrands.BraidedStandardization
 import Categorification.WeightedKLR.RedStrands.BraidedLoadingStandardSupport
 import Categorification.WeightedKLR.RedStrands.BraidedOrderedStandardResolution
 import Categorification.WeightedKLR.RedStrands.BraidedStandardTor
+import Categorification.WeightedKLR.RedStrands.BraidedStandardConcentrated
 import Categorification.WeightedKLR.RedStrands.BlockPartialStandardOrderedResolution
 import Categorification.WeightedKLR.RedStrands.BraidedStendhal
 import Categorification.WeightedKLR.RedStrands.BraidedEqualBlackReturns
@@ -2001,6 +2003,7 @@ import Categorification.Algebra.DerivedRightTensorInjective
 import Categorification.Algebra.DiagramWeightRingEquiv
 import Categorification.Algebra.Graded.BalancedInduction
 import Categorification.Algebra.Graded.CornerBimoduleGrading
+import Categorification.Algebra.Graded.RectBimodTensor
 import Categorification.Algebra.Graded.CyclicGenerator
 import Categorification.Algebra.Graded.EulerCharacteristic
 import Categorification.Algebra.Graded.ExtensionK0
@@ -2287,6 +2290,7 @@ import Categorification.WeightedKLR.RedStrands.FundamentalPrefixCorners
 import Categorification.WeightedKLR.RedStrands.GradedBraidAppend
 import Categorification.WeightedKLR.RedStrands.GradedBraidAppendClass
 import Categorification.WeightedKLR.RedStrands.GradedBraidClassMap
+import Categorification.WeightedKLR.RedStrands.GradedBraidCompose
 import Categorification.WeightedKLR.RedStrands.GradedBraidCorollary
 import Categorification.WeightedKLR.RedStrands.GradedBraidDerivedInjective
 import Categorification.WeightedKLR.RedStrands.GradedBraidFunctor

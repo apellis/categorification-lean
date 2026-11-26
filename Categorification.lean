@@ -122,6 +122,7 @@ import Categorification.Algebra.InductionAlongTriple
 import Categorification.Algebra.K0FinDim
 import Categorification.Algebra.ModuleCatLinear
 import Categorification.Algebra.ModuleFiltration
+import Categorification.Algebra.ModuleFiltrationIdempotents
 import Categorification.Algebra.OrderedProjectiveResolution
 import Categorification.Algebra.GradedOrderedProjectiveResolution
 import Categorification.Algebra.HomogeneousOrderedCoverTransport

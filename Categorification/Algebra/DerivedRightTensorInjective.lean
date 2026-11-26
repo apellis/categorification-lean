@@ -18,6 +18,7 @@ arXiv:1309.3796v2, §6.1, proof of Corollary 6.10).
 * `Categorification.injective_of_mono_tensorHomologyQ`
 * `Categorification.injective_of_mono_derivedRightTensorHomology`
 * `Categorification.injective_of_mono_derivedTensorHomology`
+* `Categorification.epi_derivedRightTensorHomology_of_surjective`
 -/
 
 open CategoryTheory DG DG.DerivedCategory MulOpposite
@@ -66,6 +67,36 @@ theorem injective_of_mono_tensorHomologyQ
   apply eX.injective
   apply hH
   rw [comm, comm, hxy]
+
+set_option backward.isDefEq.respectTransparency false in
+/-- A surjective balanced map with the pure-tensor formula of a module map makes the degree-zero
+cohomology of the localized tensor map an epimorphism. -/
+theorem epi_tensorHomologyQ_of_surjective
+    (f : DGModuleCat.of B (InDegreeZero N) ⟶ DGModuleCat.of B (InDegreeZero P))
+    (μ : TensorProductOver B (InDegreeZero M) (InDegreeZero N) →+
+      TensorProductOver B (InDegreeZero M) (InDegreeZero P))
+    (hμ : ∀ (m : InDegreeZero M) (n : InDegreeZero N),
+      μ (TensorProductOver.tmul B m n) = TensorProductOver.tmul B m (f n))
+    (hsurj : Function.Surjective μ) :
+    Epi ((DG.DerivedCategory.homologyFunctor ℤ 0).map
+      (Q.map ((DGModuleCat.tensorFunctor A (InDegreeZero M)).map f))) := by
+  let eX := tensorHomologyQEquiv (A := A) (B := B) (M := M) (N := N)
+  let eY := tensorHomologyQEquiv (A := A) (B := B) (M := M) (N := P)
+  let H := (DG.DerivedCategory.homologyFunctor ℤ 0).map
+    (Q.map ((DGModuleCat.tensorFunctor A (InDegreeZero M)).map f))
+  have h : (H.hom.toAddMonoidHom.comp eX.toAddMonoidHom) = eY.toAddMonoidHom.comp μ := by
+    apply TensorProductOver.addHom_ext
+    intro m n
+    change H (eX (TensorProductOver.tmul B m n)) = eY (μ (TensorProductOver.tmul B m n))
+    rw [hμ]
+    exact tensorHomologyQEquiv_tmul_naturality (A := A) f m n
+  have comm (z : TensorProductOver B (InDegreeZero M) (InDegreeZero N)) :
+      H (eX z) = eY (μ z) := DFunLike.congr_fun h z
+  apply (ModuleCat.epi_iff_surjective H).mpr
+  intro y
+  obtain ⟨y, rfl⟩ := eY.surjective y
+  obtain ⟨x, rfl⟩ := hsurj y
+  exact ⟨eX x, comm x⟩
 
 end LocalizedTensorHomology
 
@@ -129,6 +160,47 @@ theorem injective_of_mono_derivedRightTensorHomology
   apply hτi
   change eP.symm (μ (eN (eN.symm x))) = eP.symm (μ (eN (eN.symm y)))
   rw [AddEquiv.apply_symm_apply, AddEquiv.apply_symm_apply, hxy]
+
+set_option backward.isDefEq.respectTransparency false in
+/-- If the ordinary balanced tensor of a module map is surjective, its derived right tensor is
+an epimorphism in degree zero. -/
+theorem epi_derivedRightTensorHomology_of_surjective
+    (hN : ∀ (c : k) (n : N), op (algebraMap k C c) • n = c • n)
+    (hP : ∀ (c : k) (p : P), op (algebraMap k C c) • p = c • p)
+    (f : DGModuleCat.of Cᵐᵒᵖ (InDegreeZero N) ⟶ DGModuleCat.of Cᵐᵒᵖ (InDegreeZero P))
+    (μ : BalancedTensor k k C N X →+ BalancedTensor k k C P X)
+    (hμ : ∀ (n : N) (x : X), μ (BalancedTensor.tmul n x) = BalancedTensor.tmul (f n) x)
+    (hsurj : Function.Surjective μ) :
+    Epi ((DG.DerivedCategory.homologyFunctor ℤ 0).map
+      ((derivedRightTensor C C' X).map (Q.map f))) := by
+  let eN := rightTensorFlipAddEquiv (M := X) hN
+  let eP := rightTensorFlipAddEquiv (M := X) hP
+  let τ : TensorProductOver Cᵐᵒᵖ (InDegreeZero (OpBimodule C X)) (InDegreeZero N) →+
+      TensorProductOver Cᵐᵒᵖ (InDegreeZero (OpBimodule C X)) (InDegreeZero P) :=
+    eP.symm.toAddMonoidHom.comp (μ.comp eN.toAddMonoidHom)
+  let H := DG.DerivedCategory.homologyFunctor (A := C'ᵐᵒᵖ) ℤ 0
+  let g := H.map ((derivedRightTensor C C' X).map (Q.map f))
+  let eX := derivedTensorHomologyIsoOrdinary (A := C'ᵐᵒᵖ) (B := Cᵐᵒᵖ) (M := OpBimodule C X) N
+  let eY := derivedTensorHomologyIsoOrdinary (A := C'ᵐᵒᵖ) (B := Cᵐᵒᵖ) (M := OpBimodule C X) P
+  have hτ : ∀ (x : InDegreeZero (OpBimodule C X)) (n : InDegreeZero N),
+      τ (TensorProductOver.tmul Cᵐᵒᵖ x n) = TensorProductOver.tmul Cᵐᵒᵖ x (f n) := by
+    intro x n
+    change eP.symm (μ (eN (TensorProductOver.tmul Cᵐᵒᵖ x n))) =
+      TensorProductOver.tmul Cᵐᵒᵖ x (f n)
+    apply eP.injective
+    rw [AddEquiv.apply_symm_apply]
+    exact hμ n x
+  have hτs : Function.Surjective τ :=
+    eP.symm.surjective.comp (hsurj.comp eN.surjective)
+  have he := epi_tensorHomologyQ_of_surjective (A := C'ᵐᵒᵖ) (B := Cᵐᵒᵖ)
+    (M := OpBimodule C X) (N := N) (P := P) f τ hτ hτs
+  have hsq : g ≫ eY.hom = eX.hom ≫ H.map
+      (Q.map ((DGModuleCat.tensorFunctor C'ᵐᵒᵖ (InDegreeZero (OpBimodule C X))).map f)) :=
+    derivedTensorHomologyIsoOrdinary_naturality (A := C'ᵐᵒᵖ) (B := Cᵐᵒᵖ)
+      (M := OpBimodule C X) (X := N) (Y := P) f
+  have h₁ : Epi (g ≫ eY.hom) := by rw [hsq]; infer_instance
+  have h₂ := epi_comp (g ≫ eY.hom) (inv eY.hom)
+  rwa [Category.assoc, IsIso.hom_inv_id, Category.comp_id] at h₂
 
 end Derived
 

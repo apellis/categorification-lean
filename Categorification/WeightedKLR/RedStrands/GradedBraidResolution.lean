@@ -60,19 +60,19 @@ local notation "𝒢" => rouquierGrading Q hR Λ
 local notation "𝒜" Ω => oppositeGrade (tensorProductGrade (rouquierGrading Q hR Ω) ν)
 
 /-- The inverse of `cornerOpRingHom`. -/
-private def cornerOpRingHomInv : 𝒯ᵐᵒᵖ →+* 𝒞ᵐᵒᵖ where
+def cornerOpRingHomInv : 𝒯ᵐᵒᵖ →+* 𝒞ᵐᵒᵖ where
   toFun t := op ((violCornerEquiv (k := k) (Q := Q) (Λ := Λ) (ν := ν) hρ hQ).symm t.unop)
   map_one' := by rw [MulOpposite.unop_one, map_one, MulOpposite.op_one]
   map_mul' c d := by rw [MulOpposite.unop_mul, map_mul, MulOpposite.op_mul]
   map_zero' := by rw [MulOpposite.unop_zero, map_zero, MulOpposite.op_zero]
   map_add' c d := by rw [MulOpposite.unop_add, map_add, MulOpposite.op_add]
 
-private instance : RingHomInvPair (cornerOpRingHomInv (Λ := Λ) hρ hQ)
+instance cornerOpRingHomInv_invPair : RingHomInvPair (cornerOpRingHomInv (Λ := Λ) hρ hQ)
     (cornerOpRingHom (Λ := Λ) hρ hQ) :=
   ⟨by ext t; exact congrArg op (RingEquiv.apply_symm_apply _ t.unop),
    by ext c; exact congrArg op (RingEquiv.symm_apply_apply _ c.unop)⟩
 
-private instance : RingHomInvPair (cornerOpRingHom (Λ := Λ) hρ hQ)
+instance cornerOpRingHom_invPair : RingHomInvPair (cornerOpRingHom (Λ := Λ) hρ hQ)
     (cornerOpRingHomInv (Λ := Λ) hρ hQ) :=
   RingHomInvPair.symm _ _
 

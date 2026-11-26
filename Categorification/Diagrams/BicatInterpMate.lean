@@ -2,7 +2,7 @@
 Copyright (c) 2026 Alex Ellis. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 -/
-import Categorification.Diagrams.BicatInterp
+import Categorification.Diagrams.BicatInterpAdmissible
 
 /-!
 # Sliding a cup or a cap through a strand, in normal form
@@ -65,6 +65,29 @@ theorem mateEquiv_counit (γ : g ≫ l₂ ⟶ l₁ ≫ h) :
         bicategory
 
 end Mates
+
+section Pair
+
+/-- **The image of a two-layer chain** as two layer images between transports of free
+1-morphisms, each transport going from the word reached so far to the boundary word of the next
+layer. -/
+theorem admissibleChain_pair (G : GenImg M) {s t : S.Region} {a b : Obj S} (L₁ L₂ : Layer S)
+    (h : Chain a [L₁, L₂] b) (ha : Cond s t a) (hb : Cond s t b) :
+    admissibleChain G a [L₁, L₂] b h ha hb =
+      M.lift.map₂ (eqToHom (fw_eq (congrArg Obj.word h.2.1.symm) ha.1 ha.2.1
+          (h.2.1 ▸ ha).1 (h.2.1 ▸ ha).2.1)) ≫
+        coreC G h.1 (h.2.1 ▸ ha) ≫
+        M.lift.map₂ (eqToHom (fw_eq (congrArg Obj.word h.2.2.2.1.symm)
+          ((h.2.1 ▸ ha).cod h.1).1 ((h.2.1 ▸ ha).cod h.1).2.1
+          (h.2.2.2.1 ▸ (h.2.1 ▸ ha).cod h.1).1 (h.2.2.2.1 ▸ (h.2.1 ▸ ha).cod h.1).2.1)) ≫
+        coreC G h.2.2.1 (h.2.2.2.1 ▸ (h.2.1 ▸ ha).cod h.1) ≫
+        M.lift.map₂ (eqToHom (fw_eq (congrArg Obj.word h.2.2.2.2)
+          ((h.2.2.2.1 ▸ (h.2.1 ▸ ha).cod h.1).cod h.2.2.1).1
+          ((h.2.2.2.1 ▸ (h.2.1 ▸ ha).cod h.1).cod h.2.2.1).2.1 hb.1 hb.2.1)) := by
+  simp only [admissibleChain]
+  rw [eqToHom_lift _ _, eqToHom_lift _ _, eqToHom_lift _ _]
+
+end Pair
 
 section Key
 
@@ -184,6 +207,57 @@ theorem cup_key {x : a₀ ⟶ a₁} {dn : a₁ ⟶ a₂} {up : a₂ ⟶ a₁} {d
   simp only [Category.assoc, ← PrelaxFunctor.map₂_comp_assoc, ← PrelaxFunctor.map₂_comp]
   exact cup_nf M _ _ _ _ _ _ _ _ _ _ hmate
 
+/-- `cup_key` for layers whose splitting regions and pieces agree with the canonical ones only up
+to equality: the regions are equal, the pieces and the generator images are heterogeneously
+equal to the canonical ones. -/
+theorem cup_key_heq {x : a₀ ⟶ a₁} {dn : a₁ ⟶ a₂} {up : a₂ ⟶ a₁} {dn' : a₀ ⟶ a₃}
+    {x' : a₃ ⟶ a₂} {up' : a₃ ⟶ a₀}
+    {n₁ m₁ n₂ m₂ n₃ m₃ n₄ m₄ : FB S}
+    {p₁ : a₀ ⟶ n₁} {q₁ : m₁ ⟶ a₁} {d₁ c₁ : n₁ ⟶ m₁} {p₂ : a₀ ⟶ n₂} {q₂ : m₂ ⟶ a₁}
+    {d₂ c₂ : n₂ ⟶ m₂} {p₃ : a₀ ⟶ n₃} {q₃ : m₃ ⟶ a₁} {d₃ c₃ : n₃ ⟶ m₃} {p₄ : a₀ ⟶ n₄}
+    {q₄ : m₄ ⟶ a₁} {d₄ c₄ : n₄ ⟶ m₄}
+    (hn₁ : n₁ = a₁) (hm₁ : m₁ = a₁) (hn₂ : n₂ = a₀) (hm₂ : m₂ = a₂)
+    (hn₃ : n₃ = a₀) (hm₃ : m₃ = a₀) (hn₄ : n₄ = a₃) (hm₄ : m₄ = a₁)
+    (hp₁ : p₁ ≍ x) (hq₁ : q₁ ≍ 𝟙 a₁) (hd₁ : d₁ ≍ 𝟙 a₁) (hc₁ : c₁ ≍ dn ≫ up)
+    (hp₂ : p₂ ≍ 𝟙 a₀) (hq₂ : q₂ ≍ up) (hd₂ : d₂ ≍ x ≫ dn) (hc₂ : c₂ ≍ dn' ≫ x')
+    (hp₃ : p₃ ≍ 𝟙 a₀) (hq₃ : q₃ ≍ x) (hd₃ : d₃ ≍ 𝟙 a₀) (hc₃ : c₃ ≍ dn' ≫ up')
+    (hp₄ : p₄ ≍ dn') (hq₄ : q₄ ≍ 𝟙 a₁) (hd₄ : d₄ ≍ up' ≫ x) (hc₄ : c₄ ≍ x' ≫ up)
+    (g₁ : M.lift.map d₁ ⟶ M.lift.map c₁) (g₂ : M.lift.map d₂ ⟶ M.lift.map c₂)
+    (g₃ : M.lift.map d₃ ⟶ M.lift.map c₃) (g₄ : M.lift.map d₄ ⟶ M.lift.map c₄)
+    (γ₁ : 𝟙 (M.obj a₁) ⟶ M.lift.map dn ≫ M.lift.map up)
+    (γ₂ : M.lift.map x ≫ M.lift.map dn ⟶ M.lift.map dn' ≫ M.lift.map x')
+    (γ₃ : 𝟙 (M.obj a₀) ⟶ M.lift.map dn' ≫ M.lift.map up')
+    (γ₄ : M.lift.map up' ≫ M.lift.map x ⟶ M.lift.map x' ≫ M.lift.map up)
+    (hg₁ : g₁ ≍ γ₁) (hg₂ : g₂ ≍ γ₂) (hg₃ : g₃ ≍ γ₃) (hg₄ : g₄ ≍ γ₄)
+    (hmate : (ρ_ _).inv ≫ M.lift.map x ◁ γ₁ ≫ (α_ _ _ _).inv ≫ γ₂ ▷ M.lift.map up ≫
+        (α_ _ _ _).hom = (λ_ _).inv ≫ γ₃ ▷ M.lift.map x ≫ (α_ _ _ _).hom ≫
+        M.lift.map dn' ◁ γ₄)
+    {P P₁ Q₁ P₂ Q₂ P₃ Q₃ P₄ Q₄ Q : a₀ ⟶ a₁}
+    (E₀ : P ⟶ P₁) (A₁ : P₁ ⟶ p₁ ≫ (d₁ ≫ q₁)) (B₁ : p₁ ≫ (c₁ ≫ q₁) ⟶ Q₁) (E₁ : Q₁ ⟶ P₂)
+    (A₂ : P₂ ⟶ p₂ ≫ (d₂ ≫ q₂)) (B₂ : p₂ ≫ (c₂ ≫ q₂) ⟶ Q₂) (E₂ : Q₂ ⟶ Q)
+    (E₃ : P ⟶ P₃) (A₃ : P₃ ⟶ p₃ ≫ (d₃ ≫ q₃)) (B₃ : p₃ ≫ (c₃ ≫ q₃) ⟶ Q₃) (E₄ : Q₃ ⟶ P₄)
+    (A₄ : P₄ ⟶ p₄ ≫ (d₄ ≫ q₄)) (B₄ : p₄ ≫ (c₄ ≫ q₄) ⟶ Q₄) (E₅ : Q₄ ⟶ Q) :
+    M.lift.map₂ E₀ ≫ (M.lift.map₂ A₁ ≫ midK M p₁ q₁ g₁ ≫ M.lift.map₂ B₁) ≫ M.lift.map₂ E₁ ≫
+        (M.lift.map₂ A₂ ≫ midK M p₂ q₂ g₂ ≫ M.lift.map₂ B₂) ≫ M.lift.map₂ E₂ =
+      M.lift.map₂ E₃ ≫ (M.lift.map₂ A₃ ≫ midK M p₃ q₃ g₃ ≫ M.lift.map₂ B₃) ≫ M.lift.map₂ E₄ ≫
+        (M.lift.map₂ A₄ ≫ midK M p₄ q₄ g₄ ≫ M.lift.map₂ B₄) ≫ M.lift.map₂ E₅ := by
+  subst hn₁ hm₁ hn₂ hm₂ hn₃ hm₃ hn₄ hm₄
+  obtain rfl := eq_of_heq hp₁; obtain rfl := eq_of_heq hq₁; obtain rfl := eq_of_heq hd₁
+  obtain rfl := eq_of_heq hc₁; obtain rfl := eq_of_heq hp₂; obtain rfl := eq_of_heq hq₂
+  obtain rfl := eq_of_heq hd₂; obtain rfl := eq_of_heq hc₂; obtain rfl := eq_of_heq hp₃
+  obtain rfl := eq_of_heq hq₃; obtain rfl := eq_of_heq hd₃; obtain rfl := eq_of_heq hc₃
+  obtain rfl := eq_of_heq hp₄; obtain rfl := eq_of_heq hq₄; obtain rfl := eq_of_heq hd₄
+  obtain rfl := eq_of_heq hc₄
+  obtain rfl := eq_of_heq hg₁; obtain rfl := eq_of_heq hg₂; obtain rfl := eq_of_heq hg₃
+  obtain rfl := eq_of_heq hg₄
+  refine cup_key M (Iso.refl _) (Iso.refl _) (Iso.refl _) (Iso.refl _) (Iso.refl _)
+    (Iso.refl _) (Iso.refl _) (Iso.refl _) (Iso.refl _) (Iso.refl _) (Iso.refl _) (Iso.refl _)
+    (Iso.refl _) (Iso.refl _) (Iso.refl _) (Iso.refl _) g₁ g₂ g₃ g₄ ?_ _ _ _ _ _ _ _ _ _ _ _ _
+    _ _
+  simp only [Iso.refl_inv, Iso.refl_hom, PrelaxFunctor.map₂_id, Category.comp_id]
+  erw [Category.id_comp, Category.id_comp, Category.id_comp, Category.id_comp]
+  exact hmate
+
 /-- The normal form of `cap_key`, with arbitrary free 2-morphisms between the two steps. -/
 theorem cap_nf {x : a₀ ⟶ a₁} {up : a₁ ⟶ a₂} {dn : a₂ ⟶ a₁} {x' : a₃ ⟶ a₂} {up' : a₀ ⟶ a₃}
     {dn' : a₃ ⟶ a₀} {P Q : a₀ ⟶ a₁}
@@ -287,6 +361,55 @@ theorem cap_key {x : a₀ ⟶ a₁} {up : a₁ ⟶ a₂} {dn : a₂ ⟶ a₁} {x
     mid_conj M σp₁ σq₁, mid_conj M σp₂ σq₂, mid_conj M σp₃ σq₃, mid_conj M σp₄ σq₄]
   simp only [Category.assoc, ← PrelaxFunctor.map₂_comp_assoc, ← PrelaxFunctor.map₂_comp]
   exact cap_nf M _ _ _ _ _ _ _ _ _ _ hmate
+
+/-- `cap_key` for layers whose splitting regions and pieces agree with the canonical ones only up
+to equality, as in `cup_key_heq`. -/
+theorem cap_key_heq {x : a₀ ⟶ a₁} {up : a₁ ⟶ a₂} {dn : a₂ ⟶ a₁} {x' : a₃ ⟶ a₂}
+    {up' : a₀ ⟶ a₃} {dn' : a₃ ⟶ a₀}
+    {n₁ m₁ n₂ m₂ n₃ m₃ n₄ m₄ : FB S}
+    {p₁ : a₀ ⟶ n₁} {q₁ : m₁ ⟶ a₁} {d₁ c₁ : n₁ ⟶ m₁} {p₂ : a₀ ⟶ n₂} {q₂ : m₂ ⟶ a₁}
+    {d₂ c₂ : n₂ ⟶ m₂} {p₃ : a₀ ⟶ n₃} {q₃ : m₃ ⟶ a₁} {d₃ c₃ : n₃ ⟶ m₃} {p₄ : a₀ ⟶ n₄}
+    {q₄ : m₄ ⟶ a₁} {d₄ c₄ : n₄ ⟶ m₄}
+    (hn₁ : n₁ = a₀) (hm₁ : m₁ = a₂) (hn₂ : n₂ = a₁) (hm₂ : m₂ = a₁)
+    (hn₃ : n₃ = a₃) (hm₃ : m₃ = a₁) (hn₄ : n₄ = a₀) (hm₄ : m₄ = a₀)
+    (hp₁ : p₁ ≍ 𝟙 a₀) (hq₁ : q₁ ≍ dn) (hd₁ : d₁ ≍ up' ≫ x') (hc₁ : c₁ ≍ x ≫ up)
+    (hp₂ : p₂ ≍ x) (hq₂ : q₂ ≍ 𝟙 a₁) (hd₂ : d₂ ≍ up ≫ dn) (hc₂ : c₂ ≍ 𝟙 a₁)
+    (hp₃ : p₃ ≍ up') (hq₃ : q₃ ≍ 𝟙 a₁) (hd₃ : d₃ ≍ x' ≫ dn) (hc₃ : c₃ ≍ dn' ≫ x)
+    (hp₄ : p₄ ≍ 𝟙 a₀) (hq₄ : q₄ ≍ x) (hd₄ : d₄ ≍ up' ≫ dn') (hc₄ : c₄ ≍ 𝟙 a₀)
+    (g₁ : M.lift.map d₁ ⟶ M.lift.map c₁) (g₂ : M.lift.map d₂ ⟶ M.lift.map c₂)
+    (g₃ : M.lift.map d₃ ⟶ M.lift.map c₃) (g₄ : M.lift.map d₄ ⟶ M.lift.map c₄)
+    (γ₁ : M.lift.map up' ≫ M.lift.map x' ⟶ M.lift.map x ≫ M.lift.map up)
+    (γ₂ : M.lift.map up ≫ M.lift.map dn ⟶ 𝟙 (M.obj a₁))
+    (γ₃ : M.lift.map x' ≫ M.lift.map dn ⟶ M.lift.map dn' ≫ M.lift.map x)
+    (γ₄ : M.lift.map up' ≫ M.lift.map dn' ⟶ 𝟙 (M.obj a₀))
+    (hg₁ : g₁ ≍ γ₁) (hg₂ : g₂ ≍ γ₂) (hg₃ : g₃ ≍ γ₃) (hg₄ : g₄ ≍ γ₄)
+    (hmate : (α_ _ _ _).inv ≫ γ₁ ▷ M.lift.map dn ≫ (α_ _ _ _).hom ≫ M.lift.map x ◁ γ₂ ≫
+        (ρ_ _).hom = M.lift.map up' ◁ γ₃ ≫ (α_ _ _ _).inv ≫ γ₄ ▷ M.lift.map x ≫ (λ_ _).hom)
+    {P P₁ Q₁ P₂ Q₂ P₃ Q₃ P₄ Q₄ Q : a₀ ⟶ a₁}
+    (E₀ : P ⟶ P₁) (A₁ : P₁ ⟶ p₁ ≫ (d₁ ≫ q₁)) (B₁ : p₁ ≫ (c₁ ≫ q₁) ⟶ Q₁) (E₁ : Q₁ ⟶ P₂)
+    (A₂ : P₂ ⟶ p₂ ≫ (d₂ ≫ q₂)) (B₂ : p₂ ≫ (c₂ ≫ q₂) ⟶ Q₂) (E₂ : Q₂ ⟶ Q)
+    (E₃ : P ⟶ P₃) (A₃ : P₃ ⟶ p₃ ≫ (d₃ ≫ q₃)) (B₃ : p₃ ≫ (c₃ ≫ q₃) ⟶ Q₃) (E₄ : Q₃ ⟶ P₄)
+    (A₄ : P₄ ⟶ p₄ ≫ (d₄ ≫ q₄)) (B₄ : p₄ ≫ (c₄ ≫ q₄) ⟶ Q₄) (E₅ : Q₄ ⟶ Q) :
+    M.lift.map₂ E₀ ≫ (M.lift.map₂ A₁ ≫ midK M p₁ q₁ g₁ ≫ M.lift.map₂ B₁) ≫ M.lift.map₂ E₁ ≫
+        (M.lift.map₂ A₂ ≫ midK M p₂ q₂ g₂ ≫ M.lift.map₂ B₂) ≫ M.lift.map₂ E₂ =
+      M.lift.map₂ E₃ ≫ (M.lift.map₂ A₃ ≫ midK M p₃ q₃ g₃ ≫ M.lift.map₂ B₃) ≫ M.lift.map₂ E₄ ≫
+        (M.lift.map₂ A₄ ≫ midK M p₄ q₄ g₄ ≫ M.lift.map₂ B₄) ≫ M.lift.map₂ E₅ := by
+  subst hn₁ hm₁ hn₂ hm₂ hn₃ hm₃ hn₄ hm₄
+  obtain rfl := eq_of_heq hp₁; obtain rfl := eq_of_heq hq₁; obtain rfl := eq_of_heq hd₁
+  obtain rfl := eq_of_heq hc₁; obtain rfl := eq_of_heq hp₂; obtain rfl := eq_of_heq hq₂
+  obtain rfl := eq_of_heq hd₂; obtain rfl := eq_of_heq hc₂; obtain rfl := eq_of_heq hp₃
+  obtain rfl := eq_of_heq hq₃; obtain rfl := eq_of_heq hd₃; obtain rfl := eq_of_heq hc₃
+  obtain rfl := eq_of_heq hp₄; obtain rfl := eq_of_heq hq₄; obtain rfl := eq_of_heq hd₄
+  obtain rfl := eq_of_heq hc₄
+  obtain rfl := eq_of_heq hg₁; obtain rfl := eq_of_heq hg₂; obtain rfl := eq_of_heq hg₃
+  obtain rfl := eq_of_heq hg₄
+  refine cap_key M (Iso.refl _) (Iso.refl _) (Iso.refl _) (Iso.refl _) (Iso.refl _)
+    (Iso.refl _) (Iso.refl _) (Iso.refl _) (Iso.refl _) (Iso.refl _) (Iso.refl _) (Iso.refl _)
+    (Iso.refl _) (Iso.refl _) (Iso.refl _) (Iso.refl _) g₁ g₂ g₃ g₄ ?_ _ _ _ _ _ _ _ _ _ _ _ _
+    _ _
+  simp only [Iso.refl_inv, Iso.refl_hom, PrelaxFunctor.map₂_id, Category.comp_id]
+  erw [Category.id_comp, Category.id_comp, Category.id_comp, Category.id_comp]
+  exact hmate
 
 end Key
 

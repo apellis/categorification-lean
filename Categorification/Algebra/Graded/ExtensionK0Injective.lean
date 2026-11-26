@@ -3,6 +3,7 @@ Copyright (c) 2026 Alex Ellis. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 -/
 import Categorification.Algebra.Graded.ExtensionK0
+import Categorification.KLR.ExtTensorK0Equiv
 
 /-!
 # Extension of scalars along a quotient that is injective in degree zero
@@ -53,9 +54,9 @@ theorem leftIdeal_linearMap_apply {e e' : R} (he : IsIdempotentElem e)
   rfl
 
 theorem leftIdeal_eq_bot_of_eq_zero {e : R} (he : e = 0) (x : leftIdeal e) : (x : R) = 0 := by
-  have h := x.2
-  rw [mem_leftIdeal, he, mul_zero] at h
-  exact h.symm
+  obtain ⟨y, hy⟩ := x
+  rw [mem_leftIdeal, he, mul_zero] at hy
+  exact hy.symm
 
 end LeftIdeal
 
@@ -98,7 +99,7 @@ theorem exists_mul_eq_of_iso {e e' : R} {he : IsIdempotentElem e} {he' : IsIdemp
   · have h := leftIdeal_linearMap_apply he' g ⟨e', he'.eq⟩
     exact h.symm
 
-variable {𝓡 𝓢} (φ : R →ₐ[k] S) (hφ : PreservesGrading 𝓡 𝓢 φ.toLinearMap)
+variable (φ : R →ₐ[k] S) (hφ : PreservesGrading 𝓡 𝓢 φ.toLinearMap)
   (hs : Function.Surjective φ) (h0 : ∀ x ∈ 𝓡 0, φ x = 0 → x = 0)
 
 include hφ hs in
@@ -107,6 +108,7 @@ private theorem exists_preimage_mem {d : ℤ} {z : S} (hz : z ∈ 𝓢 d) : ∃ 
   obtain ⟨w, hw, rfl⟩ := hz
   exact ⟨w, hw, rfl⟩
 
+omit [GradedAlgebra 𝓡] [GradedAlgebra 𝓢] in
 include h0 in
 private theorem eq_of_map_eq {x y : R} (hx : x ∈ 𝓡 0) (hy : y ∈ 𝓡 0) (h : φ x = φ y) : x = y :=
   sub_eq_zero.mp (h0 _ (sub_mem hx hy) (by rw [map_sub, h, sub_self]))
@@ -124,27 +126,28 @@ theorem isIndec_ofIdempotent_map {e : R} (he : IsIdempotentElem e) (he0 : e ∈ 
       (leftIdeal_eq_bot_of_eq_zero h v).symm))
   have hφne : φ e ≠ 0 := fun h => hne (h0 e he0 h)
   refine ⟨⟨⟨⟨φ e, (he.map φ).eq⟩, 0, fun h => hφne (congrArg Subtype.val h)⟩⟩, ?_⟩
-  intro g hg hgid
-  let ē : leftIdeal (φ e) := ⟨φ e, (he.map φ).eq⟩
-  set z̄ : S := (g ē : S) with hz̄
-  have hg_apply : ∀ x : leftIdeal (φ e), (g x : S) = (x : S) * z̄ :=
+  intro g' hg hgid
+  let g : Module.End S (leftIdeal (φ e)) := g'
+  let eb : leftIdeal (φ e) := ⟨φ e, (he.map φ).eq⟩
+  set zb : S := (g eb : S) with hzb
+  have hg_apply : ∀ x : leftIdeal (φ e), (g x : S) = (x : S) * zb :=
     fun x => leftIdeal_linearMap_apply (he.map φ) g x
-  have hz̄0 : z̄ ∈ 𝓢 0 := hg (show (ē : S) ∈ 𝓢 0 from hφ he0)
-  have hz̄e : z̄ * φ e = z̄ := (g ē).2
-  have heZ : φ e * z̄ = z̄ := by rw [hz̄, ← hg_apply ē]
-  have hz̄z̄ : z̄ * z̄ = z̄ := by
-    have h := congrArg (fun f : Module.End S (leftIdeal (φ e)) => (f ē : S)) hgid.eq
-    simp only [Module.End.mul_apply] at h
-    rw [hg_apply (g ē)] at h
+  have hzb0 : zb ∈ 𝓢 0 := hg (x := eb) (hφ he0)
+  have hzbe : zb * φ e = zb := (g eb).2
+  have heZ : φ e * zb = zb := by rw [hzb, ← hg_apply eb]
+  have hzbzb : zb * zb = zb := by
+    have h := congrArg (fun f : Module.End S (leftIdeal (φ e)) => (f eb : S)) hgid.eq
+    change (g (g eb) : S) = (g eb : S) at h
+    rw [hg_apply (g eb)] at h
     exact h
-  obtain ⟨z₀, hz₀, hz₀φ⟩ := exists_preimage_mem φ hφ hs hz̄0
+  obtain ⟨z₀, hz₀, hz₀φ⟩ := exists_preimage_mem φ hφ hs hzb0
   set z : R := e * z₀ * e with hzdef
   have hz0 : z ∈ 𝓡 0 := by
     have := SetLike.GradedMul.mul_mem (SetLike.GradedMul.mul_mem he0 hz₀) he0
     simpa using this
-  have hφz : φ z = z̄ := by rw [hzdef, map_mul, map_mul, hz₀φ, heZ, hz̄e]
+  have hφz : φ z = zb := by rw [hzdef, map_mul, map_mul, hz₀φ, heZ, hzbe]
   have hzz : z * z = z := eq_of_map_eq φ h0 (by simpa using SetLike.GradedMul.mul_mem hz0 hz0)
-    hz0 (by rw [map_mul, hφz, hz̄z̄])
+    hz0 (by rw [map_mul, hφz, hzbzb])
   have hze : z * e = z := by rw [hzdef, mul_assoc, he.eq]
   have hez : e * z = z := by rw [hzdef, ← mul_assoc, ← mul_assoc, he.eq]
   let h : Module.End R (leftIdeal e) :=
@@ -153,8 +156,9 @@ theorem isIndec_ofIdempotent_map {e : R} (he : IsIdempotentElem e) (he0 : e ∈ 
       map_smul' := fun c x => Subtype.ext (mul_assoc _ _ _) }
   have hh : h ∈ endZero R (GProj.ofIdempotent e he he0).grading := by
     intro d x hx
-    have := SetLike.GradedMul.mul_mem (show (x : R) ∈ 𝓡 d from hx) hz0
-    simpa using this
+    have := SetLike.GradedMul.mul_mem (show (x.1 : R) ∈ 𝓡 d from hx) hz0
+    rw [add_zero] at this
+    exact this
   have hhid : IsIdempotentElem h := by
     apply LinearMap.ext
     intro x
@@ -175,14 +179,14 @@ theorem isIndec_ofIdempotent_map {e : R} (he : IsIdempotentElem e) (he0 : e ∈ 
       have := congrArg (fun f : Module.End R (leftIdeal e) => (f ⟨e, he.eq⟩ : R)) h1
       change e * z = 0 at this
       rwa [hez] at this
-    refine (hgform z̄ hg_apply hz̄e).1 ?_
+    refine (hgform zb hg_apply hzbe).1 ?_
     rw [← hφz, hz, map_zero]
   · right
     have hz : z = e := by
       have := congrArg (fun f : Module.End R (leftIdeal e) => (f ⟨e, he.eq⟩ : R)) h1
       change e * z = e at this
       rwa [hez] at this
-    refine (hgform z̄ hg_apply hz̄e).2 ?_
+    refine (hgform zb hg_apply hzbe).2 ?_
     rw [← hφz, hz]
 
 include hφ hs h0 in
@@ -192,17 +196,17 @@ theorem nonempty_iso_of_map [HasGdim 𝓡] {e e' : R} (he : IsIdempotentElem e) 
     (ψ : ((GProj.ofIdempotent (φ e) (he.map φ) (hφ he0)).shift a).Iso
       (GProj.ofIdempotent (φ e') (he'.map φ) (hφ he0'))) :
     Nonempty (((GProj.ofIdempotent e he he0).shift a).Iso (GProj.ofIdempotent e' he' he0')) := by
-  obtain ⟨x̄, hx̄, ȳ, hȳ, hxy, hyx, hex, hxe, hey, hye⟩ := exists_mul_eq_of_iso ψ
-  obtain ⟨x₀, hx₀, hx₀φ⟩ := exists_preimage_mem φ hφ hs hx̄
-  obtain ⟨y₀, hy₀, hy₀φ⟩ := exists_preimage_mem φ hφ hs hȳ
+  obtain ⟨xb, hxb, yb, hyb, hxy, hyx, hex, hxe, hey, hye⟩ := exists_mul_eq_of_iso ψ
+  obtain ⟨x₀, hx₀, hx₀φ⟩ := exists_preimage_mem φ hφ hs hxb
+  obtain ⟨y₀, hy₀, hy₀φ⟩ := exists_preimage_mem φ hφ hs hyb
   set x : R := e * x₀ * e' with hx
   set y : R := e' * y₀ * e with hy
   have hxa : x ∈ 𝓡 a := by
     simpa using SetLike.GradedMul.mul_mem (SetLike.GradedMul.mul_mem he0 hx₀) he0'
   have hya : y ∈ 𝓡 (-a) := by
     simpa using SetLike.GradedMul.mul_mem (SetLike.GradedMul.mul_mem he0' hy₀) he0
-  have hφx : φ x = x̄ := by rw [hx, map_mul, map_mul, hx₀φ, hex, hxe]
-  have hφy : φ y = ȳ := by rw [hy, map_mul, map_mul, hy₀φ, hey, hye]
+  have hφx : φ x = xb := by rw [hx, map_mul, map_mul, hx₀φ, hex, hxe]
+  have hφy : φ y = yb := by rw [hy, map_mul, map_mul, hy₀φ, hey, hye]
   have hxy0 : x * y ∈ 𝓡 0 := by simpa using SetLike.GradedMul.mul_mem hxa hya
   have hyx0 : y * x ∈ 𝓡 0 := by simpa using SetLike.GradedMul.mul_mem hya hxa
   have hxy' : x * y = e := eq_of_map_eq φ h0 hxy0 he0 (by rw [map_mul, hφx, hφy, hxy])
@@ -213,7 +217,7 @@ theorem nonempty_iso_of_map [HasGdim 𝓡] {e e' : R} (he : IsIdempotentElem e) 
   have hc : K0.of ((GProj.ofIdempotent e he he0).shift a) =
       K0.of (GProj.ofIdempotent e' he' he0') := by
     rw [← K0.T_smul_of, K0.of_eq_of_iso u, ← K0.T_smul_of, smul_smul, ← LaurentPolynomial.T_add,
-      neg_add_cancel, LaurentPolynomial.T_zero, one_smul]
+      add_neg_cancel, LaurentPolynomial.T_zero, one_smul]
   exact K0.of_eq_of_iff.mp hc
 
 local notation "LP" => LaurentPolynomial ℤ
@@ -237,9 +241,13 @@ theorem extensionK0_injective : Function.Injective (extensionK0 𝓡 𝓢 φ hφ
       Nonempty ((GProj.ofIdempotent (φ e) (he.map φ) (hφ he0)).Iso (c.rep.shift n)) := by
     intro b
     obtain ⟨e, he, he0, j, ⟨u⟩⟩ := b.isIndec_rep.exists_iso_ofIdempotent
-    have hind : (GProj.ofIdempotent e he he0).IsIndec R :=
-      (IsIndec.of_iso ((u.symm.shift (-j)).trans (GradedEquiv.ofEq (by
-        rw [shift_shift, add_neg_cancel, shift_zero]))).symm b.isIndec_rep)
+    have hind : (GProj.ofIdempotent e he he0).IsIndec R := by
+      have h1 := (IsIndec.of_iso u.symm b.isIndec_rep).shift (-j)
+      refine IsIndec.of_iso (Q := ((GProj.ofIdempotent e he he0).shift j).shift (-j))
+        (GradedEquiv.ofEq (A := R) ?_) h1
+      change (GProj.ofIdempotent e he he0).grading =
+        shift (shift (GProj.ofIdempotent e he he0).grading j) (-j)
+      rw [shift_shift, add_neg_cancel, shift_zero]
     obtain ⟨c, n, ⟨w⟩⟩ := IndecClass.exists_iso_rep_shift
       (isIndec_ofIdempotent_map φ hφ hs h0 he he0 hind)
     exact ⟨c, n, e, he, he0, j, ⟨u⟩, ⟨w⟩⟩
@@ -260,8 +268,8 @@ theorem extensionK0_injective : Function.Injective (extensionK0 𝓡 𝓢 φ hφ
       (K0.of_eq_of_iff.mp h1).some
     have h2 : K0.of (b'.rep) = K0.of ((b.rep).shift (j b' + (n b' - n b) - j b)) := by
       rw [K0.of_eq_of_iso (hb b').some, of_shift', ← K0.of_eq_of_iso v, of_shift',
-        of_shift', K0.of_eq_of_iso (hb b).some, of_shift', smul_smul, smul_smul, smul_smul,
-        ← LaurentPolynomial.T_add, ← LaurentPolynomial.T_add, ← LaurentPolynomial.T_add]
+        of_shift', K0.of_eq_of_iso (hb b).some, of_shift']
+      simp only [smul_smul, ← LaurentPolynomial.T_add]
       congr 2
       ring
     exact (IndecClass.eq_of_iso_rep (K0.of_eq_of_iff.mp h2).some).symm

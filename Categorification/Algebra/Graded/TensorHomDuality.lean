@@ -30,7 +30,7 @@ a fixed projective into the original module.
 * `tensorHomGradedEquiv` : the graded isomorphism, and `gdimPoly_balancedGrading_eq` :
   `gdim (P ⊗_A N) = gdim HOM(P^*, N)`.
 * `dualGProj 𝒜 ℙ` : `P^*` as a finitely generated graded projective left `A`-module.
-* `idemTensorMap_bijective`, `gdimPoly_idem_balancedGrading` : for a `(B, A)`-bimodule `M` and
+* `idemBalancedMap_bijective`, `gdimPoly_idem_balancedGrading` : for a `(B, A)`-bimodule `M` and
   an idempotent `e ∈ B` of degree zero, `e (M ⊗_A N) ≅ e M ⊗_A N`; `e M` is projective
   (`projective_idemSubspace`) and finitely generated (`finite_idemSubspace`) as a right module
   when `M` is.
@@ -261,41 +261,42 @@ omit [Algebra k A] [IsScalarTower k Aᵐᵒᵖ M] in
 
 variable (A) in
 /-- The projection `m ↦ e m` onto `e M`, a map of right modules. -/
-def idemProj {e : B} (he : IsIdempotentElem e) : M →ₗ[Aᵐᵒᵖ] idemSubspace k M e where
+def idemSubspaceProj {e : B} (he : IsIdempotentElem e) : M →ₗ[Aᵐᵒᵖ] idemSubspace k M e where
   toFun m := ⟨e • m, smul_mem_idemSubspace he m⟩
   map_add' m m' := Subtype.ext (smul_add e m m')
   map_smul' a m := Subtype.ext (smul_comm e a m)
 
 omit [Algebra k A] [IsScalarTower k Aᵐᵒᵖ M] in
-@[simp] theorem idemProj_coe {e : B} (he : IsIdempotentElem e) (m : M) :
-    (idemProj (k := k) A he m : M) = e • m := rfl
+@[simp] theorem idemSubspaceProj_coe {e : B} (he : IsIdempotentElem e) (m : M) :
+    (idemSubspaceProj (k := k) A he m : M) = e • m := rfl
 
 variable (k A M) in
 /-- The inclusion `e M → M`, a map of right modules. -/
-def idemIncl (e : B) : idemSubspace k M e →ₗ[Aᵐᵒᵖ] M where
+def idemSubspaceIncl (e : B) : idemSubspace k M e →ₗ[Aᵐᵒᵖ] M where
   toFun m := m
   map_add' _ _ := rfl
   map_smul' _ _ := rfl
 
 omit [Algebra k A] [IsScalarTower k Aᵐᵒᵖ M] in
-theorem idemProj_comp_idemIncl {e : B} (he : IsIdempotentElem e) :
-    idemProj (k := k) (M := M) A he ∘ₗ idemIncl k A M e = LinearMap.id :=
+theorem idemSubspaceProj_comp_incl {e : B} (he : IsIdempotentElem e) :
+    idemSubspaceProj (k := k) (M := M) A he ∘ₗ idemSubspaceIncl k A M e = LinearMap.id :=
   LinearMap.ext fun m => Subtype.ext m.2
 
 omit [Algebra k A] [IsScalarTower k Aᵐᵒᵖ M] in
 theorem projective_idemSubspace {e : B} (he : IsIdempotentElem e) [Module.Projective Aᵐᵒᵖ M] :
     Module.Projective Aᵐᵒᵖ (idemSubspace k M e) :=
-  Module.Projective.of_split (idemIncl k A M e) (idemProj A he) (idemProj_comp_idemIncl he)
+  Module.Projective.of_split (idemSubspaceIncl k A M e) (idemSubspaceProj A he)
+    (idemSubspaceProj_comp_incl he)
 
 omit [Algebra k A] [IsScalarTower k Aᵐᵒᵖ M] in
 theorem finite_idemSubspace {e : B} (he : IsIdempotentElem e) [Module.Finite Aᵐᵒᵖ M] :
     Module.Finite Aᵐᵒᵖ (idemSubspace k M e) :=
-  Module.Finite.of_surjective (idemProj A he) fun m =>
-    ⟨m, LinearMap.congr_fun (idemProj_comp_idemIncl (A := A) he) m⟩
+  Module.Finite.of_surjective (idemSubspaceProj A he) fun m =>
+    ⟨m, LinearMap.congr_fun (idemSubspaceProj_comp_incl (A := A) he) m⟩
 
 variable (k A N) in
 /-- `e M ⊗_A N → e (M ⊗_A N)`. -/
-def idemTensorMap (e : B) :
+def idemBalancedMap (e : B) :
     BalancedTensor k k A (idemSubspace k M e) N →ₗ[k]
       idemSubspace k (BalancedTensor k B A M N) e :=
   lift (A := A) (LinearMap.mk₂ k (fun (m : idemSubspace k M e) (n : N) =>
@@ -310,51 +311,52 @@ def idemTensorMap (e : B) :
     fun m a n => Subtype.ext (op_smul_tmul (m : M) a n)
 
 omit [IsScalarTower k A N] in
-@[simp] theorem idemTensorMap_tmul (e : B) (m : idemSubspace k M e) (n : N) :
-    (idemTensorMap k A N e (tmul m n) : BalancedTensor k B A M N) = tmul (m : M) n := rfl
+@[simp] theorem idemBalancedMap_tmul (e : B) (m : idemSubspace k M e) (n : N) :
+    (idemBalancedMap k A N e (tmul m n) : BalancedTensor k B A M N) = tmul (m : M) n := rfl
 
 variable (k N) in
 /-- `M ⊗_A N → e M ⊗_A N`, `m ⊗ n ↦ e m ⊗ n`. -/
-def idemTensorProj {e : B} (he : IsIdempotentElem e) :
+def idemBalancedProj {e : B} (he : IsIdempotentElem e) :
     BalancedTensor k B A M N →ₗ[k] BalancedTensor k k A (idemSubspace k M e) N :=
   lift (LinearMap.mk₂ k (fun (m : M) (n : N) =>
-      (tmul (idemProj (k := k) A he m) n : BalancedTensor k k A (idemSubspace k M e) N))
+      (tmul (idemSubspaceProj (k := k) A he m) n : BalancedTensor k k A (idemSubspace k M e) N))
       (fun _ _ _ => by rw [map_add, add_tmul])
       (fun c m n => by
-        rw [show idemProj (k := k) A he (c • m) = c • idemProj A he m from
+        rw [show idemSubspaceProj (k := k) A he (c • m) = c • idemSubspaceProj A he m from
           Subtype.ext (smul_comm e c m), smul_tmul])
       (fun _ _ _ => tmul_add _ _ _)
       (fun c _ n => tmul_smul c _ n))
     fun m a n => by
-      change tmul (idemProj A he (op a • m)) n = tmul (idemProj A he m) (a • n)
+      change tmul (idemSubspaceProj A he (op a • m)) n = tmul (idemSubspaceProj A he m) (a • n)
       rw [map_smul, op_smul_tmul]
 
 omit [Algebra k A] [IsScalarTower k Aᵐᵒᵖ M] [IsScalarTower k A N] in
-@[simp] theorem idemTensorProj_tmul {e : B} (he : IsIdempotentElem e) (m : M) (n : N) :
-    idemTensorProj k N he (tmul m n : BalancedTensor k B A M N) = tmul (idemProj A he m) n := rfl
+@[simp] theorem idemBalancedProj_tmul {e : B} (he : IsIdempotentElem e) (m : M) (n : N) :
+    idemBalancedProj k N he (tmul m n : BalancedTensor k B A M N) =
+      tmul (idemSubspaceProj A he m) n := rfl
 
 omit [IsScalarTower k A N] in
 /-- **`e (M ⊗_A N) ≅ e M ⊗_A N`**. -/
-theorem idemTensorMap_bijective {e : B} (he : IsIdempotentElem e) :
-    Function.Bijective (idemTensorMap k A N (M := M) e) := by
+theorem idemBalancedMap_bijective {e : B} (he : IsIdempotentElem e) :
+    Function.Bijective (idemBalancedMap k A N (M := M) e) := by
   have h : ∀ y : BalancedTensor k B A M N,
-      (idemTensorMap k A N e (idemTensorProj k N he y) : BalancedTensor k B A M N) = e • y :=
+      (idemBalancedMap k A N e (idemBalancedProj k N he y) : BalancedTensor k B A M N) = e • y :=
     fun y => by
       induction y using BalancedTensor.induction_on with
       | zero => simp
       | tmul m n => rfl
       | add x y hx hy => rw [map_add, map_add, Submodule.coe_add, hx, hy, smul_add]
   refine Function.bijective_iff_has_inverse.2
-    ⟨fun t => idemTensorProj k N he t.1, fun x => ?_, fun t => Subtype.ext ((h t.1).trans t.2)⟩
+    ⟨fun t => idemBalancedProj k N he t.1, fun x => ?_, fun t => Subtype.ext ((h t.1).trans t.2)⟩
   induction x using BalancedTensor.induction_on with
   | zero => simp
   | tmul m n =>
-    change idemTensorProj k N he (tmul (m : M) n) = tmul m n
-    rw [idemTensorProj_tmul]
+    change idemBalancedProj k N he (tmul (m : M) n) = tmul m n
+    rw [idemBalancedProj_tmul]
     exact congrArg (fun z => (tmul z n : BalancedTensor k k A (idemSubspace k M e) N))
       (Subtype.ext m.2)
   | add x y hx hy =>
-    change idemTensorProj k N he ((idemTensorMap k A N e (x + y) : BalancedTensor k B A M N)) =
+    change idemBalancedProj k N he ((idemBalancedMap k A N e (x + y) : BalancedTensor k B A M N)) =
       x + y
     rw [map_add, Submodule.coe_add, map_add]
     exact congrArg₂ (· + ·) hx hy
@@ -383,9 +385,9 @@ theorem gdimPoly_idem_balancedGrading {e : B} (he : IsIdempotentElem e) (he0 : e
   let := balancedDecomposition (B := k) (ℳ := idem ℳ e) (𝒩 := 𝒩) 𝒜
     (op_smul_mem_of_mem 𝒜 (idem ℳ e))
   refine (gdimPoly_congr (GradedEquiv.ofPreserves (A := k)
-    (LinearEquiv.ofBijective _ (idemTensorMap_bijective he)) ?_)).symm
+    (LinearEquiv.ofBijective _ (idemBalancedMap_bijective he)) ?_)).symm
   intro d x hx
-  exact balancedGrading_map_mem (idem (balancedGrading B A ℳ 𝒩) e) (idemTensorMap k A N e)
+  exact balancedGrading_map_mem (idem (balancedGrading B A ℳ 𝒩) e) (idemBalancedMap k A N e)
     (fun _ _ _ _ hm hn => tmul_mem_balancedGrading (B := B) (A := A) hm hn) hx
 
 end Graded

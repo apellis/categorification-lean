@@ -33,7 +33,9 @@ open CategoryTheory MulOpposite InductionAlong
 
 universe u
 
-variable {I : Type u} [DecidableEq I] {k : Type u} [CommRing k] {ℓ : ℕ}
+section Op
+
+variable {I : Type*} [DecidableEq I] {k : Type*} [CommRing k] {ℓ : ℕ}
   (Q : I → I → MvPolynomial (Fin 2) k) (Λ : Fin ℓ → I →₀ ℕ) (i : I) (ν : Multiset I)
 
 /-- The opposite of the black-appending map, `(T^λ_ν)ᵐᵒᵖ → (T^λ_{ν+i})ᵐᵒᵖ`. -/
@@ -45,6 +47,11 @@ noncomputable def appendBlackOp :
 theorem appendBlackOp_op (x : TensorProductAlgebra k Q Λ ν) :
     appendBlackOp Q Λ i ν (op x) = op (appendBlack Q Λ i ν x) :=
   rfl
+
+end Op
+
+variable {I : Type u} [DecidableEq I] {k : Type u} [CommRing k] {ℓ : ℕ}
+  (Q : I → I → MvPolynomial (Fin 2) k) (Λ : Fin ℓ → I →₀ ℕ) (i : I) (ν : Multiset I)
 
 /-- **Webster's `Fᵢ`** on right modules: `M ↦ M ⊗_{T^λ_ν} e' T^λ_{ν+i}` (arXiv:1309.3796v3,
 §4.6). -/

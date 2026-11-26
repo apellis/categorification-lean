@@ -114,13 +114,6 @@ def classFunctional (ν : Multiset I) (N : GFin (𝒜 ν)) : TensorSpace wt →�
   Lattice.extend (isLattice_integralTensor C hR wt) (latticeCharacter C hQ hR Λ wt hwt ν N)
     (latticeCharacter_smul C hQ hR Λ wt hwt ν N)
 
-/-- A graded projective module over a finite-dimensional algebra, as a finite-dimensional graded
-module. -/
-def _root_.Categorification.Graded.GProj.toGFin {k A : Type*} [Field k] [Ring A] [Algebra k A]
-    [Module.Finite k A] {𝒜' : ℤ → Submodule k A} (P : GProj 𝒜') : GFin 𝒜' where
-  toGMod := P.toGMod
-  finiteDimensional := Module.Finite.trans A P.carrier
-
 /-- The class functional at a virtual projective class. -/
 theorem classFunctional_eta (ν : Multiset I) (N : GFin (𝒜 ν)) (x : Mr) :
     classFunctional C hQ hR Λ wt hwt ν N (η' x) = ev (projectiveHomPolynomial _ N (x ν)) := by

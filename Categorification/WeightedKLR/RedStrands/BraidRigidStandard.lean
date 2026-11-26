@@ -285,6 +285,29 @@ theorem braidRigidStandardInv_mk (ht : redWord t = ord) (hord : ord = L ++ b :: 
     braidRigidStandardInv hρ hQ σ t a b ht hord hrig (braidCutMk Q Λ t a b _ w) =
       BalancedTensor.tmul (braidCutV hρ hQ σ w.1) (rightStandardUnit hρ hQ ht) := rfl
 
+/-- The inverse turns right multiplication by `permCornerMap u` on the cut quotient into the
+right action of `u ∈ T^{λ ∘ σ}` on `B ⊗ (e(t) T / U_t)`. -/
+theorem braidRigidStandardInv_smul (ht : redWord t = ord) (hord : ord = L ++ b :: a :: M)
+    (hrig : IsRigidCut t a) (u : 𝒯σᵐᵒᵖ)
+    (c : (ViolOrderCorner (k := k) (Q := Q) (Λ := Λ) (ν := ν) (L ++ a :: b :: M))ᵐᵒᵖ)
+    (hc : c.unop.1 = permCornerMap Q Λ ν hρ hQ σ u.unop)
+    (z : BraidCutQuotient Q Λ t a b (L ++ a :: b :: M)) :
+    braidRigidStandardInv (Λ := Λ) hρ hQ σ t a b ht hord hrig (c • z) =
+      u • braidRigidStandardInv (Λ := Λ) hρ hQ σ t a b ht hord hrig z := by
+  obtain ⟨w, rfl⟩ := braidCutMk_surjective Q Λ t a b _ z
+  rw [← map_smul, braidRigidStandardInv_mk, braidRigidStandardInv_mk,
+    BalancedTensor.smul_tmul']
+  congr 1
+  apply RectBimod.ext
+  rw [RectBimod.val_smul_right, braidCutV_val, braidCutV_val, violCorner_smul_val, hc]
+  have h1 : permCornerMap Q Λ ν hρ hQ σ u.unop * E ((List.finRange ℓ).map σ) =
+      permCornerMap Q Λ ν hρ hQ σ u.unop := by
+    rw [← permCornerMap_one hρ hQ σ, ← map_mul, mul_one]
+  have h2 : E ((List.finRange ℓ).map σ) * permCornerMap Q Λ ν hρ hQ σ u.unop =
+      permCornerMap Q Λ ν hρ hQ σ u.unop := by
+    rw [← permCornerMap_one hρ hQ σ, ← map_mul, one_mul]
+  rw [mul_assoc (E ord * w.1), h2, mul_assoc (E ord), mul_assoc (E ord), mul_assoc w.1, h1]
+
 theorem braidRigidStandardInv_map (ht : redWord t = ord) (hord : ord = L ++ b :: a :: M)
     (hκ : (List.finRange ℓ).map σ = L ++ a :: b :: M) (hrig : IsRigidCut t a)
     (x : BalancedTensor k 𝒯σᵐᵒᵖ 𝒯ᵐᵒᵖ 𝔹 (RightStandard Λ hρ hQ t)) :

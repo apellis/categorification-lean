@@ -2423,3 +2423,8 @@ import Categorification.WeightedKLR.RedStrands.PrependRed
 import Categorification.WeightedKLR.RedStrands.EraseFirstRed
 import Categorification.WeightedKLR.RedStrands.PrependRedInjective
 import Categorification.WeightedKLR.RedStrands.PrependRedK0
+import Categorification.WeightedKLR.RedStrands.NegativeTensor
+import Categorification.WeightedKLR.RedStrands.NegativeTensorInjective
+import Categorification.WeightedKLR.RedStrands.TensorSplitFirst
+import Categorification.WeightedKLR.RedStrands.TensorWordFirstRed
+import Categorification.WeightedKLR.RedStrands.TildeWordProjectives

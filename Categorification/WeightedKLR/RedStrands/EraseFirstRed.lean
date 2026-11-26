@@ -74,8 +74,15 @@ def firstDotIdeal : TwoSidedIdeal A₀ :=
   TwoSidedIdeal.span {y | ∃ (s : Seq μ) (i : I) (h : 0 < m), s.lbl ⟨0, h⟩ = .inl i ∧
     y = StendhalAlgebraAllOrders.x ⟨0, h⟩ ^ Λ 0 i * StendhalAlgebraAllOrders.e s}
 
-local notation "C" => (firstDotIdeal Q Λ ν).ringCon.Quotient
-local notation "π₀" => ((firstDotIdeal Q Λ ν).ringCon.mkₐ k).comp (StendhalAlgebraAllOrders.ofKLR k Q Λ₀ ν)
+/-- The quotient of `T̃^{λ₁,…,λ_ℓ}` (all orders) by `firstDotIdeal`. -/
+abbrev FirstDotQuotient := (firstDotIdeal Q Λ ν).ringCon.Quotient
+
+/-- The quotient map from the KLR algebra to `FirstDotQuotient`. -/
+def firstDotProj : B →ₐ[k] FirstDotQuotient Q Λ ν :=
+  ((firstDotIdeal Q Λ ν).ringCon.mkₐ k).comp (StendhalAlgebraAllOrders.ofKLR k Q Λ₀ ν)
+
+local notation "C" => FirstDotQuotient Q Λ ν
+local notation "π₀" => firstDotProj Q Λ ν
 
 omit [DecidableEq I] in
 private theorem card_succ : m' = m + 1 := by simp [stendhalWeight]; omega
@@ -171,8 +178,8 @@ private theorem erasedX_succ (j : ℕ) (h : j + 1 < m') :
 
 private theorem erasedX_position (a : Fin m) :
     erasedX Q Λ ν (prependRedPosition a) = KLRAlgebra.x a := by
-  rw [show prependRedPosition a = ⟨a.val + 1, (prependRedPosition a).isLt⟩ from Fin.ext (by simp),
-    erasedX_succ]
+  have h : a.val + 1 < m' := by simpa using (prependRedPosition a).isLt
+  rw [show prependRedPosition a = ⟨a.val + 1, h⟩ from Fin.ext (by simp), erasedX_succ]
 
 private theorem erase_eval {d : ℕ} (v : Fin d → Fr) (p : MvPolynomial (Fin d) k) :
     eraseFree Q Λ ν (ncEval v p) = ncEval (fun a => eraseFree Q Λ ν (v a)) p := by
@@ -324,17 +331,20 @@ private theorem erase_rel {a b : Fr} (h : KLR.Rel k (stendhalQ Q Λ) μ' a b) :
       cases j with
       | zero =>
         have h0 : 0 < m := by omega
-        rw [if_neg (by rw [loading_lbl_zero, loading_lbl_succ]; exact first_ne_prependRedColor _)]
+        rw [ite_eq_right_iff.mpr (fun hc => absurd hc
+          (by rw [loading_lbl_zero, loading_lbl_succ]; exact first_ne_prependRedColor _))]
         simp only [map_mul, erase_fψ, erase_fe, erasedCross, mul_zero, zero_mul, map_zero,
           erasedE_word, erase_nceval_two, erasedX_zero]
         rw [loading_lbl_zero, loading_lbl_succ]
         cases hc : t.lbl ⟨0, h0⟩ with
         | inl i =>
+          rw [← map_mul]
           change 0 = π₀ (ncEval ![0, erasedX Q Λ ν ⟨0 + 1, h⟩]
             (MvPolynomial.X 1 ^ Λ 0 i) * KLRAlgebra.e t)
           rw [eval_X_one_pow, erasedX_succ]
           exact (π₀_first_dot Q Λ ν t h0 i hc).symm
         | inr r =>
+          rw [← map_mul]
           change 0 = π₀ (ncEval ![0, erasedX Q Λ ν ⟨0 + 1, h⟩] 0 * KLRAlgebra.e t)
           simp [ncEval]
       | succ j =>
@@ -362,7 +372,7 @@ private theorem erase_rel {a b : Fr} (h : KLR.Rel k (stendhalQ Q Λ) μ' a b) :
 /-- **Erasing the first red strand**, from all red orders with the new red strand to the
 old ones modulo `firstDotIdeal`. -/
 def eraseFirstRed : StendhalAlgebraAllOrders k Q Λ ν →ₐ[k] C :=
-  RingQuot.liftAlgHom k ⟨π₀.comp (eraseFree Q Λ ν), fun _ _ h => by
+  RingQuot.liftAlgHom k ⟨(firstDotProj Q Λ ν).comp (eraseFree Q Λ ν), fun _ _ h => by
     rcases h with h | ⟨a, s, hs⟩ | ⟨j, h, s, h₁, h₂⟩
     · exact erase_rel Q Λ ν h
     · change π₀ (eraseFree Q Λ ν (fx k μ' a * fe k μ' s)) = π₀ (eraseFree Q Λ ν 0)
@@ -371,9 +381,10 @@ def eraseFirstRed : StendhalAlgebraAllOrders k Q Λ ν →ₐ[k] C :=
         rw [map_mul, erase_fx, erase_fe, erasedE_word, map_zero]
         rcases eq_firstPosition_or a with rfl | ⟨b, rfl⟩
         · simp [firstPosition, erasedX_zero]
-        · rw [erasedX_position, map_mul]
+        · rw [erasedX_position]
           rw [prependRedLoading_lbl, prependRedColor_isRight] at hs
-          change (firstDotIdeal Q Λ ν).ringCon.mk' (StendhalAlgebraAllOrders.x b *
+          rw [firstDotProj, AlgHom.comp_apply, map_mul, map_zero]
+          change ((firstDotIdeal Q Λ ν).ringCon.mkₐ k) (StendhalAlgebraAllOrders.x b *
             StendhalAlgebraAllOrders.e t) = 0
           rw [StendhalAlgebraAllOrders.x_mul_e_of_red b t hs, map_zero]
       · simp [erase_fe, erasedE_zero Q Λ ν hi]
@@ -384,10 +395,11 @@ def eraseFirstRed : StendhalAlgebraAllOrders k Q Λ ν →ₐ[k] C :=
         cases j with
         | zero => simp [erasedCross]
         | succ j =>
-          have hj : j + 1 < m := by omega
+          have hj : j + 1 < m := by have := card_succ (ℓ := ℓ) ν; omega
           rw [loading_lbl_succ, prependRedColor_isRight] at h₁
           rw [loading_lbl_succ, prependRedColor_isRight] at h₂
-          change (firstDotIdeal Q Λ ν).ringCon.mk' (StendhalAlgebraAllOrders.ψ j *
+          rw [erasedCross, firstDotProj, AlgHom.comp_apply, map_mul, map_zero]
+          change ((firstDotIdeal Q Λ ν).ringCon.mkₐ k) (StendhalAlgebraAllOrders.ψ j *
             StendhalAlgebraAllOrders.e t) = 0
           rw [StendhalAlgebraAllOrders.ψ_mul_e_of_red j hj t h₁ h₂, map_zero]
       · simp [erase_fe, erasedE_zero Q Λ ν hi]⟩
@@ -395,7 +407,7 @@ def eraseFirstRed : StendhalAlgebraAllOrders k Q Λ ν →ₐ[k] C :=
 private theorem eraseFirstRed_gen (g : Gen μ') :
     eraseFirstRed Q Λ ν (RingQuot.mkAlgHom k (Stendhal.Rel k Q Λ ν) (FreeAlgebra.ι k g)) =
       π₀ (eraseGen Q Λ ν g) := by
-  trans (π₀.comp (eraseFree Q Λ ν)) (FreeAlgebra.ι k g)
+  trans ((firstDotProj Q Λ ν).comp (eraseFree Q Λ ν)) (FreeAlgebra.ι k g)
   · exact RingQuot.liftAlgHom_mkAlgHom_apply _ _ _ _
   · rw [AlgHom.comp_apply, eraseFree, FreeAlgebra.lift_ι_apply]
 
@@ -427,7 +439,8 @@ theorem eraseFirstRed_ψ_succ (j : ℕ) :
   rfl
 
 theorem eraseFirstRed_firstRedIdem : eraseFirstRed Q Λ ν (firstRedIdem Q Λ ν) = 1 := by
-  rw [← (prependRedAllOrders_one Q Λ ν)]
-  sorry
+  rw [firstRedIdem_eq_sum, map_sum]
+  simp_rw [eraseFirstRed_e_loading]
+  rw [← map_sum, KLRAlgebra.sum_e, map_one]
 
 end Categorification.Stendhal

@@ -585,7 +585,7 @@ after §4 because the single-red case of the §4 constructions gives the §3 one
 | Prop 4.21 | splitting a red strand, `T^{λ′} ≅ e_{λ′} T^λ e_{λ′}` | done (`SplitRed.splitRedEquiv`): with `λ'` splitting `λ_c = λ'_c + λ'_{c+1}`, `T^λ ≅ e T^{λ'} e` for `e` the sum of the idempotents of the loadings with red strands `c`, `c + 1` adjacent, for the crossing parameters of §2.2 (`IsRouquierQ`) |
 | Prop 4.32 | `IR^μ I^μ = id` and its commutation with `Eᵢ`, `Fᵢ` | done: `IR^μ Fᵢ I^μ ≅ Fᵢ` on bimodules (`lastRedBlackEquiv`); `IR^μ I^μ = id` is Prop 4.18 (`appendRedEquiv`); `IR^μ Eᵢ I^μ ≅ Eᵢ` over a field by reflection (`lastRedBlackMirrorEquiv`); both raise degrees by `degΨ(λ_ℓ, i)` (`lastRedBlackMap_mem_grade`, `lastRedBlackMirror_mem_grade`) |
 | Prop 4.33 | uniqueness of the sesquilinear forms | done (`TensorPairing.orderedForm_unique`, `orderedForm_nondegenerate`): a system of forms that is `τ`-Hermitian and isometric along `V_{λ₁} ⊗ ⋯ ⊗ V_{λₙ₋₁} ⊗ v_{λₙ}` is `orderedForm`, which is nondegenerate in both arguments. Webster's conditions do not fix the form on the empty tensor product; the theorem takes the scalar form `x̄ y` there as a normalization |
-| Prop 4.39 | `K₀(T̃^λ) ≅ U⁻_q ⊗ V^λ` | in progress: the functor `𝔯_N` adding a red strand of label `λ₀` on the left (`prependRed`) is a surjective graded algebra map, injective in degree zero once `λ₀` is large (`prependRed_eq_zero_of_mem_zero`, via the kernel bound `mem_firstDotIdeal_of_prependRed_eq_zero`), hence an isomorphism on `K₀` (`prependRedK0_bijective`). Remaining: the comparison of `U⁻ ⊗ V^λ` with `V^{λ₀} ⊗ V^λ` in bounded weights and the word classes, which with Thm 4.38 give the statement |
+| Prop 4.39 | `K₀(T̃^λ) ≅ U⁻_q ⊗ V^λ` | open; taken up after the standard filtrations of Prop 5.20 and Cor 5.21, which its proof uses |
 
 ### Phase B: §3, cyclotomic quotients
 
@@ -810,18 +810,19 @@ Prop 5.20 (v3: Prop 5.21; the specific filtration `P_{≥φ}/P_{>φ} ≅ S_{φ �
 (`RedStrands/LabelledStandardFiltration.lean`, `phiLayerEquiv`), under the route hypothesis
 `AllFiniteDeltaInjective`, and with no hypothesis at the standard scalars (`phiLayerEquiv_std`).
 
-Cor 5.29 (v3: Cor 5.32, double centralizer of `P⁰`) is proved under the route hypothesis
-`HasCornerCopresentation e⁰`: `Stendhal.existsUnique_eq_mul_left_redFirst`
-(`RedStrands/RedFirstDoubleCentralizer.lean`), from the module-theoretic step
-`Categorification.exists_eq_mul_left_of_hasCornerCopresentation`
-(`Algebra/SelfDualDoubleCentralizer.lean`); uniqueness (faithfulness, Lemma 5.23) is
-unconditional. Roadmap item: remove the hypothesis, i.e. show that `T^λ` has dominant dimension
-at least two with respect to `P⁰` (`Ext¹(L, T^λ) = 0` for simples `L` killed by `e⁰`). Webster
-obtains this from Mazorchuk–Stroppel, J. Reine Angew. Math. 616 (2008), Cor. 2.6, whose proof
-uses Ringel duality for standardly stratified algebras.
+Cor 5.29 (v3: Cor 5.32, double centralizer of `P⁰`) is proved with no extra hypothesis:
+`Stendhal.existsUnique_eq_mul_left_redFirst` (`RedStrands/RedFirstDominantDimension.lean`), from
+the module-theoretic step `Categorification.exists_eq_mul_left_of_hasCornerCopresentation`
+(`Algebra/SelfDualDoubleCentralizer.lean`) and the dominant dimension of `T^λ` with respect to
+`P⁰` (`Stendhal.hasCornerCopresentation_redFirstIdem`). Webster obtains the dominant dimension
+from Mazorchuk–Stroppel, J. Reine Angew. Math. 616 (2008), Cor. 2.6. Here it is proved directly.
+Each red-ordered loading reaches a red-first one by crossings whose cokernels embed into sums of
+copies of `P⁰` (`RedStrands/RedFirstCopresentation.lean`, `ExactMulRightTransport.lean`). At the
+base crossing the cokernel is `S(₂Fᵢ N)` (`RedFirstBaseCrossingCokernel.lean`), and it has no
+nonzero element killed by `e⁰ T^λ` (`LastIndStandardCornerFaithful.lean`). The criteria are in
+`Algebra/CornerCopresentationCriteria.lean`.
 
-Prop 5.30 (v3: Prop 5.33) is proved under the same route hypothesis, which it inherits
-from Cor 5.29: `Stendhal.redFirstEndEquiv` (`RedStrands/RedFirstEndomorphism.lean`) identifies
+Prop 5.30 (v3: Prop 5.33) is proved with no extra hypothesis: `Stendhal.redFirstEndEquiv` (`RedStrands/RedFirstEndomorphism.lean`) identifies
 `T^λ` with the endomorphism algebra of the right module `⊕_s y_s B` over `B = e⁰ T^λ e⁰`,
 `y_s = θ̇_s θ_s`, with `a ↦ (θ̇_s e_s x ↦ θ̇_s e_s a x)` (`redFirstEndEquiv_apply`). The generic
 step is `Categorification.CornerEndomorphism.ringEquiv` (`Algebra/CornerEndomorphism.lean`); the
@@ -1316,9 +1317,11 @@ partial standardizations, apply the induction in (6.21), and identify the derive
 comparison naturally. Then Prop 6.9
 for general `ℓ` by reduction to two
 red strands, the graded bounded-above functor of Def 6.6 and its equivariance (Prop 6.7), Cor 6.10
-(proved for adjacent transpositions as `braidClass_pairSwap`, under `AllFiniteDeltaInjective`,
-`RowFigureFiveHypotheses` at every row and finite-dimensionality of `T^λ`; removing these
-hypotheses is open), Lemma 6.11, Def 6.12, Cor 6.13,
+(proved for adjacent transpositions as `braidClass_pairSwap`, under `AllFiniteDeltaInjective` and
+`RowFigureFiveHypotheses` at every row; finite-dimensionality of `T^λ` is
+`tensorProductAlgebra_finite`; removing the other hypotheses is open), Lemma 6.11 (proved for
+`w ≠ 1` as `hasCornerStandardFiltration_braidF` under the same hypotheses and
+`BraidDiagramFiltration`), Def 6.12, Cor 6.13,
 Lemma 6.14; tilting modules (Thm 6.15); `𝔅_σ` are equivalences (Thm 6.16); the braid group
 action (Cor 6.17); Ringel duality (Cor 6.18); semi-orthogonal decompositions (Prop 6.19); the
 Serre functor (Prop 6.20).

@@ -2,7 +2,10 @@ import Categorification
 import Lean.Util.CollectAxioms
 
 /-! Audit every declaration defined by a Categorification module, including private declarations
-and declarations added to upstream namespaces. Each check uses Lean's transitive axiom collector. -/
+and declarations added to upstream namespaces. Each check uses Lean's transitive axiom collector.
+
+The audit sees only loaded modules, so it first checks that every source file under
+`Categorification/` is in the loaded module table. Run it from the repository root. -/
 
 open Lean Elab Command
 
@@ -11,6 +14,17 @@ run_cmd do
   let env ← getEnv
   -- `moduleNames` maps the entire module table: compute it once, not once per declaration.
   let moduleNames := env.header.moduleNames
+  -- A source file missing from the module table would escape the audit below.
+  let loaded : NameSet := moduleNames.foldl (·.insert ·) {}
+  let mut unloaded : Array Name := #[]
+  for path in ← (System.FilePath.walkDir "Categorification" : IO _) do
+    if path.extension == some "lean" then
+      let module := (path.withExtension "").components.foldl Name.mkStr Name.anonymous
+      unless loaded.contains module do
+        unloaded := unloaded.push module
+  unless unloaded.isEmpty do
+    throwError "Source files whose modules are not imported, directly or transitively, by \
+      Categorification.lean: {unloaded.qsort (·.toString < ·.toString)}"
   let mut declarations : Array Name := #[]
   for (name, _) in env.constants.toList do
     if let some moduleIdx := env.getModuleIdxFor? name then

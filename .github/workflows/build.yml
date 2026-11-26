@@ -43,9 +43,18 @@ jobs:
           fi
 
       # The axiom audit and the non-vacuity checks see only modules imported by the root file.
+      # The root file holds one plain import per line and nothing else, so comparing its text
+      # with the source tree agrees with Lean's own parse of the imports. The axiom audit
+      # repeats the comparison against the loaded module table.
       - name: Root file imports every module
         run: |
-          missing=$(comm -13 <(grep '^import ' Categorification.lean | sed 's/^import //' | sort) \
+          malformed=$(grep -nvE '^import Categorification(\.[A-Za-z0-9_]+)+$' Categorification.lean || true)
+          if [ -n "$malformed" ]; then
+            echo "Categorification.lean must hold one plain import per line and nothing else:"
+            echo "$malformed"
+            exit 1
+          fi
+          missing=$(comm -13 <(sed 's/^import //' Categorification.lean | sort) \
             <(find Categorification -name '*.lean' | sed 's/\.lean$//; s#/#.#g' | sort))
           if [ -n "$missing" ]; then
             echo "Modules not imported by Categorification.lean:"

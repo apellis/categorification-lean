@@ -38,7 +38,8 @@ section Triangle
 variable {A : Type u} [Ring A] [DGAddCommGroup A] [DGRing A] [HasDerivedCategory.{w, v} A]
   (R : Type r) [CommRing R] [Algebra R A] [DGAlgebra R A]
 
-noncomputable local instance : (homologyFunctor (A := A) R 0).ShiftSequence ℤ := by
+noncomputable local instance kernelShiftHomologySequence :
+    (homologyFunctor (A := A) R 0).ShiftSequence ℤ := by
   letI : (HomotopyCategory.homologyFunctor.{v} R A 0).ShiftSequence ℤ := by
     change (HomotopyCategory.forget.{v} R A ⋙
       _root_.HomotopyCategory.homologyFunctor (ModuleCat.{v} R) (ComplexShape.up ℤ) 0).ShiftSequence ℤ

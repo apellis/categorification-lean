@@ -74,7 +74,7 @@ instance : IsScalarTower k (TensorProductAlgebra k Q Ω νᵢ)ᵐᵒᵖ (Corner 
 instance : IsScalarTower k (TensorProductAlgebra k Q Ω ν)ᵐᵒᵖᵐᵒᵖ (Corner (appendBlackOp Q Ω i ν)) where
   smul_assoc c r z := Subtype.ext (by
     change z.val * appendBlackOp Q Ω i ν (c • r.unop) = c • (z.val * appendBlackOp Q Ω i ν r.unop)
-    rw [appendBlackOp_smul, mul_smul_comm])
+    rw [appendBlackOp_map_smul, mul_smul_comm])
 
 theorem finite_appendBlackCorner [Module.Finite k (TensorProductAlgebra k Q Ω νᵢ)] :
     Module.Finite k (Corner (appendBlackOp Q Ω i ν)) :=

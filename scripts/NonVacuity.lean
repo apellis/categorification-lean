@@ -2855,6 +2855,28 @@ example (ν : Multiset Unit) (x : tensorProjectiveGroup D params level ν) :=
   iteratedStandardTest_eq D params regular 2 level (fun _ => [()]) (factors 2)
     (fun j i => level_eq j i) ν x
 
+attribute [local instance 1200] Ring.toIntAlgebra in
+open DG.DegreeZero in
+/-- Webster, arXiv:1309.3796v2, §6.1, Corollary 6.10, for two red `sl₂` strands of weight `ω`:
+the class map of the graded braid functor of the crossing is `x ↦ B(v² R x, -)`. The route
+hypotheses (`AllFiniteDeltaInjective` of Corollary 5.22 and `RowFigureFiveHypotheses` of
+Proposition 6.9) and the finite-dimensionality of the algebras `T^λ` are
+assumed here, not discharged. -/
+example [∀ (Ω : Fin 2 → Unit →₀ ℕ) (ν : Multiset Unit),
+      Module.Finite ℚ (Stendhal.TensorProductAlgebra ℚ (fun _ _ => 0) Ω ν)]
+    (hall : ∀ (n : ℕ) (Λ' : Fin (n + 1) → Unit →₀ ℕ),
+      Stendhal.AllFiniteDeltaInjective _ Λ' params.klrSymm)
+    (H : ∀ (u : Fin (0 + 2 + 0) → List Unit) (hu : u (rightPos 0 0) = []),
+      RowFigureFiveHypotheses D params level u hu) :=
+  letI : ∀ ν, DG.HasDerivedCategory (IsIdempotentElem.Corner
+      (Stendhal.BraidedStendhalAlgebra.isIdempotentElem_violMk_redProj ℚ (fun _ _ => 0) level ν
+        (List.finRange (0 + 2 + 0))))ᵐᵒᵖ := fun _ => DG.HasDerivedCategory.standard _
+  letI : ∀ ν, DG.HasDerivedCategory (IsIdempotentElem.Corner
+      (Stendhal.BraidedStendhalAlgebra.isIdempotentElem_violMk_redProj ℚ (fun _ _ => 0) level ν
+        ((List.finRange (0 + 2 + 0)).map (pairSwap 0 0))))ᵐᵒᵖ :=
+    fun _ => DG.HasDerivedCategory.standard _
+  braidClass_pairSwap D params regular (n := 0) (m := 0) level (factors 2) level_eq hall H
+
 end TwoFundamentalLowerings
 
 end CyclotomicHighestWeight

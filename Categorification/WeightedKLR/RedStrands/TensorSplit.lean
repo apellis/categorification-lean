@@ -38,7 +38,7 @@ open scoped TensorProduct
 
 local notation "𝕍" => (RatFunc.X : RatFunc ℚ)
 local notation "𝕂" => RatFunc ℚ
-local instance : NeZero 𝕍 := ⟨RatFunc.X_ne_zero⟩
+local instance tensorSplitInst1 : NeZero 𝕍 := ⟨RatFunc.X_ne_zero⟩
 
 /-! ### Actions on tensor products -/
 

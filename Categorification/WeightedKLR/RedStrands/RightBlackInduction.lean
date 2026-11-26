@@ -55,7 +55,7 @@ local notation "φ" => appendBlackOp Q Λ i ν
 local notation "Mc" => Corner (appendBlackOp Q Λ i ν)
 local notation "cornerGr" => Graded.submodule dst (lIdeal (appendBlackOp Q Λ i ν 1))
 
-theorem appendBlackOp_smul (c : k) (x : Tᵐᵒᵖ) : φ (c • x) = c • φ x :=
+theorem appendBlackOp_map_smul (c : k) (x : Tᵐᵒᵖ) : φ (c • x) = c • φ x :=
   congrArg op (map_smul (appendBlack Q Λ i ν) c x.unop)
 
 theorem appendBlackOp_mem_grade {d : ℤ} {x : Tᵐᵒᵖ} (hx : x ∈ src d) : φ x ∈ dst d :=
@@ -67,13 +67,14 @@ private local instance : IsScalarTower k T'ᵐᵒᵖ Mc where
 private local instance : IsScalarTower k Tᵐᵒᵖᵐᵒᵖ Mc where
   smul_assoc c r z := Subtype.ext (by
     change z.val * φ (c • r.unop) = c • (z.val * φ r.unop)
-    rw [appendBlackOp_smul, mul_smul_comm])
+    rw [appendBlackOp_map_smul, mul_smul_comm])
 
 /-- The corner `e' T^λ_{ν+i}`, read in the opposite algebra, as a graded projective. -/
 private def cornerProj : GProj dst :=
   GProj.ofIdempotent (φ 1) (unit_mul_unit φ) (appendBlackOp_mem_grade G i ν SetLike.GradedOne.one_mem)
 
-private local instance : DirectSum.Decomposition cornerGr := (cornerProj G i ν).decomposition
+private local instance rightBlackInductionInst1 : DirectSum.Decomposition cornerGr :=
+  (cornerProj G i ν).decomposition
 
 private local instance : SetLike.GradedSMul (oppositeGrade src) cornerGr where
   smul_mem {l d} r z hr hz := by

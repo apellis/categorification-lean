@@ -4,6 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 -/
 import Categorification.Algebra.Graded.BalancedInduction
 import Categorification.Algebra.Graded.Idempotent
+import Categorification.Algebra.Graded.ProjectiveCharacter
 
 /-!
 # Tensoring with a cyclic projective `A e`
@@ -104,5 +105,32 @@ theorem gdimPoly_balancedGrading_leftIdeal {e : A} (he : IsIdempotentElem e)
   exact op_smul_mem_of_mem 𝒜 ℳ hm ha
 
 end Graded
+
+section Induce
+
+universe u
+
+variable {k : Type*} [Field k] {A B : Type u} [Ring A] [Algebra k A] [Ring B] [Algebra k B]
+  (𝒜 : ℤ → Submodule k A) [GradedAlgebra 𝒜] (ℬ : ℤ → Submodule k B) [GradedAlgebra ℬ]
+  {M : Type u} [AddCommGroup M] [Module k M] [Module B M] [IsScalarTower k B M]
+  [Module Aᵐᵒᵖ M] [SMulCommClass B Aᵐᵒᵖ M] [IsScalarTower k Aᵐᵒᵖ M]
+  (ℳ : ℤ → Submodule k M) [Decomposition ℳ] [SetLike.GradedSMul ℬ ℳ]
+  [SetLike.GradedSMul (oppositeGrade 𝒜) ℳ] [Module.Finite k M] [Module.Finite k A]
+  [Module.Finite k B]
+
+/-- **`gdim HOM(B e', M ⊗_A A e) = gdim e' M e`** for idempotents `e`, `e'` of degree zero. -/
+theorem projectiveHomPolynomial_induce_ofIdempotent {e : A} (he : IsIdempotentElem e)
+    (he0 : e ∈ 𝒜 0) {e' : B} (he' : IsIdempotentElem e') (he0' : e' ∈ ℬ 0) :
+    letI := idemDecomposition ℳ he0'
+    projectiveHomPolynomial ℬ (GFin.induce 𝒜 ℬ ℳ (GProj.ofIdempotent e he he0).toGFin)
+        (K0.of (GProj.ofIdempotent e' he' he0')) =
+      gdimPoly (idem (idem ℳ e') (op e)) := by
+  let := idemDecomposition ℳ he0'
+  refine (projectiveHomPolynomial_ofIdempotent ℬ _ he' he0').trans ?_
+  refine (gdimPoly_idem_balancedGrading 𝒜 ℳ (GProj.ofIdempotent e he he0).grading he'
+    he0').trans ?_
+  exact gdimPoly_balancedGrading_leftIdeal 𝒜 (idem ℳ e') he he0
+
+end Induce
 
 end Categorification.Graded

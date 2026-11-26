@@ -81,21 +81,12 @@ theorem projectiveHomPolynomial_braidFunctor_rightSequence
   let := braidBimodDecomposition (Λ := Λ) (ν := ν) hρ hQ σ hR
   let := braidBimod_gradedSMul_left (Λ := Λ) (ν := ν) hρ hQ σ hR
   let := braidBimod_gradedSMul_right (Λ := Λ) (ν := ν) hρ hQ σ hR
-  refine (projectiveHomPolynomial_ofIdempotent (𝒜 (Λ ∘ σ)) _ (e := op (TensorProductAlgebra.mk Q (Λ ∘ σ) ν (StendhalAlgebra.e s hs)))
-    (congrArg op (isIdempotentElem_mk_e s hs))
-    (show _ ∈ (𝒜 (Λ ∘ σ)) 0 from
-      mk_e_mem_tensorProductGrade (rouquierGrading Q hR (Λ ∘ σ)) ν s hs)).trans ?_
-  refine (gdimPoly_idem_balancedGrading (𝒜 Λ) (braidBimodGrading Q Λ ν hρ hQ σ hR)
-    (rightSequenceProj (rouquierGrading Q hR Λ) t ht).grading (e := op (TensorProductAlgebra.mk Q (Λ ∘ σ) ν (StendhalAlgebra.e s hs)))
-    (congrArg op (isIdempotentElem_mk_e s hs))
-    (show _ ∈ (𝒜 (Λ ∘ σ)) 0 from
-      mk_e_mem_tensorProductGrade (rouquierGrading Q hR (Λ ∘ σ)) ν s hs)).trans ?_
-  let := idemDecomposition (braidBimodGrading Q Λ ν hρ hQ σ hR)
-    (show op (TensorProductAlgebra.mk Q (Λ ∘ σ) ν (StendhalAlgebra.e s hs)) ∈
-      oppositeGrade (tensorProductGrade (rouquierGrading Q hR (Λ ∘ σ)) ν) 0 from
-      mk_e_mem_tensorProductGrade (rouquierGrading Q hR (Λ ∘ σ)) ν s hs)
-  exact gdimPoly_balancedGrading_leftIdeal (𝒜 Λ) (idem (braidBimodGrading Q Λ ν hρ hQ σ hR) _) (e := op (TensorProductAlgebra.mk Q Λ ν (StendhalAlgebra.e t ht)))
-    (congrArg op (isIdempotentElem_mk_e t ht))
+  let := finite_braidBimod (Λ := Λ) (ν := ν) hρ hQ σ
+  exact projectiveHomPolynomial_induce_ofIdempotent (𝒜 Λ) (𝒜 (Λ ∘ σ))
+    (braidBimodGrading Q Λ ν hρ hQ σ hR) (congrArg op (isIdempotentElem_mk_e t ht))
     (show _ ∈ (𝒜 Λ) 0 from mk_e_mem_tensorProductGrade (rouquierGrading Q hR Λ) ν t ht)
+    (congrArg op (isIdempotentElem_mk_e s hs))
+    (show _ ∈ (𝒜 (Λ ∘ σ)) 0 from
+      mk_e_mem_tensorProductGrade (rouquierGrading Q hR (Λ ∘ σ)) ν s hs)
 
 end Categorification.Stendhal.BraidedStendhalAlgebra

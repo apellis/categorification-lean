@@ -26,6 +26,7 @@ import Categorification.Algebra.DerivedTensor
 import Categorification.Algebra.DerivedTensorCoefficient
 import Categorification.Algebra.DerivedTensorCoefficientExact
 import Categorification.Algebra.DerivedTensorCoefficientCovers
+import Categorification.Algebra.DerivedTensorProjectiveCoefficient
 import Categorification.Algebra.DerivedTensorFiltration
 import Categorification.Algebra.DerivedHomologyShift
 import Categorification.Algebra.DerivedTensorOrdinaryLinear
@@ -2018,6 +2019,7 @@ import Categorification.Algebra.GradedLoadingWeightCorners
 import Categorification.Algebra.LoadingProjectiveCoend
 import Categorification.Algebra.LoadingSchanuel
 import Categorification.Algebra.OrdinaryProjectiveResolutionDG
+import Categorification.Algebra.ProjectiveResolutionDGProjective
 import Categorification.Algebra.ProjectiveDimensionEquivalence
 import Categorification.Diagrams.CLQ.Bending
 import Categorification.Diagrams.CLQ.BubbleSlides

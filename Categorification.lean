@@ -672,6 +672,7 @@ import Categorification.KLR.Restriction
 import Categorification.KLR.Simple
 import Categorification.KLR.SimpleNilHecke
 import Categorification.KLR.CyclotomicTerminalProjective
+import Categorification.WeightedKLR.RedStrands.BraidRightSequenceCut
 import Categorification.WeightedKLR.RedStrands.BraidingLattice
 import Categorification.WeightedKLR.RedStrands.AdjacentBraidingLattice
 import Categorification.WeightedKLR.RedStrands.AdjacentBraidingForm

@@ -130,7 +130,7 @@ local notation "R" => KLRAlgebra k (stendhalQ Q Λ) (stendhalWeight ℓ ν)
 local notation "E" => StendhalAlgebraAllOrders.e (k := k) (Q := Q) (Λ := Λ) (ν := ν)
 
 /-- `e(s) y e(t)` as an element of `T̃^λ`, for red-ordered `s`, `t`. -/
-def cut (s t : Seq μ) (hs : IsRedOrdered s) (ht : IsRedOrdered t)
+def idemCut (s t : Seq μ) (hs : IsRedOrdered s) (ht : IsRedOrdered t)
     (y : StendhalAlgebraAllOrders k Q Λ ν) : A :=
   ⟨E s * y * E t, by
     classical
@@ -144,45 +144,45 @@ def cut (s t : Seq μ) (hs : IsRedOrdered s) (ht : IsRedOrdered t)
 theorem E_mul_E_self (s : Seq μ) : E s * E s = E s := by
   simp [StendhalAlgebraAllOrders.e_mul_e]
 
-theorem cut_mul_cut {s b t : Seq μ} (hs : IsRedOrdered s) (hb : IsRedOrdered b)
+theorem idemCut_mul_idemCut {s b t : Seq μ} (hs : IsRedOrdered s) (hb : IsRedOrdered b)
     (ht : IsRedOrdered t) (y y' : StendhalAlgebraAllOrders k Q Λ ν) :
-    cut s b hs hb y * cut b t hb ht y' = cut s t hs ht (y * E b * y') :=
+    idemCut s b hs hb y * idemCut b t hb ht y' = idemCut s t hs ht (y * E b * y') :=
   Subtype.ext (by
     change E s * y * E b * (E b * y' * E t) = E s * (y * E b * y') * E t
     calc E s * y * E b * (E b * y' * E t) = E s * y * (E b * E b) * y' * E t := by
           simp only [mul_assoc]
       _ = _ := by rw [E_mul_E_self]; simp only [mul_assoc])
 
-theorem e_mul_cut {s b : Seq μ} (hs : IsRedOrdered s) (hb : IsRedOrdered b)
+theorem e_mul_idemCut {s b : Seq μ} (hs : IsRedOrdered s) (hb : IsRedOrdered b)
     (y : StendhalAlgebraAllOrders k Q Λ ν) :
-    e s hs * cut s b hs hb y * e b hb = cut s b hs hb y :=
+    e s hs * idemCut s b hs hb y * e b hb = idemCut s b hs hb y :=
   Subtype.ext (by
     change E s * (E s * y * E b) * E b = E s * y * E b
     calc E s * (E s * y * E b) * E b = (E s * E s) * y * (E b * E b) := by
           simp only [mul_assoc]
       _ = _ := by rw [E_mul_E_self, E_mul_E_self])
 
-theorem e_mul_mul_e_eq_cut {s t : Seq μ} (hs : IsRedOrdered s) (ht : IsRedOrdered t) (a : A) :
-    e s hs * a * e t ht = cut s t hs ht a.1 :=
+theorem e_mul_mul_e_eq_idemCut {s t : Seq μ} (hs : IsRedOrdered s) (ht : IsRedOrdered t) (a : A) :
+    e s hs * a * e t ht = idemCut s t hs ht a.1 :=
   rfl
 
-theorem cut_add {s t : Seq μ} (hs : IsRedOrdered s) (ht : IsRedOrdered t)
+theorem idemCut_add {s t : Seq μ} (hs : IsRedOrdered s) (ht : IsRedOrdered t)
     (y y' : StendhalAlgebraAllOrders k Q Λ ν) :
-    cut s t hs ht (y + y') = cut s t hs ht y + cut s t hs ht y' :=
+    idemCut s t hs ht (y + y') = idemCut s t hs ht y + idemCut s t hs ht y' :=
   Subtype.ext (by
     change E s * (y + y') * E t = E s * y * E t + E s * y' * E t
     rw [mul_add, add_mul])
 
-theorem cut_zero {s t : Seq μ} (hs : IsRedOrdered s) (ht : IsRedOrdered t) :
-    cut s t hs ht (0 : StendhalAlgebraAllOrders k Q Λ ν) = 0 :=
+theorem idemCut_zero {s t : Seq μ} (hs : IsRedOrdered s) (ht : IsRedOrdered t) :
+    idemCut s t hs ht (0 : StendhalAlgebraAllOrders k Q Λ ν) = 0 :=
   Subtype.ext (by
     change E s * 0 * E t = 0
     rw [mul_zero, zero_mul])
 
-theorem cut_smul {s t : Seq μ} (hs : IsRedOrdered s) (ht : IsRedOrdered t) (c : k)
+theorem idemCut_smul {s t : Seq μ} (hs : IsRedOrdered s) (ht : IsRedOrdered t) (c : k)
     (y : StendhalAlgebraAllOrders k Q Λ ν) :
-    cut s t hs ht (c • y) = cut s t hs ht y * cut t t ht ht (algebraMap k _ c) := by
-  rw [cut_mul_cut]
+    idemCut s t hs ht (c • y) = idemCut s t hs ht y * idemCut t t ht ht (algebraMap k _ c) := by
+  rw [idemCut_mul_idemCut]
   apply Subtype.ext
   change E s * _ * E t = E s * _ * E t
   rw [Algebra.smul_def, Algebra.commutes c y, mul_assoc y (E t), ← Algebra.commutes c (E t)]
@@ -197,10 +197,10 @@ theorem e_mul_mul_e_mem_upperSubmodule {s t : Seq μ} (hs : IsRedOrdered s) (ht 
   classical
   obtain ⟨z, hz⟩ := StendhalAlgebraAllOrders.ofKLR_surjective (k := k) (Q := Q) (Λ := Λ)
     (ν := ν) a.1
-  rw [e_mul_mul_e_eq_cut, ← hz]
+  rw [e_mul_mul_e_eq_idemCut, ← hz]
   set r : R := KLRAlgebra.e s * z * KLRAlgebra.e t with hr_def
-  have hcut : cut s t hs ht (StendhalAlgebraAllOrders.ofKLR k Q Λ ν z) =
-      cut s t hs ht (StendhalAlgebraAllOrders.ofKLR k Q Λ ν r) := by
+  have hcut : idemCut s t hs ht (StendhalAlgebraAllOrders.ofKLR k Q Λ ν z) =
+      idemCut s t hs ht (StendhalAlgebraAllOrders.ofKLR k Q Λ ν r) := by
     apply Subtype.ext
     change E s * _ * E t = E s * _ * E t
     rw [hr_def, map_mul, map_mul]
@@ -234,7 +234,7 @@ theorem e_mul_mul_e_mem_upperSubmodule {s t : Seq μ} (hs : IsRedOrdered s) (ht 
         (hρ _).1.2, (hρ _).1.2, (hρ _).2, (hρ _).2, hl]
     · rw [wordProd_append, (hρ _).2, (hρ _).2, inv_mul_cancel_right]
   have hmem := KLRAlgebra.mem_span_corner_dotsTop ρ' hρ' t s hr
-  let F : R → A := fun x => cut s t hs ht (StendhalAlgebraAllOrders.ofKLR k Q Λ ν x)
+  let F : R → A := fun x => idemCut s t hs ht (StendhalAlgebraAllOrders.ofKLR k Q Λ ν x)
   change F r ∈ _
   suffices key : ∀ x ∈ Submodule.span k {b : R | ∃ (w : Perm (Fin m)) (u : Fin m →₀ ℕ),
       w • t = s ∧ KLRAlgebra.pol (monomial u 1) * KLRAlgebra.ψw (ρ' w) * KLRAlgebra.e t = b},
@@ -251,36 +251,36 @@ theorem e_mul_mul_e_mem_upperSubmodule {s t : Seq μ} (hs : IsRedOrdered s) (ht 
       ⟨hτ ▸ stendhalLE_phiBottom_diagAssign ht (hτ ▸ hs),
         hτ ▸ not_stendhalLE_phiBottom_of_violated ht (hτ ▸ hs) htv (hτ ▸ hsv)⟩
     have hfac : F (KLRAlgebra.pol (monomial u 1) * KLRAlgebra.ψw (ρ' τ) * KLRAlgebra.e t) =
-        cut s (phiBottom t (diagAssign t τ)) hs hb
+        idemCut s (phiBottom t (diagAssign t τ)) hs hb
           (StendhalAlgebraAllOrders.ofKLR k Q Λ ν
             (KLRAlgebra.pol (monomial u 1) * KLRAlgebra.ψw (ρ (τ * φ⁻¹)))) *
-        cut (phiBottom t (diagAssign t τ)) t hb ht
+        idemCut (phiBottom t (diagAssign t τ)) t hb ht
           (StendhalAlgebraAllOrders.ofKLR k Q Λ ν (KLRAlgebra.ψw (ρ φ))) := by
       have hb' : E (phiBottom t (diagAssign t τ)) *
           StendhalAlgebraAllOrders.ofKLR k Q Λ ν (KLRAlgebra.ψw (ρ φ)) =
           StendhalAlgebraAllOrders.ofKLR k Q Λ ν (KLRAlgebra.ψw (ρ φ) * KLRAlgebra.e t) := by
         change StendhalAlgebraAllOrders.ofKLR k Q Λ ν (KLRAlgebra.e (φ • t)) * _ = _
         rw [← map_mul, KLRAlgebra.e_mul_ψw, (hρ _).2, inv_smul_smul]
-      rw [cut_mul_cut]
+      rw [idemCut_mul_idemCut]
       simp only [F]
       congr 1
       rw [mul_assoc (StendhalAlgebraAllOrders.ofKLR k Q Λ ν _), hb', ← map_mul]
       congr 1
       rw [show ρ' τ = ρ (τ * φ⁻¹) ++ ρ φ by simp only [ρ', hvτ], KLRAlgebra.ψw_append]
       simp only [mul_assoc]
-    rw [hfac, ← e_mul_cut hs hb]
+    rw [hfac, ← e_mul_idemCut hs hb]
     exact Submodule.smul_mem _ (op _) (Submodule.subset_span ⟨_, hb, _, hlt, rfl⟩)
   | zero =>
-    change cut s t hs ht (StendhalAlgebraAllOrders.ofKLR k Q Λ ν 0) ∈ _
-    rw [map_zero, cut_zero]
+    change idemCut s t hs ht (StendhalAlgebraAllOrders.ofKLR k Q Λ ν 0) ∈ _
+    rw [map_zero, idemCut_zero]
     exact zero_mem _
   | add x y _ _ hx hy =>
-    change cut s t hs ht (StendhalAlgebraAllOrders.ofKLR k Q Λ ν (x + y)) ∈ _
-    rw [map_add, cut_add]
+    change idemCut s t hs ht (StendhalAlgebraAllOrders.ofKLR k Q Λ ν (x + y)) ∈ _
+    rw [map_add, idemCut_add]
     exact add_mem hx hy
   | smul c x _ hx =>
-    change cut s t hs ht (StendhalAlgebraAllOrders.ofKLR k Q Λ ν (c • x)) ∈ _
-    rw [map_smul, cut_smul]
+    change idemCut s t hs ht (StendhalAlgebraAllOrders.ofKLR k Q Λ ν (c • x)) ∈ _
+    rw [map_smul, idemCut_smul]
     exact Submodule.smul_mem _ (op _) hx
 
 /-- **The violating ideal acts by zero on `S_s`** when the first strand of `s` is red (Webster,

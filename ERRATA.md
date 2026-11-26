@@ -160,8 +160,8 @@ proved for every Cartan datum.
 `KL3.Diagram.shiftHomEquivalence`. Corollary 3.32: `gammaAlg_injective_unconditional`,
 `gammaAlgEquiv_unconditional`. Proposition 3.31 is not stated as proved.
 
-**Roadmap.** [Tensor product roadmap](docs/WeightedKLR/tensor-product-roadmap.md), Phase B,
-Prop 3.31: prove or refute.
+**Roadmap.** No open item: the formalization targets arXiv:1309.3796v3, which does not contain
+§3.6 or Proposition 3.31. The v2 statement stays recorded here as neither proved nor refuted.
 
 ### 8. §4.5, κ(0) and the citation of (4.4d)
 

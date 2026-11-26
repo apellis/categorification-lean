@@ -2290,6 +2290,7 @@ import Categorification.WeightedKLR.RedStrands.FundamentalPrefixCorners
 import Categorification.WeightedKLR.RedStrands.GradedBraidAppend
 import Categorification.WeightedKLR.RedStrands.GradedBraidAppendClass
 import Categorification.WeightedKLR.RedStrands.GradedBraidClassMap
+import Categorification.WeightedKLR.RedStrands.GradedBraidCompose
 import Categorification.WeightedKLR.RedStrands.GradedBraidCorollary
 import Categorification.WeightedKLR.RedStrands.GradedBraidDerivedInjective
 import Categorification.WeightedKLR.RedStrands.GradedBraidFunctor

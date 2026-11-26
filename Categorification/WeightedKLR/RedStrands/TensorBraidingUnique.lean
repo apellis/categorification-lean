@@ -156,4 +156,121 @@ theorem ext_tripleRep (actN : 𝕌 →ₐ[𝕂] Module.End 𝕂 N) (f g : (A ⊗
   | smul s y _ hy => rw [TensorProduct.tmul_smul, ← TensorProduct.smul_tmul', map_smul,
       map_smul, hy]
 
+/-! ### The ordered tensor product -/
+
+local notation "ρ" => tensorRepresentation
+
+section Ordered
+
+variable {k m : ℕ}
+
+/-- The ordered tensor product with the factor `k + 1` (counted from `0`) isolated:
+`⨂_j V_j ≃ ((⨂_{j ≤ k} V_j) ⊗ V_{k+1}) ⊗ ⨂_{j < m} V_{k+2+j}`. -/
+def slotDecomp (wt : Fin (k + 2 + m) → Dom R) :
+    TensorSpace wt ≃ₗ[𝕂]
+      (TensorSpace (fun i : Fin (k + 1) ↦ wt (Fin.castAdd m i.castSucc)) ⊗[𝕂]
+        Fac (wt (Fin.castAdd m (Fin.last (k + 1))))) ⊗[𝕂]
+        TensorSpace (fun i : Fin m ↦ wt (Fin.natAdd (k + 2) i)) :=
+  (tensorSplit (a := k + 2) (b := m) wt).trans
+    (TensorProduct.congr (tensorSplitLast (ℓ := k + 1) fun i ↦ wt (Fin.castAdd m i))
+      (LinearEquiv.refl _ _))
+
+theorem slotDecomp_tprod (wt : Fin (k + 2 + m) → Dom R) (x : ∀ j, Fac (wt j)) :
+    slotDecomp wt (PiTensorProduct.tprod 𝕂 x) =
+      (PiTensorProduct.tprod 𝕂 (fun i : Fin (k + 1) ↦ x (Fin.castAdd m i.castSucc)) ⊗ₜ[𝕂]
+          x (Fin.castAdd m (Fin.last (k + 1)))) ⊗ₜ[𝕂]
+        PiTensorProduct.tprod 𝕂 (fun i : Fin m ↦ x (Fin.natAdd (k + 2) i)) := by
+  rw [slotDecomp, LinearEquiv.trans_apply, tensorSplit_tprod, TensorProduct.congr_tmul,
+    tensorSplitLast_tprod]
+  rfl
+
+theorem intertwines_slotDecomp (wt : Fin (k + 2 + m) → Dom R) :
+    Intertwines (ρ wt)
+      (tripleRep (Fac (wt (Fin.castAdd m (Fin.last (k + 1)))))
+        (ρ fun i : Fin (k + 1) ↦ wt (Fin.castAdd m i.castSucc))
+        (ρ fun i : Fin m ↦ wt (Fin.natAdd (k + 2) i)))
+      (slotDecomp wt).toLinearMap :=
+  intertwines_trans (intertwines_tensorSplit (a := k + 2) (b := m) wt)
+    (Intertwines.restrict (intertwines_congr
+      (intertwines_tensorSplitLast (n := k + 1) fun i ↦ wt (Fin.castAdd m i))
+      (intertwines_refl _)) Δ)
+
+variable (hR : R.IsXRegular)
+
+/-- A basis of `V^w` of vectors of definite depth `w - ν`. -/
+def depthBasis (w : Dom R) :
+    Module.Basis (Σ ν : I →₀ ℕ, Module.Basis.ofVectorSpaceIndex 𝕂 (depthSpace R (Fac w) w.1 ν)) 𝕂 (Fac w) :=
+  (isInternal_depthSpace hR (IrreducibleModule.iSup_depthSpace_eq_top (R := R) w.1)).collectedBasis
+    fun _ ↦ Module.Basis.ofVectorSpace 𝕂 _
+
+theorem depthBasis_mem (w : Dom R) (a) :
+    depthBasis hR w a ∈ depthSpace R (Fac w) w.1 a.1 :=
+  DirectSum.IsInternal.collectedBasis_mem _ _ _
+
+include hR in
+/-- Two linear maps out of the ordered tensor product which commute with every `F_i` are
+equal if they agree on the pure tensors of vectors of definite weight whose factor `k + 1` is
+the highest weight vector (Webster, arXiv:1309.3796v2, proof of Corollary 6.10). -/
+theorem ext_tensorSpace (wt : Fin (k + 2 + m) → Dom R)
+    (actN : LieLean.QuantumGroup R 𝕍 →ₐ[𝕂] Module.End 𝕂 N) (f g : TensorSpace wt →ₗ[𝕂] N)
+    (hf : ∀ (i : I) (z : TensorSpace wt), f (ρ wt (F R 𝕍 i) z) = actN (F R 𝕍 i) (f z))
+    (hg : ∀ (i : I) (z : TensorSpace wt), g (ρ wt (F R 𝕍 i) z) = actN (F R 𝕍 i) (g z))
+    (h : ∀ x : ∀ j, Fac (wt j), (∀ j, ∃ ν, x j ∈ depthSpace R (Fac (wt j)) (wt j).1 ν) →
+      x (Fin.castAdd m (Fin.natAdd k 1)) =
+        IrreducibleModule.hwv R 𝕍 (wt (Fin.castAdd m (Fin.natAdd k 1))).1 →
+      f (PiTensorProduct.tprod 𝕂 x) = g (PiTensorProduct.tprod 𝕂 x)) :
+    f = g := by
+  have he := (intertwines_slotDecomp wt).symm
+  suffices hfg : f ∘ₗ (slotDecomp wt).symm.toLinearMap = g ∘ₗ (slotDecomp wt).symm.toLinearMap by
+    refine LinearMap.ext fun z ↦ ?_
+    simpa using LinearMap.congr_fun hfg (slotDecomp wt z)
+  refine ext_tripleRep (ρ fun i : Fin (k + 1) ↦ wt (Fin.castAdd m i.castSucc))
+    (ρ fun i : Fin m ↦ wt (Fin.natAdd (k + 2) i)) actN _ _ (fun i z ↦ ?_) (fun i z ↦ ?_) (wordVec _) (wordVec_cons _)
+    (fun l ↦ ⟨_, wordVec_mem_weightSpace _ l⟩) (span_wordVec _) ?_
+  · rw [LinearMap.comp_apply, LinearMap.comp_apply, he, hf]
+  · rw [LinearMap.comp_apply, LinearMap.comp_apply, he, hg]
+  -- reduce to pure tensors of basis vectors in the two outer blocks
+  let B₁ := Basis.piTensorProduct fun i : Fin (k + 1) ↦ depthBasis hR (wt (Fin.castAdd m i.castSucc))
+  let B₂ := Basis.piTensorProduct fun i : Fin m ↦ depthBasis hR (wt (Fin.natAdd (k + 2) i))
+  have key : ∀ p q, (f ∘ₗ (slotDecomp wt).symm.toLinearMap) ((B₁ p ⊗ₜ[𝕂] wordVec _ []) ⊗ₜ[𝕂] B₂ q) =
+      (g ∘ₗ (slotDecomp wt).symm.toLinearMap) ((B₁ p ⊗ₜ[𝕂] wordVec _ []) ⊗ₜ[𝕂] B₂ q) := by
+    intro p q
+    let x : ∀ j, Fac (wt j) := Fin.addCases (motive := fun j ↦ Fac (wt j))
+      (Fin.lastCases (motive := fun j ↦ Fac (wt (Fin.castAdd m j)))
+        (IrreducibleModule.hwv R 𝕍 _) fun i ↦ depthBasis hR _ (p i))
+      fun i ↦ depthBasis hR _ (q i)
+    have hx : (slotDecomp wt).symm.toLinearMap ((B₁ p ⊗ₜ[𝕂] wordVec _ []) ⊗ₜ[𝕂] B₂ q) =
+        PiTensorProduct.tprod 𝕂 x := by
+      rw [LinearEquiv.coe_coe, LinearEquiv.symm_apply_eq, slotDecomp_tprod, wordVec_nil]
+      simp only [B₁, B₂, Basis.piTensorProduct_apply, x, Fin.addCases_left, Fin.addCases_right,
+        Fin.lastCases_castSucc, Fin.lastCases_last]
+    rw [LinearMap.comp_apply, LinearMap.comp_apply, hx]
+    refine h x (fun j ↦ ?_) ?_
+    · refine Fin.addCases (fun i ↦ ?_) (fun i ↦ ?_) j
+      · refine Fin.lastCases ?_ (fun i ↦ ?_) i
+        · exact ⟨0, by simpa [x] using IrreducibleModule.hwv_mem_depthSpace_zero (R := R) _⟩
+        · exact ⟨_, by simpa [x] using depthBasis_mem hR _ (p i)⟩
+      · exact ⟨_, by simpa [x] using depthBasis_mem hR _ (q i)⟩
+    · show x (Fin.castAdd m (Fin.last (k + 1))) = _
+      simp only [x, Fin.addCases_left, Fin.lastCases_last]
+      rfl
+  intro a c
+  have ha : a ∈ Submodule.span 𝕂 (Set.range B₁) := by rw [B₁.span_eq]; trivial
+  have hc : c ∈ Submodule.span 𝕂 (Set.range B₂) := by rw [B₂.span_eq]; trivial
+  induction ha using Submodule.span_induction generalizing c with
+  | mem a ha =>
+    obtain ⟨p, rfl⟩ := ha
+    induction hc using Submodule.span_induction with
+    | mem c hc => obtain ⟨q, rfl⟩ := hc; exact key p q
+    | zero => simp
+    | add c c' _ _ hc hc' => rw [TensorProduct.tmul_add, map_add, map_add, hc, hc']
+    | smul s c _ hc => rw [TensorProduct.tmul_smul, map_smul, map_smul, hc]
+  | zero => simp
+  | add a a' _ _ ha ha' => rw [TensorProduct.add_tmul, TensorProduct.add_tmul, map_add, map_add,
+      ha c hc, ha' c hc]
+  | smul s a _ ha => rw [← TensorProduct.smul_tmul', ← TensorProduct.smul_tmul', map_smul,
+      map_smul, ha c hc]
+
+end Ordered
+
 end Categorification.Stendhal.FirstWeight

@@ -2298,6 +2298,7 @@ import Categorification.WeightedKLR.RedStrands.GradedBraidFunctor
 import Categorification.WeightedKLR.RedStrands.GradedBraidGenerators
 import Categorification.WeightedKLR.RedStrands.GradedBraidResolution
 import Categorification.WeightedKLR.RedStrands.GradedBraidResolutionClass
+import Categorification.WeightedKLR.RedStrands.GradedBraidStandardFiltration
 import Categorification.WeightedKLR.RedStrands.GradedBraidRowClass
 import Categorification.WeightedKLR.RedStrands.GradedBraidingBimodule
 import Categorification.WeightedKLR.RedStrands.GradedRightStandard

@@ -11,7 +11,7 @@ import Categorification.Diagrams.BicatInterpMate
 # Red cups and caps in the double model of a Rouquier family
 
 Webster, arXiv:1309.3796v3, §4.5, proof of Theorem 4.25. The red/down crossings `a′`, `b′` of
-the generator images `genImg` are the mates of the red/up crossings (`downQuot`, `downDot`).
+the generator images `genImg` are the mates of the red/up crossings (`redDownQuot`, `redDownDot`).
 Hence a black cup or cap slides through a red strand: the two sides of each red cup relation
 (`redCupLeft`, `redCupRight`) and of each red cap relation (`redCapLeft`, `redCapRight`) have the
 same image, for both orientations of the black strand (`genImg_redCup`, `genImg_redCap`). The
@@ -128,20 +128,20 @@ theorem upIso_inv_heq (r : Fin ℓ) (i : I) {μ μ₁ μ₂ μ₃ μ' μ₁' μ�
   subst e e₁ e₂ e₃; rfl
 
 omit [AdditiveWhiskering B] in
-theorem downQuot_heq (r : Fin ℓ) (i : I) {μ μ₁ μ₂ μ₃ μ' μ₁' μ₂' μ₃' : X}
+theorem redDownQuot_heq (r : Fin ℓ) (i : I) {μ μ₁ μ₂ μ₃ μ' μ₁' μ₂' μ₃' : X}
     (e : μ = μ') (e₁ : μ₁ = μ₁') (e₂ : μ₂ = μ₂') (e₃ : μ₃ = μ₃')
     (h₁ : μ + RD.iX i = μ₁) (h₂ : μ + Λ r = μ₂) (h₃ : μ₁ + Λ r = μ₃) (h₄ : μ₂ + RD.iX i = μ₃)
     (h₁' : μ' + RD.iX i = μ₁') (h₂' : μ' + Λ r = μ₂') (h₃' : μ₁' + Λ r = μ₃')
     (h₄' : μ₂' + RD.iX i = μ₃') :
-    downQuot S red upIso r i h₁ h₂ h₃ h₄ ≍ downQuot S red upIso r i h₁' h₂' h₃' h₄' := by
+    redDownQuot S red upIso r i h₁ h₂ h₃ h₄ ≍ redDownQuot S red upIso r i h₁' h₂' h₃' h₄' := by
   subst e e₁ e₂ e₃; rfl
 
-theorem downDot_heq (r : Fin ℓ) (i : I) {μ μ₁ μ₂ μ₃ μ' μ₁' μ₂' μ₃' : X}
+theorem redDownDot_heq (r : Fin ℓ) (i : I) {μ μ₁ μ₂ μ₃ μ' μ₁' μ₂' μ₃' : X}
     (e : μ = μ') (e₁ : μ₁ = μ₁') (e₂ : μ₂ = μ₂') (e₃ : μ₃ = μ₃')
     (h₁ : μ + RD.iX i = μ₁) (h₂ : μ + Λ r = μ₂) (h₃ : μ₁ + Λ r = μ₃) (h₄ : μ₂ + RD.iX i = μ₃)
     (h₁' : μ' + RD.iX i = μ₁') (h₂' : μ' + Λ r = μ₂') (h₃' : μ₁' + Λ r = μ₃')
     (h₄' : μ₂' + RD.iX i = μ₃') :
-    downDot S red upIso r i h₁ h₂ h₃ h₄ ≍ downDot S red upIso r i h₁' h₂' h₃' h₄' := by
+    redDownDot S red upIso r i h₁ h₂ h₃ h₄ ≍ redDownDot S red upIso r i h₁' h₂' h₃' h₄' := by
   subst e e₁ e₂ e₃; rfl
 
 end Transport
@@ -184,17 +184,17 @@ theorem genImg_redCup_bare_up (i : I) (r : Fin ℓ) {s t : X}
       (dn' := fwT ((s + Λ r) + (wU i)) [(((s + Λ r) + (wU i)), .inl (false, i))] (s + Λ r) ⟨rfl, trivial⟩ hd')
       (x' := fwT (s + (wU i)) [((s + (wU i)), .inr r)] ((s + Λ r) + (wU i)) ⟨rfl, trivial⟩ h₃)
       ?hn₁ ?hm₁ ?hn₂ ?hm₂ ?hn₃ ?hm₃ ?hn₄ ?hm₄ ?hp₁ ?hq₁ ?hd₁ ?hc₁ ?hp₂ ?hq₂ ?hd₂ ?hc₂
-      ?hp₃ ?hq₃ ?hd₃ ?hc₃ ?hp₄ ?hq₄ ?hd₄ ?hc₄ _ _ _ _ (S.adj i h₁).unit (downQuot S red upIso r i h₁ rfl h₃ h₄) (S.adj i h₄).unit
+      ?hp₃ ?hq₃ ?hd₃ ?hc₃ ?hp₄ ?hq₄ ?hd₄ ?hc₄ _ _ _ _ (S.adj i h₁).unit (redDownQuot S red upIso r i h₁ rfl h₃ h₄) (S.adj i h₄).unit
       (upIso r i h₁ rfl h₃ h₄).hom
       ?hg₁ ?hg₂ ?hg₃ ?hg₄ ?hmate _ _ _ _ _ _ _ _ _ _ _ _ _ _
   case hmate =>
-    have key := mateEquiv_unit (S.adj i h₄) (S.adj i h₁) (downQuot S red upIso r i h₁ rfl h₃ h₄)
-    rw [downQuot, Equiv.apply_symm_apply] at key
+    have key := mateEquiv_unit (S.adj i h₄) (S.adj i h₁) (redDownQuot S red upIso r i h₁ rfl h₃ h₄)
+    rw [redDownQuot, Equiv.apply_symm_apply] at key
     exact key
   case hg₁ => black_gen; refine blackImg_cup_up' S red Sc _ i _ _ _ _ _ _ ?_ h₁; double_regions
   case hg₃ => black_gen; refine blackImg_cup_up' S red Sc _ i _ _ _ _ _ _ ?_ h₄; double_regions
   case hg₂ =>
-    exact downQuot_heq S red upIso r i (by double_regions) (by double_regions)
+    exact redDownQuot_heq S red upIso r i (by double_regions) (by double_regions)
       (by double_regions) (by double_regions) _ _ _ _ _ _ _ _
   case hg₄ =>
     exact upIso_hom_heq S red upIso r i (by double_regions) (by double_regions)
@@ -259,7 +259,7 @@ theorem genImg_redCup_bare_dn (i : I) (r : Fin ℓ) {s t : X}
       (x' := fwT (s + (wD i)) [((s + (wD i)), .inr r)] ((s + Λ r) + (wD i)) ⟨rfl, trivial⟩ h₃)
       ?hn₁ ?hm₁ ?hn₂ ?hm₂ ?hn₃ ?hm₃ ?hn₄ ?hm₄ ?hp₁ ?hq₁ ?hd₁ ?hc₁ ?hp₂ ?hq₂ ?hd₂ ?hc₂
       ?hp₃ ?hq₃ ?hd₃ ?hc₃ ?hp₄ ?hq₄ ?hd₄ ?hc₄ _ _ _ _ (S.adjL i h₁).unit (upIso r i h₁ h₃ rfl h₄).inv (S.adjL i h₄).unit
-      (downDot S red upIso r i h₁ h₃ rfl h₄)
+      (redDownDot S red upIso r i h₁ h₃ rfl h₄)
       ?hg₁ ?hg₂ ?hg₃ ?hg₄ ?hmate _ _ _ _ _ _ _ _ _ _ _ _ _ _
   case hmate => exact mateEquiv_unit (S.adjL i h₄) (S.adjL i h₁) (upIso r i h₁ h₃ rfl h₄).inv
   case hg₁ => black_gen; refine blackImg_cup_dn' S red Sc _ i _ _ _ _ _ _ ?_ h₁; double_regions
@@ -268,7 +268,7 @@ theorem genImg_redCup_bare_dn (i : I) (r : Fin ℓ) {s t : X}
     exact upIso_inv_heq S red upIso r i (by double_regions) (by double_regions)
       (by double_regions) (by double_regions) _ _ _ _ _ _ _ _
   case hg₄ =>
-    exact downDot_heq S red upIso r i (by double_regions) (by double_regions)
+    exact redDownDot_heq S red upIso r i (by double_regions) (by double_regions)
       (by double_regions) (by double_regions) _ _ _ _ _ _ _ _
   case hn₁ => double_regions
   case hm₁ => double_regions
@@ -330,11 +330,11 @@ theorem genImg_redCap_bare_up (i : I) (r : Fin ℓ) {s t : X}
       (x' := fwT (s + (wD i)) [((s + (wD i)), .inr r)] ((s + Λ r) + (wD i)) ⟨rfl, trivial⟩ h₃)
       ?hn₁ ?hm₁ ?hn₂ ?hm₂ ?hn₃ ?hm₃ ?hn₄ ?hm₄ ?hp₁ ?hq₁ ?hd₁ ?hc₁ ?hp₂ ?hq₂ ?hd₂ ?hc₂
       ?hp₃ ?hq₃ ?hd₃ ?hc₃ ?hp₄ ?hq₄ ?hd₄ ?hc₄ _ _ _ _ (upIso r i h₁ h₃ rfl h₄).hom (S.adj i h₁).counit
-      (downQuot S red upIso r i h₁ h₃ rfl h₄) (S.adj i h₄).counit
+      (redDownQuot S red upIso r i h₁ h₃ rfl h₄) (S.adj i h₄).counit
       ?hg₁ ?hg₂ ?hg₃ ?hg₄ ?hmate _ _ _ _ _ _ _ _ _ _ _ _ _ _
   case hmate =>
-    have key := mateEquiv_counit (S.adj i h₄) (S.adj i h₁) (downQuot S red upIso r i h₁ h₃ rfl h₄)
-    rw [downQuot, Equiv.apply_symm_apply] at key
+    have key := mateEquiv_counit (S.adj i h₄) (S.adj i h₁) (redDownQuot S red upIso r i h₁ h₃ rfl h₄)
+    rw [redDownQuot, Equiv.apply_symm_apply] at key
     exact key
   case hg₂ => black_gen; refine blackImg_cap_up' S red Sc _ i _ _ _ _ _ _ ?_ h₁; double_regions
   case hg₄ => black_gen; refine blackImg_cap_up' S red Sc _ i _ _ _ _ _ _ ?_ h₄; double_regions
@@ -342,7 +342,7 @@ theorem genImg_redCap_bare_up (i : I) (r : Fin ℓ) {s t : X}
     exact upIso_hom_heq S red upIso r i (by double_regions) (by double_regions)
       (by double_regions) (by double_regions) _ _ _ _ _ _ _ _
   case hg₃ =>
-    exact downQuot_heq S red upIso r i (by double_regions) (by double_regions)
+    exact redDownQuot_heq S red upIso r i (by double_regions) (by double_regions)
       (by double_regions) (by double_regions) _ _ _ _ _ _ _ _
   case hn₁ => double_regions
   case hm₁ => double_regions
@@ -403,7 +403,7 @@ theorem genImg_redCap_bare_dn (i : I) (r : Fin ℓ) {s t : X}
       (dn' := fwT (s + Λ r) [(s + Λ r, .inl (true, i))] ((s + Λ r) + (wU i)) ⟨rfl, trivial⟩ rfl)
       (x' := fwT (s + (wU i)) [((s + (wU i)), .inr r)] ((s + Λ r) + (wU i)) ⟨rfl, trivial⟩ h₃)
       ?hn₁ ?hm₁ ?hn₂ ?hm₂ ?hn₃ ?hm₃ ?hn₄ ?hm₄ ?hp₁ ?hq₁ ?hd₁ ?hc₁ ?hp₂ ?hq₂ ?hd₂ ?hc₂
-      ?hp₃ ?hq₃ ?hd₃ ?hc₃ ?hp₄ ?hq₄ ?hd₄ ?hc₄ _ _ _ _ (downDot S red upIso r i h₁ rfl h₃ h₄) (S.adjL i h₁).counit
+      ?hp₃ ?hq₃ ?hd₃ ?hc₃ ?hp₄ ?hq₄ ?hd₄ ?hc₄ _ _ _ _ (redDownDot S red upIso r i h₁ rfl h₃ h₄) (S.adjL i h₁).counit
       (upIso r i h₁ rfl h₃ h₄).inv (S.adjL i h₄).counit
       ?hg₁ ?hg₂ ?hg₃ ?hg₄ ?hmate _ _ _ _ _ _ _ _ _ _ _ _ _ _
   case hmate =>
@@ -411,7 +411,7 @@ theorem genImg_redCap_bare_dn (i : I) (r : Fin ℓ) {s t : X}
   case hg₂ => black_gen; refine blackImg_cap_dn' S red Sc _ i _ _ _ _ _ _ ?_ h₁; double_regions
   case hg₄ => black_gen; refine blackImg_cap_dn' S red Sc _ i _ _ _ _ _ _ ?_ h₄; double_regions
   case hg₁ =>
-    exact downDot_heq S red upIso r i (by double_regions) (by double_regions)
+    exact redDownDot_heq S red upIso r i (by double_regions) (by double_regions)
       (by double_regions) (by double_regions) _ _ _ _ _ _ _ _
   case hg₃ =>
     exact upIso_inv_heq S red upIso r i (by double_regions) (by double_regions)

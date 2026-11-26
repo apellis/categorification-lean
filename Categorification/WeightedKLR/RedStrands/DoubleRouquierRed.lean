@@ -11,8 +11,8 @@ Webster, arXiv:1309.3796v3, §4.5, proof of Theorem 4.25. Let `S` be a Rouquier 
 images `red r` of the red strands, and isomorphisms `F_i I^λ ≅ I^λ F_i` passing an upward black
 strand through a red strand (`upIso`). These are the images of the red/up crossings `a`, `b`.
 As in Webster's proof, the red/down crossings are their mates: `a′` is the mate of `a` for the
-adjunction `E ⊣ F` (`downQuot`, Webster's factorization of `a′` through `E_i F_i`), and `b′`
-is the mate of `b` for the adjunction `F ⊣ E` (`downDot`). Together with the images of the
+adjunction `E ⊣ F` (`redDownQuot`, Webster's factorization of `a′` through `E_i F_i`), and `b′`
+is the mate of `b` for the adjunction `F ⊣ E` (`redDownDot`). Together with the images of the
 black generators (`blackImg`) this gives generator images of the double signature
 (`genImg`).
 -/
@@ -46,14 +46,14 @@ variable {B : Type*} [Bicategory B] [∀ a b : B, Preadditive (a ⟶ b)] [Additi
 /-- **The red/down crossing `a′`** (Webster, arXiv:1309.3796v3, proof of Theorem 4.25): the mate
 of the red/up crossing for the adjunction `E ⊣ F`, that is,
 `I^λ E_i → E_i F_i I^λ E_i → E_i I^λ F_i E_i → E_i I^λ`. -/
-def downQuot (r : Fin ℓ) (i : I) {μ μ₁ μ₂ μ₃ : X} (h₁ : μ + RD.iX i = μ₁)
+def redDownQuot (r : Fin ℓ) (i : I) {μ μ₁ μ₂ μ₃ : X} (h₁ : μ + RD.iX i = μ₁)
     (h₂ : μ + Λ r = μ₂) (h₃ : μ₁ + Λ r = μ₃) (h₄ : μ₂ + RD.iX i = μ₃) :
     red r h₂ ≫ S.E i h₁ ⟶ S.E i h₄ ≫ red r h₃ :=
   (mateEquiv (S.adj i h₄) (S.adj i h₁)).symm (upIso r i h₁ h₂ h₃ h₄).hom
 
 /-- **The red/down crossing `b′`** (Webster, arXiv:1309.3796v3, proof of Theorem 4.25): the mate
 of the inverse red/up crossing for the adjunction `F ⊣ E`. -/
-def downDot (r : Fin ℓ) (i : I) {μ μ₁ μ₂ μ₃ : X} (h₁ : μ + RD.iX i = μ₁)
+def redDownDot (r : Fin ℓ) (i : I) {μ μ₁ μ₂ μ₃ : X} (h₁ : μ + RD.iX i = μ₁)
     (h₂ : μ + Λ r = μ₂) (h₃ : μ₁ + Λ r = μ₃) (h₄ : μ₂ + RD.iX i = μ₃) :
     S.E i h₄ ≫ red r h₃ ⟶ red r h₂ ≫ S.E i h₁ :=
   mateEquiv (S.adjL i h₄) (S.adjL i h₁) (upIso r i h₁ h₂ h₃ h₄).inv
@@ -67,8 +67,8 @@ def mixedImg : (g : X × Move I ℓ) → (a b : X) → (T).left g = a → (T).ri
   | (z, .black s), a, b, ha, hb, hd, hde, hc, hce => blackImg S red Sc z s a b ha hb hd hde hc hce
   | (_, .redBlack r (true, i)), _, _, _, _, _, _, _, _ => (upIso r i _ _ _ _).hom
   | (_, .blackRed (true, i) r), _, _, _, _, _, _, _, _ => (upIso r i _ _ _ _).inv
-  | (_, .blackRed (false, i) r), _, _, _, _, _, _, _, _ => downQuot S red upIso r i _ _ _ _
-  | (_, .redBlack r (false, i)), _, _, _, _, _, _, _, _ => downDot S red upIso r i _ _ _ _
+  | (_, .blackRed (false, i) r), _, _, _, _, _, _, _, _ => redDownQuot S red upIso r i _ _ _ _
+  | (_, .redBlack r (false, i)), _, _, _, _, _, _, _, _ => redDownDot S red upIso r i _ _ _ _
 
 /-- **The generator images of the double signature** for a Rouquier family, images of the red
 strands and red/up crossings. -/

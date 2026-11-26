@@ -150,4 +150,50 @@ theorem braidConcentrated_rightRowStandard (u : Fin (n + 2 + m) → List I)
   exact braidConcentrated_rightStandard_congr.{w} _ hQ.klrSymm _ hQ
     (rowLoading_eq_rowCrossed u hu).symm _ _ key
 
+/-- A right standard module only depends on its loading. -/
+theorem rightStandard_congr {ℓ : ℕ} {Λ : Fin ℓ → I →₀ ℕ} {ν : Multiset I}
+    {ρ : Equiv.Perm (Fin (Multiset.card (stendhalWeight ℓ ν))) → List ℕ}
+    (hρ : TypeA.IsReducedChoice ρ) (hS : KLRSymm Q) (G : GradingDatum (stendhalQ Q Λ))
+    [Module.Finite k (TensorProductAlgebra k Q Λ ν)]
+    {t t' : Seq (stendhalWeight ℓ ν)} (h : t = t') (ht : redWord t = List.finRange ℓ)
+    (ht' : redWord t' = List.finRange ℓ) :
+    rightStandard hρ hS t G ht = rightStandard hρ hS t' G ht' := by
+  subst h
+  rfl
+
+omit [DecidableEq I] in
+theorem redPerm_swappedRowLoading_eq (u : Fin (n + 2 + m) → List I)
+    (hu : u (rightPos n m) = []) :
+    Seq.redPerm (pairSwap n m) (swappedRowLoading u) = KLR.Seq.cast (weightSum_rowBlocks u hu)
+      (place _ (setPairLoading (rowM u) (pairEmb n m) (rowβ u) (uncrossedLoading _) (rowL u)
+        (rowBlockLoadings u (crossedLoading _)))) := by
+  rw [redPerm_swappedRowLoading u hu]
+  congr 2
+  exact (setPairLoading_rowLoadings _ _ _ _ _ _).symm
+
+/-- **The braid of a right row standard module, graded** (Webster, arXiv:1309.3796v2, §6.1,
+Proposition 6.9 and proof of Corollary 6.10): for words `u` with `u_{n+2}` empty,
+`𝔅_π S(u) ≅ S'⟨⟨|u_{n+1}|, λ_{n+2}⟩ - 2⟩` as graded right `T^{λ ∘ π}`-modules with the auxiliary
+gradings, where `π` swaps `λ_{n+1}` and `λ_{n+2}` and `S'` is the right standard module at the row
+loading of the swapped words. Hypotheses: `RowFigureFiveHypotheses`. -/
+def rightRowStandardBraidIso (u : Fin (n + 2 + m) → List I) (hu : u (rightPos n m) = [])
+    (H : RowFigureFiveHypotheses C hQ Λ u hu) :
+    (rightStandard (Λ := Λ ∘ pairSwap n m) (isReducedChoice_canChoice _) hQ.klrSymm
+        (swappedRowLoading u) (rouquierGrading Q hQ (Λ ∘ pairSwap n m))
+        (redWord_swappedRowLoading u)).Iso
+      ((braidF C hQ Λ (pairSwap n m) (blockContent u) (rightRowStandard C hQ Λ u)).shift
+        (-(Multiset.sum (Multiset.map (fun i => QuantumGroup.UDot.di C i *
+          (Λ (rightPos n m) i : ℤ)) (u (leftPos n m) : Multiset I)) - 2))) := by
+  rw [show rightRowStandard C hQ Λ u = rightStandard (isReducedChoice_canChoice _) hQ.klrSymm
+      (rowCrossed u hu) (rouquierGrading Q hQ Λ)
+      ((redWord_rowCrossed u hu).trans (finRange_eq_rowBlocks u).symm) from
+    rightStandard_congr _ hQ.klrSymm _ (rowLoading_eq_rowCrossed u hu) _ _]
+  exact rowBraidStandardIso Q Λ hQ.klrSymm (rowM u) (pairEmb n m) (rowβ u) hQ
+    (isReducedChoice_canChoice _) (one_lt_card_stendhalWeight_two _)
+    (uncrossedLoading_lbl_zero _) (uncrossedLoading_lbl_one _) (edgeBraid_crossedLoading _)
+    (redWord_crossedLoading _) (redWord_uncrossedLoading _) (rowL u) (weightSum_rowBlocks u hu)
+    (rowBlockLoadings u (crossedLoading _)) (not_violated_rowCrossed u) (redWord_rowCrossed u hu)
+    H.stacked (isReducedChoice_canChoice _) (pairSwap n m) (finRange_eq_rowBlocks u)
+    (map_pairSwap_finRange u) (redWord_swappedRowLoading u) (redPerm_swappedRowLoading_eq u hu)
+
 end Categorification.Stendhal.FirstWeight

@@ -109,4 +109,67 @@ theorem exists_resolution_rightRowStandard
 
 end Class
 
+section Generator
+
+open DG.DegreeZero
+attribute [local instance 1200] Ring.toIntAlgebra
+
+universe w
+
+variable {I : Type} {k : Type} {Y : Type*} [DecidableEq I] [Field k] [AddCommGroup Y] [Finite I]
+    {Q : I → I → MvPolynomial (Fin 2) k} (C : CartanDatum I) (hQ : IsRouquierQ C Q)
+    {R : C.toLusztig.RootDatum Y} (hR : R.IsXRegular) {n m : ℕ} (Λ : Fin (n + 2 + m) → I →₀ ℕ)
+    (wt : Fin (n + 2 + m) → Dom R) (hwt : ∀ r i, (Λ r i : ℤ) = (wt r).1 (R.coroot i))
+    [∀ (Ω : Fin (n + 2 + m) → I →₀ ℕ) (ν : Multiset I),
+      Module.Finite k (TensorProductAlgebra k Q Ω ν)]
+
+/-- **The braid functor on a generator word tensor** (Webster, arXiv:1309.3796v2, §6.1,
+Proposition 6.9 and proof of Corollary 6.10): for words `u` with `u_{n+2}` empty and `π` the
+transposition of `λ_{n+1}, λ_{n+2}`, the class map of `𝔅_π` sends the word tensor of `u` to the
+form against `v^{⟨|u_{n+1}|, λ_{n+2}⟩ - 2}`-twisted word tensor of the swapped words. Route
+hypotheses: `AllFiniteDeltaInjective` (Corollary 5.22) and `RowFigureFiveHypotheses`
+(Proposition 6.9). -/
+theorem braidClass_wordTensor
+    (hall : ∀ (n : ℕ) (Λ' : Fin (n + 1) → I →₀ ℕ), AllFiniteDeltaInjective Q Λ' hQ.klrSymm)
+    (u : Fin (n + 2 + m) → List I) (hu : u (rightPos n m) = [])
+    (H : RowFigureFiveHypotheses C hQ Λ u hu)
+    [DG.HasDerivedCategory.{w, 0} (IsIdempotentElem.Corner
+      (BraidedStendhalAlgebra.isIdempotentElem_violMk_redProj k Q Λ (blockContent u)
+        (List.finRange (n + 2 + m))))ᵐᵒᵖ]
+    [DG.HasDerivedCategory.{w, 0} (IsIdempotentElem.Corner
+      (BraidedStendhalAlgebra.isIdempotentElem_violMk_redProj k Q Λ (blockContent u)
+        ((List.finRange (n + 2 + m)).map (pairSwap n m))))ᵐᵒᵖ] :
+    braidClass C hQ hR Λ wt hwt (pairSwap n m) (wordTensor C wt u) =
+      ConjDual.of (integralLaurentEval (LaurentPolynomial.T
+        (Multiset.sum (Multiset.map (fun i => QuantumGroup.UDot.di C i *
+          (Λ (rightPos n m) i : ℤ)) (u (leftPos n m) : Multiset I)) - 2)) •
+        TensorPairing.orderedForm hR (wt ∘ pairSwap n m)
+          (wordTensor C (wt ∘ pairSwap n m) (u ∘ pairSwap n m))) := by
+  have hB := braidConcentrated_rightRowStandard.{w} C hQ Λ u hu H
+  obtain ⟨Ps, ⟨r⟩⟩ := exists_resolution_rightRowStandard C hQ Λ hall u
+  have hX := braidClass_resolution_of_braidConcentrated C hQ hR Λ wt hwt (pairSwap n m) _ r hB
+  rw [← eta_altSum_rightRowStandard C hQ hR Λ wt hwt u r,
+    braidClass_resolution_of_braidConcentrated C hQ hR Λ wt hwt (pairSwap n m) _ r
+      (braidConcentrated_rightRowStandard.{w} C hQ Λ u hu H)]
+  congr 1
+  have h2 := classFunctional_congr C hQ hR (Λ ∘ pairSwap n m) (wt ∘ pairSwap n m)
+    (fun r i => hwt (pairSwap n m r) i) _ (rightRowStandardBraidIso C hQ Λ u hu H)
+  rw [classFunctional_shift] at h2
+  have h3 := (classFunctional_rightStandard_cast C hQ hR (Λ ∘ pairSwap n m) (wt ∘ pairSwap n m)
+    (fun r i => hwt (pairSwap n m r) i) (blockContent_comp_perm u (pairSwap n m))
+    (rowLoading (n + 2 + m) (u ∘ pairSwap n m))
+    ((redWord_eq_finRange_iff _).2 (isRedOrdered_rowLoading _ _))
+    (redWord_swappedRowLoading u)).trans
+    (classFunctional_rightRowStandard_eq C hQ hR (Λ ∘ pairSwap n m) (wt ∘ pairSwap n m)
+      (fun r i => hwt (pairSwap n m r) i) (u ∘ pairSwap n m))
+  rw [← h3]
+  have h4 := congrArg (integralLaurentEval (LaurentPolynomial.T
+    (Multiset.sum (Multiset.map (fun i => QuantumGroup.UDot.di C i *
+      (Λ (rightPos n m) i : ℤ)) (u (leftPos n m) : Multiset I)) - 2)) • ·) h2
+  simp only [smul_smul, ← map_mul, ← LaurentPolynomial.T_add, add_neg_cancel,
+    LaurentPolynomial.T_zero, map_one, one_smul] at h4
+  exact h4.symm
+
+end Generator
+
 end Categorification.Stendhal.FirstWeight

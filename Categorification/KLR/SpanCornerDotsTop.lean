@@ -48,7 +48,7 @@ theorem mem_span_corner_dotsTop (ρ : Perm (Fin m) → List ℕ)
   refine Submodule.span_mono ?_ himg
   rintro _ ⟨_, ⟨w, u, hw, rfl⟩, rfl⟩
   refine ⟨w⁻¹, u, by rw [← hw, inv_smul_smul], ?_⟩
-  simp only [hflip_mul, hflip_e, hflip_pol, hflip_ψw, revWord, List.reverse_reverse]
+  simp only [hflipEquiv_apply, hflip_mul, hflip_e, hflip_pol, hflip_ψw, revWord, List.reverse_reverse]
   rw [← mul_assoc (e j), (e_commute_pol _ _).eq, mul_assoc (pol _) (e j), e_mul_ψw, (hρ _).2,
     inv_inv, hw, mul_assoc]
 

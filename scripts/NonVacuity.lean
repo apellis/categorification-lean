@@ -6007,6 +6007,15 @@ noncomputable example (ν : Multiset Unit)
 
 end RedFirstEnd
 
+/-- Webster, arXiv:1309.3796v3, Prop. 5.21 (printed `Φ`-indexed form), for `sl₂`, two red
+strands of weight `ω`, every black weight, red-ordered loading and block assignment, at the
+standard Khovanov–Lauda scalars. -/
+noncomputable example (ν : Multiset Unit) (s : Seq (stendhalWeight 2 ν)) (hs : IsRedOrdered s)
+    (g : PhiIndex s) :=
+  phiLayerEquiv_std rbRouquier rbSymm (fun _ : Fin 2 => Finsupp.single () 1)
+    (fun w => (TypeA.exists_reduced _ w).choose) (fun w => (TypeA.exists_reduced _ w).choose_spec)
+    hs g
+
 end NonVacuity.RedBlackCrossing
 
 namespace NonVacuity.WebsterCoevaluationWord

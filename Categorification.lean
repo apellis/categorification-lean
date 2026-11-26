@@ -2423,3 +2423,4 @@ import Categorification.WeightedKLR.RedStrands.PhiDiagrams
 import Categorification.WeightedKLR.RedStrands.PhiStandardLayers
 import Categorification.WeightedKLR.RedStrands.PhiWordsLabels
 import Categorification.WeightedKLR.RedStrands.StandardBlackInduction
+import Categorification.WeightedKLR.RedStrands.PhiLayerStd

@@ -142,6 +142,20 @@ theorem crossingStack_tmul_eq_mul {c : (C).space} {e : quotients Q Λ Bs} {τ : 
   rw [← h1, hes, act_loading, crossingStack_tmul, ← projection_genRep,
     blockProductAction_projection, stackedGenerator, map_mul, map_mul, mul_assoc, mul_assoc]
   congr 2
+/-- The stacked generator acts on the corner at `s'` as any representative of the generator
+fixed on the left by the loading idempotent at `s`. -/
+theorem stackedGenerator_mul_eq {c : (C).space} {s s' : Loadings Bs} {x : diagrams Q Λ Bs}
+    (hx : projection Q Λ Bs x = (C).incl c) (hsx : loadingIdem Q Λ Bs s * x = x)
+    (y : violCorner k Q Λ ν (Seq.cast h (place Bs s')) κ₀) :
+    q (stackedGenerator h c s s' * y.1) = q (F x * y.1) := by
+  have hy := (mem_violCorner_iff.1 y.2).1
+  have e1 := blockProductAction_projection Q Λ L M f β h (genRep c) (toColumn s' y)
+  have e2 := blockProductAction_projection Q Λ L M f β h x (toColumn s' y)
+  rw [projection_genRep, ← hx, e2] at e1
+  change q (F x) * q y.1 = q (F (genRep c)) * q y.1 at e1
+  rw [stackedGenerator, mul_assoc, mul_assoc, hy, map_mul, map_mul (q) (F (genRep c)), ← e1,
+    ← map_mul, ← map_mul, ← mul_assoc, ← stack_loading s, ← map_mul, hsx]
+
 local notation "Uc" => ViolOrderCorner (k := k) (Q := Q) (Λ := Λ) (ν := ν) κ₀
 
 variable (h) in
@@ -302,4 +316,16 @@ def braidCutQuotientEquivStandard {c : (C).space} {e : quotients Q Λ Bs} {τ : 
     change q (stackedGenerator h c s s' * x.1 - y.1) = 0
     rw [map_sub, hx, sub_self]
   exact (Submodule.quotEquivOfEq _ _ hker.symm).trans (Φ.quotKerEquivOfSurjective hsurj)
+
+theorem braidCutQuotientEquivStandard_mk {c : (C).space} {e : quotients Q Λ Bs} {τ : D₀}
+    {H : Submodule k D₀} (g : (C).Generator (LinearMap.ofClass ι₀) c e τ H)
+    (he : ι₁ 1 * e = e) (hτ : IsIdempotentElem τ) {s s' : Loadings Bs}
+    (hes : e = projection Q Λ Bs (loadingIdem Q Λ Bs s))
+    (hτs : ι₀ τ = projection Q Λ Bs (loadingIdem Q Λ Bs s')) (hs : ¬ Violated Bs s)
+    (ht : redWord (Seq.cast h (place Bs s)) = L.map Prod.fst ++ f 1 :: f 0 :: M.map Prod.fst)
+    (hstd : StackedStandard hQ h H s') (y : violCorner k Q Λ ν (Seq.cast h (place Bs s')) κ₀) :
+    braidCutQuotientEquivStandard g he hτ hes hτs hs ht hstd
+        ((violStandardUpper (Seq.cast h (place Bs s')) κ₀).mkQ y) =
+      braidCutMk Q Λ (Seq.cast h (place Bs s)) (f 0) (f 1) κ₀ (generatorStack h c s s' y) :=
+  rfl
 end Categorification.Stendhal.RedBlock

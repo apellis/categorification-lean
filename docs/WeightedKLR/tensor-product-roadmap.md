@@ -965,9 +965,20 @@ is the standard module (`partialStandardEquivStandard`, from step 1), giving the
 Prop 6.9 at Figure 5 row loadings (`rowStandard_braidIso`). The cut at `f 0` is rigid
 (`RedStrands/BlockCrossingRigid.lean`, `isRigidCut_place_setPairLoading`): in the crossed
 Figure 5 loading `f 0` ends the paired block and the next block starts with its red strand,
-so `f 0` has as many black strands to its left as the next red strand. Open:
+so `f 0` has as many black strands to its left as the next red strand.
 
-- step 4 (the graded shift).
+Step 4, the shift (`RedStrands/BlockCrossingGrading.lean`). The cuts `e(s) V e_κ` and their
+quotients carry the auxiliary grading of the braided diagrams (`violCornerGrade`,
+`braidCutGrade`, `loadingStandardGrade`). The stacked generator acts as the stacked Figure 5
+diagram (`rowFigureFive`, `rowBraidCutEquivStandard_mk`), which is homogeneous of auxiliary
+degree `⟨α, λ_{f 0}⟩ - 2` (`rowFigureFive_mem_grade`), so `rowBraidCutEquivStandard` is a graded
+isomorphism after that shift (`rowAuxiliaryGradedEquiv`). With Webster's degree of the single
+red/red crossing in the cut (`rowCutGrade`, as `figureFiveCutGrade` for `ℓ = 2`), the standard
+module shifted by `-⟨λ_{f 1} - α, λ_{f 0}⟩` is isomorphic to the cut quotient as a graded module
+(`rowGradedBraidCutEquivStandard`), that is, the shift `⟨λ_{f 1} - α, λ_{f 0}⟩` in Webster's
+convention `M(a)_n = M_(n+a)`. The derived braid functor of Definition 6.6 is ungraded, so the
+derived form `rowStandard_braidIso` carries no shift; the degree is recorded on the module
+identification it is built from.
 
 The ungraded Figure 5 right-module map for Prop 6.9 (`RedStrands/BraidedStandardTwo.lean`,
 `RedStrands/BraidedStandardInjective.lean`, `RedStrands/BraidedStandardIso.lean`). Let the leftmost strand of `t` be `λ_r` and let `g`

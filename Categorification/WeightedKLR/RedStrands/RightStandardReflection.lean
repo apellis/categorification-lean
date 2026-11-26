@@ -22,7 +22,10 @@ set_option backward.isDefEq.respectTransparency false
 
 namespace Categorification.Stendhal.BraidedStendhalAlgebra
 
-open KLR Equiv MulOpposite
+open KLR Equiv MulOpposite Categorification.Graded
+
+attribute [local instance] RingHomInvPair.of_ringEquiv RingHomInvPair.of_ringEquiv_symm
+attribute [local instance 1100] IsIdempotentElem.instAlgebraCorner_categorification
 
 variable {I k : Type} [DecidableEq I] [Field k] {ℓ : ℕ}
   {Q : I → I → MvPolynomial (Fin 2) k} {Λ : Fin ℓ → I →₀ ℕ} {ν : Multiset I}
@@ -86,6 +89,17 @@ section Congr
 
 variable {t t' : Seq (stendhalWeight ℓ ν)} {κ κ' : List (Fin ℓ)}
 
+/-- Corner elements at equal orders. -/
+def cornerCast (hκ : κ = κ') (c : ViolOrderCorner (k := k) (Q := Q) (Λ := Λ) (ν := ν) κ) :
+    ViolOrderCorner (k := k) (Q := Q) (Λ := Λ) (ν := ν) κ' := by
+  subst hκ
+  exact c
+
+@[simp] theorem cornerCast_val (hκ : κ = κ')
+    (c : ViolOrderCorner (k := k) (Q := Q) (Λ := Λ) (ν := ν) κ) : (cornerCast hκ c).1 = c.1 := by
+  subst hκ
+  rfl
+
 /-- Loading standards at equal loadings and orders. -/
 def loadingStandardCongr (ht : t = t') (hκ : κ = κ') :
     ViolLoadingStandard (k := k) (Q := Q) (Λ := Λ) t κ ≃+
@@ -110,5 +124,51 @@ theorem loadingStandardCongr_mk (ht : t = t') (hκ : κ = κ') (y : violCorner k
   rfl
 
 end Congr
+
+section Twist
+
+variable (G : KLR.GradingDatum (stendhalQ Q Λ)) (hsymm : ∀ a b, G.degΨ a b = G.degΨ b a)
+
+theorem map_one_finRange : List.map ⇑(1 : Perm (Fin ℓ)) (List.finRange ℓ) = List.finRange ℓ := by
+  simp
+
+/-- The coefficient change at the identity sends the reflection of `a` to the corner element
+`violCornerEquiv⁻¹ a`. -/
+theorem leftCoefficientEquiv_one_symm_flip (a : TensorProductAlgebra k Q Λ ν) :
+    (leftCoefficientEquiv (Λ := Λ) hρ hQ 1).symm (tensorFlip a) =
+      op (cornerCast (map_one_finRange (ℓ := ℓ)).symm
+        ((violCornerEquiv (k := k) (Q := Q) (Λ := Λ) (ν := ν) hρ hQ).symm a)) := by
+  rw [RingEquiv.symm_apply_eq, leftCoefficientEquiv_one_op hρ hQ
+    (d := (violCornerEquiv (k := k) (Q := Q) (Λ := Λ) (ν := ν) hρ hQ).symm a)
+    (cornerCast_val _ _).symm]
+  exact congrArg tensorFlip (RingEquiv.apply_symm_apply _ a).symm
+
+/-- **The right standard module is the reflected left standard module** (Webster,
+arXiv:1309.3796v2, Definition 5.1): for a loading `s` of the red order `(1, …, ℓ)`,
+`e(s) T / U_s ≅ (T e(s) / U_s)^ψ` as right `T^λ`-modules, where `ψ` is horizontal reflection. -/
+def rightStandardTwistEquiv {s : Seq (stendhalWeight ℓ ν)} (hs : IsRedOrdered s) :
+    Twist (tensorReflection (ν := ν) G hsymm) (leftStandard Q Λ s hs) ≃ₗ[
+      (TensorProductAlgebra k Q Λ ν)ᵐᵒᵖ] RightStandard Λ hρ hQ s :=
+  let φ := loadingStandardLeftEquiv (Λ := Λ) hρ hQ 1 hs
+  let φ' : ViolLoadingStandard (k := k) (Q := Q) (Λ := Λ) (Seq.redPerm 1 s)
+      (List.map ⇑(1 : Perm (Fin ℓ)) (List.finRange ℓ)) ≃+ leftStandard Q Λ s hs :=
+    φ.toAddEquiv
+  let c := loadingStandardCongr (k := k) (Q := Q) (Λ := Λ) (Seq.redPerm_one s)
+    (map_one_finRange (ℓ := ℓ))
+  let o : Twist (tensorReflection (ν := ν) G hsymm) (leftStandard Q Λ s hs) ≃+
+      leftStandard Q Λ s hs :=
+    (Twist.of (k := k) (ψ := tensorReflection (ν := ν) G hsymm)
+      (M := leftStandard Q Λ s hs)).symm.toAddEquiv
+  { (o.trans φ'.symm).trans c with
+    map_smul' := fun a z => by
+      change c (φ.symm (tensorReflection (ν := ν) G hsymm a.unop • o z)) =
+        rightCornerHom (Λ := Λ) (ν := ν) hρ hQ a • c (φ.symm (o z))
+      rw [LinearEquiv.map_smulₛₗ, tensorReflection_apply]
+      change c ((leftCoefficientEquiv (Λ := Λ) hρ hQ 1).symm (tensorFlip a.unop) • _) = _
+      rw [leftCoefficientEquiv_one_symm_flip]
+      exact loadingStandardCongr_smul (k := k) (Q := Q) (Λ := Λ) _ _ _
+        (rightCornerHom (Λ := Λ) (ν := ν) hρ hQ a) (cornerCast_val _ _).symm _ }
+
+end Twist
 
 end Categorification.Stendhal.BraidedStendhalAlgebra

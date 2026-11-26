@@ -30,6 +30,10 @@ a fixed projective into the original module.
 * `tensorHomGradedEquiv` : the graded isomorphism, and `gdimPoly_balancedGrading_eq` :
   `gdim (P ⊗_A N) = gdim HOM(P^*, N)`.
 * `dualGProj 𝒜 ℙ` : `P^*` as a finitely generated graded projective left `A`-module.
+* `idemTensorMap_bijective`, `gdimPoly_idem_balancedGrading` : for a `(B, A)`-bimodule `M` and
+  an idempotent `e ∈ B` of degree zero, `e (M ⊗_A N) ≅ e M ⊗_A N`; `e M` is projective
+  (`projective_idemSubspace`) and finitely generated (`finite_idemSubspace`) as a right module
+  when `M` is.
 -/
 
 noncomputable section
@@ -123,6 +127,21 @@ theorem tensorHomMap_bijective [Module.Finite Aᵐᵒᵖ P] [Module.Projective A
 
 end Ungraded
 
+section RightGrading
+
+variable {k : Type*} [Field k] {A : Type*} [Ring A] [Algebra k A] (𝒜 : ℤ → Submodule k A)
+  {P : Type*} [AddCommGroup P] [Module k P] [Module Aᵐᵒᵖ P]
+  (ℙ : ℤ → Submodule k P) [SetLike.GradedSMul (oppositeGrade 𝒜) ℙ]
+
+/-- A graded right module: `p a ∈ P_{i + l}` for `p ∈ P_i`, `a ∈ A_l`. -/
+theorem op_smul_mem_of_mem ⦃i l : ℤ⦄ ⦃p : P⦄ ⦃a : A⦄ (hp : p ∈ ℙ i) (ha : a ∈ 𝒜 l) :
+    op a • p ∈ ℙ (i + l) := by
+  rw [add_comm]
+  exact SetLike.GradedSMul.smul_mem (A := oppositeGrade 𝒜)
+    (show op a ∈ oppositeGrade 𝒜 l from ha) hp
+
+end RightGrading
+
 section Graded
 
 universe u
@@ -143,13 +162,6 @@ instance gradedSMul_dualGrade : SetLike.GradedSMul 𝒜 (dualGrade 𝒜 ℙ) whe
     change a * unop (g y) ∈ 𝒜 (e + (i +ᵥ j))
     rw [vadd_eq_add, show e + (i + j) = i + (e + j) by abel]
     exact SetLike.GradedMul.mul_mem ha (hg hy)
-
-omit [GradedAlgebra 𝒜] [IsScalarTower k Aᵐᵒᵖ P] [Decomposition ℙ] in
-theorem op_smul_mem_of_mem ⦃i l : ℤ⦄ ⦃p : P⦄ ⦃a : A⦄ (hp : p ∈ ℙ i) (ha : a ∈ 𝒜 l) :
-    op a • p ∈ ℙ (i + l) := by
-  rw [add_comm]
-  exact SetLike.GradedSMul.smul_mem (A := oppositeGrade 𝒜)
-    (show op a ∈ oppositeGrade 𝒜 l from ha) hp
 
 omit [GradedAlgebra 𝒜] [Decomposition ℙ] [Decomposition 𝒩]
   [SetLike.GradedSMul (oppositeGrade 𝒜) ℙ] in
@@ -215,5 +227,169 @@ def dualGProj : GProj 𝒜 where
   grading := dualGrade 𝒜 ℙ
 
 end Graded
+
+/-! ### Cutting a balanced tensor product by an idempotent -/
+
+section IdemCut
+
+variable {k : Type*} [Field k] {B : Type*} [Ring B] [Algebra k B] {A : Type*} [Ring A]
+  [Algebra k A]
+  {M : Type*} [AddCommGroup M] [Module k M] [Module B M] [IsScalarTower k B M] [Module Aᵐᵒᵖ M]
+  [SMulCommClass B Aᵐᵒᵖ M] [IsScalarTower k Aᵐᵒᵖ M]
+  {N : Type*} [AddCommGroup N] [Module k N] [Module A N] [IsScalarTower k A N]
+
+variable (A M) in
+/-- `e M` as a right submodule. -/
+def rightIdemSubmodule (e : B) : Submodule Aᵐᵒᵖ M where
+  carrier := {m | e • m = m}
+  add_mem' {a b} ha hb := by simp_all [smul_add]
+  zero_mem' := by simp
+  smul_mem' c m hm := by simp_all [smul_comm e c m]
+
+instance (e : B) : Module Aᵐᵒᵖ (idemSubspace k M e) :=
+  inferInstanceAs (Module Aᵐᵒᵖ (rightIdemSubmodule A M e))
+
+instance (e : B) : IsScalarTower k Aᵐᵒᵖ (idemSubspace k M e) where
+  smul_assoc c a m := Subtype.ext (smul_assoc c a (m : M))
+
+instance (e : B) : SMulCommClass k Aᵐᵒᵖ (idemSubspace k M e) where
+  smul_comm c a m := Subtype.ext (smul_comm c a (m : M))
+
+omit [Algebra k A] [IsScalarTower k Aᵐᵒᵖ M] in
+@[simp] theorem idemSubspace_coe_op_smul (e : B) (a : Aᵐᵒᵖ) (m : idemSubspace k M e) :
+    ((a • m : idemSubspace k M e) : M) = a • (m : M) := rfl
+
+variable (A) in
+/-- The projection `m ↦ e m` onto `e M`, a map of right modules. -/
+def idemProj {e : B} (he : IsIdempotentElem e) : M →ₗ[Aᵐᵒᵖ] idemSubspace k M e where
+  toFun m := ⟨e • m, smul_mem_idemSubspace he m⟩
+  map_add' m m' := Subtype.ext (smul_add e m m')
+  map_smul' a m := Subtype.ext (smul_comm e a m)
+
+omit [Algebra k A] [IsScalarTower k Aᵐᵒᵖ M] in
+@[simp] theorem idemProj_coe {e : B} (he : IsIdempotentElem e) (m : M) :
+    (idemProj (k := k) A he m : M) = e • m := rfl
+
+variable (k A M) in
+/-- The inclusion `e M → M`, a map of right modules. -/
+def idemIncl (e : B) : idemSubspace k M e →ₗ[Aᵐᵒᵖ] M where
+  toFun m := m
+  map_add' _ _ := rfl
+  map_smul' _ _ := rfl
+
+omit [Algebra k A] [IsScalarTower k Aᵐᵒᵖ M] in
+theorem idemProj_comp_idemIncl {e : B} (he : IsIdempotentElem e) :
+    idemProj (k := k) (M := M) A he ∘ₗ idemIncl k A M e = LinearMap.id :=
+  LinearMap.ext fun m => Subtype.ext m.2
+
+omit [Algebra k A] [IsScalarTower k Aᵐᵒᵖ M] in
+theorem projective_idemSubspace {e : B} (he : IsIdempotentElem e) [Module.Projective Aᵐᵒᵖ M] :
+    Module.Projective Aᵐᵒᵖ (idemSubspace k M e) :=
+  Module.Projective.of_split (idemIncl k A M e) (idemProj A he) (idemProj_comp_idemIncl he)
+
+omit [Algebra k A] [IsScalarTower k Aᵐᵒᵖ M] in
+theorem finite_idemSubspace {e : B} (he : IsIdempotentElem e) [Module.Finite Aᵐᵒᵖ M] :
+    Module.Finite Aᵐᵒᵖ (idemSubspace k M e) :=
+  Module.Finite.of_surjective (idemProj A he) fun m =>
+    ⟨m, LinearMap.congr_fun (idemProj_comp_idemIncl (A := A) he) m⟩
+
+variable (k A N) in
+/-- `e M ⊗_A N → e (M ⊗_A N)`. -/
+def idemTensorMap (e : B) :
+    BalancedTensor k k A (idemSubspace k M e) N →ₗ[k]
+      idemSubspace k (BalancedTensor k B A M N) e :=
+  lift (A := A) (LinearMap.mk₂ k (fun (m : idemSubspace k M e) (n : N) =>
+      (⟨(tmul (m : M) n : BalancedTensor k B A M N),
+        (smul_tmul' (k := k) (A := A) e (m : M) n).trans
+          (congrArg (fun z => (tmul z n : BalancedTensor k B A M N)) m.2)⟩ :
+        idemSubspace k (BalancedTensor k B A M N) e))
+      (fun _ _ n => Subtype.ext (add_tmul _ _ n))
+      (fun c m n => Subtype.ext (smul_tmul c (m : M) n))
+      (fun _ _ _ => Subtype.ext (tmul_add _ _ _))
+      (fun c _ n => Subtype.ext (tmul_smul c _ n)))
+    fun m a n => Subtype.ext (op_smul_tmul (m : M) a n)
+
+omit [IsScalarTower k A N] in
+@[simp] theorem idemTensorMap_tmul (e : B) (m : idemSubspace k M e) (n : N) :
+    (idemTensorMap k A N e (tmul m n) : BalancedTensor k B A M N) = tmul (m : M) n := rfl
+
+variable (k N) in
+/-- `M ⊗_A N → e M ⊗_A N`, `m ⊗ n ↦ e m ⊗ n`. -/
+def idemTensorProj {e : B} (he : IsIdempotentElem e) :
+    BalancedTensor k B A M N →ₗ[k] BalancedTensor k k A (idemSubspace k M e) N :=
+  lift (LinearMap.mk₂ k (fun (m : M) (n : N) =>
+      (tmul (idemProj (k := k) A he m) n : BalancedTensor k k A (idemSubspace k M e) N))
+      (fun _ _ _ => by rw [map_add, add_tmul])
+      (fun c m n => by
+        rw [show idemProj (k := k) A he (c • m) = c • idemProj A he m from
+          Subtype.ext (smul_comm e c m), smul_tmul])
+      (fun _ _ _ => tmul_add _ _ _)
+      (fun c _ n => tmul_smul c _ n))
+    fun m a n => by
+      change tmul (idemProj A he (op a • m)) n = tmul (idemProj A he m) (a • n)
+      rw [map_smul, op_smul_tmul]
+
+omit [Algebra k A] [IsScalarTower k Aᵐᵒᵖ M] [IsScalarTower k A N] in
+@[simp] theorem idemTensorProj_tmul {e : B} (he : IsIdempotentElem e) (m : M) (n : N) :
+    idemTensorProj k N he (tmul m n : BalancedTensor k B A M N) = tmul (idemProj A he m) n := rfl
+
+omit [IsScalarTower k A N] in
+/-- **`e (M ⊗_A N) ≅ e M ⊗_A N`**. -/
+theorem idemTensorMap_bijective {e : B} (he : IsIdempotentElem e) :
+    Function.Bijective (idemTensorMap k A N (M := M) e) := by
+  have h : ∀ y : BalancedTensor k B A M N,
+      (idemTensorMap k A N e (idemTensorProj k N he y) : BalancedTensor k B A M N) = e • y :=
+    fun y => by
+      induction y using BalancedTensor.induction_on with
+      | zero => simp
+      | tmul m n => rfl
+      | add x y hx hy => rw [map_add, map_add, Submodule.coe_add, hx, hy, smul_add]
+  refine Function.bijective_iff_has_inverse.2
+    ⟨fun t => idemTensorProj k N he t.1, fun x => ?_, fun t => Subtype.ext ((h t.1).trans t.2)⟩
+  induction x using BalancedTensor.induction_on with
+  | zero => simp
+  | tmul m n =>
+    change idemTensorProj k N he (tmul (m : M) n) = tmul m n
+    rw [idemTensorProj_tmul]
+    exact congrArg (fun z => (tmul z n : BalancedTensor k k A (idemSubspace k M e) N))
+      (Subtype.ext m.2)
+  | add x y hx hy =>
+    change idemTensorProj k N he ((idemTensorMap k A N e (x + y) : BalancedTensor k B A M N)) =
+      x + y
+    rw [map_add, Submodule.coe_add, map_add]
+    exact congrArg₂ (· + ·) hx hy
+
+section Graded
+
+variable (ℬ : ℤ → Submodule k B) [GradedAlgebra ℬ] (𝒜 : ℤ → Submodule k A) [GradedAlgebra 𝒜]
+  (ℳ : ℤ → Submodule k M) [Decomposition ℳ] [SetLike.GradedSMul ℬ ℳ]
+  [SetLike.GradedSMul (oppositeGrade 𝒜) ℳ]
+  (𝒩 : ℤ → Submodule k N) [Decomposition 𝒩] [SetLike.GradedSMul 𝒜 𝒩]
+
+instance (e : B) : SetLike.GradedSMul (oppositeGrade 𝒜) (idem ℳ e) where
+  smul_mem _ _ _ _ ha hm := SetLike.GradedSMul.smul_mem (A := oppositeGrade 𝒜) (B := ℳ) ha hm
+
+variable {ℬ} in
+include 𝒜 in
+omit [IsScalarTower k A N] [GradedAlgebra ℬ] in
+/-- **`gdim e (M ⊗_A N) = gdim (e M ⊗_A N)`** for an idempotent `e` of degree zero. -/
+theorem gdimPoly_idem_balancedGrading {e : B} (he : IsIdempotentElem e) (he0 : e ∈ ℬ 0) :
+    gdimPoly (idem (balancedGrading B A ℳ 𝒩) e) =
+      gdimPoly (balancedGrading k A (idem ℳ e) 𝒩) := by
+  let := balancedDecomposition (B := B) (ℳ := ℳ) (𝒩 := 𝒩) 𝒜 (op_smul_mem_of_mem 𝒜 ℳ)
+  let : SetLike.GradedSMul ℬ (balancedGrading B A ℳ 𝒩) := gradedSMul_balanced ℬ
+  let := idemDecomposition (balancedGrading B A ℳ 𝒩) he0
+  let := idemDecomposition ℳ he0
+  let := balancedDecomposition (B := k) (ℳ := idem ℳ e) (𝒩 := 𝒩) 𝒜
+    (op_smul_mem_of_mem 𝒜 (idem ℳ e))
+  refine (gdimPoly_congr (GradedEquiv.ofPreserves (A := k)
+    (LinearEquiv.ofBijective _ (idemTensorMap_bijective he)) ?_)).symm
+  intro d x hx
+  exact balancedGrading_map_mem (idem (balancedGrading B A ℳ 𝒩) e) (idemTensorMap k A N e)
+    (fun _ _ _ _ hm hn => tmul_mem_balancedGrading (B := B) (A := A) hm hn) hx
+
+end Graded
+
+end IdemCut
 
 end Categorification.Graded

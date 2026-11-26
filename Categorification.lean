@@ -297,6 +297,7 @@ import Categorification.Diagrams.KL3.Symmetries
 import Categorification.Diagrams.KL3.SymmetryOmega
 import Categorification.Diagrams.KL3.SymmetryPsi
 import Categorification.Diagrams.KL3.SymmetrySigma
+import Categorification.Diagrams.KL3.SymmetrySigmaOmega
 import Categorification.Diagrams.KL3.SymmetrySigmaSymm
 import Categorification.Diagrams.KL3.SymmetrySigmaPresented
 import Categorification.Diagrams.KL3.SymmetrySigmaMatrix
@@ -531,6 +532,7 @@ import Categorification.KLR.CyclotomicAction.MixedComparison
 import Categorification.KLR.CyclotomicAction.GlobalMixed
 import Categorification.KLR.KKScalars
 import Categorification.KLR.KKScalarsStandard
+import Categorification.KLR.KKScalarsStandardPres
 import Categorification.KLR.CyclotomicAction.PresCL
 import Categorification.KLR.CyclotomicAction.Unfiltered
 import Categorification.KLR.CyclotomicAction.Vacuum
@@ -2203,6 +2205,7 @@ import Categorification.WeightedKLR.RedStrands.DoubleBlackBubbleSlide
 import Categorification.WeightedKLR.RedStrands.DoubleBlackDownSpanning
 import Categorification.WeightedKLR.RedStrands.DoubleBlackPhysicalSpan
 import Categorification.WeightedKLR.RedStrands.DoubleBlackPresentation
+import Categorification.WeightedKLR.RedStrands.DoubleBlackRelabel
 import Categorification.WeightedKLR.RedStrands.DoubleBlackSuffix
 import Categorification.WeightedKLR.RedStrands.DoubleBoundary
 import Categorification.WeightedKLR.RedStrands.DoubleBoundaryInduction

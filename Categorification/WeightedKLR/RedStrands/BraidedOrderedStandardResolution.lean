@@ -6,6 +6,7 @@ import Categorification.Algebra.OrderedProjectiveResolution
 import Categorification.WeightedKLR.RedStrands.BraidedBimoduleFlip
 import Categorification.WeightedKLR.RedStrands.BraidedStandardization
 import Categorification.WeightedKLR.RedStrands.BraidedReflectedFiltration
+import Categorification.WeightedKLR.RedStrands.BraidedLoadingStandardSupport
 import Categorification.WeightedKLR.RedStrands.OppositeStandardTor
 
 /-!
@@ -39,7 +40,8 @@ local notation "μ" => stendhalWeight ℓ ν
 def reflectedLeftCoefficientEquiv : C ≃+* T :=
   (cornerFlipEquiv (Q := Q) (Λ := Λ) ν κ).symm.trans (leftCoefficientEquiv hρ hQ σ)
 
-private theorem cornerFlip_violLoadingIdem {s : Seq μ} (hs : IsRedOrdered s) :
+/-- The corner flip fixes the loading idempotents. -/
+theorem cornerFlip_violLoadingIdem {s : Seq μ} (hs : IsRedOrdered s) :
     cornerFlip (violLoadingIdem (k := k) (Q := Q) (Λ := Λ) (redWord_relabel σ hs)) =
       violLoadingIdem (redWord_relabel σ hs) := by
   apply Subtype.ext
@@ -129,14 +131,15 @@ open scoped DG.DegreeZero
 
 include hρ hQ in
 /-- The ordered-cover input to Webster's Lemma 6.11, p. 65, for two loading
-standards in the same braid corner. The right standard is the tensor coefficient
-and the reflected right standard is the left argument. -/
+standards in the same braid corner, when `t` is not strictly above `s`. The right standard
+at `t` is the tensor coefficient and the reflected right standard at `s` is the left
+argument, resolved by loadings strictly above `s`. -/
 theorem isZero_derivedTensorHomology_reflectedLoadingStandard
     [HasDerivedCategory.{w, 0} C] [HasDerivedCategory.{w, 0} ℤ]
     (D : ModuleFiltration.OrderedStandardCovers
       (fun s : {s : Seq μ // IsRedOrdered s} => ModuleCat.of T (leftStandard Q (Λ ∘ σ) s.1 s.2))
       (fun s => seqIdem Q (Λ ∘ σ) s.1 s.2) (fun s t => StendhalLT s.1 t.1))
-    {s t : Seq μ} (hs : IsRedOrdered s) (ht : IsRedOrdered t) (hts : StendhalLE t s)
+    {s t : Seq μ} (hs : IsRedOrdered s) (ht : IsRedOrdered t) (hst : ¬ StendhalLT s t)
     (n : ℤ) (hn : n ≠ 0) :
     IsZero ((homologyFunctor (A := ℤ) ℤ n).obj
       ((derivedTensor ℤ C
@@ -151,9 +154,7 @@ theorem isZero_derivedTensorHomology_reflectedLoadingStandard
     (fun d => violLoadingIdem (k := k) (Q := Q) (Λ := Λ) (redWord_relabel σ d.2)) (fun d => StendhalLT s d.1)
     (fun d => isIdempotentElem_violLoadingIdem (k := k) (Q := Q) (Λ := Λ) (redWord_relabel σ d.2)) hP ?_ n hn
   intro d hd m
-  have htd : StendhalLT t d.1 := ⟨fun r i => (hts r i).trans (hd.1 r i),
-    fun hdt => hd.2 (fun r i => (hdt r i).trans (hts r i))⟩
-  exact violLoadingIdem_smul_violLoadingStandard_eq_zero hρ hQ σ ht d.2 htd m
+  exact violLoadingIdem_smul_violLoadingStandard_eq_zero_of_not_lt hρ hQ σ ht d.2 hd hst m
 
 attribute [local instance 1100] IsIdempotentElem.instAlgebraCorner_categorification
 attribute [local instance 1200] Ring.toIntAlgebra

@@ -24,6 +24,9 @@ import Categorification.Algebra.CornerTensorQuotient
 import Categorification.Algebra.DGShortExactTriangle
 import Categorification.Algebra.DerivedTensor
 import Categorification.Algebra.DerivedTensorCoefficient
+import Categorification.Algebra.DerivedTensorCoefficientExact
+import Categorification.Algebra.DerivedTensorCoefficientCovers
+import Categorification.Algebra.DerivedTensorProjectiveCoefficient
 import Categorification.Algebra.DerivedTensorFiltration
 import Categorification.Algebra.DerivedHomologyShift
 import Categorification.Algebra.DerivedTensorOrdinaryLinear
@@ -40,6 +43,7 @@ import Categorification.Algebra.ModuleTower
 import Categorification.Algebra.ModuleTowerK0
 import Categorification.Algebra.ModuleTowerSl2
 import Categorification.Algebra.NilHeckeModuleRecognition
+import Categorification.Algebra.TensorProductOverFlat
 import Categorification.Algebra.TensorAlong
 import Categorification.Algebra.DividedDifference
 import Categorification.Algebra.ExactDimension
@@ -1885,6 +1889,7 @@ import Categorification.WeightedKLR.RedStrands.BraidedStandardTwo
 import Categorification.WeightedKLR.RedStrands.BraidedStandardization
 import Categorification.WeightedKLR.RedStrands.BraidedLoadingStandardSupport
 import Categorification.WeightedKLR.RedStrands.BraidedOrderedStandardResolution
+import Categorification.WeightedKLR.RedStrands.BraidedStandardTor
 import Categorification.WeightedKLR.RedStrands.BlockPartialStandardOrderedResolution
 import Categorification.WeightedKLR.RedStrands.BraidedStendhal
 import Categorification.WeightedKLR.RedStrands.BraidedEqualBlackReturns
@@ -2015,6 +2020,7 @@ import Categorification.Algebra.GradedLoadingWeightCorners
 import Categorification.Algebra.LoadingProjectiveCoend
 import Categorification.Algebra.LoadingSchanuel
 import Categorification.Algebra.OrdinaryProjectiveResolutionDG
+import Categorification.Algebra.ProjectiveResolutionDGProjective
 import Categorification.Algebra.ProjectiveDimensionEquivalence
 import Categorification.Diagrams.CLQ.Bending
 import Categorification.Diagrams.CLQ.BubbleSlides

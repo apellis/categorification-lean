@@ -24,6 +24,7 @@ import Categorification.Algebra.CornerTensorQuotient
 import Categorification.Algebra.DGShortExactTriangle
 import Categorification.Algebra.DerivedTensor
 import Categorification.Algebra.DerivedTensorCoefficient
+import Categorification.Algebra.DerivedTensorCoefficientExact
 import Categorification.Algebra.DerivedTensorFiltration
 import Categorification.Algebra.DerivedHomologyShift
 import Categorification.Algebra.DerivedTensorOrdinaryLinear
@@ -40,6 +41,7 @@ import Categorification.Algebra.ModuleTower
 import Categorification.Algebra.ModuleTowerK0
 import Categorification.Algebra.ModuleTowerSl2
 import Categorification.Algebra.NilHeckeModuleRecognition
+import Categorification.Algebra.TensorProductOverFlat
 import Categorification.Algebra.TensorAlong
 import Categorification.Algebra.DividedDifference
 import Categorification.Algebra.ExactDimension

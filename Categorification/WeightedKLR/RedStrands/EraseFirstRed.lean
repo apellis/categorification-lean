@@ -443,4 +443,123 @@ theorem eraseFirstRed_firstRedIdem : eraseFirstRed Q Λ ν (firstRedIdem Q Λ ν
   simp_rw [eraseFirstRed_e_loading]
   rw [← map_sum, KLRAlgebra.sum_e, map_one]
 
+/-- **Erasing after adding** the first red strand is the quotient map by `firstDotIdeal`. -/
+theorem eraseFirstRed_prependRedAllOrders (z : A₀) :
+    eraseFirstRed Q Λ ν (prependRedAllOrders Q Λ ν z).val =
+      (firstDotIdeal Q Λ ν).ringCon.mkₐ k z := by
+  obtain ⟨b, rfl⟩ := StendhalAlgebraAllOrders.ofKLR_surjective (k := k) (Q := Q) (Λ := Λ₀)
+    (ν := ν) z
+  change _ = firstDotProj Q Λ ν b
+  induction b using KLRAlgebra.klr_induction with
+  | hadd u v hu hv =>
+    rw [map_add, map_add, map_add, ← hu, ← hv]
+    exact map_add (eraseFirstRed Q Λ ν) _ _
+  | hmul u v hu hv =>
+    rw [map_mul, map_mul, map_mul, ← hu, ← hv]
+    exact map_mul (eraseFirstRed Q Λ ν) _ _
+  | hr c =>
+    rw [Algebra.algebraMap_eq_smul_one, map_smul, map_smul, map_smul, map_one, map_one,
+      KLR.Corner.val_smul, map_smul]
+    show c • eraseFirstRed Q Λ ν (firstRedIdem Q Λ ν) = c • π₀ 1
+    rw [eraseFirstRed_firstRedIdem, map_one]
+  | he s =>
+    exact (congrArg (eraseFirstRed Q Λ ν) (prependRedAllOrders_e Q Λ ν s)).trans
+      (eraseFirstRed_e_loading Q Λ ν s)
+  | hx a =>
+    rw [show StendhalAlgebraAllOrders.ofKLR k Q Λ₀ ν (KLRAlgebra.x a) =
+        StendhalAlgebraAllOrders.x a from rfl, prependRedAllOrders_x, map_mul,
+      eraseFirstRed_x_position, eraseFirstRed_firstRedIdem, mul_one]
+  | hψ j =>
+    by_cases hj : j + 1 < m
+    · rw [show StendhalAlgebraAllOrders.ofKLR k Q Λ₀ ν (KLRAlgebra.ψ j) =
+          StendhalAlgebraAllOrders.ψ j from rfl, prependRedAllOrders_ψ Q Λ ν j hj, map_mul,
+        eraseFirstRed_ψ_succ, eraseFirstRed_firstRedIdem, mul_one]
+    · rw [KLRAlgebra.ψ_eq_zero j (by omega), map_zero, map_zero, map_zero]
+      exact map_zero (eraseFirstRed Q Λ ν)
+
+open Classical in
+private theorem redOrderedIdem_eq_sum_ite' {n : ℕ} (Λ' : Fin n → I →₀ ℕ) :
+    StendhalAlgebraAllOrders.redOrderedIdem k Q Λ' ν =
+      ∑ s, if IsRedOrdered s then StendhalAlgebraAllOrders.e s else 0 := by
+  rw [StendhalAlgebraAllOrders.redOrderedIdem, Finset.sum_filter]
+
+/-- Erasure sends the red-ordered idempotent to the red-ordered idempotent. -/
+theorem eraseFirstRed_redOrderedIdem :
+    eraseFirstRed Q Λ ν (StendhalAlgebraAllOrders.redOrderedIdem k Q Λ ν) =
+      (firstDotIdeal Q Λ ν).ringCon.mkₐ k
+        (StendhalAlgebraAllOrders.redOrderedIdem k Q Λ₀ ν) := by
+  classical
+  rw [redOrderedIdem_eq_sum_ite' (Λ' := Λ), redOrderedIdem_eq_sum_ite' (Λ' := Λ ∘ Fin.succ),
+    map_sum, map_sum]
+  have hsub : ∑ t ∈ Finset.univ.image prependRedLoading, eraseFirstRed Q Λ ν
+      (if IsRedOrdered t then StendhalAlgebraAllOrders.e t else 0) =
+      ∑ t, eraseFirstRed Q Λ ν
+        (if IsRedOrdered t then StendhalAlgebraAllOrders.e t else 0) := by
+    apply Finset.sum_subset (Finset.subset_univ _)
+    intro t _ ht
+    split_ifs
+    · exact eraseFirstRed_e_eq_zero Q Λ ν t
+        (fun s hs => ht (Finset.mem_image.2 ⟨s, Finset.mem_univ _, hs⟩))
+    · exact map_zero _
+  rw [← hsub, Finset.sum_image (fun s _ t _ h => prependRedLoading_injective h)]
+  apply Finset.sum_congr rfl
+  intro s _
+  simp only [prependRedLoading_ordered_iff]
+  split_ifs
+  · exact eraseFirstRed_e_loading Q Λ ν s
+  · rw [map_zero, map_zero]
+
+section Kernel
+
+attribute [local instance 1100] IsIdempotentElem.instAlgebraCorner_categorification
+
+/-- **The kernel of adding a red strand** lies in `firstDotIdeal`: an element of `T̃^λ` that
+dies in `T^{(λ₀, λ)}` is a combination of diagrams divisible by `x₁^{⟨α_i^∨, λ₀⟩}` on a
+first black strand of label `i`. -/
+theorem mem_firstDotIdeal_of_prependRed_eq_zero (z : StendhalAlgebra k Q Λ₀ ν)
+    (hz : prependRed Q Λ ν z = 0) : z.val ∈ firstDotIdeal Q Λ ν := by
+  classical
+  let J : TwoSidedIdeal (StendhalAlgebra k Q Λ ν) :=
+    TwoSidedIdeal.mk' {y | eraseFirstRed Q Λ ν y.val = 0}
+      (map_zero (eraseFirstRed Q Λ ν))
+      (fun {y w} hy hw => by
+        change eraseFirstRed Q Λ ν (y.val + w.val) = 0
+        rw [map_add, hy, hw, add_zero])
+      (fun {y} hy => by
+        change eraseFirstRed Q Λ ν (-y.val) = 0
+        rw [map_neg, hy, neg_zero])
+      (fun {y w} hw => by
+        change eraseFirstRed Q Λ ν (y.val * w.val) = 0
+        rw [map_mul, hw, mul_zero])
+      (fun {y w} hy => by
+        change eraseFirstRed Q Λ ν (y.val * w.val) = 0
+        rw [map_mul, hy, zero_mul])
+  have hle : StendhalAlgebra.violatedIdeal k Q Λ ν ≤ J := by
+    apply TwoSidedIdeal.span_le.mpr
+    rintro _ ⟨t, ht, hv, rfl⟩
+    change eraseFirstRed Q Λ ν (StendhalAlgebra.e t ht - 0).val = 0
+    rw [sub_zero]
+    change eraseFirstRed Q Λ ν (StendhalAlgebraAllOrders.e t) = 0
+    exact eraseFirstRed_e_eq_zero Q Λ ν t
+      (fun s hs => not_violated_prependRedLoading s (hs ▸ hv))
+  have hmem : orderProjection Q Λ ν (prependRedAllOrders Q Λ ν z.val).val ∈
+      StendhalAlgebra.violatedIdeal k Q Λ ν := by
+    rw [prependRed_apply, orderedQuotient, AlgHom.comp_apply] at hz
+    change (StendhalAlgebra.violatedIdeal k Q Λ ν).ringCon.mk' _ = 0 at hz
+    rwa [← TwoSidedIdeal.mem_ker, TwoSidedIdeal.ker_ringCon_mk'] at hz
+  have h : eraseFirstRed Q Λ ν ((prependRedAllOrders Q Λ ν z.val).val *
+      StendhalAlgebraAllOrders.redOrderedIdem k Q Λ ν) = 0 := by
+    have h := hle hmem
+    change eraseFirstRed Q Λ ν (orderProjection Q Λ ν
+      (prependRedAllOrders Q Λ ν z.val).val - 0).val = 0 at h
+    rw [sub_zero] at h
+    exact h
+  rw [map_mul, eraseFirstRed_prependRedAllOrders, eraseFirstRed_redOrderedIdem, ← map_mul,
+    ((Subsemigroup.mem_corner_iff StendhalAlgebraAllOrders.isIdempotentElem_redOrderedIdem).mp
+      z.2).2] at h
+  change (firstDotIdeal Q Λ ν).ringCon.mk' z.val = 0 at h
+  rwa [← TwoSidedIdeal.mem_ker, TwoSidedIdeal.ker_ringCon_mk'] at h
+
+end Kernel
+
 end Categorification.Stendhal

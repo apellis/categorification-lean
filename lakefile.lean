@@ -10,7 +10,7 @@ require StringDiagrams from git
 
 require LieLean from git
   "https://github.com/apellis/lie-lean.git" @
-  "29042522f511a969b7f6dbc81d3c8a8bebfef818"
+  "ba57f07e0b3ca8d701c31d872e6919ab15b29f46"
 
 require DG from git
   "https://github.com/apellis/dg-lean.git" @

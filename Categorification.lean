@@ -1999,6 +1999,7 @@ import Categorification.WeightedKLR.Rigidity.ReducedDividedNorm
 import Categorification.WeightedKLR.Rigidity.CoevaluationIndependence
 import Categorification.Algebra.BalancedTensorRightExact
 import Categorification.Algebra.BalancedTensorTransport
+import Categorification.Algebra.CornerCopresentationCriteria
 import Categorification.Algebra.DerivedKernelShift
 import Categorification.Algebra.DerivedRightTensorInjective
 import Categorification.Algebra.DiagramWeightRingEquiv
@@ -2282,6 +2283,7 @@ import Categorification.WeightedKLR.RedStrands.DoubleSingleRedSpanning
 import Categorification.WeightedKLR.RedStrands.DoubleSpanningQuotient
 import Categorification.WeightedKLR.RedStrands.DoubleViolatedCut
 import Categorification.WeightedKLR.RedStrands.EqualBlackProjectives
+import Categorification.WeightedKLR.RedStrands.ExactMulRightTransport
 import Categorification.WeightedKLR.RedStrands.FirstWeightBoundary
 import Categorification.WeightedKLR.RedStrands.FirstWeightTensor
 import Categorification.WeightedKLR.RedStrands.FiveSlotFlagPositions
@@ -2342,6 +2344,8 @@ import Categorification.WeightedKLR.RedStrands.ParabolicStandardExact
 import Categorification.WeightedKLR.RedStrands.ParabolicStandardGrading
 import Categorification.WeightedKLR.RedStrands.RaisingAppendRed
 import Categorification.WeightedKLR.RedStrands.RedBlackCrossingFrame
+import Categorification.WeightedKLR.RedStrands.RedFirstBaseCrossingCokernel
+import Categorification.WeightedKLR.RedStrands.RedFirstCopresentation
 import Categorification.WeightedKLR.RedStrands.RedLabelRootDatum
 import Categorification.WeightedKLR.RedStrands.RedOrder
 import Categorification.WeightedKLR.RedStrands.ReflectionFlip

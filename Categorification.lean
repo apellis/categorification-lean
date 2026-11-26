@@ -667,6 +667,8 @@ import Categorification.KLR.CyclotomicTerminalProjective
 import Categorification.WeightedKLR.RedStrands.BraidingLattice
 import Categorification.WeightedKLR.RedStrands.AdjacentBraidingLattice
 import Categorification.WeightedKLR.RedStrands.AdjacentBraidingForm
+import Categorification.WeightedKLR.RedStrands.BraidingComposite
+import Categorification.WeightedKLR.RedStrands.BraidingDimension
 import Categorification.WeightedKLR.RedStrands.LabelTwoEndpointTor
 import Categorification.WeightedKLR.RedStrands.LabelTwoExteriorDiagramCut
 import Categorification.WeightedKLR.RedStrands.LabelTwoExteriorSlide

@@ -16,7 +16,8 @@ Let `t` be a loading of the red order `κ₁ = (1, …, ℓ) = L ++ b :: a :: M`
 rigid, and let `σ` be a permutation with `σ(κ₁) = κ₀ = L ++ a :: b :: M`. The braid functor
 `𝔅_σ = - ⊗_{T^λ} B` takes the standard module `e(t) T / U_t` to the cut
 `e(t) V e_{κ₀}` modulo the diagrams through loadings of order `κ₀` with strictly higher retained
-root (`braidRigidStandardEquiv`): `[y] ⊗ m ↦ [y m]`.
+root (`braidRigidStandardEquiv`): `[y] ⊗ m ↦ [y m]`. The map preserves the auxiliary gradings
+(`braidRigidStandardGradedEquiv`).
 -/
 
 noncomputable section
@@ -341,5 +342,64 @@ def braidRigidStandardEquiv (ht : redWord t = ord) (hord : ord = L ++ b :: a :: 
     invFun := braidRigidStandardInv (Λ := Λ) hρ hQ σ t a b ht hord hrig
     left_inv := braidRigidStandardInv_map hρ hQ σ ht hord hκ hrig
     right_inv := braidRigidStandardMap_inv hρ hQ σ ht hord hκ hrig }
+
+
+/-! ### Gradings -/
+
+variable (G : KLR.GradingDatum (stendhalQ Q Λ))
+
+local notation "𝔹G" => RectBimod.grading (violAuxiliaryGrade (ν := ν) G)
+  (identityCornerMap Q Λ ν hρ hQ) (permCornerMap Q Λ ν hρ hQ σ)
+variable (t) in
+/-- The auxiliary grading of the right standard module `e(t) T / U_t`. -/
+abbrev rightStandardGrade : ℤ → Submodule k (RightStandard Λ hρ hQ t) :=
+  RedBlock.loadingStandardGrade G t ord
+
+theorem braidRigidStandardMap_mem_grade (ht : redWord t = ord) (hord : ord = L ++ b :: a :: M)
+    (hκ : (List.finRange ℓ).map σ = L ++ a :: b :: M) (hrig : IsRigidCut t a) {d : ℤ}
+    {x : BalancedTensor k 𝒯σᵐᵒᵖ 𝒯ᵐᵒᵖ 𝔹 (RightStandard Λ hρ hQ t)}
+    (hx : x ∈ balancedGrading 𝒯σᵐᵒᵖ 𝒯ᵐᵒᵖ 𝔹G (rightStandardGrade (Λ := Λ) hρ hQ t G) d) :
+    braidRigidStandardMap (Λ := Λ) hρ hQ σ t a b ht hord hκ hrig x ∈
+      RedBlock.braidCutGrade G t a b (L ++ a :: b :: M) d := by
+  refine balancedGrading_map_mem _ _ (fun i j m n hm hn => ?_) hx
+  have hn' : (n : ViolLoadingStandard (k := k) (Q := Q) (Λ := Λ) t ord) ∈
+      RedBlock.loadingStandardGrade G t ord j := hn
+  obtain ⟨y, hy, hyn⟩ := (Submodule.mem_map (f := RedBlock.loadingMkK t ord)).1 hn'
+  have hn'' : n = (Submodule.Quotient.mk y : RightStandard Λ hρ hQ t) := hyn.symm
+  subst hn''
+  have hc : cutMulBraid hρ hQ σ hκ m y ∈ RedBlock.violCornerGrade G t (L ++ a :: b :: M) (i + j) := by
+    change (cutMulBraid hρ hQ σ hκ m y).1 ∈ violAuxiliaryGrade G (i + j)
+    rw [cutMulBraid_val, add_comm]
+    exact SetLike.GradedMul.mul_mem hy ((RectBimod.mem_grading _).1 hm)
+  exact RedBlock.braidCutMk_preservesGrading G t a b _ hc
+
+theorem braidRigidStandardInv_mem_grade (ht : redWord t = ord) (hord : ord = L ++ b :: a :: M)
+    (hrig : IsRigidCut t a) {d : ℤ} {z : BraidCutQuotient Q Λ t a b (L ++ a :: b :: M)}
+    (hz : z ∈ RedBlock.braidCutGrade G t a b (L ++ a :: b :: M) d) :
+    braidRigidStandardInv (Λ := Λ) hρ hQ σ t a b ht hord hrig z ∈
+      balancedGrading 𝒯σᵐᵒᵖ 𝒯ᵐᵒᵖ 𝔹G (rightStandardGrade (Λ := Λ) hρ hQ t G) d := by
+  obtain ⟨w, hw, rfl⟩ := Submodule.mem_map.1 hz
+  rw [RedBlock.braidCutMkK_apply, braidRigidStandardInv_mk, ← add_zero d]
+  refine tmul_mem_balancedGrading ((RectBimod.mem_grading _).2 ?_) ?_
+  · change E ord * w.1 * E ((List.finRange ℓ).map σ) ∈ _
+    rw [← zero_add d, ← add_zero (0 + d)]
+    exact SetLike.GradedMul.mul_mem (SetLike.GradedMul.mul_mem
+      (redProj_mem_violAuxiliaryGrade G _) hw) (redProj_mem_violAuxiliaryGrade G _)
+  · change (Submodule.Quotient.mk (loadingUnitCorner (k := k) (Q := Q) (Λ := Λ) ht) :
+      ViolLoadingStandard (k := k) (Q := Q) (Λ := Λ) t ord) ∈
+        RedBlock.loadingStandardGrade G t ord 0
+    exact Submodule.mem_map_of_mem (f := RedBlock.loadingMkK t ord)
+      (RedBlock.violIdem_mem_violAuxiliaryGrade G t)
+
+variable (t a b) in
+/-- `braidRigidStandardEquiv` preserves the auxiliary gradings: the balanced tensor grading of
+`B ⊗ (e(t) T / U_t)` and the grading of the cut quotient. -/
+def braidRigidStandardGradedEquiv (ht : redWord t = ord) (hord : ord = L ++ b :: a :: M)
+    (hκ : (List.finRange ℓ).map σ = L ++ a :: b :: M) (hrig : IsRigidCut t a) :
+    balancedGrading 𝒯σᵐᵒᵖ 𝒯ᵐᵒᵖ 𝔹G (rightStandardGrade (Λ := Λ) hρ hQ t G) ≃ᵍ[k]
+      RedBlock.braidCutGrade G t a b (L ++ a :: b :: M) where
+  toLinearEquiv := braidRigidStandardEquiv (Λ := Λ) hρ hQ σ t a b ht hord hκ hrig
+  map_mem' _ _ hx := braidRigidStandardMap_mem_grade hρ hQ σ G ht hord hκ hrig hx
+  symm_map_mem' _ _ hz := braidRigidStandardInv_mem_grade hρ hQ σ G ht hord hrig hz
 
 end Categorification.Stendhal.BraidedStendhalAlgebra

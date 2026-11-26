@@ -2441,3 +2441,4 @@ import Categorification.WeightedKLR.RedStrands.EraseFirstRed
 import Categorification.WeightedKLR.RedStrands.PrependRedInjective
 import Categorification.WeightedKLR.RedStrands.PrependRedK0
 import Categorification.WeightedKLR.RedStrands.StandardViolatedDescent
+import Categorification.WeightedKLR.RedStrands.StandardModuleReflection

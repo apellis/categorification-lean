@@ -17,10 +17,15 @@ Corollary 6.10. The braid functor `𝔅_σ` (`braidFunctor`) sends a graded righ
 functional on `V_{λ ∘ σ}` (`classFunctional`). This functional depends only on the class of `P`
 in `K₀` (`braidClass`), and is semilinear along the bar involution for the grading shift.
 
-## Main results
+## Main definitions and results
 
 * `classFunctional_shift`, `classFunctional_prod` : class functionals of shifts and direct sums.
-* `braidClass ν` : `[P] ↦ classFunctional (𝔅_σ P)` on `K₀`.
+* `classFunctional_eq_form_of_resolution` : the class of a module with a finite projective
+  resolution `P_•` is `B(η Σ (-1)^j [P_j], -)`.
+* `braidF σ ν` : the braid functor `𝔅_σ` with canonical reduced words.
+* `braidClass σ` : the `ℚ(v)`-linear map `V_λ → ConjDual V_{λ ∘ σ}`, `η [P] ↦ classFunctional (𝔅_σ P)`.
+* `braidClass_F_dualAction` : it commutes with every `Fᵢ` (from Proposition 6.7).
+* `braidClass_resolution` : its value at `η Σ (-1)^j [P_j]` for a resolution kept exact by `𝔅_σ`.
 -/
 
 noncomputable section

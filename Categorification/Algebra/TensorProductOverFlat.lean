@@ -76,7 +76,8 @@ theorem freeCoord_injective : Function.Injective (freeCoord A M ι) :=
 variable {A M ι}
 
 theorem freeCoord_map (f : M →ₗ[Aᵐᵒᵖ] M') (x : TensorProductOver A M (ι →₀ A)) :
-    freeCoord A M' ι (map f LinearMap.id x) = Finsupp.mapRange f (map_zero f) (freeCoord A M ι x) := by
+    freeCoord A M' ι (map f LinearMap.id x) =
+      Finsupp.mapRange f (map_zero f) (freeCoord A M ι x) := by
   induction x using induction_on with
   | zero => simp
   | add x y hx hy => rw [map_add, map_add, hx, hy, map_add, Finsupp.mapRange_add (map_add f)]

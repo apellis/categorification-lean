@@ -25,6 +25,7 @@ import Categorification.Algebra.DGShortExactTriangle
 import Categorification.Algebra.DerivedTensor
 import Categorification.Algebra.DerivedTensorCoefficient
 import Categorification.Algebra.DerivedTensorCoefficientExact
+import Categorification.Algebra.DerivedTensorCoefficientCovers
 import Categorification.Algebra.DerivedTensorFiltration
 import Categorification.Algebra.DerivedHomologyShift
 import Categorification.Algebra.DerivedTensorOrdinaryLinear

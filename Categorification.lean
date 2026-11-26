@@ -412,6 +412,7 @@ import Categorification.KLR.Bialgebra
 import Categorification.KLR.Center
 import Categorification.KLR.CenterFree
 import Categorification.KLR.Concat
+import Categorification.KLR.BlockEmbCompose
 import Categorification.KLR.ConcatAssoc
 import Categorification.KLR.IntervalConcat
 import Categorification.KLR.Cor215

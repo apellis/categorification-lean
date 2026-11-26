@@ -4,6 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 -/
 import Categorification.WeightedKLR.RedStrands.GradedBraidAppend
 import Categorification.WeightedKLR.RedStrands.BraidedAppendGrading
+import Categorification.KLR.Prop31G0
 
 /-!
 # `Fᵢ ∘ 𝔅_σ` and `𝔅_σ ∘ Fᵢ` on right sequence projectives
@@ -262,5 +263,77 @@ theorem braidAppendEquiv_mem {d : ℤ} {y : myT}
   rw [val_braidAppendEquiv, braidAppendMult_tmul, add_comm a b]
   exact SetLike.GradedMul.mul_mem (A := violAuxiliaryGrade (ν := νᵢ) (rouquierGrading Q hR Λ))
     (appendViol_mem_violAuxiliaryGrade i _ hx) (permCornerMap_mem_grade hρ' hQ σ hR hm)
+
+/-! ### Hom polynomials on right sequence projectives -/
+
+section Projective
+
+include hρ hQ in
+theorem finite_braidAppendBimod [Module.Finite k (TensorProductAlgebra k Q (Λ ∘ σ) ν)]
+    [Module.Finite k (TensorProductAlgebra k Q (Λ ∘ σ) νᵢ)] : Module.Finite k (braidAppendBimod Q Λ i ν hρ hρ' hQ σ) := by
+  have := finite_appendBlackCorner (Q := Q) (Ω := Λ ∘ σ) (i := i) (ν := ν)
+  have := finite_braidBimod (Λ := Λ) (ν := ν) hρ hQ σ
+  have := finite_balancedTensor (k := k) (B := (Tσ')ᵐᵒᵖ) (A := (Tσ)ᵐᵒᵖ) (M := Mc)
+    (braidBimod Q Λ ν hρ hQ σ)
+  exact Module.Finite.equiv ((braidAppendEquiv (Λ := Λ) (i := i) hρ hρ' hQ σ).restrictScalars k)
+
+/-- On right sequence projectives, `gdim HOM(e(s) T^{λ ∘ σ}_{ν+i}, Fᵢ 𝔅_σ (e(t) T^λ_ν))` is the
+graded dimension of the cut `φ(e(t)) V_{ν+i} e(s)` of the composite corner. -/
+theorem projectiveHomPolynomial_rightBlackInd_braidFunctor_eq_cut
+    [Module.Finite k (TensorProductAlgebra k Q Λ ν)]
+    [Module.Finite k (TensorProductAlgebra k Q (Λ ∘ σ) ν)]
+    [Module.Finite k (TensorProductAlgebra k Q (Λ ∘ σ) νᵢ)]
+    (t : Seq (stendhalWeight ℓ ν)) (ht : IsRedOrdered t)
+    (s : Seq (stendhalWeight ℓ νᵢ)) (hs : IsRedOrdered s) :
+    projectiveHomPolynomial (𝒜σ')
+        (rightBlackInd (rouquierGrading Q hR (Λ ∘ σ)) i ν
+          (braidFunctor (Λ := Λ) (ν := ν) hρ hQ σ hR
+            (rightSequenceProj (rouquierGrading Q hR Λ) t ht).toGFin))
+        (K0.of (rightSequenceProj (rouquierGrading Q hR (Λ ∘ σ)) s hs)) =
+      gdimPoly (idem (idem (braidAppendGrading Q Λ i ν hρ hρ' hQ σ hR)
+          (op (TensorProductAlgebra.mk Q (Λ ∘ σ) νᵢ (StendhalAlgebra.e s hs))))
+        (op (op (TensorProductAlgebra.mk Q Λ ν (StendhalAlgebra.e t ht))))) := by
+  let := braidBimodDecomposition (Λ := Λ) (ν := ν) hρ hQ σ hR
+  let := braidBimod_gradedSMul_left (Λ := Λ) (ν := ν) hρ hQ σ hR
+  let := braidBimod_gradedSMul_right (Λ := Λ) (ν := ν) hρ hQ σ hR
+  let := finite_braidBimod (Λ := Λ) (ν := ν) hρ hQ σ
+  let := finite_appendBlackCorner (Q := Q) (Ω := Λ ∘ σ) (i := i) (ν := ν)
+  let := braidAppendDecomposition (Λ := Λ) (i := i) (ν := ν) hρ hρ' hQ σ hR
+  let := braidAppend_gradedSMul_left (Λ := Λ) (i := i) (ν := ν) hρ hρ' hQ σ hR
+  let := braidAppend_gradedSMul_right (Λ := Λ) (i := i) (ν := ν) hρ hρ' hQ σ hR
+  let := finite_braidAppendBimod (Λ := Λ) (i := i) (ν := ν) hρ hρ' hQ σ
+  let := compDecomposition (C := (Tσ')ᵐᵒᵖ) (𝒜σ) (braidBimodGrading Q Λ ν hρ hQ σ hR) (cornerGr)
+  let := compGradedSMul (B := (Tσ)ᵐᵒᵖ) (𝒜σ') (braidBimodGrading Q Λ ν hρ hQ σ hR) (cornerGr)
+  let := compGradedSMulRight (B := (Tσ)ᵐᵒᵖ) (C := (Tσ')ᵐᵒᵖ) (𝒜)
+    (braidBimodGrading Q Λ ν hρ hQ σ hR) (cornerGr)
+  let := finite_balancedTensor (k := k) (B := (Tσ')ᵐᵒᵖ) (A := (Tσ)ᵐᵒᵖ) (M := Mc)
+    (braidBimod Q Λ ν hρ hQ σ)
+  have hes := congrArg op (isIdempotentElem_mk_e (Q := Q) (Λ := Λ ∘ σ) s hs)
+  have hes0 : _ ∈ (𝒜σ') 0 :=
+    mk_e_mem_tensorProductGrade (rouquierGrading Q hR (Λ ∘ σ)) νᵢ s hs
+  let P := (rightSequenceProj (rouquierGrading Q hR Λ) t ht).toGFin
+  let X := GFin.induce (𝒜) (𝒜σ') (braidAppendGrading Q Λ i ν hρ hρ' hQ σ hR) P
+  have h1 : projectiveHomPolynomial (𝒜σ')
+        (rightBlackInd (rouquierGrading Q hR (Λ ∘ σ)) i ν
+          (braidFunctor (Λ := Λ) (ν := ν) hρ hQ σ hR P))
+        (K0.of (rightSequenceProj (rouquierGrading Q hR (Λ ∘ σ)) s hs)) =
+      projectiveHomPolynomial (𝒜σ') X
+        (K0.of (rightSequenceProj (rouquierGrading Q hR (Λ ∘ σ)) s hs)) := by
+    refine (projectiveHomPolynomial_ofIdempotent (𝒜σ') _ hes hes0).trans
+      (Eq.trans ?_ (projectiveHomPolynomial_ofIdempotent (𝒜σ') X hes hes0).symm)
+    refine (gdimPoly_idem_congr' (rightBlackIndIsoInduce σ hR _)).trans ?_
+    refine (gdimPoly_idem_congr' (GFin.induceInduceIso (𝒜) (𝒜σ) (𝒜σ')
+      (braidBimodGrading Q Λ ν hρ hQ σ hR) (cornerGr) P)).trans ?_
+    exact gdimPoly_idem_congr' (GFin.induceCongrLeft
+      (braidAppendEquiv (Λ := Λ) (i := i) hρ hρ' hQ σ)
+      (braidAppendEquiv_isBimoduleHom hρ hρ' hQ σ)
+      (fun _ _ hm => braidAppendEquiv_mem hρ hρ' hQ σ hR hm) P)
+  rw [h1]
+  exact projectiveHomPolynomial_induce_ofIdempotent (𝒜) (𝒜σ')
+    (braidAppendGrading Q Λ i ν hρ hρ' hQ σ hR) (congrArg op (isIdempotentElem_mk_e t ht))
+    (show _ ∈ (𝒜) 0 from mk_e_mem_tensorProductGrade (rouquierGrading Q hR Λ) ν t ht)
+    hes hes0
+
+end Projective
 
 end Categorification.Stendhal.BraidedStendhalAlgebra

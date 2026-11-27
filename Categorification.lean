@@ -2373,6 +2373,7 @@ import Categorification.WeightedKLR.RedStrands.GradedStandardization
 import Categorification.WeightedKLR.RedStrands.GradedTwoPieceStandard
 import Categorification.WeightedKLR.RedStrands.HalfTwistCokernel
 import Categorification.WeightedKLR.RedStrands.HalfTwistInclusion
+import Categorification.WeightedKLR.RedStrands.HalfTwistInjective
 import Categorification.WeightedKLR.RedStrands.HalfTwistRedFirst
 import Categorification.WeightedKLR.RedStrands.InterleavedPBW
 import Categorification.WeightedKLR.RedStrands.IteratedLeftStandard

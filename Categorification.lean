@@ -20,6 +20,7 @@ import Categorification.Algebra.CornerEndomorphism
 import Categorification.Algebra.CornerTensor
 import Categorification.Algebra.CornerTensorAdditive
 import Categorification.Algebra.CornerTensorCutLift
+import Categorification.Algebra.CornerTensorDerived
 import Categorification.Algebra.CornerTensorFactor
 import Categorification.Algebra.CornerTensorQuotient
 import Categorification.Algebra.DGShortExactTriangle
@@ -1159,6 +1160,7 @@ import Categorification.WeightedKLR.KLR.SpacedSurjective
 import Categorification.WeightedKLR.Steadied
 import Categorification.WeightedKLR.Deformation
 import Categorification.WeightedKLR.RedStrands.BraidingFunctor
+import Categorification.WeightedKLR.RedStrands.BraidingFunctorComp
 import Categorification.WeightedKLR.RedStrands.BraidingBimoduleLoadingFiltration
 import Categorification.WeightedKLR.RedStrands.BraidingAuxiliaryDerived
 import Categorification.WeightedKLR.RedStrands.BraidingAuxiliaryLoading

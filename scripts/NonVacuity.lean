@@ -6394,16 +6394,23 @@ example (hall : AllFiniteDeltaInjective (fun _ _ => (0 : MvPolynomial (Fin 2) �
       simp [CoxeterSystem.IsLeftDescent]) CyclotomicHighestWeight.params.klrSymm hall
     firstRed firstRed_ordered coevaluationWeight_split
 
+/-- The module category of the level-two coevaluation algebra has Ext groups. -/
+example : CategoryTheory.HasExt.{0} (ModuleCat.{0} (TensorProductAlgebra ℚ
+    (fun _ _ => (0 : MvPolynomial (Fin 2) ℚ))
+    (KLR.CycKLR.coevaluationLabels (fun _ => 2) CyclotomicHighestWeight.datum 2
+      (KLR.KLRAlgebra.expandDiv [((), 2)])) (KLR.KLRAlgebra.expandDiv [((), 2)]))) :=
+  CategoryTheory.hasExt_of_enoughProjectives
+
 /-- Webster, arXiv:1309.3796v3, Corollary 7.7 (vanishing part) for the divided standard module
 `M_λ` at the level-two coevaluation word, in degree one. The route hypothesis `hall` of
 Proposition 7.6 is assumed here, not discharged. -/
 example (hall : AllFiniteDeltaInjective (fun _ _ => (0 : MvPolynomial (Fin 2) ℚ))
       (KLR.CycKLR.coevaluationLabels (fun _ => 2) CyclotomicHighestWeight.datum 2
-        (KLR.KLRAlgebra.expandDiv [((), 2)])) CyclotomicHighestWeight.params.klrSymm) :=
-  haveI := CategoryTheory.hasExt_of_enoughProjectives.{0}
-    (C := ModuleCat.{0} (TensorProductAlgebra ℚ (fun _ _ => (0 : MvPolynomial (Fin 2) ℚ))
+        (KLR.KLRAlgebra.expandDiv [((), 2)])) CyclotomicHighestWeight.params.klrSymm)
+    [CategoryTheory.HasExt.{0} (ModuleCat.{0} (TensorProductAlgebra ℚ
+      (fun _ _ => (0 : MvPolynomial (Fin 2) ℚ))
       (KLR.CycKLR.coevaluationLabels (fun _ => 2) CyclotomicHighestWeight.datum 2
-        (KLR.KLRAlgebra.expandDiv [((), 2)])) (KLR.KLRAlgebra.expandDiv [((), 2)])))
+        (KLR.KLRAlgebra.expandDiv [((), 2)])) (KLR.KLRAlgebra.expandDiv [((), 2)])))] :=
   Categorification.Stendhal.subsingleton_ext_standard_cycDivProj_coevaluationHead
     CyclotomicHighestWeight.params (fun _ => 2) CyclotomicHighestWeight.datum 2 [((), 2)]
     CyclotomicHighestWeight.params.klrSymm hall firstRed firstRed_ordered

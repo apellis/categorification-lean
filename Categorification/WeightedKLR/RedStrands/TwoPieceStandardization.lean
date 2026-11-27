@@ -179,6 +179,46 @@ def lastFactorAction : Cyc →ₐ[k] Module.End k
       exact BalancedTensor.tmul_smul c l _
     | add x y hx hy => rw [map_add, map_add, hx, hy]
 
+variable (M) in
+/-- **The factor algebra `T^{λ'} ⊗ R^{λ_{ℓ+1}}(β)` acting on `X_M`.** -/
+def twoPieceInputAction : D →ₐ[k] Module.End k
+    (LeftStandardization Q (Λ ∘ Fin.castSucc) (initBlocks b) rfl hα' (InitRestrict Q Λ b M)) :=
+  Algebra.TensorProduct.lift (Algebra.lsmul k k _) (lastFactorAction Q Λ b M hα')
+    fun t c => LinearMap.ext fun x =>
+      ((BalancedTensor.mapRight (k := k) (B := Told) (M := L') (lastFactorEnd Q Λ b c)).map_smul
+        t x).symm
+
+variable (M) in
+/-- **`X_M = M ⊗_{B'} S^L_{α'}`** as a module over the factor algebra `T^{λ'} ⊗ R^{λ_{ℓ+1}}(β)`:
+`T^{λ'}` acts on `S^L_{α'}` and `c` in the last factor by `m ↦ m · flip(c)`. -/
+def TwoPieceInput : Type _ :=
+  LeftStandardization Q (Λ ∘ Fin.castSucc) (initBlocks b) rfl hα' (InitRestrict Q Λ b M)
+
+instance : AddCommGroup (TwoPieceInput Q Λ b M hα') :=
+  inferInstanceAs (AddCommGroup
+    (LeftStandardization Q (Λ ∘ Fin.castSucc) (initBlocks b) rfl hα' (InitRestrict Q Λ b M)))
+instance : Module k (TwoPieceInput Q Λ b M hα') :=
+  inferInstanceAs (Module k
+    (LeftStandardization Q (Λ ∘ Fin.castSucc) (initBlocks b) rfl hα' (InitRestrict Q Λ b M)))
+instance : Module D (TwoPieceInput Q Λ b M hα') :=
+  Module.compHom
+    (LeftStandardization Q (Λ ∘ Fin.castSucc) (initBlocks b) rfl hα' (InitRestrict Q Λ b M))
+    (twoPieceInputAction Q Λ b M hα').toRingHom
+instance : IsScalarTower k D (TwoPieceInput Q Λ b M hα') :=
+  ⟨fun c d x => DFunLike.congr_fun (map_smul (twoPieceInputAction Q Λ b M hα') c d) x⟩
+
+variable (M) in
+/-- The identity `X_M → TwoPieceInput`. -/
+def twoPieceInputOf : LeftStandardization Q (Λ ∘ Fin.castSucc) (initBlocks b) rfl hα'
+    (InitRestrict Q Λ b M) ≃ₗ[k] TwoPieceInput Q Λ b M hα' := LinearEquiv.refl k _
+
+theorem tmul_smul_twoPieceInputOf (t : Told) (c : Cyc) (l : L') (m : InitRestrict Q Λ b M) :
+    (t ⊗ₜ c : D) • twoPieceInputOf Q Λ b M hα' (BalancedTensor.tmul l m) =
+      twoPieceInputOf Q Λ b M hα' (BalancedTensor.tmul (t • l) (lastFactorEnd Q Λ b c m)) := by
+  change twoPieceInputAction Q Λ b M hα' (t ⊗ₜ c) _ = _
+  rw [twoPieceInputAction, Algebra.TensorProduct.lift_tmul, Module.End.mul_apply]
+  exact (BalancedTensor.smul_tmul' t l (lastFactorEnd Q Λ b c m))
+
 end Input
 
 end StendhalAlgebra

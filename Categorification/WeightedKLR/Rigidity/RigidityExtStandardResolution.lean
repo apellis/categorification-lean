@@ -11,6 +11,27 @@ import Categorification.WeightedKLR.RedStrands.StandardProjectiveDimension
 
 /-!
 # Projective resolutions of the standard modules (Webster, Proposition 7.6)
+
+B. Webster, *Knot invariants and higher representation theory*, arXiv:1309.3796v3, §7.1,
+Proposition 7.6 and its proof. For `X ≅ T^{λ'} e(t)` and a black word `w`, the standardization
+`S(X ⊠ R^{λ_ℓ} e(w))` has a projective resolution, built by induction on `w`. For `w = j :: w'`,
+the short exact sequence (7.25)
+
+`0 → S(₁Fⱼ N) → Fⱼ S(N) → S(₂Fⱼ N) → 0`, `N = X ⊠ R e(w')`,
+
+has outer terms `S(Fⱼ X ⊠ R e(w'))` and `S(X ⊠ R e(j :: w'))`. Induction along a black strand at
+the right has projective corner, so it maps a resolution of `S(N)` to a resolution of `Fⱼ S(N)`;
+the cone of a lift of the left map resolves the right term.
+
+The injectivity of the left map of (7.25) is the route hypothesis `AllFiniteDeltaInjective`,
+which holds at the standard Khovanov–Lauda parameters (`allFiniteDeltaInjective_std`).
+
+## Main definitions and results
+
+* `Stendhal.blackInd_shortExact`: (7.25) for a standard layer, as a short exact sequence.
+* `Stendhal.stdResolution`: the resolution.
+* `Stendhal.loadingSum_stdResolution`: its terms are sums of projectives `T^λ e(s)`, with the
+  words `termWords`.
 -/
 
 set_option backward.isDefEq.respectTransparency false

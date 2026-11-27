@@ -12281,3 +12281,33 @@ example := derivedTensorIsoOrdinaryOfVanishing (A := ℤ) (B := ℤ) (M := ℤ) 
 
 end NonVacuity.WebsterDerivedOrdinaryComparison
 end
+
+namespace NonVacuity.WebsterStandardResolution
+
+open Categorification Categorification.KLR Categorification.Stendhal Categorification.KL3.Diagram
+
+private noncomputable abbrev srC := CartanDatum.ofGraph (⊥ : SimpleGraph Unit)
+
+private theorem srRouquier :
+    KLR.IsRouquierQ srC (CL.qCL (CL.CLScalars.kl : CL.CLScalars srC ℚ)) where
+  symm _ _ h := (h (Subsingleton.elim _ _)).elim
+  homogeneous _ _ h := (h (Subsingleton.elim _ _)).elim
+  unit_coeff _ _ h := (h (Subsingleton.elim _ _)).elim
+
+private theorem srSymm : KLRSymm (CL.qCL (CL.CLScalars.kl : CL.CLScalars srC ℚ)) :=
+  fun _ _ h => (h (Subsingleton.elim _ _)).elim
+
+private def srEmpty : Seq (stendhalWeight 0 (0 : Multiset Unit)) :=
+  KLRAlgebra.Seq.ofList [] (by decide)
+
+/-- Webster, arXiv:1309.3796v3, Prop. 7.6, for `sl₂`, one red strand of weight `ω` and two
+black strands right of it. -/
+example := exists_projectiveResolution_websterWords_std (Λ := fun _ : Fin 1 => Finsupp.single () 1)
+  srRouquier srSymm srEmpty (by unfold IsRedOrdered; decide) [(), ()] rfl
+
+/-- The terms of degree `1` of that resolution: the two subsets `{0}` and `{1}`. -/
+example : websterWords ([] : List (Unit ⊕ Fin 1)) [(), ()] 1 =
+    {[Sum.inl (), Sum.inr 0, Sum.inl ()], [Sum.inl (), Sum.inr 0, Sum.inl ()]} := by
+  decide
+
+end NonVacuity.WebsterStandardResolution

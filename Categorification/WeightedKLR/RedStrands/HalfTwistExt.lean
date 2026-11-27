@@ -227,7 +227,7 @@ theorem halfTwist_hom_shift_eq_zero
   obtain ⟨⟨m', hm'⟩, -⟩ := halfTwist_hasFiltration C hQ Λ ν w hR H wt hwt hw hκ t' ht'
   obtain ⟨Φ, hΦ⟩ := exists_halfTwistSelfDual C hQ Λ ν w hR H wt hwt hw hκ t' ht'
   let D := orderedStandardCovers QL (Λ ∘ w)
-    (fun s => exists_hasFiltration_leftUpper_std hQ hQ.klrSymm (Λ ∘ w) ν s.1 s.2)
+    (fun s => exists_hasFiltration_leftUpper_of_rouquier hQ hQ.klrSymm (Λ ∘ w) ν s.1 s.2)
   exact hom_shift_eq_zero_of_isContravariant (FirstWeight.isReducedChoice_canChoice ν)
     hQ.klrSymm w D hm' Φ hΦ hm n hn f
 

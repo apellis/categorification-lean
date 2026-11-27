@@ -420,13 +420,13 @@ theorem _root_.Categorification.Stendhal.finrank_derivedTensorHomology_coevaluat
     ht _ h _ (fun s hs hcut y => Stendhal.coevaluationHead_cut Q Λ RD highest _ s hs hcut y)]
   exact hE
 
-local notation "QK" =>
-  KL3.Diagram.CL.qCL (KL3.Diagram.CL.CLScalars.kl : KL3.Diagram.CL.CLScalars C k)
+local notation "QK" => Q
 
-/-- **Webster, arXiv:1309.3796v3, §7.1, Corollary 7.10 (vanishing part)**, ungraded, at the
-standard Khovanov–Lauda parameters, with no route hypothesis. -/
-theorem _root_.Categorification.Stendhal.isZero_derivedTensorHomology_cycDivProj_coevaluationHead_std
-    (hP' : IsRouquierQ C QK) (hQs : KLRSymm QK) (d : List (I × ℕ))
+include hP in
+/-- **Webster, arXiv:1309.3796v3, §7.1, Corollary 7.10 (vanishing part)**, ungraded, for
+Rouquier parameters with symmetric parameters, with no route hypothesis. -/
+theorem _root_.Categorification.Stendhal.isZero_derivedTensorHomology_cycDivProj_coevaluationHead_of_rouquier
+    (hQs : KLRSymm QK) (d : List (I × ℕ))
     {θ : Multiset I} (t : Seq (Stendhal.stendhalWeight 1 θ)) (ht : Stendhal.IsRedOrdered t)
     (h : θ + Stendhal.wordWt (expandDiv d) 0 = expandDiv d)
     [HasDerivedCategory.{w, 0} (Stendhal.TensorProductAlgebra k QK
@@ -436,16 +436,16 @@ theorem _root_.Categorification.Stendhal.isZero_derivedTensorHomology_cycDivProj
     IsZero (derivedTensorHomology.{w} k (Stendhal.coevaluationHead QK Λ RD highest d) n
       (Stendhal.tensorStd QK (coevaluationLabels Λ RD highest (expandDiv d)) hQs h
         (Stendhal.oldProj QK _ θ t ht) (Stendhal.cycDivProj QK _ d))) := by
-  refine Stendhal.isZero_derivedTensorHomology_cycDivProj_coevaluationHead hP' Λ RD highest d hQs
+  refine Stendhal.isZero_derivedTensorHomology_cycDivProj_coevaluationHead hP Λ RD highest d hQs
     ?_ t ht h n hn
-  convert Stendhal.allFiniteDeltaInjective_std
-    (Λ := coevaluationLabels Λ RD highest (expandDiv d)) hP' hQs
+  convert Stendhal.allFiniteDeltaInjective_of_rouquier
+    (Λ := coevaluationLabels Λ RD highest (expandDiv d)) hP hQs
 
-include hΛ hR in
-/-- **Webster, arXiv:1309.3796v3, §7.1, Corollary 7.10 (top degree)**, ungraded, at the
-standard Khovanov–Lauda parameters, with no route hypothesis. -/
-theorem _root_.Categorification.Stendhal.finrank_derivedTensorHomology_coevaluationHead_std
-    (hP' : IsRouquierQ C QK) (hQs : KLRSymm QK)
+include hP hΛ hR in
+/-- **Webster, arXiv:1309.3796v3, §7.1, Corollary 7.10 (top degree)**, ungraded, for
+Rouquier parameters with symmetric parameters, with no route hypothesis. -/
+theorem _root_.Categorification.Stendhal.finrank_derivedTensorHomology_coevaluationHead_of_rouquier
+    (hQs : KLRSymm QK)
     {K H : Type*} [Field K] [ConditionallyCompleteLinearOrder K] [IsStrictOrderedRing K]
     [AddCommGroup H] [Module K H] [FiniteDimensional K H]
     (P : Matrix.Realization C.toLusztig.cartanMatrix K H) (weight : P.integralWeights)
@@ -474,11 +474,11 @@ theorem _root_.Categorification.Stendhal.finrank_derivedTensorHomology_coevaluat
         (P.cartanDatum C.toLusztig.isGeneralizedCartan_cartanMatrix) weight w))) hQs h
         (Stendhal.oldProj QK _ 0 t ht) (Stendhal.cycDivProj QK _ (Stendhal.coevaluationDividedWord
         (P.cartanDatum C.toLusztig.isGeneralizedCartan_cartanMatrix) weight w)))) = 1 := by
-  refine Stendhal.finrank_derivedTensorHomology_coevaluationHead hP' Λ RD highest hΛ hR P weight
+  refine Stendhal.finrank_derivedTensorHomology_coevaluationHead hP Λ RD highest hΛ hR P weight
     hweight match_weight w hw hlong hQs ?_ t ht h
-  convert Stendhal.allFiniteDeltaInjective_std
+  convert Stendhal.allFiniteDeltaInjective_of_rouquier
     (Λ := coevaluationLabels Λ RD highest (expandDiv (Stendhal.coevaluationDividedWord
-        (P.cartanDatum C.toLusztig.isGeneralizedCartan_cartanMatrix) weight w))) hP' hQs
+        (P.cartanDatum C.toLusztig.isGeneralizedCartan_cartanMatrix) weight w))) hP hQs
 
 end KLR.CycKLR
 

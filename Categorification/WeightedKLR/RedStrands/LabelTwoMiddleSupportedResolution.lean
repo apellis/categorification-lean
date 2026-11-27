@@ -99,7 +99,7 @@ private theorem rankOneCLFiltration (d : DecidableEq Unit) (t : Labels) :
       HasFiltration StdCL m (ModuleCat.of ACL (U t)) := by
   have h : d = (fun a b : Unit => Classical.propDecidable (a = b)) := Subsingleton.elim _ _
   subst d
-  exact exists_hasFiltration_leftUpper_std (rankOneRouquier k) (rankOneSymm k) weights ν₂ t.1 t.2
+  exact exists_hasFiltration_leftUpper_of_rouquier (rankOneRouquier k) (rankOneSymm k) weights ν₂ t.1 t.2
 
 /-- Every actual label-two loading standard has a projective resolution with
 higher loading support in every positive degree. -/

@@ -3,7 +3,7 @@ Copyright (c) 2026 Alex Ellis. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 -/
 import Categorification.WeightedKLR.RedStrands.RedFirstReach
-import Categorification.WeightedKLR.RedStrands.Prop55DimensionCount
+import Categorification.WeightedKLR.RedStrands.Prop55DimensionCountQ
 
 set_option backward.isDefEq.respectTransparency false
 
@@ -13,14 +13,14 @@ set_option backward.isDefEq.respectTransparency false
 B. Webster, *Knot invariants and higher representation theory*, arXiv:1309.3796v2, Lemma 5.23,
 one red and one black strand. The diagram `G` of `redCross_eq_zero` moves the last red strand
 left across the last black strand: `e(s, i, λ_ℓ) G = e(s, i, λ_ℓ) G e(s, λ_ℓ, i)`
-(`e_mul_firstG`), so it is a crossing from the loading `(s, i, λ_ℓ)` to `(s, λ_ℓ, i)`. At the
-standard Khovanov–Lauda parameters right multiplication by it is injective, which gives the
+(`e_mul_firstG`), so it is a crossing from the loading `(s, i, λ_ℓ)` to `(s, λ_ℓ, i)`. For Rouquier
+parameters right multiplication by it is injective, which gives the
 input `BaseCrossing` of `exists_mul_redFirstIdem_ne_zero`.
 
 ## Main results
 
 * `e_mul_firstG`: `e(w) G = G e(d w)` in the KLR algebra.
-* `baseCrossing_std`: the base crossing at the standard parameters.
+* `baseCrossing_of_rouquier`: the base crossing at the standard parameters.
 -/
 
 noncomputable section
@@ -179,15 +179,15 @@ attribute [local instance 1100] IsIdempotentElem.instAlgebraCorner_categorificat
 open scoped Classical
 
 variable {I : Type} {k : Type} [Field k] {C : QuantumGroup.CartanDatum I}
-  (hR : IsRouquierQ C (CL.qCL (CL.CLScalars.kl : CL.CLScalars C k)))
-  (hQs : KLRSymm (CL.qCL (CL.CLScalars.kl : CL.CLScalars C k)))
+  {Q : I → I → MvPolynomial (Fin 2) k} (hR : IsRouquierQ C Q)
+  (hQs : KLRSymm Q)
 
-local notation "QL" => CL.qCL (CL.CLScalars.kl : CL.CLScalars C k)
+local notation "QL" => Q
 
 include hR hQs in
 /-- **The base crossing of Lemma 5.23** (Webster, arXiv:1309.3796v2, proof of Lemma 5.23):
 pulling the last red strand left across one black strand, `(s, i, λ_ℓ) ⟶ (s, λ_ℓ, i)`. -/
-theorem crossPair_base_std {ℓ : ℕ} (Λ : Fin (ℓ + 1) → I →₀ ℕ) (i : I) (θ : Multiset I)
+theorem crossPair_base_of_rouquier {ℓ : ℕ} (Λ : Fin (ℓ + 1) → I →₀ ℕ) (i : I) (θ : Multiset I)
     (s : Seq (stendhalWeight ℓ (θ + 0))) (hs : IsRedOrdered s) :
     CrossPair QL Λ ({i} + (θ + 0)) (appendRedLoading (appendBlackLoading i (θ + 0) s))
       (appendBlackLoading i (θ + 0) (appendRedLoading s)) := by
@@ -201,7 +201,7 @@ theorem crossPair_base_std {ℓ : ℕ} (Λ : Fin (ℓ + 1) → I →₀ ℕ) (i 
   refine ⟨hsrc, htgt, redLoadingIdem QL Λ _ _ hsrc * firstIndAffine QL Λ i θ 0 G, ?_, ?_⟩
   · intro x hx h0
     have := finiteDimensional_redFactorModule _ hR Λ θ s hs
-    refine redCross_eq_zero _ Λ i θ s hs hQs (firstIndDeltaInjective_std hR hQs i θ 0 _) x ?_ ?_
+    refine redCross_eq_zero _ Λ i θ s hs hQs (firstIndDeltaInjective_of_rouquier hR hQs i θ 0 _) x ?_ ?_
     · rw [redCrossIdem_eq]
       exact hx
     · calc x * firstIndAffine QL Λ i θ 0 G
@@ -214,13 +214,13 @@ theorem crossPair_base_std {ℓ : ℕ} (Λ : Fin (ℓ + 1) → I →₀ ℕ) (i 
       ← firstIndAffine_e_cast QL Λ i θ 0 _ htgt, ← map_mul, mul_assoc, e_mul_self]
 
 include hR hQs in
-/-- The base crossing at the standard Khovanov–Lauda parameters. -/
-theorem baseCrossing_std : BaseCrossing QL := by
+/-- The base crossing for Rouquier parameters. -/
+theorem baseCrossing_of_rouquier : BaseCrossing QL := by
   intro ℓ Λ i β u hu
   have key : ∀ (u : Seq (stendhalWeight ℓ (β + 0))), IsRedOrdered u →
       CrossPair QL Λ ({i} + (β + 0)) (appendRedLoading (appendBlackLoading i (β + 0) u))
         (appendBlackLoading i (β + 0) (appendRedLoading u)) :=
-    fun u hu => crossPair_base_std hR hQs Λ i β u hu
+    fun u hu => crossPair_base_of_rouquier hR hQs Λ i β u hu
   rw [add_zero] at key
   exact key u hu
 

@@ -1768,6 +1768,7 @@ import Categorification.WeightedKLR.RedStrands.RedFirstDoubleCentralizer
 import Categorification.WeightedKLR.RedStrands.RedFirstEndomorphism
 import Categorification.WeightedKLR.RedStrands.RedFirstInjective
 import Categorification.WeightedKLR.RedStrands.RedFirstReach
+import Categorification.WeightedKLR.RedStrands.RedFirstSymmetricTrace
 import Categorification.WeightedKLR.RedStrands.RedFirstTrace
 import Categorification.WeightedKLR.RedStrands.RedShuffleFactor
 import Categorification.WeightedKLR.RedStrands.RedBlackCrossingInjective

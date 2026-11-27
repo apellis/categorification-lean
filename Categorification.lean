@@ -2521,3 +2521,5 @@ import Categorification.Algebra.AlgebraFamilyCastEquiv
 import Categorification.WeightedKLR.RedStrands.EiCasts
 import Categorification.WeightedKLR.RedStrands.EiInductionAction
 import Categorification.WeightedKLR.RedStrands.EiLeftInput
+import Categorification.WeightedKLR.RedStrands.EiStandardChain
+import Categorification.WeightedKLR.RedStrands.EiTopChain

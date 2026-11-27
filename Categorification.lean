@@ -13,6 +13,7 @@ import Categorification.Algebra.CoactionGrading
 import Categorification.Algebra.Coinvariant
 import Categorification.Algebra.CoinvariantGraded
 import Categorification.Algebra.CoinvariantPartialSocle
+import Categorification.Algebra.CompactGeneratorIsIso
 import Categorification.Algebra.CompositionFactors
 import Categorification.Algebra.CornerBimodule
 import Categorification.Algebra.CornerEndomorphism
@@ -23,6 +24,7 @@ import Categorification.Algebra.CornerTensorFactor
 import Categorification.Algebra.CornerTensorQuotient
 import Categorification.Algebra.DGShortExactTriangle
 import Categorification.Algebra.DerivedTensor
+import Categorification.Algebra.DerivedTensorCoproducts
 import Categorification.Algebra.DerivedTensorCoefficient
 import Categorification.Algebra.DerivedTensorCoefficientExact
 import Categorification.Algebra.DerivedTensorCoefficientCovers

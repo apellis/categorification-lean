@@ -1005,8 +1005,14 @@ degree on `B(κ', κ)` is the auxiliary degree plus the constant offset `redWord
 Forgetting the weights is a functor of derived categories (`weightForgetDerived`,
 `Algebra/WeightForgetDerived.lean`) that carries the graded functor to the ungraded one
 (`auxiliaryGradedBraidingFunctorForgetIso`, `RedStrands/BraidingForgetDerived.lean`, through
-`diagramWeightForgetDerivedIso`). Open: carry the §6 results (Lemmas 6.12–6.13, Theorem 6.15)
-over to the graded functor.
+`diagramWeightForgetDerivedIso`). Theorem 6.15 holds for the graded functor
+(`isEquivalence_auxiliaryGradedBraidingFunctor`, `RedStrands/BraidingGradedEquivalence.lean`):
+a graded derived tensor is an equivalence when the ungraded one is
+(`isEquivalence_diagramWeightDerivedTensor`, `Algebra/DiagramWeightEquivalence.lean`), through
+the derived adjunction between forgetting the weights and the constant module and compact
+generation by the internal shifts of the representables. Lemma 6.13 for the graded functor
+follows (`isCompact_auxiliaryGradedBraidingFunctor_obj`). Open: carry Lemma 6.12 over to the
+graded functor.
 
 Lemma 6.8, higher cohomology (`RedStrands/BraidPartialStandardVanishing.lean`): for an
 adjacent red pair and a red order `κ`, the braid of the partial standard at every loading of

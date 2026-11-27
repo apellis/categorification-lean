@@ -12260,3 +12260,12 @@ example := derivedTensorIsoOrdinaryOfVanishing (A := ℤ) (B := ℤ) (M := ℤ) 
 
 end NonVacuity.WebsterDerivedOrdinaryComparison
 end
+
+/-! ### Webster, KIaHRT (arXiv:1309.3796v3), Theorem 4.25 -/
+
+/-- The representation of `𝒯` on the region categories, for `sl₂` with one red line of weight
+`1` and the Khovanov–Lauda parameters. -/
+noncomputable example :=
+  Stendhal.regionTensorPseudofunctor.{0, 0, 0, 0} UDot.sl2RootDatum (fun _ : Fin 1 => (1 : ℤ))
+    (Q := fun _ _ => (0 : MvPolynomial (Fin 2) ℚ)) (fun i j h => absurd (Subsingleton.elim i j) h)
+    (fun _ => Finsupp.single () 1) (fun _ _ => by simp [UDot.sl2RootDatum])

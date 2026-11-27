@@ -107,22 +107,23 @@ theorem downLinear_D0_ir (s : X) (i : I) (r : Fin ℓ) :
     LinDiagram.cast_of]
   congr 1
 
-theorem downEndAlg_D0_ir (s : X) (i : I) (r : Fin ℓ)
-    (hc : Cond s ((s + (wD i)) + Λ r)
+theorem downEndAlg_D0_ir (s : X) (i : I) (r : Fin ℓ) {t : X} (hR : (s + (wD i)) + Λ r = t)
+    (hc : Cond s t
       (downContextObj RD Λ s [] [] (KLR.Diagram.ob [.inl i, .inr r])))
     (h₁ : (s + (wD i)) + RD.iX i = s)
     (N : fwT s (downContextObj RD Λ s [] [] (KLR.Diagram.ob [.inl i, .inr r])).word
-        ((s + (wD i)) + Λ r) hc.1 hc.2.1 ⟶
-      fwT (s + (wD i)) [((s + (wD i)), .inr r)] ((s + (wD i)) + Λ r) ⟨rfl, trivial⟩ rfl ≫
+        t hc.1 hc.2.1 ⟶
+      fwT (s + (wD i)) [((s + (wD i)), .inr r)] t ⟨rfl, trivial⟩ hR ≫
         fwT s [(s, .inl (false, i))] (s + (wD i)) ⟨rfl, trivial⟩ rfl)
-    (N' : fwT (s + (wD i)) [((s + (wD i)), .inr r)] ((s + (wD i)) + Λ r) ⟨rfl, trivial⟩ rfl ≫
+    (N' : fwT (s + (wD i)) [((s + (wD i)), .inr r)] t ⟨rfl, trivial⟩ hR ≫
         fwT s [(s, .inl (false, i))] (s + (wD i)) ⟨rfl, trivial⟩ rfl ⟶
       fwT s (downContextObj RD Λ s [] [] (KLR.Diagram.ob [.inl i, .inr r])).word
-        ((s + (wD i)) + Λ r) hc.1 hc.2.1) :
+        t hc.1 hc.2.1) :
     downEndAlg (k := k) (genImg S red upIso Sc) s [.inl i, .inr r] hc
         (LinDiagram.of (KLR.Diagram.D0 (Sum.inl i : I ⊕ Fin ℓ) (.inr r))) =
-      (doubleModel S red).lift.map₂ N ≫ (red r rfl ◁ S.dot i h₁) ≫
+      (doubleModel S red).lift.map₂ N ≫ (red r hR ◁ S.dot i h₁) ≫
         (doubleModel S red).lift.map₂ N' := by
+  subst hR
   rw [downEndAlg_apply, downLinear_D0_ir, admissibleMap_of]
   change admissibleChain _ _ _ _ _ _ _ = _
   dsimp only [ObjectProperty.homMk]
@@ -295,22 +296,23 @@ theorem downLinear_D1_ri (s : X) (i : I) (r : Fin ℓ) :
     LinDiagram.cast_of]
   congr 1
 
-theorem downEndAlg_D1_ri (s : X) (i : I) (r : Fin ℓ)
-    (hc : Cond s ((s + Λ r) + (wD i))
+theorem downEndAlg_D1_ri (s : X) (i : I) (r : Fin ℓ) {t : X} (he : (s + Λ r) + (wD i) = t)
+    (hc : Cond s t
       (downContextObj RD Λ s [] [] (KLR.Diagram.ob [.inr r, .inl i])))
-    (h₄ : ((s + Λ r) + (wD i)) + RD.iX i = s + Λ r)
+    (h₄ : t + RD.iX i = s + Λ r)
     (N : fwT s (downContextObj RD Λ s [] [] (KLR.Diagram.ob [.inr r, .inl i])).word
-        ((s + Λ r) + (wD i)) hc.1 hc.2.1 ⟶
-      fwT (s + Λ r) [((s + Λ r), .inl (false, i))] ((s + Λ r) + (wD i)) ⟨rfl, trivial⟩ rfl ≫
+        t hc.1 hc.2.1 ⟶
+      fwT (s + Λ r) [((s + Λ r), .inl (false, i))] t ⟨rfl, trivial⟩ he ≫
         fwT s [(s, .inr r)] (s + Λ r) ⟨rfl, trivial⟩ rfl)
-    (N' : fwT (s + Λ r) [((s + Λ r), .inl (false, i))] ((s + Λ r) + (wD i)) ⟨rfl, trivial⟩ rfl ≫
+    (N' : fwT (s + Λ r) [((s + Λ r), .inl (false, i))] t ⟨rfl, trivial⟩ he ≫
         fwT s [(s, .inr r)] (s + Λ r) ⟨rfl, trivial⟩ rfl ⟶
       fwT s (downContextObj RD Λ s [] [] (KLR.Diagram.ob [.inr r, .inl i])).word
-        ((s + Λ r) + (wD i)) hc.1 hc.2.1) :
+        t hc.1 hc.2.1) :
     downEndAlg (k := k) (genImg S red upIso Sc) s [.inr r, .inl i] hc
         (LinDiagram.of (KLR.Diagram.D1 (Sum.inr r : I ⊕ Fin ℓ) (.inl i))) =
       (doubleModel S red).lift.map₂ N ≫ (S.dot i h₄ ▷ red r rfl) ≫
         (doubleModel S red).lift.map₂ N' := by
+  subst he
   rw [downEndAlg_apply, downLinear_D1_ri, admissibleMap_of]
   change admissibleChain _ _ _ _ _ _ _ = _
   dsimp only [ObjectProperty.homMk]
@@ -398,7 +400,7 @@ theorem admissibleMap_sqNe_ir (n : Fin ℓ → I → ℕ) (hB : DownBigon S red 
   change _ = downEndAlg (genImg S red upIso Sc) m [.inl i, .inr r] ha _
   rw [KLR.Diagram.lpoly, AlgHom.map_ncEval, hQ, ncEval_X_pow_two]
   simp only [Matrix.cons_val_zero]
-  rw [downEndAlg_D0_ir S red upIso Sc m i r ha h₁ (𝟙 _) (𝟙 _)]
+  rw [downEndAlg_D0_ir S red upIso Sc m i r rfl ha h₁ (𝟙 _) (𝟙 _)]
   simp only [PrelaxFunctor.map₂_id, Category.id_comp]
   erw [Category.comp_id, Category.comp_id, Category.comp_id, (hB r i h₁ rfl rfl h₄).1]
   exact (whiskerLeft_pow _ _ _).symm
@@ -428,11 +430,107 @@ theorem admissibleMap_sqNe_ri (n : Fin ℓ → I → ℕ) (hB : DownBigon S red 
   change _ = downEndAlg (genImg S red upIso Sc) m [.inr r, .inl i] ha _
   rw [KLR.Diagram.lpoly, AlgHom.map_ncEval, hQ, ncEval_X_pow_two]
   simp only [Matrix.cons_val_one, Matrix.cons_val_zero]
-  erw [downEndAlg_D1_ri S red upIso Sc m i r ha h₄ (𝟙 _) (𝟙 _)]
+  erw [downEndAlg_D1_ri S red upIso Sc m i r rfl ha h₄ (𝟙 _) (𝟙 _)]
   simp only [PrelaxFunctor.map₂_id, Category.id_comp]
   erw [Category.comp_id, Category.comp_id, Category.comp_id, (hB r i h₁ hR rfl h₄).2]
   exact (whiskerRight_pow _ _ _).symm
 
 end Bigon
+
+section Slide
+
+variable (Q : I ⊕ Fin ℓ → I ⊕ Fin ℓ → MvPolynomial (Fin 2) k)
+
+/-- The downward slide of a red dot under a black/red crossing translates to zero. -/
+theorem downLinear_slideLNe_ir (m : X) (i : I) (r : Fin ℓ) :
+    downLinear RD Λ k m [] []
+      (KLR.Diagram.relation k Q (.slideLNe (.inl i) (.inr r) Sum.inl_ne_inr)) = 0 := by
+  rw [relation_slideLNe, map_sub, LinDiagram.of_comp, LinDiagram.of_comp, downLinear_comp,
+    downLinear_comp]
+  have hD : downLinear RD Λ k m [] []
+      (LinDiagram.of (KLR.Diagram.D0 (Sum.inr r : I ⊕ Fin ℓ) (.inl i))) = 0 :=
+    downLinear_dl_red_dot RD Λ k _ _ _ [] r [.inl i] rfl rfl
+  have hD' : downLinear RD Λ k m [] []
+      (LinDiagram.of (KLR.Diagram.D1 (Sum.inl i : I ⊕ Fin ℓ) (.inr r))) = 0 :=
+    downLinear_dl_red_dot RD Λ k _ _ _ [.inl i] r [] rfl rfl
+  erw [hD, hD']
+  simp
+
+/-- The downward slide of a red dot under a red/black crossing translates to zero. -/
+theorem downLinear_slideRNe_ri (m : X) (i : I) (r : Fin ℓ) :
+    downLinear RD Λ k m [] []
+      (KLR.Diagram.relation k Q (.slideRNe (.inr r) (.inl i) Sum.inr_ne_inl)) = 0 := by
+  rw [relation_slideRNe, map_sub, LinDiagram.of_comp, LinDiagram.of_comp, downLinear_comp,
+    downLinear_comp]
+  have hD : downLinear RD Λ k m [] []
+      (LinDiagram.of (KLR.Diagram.D0 (Sum.inr r : I ⊕ Fin ℓ) (.inl i))) = 0 :=
+    downLinear_dl_red_dot RD Λ k _ _ _ [] r [.inl i] rfl rfl
+  have hD' : downLinear RD Λ k m [] []
+      (LinDiagram.of (KLR.Diagram.D1 (Sum.inl i : I ⊕ Fin ℓ) (.inr r))) = 0 :=
+    downLinear_dl_red_dot RD Λ k _ _ _ [.inl i] r [] rfl rfl
+  erw [hD, hD']
+  simp
+
+/-- **The downward black dot slides through the crossing `b′`** with a red strand. -/
+theorem admissibleMap_slideLNe_ri (hdot : UpIsoDotNatural S red upIso) (i : I) (r : Fin ℓ)
+    (m : X) {x y : X}
+    (ha : Cond x y (downContextObj RD Λ m [] [] (KLR.Diagram.ob [.inr r, .inl i])))
+    (hb : Cond x y (downContextObj RD Λ m [] [] (KLR.Diagram.ob [.inl i, .inr r]))) :
+    admissibleMap (genImg S red upIso Sc) ha hb (downLinear RD Λ k m [] []
+      (KLR.Diagram.relation k Q (.slideLNe (.inr r) (.inl i) Sum.inr_ne_inl))) = 0 := by
+  obtain rfl : m = x := ha.2.2
+  obtain rfl : (m + Λ r) + (wD i) = y := ha.2.1
+  have hR : (m + (wD i)) + Λ r = (m + Λ r) + (wD i) := add_right_comm m (wD i) (Λ r)
+  have h₁ : (m + (wD i)) + RD.iX i = m := by double_regions
+  have h₄ : ((m + Λ r) + (wD i)) + RD.iX i = m + Λ r := by double_regions
+  rw [relation_slideLNe, map_sub, map_sub, sub_eq_zero, LinDiagram.of_comp, LinDiagram.of_comp,
+    downLinear_comp, downLinear_comp]
+  erw [admissibleMap_comp _ ha hb hb, admissibleMap_comp _ ha ha hb]
+  erw [admissibleMap_X2_ri S red upIso Sc m i r hR rfl ha hb h₁ h₄ (𝟙 _) (𝟙 _)]
+  erw [show admissibleMap (genImg S red upIso Sc) hb hb (downLinear RD Λ k m [] []
+      (LinDiagram.of (KLR.Diagram.D0 (Sum.inl i : I ⊕ Fin ℓ) (.inr r)))) =
+      downEndAlg (genImg S red upIso Sc) m [.inl i, .inr r] hb
+        (LinDiagram.of (KLR.Diagram.D0 (Sum.inl i : I ⊕ Fin ℓ) (.inr r))) from rfl,
+    show admissibleMap (genImg S red upIso Sc) ha ha (downLinear RD Λ k m [] []
+      (LinDiagram.of (KLR.Diagram.D1 (Sum.inr r : I ⊕ Fin ℓ) (.inl i)))) =
+      downEndAlg (genImg S red upIso Sc) m [.inr r, .inl i] ha
+        (LinDiagram.of (KLR.Diagram.D1 (Sum.inr r : I ⊕ Fin ℓ) (.inl i))) from rfl]
+  erw [downEndAlg_D0_ir S red upIso Sc m i r hR hb h₁ (𝟙 _) (𝟙 _),
+    downEndAlg_D1_ri S red upIso Sc m i r rfl ha h₄ (𝟙 _) (𝟙 _)]
+  simp only [PrelaxFunctor.map₂_id, Category.id_comp]
+  erw [Category.comp_id, Category.comp_id, Category.comp_id]
+  exact (redDownDot_dot S red upIso hdot r i h₁ hR rfl h₄).symm
+
+/-- **The downward black dot slides through the crossing `a′`** with a red strand. -/
+theorem admissibleMap_slideRNe_ir (hdot : UpIsoDotNatural S red upIso) (i : I) (r : Fin ℓ)
+    (m : X) {x y : X}
+    (ha : Cond x y (downContextObj RD Λ m [] [] (KLR.Diagram.ob [.inl i, .inr r])))
+    (hb : Cond x y (downContextObj RD Λ m [] [] (KLR.Diagram.ob [.inr r, .inl i]))) :
+    admissibleMap (genImg S red upIso Sc) ha hb (downLinear RD Λ k m [] []
+      (KLR.Diagram.relation k Q (.slideRNe (.inl i) (.inr r) Sum.inl_ne_inr))) = 0 := by
+  obtain rfl : m = x := ha.2.2
+  obtain rfl : (m + (wD i)) + Λ r = y := ha.2.1
+  have he : (m + Λ r) + (wD i) = (m + (wD i)) + Λ r := add_right_comm m (Λ r) (wD i)
+  have h₁ : (m + (wD i)) + RD.iX i = m := by double_regions
+  have h₄ : ((m + (wD i)) + Λ r) + RD.iX i = m + Λ r := by double_regions
+  rw [relation_slideRNe, map_sub, map_sub, sub_eq_zero, LinDiagram.of_comp, LinDiagram.of_comp,
+    downLinear_comp, downLinear_comp]
+  erw [admissibleMap_comp _ ha ha hb, admissibleMap_comp _ ha hb hb]
+  erw [admissibleMap_X2_ir S red upIso Sc m i r rfl he ha hb h₁ h₄ (𝟙 _) (𝟙 _)]
+  erw [show admissibleMap (genImg S red upIso Sc) ha ha (downLinear RD Λ k m [] []
+      (LinDiagram.of (KLR.Diagram.D0 (Sum.inl i : I ⊕ Fin ℓ) (.inr r)))) =
+      downEndAlg (genImg S red upIso Sc) m [.inl i, .inr r] ha
+        (LinDiagram.of (KLR.Diagram.D0 (Sum.inl i : I ⊕ Fin ℓ) (.inr r))) from rfl,
+    show admissibleMap (genImg S red upIso Sc) hb hb (downLinear RD Λ k m [] []
+      (LinDiagram.of (KLR.Diagram.D1 (Sum.inr r : I ⊕ Fin ℓ) (.inl i)))) =
+      downEndAlg (genImg S red upIso Sc) m [.inr r, .inl i] hb
+        (LinDiagram.of (KLR.Diagram.D1 (Sum.inr r : I ⊕ Fin ℓ) (.inl i))) from rfl]
+  erw [downEndAlg_D0_ir S red upIso Sc m i r rfl ha h₁ (𝟙 _) (𝟙 _),
+    downEndAlg_D1_ri S red upIso Sc m i r he hb h₄ (𝟙 _) (𝟙 _)]
+  simp only [PrelaxFunctor.map₂_id, Category.id_comp]
+  erw [Category.comp_id, Category.comp_id, Category.comp_id]
+  exact redDownQuot_dot S red upIso hdot r i h₁ rfl rfl h₄
+
+end Slide
 
 end Categorification.Stendhal.DoubleDiagram

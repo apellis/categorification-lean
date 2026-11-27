@@ -7,6 +7,7 @@ import Categorification.WeightedKLR.RedStrands.BraidRowConcentrated
 import Categorification.WeightedKLR.RedStrands.BraidRowStandard
 import Categorification.WeightedKLR.RedStrands.RightRowStandardClass
 import Categorification.WeightedKLR.RedStrands.BlockStackedStandard
+import Categorification.WeightedKLR.RedStrands.BlockPartialStandardFiltration
 
 /-!
 # The braid of a right row standard module
@@ -20,8 +21,9 @@ row loading of the swapped words, relabelled by `π`, shifted by `⟨|u_{n+1}|, 
 the auxiliary grading (`rightRowStandardBraidIso`).
 
 `StackedStandard` holds at the row of `u` (`stackedStandard_rowFigureFive`, from
-`stackedStandard_setPairLoading`). Braid concentration carries the two route hypotheses of
-Lemma 6.8 at the row of `u` (`RowFigureFiveHypotheses`); the graded isomorphism carries none.
+`stackedStandard_setPairLoading`). Braid concentration carries the injectivity hypothesis of
+Lemma 6.8 at the row of `u` (`RowFigureFiveHypotheses`) and `AllFiniteDeltaInjective`; the
+graded isomorphism carries none.
 -/
 
 noncomputable section
@@ -56,23 +58,13 @@ abbrev rowCrossed (u : Fin (n + 2 + m) → List I) (hu : u (rightPos n m) = []) 
   KLR.Seq.cast (weightSum_rowBlocks u hu) (place _ (setPairLoading (rowM u) (pairEmb n m) (rowβ u)
     (crossedLoading _) (rowL u) (rowBlockLoadings u (crossedLoading _))))
 
-/-- **The route hypotheses of Lemma 6.8 at the row of `u`**: a filtration of the loading kernel
-by partial standards, and injectivity on the kernel. Each is an explicit hypothesis tracked for
-removal. -/
+/-- **The route hypothesis of Lemma 6.8 at the row of `u`**: injectivity on the kernel of the
+loading projective onto its partial standard module. It is an explicit hypothesis tracked for
+removal; the filtration of that kernel by partial standards is proved
+(`exists_hasFiltration_blockLoadingKernelAt`). -/
 structure RowFigureFiveHypotheses (C : QuantumGroup.CartanDatum I) (hQ : IsRouquierQ C Q)
     (Λ : Fin (n + 2 + m) → I →₀ ℕ) (u : Fin (n + 2 + m) → List I) (hu : u (rightPos n m) = []) :
     Prop where
-  filtration : ∀ (s : Seq (stendhalWeight (n + 2 + m) (blockContent u)))
-      (hs : redWord s = redWord (rowCrossed u hu)),
-      ∃ l : List {v : Seq (stendhalWeight (n + 2 + m) (blockContent u)) //
-        redWord v = redWord (rowCrossed u hu)},
-      (∀ v ∈ l, adjacentBlockRoot (pairEmb n m 0) (pairEmb n m 1) s <
-        adjacentBlockRoot (pairEmb n m 0) (pairEmb n m 1) v.1) ∧
-      ModuleFiltration.HasFiltration
-        (fun v => blockPartialStandardAt Q Λ v.1 (pairEmb n m 0) (pairEmb n m 1)
-          (redWord (rowCrossed u hu)) v.2) l
-        (blockLoadingKernelObjAt Q Λ (pairEmb n m 0) (pairEmb n m 1)
-          (redWord (rowCrossed u hu)) s hs)
   injective : ∀ s : Seq (stendhalWeight (n + 2 + m) (blockContent u)),
       redWord s = redWord (rowCrossed u hu) →
       Function.Injective (blockKernelTensorInclusion Q Λ s (pairEmb n m 0) (pairEmb n m 1)
@@ -91,6 +83,12 @@ theorem redWord_rowCrossed (u : Fin (n + 2 + m) → List I) (hu : u (rightPos n 
       (rowL u).map Prod.fst ++ pairEmb n m 1 :: pairEmb n m 0 :: (rowM u).map Prod.fst := by
   rw [← rowLoading_eq_rowCrossed u hu, (redWord_eq_finRange_iff _).2 (isRedOrdered_rowLoading _ u)]
   exact finRange_eq_rowBlocks u
+
+omit [DecidableEq I] in
+theorem redWord_rowCrossed_eq_finRange (u : Fin (n + 2 + m) → List I)
+    (hu : u (rightPos n m) = []) : redWord (rowCrossed u hu) = List.finRange (n + 2 + m) := by
+  rw [← rowLoading_eq_rowCrossed u hu]
+  exact (redWord_eq_finRange_iff _).2 (isRedOrdered_rowLoading _ u)
 
 omit [DecidableEq I] in
 theorem not_violated_rowCrossed (u : Fin (n + 2 + m) → List I) :
@@ -160,9 +158,12 @@ variable [∀ (Ω : Fin (n + 2 + m) → I →₀ ℕ) (ν : Multiset I),
 /-- **The derived braid of a right row standard module is concentrated in degree zero**
 (Webster, arXiv:1309.3796v2, §6.1, Proposition 6.9 and proof of Corollary 6.10): for words `u`
 with `u_{n+2}` empty, `𝔅_π S(u)` has no cohomology outside degree zero, where `π` swaps
-`λ_{n+1}` and `λ_{n+2}`. Hypotheses: `RowFigureFiveHypotheses`, the route hypotheses of
-Lemma 6.8. -/
-theorem braidConcentrated_rightRowStandard (u : Fin (n + 2 + m) → List I)
+`λ_{n+1}` and `λ_{n+2}`. Route hypotheses: `AllFiniteDeltaInjective` (Lemma 5.19, for the
+filtration of the partial standard kernel) and `RowFigureFiveHypotheses`, the injectivity
+hypothesis of Lemma 6.8. -/
+theorem braidConcentrated_rightRowStandard
+    (hall : ∀ (n : ℕ) (Λ' : Fin (n + 1) → I →₀ ℕ), AllFiniteDeltaInjective Q Λ' hQ.klrSymm)
+    (u : Fin (n + 2 + m) → List I)
     (hu : u (rightPos n m) = []) (H : RowFigureFiveHypotheses C hQ Λ u hu)
     [DG.HasDerivedCategory.{w} (IsIdempotentElem.Corner (isIdempotentElem_violMk_redProj k Q Λ
       (blockContent u) (List.finRange (n + 2 + m))))ᵐᵒᵖ]
@@ -177,7 +178,10 @@ theorem braidConcentrated_rightRowStandard (u : Fin (n + 2 + m) → List I)
     (rowBlockLoadings u (crossedLoading _)) (not_violated_rowCrossed u) (redWord_rowCrossed u hu)
     (stackedStandard_rowFigureFive C hQ Λ u hu) (isReducedChoice_canChoice _) (pairSwap n m)
     (finRange_eq_rowBlocks u)
-    (map_pairSwap_finRange u) H.filtration H.injective
+    (map_pairSwap_finRange u)
+    (fun s hs => exists_hasFiltration_blockLoadingKernelAt hQ.klrSymm hQ hall
+      (show pairEmb n m 1 < pairEmb n m 0 from Fin.lt_def.2 (by simp))
+      (redWord_rowCrossed_eq_finRange u hu) s hs) H.injective
   exact braidConcentrated_rightStandard_congr.{w} _ hQ.klrSymm _ hQ
     (rowLoading_eq_rowCrossed u hu).symm _ _ key
 

@@ -2872,8 +2872,8 @@ open DG.DegreeZero in
 /-- Webster, arXiv:1309.3796v2, §6.1, Corollary 6.10, for two red `sl₂` strands of weight `ω`:
 the class map of the graded braid functor of the crossing is `x ↦ B(v² R x, -)`. The
 finite-dimensionality of the algebras `T^λ` is discharged (`tensorProductAlgebra_finite`); the
-route hypotheses (`AllFiniteDeltaInjective` of Corollary 5.22 and `RowFigureFiveHypotheses` of
-Proposition 6.9) are assumed here, not discharged. -/
+route hypotheses (`AllFiniteDeltaInjective` of Corollary 5.22 and `RowFigureFiveHypotheses`,
+the injectivity hypothesis of Lemma 6.8) are assumed here, not discharged. -/
 example (hall : ∀ (n : ℕ) (Λ' : Fin (n + 1) → Unit →₀ ℕ),
       Stendhal.AllFiniteDeltaInjective _ Λ' params.klrSymm)
     (H : ∀ (u : Fin (0 + 2 + 0) → List Unit) (hu : u (rightPos 0 0) = []),
@@ -2886,6 +2886,24 @@ example (hall : ∀ (n : ℕ) (Λ' : Fin (n + 1) → Unit →₀ ℕ),
         ((List.finRange (0 + 2 + 0)).map (pairSwap 0 0))))ᵐᵒᵖ :=
     fun _ => DG.HasDerivedCategory.standard _
   braidClass_pairSwap D params regular (n := 0) (m := 0) level (factors 2) level_eq hall H
+
+/-- Webster, arXiv:1309.3796v3, §6.1, proof of Lemma 6.8, for two red `sl₂` strands of weight
+`ω` merged into one block: the kernel of `T^λ e(s)` onto its partial standard module is filtered
+by partial standard modules at strictly higher roots, over `T^λ` and over the corner. The route
+hypothesis `AllFiniteDeltaInjective` (Lemma 5.19) is assumed here, not discharged. -/
+example (hall : ∀ (n : ℕ) (Λ' : Fin (n + 1) → Unit →₀ ℕ),
+      Stendhal.AllFiniteDeltaInjective _ Λ' params.klrSymm)
+    {ν : Multiset Unit} (s : KLR.Seq (Stendhal.stendhalWeight 2 ν)) (hs : Stendhal.IsRedOrdered s) :=
+  Stendhal.exists_hasFiltration_leftPartialKernel (Λ := level) params.klrSymm params hall
+    (show (0 : Fin 2) < 1 by decide) hs
+
+/-- The same filtration over the corner `e_λ V e_λ`, for the loadings of red order `λ`. -/
+example (hall : ∀ (n : ℕ) (Λ' : Fin (n + 1) → Unit →₀ ℕ),
+      Stendhal.AllFiniteDeltaInjective _ Λ' params.klrSymm)
+    {ν : Multiset Unit} (s : KLR.Seq (Stendhal.stendhalWeight 2 ν))
+    (hs : Stendhal.redWord s = List.finRange 2) :=
+  Stendhal.BraidedStendhalAlgebra.exists_hasFiltration_blockLoadingKernelAt (Λ := level)
+    params.klrSymm params hall (show (0 : Fin 2) < 1 by decide) rfl s hs
 
 attribute [local instance 1200] Ring.toIntAlgebra in
 open DG.DegreeZero in

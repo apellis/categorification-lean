@@ -952,9 +952,14 @@ through (6.21), well-founded on `adjacentBlockRoot`. Two inputs of the printed p
 explicit hypotheses (maintainer decision), each a roadmap item to remove:
 
 - **(6.8-filt)** the kernel of each loading projective onto its partial standard is filtered by
-  partial standards at strictly higher loadings. The printed proof uses this without proof; §5
-  proves the analogue for full standardization (Prop 5.20). Route: adapt the dimension argument
-  of Prop 5.20 to partial standardization, then apply `blockLoadingKernel_hasFiltration`.
+  partial standards at strictly higher loadings. The printed proof uses this without proof.
+  **Proved in the red order `λ`** under the route hypothesis `AllFiniteDeltaInjective` of
+  Lemma 5.19 (`exists_hasFiltration_blockLoadingKernelAt`, `RedStrands/BlockPartialStandardFiltration.lean`,
+  from the left form `exists_hasFiltration_leftPartialKernel`, `RedStrands/CoarsePhiCount.lean`):
+  the dimension count of Prop 5.20 (v3: Prop 5.21) for the coarse block assignments
+  (`RedStrands/CoarseAssignment.lean`, `RedStrands/CoarsePhiLayers.lean`,
+  `Algebra/FinrankCountingFiltration.lean`). This covers Cor 6.10, whose Figure 5 rows are in the
+  red order `λ`; the theorem for an arbitrary red order `κ` remains open.
 - **(6.8-inj)** injectivity of the balanced tensor of the kernel inclusion with the braiding
   bimodule (`blockKernelTensorInclusion`). The printed cut argument after (6.21) does not handle
   the dotted relations in general; special cases are proved (first black weight, consecutive

@@ -6192,6 +6192,18 @@ weight `ω`, and every black weight. -/
 noncomputable example (ν : Multiset Unit) :=
   redFirstEndEquiv rbRouquier rbSymm (fun _ : Fin 2 => Finsupp.single () 1) ν
 
+/-- Webster, arXiv:1309.3796v3, proof of Thm. 6.14 (the symmetric pairing on `P⁰`), for `sl₂`,
+two red strands of weight `ω`, and every black weight. -/
+example (ν : Multiset Unit) :=
+  redFirstIdem_symmetricPairing rbRouquier rbSymm (fun _ : Fin 2 => Finsupp.single () 1) ν
+
+/-- Webster, arXiv:1309.3796v3, proof of Thm. 6.14 (self-duality of `y T^λ`), for `sl₂`, two
+red strands of weight `ω`, every black weight and `y = e⁰`. -/
+noncomputable example (ν : Multiset Unit) :=
+  redFirstSelfDualEquiv rbRouquier rbSymm (fun _ : Fin 2 => Finsupp.single () 1) ν
+    (redFirstIdem _ (fun _ : Fin 2 => Finsupp.single () 1) ν) (by
+      rw [(isIdempotentElem_redFirstIdem _ _ ν).eq, (isIdempotentElem_redFirstIdem _ _ ν).eq])
+
 end RedFirstEnd
 
 /-- Webster, arXiv:1309.3796v3, Prop. 5.21 (printed `Φ`-indexed form), for `sl₂`, two red

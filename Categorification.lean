@@ -902,6 +902,7 @@ import Categorification.TwoRep.PiLinear
 import Categorification.TwoRep.BlockSum
 import Categorification.TwoRep.BlockSumCross
 import Categorification.TwoRep.BlockSumCrossing
+import Categorification.TwoRep.BlockSumCrossingMate
 import Categorification.TwoRep.BlockSumGen
 import Categorification.TwoRep.BlockSumTriple
 import Categorification.TwoRep.MatKarFunctor
@@ -1582,6 +1583,7 @@ import Categorification.WeightedKLR.RedStrands.CyclotomicRedAbsentCap
 import Categorification.WeightedKLR.RedStrands.CyclotomicRedCapSl2
 import Categorification.WeightedKLR.RedStrands.CyclotomicRedGlobal
 import Categorification.WeightedKLR.RedStrands.CyclotomicRegion
+import Categorification.WeightedKLR.RedStrands.CyclotomicRegionDownMate
 import Categorification.WeightedKLR.RedStrands.CyclotomicRegionFamily
 import Categorification.WeightedKLR.RedStrands.DoublePitchforkObstruction
 import Categorification.WeightedKLR.RedStrands.DoublePitchforkClosure
@@ -1945,6 +1947,13 @@ import Categorification.WeightedKLR.Rigidity.DerivedCupCap
 import Categorification.WeightedKLR.Rigidity.DerivedCupHom
 import Categorification.WeightedKLR.Rigidity.DerivedCupRegular
 import Categorification.WeightedKLR.Rigidity.FundamentalCupCap
+import Categorification.WeightedKLR.Rigidity.RigidityExtTrace
+import Categorification.WeightedKLR.Rigidity.RigidityExtRankOne
+import Categorification.WeightedKLR.Rigidity.RigidityExtLowest
+import Categorification.WeightedKLR.Rigidity.RigidityExtLastDot
+import Categorification.WeightedKLR.Rigidity.RigidityExtErase
+import Categorification.WeightedKLR.Rigidity.RigidityExtWrap
+import Categorification.WeightedKLR.Rigidity.RigidityExtHead
 import Categorification.Algebra.DerivedTensorRegular
 import Categorification.WeightedKLR.Rigidity.FundamentalCupRegular
 import Categorification.WeightedKLR.Rigidity.FundamentalDerivedCircle
@@ -2521,6 +2530,7 @@ import Categorification.WeightedKLR.RedStrands.TildeWordProjectives
 import Categorification.WeightedKLR.RedStrands.TildeTensorEquiv
 import Categorification.WeightedKLR.RedStrands.NegativeTensorLattice
 import Categorification.WeightedKLR.RedStrands.TildeBlackInduction
+import Categorification.WeightedKLR.RedStrands.TildeRedInduction
 import Categorification.WeightedKLR.RedStrands.StandardViolatedDescent
 import Categorification.WeightedKLR.RedStrands.StandardModuleReflection
 import Categorification.WeightedKLR.RedStrands.StandardRootDecomposition

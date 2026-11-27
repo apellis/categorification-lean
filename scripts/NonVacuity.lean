@@ -2585,6 +2585,14 @@ example := Stendhal.FirstWeight.exists_negIntegralTensorEquiv
   (fun _ : Fin 2 => Finsupp.single () 2)
   (fun _ i => by cases i; change (↑((Finsupp.single () 2 : Unit →₀ ℕ) ()) : ℤ) = 1 * 2; simp)
 
+/-- Webster, Proposition 4.39 with the compatibility (4.40) for `Ĩ_λ`, appending the
+second level-two label to the first. -/
+example := Stendhal.FirstWeight.exists_negIntegralTensorEquiv_red
+  (C := CartanDatum.ofGraph (⊥ : SimpleGraph Unit)) (wt := twoTensorFactors) params regular
+  (fun _ : Fin 2 => Finsupp.single () 2)
+  ⟨twoTensorFactors 0, fun i => by cases i; change (1 : ℤ) ≤ 1 * 2; decide⟩
+  (fun _ i => by cases i; change (↑((Finsupp.single () 2 : Unit →₀ ℕ) ()) : ℤ) = 1 * 2; simp)
+
 /-- Webster, Proposition 4.39 with the compatibility (4.40) for `F̃_i`, same data. -/
 example := Stendhal.FirstWeight.exists_negIntegralTensorEquiv_lower
   (C := CartanDatum.ofGraph (⊥ : SimpleGraph Unit)) (wt := twoTensorFactors) params regular
@@ -6279,6 +6287,19 @@ example : coevaluationDividedWord (P.cartanDatum generalized) weight [()] = [(()
     exact_mod_cast h'
   rw [h]
   rfl
+
+/-- Webster, arXiv:1309.3796v3, Lemma 7.3: the head of the level-two coevaluation wrap
+projective is simple. -/
+example := Categorification.Stendhal.isSimpleModule_coevaluationHead
+  CyclotomicHighestWeight.params (fun _ => 2) CyclotomicHighestWeight.datum 2
+  CyclotomicHighestWeight.dominantTwo CyclotomicHighestWeight.regular P weight dominant
+  (fun i => by
+    cases i
+    change P.root () (P.coroot ()) = (2 : ℝ)
+    rw [P.root_coroot]
+    rfl) [()] reduced (fun i => by
+    cases i
+    simp [CoxeterSystem.IsLeftDescent])
 
 /-- The actual complete three-step string scalar at the quantum parameter is one. -/
 example := polCoef_endpoint (q := (RatFunc.X : RatFunc ℚ)) RatFunc.X_ne_zero

@@ -861,6 +861,22 @@ theorem appendRed_mem_grade (G : GradingDatum S) {d : ℤ} {x}
   rw [GradingDatum.mem_grade, appendRedRelabel_coaction, (restrictRedGrading Q Λ G).mem_grade.mp ha,
     AddMonoidAlgebra.mapAlgHom_single]
 
+/-- Appending the last red strand preserves diagram degrees on `T̃^λ` (Webster,
+arXiv:1309.3796v3, Definition 4.4 and Proposition 4.39). -/
+theorem appendRedStendhalValue_mem_grade (G : GradingDatum S) {d : ℤ} {x : StendhalAlgebra k Q Λ₀ ν}
+    (hx : x ∈ stendhalGrade (restrictRedGrading Q Λ G) ν d) :
+    appendRedStendhalValue Q Λ ν x ∈ stendhalGrade G ν d := by
+  change (appendRedAllOrders Q Λ ν x.val).val ∈ allOrdersGrade G ν d
+  obtain ⟨a, ha, he⟩ := Submodule.mem_map.mp
+    (show x.val ∈ allOrdersGrade (restrictRedGrading Q Λ G) ν d from hx)
+  change StendhalAlgebraAllOrders.ofKLR k Q Λ₀ ν a = x.val at he
+  rw [← he, appendRedAllOrders_ofKLR, appendRedKLR_val]
+  apply Graded.mem_map_of_mem
+  apply G.castKLR_mem_grade
+  apply (blockL ν₀ νᵣ).valHom_mem_grade
+  rw [GradingDatum.mem_grade, appendRedRelabel_coaction, (restrictRedGrading Q Λ G).mem_grade.mp ha,
+    AddMonoidAlgebra.mapAlgHom_single]
+
 /-- The appending map on a boundary idempotent of the violating quotient. -/
 theorem appendRed_mk_e (s : Seq μ) (hs : IsRedOrdered s) :
     (appendRed Q Λ ν (TensorProductAlgebra.mk Q Λ₀ ν (StendhalAlgebra.e s hs))).val =

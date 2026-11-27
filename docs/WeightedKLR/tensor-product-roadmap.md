@@ -1447,7 +1447,10 @@ cap at the right end (`j = ℓ`, `CupCap.capBasis`) for symmetric `Q`, under the
 hypotheses that the (max1) scalars are units and `PullOffLeft` (the mirror of Lemma 7.16);
 at Webster's `L_μ` (`CupCap.capBasis_coevaluationHead`, over a field) the support
 hypothesis is proved, leaving these two; removal items: prove Lemma 7.16 and its mirror
-for `L_μ`, and the case of general `j`.
+for `L_μ`, and the case of general `j`. General `j` (in progress): the model is induced along
+the diagrams at the maximum placed just before the red strand `λ_{j+1}` (`CupCap.midStendhal`,
+`CupCap.MidModel`); the left action of `T̃^λ` passes strands under the maximum, using both
+pull-off identities.
 Lemma 7.19 and Props 7.20–7.22 are open.
 
 ### Phase F: §8, knot invariants

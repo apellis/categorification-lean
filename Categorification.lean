@@ -171,6 +171,8 @@ import Categorification.Algebra.ProjK0
 import Categorification.Algebra.RightActionImage
 import Categorification.Algebra.SelfDualDoubleCentralizer
 import Categorification.Algebra.SelfDualInjective
+import Categorification.Algebra.StarDual
+import Categorification.Algebra.ExtVanishingShift
 import Categorification.Algebra.CornerDualInjective
 import Categorification.Algebra.SplitK0
 import Categorification.Algebra.SumDecompLinear
@@ -2074,6 +2076,7 @@ import Categorification.WeightedKLR.Rigidity.RigidityExtCoevaluationHeadExt
 import Categorification.WeightedKLR.Rigidity.RigidityExtBicone
 import Categorification.WeightedKLR.Rigidity.RigidityExtSplitting
 import Categorification.WeightedKLR.Rigidity.RigidityExtStandardSum
+import Categorification.WeightedKLR.Rigidity.RigidityExtDualStandard
 import Categorification.WeightedKLR.Rigidity.RigidityExtWrapHom
 import Categorification.WeightedKLR.Rigidity.RigidityExtCoevaluationTop
 import Categorification.WeightedKLR.Rigidity.RigidityExtTorShift

@@ -1,6 +1,7 @@
 import Categorification.Algebra.AmbidextrousTrace
 import Categorification.Algebra.AugmentationQuotient
 import Categorification.Algebra.BalancedTensor
+import Categorification.Algebra.BalancedTensorEndAction
 import Categorification.Algebra.BalancedTensorCyclic
 import Categorification.Algebra.BalancedTensorAssoc
 import Categorification.Algebra.BalancedTensorExact

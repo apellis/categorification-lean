@@ -20,6 +20,7 @@ along a coresolution of a dual standard module and along the resolution of `L_λ
 * `Ext.subsingleton_X₁_of_X₃`: `Extⁿ(X₂, Y) = 0` and `Extⁿ⁺¹(X₃, Y) = 0` give `Extⁿ(X₁, Y) = 0`.
 * `Ext.subsingleton_X₃_succ`: `Extⁿ(X₁, Y) = 0` and `Extⁿ⁺¹(X₂, Y) = 0` give
   `Extⁿ⁺¹(X₃, Y) = 0`.
+* `Ext.subsingleton_X₃_zero`: `Hom(X₂, Y) = 0` gives `Hom(X₃, Y) = 0`.
 -/
 
 universe w
@@ -64,5 +65,15 @@ theorem subsingleton_X₃_succ (Y : C) (n : ℕ) [Subsingleton (Ext S.X₁ Y n)]
   refine subsingleton_of_forall_eq 0 fun x => ?_
   obtain ⟨y, rfl⟩ := contravariant_sequence_exact₃ hS Y x (Subsingleton.elim _ _) rfl
   rw [Subsingleton.elim y 0, comp_zero]
+
+include hS in
+/-- `Hom(X₂, Y) = 0` gives `Hom(X₃, Y) = 0`, in degree zero of `Ext`. -/
+theorem subsingleton_X₃_zero (Y : C) [Subsingleton (Ext S.X₂ Y 0)] :
+    Subsingleton (Ext S.X₃ Y 0) := by
+  have := hS.epi_g
+  refine subsingleton_of_forall_eq 0 fun x => ?_
+  apply precomp_mk₀_injective_of_epi Y S.g
+  rw [Subsingleton.elim ((mk₀ S.g).precomp Y (zero_add 0) x)
+    ((mk₀ S.g).precomp Y (zero_add 0) 0)]
 
 end CategoryTheory.Abelian.Ext

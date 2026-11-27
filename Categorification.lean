@@ -24,6 +24,7 @@ import Categorification.Algebra.CornerTensorFactor
 import Categorification.Algebra.CornerTensorQuotient
 import Categorification.Algebra.DGShortExactTriangle
 import Categorification.Algebra.DerivedTensor
+import Categorification.Algebra.DerivedTensorCompComparison
 import Categorification.Algebra.DerivedTensorCoproducts
 import Categorification.Algebra.DerivedTensorCoefficient
 import Categorification.Algebra.DerivedTensorCoefficientExact
@@ -42,6 +43,7 @@ import Categorification.Algebra.DerivedTensorComp
 import Categorification.Algebra.DerivedTensorDegreeZero
 import Categorification.Algebra.ExactDerivedTensor
 import Categorification.Algebra.ProjectiveKProjective
+import Categorification.Algebra.ResolutionAdjunction
 import Categorification.Algebra.ProjectiveFlat
 import Categorification.Algebra.ModuleTower
 import Categorification.Algebra.ModuleTowerK0

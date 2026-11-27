@@ -790,6 +790,7 @@ import Categorification.WeightedKLR.RedStrands.LoadingCutPBW
 import Categorification.WeightedKLR.RedStrands.PartialStandardizationCutParabolic
 import Categorification.WeightedKLR.RedStrands.PartialStandardizationCutParabolicNatural
 import Categorification.WeightedKLR.RedStrands.PartialStandardizationCutTransfer
+import Categorification.WeightedKLR.RedStrands.PrependRedAssignments
 import Categorification.WeightedKLR.RedStrands.RedBlackPairsOrder
 import Categorification.WeightedKLR.RedStrands.SingleRedTerminalProjective
 import Categorification.KLR.CyclotomicTerminal
@@ -1192,6 +1193,9 @@ import Categorification.WeightedKLR.Gallery
 import Categorification.WeightedKLR.CentralPolynomials
 import Categorification.WeightedKLR.CentralFinite
 import Categorification.WeightedKLR.Arrangement
+import Categorification.WeightedKLR.RedStrands.TildePhiCount
+import Categorification.WeightedKLR.RedStrands.TildePhiLayers
+import Categorification.WeightedKLR.RedStrands.TildePhiStraightening
 import Categorification.WeightedKLR.Reflection
 import Categorification.WeightedKLR.Relabel
 import Categorification.WeightedKLR.Segment

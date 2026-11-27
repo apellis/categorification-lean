@@ -2483,4 +2483,5 @@ import Categorification.WeightedKLR.RedStrands.TwoPieceBlockMapIdems
 import Categorification.WeightedKLR.RedStrands.TwoPieceLastBlockMap
 import Categorification.WeightedKLR.RedStrands.TwoPieceRootStandardLastBlock
 import Categorification.WeightedKLR.RedStrands.TwoPieceRootStandardBlocks
+import Categorification.WeightedKLR.RedStrands.LeftStandardization
 import Categorification.WeightedKLR.RedStrands.RedFirstDominantDimension

@@ -5554,6 +5554,41 @@ example := KLR.IsRouquierQ.cyclotomic_frobenius rqHyp coordDatum (fun _ => 2)
   (a := fun _ => Polynomial.X ^ 2) (fun _ => Polynomial.monic_X_pow 2)
   (fun _ => by simp [coordDatum]) ({0, 1, 0} : Multiset (Fin 2))
 
+private theorem zmod2_eq_one_of_isUnit (x : ZMod 2) (hx : IsUnit x) : x = 1 := by
+  fin_cases x
+  · exact absurd hx not_isUnit_zero
+  · rfl
+
+/-- Webster arXiv:1309.3796v3, Theorem 3.18 and Remark 3.19, on the same data: in
+characteristic two the extremal coefficients `t_ij`, `t_ji` are both `1`, so the trace is
+symmetric. -/
+example := KLR.IsRouquierQ.cyclotomic_frobenius_symmetric rqHyp
+  (fun i j h => (zmod2_eq_one_of_isUnit _ (rqHyp.unit_coeff i j h)).trans
+    (zmod2_eq_one_of_isUnit _ (rqHyp.unit_coeff j i (Ne.symm h))).symm)
+  coordDatum (fun _ => 2) (a := fun _ => Polynomial.X ^ 2) (fun _ => Polynomial.monic_X_pow 2)
+  (fun _ => by simp [coordDatum]) ({0, 1, 0} : Multiset (Fin 2))
+
+private noncomputable abbrev klC := CartanDatum.ofGraph (⊥ : SimpleGraph Unit)
+
+private theorem klRouquier : KLR.IsRouquierQ klC
+    (KL3.Diagram.CL.qCL (KL3.Diagram.CL.CLScalars.kl : KL3.Diagram.CL.CLScalars klC ℚ)) where
+  symm _ _ h := (h (Subsingleton.elim _ _)).elim
+  homogeneous _ _ h := (h (Subsingleton.elim _ _)).elim
+  unit_coeff _ _ h := (h (Subsingleton.elim _ _)).elim
+
+/-- The coordinate weight datum of `sl₂`. -/
+private def klDatum : WeightDatum klC (Unit → ℤ) ((Unit → ℤ) →+ ℤ) where
+  pair := AddMonoidHom.id _
+  iX j i := A klC i j
+  iY i := { toFun := fun x => x i, map_zero' := rfl, map_add' := fun _ _ => rfl }
+  pair_iY_iX _ _ := rfl
+
+/-- Webster arXiv:1309.3796v3, Theorem 3.18 and Remark 3.19, for the Khovanov–Lauda scalars:
+`sl₂`, the cyclotomic quotient of weight `2` with `a = u²`, two black strands. -/
+example := KLR.CyclotomicAction.cyclotomic_frobenius_symmetric_kl klRouquier klDatum (fun _ => 2)
+  (a := fun _ => Polynomial.X ^ 2) (fun _ => Polynomial.monic_X_pow 2)
+  (fun _ => by simp [klDatum]) ({(), ()} : Multiset Unit)
+
 /-- Kang–Kashiwara projectivity over the base ring in characteristic two, for the parallel-edge
 Rouquier parameters and `a_i = u²`. -/
 example := KLR.CycKLR.projective_base (fun _ => Polynomial.X ^ 2) rqHyp.klrSymm

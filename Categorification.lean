@@ -1069,6 +1069,7 @@ import Categorification.TwoRep.CyclicDot
 import Categorification.TwoRep.CyclicDotNegOne
 import Categorification.TwoRep.CyclicCross
 import Categorification.TwoRep.CyclicTrace
+import Categorification.TwoRep.CyclicTraceWord
 import Categorification.TwoRep.SidewaysCrossing
 import Categorification.TwoRep.FakeBubbles
 import Categorification.TwoRep.DecompEF
@@ -1737,6 +1738,7 @@ import Categorification.WeightedKLR.RedStrands.DoubleBlackRestriction
 import Categorification.Algebra.AmbidextrousTraceSeparating
 import Categorification.TwoRep.WordAdjunction
 import Categorification.KLR.CyclotomicAction.Frobenius
+import Categorification.KLR.CyclotomicAction.FrobeniusSymmetric
 import Categorification.KLR.CyclotomicBaseProjective
 import Categorification.KLR.CyclotomicRestrictionProjectiveRing
 import Categorification.KLR.CyclotomicAction.Universal

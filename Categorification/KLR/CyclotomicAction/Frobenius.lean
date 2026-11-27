@@ -26,7 +26,7 @@ cyclotomic modules `R^Λ(ν) e(rev t)` (`Vacuum`, `VacuumCyclic`). This file sho
 * `vacEnd`, `vacEnd_bijective`, `vacEnd_mul`: the matrix algebra of morphisms between the words
   `E_t 𝕍` is anti-isomorphic to `R^Λ(ν)`, through the action of `R(ν)` on words read through
   the anti-involution `hflip ∘ σ`;
-* `cyclotomic_trace_nondegenerate`: the Frobenius trace;
+* `cycTrace`, `cyclotomic_trace_nondegenerate`: the Frobenius trace;
 * `IsRouquierQ.cyclotomic_frobenius`: Theorem 3.18 for the parameters of Webster's setting
   (Rouquier's homogeneous parameters `Q` and a cyclotomic quotient of weight `Λ`).
 -/
@@ -419,40 +419,58 @@ theorem vacScalar_injective {f : familyObj hQ hlead ha hΛ hdeg (𝕍) ⟶ famil
   funext p
   exact ULift.ext _ _ h1
 
+/-- The Frobenius trace of Theorem 3.18 on `R^Λ(ν)`: an element acts on the words `E_t` at the
+vacuum (`cycAct`), each diagonal entry is closed with the biadjunction of `E_t` and its reversed
+word of `F`'s (`wordTrace`), and the resulting endomorphism of the vacuum `R^Λ(∅) = k` is read
+as a scalar. -/
+def cycTrace (ν : Multiset I) : CycKLR k Q a ν →ₗ[k] k where
+  toFun c := vacScalar.{u, v, 0} hQ hlead ha hΛ hdeg
+    (Diagram.MatEnd.trace (fun t : Seq ν => wordTrace.{u, v, 0} hQ hlead ha hΛ hdeg t)
+      (cycAct.{u, v, 0} hQ hlead ha hΛ hdeg c))
+  map_add' c d := by
+    rw [cycAct_add, map_add, vacScalar_add]
+  map_smul' r c := by
+    rw [cycAct_smul, Diagram.MatEnd.trace_smul _ (wordTrace_smul hQ hlead ha hΛ hdeg),
+      vacScalar_smul]
+    rfl
+
+theorem cycTrace_mul (x y : CycKLR k Q a ν) :
+    cycTrace hQ hlead ha hΛ hdeg ν (x * y) = vacScalar.{u, v, 0} hQ hlead ha hΛ hdeg
+      (Diagram.MatEnd.trace (fun t : Seq ν => wordTrace.{u, v, 0} hQ hlead ha hΛ hdeg t)
+        (cycAct.{u, v, 0} hQ hlead ha hΛ hdeg y * cycAct.{u, v, 0} hQ hlead ha hΛ hdeg x)) := by
+  change vacScalar.{u, v, 0} hQ hlead ha hΛ hdeg
+    (Diagram.MatEnd.trace _ (cycAct.{u, v, 0} hQ hlead ha hΛ hdeg (x * y))) = _
+  rw [cycAct_mul]
+
+/-- The trace `cycTrace` is nondegenerate on both sides. -/
+theorem cycTrace_nondegenerate (ν : Multiset I) :
+    (∀ x : CycKLR k Q a ν, x ≠ 0 → ∃ y, cycTrace hQ hlead ha hΛ hdeg ν (x * y) ≠ 0) ∧
+      ∀ y : CycKLR k Q a ν, y ≠ 0 → ∃ x, cycTrace hQ hlead ha hΛ hdeg ν (x * y) ≠ 0 := by
+  let τ := fun t : Seq ν => wordTrace.{u, v, 0} hQ hlead ha hΛ hdeg t
+  obtain ⟨h₁, h₂⟩ := Diagram.MatEnd.trace_nondegenerate τ (wordTrace_nondeg hQ hlead ha hΛ hdeg)
+  have hne : ∀ x : CycKLR k Q a ν, x ≠ 0 → cycAct.{u, v, 0} hQ hlead ha hΛ hdeg x ≠ 0 :=
+    fun x hx h0 => hx (cycAct_injective hQ hlead ha hΛ hdeg (h0.trans (by
+      simpa using (cycAct_smul hQ hlead ha hΛ hdeg (0 : k) (0 : CycKLR k Q a ν)).symm)))
+  refine ⟨fun x hx => ?_, fun y hy => ?_⟩
+  · obtain ⟨M, hM⟩ := h₂ _ (hne x hx)
+    obtain ⟨y, rfl⟩ := cycAct_surjective hQ hlead ha hΛ hdeg M
+    exact ⟨y, fun h => hM (vacScalar_injective hQ hlead ha hΛ hdeg
+      ((cycTrace_mul hQ hlead ha hΛ hdeg x y).symm.trans h))⟩
+  · obtain ⟨N, hN⟩ := h₁ _ (hne y hy)
+    obtain ⟨x, rfl⟩ := cycAct_surjective hQ hlead ha hΛ hdeg N
+    exact ⟨x, fun h => hN (vacScalar_injective hQ hlead ha hΛ hdeg
+      ((cycTrace_mul hQ hlead ha hΛ hdeg x y).symm.trans h))⟩
+
 include hQ hlead ha hΛ hdeg in
 /-- **Webster, arXiv:1309.3796v2, Theorem 3.18.** Over a field, the cyclotomic KLR algebra
 `R^Λ(ν)` of the cyclotomic categorical action (Theorem 3.17) is Frobenius: it carries a
 `k`-linear trace `tr` whose pairing `(x, y) ↦ tr (x y)` is nondegenerate on both sides. The
 trace closes the strands of each word `E_t` applied to the vacuum `R^Λ(∅) = k` with the
-biadjunction of `E_t` and the reversed word of `F`'s. -/
+biadjunction of `E_t` and the reversed word of `F`'s (`cycTrace`). -/
 theorem cyclotomic_trace_nondegenerate (ν : Multiset I) :
     ∃ tr : CycKLR k Q a ν →ₗ[k] k,
-      (∀ x, x ≠ 0 → ∃ y, tr (x * y) ≠ 0) ∧ ∀ y, y ≠ 0 → ∃ x, tr (x * y) ≠ 0 := by
-  let τ := fun t : Seq ν => wordTrace.{u, v, 0} hQ hlead ha hΛ hdeg t
-  obtain ⟨h₁, h₂⟩ := Diagram.MatEnd.trace_nondegenerate τ (wordTrace_nondeg hQ hlead ha hΛ hdeg)
-  let T := Diagram.MatEnd.trace τ
-  let tr : CycKLR k Q a ν →ₗ[k] k :=
-    { toFun := fun c => vacScalar.{u, v, 0} hQ hlead ha hΛ hdeg (T (cycAct.{u, v, 0} hQ hlead ha hΛ hdeg c))
-      map_add' := fun c d => by
-        rw [cycAct_add, map_add, vacScalar_add]
-      map_smul' := fun r c => by
-        rw [cycAct_smul, Diagram.MatEnd.trace_smul τ (wordTrace_smul hQ hlead ha hΛ hdeg),
-          vacScalar_smul]
-        rfl }
-  have htr : ∀ x y, tr (x * y) = vacScalar.{u, v, 0} hQ hlead ha hΛ hdeg
-      (T (cycAct.{u, v, 0} hQ hlead ha hΛ hdeg y * cycAct.{u, v, 0} hQ hlead ha hΛ hdeg x)) := fun x y => by
-    change vacScalar.{u, v, 0} hQ hlead ha hΛ hdeg (T (cycAct.{u, v, 0} hQ hlead ha hΛ hdeg (x * y))) = _
-    rw [cycAct_mul]
-  have hne : ∀ x : CycKLR k Q a ν, x ≠ 0 → cycAct.{u, v, 0} hQ hlead ha hΛ hdeg x ≠ 0 := fun x hx h0 =>
-    hx (cycAct_injective hQ hlead ha hΛ hdeg (h0.trans (by
-      simpa using (cycAct_smul hQ hlead ha hΛ hdeg (0 : k) (0 : CycKLR k Q a ν)).symm)))
-  refine ⟨tr, fun x hx => ?_, fun y hy => ?_⟩
-  · obtain ⟨M, hM⟩ := h₂ _ (hne x hx)
-    obtain ⟨y, rfl⟩ := cycAct_surjective hQ hlead ha hΛ hdeg M
-    exact ⟨y, fun h => hM (vacScalar_injective hQ hlead ha hΛ hdeg ((htr x y).symm.trans h))⟩
-  · obtain ⟨N, hN⟩ := h₁ _ (hne y hy)
-    obtain ⟨x, rfl⟩ := cycAct_surjective hQ hlead ha hΛ hdeg N
-    exact ⟨x, fun h => hN (vacScalar_injective hQ hlead ha hΛ hdeg ((htr x y).symm.trans h))⟩
+      (∀ x, x ≠ 0 → ∃ y, tr (x * y) ≠ 0) ∧ ∀ y, y ≠ 0 → ∃ x, tr (x * y) ≠ 0 :=
+  ⟨cycTrace hQ hlead ha hΛ hdeg ν, cycTrace_nondegenerate hQ hlead ha hΛ hdeg ν⟩
 
 end
 

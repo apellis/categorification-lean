@@ -2512,3 +2512,5 @@ import Categorification.WeightedKLR.RedStrands.TwoPieceStandardizationNatural
 import Categorification.WeightedKLR.RedStrands.RedFirstDominantDimension
 import Categorification.WeightedKLR.RedStrands.BlackResCast
 import Categorification.WeightedKLR.RedStrands.FactorAlgebraCast
+import Categorification.Algebra.TensorProductLinearGenerators
+import Categorification.WeightedKLR.RedStrands.TwoPieceLastBlackRes

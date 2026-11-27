@@ -579,8 +579,16 @@ with the reflected relations of `U_{Sc^θ}(g)`, the mixed black relations (2.3c)
 Rouquier family with red lines acts on it
 (`DoubleDiagram.tensorTwoCatPseudofunctorQ`). With `r = 1`, `Sc ↦ Sc^θ` is an
 involution (`CLQ.thetaScalars_thetaScalars`), and at `t = 1` it fixes `Sc`.
-Open: the comparison of `Sc^θ` with Webster's normalization of `U` (§2.1),
-which agrees with it at `t = 1`.
+Comparison with Webster's §2.1. Webster's `t_ij = Q_ij(1,0)` is the
+Kang–Kashiwara `t_ij` of `Q` (`kkScalars`). In `U_W(g)` the downward strands
+carry `Q'_ij = (t_ij t_ji)^{-1} Q^W_ij`; for `W = Sc^θ` this is
+`(t_ij t_ji) · (t_ij t_ji)^{-1} Q_ij = Q_ij`, so the reflected black part of
+`𝒯` puts `Q` on downward strands, as in Webster's (2.6e) and in the downward
+KLR relations of `𝒯`. Moreover `Sc^θ = λ · Sc` with `λ_ij = (t_ij t_ji)^{-1}`
+(`t`, `s` scaled by the same symmetric factor). Open: whether Webster's printed
+scalars in (2.5) and the pitchforks (2.2a) are those of `Sc^θ` or of `Sc`
+(they agree at `t = 1`); if the latter, record an erratum with the corrected
+scalars `t^θ`.
 
 ## The rest of arXiv:1309.3796v2
 

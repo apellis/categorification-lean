@@ -384,24 +384,17 @@ theorem eSum_mul_slidesDiff (s : Seq (stendhalWeight ℓ ν)) {q : ℕ} (hq : q 
   rw [mul_sub, ← mul_assoc, eSum_mul_insertMap, ← mul_assoc, ← underRight_mul_eSum Q Λ Λc s hq,
     mul_assoc, eSum_mul_insertMap]
 
-/-- **The dot generators slide through a passage.** -/
-theorem slides_x (s : Seq (stendhalWeight ℓ ν)) {q : ℕ} (hq : q + 1 ≤ m) (b : Fin N) :
-    Slides Q Λ Λc j hj s hq (KLRAlgebra.x b) := by
+/-- **The error terms of a dot sliding through a passage** are diagrams in which a strand leaves
+the window at the top: the crossing at `q + b` is replaced by the idempotent of equal colours,
+which forces the window strand `b` to have the colour of the passing strand, hence to be black. -/
+theorem exitTerm_mem (s : Seq (stendhalWeight ℓ ν)) {q : ℕ} (hq : q + 1 ≤ m) (b : Fin N) :
+    (E s (q + 1) hq * (KLRAlgebra.ψw (List.range' q b.val) *
+        KLRAlgebra.eqIdem (q + b.val) (by have := add_lt_M (ν₀ := ν₀) hq b; omega) *
+        KLRAlgebra.ψw (List.range' (q + 1 + b.val) (N - 1 - b.val)) * E s q (by omega)) : Rp) ∈
+      exitSpan Q Λ Λc j hj s (q + 1) hq := by
   have hM := card_plus' (I := I) (ℓ := ℓ) (ν := ν) (ν₀ := ν₀)
   have hqN : q + N < M := by omega
   have hb := b.2
-  unfold Slides
-  rw [← eSum_mul_slidesDiff]
-  have hD : (ι s (q + 1) hq (KLRAlgebra.x b) * underRight N q -
-        underRight N q * ι s q (by omega) (KLRAlgebra.x b) : Rp) =
-      -(KLRAlgebra.ψw (List.range' q b.val) * KLRAlgebra.eqIdem (q + b.val) (by omega) *
-        KLRAlgebra.ψw (List.range' (q + 1 + b.val) (N - 1 - b.val)) * E s q (by omega)) := by
-    rw [insertMap_x, insertMap_x, mul_assoc, ← underRight_mul_eSum Q Λ Λc s hq]
-    simp only [← mul_assoc]
-    rw [underRight, x_mul_underRight b.2 hqN]
-    noncomm_ring
-  rw [hD, mul_neg]
-  refine neg_mem ?_
   rw [eSum_insertSet, Finset.sum_mul]
   refine Submodule.sum_mem _ fun w _ => ?_
   simp only [← mul_assoc]
@@ -428,6 +421,25 @@ theorem slides_x (s : Seq (stendhalWeight ℓ ν)) {q : ℕ} (hq : q + 1 ≤ m) 
     · exact absurd (hw ▸ h3) (oldColour_ne_cupColour_inr _ _)
   · rw [mul_zero, zero_mul, zero_mul]
     exact zero_mem _
+
+/-- **The dot generators slide through a passage.** -/
+theorem slides_x (s : Seq (stendhalWeight ℓ ν)) {q : ℕ} (hq : q + 1 ≤ m) (b : Fin N) :
+    Slides Q Λ Λc j hj s hq (KLRAlgebra.x b) := by
+  have hM := card_plus' (I := I) (ℓ := ℓ) (ν := ν) (ν₀ := ν₀)
+  have hqN : q + N < M := by omega
+  have hb := b.2
+  unfold Slides
+  rw [← eSum_mul_slidesDiff]
+  have hD : (ι s (q + 1) hq (KLRAlgebra.x b) * underRight N q -
+        underRight N q * ι s q (by omega) (KLRAlgebra.x b) : Rp) =
+      -(KLRAlgebra.ψw (List.range' q b.val) * KLRAlgebra.eqIdem (q + b.val) (by omega) *
+        KLRAlgebra.ψw (List.range' (q + 1 + b.val) (N - 1 - b.val)) * E s q (by omega)) := by
+    rw [insertMap_x, insertMap_x, mul_assoc, ← underRight_mul_eSum Q Λ Λc s hq]
+    simp only [← mul_assoc]
+    rw [underRight, x_mul_underRight b.2 hqN]
+    noncomm_ring
+  rw [hD, mul_neg]
+  exact neg_mem (exitTerm_mem s hq b)
 
 /-! ### The crossing generators -/
 

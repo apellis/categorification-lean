@@ -2558,6 +2558,7 @@ import Categorification.WeightedKLR.Rigidity.CupCapEndDescent
 import Categorification.WeightedKLR.Rigidity.CupCapEndModel
 import Categorification.WeightedKLR.Rigidity.CupCapFunctor
 import Categorification.WeightedKLR.Rigidity.CupCapInducedMaps
+import Categorification.WeightedKLR.Rigidity.CupCapPassage
 import Categorification.WeightedKLR.Rigidity.CupCapPullOff
 import Categorification.WeightedKLR.Rigidity.CupCapSliding
 import Categorification.WeightedKLR.Rigidity.CupCapSpanning

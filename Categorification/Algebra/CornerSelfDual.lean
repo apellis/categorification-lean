@@ -24,6 +24,10 @@ module `C y` (`rangeMulLeftDualEquiv`). Webster's pairing `⟨π a, π b⟩ = tr
   `z ↦ (image of x) (c z)`.
 * `selfDualEquiv`, `selfDualEquiv_mul`: for an anti-involution `s` with `s y = y`, the form
   `⟨y a, y b⟩ = τ (e a s(b) y)` identifies `y C` with its dual, and `⟨x c, x'⟩ = ⟨x, x' s(c)⟩`.
+* `symm_of_le`, `left_of_le`, `right_of_le`: the hypotheses on `τ` pass from `e` to an
+  idempotent `f ≤ e`.
+* `embedSelfDualEquiv`, `embedSelfDualEquiv_mul`: the same self-duality on the image of `y C`
+  under an injective multiplicative linear map `ψ : C → V`.
 -/
 
 noncomputable section
@@ -192,6 +196,57 @@ theorem rangeMulLeftDualEquiv_mul (a c : C) (b : C) :
   rw [rangeMulLeftDualEquiv_apply, rangeMulLeftDualEquiv_apply]
   simp only [mul_assoc]
 
+section Sub
+
+/-! ### Passing to a smaller idempotent -/
+
+variable {e} (f : C) (hf : IsIdempotentElem f) (hfe : e * f = f) (hef : f * e = f)
+
+omit [FiniteDimensional k C] in
+include hfe hef hsymm in
+/-- The trace stays symmetric on `f C f` for an idempotent `f ≤ e`. -/
+theorem symm_of_le : ∀ a b, f * a * f = a → f * b * f = b → τ (a * b) = τ (b * a) := by
+  intro a b ha hb
+  have hc : ∀ c, f * c * f = c → e * c * e = c := fun c hc => by
+    rw [← hc]
+    simp only [← mul_assoc, hfe]
+    rw [mul_assoc (f * c) f e, hef]
+  exact hsymm a b (hc a ha) (hc b hb)
+
+omit [FiniteDimensional k C] in
+include hf hfe hef hsymm hl in
+/-- Left nondegeneracy between `f C` and `C f` for an idempotent `f ≤ e`. -/
+theorem left_of_le : ∀ a, f * a = a → a ≠ 0 → ∃ b, b * f = b ∧ τ (a * b) ≠ 0 := by
+  intro a ha ha0
+  have hea : e * a = a := by rw [← ha, ← mul_assoc, hfe]
+  obtain ⟨b, hb, hτ⟩ := hl a hea ha0
+  refine ⟨b * f, by rw [mul_assoc, hf.eq], ?_⟩
+  have hab : e * (a * b) * e = a * b := by
+    simp only [mul_assoc]
+    rw [hb, ← mul_assoc, hea]
+  have hfef : e * f * e = f := by rw [hfe, hef]
+  have := hsymm f (a * b) hfef hab
+  rw [← mul_assoc, ← this, ← mul_assoc, ha]
+  exact hτ
+
+omit [FiniteDimensional k C] in
+include hf hfe hef hsymm hr in
+/-- Right nondegeneracy between `f C` and `C f` for an idempotent `f ≤ e`. -/
+theorem right_of_le : ∀ b, b * f = b → b ≠ 0 → ∃ a, f * a = a ∧ τ (a * b) ≠ 0 := by
+  intro b hb hb0
+  have hbe : b * e = b := by rw [← hb, mul_assoc, hef]
+  obtain ⟨a, ha, hτ⟩ := hr b hbe hb0
+  refine ⟨f * a, by rw [← mul_assoc, hf.eq], ?_⟩
+  have hab : e * (a * b) * e = a * b := by
+    simp only [mul_assoc]
+    rw [hbe, ← mul_assoc, ha]
+  have hfef : e * f * e = f := by rw [hfe, hef]
+  have := hsymm f (a * b) hfef hab
+  rw [mul_assoc, this, mul_assoc, hb]
+  exact hτ
+
+end Sub
+
 section Star
 
 variable (s : C →ₗ[k] C) (hs : ∀ a b, s (a * b) = s b * s a) (hss : ∀ a, s (s a) = a)
@@ -243,6 +298,67 @@ theorem selfDualEquiv_mul (a b c : C) :
         ⟨y * (b * s c), b * s c, rfl⟩ := by
   rw [selfDualEquiv_apply, selfDualEquiv_apply, hs, hss]
   simp only [mul_assoc]
+
+section Embed
+
+/-! ### Transport along an embedding
+
+An injective multiplicative `k`-linear map `ψ : C → V` carries the self-duality of `y C` to its
+image `ψ (y C) ⊆ V`; the right action of `ψ (C)` is contravariant through any `s_V` on `V`
+extending `s`. -/
+
+variable {V : Type*} [Ring V] [Algebra k V] (ψ : C →ₗ[k] V) (hψ : ∀ a b, ψ (a * b) = ψ a * ψ b)
+  (hinj : Function.Injective ψ)
+
+omit [FiniteDimensional k C] in
+theorem mem_map_left (a : C) : ψ (y * a) ∈ (Left k y).map ψ := ⟨y * a, ⟨a, rfl⟩, rfl⟩
+
+omit [FiniteDimensional k C] in
+include hψ in
+theorem mul_mem_map_left {x : V} (hx : x ∈ (Left k y).map ψ) (c : C) :
+    x * ψ c ∈ (Left k y).map ψ := by
+  obtain ⟨_, ⟨a, rfl⟩, rfl⟩ := hx
+  rw [LinearMap.mulLeft_apply, ← hψ, mul_assoc]
+  exact mem_map_left y ψ _
+
+/-- **Self-duality of `ψ (y C)`**: the form `⟨ψ (y a), ψ (y b)⟩ = τ (e a s(b) y)`. -/
+def embedSelfDualEquiv : (Left k y).map ψ ≃ₗ[k] Module.Dual k ((Left k y).map ψ) :=
+  (Submodule.equivMapOfInjective ψ hinj (Left k y)).symm.trans
+    ((selfDualEquiv e y τ he hy hsymm hl hr s hs hss hsy).trans
+      (Submodule.equivMapOfInjective ψ hinj (Left k y)).symm.dualMap)
+
+theorem embedSelfDualEquiv_apply (a b : C) :
+    embedSelfDualEquiv e y τ he hy hsymm hl hr s hs hss hsy ψ hinj
+        ⟨ψ (y * a), mem_map_left y ψ a⟩ ⟨ψ (y * b), mem_map_left y ψ b⟩ =
+      τ (e * a * (s b * y)) := by
+  have h : ∀ c : C, (Submodule.equivMapOfInjective ψ hinj (Left k y)).symm
+      ⟨ψ (y * c), mem_map_left y ψ c⟩ = ⟨y * c, c, rfl⟩ := fun c => by
+    rw [LinearEquiv.symm_apply_eq]
+    rfl
+  simp only [embedSelfDualEquiv, LinearEquiv.trans_apply, LinearEquiv.dualMap_apply, h]
+  exact selfDualEquiv_apply e y τ he hy hsymm hl hr s hs hss hsy a b
+
+include hψ in
+/-- The form of `embedSelfDualEquiv` is contravariant for the right action of `ψ (C)`:
+`⟨x ψ(c), x'⟩ = ⟨x, x' ψ(s c)⟩`. -/
+theorem embedSelfDualEquiv_mul (x x' : (Left k y).map ψ) (c : C) :
+    embedSelfDualEquiv e y τ he hy hsymm hl hr s hs hss hsy ψ hinj
+        ⟨x.1 * ψ c, mul_mem_map_left y ψ hψ x.2 c⟩ x' =
+      embedSelfDualEquiv e y τ he hy hsymm hl hr s hs hss hsy ψ hinj x
+        ⟨x'.1 * ψ (s c), mul_mem_map_left y ψ hψ x'.2 (s c)⟩ := by
+  obtain ⟨_, ⟨_, ⟨a, rfl⟩, rfl⟩⟩ := x
+  obtain ⟨_, ⟨_, ⟨b, rfl⟩, rfl⟩⟩ := x'
+  have h1 : (⟨ψ (y * a) * ψ c, mul_mem_map_left y ψ hψ (mem_map_left y ψ a) c⟩ :
+      (Left k y).map ψ) = ⟨ψ (y * (a * c)), mem_map_left y ψ _⟩ :=
+    Subtype.ext ((hψ _ _).symm.trans (by rw [mul_assoc]))
+  have h2 : (⟨ψ (y * b) * ψ (s c), mul_mem_map_left y ψ hψ (mem_map_left y ψ b) (s c)⟩ :
+      (Left k y).map ψ) = ⟨ψ (y * (b * s c)), mem_map_left y ψ _⟩ :=
+    Subtype.ext ((hψ _ _).symm.trans (by rw [mul_assoc]))
+  simp only [LinearMap.mulLeft_apply]
+  rw [h1, h2, embedSelfDualEquiv_apply, embedSelfDualEquiv_apply, hs, hss]
+  simp only [mul_assoc]
+
+end Embed
 
 end Star
 

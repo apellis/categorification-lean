@@ -2233,6 +2233,7 @@ import Categorification.WeightedKLR.RedStrands.DoubleRouquierRedUp
 import Categorification.WeightedKLR.RedStrands.DoubleRouquierRedUpSlide
 import Categorification.WeightedKLR.RedStrands.DoubleRouquierRedUpSlideContext
 import Categorification.WeightedKLR.RedStrands.DoubleRouquierRelations
+import Categorification.WeightedKLR.RedStrands.DoubleRouquierWebster
 import Categorification.WeightedKLR.RedStrands.DoubleBlackSuffix
 import Categorification.WeightedKLR.RedStrands.DoubleBoundary
 import Categorification.WeightedKLR.RedStrands.DoubleBoundaryInduction

@@ -53,27 +53,26 @@ variable {B : Type*} [Bicategory B] [∀ a b : B, Preadditive (a ⟶ b)] [Additi
     (S.F i h₄ ≫ red r h₂ ≅ red r h₃ ≫ S.F i h₁)}
   (Sc : CL.CLScalars C k)
 
-/-- **The bare downward KLR relations.** Every KLR relation on downward strands in the empty
-signed context is killed by the generator images. -/
-theorem admissibleMap_downRelation_empty {Qb : I → I → MvPolynomial (Fin 2) k}
+/-- **The bare downward KLR relations, given the relations with two red strands.** Every KLR
+relation on downward strands in the empty signed context is killed by the generator images,
+provided those with at least two red strands are. -/
+theorem admissibleMap_downRelation_empty_of_two {Qb : I → I → MvPolynomial (Fin 2) k}
     (H : RouqUpKLR S Qb) (n : Fin ℓ → I → ℕ) (hB : DownBigon S red upIso n)
     (hdot : UpIsoDotNatural S red upIso) (hrbb : DownDotCrossNatural S red upIso)
     (hbbr : DownQuotCrossNatural S red upIso) (hbrb : DownMidCrossNatural S red upIso)
-    (hmid : DownMidSame S red upIso n) (hrep : RepeatedRedZero S red)
+    (hmid : DownMidSame S red upIso n)
     (Q : I ⊕ Fin ℓ → I ⊕ Fin ℓ → MvPolynomial (Fin 2) k)
     (hQb : ∀ i j : I, Q (.inl i) (.inl j) = Qb i j)
     (hQir : ∀ (i : I) (r : Fin ℓ), Q (.inl i) (.inr r) = MvPolynomial.X 0 ^ n r i)
     (hQri : ∀ (i : I) (r : Fin ℓ), Q (.inr r) (.inl i) = MvPolynomial.X 1 ^ n r i)
-    (hQrr : ∀ s t : Fin ℓ, MvPolynomial.constantCoeff (Q (.inr s) (.inr t)) = 0)
     (m : X) (r : KLR.Diagram.Rel (I ⊕ Fin ℓ)) {x y : X}
     (ha : Cond x y (downContextObj RD Λ m [] [] r.dom))
-    (hb : Cond x y (downContextObj RD Λ m [] [] r.cod)) :
+    (hb : Cond x y (downContextObj RD Λ m [] [] r.cod))
+    (two : 2 ≤ r.dom.word.countP (fun c => c.isRight) →
+      admissibleMap (genImg S red upIso Sc) ha hb
+        (downLinear RD Λ k m [] [] (KLR.Diagram.relation k Q r)) = 0) :
     admissibleMap (genImg S red upIso Sc) ha hb
       (downLinear RD Λ k m [] [] (KLR.Diagram.relation k Q r)) = 0 := by
-  have two : 2 ≤ r.dom.word.countP (fun c => c.isRight) →
-      admissibleMap (genImg S red upIso Sc) ha hb
-        (downLinear RD Λ k m [] [] (KLR.Diagram.relation k Q r)) = 0 :=
-    fun h2 => admissibleMap_downRelation_of_two_red hrep _ Q hQrr m r h2 ha hb
   cases r with
   | sqEq c =>
     rcases c with i | s
@@ -132,9 +131,50 @@ theorem admissibleMap_downRelation_empty {Qb : I → I → MvPolynomial (Fin 2) 
   | braidQ c d h =>
     rcases c with i | s
     · rcases d with j | t
-      · exact admissibleMap_braidQ_iji (S := S) (red := red) (upIso := upIso) (Sc := Sc) H Q i j (fun e => h (congrArg _ e)) (hQb i j) m ha hb
+      · exact admissibleMap_braidQ_iji (S := S) (red := red) (upIso := upIso) (Sc := Sc) H Q i j
+          (fun e => h (congrArg _ e)) (hQb i j) m ha hb
       · exact admissibleMap_braidQ_iri Sc n hmid Q i t (hQir i t) m ha hb
     · exact two (by simp [KLR.Diagram.Rel.dom])
+
+/-- **The bare downward KLR relations.** Every KLR relation on downward strands in the empty
+signed context is killed by the generator images. -/
+theorem admissibleMap_downRelation_empty {Qb : I → I → MvPolynomial (Fin 2) k}
+    (H : RouqUpKLR S Qb) (n : Fin ℓ → I → ℕ) (hB : DownBigon S red upIso n)
+    (hdot : UpIsoDotNatural S red upIso) (hrbb : DownDotCrossNatural S red upIso)
+    (hbbr : DownQuotCrossNatural S red upIso) (hbrb : DownMidCrossNatural S red upIso)
+    (hmid : DownMidSame S red upIso n) (hrep : RepeatedRedZero S red)
+    (Q : I ⊕ Fin ℓ → I ⊕ Fin ℓ → MvPolynomial (Fin 2) k)
+    (hQb : ∀ i j : I, Q (.inl i) (.inl j) = Qb i j)
+    (hQir : ∀ (i : I) (r : Fin ℓ), Q (.inl i) (.inr r) = MvPolynomial.X 0 ^ n r i)
+    (hQri : ∀ (i : I) (r : Fin ℓ), Q (.inr r) (.inl i) = MvPolynomial.X 1 ^ n r i)
+    (hQrr : ∀ s t : Fin ℓ, MvPolynomial.constantCoeff (Q (.inr s) (.inr t)) = 0)
+    (m : X) (r : KLR.Diagram.Rel (I ⊕ Fin ℓ)) {x y : X}
+    (ha : Cond x y (downContextObj RD Λ m [] [] r.dom))
+    (hb : Cond x y (downContextObj RD Λ m [] [] r.cod)) :
+    admissibleMap (genImg S red upIso Sc) ha hb
+      (downLinear RD Λ k m [] [] (KLR.Diagram.relation k Q r)) = 0 :=
+  admissibleMap_downRelation_empty_of_two Sc H n hB hdot hrbb hbbr hbrb hmid Q hQb hQir hQri m r
+    ha hb fun h2 => admissibleMap_downRelation_of_two_red hrep _ Q hQrr m r h2 ha hb
+
+/-- **The bare downward KLR relations with at most one red strand** are killed by the generator
+images; no condition on repeated red labels is needed. -/
+theorem admissibleMap_downRelation_empty_of_le_one {Qb : I → I → MvPolynomial (Fin 2) k}
+    (H : RouqUpKLR S Qb) (n : Fin ℓ → I → ℕ) (hB : DownBigon S red upIso n)
+    (hdot : UpIsoDotNatural S red upIso) (hrbb : DownDotCrossNatural S red upIso)
+    (hbbr : DownQuotCrossNatural S red upIso) (hbrb : DownMidCrossNatural S red upIso)
+    (hmid : DownMidSame S red upIso n)
+    (Q : I ⊕ Fin ℓ → I ⊕ Fin ℓ → MvPolynomial (Fin 2) k)
+    (hQb : ∀ i j : I, Q (.inl i) (.inl j) = Qb i j)
+    (hQir : ∀ (i : I) (r : Fin ℓ), Q (.inl i) (.inr r) = MvPolynomial.X 0 ^ n r i)
+    (hQri : ∀ (i : I) (r : Fin ℓ), Q (.inr r) (.inl i) = MvPolynomial.X 1 ^ n r i)
+    (m : X) (r : KLR.Diagram.Rel (I ⊕ Fin ℓ))
+    (hr : r.dom.word.countP (fun c => c.isRight) ≤ 1) {x y : X}
+    (ha : Cond x y (downContextObj RD Λ m [] [] r.dom))
+    (hb : Cond x y (downContextObj RD Λ m [] [] r.cod)) :
+    admissibleMap (genImg S red upIso Sc) ha hb
+      (downLinear RD Λ k m [] [] (KLR.Diagram.relation k Q r)) = 0 :=
+  admissibleMap_downRelation_empty_of_two Sc H n hB hdot hrbb hbbr hbrb hmid Q hQb hQir hQri m r
+    ha hb fun h2 => absurd (h2.trans hr) (by decide)
 
 /-- **The downward KLR relations in every signed context** (Webster, arXiv:1309.3796v3,
 Definition 4.24) are killed by the generator images. -/

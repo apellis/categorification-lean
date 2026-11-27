@@ -307,11 +307,13 @@ theorem admissibleMap_braidL_iji (m : X) (i j : I)
         (((m + (wD i)) + (wD j)) + (wD i)) ha.1 ha.2.1 ⟶
       (fwT ((m + (wD i)) + (wD j)) [((m + (wD i)) + (wD j), .inl (false, i))]
           (((m + (wD i)) + (wD j)) + (wD i)) ⟨rfl, trivial⟩ rfl ≫
-        fwT (m + (wD i)) [(m + (wD i), .inl (false, j))] ((m + (wD i)) + (wD j)) ⟨rfl, trivial⟩ rfl) ≫
+        fwT (m + (wD i)) [(m + (wD i), .inl (false, j))] ((m + (wD i)) + (wD j))
+          ⟨rfl, trivial⟩ rfl) ≫
         fwT m [(m, .inl (false, i))] (m + (wD i)) ⟨rfl, trivial⟩ rfl)
     (N' : (fwT ((m + (wD i)) + (wD j)) [((m + (wD i)) + (wD j), .inl (false, i))]
           (((m + (wD i)) + (wD j)) + (wD i)) ⟨rfl, trivial⟩ rfl ≫
-        fwT (m + (wD i)) [(m + (wD i), .inl (false, j))] ((m + (wD i)) + (wD j)) ⟨rfl, trivial⟩ rfl) ≫
+        fwT (m + (wD i)) [(m + (wD i), .inl (false, j))] ((m + (wD i)) + (wD j))
+          ⟨rfl, trivial⟩ rfl) ≫
         fwT m [(m, .inl (false, i))] (m + (wD i)) ⟨rfl, trivial⟩ rfl ⟶
       fwT m (downContextObj RD Λ m [] [] (KLR.Diagram.ob [.inl i, .inl j, .inl i])).word
         (((m + (wD i)) + (wD j)) + (wD i)) ha.1 ha.2.1)
@@ -337,11 +339,13 @@ theorem admissibleMap_braidL_iji (m : X) (i j : I)
   rw [admissibleChain_congr _ hD]
   have e₄ : (m + (wD j)) + (wD i) = (m + (wD i)) + (wD j) := by double_regions
   let R0 := fwT m [(m, .inl (false, i))] (m + (wD i)) ⟨rfl, trivial⟩ rfl
-  let Ui := fwT (m + (wD i)) [(m + (wD i), .inl (false, j))] ((m + (wD i)) + (wD j)) ⟨rfl, trivial⟩ rfl
+  let Ui := fwT (m + (wD i)) [(m + (wD i), .inl (false, j))] ((m + (wD i)) + (wD j))
+    ⟨rfl, trivial⟩ rfl
   let Uj := fwT ((m + (wD i)) + (wD j)) [((m + (wD i)) + (wD j), .inl (false, i))]
     (((m + (wD i)) + (wD j)) + (wD i)) ⟨rfl, trivial⟩ rfl
   let Ui5 := fwT m [(m, .inl (false, j))] (m + (wD j)) ⟨rfl, trivial⟩ rfl
-  let R5 := fwT (m + (wD j)) [(m + (wD j), .inl (false, i))] ((m + (wD i)) + (wD j)) ⟨rfl, trivial⟩ e₄
+  let R5 := fwT (m + (wD j)) [(m + (wD j), .inl (false, i))] ((m + (wD i)) + (wD j))
+    ⟨rfl, trivial⟩ e₄
   erw [admissibleChain₃_conj (doubleModel S red) (genImg S red upIso Sc) _ ha hb
       (p₁ := Uj) (q₁ := 𝟙 _) (x₁ := Ui ≫ R0) (y₁ := R5 ≫ Ui5)
       (p₂ := 𝟙 _) (q₂ := Ui5) (x₂ := Uj ≫ R5) (y₂ := Uj ≫ R5)
@@ -402,11 +406,13 @@ theorem admissibleMap_braidR_iji (m : X) (i j : I)
         (((m + (wD i)) + (wD j)) + (wD i)) ha.1 ha.2.1 ⟶
       (fwT ((m + (wD i)) + (wD j)) [((m + (wD i)) + (wD j), .inl (false, i))]
           (((m + (wD i)) + (wD j)) + (wD i)) ⟨rfl, trivial⟩ rfl ≫
-        fwT (m + (wD i)) [(m + (wD i), .inl (false, j))] ((m + (wD i)) + (wD j)) ⟨rfl, trivial⟩ rfl) ≫
+        fwT (m + (wD i)) [(m + (wD i), .inl (false, j))] ((m + (wD i)) + (wD j))
+          ⟨rfl, trivial⟩ rfl) ≫
         fwT m [(m, .inl (false, i))] (m + (wD i)) ⟨rfl, trivial⟩ rfl)
     (N' : (fwT ((m + (wD i)) + (wD j)) [((m + (wD i)) + (wD j), .inl (false, i))]
           (((m + (wD i)) + (wD j)) + (wD i)) ⟨rfl, trivial⟩ rfl ≫
-        fwT (m + (wD i)) [(m + (wD i), .inl (false, j))] ((m + (wD i)) + (wD j)) ⟨rfl, trivial⟩ rfl) ≫
+        fwT (m + (wD i)) [(m + (wD i), .inl (false, j))] ((m + (wD i)) + (wD j))
+          ⟨rfl, trivial⟩ rfl) ≫
         fwT m [(m, .inl (false, i))] (m + (wD i)) ⟨rfl, trivial⟩ rfl ⟶
       fwT m (downContextObj RD Λ m [] [] (KLR.Diagram.ob [.inl i, .inl j, .inl i])).word
         (((m + (wD i)) + (wD j)) + (wD i)) ha.1 ha.2.1)
@@ -433,7 +439,8 @@ theorem admissibleMap_braidR_iji (m : X) (i j : I)
     List.append_nil] at hD
   rw [admissibleChain_congr _ hD]
   let R0 := fwT m [(m, .inl (false, i))] (m + (wD i)) ⟨rfl, trivial⟩ rfl
-  let Ui := fwT (m + (wD i)) [(m + (wD i), .inl (false, j))] ((m + (wD i)) + (wD j)) ⟨rfl, trivial⟩ rfl
+  let Ui := fwT (m + (wD i)) [(m + (wD i), .inl (false, j))] ((m + (wD i)) + (wD j))
+    ⟨rfl, trivial⟩ rfl
   let Uj := fwT ((m + (wD i)) + (wD j)) [((m + (wD i)) + (wD j), .inl (false, i))]
     (((m + (wD i)) + (wD j)) + (wD i)) ⟨rfl, trivial⟩ rfl
   let Ui2 := fwT ((m + (wD i)) + (wD i)) [((m + (wD i)) + (wD i), .inl (false, j))]

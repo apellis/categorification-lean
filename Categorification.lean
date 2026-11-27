@@ -2129,6 +2129,9 @@ import Categorification.Algebra.WeightProjection
 import Categorification.Algebra.DiagramWeightForgetFull
 import Categorification.Algebra.WeightForgetAdjunctionDerived
 import Categorification.Algebra.DiagramWeightFullyFaithful
+import Categorification.Algebra.CompactRetraction
+import Categorification.Algebra.WeightForgetDerivedCompact
+import Categorification.Algebra.WeightSumRepresentable
 import Categorification.Algebra.WeightRingDerivedRestriction
 import Categorification.Algebra.DiagramWeightTensorInternal
 import Categorification.Algebra.DiagramWeightTensorShift

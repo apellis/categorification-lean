@@ -5,7 +5,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 import Categorification.WeightedKLR.Rigidity.RigidityExtWrapHom
 import Categorification.WeightedKLR.Rigidity.RigidityExtStandardSum
 import Categorification.WeightedKLR.Rigidity.RigidityExtRankOne
-import Categorification.WeightedKLR.Rigidity.RigidityExtHead
+import Categorification.WeightedKLR.Rigidity.RigidityExtCoevaluationHeadExt
 
 /-!
 # Corollary 7.7, top degree
@@ -246,6 +246,34 @@ theorem exists_bicone_cycWord_cycDivProj (d : List (I × ℕ)) :
     rw [← map_sum, h, LinearEquiv.symm_apply_apply]
   · rw [hc, prod_factorial_blocksDiv, List.map_reverse, List.prod_reverse]
 
+
+/-- **Vanishing of Ext out of the divided standard module** (Webster, arXiv:1309.3796v3, §7.1,
+Corollary 7.7, vanishing part, for `M_λ`): if `L` is killed by the cuts, then
+`Extⁿ(S(T^{λ'} e(t) ⊠ R^{λ_ℓ} 1_{d̄}), L) = 0` for `n ≠ |d̂|`, since this standard module is a
+summand of `S(T^{λ'} e(t) ⊠ R^{λ_ℓ} e(d̂))`. Under the route hypothesis `hall` of Proposition 7.6.
+-/
+theorem subsingleton_ext_standard_cycDivProj_of_cut {ν : Multiset I} (hQ : KLRSymm Q)
+    {C : QuantumGroup.CartanDatum I} (hR : IsRouquierQ C Q) (hall : AllFiniteDeltaInjective Q Λ hQ)
+    {θ : Multiset I} (t : Seq (stendhalWeight ℓ θ)) (ht : IsRedOrdered t) (d : List (I × ℕ))
+    (h : θ + wordWt (expandDiv d) 0 = ν)
+    (L : Type) [AddCommGroup L] [Module (TensorProductAlgebra k Q Λ ν)ᵐᵒᵖ L]
+    [HasExt.{v} (ModuleCat.{0} (TensorProductAlgebra k Q Λ ν))]
+    (hL : ∀ (s : Seq (stendhalWeight (ℓ + 1) ν)) (hs : IsRedOrdered s), ¬HasLastRed s →
+      ∀ y : L, op (loadingIdem Q Λ s hs) • y = 0)
+    (n : ℕ) (hn : n ≠ (expandDiv d).length) :
+    Subsingleton
+      (Ext (tensorStd Q Λ hQ h (oldProj Q Λ θ t ht) (cycDivProj Q Λ d)) (flipLeft Q Λ ν L) n) := by
+  classical
+  obtain ⟨J, _, _, ι, π, hιπ, htot, hc⟩ := exists_bicone_cycWord_cycDivProj Q Λ d
+  have hB := tensorStdBiconeIsBilimit Q Λ hQ h (oldProj Q Λ θ t ht) ι π hιπ htot
+  have := subsingleton_ext_standard_of_cut Q Λ hQ hR hall t ht (expandDiv d) h L hL n hn
+  have hsub : Subsingleton (J → Ext (tensorStd Q Λ hQ h (oldProj Q Λ θ t ht) (cycDivProj Q Λ d))
+      (flipLeft Q Λ ν L) n) :=
+    @Equiv.subsingleton _ _ (Ext.biproductAddEquiv hB (flipLeft Q Λ ν L) n).symm.toEquiv this
+  obtain ⟨j⟩ : Nonempty J := Fintype.card_pos_iff.1 (hc ▸ List.prod_pos fun m hm => by
+    obtain ⟨q, -, rfl⟩ := List.mem_map.1 hm
+    exact Nat.factorial_pos _)
+  exact ⟨fun x y => congrFun (Subsingleton.elim (fun _ : J => x) (fun _ => y)) j⟩
 
 end Divided
 
@@ -504,6 +532,81 @@ theorem _root_.Categorification.Stendhal.finrank_ext_standard_coevaluationHead
   · exact hne
   · exact hgen
   · exact hscalar
+
+include hP in
+/-- **Webster, arXiv:1309.3796v3, §7.1, Corollary 7.7 (vanishing part, for `M_λ`)**, ungraded:
+`Extⁱ(S(T^{λ} ⊠ R^{λ*} 1_{d̄}), L_λ) = 0` for `i ≠ |d̂|`, where `L_λ = coevaluationHead d`. Under
+the route hypothesis `hall` of Proposition 7.6. -/
+theorem _root_.Categorification.Stendhal.subsingleton_ext_standard_cycDivProj_coevaluationHead
+    (d : List (I × ℕ)) (hQ : KLRSymm Q)
+    (hall : Stendhal.AllFiniteDeltaInjective Q (coevaluationLabels Λ RD highest (expandDiv d)) hQ)
+    {θ : Multiset I} (t : Seq (Stendhal.stendhalWeight 1 θ)) (ht : Stendhal.IsRedOrdered t)
+    (h : θ + Stendhal.wordWt (expandDiv d) 0 = expandDiv d)
+    [HasExt.{v} (ModuleCat.{0} (Stendhal.TensorProductAlgebra k Q
+      (coevaluationLabels Λ RD highest (expandDiv d)) (expandDiv d)))]
+    (n : ℕ) (hn : n ≠ (expandDiv d).length) :
+    Subsingleton (Ext (Stendhal.tensorStd Q (coevaluationLabels Λ RD highest (expandDiv d)) hQ h
+        (Stendhal.oldProj Q _ θ t ht) (Stendhal.cycDivProj Q _ d))
+      (Stendhal.flipLeft Q _ _ (Stendhal.coevaluationHead Q Λ RD highest d)) n) :=
+  Stendhal.subsingleton_ext_standard_cycDivProj_of_cut Q _ hQ hP hall t ht d h _
+    (fun s hs hcut y => Stendhal.coevaluationHead_cut Q Λ RD highest d s hs hcut y) n hn
+
+local notation "QK" =>
+  KL3.Diagram.CL.qCL (KL3.Diagram.CL.CLScalars.kl : KL3.Diagram.CL.CLScalars C k)
+
+include hΛ hR in
+/-- **Webster, arXiv:1309.3796v3, §7.1, Corollary 7.7 (top degree)**, ungraded, at the standard
+Khovanov–Lauda parameters, with no route hypothesis. -/
+theorem _root_.Categorification.Stendhal.finrank_ext_standard_coevaluationHead_std
+    (hP' : IsRouquierQ C QK) (hQs : KLRSymm QK)
+    {K H : Type*} [Field K] [ConditionallyCompleteLinearOrder K] [IsStrictOrderedRing K]
+    [AddCommGroup H] [Module K H] [FiniteDimensional K H]
+    (P : Matrix.Realization C.toLusztig.cartanMatrix K H) (weight : P.integralWeights)
+    (hweight : P.IsDominantIntegral (weight : Module.Dual K H))
+    (match_weight : ∀ i, (weight : Module.Dual K H) (P.coroot i) =
+      (RD.pair.flip highest ((projectiveRootDatum RD).coroot i) : K))
+    (w : List I)
+    (hw : (P.coxeterSystem C.toLusztig.isGeneralizedCartan_cartanMatrix).IsReduced w.reverse)
+    (hlong : ∀ i, (P.coxeterSystem C.toLusztig.isGeneralizedCartan_cartanMatrix).IsLeftDescent
+      ((P.coxeterSystem C.toLusztig.isGeneralizedCartan_cartanMatrix).wordProd w.reverse) i)
+    (t : Seq (Stendhal.stendhalWeight 1 (0 : Multiset I))) (ht : Stendhal.IsRedOrdered t)
+    (h : 0 + Stendhal.wordWt (expandDiv (Stendhal.coevaluationDividedWord (P.cartanDatum C.toLusztig.isGeneralizedCartan_cartanMatrix)
+      weight w)) 0 = expandDiv (Stendhal.coevaluationDividedWord (P.cartanDatum C.toLusztig.isGeneralizedCartan_cartanMatrix)
+      weight w))
+    [HasExt.{v} (ModuleCat.{0} (Stendhal.TensorProductAlgebra k QK
+      (coevaluationLabels Λ RD highest (expandDiv (Stendhal.coevaluationDividedWord (P.cartanDatum C.toLusztig.isGeneralizedCartan_cartanMatrix)
+      weight w))) (expandDiv (Stendhal.coevaluationDividedWord (P.cartanDatum C.toLusztig.isGeneralizedCartan_cartanMatrix)
+      weight w))))] :
+    Module.finrank k (Ext (Stendhal.tensorStd QK (coevaluationLabels Λ RD highest
+        (expandDiv (Stendhal.coevaluationDividedWord (P.cartanDatum C.toLusztig.isGeneralizedCartan_cartanMatrix)
+      weight w))) hQs h (Stendhal.oldProj QK _ 0 t ht) (Stendhal.cycDivProj QK _ (Stendhal.coevaluationDividedWord (P.cartanDatum C.toLusztig.isGeneralizedCartan_cartanMatrix)
+      weight w)))
+      (Stendhal.flipLeft QK _ _ (Stendhal.coevaluationHead QK Λ RD highest (Stendhal.coevaluationDividedWord (P.cartanDatum C.toLusztig.isGeneralizedCartan_cartanMatrix)
+      weight w)))
+      (expandDiv (Stendhal.coevaluationDividedWord (P.cartanDatum C.toLusztig.isGeneralizedCartan_cartanMatrix)
+      weight w)).length) = 1 := by
+  refine Stendhal.finrank_ext_standard_coevaluationHead hP' Λ RD highest hΛ hR P weight hweight
+    match_weight w hw hlong hQs ?_ t ht h
+  convert Stendhal.allFiniteDeltaInjective_std
+    (Λ := coevaluationLabels Λ RD highest (expandDiv (Stendhal.coevaluationDividedWord (P.cartanDatum C.toLusztig.isGeneralizedCartan_cartanMatrix)
+      weight w))) hP' hQs
+
+/-- **Webster, arXiv:1309.3796v3, §7.1, Corollary 7.7 (vanishing part, for `M_λ`)**, ungraded,
+at the standard Khovanov–Lauda parameters, with no route hypothesis. -/
+theorem _root_.Categorification.Stendhal.subsingleton_ext_standard_cycDivProj_coevaluationHead_std
+    (hP' : IsRouquierQ C QK) (hQs : KLRSymm QK) (d : List (I × ℕ))
+    {θ : Multiset I} (t : Seq (Stendhal.stendhalWeight 1 θ)) (ht : Stendhal.IsRedOrdered t)
+    (h : θ + Stendhal.wordWt (expandDiv d) 0 = expandDiv d)
+    [HasExt.{v} (ModuleCat.{0} (Stendhal.TensorProductAlgebra k QK
+      (coevaluationLabels Λ RD highest (expandDiv d)) (expandDiv d)))]
+    (n : ℕ) (hn : n ≠ (expandDiv d).length) :
+    Subsingleton (Ext (Stendhal.tensorStd QK (coevaluationLabels Λ RD highest (expandDiv d)) hQs h
+        (Stendhal.oldProj QK _ θ t ht) (Stendhal.cycDivProj QK _ d))
+      (Stendhal.flipLeft QK _ _ (Stendhal.coevaluationHead QK Λ RD highest d)) n) := by
+  refine Stendhal.subsingleton_ext_standard_cycDivProj_coevaluationHead hP' Λ RD highest d hQs
+    ?_ t ht h n hn
+  convert Stendhal.allFiniteDeltaInjective_std
+    (Λ := coevaluationLabels Λ RD highest (expandDiv d)) hP' hQs
 
 end Categorification.KLR.CycKLR
 

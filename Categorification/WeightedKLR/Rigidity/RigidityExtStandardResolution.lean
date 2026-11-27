@@ -220,7 +220,7 @@ theorem LoadingSum.blackInd (j : I) {M : ModuleCat.{0} (TensorProductAlgebra k Q
   · rw [← hL, Multiset.map_map]
     congr 1
     funext a
-    exact word_appendBlackLoading j ν (s a)
+    exact seqWord_appendBlackLoading j ν (s a)
   · exact (Ind.mapEquiv (φ := appendBlackNU (Q := Q) (Λ := Λ) j ν) f).trans
       ((indPiIso (appendBlackNU (Q := Q) (Λ := Λ) j ν)
         (fun a => loadingProj Q Λ (s a) (hs a))).toLinearEquiv.trans
@@ -307,7 +307,7 @@ theorem exists_tensorStd_zero_equiv {θ : Multiset I} (X : ModuleCat.{0} (Told �
       (zeroTensorEquiv Q Λ (redFactorModule Q Λ θ s₀ hs₀))
   refine ⟨appendRedLoading s₀, (appendRedLoading_ordered_iff s₀).2 hs₀, ?_,
     ⟨(stdLayerEquiv Q Λ hQ rfl F).trans (loadingProjRedEquiv Q Λ θ hQ s₀ hs₀).symm⟩⟩
-  rw [word_appendRedLoading, Seq.word_cast]
+  rw [seqWord_appendRedLoading, Seq.word_cast]
 
 /-- Transport of a resolution of `S(X ⊠ Y)` between two splits `θ + β = ν`, `θ + β = ν'`. -/
 def stdTransport {θ β ν ν' : Multiset I} (h : θ + β = ν) (h' : θ + β = ν')
@@ -445,7 +445,7 @@ theorem loadingSum_stdResolution : ∀ (w : List I) {θ : Multiset I} (X : Modul
           (appendBlackLoading j θ t) (appendBlackLoading_ordered j θ t ht)
           ((Ind.mapEquiv (φ := appendBlackNU (Q := Q) (Λ := old) j θ) f).trans
             (oldProjIndEquiv Q Λ j θ t ht)) n
-        rw [word_appendBlackLoading, List.map_append] at h₂
+        rw [seqWord_appendBlackLoading, List.map_append] at h₂
         exact ((loadingSum_stdResolution w X hX rfl t ht f (n + 1)).blackInd j).prod h₂
 
 end Categorification.Stendhal

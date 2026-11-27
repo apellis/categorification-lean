@@ -17,7 +17,7 @@ of Webster's Proposition 7.6 (arXiv:1309.3796v3, §7.1).
 
 * `KLR.Seq.word`: the word of a sequence.
 * `KLR.Seq.word_cast`, `KLR.Seq.word_append`, `KLR.Seq.word_map`.
-* `Stendhal.word_appendBlackLoading`, `Stendhal.word_appendRedLoading`.
+* `Stendhal.seqWord_appendBlackLoading`, `Stendhal.seqWord_appendRedLoading`.
 -/
 
 namespace Categorification
@@ -65,11 +65,11 @@ open KLR
 
 variable {I : Type*} {ℓ : ℕ}
 
-theorem word_appendBlackLoading (i : I) (ν : Multiset I) (s : Seq (stendhalWeight ℓ ν)) :
+theorem seqWord_appendBlackLoading (i : I) (ν : Multiset I) (s : Seq (stendhalWeight ℓ ν)) :
     (appendBlackLoading i ν s).word = s.word ++ [Sum.inl i] := by
   rw [appendBlackLoading, Seq.word_cast, Seq.word_append, Seq.word_singleton]
 
-theorem word_appendRedLoading {ν : Multiset I} (s : Seq (stendhalWeight ℓ ν)) :
+theorem seqWord_appendRedLoading {ν : Multiset I} (s : Seq (stendhalWeight ℓ ν)) :
     (appendRedLoading s).word = s.word.map (addRedColor ℓ) ++ [Sum.inr (Fin.last ℓ)] := by
   rw [appendRedLoading, Seq.word_cast, Seq.word_append, Seq.word_map, Seq.word_singleton]
 

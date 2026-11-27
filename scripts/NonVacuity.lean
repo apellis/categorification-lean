@@ -3059,12 +3059,9 @@ attribute [local instance 1200] Ring.toIntAlgebra in
 open DG.DegreeZero in
 /-- Webster, arXiv:1309.3796v3, Theorem 6.14, first clause, for three red `sl₂` strands of
 weight `ω` at the Khovanov–Lauda scalars and the reversed bottom red order `(2, 1, 0)`: the cut
-`e(t) V e_κ` and its flip dual both have standard filtrations. The route hypotheses
-(`BaseCrossing`, `AllFiniteDeltaInjective`, `RowFigureFiveHypotheses`) are assumed here, not
-discharged. -/
-example (hbase : Stendhal.BaseCrossing (CL.qCL (CL.CLScalars.kl : CL.CLScalars D ℚ)))
-    (hall : ∀ (n : ℕ) (Λ' : Fin (n + 1) → Unit →₀ ℕ),
-      Stendhal.AllFiniteDeltaInjective _ Λ' klParams.klrSymm)
+`e(t) V e_κ` and its flip dual both have standard filtrations. The route hypothesis
+`RowFigureFiveHypotheses` is assumed here, not discharged. -/
+example
     (H : ∀ (n m : ℕ), n + 2 + m = 3 → ∀ (Ω : Fin (n + 2 + m) → Unit →₀ ℕ)
       (u : Fin (n + 2 + m) → List Unit) (hu : u (rightPos n m) = []),
       RowFigureFiveHypotheses D klParams Ω u hu) (ν : Multiset Unit)
@@ -3079,10 +3076,71 @@ example (hbase : Stendhal.BaseCrossing (CL.qCL (CL.CLScalars.kl : CL.CLScalars D
     fun _ _ _ => DG.HasDerivedCategory.small _
   letI : DG.HasDerivedCategory.{0, 0} ℤ := DG.HasDerivedCategory.small _
   Stendhal.BraidedStendhalAlgebra.halfTwist_hasFiltration D klParams levelThree ν
-    (Equiv.swap 0 2) regular hbase hall H (factors 3) levelThree_eq (by decide)
+    (Equiv.swap 0 2) regular H (factors 3) levelThree_eq (by decide)
     (fun t' h => Stendhal.isRedReversed_of_redWord_reverse t' (h.trans (by decide))) t ht
 
 end KhovanovLaudaTilting
+
+section KhovanovLaudaHalfTwistExt
+
+open KL3.Diagram
+open scoped DG.DegreeZero
+
+noncomputable local instance (priority := high) unitDecEqClassical' : DecidableEq Unit :=
+  Classical.decEq _
+
+local instance (Ω : Fin 3 → Unit →₀ ℕ) (ν : Multiset Unit) :
+    Module.Finite ℚ (Stendhal.TensorProductAlgebra ℚ
+      (CL.qCL (CL.CLScalars.kl : CL.CLScalars D ℚ)) Ω ν) :=
+  Stendhal.tensorProductAlgebra_finite Ω ν klParams
+
+noncomputable local instance (Ω : Fin 3 → Unit →₀ ℕ) (ν : Multiset Unit) (κ : List (Fin 3)) :
+    DG.HasDerivedCategory.{0, 0} (Stendhal.BraidedStendhalAlgebra.ViolOrderCorner (k := ℚ)
+      (Q := CL.qCL (CL.CLScalars.kl : CL.CLScalars D ℚ)) (Λ := Ω) (ν := ν) κ) :=
+  DG.HasDerivedCategory.small _
+
+noncomputable local instance (Ω : Fin 3 → Unit →₀ ℕ) (ν : Multiset Unit) (κ : List (Fin 3)) :
+    DG.HasDerivedCategory.{0, 0} (Stendhal.BraidedStendhalAlgebra.ViolOrderCorner (k := ℚ)
+      (Q := CL.qCL (CL.CLScalars.kl : CL.CLScalars D ℚ)) (Λ := Ω) (ν := ν) κ)ᵐᵒᵖ :=
+  DG.HasDerivedCategory.small _
+
+noncomputable local instance : DG.HasDerivedCategory.{0, 0} ℤ := DG.HasDerivedCategory.small _
+
+attribute [local instance 1100] IsIdempotentElem.instAlgebraCorner_categorification
+attribute [local instance 1200] Ring.toIntAlgebra
+
+set_option quotPrecheck false in
+set_option hygiene false in
+local notation "𝒞" => Stendhal.BraidedStendhalAlgebra.ViolOrderCorner (k := ℚ)
+  (Q := CL.qCL (CL.CLScalars.kl : CL.CLScalars D ℚ)) (Λ := levelThree) (ν := ν)
+  ((List.finRange 3).map (Equiv.swap 0 2))
+
+set_option quotPrecheck false in
+set_option hygiene false in
+local notation "𝔅" t => Stendhal.BraidedStendhalAlgebra.violCorner ℚ
+  (CL.qCL (CL.CLScalars.kl : CL.CLScalars D ℚ)) levelThree ν t
+  ((List.finRange 3).map (Equiv.swap 0 2))
+
+open CategoryTheory in
+/-- Webster, arXiv:1309.3796v3, proof of Theorem 6.15 (vanishing of the higher Ext between the
+tilting modules `𝔅_τ P`), for three red `sl₂` strands of weight `ω` at the Khovanov–Lauda scalars
+and the reversed bottom red order `(2, 1, 0)`. The route hypothesis `RowFigureFiveHypotheses` is
+assumed here, not discharged. -/
+example
+    (H : ∀ (n m : ℕ), n + 2 + m = 3 → ∀ (Ω : Fin (n + 2 + m) → Unit →₀ ℕ)
+      (u : Fin (n + 2 + m) → List Unit) (hu : u (rightPos n m) = []),
+      RowFigureFiveHypotheses D klParams Ω u hu) (ν : Multiset Unit)
+    {t t' : KLR.Seq (Stendhal.stendhalWeight 3 ν)} (ht : Stendhal.IsRedOrdered t)
+    (ht' : Stendhal.IsRedOrdered t') (n : ℤ) (hn : n ≠ 0)
+    (f : DG.DerivedCategory.Q.obj ((Categorification.degreeZeroModuleFunctor 𝒞ᵐᵒᵖ).obj
+        (ModuleCat.of 𝒞ᵐᵒᵖ (𝔅 t))) ⟶
+      (DG.DerivedCategory.Q.obj ((Categorification.degreeZeroModuleFunctor 𝒞ᵐᵒᵖ).obj
+        (ModuleCat.of 𝒞ᵐᵒᵖ (𝔅 t'))))⟦n⟧) : f = 0 :=
+  Stendhal.BraidedStendhalAlgebra.halfTwist_hom_shift_eq_zero D klParams levelThree ν
+    (Equiv.swap 0 2) regular H (factors 3) levelThree_eq (by decide)
+    (fun t' h => Stendhal.isRedReversed_of_redWord_reverse t' (h.trans (by decide))) ht ht' n hn f
+
+end KhovanovLaudaHalfTwistExt
 
 end TwoFundamentalLowerings
 

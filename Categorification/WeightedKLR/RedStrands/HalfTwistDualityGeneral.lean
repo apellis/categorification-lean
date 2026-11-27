@@ -106,9 +106,6 @@ variable {I : Type} {k : Type} [Field k] (C : CartanDatum I)
     DG.HasDerivedCategory.{0, 0} (ViolOrderCorner (k := k)
       (Q := CL.qCL (CL.CLScalars.kl : CL.CLScalars C k)) (Λ := Ω) (ν := ν) κ₀)ᵐᵒᵖ]
   [DG.HasDerivedCategory.{0, 0} ℤ]
-  (hbase : BaseCrossing (CL.qCL (CL.CLScalars.kl : CL.CLScalars C k)))
-  (hall : ∀ (n : ℕ) (Λ' : Fin (n + 1) → I →₀ ℕ),
-    AllFiniteDeltaInjective (CL.qCL (CL.CLScalars.kl : CL.CLScalars C k)) Λ' hQ.klrSymm)
   (H : ∀ (n m : ℕ), n + 2 + m = ℓ + 1 → ∀ (Ω : Fin (n + 2 + m) → I →₀ ℕ)
     (u : Fin (n + 2 + m) → List I) (hu : u (FirstWeight.rightPos n m) = []),
     FirstWeight.RowFigureFiveHypotheses C hQ Ω u hu)
@@ -117,13 +114,13 @@ variable {I : Type} {k : Type} [Field k] (C : CartanDatum I)
 
 local notation "QL" => CL.qCL (CL.CLScalars.kl : CL.CLScalars C k)
 
-include hQ hR hbase hall H hwt hw in
+include hQ hR H hwt hw in
 /-- **`𝔅_τ P^κ ≅ (𝔅_τ P^κ)⋆` for every black weight** (Webster, arXiv:1309.3796v3, proof of
 Theorem 6.14), at the Khovanov–Lauda scalars: for a red-ordered loading `t` of black weight `ν`
 and a red order `κ = w(1, …, ℓ)` reversing every pair of red strands, `e(t) V e_κ` carries a
 nondegenerate form that is contravariant for the right action of `e_κ V e_κ` through the flip.
-Route hypotheses: those of `FirstWeight.halfTwistInclusionEquiv` (Corollary 6.10 and
-`BaseCrossing`). -/
+Route hypothesis: the injectivity of Lemma 6.8 (`RowFigureFiveHypotheses`);
+`AllFiniteDeltaInjective` and `BaseCrossing` are proved at these scalars. -/
 theorem exists_halfTwistSelfDual
     (hκ : ∀ t' : Seq (stendhalWeight (ℓ + 1) ν),
       redWord t' = (List.finRange (ℓ + 1)).map w → IsRedReversed t')
@@ -141,8 +138,8 @@ theorem exists_halfTwistSelfDual
   rw [Seq.cast_rfl] at hcast
   have hs₁' : redWord s₁ = List.finRange (ℓ + 1) := by
     rw [hs₁]; exact (redWord_eq_finRange_iff _).2 (isRedOrdered_redShuffle ht)
-  exact ⟨halfTwistSelfDualEquiv C hQ Λ b w hs₁' hcast.symm hR hbase hall H wt hwt hw hκ ht,
-    isContravariant_halfTwistSelfDualEquiv C hQ Λ b w hs₁' hcast.symm hR hbase hall H wt hwt hw hκ ht⟩
+  exact ⟨halfTwistSelfDualEquiv C hQ Λ b w hs₁' hcast.symm hR H wt hwt hw hκ ht,
+    isContravariant_halfTwistSelfDualEquiv C hQ Λ b w hs₁' hcast.symm hR H wt hwt hw hκ ht⟩
 
 end KhovanovLauda
 

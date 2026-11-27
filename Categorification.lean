@@ -36,6 +36,7 @@ import Categorification.Algebra.DerivedTensorCoefficientCovers
 import Categorification.Algebra.DerivedTensorProjectiveCoefficient
 import Categorification.Algebra.DerivedTensorProjective
 import Categorification.Algebra.ExtTorDuality
+import Categorification.Algebra.ExtTorDualityModule
 import Categorification.Algebra.DerivedTensorTwoFiltrations
 import Categorification.Algebra.DerivedTensorRingEquiv
 import Categorification.Algebra.DerivedTensorFiltration
@@ -2409,6 +2410,7 @@ import Categorification.WeightedKLR.RedStrands.HalfTwistSelfDual
 import Categorification.WeightedKLR.RedStrands.HalfTwistDuality
 import Categorification.WeightedKLR.RedStrands.HalfTwistDualityGeneral
 import Categorification.WeightedKLR.RedStrands.HalfTwistTilting
+import Categorification.WeightedKLR.RedStrands.HalfTwistExt
 import Categorification.WeightedKLR.RedStrands.InterleavedPBW
 import Categorification.WeightedKLR.RedStrands.IteratedLeftStandard
 import Categorification.WeightedKLR.RedStrands.LastRedDetectedClasses

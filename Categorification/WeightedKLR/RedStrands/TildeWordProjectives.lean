@@ -139,10 +139,10 @@ theorem tildeProjection_graded :
   simpa only [add_zero, AlgHom.toLinearMap_apply] using SetLike.GradedMul.mul_mem (A := allOrdersGrade G ν)
     (Graded.mem_map_of_mem _ _ hx) he
 
-local instance : Module Bᵐᵒᵖ T̃ := Module.compHom T̃ (tildeProjection Λ ν).toRingHom.op
-local instance : SMulCommClass T̃ Bᵐᵒᵖ T̃ where
+local instance tildeOpModule : Module Bᵐᵒᵖ T̃ := Module.compHom T̃ (tildeProjection Λ ν).toRingHom.op
+local instance tildeOpSMulComm : SMulCommClass T̃ Bᵐᵒᵖ T̃ where
   smul_comm b r x := (mul_assoc b x (tildeProjection Λ ν r.unop)).symm
-local instance : IsScalarTower k Bᵐᵒᵖ T̃ where
+local instance tildeOpTower : IsScalarTower k Bᵐᵒᵖ T̃ where
   smul_assoc c r x := by
     change x * tildeProjection Λ ν (c • r.unop) = c • (x * tildeProjection Λ ν r.unop)
     rw [map_smul, mul_smul_comm]
@@ -237,10 +237,10 @@ variable (ν : Multiset I) (Gr : GradingDatum (stendhalQ Q Λ))
 local notation "T̃ν" => StendhalAlgebra k Q (Λ ∘ Fin.succ) ν
 local notation "Tν" => TensorProductAlgebra k Q Λ ν
 
-local instance : Module T̃νᵐᵒᵖ Tν := Module.compHom Tν (prependRed Q Λ ν).toRingHom.op
-local instance : SMulCommClass Tν T̃νᵐᵒᵖ Tν where
+local instance prependOpModule : Module T̃νᵐᵒᵖ Tν := Module.compHom Tν (prependRed Q Λ ν).toRingHom.op
+local instance prependOpSMulComm : SMulCommClass Tν T̃νᵐᵒᵖ Tν where
   smul_comm b a x := (mul_assoc b x (prependRed Q Λ ν a.unop)).symm
-local instance : IsScalarTower k T̃νᵐᵒᵖ Tν where
+local instance prependOpTower : IsScalarTower k T̃νᵐᵒᵖ Tν where
   smul_assoc c a x := by
     change x * prependRed Q Λ ν (c • a.unop) = c • (x * prependRed Q Λ ν a.unop)
     rw [map_smul, mul_smul_comm]

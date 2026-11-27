@@ -62,7 +62,7 @@ local notation "LP" => LaurentPolynomial ℤ
 local notation "𝕍" => (RatFunc.X : RatFunc ℚ)
 local notation "𝕂" => RatFunc ℚ
 private abbrev invLP := (LaurentPolynomial.invert (R := ℤ)).toRingEquiv
-local instance : RingHomInvPair invLP.toRingHom invLP.toRingHom :=
+local instance instRingHomInvPairInvLPTilde : RingHomInvPair invLP.toRingHom invLP.toRingHom :=
   RingHomInvPair.of_ringEquiv invLP
 
 /-- Two families spanning modules over `ℤ[q, q⁻¹]` correspond under a semilinear equivalence

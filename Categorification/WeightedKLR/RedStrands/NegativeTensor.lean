@@ -46,7 +46,7 @@ open scoped TensorProduct
 
 local notation "𝕍" => (RatFunc.X : RatFunc ℚ)
 local notation "𝕂" => RatFunc ℚ
-local instance : NeZero 𝕍 := ⟨RatFunc.X_ne_zero⟩
+local instance instNeZeroXNegativeTensor : NeZero 𝕍 := ⟨RatFunc.X_ne_zero⟩
 
 variable {I Y : Type*} [DecidableEq I] [AddCommGroup Y]
     {D : LusztigCartanDatum I} {R : D.RootDatum Y}

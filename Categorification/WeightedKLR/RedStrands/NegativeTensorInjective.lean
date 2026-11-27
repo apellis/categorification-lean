@@ -32,7 +32,7 @@ open scoped TensorProduct
 
 local notation "𝕍" => (RatFunc.X : RatFunc ℚ)
 local notation "𝕂" => RatFunc ℚ
-local instance : NeZero 𝕍 := ⟨RatFunc.X_ne_zero⟩
+local instance instNeZeroXNegativeTensorInjective : NeZero 𝕍 := ⟨RatFunc.X_ne_zero⟩
 local notation "hvt" => transcendental_ratFuncX
 
 variable {I Y : Type*} [DecidableEq I] [AddCommGroup Y]

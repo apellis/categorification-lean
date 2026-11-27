@@ -170,6 +170,7 @@ import Categorification.Algebra.ProjK0
 import Categorification.Algebra.RightActionImage
 import Categorification.Algebra.SelfDualDoubleCentralizer
 import Categorification.Algebra.SelfDualInjective
+import Categorification.Algebra.CornerDualInjective
 import Categorification.Algebra.SplitK0
 import Categorification.Algebra.SumDecompLinear
 import Categorification.Algebra.SumDecompNaturality

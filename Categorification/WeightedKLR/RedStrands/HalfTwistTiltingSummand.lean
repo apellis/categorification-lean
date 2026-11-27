@@ -7,6 +7,7 @@ import Categorification.WeightedKLR.RedStrands.HalfTwistEquivalence
 import Categorification.WeightedKLR.RedStrands.BraidedStandardTor
 import Categorification.WeightedKLR.RedStrands.RedBlackPairsOrder
 import Categorification.Algebra.OrderedStandardExt
+import Categorification.WeightedKLR.RedStrands.FlipDualExt
 
 set_option backward.isDefEq.respectTransparency false
 
@@ -28,9 +29,10 @@ second clause, by Ringel's argument. Over the corner `e_κ V e_κ` of a red orde
   The cut has no higher `Ext` from standards (it is self-dual), and Ringel's comparison
   (`exists_leftInverse_of_bottom`) splits `T` off.
 
-Webster's tilting modules are those with a standard filtration whose dual has a filtration by
-standardizations; here the second condition is replaced by the vanishing of `Ext¹` from the
-standards, which is what the argument uses.
+Webster's tilting modules are those `T` such that `T` and its dual `T⋆` have filtrations by
+standardizations of projectives, that is, by loading standards. The dual condition gives the
+vanishing of higher `Ext` from standards into `T` (`hom_shift_eq_zero_of_flipDual`), so Webster's
+clause holds as stated (`exists_leftInverse_violCorner_of_tilting`).
 -/
 
 noncomputable section
@@ -193,6 +195,33 @@ theorem exists_leftInverse_violCorner_halfTwist
       (HasFiltration.single (LinearEquiv.refl _ _)) 1 one_ne_zero u)
     (fun a _ u => hext a u)
   exact ⟨b, hb, i, p, hip⟩
+
+include hQ hR H hwt hw in
+/-- **Indecomposable tilting modules are summands of the cuts `𝔅_τ P`** (Webster,
+arXiv:1309.3796v3, Theorem 6.14, second clause), at the Khovanov–Lauda scalars: for a red order
+`κ = w(1, …, ℓ)` reversing every pair of red strands, let `T` be a finite-dimensional
+indecomposable right module over `e_κ V e_κ` such that `T` and its flip dual `T⋆` both have
+filtrations by loading standards (Webster's tilting condition, standards being the
+standardizations of projectives). Then `T` is a direct summand of a cut `e(b) V e_κ` at a
+red-ordered loading `b`. Route hypothesis: the injectivity of Lemma 6.8
+(`RowFigureFiveHypotheses`). -/
+theorem exists_leftInverse_violCorner_of_tilting
+    (hκ : ∀ t' : Seq (stendhalWeight (ℓ + 1) ν),
+      redWord t' = (List.finRange (ℓ + 1)).map w → IsRedReversed t')
+    {T : ModuleCat.{0} 𝒞ᵐᵒᵖ} [Module k T] [IsScalarTower k 𝒞ᵐᵒᵖ T] [FiniteDimensional k T]
+    (hT : IsIndecomposableModule 𝒞ᵐᵒᵖ T) {m : List Lab} (hm : HasFiltration 𝕃 m T)
+    {m' : List Lab}
+    (hm' : HasFiltration 𝕃 m' (ModuleCat.of 𝒞ᵐᵒᵖ (RightDual k (FlipModule k QL Λ ν κ T)))) :
+    ∃ b : Seq (stendhalWeight (ℓ + 1) ν), IsRedOrdered b ∧
+      ∃ (i : T →ₗ[𝒞ᵐᵒᵖ] violCorner k QL Λ ν b κ) (p : violCorner k QL Λ ν b κ →ₗ[𝒞ᵐᵒᵖ] T),
+        p ∘ₗ i = LinearMap.id := by
+  have : IsArtinian 𝒞ᵐᵒᵖ T := isArtinian_of_tower k inferInstance
+  have : IsNoetherian 𝒞ᵐᵒᵖ T := isNoetherian_of_tower k inferInstance
+  let D := orderedStandardCovers QL (Λ ∘ w)
+    (fun s => exists_hasFiltration_leftUpper_std hQ hQ.klrSymm (Λ ∘ w) ν s.1 s.2)
+  exact exists_leftInverse_violCorner_halfTwist C hQ Λ ν w hR H wt hwt hw hκ hT hm
+    fun a u => hom_shift_eq_zero_of_flipDual (FirstWeight.isReducedChoice_canChoice ν)
+      hQ.klrSymm w D hm' (HasFiltration.single (LinearEquiv.refl _ _)) 1 one_ne_zero u
 
 end KhovanovLauda
 

@@ -109,6 +109,7 @@ import Categorification.Algebra.InductionAlongExact
 import Categorification.Algebra.InductionAlongFinite
 import Categorification.Algebra.InductionAlongAssoc
 import Categorification.Algebra.InductionAlongBaseChange
+import Categorification.Algebra.InductionAlongBaseChangeEpi
 import Categorification.Algebra.InductionAlongCrossTransportNaturality
 import Categorification.Algebra.InductionAlongTransportEquiv
 import Categorification.Algebra.InductionAlongTransportNaturality
@@ -906,6 +907,7 @@ import Categorification.TwoRep.BlockSumCrossingMate
 import Categorification.TwoRep.BlockSumCrossingBigon
 import Categorification.TwoRep.BlockSumCrossingNatural
 import Categorification.TwoRep.BlockSumCrossingBraid
+import Categorification.TwoRep.BlockSumCrossingEpi
 import Categorification.TwoRep.BlockSumCrossingGen
 import Categorification.TwoRep.BlockSumGen
 import Categorification.TwoRep.BlockSumTriple
@@ -1595,6 +1597,8 @@ import Categorification.WeightedKLR.RedStrands.CyclotomicRegionDotMate
 import Categorification.WeightedKLR.RedStrands.CyclotomicRegionDownBigon
 import Categorification.WeightedKLR.RedStrands.CyclotomicRegionDotSlide
 import Categorification.WeightedKLR.RedStrands.CyclotomicRegionDownCross
+import Categorification.WeightedKLR.RedStrands.CyclotomicRegionDownMidSame
+import Categorification.WeightedKLR.RedStrands.CyclotomicRegionDownQuotientEpi
 import Categorification.WeightedKLR.RedStrands.CyclotomicRegionFamily
 import Categorification.WeightedKLR.RedStrands.DoublePitchforkObstruction
 import Categorification.WeightedKLR.RedStrands.DoublePitchforkClosure

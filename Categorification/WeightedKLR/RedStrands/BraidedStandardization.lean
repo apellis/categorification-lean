@@ -88,7 +88,9 @@ theorem leftCoefficientEquiv_loadingIdem {s : Seq μ} (hs : IsRedOrdered s) :
     (violLoadingIdem (redWord_relabel σ hs))) = _
   rw [redPermTensorEquiv_loadingIdem hρ hQ σ hs, tensorFlip_mk_e]
 
-private def loadingProjectiveLeftEquiv {s : Seq μ} (hs : IsRedOrdered s) :
+/-- The coefficient equivalence identifies the corner loading projective `e(σ s) e_κ V e_κ` with
+the tensor loading projective `T^{λ ∘ σ} e(s)`. -/
+def loadingProjectiveLeftEquiv {s : Seq μ} (hs : IsRedOrdered s) :
     rIdeal (violLoadingIdem (k := k) (Q := Q) (Λ := Λ) (redWord_relabel σ hs)) ≃ₛₗ[
       (leftCoefficientEquiv (Λ := Λ) hρ hQ σ : Cᵐᵒᵖ →+* T)] lIdeal (seqIdem Q (Λ ∘ σ) s hs) := by
   let F := leftCoefficientEquiv (Λ := Λ) hρ hQ σ

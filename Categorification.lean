@@ -2723,3 +2723,7 @@ import Categorification.Algebra.CompactModules
 import Categorification.Algebra.Graded.CompactResolution
 import Categorification.WeightedKLR.RedStrands.LoadingGenerators
 import Categorification.WeightedKLR.RedStrands.HalfTwistFullyFaithful
+import Categorification.Algebra.LocalizingFiltration
+import Categorification.WeightedKLR.RedStrands.RightProjectiveStandardFiltration
+import Categorification.WeightedKLR.RedStrands.BraidColumnStayIndex
+import Categorification.WeightedKLR.RedStrands.HalfTwistEquivalence

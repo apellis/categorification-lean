@@ -3034,6 +3034,56 @@ noncomputable example (hbase : Stendhal.BaseCrossing (fun _ _ : Unit => (0 : MvP
     (factors 3) levelThree_eq ν (Equiv.swap 0 2) (by decide)
     (fun t' h => Stendhal.isRedReversed_of_redWord_reverse t' (h.trans (by decide))) t ht
 
+private theorem klParams :
+    KLR.IsRouquierQ D (KL3.Diagram.CL.qCL (KL3.Diagram.CL.CLScalars.kl :
+      KL3.Diagram.CL.CLScalars D ℚ)) where
+  symm _ _ h := (h (Subsingleton.elim _ _)).elim
+  homogeneous _ _ h := (h (Subsingleton.elim _ _)).elim
+  unit_coeff _ _ h := (h (Subsingleton.elim _ _)).elim
+
+section KhovanovLaudaTilting
+
+open KL3.Diagram
+
+/- The Khovanov–Lauda-scalar results are stated with classical decidable equality on the
+colours; this section uses the same instance on `Unit`. -/
+noncomputable local instance (priority := high) unitDecEqClassical : DecidableEq Unit :=
+  Classical.decEq _
+
+local instance (Ω : Fin 3 → Unit →₀ ℕ) (ν : Multiset Unit) :
+    Module.Finite ℚ (Stendhal.TensorProductAlgebra ℚ
+      (CL.qCL (CL.CLScalars.kl : CL.CLScalars D ℚ)) Ω ν) :=
+  Stendhal.tensorProductAlgebra_finite Ω ν klParams
+
+attribute [local instance 1200] Ring.toIntAlgebra in
+open DG.DegreeZero in
+/-- Webster, arXiv:1309.3796v3, Theorem 6.14, first clause, for three red `sl₂` strands of
+weight `ω` at the Khovanov–Lauda scalars and the reversed bottom red order `(2, 1, 0)`: the cut
+`e(t) V e_κ` and its flip dual both have standard filtrations. The route hypotheses
+(`BaseCrossing`, `AllFiniteDeltaInjective`, `RowFigureFiveHypotheses`) are assumed here, not
+discharged. -/
+example (hbase : Stendhal.BaseCrossing (CL.qCL (CL.CLScalars.kl : CL.CLScalars D ℚ)))
+    (hall : ∀ (n : ℕ) (Λ' : Fin (n + 1) → Unit →₀ ℕ),
+      Stendhal.AllFiniteDeltaInjective _ Λ' klParams.klrSymm)
+    (H : ∀ (n m : ℕ), n + 2 + m = 3 → ∀ (Ω : Fin (n + 2 + m) → Unit →₀ ℕ)
+      (u : Fin (n + 2 + m) → List Unit) (hu : u (rightPos n m) = []),
+      RowFigureFiveHypotheses D klParams Ω u hu) (ν : Multiset Unit)
+    (t : KLR.Seq (Stendhal.stendhalWeight 3 ν)) (ht : Stendhal.IsRedOrdered t) :=
+  letI : ∀ (Ω : Fin 3 → Unit →₀ ℕ) (ν : Multiset Unit) (κ : List (Fin 3)),
+      DG.HasDerivedCategory.{0, 0} (Stendhal.BraidedStendhalAlgebra.ViolOrderCorner (k := ℚ)
+        (Q := CL.qCL (CL.CLScalars.kl : CL.CLScalars D ℚ)) (Λ := Ω) (ν := ν) κ) :=
+    fun _ _ _ => DG.HasDerivedCategory.small _
+  letI : ∀ (Ω : Fin 3 → Unit →₀ ℕ) (ν : Multiset Unit) (κ : List (Fin 3)),
+      DG.HasDerivedCategory.{0, 0} (Stendhal.BraidedStendhalAlgebra.ViolOrderCorner (k := ℚ)
+        (Q := CL.qCL (CL.CLScalars.kl : CL.CLScalars D ℚ)) (Λ := Ω) (ν := ν) κ)ᵐᵒᵖ :=
+    fun _ _ _ => DG.HasDerivedCategory.small _
+  letI : DG.HasDerivedCategory.{0, 0} ℤ := DG.HasDerivedCategory.small _
+  Stendhal.BraidedStendhalAlgebra.halfTwist_hasFiltration D klParams levelThree ν
+    (Equiv.swap 0 2) regular hbase hall H (factors 3) levelThree_eq (by decide)
+    (fun t' h => Stendhal.isRedReversed_of_redWord_reverse t' (h.trans (by decide))) t ht
+
+end KhovanovLaudaTilting
+
 end TwoFundamentalLowerings
 
 end CyclotomicHighestWeight

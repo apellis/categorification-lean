@@ -3173,6 +3173,10 @@ example := KLR.CycKLR.span_dividedProjective_of_rouquier C₂ (fun _ => 2) β ad
 example := KLR.CycKLR.of_expanded_eq_factorial admissible.gradingDatum
   (fun i j => congrArg Neg.neg (C₂.symm i j)) C₂ (fun _ => 2) β (fun _ => rfl) blocks rfl
 example := KLR.CycKLR.span_total_dividedProjective C₂ (fun _ => 2) admissible
+/-- Webster, arXiv:1309.3796v2, Proposition 5.20 (filtration form) with no route hypothesis at
+the Rouquier parameters `params`, which are not the standard Khovanov–Lauda ones. -/
+example := Categorification.Stendhal.hasStandardFiltrations_of_rouquier admissible
+  admissible.klrSymm (fun _ : Fin 2 => Finsupp.single (0 : Fin 2) 1)
 
 end CyclotomicDividedWords
 
@@ -6309,7 +6313,7 @@ attribute [local instance 2000] Classical.propDecidable
 /-- Webster, arXiv:1309.3796v2, proof of Prop. 5.30, for `sl₂`, two red strands of weight `ω`,
 and every black weight: left multiplication by `θ̇_s` is injective on `e(s) T^λ`. -/
 example (ν : Multiset Unit) (s : TensorProductAlgebra.OrderedLoading (ℓ := 2) ν) :=
-  redShuffleDual_mul_injective rbRouquier rbSymm (baseCrossing_std rbRouquier rbSymm)
+  redShuffleDual_mul_injective rbRouquier rbSymm (baseCrossing_of_rouquier rbRouquier rbSymm)
     (fun _ : Fin 2 => Finsupp.single () 1) s.1 s.2
 
 /-- Webster, arXiv:1309.3796v3, Cor. 5.32 (v2: Cor. 5.29), for `sl₂`, two red strands of
@@ -6347,7 +6351,7 @@ strands of weight `ω`, every black weight, red-ordered loading and block assign
 standard Khovanov–Lauda scalars. -/
 noncomputable example (ν : Multiset Unit) (s : Seq (stendhalWeight 2 ν)) (hs : IsRedOrdered s)
     (g : PhiIndex s) :=
-  phiLayerEquiv_std rbRouquier rbSymm (fun _ : Fin 2 => Finsupp.single () 1)
+  phiLayerEquiv_of_rouquier rbRouquier rbSymm (fun _ : Fin 2 => Finsupp.single () 1)
     (fun w => (TypeA.exists_reduced _ w).choose) (fun w => (TypeA.exists_reduced _ w).choose_spec)
     hs g
 
@@ -6355,7 +6359,7 @@ noncomputable example (ν : Multiset Unit) (s : Seq (stendhalWeight 2 ν)) (hs :
 weight `ω`, every black weight and red-ordered loading, at the standard Khovanov–Lauda scalars:
 the cokernel of `θ_s` is filtered by standard modules. -/
 example (ν : Multiset Unit) (s : Seq (stendhalWeight 2 ν)) (hs : IsRedOrdered s) :=
-  exists_hasFiltration_shuffleCokernel_std rbRouquier rbSymm (fun _ : Fin 2 => Finsupp.single () 1)
+  exists_hasFiltration_shuffleCokernel_of_rouquier rbRouquier rbSymm (fun _ : Fin 2 => Finsupp.single () 1)
     s hs
 
 end NonVacuity.RedBlackCrossing
@@ -12258,11 +12262,11 @@ private theorem vacuumKLRouquier :
     fun a b h => (h (Subsingleton.elim a b)).elim⟩
 
 example :=
-  leftStandardOrderedWeightResolution_std_isKProjective vacuumWeights 0
+  leftStandardOrderedWeightResolution_of_rouquier_isKProjective vacuumWeights 0
     (vacuumKLGrade C) (vacuumKLRouquier C) vacuumLoading
 
 example :=
-  leftStandardOrderedWeightAugmentation_std_quasiIso vacuumWeights 0
+  leftStandardOrderedWeightAugmentation_of_rouquier_quasiIso vacuumWeights 0
     (vacuumKLGrade C) (vacuumKLRouquier C) vacuumLoading
 
 end StandardParameters
@@ -12566,7 +12570,7 @@ private def srEmpty : Seq (stendhalWeight 0 (0 : Multiset Unit)) :=
 
 /-- Webster, arXiv:1309.3796v3, Prop. 7.6, for `sl₂`, one red strand of weight `ω` and two
 black strands right of it. -/
-example := exists_projectiveResolution_websterWords_std (Λ := fun _ : Fin 1 => Finsupp.single () 1)
+example := exists_projectiveResolution_websterWords_of_rouquier (Λ := fun _ : Fin 1 => Finsupp.single () 1)
   srRouquier srSymm srEmpty (by unfold IsRedOrdered; decide) [(), ()] rfl
 
 /-- The terms of degree `1` of that resolution: the two subsets `{0}` and `{1}`. -/

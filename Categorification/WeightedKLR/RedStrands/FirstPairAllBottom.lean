@@ -109,7 +109,9 @@ open QuantumGroup KL3.Diagram
 variable {k : Type} [Field k] (C : CartanDatum Unit) (Λ : Fin 3 → Unit →₀ ℕ)
   (t : Seq μ₀)
 
-local notation "Qstd" => CL.qCL (CL.CLScalars.kl : CL.CLScalars C k)
+variable {Qstd : Unit → Unit → MvPolynomial (Fin 2) k}
+
+include C in
 
 /-- At standard parameters all bottom columns of the first-pair exchange
 are injective once the actual two-interior column is injective. -/

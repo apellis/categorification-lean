@@ -563,7 +563,7 @@ theorem bijective_cutMul_halfTwist
   have htO' := (redWord_eq_finRange_iff t').1 ht'
   have hinj := cutMul_injective (k := k) (Q := QL) (Λ := Λ) ht ht' hQ.klrSymm
     (fun ν => FirstWeight.canChoice (ℓ + 1) ν) (fun ν => FirstWeight.isReducedChoice_canChoice ν)
-    hQ (baseCrossing_std hQ hQ.klrSymm) w
+    hQ (baseCrossing_of_rouquier hQ hQ.klrSymm) w
   have : Module.Finite k ((rightSequenceProj (G Λ) t htO).carrier
       →ₗ[(TensorProductAlgebra k QL Λ ν)ᵐᵒᵖ] (rightSequenceProj (G Λ) t' htO').carrier) :=
     Graded.finiteDimensional_hom (rightSequenceProj (G Λ) t htO).toGFin

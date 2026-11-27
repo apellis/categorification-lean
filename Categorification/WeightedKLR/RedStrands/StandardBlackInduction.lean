@@ -25,8 +25,8 @@ Proposition 5.5 (`hasFiltration_blackInd_stdLayer`) filters `Fᵢ 𝕊(S_{t'} �
 by induction on the number of red strands, through the exactness of `𝕊` and `⊠`.
 
 The two-piece step uses the route hypothesis `AllFiniteDeltaInjective` (injectivity of the
-first map of the two-piece `Fᵢ`-part for finite-dimensional inputs), which is proved at the
-standard Khovanov–Lauda parameters (`allFiniteDeltaInjective_std`); with it this file has no
+first map of the two-piece `Fᵢ`-part for finite-dimensional inputs), which holds for
+Rouquier parameters (`allFiniteDeltaInjective_of_rouquier`); with it this file has no
 further hypothesis.
 
 ## Main definitions

@@ -123,7 +123,7 @@ theorem finrank_hom_halfTwist_braidF
       Module.finrank k ((rightSequenceProj (G Λ) t ht).carrier →ₗ[(TensorProductAlgebra k QL Λ ν)ᵐᵒᵖ]
         (rightSequenceProj (G Λ) t' ht').carrier) := by
   have hall : ∀ (n : ℕ) (Λ' : Fin (n + 1) → I →₀ ℕ), AllFiniteDeltaInjective QL Λ' hQ.klrSymm :=
-    fun _ _ => allFiniteDeltaInjective_std hQ hQ.klrSymm
+    fun _ _ => allFiniteDeltaInjective_of_rouquier hQ hQ.klrSymm
   obtain ⟨f, hf, hcls⟩ := FirstWeight.hasCongruentBraidClass.{0} C hQ hR hall H w hw Λ wt hwt
   obtain ⟨Ps, ⟨r⟩⟩ := exists_resolution_of_hasCornerStandardFiltration
     (FirstWeight.isReducedChoice_canChoice ν) hQ.klrSymm hQ hall

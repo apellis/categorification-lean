@@ -75,7 +75,7 @@ theorem isCompact_braidingFunctor_obj_halfTwist {t : Seq (stendhalWeight (ℓ + 
       ((List.finRange (ℓ + 1)).map w)).obj (loadingProjectiveObj k C Λ ν ht)) := by
   have htO := (redWord_eq_finRange_iff t).1 ht
   have hall : ∀ (n : ℕ) (Λ' : Fin (n + 1) → I →₀ ℕ), AllFiniteDeltaInjective QL Λ' hQ.klrSymm :=
-    fun _ _ => allFiniteDeltaInjective_std hQ hQ.klrSymm
+    fun _ _ => allFiniteDeltaInjective_of_rouquier hQ hQ.klrSymm
   obtain ⟨Ps, ⟨r⟩⟩ := exists_resolution_of_hasCornerStandardFiltration
     (FirstWeight.isReducedChoice_canChoice ν) hQ.klrSymm hQ hall
     (FirstWeight.hasCornerStandardFiltration_braidF.{0} C hQ hR hall H w hw Λ wt hwt t htO)

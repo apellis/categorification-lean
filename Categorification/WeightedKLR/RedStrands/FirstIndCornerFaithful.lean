@@ -18,7 +18,7 @@ arXiv:1309.3796v3, proof of Theorem 5.30, (2) ⇒ (3), and Corollary 5.32 (v2: T
 Corollary 5.29): no nonzero submodule of a standard module is killed by the red-first idempotent
 `e⁰`. Two steps of the induction proving this are here.
 
-* `isCornerFaithfulModule_firstIndF`: at the standard Khovanov–Lauda parameters, if `S N` has no
+* `isCornerFaithfulModule_firstIndF`: for Rouquier parameters, if `S N` has no
   nonzero submodule killed by `e⁰`, neither has `Fⱼ S(N)`. A finite-dimensional module of this
   kind embeds into a free module (the pairing on `P⁰ = T^λ e⁰`), induction along `appendBlack`
   preserves injections (Theorem 4.31), and `T^λ` acts faithfully on `e⁰ T^λ` (Lemma 5.23,
@@ -58,10 +58,10 @@ end Cast
 section Induction
 
 variable {C : QuantumGroup.CartanDatum I}
-  (hR : IsRouquierQ C (CL.qCL (CL.CLScalars.kl : CL.CLScalars C k)))
-  (hQs : KLRSymm (CL.qCL (CL.CLScalars.kl : CL.CLScalars C k)))
+  {Q : I → I → MvPolynomial (Fin 2) k} (hR : IsRouquierQ C Q)
+  (hQs : KLRSymm Q)
 
-local notation "QL" => CL.qCL (CL.CLScalars.kl : CL.CLScalars C k)
+local notation "QL" => Q
 
 include hR hQs in
 /-- `T^λ` acts faithfully on `e⁰ T^λ` from the right: the reflection of

@@ -62,8 +62,8 @@ include hR hall in
 /-- **Webster, arXiv:1309.3796v3, §7.1, Corollary 7.7 (vanishing part)**, ungraded:
 `Extⁱ(S(T^{λ} e(t) ⊠ R^{λ*} e(u)), L_λ) = 0` for `i ≠ |u|`, where `L_λ = coevaluationHead d`.
 For `θ = 0` this standard is `M_λ`, and for the coevaluation word `|u| = 2ρ^∨(λ)`. Under the route
-hypothesis `hall` of Proposition 7.6 (discharged at the standard Khovanov–Lauda parameters in
-`subsingleton_ext_standard_coevaluationHead_std`). -/
+hypothesis `hall` of Proposition 7.6 (discharged for Rouquier parameters in
+`subsingleton_ext_standard_coevaluationHead_of_rouquier`). -/
 theorem subsingleton_ext_standard_coevaluationHead (n : ℕ) (hn : n ≠ u.length) :
     Subsingleton (Ext (tensorStd Q (coevaluationLabels Λ RD highest (expandDiv d)) hQ h
       (oldProj Q _ θ t ht) (cycWord Q _ u))
@@ -72,22 +72,16 @@ theorem subsingleton_ext_standard_coevaluationHead (n : ℕ) (hn : n ≠ u.lengt
   subsingleton_ext_standard_of_cut Q _ hQ hR hall t ht u h _
     (fun s hs hcut y => coevaluationHead_cut Q Λ RD highest d s hs hcut y) n hn
 
-local notation "QK" =>
-  KL3.Diagram.CL.qCL (KL3.Diagram.CL.CLScalars.kl : KL3.Diagram.CL.CLScalars C k)
-
-/-- **Webster, arXiv:1309.3796v3, §7.1, Corollary 7.7 (vanishing part)**, ungraded, at the
-standard Khovanov–Lauda parameters, with no route hypothesis. -/
-theorem subsingleton_ext_standard_coevaluationHead_std
-    (hR : IsRouquierQ C QK)
-    (hQs : KLRSymm QK)
-    [HasExt.{v} (ModuleCat.{0} (TensorProductAlgebra k QK
-      (coevaluationLabels Λ RD highest (expandDiv d)) (expandDiv d)))]
-    (n : ℕ) (hn : n ≠ u.length) :
-    Subsingleton (Ext (tensorStd QK (coevaluationLabels Λ RD highest (expandDiv d)) hQs h
-      (oldProj QK _ θ t ht) (cycWord QK _ u))
-      (flipLeft QK (coevaluationLabels Λ RD highest (expandDiv d)) (expandDiv d)
-        (coevaluationHead QK Λ RD highest d)) n) := by
-  refine subsingleton_ext_standard_coevaluationHead Λ RD highest hQs hR d ?_ t ht u h n hn
-  convert allFiniteDeltaInjective_std (Λ := coevaluationLabels Λ RD highest (expandDiv d)) hR hQs
+include hR in
+/-- **Webster, arXiv:1309.3796v3, §7.1, Corollary 7.7 (vanishing part)**, ungraded, for Rouquier
+parameters `Q`, with no route hypothesis. -/
+theorem subsingleton_ext_standard_coevaluationHead_of_rouquier (n : ℕ) (hn : n ≠ u.length) :
+    Subsingleton (Ext (tensorStd Q (coevaluationLabels Λ RD highest (expandDiv d)) hQ h
+      (oldProj Q _ θ t ht) (cycWord Q _ u))
+      (flipLeft Q (coevaluationLabels Λ RD highest (expandDiv d)) (expandDiv d)
+        (coevaluationHead Q Λ RD highest d)) n) := by
+  refine subsingleton_ext_standard_coevaluationHead Λ RD highest hQ hR d ?_ t ht u h n hn
+  convert allFiniteDeltaInjective_of_rouquier
+    (Λ := coevaluationLabels Λ RD highest (expandDiv d)) hR hQ
 
 end Categorification.Stendhal

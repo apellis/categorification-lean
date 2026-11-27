@@ -791,9 +791,23 @@ from the module-tower constructor `ModuleTower.weakSl2` and the class identity
   cover taken by `fgStringWeakSl2` is instantiated with `noRelations`, so no presentation
   hypothesis remains.
 
-Open: the comparison of the induced model with Def 5.4 (right modules over `T̃^λ` and the block
-algebra of all `ℓ + 1` blocks; the induced model uses left modules, which the vertical flip
-`tensorFlip` converts), injectivity in the `Fᵢ`-part of Prop 5.5, Prop 5.6, and the results listed below.
+* Prop 5.5, comparison with Def 5.4, bimodule step (`RedStrands/LeftRootStandard.lean`,
+  `RootReflectUnit.lean`, `TwoPieceRootStandard*.lean`, `TwoPieceBlockMap*.lean`,
+  `TwoPieceLastBlockMap.lean`, `ParabolicStandardUnitExt.lean`): when no sequence of root
+  function `α` is violated (for example when `b_0 = 0`), Webster's `S_α` is the horizontal
+  reflection of the left root standard module `S^L_α = ⊕_s T^λ e(s) / U_s` (`rootReflectEquiv`),
+  which carries the block action of Prop 5.3 to `S^L_α` (`leftBlockAction`). For `ℓ + 1` red
+  strands, `S^L_α ≅ S(S^L_{α'} ⊠ R^{λ_{ℓ+1}}(β))` as `T^λ`-modules (`twoPieceRootStandardEquiv`),
+  sending the unit vector of `[e(t)] ⊠ e(u)` to that of `S_{t λ_{ℓ+1} u}`
+  (`twoPieceRootStandardEquiv_unit`). The isomorphism intertwines the block actions: for the
+  blocks `j ≤ ℓ` with the standardization of the actions on `S^L_{α'}`
+  (`twoPieceRootStandardEquiv_initBlock`, from `prefixBlockMap_blockEmb`), and for the last block
+  with right multiplication by the flipped diagram on `R^{λ_{ℓ+1}}(β)`
+  (`twoPieceRootStandardEquiv_lastBlock`, from `suffixBlockMap_lastBlackMap`).
+
+Open: the iteration from this bimodule isomorphism to Prop 5.5 for the Def 5.4 standardization
+of right modules over the block algebra of all `ℓ + 1` blocks, injectivity in the `Fᵢ`-part of
+Prop 5.5, Prop 5.6, and the results listed below.
 
 Prop 5.17 (stringy loadings classify indecomposable projectives) is proved:
 `Stendhal.maxLoadClassification` (`RedStrands/StringyClassification.lean`). Prop 5.18 (summands

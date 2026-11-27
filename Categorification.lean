@@ -416,6 +416,7 @@ import Categorification.KLR.Bialgebra
 import Categorification.KLR.Center
 import Categorification.KLR.CenterFree
 import Categorification.KLR.Concat
+import Categorification.KLR.BlockEmbCompose
 import Categorification.KLR.ConcatAssoc
 import Categorification.KLR.IntervalConcat
 import Categorification.KLR.Cor215
@@ -2362,6 +2363,7 @@ import Categorification.WeightedKLR.RedStrands.ParabolicInputGrading
 import Categorification.WeightedKLR.RedStrands.ParabolicShuffleAction
 import Categorification.WeightedKLR.RedStrands.ParabolicShuffleDescent
 import Categorification.WeightedKLR.RedStrands.ParabolicStandardExact
+import Categorification.WeightedKLR.RedStrands.ParabolicStandardFunctor
 import Categorification.WeightedKLR.RedStrands.ParabolicStandardGrading
 import Categorification.WeightedKLR.RedStrands.RaisingAppendRed
 import Categorification.WeightedKLR.RedStrands.RedBlackCrossingFrame
@@ -2470,4 +2472,15 @@ import Categorification.WeightedKLR.RedStrands.PrependRedK0
 import Categorification.WeightedKLR.RedStrands.StandardViolatedDescent
 import Categorification.WeightedKLR.RedStrands.StandardModuleReflection
 import Categorification.WeightedKLR.RedStrands.StandardRootDecomposition
+import Categorification.WeightedKLR.RedStrands.LeftRootStandard
+import Categorification.WeightedKLR.RedStrands.TwoPieceBlocks
+import Categorification.WeightedKLR.RedStrands.TwoPieceBlockMaps
+import Categorification.WeightedKLR.RedStrands.TwoPieceRootStandard
+import Categorification.WeightedKLR.RedStrands.RootReflectUnit
+import Categorification.WeightedKLR.RedStrands.ParabolicStandardUnitExt
+import Categorification.WeightedKLR.RedStrands.TwoPieceRootStandardUnit
+import Categorification.WeightedKLR.RedStrands.TwoPieceBlockMapIdems
+import Categorification.WeightedKLR.RedStrands.TwoPieceLastBlockMap
+import Categorification.WeightedKLR.RedStrands.TwoPieceRootStandardLastBlock
+import Categorification.WeightedKLR.RedStrands.TwoPieceRootStandardBlocks
 import Categorification.WeightedKLR.RedStrands.RedFirstDominantDimension

@@ -2177,6 +2177,7 @@ import Categorification.Algebra.DiagramWeightCorner
 import Categorification.Algebra.DiagramWeightCoend
 import Categorification.Algebra.DiagramWeightCoendNaturality
 import Categorification.Algebra.DiagramWeightTensorComp
+import Categorification.Algebra.DiagramWeightDerivedComp
 import Categorification.Algebra.DiagramWeightCoendSurjectivity
 import Categorification.Algebra.DiagramWeightComplex
 import Categorification.Algebra.DiagramWeightComplexKProjective

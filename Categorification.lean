@@ -189,6 +189,7 @@ import Categorification.Diagrams.CL.RescaleBasic
 import Categorification.Diagrams.CL.RescaleBicat
 import Categorification.Diagrams.CL.RescaleR
 import Categorification.Diagrams.CL.Rotate
+import Categorification.Diagrams.CL.RotateAll
 import Categorification.Diagrams.CL.Scalars
 import Categorification.Diagrams.CL.Sigma
 import Categorification.Diagrams.CLQ.BubbleSlidesAll
@@ -2109,6 +2110,8 @@ import Categorification.Diagrams.CLQ.Spanning
 import Categorification.Diagrams.CLQ.SpanningBasic
 import Categorification.Diagrams.CLQ.SpanningPhi
 import Categorification.Diagrams.CLQ.Straighten
+import Categorification.Diagrams.CLQ.SymmetryPsi
+import Categorification.Diagrams.CLQ.ThetaReflection
 import Categorification.Diagrams.CLQ.Traces
 import Categorification.Diagrams.CLQ.Upward
 import Categorification.Diagrams.KL3.CanonFiltered
@@ -2269,6 +2272,7 @@ import Categorification.WeightedKLR.RedStrands.DoubleBlackPresentation
 import Categorification.WeightedKLR.RedStrands.DoubleBlackRelabel
 import Categorification.WeightedKLR.RedStrands.DoubleRouquierAssembly
 import Categorification.WeightedKLR.RedStrands.DoubleRouquierBlack
+import Categorification.WeightedKLR.RedStrands.DoubleRouquierBlackQ
 import Categorification.WeightedKLR.RedStrands.DoubleRouquierBlackDown
 import Categorification.WeightedKLR.RedStrands.DoubleRouquierBlackDownBraid
 import Categorification.WeightedKLR.RedStrands.DoubleRouquierBlackDownBraidQ

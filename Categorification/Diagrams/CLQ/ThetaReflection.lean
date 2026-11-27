@@ -223,6 +223,13 @@ theorem thetaScalars_thetaScalars (hr : ∀ i, sc.r i = 1) :
       simp
   · rw [thetaScalars_r, hr]
 
+/-- `Q ↦ Q^θ` is an involution up to the scalars `r`, which `U_Q(g)` does not see: `Q^{θθ}` is
+`Q` with `r = 1`. -/
+theorem thetaScalars_thetaScalars_withRone :
+    thetaScalars RD (thetaScalars RD sc) = sc.withRone := by
+  have : thetaScalars RD sc = thetaScalars RD sc.withRone := rfl
+  rw [this, thetaScalars_thetaScalars sc.withRone (fun _ => rfl)]
+
 /-- The reflection with inverted orientations of a linear combination of diagrams between
 normal-form objects that vanishes in `U_Q(g)` vanishes in `U_{Q^θ}(g)`. -/
 theorem lin_thetaLin_eq_zero_of_ob (μ : X) {s t : List (Letter I)}

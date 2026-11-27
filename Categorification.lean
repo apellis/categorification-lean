@@ -145,6 +145,8 @@ import Categorification.Algebra.GradedOrderedProjectiveResolution
 import Categorification.Algebra.HomogeneousOrderedCoverTransport
 import Categorification.Algebra.ModuleFiltrationMap
 import Categorification.Algebra.IdempotentTraceFiltration
+import Categorification.Algebra.IdempotentGenerators
+import Categorification.Algebra.ShiftBijective
 import Categorification.Algebra.MonicTrace
 import Categorification.Algebra.NilHecke
 import Categorification.Algebra.NilHeckeIdempotent
@@ -2445,6 +2447,7 @@ import Categorification.WeightedKLR.RedStrands.HalfTwistDuality
 import Categorification.WeightedKLR.RedStrands.HalfTwistDualityGeneral
 import Categorification.WeightedKLR.RedStrands.HalfTwistTilting
 import Categorification.WeightedKLR.RedStrands.HalfTwistExt
+import Categorification.WeightedKLR.RedStrands.HalfTwistShiftBijective
 import Categorification.WeightedKLR.RedStrands.HalfTwistDimension
 import Categorification.WeightedKLR.RedStrands.InterleavedPBW
 import Categorification.WeightedKLR.RedStrands.IteratedLeftStandard

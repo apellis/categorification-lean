@@ -1985,6 +1985,7 @@ import Categorification.WeightedKLR.Rigidity.RigidityExtCoevaluationExt
 import Categorification.WeightedKLR.Rigidity.RigidityExtCoevaluationHeadExt
 import Categorification.WeightedKLR.Rigidity.RigidityExtBicone
 import Categorification.WeightedKLR.Rigidity.RigidityExtSplitting
+import Categorification.WeightedKLR.Rigidity.RigidityExtStandardSum
 import Categorification.Algebra.DerivedTensorRegular
 import Categorification.WeightedKLR.Rigidity.FundamentalCupRegular
 import Categorification.WeightedKLR.Rigidity.FundamentalDerivedCircle

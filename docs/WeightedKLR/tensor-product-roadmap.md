@@ -864,10 +864,15 @@ from the module-tower constructor `ModuleTower.weakSl2` and the class identity
   `₂Fᵢ X_M ≅ X_{ₗFᵢ M}`, `fiLastInputEquiv`), the sub term `S(₁Fᵢ X_M)` the standardization of the
   induction hypothesis (`fiSubEquiv`, `fiInitLayerStandardEquiv`). Route hypothesis:
   `AllDeltaInjective` for every sequence of highest weights (injectivity of the first map),
-  tracked for removal below.
+  tracked for removal below. For finite-dimensional `M` (Webster's setting) and Rouquier `Q`,
+  `fiFiltration_finite` needs only `AllFiniteDeltaInjective`, and at the standard Khovanov–Lauda
+  parameters `fiFiltration_finite_std` holds with no route hypothesis
+  (`allFiniteDeltaInjective_std`).
 
-Open: injectivity in the `Fᵢ`-part of Prop 5.5 for general `Q` (removes the route hypothesis
-`AllDeltaInjective` of `fiFiltration` and `AllFiniteDeltaInjective` of Props 5.20/5.21), Prop 5.6,
+Open: injectivity in the `Fᵢ`-part of Prop 5.5 for general `Q` (the dimension count at general
+`Q`, which needs Thm 4.31 at general `Q`; removes the route hypothesis `AllFiniteDeltaInjective`
+of `fiFiltration_finite` and of Props 5.20/5.21), the passage from finite-dimensional to
+arbitrary modules (removes `AllDeltaInjective` of `fiFiltration`), Prop 5.6,
 and the results listed below.
 
 Prop 5.17 (stringy loadings classify indecomposable projectives) is proved:

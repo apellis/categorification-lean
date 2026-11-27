@@ -45,10 +45,39 @@ namespace StendhalAlgebra
 variable {I : Type} [DecidableEq I] {k : Type} [Field k]
   (Q : I → I → MvPolynomial (Fin 2) k) (i : I)
 
+/-- **`FiFiltration` for the modules satisfying `P`**: the statement of Webster's
+Proposition 5.5, `F`-part, for `ℓ` red strands, for those `M` with `P M` (`P` true: every
+module, as `FiFiltration`; `P` finite-dimensionality: Webster's category of finite-dimensional
+modules). -/
+def FiFiltrationFor (P : (M : Type) → [AddCommGroup M] → [Module k M] → Prop) (ℓ : ℕ) : Prop :=
+  ∀ (Λ : Fin ℓ → I →₀ ℕ) (b : Fin (ℓ + 1) → Multiset I) (ν : Multiset I), leftBlock b = 0 →
+    ∀ (hb : blockPrefix b (ℓ + 1) = ν) (hα : RootNonViolated (ν := ν) (blockRoot b))
+      (b' : Fin ℓ → Fin (ℓ + 1) → Multiset I)
+      (h0 : ∀ κ, leftBlock b = leftBlock (b' κ))
+      (hr : ∀ κ r, r ≠ κ → rightBlock b r = rightBlock (b' κ) r)
+      (hκ : ∀ κ, {i} + rightBlock b κ = rightBlock (b' κ) κ)
+      (hb' : ∀ κ, blockPrefix (b' κ) (ℓ + 1) = ({i} : Multiset I) + ν)
+      (hα' : ∀ κ, RootNonViolated (ν := ({i} : Multiset I) + ν) (blockRoot (b' κ)))
+      (C : Type) [Ring C] [Algebra k C]
+      (M : Type) [AddCommGroup M] [Module k M] [Module (BlockAlgebra k Q Λ b)ᵐᵒᵖ M]
+      [IsScalarTower k (BlockAlgebra k Q Λ b)ᵐᵒᵖ M], P M →
+      ∀ (ρ : C →ₐ[k] Module.End (BlockAlgebra k Q Λ b)ᵐᵒᵖ M),
+      ∃ m : List (Fin ℓ), m.Nodup ∧ (∀ κ, κ ∈ m) ∧
+        HasFiltration (fun κ => fiLayer Q i Λ ν κ (h0 κ) (hr κ) (hκ κ) (hb' κ) (hα' κ) C M ρ)
+          m (fiTop Q i Λ b ν hb hα C M ρ)
+
+theorem fiFiltrationFor_zero (P : (M : Type) → [AddCommGroup M] → [Module k M] → Prop) :
+    FiFiltrationFor (k := k) Q i P 0 := by
+  intro Λ b ν h00 hb hα b' h0 hr hκ hb' hα' C _ _ M _ _ _ _ _ ρ
+  exact fiFiltration_zero Q i Λ b ν h00 hb hα b' h0 hr hκ hb' hα' C M ρ
+
 /-- **Induction step of Webster's Proposition 5.5, `F`-part**, given the injectivity of the
-first map of the last-strand sequence (`AllDeltaInjective`, a route hypothesis). -/
-theorem fiFiltration_step (hQ : KLRSymm Q) {ℓ : ℕ} (IH : FiFiltration (k := k) Q i ℓ)
-    (Λ : Fin (ℓ + 1) → I →₀ ℕ) (hδ : AllDeltaInjective Q Λ hQ) (b : Fin (ℓ + 2) → Multiset I)
+first map of the last-strand sequence (`FirstIndDeltaInjective` for `X_M`, a route
+hypothesis), for the modules satisfying `P`. -/
+theorem fiFiltrationFor_step (hQ : KLRSymm Q)
+    (P : (M : Type) → [AddCommGroup M] → [Module k M] → Prop) {ℓ : ℕ}
+    (IH : FiFiltrationFor (k := k) Q i P ℓ)
+    (Λ : Fin (ℓ + 1) → I →₀ ℕ) (b : Fin (ℓ + 2) → Multiset I)
     (h00 : leftBlock b = 0) (hb : blockPrefix b (ℓ + 1 + 1) = initWeight b + lastBlock b)
     (hα : RootNonViolated (ν := initWeight b + lastBlock b) (blockRoot b))
     (b' : Fin (ℓ + 1) → Fin (ℓ + 2) → Multiset I)
@@ -62,6 +91,9 @@ theorem fiFiltration_step (hQ : KLRSymm Q) {ℓ : ℕ} (IH : FiFiltration (k := 
     (C : Type) [Ring C] [Algebra k C]
     (M : Type) [AddCommGroup M] [Module k M] [Module (BlockAlgebra k Q Λ b)ᵐᵒᵖ M]
     [IsScalarTower k (BlockAlgebra k Q Λ b)ᵐᵒᵖ M]
+    (hPM : P (InitRestrict Q Λ b M))
+    (hinj : FirstIndDeltaInjective Q Λ i (initWeight b) (lastBlock b)
+      (TwoPieceInput Q Λ b M (rootNonViolated_initBlocks h00)) hQ)
     (ρ : C →ₐ[k] Module.End (BlockAlgebra k Q Λ b)ᵐᵒᵖ M) :
     ∃ m : List (Fin (ℓ + 1)), m.Nodup ∧ (∀ κ, κ ∈ m) ∧
       HasFiltration (fun κ => fiLayer Q i Λ (initWeight b + lastBlock b) κ (h0 κ) (hr κ) (hκ κ)
@@ -84,7 +116,7 @@ theorem fiFiltration_step (hQ : KLRSymm Q) {ℓ : ℕ} (IH : FiFiltration (k := 
     (fun κ => initBlocks_rightBlock_of_ne κ (hr κ.castSucc))
     (fun κ => hκ κ.castSucc) hθκ hα₁κ
     ((CycKLR k Q (fun i : I => (Polynomial.X : Polynomial k) ^ Λ (Fin.last ℓ) i)
-      (lastBlock b)) ⊗[k] C) (InitRestrict Q Λ b M) (inductionAction Q Λ b M rfl C ρ)
+      (lastBlock b)) ⊗[k] C) (InitRestrict Q Λ b M) hPM (inductionAction Q Λ b M rfl C ρ)
   -- the sub term
   have hX₁ := ((hasFiltration_splitStandard Q Λ hQ hY).restrictScalars
     (firstIndCastHom Q Λ i (initWeight b) (lastBlock b) C)).mono
@@ -109,9 +141,6 @@ theorem fiFiltration_step (hQ : KLRSymm Q) {ℓ : ℕ} (IH : FiFiltration (k := 
     (fiQuotEquiv Q Λ hQ i (h0 (Fin.last ℓ)) (hr (Fin.last ℓ)) (hκ (Fin.last ℓ)) M hα₁ hαc C ρ
       (hb' (Fin.last ℓ)) (hα' (Fin.last ℓ)))
   -- the middle term
-  have hinj : FirstIndDeltaInjective Q Λ i (initWeight b) (lastBlock b)
-      (TwoPieceInput Q Λ b M hα₁) hQ :=
-    hδ i (initWeight b) (lastBlock b) ⟨TwoPieceInput Q Λ b M hα₁⟩
   have hmid := hZ.extension (X := ModuleCat.of _
     (FiSub Q Λ hQ i (initWeight b) (lastBlock b) C ((twoPieceEndAlg Q Λ b hα₁).comp ρ)))
     (Y := ModuleCat.of _
@@ -148,8 +177,12 @@ theorem fiFiltration (hQ : KLRSymm Q)
   | ℓ + 1 => by
     intro Λ b ν h00 hb hα b' h0 hr hκ hb' hα' C _ _ M _ _ _ _ ρ
     obtain rfl : ν = initWeight b + lastBlock b := hb.symm.trans (blockPrefix_last b)
-    exact fiFiltration_step Q i hQ (fiFiltration hQ hδ ℓ) Λ (hδ ℓ Λ) b h00 hb hα b' h0 hr hκ
-      hb' hα' C M ρ
+    have IH : FiFiltrationFor (k := k) Q i (fun _ _ _ => True) ℓ := by
+      intro Λ b ν h00 hb hα b' h0 hr hκ hb' hα' C _ _ M _ _ _ _ _ ρ
+      exact fiFiltration hQ hδ ℓ Λ b ν h00 hb hα b' h0 hr hκ hb' hα' C M ρ
+    exact fiFiltrationFor_step Q i hQ (fun _ _ _ => True) IH Λ b h00 hb hα b' h0 hr hκ
+      hb' hα' C M trivial
+      (hδ ℓ Λ i _ _ ⟨TwoPieceInput Q Λ b M (rootNonViolated_initBlocks h00)⟩) ρ
 
 end StendhalAlgebra
 

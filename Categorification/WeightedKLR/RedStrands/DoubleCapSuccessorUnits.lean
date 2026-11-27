@@ -4,6 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 -/
 import Categorification.WeightedKLR.RedStrands.DoubleSignedCapRightCup
 import Categorification.WeightedKLR.RedStrands.DoubleCapSuccessorTransfer
+import Categorification.WeightedKLR.RedStrands.DoubleSignedCapBlockInduction
 
 /-!
 # Cap successors up to a unit
@@ -189,5 +190,90 @@ theorem capSuccessorAt_of_forward_smul (m : CapPredecessor I ℓ) (u v L U : Lis
     exact Submodule.mem_sup_right H
 
 end Successor
+
+section Push
+
+variable {I : Type u} {ℓ : ℕ} {C : CartanDatum I} {X Y : Type v}
+  [AddCommGroup X] [AddCommGroup Y] {RD : WeightDatum C X Y} {Λ : Fin ℓ → X}
+variable (k : Type w) [CommRing k] {V : Type*} [AddCommGroup V] [Module k V]
+  {a t : Obj (signature RD Λ)} (E : (a ⟶ t) → V)
+
+/-- The cap-push step from an exchange that holds up to a scalar. -/
+theorem capBlock_push_of_exchange_smul {b c e : Obj (signature RD Λ)} (p : a ⟶ b)
+    (ih : ResolvesSignedCapBlocks k E p)
+    (block : b ⟶ c) (L U : List (DoubleStrand I ℓ)) (l : Letter I) (R : List (DoubleStrand I ℓ))
+    (d : ℕ) (hs : b = obj RD Λ b.start (L ++ [.inl l.dual] ++ U ++ [.inl l] ++ R))
+    (hb : Diagram.layers block = signedLayers RD Λ b.start (signedCapBlock L U l R d))
+    (g : c ⟶ e) (step : ∀ f : a ⟶ c, ForwardPath a f → ForwardPath a (f ≫ g))
+    (post : e ⟶ t) (n : ℕ) (budget : crossingNumber p + U.length + crossingNumber g ≤ n)
+    (x : V) (c₀ : k) (exchange : x - c₀ • E ((p ≫ block) ≫ g ≫ post) ∈ fewerCrossings k E post n) :
+    x ∈ forwardSpan k E post n ⊔ fewerCrossings k E post n := by
+  let F (m : ℕ) := forwardSpan k E post m ⊔ fewerCrossings k E post m
+  have mono {m : ℕ} (hm : m ≤ n) : F m ≤ F n := by
+    apply sup_le_sup <;> apply Submodule.span_mono
+    · rintro _ ⟨f,hf,hc,rfl⟩; exact ⟨f,hf,hc.trans hm,rfl⟩
+    · rintro _ ⟨f,hc,rfl⟩; exact ⟨f,hc.trans_le hm,rfl⟩
+  have moved := (sup_le_sup (forwardSpan_comp k E g post (crossingNumber p + U.length) step)
+    (fewerCrossings_comp k E g post (crossingNumber p + U.length)))
+    (ih block L U l R d hs hb (g ≫ post))
+  have h := Submodule.add_mem (F n) (Submodule.mem_sup_right exchange)
+    (Submodule.smul_mem (F n) c₀ (mono budget moved))
+  simpa only [sub_add_cancel] using h
+
+end Push
+
+section Slide
+
+variable {I : Type u} {ℓ : ℕ} {C : CartanDatum I} {X Y : Type v}
+  [AddCommGroup X] [AddCommGroup Y] {RD : WeightDatum C X Y} {Λ : Fin ℓ → X}
+  {k : Type w} [CommRing k] (P : Presentation.{w,max u v} (signature RD Λ) k)
+local notation "B" => DoubleStrand I ℓ
+
+variable {a t : Obj (signature RD Λ)} {M : Type*} [AddCommGroup M] [Module k M]
+  (π : (P.obj a ⟶ P.obj t) →ₗ[k] M)
+
+/-- A cap successor sliding to another cap block, up to a scalar. -/
+theorem capSuccessorAt_of_slide_smul (m : CapPredecessor I ℓ) (u v L U : List B) (l : Letter I)
+    (R : List B)
+    (align : u ++ m.top ++ v = L ++ [.inl l.dual] ++ U ++ [.inl l] ++ R)
+    (L' U' : List B) (l' : Letter I) (R' : List B)
+    (src : u ++ m.bottom ++ v = L' ++ [.inl l'.dual] ++ U' ++ [.inl l'] ++ R')
+    (marks : ℕ → ℕ) (above : List (SignedLayer I ℓ))
+    (ha : signedChain (L' ++ U' ++ R') above (L ++ U ++ R))
+    (hf : AppendsForward (RD := RD) (Λ := Λ) above)
+    (hbudget : U'.length + signedCrossings above ≤ m.cost + U.length)
+    (rewriteBlock : ∀ (μ : X) (d : ℕ), ∃ c : k,
+      let diff := signedDg RD Λ P μ (u ++ m.bottom ++ v) (L ++ U ++ R)
+          (m.rows u v ++ signedCapBlock L U l R d) -
+        c • signedDg RD Λ P μ (u ++ m.bottom ++ v) (L ++ U ++ R)
+          (signedCapBlock L' U' l' R' (marks d) ++ above)
+      diff = 0 ∨
+        ∃ n < m.cost + U.length, diff ∈ signedCrossingSpan RD Λ P μ (u ++ m.bottom ++ v) (L ++ U ++ R) n) :
+    CapSuccessorAt k (fun f => π (P.diag f)) m u v L U l R := by
+  apply capSuccessorAt_of_projected P π m u v L U l R align
+  intro μ p hp ih d tail
+  let blk := signedCapBlock L' U' l' R' (marks d)
+  have hb : signedChain (u ++ m.bottom ++ v) blk (L' ++ U' ++ R') := by
+    rw [src]; exact signedCapBlock_chain ..
+  let f := Diagram.mk _ (chain_signedLayers RD Λ μ hb)
+  let g := Diagram.mk _ (chain_signedLayers RD Λ μ ha)
+  have eqv : signedDg RD Λ P μ (u ++ m.bottom ++ v) (L ++ U ++ R) (blk ++ above) = P.diag (f ≫ g) := by
+    rw [← signedDg_comp RD Λ P μ hb ha, signedDg_of RD Λ P μ hb, signedDg_of RD Λ P μ ha, P.diag_comp]
+  have hn : crossingNumber g = signedCrossings above := crossingNumber_of_signedLayers RD Λ μ g above rfl
+  obtain ⟨c, hrw⟩ := rewriteBlock μ d
+  apply capBlock_push_of_exchange_smul k (fun z => π (P.diag z)) p ih f L' U' l' R' (marks d)
+    (congrArg (obj RD Λ μ) src) rfl g (fun q hq => hf q hq g rfl) tail _ (by omega) _ c
+  rcases hrw with he | ⟨n,hn',hs⟩
+  · rw [sub_eq_zero] at he
+    rw [he, eqv]
+    simp [P.diag_comp, Category.assoc]
+  · rw [eqv] at hs
+    have h0 : crossingNumber (𝟙 (obj RD Λ μ (L ++ U ++ R))) = 0 := rfl
+    have H := signedCrossingSpan_in_fewerCrossings RD Λ P μ p (𝟙 _) tail π hs
+      (m := crossingNumber p + m.cost + U.length) (by omega)
+    simpa only [Category.id_comp, Preadditive.sub_comp, Preadditive.comp_sub, map_sub, P.diag_comp,
+      Category.assoc, Linear.smul_comp, Linear.comp_smul, map_smul] using H
+
+end Slide
 
 end Categorification.Stendhal.DoubleDiagram

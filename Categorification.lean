@@ -93,6 +93,7 @@ import Categorification.Algebra.Graded.Restriction
 import Categorification.Algebra.Graded.RightTwist
 import Categorification.Algebra.IdempotentEquiv
 import Categorification.Algebra.CommutingFamily
+import Categorification.Algebra.CommutingFamilySingle
 import Categorification.Algebra.HomTensor
 import Categorification.Algebra.HomTensorAdjunction
 import Categorification.Algebra.LinearMapRingEquiv
@@ -2492,4 +2493,9 @@ import Categorification.WeightedKLR.RedStrands.TwoPieceBlockMapIdems
 import Categorification.WeightedKLR.RedStrands.TwoPieceLastBlockMap
 import Categorification.WeightedKLR.RedStrands.TwoPieceRootStandardLastBlock
 import Categorification.WeightedKLR.RedStrands.TwoPieceRootStandardBlocks
+import Categorification.WeightedKLR.RedStrands.LeftStandardization
+import Categorification.WeightedKLR.RedStrands.TwoPieceBlockAlgebra
+import Categorification.WeightedKLR.RedStrands.TwoPieceBlockAlgebraAction
+import Categorification.WeightedKLR.RedStrands.TwoPieceStandardization
+import Categorification.WeightedKLR.RedStrands.TwoPieceStandardizationEquiv
 import Categorification.WeightedKLR.RedStrands.RedFirstDominantDimension

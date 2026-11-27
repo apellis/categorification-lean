@@ -2538,3 +2538,5 @@ import Categorification.Algebra.InductionAlongEndAlg
 import Categorification.WeightedKLR.RedStrands.FiSequence
 import Categorification.WeightedKLR.RedStrands.FiFiltrationStatement
 import Categorification.WeightedKLR.RedStrands.FiTopEquiv
+import Categorification.Algebra.PiTensorProductSnoc
+import Categorification.WeightedKLR.RedStrands.BlockAlgebraSplit

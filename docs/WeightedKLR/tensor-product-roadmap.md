@@ -1462,8 +1462,9 @@ canonical position at the top and every strand passing under it (`CupCap.midCapB
 Removal item: Lemma 7.16 and its mirror for `L_μ` (needs Thm 4.30).
 The projectivity of `coe^{λ⁺}_λ` as a left `T^λ`-module, asserted after Lemma 7.19, is proved
 for a cap at the right end (`j = ℓ`, `CupCap.projective_capBimodule`) when the pieces `L e(t)`
-are free over `k` (removal item: projective pieces, by a split-summand argument); the case
-`j < ℓ` is in progress (`CupCap.leftMackeyEquiv` is its one-sided Mackey step).
+are free over `k`, and for a cap after any `λ_j` (`CupCap.projective_midCapBimodule`) when the
+pieces `L e(t)` are finitely generated and projective over `k` (true for `L_μ` over a field;
+removal item: drop finite generation for general `L`), under the route hypotheses of Lemma 7.17.
 Lemma 7.19 and Props 7.20–7.22 are open.
 
 ### Phase F: §8, knot invariants

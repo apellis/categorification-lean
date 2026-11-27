@@ -1651,8 +1651,11 @@ import Categorification.WeightedKLR.RedStrands.CoordinateWeightPairing
 import Categorification.WeightedKLR.RedStrands.DoubleCLNegligible
 import Categorification.WeightedKLR.RedStrands.DoubleCLNegligibleWords
 import Categorification.WeightedKLR.RedStrands.DoubleCLBlackRelations
+import Categorification.WeightedKLR.RedStrands.DoubleCLBlackRelationsQ
 import Categorification.WeightedKLR.RedStrands.DoubleCLBlackComparison
+import Categorification.WeightedKLR.RedStrands.DoubleCLBlackComparisonQ
 import Categorification.WeightedKLR.RedStrands.DoubleCLBlackContext
+import Categorification.WeightedKLR.RedStrands.DoubleCLBlackContextQ
 import Categorification.WeightedKLR.RedStrands.DoubleCLBlackAdjunction
 import Categorification.WeightedKLR.RedStrands.DoubleCLWhisker
 import Categorification.WeightedKLR.RedStrands.DoubleCLRedNegligibleIdeal
@@ -1664,6 +1667,7 @@ import Categorification.WeightedKLR.RedStrands.DoubleCLLayerIdeal
 import Categorification.WeightedKLR.RedStrands.DoubleCLLayerIdealOn
 import Categorification.WeightedKLR.RedStrands.DoubleCLKernelTransfer
 import Categorification.WeightedKLR.RedStrands.DoubleCLBlackNegligible
+import Categorification.WeightedKLR.RedStrands.DoubleCLBlackNegligibleQ
 import Categorification.WeightedKLR.RedStrands.DoubleDownContext
 import Categorification.WeightedKLR.RedStrands.DoubleCLRedDot
 import Categorification.WeightedKLR.RedStrands.DoubleDownContextIdeal
@@ -1673,12 +1677,14 @@ import Categorification.WeightedKLR.RedStrands.DoubleCLDownKLRUp
 import Categorification.WeightedKLR.RedStrands.DoubleCLDownUpVacuum
 import Categorification.WeightedKLR.RedStrands.DoubleCLDownInjective
 import Categorification.WeightedKLR.RedStrands.DoubleCLDownInjectiveOrdinary
+import Categorification.WeightedKLR.RedStrands.DoubleCLDownInjectiveOrdinaryQ
 import Categorification.WeightedKLR.RedStrands.DoubleCLMorita
 import Categorification.WeightedKLR.RedStrands.DoubleCLBlackAction
 import Categorification.WeightedKLR.RedStrands.CyclotomicBlackAction
 import Categorification.WeightedKLR.RedStrands.CyclotomicFrobenius
 import Categorification.WeightedKLR.RedStrands.DoubleWFDom
 import Categorification.WeightedKLR.RedStrands.DoubleCLRelationFamilies
+import Categorification.WeightedKLR.RedStrands.DoubleCLRelationFamiliesQ
 import Categorification.WeightedKLR.RedStrands.DoubleCLMoveContext
 import Categorification.WeightedKLR.RedStrands.DoubleCLRedCup
 import Categorification.WeightedKLR.RedStrands.DoubleCLRedCap
@@ -2131,7 +2137,9 @@ import Categorification.Diagrams.CLQ.Spanning
 import Categorification.Diagrams.CLQ.SpanningBasic
 import Categorification.Diagrams.CLQ.SpanningPhi
 import Categorification.Diagrams.CLQ.Straighten
+import Categorification.Diagrams.CLQ.SymmetryOmega
 import Categorification.Diagrams.CLQ.SymmetryPsi
+import Categorification.Diagrams.CLQ.SymmetrySigma
 import Categorification.Diagrams.CLQ.ThetaReflection
 import Categorification.Diagrams.CLQ.Traces
 import Categorification.Diagrams.CLQ.Upward
@@ -2323,7 +2331,9 @@ import Categorification.WeightedKLR.RedStrands.DoubleBlackPresentationOf
 import Categorification.WeightedKLR.RedStrands.DoubleBoundary
 import Categorification.WeightedKLR.RedStrands.DoubleBoundaryInduction
 import Categorification.WeightedKLR.RedStrands.DoubleCLDownwardBlock
+import Categorification.WeightedKLR.RedStrands.DoubleCLDownwardBlockQ
 import Categorification.WeightedKLR.RedStrands.DoubleCLMixedPitchfork
+import Categorification.WeightedKLR.RedStrands.DoubleCLMixedPitchforkQ
 import Categorification.WeightedKLR.RedStrands.DoubleCLRedUpSlide
 import Categorification.WeightedKLR.RedStrands.DoubleCLVacuumEvaluation
 import Categorification.WeightedKLR.RedStrands.DoubleCapBoundaryPositions

@@ -15,8 +15,7 @@ i.e., terms with fewer crossings, fewer circles, etc.", following A. Lauda, arXi
 
 This is the version for `U_Q(g)` (S. Cautis, A. D. Lauda, arXiv:1111.1431v3, Definition 1.1,
 `r = 1`) of `Categorification.Diagrams.KL3.SpanningSetCaps`, built on
-`Categorification.Diagrams.CLQ.SpanningSetLocal`; the statements that use the dot slides through
-downward crossings carry the hypothesis `hr : ∀ i, sc.r i = 1`.
+`Categorification.Diagrams.CLQ.SpanningSetLocal`.
 
 Fix a weight `μ` and a source signed sequence `w₀`. A **move** (`Mv`) is a dot, a crossing of two
 adjacent strands (`xLay`: upward, downward or sideways), or a cup, placed between strands. A
@@ -297,7 +296,7 @@ section Dec
 
 variable [DecidableEq I]
 
-theorem ds0rep (hr : ∀ i, sc.r i = 1) (ν : X) (l₁ l₂ : Letter I) (d : ℕ) :
+theorem ds0rep (ν : X) (l₁ l₂ : Letter I) (d : ℕ) :
     NF.dg (pres RD k sc) ν [l₁, l₂] [l₂, l₁] (xLay l₁ l₂ ++ List.replicate d ([], .dot l₂, [l₁])) -
       NF.dg (pres RD k sc) ν [l₁, l₂] [l₂, l₁] (List.replicate d ([l₁], .dot l₂, []) ++ xLay l₁ l₂) ∈
         LeL RD k sc ν [l₁, l₂] [l₂, l₁] 0 := by
@@ -306,13 +305,13 @@ theorem ds0rep (hr : ∀ i, sc.r i = 1) (ν : X) (l₁ l₂ : Letter I) (d : ℕ
   | succ d ih =>
     refine leL_sub_trans (b := NF.dg (pres RD k sc) ν [l₁, l₂] [l₂, l₁]
       ([([l₁], .dot l₂, [])] ++ (xLay l₁ l₂ ++ List.replicate d ([], .dot l₂, [l₁])))) ?_ ?_
-    · exact dg_mod_step [] (List.replicate d ([], .dot l₂, [l₁])) [] [] (ds0 hr ν l₁ l₂)
+    · exact dg_mod_step [] (List.replicate d ([], .dot l₂, [l₁])) [] [] (ds0 ν l₁ l₂)
         rfl (by simpa using SChain.replicate d [] l₂ [l₁]) (by simp [List.replicate_succ])
         (by simp) (by simp [ccnt_replicate_dot])
     · refine dg_mod_step [([l₁], .dot l₂, [])] [] [] [] ih ⟨rfl, rfl⟩ rfl (by simp) ?_ (by simp)
       simp [List.replicate_succ]
 
-theorem ds1rep (hr : ∀ i, sc.r i = 1) (ν : X) (l₁ l₂ : Letter I) (d : ℕ) :
+theorem ds1rep (ν : X) (l₁ l₂ : Letter I) (d : ℕ) :
     NF.dg (pres RD k sc) ν [l₁, l₂] [l₂, l₁] (xLay l₁ l₂ ++ List.replicate d ([l₂], .dot l₁, [])) -
       NF.dg (pres RD k sc) ν [l₁, l₂] [l₂, l₁] (List.replicate d ([], .dot l₁, [l₂]) ++ xLay l₁ l₂) ∈
         LeL RD k sc ν [l₁, l₂] [l₂, l₁] 0 := by
@@ -321,22 +320,22 @@ theorem ds1rep (hr : ∀ i, sc.r i = 1) (ν : X) (l₁ l₂ : Letter I) (d : ℕ
   | succ d ih =>
     refine leL_sub_trans (b := NF.dg (pres RD k sc) ν [l₁, l₂] [l₂, l₁]
       ([([], .dot l₁, [l₂])] ++ (xLay l₁ l₂ ++ List.replicate d ([l₂], .dot l₁, [])))) ?_ ?_
-    · exact dg_mod_step [] (List.replicate d ([l₂], .dot l₁, [])) [] [] (ds1 hr ν l₁ l₂)
+    · exact dg_mod_step [] (List.replicate d ([l₂], .dot l₁, [])) [] [] (ds1 ν l₁ l₂)
         rfl (by simpa using SChain.replicate d [l₂] l₁ []) (by simp [List.replicate_succ])
         (by simp) (by simp [ccnt_replicate_dot])
     · refine dg_mod_step [([], .dot l₁, [l₂])] [] [] [] ih ⟨rfl, rfl⟩ rfl (by simp) ?_ (by simp)
       simp [List.replicate_succ]
 
-theorem dotThruLm (hr : ∀ i, sc.r i = 1) (ν : X) (b : Letter I) : ∀ S : List (Letter I),
+theorem dotThruLm (ν : X) (b : Letter I) : ∀ S : List (Letter I),
     NF.dg (pres RD k sc) ν (S ++ [b]) (b :: S) ([(S, .dot b, [])] ++ lmLc S b) -
       NF.dg (pres RD k sc) ν (S ++ [b]) (b :: S) (lmLc S b ++ [([], .dot b, S)]) ∈
         LeL RD k sc ν (S ++ [b]) (b :: S) (S.length - 1)
   | [] => by simp [lmLc]
   | [s] => by
-    have h := leL_sub_comm (ds0 (RD := RD) (k := k) (sc := sc) hr ν s b)
+    have h := leL_sub_comm (ds0 (RD := RD) (k := k) (sc := sc) ν s b)
     simpa [lmLc] using h
   | s :: s' :: S => by
-    have ih := dotThruLm hr ν b (s' :: S)
+    have ih := dotThruLm ν b (s' :: S)
     refine leL_sub_trans (b := NF.dg (pres RD k sc) ν (s :: s' :: S ++ [b]) (b :: s :: s' :: S)
       ((lmLc (s' :: S) b).map (whL [s] []) ++ [([s], .dot b, s' :: S)] ++
         (xLay s b).map (whL [] (s' :: S)))) ?_ ?_
@@ -346,13 +345,13 @@ theorem dotThruLm (hr : ∀ i, sc.r i = 1) (ν : X) (b : Letter I) : ∀ S : Lis
       · try wnf
       · simp [ccnt_map_whL]; try omega
     · refine dg_mod_step ((lmLc (s' :: S) b).map (whL [s] [])) [] [] (s' :: S)
-        (leL_sub_comm (ds0 (RD := RD) (k := k) (sc := sc) hr _ s b)) ?_ (by simp) ?_ ?_ ?_
+        (leL_sub_comm (ds0 (RD := RD) (k := k) (sc := sc) _ s b)) ?_ (by simp) ?_ ?_ ?_
       · simpa using (sChain_lmLc (s' :: S) b).whisk [s] []
       · wnf
       · rw [lmLc]; try wnf
       · simp [ccnt_map_whL, ccnt_lmLc]
 
-theorem capBlk_dotB (hr : ∀ i, sc.r i = 1) (ν : X) (S : List (Letter I)) (l : Letter I) (d : ℕ) :
+theorem capBlk_dotB (ν : X) (S : List (Letter I)) (l : Letter I) (d : ℕ) :
     NF.dg (pres RD k sc) ν ([l.dual] ++ S ++ [l]) S ([([l.dual] ++ S, .dot l, [])] ++ capBlk S l d) -
       NF.dg (pres RD k sc) ν ([l.dual] ++ S ++ [l]) S (capBlk S l (d + 1)) ∈
         LeL RD k sc ν ([l.dual] ++ S ++ [l]) S (S.length - 1) := by
@@ -361,7 +360,7 @@ theorem capBlk_dotB (hr : ∀ i, sc.r i = 1) (ν : X) (S : List (Letter I)) (l :
       ((lmLc S l).map (whL [l.dual] []) ++ [([l.dual], .dot l, S)] ++
         List.replicate d ([], .dot l.dual, l :: S) ++ [([], .cap l, S)])) ?_ ?_
   · refine dg_mod_step [] (List.replicate d ([], .dot l.dual, l :: S) ++ [([], .cap l, S)])
-      [l.dual] [] (dotThruLm hr ν l S) (by simp) ?_ ?_ ?_ ?_
+      [l.dual] [] (dotThruLm ν l S) (by simp) ?_ ?_ ?_ ?_
     · have h1 : SChain (l.dual :: l :: S) (List.replicate d ([], .dot l.dual, l :: S))
           (l.dual :: l :: S) :=
         SChain.replicate_of (x := ([], .dot l.dual, l :: S)) (s := l.dual :: l :: S) ⟨rfl, rfl⟩ d

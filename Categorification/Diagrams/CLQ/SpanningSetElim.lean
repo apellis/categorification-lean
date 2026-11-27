@@ -20,7 +20,7 @@ modulo 2-morphisms factoring through sequences shorter than the source (any Cart
 bubbles are moved out by `slideOutAny`).
 
 This is the argument of `Categorification.Diagrams.KL3.SpanningSetElim` for the Cautis–Lauda
-2-category `CLQ.pres RD k sc` with `r = 1` (hypothesis `hr`). The moves and their combinatorics
+2-category `CLQ.pres RD k sc` (which has `r = 1`). The moves and their combinatorics
 are those of the KL3 file. A strand entering the block and a cup to the right of it change the
 diagram only up to a unit of `k` (a sideways-crossing scalar of `sc`), which `CapTarget`, a
 submodule, absorbs (`push_of_sub_smul`).
@@ -268,7 +268,7 @@ theorem push_of_mv {t : ℕ} {ms : List (Mv I)} {T : List (Letter I)} {Z : List 
 variable [DecidableEq I]
 
 /-- **The cap push through a dot.** -/
-theorem push_dot (hr : ∀ i, sc.r i = 1) {c : ℕ} (hF : LowHyp RD k sc μ w₀ c) {ms : List (Mv I)}
+theorem push_dot {c : ℕ} (hF : LowHyp RD k sc μ w₀ c) {ms : List (Mv I)}
     (hIH : PushHyp RD k sc μ w₀ c ms) (u : List (Letter I)) (x : Letter I) (v : List (Letter I))
     (hms : MvChain w₀ ms (Mv.dot u x v).src) : PushGoal RD k sc μ w₀ c ms (Mv.dot u x v) := by
   intro P S Q l d htgt hc
@@ -302,7 +302,7 @@ theorem push_dot (hr : ∀ i, sc.r i = 1) {c : ℕ} (hF : LowHyp RD k sc μ w₀
     case h210 => simp only [List.length_append, List.length_cons, List.length_nil] at hc ⊢; omega
     case h310 => simp only [List.length_append, List.length_cons, List.length_nil] at hc ⊢; omega
     case h410 => rfl
-    refine dg_mod_free (mvLay ms) [] P Q (capBlk_dotS (RD := RD) (k := k) hr _ S₁ S₂ x l d) ?_ ?_
+    refine dg_mod_free (mvLay ms) [] P Q (capBlk_dotS (RD := RD) (k := k) _ S₁ S₂ x l d) ?_ ?_
       (by simp) (by simp [capBlk]) ?_ ?_ (by simp; omega)
     · exact (show SChain _ [([l.dual] ++ S₁, .dot x, S₂ ++ [l])] _ from ⟨by simp, by simp⟩).append
         (sChain_capBlk _ l d)
@@ -330,7 +330,7 @@ theorem push_dot (hr : ∀ i, sc.r i = 1) {c : ℕ} (hF : LowHyp RD k sc μ w₀
       case h222 => simp only [List.length_cons] at hc ⊢; omega
       case h322 => simp only [List.length_cons] at hc ⊢; omega
       case h422 => simp
-      refine dg_mod_free (mvLay ms) [] P Q (capBlk_dotB (RD := RD) (k := k) hr _ (s :: S) l d) ?_ ?_
+      refine dg_mod_free (mvLay ms) [] P Q (capBlk_dotB (RD := RD) (k := k) _ (s :: S) l d) ?_ ?_
         (by simp) (by simp [capBlk]) ?_ ?_ (by simp)
       · exact (show SChain _ [([l.dual] ++ s :: S, .dot l, [])] _ from ⟨by simp, by simp⟩).append
           (sChain_capBlk _ l d)
@@ -340,7 +340,7 @@ theorem push_dot (hr : ∀ i, sc.r i = 1) {c : ℕ} (hF : LowHyp RD k sc μ w₀
   · exact push_disjR hIH hms d R hQ hu (by simpa [hcm] using hc)
 
 /-- **The cap push through a crossing.** -/
-theorem push_cross (hr : ∀ i, sc.r i = 1) {c : ℕ} (hF : LowHyp RD k sc μ w₀ c) {ms : List (Mv I)}
+theorem push_cross {c : ℕ} (hF : LowHyp RD k sc μ w₀ c) {ms : List (Mv I)}
     (hIH : PushHyp RD k sc μ w₀ c ms) (u : List (Letter I)) (l₁ l₂ : Letter I) (v : List (Letter I))
     (hms : MvChain w₀ ms (Mv.cross u l₁ l₂ v).src) :
     PushGoal RD k sc μ w₀ c ms (Mv.cross u l₁ l₂ v) := by
@@ -354,7 +354,7 @@ theorem push_cross (hr : ∀ i, sc.r i = 1) {c : ℕ} (hF : LowHyp RD k sc μ w�
     subst P l₁ v
     rw [hcm] at hc ⊢
     rw [List.append_assoc (mvLay ms)]
-    obtain ⟨a, ha⟩ := capBlk_enterL (RD := RD) (k := k) (sc := sc) hr (wt RD μ Q) S l₂ l d
+    obtain ⟨a, ha⟩ := capBlk_enterL (RD := RD) (k := k) (sc := sc) (wt RD μ Q) S l₂ l d
     refine push_of_sub_smul hF hIH (P := u) (S := l₂ :: S) (Q := Q) (l := l) (d := d)
       (c' := ccnt (mvLay ms) + S.length) ?hmsA [] (by simp [MvChain]) (a : k) ?EA ?h1A ?h2A ?h3A
       ?h4A
@@ -377,7 +377,7 @@ theorem push_cross (hr : ∀ i, sc.r i = 1) {c : ℕ} (hF : LowHyp RD k sc μ w�
     rw [List.append_assoc (mvLay ms)]
     refine capT_of_leL hF (c' := ccnt (mvLay ms) + (S'.length + 1)) (by simp at hc; omega)
       (by simp) ?_
-    refine dg_mem_free (mvLay ms) [] P Q (capBlk_sA (RD := RD) (k := k) hr _ l₁ S' l d) ?_
+    refine dg_mem_free (mvLay ms) [] P Q (capBlk_sA (RD := RD) (k := k) _ l₁ S' l d) ?_
       (by simp [xLay_ne_nil]) ?_ (by simp)
     · have h1 := (sChain_xLay l₁ l.dual).whisk [] (S' ++ [l])
       simpa using h1.append (by simpa using sChain_capBlk (l₁ :: S') l d)
@@ -387,7 +387,7 @@ theorem push_cross (hr : ∀ i, sc.r i = 1) {c : ℕ} (hF : LowHyp RD k sc μ w�
     rw [hcm] at hc ⊢
     rw [List.append_assoc (mvLay ms)]
     refine capT_of_leL hF (c' := ccnt (mvLay ms) + 0) (by simp at hc; omega) (by simp) ?_
-    refine dg_mem_free (mvLay ms) [] P Q (capBlk_AB (RD := RD) (k := k) hr _ l d) ?_
+    refine dg_mem_free (mvLay ms) [] P Q (capBlk_AB (RD := RD) (k := k) _ l d) ?_
       (by simp [xLay_ne_nil]) ?_ (by simp)
     · exact (sChain_xLay l l.dual).append (by simpa using sChain_capBlk [] l d)
     · simp only [Mv.lay]; wnf
@@ -406,7 +406,7 @@ theorem push_cross (hr : ∀ i, sc.r i = 1) {c : ℕ} (hF : LowHyp RD k sc μ w�
     case h4C =>
       simp only [mvLay_singleton, Mv.lay, ccnt_map_whL, ccnt_xLay, List.length_append,
         List.length_cons, List.length_nil]; omega
-    refine dg_mod_free (mvLay ms) [] P Q (capBlk_crossS (RD := RD) (k := k) hr _ S₁ S₂ l₁ l₂ l d)
+    refine dg_mod_free (mvLay ms) [] P Q (capBlk_crossS (RD := RD) (k := k) _ S₁ S₂ l₁ l₂ l d)
       ?_ ?_ (by simp [xLay_ne_nil]) (by simp [capBlk]) ?_ ?_ (by simp)
     · have h1 := (sChain_xLay l₁ l₂).whisk ([l.dual] ++ S₁) (S₂ ++ [l])
       simpa using h1.append (by simpa using sChain_capBlk (S₁ ++ [l₂, l₁] ++ S₂) l d)
@@ -420,7 +420,7 @@ theorem push_cross (hr : ∀ i, sc.r i = 1) {c : ℕ} (hF : LowHyp RD k sc μ w�
     rw [List.append_assoc (mvLay ms)]
     refine capT_of_leL hF (c' := ccnt (mvLay ms) + (S'.length + 1)) (by simp at hc; omega)
       (by simp) ?_
-    refine dg_mem_free (mvLay ms) [] P Q (capBlk_sB (RD := RD) (k := k) hr _ S' l₂ l d) ?_
+    refine dg_mem_free (mvLay ms) [] P Q (capBlk_sB (RD := RD) (k := k) _ S' l₂ l d) ?_
       (by simp [xLay_ne_nil]) ?_ (by simp)
     · have h1 := (sChain_xLay l l₂).whisk ([l.dual] ++ S') []
       simpa using h1.append (by simpa using sChain_capBlk (S' ++ [l₂]) l d)
@@ -458,7 +458,7 @@ theorem dotBubSpan_le_capTarget {ms : List (Mv I)} {P Q : List (Letter I)}
   · rw [mvLay_append, mvLay_mvWh, h1, List.append_nil]
 
 /-- **The cap push through a cup.** -/
-theorem push_cup (hr : ∀ i, sc.r i = 1) {c : ℕ} (hF : LowHyp RD k sc μ w₀ c) {ms : List (Mv I)}
+theorem push_cup {c : ℕ} (hF : LowHyp RD k sc μ w₀ c) {ms : List (Mv I)}
     (hIH : PushHyp RD k sc μ w₀ c ms) (u : List (Letter I)) (l' : Letter I) (v : List (Letter I))
     (hms : MvChain w₀ ms (Mv.cup u l' v).src) :
     PushGoal RD k sc μ w₀ c ms (Mv.cup u l' v) := by
@@ -493,7 +493,7 @@ theorem push_cup (hr : ∀ i, sc.r i = 1) {c : ℕ} (hF : LowHyp RD k sc μ w₀
     rw [List.append_assoc (mvLay ms)]
     refine capT_of_leL hF (c' := ccnt (mvLay ms) + S'.length) (by simp at hc; omega)
       (by simp) ?_
-    refine dg_mem_free (mvLay ms) [] P Q (capBlk_cupAs (RD := RD) (k := k) hr _ S' l d) ?_
+    refine dg_mem_free (mvLay ms) [] P Q (capBlk_cupAs (RD := RD) (k := k) _ S' l d) ?_
       (by simp) ?_ (by simp)
     · exact (show SChain (S' ++ [l]) [([], .cup l.dual, S' ++ [l])] (l.dual :: l :: (S' ++ [l]))
         from ⟨rfl, by simp⟩).append (by simpa using sChain_capBlk (l :: S') l d)
@@ -518,7 +518,7 @@ theorem push_cup (hr : ∀ i, sc.r i = 1) {c : ℕ} (hF : LowHyp RD k sc μ w₀
     rw [List.append_assoc (mvLay ms)]
     refine capT_of_leL hF (c' := ccnt (mvLay ms) + ((S₁ ++ S₂).length + 1))
       (by simp at hc ⊢; omega) (by simp) ?_
-    refine dg_mem_free (mvLay ms) [] P Q (capBlk_cupSS (RD := RD) (k := k) hr _ S₁ S₂ l' l d) ?_
+    refine dg_mem_free (mvLay ms) [] P Q (capBlk_cupSS (RD := RD) (k := k) _ S₁ S₂ l' l d) ?_
       (by simp) ?_ (by simp)
     · exact (show SChain _ [([l.dual] ++ S₁, .cup l', S₂ ++ [l])] _ from ⟨by simp, by simp⟩).append
         (sChain_capBlk _ l d)
@@ -554,7 +554,7 @@ theorem push_cup (hr : ∀ i, sc.r i = 1) {c : ℕ} (hF : LowHyp RD k sc μ w₀
           (P ++ (S ++ [l.dual]) ++ v) := by
         refine MvChain.wh P v (MvChain.append (by simpa using mvChain_dotMv d [] l.dual S) ?_)
         exact mvChain_rmMv l.dual S
-      obtain ⟨a, ha⟩ := capBlk_cupBright (RD := RD) (k := k) (sc := sc) hr (wt RD μ v) S l d
+      obtain ⟨a, ha⟩ := capBlk_cupBright (RD := RD) (k := k) (sc := sc) (wt RD μ v) S l d
       refine capT_of_sub hF (c' := ccnt (mvLay ms) + (S.length - 1)) ?_ (by omega)
         (b := (a : k) • NF.dg (pres RD k sc) μ w₀ _
           (mvLay (ms ++ mvWh P v (dotMv d [] l.dual S ++ rmMv l.dual S)))) ?_ ?_
@@ -579,7 +579,7 @@ theorem push_cup (hr : ∀ i, sc.r i = 1) {c : ℕ} (hF : LowHyp RD k sc μ w₀
   · exact push_disjR hIH hms d R hQ hu hc
 
 /-- **The cap push**: a cap block on top of a move diagram lies in `CapTarget`. -/
-theorem capPush (hr : ∀ i, sc.r i = 1) {c : ℕ} (hF : LowHyp RD k sc μ w₀ c) : ∀ ms : List (Mv I), PushHyp RD k sc μ w₀ c ms := by
+theorem capPush {c : ℕ} (hF : LowHyp RD k sc μ w₀ c) : ∀ ms : List (Mv I), PushHyp RD k sc μ w₀ c ms := by
   intro ms
   induction ms using List.reverseRecOn with
   | nil => exact pushHyp_nil c
@@ -589,12 +589,12 @@ theorem capPush (hr : ∀ i, sc.r i = 1) {c : ℕ} (hF : LowHyp RD k sc μ w₀ 
     rw [mvLay_append, mvLay_singleton] at hc ⊢
     rw [ccnt_append] at hc ⊢
     cases m with
-    | dot u x v => exact push_dot hr hF ih u x v hms P S Q l d htgt hc
-    | cross u l₁ l₂ v => exact push_cross hr hF ih u l₁ l₂ v hms P S Q l d htgt hc
-    | cup u l' v => exact push_cup hr hF ih u l' v hms P S Q l d htgt hc
+    | dot u x v => exact push_dot hF ih u x v hms P S Q l d htgt hc
+    | cross u l₁ l₂ v => exact push_cross hF ih u l₁ l₂ v hms P S Q l d htgt hc
+    | cup u l' v => exact push_cup hF ih u l' v hms P S Q l d htgt hc
 
 /-- Composing with a cap preserves `CapTarget`. -/
-theorem capTarget_comp_cap (hr : ∀ i, sc.r i = 1) {c c₁ : ℕ} (hF : LowHyp RD k sc μ w₀ c) (hc₁ : c₁ ≤ c)
+theorem capTarget_comp_cap {c c₁ : ℕ} (hF : LowHyp RD k sc μ w₀ c) (hc₁ : c₁ ≤ c)
     {P Q : List (Letter I)} {l : Letter I} {f}
     (hf : f ∈ CapTarget RD k sc μ w₀ (P ++ [l.dual, l] ++ Q) c₁) :
     f ≫ NF.dg (pres RD k sc) μ (P ++ [l.dual, l] ++ Q) (P ++ Q) [(P, .cap l, Q)] ∈
@@ -609,7 +609,7 @@ theorem capTarget_comp_cap (hr : ∀ i, sc.r i = 1) {c c₁ : ℕ} (hF : LowHyp 
     rw [Category.assoc, bubAt_comm, ← Category.assoc,
       NF.dg_comp hch.sChain (show SChain (P ++ [l.dual, l] ++ Q) [(P, .cap l, Q)] (P ++ Q) from
         ⟨by simp, by simp⟩)]
-    have h := capPush hr hF ms P [] Q l 0 (by simpa using hch) (by simp; omega)
+    have h := capPush hF ms P [] Q l 0 (by simpa using hch) (by simp; omega)
     have e : (capBlk [] l 0).map (whL P Q) = [(P, .cap l, Q)] := by simp [capBlk, lmLc]
     rw [e, show P ++ [] ++ Q = P ++ Q by simp, List.length_nil, add_zero] at h
     exact capTarget_mono hcc (capTarget_comp_bubAt h hβ)
@@ -621,7 +621,7 @@ variable (μ w₀) in
 /-- **Elimination of caps**: every normal-form diagram `E_{w₀} 1_μ ⟶ E_v 1_μ` with
 at most `c` crossings is a linear combination of move diagrams with at most `c` crossings followed
 by bubble monomials, modulo 2-morphisms factoring through sequences shorter than `w₀`. -/
-theorem capElim (hr : ∀ i, sc.r i = 1) : ∀ (c : ℕ) (v : List (Letter I)) (L : List (LayerData I)), ccnt L ≤ c →
+theorem capElim : ∀ (c : ℕ) (v : List (Letter I)) (L : List (LayerData I)), ccnt L ≤ c →
     NF.dg (pres RD k sc) μ w₀ v L ∈ CapTarget RD k sc μ w₀ v c := by
   intro c
   induction c using Nat.strong_induction_on with
@@ -659,7 +659,7 @@ theorem capElim (hr : ∀ i, sc.r i = 1) : ∀ (c : ℕ) (v : List (Letter I)) (
         exact this
       | cup l => exact capTarget_comp_mv hL' (Mv.cup a l b) (by simp [Mv.src])
       | cap l =>
-        have := capTarget_comp_cap hr hF (c₁ := ccnt L) (by omega) (P := a) (Q := b) (l := l) hL'
+        have := capTarget_comp_cap hF (c₁ := ccnt L) (by omega) (P := a) (Q := b) (l := l) hL'
         rw [show a ++ (Shape.cap l).cod ++ b = a ++ b by simp, ccnt_single_cap, add_zero]
         exact this
     · rw [NF.dg_of_not h]; exact Submodule.zero_mem _

@@ -76,6 +76,30 @@ theorem leftStandardizationFamilyCast_mapRight (h' : ν = ν') (hb : blockPrefix
   subst h'
   rfl
 
+/-- **`leftStandardizationFamilyCast` is natural**, inverse form. -/
+theorem leftStandardizationFamilyCast_symm_mapRight (h' : ν = ν')
+    (hb : blockPrefix c (ℓ + 1) = ν) (hb' : blockPrefix c (ℓ + 1) = ν')
+    (hα : RootNonViolated (ν := ν) (blockRoot c)) (hα' : RootNonViolated (ν := ν') (blockRoot c))
+    (g : N →ₗ[(BlockAlgebra k Q Λ c)ᵐᵒᵖ] N') (x : LeftStandardization Q Λ c hb hα N) :
+    (leftStandardizationFamilyCast (Q := Q) (Λ := Λ) N' h' hb hb' hα hα').symm
+        (show FamilyCast (TensorProductAlgebra k Q Λ) h' (LeftStandardization Q Λ c hb hα N') from
+          BalancedTensor.mapRight g x) =
+      BalancedTensor.mapRight g ((leftStandardizationFamilyCast (Q := Q) (Λ := Λ) N h' hb hb' hα
+        hα').symm (show FamilyCast (TensorProductAlgebra k Q Λ) h' (LeftStandardization Q Λ c hb hα N)
+          from x)) := by
+  subst h'
+  rfl
+
+theorem familyCast_tensorProductAlgebra_smul {ν ν' : Multiset I} (h' : ν = ν') {P : Type}
+    [AddCommGroup P] [Module k P] [Module (TensorProductAlgebra k Q Λ ν) P]
+    [IsScalarTower k (TensorProductAlgebra k Q Λ ν) P] (t : TensorProductAlgebra k Q Λ ν')
+    (p : P) :
+    t • (show FamilyCast (TensorProductAlgebra k Q Λ) h' P from p) =
+      (show FamilyCast (TensorProductAlgebra k Q Λ) h' P from
+        castTensorProductAlgebra Q Λ h'.symm t • p) := by
+  subst h'
+  rfl
+
 end CastNatural
 
 theorem cycFlip_castCyc {I : Type} [DecidableEq I] {k : Type} [Field k]
@@ -246,6 +270,188 @@ theorem mem_range_lastBlackInputIncl (x : XL) :
     rw [lastBlackInputIncl, LinearMap.comp_apply, LinearEquiv.coe_coe,
       LinearEquiv.apply_symm_apply]
     rfl
+
+omit [DecidableEq I] in
+include hκ in
+theorem lastBlock_eq_of_last : lastBlock b = {i} + lastBlock b' := hκ.symm
+
+local notation "N₁" => FactorCast Q Λ (rfl : initWeight b = initWeight b)
+  (lastBlock_eq_of_last i hκ) (TwoPieceInput Q Λ b M hα')
+local notation "X₁" => FactorCast Q Λ (initWeight_eq_of_last h0 hr)
+  (rfl : lastBlock b' = lastBlock b') (TwoPieceInput Q Λ b' M' hα'')
+local notation "Cyc'" => CycKLR k Q (fun i : I => (Polynomial.X : Polynomial k) ^ Λ (Fin.last ℓ) i)
+  (lastBlock b')
+local notation "ofX" => twoPieceInputOf Q Λ b M hα'
+local notation "ofX'" => twoPieceInputOf Q Λ b' M' hα''
+
+theorem rightAppendHom_tmul_smul (t : Tθ) (c : Cyc') (x : XL) :
+    (rightAppendHom Q Λ i (initWeight b) (lastBlock b') (t ⊗ₜ c) • (show N₁ from ofX x) : N₁) =
+      (show N₁ from ofX (t • (BalancedTensor.mapRight (lastFactorEnd Q Λ b (cc (cL c))) :
+        XL →ₗ[Tθ] XL) x)) := by
+  rw [factorCast_smul]
+  change (show N₁ from (castFactor Q Λ rfl (lastBlock_eq_of_last i hκ)).symm (t ⊗ₜ cL c) • ofX x)
+    = _
+  rw [castFactor_symm_tmul, twoPieceInput_smul_def, twoPieceInputAction_tmul]
+  rfl
+
+theorem factorCast_tmul_smul_ofX' (t : Tθ) (c : Cyc') (x : XL') :
+    ((t ⊗ₜ c : parabolicFactorAlgebra Q Λ (initWeight b) (lastBlock b')) • (show X₁ from ofX' x)
+      : X₁) = (show X₁ from ofX' (castTensorProductAlgebra Q (Λ ∘ Fin.castSucc)
+        (initWeight_eq_of_last h0 hr).symm t •
+          (BalancedTensor.mapRight (lastFactorEnd Q Λ b' c) : XL' →ₗ[Tfam (initWeight b')] XL') x))
+      := by
+  rw [factorCast_smul, castFactor_symm_tmul, twoPieceInput_smul_def, twoPieceInputAction_tmul]
+  rfl
+
+theorem lastBlackIncl_comp_lastFactorEnd (c : Cyc') :
+    (lastBlackIncl Q Λ i h0 hr hκ M).comp (castBlockModuleMap hinit (lastFactorEnd Q Λ b' c)) =
+      (lastFactorEnd Q Λ b (cc (cL c))).comp (lastBlackIncl Q Λ i h0 hr hκ M) := by
+  refine LinearMap.ext fun m => ?_
+  change initRestrictOf Q Λ b ((op (E (lastBlockAlgHom Q Λ b' (CycKLR.flip _ (lastBlock b') c)))
+    : BBᵐᵒᵖ) • (show M' from m).val) = initRestrictOf Q Λ b ((op (lastBlockAlgHom Q Λ b
+      (CycKLR.flip _ (lastBlock b) (cc (cL c)))) : BBᵐᵒᵖ) • (show M' from m).val)
+  rw [lastBlockAlgHom_flip_castCyc]
+
+theorem lastBlackInclRight_mapRight (c : Cyc') (z : XC) :
+    lastBlackInclRight Q Λ i h0 hr hκ M hα'
+        (BalancedTensor.mapRight (castBlockModuleMap hinit (lastFactorEnd Q Λ b' c)) z) =
+      BalancedTensor.mapRight (lastFactorEnd Q Λ b (cc (cL c)))
+        (lastBlackInclRight Q Λ i h0 hr hκ M hα' z) := by
+  rw [lastBlackInclRight, ← LinearMap.comp_apply, ← BalancedTensor.mapRight_comp,
+    lastBlackIncl_comp_lastFactorEnd, BalancedTensor.mapRight_comp, LinearMap.comp_apply]
+
+theorem lastBlackInputCast_mapRight (c : Cyc') (x : XL') :
+    lastBlackInputCast Q Λ i h0 hr hκ M hα' hα''
+        (show FamilyCast Tfam hθ XL' from
+          (BalancedTensor.mapRight (lastFactorEnd Q Λ b' c) : XL' →ₗ[Tfam (initWeight b')] XL') x) =
+      BalancedTensor.mapRight (castBlockModuleMap hinit (lastFactorEnd Q Λ b' c))
+        (lastBlackInputCast Q Λ i h0 hr hκ M hα' hα'' (show FamilyCast Tfam hθ XL' from x)) := by
+  rw [lastBlackInputCast, LinearEquiv.trans_apply, LinearEquiv.trans_apply,
+    leftStandardizationFamilyCast_symm_mapRight, leftStandardizationCast_mapRight]
+
+/-- **The inclusion `X_{M e} → X_M` is natural for the last factor.** -/
+theorem lastBlackInputIncl_mapRight (c : Cyc') (x : XL') :
+    lastBlackInputIncl Q Λ i h0 hr hκ M hα' hα''
+        (show FamilyCast Tfam hθ XL' from
+          (BalancedTensor.mapRight (lastFactorEnd Q Λ b' c) : XL' →ₗ[Tfam (initWeight b')] XL') x) =
+      BalancedTensor.mapRight (lastFactorEnd Q Λ b (cc (cL c)))
+        (lastBlackInputIncl Q Λ i h0 hr hκ M hα' hα'' (show FamilyCast Tfam hθ XL' from x)) := by
+  change lastBlackInclRight Q Λ i h0 hr hκ M hα' (lastBlackInputCast Q Λ i h0 hr hκ M hα' hα'' _) =
+    BalancedTensor.mapRight (lastFactorEnd Q Λ b (cc (cL c)))
+      (lastBlackInclRight Q Λ i h0 hr hκ M hα' (lastBlackInputCast Q Λ i h0 hr hκ M hα' hα'' _))
+  rw [lastBlackInputCast_mapRight, lastBlackInclRight_mapRight]
+
+theorem factorCast_tmul_smul' (t : Tθ) (c : Cyc') (x : X₁) :
+    ((t ⊗ₜ c : parabolicFactorAlgebra Q Λ (initWeight b) (lastBlock b')) • x : X₁) =
+      (show X₁ from ofX' (castTensorProductAlgebra Q (Λ ∘ Fin.castSucc)
+        (initWeight_eq_of_last h0 hr).symm t •
+          (BalancedTensor.mapRight (lastFactorEnd Q Λ b' c) : XL' →ₗ[Tfam (initWeight b')] XL')
+            (show XL' from x))) :=
+  factorCast_tmul_smul_ofX' Q Λ i h0 hr hκ M hα'' t c x
+
+theorem rightAppendHom_one_smul (x : XL) :
+    (rightAppendHom Q Λ i (initWeight b) (lastBlock b') 1 • (show N₁ from ofX x) : N₁) =
+      (show N₁ from ofX ((BalancedTensor.mapRight (lastFactorEnd Q Λ b (cc (cL 1))) :
+        XL →ₗ[Tθ] XL) x)) := by
+  rw [Algebra.TensorProduct.one_def, rightAppendHom_tmul_smul, one_smul]
+
+local notation "inc" => lastBlackInputIncl Q Λ i h0 hr hκ M hα' hα''
+
+theorem mapRight_lastBlackInputIncl (x : FamilyCast Tfam hθ XL') :
+    (BalancedTensor.mapRight (lastFactorEnd Q Λ b (cc (cL 1))) : XL →ₗ[Tθ] XL) (inc x) = inc x :=
+  (mem_range_lastBlackInputIncl Q Λ i h0 hr hκ M hα' hα'' (inc x)).1 ⟨x, rfl⟩
+
+theorem familyCast_smul_initWeight (t : Tθ) (x : XL') :
+    t • (show FamilyCast Tfam hθ XL' from x) = (show FamilyCast Tfam hθ XL' from
+      castTensorProductAlgebra Q (Λ ∘ Fin.castSucc) (initWeight_eq_of_last h0 hr).symm t • x) :=
+  familyCast_tensorProductAlgebra_smul hθ t x
+
+/-- The underlying additive map of `X_{M e} ≅ ₂Eᵢ X_M`. -/
+def lastBlackInputHom : X₁ →+ RightResRight Q Λ i (initWeight b) (lastBlock b') N₁ where
+  toFun x := Res.mk (show N₁ from ofX (inc (show FamilyCast Tfam hθ XL' from x)))
+    (by rw [rightAppendHom_one_smul, mapRight_lastBlackInputIncl])
+  map_zero' := Res.ext (by
+    change (show N₁ from ofX (inc 0)) = 0
+    rw [map_zero]
+    rfl)
+  map_add' x y := Res.ext (by
+    change (show N₁ from ofX (inc (show FamilyCast Tfam hθ XL' from x + y))) =
+      (show N₁ from ofX (inc (show FamilyCast Tfam hθ XL' from x))) +
+        (show N₁ from ofX (inc (show FamilyCast Tfam hθ XL' from y)))
+    rw [show (show FamilyCast Tfam hθ XL' from x + y) =
+      (show FamilyCast Tfam hθ XL' from x) + (show FamilyCast Tfam hθ XL' from y) from rfl,
+      map_add]
+    rfl)
+
+theorem lastBlackInputHom_val (x : X₁) :
+    (lastBlackInputHom Q Λ i h0 hr hκ M hα' hα'' x).val =
+      (show N₁ from ofX (inc (show FamilyCast Tfam hθ XL' from x))) := rfl
+
+theorem lastBlackInputHom_tmul_one (t : Tθ) (x : X₁) :
+    lastBlackInputHom Q Λ i h0 hr hκ M hα' hα''
+        ((t ⊗ₜ (1 : Cyc') : parabolicFactorAlgebra Q Λ (initWeight b) (lastBlock b')) • x) =
+      (t ⊗ₜ (1 : Cyc') : parabolicFactorAlgebra Q Λ (initWeight b) (lastBlock b')) •
+        lastBlackInputHom Q Λ i h0 hr hκ M hα' hα'' x := by
+  refine Res.ext ?_
+  rw [Res.val_smul, lastBlackInputHom_val, lastBlackInputHom_val,
+    rightAppendHom_tmul_smul Q Λ i hκ M hα',
+    mapRight_lastBlackInputIncl Q Λ i h0 hr hκ M hα' hα'',
+    factorCast_tmul_smul' Q Λ i h0 hr hκ M hα'', lastFactorEnd_one,
+    BalancedTensor.mapRight_id, LinearMap.id_apply]
+  change (show N₁ from ofX (inc (show FamilyCast Tfam hθ XL' from
+    castTensorProductAlgebra Q (Λ ∘ Fin.castSucc) (initWeight_eq_of_last h0 hr).symm t •
+      (show XL' from x)))) = _
+  rw [← familyCast_smul_initWeight, map_smul]
+
+theorem lastBlackInputHom_one_tmul (c : Cyc') (x : X₁) :
+    lastBlackInputHom Q Λ i h0 hr hκ M hα' hα''
+        (((1 : Tθ) ⊗ₜ c : parabolicFactorAlgebra Q Λ (initWeight b) (lastBlock b')) • x) =
+      ((1 : Tθ) ⊗ₜ c : parabolicFactorAlgebra Q Λ (initWeight b) (lastBlock b')) •
+        lastBlackInputHom Q Λ i h0 hr hκ M hα' hα'' x := by
+  refine Res.ext ?_
+  rw [Res.val_smul, lastBlackInputHom_val, lastBlackInputHom_val,
+    rightAppendHom_tmul_smul Q Λ i hκ M hα',
+    factorCast_tmul_smul' Q Λ i h0 hr hκ M hα'', map_one, one_smul, one_smul]
+  change (show N₁ from ofX (inc (show FamilyCast Tfam hθ XL' from
+    (BalancedTensor.mapRight (lastFactorEnd Q Λ b' c) : XL' →ₗ[Tfam (initWeight b')] XL')
+      (show XL' from x)))) = _
+  rw [lastBlackInputIncl_mapRight]
+
+theorem lastBlackInputHom_injective :
+    Function.Injective (lastBlackInputHom Q Λ i h0 hr hκ M hα' hα'') := by
+  intro x y hxy
+  have h := congrArg Res.val hxy
+  rw [lastBlackInputHom_val, lastBlackInputHom_val] at h
+  exact lastBlackInputIncl_injective Q Λ i h0 hr hκ M hα' hα'' ((twoPieceInputOf Q Λ b M hα').injective h)
+
+theorem lastBlackInputHom_surjective :
+    Function.Surjective (lastBlackInputHom Q Λ i h0 hr hκ M hα' hα'') := by
+  intro y
+  have hy : (BalancedTensor.mapRight (lastFactorEnd Q Λ b (cc (cL 1))) : XL →ₗ[Tθ] XL)
+      (show XL from y.val) = show XL from y.val := by
+    have h1 := y.prop
+    rw [show y.val = (show N₁ from ofX (show XL from y.val)) from rfl,
+      rightAppendHom_one_smul Q Λ i hκ M hα'] at h1
+    exact (twoPieceInputOf Q Λ b M hα').injective h1
+  obtain ⟨x, hx⟩ := (mem_range_lastBlackInputIncl Q Λ i h0 hr hκ M hα' hα'' _).2 hy
+  exact ⟨x, Res.ext (by rw [lastBlackInputHom_val, hx]; rfl)⟩
+
+/-- **`₂Eᵢ X_M ≅ X_{M e}`** (Webster, arXiv:1309.3796v3, proof of Proposition 5.5): restricting the
+input `X_M` of the two-piece standardization along the last black strand of colour `i` of the last
+factor gives the input of `ₗEᵢ M = M e`, as modules over `T^{λ'}(θ) ⊗ R^{λ_ℓ}(b'_{ℓ+1})`. -/
+def lastBlackInputEquiv :
+    X₁ ≃ₗ[parabolicFactorAlgebra Q Λ (initWeight b) (lastBlock b')]
+      RightResRight Q Λ i (initWeight b) (lastBlock b') N₁ :=
+  LinearEquiv.ofBijective
+    (tensorLinearOfGenerators (lastBlackInputHom Q Λ i h0 hr hκ M hα' hα'')
+      (lastBlackInputHom_tmul_one Q Λ i h0 hr hκ M hα' hα'')
+      (lastBlackInputHom_one_tmul Q Λ i h0 hr hκ M hα' hα''))
+    ⟨lastBlackInputHom_injective Q Λ i h0 hr hκ M hα' hα'',
+      lastBlackInputHom_surjective Q Λ i h0 hr hκ M hα' hα''⟩
+
+theorem lastBlackInputEquiv_val (x : X₁) :
+    (lastBlackInputEquiv Q Λ i h0 hr hκ M hα' hα'' x).val =
+      (show N₁ from ofX (inc (show FamilyCast Tfam hθ XL' from x))) := rfl
 
 end StendhalAlgebra
 

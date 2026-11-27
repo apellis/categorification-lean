@@ -2457,6 +2457,7 @@ import Categorification.WeightedKLR.RedStrands.BlockInsertLoading
 import Categorification.WeightedKLR.RedStrands.BlockInsertWord
 import Categorification.WeightedKLR.RedStrands.LabelledStandardFiltration
 import Categorification.WeightedKLR.RedStrands.PhiDiagrams
+import Categorification.WeightedKLR.RedStrands.CoarseAssignment
 import Categorification.WeightedKLR.RedStrands.PhiStandardLayers
 import Categorification.WeightedKLR.RedStrands.PhiWordsLabels
 import Categorification.WeightedKLR.RedStrands.StandardBlackInduction

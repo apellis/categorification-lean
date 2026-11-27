@@ -2090,6 +2090,7 @@ import Categorification.Algebra.Graded.CornerBimoduleGrading
 import Categorification.Algebra.Graded.RectBimodTensor
 import Categorification.Algebra.Graded.CyclicGenerator
 import Categorification.Algebra.Graded.EulerCharacteristic
+import Categorification.Algebra.Graded.ExtEuler
 import Categorification.Algebra.Graded.ExtensionK0
 import Categorification.Algebra.Graded.FiniteResolution
 import Categorification.Algebra.Graded.HomFormEquiv
@@ -2434,6 +2435,7 @@ import Categorification.WeightedKLR.RedStrands.HalfTwistDuality
 import Categorification.WeightedKLR.RedStrands.HalfTwistDualityGeneral
 import Categorification.WeightedKLR.RedStrands.HalfTwistTilting
 import Categorification.WeightedKLR.RedStrands.HalfTwistExt
+import Categorification.WeightedKLR.RedStrands.HalfTwistDimension
 import Categorification.WeightedKLR.RedStrands.InterleavedPBW
 import Categorification.WeightedKLR.RedStrands.IteratedLeftStandard
 import Categorification.WeightedKLR.RedStrands.LastRedDetectedClasses
@@ -2530,6 +2532,7 @@ import Categorification.WeightedKLR.RedStrands.BraidAdjacentClassCongr
 import Categorification.WeightedKLR.RedStrands.BraidFiltrationDimension
 import Categorification.WeightedKLR.RedStrands.BraidSequenceStandardFiltration
 import Categorification.WeightedKLR.RedStrands.BraidLengthInduction
+import Categorification.WeightedKLR.RedStrands.BraidEquivalenceDimension
 import Categorification.WeightedKLR.RedStrands.BraidColumnFiltration
 import Categorification.WeightedKLR.RedStrands.BraidColumnDiagramFiltration
 import Categorification.WeightedKLR.RedStrands.LoadingChoiceExpansion

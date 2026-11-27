@@ -45,8 +45,7 @@ statements below, tracked for removal in the roadmap.
   the same relations as the `p̃_w`.
 * `latticeJoin_injective` : the black contents are independent in `U⁻ ⊗ V^λ`.
 * `exists_tildeTensorEquiv` : **Webster, Proposition 4.39**, with the target described as the
-  span of the `p̃_w`. Its identification with `U_q^{-,ℤ} ⊗ V^ℤ_λ` and the compatibilities
-  (4.40) are not yet formalized.
+  span of the `p̃_w`. `NegativeTensorLattice` identifies this span with `U_q^{-,ℤ} ⊗ V^ℤ_λ`.
 -/
 
 noncomputable section

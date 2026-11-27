@@ -28,6 +28,8 @@ module `C y` (`rangeMulLeftDualEquiv`). Webster's pairing `⟨π a, π b⟩ = tr
   idempotent `f ≤ e`.
 * `embedSelfDualEquiv`, `embedSelfDualEquiv_mul`: the same self-duality on the image of `y C`
   under an injective multiplicative linear map `ψ : C → V`.
+* `IsContravariant`, `IsContravariant.transport`: forms with `⟨x c, x'⟩ = ⟨x, x' s_V(c)⟩`, and
+  their transport along isomorphisms commuting with the right action (`CommutesRight`).
 -/
 
 noncomputable section
@@ -361,5 +363,65 @@ theorem embedSelfDualEquiv_mul (x x' : (Left k y).map ψ) (c : C) :
 end Embed
 
 end Star
+
+section Contravariant
+
+/-! ### Forms contravariant for a right action
+
+For a subset `S` of a `k`-algebra `V` and a map `s_V : V → V`, a form on a subspace `N ⊆ V` is
+contravariant when `⟨x c, x'⟩ = ⟨x, x' s_V(c)⟩` for `c ∈ S`. This property transports along
+linear isomorphisms commuting with right multiplication by `S`. -/
+
+variable {k : Type*} [Field k] {V : Type*} [Ring V] [Algebra k V] (S : V → Prop) (sV : V → V)
+
+/-- The form `Φ` on `N` is contravariant for right multiplication by `S`, through `s_V`. -/
+def IsContravariant {N : Submodule k V} (Φ : N →ₗ[k] Module.Dual k N) : Prop :=
+  ∀ (x x' : N) (c : V), S c → ∀ (h₁ : x.1 * c ∈ N) (h₂ : x'.1 * sV c ∈ N),
+    Φ ⟨x.1 * c, h₁⟩ x' = Φ x ⟨x'.1 * sV c, h₂⟩
+
+/-- `E : M ≃ N` commutes with right multiplication by `S`. -/
+def CommutesRight {M N : Submodule k V} (E : M ≃ₗ[k] N) : Prop :=
+  ∀ (m : M) (c : V), S c → ∀ h : m.1 * c ∈ M, (E ⟨m.1 * c, h⟩).1 = (E m).1 * c
+
+variable {S sV}
+
+theorem IsContravariant.transport {M N : Submodule k V} {E : M ≃ₗ[k] N}
+    {Φ : N ≃ₗ[k] Module.Dual k N} (hΦ : IsContravariant S sV Φ.toLinearMap)
+    (hE : CommutesRight S E) (hS : ∀ c, S c → S (sV c)) :
+    IsContravariant S sV (E.trans (Φ.trans E.dualMap)).toLinearMap := by
+  intro x x' c hc h₁ h₂
+  have m₁ : (E x).1 * c ∈ N := hE x c hc h₁ ▸ (E ⟨x.1 * c, h₁⟩).2
+  have m₂ : (E x').1 * sV c ∈ N := hE x' (sV c) (hS c hc) h₂ ▸ (E ⟨x'.1 * sV c, h₂⟩).2
+  have e₁ : E ⟨x.1 * c, h₁⟩ = ⟨(E x).1 * c, m₁⟩ := Subtype.ext (hE x c hc h₁)
+  have e₂ : E ⟨x'.1 * sV c, h₂⟩ = ⟨(E x').1 * sV c, m₂⟩ :=
+    Subtype.ext (hE x' (sV c) (hS c hc) h₂)
+  change Φ (E ⟨x.1 * c, h₁⟩) (E x') = Φ (E x) (E ⟨x'.1 * sV c, h₂⟩)
+  rw [e₁, e₂]
+  exact hΦ _ _ c hc m₁ m₂
+
+theorem CommutesRight.trans {M N L : Submodule k V} {E : M ≃ₗ[k] N} {F : N ≃ₗ[k] L}
+    (hE : CommutesRight S E) (hF : CommutesRight S F) : CommutesRight S (E.trans F) := by
+  intro m c hc h
+  have m₁ : (E m).1 * c ∈ N := hE m c hc h ▸ (E ⟨m.1 * c, h⟩).2
+  have e : E ⟨m.1 * c, h⟩ = ⟨(E m).1 * c, m₁⟩ := Subtype.ext (hE m c hc h)
+  change (F (E ⟨m.1 * c, h⟩)).1 = (F (E m)).1 * c
+  rw [e]
+  exact hF (E m) c hc m₁
+
+theorem CommutesRight.symm {M N : Submodule k V} {E : M ≃ₗ[k] N} (hE : CommutesRight S E)
+    (hM : ∀ m ∈ M, ∀ c, S c → m * c ∈ M) : CommutesRight S E.symm := by
+  intro n c hc h
+  have hm := hM _ (E.symm n).2 c hc
+  have e := hE (E.symm n) c hc hm
+  rw [LinearEquiv.apply_symm_apply] at e
+  have : E.symm ⟨n.1 * c, h⟩ = ⟨(E.symm n).1 * c, hm⟩ := by
+    rw [LinearEquiv.symm_apply_eq]
+    exact Subtype.ext e.symm
+  rw [this]
+
+theorem commutesRight_ofEq {M N : Submodule k V} (h : M = N) :
+    CommutesRight S (LinearEquiv.ofEq M N h) := fun _ _ _ _ => rfl
+
+end Contravariant
 
 end Categorification.CornerSelfDual

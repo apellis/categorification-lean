@@ -153,6 +153,48 @@ theorem subsingleton_ext_starDual_of_resolution {S : ModuleCat.{0} A}
         hsyz (N - 1) 0 (by omega) j (by omega)
       exact Ext.subsingleton_X₁_succ hS X j
 
+/-- **Ext into the dual of a resolved module, one degree at a time.** Let `P` be a projective
+resolution of `S` all of whose duals `P_m^⋆` are injective. If `X` has no nonzero maps to `P_j^⋆`,
+then `Extʲ(X, S^⋆) = 0`. -/
+theorem subsingleton_ext_starDual_of_hom {S : ModuleCat.{0} A} (P : ProjectiveResolution S)
+    (hinj : ∀ m, Injective (starDualObj k σ (P.complex.X m))) (X : ModuleCat.{0} A) (j : ℕ)
+    (hX : Subsingleton (X ⟶ starDualObj k σ (P.complex.X j))) :
+    Subsingleton (Ext.{w} X (starDualObj k σ S) j) := by
+  have hP : ∀ m i, Subsingleton (Ext.{w} X (starDualObj k σ (P.complex.X m)) (i + 1)) :=
+    fun m i => ⟨fun a b => have := hinj m
+      (Ext.eq_zero_of_injective a).trans (Ext.eq_zero_of_injective b).symm⟩
+  -- `Extⁱ(X, Ω_m^⋆) = 0` as soon as `X` has no maps to `P_{m+1+i}^⋆`.
+  have hsyz : ∀ i m, Subsingleton (X ⟶ starDualObj k σ (P.complex.X (m + 1 + i))) →
+      Subsingleton (Ext.{w} X (starDualObj k σ (syzygy P m)) i) := by
+    intro i
+    induction i with
+    | zero =>
+      intro m hm
+      have hS := starDualShortComplex_shortExact (k := k) σ (syzygySequence_shortExact P m)
+      have : Subsingleton (Ext.{w} X (starDualShortComplex k σ (syzygySequence P m)).X₂ 0) :=
+        (Ext.homEquiv₀ (X := X) (Y := starDualObj k σ (P.complex.X (m + 1)))).subsingleton
+      exact Ext.subsingleton_X₁_zero hS X
+    | succ i ih =>
+      intro m hm
+      have hS := starDualShortComplex_shortExact (k := k) σ (syzygySequence_shortExact P m)
+      have : Subsingleton (Ext.{w} X (starDualShortComplex k σ (syzygySequence P m)).X₃ i) :=
+        ih (m + 1) (by rwa [show m + 1 + 1 + i = m + 1 + (i + 1) by omega])
+      have : Subsingleton (Ext.{w} X (starDualShortComplex k σ (syzygySequence P m)).X₂
+          (i + 1)) := hP (m + 1) i
+      exact Ext.subsingleton_X₁_succ hS X i
+  have hS := starDualShortComplex_shortExact (k := k) σ (syzygyZeroSequence_shortExact P)
+  cases j with
+  | zero =>
+    have : Subsingleton (Ext.{w} X (starDualShortComplex k σ (syzygyZeroSequence P)).X₂ 0) :=
+      (Ext.homEquiv₀ (X := X) (Y := starDualObj k σ (P.complex.X 0))).subsingleton
+    exact Ext.subsingleton_X₁_zero hS X
+  | succ j =>
+    have : Subsingleton (Ext.{w} X (starDualShortComplex k σ (syzygyZeroSequence P)).X₃ j) :=
+      hsyz j 0 (by rwa [show 0 + 1 + j = j + 1 by omega])
+    have : Subsingleton (Ext.{w} X (starDualShortComplex k σ (syzygyZeroSequence P)).X₂
+        (j + 1)) := hP 0 j
+    exact Ext.subsingleton_X₁_succ hS X j
+
 end Generic
 
 /-! ### Duals of sums of loading projectives -/
@@ -262,6 +304,20 @@ theorem subsingleton_ext_starDual_standard (X : ModuleCat.{0} T)
     (fun m _ => injective_starDualObj_of_loadingSum (hP m)) X
     (fun m hm => subsingleton_hom_starDualObj_of_loadingSum (hP m) X fun s hs hmem =>
       hX s hs (not_hasLastRed_of_mem_websterWords _ _ (by simpa using hm) hmem)) j hj
+
+include hR hall in
+/-- **Ext into a dual standard module, one degree at a time**: `Extʲ(X, S(T^{λ'} e(t) ⊠
+R^{λ_ℓ} e(u))^⋆) = 0` when `X` is killed by the loading idempotents of the words of degree `j` of
+the resolution of Proposition 7.6. Under the route hypothesis `hall` of Proposition 7.6. -/
+theorem subsingleton_ext_starDual_standard_of_killed (X : ModuleCat.{0} T) (j : ℕ)
+    (hX : ∀ (s : Seq (stendhalWeight (ℓ + 1) ν)) (hs : IsRedOrdered s),
+      s.word ∈ websterWords (t.word.map (addRedColor ℓ)) u.reverse j →
+      ∀ x : X, loadingIdem Q Λ s hs • x = 0) :
+    Subsingleton (Ext.{w} X (starDualObj k σT
+      (tensorStd Q Λ hQ h (oldProj Q Λ θ t ht) (cycWord Q Λ u))) j) := by
+  obtain ⟨P, hP⟩ := exists_projectiveResolution_websterWords Q Λ hQ hR hall t ht u h
+  exact subsingleton_ext_starDual_of_hom σT P (fun m => injective_starDualObj_of_loadingSum (hP m))
+    X j (subsingleton_hom_starDualObj_of_loadingSum (hP j) X hX)
 
 end Ext
 

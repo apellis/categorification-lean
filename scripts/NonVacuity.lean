@@ -2578,6 +2578,13 @@ example := Stendhal.FirstWeight.exists_wordEquivAt_iff (fun _ : Fin 2 => Finsupp
 example := Stendhal.FirstWeight.exists_tensorWordEquiv_iff (fun _ : Fin 2 => Finsupp.single () 2)
   (CartanDatum.ofGraph (⊥ : SimpleGraph Unit)) params twoTensorFactors regular
 
+/-- Webster, Proposition 4.39, for two level-two labels of `sl₂`. -/
+example := Stendhal.FirstWeight.exists_tildeTensorEquiv (CartanDatum.ofGraph (⊥ : SimpleGraph Unit))
+  params regular twoTensorFactors
+  ⟨twoTensorFactors 0, fun i => by cases i; change (1 : ℤ) ≤ 1 * 2; decide⟩
+  (fun _ : Fin 2 => Finsupp.single () 2)
+  (fun _ i => by cases i; change (↑((Finsupp.single () 2 : Unit →₀ ℕ) ()) : ℤ) = 1 * 2; simp)
+
 open Stendhal.FirstWeight
 private abbrev oneFactor : Fin 1 → LieLean.QuantumGroup.GrandLoop.Dom (CycKLR.projectiveRootDatum datum) :=
   fun _ => twoTensorFactors 0

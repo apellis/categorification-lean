@@ -2129,6 +2129,7 @@ import Categorification.Diagrams.CLQ.Markov
 import Categorification.Diagrams.CLQ.MarkovLeft
 import Categorification.Diagrams.CLQ.MoreBubbleSlides
 import Categorification.Diagrams.CLQ.MixedR3
+import Categorification.Diagrams.CLQ.MixedR3Sl2
 import Categorification.Diagrams.CLQ.Presentation
 import Categorification.Diagrams.CLQ.Reduction
 import Categorification.Diagrams.CLQ.Rewriting

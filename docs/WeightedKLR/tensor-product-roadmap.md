@@ -831,8 +831,18 @@ from the module-tower constructor `ModuleTower.weakSl2` and the class identity
   acting on `M` by `B`-linear maps (the last cyclotomic factor in the induction); `C = k` is
   Webster's statement.
 
-Open: the `Fᵢ` filtration of Prop 5.5 for the Def 5.4 standardization, injectivity in the
-`Fᵢ`-part of Prop 5.5 for general `Q`, Prop 5.6,
+* Prop 5.5, `Fᵢ`-part for Def 5.4 (`RedStrands/FiFiltration*.lean`, `FiSequence.lean`,
+  `FiSubTerm.lean`, `FiTopEquiv.lean`, `FiInit*.lean`, `FiLast*.lean`, `FiQuotTerm.lean`): for
+  `b_0 = 0`, `Fᵢ(M ⊗_B S^L_α)` has a filtration by the `ₖFᵢ M ⊗_{B'} S^L_{α'}`, one for each red
+  strand (`fiFiltration`), by induction on `ℓ`: `Fᵢ(M ⊗_B S^L_α) ≅ Fᵢ S(X_M)` (`fiTopEquiv`), and
+  in the last-strand sequence the quotient `S(₂Fᵢ X_M)` is the last layer (`fiQuotEquiv`, through
+  `₂Fᵢ X_M ≅ X_{ₗFᵢ M}`, `fiLastInputEquiv`), the sub term `S(₁Fᵢ X_M)` the standardization of the
+  induction hypothesis (`fiSubEquiv`, `fiInitLayerStandardEquiv`). Route hypothesis:
+  `AllDeltaInjective` for every sequence of highest weights (injectivity of the first map),
+  tracked for removal below.
+
+Open: injectivity in the `Fᵢ`-part of Prop 5.5 for general `Q` (removes the route hypothesis
+`AllDeltaInjective` of `fiFiltration` and `AllFiniteDeltaInjective` of Props 5.20/5.21), Prop 5.6,
 and the results listed below.
 
 Prop 5.17 (stringy loadings classify indecomposable projectives) is proved:

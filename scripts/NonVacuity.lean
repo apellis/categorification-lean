@@ -12184,5 +12184,11 @@ private theorem sym : KLRSymm Q := by intro i j h; simp [Q, h, h.symm]
 /-- Webster's Prop 5.5, `E`-part, for two red strands and two colours. -/
 example : EiFiltration (k := ℚ) Q true 2 := eiFiltration Q true sym 2
 
+/-- Webster's Prop 5.5, `F`-part, for two red strands and two colours. The route hypothesis
+`AllDeltaInjective` (injectivity in the last-strand sequence) is assumed here, not discharged. -/
+example (hδ : ∀ (ℓ : ℕ) (Λ : Fin (ℓ + 1) → Bool →₀ ℕ), Stendhal.AllDeltaInjective Q Λ sym) :
+    FiFiltration (k := ℚ) Q true 2 :=
+  fiFiltration Q true sym hδ 2
+
 end NonVacuity.WebsterEiFiltration
 end

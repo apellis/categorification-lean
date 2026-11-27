@@ -2083,6 +2083,7 @@ import Categorification.WeightedKLR.Rigidity.RigidityExtStandardVanishing
 import Categorification.WeightedKLR.Rigidity.RigidityExtStandardKilled
 import Categorification.WeightedKLR.Rigidity.RigidityExtDetection
 import Categorification.WeightedKLR.Rigidity.RigidityExtLevelCounit
+import Categorification.WeightedKLR.Rigidity.RigidityExtStdResolution
 import Categorification.WeightedKLR.Rigidity.RigidityExtWrapHom
 import Categorification.WeightedKLR.Rigidity.RigidityExtCoevaluationTop
 import Categorification.WeightedKLR.Rigidity.RigidityExtTorShift

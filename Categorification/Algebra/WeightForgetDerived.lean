@@ -14,9 +14,9 @@ For a dg ring `A` with an internal grading, forgetting the weights of dg modules
 `C_A = DG.WeightCategory A` (`M ↦ ⨁ k, M⟨k⟩`, `DG.CatModule.weightForget`) preserves
 quasi-isomorphisms, since cohomology commutes with direct sums
 (`DG.CatModule.IsQuasiIso.weightSumMap`), and homotopies (`DG.CatModule.Homotopic.weightSumMap`).
-It therefore induces a functor of homotopy categories and, computed on K-projective
-representatives, a functor of derived categories
-`DG.CatModule.weightForgetDerived A : D(C_A) ⥤ D(A)`. On every dg module `N` over `C_A` it is
+It therefore induces a functor of homotopy categories and
+a functor of derived categories `DG.CatModule.weightForgetDerived A : D(C_A) ⥤ D(A)`, induced
+by the universal property of the localization. On every dg module `N` over `C_A` it is
 the weight sum: `weightForgetDerived A (Q N) ≅ Q (⨁ k, N⟨k⟩)`
 (`DG.CatModule.weightForgetDerivedQObjIso`).
 
@@ -106,51 +106,72 @@ def weightForgetHomotopyFactors :
       weightForget A ⋙ DG.HomotopyCategory.quotient A :=
   CategoryTheory.Quotient.lift.isLift _ _ _
 
+variable {A} in
+/-- Forgetting the weights on homotopy categories preserves quasi-isomorphisms. -/
+theorem weightForgetHomotopy_map_mem_quasiIso {M N : HomotopyCategory.{u} (WeightCategory A)}
+    {f : M ⟶ N} (hf : HomotopyCategory.quasiIso (WeightCategory A) f) :
+    DG.HomotopyCategory.quasiIso A ((weightForgetHomotopy A).map f) := by
+  obtain ⟨M, rfl⟩ := HomotopyCategory.quotient_obj_surjective M
+  obtain ⟨N, rfl⟩ := HomotopyCategory.quotient_obj_surjective N
+  obtain ⟨f, rfl⟩ := (HomotopyCategory.quotient _).map_surjective f
+  rw [HomotopyCategory.quotient_map_mem_quasiIso_iff] at hf
+  change DG.HomotopyCategory.quasiIso A
+    ((DG.HomotopyCategory.quotient A).map ((weightForget A).map f))
+  rw [DG.HomotopyCategory.quotient_map_mem_quasiIso_iff]
+  exact IsQuasiIso.weightSumMap hf
+
+variable {A} in
+/-- Forgetting the weights preserves K-projective objects of the homotopy category. -/
+theorem weightForgetHomotopy_obj_mem_subcategoryKProjective
+    {X : HomotopyCategory.{u} (WeightCategory A)}
+    (hX : HomotopyCategory.subcategoryKProjective (WeightCategory A) X) :
+    DG.HomotopyCategory.subcategoryKProjective A ((weightForgetHomotopy A).obj X) :=
+  (DG.HomotopyCategory.quotient_obj_mem_subcategoryKProjective_iff
+    ((weightForget A).obj X.as)).mpr
+    ((HomotopyCategory.quotient_obj_mem_subcategoryKProjective_iff X.as).mp hX).weightSum
+
 variable [CatModule.HasDerivedCategory.{w₁, u} (WeightCategory A)]
   [DG.HasDerivedCategory.{w₂, u} A]
 
-/-- **The derived functor forgetting the weights**, `D(C_A) ⥤ D(A)`, computed on K-projective
-representatives. -/
+/-- **The derived functor forgetting the weights**, `D(C_A) ⥤ D(A)`: forgetting the weights
+preserves quasi-isomorphisms, so it descends to derived categories. -/
 def weightForgetDerived :
     CatModule.DerivedCategory.{w₁, u} (WeightCategory A) ⥤ DG.DerivedCategory.{w₂, u} A :=
-  (CatModule.DerivedCategory.kProjectiveEquivalence (WeightCategory A)).inverse ⋙
-    (HomotopyCategory.subcategoryKProjective (WeightCategory A)).ι ⋙
-    weightForgetHomotopy A ⋙ DG.DerivedCategory.Qh
+  Localization.lift (W := HomotopyCategory.quasiIso (WeightCategory A))
+    (weightForgetHomotopy A ⋙ DG.DerivedCategory.Qh)
+    (fun _ _ _ hf => Localization.inverts DG.DerivedCategory.Qh (DG.HomotopyCategory.quasiIso A)
+      _ (weightForgetHomotopy_map_mem_quasiIso hf))
+    CatModule.DerivedCategory.Qh
+
+instance weightForgetDerivedLifting :
+    Localization.Lifting CatModule.DerivedCategory.Qh
+      (HomotopyCategory.quasiIso (WeightCategory A))
+      (weightForgetHomotopy A ⋙ DG.DerivedCategory.Qh) (weightForgetDerived A) :=
+  Localization.liftingLift _ _ _
+
+/-- The derived forgetful functor is induced by forgetting the weights on homotopy
+categories. -/
+def QhCompWeightForgetDerivedIso :
+    CatModule.DerivedCategory.Qh ⋙ weightForgetDerived A ≅
+      weightForgetHomotopy A ⋙ DG.DerivedCategory.Qh :=
+  Localization.Lifting.iso CatModule.DerivedCategory.Qh
+    (HomotopyCategory.quasiIso (WeightCategory A)) _ _
+
+/-- The derived forgetful functor is induced by forgetting the weights of dg modules. -/
+def QCompWeightForgetDerivedIso :
+    CatModule.DerivedCategory.Q ⋙ weightForgetDerived A ≅
+      weightForget A ⋙ DG.DerivedCategory.Q :=
+  Functor.associator _ _ _ ≪≫ Functor.isoWhiskerLeft _ (QhCompWeightForgetDerivedIso A) ≪≫
+    (Functor.associator _ _ _).symm ≪≫
+    Functor.isoWhiskerRight (weightForgetHomotopyFactors A) _ ≪≫ Functor.associator _ _ _
 
 variable {A}
 
-/-- On a K-projective dg module the derived forgetful functor is the weight sum. -/
-def weightForgetDerivedObjIso {P : CatModule.{u} (WeightCategory A)} (hP : IsKProjective P) :
-    (weightForgetDerived A).obj (CatModule.DerivedCategory.Q.obj P) ≅
-      DG.DerivedCategory.Q.obj ((weightForget A).obj P) := by
-  let H := HomotopyCategory.subcategoryKProjective.{u} (WeightCategory A)
-  let p : H.FullSubcategory := ⟨(HomotopyCategory.quotient _).obj P,
-    (HomotopyCategory.quotient_obj_mem_subcategoryKProjective_iff P).mpr hP⟩
-  let E := CatModule.DerivedCategory.kProjectiveEquivalence (WeightCategory A)
-  exact (weightForgetHomotopy A ⋙ DG.DerivedCategory.Qh).mapIso
-      (H.ι.mapIso (E.unitIso.symm.app p)) ≪≫
-    DG.DerivedCategory.Qh.mapIso ((weightForgetHomotopyFactors A).app P)
-
-/-- **The derived forgetful functor is the weight sum on every dg module**, through a
-K-projective resolution. -/
-def weightForgetDerivedObjIsoOfResolution {K N : CatModule.{u} (WeightCategory A)} (f : K ⟶ N)
-    (hK : IsKProjective K) (hf : IsQuasiIso f) :
-    (weightForgetDerived A).obj (CatModule.DerivedCategory.Q.obj N) ≅
-      DG.DerivedCategory.Q.obj ((weightForget A).obj N) := by
-  letI : IsIso (CatModule.DerivedCategory.Q.map f) :=
-    (CatModule.DerivedCategory.isIso_Q_map_iff f).mpr hf
-  letI : IsIso (DG.DerivedCategory.Q.map ((weightForget A).map f)) :=
-    (DG.DerivedCategory.isIso_Q_map_iff _).mpr (IsQuasiIso.weightSumMap hf)
-  exact ((weightForgetDerived A).mapIso (asIso (CatModule.DerivedCategory.Q.map f))).symm ≪≫
-    weightForgetDerivedObjIso hK ≪≫ asIso (DG.DerivedCategory.Q.map ((weightForget A).map f))
-
-/-- The derived forgetful functor on the image of an arbitrary dg module over `C_A`. -/
+/-- **The derived forgetful functor is the weight sum on every dg module**. -/
 def weightForgetDerivedQObjIso (N : CatModule.{u} (WeightCategory A)) :
     (weightForgetDerived A).obj (CatModule.DerivedCategory.Q.obj N) ≅
       DG.DerivedCategory.Q.obj ((weightForget A).obj N) :=
-  weightForgetDerivedObjIsoOfResolution (exists_kProjective_resolution N).choose_spec.choose
-    (exists_kProjective_resolution N).choose_spec.choose_spec.1
-    (exists_kProjective_resolution N).choose_spec.choose_spec.2.1
+  (QCompWeightForgetDerivedIso A).app N
 
 end Functor
 

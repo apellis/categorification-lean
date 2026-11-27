@@ -236,6 +236,30 @@ def lastLayerEquiv :
 
 end LastLayer
 
+section LastLayerRight
+
+variable (hQ : KLRSymm Q) {θ' β₀ : Multiset I} (hθb : initWeight b = θ') (hθc : initWeight b' = θ')
+  (hβb : lastBlock b = {i} + β₀) (hβc : lastBlock b' = β₀)
+  (hb' : blockPrefix b' (ℓ + 2) = θ' + β₀)
+  (hαb' : RootNonViolated (ν := θ' + β₀) (blockRoot b'))
+  (C : Type) [Ring C] [Algebra k C] (ρ : C →ₐ[k] Module.End (BlockAlgebra k Q Λ b)ᵐᵒᵖ M)
+
+/-- **The last layer when `i` occurs only in the last block**: `ₗEᵢ M ⊗ S^L_{α'} ≅ S(₂Eᵢ X_M)`
+over `T(θ' + β₀) ⊗ C`. -/
+def lastLayerRightEquiv :
+    TensorAct k (TensorProductAlgebra k Q Λ (θ' + β₀)) C
+        (BalancedTensor.endAction k (TensorProductAlgebra k Q Λ (θ' + β₀))
+          (BlockLeftStandard Q Λ b' hb' hαb') ((g').comp ρ)) ≃ₗ[
+        TensorProductAlgebra k Q Λ (θ' + β₀) ⊗[k] C]
+      TensorAct k (TensorProductAlgebra k Q Λ (θ' + β₀)) C (standardActionT Q Λ hQ C
+        ((Res.endAlg (parabolicAppendRight Q Λ i β₀ θ')).comp
+          (twoPieceCastAction Q Λ b M hθb hβb hα' C ρ))) :=
+  (standardTwoPieceActEquiv Q Λ hQ b' M' hθc hβc hα'' hb' hαb' C ((g').comp ρ)).trans
+    (standardActEquiv Q Λ hQ (lastLayerInputEquiv Q Λ i h0 hr hκ M hα' hα'' hθb hθc hβb hβc)
+      fun c x => lastLayerInputEquiv_natural Q Λ i h0 hr hκ M hα' hα'' hθb hθc hβb hβc (ρ c) x)
+
+end LastLayerRight
+
 end StendhalAlgebra
 
 end Categorification.Stendhal

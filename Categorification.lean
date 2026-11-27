@@ -2517,3 +2517,5 @@ import Categorification.WeightedKLR.RedStrands.TwoPieceLastBlackRes
 import Categorification.Algebra.TensorActSplit
 import Categorification.WeightedKLR.RedStrands.StandardSplitFiltration
 import Categorification.WeightedKLR.RedStrands.EiFiltrationStatement
+import Categorification.Algebra.AlgebraFamilyCastEquiv
+import Categorification.WeightedKLR.RedStrands.EiCasts

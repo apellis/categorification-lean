@@ -395,7 +395,6 @@ theorem evR_evXi_iotaE (hw : ∀ v, 0 < wS M v) {D : ℕ} (s : Wt M) (ws : List 
   exact hLift_hCast _ _ _ _ _ _ z
 
 set_option backward.isDefEq.respectTransparency false in
-set_option maxHeartbeats 2000000 in
 /-- **KL III §6.4, injectivity of `ι'_λ` (abstract form).** Given, for every bound, a `Γ_N`-like
 functor as in `Rep`, the elements `ϕ_{ν,λ}(ψ_{ρ w} x^u e_i ⊗ m)_{ij}` (`w • i = j`, `m` a monomial
 of `Π_λ`) are linearly independent. -/

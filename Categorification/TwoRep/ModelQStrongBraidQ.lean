@@ -348,7 +348,6 @@ theorem upDiag_E2_g (c d e : I) (μ : X) :
       mkD RD μ [([up c, up d], .dot (up e), [])] ⟨rfl, rfl⟩ := by
   rfl
 
-set_option maxHeartbeats 2000000 in
 /-- The image of the dot on the left strand of `E_c E_d E_e 1_μ`. -/
 theorem conj_E0 (c d e : I) (μ : X) :
     eqToHom (objI_pos _ _ (condUp3 c d e μ)).symm ≫
@@ -382,7 +381,6 @@ theorem conj_E0 (c d e : I) (μ : X) :
   simp only [PrelaxFunctor.map₂_id, Category.id_comp, Category.comp_id]
   rfl
 
-set_option maxHeartbeats 2000000 in
 /-- The image of the dot on the middle strand of `E_c E_d E_e 1_μ`. -/
 theorem conj_E1 (c d e : I) (μ : X) :
     eqToHom (objI_pos _ _ (condUp3 c d e μ)).symm ≫
@@ -419,7 +417,6 @@ theorem conj_E1 (c d e : I) (μ : X) :
   simp only [lift_map₂_associator_hom, lift_map₂_associator_inv]
   rfl
 
-set_option maxHeartbeats 2000000 in
 /-- The image of the dot on the right strand of `E_c E_d E_e 1_μ`. -/
 theorem conj_E2 (c d e : I) (μ : X) :
     eqToHom (objI_pos _ _ (condUp3 c d e μ)).symm ≫

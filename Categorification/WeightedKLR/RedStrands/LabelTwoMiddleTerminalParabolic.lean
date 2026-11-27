@@ -144,7 +144,6 @@ private theorem termColumn_smul_unit (w : Sh) (x : D₀) :
   rw [BalancedTensor.smul_tmul']
   congr 1
 
-set_option maxHeartbeats 2400000 in
 private theorem termColumn_action (w : Sh) (x : D) :
     parabolicStandardAction (parameter k) weights singleBlack singleBlack D (parameterSymm' k)
       (tensorOfKLR (parameter k) weights (singleBlack + singleBlack)

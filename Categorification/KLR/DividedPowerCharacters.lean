@@ -56,7 +56,6 @@ def qUnitLS : (LaurentSeries ℤ)ˣ where
   val_inv := by rw [single_mul_single]; simp
   inv_val := by rw [single_mul_single]; simp
 
-set_option synthInstance.maxHeartbeats 100000 in
 theorem val_qUnitLS_zpow (z : ℤ) :
     ((qUnitLS ^ z : (LaurentSeries ℤ)ˣ) : LaurentSeries ℤ) = single z 1 := by
   rcases z with n | n

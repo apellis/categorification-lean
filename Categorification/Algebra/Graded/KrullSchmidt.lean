@@ -123,7 +123,6 @@ section EndZeroDim
 
 variable [GradedAlgebra 𝒜] [HasGdim 𝒜]
 
-set_option synthInstance.maxHeartbeats 200000 in
 /-- `(f, g) ↦ φ⁻¹ ∘ (f ⊕ g) ∘ φ : END(P₁)_0 × END(P₂)_0 → END(P)_0` for `φ : P ≅ P₁ ⊕ P₂`. -/
 def endZeroProdMap {P P₁ P₂ : GProj 𝒜} (φ : P.Iso (P₁.prod P₂)) :
     endZero A P₁.grading × endZero A P₂.grading →ₗ[k] endZero A P.grading where

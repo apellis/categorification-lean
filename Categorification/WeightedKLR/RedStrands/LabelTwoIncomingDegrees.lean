@@ -146,14 +146,12 @@ local notation "T" => TensorProductAlgebra k (parameter k)
 local notation "F" => labelTwoExteriorMiddleDifferential (parameter k)
 local notation "E" => exteriorMiddleQuotientEquiv k
 
-set_option maxHeartbeats 850000 in
 /-- The incoming crossing written in the common middle quotient. -/
 def normalizedIncoming : P →ₗ[A] V where
   toFun z := E (F z)
   map_add' x y := (congrArg (fun v => E v) ((F).map_add x y)).trans ((E).map_add _ _)
   map_smul' a x := (congrArg (fun v => E v) ((F).map_smul (a : T) x)).trans ((E).map_smul a _)
 
-set_option maxHeartbeats 850000 in
 private theorem incoming_generator_mem_grade :
     normalizedIncoming k (u k) ∈ labelTwoMiddleQuotientGrade k 2 := by
   have h₀ := congrArg (fun v => E (labelTwoExteriorToMiddle (parameter k) v)) (u_val k)

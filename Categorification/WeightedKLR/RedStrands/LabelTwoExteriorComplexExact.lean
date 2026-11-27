@@ -211,7 +211,6 @@ private theorem map_two_coefficients
     f (a • x + b • y) = a • f x + b • f y :=
   (f.map_add _ _).trans (congrArg₂ (· + ·) (f.map_smul a x) (f.map_smul b y))
 
-set_option maxHeartbeats 550000 in
 private theorem outgoing_injective_middle_cut (z : Vb) (hz : out z.val = 0) : z.val = 0 := by
   obtain ⟨a,b,hs⟩ := middle_cut_basis_span k z
   let f := outgoingValue k
@@ -304,7 +303,6 @@ private theorem map_four_coefficients {L N : Type*}
   rw [f.map_add, f.map_add, map_two_coefficients,
     f.map_smul c w, f.map_smul c' z]
 
-set_option maxHeartbeats 650000 in
 private theorem outgoing_terminal_linear_combination (a₀ a₁ b₀ b₁ : k) :
     outgoingValue k (a₀ • r₀ + a₁ • r₁ + b₀ • r₂ + b₁ • r₃) =
       (a₀ + b₁) • terminalColumn k + a₁ • terminalDotColumn k := by
@@ -343,7 +341,6 @@ private theorem reduce_terminal_coefficients {L : Type*}
     a • u + a' • v + b • w + b' • z = a • u + b • w - a • z := by
   rw [ha, hb, zero_smul, add_zero, neg_smul, sub_eq_add_neg]
 
-set_option maxHeartbeats 650000 in
 private theorem outgoing_kernel_terminal_cut (z : Va) (hz : out z.val = 0) :
     ∃ x : Source, normalizedIncoming k x = z.val := by
   obtain ⟨a₀,a₁,b₀,b₁,h⟩ := terminal_cut_basis_span k z

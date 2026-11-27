@@ -91,7 +91,6 @@ theorem killedCL_of_relation {r : Rel RD} (h : CL.relationCL RD k Sc r = relatio
       (relation k r) = 0) : KilledCL (S := S) Sc r := by
   rw [KilledCL, h]; exact hk
 
-set_option maxHeartbeats 2000000 in
 /-- `Q`-cyclicity, right rotation, for all labels (`ModelQStrongCyc`), as a relation of
 `presCL`. -/
 theorem killedCL_cycCrossR (j i : I) (μ : X) : KilledCL (S := S) Sc (.cycCrossR j i μ) := by
@@ -131,7 +130,6 @@ theorem killedCL_klr (hr : ∀ c, Sc.r c = 1)
   · exact killed_klr_braid_gen (S := S) Sc c d e h μ
   · exact klr_braidQ (S := S) Sc c d h (hQ3 c d h) μ
 
-set_option maxHeartbeats 1000000 in
 /-- **Every relation of `presCL` other than the mixed ones** is killed by the model, for scalars
 `Sc` with `r_i = 1` whose KLR polynomials are those of the normalized dots,
 `Q_{ij}^{Sc}(u, v) = Q_{ij}(r_i u, r_j v)` for `i ≠ j`. -/

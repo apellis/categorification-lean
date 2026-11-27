@@ -249,7 +249,6 @@ theorem condUp2 (c d : I) (μ : X) :
     Cond (S := psig RD) (KL3.Diagram.wt RD μ [up c, up d] : X) μ (ob RD μ [up c, up d]) :=
   ⟨⟨rfl, rfl, trivial⟩, rfl, rfl⟩
 
-set_option maxHeartbeats 2000000 in
 /-- The image of the dot on the left strand of `E_c E_d 1_μ`. -/
 theorem conj_D0 (c d : I) (μ : X) :
     eqToHom (objI_pos _ _ (condUp2 c d μ)).symm ≫
@@ -283,7 +282,6 @@ theorem conj_D0 (c d : I) (μ : X) :
   simp only [PrelaxFunctor.map₂_id, Category.id_comp, Category.comp_id]
   rfl
 
-set_option maxHeartbeats 2000000 in
 /-- The image of the dot on the right strand of `E_c E_d 1_μ`. -/
 theorem conj_D1 (c d : I) (μ : X) :
     eqToHom (objI_pos _ _ (condUp2 c d μ)).symm ≫
@@ -317,7 +315,6 @@ theorem conj_D1 (c d : I) (μ : X) :
   simp only [PrelaxFunctor.map₂_id, Category.id_comp, Category.comp_id]
   rfl
 
-set_option maxHeartbeats 2000000 in
 /-- The image of the double crossing on `E_c E_d 1_μ`. -/
 theorem conj_X2X2 (c d : I) (μ : X) :
     eqToHom (objI_pos _ _ (condUp2 c d μ)).symm ≫
@@ -355,7 +352,6 @@ theorem conj_X2X2 (c d : I) (μ : X) :
   simp only [PrelaxFunctor.map₂_id, Category.id_comp, Category.comp_id]
   rfl
 
-set_option maxHeartbeats 2000000 in
 /-- **CL (2.10)** in the model: for `c ≠ d` the KLR relation `ψ² = Q'_{cd}(x₀, x₁)` on
 `E_c E_d 1_μ`, for the normalized dots, with `Q'_{cd}(u, v) = Q_{cd}(r_c u, r_d v)`, read with
 its own outer regions. -/

@@ -520,7 +520,6 @@ def upEndAlg (l : List I) (μ : X) :
   erw [upLin_of, admissibleMap_of]
   rfl
 
-set_option maxHeartbeats 2000000 in
 /-- The mixed quadratic relation evaluates to the source square equation. -/
 theorem up_sqNe {Q : I → I → MvPolynomial (Fin 2) k} (H : RouqUpKLR S Q)
     (c d : I) (h : c ≠ d) (μ : X) :

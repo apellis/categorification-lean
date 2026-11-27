@@ -369,7 +369,6 @@ theorem img_crossr (lam : ℤ) :
   all_goals simp [Layer.cod, Layer.dom, ob, inv_dual, Letter.dual, hx, sig0_dom_cross',
     sig0_cod_cross', sh_false_sh_true, sh_true_sh_false]
 
-set_option maxHeartbeats 2000000 in
 /-- The image of a dot on the upward strand of `E F`. -/
 theorem img_dotUp_UD (lam : ℤ) :
     eqToHom (objI_pos _ _ (cond_up_dn lam)).symm ≫
@@ -407,7 +406,6 @@ theorem img_dotUp_UD (lam : ℤ) :
   all_goals simp [Layer.cod, Layer.dom, ob, inv_dual, Letter.dual, sh_true_sh_false,
     sh_false_sh_true, sig0_dom_dot']
 
-set_option maxHeartbeats 2000000 in
 /-- The image of a dot on the downward strand of `F E`. -/
 theorem img_dotDn_DU (lam : ℤ) :
     eqToHom (objI_pos _ _ (cond_dn_up lam)).symm ≫

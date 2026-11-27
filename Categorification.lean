@@ -2656,3 +2656,4 @@ import Categorification.Algebra.CompactModules
 import Categorification.Algebra.Graded.CompactResolution
 import Categorification.WeightedKLR.RedStrands.LoadingGenerators
 import Categorification.WeightedKLR.RedStrands.HalfTwistFullyFaithful
+import Categorification.Algebra.LocalizingFiltration

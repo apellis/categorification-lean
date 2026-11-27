@@ -2460,6 +2460,8 @@ import Categorification.WeightedKLR.RedStrands.LabelledStandardFiltration
 import Categorification.WeightedKLR.RedStrands.PhiDiagrams
 import Categorification.WeightedKLR.RedStrands.CoarseAssignment
 import Categorification.WeightedKLR.RedStrands.LeftPartialStandard
+import Categorification.WeightedKLR.RedStrands.CoarsePhiLayers
+import Categorification.WeightedKLR.RedStrands.CoarsePhiCount
 import Categorification.WeightedKLR.RedStrands.PhiStandardLayers
 import Categorification.WeightedKLR.RedStrands.PhiWordsLabels
 import Categorification.WeightedKLR.RedStrands.StandardBlackInduction

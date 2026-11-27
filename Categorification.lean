@@ -591,6 +591,7 @@ import Categorification.KLR.CyclotomicQuadraticAdjunction
 import Categorification.KLR.CyclotomicRelativePolynomialTrace
 import Categorification.KLR.CyclotomicCornerTrace
 import Categorification.KLR.CyclotomicCornerTracePolynomial
+import Categorification.KLR.DistinctCrossings
 import Categorification.KLR.DividedPowerCharacters
 import Categorification.KLR.DividedPowerDecomposition
 import Categorification.KLR.DividedPowerIdempotents
@@ -2374,6 +2375,7 @@ import Categorification.WeightedKLR.RedStrands.GradedRightStandardModule
 import Categorification.WeightedKLR.RedStrands.GradedStandardization
 import Categorification.WeightedKLR.RedStrands.GradedTwoPieceStandard
 import Categorification.WeightedKLR.RedStrands.HalfTwistCokernel
+import Categorification.WeightedKLR.RedStrands.HalfTwistDots
 import Categorification.WeightedKLR.RedStrands.HalfTwistInclusion
 import Categorification.WeightedKLR.RedStrands.HalfTwistInjective
 import Categorification.WeightedKLR.RedStrands.HalfTwistRedFirst

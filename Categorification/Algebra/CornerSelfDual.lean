@@ -22,6 +22,8 @@ module `C y` (`rangeMulLeftDualEquiv`). Webster's pairing `⟨π a, π b⟩ = tr
 * `rangeMulLeftDualEquiv`: `y C ≃ Hom_k(C y, k)`, with `x ↦ (b y ↦ τ (x b))`.
 * `rangeMulLeftDualEquiv_mul`: it is right `C`-linear: the image of `x c` is
   `z ↦ (image of x) (c z)`.
+* `selfDualEquiv`, `selfDualEquiv_mul`: for an anti-involution `s` with `s y = y`, the form
+  `⟨y a, y b⟩ = τ (e a s(b) y)` identifies `y C` with its dual, and `⟨x c, x'⟩ = ⟨x, x' s(c)⟩`.
 -/
 
 noncomputable section
@@ -189,5 +191,59 @@ theorem rangeMulLeftDualEquiv_mul (a c : C) (b : C) :
         ⟨c * (b * y), c * b, by simp [mul_assoc]⟩ := by
   rw [rangeMulLeftDualEquiv_apply, rangeMulLeftDualEquiv_apply]
   simp only [mul_assoc]
+
+section Star
+
+variable (s : C →ₗ[k] C) (hs : ∀ a b, s (a * b) = s b * s a) (hss : ∀ a, s (s a) = a)
+  (hsy : s y = y)
+
+omit [FiniteDimensional k C] in
+include hs hsy in
+theorem star_mem_right (x : Left k y) : s x.1 ∈ Right k y := by
+  obtain ⟨_, a, rfl⟩ := x
+  exact ⟨s a, by simp [hs, hsy]⟩
+
+omit [FiniteDimensional k C] in
+include hs hsy in
+theorem star_mem_left (z : Right k y) : s z.1 ∈ Left k y := by
+  obtain ⟨_, b, rfl⟩ := z
+  exact ⟨s b, by simp [hs, hsy]⟩
+
+/-- The anti-involution `s` maps `y C` onto `C y` when `s y = y`. -/
+def starLeftEquiv : Left k y ≃ₗ[k] Right k y where
+  toFun x := ⟨s x.1, star_mem_right y s hs hsy x⟩
+  invFun z := ⟨s z.1, star_mem_left y s hs hsy z⟩
+  map_add' x x' := Subtype.ext (map_add s x.1 x'.1)
+  map_smul' c x := Subtype.ext (map_smul s c x.1)
+  left_inv x := Subtype.ext (hss x.1)
+  right_inv z := Subtype.ext (hss z.1)
+
+/-- **Self-duality of `y C` for an anti-involution** (Webster, arXiv:1309.3796v3, proof of
+Theorem 6.14): if moreover `s y = y`, the form `⟨y a, y b⟩ = τ (e a s(b) y)` identifies `y C`
+with its dual. -/
+def selfDualEquiv : Left k y ≃ₗ[k] Module.Dual k (Left k y) :=
+  (rangeMulLeftDualEquiv e y τ he hy hsymm hl hr).trans
+    (starLeftEquiv y s hs hss hsy).dualMap
+
+theorem selfDualEquiv_apply (a b : C) :
+    selfDualEquiv e y τ he hy hsymm hl hr s hs hss hsy ⟨y * a, a, rfl⟩ ⟨y * b, b, rfl⟩ =
+      τ (e * a * (s b * y)) := by
+  change rangeMulLeftDualEquiv e y τ he hy hsymm hl hr ⟨y * a, a, rfl⟩
+    ⟨s (y * b), star_mem_right y s hs hsy ⟨y * b, b, rfl⟩⟩ = _
+  rw [rangeMulLeftDualEquiv_apply]
+  change τ (e * a * s (y * b)) = _
+  rw [hs, hsy]
+
+/-- The form of `selfDualEquiv` is contravariant for the right action, through `s`:
+`⟨x c, x'⟩ = ⟨x, x' s(c)⟩`. -/
+theorem selfDualEquiv_mul (a b c : C) :
+    selfDualEquiv e y τ he hy hsymm hl hr s hs hss hsy ⟨y * (a * c), a * c, rfl⟩
+        ⟨y * b, b, rfl⟩ =
+      selfDualEquiv e y τ he hy hsymm hl hr s hs hss hsy ⟨y * a, a, rfl⟩
+        ⟨y * (b * s c), b * s c, rfl⟩ := by
+  rw [selfDualEquiv_apply, selfDualEquiv_apply, hs, hss]
+  simp only [mul_assoc]
+
+end Star
 
 end Categorification.CornerSelfDual

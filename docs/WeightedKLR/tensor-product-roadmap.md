@@ -1321,8 +1321,8 @@ red strands, the graded bounded-above functor of Def 6.6 and its equivariance (P
 (proved for adjacent transpositions as `braidClass_pairSwap`, under `AllFiniteDeltaInjective` and
 `RowFigureFiveHypotheses` (the two hypotheses of Lemma 6.8) at every row; finite-dimensionality of `T^λ` is
 `tensorProductAlgebra_finite`; removing the other hypotheses is open), Lemma 6.11 (proved for
-`w ≠ 1` as `hasCornerStandardFiltration_braidF` under the same hypotheses and
-`BraidDiagramFiltration`), Def 6.12, Cor 6.13,
+`w ≠ 1` as `hasCornerStandardFiltration_braidF` under the same hypotheses; the diagram
+filtration of the step `p_n → f_n` is proved, `BraidColumnCutFiltration.lean`), Def 6.12, Cor 6.13,
 Lemma 6.14; tilting modules (Thm 6.15); `𝔅_σ` are equivalences (Thm 6.16); the braid group
 action (Cor 6.17); Ringel duality (Cor 6.18); semi-orthogonal decompositions (Prop 6.19); the
 Serre functor (Prop 6.20).

@@ -19,7 +19,7 @@ the right standard module at the row loading of `u` is the form against the word
 braid functor along the transposition `π` of `λ_{n+1}, λ_{n+2}` sends the word tensor of `u` to
 the form against `v^{-(⟨|u_{n+1}|, λ_{n+2}⟩ - 2)}` times the word tensor of the swapped words
 (`braidClass_wordTensor`). Hypotheses: the route hypothesis `AllFiniteDeltaInjective` of
-Corollary 5.22 and those of Proposition 6.9 at the row of `u` (`RowFigureFiveHypotheses`).
+Corollary 5.22 and those of Lemma 6.8 at the row of `u` (`RowFigureFiveHypotheses`).
 -/
 
 noncomputable section

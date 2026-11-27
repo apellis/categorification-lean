@@ -247,7 +247,7 @@ theorem orderProjection_e_of_not {i : Seq (stendhalWeight ℓ' ν')} (h : ¬ IsR
 omit [AddCommGroup L] [Module (StendhalAlgebra k Q Λc ν₀)ᵐᵒᵖ L] in
 /-- Two red strands do not cross. -/
 theorem ofKLR_ψ_mul_e_of_red (p : ℕ) (hp : p + 1 < Multiset.card (stendhalWeight ℓ' ν'))
-    (i : Seq (stendhalWeight ℓ' ν')) (h₁ : (i.lbl ⟨p, by omega⟩).isRight)
+    (i : Seq (stendhalWeight ℓ' ν')) (h₁ : (i.lbl ⟨p, Nat.lt_of_succ_lt hp⟩).isRight)
     (h₂ : (i.lbl ⟨p + 1, hp⟩).isRight) :
     StendhalAlgebraAllOrders.ofKLR k Q Λ' ν' (KLRAlgebra.ψ p * KLRAlgebra.e i) = 0 := by
   rw [map_mul]
@@ -634,6 +634,160 @@ theorem capElt_eq_sum_good
   split_ifs with hw
   · rw [capElt_box, insertMap_e]
   · rw [hL w v hw, capElt_zero_mid]
+
+/-! ### Vanishing of red crossings below the cap -/
+
+theorem capElt_eq_zero_of_botMap (a : T) (s) (n : Fin (m + 1)) (v : L) {b : Rp}
+    (h : botMap k Q Λ Λc j hj ν ν₀ b = 0) :
+    (capElt a s n v b : CapTilde k Q Λ Λc j hj ν ν₀ L) = 0 := by
+  have h0 : (capElt a s n v 0 : CapTilde k Q Λ Λc j hj ν ν₀ L) = 0 := capElt_zero_right a s n v
+  rw [capElt, map_zero] at h0
+  rw [capElt, h]
+  exact h0
+
+omit [AddCommGroup L] [Module (StendhalAlgebra k Q Λc ν₀)ᵐᵒᵖ L] in
+/-- Two red strands do not cross in `T̃^{λ⁺}`. -/
+theorem botMap_e_mul_ψ_of_red (t : Seq (stendhalWeight (ℓ + 2) (ν + ν₀))) {p : ℕ}
+    (hp : p + 1 < M) (h₁ : (t.lbl ⟨p, Nat.lt_of_succ_lt hp⟩).isRight)
+    (h₂ : (t.lbl ⟨p + 1, hp⟩).isRight) :
+    botMap k Q Λ Λc j hj ν ν₀ (KLRAlgebra.e t * KLRAlgebra.ψ p) = 0 := by
+  have he : (KLRAlgebra.e t * KLRAlgebra.ψ p : Rp) =
+      KLRAlgebra.ψ p * KLRAlgebra.e (sadj M p • t) := by
+    rw [KLRAlgebra.ψ_mul_e, KLRAlgebra.sadj_smul_smul]
+  have h₁' : ((sadj M p • t).lbl ⟨p, Nat.lt_of_succ_lt hp⟩).isRight := by
+    rw [KLRAlgebra.lbl_sadj_left hp]; exact h₂
+  have h₂' : ((sadj M p • t).lbl ⟨p + 1, hp⟩).isRight := by
+    rw [KLRAlgebra.lbl_sadj_right hp]; exact h₁
+  rw [he, botMap, AlgHom.comp_apply, ofKLR_ψ_mul_e_of_red p hp _ h₁' h₂', map_zero]
+
+/-! ### Closure under the bottom action -/
+
+variable (k Q Λ Λc j hj ν ν₀ L) in
+/-- Right multiplication by `b` preserves the span of the canonical generators. -/
+def BotClosed (b : Rp) : Prop :=
+  ∀ w ∈ canonicalSpan k Q Λ Λc j hj ν ν₀ L,
+    Env.mk 1 (botMap k Q Λ Λc j hj ν ν₀ b) • w ∈ canonicalSpan k Q Λ Λc j hj ν ν₀ L
+
+theorem botClosed_of_gen {b : Rp}
+    (h : ∀ (a : T) (s : Seq (stendhalWeight ℓ ν)) (n : Fin (m + 1)) (v : L) (z : Rp),
+      n.val = capPos ℓ j s → z ∈ Z (n.val + N) →
+        capElt a s n v (z * b) ∈ canonicalSpan k Q Λ Λc j hj ν ν₀ L) :
+    BotClosed k Q Λ Λc j hj ν ν₀ L b := by
+  intro w hw
+  induction hw using AddSubgroup.closure_induction with
+  | mem w hw =>
+    obtain ⟨a, s, n, v, z, hn, hz, rfl⟩ := hw
+    rw [smul_capElt, one_mul]
+    exact h a s n v z hn hz
+  | zero => rw [smul_zero]; exact zero_mem _
+  | add w w' _ _ h₁ h₂ => rw [smul_add]; exact add_mem h₁ h₂
+  | neg w _ h₁ => rw [smul_neg]; exact neg_mem h₁
+
+theorem BotClosed.mul {b b' : Rp} (h : BotClosed k Q Λ Λc j hj ν ν₀ L b)
+    (h' : BotClosed k Q Λ Λc j hj ν ν₀ L b') : BotClosed k Q Λ Λc j hj ν ν₀ L (b * b') := by
+  intro w hw
+  have he : (Env.mk 1 (botMap k Q Λ Λc j hj ν ν₀ (b * b')) : Env k Q Λ Λc j hj ν ν₀) =
+      Env.mk 1 (botMap k Q Λ Λc j hj ν ν₀ b') * Env.mk 1 (botMap k Q Λ Λc j hj ν ν₀ b) := by
+    rw [Env.mk_mul_mk, one_mul, map_mul]
+  rw [he, mul_smul]
+  exact h' _ (h w hw)
+
+theorem BotClosed.add {b b' : Rp} (h : BotClosed k Q Λ Λc j hj ν ν₀ L b)
+    (h' : BotClosed k Q Λ Λc j hj ν ν₀ L b') : BotClosed k Q Λ Λc j hj ν ν₀ L (b + b') := by
+  intro w hw
+  rw [map_add, Env.mk_add_right, add_smul]
+  exact add_mem (h w hw) (h' w hw)
+
+theorem botClosed_one : BotClosed k Q Λ Λc j hj ν ν₀ L (1 : Rp) :=
+  botClosed_of_gen fun _ _ _ v _ hn hz => by rw [mul_one]; exact capElt_mem_canonicalSpan hn v hz
+
+theorem BotClosed.pow {b : Rp} (h : BotClosed k Q Λ Λc j hj ν ν₀ L b) (d : ℕ) :
+    BotClosed k Q Λ Λc j hj ν ν₀ L (b ^ d) := by
+  induction d with
+  | zero => rw [pow_zero]; exact botClosed_one
+  | succ d ih => rw [pow_succ]; exact ih.mul h
+
+theorem botClosed_algebraMap (r : k) : BotClosed k Q Λ Λc j hj ν ν₀ L (algebraMap k Rp r) :=
+  botClosed_of_gen fun a s n v z hn hz => by
+    rw [← Algebra.commutes, ← Algebra.smul_def, capElt_smul_right]
+    exact capElt_mem_canonicalSpan hn v hz
+
+theorem botClosed_e (t : Seq (stendhalWeight (ℓ + 2) (ν + ν₀))) :
+    BotClosed k Q Λ Λc j hj ν ν₀ L (KLRAlgebra.e t) :=
+  botClosed_of_gen fun _ _ _ v _ hn hz =>
+    capElt_mem_canonicalSpan hn v (Subalgebra.mul_mem _ hz (KLRAlgebra.e_mem_leftSub _ t))
+
+omit [DecidableEq I] [AddCommGroup L] [Module (StendhalAlgebra k Q Λc ν₀)ᵐᵒᵖ L] in
+theorem dotPos_val_of_le (n : Fin (m + 1)) (a : Fin m) (ha : n.val ≤ a.val) :
+    (dotPos (j := j) (hj := hj) (ν₀ := ν₀) n a).val = a.val + N := by
+  simp [dotPos, show ¬ a.val < n.val by omega]
+
+/-- A dot below the canonical generators: on a strand left of the box it stays below, on a strand
+right of it, it slides up to the top. -/
+theorem botClosed_x (c : Fin M) : BotClosed k Q Λ Λc j hj ν ν₀ L (KLRAlgebra.x c) := by
+  refine botClosed_of_gen fun a s n v z hn hz => ?_
+  by_cases hc : c.val < n.val + N
+  · exact capElt_mem_canonicalSpan hn v (Subalgebra.mul_mem _ hz (KLRAlgebra.x_mem_leftSub c hc))
+  · rw [(KLRAlgebra.commute_x_of_le hz c (by omega)).eq]
+    have hM : M = m + N := by rw [card_plus j hj ν ν₀, Multiset.card_map]
+    have hcm : c.val - N < m := by have := c.isLt; omega
+    rw [show c = dotPos (j := j) (hj := hj) (ν₀ := ν₀) n ⟨c.val - N, hcm⟩ from
+      Fin.ext (by
+        rw [dotPos_val_of_le _ _ (by show n.val ≤ c.val - N; omega)]
+        show c.val = c.val - N + N
+        omega),
+      ← capElt_dot]
+    exact capElt_mem_canonicalSpan hn v hz
+
+omit [AddCommGroup L] [Module (StendhalAlgebra k Q Λc ν₀)ᵐᵒᵖ L] in
+theorem le_capPos_sadj {s : Seq (stendhalWeight ℓ ν)} {p : ℕ} (hp : capPos ℓ j s ≤ p) :
+    capPos ℓ j s ≤ capPos ℓ j (sadj m p • s) := by
+  by_cases hjl : j < ℓ
+  · have hc := lbl_capPos (s := s) hjl
+    have h : (sadj m p • s).lbl (sadj m p ⟨capPos ℓ j s, capPos_lt hjl⟩) = .inr ⟨j, hjl⟩ := by
+      simp only [Seq.lbl, KLRAlgebra.sadj_smul_apply, sadj_sadj_apply]
+      exact hc
+    rw [capPos_eq hjl h, sadj_val]
+    show capPos ℓ j s ≤ if p + 1 < m then swapNat p (capPos ℓ j s) else capPos ℓ j s
+    split_ifs
+    · rcases swapNat_cases p (capPos ℓ j s) with ⟨-, h⟩ | ⟨h, -⟩ | ⟨-, -, h⟩ <;> omega
+    · exact le_rfl
+  · rw [capPos_of_not hjl, capPos_of_not hjl]
+
+/-- A crossing below the canonical generators, other than the one between the last strand of the
+box and the strand to its right. -/
+theorem capElt_mul_ψ_mem_of_ne (hκ : ∀ i, IsUnit (cupScalar Q ν₀ i)) (a : T)
+    (s : Seq (stendhalWeight ℓ ν)) (n : Fin (m + 1)) (v : L) {z : Rp}
+    (hn : n.val = capPos ℓ j s) (hz : z ∈ Z (n.val + N)) {p : ℕ} (hp : p + 1 ≠ n.val + N) :
+    capElt a s n v (z * KLRAlgebra.ψ p) ∈ canonicalSpan k Q Λ Λc j hj ν ν₀ L := by
+  by_cases hp1 : p + 1 < n.val + N
+  · exact capElt_mem_canonicalSpan hn v (Subalgebra.mul_mem _ hz (KLRAlgebra.ψ_mem_leftSub hp1))
+  obtain ⟨z', hz', he⟩ := KLRAlgebra.exists_mul_ψ_eq hz p (by omega)
+  rw [he]
+  have hc : crossPos n.val N (p - N) = p := by
+    simp only [crossPos, show ¬ p - N < n.val by omega, ↓reduceIte]; omega
+  have h := capElt_cross a (sadj m (p - N) • s) n v (p - N) (Or.inr (by omega)) z'
+  rw [KLRAlgebra.sadj_smul_smul, hc] at h
+  rw [← h]
+  exact capElt_mem_canonicalSpan_of_le hκ _ _ n (by rw [hn]; exact le_capPos_sadj (by omega)) v hz'
+
+/-- Crossings left of the maximum below a generator slide up to the top. -/
+theorem capElt_ψw_mul (n : Fin (m + 1)) (v : L) (b : Rp) (ρ : List ℕ)
+    (hρ : ∀ p ∈ ρ, p + 1 < n.val) (a : T) (s : Seq (stendhalWeight ℓ ν)) :
+    ∃ (a' : T) (s' : Seq (stendhalWeight ℓ ν)), (∀ c : Fin m, n.val ≤ c.val → s'.lbl c = s.lbl c) ∧
+      capElt a s n v (KLRAlgebra.ψw ρ * b) = capElt a' s' n v b := by
+  induction ρ generalizing a s with
+  | nil => exact ⟨a, s, fun _ _ => rfl, by rw [KLRAlgebra.ψw_nil, one_mul]⟩
+  | cons p ρ ih =>
+    have hp := hρ p (by simp)
+    obtain ⟨a', s', hs', he⟩ := ih (fun q hq => hρ q (by simp [hq]))
+      (a * topMap k Q Λ ν (KLRAlgebra.ψ p)) (sadj m p • s)
+    refine ⟨a', s', fun c hc => ?_, ?_⟩
+    · rw [hs' c hc, KLRAlgebra.lbl_sadj_of_ne s c (by omega) (by omega)]
+    · have hcr : crossPos n.val N p = p := by simp [crossPos, show p < n.val by omega]
+      have h := capElt_cross a (sadj m p • s) n v p (Or.inl hp) (KLRAlgebra.ψw ρ * b)
+      rw [KLRAlgebra.sadj_smul_smul, hcr] at h
+      rw [KLRAlgebra.ψw_cons, mul_assoc, ← h, he]
 
 end Spanning
 

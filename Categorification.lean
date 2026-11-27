@@ -1599,6 +1599,7 @@ import Categorification.WeightedKLR.RedStrands.CyclotomicRegionDotSlide
 import Categorification.WeightedKLR.RedStrands.CyclotomicRegionDownCross
 import Categorification.WeightedKLR.RedStrands.CyclotomicRegionDownMidSame
 import Categorification.WeightedKLR.RedStrands.CyclotomicRegionDownQuotientEpi
+import Categorification.WeightedKLR.RedStrands.CyclotomicRegionTensorAction
 import Categorification.WeightedKLR.RedStrands.CyclotomicRegionFamily
 import Categorification.WeightedKLR.RedStrands.DoublePitchforkObstruction
 import Categorification.WeightedKLR.RedStrands.DoublePitchforkClosure
@@ -2157,6 +2158,7 @@ import Categorification.KLR.CyclotomicTruncation
 import Categorification.KLR.CyclotomicWordRestriction
 import Categorification.KLR.ReindexWordK0
 import Categorification.KLR.Rouquier.PolynomialDegree
+import Categorification.KLR.Rouquier.KLStandard
 import Categorification.QuantumGroup.DividedCoproduct
 import Categorification.QuantumGroup.RaisingSerre
 import Categorification.TwoRep.GradedHom

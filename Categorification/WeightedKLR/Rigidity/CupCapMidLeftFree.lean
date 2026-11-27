@@ -9,22 +9,34 @@ import Categorification.WeightedKLR.Rigidity.CupCapMidCapBasisApply
 
 Webster, arXiv:1309.3796v3, §7.3, the assertion after Lemma 7.19 that `coe^{λ⁺}_λ` is projective
 as a left `T^λ`-module, for a cap after the red strand `λ_j`. The route goes through the left
-freeness of `K̃^{λ⁺}_λ`: the map
+freeness of `K̃^{λ⁺}_λ`, through the map
 
-  `Θ : ⨁_g T̃^λ e(s_g) ⊗_k L e(t_g) → K̃^{λ⁺}_λ`, `a ⊗ v ↦ a · (v γ_g)`,
+  `Θ : ⨁_g T̃^λ e(s_g) ⊗_k L e(t_g) → K̃^{λ⁺}_λ`, `a ⊗ v ↦ a · (v γ_g)`.
 
-over the generators `g` without dots (`MidShuffle`: a loading `s` of `λ`, a loading `t` at the
-maximum and a window shuffle `u`), is bijective. This file works in the model
-`L ⊗_{T̃^{(μ,μ*)}} e T̃^{λ⁺}` of `K̃^{λ⁺}_λ` (`midCapModelEquiv`), with the left action of `T̃^λ`
-given by the KLR relations on the model (`midLeftAlg`), and constructs `Θ` as a left
-`T̃^λ`-linear map (`midTheta`).
+This file works in the model `L ⊗_{T̃^{(μ,μ*)}} e T̃^{λ⁺}` of `K̃^{λ⁺}_λ` (`midCapModelEquiv`),
+with the left action of `T̃^λ` given by the KLR relations on the model (`midLeftAlg`), and
+constructs `Θ` as a left `T̃^λ`-linear map in two versions.
+
+* `midTheta` runs over all generators without dots (`MidShuffle`: a loading `s` of `λ`, a
+  loading `t` at the maximum and a window shuffle `u`). It is surjective
+  (`midTheta_surjective`), but its source is too large: it is not injective in general. For
+  instance, for a crossing `ψ_p` of two strands of `λ` away from the window, a generator `g₀`
+  with `u = 1` and the generator `g` with `u` that crossing (top `s = s_p s₀`), the element
+  `ψ_p e(s₀) ⊗ v ⊗ g₀ - e(s) ⊗ v ⊗ g` is in its kernel.
+* `midThetaBlock` runs over the generators without dots whose permutation of the strands of `λ`
+  is trivial (`MidBlockShuffle`): the bottom loading `i` of `λ` is the top `s`, and `u` only
+  shuffles `t` with the black block between `λ_j` and `λ_{j+1}`. These are the triples of
+  `midTripleEquiv` with `w = 1` and `d = 0`, the index set of the expected free basis
+  `{b · (v γ_g)}`. Whether `midThetaBlock` is surjective, and whether it is injective, is open.
 
 ## Main definitions
 
 * `MidShuffle`: the generators of the corner at the window without dots.
+* `MidBlockShuffle`: those whose permutation of the strands of `λ` is trivial.
 * `MidLeftModel`: the model as a left `T̃^λ`-module.
 * `midLeftGen`: the element `v γ_g` of the model, `k`-linear in `v`.
-* `midTheta`: the comparison map `Θ`, left `T̃^λ`-linear.
+* `midTheta`: the comparison map over all generators without dots, left `T̃^λ`-linear.
+* `midThetaBlock`: the comparison map over the block shuffles, left `T̃^λ`-linear.
 -/
 
 set_option backward.isDefEq.respectTransparency false
@@ -45,9 +57,15 @@ local notation "T" => StendhalAlgebra k Q Λ ν
 
 variable (j hj ν ν₀) in
 /-- **The generators without dots** of the corner at the window before `λ_{j+1}`: a loading `s`
-of `λ`, a loading `t` at the maximum and a window shuffle `u`. These index the summands of the
-left freeness of `K̃^{λ⁺}_λ`. -/
+of `λ`, a loading `t` at the maximum and a window shuffle `u`. They index the summands of
+`midTheta`. -/
 abbrev MidShuffle : Type := {g : MidGen j hj ν ν₀ // g.d = 0}
+
+variable (j hj ν ν₀) in
+/-- **The block shuffles**: the generators without dots whose permutation of the strands of `λ`
+is trivial, so that `u` only shuffles the loading `t` at the maximum with the black block between
+`λ_j` and `λ_{j+1}`. They index the summands of `midThetaBlock`. -/
+abbrev MidBlockShuffle : Type := {g : MidShuffle j hj ν ν₀ // g.1.perm = 1}
 
 variable {L : Type*} [AddCommGroup L] [Module (StendhalAlgebra k Q Λc ν₀)ᵐᵒᵖ L]
   [Module k L] [IsScalarTower k (StendhalAlgebra k Q Λc ν₀)ᵐᵒᵖ L]
@@ -115,8 +133,9 @@ def midThetaBil (hR : MidKLRRel j hj Q Λ Λc ν ν₀ L hL) (g : MidShuffle j h
     (fun c a v => by rw [map_smul, smul_comm])
 
 variable (L hL ρ₃) in
-/-- **The comparison map** `Θ : ⨁_g T̃^λ e(s_g) ⊗_k L e(t_g) → K̃^{λ⁺}_λ`,
-`a ⊗ v ↦ a · (v γ_g)`, in the model, left `T̃^λ`-linear. -/
+/-- **The comparison map over all generators without dots**
+`⨁_g T̃^λ e(s_g) ⊗_k L e(t_g) → K̃^{λ⁺}_λ`, `a ⊗ v ↦ a · (v γ_g)`, in the model, left
+`T̃^λ`-linear. It is surjective but not injective in general; see `midThetaBlock`. -/
 def midTheta [DecidableEq (MidShuffle j hj ν ν₀)] (hR : MidKLRRel j hj Q Λ Λc ν ν₀ L hL) :
     (DirectSum (MidShuffle j hj ν ν₀) (MidLeftSummand Q Λ Λc L)) →ₗ[T] MidLeftModel L hL hR :=
   DirectSum.toModule T (MidShuffle j hj ν ν₀) (MidLeftModel L hL hR) fun g =>
@@ -132,6 +151,26 @@ theorem midTheta_of_tmul [DecidableEq (MidShuffle j hj ν ν₀)]
         MidLeftModel L hL hR) := by
   rw [midTheta, DirectSum.toModule_lof]
   rfl
+
+variable (L hL ρ₃) in
+/-- **The comparison map over the block shuffles**
+`Θ : ⨁_g T̃^λ e(s_g) ⊗_k L e(t_g) → K̃^{λ⁺}_λ`, `a ⊗ v ↦ a · (v γ_g)`, with `g` running over
+`MidBlockShuffle`, in the model, left `T̃^λ`-linear. Its bijectivity is the left freeness of
+`K̃^{λ⁺}_λ` on the basis `{b · (v γ_g)}`; it is open. -/
+def midThetaBlock [DecidableEq (MidBlockShuffle j hj ν ν₀)]
+    (hR : MidKLRRel j hj Q Λ Λc ν ν₀ L hL) :
+    (DirectSum (MidBlockShuffle j hj ν ν₀) fun g => MidLeftSummand Q Λ Λc L g.1) →ₗ[T]
+      MidLeftModel L hL hR :=
+  DirectSum.toModule T (MidBlockShuffle j hj ν ν₀) (MidLeftModel L hL hR) fun g =>
+    AlgebraTensorModule.lift (midThetaBil L hL ρ₃ hR g.1)
+
+/-- `midThetaBlock` is the restriction of `midTheta` to the summands of the block shuffles. -/
+theorem midThetaBlock_lof [DecidableEq (MidShuffle j hj ν ν₀)]
+    [DecidableEq (MidBlockShuffle j hj ν ν₀)] (hR : MidKLRRel j hj Q Λ Λc ν ν₀ L hL)
+    (g : MidBlockShuffle j hj ν ν₀) (x : MidLeftSummand Q Λ Λc L g.1) :
+    midThetaBlock L hL ρ₃ hR (DirectSum.lof T _ (fun g => MidLeftSummand Q Λ Λc L g.1) g x) =
+      midTheta L hL ρ₃ hR (DirectSum.lof T _ (MidLeftSummand Q Λ Λc L) g.1 x) := by
+  rw [midThetaBlock, midTheta, DirectSum.toModule_lof, DirectSum.toModule_lof]
 
 end Categorification.Stendhal.CupCap
 

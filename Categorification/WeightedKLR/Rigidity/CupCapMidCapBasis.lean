@@ -16,9 +16,9 @@ any `j ≤ ℓ`. The bimodule `K̃^{λ⁺}_λ` is the model with the maximum bef
 (`midCapModelEquivₖ`). For symmetric `Q`, the model has a basis indexed by Webster's set `B″`
 (`midTripleBasis`), so `K̃^{λ⁺}_λ` has a basis indexed by `B″` (`midCapBasis`).
 
-The element of index `(τ, b′)` corresponds to the generator `b′ γ_g` of the model; it agrees with
-Webster's diagram of `B″` up to a triangular change of basis (a strand of `b` that starts right
-of the maximum and ends right of a strand at the maximum gives lower terms).
+The element of index `(τ, b′)` is Webster's diagram of `B″`: the maximum at its canonical
+position at the top carrying `b′`, followed by `γ_g`, in which every strand passes under the cap
+(`midCapBasis_apply`).
 
 Route hypotheses (tracked, see the README): `PullOff L` (Lemma 7.16) and `PullOffLeft L` (its
 mirror), the scalars of (max1) are units, and `L` is supported on the loadings `μ ⋯ μ*`.
@@ -83,8 +83,9 @@ variable [Module k L] [IsScalarTower k (StendhalAlgebra k Q Λc ν₀)ᵐᵒᵖ 
 Fix reduced words `ρ₂`, `ρ₃` and, for each red-ordered loading `t` at the maximum, a basis `B′_t`
 of `L e(t)`. Then `K̃^{λ⁺}_λ` has a basis indexed by the pairs `(τ, b′)` of a triple `τ` of
 `B″` (a basis term of `T̃^λ`, a cap-good loading `t` at the maximum, a shuffle of `t` with the
-`j`-th black block) and `b′ ∈ B′_t`. The element of index `(τ, b′)` corresponds to `b′ γ_g` in
-the model; it agrees with Webster's diagram up to a triangular change of basis.
+`j`-th black block) and `b′ ∈ B′_t`. The element of index `(τ, b′)` is the cap at its canonical
+position at the top carrying `b′`, followed by the diagram `γ_g` of the triple
+(`midCapBasis_apply`).
 
 Route hypotheses (tracked, see the README): `hκ` (the scalars of (max1) are units), `hL` (`L` is
 supported on the loadings `μ ⋯ μ*`), `hP` (Lemma 7.16) and `hPL` (its mirror). -/

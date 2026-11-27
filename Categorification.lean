@@ -2605,6 +2605,7 @@ import Categorification.WeightedKLR.Rigidity.CupCapLeftDescent
 import Categorification.WeightedKLR.Rigidity.CupCapLeftLoop
 import Categorification.WeightedKLR.Rigidity.CupCapMidAction
 import Categorification.WeightedKLR.Rigidity.CupCapMidCapBasis
+import Categorification.WeightedKLR.Rigidity.CupCapMidCapBasisApply
 import Categorification.WeightedKLR.Rigidity.CupCapMidCornerBasis
 import Categorification.WeightedKLR.Rigidity.CupCapMidCornerCorner
 import Categorification.WeightedKLR.Rigidity.CupCapMidCornerFactor

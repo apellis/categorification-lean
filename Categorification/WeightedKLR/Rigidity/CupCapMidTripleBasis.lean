@@ -108,8 +108,8 @@ For `L` supported on the loadings with `μ` first and `μ*` last and bases `B′
 `L e(t)`, the basis `midModelBasis` is indexed by the triples `(b, b′, shuffle)` of Webster's
 index set: `b = x^d ψ_w e(i)` a term of the basis of `T̃^λ` with dots on top, `b′ ∈ B′_t`, and a
 shuffle of `t` with the `j`-th black block of `i` (`MidTriple`). Its elements are the elements
-`b′ γ_g` of `midModelBasis` for the generator `g` of the triple, not Webster's diagrams of `B″`;
-the two agree only up to a triangular change of basis in general. -/
+`b′ γ_g` of `midModelBasis` for the generator `g` of the triple; in `K̃^{λ⁺}_λ` they are Webster's
+diagrams of `B″` (`midCapBasis_apply`). -/
 def midTripleBasis [DecidableEq (MidGen j hj ν ν₀)] [Nontrivial k] (hQ : KLRSymm Q)
     (hρ₂ : ∀ b, IsReduced N (ρ₂ b) ∧ wordProd N (ρ₂ b) = b)
     (hρ₃ : ∀ w, IsReduced M (ρ₃ w) ∧ wordProd M (ρ₃ w) = w)

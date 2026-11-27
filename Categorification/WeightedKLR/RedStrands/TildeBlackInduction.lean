@@ -254,13 +254,13 @@ variable (Λ : Fin ℓ → I →₀ ℕ)
 local notation "fam" => fun β : Multiset I => K0 (stendhalGrade (moduleGrading Λ) β)
 
 omit [DecidableEq I] in
-private theorem moduleGrading_dot :
+theorem moduleGrading_dot :
     ∀ a, (moduleGrading Λ).degX a = (affineCoverCartan C ℓ).dot a a := by
   rintro (i | r)
   · rfl
   · exact (CartanDatum.ofGraph_dot_self (⊥ : SimpleGraph (Fin ℓ)) r).symm
 
-private theorem tildeK0_smul_injective {r : LP} (hr : r ≠ 0) :
+theorem tildeK0_smul_injective {r : LP} (hr : r ≠ 0) :
     Function.Injective ((r • ·) : DirectSum (Multiset I) fam → _) := by
   intro x y h
   apply DFinsupp.ext
@@ -269,7 +269,7 @@ private theorem tildeK0_smul_injective {r : LP} (hr : r ≠ 0) :
     (moduleGrading_degX_pos C hQ Λ)
   exact smul_right_injective (K0 (stendhalGrade (moduleGrading Λ) ν)) hr (DFinsupp.ext_iff.mp h ν)
 
-private theorem tildeProjection_e (ν : Multiset I) (s : Seq (stendhalWeight ℓ ν))
+theorem tildeProjection_e (ν : Multiset I) (s : Seq (stendhalWeight ℓ ν))
     (hs : IsRedOrdered s) :
     tildeProjection (k := k) (Q := Q) Λ ν (KLRAlgebra.e s) = StendhalAlgebra.e s hs := by
   classical
@@ -278,7 +278,7 @@ private theorem tildeProjection_e (ν : Multiset I) (s : Seq (stendhalWeight ℓ
   rw [StendhalAlgebraAllOrders.e_mul_redOrderedIdem]
   exact ite_eq_left_of_eq_true _ _ (eq_true hs)
 
-private theorem stendhal_e_idem (ν : Multiset I) (s : Seq (stendhalWeight ℓ ν))
+theorem stendhal_e_idem (ν : Multiset I) (s : Seq (stendhalWeight ℓ ν))
     (hs : IsRedOrdered s) : IsIdempotentElem (StendhalAlgebra.e (k := k) (Q := Q) (Λ := Λ) s hs) := by
   rw [← tildeProjection_e Λ ν s hs]
   exact (show IsIdempotentElem (KLRAlgebra.e s) from e_mul_self s).map _
@@ -293,7 +293,7 @@ private theorem lof_e_cast {δ δ' : Multiset I} (h : δ = δ') (s : Seq (stendh
   subst h
   rfl
 
-private theorem lof_tildeClass_factorial (w : TensorWord I ℓ) :
+theorem lof_tildeClass_factorial (w : TensorWord I ℓ) :
     divQFact2 C w.blackBlocks • DirectSum.lof LP _ fam w.content.toMultiset (tildeClass C hQ Λ w) =
       DirectSum.lof LP _ fam w.content.toMultiset (K0.of (GProj.ofIdempotent
         (StendhalAlgebra.e (k := k) (Q := Q) (Λ := Λ) w.loading w.blocks_redOrdered)
@@ -330,7 +330,7 @@ theorem tildeLower_tildeClass (w : TensorWord I ℓ) (i : I) :
 variable {wt : Fin ℓ → Dom R}
 
 include hR in
-private theorem span_lof_tildeClass [Finite I] (hρ : ∃ ω : Dom R, ∀ i, 1 ≤ ω.1 (R.coroot i))
+theorem span_lof_tildeClass [Finite I] (hρ : ∃ ω : Dom R, ∀ i, 1 ≤ ω.1 (R.coroot i))
     (hwt : ∀ r i, (Λ r i : ℤ) = (wt r).1 (R.coroot i)) :
     Submodule.span LP (Set.range fun w : TensorWord I ℓ =>
       DirectSum.lof LP _ fam w.content.toMultiset (tildeClass C hQ Λ w)) = ⊤ := by

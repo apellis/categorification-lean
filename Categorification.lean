@@ -173,6 +173,7 @@ import Categorification.Algebra.SelfDualDoubleCentralizer
 import Categorification.Algebra.SelfDualInjective
 import Categorification.Algebra.StarDual
 import Categorification.Algebra.ExtVanishingShift
+import Categorification.Algebra.ExtLinearShift
 import Categorification.Algebra.CornerDualInjective
 import Categorification.Algebra.SplitK0
 import Categorification.Algebra.SumDecompLinear

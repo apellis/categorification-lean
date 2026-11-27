@@ -49,7 +49,7 @@ variable {k : Type*} [CommRing k] {T : Type*} [Ring T] [Algebra k T] {R : Type*}
 omit [Algebra k A] in
 /-- Induction on elements of `IndK k N φ`. -/
 @[elab_as_elim]
-theorem IndK.induction_on {M : Type w} [AddCommGroup M] [Module A M] {motive : IndK k M φ → Prop}
+theorem IndK.induction_on' {M : Type w} [AddCommGroup M] [Module A M] {motive : IndK k M φ → Prop}
     (t : IndK k M φ) (zero : motive 0) (tmul : ∀ z n, motive (IndK.tmul z n))
     (add : ∀ s t, motive s → motive t → motive (s + t)) : motive t :=
   Ind.induction_on t zero tmul add
@@ -137,7 +137,7 @@ theorem indBalancedInner_tmul (l : L) (z : Corner φ) (n : N) :
 theorem indBalancedInner_add (l l' : L) (w : IndK k N φ) :
     indBalancedInner σ hσ g hg (l + l') w =
       indBalancedInner σ hσ g hg l w + indBalancedInner σ hσ g hg l' w := by
-  induction w using IndK.induction_on with
+  induction w using IndK.induction_on' with
   | zero => rw [map_zero, map_zero, map_zero, add_zero]
   | tmul z n =>
     change IndK.tmul z (g.symm (BalancedTensor.tmul (l + l') n)) =
@@ -150,7 +150,7 @@ theorem indBalancedInner_add (l l' : L) (w : IndK k N φ) :
 include hφ in
 theorem indBalancedInner_smul (c : k) (l : L) (w : IndK k N φ) :
     indBalancedInner σ hσ g hg (c • l) w = c • indBalancedInner σ hσ g hg l w := by
-  induction w using IndK.induction_on with
+  induction w using IndK.induction_on' with
   | zero => rw [map_zero, map_zero, smul_zero]
   | tmul z n =>
     change IndK.tmul z (g.symm (BalancedTensor.tmul (c • l) n)) =
@@ -179,7 +179,7 @@ theorem indBalancedBil_balanced (l : L) (r : R) (n' : N') :
   change indBalancedInner σ hσ g hg (op r • l) (f.symm n') =
     indBalancedInner σ hσ g hg l (f.symm (r • n'))
   rw [symm_smul_apply f hf]
-  induction f.symm n' using IndK.induction_on with
+  induction f.symm n' using IndK.induction_on' with
   | zero => rw [map_zero, map_zero, map_zero]
   | tmul z n =>
     change IndK.tmul z (g.symm (BalancedTensor.tmul (op r • l) n)) =
@@ -197,7 +197,7 @@ theorem indBalancedBwd_tmul (l : L) (n' : N') :
 
 theorem indBalancedBwd_fwd (w : IndK k X φ) :
     indBalancedBwd hφ σ hσ g hg f hf (indBalancedFwd σ hσ g hg f hf w) = w := by
-  induction w using IndK.induction_on with
+  induction w using IndK.induction_on' with
   | zero => rw [map_zero, map_zero]
   | tmul z x =>
     change indBalancedBwd hφ σ hσ g hg f hf
@@ -223,7 +223,7 @@ theorem indBalancedFwd_bwd (y : BalancedTensor k T R L N') :
   | zero => rw [map_zero, map_zero]
   | tmul l n' =>
     rw [indBalancedBwd_tmul, ← f.apply_symm_apply n']
-    induction f.symm n' using IndK.induction_on with
+    induction f.symm n' using IndK.induction_on' with
     | zero => rw [map_zero, map_zero, map_zero, map_zero, BalancedTensor.tmul_zero]
     | tmul z n =>
       rw [LinearEquiv.symm_apply_apply, indBalancedInner_tmul, indBalancedFwd_tmul,
@@ -250,7 +250,7 @@ theorem indBalancedEquiv_smul (b : B) (h : N' →ₗ[R] N') (hh : ∀ w, f (b �
     (w : IndK k X φ) :
     indBalancedEquiv hφ σ hσ g hg f hf (b • w) =
       BalancedTensor.mapRight h (indBalancedEquiv hφ σ hσ g hg f hf w) := by
-  induction w using IndK.induction_on with
+  induction w using IndK.induction_on' with
   | zero => rw [smul_zero, map_zero, map_zero]
   | tmul z x =>
     refine (congrArg (indBalancedEquiv hφ σ hσ g hg f hf) (Ind.smul_tmul b z x)).trans ?_
@@ -268,7 +268,7 @@ theorem indBalancedEquiv_map (σT : X →ₗ[A] X) (t : T) (ht : ∀ x, g (σT x
     (w : IndK k X φ) :
     indBalancedEquiv hφ σ hσ g hg f hf (IndK.map σT w) =
       t • indBalancedEquiv hφ σ hσ g hg f hf w := by
-  induction w using IndK.induction_on with
+  induction w using IndK.induction_on' with
   | zero => rw [map_zero, map_zero, smul_zero]
   | tmul z x =>
     change BalancedTensor.mapRight (indBalancedSlice f hf z) (g (σT x)) =

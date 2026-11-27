@@ -2110,6 +2110,7 @@ import Categorification.Diagrams.CLQ.SpanningBasic
 import Categorification.Diagrams.CLQ.SpanningPhi
 import Categorification.Diagrams.CLQ.Straighten
 import Categorification.Diagrams.CLQ.SymmetryPsi
+import Categorification.Diagrams.CLQ.ThetaReflection
 import Categorification.Diagrams.CLQ.Traces
 import Categorification.Diagrams.CLQ.Upward
 import Categorification.Diagrams.KL3.CanonFiltered

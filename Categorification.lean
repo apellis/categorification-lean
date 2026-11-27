@@ -2542,3 +2542,4 @@ import Categorification.Algebra.PiTensorProductSnoc
 import Categorification.WeightedKLR.RedStrands.BlockAlgebraSplit
 import Categorification.Algebra.InductionAlongTensorSplit
 import Categorification.WeightedKLR.RedStrands.FiInitInduction
+import Categorification.WeightedKLR.RedStrands.FiLeftInput

@@ -39,25 +39,24 @@ variable {I : Type} [DecidableEq I] {k : Type} [Field k] {ℓ : ℕ}
 
 /-- Naturality of `Fᵢ` of `M ⊗_B S^L_α ≅ S(X_M)` in endomorphisms of `M`. -/
 theorem fiTopEquiv_natural (g : Module.End (BlockAlgebra k Q Λ b)ᵐᵒᵖ M)
-    (x : IndK k (LeftStandardization Q Λ b hb hα M)
+    (x : IndK k (LeftStandardization Q Λ b (blockPrefix_last b) hα M)
       (appendBlackNU (Q := Q) (Λ := Λ) i (initWeight b + lastBlock b))) :
-    IndK.map (k := k) (standardTwoPieceEquiv Q Λ hQ b M rfl rfl hα₁ hb hα).toLinearMap
+    IndK.map (k := k) (splitStandardEquiv Q Λ hQ b hα₁ hα M).toLinearMap
         (IndK.map (k := k) (BalancedTensor.mapRight (k := k)
           (B := TensorProductAlgebra k Q Λ (initWeight b + lastBlock b))
-          (M := BlockLeftStandard Q Λ b hb hα) g) x) =
-      IndK.map (k := k) (parabolicStandardMapT Q Λ hQ (twoPieceCastEnd Q Λ b M rfl rfl hα₁ g))
-        (IndK.map (k := k) (standardTwoPieceEquiv Q Λ hQ b M rfl rfl hα₁ hb hα).toLinearMap x) :=
-  IndK.map_comm_apply (standardTwoPieceEquiv_mapRight Q Λ hQ b M rfl rfl hα₁ hb hα g) x
+          (M := BlockLeftStandard Q Λ b (blockPrefix_last b) hα) g) x) =
+      IndK.map (k := k) (parabolicStandardMapT Q Λ hQ (twoPieceEnd Q Λ b hα₁ g))
+        (IndK.map (k := k) (splitStandardEquiv Q Λ hQ b hα₁ hα M).toLinearMap x) :=
+  IndK.map_comm_apply (splitStandardEquiv_mapRight Q Λ hQ b hα₁ hα (M := M) g) x
 
 /-- **`Fᵢ(M ⊗_B S^L_α) ≅ Fᵢ S(X_M)` over `T(i + (θ + β)) ⊗ C`.** -/
 def fiTopEquiv :
     TensorAct k (TensorProductAlgebra k Q Λ (({i} : Multiset I) + (initWeight b + lastBlock b))) C
       (fiTopAction Q i Λ b (initWeight b + lastBlock b) hb hα C M ρ) ≃ₗ[
       TensorProductAlgebra k Q Λ (({i} : Multiset I) + (initWeight b + lastBlock b)) ⊗[k] C]
-      FiMid Q Λ hQ i (initWeight b) (lastBlock b) C
-        (twoPieceCastAction Q Λ b M rfl rfl hα₁ C ρ) :=
-  TensorAct.equiv (Ind.mapEquiv (standardTwoPieceEquiv Q Λ hQ b M rfl rfl hα₁ hb hα))
-    fun c x => fiTopEquiv_natural Q Λ hQ i b M hα₁ hb hα (ρ c) x
+      FiMid Q Λ hQ i (initWeight b) (lastBlock b) C ((twoPieceEndAlg Q Λ b hα₁).comp ρ) :=
+  TensorAct.equiv (Ind.mapEquiv (splitStandardEquiv Q Λ hQ b hα₁ hα M))
+    fun c x => fiTopEquiv_natural Q Λ hQ i b M hα₁ hα (ρ c) x
 
 end StendhalAlgebra
 

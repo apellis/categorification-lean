@@ -2130,11 +2130,17 @@ import Categorification.Diagrams.CLQ.Lemma39
 import Categorification.Diagrams.CLQ.Markov
 import Categorification.Diagrams.CLQ.MarkovLeft
 import Categorification.Diagrams.CLQ.MoreBubbleSlides
+import Categorification.Diagrams.CLQ.MixedR3
+import Categorification.Diagrams.CLQ.MixedR3Sl2
 import Categorification.Diagrams.CLQ.Presentation
 import Categorification.Diagrams.CLQ.Reduction
 import Categorification.Diagrams.CLQ.Rewriting
 import Categorification.Diagrams.CLQ.SlideCalculus
 import Categorification.Diagrams.CLQ.SortDecomp
+import Categorification.Diagrams.CLQ.SpanningSetBlock
+import Categorification.Diagrams.CLQ.SpanningSetCaps
+import Categorification.Diagrams.CLQ.SpanningSetElim
+import Categorification.Diagrams.CLQ.SpanningSetLocal
 import Categorification.Diagrams.CLQ.Spanning
 import Categorification.Diagrams.CLQ.SpanningBasic
 import Categorification.Diagrams.CLQ.SpanningPhi

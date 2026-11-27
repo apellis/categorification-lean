@@ -1580,6 +1580,7 @@ import Categorification.WeightedKLR.RedStrands.DoublePrintedBubble
 import Categorification.WeightedKLR.RedStrands.DoubleRedBubble
 import Categorification.WeightedKLR.RedStrands.TensorCornerFormula
 import Categorification.WeightedKLR.RedStrands.CyclotomicRedAbsentCap
+import Categorification.WeightedKLR.RedStrands.CyclotomicGlobalCapTensor
 import Categorification.WeightedKLR.RedStrands.CyclotomicRedCapSl2
 import Categorification.WeightedKLR.RedStrands.CyclotomicRedGlobal
 import Categorification.WeightedKLR.RedStrands.CyclotomicRegion

@@ -754,6 +754,8 @@ import Categorification.WeightedKLR.RedStrands.DoubleFarLeftBlackCutQ
 import Categorification.WeightedKLR.RedStrands.DoubleSignedBubbleSweepQ
 import Categorification.WeightedKLR.RedStrands.DoubleSignedCapBubbleExitQ
 import Categorification.WeightedKLR.RedStrands.FlipDualExt
+import Categorification.WeightedKLR.RedStrands.FrontWindow
+import Categorification.WeightedKLR.RedStrands.FrontWindowDescent
 import Categorification.WeightedKLR.RedStrands.HalfTwistTiltingSummand
 import Categorification.WeightedKLR.RedStrands.LabelTwoEndpointTor
 import Categorification.WeightedKLR.RedStrands.LabelTwoExteriorDiagramCut
@@ -1214,6 +1216,7 @@ import Categorification.WeightedKLR.RedStrands.TildeViolatedTor
 import Categorification.WeightedKLR.RedStrands.WindowBlackBlock
 import Categorification.WeightedKLR.RedStrands.WindowBlackBlockFlip
 import Categorification.WeightedKLR.RedStrands.WindowBlackBlockFree
+import Categorification.WeightedKLR.RedStrands.WindowBlackBlockRight
 import Categorification.WeightedKLR.RedStrands.WindowBlackBlockWords
 import Categorification.WeightedKLR.Reflection
 import Categorification.WeightedKLR.Relabel

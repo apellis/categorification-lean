@@ -754,6 +754,19 @@ from which the full one is obtained by iterating):
   (`RedStrands/StandardStratificationStd.lean`): `AllFiniteDeltaInjective` is discharged by the
   dimension count (`allFiniteDeltaInjective_std`), with no further hypothesis.
 
+* Prop 5.20, printed `Φ`-indexed form (v3: Prop 5.21; `RedStrands/PhiDiagrams.lean`,
+  `PhiStandardLayers.lean`, `LabelledStandardFiltration.lean`, `PhiLayerStd.lean`): for a
+  red-ordered `s`, a choice `ρ` of reduced words and the block assignments `φ` of `s`
+  (`PhiIndex s`), put `x_φ = ψ_{ρ φ} e(s)`, `P_{>φ} = Σ_{φ • s < φ' • s} T^λ x_{φ'}` and
+  `P_{≥φ} = T^λ x_φ + P_{>φ}`. Then `P_{≥φ}/P_{>φ} ≅ S_{φ • s}`, `[e(φ • s)] ↦ [x_φ]`
+  (`phiLayerEquiv`, `phiLayerEquiv_unit`). As in Webster's proof: the `x_φ` span `T^λ e(s)`
+  modulo higher terms (`iSup_phiSub_eq_top`), the layer is a quotient of `S_{φ • s}`
+  (`phiLayerMap_surjective`), and `dim T^λ e(s) = Σ_φ dim S_{φ • s}`
+  (`finrank_lIdeal_eq_sum_phiBottom`, from a standard filtration labelled by the bottoms
+  `φ • s`, `hasLabelledStandardFiltrations`) forces bijectivity
+  (`Submodule.layerRank_eq_of_sum_eq`). Same route hypothesis as the filtration form; none
+  at the standard scalars (`phiLayerEquiv_std`).
+
 * Lemma 5.26 and Cor 5.22 (v3: Lemma 5.29, Cor 5.24; `RedStrands/StandardProjectiveDimension.lean`): projective dimension
   `< n` passes from the subquotients of a finite filtration to the module
   (`HasFiltration.hasProjectiveDimensionLT`), and every standard module has finite projective
@@ -778,9 +791,23 @@ from the module-tower constructor `ModuleTower.weakSl2` and the class identity
   cover taken by `fgStringWeakSl2` is instantiated with `noRelations`, so no presentation
   hypothesis remains.
 
-Open: the comparison of the induced model with Def 5.4 (right modules over `T̃^λ` and the block
-algebra of all `ℓ + 1` blocks; the induced model uses left modules, which the vertical flip
-`tensorFlip` converts), injectivity in the `Fᵢ`-part of Prop 5.5, Prop 5.6, and the results listed below.
+* Prop 5.5, comparison with Def 5.4, bimodule step (`RedStrands/LeftRootStandard.lean`,
+  `RootReflectUnit.lean`, `TwoPieceRootStandard*.lean`, `TwoPieceBlockMap*.lean`,
+  `TwoPieceLastBlockMap.lean`, `ParabolicStandardUnitExt.lean`): when no sequence of root
+  function `α` is violated (for example when `b_0 = 0`), Webster's `S_α` is the horizontal
+  reflection of the left root standard module `S^L_α = ⊕_s T^λ e(s) / U_s` (`rootReflectEquiv`),
+  which carries the block action of Prop 5.3 to `S^L_α` (`leftBlockAction`). For `ℓ + 1` red
+  strands, `S^L_α ≅ S(S^L_{α'} ⊠ R^{λ_{ℓ+1}}(β))` as `T^λ`-modules (`twoPieceRootStandardEquiv`),
+  sending the unit vector of `[e(t)] ⊠ e(u)` to that of `S_{t λ_{ℓ+1} u}`
+  (`twoPieceRootStandardEquiv_unit`). The isomorphism intertwines the block actions: for the
+  blocks `j ≤ ℓ` with the standardization of the actions on `S^L_{α'}`
+  (`twoPieceRootStandardEquiv_initBlock`, from `prefixBlockMap_blockEmb`), and for the last block
+  with right multiplication by the flipped diagram on `R^{λ_{ℓ+1}}(β)`
+  (`twoPieceRootStandardEquiv_lastBlock`, from `suffixBlockMap_lastBlackMap`).
+
+Open: the iteration from this bimodule isomorphism to Prop 5.5 for the Def 5.4 standardization
+of right modules over the block algebra of all `ℓ + 1` blocks, injectivity in the `Fᵢ`-part of
+Prop 5.5, Prop 5.6, and the results listed below.
 
 Prop 5.17 (stringy loadings classify indecomposable projectives) is proved:
 `Stendhal.maxLoadClassification` (`RedStrands/StringyClassification.lean`). Prop 5.18 (summands
@@ -792,9 +819,10 @@ Prop 5.28 (v3: Prop 5.31; `End(P⁰) ≅ T^{λ̲} ≅ R^{λ̲}` for `P⁰ = e⁰
 proved as a ring isomorphism of the corner `e⁰ T^λ e⁰` with the cyclotomic KLR algebra of the
 total weight, for the crossing parameters of §2.2: `Stendhal.redFirstCornerEquiv`
 (`RedStrands/RedFirstCorner.lean`), by repeated red-strand splitting (Cor 4.21 of v2,
-`splitRedEquiv`) down to one red strand (Prop 4.20). Deferred: the printed `Φ`-indexed form of
-Prop 5.20 (the specific filtration `P_{≥φ}/P_{>φ} ≅ S^{κφ}_{iφ}`), which strengthens the
-filtration form above.
+`splitRedEquiv`) down to one red strand (Prop 4.20). The printed `Φ`-indexed form of
+Prop 5.20 (v3: Prop 5.21; the specific filtration `P_{≥φ}/P_{>φ} ≅ S_{φ • s}`) is proved
+(`RedStrands/LabelledStandardFiltration.lean`, `phiLayerEquiv`), under the route hypothesis
+`AllFiniteDeltaInjective`, and with no hypothesis at the standard scalars (`phiLayerEquiv_std`).
 
 Cor 5.29 (v3: Cor 5.32, double centralizer of `P⁰`) is proved with no extra hypothesis:
 `Stendhal.existsUnique_eq_mul_left_redFirst` (`RedStrands/RedFirstDominantDimension.lean`), from
@@ -825,7 +853,7 @@ the standard module is the form with `s` composed with `η` (`iteratedStandardTe
 needs it: a formal Grothendieck group of finite-dimensional modules with the dual map `η`.
 
 Standardization functors (Prop 5.3, Def 5.4, Props 5.6, 5.7); simples and crystals
-(Lemma 5.9, Prop 5.11, Thms 5.14, 5.15); standard stratification (Prop 5.20 in printed `Φ`-indexed form, Lemma 5.23,
+(Lemma 5.9, Prop 5.11, Thms 5.14, 5.15); standard stratification (Lemma 5.23,
 Prop 5.24; v3 adds Lemma 5.19 and Cor 5.27, `V^λ` is a tensor product categorification); Thm 5.25 (finite
 projective resolutions); self-dual projectives and double centralizer
 (Thm 5.27, Prop 5.28, Cor 5.29, Prop 5.30); Thm 5.31 (for `sl_n`, blocks of cyclotomic
@@ -950,16 +978,17 @@ left multiplication by the stacked generator maps `e(s') V e_{κ₀}` onto the c
 step 2 at `s` with kernel the stacked local relations, so under `StackedStandard` the cut
 quotient is the standard module at `s'` (`braidCutQuotientEquivStandard`,
 `rowBraidCutEquivStandard`) and the derived braid of the partial standard at a Figure 5 row
-loading is that standard module in degree zero (`rowPartialStandard_braidIso`). One input is
-an explicit hypothesis (maintainer decision), a roadmap item to remove:
+loading is that standard module in degree zero (`rowPartialStandard_braidIso`).
 
-- **(6.9-std)** `StackedStandard`: the standard relations at the uncrossed row loading are
-  exactly the corner elements whose class modulo the higher cuts lies in the local two-red
-  standard relations stacked on the uncrossed column. Webster's reduction to `ℓ = 2` uses
-  that partial standardization of the local standard is the global standard without proof.
-  Route: the inclusion of the stacked relations is the comparison of roots under
-  juxtaposition; the converse is a factorization of `e(t') x e(u)` through juxtaposed higher
-  loadings, as in step 1 (`e_mul_mul_e_mem_commonUpperSpan`).
+`StackedStandard` (Webster's reduction to `ℓ = 2` uses without proof that partial
+standardization of the local standard is the global standard) is a theorem at every placed
+loading whose pair loading has the identity red order and no black strand left of a red strand
+(`RedStrands/BlockStackedStandard.lean`, `stackedStandard_setPairLoading`), in particular at the
+Figure 5 rows (`stackedStandard_rowFigureFive`). The inclusion of the stacked relations is the
+comparison of roots under juxtaposition (`e_mul_mul_place_mem_stendhalUpperIdeal`); the converse
+factors each generator `e(t') x e(u)` of the upper ideal through juxtaposed loadings, which lie
+strictly above the uncrossed pair loading when the root does not increase
+(`exists_blackCount_lt_of_adjacentBlockRoot_eq`, `RedStrands/BlockStackedCounts.lean`).
 
 Input side (`RedStrands/BlockPartialStandardRigid.lean`): at a rigid cut the partial standard
 is the standard module (`partialStandardEquivStandard`, from step 1), giving the ungraded
@@ -1304,10 +1333,10 @@ comparison naturally. Then Prop 6.9
 for general `ℓ` by reduction to two
 red strands, the graded bounded-above functor of Def 6.6 and its equivariance (Prop 6.7), Cor 6.10
 (proved for adjacent transpositions as `braidClass_pairSwap`, under `AllFiniteDeltaInjective` and
-`RowFigureFiveHypotheses` at every row; finite-dimensionality of `T^λ` is
+`RowFigureFiveHypotheses` (the two hypotheses of Lemma 6.8) at every row; finite-dimensionality of `T^λ` is
 `tensorProductAlgebra_finite`; removing the other hypotheses is open), Lemma 6.11 (proved for
-`w ≠ 1` as `hasCornerStandardFiltration_braidF` under the same hypotheses and
-`BraidDiagramFiltration`), Def 6.12, Cor 6.13,
+`w ≠ 1` as `hasCornerStandardFiltration_braidF` under the same hypotheses; the diagram
+filtration of the step `p_n → f_n` is proved, `BraidColumnCutFiltration.lean`), Def 6.12, Cor 6.13,
 Lemma 6.14; tilting modules (Thm 6.15); `𝔅_σ` are equivalences (Thm 6.16); the braid group
 action (Cor 6.17); Ringel duality (Cor 6.18); semi-orthogonal decompositions (Prop 6.19); the
 Serre functor (Prop 6.20).

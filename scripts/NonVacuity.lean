@@ -2891,15 +2891,13 @@ attribute [local instance 1200] Ring.toIntAlgebra in
 open DG.DegreeZero in
 /-- Webster, arXiv:1309.3796v2, §6.1, Lemma 6.11, for two red `sl₂` strands of weight `ω` and the
 crossing: the graded braid functor sends each sequence projective to a module with a standard
-filtration. The route hypotheses (`AllFiniteDeltaInjective`, `RowFigureFiveHypotheses`,
-`BraidDiagramFiltration`) are assumed here, not discharged. -/
+filtration. The route hypotheses (`AllFiniteDeltaInjective`, `RowFigureFiveHypotheses`) are
+assumed here, not discharged. -/
 example (hall : ∀ (n : ℕ) (Λ' : Fin (n + 1) → Unit →₀ ℕ),
       Stendhal.AllFiniteDeltaInjective _ Λ' params.klrSymm)
     (H : ∀ (n m : ℕ), n + 2 + m = 2 → ∀ (Ω : Fin (n + 2 + m) → Unit →₀ ℕ)
       (u : Fin (n + 2 + m) → List Unit) (hu : u (rightPos n m) = []),
       RowFigureFiveHypotheses D params Ω u hu)
-    (hD : ∀ (Λ : Fin 2 → Unit →₀ ℕ) (wt : Fin 2 → Dom R) (w : Equiv.Perm (Fin 2)),
-      BraidDiagramFiltration D params Λ wt w)
     {ν : Multiset Unit} (t : KLR.Seq (Stendhal.stendhalWeight 2 ν))
     (ht : Stendhal.IsRedOrdered t) :=
   letI : ∀ (Ω : Fin 2 → Unit →₀ ℕ) (ν : Multiset Unit) (κ : List (Fin 2)),
@@ -2909,8 +2907,40 @@ example (hall : ∀ (n : ℕ) (Λ' : Fin (n + 1) → Unit →₀ ℕ),
       DG.HasDerivedCategory (Stendhal.BraidedStendhalAlgebra.ViolOrderCorner (k := ℚ)
         (Q := fun _ _ => 0) (Λ := Ω) (ν := ν) κ)ᵐᵒᵖ := fun _ _ _ => DG.HasDerivedCategory.standard _
   letI : DG.HasDerivedCategory ℤ := DG.HasDerivedCategory.standard _
-  hasCornerStandardFiltration_braidF D params regular hall H hD (Equiv.swap 0 1) (by decide)
+  hasCornerStandardFiltration_braidF D params regular hall H (Equiv.swap 0 1) (by decide)
     level (factors 2) level_eq t ht
+
+/-- `T^λ` is finite-dimensional for three red strands (`tensorProductAlgebra_finite`). -/
+local instance (Ω : Fin 3 → Unit →₀ ℕ) (ν : Multiset Unit) :
+    Module.Finite ℚ (Stendhal.TensorProductAlgebra ℚ (fun _ _ => 0) Ω ν) :=
+  Stendhal.tensorProductAlgebra_finite Ω ν params
+
+private abbrev levelThree : Fin 3 → Unit →₀ ℕ := fun _ => Finsupp.single () 1
+private theorem levelThree_eq (r : Fin 3) (i : Unit) :
+    (levelThree r i : ℤ) = ((factors 3) r).1 (R.coroot i) := by
+  cases i
+  rw [Finsupp.single_eq_same]
+  rfl
+
+attribute [local instance 1200] Ring.toIntAlgebra in
+open DG.DegreeZero in
+/-- Webster, arXiv:1309.3796v3, Lemma 6.12, second clause, for three red `sl₂` strands of weight
+`ω`, `τ = (0 1)` and `s = (1 2)`: `𝔅(1, τ) ⋙ 𝔅(τ, τ s) ≅ 𝔅(1, τ s)`. The route hypotheses
+(`AllFiniteDeltaInjective`, `RowFigureFiveHypotheses`) are assumed here, not discharged. -/
+example (hall : ∀ (n : ℕ) (Λ' : Fin (n + 1) → Unit →₀ ℕ),
+      Stendhal.AllFiniteDeltaInjective _ Λ' params.klrSymm)
+    (H : ∀ (n m : ℕ), n + 2 + m = 3 → ∀ (Ω : Fin (n + 2 + m) → Unit →₀ ℕ)
+      (u : Fin (n + 2 + m) → List Unit) (hu : u (rightPos n m) = []),
+      RowFigureFiveHypotheses D params Ω u hu) (ν : Multiset Unit) :=
+  letI : ∀ (Ω : Fin 3 → Unit →₀ ℕ) (ν : Multiset Unit) (κ : List (Fin 3)),
+      DG.HasDerivedCategory.{0, 0} (Stendhal.BraidedStendhalAlgebra.ViolOrderCorner (k := ℚ)
+        (Q := fun _ _ => 0) (Λ := Ω) (ν := ν) κ) := fun _ _ _ => DG.HasDerivedCategory.small _
+  letI : ∀ (Ω : Fin 3 → Unit →₀ ℕ) (ν : Multiset Unit) (κ : List (Fin 3)),
+      DG.HasDerivedCategory.{0, 0} (Stendhal.BraidedStendhalAlgebra.ViolOrderCorner (k := ℚ)
+        (Q := fun _ _ => 0) (Λ := Ω) (ν := ν) κ)ᵐᵒᵖ := fun _ _ _ => DG.HasDerivedCategory.small _
+  letI : DG.HasDerivedCategory.{0, 0} ℤ := DG.HasDerivedCategory.small _
+  braidingFunctorCompIsoOfLengthAdd D params regular hall H levelThree (factors 3) levelThree_eq ν
+    (Equiv.swap 0 1) (Equiv.swap 1 2) (by decide) (by decide)
 
 end TwoFundamentalLowerings
 
@@ -6050,6 +6080,15 @@ noncomputable example (ν : Multiset Unit) :=
   redFirstEndEquiv rbRouquier rbSymm (fun _ : Fin 2 => Finsupp.single () 1) ν
 
 end RedFirstEnd
+
+/-- Webster, arXiv:1309.3796v3, Prop. 5.21 (printed `Φ`-indexed form), for `sl₂`, two red
+strands of weight `ω`, every black weight, red-ordered loading and block assignment, at the
+standard Khovanov–Lauda scalars. -/
+noncomputable example (ν : Multiset Unit) (s : Seq (stendhalWeight 2 ν)) (hs : IsRedOrdered s)
+    (g : PhiIndex s) :=
+  phiLayerEquiv_std rbRouquier rbSymm (fun _ : Fin 2 => Finsupp.single () 1)
+    (fun w => (TypeA.exists_reduced _ w).choose) (fun w => (TypeA.exists_reduced _ w).choose_spec)
+    hs g
 
 end NonVacuity.RedBlackCrossing
 
